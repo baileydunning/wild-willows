@@ -1,0 +1,72 @@
+{
+	"database": "wildwillows",
+	"table": "Biome",
+	"records": [
+		{
+			"id": "meadow",
+			"name": "Willow Meadow",
+			"order": 1,
+			"explorable": true,
+			"description": "A once-flowering meadow beside your home, now dusty and quiet. Native grasses were stripped away and the pollinators left with them.",
+			"restorationGoal": "Replant grasses and wildflowers, add water and shelter, and help 5 meadow animals return.",
+			"unlock": null,
+			"resources": ["seeds", "berries", "stones", "branches", "wildflowers", "fiber", "water", "clay", "bark"],
+			"palette": { "damaged": "#b9a37c", "healthy": "#8fbf6f" }
+		},
+		{
+			"id": "forest",
+			"name": "Old Hollow Forest",
+			"order": 2,
+			"explorable": true,
+			"description": "A logged-over woodland. The big trees are gone, the understory is bare, and the birds have moved on.",
+			"restorationGoal": "Rebuild the understory, raise nesting trees and deadwood, and welcome the forest animals back.",
+			"unlock": { "biome": "meadow", "minHealth": 80, "minAnimals": 5, "label": "Restore Willow Meadow to 80% health and help 5 meadow animals return." },
+			"resources": ["branches", "mushrooms", "pinecones", "acorns", "bark", "moss", "berries", "stones", "water"],
+			"palette": { "damaged": "#9c8a66", "healthy": "#5e9455" }
+		},
+		{
+			"id": "wetland",
+			"name": "Rushwater Wetland",
+			"order": 3,
+			"explorable": false,
+			"description": "A drained marsh. Old channels are dry, the reeds are gone, and the water that remains is murky.",
+			"restorationGoal": "Restore shallow water, reed beds, and mud banks so wetland life can return.",
+			"unlock": { "biome": "forest", "minHealth": 75, "requiresItem": "water-restoration-kit", "label": "Restore Old Hollow Forest to 75% health and craft a Water Restoration Kit." },
+			"resources": ["reeds", "clay", "mud", "clean-water", "water", "fiber"],
+			"palette": { "damaged": "#a8a07a", "healthy": "#6aa884" }
+		},
+		{
+			"id": "desert",
+			"name": "Redstone Scrubland",
+			"order": 4,
+			"explorable": false,
+			"description": "An overgrazed desert flat. Without brush or burrows, the heat keeps everything away.",
+			"restorationGoal": "Replant cactus and brush, build shade and burrows, and bring the desert back to life.",
+			"unlock": { "biome": "wetland", "minHealth": 75, "requiresTool": { "id": "basket", "tier": 2 }, "label": "Restore Rushwater Wetland to 75% health and upgrade your gathering basket." },
+			"resources": ["sand", "cactus-fruit", "stones", "clay"],
+			"palette": { "damaged": "#cbb089", "healthy": "#d6a96a" }
+		},
+		{
+			"id": "alpine",
+			"name": "Graywind Heights",
+			"order": 5,
+			"explorable": false,
+			"description": "A trampled alpine slope. The wildflower turf is worn through and the talus is silent.",
+			"restorationGoal": "Restore alpine turf, snowmelt pools, and rocky shelter for high-country animals.",
+			"unlock": { "biome": "desert", "minHealth": 80, "requiresTool": { "id": "shovel", "tier": 2 }, "label": "Restore Redstone Scrubland to 80% health and upgrade your shovel." },
+			"resources": ["alpine-flowers", "stones", "moss", "clean-water"],
+			"palette": { "damaged": "#a8a8a0", "healthy": "#9db98c" }
+		},
+		{
+			"id": "coastal",
+			"name": "Pelican Shore",
+			"order": 6,
+			"explorable": false,
+			"description": "A scoured stretch of coast. The dunes have washed out and the tidepools are empty.",
+			"restorationGoal": "Anchor the dunes, restore tidepools and kelp wrack, and reopen the shore to coastal life.",
+			"unlock": { "biome": "alpine", "minHealth": 80, "requiresItem": "migration-path-marker", "label": "Restore Graywind Heights to 80% health and craft a Migration Path Marker to restore the migration path." },
+			"resources": ["shells", "driftwood", "sand", "water"],
+			"palette": { "damaged": "#c2b9a0", "healthy": "#e8d9a8" }
+		}
+	]
+}

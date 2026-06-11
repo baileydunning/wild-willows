@@ -1,0 +1,71 @@
+import { useGame } from '../state';
+import { Icon } from './icons';
+
+const STEPS: Array<{ icon: string; title: string; text: string }> = [
+	{ icon: 'basket', title: 'Gather', text: 'Wander the preserve and collect fallen branches, seeds, stones, and flowers from gathering spots. They regrow on their own — you only ever take what nature has already let go.' },
+	{ icon: 'chest', title: 'Store', text: 'Drop materials into chests so your basket stays light — crafting can use everything in storage, wherever the chest sits.' },
+	{ icon: 'hammer', title: 'Craft', text: 'Press C or the hammer button anytime, anywhere. Turn materials into habitat: grass patches, berry bushes, ponds, log shelters, and more.' },
+	{ icon: 'pin', title: 'Rebuild', text: 'Place habitat out in the biome. Every piece raises biome health, and variety — food, water, shelter, plants, open space — raises ecological balance. Terraform with the shovel and watering can: dig a bed, water it, then interact with it to plant flowers and trees — or flood it again to shape ponds, rivers, and lakes.' },
+	{ icon: 'paw', title: 'Welcome them back', text: 'When the habitat truly supports an animal, it returns on its own. Click any animal to observe it and read about its real-world life.' },
+	{ icon: 'journal', title: 'Record & grow', text: 'Your field journal fills in with every return. Upgrade tools to gather more, restore harder habitats, and unlock the next biome.' },
+];
+
+const KEYS: Array<{ keys: string[]; does: string }> = [
+	{ keys: ['W', 'A', 'S', 'D'], does: 'Move (arrow keys work too)' },
+	{ keys: ['E'], does: 'Interact — gather, open chests, craft, doors' },
+	{ keys: ['Space'], does: 'Interact (same as E)' },
+	{ keys: ['Click'], does: 'Observe an animal · open a placed item’s menu (move / pick up)' },
+	{ keys: ['Shift', 'Click'], does: 'Instantly pick a placed object back up' },
+	{ keys: ['1', '2', '3'], does: 'Select a tool: basket, shovel, watering can' },
+	{ keys: ['C'], does: 'Open crafting — works anywhere' },
+	{ keys: ['B'], does: 'Open your basket' },
+	{ keys: ['J'], does: 'Open the field journal' },
+	{ keys: ['T'], does: 'Open tools & upgrades' },
+	{ keys: ['P'], does: 'Open the preserve overview' },
+	{ keys: ['Esc'], does: 'Close menus · cancel placing' },
+];
+
+export function HelpModal() {
+	const { helpOpen, setHelpOpen } = useGame();
+	if (!helpOpen) return null;
+	return (
+		<div className="panel-backdrop help-backdrop" onClick={() => setHelpOpen(false)}>
+			<div className="panel panel-wide" onClick={(e) => e.stopPropagation()}>
+				<div className="panel-head">
+					<h2><Icon name="help" size={20} /> How to Play</h2>
+					<button className="icon-btn" onClick={() => setHelpOpen(false)} aria-label="Close"><Icon name="close" /></button>
+				</div>
+				<div className="panel-body">
+					<div className="help-steps">
+						{STEPS.map((s, i) => (
+							<div className="help-step" key={s.title}>
+								<div className="help-step-icon"><Icon name={s.icon} size={22} /><span className="step-num">{i + 1}</span></div>
+								<div>
+									<b>{s.title}</b>
+									<p>{s.text}</p>
+								</div>
+							</div>
+						))}
+					</div>
+					<h3><Icon name="keyboard" size={16} /> Keyboard & mouse</h3>
+					<div className="key-list">
+						{KEYS.map((k) => (
+							<div className="key-row" key={k.does}>
+								<span className="kbds">
+									{k.keys.map((key) => (
+										<kbd key={key}>{key}</kbd>
+									))}
+								</span>
+								<span>{k.does}</span>
+							</div>
+						))}
+					</div>
+					<p className="muted small">
+						A gentle note: nothing here can be captured, owned, or battled. Animals visit because the habitat is right — and stay
+						comfortable as long as it stays that way.
+					</p>
+				</div>
+			</div>
+		</div>
+	);
+}

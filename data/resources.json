@@ -1,0 +1,27 @@
+{
+	"database": "wildwillows",
+	"table": "ResourceType",
+	"records": [
+		{ "id": "seeds", "name": "Seeds", "tool": "basket", "color": "#caa84e" },
+		{ "id": "berries", "name": "Berries", "tool": "basket", "color": "#a4486c" },
+		{ "id": "stones", "name": "Stones", "tool": "shovel", "color": "#9a9a98" },
+		{ "id": "branches", "name": "Fallen Branches", "tool": "basket", "color": "#8a6a44" },
+		{ "id": "wildflowers", "name": "Wildflowers", "tool": "basket", "color": "#d77bb1" },
+		{ "id": "reeds", "name": "Reeds", "tool": "basket", "color": "#7fa05a" },
+		{ "id": "clay", "name": "Clay", "tool": "shovel", "color": "#b07a52" },
+		{ "id": "water", "name": "Water", "tool": "watering-can", "color": "#6fa8d6" },
+		{ "id": "fiber", "name": "Plant Fiber", "tool": "basket", "color": "#b8b06a" },
+		{ "id": "mushrooms", "name": "Mushrooms", "tool": "basket", "color": "#c8997a" },
+		{ "id": "pinecones", "name": "Pinecones", "tool": "basket", "color": "#7d5b3a" },
+		{ "id": "acorns", "name": "Acorns", "tool": "basket", "color": "#a07a3e" },
+		{ "id": "sand", "name": "Sand", "tool": "shovel", "color": "#dcc890" },
+		{ "id": "shells", "name": "Shells", "tool": "basket", "color": "#e6d8c8" },
+		{ "id": "driftwood", "name": "Driftwood", "tool": "basket", "color": "#b0a088" },
+		{ "id": "alpine-flowers", "name": "Alpine Flowers", "tool": "basket", "color": "#9d86d9" },
+		{ "id": "cactus-fruit", "name": "Cactus Fruit", "tool": "basket", "color": "#d96a5a" },
+		{ "id": "mud", "name": "Mud", "tool": "shovel", "color": "#7a6a52" },
+		{ "id": "clean-water", "name": "Clean Water", "tool": "watering-can", "color": "#8fd0e8" },
+		{ "id": "bark", "name": "Bark", "tool": "basket", "color": "#6e553c" },
+		{ "id": "moss", "name": "Moss", "tool": "basket", "color": "#5d8a4a" }
+	]
+}

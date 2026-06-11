@@ -1,0 +1,124 @@
+# Wild Willows — Harper database schema
+# Definition tables are seeded by the dataLoader (data/*.json).
+# State tables hold per-player progress. Tables are intentionally NOT
+# @export-ed: all reads/writes flow through the validated custom
+# resources in resources.js, so the frontend is never trusted directly.
+
+# ---------- definition / seed tables ----------
+
+type Biome @table(database: "wildwillows") {
+	id: ID @primaryKey
+	name: String
+	order: Int @indexed
+	description: String
+	restorationGoal: String
+	explorable: Boolean
+}
+
+type Animal @table(database: "wildwillows") {
+	id: ID @primaryKey
+	name: String
+	biome: String @indexed
+	kind: String
+	diet: String
+	shelter: String
+	fact: String
+	rarity: String
+	featured: Boolean
+	preferredHabitat: String
+}
+
+type ResourceType @table(database: "wildwillows") {
+	id: ID @primaryKey
+	name: String
+	tool: String
+	color: String
+}
+
+type Recipe @table(database: "wildwillows") {
+	id: ID @primaryKey
+	name: String
+	category: String @indexed
+	unlockBiome: String
+}
+
+type HabitatObject @table(database: "wildwillows") {
+	id: ID @primaryKey
+	name: String
+	placement: String
+	healthValue: Int
+	description: String
+}
+
+type ToolDef @table(database: "wildwillows") {
+	id: ID @primaryKey
+	name: String
+}
+
+# ---------- player state tables ----------
+
+type Player @table(database: "wildwillows") {
+	id: ID @primaryKey
+	name: String
+	createdAt: Float
+	area: String
+	x: Float
+	y: Float
+}
+
+type BiomeState @table(database: "wildwillows") {
+	id: ID @primaryKey # `${playerId}:${biomeId}`
+	playerId: String @indexed
+	biomeId: String
+	health: Int
+	balance: Int
+	returnedCount: Int
+	unlocked: Boolean
+}
+
+type Chest @table(database: "wildwillows") {
+	id: ID @primaryKey
+	playerId: String @indexed
+	area: String
+	x: Int
+	y: Int
+	size: String
+	capacity: Int
+}
+
+type Placement @table(database: "wildwillows") {
+	id: ID @primaryKey
+	playerId: String @indexed
+	objectId: String
+	area: String
+	x: Int
+	y: Int
+	placedAt: Float
+}
+
+type Discovery @table(database: "wildwillows") {
+	id: ID @primaryKey # `${playerId}:${animalId}`
+	playerId: String @indexed
+	animalId: String
+	biomeId: String
+	comfort: Int
+	timesObserved: Int
+	firstObservedAt: Float
+	whyReturned: String
+}
+
+type NodeState @table(database: "wildwillows") {
+	id: ID @primaryKey # `${playerId}:${area}:${nodeId}`
+	playerId: String @indexed
+	harvestedAt: Float
+}
+
+type TerrainTile @table(database: "wildwillows") {
+	id: ID @primaryKey # `${playerId}:${area}:${x}:${y}`
+	playerId: String @indexed
+	area: String
+	x: Int
+	y: Int
+	type: String # 'tilled' | 'watered'
+	updatedAt: Float
+}

@@ -1,0 +1,966 @@
+{
+	"database": "wildwillows",
+	"table": "HabitatObject",
+	"records": [
+		{
+			"id": "grass-patch",
+			"name": "Grass Patch",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest",
+				"alpine"
+			],
+			"healthValue": 3,
+			"needs": [
+				"plant",
+				"open"
+			],
+			"shape": "patch",
+			"color": "#7ab35c",
+			"description": "A soft patch of regrowing grass. A first step for any bare ground."
+		},
+		{
+			"id": "native-grass-patch",
+			"name": "Native Grass Patch",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow"
+			],
+			"healthValue": 5,
+			"needs": [
+				"plant",
+				"food"
+			],
+			"shape": "patch",
+			"color": "#5f9e44",
+			"description": "Deep-rooted native bunchgrass. Food and cover for meadow life."
+		},
+		{
+			"id": "wildflower-patch",
+			"name": "Wildflower Patch",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow"
+			],
+			"healthValue": 5,
+			"needs": [
+				"plant",
+				"food"
+			],
+			"shape": "flowers",
+			"color": "#d77bb1",
+			"plantable": true,
+			"plantCost": {
+				"seeds": 2
+			},
+			"growSeconds": 45,
+			"description": "Mixed native wildflowers. Pollinators can spot it from far away."
+		},
+		{
+			"id": "poppy-patch",
+			"name": "Poppy Patch",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest"
+			],
+			"healthValue": 5,
+			"needs": [
+				"plant",
+				"food"
+			],
+			"shape": "poppies",
+			"color": "#d9534f",
+			"plantable": true,
+			"plantCost": {
+				"seeds": 2,
+				"wildflowers": 1
+			},
+			"growSeconds": 45,
+			"description": "Bright field poppies, grown from seed in a watered bed."
+		},
+		{
+			"id": "sunflower-patch",
+			"name": "Sunflower Patch",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow"
+			],
+			"healthValue": 6,
+			"needs": [
+				"plant",
+				"food"
+			],
+			"shape": "sunflowers",
+			"color": "#e3c75f",
+			"plantable": true,
+			"plantCost": {
+				"seeds": 3
+			},
+			"growSeconds": 60,
+			"description": "Tall sunflowers that feed seed-eating birds all season."
+		},
+		{
+			"id": "lupine-patch",
+			"name": "Lupine Patch",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"alpine"
+			],
+			"healthValue": 5,
+			"needs": [
+				"plant",
+				"food"
+			],
+			"shape": "lupines",
+			"color": "#7d6b9e",
+			"plantable": true,
+			"plantCost": {
+				"seeds": 2,
+				"fiber": 1
+			},
+			"growSeconds": 50,
+			"description": "Spires of blue lupine that fix the soil as they bloom."
+		},
+		{
+			"id": "willow-tree",
+			"name": "Willow Tree",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland"
+			],
+			"healthValue": 9,
+			"needs": [
+				"shelter",
+				"plant"
+			],
+			"shape": "willow",
+			"color": "#6b9152",
+			"plantable": true,
+			"plantCost": {
+				"branches": 2,
+				"seeds": 2
+			},
+			"growSeconds": 90,
+			"description": "The preserve's namesake — a graceful willow grown from a watered bed."
+		},
+		{
+			"id": "oak-tree",
+			"name": "Oak Tree",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest"
+			],
+			"healthValue": 8,
+			"needs": [
+				"shelter",
+				"plant",
+				"food"
+			],
+			"shape": "oak",
+			"color": "#4a6b3a",
+			"plantable": true,
+			"plantCost": {
+				"acorns": 2
+			},
+			"growSeconds": 90,
+			"description": "An acorn-grown oak. Squirrels and jays will thank you for decades."
+		},
+		{
+			"id": "pine-tree",
+			"name": "Pine Tree",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest",
+				"alpine"
+			],
+			"healthValue": 8,
+			"needs": [
+				"shelter",
+				"plant"
+			],
+			"shape": "pine",
+			"color": "#3a5a44",
+			"plantable": true,
+			"plantCost": {
+				"pinecones": 2
+			},
+			"growSeconds": 90,
+			"description": "A young pine grown from a cone — evergreen shelter in any season."
+		},
+		{
+			"id": "butterfly-flowers",
+			"name": "Butterfly Flowers",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow"
+			],
+			"healthValue": 4,
+			"needs": [
+				"food",
+				"plant"
+			],
+			"shape": "flowers",
+			"color": "#e8954f",
+			"description": "Milkweed and nectar flowers, planted especially for butterflies."
+		},
+		{
+			"id": "pollinator-garden",
+			"name": "Pollinator Garden",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow"
+			],
+			"healthValue": 6,
+			"needs": [
+				"food",
+				"plant"
+			],
+			"shape": "flowers",
+			"color": "#c45ad0",
+			"description": "A dense, season-long banquet for bees and butterflies."
+		},
+		{
+			"id": "shrub",
+			"name": "Shrub",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest"
+			],
+			"healthValue": 5,
+			"needs": [
+				"shelter",
+				"plant"
+			],
+			"shape": "bush",
+			"color": "#4f7d3a",
+			"description": "A young native shrub. Quick cover for anyone passing through."
+		},
+		{
+			"id": "berry-bush",
+			"name": "Berry Bush",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest"
+			],
+			"healthValue": 6,
+			"needs": [
+				"food",
+				"plant"
+			],
+			"shape": "bush",
+			"color": "#5d3a5f",
+			"plantable": true,
+			"plantCost": {
+				"seeds": 2,
+				"berries": 2
+			},
+			"growSeconds": 70,
+			"description": "A thornless native berry bush. Songbirds, rabbits, deer, and bears all visit. Sow it in a watered bed from seeds and a few berries."
+		},
+		{
+			"id": "small-pond",
+			"name": "Small Pond",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest"
+			],
+			"healthValue": 7,
+			"needs": [
+				"water"
+			],
+			"shape": "pond",
+			"color": "#5d96c8",
+			"description": "A clay-lined pond. Clean drinking water changes everything."
+		},
+		{
+			"id": "woodland-pool",
+			"name": "Woodland Pool",
+			"placement": "outdoor",
+			"biomes": [
+				"forest"
+			],
+			"healthValue": 9,
+			"needs": [
+				"water",
+				"open"
+			],
+			"shape": "pond",
+			"color": "#4f86a8",
+			"description": "A shaded forest pool fed by a cold spring. Deer, raccoons, and salamanders all come to drink."
+		},
+		{
+			"id": "fern-spring",
+			"name": "Fern Spring",
+			"placement": "outdoor",
+			"biomes": [
+				"forest"
+			],
+			"healthValue": 8,
+			"needs": [
+				"water",
+				"plant"
+			],
+			"shape": "pool",
+			"color": "#6aa884",
+			"description": "A mossy seep ringed with ferns — damp ground that wakes the whole understory."
+		},
+		{
+			"id": "shallow-water-pool",
+			"name": "Shallow Water Pool",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland"
+			],
+			"healthValue": 6,
+			"needs": [
+				"water"
+			],
+			"shape": "pool",
+			"color": "#7fb4d8",
+			"description": "A gently sloped pool, safe for small animals to wade and drink."
+		},
+		{
+			"id": "log-shelter",
+			"name": "Log Shelter",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest"
+			],
+			"healthValue": 6,
+			"needs": [
+				"shelter"
+			],
+			"shape": "log",
+			"color": "#7a5a3a",
+			"description": "Stacked fallen logs. Small mammals, salamanders, and insects move in fast."
+		},
+		{
+			"id": "hollow-log",
+			"name": "Hollow Log",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest"
+			],
+			"healthValue": 6,
+			"needs": [
+				"shelter"
+			],
+			"shape": "log",
+			"color": "#6a4a30",
+			"description": "A fallen log carefully opened into a den. Small mammals and foxes love it."
+		},
+		{
+			"id": "rock-pile",
+			"name": "Rock Pile",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest",
+				"desert",
+				"alpine"
+			],
+			"healthValue": 4,
+			"needs": [
+				"shelter"
+			],
+			"shape": "rocks",
+			"color": "#8e8e8a",
+			"description": "Sun-warmed stones with cool gaps beneath — insects, lizards, and pika approve."
+		},
+		{
+			"id": "fallen-branch-shelter",
+			"name": "Fallen Branch Shelter",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest"
+			],
+			"healthValue": 4,
+			"needs": [
+				"shelter"
+			],
+			"shape": "log",
+			"color": "#94703f",
+			"description": "A loose brush pile. Humble, but everyone hides in it."
+		},
+		{
+			"id": "bird-perch",
+			"name": "Bird Perch",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest"
+			],
+			"healthValue": 3,
+			"needs": [
+				"shelter",
+				"open"
+			],
+			"shape": "perch",
+			"color": "#9a7448",
+			"description": "A tall snag for singing and scouting."
+		},
+		{
+			"id": "simple-path",
+			"name": "Stepping-Stone Path",
+			"placement": "both",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 1,
+			"needs": [
+				"open"
+			],
+			"shape": "path",
+			"color": "#c9b98a",
+			"description": "Flat stepping stones that keep your boots off the new growth."
+		},
+		{
+			"id": "gravel-path",
+			"name": "Gravel Path",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 1,
+			"needs": [
+				"open"
+			],
+			"shape": "gravel",
+			"color": "#a8a8a0",
+			"description": "Crunchy gravel underfoot — keeps boots off the new growth."
+		},
+		{
+			"id": "plank-path",
+			"name": "Plank Path",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 1,
+			"needs": [
+				"open"
+			],
+			"shape": "planks",
+			"color": "#a3814f",
+			"description": "Weathered boardwalk planks, kind to soft ground."
+		},
+		{
+			"id": "flagstone-path",
+			"name": "Flagstone Path",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 1,
+			"needs": [
+				"open"
+			],
+			"shape": "flagstone",
+			"color": "#9a948a",
+			"description": "Broad flat stones set into the earth."
+		},
+		{
+			"id": "mossy-path",
+			"name": "Mossy Path",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 1,
+			"needs": [
+				"open"
+			],
+			"shape": "mossy",
+			"color": "#7fa05a",
+			"description": "Old stones wearing soft green moss — the forest approves."
+		},
+		{
+			"id": "wooden-bridge",
+			"name": "Wooden Bridge",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 1,
+			"needs": [
+				"open"
+			],
+			"shape": "bridge",
+			"color": "#a3814f",
+			"bridge": true,
+			"description": "A sturdy plank bridge — place it on open water to cross your rivers and lakes."
+		},
+		{
+			"id": "wooden-fence",
+			"name": "Wooden Fence",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 1,
+			"needs": [
+				"open"
+			],
+			"shape": "fence",
+			"color": "#a3814f",
+			"description": "A low rail fence that marks quiet zones for recovering ground."
+		},
+		{
+			"id": "nesting-tree",
+			"name": "Nesting Tree",
+			"placement": "outdoor",
+			"biomes": [
+				"forest"
+			],
+			"healthValue": 8,
+			"needs": [
+				"shelter",
+				"plant"
+			],
+			"shape": "tree",
+			"color": "#3f6e38",
+			"description": "A fast-growing native tree planted for squirrels, owls, and nuthatches."
+		},
+		{
+			"id": "standing-deadwood",
+			"name": "Standing Deadwood",
+			"placement": "outdoor",
+			"biomes": [
+				"forest"
+			],
+			"healthValue": 5,
+			"needs": [
+				"shelter"
+			],
+			"shape": "deadwood",
+			"color": "#8d7a5e",
+			"description": "A safely anchored dead snag. Woodpecker real estate."
+		},
+		{
+			"id": "mushroom-log",
+			"name": "Mushroom Log",
+			"placement": "outdoor",
+			"biomes": [
+				"forest"
+			],
+			"healthValue": 5,
+			"needs": [
+				"food",
+				"shelter"
+			],
+			"shape": "log",
+			"color": "#7c6248",
+			"description": "A damp, mossy log seeded with fungi. Salamanders and slugs love the shade."
+		},
+		{
+			"id": "reed-bed",
+			"name": "Reed Bed",
+			"placement": "outdoor",
+			"biomes": [
+				"wetland"
+			],
+			"healthValue": 6,
+			"needs": [
+				"plant",
+				"shelter",
+				"food"
+			],
+			"shape": "reed",
+			"color": "#7fa05a",
+			"description": "Dense replanted reeds — nursery for frogs, dragonflies, and blackbirds."
+		},
+		{
+			"id": "mud-bank",
+			"name": "Mud Bank",
+			"placement": "outdoor",
+			"biomes": [
+				"wetland"
+			],
+			"healthValue": 5,
+			"needs": [
+				"shelter"
+			],
+			"shape": "mound",
+			"color": "#7a6a52",
+			"requiresTool": {
+				"id": "shovel",
+				"tier": 2
+			},
+			"description": "A shaped soft bank for burrowing and basking. Requires the restoration shovel."
+		},
+		{
+			"id": "nesting-platform",
+			"name": "Nesting Platform",
+			"placement": "outdoor",
+			"biomes": [
+				"wetland",
+				"coastal"
+			],
+			"healthValue": 6,
+			"needs": [
+				"shelter"
+			],
+			"shape": "platform",
+			"color": "#9a8a64",
+			"description": "A raised, quiet platform safe from floods and footsteps."
+		},
+		{
+			"id": "burrow-mound",
+			"name": "Burrow Mound",
+			"placement": "outdoor",
+			"biomes": [
+				"desert",
+				"alpine"
+			],
+			"healthValue": 5,
+			"needs": [
+				"shelter"
+			],
+			"shape": "mound",
+			"color": "#c2a070",
+			"requiresTool": {
+				"id": "shovel",
+				"tier": 2
+			},
+			"description": "A starter burrow bank for diggers. Requires the restoration shovel."
+		},
+		{
+			"id": "cactus-patch",
+			"name": "Cactus Patch",
+			"placement": "outdoor",
+			"biomes": [
+				"desert"
+			],
+			"healthValue": 6,
+			"needs": [
+				"food",
+				"plant"
+			],
+			"shape": "cactus",
+			"color": "#5e8a4a",
+			"description": "Transplanted native cactus. Fruit, moisture, and a fortress in one."
+		},
+		{
+			"id": "desert-brush",
+			"name": "Desert Brush",
+			"placement": "outdoor",
+			"biomes": [
+				"desert"
+			],
+			"healthValue": 5,
+			"needs": [
+				"plant",
+				"shelter"
+			],
+			"shape": "brush",
+			"color": "#8a8a4e",
+			"description": "Hardy scrub that throws precious shade."
+		},
+		{
+			"id": "shaded-rock-shelter",
+			"name": "Shaded Rock Shelter",
+			"placement": "outdoor",
+			"biomes": [
+				"desert"
+			],
+			"healthValue": 5,
+			"needs": [
+				"shelter"
+			],
+			"shape": "shade",
+			"color": "#a08a72",
+			"description": "Stacked slabs with a cool dark gap — shelter from the midday sun."
+		},
+		{
+			"id": "alpine-wildflower-patch",
+			"name": "Alpine Wildflower Patch",
+			"placement": "outdoor",
+			"biomes": [
+				"alpine"
+			],
+			"healthValue": 6,
+			"needs": [
+				"food",
+				"plant"
+			],
+			"shape": "flowers",
+			"color": "#9d86d9",
+			"description": "Tough little high-country flowers for alpine pollinators."
+		},
+		{
+			"id": "snowmelt-pool",
+			"name": "Snowmelt Pool",
+			"placement": "outdoor",
+			"biomes": [
+				"alpine"
+			],
+			"healthValue": 6,
+			"needs": [
+				"water"
+			],
+			"shape": "pool",
+			"color": "#8fd0e8",
+			"description": "A stone-lined pool that catches cold, clean snowmelt."
+		},
+		{
+			"id": "tidepool",
+			"name": "Tidepool",
+			"placement": "outdoor",
+			"biomes": [
+				"coastal"
+			],
+			"healthValue": 7,
+			"needs": [
+				"water",
+				"shelter"
+			],
+			"shape": "tidepool",
+			"color": "#5d96c8",
+			"description": "A restored rocky pool that holds the sea between tides."
+		},
+		{
+			"id": "dune-grass",
+			"name": "Dune Grass",
+			"placement": "outdoor",
+			"biomes": [
+				"coastal"
+			],
+			"healthValue": 5,
+			"needs": [
+				"plant",
+				"open"
+			],
+			"shape": "dunegrass",
+			"color": "#bdb670",
+			"description": "Deep-rooted grass that anchors the dunes and hides shorebird nests."
+		},
+		{
+			"id": "driftwood-shelter",
+			"name": "Driftwood Shelter",
+			"placement": "outdoor",
+			"biomes": [
+				"coastal"
+			],
+			"healthValue": 5,
+			"needs": [
+				"shelter"
+			],
+			"shape": "driftwood",
+			"color": "#b0a088",
+			"description": "Weathered driftwood stacked into beach shelter."
+		},
+		{
+			"id": "kelp-wrack",
+			"name": "Kelp Wrack",
+			"placement": "outdoor",
+			"biomes": [
+				"coastal"
+			],
+			"healthValue": 5,
+			"needs": [
+				"food"
+			],
+			"shape": "kelp",
+			"color": "#6a7a3a",
+			"description": "A protected line of washed-up kelp — a buffet for the whole beach."
+		},
+		{
+			"id": "coastal-nesting-area",
+			"name": "Coastal Nesting Area",
+			"placement": "outdoor",
+			"biomes": [
+				"coastal"
+			],
+			"healthValue": 7,
+			"needs": [
+				"shelter",
+				"open"
+			],
+			"shape": "nest",
+			"color": "#d8c8a0",
+			"description": "A roped-off quiet stretch of upper beach for nesting."
+		},
+		{
+			"id": "small-chest",
+			"name": "Small Chest",
+			"placement": "both",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "chest",
+			"color": "#8a6a44",
+			"isChest": true,
+			"chestCapacity": 60,
+			"description": "A woven-and-wood chest. Holds 60 materials. Place it near your workbench to link it."
+		},
+		{
+			"id": "medium-chest",
+			"name": "Medium Chest",
+			"placement": "both",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "chest",
+			"color": "#6e553c",
+			"isChest": true,
+			"chestCapacity": 120,
+			"description": "A sturdier chest. Holds 120 materials."
+		},
+		{
+			"id": "field-journal-stand",
+			"name": "Field Journal Stand",
+			"placement": "both",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 1,
+			"needs": [],
+			"shape": "stand",
+			"color": "#9a7448",
+			"description": "A little lectern for your field journal — read it anywhere you place one."
+		},
+		{
+			"id": "cozy-rug",
+			"name": "Picnic Rug",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "rug",
+			"color": "#b5707a",
+			"description": "A hand-woven rug for resting beside your work. Purely cozy."
+		},
+		{
+			"id": "flower-vase",
+			"name": "Potted Flowers",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "vase",
+			"color": "#7a9ac0",
+			"description": "A clay pot of meadow flowers to brighten your camp."
+		},
+		{
+			"id": "water-restoration-kit",
+			"name": "Water Restoration Kit",
+			"placement": "none",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "kit",
+			"color": "#6fa8d6",
+			"description": "Liners, filters, and channel tools — everything needed to re-water the wetland. Crafting it helps unlock Rushwater Wetland."
+		},
+		{
+			"id": "meadow-restoration-bundle",
+			"name": "Meadow Restoration Bundle",
+			"placement": "none",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "kit",
+			"color": "#8fbf6f",
+			"bundle": {
+				"grass-patch": 1,
+				"wildflower-patch": 1,
+				"shrub": 1
+			},
+			"description": "A starter kit that unpacks into a grass patch, a wildflower patch, and a shrub."
+		},
+		{
+			"id": "migration-path-marker",
+			"name": "Migration Path Marker",
+			"placement": "none",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "kit",
+			"color": "#9d86d9",
+			"description": "Cairns and markers that restore a safe migration path through the heights. Crafting it helps unlock Pelican Shore."
+		}
+	]
+}

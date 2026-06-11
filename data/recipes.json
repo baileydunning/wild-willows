@@ -1,0 +1,697 @@
+{
+	"database": "wildwillows",
+	"table": "Recipe",
+	"records": [
+		{
+			"id": "grass-patch",
+			"name": "Grass Patch",
+			"category": "habitat",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "grass-patch",
+				"qty": 1
+			},
+			"materials": {
+				"seeds": 2,
+				"fiber": 1
+			}
+		},
+		{
+			"id": "native-grass-patch",
+			"name": "Native Grass Patch",
+			"category": "habitat",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "native-grass-patch",
+				"qty": 1
+			},
+			"materials": {
+				"seeds": 4,
+				"fiber": 2,
+				"water": 1
+			}
+		},
+		{
+			"id": "wildflower-patch",
+			"name": "Wildflower Patch",
+			"category": "habitat",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "wildflower-patch",
+				"qty": 1
+			},
+			"materials": {
+				"wildflowers": 3,
+				"seeds": 2,
+				"water": 1
+			}
+		},
+		{
+			"id": "butterfly-flowers",
+			"name": "Butterfly Flowers",
+			"category": "habitat",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "butterfly-flowers",
+				"qty": 1
+			},
+			"materials": {
+				"wildflowers": 4,
+				"seeds": 1
+			}
+		},
+		{
+			"id": "pollinator-garden",
+			"name": "Pollinator Garden",
+			"category": "habitat",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "pollinator-garden",
+				"qty": 1
+			},
+			"materials": {
+				"wildflowers": 4,
+				"seeds": 3,
+				"water": 2,
+				"fiber": 1
+			}
+		},
+		{
+			"id": "shrub",
+			"name": "Shrub",
+			"category": "habitat",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "shrub",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 2,
+				"seeds": 2,
+				"water": 1
+			}
+		},
+		{
+			"id": "berry-bush",
+			"name": "Berry Bush",
+			"category": "habitat",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "berry-bush",
+				"qty": 1
+			},
+			"materials": {
+				"berries": 4,
+				"seeds": 2,
+				"water": 1
+			}
+		},
+		{
+			"id": "small-pond",
+			"name": "Small Pond",
+			"category": "habitat",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "small-pond",
+				"qty": 1
+			},
+			"materials": {
+				"stones": 6,
+				"clay": 4,
+				"water": 4
+			}
+		},
+		{
+			"id": "shallow-water-pool",
+			"name": "Shallow Water Pool",
+			"category": "habitat",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "shallow-water-pool",
+				"qty": 1
+			},
+			"materials": {
+				"clay": 3,
+				"stones": 3,
+				"water": 3
+			}
+		},
+		{
+			"id": "log-shelter",
+			"name": "Log Shelter",
+			"category": "habitat",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "log-shelter",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 6,
+				"bark": 2
+			}
+		},
+		{
+			"id": "hollow-log",
+			"name": "Hollow Log",
+			"category": "habitat",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "hollow-log",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 8,
+				"bark": 3
+			}
+		},
+		{
+			"id": "rock-pile",
+			"name": "Rock Pile",
+			"category": "habitat",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "rock-pile",
+				"qty": 1
+			},
+			"materials": {
+				"stones": 5
+			}
+		},
+		{
+			"id": "fallen-branch-shelter",
+			"name": "Fallen Branch Shelter",
+			"category": "habitat",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "fallen-branch-shelter",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 4,
+				"fiber": 2
+			}
+		},
+		{
+			"id": "bird-perch",
+			"name": "Bird Perch",
+			"category": "habitat",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "bird-perch",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 3,
+				"fiber": 1
+			}
+		},
+		{
+			"id": "simple-path",
+			"name": "Stepping-Stone Path",
+			"category": "decoration",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "simple-path",
+				"qty": 2
+			},
+			"materials": {
+				"stones": 2
+			}
+		},
+		{
+			"id": "gravel-path",
+			"name": "Gravel Path",
+			"category": "decoration",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "gravel-path",
+				"qty": 2
+			},
+			"materials": {
+				"stones": 2
+			}
+		},
+		{
+			"id": "plank-path",
+			"name": "Plank Path",
+			"category": "decoration",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "plank-path",
+				"qty": 2
+			},
+			"materials": {
+				"branches": 2
+			}
+		},
+		{
+			"id": "flagstone-path",
+			"name": "Flagstone Path",
+			"category": "decoration",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "flagstone-path",
+				"qty": 2
+			},
+			"materials": {
+				"stones": 3,
+				"clay": 1
+			}
+		},
+		{
+			"id": "mossy-path",
+			"name": "Mossy Path",
+			"category": "decoration",
+			"unlockBiome": "forest",
+			"output": {
+				"itemId": "mossy-path",
+				"qty": 2
+			},
+			"materials": {
+				"stones": 2,
+				"moss": 1
+			}
+		},
+		{
+			"id": "wooden-bridge",
+			"name": "Wooden Bridge",
+			"category": "decoration",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "wooden-bridge",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 4,
+				"stones": 1,
+				"fiber": 1
+			}
+		},
+		{
+			"id": "small-chest",
+			"name": "Small Chest",
+			"category": "storage",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "small-chest",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 5,
+				"fiber": 2,
+				"stones": 1
+			}
+		},
+		{
+			"id": "medium-chest",
+			"name": "Medium Chest",
+			"category": "storage",
+			"unlockBiome": "forest",
+			"output": {
+				"itemId": "medium-chest",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 8,
+				"bark": 3,
+				"fiber": 3
+			}
+		},
+		{
+			"id": "field-journal-stand",
+			"name": "Field Journal Stand",
+			"category": "home",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "field-journal-stand",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 4,
+				"stones": 2
+			}
+		},
+		{
+			"id": "cozy-rug",
+			"name": "Picnic Rug",
+			"category": "home",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "cozy-rug",
+				"qty": 1
+			},
+			"materials": {
+				"fiber": 6,
+				"wildflowers": 1
+			}
+		},
+		{
+			"id": "flower-vase",
+			"name": "Potted Flowers",
+			"category": "home",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "flower-vase",
+				"qty": 1
+			},
+			"materials": {
+				"clay": 3,
+				"wildflowers": 2
+			}
+		},
+		{
+			"id": "meadow-restoration-bundle",
+			"name": "Meadow Restoration Bundle",
+			"category": "kit",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "meadow-restoration-bundle",
+				"qty": 1
+			},
+			"materials": {
+				"seeds": 6,
+				"wildflowers": 4,
+				"fiber": 3,
+				"water": 2
+			}
+		},
+		{
+			"id": "nesting-tree",
+			"name": "Nesting Tree",
+			"category": "habitat",
+			"unlockBiome": "forest",
+			"output": {
+				"itemId": "nesting-tree",
+				"qty": 1
+			},
+			"materials": {
+				"acorns": 3,
+				"water": 2,
+				"clay": 1
+			}
+		},
+		{
+			"id": "woodland-pool",
+			"name": "Woodland Pool",
+			"category": "habitat",
+			"unlockBiome": "forest",
+			"output": {
+				"itemId": "woodland-pool",
+				"qty": 1
+			},
+			"materials": {
+				"clay": 4,
+				"stones": 2,
+				"water": 5
+			}
+		},
+		{
+			"id": "fern-spring",
+			"name": "Fern Spring",
+			"category": "habitat",
+			"unlockBiome": "forest",
+			"output": {
+				"itemId": "fern-spring",
+				"qty": 1
+			},
+			"materials": {
+				"moss": 3,
+				"branches": 2,
+				"water": 3
+			}
+		},
+		{
+			"id": "standing-deadwood",
+			"name": "Standing Deadwood",
+			"category": "habitat",
+			"unlockBiome": "forest",
+			"output": {
+				"itemId": "standing-deadwood",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 6,
+				"bark": 2
+			}
+		},
+		{
+			"id": "mushroom-log",
+			"name": "Mushroom Log",
+			"category": "habitat",
+			"unlockBiome": "forest",
+			"output": {
+				"itemId": "mushroom-log",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 4,
+				"mushrooms": 3,
+				"moss": 2
+			}
+		},
+		{
+			"id": "water-restoration-kit",
+			"name": "Water Restoration Kit",
+			"category": "kit",
+			"unlockBiome": "forest",
+			"output": {
+				"itemId": "water-restoration-kit",
+				"qty": 1
+			},
+			"materials": {
+				"stones": 3,
+				"clay": 4,
+				"fiber": 4,
+				"water": 6,
+				"moss": 2
+			}
+		},
+		{
+			"id": "reed-bed",
+			"name": "Reed Bed",
+			"category": "habitat",
+			"unlockBiome": "wetland",
+			"output": {
+				"itemId": "reed-bed",
+				"qty": 1
+			},
+			"materials": {
+				"reeds": 5,
+				"mud": 2
+			}
+		},
+		{
+			"id": "mud-bank",
+			"name": "Mud Bank",
+			"category": "habitat",
+			"unlockBiome": "wetland",
+			"requiresTool": {
+				"id": "shovel",
+				"tier": 2
+			},
+			"output": {
+				"itemId": "mud-bank",
+				"qty": 1
+			},
+			"materials": {
+				"mud": 6,
+				"clay": 2
+			}
+		},
+		{
+			"id": "nesting-platform",
+			"name": "Nesting Platform",
+			"category": "habitat",
+			"unlockBiome": "wetland",
+			"output": {
+				"itemId": "nesting-platform",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 6,
+				"reeds": 3
+			}
+		},
+		{
+			"id": "burrow-mound",
+			"name": "Burrow Mound",
+			"category": "habitat",
+			"unlockBiome": "desert",
+			"requiresTool": {
+				"id": "shovel",
+				"tier": 2
+			},
+			"output": {
+				"itemId": "burrow-mound",
+				"qty": 1
+			},
+			"materials": {
+				"sand": 4,
+				"clay": 2,
+				"stones": 2
+			}
+		},
+		{
+			"id": "cactus-patch",
+			"name": "Cactus Patch",
+			"category": "habitat",
+			"unlockBiome": "desert",
+			"output": {
+				"itemId": "cactus-patch",
+				"qty": 1
+			},
+			"materials": {
+				"cactus-fruit": 3,
+				"sand": 2,
+				"stones": 1
+			}
+		},
+		{
+			"id": "desert-brush",
+			"name": "Desert Brush",
+			"category": "habitat",
+			"unlockBiome": "desert",
+			"output": {
+				"itemId": "desert-brush",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 2,
+				"cactus-fruit": 1,
+				"sand": 2
+			}
+		},
+		{
+			"id": "shaded-rock-shelter",
+			"name": "Shaded Rock Shelter",
+			"category": "habitat",
+			"unlockBiome": "desert",
+			"output": {
+				"itemId": "shaded-rock-shelter",
+				"qty": 1
+			},
+			"materials": {
+				"stones": 8,
+				"sand": 2
+			}
+		},
+		{
+			"id": "alpine-wildflower-patch",
+			"name": "Alpine Wildflower Patch",
+			"category": "habitat",
+			"unlockBiome": "alpine",
+			"output": {
+				"itemId": "alpine-wildflower-patch",
+				"qty": 1
+			},
+			"materials": {
+				"alpine-flowers": 4,
+				"seeds": 1,
+				"clean-water": 1
+			}
+		},
+		{
+			"id": "snowmelt-pool",
+			"name": "Snowmelt Pool",
+			"category": "habitat",
+			"unlockBiome": "alpine",
+			"output": {
+				"itemId": "snowmelt-pool",
+				"qty": 1
+			},
+			"materials": {
+				"stones": 5,
+				"clean-water": 4
+			}
+		},
+		{
+			"id": "migration-path-marker",
+			"name": "Migration Path Marker",
+			"category": "kit",
+			"unlockBiome": "alpine",
+			"output": {
+				"itemId": "migration-path-marker",
+				"qty": 1
+			},
+			"materials": {
+				"stones": 6,
+				"alpine-flowers": 3,
+				"fiber": 2
+			}
+		},
+		{
+			"id": "tidepool",
+			"name": "Tidepool",
+			"category": "habitat",
+			"unlockBiome": "coastal",
+			"output": {
+				"itemId": "tidepool",
+				"qty": 1
+			},
+			"materials": {
+				"stones": 6,
+				"sand": 3,
+				"water": 3
+			}
+		},
+		{
+			"id": "dune-grass",
+			"name": "Dune Grass",
+			"category": "habitat",
+			"unlockBiome": "coastal",
+			"output": {
+				"itemId": "dune-grass",
+				"qty": 1
+			},
+			"materials": {
+				"seeds": 3,
+				"sand": 3,
+				"fiber": 1
+			}
+		},
+		{
+			"id": "driftwood-shelter",
+			"name": "Driftwood Shelter",
+			"category": "habitat",
+			"unlockBiome": "coastal",
+			"output": {
+				"itemId": "driftwood-shelter",
+				"qty": 1
+			},
+			"materials": {
+				"driftwood": 5,
+				"fiber": 2
+			}
+		},
+		{
+			"id": "kelp-wrack",
+			"name": "Kelp Wrack",
+			"category": "habitat",
+			"unlockBiome": "coastal",
+			"output": {
+				"itemId": "kelp-wrack",
+				"qty": 1
+			},
+			"materials": {
+				"driftwood": 2,
+				"shells": 1,
+				"water": 2
+			}
+		},
+		{
+			"id": "coastal-nesting-area",
+			"name": "Coastal Nesting Area",
+			"category": "habitat",
+			"unlockBiome": "coastal",
+			"output": {
+				"itemId": "coastal-nesting-area",
+				"qty": 1
+			},
+			"materials": {
+				"driftwood": 4,
+				"sand": 4,
+				"fiber": 2
+			}
+		}
+	]
+}

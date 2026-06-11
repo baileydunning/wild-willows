@@ -1,0 +1,15 @@
+# Wild Willows — Harper application config
+rest: true
+
+graphqlSchema:
+  files: 'schema.graphql'
+
+jsResource:
+  files: 'resources.js'
+
+dataLoader:
+  files: 'data/*.json'
+
+static:
+  files: 'web/**'
+  index: true

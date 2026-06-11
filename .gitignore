@@ -1,0 +1,5 @@
+# note: web/ (built frontend) and resources.js (built backend) are committed
+# on purpose — `harper deploy package=.` ships the directory as-is.
+node_modules/
+*.log
+.DS_Store

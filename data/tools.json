@@ -1,0 +1,66 @@
+{
+	"database": "wildwillows",
+	"table": "ToolDef",
+	"records": [
+		{
+			"id": "basket",
+			"name": "Gathering Basket",
+			"description": "For gently collecting light, renewable materials: seeds, berries, flowers, fiber, shells.",
+			"tiers": [
+				{ "tier": 1, "name": "Gathering Basket", "effect": "Carry up to 80 materials." },
+				{
+					"tier": 2,
+					"name": "Reinforced Gathering Basket",
+					"effect": "Carry up to 160 materials and gather +1 extra light material at a time.",
+					"materials": { "fiber": 8, "branches": 4, "bark": 2 },
+					"requires": { "biome": "meadow", "minHealth": 40 }
+				}
+			]
+		},
+		{
+			"id": "shovel",
+			"name": "Basic Shovel",
+			"description": "For carefully digging stones, clay, and sand, and preparing restoration ground.",
+			"tiers": [
+				{ "tier": 1, "name": "Basic Shovel", "effect": "Dig stones, clay, and sand." },
+				{
+					"tier": 2,
+					"name": "Restoration Shovel",
+					"effect": "Shape wetland mud banks and burrow mounds; gather +1 extra dug material.",
+					"materials": { "branches": 4, "stones": 6, "fiber": 2 },
+					"requires": { "biome": "meadow", "minHealth": 30 }
+				}
+			]
+		},
+		{
+			"id": "watering-can",
+			"name": "Tin Watering Can",
+			"description": "For carrying water to thirsty ground and new plantings.",
+			"tiers": [
+				{ "tier": 1, "name": "Tin Watering Can", "effect": "Collect water from springs and streams." },
+				{
+					"tier": 2,
+					"name": "Rainwater Canteen",
+					"effect": "Collect 2 water at a time — restore dry ground more efficiently.",
+					"materials": { "clay": 6, "fiber": 3, "water": 4 },
+					"requires": { "biome": "meadow", "minHealth": 30 }
+				}
+			]
+		},
+		{
+			"id": "field-journal",
+			"name": "Field Journal",
+			"description": "For observing animals and recording who has returned to the preserve.",
+			"tiers": [
+				{ "tier": 1, "name": "Field Journal", "effect": "Record returned animals and basic notes." },
+				{
+					"tier": 2,
+					"name": "Expanded Field Guide",
+					"effect": "Reveals detailed return hints for animals that have not yet returned.",
+					"materials": { "bark": 4, "fiber": 4, "berries": 2 },
+					"requires": { "biome": "meadow", "minHealth": 25 }
+				}
+			]
+		}
+	]
+}
