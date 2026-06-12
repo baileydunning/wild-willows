@@ -179,21 +179,196 @@ async function bumpMetrics(player: any, deltas: Record<string, number> = {}): Pr
 }
 
 /** Shape the stored metrics into a tidy, derived view for the Metrics endpoint. */
+const DAY_MS = 86_400_000;
+const round1 = (n: number) => Math.round(n * 10) / 10;
+
 function metricsView(player: any) {
 	const now = Date.now();
 	const m = player.metrics || freshMetrics(player.createdAt || now);
 	const playSeconds = m.playSeconds || 0;
+	const sessions = m.sessions || 0;
+	const counts: Record<string, number> = m.counts || {};
+	const totalActions = Object.values(counts).reduce((a, b) => a + (b || 0), 0);
+	const createdAt = player.createdAt || m.firstSeenAt || now;
+	const lastSeenAt = m.lastSeenAt || null;
+
+	// Recency drives the engagement picture: how long ago did they last play,
+	// and how should we bucket them (active / recent / dormant).
+	const hoursSinceActive = lastSeenAt ? round1((now - lastSeenAt) / 3_600_000) : null;
+	const daysSinceJoined = Math.floor((now - createdAt) / DAY_MS);
+	let status: 'active' | 'recent' | 'dormant' = 'dormant';
+	if (hoursSinceActive != null) {
+		if (hoursSinceActive <= 24) status = 'active';
+		else if (hoursSinceActive <= 24 * 7) status = 'recent';
+	}
+
 	return {
 		playerId: player.id,
 		name: player.name,
-		createdAt: player.createdAt || m.firstSeenAt || null,
-		firstSeenAt: m.firstSeenAt || player.createdAt || null,
-		lastSeenAt: m.lastSeenAt || null,
-		sessions: m.sessions || 0,
+		createdAt,
+		firstSeenAt: m.firstSeenAt || createdAt,
+		lastSeenAt,
+		daysSinceJoined,
+		hoursSinceActive,
+		status,
+		isNewToday: now - createdAt <= DAY_MS,
+		// time + sessions
+		sessions,
 		playSeconds,
 		playMinutes: Math.round(playSeconds / 60),
-		avgSessionMinutes: m.sessions ? Math.round(playSeconds / 60 / m.sessions) : 0,
-		counts: m.counts || {},
+		avgSessionMinutes: sessions ? Math.round(playSeconds / 60 / sessions) : 0,
+		// engagement intensity
+		totalActions,
+		actionsPerSession: sessions ? round1(totalActions / sessions) : 0,
+		actionsPerMinute: playSeconds > 0 ? round1(totalActions / (playSeconds / 60)) : 0,
+		// where they are in the game
+		tutorialStep: player.tutorialStep || 0,
+		currentArea: player.area || null,
+		unlockedBiomes: (player.unlockedBiomes || []).length,
+		counts,
+	};
+}
+
+/**
+ * Activation funnel flags for one player. Uses durable state where available
+ * (craftedEver, unlocked biomes, animals returned) so players who progressed
+ * before action-counting existed still register on the funnel.
+ */
+function activationFlags(view: any, biomeSummary: any, player: any) {
+	const c = view.counts || {};
+	return {
+		collected: (c.resourcesCollected || 0) > 0,
+		crafted: (c.itemsCrafted || 0) > 0 || Object.keys(player.craftedEver || {}).length > 0,
+		placed: (c.objectsPlaced || 0) > 0,
+		attractedAnimal: (biomeSummary?.totalAnimalsReturned || 0) > 0,
+		unlockedSecondBiome: (view.unlockedBiomes || 0) >= 2,
+	};
+}
+
+// --------------------------------------------------- biome health + snapshots
+// Per-biome restoration metrics, plus an on-the-fly SVG "postcard" of what each
+// area currently looks like (ground tinted by health, terrain beds, and every
+// placed object as a colored marker), returned as a base64 data URI so it drops
+// straight into an <img src> or a dashboard.
+
+const GRID_W = 30; // matches OUT_W in the client world scene
+const GRID_H = 20; // matches OUT_H
+
+const TERRAIN_COLORS: Record<string, string> = {
+	tilled: '#8a6a48',
+	watered: '#6b4f33',
+	water: '#5d96c8',
+};
+
+/** Linear blend between two #rrggbb colors (t = 0 → a, 1 → b). */
+function lerpHex(a: string, b: string, t: number): string {
+	const pa = parseInt(a.slice(1), 16);
+	const pb = parseInt(b.slice(1), 16);
+	const mix = (sh: number) => {
+		const ca = (pa >> sh) & 255;
+		const cb = (pb >> sh) & 255;
+		return Math.round(ca + (cb - ca) * clamp(t, 0, 1));
+	};
+	return '#' + [mix(16), mix(8), mix(0)].map((n) => n.toString(16).padStart(2, '0')).join('');
+}
+
+const svgEscape = (s: string) =>
+	String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+/** Render a top-down schematic of one area as an SVG string. */
+function renderBiomeSVG(d: any, biome: any, health: number, placements: any[], terrain: any[]): string {
+	const cell = 16;
+	const pad = 8;
+	const labelH = 22;
+	const W = GRID_W * cell + pad * 2;
+	const H = GRID_H * cell + pad * 2 + labelH;
+	const damaged = biome?.palette?.damaged || '#b9a37c';
+	const healthy = biome?.palette?.healthy || '#8fbf6f';
+	const ground = lerpHex(damaged, healthy, health / 100);
+	const groundDark = lerpHex(damaged, healthy, (health / 100) * 0.8);
+	const px = (x: number) => pad + x * cell;
+	const py = (y: number) => pad + y * cell;
+
+	const parts: string[] = [];
+	parts.push(`<rect x="0" y="0" width="${W}" height="${H}" rx="10" fill="${ground}"/>`);
+	// faint checkerboard for a bit of ground texture
+	for (let gy = 0; gy < GRID_H; gy++) {
+		for (let gx = 0; gx < GRID_W; gx++) {
+			if ((gx + gy) % 2 === 0) {
+				parts.push(`<rect x="${px(gx)}" y="${py(gy)}" width="${cell}" height="${cell}" fill="${groundDark}" opacity="0.22"/>`);
+			}
+		}
+	}
+	for (const tt of terrain) {
+		const c = TERRAIN_COLORS[tt.type];
+		if (!c) continue;
+		parts.push(`<rect x="${px(tt.x)}" y="${py(tt.y)}" width="${cell}" height="${cell}" rx="3" fill="${c}"/>`);
+	}
+	for (const p of placements) {
+		const def = d.object.get(p.objectId);
+		const c = def?.color || '#6b5a3a';
+		parts.push(
+			`<circle cx="${px(p.x) + cell / 2}" cy="${py(p.y) + cell / 2}" r="${cell * 0.42}" fill="${c}" stroke="#2b3321" stroke-opacity="0.35"/>`,
+		);
+	}
+	parts.push(`<rect x="0" y="${H - labelH}" width="${W}" height="${labelH}" fill="#2b3321" opacity="0.55"/>`);
+	parts.push(
+		`<text x="${pad}" y="${H - 7}" font-family="sans-serif" font-size="12" fill="#fdfaf0">${svgEscape(biome?.name || 'Area')} — ${health}% health · ${placements.length} placed</text>`,
+	);
+	return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${parts.join('')}</svg>`;
+}
+
+function svgDataUri(svg: string): string {
+	// Buffer is a Node global in the Harper runtime; reach it via globalThis so
+	// we don't need @types/node just for this.
+	const B = (globalThis as any).Buffer;
+	return 'data:image/svg+xml;base64,' + B.from(svg, 'utf8').toString('base64');
+}
+
+/**
+ * Gather per-biome restoration metrics for a player. With `images: true` each
+ * unlocked biome also gets a `snapshot` data URI rendered from its current
+ * placements and terrain.
+ */
+async function biomeMetrics(playerId: string, opts: { images?: boolean } = {}) {
+	const t = db();
+	const d = await defs();
+	const states = await byPlayer(t.BiomeState, playerId);
+	const byId = new Map(states.map((s) => [s.biomeId, s]));
+	const placements = opts.images ? await byPlayer(t.Placement, playerId) : [];
+	const terrain = opts.images ? await byPlayer(t.TerrainTile, playerId) : [];
+
+	const biomes = d.biomes.map((b: any) => {
+		const s: any = byId.get(b.id) || {};
+		const entry: any = {
+			biomeId: b.id,
+			name: b.name,
+			health: s.health || 0,
+			balance: s.balance || 0,
+			returnedCount: s.returnedCount || 0,
+			unlocked: !!s.unlocked,
+			explorable: !!b.explorable,
+		};
+		if (opts.images && s.unlocked) {
+			const pls = placements.filter((p) => p.area === b.id);
+			const ter = terrain.filter((tt) => tt.area === b.id);
+			entry.placements = pls.length;
+			entry.snapshot = svgDataUri(renderBiomeSVG(d, b, entry.health, pls, ter));
+		}
+		return entry;
+	});
+
+	return { biomes, summary: summarizeBiomes(biomes) };
+}
+
+/** Roll up a set of biome rows into headline restoration numbers. */
+function summarizeBiomes(rows: any[]) {
+	const unlocked = rows.filter((r) => r.unlocked);
+	return {
+		biomesUnlocked: unlocked.length,
+		biomesFullyRestored: unlocked.filter((r) => (r.health || 0) >= 100).length,
+		avgHealth: unlocked.length ? Math.round(unlocked.reduce((a, r) => a + (r.health || 0), 0) / unlocked.length) : 0,
+		totalAnimalsReturned: rows.reduce((a, r) => a + (r.returnedCount || 0), 0),
 	};
 }
 
@@ -1356,29 +1531,181 @@ export class Metrics extends PublicEndpoint {
 		if (id) {
 			const player = await t.Player.get(id);
 			if (!player) throw new GameError('No save found with that id', 404);
-			return { player: metricsView(player) };
+			// Per-player lookup includes full biome health + rendered area snapshots.
+			const bm = await biomeMetrics(id, { images: true });
+			const view = metricsView(player);
+			return {
+				player: {
+					...view,
+					biomeSummary: bm.summary,
+					activation: activationFlags(view, bm.summary, player),
+					biomes: bm.biomes,
+				},
+			};
 		}
 
+		// Global view stays light: biome health summaries per player, no images.
+		const now = Date.now();
 		const players = await allOf(t.Player);
-		const views = players.map(metricsView).sort((a, b) => b.playSeconds - a.playSeconds);
-		const totals: Record<string, number> = {};
-		for (const v of views) {
-			for (const [k, n] of Object.entries(v.counts)) totals[k] = (totals[k] || 0) + (n as number);
+		const allStates = await allOf(t.BiomeState);
+		const d = await defs();
+
+		const statesByPlayer = new Map<string, any[]>();
+		for (const s of allStates) {
+			const arr = statesByPlayer.get(s.playerId) || [];
+			arr.push(s);
+			statesByPlayer.set(s.playerId, arr);
 		}
+
+		const views = players
+			.map((p) => {
+				const view = metricsView(p);
+				const biomeSummary = summarizeBiomes(statesByPlayer.get(p.id) || []);
+				return { ...view, biomeSummary, activation: activationFlags(view, biomeSummary, p) };
+			})
+			.sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
+
+		const N = views.length || 1;
+		const pct = (n: number) => Math.round((n / N) * 100);
+
+		// Action totals across everyone.
+		const actionTotals: Record<string, number> = {};
+		for (const v of views) {
+			for (const [k, n] of Object.entries(v.counts)) actionTotals[k] = (actionTotals[k] || 0) + (n as number);
+		}
+
 		const totalPlaySeconds = views.reduce((acc, v) => acc + v.playSeconds, 0);
 		const totalSessions = views.reduce((acc, v) => acc + v.sessions, 0);
+		const totalActions = views.reduce((acc, v) => acc + v.totalActions, 0);
+
+		// Audience buckets by recency / recency of joining.
+		const audience = {
+			activeLast24h: views.filter((v) => v.status === 'active').length,
+			activeLast7d: views.filter((v) => v.status === 'active' || v.status === 'recent').length,
+			dormant: views.filter((v) => v.status === 'dormant').length,
+			newLast24h: views.filter((v) => now - v.createdAt <= DAY_MS).length,
+			newLast7d: views.filter((v) => now - v.createdAt <= 7 * DAY_MS).length,
+		};
+
+		// Retention: did they come back for more than one session?
+		const returningPlayers = views.filter((v) => v.sessions >= 2).length;
+
+		// Activation funnel — how far players get from first launch.
+		const funnel = {
+			created: views.length,
+			collected: views.filter((v) => v.activation.collected).length,
+			crafted: views.filter((v) => v.activation.crafted).length,
+			placed: views.filter((v) => v.activation.placed).length,
+			attractedAnimal: views.filter((v) => v.activation.attractedAnimal).length,
+			unlockedSecondBiome: views.filter((v) => v.activation.unlockedSecondBiome).length,
+		};
+		const funnelPct = {
+			collected: pct(funnel.collected),
+			crafted: pct(funnel.crafted),
+			placed: pct(funnel.placed),
+			attractedAnimal: pct(funnel.attractedAnimal),
+			unlockedSecondBiome: pct(funnel.unlockedSecondBiome),
+		};
+
+		// Where players spend time, and where they stall.
+		const areaTally: Record<string, number> = {};
+		for (const v of views) if (v.currentArea) areaTally[v.currentArea] = (areaTally[v.currentArea] || 0) + 1;
+		const mostPopularArea =
+			Object.entries(areaTally).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+
+		const perBiome = new Map<string, { players: number; healthSum: number; returned: number; fully: number }>();
+		for (const s of allStates) {
+			if (!s.unlocked) continue;
+			const e = perBiome.get(s.biomeId) || { players: 0, healthSum: 0, returned: 0, fully: 0 };
+			e.players++;
+			e.healthSum += s.health || 0;
+			e.returned += s.returnedCount || 0;
+			if ((s.health || 0) >= 100) e.fully++;
+			perBiome.set(s.biomeId, e);
+		}
+		const biomeBreakdown = d.biomes.map((b: any) => {
+			const e = perBiome.get(b.id);
+			return {
+				biomeId: b.id,
+				name: b.name,
+				playersUnlocked: e?.players || 0,
+				avgHealth: e?.players ? Math.round(e.healthSum / e.players) : 0,
+				totalAnimalsReturned: e?.returned || 0,
+				fullyRestored: e?.fully || 0,
+			};
+		});
+
+		const withBiomes = views.filter((v) => v.biomeSummary.biomesUnlocked > 0);
+		const avgBiomeHealth = withBiomes.length
+			? Math.round(withBiomes.reduce((acc, v) => acc + v.biomeSummary.avgHealth, 0) / withBiomes.length)
+			: 0;
 
 		return {
-			generatedAt: Date.now(),
+			generatedAt: now,
 			summary: {
 				players: views.length,
-				totalPlaySeconds,
-				totalPlayHours: Math.round((totalPlaySeconds / 3600) * 10) / 10,
-				totalSessions,
-				avgSessionMinutes: totalSessions ? Math.round(totalPlaySeconds / 60 / totalSessions) : 0,
-				actionTotals: totals,
+				audience,
+				engagement: {
+					totalPlayHours: round1(totalPlaySeconds / 3600),
+					totalPlaySeconds,
+					avgPlayMinutesPerPlayer: Math.round(totalPlaySeconds / 60 / N),
+					totalSessions,
+					avgSessionsPerPlayer: round1(totalSessions / N),
+					avgSessionMinutes: totalSessions ? Math.round(totalPlaySeconds / 60 / totalSessions) : 0,
+					totalActions,
+					avgActionsPerPlayer: round1(totalActions / N),
+				},
+				retention: {
+					returningPlayers,
+					returningRatePct: pct(returningPlayers),
+				},
+				progression: {
+					avgBiomeHealth,
+					biomesFullyRestored: views.reduce((acc, v) => acc + v.biomeSummary.biomesFullyRestored, 0),
+					avgUnlockedBiomes: round1(views.reduce((acc, v) => acc + v.unlockedBiomes, 0) / N),
+					mostPopularArea,
+				},
+				funnel,
+				funnelPct,
+				actionTotals,
+				biomeBreakdown,
 			},
 			players: views,
 		};
+	}
+}
+
+/**
+ * GET /BiomeSnapshot/<playerId> — generated SVG "postcards" of each unlocked
+ * area, returned both as a base64 data URI (`image`) and raw markup (`svg`).
+ * Rendered live from the player's current placements and terrain.
+ */
+export class BiomeSnapshot extends PublicEndpoint {
+	async get() {
+		const id = String((this as any).getId?.() || '').trim();
+		if (!id) throw new GameError('Add a player id to the path: /BiomeSnapshot/<playerId>');
+		await requirePlayer(id);
+		const t = db();
+		const d = await defs();
+		const states = (await byPlayer(t.BiomeState, id)).filter((s) => s.unlocked);
+		const placements = await byPlayer(t.Placement, id);
+		const terrain = await byPlayer(t.TerrainTile, id);
+
+		const areas = states.map((s) => {
+			const biome = d.biome.get(s.biomeId);
+			const pls = placements.filter((p) => p.area === s.biomeId);
+			const ter = terrain.filter((tt) => tt.area === s.biomeId);
+			const svg = renderBiomeSVG(d, biome, s.health || 0, pls, ter);
+			return {
+				area: s.biomeId,
+				name: biome?.name || s.biomeId,
+				health: s.health || 0,
+				placements: pls.length,
+				image: svgDataUri(svg),
+				svg,
+			};
+		});
+
+		return { ok: true, playerId: id, areas };
 	}
 }

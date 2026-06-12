@@ -1,0 +1,330 @@
+{
+	"info": {
+		"name": "Wild Willows API",
+		"_postman_id": "b1c0f7a2-4d3e-4f1a-9c2b-wildwillows01",
+		"description": "REST collection for the Wild Willows Harper backend (resources.js).\n\nEvery game action goes through a validated custom resource — the frontend never writes tables directly.\n\n## Getting started\n1. Run Harper locally: `npm run dev` (serves on https://localhost:9926).\n2. Harper uses a self-signed certificate, so in Postman go to **Settings → General → SSL certificate verification = OFF**, or the requests will fail with a cert error.\n3. Run **Auth → Create Player** (or **Login**) first — it auto-saves the returned `playerId` into the `playerId` collection variable, which every other request reuses.\n\n## Variables\n- `baseUrl` — API origin (default https://localhost:9926)\n- `playerId` — set automatically on create/login\n- `name`, `passcode` — credentials used by auth requests\n- `chestId` — defaults to the starter chest `pl_{{playerId}}_starter-chest`\n- `area` — current biome (meadow, forest, wetland, desert, alpine, coastal)",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"variable": [
+		{ "key": "baseUrl", "value": "https://localhost:9926", "type": "string" },
+		{ "key": "playerId", "value": "demo", "type": "string" },
+		{ "key": "name", "value": "Demo", "type": "string" },
+		{ "key": "passcode", "value": "1234", "type": "string" },
+		{ "key": "chestId", "value": "pl_demo_starter-chest", "type": "string" },
+		{ "key": "area", "value": "meadow", "type": "string" }
+	],
+	"item": [
+		{
+			"name": "Reference (read-only)",
+			"item": [
+				{
+					"name": "GameData",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{baseUrl}}/GameData/", "host": ["{{baseUrl}}"], "path": ["GameData", ""] },
+						"description": "All static game definitions: biomes, animals, resources, recipes, habitat objects, tools, and appearance options. No auth required."
+					}
+				},
+				{
+					"name": "GameState (by playerId)",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{baseUrl}}/GameState/{{playerId}}", "host": ["{{baseUrl}}"], "path": ["GameState", "{{playerId}}"] },
+						"description": "Full per-player snapshot: player record (passcode stripped), biome states, placements, chests, discoveries, node states, and terrain."
+					}
+				}
+			]
+		},
+		{
+			"name": "Auth",
+			"item": [
+				{
+					"name": "Create Player",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const j = pm.response.json();",
+									"if (j && j.playerId) {",
+									"  pm.collectionVariables.set('playerId', j.playerId);",
+									"  pm.collectionVariables.set('chestId', 'pl_' + j.playerId + '_starter-chest');",
+									"}",
+									"pm.test('created ok', () => pm.expect(j.ok).to.be.true);"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"name\": \"{{name}}\",\n  \"passcode\": \"{{passcode}}\",\n  \"appearance\": {\n    \"skin\": \"#eec39a\",\n    \"hair\": \"#6e4a33\",\n    \"outfit\": \"#4a7c59\",\n    \"hat\": \"straw\",\n    \"hairstyle\": \"short\",\n    \"body\": \"slim\"\n  }\n}"
+						},
+						"url": { "raw": "{{baseUrl}}/CreatePlayer/", "host": ["{{baseUrl}}"], "path": ["CreatePlayer", ""] },
+						"description": "Create a new save. name 2–24 chars, passcode ≥4 chars. Returns playerId + fresh state snapshot. Auto-saves playerId to the collection variable."
+					}
+				},
+				{
+					"name": "Login Player",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"const j = pm.response.json();",
+									"if (j && j.playerId) {",
+									"  pm.collectionVariables.set('playerId', j.playerId);",
+									"  pm.collectionVariables.set('chestId', 'pl_' + j.playerId + '_starter-chest');",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"name\": \"{{name}}\",\n  \"passcode\": \"{{passcode}}\"\n}" },
+						"url": { "raw": "{{baseUrl}}/LoginPlayer/", "host": ["{{baseUrl}}"], "path": ["LoginPlayer", ""] },
+						"description": "Load an existing save by name + passcode. Auto-saves playerId to the collection variable."
+					}
+				},
+				{
+					"name": "Update Appearance",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"playerId\": \"{{playerId}}\",\n  \"appearance\": {\n    \"skin\": \"#d9a06b\",\n    \"hair\": \"#a3692f\",\n    \"outfit\": \"#7a9ac0\",\n    \"hat\": \"leaf\",\n    \"hairstyle\": \"long\",\n    \"body\": \"round\"\n  }\n}" },
+						"url": { "raw": "{{baseUrl}}/UpdateAppearance/", "host": ["{{baseUrl}}"], "path": ["UpdateAppearance", ""] },
+						"description": "Change the avatar. Values are validated against GameData.appearanceOptions; invalid values fall back to defaults."
+					}
+				},
+				{
+					"name": "Delete Player",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"name\": \"{{name}}\",\n  \"passcode\": \"{{passcode}}\"\n}" },
+						"url": { "raw": "{{baseUrl}}/DeletePlayer/", "host": ["{{baseUrl}}"], "path": ["DeletePlayer", ""] },
+						"description": "Permanently delete a save and all of its records (placements, chests, biome states, discoveries, terrain). Requires the correct passcode."
+					}
+				}
+			]
+		},
+		{
+			"name": "Resources & Inventory",
+			"item": [
+				{
+					"name": "Collect Resource",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"playerId\": \"{{playerId}}\",\n  \"biomeId\": \"{{area}}\",\n  \"nodeId\": \"n0\",\n  \"resourceId\": \"seeds\"\n}" },
+						"url": { "raw": "{{baseUrl}}/CollectResource/", "host": ["{{baseUrl}}"], "path": ["CollectResource", ""] },
+						"description": "Harvest a resource node. nodeId is any stable id for that spot; it goes on cooldown (nodeRegenSeconds) after harvesting. Amount scales with tool tier and basket capacity."
+					}
+				},
+				{
+					"name": "Chest Transfer (deposit)",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"playerId\": \"{{playerId}}\",\n  \"chestId\": \"{{chestId}}\",\n  \"resourceId\": \"branches\",\n  \"qty\": 2,\n  \"direction\": \"deposit\"\n}" },
+						"url": { "raw": "{{baseUrl}}/ChestTransfer/", "host": ["{{baseUrl}}"], "path": ["ChestTransfer", ""] },
+						"description": "Move materials between basket and a chest. direction is 'deposit' or 'withdraw'. Respects basket and chest capacity."
+					}
+				},
+				{
+					"name": "Chest Transfer (withdraw)",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"playerId\": \"{{playerId}}\",\n  \"chestId\": \"{{chestId}}\",\n  \"resourceId\": \"branches\",\n  \"qty\": 1,\n  \"direction\": \"withdraw\"\n}" },
+						"url": { "raw": "{{baseUrl}}/ChestTransfer/", "host": ["{{baseUrl}}"], "path": ["ChestTransfer", ""] }
+					}
+				},
+				{
+					"name": "Discard Item",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"playerId\": \"{{playerId}}\",\n  \"kind\": \"material\",\n  \"id\": \"seeds\",\n  \"qty\": 1\n}" },
+						"url": { "raw": "{{baseUrl}}/DiscardItem/", "host": ["{{baseUrl}}"], "path": ["DiscardItem", ""] },
+						"description": "Throw away items. kind is 'material' (from inventory) or 'crafted' (from crafted-items pile)."
+					}
+				}
+			]
+		},
+		{
+			"name": "Crafting & Placement",
+			"item": [
+				{
+					"name": "Craft Item",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"playerId\": \"{{playerId}}\",\n  \"recipeId\": \"grass-patch\"\n}" },
+						"url": { "raw": "{{baseUrl}}/CraftItem/", "host": ["{{baseUrl}}"], "path": ["CraftItem", ""] },
+						"description": "Craft a habitat object from a recipe. Consumes materials from basket + chests. Examples: grass-patch, native-grass-patch, wildflower-patch, bird-perch, shrub."
+					}
+				},
+				{
+					"name": "Place Object",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"playerId\": \"{{playerId}}\",\n  \"objectId\": \"grass-patch\",\n  \"area\": \"{{area}}\",\n  \"x\": 10,\n  \"y\": 10\n}" },
+						"url": { "raw": "{{baseUrl}}/PlaceObject/", "host": ["{{baseUrl}}"], "path": ["PlaceObject", ""] },
+						"description": "Place a crafted object into a biome (x/y are tile coords 1–28 / 1–18). Triggers a biome recalc; response includes biomeState and any newAnimals that returned."
+					}
+				},
+				{
+					"name": "Move Object",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"playerId\": \"{{playerId}}\",\n  \"placementId\": \"REPLACE_WITH_PLACEMENT_ID\",\n  \"x\": 14,\n  \"y\": 11\n}" },
+						"url": { "raw": "{{baseUrl}}/MoveObject/", "host": ["{{baseUrl}}"], "path": ["MoveObject", ""] },
+						"description": "Relocate a placed object. Get placementId from GameState.placements (or a Place Object response)."
+					}
+				},
+				{
+					"name": "Remove Object",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"playerId\": \"{{playerId}}\",\n  \"placementId\": \"REPLACE_WITH_PLACEMENT_ID\"\n}" },
+						"url": { "raw": "{{baseUrl}}/RemoveObject/", "host": ["{{baseUrl}}"], "path": ["RemoveObject", ""] },
+						"description": "Pick an object back up (returns it to crafted pile) or dig up a plant (refunds planting materials)."
+					}
+				},
+				{
+					"name": "Upgrade Tool",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"playerId\": \"{{playerId}}\",\n  \"toolId\": \"basket\"\n}" },
+						"url": { "raw": "{{baseUrl}}/UpgradeTool/", "host": ["{{baseUrl}}"], "path": ["UpgradeTool", ""] },
+						"description": "Upgrade a tool to the next tier. toolId: basket, shovel, watering-can, field-journal. May require biome health and materials."
+					}
+				}
+			]
+		},
+		{
+			"name": "Terraform & Planting",
+			"item": [
+				{
+					"name": "Terraform (dig)",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"playerId\": \"{{playerId}}\",\n  \"area\": \"{{area}}\",\n  \"x\": 11,\n  \"y\": 8,\n  \"action\": \"dig\"\n}" },
+						"url": { "raw": "{{baseUrl}}/Terraform/", "host": ["{{baseUrl}}"], "path": ["Terraform", ""] },
+						"description": "Shape the ground. action: 'dig' (prepare a soil bed, needs shovel), 'water' (tilled→watered uses 1 water, watered→open water uses 2), 'clear' (remove the tile)."
+					}
+				},
+				{
+					"name": "Terraform (water)",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"playerId\": \"{{playerId}}\",\n  \"area\": \"{{area}}\",\n  \"x\": 11,\n  \"y\": 8,\n  \"action\": \"water\"\n}" },
+						"url": { "raw": "{{baseUrl}}/Terraform/", "host": ["{{baseUrl}}"], "path": ["Terraform", ""] }
+					}
+				},
+				{
+					"name": "Plant",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"playerId\": \"{{playerId}}\",\n  \"area\": \"{{area}}\",\n  \"x\": 11,\n  \"y\": 8,\n  \"plantId\": \"poppy-patch\"\n}" },
+						"url": { "raw": "{{baseUrl}}/Plant/", "host": ["{{baseUrl}}"], "path": ["Plant", ""] },
+						"description": "Plant into a watered soil bed (dig then water the tile first). Consumes plant materials; the plant sprouts and grows in over time."
+					}
+				},
+				{
+					"name": "Recalc Biome",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"playerId\": \"{{playerId}}\",\n  \"biomeId\": \"{{area}}\"\n}" },
+						"url": { "raw": "{{baseUrl}}/RecalcBiome/", "host": ["{{baseUrl}}"], "path": ["RecalcBiome", ""] },
+						"description": "Force a recalculation of biome health, balance, and animal returns (normally runs automatically on every change)."
+					}
+				}
+			]
+		},
+		{
+			"name": "Animals",
+			"item": [
+				{
+					"name": "Observe Animal",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"playerId\": \"{{playerId}}\",\n  \"animalId\": \"cottontail-rabbit\"\n}" },
+						"url": { "raw": "{{baseUrl}}/ObserveAnimal/", "host": ["{{baseUrl}}"], "path": ["ObserveAnimal", ""] },
+						"description": "Log an observation of an animal that has already returned. Increments timesObserved and the animalsObserved metric."
+					}
+				}
+			]
+		},
+		{
+			"name": "Session & Metrics",
+			"item": [
+				{
+					"name": "Sync Player (position)",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"playerId\": \"{{playerId}}\",\n  \"x\": 10.5,\n  \"y\": 6.5,\n  \"area\": \"{{area}}\",\n  \"tutorialStep\": 1\n}" },
+						"url": { "raw": "{{baseUrl}}/SyncPlayer/", "host": ["{{baseUrl}}"], "path": ["SyncPlayer", ""] },
+						"description": "Persist the player's position / current area / tutorial step (the movement save point). area must be unlocked and explorable."
+					}
+				},
+				{
+					"name": "Heartbeat",
+					"request": {
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": { "mode": "raw", "raw": "{\n  \"playerId\": \"{{playerId}}\"\n}" },
+						"url": { "raw": "{{baseUrl}}/Heartbeat/", "host": ["{{baseUrl}}"], "path": ["Heartbeat", ""] },
+						"description": "Client pings this on a timer while playing. Accrues playSeconds (capped per beat) and counts a new session after a gap. Returns the updated metrics view."
+					}
+				},
+				{
+					"name": "Metrics (global summary)",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{baseUrl}}/Metrics/", "host": ["{{baseUrl}}"], "path": ["Metrics", ""] },
+						"description": "Global analytics dashboard. summary contains:\n- **audience**: activeLast24h, activeLast7d, dormant, newLast24h, newLast7d (DAU/WAU-style buckets)\n- **engagement**: total/avg play hours, sessions, actions, avg actions per player\n- **retention**: returningPlayers (2+ sessions) and returningRatePct\n- **progression**: avgBiomeHealth, biomesFullyRestored, avgUnlockedBiomes, mostPopularArea\n- **funnel** / **funnelPct**: activation funnel (created → collected → crafted → placed → attractedAnimal → unlockedSecondBiome), counts and % of players\n- **actionTotals**: summed action counters\n- **biomeBreakdown**: per-biome playersUnlocked, avgHealth, totalAnimalsReturned, fullyRestored — shows where players progress vs. stall\n\nplayers[] is a leaderboard sorted by most-recently-active, each with engagement, recency (status, hoursSinceActive), progression, and an activation object."
+					}
+				},
+				{
+					"name": "Metrics (single player)",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{baseUrl}}/Metrics/{{playerId}}", "host": ["{{baseUrl}}"], "path": ["Metrics", "{{playerId}}"] },
+						"description": "One player's full profile: play time/sessions, engagement intensity (totalActions, actionsPerSession, actionsPerMinute), recency (status, daysSinceJoined, hoursSinceActive, isNewToday), progression (tutorialStep, currentArea, unlockedBiomes), action counters, an activation object, per-biome health, a biomeSummary, and a `snapshot` SVG data-URI image of each unlocked area."
+					}
+				},
+				{
+					"name": "Biome Snapshot (area images)",
+					"request": {
+						"method": "GET",
+						"header": [{ "key": "Accept", "value": "application/json" }],
+						"url": { "raw": "{{baseUrl}}/BiomeSnapshot/{{playerId}}", "host": ["{{baseUrl}}"], "path": ["BiomeSnapshot", "{{playerId}}"] },
+						"description": "Generated SVG postcards of each unlocked area, rendered live from current placements + terrain. Each entry has `image` (base64 data URI — paste into a browser address bar or an <img src> to view) and `svg` (raw markup). Ground is tinted by biome health; placed objects show as colored markers."
+					}
+				}
+			]
+		}
+	]
+}
