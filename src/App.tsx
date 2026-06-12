@@ -156,6 +156,8 @@ function GameScreen() {
 				api.syncPlayer(p.x, p.y).catch(() => undefined); // quiet background save
 			}),
 			bridge.on('terraform-at', (p: any) => {
+				// flooding the tile you're standing on is blocked outright
+				if (p.block) { notify(p.block, 'info'); return; }
 				// destructive actions on a watered bed (clear / flood) confirm first
 				if (p.confirm && !window.confirm(p.confirm)) return;
 				game.terraform(p.area, p.x, p.y, p.action);

@@ -238,11 +238,20 @@ export class WorldScene extends Phaser.Scene {
 		const action = this.terraformActionFor(tx, ty);
 		const existing = this.terrainAt(tx, ty);
 		let confirm: string | undefined;
+		let block: string | undefined;
 		if (existing?.type === 'watered') {
 			if (action === 'clear') confirm = 'Clear this watered soil bed? The water used on it is lost.';
-			else if (action === 'water') confirm = 'Flood this bed into open water (costs 2 water)? Open water cannot be planted or walked on.';
+			else if (action === 'water') {
+				// Flooding the tile you're standing on would strand you in open
+				// water, so block it outright instead of asking — same tile key the
+				// movement collision uses.
+				const onTile = Math.floor(this.player.x / TILE) === tx
+					&& Math.floor((this.player.y + 8) / TILE) === ty;
+				if (onTile) block = "You're standing here — step off before flooding this bed into open water.";
+				else confirm = 'Flood this bed into open water (costs 2 water)? Open water cannot be planted or walked on.';
+			}
 		}
-		return { area: this.area, x: tx, y: ty, action, confirm };
+		return { area: this.area, x: tx, y: ty, action, confirm, block };
 	}
 
 	private tileReachable(tx: number, ty: number): boolean {
@@ -639,13 +648,30 @@ export class WorldScene extends Phaser.Scene {
 				this.add.image(x, y, stillGrowing ? 'sprout' : `obj-${def.shape || 'kit'}`).setDepth(y)
 			);
 			if (stillGrowing) {
-				img.setScale(1 + (age / growMs) * 0.6);
 				this.time.delayedCall(growMs - age + 300, () => {
 					if (this.alive) this.refreshDynamic();
 				});
 			}
+
+			// Camp fixtures stay crisp and identical; everything the player crafts
+			// and places gets a little deterministic character seeded from its
+			// placement id, so no two crafted items look exactly alike.
+			const isFixture = def.isChest || ['workbench', 'field-journal-stand', 'bed'].includes(p.objectId);
+			const growScale = stillGrowing ? 1 + (age / growMs) * 0.6 : 1;
+			if (isFixture) {
+				img.setScale(growScale);
+			} else {
+				const vr = mulberry32(hashStr(p.id));
+				img.setFlipX(vr() < 0.5);
+				img.setRotation((vr() - 0.5) * 0.12); // ±~3.5° lean
+				img.setScale(growScale * (0.9 + vr() * 0.2)); // 0.9–1.1 size
+				const shade = 0.82 + vr() * 0.18; // 0.82–1.0 brightness
+				const v = Math.round(255 * shade);
+				img.setTint((v << 16) | (v << 8) | v);
+			}
+
 			img.setInteractive({ useHandCursor: true });
-			const hasPrimaryAction = def.isChest || ['workbench', 'field-journal-stand', 'bed'].includes(p.objectId);
+			const hasPrimaryAction = isFixture;
 			img.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
 				if (this.placementObjectId || this.movingPlacementId) return;
 				// shovel digs planted things back up — materials are refunded
@@ -892,7 +918,10 @@ export class WorldScene extends Phaser.Scene {
 			const key = `${Math.floor(px / TILE)},${Math.floor((py + 8) / TILE)}`;
 			return this.waterTiles.has(key) && !this.bridgeTiles.has(key);
 		};
-		if (blocked(nx, ny)) {
+		// If we're already standing in open water (e.g. a bed was flooded
+		// underfoot), don't trap the player — let them walk straight back out.
+		const alreadyInWater = blocked(this.player.x, this.player.y);
+		if (!alreadyInWater && blocked(nx, ny)) {
 			if (!blocked(nx, this.player.y)) ny = this.player.y; // slide along the bank
 			else if (!blocked(this.player.x, ny)) nx = this.player.x;
 			else {
