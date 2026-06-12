@@ -103,11 +103,13 @@ var biomes_default = {
         "sand",
         "cactus-fruit",
         "stones",
-        "clay"
+        "clay",
+        "geode",
+        "agave-nectar"
       ],
       palette: {
-        damaged: "#cbb089",
-        healthy: "#d6a96a"
+        damaged: "#c78a52",
+        healthy: "#e08a3c"
       },
       canFlood: false
     },
@@ -1374,6 +1376,77 @@ var recipes_default = {
       materials: {
         driftwood: 2,
         sand: 1
+      }
+    },
+    {
+      id: "nectar-feeder",
+      name: "Nectar Feeder",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "nectar-feeder",
+        qty: 1
+      },
+      materials: {
+        "agave-nectar": 2,
+        branches: 2
+      }
+    },
+    {
+      id: "crystal-cairn",
+      name: "Crystal Cairn",
+      category: "structure",
+      unlockBiome: "desert",
+      output: {
+        itemId: "crystal-cairn",
+        qty: 1
+      },
+      materials: {
+        geode: 2,
+        stones: 3
+      }
+    },
+    {
+      id: "sun-totem",
+      name: "Sun Totem",
+      category: "structure",
+      unlockBiome: "desert",
+      output: {
+        itemId: "sun-totem",
+        qty: 1
+      },
+      materials: {
+        geode: 1,
+        stones: 4,
+        sand: 2
+      }
+    },
+    {
+      id: "palo-verde-tree",
+      name: "Palo Verde Tree",
+      category: "plant",
+      unlockBiome: "desert",
+      output: {
+        itemId: "palo-verde-tree",
+        qty: 1
+      },
+      materials: {
+        seeds: 2,
+        sand: 2
+      }
+    },
+    {
+      id: "shore-pine",
+      name: "Shore Pine",
+      category: "plant",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "shore-pine",
+        qty: 1
+      },
+      materials: {
+        seeds: 2,
+        sand: 2
       }
     }
   ]
@@ -3045,6 +3118,91 @@ var habitat_objects_default = {
       },
       growSeconds: 55,
       description: "A salt-hardy grey-green coastal shrub."
+    },
+    {
+      id: "nectar-feeder",
+      name: "Nectar Feeder",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 4,
+      needs: [
+        "food"
+      ],
+      shape: "feeder",
+      color: "#c0392b",
+      description: "A sweet agave-nectar feeder that draws hummingbirds and nectar bats."
+    },
+    {
+      id: "crystal-cairn",
+      name: "Crystal Cairn",
+      placement: "both",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 1,
+      needs: [],
+      shape: "geoderock",
+      color: "#a98fd0",
+      description: "A cracked geode set on stacked stones \u2014 a glittering desert landmark."
+    },
+    {
+      id: "sun-totem",
+      name: "Sun Totem",
+      placement: "both",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "totem",
+      color: "#c98a5a",
+      description: "A carved sandstone totem crowned with a desert crystal."
+    },
+    {
+      id: "palo-verde-tree",
+      name: "Palo Verde Tree",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 8,
+      needs: [
+        "shelter",
+        "plant"
+      ],
+      shape: "paloverde",
+      color: "#9ab86a",
+      plantable: true,
+      plantCost: {
+        seeds: 2,
+        sand: 1
+      },
+      growSeconds: 90,
+      description: "The green-barked desert tree \u2014 rare shade and yellow blooms for the scrubland."
+    },
+    {
+      id: "shore-pine",
+      name: "Shore Pine",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 8,
+      needs: [
+        "shelter",
+        "plant"
+      ],
+      shape: "shorepine",
+      color: "#3f6e4a",
+      plantable: true,
+      plantCost: {
+        seeds: 2,
+        sand: 1
+      },
+      growSeconds: 90,
+      description: "A salt-bent pine that anchors the back dunes and shelters shorebirds."
     }
   ]
 };
@@ -3192,27 +3350,144 @@ var resources_default = {
   database: "wildwillows",
   table: "ResourceType",
   records: [
-    { id: "seeds", name: "Seeds", tool: "basket", color: "#caa84e" },
-    { id: "berries", name: "Berries", tool: "basket", color: "#a4486c" },
-    { id: "stones", name: "Stones", tool: "shovel", color: "#9a9a98" },
-    { id: "branches", name: "Fallen Branches", tool: "basket", color: "#8a6a44" },
-    { id: "wildflowers", name: "Wildflowers", tool: "basket", color: "#d77bb1" },
-    { id: "reeds", name: "Reeds", tool: "basket", color: "#7fa05a" },
-    { id: "clay", name: "Clay", tool: "shovel", color: "#b07a52" },
-    { id: "water", name: "Water", tool: "watering-can", color: "#6fa8d6" },
-    { id: "fiber", name: "Plant Fiber", tool: "basket", color: "#b8b06a" },
-    { id: "mushrooms", name: "Mushrooms", tool: "basket", color: "#c8997a" },
-    { id: "pinecones", name: "Pinecones", tool: "basket", color: "#7d5b3a" },
-    { id: "acorns", name: "Acorns", tool: "basket", color: "#a07a3e" },
-    { id: "sand", name: "Sand", tool: "shovel", color: "#dcc890" },
-    { id: "shells", name: "Shells", tool: "basket", color: "#e6d8c8" },
-    { id: "driftwood", name: "Driftwood", tool: "basket", color: "#b0a088" },
-    { id: "alpine-flowers", name: "Alpine Flowers", tool: "basket", color: "#9d86d9" },
-    { id: "cactus-fruit", name: "Cactus Fruit", tool: "basket", color: "#d96a5a" },
-    { id: "mud", name: "Mud", tool: "shovel", color: "#7a6a52" },
-    { id: "clean-water", name: "Clean Water", tool: "watering-can", color: "#8fd0e8" },
-    { id: "bark", name: "Bark", tool: "basket", color: "#6e553c" },
-    { id: "moss", name: "Moss", tool: "basket", color: "#5d8a4a" }
+    {
+      id: "seeds",
+      name: "Seeds",
+      tool: "basket",
+      color: "#caa84e"
+    },
+    {
+      id: "berries",
+      name: "Berries",
+      tool: "basket",
+      color: "#a4486c"
+    },
+    {
+      id: "stones",
+      name: "Stones",
+      tool: "shovel",
+      color: "#9a9a98"
+    },
+    {
+      id: "branches",
+      name: "Fallen Branches",
+      tool: "basket",
+      color: "#8a6a44"
+    },
+    {
+      id: "wildflowers",
+      name: "Wildflowers",
+      tool: "basket",
+      color: "#d77bb1"
+    },
+    {
+      id: "reeds",
+      name: "Reeds",
+      tool: "basket",
+      color: "#7fa05a"
+    },
+    {
+      id: "clay",
+      name: "Clay",
+      tool: "shovel",
+      color: "#b07a52"
+    },
+    {
+      id: "water",
+      name: "Water",
+      tool: "watering-can",
+      color: "#6fa8d6"
+    },
+    {
+      id: "fiber",
+      name: "Plant Fiber",
+      tool: "basket",
+      color: "#b8b06a"
+    },
+    {
+      id: "mushrooms",
+      name: "Mushrooms",
+      tool: "basket",
+      color: "#c8997a"
+    },
+    {
+      id: "pinecones",
+      name: "Pinecones",
+      tool: "basket",
+      color: "#7d5b3a"
+    },
+    {
+      id: "acorns",
+      name: "Acorns",
+      tool: "basket",
+      color: "#a07a3e"
+    },
+    {
+      id: "sand",
+      name: "Sand",
+      tool: "shovel",
+      color: "#dcc890"
+    },
+    {
+      id: "shells",
+      name: "Shells",
+      tool: "basket",
+      color: "#e6d8c8"
+    },
+    {
+      id: "driftwood",
+      name: "Driftwood",
+      tool: "basket",
+      color: "#b0a088"
+    },
+    {
+      id: "alpine-flowers",
+      name: "Alpine Flowers",
+      tool: "basket",
+      color: "#9d86d9"
+    },
+    {
+      id: "cactus-fruit",
+      name: "Cactus Fruit",
+      tool: "basket",
+      color: "#d96a5a"
+    },
+    {
+      id: "mud",
+      name: "Mud",
+      tool: "shovel",
+      color: "#7a6a52"
+    },
+    {
+      id: "clean-water",
+      name: "Clean Water",
+      tool: "watering-can",
+      color: "#8fd0e8"
+    },
+    {
+      id: "bark",
+      name: "Bark",
+      tool: "basket",
+      color: "#6e553c"
+    },
+    {
+      id: "moss",
+      name: "Moss",
+      tool: "basket",
+      color: "#5d8a4a"
+    },
+    {
+      id: "geode",
+      name: "Geode",
+      tool: "shovel",
+      color: "#a98fd0"
+    },
+    {
+      id: "agave-nectar",
+      name: "Agave Nectar",
+      tool: "basket",
+      color: "#e3b93f"
+    }
   ]
 };
 
@@ -5656,6 +5931,26 @@ var animals_2_default = {
           "coastal-nesting-area": 1
         },
         hint: "Dune grass and a coastal nesting area."
+      }
+    },
+    {
+      id: "costas-hummingbird",
+      name: "Costa's Hummingbird",
+      biome: "desert",
+      kind: "bird",
+      rarity: "uncommon",
+      featured: false,
+      diet: "Flower nectar and tiny insects",
+      shelter: "Shrub and cactus",
+      preferredHabitat: "Blooming desert with nectar sources",
+      fact: "Males dive and flash violet throat feathers to court a mate.",
+      requirements: {
+        minHealth: 40,
+        objects: {
+          "nectar-feeder": 1,
+          "cactus-patch": 1
+        },
+        hint: "A nectar feeder beside a cactus patch."
       }
     }
   ]

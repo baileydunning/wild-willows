@@ -1520,6 +1520,26 @@
 				},
 				"hint": "Dune grass and a coastal nesting area."
 			}
+		},
+		{
+			"id": "costas-hummingbird",
+			"name": "Costa's Hummingbird",
+			"biome": "desert",
+			"kind": "bird",
+			"rarity": "uncommon",
+			"featured": false,
+			"diet": "Flower nectar and tiny insects",
+			"shelter": "Shrub and cactus",
+			"preferredHabitat": "Blooming desert with nectar sources",
+			"fact": "Males dive and flash violet throat feathers to court a mate.",
+			"requirements": {
+				"minHealth": 40,
+				"objects": {
+					"nectar-feeder": 1,
+					"cactus-patch": 1
+				},
+				"hint": "A nectar feeder beside a cactus patch."
+			}
 		}
 	]
 }

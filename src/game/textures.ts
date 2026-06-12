@@ -121,6 +121,19 @@ export function makeNodeTextures(scene: Phaser.Scene) {
 		g.lineBetween(8, 26, 6, 10).lineBetween(14, 26, 14, 6).lineBetween(20, 26, 22, 10);
 		g.fillStyle(C('#e3c75f'), 1).fillEllipse(6, 8, 6, 8).fillEllipse(14, 5, 6, 8).fillEllipse(22, 8, 6, 8);
 	});
+	n('geode', 28, 24, (g) => {
+		g.fillStyle(C('#8e8e8a'), 1).fillCircle(9, 15, 8); // rough half
+		g.fillStyle(C('#6a5a7a'), 1).fillCircle(19, 13, 9); // opened half
+		g.fillStyle(C('#a98fd0'), 1).fillCircle(19, 13, 5.5); // crystal lining
+		g.fillStyle(C('#e0d4f4'), 1).fillTriangle(16, 13, 19, 7, 22, 13).fillTriangle(19, 15, 22, 10, 25, 15);
+	});
+	n('agave-nectar', 28, 28, (g) => {
+		g.fillStyle(C('#6f8a6a'), 1); // blue-green agave rosette
+		for (const ang of [-1.2, -0.5, 0.2, 0.9, 2.4, 3.6]) g.fillTriangle(13, 20, 13 + Math.sin(ang) * 12 - 2, 20 - Math.cos(ang) * 12, 13 + Math.sin(ang) * 12 + 2, 20 - Math.cos(ang) * 12 + 3);
+		g.lineStyle(2, C('#9a8a52'), 1).lineBetween(13, 18, 21, 4); // bloom stalk
+		g.fillStyle(C('#e3b93f'), 1).fillCircle(21, 4, 3); // golden nectar bloom
+		g.fillStyle(C('#f4e08a'), 1).fillCircle(20, 3, 1.2);
+	});
 	n('berries', 30, 26, (g) => {
 		g.fillStyle(C('#4f7d3a'), 1).fillCircle(10, 17, 8).fillCircle(20, 16, 9).fillCircle(15, 10, 8);
 		g.fillStyle(C('#c14a6a'), 1).fillCircle(10, 14, 3).fillCircle(19, 11, 3).fillCircle(23, 18, 3).fillCircle(13, 20, 2.6);
@@ -699,6 +712,41 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 	o('coastalshrub', 34, 28, (g) => {
 		g.fillStyle(C('#7d8f6a'), 1).fillCircle(12, 18, 9).fillCircle(23, 16, 10).fillCircle(18, 12, 8);
 		g.fillStyle(C('#9aa882'), 1).fillCircle(14, 14, 2.4).fillCircle(22, 13, 2.4).fillCircle(19, 18, 2.4);
+	});
+
+	// --- desert exclusive crafts + biome trees ---
+	o('feeder', 26, 42, (g) => {
+		g.fillStyle(C('#6b5238'), 1).fillRect(11, 4, 3, 8); // hook
+		g.lineStyle(1.5, C('#6b5238'), 1).strokeCircle(12, 4, 3);
+		g.fillStyle(C('#c0392b'), 1).fillRoundedRect(5, 14, 16, 16, 5); // red bottle
+		g.fillStyle(C('#e3c75f'), 1).fillRoundedRect(4, 28, 18, 7, 3); // yellow base
+		g.fillStyle(C('#f4e08a'), 1).fillCircle(8, 31, 1.6).fillCircle(13, 31, 1.6).fillCircle(18, 31, 1.6); // ports
+		g.fillStyle(0xffffff, 0.4).fillEllipse(10, 19, 4, 7);
+	});
+	o('geoderock', 32, 26, (g) => {
+		g.fillStyle(C('#8e8e8a'), 1).fillCircle(10, 17, 9).fillCircle(22, 18, 8); // grey rock
+		g.fillStyle(C('#6a5a7a'), 1).fillCircle(20, 12, 7); // opened geode shell
+		g.fillStyle(C('#a98fd0'), 1).fillCircle(20, 12, 4.5); // crystal lining
+		g.fillStyle(C('#d8c8f0'), 1).fillTriangle(18, 12, 20, 7, 22, 12).fillTriangle(20, 13, 22, 9, 24, 13);
+	});
+	o('totem', 26, 46, (g) => {
+		g.fillStyle(C('#b07a52'), 1).fillRoundedRect(5, 30, 16, 14, 3); // base block
+		g.fillStyle(C('#c98a5a'), 1).fillRoundedRect(6, 18, 14, 13, 3); // middle block
+		g.fillStyle(C('#a86a44'), 1).fillRoundedRect(7, 8, 12, 11, 3); // top block
+		g.lineStyle(1, C('#6b4a32'), 1).lineBetween(6, 30, 20, 30).lineBetween(6, 18, 20, 18);
+		g.fillStyle(C('#a98fd0'), 1).fillTriangle(13, 8, 9, 2, 17, 2); // crystal top
+	});
+	o('paloverde', 34, 42, (g) => {
+		g.fillStyle(C('#7a9a4a'), 1).fillRect(15, 22, 4, 20); // green trunk
+		g.lineStyle(2, C('#7a9a4a'), 1).lineBetween(17, 28, 9, 18).lineBetween(17, 26, 25, 16);
+		g.fillStyle(C('#9ab86a'), 1).fillCircle(16, 12, 11).fillCircle(8, 18, 6).fillCircle(25, 17, 6); // airy canopy
+		g.fillStyle(C('#e3c75f'), 1).fillCircle(12, 9, 1.6).fillCircle(20, 11, 1.6).fillCircle(17, 6, 1.6); // yellow blooms
+	});
+	o('shorepine', 34, 40, (g) => {
+		g.fillStyle(C('#6b5238'), 1).fillRect(16, 24, 4, 16); // trunk
+		g.fillStyle(C('#3f6e4a'), 1); // wind-bent canopy leaning left
+		g.fillTriangle(4, 24, 26, 20, 14, 8).fillTriangle(7, 17, 25, 14, 16, 4);
+		g.fillStyle(C('#4f8a5a'), 1).fillTriangle(10, 12, 24, 10, 18, 2);
 	});
 }
 

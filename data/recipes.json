@@ -1210,6 +1210,77 @@
 				"driftwood": 2,
 				"sand": 1
 			}
+		},
+		{
+			"id": "nectar-feeder",
+			"name": "Nectar Feeder",
+			"category": "habitat",
+			"unlockBiome": "desert",
+			"output": {
+				"itemId": "nectar-feeder",
+				"qty": 1
+			},
+			"materials": {
+				"agave-nectar": 2,
+				"branches": 2
+			}
+		},
+		{
+			"id": "crystal-cairn",
+			"name": "Crystal Cairn",
+			"category": "structure",
+			"unlockBiome": "desert",
+			"output": {
+				"itemId": "crystal-cairn",
+				"qty": 1
+			},
+			"materials": {
+				"geode": 2,
+				"stones": 3
+			}
+		},
+		{
+			"id": "sun-totem",
+			"name": "Sun Totem",
+			"category": "structure",
+			"unlockBiome": "desert",
+			"output": {
+				"itemId": "sun-totem",
+				"qty": 1
+			},
+			"materials": {
+				"geode": 1,
+				"stones": 4,
+				"sand": 2
+			}
+		},
+		{
+			"id": "palo-verde-tree",
+			"name": "Palo Verde Tree",
+			"category": "plant",
+			"unlockBiome": "desert",
+			"output": {
+				"itemId": "palo-verde-tree",
+				"qty": 1
+			},
+			"materials": {
+				"seeds": 2,
+				"sand": 2
+			}
+		},
+		{
+			"id": "shore-pine",
+			"name": "Shore Pine",
+			"category": "plant",
+			"unlockBiome": "coastal",
+			"output": {
+				"itemId": "shore-pine",
+				"qty": 1
+			},
+			"materials": {
+				"seeds": 2,
+				"sand": 2
+			}
 		}
 	]
 }

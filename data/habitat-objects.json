@@ -1663,6 +1663,91 @@
 			},
 			"growSeconds": 55,
 			"description": "A salt-hardy grey-green coastal shrub."
+		},
+		{
+			"id": "nectar-feeder",
+			"name": "Nectar Feeder",
+			"placement": "outdoor",
+			"biomes": [
+				"desert"
+			],
+			"healthValue": 4,
+			"needs": [
+				"food"
+			],
+			"shape": "feeder",
+			"color": "#c0392b",
+			"description": "A sweet agave-nectar feeder that draws hummingbirds and nectar bats."
+		},
+		{
+			"id": "crystal-cairn",
+			"name": "Crystal Cairn",
+			"placement": "both",
+			"biomes": [
+				"desert"
+			],
+			"healthValue": 1,
+			"needs": [],
+			"shape": "geoderock",
+			"color": "#a98fd0",
+			"description": "A cracked geode set on stacked stones — a glittering desert landmark."
+		},
+		{
+			"id": "sun-totem",
+			"name": "Sun Totem",
+			"placement": "both",
+			"biomes": [
+				"desert"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "totem",
+			"color": "#c98a5a",
+			"description": "A carved sandstone totem crowned with a desert crystal."
+		},
+		{
+			"id": "palo-verde-tree",
+			"name": "Palo Verde Tree",
+			"placement": "outdoor",
+			"biomes": [
+				"desert"
+			],
+			"healthValue": 8,
+			"needs": [
+				"shelter",
+				"plant"
+			],
+			"shape": "paloverde",
+			"color": "#9ab86a",
+			"plantable": true,
+			"plantCost": {
+				"seeds": 2,
+				"sand": 1
+			},
+			"growSeconds": 90,
+			"description": "The green-barked desert tree — rare shade and yellow blooms for the scrubland."
+		},
+		{
+			"id": "shore-pine",
+			"name": "Shore Pine",
+			"placement": "outdoor",
+			"biomes": [
+				"coastal"
+			],
+			"healthValue": 8,
+			"needs": [
+				"shelter",
+				"plant"
+			],
+			"shape": "shorepine",
+			"color": "#3f6e4a",
+			"plantable": true,
+			"plantCost": {
+				"seeds": 2,
+				"sand": 1
+			},
+			"growSeconds": 90,
+			"description": "A salt-bent pine that anchors the back dunes and shelters shorebirds."
 		}
 	]
 }
