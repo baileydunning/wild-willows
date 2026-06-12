@@ -34,11 +34,12 @@
 			"preferredHabitat": "A thriving desert full of prey",
 			"fact": "Kit foxes rarely drink water at all, surviving almost entirely on moisture from prey.",
 			"requirements": {
-				"minHealth": 60,
+				"minHealth": 70,
 				"minBalance": 40,
 				"objects": {
 					"desert-brush": 2,
-					"burrow-mound": 1
+					"burrow-mound": 1,
+					"cactus-patch": 1
 				},
 				"animals": [
 					"kangaroo-rat",
@@ -58,10 +59,11 @@
 			"preferredHabitat": "Open desert with prey and cover",
 			"fact": "Coyote pairs duet at dusk; two voices echoing can sound like a whole chorus.",
 			"requirements": {
-				"minHealth": 65,
+				"minHealth": 75,
 				"objects": {
 					"desert-brush": 2,
-					"shaded-rock-shelter": 1
+					"shaded-rock-shelter": 1,
+					"cactus-patch": 1
 				},
 				"animals": [
 					"jackrabbit"
@@ -119,10 +121,11 @@
 			"preferredHabitat": "Open hunting ground with brushy edges",
 			"fact": "Roadrunners can sprint over 20 mph and will even take on rattlesnakes.",
 			"requirements": {
-				"minHealth": 40,
+				"minHealth": 50,
 				"objects": {
 					"desert-brush": 1,
-					"cactus-patch": 1
+					"cactus-patch": 1,
+					"rock-pile": 1
 				},
 				"animals": [
 					"horned-lizard"
@@ -142,9 +145,10 @@
 			"preferredHabitat": "Burrow mounds with open hunting space",
 			"fact": "Burrowing owls imitate a rattlesnake's rattle to scare intruders away from their burrows.",
 			"requirements": {
-				"minHealth": 45,
+				"minHealth": 55,
 				"objects": {
-					"burrow-mound": 2
+					"burrow-mound": 2,
+					"desert-brush": 1
 				},
 				"hint": "Ready-made burrows and open ground to hunt over."
 			}
@@ -160,10 +164,11 @@
 			"preferredHabitat": "Brushy cover with seed plants",
 			"fact": "Quail coveys post a lookout on a high branch while the rest of the family feeds.",
 			"requirements": {
-				"minHealth": 30,
+				"minHealth": 40,
 				"objects": {
 					"desert-brush": 2,
-					"cactus-patch": 1
+					"cactus-patch": 1,
+					"rock-pile": 1
 				},
 				"hint": "Thick brush to hide a whole covey."
 			}
@@ -179,7 +184,7 @@
 			"preferredHabitat": "Native plants with shade and burrow ground",
 			"fact": "Desert tortoises can live 80 years, spending 95% of that time underground.",
 			"requirements": {
-				"minHealth": 55,
+				"minHealth": 65,
 				"objects": {
 					"burrow-mound": 1,
 					"cactus-patch": 1,
@@ -218,9 +223,10 @@
 			"preferredHabitat": "Boulder fields with lookout rocks",
 			"fact": "Collared lizards sprint on their hind legs like tiny dinosaurs.",
 			"requirements": {
-				"minHealth": 35,
+				"minHealth": 45,
 				"objects": {
-					"rock-pile": 2
+					"rock-pile": 2,
+					"desert-brush": 1
 				},
 				"hint": "Plenty of warm rock to perch and hunt from."
 			}
@@ -236,10 +242,11 @@
 			"preferredHabitat": "Rocky shelter near busy rodent trails",
 			"fact": "A rattlesnake adds a new rattle segment each time it sheds — but segments break, so you can't count age.",
 			"requirements": {
-				"minHealth": 50,
+				"minHealth": 60,
 				"objects": {
 					"shaded-rock-shelter": 1,
-					"rock-pile": 1
+					"rock-pile": 1,
+					"desert-brush": 1
 				},
 				"animals": [
 					"kangaroo-rat"
@@ -258,9 +265,10 @@
 			"preferredHabitat": "Undisturbed ground with burrow banks",
 			"fact": "Desert tarantulas may live 25 years, most of it within a few feet of one burrow.",
 			"requirements": {
-				"minHealth": 35,
+				"minHealth": 45,
 				"objects": {
-					"burrow-mound": 1
+					"burrow-mound": 1,
+					"desert-brush": 1
 				},
 				"hint": "Quiet, diggable ground."
 			}
@@ -313,10 +321,11 @@
 			"preferredHabitat": "Steep rock above flowering turf",
 			"fact": "Mountain goats' cloven hooves have rubbery pads that grip rock like climbing shoes.",
 			"requirements": {
-				"minHealth": 60,
+				"minHealth": 70,
 				"objects": {
 					"rock-pile": 2,
-					"alpine-wildflower-patch": 2
+					"alpine-wildflower-patch": 2,
+					"heather-mat": 1
 				},
 				"hint": "Rocky terrain and restored alpine vegetation."
 			}
@@ -332,10 +341,11 @@
 			"preferredHabitat": "Open slopes near cliff safety",
 			"fact": "A bighorn ram's curled horns can weigh more than all the bones in its body combined.",
 			"requirements": {
-				"minHealth": 65,
+				"minHealth": 75,
 				"objects": {
 					"rock-pile": 2,
-					"grass-patch": 2
+					"grass-patch": 2,
+					"alpine-wildflower-patch": 1
 				},
 				"hint": "Grassy slopes with rocky escape ground."
 			}
@@ -410,10 +420,11 @@
 			"preferredHabitat": "Restored high meadows with water",
 			"fact": "Elk migrate up and down mountains with the seasons, following the 'green wave' of new growth.",
 			"requirements": {
-				"minHealth": 60,
+				"minHealth": 70,
 				"objects": {
 					"grass-patch": 2,
-					"snowmelt-pool": 1
+					"snowmelt-pool": 1,
+					"rock-pile": 1
 				},
 				"hint": "High meadow forage and snowmelt water."
 			}
@@ -429,7 +440,7 @@
 			"preferredHabitat": "High meadows in summer",
 			"fact": "Mule deer summer high in the mountains and walk the same routes back down each fall.",
 			"requirements": {
-				"minHealth": 45,
+				"minHealth": 55,
 				"objects": {
 					"grass-patch": 1,
 					"alpine-wildflower-patch": 1,
@@ -449,9 +460,10 @@
 			"preferredHabitat": "High country with small prey",
 			"fact": "Mountain foxes listen for animals moving beneath deep snow, then dive in headfirst.",
 			"requirements": {
-				"minHealth": 55,
+				"minHealth": 65,
 				"objects": {
-					"rock-pile": 1
+					"rock-pile": 1,
+					"alpine-wildflower-patch": 1
 				},
 				"animals": [
 					"pika",
@@ -471,9 +483,10 @@
 			"preferredHabitat": "Treeline edges with rocky cover",
 			"fact": "Pine martens hunt beneath the snowpack in winter, using tunnels no one else can reach.",
 			"requirements": {
-				"minHealth": 60,
+				"minHealth": 70,
 				"objects": {
-					"rock-pile": 2
+					"rock-pile": 2,
+					"alpine-wildflower-patch": 1
 				},
 				"animals": [
 					"snowshoe-hare"
@@ -493,7 +506,7 @@
 			"preferredHabitat": "Low shrubs and safe nesting cover",
 			"fact": "Ptarmigan grow feathered snowshoes on their feet each winter.",
 			"requirements": {
-				"minHealth": 45,
+				"minHealth": 55,
 				"objects": {
 					"alpine-wildflower-patch": 1,
 					"grass-patch": 1,
@@ -513,10 +526,11 @@
 			"preferredHabitat": "Treeline with seed sources",
 			"fact": "A Clark's nutcracker can remember thousands of seed cache locations months later, even under snow.",
 			"requirements": {
-				"minHealth": 40,
+				"minHealth": 50,
 				"objects": {
 					"rock-pile": 1,
-					"alpine-wildflower-patch": 1
+					"alpine-wildflower-patch": 1,
+					"heather-mat": 1
 				},
 				"hint": "A recovering treeline with seeds to cache."
 			}
@@ -535,7 +549,8 @@
 				"minHealth": 75,
 				"minBalance": 45,
 				"objects": {
-					"rock-pile": 2
+					"rock-pile": 2,
+					"alpine-wildflower-patch": 1
 				},
 				"animals": [
 					"marmot",
@@ -591,9 +606,10 @@
 			"preferredHabitat": "Connected snowmelt water",
 			"fact": "Cutthroat trout need water so cold and clean that their presence is itself a health report for the mountain.",
 			"requirements": {
-				"minHealth": 50,
+				"minHealth": 60,
 				"objects": {
-					"snowmelt-pool": 2
+					"snowmelt-pool": 2,
+					"rock-pile": 1
 				},
 				"hint": "Cold, clean, connected snowmelt pools."
 			}
@@ -628,10 +644,11 @@
 			"preferredHabitat": "Tidepools with empty shells",
 			"fact": "When a perfect shell appears, hermit crabs line up by size and swap shells in a chain.",
 			"requirements": {
-				"minHealth": 25,
+				"minHealth": 35,
 				"objects": {
 					"tidepool": 1,
-					"kelp-wrack": 1
+					"kelp-wrack": 1,
+					"dune-grass": 1
 				},
 				"hint": "Tidepools plus washed-up shells to move into."
 			}
@@ -648,9 +665,10 @@
 			"preferredHabitat": "Established tidepools with shellfish",
 			"fact": "Sea stars are keystone predators — one species' presence reshapes the whole shoreline community.",
 			"requirements": {
-				"minHealth": 40,
+				"minHealth": 50,
 				"objects": {
-					"tidepool": 2
+					"tidepool": 2,
+					"dune-grass": 1
 				},
 				"animals": [
 					"mussel"
@@ -725,10 +743,11 @@
 			"preferredHabitat": "Protected dunes with quiet nesting beach",
 			"fact": "Snowy plover chicks can run and feed themselves within hours of hatching.",
 			"requirements": {
-				"minHealth": 40,
+				"minHealth": 50,
 				"objects": {
 					"dune-grass": 2,
-					"coastal-nesting-area": 1
+					"coastal-nesting-area": 1,
+					"tidepool": 1
 				},
 				"hint": "Anchored dunes and a protected stretch of quiet beach."
 			}
@@ -762,10 +781,11 @@
 			"preferredHabitat": "Fish-rich water with quiet roosts",
 			"fact": "Brown pelicans dive from 30 feet up, with air sacs under the skin to cushion the splash.",
 			"requirements": {
-				"minHealth": 45,
+				"minHealth": 55,
 				"objects": {
 					"coastal-nesting-area": 1,
-					"tidepool": 1
+					"tidepool": 1,
+					"dune-grass": 1
 				},
 				"hint": "Quiet roosting space and fishable water."
 			}
@@ -781,9 +801,10 @@
 			"preferredHabitat": "Rocky shore with diving water",
 			"fact": "Cormorant feathers soak through on purpose — less buoyancy makes them better divers.",
 			"requirements": {
-				"minHealth": 45,
+				"minHealth": 55,
 				"objects": {
-					"tidepool": 2
+					"tidepool": 2,
+					"dune-grass": 1
 				},
 				"hint": "Healthy rocky shallows to dive in."
 			}
@@ -799,7 +820,7 @@
 			"preferredHabitat": "Clean water and undisturbed beach",
 			"fact": "Green sea turtles return to nest on the very beach where they hatched, decades later.",
 			"requirements": {
-				"minHealth": 70,
+				"minHealth": 75,
 				"objects": {
 					"coastal-nesting-area": 1,
 					"dune-grass": 2,
@@ -820,10 +841,11 @@
 			"preferredHabitat": "Calm, clean water with undisturbed shore",
 			"fact": "Harbor seals can sleep underwater, surfacing to breathe without fully waking.",
 			"requirements": {
-				"minHealth": 60,
+				"minHealth": 70,
 				"objects": {
 					"coastal-nesting-area": 1,
-					"tidepool": 1
+					"tidepool": 1,
+					"dune-grass": 1
 				},
 				"hint": "Quiet beaches and clean water — seals need calm above all."
 			}
@@ -839,11 +861,12 @@
 			"preferredHabitat": "Kelp habitat with abundant shellfish",
 			"fact": "Sea otters wrap themselves in kelp before sleeping so they don't drift away — and sometimes hold hands.",
 			"requirements": {
-				"minHealth": 70,
+				"minHealth": 75,
 				"minBalance": 45,
 				"objects": {
 					"kelp-wrack": 2,
-					"tidepool": 1
+					"tidepool": 1,
+					"dune-grass": 1
 				},
 				"animals": [
 					"mussel",
@@ -866,7 +889,8 @@
 				"minHealth": 75,
 				"objects": {
 					"tidepool": 2,
-					"kelp-wrack": 1
+					"kelp-wrack": 1,
+					"dune-grass": 1
 				},
 				"hint": "A clean, busy shoreline brings dolphins close in."
 			}
@@ -882,7 +906,7 @@
 			"preferredHabitat": "Seen offshore from a fully restored coast",
 			"fact": "Gray whales make one of the longest migrations of any mammal — up to 14,000 miles round trip.",
 			"requirements": {
-				"minHealth": 90,
+				"minHealth": 75,
 				"minBalance": 50,
 				"objects": {
 					"tidepool": 2,
@@ -904,10 +928,11 @@
 			"preferredHabitat": "Open wildflower meadow with perches",
 			"fact": "They nest late so their chicks hatch with the thistle seed crop.",
 			"requirements": {
-				"minHealth": 35,
+				"minHealth": 45,
 				"objects": {
 					"wildflower-patch": 1,
-					"bird-perch": 1
+					"bird-perch": 1,
+					"shrub": 1
 				},
 				"hint": "Plant a wildflower patch and add a bird perch."
 			}
@@ -924,7 +949,7 @@
 			"preferredHabitat": "Grassy openings with scattered perches",
 			"fact": "A pair will raise two or three broods in a single good season.",
 			"requirements": {
-				"minHealth": 45,
+				"minHealth": 55,
 				"objects": {
 					"bird-perch": 1,
 					"native-grass-patch": 1,
@@ -945,10 +970,11 @@
 			"preferredHabitat": "Clover and wildflowers",
 			"fact": "They snip neat half-circles from leaves to line their nests.",
 			"requirements": {
-				"minHealth": 30,
+				"minHealth": 40,
 				"objects": {
 					"clover-patch": 1,
-					"wildflower-patch": 1
+					"wildflower-patch": 1,
+					"shrub": 1
 				},
 				"hint": "Clover and wildflowers side by side."
 			}
@@ -965,10 +991,11 @@
 			"preferredHabitat": "Sunny flowering meadow",
 			"fact": "Painted ladies migrate thousands of miles across continents.",
 			"requirements": {
-				"minHealth": 30,
+				"minHealth": 40,
 				"objects": {
 					"butterfly-flowers": 1,
-					"clover-patch": 1
+					"clover-patch": 1,
+					"shrub": 1
 				},
 				"hint": "Butterfly flowers near a clover patch."
 			}
@@ -985,10 +1012,11 @@
 			"preferredHabitat": "Open grassland with prey and cover",
 			"fact": "Badgers and coyotes sometimes hunt the same fields together.",
 			"requirements": {
-				"minHealth": 55,
+				"minHealth": 65,
 				"objects": {
 					"brush-pile": 1,
-					"rock-pile": 1
+					"rock-pile": 1,
+					"shrub": 1
 				},
 				"animals": [
 					"meadow-vole"
@@ -1008,10 +1036,11 @@
 			"preferredHabitat": "Mature forest with standing deadwood",
 			"fact": "Their rectangular excavations later become homes for other animals.",
 			"requirements": {
-				"minHealth": 45,
+				"minHealth": 55,
 				"objects": {
 					"standing-deadwood": 1,
-					"nesting-tree": 1
+					"nesting-tree": 1,
+					"shrub": 1
 				},
 				"hint": "Standing deadwood beside a nesting tree."
 			}
@@ -1028,10 +1057,11 @@
 			"preferredHabitat": "Damp shaded understory",
 			"fact": "A tiny bird with a song of over thirty notes per second.",
 			"requirements": {
-				"minHealth": 40,
+				"minHealth": 50,
 				"objects": {
 					"fern-grove": 1,
-					"mushroom-log": 1
+					"mushroom-log": 1,
+					"shrub": 1
 				},
 				"hint": "Ferns and a mushroom log in the shade."
 			}
@@ -1048,9 +1078,10 @@
 			"preferredHabitat": "Forest pools and damp ground",
 			"fact": "Their skin carries one of the most potent natural toxins known.",
 			"requirements": {
-				"minHealth": 45,
+				"minHealth": 55,
 				"objects": {
-					"mushroom-log": 1
+					"mushroom-log": 1,
+					"shrub": 1
 				},
 				"water": {
 					"tiles": 3
@@ -1070,10 +1101,11 @@
 			"preferredHabitat": "Old forest with connected canopy",
 			"fact": "They glide between trees and help spread truffle spores.",
 			"requirements": {
-				"minHealth": 55,
+				"minHealth": 65,
 				"objects": {
 					"nesting-tree": 1,
-					"tree-stump": 1
+					"tree-stump": 1,
+					"shrub": 1
 				},
 				"animals": [
 					"tree-squirrel"
@@ -1093,9 +1125,10 @@
 			"preferredHabitat": "Wooded pools and slow water",
 			"fact": "Ducklings leap from high nest cavities the day after hatching.",
 			"requirements": {
-				"minHealth": 50,
+				"minHealth": 60,
 				"objects": {
-					"nesting-tree": 1
+					"nesting-tree": 1,
+					"shrub": 1
 				},
 				"water": {
 					"lake": 4
@@ -1115,10 +1148,11 @@
 			"preferredHabitat": "Tall marsh vegetation",
 			"fact": "It freezes with its bill skyward to vanish among the reeds.",
 			"requirements": {
-				"minHealth": 50,
+				"minHealth": 60,
 				"objects": {
 					"reed-bed": 2,
-					"cattail-stand": 1
+					"cattail-stand": 1,
+					"sedge-tussock": 1
 				},
 				"water": {
 					"tiles": 4
@@ -1138,9 +1172,10 @@
 			"preferredHabitat": "Clear flowing water with perches",
 			"fact": "They dig nesting tunnels up to two metres into a stream bank.",
 			"requirements": {
-				"minHealth": 55,
+				"minHealth": 65,
 				"objects": {
-					"nesting-platform": 1
+					"nesting-platform": 1,
+					"reed-bed": 1
 				},
 				"water": {
 					"river": 4
@@ -1163,9 +1198,10 @@
 			"preferredHabitat": "Lily-fringed shallows",
 			"fact": "Their loud snore-like call carries across the marsh at night.",
 			"requirements": {
-				"minHealth": 40,
+				"minHealth": 50,
 				"objects": {
-					"lily-pool": 1
+					"lily-pool": 1,
+					"reed-bed": 1
 				},
 				"water": {
 					"tiles": 3
@@ -1185,9 +1221,10 @@
 			"preferredHabitat": "Deep still water with mud",
 			"fact": "They can live for over a century in the same quiet pond.",
 			"requirements": {
-				"minHealth": 50,
+				"minHealth": 60,
 				"objects": {
-					"mud-bank": 1
+					"mud-bank": 1,
+					"reed-bed": 1
 				},
 				"water": {
 					"lake": 5
@@ -1207,10 +1244,11 @@
 			"preferredHabitat": "Cattail and sedge stands",
 			"fact": "Males build many dummy nests to court a mate.",
 			"requirements": {
-				"minHealth": 40,
+				"minHealth": 50,
 				"objects": {
 					"reed-bed": 2,
-					"sedge-tussock": 1
+					"sedge-tussock": 1,
+					"shallow-water-pool": 1
 				},
 				"hint": "Two reed beds and a sedge tussock."
 			}
@@ -1227,9 +1265,10 @@
 			"preferredHabitat": "Saguaro and cactus stands",
 			"fact": "Their abandoned cactus holes shelter owls and lizards later.",
 			"requirements": {
-				"minHealth": 40,
+				"minHealth": 50,
 				"objects": {
-					"cactus-patch": 2
+					"cactus-patch": 2,
+					"desert-brush": 1
 				},
 				"hint": "Two cactus patches for nesting cavities."
 			}
@@ -1246,10 +1285,11 @@
 			"preferredHabitat": "Open desert with cactus",
 			"fact": "They build football-shaped nests deep in spiny cholla.",
 			"requirements": {
-				"minHealth": 35,
+				"minHealth": 45,
 				"objects": {
 					"cactus-patch": 1,
-					"desert-brush": 1
+					"desert-brush": 1,
+					"rock-pile": 1
 				},
 				"hint": "A cactus patch and desert brush."
 			}
@@ -1266,10 +1306,11 @@
 			"preferredHabitat": "Hot sandy flats with cover",
 			"fact": "It stays active at temperatures that drive other lizards to shade.",
 			"requirements": {
-				"minHealth": 40,
+				"minHealth": 50,
 				"objects": {
 					"agave-rosette": 1,
-					"rock-pile": 1
+					"rock-pile": 1,
+					"desert-brush": 1
 				},
 				"hint": "An agave rosette and a rock pile."
 			}
@@ -1286,10 +1327,11 @@
 			"preferredHabitat": "Fine sandy desert",
 			"fact": "It survives on metabolic water and may never drink at all.",
 			"requirements": {
-				"minHealth": 40,
+				"minHealth": 50,
 				"objects": {
 					"burrow-mound": 1,
-					"desert-brush": 1
+					"desert-brush": 1,
+					"cactus-patch": 1
 				},
 				"hint": "A burrow mound near desert brush."
 			}
@@ -1306,10 +1348,11 @@
 			"preferredHabitat": "Sheltered rocky desert",
 			"fact": "Unlike most geckos it has movable eyelids and a soft voice.",
 			"requirements": {
-				"minHealth": 35,
+				"minHealth": 45,
 				"objects": {
 					"ocotillo": 1,
-					"shaded-rock-shelter": 1
+					"shaded-rock-shelter": 1,
+					"desert-brush": 1
 				},
 				"hint": "Ocotillo beside a shaded rock shelter."
 			}
@@ -1326,10 +1369,11 @@
 			"preferredHabitat": "High talus and wildflower turf",
 			"fact": "They nest higher than almost any other songbird in North America.",
 			"requirements": {
-				"minHealth": 40,
+				"minHealth": 50,
 				"objects": {
 					"alpine-wildflower-patch": 1,
-					"rock-pile": 1
+					"rock-pile": 1,
+					"heather-mat": 1
 				},
 				"hint": "Alpine wildflowers and a rock pile."
 			}
@@ -1346,10 +1390,11 @@
 			"preferredHabitat": "Open alpine meadow",
 			"fact": "It bobs its tail constantly as it walks the high meadows.",
 			"requirements": {
-				"minHealth": 40,
+				"minHealth": 50,
 				"objects": {
 					"heather-mat": 1,
-					"alpine-wildflower-patch": 1
+					"alpine-wildflower-patch": 1,
+					"rock-pile": 1
 				},
 				"hint": "A heather mat and alpine wildflowers."
 			}
@@ -1366,10 +1411,11 @@
 			"preferredHabitat": "Talus near meadows",
 			"fact": "Its coat turns pure white in winter except for a black tail tip.",
 			"requirements": {
-				"minHealth": 55,
+				"minHealth": 65,
 				"objects": {
 					"rock-pile": 1,
-					"krummholz-pine": 1
+					"krummholz-pine": 1,
+					"alpine-wildflower-patch": 1
 				},
 				"animals": [
 					"pika"
@@ -1389,9 +1435,10 @@
 			"preferredHabitat": "Snowmelt ponds and seeps",
 			"fact": "They can take years to mature in the short alpine summers.",
 			"requirements": {
-				"minHealth": 45,
+				"minHealth": 55,
 				"objects": {
-					"snowmelt-pool": 1
+					"snowmelt-pool": 1,
+					"rock-pile": 1
 				},
 				"water": {
 					"tiles": 3
@@ -1411,10 +1458,11 @@
 			"preferredHabitat": "High meadows with scattered trees",
 			"fact": "Males are an almost unreal sky-blue all over.",
 			"requirements": {
-				"minHealth": 40,
+				"minHealth": 50,
 				"objects": {
 					"krummholz-pine": 1,
-					"alpine-wildflower-patch": 1
+					"alpine-wildflower-patch": 1,
+					"rock-pile": 1
 				},
 				"hint": "A krummholz pine and alpine wildflowers."
 			}
@@ -1431,10 +1479,11 @@
 			"preferredHabitat": "Sandy surf line",
 			"fact": "They chase the retreating waves in busy little sprints.",
 			"requirements": {
-				"minHealth": 40,
+				"minHealth": 50,
 				"objects": {
 					"dune-grass": 2,
-					"tidepool": 1
+					"tidepool": 1,
+					"kelp-wrack": 1
 				},
 				"hint": "Two dune-grass plantings and a tidepool."
 			}
@@ -1451,10 +1500,11 @@
 			"preferredHabitat": "Tidepool reefs",
 			"fact": "Its long red bill pries shellfish from the rocks.",
 			"requirements": {
-				"minHealth": 45,
+				"minHealth": 55,
 				"objects": {
 					"oyster-bed": 1,
-					"tidepool": 1
+					"tidepool": 1,
+					"dune-grass": 1
 				},
 				"hint": "An oyster bed beside a tidepool."
 			}
@@ -1471,10 +1521,11 @@
 			"preferredHabitat": "Sheltered rocky intertidal",
 			"fact": "They scuttle sideways under stones when the tide pulls back.",
 			"requirements": {
-				"minHealth": 35,
+				"minHealth": 45,
 				"objects": {
 					"tidepool": 1,
-					"oyster-bed": 1
+					"oyster-bed": 1,
+					"dune-grass": 1
 				},
 				"hint": "A tidepool and an oyster bed."
 			}
@@ -1491,9 +1542,10 @@
 			"preferredHabitat": "Shallow bays with eelgrass",
 			"fact": "Whole flocks depend on eelgrass beds to fuel their migration.",
 			"requirements": {
-				"minHealth": 50,
+				"minHealth": 60,
 				"objects": {
-					"eelgrass-bed": 1
+					"eelgrass-bed": 1,
+					"dune-grass": 1
 				},
 				"water": {
 					"tiles": 4
@@ -1513,10 +1565,11 @@
 			"preferredHabitat": "Quiet sandy dunes",
 			"fact": "They nest in tiny scrapes right on the open sand.",
 			"requirements": {
-				"minHealth": 50,
+				"minHealth": 60,
 				"objects": {
 					"dune-grass": 1,
-					"coastal-nesting-area": 1
+					"coastal-nesting-area": 1,
+					"tidepool": 1
 				},
 				"hint": "Dune grass and a coastal nesting area."
 			}

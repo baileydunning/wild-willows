@@ -76,7 +76,7 @@
 			"preferredHabitat": "Healthy open meadow with browse and water",
 			"fact": "Mule deer are named for their oversized ears, which move independently like a mule's.",
 			"requirements": {
-				"minHealth": 45,
+				"minHealth": 55,
 				"objects": {
 					"shrub": 2,
 					"native-grass-patch": 2,
@@ -97,11 +97,12 @@
 			"preferredHabitat": "A thriving meadow with plenty of small animals",
 			"fact": "Red foxes use Earth's magnetic field to help judge their famous high pounce on hidden prey.",
 			"requirements": {
-				"minHealth": 55,
+				"minHealth": 65,
 				"minBalance": 40,
 				"objects": {
 					"hollow-log": 1,
-					"shrub": 2
+					"shrub": 2,
+					"wildflower-patch": 1
 				},
 				"animals": [
 					"meadow-vole",
@@ -159,10 +160,11 @@
 			"preferredHabitat": "Sunny rocks beside hunting grass",
 			"fact": "Garter snakes are mildly venomous to their tiny prey but completely harmless to people.",
 			"requirements": {
-				"minHealth": 30,
+				"minHealth": 40,
 				"objects": {
 					"rock-pile": 1,
-					"grass-patch": 1
+					"grass-patch": 1,
+					"shrub": 1
 				},
 				"animals": [
 					"meadow-vole"
@@ -181,10 +183,11 @@
 			"preferredHabitat": "Flower-rich meadow",
 			"fact": "Bumblebees 'buzz pollinate' — vibrating flowers at just the right frequency to shake pollen loose.",
 			"requirements": {
-				"minHealth": 15,
+				"minHealth": 25,
 				"objects": {
 					"wildflower-patch": 1,
-					"pollinator-garden": 1
+					"pollinator-garden": 1,
+					"shrub": 1
 				},
 				"hint": "The more kinds of flowers, the better."
 			}
@@ -236,10 +239,11 @@
 			"preferredHabitat": "Wide native grassland with song perches",
 			"fact": "The western meadowlark's flute-like song is the state bird anthem of six U.S. states.",
 			"requirements": {
-				"minHealth": 35,
+				"minHealth": 45,
 				"objects": {
 					"native-grass-patch": 2,
-					"bird-perch": 1
+					"bird-perch": 1,
+					"shrub": 1
 				},
 				"hint": "Meadowlarks need real expanses of native grass before they will nest."
 			}
@@ -255,10 +259,11 @@
 			"preferredHabitat": "Open air above water and flowers",
 			"fact": "Barn swallows build their cup nests from up to 1,000 individual beakfuls of mud.",
 			"requirements": {
-				"minHealth": 30,
+				"minHealth": 40,
 				"objects": {
 					"small-pond": 1,
-					"bird-perch": 1
+					"bird-perch": 1,
+					"shrub": 1
 				},
 				"hint": "A pond for mud and insects, and a perch to rest between flights."
 			}
@@ -274,10 +279,11 @@
 			"preferredHabitat": "A full, busy meadow seen from above",
 			"fact": "That piercing 'eagle' cry in the movies is almost always actually a red-tailed hawk.",
 			"requirements": {
-				"minHealth": 60,
+				"minHealth": 70,
 				"minBalance": 40,
 				"objects": {
-					"bird-perch": 1
+					"bird-perch": 1,
+					"shrub": 1
 				},
 				"animals": [
 					"meadow-vole",
@@ -297,10 +303,11 @@
 			"preferredHabitat": "Quiet meadow nights with rustling grass",
 			"fact": "A barn owl can strike prey in total darkness, guided by ears set at different heights.",
 			"requirements": {
-				"minHealth": 65,
+				"minHealth": 75,
 				"minBalance": 40,
 				"objects": {
-					"log-shelter": 1
+					"log-shelter": 1,
+					"shrub": 1
 				},
 				"animals": [
 					"meadow-vole"
@@ -359,10 +366,11 @@
 			"preferredHabitat": "Shaded, damp logs near clean water",
 			"fact": "Many forest salamanders have no lungs at all — they breathe entirely through their moist skin.",
 			"requirements": {
-				"minHealth": 30,
+				"minHealth": 40,
 				"objects": {
 					"mushroom-log": 1,
-					"shallow-water-pool": 1
+					"shallow-water-pool": 1,
+					"shrub": 1
 				},
 				"hint": "Damp shaded logs and clean shallow water."
 			}
@@ -379,10 +387,11 @@
 			"preferredHabitat": "Mature quiet forest with plentiful prey",
 			"fact": "A great horned owl's grip is strong enough that it can carry prey heavier than itself.",
 			"requirements": {
-				"minHealth": 55,
+				"minHealth": 65,
 				"minBalance": 40,
 				"objects": {
-					"nesting-tree": 2
+					"nesting-tree": 2,
+					"shrub": 1
 				},
 				"animals": [
 					"tree-squirrel",
@@ -403,7 +412,7 @@
 			"preferredHabitat": "A deeply restored forest with abundant food",
 			"fact": "Black bears can smell food from over a mile away — the best nose in the forest.",
 			"requirements": {
-				"minHealth": 85,
+				"minHealth": 75,
 				"minBalance": 50,
 				"objects": {
 					"berry-bush": 3,
@@ -424,10 +433,11 @@
 			"preferredHabitat": "Forest edges with denning cover",
 			"fact": "Fox pairs often reuse and expand the same den site for generations.",
 			"requirements": {
-				"minHealth": 50,
+				"minHealth": 60,
 				"objects": {
 					"hollow-log": 1,
-					"shrub": 1
+					"shrub": 1,
+					"fern-grove": 1
 				},
 				"animals": [
 					"chipmunk"
@@ -446,10 +456,11 @@
 			"preferredHabitat": "Forest openings with browse and water",
 			"fact": "Mule deer bound in a four-footed pogo gait called 'stotting' to clear obstacles downhill.",
 			"requirements": {
-				"minHealth": 45,
+				"minHealth": 55,
 				"objects": {
 					"shrub": 2,
-					"small-pond": 1
+					"small-pond": 1,
+					"fern-grove": 1
 				},
 				"hint": "Shrubby browse and a quiet pond."
 			}
@@ -465,10 +476,11 @@
 			"preferredHabitat": "Grassy clearings inside recovering forest",
 			"fact": "A bull elk's bugle can carry for miles — one of the loudest calls of any land mammal in North America.",
 			"requirements": {
-				"minHealth": 60,
+				"minHealth": 70,
 				"objects": {
 					"grass-patch": 2,
-					"small-pond": 1
+					"small-pond": 1,
+					"shrub": 1
 				},
 				"hint": "Grassy clearings and water in a healthy forest."
 			}
@@ -484,10 +496,11 @@
 			"preferredHabitat": "Woods near water for washing and foraging",
 			"fact": "A raccoon's front paws have four times more touch receptors than its eyes have light receptors.",
 			"requirements": {
-				"minHealth": 35,
+				"minHealth": 45,
 				"objects": {
 					"hollow-log": 1,
-					"small-pond": 1
+					"small-pond": 1,
+					"shrub": 1
 				},
 				"hint": "A den log near water to dabble in."
 			}
@@ -503,10 +516,11 @@
 			"preferredHabitat": "Quiet woods with bark to nibble",
 			"fact": "Porcupine quills have microscopic backward barbs but also a mild antibiotic coating — protection against their own clumsy falls.",
 			"requirements": {
-				"minHealth": 40,
+				"minHealth": 50,
 				"objects": {
 					"nesting-tree": 1,
-					"fallen-branch-shelter": 1
+					"fallen-branch-shelter": 1,
+					"shrub": 1
 				},
 				"hint": "Trees to climb and brushy shelter below."
 			}
@@ -522,11 +536,12 @@
 			"preferredHabitat": "A quiet, prey-rich forest",
 			"fact": "Bobcats are named for their short 'bobbed' tails and can leap ten feet in a single pounce.",
 			"requirements": {
-				"minHealth": 70,
+				"minHealth": 75,
 				"minBalance": 45,
 				"objects": {
 					"rock-pile": 1,
-					"shrub": 2
+					"shrub": 2,
+					"fern-grove": 1
 				},
 				"animals": [
 					"tree-squirrel",
@@ -565,10 +580,11 @@
 			"preferredHabitat": "Trees with rough bark to forage down",
 			"fact": "Nuthatches are the only birds that routinely walk headfirst down tree trunks.",
 			"requirements": {
-				"minHealth": 30,
+				"minHealth": 40,
 				"objects": {
 					"nesting-tree": 1,
-					"standing-deadwood": 1
+					"standing-deadwood": 1,
+					"shrub": 1
 				},
 				"hint": "Live trees to forage and deadwood to nest in."
 			}
@@ -584,10 +600,11 @@
 			"preferredHabitat": "Sunny forest openings with rocks",
 			"fact": "Garter snakes gather in large groups to hibernate through cold winters, sharing body heat.",
 			"requirements": {
-				"minHealth": 35,
+				"minHealth": 45,
 				"objects": {
 					"rock-pile": 1,
-					"grass-patch": 1
+					"grass-patch": 1,
+					"shrub": 1
 				},
 				"hint": "A sunny rock pile beside grassy hunting ground."
 			}
@@ -603,10 +620,11 @@
 			"preferredHabitat": "Cool, damp forest floor",
 			"fact": "Banana slugs are champion recyclers, turning fallen leaves into rich soil as they go.",
 			"requirements": {
-				"minHealth": 25,
+				"minHealth": 35,
 				"objects": {
 					"mushroom-log": 1,
-					"shallow-water-pool": 1
+					"shallow-water-pool": 1,
+					"shrub": 1
 				},
 				"hint": "Keep the forest floor damp, mossy, and full of logs."
 			}
@@ -623,7 +641,7 @@
 			"preferredHabitat": "Channels with mud banks and woody food",
 			"fact": "Beavers are ecosystem engineers — their dams create wetlands that support hundreds of other species.",
 			"requirements": {
-				"minHealth": 60,
+				"minHealth": 70,
 				"objects": {
 					"shallow-water-pool": 2,
 					"mud-bank": 1,
@@ -644,10 +662,11 @@
 			"preferredHabitat": "Clean water busy with fish",
 			"fact": "River otters slide down mudbanks on their bellies — sometimes purely, as far as anyone can tell, for fun.",
 			"requirements": {
-				"minHealth": 65,
+				"minHealth": 75,
 				"objects": {
 					"shallow-water-pool": 2,
-					"mud-bank": 1
+					"mud-bank": 1,
+					"reed-bed": 1
 				},
 				"animals": [
 					"freshwater-fish"
@@ -666,10 +685,11 @@
 			"preferredHabitat": "Reedy shallows",
 			"fact": "Muskrats can stay underwater for up to 15 minutes on a single breath.",
 			"requirements": {
-				"minHealth": 30,
+				"minHealth": 40,
 				"objects": {
 					"reed-bed": 1,
-					"shallow-water-pool": 1
+					"shallow-water-pool": 1,
+					"sedge-tussock": 1
 				},
 				"hint": "Reeds to eat and build with, water to swim."
 			}
@@ -685,10 +705,11 @@
 			"preferredHabitat": "Brushy banks beside busy water",
 			"fact": "Mink are strong swimmers that can dive over 15 feet deep when hunting.",
 			"requirements": {
-				"minHealth": 55,
+				"minHealth": 65,
 				"objects": {
 					"mud-bank": 1,
-					"reed-bed": 1
+					"reed-bed": 1,
+					"sedge-tussock": 1
 				},
 				"animals": [
 					"chorus-frog"
@@ -708,7 +729,7 @@
 			"preferredHabitat": "Still shallows for slow, patient hunting",
 			"fact": "Herons strike faster than the eye can follow, but may stand motionless for an hour first.",
 			"requirements": {
-				"minHealth": 50,
+				"minHealth": 60,
 				"objects": {
 					"shallow-water-pool": 2,
 					"reed-bed": 1,
@@ -768,11 +789,12 @@
 			"preferredHabitat": "Broad, quiet, restored marshland",
 			"fact": "Sandhill cranes dance — leaping, bowing, and tossing grass — at any age, not just to court.",
 			"requirements": {
-				"minHealth": 70,
+				"minHealth": 75,
 				"minBalance": 45,
 				"objects": {
 					"shallow-water-pool": 2,
-					"reed-bed": 2
+					"reed-bed": 2,
+					"sedge-tussock": 1
 				},
 				"hint": "Cranes need a wide, quiet, well-balanced marsh."
 			}
@@ -788,10 +810,11 @@
 			"preferredHabitat": "Still water with basking spots",
 			"fact": "Painted turtles survive frozen winters by breathing through their skin under the ice.",
 			"requirements": {
-				"minHealth": 35,
+				"minHealth": 45,
 				"objects": {
 					"shallow-water-pool": 1,
-					"mud-bank": 1
+					"mud-bank": 1,
+					"reed-bed": 1
 				},
 				"hint": "Still water and a soft bank to bask on."
 			}
@@ -827,7 +850,7 @@
 			"preferredHabitat": "Fishless pools with soft banks",
 			"fact": "Tiger salamanders may live 15 years or more, returning to the same breeding pool each spring.",
 			"requirements": {
-				"minHealth": 40,
+				"minHealth": 50,
 				"objects": {
 					"shallow-water-pool": 1,
 					"mud-bank": 1,
@@ -848,10 +871,11 @@
 			"preferredHabitat": "Clean water with reed perches",
 			"fact": "Dragonflies catch up to 95% of the prey they chase — perhaps the most successful hunters on Earth.",
 			"requirements": {
-				"minHealth": 25,
+				"minHealth": 35,
 				"objects": {
 					"shallow-water-pool": 1,
-					"reed-bed": 1
+					"reed-bed": 1,
+					"sedge-tussock": 1
 				},
 				"hint": "Clean water and reeds for the larvae to climb."
 			}
@@ -867,10 +891,11 @@
 			"preferredHabitat": "Calm, clean shallows",
 			"fact": "Unlike dragonflies, damselflies fold their wings together over their backs at rest.",
 			"requirements": {
-				"minHealth": 25,
+				"minHealth": 35,
 				"objects": {
 					"shallow-water-pool": 1,
-					"reed-bed": 1
+					"reed-bed": 1,
+					"sedge-tussock": 1
 				},
 				"hint": "Calm, clean water with plants at the edge."
 			}
