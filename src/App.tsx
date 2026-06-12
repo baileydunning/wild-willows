@@ -11,6 +11,7 @@ import { BiomesPanel, ChestPanel, CraftingPanel, InventoryPanel, ToolsPanel } fr
 import { SettingsPanel } from './ui/Settings';
 import { ActivityLog, Toolbelt } from './ui/Toolbelt';
 import { Tutorial } from './ui/Tutorial';
+import { DevPanel } from './ui/DevPanel';
 import { KeyboardGate } from './ui/KeyboardGate';
 import { WelcomeScreen } from './ui/Welcome';
 import { Icon } from './ui/icons';
@@ -121,6 +122,7 @@ function GameScreen() {
 	const { panel, setPanel, placementObjectId, cancelPlacement, notify } = game;
 	const [clickedPlacement, setClickedPlacement] = useState<ClickedPlacement | null>(null);
 	const [clickedBed, setClickedBed] = useState<ClickedBed | null>(null);
+	const [devOpen, setDevOpen] = useState(false);
 
 	// On login the world scene can boot a moment before (or after) the saved state
 	// is ready, which used to leave the preserve blank until the first place/dig.
@@ -179,8 +181,11 @@ function GameScreen() {
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent) => {
 			if ((e.target as HTMLElement)?.tagName === 'INPUT') return;
+			// backtick toggles the hidden developer panel (developer save only)
+			if (e.key === '`') { if (game.state?.player.id === 'bailey') setDevOpen((v) => !v); return; }
 			const k = e.key.toLowerCase();
 			if (k === 'escape') {
+				if (devOpen) { setDevOpen(false); return; }
 				if (panel) setPanel(null);
 				else if (placementObjectId) cancelPlacement();
 				return;
@@ -194,7 +199,7 @@ function GameScreen() {
 		};
 		window.addEventListener('keydown', onKey);
 		return () => window.removeEventListener('keydown', onKey);
-	}, [panel, setPanel, placementObjectId, cancelPlacement, game]);
+	}, [panel, setPanel, placementObjectId, cancelPlacement, game, devOpen]);
 
 	return (
 		<div className="game-screen">
@@ -215,6 +220,7 @@ function GameScreen() {
 			{panel === 'journal' && <JournalPanel />}
 			{panel === 'animal' && <AnimalCard />}
 			{panel === 'settings' && <SettingsPanel />}
+			{devOpen && <DevPanel onClose={() => setDevOpen(false)} />}
 		</div>
 	);
 }

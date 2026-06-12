@@ -1436,6 +1436,88 @@ var BiomeSnapshot = class extends PublicEndpoint {
     return { ok: true, playerId: id, areas };
   }
 };
+var DEV_PLAYER = "bailey";
+var DevTools = class extends PublicEndpoint {
+  async post(data) {
+    const { playerId, action, area, amount, value, resources } = await bodyOf(data);
+    if (playerId !== DEV_PLAYER) throw new GameError("Dev tools are restricted to the developer save", 403);
+    const t = db();
+    const d = await defs();
+    const { player } = await requirePlayer(playerId);
+    const log = [];
+    switch (action) {
+      case "seed-water": {
+        const ar = area || "wetland";
+        for (const tt of (await byPlayer(t.TerrainTile, playerId)).filter((x) => x.area === ar)) {
+          await t.TerrainTile.delete(tt.id);
+        }
+        await seedStartingTerrain(playerId, ar);
+        await recalcBiome(playerId, ar, { player });
+        log.push(`Reseeded starting terrain for ${ar}`);
+        break;
+      }
+      case "clear-terrain": {
+        const ar = area || player.area;
+        let n = 0;
+        for (const tt of (await byPlayer(t.TerrainTile, playerId)).filter((x) => x.area === ar)) {
+          await t.TerrainTile.delete(tt.id);
+          n++;
+        }
+        await recalcBiome(playerId, ar, { player });
+        log.push(`Cleared ${n} terrain tiles in ${ar}`);
+        break;
+      }
+      case "grant-resources": {
+        const inventory = { ...player.inventory || {} };
+        const valid = new Set(d.resources.map((r) => r.id));
+        let granted = 0;
+        if (resources && typeof resources === "object") {
+          for (const [id, qty] of Object.entries(resources)) {
+            const n = Math.floor(Number(qty) || 0);
+            if (n > 0 && valid.has(id)) {
+              inventory[id] = (inventory[id] || 0) + n;
+              granted++;
+            }
+          }
+          log.push(`Granted ${granted} resource type${granted === 1 ? "" : "s"}`);
+        } else {
+          const give = Math.max(1, Number(amount) || 200);
+          for (const r of d.resources) inventory[r.id] = (inventory[r.id] || 0) + give;
+          log.push(`Granted ${give} of every resource`);
+        }
+        await t.Player.patch(playerId, { inventory });
+        break;
+      }
+      case "max-tools": {
+        const tools = { ...player.tools || {} };
+        for (const tool of d.tools) {
+          const top = Math.max(...tool.tiers.map((ti) => ti.tier));
+          tools[tool.id] = top;
+        }
+        await t.Player.patch(playerId, { tools });
+        log.push("All tools set to max tier");
+        break;
+      }
+      case "unlock-all": {
+        const ids = d.biomes.map((b) => b.id);
+        await t.Player.patch(playerId, { unlockedBiomes: ids });
+        for (const id of ids) await t.BiomeState.patch(`${playerId}:${id}`, { unlocked: true });
+        log.push(`Unlocked all biomes (${ids.length})`);
+        break;
+      }
+      case "set-health": {
+        const ar = area || player.area;
+        const h = Math.max(0, Math.min(100, Number(value) || 100));
+        await t.BiomeState.patch(`${playerId}:${ar}`, { health: h });
+        log.push(`Set ${ar} health to ${h}% (recomputes on next change)`);
+        break;
+      }
+      default:
+        throw new GameError(`Unknown dev action: ${action}`);
+    }
+    return { ok: true, log, state: await snapshot(playerId) };
+  }
+};
 export {
   BiomeSnapshot,
   ChestTransfer,
@@ -1443,6 +1525,7 @@ export {
   CraftItem,
   CreatePlayer,
   DeletePlayer,
+  DevTools,
   DiscardItem,
   GameData,
   GameState,

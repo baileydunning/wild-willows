@@ -1798,3 +1798,95 @@ export class BiomeSnapshot extends PublicEndpoint {
 		return { ok: true, playerId: id, areas };
 	}
 }
+
+/**
+ * POST /DevTools/ {playerId, action, ...args} — testing helpers for development.
+ * Not part of normal play; the client only exposes these behind a hidden dev panel.
+ * Actions: 'seed-water' (reseed an area's starting terrain), 'clear-terrain',
+ * 'grant-resources', 'max-tools', 'unlock-all', 'set-health'.
+ */
+const DEV_PLAYER = 'bailey'; // dev tools are restricted to this save
+
+export class DevTools extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId, action, area, amount, value, resources } = await bodyOf(data);
+		if (playerId !== DEV_PLAYER) throw new GameError('Dev tools are restricted to the developer save', 403);
+		const t = db();
+		const d = await defs();
+		const { player } = await requirePlayer(playerId);
+		const log: string[] = [];
+
+		switch (action) {
+			case 'seed-water': {
+				// reset the area's terrain and lay down its starting layout again
+				const ar = area || 'wetland';
+				for (const tt of (await byPlayer(t.TerrainTile, playerId)).filter((x) => x.area === ar)) {
+					await t.TerrainTile.delete(tt.id);
+				}
+				await seedStartingTerrain(playerId, ar);
+				await recalcBiome(playerId, ar, { player });
+				log.push(`Reseeded starting terrain for ${ar}`);
+				break;
+			}
+			case 'clear-terrain': {
+				const ar = area || player.area;
+				let n = 0;
+				for (const tt of (await byPlayer(t.TerrainTile, playerId)).filter((x) => x.area === ar)) {
+					await t.TerrainTile.delete(tt.id);
+					n++;
+				}
+				await recalcBiome(playerId, ar, { player });
+				log.push(`Cleared ${n} terrain tiles in ${ar}`);
+				break;
+			}
+			case 'grant-resources': {
+				const inventory = { ...(player.inventory || {}) };
+				const valid = new Set(d.resources.map((r: any) => r.id));
+				let granted = 0;
+				if (resources && typeof resources === 'object') {
+					// per-resource amounts: { seeds: 50, clay: 10, ... }
+					for (const [id, qty] of Object.entries(resources)) {
+						const n = Math.floor(Number(qty) || 0);
+						if (n > 0 && valid.has(id)) { inventory[id] = (inventory[id] || 0) + n; granted++; }
+					}
+					log.push(`Granted ${granted} resource type${granted === 1 ? '' : 's'}`);
+				} else {
+					// fallback: a flat amount of every resource
+					const give = Math.max(1, Number(amount) || 200);
+					for (const r of d.resources) inventory[r.id] = (inventory[r.id] || 0) + give;
+					log.push(`Granted ${give} of every resource`);
+				}
+				await t.Player.patch(playerId, { inventory });
+				break;
+			}
+			case 'max-tools': {
+				const tools = { ...(player.tools || {}) };
+				for (const tool of d.tools) {
+					const top = Math.max(...tool.tiers.map((ti: any) => ti.tier));
+					tools[tool.id] = top;
+				}
+				await t.Player.patch(playerId, { tools });
+				log.push('All tools set to max tier');
+				break;
+			}
+			case 'unlock-all': {
+				const ids = d.biomes.map((b: any) => b.id);
+				await t.Player.patch(playerId, { unlockedBiomes: ids });
+				for (const id of ids) await t.BiomeState.patch(`${playerId}:${id}`, { unlocked: true });
+				log.push(`Unlocked all biomes (${ids.length})`);
+				break;
+			}
+			case 'set-health': {
+				const ar = area || player.area;
+				const h = Math.max(0, Math.min(100, Number(value) || 100));
+				await t.BiomeState.patch(`${playerId}:${ar}`, { health: h });
+				log.push(`Set ${ar} health to ${h}% (recomputes on next change)`);
+				break;
+			}
+			default:
+				throw new GameError(`Unknown dev action: ${action}`);
+		}
+
+		return { ok: true, log, state: await snapshot(playerId) };
+	}
+}
