@@ -632,10 +632,22 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 	});
 }
 
-/** Animal sprites. Featured species get bespoke art; others get a kind-based body. */
-export function makeAnimalTextures(scene: Phaser.Scene) {
-	const a = (key: string, w: number, h: number, draw: (g: G) => void) => tex(scene, `ani-${key}`, w, h, draw);
+/**
+ * Animal sprite registry. Each entry is a width/height + a draw function using
+ * the same primitives as the Phaser Graphics API. The in-game textures and the
+ * field-journal thumbnails both render from these, so they always match.
+ * Featured species have bespoke art with baked colours; generic kind bodies are
+ * drawn in white (0xffffff) and tinted per animal.
+ */
+export const ANIMAL_SPRITES: Record<string, { w: number; h: number; draw: (g: G) => void }> = {};
+const a = (key: string, w: number, h: number, draw: (g: G) => void) => { ANIMAL_SPRITES[key] = { w, h, draw }; };
 
+/** Generate the Phaser textures for every animal sprite. */
+export function makeAnimalTextures(scene: Phaser.Scene) {
+	for (const [key, s] of Object.entries(ANIMAL_SPRITES)) tex(scene, `ani-${key}`, s.w, s.h, s.draw);
+}
+
+{
 	a('rabbit', 26, 26, (g) => {
 		g.fillStyle(C('#b0987c'), 1).fillEllipse(13, 18, 18, 13).fillCircle(20, 13, 6);
 		g.fillEllipse(18, 4, 4, 10).fillEllipse(23, 5, 4, 10); // ears
@@ -697,11 +709,17 @@ export function makeAnimalTextures(scene: Phaser.Scene) {
 		g.fillStyle(0x2e2018, 1).fillCircle(9, 12, 1.6).fillCircle(17, 12, 1.6);
 		g.fillStyle(C('#e3c75f'), 1).fillTriangle(13, 14, 11, 17, 15, 17);
 	});
-	a('bear', 38, 32, (g) => {
-		g.fillStyle(0x33291f, 1).fillEllipse(18, 19, 30, 20).fillCircle(30, 11, 8);
-		g.fillCircle(26, 4, 3.4).fillCircle(34, 4, 3.4); // ears
-		g.fillStyle(C('#8a6a44'), 1).fillEllipse(32, 13, 7, 5); // muzzle
-		g.fillStyle(0x000000, 1).fillCircle(34, 12, 1.6).fillCircle(30, 9, 1.4);
+	a('bear', 40, 34, (g) => {
+		g.fillStyle(0x2a2118, 1); // four stubby legs under the body
+		g.fillRoundedRect(8, 23, 8, 10, 3).fillRoundedRect(25, 23, 8, 10, 3);
+		g.fillStyle(0x33291f, 1).fillEllipse(20, 19, 32, 19); // body
+		g.fillCircle(29, 12, 9); // head
+		g.fillCircle(23, 5, 4).fillCircle(35, 5, 4); // ears
+		g.fillStyle(0x4a3a2a, 1).fillCircle(23, 5, 2).fillCircle(35, 5, 2); // inner ears
+		g.fillStyle(C('#7a5d42'), 1).fillEllipse(32, 15, 10, 7); // muzzle
+		g.fillStyle(0x000000, 1).fillCircle(35, 14, 1.8); // nose
+		g.fillStyle(0xffffff, 1).fillCircle(25, 10, 2.2).fillCircle(31, 9, 2.2); // eye whites
+		g.fillStyle(0x000000, 1).fillCircle(25, 10, 1.2).fillCircle(31, 9, 1.2); // pupils
 	});
 
 	// Generic bodies by kind. Each kind gets three silhouette variants so that,
@@ -710,7 +728,8 @@ export function makeAnimalTextures(scene: Phaser.Scene) {
 	for (let v = 0; v < 3; v++) {
 		a(`mammal-${v}`, 28, 22, (g) => {
 			const bw = 15 + v * 3;
-			g.fillStyle(0xffffff, 1).fillEllipse(13, 14, bw, 11).fillCircle(20, 9, 5);
+			g.fillStyle(0xffffff, 1).fillRect(7, 16, 3, 5).fillRect(16, 16, 3, 5); // legs
+			g.fillEllipse(13, 14, bw, 11).fillCircle(20, 9, 5);
 			if (v === 0) g.fillCircle(18, 4, 2.4).fillCircle(22, 4, 2.4); // round ears
 			else if (v === 1) g.fillEllipse(18, 3, 3, 7).fillEllipse(22, 3, 3, 7); // tall ears
 			else g.fillTriangle(16, 5, 19, 0, 21, 5).fillTriangle(20, 5, 23, 0, 25, 5); // pointed ears
@@ -791,6 +810,68 @@ function animalTint(hash: number): number {
 	const v = 0.62 + ((hash >> 9) % 24) / 100; // 0.62 .. 0.85
 	const c = Phaser.Display.Color.HSVToRGB(h, s, v) as any;
 	return Phaser.Display.Color.GetColor(c.r, c.g, c.b);
+}
+
+const hexOf = (c: number) => '#' + (c >>> 0).toString(16).padStart(6, '0').slice(-6);
+
+/**
+ * Minimal SVG-emitting stand-in for Phaser.Graphics. Implements the same draw
+ * primitives the sprite functions use, so the exact same draw code renders a
+ * faithful thumbnail in the DOM (no duplicated art). `tint` recolours the
+ * white (0xffffff) base of generic sprites; `override` forces every colour
+ * (used for undiscovered silhouettes).
+ */
+class SvgGraphics {
+	parts: string[] = [];
+	private fill = '#000000';
+	private fillA = 1;
+	private stroke = '#000000';
+	private strokeA = 1;
+	private sw = 1;
+	constructor(private tint: string | null, private override: string | null = null) {}
+	private col(c: number) {
+		if (this.override) return this.override;
+		if (this.tint && c === 0xffffff) return this.tint;
+		return hexOf(c);
+	}
+	fillStyle(c: number, a = 1) { this.fill = this.col(c); this.fillA = a; return this; }
+	lineStyle(w: number, c: number, a = 1) { this.sw = w; this.stroke = this.col(c); this.strokeA = a; return this; }
+	fillEllipse(x: number, y: number, w: number, h: number) { this.parts.push(`<ellipse cx="${x}" cy="${y}" rx="${w / 2}" ry="${h / 2}" fill="${this.fill}" fill-opacity="${this.fillA}"/>`); return this; }
+	fillCircle(x: number, y: number, r: number) { this.parts.push(`<circle cx="${x}" cy="${y}" r="${r}" fill="${this.fill}" fill-opacity="${this.fillA}"/>`); return this; }
+	fillRect(x: number, y: number, w: number, h: number) { this.parts.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="${this.fill}" fill-opacity="${this.fillA}"/>`); return this; }
+	fillRoundedRect(x: number, y: number, w: number, h: number, r: number) { this.parts.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="${this.fill}" fill-opacity="${this.fillA}"/>`); return this; }
+	fillTriangle(x1: number, y1: number, x2: number, y2: number, x3: number, y3: number) { this.parts.push(`<polygon points="${x1},${y1} ${x2},${y2} ${x3},${y3}" fill="${this.fill}" fill-opacity="${this.fillA}"/>`); return this; }
+	lineBetween(x1: number, y1: number, x2: number, y2: number) { this.parts.push(`<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${this.stroke}" stroke-opacity="${this.strokeA}" stroke-width="${this.sw}" stroke-linecap="round"/>`); return this; }
+	strokeEllipse(x: number, y: number, w: number, h: number) { this.parts.push(`<ellipse cx="${x}" cy="${y}" rx="${w / 2}" ry="${h / 2}" fill="none" stroke="${this.stroke}" stroke-opacity="${this.strokeA}" stroke-width="${this.sw}"/>`); return this; }
+	strokeCircle(x: number, y: number, r: number) { this.parts.push(`<circle cx="${x}" cy="${y}" r="${r}" fill="none" stroke="${this.stroke}" stroke-opacity="${this.strokeA}" stroke-width="${this.sw}"/>`); return this; }
+	strokeRoundedRect(x: number, y: number, w: number, h: number, r: number) { this.parts.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${r}" fill="none" stroke="${this.stroke}" stroke-opacity="${this.strokeA}" stroke-width="${this.sw}"/>`); return this; }
+	toSvg(w: number, h: number) {
+		return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${this.parts.join('')}</svg>`;
+	}
+}
+
+/** Resolve which sprite + tint an animal uses (mirrors animalTexture). */
+function animalSprite(animalId: string, kind: string): { name: string; tint: number | null } {
+	if (FEATURED_TEXTURE[animalId]) return { name: FEATURED_TEXTURE[animalId].replace('ani-', ''), tint: null };
+	let hash = 0;
+	for (const ch of animalId) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+	const base = GENERIC_KINDS.includes(kind) ? kind : 'invertebrate';
+	return { name: `${base}-${hash % 3}`, tint: animalTint(hash) };
+}
+
+/**
+ * Render an animal's sprite as an SVG data URI for use in the DOM (field
+ * journal). `silhouette` draws it as a single dark shape for animals that have
+ * not returned yet.
+ */
+export function animalSpriteDataUri(animalId: string, kind: string, opts: { silhouette?: boolean } = {}): string {
+	const { name, tint } = animalSprite(animalId, kind);
+	const shape = ANIMAL_SPRITES[name] || ANIMAL_SPRITES['mammal-0'];
+	const override = opts.silhouette ? '#4a4636' : null;
+	const tintHex = tint != null ? hexOf(tint) : null;
+	const g = new SvgGraphics(tintHex, override);
+	shape.draw(g as unknown as G);
+	return 'data:image/svg+xml;base64,' + btoa(g.toSvg(shape.w, shape.h));
 }
 
 /**

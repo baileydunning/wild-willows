@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useGame } from '../state';
 import type { AnimalDef, Discovery } from '../types';
+import { animalSpriteDataUri } from '../game/textures';
 import { Icon } from './icons';
 
 function comfortLabel(c: number) {
@@ -38,7 +39,9 @@ function JournalEntry({ animal, disc, full }: { animal: AnimalDef; disc?: Discov
 	if (!disc) {
 		return (
 			<div className="journal-entry entry-unknown">
-				<div className="silhouette">?</div>
+				<div className="silhouette">
+					<img className="ani-thumb" src={animalSpriteDataUri(animal.id, animal.kind, { silhouette: true })} alt="" />
+				</div>
 				<div className="grow">
 					<b>Unknown {animal.kind}</b> <span className="muted small">({animal.rarity})</span>
 					<RequirementHints animal={animal} full={full} />
@@ -48,7 +51,9 @@ function JournalEntry({ animal, disc, full }: { animal: AnimalDef; disc?: Discov
 	}
 	return (
 		<div className="journal-entry">
-			<div className="silhouette known">{animal.name.slice(0, 1)}</div>
+			<div className="silhouette known">
+				<img className="ani-thumb" src={animalSpriteDataUri(animal.id, animal.kind)} alt={animal.name} />
+			</div>
 			<div className="grow">
 				<b>{animal.name}</b>{' '}
 				<span className={`comfort comfort-${comfortLabel(disc.comfort).toLowerCase().replace(' ', '-')}`}>
@@ -143,6 +148,7 @@ export function AnimalCard() {
 					<button className="icon-btn" onClick={close} aria-label="Close"><Icon name="close" /></button>
 				</div>
 				<div className="panel-body">
+					<img className="ani-thumb-lg" src={animalSpriteDataUri(animal.id, animal.kind, { silhouette: !disc })} alt={animal.name} />
 					<p className="muted">{animal.kind} · {animal.rarity} · {data.biomes.find((b) => b.id === animal.biome)?.name}</p>
 					{disc && (
 						<p>
