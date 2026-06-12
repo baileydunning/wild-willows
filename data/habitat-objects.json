@@ -1748,6 +1748,179 @@
 			},
 			"growSeconds": 90,
 			"description": "A salt-bent pine that anchors the back dunes and shelters shorebirds."
+		},
+		{
+			"id": "bald-cypress",
+			"name": "Bald Cypress",
+			"placement": "outdoor",
+			"biomes": [
+				"wetland"
+			],
+			"healthValue": 8,
+			"needs": [
+				"shelter",
+				"plant"
+			],
+			"shape": "cypress",
+			"color": "#6a8a5a",
+			"plantable": true,
+			"plantCost": {
+				"seeds": 2,
+				"reeds": 1
+			},
+			"growSeconds": 90,
+			"description": "A towering swamp cypress with feathery needles and a flared, knee-rooted base."
+		},
+		{
+			"id": "water-tupelo",
+			"name": "Water Tupelo",
+			"placement": "outdoor",
+			"biomes": [
+				"wetland"
+			],
+			"healthValue": 8,
+			"needs": [
+				"shelter",
+				"plant"
+			],
+			"shape": "tupelo",
+			"color": "#5e8a6a",
+			"plantable": true,
+			"plantCost": {
+				"seeds": 2,
+				"mud": 1
+			},
+			"growSeconds": 90,
+			"description": "A round-crowned wetland tree whose swollen base stands right in the water."
+		},
+		{
+			"id": "mesquite-tree",
+			"name": "Mesquite",
+			"placement": "outdoor",
+			"biomes": [
+				"desert"
+			],
+			"healthValue": 8,
+			"needs": [
+				"shelter",
+				"plant"
+			],
+			"shape": "mesquite",
+			"color": "#8a9a5a",
+			"plantable": true,
+			"plantCost": {
+				"seeds": 2,
+				"sand": 1
+			},
+			"growSeconds": 90,
+			"description": "A low, spreading desert tree — airy shade and seed pods for the scrubland."
+		},
+		{
+			"id": "desert-ironwood",
+			"name": "Desert Ironwood",
+			"placement": "outdoor",
+			"biomes": [
+				"desert"
+			],
+			"healthValue": 8,
+			"needs": [
+				"shelter",
+				"plant"
+			],
+			"shape": "ironwood",
+			"color": "#7a8a6a",
+			"plantable": true,
+			"plantCost": {
+				"seeds": 2,
+				"sand": 1
+			},
+			"growSeconds": 90,
+			"description": "A dense, slow-growing ironwood — a vital nurse tree in the open desert."
+		},
+		{
+			"id": "subalpine-fir",
+			"name": "Subalpine Fir",
+			"placement": "outdoor",
+			"biomes": [
+				"alpine"
+			],
+			"healthValue": 8,
+			"needs": [
+				"shelter",
+				"plant"
+			],
+			"shape": "fir",
+			"color": "#3f5e48",
+			"plantable": true,
+			"plantCost": {
+				"seeds": 2
+			},
+			"growSeconds": 90,
+			"description": "A slender spire fir that shrugs off the high-country snow."
+		},
+		{
+			"id": "quaking-aspen",
+			"name": "Quaking Aspen",
+			"placement": "outdoor",
+			"biomes": [
+				"alpine"
+			],
+			"healthValue": 8,
+			"needs": [
+				"shelter",
+				"plant"
+			],
+			"shape": "aspen",
+			"color": "#c9b34a",
+			"plantable": true,
+			"plantCost": {
+				"seeds": 2
+			},
+			"growSeconds": 90,
+			"description": "White-barked aspen whose golden leaves shiver in the alpine wind."
+		},
+		{
+			"id": "monterey-cypress",
+			"name": "Monterey Cypress",
+			"placement": "outdoor",
+			"biomes": [
+				"coastal"
+			],
+			"healthValue": 8,
+			"needs": [
+				"shelter",
+				"plant"
+			],
+			"shape": "mcypress",
+			"color": "#4f7050",
+			"plantable": true,
+			"plantCost": {
+				"seeds": 2,
+				"sand": 1
+			},
+			"growSeconds": 90,
+			"description": "A wind-flattened coastal cypress sculpted by the sea breeze."
+		},
+		{
+			"id": "coast-live-oak",
+			"name": "Coast Live Oak",
+			"placement": "outdoor",
+			"biomes": [
+				"coastal"
+			],
+			"healthValue": 8,
+			"needs": [
+				"shelter",
+				"plant"
+			],
+			"shape": "liveoak",
+			"color": "#4a6b40",
+			"plantable": true,
+			"plantCost": {
+				"seeds": 2
+			},
+			"growSeconds": 90,
+			"description": "A broad evergreen oak that anchors the back shore with deep shade."
 		}
 	]
 }

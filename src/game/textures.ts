@@ -748,6 +748,48 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 		g.fillTriangle(4, 24, 26, 20, 14, 8).fillTriangle(7, 17, 25, 14, 16, 4);
 		g.fillStyle(C('#4f8a5a'), 1).fillTriangle(10, 12, 24, 10, 18, 2);
 	});
+
+	// --- additional biome trees (distinct silhouettes) ---
+	o('cypress', 34, 44, (g) => {
+		g.fillStyle(C('#7a5a3a'), 1).fillRect(15, 34, 4, 10);
+		g.fillStyle(C('#6a8a5a'), 1); // narrow feathery conical
+		g.fillTriangle(6, 36, 28, 36, 17, 20).fillTriangle(8, 26, 26, 26, 17, 12).fillTriangle(10, 17, 24, 17, 17, 4);
+	});
+	o('tupelo', 34, 42, (g) => {
+		g.fillStyle(C('#7a5a3a'), 1).fillRect(14, 28, 6, 14).fillEllipse(17, 40, 16, 6); // swollen base
+		g.fillStyle(C('#5e8a6a'), 1).fillCircle(17, 16, 13).fillCircle(8, 22, 7).fillCircle(26, 22, 7);
+	});
+	o('mesquite', 38, 34, (g) => {
+		g.fillStyle(C('#6b5238'), 1).fillRect(17, 22, 4, 12);
+		g.lineStyle(2, C('#6b5238'), 1).lineBetween(19, 26, 9, 18).lineBetween(19, 24, 29, 16);
+		g.fillStyle(C('#8a9a5a'), 1).fillEllipse(19, 13, 30, 16); // low wide airy canopy
+		g.fillStyle(C('#9aab6a'), 1).fillCircle(11, 12, 5).fillCircle(27, 12, 5);
+	});
+	o('ironwood', 34, 38, (g) => {
+		g.fillStyle(C('#5a5040'), 1).fillRect(15, 24, 5, 14);
+		g.fillStyle(C('#7a8a6a'), 1).fillCircle(17, 15, 13).fillCircle(9, 20, 7).fillCircle(25, 20, 7); // dense grey-green
+		g.fillStyle(C('#c89ad0'), 1).fillCircle(13, 11, 1.6).fillCircle(21, 13, 1.6); // pale blooms
+	});
+	o('fir', 30, 46, (g) => {
+		g.fillStyle(C('#5a4632'), 1).fillRect(13, 38, 4, 8);
+		g.fillStyle(C('#3f5e48'), 1); // very narrow spire
+		g.fillTriangle(7, 40, 23, 40, 15, 26).fillTriangle(8, 30, 22, 30, 15, 16).fillTriangle(10, 20, 20, 20, 15, 6).fillTriangle(12, 12, 18, 12, 15, 2);
+	});
+	o('aspen', 32, 42, (g) => {
+		g.fillStyle(C('#e8e6df'), 1).fillRect(14, 18, 4, 24); // white trunk
+		g.fillStyle(0x2e2e2e, 1).fillRect(14, 25, 4, 1.4).fillRect(14, 32, 4, 1.4);
+		g.fillStyle(C('#c9b34a'), 1).fillCircle(16, 12, 11).fillCircle(8, 17, 6).fillCircle(24, 17, 6); // gold autumn canopy
+	});
+	o('mcypress', 36, 38, (g) => {
+		g.fillStyle(C('#6b5238'), 1).fillRect(16, 24, 4, 14);
+		g.fillStyle(C('#4f7050'), 1).fillEllipse(19, 14, 34, 16); // flat wind-swept top
+		g.fillStyle(C('#5e8a5e'), 1).fillEllipse(24, 11, 18, 9);
+	});
+	o('liveoak', 38, 38, (g) => {
+		g.fillStyle(C('#6b5238'), 1).fillRect(16, 22, 6, 16);
+		g.fillStyle(C('#4a6b40'), 1).fillEllipse(19, 14, 36, 20).fillCircle(8, 20, 7).fillCircle(30, 20, 7); // broad rounded
+		g.fillStyle(C('#5e8a4a'), 0.7).fillCircle(13, 10, 5).fillCircle(25, 11, 5);
+	});
 }
 
 /**

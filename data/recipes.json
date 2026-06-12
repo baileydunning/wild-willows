@@ -1281,6 +1281,115 @@
 				"seeds": 2,
 				"sand": 2
 			}
+		},
+		{
+			"id": "bald-cypress",
+			"name": "Bald Cypress",
+			"category": "plant",
+			"unlockBiome": "wetland",
+			"output": {
+				"itemId": "bald-cypress",
+				"qty": 1
+			},
+			"materials": {
+				"seeds": 2,
+				"reeds": 1
+			}
+		},
+		{
+			"id": "water-tupelo",
+			"name": "Water Tupelo",
+			"category": "plant",
+			"unlockBiome": "wetland",
+			"output": {
+				"itemId": "water-tupelo",
+				"qty": 1
+			},
+			"materials": {
+				"seeds": 2,
+				"mud": 1
+			}
+		},
+		{
+			"id": "mesquite-tree",
+			"name": "Mesquite",
+			"category": "plant",
+			"unlockBiome": "desert",
+			"output": {
+				"itemId": "mesquite-tree",
+				"qty": 1
+			},
+			"materials": {
+				"seeds": 2,
+				"sand": 1
+			}
+		},
+		{
+			"id": "desert-ironwood",
+			"name": "Desert Ironwood",
+			"category": "plant",
+			"unlockBiome": "desert",
+			"output": {
+				"itemId": "desert-ironwood",
+				"qty": 1
+			},
+			"materials": {
+				"seeds": 2,
+				"sand": 1
+			}
+		},
+		{
+			"id": "subalpine-fir",
+			"name": "Subalpine Fir",
+			"category": "plant",
+			"unlockBiome": "alpine",
+			"output": {
+				"itemId": "subalpine-fir",
+				"qty": 1
+			},
+			"materials": {
+				"seeds": 2
+			}
+		},
+		{
+			"id": "quaking-aspen",
+			"name": "Quaking Aspen",
+			"category": "plant",
+			"unlockBiome": "alpine",
+			"output": {
+				"itemId": "quaking-aspen",
+				"qty": 1
+			},
+			"materials": {
+				"seeds": 2
+			}
+		},
+		{
+			"id": "monterey-cypress",
+			"name": "Monterey Cypress",
+			"category": "plant",
+			"unlockBiome": "coastal",
+			"output": {
+				"itemId": "monterey-cypress",
+				"qty": 1
+			},
+			"materials": {
+				"seeds": 2,
+				"sand": 1
+			}
+		},
+		{
+			"id": "coast-live-oak",
+			"name": "Coast Live Oak",
+			"category": "plant",
+			"unlockBiome": "coastal",
+			"output": {
+				"itemId": "coast-live-oak",
+				"qty": 1
+			},
+			"materials": {
+				"seeds": 2
+			}
 		}
 	]
 }

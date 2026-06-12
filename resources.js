@@ -1448,6 +1448,115 @@ var recipes_default = {
         seeds: 2,
         sand: 2
       }
+    },
+    {
+      id: "bald-cypress",
+      name: "Bald Cypress",
+      category: "plant",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "bald-cypress",
+        qty: 1
+      },
+      materials: {
+        seeds: 2,
+        reeds: 1
+      }
+    },
+    {
+      id: "water-tupelo",
+      name: "Water Tupelo",
+      category: "plant",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "water-tupelo",
+        qty: 1
+      },
+      materials: {
+        seeds: 2,
+        mud: 1
+      }
+    },
+    {
+      id: "mesquite-tree",
+      name: "Mesquite",
+      category: "plant",
+      unlockBiome: "desert",
+      output: {
+        itemId: "mesquite-tree",
+        qty: 1
+      },
+      materials: {
+        seeds: 2,
+        sand: 1
+      }
+    },
+    {
+      id: "desert-ironwood",
+      name: "Desert Ironwood",
+      category: "plant",
+      unlockBiome: "desert",
+      output: {
+        itemId: "desert-ironwood",
+        qty: 1
+      },
+      materials: {
+        seeds: 2,
+        sand: 1
+      }
+    },
+    {
+      id: "subalpine-fir",
+      name: "Subalpine Fir",
+      category: "plant",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "subalpine-fir",
+        qty: 1
+      },
+      materials: {
+        seeds: 2
+      }
+    },
+    {
+      id: "quaking-aspen",
+      name: "Quaking Aspen",
+      category: "plant",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "quaking-aspen",
+        qty: 1
+      },
+      materials: {
+        seeds: 2
+      }
+    },
+    {
+      id: "monterey-cypress",
+      name: "Monterey Cypress",
+      category: "plant",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "monterey-cypress",
+        qty: 1
+      },
+      materials: {
+        seeds: 2,
+        sand: 1
+      }
+    },
+    {
+      id: "coast-live-oak",
+      name: "Coast Live Oak",
+      category: "plant",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "coast-live-oak",
+        qty: 1
+      },
+      materials: {
+        seeds: 2
+      }
     }
   ]
 };
@@ -3203,6 +3312,179 @@ var habitat_objects_default = {
       },
       growSeconds: 90,
       description: "A salt-bent pine that anchors the back dunes and shelters shorebirds."
+    },
+    {
+      id: "bald-cypress",
+      name: "Bald Cypress",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 8,
+      needs: [
+        "shelter",
+        "plant"
+      ],
+      shape: "cypress",
+      color: "#6a8a5a",
+      plantable: true,
+      plantCost: {
+        seeds: 2,
+        reeds: 1
+      },
+      growSeconds: 90,
+      description: "A towering swamp cypress with feathery needles and a flared, knee-rooted base."
+    },
+    {
+      id: "water-tupelo",
+      name: "Water Tupelo",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 8,
+      needs: [
+        "shelter",
+        "plant"
+      ],
+      shape: "tupelo",
+      color: "#5e8a6a",
+      plantable: true,
+      plantCost: {
+        seeds: 2,
+        mud: 1
+      },
+      growSeconds: 90,
+      description: "A round-crowned wetland tree whose swollen base stands right in the water."
+    },
+    {
+      id: "mesquite-tree",
+      name: "Mesquite",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 8,
+      needs: [
+        "shelter",
+        "plant"
+      ],
+      shape: "mesquite",
+      color: "#8a9a5a",
+      plantable: true,
+      plantCost: {
+        seeds: 2,
+        sand: 1
+      },
+      growSeconds: 90,
+      description: "A low, spreading desert tree \u2014 airy shade and seed pods for the scrubland."
+    },
+    {
+      id: "desert-ironwood",
+      name: "Desert Ironwood",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 8,
+      needs: [
+        "shelter",
+        "plant"
+      ],
+      shape: "ironwood",
+      color: "#7a8a6a",
+      plantable: true,
+      plantCost: {
+        seeds: 2,
+        sand: 1
+      },
+      growSeconds: 90,
+      description: "A dense, slow-growing ironwood \u2014 a vital nurse tree in the open desert."
+    },
+    {
+      id: "subalpine-fir",
+      name: "Subalpine Fir",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 8,
+      needs: [
+        "shelter",
+        "plant"
+      ],
+      shape: "fir",
+      color: "#3f5e48",
+      plantable: true,
+      plantCost: {
+        seeds: 2
+      },
+      growSeconds: 90,
+      description: "A slender spire fir that shrugs off the high-country snow."
+    },
+    {
+      id: "quaking-aspen",
+      name: "Quaking Aspen",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 8,
+      needs: [
+        "shelter",
+        "plant"
+      ],
+      shape: "aspen",
+      color: "#c9b34a",
+      plantable: true,
+      plantCost: {
+        seeds: 2
+      },
+      growSeconds: 90,
+      description: "White-barked aspen whose golden leaves shiver in the alpine wind."
+    },
+    {
+      id: "monterey-cypress",
+      name: "Monterey Cypress",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 8,
+      needs: [
+        "shelter",
+        "plant"
+      ],
+      shape: "mcypress",
+      color: "#4f7050",
+      plantable: true,
+      plantCost: {
+        seeds: 2,
+        sand: 1
+      },
+      growSeconds: 90,
+      description: "A wind-flattened coastal cypress sculpted by the sea breeze."
+    },
+    {
+      id: "coast-live-oak",
+      name: "Coast Live Oak",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 8,
+      needs: [
+        "shelter",
+        "plant"
+      ],
+      shape: "liveoak",
+      color: "#4a6b40",
+      plantable: true,
+      plantCost: {
+        seeds: 2
+      },
+      growSeconds: 90,
+      description: "A broad evergreen oak that anchors the back shore with deep shade."
     }
   ]
 };
@@ -5951,6 +6233,245 @@ var animals_2_default = {
           "cactus-patch": 1
         },
         hint: "A nectar feeder beside a cactus patch."
+      }
+    },
+    {
+      id: "coopers-hawk",
+      name: "Cooper's Hawk",
+      biome: "meadow",
+      kind: "bird",
+      rarity: "uncommon",
+      featured: false,
+      diet: "Small birds",
+      shelter: "Tree cover",
+      preferredHabitat: "Wooded meadow edges",
+      fact: "It threads through dense branches at full speed chasing songbirds.",
+      requirements: {
+        minHealth: 55,
+        objects: {
+          "oak-tree": 1,
+          "bird-perch": 1,
+          shrub: 1
+        },
+        animals: [
+          "song-sparrow"
+        ],
+        hint: "Plant an oak, add a bird perch and a shrub, once sparrows are back."
+      }
+    },
+    {
+      id: "western-screech-owl",
+      name: "Western Screech-Owl",
+      biome: "meadow",
+      kind: "bird",
+      rarity: "uncommon",
+      featured: false,
+      diet: "Insects and mice",
+      shelter: "Tree cavities",
+      preferredHabitat: "Oaks with hollows",
+      fact: "Its bouncing-ball call rolls through the dusk.",
+      requirements: {
+        minHealth: 55,
+        objects: {
+          "oak-tree": 1,
+          "hollow-log": 1,
+          "log-shelter": 1
+        },
+        hint: "Plant an oak and craft a hollow log and log shelter."
+      }
+    },
+    {
+      id: "barred-owl",
+      name: "Barred Owl",
+      biome: "forest",
+      kind: "bird",
+      rarity: "uncommon",
+      featured: false,
+      diet: "Rodents and amphibians",
+      shelter: "Large tree cavities",
+      preferredHabitat: "Mature damp woodland",
+      fact: "Its 'who-cooks-for-you' call is the voice of the old forest.",
+      requirements: {
+        minHealth: 55,
+        objects: {
+          "nesting-tree": 1,
+          "oak-tree": 1,
+          "standing-deadwood": 1
+        },
+        hint: "A nesting tree, a planted oak, and standing deadwood."
+      }
+    },
+    {
+      id: "fisher",
+      name: "Fisher",
+      biome: "forest",
+      kind: "mammal",
+      rarity: "rare",
+      featured: false,
+      diet: "Small mammals",
+      shelter: "Tree dens and stumps",
+      preferredHabitat: "Dense old forest",
+      fact: "One of the few predators that can hunt porcupines.",
+      requirements: {
+        minHealth: 60,
+        objects: {
+          "birch-tree": 1,
+          "tree-stump": 1,
+          "mushroom-log": 1
+        },
+        animals: [
+          "tree-squirrel"
+        ],
+        hint: "Plant a birch, add a stump and mushroom log, once squirrels are back."
+      }
+    },
+    {
+      id: "prothonotary-warbler",
+      name: "Prothonotary Warbler",
+      biome: "wetland",
+      kind: "bird",
+      rarity: "rare",
+      featured: false,
+      diet: "Insects",
+      shelter: "Cavities over water",
+      preferredHabitat: "Flooded cypress swamp",
+      fact: "A glowing-gold warbler that nests in holes above the water.",
+      requirements: {
+        minHealth: 55,
+        objects: {
+          "bald-cypress": 1,
+          "reed-bed": 1,
+          "nesting-platform": 1
+        },
+        hint: "Plant a bald cypress with a reed bed and nesting platform."
+      }
+    },
+    {
+      id: "green-heron",
+      name: "Green Heron",
+      biome: "wetland",
+      kind: "bird",
+      rarity: "uncommon",
+      featured: false,
+      diet: "Fish and frogs",
+      shelter: "Overhanging branches",
+      preferredHabitat: "Quiet wooded shallows",
+      fact: "One of the few birds that uses bait \u2014 dropping insects to lure fish.",
+      requirements: {
+        minHealth: 55,
+        objects: {
+          "water-tupelo": 1,
+          "lily-pool": 1
+        },
+        water: {
+          tiles: 3
+        },
+        hint: "Plant a water tupelo by a lily pool and open water."
+      }
+    },
+    {
+      id: "elf-owl",
+      name: "Elf Owl",
+      biome: "desert",
+      kind: "bird",
+      rarity: "rare",
+      featured: false,
+      diet: "Insects and scorpions",
+      shelter: "Cactus and tree cavities",
+      preferredHabitat: "Mesquite and saguaro desert",
+      fact: "The smallest owl in the world, no bigger than a sparrow.",
+      requirements: {
+        minHealth: 55,
+        objects: {
+          "mesquite-tree": 1,
+          "desert-ironwood": 1,
+          "cactus-patch": 1
+        },
+        hint: "Plant a mesquite and an ironwood beside a cactus patch."
+      }
+    },
+    {
+      id: "mountain-chickadee",
+      name: "Mountain Chickadee",
+      biome: "alpine",
+      kind: "bird",
+      rarity: "common",
+      featured: false,
+      diet: "Insects and conifer seeds",
+      shelter: "Conifer cavities",
+      preferredHabitat: "High evergreen slopes",
+      fact: "It caches thousands of seeds and remembers where it hid them.",
+      requirements: {
+        minHealth: 55,
+        objects: {
+          "subalpine-fir": 1,
+          "krummholz-pine": 1,
+          "alpine-wildflower-patch": 1
+        },
+        hint: "Plant a subalpine fir and krummholz with alpine wildflowers."
+      }
+    },
+    {
+      id: "pine-grosbeak",
+      name: "Pine Grosbeak",
+      biome: "alpine",
+      kind: "bird",
+      rarity: "uncommon",
+      featured: false,
+      diet: "Buds, seeds, berries",
+      shelter: "Dense conifers",
+      preferredHabitat: "Subalpine forest",
+      fact: "A plump, unhurried finch of the cold high forests.",
+      requirements: {
+        minHealth: 55,
+        objects: {
+          "quaking-aspen": 1,
+          "subalpine-fir": 1,
+          "rock-pile": 1
+        },
+        hint: "Plant an aspen and a subalpine fir near a rock pile."
+      }
+    },
+    {
+      id: "annas-hummingbird",
+      name: "Anna's Hummingbird",
+      biome: "coastal",
+      kind: "bird",
+      rarity: "common",
+      featured: false,
+      diet: "Nectar and insects",
+      shelter: "Shrubs and small trees",
+      preferredHabitat: "Flowering coastal scrub",
+      fact: "Males dive 27 m and pull up with a loud chirp from their tail feathers.",
+      requirements: {
+        minHealth: 50,
+        objects: {
+          "monterey-cypress": 1,
+          "dune-grass": 1,
+          "sea-thrift": 1
+        },
+        hint: "Plant a Monterey cypress with dune grass and sea thrift."
+      }
+    },
+    {
+      id: "acorn-woodpecker",
+      name: "Acorn Woodpecker",
+      biome: "coastal",
+      kind: "bird",
+      rarity: "uncommon",
+      featured: false,
+      diet: "Acorns and insects",
+      shelter: "Oak granary trees",
+      preferredHabitat: "Coastal oak woodland",
+      fact: "It drills thousands of holes in a 'granary tree' and stores an acorn in each.",
+      requirements: {
+        minHealth: 55,
+        objects: {
+          "coast-live-oak": 1,
+          "driftwood-shelter": 1,
+          tidepool: 1
+        },
+        hint: "Plant a coast live oak near a driftwood shelter and tidepool."
       }
     }
   ]
