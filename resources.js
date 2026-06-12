@@ -1,3 +1,4798 @@
+// data/biomes.json
+var biomes_default = {
+  database: "wildwillows",
+  table: "Biome",
+  records: [
+    {
+      id: "meadow",
+      name: "Willow Meadow",
+      order: 1,
+      explorable: true,
+      description: "A once-flowering meadow beside your home, now dusty and quiet. Native grasses were stripped away and the pollinators left with them.",
+      restorationGoal: "Replant grasses and wildflowers, add water and shelter, and help 5 meadow animals return.",
+      unlock: null,
+      resources: [
+        "seeds",
+        "berries",
+        "stones",
+        "branches",
+        "wildflowers",
+        "fiber",
+        "water",
+        "clay",
+        "bark"
+      ],
+      palette: {
+        damaged: "#b9a37c",
+        healthy: "#8fbf6f"
+      }
+    },
+    {
+      id: "forest",
+      name: "Old Hollow Forest",
+      order: 2,
+      explorable: true,
+      description: "A logged-over woodland. The big trees are gone, the understory is bare, and the birds have moved on.",
+      restorationGoal: "Rebuild the understory, raise nesting trees and deadwood, and welcome the forest animals back.",
+      unlock: {
+        biome: "meadow",
+        minHealth: 80,
+        minAnimals: 5,
+        requiresItem: "meadow-restoration-kit",
+        label: "Restore Willow Meadow to 80% health, welcome 5 meadow animals, and craft a Meadow Restoration Kit."
+      },
+      resources: [
+        "branches",
+        "mushrooms",
+        "pinecones",
+        "acorns",
+        "bark",
+        "moss",
+        "berries",
+        "stones",
+        "water"
+      ],
+      palette: {
+        damaged: "#9c8a66",
+        healthy: "#5e9455"
+      }
+    },
+    {
+      id: "wetland",
+      name: "Rushwater Wetland",
+      order: 3,
+      explorable: true,
+      description: "A drained marsh. Old channels are dry, the reeds are gone, and the water that remains is murky.",
+      restorationGoal: "Restore shallow water, reed beds, and mud banks so wetland life can return.",
+      unlock: {
+        biome: "forest",
+        minHealth: 75,
+        minAnimals: 10,
+        requiresItem: "wetland-restoration-kit",
+        label: "Restore Old Hollow Forest to 75% health, welcome 10 forest animals, and craft a Wetland Restoration Kit."
+      },
+      resources: [
+        "reeds",
+        "clay",
+        "mud",
+        "clean-water",
+        "water",
+        "fiber"
+      ],
+      palette: {
+        damaged: "#a8a07a",
+        healthy: "#6aa884"
+      }
+    },
+    {
+      id: "desert",
+      name: "Redstone Scrubland",
+      order: 4,
+      explorable: false,
+      description: "An overgrazed desert flat. Without brush or burrows, the heat keeps everything away.",
+      restorationGoal: "Replant cactus and brush, build shade and burrows, and bring the desert back to life.",
+      unlock: {
+        biome: "wetland",
+        minHealth: 75,
+        requiresItem: "scrubland-restoration-kit",
+        label: "Restore Rushwater Wetland to 75% health and craft a Scrubland Restoration Kit."
+      },
+      resources: [
+        "sand",
+        "cactus-fruit",
+        "stones",
+        "clay"
+      ],
+      palette: {
+        damaged: "#cbb089",
+        healthy: "#d6a96a"
+      }
+    },
+    {
+      id: "alpine",
+      name: "Graywind Heights",
+      order: 5,
+      explorable: false,
+      description: "A trampled alpine slope. The wildflower turf is worn through and the talus is silent.",
+      restorationGoal: "Restore alpine turf, snowmelt pools, and rocky shelter for high-country animals.",
+      unlock: {
+        biome: "desert",
+        minHealth: 80,
+        requiresItem: "alpine-restoration-kit",
+        label: "Restore Redstone Scrubland to 80% health and craft an Alpine Restoration Kit."
+      },
+      resources: [
+        "alpine-flowers",
+        "stones",
+        "moss",
+        "clean-water"
+      ],
+      palette: {
+        damaged: "#a8a8a0",
+        healthy: "#9db98c"
+      }
+    },
+    {
+      id: "coastal",
+      name: "Pelican Shore",
+      order: 6,
+      explorable: false,
+      description: "A scoured stretch of coast. The dunes have washed out and the tidepools are empty.",
+      restorationGoal: "Anchor the dunes, restore tidepools and kelp wrack, and reopen the shore to coastal life.",
+      unlock: {
+        biome: "alpine",
+        minHealth: 80,
+        requiresItem: "migration-path-marker",
+        label: "Restore Graywind Heights to 80% health and craft a Migration Path Marker to restore the migration path."
+      },
+      resources: [
+        "shells",
+        "driftwood",
+        "sand",
+        "water"
+      ],
+      palette: {
+        damaged: "#c2b9a0",
+        healthy: "#e8d9a8"
+      }
+    }
+  ]
+};
+
+// data/recipes.json
+var recipes_default = {
+  database: "wildwillows",
+  table: "Recipe",
+  records: [
+    {
+      id: "grass-patch",
+      name: "Grass Patch",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "grass-patch",
+        qty: 1
+      },
+      materials: {
+        seeds: 2,
+        fiber: 1
+      }
+    },
+    {
+      id: "native-grass-patch",
+      name: "Native Grass Patch",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "native-grass-patch",
+        qty: 1
+      },
+      materials: {
+        seeds: 4,
+        fiber: 2,
+        water: 1
+      }
+    },
+    {
+      id: "wildflower-patch",
+      name: "Wildflower Patch",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "wildflower-patch",
+        qty: 1
+      },
+      materials: {
+        wildflowers: 3,
+        seeds: 2,
+        water: 1
+      }
+    },
+    {
+      id: "butterfly-flowers",
+      name: "Butterfly Flowers",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "butterfly-flowers",
+        qty: 1
+      },
+      materials: {
+        wildflowers: 4,
+        seeds: 1
+      }
+    },
+    {
+      id: "pollinator-garden",
+      name: "Pollinator Garden",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "pollinator-garden",
+        qty: 1
+      },
+      materials: {
+        wildflowers: 4,
+        seeds: 3,
+        water: 2,
+        fiber: 1
+      }
+    },
+    {
+      id: "shrub",
+      name: "Shrub",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "shrub",
+        qty: 1
+      },
+      materials: {
+        branches: 2,
+        seeds: 2,
+        water: 1
+      }
+    },
+    {
+      id: "berry-bush",
+      name: "Berry Bush",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "berry-bush",
+        qty: 1
+      },
+      materials: {
+        berries: 4,
+        seeds: 2,
+        water: 1
+      }
+    },
+    {
+      id: "small-pond",
+      name: "Small Pond",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "small-pond",
+        qty: 1
+      },
+      materials: {
+        stones: 6,
+        clay: 4,
+        water: 4
+      }
+    },
+    {
+      id: "shallow-water-pool",
+      name: "Shallow Water Pool",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "shallow-water-pool",
+        qty: 1
+      },
+      materials: {
+        clay: 3,
+        stones: 3,
+        water: 3
+      }
+    },
+    {
+      id: "log-shelter",
+      name: "Log Shelter",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "log-shelter",
+        qty: 1
+      },
+      materials: {
+        branches: 6,
+        bark: 2
+      }
+    },
+    {
+      id: "hollow-log",
+      name: "Hollow Log",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "hollow-log",
+        qty: 1
+      },
+      materials: {
+        branches: 8,
+        bark: 3
+      }
+    },
+    {
+      id: "rock-pile",
+      name: "Rock Pile",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "rock-pile",
+        qty: 1
+      },
+      materials: {
+        stones: 5
+      }
+    },
+    {
+      id: "fallen-branch-shelter",
+      name: "Fallen Branch Shelter",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "fallen-branch-shelter",
+        qty: 1
+      },
+      materials: {
+        branches: 4,
+        fiber: 2
+      }
+    },
+    {
+      id: "bird-perch",
+      name: "Bird Perch",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "bird-perch",
+        qty: 1
+      },
+      materials: {
+        branches: 3,
+        fiber: 1
+      }
+    },
+    {
+      id: "simple-path",
+      name: "Stepping-Stone Path",
+      category: "decoration",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "simple-path",
+        qty: 2
+      },
+      materials: {
+        stones: 2
+      }
+    },
+    {
+      id: "gravel-path",
+      name: "Gravel Path",
+      category: "decoration",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "gravel-path",
+        qty: 2
+      },
+      materials: {
+        stones: 2
+      }
+    },
+    {
+      id: "plank-path",
+      name: "Plank Path",
+      category: "decoration",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "plank-path",
+        qty: 2
+      },
+      materials: {
+        branches: 2
+      }
+    },
+    {
+      id: "flagstone-path",
+      name: "Flagstone Path",
+      category: "decoration",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "flagstone-path",
+        qty: 2
+      },
+      materials: {
+        stones: 3,
+        clay: 1
+      }
+    },
+    {
+      id: "mossy-path",
+      name: "Mossy Path",
+      category: "decoration",
+      unlockBiome: "forest",
+      output: {
+        itemId: "mossy-path",
+        qty: 2
+      },
+      materials: {
+        stones: 2,
+        moss: 1
+      }
+    },
+    {
+      id: "wooden-bridge",
+      name: "Wooden Bridge",
+      category: "decoration",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "wooden-bridge",
+        qty: 1
+      },
+      materials: {
+        branches: 4,
+        stones: 1,
+        fiber: 1
+      }
+    },
+    {
+      id: "small-chest",
+      name: "Small Chest",
+      category: "storage",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "small-chest",
+        qty: 1
+      },
+      materials: {
+        branches: 5,
+        fiber: 2,
+        stones: 1
+      }
+    },
+    {
+      id: "medium-chest",
+      name: "Medium Chest",
+      category: "storage",
+      unlockBiome: "forest",
+      output: {
+        itemId: "medium-chest",
+        qty: 1
+      },
+      materials: {
+        branches: 8,
+        bark: 3,
+        fiber: 3
+      }
+    },
+    {
+      id: "field-journal-stand",
+      name: "Field Journal Stand",
+      category: "home",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "field-journal-stand",
+        qty: 1
+      },
+      materials: {
+        branches: 4,
+        stones: 2
+      }
+    },
+    {
+      id: "cozy-rug",
+      name: "Picnic Rug",
+      category: "home",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "cozy-rug",
+        qty: 1
+      },
+      materials: {
+        fiber: 6,
+        wildflowers: 1
+      }
+    },
+    {
+      id: "flower-vase",
+      name: "Potted Flowers",
+      category: "home",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "flower-vase",
+        qty: 1
+      },
+      materials: {
+        clay: 3,
+        wildflowers: 2
+      }
+    },
+    {
+      id: "nesting-tree",
+      name: "Nesting Tree",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "nesting-tree",
+        qty: 1
+      },
+      materials: {
+        acorns: 3,
+        water: 2,
+        clay: 1
+      }
+    },
+    {
+      id: "woodland-pool",
+      name: "Woodland Pool",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "woodland-pool",
+        qty: 1
+      },
+      materials: {
+        clay: 4,
+        stones: 2,
+        water: 5
+      }
+    },
+    {
+      id: "fern-spring",
+      name: "Fern Spring",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "fern-spring",
+        qty: 1
+      },
+      materials: {
+        moss: 3,
+        branches: 2,
+        water: 3
+      }
+    },
+    {
+      id: "standing-deadwood",
+      name: "Standing Deadwood",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "standing-deadwood",
+        qty: 1
+      },
+      materials: {
+        branches: 6,
+        bark: 2
+      }
+    },
+    {
+      id: "mushroom-log",
+      name: "Mushroom Log",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "mushroom-log",
+        qty: 1
+      },
+      materials: {
+        branches: 4,
+        mushrooms: 3,
+        moss: 2
+      }
+    },
+    {
+      id: "wetland-restoration-kit",
+      name: "Wetland Restoration Kit",
+      category: "kit",
+      unlockBiome: "forest",
+      output: {
+        itemId: "wetland-restoration-kit",
+        qty: 1
+      },
+      materials: {
+        stones: 3,
+        clay: 4,
+        fiber: 4,
+        water: 6,
+        moss: 2
+      },
+      once: true
+    },
+    {
+      id: "reed-bed",
+      name: "Reed Bed",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "reed-bed",
+        qty: 1
+      },
+      materials: {
+        reeds: 5,
+        mud: 2
+      }
+    },
+    {
+      id: "mud-bank",
+      name: "Mud Bank",
+      category: "habitat",
+      unlockBiome: "wetland",
+      requiresTool: {
+        id: "shovel",
+        tier: 2
+      },
+      output: {
+        itemId: "mud-bank",
+        qty: 1
+      },
+      materials: {
+        mud: 6,
+        clay: 2
+      }
+    },
+    {
+      id: "nesting-platform",
+      name: "Nesting Platform",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "nesting-platform",
+        qty: 1
+      },
+      materials: {
+        branches: 6,
+        reeds: 3
+      }
+    },
+    {
+      id: "cattail-stand",
+      name: "Cattail Stand",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "cattail-stand",
+        qty: 1
+      },
+      materials: {
+        reeds: 4,
+        mud: 1
+      }
+    },
+    {
+      id: "marsh-log",
+      name: "Marsh Log",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "marsh-log",
+        qty: 1
+      },
+      materials: {
+        branches: 5,
+        mud: 2
+      }
+    },
+    {
+      id: "lily-pool",
+      name: "Lily Pool",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "lily-pool",
+        qty: 1
+      },
+      materials: {
+        reeds: 2,
+        clay: 2,
+        "clean-water": 2
+      }
+    },
+    {
+      id: "burrow-mound",
+      name: "Burrow Mound",
+      category: "habitat",
+      unlockBiome: "desert",
+      requiresTool: {
+        id: "shovel",
+        tier: 2
+      },
+      output: {
+        itemId: "burrow-mound",
+        qty: 1
+      },
+      materials: {
+        sand: 4,
+        clay: 2,
+        stones: 2
+      }
+    },
+    {
+      id: "cactus-patch",
+      name: "Cactus Patch",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "cactus-patch",
+        qty: 1
+      },
+      materials: {
+        "cactus-fruit": 3,
+        sand: 2,
+        stones: 1
+      }
+    },
+    {
+      id: "desert-brush",
+      name: "Desert Brush",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "desert-brush",
+        qty: 1
+      },
+      materials: {
+        branches: 2,
+        "cactus-fruit": 1,
+        sand: 2
+      }
+    },
+    {
+      id: "shaded-rock-shelter",
+      name: "Shaded Rock Shelter",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "shaded-rock-shelter",
+        qty: 1
+      },
+      materials: {
+        stones: 8,
+        sand: 2
+      }
+    },
+    {
+      id: "alpine-wildflower-patch",
+      name: "Alpine Wildflower Patch",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "alpine-wildflower-patch",
+        qty: 1
+      },
+      materials: {
+        "alpine-flowers": 4,
+        seeds: 1,
+        "clean-water": 1
+      }
+    },
+    {
+      id: "snowmelt-pool",
+      name: "Snowmelt Pool",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "snowmelt-pool",
+        qty: 1
+      },
+      materials: {
+        stones: 5,
+        "clean-water": 4
+      }
+    },
+    {
+      id: "migration-path-marker",
+      name: "Migration Path Marker",
+      category: "kit",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "migration-path-marker",
+        qty: 1
+      },
+      materials: {
+        stones: 6,
+        "alpine-flowers": 3,
+        fiber: 2
+      },
+      once: true
+    },
+    {
+      id: "tidepool",
+      name: "Tidepool",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "tidepool",
+        qty: 1
+      },
+      materials: {
+        stones: 6,
+        sand: 3,
+        water: 3
+      }
+    },
+    {
+      id: "dune-grass",
+      name: "Dune Grass",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "dune-grass",
+        qty: 1
+      },
+      materials: {
+        seeds: 3,
+        sand: 3,
+        fiber: 1
+      }
+    },
+    {
+      id: "driftwood-shelter",
+      name: "Driftwood Shelter",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "driftwood-shelter",
+        qty: 1
+      },
+      materials: {
+        driftwood: 5,
+        fiber: 2
+      }
+    },
+    {
+      id: "kelp-wrack",
+      name: "Kelp Wrack",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "kelp-wrack",
+        qty: 1
+      },
+      materials: {
+        driftwood: 2,
+        shells: 1,
+        water: 2
+      }
+    },
+    {
+      id: "coastal-nesting-area",
+      name: "Coastal Nesting Area",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "coastal-nesting-area",
+        qty: 1
+      },
+      materials: {
+        driftwood: 4,
+        sand: 4,
+        fiber: 2
+      }
+    },
+    {
+      id: "meadow-restoration-kit",
+      name: "Meadow Restoration Kit",
+      category: "kit",
+      unlockBiome: "meadow",
+      once: true,
+      output: {
+        itemId: "meadow-restoration-kit",
+        qty: 1
+      },
+      materials: {
+        fiber: 4,
+        branches: 4,
+        stones: 3,
+        water: 2
+      }
+    },
+    {
+      id: "scrubland-restoration-kit",
+      name: "Scrubland Restoration Kit",
+      category: "kit",
+      unlockBiome: "wetland",
+      once: true,
+      output: {
+        itemId: "scrubland-restoration-kit",
+        qty: 1
+      },
+      materials: {
+        reeds: 5,
+        mud: 4,
+        clay: 3,
+        "clean-water": 3
+      }
+    },
+    {
+      id: "alpine-restoration-kit",
+      name: "Alpine Restoration Kit",
+      category: "kit",
+      unlockBiome: "desert",
+      once: true,
+      output: {
+        itemId: "alpine-restoration-kit",
+        qty: 1
+      },
+      materials: {
+        sand: 5,
+        stones: 5,
+        clay: 3,
+        "cactus-fruit": 2
+      }
+    },
+    {
+      id: "stone-lantern",
+      name: "Stone Lantern",
+      category: "structure",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "stone-lantern",
+        qty: 1
+      },
+      materials: {
+        stones: 4,
+        clay: 2
+      }
+    },
+    {
+      id: "wooden-bench",
+      name: "Wooden Bench",
+      category: "structure",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "wooden-bench",
+        qty: 1
+      },
+      materials: {
+        branches: 5,
+        fiber: 2
+      }
+    },
+    {
+      id: "garden-arch",
+      name: "Garden Arch",
+      category: "structure",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "garden-arch",
+        qty: 1
+      },
+      materials: {
+        branches: 4,
+        wildflowers: 3,
+        fiber: 1
+      }
+    },
+    {
+      id: "bird-bath",
+      name: "Bird Bath",
+      category: "structure",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "bird-bath",
+        qty: 1
+      },
+      materials: {
+        stones: 5,
+        clay: 2,
+        water: 2
+      }
+    },
+    {
+      id: "trail-signpost",
+      name: "Trail Signpost",
+      category: "structure",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "trail-signpost",
+        qty: 1
+      },
+      materials: {
+        branches: 3,
+        stones: 1
+      }
+    },
+    {
+      id: "planter-box",
+      name: "Planter Box",
+      category: "structure",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "planter-box",
+        qty: 1
+      },
+      materials: {
+        branches: 3,
+        wildflowers: 2,
+        clay: 1
+      }
+    },
+    {
+      id: "gazebo",
+      name: "Gazebo",
+      category: "structure",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "gazebo",
+        qty: 1
+      },
+      materials: {
+        branches: 10,
+        stones: 5,
+        fiber: 4
+      }
+    },
+    {
+      id: "clover-patch",
+      name: "Clover Patch",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "clover-patch",
+        qty: 1
+      },
+      materials: {
+        seeds: 3,
+        water: 1
+      }
+    },
+    {
+      id: "brush-pile",
+      name: "Brush Pile",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "brush-pile",
+        qty: 1
+      },
+      materials: {
+        branches: 4,
+        fiber: 2
+      }
+    },
+    {
+      id: "fern-grove",
+      name: "Fern Grove",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "fern-grove",
+        qty: 1
+      },
+      materials: {
+        moss: 3,
+        water: 2
+      }
+    },
+    {
+      id: "tree-stump",
+      name: "Tree Stump",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "tree-stump",
+        qty: 1
+      },
+      materials: {
+        branches: 4,
+        bark: 2
+      }
+    },
+    {
+      id: "sedge-tussock",
+      name: "Sedge Tussock",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "sedge-tussock",
+        qty: 1
+      },
+      materials: {
+        reeds: 4,
+        mud: 1
+      }
+    },
+    {
+      id: "alder-snag",
+      name: "Alder Snag",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "alder-snag",
+        qty: 1
+      },
+      materials: {
+        branches: 5,
+        mud: 1
+      }
+    },
+    {
+      id: "agave-rosette",
+      name: "Agave Rosette",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "agave-rosette",
+        qty: 1
+      },
+      materials: {
+        "cactus-fruit": 2,
+        sand: 2
+      }
+    },
+    {
+      id: "ocotillo",
+      name: "Ocotillo",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "ocotillo",
+        qty: 1
+      },
+      materials: {
+        branches: 2,
+        sand: 2,
+        "cactus-fruit": 1
+      }
+    },
+    {
+      id: "heather-mat",
+      name: "Heather Mat",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "heather-mat",
+        qty: 1
+      },
+      materials: {
+        "alpine-flowers": 3,
+        moss: 1
+      }
+    },
+    {
+      id: "krummholz-pine",
+      name: "Krummholz Pine",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "krummholz-pine",
+        qty: 1
+      },
+      materials: {
+        branches: 4,
+        moss: 2
+      }
+    },
+    {
+      id: "eelgrass-bed",
+      name: "Eelgrass Bed",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "eelgrass-bed",
+        qty: 1
+      },
+      materials: {
+        driftwood: 2,
+        sand: 2,
+        water: 2
+      }
+    },
+    {
+      id: "oyster-bed",
+      name: "Oyster Bed",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "oyster-bed",
+        qty: 1
+      },
+      materials: {
+        shells: 3,
+        stones: 2
+      }
+    },
+    {
+      id: "daisy-patch",
+      name: "Daisy Patch",
+      category: "plant",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "daisy-patch",
+        qty: 1
+      },
+      materials: {
+        seeds: 2,
+        fiber: 1
+      }
+    },
+    {
+      id: "foxglove",
+      name: "Foxglove",
+      category: "plant",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "foxglove",
+        qty: 1
+      },
+      materials: {
+        seeds: 2,
+        wildflowers: 2
+      }
+    },
+    {
+      id: "mushroom-ring",
+      name: "Mushroom Ring",
+      category: "plant",
+      unlockBiome: "forest",
+      output: {
+        itemId: "mushroom-ring",
+        qty: 1
+      },
+      materials: {
+        mushrooms: 3,
+        moss: 1
+      }
+    },
+    {
+      id: "birch-tree",
+      name: "Birch Tree",
+      category: "plant",
+      unlockBiome: "forest",
+      output: {
+        itemId: "birch-tree",
+        qty: 1
+      },
+      materials: {
+        branches: 4,
+        bark: 2
+      }
+    },
+    {
+      id: "marsh-marigold",
+      name: "Marsh Marigold",
+      category: "plant",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "marsh-marigold",
+        qty: 1
+      },
+      materials: {
+        reeds: 2,
+        seeds: 1
+      }
+    },
+    {
+      id: "bulrush",
+      name: "Bulrush",
+      category: "plant",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "bulrush",
+        qty: 1
+      },
+      materials: {
+        reeds: 4,
+        mud: 1
+      }
+    },
+    {
+      id: "prickly-pear",
+      name: "Prickly Pear",
+      category: "plant",
+      unlockBiome: "desert",
+      output: {
+        itemId: "prickly-pear",
+        qty: 1
+      },
+      materials: {
+        "cactus-fruit": 3,
+        sand: 1
+      }
+    },
+    {
+      id: "desert-marigold",
+      name: "Desert Marigold",
+      category: "plant",
+      unlockBiome: "desert",
+      output: {
+        itemId: "desert-marigold",
+        qty: 1
+      },
+      materials: {
+        sand: 2,
+        seeds: 1
+      }
+    },
+    {
+      id: "gentian-patch",
+      name: "Alpine Gentian",
+      category: "plant",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "gentian-patch",
+        qty: 1
+      },
+      materials: {
+        "alpine-flowers": 3
+      }
+    },
+    {
+      id: "moss-cushion",
+      name: "Moss Cushion",
+      category: "plant",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "moss-cushion",
+        qty: 1
+      },
+      materials: {
+        moss: 3
+      }
+    },
+    {
+      id: "sea-thrift",
+      name: "Sea Thrift",
+      category: "plant",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "sea-thrift",
+        qty: 1
+      },
+      materials: {
+        sand: 2,
+        seeds: 1
+      }
+    },
+    {
+      id: "beach-shrub",
+      name: "Beach Shrub",
+      category: "plant",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "beach-shrub",
+        qty: 1
+      },
+      materials: {
+        driftwood: 2,
+        sand: 1
+      }
+    }
+  ]
+};
+
+// data/habitat-objects.json
+var habitat_objects_default = {
+  database: "wildwillows",
+  table: "HabitatObject",
+  records: [
+    {
+      id: "grass-patch",
+      name: "Grass Patch",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest",
+        "alpine"
+      ],
+      healthValue: 3,
+      needs: [
+        "plant",
+        "open"
+      ],
+      shape: "patch",
+      color: "#7ab35c",
+      description: "A soft patch of regrowing grass. A first step for any bare ground."
+    },
+    {
+      id: "native-grass-patch",
+      name: "Native Grass Patch",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "patch",
+      color: "#5f9e44",
+      description: "Deep-rooted native bunchgrass. Food and cover for meadow life."
+    },
+    {
+      id: "wildflower-patch",
+      name: "Wildflower Patch",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "flowers",
+      color: "#d77bb1",
+      plantable: true,
+      plantCost: {
+        seeds: 2
+      },
+      growSeconds: 45,
+      description: "Mixed native wildflowers. Pollinators can spot it from far away."
+    },
+    {
+      id: "poppy-patch",
+      name: "Poppy Patch",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "poppies",
+      color: "#d9534f",
+      plantable: true,
+      plantCost: {
+        seeds: 2,
+        wildflowers: 1
+      },
+      growSeconds: 45,
+      description: "Bright field poppies, grown from seed in a watered bed."
+    },
+    {
+      id: "sunflower-patch",
+      name: "Sunflower Patch",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 6,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "sunflowers",
+      color: "#e3c75f",
+      plantable: true,
+      plantCost: {
+        seeds: 3
+      },
+      growSeconds: 60,
+      description: "Tall sunflowers that feed seed-eating birds all season."
+    },
+    {
+      id: "lupine-patch",
+      name: "Lupine Patch",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "alpine"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "lupines",
+      color: "#7d6b9e",
+      plantable: true,
+      plantCost: {
+        seeds: 2,
+        fiber: 1
+      },
+      growSeconds: 50,
+      description: "Spires of blue lupine that fix the soil as they bloom."
+    },
+    {
+      id: "willow-tree",
+      name: "Willow Tree",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland"
+      ],
+      healthValue: 9,
+      needs: [
+        "shelter",
+        "plant"
+      ],
+      shape: "willow",
+      color: "#6b9152",
+      plantable: true,
+      plantCost: {
+        branches: 2,
+        seeds: 2
+      },
+      growSeconds: 90,
+      description: "The preserve's namesake \u2014 a graceful willow grown from a watered bed."
+    },
+    {
+      id: "oak-tree",
+      name: "Oak Tree",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest"
+      ],
+      healthValue: 8,
+      needs: [
+        "shelter",
+        "plant",
+        "food"
+      ],
+      shape: "oak",
+      color: "#4a6b3a",
+      plantable: true,
+      plantCost: {
+        acorns: 2
+      },
+      growSeconds: 90,
+      description: "An acorn-grown oak. Squirrels and jays will thank you for decades."
+    },
+    {
+      id: "pine-tree",
+      name: "Pine Tree",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest",
+        "alpine"
+      ],
+      healthValue: 8,
+      needs: [
+        "shelter",
+        "plant"
+      ],
+      shape: "pine",
+      color: "#3a5a44",
+      plantable: true,
+      plantCost: {
+        pinecones: 2
+      },
+      growSeconds: 90,
+      description: "A young pine grown from a cone \u2014 evergreen shelter in any season."
+    },
+    {
+      id: "butterfly-flowers",
+      name: "Butterfly Flowers",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 4,
+      needs: [
+        "food",
+        "plant"
+      ],
+      shape: "flowers",
+      color: "#e8954f",
+      description: "Milkweed and nectar flowers, planted especially for butterflies."
+    },
+    {
+      id: "pollinator-garden",
+      name: "Pollinator Garden",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 6,
+      needs: [
+        "food",
+        "plant"
+      ],
+      shape: "flowers",
+      color: "#c45ad0",
+      description: "A dense, season-long banquet for bees and butterflies."
+    },
+    {
+      id: "shrub",
+      name: "Shrub",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter",
+        "plant"
+      ],
+      shape: "bush",
+      color: "#4f7d3a",
+      description: "A young native shrub. Quick cover for anyone passing through."
+    },
+    {
+      id: "berry-bush",
+      name: "Berry Bush",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest"
+      ],
+      healthValue: 6,
+      needs: [
+        "food",
+        "plant"
+      ],
+      shape: "bush",
+      color: "#5d3a5f",
+      plantable: true,
+      plantCost: {
+        seeds: 2,
+        berries: 2
+      },
+      growSeconds: 70,
+      description: "A thornless native berry bush. Songbirds, rabbits, deer, and bears all visit. Sow it in a watered bed from seeds and a few berries."
+    },
+    {
+      id: "small-pond",
+      name: "Small Pond",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest"
+      ],
+      healthValue: 7,
+      needs: [
+        "water"
+      ],
+      shape: "pond",
+      color: "#5d96c8",
+      description: "A clay-lined pond. Clean drinking water changes everything."
+    },
+    {
+      id: "woodland-pool",
+      name: "Woodland Pool",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 9,
+      needs: [
+        "water",
+        "open"
+      ],
+      shape: "pond",
+      color: "#4f86a8",
+      description: "A shaded forest pool fed by a cold spring. Deer, raccoons, and salamanders all come to drink."
+    },
+    {
+      id: "fern-spring",
+      name: "Fern Spring",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 8,
+      needs: [
+        "water",
+        "plant"
+      ],
+      shape: "pool",
+      color: "#6aa884",
+      description: "A mossy seep ringed with ferns \u2014 damp ground that wakes the whole understory."
+    },
+    {
+      id: "shallow-water-pool",
+      name: "Shallow Water Pool",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland"
+      ],
+      healthValue: 6,
+      needs: [
+        "water"
+      ],
+      shape: "pool",
+      color: "#7fb4d8",
+      description: "A gently sloped pool, safe for small animals to wade and drink."
+    },
+    {
+      id: "log-shelter",
+      name: "Log Shelter",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest"
+      ],
+      healthValue: 6,
+      needs: [
+        "shelter"
+      ],
+      shape: "log",
+      color: "#7a5a3a",
+      description: "Stacked fallen logs. Small mammals, salamanders, and insects move in fast."
+    },
+    {
+      id: "hollow-log",
+      name: "Hollow Log",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest"
+      ],
+      healthValue: 6,
+      needs: [
+        "shelter"
+      ],
+      shape: "log",
+      color: "#6a4a30",
+      description: "A fallen log carefully opened into a den. Small mammals and foxes love it."
+    },
+    {
+      id: "rock-pile",
+      name: "Rock Pile",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest",
+        "desert",
+        "alpine"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter"
+      ],
+      shape: "rocks",
+      color: "#8e8e8a",
+      description: "Sun-warmed stones with cool gaps beneath \u2014 insects, lizards, and pika approve."
+    },
+    {
+      id: "fallen-branch-shelter",
+      name: "Fallen Branch Shelter",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter"
+      ],
+      shape: "log",
+      color: "#94703f",
+      description: "A loose brush pile. Humble, but everyone hides in it."
+    },
+    {
+      id: "bird-perch",
+      name: "Bird Perch",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest"
+      ],
+      healthValue: 3,
+      needs: [
+        "shelter",
+        "open"
+      ],
+      shape: "perch",
+      color: "#9a7448",
+      description: "A tall snag for singing and scouting."
+    },
+    {
+      id: "simple-path",
+      name: "Stepping-Stone Path",
+      placement: "both",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 1,
+      needs: [
+        "open"
+      ],
+      shape: "path",
+      color: "#c9b98a",
+      description: "Flat stepping stones that keep your boots off the new growth."
+    },
+    {
+      id: "gravel-path",
+      name: "Gravel Path",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 1,
+      needs: [
+        "open"
+      ],
+      shape: "gravel",
+      color: "#a8a8a0",
+      description: "Crunchy gravel underfoot \u2014 keeps boots off the new growth."
+    },
+    {
+      id: "plank-path",
+      name: "Plank Path",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 1,
+      needs: [
+        "open"
+      ],
+      shape: "planks",
+      color: "#a3814f",
+      description: "Weathered boardwalk planks, kind to soft ground."
+    },
+    {
+      id: "flagstone-path",
+      name: "Flagstone Path",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 1,
+      needs: [
+        "open"
+      ],
+      shape: "flagstone",
+      color: "#9a948a",
+      description: "Broad flat stones set into the earth."
+    },
+    {
+      id: "mossy-path",
+      name: "Mossy Path",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 1,
+      needs: [
+        "open"
+      ],
+      shape: "mossy",
+      color: "#7fa05a",
+      description: "Old stones wearing soft green moss \u2014 the forest approves."
+    },
+    {
+      id: "wooden-bridge",
+      name: "Wooden Bridge",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 1,
+      needs: [
+        "open"
+      ],
+      shape: "bridge",
+      color: "#a3814f",
+      bridge: true,
+      description: "A sturdy plank bridge \u2014 place it on open water to cross your rivers and lakes."
+    },
+    {
+      id: "wooden-fence",
+      name: "Wooden Fence",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 1,
+      needs: [
+        "open"
+      ],
+      shape: "fence",
+      color: "#a3814f",
+      description: "A low rail fence that marks quiet zones for recovering ground."
+    },
+    {
+      id: "nesting-tree",
+      name: "Nesting Tree",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 8,
+      needs: [
+        "shelter",
+        "plant"
+      ],
+      shape: "tree",
+      color: "#3f6e38",
+      description: "A fast-growing native tree planted for squirrels, owls, and nuthatches."
+    },
+    {
+      id: "standing-deadwood",
+      name: "Standing Deadwood",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "deadwood",
+      color: "#8d7a5e",
+      description: "A safely anchored dead snag. Woodpecker real estate."
+    },
+    {
+      id: "mushroom-log",
+      name: "Mushroom Log",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 5,
+      needs: [
+        "food",
+        "shelter"
+      ],
+      shape: "log",
+      color: "#7c6248",
+      description: "A damp, mossy log seeded with fungi. Salamanders and slugs love the shade."
+    },
+    {
+      id: "reed-bed",
+      name: "Reed Bed",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 6,
+      needs: [
+        "plant",
+        "shelter",
+        "food"
+      ],
+      shape: "reed",
+      color: "#7fa05a",
+      description: "Dense replanted reeds \u2014 nursery for frogs, dragonflies, and blackbirds.",
+      plantable: true,
+      plantCost: {
+        reeds: 3
+      },
+      growSeconds: 45
+    },
+    {
+      id: "mud-bank",
+      name: "Mud Bank",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "mound",
+      color: "#7a6a52",
+      requiresTool: {
+        id: "shovel",
+        tier: 2
+      },
+      description: "A shaped soft bank for burrowing and basking. Requires the restoration shovel."
+    },
+    {
+      id: "nesting-platform",
+      name: "Nesting Platform",
+      placement: "outdoor",
+      biomes: [
+        "wetland",
+        "coastal"
+      ],
+      healthValue: 6,
+      needs: [
+        "shelter"
+      ],
+      shape: "platform",
+      color: "#9a8a64",
+      description: "A raised, quiet platform safe from floods and footsteps."
+    },
+    {
+      id: "cattail-stand",
+      name: "Cattail Stand",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 6,
+      needs: [
+        "plant",
+        "shelter"
+      ],
+      shape: "reed",
+      color: "#8aa85a",
+      description: "Tall cattails along the water's edge \u2014 cover for nesting marsh birds and shade for the shallows.",
+      plantable: true,
+      plantCost: {
+        reeds: 2
+      },
+      growSeconds: 45
+    },
+    {
+      id: "marsh-log",
+      name: "Marsh Log",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "log",
+      color: "#6e553c",
+      description: "A half-sunken log for turtles and frogs to bask on and otters to slip beneath."
+    },
+    {
+      id: "lily-pool",
+      name: "Lily Pool",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant"
+      ],
+      shape: "pool",
+      color: "#6fae86",
+      description: "Still, clean water blanketed with lily pads \u2014 a hatchery for dragonflies and frogs."
+    },
+    {
+      id: "burrow-mound",
+      name: "Burrow Mound",
+      placement: "outdoor",
+      biomes: [
+        "desert",
+        "alpine"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "mound",
+      color: "#c2a070",
+      requiresTool: {
+        id: "shovel",
+        tier: 2
+      },
+      description: "A starter burrow bank for diggers. Requires the restoration shovel."
+    },
+    {
+      id: "cactus-patch",
+      name: "Cactus Patch",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 6,
+      needs: [
+        "food",
+        "plant"
+      ],
+      shape: "cactus",
+      color: "#5e8a4a",
+      description: "Transplanted native cactus. Fruit, moisture, and a fortress in one.",
+      plantable: true,
+      plantCost: {
+        "cactus-fruit": 2
+      },
+      growSeconds: 70
+    },
+    {
+      id: "desert-brush",
+      name: "Desert Brush",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant",
+        "shelter"
+      ],
+      shape: "brush",
+      color: "#8a8a4e",
+      description: "Hardy scrub that throws precious shade.",
+      plantable: true,
+      plantCost: {
+        sand: 2
+      },
+      growSeconds: 50
+    },
+    {
+      id: "shaded-rock-shelter",
+      name: "Shaded Rock Shelter",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "shade",
+      color: "#a08a72",
+      description: "Stacked slabs with a cool dark gap \u2014 shelter from the midday sun."
+    },
+    {
+      id: "alpine-wildflower-patch",
+      name: "Alpine Wildflower Patch",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 6,
+      needs: [
+        "food",
+        "plant"
+      ],
+      shape: "flowers",
+      color: "#9d86d9",
+      description: "Tough little high-country flowers for alpine pollinators.",
+      plantable: true,
+      plantCost: {
+        "alpine-flowers": 2
+      },
+      growSeconds: 45
+    },
+    {
+      id: "snowmelt-pool",
+      name: "Snowmelt Pool",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 6,
+      needs: [
+        "water"
+      ],
+      shape: "pool",
+      color: "#8fd0e8",
+      description: "A stone-lined pool that catches cold, clean snowmelt."
+    },
+    {
+      id: "tidepool",
+      name: "Tidepool",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 7,
+      needs: [
+        "water",
+        "shelter"
+      ],
+      shape: "tidepool",
+      color: "#5d96c8",
+      description: "A restored rocky pool that holds the sea between tides."
+    },
+    {
+      id: "dune-grass",
+      name: "Dune Grass",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant",
+        "open"
+      ],
+      shape: "dunegrass",
+      color: "#bdb670",
+      description: "Deep-rooted grass that anchors the dunes and hides shorebird nests.",
+      plantable: true,
+      plantCost: {
+        sand: 2
+      },
+      growSeconds: 45
+    },
+    {
+      id: "driftwood-shelter",
+      name: "Driftwood Shelter",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "driftwood",
+      color: "#b0a088",
+      description: "Weathered driftwood stacked into beach shelter."
+    },
+    {
+      id: "kelp-wrack",
+      name: "Kelp Wrack",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 5,
+      needs: [
+        "food"
+      ],
+      shape: "kelp",
+      color: "#6a7a3a",
+      description: "A protected line of washed-up kelp \u2014 a buffet for the whole beach."
+    },
+    {
+      id: "coastal-nesting-area",
+      name: "Coastal Nesting Area",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 7,
+      needs: [
+        "shelter",
+        "open"
+      ],
+      shape: "nest",
+      color: "#d8c8a0",
+      description: "A roped-off quiet stretch of upper beach for nesting."
+    },
+    {
+      id: "small-chest",
+      name: "Small Chest",
+      placement: "both",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "chest",
+      color: "#8a6a44",
+      isChest: true,
+      chestCapacity: 60,
+      description: "A woven-and-wood chest. Holds 60 materials. Place it near your workbench to link it."
+    },
+    {
+      id: "medium-chest",
+      name: "Medium Chest",
+      placement: "both",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "chest",
+      color: "#6e553c",
+      isChest: true,
+      chestCapacity: 120,
+      description: "A sturdier chest. Holds 120 materials."
+    },
+    {
+      id: "field-journal-stand",
+      name: "Field Journal Stand",
+      placement: "both",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 1,
+      needs: [],
+      shape: "stand",
+      color: "#9a7448",
+      description: "A little lectern for your field journal \u2014 read it anywhere you place one."
+    },
+    {
+      id: "cozy-rug",
+      name: "Picnic Rug",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "rug",
+      color: "#b5707a",
+      description: "A hand-woven rug for resting beside your work. Purely cozy."
+    },
+    {
+      id: "flower-vase",
+      name: "Potted Flowers",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "vase",
+      color: "#7a9ac0",
+      description: "A clay pot of meadow flowers to brighten your camp."
+    },
+    {
+      id: "wetland-restoration-kit",
+      name: "Wetland Restoration Kit",
+      placement: "none",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "kit",
+      color: "#6fa8d6",
+      description: "Liners, filters, and channel tools \u2014 everything needed to re-water the wetland. Crafting it helps unlock Rushwater Wetland."
+    },
+    {
+      id: "migration-path-marker",
+      name: "Migration Path Marker",
+      placement: "none",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "kit",
+      color: "#9d86d9",
+      description: "Cairns and markers that restore a safe migration path through the heights. Crafting it helps unlock Pelican Shore."
+    },
+    {
+      id: "meadow-restoration-kit",
+      name: "Meadow Restoration Kit",
+      placement: "none",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "kit",
+      color: "#8fbf6f",
+      description: "Seed mixes, fiber twine, and trail tools to open the overgrown forest path. Crafting it helps unlock Old Hollow Forest."
+    },
+    {
+      id: "scrubland-restoration-kit",
+      name: "Scrubland Restoration Kit",
+      placement: "none",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "kit",
+      color: "#6aa884",
+      description: "Sediment sleds and hardy cuttings to carry restoration into the dry scrubland. Crafting it helps unlock Redstone Scrubland."
+    },
+    {
+      id: "alpine-restoration-kit",
+      name: "Alpine Restoration Kit",
+      placement: "none",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "kit",
+      color: "#d6a96a",
+      description: "Shade cloth, water caches, and climbing gear for the high country. Crafting it helps unlock Graywind Heights."
+    },
+    {
+      id: "stone-lantern",
+      name: "Stone Lantern",
+      placement: "both",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "lantern",
+      color: "#caa15a",
+      description: "A little stone lantern with a warm glow to light the path."
+    },
+    {
+      id: "wooden-bench",
+      name: "Wooden Bench",
+      placement: "both",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "bench",
+      color: "#a3814f",
+      description: "A weathered bench \u2014 a quiet place to sit and watch the wildlife."
+    },
+    {
+      id: "garden-arch",
+      name: "Garden Arch",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland"
+      ],
+      healthValue: 1,
+      needs: [
+        "plant"
+      ],
+      shape: "arch",
+      color: "#5e9455",
+      description: "A flowering arch that frames a path and feeds passing pollinators."
+    },
+    {
+      id: "bird-bath",
+      name: "Bird Bath",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest",
+        "alpine",
+        "desert"
+      ],
+      healthValue: 2,
+      needs: [
+        "water"
+      ],
+      shape: "birdbath",
+      color: "#7fb4d8",
+      description: "Fresh water for songbirds to drink and bathe."
+    },
+    {
+      id: "trail-signpost",
+      name: "Trail Signpost",
+      placement: "both",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "signpost",
+      color: "#a3814f",
+      description: "A hand-painted signpost to guide visitors through the preserve."
+    },
+    {
+      id: "planter-box",
+      name: "Planter Box",
+      placement: "both",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 1,
+      needs: [
+        "plant"
+      ],
+      shape: "planter",
+      color: "#8c6a42",
+      description: "A timber planter box brimming with flowers."
+    },
+    {
+      id: "gazebo",
+      name: "Gazebo",
+      placement: "both",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "gazebo",
+      color: "#7a9aa8",
+      description: "A roofed open-air pavilion \u2014 a charming centerpiece and a shady spot to watch the preserve."
+    },
+    {
+      id: "clover-patch",
+      name: "Clover Patch",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "alpine"
+      ],
+      healthValue: 4,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "clover",
+      color: "#6fae5a",
+      description: "Low clover and trefoil \u2014 nectar for bees and forage for rabbits."
+    },
+    {
+      id: "brush-pile",
+      name: "Brush Pile",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "forest"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter"
+      ],
+      shape: "brushpile",
+      color: "#8a7048",
+      description: "A loose pile of branches \u2014 cover for small mammals and ground birds."
+    },
+    {
+      id: "fern-grove",
+      name: "Fern Grove",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant",
+        "shelter"
+      ],
+      shape: "fernclump",
+      color: "#5e8a4a",
+      description: "Shady arching ferns that carpet the forest floor.",
+      plantable: true,
+      plantCost: {
+        moss: 2
+      },
+      growSeconds: 50
+    },
+    {
+      id: "tree-stump",
+      name: "Tree Stump",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#8a6a44",
+      description: "A mossy old stump riddled with cavities for dens and grubs."
+    },
+    {
+      id: "sedge-tussock",
+      name: "Sedge Tussock",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant",
+        "shelter"
+      ],
+      shape: "sedge",
+      color: "#8aa85a",
+      description: "Clumped sedges along the shallows \u2014 nesting cover for marsh birds.",
+      plantable: true,
+      plantCost: {
+        reeds: 2
+      },
+      growSeconds: 45
+    },
+    {
+      id: "alder-snag",
+      name: "Alder Snag",
+      placement: "outdoor",
+      biomes: [
+        "wetland",
+        "forest"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "snag",
+      color: "#8a7860",
+      description: "A standing dead alder \u2014 perch and cavity nest above the water."
+    },
+    {
+      id: "agave-rosette",
+      name: "Agave Rosette",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 4,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "agave",
+      color: "#6f8a5a",
+      description: "A spiny rosette whose tall bloom feeds desert pollinators.",
+      plantable: true,
+      plantCost: {
+        "cactus-fruit": 1,
+        sand: 1
+      },
+      growSeconds: 60
+    },
+    {
+      id: "ocotillo",
+      name: "Ocotillo",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 4,
+      needs: [
+        "plant",
+        "shelter"
+      ],
+      shape: "ocotillo",
+      color: "#9a6a4a",
+      description: "Whip-like stalks with crimson tips \u2014 cover and nectar in the open flats.",
+      plantable: true,
+      plantCost: {
+        sand: 1,
+        branches: 1
+      },
+      growSeconds: 60
+    },
+    {
+      id: "heather-mat",
+      name: "Heather Mat",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 4,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "heather",
+      color: "#a06aa8",
+      description: "A low alpine mat of heather blossoms above the talus.",
+      plantable: true,
+      plantCost: {
+        "alpine-flowers": 2
+      },
+      growSeconds: 50
+    },
+    {
+      id: "krummholz-pine",
+      name: "Krummholz Pine",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "krummholz",
+      color: "#3f5e3a",
+      description: "A wind-sculpted dwarf pine \u2014 rare shelter at the tree line."
+    },
+    {
+      id: "eelgrass-bed",
+      name: "Eelgrass Bed",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "seagrass",
+      color: "#6a9a7a",
+      description: "Swaying eelgrass \u2014 nursery for fish and grazing for sea geese.",
+      plantable: true,
+      plantCost: {
+        sand: 1,
+        driftwood: 1
+      },
+      growSeconds: 45
+    },
+    {
+      id: "oyster-bed",
+      name: "Oyster Bed",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 5,
+      needs: [
+        "food",
+        "shelter"
+      ],
+      shape: "oyster",
+      color: "#8e8e8a",
+      description: "A clustered shellfish reef that filters the tide and feeds shorebirds."
+    },
+    {
+      id: "daisy-patch",
+      name: "Daisy Patch",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 4,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "daisies",
+      color: "#e8e8e8",
+      plantable: true,
+      plantCost: {
+        seeds: 2
+      },
+      growSeconds: 45,
+      description: "Cheerful oxeye daisies that open with the morning sun."
+    },
+    {
+      id: "foxglove",
+      name: "Foxglove",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "foxglove",
+      color: "#c45ad0",
+      plantable: true,
+      plantCost: {
+        seeds: 2,
+        wildflowers: 1
+      },
+      growSeconds: 50,
+      description: "Tall pink foxglove spires \u2014 a bumblebee favourite."
+    },
+    {
+      id: "mushroom-ring",
+      name: "Mushroom Ring",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "mushrooms",
+      color: "#c0392b",
+      plantable: true,
+      plantCost: {
+        mushrooms: 2
+      },
+      growSeconds: 45,
+      description: "A fairy ring of woodland mushrooms in the leaf litter."
+    },
+    {
+      id: "birch-tree",
+      name: "Birch Tree",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 8,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "birch",
+      color: "#e8e6df",
+      plantable: true,
+      plantCost: {
+        seeds: 2,
+        bark: 1
+      },
+      growSeconds: 90,
+      description: "A slender white-barked birch grown from a watered bed."
+    },
+    {
+      id: "marsh-marigold",
+      name: "Marsh Marigold",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "marshflower",
+      color: "#e3b93f",
+      plantable: true,
+      plantCost: {
+        reeds: 1,
+        seeds: 1
+      },
+      growSeconds: 45,
+      description: "Golden marsh marigolds that ring the shallows in spring."
+    },
+    {
+      id: "bulrush",
+      name: "Bulrush",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "bulrush",
+      color: "#7a5a3a",
+      plantable: true,
+      plantCost: {
+        reeds: 2
+      },
+      growSeconds: 45,
+      description: "Stately bulrushes with brown velvet heads along the bank."
+    },
+    {
+      id: "prickly-pear",
+      name: "Prickly Pear",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 6,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "pricklypear",
+      color: "#5e8a4a",
+      plantable: true,
+      plantCost: {
+        "cactus-fruit": 2
+      },
+      growSeconds: 70,
+      description: "Pad cactus with sweet fruit and bright blooms."
+    },
+    {
+      id: "desert-marigold",
+      name: "Desert Marigold",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 4,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "desertbloom",
+      color: "#e88a2f",
+      plantable: true,
+      plantCost: {
+        sand: 1,
+        seeds: 1
+      },
+      growSeconds: 50,
+      description: "Drought-tough marigolds that glow against the sand."
+    },
+    {
+      id: "gentian-patch",
+      name: "Alpine Gentian",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "gentian",
+      color: "#3a6ad0",
+      plantable: true,
+      plantCost: {
+        "alpine-flowers": 2
+      },
+      growSeconds: 45,
+      description: "Vivid blue alpine gentians, low against the wind."
+    },
+    {
+      id: "moss-cushion",
+      name: "Moss Cushion",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 4,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "cushion",
+      color: "#6fae5a",
+      plantable: true,
+      plantCost: {
+        moss: 2
+      },
+      growSeconds: 45,
+      description: "A springy cushion of moss dotted with tiny blooms."
+    },
+    {
+      id: "sea-thrift",
+      name: "Sea Thrift",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "thrift",
+      color: "#e57aa8",
+      plantable: true,
+      plantCost: {
+        sand: 1,
+        seeds: 1
+      },
+      growSeconds: 45,
+      description: "Pink sea-thrift pompoms that thrive in salt spray."
+    },
+    {
+      id: "beach-shrub",
+      name: "Beach Shrub",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "coastalshrub",
+      color: "#7d8f6a",
+      plantable: true,
+      plantCost: {
+        sand: 1,
+        driftwood: 1
+      },
+      growSeconds: 55,
+      description: "A salt-hardy grey-green coastal shrub."
+    }
+  ]
+};
+
+// data/tools.json
+var tools_default = {
+  database: "wildwillows",
+  table: "ToolDef",
+  records: [
+    {
+      id: "basket",
+      name: "Gathering Basket",
+      description: "For gently collecting light, renewable materials: seeds, berries, flowers, fiber, shells.",
+      tiers: [
+        { tier: 1, name: "Gathering Basket", effect: "Carry up to 80 materials and gather 1 at a time." },
+        {
+          tier: 2,
+          name: "Reinforced Gathering Basket",
+          effect: "Carry up to 160 materials and gather 2 light materials at a time.",
+          materials: { fiber: 8, branches: 4, bark: 2 },
+          requires: { biome: "meadow", minHealth: 40 }
+        },
+        {
+          tier: 3,
+          name: "Woven Carryall",
+          effect: "Carry up to 260 materials and gather 3 at a time.",
+          materials: { fiber: 10, bark: 4, moss: 4 },
+          requires: { biome: "forest", minHealth: 60 }
+        },
+        {
+          tier: 4,
+          name: "Naturalist's Pack",
+          effect: "Carry up to 380 materials and gather 4 at a time.",
+          materials: { reeds: 8, fiber: 8, clay: 4 },
+          requires: { biome: "wetland", minHealth: 65 }
+        }
+      ]
+    },
+    {
+      id: "shovel",
+      name: "Basic Shovel",
+      description: "For carefully digging stones, clay, and sand, and preparing restoration ground.",
+      tiers: [
+        { tier: 1, name: "Basic Shovel", effect: "Dig stones, clay, and sand; gather 1 at a time." },
+        {
+          tier: 2,
+          name: "Restoration Shovel",
+          effect: "Shape wetland mud banks and burrow mounds; gather 2 dug materials.",
+          materials: { branches: 4, stones: 6, fiber: 2 },
+          requires: { biome: "meadow", minHealth: 30 }
+        },
+        {
+          tier: 3,
+          name: "Tempered Spade",
+          effect: "Dig faster and gather 3 dug materials at a time.",
+          materials: { stones: 8, bark: 3, clay: 4 },
+          requires: { biome: "forest", minHealth: 55 }
+        },
+        {
+          tier: 4,
+          name: "Earthshaper's Spade",
+          effect: "Shape the toughest ground and gather 4 dug materials at a time.",
+          materials: { stones: 10, clay: 6, reeds: 4 },
+          requires: { biome: "wetland", minHealth: 65 }
+        }
+      ]
+    },
+    {
+      id: "watering-can",
+      name: "Tin Watering Can",
+      description: "For carrying water to thirsty ground and new plantings.",
+      tiers: [
+        { tier: 1, name: "Tin Watering Can", effect: "Collect 1 water from springs and streams." },
+        {
+          tier: 2,
+          name: "Rainwater Canteen",
+          effect: "Collect 2 water at a time \u2014 restore dry ground more efficiently.",
+          materials: { clay: 6, fiber: 3, water: 4 },
+          requires: { biome: "meadow", minHealth: 30 }
+        },
+        {
+          tier: 3,
+          name: "Spring-fed Ewer",
+          effect: "Collect 3 water at a time for rivers, lakes, and lush beds.",
+          materials: { clay: 8, bark: 4, water: 6 },
+          requires: { biome: "forest", minHealth: 55 }
+        },
+        {
+          tier: 4,
+          name: "Cloudcatcher Urn",
+          effect: "Collect 4 water at a time \u2014 flood whole channels in a few trips.",
+          materials: { clay: 10, "clean-water": 6, stones: 4 },
+          requires: { biome: "wetland", minHealth: 65 }
+        }
+      ]
+    },
+    {
+      id: "field-journal",
+      name: "Field Journal",
+      description: "For observing animals and recording who has returned. Each upgrade unlocks the full field entries and return hints for the next area.",
+      tiers: [
+        { tier: 1, name: "Field Journal", effect: "Read full entries and hints for Willow Meadow animals." },
+        {
+          tier: 2,
+          name: "Expanded Field Guide",
+          effect: "Read full entries and hints for Old Hollow Forest animals.",
+          materials: { bark: 4, fiber: 4, berries: 2 },
+          requires: { biome: "meadow", minHealth: 50 }
+        },
+        {
+          tier: 3,
+          name: "Wetland Field Guide",
+          effect: "Read full entries and hints for Rushwater Wetland animals.",
+          materials: { moss: 4, bark: 3, mushrooms: 2 },
+          requires: { biome: "forest", minHealth: 55 }
+        },
+        {
+          tier: 4,
+          name: "Drylands Field Guide",
+          effect: "Read full entries and hints for Redstone Scrubland animals.",
+          materials: { reeds: 4, clay: 3, mud: 2 },
+          requires: { biome: "wetland", minHealth: 60 }
+        },
+        {
+          tier: 5,
+          name: "Highlands Field Guide",
+          effect: "Read full entries and hints for Graywind Heights animals.",
+          materials: { sand: 4, "cactus-fruit": 2, clay: 2 },
+          requires: { biome: "desert", minHealth: 60 }
+        },
+        {
+          tier: 6,
+          name: "Master Naturalist's Guide",
+          effect: "Read full entries and hints for Pelican Shore animals \u2014 the complete field guide.",
+          materials: { "alpine-flowers": 3, moss: 2, stones: 3 },
+          requires: { biome: "alpine", minHealth: 60 }
+        }
+      ]
+    }
+  ]
+};
+
+// data/resources.json
+var resources_default = {
+  database: "wildwillows",
+  table: "ResourceType",
+  records: [
+    { id: "seeds", name: "Seeds", tool: "basket", color: "#caa84e" },
+    { id: "berries", name: "Berries", tool: "basket", color: "#a4486c" },
+    { id: "stones", name: "Stones", tool: "shovel", color: "#9a9a98" },
+    { id: "branches", name: "Fallen Branches", tool: "basket", color: "#8a6a44" },
+    { id: "wildflowers", name: "Wildflowers", tool: "basket", color: "#d77bb1" },
+    { id: "reeds", name: "Reeds", tool: "basket", color: "#7fa05a" },
+    { id: "clay", name: "Clay", tool: "shovel", color: "#b07a52" },
+    { id: "water", name: "Water", tool: "watering-can", color: "#6fa8d6" },
+    { id: "fiber", name: "Plant Fiber", tool: "basket", color: "#b8b06a" },
+    { id: "mushrooms", name: "Mushrooms", tool: "basket", color: "#c8997a" },
+    { id: "pinecones", name: "Pinecones", tool: "basket", color: "#7d5b3a" },
+    { id: "acorns", name: "Acorns", tool: "basket", color: "#a07a3e" },
+    { id: "sand", name: "Sand", tool: "shovel", color: "#dcc890" },
+    { id: "shells", name: "Shells", tool: "basket", color: "#e6d8c8" },
+    { id: "driftwood", name: "Driftwood", tool: "basket", color: "#b0a088" },
+    { id: "alpine-flowers", name: "Alpine Flowers", tool: "basket", color: "#9d86d9" },
+    { id: "cactus-fruit", name: "Cactus Fruit", tool: "basket", color: "#d96a5a" },
+    { id: "mud", name: "Mud", tool: "shovel", color: "#7a6a52" },
+    { id: "clean-water", name: "Clean Water", tool: "watering-can", color: "#8fd0e8" },
+    { id: "bark", name: "Bark", tool: "basket", color: "#6e553c" },
+    { id: "moss", name: "Moss", tool: "basket", color: "#5d8a4a" }
+  ]
+};
+
+// data/animals-1.json
+var animals_1_default = {
+  database: "wildwillows",
+  table: "Animal",
+  records: [
+    { id: "cottontail-rabbit", name: "Cottontail Rabbit", biome: "meadow", kind: "mammal", rarity: "common", featured: true, diet: "Grasses, clover, and berries", shelter: "Shrub cover and brush piles", preferredHabitat: "Open grass with shrubby edges to dart into", fact: "Cottontails rest in shallow ground depressions called 'forms' rather than digging their own burrows.", requirements: { minHealth: 25, objects: { "native-grass-patch": 1, "berry-bush": 1, shrub: 1 }, hint: "Plant native grass and a berry bush, with shrub cover close by." } },
+    { id: "monarch-butterfly", name: "Monarch Butterfly", biome: "meadow", kind: "insect", rarity: "common", featured: true, diet: "Flower nectar; caterpillars eat only milkweed", shelter: "Flower patches and sheltering plants", preferredHabitat: "Sunny flower patches with milkweed", fact: "Monarchs migrate up to 3,000 miles, and no single butterfly makes the whole round trip.", requirements: { minHealth: 15, objects: { "wildflower-patch": 1, "butterfly-flowers": 1 }, hint: "Wildflowers plus dedicated butterfly flowers with milkweed." } },
+    { id: "song-sparrow", name: "Song Sparrow", biome: "meadow", kind: "bird", rarity: "common", featured: true, diet: "Seeds and small insects", shelter: "Low shrubs and grass tussocks", preferredHabitat: "Brushy edges with singing perches", fact: "A single song sparrow may know as many as 20 different song variations.", requirements: { minHealth: 20, objects: { shrub: 1, "native-grass-patch": 1, "bird-perch": 1 }, hint: "Shrubs, native grass, and somewhere high to sing from." } },
+    { id: "mule-deer", name: "Mule Deer", biome: "meadow", kind: "mammal", rarity: "uncommon", featured: true, diet: "Grasses, shrubs, and tender shoots", shelter: "Shrub thickets at the meadow edge", preferredHabitat: "Healthy open meadow with browse and water", fact: "Mule deer are named for their oversized ears, which move independently like a mule's.", requirements: { minHealth: 45, objects: { shrub: 2, "native-grass-patch": 2, "small-pond": 1 }, hint: "A healthier meadow with plenty of browse and a pond to drink from." } },
+    { id: "red-fox-meadow", name: "Red Fox", biome: "meadow", kind: "mammal", rarity: "rare", featured: true, diet: "Voles, rabbits, insects, and berries", shelter: "Hollow logs and dense shrub cover", preferredHabitat: "A thriving meadow with plenty of small animals", fact: "Red foxes use Earth's magnetic field to help judge their famous high pounce on hidden prey.", requirements: { minHealth: 55, minBalance: 40, objects: { "hollow-log": 1, shrub: 2 }, animals: ["meadow-vole", "cottontail-rabbit"], hint: "Foxes only return once smaller animals are back, with denning cover and a balanced meadow." } },
+    { id: "meadow-vole", name: "Meadow Vole", biome: "meadow", kind: "mammal", rarity: "common", diet: "Grass stems, seeds, and roots", shelter: "Runways under dense grass", preferredHabitat: "Thick grass with hidden runways", fact: "Meadow voles cut tiny tunnels through grass called runways, which feed half the food web.", requirements: { minHealth: 15, objects: { "grass-patch": 1, "native-grass-patch": 1 }, hint: "Any thick grass cover will do \u2014 voles arrive early." } },
+    { id: "ground-squirrel", name: "Ground Squirrel", biome: "meadow", kind: "mammal", rarity: "common", diet: "Seeds, grasses, and flowers", shelter: "Burrows near rock cover", preferredHabitat: "Open grass near rocky lookout points", fact: "Ground squirrels kick sand at rattlesnakes and wave their heated tails to confuse them.", requirements: { minHealth: 25, objects: { "rock-pile": 1, "native-grass-patch": 1 }, hint: "Grass to eat and rocks to keep watch from." } },
+    { id: "garter-snake-meadow", name: "Garter Snake", biome: "meadow", kind: "reptile", rarity: "uncommon", diet: "Worms, insects, and small rodents", shelter: "Rock piles and grass cover", preferredHabitat: "Sunny rocks beside hunting grass", fact: "Garter snakes are mildly venomous to their tiny prey but completely harmless to people.", requirements: { minHealth: 30, objects: { "rock-pile": 1, "grass-patch": 1 }, animals: ["meadow-vole"], hint: "Warm rocks, grass to hunt in, and small prey already about." } },
+    { id: "bumblebee", name: "Bumblebee", biome: "meadow", kind: "insect", rarity: "common", diet: "Nectar and pollen", shelter: "Old burrows and grass tussocks", preferredHabitat: "Flower-rich meadow", fact: "Bumblebees 'buzz pollinate' \u2014 vibrating flowers at just the right frequency to shake pollen loose.", requirements: { minHealth: 15, objects: { "wildflower-patch": 1, "pollinator-garden": 1 }, hint: "The more kinds of flowers, the better." } },
+    { id: "grasshopper", name: "Grasshopper", biome: "meadow", kind: "insect", rarity: "common", diet: "Grasses and leafy plants", shelter: "Tall grass", preferredHabitat: "Any recovering grassland", fact: "Grasshoppers hear through tiny membranes on their abdomen, not their heads.", requirements: { minHealth: 10, objects: { "grass-patch": 1 }, hint: "Grasshoppers return almost as soon as the grass does." } },
+    { id: "lady-beetle", name: "Lady Beetle", biome: "meadow", kind: "insect", rarity: "common", diet: "Aphids and other tiny insects", shelter: "Flower stems and leaf litter", preferredHabitat: "Flower patches with plenty of aphids", fact: "A single lady beetle can eat 5,000 aphids over its lifetime \u2014 a gardener's best friend.", requirements: { minHealth: 12, objects: { "wildflower-patch": 1 }, hint: "Flowers bring aphids, and aphids bring lady beetles." } },
+    { id: "western-meadowlark", name: "Western Meadowlark", biome: "meadow", kind: "bird", rarity: "uncommon", diet: "Insects, grain, and weed seeds", shelter: "Ground nests woven into thick grass", preferredHabitat: "Wide native grassland with song perches", fact: "The western meadowlark's flute-like song is the state bird anthem of six U.S. states.", requirements: { minHealth: 35, objects: { "native-grass-patch": 2, "bird-perch": 1 }, hint: "Meadowlarks need real expanses of native grass before they will nest." } },
+    { id: "barn-swallow", name: "Barn Swallow", biome: "meadow", kind: "bird", rarity: "uncommon", diet: "Flying insects caught on the wing", shelter: "Mud nests on sheltered ledges", preferredHabitat: "Open air above water and flowers", fact: "Barn swallows build their cup nests from up to 1,000 individual beakfuls of mud.", requirements: { minHealth: 30, objects: { "small-pond": 1, "bird-perch": 1 }, hint: "A pond for mud and insects, and a perch to rest between flights." } },
+    { id: "red-tailed-hawk", name: "Red-tailed Hawk", biome: "meadow", kind: "bird", rarity: "rare", diet: "Voles, squirrels, and other small animals", shelter: "Tall perches overlooking open ground", preferredHabitat: "A full, busy meadow seen from above", fact: "That piercing 'eagle' cry in the movies is almost always actually a red-tailed hawk.", requirements: { minHealth: 60, minBalance: 40, objects: { "bird-perch": 1 }, animals: ["meadow-vole", "ground-squirrel"], hint: "Hawks watch for a meadow already full of small animals." } },
+    { id: "barn-owl", name: "Barn Owl", biome: "meadow", kind: "bird", rarity: "rare", diet: "Voles and mice, hunted at night", shelter: "Dark cavities and quiet structures", preferredHabitat: "Quiet meadow nights with rustling grass", fact: "A barn owl can strike prey in total darkness, guided by ears set at different heights.", requirements: { minHealth: 65, minBalance: 40, objects: { "log-shelter": 1 }, animals: ["meadow-vole"], hint: "A quiet, healthy meadow with plenty of voles and a dark place to roost." } },
+    { id: "tree-squirrel", name: "Tree Squirrel", biome: "forest", kind: "mammal", rarity: "common", featured: true, diet: "Acorns, pinecones, seeds, and fungi", shelter: "Tree hollows and leafy dreys", preferredHabitat: "Trees with fallen logs and seed caches below", fact: "Squirrels forget some of their buried caches every year \u2014 and those lost seeds become new trees.", requirements: { minHealth: 20, objects: { "nesting-tree": 1, "log-shelter": 1 }, hint: "A nesting tree and fallen logs with seeds to cache." } },
+    { id: "woodpecker", name: "Woodpecker", biome: "forest", kind: "bird", rarity: "common", featured: true, diet: "Beetle larvae and insects under bark", shelter: "Cavities drilled into standing deadwood", preferredHabitat: "Standing dead snags full of insects", fact: "Woodpeckers wrap their long tongues around the back of their skull as built-in shock absorbers.", requirements: { minHealth: 25, objects: { "standing-deadwood": 1 }, hint: "Woodpeckers need standing deadwood \u2014 keep some snags up." } },
+    { id: "forest-salamander", name: "Forest Salamander", biome: "forest", kind: "amphibian", rarity: "uncommon", featured: true, diet: "Tiny insects and invertebrates", shelter: "Damp logs and cool leaf litter", preferredHabitat: "Shaded, damp logs near clean water", fact: "Many forest salamanders have no lungs at all \u2014 they breathe entirely through their moist skin.", requirements: { minHealth: 30, objects: { "mushroom-log": 1, "shallow-water-pool": 1 }, hint: "Damp shaded logs and clean shallow water." } },
+    { id: "great-horned-owl", name: "Great Horned Owl", biome: "forest", kind: "bird", rarity: "rare", featured: true, diet: "Squirrels, rabbits, and other small animals", shelter: "Tall trees with quiet, hidden roosts", preferredHabitat: "Mature quiet forest with plentiful prey", fact: "A great horned owl's grip is strong enough that it can carry prey heavier than itself.", requirements: { minHealth: 55, minBalance: 40, objects: { "nesting-tree": 2 }, animals: ["tree-squirrel", "chipmunk"], hint: "Tall trees, quiet shelter, and prey animals already returned." } },
+    { id: "black-bear", name: "Black Bear", biome: "forest", kind: "mammal", rarity: "rare", featured: true, diet: "Berries, nuts, insects, and fish", shelter: "Dense cover and sheltered dens", preferredHabitat: "A deeply restored forest with abundant food", fact: "Black bears can smell food from over a mile away \u2014 the best nose in the forest.", requirements: { minHealth: 85, minBalance: 50, objects: { "berry-bush": 3, "small-pond": 1, "log-shelter": 1 }, hint: "Bears return only to a richly restored forest: lots of berries, water, shelter, and space." } },
+    { id: "red-fox-forest", name: "Red Fox", biome: "forest", kind: "mammal", rarity: "uncommon", diet: "Small mammals, insects, and fruit", shelter: "Hollow logs and root dens", preferredHabitat: "Forest edges with denning cover", fact: "Fox pairs often reuse and expand the same den site for generations.", requirements: { minHealth: 50, objects: { "hollow-log": 1, shrub: 1 }, animals: ["chipmunk"], hint: "Denning cover and small prey back in the woods." } },
+    { id: "mule-deer-forest", name: "Mule Deer", biome: "forest", kind: "mammal", rarity: "uncommon", diet: "Shrubs, twigs, and forest browse", shelter: "Thickets and shaded bedding spots", preferredHabitat: "Forest openings with browse and water", fact: "Mule deer bound in a four-footed pogo gait called 'stotting' to clear obstacles downhill.", requirements: { minHealth: 45, objects: { shrub: 2, "small-pond": 1 }, hint: "Shrubby browse and a quiet pond." } },
+    { id: "elk-forest", name: "Elk", biome: "forest", kind: "mammal", rarity: "rare", diet: "Grasses and forest forage", shelter: "Forest meadows and timber edges", preferredHabitat: "Grassy clearings inside recovering forest", fact: "A bull elk's bugle can carry for miles \u2014 one of the loudest calls of any land mammal in North America.", requirements: { minHealth: 60, objects: { "grass-patch": 2, "small-pond": 1 }, hint: "Grassy clearings and water in a healthy forest." } },
+    { id: "raccoon", name: "Raccoon", biome: "forest", kind: "mammal", rarity: "common", diet: "Almost anything: fruit, insects, crayfish", shelter: "Hollow logs and tree cavities", preferredHabitat: "Woods near water for washing and foraging", fact: "A raccoon's front paws have four times more touch receptors than its eyes have light receptors.", requirements: { minHealth: 35, objects: { "hollow-log": 1, "small-pond": 1 }, hint: "A den log near water to dabble in." } },
+    { id: "porcupine", name: "Porcupine", biome: "forest", kind: "mammal", rarity: "uncommon", diet: "Bark, twigs, and spring buds", shelter: "Rock dens and hollow trees", preferredHabitat: "Quiet woods with bark to nibble", fact: "Porcupine quills have microscopic backward barbs but also a mild antibiotic coating \u2014 protection against their own clumsy falls.", requirements: { minHealth: 40, objects: { "nesting-tree": 1, "fallen-branch-shelter": 1 }, hint: "Trees to climb and brushy shelter below." } },
+    { id: "bobcat", name: "Bobcat", biome: "forest", kind: "mammal", rarity: "rare", diet: "Rabbits, squirrels, and birds", shelter: "Rock ledges and dense thickets", preferredHabitat: "A quiet, prey-rich forest", fact: "Bobcats are named for their short 'bobbed' tails and can leap ten feet in a single pounce.", requirements: { minHealth: 70, minBalance: 45, objects: { "rock-pile": 1, shrub: 2 }, animals: ["tree-squirrel", "chipmunk"], hint: "Bobcats follow plentiful prey and need rocky, brushy cover." } },
+    { id: "chipmunk", name: "Chipmunk", biome: "forest", kind: "mammal", rarity: "common", diet: "Seeds, nuts, and berries", shelter: "Burrows under rocks and logs", preferredHabitat: "Forest floor with rocky hideouts", fact: "A chipmunk's cheek pouches can stretch to three times the size of its head.", requirements: { minHealth: 20, objects: { "rock-pile": 1, "fallen-branch-shelter": 1 }, hint: "Rocky cover and brush piles on the forest floor." } },
+    { id: "nuthatch", name: "Nuthatch", biome: "forest", kind: "bird", rarity: "common", diet: "Insects and seeds wedged into bark", shelter: "Tree cavities", preferredHabitat: "Trees with rough bark to forage down", fact: "Nuthatches are the only birds that routinely walk headfirst down tree trunks.", requirements: { minHealth: 30, objects: { "nesting-tree": 1, "standing-deadwood": 1 }, hint: "Live trees to forage and deadwood to nest in." } },
+    { id: "garter-snake-forest", name: "Garter Snake", biome: "forest", kind: "reptile", rarity: "uncommon", diet: "Worms, amphibians, and small rodents", shelter: "Sun-warmed rocks near cover", preferredHabitat: "Sunny forest openings with rocks", fact: "Garter snakes gather in large groups to hibernate through cold winters, sharing body heat.", requirements: { minHealth: 35, objects: { "rock-pile": 1, "grass-patch": 1 }, hint: "A sunny rock pile beside grassy hunting ground." } },
+    { id: "banana-slug", name: "Banana Slug", biome: "forest", kind: "invertebrate", rarity: "common", diet: "Leaves, fungi, and forest debris", shelter: "Damp logs and moss", preferredHabitat: "Cool, damp forest floor", fact: "Banana slugs are champion recyclers, turning fallen leaves into rich soil as they go.", requirements: { minHealth: 25, objects: { "mushroom-log": 1, "shallow-water-pool": 1 }, hint: "Keep the forest floor damp, mossy, and full of logs." } },
+    { id: "beaver", name: "Beaver", biome: "wetland", kind: "mammal", rarity: "rare", featured: true, diet: "Bark, twigs, and aquatic plants", shelter: "Lodges built of mud and branches", preferredHabitat: "Channels with mud banks and woody food", fact: "Beavers are ecosystem engineers \u2014 their dams create wetlands that support hundreds of other species.", requirements: { minHealth: 60, objects: { "shallow-water-pool": 2, "mud-bank": 1, "reed-bed": 1 }, hint: "Restored water channels, mud banks, and woody plants." } },
+    { id: "river-otter", name: "River Otter", biome: "wetland", kind: "mammal", rarity: "rare", featured: true, diet: "Fish, crayfish, and frogs", shelter: "Bank dens with underwater entrances", preferredHabitat: "Clean water busy with fish", fact: "River otters slide down mudbanks on their bellies \u2014 sometimes purely, as far as anyone can tell, for fun.", requirements: { minHealth: 65, objects: { "shallow-water-pool": 2, "mud-bank": 1 }, animals: ["freshwater-fish"], hint: "Otters follow the fish. Restore clean water and den banks first." } },
+    { id: "muskrat", name: "Muskrat", biome: "wetland", kind: "mammal", rarity: "common", diet: "Cattails, reeds, and roots", shelter: "Dome lodges woven from reeds", preferredHabitat: "Reedy shallows", fact: "Muskrats can stay underwater for up to 15 minutes on a single breath.", requirements: { minHealth: 30, objects: { "reed-bed": 1, "shallow-water-pool": 1 }, hint: "Reeds to eat and build with, water to swim." } },
+    { id: "mink", name: "Mink", biome: "wetland", kind: "mammal", rarity: "rare", diet: "Fish, frogs, and small mammals", shelter: "Bank burrows near water", preferredHabitat: "Brushy banks beside busy water", fact: "Mink are strong swimmers that can dive over 15 feet deep when hunting.", requirements: { minHealth: 55, objects: { "mud-bank": 1, "reed-bed": 1 }, animals: ["chorus-frog"], hint: "Bank shelter and plenty of small wetland prey." } },
+    { id: "great-blue-heron", name: "Great Blue Heron", biome: "wetland", kind: "bird", rarity: "uncommon", featured: true, diet: "Fish, frogs, and small aquatic animals", shelter: "Quiet, raised nesting platforms", preferredHabitat: "Still shallows for slow, patient hunting", fact: "Herons strike faster than the eye can follow, but may stand motionless for an hour first.", requirements: { minHealth: 50, objects: { "shallow-water-pool": 2, "reed-bed": 1, "nesting-platform": 1 }, animals: ["freshwater-fish"], hint: "Shallow water with fish, reeds, and quiet nesting space." } },
+    { id: "mallard-duck", name: "Mallard Duck", biome: "wetland", kind: "bird", rarity: "common", diet: "Seeds, aquatic plants, and insects", shelter: "Reedy water edges", preferredHabitat: "Calm pools with cover", fact: "Mallards can sleep with one eye open, resting one half of their brain at a time.", requirements: { minHealth: 25, objects: { "shallow-water-pool": 1, "reed-bed": 1 }, hint: "Calm shallow water with reed cover." } },
+    { id: "red-winged-blackbird", name: "Red-winged Blackbird", biome: "wetland", kind: "bird", rarity: "common", diet: "Insects and seeds", shelter: "Nests woven into standing reeds", preferredHabitat: "Dense reed beds", fact: "Male red-winged blackbirds may defend territories holding a dozen nests at once.", requirements: { minHealth: 25, objects: { "reed-bed": 2 }, hint: "The thicker the reeds, the better." } },
+    { id: "sandhill-crane", name: "Sandhill Crane", biome: "wetland", kind: "bird", rarity: "rare", diet: "Grains, tubers, insects, and small animals", shelter: "Open marsh with wide sightlines", preferredHabitat: "Broad, quiet, restored marshland", fact: "Sandhill cranes dance \u2014 leaping, bowing, and tossing grass \u2014 at any age, not just to court.", requirements: { minHealth: 70, minBalance: 45, objects: { "shallow-water-pool": 2, "reed-bed": 2 }, hint: "Cranes need a wide, quiet, well-balanced marsh." } },
+    { id: "painted-turtle", name: "Painted Turtle", biome: "wetland", kind: "reptile", rarity: "common", diet: "Aquatic plants, insects, and small fish", shelter: "Muddy pond bottoms; basking logs", preferredHabitat: "Still water with basking spots", fact: "Painted turtles survive frozen winters by breathing through their skin under the ice.", requirements: { minHealth: 35, objects: { "shallow-water-pool": 1, "mud-bank": 1 }, hint: "Still water and a soft bank to bask on." } },
+    { id: "chorus-frog", name: "Chorus Frog", biome: "wetland", kind: "amphibian", rarity: "common", featured: true, diet: "Small insects", shelter: "Shallow water and wet vegetation", preferredHabitat: "Shallow pools ringed with reeds", fact: "A chorus frog's call sounds like a thumb dragged across a comb \u2014 and carries half a mile.", requirements: { minHealth: 30, objects: { "shallow-water-pool": 1, "reed-bed": 1 }, hint: "Shallow water, reeds, and insect life." } },
+    { id: "wetland-salamander", name: "Tiger Salamander", biome: "wetland", kind: "amphibian", rarity: "uncommon", diet: "Worms, insects, and small invertebrates", shelter: "Damp burrows near breeding pools", preferredHabitat: "Fishless pools with soft banks", fact: "Tiger salamanders may live 15 years or more, returning to the same breeding pool each spring.", requirements: { minHealth: 40, objects: { "shallow-water-pool": 1, "mud-bank": 1, "reed-bed": 1 }, hint: "Quiet breeding pools with soft digging banks." } },
+    { id: "dragonfly", name: "Dragonfly", biome: "wetland", kind: "insect", rarity: "common", featured: true, diet: "Mosquitoes and flying insects", shelter: "Emergent reed stems", preferredHabitat: "Clean water with reed perches", fact: "Dragonflies catch up to 95% of the prey they chase \u2014 perhaps the most successful hunters on Earth.", requirements: { minHealth: 25, objects: { "shallow-water-pool": 1, "reed-bed": 1 }, hint: "Clean water and reeds for the larvae to climb." } },
+    { id: "damselfly", name: "Damselfly", biome: "wetland", kind: "insect", rarity: "common", diet: "Small flying insects", shelter: "Waterside vegetation", preferredHabitat: "Calm, clean shallows", fact: "Unlike dragonflies, damselflies fold their wings together over their backs at rest.", requirements: { minHealth: 25, objects: { "shallow-water-pool": 1, "reed-bed": 1 }, hint: "Calm, clean water with plants at the edge." } },
+    { id: "water-strider", name: "Water Strider", biome: "wetland", kind: "insect", rarity: "common", diet: "Insects trapped on the water surface", shelter: "Still water surfaces", preferredHabitat: "Any calm pool", fact: "Water striders ride the surface tension of water on legs covered in thousands of microscopic hairs.", requirements: { minHealth: 20, objects: { "shallow-water-pool": 1 }, hint: "One calm pool is enough." } },
+    { id: "freshwater-fish", name: "Freshwater Minnows", biome: "wetland", kind: "fish", rarity: "common", diet: "Algae, plankton, and insect larvae", shelter: "Deeper pools and reed roots", preferredHabitat: "Connected clean pools", fact: "Healthy minnow schools are the foundation that herons, otters, and mink all depend on.", requirements: { minHealth: 35, objects: { "shallow-water-pool": 2, "reed-bed": 1 }, hint: "Connected clean pools with reedy cover bring fish back \u2014 and everyone who eats them." } }
+  ]
+};
+
+// data/animals-2.json
+var animals_2_default = {
+  database: "wildwillows",
+  table: "Animal",
+  records: [
+    {
+      id: "desert-cottontail",
+      name: "Desert Cottontail",
+      biome: "desert",
+      kind: "mammal",
+      rarity: "common",
+      featured: true,
+      diet: "Grasses, mesquite, and cactus",
+      shelter: "Brush cover and borrowed burrows",
+      preferredHabitat: "Brushy flats with shade",
+      fact: "Desert cottontails get nearly all their water from the plants they eat.",
+      requirements: {
+        minHealth: 25,
+        objects: {
+          "desert-brush": 1,
+          "burrow-mound": 1
+        },
+        hint: "Brush for cover and a burrow bank to shelter in."
+      }
+    },
+    {
+      id: "kit-fox",
+      name: "Kit Fox",
+      biome: "desert",
+      kind: "mammal",
+      rarity: "rare",
+      featured: true,
+      diet: "Kangaroo rats, rabbits, and insects",
+      shelter: "Cool underground dens",
+      preferredHabitat: "A thriving desert full of prey",
+      fact: "Kit foxes rarely drink water at all, surviving almost entirely on moisture from prey.",
+      requirements: {
+        minHealth: 60,
+        minBalance: 40,
+        objects: {
+          "desert-brush": 2,
+          "burrow-mound": 1
+        },
+        animals: [
+          "kangaroo-rat",
+          "desert-cottontail"
+        ],
+        hint: "Kit foxes return when prey is plentiful and dens are ready."
+      }
+    },
+    {
+      id: "coyote",
+      name: "Coyote",
+      biome: "desert",
+      kind: "mammal",
+      rarity: "rare",
+      diet: "Rodents, rabbits, fruit, and insects",
+      shelter: "Brushy washes and rock dens",
+      preferredHabitat: "Open desert with prey and cover",
+      fact: "Coyote pairs duet at dusk; two voices echoing can sound like a whole chorus.",
+      requirements: {
+        minHealth: 65,
+        objects: {
+          "desert-brush": 2,
+          "shaded-rock-shelter": 1
+        },
+        animals: [
+          "jackrabbit"
+        ],
+        hint: "Cover, shade, and prey on the move."
+      }
+    },
+    {
+      id: "kangaroo-rat",
+      name: "Kangaroo Rat",
+      biome: "desert",
+      kind: "mammal",
+      rarity: "common",
+      featured: true,
+      diet: "Seeds, carefully cached underground",
+      shelter: "Deep burrow systems",
+      preferredHabitat: "Loose soil below seed-bearing brush",
+      fact: "Kangaroo rats never need to drink \u2014 their bodies make water from dry seeds.",
+      requirements: {
+        minHealth: 25,
+        objects: {
+          "burrow-mound": 1,
+          "desert-brush": 1
+        },
+        hint: "Burrow banks and seed plants nearby."
+      }
+    },
+    {
+      id: "jackrabbit",
+      name: "Black-tailed Jackrabbit",
+      biome: "desert",
+      kind: "mammal",
+      rarity: "common",
+      diet: "Grasses, cactus, and shrubs",
+      shelter: "Shade forms under brush",
+      preferredHabitat: "Open flats with scattered brush",
+      fact: "A jackrabbit's enormous ears act like radiators, releasing heat to keep it cool.",
+      requirements: {
+        minHealth: 30,
+        objects: {
+          "desert-brush": 2
+        },
+        hint: "Open running room with brush for shade."
+      }
+    },
+    {
+      id: "roadrunner",
+      name: "Greater Roadrunner",
+      biome: "desert",
+      kind: "bird",
+      rarity: "uncommon",
+      featured: true,
+      diet: "Lizards, insects, and small snakes",
+      shelter: "Low nests in brush and cactus",
+      preferredHabitat: "Open hunting ground with brushy edges",
+      fact: "Roadrunners can sprint over 20 mph and will even take on rattlesnakes.",
+      requirements: {
+        minHealth: 40,
+        objects: {
+          "desert-brush": 1,
+          "cactus-patch": 1
+        },
+        animals: [
+          "horned-lizard"
+        ],
+        hint: "Open desert, brush, and reptile prey about."
+      }
+    },
+    {
+      id: "burrowing-owl",
+      name: "Burrowing Owl",
+      biome: "desert",
+      kind: "bird",
+      rarity: "uncommon",
+      featured: true,
+      diet: "Insects and small rodents",
+      shelter: "Underground burrows, often borrowed",
+      preferredHabitat: "Burrow mounds with open hunting space",
+      fact: "Burrowing owls imitate a rattlesnake's rattle to scare intruders away from their burrows.",
+      requirements: {
+        minHealth: 45,
+        objects: {
+          "burrow-mound": 2
+        },
+        hint: "Ready-made burrows and open ground to hunt over."
+      }
+    },
+    {
+      id: "gambels-quail",
+      name: "Gambel's Quail",
+      biome: "desert",
+      kind: "bird",
+      rarity: "common",
+      diet: "Seeds, leaves, and cactus fruit",
+      shelter: "Dense brush thickets",
+      preferredHabitat: "Brushy cover with seed plants",
+      fact: "Quail coveys post a lookout on a high branch while the rest of the family feeds.",
+      requirements: {
+        minHealth: 30,
+        objects: {
+          "desert-brush": 2,
+          "cactus-patch": 1
+        },
+        hint: "Thick brush to hide a whole covey."
+      }
+    },
+    {
+      id: "desert-tortoise",
+      name: "Desert Tortoise",
+      biome: "desert",
+      kind: "reptile",
+      rarity: "rare",
+      diet: "Grasses, wildflowers, and cactus pads",
+      shelter: "Long, cool burrows",
+      preferredHabitat: "Native plants with shade and burrow ground",
+      fact: "Desert tortoises can live 80 years, spending 95% of that time underground.",
+      requirements: {
+        minHealth: 55,
+        objects: {
+          "burrow-mound": 1,
+          "cactus-patch": 1,
+          "shaded-rock-shelter": 1
+        },
+        hint: "Shade, native plants, and burrow habitat."
+      }
+    },
+    {
+      id: "horned-lizard",
+      name: "Horned Lizard",
+      biome: "desert",
+      kind: "reptile",
+      rarity: "common",
+      diet: "Ants, almost exclusively",
+      shelter: "Loose sand and rock edges",
+      preferredHabitat: "Sunny open ground near ant trails",
+      fact: "Horned lizards can squirt blood from their eyes to startle predators.",
+      requirements: {
+        minHealth: 25,
+        objects: {
+          "rock-pile": 1,
+          "desert-brush": 1
+        },
+        hint: "Sunny rocks and sandy ground bring the ants \u2014 and the lizards."
+      }
+    },
+    {
+      id: "collared-lizard",
+      name: "Collared Lizard",
+      biome: "desert",
+      kind: "reptile",
+      rarity: "uncommon",
+      diet: "Insects and smaller lizards",
+      shelter: "Rock piles and ledges",
+      preferredHabitat: "Boulder fields with lookout rocks",
+      fact: "Collared lizards sprint on their hind legs like tiny dinosaurs.",
+      requirements: {
+        minHealth: 35,
+        objects: {
+          "rock-pile": 2
+        },
+        hint: "Plenty of warm rock to perch and hunt from."
+      }
+    },
+    {
+      id: "rattlesnake",
+      name: "Western Rattlesnake",
+      biome: "desert",
+      kind: "reptile",
+      rarity: "rare",
+      diet: "Rodents and small mammals",
+      shelter: "Rock crevices and burrows",
+      preferredHabitat: "Rocky shelter near busy rodent trails",
+      fact: "A rattlesnake adds a new rattle segment each time it sheds \u2014 but segments break, so you can't count age.",
+      requirements: {
+        minHealth: 50,
+        objects: {
+          "shaded-rock-shelter": 1,
+          "rock-pile": 1
+        },
+        animals: [
+          "kangaroo-rat"
+        ],
+        hint: "Rocky shelter and rodents to hunt."
+      }
+    },
+    {
+      id: "tarantula",
+      name: "Desert Tarantula",
+      biome: "desert",
+      kind: "invertebrate",
+      rarity: "uncommon",
+      diet: "Insects and other small invertebrates",
+      shelter: "Silk-lined ground burrows",
+      preferredHabitat: "Undisturbed ground with burrow banks",
+      fact: "Desert tarantulas may live 25 years, most of it within a few feet of one burrow.",
+      requirements: {
+        minHealth: 35,
+        objects: {
+          "burrow-mound": 1
+        },
+        hint: "Quiet, diggable ground."
+      }
+    },
+    {
+      id: "scorpion",
+      name: "Desert Scorpion",
+      biome: "desert",
+      kind: "invertebrate",
+      rarity: "common",
+      diet: "Insects and spiders",
+      shelter: "Under rocks and bark",
+      preferredHabitat: "Rocky cover with night hunting ground",
+      fact: "Scorpions glow blue-green under ultraviolet light \u2014 no one is entirely sure why.",
+      requirements: {
+        minHealth: 25,
+        objects: {
+          "rock-pile": 1
+        },
+        hint: "Rocks to hide beneath by day."
+      }
+    },
+    {
+      id: "desert-bee",
+      name: "Desert Bee",
+      biome: "desert",
+      kind: "insect",
+      rarity: "common",
+      diet: "Cactus flower nectar and pollen",
+      shelter: "Tiny ground nests",
+      preferredHabitat: "Blooming cactus and brush",
+      fact: "Most desert bees are solitary \u2014 a single mother bee digs and stocks her own tiny nest.",
+      requirements: {
+        minHealth: 20,
+        objects: {
+          "cactus-patch": 1
+        },
+        hint: "Cactus blooms are the desert's flower patch."
+      }
+    },
+    {
+      id: "mountain-goat",
+      name: "Mountain Goat",
+      biome: "alpine",
+      kind: "mammal",
+      rarity: "rare",
+      featured: true,
+      diet: "Alpine grasses, sedges, and lichens",
+      shelter: "Cliff ledges and rocky terrain",
+      preferredHabitat: "Steep rock above flowering turf",
+      fact: "Mountain goats' cloven hooves have rubbery pads that grip rock like climbing shoes.",
+      requirements: {
+        minHealth: 60,
+        objects: {
+          "rock-pile": 2,
+          "alpine-wildflower-patch": 2
+        },
+        hint: "Rocky terrain and restored alpine vegetation."
+      }
+    },
+    {
+      id: "bighorn-sheep",
+      name: "Bighorn Sheep",
+      biome: "alpine",
+      kind: "mammal",
+      rarity: "rare",
+      diet: "Grasses and alpine browse",
+      shelter: "Rocky slopes with escape routes",
+      preferredHabitat: "Open slopes near cliff safety",
+      fact: "A bighorn ram's curled horns can weigh more than all the bones in its body combined.",
+      requirements: {
+        minHealth: 65,
+        objects: {
+          "rock-pile": 2,
+          "grass-patch": 2
+        },
+        hint: "Grassy slopes with rocky escape ground."
+      }
+    },
+    {
+      id: "pika",
+      name: "American Pika",
+      biome: "alpine",
+      kind: "mammal",
+      rarity: "common",
+      featured: true,
+      diet: "Grasses and wildflowers, dried into haypiles",
+      shelter: "Cool gaps deep in talus rock",
+      preferredHabitat: "Rock piles beside flower meadows",
+      fact: "Pikas spend all summer harvesting and sun-drying little haystacks to eat under the winter snow.",
+      requirements: {
+        minHealth: 30,
+        objects: {
+          "rock-pile": 2,
+          "alpine-wildflower-patch": 1
+        },
+        hint: "Cool rock piles and flowers to harvest."
+      }
+    },
+    {
+      id: "marmot",
+      name: "Yellow-bellied Marmot",
+      biome: "alpine",
+      kind: "mammal",
+      rarity: "common",
+      featured: true,
+      diet: "Grasses, flowers, and seeds",
+      shelter: "Deep burrows under boulders",
+      preferredHabitat: "Open meadow patches with burrows",
+      fact: "Marmots hibernate up to eight months a year \u2014 more than half their lives are spent asleep.",
+      requirements: {
+        minHealth: 35,
+        objects: {
+          "burrow-mound": 1,
+          "alpine-wildflower-patch": 1
+        },
+        hint: "Burrows, meadow patches, and open space."
+      }
+    },
+    {
+      id: "snowshoe-hare",
+      name: "Snowshoe Hare",
+      biome: "alpine",
+      kind: "mammal",
+      rarity: "uncommon",
+      diet: "Grasses, buds, and bark",
+      shelter: "Dense low cover",
+      preferredHabitat: "Brushy patches near open turf",
+      fact: "Snowshoe hares change coat color with the seasons \u2014 brown in summer, white in winter.",
+      requirements: {
+        minHealth: 40,
+        objects: {
+          "grass-patch": 2,
+          "rock-pile": 1
+        },
+        hint: "Cover and forage at the treeline."
+      }
+    },
+    {
+      id: "elk-alpine",
+      name: "Elk",
+      biome: "alpine",
+      kind: "mammal",
+      rarity: "rare",
+      diet: "Alpine grasses and forbs",
+      shelter: "High meadows in summer",
+      preferredHabitat: "Restored high meadows with water",
+      fact: "Elk migrate up and down mountains with the seasons, following the 'green wave' of new growth.",
+      requirements: {
+        minHealth: 60,
+        objects: {
+          "grass-patch": 2,
+          "snowmelt-pool": 1
+        },
+        hint: "High meadow forage and snowmelt water."
+      }
+    },
+    {
+      id: "mule-deer-alpine",
+      name: "Mule Deer",
+      biome: "alpine",
+      kind: "mammal",
+      rarity: "uncommon",
+      diet: "Alpine browse and forbs",
+      shelter: "Krummholz thickets",
+      preferredHabitat: "High meadows in summer",
+      fact: "Mule deer summer high in the mountains and walk the same routes back down each fall.",
+      requirements: {
+        minHealth: 45,
+        objects: {
+          "grass-patch": 1,
+          "alpine-wildflower-patch": 1,
+          "snowmelt-pool": 1
+        },
+        hint: "Forage and clean water up high."
+      }
+    },
+    {
+      id: "fox-alpine",
+      name: "Red Fox",
+      biome: "alpine",
+      kind: "mammal",
+      rarity: "rare",
+      diet: "Voles, pikas, and ground birds",
+      shelter: "Rock dens",
+      preferredHabitat: "High country with small prey",
+      fact: "Mountain foxes listen for animals moving beneath deep snow, then dive in headfirst.",
+      requirements: {
+        minHealth: 55,
+        objects: {
+          "rock-pile": 1
+        },
+        animals: [
+          "pika",
+          "marmot"
+        ],
+        hint: "Foxes follow the pikas and marmots."
+      }
+    },
+    {
+      id: "pine-marten",
+      name: "Pine Marten",
+      biome: "alpine",
+      kind: "mammal",
+      rarity: "rare",
+      diet: "Voles, squirrels, and berries",
+      shelter: "Rock crevices and snags",
+      preferredHabitat: "Treeline edges with rocky cover",
+      fact: "Pine martens hunt beneath the snowpack in winter, using tunnels no one else can reach.",
+      requirements: {
+        minHealth: 60,
+        objects: {
+          "rock-pile": 2
+        },
+        animals: [
+          "snowshoe-hare"
+        ],
+        hint: "Rocky cover and prey near the treeline."
+      }
+    },
+    {
+      id: "ptarmigan",
+      name: "White-tailed Ptarmigan",
+      biome: "alpine",
+      kind: "bird",
+      rarity: "uncommon",
+      featured: true,
+      diet: "Buds, seeds, and alpine plants",
+      shelter: "Camouflaged ground nests",
+      preferredHabitat: "Low shrubs and safe nesting cover",
+      fact: "Ptarmigan grow feathered snowshoes on their feet each winter.",
+      requirements: {
+        minHealth: 45,
+        objects: {
+          "alpine-wildflower-patch": 1,
+          "grass-patch": 1,
+          "rock-pile": 1
+        },
+        hint: "Alpine shrubs and quiet nesting cover."
+      }
+    },
+    {
+      id: "clarks-nutcracker",
+      name: "Clark's Nutcracker",
+      biome: "alpine",
+      kind: "bird",
+      rarity: "uncommon",
+      diet: "Pine seeds, cached by the thousand",
+      shelter: "High conifers",
+      preferredHabitat: "Treeline with seed sources",
+      fact: "A Clark's nutcracker can remember thousands of seed cache locations months later, even under snow.",
+      requirements: {
+        minHealth: 40,
+        objects: {
+          "rock-pile": 1,
+          "alpine-wildflower-patch": 1
+        },
+        hint: "A recovering treeline with seeds to cache."
+      }
+    },
+    {
+      id: "golden-eagle",
+      name: "Golden Eagle",
+      biome: "alpine",
+      kind: "bird",
+      rarity: "rare",
+      diet: "Marmots, hares, and ptarmigan",
+      shelter: "Cliff eyries",
+      preferredHabitat: "High, healthy country with abundant prey",
+      fact: "Golden eagles can spot a hare from more than a mile away and dive at over 150 mph.",
+      requirements: {
+        minHealth: 75,
+        minBalance: 45,
+        objects: {
+          "rock-pile": 2
+        },
+        animals: [
+          "marmot",
+          "snowshoe-hare"
+        ],
+        hint: "Eagles arrive last \u2014 when the high country is truly alive again."
+      }
+    },
+    {
+      id: "alpine-butterfly",
+      name: "Alpine Butterfly",
+      biome: "alpine",
+      kind: "insect",
+      rarity: "common",
+      diet: "Alpine flower nectar",
+      shelter: "Low turf and warm rocks",
+      preferredHabitat: "Flowering alpine turf",
+      fact: "Some alpine butterflies take two full summers to grow up, pausing each winter under the snow.",
+      requirements: {
+        minHealth: 25,
+        objects: {
+          "alpine-wildflower-patch": 1
+        },
+        hint: "Alpine flowers in bloom."
+      }
+    },
+    {
+      id: "bumblebee-alpine",
+      name: "Alpine Bumblebee",
+      biome: "alpine",
+      kind: "insect",
+      rarity: "common",
+      diet: "Nectar and pollen",
+      shelter: "Old burrows in turf",
+      preferredHabitat: "High flower patches",
+      fact: "Bumblebees shiver their flight muscles to warm up, letting them fly in near-freezing air.",
+      requirements: {
+        minHealth: 25,
+        objects: {
+          "alpine-wildflower-patch": 2
+        },
+        hint: "More flowers, more bees \u2014 even up here."
+      }
+    },
+    {
+      id: "snowmelt-trout",
+      name: "Cutthroat Trout",
+      biome: "alpine",
+      kind: "fish",
+      rarity: "uncommon",
+      diet: "Aquatic insects",
+      shelter: "Cold, clean pools",
+      preferredHabitat: "Connected snowmelt water",
+      fact: "Cutthroat trout need water so cold and clean that their presence is itself a health report for the mountain.",
+      requirements: {
+        minHealth: 50,
+        objects: {
+          "snowmelt-pool": 2
+        },
+        hint: "Cold, clean, connected snowmelt pools."
+      }
+    },
+    {
+      id: "tidepool-crab",
+      name: "Shore Crab",
+      biome: "coastal",
+      kind: "invertebrate",
+      rarity: "common",
+      featured: true,
+      diet: "Algae and scraps",
+      shelter: "Tidepool rocks and crevices",
+      preferredHabitat: "Rocky tidepools",
+      fact: "Shore crabs can change color slowly to match their home pool.",
+      requirements: {
+        minHealth: 25,
+        objects: {
+          tidepool: 1
+        },
+        hint: "Restore the tidepools and the crabs scuttle back first."
+      }
+    },
+    {
+      id: "hermit-crab",
+      name: "Hermit Crab",
+      biome: "coastal",
+      kind: "invertebrate",
+      rarity: "common",
+      diet: "Algae and detritus",
+      shelter: "Borrowed shells",
+      preferredHabitat: "Tidepools with empty shells",
+      fact: "When a perfect shell appears, hermit crabs line up by size and swap shells in a chain.",
+      requirements: {
+        minHealth: 25,
+        objects: {
+          tidepool: 1,
+          "kelp-wrack": 1
+        },
+        hint: "Tidepools plus washed-up shells to move into."
+      }
+    },
+    {
+      id: "sea-star",
+      name: "Ochre Sea Star",
+      biome: "coastal",
+      kind: "invertebrate",
+      rarity: "uncommon",
+      featured: true,
+      diet: "Mussels and barnacles",
+      shelter: "Tidepool rock faces",
+      preferredHabitat: "Established tidepools with shellfish",
+      fact: "Sea stars are keystone predators \u2014 one species' presence reshapes the whole shoreline community.",
+      requirements: {
+        minHealth: 40,
+        objects: {
+          tidepool: 2
+        },
+        animals: [
+          "mussel"
+        ],
+        hint: "Sea stars need established pools with mussels to eat."
+      }
+    },
+    {
+      id: "anemone",
+      name: "Giant Green Anemone",
+      biome: "coastal",
+      kind: "invertebrate",
+      rarity: "common",
+      diet: "Small animals caught by stinging tentacles",
+      shelter: "Tidepool walls",
+      preferredHabitat: "Clear, restored tidepools",
+      fact: "The green color comes partly from algae living inside the anemone's tissues \u2014 roommates that pay rent in sugar.",
+      requirements: {
+        minHealth: 30,
+        objects: {
+          tidepool: 1
+        },
+        hint: "Clear, quiet pools."
+      }
+    },
+    {
+      id: "mussel",
+      name: "California Mussel",
+      biome: "coastal",
+      kind: "invertebrate",
+      rarity: "common",
+      diet: "Filtered plankton",
+      shelter: "Dense beds on wave-washed rock",
+      preferredHabitat: "Rocky shore with clean water",
+      fact: "A single mussel filters and cleans several liters of seawater every hour.",
+      requirements: {
+        minHealth: 30,
+        objects: {
+          tidepool: 1
+        },
+        hint: "Clean water over rocky shore."
+      }
+    },
+    {
+      id: "clam",
+      name: "Pacific Littleneck Clam",
+      biome: "coastal",
+      kind: "invertebrate",
+      rarity: "common",
+      diet: "Filtered plankton",
+      shelter: "Buried in sand and gravel",
+      preferredHabitat: "Stable sand near tidepools",
+      fact: "You can estimate a clam's age by counting the growth rings on its shell, like a tree.",
+      requirements: {
+        minHealth: 30,
+        objects: {
+          tidepool: 1,
+          "dune-grass": 1
+        },
+        hint: "Stable, quiet sand to dig into."
+      }
+    },
+    {
+      id: "shorebird",
+      name: "Snowy Plover",
+      biome: "coastal",
+      kind: "bird",
+      rarity: "uncommon",
+      featured: true,
+      diet: "Sand crustaceans and kelp-fly larvae",
+      shelter: "Shallow scrapes hidden in dunes",
+      preferredHabitat: "Protected dunes with quiet nesting beach",
+      fact: "Snowy plover chicks can run and feed themselves within hours of hatching.",
+      requirements: {
+        minHealth: 40,
+        objects: {
+          "dune-grass": 2,
+          "coastal-nesting-area": 1
+        },
+        hint: "Anchored dunes and a protected stretch of quiet beach."
+      }
+    },
+    {
+      id: "gull",
+      name: "Western Gull",
+      biome: "coastal",
+      kind: "bird",
+      rarity: "common",
+      diet: "Fish, shellfish, and whatever washes up",
+      shelter: "Open beach and rocky points",
+      preferredHabitat: "Any recovering shoreline",
+      fact: "Gulls drop clams onto rocks from the air to crack them open.",
+      requirements: {
+        minHealth: 20,
+        objects: {
+          "kelp-wrack": 1
+        },
+        hint: "Gulls show up as soon as there's a beach worth patrolling."
+      }
+    },
+    {
+      id: "pelican",
+      name: "Brown Pelican",
+      biome: "coastal",
+      kind: "bird",
+      rarity: "uncommon",
+      diet: "Fish caught in plunge dives",
+      shelter: "Quiet roosts on rocks and sand",
+      preferredHabitat: "Fish-rich water with quiet roosts",
+      fact: "Brown pelicans dive from 30 feet up, with air sacs under the skin to cushion the splash.",
+      requirements: {
+        minHealth: 45,
+        objects: {
+          "coastal-nesting-area": 1,
+          tidepool: 1
+        },
+        hint: "Quiet roosting space and fishable water."
+      }
+    },
+    {
+      id: "cormorant",
+      name: "Pelagic Cormorant",
+      biome: "coastal",
+      kind: "bird",
+      rarity: "uncommon",
+      diet: "Fish chased underwater",
+      shelter: "Cliff and rock roosts",
+      preferredHabitat: "Rocky shore with diving water",
+      fact: "Cormorant feathers soak through on purpose \u2014 less buoyancy makes them better divers.",
+      requirements: {
+        minHealth: 45,
+        objects: {
+          tidepool: 2
+        },
+        hint: "Healthy rocky shallows to dive in."
+      }
+    },
+    {
+      id: "sea-turtle",
+      name: "Green Sea Turtle",
+      biome: "coastal",
+      kind: "reptile",
+      rarity: "rare",
+      diet: "Seagrass and algae",
+      shelter: "Offshore waters; nests on quiet sand",
+      preferredHabitat: "Clean water and undisturbed beach",
+      fact: "Green sea turtles return to nest on the very beach where they hatched, decades later.",
+      requirements: {
+        minHealth: 70,
+        objects: {
+          "coastal-nesting-area": 1,
+          "dune-grass": 2,
+          "kelp-wrack": 1
+        },
+        hint: "An undisturbed nesting beach and clean water."
+      }
+    },
+    {
+      id: "harbor-seal",
+      name: "Harbor Seal",
+      biome: "coastal",
+      kind: "mammal",
+      rarity: "rare",
+      featured: true,
+      diet: "Fish and squid",
+      shelter: "Quiet haul-out beaches",
+      preferredHabitat: "Calm, clean water with undisturbed shore",
+      fact: "Harbor seals can sleep underwater, surfacing to breathe without fully waking.",
+      requirements: {
+        minHealth: 60,
+        objects: {
+          "coastal-nesting-area": 1,
+          tidepool: 1
+        },
+        hint: "Quiet beaches and clean water \u2014 seals need calm above all."
+      }
+    },
+    {
+      id: "sea-otter",
+      name: "Sea Otter",
+      biome: "coastal",
+      kind: "mammal",
+      rarity: "rare",
+      diet: "Sea urchins, crabs, and shellfish",
+      shelter: "Kelp canopy anchor points",
+      preferredHabitat: "Kelp habitat with abundant shellfish",
+      fact: "Sea otters wrap themselves in kelp before sleeping so they don't drift away \u2014 and sometimes hold hands.",
+      requirements: {
+        minHealth: 70,
+        minBalance: 45,
+        objects: {
+          "kelp-wrack": 2,
+          tidepool: 1
+        },
+        animals: [
+          "mussel",
+          "clam"
+        ],
+        hint: "Kelp habitat and shellfish beds first; otters follow."
+      }
+    },
+    {
+      id: "dolphin",
+      name: "Bottlenose Dolphin",
+      biome: "coastal",
+      kind: "mammal",
+      rarity: "rare",
+      diet: "Fish and squid",
+      shelter: "Open coastal water",
+      preferredHabitat: "Clean, lively nearshore water",
+      fact: "Dolphins call each other by name, using signature whistles unique to each individual.",
+      requirements: {
+        minHealth: 75,
+        objects: {
+          tidepool: 2,
+          "kelp-wrack": 1
+        },
+        hint: "A clean, busy shoreline brings dolphins close in."
+      }
+    },
+    {
+      id: "migrating-whale",
+      name: "Gray Whale",
+      biome: "coastal",
+      kind: "mammal",
+      rarity: "rare",
+      diet: "Tiny crustaceans sifted from the seafloor",
+      shelter: "Open ocean; passes close to healthy shores",
+      preferredHabitat: "Seen offshore from a fully restored coast",
+      fact: "Gray whales make one of the longest migrations of any mammal \u2014 up to 14,000 miles round trip.",
+      requirements: {
+        minHealth: 90,
+        minBalance: 50,
+        objects: {
+          tidepool: 2,
+          "dune-grass": 2,
+          "coastal-nesting-area": 1
+        },
+        hint: "Only a truly thriving shore earns a whale sighting. Watch the horizon."
+      }
+    },
+    {
+      id: "american-goldfinch",
+      name: "American Goldfinch",
+      biome: "meadow",
+      kind: "bird",
+      rarity: "common",
+      featured: false,
+      diet: "Thistle and wildflower seeds",
+      shelter: "Shrubby field edges",
+      preferredHabitat: "Open wildflower meadow with perches",
+      fact: "They nest late so their chicks hatch with the thistle seed crop.",
+      requirements: {
+        minHealth: 35,
+        objects: {
+          "wildflower-patch": 1,
+          "bird-perch": 1
+        },
+        hint: "Plant a wildflower patch and add a bird perch."
+      }
+    },
+    {
+      id: "eastern-bluebird",
+      name: "Eastern Bluebird",
+      biome: "meadow",
+      kind: "bird",
+      rarity: "uncommon",
+      featured: false,
+      diet: "Insects and berries",
+      shelter: "Cavities and nest boxes",
+      preferredHabitat: "Grassy openings with scattered perches",
+      fact: "A pair will raise two or three broods in a single good season.",
+      requirements: {
+        minHealth: 45,
+        objects: {
+          "bird-perch": 1,
+          "native-grass-patch": 1,
+          "berry-bush": 1
+        },
+        hint: "Native grass, a berry bush, and a perch to hunt from."
+      }
+    },
+    {
+      id: "leafcutter-bee",
+      name: "Leafcutter Bee",
+      biome: "meadow",
+      kind: "insect",
+      rarity: "common",
+      featured: false,
+      diet: "Pollen and nectar",
+      shelter: "Hollow stems and soft soil",
+      preferredHabitat: "Clover and wildflowers",
+      fact: "They snip neat half-circles from leaves to line their nests.",
+      requirements: {
+        minHealth: 30,
+        objects: {
+          "clover-patch": 1,
+          "wildflower-patch": 1
+        },
+        hint: "Clover and wildflowers side by side."
+      }
+    },
+    {
+      id: "painted-lady",
+      name: "Painted Lady",
+      biome: "meadow",
+      kind: "insect",
+      rarity: "common",
+      featured: false,
+      diet: "Flower nectar",
+      shelter: "Sheltered grass",
+      preferredHabitat: "Sunny flowering meadow",
+      fact: "Painted ladies migrate thousands of miles across continents.",
+      requirements: {
+        minHealth: 30,
+        objects: {
+          "butterfly-flowers": 1,
+          "clover-patch": 1
+        },
+        hint: "Butterfly flowers near a clover patch."
+      }
+    },
+    {
+      id: "american-badger",
+      name: "American Badger",
+      biome: "meadow",
+      kind: "mammal",
+      rarity: "rare",
+      featured: false,
+      diet: "Ground squirrels and voles",
+      shelter: "Dug burrows",
+      preferredHabitat: "Open grassland with prey and cover",
+      fact: "Badgers and coyotes sometimes hunt the same fields together.",
+      requirements: {
+        minHealth: 55,
+        objects: {
+          "brush-pile": 1,
+          "rock-pile": 1
+        },
+        animals: [
+          "meadow-vole"
+        ],
+        hint: "Brush pile and rock pile, once voles have returned."
+      }
+    },
+    {
+      id: "pileated-woodpecker",
+      name: "Pileated Woodpecker",
+      biome: "forest",
+      kind: "bird",
+      rarity: "uncommon",
+      featured: false,
+      diet: "Carpenter ants and beetle grubs",
+      shelter: "Dead trees",
+      preferredHabitat: "Mature forest with standing deadwood",
+      fact: "Their rectangular excavations later become homes for other animals.",
+      requirements: {
+        minHealth: 45,
+        objects: {
+          "standing-deadwood": 1,
+          "nesting-tree": 1
+        },
+        hint: "Standing deadwood beside a nesting tree."
+      }
+    },
+    {
+      id: "pacific-wren",
+      name: "Pacific Wren",
+      biome: "forest",
+      kind: "bird",
+      rarity: "common",
+      featured: false,
+      diet: "Forest-floor insects",
+      shelter: "Root tangles and ferns",
+      preferredHabitat: "Damp shaded understory",
+      fact: "A tiny bird with a song of over thirty notes per second.",
+      requirements: {
+        minHealth: 40,
+        objects: {
+          "fern-grove": 1,
+          "mushroom-log": 1
+        },
+        hint: "Ferns and a mushroom log in the shade."
+      }
+    },
+    {
+      id: "rough-skinned-newt",
+      name: "Rough-skinned Newt",
+      biome: "forest",
+      kind: "amphibian",
+      rarity: "uncommon",
+      featured: false,
+      diet: "Insects and worms",
+      shelter: "Logs and leaf litter",
+      preferredHabitat: "Forest pools and damp ground",
+      fact: "Their skin carries one of the most potent natural toxins known.",
+      requirements: {
+        minHealth: 45,
+        objects: {
+          "mushroom-log": 1
+        },
+        water: {
+          tiles: 3
+        },
+        hint: "A mushroom log and a few flooded water tiles."
+      }
+    },
+    {
+      id: "northern-flying-squirrel",
+      name: "Northern Flying Squirrel",
+      biome: "forest",
+      kind: "mammal",
+      rarity: "rare",
+      featured: false,
+      diet: "Fungi, lichen, and seeds",
+      shelter: "Tree cavities",
+      preferredHabitat: "Old forest with connected canopy",
+      fact: "They glide between trees and help spread truffle spores.",
+      requirements: {
+        minHealth: 55,
+        objects: {
+          "nesting-tree": 1,
+          "tree-stump": 1
+        },
+        animals: [
+          "tree-squirrel"
+        ],
+        hint: "Nesting tree and a stump, once tree squirrels are back."
+      }
+    },
+    {
+      id: "wood-duck",
+      name: "Wood Duck",
+      biome: "forest",
+      kind: "bird",
+      rarity: "uncommon",
+      featured: false,
+      diet: "Seeds, acorns, and insects",
+      shelter: "Tree cavities over water",
+      preferredHabitat: "Wooded pools and slow water",
+      fact: "Ducklings leap from high nest cavities the day after hatching.",
+      requirements: {
+        minHealth: 50,
+        objects: {
+          "nesting-tree": 1
+        },
+        water: {
+          lake: 4
+        },
+        hint: "A nesting tree beside a flooded pool of 4+ water tiles."
+      }
+    },
+    {
+      id: "american-bittern",
+      name: "American Bittern",
+      biome: "wetland",
+      kind: "bird",
+      rarity: "rare",
+      featured: false,
+      diet: "Fish, frogs, and insects",
+      shelter: "Dense reeds",
+      preferredHabitat: "Tall marsh vegetation",
+      fact: "It freezes with its bill skyward to vanish among the reeds.",
+      requirements: {
+        minHealth: 50,
+        objects: {
+          "reed-bed": 2,
+          "cattail-stand": 1
+        },
+        water: {
+          tiles: 4
+        },
+        hint: "Thick reeds and cattails beside open water."
+      }
+    },
+    {
+      id: "belted-kingfisher",
+      name: "Belted Kingfisher",
+      biome: "wetland",
+      kind: "bird",
+      rarity: "uncommon",
+      featured: false,
+      diet: "Small fish",
+      shelter: "Earthen bank burrows",
+      preferredHabitat: "Clear flowing water with perches",
+      fact: "They dig nesting tunnels up to two metres into a stream bank.",
+      requirements: {
+        minHealth: 55,
+        objects: {
+          "nesting-platform": 1
+        },
+        water: {
+          river: 4
+        },
+        animals: [
+          "freshwater-fish"
+        ],
+        hint: "Carve a river 4+ tiles long with fish present, plus a platform."
+      }
+    },
+    {
+      id: "northern-leopard-frog",
+      name: "Northern Leopard Frog",
+      biome: "wetland",
+      kind: "amphibian",
+      rarity: "common",
+      featured: false,
+      diet: "Insects and spiders",
+      shelter: "Shallow water and grass",
+      preferredHabitat: "Lily-fringed shallows",
+      fact: "Their loud snore-like call carries across the marsh at night.",
+      requirements: {
+        minHealth: 40,
+        objects: {
+          "lily-pool": 1
+        },
+        water: {
+          tiles: 3
+        },
+        hint: "A lily pool and a few open-water tiles."
+      }
+    },
+    {
+      id: "snapping-turtle",
+      name: "Snapping Turtle",
+      biome: "wetland",
+      kind: "reptile",
+      rarity: "uncommon",
+      featured: false,
+      diet: "Fish, plants, and carrion",
+      shelter: "Muddy lake bottoms",
+      preferredHabitat: "Deep still water with mud",
+      fact: "They can live for over a century in the same quiet pond.",
+      requirements: {
+        minHealth: 50,
+        objects: {
+          "mud-bank": 1
+        },
+        water: {
+          lake: 5
+        },
+        hint: "A mud bank beside a lake of 5+ connected water tiles."
+      }
+    },
+    {
+      id: "marsh-wren",
+      name: "Marsh Wren",
+      biome: "wetland",
+      kind: "bird",
+      rarity: "common",
+      featured: false,
+      diet: "Marsh insects",
+      shelter: "Woven reed nests",
+      preferredHabitat: "Cattail and sedge stands",
+      fact: "Males build many dummy nests to court a mate.",
+      requirements: {
+        minHealth: 40,
+        objects: {
+          "reed-bed": 2,
+          "sedge-tussock": 1
+        },
+        hint: "Two reed beds and a sedge tussock."
+      }
+    },
+    {
+      id: "gila-woodpecker",
+      name: "Gila Woodpecker",
+      biome: "desert",
+      kind: "bird",
+      rarity: "uncommon",
+      featured: false,
+      diet: "Insects, cactus fruit",
+      shelter: "Cactus cavities",
+      preferredHabitat: "Saguaro and cactus stands",
+      fact: "Their abandoned cactus holes shelter owls and lizards later.",
+      requirements: {
+        minHealth: 40,
+        objects: {
+          "cactus-patch": 2
+        },
+        hint: "Two cactus patches for nesting cavities."
+      }
+    },
+    {
+      id: "cactus-wren",
+      name: "Cactus Wren",
+      biome: "desert",
+      kind: "bird",
+      rarity: "common",
+      featured: false,
+      diet: "Insects and seeds",
+      shelter: "Thorny cactus and brush",
+      preferredHabitat: "Open desert with cactus",
+      fact: "They build football-shaped nests deep in spiny cholla.",
+      requirements: {
+        minHealth: 35,
+        objects: {
+          "cactus-patch": 1,
+          "desert-brush": 1
+        },
+        hint: "A cactus patch and desert brush."
+      }
+    },
+    {
+      id: "desert-iguana",
+      name: "Desert Iguana",
+      biome: "desert",
+      kind: "reptile",
+      rarity: "uncommon",
+      featured: false,
+      diet: "Flowers and leaves",
+      shelter: "Burrows under shrubs",
+      preferredHabitat: "Hot sandy flats with cover",
+      fact: "It stays active at temperatures that drive other lizards to shade.",
+      requirements: {
+        minHealth: 40,
+        objects: {
+          "agave-rosette": 1,
+          "rock-pile": 1
+        },
+        hint: "An agave rosette and a rock pile."
+      }
+    },
+    {
+      id: "kangaroo-mouse",
+      name: "Kangaroo Mouse",
+      biome: "desert",
+      kind: "mammal",
+      rarity: "uncommon",
+      featured: false,
+      diet: "Seeds",
+      shelter: "Sand burrows",
+      preferredHabitat: "Fine sandy desert",
+      fact: "It survives on metabolic water and may never drink at all.",
+      requirements: {
+        minHealth: 40,
+        objects: {
+          "burrow-mound": 1,
+          "desert-brush": 1
+        },
+        hint: "A burrow mound near desert brush."
+      }
+    },
+    {
+      id: "banded-gecko",
+      name: "Western Banded Gecko",
+      biome: "desert",
+      kind: "reptile",
+      rarity: "common",
+      featured: false,
+      diet: "Insects and spiders",
+      shelter: "Rock crevices",
+      preferredHabitat: "Sheltered rocky desert",
+      fact: "Unlike most geckos it has movable eyelids and a soft voice.",
+      requirements: {
+        minHealth: 35,
+        objects: {
+          ocotillo: 1,
+          "shaded-rock-shelter": 1
+        },
+        hint: "Ocotillo beside a shaded rock shelter."
+      }
+    },
+    {
+      id: "rosy-finch",
+      name: "Gray-crowned Rosy-Finch",
+      biome: "alpine",
+      kind: "bird",
+      rarity: "uncommon",
+      featured: false,
+      diet: "Seeds and insects",
+      shelter: "Cliff crevices",
+      preferredHabitat: "High talus and wildflower turf",
+      fact: "They nest higher than almost any other songbird in North America.",
+      requirements: {
+        minHealth: 40,
+        objects: {
+          "alpine-wildflower-patch": 1,
+          "rock-pile": 1
+        },
+        hint: "Alpine wildflowers and a rock pile."
+      }
+    },
+    {
+      id: "american-pipit",
+      name: "American Pipit",
+      biome: "alpine",
+      kind: "bird",
+      rarity: "common",
+      featured: false,
+      diet: "Insects and seeds",
+      shelter: "Tundra tussocks",
+      preferredHabitat: "Open alpine meadow",
+      fact: "It bobs its tail constantly as it walks the high meadows.",
+      requirements: {
+        minHealth: 40,
+        objects: {
+          "heather-mat": 1,
+          "alpine-wildflower-patch": 1
+        },
+        hint: "A heather mat and alpine wildflowers."
+      }
+    },
+    {
+      id: "ermine",
+      name: "Ermine",
+      biome: "alpine",
+      kind: "mammal",
+      rarity: "rare",
+      featured: false,
+      diet: "Small rodents",
+      shelter: "Rock crevices and burrows",
+      preferredHabitat: "Talus near meadows",
+      fact: "Its coat turns pure white in winter except for a black tail tip.",
+      requirements: {
+        minHealth: 55,
+        objects: {
+          "rock-pile": 1,
+          "krummholz-pine": 1
+        },
+        animals: [
+          "pika"
+        ],
+        hint: "Rock pile and krummholz, once pikas are back."
+      }
+    },
+    {
+      id: "boreal-toad",
+      name: "Boreal Toad",
+      biome: "alpine",
+      kind: "amphibian",
+      rarity: "uncommon",
+      featured: false,
+      diet: "Insects",
+      shelter: "Damp shelter near pools",
+      preferredHabitat: "Snowmelt ponds and seeps",
+      fact: "They can take years to mature in the short alpine summers.",
+      requirements: {
+        minHealth: 45,
+        objects: {
+          "snowmelt-pool": 1
+        },
+        water: {
+          tiles: 3
+        },
+        hint: "A snowmelt pool and a few open-water tiles."
+      }
+    },
+    {
+      id: "mountain-bluebird",
+      name: "Mountain Bluebird",
+      biome: "alpine",
+      kind: "bird",
+      rarity: "common",
+      featured: false,
+      diet: "Insects",
+      shelter: "Tree-line cavities",
+      preferredHabitat: "High meadows with scattered trees",
+      fact: "Males are an almost unreal sky-blue all over.",
+      requirements: {
+        minHealth: 40,
+        objects: {
+          "krummholz-pine": 1,
+          "alpine-wildflower-patch": 1
+        },
+        hint: "A krummholz pine and alpine wildflowers."
+      }
+    },
+    {
+      id: "sanderling",
+      name: "Sanderling",
+      biome: "coastal",
+      kind: "bird",
+      rarity: "common",
+      featured: false,
+      diet: "Tiny crustaceans",
+      shelter: "Open beach",
+      preferredHabitat: "Sandy surf line",
+      fact: "They chase the retreating waves in busy little sprints.",
+      requirements: {
+        minHealth: 40,
+        objects: {
+          "dune-grass": 2,
+          tidepool: 1
+        },
+        hint: "Two dune-grass plantings and a tidepool."
+      }
+    },
+    {
+      id: "black-oystercatcher",
+      name: "Black Oystercatcher",
+      biome: "coastal",
+      kind: "bird",
+      rarity: "uncommon",
+      featured: false,
+      diet: "Mussels and limpets",
+      shelter: "Rocky shore ledges",
+      preferredHabitat: "Tidepool reefs",
+      fact: "Its long red bill pries shellfish from the rocks.",
+      requirements: {
+        minHealth: 45,
+        objects: {
+          "oyster-bed": 1,
+          tidepool: 1
+        },
+        hint: "An oyster bed beside a tidepool."
+      }
+    },
+    {
+      id: "purple-shore-crab",
+      name: "Purple Shore Crab",
+      biome: "coastal",
+      kind: "invertebrate",
+      rarity: "common",
+      featured: false,
+      diet: "Algae and detritus",
+      shelter: "Under rocks",
+      preferredHabitat: "Sheltered rocky intertidal",
+      fact: "They scuttle sideways under stones when the tide pulls back.",
+      requirements: {
+        minHealth: 35,
+        objects: {
+          tidepool: 1,
+          "oyster-bed": 1
+        },
+        hint: "A tidepool and an oyster bed."
+      }
+    },
+    {
+      id: "brant-goose",
+      name: "Brant Goose",
+      biome: "coastal",
+      kind: "bird",
+      rarity: "uncommon",
+      featured: false,
+      diet: "Eelgrass",
+      shelter: "Open shoreline",
+      preferredHabitat: "Shallow bays with eelgrass",
+      fact: "Whole flocks depend on eelgrass beds to fuel their migration.",
+      requirements: {
+        minHealth: 50,
+        objects: {
+          "eelgrass-bed": 1
+        },
+        water: {
+          tiles: 4
+        },
+        hint: "An eelgrass bed beside open water."
+      }
+    },
+    {
+      id: "snowy-plover",
+      name: "Western Snowy Plover",
+      biome: "coastal",
+      kind: "bird",
+      rarity: "rare",
+      featured: false,
+      diet: "Beach invertebrates",
+      shelter: "Dune scrapes",
+      preferredHabitat: "Quiet sandy dunes",
+      fact: "They nest in tiny scrapes right on the open sand.",
+      requirements: {
+        minHealth: 50,
+        objects: {
+          "dune-grass": 1,
+          "coastal-nesting-area": 1
+        },
+        hint: "Dune grass and a coastal nesting area."
+      }
+    }
+  ]
+};
+
 // server/resources.ts
 var db = () => databases.wildwillows;
 var GameError = class extends Error {
@@ -28,8 +4823,29 @@ async function byPlayer(table, playerId) {
   const rows = await toArray(table.search({}));
   return rows.filter((r) => r?.playerId === playerId);
 }
+var defsReconciled = false;
+async function reconcileDefinitions() {
+  if (defsReconciled) return;
+  defsReconciled = true;
+  const t = db();
+  const sources = [
+    [t.Biome, biomes_default.records],
+    [t.Recipe, recipes_default.records],
+    [t.HabitatObject, habitat_objects_default.records],
+    [t.ToolDef, tools_default.records],
+    [t.ResourceType, resources_default.records],
+    [t.Animal, [...animals_1_default.records, ...animals_2_default.records]]
+  ];
+  for (const [table, records] of sources) {
+    const valid = new Set(records.map((r) => r.id));
+    for (const row of await toArray(table.search({}))) {
+      if (!valid.has(row.id)) await table.delete(row.id);
+    }
+  }
+}
 var defsCache = null;
 async function defs() {
+  await reconcileDefinitions();
   if (!defsCache) {
     const t = db();
     const [biomes, animals, resources, recipes, objects, tools] = await Promise.all([

@@ -14,6 +14,17 @@
 declare const databases: any;
 declare const Resource: any;
 
+// Definition JSON is the source of truth for the seed tables. Harper's data
+// loader only upserts records — it never deletes ones removed/renamed in the
+// JSON — so we reconcile against these on boot to prune orphans.
+import biomesData from '../data/biomes.json';
+import recipesData from '../data/recipes.json';
+import objectsData from '../data/habitat-objects.json';
+import toolsData from '../data/tools.json';
+import resourcesData from '../data/resources.json';
+import animals1Data from '../data/animals-1.json';
+import animals2Data from '../data/animals-2.json';
+
 const db = () => databases.wildwillows;
 
 // ---------------------------------------------------------------- helpers
@@ -66,9 +77,38 @@ async function byPlayer(table: any, playerId: string): Promise<any[]> {
 	return rows.filter((r: any) => r?.playerId === playerId);
 }
 
+/**
+ * Reconcile seed tables against the definition JSON, deleting any DB records
+ * whose id is no longer in the JSON (renamed or removed). Runs once per worker.
+ * Without this, a renamed recipe/object leaves a stale duplicate in the table
+ * (e.g. an old "Water Restoration Kit" alongside the new "Wetland Restoration
+ * Kit"), because Harper's data loader only upserts and never deletes.
+ */
+let defsReconciled = false;
+async function reconcileDefinitions() {
+	if (defsReconciled) return;
+	defsReconciled = true;
+	const t = db();
+	const sources: [any, any[]][] = [
+		[t.Biome, biomesData.records],
+		[t.Recipe, recipesData.records],
+		[t.HabitatObject, objectsData.records],
+		[t.ToolDef, toolsData.records],
+		[t.ResourceType, resourcesData.records],
+		[t.Animal, [...animals1Data.records, ...animals2Data.records]],
+	];
+	for (const [table, records] of sources) {
+		const valid = new Set(records.map((r: any) => r.id));
+		for (const row of await toArray(table.search({}))) {
+			if (!valid.has(row.id)) await table.delete(row.id);
+		}
+	}
+}
+
 // Definition cache — definitions only change on deploy, so cache per worker.
 let defsCache: any = null;
 async function defs() {
+	await reconcileDefinitions();
 	if (!defsCache) {
 		const t = db();
 		const [biomes, animals, resources, recipes, objects, tools] = await Promise.all([
