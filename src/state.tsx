@@ -156,6 +156,26 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		setPlacementObjectId(null);
 	}, []);
 
+	// Heartbeat: while a save is open, ping the server on a timer so it can
+	// accrue play time and session counts. Best-effort and paused when the tab
+	// is hidden, so backgrounded tabs never inflate the numbers.
+	const sessionPlayerId = state?.player?.id ?? null;
+	useEffect(() => {
+		if (!sessionPlayerId) return;
+		const beat = () => {
+			if (document.visibilityState === 'hidden') return;
+			api.heartbeat().catch(() => undefined);
+		};
+		beat(); // open the session right away
+		const id = window.setInterval(beat, 30_000);
+		const onVisible = () => { if (document.visibilityState === 'visible') beat(); };
+		document.addEventListener('visibilitychange', onVisible);
+		return () => {
+			window.clearInterval(id);
+			document.removeEventListener('visibilitychange', onVisible);
+		};
+	}, [sessionPlayerId]);
+
 	/** Run a persisted action against Harper, then re-sync state. */
 	const act = useCallback(
 		async (fn: () => Promise<any>, onResult?: (r: any) => void) => {

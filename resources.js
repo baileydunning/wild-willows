@@ -95,6 +95,45 @@ async function requirePlayer(playerId) {
   if (!player) throw new GameError("No save found \u2014 please log in again", 404);
   return { player };
 }
+function freshMetrics(now) {
+  return {
+    firstSeenAt: now,
+    lastSeenAt: now,
+    lastHeartbeatAt: 0,
+    playSeconds: 0,
+    sessions: 0,
+    counts: {}
+  };
+}
+async function bumpMetrics(player, deltas = {}) {
+  if (!player?.id) return null;
+  const entries = Object.entries(deltas).filter(([, v]) => v);
+  if (!entries.length) return player.metrics || null;
+  const now = Date.now();
+  const prev = player.metrics || freshMetrics(player.createdAt || now);
+  const counts = { ...prev.counts || {} };
+  for (const [k, v] of entries) counts[k] = (counts[k] || 0) + v;
+  const metrics = { ...prev, counts, lastSeenAt: now };
+  await db().Player.patch(player.id, { metrics });
+  return metrics;
+}
+function metricsView(player) {
+  const now = Date.now();
+  const m = player.metrics || freshMetrics(player.createdAt || now);
+  const playSeconds = m.playSeconds || 0;
+  return {
+    playerId: player.id,
+    name: player.name,
+    createdAt: player.createdAt || m.firstSeenAt || null,
+    firstSeenAt: m.firstSeenAt || player.createdAt || null,
+    lastSeenAt: m.lastSeenAt || null,
+    sessions: m.sessions || 0,
+    playSeconds,
+    playMinutes: Math.round(playSeconds / 60),
+    avgSessionMinutes: m.sessions ? Math.round(playSeconds / 60 / m.sessions) : 0,
+    counts: m.counts || {}
+  };
+}
 async function createPlayerRecords(playerId, name, passcode, appearance) {
   const t = db();
   const d = await defs();
@@ -113,7 +152,8 @@ async function createPlayerRecords(playerId, name, passcode, appearance) {
     craftedItems: {},
     tools: { ...START_TOOLS },
     unlockedBiomes: ["meadow"],
-    tutorialStep: 0
+    tutorialStep: 0,
+    metrics: freshMetrics(now)
   };
   await t.Player.put(player);
   const biomeStates = d.biomes.map((b) => ({
@@ -261,28 +301,24 @@ async function recalcBiome(playerId, biomeId, opts = {}) {
   let balance = balanceFromReturns(countInBiome());
   const newAnimals = [];
   const biomeAnimals = d.animals.filter((a) => a.biome === biomeId);
-  let changed = true;
-  while (changed) {
-    changed = false;
-    for (const animal of biomeAnimals) {
-      if (returnedIds.has(animal.id)) continue;
-      if (meetsRequirements(animal, health, balance, counts, returnedIds)) {
-        const disc = {
-          id: `${playerId}:${animal.id}`,
-          playerId,
-          animalId: animal.id,
-          biomeId,
-          comfort: computeComfort(animal, counts),
-          timesObserved: 0,
-          firstObservedAt: Date.now(),
-          whyReturned: whyReturnedText(animal, d)
-        };
-        await t.Discovery.put(disc);
-        returnedIds.add(animal.id);
-        balance = balanceFromReturns(countInBiome());
-        newAnimals.push({ ...disc, animal });
-        changed = true;
-      }
+  for (const animal of biomeAnimals) {
+    if (returnedIds.has(animal.id)) continue;
+    if (meetsRequirements(animal, health, balance, counts, returnedIds)) {
+      const disc = {
+        id: `${playerId}:${animal.id}`,
+        playerId,
+        animalId: animal.id,
+        biomeId,
+        comfort: computeComfort(animal, counts),
+        timesObserved: 0,
+        firstObservedAt: Date.now(),
+        whyReturned: whyReturnedText(animal, d)
+      };
+      await t.Discovery.put(disc);
+      returnedIds.add(animal.id);
+      balance = balanceFromReturns(countInBiome());
+      newAnimals.push({ ...disc, animal });
+      break;
     }
   }
   for (const disc of discoveries) {
@@ -513,6 +549,9 @@ var LoginPlayer = class extends PublicEndpoint {
     if (!areaBiome || !areaBiome.explorable) {
       await db().Player.patch(playerId, { area: "meadow", x: 10.5, y: 6.5 });
     }
+    const now = Date.now();
+    const prev = player.metrics || freshMetrics(player.createdAt || now);
+    await db().Player.patch(playerId, { metrics: { ...prev, lastHeartbeatAt: 0, lastSeenAt: now } });
     return { ok: true, playerId, state: await snapshot(playerId) };
   }
 };
@@ -551,6 +590,7 @@ var CollectResource = class extends PublicEndpoint {
     inventory[resourceId] = (inventory[resourceId] || 0) + amount;
     await t.Player.patch(playerId, { inventory });
     await t.NodeState.put({ id: nodeKey, playerId, harvestedAt: now });
+    await bumpMetrics(player, { resourcesCollected: amount });
     return { ok: true, gained: { [resourceId]: amount }, inventory, nodeId, harvestedAt: now };
   }
 };
@@ -640,6 +680,7 @@ var CraftItem = class extends PublicEndpoint {
     await t.Player.patch(playerId, { craftedItems, craftedEver });
     const unlockedBiomes = await checkUnlocks(playerId, { player: { ...player, craftedItems, craftedEver } });
     const chests = await byPlayer(t.Chest, playerId);
+    await bumpMetrics(player, { itemsCrafted: 1 });
     return { ok: true, crafted: recipe.output, craftedItems, inventory, chests, usedFrom, unlockedBiomes };
   }
 };
@@ -703,6 +744,7 @@ var PlaceObject = class extends PublicEndpoint {
       addPlacements: [placement],
       player: { ...player, craftedItems }
     });
+    await bumpMetrics(player, { objectsPlaced: 1, animalsReturned: recalc.newAnimals?.length || 0 });
     return { ok: true, placement, craftedItems, ...recalc };
   }
 };
@@ -744,6 +786,7 @@ var Plant = class extends PublicEndpoint {
       removeTerrainIds: [tileId],
       player: { ...player, inventory }
     });
+    await bumpMetrics(player, { plantsPlanted: 1, animalsReturned: recalc.newAnimals?.length || 0 });
     return { ok: true, placement, inventory, usedFrom, ...recalc };
   }
 };
@@ -854,6 +897,7 @@ var RemoveObject = class extends PublicEndpoint {
       removeIds: [placementId],
       player: { ...player, craftedItems, inventory }
     }) : null;
+    await bumpMetrics(player, { objectsRemoved: 1, animalsReturned: recalc?.newAnimals?.length || 0 });
     return { ok: true, removed: placementId, craftedItems, refunded, ...recalc || {} };
   }
 };
@@ -883,6 +927,7 @@ var UpgradeTool = class extends PublicEndpoint {
     await t.Player.patch(playerId, { tools });
     const unlockedBiomes = await checkUnlocks(playerId, { player: { ...player, tools } });
     const chests = await byPlayer(t.Chest, playerId);
+    await bumpMetrics(player, { toolsUpgraded: 1 });
     return { ok: true, tools, inventory, chests, usedFrom, unlockedBiomes, upgraded: { toolId, tier: nextTier.tier, name: nextTier.name } };
   }
 };
@@ -891,11 +936,12 @@ var ObserveAnimal = class extends PublicEndpoint {
     const { playerId, animalId } = await bodyOf(data);
     const t = db();
     const d = await defs();
-    await requirePlayer(playerId);
+    const { player } = await requirePlayer(playerId);
     const disc = await t.Discovery.get(`${playerId}:${animalId}`);
     if (!disc) throw new GameError("That animal has not returned yet", 404);
     const timesObserved = (disc.timesObserved || 0) + 1;
     await t.Discovery.patch(disc.id, { timesObserved });
+    await bumpMetrics(player, { animalsObserved: 1 });
     return { ok: true, discovery: { ...disc, timesObserved }, animal: d.animal.get(animalId) };
   }
 };
@@ -960,6 +1006,7 @@ var Terraform = class extends PublicEndpoint {
       removeTerrainIds: removedId ? [removedId] : [],
       player: { ...player, inventory }
     });
+    await bumpMetrics(player, { terraformActions: 1, animalsReturned: recalc.newAnimals?.length || 0 });
     return { ok: true, tile, removedId, inventory, ...recalc };
   }
 };
@@ -997,6 +1044,67 @@ var SyncPlayer = class extends PublicEndpoint {
     return { ok: true, player: await t.Player.get(playerId) };
   }
 };
+var SESSION_GAP_MS = 30 * 60 * 1e3;
+var MAX_BEAT_MS = 90 * 1e3;
+var Heartbeat = class extends PublicEndpoint {
+  async post(data) {
+    const { playerId } = await bodyOf(data);
+    const t = db();
+    const { player } = await requirePlayer(playerId);
+    const now = Date.now();
+    const prev = player.metrics || freshMetrics(player.createdAt || now);
+    const last = prev.lastHeartbeatAt || 0;
+    const gap = now - last;
+    let playSeconds = prev.playSeconds || 0;
+    let sessions = prev.sessions || 0;
+    if (last === 0 || gap > SESSION_GAP_MS) {
+      sessions += 1;
+    } else {
+      playSeconds += Math.min(gap, MAX_BEAT_MS) / 1e3;
+    }
+    const metrics = {
+      ...prev,
+      firstSeenAt: prev.firstSeenAt || player.createdAt || now,
+      lastSeenAt: now,
+      lastHeartbeatAt: now,
+      playSeconds: Math.round(playSeconds),
+      sessions
+    };
+    await t.Player.patch(playerId, { metrics });
+    return { ok: true, metrics: metricsView({ ...player, metrics }) };
+  }
+};
+var Metrics = class extends PublicEndpoint {
+  async get() {
+    const t = db();
+    const id = String(this.getId?.() || "").trim();
+    if (id) {
+      const player = await t.Player.get(id);
+      if (!player) throw new GameError("No save found with that id", 404);
+      return { player: metricsView(player) };
+    }
+    const players = await allOf(t.Player);
+    const views = players.map(metricsView).sort((a, b) => b.playSeconds - a.playSeconds);
+    const totals = {};
+    for (const v of views) {
+      for (const [k, n] of Object.entries(v.counts)) totals[k] = (totals[k] || 0) + n;
+    }
+    const totalPlaySeconds = views.reduce((acc, v) => acc + v.playSeconds, 0);
+    const totalSessions = views.reduce((acc, v) => acc + v.sessions, 0);
+    return {
+      generatedAt: Date.now(),
+      summary: {
+        players: views.length,
+        totalPlaySeconds,
+        totalPlayHours: Math.round(totalPlaySeconds / 3600 * 10) / 10,
+        totalSessions,
+        avgSessionMinutes: totalSessions ? Math.round(totalPlaySeconds / 60 / totalSessions) : 0,
+        actionTotals: totals
+      },
+      players: views
+    };
+  }
+};
 export {
   ChestTransfer,
   CollectResource,
@@ -1006,7 +1114,9 @@ export {
   DiscardItem,
   GameData,
   GameState,
+  Heartbeat,
   LoginPlayer,
+  Metrics,
   MoveObject,
   ObserveAnimal,
   PlaceObject,

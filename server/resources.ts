@@ -143,6 +143,60 @@ async function requirePlayer(playerId: string): Promise<any> {
 	return { player };
 }
 
+// --------------------------------------------------------------- metrics
+// Lightweight per-player analytics, stored as a `metrics` blob on the Player
+// record. Action counters are bumped from the relevant endpoints; play time
+// and session counts are accrued from client heartbeats (see Heartbeat).
+// Surfaced for dashboards via the read-only Metrics endpoint.
+
+function freshMetrics(now: number) {
+	return {
+		firstSeenAt: now,
+		lastSeenAt: now,
+		lastHeartbeatAt: 0,
+		playSeconds: 0,
+		sessions: 0,
+		counts: {} as Record<string, number>,
+	};
+}
+
+/**
+ * Merge action-count deltas into player.metrics and persist. `player` is the
+ * record we already loaded (counters live in their own key, so this never
+ * clobbers a concurrent inventory/crafted patch). No-ops if nothing to add.
+ */
+async function bumpMetrics(player: any, deltas: Record<string, number> = {}): Promise<any> {
+	if (!player?.id) return null;
+	const entries = Object.entries(deltas).filter(([, v]) => v);
+	if (!entries.length) return player.metrics || null;
+	const now = Date.now();
+	const prev = player.metrics || freshMetrics(player.createdAt || now);
+	const counts = { ...(prev.counts || {}) };
+	for (const [k, v] of entries) counts[k] = (counts[k] || 0) + v;
+	const metrics = { ...prev, counts, lastSeenAt: now };
+	await db().Player.patch(player.id, { metrics });
+	return metrics;
+}
+
+/** Shape the stored metrics into a tidy, derived view for the Metrics endpoint. */
+function metricsView(player: any) {
+	const now = Date.now();
+	const m = player.metrics || freshMetrics(player.createdAt || now);
+	const playSeconds = m.playSeconds || 0;
+	return {
+		playerId: player.id,
+		name: player.name,
+		createdAt: player.createdAt || m.firstSeenAt || null,
+		firstSeenAt: m.firstSeenAt || player.createdAt || null,
+		lastSeenAt: m.lastSeenAt || null,
+		sessions: m.sessions || 0,
+		playSeconds,
+		playMinutes: Math.round(playSeconds / 60),
+		avgSessionMinutes: m.sessions ? Math.round(playSeconds / 60 / m.sessions) : 0,
+		counts: m.counts || {},
+	};
+}
+
 /**
  * Create a brand-new player with starter home, chest, and biome states.
  * Returns the records just written, because conditional searches within the
@@ -166,6 +220,7 @@ async function createPlayerRecords(playerId: string, name: string, passcode: str
 		tools: { ...START_TOOLS },
 		unlockedBiomes: ['meadow'],
 		tutorialStep: 0,
+		metrics: freshMetrics(now),
 	};
 	await t.Player.put(player);
 
@@ -360,30 +415,29 @@ async function recalcBiome(
 	let balance = balanceFromReturns(countInBiome());
 
 	// Animal returns — animals come back only when the habitat truly supports them.
+	// One habitat = one animal: at most a single new animal returns per change, so
+	// building out a biome brings visitors back one at a time rather than summoning
+	// a whole swarm at once. Food-web chains resolve over subsequent actions.
 	const newAnimals: any[] = [];
 	const biomeAnimals = d.animals.filter((a: any) => a.biome === biomeId);
-	let changed = true;
-	while (changed) {
-		changed = false; // loop so chains resolve (e.g. vole returns -> fox can return)
-		for (const animal of biomeAnimals) {
-			if (returnedIds.has(animal.id)) continue;
-			if (meetsRequirements(animal, health, balance, counts, returnedIds)) {
-				const disc = {
-					id: `${playerId}:${animal.id}`,
-					playerId,
-					animalId: animal.id,
-					biomeId,
-					comfort: computeComfort(animal, counts),
-					timesObserved: 0,
-					firstObservedAt: Date.now(),
-					whyReturned: whyReturnedText(animal, d),
-				};
-				await t.Discovery.put(disc);
-				returnedIds.add(animal.id);
-				balance = balanceFromReturns(countInBiome()); // more life back -> more balance
-				newAnimals.push({ ...disc, animal });
-				changed = true;
-			}
+	for (const animal of biomeAnimals) {
+		if (returnedIds.has(animal.id)) continue;
+		if (meetsRequirements(animal, health, balance, counts, returnedIds)) {
+			const disc = {
+				id: `${playerId}:${animal.id}`,
+				playerId,
+				animalId: animal.id,
+				biomeId,
+				comfort: computeComfort(animal, counts),
+				timesObserved: 0,
+				firstObservedAt: Date.now(),
+				whyReturned: whyReturnedText(animal, d),
+			};
+			await t.Discovery.put(disc);
+			returnedIds.add(animal.id);
+			balance = balanceFromReturns(countInBiome()); // more life back -> more balance
+			newAnimals.push({ ...disc, animal });
+			break;
 		}
 	}
 
@@ -655,6 +709,11 @@ export class LoginPlayer extends PublicEndpoint {
 		if (!areaBiome || !areaBiome.explorable) {
 			await db().Player.patch(playerId, { area: 'meadow', x: 10.5, y: 6.5 });
 		}
+		// Reset the heartbeat clock so the first beat after login is counted as a
+		// fresh play session (and back-fill metrics for saves made before tracking).
+		const now = Date.now();
+		const prev = player.metrics || freshMetrics(player.createdAt || now);
+		await db().Player.patch(playerId, { metrics: { ...prev, lastHeartbeatAt: 0, lastSeenAt: now } });
 		return { ok: true, playerId, state: await snapshot(playerId) };
 	}
 }
@@ -707,6 +766,7 @@ export class CollectResource extends PublicEndpoint {
 		await t.Player.patch(playerId, { inventory });
 		await t.NodeState.put({ id: nodeKey, playerId, harvestedAt: now });
 
+		await bumpMetrics(player, { resourcesCollected: amount });
 		return { ok: true, gained: { [resourceId]: amount }, inventory, nodeId, harvestedAt: now };
 	}
 }
@@ -818,6 +878,7 @@ export class CraftItem extends PublicEndpoint {
 		const unlockedBiomes = await checkUnlocks(playerId, { player: { ...player, craftedItems, craftedEver } });
 
 		const chests = await byPlayer(t.Chest, playerId);
+		await bumpMetrics(player, { itemsCrafted: 1 });
 		return { ok: true, crafted: recipe.output, craftedItems, inventory, chests, usedFrom, unlockedBiomes };
 	}
 }
@@ -885,6 +946,7 @@ export class PlaceObject extends PublicEndpoint {
 			addPlacements: [placement],
 			player: { ...player, craftedItems },
 		});
+		await bumpMetrics(player, { objectsPlaced: 1, animalsReturned: recalc.newAnimals?.length || 0 });
 		return { ok: true, placement, craftedItems, ...recalc };
 	}
 }
@@ -932,6 +994,7 @@ export class Plant extends PublicEndpoint {
 			removeTerrainIds: [tileId],
 			player: { ...player, inventory },
 		});
+		await bumpMetrics(player, { plantsPlanted: 1, animalsReturned: recalc.newAnimals?.length || 0 });
 		return { ok: true, placement, inventory, usedFrom, ...recalc };
 	}
 }
@@ -1064,6 +1127,7 @@ export class RemoveObject extends PublicEndpoint {
 				player: { ...player, craftedItems, inventory },
 			})
 			: null;
+		await bumpMetrics(player, { objectsRemoved: 1, animalsReturned: recalc?.newAnimals?.length || 0 });
 		return { ok: true, removed: placementId, craftedItems, refunded, ...(recalc || {}) };
 	}
 }
@@ -1099,6 +1163,7 @@ export class UpgradeTool extends PublicEndpoint {
 		// tool upgrades can satisfy biome unlock requirements
 		const unlockedBiomes = await checkUnlocks(playerId, { player: { ...player, tools } });
 		const chests = await byPlayer(t.Chest, playerId);
+		await bumpMetrics(player, { toolsUpgraded: 1 });
 		return { ok: true, tools, inventory, chests, usedFrom, unlockedBiomes, upgraded: { toolId, tier: nextTier.tier, name: nextTier.name } };
 	}
 }
@@ -1109,12 +1174,13 @@ export class ObserveAnimal extends PublicEndpoint {
 		const { playerId, animalId } = await bodyOf(data);
 		const t = db();
 		const d = await defs();
-		await requirePlayer(playerId);
+		const { player } = await requirePlayer(playerId);
 
 		const disc = await t.Discovery.get(`${playerId}:${animalId}`);
 		if (!disc) throw new GameError('That animal has not returned yet', 404);
 		const timesObserved = (disc.timesObserved || 0) + 1;
 		await t.Discovery.patch(disc.id, { timesObserved });
+		await bumpMetrics(player, { animalsObserved: 1 });
 		return { ok: true, discovery: { ...disc, timesObserved }, animal: d.animal.get(animalId) };
 	}
 }
@@ -1193,6 +1259,7 @@ export class Terraform extends PublicEndpoint {
 			removeTerrainIds: removedId ? [removedId] : [],
 			player: { ...player, inventory },
 		});
+		await bumpMetrics(player, { terraformActions: 1, animalsReturned: recalc.newAnimals?.length || 0 });
 		return { ok: true, tile, removedId, inventory, ...recalc };
 	}
 }
@@ -1233,5 +1300,85 @@ export class SyncPlayer extends PublicEndpoint {
 		}
 		await t.Player.patch(playerId, patch);
 		return { ok: true, player: await t.Player.get(playerId) };
+	}
+}
+
+const SESSION_GAP_MS = 30 * 60 * 1000; // a fresh heartbeat after this gap = a new session
+const MAX_BEAT_MS = 90 * 1000; // credit at most this much play time per beat (guards idle/closed tabs)
+
+/**
+ * POST /Heartbeat/ {playerId} — the client pings this on a timer while the game
+ * is open and focused. We accrue play time from the gap since the last beat
+ * (capped, so a backgrounded tab or a closed laptop never inflates the number)
+ * and count a new session whenever the gap is large or it's the first beat.
+ */
+export class Heartbeat extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId } = await bodyOf(data);
+		const t = db();
+		const { player } = await requirePlayer(playerId);
+		const now = Date.now();
+		const prev = player.metrics || freshMetrics(player.createdAt || now);
+		const last = prev.lastHeartbeatAt || 0;
+		const gap = now - last;
+
+		let playSeconds = prev.playSeconds || 0;
+		let sessions = prev.sessions || 0;
+		if (last === 0 || gap > SESSION_GAP_MS) {
+			sessions += 1; // first beat of a new play session
+		} else {
+			playSeconds += Math.min(gap, MAX_BEAT_MS) / 1000;
+		}
+
+		const metrics = {
+			...prev,
+			firstSeenAt: prev.firstSeenAt || player.createdAt || now,
+			lastSeenAt: now,
+			lastHeartbeatAt: now,
+			playSeconds: Math.round(playSeconds),
+			sessions,
+		};
+		await t.Player.patch(playerId, { metrics });
+		return { ok: true, metrics: metricsView({ ...player, metrics }) };
+	}
+}
+
+/**
+ * GET /Metrics/        — global summary plus a per-player leaderboard.
+ * GET /Metrics/<id>    — one player's metrics.
+ * Read-only analytics view, safe to point a dashboard or cron at.
+ */
+export class Metrics extends PublicEndpoint {
+	async get() {
+		const t = db();
+		const id = String((this as any).getId?.() || '').trim();
+
+		if (id) {
+			const player = await t.Player.get(id);
+			if (!player) throw new GameError('No save found with that id', 404);
+			return { player: metricsView(player) };
+		}
+
+		const players = await allOf(t.Player);
+		const views = players.map(metricsView).sort((a, b) => b.playSeconds - a.playSeconds);
+		const totals: Record<string, number> = {};
+		for (const v of views) {
+			for (const [k, n] of Object.entries(v.counts)) totals[k] = (totals[k] || 0) + (n as number);
+		}
+		const totalPlaySeconds = views.reduce((acc, v) => acc + v.playSeconds, 0);
+		const totalSessions = views.reduce((acc, v) => acc + v.sessions, 0);
+
+		return {
+			generatedAt: Date.now(),
+			summary: {
+				players: views.length,
+				totalPlaySeconds,
+				totalPlayHours: Math.round((totalPlaySeconds / 3600) * 10) / 10,
+				totalSessions,
+				avgSessionMinutes: totalSessions ? Math.round(totalPlaySeconds / 60 / totalSessions) : 0,
+				actionTotals: totals,
+			},
+			players: views,
+		};
 	}
 }

@@ -93,4 +93,5 @@ export const api = {
 		post<any>('/Plant/', { playerId: pid(), area, x, y, plantId }),
 	syncPlayer: (x: number, y: number, area?: string, tutorialStep?: number) =>
 		post<any>('/SyncPlayer/', { playerId: pid(), x, y, area, tutorialStep }),
+	heartbeat: () => post<any>('/Heartbeat/', { playerId: pid() }),
 };
