@@ -253,7 +253,7 @@ export class WorldScene extends Phaser.Scene {
 				const onTile = Math.floor(this.player.x / TILE) === tx
 					&& Math.floor((this.player.y + 8) / TILE) === ty;
 				if (onTile) block = "You're standing here — step off before flooding this bed into open water.";
-				else confirm = 'Flood this bed into open water (costs 2 water)? Open water cannot be planted or walked on.';
+				// otherwise flooding happens immediately — no confirmation prompt
 			}
 		}
 		return { area: this.area, x: tx, y: ty, action, confirm, block };
@@ -1044,7 +1044,7 @@ export class WorldScene extends Phaser.Scene {
 			: terraforming
 				? (terraforming === 'dig'
 					? `Shovel out: ${this.isTouch ? 'tap' : 'click'} nearby ground to dig a soil bed · dig a shaped tile again to clear or drain it`
-					: `Watering can out: water a soil bed to ready it for planting (1 water) · water again to flood into open water (2 water)`)
+					: `Watering can out: water a soil bed to ready it for planting (1 water) · water again to flood into open water (1 water)`)
 					+ (near ? ` · ${verb} — ${near.label}` : '')
 				: near
 					? `${verb} — ${near.label}`

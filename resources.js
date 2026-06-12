@@ -5996,7 +5996,7 @@ var Terraform = class extends PublicEndpoint {
       if ((player.tools?.["watering-can"] || 0) < 1) throw new GameError("You need your watering can for that");
       if (!existing) throw new GameError("Prepare a soil bed with your shovel first");
       if (existing.type === "water") throw new GameError("This is already open water");
-      const cost = existing.type === "tilled" ? 1 : 2;
+      const cost = 1;
       const newType = existing.type === "tilled" ? "watered" : "water";
       const have = (inventory.water || 0) + (inventory["clean-water"] || 0);
       if (have < cost) throw new GameError(`You need ${cost} water for that \u2014 gather more first`);

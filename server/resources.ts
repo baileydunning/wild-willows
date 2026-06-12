@@ -1520,9 +1520,9 @@ export class Terraform extends PublicEndpoint {
 			if ((player.tools?.['watering-can'] || 0) < 1) throw new GameError('You need your watering can for that');
 			if (!existing) throw new GameError('Prepare a soil bed with your shovel first');
 			if (existing.type === 'water') throw new GameError('This is already open water');
-			// tilled -> watered bed (1 water); watered -> flooded open water (2 water).
+			// tilled -> watered bed, watered -> flooded open water: 1 water either way.
 			// Chain open-water tiles to shape ponds, lakes, and rivers.
-			const cost = existing.type === 'tilled' ? 1 : 2;
+			const cost = 1;
 			const newType = existing.type === 'tilled' ? 'watered' : 'water';
 			const have = (inventory.water || 0) + (inventory['clean-water'] || 0);
 			if (have < cost) throw new GameError(`You need ${cost} water for that — gather more first`);

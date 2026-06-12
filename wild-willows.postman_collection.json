@@ -6,12 +6,14 @@
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"variable": [
-		{ "key": "baseUrl", "value": "https://localhost:9926", "type": "string" },
+		{ "key": "baseUrl", "value": "https://wild.willows.harperfabric.com", "type": "string" },
 		{ "key": "playerId", "value": "demo", "type": "string" },
 		{ "key": "name", "value": "Demo", "type": "string" },
 		{ "key": "passcode", "value": "1234", "type": "string" },
 		{ "key": "chestId", "value": "pl_demo_starter-chest", "type": "string" },
-		{ "key": "area", "value": "meadow", "type": "string" }
+		{ "key": "area", "value": "meadow", "type": "string" },
+		{ "key": "harperUser", "value": "", "type": "string" },
+		{ "key": "harperPass", "value": "", "type": "string" }
 	],
 	"item": [
 		{
@@ -322,6 +324,72 @@
 						"header": [{ "key": "Accept", "value": "application/json" }],
 						"url": { "raw": "{{baseUrl}}/BiomeSnapshot/{{playerId}}", "host": ["{{baseUrl}}"], "path": ["BiomeSnapshot", "{{playerId}}"] },
 						"description": "Generated SVG postcards of each unlocked area, rendered live from current placements + terrain. Each entry has `image` (base64 data URI — paste into a browser address bar or an <img src> to view) and `svg` (raw markup). Ground is tinted by biome health; placed objects show as colored markers."
+					}
+				}
+			]
+		},
+		{
+			"name": "Maintenance (Harper Operations API)",
+			"description": "Direct admin operations against Harper — NOT the game's custom resources. These hit the Operations API and work on any table regardless of the deployed app code. Set the collection variables `harperUser` / `harperPass` to your Harper credentials; each request uses Basic auth. Use these to remove orphaned definition records left behind after a rename (Harper's data loader only upserts, it never deletes).",
+			"item": [
+				{
+					"name": "Delete orphaned kit recipes",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{harperUser}}", "type": "string" },
+								{ "key": "password", "value": "{{harperPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"operation\": \"delete\",\n  \"database\": \"wildwillows\",\n  \"table\": \"Recipe\",\n  \"ids\": [\"water-restoration-kit\", \"desert-restoration-kit\"]\n}"
+						},
+						"url": { "raw": "{{baseUrl}}/", "host": ["{{baseUrl}}"], "path": [""] },
+						"description": "Deletes the renamed/orphaned kit RECIPE records (old Water + Desert Restoration Kit) so only the current Wetland / Alpine kits remain in the crafting list."
+					}
+				},
+				{
+					"name": "Delete orphaned kit objects",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{harperUser}}", "type": "string" },
+								{ "key": "password", "value": "{{harperPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"operation\": \"delete\",\n  \"database\": \"wildwillows\",\n  \"table\": \"HabitatObject\",\n  \"ids\": [\"water-restoration-kit\", \"desert-restoration-kit\"]\n}"
+						},
+						"url": { "raw": "{{baseUrl}}/", "host": ["{{baseUrl}}"], "path": [""] },
+						"description": "Deletes the matching orphaned HabitatObject records for the renamed kits."
+					}
+				},
+				{
+					"name": "Verify recipes (SQL)",
+					"request": {
+						"auth": {
+							"type": "basic",
+							"basic": [
+								{ "key": "username", "value": "{{harperUser}}", "type": "string" },
+								{ "key": "password", "value": "{{harperPass}}", "type": "string" }
+							]
+						},
+						"method": "POST",
+						"header": [{ "key": "Content-Type", "value": "application/json" }],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"operation\": \"sql\",\n  \"sql\": \"SELECT id, name FROM wildwillows.Recipe WHERE category = 'kit'\"\n}"
+						},
+						"url": { "raw": "{{baseUrl}}/", "host": ["{{baseUrl}}"], "path": [""] },
+						"description": "Lists the kit recipes still in the table to confirm the orphans are gone."
 					}
 				}
 			]
