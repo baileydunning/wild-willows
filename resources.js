@@ -519,6 +519,35 @@ async function recalcBiome(playerId, biomeId, opts = {}) {
   const unlockedBiomes = await checkUnlocks(playerId, { player: opts.player, freshState: biomeState });
   return { biomeState, newAnimals, unlockedBiomes };
 }
+var STARTING_TERRAIN = {
+  wetland: [
+    // a winding river across the north
+    ...[6, 7, 8, 9, 10, 11, 12, 13, 14].map((x) => ({ x, y: 4, type: "water" })),
+    { x: 14, y: 5, type: "water" },
+    { x: 14, y: 6, type: "water" },
+    { x: 15, y: 6, type: "water" },
+    // a small open pond
+    { x: 20, y: 6, type: "water" },
+    { x: 21, y: 6, type: "water" },
+    { x: 22, y: 6, type: "water" },
+    { x: 20, y: 7, type: "water" },
+    { x: 21, y: 7, type: "water" },
+    { x: 22, y: 7, type: "water" },
+    // a couple of watered beds ready to plant
+    { x: 10, y: 14, type: "watered" },
+    { x: 11, y: 14, type: "watered" }
+  ]
+};
+async function seedStartingTerrain(playerId, biomeId) {
+  const layout = STARTING_TERRAIN[biomeId];
+  if (!layout) return;
+  const t = db();
+  for (const cell of layout) {
+    const id = `${playerId}:${biomeId}:${cell.x}:${cell.y}`;
+    if (await t.TerrainTile.get(id)) continue;
+    await t.TerrainTile.put({ id, playerId, area: biomeId, x: cell.x, y: cell.y, type: cell.type, updatedAt: Date.now() });
+  }
+}
 async function checkUnlocks(playerId, fresh = {}) {
   const t = db();
   const d = await defs();
@@ -541,6 +570,7 @@ async function checkUnlocks(playerId, fresh = {}) {
     unlockedSet.add(biome.id);
     await t.Player.patch(playerId, { unlockedBiomes: [...unlockedSet] });
     await t.BiomeState.patch(`${playerId}:${biome.id}`, { unlocked: true });
+    await seedStartingTerrain(playerId, biome.id);
     unlockedNow.push({ id: biome.id, name: biome.name });
   }
   return unlockedNow;
@@ -846,19 +876,10 @@ var CraftItem = class extends PublicEndpoint {
       throw new GameError(`You have already crafted the ${recipe.name} \u2014 it only needs to be made once.`, 409);
     }
     const { usedFrom, inventory } = await consumeMaterials(player, recipe.materials || {});
-    const itemDef = d.object.get(recipe.output.itemId);
     const craftedItems = { ...player.craftedItems || {} };
     const craftedEver = { ...player.craftedEver || {} };
-    if (itemDef?.bundle) {
-      for (const [bid, bqty] of Object.entries(itemDef.bundle)) {
-        craftedItems[bid] = (craftedItems[bid] || 0) + bqty;
-        craftedEver[bid] = (craftedEver[bid] || 0) + bqty;
-      }
-      craftedEver[recipe.output.itemId] = (craftedEver[recipe.output.itemId] || 0) + 1;
-    } else {
-      craftedItems[recipe.output.itemId] = (craftedItems[recipe.output.itemId] || 0) + (recipe.output.qty || 1);
-      craftedEver[recipe.output.itemId] = (craftedEver[recipe.output.itemId] || 0) + (recipe.output.qty || 1);
-    }
+    craftedItems[recipe.output.itemId] = (craftedItems[recipe.output.itemId] || 0) + (recipe.output.qty || 1);
+    craftedEver[recipe.output.itemId] = (craftedEver[recipe.output.itemId] || 0) + (recipe.output.qty || 1);
     await t.Player.patch(playerId, { craftedItems, craftedEver });
     const unlockedBiomes = await checkUnlocks(playerId, { player: { ...player, craftedItems, craftedEver } });
     const chests = await byPlayer(t.Chest, playerId);

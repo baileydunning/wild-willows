@@ -28,8 +28,8 @@ function resColor(data: any, id: string) {
 
 /**
  * Little chips showing where a crafted item can be placed. Items that go
- * everywhere collapse to a single "All areas" chip; non-placeable kits/bundles
- * say so instead.
+ * everywhere collapse to a single "All areas" chip; non-placeable kits say so
+ * instead.
  */
 function AreaTags({ data, def }: { data: any; def: any }) {
 	if (!def) return null;

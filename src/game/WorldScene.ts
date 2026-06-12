@@ -16,8 +16,13 @@ const CAMP_BLOCK = { x0: 5.5, y0: 3.2, x1: 9.9, y1: 5.9 }; // keep nodes/placeme
 
 // spawn points when arriving in an area from another
 const SPAWNS: Record<string, { x: number; y: number }> = {
+	// arriving from the west neighbour → enter at the west edge; from the east → east edge
 	'meadow:from-forest': { x: 27.8, y: 10.0 },
 	'forest:from-meadow': { x: 1.8, y: 10.0 },
+	'forest:from-wetland': { x: 27.8, y: 10.0 },
+	'wetland:from-forest': { x: 1.8, y: 10.0 },
+	'wetland:from-desert': { x: 27.8, y: 10.0 },
+	'desert:from-wetland': { x: 1.8, y: 10.0 },
 	default: { x: 15, y: 11 },
 };
 
@@ -488,16 +493,52 @@ export class WorldScene extends Phaser.Scene {
 			const gy = 9.8 * TILE;
 			this.addDyn(this.add.image(gx, gy, 'gate').setDepth(gy));
 			this.registerInteractable({ x: gx, y: gy, label: 'Walk back to Old Hollow Forest', action: () => bridge.emit('request-area', { area: 'forest' }) });
+
+			// trail east toward the desert (Redstone Scrubland)
+			const sx = (OUT_W - 1.2) * TILE;
+			const sy = 9.8 * TILE;
+			const desertUnlocked = state?.player.unlockedBiomes.includes('desert');
+			const desertExplorable = this.biomeDef('desert')?.explorable;
+			const desertOpen = desertUnlocked && desertExplorable;
+			this.addDyn(this.add.image(sx, sy, desertOpen ? 'gate' : 'sign').setDepth(sy));
+			this.registerInteractable({
+				x: sx, y: sy, label: desertOpen ? 'Walk to Redstone Scrubland' : 'Read the trail sign (Redstone Scrubland)',
+				action: () => {
+					if (desertOpen) {
+						bridge.emit('request-area', { area: 'desert' });
+						return;
+					}
+					const desert = this.biomeDef('desert');
+					const text = desertUnlocked
+						? 'Redstone Scrubland is unlocked! The desert trail east opens soon.'
+						: `The desert trail is blocked. ${desert?.unlock?.label || ''}`;
+					bridge.emit('toast', { text, kind: 'info' });
+				},
+			});
 		}
 	}
 
-	// resource nodes — deterministic layout per area, validated server-side
+	// resource nodes — layout and resource mix are randomized per player + area
+	// (deterministic from that seed so they stay put), and every biome resource
+	// is guaranteed to appear at least once so recipes remain craftable.
 	private computeNodes(): NodeDef[] {
 		const biome = this.biomeDef();
 		if (!biome) return [];
-		const rng = mulberry32(hashStr(`${this.area}-nodes`));
-		const nodes: NodeDef[] = [];
+		const playerId = bridge.shared.state?.player.id || 'anon';
+		const rng = mulberry32(hashStr(`${playerId}-${this.area}-nodes`));
 		const count = 16;
+
+		// build a shuffled bag of resources: enough copies to fill every node,
+		// with each resource present, then Fisher–Yates shuffle with the seed
+		const res = biome.resources || [];
+		const pool: string[] = [];
+		while (res.length && pool.length < count) pool.push(...res);
+		for (let i = pool.length - 1; i > 0; i--) {
+			const j = Math.floor(rng() * (i + 1));
+			[pool[i], pool[j]] = [pool[j], pool[i]];
+		}
+
+		const nodes: NodeDef[] = [];
 		let attempts = 0;
 		while (nodes.length < count && attempts < 300) {
 			attempts++;
@@ -505,7 +546,7 @@ export class WorldScene extends Phaser.Scene {
 			const ty = 1 + Math.floor(rng() * (OUT_H - 3));
 			if (this.area === 'meadow' && tx > CAMP_BLOCK.x0 - 1 && tx < CAMP_BLOCK.x1 + 1 && ty > CAMP_BLOCK.y0 - 1 && ty < CAMP_BLOCK.y1 + 1) continue;
 			if (nodes.some((n) => Math.abs(n.tx - tx) < 2 && Math.abs(n.ty - ty) < 2)) continue;
-			const resourceId = biome.resources[nodes.length % biome.resources.length];
+			const resourceId = pool[nodes.length] || res[nodes.length % res.length];
 			nodes.push({ id: `n${nodes.length}`, resourceId, tx, ty });
 		}
 		return nodes;

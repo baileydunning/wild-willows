@@ -67,8 +67,8 @@
 				"biome": "forest",
 				"minHealth": 75,
 				"minAnimals": 10,
-				"requiresItem": "water-restoration-kit",
-				"label": "Restore Old Hollow Forest to 75% health, welcome 10 forest animals, and craft a Water Restoration Kit."
+				"requiresItem": "wetland-restoration-kit",
+				"label": "Restore Old Hollow Forest to 75% health, welcome 10 forest animals, and craft a Wetland Restoration Kit."
 			},
 			"resources": [
 				"reeds",
@@ -93,8 +93,8 @@
 			"unlock": {
 				"biome": "wetland",
 				"minHealth": 75,
-				"requiresItem": "wetland-restoration-kit",
-				"label": "Restore Rushwater Wetland to 75% health and craft a Wetland Restoration Kit."
+				"requiresItem": "scrubland-restoration-kit",
+				"label": "Restore Rushwater Wetland to 75% health and craft a Scrubland Restoration Kit."
 			},
 			"resources": [
 				"sand",
@@ -117,8 +117,8 @@
 			"unlock": {
 				"biome": "desert",
 				"minHealth": 80,
-				"requiresItem": "desert-restoration-kit",
-				"label": "Restore Redstone Scrubland to 80% health and craft a Desert Restoration Kit."
+				"requiresItem": "alpine-restoration-kit",
+				"label": "Restore Redstone Scrubland to 80% health and craft an Alpine Restoration Kit."
 			},
 			"resources": [
 				"alpine-flowers",

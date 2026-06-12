@@ -971,8 +971,8 @@
 			"description": "A clay pot of meadow flowers to brighten your camp."
 		},
 		{
-			"id": "water-restoration-kit",
-			"name": "Water Restoration Kit",
+			"id": "wetland-restoration-kit",
+			"name": "Wetland Restoration Kit",
 			"placement": "none",
 			"biomes": [],
 			"healthValue": 0,
@@ -980,22 +980,6 @@
 			"shape": "kit",
 			"color": "#6fa8d6",
 			"description": "Liners, filters, and channel tools — everything needed to re-water the wetland. Crafting it helps unlock Rushwater Wetland."
-		},
-		{
-			"id": "meadow-restoration-bundle",
-			"name": "Meadow Restoration Bundle",
-			"placement": "none",
-			"biomes": [],
-			"healthValue": 0,
-			"needs": [],
-			"shape": "kit",
-			"color": "#8fbf6f",
-			"bundle": {
-				"grass-patch": 1,
-				"wildflower-patch": 1,
-				"shrub": 1
-			},
-			"description": "A starter kit that unpacks into a grass patch, a wildflower patch, and a shrub."
 		},
 		{
 			"id": "migration-path-marker",
@@ -1020,8 +1004,8 @@
 			"description": "Seed mixes, fiber twine, and trail tools to open the overgrown forest path. Crafting it helps unlock Old Hollow Forest."
 		},
 		{
-			"id": "wetland-restoration-kit",
-			"name": "Wetland Restoration Kit",
+			"id": "scrubland-restoration-kit",
+			"name": "Scrubland Restoration Kit",
 			"placement": "none",
 			"biomes": [],
 			"healthValue": 0,
@@ -1031,8 +1015,8 @@
 			"description": "Sediment sleds and hardy cuttings to carry restoration into the dry scrubland. Crafting it helps unlock Redstone Scrubland."
 		},
 		{
-			"id": "desert-restoration-kit",
-			"name": "Desert Restoration Kit",
+			"id": "alpine-restoration-kit",
+			"name": "Alpine Restoration Kit",
 			"placement": "none",
 			"biomes": [],
 			"healthValue": 0,

@@ -70,7 +70,6 @@ export interface HabitatObjectDef {
 	requiresTool?: { id: string; tier: number };
 	isChest?: boolean;
 	chestCapacity?: number;
-	bundle?: Record<string, number>;
 	plantable?: boolean;
 	plantCost?: Record<string, number>;
 	growSeconds?: number;

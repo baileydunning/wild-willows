@@ -693,6 +693,34 @@ async function recalcBiome(
 	return { biomeState, newAnimals, unlockedBiomes };
 }
 
+// Areas that begin partly shaped when first unlocked. Rushwater Wetland opens
+// with channels and a pond already terraformed, so it reads as a wetland the
+// moment you arrive — and gives the river/lake animals something to build on.
+const STARTING_TERRAIN: Record<string, { x: number; y: number; type: string }[]> = {
+	wetland: [
+		// a winding river across the north
+		...[6, 7, 8, 9, 10, 11, 12, 13, 14].map((x) => ({ x, y: 4, type: 'water' })),
+		{ x: 14, y: 5, type: 'water' }, { x: 14, y: 6, type: 'water' }, { x: 15, y: 6, type: 'water' },
+		// a small open pond
+		{ x: 20, y: 6, type: 'water' }, { x: 21, y: 6, type: 'water' }, { x: 22, y: 6, type: 'water' },
+		{ x: 20, y: 7, type: 'water' }, { x: 21, y: 7, type: 'water' }, { x: 22, y: 7, type: 'water' },
+		// a couple of watered beds ready to plant
+		{ x: 10, y: 14, type: 'watered' }, { x: 11, y: 14, type: 'watered' },
+	],
+};
+
+/** Pre-shape an area's starting terrain the first time it unlocks. */
+async function seedStartingTerrain(playerId: string, biomeId: string) {
+	const layout = STARTING_TERRAIN[biomeId];
+	if (!layout) return;
+	const t = db();
+	for (const cell of layout) {
+		const id = `${playerId}:${biomeId}:${cell.x}:${cell.y}`;
+		if (await t.TerrainTile.get(id)) continue; // never overwrite the player's own work
+		await t.TerrainTile.put({ id, playerId, area: biomeId, x: cell.x, y: cell.y, type: cell.type, updatedAt: Date.now() });
+	}
+}
+
 /** Evaluate biome unlock requirements; unlock anything newly earned. */
 async function checkUnlocks(
 	playerId: string,
@@ -722,6 +750,7 @@ async function checkUnlocks(
 		unlockedSet.add(biome.id);
 		await t.Player.patch(playerId, { unlockedBiomes: [...unlockedSet] });
 		await t.BiomeState.patch(`${playerId}:${biome.id}`, { unlocked: true });
+		await seedStartingTerrain(playerId, biome.id);
 		unlockedNow.push({ id: biome.id, name: biome.name });
 	}
 	return unlockedNow;
@@ -1092,20 +1121,10 @@ export class CraftItem extends PublicEndpoint {
 
 		const { usedFrom, inventory } = await consumeMaterials(player, recipe.materials || {});
 
-		const itemDef = d.object.get(recipe.output.itemId);
 		const craftedItems = { ...(player.craftedItems || {}) };
 		const craftedEver = { ...(player.craftedEver || {}) };
-		if (itemDef?.bundle) {
-			// restoration bundles unpack into several habitat items
-			for (const [bid, bqty] of Object.entries(itemDef.bundle)) {
-				craftedItems[bid] = (craftedItems[bid] || 0) + (bqty as number);
-				craftedEver[bid] = (craftedEver[bid] || 0) + (bqty as number);
-			}
-			craftedEver[recipe.output.itemId] = (craftedEver[recipe.output.itemId] || 0) + 1;
-		} else {
-			craftedItems[recipe.output.itemId] = (craftedItems[recipe.output.itemId] || 0) + (recipe.output.qty || 1);
-			craftedEver[recipe.output.itemId] = (craftedEver[recipe.output.itemId] || 0) + (recipe.output.qty || 1);
-		}
+		craftedItems[recipe.output.itemId] = (craftedItems[recipe.output.itemId] || 0) + (recipe.output.qty || 1);
+		craftedEver[recipe.output.itemId] = (craftedEver[recipe.output.itemId] || 0) + (recipe.output.qty || 1);
 		await t.Player.patch(playerId, { craftedItems, craftedEver });
 
 		// crafting key items (e.g. the water restoration kit) can unlock biomes

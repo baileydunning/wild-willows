@@ -360,22 +360,6 @@
 			}
 		},
 		{
-			"id": "meadow-restoration-bundle",
-			"name": "Meadow Restoration Bundle",
-			"category": "kit",
-			"unlockBiome": "meadow",
-			"output": {
-				"itemId": "meadow-restoration-bundle",
-				"qty": 1
-			},
-			"materials": {
-				"seeds": 6,
-				"wildflowers": 4,
-				"fiber": 3,
-				"water": 2
-			}
-		},
-		{
 			"id": "nesting-tree",
 			"name": "Nesting Tree",
 			"category": "habitat",
@@ -450,12 +434,12 @@
 			}
 		},
 		{
-			"id": "water-restoration-kit",
-			"name": "Water Restoration Kit",
+			"id": "wetland-restoration-kit",
+			"name": "Wetland Restoration Kit",
 			"category": "kit",
 			"unlockBiome": "forest",
 			"output": {
-				"itemId": "water-restoration-kit",
+				"itemId": "wetland-restoration-kit",
 				"qty": 1
 			},
 			"materials": {
@@ -756,13 +740,13 @@
 			}
 		},
 		{
-			"id": "wetland-restoration-kit",
-			"name": "Wetland Restoration Kit",
+			"id": "scrubland-restoration-kit",
+			"name": "Scrubland Restoration Kit",
 			"category": "kit",
 			"unlockBiome": "wetland",
 			"once": true,
 			"output": {
-				"itemId": "wetland-restoration-kit",
+				"itemId": "scrubland-restoration-kit",
 				"qty": 1
 			},
 			"materials": {
@@ -773,13 +757,13 @@
 			}
 		},
 		{
-			"id": "desert-restoration-kit",
-			"name": "Desert Restoration Kit",
+			"id": "alpine-restoration-kit",
+			"name": "Alpine Restoration Kit",
 			"category": "kit",
 			"unlockBiome": "desert",
 			"once": true,
 			"output": {
-				"itemId": "desert-restoration-kit",
+				"itemId": "alpine-restoration-kit",
 				"qty": 1
 			},
 			"materials": {
