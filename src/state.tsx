@@ -373,9 +373,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		async (area: string) => {
 			try {
 				setSaveStatus('saving');
-				const r = await api.syncPlayer(state?.player.x ?? 0, state?.player.y ?? 0, area);
-				setState((s) => (s ? { ...s, player: r.player } : s));
-				bridge.shared.state = bridge.shared.state ? { ...bridge.shared.state, player: r.player } : null;
+				await api.syncPlayer(state?.player.x ?? 0, state?.player.y ?? 0, area);
+				// pull a fresh snapshot so any terrain seeded on first entry (e.g. the
+				// wetland's starting water) is loaded before the scene redraws
+				adoptState(await api.gameState());
 				bridge.emit('area-changed', area);
 				markSaved();
 			} catch (e: any) {
@@ -383,7 +384,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				toast(e.message || 'You cannot go there yet', 'error');
 			}
 		},
-		[state, markSaved, toast]
+		[state, markSaved, toast, adoptState]
 	);
 
 	const openChest = useCallback((id: string) => {

@@ -1242,6 +1242,13 @@ var SyncPlayer = class extends PublicEndpoint {
         throw new GameError(`${biome.name} is part of the preserve plan but not explorable yet`, 403);
       }
       patch.area = area;
+      if (STARTING_TERRAIN[area]) {
+        const hasTerrain = (await byPlayer(t.TerrainTile, playerId)).some((tt) => tt.area === area);
+        if (!hasTerrain) {
+          await seedStartingTerrain(playerId, area);
+          await recalcBiome(playerId, area, { player });
+        }
+      }
     }
     await t.Player.patch(playerId, patch);
     return { ok: true, player: await t.Player.get(playerId) };

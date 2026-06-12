@@ -1550,6 +1550,17 @@ export class SyncPlayer extends PublicEndpoint {
 				throw new GameError(`${biome.name} is part of the preserve plan but not explorable yet`, 403);
 			}
 			patch.area = area;
+
+			// First time stepping into an area that begins partly shaped, seed its
+			// starting terrain now. This also back-fills saves that unlocked the area
+			// before the starting-terrain feature existed (e.g. wetlands already open).
+			if (STARTING_TERRAIN[area]) {
+				const hasTerrain = (await byPlayer(t.TerrainTile, playerId)).some((tt) => tt.area === area);
+				if (!hasTerrain) {
+					await seedStartingTerrain(playerId, area);
+					await recalcBiome(playerId, area, { player });
+				}
+			}
 		}
 		await t.Player.patch(playerId, patch);
 		return { ok: true, player: await t.Player.get(playerId) };
