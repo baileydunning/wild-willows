@@ -1044,6 +1044,172 @@
 				"shells": 3,
 				"stones": 2
 			}
+		},
+		{
+			"id": "daisy-patch",
+			"name": "Daisy Patch",
+			"category": "plant",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "daisy-patch",
+				"qty": 1
+			},
+			"materials": {
+				"seeds": 2,
+				"fiber": 1
+			}
+		},
+		{
+			"id": "foxglove",
+			"name": "Foxglove",
+			"category": "plant",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "foxglove",
+				"qty": 1
+			},
+			"materials": {
+				"seeds": 2,
+				"wildflowers": 2
+			}
+		},
+		{
+			"id": "mushroom-ring",
+			"name": "Mushroom Ring",
+			"category": "plant",
+			"unlockBiome": "forest",
+			"output": {
+				"itemId": "mushroom-ring",
+				"qty": 1
+			},
+			"materials": {
+				"mushrooms": 3,
+				"moss": 1
+			}
+		},
+		{
+			"id": "birch-tree",
+			"name": "Birch Tree",
+			"category": "plant",
+			"unlockBiome": "forest",
+			"output": {
+				"itemId": "birch-tree",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 4,
+				"bark": 2
+			}
+		},
+		{
+			"id": "marsh-marigold",
+			"name": "Marsh Marigold",
+			"category": "plant",
+			"unlockBiome": "wetland",
+			"output": {
+				"itemId": "marsh-marigold",
+				"qty": 1
+			},
+			"materials": {
+				"reeds": 2,
+				"seeds": 1
+			}
+		},
+		{
+			"id": "bulrush",
+			"name": "Bulrush",
+			"category": "plant",
+			"unlockBiome": "wetland",
+			"output": {
+				"itemId": "bulrush",
+				"qty": 1
+			},
+			"materials": {
+				"reeds": 4,
+				"mud": 1
+			}
+		},
+		{
+			"id": "prickly-pear",
+			"name": "Prickly Pear",
+			"category": "plant",
+			"unlockBiome": "desert",
+			"output": {
+				"itemId": "prickly-pear",
+				"qty": 1
+			},
+			"materials": {
+				"cactus-fruit": 3,
+				"sand": 1
+			}
+		},
+		{
+			"id": "desert-marigold",
+			"name": "Desert Marigold",
+			"category": "plant",
+			"unlockBiome": "desert",
+			"output": {
+				"itemId": "desert-marigold",
+				"qty": 1
+			},
+			"materials": {
+				"sand": 2,
+				"seeds": 1
+			}
+		},
+		{
+			"id": "gentian-patch",
+			"name": "Alpine Gentian",
+			"category": "plant",
+			"unlockBiome": "alpine",
+			"output": {
+				"itemId": "gentian-patch",
+				"qty": 1
+			},
+			"materials": {
+				"alpine-flowers": 3
+			}
+		},
+		{
+			"id": "moss-cushion",
+			"name": "Moss Cushion",
+			"category": "plant",
+			"unlockBiome": "alpine",
+			"output": {
+				"itemId": "moss-cushion",
+				"qty": 1
+			},
+			"materials": {
+				"moss": 3
+			}
+		},
+		{
+			"id": "sea-thrift",
+			"name": "Sea Thrift",
+			"category": "plant",
+			"unlockBiome": "coastal",
+			"output": {
+				"itemId": "sea-thrift",
+				"qty": 1
+			},
+			"materials": {
+				"sand": 2,
+				"seeds": 1
+			}
+		},
+		{
+			"id": "beach-shrub",
+			"name": "Beach Shrub",
+			"category": "plant",
+			"unlockBiome": "coastal",
+			"output": {
+				"itemId": "beach-shrub",
+				"qty": 1
+			},
+			"materials": {
+				"driftwood": 2,
+				"sand": 1
+			}
 		}
 	]
 }

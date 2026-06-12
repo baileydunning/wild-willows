@@ -630,6 +630,76 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 		g.fillStyle(C('#7a9aa8'), 1).fillTriangle(27, 8, 12, 25, 42, 25); // roof highlight
 		g.fillStyle(C('#c9a35c'), 1).fillCircle(27, 4, 3); // finial
 	});
+
+	// --- additional plantable vegetation (one distinct sprite each) ---
+	o('daisies', 34, 26, (g) => {
+		g.fillStyle(C('#6da84e'), 1).fillEllipse(17, 20, 32, 12);
+		for (const [x, y] of [[9, 12], [18, 9], [26, 13], [13, 17], [23, 17]] as const) {
+			g.fillStyle(0xffffff, 1);
+			for (const a of [0, 1.05, 2.1, 3.14, 4.19, 5.24]) g.fillEllipse(x + Math.cos(a) * 3, y + Math.sin(a) * 3, 3, 3);
+			g.fillStyle(C('#e3c75f'), 1).fillCircle(x, y, 2);
+		}
+	});
+	o('foxglove', 28, 42, (g) => {
+		g.lineStyle(3, C('#4f7d3a'), 1).lineBetween(10, 40, 10, 8).lineBetween(18, 40, 18, 12);
+		g.fillStyle(C('#c45ad0'), 1);
+		for (let i = 0; i < 5; i++) g.fillEllipse(10, 10 + i * 5, 7, 5);
+		for (let i = 0; i < 4; i++) g.fillEllipse(18, 14 + i * 5, 6, 4);
+	});
+	o('mushrooms', 32, 24, (g) => {
+		g.fillStyle(C('#e6dccd'), 1).fillRect(9, 12, 3, 9).fillRect(18, 14, 3, 8).fillRect(24, 16, 2, 6);
+		g.fillStyle(C('#c0392b'), 1).fillEllipse(10, 12, 14, 9).fillEllipse(19, 14, 11, 7).fillEllipse(25, 16, 7, 5);
+		g.fillStyle(0xffffff, 0.85).fillCircle(7, 11, 1.4).fillCircle(13, 13, 1.2).fillCircle(20, 14, 1.2);
+	});
+	o('birch', 34, 42, (g) => {
+		g.fillStyle(C('#e8e6df'), 1).fillRect(15, 18, 5, 24); // white trunk
+		g.fillStyle(0x2e2e2e, 1).fillRect(15, 24, 5, 1.6).fillRect(15, 31, 5, 1.6);
+		g.fillStyle(C('#7bbf5a'), 1).fillCircle(17, 12, 11).fillCircle(9, 18, 6).fillCircle(25, 18, 6);
+	});
+	o('marshflower', 32, 26, (g) => {
+		g.fillStyle(C('#5a8a4a'), 1).fillEllipse(16, 20, 30, 12);
+		g.fillStyle(C('#e3b93f'), 1);
+		for (const [x, y] of [[10, 12], [18, 10], [24, 14], [14, 16]] as const) g.fillCircle(x, y, 3.4);
+		g.fillStyle(C('#f4e08a'), 1).fillCircle(18, 10, 1.4).fillCircle(10, 12, 1.4);
+	});
+	o('bulrush', 28, 40, (g) => {
+		g.lineStyle(2.5, C('#5a8a4a'), 1);
+		for (const x of [8, 14, 20]) g.lineBetween(x, 38, x, 6);
+		g.fillStyle(C('#7a5a3a'), 1).fillRoundedRect(7, 8, 3, 12, 1.5).fillRoundedRect(13, 5, 3, 12, 1.5).fillRoundedRect(19, 9, 3, 12, 1.5);
+	});
+	o('pricklypear', 34, 30, (g) => {
+		g.fillStyle(C('#5e8a4a'), 1).fillEllipse(13, 20, 14, 18).fillEllipse(22, 13, 12, 14).fillEllipse(24, 24, 10, 11);
+		g.lineStyle(1, C('#3f6e38'), 1).strokeEllipse(13, 20, 14, 18).strokeEllipse(22, 13, 12, 14);
+		g.fillStyle(C('#e8954f'), 1).fillCircle(22, 6, 2.6).fillCircle(28, 9, 2.2);
+	});
+	o('desertbloom', 32, 24, (g) => {
+		g.fillStyle(C('#7c8a4e'), 1).fillEllipse(16, 19, 28, 10);
+		g.fillStyle(C('#e88a2f'), 1);
+		for (const [x, y] of [[9, 11], [17, 9], [24, 12], [13, 15]] as const) g.fillCircle(x, y, 3);
+		g.fillStyle(C('#f4c75f'), 1).fillCircle(17, 9, 1.3);
+	});
+	o('gentian', 32, 24, (g) => {
+		g.fillStyle(C('#5e7a4a'), 1).fillEllipse(16, 19, 28, 10);
+		g.fillStyle(C('#3a6ad0'), 1);
+		for (const [x, y] of [[10, 11], [18, 9], [25, 12], [14, 15]] as const) {
+			for (const a of [0, 1.26, 2.51, 3.77, 5.03]) g.fillEllipse(x + Math.cos(a) * 2.6, y + Math.sin(a) * 2.6, 2.4, 3.2);
+		}
+	});
+	o('cushion', 30, 18, (g) => {
+		g.fillStyle(C('#6fae5a'), 1).fillEllipse(15, 12, 28, 12);
+		g.fillStyle(C('#5a9a48'), 1).fillCircle(9, 10, 3).fillCircle(17, 9, 3).fillCircle(23, 11, 3);
+		g.fillStyle(C('#d77bb1'), 1).fillCircle(12, 9, 1.2).fillCircle(20, 10, 1.2).fillCircle(16, 12, 1.2);
+	});
+	o('thrift', 32, 26, (g) => {
+		g.fillStyle(C('#7a9a6a'), 1).fillEllipse(16, 21, 28, 9);
+		g.lineStyle(1.5, C('#5a8a4a'), 1);
+		for (const x of [9, 16, 23]) g.lineBetween(x, 21, x, 9);
+		g.fillStyle(C('#e57aa8'), 1).fillCircle(9, 8, 3.2).fillCircle(16, 7, 3.4).fillCircle(23, 9, 3);
+	});
+	o('coastalshrub', 34, 28, (g) => {
+		g.fillStyle(C('#7d8f6a'), 1).fillCircle(12, 18, 9).fillCircle(23, 16, 10).fillCircle(18, 12, 8);
+		g.fillStyle(C('#9aa882'), 1).fillCircle(14, 14, 2.4).fillCircle(22, 13, 2.4).fillCircle(19, 18, 2.4);
+	});
 }
 
 /**

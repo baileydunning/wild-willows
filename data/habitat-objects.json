@@ -617,7 +617,12 @@
 			],
 			"shape": "reed",
 			"color": "#7fa05a",
-			"description": "Dense replanted reeds — nursery for frogs, dragonflies, and blackbirds."
+			"description": "Dense replanted reeds — nursery for frogs, dragonflies, and blackbirds.",
+			"plantable": true,
+			"plantCost": {
+				"reeds": 3
+			},
+			"growSeconds": 45
 		},
 		{
 			"id": "mud-bank",
@@ -668,7 +673,12 @@
 			],
 			"shape": "reed",
 			"color": "#8aa85a",
-			"description": "Tall cattails along the water's edge — cover for nesting marsh birds and shade for the shallows."
+			"description": "Tall cattails along the water's edge — cover for nesting marsh birds and shade for the shallows.",
+			"plantable": true,
+			"plantCost": {
+				"reeds": 2
+			},
+			"growSeconds": 45
 		},
 		{
 			"id": "marsh-log",
@@ -734,7 +744,12 @@
 			],
 			"shape": "cactus",
 			"color": "#5e8a4a",
-			"description": "Transplanted native cactus. Fruit, moisture, and a fortress in one."
+			"description": "Transplanted native cactus. Fruit, moisture, and a fortress in one.",
+			"plantable": true,
+			"plantCost": {
+				"cactus-fruit": 2
+			},
+			"growSeconds": 70
 		},
 		{
 			"id": "desert-brush",
@@ -750,7 +765,12 @@
 			],
 			"shape": "brush",
 			"color": "#8a8a4e",
-			"description": "Hardy scrub that throws precious shade."
+			"description": "Hardy scrub that throws precious shade.",
+			"plantable": true,
+			"plantCost": {
+				"sand": 2
+			},
+			"growSeconds": 50
 		},
 		{
 			"id": "shaded-rock-shelter",
@@ -781,7 +801,12 @@
 			],
 			"shape": "flowers",
 			"color": "#9d86d9",
-			"description": "Tough little high-country flowers for alpine pollinators."
+			"description": "Tough little high-country flowers for alpine pollinators.",
+			"plantable": true,
+			"plantCost": {
+				"alpine-flowers": 2
+			},
+			"growSeconds": 45
 		},
 		{
 			"id": "snowmelt-pool",
@@ -828,7 +853,12 @@
 			],
 			"shape": "dunegrass",
 			"color": "#bdb670",
-			"description": "Deep-rooted grass that anchors the dunes and hides shorebird nests."
+			"description": "Deep-rooted grass that anchors the dunes and hides shorebird nests.",
+			"plantable": true,
+			"plantCost": {
+				"sand": 2
+			},
+			"growSeconds": 45
 		},
 		{
 			"id": "driftwood-shelter",
@@ -1199,7 +1229,12 @@
 			],
 			"shape": "fernclump",
 			"color": "#5e8a4a",
-			"description": "Shady arching ferns that carpet the forest floor."
+			"description": "Shady arching ferns that carpet the forest floor.",
+			"plantable": true,
+			"plantCost": {
+				"moss": 2
+			},
+			"growSeconds": 50
 		},
 		{
 			"id": "tree-stump",
@@ -1230,7 +1265,12 @@
 			],
 			"shape": "sedge",
 			"color": "#8aa85a",
-			"description": "Clumped sedges along the shallows — nesting cover for marsh birds."
+			"description": "Clumped sedges along the shallows — nesting cover for marsh birds.",
+			"plantable": true,
+			"plantCost": {
+				"reeds": 2
+			},
+			"growSeconds": 45
 		},
 		{
 			"id": "alder-snag",
@@ -1262,7 +1302,13 @@
 			],
 			"shape": "agave",
 			"color": "#6f8a5a",
-			"description": "A spiny rosette whose tall bloom feeds desert pollinators."
+			"description": "A spiny rosette whose tall bloom feeds desert pollinators.",
+			"plantable": true,
+			"plantCost": {
+				"cactus-fruit": 1,
+				"sand": 1
+			},
+			"growSeconds": 60
 		},
 		{
 			"id": "ocotillo",
@@ -1278,7 +1324,13 @@
 			],
 			"shape": "ocotillo",
 			"color": "#9a6a4a",
-			"description": "Whip-like stalks with crimson tips — cover and nectar in the open flats."
+			"description": "Whip-like stalks with crimson tips — cover and nectar in the open flats.",
+			"plantable": true,
+			"plantCost": {
+				"sand": 1,
+				"branches": 1
+			},
+			"growSeconds": 60
 		},
 		{
 			"id": "heather-mat",
@@ -1294,7 +1346,12 @@
 			],
 			"shape": "heather",
 			"color": "#a06aa8",
-			"description": "A low alpine mat of heather blossoms above the talus."
+			"description": "A low alpine mat of heather blossoms above the talus.",
+			"plantable": true,
+			"plantCost": {
+				"alpine-flowers": 2
+			},
+			"growSeconds": 50
 		},
 		{
 			"id": "krummholz-pine",
@@ -1325,7 +1382,13 @@
 			],
 			"shape": "seagrass",
 			"color": "#6a9a7a",
-			"description": "Swaying eelgrass — nursery for fish and grazing for sea geese."
+			"description": "Swaying eelgrass — nursery for fish and grazing for sea geese.",
+			"plantable": true,
+			"plantCost": {
+				"sand": 1,
+				"driftwood": 1
+			},
+			"growSeconds": 45
 		},
 		{
 			"id": "oyster-bed",
@@ -1342,6 +1405,264 @@
 			"shape": "oyster",
 			"color": "#8e8e8a",
 			"description": "A clustered shellfish reef that filters the tide and feeds shorebirds."
+		},
+		{
+			"id": "daisy-patch",
+			"name": "Daisy Patch",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow"
+			],
+			"healthValue": 4,
+			"needs": [
+				"plant",
+				"food"
+			],
+			"shape": "daisies",
+			"color": "#e8e8e8",
+			"plantable": true,
+			"plantCost": {
+				"seeds": 2
+			},
+			"growSeconds": 45,
+			"description": "Cheerful oxeye daisies that open with the morning sun."
+		},
+		{
+			"id": "foxglove",
+			"name": "Foxglove",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow"
+			],
+			"healthValue": 5,
+			"needs": [
+				"plant",
+				"food"
+			],
+			"shape": "foxglove",
+			"color": "#c45ad0",
+			"plantable": true,
+			"plantCost": {
+				"seeds": 2,
+				"wildflowers": 1
+			},
+			"growSeconds": 50,
+			"description": "Tall pink foxglove spires — a bumblebee favourite."
+		},
+		{
+			"id": "mushroom-ring",
+			"name": "Mushroom Ring",
+			"placement": "outdoor",
+			"biomes": [
+				"forest"
+			],
+			"healthValue": 5,
+			"needs": [
+				"plant",
+				"food"
+			],
+			"shape": "mushrooms",
+			"color": "#c0392b",
+			"plantable": true,
+			"plantCost": {
+				"mushrooms": 2
+			},
+			"growSeconds": 45,
+			"description": "A fairy ring of woodland mushrooms in the leaf litter."
+		},
+		{
+			"id": "birch-tree",
+			"name": "Birch Tree",
+			"placement": "outdoor",
+			"biomes": [
+				"forest"
+			],
+			"healthValue": 8,
+			"needs": [
+				"plant",
+				"food"
+			],
+			"shape": "birch",
+			"color": "#e8e6df",
+			"plantable": true,
+			"plantCost": {
+				"seeds": 2,
+				"bark": 1
+			},
+			"growSeconds": 90,
+			"description": "A slender white-barked birch grown from a watered bed."
+		},
+		{
+			"id": "marsh-marigold",
+			"name": "Marsh Marigold",
+			"placement": "outdoor",
+			"biomes": [
+				"wetland"
+			],
+			"healthValue": 5,
+			"needs": [
+				"plant",
+				"food"
+			],
+			"shape": "marshflower",
+			"color": "#e3b93f",
+			"plantable": true,
+			"plantCost": {
+				"reeds": 1,
+				"seeds": 1
+			},
+			"growSeconds": 45,
+			"description": "Golden marsh marigolds that ring the shallows in spring."
+		},
+		{
+			"id": "bulrush",
+			"name": "Bulrush",
+			"placement": "outdoor",
+			"biomes": [
+				"wetland"
+			],
+			"healthValue": 5,
+			"needs": [
+				"plant",
+				"food"
+			],
+			"shape": "bulrush",
+			"color": "#7a5a3a",
+			"plantable": true,
+			"plantCost": {
+				"reeds": 2
+			},
+			"growSeconds": 45,
+			"description": "Stately bulrushes with brown velvet heads along the bank."
+		},
+		{
+			"id": "prickly-pear",
+			"name": "Prickly Pear",
+			"placement": "outdoor",
+			"biomes": [
+				"desert"
+			],
+			"healthValue": 6,
+			"needs": [
+				"plant",
+				"food"
+			],
+			"shape": "pricklypear",
+			"color": "#5e8a4a",
+			"plantable": true,
+			"plantCost": {
+				"cactus-fruit": 2
+			},
+			"growSeconds": 70,
+			"description": "Pad cactus with sweet fruit and bright blooms."
+		},
+		{
+			"id": "desert-marigold",
+			"name": "Desert Marigold",
+			"placement": "outdoor",
+			"biomes": [
+				"desert"
+			],
+			"healthValue": 4,
+			"needs": [
+				"plant",
+				"food"
+			],
+			"shape": "desertbloom",
+			"color": "#e88a2f",
+			"plantable": true,
+			"plantCost": {
+				"sand": 1,
+				"seeds": 1
+			},
+			"growSeconds": 50,
+			"description": "Drought-tough marigolds that glow against the sand."
+		},
+		{
+			"id": "gentian-patch",
+			"name": "Alpine Gentian",
+			"placement": "outdoor",
+			"biomes": [
+				"alpine"
+			],
+			"healthValue": 5,
+			"needs": [
+				"plant",
+				"food"
+			],
+			"shape": "gentian",
+			"color": "#3a6ad0",
+			"plantable": true,
+			"plantCost": {
+				"alpine-flowers": 2
+			},
+			"growSeconds": 45,
+			"description": "Vivid blue alpine gentians, low against the wind."
+		},
+		{
+			"id": "moss-cushion",
+			"name": "Moss Cushion",
+			"placement": "outdoor",
+			"biomes": [
+				"alpine"
+			],
+			"healthValue": 4,
+			"needs": [
+				"plant",
+				"food"
+			],
+			"shape": "cushion",
+			"color": "#6fae5a",
+			"plantable": true,
+			"plantCost": {
+				"moss": 2
+			},
+			"growSeconds": 45,
+			"description": "A springy cushion of moss dotted with tiny blooms."
+		},
+		{
+			"id": "sea-thrift",
+			"name": "Sea Thrift",
+			"placement": "outdoor",
+			"biomes": [
+				"coastal"
+			],
+			"healthValue": 5,
+			"needs": [
+				"plant",
+				"food"
+			],
+			"shape": "thrift",
+			"color": "#e57aa8",
+			"plantable": true,
+			"plantCost": {
+				"sand": 1,
+				"seeds": 1
+			},
+			"growSeconds": 45,
+			"description": "Pink sea-thrift pompoms that thrive in salt spray."
+		},
+		{
+			"id": "beach-shrub",
+			"name": "Beach Shrub",
+			"placement": "outdoor",
+			"biomes": [
+				"coastal"
+			],
+			"healthValue": 5,
+			"needs": [
+				"plant",
+				"food"
+			],
+			"shape": "coastalshrub",
+			"color": "#7d8f6a",
+			"plantable": true,
+			"plantCost": {
+				"sand": 1,
+				"driftwood": 1
+			},
+			"growSeconds": 55,
+			"description": "A salt-hardy grey-green coastal shrub."
 		}
 	]
 }

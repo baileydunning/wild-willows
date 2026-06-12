@@ -214,6 +214,7 @@ export function ChestPanel() {
 export function CraftingPanel() {
 	const { data, state, setPanel, craft, startPlacement } = useGame();
 	const linked = useLinkedChests();
+	const [placeFilter, setPlaceFilter] = useState('all');
 	if (!data || !state) return null;
 	const player = state.player;
 
@@ -229,14 +230,20 @@ export function CraftingPanel() {
 		return Object.entries(r.materials).every(([id, q]) => availability(id).total >= q);
 	};
 
+	const objOf = (r: RecipeDef) => data.habitatObjects.find((o) => o.id === r.output.itemId);
 	const visible = data.recipes
 		.filter((r) => player.unlockedBiomes.includes(r.unlockBiome))
+		.filter((r) => placeFilter === 'all' || (objOf(r)?.biomes || []).includes(placeFilter))
 		.sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
 	const categories = [...new Set(visible.map((r) => r.category))];
 	const catLabel: Record<string, string> = {
-		habitat: 'Habitat objects', structure: 'Structures & decor', decoration: 'Paths & fences',
-		storage: 'Storage', home: 'Camp comforts', kit: 'Restoration kits',
+		plant: 'Plants & flowers', habitat: 'Habitat objects', structure: 'Structures & decor',
+		decoration: 'Paths & fences', storage: 'Storage', home: 'Camp comforts', kit: 'Restoration kits',
 	};
+	// areas the player can actually build in, for the filter dropdown
+	const filterAreas = [...data.biomes]
+		.sort((a, b) => a.order - b.order)
+		.filter((b) => player.unlockedBiomes.includes(b.id));
 	const alreadyMade = (r: RecipeDef) => !!r.once && (player.craftedEver?.[r.output.itemId] || 0) > 0;
 
 	const placeable = Object.entries(player.craftedItems || {}).filter(([id]) => {
@@ -250,6 +257,15 @@ export function CraftingPanel() {
 				Craft anywhere: materials come from your basket first, then from your chests
 				({linked.length} chest{linked.length === 1 ? '' : 's'} in storage).
 			</p>
+			<div className="craft-filter">
+				<label htmlFor="craft-place">Show items for:</label>
+				<select id="craft-place" value={placeFilter} onChange={(e) => setPlaceFilter(e.target.value)}>
+					<option value="all">All items</option>
+					{filterAreas.map((b) => (
+						<option key={b.id} value={b.id}>{b.name}</option>
+					))}
+				</select>
+			</div>
 			{placeable.length > 0 && (
 				<div className="placeable-bar">
 					<b>Ready to place:</b>
@@ -259,6 +275,9 @@ export function CraftingPanel() {
 						</button>
 					))}
 				</div>
+			)}
+			{visible.length === 0 && (
+				<p className="muted small">Nothing to craft for this area yet — restore it further or pick a different place.</p>
 			)}
 			{categories.map((cat) => (
 				<div key={cat}>
