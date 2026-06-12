@@ -572,12 +572,53 @@ export class WorldScene extends Phaser.Scene {
 			attempts++;
 			const tx = 1 + Math.floor(rng() * (OUT_W - 3));
 			const ty = 1 + Math.floor(rng() * (OUT_H - 3));
-			if (this.area === 'meadow' && tx > CAMP_BLOCK.x0 - 1 && tx < CAMP_BLOCK.x1 + 1 && ty > CAMP_BLOCK.y0 - 1 && ty < CAMP_BLOCK.y1 + 1) continue;
+			if (this.inCamp(tx, ty)) continue;
 			if (nodes.some((n) => Math.abs(n.tx - tx) < 2 && Math.abs(n.ty - ty) < 2)) continue;
 			const resourceId = pool[nodes.length] || res[nodes.length % res.length];
 			nodes.push({ id: `n${nodes.length}`, resourceId, tx, ty });
 		}
+
+		// Players can build anywhere; a regen spot that ends up under a placement or
+		// terraformed tile simply relocates to the nearest free tile (keeping its id
+		// and cooldown). Unaffected nodes stay put.
+		const s = bridge.shared.state;
+		const occupied = new Set<string>();
+		for (const p of s?.placements || []) if (p.area === this.area) occupied.add(`${p.x},${p.y}`);
+		for (const tt of s?.terrain || []) if (tt.area === this.area) occupied.add(`${tt.x},${tt.y}`);
+		const taken = new Set(nodes.map((n) => `${n.tx},${n.ty}`));
+		for (const node of nodes) {
+			if (!occupied.has(`${node.tx},${node.ty}`)) continue;
+			const spot = this.findFreeTile(node.tx, node.ty, occupied, taken);
+			if (spot) {
+				taken.delete(`${node.tx},${node.ty}`);
+				node.tx = spot.tx;
+				node.ty = spot.ty;
+				taken.add(`${node.tx},${node.ty}`);
+			}
+		}
 		return nodes;
+	}
+
+	private inCamp(tx: number, ty: number): boolean {
+		return this.area === 'meadow' && tx > CAMP_BLOCK.x0 - 1 && tx < CAMP_BLOCK.x1 + 1 && ty > CAMP_BLOCK.y0 - 1 && ty < CAMP_BLOCK.y1 + 1;
+	}
+
+	/** Nearest in-bounds tile (ring search) that isn't built on or used by another node. */
+	private findFreeTile(cx: number, cy: number, occupied: Set<string>, taken: Set<string>): { tx: number; ty: number } | null {
+		for (let r = 1; r <= 10; r++) {
+			for (let dx = -r; dx <= r; dx++) {
+				for (let dy = -r; dy <= r; dy++) {
+					if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue; // current ring only
+					const tx = cx + dx;
+					const ty = cy + dy;
+					if (tx < 1 || ty < 1 || tx > OUT_W - 2 || ty > OUT_H - 2) continue;
+					const key = `${tx},${ty}`;
+					if (occupied.has(key) || taken.has(key) || this.inCamp(tx, ty)) continue;
+					return { tx, ty };
+				}
+			}
+		}
+		return null;
 	}
 
 	private nodeAvailable(node: NodeDef): boolean {
@@ -943,7 +984,8 @@ export class WorldScene extends Phaser.Scene {
 		if (this.area === 'meadow' && tx >= 6 && tx <= 8 && ty >= 4 && ty <= 5) return false; // tent + campfire tiles
 		const s = bridge.shared.state;
 		if (s?.placements.some((p) => p.id !== ignoreId && p.area === this.area && p.x === tx && p.y === ty)) return false;
-		if (this.nodes.some((n) => n.tx === tx && n.ty === ty)) return false;
+		// note: resource nodes never block building — if you build on a regen spot,
+		// the node relocates itself (see computeNodes)
 		// water tiles only accept bridges (terraform clicks are exempt — the can/shovel work on water)
 		if (!forTerraform && this.waterTiles.has(`${tx},${ty}`)) {
 			const activeId = this.movingPlacementId
