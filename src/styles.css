@@ -322,6 +322,7 @@ input {
 .lock { font-size: 12px; color: var(--ink-soft); margin-left: 6px; display: inline-flex; align-items: center; gap: 3px; }
 .lock.soon { color: var(--gold); font-weight: 700; background: rgba(201, 145, 63, 0.14); border-radius: 999px; padding: 1px 9px; }
 .unlock-req { color: #7a5aa0; margin-top: 3px; }
+.guide-upsell { display: flex; align-items: center; gap: 6px; color: var(--green-deep); background: var(--paper-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 11px; margin: 4px 0 10px; }
 
 /* ================= journal ================= */
 .tabs { display: flex; flex-wrap: wrap; gap: 5px; padding: 10px 20px 0; }

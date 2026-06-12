@@ -33,16 +33,15 @@ function RequirementHints({ animal, full }: { animal: AnimalDef; full: boolean }
 	);
 }
 
-function JournalEntry({ animal, disc }: { animal: AnimalDef; disc?: Discovery }) {
-	const { state, observe } = useGame();
-	const fullHints = (state?.player.tools?.['field-journal'] || 1) >= 2;
+function JournalEntry({ animal, disc, full }: { animal: AnimalDef; disc?: Discovery; full: boolean }) {
+	const { observe } = useGame();
 	if (!disc) {
 		return (
 			<div className="journal-entry entry-unknown">
 				<div className="silhouette">?</div>
 				<div className="grow">
 					<b>Unknown {animal.kind}</b> <span className="muted small">({animal.rarity})</span>
-					<RequirementHints animal={animal} full={fullHints} />
+					<RequirementHints animal={animal} full={full} />
 				</div>
 			</div>
 		);
@@ -58,11 +57,17 @@ function JournalEntry({ animal, disc }: { animal: AnimalDef; disc?: Discovery })
 				<div className="muted small">
 					Returned to the {disc.biomeId} · first seen {new Date(disc.firstObservedAt).toLocaleDateString()} · observed {disc.timesObserved}×
 				</div>
-				<div className="small">{disc.whyReturned}</div>
-				<div className="muted small"><b>Diet:</b> {animal.diet} · <b>Shelter:</b> {animal.shelter}</div>
-				<div className="muted small"><b>Prefers:</b> {animal.preferredHabitat}</div>
-				<div className="small fact"><Icon name="leaf" size={13} /> {animal.fact}</div>
-				<button className="link" onClick={() => observe(animal.id)}>Open info card</button>
+				{full ? (
+					<>
+						<div className="small">{disc.whyReturned}</div>
+						<div className="muted small"><b>Diet:</b> {animal.diet} · <b>Shelter:</b> {animal.shelter}</div>
+						<div className="muted small"><b>Prefers:</b> {animal.preferredHabitat}</div>
+						<div className="small fact"><Icon name="leaf" size={13} /> {animal.fact}</div>
+						<button className="link" onClick={() => observe(animal.id)}>Open info card</button>
+					</>
+				) : (
+					<div className="muted small"><em>Upgrade your field guide for this area to read the full entry.</em></div>
+				)}
 			</div>
 		</div>
 	);
@@ -76,12 +81,18 @@ export function JournalPanel() {
 	const animals = data.animals.filter((a) => a.biome === tab);
 	const discs = new Map(state.discoveries.map((d) => [d.animalId, d]));
 	const returned = animals.filter((a) => discs.has(a.id)).length;
+	// Full entries for an area need the field guide upgraded to that area's tier.
+	const tabBiome = biomes.find((b) => b.id === tab);
+	const guideTier = state.player.tools?.['field-journal'] || 1;
+	const needTier = tabBiome?.order || 1;
+	const full = guideTier >= needTier;
+	const guideName = data.tools.find((t) => t.id === 'field-journal')?.tiers.find((tt) => tt.tier === guideTier)?.name || 'Field Journal';
 
 	return (
 		<div className="panel-backdrop" onClick={() => setPanel(null)}>
 			<div className="panel panel-wide" onClick={(e) => e.stopPropagation()}>
 				<div className="panel-head">
-					<h2><Icon name="journal" size={20} /> Field Journal {(state.player.tools?.['field-journal'] || 1) >= 2 ? '(Expanded Field Guide)' : ''}</h2>
+					<h2><Icon name="journal" size={20} /> {guideName} <span className="muted small">· Tier {guideTier}</span></h2>
 					<button className="icon-btn" onClick={() => setPanel(null)} aria-label="Close"><Icon name="close" /></button>
 				</div>
 				<div className="tabs">
@@ -97,8 +108,13 @@ export function JournalPanel() {
 				</div>
 				<div className="panel-body">
 					<p className="muted small">{returned}/{animals.length} animals have returned to this biome.</p>
+					{!full && (
+						<div className="guide-upsell small">
+							<Icon name="lock" size={13} /> Upgrade your field guide to <b>Tier {needTier}</b> to read full entries and return hints for {tabBiome?.name}. See the Tools panel.
+						</div>
+					)}
 					{animals.map((a) => (
-						<JournalEntry key={a.id} animal={a} disc={discs.get(a.id)} />
+						<JournalEntry key={a.id} animal={a} disc={discs.get(a.id)} full={full} />
 					))}
 				</div>
 			</div>
@@ -112,6 +128,9 @@ export function AnimalCard() {
 	const animal = data.animals.find((a) => a.id === animalCardId);
 	const disc = state.discoveries.find((d) => d.animalId === animalCardId);
 	if (!animal) return null;
+	const guideTier = state.player.tools?.['field-journal'] || 1;
+	const needTier = data.biomes.find((b) => b.id === animal.biome)?.order || 1;
+	const full = guideTier >= needTier;
 	const close = () => {
 		setAnimalCardId(null);
 		setPanel(null);
@@ -130,14 +149,22 @@ export function AnimalCard() {
 							<b>{comfortLabel(disc.comfort)}</b> — comfort {disc.comfort}%. Observed {disc.timesObserved} time{disc.timesObserved === 1 ? '' : 's'}.
 						</p>
 					)}
-					<p><b>Diet:</b> {animal.diet}</p>
-					<p><b>Shelter:</b> {animal.shelter}</p>
-					<p><b>Preferred habitat:</b> {animal.preferredHabitat}</p>
-					{disc && <p className="small">{disc.whyReturned}</p>}
-					<p className="fact"><Icon name="leaf" size={14} /> <b>Field note:</b> {animal.fact}</p>
-					<p className="muted small">
-						Animals here are wild neighbors — they stay because the habitat supports them, and your journal simply records the good news.
-					</p>
+					{full ? (
+						<>
+							<p><b>Diet:</b> {animal.diet}</p>
+							<p><b>Shelter:</b> {animal.shelter}</p>
+							<p><b>Preferred habitat:</b> {animal.preferredHabitat}</p>
+							{disc && <p className="small">{disc.whyReturned}</p>}
+							<p className="fact"><Icon name="leaf" size={14} /> <b>Field note:</b> {animal.fact}</p>
+							<p className="muted small">
+								Animals here are wild neighbors — they stay because the habitat supports them, and your journal simply records the good news.
+							</p>
+						</>
+					) : (
+						<p className="muted">
+							<Icon name="lock" size={14} /> Upgrade your field guide to Tier {needTier} to read this animal's full entry.
+						</p>
+					)}
 				</div>
 			</div>
 		</div>

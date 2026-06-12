@@ -93,7 +93,7 @@ async function defs() {
 
 const NODE_REGEN_SECONDS = 75;
 const BASE_HEALTH = 5;
-const CAPACITY_BY_BASKET: Record<number, number> = { 1: 80, 2: 160 };
+const CAPACITY_BY_BASKET: Record<number, number> = { 1: 80, 2: 160, 3: 260, 4: 380 };
 
 const START_INVENTORY: Record<string, number> = { seeds: 6, fiber: 4, branches: 4, stones: 2, water: 2 };
 const START_TOOLS: Record<string, number> = { basket: 1, shovel: 1, 'watering-can': 1, 'field-journal': 1 };
@@ -987,9 +987,9 @@ export class CollectResource extends PublicEndpoint {
 		const carried = sumValues(player.inventory);
 		if (carried >= capacity) throw new GameError('Your basket is full — store materials in a chest first', 409);
 
-		// upgraded tool for this material type gathers an extra one
+		// a higher-tier tool gathers more at once (tier 1→1 … tier 4→4)
 		const toolTier = player.tools?.[resDef.tool] || 1;
-		const amount = Math.min(toolTier >= 2 ? 2 : 1, capacity - carried);
+		const amount = Math.min(Math.max(1, toolTier), capacity - carried);
 
 		const inventory = { ...(player.inventory || {}) };
 		inventory[resourceId] = (inventory[resourceId] || 0) + amount;

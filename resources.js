@@ -60,7 +60,7 @@ async function defs() {
 }
 var NODE_REGEN_SECONDS = 75;
 var BASE_HEALTH = 5;
-var CAPACITY_BY_BASKET = { 1: 80, 2: 160 };
+var CAPACITY_BY_BASKET = { 1: 80, 2: 160, 3: 260, 4: 380 };
 var START_INVENTORY = { seeds: 6, fiber: 4, branches: 4, stones: 2, water: 2 };
 var START_TOOLS = { basket: 1, shovel: 1, "watering-can": 1, "field-journal": 1 };
 var SKIN_TONES = ["#f6d7b8", "#eec39a", "#d9a06b", "#b97f50", "#8d5a3a", "#6b4226"];
@@ -764,7 +764,7 @@ var CollectResource = class extends PublicEndpoint {
     const carried = sumValues(player.inventory);
     if (carried >= capacity) throw new GameError("Your basket is full \u2014 store materials in a chest first", 409);
     const toolTier = player.tools?.[resDef.tool] || 1;
-    const amount = Math.min(toolTier >= 2 ? 2 : 1, capacity - carried);
+    const amount = Math.min(Math.max(1, toolTier), capacity - carried);
     const inventory = { ...player.inventory || {} };
     inventory[resourceId] = (inventory[resourceId] || 0) + amount;
     await t.Player.patch(playerId, { inventory });
