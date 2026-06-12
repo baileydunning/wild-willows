@@ -11,6 +11,7 @@ import { BiomesPanel, ChestPanel, CraftingPanel, InventoryPanel, ToolsPanel } fr
 import { SettingsPanel } from './ui/Settings';
 import { ActivityLog, Toolbelt } from './ui/Toolbelt';
 import { Tutorial } from './ui/Tutorial';
+import { KeyboardGate } from './ui/KeyboardGate';
 import { WelcomeScreen } from './ui/Welcome';
 import { Icon } from './ui/icons';
 
@@ -231,8 +232,10 @@ function Root() {
 
 export default function App() {
 	return (
-		<GameProvider>
-			<Root />
-		</GameProvider>
+		<KeyboardGate>
+			<GameProvider>
+				<Root />
+			</GameProvider>
+		</KeyboardGate>
 	);
 }
