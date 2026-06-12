@@ -766,8 +766,13 @@ export class WorldScene extends Phaser.Scene {
 			const growMs = (def.growSeconds || 0) * 1000;
 			const age = p.plantedAt ? Date.now() - p.plantedAt : Infinity;
 			const stillGrowing = growMs > 0 && age < growMs;
+			// fall back to the generic kit sprite if this object's shape texture is
+			// missing (e.g. data with a newer shape than the loaded client), so a
+			// placed item never renders as a blank/black missing-texture square
+			const shapeKey = `obj-${def.shape || 'kit'}`;
+			const objKey = this.textures.exists(shapeKey) ? shapeKey : 'obj-kit';
 			const img = this.addDyn(
-				this.add.image(x, y, stillGrowing ? 'sprout' : `obj-${def.shape || 'kit'}`).setDepth(y)
+				this.add.image(x, y, stillGrowing ? 'sprout' : objKey).setDepth(y)
 			);
 			if (stillGrowing) {
 				this.time.delayedCall(growMs - age + 300, () => {
