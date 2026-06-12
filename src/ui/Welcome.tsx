@@ -100,7 +100,6 @@ export function WelcomeScreen() {
 			<Scenery />
 			<div className="welcome-card">
 				<h1 className="game-title">Wild Willows</h1>
-				<p className="tagline">a cozy nature-restoration life sim</p>
 
 				{dataError && <p className="form-error"><Icon name="help" size={16} /> {dataError}</p>}
 
