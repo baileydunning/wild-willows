@@ -457,14 +457,20 @@ export class WorldScene extends Phaser.Scene {
 
 			const sx = (OUT_W - 1.2) * TILE;
 			const sy = 9.8 * TILE;
-			this.addDyn(this.add.image(sx, sy, 'sign').setDepth(sy));
+			const wetlandUnlocked = state?.player.unlockedBiomes.includes('wetland');
+			const wetlandExplorable = this.biomeDef('wetland')?.explorable;
+			const wetlandOpen = wetlandUnlocked && wetlandExplorable;
+			this.addDyn(this.add.image(sx, sy, wetlandOpen ? 'gate' : 'sign').setDepth(sy));
 			this.registerInteractable({
-				x: sx, y: sy, label: 'Read the trail sign (Rushwater Wetland)',
+				x: sx, y: sy, label: wetlandOpen ? 'Walk to Rushwater Wetland' : 'Read the trail sign (Rushwater Wetland)',
 				action: () => {
+					if (wetlandOpen) {
+						bridge.emit('request-area', { area: 'wetland' });
+						return;
+					}
 					const wetland = this.biomeDef('wetland');
-					const unlocked = state?.player.unlockedBiomes.includes('wetland');
-					const text = unlocked
-						? 'Rushwater Wetland is unlocked! Exploring it on foot arrives in the next update — its habitats and animals are already in your journal.'
+					const text = wetlandUnlocked
+						? 'Rushwater Wetland is unlocked! Follow the boardwalk east to step into the marsh.'
 						: `The wetland path is washed out. ${wetland?.unlock?.label || ''}`;
 					bridge.emit('toast', { text, kind: 'info' });
 				},
@@ -476,6 +482,12 @@ export class WorldScene extends Phaser.Scene {
 				const y = (2 + rng() * 4) * TILE;
 				this.addDyn(this.add.image(x, y, 'obj-deadwood').setDepth(y).setAlpha(0.85).setTint(0xb9aa8e));
 			}
+		} else if (this.area === 'wetland') {
+			// gate back to the forest on the west edge
+			const gx = 1.2 * TILE;
+			const gy = 9.8 * TILE;
+			this.addDyn(this.add.image(gx, gy, 'gate').setDepth(gy));
+			this.registerInteractable({ x: gx, y: gy, label: 'Walk back to Old Hollow Forest', action: () => bridge.emit('request-area', { area: 'forest' }) });
 		}
 	}
 
@@ -763,8 +775,9 @@ export class WorldScene extends Phaser.Scene {
 
 	private decorateAnimal(img: Phaser.GameObjects.Image, animal: any, tint: number | null, rng: () => number) {
 		if (tint) img.setTint(tint);
-		// a unique size per animal so even same-kind species look like individuals
-		const scale = animalScale(animal.id);
+		// proportional size per species (bear ≫ chipmunk ≫ salamander), with a
+		// touch of per-animal jitter so individuals still vary
+		const scale = animalScale(animal.id, animal.kind);
 		img.setScale(scale);
 		img.setInteractive({ useHandCursor: true });
 		img.on('pointerdown', () => bridge.emit('animal-clicked', { animalId: animal.id }));

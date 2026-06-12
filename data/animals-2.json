@@ -2,50 +2,1524 @@
 	"database": "wildwillows",
 	"table": "Animal",
 	"records": [
-		{ "id": "desert-cottontail", "name": "Desert Cottontail", "biome": "desert", "kind": "mammal", "rarity": "common", "featured": true, "diet": "Grasses, mesquite, and cactus", "shelter": "Brush cover and borrowed burrows", "preferredHabitat": "Brushy flats with shade", "fact": "Desert cottontails get nearly all their water from the plants they eat.", "requirements": { "minHealth": 25, "objects": { "desert-brush": 1, "burrow-mound": 1 }, "hint": "Brush for cover and a burrow bank to shelter in." } },
-		{ "id": "kit-fox", "name": "Kit Fox", "biome": "desert", "kind": "mammal", "rarity": "rare", "featured": true, "diet": "Kangaroo rats, rabbits, and insects", "shelter": "Cool underground dens", "preferredHabitat": "A thriving desert full of prey", "fact": "Kit foxes rarely drink water at all, surviving almost entirely on moisture from prey.", "requirements": { "minHealth": 60, "minBalance": 40, "objects": { "desert-brush": 2, "burrow-mound": 1 }, "animals": ["kangaroo-rat", "desert-cottontail"], "hint": "Kit foxes return when prey is plentiful and dens are ready." } },
-		{ "id": "coyote", "name": "Coyote", "biome": "desert", "kind": "mammal", "rarity": "rare", "diet": "Rodents, rabbits, fruit, and insects", "shelter": "Brushy washes and rock dens", "preferredHabitat": "Open desert with prey and cover", "fact": "Coyote pairs duet at dusk; two voices echoing can sound like a whole chorus.", "requirements": { "minHealth": 65, "objects": { "desert-brush": 2, "shaded-rock-shelter": 1 }, "animals": ["jackrabbit"], "hint": "Cover, shade, and prey on the move." } },
-		{ "id": "kangaroo-rat", "name": "Kangaroo Rat", "biome": "desert", "kind": "mammal", "rarity": "common", "featured": true, "diet": "Seeds, carefully cached underground", "shelter": "Deep burrow systems", "preferredHabitat": "Loose soil below seed-bearing brush", "fact": "Kangaroo rats never need to drink — their bodies make water from dry seeds.", "requirements": { "minHealth": 25, "objects": { "burrow-mound": 1, "desert-brush": 1 }, "hint": "Burrow banks and seed plants nearby." } },
-		{ "id": "jackrabbit", "name": "Black-tailed Jackrabbit", "biome": "desert", "kind": "mammal", "rarity": "common", "diet": "Grasses, cactus, and shrubs", "shelter": "Shade forms under brush", "preferredHabitat": "Open flats with scattered brush", "fact": "A jackrabbit's enormous ears act like radiators, releasing heat to keep it cool.", "requirements": { "minHealth": 30, "objects": { "desert-brush": 2 }, "hint": "Open running room with brush for shade." } },
-		{ "id": "roadrunner", "name": "Greater Roadrunner", "biome": "desert", "kind": "bird", "rarity": "uncommon", "featured": true, "diet": "Lizards, insects, and small snakes", "shelter": "Low nests in brush and cactus", "preferredHabitat": "Open hunting ground with brushy edges", "fact": "Roadrunners can sprint over 20 mph and will even take on rattlesnakes.", "requirements": { "minHealth": 40, "objects": { "desert-brush": 1, "cactus-patch": 1 }, "animals": ["horned-lizard"], "hint": "Open desert, brush, and reptile prey about." } },
-		{ "id": "burrowing-owl", "name": "Burrowing Owl", "biome": "desert", "kind": "bird", "rarity": "uncommon", "featured": true, "diet": "Insects and small rodents", "shelter": "Underground burrows, often borrowed", "preferredHabitat": "Burrow mounds with open hunting space", "fact": "Burrowing owls imitate a rattlesnake's rattle to scare intruders away from their burrows.", "requirements": { "minHealth": 45, "objects": { "burrow-mound": 2 }, "hint": "Ready-made burrows and open ground to hunt over." } },
-		{ "id": "gambels-quail", "name": "Gambel's Quail", "biome": "desert", "kind": "bird", "rarity": "common", "diet": "Seeds, leaves, and cactus fruit", "shelter": "Dense brush thickets", "preferredHabitat": "Brushy cover with seed plants", "fact": "Quail coveys post a lookout on a high branch while the rest of the family feeds.", "requirements": { "minHealth": 30, "objects": { "desert-brush": 2, "cactus-patch": 1 }, "hint": "Thick brush to hide a whole covey." } },
-		{ "id": "desert-tortoise", "name": "Desert Tortoise", "biome": "desert", "kind": "reptile", "rarity": "rare", "diet": "Grasses, wildflowers, and cactus pads", "shelter": "Long, cool burrows", "preferredHabitat": "Native plants with shade and burrow ground", "fact": "Desert tortoises can live 80 years, spending 95% of that time underground.", "requirements": { "minHealth": 55, "objects": { "burrow-mound": 1, "cactus-patch": 1, "shaded-rock-shelter": 1 }, "hint": "Shade, native plants, and burrow habitat." } },
-		{ "id": "horned-lizard", "name": "Horned Lizard", "biome": "desert", "kind": "reptile", "rarity": "common", "diet": "Ants, almost exclusively", "shelter": "Loose sand and rock edges", "preferredHabitat": "Sunny open ground near ant trails", "fact": "Horned lizards can squirt blood from their eyes to startle predators.", "requirements": { "minHealth": 25, "objects": { "rock-pile": 1, "desert-brush": 1 }, "hint": "Sunny rocks and sandy ground bring the ants — and the lizards." } },
-		{ "id": "collared-lizard", "name": "Collared Lizard", "biome": "desert", "kind": "reptile", "rarity": "uncommon", "diet": "Insects and smaller lizards", "shelter": "Rock piles and ledges", "preferredHabitat": "Boulder fields with lookout rocks", "fact": "Collared lizards sprint on their hind legs like tiny dinosaurs.", "requirements": { "minHealth": 35, "objects": { "rock-pile": 2 }, "hint": "Plenty of warm rock to perch and hunt from." } },
-		{ "id": "rattlesnake", "name": "Western Rattlesnake", "biome": "desert", "kind": "reptile", "rarity": "rare", "diet": "Rodents and small mammals", "shelter": "Rock crevices and burrows", "preferredHabitat": "Rocky shelter near busy rodent trails", "fact": "A rattlesnake adds a new rattle segment each time it sheds — but segments break, so you can't count age.", "requirements": { "minHealth": 50, "objects": { "shaded-rock-shelter": 1, "rock-pile": 1 }, "animals": ["kangaroo-rat"], "hint": "Rocky shelter and rodents to hunt." } },
-		{ "id": "tarantula", "name": "Desert Tarantula", "biome": "desert", "kind": "invertebrate", "rarity": "uncommon", "diet": "Insects and other small invertebrates", "shelter": "Silk-lined ground burrows", "preferredHabitat": "Undisturbed ground with burrow banks", "fact": "Desert tarantulas may live 25 years, most of it within a few feet of one burrow.", "requirements": { "minHealth": 35, "objects": { "burrow-mound": 1 }, "hint": "Quiet, diggable ground." } },
-		{ "id": "scorpion", "name": "Desert Scorpion", "biome": "desert", "kind": "invertebrate", "rarity": "common", "diet": "Insects and spiders", "shelter": "Under rocks and bark", "preferredHabitat": "Rocky cover with night hunting ground", "fact": "Scorpions glow blue-green under ultraviolet light — no one is entirely sure why.", "requirements": { "minHealth": 25, "objects": { "rock-pile": 1 }, "hint": "Rocks to hide beneath by day." } },
-		{ "id": "desert-bee", "name": "Desert Bee", "biome": "desert", "kind": "insect", "rarity": "common", "diet": "Cactus flower nectar and pollen", "shelter": "Tiny ground nests", "preferredHabitat": "Blooming cactus and brush", "fact": "Most desert bees are solitary — a single mother bee digs and stocks her own tiny nest.", "requirements": { "minHealth": 20, "objects": { "cactus-patch": 1 }, "hint": "Cactus blooms are the desert's flower patch." } },
-		{ "id": "mountain-goat", "name": "Mountain Goat", "biome": "alpine", "kind": "mammal", "rarity": "rare", "featured": true, "diet": "Alpine grasses, sedges, and lichens", "shelter": "Cliff ledges and rocky terrain", "preferredHabitat": "Steep rock above flowering turf", "fact": "Mountain goats' cloven hooves have rubbery pads that grip rock like climbing shoes.", "requirements": { "minHealth": 60, "objects": { "rock-pile": 2, "alpine-wildflower-patch": 2 }, "hint": "Rocky terrain and restored alpine vegetation." } },
-		{ "id": "bighorn-sheep", "name": "Bighorn Sheep", "biome": "alpine", "kind": "mammal", "rarity": "rare", "diet": "Grasses and alpine browse", "shelter": "Rocky slopes with escape routes", "preferredHabitat": "Open slopes near cliff safety", "fact": "A bighorn ram's curled horns can weigh more than all the bones in its body combined.", "requirements": { "minHealth": 65, "objects": { "rock-pile": 2, "grass-patch": 2 }, "hint": "Grassy slopes with rocky escape ground." } },
-		{ "id": "pika", "name": "American Pika", "biome": "alpine", "kind": "mammal", "rarity": "common", "featured": true, "diet": "Grasses and wildflowers, dried into haypiles", "shelter": "Cool gaps deep in talus rock", "preferredHabitat": "Rock piles beside flower meadows", "fact": "Pikas spend all summer harvesting and sun-drying little haystacks to eat under the winter snow.", "requirements": { "minHealth": 30, "objects": { "rock-pile": 2, "alpine-wildflower-patch": 1 }, "hint": "Cool rock piles and flowers to harvest." } },
-		{ "id": "marmot", "name": "Yellow-bellied Marmot", "biome": "alpine", "kind": "mammal", "rarity": "common", "featured": true, "diet": "Grasses, flowers, and seeds", "shelter": "Deep burrows under boulders", "preferredHabitat": "Open meadow patches with burrows", "fact": "Marmots hibernate up to eight months a year — more than half their lives are spent asleep.", "requirements": { "minHealth": 35, "objects": { "burrow-mound": 1, "alpine-wildflower-patch": 1 }, "hint": "Burrows, meadow patches, and open space." } },
-		{ "id": "snowshoe-hare", "name": "Snowshoe Hare", "biome": "alpine", "kind": "mammal", "rarity": "uncommon", "diet": "Grasses, buds, and bark", "shelter": "Dense low cover", "preferredHabitat": "Brushy patches near open turf", "fact": "Snowshoe hares change coat color with the seasons — brown in summer, white in winter.", "requirements": { "minHealth": 40, "objects": { "grass-patch": 2, "rock-pile": 1 }, "hint": "Cover and forage at the treeline." } },
-		{ "id": "elk-alpine", "name": "Elk", "biome": "alpine", "kind": "mammal", "rarity": "rare", "diet": "Alpine grasses and forbs", "shelter": "High meadows in summer", "preferredHabitat": "Restored high meadows with water", "fact": "Elk migrate up and down mountains with the seasons, following the 'green wave' of new growth.", "requirements": { "minHealth": 60, "objects": { "grass-patch": 2, "snowmelt-pool": 1 }, "hint": "High meadow forage and snowmelt water." } },
-		{ "id": "mule-deer-alpine", "name": "Mule Deer", "biome": "alpine", "kind": "mammal", "rarity": "uncommon", "diet": "Alpine browse and forbs", "shelter": "Krummholz thickets", "preferredHabitat": "High meadows in summer", "fact": "Mule deer summer high in the mountains and walk the same routes back down each fall.", "requirements": { "minHealth": 45, "objects": { "grass-patch": 1, "alpine-wildflower-patch": 1, "snowmelt-pool": 1 }, "hint": "Forage and clean water up high." } },
-		{ "id": "fox-alpine", "name": "Red Fox", "biome": "alpine", "kind": "mammal", "rarity": "rare", "diet": "Voles, pikas, and ground birds", "shelter": "Rock dens", "preferredHabitat": "High country with small prey", "fact": "Mountain foxes listen for animals moving beneath deep snow, then dive in headfirst.", "requirements": { "minHealth": 55, "objects": { "rock-pile": 1 }, "animals": ["pika", "marmot"], "hint": "Foxes follow the pikas and marmots." } },
-		{ "id": "pine-marten", "name": "Pine Marten", "biome": "alpine", "kind": "mammal", "rarity": "rare", "diet": "Voles, squirrels, and berries", "shelter": "Rock crevices and snags", "preferredHabitat": "Treeline edges with rocky cover", "fact": "Pine martens hunt beneath the snowpack in winter, using tunnels no one else can reach.", "requirements": { "minHealth": 60, "objects": { "rock-pile": 2 }, "animals": ["snowshoe-hare"], "hint": "Rocky cover and prey near the treeline." } },
-		{ "id": "ptarmigan", "name": "White-tailed Ptarmigan", "biome": "alpine", "kind": "bird", "rarity": "uncommon", "featured": true, "diet": "Buds, seeds, and alpine plants", "shelter": "Camouflaged ground nests", "preferredHabitat": "Low shrubs and safe nesting cover", "fact": "Ptarmigan grow feathered snowshoes on their feet each winter.", "requirements": { "minHealth": 45, "objects": { "alpine-wildflower-patch": 1, "grass-patch": 1, "rock-pile": 1 }, "hint": "Alpine shrubs and quiet nesting cover." } },
-		{ "id": "clarks-nutcracker", "name": "Clark's Nutcracker", "biome": "alpine", "kind": "bird", "rarity": "uncommon", "diet": "Pine seeds, cached by the thousand", "shelter": "High conifers", "preferredHabitat": "Treeline with seed sources", "fact": "A Clark's nutcracker can remember thousands of seed cache locations months later, even under snow.", "requirements": { "minHealth": 40, "objects": { "rock-pile": 1, "alpine-wildflower-patch": 1 }, "hint": "A recovering treeline with seeds to cache." } },
-		{ "id": "golden-eagle", "name": "Golden Eagle", "biome": "alpine", "kind": "bird", "rarity": "rare", "diet": "Marmots, hares, and ptarmigan", "shelter": "Cliff eyries", "preferredHabitat": "High, healthy country with abundant prey", "fact": "Golden eagles can spot a hare from more than a mile away and dive at over 150 mph.", "requirements": { "minHealth": 75, "minBalance": 45, "objects": { "rock-pile": 2 }, "animals": ["marmot", "snowshoe-hare"], "hint": "Eagles arrive last — when the high country is truly alive again." } },
-		{ "id": "alpine-butterfly", "name": "Alpine Butterfly", "biome": "alpine", "kind": "insect", "rarity": "common", "diet": "Alpine flower nectar", "shelter": "Low turf and warm rocks", "preferredHabitat": "Flowering alpine turf", "fact": "Some alpine butterflies take two full summers to grow up, pausing each winter under the snow.", "requirements": { "minHealth": 25, "objects": { "alpine-wildflower-patch": 1 }, "hint": "Alpine flowers in bloom." } },
-		{ "id": "bumblebee-alpine", "name": "Alpine Bumblebee", "biome": "alpine", "kind": "insect", "rarity": "common", "diet": "Nectar and pollen", "shelter": "Old burrows in turf", "preferredHabitat": "High flower patches", "fact": "Bumblebees shiver their flight muscles to warm up, letting them fly in near-freezing air.", "requirements": { "minHealth": 25, "objects": { "alpine-wildflower-patch": 2 }, "hint": "More flowers, more bees — even up here." } },
-		{ "id": "snowmelt-trout", "name": "Cutthroat Trout", "biome": "alpine", "kind": "fish", "rarity": "uncommon", "diet": "Aquatic insects", "shelter": "Cold, clean pools", "preferredHabitat": "Connected snowmelt water", "fact": "Cutthroat trout need water so cold and clean that their presence is itself a health report for the mountain.", "requirements": { "minHealth": 50, "objects": { "snowmelt-pool": 2 }, "hint": "Cold, clean, connected snowmelt pools." } },
-		{ "id": "tidepool-crab", "name": "Shore Crab", "biome": "coastal", "kind": "invertebrate", "rarity": "common", "featured": true, "diet": "Algae and scraps", "shelter": "Tidepool rocks and crevices", "preferredHabitat": "Rocky tidepools", "fact": "Shore crabs can change color slowly to match their home pool.", "requirements": { "minHealth": 25, "objects": { "tidepool": 1 }, "hint": "Restore the tidepools and the crabs scuttle back first." } },
-		{ "id": "hermit-crab", "name": "Hermit Crab", "biome": "coastal", "kind": "invertebrate", "rarity": "common", "diet": "Algae and detritus", "shelter": "Borrowed shells", "preferredHabitat": "Tidepools with empty shells", "fact": "When a perfect shell appears, hermit crabs line up by size and swap shells in a chain.", "requirements": { "minHealth": 25, "objects": { "tidepool": 1, "kelp-wrack": 1 }, "hint": "Tidepools plus washed-up shells to move into." } },
-		{ "id": "sea-star", "name": "Ochre Sea Star", "biome": "coastal", "kind": "invertebrate", "rarity": "uncommon", "featured": true, "diet": "Mussels and barnacles", "shelter": "Tidepool rock faces", "preferredHabitat": "Established tidepools with shellfish", "fact": "Sea stars are keystone predators — one species' presence reshapes the whole shoreline community.", "requirements": { "minHealth": 40, "objects": { "tidepool": 2 }, "animals": ["mussel"], "hint": "Sea stars need established pools with mussels to eat." } },
-		{ "id": "anemone", "name": "Giant Green Anemone", "biome": "coastal", "kind": "invertebrate", "rarity": "common", "diet": "Small animals caught by stinging tentacles", "shelter": "Tidepool walls", "preferredHabitat": "Clear, restored tidepools", "fact": "The green color comes partly from algae living inside the anemone's tissues — roommates that pay rent in sugar.", "requirements": { "minHealth": 30, "objects": { "tidepool": 1 }, "hint": "Clear, quiet pools." } },
-		{ "id": "mussel", "name": "California Mussel", "biome": "coastal", "kind": "invertebrate", "rarity": "common", "diet": "Filtered plankton", "shelter": "Dense beds on wave-washed rock", "preferredHabitat": "Rocky shore with clean water", "fact": "A single mussel filters and cleans several liters of seawater every hour.", "requirements": { "minHealth": 30, "objects": { "tidepool": 1 }, "hint": "Clean water over rocky shore." } },
-		{ "id": "clam", "name": "Pacific Littleneck Clam", "biome": "coastal", "kind": "invertebrate", "rarity": "common", "diet": "Filtered plankton", "shelter": "Buried in sand and gravel", "preferredHabitat": "Stable sand near tidepools", "fact": "You can estimate a clam's age by counting the growth rings on its shell, like a tree.", "requirements": { "minHealth": 30, "objects": { "tidepool": 1, "dune-grass": 1 }, "hint": "Stable, quiet sand to dig into." } },
-		{ "id": "shorebird", "name": "Snowy Plover", "biome": "coastal", "kind": "bird", "rarity": "uncommon", "featured": true, "diet": "Sand crustaceans and kelp-fly larvae", "shelter": "Shallow scrapes hidden in dunes", "preferredHabitat": "Protected dunes with quiet nesting beach", "fact": "Snowy plover chicks can run and feed themselves within hours of hatching.", "requirements": { "minHealth": 40, "objects": { "dune-grass": 2, "coastal-nesting-area": 1 }, "hint": "Anchored dunes and a protected stretch of quiet beach." } },
-		{ "id": "gull", "name": "Western Gull", "biome": "coastal", "kind": "bird", "rarity": "common", "diet": "Fish, shellfish, and whatever washes up", "shelter": "Open beach and rocky points", "preferredHabitat": "Any recovering shoreline", "fact": "Gulls drop clams onto rocks from the air to crack them open.", "requirements": { "minHealth": 20, "objects": { "kelp-wrack": 1 }, "hint": "Gulls show up as soon as there's a beach worth patrolling." } },
-		{ "id": "pelican", "name": "Brown Pelican", "biome": "coastal", "kind": "bird", "rarity": "uncommon", "diet": "Fish caught in plunge dives", "shelter": "Quiet roosts on rocks and sand", "preferredHabitat": "Fish-rich water with quiet roosts", "fact": "Brown pelicans dive from 30 feet up, with air sacs under the skin to cushion the splash.", "requirements": { "minHealth": 45, "objects": { "coastal-nesting-area": 1, "tidepool": 1 }, "hint": "Quiet roosting space and fishable water." } },
-		{ "id": "cormorant", "name": "Pelagic Cormorant", "biome": "coastal", "kind": "bird", "rarity": "uncommon", "diet": "Fish chased underwater", "shelter": "Cliff and rock roosts", "preferredHabitat": "Rocky shore with diving water", "fact": "Cormorant feathers soak through on purpose — less buoyancy makes them better divers.", "requirements": { "minHealth": 45, "objects": { "tidepool": 2 }, "hint": "Healthy rocky shallows to dive in." } },
-		{ "id": "sea-turtle", "name": "Green Sea Turtle", "biome": "coastal", "kind": "reptile", "rarity": "rare", "diet": "Seagrass and algae", "shelter": "Offshore waters; nests on quiet sand", "preferredHabitat": "Clean water and undisturbed beach", "fact": "Green sea turtles return to nest on the very beach where they hatched, decades later.", "requirements": { "minHealth": 70, "objects": { "coastal-nesting-area": 1, "dune-grass": 2, "kelp-wrack": 1 }, "hint": "An undisturbed nesting beach and clean water." } },
-		{ "id": "harbor-seal", "name": "Harbor Seal", "biome": "coastal", "kind": "mammal", "rarity": "rare", "featured": true, "diet": "Fish and squid", "shelter": "Quiet haul-out beaches", "preferredHabitat": "Calm, clean water with undisturbed shore", "fact": "Harbor seals can sleep underwater, surfacing to breathe without fully waking.", "requirements": { "minHealth": 60, "objects": { "coastal-nesting-area": 1, "tidepool": 1 }, "hint": "Quiet beaches and clean water — seals need calm above all." } },
-		{ "id": "sea-otter", "name": "Sea Otter", "biome": "coastal", "kind": "mammal", "rarity": "rare", "diet": "Sea urchins, crabs, and shellfish", "shelter": "Kelp canopy anchor points", "preferredHabitat": "Kelp habitat with abundant shellfish", "fact": "Sea otters wrap themselves in kelp before sleeping so they don't drift away — and sometimes hold hands.", "requirements": { "minHealth": 70, "minBalance": 45, "objects": { "kelp-wrack": 2, "tidepool": 1 }, "animals": ["mussel", "clam"], "hint": "Kelp habitat and shellfish beds first; otters follow." } },
-		{ "id": "dolphin", "name": "Bottlenose Dolphin", "biome": "coastal", "kind": "mammal", "rarity": "rare", "diet": "Fish and squid", "shelter": "Open coastal water", "preferredHabitat": "Clean, lively nearshore water", "fact": "Dolphins call each other by name, using signature whistles unique to each individual.", "requirements": { "minHealth": 75, "objects": { "tidepool": 2, "kelp-wrack": 1 }, "hint": "A clean, busy shoreline brings dolphins close in." } },
-		{ "id": "migrating-whale", "name": "Gray Whale", "biome": "coastal", "kind": "mammal", "rarity": "rare", "diet": "Tiny crustaceans sifted from the seafloor", "shelter": "Open ocean; passes close to healthy shores", "preferredHabitat": "Seen offshore from a fully restored coast", "fact": "Gray whales make one of the longest migrations of any mammal — up to 14,000 miles round trip.", "requirements": { "minHealth": 90, "minBalance": 50, "objects": { "tidepool": 2, "dune-grass": 2, "coastal-nesting-area": 1 }, "hint": "Only a truly thriving shore earns a whale sighting. Watch the horizon." } }
+		{
+			"id": "desert-cottontail",
+			"name": "Desert Cottontail",
+			"biome": "desert",
+			"kind": "mammal",
+			"rarity": "common",
+			"featured": true,
+			"diet": "Grasses, mesquite, and cactus",
+			"shelter": "Brush cover and borrowed burrows",
+			"preferredHabitat": "Brushy flats with shade",
+			"fact": "Desert cottontails get nearly all their water from the plants they eat.",
+			"requirements": {
+				"minHealth": 25,
+				"objects": {
+					"desert-brush": 1,
+					"burrow-mound": 1
+				},
+				"hint": "Brush for cover and a burrow bank to shelter in."
+			}
+		},
+		{
+			"id": "kit-fox",
+			"name": "Kit Fox",
+			"biome": "desert",
+			"kind": "mammal",
+			"rarity": "rare",
+			"featured": true,
+			"diet": "Kangaroo rats, rabbits, and insects",
+			"shelter": "Cool underground dens",
+			"preferredHabitat": "A thriving desert full of prey",
+			"fact": "Kit foxes rarely drink water at all, surviving almost entirely on moisture from prey.",
+			"requirements": {
+				"minHealth": 60,
+				"minBalance": 40,
+				"objects": {
+					"desert-brush": 2,
+					"burrow-mound": 1
+				},
+				"animals": [
+					"kangaroo-rat",
+					"desert-cottontail"
+				],
+				"hint": "Kit foxes return when prey is plentiful and dens are ready."
+			}
+		},
+		{
+			"id": "coyote",
+			"name": "Coyote",
+			"biome": "desert",
+			"kind": "mammal",
+			"rarity": "rare",
+			"diet": "Rodents, rabbits, fruit, and insects",
+			"shelter": "Brushy washes and rock dens",
+			"preferredHabitat": "Open desert with prey and cover",
+			"fact": "Coyote pairs duet at dusk; two voices echoing can sound like a whole chorus.",
+			"requirements": {
+				"minHealth": 65,
+				"objects": {
+					"desert-brush": 2,
+					"shaded-rock-shelter": 1
+				},
+				"animals": [
+					"jackrabbit"
+				],
+				"hint": "Cover, shade, and prey on the move."
+			}
+		},
+		{
+			"id": "kangaroo-rat",
+			"name": "Kangaroo Rat",
+			"biome": "desert",
+			"kind": "mammal",
+			"rarity": "common",
+			"featured": true,
+			"diet": "Seeds, carefully cached underground",
+			"shelter": "Deep burrow systems",
+			"preferredHabitat": "Loose soil below seed-bearing brush",
+			"fact": "Kangaroo rats never need to drink — their bodies make water from dry seeds.",
+			"requirements": {
+				"minHealth": 25,
+				"objects": {
+					"burrow-mound": 1,
+					"desert-brush": 1
+				},
+				"hint": "Burrow banks and seed plants nearby."
+			}
+		},
+		{
+			"id": "jackrabbit",
+			"name": "Black-tailed Jackrabbit",
+			"biome": "desert",
+			"kind": "mammal",
+			"rarity": "common",
+			"diet": "Grasses, cactus, and shrubs",
+			"shelter": "Shade forms under brush",
+			"preferredHabitat": "Open flats with scattered brush",
+			"fact": "A jackrabbit's enormous ears act like radiators, releasing heat to keep it cool.",
+			"requirements": {
+				"minHealth": 30,
+				"objects": {
+					"desert-brush": 2
+				},
+				"hint": "Open running room with brush for shade."
+			}
+		},
+		{
+			"id": "roadrunner",
+			"name": "Greater Roadrunner",
+			"biome": "desert",
+			"kind": "bird",
+			"rarity": "uncommon",
+			"featured": true,
+			"diet": "Lizards, insects, and small snakes",
+			"shelter": "Low nests in brush and cactus",
+			"preferredHabitat": "Open hunting ground with brushy edges",
+			"fact": "Roadrunners can sprint over 20 mph and will even take on rattlesnakes.",
+			"requirements": {
+				"minHealth": 40,
+				"objects": {
+					"desert-brush": 1,
+					"cactus-patch": 1
+				},
+				"animals": [
+					"horned-lizard"
+				],
+				"hint": "Open desert, brush, and reptile prey about."
+			}
+		},
+		{
+			"id": "burrowing-owl",
+			"name": "Burrowing Owl",
+			"biome": "desert",
+			"kind": "bird",
+			"rarity": "uncommon",
+			"featured": true,
+			"diet": "Insects and small rodents",
+			"shelter": "Underground burrows, often borrowed",
+			"preferredHabitat": "Burrow mounds with open hunting space",
+			"fact": "Burrowing owls imitate a rattlesnake's rattle to scare intruders away from their burrows.",
+			"requirements": {
+				"minHealth": 45,
+				"objects": {
+					"burrow-mound": 2
+				},
+				"hint": "Ready-made burrows and open ground to hunt over."
+			}
+		},
+		{
+			"id": "gambels-quail",
+			"name": "Gambel's Quail",
+			"biome": "desert",
+			"kind": "bird",
+			"rarity": "common",
+			"diet": "Seeds, leaves, and cactus fruit",
+			"shelter": "Dense brush thickets",
+			"preferredHabitat": "Brushy cover with seed plants",
+			"fact": "Quail coveys post a lookout on a high branch while the rest of the family feeds.",
+			"requirements": {
+				"minHealth": 30,
+				"objects": {
+					"desert-brush": 2,
+					"cactus-patch": 1
+				},
+				"hint": "Thick brush to hide a whole covey."
+			}
+		},
+		{
+			"id": "desert-tortoise",
+			"name": "Desert Tortoise",
+			"biome": "desert",
+			"kind": "reptile",
+			"rarity": "rare",
+			"diet": "Grasses, wildflowers, and cactus pads",
+			"shelter": "Long, cool burrows",
+			"preferredHabitat": "Native plants with shade and burrow ground",
+			"fact": "Desert tortoises can live 80 years, spending 95% of that time underground.",
+			"requirements": {
+				"minHealth": 55,
+				"objects": {
+					"burrow-mound": 1,
+					"cactus-patch": 1,
+					"shaded-rock-shelter": 1
+				},
+				"hint": "Shade, native plants, and burrow habitat."
+			}
+		},
+		{
+			"id": "horned-lizard",
+			"name": "Horned Lizard",
+			"biome": "desert",
+			"kind": "reptile",
+			"rarity": "common",
+			"diet": "Ants, almost exclusively",
+			"shelter": "Loose sand and rock edges",
+			"preferredHabitat": "Sunny open ground near ant trails",
+			"fact": "Horned lizards can squirt blood from their eyes to startle predators.",
+			"requirements": {
+				"minHealth": 25,
+				"objects": {
+					"rock-pile": 1,
+					"desert-brush": 1
+				},
+				"hint": "Sunny rocks and sandy ground bring the ants — and the lizards."
+			}
+		},
+		{
+			"id": "collared-lizard",
+			"name": "Collared Lizard",
+			"biome": "desert",
+			"kind": "reptile",
+			"rarity": "uncommon",
+			"diet": "Insects and smaller lizards",
+			"shelter": "Rock piles and ledges",
+			"preferredHabitat": "Boulder fields with lookout rocks",
+			"fact": "Collared lizards sprint on their hind legs like tiny dinosaurs.",
+			"requirements": {
+				"minHealth": 35,
+				"objects": {
+					"rock-pile": 2
+				},
+				"hint": "Plenty of warm rock to perch and hunt from."
+			}
+		},
+		{
+			"id": "rattlesnake",
+			"name": "Western Rattlesnake",
+			"biome": "desert",
+			"kind": "reptile",
+			"rarity": "rare",
+			"diet": "Rodents and small mammals",
+			"shelter": "Rock crevices and burrows",
+			"preferredHabitat": "Rocky shelter near busy rodent trails",
+			"fact": "A rattlesnake adds a new rattle segment each time it sheds — but segments break, so you can't count age.",
+			"requirements": {
+				"minHealth": 50,
+				"objects": {
+					"shaded-rock-shelter": 1,
+					"rock-pile": 1
+				},
+				"animals": [
+					"kangaroo-rat"
+				],
+				"hint": "Rocky shelter and rodents to hunt."
+			}
+		},
+		{
+			"id": "tarantula",
+			"name": "Desert Tarantula",
+			"biome": "desert",
+			"kind": "invertebrate",
+			"rarity": "uncommon",
+			"diet": "Insects and other small invertebrates",
+			"shelter": "Silk-lined ground burrows",
+			"preferredHabitat": "Undisturbed ground with burrow banks",
+			"fact": "Desert tarantulas may live 25 years, most of it within a few feet of one burrow.",
+			"requirements": {
+				"minHealth": 35,
+				"objects": {
+					"burrow-mound": 1
+				},
+				"hint": "Quiet, diggable ground."
+			}
+		},
+		{
+			"id": "scorpion",
+			"name": "Desert Scorpion",
+			"biome": "desert",
+			"kind": "invertebrate",
+			"rarity": "common",
+			"diet": "Insects and spiders",
+			"shelter": "Under rocks and bark",
+			"preferredHabitat": "Rocky cover with night hunting ground",
+			"fact": "Scorpions glow blue-green under ultraviolet light — no one is entirely sure why.",
+			"requirements": {
+				"minHealth": 25,
+				"objects": {
+					"rock-pile": 1
+				},
+				"hint": "Rocks to hide beneath by day."
+			}
+		},
+		{
+			"id": "desert-bee",
+			"name": "Desert Bee",
+			"biome": "desert",
+			"kind": "insect",
+			"rarity": "common",
+			"diet": "Cactus flower nectar and pollen",
+			"shelter": "Tiny ground nests",
+			"preferredHabitat": "Blooming cactus and brush",
+			"fact": "Most desert bees are solitary — a single mother bee digs and stocks her own tiny nest.",
+			"requirements": {
+				"minHealth": 20,
+				"objects": {
+					"cactus-patch": 1
+				},
+				"hint": "Cactus blooms are the desert's flower patch."
+			}
+		},
+		{
+			"id": "mountain-goat",
+			"name": "Mountain Goat",
+			"biome": "alpine",
+			"kind": "mammal",
+			"rarity": "rare",
+			"featured": true,
+			"diet": "Alpine grasses, sedges, and lichens",
+			"shelter": "Cliff ledges and rocky terrain",
+			"preferredHabitat": "Steep rock above flowering turf",
+			"fact": "Mountain goats' cloven hooves have rubbery pads that grip rock like climbing shoes.",
+			"requirements": {
+				"minHealth": 60,
+				"objects": {
+					"rock-pile": 2,
+					"alpine-wildflower-patch": 2
+				},
+				"hint": "Rocky terrain and restored alpine vegetation."
+			}
+		},
+		{
+			"id": "bighorn-sheep",
+			"name": "Bighorn Sheep",
+			"biome": "alpine",
+			"kind": "mammal",
+			"rarity": "rare",
+			"diet": "Grasses and alpine browse",
+			"shelter": "Rocky slopes with escape routes",
+			"preferredHabitat": "Open slopes near cliff safety",
+			"fact": "A bighorn ram's curled horns can weigh more than all the bones in its body combined.",
+			"requirements": {
+				"minHealth": 65,
+				"objects": {
+					"rock-pile": 2,
+					"grass-patch": 2
+				},
+				"hint": "Grassy slopes with rocky escape ground."
+			}
+		},
+		{
+			"id": "pika",
+			"name": "American Pika",
+			"biome": "alpine",
+			"kind": "mammal",
+			"rarity": "common",
+			"featured": true,
+			"diet": "Grasses and wildflowers, dried into haypiles",
+			"shelter": "Cool gaps deep in talus rock",
+			"preferredHabitat": "Rock piles beside flower meadows",
+			"fact": "Pikas spend all summer harvesting and sun-drying little haystacks to eat under the winter snow.",
+			"requirements": {
+				"minHealth": 30,
+				"objects": {
+					"rock-pile": 2,
+					"alpine-wildflower-patch": 1
+				},
+				"hint": "Cool rock piles and flowers to harvest."
+			}
+		},
+		{
+			"id": "marmot",
+			"name": "Yellow-bellied Marmot",
+			"biome": "alpine",
+			"kind": "mammal",
+			"rarity": "common",
+			"featured": true,
+			"diet": "Grasses, flowers, and seeds",
+			"shelter": "Deep burrows under boulders",
+			"preferredHabitat": "Open meadow patches with burrows",
+			"fact": "Marmots hibernate up to eight months a year — more than half their lives are spent asleep.",
+			"requirements": {
+				"minHealth": 35,
+				"objects": {
+					"burrow-mound": 1,
+					"alpine-wildflower-patch": 1
+				},
+				"hint": "Burrows, meadow patches, and open space."
+			}
+		},
+		{
+			"id": "snowshoe-hare",
+			"name": "Snowshoe Hare",
+			"biome": "alpine",
+			"kind": "mammal",
+			"rarity": "uncommon",
+			"diet": "Grasses, buds, and bark",
+			"shelter": "Dense low cover",
+			"preferredHabitat": "Brushy patches near open turf",
+			"fact": "Snowshoe hares change coat color with the seasons — brown in summer, white in winter.",
+			"requirements": {
+				"minHealth": 40,
+				"objects": {
+					"grass-patch": 2,
+					"rock-pile": 1
+				},
+				"hint": "Cover and forage at the treeline."
+			}
+		},
+		{
+			"id": "elk-alpine",
+			"name": "Elk",
+			"biome": "alpine",
+			"kind": "mammal",
+			"rarity": "rare",
+			"diet": "Alpine grasses and forbs",
+			"shelter": "High meadows in summer",
+			"preferredHabitat": "Restored high meadows with water",
+			"fact": "Elk migrate up and down mountains with the seasons, following the 'green wave' of new growth.",
+			"requirements": {
+				"minHealth": 60,
+				"objects": {
+					"grass-patch": 2,
+					"snowmelt-pool": 1
+				},
+				"hint": "High meadow forage and snowmelt water."
+			}
+		},
+		{
+			"id": "mule-deer-alpine",
+			"name": "Mule Deer",
+			"biome": "alpine",
+			"kind": "mammal",
+			"rarity": "uncommon",
+			"diet": "Alpine browse and forbs",
+			"shelter": "Krummholz thickets",
+			"preferredHabitat": "High meadows in summer",
+			"fact": "Mule deer summer high in the mountains and walk the same routes back down each fall.",
+			"requirements": {
+				"minHealth": 45,
+				"objects": {
+					"grass-patch": 1,
+					"alpine-wildflower-patch": 1,
+					"snowmelt-pool": 1
+				},
+				"hint": "Forage and clean water up high."
+			}
+		},
+		{
+			"id": "fox-alpine",
+			"name": "Red Fox",
+			"biome": "alpine",
+			"kind": "mammal",
+			"rarity": "rare",
+			"diet": "Voles, pikas, and ground birds",
+			"shelter": "Rock dens",
+			"preferredHabitat": "High country with small prey",
+			"fact": "Mountain foxes listen for animals moving beneath deep snow, then dive in headfirst.",
+			"requirements": {
+				"minHealth": 55,
+				"objects": {
+					"rock-pile": 1
+				},
+				"animals": [
+					"pika",
+					"marmot"
+				],
+				"hint": "Foxes follow the pikas and marmots."
+			}
+		},
+		{
+			"id": "pine-marten",
+			"name": "Pine Marten",
+			"biome": "alpine",
+			"kind": "mammal",
+			"rarity": "rare",
+			"diet": "Voles, squirrels, and berries",
+			"shelter": "Rock crevices and snags",
+			"preferredHabitat": "Treeline edges with rocky cover",
+			"fact": "Pine martens hunt beneath the snowpack in winter, using tunnels no one else can reach.",
+			"requirements": {
+				"minHealth": 60,
+				"objects": {
+					"rock-pile": 2
+				},
+				"animals": [
+					"snowshoe-hare"
+				],
+				"hint": "Rocky cover and prey near the treeline."
+			}
+		},
+		{
+			"id": "ptarmigan",
+			"name": "White-tailed Ptarmigan",
+			"biome": "alpine",
+			"kind": "bird",
+			"rarity": "uncommon",
+			"featured": true,
+			"diet": "Buds, seeds, and alpine plants",
+			"shelter": "Camouflaged ground nests",
+			"preferredHabitat": "Low shrubs and safe nesting cover",
+			"fact": "Ptarmigan grow feathered snowshoes on their feet each winter.",
+			"requirements": {
+				"minHealth": 45,
+				"objects": {
+					"alpine-wildflower-patch": 1,
+					"grass-patch": 1,
+					"rock-pile": 1
+				},
+				"hint": "Alpine shrubs and quiet nesting cover."
+			}
+		},
+		{
+			"id": "clarks-nutcracker",
+			"name": "Clark's Nutcracker",
+			"biome": "alpine",
+			"kind": "bird",
+			"rarity": "uncommon",
+			"diet": "Pine seeds, cached by the thousand",
+			"shelter": "High conifers",
+			"preferredHabitat": "Treeline with seed sources",
+			"fact": "A Clark's nutcracker can remember thousands of seed cache locations months later, even under snow.",
+			"requirements": {
+				"minHealth": 40,
+				"objects": {
+					"rock-pile": 1,
+					"alpine-wildflower-patch": 1
+				},
+				"hint": "A recovering treeline with seeds to cache."
+			}
+		},
+		{
+			"id": "golden-eagle",
+			"name": "Golden Eagle",
+			"biome": "alpine",
+			"kind": "bird",
+			"rarity": "rare",
+			"diet": "Marmots, hares, and ptarmigan",
+			"shelter": "Cliff eyries",
+			"preferredHabitat": "High, healthy country with abundant prey",
+			"fact": "Golden eagles can spot a hare from more than a mile away and dive at over 150 mph.",
+			"requirements": {
+				"minHealth": 75,
+				"minBalance": 45,
+				"objects": {
+					"rock-pile": 2
+				},
+				"animals": [
+					"marmot",
+					"snowshoe-hare"
+				],
+				"hint": "Eagles arrive last — when the high country is truly alive again."
+			}
+		},
+		{
+			"id": "alpine-butterfly",
+			"name": "Alpine Butterfly",
+			"biome": "alpine",
+			"kind": "insect",
+			"rarity": "common",
+			"diet": "Alpine flower nectar",
+			"shelter": "Low turf and warm rocks",
+			"preferredHabitat": "Flowering alpine turf",
+			"fact": "Some alpine butterflies take two full summers to grow up, pausing each winter under the snow.",
+			"requirements": {
+				"minHealth": 25,
+				"objects": {
+					"alpine-wildflower-patch": 1
+				},
+				"hint": "Alpine flowers in bloom."
+			}
+		},
+		{
+			"id": "bumblebee-alpine",
+			"name": "Alpine Bumblebee",
+			"biome": "alpine",
+			"kind": "insect",
+			"rarity": "common",
+			"diet": "Nectar and pollen",
+			"shelter": "Old burrows in turf",
+			"preferredHabitat": "High flower patches",
+			"fact": "Bumblebees shiver their flight muscles to warm up, letting them fly in near-freezing air.",
+			"requirements": {
+				"minHealth": 25,
+				"objects": {
+					"alpine-wildflower-patch": 2
+				},
+				"hint": "More flowers, more bees — even up here."
+			}
+		},
+		{
+			"id": "snowmelt-trout",
+			"name": "Cutthroat Trout",
+			"biome": "alpine",
+			"kind": "fish",
+			"rarity": "uncommon",
+			"diet": "Aquatic insects",
+			"shelter": "Cold, clean pools",
+			"preferredHabitat": "Connected snowmelt water",
+			"fact": "Cutthroat trout need water so cold and clean that their presence is itself a health report for the mountain.",
+			"requirements": {
+				"minHealth": 50,
+				"objects": {
+					"snowmelt-pool": 2
+				},
+				"hint": "Cold, clean, connected snowmelt pools."
+			}
+		},
+		{
+			"id": "tidepool-crab",
+			"name": "Shore Crab",
+			"biome": "coastal",
+			"kind": "invertebrate",
+			"rarity": "common",
+			"featured": true,
+			"diet": "Algae and scraps",
+			"shelter": "Tidepool rocks and crevices",
+			"preferredHabitat": "Rocky tidepools",
+			"fact": "Shore crabs can change color slowly to match their home pool.",
+			"requirements": {
+				"minHealth": 25,
+				"objects": {
+					"tidepool": 1
+				},
+				"hint": "Restore the tidepools and the crabs scuttle back first."
+			}
+		},
+		{
+			"id": "hermit-crab",
+			"name": "Hermit Crab",
+			"biome": "coastal",
+			"kind": "invertebrate",
+			"rarity": "common",
+			"diet": "Algae and detritus",
+			"shelter": "Borrowed shells",
+			"preferredHabitat": "Tidepools with empty shells",
+			"fact": "When a perfect shell appears, hermit crabs line up by size and swap shells in a chain.",
+			"requirements": {
+				"minHealth": 25,
+				"objects": {
+					"tidepool": 1,
+					"kelp-wrack": 1
+				},
+				"hint": "Tidepools plus washed-up shells to move into."
+			}
+		},
+		{
+			"id": "sea-star",
+			"name": "Ochre Sea Star",
+			"biome": "coastal",
+			"kind": "invertebrate",
+			"rarity": "uncommon",
+			"featured": true,
+			"diet": "Mussels and barnacles",
+			"shelter": "Tidepool rock faces",
+			"preferredHabitat": "Established tidepools with shellfish",
+			"fact": "Sea stars are keystone predators — one species' presence reshapes the whole shoreline community.",
+			"requirements": {
+				"minHealth": 40,
+				"objects": {
+					"tidepool": 2
+				},
+				"animals": [
+					"mussel"
+				],
+				"hint": "Sea stars need established pools with mussels to eat."
+			}
+		},
+		{
+			"id": "anemone",
+			"name": "Giant Green Anemone",
+			"biome": "coastal",
+			"kind": "invertebrate",
+			"rarity": "common",
+			"diet": "Small animals caught by stinging tentacles",
+			"shelter": "Tidepool walls",
+			"preferredHabitat": "Clear, restored tidepools",
+			"fact": "The green color comes partly from algae living inside the anemone's tissues — roommates that pay rent in sugar.",
+			"requirements": {
+				"minHealth": 30,
+				"objects": {
+					"tidepool": 1
+				},
+				"hint": "Clear, quiet pools."
+			}
+		},
+		{
+			"id": "mussel",
+			"name": "California Mussel",
+			"biome": "coastal",
+			"kind": "invertebrate",
+			"rarity": "common",
+			"diet": "Filtered plankton",
+			"shelter": "Dense beds on wave-washed rock",
+			"preferredHabitat": "Rocky shore with clean water",
+			"fact": "A single mussel filters and cleans several liters of seawater every hour.",
+			"requirements": {
+				"minHealth": 30,
+				"objects": {
+					"tidepool": 1
+				},
+				"hint": "Clean water over rocky shore."
+			}
+		},
+		{
+			"id": "clam",
+			"name": "Pacific Littleneck Clam",
+			"biome": "coastal",
+			"kind": "invertebrate",
+			"rarity": "common",
+			"diet": "Filtered plankton",
+			"shelter": "Buried in sand and gravel",
+			"preferredHabitat": "Stable sand near tidepools",
+			"fact": "You can estimate a clam's age by counting the growth rings on its shell, like a tree.",
+			"requirements": {
+				"minHealth": 30,
+				"objects": {
+					"tidepool": 1,
+					"dune-grass": 1
+				},
+				"hint": "Stable, quiet sand to dig into."
+			}
+		},
+		{
+			"id": "shorebird",
+			"name": "Snowy Plover",
+			"biome": "coastal",
+			"kind": "bird",
+			"rarity": "uncommon",
+			"featured": true,
+			"diet": "Sand crustaceans and kelp-fly larvae",
+			"shelter": "Shallow scrapes hidden in dunes",
+			"preferredHabitat": "Protected dunes with quiet nesting beach",
+			"fact": "Snowy plover chicks can run and feed themselves within hours of hatching.",
+			"requirements": {
+				"minHealth": 40,
+				"objects": {
+					"dune-grass": 2,
+					"coastal-nesting-area": 1
+				},
+				"hint": "Anchored dunes and a protected stretch of quiet beach."
+			}
+		},
+		{
+			"id": "gull",
+			"name": "Western Gull",
+			"biome": "coastal",
+			"kind": "bird",
+			"rarity": "common",
+			"diet": "Fish, shellfish, and whatever washes up",
+			"shelter": "Open beach and rocky points",
+			"preferredHabitat": "Any recovering shoreline",
+			"fact": "Gulls drop clams onto rocks from the air to crack them open.",
+			"requirements": {
+				"minHealth": 20,
+				"objects": {
+					"kelp-wrack": 1
+				},
+				"hint": "Gulls show up as soon as there's a beach worth patrolling."
+			}
+		},
+		{
+			"id": "pelican",
+			"name": "Brown Pelican",
+			"biome": "coastal",
+			"kind": "bird",
+			"rarity": "uncommon",
+			"diet": "Fish caught in plunge dives",
+			"shelter": "Quiet roosts on rocks and sand",
+			"preferredHabitat": "Fish-rich water with quiet roosts",
+			"fact": "Brown pelicans dive from 30 feet up, with air sacs under the skin to cushion the splash.",
+			"requirements": {
+				"minHealth": 45,
+				"objects": {
+					"coastal-nesting-area": 1,
+					"tidepool": 1
+				},
+				"hint": "Quiet roosting space and fishable water."
+			}
+		},
+		{
+			"id": "cormorant",
+			"name": "Pelagic Cormorant",
+			"biome": "coastal",
+			"kind": "bird",
+			"rarity": "uncommon",
+			"diet": "Fish chased underwater",
+			"shelter": "Cliff and rock roosts",
+			"preferredHabitat": "Rocky shore with diving water",
+			"fact": "Cormorant feathers soak through on purpose — less buoyancy makes them better divers.",
+			"requirements": {
+				"minHealth": 45,
+				"objects": {
+					"tidepool": 2
+				},
+				"hint": "Healthy rocky shallows to dive in."
+			}
+		},
+		{
+			"id": "sea-turtle",
+			"name": "Green Sea Turtle",
+			"biome": "coastal",
+			"kind": "reptile",
+			"rarity": "rare",
+			"diet": "Seagrass and algae",
+			"shelter": "Offshore waters; nests on quiet sand",
+			"preferredHabitat": "Clean water and undisturbed beach",
+			"fact": "Green sea turtles return to nest on the very beach where they hatched, decades later.",
+			"requirements": {
+				"minHealth": 70,
+				"objects": {
+					"coastal-nesting-area": 1,
+					"dune-grass": 2,
+					"kelp-wrack": 1
+				},
+				"hint": "An undisturbed nesting beach and clean water."
+			}
+		},
+		{
+			"id": "harbor-seal",
+			"name": "Harbor Seal",
+			"biome": "coastal",
+			"kind": "mammal",
+			"rarity": "rare",
+			"featured": true,
+			"diet": "Fish and squid",
+			"shelter": "Quiet haul-out beaches",
+			"preferredHabitat": "Calm, clean water with undisturbed shore",
+			"fact": "Harbor seals can sleep underwater, surfacing to breathe without fully waking.",
+			"requirements": {
+				"minHealth": 60,
+				"objects": {
+					"coastal-nesting-area": 1,
+					"tidepool": 1
+				},
+				"hint": "Quiet beaches and clean water — seals need calm above all."
+			}
+		},
+		{
+			"id": "sea-otter",
+			"name": "Sea Otter",
+			"biome": "coastal",
+			"kind": "mammal",
+			"rarity": "rare",
+			"diet": "Sea urchins, crabs, and shellfish",
+			"shelter": "Kelp canopy anchor points",
+			"preferredHabitat": "Kelp habitat with abundant shellfish",
+			"fact": "Sea otters wrap themselves in kelp before sleeping so they don't drift away — and sometimes hold hands.",
+			"requirements": {
+				"minHealth": 70,
+				"minBalance": 45,
+				"objects": {
+					"kelp-wrack": 2,
+					"tidepool": 1
+				},
+				"animals": [
+					"mussel",
+					"clam"
+				],
+				"hint": "Kelp habitat and shellfish beds first; otters follow."
+			}
+		},
+		{
+			"id": "dolphin",
+			"name": "Bottlenose Dolphin",
+			"biome": "coastal",
+			"kind": "mammal",
+			"rarity": "rare",
+			"diet": "Fish and squid",
+			"shelter": "Open coastal water",
+			"preferredHabitat": "Clean, lively nearshore water",
+			"fact": "Dolphins call each other by name, using signature whistles unique to each individual.",
+			"requirements": {
+				"minHealth": 75,
+				"objects": {
+					"tidepool": 2,
+					"kelp-wrack": 1
+				},
+				"hint": "A clean, busy shoreline brings dolphins close in."
+			}
+		},
+		{
+			"id": "migrating-whale",
+			"name": "Gray Whale",
+			"biome": "coastal",
+			"kind": "mammal",
+			"rarity": "rare",
+			"diet": "Tiny crustaceans sifted from the seafloor",
+			"shelter": "Open ocean; passes close to healthy shores",
+			"preferredHabitat": "Seen offshore from a fully restored coast",
+			"fact": "Gray whales make one of the longest migrations of any mammal — up to 14,000 miles round trip.",
+			"requirements": {
+				"minHealth": 90,
+				"minBalance": 50,
+				"objects": {
+					"tidepool": 2,
+					"dune-grass": 2,
+					"coastal-nesting-area": 1
+				},
+				"hint": "Only a truly thriving shore earns a whale sighting. Watch the horizon."
+			}
+		},
+		{
+			"id": "american-goldfinch",
+			"name": "American Goldfinch",
+			"biome": "meadow",
+			"kind": "bird",
+			"rarity": "common",
+			"featured": false,
+			"diet": "Thistle and wildflower seeds",
+			"shelter": "Shrubby field edges",
+			"preferredHabitat": "Open wildflower meadow with perches",
+			"fact": "They nest late so their chicks hatch with the thistle seed crop.",
+			"requirements": {
+				"minHealth": 35,
+				"objects": {
+					"wildflower-patch": 1,
+					"bird-perch": 1
+				},
+				"hint": "Plant a wildflower patch and add a bird perch."
+			}
+		},
+		{
+			"id": "eastern-bluebird",
+			"name": "Eastern Bluebird",
+			"biome": "meadow",
+			"kind": "bird",
+			"rarity": "uncommon",
+			"featured": false,
+			"diet": "Insects and berries",
+			"shelter": "Cavities and nest boxes",
+			"preferredHabitat": "Grassy openings with scattered perches",
+			"fact": "A pair will raise two or three broods in a single good season.",
+			"requirements": {
+				"minHealth": 45,
+				"objects": {
+					"bird-perch": 1,
+					"native-grass-patch": 1,
+					"berry-bush": 1
+				},
+				"hint": "Native grass, a berry bush, and a perch to hunt from."
+			}
+		},
+		{
+			"id": "leafcutter-bee",
+			"name": "Leafcutter Bee",
+			"biome": "meadow",
+			"kind": "insect",
+			"rarity": "common",
+			"featured": false,
+			"diet": "Pollen and nectar",
+			"shelter": "Hollow stems and soft soil",
+			"preferredHabitat": "Clover and wildflowers",
+			"fact": "They snip neat half-circles from leaves to line their nests.",
+			"requirements": {
+				"minHealth": 30,
+				"objects": {
+					"clover-patch": 1,
+					"wildflower-patch": 1
+				},
+				"hint": "Clover and wildflowers side by side."
+			}
+		},
+		{
+			"id": "painted-lady",
+			"name": "Painted Lady",
+			"biome": "meadow",
+			"kind": "insect",
+			"rarity": "common",
+			"featured": false,
+			"diet": "Flower nectar",
+			"shelter": "Sheltered grass",
+			"preferredHabitat": "Sunny flowering meadow",
+			"fact": "Painted ladies migrate thousands of miles across continents.",
+			"requirements": {
+				"minHealth": 30,
+				"objects": {
+					"butterfly-flowers": 1,
+					"clover-patch": 1
+				},
+				"hint": "Butterfly flowers near a clover patch."
+			}
+		},
+		{
+			"id": "american-badger",
+			"name": "American Badger",
+			"biome": "meadow",
+			"kind": "mammal",
+			"rarity": "rare",
+			"featured": false,
+			"diet": "Ground squirrels and voles",
+			"shelter": "Dug burrows",
+			"preferredHabitat": "Open grassland with prey and cover",
+			"fact": "Badgers and coyotes sometimes hunt the same fields together.",
+			"requirements": {
+				"minHealth": 55,
+				"objects": {
+					"brush-pile": 1,
+					"rock-pile": 1
+				},
+				"animals": [
+					"meadow-vole"
+				],
+				"hint": "Brush pile and rock pile, once voles have returned."
+			}
+		},
+		{
+			"id": "pileated-woodpecker",
+			"name": "Pileated Woodpecker",
+			"biome": "forest",
+			"kind": "bird",
+			"rarity": "uncommon",
+			"featured": false,
+			"diet": "Carpenter ants and beetle grubs",
+			"shelter": "Dead trees",
+			"preferredHabitat": "Mature forest with standing deadwood",
+			"fact": "Their rectangular excavations later become homes for other animals.",
+			"requirements": {
+				"minHealth": 45,
+				"objects": {
+					"standing-deadwood": 1,
+					"nesting-tree": 1
+				},
+				"hint": "Standing deadwood beside a nesting tree."
+			}
+		},
+		{
+			"id": "pacific-wren",
+			"name": "Pacific Wren",
+			"biome": "forest",
+			"kind": "bird",
+			"rarity": "common",
+			"featured": false,
+			"diet": "Forest-floor insects",
+			"shelter": "Root tangles and ferns",
+			"preferredHabitat": "Damp shaded understory",
+			"fact": "A tiny bird with a song of over thirty notes per second.",
+			"requirements": {
+				"minHealth": 40,
+				"objects": {
+					"fern-grove": 1,
+					"mushroom-log": 1
+				},
+				"hint": "Ferns and a mushroom log in the shade."
+			}
+		},
+		{
+			"id": "rough-skinned-newt",
+			"name": "Rough-skinned Newt",
+			"biome": "forest",
+			"kind": "amphibian",
+			"rarity": "uncommon",
+			"featured": false,
+			"diet": "Insects and worms",
+			"shelter": "Logs and leaf litter",
+			"preferredHabitat": "Forest pools and damp ground",
+			"fact": "Their skin carries one of the most potent natural toxins known.",
+			"requirements": {
+				"minHealth": 45,
+				"objects": {
+					"mushroom-log": 1
+				},
+				"water": {
+					"tiles": 3
+				},
+				"hint": "A mushroom log and a few flooded water tiles."
+			}
+		},
+		{
+			"id": "northern-flying-squirrel",
+			"name": "Northern Flying Squirrel",
+			"biome": "forest",
+			"kind": "mammal",
+			"rarity": "rare",
+			"featured": false,
+			"diet": "Fungi, lichen, and seeds",
+			"shelter": "Tree cavities",
+			"preferredHabitat": "Old forest with connected canopy",
+			"fact": "They glide between trees and help spread truffle spores.",
+			"requirements": {
+				"minHealth": 55,
+				"objects": {
+					"nesting-tree": 1,
+					"tree-stump": 1
+				},
+				"animals": [
+					"tree-squirrel"
+				],
+				"hint": "Nesting tree and a stump, once tree squirrels are back."
+			}
+		},
+		{
+			"id": "wood-duck",
+			"name": "Wood Duck",
+			"biome": "forest",
+			"kind": "bird",
+			"rarity": "uncommon",
+			"featured": false,
+			"diet": "Seeds, acorns, and insects",
+			"shelter": "Tree cavities over water",
+			"preferredHabitat": "Wooded pools and slow water",
+			"fact": "Ducklings leap from high nest cavities the day after hatching.",
+			"requirements": {
+				"minHealth": 50,
+				"objects": {
+					"nesting-tree": 1
+				},
+				"water": {
+					"lake": 4
+				},
+				"hint": "A nesting tree beside a flooded pool of 4+ water tiles."
+			}
+		},
+		{
+			"id": "american-bittern",
+			"name": "American Bittern",
+			"biome": "wetland",
+			"kind": "bird",
+			"rarity": "rare",
+			"featured": false,
+			"diet": "Fish, frogs, and insects",
+			"shelter": "Dense reeds",
+			"preferredHabitat": "Tall marsh vegetation",
+			"fact": "It freezes with its bill skyward to vanish among the reeds.",
+			"requirements": {
+				"minHealth": 50,
+				"objects": {
+					"reed-bed": 2,
+					"cattail-stand": 1
+				},
+				"water": {
+					"tiles": 4
+				},
+				"hint": "Thick reeds and cattails beside open water."
+			}
+		},
+		{
+			"id": "belted-kingfisher",
+			"name": "Belted Kingfisher",
+			"biome": "wetland",
+			"kind": "bird",
+			"rarity": "uncommon",
+			"featured": false,
+			"diet": "Small fish",
+			"shelter": "Earthen bank burrows",
+			"preferredHabitat": "Clear flowing water with perches",
+			"fact": "They dig nesting tunnels up to two metres into a stream bank.",
+			"requirements": {
+				"minHealth": 55,
+				"objects": {
+					"nesting-platform": 1
+				},
+				"water": {
+					"river": 4
+				},
+				"animals": [
+					"freshwater-fish"
+				],
+				"hint": "Carve a river 4+ tiles long with fish present, plus a platform."
+			}
+		},
+		{
+			"id": "northern-leopard-frog",
+			"name": "Northern Leopard Frog",
+			"biome": "wetland",
+			"kind": "amphibian",
+			"rarity": "common",
+			"featured": false,
+			"diet": "Insects and spiders",
+			"shelter": "Shallow water and grass",
+			"preferredHabitat": "Lily-fringed shallows",
+			"fact": "Their loud snore-like call carries across the marsh at night.",
+			"requirements": {
+				"minHealth": 40,
+				"objects": {
+					"lily-pool": 1
+				},
+				"water": {
+					"tiles": 3
+				},
+				"hint": "A lily pool and a few open-water tiles."
+			}
+		},
+		{
+			"id": "snapping-turtle",
+			"name": "Snapping Turtle",
+			"biome": "wetland",
+			"kind": "reptile",
+			"rarity": "uncommon",
+			"featured": false,
+			"diet": "Fish, plants, and carrion",
+			"shelter": "Muddy lake bottoms",
+			"preferredHabitat": "Deep still water with mud",
+			"fact": "They can live for over a century in the same quiet pond.",
+			"requirements": {
+				"minHealth": 50,
+				"objects": {
+					"mud-bank": 1
+				},
+				"water": {
+					"lake": 5
+				},
+				"hint": "A mud bank beside a lake of 5+ connected water tiles."
+			}
+		},
+		{
+			"id": "marsh-wren",
+			"name": "Marsh Wren",
+			"biome": "wetland",
+			"kind": "bird",
+			"rarity": "common",
+			"featured": false,
+			"diet": "Marsh insects",
+			"shelter": "Woven reed nests",
+			"preferredHabitat": "Cattail and sedge stands",
+			"fact": "Males build many dummy nests to court a mate.",
+			"requirements": {
+				"minHealth": 40,
+				"objects": {
+					"reed-bed": 2,
+					"sedge-tussock": 1
+				},
+				"hint": "Two reed beds and a sedge tussock."
+			}
+		},
+		{
+			"id": "gila-woodpecker",
+			"name": "Gila Woodpecker",
+			"biome": "desert",
+			"kind": "bird",
+			"rarity": "uncommon",
+			"featured": false,
+			"diet": "Insects, cactus fruit",
+			"shelter": "Cactus cavities",
+			"preferredHabitat": "Saguaro and cactus stands",
+			"fact": "Their abandoned cactus holes shelter owls and lizards later.",
+			"requirements": {
+				"minHealth": 40,
+				"objects": {
+					"cactus-patch": 2
+				},
+				"hint": "Two cactus patches for nesting cavities."
+			}
+		},
+		{
+			"id": "cactus-wren",
+			"name": "Cactus Wren",
+			"biome": "desert",
+			"kind": "bird",
+			"rarity": "common",
+			"featured": false,
+			"diet": "Insects and seeds",
+			"shelter": "Thorny cactus and brush",
+			"preferredHabitat": "Open desert with cactus",
+			"fact": "They build football-shaped nests deep in spiny cholla.",
+			"requirements": {
+				"minHealth": 35,
+				"objects": {
+					"cactus-patch": 1,
+					"desert-brush": 1
+				},
+				"hint": "A cactus patch and desert brush."
+			}
+		},
+		{
+			"id": "desert-iguana",
+			"name": "Desert Iguana",
+			"biome": "desert",
+			"kind": "reptile",
+			"rarity": "uncommon",
+			"featured": false,
+			"diet": "Flowers and leaves",
+			"shelter": "Burrows under shrubs",
+			"preferredHabitat": "Hot sandy flats with cover",
+			"fact": "It stays active at temperatures that drive other lizards to shade.",
+			"requirements": {
+				"minHealth": 40,
+				"objects": {
+					"agave-rosette": 1,
+					"rock-pile": 1
+				},
+				"hint": "An agave rosette and a rock pile."
+			}
+		},
+		{
+			"id": "kangaroo-mouse",
+			"name": "Kangaroo Mouse",
+			"biome": "desert",
+			"kind": "mammal",
+			"rarity": "uncommon",
+			"featured": false,
+			"diet": "Seeds",
+			"shelter": "Sand burrows",
+			"preferredHabitat": "Fine sandy desert",
+			"fact": "It survives on metabolic water and may never drink at all.",
+			"requirements": {
+				"minHealth": 40,
+				"objects": {
+					"burrow-mound": 1,
+					"desert-brush": 1
+				},
+				"hint": "A burrow mound near desert brush."
+			}
+		},
+		{
+			"id": "banded-gecko",
+			"name": "Western Banded Gecko",
+			"biome": "desert",
+			"kind": "reptile",
+			"rarity": "common",
+			"featured": false,
+			"diet": "Insects and spiders",
+			"shelter": "Rock crevices",
+			"preferredHabitat": "Sheltered rocky desert",
+			"fact": "Unlike most geckos it has movable eyelids and a soft voice.",
+			"requirements": {
+				"minHealth": 35,
+				"objects": {
+					"ocotillo": 1,
+					"shaded-rock-shelter": 1
+				},
+				"hint": "Ocotillo beside a shaded rock shelter."
+			}
+		},
+		{
+			"id": "rosy-finch",
+			"name": "Gray-crowned Rosy-Finch",
+			"biome": "alpine",
+			"kind": "bird",
+			"rarity": "uncommon",
+			"featured": false,
+			"diet": "Seeds and insects",
+			"shelter": "Cliff crevices",
+			"preferredHabitat": "High talus and wildflower turf",
+			"fact": "They nest higher than almost any other songbird in North America.",
+			"requirements": {
+				"minHealth": 40,
+				"objects": {
+					"alpine-wildflower-patch": 1,
+					"rock-pile": 1
+				},
+				"hint": "Alpine wildflowers and a rock pile."
+			}
+		},
+		{
+			"id": "american-pipit",
+			"name": "American Pipit",
+			"biome": "alpine",
+			"kind": "bird",
+			"rarity": "common",
+			"featured": false,
+			"diet": "Insects and seeds",
+			"shelter": "Tundra tussocks",
+			"preferredHabitat": "Open alpine meadow",
+			"fact": "It bobs its tail constantly as it walks the high meadows.",
+			"requirements": {
+				"minHealth": 40,
+				"objects": {
+					"heather-mat": 1,
+					"alpine-wildflower-patch": 1
+				},
+				"hint": "A heather mat and alpine wildflowers."
+			}
+		},
+		{
+			"id": "ermine",
+			"name": "Ermine",
+			"biome": "alpine",
+			"kind": "mammal",
+			"rarity": "rare",
+			"featured": false,
+			"diet": "Small rodents",
+			"shelter": "Rock crevices and burrows",
+			"preferredHabitat": "Talus near meadows",
+			"fact": "Its coat turns pure white in winter except for a black tail tip.",
+			"requirements": {
+				"minHealth": 55,
+				"objects": {
+					"rock-pile": 1,
+					"krummholz-pine": 1
+				},
+				"animals": [
+					"pika"
+				],
+				"hint": "Rock pile and krummholz, once pikas are back."
+			}
+		},
+		{
+			"id": "boreal-toad",
+			"name": "Boreal Toad",
+			"biome": "alpine",
+			"kind": "amphibian",
+			"rarity": "uncommon",
+			"featured": false,
+			"diet": "Insects",
+			"shelter": "Damp shelter near pools",
+			"preferredHabitat": "Snowmelt ponds and seeps",
+			"fact": "They can take years to mature in the short alpine summers.",
+			"requirements": {
+				"minHealth": 45,
+				"objects": {
+					"snowmelt-pool": 1
+				},
+				"water": {
+					"tiles": 3
+				},
+				"hint": "A snowmelt pool and a few open-water tiles."
+			}
+		},
+		{
+			"id": "mountain-bluebird",
+			"name": "Mountain Bluebird",
+			"biome": "alpine",
+			"kind": "bird",
+			"rarity": "common",
+			"featured": false,
+			"diet": "Insects",
+			"shelter": "Tree-line cavities",
+			"preferredHabitat": "High meadows with scattered trees",
+			"fact": "Males are an almost unreal sky-blue all over.",
+			"requirements": {
+				"minHealth": 40,
+				"objects": {
+					"krummholz-pine": 1,
+					"alpine-wildflower-patch": 1
+				},
+				"hint": "A krummholz pine and alpine wildflowers."
+			}
+		},
+		{
+			"id": "sanderling",
+			"name": "Sanderling",
+			"biome": "coastal",
+			"kind": "bird",
+			"rarity": "common",
+			"featured": false,
+			"diet": "Tiny crustaceans",
+			"shelter": "Open beach",
+			"preferredHabitat": "Sandy surf line",
+			"fact": "They chase the retreating waves in busy little sprints.",
+			"requirements": {
+				"minHealth": 40,
+				"objects": {
+					"dune-grass": 2,
+					"tidepool": 1
+				},
+				"hint": "Two dune-grass plantings and a tidepool."
+			}
+		},
+		{
+			"id": "black-oystercatcher",
+			"name": "Black Oystercatcher",
+			"biome": "coastal",
+			"kind": "bird",
+			"rarity": "uncommon",
+			"featured": false,
+			"diet": "Mussels and limpets",
+			"shelter": "Rocky shore ledges",
+			"preferredHabitat": "Tidepool reefs",
+			"fact": "Its long red bill pries shellfish from the rocks.",
+			"requirements": {
+				"minHealth": 45,
+				"objects": {
+					"oyster-bed": 1,
+					"tidepool": 1
+				},
+				"hint": "An oyster bed beside a tidepool."
+			}
+		},
+		{
+			"id": "purple-shore-crab",
+			"name": "Purple Shore Crab",
+			"biome": "coastal",
+			"kind": "invertebrate",
+			"rarity": "common",
+			"featured": false,
+			"diet": "Algae and detritus",
+			"shelter": "Under rocks",
+			"preferredHabitat": "Sheltered rocky intertidal",
+			"fact": "They scuttle sideways under stones when the tide pulls back.",
+			"requirements": {
+				"minHealth": 35,
+				"objects": {
+					"tidepool": 1,
+					"oyster-bed": 1
+				},
+				"hint": "A tidepool and an oyster bed."
+			}
+		},
+		{
+			"id": "brant-goose",
+			"name": "Brant Goose",
+			"biome": "coastal",
+			"kind": "bird",
+			"rarity": "uncommon",
+			"featured": false,
+			"diet": "Eelgrass",
+			"shelter": "Open shoreline",
+			"preferredHabitat": "Shallow bays with eelgrass",
+			"fact": "Whole flocks depend on eelgrass beds to fuel their migration.",
+			"requirements": {
+				"minHealth": 50,
+				"objects": {
+					"eelgrass-bed": 1
+				},
+				"water": {
+					"tiles": 4
+				},
+				"hint": "An eelgrass bed beside open water."
+			}
+		},
+		{
+			"id": "snowy-plover",
+			"name": "Western Snowy Plover",
+			"biome": "coastal",
+			"kind": "bird",
+			"rarity": "rare",
+			"featured": false,
+			"diet": "Beach invertebrates",
+			"shelter": "Dune scrapes",
+			"preferredHabitat": "Quiet sandy dunes",
+			"fact": "They nest in tiny scrapes right on the open sand.",
+			"requirements": {
+				"minHealth": 50,
+				"objects": {
+					"dune-grass": 1,
+					"coastal-nesting-area": 1
+				},
+				"hint": "Dune grass and a coastal nesting area."
+			}
+		}
 	]
 }

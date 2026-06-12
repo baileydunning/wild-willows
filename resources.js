@@ -369,7 +369,38 @@ var BALANCE_PER_ANIMAL = 7;
 function balanceFromReturns(returnedCount) {
   return clamp(returnedCount * BALANCE_PER_ANIMAL, 0, 100);
 }
-function meetsRequirements(animal, health, balance, counts, returnedIds) {
+function analyzeWater(terrain) {
+  const cells = new Set(terrain.filter((t) => t.type === "water").map((t) => `${t.x},${t.y}`));
+  const seen = /* @__PURE__ */ new Set();
+  let lake = 0;
+  let river = 0;
+  for (const key of cells) {
+    if (seen.has(key)) continue;
+    const stack = [key];
+    seen.add(key);
+    let size = 0;
+    let minx = Infinity, maxx = -Infinity, miny = Infinity, maxy = -Infinity;
+    while (stack.length) {
+      const [x, y] = stack.pop().split(",").map(Number);
+      size++;
+      minx = Math.min(minx, x);
+      maxx = Math.max(maxx, x);
+      miny = Math.min(miny, y);
+      maxy = Math.max(maxy, y);
+      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+        const nk = `${x + dx},${y + dy}`;
+        if (cells.has(nk) && !seen.has(nk)) {
+          seen.add(nk);
+          stack.push(nk);
+        }
+      }
+    }
+    lake = Math.max(lake, size);
+    river = Math.max(river, Math.max(maxx - minx + 1, maxy - miny + 1));
+  }
+  return { tiles: cells.size, lake, river };
+}
+function meetsRequirements(animal, health, balance, counts, returnedIds, water) {
   const req = animal.requirements || {};
   if (health < (req.minHealth || 0)) return false;
   if (balance < (req.minBalance || 0)) return false;
@@ -378,6 +409,12 @@ function meetsRequirements(animal, health, balance, counts, returnedIds) {
   }
   for (const other of req.animals || []) {
     if (!returnedIds.has(other)) return false;
+  }
+  const w = req.water;
+  if (w) {
+    if ((water.tiles || 0) < (w.tiles || 0)) return false;
+    if ((water.lake || 0) < (w.lake || 0)) return false;
+    if ((water.river || 0) < (w.river || 0)) return false;
   }
   return true;
 }
@@ -402,6 +439,12 @@ function whyReturnedText(animal, d) {
   const parts = [];
   const objs = Object.entries(req.objects || {}).map(([id, q]) => `${q}\xD7 ${d.object.get(id)?.name || id}`);
   if (objs.length) parts.push(`habitat in place (${objs.join(", ")})`);
+  if (req.water) {
+    const w = req.water;
+    if (w.lake) parts.push(`a lake of ${w.lake}+ open-water tiles`);
+    else if (w.river) parts.push(`a river ${w.river}+ tiles long`);
+    else if (w.tiles) parts.push(`${w.tiles}+ open-water tiles`);
+  }
   if (req.minHealth) parts.push(`biome health reached ${req.minHealth}%`);
   if (req.minBalance) parts.push(`ecological balance reached ${req.minBalance}%`);
   if (req.animals?.length) parts.push(`${req.animals.map((a) => d.animal.get(a)?.name || a).join(" and ")} had already returned`);
@@ -428,6 +471,7 @@ async function recalcBiome(playerId, biomeId, opts = {}) {
   }
   const wateredTiles = Math.min(10, terrain.filter((tt) => tt.type === "watered").length);
   const openWaterTiles = terrain.filter((tt) => tt.type === "water").length;
+  const water = analyzeWater(terrain);
   const healthPoints = computeHealthPoints(d, placements, openWaterTiles) + wateredTiles;
   const health = healthFromPoints(healthPoints);
   const discoveries = await byPlayer(t.Discovery, playerId);
@@ -438,7 +482,7 @@ async function recalcBiome(playerId, biomeId, opts = {}) {
   const biomeAnimals = d.animals.filter((a) => a.biome === biomeId);
   for (const animal of biomeAnimals) {
     if (returnedIds.has(animal.id)) continue;
-    if (meetsRequirements(animal, health, balance, counts, returnedIds)) {
+    if (meetsRequirements(animal, health, balance, counts, returnedIds, water)) {
       const disc = {
         id: `${playerId}:${animal.id}`,
         playerId,
@@ -797,6 +841,9 @@ var CraftItem = class extends PublicEndpoint {
     if (recipe.requiresTool && (player.tools?.[recipe.requiresTool.id] || 1) < recipe.requiresTool.tier) {
       const tool = d.tool.get(recipe.requiresTool.id);
       throw new GameError(`Requires the upgraded ${tool?.name || recipe.requiresTool.id}`, 403);
+    }
+    if (recipe.once && (player.craftedEver?.[recipe.output.itemId] || 0) > 0) {
+      throw new GameError(`You have already crafted the ${recipe.name} \u2014 it only needs to be made once.`, 409);
     }
     const { usedFrom, inventory } = await consumeMaterials(player, recipe.materials || {});
     const itemDef = d.object.get(recipe.output.itemId);

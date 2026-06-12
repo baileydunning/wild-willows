@@ -464,7 +464,8 @@
 				"fiber": 4,
 				"water": 6,
 				"moss": 2
-			}
+			},
+			"once": true
 		},
 		{
 			"id": "reed-bed",
@@ -510,6 +511,49 @@
 			"materials": {
 				"branches": 6,
 				"reeds": 3
+			}
+		},
+		{
+			"id": "cattail-stand",
+			"name": "Cattail Stand",
+			"category": "habitat",
+			"unlockBiome": "wetland",
+			"output": {
+				"itemId": "cattail-stand",
+				"qty": 1
+			},
+			"materials": {
+				"reeds": 4,
+				"mud": 1
+			}
+		},
+		{
+			"id": "marsh-log",
+			"name": "Marsh Log",
+			"category": "habitat",
+			"unlockBiome": "wetland",
+			"output": {
+				"itemId": "marsh-log",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 5,
+				"mud": 2
+			}
+		},
+		{
+			"id": "lily-pool",
+			"name": "Lily Pool",
+			"category": "habitat",
+			"unlockBiome": "wetland",
+			"output": {
+				"itemId": "lily-pool",
+				"qty": 1
+			},
+			"materials": {
+				"reeds": 2,
+				"clay": 2,
+				"clean-water": 2
 			}
 		},
 		{
@@ -617,7 +661,8 @@
 				"stones": 6,
 				"alpine-flowers": 3,
 				"fiber": 2
-			}
+			},
+			"once": true
 		},
 		{
 			"id": "tidepool",
@@ -691,6 +736,329 @@
 				"driftwood": 4,
 				"sand": 4,
 				"fiber": 2
+			}
+		},
+		{
+			"id": "meadow-restoration-kit",
+			"name": "Meadow Restoration Kit",
+			"category": "kit",
+			"unlockBiome": "meadow",
+			"once": true,
+			"output": {
+				"itemId": "meadow-restoration-kit",
+				"qty": 1
+			},
+			"materials": {
+				"fiber": 4,
+				"branches": 4,
+				"stones": 3,
+				"water": 2
+			}
+		},
+		{
+			"id": "wetland-restoration-kit",
+			"name": "Wetland Restoration Kit",
+			"category": "kit",
+			"unlockBiome": "wetland",
+			"once": true,
+			"output": {
+				"itemId": "wetland-restoration-kit",
+				"qty": 1
+			},
+			"materials": {
+				"reeds": 5,
+				"mud": 4,
+				"clay": 3,
+				"clean-water": 3
+			}
+		},
+		{
+			"id": "desert-restoration-kit",
+			"name": "Desert Restoration Kit",
+			"category": "kit",
+			"unlockBiome": "desert",
+			"once": true,
+			"output": {
+				"itemId": "desert-restoration-kit",
+				"qty": 1
+			},
+			"materials": {
+				"sand": 5,
+				"stones": 5,
+				"clay": 3,
+				"cactus-fruit": 2
+			}
+		},
+		{
+			"id": "stone-lantern",
+			"name": "Stone Lantern",
+			"category": "structure",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "stone-lantern",
+				"qty": 1
+			},
+			"materials": {
+				"stones": 4,
+				"clay": 2
+			}
+		},
+		{
+			"id": "wooden-bench",
+			"name": "Wooden Bench",
+			"category": "structure",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "wooden-bench",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 5,
+				"fiber": 2
+			}
+		},
+		{
+			"id": "garden-arch",
+			"name": "Garden Arch",
+			"category": "structure",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "garden-arch",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 4,
+				"wildflowers": 3,
+				"fiber": 1
+			}
+		},
+		{
+			"id": "bird-bath",
+			"name": "Bird Bath",
+			"category": "structure",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "bird-bath",
+				"qty": 1
+			},
+			"materials": {
+				"stones": 5,
+				"clay": 2,
+				"water": 2
+			}
+		},
+		{
+			"id": "trail-signpost",
+			"name": "Trail Signpost",
+			"category": "structure",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "trail-signpost",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 3,
+				"stones": 1
+			}
+		},
+		{
+			"id": "planter-box",
+			"name": "Planter Box",
+			"category": "structure",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "planter-box",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 3,
+				"wildflowers": 2,
+				"clay": 1
+			}
+		},
+		{
+			"id": "gazebo",
+			"name": "Gazebo",
+			"category": "structure",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "gazebo",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 10,
+				"stones": 5,
+				"fiber": 4
+			}
+		},
+		{
+			"id": "clover-patch",
+			"name": "Clover Patch",
+			"category": "habitat",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "clover-patch",
+				"qty": 1
+			},
+			"materials": {
+				"seeds": 3,
+				"water": 1
+			}
+		},
+		{
+			"id": "brush-pile",
+			"name": "Brush Pile",
+			"category": "habitat",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "brush-pile",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 4,
+				"fiber": 2
+			}
+		},
+		{
+			"id": "fern-grove",
+			"name": "Fern Grove",
+			"category": "habitat",
+			"unlockBiome": "forest",
+			"output": {
+				"itemId": "fern-grove",
+				"qty": 1
+			},
+			"materials": {
+				"moss": 3,
+				"water": 2
+			}
+		},
+		{
+			"id": "tree-stump",
+			"name": "Tree Stump",
+			"category": "habitat",
+			"unlockBiome": "forest",
+			"output": {
+				"itemId": "tree-stump",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 4,
+				"bark": 2
+			}
+		},
+		{
+			"id": "sedge-tussock",
+			"name": "Sedge Tussock",
+			"category": "habitat",
+			"unlockBiome": "wetland",
+			"output": {
+				"itemId": "sedge-tussock",
+				"qty": 1
+			},
+			"materials": {
+				"reeds": 4,
+				"mud": 1
+			}
+		},
+		{
+			"id": "alder-snag",
+			"name": "Alder Snag",
+			"category": "habitat",
+			"unlockBiome": "wetland",
+			"output": {
+				"itemId": "alder-snag",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 5,
+				"mud": 1
+			}
+		},
+		{
+			"id": "agave-rosette",
+			"name": "Agave Rosette",
+			"category": "habitat",
+			"unlockBiome": "desert",
+			"output": {
+				"itemId": "agave-rosette",
+				"qty": 1
+			},
+			"materials": {
+				"cactus-fruit": 2,
+				"sand": 2
+			}
+		},
+		{
+			"id": "ocotillo",
+			"name": "Ocotillo",
+			"category": "habitat",
+			"unlockBiome": "desert",
+			"output": {
+				"itemId": "ocotillo",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 2,
+				"sand": 2,
+				"cactus-fruit": 1
+			}
+		},
+		{
+			"id": "heather-mat",
+			"name": "Heather Mat",
+			"category": "habitat",
+			"unlockBiome": "alpine",
+			"output": {
+				"itemId": "heather-mat",
+				"qty": 1
+			},
+			"materials": {
+				"alpine-flowers": 3,
+				"moss": 1
+			}
+		},
+		{
+			"id": "krummholz-pine",
+			"name": "Krummholz Pine",
+			"category": "habitat",
+			"unlockBiome": "alpine",
+			"output": {
+				"itemId": "krummholz-pine",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 4,
+				"moss": 2
+			}
+		},
+		{
+			"id": "eelgrass-bed",
+			"name": "Eelgrass Bed",
+			"category": "habitat",
+			"unlockBiome": "coastal",
+			"output": {
+				"itemId": "eelgrass-bed",
+				"qty": 1
+			},
+			"materials": {
+				"driftwood": 2,
+				"sand": 2,
+				"water": 2
+			}
+		},
+		{
+			"id": "oyster-bed",
+			"name": "Oyster Bed",
+			"category": "habitat",
+			"unlockBiome": "coastal",
+			"output": {
+				"itemId": "oyster-bed",
+				"qty": 1
+			},
+			"materials": {
+				"shells": 3,
+				"stones": 2
 			}
 		}
 	]

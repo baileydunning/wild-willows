@@ -52,6 +52,7 @@ export interface RecipeDef {
 	category: string;
 	unlockBiome: string;
 	requiresTool?: { id: string; tier: number };
+	once?: boolean;
 	output: { itemId: string; qty: number };
 	materials: Record<string, number>;
 }
@@ -129,6 +130,7 @@ export interface Player {
 	y: number;
 	inventory: Record<string, number>;
 	craftedItems: Record<string, number>;
+	craftedEver?: Record<string, number>;
 	tools: Record<string, number>;
 	unlockedBiomes: string[];
 	tutorialStep?: number;

@@ -655,6 +655,52 @@
 			"description": "A raised, quiet platform safe from floods and footsteps."
 		},
 		{
+			"id": "cattail-stand",
+			"name": "Cattail Stand",
+			"placement": "outdoor",
+			"biomes": [
+				"wetland"
+			],
+			"healthValue": 6,
+			"needs": [
+				"plant",
+				"shelter"
+			],
+			"shape": "reed",
+			"color": "#8aa85a",
+			"description": "Tall cattails along the water's edge — cover for nesting marsh birds and shade for the shallows."
+		},
+		{
+			"id": "marsh-log",
+			"name": "Marsh Log",
+			"placement": "outdoor",
+			"biomes": [
+				"wetland"
+			],
+			"healthValue": 5,
+			"needs": [
+				"shelter"
+			],
+			"shape": "log",
+			"color": "#6e553c",
+			"description": "A half-sunken log for turtles and frogs to bask on and otters to slip beneath."
+		},
+		{
+			"id": "lily-pool",
+			"name": "Lily Pool",
+			"placement": "outdoor",
+			"biomes": [
+				"wetland"
+			],
+			"healthValue": 5,
+			"needs": [
+				"plant"
+			],
+			"shape": "pool",
+			"color": "#6fae86",
+			"description": "Still, clean water blanketed with lily pads — a hatchery for dragonflies and frogs."
+		},
+		{
 			"id": "burrow-mound",
 			"name": "Burrow Mound",
 			"placement": "outdoor",
@@ -961,6 +1007,357 @@
 			"shape": "kit",
 			"color": "#9d86d9",
 			"description": "Cairns and markers that restore a safe migration path through the heights. Crafting it helps unlock Pelican Shore."
+		},
+		{
+			"id": "meadow-restoration-kit",
+			"name": "Meadow Restoration Kit",
+			"placement": "none",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "kit",
+			"color": "#8fbf6f",
+			"description": "Seed mixes, fiber twine, and trail tools to open the overgrown forest path. Crafting it helps unlock Old Hollow Forest."
+		},
+		{
+			"id": "wetland-restoration-kit",
+			"name": "Wetland Restoration Kit",
+			"placement": "none",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "kit",
+			"color": "#6aa884",
+			"description": "Sediment sleds and hardy cuttings to carry restoration into the dry scrubland. Crafting it helps unlock Redstone Scrubland."
+		},
+		{
+			"id": "desert-restoration-kit",
+			"name": "Desert Restoration Kit",
+			"placement": "none",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "kit",
+			"color": "#d6a96a",
+			"description": "Shade cloth, water caches, and climbing gear for the high country. Crafting it helps unlock Graywind Heights."
+		},
+		{
+			"id": "stone-lantern",
+			"name": "Stone Lantern",
+			"placement": "both",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "lantern",
+			"color": "#caa15a",
+			"description": "A little stone lantern with a warm glow to light the path."
+		},
+		{
+			"id": "wooden-bench",
+			"name": "Wooden Bench",
+			"placement": "both",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "bench",
+			"color": "#a3814f",
+			"description": "A weathered bench — a quiet place to sit and watch the wildlife."
+		},
+		{
+			"id": "garden-arch",
+			"name": "Garden Arch",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland"
+			],
+			"healthValue": 1,
+			"needs": [
+				"plant"
+			],
+			"shape": "arch",
+			"color": "#5e9455",
+			"description": "A flowering arch that frames a path and feeds passing pollinators."
+		},
+		{
+			"id": "bird-bath",
+			"name": "Bird Bath",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest",
+				"alpine",
+				"desert"
+			],
+			"healthValue": 2,
+			"needs": [
+				"water"
+			],
+			"shape": "birdbath",
+			"color": "#7fb4d8",
+			"description": "Fresh water for songbirds to drink and bathe."
+		},
+		{
+			"id": "trail-signpost",
+			"name": "Trail Signpost",
+			"placement": "both",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "signpost",
+			"color": "#a3814f",
+			"description": "A hand-painted signpost to guide visitors through the preserve."
+		},
+		{
+			"id": "planter-box",
+			"name": "Planter Box",
+			"placement": "both",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 1,
+			"needs": [
+				"plant"
+			],
+			"shape": "planter",
+			"color": "#8c6a42",
+			"description": "A timber planter box brimming with flowers."
+		},
+		{
+			"id": "gazebo",
+			"name": "Gazebo",
+			"placement": "both",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "gazebo",
+			"color": "#7a9aa8",
+			"description": "A roofed open-air pavilion — a charming centerpiece and a shady spot to watch the preserve."
+		},
+		{
+			"id": "clover-patch",
+			"name": "Clover Patch",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"alpine"
+			],
+			"healthValue": 4,
+			"needs": [
+				"plant",
+				"food"
+			],
+			"shape": "clover",
+			"color": "#6fae5a",
+			"description": "Low clover and trefoil — nectar for bees and forage for rabbits."
+		},
+		{
+			"id": "brush-pile",
+			"name": "Brush Pile",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow",
+				"forest"
+			],
+			"healthValue": 4,
+			"needs": [
+				"shelter"
+			],
+			"shape": "brushpile",
+			"color": "#8a7048",
+			"description": "A loose pile of branches — cover for small mammals and ground birds."
+		},
+		{
+			"id": "fern-grove",
+			"name": "Fern Grove",
+			"placement": "outdoor",
+			"biomes": [
+				"forest"
+			],
+			"healthValue": 5,
+			"needs": [
+				"plant",
+				"shelter"
+			],
+			"shape": "fernclump",
+			"color": "#5e8a4a",
+			"description": "Shady arching ferns that carpet the forest floor."
+		},
+		{
+			"id": "tree-stump",
+			"name": "Tree Stump",
+			"placement": "outdoor",
+			"biomes": [
+				"forest"
+			],
+			"healthValue": 4,
+			"needs": [
+				"shelter"
+			],
+			"shape": "stump",
+			"color": "#8a6a44",
+			"description": "A mossy old stump riddled with cavities for dens and grubs."
+		},
+		{
+			"id": "sedge-tussock",
+			"name": "Sedge Tussock",
+			"placement": "outdoor",
+			"biomes": [
+				"wetland"
+			],
+			"healthValue": 5,
+			"needs": [
+				"plant",
+				"shelter"
+			],
+			"shape": "sedge",
+			"color": "#8aa85a",
+			"description": "Clumped sedges along the shallows — nesting cover for marsh birds."
+		},
+		{
+			"id": "alder-snag",
+			"name": "Alder Snag",
+			"placement": "outdoor",
+			"biomes": [
+				"wetland",
+				"forest"
+			],
+			"healthValue": 5,
+			"needs": [
+				"shelter"
+			],
+			"shape": "snag",
+			"color": "#8a7860",
+			"description": "A standing dead alder — perch and cavity nest above the water."
+		},
+		{
+			"id": "agave-rosette",
+			"name": "Agave Rosette",
+			"placement": "outdoor",
+			"biomes": [
+				"desert"
+			],
+			"healthValue": 4,
+			"needs": [
+				"plant",
+				"food"
+			],
+			"shape": "agave",
+			"color": "#6f8a5a",
+			"description": "A spiny rosette whose tall bloom feeds desert pollinators."
+		},
+		{
+			"id": "ocotillo",
+			"name": "Ocotillo",
+			"placement": "outdoor",
+			"biomes": [
+				"desert"
+			],
+			"healthValue": 4,
+			"needs": [
+				"plant",
+				"shelter"
+			],
+			"shape": "ocotillo",
+			"color": "#9a6a4a",
+			"description": "Whip-like stalks with crimson tips — cover and nectar in the open flats."
+		},
+		{
+			"id": "heather-mat",
+			"name": "Heather Mat",
+			"placement": "outdoor",
+			"biomes": [
+				"alpine"
+			],
+			"healthValue": 4,
+			"needs": [
+				"plant",
+				"food"
+			],
+			"shape": "heather",
+			"color": "#a06aa8",
+			"description": "A low alpine mat of heather blossoms above the talus."
+		},
+		{
+			"id": "krummholz-pine",
+			"name": "Krummholz Pine",
+			"placement": "outdoor",
+			"biomes": [
+				"alpine"
+			],
+			"healthValue": 5,
+			"needs": [
+				"shelter"
+			],
+			"shape": "krummholz",
+			"color": "#3f5e3a",
+			"description": "A wind-sculpted dwarf pine — rare shelter at the tree line."
+		},
+		{
+			"id": "eelgrass-bed",
+			"name": "Eelgrass Bed",
+			"placement": "outdoor",
+			"biomes": [
+				"coastal"
+			],
+			"healthValue": 5,
+			"needs": [
+				"plant",
+				"food"
+			],
+			"shape": "seagrass",
+			"color": "#6a9a7a",
+			"description": "Swaying eelgrass — nursery for fish and grazing for sea geese."
+		},
+		{
+			"id": "oyster-bed",
+			"name": "Oyster Bed",
+			"placement": "outdoor",
+			"biomes": [
+				"coastal"
+			],
+			"healthValue": 5,
+			"needs": [
+				"food",
+				"shelter"
+			],
+			"shape": "oyster",
+			"color": "#8e8e8a",
+			"description": "A clustered shellfish reef that filters the tide and feeds shorebirds."
 		}
 	]
 }

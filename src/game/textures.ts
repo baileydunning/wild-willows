@@ -498,6 +498,138 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 		g.fillStyle(C('#c9b98a'), 1).fillRoundedRect(2, 6, 26, 18, 3);
 		g.fillStyle(C('#4a7c59'), 1).fillRect(12, 9, 6, 12).fillRect(9, 12, 12, 6);
 	});
+
+	// --- decorative structures ---
+	o('lantern', 22, 44, (g) => {
+		g.fillStyle(C('#6b5238'), 1).fillRect(9, 30, 4, 12); // post
+		g.fillStyle(C('#7c5a3c'), 1).fillRoundedRect(4, 8, 14, 22, 4); // housing
+		g.fillStyle(C('#ffd680'), 1).fillRoundedRect(7, 12, 8, 14, 2); // warm glass
+		g.fillStyle(C('#5d4128'), 1).fillRoundedRect(3, 4, 16, 5, 2); // cap
+	});
+	o('bench', 40, 30, (g) => {
+		g.fillStyle(C('#7c5a3c'), 1).fillRect(5, 20, 5, 10).fillRect(30, 20, 5, 10); // legs
+		g.fillStyle(C('#a3814f'), 1).fillRoundedRect(3, 16, 34, 6, 2); // seat
+		g.fillStyle(C('#9a7448'), 1).fillRoundedRect(4, 6, 32, 4, 2).fillRect(6, 8, 3, 10).fillRect(31, 8, 3, 10); // back
+	});
+	o('arch', 40, 48, (g) => {
+		g.lineStyle(5, C('#8c6a42'), 1).strokeRoundedRect(6, 6, 28, 44, 14); // arch frame
+		g.fillStyle(C('#5e9455'), 1).fillCircle(10, 10, 5).fillCircle(30, 10, 5).fillCircle(20, 6, 5); // greenery
+		g.fillStyle(C('#d77bb1'), 1).fillCircle(8, 14, 2.4).fillCircle(33, 13, 2.4).fillCircle(20, 7, 2.4); // blooms
+	});
+	o('birdbath', 30, 38, (g) => {
+		g.fillStyle(C('#9a948a'), 1).fillRect(12, 18, 6, 18); // pedestal
+		g.fillStyle(C('#a8a8a2'), 1).fillEllipse(15, 16, 26, 10); // basin
+		g.fillStyle(C('#7fb4d8'), 1).fillEllipse(15, 15, 18, 6); // water
+		g.fillStyle(0xffffff, 0.5).fillEllipse(11, 14, 6, 2);
+	});
+	o('signpost', 26, 42, (g) => {
+		g.fillStyle(C('#6b5238'), 1).fillRect(11, 6, 4, 36); // post
+		g.fillStyle(C('#a3814f'), 1).fillRoundedRect(2, 10, 22, 10, 2); // board
+		g.lineStyle(1, C('#7c5a3c'), 1).lineBetween(5, 15, 21, 15);
+	});
+	o('planter', 34, 28, (g) => {
+		g.fillStyle(C('#8c6a42'), 1).fillRoundedRect(3, 14, 28, 12, 2); // box
+		g.fillStyle(C('#7c5a3c'), 1).fillRect(3, 14, 28, 3);
+		g.fillStyle(C('#5e9455'), 1).fillCircle(9, 12, 5).fillCircle(18, 10, 5).fillCircle(26, 12, 5); // foliage
+		g.fillStyle(C('#e3c75f'), 1).fillCircle(12, 9, 2).fillCircle(23, 9, 2); // flowers
+	});
+	// --- additional habitat objects (distinct silhouettes) ---
+	o('clover', 34, 26, (g) => {
+		g.fillStyle(C('#6fae5a'), 1).fillEllipse(17, 18, 32, 14);
+		g.fillStyle(C('#4f8a38'), 1);
+		for (const [x, y] of [[9, 12], [17, 9], [25, 13], [13, 17], [22, 17]] as const) {
+			g.fillCircle(x - 2, y, 2.4).fillCircle(x + 2, y, 2.4).fillCircle(x, y - 2, 2.4);
+		}
+		g.fillStyle(C('#f0e2a0'), 1).fillCircle(20, 8, 2);
+	});
+	o('brushpile', 42, 26, (g) => {
+		g.fillStyle(C('#8a7048'), 1);
+		const sticks = [[2, 18, 30, 4], [6, 13, 28, 4], [3, 8, 24, 4]] as const;
+		for (const [x, y, w, h] of sticks) g.fillRoundedRect(x, y, w, h, 2);
+		g.lineStyle(2, C('#6b5238'), 1).lineBetween(8, 6, 34, 20).lineBetween(30, 5, 6, 21);
+		g.fillStyle(C('#5d8a4a'), 0.8).fillEllipse(34, 9, 9, 5);
+	});
+	o('fernclump', 34, 34, (g) => {
+		g.lineStyle(2.5, C('#4f7d3a'), 1);
+		for (const ang of [-0.9, -0.45, 0, 0.45, 0.9]) {
+			const tx = 17 + Math.sin(ang) * 15;
+			g.lineBetween(17, 32, tx, 6 + Math.abs(ang) * 6);
+		}
+		g.fillStyle(C('#6ba04a'), 1).fillEllipse(17, 30, 16, 6);
+	});
+	o('stump', 30, 26, (g) => {
+		g.fillStyle(C('#7a5a3a'), 1).fillRoundedRect(5, 8, 20, 16, 4);
+		g.fillStyle(C('#9a7448'), 1).fillEllipse(15, 9, 20, 9);
+		g.fillStyle(C('#7c5a3c'), 1).fillEllipse(15, 9, 12, 5);
+		g.fillStyle(C('#5d4128'), 1).fillEllipse(15, 9, 5, 2.4);
+		g.fillStyle(C('#5d8a4a'), 0.8).fillEllipse(8, 22, 9, 4);
+	});
+	o('sedge', 32, 34, (g) => {
+		g.fillStyle(C('#7a9a4a'), 1).fillEllipse(16, 30, 24, 8);
+		g.lineStyle(2, C('#8aa85a'), 1);
+		for (const x of [8, 12, 16, 20, 24]) g.lineBetween(x, 30, x + (x - 16) * 0.3, 6 + Math.abs(x - 16));
+		g.fillStyle(C('#b58a4a'), 1).fillCircle(16, 7, 2).fillCircle(11, 12, 1.6).fillCircle(21, 11, 1.6);
+	});
+	o('snag', 24, 44, (g) => {
+		g.fillStyle(C('#8a7860'), 1).fillRect(8, 8, 7, 36);
+		g.fillStyle(C('#6e5c46'), 1).fillRect(8, 8, 3, 36);
+		g.fillStyle(C('#8a7860'), 1).fillRect(2, 18, 7, 4).fillRect(15, 14, 6, 4); // broken limbs
+		g.fillStyle(C('#5d4a36'), 1).fillTriangle(8, 8, 15, 8, 11, 2); // jagged top
+	});
+	o('agave', 34, 30, (g) => {
+		g.fillStyle(C('#6f8a5a'), 1);
+		for (const ang of [-1.2, -0.6, 0, 0.6, 1.2, 3.14]) {
+			const tx = 17 + Math.sin(ang) * 15;
+			const ty = 22 - Math.cos(ang) * 14;
+			g.fillTriangle(17, 22, tx - 3, ty + 3, tx + 3, ty + 3);
+		}
+		g.fillStyle(C('#8aa86a'), 1).fillCircle(17, 22, 4);
+	});
+	o('ocotillo', 30, 46, (g) => {
+		g.lineStyle(2.5, C('#6e5238'), 1);
+		for (const x of [9, 15, 21]) g.lineBetween(15, 44, x, 6);
+		g.fillStyle(C('#c44a3a'), 1).fillCircle(9, 6, 2.4).fillCircle(15, 5, 2.4).fillCircle(21, 6, 2.4); // red tips
+		g.fillStyle(C('#5d8a4a'), 0.7).fillEllipse(15, 42, 12, 5);
+	});
+	o('heather', 34, 24, (g) => {
+		g.fillStyle(C('#6f8a5a'), 1).fillEllipse(17, 17, 32, 12);
+		g.fillStyle(C('#a06aa8'), 1);
+		for (const [x, y] of [[8, 12], [14, 9], [20, 11], [26, 10], [11, 14], [23, 14]] as const) g.fillCircle(x, y, 2.4);
+		g.fillStyle(C('#c89ad0'), 1).fillCircle(14, 8, 1.2).fillCircle(26, 9, 1.2);
+	});
+	o('krummholz', 34, 36, (g) => {
+		g.fillStyle(C('#5a4632'), 1).fillRect(15, 26, 4, 10);
+		g.fillStyle(C('#3f5e3a'), 1);
+		g.fillTriangle(6, 28, 26, 24, 14, 10); // wind-bent canopy leaning right
+		g.fillTriangle(10, 20, 28, 17, 17, 6);
+		g.fillStyle(C('#4f7048'), 1).fillTriangle(12, 14, 26, 12, 19, 4);
+	});
+	o('seagrass', 34, 30, (g) => {
+		g.fillStyle(C('#cdbf94'), 1).fillEllipse(17, 26, 32, 8); // sand
+		g.lineStyle(2.5, C('#5a9a6a'), 1);
+		for (const x of [7, 12, 17, 22, 27]) {
+			const sway = Math.sin(x) * 4;
+			g.lineBetween(x, 26, x + sway, 4);
+		}
+		g.fillStyle(C('#7fb88a'), 0.6).fillEllipse(17, 12, 22, 14);
+	});
+	o('oyster', 34, 24, (g) => {
+		g.fillStyle(C('#8e8e8a'), 1).fillEllipse(17, 18, 32, 12); // rock
+		g.fillStyle(C('#b6b2a6'), 1);
+		for (const [x, y] of [[9, 14], [16, 12], [23, 15], [13, 18], [21, 18]] as const) g.fillEllipse(x, y, 8, 6);
+		g.lineStyle(1, C('#7c786e'), 1);
+		for (const [x, y] of [[9, 14], [16, 12], [23, 15]] as const) g.lineBetween(x - 3, y, x + 3, y);
+	});
+
+	o('gazebo', 54, 58, (g) => {
+		g.fillStyle(C('#8e8e8a'), 1).fillEllipse(27, 52, 46, 10); // stone base
+		g.fillStyle(C('#a8a8a2'), 1).fillRoundedRect(7, 46, 40, 6, 2); // deck
+		g.fillStyle(C('#7c5a3c'), 1).fillRect(10, 24, 5, 24).fillRect(39, 24, 5, 24).fillRect(20, 26, 4, 22).fillRect(30, 26, 4, 22); // posts
+		g.fillStyle(C('#6b5238'), 1).fillRect(8, 30, 38, 3); // rail
+		g.fillStyle(C('#5d7c8a'), 1).fillTriangle(27, 2, 4, 26, 50, 26); // roof
+		g.fillStyle(C('#7a9aa8'), 1).fillTriangle(27, 8, 12, 25, 42, 25); // roof highlight
+		g.fillStyle(C('#c9a35c'), 1).fillCircle(27, 4, 3); // finial
+	});
 }
 
 /** Animal sprites. Featured species get bespoke art; others get a kind-based body. */
@@ -738,9 +870,41 @@ export function animalTexture(animalId: string, kind: string): { key: string; ti
 	return { key: `ani-${base}-${variant}`, tint: animalTint(hash) };
 }
 
-/** Deterministic size multiplier so same-kind animals differ in stature too. */
-export function animalScale(animalId: string): number {
+// Roughly proportional sprite sizes so a bear reads as far bigger than a
+// chipmunk or a salamander. Most specific keyword wins (rules are checked top
+// to bottom), then we fall back to a per-kind size, then add a tiny
+// deterministic jitter so same-size species still look like individuals.
+const SIZE_RULES: [RegExp, number][] = [
+	[/whale|dolphin/, 1.95],
+	[/bear|elk|moose/, 1.7],
+	[/deer|bighorn|mountain-goat|coyote|seal|sandhill|crane|pelican|eagle|turkey/, 1.42],
+	[/fox|bobcat|otter|beaver|raccoon|porcupine|heron|owl|hawk|cormorant|marten|muskrat|mink|marmot|tortoise|sea-turtle|roadrunner|gull|snowshoe-hare/, 1.18],
+	[/rabbit|cottontail|jackrabbit|duck|quail|ptarmigan|squirrel|rattlesnake|snake|nutcracker|woodpecker|shorebird|crab|sea-star|anemone/, 0.95],
+	[/chipmunk|vole|rat|mouse|pika|sparrow|swallow|nuthatch|blackbird|meadowlark|frog|salamander|newt|lizard|turtle|trout|fish|mussel|clam/, 0.7],
+	[/butterfly|bee|beetle|dragonfly|damselfly|grasshopper|strider|scorpion|tarantula|slug|snail/, 0.5],
+];
+
+const KIND_SIZE: Record<string, number> = {
+	mammal: 1.0,
+	bird: 0.9,
+	reptile: 0.8,
+	amphibian: 0.65,
+	fish: 0.8,
+	insect: 0.5,
+	invertebrate: 0.5,
+};
+
+/** Proportional size multiplier for an animal sprite. */
+export function animalScale(animalId: string, kind = 'mammal'): number {
+	let base: number | null = null;
+	for (const [re, size] of SIZE_RULES) {
+		if (re.test(animalId)) { base = size; break; }
+	}
+	if (base == null) base = KIND_SIZE[kind] ?? 1.0;
+	// small deterministic jitter (±0.05) keyed off the id — variety without
+	// ever flipping the size ordering between species.
 	let hash = 0;
 	for (const ch of animalId) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
-	return 0.82 + ((hash >> 3) % 46) / 100; // 0.82 .. 1.27
+	const jitter = (((hash >>> 3) % 11) - 5) / 100; // ±0.05, unsigned so it never overshoots
+	return Math.round((base + jitter) * 100) / 100;
 }

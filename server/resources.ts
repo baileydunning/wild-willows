@@ -494,7 +494,47 @@ function balanceFromReturns(returnedCount: number): number {
 	return clamp(returnedCount * BALANCE_PER_ANIMAL, 0, 100);
 }
 
-function meetsRequirements(animal: any, health: number, balance: number, counts: Record<string, number>, returnedIds: Set<string>) {
+/**
+ * Analyze the player's open-water tiles (terraformed type 'water') in a biome.
+ * Returns total tile count, the largest connected body ("lake"), and the
+ * longest connected span ("river") — long, thin channels score high on river,
+ * big blobs score high on lake. 4-neighbour connectivity.
+ */
+function analyzeWater(terrain: any[]) {
+	const cells = new Set(terrain.filter((t) => t.type === 'water').map((t) => `${t.x},${t.y}`));
+	const seen = new Set<string>();
+	let lake = 0;
+	let river = 0;
+	for (const key of cells) {
+		if (seen.has(key)) continue;
+		const stack = [key];
+		seen.add(key);
+		let size = 0;
+		let minx = Infinity, maxx = -Infinity, miny = Infinity, maxy = -Infinity;
+		while (stack.length) {
+			const [x, y] = stack.pop()!.split(',').map(Number);
+			size++;
+			minx = Math.min(minx, x); maxx = Math.max(maxx, x);
+			miny = Math.min(miny, y); maxy = Math.max(maxy, y);
+			for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+				const nk = `${x + dx},${y + dy}`;
+				if (cells.has(nk) && !seen.has(nk)) { seen.add(nk); stack.push(nk); }
+			}
+		}
+		lake = Math.max(lake, size);
+		river = Math.max(river, Math.max(maxx - minx + 1, maxy - miny + 1));
+	}
+	return { tiles: cells.size, lake, river };
+}
+
+function meetsRequirements(
+	animal: any,
+	health: number,
+	balance: number,
+	counts: Record<string, number>,
+	returnedIds: Set<string>,
+	water: { tiles: number; lake: number; river: number },
+) {
 	const req = animal.requirements || {};
 	if (health < (req.minHealth || 0)) return false;
 	if (balance < (req.minBalance || 0)) return false;
@@ -503,6 +543,13 @@ function meetsRequirements(animal: any, health: number, balance: number, counts:
 	}
 	for (const other of req.animals || []) {
 		if (!returnedIds.has(other)) return false;
+	}
+	// open-water needs are met by terraforming channels and ponds
+	const w = req.water;
+	if (w) {
+		if ((water.tiles || 0) < (w.tiles || 0)) return false;
+		if ((water.lake || 0) < (w.lake || 0)) return false;
+		if ((water.river || 0) < (w.river || 0)) return false;
 	}
 	return true;
 }
@@ -529,6 +576,12 @@ function whyReturnedText(animal: any, d: any): string {
 	const parts: string[] = [];
 	const objs = Object.entries(req.objects || {}).map(([id, q]) => `${q}× ${d.object.get(id)?.name || id}`);
 	if (objs.length) parts.push(`habitat in place (${objs.join(', ')})`);
+	if (req.water) {
+		const w = req.water;
+		if (w.lake) parts.push(`a lake of ${w.lake}+ open-water tiles`);
+		else if (w.river) parts.push(`a river ${w.river}+ tiles long`);
+		else if (w.tiles) parts.push(`${w.tiles}+ open-water tiles`);
+	}
 	if (req.minHealth) parts.push(`biome health reached ${req.minHealth}%`);
 	if (req.minBalance) parts.push(`ecological balance reached ${req.minBalance}%`);
 	if (req.animals?.length) parts.push(`${req.animals.map((a: string) => d.animal.get(a)?.name || a).join(' and ')} had already returned`);
@@ -576,6 +629,8 @@ async function recalcBiome(
 	}
 	const wateredTiles = Math.min(10, terrain.filter((tt) => tt.type === 'watered').length);
 	const openWaterTiles = terrain.filter((tt) => tt.type === 'water').length;
+	// rivers and lakes shaped with the watering can feed water-dwelling animals
+	const water = analyzeWater(terrain);
 
 	// tended soil beds are worth 1 restoration point each, on the same slow curve
 	const healthPoints = computeHealthPoints(d, placements, openWaterTiles) + wateredTiles;
@@ -597,7 +652,7 @@ async function recalcBiome(
 	const biomeAnimals = d.animals.filter((a: any) => a.biome === biomeId);
 	for (const animal of biomeAnimals) {
 		if (returnedIds.has(animal.id)) continue;
-		if (meetsRequirements(animal, health, balance, counts, returnedIds)) {
+		if (meetsRequirements(animal, health, balance, counts, returnedIds, water)) {
 			const disc = {
 				id: `${playerId}:${animal.id}`,
 				playerId,
@@ -1029,6 +1084,10 @@ export class CraftItem extends PublicEndpoint {
 		if (recipe.requiresTool && (player.tools?.[recipe.requiresTool.id] || 1) < recipe.requiresTool.tier) {
 			const tool = d.tool.get(recipe.requiresTool.id);
 			throw new GameError(`Requires the upgraded ${tool?.name || recipe.requiresTool.id}`, 403);
+		}
+		// One-time recipes (restoration kits) can only ever be crafted once.
+		if (recipe.once && (player.craftedEver?.[recipe.output.itemId] || 0) > 0) {
+			throw new GameError(`You have already crafted the ${recipe.name} — it only needs to be made once.`, 409);
 		}
 
 		const { usedFrom, inventory } = await consumeMaterials(player, recipe.materials || {});

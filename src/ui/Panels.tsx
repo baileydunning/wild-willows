@@ -26,6 +26,40 @@ function resColor(data: any, id: string) {
 	return data?.resources.find((r: any) => r.id === id)?.color || '#888';
 }
 
+/**
+ * Little chips showing where a crafted item can be placed. Items that go
+ * everywhere collapse to a single "All areas" chip; non-placeable kits/bundles
+ * say so instead.
+ */
+function AreaTags({ data, def }: { data: any; def: any }) {
+	if (!def) return null;
+	if (def.placement === 'none') {
+		return <span className="area-tags"><span className="area-tag area-tag-muted">Used in crafting</span></span>;
+	}
+	const biomes: string[] = def.biomes || [];
+	const allAreas = biomes.length >= data.biomes.length;
+	const canCamp = def.placement === 'both' || def.placement === 'indoor';
+	return (
+		<span className="area-tags">
+			<span className="area-tags-label">Place in:</span>
+			{allAreas ? (
+				<span className="area-tag"><span className="area-dot" style={{ background: 'var(--green-2)' }} />All areas</span>
+			) : (
+				biomes.map((bid) => {
+					const b = data.biomes.find((x: any) => x.id === bid);
+					return (
+						<span className="area-tag" key={bid}>
+							<span className="area-dot" style={{ background: b?.palette?.healthy || '#8fbf6f' }} />
+							{b?.name || bid}
+						</span>
+					);
+				})
+			)}
+			{canCamp && <span className="area-tag"><span className="area-dot" style={{ background: 'var(--gold)' }} />Camp</span>}
+		</span>
+	);
+}
+
 // All of your chests feed crafting — no workbench or proximity required.
 export function useLinkedChests(): ChestState[] {
 	const { state } = useGame();
@@ -200,9 +234,10 @@ export function CraftingPanel() {
 		.sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
 	const categories = [...new Set(visible.map((r) => r.category))];
 	const catLabel: Record<string, string> = {
-		habitat: 'Habitat objects', decoration: 'Paths & fences', storage: 'Storage',
-		home: 'Camp comforts', kit: 'Restoration kits',
+		habitat: 'Habitat objects', structure: 'Structures & decor', decoration: 'Paths & fences',
+		storage: 'Storage', home: 'Camp comforts', kit: 'Restoration kits',
 	};
+	const alreadyMade = (r: RecipeDef) => !!r.once && (player.craftedEver?.[r.output.itemId] || 0) > 0;
 
 	const placeable = Object.entries(player.craftedItems || {}).filter(([id]) => {
 		const def = data.habitatObjects.find((o) => o.id === id);
@@ -230,13 +265,16 @@ export function CraftingPanel() {
 					<h3>{catLabel[cat] || cat}</h3>
 					{visible.filter((r) => r.category === cat).map((r) => {
 						const def = data.habitatObjects.find((o) => o.id === r.output.itemId);
-						const ok = canCraft(r);
+						const made = alreadyMade(r);
+						const ok = canCraft(r) && !made;
 						return (
-							<div className={`recipe ${ok ? '' : 'recipe-off'}`} key={r.id}>
+							<div className={`recipe ${ok || made ? '' : 'recipe-off'}`} key={r.id}>
 								<div className="grow">
 									<b>{r.name}</b>
 									{r.output.qty > 1 ? ` ×${r.output.qty}` : ''}
+									{r.once && <span className="once-tag" title="Can only be crafted once">one-time</span>}
 									<div className="muted small">{def?.description}</div>
+									<AreaTags data={data} def={def} />
 									<div className="mats">
 										{Object.entries(r.materials).map(([id, q]) => {
 											const av = availability(id);
@@ -257,7 +295,7 @@ export function CraftingPanel() {
 										<div className="muted small">Requires an upgraded tool — see Tools panel.</div>
 									)}
 								</div>
-								<button disabled={!ok} onClick={() => craft(r.id)}>Craft</button>
+								<button disabled={!ok} onClick={() => craft(r.id)}>{made ? 'Crafted ✓' : 'Craft'}</button>
 							</div>
 						);
 					})}
@@ -333,14 +371,17 @@ export function BiomesPanel() {
 				const unlocked = state.player.unlockedBiomes.includes(biome.id);
 				const total = data.animals.filter((a) => a.biome === biome.id).length;
 				return (
-					<div className={`biome-row ${unlocked ? '' : 'biome-locked'}`} key={biome.id}>
+					<div className={`biome-row ${unlocked && biome.explorable ? '' : 'biome-locked'}`} key={biome.id}>
 						<div className="grow">
 							<b>{biome.name}</b>{' '}
-							{!unlocked && <span className="lock"><Icon name="lock" size={12} /> locked</span>}
-							{unlocked && !biome.explorable && <span className="lock">unlocked — explorable in a future update</span>}
+							{!biome.explorable ? (
+								<span className="lock soon"><Icon name="sparkle" size={12} /> Coming soon</span>
+							) : !unlocked ? (
+								<span className="lock"><Icon name="lock" size={12} /> locked</span>
+							) : null}
 							<div className="muted small">{biome.description}</div>
 							<div className="muted small"><b>Goal:</b> {biome.restorationGoal}</div>
-							{!unlocked && biome.unlock && <div className="small unlock-req"><b>To unlock:</b> {biome.unlock.label}</div>}
+							{biome.explorable && !unlocked && biome.unlock && <div className="small unlock-req"><b>To unlock:</b> {biome.unlock.label}</div>}
 							{unlocked && bs && (
 								<>
 									<Meter label="Health" icon="leaf" value={bs.health} color="#6aa253" />
