@@ -11,12 +11,14 @@ export interface BiomeDef {
 		biome: string;
 		minHealth?: number;
 		minAnimals?: number;
+		minTotalAnimals?: number;
 		requiresItem?: string;
 		requiresTool?: { id: string; tier: number };
 		label: string;
 	};
 	resources: string[];
 	palette: { damaged: string; healthy: string };
+	canFlood?: boolean;
 }
 
 export interface AnimalDef {

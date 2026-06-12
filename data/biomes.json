@@ -87,14 +87,16 @@
 			"id": "desert",
 			"name": "Redstone Scrubland",
 			"order": 4,
-			"explorable": false,
+			"explorable": true,
 			"description": "An overgrazed desert flat. Without brush or burrows, the heat keeps everything away.",
 			"restorationGoal": "Replant cactus and brush, build shade and burrows, and bring the desert back to life.",
 			"unlock": {
 				"biome": "wetland",
-				"minHealth": 75,
+				"minHealth": 80,
+				"minAnimals": 5,
+				"minTotalAnimals": 30,
 				"requiresItem": "scrubland-restoration-kit",
-				"label": "Restore Rushwater Wetland to 75% health and craft a Scrubland Restoration Kit."
+				"label": "Restore Rushwater Wetland to 80% health with 5 wetland animals back, welcome 30 animals across the whole preserve, and craft a Scrubland Restoration Kit."
 			},
 			"resources": [
 				"sand",
@@ -105,7 +107,8 @@
 			"palette": {
 				"damaged": "#cbb089",
 				"healthy": "#d6a96a"
-			}
+			},
+			"canFlood": false
 		},
 		{
 			"id": "alpine",

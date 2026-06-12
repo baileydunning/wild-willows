@@ -515,6 +515,34 @@ export class WorldScene extends Phaser.Scene {
 					bridge.emit('toast', { text, kind: 'info' });
 				},
 			});
+		} else if (this.area === 'desert') {
+			// gate back to the wetland on the west edge
+			const gx = 1.2 * TILE;
+			const gy = 9.8 * TILE;
+			this.addDyn(this.add.image(gx, gy, 'gate').setDepth(gy));
+			this.registerInteractable({ x: gx, y: gy, label: 'Walk back to Rushwater Wetland', action: () => bridge.emit('request-area', { area: 'wetland' }) });
+
+			// trail east toward the alpine heights (Graywind Heights)
+			const sx = (OUT_W - 1.2) * TILE;
+			const sy = 9.8 * TILE;
+			const alpineUnlocked = state?.player.unlockedBiomes.includes('alpine');
+			const alpineExplorable = this.biomeDef('alpine')?.explorable;
+			const alpineOpen = alpineUnlocked && alpineExplorable;
+			this.addDyn(this.add.image(sx, sy, alpineOpen ? 'gate' : 'sign').setDepth(sy));
+			this.registerInteractable({
+				x: sx, y: sy, label: alpineOpen ? 'Walk to Graywind Heights' : 'Read the trail sign (Graywind Heights)',
+				action: () => {
+					if (alpineOpen) {
+						bridge.emit('request-area', { area: 'alpine' });
+						return;
+					}
+					const alpine = this.biomeDef('alpine');
+					const text = alpineUnlocked
+						? 'Graywind Heights is unlocked! The mountain trail opens soon.'
+						: `The mountain trail is blocked. ${alpine?.unlock?.label || ''}`;
+					bridge.emit('toast', { text, kind: 'info' });
+				},
+			});
 		}
 	}
 

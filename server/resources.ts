@@ -780,6 +780,11 @@ async function checkUnlocks(
 		if (!prereq || !unlockedSet.has(u.biome)) continue;
 		if ((prereq.health || 0) < (u.minHealth || 0)) continue;
 		if ((prereq.returnedCount || 0) < (u.minAnimals || 0)) continue;
+		if (u.minTotalAnimals) {
+			// total animals returned across the whole preserve (all biomes)
+			const totalReturned = (await byPlayer(t.Discovery, playerId)).length;
+			if (totalReturned < u.minTotalAnimals) continue;
+		}
 		if (u.requiresItem) {
 			const crafted = player.craftedItems?.[u.requiresItem] || 0;
 			const everCrafted = player.craftedEver?.[u.requiresItem] || 0;
@@ -1524,6 +1529,10 @@ export class Terraform extends PublicEndpoint {
 			// Chain open-water tiles to shape ponds, lakes, and rivers.
 			const cost = 1;
 			const newType = existing.type === 'tilled' ? 'watered' : 'water';
+			// dry biomes (e.g. the desert) can ready soil beds but cannot be flooded
+			if (newType === 'water' && biome.canFlood === false) {
+				throw new GameError(`${biome.name} is too dry to flood — soil beds here can only be readied for planting.`);
+			}
 			const have = (inventory.water || 0) + (inventory['clean-water'] || 0);
 			if (have < cost) throw new GameError(`You need ${cost} water for that — gather more first`);
 			inventory = { ...inventory };
