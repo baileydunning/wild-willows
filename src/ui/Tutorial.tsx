@@ -115,7 +115,7 @@ const STEPS: StepDef[] = [
 	{
 		icon: 'leaf',
 		title: 'That’s the loop',
-		text: 'Gather, craft, plant, terraform, and welcome wildlife — and each animal you bring back and every bit of health you restore unlocks more to craft. Reach 80% health with 5 meadow animals back to open the forest trail. The ? button has everything else.',
+		text: 'Gather, craft, plant, terraform, and welcome wildlife — and each animal you bring back and every bit of health you restore unlocks more to craft. Reach 80% health with 10 meadow animals back to open the forest trail. The ? button has everything else.',
 		done: () => false, // finished by the button
 	},
 ];

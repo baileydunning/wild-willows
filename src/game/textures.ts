@@ -636,6 +636,80 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 			g.fillStyle(C(['#d77bb1', '#e8954f', '#e3c75f'][i]), 1).fillCircle(x, 7, 1.6);
 		}
 	});
+	// --- new craftable habitat shelters ---
+	o('insecthotel', 30, 36, (g) => {
+		g.fillStyle(C('#8c6a42'), 1).fillRoundedRect(4, 8, 22, 26, 2); // frame
+		g.fillStyle(C('#6b5238'), 1).fillTriangle(2, 9, 15, 1, 28, 9); // roof
+		g.fillStyle(C('#caa15a'), 1).fillRect(6, 11, 8, 9).fillRect(16, 22, 8, 9); // straw cells
+		g.fillStyle(C('#a3814f'), 1).fillRect(16, 11, 8, 9).fillRect(6, 22, 8, 9);
+		g.fillStyle(C('#5d4128'), 1);
+		for (const cx of [8, 10, 12, 18, 20, 22]) g.fillCircle(cx, 15.5, 0.9);
+		for (const cx of [18, 20, 22]) g.fillCircle(cx, 26.5, 0.9);
+	});
+	o('stonewall', 40, 24, (g) => {
+		const rows: [number, number][] = [[6, 18], [6, 12], [9, 6]];
+		rows.forEach(([y, , ], r) => {
+			const off = r % 2 ? 5 : 0;
+			for (let x = 2 + off; x < 38; x += 9) g.fillStyle(C(r % 2 ? '#9a948a' : '#8e8e8a'), 1).fillRoundedRect(x, y, 8, 6, 2);
+		});
+	});
+	o('batbox', 24, 40, (g) => {
+		g.fillStyle(C('#6b5238'), 1).fillRect(10, 26, 4, 14); // post
+		g.fillStyle(C('#5d4128'), 1).fillRoundedRect(4, 6, 16, 22, 2); // tall box
+		g.fillStyle(C('#7c5a3c'), 1).fillTriangle(3, 7, 12, 1, 21, 7); // roof
+		g.fillStyle(C('#2e2018'), 1).fillRect(7, 24, 10, 3); // entry slot beneath
+	});
+	o('leaflitter', 36, 22, (g) => {
+		g.fillStyle(C('#6b4f30'), 1).fillEllipse(18, 16, 32, 12); // mound
+		const cols = ['#b07a3a', '#caa15a', '#9a6a32', '#8a6a3a'];
+		for (let i = 0; i < 11; i++) {
+			const x = 5 + (i * 2.8), y = 9 + ((i * 5) % 8);
+			g.fillStyle(C(cols[i % 4]), 1).fillEllipse(x, y, 5, 3.4);
+		}
+	});
+	o('ducknest', 26, 38, (g) => {
+		g.fillStyle(C('#7c5a3c'), 1).fillRect(11, 22, 4, 16); // post
+		g.fillStyle(C('#a3814f'), 1).fillRoundedRect(4, 8, 18, 16, 2); // box
+		g.fillStyle(C('#6b5238'), 1).fillRect(3, 6, 20, 4); // roof lip
+		g.fillStyle(C('#2e2018'), 1).fillCircle(13, 16, 3.6); // round hole
+		g.fillStyle(C('#5d8a4a'), 1).fillEllipse(13, 24, 8, 3); // grass tuft
+	});
+	o('baskinglog', 42, 22, (g) => {
+		g.fillStyle(C('#6f93b0'), 0.7).fillEllipse(21, 17, 40, 9); // water around
+		g.fillStyle(C('#7a5a3a'), 1).fillRoundedRect(4, 8, 34, 9, 4); // log
+		g.fillStyle(C('#9a7448'), 1).fillEllipse(37, 12, 7, 9); // cut end
+		g.fillStyle(C('#5d8a4a'), 0.9).fillEllipse(12, 8, 9, 4); // moss
+	});
+	o('crevice', 38, 26, (g) => {
+		g.fillStyle(C('#b07a4a'), 1).fillTriangle(2, 24, 16, 4, 22, 24); // left slab
+		g.fillStyle(C('#9a6838'), 1).fillTriangle(18, 24, 26, 6, 36, 24); // right slab
+		g.fillStyle(C('#3a2a1c'), 1).fillTriangle(15, 24, 20, 11, 23, 24); // shadow crack
+	});
+	o('guzzler', 36, 24, (g) => {
+		g.fillStyle(C('#9a8a6a'), 1).fillEllipse(18, 16, 34, 14); // clay rim
+		g.fillStyle(C('#6f93b0'), 1).fillEllipse(18, 16, 24, 8); // water
+		g.fillStyle(0xffffff, 0.4).fillEllipse(13, 14, 8, 2.5); // glint
+	});
+	o('talus', 34, 26, (g) => {
+		const rocks: [number, number, number][] = [[8, 20, 7], [18, 21, 8], [27, 20, 6], [13, 13, 6], [22, 13, 6], [17, 7, 5]];
+		rocks.forEach(([x, y, r], i) => g.fillStyle(C(['#9a948a', '#8e8e8a', '#a8a29a'][i % 3]), 1).fillCircle(x, y, r));
+	});
+	o('nestshelf', 32, 24, (g) => {
+		g.fillStyle(C('#8e8e8a'), 1).fillRoundedRect(2, 12, 28, 11, 2); // rock ledge
+		g.fillStyle(C('#6b8a4a'), 1).fillEllipse(16, 12, 22, 7); // mossy lining
+		g.fillStyle(C('#caa15a'), 1).fillCircle(11, 11, 1.8).fillCircle(16, 12, 1.8).fillCircle(21, 11, 1.8); // eggs
+	});
+	o('driftpile', 40, 24, (g) => {
+		const cols = ['#c8b89a', '#b8a888', '#d8cab0'];
+		const logs: [number, number, number, number, number][] = [[4, 16, 30, 6, 0], [8, 11, 26, 5, 1], [6, 7, 22, 4, 2]];
+		logs.forEach(([x, y, w, h, c]) => g.fillStyle(C(cols[c]), 1).fillRoundedRect(x, y, w, h, 3));
+		g.fillStyle(C('#9a8a6a'), 1).fillCircle(34, 16, 3).fillCircle(34, 11, 2.5);
+	});
+	o('bluff', 40, 28, (g) => {
+		g.fillStyle(C('#c2b9a0'), 1).fillRoundedRect(2, 10, 36, 18, 3); // sandy bank
+		g.fillStyle(C('#a89878'), 1).fillRect(2, 16, 36, 2).fillRect(2, 22, 36, 2); // strata
+		g.fillStyle(C('#3a2e22'), 1).fillEllipse(12, 14, 5, 4).fillEllipse(27, 14, 5, 4); // nest hollows
+	});
 	// --- additional habitat objects (distinct silhouettes) ---
 	o('clover', 34, 26, (g) => {
 		g.fillStyle(C('#6fae5a'), 1).fillEllipse(17, 18, 32, 14);
@@ -985,6 +1059,139 @@ export function makeAnimalTextures(scene: Phaser.Scene) {
 		g.fillStyle(0x000000, 1).fillCircle(25, 10, 1.2).fillCircle(31, 9, 1.2); // pupils
 	});
 
+	// --- unique sprites for the newer animals ---
+	a('mantis', 28, 22, (g) => {
+		g.fillStyle(C('#7fb04a'), 1).fillEllipse(13, 14, 18, 7).fillEllipse(6, 16, 8, 5); // body + abdomen
+		g.fillStyle(C('#6a9a3a'), 1).fillTriangle(20, 9, 26, 6, 24, 12); // angular head
+		g.lineStyle(2, C('#7fb04a'), 1).lineBetween(20, 12, 24, 17).lineBetween(24, 17, 19, 18); // raised foreleg
+		g.fillStyle(0x2e2018, 1).fillCircle(24, 8, 1.2);
+	});
+	a('killdeer', 28, 20, (g) => {
+		g.fillStyle(C('#8a6a48'), 1).fillEllipse(12, 12, 18, 10).fillCircle(20, 8, 4.5); // brown back + head
+		g.fillStyle(C('#f2ece0'), 1).fillEllipse(11, 15, 14, 6); // white belly
+		g.fillStyle(0x2e2018, 1).fillRect(7, 11, 13, 1.6).fillRect(7, 14, 13, 1.6); // two breast bands
+		g.fillStyle(0x1a1a1a, 1).fillTriangle(24, 7, 28, 8, 24, 9); // bill
+		g.fillStyle(C('#d83a3a'), 1).fillCircle(21, 7, 1.4); // red eye-ring
+		g.fillStyle(0x2e2018, 1).fillCircle(21, 7, 0.9);
+	});
+	a('redadmiral', 24, 20, (g) => {
+		g.fillStyle(C('#2a2420'), 1).fillEllipse(7, 8, 12, 12).fillEllipse(17, 8, 12, 12); // dark forewings
+		g.fillStyle(C('#2a2420'), 1).fillEllipse(8, 16, 8, 7).fillEllipse(16, 16, 8, 7);
+		g.fillStyle(C('#d8472a'), 1).fillTriangle(2, 9, 9, 7, 5, 13).fillTriangle(22, 9, 15, 7, 19, 13); // red bands
+		g.fillStyle(C('#d8472a'), 1).fillRect(5, 18, 6, 2).fillRect(13, 18, 6, 2);
+		g.fillStyle(0x2e2018, 1).fillEllipse(12, 11, 2.4, 12);
+	});
+	a('bat', 30, 20, (g) => {
+		g.fillStyle(C('#5a4636'), 1).fillTriangle(15, 11, 2, 4, 4, 16).fillTriangle(15, 11, 28, 4, 26, 16); // wings
+		g.fillStyle(C('#3a2c22'), 1).fillEllipse(15, 11, 8, 11); // body
+		g.fillStyle(C('#3a2c22'), 1).fillTriangle(12, 4, 14, 8, 11, 8).fillTriangle(18, 4, 16, 8, 19, 8); // ears
+		g.fillStyle(C('#e3a14f'), 1).fillCircle(13, 9, 1).fillCircle(17, 9, 1); // eyes
+	});
+	a('ensatina', 28, 16, (g) => {
+		g.fillStyle(C('#c4682f'), 1).fillEllipse(13, 9, 18, 7).fillCircle(22, 8, 3.6); // orange body + head
+		g.fillStyle(C('#7a3e1c'), 1).fillEllipse(13, 7, 16, 3); // darker back
+		g.fillStyle(C('#c4682f'), 1).fillEllipse(3, 10, 9, 3.4); // tail
+		g.fillStyle(C('#3a2c22'), 1).fillRect(8, 12, 2, 3).fillRect(16, 12, 2, 3); // little legs
+		g.fillStyle(0x2e2018, 1).fillCircle(23, 7, 1);
+	});
+	a('towhee', 24, 20, (g) => {
+		g.fillStyle(0x1c1c1c, 1).fillEllipse(11, 11, 16, 12).fillCircle(18, 7, 4.5); // black hood/back
+		g.fillStyle(C('#b5532f'), 1).fillEllipse(8, 14, 9, 8); // rufous flank
+		g.fillStyle(C('#f2ece0'), 1).fillEllipse(11, 15, 6, 5); // white belly
+		g.fillStyle(C('#d83a3a'), 1).fillCircle(19, 6, 1.1); // red eye
+		g.fillStyle(0x1a1a1a, 1).fillTriangle(22, 6, 26, 7, 22, 9);
+	});
+	a('merganser', 30, 22, (g) => {
+		g.fillStyle(C('#5a3a22'), 1).fillEllipse(13, 14, 20, 11); // brown body
+		g.fillStyle(0x1c1c1c, 1).fillCircle(22, 9, 5); // black head
+		g.fillStyle(C('#f4efe6'), 1).fillTriangle(20, 9, 27, 4, 27, 11); // white fan crest
+		g.fillStyle(C('#caa15a'), 1).fillTriangle(26, 9, 30, 10, 26, 11); // bill
+		g.fillStyle(C('#e8d35e'), 1).fillCircle(22, 8, 1); // yellow eye
+	});
+	a('spottedturtle', 28, 18, (g) => {
+		g.fillStyle(C('#2c3a30'), 1).fillEllipse(14, 11, 22, 12); // dark domed shell
+		g.fillStyle(C('#1d2620'), 1).fillEllipse(14, 13, 22, 6);
+		g.fillStyle(C('#e8c84a'), 1); // yellow dots
+		for (const [x, y] of [[8, 8], [13, 6], [18, 8], [11, 10], [17, 11]] as const) g.fillCircle(x, y, 1.3);
+		g.fillStyle(C('#3a4a3a'), 1).fillCircle(25, 11, 3.4); // head
+		g.fillStyle(C('#e8c84a'), 1).fillCircle(26, 10, 0.7);
+		g.fillStyle(0x2e2018, 1).fillCircle(26, 11, 0.8);
+	});
+	a('yellowthroat', 22, 18, (g) => {
+		g.fillStyle(C('#9a8a4a'), 1).fillEllipse(10, 10, 15, 10); // olive back
+		g.fillStyle(C('#f2d83a'), 1).fillEllipse(9, 12, 11, 8).fillCircle(16, 8, 4); // yellow throat + head
+		g.fillStyle(0x1a1a1a, 1).fillRect(13, 6, 8, 3.4); // black bandit mask
+		g.fillStyle(C('#f2d83a'), 1).fillCircle(15, 8, 1.4);
+		g.fillStyle(0x1a1a1a, 1).fillTriangle(20, 7, 23, 8, 20, 9);
+	});
+	a('chuckwalla', 32, 18, (g) => {
+		g.fillStyle(C('#4a3a30'), 1).fillEllipse(14, 10, 22, 9).fillCircle(24, 9, 4); // stout dark body + head
+		g.fillStyle(C('#b5683f'), 1).fillEllipse(6, 11, 12, 5); // lighter tail
+		g.fillStyle(C('#4a3a30'), 1).fillRect(9, 13, 2.5, 3).fillRect(18, 13, 2.5, 3); // legs
+		g.fillStyle(0x2e2018, 1).fillCircle(25, 8, 1);
+	});
+	a('phainopepla', 24, 22, (g) => {
+		g.fillStyle(0x16161a, 1).fillEllipse(12, 14, 15, 12).fillCircle(17, 8, 4.5); // glossy black
+		g.fillStyle(0x16161a, 1).fillTriangle(14, 5, 18, 1, 20, 6); // pointed crest
+		g.fillStyle(C('#d83a3a'), 1).fillCircle(18, 7, 1.2); // red eye
+		g.fillStyle(0x2e2018, 1).fillTriangle(21, 7, 24, 8, 21, 9);
+	});
+	a('antelopesquirrel', 28, 22, (g) => {
+		g.fillStyle(C('#c2a06a'), 1).fillEllipse(13, 16, 16, 10).fillCircle(20, 11, 4.5); // sandy body
+		g.fillStyle(C('#e8dcc2'), 1).fillEllipse(8, 8, 12, 5); // tail arched over back
+		g.fillStyle(C('#f4efe6'), 1).fillRect(10, 13, 8, 1.4); // white side stripe
+		g.fillStyle(0x2e2018, 1).fillCircle(21, 10, 1);
+	});
+	a('alpinechipmunk', 26, 22, (g) => {
+		g.fillStyle(C('#9a8460'), 1).fillEllipse(13, 15, 15, 9).fillCircle(20, 11, 4); // greyish body
+		g.fillStyle(C('#7a6446'), 1).fillEllipse(6, 11, 9, 13); // tail
+		g.fillStyle(0x2e2620, 1).fillRect(9, 11, 8, 1).fillRect(9, 14, 8, 1); // back stripes
+		g.fillStyle(C('#f4efe6'), 1).fillRect(9, 12.5, 8, 1);
+		g.fillStyle(0x2e2018, 1).fillCircle(21, 10, 1);
+	});
+	a('whitecrown', 24, 20, (g) => {
+		g.fillStyle(C('#9a8a72'), 1).fillEllipse(11, 12, 16, 10); // grey-brown body
+		g.fillStyle(C('#d8cdba'), 1).fillEllipse(10, 14, 11, 6); // pale breast
+		g.fillStyle(C('#e8e2d6'), 1).fillCircle(18, 8, 4); // head base
+		g.fillStyle(0x1a1a1a, 1).fillRect(15, 5, 7, 1.4).fillRect(15, 8, 7, 1.4); // black crown stripes
+		g.fillStyle(C('#e3a14f'), 1).fillTriangle(21, 8, 24, 9, 21, 10); // orange bill
+		g.fillStyle(0x2e2018, 1).fillCircle(18, 8, 0.9);
+	});
+	a('cascadesfrog', 24, 18, (g) => {
+		g.fillStyle(C('#6a7a40'), 1).fillEllipse(12, 12, 18, 11); // green-brown body
+		g.fillStyle(C('#4a5a2c'), 1).fillCircle(8, 9, 1.3).fillCircle(14, 8, 1.3).fillCircle(11, 13, 1.3).fillCircle(16, 12, 1.3); // spots
+		g.fillStyle(C('#8a9a58'), 1).fillCircle(7, 7, 2.6).fillCircle(17, 7, 2.6); // bulging eyes
+		g.fillStyle(0x2e2018, 1).fillCircle(7, 7, 1.1).fillCircle(17, 7, 1.1);
+		g.fillStyle(C('#6a7a40'), 1).fillTriangle(4, 16, 9, 14, 6, 17).fillTriangle(20, 16, 15, 14, 18, 17); // legs
+	});
+	a('turnstone', 26, 20, (g) => {
+		g.fillStyle(C('#3a3a42'), 1).fillEllipse(12, 11, 18, 11).fillCircle(19, 8, 4); // dark slate
+		g.fillStyle(C('#f2ece0'), 1).fillEllipse(11, 15, 13, 6); // white belly
+		g.fillStyle(0x1a1a1a, 1).fillTriangle(22, 7, 26, 8, 22, 9); // bill
+		g.fillStyle(C('#e3a14f'), 1).fillRect(9, 18, 1.6, 2.4).fillRect(14, 18, 1.6, 2.4); // legs
+		g.fillStyle(C('#f2ece0'), 1).fillCircle(20, 7, 0.9);
+	});
+	a('guillemot', 26, 22, (g) => {
+		g.fillStyle(0x1a1a1a, 1).fillEllipse(12, 13, 18, 12).fillCircle(19, 8, 4.5); // black body
+		g.fillStyle(C('#f4efe6'), 1).fillEllipse(10, 11, 7, 5); // white wing patch
+		g.fillStyle(0x16161a, 1).fillTriangle(22, 7, 27, 8, 22, 9); // bill
+		g.fillStyle(C('#d8472a'), 1).fillRect(10, 19, 1.8, 3).fillRect(15, 19, 1.8, 3); // red feet
+		g.fillStyle(C('#f4efe6'), 1).fillCircle(20, 7, 0.8);
+	});
+	a('batstar', 24, 24, (g) => {
+		g.fillStyle(C('#d8542f'), 1);
+		const cx = 12, cy = 12, R = 11;
+		for (let i = 0; i < 5; i++) {
+			const ang = (i / 5) * Math.PI * 2 - Math.PI / 2;
+			const a2 = ((i + 0.5) / 5) * Math.PI * 2 - Math.PI / 2;
+			const a0 = ((i - 0.5) / 5) * Math.PI * 2 - Math.PI / 2;
+			g.fillTriangle(cx, cy, cx + Math.cos(a0) * R * 0.6, cy + Math.sin(a0) * R * 0.6, cx + Math.cos(ang) * R, cy + Math.sin(ang) * R);
+			g.fillTriangle(cx, cy, cx + Math.cos(a2) * R * 0.6, cy + Math.sin(a2) * R * 0.6, cx + Math.cos(ang) * R, cy + Math.sin(ang) * R);
+		}
+		g.fillStyle(C('#e8825a'), 1).fillCircle(cx, cy, 4); // webbed center
+		g.fillStyle(C('#b53a1f'), 1).fillCircle(cx, cy, 1.4);
+	});
+
 	// Generic bodies by kind. Each kind gets three silhouette variants so that,
 	// combined with a unique per-animal tint and size, even same-kind animals
 	// read as distinct individuals rather than copies of one another.
@@ -1062,6 +1269,25 @@ const FEATURED_TEXTURE: Record<string, string> = {
 	'black-bear': 'ani-bear',
 	'mule-deer-forest': 'ani-deer',
 	'mule-deer-alpine': 'ani-deer',
+	// newer animals — each gets its own bespoke sprite
+	'praying-mantis': 'ani-mantis',
+	'killdeer': 'ani-killdeer',
+	'red-admiral': 'ani-redadmiral',
+	'little-brown-bat': 'ani-bat',
+	'ensatina': 'ani-ensatina',
+	'spotted-towhee': 'ani-towhee',
+	'hooded-merganser': 'ani-merganser',
+	'spotted-turtle': 'ani-spottedturtle',
+	'common-yellowthroat': 'ani-yellowthroat',
+	'chuckwalla': 'ani-chuckwalla',
+	'phainopepla': 'ani-phainopepla',
+	'antelope-squirrel': 'ani-antelopesquirrel',
+	'alpine-chipmunk': 'ani-alpinechipmunk',
+	'white-crowned-sparrow': 'ani-whitecrown',
+	'cascades-frog': 'ani-cascadesfrog',
+	'black-turnstone': 'ani-turnstone',
+	'pigeon-guillemot': 'ani-guillemot',
+	'bat-star': 'ani-batstar',
 };
 
 const GENERIC_KINDS = ['mammal', 'bird', 'insect', 'reptile', 'amphibian', 'fish'];

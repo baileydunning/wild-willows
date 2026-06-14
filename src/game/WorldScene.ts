@@ -588,24 +588,24 @@ export class WorldScene extends Phaser.Scene {
 		const rng = mulberry32(hashStr(`${playerId}-${this.area}-nodes`));
 		const count = 16;
 
-		// build a shuffled bag of resources: enough copies to fill every node,
-		// with each resource present, then Fisher–Yates shuffle with the seed.
-		// Some early-game staples are weighted heavier so they're easy to find —
-		// seeds especially (used by almost every meadow planting recipe).
+		// Build the resource bag for this area. GUARANTEE every biome resource
+		// appears at least once (one of each, placed first), then fill the rest
+		// with a weighted random draw so early-game staples are easy to find
+		// (seeds especially — used by almost every meadow recipe). Coverage is no
+		// longer left to a shuffle that could drop a resource: if it's in the
+		// biome, a node for it is generated.
 		const NODE_WEIGHT: Record<string, number> = { seeds: 4, fiber: 2 };
 		const res = biome.resources || [];
 		const weighted: string[] = [];
 		for (const r of res) for (let i = 0; i < (NODE_WEIGHT[r] || 1); i++) weighted.push(r);
-		const pool: string[] = [];
-		while (weighted.length && pool.length < count) pool.push(...weighted);
-		for (let i = pool.length - 1; i > 0; i--) {
-			const j = Math.floor(rng() * (i + 1));
-			[pool[i], pool[j]] = [pool[j], pool[i]];
-		}
+		// shuffle only the guaranteed prefix's *order* (positions are random anyway),
+		// then append weighted fill up to `count`
+		const pool: string[] = [...res];
+		while (pool.length < count && weighted.length) pool.push(weighted[Math.floor(rng() * weighted.length)]);
 
 		const nodes: NodeDef[] = [];
 		let attempts = 0;
-		while (nodes.length < count && attempts < 300) {
+		while (nodes.length < count && attempts < 400) {
 			attempts++;
 			const tx = 1 + Math.floor(rng() * (OUT_W - 3));
 			const ty = 1 + Math.floor(rng() * (OUT_H - 3));

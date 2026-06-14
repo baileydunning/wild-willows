@@ -9,7 +9,7 @@ var biomes_default = {
       order: 1,
       explorable: true,
       description: "A once-flowering meadow beside your home, now dusty and quiet. Native grasses were stripped away and the pollinators left with them.",
-      restorationGoal: "Replant grasses and wildflowers, add water and shelter, and help 5 meadow animals return.",
+      restorationGoal: "Replant grasses and wildflowers, add water and shelter, and help 10 meadow animals return.",
       unlock: null,
       resources: [
         "seeds",
@@ -37,9 +37,9 @@ var biomes_default = {
       unlock: {
         biome: "meadow",
         minHealth: 80,
-        minAnimals: 5,
+        minAnimals: 10,
         requiresItem: "forest-restoration-kit",
-        label: "Restore Willow Meadow to 80% health, welcome 5 meadow animals, and craft a Forest Restoration Kit."
+        label: "Restore Willow Meadow to 80% health, welcome 10 meadow animals, and craft a Forest Restoration Kit."
       },
       resources: [
         "branches",
@@ -66,10 +66,11 @@ var biomes_default = {
       restorationGoal: "Restore shallow water, reed beds, and mud banks so wetland life can return.",
       unlock: {
         biome: "forest",
-        minHealth: 75,
+        minHealth: 80,
         minAnimals: 10,
+        minTotalAnimals: 25,
         requiresItem: "wetland-restoration-kit",
-        label: "Restore Old Hollow Forest to 75% health, welcome 10 forest animals, and craft a Wetland Restoration Kit."
+        label: "Restore Old Hollow Forest to 80% health with 10 forest animals back, welcome 25 animals across the whole preserve, and craft a Wetland Restoration Kit."
       },
       resources: [
         "reeds",
@@ -94,10 +95,10 @@ var biomes_default = {
       unlock: {
         biome: "wetland",
         minHealth: 80,
-        minAnimals: 5,
-        minTotalAnimals: 30,
+        minAnimals: 13,
+        minTotalAnimals: 45,
         requiresItem: "scrubland-restoration-kit",
-        label: "Restore Rushwater Wetland to 80% health with 5 wetland animals back, welcome 30 animals across the whole preserve, and craft a Scrubland Restoration Kit."
+        label: "Restore Rushwater Wetland to 80% health with 13 wetland animals back, welcome 45 animals across the whole preserve, and craft a Scrubland Restoration Kit."
       },
       resources: [
         "sand",
@@ -123,8 +124,10 @@ var biomes_default = {
       unlock: {
         biome: "desert",
         minHealth: 80,
+        minAnimals: 15,
+        minTotalAnimals: 65,
         requiresItem: "alpine-restoration-kit",
-        label: "Restore Redstone Scrubland to 80% health and craft an Alpine Restoration Kit."
+        label: "Restore Redstone Scrubland to 80% health with 15 desert animals back, welcome 65 animals across the whole preserve, and craft an Alpine Restoration Kit."
       },
       resources: [
         "alpine-flowers",
@@ -147,8 +150,10 @@ var biomes_default = {
       unlock: {
         biome: "alpine",
         minHealth: 80,
+        minAnimals: 17,
+        minTotalAnimals: 85,
         requiresItem: "migration-path-marker",
-        label: "Restore Graywind Heights to 80% health and craft a Migration Path Marker to restore the migration path."
+        label: "Restore Graywind Heights to 80% health with 17 alpine animals back, welcome 85 animals across the whole preserve, and craft a Migration Path Marker."
       },
       resources: [
         "shells",
@@ -247,8 +252,8 @@ var recipes_default = {
         fiber: 1
       },
       unlock: {
-        minHealth: 28,
-        label: "Restore Willow Meadow to 28% health"
+        minHealth: 22,
+        label: "Restore Willow Meadow to 22% health"
       }
     },
     {
@@ -266,8 +271,8 @@ var recipes_default = {
         water: 1
       },
       unlock: {
-        minHealth: 20,
-        label: "Restore Willow Meadow to 20% health"
+        minHealth: 10,
+        label: "Restore Willow Meadow to 10% health"
       }
     },
     {
@@ -376,8 +381,8 @@ var recipes_default = {
         stones: 5
       },
       unlock: {
-        minHealth: 14,
-        label: "Restore Willow Meadow to 14% health"
+        minHealth: 6,
+        label: "Restore Willow Meadow to 6% health"
       }
     },
     {
@@ -412,8 +417,8 @@ var recipes_default = {
         fiber: 1
       },
       unlock: {
-        minHealth: 17,
-        label: "Restore Willow Meadow to 17% health"
+        minHealth: 8,
+        label: "Restore Willow Meadow to 8% health"
       }
     },
     {
@@ -593,6 +598,10 @@ var recipes_default = {
         acorns: 3,
         water: 2,
         clay: 1
+      },
+      unlock: {
+        minHealth: 14,
+        label: "Restore Old Hollow Forest to 14% health"
       }
     },
     {
@@ -645,6 +654,10 @@ var recipes_default = {
       materials: {
         branches: 6,
         bark: 2
+      },
+      unlock: {
+        minHealth: 12,
+        label: "Restore Old Hollow Forest to 12% health"
       }
     },
     {
@@ -662,8 +675,8 @@ var recipes_default = {
         moss: 2
       },
       unlock: {
-        minHealth: 14,
-        label: "Restore Old Hollow Forest to 14% health"
+        minHealth: 22,
+        label: "Restore Old Hollow Forest to 22% health"
       }
     },
     {
@@ -682,11 +695,7 @@ var recipes_default = {
         water: 6,
         moss: 2
       },
-      once: true,
-      unlock: {
-        minHealth: 73,
-        label: "Restore Old Hollow Forest to 73% health"
-      }
+      once: true
     },
     {
       id: "reed-bed",
@@ -756,8 +765,8 @@ var recipes_default = {
         mud: 1
       },
       unlock: {
-        minHealth: 14,
-        label: "Restore Rushwater Wetland to 14% health"
+        minHealth: 18,
+        label: "Restore Rushwater Wetland to 18% health"
       }
     },
     {
@@ -774,8 +783,8 @@ var recipes_default = {
         mud: 2
       },
       unlock: {
-        minHealth: 31,
-        label: "Restore Rushwater Wetland to 31% health"
+        minHealth: 22,
+        label: "Restore Rushwater Wetland to 22% health"
       }
     },
     {
@@ -860,8 +869,8 @@ var recipes_default = {
         sand: 2
       },
       unlock: {
-        minHealth: 14,
-        label: "Restore Redstone Scrubland to 14% health"
+        minHealth: 12,
+        label: "Restore Redstone Scrubland to 12% health"
       }
     },
     {
@@ -911,11 +920,7 @@ var recipes_default = {
         "alpine-flowers": 3,
         fiber: 2
       },
-      once: true,
-      unlock: {
-        minHealth: 78,
-        label: "Restore Graywind Heights to 78% health"
-      }
+      once: true
     },
     {
       id: "tidepool",
@@ -1014,10 +1019,6 @@ var recipes_default = {
         branches: 4,
         stones: 3,
         water: 2
-      },
-      unlock: {
-        minHealth: 78,
-        label: "Restore Willow Meadow to 78% health"
       }
     },
     {
@@ -1035,10 +1036,6 @@ var recipes_default = {
         mud: 4,
         clay: 3,
         "clean-water": 3
-      },
-      unlock: {
-        minHealth: 78,
-        label: "Restore Rushwater Wetland to 78% health"
       }
     },
     {
@@ -1056,10 +1053,6 @@ var recipes_default = {
         stones: 5,
         clay: 3,
         "cactus-fruit": 2
-      },
-      unlock: {
-        minHealth: 78,
-        label: "Restore Redstone Scrubland to 78% health"
       }
     },
     {
@@ -1206,8 +1199,8 @@ var recipes_default = {
         water: 1
       },
       unlock: {
-        minHealth: 23,
-        label: "Restore Willow Meadow to 23% health"
+        minHealth: 12,
+        label: "Restore Willow Meadow to 12% health"
       }
     },
     {
@@ -1224,8 +1217,8 @@ var recipes_default = {
         fiber: 2
       },
       unlock: {
-        minHealth: 31,
-        label: "Restore Willow Meadow to 31% health"
+        minHealth: 14,
+        label: "Restore Willow Meadow to 14% health"
       }
     },
     {
@@ -1402,8 +1395,8 @@ var recipes_default = {
         stones: 2
       },
       unlock: {
-        minHealth: 45,
-        label: "Restore Pelican Shore to 45% health"
+        minHealth: 22,
+        label: "Restore Pelican Shore to 22% health"
       }
     },
     {
@@ -1420,8 +1413,8 @@ var recipes_default = {
         branches: 2
       },
       unlock: {
-        minHealth: 31,
-        label: "Restore Redstone Scrubland to 31% health"
+        minHealth: 16,
+        label: "Restore Redstone Scrubland to 16% health"
       }
     },
     {
@@ -1438,8 +1431,8 @@ var recipes_default = {
         stones: 3
       },
       unlock: {
-        minHealth: 65,
-        label: "Restore Redstone Scrubland to 65% health"
+        minHealth: 40,
+        label: "Restore Redstone Scrubland to 40% health"
       }
     },
     {
@@ -1673,6 +1666,222 @@ var recipes_default = {
       unlock: {
         minHealth: 61,
         label: "Restore Willow Meadow to 61% health"
+      }
+    },
+    {
+      id: "insect-hotel",
+      name: "Insect Hotel",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "insect-hotel",
+        qty: 1
+      },
+      materials: {
+        branches: 4,
+        fiber: 3,
+        clay: 1
+      },
+      unlock: {
+        minHealth: 30,
+        label: "Restore Willow Meadow to 30% health"
+      }
+    },
+    {
+      id: "dry-stone-wall",
+      name: "Dry Stone Wall",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "dry-stone-wall",
+        qty: 1
+      },
+      materials: {
+        stones: 8
+      },
+      unlock: {
+        minHealth: 36,
+        label: "Restore Willow Meadow to 36% health"
+      }
+    },
+    {
+      id: "bat-box",
+      name: "Bat Box",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "bat-box",
+        qty: 1
+      },
+      materials: {
+        branches: 5,
+        bark: 2
+      },
+      unlock: {
+        minHealth: 30,
+        label: "Restore Old Hollow Forest to 30% health"
+      }
+    },
+    {
+      id: "leaf-litter-pile",
+      name: "Leaf Litter Pile",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "leaf-litter-pile",
+        qty: 1
+      },
+      materials: {
+        moss: 2,
+        branches: 2
+      },
+      unlock: {
+        minHealth: 40,
+        label: "Restore Old Hollow Forest to 40% health"
+      }
+    },
+    {
+      id: "duck-nest-box",
+      name: "Duck Nest Box",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "duck-nest-box",
+        qty: 1
+      },
+      materials: {
+        branches: 4,
+        reeds: 2,
+        fiber: 2
+      },
+      unlock: {
+        minHealth: 35,
+        label: "Restore Rushwater Wetland to 35% health"
+      }
+    },
+    {
+      id: "basking-log",
+      name: "Basking Log",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "basking-log",
+        qty: 1
+      },
+      materials: {
+        branches: 5,
+        mud: 2
+      },
+      unlock: {
+        minHealth: 45,
+        label: "Restore Rushwater Wetland to 45% health"
+      }
+    },
+    {
+      id: "rock-crevice",
+      name: "Rock Crevice",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "rock-crevice",
+        qty: 1
+      },
+      materials: {
+        stones: 6,
+        clay: 2
+      },
+      unlock: {
+        minHealth: 14,
+        label: "Restore Redstone Scrubland to 14% health"
+      }
+    },
+    {
+      id: "dew-basin",
+      name: "Dew Basin",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "dew-basin",
+        qty: 1
+      },
+      materials: {
+        clay: 4,
+        stones: 4
+      },
+      unlock: {
+        minHealth: 45,
+        label: "Restore Redstone Scrubland to 45% health"
+      }
+    },
+    {
+      id: "talus-pile",
+      name: "Talus Pile",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "talus-pile",
+        qty: 1
+      },
+      materials: {
+        stones: 7
+      },
+      unlock: {
+        minHealth: 12,
+        label: "Restore Graywind Heights to 12% health"
+      }
+    },
+    {
+      id: "alpine-nest-shelf",
+      name: "Nest Shelf",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "alpine-nest-shelf",
+        qty: 1
+      },
+      materials: {
+        stones: 3,
+        moss: 3
+      },
+      unlock: {
+        minHealth: 45,
+        label: "Restore Graywind Heights to 45% health"
+      }
+    },
+    {
+      id: "driftwood-pile",
+      name: "Driftwood Pile",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "driftwood-pile",
+        qty: 1
+      },
+      materials: {
+        driftwood: 3,
+        shells: 2
+      },
+      unlock: {
+        minHealth: 12,
+        label: "Restore Pelican Shore to 12% health"
+      }
+    },
+    {
+      id: "nesting-bluff",
+      name: "Nesting Bluff",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "nesting-bluff",
+        qty: 1
+      },
+      materials: {
+        sand: 4,
+        stones: 3
+      },
+      unlock: {
+        minHealth: 45,
+        label: "Restore Pelican Shore to 45% health"
       }
     }
   ]
@@ -3800,6 +4009,162 @@ var habitat_objects_default = {
       shape: "potrow",
       color: "#cf7a52",
       description: "A tidy row of terracotta pots brimming with blooms."
+    },
+    {
+      id: "insect-hotel",
+      name: "Insect Hotel",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 2,
+      needs: [],
+      shape: "insecthotel",
+      color: "#b07a3a",
+      description: "A stack of hollow stems and bark that solitary bees and beetles nest in."
+    },
+    {
+      id: "dry-stone-wall",
+      name: "Dry Stone Wall",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 2,
+      needs: [],
+      shape: "stonewall",
+      color: "#9a948a",
+      description: "A low wall of stacked stones with cool, shady gaps for small creatures."
+    },
+    {
+      id: "bat-box",
+      name: "Bat Box",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 2,
+      needs: [],
+      shape: "batbox",
+      color: "#6b5238",
+      description: "A tall, narrow roost box where bats shelter through the day."
+    },
+    {
+      id: "leaf-litter-pile",
+      name: "Leaf Litter Pile",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 1,
+      needs: [],
+      shape: "leaflitter",
+      color: "#8a6a3a",
+      description: "A mound of damp leaves and moss alive with forest-floor life."
+    },
+    {
+      id: "duck-nest-box",
+      name: "Duck Nest Box",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 2,
+      needs: [],
+      shape: "ducknest",
+      color: "#7c5a3c",
+      description: "A raised wooden box where cavity-nesting waterfowl raise their young."
+    },
+    {
+      id: "basking-log",
+      name: "Basking Log",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 2,
+      needs: [],
+      shape: "baskinglog",
+      color: "#7a5a3a",
+      description: "A half-submerged log where turtles and frogs warm in the sun."
+    },
+    {
+      id: "rock-crevice",
+      name: "Rock Crevice",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 2,
+      needs: [],
+      shape: "crevice",
+      color: "#b07a4a",
+      description: "Stacked slabs leaving shady cracks where reptiles shelter from the heat."
+    },
+    {
+      id: "dew-basin",
+      name: "Dew Basin",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 3,
+      needs: [],
+      shape: "guzzler",
+      color: "#9a8a6a",
+      description: "A shallow clay basin that catches dew and rain \u2014 precious desert water."
+    },
+    {
+      id: "talus-pile",
+      name: "Talus Pile",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 2,
+      needs: [],
+      shape: "talus",
+      color: "#9a948a",
+      description: "A jumble of broken rock \u2014 the burrows and runways pikas love."
+    },
+    {
+      id: "alpine-nest-shelf",
+      name: "Nest Shelf",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 2,
+      needs: [],
+      shape: "nestshelf",
+      color: "#8a847a",
+      description: "A sheltered rock ledge lined with moss for high-country nesters."
+    },
+    {
+      id: "driftwood-pile",
+      name: "Driftwood Pile",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 2,
+      needs: [],
+      shape: "driftpile",
+      color: "#b8a888",
+      description: "A tangle of sun-bleached driftwood that shelters shore life."
+    },
+    {
+      id: "nesting-bluff",
+      name: "Nesting Bluff",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 2,
+      needs: [],
+      shape: "bluff",
+      color: "#c2b9a0",
+      description: "A built-up sandy bank with ledges for cliff-nesting seabirds."
     }
   ]
 };
@@ -4146,10 +4511,9 @@ var animals_1_default = {
       preferredHabitat: "Brushy edges with singing perches",
       fact: "A single song sparrow may know as many as 20 different song variations.",
       requirements: {
-        minHealth: 20,
+        minHealth: 16,
         objects: {
           shrub: 1,
-          "native-grass-patch": 1,
           "bird-perch": 1
         },
         hint: "Shrubs, native grass, and somewhere high to sing from."
@@ -4213,7 +4577,7 @@ var animals_1_default = {
       preferredHabitat: "Thick grass with hidden runways",
       fact: "Meadow voles cut tiny tunnels through grass called runways, which feed half the food web.",
       requirements: {
-        minHealth: 15,
+        minHealth: 10,
         objects: {
           "grass-patch": 1,
           "native-grass-patch": 1
@@ -4232,7 +4596,7 @@ var animals_1_default = {
       preferredHabitat: "Open grass near rocky lookout points",
       fact: "Ground squirrels kick sand at rattlesnakes and wave their heated tails to confuse them.",
       requirements: {
-        minHealth: 25,
+        minHealth: 14,
         objects: {
           "rock-pile": 1,
           "native-grass-patch": 1
@@ -4251,15 +4615,12 @@ var animals_1_default = {
       preferredHabitat: "Sunny rocks beside hunting grass",
       fact: "Garter snakes are mildly venomous to their tiny prey but completely harmless to people.",
       requirements: {
-        minHealth: 40,
+        minHealth: 20,
         objects: {
           "rock-pile": 1,
           "grass-patch": 1,
           shrub: 1
         },
-        animals: [
-          "meadow-vole"
-        ],
         hint: "Warm rocks, grass to hunt in, and small prey already about."
       }
     },
@@ -4294,7 +4655,7 @@ var animals_1_default = {
       preferredHabitat: "Any recovering grassland",
       fact: "Grasshoppers hear through tiny membranes on their abdomen, not their heads.",
       requirements: {
-        minHealth: 10,
+        minHealth: 8,
         objects: {
           "grass-patch": 1
         },
@@ -4314,7 +4675,7 @@ var animals_1_default = {
       requirements: {
         minHealth: 12,
         objects: {
-          "wildflower-patch": 1
+          "clover-patch": 1
         },
         hint: "Flowers bring aphids, and aphids bring lady beetles."
       }
@@ -4418,7 +4779,7 @@ var animals_1_default = {
       preferredHabitat: "Trees with fallen logs and seed caches below",
       fact: "Squirrels forget some of their buried caches every year \u2014 and those lost seeds become new trees.",
       requirements: {
-        minHealth: 20,
+        minHealth: 15,
         objects: {
           "nesting-tree": 1,
           "log-shelter": 1
@@ -4438,7 +4799,7 @@ var animals_1_default = {
       preferredHabitat: "Standing dead snags full of insects",
       fact: "Woodpeckers wrap their long tongues around the back of their skull as built-in shock absorbers.",
       requirements: {
-        minHealth: 25,
+        minHealth: 16,
         objects: {
           "standing-deadwood": 1
         },
@@ -4652,7 +5013,7 @@ var animals_1_default = {
       preferredHabitat: "Forest floor with rocky hideouts",
       fact: "A chipmunk's cheek pouches can stretch to three times the size of its head.",
       requirements: {
-        minHealth: 20,
+        minHealth: 12,
         objects: {
           "rock-pile": 1,
           "fallen-branch-shelter": 1
@@ -5002,7 +5363,7 @@ var animals_1_default = {
       preferredHabitat: "Any calm pool",
       fact: "Water striders ride the surface tension of water on legs covered in thousands of microscopic hairs.",
       requirements: {
-        minHealth: 20,
+        minHealth: 12,
         objects: {
           "shallow-water-pool": 1
         },
@@ -5238,10 +5599,10 @@ var animals_2_default = {
       preferredHabitat: "Sunny open ground near ant trails",
       fact: "Horned lizards can squirt blood from their eyes to startle predators.",
       requirements: {
-        minHealth: 25,
+        minHealth: 16,
         objects: {
           "rock-pile": 1,
-          "desert-brush": 1
+          "rock-crevice": 1
         },
         hint: "Sunny rocks and sandy ground bring the ants \u2014 and the lizards."
       }
@@ -5318,7 +5679,7 @@ var animals_2_default = {
       preferredHabitat: "Rocky cover with night hunting ground",
       fact: "Scorpions glow blue-green under ultraviolet light \u2014 no one is entirely sure why.",
       requirements: {
-        minHealth: 25,
+        minHealth: 12,
         objects: {
           "rock-pile": 1
         },
@@ -5396,10 +5757,10 @@ var animals_2_default = {
       preferredHabitat: "Rock piles beside flower meadows",
       fact: "Pikas spend all summer harvesting and sun-drying little haystacks to eat under the winter snow.",
       requirements: {
-        minHealth: 30,
+        minHealth: 14,
         objects: {
-          "rock-pile": 2,
-          "alpine-wildflower-patch": 1
+          "talus-pile": 1,
+          "rock-pile": 1
         },
         hint: "Cool rock piles and flowers to harvest."
       }
@@ -5660,7 +6021,7 @@ var animals_2_default = {
       preferredHabitat: "Rocky tidepools",
       fact: "Shore crabs can change color slowly to match their home pool.",
       requirements: {
-        minHealth: 25,
+        minHealth: 12,
         objects: {
           tidepool: 1
         },
@@ -6866,6 +7227,369 @@ var animals_2_default = {
         },
         hint: "Plant a coast live oak near a driftwood shelter and tidepool."
       }
+    },
+    {
+      id: "praying-mantis",
+      name: "Praying Mantis",
+      biome: "meadow",
+      kind: "insect",
+      rarity: "uncommon",
+      diet: "Insects it ambushes",
+      shelter: "Tall grass and shrubs",
+      preferredHabitat: "Dense grass with flowering cover",
+      fact: "A mantis can swivel its head almost 180\xB0 \u2014 unique among insects.",
+      requirements: {
+        minHealth: 24,
+        objects: {
+          "grass-patch": 1,
+          shrub: 1,
+          "insect-hotel": 1
+        },
+        hint: "Tall grass, a shrub, and an insect hotel give it cover to hunt from."
+      }
+    },
+    {
+      id: "killdeer",
+      name: "Killdeer",
+      biome: "meadow",
+      kind: "bird",
+      rarity: "common",
+      diet: "Insects and worms",
+      shelter: "Open ground near stones",
+      preferredHabitat: "Bare, stony open ground",
+      fact: "Killdeer fake a broken wing, dragging it to lure predators from the nest.",
+      requirements: {
+        minHealth: 35,
+        objects: {
+          "native-grass-patch": 1,
+          "rock-pile": 1,
+          "dry-stone-wall": 1
+        },
+        hint: "Open native grass with a rock pile and a stone wall to nest beside."
+      }
+    },
+    {
+      id: "red-admiral",
+      name: "Red Admiral",
+      biome: "meadow",
+      kind: "insect",
+      rarity: "common",
+      diet: "Flower nectar and sap",
+      shelter: "Sheltered sunny spots",
+      preferredHabitat: "Flowery clearings out of the wind",
+      fact: "Red admirals are famously bold, often landing on people who stay still.",
+      requirements: {
+        minHealth: 30,
+        objects: {
+          "butterfly-flowers": 1,
+          "wildflower-patch": 1,
+          "insect-hotel": 1
+        },
+        hint: "Butterfly flowers and wildflowers beside an insect hotel."
+      }
+    },
+    {
+      id: "little-brown-bat",
+      name: "Little Brown Bat",
+      biome: "forest",
+      kind: "mammal",
+      rarity: "uncommon",
+      diet: "Night-flying insects",
+      shelter: "Roost boxes and snags",
+      preferredHabitat: "Woodland edges with roosts",
+      fact: "One little brown bat can catch over a thousand insects in a single hour.",
+      requirements: {
+        minHealth: 46,
+        objects: {
+          "bat-box": 1,
+          "standing-deadwood": 1,
+          shrub: 1
+        },
+        hint: "A bat box near standing deadwood, with shrubs full of insects."
+      }
+    },
+    {
+      id: "ensatina",
+      name: "Ensatina Salamander",
+      biome: "forest",
+      kind: "amphibian",
+      rarity: "uncommon",
+      diet: "Small invertebrates",
+      shelter: "Moist leaf litter and logs",
+      preferredHabitat: "Damp shaded forest floor",
+      fact: "Ensatinas breathe entirely through their skin \u2014 they have no lungs at all.",
+      requirements: {
+        minHealth: 42,
+        objects: {
+          "leaf-litter-pile": 1,
+          "mushroom-log": 1,
+          "shallow-water-pool": 1
+        },
+        hint: "Leaf litter and a mushroom log beside a shallow pool."
+      }
+    },
+    {
+      id: "spotted-towhee",
+      name: "Spotted Towhee",
+      biome: "forest",
+      kind: "bird",
+      rarity: "common",
+      diet: "Seeds and ground insects",
+      shelter: "Brushy thickets",
+      preferredHabitat: "Shrubby understory with leaf litter",
+      fact: "Towhees forage with a backward double-scratch hop to flick leaves aside.",
+      requirements: {
+        minHealth: 38,
+        objects: {
+          "brush-pile": 1,
+          shrub: 1,
+          "leaf-litter-pile": 1
+        },
+        hint: "A brush pile and shrubs over a bed of leaf litter."
+      }
+    },
+    {
+      id: "hooded-merganser",
+      name: "Hooded Merganser",
+      biome: "wetland",
+      kind: "bird",
+      rarity: "uncommon",
+      diet: "Small fish and insects",
+      shelter: "Tree cavities and nest boxes",
+      preferredHabitat: "Quiet wooded ponds",
+      fact: "Merganser ducklings leap from nest cavities high in trees the day they hatch.",
+      requirements: {
+        minHealth: 46,
+        objects: {
+          "duck-nest-box": 1,
+          "reed-bed": 1
+        },
+        water: {
+          tiles: 3
+        },
+        hint: "A duck nest box beside reeds and open water."
+      }
+    },
+    {
+      id: "spotted-turtle",
+      name: "Spotted Turtle",
+      biome: "wetland",
+      kind: "reptile",
+      rarity: "uncommon",
+      diet: "Aquatic plants and insects",
+      shelter: "Basking logs and shallows",
+      preferredHabitat: "Sunny shallow marsh",
+      fact: "Each spotted turtle has a unique pattern of yellow polka dots on its shell.",
+      requirements: {
+        minHealth: 42,
+        objects: {
+          "basking-log": 1,
+          "shallow-water-pool": 1,
+          "reed-bed": 1
+        },
+        hint: "A basking log in a reedy, shallow pool."
+      }
+    },
+    {
+      id: "common-yellowthroat",
+      name: "Common Yellowthroat",
+      biome: "wetland",
+      kind: "bird",
+      rarity: "common",
+      diet: "Marsh insects",
+      shelter: "Dense cattails and reeds",
+      preferredHabitat: "Thick marsh vegetation",
+      fact: "The male yellowthroat wears a black bandit mask across its eyes.",
+      requirements: {
+        minHealth: 40,
+        objects: {
+          "cattail-stand": 1,
+          "reed-bed": 2
+        },
+        hint: "A cattail stand among thick reed beds."
+      }
+    },
+    {
+      id: "chuckwalla",
+      name: "Chuckwalla",
+      biome: "desert",
+      kind: "reptile",
+      rarity: "uncommon",
+      diet: "Desert flowers and leaves",
+      shelter: "Rock crevices",
+      preferredHabitat: "Boulder piles near brush",
+      fact: "A threatened chuckwalla wedges into a crack and puffs up so it cannot be pulled out.",
+      requirements: {
+        minHealth: 40,
+        objects: {
+          "rock-crevice": 1,
+          "cactus-patch": 1,
+          "desert-brush": 1
+        },
+        hint: "A rock crevice to wedge into, with cactus and brush to graze."
+      }
+    },
+    {
+      id: "phainopepla",
+      name: "Phainopepla",
+      biome: "desert",
+      kind: "bird",
+      rarity: "uncommon",
+      diet: "Mistletoe berries and insects",
+      shelter: "Tall desert brush",
+      preferredHabitat: "Brushy desert with water nearby",
+      fact: "Phainopeplas can mimic the calls of a dozen other desert birds.",
+      requirements: {
+        minHealth: 46,
+        objects: {
+          "desert-brush": 2,
+          "dew-basin": 1
+        },
+        hint: "Dense desert brush beside a dew basin."
+      }
+    },
+    {
+      id: "antelope-squirrel",
+      name: "Antelope Squirrel",
+      biome: "desert",
+      kind: "mammal",
+      rarity: "common",
+      diet: "Seeds, fruit, and insects",
+      shelter: "Burrows and rock cracks",
+      preferredHabitat: "Open desert with burrows",
+      fact: "It carries its tail arched over its back like a parasol against the sun.",
+      requirements: {
+        minHealth: 38,
+        objects: {
+          "burrow-mound": 1,
+          "desert-brush": 1,
+          "rock-crevice": 1
+        },
+        hint: "A burrow and a rock crevice among desert brush."
+      }
+    },
+    {
+      id: "alpine-chipmunk",
+      name: "Alpine Chipmunk",
+      biome: "alpine",
+      kind: "mammal",
+      rarity: "common",
+      diet: "Seeds and alpine flowers",
+      shelter: "Talus and rock piles",
+      preferredHabitat: "High rocky meadows",
+      fact: "The alpine chipmunk lives higher than almost any other chipmunk on Earth.",
+      requirements: {
+        minHealth: 40,
+        objects: {
+          "talus-pile": 1,
+          "alpine-wildflower-patch": 1,
+          "rock-pile": 1
+        },
+        hint: "A talus pile and rock pile among alpine wildflowers."
+      }
+    },
+    {
+      id: "white-crowned-sparrow",
+      name: "White-crowned Sparrow",
+      biome: "alpine",
+      kind: "bird",
+      rarity: "common",
+      diet: "Seeds and insects",
+      shelter: "Low shrubs and nest ledges",
+      preferredHabitat: "Krummholz edges and heath",
+      fact: "Young white-crowns learn their song dialect from the neighbours they grow up near.",
+      requirements: {
+        minHealth: 48,
+        objects: {
+          "heather-mat": 1,
+          "alpine-nest-shelf": 1,
+          "krummholz-pine": 1
+        },
+        hint: "A heather mat and nest shelf sheltered by krummholz pine."
+      }
+    },
+    {
+      id: "cascades-frog",
+      name: "Cascades Frog",
+      biome: "alpine",
+      kind: "amphibian",
+      rarity: "rare",
+      diet: "Insects and spiders",
+      shelter: "Snowmelt pools",
+      preferredHabitat: "Cold high-country ponds",
+      fact: "Cascades frogs can stay active in near-freezing snowmelt water.",
+      requirements: {
+        minHealth: 52,
+        objects: {
+          "snowmelt-pool": 1,
+          "talus-pile": 1
+        },
+        water: {
+          tiles: 3
+        },
+        hint: "A snowmelt pool beside a talus pile, with open water near."
+      }
+    },
+    {
+      id: "black-turnstone",
+      name: "Black Turnstone",
+      biome: "coastal",
+      kind: "bird",
+      rarity: "common",
+      diet: "Tidepool invertebrates",
+      shelter: "Rocky shoreline",
+      preferredHabitat: "Rocky intertidal shores",
+      fact: "Turnstones flip over stones and shells to snatch the creatures hiding beneath.",
+      requirements: {
+        minHealth: 40,
+        objects: {
+          tidepool: 1,
+          "driftwood-pile": 1,
+          "kelp-wrack": 1
+        },
+        hint: "Tidepools and kelp wrack with a driftwood pile to shelter in."
+      }
+    },
+    {
+      id: "pigeon-guillemot",
+      name: "Pigeon Guillemot",
+      biome: "coastal",
+      kind: "bird",
+      rarity: "uncommon",
+      diet: "Small fish",
+      shelter: "Bluff crevices",
+      preferredHabitat: "Rocky nesting bluffs over water",
+      fact: "Pigeon guillemots have bright coral-red feet and matching mouth linings.",
+      requirements: {
+        minHealth: 52,
+        objects: {
+          "nesting-bluff": 1,
+          "oyster-bed": 1
+        },
+        water: {
+          tiles: 4
+        },
+        hint: "A nesting bluff above open water near an oyster bed."
+      }
+    },
+    {
+      id: "bat-star",
+      name: "Bat Star",
+      biome: "coastal",
+      kind: "invertebrate",
+      rarity: "common",
+      diet: "Algae and detritus",
+      shelter: "Tidepools and eelgrass",
+      preferredHabitat: "Shallow rocky tidepools",
+      fact: "A bat star can have anywhere from four to nine arms, not always five.",
+      requirements: {
+        minHealth: 45,
+        objects: {
+          tidepool: 2,
+          "eelgrass-bed": 1
+        },
+        hint: "A couple of tidepools with an eelgrass bed."
+      }
     }
   ]
 };
@@ -7832,7 +8556,7 @@ var CraftItem = class extends PublicEndpoint {
     if (!recipe) throw new GameError(`Unknown recipe: ${recipeId}`);
     const outObj = d.object.get(recipe.output.itemId);
     if (outObj?.plantable) {
-      throw new GameError(`${recipe.name} is planted, not crafted — dig a bed, water it, and plant it.`, 400);
+      throw new GameError(`${recipe.name} is planted, not crafted \u2014 dig a bed, water it, and plant it.`, 400);
     }
     if (recipe.unlockBiome && !(player.unlockedBiomes || []).includes(recipe.unlockBiome)) {
       throw new GameError("This recipe unlocks with a biome you have not restored yet", 403);

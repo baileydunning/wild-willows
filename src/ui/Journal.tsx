@@ -83,8 +83,17 @@ export function JournalPanel() {
 	const [tab, setTab] = useState('meadow');
 	if (!data || !state) return null;
 	const biomes = [...data.biomes].sort((a, b) => a.order - b.order);
-	const animals = data.animals.filter((a) => a.biome === tab);
 	const discs = new Map(state.discoveries.map((d) => [d.animalId, d]));
+	const animals = data.animals
+		.filter((a) => a.biome === tab)
+		// Returned animals rise to the top (most recent first); the rest follow,
+		// easiest-to-attract next so the player can see what to chase.
+		.sort((a, b) => {
+			const da = discs.get(a.id), db = discs.get(b.id);
+			if (!!da !== !!db) return da ? -1 : 1;
+			if (da && db) return (db.firstObservedAt || 0) - (da.firstObservedAt || 0);
+			return (a.requirements?.minHealth || 0) - (b.requirements?.minHealth || 0);
+		});
 	const returned = animals.filter((a) => discs.has(a.id)).length;
 	// Full entries for an area need the field guide upgraded to that area's tier.
 	const tabBiome = biomes.find((b) => b.id === tab);

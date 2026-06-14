@@ -55,10 +55,9 @@
 			"preferredHabitat": "Brushy edges with singing perches",
 			"fact": "A single song sparrow may know as many as 20 different song variations.",
 			"requirements": {
-				"minHealth": 20,
+				"minHealth": 16,
 				"objects": {
 					"shrub": 1,
-					"native-grass-patch": 1,
 					"bird-perch": 1
 				},
 				"hint": "Shrubs, native grass, and somewhere high to sing from."
@@ -122,7 +121,7 @@
 			"preferredHabitat": "Thick grass with hidden runways",
 			"fact": "Meadow voles cut tiny tunnels through grass called runways, which feed half the food web.",
 			"requirements": {
-				"minHealth": 15,
+				"minHealth": 10,
 				"objects": {
 					"grass-patch": 1,
 					"native-grass-patch": 1
@@ -141,7 +140,7 @@
 			"preferredHabitat": "Open grass near rocky lookout points",
 			"fact": "Ground squirrels kick sand at rattlesnakes and wave their heated tails to confuse them.",
 			"requirements": {
-				"minHealth": 25,
+				"minHealth": 14,
 				"objects": {
 					"rock-pile": 1,
 					"native-grass-patch": 1
@@ -160,15 +159,12 @@
 			"preferredHabitat": "Sunny rocks beside hunting grass",
 			"fact": "Garter snakes are mildly venomous to their tiny prey but completely harmless to people.",
 			"requirements": {
-				"minHealth": 40,
+				"minHealth": 20,
 				"objects": {
 					"rock-pile": 1,
 					"grass-patch": 1,
 					"shrub": 1
 				},
-				"animals": [
-					"meadow-vole"
-				],
 				"hint": "Warm rocks, grass to hunt in, and small prey already about."
 			}
 		},
@@ -203,7 +199,7 @@
 			"preferredHabitat": "Any recovering grassland",
 			"fact": "Grasshoppers hear through tiny membranes on their abdomen, not their heads.",
 			"requirements": {
-				"minHealth": 10,
+				"minHealth": 8,
 				"objects": {
 					"grass-patch": 1
 				},
@@ -223,7 +219,7 @@
 			"requirements": {
 				"minHealth": 12,
 				"objects": {
-					"wildflower-patch": 1
+					"clover-patch": 1
 				},
 				"hint": "Flowers bring aphids, and aphids bring lady beetles."
 			}
@@ -327,7 +323,7 @@
 			"preferredHabitat": "Trees with fallen logs and seed caches below",
 			"fact": "Squirrels forget some of their buried caches every year — and those lost seeds become new trees.",
 			"requirements": {
-				"minHealth": 20,
+				"minHealth": 15,
 				"objects": {
 					"nesting-tree": 1,
 					"log-shelter": 1
@@ -347,7 +343,7 @@
 			"preferredHabitat": "Standing dead snags full of insects",
 			"fact": "Woodpeckers wrap their long tongues around the back of their skull as built-in shock absorbers.",
 			"requirements": {
-				"minHealth": 25,
+				"minHealth": 16,
 				"objects": {
 					"standing-deadwood": 1
 				},
@@ -561,7 +557,7 @@
 			"preferredHabitat": "Forest floor with rocky hideouts",
 			"fact": "A chipmunk's cheek pouches can stretch to three times the size of its head.",
 			"requirements": {
-				"minHealth": 20,
+				"minHealth": 12,
 				"objects": {
 					"rock-pile": 1,
 					"fallen-branch-shelter": 1
@@ -911,7 +907,7 @@
 			"preferredHabitat": "Any calm pool",
 			"fact": "Water striders ride the surface tension of water on legs covered in thousands of microscopic hairs.",
 			"requirements": {
-				"minHealth": 20,
+				"minHealth": 12,
 				"objects": {
 					"shallow-water-pool": 1
 				},

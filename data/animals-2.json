@@ -204,10 +204,10 @@
 			"preferredHabitat": "Sunny open ground near ant trails",
 			"fact": "Horned lizards can squirt blood from their eyes to startle predators.",
 			"requirements": {
-				"minHealth": 25,
+				"minHealth": 16,
 				"objects": {
 					"rock-pile": 1,
-					"desert-brush": 1
+					"rock-crevice": 1
 				},
 				"hint": "Sunny rocks and sandy ground bring the ants — and the lizards."
 			}
@@ -284,7 +284,7 @@
 			"preferredHabitat": "Rocky cover with night hunting ground",
 			"fact": "Scorpions glow blue-green under ultraviolet light — no one is entirely sure why.",
 			"requirements": {
-				"minHealth": 25,
+				"minHealth": 12,
 				"objects": {
 					"rock-pile": 1
 				},
@@ -362,10 +362,10 @@
 			"preferredHabitat": "Rock piles beside flower meadows",
 			"fact": "Pikas spend all summer harvesting and sun-drying little haystacks to eat under the winter snow.",
 			"requirements": {
-				"minHealth": 30,
+				"minHealth": 14,
 				"objects": {
-					"rock-pile": 2,
-					"alpine-wildflower-patch": 1
+					"talus-pile": 1,
+					"rock-pile": 1
 				},
 				"hint": "Cool rock piles and flowers to harvest."
 			}
@@ -626,7 +626,7 @@
 			"preferredHabitat": "Rocky tidepools",
 			"fact": "Shore crabs can change color slowly to match their home pool.",
 			"requirements": {
-				"minHealth": 25,
+				"minHealth": 12,
 				"objects": {
 					"tidepool": 1
 				},
@@ -1831,6 +1831,369 @@
 					"tidepool": 1
 				},
 				"hint": "Plant a coast live oak near a driftwood shelter and tidepool."
+			}
+		},
+		{
+			"id": "praying-mantis",
+			"name": "Praying Mantis",
+			"biome": "meadow",
+			"kind": "insect",
+			"rarity": "uncommon",
+			"diet": "Insects it ambushes",
+			"shelter": "Tall grass and shrubs",
+			"preferredHabitat": "Dense grass with flowering cover",
+			"fact": "A mantis can swivel its head almost 180° — unique among insects.",
+			"requirements": {
+				"minHealth": 24,
+				"objects": {
+					"grass-patch": 1,
+					"shrub": 1,
+					"insect-hotel": 1
+				},
+				"hint": "Tall grass, a shrub, and an insect hotel give it cover to hunt from."
+			}
+		},
+		{
+			"id": "killdeer",
+			"name": "Killdeer",
+			"biome": "meadow",
+			"kind": "bird",
+			"rarity": "common",
+			"diet": "Insects and worms",
+			"shelter": "Open ground near stones",
+			"preferredHabitat": "Bare, stony open ground",
+			"fact": "Killdeer fake a broken wing, dragging it to lure predators from the nest.",
+			"requirements": {
+				"minHealth": 35,
+				"objects": {
+					"native-grass-patch": 1,
+					"rock-pile": 1,
+					"dry-stone-wall": 1
+				},
+				"hint": "Open native grass with a rock pile and a stone wall to nest beside."
+			}
+		},
+		{
+			"id": "red-admiral",
+			"name": "Red Admiral",
+			"biome": "meadow",
+			"kind": "insect",
+			"rarity": "common",
+			"diet": "Flower nectar and sap",
+			"shelter": "Sheltered sunny spots",
+			"preferredHabitat": "Flowery clearings out of the wind",
+			"fact": "Red admirals are famously bold, often landing on people who stay still.",
+			"requirements": {
+				"minHealth": 30,
+				"objects": {
+					"butterfly-flowers": 1,
+					"wildflower-patch": 1,
+					"insect-hotel": 1
+				},
+				"hint": "Butterfly flowers and wildflowers beside an insect hotel."
+			}
+		},
+		{
+			"id": "little-brown-bat",
+			"name": "Little Brown Bat",
+			"biome": "forest",
+			"kind": "mammal",
+			"rarity": "uncommon",
+			"diet": "Night-flying insects",
+			"shelter": "Roost boxes and snags",
+			"preferredHabitat": "Woodland edges with roosts",
+			"fact": "One little brown bat can catch over a thousand insects in a single hour.",
+			"requirements": {
+				"minHealth": 46,
+				"objects": {
+					"bat-box": 1,
+					"standing-deadwood": 1,
+					"shrub": 1
+				},
+				"hint": "A bat box near standing deadwood, with shrubs full of insects."
+			}
+		},
+		{
+			"id": "ensatina",
+			"name": "Ensatina Salamander",
+			"biome": "forest",
+			"kind": "amphibian",
+			"rarity": "uncommon",
+			"diet": "Small invertebrates",
+			"shelter": "Moist leaf litter and logs",
+			"preferredHabitat": "Damp shaded forest floor",
+			"fact": "Ensatinas breathe entirely through their skin — they have no lungs at all.",
+			"requirements": {
+				"minHealth": 42,
+				"objects": {
+					"leaf-litter-pile": 1,
+					"mushroom-log": 1,
+					"shallow-water-pool": 1
+				},
+				"hint": "Leaf litter and a mushroom log beside a shallow pool."
+			}
+		},
+		{
+			"id": "spotted-towhee",
+			"name": "Spotted Towhee",
+			"biome": "forest",
+			"kind": "bird",
+			"rarity": "common",
+			"diet": "Seeds and ground insects",
+			"shelter": "Brushy thickets",
+			"preferredHabitat": "Shrubby understory with leaf litter",
+			"fact": "Towhees forage with a backward double-scratch hop to flick leaves aside.",
+			"requirements": {
+				"minHealth": 38,
+				"objects": {
+					"brush-pile": 1,
+					"shrub": 1,
+					"leaf-litter-pile": 1
+				},
+				"hint": "A brush pile and shrubs over a bed of leaf litter."
+			}
+		},
+		{
+			"id": "hooded-merganser",
+			"name": "Hooded Merganser",
+			"biome": "wetland",
+			"kind": "bird",
+			"rarity": "uncommon",
+			"diet": "Small fish and insects",
+			"shelter": "Tree cavities and nest boxes",
+			"preferredHabitat": "Quiet wooded ponds",
+			"fact": "Merganser ducklings leap from nest cavities high in trees the day they hatch.",
+			"requirements": {
+				"minHealth": 46,
+				"objects": {
+					"duck-nest-box": 1,
+					"reed-bed": 1
+				},
+				"water": {
+					"tiles": 3
+				},
+				"hint": "A duck nest box beside reeds and open water."
+			}
+		},
+		{
+			"id": "spotted-turtle",
+			"name": "Spotted Turtle",
+			"biome": "wetland",
+			"kind": "reptile",
+			"rarity": "uncommon",
+			"diet": "Aquatic plants and insects",
+			"shelter": "Basking logs and shallows",
+			"preferredHabitat": "Sunny shallow marsh",
+			"fact": "Each spotted turtle has a unique pattern of yellow polka dots on its shell.",
+			"requirements": {
+				"minHealth": 42,
+				"objects": {
+					"basking-log": 1,
+					"shallow-water-pool": 1,
+					"reed-bed": 1
+				},
+				"hint": "A basking log in a reedy, shallow pool."
+			}
+		},
+		{
+			"id": "common-yellowthroat",
+			"name": "Common Yellowthroat",
+			"biome": "wetland",
+			"kind": "bird",
+			"rarity": "common",
+			"diet": "Marsh insects",
+			"shelter": "Dense cattails and reeds",
+			"preferredHabitat": "Thick marsh vegetation",
+			"fact": "The male yellowthroat wears a black bandit mask across its eyes.",
+			"requirements": {
+				"minHealth": 40,
+				"objects": {
+					"cattail-stand": 1,
+					"reed-bed": 2
+				},
+				"hint": "A cattail stand among thick reed beds."
+			}
+		},
+		{
+			"id": "chuckwalla",
+			"name": "Chuckwalla",
+			"biome": "desert",
+			"kind": "reptile",
+			"rarity": "uncommon",
+			"diet": "Desert flowers and leaves",
+			"shelter": "Rock crevices",
+			"preferredHabitat": "Boulder piles near brush",
+			"fact": "A threatened chuckwalla wedges into a crack and puffs up so it cannot be pulled out.",
+			"requirements": {
+				"minHealth": 40,
+				"objects": {
+					"rock-crevice": 1,
+					"cactus-patch": 1,
+					"desert-brush": 1
+				},
+				"hint": "A rock crevice to wedge into, with cactus and brush to graze."
+			}
+		},
+		{
+			"id": "phainopepla",
+			"name": "Phainopepla",
+			"biome": "desert",
+			"kind": "bird",
+			"rarity": "uncommon",
+			"diet": "Mistletoe berries and insects",
+			"shelter": "Tall desert brush",
+			"preferredHabitat": "Brushy desert with water nearby",
+			"fact": "Phainopeplas can mimic the calls of a dozen other desert birds.",
+			"requirements": {
+				"minHealth": 46,
+				"objects": {
+					"desert-brush": 2,
+					"dew-basin": 1
+				},
+				"hint": "Dense desert brush beside a dew basin."
+			}
+		},
+		{
+			"id": "antelope-squirrel",
+			"name": "Antelope Squirrel",
+			"biome": "desert",
+			"kind": "mammal",
+			"rarity": "common",
+			"diet": "Seeds, fruit, and insects",
+			"shelter": "Burrows and rock cracks",
+			"preferredHabitat": "Open desert with burrows",
+			"fact": "It carries its tail arched over its back like a parasol against the sun.",
+			"requirements": {
+				"minHealth": 38,
+				"objects": {
+					"burrow-mound": 1,
+					"desert-brush": 1,
+					"rock-crevice": 1
+				},
+				"hint": "A burrow and a rock crevice among desert brush."
+			}
+		},
+		{
+			"id": "alpine-chipmunk",
+			"name": "Alpine Chipmunk",
+			"biome": "alpine",
+			"kind": "mammal",
+			"rarity": "common",
+			"diet": "Seeds and alpine flowers",
+			"shelter": "Talus and rock piles",
+			"preferredHabitat": "High rocky meadows",
+			"fact": "The alpine chipmunk lives higher than almost any other chipmunk on Earth.",
+			"requirements": {
+				"minHealth": 40,
+				"objects": {
+					"talus-pile": 1,
+					"alpine-wildflower-patch": 1,
+					"rock-pile": 1
+				},
+				"hint": "A talus pile and rock pile among alpine wildflowers."
+			}
+		},
+		{
+			"id": "white-crowned-sparrow",
+			"name": "White-crowned Sparrow",
+			"biome": "alpine",
+			"kind": "bird",
+			"rarity": "common",
+			"diet": "Seeds and insects",
+			"shelter": "Low shrubs and nest ledges",
+			"preferredHabitat": "Krummholz edges and heath",
+			"fact": "Young white-crowns learn their song dialect from the neighbours they grow up near.",
+			"requirements": {
+				"minHealth": 48,
+				"objects": {
+					"heather-mat": 1,
+					"alpine-nest-shelf": 1,
+					"krummholz-pine": 1
+				},
+				"hint": "A heather mat and nest shelf sheltered by krummholz pine."
+			}
+		},
+		{
+			"id": "cascades-frog",
+			"name": "Cascades Frog",
+			"biome": "alpine",
+			"kind": "amphibian",
+			"rarity": "rare",
+			"diet": "Insects and spiders",
+			"shelter": "Snowmelt pools",
+			"preferredHabitat": "Cold high-country ponds",
+			"fact": "Cascades frogs can stay active in near-freezing snowmelt water.",
+			"requirements": {
+				"minHealth": 52,
+				"objects": {
+					"snowmelt-pool": 1,
+					"talus-pile": 1
+				},
+				"water": {
+					"tiles": 3
+				},
+				"hint": "A snowmelt pool beside a talus pile, with open water near."
+			}
+		},
+		{
+			"id": "black-turnstone",
+			"name": "Black Turnstone",
+			"biome": "coastal",
+			"kind": "bird",
+			"rarity": "common",
+			"diet": "Tidepool invertebrates",
+			"shelter": "Rocky shoreline",
+			"preferredHabitat": "Rocky intertidal shores",
+			"fact": "Turnstones flip over stones and shells to snatch the creatures hiding beneath.",
+			"requirements": {
+				"minHealth": 40,
+				"objects": {
+					"tidepool": 1,
+					"driftwood-pile": 1,
+					"kelp-wrack": 1
+				},
+				"hint": "Tidepools and kelp wrack with a driftwood pile to shelter in."
+			}
+		},
+		{
+			"id": "pigeon-guillemot",
+			"name": "Pigeon Guillemot",
+			"biome": "coastal",
+			"kind": "bird",
+			"rarity": "uncommon",
+			"diet": "Small fish",
+			"shelter": "Bluff crevices",
+			"preferredHabitat": "Rocky nesting bluffs over water",
+			"fact": "Pigeon guillemots have bright coral-red feet and matching mouth linings.",
+			"requirements": {
+				"minHealth": 52,
+				"objects": {
+					"nesting-bluff": 1,
+					"oyster-bed": 1
+				},
+				"water": {
+					"tiles": 4
+				},
+				"hint": "A nesting bluff above open water near an oyster bed."
+			}
+		},
+		{
+			"id": "bat-star",
+			"name": "Bat Star",
+			"biome": "coastal",
+			"kind": "invertebrate",
+			"rarity": "common",
+			"diet": "Algae and detritus",
+			"shelter": "Tidepools and eelgrass",
+			"preferredHabitat": "Shallow rocky tidepools",
+			"fact": "A bat star can have anywhere from four to nine arms, not always five.",
+			"requirements": {
+				"minHealth": 45,
+				"objects": {
+					"tidepool": 2,
+					"eelgrass-bed": 1
+				},
+				"hint": "A couple of tidepools with an eelgrass bed."
 			}
 		}
 	]

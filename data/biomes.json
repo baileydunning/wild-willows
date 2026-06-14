@@ -8,7 +8,7 @@
 			"order": 1,
 			"explorable": true,
 			"description": "A once-flowering meadow beside your home, now dusty and quiet. Native grasses were stripped away and the pollinators left with them.",
-			"restorationGoal": "Replant grasses and wildflowers, add water and shelter, and help 5 meadow animals return.",
+			"restorationGoal": "Replant grasses and wildflowers, add water and shelter, and help 10 meadow animals return.",
 			"unlock": null,
 			"resources": [
 				"seeds",
@@ -36,9 +36,9 @@
 			"unlock": {
 				"biome": "meadow",
 				"minHealth": 80,
-				"minAnimals": 5,
+				"minAnimals": 10,
 				"requiresItem": "forest-restoration-kit",
-				"label": "Restore Willow Meadow to 80% health, welcome 5 meadow animals, and craft a Forest Restoration Kit."
+				"label": "Restore Willow Meadow to 80% health, welcome 10 meadow animals, and craft a Forest Restoration Kit."
 			},
 			"resources": [
 				"branches",
@@ -65,10 +65,11 @@
 			"restorationGoal": "Restore shallow water, reed beds, and mud banks so wetland life can return.",
 			"unlock": {
 				"biome": "forest",
-				"minHealth": 75,
+				"minHealth": 80,
 				"minAnimals": 10,
+				"minTotalAnimals": 25,
 				"requiresItem": "wetland-restoration-kit",
-				"label": "Restore Old Hollow Forest to 75% health, welcome 10 forest animals, and craft a Wetland Restoration Kit."
+				"label": "Restore Old Hollow Forest to 80% health with 10 forest animals back, welcome 25 animals across the whole preserve, and craft a Wetland Restoration Kit."
 			},
 			"resources": [
 				"reeds",
@@ -93,10 +94,10 @@
 			"unlock": {
 				"biome": "wetland",
 				"minHealth": 80,
-				"minAnimals": 5,
-				"minTotalAnimals": 30,
+				"minAnimals": 13,
+				"minTotalAnimals": 45,
 				"requiresItem": "scrubland-restoration-kit",
-				"label": "Restore Rushwater Wetland to 80% health with 5 wetland animals back, welcome 30 animals across the whole preserve, and craft a Scrubland Restoration Kit."
+				"label": "Restore Rushwater Wetland to 80% health with 13 wetland animals back, welcome 45 animals across the whole preserve, and craft a Scrubland Restoration Kit."
 			},
 			"resources": [
 				"sand",
@@ -122,8 +123,10 @@
 			"unlock": {
 				"biome": "desert",
 				"minHealth": 80,
+				"minAnimals": 15,
+				"minTotalAnimals": 65,
 				"requiresItem": "alpine-restoration-kit",
-				"label": "Restore Redstone Scrubland to 80% health and craft an Alpine Restoration Kit."
+				"label": "Restore Redstone Scrubland to 80% health with 15 desert animals back, welcome 65 animals across the whole preserve, and craft an Alpine Restoration Kit."
 			},
 			"resources": [
 				"alpine-flowers",
@@ -146,8 +149,10 @@
 			"unlock": {
 				"biome": "alpine",
 				"minHealth": 80,
+				"minAnimals": 17,
+				"minTotalAnimals": 85,
 				"requiresItem": "migration-path-marker",
-				"label": "Restore Graywind Heights to 80% health and craft a Migration Path Marker to restore the migration path."
+				"label": "Restore Graywind Heights to 80% health with 17 alpine animals back, welcome 85 animals across the whole preserve, and craft a Migration Path Marker."
 			},
 			"resources": [
 				"shells",

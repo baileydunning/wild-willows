@@ -2119,6 +2119,162 @@
 			"shape": "potrow",
 			"color": "#cf7a52",
 			"description": "A tidy row of terracotta pots brimming with blooms."
+		},
+		{
+			"id": "insect-hotel",
+			"name": "Insect Hotel",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow"
+			],
+			"healthValue": 2,
+			"needs": [],
+			"shape": "insecthotel",
+			"color": "#b07a3a",
+			"description": "A stack of hollow stems and bark that solitary bees and beetles nest in."
+		},
+		{
+			"id": "dry-stone-wall",
+			"name": "Dry Stone Wall",
+			"placement": "outdoor",
+			"biomes": [
+				"meadow"
+			],
+			"healthValue": 2,
+			"needs": [],
+			"shape": "stonewall",
+			"color": "#9a948a",
+			"description": "A low wall of stacked stones with cool, shady gaps for small creatures."
+		},
+		{
+			"id": "bat-box",
+			"name": "Bat Box",
+			"placement": "outdoor",
+			"biomes": [
+				"forest"
+			],
+			"healthValue": 2,
+			"needs": [],
+			"shape": "batbox",
+			"color": "#6b5238",
+			"description": "A tall, narrow roost box where bats shelter through the day."
+		},
+		{
+			"id": "leaf-litter-pile",
+			"name": "Leaf Litter Pile",
+			"placement": "outdoor",
+			"biomes": [
+				"forest"
+			],
+			"healthValue": 1,
+			"needs": [],
+			"shape": "leaflitter",
+			"color": "#8a6a3a",
+			"description": "A mound of damp leaves and moss alive with forest-floor life."
+		},
+		{
+			"id": "duck-nest-box",
+			"name": "Duck Nest Box",
+			"placement": "outdoor",
+			"biomes": [
+				"wetland"
+			],
+			"healthValue": 2,
+			"needs": [],
+			"shape": "ducknest",
+			"color": "#7c5a3c",
+			"description": "A raised wooden box where cavity-nesting waterfowl raise their young."
+		},
+		{
+			"id": "basking-log",
+			"name": "Basking Log",
+			"placement": "outdoor",
+			"biomes": [
+				"wetland"
+			],
+			"healthValue": 2,
+			"needs": [],
+			"shape": "baskinglog",
+			"color": "#7a5a3a",
+			"description": "A half-submerged log where turtles and frogs warm in the sun."
+		},
+		{
+			"id": "rock-crevice",
+			"name": "Rock Crevice",
+			"placement": "outdoor",
+			"biomes": [
+				"desert"
+			],
+			"healthValue": 2,
+			"needs": [],
+			"shape": "crevice",
+			"color": "#b07a4a",
+			"description": "Stacked slabs leaving shady cracks where reptiles shelter from the heat."
+		},
+		{
+			"id": "dew-basin",
+			"name": "Dew Basin",
+			"placement": "outdoor",
+			"biomes": [
+				"desert"
+			],
+			"healthValue": 3,
+			"needs": [],
+			"shape": "guzzler",
+			"color": "#9a8a6a",
+			"description": "A shallow clay basin that catches dew and rain — precious desert water."
+		},
+		{
+			"id": "talus-pile",
+			"name": "Talus Pile",
+			"placement": "outdoor",
+			"biomes": [
+				"alpine"
+			],
+			"healthValue": 2,
+			"needs": [],
+			"shape": "talus",
+			"color": "#9a948a",
+			"description": "A jumble of broken rock — the burrows and runways pikas love."
+		},
+		{
+			"id": "alpine-nest-shelf",
+			"name": "Nest Shelf",
+			"placement": "outdoor",
+			"biomes": [
+				"alpine"
+			],
+			"healthValue": 2,
+			"needs": [],
+			"shape": "nestshelf",
+			"color": "#8a847a",
+			"description": "A sheltered rock ledge lined with moss for high-country nesters."
+		},
+		{
+			"id": "driftwood-pile",
+			"name": "Driftwood Pile",
+			"placement": "outdoor",
+			"biomes": [
+				"coastal"
+			],
+			"healthValue": 2,
+			"needs": [],
+			"shape": "driftpile",
+			"color": "#b8a888",
+			"description": "A tangle of sun-bleached driftwood that shelters shore life."
+		},
+		{
+			"id": "nesting-bluff",
+			"name": "Nesting Bluff",
+			"placement": "outdoor",
+			"biomes": [
+				"coastal"
+			],
+			"healthValue": 2,
+			"needs": [],
+			"shape": "bluff",
+			"color": "#c2b9a0",
+			"description": "A built-up sandy bank with ledges for cliff-nesting seabirds."
 		}
 	]
 }
