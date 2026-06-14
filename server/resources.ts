@@ -148,7 +148,7 @@ const CAPACITY_BY_BASKET: Record<number, number> = { 1: 80, 2: 160, 3: 260, 4: 3
 
 // New caretakers start empty-handed — the first task is to gather seeds and
 // fiber for a Grass Patch, so the tutorial's opening loop has real stakes.
-const START_INVENTORY: Record<string, number> = {};
+const START_INVENTORY: Record<string, number> = { water: 6 };
 const START_TOOLS: Record<string, number> = { basket: 1, shovel: 1, 'watering-can': 1, 'field-journal': 1 };
 
 // Character appearance options (validated server-side; the frontend renders these)
