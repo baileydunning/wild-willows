@@ -1337,6 +1337,44 @@ function composeAnimalDraw(id: string, kind: string): { w: number; h: number; dr
 	const draw = (fn: (g: G) => void) => fn;
 
 	if (kind === 'mammal') {
+		if (t(/porcupine|hedgehog/)) {
+			return { w: 38, h: 30, draw: draw((g) => {
+				// Compact, low-slung body so it reads as cute and recognizable in thumbnails.
+				g.fillStyle(C('#3a2c1e'), 1);
+
+				const quills: [number, number, number, number, number, number][] = [
+					[6, 16, 8, 8, 10, 16],
+					[9, 15, 11, 6, 13, 15],
+					[12, 14, 14, 7, 16, 14],
+					[15, 14, 17, 5, 19, 14],
+					[18, 14, 20, 7, 22, 14],
+					[21, 15, 23, 8, 25, 15],
+					[24, 16, 26, 10, 28, 16],
+				];
+
+				for (const [x1, y1, x2, y2, x3, y3] of quills) g.fillTriangle(x1, y1, x2, y2, x3, y3);
+
+				// Tail + body.
+				g.fillStyle(C('#4a3828'), 1).fillEllipse(6, 20, 8, 5);
+				g.fillStyle(BODY, 1).fillEllipse(18, 18, 25, 14);
+				g.fillCircle(30, 16, 5.6);
+
+				// Tiny legs.
+				g.fillRect(12, 24, 3.2, 4.5).fillRect(23, 24, 3.2, 4.5);
+
+				// Face details.
+				g.fillStyle(C('#3a2c1e'), 1).fillCircle(35, 17, 1.6);
+				g.fillStyle(DK, 1).fillCircle(31, 14, 1.1);
+				g.fillStyle(BODY, 1).fillCircle(28, 11, 2.2);
+
+				// Soft quill highlights for readability at small sizes.
+				g.lineStyle(1.1, C('#d8c49a'), 0.75);
+				g.lineBetween(10, 15, 12, 9)
+					.lineBetween(16, 14, 18, 8)
+					.lineBetween(22, 15, 24, 10);
+			}) };
+		}
+
 		return { w: 36, h: 28, draw: draw((g) => {
 			g.fillStyle(BODY, 1);
 			// tail
@@ -1358,8 +1396,6 @@ function composeAnimalDraw(id: string, kind: string): { w: number; h: number; dr
 			if (t(/deer|elk|moose|caribou/)) { g.lineStyle(2, C('#8a6a44'), 1); g.lineBetween(27, 7, 23, 0).lineBetween(25, 3, 21, 1).lineBetween(30, 7, 34, 0).lineBetween(32, 3, 36, 1); }
 			if (t(/bighorn|ram|sheep/)) { g.fillStyle(C('#ca9e5a'), 1); g.fillEllipse(24, 11, 7, 10).fillEllipse(34, 11, 7, 10); g.fillStyle(BODY, 1).fillCircle(24, 11, 2).fillCircle(34, 11, 2); }
 			if (t(/goat/)) { g.fillStyle(C('#e8e2d6'), 1); g.fillTriangle(26, 7, 25, -2, 28, 7).fillTriangle(31, 7, 32, -2, 29, 7); g.fillStyle(BODY, 1).fillTriangle(26, 17, 30, 17, 28, 23); }
-			// quills (the spiky ones!)
-			if (t(/porcupine|hedgehog/)) { g.fillStyle(C('#3a2c1e'), 1); for (let i = 0; i < 16; i++) { const bx = 8 + i * 1.5; g.fillTriangle(bx, 12, bx - 1.5, 12 - 8 - ((i * 7) % 6), bx + 1.5, 12 - 7 - ((i * 5) % 6)); } }
 			// markings
 			if (t(/raccoon/)) { g.fillStyle(C('#2e2620'), 1); g.fillEllipse(28, 13, 9, 4); }
 			if (t(/badger|skunk/)) { g.fillStyle(C('#f4efe6'), 1); g.fillRect(25, 8, 2.6, 11); }
@@ -1369,6 +1405,29 @@ function composeAnimalDraw(id: string, kind: string): { w: number; h: number; dr
 	}
 
 	if (kind === 'bird') {
+		if (t(/heron/)) {
+			return { w: 34, h: 28, draw: draw((g) => {
+				// Shorter, contained legs so journal/card thumbnails do not crop the bird.
+				g.lineStyle(1.3, C('#c9a35c'), 1);
+				g.lineBetween(12, 18, 12, 25)
+					.lineBetween(17, 18, 16, 25)
+					.lineBetween(12, 25, 9, 26)
+					.lineBetween(16, 25, 19, 26);
+
+				// Body, wing, neck, and head.
+				g.fillStyle(BODY, 1).fillEllipse(14, 13, 18, 11);
+				g.fillStyle(0x000000, 0.12).fillEllipse(13, 14, 10, 6);
+				g.fillStyle(BODY, 1);
+				g.fillTriangle(5, 12, 10, 9, 10, 16);
+				g.fillRect(20, 5, 3, 10);
+				g.fillCircle(22, 5, 4.2);
+
+				// Beak + eye.
+				g.fillStyle(C('#e0a93f'), 1).fillTriangle(25, 4, 33, 5.5, 25, 7);
+				g.fillStyle(DK, 1).fillCircle(23, 4.5, 1);
+			}) };
+		}
+
 		const wader = t(/heron|crane|egret|bittern|stilt|flamingo|sandhill/);
 		const raptor = t(/hawk|eagle|owl|falcon|kite|harrier/);
 		return { w: 28, h: wader ? 30 : 24, draw: draw((g) => {
