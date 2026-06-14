@@ -596,6 +596,28 @@ export class WorldScene extends Phaser.Scene {
 				taken.add(`${node.tx},${node.ty}`);
 			}
 		}
+
+		// Always guarantee a water source near where you spawn — early game needs
+		// water for soil beds and recipes. (Skipped in dry biomes like the desert,
+		// which have no water resource.)
+		const waterRes = res.includes('water') ? 'water' : res.includes('clean-water') ? 'clean-water' : null;
+		if (waterRes) {
+			const anchor = this.area === 'meadow' ? { tx: 12, ty: 8 } : { tx: 4, ty: 11 };
+			const hasNearby = nodes.some(
+				(n) => (n.resourceId === 'water' || n.resourceId === 'clean-water') &&
+					Math.abs(n.tx - anchor.tx) <= 5 && Math.abs(n.ty - anchor.ty) <= 5,
+			);
+			if (!hasNearby) {
+				const aKey = `${anchor.tx},${anchor.ty}`;
+				const anchorFree = anchor.tx >= 1 && anchor.ty >= 1 && anchor.tx <= OUT_W - 2 && anchor.ty <= OUT_H - 2 &&
+					!occupied.has(aKey) && !taken.has(aKey) && !this.inCamp(anchor.tx, anchor.ty);
+				const spot = anchorFree ? anchor : this.findFreeTile(anchor.tx, anchor.ty, occupied, taken);
+				if (spot) {
+					nodes.push({ id: 'nw', resourceId: waterRes, tx: spot.tx, ty: spot.ty });
+					taken.add(`${spot.tx},${spot.ty}`);
+				}
+			}
+		}
 		return nodes;
 	}
 
@@ -776,7 +798,10 @@ export class WorldScene extends Phaser.Scene {
 			);
 			if (stillGrowing) {
 				this.time.delayedCall(growMs - age + 300, () => {
-					if (this.alive) this.refreshDynamic();
+					if (!this.alive) return;
+					this.refreshDynamic();
+					// the plant is now mature habitat — re-check who can return
+					bridge.emit('plant-matured', this.area);
 				});
 			}
 

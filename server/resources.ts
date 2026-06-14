@@ -135,7 +135,7 @@ const NODE_REGEN_SECONDS = 75;
 const BASE_HEALTH = 5;
 const CAPACITY_BY_BASKET: Record<number, number> = { 1: 80, 2: 160, 3: 260, 4: 380 };
 
-const START_INVENTORY: Record<string, number> = { seeds: 6, fiber: 4, branches: 4, stones: 2, water: 2 };
+const START_INVENTORY: Record<string, number> = { seeds: 6, fiber: 4, branches: 4, stones: 2, water: 5 };
 const START_TOOLS: Record<string, number> = { basket: 1, shovel: 1, 'watering-can': 1, 'field-journal': 1 };
 
 // Character appearance options (validated server-side; the frontend renders these)
@@ -503,9 +503,23 @@ function inventoryCapacity(player: any): number {
 
 // ----------------------------------------------- biome health & animal logic
 
-function placementCounts(placements: any[]): Record<string, number> {
+/**
+ * Count placed objects for animal-return requirements. A plant that is still
+ * growing in (planted less than its growSeconds ago) does NOT count yet — an
+ * animal only returns once the habitat it needs has actually matured. Pass `d`
+ * to enable this gating; without it, every placement counts.
+ */
+function placementCounts(placements: any[], d?: any): Record<string, number> {
+	const now = Date.now();
 	const counts: Record<string, number> = {};
-	for (const p of placements) counts[p.objectId] = (counts[p.objectId] || 0) + 1;
+	for (const p of placements) {
+		if (d && p.plantedAt) {
+			const def = d.object.get(p.objectId);
+			const growMs = (def?.growSeconds || 0) * 1000;
+			if (growMs > 0 && now - p.plantedAt < growMs) continue; // still a sprout — not mature habitat yet
+		}
+		counts[p.objectId] = (counts[p.objectId] || 0) + 1;
+	}
 	return counts;
 }
 
@@ -665,7 +679,7 @@ async function recalcBiome(
 		placements = placements.filter((p) => p.id !== ap.id);
 		placements.push(ap);
 	}
-	const counts = placementCounts(placements);
+	const counts = placementCounts(placements, d);
 
 	// terraformed ground: each watered bed adds +1 health (capped) — tending the
 	// soil itself matters, not just the objects on it

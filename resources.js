@@ -6639,7 +6639,7 @@ async function defs() {
 var NODE_REGEN_SECONDS = 75;
 var BASE_HEALTH = 5;
 var CAPACITY_BY_BASKET = { 1: 80, 2: 160, 3: 260, 4: 380 };
-var START_INVENTORY = { seeds: 6, fiber: 4, branches: 4, stones: 2, water: 2 };
+var START_INVENTORY = { seeds: 6, fiber: 4, branches: 4, stones: 2, water: 5 };
 var START_TOOLS = { basket: 1, shovel: 1, "watering-can": 1, "field-journal": 1 };
 var SKIN_TONES = ["#f6d7b8", "#eec39a", "#d9a06b", "#b97f50", "#8d5a3a", "#6b4226"];
 var HAIR_COLORS = ["#3b2e25", "#6e4a33", "#a3692f", "#c9913f", "#d9b380", "#8c8c8c"];
@@ -6926,9 +6926,17 @@ function inventoryCapacity(player) {
   const tier = player.tools?.basket || 1;
   return CAPACITY_BY_BASKET[tier] || 80;
 }
-function placementCounts(placements) {
+function placementCounts(placements, d) {
+  const now = Date.now();
   const counts = {};
-  for (const p of placements) counts[p.objectId] = (counts[p.objectId] || 0) + 1;
+  for (const p of placements) {
+    if (d && p.plantedAt) {
+      const def = d.object.get(p.objectId);
+      const growMs = (def?.growSeconds || 0) * 1e3;
+      if (growMs > 0 && now - p.plantedAt < growMs) continue;
+    }
+    counts[p.objectId] = (counts[p.objectId] || 0) + 1;
+  }
   return counts;
 }
 var HEALTH_SCALE = 90;
@@ -7042,7 +7050,7 @@ async function recalcBiome(playerId, biomeId, opts = {}) {
     placements = placements.filter((p) => p.id !== ap.id);
     placements.push(ap);
   }
-  const counts = placementCounts(placements);
+  const counts = placementCounts(placements, d);
   let terrain = (await byPlayer(t.TerrainTile, playerId)).filter((tt) => tt.area === biomeId);
   if (opts.removeTerrainIds?.length) terrain = terrain.filter((tt) => !opts.removeTerrainIds.includes(tt.id));
   for (const at of opts.addTerrain || []) {

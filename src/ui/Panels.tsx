@@ -215,6 +215,7 @@ export function CraftingPanel() {
 	const { data, state, setPanel, craft, startPlacement } = useGame();
 	const linked = useLinkedChests();
 	const [placeFilter, setPlaceFilter] = useState('all');
+	const [typeFilter, setTypeFilter] = useState('all');
 	if (!data || !state) return null;
 	const player = state.player;
 
@@ -230,20 +231,22 @@ export function CraftingPanel() {
 		return Object.entries(r.materials).every(([id, q]) => availability(id).total >= q);
 	};
 
-	const objOf = (r: RecipeDef) => data.habitatObjects.find((o) => o.id === r.output.itemId);
-	const visible = data.recipes
-		.filter((r) => player.unlockedBiomes.includes(r.unlockBiome))
-		.filter((r) => placeFilter === 'all' || (objOf(r)?.biomes || []).includes(placeFilter))
-		.sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
-	const categories = [...new Set(visible.map((r) => r.category))];
 	const catLabel: Record<string, string> = {
 		plant: 'Plants & flowers', habitat: 'Habitat objects', structure: 'Structures & decor',
 		decoration: 'Paths & fences', storage: 'Storage', home: 'Camp comforts', kit: 'Restoration kits',
 	};
-	// areas the player can actually build in, for the filter dropdown
+	const objOf = (r: RecipeDef) => data.habitatObjects.find((o) => o.id === r.output.itemId);
+	const unlocked = data.recipes.filter((r) => player.unlockedBiomes.includes(r.unlockBiome));
+	const visible = unlocked
+		.filter((r) => placeFilter === 'all' || (objOf(r)?.biomes || []).includes(placeFilter))
+		.filter((r) => typeFilter === 'all' || r.category === typeFilter)
+		.sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
+	const categories = [...new Set(visible.map((r) => r.category))];
+	// areas + types available to the player, for the filter dropdowns
 	const filterAreas = [...data.biomes]
 		.sort((a, b) => a.order - b.order)
 		.filter((b) => player.unlockedBiomes.includes(b.id));
+	const filterTypes = [...new Set(unlocked.map((r) => r.category))].sort((a, b) => (catLabel[a] || a).localeCompare(catLabel[b] || b));
 	const alreadyMade = (r: RecipeDef) => !!r.once && (player.craftedEver?.[r.output.itemId] || 0) > 0;
 
 	const placeable = Object.entries(player.craftedItems || {}).filter(([id]) => {
@@ -258,11 +261,18 @@ export function CraftingPanel() {
 				({linked.length} chest{linked.length === 1 ? '' : 's'} in storage).
 			</p>
 			<div className="craft-filter">
-				<label htmlFor="craft-place">Show items for:</label>
+				<label htmlFor="craft-place">Place:</label>
 				<select id="craft-place" value={placeFilter} onChange={(e) => setPlaceFilter(e.target.value)}>
-					<option value="all">All items</option>
+					<option value="all">All areas</option>
 					{filterAreas.map((b) => (
 						<option key={b.id} value={b.id}>{b.name}</option>
+					))}
+				</select>
+				<label htmlFor="craft-type">Type:</label>
+				<select id="craft-type" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+					<option value="all">All types</option>
+					{filterTypes.map((c) => (
+						<option key={c} value={c}>{catLabel[c] || c}</option>
 					))}
 				</select>
 			</div>

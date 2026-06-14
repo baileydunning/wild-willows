@@ -142,6 +142,7 @@ function GameScreen() {
 			bridge.on('open-journal', () => setPanel('journal')),
 			bridge.on('animal-clicked', (p: any) => game.observe(p.animalId)),
 			bridge.on('request-area', (p: any) => game.changeArea(p.area)),
+			bridge.on('plant-matured', (area: any) => game.recalcArea(area)),
 			bridge.on('toast', (p: any) => notify(p.text, p.kind || 'info')),
 			bridge.on('placement-exited', () => cancelPlacement()),
 			bridge.on('remove-placement', (p: any) => {

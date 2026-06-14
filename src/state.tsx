@@ -57,6 +57,7 @@ interface Ctx {
 	upgradeTool: (toolId: string) => Promise<void>;
 	observe: (animalId: string) => Promise<void>;
 	changeArea: (area: string) => Promise<void>;
+	recalcArea: (area: string) => Promise<void>;
 }
 
 const GameCtx = createContext<Ctx>(null as any);
@@ -387,6 +388,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		[state, markSaved, toast, adoptState]
 	);
 
+	// Re-evaluate a biome's animals (e.g. after a planted habitat finishes growing
+	// in) so anything now eligible returns without needing another manual action.
+	const recalcArea = useCallback((area: string) => act(() => api.recalc(area)), [act]);
+
 	const openChest = useCallback((id: string) => {
 		setActiveChestId(id);
 		setPanel('chest');
@@ -411,13 +416,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			log, selectedTool, setSelectedTool, terraform, plant, setTutorialStep,
 			startNew, startLogin, continueLast, logout,
 			refresh, collect, transfer, craft, discard, place, removePlacement, movePlacement,
-			upgradeTool, observe, changeArea,
+			upgradeTool, observe, changeArea, recalcArea,
 		}),
 		[data, state, dataError, saveStatus, panel, helpOpen, activeChestId, animalCardId,
 			placementObjectId, toasts, toast, log, selectedTool, setSelectedTool, terraform, plant,
 			setTutorialStep, startNew, startLogin, continueLast, logout,
 			refresh, collect, transfer, craft, discard, place, removePlacement, movePlacement, upgradeTool,
-			observe, changeArea, openChest, startPlacement, cancelPlacement]
+			observe, changeArea, recalcArea, openChest, startPlacement, cancelPlacement]
 	);
 
 	return <GameCtx.Provider value={value}>{children}</GameCtx.Provider>;
