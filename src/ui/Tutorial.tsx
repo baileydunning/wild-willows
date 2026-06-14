@@ -73,8 +73,8 @@ const STEPS: StepDef[] = [
 	{
 		icon: 'paw',
 		title: 'Welcome the grasshopper',
-		text: 'That’s it — a grasshopper returns at just 10% health once a Grass Patch is down. Keep gathering and placing a patch or two more if it hasn’t hopped in yet. Open the journal (J) any time for return hints.',
-		touchText: 'That’s it — a grasshopper returns at just 10% health once a Grass Patch is down. Keep gathering and placing a patch or two more if it hasn’t hopped in yet. Open the journal for return hints.',
+		text: 'That’s it — a grasshopper returns at just 8% health once a Grass Patch is down. Keep gathering and placing a patch or two more if it hasn’t hopped in yet. Open the journal (J) any time for return hints.',
+		touchText: 'That’s it — a grasshopper returns at just 8% health once a Grass Patch is down. Keep gathering and placing a patch or two more if it hasn’t hopped in yet. Open the journal for return hints.',
 		done: ({ state }) => grasshopperBack(state),
 	},
 	{
