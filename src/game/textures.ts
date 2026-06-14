@@ -546,6 +546,96 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 		g.fillStyle(C('#5e9455'), 1).fillCircle(9, 12, 5).fillCircle(18, 10, 5).fillCircle(26, 12, 5); // foliage
 		g.fillStyle(C('#e3c75f'), 1).fillCircle(12, 9, 2).fillCircle(23, 9, 2); // flowers
 	});
+	// --- decorative camp comforts (purely for fun) ---
+	o('campfire', 38, 30, (g) => {
+		g.fillStyle(C('#8e8e8a'), 1);
+		for (const [x, y] of [[7, 24], [14, 27], [22, 27], [30, 24], [11, 20], [27, 20]] as const) g.fillCircle(x, y, 3.6);
+		g.fillStyle(C('#7a5a3a'), 1).fillRect(10, 19, 18, 4).fillRect(15, 16, 4, 8);
+		g.fillStyle(C('#e8954f'), 1).fillTriangle(19, 4, 12, 22, 26, 22);
+		g.fillStyle(C('#f4d35e'), 1).fillTriangle(19, 11, 15, 22, 23, 22);
+	});
+	o('lanternstring', 50, 30, (g) => {
+		g.lineStyle(1.5, C('#6b5238'), 1).lineBetween(2, 4, 48, 4);
+		const cols = ['#e8954f', '#e3c75f', '#d77bb1', '#7fb4d8', '#9bd17a'];
+		cols.forEach((c, i) => {
+			const x = 6 + i * 9.5;
+			g.lineStyle(1, C('#6b5238'), 1).lineBetween(x, 4, x, 9);
+			g.fillStyle(C(c), 1).fillRoundedRect(x - 3, 9, 6, 9, 3);
+			g.fillStyle(0xffffff, 0.4).fillCircle(x - 1, 12, 1.2);
+		});
+	});
+	o('pinwheel', 26, 42, (g) => {
+		g.fillStyle(C('#8c6a42'), 1).fillRect(12, 16, 3, 26);
+		const blades: [string, number, number, number, number, number, number][] = [
+			['#e86a8a', 13, 10, 22, 6, 22, 14],
+			['#7fb4d8', 13, 10, 17, 1, 9, 4],
+			['#f4d35e', 13, 10, 4, 6, 4, 14],
+			['#9bd17a', 13, 10, 9, 16, 17, 19],
+		];
+		for (const [c, ax, ay, bx, by, cx, cy] of blades) g.fillStyle(C(c), 1).fillTriangle(ax, ay, bx, by, cx, cy);
+		g.fillStyle(C('#6b5238'), 1).fillCircle(13, 10, 2);
+	});
+	o('birdhouse', 26, 42, (g) => {
+		g.fillStyle(C('#6b5238'), 1).fillRect(11, 22, 4, 20);
+		g.fillStyle(C('#a3814f'), 1).fillRoundedRect(5, 10, 16, 16, 2);
+		g.fillStyle(C('#8c5a3a'), 1).fillTriangle(3, 11, 13, 2, 23, 11);
+		g.fillStyle(C('#3a2a1c'), 1).fillCircle(13, 18, 3.2);
+		g.fillStyle(C('#6b5238'), 1).fillRect(12, 22, 2, 5);
+	});
+	o('flowercart', 42, 32, (g) => {
+		g.fillStyle(C('#8c6a42'), 1).fillRoundedRect(6, 12, 30, 12, 2);
+		g.fillStyle(C('#6b5238'), 1).fillCircle(13, 27, 5).fillCircle(30, 27, 5);
+		g.fillStyle(C('#caa15a'), 1).fillCircle(13, 27, 2).fillCircle(30, 27, 2);
+		const cols = ['#d77bb1', '#e8954f', '#e3c75f', '#c45ad0', '#e86a6a'];
+		cols.forEach((c, i) => g.fillStyle(C(c), 1).fillCircle(10 + i * 6, 10 - (i % 2) * 2, 3.4));
+	});
+	o('hammock', 46, 30, (g) => {
+		g.fillStyle(C('#6b5238'), 1).fillRect(3, 6, 3, 22).fillRect(40, 6, 3, 22);
+		g.fillStyle(C('#c8a86a'), 1).fillTriangle(5, 9, 41, 9, 23, 24);
+		g.lineStyle(1, C('#a3814f'), 1);
+		for (let i = 0; i < 5; i++) g.lineBetween(9 + i * 7, 10, 23, 23);
+	});
+	o('gnome', 22, 34, (g) => {
+		g.fillStyle(C('#5e9455'), 1).fillRoundedRect(6, 20, 11, 13, 4);
+		g.fillStyle(C('#f0d2a8'), 1).fillCircle(11, 17, 5);
+		g.fillStyle(C('#e8e0d0'), 1).fillTriangle(7, 18, 15, 18, 11, 26);
+		g.fillStyle(C('#c0392b'), 1).fillTriangle(4, 16, 18, 16, 11, 1);
+		g.fillStyle(C('#3a2a1c'), 1).fillCircle(9, 16, 0.9).fillCircle(13, 16, 0.9);
+	});
+	o('windchime', 28, 38, (g) => {
+		g.fillStyle(C('#7c5a3c'), 1).fillRoundedRect(7, 6, 14, 4, 2);
+		const cols = ['#9bbcc8', '#c8b88a', '#b0a0c0', '#a8c0a0'];
+		cols.forEach((c, i) => {
+			const x = 9 + i * 3.5;
+			g.lineStyle(1, C('#9a948a'), 1).lineBetween(x, 10, x, 14);
+			g.fillStyle(C(c), 1).fillRoundedRect(x - 1.4, 14, 2.8, 14 + (i % 2) * 4, 1);
+		});
+	});
+	o('sundial', 32, 28, (g) => {
+		g.fillStyle(C('#9a948a'), 1).fillRect(13, 14, 6, 14);
+		g.fillStyle(C('#b8b4ac'), 1).fillEllipse(16, 13, 26, 9);
+		g.fillStyle(C('#8a847a'), 1).fillTriangle(16, 13, 16, 4, 24, 12);
+		g.lineStyle(1, C('#7a746a'), 1);
+		for (let i = 0; i < 5; i++) g.lineBetween(16, 13, 6 + i * 5, 9);
+	});
+	o('cairnstack', 26, 36, (g) => {
+		const stones: [number, number, number, number][] = [[13, 31, 11, 7], [13, 24, 9, 6], [13, 18, 7, 5], [13, 13, 5.5, 4.5], [13, 9, 4, 3.5]];
+		stones.forEach(([x, y, rw, rh], i) => g.fillStyle(C(i % 2 ? '#9a948a' : '#8e8e8a'), 1).fillEllipse(x, y, rw * 2, rh * 2));
+	});
+	o('picnic', 42, 30, (g) => {
+		g.fillStyle(C('#d8d0c0'), 1).fillRoundedRect(4, 6, 34, 20, 3);
+		g.fillStyle(C('#c25a5a'), 0.7);
+		for (let r = 0; r < 4; r++) for (let c = 0; c < 6; c++) if ((r + c) % 2 === 0) g.fillRect(5 + c * 5.4, 7 + r * 4.6, 5, 4.2);
+	});
+	o('potrow', 42, 26, (g) => {
+		for (let i = 0; i < 3; i++) {
+			const x = 7 + i * 13;
+			g.fillStyle(C('#cf7a52'), 1).fillRoundedRect(x - 5, 13, 10, 11, 2);
+			g.fillStyle(C('#b5683f'), 1).fillRect(x - 5, 13, 10, 2.5);
+			g.fillStyle(C('#5e9455'), 1).fillCircle(x - 3, 10, 3).fillCircle(x + 3, 10, 3).fillCircle(x, 7, 3);
+			g.fillStyle(C(['#d77bb1', '#e8954f', '#e3c75f'][i]), 1).fillCircle(x, 7, 1.6);
+		}
+	});
 	// --- additional habitat objects (distinct silhouettes) ---
 	o('clover', 34, 26, (g) => {
 		g.fillStyle(C('#6fae5a'), 1).fillEllipse(17, 18, 32, 14);

@@ -247,8 +247,8 @@ var recipes_default = {
         fiber: 1
       },
       unlock: {
-        minHealth: 33,
-        label: "Restore Willow Meadow to 33% health"
+        minHealth: 28,
+        label: "Restore Willow Meadow to 28% health"
       }
     },
     {
@@ -266,8 +266,8 @@ var recipes_default = {
         water: 1
       },
       unlock: {
-        minHealth: 22,
-        label: "Restore Willow Meadow to 22% health"
+        minHealth: 20,
+        label: "Restore Willow Meadow to 20% health"
       }
     },
     {
@@ -285,8 +285,8 @@ var recipes_default = {
         water: 1
       },
       unlock: {
-        minHealth: 29,
-        label: "Restore Willow Meadow to 29% health"
+        minHealth: 25,
+        label: "Restore Willow Meadow to 25% health"
       }
     },
     {
@@ -304,8 +304,8 @@ var recipes_default = {
         water: 4
       },
       unlock: {
-        minHealth: 39,
-        label: "Restore Willow Meadow to 39% health"
+        minHealth: 35,
+        label: "Restore Willow Meadow to 35% health"
       }
     },
     {
@@ -323,8 +323,8 @@ var recipes_default = {
         water: 3
       },
       unlock: {
-        minHealth: 42,
-        label: "Restore Willow Meadow to 42% health"
+        minHealth: 38,
+        label: "Restore Willow Meadow to 38% health"
       }
     },
     {
@@ -341,8 +341,8 @@ var recipes_default = {
         bark: 2
       },
       unlock: {
-        minHealth: 45,
-        label: "Restore Willow Meadow to 45% health"
+        minHealth: 40,
+        label: "Restore Willow Meadow to 40% health"
       }
     },
     {
@@ -359,8 +359,8 @@ var recipes_default = {
         bark: 3
       },
       unlock: {
-        minHealth: 47,
-        label: "Restore Willow Meadow to 47% health"
+        minHealth: 42,
+        label: "Restore Willow Meadow to 42% health"
       }
     },
     {
@@ -394,8 +394,8 @@ var recipes_default = {
         fiber: 2
       },
       unlock: {
-        minHealth: 50,
-        label: "Restore Willow Meadow to 50% health"
+        minHealth: 44,
+        label: "Restore Willow Meadow to 44% health"
       }
     },
     {
@@ -412,8 +412,8 @@ var recipes_default = {
         fiber: 1
       },
       unlock: {
-        minHealth: 18,
-        label: "Restore Willow Meadow to 18% health"
+        minHealth: 17,
+        label: "Restore Willow Meadow to 17% health"
       }
     },
     {
@@ -442,8 +442,8 @@ var recipes_default = {
         stones: 2
       },
       unlock: {
-        minHealth: 57,
-        label: "Restore Willow Meadow to 57% health"
+        minHealth: 50,
+        label: "Restore Willow Meadow to 50% health"
       }
     },
     {
@@ -459,8 +459,8 @@ var recipes_default = {
         branches: 2
       },
       unlock: {
-        minHealth: 59,
-        label: "Restore Willow Meadow to 59% health"
+        minHealth: 52,
+        label: "Restore Willow Meadow to 52% health"
       }
     },
     {
@@ -477,8 +477,8 @@ var recipes_default = {
         clay: 1
       },
       unlock: {
-        minHealth: 61,
-        label: "Restore Willow Meadow to 61% health"
+        minHealth: 53,
+        label: "Restore Willow Meadow to 53% health"
       }
     },
     {
@@ -510,8 +510,8 @@ var recipes_default = {
         fiber: 1
       },
       unlock: {
-        minHealth: 62,
-        label: "Restore Willow Meadow to 62% health"
+        minHealth: 57,
+        label: "Restore Willow Meadow to 57% health"
       }
     },
     {
@@ -558,8 +558,8 @@ var recipes_default = {
         stones: 2
       },
       unlock: {
-        minHealth: 71,
-        label: "Restore Willow Meadow to 71% health"
+        minHealth: 67,
+        label: "Restore Willow Meadow to 67% health"
       }
     },
     {
@@ -576,8 +576,8 @@ var recipes_default = {
         wildflowers: 1
       },
       unlock: {
-        minHealth: 68,
-        label: "Restore Willow Meadow to 68% health"
+        minHealth: 62,
+        label: "Restore Willow Meadow to 62% health"
       }
     },
     {
@@ -594,8 +594,8 @@ var recipes_default = {
         wildflowers: 2
       },
       unlock: {
-        minHealth: 66,
-        label: "Restore Willow Meadow to 66% health"
+        minHealth: 60,
+        label: "Restore Willow Meadow to 60% health"
       }
     },
     {
@@ -628,8 +628,8 @@ var recipes_default = {
         water: 5
       },
       unlock: {
-        minHealth: 60,
-        label: "Restore Old Hollow Forest to 60% health"
+        minHealth: 57,
+        label: "Restore Old Hollow Forest to 57% health"
       }
     },
     {
@@ -647,8 +647,8 @@ var recipes_default = {
         water: 3
       },
       unlock: {
-        minHealth: 67,
-        label: "Restore Old Hollow Forest to 67% health"
+        minHealth: 66,
+        label: "Restore Old Hollow Forest to 66% health"
       }
     },
     {
@@ -738,8 +738,8 @@ var recipes_default = {
         clay: 2
       },
       unlock: {
-        minHealth: 74,
-        label: "Restore Rushwater Wetland to 74% health"
+        minHealth: 72,
+        label: "Restore Rushwater Wetland to 72% health"
       }
     },
     {
@@ -792,8 +792,8 @@ var recipes_default = {
         mud: 2
       },
       unlock: {
-        minHealth: 27,
-        label: "Restore Rushwater Wetland to 27% health"
+        minHealth: 31,
+        label: "Restore Rushwater Wetland to 31% health"
       }
     },
     {
@@ -811,8 +811,8 @@ var recipes_default = {
         "clean-water": 2
       },
       unlock: {
-        minHealth: 39,
-        label: "Restore Rushwater Wetland to 39% health"
+        minHealth: 45,
+        label: "Restore Rushwater Wetland to 45% health"
       }
     },
     {
@@ -911,8 +911,8 @@ var recipes_default = {
         "clean-water": 4
       },
       unlock: {
-        minHealth: 62,
-        label: "Restore Graywind Heights to 62% health"
+        minHealth: 65,
+        label: "Restore Graywind Heights to 65% health"
       }
     },
     {
@@ -1013,8 +1013,8 @@ var recipes_default = {
         fiber: 2
       },
       unlock: {
-        minHealth: 61,
-        label: "Restore Pelican Shore to 61% health"
+        minHealth: 65,
+        label: "Restore Pelican Shore to 65% health"
       }
     },
     {
@@ -1094,8 +1094,8 @@ var recipes_default = {
         clay: 2
       },
       unlock: {
-        minHealth: 72,
-        label: "Restore Willow Meadow to 72% health"
+        minHealth: 71,
+        label: "Restore Willow Meadow to 71% health"
       }
     },
     {
@@ -1131,8 +1131,8 @@ var recipes_default = {
         fiber: 1
       },
       unlock: {
-        minHealth: 75,
-        label: "Restore Willow Meadow to 75% health"
+        minHealth: 74,
+        label: "Restore Willow Meadow to 74% health"
       }
     },
     {
@@ -1150,8 +1150,8 @@ var recipes_default = {
         water: 2
       },
       unlock: {
-        minHealth: 64,
-        label: "Restore Willow Meadow to 64% health"
+        minHealth: 58,
+        label: "Restore Willow Meadow to 58% health"
       }
     },
     {
@@ -1187,8 +1187,8 @@ var recipes_default = {
         clay: 1
       },
       unlock: {
-        minHealth: 69,
-        label: "Restore Willow Meadow to 69% health"
+        minHealth: 65,
+        label: "Restore Willow Meadow to 65% health"
       }
     },
     {
@@ -1224,8 +1224,8 @@ var recipes_default = {
         water: 1
       },
       unlock: {
-        minHealth: 26,
-        label: "Restore Willow Meadow to 26% health"
+        minHealth: 23,
+        label: "Restore Willow Meadow to 23% health"
       }
     },
     {
@@ -1242,8 +1242,8 @@ var recipes_default = {
         fiber: 2
       },
       unlock: {
-        minHealth: 36,
-        label: "Restore Willow Meadow to 36% health"
+        minHealth: 31,
+        label: "Restore Willow Meadow to 31% health"
       }
     },
     {
@@ -1260,8 +1260,8 @@ var recipes_default = {
         water: 2
       },
       unlock: {
-        minHealth: 42,
-        label: "Restore Old Hollow Forest to 42% health"
+        minHealth: 46,
+        label: "Restore Old Hollow Forest to 46% health"
       }
     },
     {
@@ -1278,8 +1278,8 @@ var recipes_default = {
         bark: 2
       },
       unlock: {
-        minHealth: 29,
-        label: "Restore Old Hollow Forest to 29% health"
+        minHealth: 32,
+        label: "Restore Old Hollow Forest to 32% health"
       }
     },
     {
@@ -1310,8 +1310,8 @@ var recipes_default = {
         mud: 1
       },
       unlock: {
-        minHealth: 63,
-        label: "Restore Rushwater Wetland to 63% health"
+        minHealth: 65,
+        label: "Restore Rushwater Wetland to 65% health"
       }
     },
     {
@@ -1328,8 +1328,8 @@ var recipes_default = {
         sand: 2
       },
       unlock: {
-        minHealth: 36,
-        label: "Restore Redstone Scrubland to 36% health"
+        minHealth: 45,
+        label: "Restore Redstone Scrubland to 45% health"
       }
     },
     {
@@ -1347,8 +1347,8 @@ var recipes_default = {
         "cactus-fruit": 1
       },
       unlock: {
-        minHealth: 53,
-        label: "Restore Redstone Scrubland to 53% health"
+        minHealth: 57,
+        label: "Restore Redstone Scrubland to 57% health"
       }
     },
     {
@@ -1383,8 +1383,8 @@ var recipes_default = {
         moss: 2
       },
       unlock: {
-        minHealth: 35,
-        label: "Restore Graywind Heights to 35% health"
+        minHealth: 45,
+        label: "Restore Graywind Heights to 45% health"
       }
     },
     {
@@ -1402,8 +1402,8 @@ var recipes_default = {
         water: 2
       },
       unlock: {
-        minHealth: 68,
-        label: "Restore Pelican Shore to 68% health"
+        minHealth: 78,
+        label: "Restore Pelican Shore to 78% health"
       }
     },
     {
@@ -1420,190 +1420,8 @@ var recipes_default = {
         stones: 2
       },
       unlock: {
-        minHealth: 29,
-        label: "Restore Pelican Shore to 29% health"
-      }
-    },
-    {
-      id: "daisy-patch",
-      name: "Daisy Patch",
-      category: "plant",
-      unlockBiome: "meadow",
-      output: {
-        itemId: "daisy-patch",
-        qty: 1
-      },
-      materials: {
-        seeds: 2,
-        fiber: 1
-      },
-      unlock: {
-        minHealth: 52,
-        label: "Restore Willow Meadow to 52% health"
-      }
-    },
-    {
-      id: "foxglove",
-      name: "Foxglove",
-      category: "plant",
-      unlockBiome: "meadow",
-      output: {
-        itemId: "foxglove",
-        qty: 1
-      },
-      materials: {
-        seeds: 2,
-        wildflowers: 2
-      },
-      unlock: {
-        minHealth: 54,
-        label: "Restore Willow Meadow to 54% health"
-      }
-    },
-    {
-      id: "mushroom-ring",
-      name: "Mushroom Ring",
-      category: "plant",
-      unlockBiome: "forest",
-      output: {
-        itemId: "mushroom-ring",
-        qty: 1
-      },
-      materials: {
-        mushrooms: 3,
-        moss: 1
-      },
-      unlock: {
-        minHealth: 52,
-        label: "Restore Old Hollow Forest to 52% health"
-      }
-    },
-    {
-      id: "birch-tree",
-      name: "Birch Tree",
-      category: "plant",
-      unlockBiome: "forest",
-      output: {
-        itemId: "birch-tree",
-        qty: 1
-      },
-      materials: {
-        branches: 4,
-        bark: 2
-      }
-    },
-    {
-      id: "marsh-marigold",
-      name: "Marsh Marigold",
-      category: "plant",
-      unlockBiome: "wetland",
-      output: {
-        itemId: "marsh-marigold",
-        qty: 1
-      },
-      materials: {
-        reeds: 2,
-        seeds: 1
-      }
-    },
-    {
-      id: "bulrush",
-      name: "Bulrush",
-      category: "plant",
-      unlockBiome: "wetland",
-      output: {
-        itemId: "bulrush",
-        qty: 1
-      },
-      materials: {
-        reeds: 4,
-        mud: 1
-      }
-    },
-    {
-      id: "prickly-pear",
-      name: "Prickly Pear",
-      category: "plant",
-      unlockBiome: "desert",
-      output: {
-        itemId: "prickly-pear",
-        qty: 1
-      },
-      materials: {
-        "cactus-fruit": 3,
-        sand: 1
-      }
-    },
-    {
-      id: "desert-marigold",
-      name: "Desert Marigold",
-      category: "plant",
-      unlockBiome: "desert",
-      output: {
-        itemId: "desert-marigold",
-        qty: 1
-      },
-      materials: {
-        sand: 2,
-        seeds: 1
-      }
-    },
-    {
-      id: "gentian-patch",
-      name: "Alpine Gentian",
-      category: "plant",
-      unlockBiome: "alpine",
-      output: {
-        itemId: "gentian-patch",
-        qty: 1
-      },
-      materials: {
-        "alpine-flowers": 3
-      }
-    },
-    {
-      id: "moss-cushion",
-      name: "Moss Cushion",
-      category: "plant",
-      unlockBiome: "alpine",
-      output: {
-        itemId: "moss-cushion",
-        qty: 1
-      },
-      materials: {
-        moss: 3
-      }
-    },
-    {
-      id: "sea-thrift",
-      name: "Sea Thrift",
-      category: "plant",
-      unlockBiome: "coastal",
-      output: {
-        itemId: "sea-thrift",
-        qty: 1
-      },
-      materials: {
-        sand: 2,
-        seeds: 1
-      }
-    },
-    {
-      id: "beach-shrub",
-      name: "Beach Shrub",
-      category: "plant",
-      unlockBiome: "coastal",
-      output: {
-        itemId: "beach-shrub",
-        qty: 1
-      },
-      materials: {
-        driftwood: 2,
-        sand: 1
-      },
-      unlock: {
-        minHealth: 42,
-        label: "Restore Pelican Shore to 42% health"
+        minHealth: 45,
+        label: "Restore Pelican Shore to 45% health"
       }
     },
     {
@@ -1620,8 +1438,8 @@ var recipes_default = {
         branches: 2
       },
       unlock: {
-        minHealth: 26,
-        label: "Restore Redstone Scrubland to 26% health"
+        minHealth: 31,
+        label: "Restore Redstone Scrubland to 31% health"
       }
     },
     {
@@ -1638,8 +1456,8 @@ var recipes_default = {
         stones: 3
       },
       unlock: {
-        minHealth: 70,
-        label: "Restore Redstone Scrubland to 70% health"
+        minHealth: 65,
+        label: "Restore Redstone Scrubland to 65% health"
       }
     },
     {
@@ -1657,185 +1475,222 @@ var recipes_default = {
         sand: 2
       },
       unlock: {
-        minHealth: 74,
-        label: "Restore Redstone Scrubland to 74% health"
+        minHealth: 72,
+        label: "Restore Redstone Scrubland to 72% health"
       }
     },
     {
-      id: "palo-verde-tree",
-      name: "Palo Verde Tree",
-      category: "plant",
-      unlockBiome: "desert",
+      id: "campfire",
+      name: "Campfire",
+      category: "home",
+      unlockBiome: "meadow",
       output: {
-        itemId: "palo-verde-tree",
+        itemId: "campfire",
         qty: 1
       },
       materials: {
-        seeds: 2,
-        sand: 2
+        branches: 4,
+        stones: 3
       },
       unlock: {
-        minHealth: 60,
-        label: "Restore Redstone Scrubland to 60% health"
+        minHealth: 55,
+        label: "Restore Willow Meadow to 55% health"
       }
     },
     {
-      id: "shore-pine",
-      name: "Shore Pine",
-      category: "plant",
-      unlockBiome: "coastal",
+      id: "string-lights",
+      name: "String Lights",
+      category: "home",
+      unlockBiome: "meadow",
       output: {
-        itemId: "shore-pine",
+        itemId: "string-lights",
         qty: 1
       },
       materials: {
-        seeds: 2,
-        sand: 2
-      },
-      unlock: {
-        minHealth: 52,
-        label: "Restore Pelican Shore to 52% health"
-      }
-    },
-    {
-      id: "bald-cypress",
-      name: "Bald Cypress",
-      category: "plant",
-      unlockBiome: "wetland",
-      output: {
-        itemId: "bald-cypress",
-        qty: 1
-      },
-      materials: {
-        seeds: 2,
-        reeds: 1
+        fiber: 3,
+        branches: 2
       },
       unlock: {
         minHealth: 48,
-        label: "Restore Rushwater Wetland to 48% health"
+        label: "Restore Willow Meadow to 48% health"
       }
     },
     {
-      id: "water-tupelo",
-      name: "Water Tupelo",
-      category: "plant",
-      unlockBiome: "wetland",
+      id: "pinwheel",
+      name: "Pinwheel",
+      category: "home",
+      unlockBiome: "meadow",
       output: {
-        itemId: "water-tupelo",
+        itemId: "pinwheel",
         qty: 1
       },
       materials: {
-        seeds: 2,
-        mud: 1
+        fiber: 2,
+        branches: 1
+      },
+      unlock: {
+        minHealth: 46,
+        label: "Restore Willow Meadow to 46% health"
+      }
+    },
+    {
+      id: "birdhouse",
+      name: "Birdhouse",
+      category: "home",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "birdhouse",
+        qty: 1
+      },
+      materials: {
+        branches: 3,
+        fiber: 1
+      },
+      unlock: {
+        minHealth: 33,
+        label: "Restore Willow Meadow to 33% health"
+      }
+    },
+    {
+      id: "flower-cart",
+      name: "Flower Cart",
+      category: "home",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "flower-cart",
+        qty: 1
+      },
+      materials: {
+        branches: 4,
+        wildflowers: 3
+      },
+      unlock: {
+        minHealth: 72,
+        label: "Restore Willow Meadow to 72% health"
+      }
+    },
+    {
+      id: "hammock",
+      name: "Hammock",
+      category: "home",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "hammock",
+        qty: 1
+      },
+      materials: {
+        fiber: 5,
+        branches: 2
+      },
+      unlock: {
+        minHealth: 66,
+        label: "Restore Willow Meadow to 66% health"
+      }
+    },
+    {
+      id: "garden-gnome",
+      name: "Garden Gnome",
+      category: "home",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "garden-gnome",
+        qty: 1
+      },
+      materials: {
+        clay: 3
+      },
+      unlock: {
+        minHealth: 70,
+        label: "Restore Willow Meadow to 70% health"
+      }
+    },
+    {
+      id: "wind-chimes",
+      name: "Wind Chimes",
+      category: "home",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "wind-chimes",
+        qty: 1
+      },
+      materials: {
+        branches: 2,
+        stones: 2,
+        fiber: 1
       },
       unlock: {
         minHealth: 69,
-        label: "Restore Rushwater Wetland to 69% health"
+        label: "Restore Willow Meadow to 69% health"
       }
     },
     {
-      id: "mesquite-tree",
-      name: "Mesquite",
-      category: "plant",
-      unlockBiome: "desert",
+      id: "sundial",
+      name: "Sundial",
+      category: "structure",
+      unlockBiome: "meadow",
       output: {
-        itemId: "mesquite-tree",
+        itemId: "sundial",
         qty: 1
       },
       materials: {
-        seeds: 2,
-        sand: 1
+        stones: 4,
+        clay: 2
       },
       unlock: {
-        minHealth: 45,
-        label: "Restore Redstone Scrubland to 45% health"
+        minHealth: 75,
+        label: "Restore Willow Meadow to 75% health"
       }
     },
     {
-      id: "desert-ironwood",
-      name: "Desert Ironwood",
-      category: "plant",
-      unlockBiome: "desert",
+      id: "stone-cairn",
+      name: "Stone Cairn",
+      category: "structure",
+      unlockBiome: "meadow",
       output: {
-        itemId: "desert-ironwood",
+        itemId: "stone-cairn",
         qty: 1
       },
       materials: {
-        seeds: 2,
-        sand: 1
+        stones: 6
       },
       unlock: {
-        minHealth: 65,
-        label: "Restore Redstone Scrubland to 65% health"
+        minHealth: 76,
+        label: "Restore Willow Meadow to 76% health"
       }
     },
     {
-      id: "subalpine-fir",
-      name: "Subalpine Fir",
-      category: "plant",
-      unlockBiome: "alpine",
+      id: "picnic-blanket",
+      name: "Picnic Blanket",
+      category: "home",
+      unlockBiome: "meadow",
       output: {
-        itemId: "subalpine-fir",
+        itemId: "picnic-blanket",
         qty: 1
       },
       materials: {
-        seeds: 2
+        fiber: 6
       },
       unlock: {
-        minHealth: 50,
-        label: "Restore Graywind Heights to 50% health"
+        minHealth: 64,
+        label: "Restore Willow Meadow to 64% health"
       }
     },
     {
-      id: "quaking-aspen",
-      name: "Quaking Aspen",
-      category: "plant",
-      unlockBiome: "alpine",
+      id: "flower-pots",
+      name: "Flower Pot Row",
+      category: "home",
+      unlockBiome: "meadow",
       output: {
-        itemId: "quaking-aspen",
+        itemId: "flower-pots",
         qty: 1
       },
       materials: {
-        seeds: 2
+        clay: 3,
+        wildflowers: 2
       },
       unlock: {
-        minHealth: 71,
-        label: "Restore Graywind Heights to 71% health"
-      }
-    },
-    {
-      id: "monterey-cypress",
-      name: "Monterey Cypress",
-      category: "plant",
-      unlockBiome: "coastal",
-      output: {
-        itemId: "monterey-cypress",
-        qty: 1
-      },
-      materials: {
-        seeds: 2,
-        sand: 1
-      },
-      unlock: {
-        minHealth: 73,
-        label: "Restore Pelican Shore to 73% health"
-      }
-    },
-    {
-      id: "coast-live-oak",
-      name: "Coast Live Oak",
-      category: "plant",
-      unlockBiome: "coastal",
-      output: {
-        itemId: "coast-live-oak",
-        qty: 1
-      },
-      materials: {
-        seeds: 2
-      },
-      unlock: {
-        minHealth: 78,
-        label: "Restore Pelican Shore to 78% health"
+        minHealth: 61,
+        label: "Restore Willow Meadow to 61% health"
       }
     }
   ]
@@ -3765,6 +3620,222 @@ var habitat_objects_default = {
       },
       growSeconds: 90,
       description: "A broad evergreen oak that anchors the back shore with deep shade."
+    },
+    {
+      id: "campfire",
+      name: "Campfire",
+      placement: "both",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "campfire",
+      color: "#d8763a",
+      description: "A crackling campfire ringed with stones \u2014 the heart of camp."
+    },
+    {
+      id: "string-lights",
+      name: "String Lights",
+      placement: "both",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "lanternstring",
+      color: "#f0d27a",
+      description: "A string of warm little lanterns to hang over your camp."
+    },
+    {
+      id: "pinwheel",
+      name: "Pinwheel",
+      placement: "both",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "pinwheel",
+      color: "#e86a8a",
+      description: "A bright pinwheel that spins in the breeze."
+    },
+    {
+      id: "birdhouse",
+      name: "Birdhouse",
+      placement: "both",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "birdhouse",
+      color: "#9a7448",
+      description: "A hand-built birdhouse on a post \u2014 charming, even when empty."
+    },
+    {
+      id: "flower-cart",
+      name: "Flower Cart",
+      placement: "both",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "flowercart",
+      color: "#b5707a",
+      description: "A little wooden cart overflowing with cut flowers."
+    },
+    {
+      id: "hammock",
+      name: "Hammock",
+      placement: "both",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "hammock",
+      color: "#c8a86a",
+      description: "A woven hammock strung between two posts for lazy afternoons."
+    },
+    {
+      id: "garden-gnome",
+      name: "Garden Gnome",
+      placement: "both",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "gnome",
+      color: "#c0392b",
+      description: "A cheerful little gnome to watch over the garden."
+    },
+    {
+      id: "wind-chimes",
+      name: "Wind Chimes",
+      placement: "both",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "windchime",
+      color: "#9bbcc8",
+      description: "Driftwood chimes that sing softly when the wind moves through."
+    },
+    {
+      id: "sundial",
+      name: "Sundial",
+      placement: "both",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "sundial",
+      color: "#a8a8a0",
+      description: "A carved stone sundial for telling time the slow way."
+    },
+    {
+      id: "stone-cairn",
+      name: "Stone Cairn",
+      placement: "both",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "cairnstack",
+      color: "#8e8e8a",
+      description: "A balanced stack of smooth stones marking a quiet spot."
+    },
+    {
+      id: "picnic-blanket",
+      name: "Picnic Blanket",
+      placement: "both",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "picnic",
+      color: "#7a9a5a",
+      description: "A checked blanket spread out for a sunny picnic."
+    },
+    {
+      id: "flower-pots",
+      name: "Flower Pot Row",
+      placement: "both",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "potrow",
+      color: "#cf7a52",
+      description: "A tidy row of terracotta pots brimming with blooms."
     }
   ]
 };

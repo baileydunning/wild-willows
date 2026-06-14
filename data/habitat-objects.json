@@ -1921,6 +1921,222 @@
 			},
 			"growSeconds": 90,
 			"description": "A broad evergreen oak that anchors the back shore with deep shade."
+		},
+		{
+			"id": "campfire",
+			"name": "Campfire",
+			"placement": "both",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "campfire",
+			"color": "#d8763a",
+			"description": "A crackling campfire ringed with stones — the heart of camp."
+		},
+		{
+			"id": "string-lights",
+			"name": "String Lights",
+			"placement": "both",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "lanternstring",
+			"color": "#f0d27a",
+			"description": "A string of warm little lanterns to hang over your camp."
+		},
+		{
+			"id": "pinwheel",
+			"name": "Pinwheel",
+			"placement": "both",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "pinwheel",
+			"color": "#e86a8a",
+			"description": "A bright pinwheel that spins in the breeze."
+		},
+		{
+			"id": "birdhouse",
+			"name": "Birdhouse",
+			"placement": "both",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "birdhouse",
+			"color": "#9a7448",
+			"description": "A hand-built birdhouse on a post — charming, even when empty."
+		},
+		{
+			"id": "flower-cart",
+			"name": "Flower Cart",
+			"placement": "both",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "flowercart",
+			"color": "#b5707a",
+			"description": "A little wooden cart overflowing with cut flowers."
+		},
+		{
+			"id": "hammock",
+			"name": "Hammock",
+			"placement": "both",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "hammock",
+			"color": "#c8a86a",
+			"description": "A woven hammock strung between two posts for lazy afternoons."
+		},
+		{
+			"id": "garden-gnome",
+			"name": "Garden Gnome",
+			"placement": "both",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "gnome",
+			"color": "#c0392b",
+			"description": "A cheerful little gnome to watch over the garden."
+		},
+		{
+			"id": "wind-chimes",
+			"name": "Wind Chimes",
+			"placement": "both",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "windchime",
+			"color": "#9bbcc8",
+			"description": "Driftwood chimes that sing softly when the wind moves through."
+		},
+		{
+			"id": "sundial",
+			"name": "Sundial",
+			"placement": "both",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "sundial",
+			"color": "#a8a8a0",
+			"description": "A carved stone sundial for telling time the slow way."
+		},
+		{
+			"id": "stone-cairn",
+			"name": "Stone Cairn",
+			"placement": "both",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "cairnstack",
+			"color": "#8e8e8a",
+			"description": "A balanced stack of smooth stones marking a quiet spot."
+		},
+		{
+			"id": "picnic-blanket",
+			"name": "Picnic Blanket",
+			"placement": "both",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "picnic",
+			"color": "#7a9a5a",
+			"description": "A checked blanket spread out for a sunny picnic."
+		},
+		{
+			"id": "flower-pots",
+			"name": "Flower Pot Row",
+			"placement": "both",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "potrow",
+			"color": "#cf7a52",
+			"description": "A tidy row of terracotta pots brimming with blooms."
 		}
 	]
 }
