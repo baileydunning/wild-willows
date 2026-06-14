@@ -1062,6 +1062,15 @@ export function makePlayerTexture(
 			g.fillStyle(hair, 1).fillEllipse(16, 18, 20, 22);
 			g.fillCircle(8, 22, 4).fillCircle(24, 22, 4).fillCircle(9, 27, 3.6).fillCircle(23, 27, 3.6).fillCircle(16, 29, 4);
 		}
+		if (a.hairstyle === 'ponytail') {
+			g.fillStyle(hair, 1).fillEllipse(22, 11, 7, 8).fillEllipse(25, 20, 7, 14);
+		}
+		if (a.hairstyle === 'pigtails') {
+			g.fillStyle(hair, 1).fillEllipse(8, 11, 6, 7).fillEllipse(6, 19, 6, 12).fillEllipse(24, 11, 6, 7).fillEllipse(26, 19, 6, 12);
+		}
+		if (a.hairstyle === 'afro') {
+			g.fillStyle(hair, 1).fillCircle(16, 11, 11.5);
+		}
 		// body
 		g.fillStyle(outfit, 1).fillEllipse(16, 25, bw, 16);
 		g.fillStyle(0xffffff, 0.14).fillEllipse(16, 22, bw - 6, 7);
@@ -1073,6 +1082,12 @@ export function makePlayerTexture(
 		g.fillStyle(hair, 1);
 		if (a.hairstyle === 'curly' || a.hairstyle === 'curly-long') {
 			g.fillCircle(10, 8, 4).fillCircle(15, 6, 4.4).fillCircle(21, 8, 4).fillCircle(8, 12, 3).fillCircle(24, 12, 3);
+		} else if (a.hairstyle === 'afro') {
+			g.fillCircle(10, 7, 4.4).fillCircle(15, 5, 4.8).fillCircle(21, 7, 4.4).fillCircle(7, 12, 3.4).fillCircle(25, 12, 3.4);
+		} else if (a.hairstyle === 'mohawk') {
+			g.fillTriangle(12.5, 9, 14, 1.5, 15.5, 9);
+			g.fillTriangle(15, 9, 16, 0, 17, 9);
+			g.fillTriangle(16.5, 9, 18, 1.5, 19.5, 9);
 		} else {
 			g.fillEllipse(16, 7.4, 15, 7);
 		}
@@ -1095,7 +1110,24 @@ export function makePlayerTexture(
 			g.fillStyle(C('#b5707a'), 1).fillEllipse(16, 5.6, 16, 8);
 			g.fillStyle(C('#9e5f69'), 1).fillRect(8, 7, 16, 2.4);
 			g.fillStyle(C('#e8d8c8'), 1).fillCircle(16, 1.8, 2);
-		} else if (a.hairstyle !== 'bun' && a.hairstyle !== 'curly') {
+		} else if (a.hat === 'cap') {
+			g.fillStyle(C('#5f86b0'), 1).fillEllipse(16, 6, 16, 11);
+			g.fillStyle(C('#4f739a'), 1).fillEllipse(23, 8.4, 13, 4);
+		} else if (a.hat === 'bucket') {
+			g.fillStyle(C('#9aa86a'), 1).fillEllipse(16, 6, 15, 10);
+			g.fillStyle(C('#86945a'), 1).fillEllipse(16, 9.2, 20, 4);
+		} else if (a.hat === 'flower') {
+			g.lineStyle(2, C('#5d8a4a'), 1).lineBetween(9, 7.6, 23, 7.6);
+			const fc = ['#e87a9e', '#f4c95f', '#c45ad0'];
+			[10, 16, 22].forEach((x, i) => {
+				g.fillStyle(C(fc[i]), 1).fillCircle(x, 6.6, 1.9);
+				g.fillStyle(C('#fff3c4'), 1).fillCircle(x, 6.6, 0.8);
+			});
+		} else if (a.hat === 'party') {
+			g.fillStyle(C('#d77bb1'), 1).fillTriangle(16, -0.5, 11.5, 8.5, 20.5, 8.5);
+			g.fillStyle(C('#e89ac0'), 1).fillTriangle(16, 2.5, 14, 6.5, 18, 6.5);
+			g.fillStyle(C('#f4e08a'), 1).fillCircle(16, 0.4, 1.5);
+		} else if (!['bun', 'curly', 'curly-long', 'afro', 'mohawk'].includes(a.hairstyle)) {
 			g.fillStyle(hair, 1).fillEllipse(16, 5.6, 14, 7);
 		}
 	});

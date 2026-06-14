@@ -6642,17 +6642,20 @@ var CAPACITY_BY_BASKET = { 1: 80, 2: 160, 3: 260, 4: 380 };
 var START_INVENTORY = { seeds: 6, fiber: 4, branches: 4, stones: 2, water: 2 };
 var START_TOOLS = { basket: 1, shovel: 1, "watering-can": 1, "field-journal": 1 };
 var SKIN_TONES = ["#f6d7b8", "#eec39a", "#d9a06b", "#b97f50", "#8d5a3a", "#6b4226"];
-var HAIR_COLORS = ["#3b2e25", "#6e4a33", "#a3692f", "#c9913f", "#d9b380", "#8c8c8c", "#b5707a", "#4a5a3a"];
-var OUTFIT_COLORS = ["#4a7c59", "#7a9ac0", "#b5707a", "#c9913f", "#7d6b9e", "#5d8a8a", "#a3692f", "#666f7b"];
-var HAT_STYLES = ["straw", "leaf", "beanie", "none"];
-var HAIRSTYLES = ["short", "long", "curly", "curly-long", "bun"];
+var HAIR_COLORS = ["#3b2e25", "#6e4a33", "#a3692f", "#c9913f", "#d9b380", "#8c8c8c"];
+var OUTFIT_COLORS = ["#4a7c59", "#7a9ac0", "#b5707a", "#c9913f", "#7d6b9e", "#5d8a8a"];
+var HAT_STYLES = ["straw", "leaf", "beanie", "cap", "bucket", "flower", "party", "none"];
+var HAIRSTYLES = ["short", "long", "curly", "curly-long", "bun", "ponytail", "pigtails", "afro", "mohawk"];
 var BODY_TYPES = ["slim", "round"];
+function cleanHex(c, fallback) {
+  return typeof c === "string" && /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(c.trim()) ? c.trim().toLowerCase() : fallback;
+}
 function sanitizeAppearance(a) {
   a = a || {};
   return {
-    skin: SKIN_TONES.includes(a.skin) ? a.skin : SKIN_TONES[1],
-    hair: HAIR_COLORS.includes(a.hair) ? a.hair : HAIR_COLORS[1],
-    outfit: OUTFIT_COLORS.includes(a.outfit) ? a.outfit : OUTFIT_COLORS[0],
+    skin: cleanHex(a.skin, SKIN_TONES[1]),
+    hair: cleanHex(a.hair, HAIR_COLORS[1]),
+    outfit: cleanHex(a.outfit, OUTFIT_COLORS[0]),
     hat: HAT_STYLES.includes(a.hat) ? a.hat : "straw",
     hairstyle: HAIRSTYLES.includes(a.hairstyle) ? a.hairstyle : "short",
     body: BODY_TYPES.includes(a.body) ? a.body : "slim"

@@ -106,9 +106,9 @@ export interface Appearance {
 	skin: string;
 	hair: string;
 	outfit: string;
-	hat: string; // 'straw' | 'leaf' | 'beanie' | 'none'
-	hairstyle: string; // 'short' | 'long' | 'ponytail' | 'bun' | 'curly'
-	body: string; // 'slim' | 'round'
+	hat: string; 
+	hairstyle: string; 
+	body: string; 
 }
 
 export interface GameData {

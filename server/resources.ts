@@ -139,19 +139,30 @@ const START_INVENTORY: Record<string, number> = { seeds: 6, fiber: 4, branches: 
 const START_TOOLS: Record<string, number> = { basket: 1, shovel: 1, 'watering-can': 1, 'field-journal': 1 };
 
 // Character appearance options (validated server-side; the frontend renders these)
+// Preset swatches the creator offers as quick-picks. Colors are no longer
+// restricted to this list — players can pick any color — so these are just
+// suggestions surfaced in the UI.
 const SKIN_TONES = ['#f6d7b8', '#eec39a', '#d9a06b', '#b97f50', '#8d5a3a', '#6b4226'];
-const HAIR_COLORS = ['#3b2e25', '#6e4a33', '#a3692f', '#c9913f', '#d9b380', '#8c8c8c', '#b5707a', '#4a5a3a'];
-const OUTFIT_COLORS = ['#4a7c59', '#7a9ac0', '#b5707a', '#c9913f', '#7d6b9e', '#5d8a8a', '#a3692f', '#666f7b'];
-const HAT_STYLES = ['straw', 'leaf', 'beanie', 'none'];
-const HAIRSTYLES = ['short', 'long', 'curly', 'curly-long', 'bun'];
+const HAIR_COLORS = ['#3b2e25', '#6e4a33', '#a3692f', '#c9913f', '#d9b380', '#8c8c8c'];
+const OUTFIT_COLORS = ['#4a7c59', '#7a9ac0', '#b5707a', '#c9913f', '#7d6b9e', '#5d8a8a'];
+const HAT_STYLES = ['straw', 'leaf', 'beanie', 'cap', 'bucket', 'flower', 'party', 'none'];
+const HAIRSTYLES = ['short', 'long', 'curly', 'curly-long', 'bun', 'ponytail', 'pigtails', 'afro', 'mohawk'];
 const BODY_TYPES = ['slim', 'round'];
+
+// Accept any standard #rgb or #rrggbb hex color; falls back to a default if the
+// value isn't a valid color string.
+function cleanHex(c: any, fallback: string): string {
+	return typeof c === 'string' && /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(c.trim())
+		? c.trim().toLowerCase()
+		: fallback;
+}
 
 function sanitizeAppearance(a: any) {
 	a = a || {};
 	return {
-		skin: SKIN_TONES.includes(a.skin) ? a.skin : SKIN_TONES[1],
-		hair: HAIR_COLORS.includes(a.hair) ? a.hair : HAIR_COLORS[1],
-		outfit: OUTFIT_COLORS.includes(a.outfit) ? a.outfit : OUTFIT_COLORS[0],
+		skin: cleanHex(a.skin, SKIN_TONES[1]),
+		hair: cleanHex(a.hair, HAIR_COLORS[1]),
+		outfit: cleanHex(a.outfit, OUTFIT_COLORS[0]),
 		hat: HAT_STYLES.includes(a.hat) ? a.hat : 'straw',
 		hairstyle: HAIRSTYLES.includes(a.hairstyle) ? a.hairstyle : 'short',
 		body: BODY_TYPES.includes(a.body) ? a.body : 'slim',
