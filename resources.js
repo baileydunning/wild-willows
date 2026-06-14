@@ -6556,6 +6556,7 @@ var animals_2_default = {
 };
 
 // server/resources.ts
+import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 var db = () => databases.wildwillows;
 var GameError = class extends Error {
   constructor(message, statusCode = 400) {
@@ -6663,8 +6664,35 @@ function sanitizeAppearance(a) {
 }
 function sanitizePlayer(player) {
   if (!player) return player;
-  const { passcode, ...rest } = player;
+  const { passcode, passcodeHash, passcodeSalt, ...rest } = player;
   return rest;
+}
+function hashPasscode(passcode, salt) {
+  const s = salt || randomBytes(16).toString("hex");
+  const hash = scryptSync(String(passcode), s, 32).toString("hex");
+  return { salt: s, hash };
+}
+function checkHash(passcode, salt, hash) {
+  try {
+    const B = globalThis.Buffer;
+    const got = scryptSync(String(passcode), salt, 32);
+    const want = B.from(hash, "hex");
+    return got.length === want.length && timingSafeEqual(got, want);
+  } catch {
+    return false;
+  }
+}
+async function verifyPasscode(player, passcode) {
+  const code = String(passcode || "");
+  if (player.passcodeHash && player.passcodeSalt) {
+    return checkHash(code, player.passcodeSalt, player.passcodeHash);
+  }
+  if (typeof player.passcode === "string" && code.length > 0 && code === player.passcode) {
+    const { salt, hash } = hashPasscode(code);
+    await db().Player.patch(player.id, { passcodeHash: hash, passcodeSalt: salt, passcode: null });
+    return true;
+  }
+  return false;
 }
 function slugId(name) {
   return String(name).trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
@@ -6854,10 +6882,12 @@ async function createPlayerRecords(playerId, name, passcode, appearance) {
   const t = db();
   const d = await defs();
   const now = Date.now();
+  const { salt, hash } = hashPasscode(passcode);
   const player = {
     id: playerId,
     name,
-    passcode,
+    passcodeSalt: salt,
+    passcodeHash: hash,
     appearance,
     createdAt: now,
     area: "meadow",
@@ -7326,7 +7356,7 @@ var DeletePlayer = class extends PublicEndpoint {
     const playerId = slugId(String(name || ""));
     const player = playerId ? await db().Player.get(playerId) : null;
     if (!player) throw new GameError("No save found with that name", 404);
-    if (String(passcode || "") !== player.passcode) throw new GameError("That passcode doesn't match this save", 403);
+    if (!await verifyPasscode(player, passcode)) throw new GameError("That passcode doesn't match this save", 403);
     const t = db();
     let removed = 0;
     for (const table of [t.Placement, t.Chest, t.BiomeState, t.Discovery, t.NodeState, t.TerrainTile]) {
@@ -7345,7 +7375,7 @@ var LoginPlayer = class extends PublicEndpoint {
     const playerId = slugId(String(name || ""));
     const player = playerId ? await db().Player.get(playerId) : null;
     if (!player) throw new GameError("No save found with that name \u2014 try New Game", 404);
-    if (String(passcode || "") !== player.passcode) throw new GameError("That passcode doesn't match this save", 403);
+    if (!await verifyPasscode(player, passcode)) throw new GameError("That passcode doesn't match this save", 403);
     const d = await defs();
     const areaBiome = d.biome.get(player.area);
     if (!areaBiome || !areaBiome.explorable) {
@@ -7847,7 +7877,7 @@ var SyncPlayer = class extends PublicEndpoint {
       }
     }
     await t.Player.patch(playerId, patch);
-    return { ok: true, player: await t.Player.get(playerId) };
+    return { ok: true, player: sanitizePlayer(await t.Player.get(playerId)) };
   }
 };
 var SESSION_GAP_MS = 30 * 60 * 1e3;

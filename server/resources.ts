@@ -169,11 +169,56 @@ function sanitizeAppearance(a: any) {
 	};
 }
 
-/** Never send the passcode back to the client. */
+/** Never send secrets back to the client. */
 function sanitizePlayer(player: any) {
 	if (!player) return player;
-	const { passcode, ...rest } = player;
+	const { passcode, passcodeHash, passcodeSalt, ...rest } = player;
 	return rest;
+}
+
+// ----------------------------------------------------------- passcode hashing
+// Passcodes are never stored in plaintext: each save keeps a random salt and a
+// scrypt hash. Verification is constant-time. Legacy saves created before this
+// (plaintext `passcode`) are transparently re-hashed on their next successful
+// login and the plaintext field is dropped.
+// @ts-ignore — node:crypto is provided by the Harper Node runtime (no @types/node here)
+import { randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
+
+function hashPasscode(passcode: string, salt?: string): { salt: string; hash: string } {
+	const s = salt || randomBytes(16).toString('hex');
+	const hash = scryptSync(String(passcode), s, 32).toString('hex');
+	return { salt: s, hash };
+}
+
+/** Constant-time check of a passcode against a stored salt+hash. */
+function checkHash(passcode: string, salt: string, hash: string): boolean {
+	try {
+		const B = (globalThis as any).Buffer;
+		const got = scryptSync(String(passcode), salt, 32);
+		const want = B.from(hash, 'hex');
+		return got.length === want.length && timingSafeEqual(got, want);
+	} catch {
+		return false;
+	}
+}
+
+/**
+ * Verify a save's passcode. Returns true/false. If the save is still on a
+ * legacy plaintext passcode and it matches, it is upgraded to a salted hash in
+ * place (and the plaintext removed) so secrets stop living in the database.
+ */
+async function verifyPasscode(player: any, passcode: string): Promise<boolean> {
+	const code = String(passcode || '');
+	if (player.passcodeHash && player.passcodeSalt) {
+		return checkHash(code, player.passcodeSalt, player.passcodeHash);
+	}
+	// legacy plaintext save — verify then migrate to a hash
+	if (typeof player.passcode === 'string' && code.length > 0 && code === player.passcode) {
+		const { salt, hash } = hashPasscode(code);
+		await db().Player.patch(player.id, { passcodeHash: hash, passcodeSalt: salt, passcode: null });
+		return true;
+	}
+	return false;
 }
 
 function slugId(name: string): string {
@@ -432,10 +477,12 @@ async function createPlayerRecords(playerId: string, name: string, passcode: str
 	const t = db();
 	const d = await defs();
 	const now = Date.now();
+	const { salt, hash } = hashPasscode(passcode);
 	const player = {
 		id: playerId,
 		name,
-		passcode,
+		passcodeSalt: salt,
+		passcodeHash: hash,
 		appearance,
 		createdAt: now,
 		area: 'meadow',
@@ -1009,7 +1056,7 @@ export class DeletePlayer extends PublicEndpoint {
 		const playerId = slugId(String(name || ''));
 		const player = playerId ? await db().Player.get(playerId) : null;
 		if (!player) throw new GameError('No save found with that name', 404);
-		if (String(passcode || '') !== player.passcode) throw new GameError("That passcode doesn't match this save", 403);
+		if (!(await verifyPasscode(player, passcode))) throw new GameError("That passcode doesn't match this save", 403);
 
 		const t = db();
 		let removed = 0;
@@ -1031,7 +1078,7 @@ export class LoginPlayer extends PublicEndpoint {
 		const playerId = slugId(String(name || ''));
 		const player = playerId ? await db().Player.get(playerId) : null;
 		if (!player) throw new GameError('No save found with that name — try New Game', 404);
-		if (String(passcode || '') !== player.passcode) throw new GameError("That passcode doesn't match this save", 403);
+		if (!(await verifyPasscode(player, passcode))) throw new GameError("That passcode doesn't match this save", 403);
 		// persist migration for saves stranded in the retired home interior
 		const d = await defs();
 		const areaBiome = d.biome.get(player.area);
@@ -1637,7 +1684,7 @@ export class SyncPlayer extends PublicEndpoint {
 			}
 		}
 		await t.Player.patch(playerId, patch);
-		return { ok: true, player: await t.Player.get(playerId) };
+		return { ok: true, player: sanitizePlayer(await t.Player.get(playerId)) };
 	}
 }
 

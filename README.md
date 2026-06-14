@@ -148,7 +148,7 @@ A client **heartbeat** accrues play time and counts sessions while the game is o
 
 ## Saves & developer tools
 
-Each save is a name + passcode pair (demo-grade; passcode never sent back to clients). **Settings → Lock this save** logs out and clears the remembered session so reopening requires the passcode. A hidden **developer panel** (backtick key, restricted to the developer save and enforced server-side) offers testing helpers: reseed/clear an area's terrain, grant chosen amounts of each resource, max all tools, unlock all biomes, and set biome health.
+Each save is a name + passcode pair. Passcodes are **never stored in plaintext** — each save keeps a random salt and a scrypt hash, verified in constant time; legacy plaintext saves are transparently re-hashed on their next login. No secret fields (passcode, hash, or salt) are ever returned to the client. **Settings → Lock this save** logs out and clears the remembered session so reopening requires the passcode. A hidden **developer panel** (backtick key, restricted to the developer save and enforced server-side) offers testing helpers: reseed/clear an area's terrain, grant chosen amounts of each resource, max all tools, unlock all biomes, and set biome health.
 
 ## Controls
 
@@ -156,6 +156,6 @@ WASD / arrows to move · **E** / Space to interact · **1–3** select tools · 
 
 ## Notes & simplifications
 
-- Lightweight saves instead of real auth — swap in hashing + sessions/roles before anything public. Game endpoints are open while the underlying tables are not.
+- Passcodes are salted + scrypt-hashed, but auth is still lightweight: game endpoints identify a save by the `playerId` in the request body rather than a verified session token, so anyone who knows a save's id could act on it. Add per-request session tokens (issued on login/create, checked on every mutation) before anything public.
 - Animal behavior is gentle wandering + click-to-observe; no seasons/weather/day-night yet.
 - Harper subtlety: conditional searches inside one transaction don't see that transaction's own writes, so endpoints pass fresh records into recalculation explicitly (see comments in `server/resources.ts`).
