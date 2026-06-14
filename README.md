@@ -53,9 +53,10 @@ Credentials can also go in `CLI_TARGET_USERNAME` / `CLI_TARGET_PASSWORD`. The `d
 ## Content at a glance
 
 - **6 biomes** — Willow Meadow, Old Hollow Forest, Rushwater Wetland, Redstone Scrubland (desert), Graywind Heights (alpine), Pelican Shore (coastal). Four are explorable on foot today; alpine + coastal are seeded and signposted "coming soon."
-- **132 animals** — exactly **22 per biome**, each with diet, shelter, a real-world fact, and habitat return requirements.
-- **103 habitat objects** and **96 recipes** across plants/trees, habitat, structures & decor, paths, storage, camp comforts, and restoration kits.
-- **23 gatherable resources**, including biome-exclusive ones (e.g. geode and agave nectar only in the desert).
+- **150 animals** — **25 per biome**, each with diet, shelter, a real-world fact, and habitat return requirements. Every animal has a **unique, procedurally-built sprite** composed from its species traits (quills for a porcupine, antlers for a deer, long legs for a heron, a domed shell for a turtle, claws for a crab…), so no two read alike.
+- **126 habitat objects** and **97 recipes** across habitat, structures & decor, paths, storage, camp comforts, and restoration kits. Plantable flowers/grasses/trees are **planted, not crafted** (see below), so 83 of the recipes are craftable items and the rest are the plant set.
+- **Unlockable crafting** — most recipes start locked and unlock one at a time as a biome recovers (health crossed, a keystone animal welcomed), with a clear "New Crafting Recipe Unlocked" callout. New caretakers begin with a handful of starters (Grass Patch + a few) and **no materials** — the first job is to gather.
+- **23 gatherable resources**, including biome-exclusive ones (e.g. geode and agave nectar only in the desert). Node generation **guarantees every resource appears** in its biome.
 - **4 tools** with deep upgrade tracks (basket/shovel/watering can each have 4 tiers; the field journal has 6).
 - Every biome has **at least 3 plantable tree types** plus its own distinct plants, palette, and animals.
 
@@ -95,7 +96,7 @@ On every change the biome is recalculated:
 
 - **Health** = 5 baseline + the health value of placed objects + tended soil/open-water bonuses, on a gentle curve toward 100. The ground visibly greens (or warms, in the desert) as it rises.
 - **Ecological balance** climbs as animals actually return, so a thriving food web is what raises it.
-- Each animal has **return requirements**: minimum health, sometimes balance, specific habitat objects, sometimes water features, and sometimes other animals already back (predators wait for their prey). There are intentional **easy starter animals** in every biome, with the rest hardened to need a real mix of *planting and crafting*.
+- Each animal has **return requirements**: minimum health, sometimes balance, specific habitat objects, sometimes water features, and sometimes other animals already back (predators wait for their prey). Every biome has a quick **early ramp** — the first few animals need only one or two easy-to-craft objects at very low health (the meadow grasshopper returns at just 8% health with a single Grass Patch) — with the rest hardened to need a real mix of *planting and crafting*.
 - **Water-dwellers need terraformed water.** Shaping open-water tiles with the watering can forms ponds, **lakes** (a large connected body), and **rivers** (a long connected channel). Animals like the snapping turtle (lake), belted kingfisher (river), and bittern (open water) only return once you've shaped the right water.
 - **Plants must mature.** A freshly planted habitat is a sprout and does **not** count toward an animal's requirement until it has fully grown in — and the moment it matures the biome re-checks, so anything now eligible arrives on its own.
 - Animals return **one at a time** per change, so a biome fills with visitors gradually rather than all at once.
@@ -103,17 +104,17 @@ On every change the biome is recalculated:
 
 ## Biomes, restoration kits & progression
 
-Restore each biome to unlock the next. There's **one restoration kit per area** (each craftable only once) plus health/animal thresholds:
+Restore each biome to unlock the next. There's **one restoration kit per area** — each craftable only once, but available **right away** (no health gate), so the real bar is the health + animals, not the kit. Every unlock now needs the gating biome at **80% health**, with **progressively steeper animal counts** (per-biome and preserve-wide totals):
 
 | Unlock | Requirements |
 |---|---|
-| Old Hollow Forest | Meadow 80% health · 5 meadow animals · Meadow Restoration Kit |
-| Rushwater Wetland | Forest 75% · 10 forest animals · Wetland Restoration Kit |
-| Redstone Scrubland (desert) | Wetland 80% · 5 wetland animals · **30 total animals** · Scrubland Restoration Kit |
-| Graywind Heights (alpine) | Desert 80% · Alpine Restoration Kit |
-| Pelican Shore (coastal) | Alpine 80% · Migration Path Marker |
+| Old Hollow Forest | Meadow **80%** · **10** meadow animals · Forest Restoration Kit |
+| Rushwater Wetland | Forest **80%** · **10** forest animals · **25 total animals** · Wetland Restoration Kit |
+| Redstone Scrubland (desert) | Wetland **80%** · **13** wetland animals · **45 total** · Scrubland Restoration Kit |
+| Graywind Heights (alpine) | Desert **80%** · **15** desert animals · **65 total** · Alpine Restoration Kit |
+| Pelican Shore (coastal) | Alpine **80%** · **17** alpine animals · **85 total** · Migration Path Marker |
 
-Areas connect by trail gates, and you spawn at the correct edge when you travel. **Rushwater Wetland opens partly pre-shaped** — channels, a pond, and watered beds are seeded the first time you enter, so it reads as a wetland immediately. **Redstone Scrubland** is dry by design: you can ready soil beds for planting but **cannot flood it** into open water, and it has exclusive resources (geode, agave nectar) feeding desert-only crafts.
+All targets stay attainable — every one of a biome's 25 animals can return by 80% health. Areas connect by trail gates, and you spawn at the correct edge when you travel. **Rushwater Wetland opens partly pre-shaped** — channels, a pond, and watered beds are seeded the first time you enter, so it reads as a wetland immediately. **Redstone Scrubland** is dry by design: you can ready soil beds for planting but **cannot flood it** into open water, and it has exclusive resources (geode, agave nectar) feeding desert-only crafts.
 
 ## Tools
 
