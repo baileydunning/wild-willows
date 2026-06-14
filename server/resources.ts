@@ -146,7 +146,9 @@ const NODE_REGEN_SECONDS = 75;
 const BASE_HEALTH = 5;
 const CAPACITY_BY_BASKET: Record<number, number> = { 1: 80, 2: 160, 3: 260, 4: 380 };
 
-const START_INVENTORY: Record<string, number> = { seeds: 6, fiber: 4, branches: 4, stones: 2, water: 5 };
+// New caretakers start empty-handed — the first task is to gather seeds and
+// fiber for a Grass Patch, so the tutorial's opening loop has real stakes.
+const START_INVENTORY: Record<string, number> = {};
 const START_TOOLS: Record<string, number> = { basket: 1, shovel: 1, 'watering-can': 1, 'field-journal': 1 };
 
 // Character appearance options (validated server-side; the frontend renders these)
@@ -885,6 +887,47 @@ async function checkUnlocks(
 }
 
 /**
+ * Recipe unlocks. A recipe with no `unlock` block is craftable from the moment
+ * its biome is open (the handful of starter recipes). Everything else is gated
+ * behind progress *in that recipe's own biome* — health, the number of animals
+ * welcomed back, a specific keystone animal, or having already crafted a
+ * prerequisite item. This is what turns crafting into a steady retention loop:
+ * restore a little, unlock a little more to craft.
+ */
+function recipeUnlockMet(
+	recipe: any,
+	ctx: { health: number; animalsReturned: number; returnedAnimalIds: Set<string>; craftedEver: Record<string, number> },
+): boolean {
+	const u = recipe.unlock;
+	if (!u) return true; // starter recipe
+	if (typeof u.minHealth === 'number' && ctx.health < u.minHealth) return false;
+	if (typeof u.animalsReturned === 'number' && ctx.animalsReturned < u.animalsReturned) return false;
+	if (u.requiresAnimal && !ctx.returnedAnimalIds.has(u.requiresAnimal)) return false;
+	if (u.requiresCrafted && (ctx.craftedEver?.[u.requiresCrafted] || 0) <= 0) return false;
+	return true;
+}
+
+/**
+ * Build the unlock context for one biome from live records, then judge a recipe.
+ * Used by CraftItem to enforce the gate server-side (Harper is the source of
+ * truth — the client only hides locked recipes for nicer UX).
+ */
+async function recipeUnlockContext(playerId: string, biomeId: string, player: any, d: any) {
+	const t = db();
+	const bs = await t.BiomeState.get(`${playerId}:${biomeId}`);
+	const discoveries = await byPlayer(t.Discovery, playerId);
+	const returnedAnimalIds = new Set<string>(
+		discoveries.filter((x: any) => d.animal.get(x.animalId)?.biome === biomeId).map((x: any) => x.animalId),
+	);
+	return {
+		health: bs?.health || 0,
+		animalsReturned: returnedAnimalIds.size,
+		returnedAnimalIds,
+		craftedEver: (player.craftedEver || {}) as Record<string, number>,
+	};
+}
+
+/**
  * Fetch a player's chest by id, self-healing saves where the chest placement
  * exists but its storage record is missing (older/interrupted saves). Rebuilds
  * the Chest row from the placement so the player can use it again.
@@ -1237,6 +1280,14 @@ export class CraftItem extends PublicEndpoint {
 		if (!recipe) throw new GameError(`Unknown recipe: ${recipeId}`);
 		if (recipe.unlockBiome && !(player.unlockedBiomes || []).includes(recipe.unlockBiome)) {
 			throw new GameError('This recipe unlocks with a biome you have not restored yet', 403);
+		}
+		// Progress gate: most recipes only unlock once you've restored their biome
+		// far enough (health / animals returned / a keystone animal back).
+		if (recipe.unlock && recipe.unlockBiome) {
+			const ctx = await recipeUnlockContext(playerId, recipe.unlockBiome, player, d);
+			if (!recipeUnlockMet(recipe, ctx)) {
+				throw new GameError(`Not unlocked yet — ${recipe.unlock.label}.`, 403);
+			}
 		}
 		if (recipe.requiresTool && (player.tools?.[recipe.requiresTool.id] || 1) < recipe.requiresTool.tier) {
 			const tool = d.tool.get(recipe.requiresTool.id);

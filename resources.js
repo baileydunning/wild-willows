@@ -179,7 +179,7 @@ var recipes_default = {
         qty: 1
       },
       materials: {
-        seeds: 2,
+        seeds: 1,
         fiber: 1
       }
     },
@@ -225,6 +225,10 @@ var recipes_default = {
       materials: {
         wildflowers: 4,
         seeds: 1
+      },
+      unlock: {
+        requiresAnimal: "grasshopper",
+        label: "Welcome the grasshopper back to Willow Meadow"
       }
     },
     {
@@ -241,6 +245,10 @@ var recipes_default = {
         seeds: 3,
         water: 2,
         fiber: 1
+      },
+      unlock: {
+        minHealth: 33,
+        label: "Restore Willow Meadow to 33% health"
       }
     },
     {
@@ -256,6 +264,10 @@ var recipes_default = {
         branches: 2,
         seeds: 2,
         water: 1
+      },
+      unlock: {
+        minHealth: 22,
+        label: "Restore Willow Meadow to 22% health"
       }
     },
     {
@@ -271,6 +283,10 @@ var recipes_default = {
         berries: 4,
         seeds: 2,
         water: 1
+      },
+      unlock: {
+        minHealth: 29,
+        label: "Restore Willow Meadow to 29% health"
       }
     },
     {
@@ -286,6 +302,10 @@ var recipes_default = {
         stones: 6,
         clay: 4,
         water: 4
+      },
+      unlock: {
+        minHealth: 39,
+        label: "Restore Willow Meadow to 39% health"
       }
     },
     {
@@ -301,6 +321,10 @@ var recipes_default = {
         clay: 3,
         stones: 3,
         water: 3
+      },
+      unlock: {
+        minHealth: 42,
+        label: "Restore Willow Meadow to 42% health"
       }
     },
     {
@@ -315,6 +339,10 @@ var recipes_default = {
       materials: {
         branches: 6,
         bark: 2
+      },
+      unlock: {
+        minHealth: 45,
+        label: "Restore Willow Meadow to 45% health"
       }
     },
     {
@@ -329,6 +357,10 @@ var recipes_default = {
       materials: {
         branches: 8,
         bark: 3
+      },
+      unlock: {
+        minHealth: 47,
+        label: "Restore Willow Meadow to 47% health"
       }
     },
     {
@@ -342,6 +374,10 @@ var recipes_default = {
       },
       materials: {
         stones: 5
+      },
+      unlock: {
+        minHealth: 14,
+        label: "Restore Willow Meadow to 14% health"
       }
     },
     {
@@ -356,6 +392,10 @@ var recipes_default = {
       materials: {
         branches: 4,
         fiber: 2
+      },
+      unlock: {
+        minHealth: 50,
+        label: "Restore Willow Meadow to 50% health"
       }
     },
     {
@@ -370,6 +410,10 @@ var recipes_default = {
       materials: {
         branches: 3,
         fiber: 1
+      },
+      unlock: {
+        minHealth: 18,
+        label: "Restore Willow Meadow to 18% health"
       }
     },
     {
@@ -396,6 +440,10 @@ var recipes_default = {
       },
       materials: {
         stones: 2
+      },
+      unlock: {
+        minHealth: 57,
+        label: "Restore Willow Meadow to 57% health"
       }
     },
     {
@@ -409,6 +457,10 @@ var recipes_default = {
       },
       materials: {
         branches: 2
+      },
+      unlock: {
+        minHealth: 59,
+        label: "Restore Willow Meadow to 59% health"
       }
     },
     {
@@ -423,6 +475,10 @@ var recipes_default = {
       materials: {
         stones: 3,
         clay: 1
+      },
+      unlock: {
+        minHealth: 61,
+        label: "Restore Willow Meadow to 61% health"
       }
     },
     {
@@ -452,6 +508,10 @@ var recipes_default = {
         branches: 4,
         stones: 1,
         fiber: 1
+      },
+      unlock: {
+        minHealth: 62,
+        label: "Restore Willow Meadow to 62% health"
       }
     },
     {
@@ -496,6 +556,10 @@ var recipes_default = {
       materials: {
         branches: 4,
         stones: 2
+      },
+      unlock: {
+        minHealth: 71,
+        label: "Restore Willow Meadow to 71% health"
       }
     },
     {
@@ -510,6 +574,10 @@ var recipes_default = {
       materials: {
         fiber: 6,
         wildflowers: 1
+      },
+      unlock: {
+        minHealth: 68,
+        label: "Restore Willow Meadow to 68% health"
       }
     },
     {
@@ -524,6 +592,10 @@ var recipes_default = {
       materials: {
         clay: 3,
         wildflowers: 2
+      },
+      unlock: {
+        minHealth: 66,
+        label: "Restore Willow Meadow to 66% health"
       }
     },
     {
@@ -554,6 +626,10 @@ var recipes_default = {
         clay: 4,
         stones: 2,
         water: 5
+      },
+      unlock: {
+        minHealth: 60,
+        label: "Restore Old Hollow Forest to 60% health"
       }
     },
     {
@@ -569,6 +645,10 @@ var recipes_default = {
         moss: 3,
         branches: 2,
         water: 3
+      },
+      unlock: {
+        minHealth: 67,
+        label: "Restore Old Hollow Forest to 67% health"
       }
     },
     {
@@ -598,6 +678,10 @@ var recipes_default = {
         branches: 4,
         mushrooms: 3,
         moss: 2
+      },
+      unlock: {
+        minHealth: 14,
+        label: "Restore Old Hollow Forest to 14% health"
       }
     },
     {
@@ -616,7 +700,11 @@ var recipes_default = {
         water: 6,
         moss: 2
       },
-      once: true
+      once: true,
+      unlock: {
+        minHealth: 73,
+        label: "Restore Old Hollow Forest to 73% health"
+      }
     },
     {
       id: "reed-bed",
@@ -648,6 +736,10 @@ var recipes_default = {
       materials: {
         mud: 6,
         clay: 2
+      },
+      unlock: {
+        minHealth: 74,
+        label: "Restore Rushwater Wetland to 74% health"
       }
     },
     {
@@ -662,6 +754,10 @@ var recipes_default = {
       materials: {
         branches: 6,
         reeds: 3
+      },
+      unlock: {
+        minHealth: 57,
+        label: "Restore Rushwater Wetland to 57% health"
       }
     },
     {
@@ -676,6 +772,10 @@ var recipes_default = {
       materials: {
         reeds: 4,
         mud: 1
+      },
+      unlock: {
+        minHealth: 14,
+        label: "Restore Rushwater Wetland to 14% health"
       }
     },
     {
@@ -690,6 +790,10 @@ var recipes_default = {
       materials: {
         branches: 5,
         mud: 2
+      },
+      unlock: {
+        minHealth: 27,
+        label: "Restore Rushwater Wetland to 27% health"
       }
     },
     {
@@ -705,6 +809,10 @@ var recipes_default = {
         reeds: 2,
         clay: 2,
         "clean-water": 2
+      },
+      unlock: {
+        minHealth: 39,
+        label: "Restore Rushwater Wetland to 39% health"
       }
     },
     {
@@ -768,6 +876,10 @@ var recipes_default = {
       materials: {
         stones: 8,
         sand: 2
+      },
+      unlock: {
+        minHealth: 14,
+        label: "Restore Redstone Scrubland to 14% health"
       }
     },
     {
@@ -797,6 +909,10 @@ var recipes_default = {
       materials: {
         stones: 5,
         "clean-water": 4
+      },
+      unlock: {
+        minHealth: 62,
+        label: "Restore Graywind Heights to 62% health"
       }
     },
     {
@@ -813,7 +929,11 @@ var recipes_default = {
         "alpine-flowers": 3,
         fiber: 2
       },
-      once: true
+      once: true,
+      unlock: {
+        minHealth: 78,
+        label: "Restore Graywind Heights to 78% health"
+      }
     },
     {
       id: "tidepool",
@@ -857,6 +977,10 @@ var recipes_default = {
       materials: {
         driftwood: 5,
         fiber: 2
+      },
+      unlock: {
+        minHealth: 14,
+        label: "Restore Pelican Shore to 14% health"
       }
     },
     {
@@ -887,6 +1011,10 @@ var recipes_default = {
         driftwood: 4,
         sand: 4,
         fiber: 2
+      },
+      unlock: {
+        minHealth: 61,
+        label: "Restore Pelican Shore to 61% health"
       }
     },
     {
@@ -904,6 +1032,10 @@ var recipes_default = {
         branches: 4,
         stones: 3,
         water: 2
+      },
+      unlock: {
+        minHealth: 78,
+        label: "Restore Willow Meadow to 78% health"
       }
     },
     {
@@ -921,6 +1053,10 @@ var recipes_default = {
         mud: 4,
         clay: 3,
         "clean-water": 3
+      },
+      unlock: {
+        minHealth: 78,
+        label: "Restore Rushwater Wetland to 78% health"
       }
     },
     {
@@ -938,6 +1074,10 @@ var recipes_default = {
         stones: 5,
         clay: 3,
         "cactus-fruit": 2
+      },
+      unlock: {
+        minHealth: 78,
+        label: "Restore Redstone Scrubland to 78% health"
       }
     },
     {
@@ -952,6 +1092,10 @@ var recipes_default = {
       materials: {
         stones: 4,
         clay: 2
+      },
+      unlock: {
+        minHealth: 72,
+        label: "Restore Willow Meadow to 72% health"
       }
     },
     {
@@ -966,6 +1110,10 @@ var recipes_default = {
       materials: {
         branches: 5,
         fiber: 2
+      },
+      unlock: {
+        minHealth: 73,
+        label: "Restore Willow Meadow to 73% health"
       }
     },
     {
@@ -981,6 +1129,10 @@ var recipes_default = {
         branches: 4,
         wildflowers: 3,
         fiber: 1
+      },
+      unlock: {
+        minHealth: 75,
+        label: "Restore Willow Meadow to 75% health"
       }
     },
     {
@@ -996,6 +1148,10 @@ var recipes_default = {
         stones: 5,
         clay: 2,
         water: 2
+      },
+      unlock: {
+        minHealth: 64,
+        label: "Restore Willow Meadow to 64% health"
       }
     },
     {
@@ -1010,6 +1166,10 @@ var recipes_default = {
       materials: {
         branches: 3,
         stones: 1
+      },
+      unlock: {
+        minHealth: 76,
+        label: "Restore Willow Meadow to 76% health"
       }
     },
     {
@@ -1025,6 +1185,10 @@ var recipes_default = {
         branches: 3,
         wildflowers: 2,
         clay: 1
+      },
+      unlock: {
+        minHealth: 69,
+        label: "Restore Willow Meadow to 69% health"
       }
     },
     {
@@ -1040,6 +1204,10 @@ var recipes_default = {
         branches: 10,
         stones: 5,
         fiber: 4
+      },
+      unlock: {
+        minHealth: 77,
+        label: "Restore Willow Meadow to 77% health"
       }
     },
     {
@@ -1054,6 +1222,10 @@ var recipes_default = {
       materials: {
         seeds: 3,
         water: 1
+      },
+      unlock: {
+        minHealth: 26,
+        label: "Restore Willow Meadow to 26% health"
       }
     },
     {
@@ -1068,6 +1240,10 @@ var recipes_default = {
       materials: {
         branches: 4,
         fiber: 2
+      },
+      unlock: {
+        minHealth: 36,
+        label: "Restore Willow Meadow to 36% health"
       }
     },
     {
@@ -1082,6 +1258,10 @@ var recipes_default = {
       materials: {
         moss: 3,
         water: 2
+      },
+      unlock: {
+        minHealth: 42,
+        label: "Restore Old Hollow Forest to 42% health"
       }
     },
     {
@@ -1096,6 +1276,10 @@ var recipes_default = {
       materials: {
         branches: 4,
         bark: 2
+      },
+      unlock: {
+        minHealth: 29,
+        label: "Restore Old Hollow Forest to 29% health"
       }
     },
     {
@@ -1124,6 +1308,10 @@ var recipes_default = {
       materials: {
         branches: 5,
         mud: 1
+      },
+      unlock: {
+        minHealth: 63,
+        label: "Restore Rushwater Wetland to 63% health"
       }
     },
     {
@@ -1138,6 +1326,10 @@ var recipes_default = {
       materials: {
         "cactus-fruit": 2,
         sand: 2
+      },
+      unlock: {
+        minHealth: 36,
+        label: "Restore Redstone Scrubland to 36% health"
       }
     },
     {
@@ -1153,6 +1345,10 @@ var recipes_default = {
         branches: 2,
         sand: 2,
         "cactus-fruit": 1
+      },
+      unlock: {
+        minHealth: 53,
+        label: "Restore Redstone Scrubland to 53% health"
       }
     },
     {
@@ -1167,6 +1363,10 @@ var recipes_default = {
       materials: {
         "alpine-flowers": 3,
         moss: 1
+      },
+      unlock: {
+        minHealth: 14,
+        label: "Restore Graywind Heights to 14% health"
       }
     },
     {
@@ -1181,6 +1381,10 @@ var recipes_default = {
       materials: {
         branches: 4,
         moss: 2
+      },
+      unlock: {
+        minHealth: 35,
+        label: "Restore Graywind Heights to 35% health"
       }
     },
     {
@@ -1196,6 +1400,10 @@ var recipes_default = {
         driftwood: 2,
         sand: 2,
         water: 2
+      },
+      unlock: {
+        minHealth: 68,
+        label: "Restore Pelican Shore to 68% health"
       }
     },
     {
@@ -1210,6 +1418,10 @@ var recipes_default = {
       materials: {
         shells: 3,
         stones: 2
+      },
+      unlock: {
+        minHealth: 29,
+        label: "Restore Pelican Shore to 29% health"
       }
     },
     {
@@ -1224,6 +1436,10 @@ var recipes_default = {
       materials: {
         seeds: 2,
         fiber: 1
+      },
+      unlock: {
+        minHealth: 52,
+        label: "Restore Willow Meadow to 52% health"
       }
     },
     {
@@ -1238,6 +1454,10 @@ var recipes_default = {
       materials: {
         seeds: 2,
         wildflowers: 2
+      },
+      unlock: {
+        minHealth: 54,
+        label: "Restore Willow Meadow to 54% health"
       }
     },
     {
@@ -1252,6 +1472,10 @@ var recipes_default = {
       materials: {
         mushrooms: 3,
         moss: 1
+      },
+      unlock: {
+        minHealth: 52,
+        label: "Restore Old Hollow Forest to 52% health"
       }
     },
     {
@@ -1376,6 +1600,10 @@ var recipes_default = {
       materials: {
         driftwood: 2,
         sand: 1
+      },
+      unlock: {
+        minHealth: 42,
+        label: "Restore Pelican Shore to 42% health"
       }
     },
     {
@@ -1390,6 +1618,10 @@ var recipes_default = {
       materials: {
         "agave-nectar": 2,
         branches: 2
+      },
+      unlock: {
+        minHealth: 26,
+        label: "Restore Redstone Scrubland to 26% health"
       }
     },
     {
@@ -1404,6 +1636,10 @@ var recipes_default = {
       materials: {
         geode: 2,
         stones: 3
+      },
+      unlock: {
+        minHealth: 70,
+        label: "Restore Redstone Scrubland to 70% health"
       }
     },
     {
@@ -1419,6 +1655,10 @@ var recipes_default = {
         geode: 1,
         stones: 4,
         sand: 2
+      },
+      unlock: {
+        minHealth: 74,
+        label: "Restore Redstone Scrubland to 74% health"
       }
     },
     {
@@ -1433,6 +1673,10 @@ var recipes_default = {
       materials: {
         seeds: 2,
         sand: 2
+      },
+      unlock: {
+        minHealth: 60,
+        label: "Restore Redstone Scrubland to 60% health"
       }
     },
     {
@@ -1447,6 +1691,10 @@ var recipes_default = {
       materials: {
         seeds: 2,
         sand: 2
+      },
+      unlock: {
+        minHealth: 52,
+        label: "Restore Pelican Shore to 52% health"
       }
     },
     {
@@ -1461,6 +1709,10 @@ var recipes_default = {
       materials: {
         seeds: 2,
         reeds: 1
+      },
+      unlock: {
+        minHealth: 48,
+        label: "Restore Rushwater Wetland to 48% health"
       }
     },
     {
@@ -1475,6 +1727,10 @@ var recipes_default = {
       materials: {
         seeds: 2,
         mud: 1
+      },
+      unlock: {
+        minHealth: 69,
+        label: "Restore Rushwater Wetland to 69% health"
       }
     },
     {
@@ -1489,6 +1745,10 @@ var recipes_default = {
       materials: {
         seeds: 2,
         sand: 1
+      },
+      unlock: {
+        minHealth: 45,
+        label: "Restore Redstone Scrubland to 45% health"
       }
     },
     {
@@ -1503,6 +1763,10 @@ var recipes_default = {
       materials: {
         seeds: 2,
         sand: 1
+      },
+      unlock: {
+        minHealth: 65,
+        label: "Restore Redstone Scrubland to 65% health"
       }
     },
     {
@@ -1516,6 +1780,10 @@ var recipes_default = {
       },
       materials: {
         seeds: 2
+      },
+      unlock: {
+        minHealth: 50,
+        label: "Restore Graywind Heights to 50% health"
       }
     },
     {
@@ -1529,6 +1797,10 @@ var recipes_default = {
       },
       materials: {
         seeds: 2
+      },
+      unlock: {
+        minHealth: 71,
+        label: "Restore Graywind Heights to 71% health"
       }
     },
     {
@@ -1543,6 +1815,10 @@ var recipes_default = {
       materials: {
         seeds: 2,
         sand: 1
+      },
+      unlock: {
+        minHealth: 73,
+        label: "Restore Pelican Shore to 73% health"
       }
     },
     {
@@ -1556,6 +1832,10 @@ var recipes_default = {
       },
       materials: {
         seeds: 2
+      },
+      unlock: {
+        minHealth: 78,
+        label: "Restore Pelican Shore to 78% health"
       }
     }
   ]
@@ -6644,7 +6924,7 @@ async function defs() {
 var NODE_REGEN_SECONDS = 75;
 var BASE_HEALTH = 5;
 var CAPACITY_BY_BASKET = { 1: 80, 2: 160, 3: 260, 4: 380 };
-var START_INVENTORY = { seeds: 6, fiber: 4, branches: 4, stones: 2, water: 5 };
+var START_INVENTORY = {};
 var START_TOOLS = { basket: 1, shovel: 1, "watering-can": 1, "field-journal": 1 };
 var SKIN_TONES = ["#f6d7b8", "#eec39a", "#d9a06b", "#b97f50", "#8d5a3a", "#6b4226"];
 var HAIR_COLORS = ["#3b2e25", "#6e4a33", "#a3692f", "#c9913f", "#d9b380", "#8c8c8c"];
@@ -7202,6 +7482,29 @@ async function checkUnlocks(playerId, fresh = {}) {
   }
   return unlockedNow;
 }
+function recipeUnlockMet(recipe, ctx) {
+  const u = recipe.unlock;
+  if (!u) return true;
+  if (typeof u.minHealth === "number" && ctx.health < u.minHealth) return false;
+  if (typeof u.animalsReturned === "number" && ctx.animalsReturned < u.animalsReturned) return false;
+  if (u.requiresAnimal && !ctx.returnedAnimalIds.has(u.requiresAnimal)) return false;
+  if (u.requiresCrafted && (ctx.craftedEver?.[u.requiresCrafted] || 0) <= 0) return false;
+  return true;
+}
+async function recipeUnlockContext(playerId, biomeId, player, d) {
+  const t = db();
+  const bs = await t.BiomeState.get(`${playerId}:${biomeId}`);
+  const discoveries = await byPlayer(t.Discovery, playerId);
+  const returnedAnimalIds = new Set(
+    discoveries.filter((x) => d.animal.get(x.animalId)?.biome === biomeId).map((x) => x.animalId)
+  );
+  return {
+    health: bs?.health || 0,
+    animalsReturned: returnedAnimalIds.size,
+    returnedAnimalIds,
+    craftedEver: player.craftedEver || {}
+  };
+}
 async function getOwnedChest(t, d, chestId, playerId) {
   const chest = await findOwned(t.Chest, playerId, chestId);
   if (chest) return chest;
@@ -7494,6 +7797,12 @@ var CraftItem = class extends PublicEndpoint {
     if (!recipe) throw new GameError(`Unknown recipe: ${recipeId}`);
     if (recipe.unlockBiome && !(player.unlockedBiomes || []).includes(recipe.unlockBiome)) {
       throw new GameError("This recipe unlocks with a biome you have not restored yet", 403);
+    }
+    if (recipe.unlock && recipe.unlockBiome) {
+      const ctx = await recipeUnlockContext(playerId, recipe.unlockBiome, player, d);
+      if (!recipeUnlockMet(recipe, ctx)) {
+        throw new GameError(`Not unlocked yet \u2014 ${recipe.unlock.label}.`, 403);
+      }
     }
     if (recipe.requiresTool && (player.tools?.[recipe.requiresTool.id] || 1) < recipe.requiresTool.tier) {
       const tool = d.tool.get(recipe.requiresTool.id);

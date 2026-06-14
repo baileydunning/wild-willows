@@ -118,6 +118,7 @@ const PATHS: Record<string, React.ReactNode> = {
 		</>
 	),
 	back: <path d="M14.5 5.5 8 12l6.5 6.5" />,
+	forward: <path d="M9.5 5.5 16 12l-6.5 6.5" />,
 	check: <path d="M5 12.5 10 17.5 19 7" />,
 	drop: <path d="M12 3.5C15 8 18 11 18 14.5a6 6 0 1 1-12 0C6 11 9 8 12 3.5Z" />,
 	pin: (

@@ -1,11 +1,11 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useGame } from '../state';
 import { Icon } from './icons';
 
 export const TOOL_META: Array<{ id: string; icon: string; key: string; how: string }> = [
 	{ id: 'basket', icon: 'basket', key: '1', how: 'Your gathering tool — walk to any gathering spot and interact to collect it into your basket.' },
 	{ id: 'shovel', icon: 'spade', key: '2', how: 'Terraform — dig soil beds in nearby ground; dig a shaped tile again to clear or drain it.' },
-	{ id: 'watering-can', icon: 'can', key: '3', how: 'Terraform — water a soil bed to make it plantable (1 water); water it again to flood it into open water (2 water). Chain water tiles into ponds, rivers, and lakes.' },
+	{ id: 'watering-can', icon: 'can', key: '3', how: 'Terraform — water a soil bed to make it plantable; water it again to flood it into open water. Chain water tiles into ponds, rivers, and lakes.' },
 ];
 
 export function Toolbelt() {
@@ -80,16 +80,37 @@ export function ActivityLog() {
 		});
 	};
 
-	const recent = log.slice(-5);
+	const scrollRef = useRef<HTMLDivElement | null>(null);
+	const hovering = useRef(false);
+
+	// Keep the feed pinned to the newest entry — unless the player is hovering and
+	// has scrolled up to read older messages, in which case we leave it alone.
+	useEffect(() => {
+		const el = scrollRef.current;
+		if (el && !hovering.current) el.scrollTop = el.scrollHeight;
+	}, [log, open]);
+
 	return (
 		<div className="activity-log" aria-live="polite">
-			{open &&
-				recent.map((entry, i) => (
-					<div className="activity-entry" key={entry.id} style={{ opacity: 0.45 + ((i + 1) / recent.length) * 0.55 }}>
-						<Icon name={entry.icon} size={14} />
-						<span>{entry.text}</span>
-					</div>
-				))}
+			{open && (
+				<div
+					className="activity-scroll"
+					ref={scrollRef}
+					onMouseEnter={() => { hovering.current = true; }}
+					onMouseLeave={() => {
+						hovering.current = false;
+						const el = scrollRef.current;
+						if (el) el.scrollTop = el.scrollHeight; // snap back to newest on leave
+					}}
+				>
+					{log.map((entry) => (
+						<div className="activity-entry" key={entry.id}>
+							<Icon name={entry.icon} size={14} />
+							<span>{entry.text}</span>
+						</div>
+					))}
+				</div>
+			)}
 			<button
 				className="log-toggle"
 				onClick={toggle}

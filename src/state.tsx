@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { api, forgetSave, lastSave, rememberSave, setPlayerId } from './api';
 import { bridge } from './game/bridge';
+import { unlockedRecipeIds } from './recipes';
 import type { Appearance, GameData, GameState, PanelId } from './types';
 
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
@@ -36,6 +37,7 @@ interface Ctx {
 	cancelPlacement: () => void;
 	toasts: Toast[];
 	notify: (text: string, kind?: Toast['kind']) => void;
+	dismissToast: (id: number) => void;
 	log: LogEntry[];
 	selectedTool: string;
 	setSelectedTool: (toolId: string) => void;
@@ -80,9 +82,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	const [selectedTool, setSelectedToolState] = useState('basket');
 	const saveTimer = useRef<number | null>(null);
 	const logSeq = useRef(1);
+	// Tracks which recipes were unlocked last time we looked, so we can announce
+	// newly unlocked ones. null = not seeded yet (first load announces nothing).
+	const prevUnlocked = useRef<Set<string> | null>(null);
 
 	const pushLog = useCallback((icon: string, text: string) => {
-		setLog((entries) => [...entries.slice(-40), { id: logSeq.current++, icon, text, at: Date.now() }]);
+		// keep a rolling history of the last 30 messages — enough to scroll back
+		// through recent activity without growing unbounded
+		setLog((entries) => [...entries.slice(-29), { id: logSeq.current++, icon, text, at: Date.now() }]);
 	}, []);
 
 	// Definitions load once, before login (the character creator needs them).
@@ -99,11 +106,36 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		bridge.shared.state = state;
 	}, [state]);
 
+	const dismissToast = useCallback((id: number) => {
+		setToasts((ts) => ts.filter((t) => t.id !== id));
+	}, []);
+
 	const toast = useCallback((text: string, kind: Toast['kind'] = 'info') => {
 		const id = toastSeq++;
 		setToasts((ts) => [...ts.slice(-3), { id, text, kind }]);
 		window.setTimeout(() => setToasts((ts) => ts.filter((t) => t.id !== id)), kind === 'error' ? 4000 : 6000);
 	}, []);
+
+	// Announce newly unlocked recipes. When progress in a biome crosses a gate,
+	// new recipes appear in the crafting menu — surface that clearly so players
+	// know there's something new to make. The first computation after a load just
+	// seeds the baseline silently (so we don't toast every starter recipe).
+	useEffect(() => {
+		if (!data || !state) return;
+		const now = unlockedRecipeIds(data, state);
+		const prev = prevUnlocked.current;
+		prevUnlocked.current = now;
+		if (!prev) return; // baseline seeded, nothing to announce yet
+		const added = [...now].filter((id) => !prev.has(id));
+		if (!added.length) return;
+		const names = added
+			.map((id) => data.recipes.find((r) => r.id === id)?.name)
+			.filter(Boolean) as string[];
+		// Recipes are tuned to unlock roughly one at a time; announce each by name.
+		// (Cap the toasts if several ever land together so we don't flood the HUD.)
+		names.slice(0, 3).forEach((name) => toast(`New Crafting Recipe Unlocked — ${name}`, 'unlock'));
+		for (const name of names) pushLog('sparkle', `New Crafting Recipe Unlocked — ${name}.`);
+	}, [data, state, toast, pushLog]);
 
 	const markSaved = useCallback(() => {
 		setSaveStatus('saved');
@@ -155,6 +187,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		bridge.shared.state = null;
 		setPanel(null);
 		setPlacementObjectId(null);
+		prevUnlocked.current = null; // re-seed the unlock baseline on next login
 	}, []);
 
 	// Heartbeat: while a save is open, ping the server on a timer so it can
@@ -412,14 +445,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		() => ({
 			data, state, dataError, saveStatus, panel, setPanel, helpOpen, setHelpOpen,
 			activeChestId, openChest, animalCardId, setAnimalCardId,
-			placementObjectId, startPlacement, cancelPlacement, toasts, notify: toast,
+			placementObjectId, startPlacement, cancelPlacement, toasts, notify: toast, dismissToast,
 			log, selectedTool, setSelectedTool, terraform, plant, setTutorialStep,
 			startNew, startLogin, continueLast, logout,
 			refresh, collect, transfer, craft, discard, place, removePlacement, movePlacement,
 			upgradeTool, observe, changeArea, recalcArea,
 		}),
 		[data, state, dataError, saveStatus, panel, helpOpen, activeChestId, animalCardId,
-			placementObjectId, toasts, toast, log, selectedTool, setSelectedTool, terraform, plant,
+			placementObjectId, toasts, toast, dismissToast, log, selectedTool, setSelectedTool, terraform, plant,
 			setTutorialStep, startNew, startLogin, continueLast, logout,
 			refresh, collect, transfer, craft, discard, place, removePlacement, movePlacement, upgradeTool,
 			observe, changeArea, recalcArea, openChest, startPlacement, cancelPlacement]

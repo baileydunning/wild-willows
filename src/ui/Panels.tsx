@@ -2,6 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import type { ChestState, RecipeDef } from '../types';
+import { recipeUnlocked } from '../recipes';
 import { Meter } from './HUD';
 import { Icon } from './icons';
 
@@ -236,7 +237,10 @@ export function CraftingPanel() {
 		decoration: 'Paths & fences', storage: 'Storage', home: 'Camp comforts', kit: 'Restoration kits',
 	};
 	const objOf = (r: RecipeDef) => data.habitatObjects.find((o) => o.id === r.output.itemId);
-	const unlocked = data.recipes.filter((r) => player.unlockedBiomes.includes(r.unlockBiome));
+	// Only show recipes the player has actually unlocked: their biome is open AND
+	// the biome is restored far enough (health / animals returned). Locked recipes
+	// stay hidden until earned, then announce themselves with a toast.
+	const unlocked = data.recipes.filter((r) => recipeUnlocked(r, data, state));
 	const visible = unlocked
 		.filter((r) => placeFilter === 'all' || (objOf(r)?.biomes || []).includes(placeFilter))
 		.filter((r) => typeFilter === 'all' || r.category === typeFilter)

@@ -861,6 +861,19 @@ export function makeAnimalTextures(scene: Phaser.Scene) {
 		g.fillStyle(C('#e8954f'), 1).fillCircle(10, 9, 1.6).fillCircle(15, 11, 1.6).fillCircle(19, 8, 1.4);
 		g.fillStyle(0x2e2018, 1).fillCircle(24, 7, 1);
 	});
+	a('snake', 36, 18, (g) => {
+		// a legless serpent: a smooth S-curve of overlapping body segments,
+		// a slightly larger head, an eye, and a little forked tongue
+		g.fillStyle(0xffffff, 1);
+		const body: [number, number, number][] = [
+			[4, 11, 3], [7, 8, 3.3], [11, 7, 3.5], [15, 8, 3.5],
+			[19, 10, 3.5], [23, 12, 3.4], [26, 10, 3.3],
+		];
+		for (const [x, y, r] of body) g.fillCircle(x, y, r);
+		g.fillCircle(29, 8, 4); // head
+		g.lineStyle(1, C('#c0392b'), 1).lineBetween(33, 8, 36, 6).lineBetween(33, 8, 36, 10); // forked tongue
+		g.fillStyle(0x2e2018, 1).fillCircle(30, 7, 1); // eye
+	});
 	a('owl', 26, 30, (g) => {
 		g.fillStyle(C('#7c6248'), 1).fillEllipse(13, 17, 20, 22);
 		g.fillTriangle(5, 6, 9, 12, 3, 12).fillTriangle(21, 6, 23, 12, 17, 12); // tufts
@@ -1015,6 +1028,7 @@ function animalSprite(animalId: string, kind: string): { name: string; tint: num
 	if (FEATURED_TEXTURE[animalId]) return { name: FEATURED_TEXTURE[animalId].replace('ani-', ''), tint: null };
 	let hash = 0;
 	for (const ch of animalId) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+	if (/snake/.test(animalId)) return { name: 'snake', tint: animalTint(hash) };
 	const base = GENERIC_KINDS.includes(kind) ? kind : 'invertebrate';
 	return { name: `${base}-${hash % 3}`, tint: animalTint(hash) };
 }
@@ -1136,9 +1150,11 @@ export function makePlayerTexture(
 
 export function animalTexture(animalId: string, kind: string): { key: string; tint: number | null } {
 	if (FEATURED_TEXTURE[animalId]) return { key: FEATURED_TEXTURE[animalId], tint: null };
-	const base = GENERIC_KINDS.includes(kind) ? kind : 'invertebrate';
 	let hash = 0;
 	for (const ch of animalId) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+	// snakes are legless — use the dedicated serpent sprite, not the generic lizard
+	if (/snake/.test(animalId)) return { key: 'ani-snake', tint: animalTint(hash) };
+	const base = GENERIC_KINDS.includes(kind) ? kind : 'invertebrate';
 	const variant = hash % 3; // one of three silhouettes per kind
 	return { key: `ani-${base}-${variant}`, tint: animalTint(hash) };
 }

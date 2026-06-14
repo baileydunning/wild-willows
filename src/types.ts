@@ -48,6 +48,14 @@ export interface ResourceDef {
 	color: string;
 }
 
+export interface RecipeUnlock {
+	minHealth?: number;
+	animalsReturned?: number;
+	requiresAnimal?: string;
+	requiresCrafted?: string;
+	label: string;
+}
+
 export interface RecipeDef {
 	id: string;
 	name: string;
@@ -55,6 +63,8 @@ export interface RecipeDef {
 	unlockBiome: string;
 	requiresTool?: { id: string; tier: number };
 	once?: boolean;
+	/** Progress gate within `unlockBiome`. Absent = craftable from the start. */
+	unlock?: RecipeUnlock;
 	output: { itemId: string; qty: number };
 	materials: Record<string, number>;
 }

@@ -139,6 +139,38 @@ export class WorldScene extends Phaser.Scene {
 			if (this.placementObjectId || this.movingPlacementId) bridge.emit('placement-exited');
 		});
 
+		// When the player is typing in a text field (passcode, save name, chest
+		// amounts, …) the game must NOT eat those keystrokes for movement. Disable
+		// the scene's keyboard (and Phaser's global key capture) whenever a text
+		// input is focused, and restore it the moment focus leaves.
+		const isTextEntry = (el: EventTarget | null) => {
+			const n = el as HTMLElement | null;
+			if (!n) return false;
+			const tag = n.tagName;
+			return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || n.isContentEditable;
+		};
+		const onFocusIn = (e: FocusEvent) => {
+			if (!isTextEntry(e.target)) return;
+			const kb = this.input.keyboard;
+			if (!kb) return;
+			kb.enabled = false;
+			kb.disableGlobalCapture();
+			kb.resetKeys(); // drop any held WASD so the player stops dead
+		};
+		const onFocusOut = (e: FocusEvent) => {
+			if (!isTextEntry(e.target)) return;
+			const kb = this.input.keyboard;
+			if (!kb) return;
+			kb.enabled = true;
+			kb.enableGlobalCapture();
+		};
+		document.addEventListener('focusin', onFocusIn);
+		document.addEventListener('focusout', onFocusOut);
+		this.events.once('shutdown', () => {
+			document.removeEventListener('focusin', onFocusIn);
+			document.removeEventListener('focusout', onFocusOut);
+		});
+
 		// nearest-interactable highlight (pulsing ring + key hint)
 		const ring = this.add.image(0, 0, 'ring').setTint(0xffe9a8);
 		const badgeBg = this.add.circle(0, -30, 9.5, 0x2b3321, 0.92).setStrokeStyle(1.5, 0xffe9a8, 1);
@@ -557,10 +589,15 @@ export class WorldScene extends Phaser.Scene {
 		const count = 16;
 
 		// build a shuffled bag of resources: enough copies to fill every node,
-		// with each resource present, then Fisher–Yates shuffle with the seed
+		// with each resource present, then Fisher–Yates shuffle with the seed.
+		// Some early-game staples are weighted heavier so they're easy to find —
+		// seeds especially (used by almost every meadow planting recipe).
+		const NODE_WEIGHT: Record<string, number> = { seeds: 4, fiber: 2 };
 		const res = biome.resources || [];
+		const weighted: string[] = [];
+		for (const r of res) for (let i = 0; i < (NODE_WEIGHT[r] || 1); i++) weighted.push(r);
 		const pool: string[] = [];
-		while (res.length && pool.length < count) pool.push(...res);
+		while (weighted.length && pool.length < count) pool.push(...weighted);
 		for (let i = pool.length - 1; i > 0; i--) {
 			const j = Math.floor(rng() * (i + 1));
 			[pool[i], pool[j]] = [pool[j], pool[i]];

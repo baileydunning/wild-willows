@@ -26,16 +26,32 @@ const KEYS: Array<{ keys: string[]; does: string }> = [
 ];
 
 export function HelpModal() {
-	const { helpOpen, setHelpOpen } = useGame();
+	const { helpOpen, setHelpOpen, setTutorialStep, state } = useGame();
 	if (!helpOpen) return null;
+	const replay = () => {
+		setTutorialStep(0); // restart the interactive tutorial from the first step
+		setHelpOpen(false);
+	};
 	return (
 		<div className="panel-backdrop help-backdrop" onClick={() => setHelpOpen(false)}>
 			<div className="panel panel-wide" onClick={(e) => e.stopPropagation()}>
 				<div className="panel-head">
 					<h2><Icon name="help" size={20} /> How to Play</h2>
-					<button className="icon-btn" onClick={() => setHelpOpen(false)} aria-label="Close"><Icon name="close" /></button>
+					<div className="help-head-actions">
+						{state && (
+							<button className="help-replay-btn" onClick={replay} title="Restart the interactive tutorial">
+								<Icon name="play" size={14} /> Replay tutorial
+							</button>
+						)}
+						<button className="icon-btn" onClick={() => setHelpOpen(false)} aria-label="Close"><Icon name="close" /></button>
+					</div>
 				</div>
 				<div className="panel-body">
+					<p className="help-intro">
+						Wild Willows is a gentle loop: gather what nature has let go, craft it into habitat,
+						place it in the biome, and welcome wildlife home. New recipes unlock as each biome recovers.
+					</p>
+					<div className="help-section-label"><Icon name="leaf" size={15} /> The loop</div>
 					<div className="help-steps">
 						{STEPS.map((s, i) => (
 							<div className="help-step" key={s.title}>
@@ -47,7 +63,7 @@ export function HelpModal() {
 							</div>
 						))}
 					</div>
-					<h3><Icon name="keyboard" size={16} /> Keyboard & mouse</h3>
+					<div className="help-section-label"><Icon name="keyboard" size={15} /> Keyboard & mouse</div>
 					<div className="key-list">
 						{KEYS.map((k) => (
 							<div className="key-row" key={k.does}>

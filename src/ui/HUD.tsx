@@ -92,7 +92,7 @@ export function HUD() {
 }
 
 export function Toasts() {
-	const { toasts } = useGame();
+	const { toasts, dismissToast } = useGame();
 	const iconFor = { animal: 'paw', unlock: 'sparkle', error: 'help', info: 'leaf' } as const;
 	return (
 		<div className="toasts">
@@ -100,6 +100,14 @@ export function Toasts() {
 				<div key={t.id} className={`toast toast-${t.kind}`}>
 					<Icon name={iconFor[t.kind] || 'leaf'} size={17} />
 					<span>{t.text}</span>
+					<button
+						className="toast-close"
+						onClick={() => dismissToast(t.id)}
+						title="Dismiss"
+						aria-label="Dismiss message"
+					>
+						<Icon name="close" size={13} />
+					</button>
 				</div>
 			))}
 		</div>
