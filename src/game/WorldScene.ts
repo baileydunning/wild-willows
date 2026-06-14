@@ -981,7 +981,8 @@ export class WorldScene extends Phaser.Scene {
 		const def = this.objectDef(objectId);
 		const ghost = this.add.container(0, 0).setDepth(5000).setAlpha(0.8);
 		const frame = this.add.image(0, 0, 'ghost-ok');
-		const preview = this.add.image(0, 0, `obj-${def?.shape || 'kit'}`).setAlpha(0.75);
+		const pk = `obj-${def?.shape || 'kit'}`;
+		const preview = this.add.image(0, 0, this.textures.exists(pk) ? pk : 'obj-kit').setAlpha(0.75);
 		ghost.add([frame, preview]);
 		(ghost as any).frame = frame;
 		this.ghost = ghost;
@@ -996,7 +997,8 @@ export class WorldScene extends Phaser.Scene {
 		const def = this.objectDef(placement.objectId);
 		const ghost = this.add.container(0, 0).setDepth(5000).setAlpha(0.85);
 		const frame = this.add.image(0, 0, 'ghost-ok');
-		const preview = this.add.image(0, 0, `obj-${def?.shape || 'kit'}`).setAlpha(0.8);
+		const pk = `obj-${def?.shape || 'kit'}`;
+		const preview = this.add.image(0, 0, this.textures.exists(pk) ? pk : 'obj-kit').setAlpha(0.8);
 		ghost.add([frame, preview]);
 		(ghost as any).frame = frame;
 		this.ghost = ghost;
