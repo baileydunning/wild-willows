@@ -400,7 +400,7 @@ input {
 }
 .help-section-label::after { content: ''; flex: 1; height: 1.5px; background: var(--line); border-radius: 2px; }
 .help-steps {
-	display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: start;
+	display: grid; grid-template-columns: 1fr 1fr; gap: 10px; align-items: stretch;
 	counter-reset: helpstep;
 }
 .help-step {
