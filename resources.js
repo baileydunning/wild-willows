@@ -6586,6 +6586,10 @@ async function byPlayer(table, playerId) {
   const rows = await toArray(table.search({}));
   return rows.filter((r) => r?.playerId === playerId);
 }
+async function findOwned(table, playerId, id) {
+  const rows = await byPlayer(table, playerId);
+  return rows.find((r) => r.id === id) || null;
+}
 var defsReconciled = false;
 async function reconcileDefinitions() {
   if (defsReconciled) return;
@@ -7199,10 +7203,10 @@ async function checkUnlocks(playerId, fresh = {}) {
   return unlockedNow;
 }
 async function getOwnedChest(t, d, chestId, playerId) {
-  const chest = await t.Chest.get(chestId);
-  if (chest && chest.playerId === playerId) return chest;
-  const placement = await t.Placement.get(chestId);
-  if (placement && placement.playerId === playerId) {
+  const chest = await findOwned(t.Chest, playerId, chestId);
+  if (chest) return chest;
+  const placement = await findOwned(t.Placement, playerId, chestId);
+  if (placement) {
     const def = d.object.get(placement.objectId);
     if (def?.isChest) {
       const healed = {
@@ -7537,7 +7541,7 @@ var PlaceObject = class extends PublicEndpoint {
     if (placements.some((p) => p.area === area && p.x === tx && p.y === ty)) {
       throw new GameError("That spot is already taken", 409);
     }
-    const tileHere = await t.TerrainTile.get(`${playerId}:${area}:${tx}:${ty}`);
+    const tileHere = await findOwned(t.TerrainTile, playerId, `${playerId}:${area}:${tx}:${ty}`);
     if (tileHere && tileHere.playerId === playerId) {
       if (tileHere.type === "water") {
         if (!def.bridge) throw new GameError("That is open water \u2014 a wooden bridge can span it", 409);
@@ -7589,7 +7593,7 @@ var Plant = class extends PublicEndpoint {
     const tx = Math.round(Number(x));
     const ty = Math.round(Number(y));
     const tileId = `${playerId}:${area}:${tx}:${ty}`;
-    const bed = await t.TerrainTile.get(tileId);
+    const bed = await findOwned(t.TerrainTile, playerId, tileId);
     if (!bed || bed.playerId !== playerId || bed.type !== "watered") {
       throw new GameError("Plant into a watered soil bed \u2014 dig with the shovel, then water it");
     }
@@ -7630,21 +7634,21 @@ var MoveObject = class extends PublicEndpoint {
     const { playerId, placementId, x, y } = await bodyOf(data);
     const t = db();
     await requirePlayer(playerId);
-    const placement = await t.Placement.get(placementId);
-    if (!placement || placement.playerId !== playerId) throw new GameError("Placement not found", 404);
+    const placements = await byPlayer(t.Placement, playerId);
+    const placement = placements.find((p) => p.id === placementId);
+    if (!placement) throw new GameError("Placement not found", 404);
     if (placement.objectId === "workbench") throw new GameError("The old workbench stays put");
     const tx = Math.round(Number(x));
     const ty = Math.round(Number(y));
     if (!Number.isFinite(tx) || !Number.isFinite(ty) || tx < 1 || ty < 1 || tx > 28 || ty > 18) {
       throw new GameError("That spot is out of reach");
     }
-    const placements = await byPlayer(t.Placement, playerId);
     if (placements.some((p) => p.id !== placementId && p.area === placement.area && p.x === tx && p.y === ty)) {
       throw new GameError("That spot is already taken", 409);
     }
     const d = await defs();
     const movingDef = d.object.get(placement.objectId);
-    const tileHere = await t.TerrainTile.get(`${playerId}:${placement.area}:${tx}:${ty}`);
+    const tileHere = await findOwned(t.TerrainTile, playerId, `${playerId}:${placement.area}:${tx}:${ty}`);
     if (tileHere && tileHere.playerId === playerId) {
       if (tileHere.type === "water") {
         if (!movingDef?.bridge) throw new GameError("That is open water \u2014 only a bridge can sit there", 409);
@@ -7665,12 +7669,12 @@ var RemoveObject = class extends PublicEndpoint {
     const { playerId, placementId } = await bodyOf(data);
     const t = db();
     const { player } = await requirePlayer(playerId);
-    const placement = await t.Placement.get(placementId);
-    if (!placement || placement.playerId !== playerId) throw new GameError("Placement not found", 404);
+    const placement = await findOwned(t.Placement, playerId, placementId);
+    if (!placement) throw new GameError("Placement not found", 404);
     if (placement.objectId === "workbench") {
       throw new GameError("Your crafting station stays put \u2014 the preserve needs it");
     }
-    const chest = await t.Chest.get(placementId);
+    const chest = await findOwned(t.Chest, playerId, placementId);
     if (chest && sumValues(chest.contents) > 0) {
       throw new GameError("Empty the chest before picking it up", 409);
     }
@@ -7790,7 +7794,7 @@ var Terraform = class extends PublicEndpoint {
       throw new GameError("Something is already placed there");
     }
     const tileId = `${playerId}:${area}:${tx}:${ty}`;
-    const existing = await t.TerrainTile.get(tileId);
+    const existing = await findOwned(t.TerrainTile, playerId, tileId);
     let inventory = player.inventory || {};
     let tile = null;
     let removedId;
