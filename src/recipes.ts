@@ -17,6 +17,10 @@ function returnedInBiome(data: GameData, state: GameState, biomeId: string): Set
 /** Is this recipe unlocked for the player right now? */
 export function recipeUnlocked(recipe: RecipeDef, data: GameData, state: GameState): boolean {
 	const player = state.player;
+	// Plantable things (flowers, grasses, bushes, trees) are never crafted — you
+	// plant them in a watered bed. Keep them out of the crafting menu entirely.
+	const obj = data.habitatObjects.find((o) => o.id === recipe.output.itemId);
+	if (obj?.plantable) return false;
 	// the recipe's biome must be open at all
 	if (recipe.unlockBiome && !player.unlockedBiomes.includes(recipe.unlockBiome)) return false;
 	const u = recipe.unlock;

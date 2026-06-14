@@ -965,24 +965,6 @@
 			"description": "A little lectern for your field journal — read it anywhere you place one."
 		},
 		{
-			"id": "cozy-rug",
-			"name": "Picnic Rug",
-			"placement": "outdoor",
-			"biomes": [
-				"meadow",
-				"forest",
-				"wetland",
-				"desert",
-				"alpine",
-				"coastal"
-			],
-			"healthValue": 0,
-			"needs": [],
-			"shape": "rug",
-			"color": "#b5707a",
-			"description": "A hand-woven rug for resting beside your work. Purely cozy."
-		},
-		{
 			"id": "flower-vase",
 			"name": "Potted Flowers",
 			"placement": "outdoor",

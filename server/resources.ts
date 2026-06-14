@@ -1278,6 +1278,11 @@ export class CraftItem extends PublicEndpoint {
 
 		const recipe = d.recipe.get(recipeId);
 		if (!recipe) throw new GameError(`Unknown recipe: ${recipeId}`);
+		// Plantable objects can only be planted in a watered bed, never crafted.
+		const outObj = d.object.get(recipe.output.itemId);
+		if (outObj?.plantable) {
+			throw new GameError(`${recipe.name} is planted, not crafted — dig a bed, water it, and plant it.`, 400);
+		}
 		if (recipe.unlockBiome && !(player.unlockedBiomes || []).includes(recipe.unlockBiome)) {
 			throw new GameError('This recipe unlocks with a biome you have not restored yet', 403);
 		}

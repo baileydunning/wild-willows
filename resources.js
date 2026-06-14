@@ -563,24 +563,6 @@ var recipes_default = {
       }
     },
     {
-      id: "cozy-rug",
-      name: "Picnic Rug",
-      category: "home",
-      unlockBiome: "meadow",
-      output: {
-        itemId: "cozy-rug",
-        qty: 1
-      },
-      materials: {
-        fiber: 6,
-        wildflowers: 1
-      },
-      unlock: {
-        minHealth: 62,
-        label: "Restore Willow Meadow to 62% health"
-      }
-    },
-    {
       id: "flower-vase",
       name: "Potted Flowers",
       category: "home",
@@ -2662,24 +2644,6 @@ var habitat_objects_default = {
       shape: "stand",
       color: "#9a7448",
       description: "A little lectern for your field journal \u2014 read it anywhere you place one."
-    },
-    {
-      id: "cozy-rug",
-      name: "Picnic Rug",
-      placement: "outdoor",
-      biomes: [
-        "meadow",
-        "forest",
-        "wetland",
-        "desert",
-        "alpine",
-        "coastal"
-      ],
-      healthValue: 0,
-      needs: [],
-      shape: "rug",
-      color: "#b5707a",
-      description: "A hand-woven rug for resting beside your work. Purely cozy."
     },
     {
       id: "flower-vase",
@@ -7866,6 +7830,10 @@ var CraftItem = class extends PublicEndpoint {
     const { player } = await requirePlayer(playerId);
     const recipe = d.recipe.get(recipeId);
     if (!recipe) throw new GameError(`Unknown recipe: ${recipeId}`);
+    const outObj = d.object.get(recipe.output.itemId);
+    if (outObj?.plantable) {
+      throw new GameError(`${recipe.name} is planted, not crafted — dig a bed, water it, and plant it.`, 400);
+    }
     if (recipe.unlockBiome && !(player.unlockedBiomes || []).includes(recipe.unlockBiome)) {
       throw new GameError("This recipe unlocks with a biome you have not restored yet", 403);
     }

@@ -396,24 +396,6 @@
 			}
 		},
 		{
-			"id": "cozy-rug",
-			"name": "Picnic Rug",
-			"category": "home",
-			"unlockBiome": "meadow",
-			"output": {
-				"itemId": "cozy-rug",
-				"qty": 1
-			},
-			"materials": {
-				"fiber": 6,
-				"wildflowers": 1
-			},
-			"unlock": {
-				"minHealth": 62,
-				"label": "Restore Willow Meadow to 62% health"
-			}
-		},
-		{
 			"id": "flower-vase",
 			"name": "Potted Flowers",
 			"category": "home",
