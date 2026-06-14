@@ -1023,8 +1023,8 @@
 			"description": "Cairns and markers that restore a safe migration path through the heights. Crafting it helps unlock Pelican Shore."
 		},
 		{
-			"id": "meadow-restoration-kit",
-			"name": "Meadow Restoration Kit",
+			"id": "forest-restoration-kit",
+			"name": "Forest Restoration Kit",
 			"placement": "none",
 			"biomes": [],
 			"healthValue": 0,

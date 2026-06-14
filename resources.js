@@ -38,8 +38,8 @@ var biomes_default = {
         biome: "meadow",
         minHealth: 80,
         minAnimals: 5,
-        requiresItem: "meadow-restoration-kit",
-        label: "Restore Willow Meadow to 80% health, welcome 5 meadow animals, and craft a Meadow Restoration Kit."
+        requiresItem: "forest-restoration-kit",
+        label: "Restore Willow Meadow to 80% health, welcome 5 meadow animals, and craft a Forest Restoration Kit."
       },
       resources: [
         "branches",
@@ -890,13 +890,13 @@ var recipes_default = {
       }
     },
     {
-      id: "meadow-restoration-kit",
-      name: "Meadow Restoration Kit",
+      id: "forest-restoration-kit",
+      name: "Forest Restoration Kit",
       category: "kit",
       unlockBiome: "meadow",
       once: true,
       output: {
-        itemId: "meadow-restoration-kit",
+        itemId: "forest-restoration-kit",
         qty: 1
       },
       materials: {
@@ -2587,8 +2587,8 @@ var habitat_objects_default = {
       description: "Cairns and markers that restore a safe migration path through the heights. Crafting it helps unlock Pelican Shore."
     },
     {
-      id: "meadow-restoration-kit",
-      name: "Meadow Restoration Kit",
+      id: "forest-restoration-kit",
+      name: "Forest Restoration Kit",
       placement: "none",
       biomes: [],
       healthValue: 0,

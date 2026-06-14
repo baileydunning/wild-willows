@@ -723,13 +723,13 @@
 			}
 		},
 		{
-			"id": "meadow-restoration-kit",
-			"name": "Meadow Restoration Kit",
+			"id": "forest-restoration-kit",
+			"name": "Forest Restoration Kit",
 			"category": "kit",
 			"unlockBiome": "meadow",
 			"once": true,
 			"output": {
-				"itemId": "meadow-restoration-kit",
+				"itemId": "forest-restoration-kit",
 				"qty": 1
 			},
 			"materials": {
