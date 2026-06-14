@@ -1,7 +1,7 @@
 import Phaser from 'phaser';
 import { bridge } from './bridge';
 import {
-	animalScale, animalTexture, makeAnimalTextures, makeBaseTextures, makeNodeTextures,
+	animalScale, animalTexture, ensureAnimalTexture, makeAnimalTextures, makeBaseTextures, makeNodeTextures,
 	makeObjectTextures, makePlayerTexture,
 } from './textures';
 import type { BiomeDef, HabitatObjectDef } from '../types';
@@ -926,6 +926,7 @@ export class WorldScene extends Phaser.Scene {
 			ax = Phaser.Math.Clamp(ax, TILE, this.worldW - TILE);
 			ay = Phaser.Math.Clamp(ay, TILE, this.worldH - TILE);
 
+			ensureAnimalTexture(this, animal.id, animal.kind);
 			const { key, tint } = animalTexture(animal.id, animal.kind);
 			if (animal.kind !== 'insect') {
 				const sh = this.add.image(ax, ay + 9, 'shadow').setDepth(3).setScale(0.75, 0.7).setAlpha(0.8);

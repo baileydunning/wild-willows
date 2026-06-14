@@ -2,6 +2,7 @@
 // boot from simple shapes, so the game ships with zero asset files.
 
 import Phaser from 'phaser';
+import { bridge } from './bridge';
 
 const C = (hex: string) => Phaser.Display.Color.HexStringToColor(hex).color;
 
@@ -969,6 +970,23 @@ const a = (key: string, w: number, h: number, draw: (g: G) => void) => { ANIMAL_
 /** Generate the Phaser textures for every animal sprite. */
 export function makeAnimalTextures(scene: Phaser.Scene) {
 	for (const [key, s] of Object.entries(ANIMAL_SPRITES)) tex(scene, `ani-${key}`, s.w, s.h, s.draw);
+	// A bespoke trait-built sprite for every animal that isn't a hand-drawn
+	// featured one, so no two species share a silhouette.
+	for (const an of bridge.shared.data?.animals || []) {
+		if (FEATURED_TEXTURE[an.id] || /snake/.test(an.id)) continue;
+		const c = composeAnimalDraw(an.id, an.kind);
+		tex(scene, `ani-gen-${an.id}`, c.w, c.h, c.draw);
+	}
+}
+
+/** Make sure one animal's trait sprite exists (covers the fresh-login race where
+ * definitions arrive after the scene first booted). */
+export function ensureAnimalTexture(scene: Phaser.Scene, id: string, kind: string) {
+	if (FEATURED_TEXTURE[id] || /snake/.test(id)) return; // those are always registered
+	const key = `ani-gen-${id}`;
+	if (scene.textures.exists(key)) return;
+	const c = composeAnimalDraw(id, kind);
+	tex(scene, key, c.w, c.h, c.draw);
 }
 
 {
@@ -1304,6 +1322,233 @@ function animalTint(hash: number): number {
 const hexOf = (c: number) => '#' + (c >>> 0).toString(16).padStart(6, '0').slice(-6);
 
 /**
+ * Compose a distinctive sprite for ANY animal from its species traits, so every
+ * creature reads as itself rather than one of a few shared silhouettes. The body
+ * is drawn in white (so it picks up the animal's unique tint), with fixed-colour
+ * features layered on — quills for a porcupine, antlers for a deer, long legs for
+ * a heron, a domed shell for a turtle, and so on. Works for both the Phaser
+ * texture and the SVG journal thumbnail (shared drawing API), and collapses to a
+ * clean silhouette when drawn in silhouette mode.
+ */
+function composeAnimalDraw(id: string, kind: string): { w: number; h: number; draw: (g: G) => void } {
+	const t = (re: RegExp) => re.test(id);
+	const BODY = 0xffffff;       // tintable body colour
+	const DK = 0x2e2018;         // eyes / dark detail
+	const draw = (fn: (g: G) => void) => fn;
+
+	if (kind === 'mammal') {
+		return { w: 36, h: 28, draw: draw((g) => {
+			g.fillStyle(BODY, 1);
+			// tail
+			if (t(/fox|squirrel|marten|ermine|coyote|bobcat|kit-fox|fisher|wolf/)) g.fillEllipse(6, 15, 13, 9);
+			else if (t(/beaver|muskrat/)) g.fillEllipse(5, 19, 10, 5);
+			else if (t(/rabbit|hare|cottontail|jackrabbit/)) g.fillCircle(6, 18, 3.6);
+			else if (t(/whale|dolphin/)) g.fillTriangle(2, 12, 9, 17, 2, 22);
+			else if (t(/seal|otter/)) g.fillTriangle(3, 16, 9, 13, 9, 20);
+			else g.fillEllipse(7, 17, 8, 4.5);
+			// body + head
+			g.fillEllipse(19, 17, 23, 14);
+			g.fillRect(12, 23, 3.6, 5.5).fillRect(24, 23, 3.6, 5.5); // legs
+			g.fillCircle(28, 13, 6.2);
+			// ears
+			if (t(/rabbit|hare|cottontail|jackrabbit/)) g.fillEllipse(26, 3, 3.6, 10).fillEllipse(31, 3, 3.6, 10);
+			else if (t(/fox|coyote|bobcat|wolf|kit-fox|marten|fisher|ermine|mink|chipmunk|squirrel|kangaroo|vole|mouse|rat|pika|bat/)) g.fillTriangle(24, 7, 27, 0, 29, 7).fillTriangle(29, 7, 32, 0, 34, 7);
+			else g.fillCircle(26, 8, 2.6).fillCircle(31, 8, 2.6);
+			// antlers / horns / beards
+			if (t(/deer|elk|moose|caribou/)) { g.lineStyle(2, C('#8a6a44'), 1); g.lineBetween(27, 7, 23, 0).lineBetween(25, 3, 21, 1).lineBetween(30, 7, 34, 0).lineBetween(32, 3, 36, 1); }
+			if (t(/bighorn|ram|sheep/)) { g.fillStyle(C('#ca9e5a'), 1); g.fillEllipse(24, 11, 7, 10).fillEllipse(34, 11, 7, 10); g.fillStyle(BODY, 1).fillCircle(24, 11, 2).fillCircle(34, 11, 2); }
+			if (t(/goat/)) { g.fillStyle(C('#e8e2d6'), 1); g.fillTriangle(26, 7, 25, -2, 28, 7).fillTriangle(31, 7, 32, -2, 29, 7); g.fillStyle(BODY, 1).fillTriangle(26, 17, 30, 17, 28, 23); }
+			// quills (the spiky ones!)
+			if (t(/porcupine|hedgehog/)) { g.fillStyle(C('#3a2c1e'), 1); for (let i = 0; i < 16; i++) { const bx = 8 + i * 1.5; g.fillTriangle(bx, 12, bx - 1.5, 12 - 8 - ((i * 7) % 6), bx + 1.5, 12 - 7 - ((i * 5) % 6)); } }
+			// markings
+			if (t(/raccoon/)) { g.fillStyle(C('#2e2620'), 1); g.fillEllipse(28, 13, 9, 4); }
+			if (t(/badger|skunk/)) { g.fillStyle(C('#f4efe6'), 1); g.fillRect(25, 8, 2.6, 11); }
+			if (t(/chipmunk|antelope-squirrel/)) { g.fillStyle(C('#3a2c1e'), 1); g.fillRect(12, 14, 12, 1.2).fillRect(12, 18, 12, 1.2); }
+			g.fillStyle(DK, 1).fillCircle(29, 12, 1.2);
+		}) };
+	}
+
+	if (kind === 'bird') {
+		const wader = t(/heron|crane|egret|bittern|stilt|flamingo|sandhill/);
+		const raptor = t(/hawk|eagle|owl|falcon|kite|harrier/);
+		return { w: 28, h: wader ? 30 : 24, draw: draw((g) => {
+			const baseY = wader ? 12 : 13;
+			g.fillStyle(BODY, 1);
+			// legs
+			if (wader) { g.lineStyle(1.4, C('#c9a35c'), 1); g.lineBetween(12, baseY + 8, 11, 29).lineBetween(16, baseY + 8, 17, 29); g.fillStyle(BODY, 1); }
+			else g.fillStyle(BODY, 1);
+			// body + head
+			g.fillEllipse(13, baseY, 17, 12).fillCircle(20, baseY - 6, 4.6);
+			if (wader) { g.fillRect(18, baseY - 10, 3, 8); g.fillCircle(20, baseY - 11, 4.2); } // long neck + head
+			// tail
+			if (t(/wren/)) g.fillTriangle(3, baseY - 5, 7, baseY, 4, baseY - 1);
+			else g.fillTriangle(2, baseY - 3, 8, baseY, 3, baseY + 4);
+			// crest
+			if (t(/quail|cardinal|jay|waxwing|nutcracker|titmouse|chickadee|kingfisher|phainopepla/)) { g.fillTriangle(19, baseY - 11, 22, baseY - 16, 23, baseY - 9); }
+			// beak
+			const hx = wader ? 20 : 20, hy = wader ? baseY - 11 : baseY - 6;
+			if (t(/hummingbird/)) { g.fillStyle(DK, 1); g.lineStyle(1.2, DK, 1).lineBetween(hx + 3, hy, hx + 11, hy - 1); }
+			else if (t(/heron|crane|egret|bittern|kingfisher|woodpecker|sapsucker|stork|pelican|oystercatcher/)) { g.fillStyle(C('#e0a93f'), 1).fillTriangle(hx + 3, hy - 1.5, hx + 11, hy, hx + 3, hy + 1.5); }
+			else if (raptor) { g.fillStyle(C('#e0a93f'), 1).fillTriangle(hx + 3, hy - 1, hx + 8, hy + 1, hx + 3, hy + 2.5); }
+			else { g.fillStyle(C('#e0a93f'), 1).fillTriangle(hx + 3, hy - 1, hx + 7, hy, hx + 3, hy + 1.5); }
+			if (t(/pelican/)) { g.fillStyle(C('#e8c98a'), 1).fillEllipse(hx + 6, hy + 3, 7, 5); }
+			// owl big eyes / ear tufts
+			if (t(/owl/)) { g.fillStyle(C('#f4e3b1'), 1).fillCircle(18, hy, 2).fillCircle(22, hy, 2); g.fillStyle(DK, 1).fillCircle(18, hy, 1).fillCircle(22, hy, 1); g.fillStyle(BODY, 1).fillTriangle(16, hy - 4, 18, hy - 8, 19, hy - 3).fillTriangle(21, hy - 3, 22, hy - 8, 24, hy - 4); }
+			else g.fillStyle(DK, 1).fillCircle(21, hy, 1.1);
+			// woodpecker red cap
+			if (t(/woodpecker|sapsucker/)) { g.fillStyle(C('#c0392b'), 1).fillCircle(20, hy - 4, 2.4); }
+		}) };
+	}
+
+	if (kind === 'insect') {
+		return { w: 24, h: 20, draw: draw((g) => {
+			if (t(/butterfly|monarch|admiral|swallowtail|fritillary|painted|lady$|painted-lady/)) {
+				g.fillStyle(BODY, 1).fillEllipse(7, 8, 12, 12).fillEllipse(17, 8, 12, 12).fillEllipse(8, 16, 8, 7).fillEllipse(16, 16, 8, 7);
+				g.fillStyle(0x000000, 0.18).fillEllipse(7, 8, 5, 6).fillEllipse(17, 8, 5, 6);
+				g.fillStyle(DK, 1).fillEllipse(12, 11, 2.4, 12);
+				g.lineStyle(1, DK, 1).lineBetween(12, 4, 9, 0).lineBetween(12, 4, 15, 0);
+				return;
+			}
+			if (t(/dragonfly|damselfly/)) {
+				g.fillStyle(BODY, 1).fillRect(3, 9, 18, 2.4).fillCircle(20, 10, 3);
+				g.fillStyle(0xffffff, 0.6).fillEllipse(11, 6, 12, 4).fillEllipse(11, 14, 12, 4);
+				g.fillStyle(DK, 1).fillCircle(21, 9, 1);
+				return;
+			}
+			if (t(/bee|bumblebee/)) {
+				g.fillStyle(BODY, 1).fillEllipse(11, 11, 14, 10).fillCircle(18, 9, 3.4);
+				g.fillStyle(0x2e2620, 1).fillRect(7, 7, 2.6, 8).fillRect(12, 7, 2.6, 8); // stripes
+				g.fillStyle(0xffffff, 0.7).fillEllipse(9, 4, 8, 5);
+				g.fillStyle(DK, 1).fillCircle(19, 8, 1);
+				return;
+			}
+			if (t(/mantis/)) {
+				g.fillStyle(BODY, 1).fillEllipse(12, 13, 16, 6).fillTriangle(20, 9, 24, 7, 22, 13);
+				g.lineStyle(2, BODY, 1).lineBetween(19, 12, 23, 16).lineBetween(23, 16, 18, 17);
+				g.fillStyle(DK, 1).fillCircle(23, 8, 1);
+				return;
+			}
+			// grasshopper / beetle / strider — generic 6-legged
+			g.fillStyle(BODY, 1).fillEllipse(11, 11, 15, 8).fillCircle(18, 9, 3);
+			if (t(/beetle/)) { g.fillStyle(0x000000, 0.18).fillEllipse(10, 11, 12, 7); g.lineStyle(1, DK, 1).lineBetween(11, 6, 11, 16); }
+			g.lineStyle(1, DK, 1);
+			for (const lx of [6, 10, 14]) g.lineBetween(lx, 14, lx - 2, 18).lineBetween(lx, 8, lx - 2, 4);
+			if (t(/grasshopper|cricket/)) g.lineStyle(2.2, BODY, 1).lineBetween(8, 13, 4, 18);
+			g.fillStyle(DK, 1).fillCircle(19, 8, 1);
+		}) };
+	}
+
+	if (kind === 'reptile') {
+		if (t(/turtle|tortoise/)) {
+			return { w: 30, h: 20, draw: draw((g) => {
+				g.fillStyle(BODY, 1).fillEllipse(15, 12, 22, 13);
+				g.fillStyle(0x000000, 0.16).fillEllipse(15, 14, 22, 7);
+				g.lineStyle(1, 0x000000, 0.25).strokeCircle(15, 11, 5);
+				g.fillStyle(BODY, 1).fillCircle(26, 12, 3.4).fillRect(7, 16, 3, 4).fillRect(20, 16, 3, 4); // head + legs
+				g.fillStyle(DK, 1).fillCircle(27, 11, 1);
+			}) };
+		}
+		// lizard / gecko / iguana
+		return { w: 34, h: 18, draw: draw((g) => {
+			g.fillStyle(BODY, 1).fillEllipse(14, 10, 20, 8).fillCircle(25, 9, 4);
+			g.fillEllipse(5, 11, 12, 4); // tail
+			g.fillRect(9, 13, 2.4, 4).fillRect(18, 13, 2.4, 4); // legs
+			if (t(/horned|collared/)) { g.fillStyle(BODY, 1).fillTriangle(27, 6, 30, 3, 30, 9); } // head spikes/frill
+			if (t(/iguana|chuckwalla/)) { g.fillStyle(0x000000, 0.15); for (const sx of [10, 14, 18, 22]) g.fillTriangle(sx, 6, sx + 1.5, 3, sx + 3, 6); } // dorsal crest
+			g.fillStyle(DK, 1).fillCircle(26, 8, 1);
+		}) };
+	}
+
+	if (kind === 'amphibian') {
+		if (t(/frog|toad/)) {
+			return { w: 26, h: 18, draw: draw((g) => {
+				g.fillStyle(BODY, 1).fillEllipse(13, 12, 19, 11).fillCircle(7, 7, 3).fillCircle(19, 7, 3); // body + eye bulges
+				g.fillStyle(DK, 1).fillCircle(7, 7, 1.2).fillCircle(19, 7, 1.2);
+				g.fillStyle(BODY, 1).fillTriangle(3, 16, 9, 14, 6, 18).fillTriangle(23, 16, 17, 14, 20, 18); // legs
+				if (t(/toad/)) { g.fillStyle(0x000000, 0.14).fillCircle(9, 11, 1.3).fillCircle(15, 13, 1.3).fillCircle(17, 10, 1.3); } // warts
+			}) };
+		}
+		// salamander / newt
+		return { w: 30, h: 16, draw: draw((g) => {
+			g.fillStyle(BODY, 1).fillEllipse(14, 9, 18, 7).fillCircle(23, 8, 3.4).fillEllipse(4, 10, 10, 3.4);
+			g.fillRect(9, 11, 2, 3).fillRect(17, 11, 2, 3);
+			g.fillStyle(C('#e8954f'), 1).fillCircle(11, 8, 1.3).fillCircle(16, 9, 1.3).fillCircle(20, 8, 1.1); // spots
+			g.fillStyle(DK, 1).fillCircle(24, 7, 1);
+		}) };
+	}
+
+	if (kind === 'fish') {
+		return { w: 28, h: 16, draw: draw((g) => {
+			g.fillStyle(BODY, 1).fillEllipse(14, 8, 18, 10).fillTriangle(2, 3, 7, 8, 2, 13);
+			g.fillStyle(0xffffff, 0.6).fillTriangle(13, 1, 17, 5, 13, 5); // dorsal fin
+			g.fillStyle(DK, 1).fillCircle(20, 7, 1.2);
+		}) };
+	}
+
+	// invertebrate — crabs, stars, anemones, slugs, shellfish, spiders, scorpions
+	if (t(/crab/)) {
+		return { w: 26, h: 22, draw: draw((g) => {
+			g.fillStyle(BODY, 1).fillEllipse(13, 13, 18, 11);
+			g.lineStyle(1.4, BODY, 1);
+			for (const s of [-1, 1]) for (let i = 0; i < 3; i++) g.lineBetween(13 + s * 6, 13 + i * 2, 13 + s * 11, 11 + i * 3);
+			g.fillStyle(BODY, 1).fillCircle(4, 9, 3).fillCircle(22, 9, 3); // claws
+			g.fillStyle(DK, 1).fillCircle(10, 9, 1).fillCircle(16, 9, 1);
+		}) };
+	}
+	if (t(/star/)) {
+		return { w: 24, h: 24, draw: draw((g) => {
+			g.fillStyle(BODY, 1);
+			const cx = 12, cy = 12, R = 11;
+			for (let i = 0; i < 5; i++) {
+				const ang = (i / 5) * Math.PI * 2 - Math.PI / 2;
+				const a0 = ((i - 0.5) / 5) * Math.PI * 2 - Math.PI / 2;
+				const a2 = ((i + 0.5) / 5) * Math.PI * 2 - Math.PI / 2;
+				g.fillTriangle(cx, cy, cx + Math.cos(a0) * R * 0.55, cy + Math.sin(a0) * R * 0.55, cx + Math.cos(ang) * R, cy + Math.sin(ang) * R);
+				g.fillTriangle(cx, cy, cx + Math.cos(a2) * R * 0.55, cy + Math.sin(a2) * R * 0.55, cx + Math.cos(ang) * R, cy + Math.sin(ang) * R);
+			}
+			g.fillStyle(0x000000, 0.12).fillCircle(cx, cy, 3.5);
+		}) };
+	}
+	if (t(/anemone/)) {
+		return { w: 24, h: 22, draw: draw((g) => {
+			g.fillStyle(BODY, 1).fillEllipse(12, 17, 14, 9);
+			g.lineStyle(1.6, BODY, 1);
+			for (let i = 0; i < 9; i++) { const x = 5 + i * 1.8; g.lineBetween(x, 14, x - 1 + (i % 2) * 2, 3 + (i % 3)); }
+		}) };
+	}
+	if (t(/scorpion/)) {
+		return { w: 28, h: 20, draw: draw((g) => {
+			g.fillStyle(BODY, 1).fillEllipse(12, 13, 14, 8).fillCircle(5, 9, 2.6).fillCircle(19, 9, 2.6); // body + pincers
+			g.lineStyle(1.8, BODY, 1).lineBetween(18, 11, 23, 6).lineBetween(23, 6, 24, 12); // curled tail
+			g.fillStyle(BODY, 1).fillCircle(24, 12, 1.8);
+			g.lineStyle(1, DK, 1); for (const lx of [9, 13, 17]) g.lineBetween(lx, 16, lx - 2, 19);
+		}) };
+	}
+	if (t(/spider|tarantula/)) {
+		return { w: 24, h: 22, draw: draw((g) => {
+			g.fillStyle(BODY, 1).fillCircle(12, 12, 6).fillCircle(12, 6, 3);
+			g.lineStyle(1.6, BODY, 1);
+			for (const s of [-1, 1]) for (let i = 0; i < 4; i++) g.lineBetween(12, 11, 12 + s * (8 + i), 6 + i * 4);
+			g.fillStyle(DK, 1).fillCircle(11, 5, 0.9).fillCircle(13, 5, 0.9);
+		}) };
+	}
+	if (t(/slug|snail/)) {
+		return { w: 26, h: 16, draw: draw((g) => {
+			g.fillStyle(BODY, 1).fillEllipse(13, 11, 22, 8);
+			if (t(/snail/)) g.fillStyle(0x000000, 0.16).fillCircle(9, 9, 5);
+			g.lineStyle(1.4, BODY, 1).lineBetween(21, 8, 23, 3).lineBetween(23, 8, 25, 4); // eye stalks
+			g.fillStyle(DK, 1).fillCircle(23, 3, 0.8).fillCircle(25, 4, 0.8);
+		}) };
+	}
+	// mussel / clam / oyster — bivalve shell
+	return { w: 22, h: 18, draw: draw((g) => {
+		g.fillStyle(BODY, 1).fillEllipse(11, 11, 18, 12);
+		g.lineStyle(1, 0x000000, 0.25); for (let i = 1; i < 4; i++) g.strokeEllipse(11, 11, 18 - i * 4, 12 - i * 3);
+		g.fillStyle(0x000000, 0.12).fillTriangle(11, 5, 9, 11, 13, 11);
+	}) };
+}
+
+/**
  * Minimal SVG-emitting stand-in for Phaser.Graphics. Implements the same draw
  * primitives the sprite functions use, so the exact same draw code renders a
  * faithful thumbnail in the DOM (no duplicated art). `tint` recolours the
@@ -1339,29 +1584,36 @@ class SvgGraphics {
 	}
 }
 
-/** Resolve which sprite + tint an animal uses (mirrors animalTexture). */
-function animalSprite(animalId: string, kind: string): { name: string; tint: number | null } {
-	if (FEATURED_TEXTURE[animalId]) return { name: FEATURED_TEXTURE[animalId].replace('ani-', ''), tint: null };
-	let hash = 0;
-	for (const ch of animalId) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
-	if (/snake/.test(animalId)) return { name: 'snake', tint: animalTint(hash) };
-	const base = GENERIC_KINDS.includes(kind) ? kind : 'invertebrate';
-	return { name: `${base}-${hash % 3}`, tint: animalTint(hash) };
-}
-
 /**
  * Render an animal's sprite as an SVG data URI for use in the DOM (field
  * journal). `silhouette` draws it as a single dark shape for animals that have
- * not returned yet.
+ * not returned yet. Featured animals use their hand-drawn sprite; everyone else
+ * gets the same trait-built sprite the world uses.
  */
 export function animalSpriteDataUri(animalId: string, kind: string, opts: { silhouette?: boolean } = {}): string {
-	const { name, tint } = animalSprite(animalId, kind);
-	const shape = ANIMAL_SPRITES[name] || ANIMAL_SPRITES['mammal-0'];
 	const override = opts.silhouette ? '#4a4636' : null;
-	const tintHex = tint != null ? hexOf(tint) : null;
+	const toUri = (g: SvgGraphics, w: number, h: number) => 'data:image/svg+xml;base64,' + btoa(g.toSvg(w, h));
+
+	if (FEATURED_TEXTURE[animalId]) {
+		const name = FEATURED_TEXTURE[animalId].replace('ani-', '');
+		const shape = ANIMAL_SPRITES[name] || ANIMAL_SPRITES['mammal-0'];
+		const g = new SvgGraphics(null, override);
+		shape.draw(g as unknown as G);
+		return toUri(g, shape.w, shape.h);
+	}
+	let hash = 0;
+	for (const ch of animalId) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
+	const tintHex = hexOf(animalTint(hash));
+	if (/snake/.test(animalId)) {
+		const shape = ANIMAL_SPRITES['snake'];
+		const g = new SvgGraphics(tintHex, override);
+		shape.draw(g as unknown as G);
+		return toUri(g, shape.w, shape.h);
+	}
+	const c = composeAnimalDraw(animalId, kind);
 	const g = new SvgGraphics(tintHex, override);
-	shape.draw(g as unknown as G);
-	return 'data:image/svg+xml;base64,' + btoa(g.toSvg(shape.w, shape.h));
+	c.draw(g as unknown as G);
+	return toUri(g, c.w, c.h);
 }
 
 /**
@@ -1470,9 +1722,8 @@ export function animalTexture(animalId: string, kind: string): { key: string; ti
 	for (const ch of animalId) hash = (hash * 31 + ch.charCodeAt(0)) >>> 0;
 	// snakes are legless — use the dedicated serpent sprite, not the generic lizard
 	if (/snake/.test(animalId)) return { key: 'ani-snake', tint: animalTint(hash) };
-	const base = GENERIC_KINDS.includes(kind) ? kind : 'invertebrate';
-	const variant = hash % 3; // one of three silhouettes per kind
-	return { key: `ani-${base}-${variant}`, tint: animalTint(hash) };
+	// every other animal gets its own trait-built sprite (registered at boot)
+	return { key: `ani-gen-${animalId}`, tint: animalTint(hash) };
 }
 
 // Roughly proportional sprite sizes so a bear reads as far bigger than a
