@@ -7683,7 +7683,7 @@ async function defs() {
 var NODE_REGEN_SECONDS = 75;
 var BASE_HEALTH = 5;
 var CAPACITY_BY_BASKET = { 1: 80, 2: 160, 3: 260, 4: 380 };
-var START_INVENTORY = { water: 6 };
+var START_INVENTORY = { water: 6, seeds: 2, wildflowers: 1 };
 var START_TOOLS = { basket: 1, shovel: 1, "watering-can": 1, "field-journal": 1 };
 var SKIN_TONES = ["#f6d7b8", "#eec39a", "#d9a06b", "#b97f50", "#8d5a3a", "#6b4226"];
 var HAIR_COLORS = ["#3b2e25", "#6e4a33", "#a3692f", "#c9913f", "#d9b380", "#8c8c8c"];
