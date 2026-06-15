@@ -122,10 +122,23 @@ const STEPS: StepDef[] = [
 
 const DONE_STEP = 99;
 
+// How long the "nice job!" check animation plays before we move on.
+const CELEBRATE_MS = 1100;
+
+// Minimum time a step's card stays up before it's allowed to auto-advance, so
+// the player always gets a chance to read it (and isn't yanked forward the
+// instant the goal condition happens to be met). Scaled to the length of the
+// card text — roughly a relaxed reading pace — with a floor and a cap.
+const readMs = (text: string) => {
+	const words = text.trim().split(/\s+/).length;
+	return Math.min(9000, Math.max(4500, words * 320));
+};
+
 export function Tutorial() {
 	const { state, setTutorialStep, panel } = useGame();
 	const [flags, setFlags] = useState<Flags>({ moved: false, gathered: false, openedWorkbench: false, crafted: false });
 	const advanceTimer = useRef<number | null>(null);
+	const stepShownAt = useRef<number>(Date.now());
 	const [celebrating, setCelebrating] = useState(false);
 	const touch = isTouchDevice();
 
@@ -158,6 +171,12 @@ export function Tutorial() {
 		}
 		if (step > frontier) setFrontier(step);
 	}, [step, frontier]);
+
+	// Remember when the current card first appeared, so auto-advance can hold it
+	// on screen for a minimum reading time.
+	useEffect(() => {
+		stepShownAt.current = Date.now();
+	}, [step]);
 
 	const goTo = (next: number) => {
 		if (advanceTimer.current) {
@@ -210,14 +229,31 @@ export function Tutorial() {
 		const def = STEPS[step];
 		if (def.done({ state, flags })) {
 			if (advanceTimer.current) return;
-			setCelebrating(true);
-			advanceTimer.current = window.setTimeout(() => {
-				advanceTimer.current = null;
-				setCelebrating(false);
-				setTutorialStep(step + 1);
-			}, 900);
+
+			const celebrateThenAdvance = () => {
+				setCelebrating(true);
+				advanceTimer.current = window.setTimeout(() => {
+					advanceTimer.current = null;
+					setCelebrating(false);
+					setTutorialStep(step + 1);
+				}, CELEBRATE_MS);
+			};
+
+			// Hold the card up until the player has had time to read it. If the
+			// goal was met before that, wait out the remainder first; otherwise
+			// celebrate and move on right away.
+			const text = (touch && def.touchText) || def.text;
+			const remaining = readMs(text) - (Date.now() - stepShownAt.current);
+			if (remaining <= 0) {
+				celebrateThenAdvance();
+			} else {
+				advanceTimer.current = window.setTimeout(() => {
+					advanceTimer.current = null;
+					celebrateThenAdvance();
+				}, remaining);
+			}
 		}
-	}, [state, flags, step, frontier, replaying, setTutorialStep]);
+	}, [state, flags, step, frontier, replaying, touch, setTutorialStep]);
 
 	if (!state || step >= STEPS.length) return null;
 	const def = STEPS[step];

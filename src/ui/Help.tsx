@@ -76,10 +76,6 @@ export function HelpModal() {
 							</div>
 						))}
 					</div>
-					<p className="muted small">
-						A gentle note: nothing here can be captured, owned, or battled. Animals visit because the habitat is right — and stay
-						comfortable as long as it stays that way.
-					</p>
 				</div>
 			</div>
 		</div>
