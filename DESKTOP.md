@@ -94,6 +94,31 @@ npx electron-rebuild -f -w lmdb
 `harper` is a regular dependency now (`"harper": "^5.1.0"`) — match it to your
 installed version (`harper --version`) and confirm `ls node_modules/harper`.
 
+## Steam Stats & Achievements
+
+The desktop app pushes metrics to Steam with **no game-code changes**: each
+install has one local Harper player, so `electron/metrics-sync.js` polls the
+local `/Metrics/` endpoint every 60s and maps the numbers onto Steam via
+`electron/steam.js`. Everything is a no-op unless the app is launched through
+Steam, so `npm run desktop` still works.
+
+Define these in the Steamworks dashboard (App Admin → **Stats**, then
+**Achievements**) with matching API names:
+
+Stats (INT): `play_minutes`, `sessions`, `resources_collected`, `items_crafted`,
+`objects_placed`, `plants_planted`, `animals_observed`, `animals_returned`,
+`biomes_unlocked`.
+
+Achievements: `ACH_FIRST_ANIMAL`, `ACH_FIRST_CRAFT`, `ACH_SECOND_BIOME`,
+`ACH_NATURALIST`, `ACH_GREEN_THUMB`, `ACH_DEDICATED`. The unlock thresholds live
+in `ACHIEVEMENTS` in `metrics-sync.js` — tweak freely.
+
+Testing: `steam_appid.txt` holds `480` (Valve's public test app) so the Steam API
+initializes during development with the Steam client running. Replace it with your
+real App ID (or set `WW_STEAM_APPID`) once you have one; in packaged Steam builds
+Steam injects the App ID and the file isn't shipped. On first sync the app logs the
+actual metric field names to the console — use them to confirm the mapping.
+
 ## Things still to do for a real Steam release
 
 - **Controller support** — the game is keyboard-only today; add gamepad input

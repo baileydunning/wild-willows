@@ -8,3 +8,6 @@ vite.config.*.timestamp-*.mjs
 
 # desktop (Electron / electron-builder) build output
 dist/
+
+# Steam: dev-only app id file (Steam injects the real id in packaged builds)
+steam_appid.txt

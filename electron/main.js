@@ -11,6 +11,8 @@
 const { app, BrowserWindow, shell, session } = require('electron');
 const path = require('node:path');
 const harper = require('./harper');
+const steam = require('./steam');
+const metricsSync = require('./metrics-sync');
 
 // Single instance only — two copies would fight over the Harper port/data.
 if (!app.requestSingleInstanceLock()) {
@@ -78,10 +80,12 @@ function trustLoopbackCert() {
 
 async function boot() {
 	trustLoopbackCert();
+	steam.init(app); // no-op when not launched through Steam
 	createWindow();
 	try {
 		const url = await harper.start(app);
 		if (mainWindow) await mainWindow.loadURL(url);
+		metricsSync.start(); // poll local metrics → Steam Stats (no-op without Steam)
 	} catch (err) {
 		console.error('[main] Harper failed to start:', err);
 		if (mainWindow) {
@@ -115,7 +119,7 @@ app.on('activate', () => {
 });
 
 // Make sure Harper is torn down whenever the app exits.
-app.on('before-quit', () => harper.stop());
+app.on('before-quit', () => { metricsSync.stop(); steam.shutdown(); harper.stop(); });
 process.on('exit', () => harper.stop());
 process.on('SIGINT', () => {
 	harper.stop();

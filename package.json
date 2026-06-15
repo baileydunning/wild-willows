@@ -22,7 +22,8 @@
 	},
 	"comment": "For the Harper WEB deploy, the component is prebuilt (bundled resources.js + the static web/ build) and needs NO runtime npm deps — phaser/react/etc. are baked into web/assets at build time. We deliberately keep those OUT of `dependencies` so `harper deploy package=.` doesn't install the (large) phaser package. The one exception is `harper` itself: the Electron desktop app spawns a local Harper process (electron/harper.js does require.resolve('harper')), and electron-builder only packages production `dependencies`, so `harper` must live here for the desktop build.",
 	"dependencies": {
-		"harper": "^5.1.0"
+		"harper": "^5.1.0",
+		"steamworks.js": "^0.4.0"
 	},
 	"devDependencies": {
 		"@types/react": "^18.3.12",
@@ -52,7 +53,8 @@
 			{ "from": "schema.graphql", "to": "component/schema.graphql" }
 		],
 		"asarUnpack": [
-			"node_modules/harper/**/*"
+			"node_modules/harper/**/*",
+			"node_modules/steamworks.js/**/*"
 		],
 		"npmRebuild": true,
 		"buildDependenciesFromSource": false,
