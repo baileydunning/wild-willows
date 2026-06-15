@@ -586,7 +586,9 @@ export class WorldScene extends Phaser.Scene {
 		if (!biome) return [];
 		const playerId = bridge.shared.state?.player.id || 'anon';
 		const rng = mulberry32(hashStr(`${playerId}-${this.area}-nodes`));
-		const count = 16;
+		// Node budget — never below the resource count, so there's always room
+		// for at least one node of every resource this biome offers.
+		const count = Math.max(16, (this.biomeDef()?.resources || []).length);
 
 		// Build the resource bag for this area. GUARANTEE every biome resource
 		// appears at least once (one of each, placed first), then fill the rest
@@ -598,8 +600,8 @@ export class WorldScene extends Phaser.Scene {
 		const res = biome.resources || [];
 		const weighted: string[] = [];
 		for (const r of res) for (let i = 0; i < (NODE_WEIGHT[r] || 1); i++) weighted.push(r);
-		// shuffle only the guaranteed prefix's *order* (positions are random anyway),
-		// then append weighted fill up to `count`
+		// Guaranteed prefix: one node per resource, placed first (positions are
+		// random anyway), then weighted fill up to `count`.
 		const pool: string[] = [...res];
 		while (pool.length < count && weighted.length) pool.push(weighted[Math.floor(rng() * weighted.length)]);
 
@@ -631,6 +633,23 @@ export class WorldScene extends Phaser.Scene {
 				node.tx = spot.tx;
 				node.ty = spot.ty;
 				taken.add(`${node.tx},${node.ty}`);
+			}
+		}
+
+		// Coverage safety net — every gatherable resource MUST be obtainable the
+		// moment the world spawns. The placement loop above already covers this in
+		// normal conditions, but if anything slipped through (a future biome with
+		// more resources than the node budget, or an unusually crowded map that
+		// exhausted placement attempts), force a node in on the nearest free tile.
+		// This makes coverage a hard guarantee rather than a statistical one.
+		const present = new Set(nodes.map((n) => n.resourceId));
+		for (const r of res) {
+			if (present.has(r)) continue;
+			const spot = this.findFreeTile(Math.floor(OUT_W / 2), Math.floor(OUT_H / 2), occupied, taken);
+			if (spot) {
+				nodes.push({ id: `n${nodes.length}`, resourceId: r, tx: spot.tx, ty: spot.ty });
+				taken.add(`${spot.tx},${spot.ty}`);
+				present.add(r);
 			}
 		}
 
