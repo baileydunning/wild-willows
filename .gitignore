@@ -5,3 +5,6 @@ node_modules/
 .DS_Store
 # Vite writes a temp config bundle on each build; sometimes it isn't cleaned up
 vite.config.*.timestamp-*.mjs
+
+# desktop (Electron / electron-builder) build output
+dist/

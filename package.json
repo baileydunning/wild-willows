@@ -7,25 +7,65 @@
 	"engines": {
 		"node": ">=24"
 	},
+	"main": "electron/main.js",
 	"scripts": {
 		"dev:web": "vite",
 		"dev": "npm run build:server && harper dev .",
 		"build": "npm run build:server && npm run build:web",
 		"build:web": "vite build",
 		"build:server": "esbuild server/resources.ts --bundle --format=esm --platform=node --packages=external --outfile=resources.js",
-		"check": "tsc --noEmit"
+		"check": "tsc --noEmit",
+		"desktop": "npm run build && electron .",
+		"desktop:run": "electron .",
+		"desktop:pack": "npm run build && electron-builder --dir",
+		"desktop:dist": "npm run build && electron-builder"
 	},
-	"comment": "Everything here is build-time only. The deployed Harper component is prebuilt (bundled resources.js + the static web/ build), so it has NO runtime npm dependencies — phaser/react/etc. are baked into web/assets at build time, and resources.js bundles its own imports. Keeping these out of `dependencies` is what stops Harper from trying to install the (large) phaser package on deploy.",
-	"dependencies": {},
+	"comment": "For the Harper WEB deploy, the component is prebuilt (bundled resources.js + the static web/ build) and needs NO runtime npm deps — phaser/react/etc. are baked into web/assets at build time. We deliberately keep those OUT of `dependencies` so `harper deploy package=.` doesn't install the (large) phaser package. The one exception is `harper` itself: the Electron desktop app spawns a local Harper process (electron/harper.js does require.resolve('harper')), and electron-builder only packages production `dependencies`, so `harper` must live here for the desktop build.",
+	"dependencies": {
+		"harper": "^5.1.0"
+	},
 	"devDependencies": {
 		"@types/react": "^18.3.12",
 		"@types/react-dom": "^18.3.1",
 		"@vitejs/plugin-react": "^4.3.4",
+		"electron": "^31.0.0",
+		"electron-builder": "^24.13.3",
 		"esbuild": "^0.24.0",
 		"phaser": "^3.85.2",
 		"react": "^18.3.1",
 		"react-dom": "^18.3.1",
 		"typescript": "^5.6.3",
 		"vite": "^5.4.11"
+	},
+	"build": {
+		"appId": "io.harperdb.wildwillows",
+		"productName": "Wild Willows",
+		"files": [
+			"electron/**/*",
+			"package.json"
+		],
+		"extraResources": [
+			{ "from": "web", "to": "component/web" },
+			{ "from": "data", "to": "component/data" },
+			{ "from": "resources.js", "to": "component/resources.js" },
+			{ "from": "config.yaml", "to": "component/config.yaml" },
+			{ "from": "schema.graphql", "to": "component/schema.graphql" }
+		],
+		"asarUnpack": [
+			"node_modules/harper/**/*"
+		],
+		"npmRebuild": true,
+		"buildDependenciesFromSource": false,
+		"mac": {
+			"category": "public.app-category.games",
+			"target": ["dmg", "zip"]
+		},
+		"win": {
+			"target": ["nsis"]
+		},
+		"linux": {
+			"category": "Game",
+			"target": ["AppImage"]
+		}
 	}
 }
