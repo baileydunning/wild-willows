@@ -108,6 +108,27 @@ export function makeBaseTextures(scene: Phaser.Scene) {
 		g.fillStyle(C('#6788ae'), 1).fillCircle(2.5, 14.5, 2.2);
 		g.lineStyle(2, C('#6788ae'), 1).strokeCircle(16, 6, 4);
 	});
+	// alpine mountain range backdrop — layered snow-capped peaks
+	tex(scene, 'mtnridge', 420, 150, (g) => {
+		// far range (hazy blue-gray)
+		g.fillStyle(C('#8a93a6'), 1);
+		const far: [number, number][] = [[0, 150], [40, 70], [90, 110], [150, 50], [210, 100], [270, 58], [340, 104], [390, 64], [420, 110], [420, 150]];
+		g.fillPoints(far.map(([x, y]) => new Phaser.Geom.Point(x, y)), true);
+		// near range (cool gray)
+		g.fillStyle(C('#6b7384'), 1);
+		const near: [number, number][] = [[0, 150], [60, 40], [120, 96], [185, 24], [250, 92], [320, 30], [380, 90], [420, 50], [420, 150]];
+		g.fillPoints(near.map(([x, y]) => new Phaser.Geom.Point(x, y)), true);
+		// snow caps on the tall near peaks
+		g.fillStyle(C('#eef4fb'), 1);
+		g.fillTriangle(185, 24, 168, 52, 202, 52);
+		g.fillTriangle(320, 30, 305, 56, 335, 56);
+		g.fillTriangle(60, 40, 47, 64, 73, 64);
+		g.fillTriangle(420, 50, 405, 74, 435, 74);
+		// little snow streaks down the faces
+		g.fillStyle(0xffffff, 0.85);
+		g.fillTriangle(185, 30, 180, 50, 190, 50);
+		g.fillTriangle(320, 36, 316, 54, 324, 54);
+	});
 }
 
 /**
@@ -244,6 +265,45 @@ export function makeNodeTextures(scene: Phaser.Scene) {
 		g.fillStyle(C('#5d8a4a'), 1).fillCircle(9, 9, 5).fillCircle(16, 7, 5.4).fillCircle(21, 11, 4.4);
 		g.fillStyle(C('#74a85e'), 1).fillCircle(12, 6, 3).fillCircle(19, 7, 2.6);
 	});
+	n('quartz-crystal', 28, 26, (g) => {
+		g.fillStyle(C('#8e8e8a'), 1).fillEllipse(14, 22, 22, 7); // rock base
+		g.fillStyle(C('#9fcfe0'), 1).fillTriangle(7, 22, 13, 22, 9, 6); // crystal cluster
+		g.fillStyle(C('#cfe8f2'), 1).fillTriangle(12, 22, 19, 22, 16, 3);
+		g.fillStyle(C('#bfe0ee'), 1).fillTriangle(17, 22, 23, 22, 21, 9);
+		g.fillStyle(0xffffff, 0.9).fillCircle(16, 7, 1.2).fillCircle(9, 10, 1);
+	});
+	n('pine-nuts', 28, 26, (g) => {
+		g.fillStyle(C('#6f5a3a'), 1).fillEllipse(9, 11, 12, 16); // open cone
+		g.lineStyle(1.2, C('#4f3f28'), 1).lineBetween(4, 8, 14, 10).lineBetween(4, 13, 14, 14).lineBetween(5, 17, 13, 17);
+		g.fillStyle(C('#c8a86a'), 1).fillEllipse(18, 18, 6, 8).fillEllipse(23, 20, 5, 7).fillEllipse(20, 13, 5, 7); // shed nuts
+		g.fillStyle(C('#e0c690'), 0.8).fillCircle(17, 16, 1.2).fillCircle(22, 18, 1.2);
+	});
+	n('lichen', 28, 22, (g) => {
+		g.fillStyle(C('#8e8e8a'), 1).fillEllipse(14, 14, 24, 13); // stone
+		g.fillStyle(C('#9fb38a'), 1).fillCircle(9, 12, 4.5).fillCircle(18, 11, 4).fillCircle(22, 16, 3.4); // crusty lichen
+		g.fillStyle(C('#c2cf9e'), 1).fillCircle(9, 12, 2.4).fillCircle(18, 11, 2);
+		g.fillStyle(C('#d9a24a'), 1).fillCircle(14, 15, 1.4); // map-lichen
+	});
+	n('snow', 28, 20, (g) => {
+		g.fillStyle(C('#cdd9e8'), 1).fillEllipse(14, 13, 26, 11);
+		g.fillStyle(C('#eef4fb'), 1).fillEllipse(14, 11, 24, 10);
+		g.fillStyle(0xffffff, 1).fillEllipse(10, 9, 11, 5);
+		g.fillStyle(0xffffff, 0.95).fillCircle(20, 7, 1.2).fillCircle(8, 13, 1).fillCircle(17, 13, 1);
+	});
+	n('juniper-berries', 26, 26, (g) => {
+		g.lineStyle(2, C('#5d7a66'), 1).lineBetween(13, 24, 13, 8); // sprig
+		g.fillStyle(C('#5d7a66'), 1); // needles
+		for (const [x, y] of [[7, 12], [19, 12], [9, 17], [17, 17]] as const) g.fillTriangle(13, y, x, y - 3, x, y + 1);
+		g.fillStyle(C('#6a7fa0'), 1).fillCircle(9, 9, 3).fillCircle(17, 10, 3).fillCircle(13, 14, 3); // frosted berries
+		g.fillStyle(0xffffff, 0.4).fillCircle(8, 8, 1).fillCircle(16, 9, 1).fillCircle(12, 13, 1);
+	});
+	n('obsidian', 28, 22, (g) => {
+		g.fillStyle(C('#2e2b38'), 1).fillTriangle(6, 18, 14, 18, 8, 5); // glassy shards
+		g.fillStyle(C('#3a3648'), 1).fillTriangle(12, 18, 22, 18, 18, 7);
+		g.fillStyle(C('#46435a'), 1).fillTriangle(18, 18, 25, 18, 23, 10);
+		g.fillStyle(0xffffff, 0.45).lineStyle(1, 0xffffff, 0.45);
+		g.fillRect(9, 9, 1.4, 7).fillRect(18, 11, 1.4, 6); // sharp highlights
+	});
 	tex(scene, 'gate', 40, 44, (g) => {
 		g.fillStyle(C('#8c6a42'), 1).fillRect(2, 6, 6, 38).fillRect(32, 6, 6, 38);
 		g.fillStyle(C('#a3814f'), 1).fillRect(0, 2, 40, 6);
@@ -358,6 +418,15 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 		g.fillStyle(C('#7c5a3c'), 1).fillRoundedRect(2, 4, 28, 9, 3);
 		g.fillStyle(C('#e3c75f'), 1).fillRect(14, 11, 4, 6);
 		g.lineStyle(1, C('#5d4128'), 1).strokeRoundedRect(2, 4, 28, 22, 3);
+	});
+	o('largechest', 38, 32, (g) => {
+		g.fillStyle(C('#5a4632'), 1).fillRoundedRect(2, 9, 34, 21, 3); // deep body
+		g.fillStyle(C('#6e553c'), 1).fillRoundedRect(2, 4, 34, 11, 3); // domed lid
+		g.fillStyle(C('#7c6248'), 1).fillRect(4, 16, 30, 3); // plank seam
+		g.fillStyle(C('#8a8c92'), 1).fillRect(8, 4, 3, 26).fillRect(27, 4, 3, 26); // iron bands
+		g.lineStyle(1, C('#3a2c1e'), 1).strokeRoundedRect(2, 4, 34, 26, 3);
+		g.fillStyle(C('#e3c75f'), 1).fillRect(17, 13, 4, 7); // brass lock plate
+		g.fillStyle(C('#a9842f'), 1).fillCircle(19, 16, 1.3);
 	});
 	o('stand', 26, 38, (g) => {
 		g.fillStyle(C('#9a7448'), 1).fillRect(11, 12, 4, 24).fillRect(4, 32, 18, 4);
@@ -954,6 +1023,91 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 		g.fillStyle(C('#6b5238'), 1).fillRect(16, 22, 6, 16);
 		g.fillStyle(C('#4a6b40'), 1).fillEllipse(19, 14, 36, 20).fillCircle(8, 20, 7).fillCircle(30, 20, 7); // broad rounded
 		g.fillStyle(C('#5e8a4a'), 0.7).fillCircle(13, 10, 5).fillCircle(25, 11, 5);
+	});
+
+	// --- Graywind Heights (alpine) exclusive crafts ---
+	o('haypile', 32, 26, (g) => {
+		g.fillStyle(C('#cdbc7e'), 1).fillEllipse(16, 19, 30, 13); // cured grass mound
+		g.fillStyle(C('#bda968'), 1).fillEllipse(16, 22, 30, 7);
+		g.lineStyle(1.4, C('#a8923f'), 1);
+		for (const x of [6, 11, 16, 21, 26]) g.lineBetween(x, 18, x + (x % 2 ? 2 : -2), 6); // stray stalks
+		g.fillStyle(C('#d77bb1'), 1).fillCircle(10, 12, 1.6).fillCircle(22, 13, 1.6); // dried flowers
+	});
+	o('lichenrock', 34, 26, (g) => {
+		g.fillStyle(C('#8e8e8a'), 1).fillEllipse(17, 16, 30, 18); // boulder
+		g.fillStyle(C('#a8a29a'), 1).fillEllipse(12, 11, 12, 8);
+		g.fillStyle(C('#9fb38a'), 1).fillCircle(22, 12, 4).fillCircle(9, 18, 3.4).fillCircle(26, 19, 3); // lichen
+		g.fillStyle(C('#c2cf9e'), 1).fillCircle(22, 12, 2).fillCircle(9, 18, 1.6);
+		g.fillStyle(C('#d9a24a'), 1).fillCircle(15, 8, 1.6); // map-lichen fleck
+	});
+	o('scree', 36, 26, (g) => {
+		const cols = ['#9a948a', '#8e8e8a', '#a8a29a', '#7e7c78'];
+		const rocks: [number, number, number][] = [[6, 21, 5], [13, 22, 6], [21, 22, 6], [29, 21, 5], [10, 15, 5], [18, 15, 5], [26, 15, 5], [14, 9, 4], [22, 9, 4]];
+		rocks.forEach(([x, y, r], i) => { g.fillStyle(C(cols[i % 4]), 1).fillCircle(x, y, r); g.fillStyle(0xffffff, 0.18).fillCircle(x - r / 3, y - r / 3, r / 3); });
+	});
+	o('snowbank', 36, 24, (g) => {
+		g.fillStyle(C('#cdd9e8'), 1).fillEllipse(18, 18, 34, 12); // shadowed base
+		g.fillStyle(C('#eef4fb'), 1).fillEllipse(18, 15, 32, 12); // drift
+		g.fillStyle(0xffffff, 1).fillEllipse(13, 12, 16, 7);
+		g.fillStyle(C('#bfe0f0'), 0.7).fillEllipse(26, 18, 10, 3); // meltwater glint
+	});
+	o('seedcache', 30, 26, (g) => {
+		g.fillStyle(C('#7c6248'), 1).fillEllipse(15, 19, 26, 12); // hollow
+		g.fillStyle(C('#5d4128'), 1).fillEllipse(15, 19, 18, 7);
+		g.fillStyle(C('#c8a86a'), 1); // cached nuts
+		for (const [x, y] of [[10, 17], [15, 15], [20, 17], [13, 19], [18, 19]] as const) g.fillEllipse(x, y, 5, 6);
+		g.fillStyle(C('#e0c690'), 0.8).fillCircle(13, 14, 1.4).fillCircle(18, 16, 1.4);
+	});
+	o('juniper', 34, 30, (g) => {
+		g.fillStyle(C('#5a4634'), 1).fillRect(15, 22, 4, 8); // gnarled stem
+		g.fillStyle(C('#4f6b54'), 1).fillEllipse(16, 17, 30, 18); // dense low shrub
+		g.fillStyle(C('#5d7a66'), 1).fillCircle(8, 15, 6).fillCircle(24, 15, 6).fillCircle(16, 11, 7);
+		g.fillStyle(C('#6a7fa0'), 1); // frosted berries
+		for (const [x, y] of [[10, 14], [22, 13], [16, 17], [13, 19], [25, 18], [18, 10]] as const) g.fillCircle(x, y, 2);
+		g.fillStyle(0xffffff, 0.4); for (const [x, y] of [[10, 13], [22, 12], [16, 16]] as const) g.fillCircle(x, y, 0.8);
+	});
+	o('cliffniche', 34, 28, (g) => {
+		g.fillStyle(C('#8a847a'), 1).fillRoundedRect(2, 4, 30, 24, 3); // cliff face
+		g.fillStyle(C('#9c968c'), 1).fillRect(2, 4, 30, 3);
+		g.lineStyle(1.4, C('#6e685e'), 1).lineBetween(2, 13, 32, 11).lineBetween(2, 20, 32, 22); // strata
+		g.fillStyle(C('#3a352e'), 1).fillEllipse(17, 17, 14, 12); // dark niche
+		g.fillStyle(C('#6b8a4a'), 1).fillEllipse(17, 22, 16, 5); // mossed lip
+		g.fillStyle(C('#caa15a'), 1).fillCircle(14, 17, 1.6).fillCircle(19, 18, 1.6); // eggs tucked in
+	});
+	o('crystalspring', 34, 28, (g) => {
+		g.fillStyle(C('#8e8e8a'), 1).fillEllipse(17, 17, 32, 18); // stone rim
+		g.fillStyle(C('#6fb6cf'), 1).fillEllipse(17, 17, 24, 13); // cold water
+		g.fillStyle(C('#9fdff0'), 1).fillEllipse(17, 15, 16, 8);
+		g.fillStyle(0xffffff, 0.7).fillEllipse(12, 13, 7, 2.6);
+		g.fillStyle(C('#cfe8f2'), 1).fillTriangle(26, 16, 28, 7, 30, 16).fillTriangle(4, 18, 6, 10, 8, 18); // quartz spurs
+		g.fillStyle(0xffffff, 0.9).fillCircle(28, 9, 1).fillCircle(6, 12, 1);
+	});
+	o('crystalcairn', 28, 36, (g) => {
+		const stones: [number, number, number, number][] = [[14, 31, 11, 7], [14, 24, 9, 6], [14, 18, 7, 5]];
+		stones.forEach(([x, y, w, h]) => { g.fillStyle(C('#8e8e8a'), 1).fillEllipse(x, y, w, h); g.fillStyle(0xffffff, 0.2).fillEllipse(x - 2, y - 1, w / 3, h / 3); });
+		g.fillStyle(C('#cfe8f2'), 1).fillTriangle(10, 14, 18, 14, 14, 2); // crystal crown
+		g.fillStyle(C('#e6f4fb'), 1).fillTriangle(12, 14, 16, 14, 14, 5);
+		g.fillStyle(0xffffff, 0.9).fillCircle(14, 7, 1.2);
+	});
+	o('prayerflags', 40, 26, (g) => {
+		g.lineStyle(1.4, C('#6e553c'), 1).lineBetween(2, 6, 38, 10); // string sags
+		const cols = ['#d77bb1', '#e8954f', '#5f9ed6', '#6fae5a', '#caa84e'];
+		cols.forEach((c, i) => { const x = 4 + i * 7; const yt = 6 + i * 0.8; g.fillStyle(C(c), 1).fillTriangle(x, yt, x + 6, yt + 0.6, x + 3, yt + 11); });
+	});
+	o('crystallantern', 24, 34, (g) => {
+		g.fillStyle(C('#7c7670'), 1).fillRect(6, 28, 12, 5); // stone base
+		g.fillStyle(C('#8e8880'), 1).fillRect(8, 10, 8, 18); // post
+		g.fillStyle(C('#6e685e'), 1).fillRect(5, 6, 14, 5).fillRect(7, 2, 10, 4); // cap
+		g.fillStyle(C('#9fdff0'), 0.55).fillCircle(12, 18, 8); // glow
+		g.fillStyle(C('#d8f0fa'), 1).fillTriangle(8, 22, 16, 22, 12, 12); // quartz shard
+		g.fillStyle(0xffffff, 0.9).fillCircle(12, 15, 1.4);
+	});
+	o('obsidiantotem', 24, 36, (g) => {
+		g.fillStyle(C('#7c7670'), 1).fillEllipse(12, 33, 18, 6); // stone foot
+		g.fillStyle(C('#2e2b38'), 1).fillRoundedRect(7, 4, 10, 28, 3); // glassy column
+		g.fillStyle(C('#46435a'), 1).fillTriangle(7, 4, 17, 4, 12, 32);
+		g.fillStyle(0xffffff, 0.5).fillRect(10, 8, 2, 20); // sharp highlight
+		g.fillStyle(C('#8fd0e8'), 0.5).fillCircle(12, 12, 2); // cold glint
 	});
 }
 

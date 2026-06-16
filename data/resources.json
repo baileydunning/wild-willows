@@ -139,6 +139,42 @@
 			"name": "Agave Nectar",
 			"tool": "basket",
 			"color": "#e3b93f"
+		},
+		{
+			"id": "quartz-crystal",
+			"name": "Quartz Crystal",
+			"tool": "shovel",
+			"color": "#cfe8f2"
+		},
+		{
+			"id": "pine-nuts",
+			"name": "Pine Nuts",
+			"tool": "basket",
+			"color": "#c8a86a"
+		},
+		{
+			"id": "lichen",
+			"name": "Lichen",
+			"tool": "basket",
+			"color": "#9fb38a"
+		},
+		{
+			"id": "snow",
+			"name": "Packed Snow",
+			"tool": "shovel",
+			"color": "#eef4fb"
+		},
+		{
+			"id": "juniper-berries",
+			"name": "Juniper Berries",
+			"tool": "basket",
+			"color": "#6a7fa0"
+		},
+		{
+			"id": "obsidian",
+			"name": "Obsidian",
+			"tool": "shovel",
+			"color": "#2e2b38"
 		}
 	]
 }

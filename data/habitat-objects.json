@@ -146,7 +146,7 @@
 				"seeds": 2
 			},
 			"growSeconds": 90,
-			"description": "The preserve's namesake — a graceful willow grown from a watered bed."
+			"description": "The preserve's namesake \u2014 a graceful willow grown from a watered bed."
 		},
 		{
 			"id": "oak-tree",
@@ -192,7 +192,7 @@
 				"pinecones": 2
 			},
 			"growSeconds": 90,
-			"description": "A young pine grown from a cone — evergreen shelter in any season."
+			"description": "A young pine grown from a cone \u2014 evergreen shelter in any season."
 		},
 		{
 			"id": "butterfly-flowers",
@@ -312,7 +312,7 @@
 			],
 			"shape": "pool",
 			"color": "#6aa884",
-			"description": "A mossy seep ringed with ferns — damp ground that wakes the whole understory."
+			"description": "A mossy seep ringed with ferns \u2014 damp ground that wakes the whole understory."
 		},
 		{
 			"id": "shallow-water-pool",
@@ -379,7 +379,7 @@
 			],
 			"shape": "rocks",
 			"color": "#8e8e8a",
-			"description": "Sun-warmed stones with cool gaps beneath — insects, lizards, and pika approve."
+			"description": "Sun-warmed stones with cool gaps beneath \u2014 insects, lizards, and pika approve."
 		},
 		{
 			"id": "fallen-branch-shelter",
@@ -452,7 +452,7 @@
 			],
 			"shape": "gravel",
 			"color": "#a8a8a0",
-			"description": "Crunchy gravel underfoot — keeps boots off the new growth."
+			"description": "Crunchy gravel underfoot \u2014 keeps boots off the new growth."
 		},
 		{
 			"id": "plank-path",
@@ -512,7 +512,7 @@
 			],
 			"shape": "mossy",
 			"color": "#7fa05a",
-			"description": "Old stones wearing soft green moss — the forest approves."
+			"description": "Old stones wearing soft green moss \u2014 the forest approves."
 		},
 		{
 			"id": "wooden-bridge",
@@ -533,7 +533,7 @@
 			"shape": "bridge",
 			"color": "#a3814f",
 			"bridge": true,
-			"description": "A sturdy plank bridge — place it on open water to cross your rivers and lakes."
+			"description": "A sturdy plank bridge \u2014 place it on open water to cross your rivers and lakes."
 		},
 		{
 			"id": "wooden-fence",
@@ -617,7 +617,7 @@
 			],
 			"shape": "reed",
 			"color": "#7fa05a",
-			"description": "Dense replanted reeds — nursery for frogs, dragonflies, and blackbirds.",
+			"description": "Dense replanted reeds \u2014 nursery for frogs, dragonflies, and blackbirds.",
 			"plantable": true,
 			"plantCost": {
 				"reeds": 3
@@ -673,7 +673,7 @@
 			],
 			"shape": "reed",
 			"color": "#8aa85a",
-			"description": "Tall cattails along the water's edge — cover for nesting marsh birds and shade for the shallows.",
+			"description": "Tall cattails along the water's edge \u2014 cover for nesting marsh birds and shade for the shallows.",
 			"plantable": true,
 			"plantCost": {
 				"reeds": 2
@@ -708,7 +708,7 @@
 			],
 			"shape": "pool",
 			"color": "#6fae86",
-			"description": "Still, clean water blanketed with lily pads — a hatchery for dragonflies and frogs."
+			"description": "Still, clean water blanketed with lily pads \u2014 a hatchery for dragonflies and frogs."
 		},
 		{
 			"id": "burrow-mound",
@@ -785,7 +785,7 @@
 			],
 			"shape": "shade",
 			"color": "#a08a72",
-			"description": "Stacked slabs with a cool dark gap — shelter from the midday sun."
+			"description": "Stacked slabs with a cool dark gap \u2014 shelter from the midday sun."
 		},
 		{
 			"id": "alpine-wildflower-patch",
@@ -888,7 +888,7 @@
 			],
 			"shape": "kelp",
 			"color": "#6a7a3a",
-			"description": "A protected line of washed-up kelp — a buffet for the whole beach."
+			"description": "A protected line of washed-up kelp \u2014 a buffet for the whole beach."
 		},
 		{
 			"id": "coastal-nesting-area",
@@ -923,8 +923,8 @@
 			"shape": "chest",
 			"color": "#8a6a44",
 			"isChest": true,
-			"chestCapacity": 60,
-			"description": "A woven-and-wood chest. Holds 60 materials. Place it near your workbench to link it."
+			"chestCapacity": 120,
+			"description": "A woven-and-wood chest. Holds 120 materials. Place it near your workbench to link it."
 		},
 		{
 			"id": "medium-chest",
@@ -943,8 +943,8 @@
 			"shape": "chest",
 			"color": "#6e553c",
 			"isChest": true,
-			"chestCapacity": 120,
-			"description": "A sturdier chest. Holds 120 materials."
+			"chestCapacity": 250,
+			"description": "A sturdier chest. Holds 250 materials."
 		},
 		{
 			"id": "field-journal-stand",
@@ -962,7 +962,7 @@
 			"needs": [],
 			"shape": "stand",
 			"color": "#9a7448",
-			"description": "A little lectern for your field journal — read it anywhere you place one."
+			"description": "A little lectern for your field journal \u2014 read it anywhere you place one."
 		},
 		{
 			"id": "flower-vase",
@@ -991,7 +991,7 @@
 			"needs": [],
 			"shape": "kit",
 			"color": "#6fa8d6",
-			"description": "Liners, filters, and channel tools — everything needed to re-water the wetland. Crafting it helps unlock Rushwater Wetland."
+			"description": "Liners, filters, and channel tools \u2014 everything needed to re-water the wetland. Crafting it helps unlock Rushwater Wetland."
 		},
 		{
 			"id": "migration-path-marker",
@@ -1071,7 +1071,7 @@
 			"needs": [],
 			"shape": "bench",
 			"color": "#a3814f",
-			"description": "A weathered bench — a quiet place to sit and watch the wildlife."
+			"description": "A weathered bench \u2014 a quiet place to sit and watch the wildlife."
 		},
 		{
 			"id": "garden-arch",
@@ -1162,7 +1162,7 @@
 			"needs": [],
 			"shape": "gazebo",
 			"color": "#7a9aa8",
-			"description": "A roofed open-air pavilion — a charming centerpiece and a shady spot to watch the preserve."
+			"description": "A roofed open-air pavilion \u2014 a charming centerpiece and a shady spot to watch the preserve."
 		},
 		{
 			"id": "clover-patch",
@@ -1179,7 +1179,7 @@
 			],
 			"shape": "clover",
 			"color": "#6fae5a",
-			"description": "Low clover and trefoil — nectar for bees and forage for rabbits."
+			"description": "Low clover and trefoil \u2014 nectar for bees and forage for rabbits."
 		},
 		{
 			"id": "brush-pile",
@@ -1195,7 +1195,7 @@
 			],
 			"shape": "brushpile",
 			"color": "#8a7048",
-			"description": "A loose pile of branches — cover for small mammals and ground birds."
+			"description": "A loose pile of branches \u2014 cover for small mammals and ground birds."
 		},
 		{
 			"id": "fern-grove",
@@ -1247,7 +1247,7 @@
 			],
 			"shape": "sedge",
 			"color": "#8aa85a",
-			"description": "Clumped sedges along the shallows — nesting cover for marsh birds.",
+			"description": "Clumped sedges along the shallows \u2014 nesting cover for marsh birds.",
 			"plantable": true,
 			"plantCost": {
 				"reeds": 2
@@ -1268,7 +1268,7 @@
 			],
 			"shape": "snag",
 			"color": "#8a7860",
-			"description": "A standing dead alder — perch and cavity nest above the water."
+			"description": "A standing dead alder \u2014 perch and cavity nest above the water."
 		},
 		{
 			"id": "agave-rosette",
@@ -1306,7 +1306,7 @@
 			],
 			"shape": "ocotillo",
 			"color": "#9a6a4a",
-			"description": "Whip-like stalks with crimson tips — cover and nectar in the open flats.",
+			"description": "Whip-like stalks with crimson tips \u2014 cover and nectar in the open flats.",
 			"plantable": true,
 			"plantCost": {
 				"sand": 1,
@@ -1348,7 +1348,7 @@
 			],
 			"shape": "krummholz",
 			"color": "#3f5e3a",
-			"description": "A wind-sculpted dwarf pine — rare shelter at the tree line."
+			"description": "A wind-sculpted dwarf pine \u2014 rare shelter at the tree line."
 		},
 		{
 			"id": "eelgrass-bed",
@@ -1364,7 +1364,7 @@
 			],
 			"shape": "seagrass",
 			"color": "#6a9a7a",
-			"description": "Swaying eelgrass — nursery for fish and grazing for sea geese.",
+			"description": "Swaying eelgrass \u2014 nursery for fish and grazing for sea geese.",
 			"plantable": true,
 			"plantCost": {
 				"sand": 1,
@@ -1429,7 +1429,7 @@
 				"wildflowers": 1
 			},
 			"growSeconds": 50,
-			"description": "Tall pink foxglove spires — a bumblebee favourite."
+			"description": "Tall pink foxglove spires \u2014 a bumblebee favourite."
 		},
 		{
 			"id": "mushroom-ring",
@@ -1672,7 +1672,7 @@
 			"needs": [],
 			"shape": "geoderock",
 			"color": "#a98fd0",
-			"description": "A cracked geode set on stacked stones — a glittering desert landmark."
+			"description": "A cracked geode set on stacked stones \u2014 a glittering desert landmark."
 		},
 		{
 			"id": "sun-totem",
@@ -1707,7 +1707,7 @@
 				"sand": 1
 			},
 			"growSeconds": 90,
-			"description": "The green-barked desert tree — rare shade and yellow blooms for the scrubland."
+			"description": "The green-barked desert tree \u2014 rare shade and yellow blooms for the scrubland."
 		},
 		{
 			"id": "shore-pine",
@@ -1795,7 +1795,7 @@
 				"sand": 1
 			},
 			"growSeconds": 90,
-			"description": "A low, spreading desert tree — airy shade and seed pods for the scrubland."
+			"description": "A low, spreading desert tree \u2014 airy shade and seed pods for the scrubland."
 		},
 		{
 			"id": "desert-ironwood",
@@ -1817,7 +1817,7 @@
 				"sand": 1
 			},
 			"growSeconds": 90,
-			"description": "A dense, slow-growing ironwood — a vital nurse tree in the open desert."
+			"description": "A dense, slow-growing ironwood \u2014 a vital nurse tree in the open desert."
 		},
 		{
 			"id": "subalpine-fir",
@@ -1920,7 +1920,7 @@
 			"needs": [],
 			"shape": "campfire",
 			"color": "#d8763a",
-			"description": "A crackling campfire ringed with stones — the heart of camp."
+			"description": "A crackling campfire ringed with stones \u2014 the heart of camp."
 		},
 		{
 			"id": "string-lights",
@@ -1974,7 +1974,7 @@
 			"needs": [],
 			"shape": "birdhouse",
 			"color": "#9a7448",
-			"description": "A hand-built birdhouse on a post — charming, even when empty."
+			"description": "A hand-built birdhouse on a post \u2014 charming, even when empty."
 		},
 		{
 			"id": "flower-cart",
@@ -2222,7 +2222,7 @@
 			"needs": [],
 			"shape": "guzzler",
 			"color": "#9a8a6a",
-			"description": "A shallow clay basin that catches dew and rain — precious desert water."
+			"description": "A shallow clay basin that catches dew and rain \u2014 precious desert water."
 		},
 		{
 			"id": "talus-pile",
@@ -2235,7 +2235,7 @@
 			"needs": [],
 			"shape": "talus",
 			"color": "#9a948a",
-			"description": "A jumble of broken rock — the burrows and runways pikas love."
+			"description": "A jumble of broken rock \u2014 the burrows and runways pikas love."
 		},
 		{
 			"id": "alpine-nest-shelf",
@@ -2275,6 +2275,186 @@
 			"shape": "bluff",
 			"color": "#c2b9a0",
 			"description": "A built-up sandy bank with ledges for cliff-nesting seabirds."
+		},
+		{
+			"id": "pika-haypile",
+			"name": "Pika Haypile",
+			"placement": "outdoor",
+			"biomes": [
+				"alpine"
+			],
+			"healthValue": 4,
+			"needs": [
+				"food",
+				"shelter"
+			],
+			"shape": "haypile",
+			"color": "#c2b070",
+			"description": "A stockpile of dried grasses and flowers, cured the way pikas hoard hay for the long winter."
+		},
+		{
+			"id": "lichen-boulder",
+			"name": "Lichen Boulder",
+			"placement": "outdoor",
+			"biomes": [
+				"alpine"
+			],
+			"healthValue": 4,
+			"needs": [
+				"food"
+			],
+			"shape": "lichenrock",
+			"color": "#9fb38a",
+			"description": "A weathered boulder crusted with map lichen \u2014 slow alpine grazing and a foothold for new life."
+		},
+		{
+			"id": "scree-slope",
+			"name": "Scree Slope",
+			"placement": "outdoor",
+			"biomes": [
+				"alpine"
+			],
+			"healthValue": 3,
+			"needs": [],
+			"shape": "scree",
+			"color": "#9a948a",
+			"description": "A shifting apron of shattered rock, laced with the runways and hideaways of the high country."
+		},
+		{
+			"id": "snowbank-roost",
+			"name": "Snowbank Roost",
+			"placement": "outdoor",
+			"biomes": [
+				"alpine"
+			],
+			"healthValue": 3,
+			"needs": [
+				"water",
+				"shelter"
+			],
+			"shape": "snowbank",
+			"color": "#eef4fb",
+			"description": "A packed drift of late-lying snow \u2014 a cool roost and a trickle of meltwater for ptarmigan and hares."
+		},
+		{
+			"id": "whitebark-cache",
+			"name": "Whitebark Seed Cache",
+			"placement": "outdoor",
+			"biomes": [
+				"alpine"
+			],
+			"healthValue": 4,
+			"needs": [
+				"food"
+			],
+			"shape": "seedcache",
+			"color": "#c8a86a",
+			"description": "A hidden larder of whitebark pine nuts \u2014 the seed bank nutcrackers and grosbeaks live by."
+		},
+		{
+			"id": "juniper-thicket",
+			"name": "Juniper Thicket",
+			"placement": "outdoor",
+			"biomes": [
+				"alpine"
+			],
+			"healthValue": 5,
+			"needs": [
+				"food",
+				"shelter"
+			],
+			"shape": "juniper",
+			"color": "#5d7a66",
+			"description": "A low, hardy juniper heavy with frosted berries \u2014 cover and winter food where little else grows."
+		},
+		{
+			"id": "cliff-nest-niche",
+			"name": "Cliff Nest Niche",
+			"placement": "outdoor",
+			"biomes": [
+				"alpine"
+			],
+			"healthValue": 4,
+			"needs": [
+				"shelter"
+			],
+			"shape": "cliffniche",
+			"color": "#8a847a",
+			"description": "A sheltered cleft in the cliff face, mossed and tucked away for high-country nesters."
+		},
+		{
+			"id": "crystal-spring",
+			"name": "Crystal Snowmelt Spring",
+			"placement": "outdoor",
+			"biomes": [
+				"alpine"
+			],
+			"healthValue": 7,
+			"needs": [
+				"water"
+			],
+			"shape": "crystalspring",
+			"color": "#9fdff0",
+			"description": "An ice-cold spring welling up through quartz \u2014 the purest, coldest water in the heights."
+		},
+		{
+			"id": "summit-prayer-flags",
+			"name": "Summit Prayer Flags",
+			"placement": "both",
+			"biomes": [
+				"alpine"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "prayerflags",
+			"color": "#d77bb1",
+			"description": "A bright line of weatherworn flags strung between cairns, snapping in the alpine wind."
+		},
+		{
+			"id": "quartz-lantern",
+			"name": "Quartz Lantern",
+			"placement": "both",
+			"biomes": [
+				"alpine"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "crystallantern",
+			"color": "#d8f0fa",
+			"description": "A stone lantern set with a glowing shard of quartz that holds the last of the daylight."
+		},
+		{
+			"id": "obsidian-totem",
+			"name": "Obsidian Totem",
+			"placement": "both",
+			"biomes": [
+				"alpine"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "obsidiantotem",
+			"color": "#2e2b38",
+			"description": "A polished column of volcanic glass that catches the high light like dark, still water."
+		},
+		{
+			"id": "large-chest",
+			"name": "Large Chest",
+			"placement": "both",
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"desert",
+				"alpine",
+				"coastal"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "largechest",
+			"color": "#5a4632",
+			"isChest": true,
+			"chestCapacity": 500,
+			"description": "A big iron-banded storage chest. Holds 500 materials \u2014 your main stockpile."
 		}
 	]
 }

@@ -118,7 +118,7 @@ var biomes_default = {
       id: "alpine",
       name: "Graywind Heights",
       order: 5,
-      explorable: false,
+      explorable: true,
       description: "A trampled alpine slope. The wildflower turf is worn through and the talus is silent.",
       restorationGoal: "Restore alpine turf, snowmelt pools, and rocky shelter for high-country animals.",
       unlock: {
@@ -133,7 +133,13 @@ var biomes_default = {
         "alpine-flowers",
         "stones",
         "moss",
-        "clean-water"
+        "clean-water",
+        "quartz-crystal",
+        "pine-nuts",
+        "lichen",
+        "snow",
+        "juniper-berries",
+        "obsidian"
       ],
       palette: {
         damaged: "#a8a8a0",
@@ -1883,6 +1889,232 @@ var recipes_default = {
         minHealth: 45,
         label: "Restore Pelican Shore to 45% health"
       }
+    },
+    {
+      id: "pika-haypile",
+      name: "Pika Haypile",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "pika-haypile",
+        qty: 1
+      },
+      materials: {
+        fiber: 3,
+        "alpine-flowers": 2,
+        lichen: 2
+      },
+      unlock: {
+        minHealth: 18,
+        label: "Restore Graywind Heights to 18% health"
+      }
+    },
+    {
+      id: "lichen-boulder",
+      name: "Lichen Boulder",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "lichen-boulder",
+        qty: 1
+      },
+      materials: {
+        lichen: 4,
+        stones: 4
+      },
+      unlock: {
+        minHealth: 16,
+        label: "Restore Graywind Heights to 16% health"
+      }
+    },
+    {
+      id: "scree-slope",
+      name: "Scree Slope",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "scree-slope",
+        qty: 1
+      },
+      materials: {
+        stones: 6,
+        lichen: 1
+      },
+      unlock: {
+        minHealth: 20,
+        label: "Restore Graywind Heights to 20% health"
+      }
+    },
+    {
+      id: "snowbank-roost",
+      name: "Snowbank Roost",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "snowbank-roost",
+        qty: 1
+      },
+      materials: {
+        snow: 5,
+        "clean-water": 2
+      },
+      unlock: {
+        minHealth: 25,
+        label: "Restore Graywind Heights to 25% health"
+      }
+    },
+    {
+      id: "whitebark-cache",
+      name: "Whitebark Seed Cache",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "whitebark-cache",
+        qty: 1
+      },
+      materials: {
+        "pine-nuts": 4,
+        branches: 2
+      },
+      unlock: {
+        minHealth: 30,
+        label: "Restore Graywind Heights to 30% health"
+      }
+    },
+    {
+      id: "juniper-thicket",
+      name: "Juniper Thicket",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "juniper-thicket",
+        qty: 1
+      },
+      materials: {
+        "juniper-berries": 3,
+        branches: 3,
+        moss: 1
+      },
+      unlock: {
+        minHealth: 35,
+        label: "Restore Graywind Heights to 35% health"
+      }
+    },
+    {
+      id: "cliff-nest-niche",
+      name: "Cliff Nest Niche",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "cliff-nest-niche",
+        qty: 1
+      },
+      materials: {
+        stones: 4,
+        moss: 2,
+        lichen: 2
+      },
+      unlock: {
+        minHealth: 45,
+        label: "Restore Graywind Heights to 45% health"
+      }
+    },
+    {
+      id: "crystal-spring",
+      name: "Crystal Snowmelt Spring",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "crystal-spring",
+        qty: 1
+      },
+      materials: {
+        "quartz-crystal": 3,
+        "clean-water": 4,
+        stones: 3
+      },
+      unlock: {
+        minHealth: 60,
+        label: "Restore Graywind Heights to 60% health"
+      }
+    },
+    {
+      id: "summit-prayer-flags",
+      name: "Summit Prayer Flags",
+      category: "decoration",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "summit-prayer-flags",
+        qty: 1
+      },
+      materials: {
+        fiber: 4,
+        "alpine-flowers": 2
+      },
+      unlock: {
+        minHealth: 30,
+        label: "Restore Graywind Heights to 30% health"
+      }
+    },
+    {
+      id: "quartz-lantern",
+      name: "Quartz Lantern",
+      category: "home",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "quartz-lantern",
+        qty: 1
+      },
+      materials: {
+        "quartz-crystal": 2,
+        stones: 2,
+        fiber: 1
+      },
+      unlock: {
+        minHealth: 40,
+        label: "Restore Graywind Heights to 40% health"
+      }
+    },
+    {
+      id: "obsidian-totem",
+      name: "Obsidian Totem",
+      category: "decoration",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "obsidian-totem",
+        qty: 1
+      },
+      materials: {
+        obsidian: 3,
+        stones: 2,
+        fiber: 1
+      },
+      unlock: {
+        minHealth: 50,
+        label: "Restore Graywind Heights to 50% health"
+      }
+    },
+    {
+      id: "large-chest",
+      name: "Large Chest",
+      category: "storage",
+      unlockBiome: "desert",
+      output: {
+        itemId: "large-chest",
+        qty: 1
+      },
+      materials: {
+        branches: 14,
+        bark: 6,
+        fiber: 6,
+        stones: 6,
+        clay: 4
+      },
+      unlock: {
+        minHealth: 60,
+        requiresCrafted: "medium-chest",
+        label: "Restore Redstone Scrubland to 60% health and craft a Medium Chest first"
+      }
     }
   ]
 };
@@ -2813,8 +3045,8 @@ var habitat_objects_default = {
       shape: "chest",
       color: "#8a6a44",
       isChest: true,
-      chestCapacity: 60,
-      description: "A woven-and-wood chest. Holds 60 materials. Place it near your workbench to link it."
+      chestCapacity: 120,
+      description: "A woven-and-wood chest. Holds 120 materials. Place it near your workbench to link it."
     },
     {
       id: "medium-chest",
@@ -2833,8 +3065,8 @@ var habitat_objects_default = {
       shape: "chest",
       color: "#6e553c",
       isChest: true,
-      chestCapacity: 120,
-      description: "A sturdier chest. Holds 120 materials."
+      chestCapacity: 250,
+      description: "A sturdier chest. Holds 250 materials."
     },
     {
       id: "field-journal-stand",
@@ -4165,6 +4397,186 @@ var habitat_objects_default = {
       shape: "bluff",
       color: "#c2b9a0",
       description: "A built-up sandy bank with ledges for cliff-nesting seabirds."
+    },
+    {
+      id: "pika-haypile",
+      name: "Pika Haypile",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 4,
+      needs: [
+        "food",
+        "shelter"
+      ],
+      shape: "haypile",
+      color: "#c2b070",
+      description: "A stockpile of dried grasses and flowers, cured the way pikas hoard hay for the long winter."
+    },
+    {
+      id: "lichen-boulder",
+      name: "Lichen Boulder",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 4,
+      needs: [
+        "food"
+      ],
+      shape: "lichenrock",
+      color: "#9fb38a",
+      description: "A weathered boulder crusted with map lichen \u2014 slow alpine grazing and a foothold for new life."
+    },
+    {
+      id: "scree-slope",
+      name: "Scree Slope",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 3,
+      needs: [],
+      shape: "scree",
+      color: "#9a948a",
+      description: "A shifting apron of shattered rock, laced with the runways and hideaways of the high country."
+    },
+    {
+      id: "snowbank-roost",
+      name: "Snowbank Roost",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 3,
+      needs: [
+        "water",
+        "shelter"
+      ],
+      shape: "snowbank",
+      color: "#eef4fb",
+      description: "A packed drift of late-lying snow \u2014 a cool roost and a trickle of meltwater for ptarmigan and hares."
+    },
+    {
+      id: "whitebark-cache",
+      name: "Whitebark Seed Cache",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 4,
+      needs: [
+        "food"
+      ],
+      shape: "seedcache",
+      color: "#c8a86a",
+      description: "A hidden larder of whitebark pine nuts \u2014 the seed bank nutcrackers and grosbeaks live by."
+    },
+    {
+      id: "juniper-thicket",
+      name: "Juniper Thicket",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 5,
+      needs: [
+        "food",
+        "shelter"
+      ],
+      shape: "juniper",
+      color: "#5d7a66",
+      description: "A low, hardy juniper heavy with frosted berries \u2014 cover and winter food where little else grows."
+    },
+    {
+      id: "cliff-nest-niche",
+      name: "Cliff Nest Niche",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter"
+      ],
+      shape: "cliffniche",
+      color: "#8a847a",
+      description: "A sheltered cleft in the cliff face, mossed and tucked away for high-country nesters."
+    },
+    {
+      id: "crystal-spring",
+      name: "Crystal Snowmelt Spring",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 7,
+      needs: [
+        "water"
+      ],
+      shape: "crystalspring",
+      color: "#9fdff0",
+      description: "An ice-cold spring welling up through quartz \u2014 the purest, coldest water in the heights."
+    },
+    {
+      id: "summit-prayer-flags",
+      name: "Summit Prayer Flags",
+      placement: "both",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "prayerflags",
+      color: "#d77bb1",
+      description: "A bright line of weatherworn flags strung between cairns, snapping in the alpine wind."
+    },
+    {
+      id: "quartz-lantern",
+      name: "Quartz Lantern",
+      placement: "both",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "crystallantern",
+      color: "#d8f0fa",
+      description: "A stone lantern set with a glowing shard of quartz that holds the last of the daylight."
+    },
+    {
+      id: "obsidian-totem",
+      name: "Obsidian Totem",
+      placement: "both",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "obsidiantotem",
+      color: "#2e2b38",
+      description: "A polished column of volcanic glass that catches the high light like dark, still water."
+    },
+    {
+      id: "large-chest",
+      name: "Large Chest",
+      placement: "both",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "largechest",
+      color: "#5a4632",
+      isChest: true,
+      chestCapacity: 500,
+      description: "A big iron-banded storage chest. Holds 500 materials \u2014 your main stockpile."
     }
   ]
 };
@@ -4449,6 +4861,42 @@ var resources_default = {
       name: "Agave Nectar",
       tool: "basket",
       color: "#e3b93f"
+    },
+    {
+      id: "quartz-crystal",
+      name: "Quartz Crystal",
+      tool: "shovel",
+      color: "#cfe8f2"
+    },
+    {
+      id: "pine-nuts",
+      name: "Pine Nuts",
+      tool: "basket",
+      color: "#c8a86a"
+    },
+    {
+      id: "lichen",
+      name: "Lichen",
+      tool: "basket",
+      color: "#9fb38a"
+    },
+    {
+      id: "snow",
+      name: "Packed Snow",
+      tool: "shovel",
+      color: "#eef4fb"
+    },
+    {
+      id: "juniper-berries",
+      name: "Juniper Berries",
+      tool: "basket",
+      color: "#6a7fa0"
+    },
+    {
+      id: "obsidian",
+      name: "Obsidian",
+      tool: "shovel",
+      color: "#2e2b38"
     }
   ]
 };
@@ -7740,7 +8188,7 @@ async function verifyPasscode(player, passcode) {
 function slugId(name) {
   return String(name).trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
-var STARTER_CHEST = { x: 9, y: 5, size: "small-chest", capacity: 60 };
+var STARTER_CHEST = { x: 9, y: 5, size: "small-chest", capacity: 120 };
 async function requirePlayer(playerId) {
   if (!playerId || typeof playerId !== "string") throw new GameError("playerId required");
   const player = await db().Player.get(playerId);

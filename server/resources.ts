@@ -240,7 +240,7 @@ function slugId(name: string): string {
 
 // Starter base camp: tent + campfire scenery with a storage chest. Crafting
 // needs no station — it works anywhere, from the basket plus any chests.
-const STARTER_CHEST = { x: 9, y: 5, size: 'small-chest', capacity: 60 };
+const STARTER_CHEST = { x: 9, y: 5, size: 'small-chest', capacity: 120 };
 
 // ------------------------------------------------------------ player setup
 

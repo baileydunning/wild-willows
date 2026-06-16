@@ -9,6 +9,7 @@ import type { BiomeDef, HabitatObjectDef } from '../types';
 export const TILE = 32;
 const OUT_W = 30;
 const OUT_H = 20;
+const MTN_ROWS = 4; // rows reserved for the alpine mountain range (impassable)
 
 // your base camp: tent + campfire scenery beside the permanent workbench & chest
 const CAMP = { tent: { x: 6.5, y: 4.2 }, fire: { x: 7.6, y: 5.1 } };
@@ -23,6 +24,11 @@ const SPAWNS: Record<string, { x: number; y: number }> = {
 	'wetland:from-forest': { x: 1.8, y: 10.0 },
 	'wetland:from-desert': { x: 27.8, y: 10.0 },
 	'desert:from-wetland': { x: 1.8, y: 10.0 },
+	// alpine grows downward by MTN_ROWS (4), so its edge gates sit ~4 rows lower
+	'desert:from-alpine': { x: 27.8, y: 10.0 },
+	'alpine:from-desert': { x: 1.8, y: 13.8 },
+	'alpine:from-coastal': { x: 27.8, y: 13.8 },
+	'coastal:from-alpine': { x: 1.8, y: 10.0 },
 	default: { x: 15, y: 11 },
 };
 
@@ -98,7 +104,19 @@ export class WorldScene extends Phaser.Scene {
 		return OUT_W * TILE;
 	}
 	private get worldH() {
-		return OUT_H * TILE;
+		return this.rows * TILE;
+	}
+	// Graywind Heights reserves a band of rows at the top for an impassable
+	// mountain range. The area grows downward by the same amount so the playable
+	// region stays the same size as every other biome.
+	private get mtnRows() {
+		return this.area === 'alpine' ? MTN_ROWS : 0;
+	}
+	private get playTop() {
+		return this.mtnRows;
+	}
+	private get rows() {
+		return OUT_H + this.mtnRows;
 	}
 	private biomeDef(id = this.area): BiomeDef | undefined {
 		return bridge.shared.data?.biomes.find((b) => b.id === id);
@@ -301,7 +319,7 @@ export class WorldScene extends Phaser.Scene {
 		const p = bridge.shared.state?.player;
 		if (p && p.area === this.area && Number.isFinite(p.x)) {
 			const x = Phaser.Math.Clamp(p.x, 1, this.worldW / TILE - 1);
-			const y = Phaser.Math.Clamp(p.y, 1, this.worldH / TILE - 1);
+			const y = Phaser.Math.Clamp(p.y, this.playTop + 1, this.worldH / TILE - 1);
 			return { x, y };
 		}
 		return SPAWNS.default;
@@ -312,14 +330,33 @@ export class WorldScene extends Phaser.Scene {
 	private drawGround() {
 		this.groundTiles = [];
 		const rng = mulberry32(hashStr(this.area));
-		for (let ty = 0; ty < OUT_H; ty++) {
+		// Ground tiles fill only the playable region; in the alpine the top rows
+		// are the mountain range, drawn separately below.
+		for (let ty = this.playTop; ty < this.rows; ty++) {
 			for (let tx = 0; tx < OUT_W; tx++) {
 				const img = this.add.image(tx * TILE + 16, ty * TILE + 16, 'tile').setDepth(0);
 				(img as any).shade = 0.92 + rng() * 0.08;
 				this.groundTiles.push(img);
 			}
 		}
+		if (this.mtnRows > 0) this.drawMountainBand();
 		this.tintGround();
+	}
+
+	/** Static, impassable snow-capped range across the top of Graywind Heights. */
+	private drawMountainBand() {
+		const bandH = this.playTop * TILE;
+		// pale sky behind the peaks so gaps above the ridge don't show the void
+		this.add.rectangle(0, 0, this.worldW, bandH, Phaser.Display.Color.HexStringToColor('#aeb9c9').color)
+			.setOrigin(0, 0).setDepth(0.1);
+		// the ridge silhouette, tiled across the full width, sitting on the band base
+		const ridgeW = 420, ridgeH = 150;
+		const y = bandH - ridgeH + 6; // anchor peaks so their base meets the ground line
+		for (let x = -20; x < this.worldW + ridgeW; x += ridgeW) {
+			this.add.image(x, y, 'mtnridge').setOrigin(0, 0).setDepth(0.2);
+		}
+		// soft snowline where the rock meets the meadow
+		this.add.rectangle(0, bandH - 3, this.worldW, 6, 0xffffff, 0.25).setOrigin(0, 0).setDepth(0.25);
 	}
 
 	private tintGround() {
@@ -436,7 +473,7 @@ export class WorldScene extends Phaser.Scene {
 		const rng = mulberry32(hashStr(`${this.area}-doodads`));
 		const spot = (): { x: number; y: number } | null => {
 			const x = (1 + rng() * (OUT_W - 2)) * TILE;
-			const y = (1.4 + rng() * (OUT_H - 2.4)) * TILE;
+			const y = (this.playTop + 1.4 + rng() * (this.rows - this.playTop - 2.4)) * TILE;
 			if (this.area === 'meadow' && x > (CAMP_BLOCK.x0 - 0.4) * TILE && x < (CAMP_BLOCK.x1 + 0.4) * TILE && y > (CAMP_BLOCK.y0 - 0.4) * TILE && y < (CAMP_BLOCK.y1 + 0.4) * TILE) return null;
 			return { x, y };
 		};
@@ -473,13 +510,13 @@ export class WorldScene extends Phaser.Scene {
 
 			const gx = (OUT_W - 1.2) * TILE;
 			const gy = 9.8 * TILE;
-			this.addDyn(this.add.image(gx, gy, 'gate').setDepth(gy));
-			this.addDyn(this.add.image(gx - 20, gy + 26, 'sign').setDepth(gy + 26));
 			const forestUnlocked = state?.player.unlockedBiomes.includes('forest');
+			const forestOpen = forestUnlocked && this.biomeDef('forest')?.explorable;
+			this.addDyn(this.add.image(gx, gy, forestOpen ? 'gate' : 'sign').setDepth(gy));
 			this.registerInteractable({
-				x: gx, y: gy, label: forestUnlocked ? 'Walk to Old Hollow Forest' : 'Read the trail sign',
+				x: gx, y: gy, label: forestOpen ? 'Walk to Old Hollow Forest' : 'Read the trail sign (Old Hollow Forest)',
 				action: () => {
-					if (forestUnlocked) bridge.emit('request-area', { area: 'forest' });
+					if (forestOpen) bridge.emit('request-area', { area: 'forest' });
 					else {
 						const label = this.biomeDef('forest')?.unlock?.label || 'Restore the meadow first.';
 						bridge.emit('toast', { text: `The forest trail is overgrown. ${label}`, kind: 'info' });
@@ -575,6 +612,36 @@ export class WorldScene extends Phaser.Scene {
 					bridge.emit('toast', { text, kind: 'info' });
 				},
 			});
+		} else if (this.area === 'alpine') {
+			// Graywind Heights: the mountain range is drawn statically (drawGround);
+			// here we just place the trail gates in the playable region below it.
+			const gy = (this.playTop + 9.8) * TILE;
+
+			// gate back to the desert on the west edge
+			const gx = 1.2 * TILE;
+			this.addDyn(this.add.image(gx, gy, 'gate').setDepth(gy));
+			this.registerInteractable({ x: gx, y: gy, label: 'Walk back to Redstone Scrubland', action: () => bridge.emit('request-area', { area: 'desert' }) });
+
+			// trail east toward the coast (Pelican Shore)
+			const sx = (OUT_W - 1.2) * TILE;
+			const coastalUnlocked = state?.player.unlockedBiomes.includes('coastal');
+			const coastalExplorable = this.biomeDef('coastal')?.explorable;
+			const coastalOpen = coastalUnlocked && coastalExplorable;
+			this.addDyn(this.add.image(sx, gy, coastalOpen ? 'gate' : 'sign').setDepth(gy));
+			this.registerInteractable({
+				x: sx, y: gy, label: coastalOpen ? 'Walk to Pelican Shore' : 'Read the trail sign (Pelican Shore)',
+				action: () => {
+					if (coastalOpen) {
+						bridge.emit('request-area', { area: 'coastal' });
+						return;
+					}
+					const coastal = this.biomeDef('coastal');
+					const text = coastalUnlocked
+						? 'Pelican Shore is unlocked! The descent to the coast opens soon.'
+						: `The pass down to the coast is snowed in. ${coastal?.unlock?.label || ''}`;
+					bridge.emit('toast', { text, kind: 'info' });
+				},
+			});
 		}
 	}
 
@@ -610,7 +677,7 @@ export class WorldScene extends Phaser.Scene {
 		while (nodes.length < count && attempts < 400) {
 			attempts++;
 			const tx = 1 + Math.floor(rng() * (OUT_W - 3));
-			const ty = 1 + Math.floor(rng() * (OUT_H - 3));
+			const ty = this.playTop + 1 + Math.floor(rng() * (this.rows - this.playTop - 3));
 			if (this.inCamp(tx, ty)) continue;
 			if (nodes.some((n) => Math.abs(n.tx - tx) < 2 && Math.abs(n.ty - ty) < 2)) continue;
 			const resourceId = pool[nodes.length] || res[nodes.length % res.length];
@@ -645,7 +712,7 @@ export class WorldScene extends Phaser.Scene {
 		const present = new Set(nodes.map((n) => n.resourceId));
 		for (const r of res) {
 			if (present.has(r)) continue;
-			const spot = this.findFreeTile(Math.floor(OUT_W / 2), Math.floor(OUT_H / 2), occupied, taken);
+			const spot = this.findFreeTile(Math.floor(OUT_W / 2), this.playTop + Math.floor(OUT_H / 2), occupied, taken);
 			if (spot) {
 				nodes.push({ id: `n${nodes.length}`, resourceId: r, tx: spot.tx, ty: spot.ty });
 				taken.add(`${spot.tx},${spot.ty}`);
@@ -665,7 +732,7 @@ export class WorldScene extends Phaser.Scene {
 			);
 			if (!hasNearby) {
 				const aKey = `${anchor.tx},${anchor.ty}`;
-				const anchorFree = anchor.tx >= 1 && anchor.ty >= 1 && anchor.tx <= OUT_W - 2 && anchor.ty <= OUT_H - 2 &&
+				const anchorFree = anchor.tx >= 1 && anchor.ty >= this.playTop && anchor.tx <= OUT_W - 2 && anchor.ty <= this.rows - 2 &&
 					!occupied.has(aKey) && !taken.has(aKey) && !this.inCamp(anchor.tx, anchor.ty);
 				const spot = anchorFree ? anchor : this.findFreeTile(anchor.tx, anchor.ty, occupied, taken);
 				if (spot) {
@@ -689,7 +756,7 @@ export class WorldScene extends Phaser.Scene {
 					if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue; // current ring only
 					const tx = cx + dx;
 					const ty = cy + dy;
-					if (tx < 1 || ty < 1 || tx > OUT_W - 2 || ty > OUT_H - 2) continue;
+					if (tx < 1 || ty < this.playTop || tx > OUT_W - 2 || ty > this.rows - 2) continue;
 					const key = `${tx},${ty}`;
 					if (occupied.has(key) || taken.has(key) || this.inCamp(tx, ty)) continue;
 					return { tx, ty };
@@ -940,10 +1007,10 @@ export class WorldScene extends Phaser.Scene {
 				ay = a.y * TILE + 16 + (rng() - 0.5) * 70;
 			} else {
 				ax = (2 + rng() * (OUT_W - 4)) * TILE;
-				ay = (2 + rng() * (OUT_H - 4)) * TILE;
+				ay = (this.playTop + 2 + rng() * (OUT_H - 4)) * TILE;
 			}
 			ax = Phaser.Math.Clamp(ax, TILE, this.worldW - TILE);
-			ay = Phaser.Math.Clamp(ay, TILE, this.worldH - TILE);
+			ay = Phaser.Math.Clamp(ay, (this.playTop + 1) * TILE, this.worldH - TILE);
 
 			ensureAnimalTexture(this, animal.id, animal.kind);
 			const { key, tint } = animalTexture(animal.id, animal.kind);
@@ -1014,7 +1081,7 @@ export class WorldScene extends Phaser.Scene {
 		const hop = () => {
 			if (!img.active) return;
 			const tx = Phaser.Math.Clamp(homeX + (rng() - 0.5) * roam * 2, TILE, this.worldW - TILE);
-			const ty = Phaser.Math.Clamp(homeY + (rng() - 0.5) * roam * 1.4, TILE, this.worldH - TILE);
+			const ty = Phaser.Math.Clamp(homeY + (rng() - 0.5) * roam * 1.4, (this.playTop + 1) * TILE, this.worldH - TILE);
 			const dist = Phaser.Math.Distance.Between(img.x, img.y, tx, ty);
 			img.setFlipX(tx < img.x);
 			this.tweens.add({
@@ -1069,7 +1136,7 @@ export class WorldScene extends Phaser.Scene {
 	}
 
 	private canPlaceAt(tx: number, ty: number, forTerraform = false, ignoreId?: string): boolean {
-		if (tx < 1 || ty < 1 || tx >= OUT_W - 1 || ty >= OUT_H - 1) return false;
+		if (tx < 1 || ty < (this.playTop || 1) || tx >= OUT_W - 1 || ty >= this.rows - 1) return false;
 		if (this.area === 'meadow' && tx >= 6 && tx <= 8 && ty >= 4 && ty <= 5) return false; // tent + campfire tiles
 		const s = bridge.shared.state;
 		if (s?.placements.some((p) => p.id !== ignoreId && p.area === this.area && p.x === tx && p.y === ty)) return false;
@@ -1122,7 +1189,7 @@ export class WorldScene extends Phaser.Scene {
 		let ny = this.player.y + (vy / len) * speed * dt;
 
 		nx = Phaser.Math.Clamp(nx, 18, this.worldW - 18);
-		ny = Phaser.Math.Clamp(ny, 20, this.worldH - 18);
+		ny = Phaser.Math.Clamp(ny, this.playTop * TILE + 20, this.worldH - 18);
 
 		if (vx !== 0) this.player.setFlipX(vx < 0);
 

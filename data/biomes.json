@@ -117,7 +117,7 @@
 			"id": "alpine",
 			"name": "Graywind Heights",
 			"order": 5,
-			"explorable": false,
+			"explorable": true,
 			"description": "A trampled alpine slope. The wildflower turf is worn through and the talus is silent.",
 			"restorationGoal": "Restore alpine turf, snowmelt pools, and rocky shelter for high-country animals.",
 			"unlock": {
@@ -132,7 +132,13 @@
 				"alpine-flowers",
 				"stones",
 				"moss",
-				"clean-water"
+				"clean-water",
+				"quartz-crystal",
+				"pine-nuts",
+				"lichen",
+				"snow",
+				"juniper-berries",
+				"obsidian"
 			],
 			"palette": {
 				"damaged": "#a8a8a0",
