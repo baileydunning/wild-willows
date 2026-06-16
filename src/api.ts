@@ -71,6 +71,8 @@ export const api = {
 		post<{ ok: boolean; playerId: string; state: GameState }>('/LoginPlayer/', { name, passcode }),
 	deletePlayer: (name: string, passcode: string) =>
 		post<{ ok: boolean; deleted: string }>('/DeletePlayer/', { name, passcode }),
+	changePasscode: (currentPasscode: string, newPasscode: string) =>
+		post<{ ok: boolean }>('/ChangePasscode/', { playerId: pid(), currentPasscode, newPasscode }),
 	updateAppearance: (appearance: Appearance) =>
 		post<{ ok: boolean; appearance: Appearance }>('/UpdateAppearance/', { playerId: pid(), appearance }),
 	collect: (biomeId: string, nodeId: string, resourceId: string) =>

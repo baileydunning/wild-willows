@@ -1153,6 +1153,24 @@ export class DeletePlayer extends PublicEndpoint {
 	}
 }
 
+/**
+ * POST /ChangePasscode/ {playerId, currentPasscode, newPasscode} — change the
+ * passcode while logged in. The current passcode must match before a new one
+ * (re-hashed with a fresh salt) is stored.
+ */
+export class ChangePasscode extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId, currentPasscode, newPasscode } = await bodyOf(data);
+		const { player } = await requirePlayer(playerId);
+		if (!(await verifyPasscode(player, currentPasscode))) throw new GameError("That passcode doesn't match this save", 403);
+		const next = String(newPasscode || '');
+		if (next.length < 4 || next.length > 32) throw new GameError('Pick a new passcode between 4 and 32 characters');
+		const { salt, hash } = hashPasscode(next);
+		await db().Player.patch(playerId, { passcodeHash: hash, passcodeSalt: salt, passcode: null });
+		return { ok: true };
+	}
+}
+
 /** POST /LoginPlayer/ {name, passcode} — load an existing save. */
 export class LoginPlayer extends PublicEndpoint {
 	async post(data: any) {

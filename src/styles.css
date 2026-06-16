@@ -575,6 +575,9 @@ kbd {
 .chest-actions button { display: inline-flex; align-items: center; gap: 5px; font-size: 12.5px; }
 .danger-row { display: flex; gap: 10px; align-items: center; }
 .danger-row .field { flex: 1; }
+.pass-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.pass-row .field { flex: 1 1 150px; min-width: 0; }
+.pass-row .field input { width: 100%; min-width: 0; }
 
 /* ================= mobile controls ================= */
 .joystick {

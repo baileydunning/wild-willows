@@ -89,6 +89,10 @@ export function SettingsPanel() {
 	const [passcode, setPasscode] = useState('');
 	const [deleting, setDeleting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
+	const [curPass, setCurPass] = useState('');
+	const [newPass, setNewPass] = useState('');
+	const [confirmPass, setConfirmPass] = useState('');
+	const [changing, setChanging] = useState(false);
 
 	if (!state) return null;
 	const player = state.player;
@@ -105,6 +109,30 @@ export function SettingsPanel() {
 			setError(e.message || 'Could not save your look');
 		} finally {
 			setSaving(false);
+		}
+	};
+
+	const changePass = async () => {
+		setError(null);
+		if (newPass.length < 4 || newPass.length > 32) {
+			setError('Your new passcode must be between 4 and 32 characters');
+			return;
+		}
+		if (newPass !== confirmPass) {
+			setError('The new passcodes don’t match');
+			return;
+		}
+		setChanging(true);
+		try {
+			await api.changePasscode(curPass, newPass);
+			setCurPass('');
+			setNewPass('');
+			setConfirmPass('');
+			notify('Your passcode has been updated.');
+		} catch (e: any) {
+			setError(e.message || 'Could not change your passcode');
+		} finally {
+			setChanging(false);
 		}
 	};
 
@@ -135,6 +163,28 @@ export function SettingsPanel() {
 					<div className="form-actions" style={{ justifyContent: 'flex-end' }}>
 						<button className="big-btn primary" onClick={saveLook} disabled={saving}>
 							<Icon name="check" /> <span>{saving ? 'Saving…' : 'Save new look'}</span>
+						</button>
+					</div>
+
+					<h3><Icon name="lock" size={15} /> Change passcode</h3>
+					<p className="muted small">
+						Enter your current passcode and choose a new one (4–32 characters). You’ll use it the next time you load this save.
+					</p>
+					<div className="pass-row">
+						<label className="field">
+							<Icon name="lock" size={16} />
+							<input type="password" placeholder="Current passcode" value={curPass} onChange={(e) => setCurPass(e.target.value)} />
+						</label>
+						<label className="field">
+							<Icon name="lock" size={16} />
+							<input type="password" placeholder="New passcode" value={newPass} onChange={(e) => setNewPass(e.target.value)} />
+						</label>
+						<label className="field">
+							<Icon name="lock" size={16} />
+							<input type="password" placeholder="Confirm new" value={confirmPass} onChange={(e) => setConfirmPass(e.target.value)} />
+						</label>
+						<button className="big-btn primary" style={{ width: 'auto', marginTop: 0 }} disabled={changing || !curPass || !newPass || !confirmPass} onClick={changePass}>
+							<Icon name="check" size={15} /> <span>{changing ? 'Updating…' : 'Update passcode'}</span>
 						</button>
 					</div>
 
