@@ -4,6 +4,9 @@
 	"private": true,
 	"description": "Wild Willows — a cozy nature-restoration life sim, backed by Harper",
 	"type": "module",
+	"engines": {
+		"node": ">=24"
+	},
 	"scripts": {
 		"dev:web": "vite",
 		"dev": "npm run build:server && harper dev .",

@@ -10,7 +10,7 @@ Built with TypeScript, React + Vite (UI shell), Phaser 3 (world), and Harper v5 
 
 ## Run it locally
 
-Prerequisites: Node 20+, Harper v5 (`npm install -g harper`).
+Prerequisites: Node 24+, Harper v5 (`npm install -g harper`).
 
 ```bash
 npm install
@@ -52,11 +52,12 @@ Credentials can also go in `CLI_TARGET_USERNAME` / `CLI_TARGET_PASSWORD`. The `d
 
 ## Content at a glance
 
-- **6 biomes** — Willow Meadow, Old Hollow Forest, Rushwater Wetland, Redstone Scrubland (desert), Graywind Heights (alpine), Pelican Shore (coastal). Four are explorable on foot today; alpine + coastal are seeded and signposted "coming soon."
+- **6 biomes** — Willow Meadow, Old Hollow Forest, Rushwater Wetland, Redstone Scrubland (desert), Graywind Heights (alpine), Pelican Shore (coastal). Five are explorable on foot today; only Pelican Shore (coastal) is still seeded and signposted "coming soon."
 - **150 animals** — **25 per biome**, each with diet, shelter, a real-world fact, and habitat return requirements. Every animal has a **unique, procedurally-built sprite** composed from its species traits (quills for a porcupine, antlers for a deer, long legs for a heron, a domed shell for a turtle, claws for a crab…), so no two read alike.
-- **126 habitat objects** and **97 recipes** across habitat, structures & decor, paths, storage, camp comforts, and restoration kits. Plantable flowers/grasses/trees are **planted, not crafted** (see below), so 83 of the recipes are craftable items and the rest are the plant set.
+- **138 habitat objects** and **109 recipes** across habitat, structures & decor, paths, storage, camp comforts, and restoration kits. Plantable flowers/grasses/trees are **planted, not crafted** (see below), so 95 of the recipes are craftable items and the rest are the plant set.
 - **Unlockable crafting** — most recipes start locked and unlock one at a time as a biome recovers (health crossed, a keystone animal welcomed), with a clear "New Crafting Recipe Unlocked" callout. New caretakers begin with a handful of starters (Grass Patch + a few) and **no materials** — the first job is to gather.
-- **23 gatherable resources**, including biome-exclusive ones (e.g. geode and agave nectar only in the desert). Node generation **guarantees every resource appears** in its biome.
+- **Three chest sizes** — Small (**120**), Medium (**250**), and a Large Chest (**500**) that unlocks later, once Redstone Scrubland is restored to 60% and you've crafted a Medium Chest first.
+- **29 gatherable resources**, including biome-exclusive ones (e.g. geode and agave nectar in the desert; quartz crystal, obsidian, pine nuts, lichen, juniper berries, and packed snow in the alpine). Node generation **guarantees every resource appears** in its biome.
 - **4 tools** with deep upgrade tracks (basket/shovel/watering can each have 4 tiers; the field journal has 6).
 - Every biome has **at least 3 plantable tree types** plus its own distinct plants, palette, and animals.
 
@@ -114,7 +115,7 @@ Restore each biome to unlock the next. There's **one restoration kit per area** 
 | Graywind Heights (alpine) | Desert **80%** · **15** desert animals · **65 total** · Alpine Restoration Kit |
 | Pelican Shore (coastal) | Alpine **80%** · **17** alpine animals · **85 total** · Migration Path Marker |
 
-All targets stay attainable — every one of a biome's 25 animals can return by 80% health. Areas connect by trail gates, and you spawn at the correct edge when you travel. **Rushwater Wetland opens partly pre-shaped** — channels, a pond, and watered beds are seeded the first time you enter, so it reads as a wetland immediately. **Redstone Scrubland** is dry by design: you can ready soil beds for planting but **cannot flood it** into open water, and it has exclusive resources (geode, agave nectar) feeding desert-only crafts.
+All targets stay attainable — every one of a biome's 25 animals can return by 80% health. Areas connect by trail gates, and you spawn at the correct edge when you travel; a forward trail shows a **trail sign** until its destination is unlocked, then becomes an open gate. **Rushwater Wetland opens partly pre-shaped** — channels, a pond, and watered beds are seeded the first time you enter, so it reads as a wetland immediately. **Redstone Scrubland** is dry by design: you can ready soil beds for planting but **cannot flood it** into open water, and it has exclusive resources (geode, agave nectar) feeding desert-only crafts. **Graywind Heights** rises into an **impassable, snow-capped range** along its skyline — the map extends downward by the same number of rows so its restorable floor stays the same size as every other biome — and it carries its own exclusive resources (quartz crystal, obsidian, pine nuts, lichen, juniper berries, packed snow) feeding alpine-only crafts like the Crystal Snowmelt Spring, Pika Haypile, Whitebark Seed Cache, Crystal Cairn, and Obsidian Totem.
 
 ## Tools
 
