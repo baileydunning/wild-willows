@@ -24,8 +24,6 @@ const hasGrassPatch = (state: any) =>
 	(state?.player?.craftedEver?.['grass-patch'] || state?.player?.craftedItems?.['grass-patch'] || 0) > 0;
 const grassPlaced = (state: any) =>
 	state?.placements?.some((p: any) => p.objectId === 'grass-patch');
-const grasshopperBack = (state: any) =>
-	state?.discoveries?.some((d: any) => d.animalId === 'grasshopper');
 const hasWateredBed = (state: any) =>
 	state?.terrain?.some((t: any) => t.type === 'watered' || t.type === 'water');
 const hasPlanted = (state: any) =>
@@ -73,15 +71,8 @@ const STEPS: StepDef[] = [
 	{
 		icon: 'paw',
 		title: 'Welcome the grasshopper',
-		text: 'That’s it — a grasshopper returns at just 8% health once a Grass Patch is down. Keep gathering and placing a patch or two more if it hasn’t hopped in yet. Open the journal (J) any time for return hints.',
-		touchText: 'That’s it — a grasshopper returns at just 8% health once a Grass Patch is down. Keep gathering and placing a patch or two more if it hasn’t hopped in yet. Open the journal for return hints.',
-		done: ({ state }) => grasshopperBack(state),
-	},
-	{
-		icon: 'journal',
-		title: 'Say hello',
-		text: 'The grasshopper is back! Click it to observe it and record it in your field journal. Welcoming it also just unlocked new things to craft — watch for the “new recipe unlocked” note.',
-		touchText: 'The grasshopper is back! Tap it to observe it and record it in your field journal. Welcoming it also just unlocked new things to craft — watch for the “new recipe unlocked” note.',
+		text: 'A grasshopper returns at just 8% health once a Grass Patch is down — keep gathering and placing a patch or two more if it hasn’t hopped in yet. When it arrives, click it to observe it and record it in your field journal. Welcoming it also unlocks new things to craft — watch for the “new recipe unlocked” note. (Press J any time for return hints.)',
+		touchText: 'A grasshopper returns at just 8% health once a Grass Patch is down — keep gathering and placing a patch or two more if it hasn’t hopped in yet. When it arrives, tap it to observe it and record it in your field journal. Welcoming it also unlocks new things to craft — watch for the “new recipe unlocked” note. (Open the journal any time for return hints.)',
 		done: ({ state }) => state?.discoveries?.some((d: any) => (d.timesObserved || 0) > 0),
 	},
 	{

@@ -19,8 +19,7 @@ var biomes_default = {
         "wildflowers",
         "fiber",
         "water",
-        "clay",
-        "bark"
+        "clay"
       ],
       palette: {
         damaged: "#b9a37c",
@@ -349,7 +348,7 @@ var recipes_default = {
       },
       materials: {
         branches: 6,
-        bark: 2
+        fiber: 2
       },
       unlock: {
         minHealth: 40,
@@ -367,7 +366,7 @@ var recipes_default = {
       },
       materials: {
         branches: 8,
-        bark: 3
+        fiber: 3
       },
       unlock: {
         minHealth: 42,
@@ -4591,27 +4590,52 @@ var tools_default = {
       name: "Gathering Basket",
       description: "For gently collecting light, renewable materials: seeds, berries, flowers, fiber, shells.",
       tiers: [
-        { tier: 1, name: "Gathering Basket", effect: "Carry up to 80 materials and gather 1 at a time." },
+        {
+          tier: 1,
+          name: "Gathering Basket",
+          effect: "Carry up to 80 materials and gather 1 at a time."
+        },
         {
           tier: 2,
           name: "Reinforced Gathering Basket",
           effect: "Carry up to 160 materials and gather 2 light materials at a time.",
-          materials: { fiber: 8, branches: 4, bark: 2 },
-          requires: { biome: "meadow", minHealth: 40 }
+          materials: {
+            fiber: 8,
+            branches: 4,
+            stones: 2
+          },
+          requires: {
+            biome: "meadow",
+            minHealth: 40
+          }
         },
         {
           tier: 3,
           name: "Woven Carryall",
           effect: "Carry up to 260 materials and gather 3 at a time.",
-          materials: { fiber: 10, bark: 4, moss: 4 },
-          requires: { biome: "forest", minHealth: 60 }
+          materials: {
+            fiber: 10,
+            bark: 4,
+            moss: 4
+          },
+          requires: {
+            biome: "forest",
+            minHealth: 60
+          }
         },
         {
           tier: 4,
           name: "Naturalist's Pack",
           effect: "Carry up to 380 materials and gather 4 at a time.",
-          materials: { reeds: 8, fiber: 8, clay: 4 },
-          requires: { biome: "wetland", minHealth: 65 }
+          materials: {
+            reeds: 8,
+            fiber: 8,
+            clay: 4
+          },
+          requires: {
+            biome: "wetland",
+            minHealth: 65
+          }
         }
       ]
     },
@@ -4620,27 +4644,52 @@ var tools_default = {
       name: "Basic Shovel",
       description: "For carefully digging stones, clay, and sand, and preparing restoration ground.",
       tiers: [
-        { tier: 1, name: "Basic Shovel", effect: "Dig stones, clay, and sand; gather 1 at a time." },
+        {
+          tier: 1,
+          name: "Basic Shovel",
+          effect: "Dig stones, clay, and sand; gather 1 at a time."
+        },
         {
           tier: 2,
           name: "Restoration Shovel",
           effect: "Shape wetland mud banks and burrow mounds; gather 2 dug materials.",
-          materials: { branches: 4, stones: 6, fiber: 2 },
-          requires: { biome: "meadow", minHealth: 30 }
+          materials: {
+            branches: 4,
+            stones: 6,
+            fiber: 2
+          },
+          requires: {
+            biome: "meadow",
+            minHealth: 30
+          }
         },
         {
           tier: 3,
           name: "Tempered Spade",
           effect: "Dig faster and gather 3 dug materials at a time.",
-          materials: { stones: 8, bark: 3, clay: 4 },
-          requires: { biome: "forest", minHealth: 55 }
+          materials: {
+            stones: 8,
+            bark: 3,
+            clay: 4
+          },
+          requires: {
+            biome: "forest",
+            minHealth: 55
+          }
         },
         {
           tier: 4,
           name: "Earthshaper's Spade",
           effect: "Shape the toughest ground and gather 4 dug materials at a time.",
-          materials: { stones: 10, clay: 6, reeds: 4 },
-          requires: { biome: "wetland", minHealth: 65 }
+          materials: {
+            stones: 10,
+            clay: 6,
+            reeds: 4
+          },
+          requires: {
+            biome: "wetland",
+            minHealth: 65
+          }
         }
       ]
     },
@@ -4649,27 +4698,52 @@ var tools_default = {
       name: "Tin Watering Can",
       description: "For carrying water to thirsty ground and new plantings.",
       tiers: [
-        { tier: 1, name: "Tin Watering Can", effect: "Collect 1 water from springs and streams." },
+        {
+          tier: 1,
+          name: "Tin Watering Can",
+          effect: "Collect 1 water from springs and streams."
+        },
         {
           tier: 2,
           name: "Rainwater Canteen",
           effect: "Collect 2 water at a time \u2014 restore dry ground more efficiently.",
-          materials: { clay: 6, fiber: 3, water: 4 },
-          requires: { biome: "meadow", minHealth: 30 }
+          materials: {
+            clay: 6,
+            fiber: 3,
+            water: 4
+          },
+          requires: {
+            biome: "meadow",
+            minHealth: 30
+          }
         },
         {
           tier: 3,
           name: "Spring-fed Ewer",
           effect: "Collect 3 water at a time for rivers, lakes, and lush beds.",
-          materials: { clay: 8, bark: 4, water: 6 },
-          requires: { biome: "forest", minHealth: 55 }
+          materials: {
+            clay: 8,
+            bark: 4,
+            water: 6
+          },
+          requires: {
+            biome: "forest",
+            minHealth: 55
+          }
         },
         {
           tier: 4,
           name: "Cloudcatcher Urn",
           effect: "Collect 4 water at a time \u2014 flood whole channels in a few trips.",
-          materials: { clay: 10, "clean-water": 6, stones: 4 },
-          requires: { biome: "wetland", minHealth: 65 }
+          materials: {
+            clay: 10,
+            "clean-water": 6,
+            stones: 4
+          },
+          requires: {
+            biome: "wetland",
+            minHealth: 65
+          }
         }
       ]
     },
@@ -4678,41 +4752,80 @@ var tools_default = {
       name: "Field Journal",
       description: "For observing animals and recording who has returned. Each upgrade unlocks the full field entries and return hints for the next area.",
       tiers: [
-        { tier: 1, name: "Field Journal", effect: "Read full entries and hints for Willow Meadow animals." },
+        {
+          tier: 1,
+          name: "Field Journal",
+          effect: "Read full entries and hints for Willow Meadow animals."
+        },
         {
           tier: 2,
           name: "Expanded Field Guide",
           effect: "Read full entries and hints for Old Hollow Forest animals.",
-          materials: { bark: 4, fiber: 4, berries: 2 },
-          requires: { biome: "meadow", minHealth: 50 }
+          materials: {
+            fiber: 4,
+            berries: 2,
+            branches: 4
+          },
+          requires: {
+            biome: "meadow",
+            minHealth: 50
+          }
         },
         {
           tier: 3,
           name: "Wetland Field Guide",
           effect: "Read full entries and hints for Rushwater Wetland animals.",
-          materials: { moss: 4, bark: 3, mushrooms: 2 },
-          requires: { biome: "forest", minHealth: 55 }
+          materials: {
+            moss: 4,
+            bark: 3,
+            mushrooms: 2
+          },
+          requires: {
+            biome: "forest",
+            minHealth: 55
+          }
         },
         {
           tier: 4,
           name: "Drylands Field Guide",
           effect: "Read full entries and hints for Redstone Scrubland animals.",
-          materials: { reeds: 4, clay: 3, mud: 2 },
-          requires: { biome: "wetland", minHealth: 60 }
+          materials: {
+            reeds: 4,
+            clay: 3,
+            mud: 2
+          },
+          requires: {
+            biome: "wetland",
+            minHealth: 60
+          }
         },
         {
           tier: 5,
           name: "Highlands Field Guide",
           effect: "Read full entries and hints for Graywind Heights animals.",
-          materials: { sand: 4, "cactus-fruit": 2, clay: 2 },
-          requires: { biome: "desert", minHealth: 60 }
+          materials: {
+            sand: 4,
+            "cactus-fruit": 2,
+            clay: 2
+          },
+          requires: {
+            biome: "desert",
+            minHealth: 60
+          }
         },
         {
           tier: 6,
           name: "Master Naturalist's Guide",
           effect: "Read full entries and hints for Pelican Shore animals \u2014 the complete field guide.",
-          materials: { "alpine-flowers": 3, moss: 2, stones: 3 },
-          requires: { biome: "alpine", minHealth: 60 }
+          materials: {
+            "alpine-flowers": 3,
+            moss: 2,
+            stones: 3
+          },
+          requires: {
+            biome: "alpine",
+            minHealth: 60
+          }
         }
       ]
     }

@@ -171,7 +171,7 @@
 			},
 			"materials": {
 				"branches": 6,
-				"bark": 2
+				"fiber": 2
 			},
 			"unlock": {
 				"minHealth": 40,
@@ -189,7 +189,7 @@
 			},
 			"materials": {
 				"branches": 8,
-				"bark": 3
+				"fiber": 3
 			},
 			"unlock": {
 				"minHealth": 42,
