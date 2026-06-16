@@ -252,9 +252,6 @@ export function WelcomeScreen() {
 					</form>
 				)}
 
-				<p className="build-stamp" title="If this time looks old after an update, hard-refresh (Cmd/Ctrl+Shift+R)">
-					build {new Date(__BUILD_TIME__).toLocaleString()}
-				</p>
 			</div>
 		</div>
 	);

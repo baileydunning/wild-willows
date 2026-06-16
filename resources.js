@@ -8475,9 +8475,24 @@ function computeHealthPoints(d, placements, openWaterTiles = 0) {
   if (openWaterTiles > 0) points += 2 * Math.min(openWaterTiles, 7);
   return points;
 }
-var BALANCE_PER_ANIMAL = 7;
-function balanceFromReturns(returnedCount) {
-  return clamp(returnedCount * BALANCE_PER_ANIMAL, 0, 100);
+var BALANCE_RETURN_WEIGHT = 0.45;
+var BALANCE_WEB_WEIGHT = 0.35;
+var BALANCE_BREADTH_WEIGHT = 0.2;
+function computeBalance(d, biomeId, returnedIds) {
+  const animals = d.animals.filter((a) => a.biome === biomeId);
+  const total = animals.length;
+  if (total === 0) return 0;
+  const back = animals.filter((a) => returnedIds.has(a.id));
+  if (back.length >= total) return 100;
+  const returnFrac = back.length / total;
+  const predators = animals.filter((a) => (a.requirements?.animals || []).length > 0);
+  const predatorsBack = predators.filter((a) => returnedIds.has(a.id)).length;
+  const webFrac = predators.length ? predatorsBack / predators.length : 1;
+  const kindsAll = new Set(animals.map((a) => a.kind));
+  const kindsBack = new Set(back.map((a) => a.kind));
+  const breadthFrac = kindsAll.size ? kindsBack.size / kindsAll.size : 0;
+  const raw = BALANCE_RETURN_WEIGHT * returnFrac + BALANCE_WEB_WEIGHT * webFrac + BALANCE_BREADTH_WEIGHT * breadthFrac;
+  return clamp(Math.round(raw * 100), 0, 99);
 }
 function analyzeWater(terrain) {
   const cells = new Set(terrain.filter((t) => t.type === "water").map((t) => `${t.x},${t.y}`));
@@ -8586,8 +8601,7 @@ async function recalcBiome(playerId, biomeId, opts = {}) {
   const health = healthFromPoints(healthPoints);
   const discoveries = await byPlayer(t.Discovery, playerId);
   const returnedIds = new Set(discoveries.map((x) => x.animalId));
-  const countInBiome = () => [...returnedIds].filter((id) => d.animal.get(id)?.biome === biomeId).length;
-  let balance = balanceFromReturns(countInBiome());
+  let balance = computeBalance(d, biomeId, returnedIds);
   const newAnimals = [];
   const biomeAnimals = d.animals.filter((a) => a.biome === biomeId);
   for (const animal of biomeAnimals) {
@@ -8605,7 +8619,7 @@ async function recalcBiome(playerId, biomeId, opts = {}) {
       };
       await t.Discovery.put(disc);
       returnedIds.add(animal.id);
-      balance = balanceFromReturns(countInBiome());
+      balance = computeBalance(d, biomeId, returnedIds);
       newAnimals.push({ ...disc, animal });
       break;
     }

@@ -27,6 +27,8 @@ export function HUD() {
 	const biome = data.biomes.find((b) => b.id === area);
 	const bState = state.biomeStates.find((b) => b.biomeId === area);
 	const totalAnimals = data.animals.filter((a) => a.biome === area).length;
+	const returnedAll = state.biomeStates.reduce((sum, b) => sum + (b.returnedCount || 0), 0);
+	const allAnimals = data.animals.length;
 
 	const toggle = (id: any) => setPanel(panel === id ? null : id);
 	const navBtn = (id: any, icon: string, label: string) => (
@@ -47,9 +49,12 @@ export function HUD() {
 				{biome && bState && (
 					<>
 						<Meter label="Health" icon="leaf" value={bState.health} color="#6aa253" />
-						<Meter label="Balance" icon="drop" value={bState.balance} color="#5b9cab" />
+						<Meter label="Balance" icon="scales" value={bState.balance} color="#5b9cab" />
 						<div className="hud-returned">
 							<Icon name="paw" size={14} /> {bState.returnedCount}/{totalAnimals} animals returned
+						</div>
+						<div className="hud-returned hud-returned-total">
+							<Icon name="paw" size={12} /> {returnedAll}/{allAnimals} across the preserve
 						</div>
 					</>
 				)}

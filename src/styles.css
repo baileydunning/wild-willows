@@ -211,6 +211,7 @@ input {
 	display: flex; align-items: center; gap: 7px;
 }
 .hud-returned { font-size: 12.5px; color: var(--ink-soft); display: flex; align-items: center; gap: 6px; }
+.hud-returned-total { font-size: 11px; opacity: 0.72; margin-top: 1px; }
 
 .meter { display: flex; align-items: center; gap: 6px; font-size: 12px; margin: 1px 0; }
 .meter-icon { display: inline-flex; }

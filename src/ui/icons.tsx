@@ -84,6 +84,16 @@ const PATHS: Record<string, React.ReactNode> = {
 			<path d="M5 19c2.5-5.5 6-9 11-11.5" />
 		</>
 	),
+	scales: (
+		<>
+			<path d="M12 4.5v15" />
+			<path d="M8.5 20h7" />
+			<path d="M5 8h14" />
+			<circle cx="12" cy="4.2" r="0.5" fill="currentColor" />
+			<path d="M5 8 3 12.5M5 8l2 4.5M3 12.5a2 1.6 0 0 0 4 0" />
+			<path d="M19 8l-2 4.5M19 8l2 4.5M17 12.5a2 1.6 0 0 0 4 0" />
+		</>
+	),
 	paw: (
 		<>
 			<ellipse cx="7" cy="9" rx="1.8" ry="2.4" />

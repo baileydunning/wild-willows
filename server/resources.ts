@@ -609,14 +609,43 @@ function computeHealthPoints(d: any, placements: any[], openWaterTiles = 0): num
 }
 
 /**
- * Ecological balance now reflects the life that has actually come back: it
- * climbs as animals return to the biome and stalls if the habitat can't yet
- * support more of them. Each returned animal is worth BALANCE_PER_ANIMAL points.
+ * Ecological balance measures how COMPLETE the food web is — not just how many
+ * animals are back, but whether the recovered community is a working, balanced
+ * ecosystem. Three signals, all 0..1:
+ *   - return    : fraction of the biome's animals that have returned (life is back)
+ *   - web       : fraction of the biome's predators / top-of-chain species back
+ *                 (these depend on prey, so they only return once the chain below
+ *                 them is in place — a biome of herbivores with no predators reads
+ *                 as unbalanced, exactly as it should)
+ *   - breadth   : fraction of animal *kinds* represented (insects, birds, mammals,
+ *                 reptiles, amphibians, fish… — a varied web, not one trophic level)
+ * By design balance CANNOT reach 100% until every animal in the biome is back.
  */
-const BALANCE_PER_ANIMAL = 7;
+const BALANCE_RETURN_WEIGHT = 0.45;
+const BALANCE_WEB_WEIGHT = 0.35;
+const BALANCE_BREADTH_WEIGHT = 0.20;
 
-function balanceFromReturns(returnedCount: number): number {
-	return clamp(returnedCount * BALANCE_PER_ANIMAL, 0, 100);
+function computeBalance(d: any, biomeId: string, returnedIds: Set<string>): number {
+	const animals = d.animals.filter((a: any) => a.biome === biomeId);
+	const total = animals.length;
+	if (total === 0) return 0;
+	const back = animals.filter((a: any) => returnedIds.has(a.id));
+	if (back.length >= total) return 100; // every animal back = a perfectly balanced ecosystem
+
+	const returnFrac = back.length / total;
+
+	// predators / keystone species depend on other animals (a real food chain)
+	const predators = animals.filter((a: any) => (a.requirements?.animals || []).length > 0);
+	const predatorsBack = predators.filter((a: any) => returnedIds.has(a.id)).length;
+	const webFrac = predators.length ? predatorsBack / predators.length : 1;
+
+	// trophic breadth — how many different kinds of animal are represented
+	const kindsAll = new Set(animals.map((a: any) => a.kind));
+	const kindsBack = new Set(back.map((a: any) => a.kind));
+	const breadthFrac = kindsAll.size ? kindsBack.size / kindsAll.size : 0;
+
+	const raw = BALANCE_RETURN_WEIGHT * returnFrac + BALANCE_WEB_WEIGHT * webFrac + BALANCE_BREADTH_WEIGHT * breadthFrac;
+	return clamp(Math.round(raw * 100), 0, 99); // never 100 until the last animal returns
 }
 
 /**
@@ -763,11 +792,10 @@ async function recalcBiome(
 
 	const discoveries = await byPlayer(t.Discovery, playerId);
 	const returnedIds = new Set(discoveries.map((x) => x.animalId));
-	const countInBiome = () => [...returnedIds].filter((id) => d.animal.get(id)?.biome === biomeId).length;
 
-	// Balance tracks the animals that have actually returned, and is recomputed
-	// as each one comes back so food-web chains can keep unlocking the rest.
-	let balance = balanceFromReturns(countInBiome());
+	// Balance tracks food-web completeness, recomputed as each animal comes back so
+	// food-web chains can keep unlocking the rest.
+	let balance = computeBalance(d, biomeId, returnedIds);
 
 	// Animal returns — animals come back only when the habitat truly supports them.
 	// One habitat = one animal: at most a single new animal returns per change, so
@@ -790,7 +818,7 @@ async function recalcBiome(
 			};
 			await t.Discovery.put(disc);
 			returnedIds.add(animal.id);
-			balance = balanceFromReturns(countInBiome()); // more life back -> more balance
+			balance = computeBalance(d, biomeId, returnedIds); // more life back -> more balance
 			newAnimals.push({ ...disc, animal });
 			break;
 		}
