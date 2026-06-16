@@ -389,7 +389,7 @@ export function ToolsPanel() {
 					</div>
 				);
 			})}
-			<p className="muted">Upgrades use materials from your basket and chests. Tools here are for stewardship, never harm.</p>
+			<p className="muted">Upgrades use materials from your basket and chests.</p>
 		</Panel>
 	);
 }
