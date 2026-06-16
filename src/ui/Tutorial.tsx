@@ -17,6 +17,7 @@ interface Flags {
 	gathered: boolean;
 	openedWorkbench: boolean;
 	crafted: boolean;
+	openedJournal: boolean;
 }
 
 // Did the player craft a Grass Patch specifically? (the tutorial's first goal)
@@ -71,9 +72,16 @@ const STEPS: StepDef[] = [
 	{
 		icon: 'paw',
 		title: 'Welcome the grasshopper',
-		text: 'A grasshopper returns at just 8% health once a Grass Patch is down — keep gathering and placing a patch or two more if it hasn’t hopped in yet. When it arrives, click it to observe it and record it in your field journal. Welcoming it also unlocks new things to craft — watch for the “new recipe unlocked” note. (Press J any time for return hints.)',
-		touchText: 'A grasshopper returns at just 8% health once a Grass Patch is down — keep gathering and placing a patch or two more if it hasn’t hopped in yet. When it arrives, tap it to observe it and record it in your field journal. Welcoming it also unlocks new things to craft — watch for the “new recipe unlocked” note. (Open the journal any time for return hints.)',
+		text: 'A grasshopper returns at just 8% health once a Grass Patch is down — keep gathering and placing a patch or two more if it hasn’t hopped in yet. When it arrives, click it to observe it and record it in your field journal. Welcoming it also unlocks new things to craft — watch for the “new recipe unlocked” note.',
+		touchText: 'A grasshopper returns at just 8% health once a Grass Patch is down — keep gathering and placing a patch or two more if it hasn’t hopped in yet. When it arrives, tap it to observe it and record it in your field journal. Welcoming it also unlocks new things to craft — watch for the “new recipe unlocked” note.',
 		done: ({ state }) => state?.discoveries?.some((d: any) => (d.timesObserved || 0) > 0),
+	},
+	{
+		icon: 'journal',
+		title: 'Open your field journal',
+		text: 'Press J to open your field journal — it lists every animal that can return to each area and who’s back so far. Each area has its own field guide: the basic entry (and comfort) always shows, but the full diet, shelter, and return hints unlock once you gather that area’s materials and upgrade the guide in the Tools panel — starting with the Willow Meadow guide.',
+		touchText: 'Tap the journal button to open your field journal — it lists every animal that can return to each area and who’s back so far. Each area has its own field guide: the basic entry always shows, but full diet, shelter, and return hints unlock once you gather that area’s materials and upgrade the guide in the Tools panel — starting with Willow Meadow.',
+		done: ({ flags }) => flags.openedJournal,
 	},
 	{
 		icon: 'spade',
@@ -127,7 +135,7 @@ const readMs = (text: string) => {
 
 export function Tutorial() {
 	const { state, setTutorialStep, panel } = useGame();
-	const [flags, setFlags] = useState<Flags>({ moved: false, gathered: false, openedWorkbench: false, crafted: false });
+	const [flags, setFlags] = useState<Flags>({ moved: false, gathered: false, openedWorkbench: false, crafted: false, openedJournal: false });
 	const advanceTimer = useRef<number | null>(null);
 	const stepShownAt = useRef<number>(Date.now());
 	const [celebrating, setCelebrating] = useState(false);
@@ -204,6 +212,7 @@ export function Tutorial() {
 
 	useEffect(() => {
 		if (panel === 'crafting') setFlags((f) => ({ ...f, openedWorkbench: true }));
+		if (panel === 'journal') setFlags((f) => (f.openedJournal ? f : { ...f, openedJournal: true }));
 	}, [panel]);
 
 	useEffect(() => {

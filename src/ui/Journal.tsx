@@ -98,7 +98,10 @@ export function JournalPanel() {
 	// Full entries for an area need the field guide upgraded to that area's tier.
 	const tabBiome = biomes.find((b) => b.id === tab);
 	const guideTier = state.player.tools?.['field-journal'] || 1;
-	const needTier = tabBiome?.order || 1;
+	// each area's FULL entries need that area's own field-guide upgrade. The baseline
+	// journal (tier 1) still shows the generic entry — sprite + comfort — for every
+	// area, just with diet/shelter/fact/hints locked behind the upgrade.
+	const needTier = (tabBiome?.order || 1) + 1;
 	const full = guideTier >= needTier;
 	const guideName = data.tools.find((t) => t.id === 'field-journal')?.tiers.find((tt) => tt.tier === guideTier)?.name || 'Field Journal';
 
@@ -143,7 +146,7 @@ export function AnimalCard() {
 	const disc = state.discoveries.find((d) => d.animalId === animalCardId);
 	if (!animal) return null;
 	const guideTier = state.player.tools?.['field-journal'] || 1;
-	const needTier = data.biomes.find((b) => b.id === animal.biome)?.order || 1;
+	const needTier = (data.biomes.find((b) => b.id === animal.biome)?.order || 1) + 1;
 	const full = guideTier >= needTier;
 	const close = () => {
 		setAnimalCardId(null);

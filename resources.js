@@ -4750,81 +4750,89 @@ var tools_default = {
     {
       id: "field-journal",
       name: "Field Journal",
-      description: "For observing animals and recording who has returned. Each upgrade unlocks the full field entries and return hints for the next area.",
+      description: "For observing animals and recording who has returned. Each area has its own field guide \u2014 gather that area's materials to upgrade and unlock its full entries and return hints.",
       tiers: [
         {
           tier: 1,
           name: "Field Journal",
-          effect: "Read full entries and hints for Willow Meadow animals."
+          effect: "Observe and log who has returned. Upgrade with each area's materials to read its full field entries and return hints."
         },
         {
           tier: 2,
-          name: "Expanded Field Guide",
-          effect: "Read full entries and hints for Old Hollow Forest animals.",
+          name: "Willow Meadow Field Guide",
+          effect: "Read full entries and return hints for Willow Meadow animals.",
           materials: {
-            fiber: 4,
-            berries: 2,
-            branches: 4
+            seeds: 4,
+            fiber: 3,
+            wildflowers: 2
           },
           requires: {
-            biome: "meadow",
-            minHealth: 50
+            biome: "meadow"
           }
         },
         {
           tier: 3,
-          name: "Wetland Field Guide",
-          effect: "Read full entries and hints for Rushwater Wetland animals.",
+          name: "Old Hollow Forest Field Guide",
+          effect: "Read full entries and return hints for Old Hollow Forest animals.",
           materials: {
             moss: 4,
-            bark: 3,
-            mushrooms: 2
+            mushrooms: 2,
+            pinecones: 2
           },
           requires: {
-            biome: "forest",
-            minHealth: 55
+            biome: "forest"
           }
         },
         {
           tier: 4,
-          name: "Drylands Field Guide",
-          effect: "Read full entries and hints for Redstone Scrubland animals.",
+          name: "Rushwater Wetland Field Guide",
+          effect: "Read full entries and return hints for Rushwater Wetland animals.",
           materials: {
             reeds: 4,
-            clay: 3,
-            mud: 2
+            mud: 2,
+            clay: 2
           },
           requires: {
-            biome: "wetland",
-            minHealth: 60
+            biome: "wetland"
           }
         },
         {
           tier: 5,
-          name: "Highlands Field Guide",
-          effect: "Read full entries and hints for Graywind Heights animals.",
+          name: "Redstone Scrubland Field Guide",
+          effect: "Read full entries and return hints for Redstone Scrubland animals.",
           materials: {
-            sand: 4,
             "cactus-fruit": 2,
-            clay: 2
+            sand: 3,
+            "agave-nectar": 1
           },
           requires: {
-            biome: "desert",
-            minHealth: 60
+            biome: "desert"
           }
         },
         {
           tier: 6,
-          name: "Master Naturalist's Guide",
-          effect: "Read full entries and hints for Pelican Shore animals \u2014 the complete field guide.",
+          name: "Graywind Heights Field Guide",
+          effect: "Read full entries and return hints for Graywind Heights animals.",
           materials: {
             "alpine-flowers": 3,
-            moss: 2,
-            stones: 3
+            lichen: 2,
+            "quartz-crystal": 1
           },
           requires: {
-            biome: "alpine",
-            minHealth: 60
+            biome: "alpine"
+          }
+        },
+        {
+          tier: 7,
+          name: "Master Naturalist's Guide",
+          effect: "Read full entries and return hints for Pelican Shore animals \u2014 the complete field guide.",
+          materials: {
+            shells: 3,
+            driftwood: 2,
+            sand: 2
+          },
+          requires: {
+            biome: "coastal"
           }
         }
       ]

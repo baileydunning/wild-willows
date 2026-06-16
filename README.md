@@ -58,7 +58,7 @@ Credentials can also go in `CLI_TARGET_USERNAME` / `CLI_TARGET_PASSWORD`. The `d
 - **Unlockable crafting** — most recipes start locked and unlock one at a time as a biome recovers (health crossed, a keystone animal welcomed), with a clear "New Crafting Recipe Unlocked" callout. New caretakers begin with a handful of starters (Grass Patch + a few) and **no materials** — the first job is to gather.
 - **Three chest sizes** — Small (**120**), Medium (**250**), and a Large Chest (**500**) that unlocks later, once Redstone Scrubland is restored to 60% and you've crafted a Medium Chest first.
 - **29 gatherable resources**, including biome-exclusive ones (e.g. geode and agave nectar in the desert; quartz crystal, obsidian, pine nuts, lichen, juniper berries, and packed snow in the alpine). Node generation **guarantees every resource appears** in its biome.
-- **4 tools** with deep upgrade tracks (basket/shovel/watering can each have 4 tiers; the field journal has 6).
+- **4 tools** with deep upgrade tracks (basket/shovel/watering can each have 4 tiers; the field journal has 7 — a baseline plus one guide per area).
 - Every biome has **at least 3 plantable tree types** plus its own distinct plants, palette, and animals.
 
 ## Database schema (`schema.graphql`)
@@ -124,7 +124,7 @@ Four tools, each upgraded with materials gated on biome progress. Higher tiers g
 - **Gathering Basket** (4 tiers) — carry capacity 80 → 380.
 - **Shovel** (4 tiers) — prepare beds, shape mud banks/burrows, dig more per swing.
 - **Watering Can** (4 tiers) — collect 1 → 4 water per fill.
-- **Field Journal** (6 tiers) — each tier unlocks the **full field entries and return hints for the next area** (meadow → coastal). Until you upgrade, that area's journal shows the animal and its comfort but locks the diet/shelter/fact and detailed hints behind an "upgrade your field guide" prompt.
+- **Field Journal** (7 tiers) — a baseline journal plus a dedicated field guide for each area (Willow Meadow → Pelican Shore). The baseline always shows each animal's basic entry and comfort, but the **full diet, shelter, fact, and return hints stay locked** until you **gather that area's own materials and upgrade its guide** — so even the meadow's full entries are earned, not free. You upgrade in each area using resources found there.
 
 ## Crafting, planting & terraforming
 
