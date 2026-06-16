@@ -113,6 +113,12 @@ async function reconcileDefinitions() {
 		for (const row of await toArray(table.search({}))) {
 			if (!valid.has(row.id)) await table.delete(row.id);
 		}
+		// Force each stored record to exactly match the JSON. Harper's data loader
+		// only upserts (merges) fields, so a field REMOVED from the JSON — e.g. a
+		// recipe's old `unlock` health gate, or changed materials/capacities — can
+		// linger on the stored record and keep producing stale behavior. A full
+		// put() replaces the whole record, clearing anything no longer in the JSON.
+		for (const rec of records) await table.put(rec);
 	}
 }
 

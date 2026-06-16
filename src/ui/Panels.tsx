@@ -242,7 +242,9 @@ export function CraftingPanel() {
 	// stay hidden until earned, then announce themselves with a toast.
 	const unlocked = data.recipes.filter((r) => recipeUnlocked(r, data, state));
 	const visible = unlocked
-		.filter((r) => placeFilter === 'all' || (objOf(r)?.biomes || []).includes(placeFilter))
+		// non-placeable items (restoration kits) aren't tied to any area, so they
+		// always show regardless of the Place filter — never hidden behind it.
+		.filter((r) => placeFilter === 'all' || objOf(r)?.placement === 'none' || (objOf(r)?.biomes || []).includes(placeFilter))
 		.filter((r) => typeFilter === 'all' || r.category === typeFilter)
 		.sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
 	const categories = [...new Set(visible.map((r) => r.category))];

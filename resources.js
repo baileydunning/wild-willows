@@ -694,11 +694,12 @@ var recipes_default = {
         qty: 1
       },
       materials: {
-        stones: 3,
-        clay: 4,
-        fiber: 4,
+        stones: 5,
+        clay: 5,
+        fiber: 6,
         water: 6,
-        moss: 2
+        moss: 3,
+        bark: 2
       },
       once: true
     },
@@ -921,9 +922,10 @@ var recipes_default = {
         qty: 1
       },
       materials: {
-        stones: 6,
-        "alpine-flowers": 3,
-        fiber: 2
+        stones: 8,
+        "alpine-flowers": 5,
+        fiber: 4,
+        "quartz-crystal": 2
       },
       once: true
     },
@@ -1020,10 +1022,10 @@ var recipes_default = {
         qty: 1
       },
       materials: {
-        fiber: 4,
-        branches: 4,
-        stones: 3,
-        water: 2
+        fiber: 8,
+        branches: 8,
+        stones: 6,
+        water: 4
       }
     },
     {
@@ -1037,10 +1039,10 @@ var recipes_default = {
         qty: 1
       },
       materials: {
-        reeds: 5,
-        mud: 4,
-        clay: 3,
-        "clean-water": 3
+        reeds: 8,
+        mud: 6,
+        clay: 5,
+        "clean-water": 5
       }
     },
     {
@@ -1054,10 +1056,11 @@ var recipes_default = {
         qty: 1
       },
       materials: {
-        sand: 5,
-        stones: 5,
-        clay: 3,
-        "cactus-fruit": 2
+        sand: 8,
+        stones: 7,
+        clay: 5,
+        "cactus-fruit": 3,
+        geode: 1
       }
     },
     {
@@ -8216,6 +8219,7 @@ async function reconcileDefinitions() {
     for (const row of await toArray(table.search({}))) {
       if (!valid.has(row.id)) await table.delete(row.id);
     }
+    for (const rec of records) await table.put(rec);
   }
 }
 var defsCache = null;
