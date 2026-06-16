@@ -982,7 +982,7 @@ async function getOwnedChest(t: any, d: any, chestId: string, playerId: string):
 
 /**
  * Consume materials from player inventory first, then from any of the
- * player's chests — no workbench needed, crafting works anywhere.
+ * player's chests — crafting works anywhere, no station required.
  * Throws (and writes nothing) if materials are insufficient.
  * Returns a breakdown of where every material came from.
  */
@@ -1296,7 +1296,7 @@ export class DiscardItem extends PublicEndpoint {
 	}
 }
 
-/** POST /CraftItem/ {playerId, recipeId} — uses inventory + chests linked to the workbench. */
+/** POST /CraftItem/ {playerId, recipeId} — uses inventory + all of the player's chests. */
 export class CraftItem extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId, recipeId } = await bodyOf(data);

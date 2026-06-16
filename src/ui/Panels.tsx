@@ -61,7 +61,7 @@ function AreaTags({ data, def }: { data: any; def: any }) {
 	);
 }
 
-// All of your chests feed crafting — no workbench or proximity required.
+// All of your chests feed crafting — no station or proximity required.
 export function useLinkedChests(): ChestState[] {
 	const { state } = useGame();
 	return useMemo(() => state?.chests ?? [], [state]);

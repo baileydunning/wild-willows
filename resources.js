@@ -3045,7 +3045,7 @@ var habitat_objects_default = {
       color: "#8a6a44",
       isChest: true,
       chestCapacity: 120,
-      description: "A woven-and-wood chest. Holds 120 materials. Place it near your workbench to link it."
+      description: "A woven-and-wood chest. Holds 120 materials. Anything stored here feeds crafting from anywhere."
     },
     {
       id: "medium-chest",
