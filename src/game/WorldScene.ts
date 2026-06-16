@@ -653,23 +653,24 @@ export class WorldScene extends Phaser.Scene {
 		if (!biome) return [];
 		const playerId = bridge.shared.state?.player.id || 'anon';
 		const rng = mulberry32(hashStr(`${playerId}-${this.area}-nodes`));
-		// Node budget — never below the resource count, so there's always room
-		// for at least one node of every resource this biome offers.
-		const count = Math.max(16, (this.biomeDef()?.resources || []).length);
+		// Node budget — at least twice the resource count (plus a little extra room
+		// for weighted staples), so there's always space for two nodes of every
+		// resource this biome offers.
+		const res = biome.resources || [];
+		const count = Math.max(20, res.length * 2 + 4);
 
 		// Build the resource bag for this area. GUARANTEE every biome resource
-		// appears at least once (one of each, placed first), then fill the rest
+		// appears at least TWICE (two of each, placed first), then fill the rest
 		// with a weighted random draw so early-game staples are easy to find
 		// (seeds especially — used by almost every meadow recipe). Coverage is no
 		// longer left to a shuffle that could drop a resource: if it's in the
-		// biome, a node for it is generated.
+		// biome, at least two nodes for it are generated.
 		const NODE_WEIGHT: Record<string, number> = { seeds: 4, fiber: 2 };
-		const res = biome.resources || [];
 		const weighted: string[] = [];
 		for (const r of res) for (let i = 0; i < (NODE_WEIGHT[r] || 1); i++) weighted.push(r);
-		// Guaranteed prefix: one node per resource, placed first (positions are
+		// Guaranteed prefix: two nodes per resource, placed first (positions are
 		// random anyway), then weighted fill up to `count`.
-		const pool: string[] = [...res];
+		const pool: string[] = [...res, ...res];
 		while (pool.length < count && weighted.length) pool.push(weighted[Math.floor(rng() * weighted.length)]);
 
 		const nodes: NodeDef[] = [];
@@ -703,20 +704,21 @@ export class WorldScene extends Phaser.Scene {
 			}
 		}
 
-		// Coverage safety net — every gatherable resource MUST be obtainable the
-		// moment the world spawns. The placement loop above already covers this in
-		// normal conditions, but if anything slipped through (a future biome with
-		// more resources than the node budget, or an unusually crowded map that
-		// exhausted placement attempts), force a node in on the nearest free tile.
-		// This makes coverage a hard guarantee rather than a statistical one.
-		const present = new Set(nodes.map((n) => n.resourceId));
+		// Coverage safety net — every gatherable resource MUST have at least TWO
+		// spawn spots the moment the world spawns. The placement loop above covers
+		// this normally, but if anything slipped through (an unusually crowded map
+		// that exhausted placement attempts), force extra nodes in on the nearest
+		// free tiles. This makes "two of each" a hard guarantee, not a statistic.
+		const MIN_PER_RESOURCE = 2;
+		const perResource = new Map<string, number>();
+		for (const n of nodes) perResource.set(n.resourceId, (perResource.get(n.resourceId) || 0) + 1);
 		for (const r of res) {
-			if (present.has(r)) continue;
-			const spot = this.findFreeTile(Math.floor(OUT_W / 2), this.playTop + Math.floor(OUT_H / 2), occupied, taken);
-			if (spot) {
+			while ((perResource.get(r) || 0) < MIN_PER_RESOURCE) {
+				const spot = this.findFreeTile(Math.floor(OUT_W / 2), this.playTop + Math.floor(OUT_H / 2), occupied, taken);
+				if (!spot) break;
 				nodes.push({ id: `n${nodes.length}`, resourceId: r, tx: spot.tx, ty: spot.ty });
 				taken.add(`${spot.tx},${spot.ty}`);
-				present.add(r);
+				perResource.set(r, (perResource.get(r) || 0) + 1);
 			}
 		}
 
