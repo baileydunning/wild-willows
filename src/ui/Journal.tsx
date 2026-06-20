@@ -140,12 +140,34 @@ export function JournalPanel() {
 	);
 }
 
+/**
+ * Coexistence note: name returned neighbors this animal depends on (its
+ * requirement chain) and returned neighbors that depend on it. Only mentions
+ * animals actually back, so it reads as a living relationship the player built.
+ */
+function neighborsNote(animal: AnimalDef, animals: AnimalDef[], returned: Set<string>): string | null {
+	const nameOf = (id: string) => animals.find((a) => a.id === id)?.name || id;
+	const prereqs = (animal.requirements?.animals || []).filter((id) => returned.has(id));
+	const dependents = animals
+		.filter((a) => returned.has(a.id) && (a.requirements?.animals || []).includes(animal.id))
+		.map((a) => a.id);
+	const list = (ids: string[]) => {
+		const names = ids.map(nameOf);
+		return names.length <= 1 ? names[0] : names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1];
+	};
+	if (prereqs.length) return `Settled in after the ${list(prereqs)} were already here.`;
+	if (dependents.length) return `The ${list(dependents)} followed once this one was back.`;
+	return null;
+}
+
 export function AnimalCard() {
 	const { data, state, animalCardId, setAnimalCardId, setPanel } = useGame();
 	if (!data || !state || !animalCardId) return null;
 	const animal = data.animals.find((a) => a.id === animalCardId);
 	const disc = state.discoveries.find((d) => d.animalId === animalCardId);
 	if (!animal) return null;
+	const returnedIds = new Set(state.discoveries.map((d) => d.animalId));
+	const neighbors = disc ? neighborsNote(animal, data.animals, returnedIds) : null;
 	const guideTier = state.player.tools?.['field-journal'] || 1;
 	const needTier = (data.biomes.find((b) => b.id === animal.biome)?.order || 1) + 1;
 	const full = guideTier >= needTier;
@@ -167,6 +189,9 @@ export function AnimalCard() {
 						<p>
 							<b>{comfortLabel(disc.comfort)}</b> — comfort {disc.comfort}%. Observed {disc.timesObserved} time{disc.timesObserved === 1 ? '' : 's'}.
 						</p>
+					)}
+					{neighbors && (
+						<p className="neighbors-note small"><Icon name="paw" size={13} /> <span><b>Neighbors:</b> {neighbors}</span></p>
 					)}
 					{full ? (
 						<>

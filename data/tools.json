@@ -10,12 +10,12 @@
 				{
 					"tier": 1,
 					"name": "Gathering Basket",
-					"effect": "Carry up to 80 materials and gather 1 at a time."
+					"effect": "Carry up to 200 materials and gather 1 at a time."
 				},
 				{
 					"tier": 2,
 					"name": "Reinforced Gathering Basket",
-					"effect": "Carry up to 160 materials and gather 2 light materials at a time.",
+					"effect": "Carry up to 350 materials and gather 2 light materials at a time.",
 					"materials": {
 						"fiber": 8,
 						"branches": 4,
@@ -29,7 +29,7 @@
 				{
 					"tier": 3,
 					"name": "Woven Carryall",
-					"effect": "Carry up to 260 materials and gather 3 at a time.",
+					"effect": "Carry up to 550 materials and gather 3 at a time.",
 					"materials": {
 						"fiber": 10,
 						"bark": 4,
@@ -43,7 +43,7 @@
 				{
 					"tier": 4,
 					"name": "Naturalist's Pack",
-					"effect": "Carry up to 380 materials and gather 4 at a time.",
+					"effect": "Carry up to 800 materials and gather 4 at a time.",
 					"materials": {
 						"reeds": 8,
 						"fiber": 8,

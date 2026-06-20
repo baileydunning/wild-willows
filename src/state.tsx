@@ -1,7 +1,8 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { api, forgetSave, lastSave, rememberSave, setPlayerId } from './api';
+import { api, forgetSave, getPlayerId, lastSave, rememberSave, setPlayerId } from './api';
 import { bridge } from './game/bridge';
 import { unlockedRecipeIds } from './recipes';
+import { narrativeBeats, nextFeedFact, healthMilestoneLine, HEALTH_THRESHOLDS } from './ui/narrative';
 import type { Appearance, GameData, GameState, PanelId } from './types';
 
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
@@ -9,7 +10,7 @@ export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 interface Toast {
 	id: number;
 	text: string;
-	kind: 'info' | 'animal' | 'unlock' | 'error';
+	kind: 'info' | 'animal' | 'unlock' | 'error' | 'achievement';
 }
 
 export interface LogEntry {
@@ -39,6 +40,7 @@ interface Ctx {
 	notify: (text: string, kind?: Toast['kind']) => void;
 	dismissToast: (id: number) => void;
 	log: LogEntry[];
+	feedLog: LogEntry[];
 	selectedTool: string;
 	setSelectedTool: (toolId: string) => void;
 	terraform: (area: string, x: number, y: number, action: 'dig' | 'water' | 'clear') => Promise<void>;
@@ -78,18 +80,62 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	const [animalCardId, setAnimalCardId] = useState<string | null>(null);
 	const [placementObjectId, setPlacementObjectId] = useState<string | null>(null);
 	const [toasts, setToasts] = useState<Toast[]>([]);
+	// `log` = the live corner feed (everything, including mundane gathering/crafting).
+	// `feedLog` = only the notable beats, for the Feed menu (F) and DB persistence.
 	const [log, setLog] = useState<LogEntry[]>([]);
+	const [feedLog, setFeedLog] = useState<LogEntry[]>([]);
 	const [selectedTool, setSelectedToolState] = useState('basket');
 	const saveTimer = useRef<number | null>(null);
 	const logSeq = useRef(1);
 	// Tracks which recipes were unlocked last time we looked, so we can announce
 	// newly unlocked ones. null = not seeded yet (first load announces nothing).
 	const prevUnlocked = useRef<Set<string> | null>(null);
+	// Same idea for achievements: diff the snapshot to surface freshly earned ones.
+	const prevAchievements = useRef<Set<string> | null>(null);
+	// Returned-animal set last seen, for weaving narrative beats as combinations land.
+	const prevDiscoveries = useRef<Set<string> | null>(null);
+	// Educational biome facts already shown this session (so they don't repeat).
+	const shownFacts = useRef<Set<string>>(new Set());
+	// Last-seen biome health, to fire a progress beat when a threshold is crossed.
+	const prevHealth = useRef<Map<string, number> | null>(null);
+	// Feed persistence: buffer new lines and flush them to Harper (capped per player),
+	// and seed the in-memory log from the saved feed once per login.
+	const feedBuffer = useRef<{ icon: string; text: string; at: number }[]>([]);
+	const feedSeeded = useRef(false);
 
-	const pushLog = useCallback((icon: string, text: string) => {
-		// keep a rolling history of the last 30 messages — enough to scroll back
-		// through recent activity without growing unbounded
-		setLog((entries) => [...entries.slice(-29), { id: logSeq.current++, icon, text, at: Date.now() }]);
+	const dismissToast = useCallback((id: number) => {
+		setToasts((ts) => ts.filter((t) => t.id !== id));
+	}, []);
+
+	// Prominent, ephemeral notifications (top-right) — the same place errors appear.
+	const toast = useCallback((text: string, kind: Toast['kind'] = 'info') => {
+		const id = toastSeq++;
+		setToasts((ts) => [...ts.slice(-3), { id, text, kind }]);
+		window.setTimeout(() => setToasts((ts) => ts.filter((t) => t.id !== id)), kind === 'error' ? 4000 : 6000);
+	}, []);
+
+	// Every line shows in the live corner feed (`log`). "Notable" beats also go to
+	// `feedLog` (the Feed menu) and persist to Harper. The narrative/fact/milestone
+	// beats live in the feed only — the prominent toast area is reserved for the big
+	// moments (animal returns, unlocks, achievements, errors), which fire their own toasts.
+	const pushLog = useCallback((icon: string, text: string, notable = false) => {
+		const at = Date.now();
+		const entry = { id: logSeq.current++, icon, text, at };
+		setLog((entries) => [...entries.slice(-79), entry]); // corner feed: everything
+		if (notable) {
+			setFeedLog((entries) => [...entries.slice(-99), entry]); // menu: notable only
+			feedBuffer.current.push({ icon, text, at }); // persisted to Harper (pruned to 100)
+		}
+	}, []);
+
+	// Push any buffered feed lines to Harper. Best-effort: on failure we just keep
+	// them buffered for the next flush.
+	const flushFeed = useCallback(() => {
+		if (!getPlayerId() || feedBuffer.current.length === 0) return;
+		const batch = feedBuffer.current.splice(0, feedBuffer.current.length);
+		// best-effort: if it fails (e.g. offline, or the feed table isn't there yet),
+		// just drop the batch rather than growing the buffer without bound
+		api.appendFeed(batch).catch(() => undefined);
 	}, []);
 
 	// Definitions load once, before login (the character creator needs them).
@@ -106,15 +152,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		bridge.shared.state = state;
 	}, [state]);
 
-	const dismissToast = useCallback((id: number) => {
-		setToasts((ts) => ts.filter((t) => t.id !== id));
-	}, []);
-
-	const toast = useCallback((text: string, kind: Toast['kind'] = 'info') => {
-		const id = toastSeq++;
-		setToasts((ts) => [...ts.slice(-3), { id, text, kind }]);
-		window.setTimeout(() => setToasts((ts) => ts.filter((t) => t.id !== id)), kind === 'error' ? 4000 : 6000);
-	}, []);
+	// Seed the in-memory log from the player's saved feed, once per login, so they
+	// can scroll back through messages from previous sessions.
+	useEffect(() => {
+		if (!state || feedSeeded.current) return;
+		feedSeeded.current = true;
+		const seed = (state.feed || []).map((f) => ({ id: logSeq.current++, icon: f.icon, text: f.text, at: f.at }));
+		if (seed.length) { setLog(seed); setFeedLog(seed); }
+	}, [state]);
 
 	// Announce newly unlocked recipes. When progress in a biome crosses a gate,
 	// new recipes appear in the crafting menu — surface that clearly so players
@@ -134,8 +179,63 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		// Recipes are tuned to unlock roughly one at a time; announce each by name.
 		// (Cap the toasts if several ever land together so we don't flood the HUD.)
 		names.slice(0, 3).forEach((name) => toast(`New Crafting Recipe Unlocked — ${name}`, 'unlock'));
-		for (const name of names) pushLog('sparkle', `New Crafting Recipe Unlocked — ${name}.`);
+		for (const name of names) pushLog('sparkle', `New Crafting Recipe Unlocked — ${name}.`, true);
 	}, [data, state, toast, pushLog]);
+
+	// Announce freshly earned achievements by diffing the snapshot (the server
+	// awards them; we surface the gold toast + a feed line carrying the flavor).
+	// The first load after login just seeds the baseline silently.
+	useEffect(() => {
+		if (!data || !state) return;
+		const now = new Set(state.achievements || []);
+		const prev = prevAchievements.current;
+		prevAchievements.current = now;
+		if (!prev) return; // baseline seeded
+		const added = [...now].filter((id) => !prev.has(id));
+		if (!added.length) return;
+		const defs = added
+			.map((id) => data.achievements.find((a) => a.id === id))
+			.filter(Boolean) as typeof data.achievements;
+		defs.slice(0, 3).forEach((a) => toast(`Achievement unlocked — ${a.name}`, 'achievement'));
+		for (const a of defs) pushLog('star', `Achievement unlocked: ${a.name}. ${a.flavor}`, true);
+	}, [data, state, toast, pushLog]);
+
+	// Weave narrative beats into the feed as combinations of animals return — e.g.
+	// "three kinds of insect are back…", or a predator + its prey both home. Each
+	// beat fires once, the moment a return flips its condition true (diffed against
+	// the previous returned set, so reloads don't replay history).
+	useEffect(() => {
+		if (!data || !state) return;
+		const after = new Set(state.discoveries.map((d) => d.animalId));
+		const before = prevDiscoveries.current;
+		prevDiscoveries.current = after;
+		if (!before) return; // seed baseline silently on first load
+		let grew = false;
+		for (const id of after) if (!before.has(id)) { grew = true; break; }
+		if (!grew) return;
+		for (const beat of narrativeBeats(before, after, data)) pushLog(beat.icon, beat.text, true);
+	}, [data, state, pushLog]);
+
+	// Progress beats: when a biome crosses a health threshold (25/50/80/100), weave
+	// in a line about what that milestone means for the habitat.
+	useEffect(() => {
+		if (!data || !state) return;
+		const cur = new Map(state.biomeStates.map((b) => [b.biomeId, b.health]));
+		const prev = prevHealth.current;
+		prevHealth.current = cur;
+		if (!prev) return; // seed baseline silently
+		for (const [biomeId, h] of cur) {
+			const p = prev.get(biomeId);
+			if (p === undefined) continue;
+			const name = data.biomes.find((b) => b.id === biomeId)?.name || biomeId;
+			for (const t of HEALTH_THRESHOLDS) {
+				if (p < t && h >= t) {
+					const line = healthMilestoneLine(t, name);
+					if (line) pushLog('leaf', line, true);
+				}
+			}
+		}
+	}, [data, state, pushLog]);
 
 	const markSaved = useCallback(() => {
 		setSaveStatus('saved');
@@ -182,13 +282,22 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	}, [adoptState]);
 
 	const logout = useCallback(() => {
+		flushFeed(); // persist any unsaved feed lines before we drop the session
 		setPlayerId(null);
 		setState(null);
 		bridge.shared.state = null;
 		setPanel(null);
 		setPlacementObjectId(null);
+		setLog([]); // clear the on-screen feed; it re-seeds from Harper on next login
+		setFeedLog([]);
+		feedSeeded.current = false;
+		feedBuffer.current = [];
 		prevUnlocked.current = null; // re-seed the unlock baseline on next login
-	}, []);
+		prevAchievements.current = null; // and the achievement baseline
+		prevDiscoveries.current = null; // and the narrative baseline
+		prevHealth.current = null; // and the health-milestone baseline
+		shownFacts.current = new Set(); // fresh fact pool next session
+	}, [flushFeed]);
 
 	// Heartbeat: while a save is open, ping the server on a timer so it can
 	// accrue play time and session counts. Best-effort and paused when the tab
@@ -210,6 +319,50 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		};
 	}, [sessionPlayerId]);
 
+	// As the player keeps playing, gently weave educational biome facts and fun
+	// nature facts into the feed — one every few minutes of active play, drawn
+	// from the area they're currently in plus a general pool, never repeating.
+	useEffect(() => {
+		if (!sessionPlayerId) return;
+		const tick = () => {
+			if (document.visibilityState === 'hidden') return;
+			const s = bridge.shared.state;
+			const area = s?.player?.area;
+			if (!area) return;
+			// always biome-specific to where the player currently is, gated by that
+			// biome's recovery and the animals back there
+			const health = s?.biomeStates?.find((b: any) => b.biomeId === area)?.health || 0;
+			const returnedIds = new Set<string>((s?.discoveries || []).map((d: any) => d.animalId));
+			// crafting combinations: things crafted (ever) plus anything placed in this area
+			const crafted = new Set<string>([
+				...Object.keys(s?.player?.craftedEver || {}),
+				...(s?.placements || []).filter((p: any) => p.area === area).map((p: any) => p.objectId),
+			]);
+			const pick = nextFeedFact({ area, health, returnedIds, crafted, shown: shownFacts.current });
+			if (!pick) return;
+			shownFacts.current.add(pick.key);
+			pushLog(pick.icon, pick.text, true);
+		};
+		const id = window.setInterval(tick, 150_000); // ~2.5 min of active play
+		return () => window.clearInterval(id);
+	}, [sessionPlayerId, pushLog]);
+
+	// Flush buffered feed lines to Harper on a timer (and when the tab is hidden or
+	// closed), so the activity feed survives reloads. The server keeps the last 100.
+	useEffect(() => {
+		if (!sessionPlayerId) return;
+		const id = window.setInterval(flushFeed, 6000);
+		const onHide = () => { if (document.visibilityState === 'hidden') flushFeed(); };
+		document.addEventListener('visibilitychange', onHide);
+		window.addEventListener('beforeunload', flushFeed);
+		return () => {
+			window.clearInterval(id);
+			document.removeEventListener('visibilitychange', onHide);
+			window.removeEventListener('beforeunload', flushFeed);
+			flushFeed();
+		};
+	}, [sessionPlayerId, flushFeed]);
+
 	/** Run a persisted action against Harper, then re-sync state. */
 	const act = useCallback(
 		async (fn: () => Promise<any>, onResult?: (r: any) => void) => {
@@ -218,14 +371,24 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				const result = await fn();
 				if (result?.newAnimals?.length) {
 					for (const na of result.newAnimals) {
-						toast(`${na.animal?.name || 'An animal'} has returned to the preserve!`, 'animal');
-						pushLog('paw', `${na.animal?.name || 'An animal'} felt safe enough to return!`);
+						const name = na.animal?.name || 'An animal';
+						toast(`${name} has returned to the preserve!`, 'animal');
+						pushLog('paw', `${name} felt safe enough to return!`, true);
+						// coexistence beat: if it arrived after animals it depends on, say so
+						const prereqs = (na.animal?.requirements?.animals || [])
+							.map((id: string) => data?.animals.find((a) => a.id === id)?.name)
+							.filter(Boolean);
+						if (prereqs.length) {
+							pushLog('leaf', `${name} came back now that the ${prereqs.join(' and ')} had returned — the food web is filling in.`, true);
+						}
+						// a fun fact about the animal that just arrived (shows in both feeds)
+						if (na.animal?.fact) pushLog('paw', `${name}: ${na.animal.fact}`, true);
 					}
 				}
 				if (result?.unlockedBiomes?.length) {
 					for (const b of result.unlockedBiomes) {
 						toast(`New biome unlocked: ${b.name}!`, 'unlock');
-						pushLog('sparkle', `New biome unlocked: ${b.name}!`);
+						pushLog('sparkle', `New biome unlocked: ${b.name}!`, true);
 					}
 				}
 				onResult?.(result);
@@ -237,7 +400,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				window.setTimeout(() => setSaveStatus('idle'), 1500);
 			}
 		},
-		[refresh, markSaved, toast]
+		[refresh, markSaved, toast, pushLog, data]
 	);
 
 	const collect = useCallback(
@@ -453,13 +616,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			data, state, dataError, saveStatus, panel, setPanel, helpOpen, setHelpOpen,
 			activeChestId, openChest, animalCardId, setAnimalCardId,
 			placementObjectId, startPlacement, cancelPlacement, toasts, notify: toast, dismissToast,
-			log, selectedTool, setSelectedTool, terraform, plant, setTutorialStep,
+			log, feedLog, selectedTool, setSelectedTool, terraform, plant, setTutorialStep,
 			startNew, startLogin, continueLast, logout,
 			refresh, collect, transfer, craft, discard, place, removePlacement, movePlacement,
 			upgradeTool, observe, changeArea, recalcArea,
 		}),
 		[data, state, dataError, saveStatus, panel, helpOpen, activeChestId, animalCardId,
-			placementObjectId, toasts, toast, dismissToast, log, selectedTool, setSelectedTool, terraform, plant,
+			placementObjectId, toasts, toast, dismissToast, log, feedLog, selectedTool, setSelectedTool, terraform, plant,
 			setTutorialStep, startNew, startLogin, continueLast, logout,
 			refresh, collect, transfer, craft, discard, place, removePlacement, movePlacement, upgradeTool,
 			observe, changeArea, recalcArea, openChest, startPlacement, cancelPlacement]

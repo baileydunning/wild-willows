@@ -59,10 +59,49 @@ export function Toolbelt() {
 	);
 }
 
+function feedTime(at: number): string {
+	const d = new Date(at);
+	const today = new Date();
+	const sameDay = d.toDateString() === today.toDateString();
+	const time = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+	return sameDay ? time : `${d.toLocaleDateString([], { month: 'short', day: 'numeric' })} · ${time}`;
+}
+
+/** The full activity feed as a panel (F) — scroll back through the last 100 notable moments. */
+export function FeedPanel() {
+	const { feedLog, setPanel } = useGame();
+	const entries = [...feedLog].reverse(); // notable beats only, newest first
+	return (
+		<div className="panel-backdrop" onClick={() => setPanel(null)}>
+			<div className="panel" onClick={(e) => e.stopPropagation()}>
+				<div className="panel-head">
+					<h2><Icon name="chat" size={20} /> Activity Feed</h2>
+					<button className="icon-btn" onClick={() => setPanel(null)} aria-label="Close"><Icon name="close" /></button>
+				</div>
+				<div className="panel-body">
+					{entries.length === 0 ? (
+						<p className="muted small">No notable moments yet. Gather, build, and welcome wildlife home — the highlights will collect here.</p>
+					) : (
+						<div className="feed-list">
+							{entries.map((entry) => (
+								<div className="feed-row" key={entry.id}>
+									<span className="feed-row-icon"><Icon name={entry.icon} size={15} /></span>
+									<span className="feed-row-text">{entry.text}</span>
+									<span className="feed-row-time">{feedTime(entry.at)}</span>
+								</div>
+							))}
+						</div>
+					)}
+				</div>
+			</div>
+		</div>
+	);
+}
+
 const LOG_PREF_KEY = 'wild-willows:log-open';
 
 export function ActivityLog() {
-	const { log } = useGame();
+	const { log, panel } = useGame();
 	const [open, setOpen] = useState(() => {
 		try {
 			return localStorage.getItem(LOG_PREF_KEY) !== '0';
@@ -89,6 +128,10 @@ export function ActivityLog() {
 		const el = scrollRef.current;
 		if (el && !hovering.current) el.scrollTop = el.scrollHeight;
 	}, [log, open]);
+
+	// Collapse the side feed entirely while the full Feed menu (F) is open — it
+	// reappears (at its prior open/closed state) the moment the menu is closed.
+	if (panel === 'feed') return null;
 
 	return (
 		<div className="activity-log" aria-live="polite">

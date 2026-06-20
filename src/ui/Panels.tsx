@@ -5,6 +5,7 @@ import type { ChestState, RecipeDef } from '../types';
 import { recipeUnlocked } from '../recipes';
 import { Meter } from './HUD';
 import { Icon } from './icons';
+import { BIOME_LORE, loreStage } from './lore';
 
 function Panel({ title, icon, children, onClose, wide }: { title: string; icon?: string; children: React.ReactNode; onClose: () => void; wide?: boolean }) {
 	return (
@@ -451,6 +452,12 @@ export function BiomesPanel() {
 									<Meter label="Health" icon="leaf" value={bs.health} color="#6aa253" />
 									<Meter label="Balance" icon="drop" value={bs.balance} color="#5b9cab" />
 									<div className="muted small">{bs.returnedCount}/{total} animals returned</div>
+									{BIOME_LORE[biome.id] && (
+										<div className="biome-lore small">
+											<p>{BIOME_LORE[biome.id][loreStage(bs.health)]}</p>
+											<p className="biome-coexist"><Icon name="paw" size={12} /> {BIOME_LORE[biome.id].coexistence}</p>
+										</div>
+									)}
 								</>
 							)}
 						</div>

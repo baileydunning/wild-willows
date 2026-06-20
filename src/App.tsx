@@ -6,10 +6,11 @@ import { GameProvider, useGame } from './state';
 import { HelpModal } from './ui/Help';
 import { HUD, Toasts } from './ui/HUD';
 import { AnimalCard, JournalPanel } from './ui/Journal';
+import { AchievementsPanel } from './ui/Achievements';
 import { MobileControls } from './ui/MobileControls';
 import { BiomesPanel, ChestPanel, CraftingPanel, InventoryPanel, ToolsPanel } from './ui/Panels';
 import { SettingsPanel } from './ui/Settings';
-import { ActivityLog, Toolbelt } from './ui/Toolbelt';
+import { ActivityLog, FeedPanel, Toolbelt } from './ui/Toolbelt';
 import { Tutorial } from './ui/Tutorial';
 import { DevPanel } from './ui/DevPanel';
 import { KeyboardGate } from './ui/KeyboardGate';
@@ -187,12 +188,16 @@ function GameScreen() {
 			const k = e.key.toLowerCase();
 			if (k === 'escape') {
 				if (devOpen) { setDevOpen(false); return; }
+				if (game.helpOpen) { game.setHelpOpen(false); return; }
 				if (panel) setPanel(null);
 				else if (placementObjectId) cancelPlacement();
 				return;
 			}
-			// B = basket, T = tools, J = journal, P = preserve, C = crafting (I = basket alias)
-			const map: Record<string, any> = { b: 'inventory', i: 'inventory', j: 'journal', t: 'tools', p: 'biomes', c: 'crafting' };
+			// H toggles the How-to-Play help modal (it isn't a panel).
+			if (k === 'h') { game.setHelpOpen(!game.helpOpen); return; }
+			// B = basket, J = journal, K = achievements, F = feed, T = tools, P = preserve,
+			// G = settings (gear), C = crafting (I = basket alias)
+			const map: Record<string, any> = { b: 'inventory', i: 'inventory', j: 'journal', k: 'achievements', f: 'feed', t: 'tools', p: 'biomes', g: 'settings', c: 'crafting' };
 			if (map[k]) setPanel(panel === map[k] ? null : map[k]);
 			// number keys select toolbelt tools
 			const toolByKey: Record<string, string> = { '1': 'basket', '2': 'shovel', '3': 'watering-can' };
@@ -219,6 +224,8 @@ function GameScreen() {
 			{panel === 'tools' && <ToolsPanel />}
 			{panel === 'biomes' && <BiomesPanel />}
 			{panel === 'journal' && <JournalPanel />}
+			{panel === 'achievements' && <AchievementsPanel />}
+			{panel === 'feed' && <FeedPanel />}
 			{panel === 'animal' && <AnimalCard />}
 			{panel === 'settings' && <SettingsPanel />}
 			{devOpen && <DevPanel onClose={() => setDevOpen(false)} />}

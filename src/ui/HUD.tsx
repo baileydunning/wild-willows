@@ -17,7 +17,7 @@ export function Meter({ label, icon, value, color }: { label: string; icon: stri
 }
 
 export function HUD() {
-	const { data, state, saveStatus, panel, setPanel, setHelpOpen, logout, placementObjectId, cancelPlacement } = useGame();
+	const { data, state, saveStatus, panel, setPanel, helpOpen, setHelpOpen, logout, placementObjectId, cancelPlacement } = useGame();
 	const [prompt, setPrompt] = useState('');
 
 	useEffect(() => bridge.on('prompt', (p: string) => setPrompt(p || '')), []);
@@ -31,7 +31,7 @@ export function HUD() {
 	const allAnimals = data.animals.length;
 
 	const toggle = (id: any) => setPanel(panel === id ? null : id);
-	const navBtn = (id: any, icon: string, label: string) => (
+	const navBtn = (id: any, icon: string, label: string, keyHint?: string) => (
 		<button
 			className={`icon-btn ${panel === id ? 'on' : ''}`}
 			onClick={() => toggle(id)}
@@ -39,6 +39,7 @@ export function HUD() {
 			aria-label={label}
 		>
 			<Icon name={icon} />
+			{keyHint && <span className="nav-key">{keyHint}</span>}
 		</button>
 	);
 
@@ -65,14 +66,18 @@ export function HUD() {
 					<Icon name="cloud" size={15} />
 					<span>{saveStatus === 'saving' ? 'Saving' : saveStatus === 'saved' ? 'Saved' : saveStatus === 'error' ? 'Retry' : 'Synced'}</span>
 				</span>
-				{navBtn('inventory', 'basket', 'Basket contents (B)')}
-				{navBtn('journal', 'journal', 'Field journal (J)')}
-				{navBtn('biomes', 'map', 'Preserve overview (P)')}
-				<button className="icon-btn" onClick={() => setHelpOpen(true)} title="How to play" aria-label="How to play">
-					<Icon name="help" />
+				{navBtn('inventory', 'basket', 'Basket contents (B)', 'B')}
+				{navBtn('journal', 'journal', 'Field journal (J)', 'J')}
+				{navBtn('achievements', 'star', 'Achievements (K)', 'K')}
+				{navBtn('feed', 'chat', 'Activity feed (F)', 'F')}
+				{navBtn('biomes', 'map', 'Preserve overview (P)', 'P')}
+				<button className={`icon-btn ${panel === 'settings' ? 'on' : ''}`} onClick={() => toggle('settings')} title="Settings — change character, delete save (G)" aria-label="Settings">
+					<Icon name="sliders" />
+					<span className="nav-key">G</span>
 				</button>
-				<button className={`icon-btn ${panel === 'settings' ? 'on' : ''}`} onClick={() => toggle('settings')} title="Settings — change character, delete save" aria-label="Settings">
-					<Icon name="gear" />
+				<button className={`icon-btn ${helpOpen ? 'on' : ''}`} onClick={() => setHelpOpen(!helpOpen)} title="How to play (H)" aria-label="How to play">
+					<Icon name="help" />
+					<span className="nav-key">H</span>
 				</button>
 				<button className="icon-btn subtle" onClick={logout} title={`Save & quit (${state.player.name})`} aria-label="Save and quit">
 					<Icon name="logout" />
@@ -98,7 +103,7 @@ export function HUD() {
 
 export function Toasts() {
 	const { toasts, dismissToast } = useGame();
-	const iconFor = { animal: 'paw', unlock: 'sparkle', error: 'help', info: 'leaf' } as const;
+	const iconFor = { animal: 'paw', unlock: 'sparkle', error: 'help', info: 'leaf', achievement: 'star' } as const;
 	return (
 		<div className="toasts">
 			{toasts.map((t) => (

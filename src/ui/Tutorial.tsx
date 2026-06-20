@@ -60,14 +60,14 @@ const STEPS: StepDef[] = [
 	{
 		icon: 'sparkle',
 		title: 'Gather materials',
-		text: 'Now fill that basket. See the little glowing spots on the ground? Walk up to one with the basket selected and press E to gather. Collect some seeds and fiber — you’ll need them for the grasshopper’s home later.',
+		text: 'Now fill that basket. See the little glowing spots on the ground? Walk up to one with the basket selected and press E or the Space bar to gather — E and Space interact with anything you walk up to. Collect some seeds and fiber — you’ll need them for the grasshopper’s home later.',
 		touchText: 'Now fill that basket. See the little glowing spots on the ground? Walk up to one with the basket selected and tap it to gather. Collect some seeds and fiber — you’ll need them for the grasshopper’s home later.',
 		done: ({ flags }) => flags.gathered,
 	},
 	{
 		icon: 'chest',
 		title: 'Use your camp chest',
-		text: 'Walk to the chest beside your tent and press E to open it. Deposit spare materials here whenever your basket gets full — anything in a chest still counts toward crafting from anywhere, so you never have to carry it all.',
+		text: 'Walk to the chest beside your tent and press E or Space to open it. Deposit spare materials here whenever your basket gets full — anything in a chest still counts toward crafting from anywhere, so you never have to carry it all.',
 		touchText: 'Walk to the chest beside your tent and tap it to open it. Deposit spare materials here whenever your basket gets full — anything in a chest still counts toward crafting from anywhere, so you never have to carry it all.',
 		done: ({ flags }) => flags.openedChest,
 	},
@@ -81,7 +81,7 @@ const STEPS: StepDef[] = [
 	{
 		icon: 'leaf',
 		title: 'Plant something living',
-		text: 'Walk up to your watered bed and press E to plant a flower, grass, or tree. Plants sprout small and grow in over time — once mature they count as real habitat, and the biome rechecks for new arrivals on its own.',
+		text: 'Walk up to your watered bed and press E or Space to plant a flower, grass, or tree. Plants sprout small and grow in over time — once mature they count as real habitat, and the biome rechecks for new arrivals on its own.',
 		touchText: 'Walk up to your watered bed and tap it to plant a flower, grass, or tree. Plants sprout small and grow in over time — once mature they count as real habitat, and the biome rechecks for new arrivals on its own.',
 		done: ({ state }) => hasPlanted(state),
 	},
@@ -143,24 +143,37 @@ const STEPS: StepDef[] = [
 	{
 		icon: 'paw',
 		title: 'Welcome the grasshopper',
-		text: 'Here’s the moment. A grasshopper returns at 15% meadow health with a Grass Patch down — between watering the land, planting, and your patches you’re already there. If it hasn’t hopped in yet, place another patch or water a bit more. When it arrives, click it to observe it and record it in your journal. That’s the whole loop: gather, build, and welcome wildlife home — keep going to open the forest trail!',
-		touchText: 'Here’s the moment. A grasshopper returns at 15% meadow health with a Grass Patch down — between watering the land, planting, and your patches you’re already there. If it hasn’t hopped in yet, place another patch or water a bit more. When it arrives, tap it to observe it and record it in your journal. That’s the whole loop: gather, build, and welcome wildlife home — keep going to open the forest trail!',
+		text: 'Here’s the moment. A grasshopper returns at 15% meadow health with a Grass Patch down — between watering the land, planting, and your patches you’re already there. If it hasn’t hopped in yet, place another patch or water a bit more. When it arrives, click it to observe it and record it in your journal — then click Next for one last thing.',
+		touchText: 'Here’s the moment. A grasshopper returns at 15% meadow health with a Grass Patch down — between watering the land, planting, and your patches you’re already there. If it hasn’t hopped in yet, place another patch or water a bit more. When it arrives, tap it to observe it and record it in your journal — then tap Next for one last thing.',
 		done: ({ state }) => state?.discoveries?.some((d: any) => (d.timesObserved || 0) > 0),
+	},
+	{
+		icon: 'star',
+		title: 'Your first star',
+		text: 'That’s the whole loop — and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don’t come easy. Find them all in the new Achievements menu (press K) — recent unlocks rise to the top. Now the preserve is yours: gather, build, and bring it back to life.',
+		touchText: 'That’s the whole loop — and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don’t come easy. Find them all in the new Achievements menu (the star button) — recent unlocks rise to the top. Now the preserve is yours: gather, build, and bring it back to life.',
+		done: () => false, // info finale — advance with Finish
 	},
 ];
 
 const DONE_STEP = 99;
 
 // How long the "nice job!" check animation plays before we move on.
-const CELEBRATE_MS = 1100;
+const CELEBRATE_MS = 850;
+
+// The opening card stays up a good while so new caretakers can read the intro
+// before being whisked into the loop — even if they tap a movement key right away.
+const FIRST_STEP_HOLD = 7000;
 
 // Minimum time a step's card stays up before it's allowed to auto-advance, so
 // the player always gets a chance to read it (and isn't yanked forward the
-// instant the goal condition happens to be met). Scaled to the length of the
-// card text — roughly a relaxed reading pace — with a floor and a cap.
-const readMs = (text: string) => {
+// instant the goal condition happens to be met). The welcome card holds long;
+// every step after that is snappy — once you're actually doing things, finishing
+// an action moves you on quickly rather than making you wait out a long timer.
+const readMs = (text: string, step: number) => {
+	if (step === 0) return FIRST_STEP_HOLD;
 	const words = text.trim().split(/\s+/).length;
-	return Math.min(9000, Math.max(4500, words * 320));
+	return Math.min(4200, Math.max(1600, words * 150));
 };
 
 export function Tutorial() {
@@ -277,7 +290,7 @@ export function Tutorial() {
 			// goal was met before that, wait out the remainder first; otherwise
 			// celebrate and move on right away.
 			const text = (touch && def.touchText) || def.text;
-			const remaining = readMs(text) - (Date.now() - stepShownAt.current);
+			const remaining = readMs(text, step) - (Date.now() - stepShownAt.current);
 			if (remaining <= 0) {
 				celebrateThenAdvance();
 			} else {

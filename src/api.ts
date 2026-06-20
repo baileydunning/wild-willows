@@ -96,6 +96,8 @@ export const api = {
 	syncPlayer: (x: number, y: number, area?: string, tutorialStep?: number) =>
 		post<any>('/SyncPlayer/', { playerId: pid(), x, y, area, tutorialStep }),
 	heartbeat: () => post<any>('/Heartbeat/', { playerId: pid() }),
+	appendFeed: (entries: { icon: string; text: string; at: number }[]) =>
+		post<any>('/AppendFeed/', { playerId: pid(), entries }),
 	recalc: (biomeId: string) => post<any>('/RecalcBiome/', { playerId: pid(), biomeId }),
 	dev: (action: string, args: Record<string, any> = {}) =>
 		post<any>('/DevTools/', { playerId: pid(), action, ...args }),

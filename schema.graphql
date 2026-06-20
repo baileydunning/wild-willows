@@ -55,6 +55,19 @@ type ToolDef @table(database: "wildwillows") {
 	name: String
 }
 
+type Achievement @table(database: "wildwillows") {
+	id: ID @primaryKey
+	name: String
+	biome: String @indexed   # "meadow"… or "preserve" for cross-biome / getting-started
+	category: String @indexed
+	order: Int @indexed
+	points: Int
+	hidden: Boolean
+	icon: String             # unique glyph key in icons.tsx
+	flavor: String           # story line shown on unlock + in the panel
+	hint: String             # shown while locked (omitted for hidden ones)
+}
+
 # ---------- player state tables ----------
 
 type Player @table(database: "wildwillows") {
@@ -121,4 +134,20 @@ type TerrainTile @table(database: "wildwillows") {
 	y: Int
 	type: String # 'tilled' | 'watered'
 	updatedAt: Float
+}
+
+type PlayerAchievement @table(database: "wildwillows") {
+	id: ID @primaryKey # `${playerId}:${achievementId}`
+	playerId: String @indexed
+	achievementId: String
+	biome: String
+	earnedAt: Float
+}
+
+type FeedEntry @table(database: "wildwillows") {
+	id: ID @primaryKey
+	playerId: String @indexed
+	at: Float
+	icon: String
+	text: String
 }

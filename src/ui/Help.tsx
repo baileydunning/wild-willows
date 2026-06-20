@@ -20,8 +20,12 @@ const KEYS: Array<{ keys: string[]; does: string }> = [
 	{ keys: ['C'], does: 'Open crafting — works anywhere' },
 	{ keys: ['B'], does: 'Open your basket' },
 	{ keys: ['J'], does: 'Open the field journal' },
+	{ keys: ['K'], does: 'Open achievements' },
+	{ keys: ['F'], does: 'Open the activity feed (last 100 events)' },
 	{ keys: ['T'], does: 'Open tools & upgrades' },
 	{ keys: ['P'], does: 'Open the preserve overview' },
+	{ keys: ['G'], does: 'Open settings' },
+	{ keys: ['H'], does: 'Open this How to Play guide' },
 	{ keys: ['Esc'], does: 'Close menus · cancel placing' },
 ];
 

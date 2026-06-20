@@ -105,6 +105,19 @@ export interface ToolDef {
 	tiers: ToolTier[];
 }
 
+export interface AchievementDef {
+	id: string;
+	name: string;
+	biome: string; // a biome id, or "preserve" for cross-biome / getting-started
+	category: 'getting-started' | 'biome' | 'mastery' | 'preserve';
+	order: number;
+	points: number;
+	hidden: boolean;
+	icon: string;
+	flavor: string;
+	hint: string;
+}
+
 export interface AppearanceOptions {
 	skins: string[];
 	hair: string[];
@@ -130,6 +143,7 @@ export interface GameData {
 	recipes: RecipeDef[];
 	habitatObjects: HabitatObjectDef[];
 	tools: ToolDef[];
+	achievements: AchievementDef[];
 	nodeRegenSeconds: number;
 	appearanceOptions: AppearanceOptions;
 }
@@ -212,6 +226,10 @@ export interface GameState {
 	discoveries: Discovery[];
 	nodeStates: NodeStateRec[];
 	terrain: TerrainTile[];
+	/** Ids of achievements this player has earned. */
+	achievements: string[];
+	/** Persisted activity-feed messages (oldest→newest, last 100 kept per player). */
+	feed: { id: string; at: number; icon: string; text: string }[];
 	serverTime: number;
 	nodeRegenSeconds: number;
 	inventoryCapacity: number;
@@ -224,6 +242,8 @@ export type PanelId =
 	| 'journal'
 	| 'tools'
 	| 'biomes'
+	| 'achievements'
+	| 'feed'
 	| 'animal'
 	| 'settings'
 	| null;

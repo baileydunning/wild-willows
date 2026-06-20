@@ -52,7 +52,7 @@ Credentials can also go in `CLI_TARGET_USERNAME` / `CLI_TARGET_PASSWORD`. The `d
 
 ## Content at a glance
 
-- **6 biomes** — Willow Meadow, Old Hollow Forest, Rushwater Wetland, Redstone Scrubland (desert), Graywind Heights (alpine), Pelican Shore (coastal). Five are explorable on foot today; only Pelican Shore (coastal) is still seeded and signposted "coming soon."
+- **6 biomes** — Willow Meadow, Old Hollow Forest, Rushwater Wetland, Redstone Scrubland (desert), Graywind Heights (alpine), Pelican Shore (coastal). All six are explorable on foot and fully restorable.
 - **150 animals** — **25 per biome**, each with diet, shelter, a real-world fact, and habitat return requirements. Every animal has a **unique, procedurally-built sprite** composed from its species traits (quills for a porcupine, antlers for a deer, long legs for a heron, a domed shell for a turtle, claws for a crab…), so no two read alike.
 - **138 habitat objects** and **109 recipes** across habitat, structures & decor, paths, storage, camp comforts, and restoration kits. Plantable flowers/grasses/trees are **planted, not crafted** (see below), so 95 of the recipes are craftable items and the rest are the plant set.
 - **Unlockable crafting** — most recipes start locked and unlock one at a time as a biome recovers (health crossed, a keystone animal welcomed), with a clear "New Crafting Recipe Unlocked" callout. New caretakers begin with a handful of starters (Grass Patch + a few) and **no materials** — the first job is to gather.
@@ -60,12 +60,14 @@ Credentials can also go in `CLI_TARGET_USERNAME` / `CLI_TARGET_PASSWORD`. The `d
 - **29 gatherable resources**, including biome-exclusive ones (e.g. geode and agave nectar in the desert; quartz crystal, obsidian, pine nuts, lichen, juniper berries, and packed snow in the alpine). Node generation **guarantees every resource appears** in its biome.
 - **4 tools** with deep upgrade tracks (basket/shovel/watering can each have 4 tiers; the field journal has 7 — a baseline plus one guide per area).
 - Every biome has **at least 3 plantable tree types** plus its own distinct plants, palette, and animals.
+- **50 achievements** earned for restoration milestones, food-web moments (keystones, predators, ecosystem engineers), gathering/crafting/terraforming mastery, and preserve-wide progress (no hidden ones; locked entries show a non-spoilery hint). The first, **First Friend**, is earned the moment you welcome the grasshopper home — and the **grasshopper is always the first animal to return anywhere**: every other animal is gated behind it. All are server-validated and shown in a dedicated **Achievements** menu (press **K**), most-recent unlocks first, each card a gold ★ badge around its own unique glyph.
+- **A living, biome-specific feed.** A corner activity feed narrates everything you do, and the notable beats also persist to a **Feed** menu (press **F**, last 100 kept per player in Harper); the prominent toast notifications are reserved for the big moments (animal returns, biome unlocks, achievements, errors). The narrative is woven into the feed: as combinations of animals and crafted habitat come together, contextual lines surface — predator + prey, ecosystem engineers, keystone species — and each biome has **50+ randomized lines** (ecology, atmosphere, coexistence, and fun facts) that appear over time, **always specific to the area you're in**, with many gated to that biome's recovery, the animals back there, or the habitat you've built. Crossing a biome health threshold and welcoming an animal both add their own beats.
 
 ## Database schema (`schema.graphql`)
 
-Definition tables, seeded from `data/*.json` by the built-in dataLoader: `Biome` · `Animal` · `ResourceType` · `Recipe` · `HabitatObject` · `ToolDef`.
+Definition tables, seeded from `data/*.json` by the built-in dataLoader: `Biome` · `Animal` · `ResourceType` · `Recipe` · `HabitatObject` · `ToolDef` · `Achievement`.
 
-Per-player state tables: `Player` (inventory, crafted items, `craftedEver`, tool tiers, unlocked biomes, position, tutorial step, and a `metrics` blob) · `BiomeState` (health, balance, returned count, unlocked) · `Chest` · `Placement` · `Discovery` (returned animals: comfort, observations, why they returned) · `NodeState` (resource node regen timestamps) · `TerrainTile` (tilled / watered / open-water tiles).
+Per-player state tables: `Player` (inventory, crafted items, `craftedEver`, tool tiers, unlocked biomes, position, tutorial step, and a `metrics` blob) · `BiomeState` (health, balance, returned count, unlocked) · `Chest` · `Placement` · `Discovery` (returned animals: comfort, observations, why they returned) · `NodeState` (resource node regen timestamps) · `TerrainTile` (tilled / watered / open-water tiles) · `PlayerAchievement` (one row per earned achievement) · `FeedEntry` (persisted activity-feed messages, capped at the last 100 per player).
 
 Tables are deliberately **not** exported over REST — everything flows through the custom resources below. On boot the server **reconciles** the seed tables against the definition JSON, deleting any orphaned records left by a rename/removal (Harper's loader only upserts, so this prevents stale duplicates like an old "Water Restoration Kit").
 
@@ -87,6 +89,7 @@ Tables are deliberately **not** exported over REST — everything flows through 
 | `POST /RecalcBiome/` | Re-evaluate health / balance / animal returns (also fires when a plant matures) |
 | `POST /SyncPlayer/` | Persist position / area changes (seeds an area's starting terrain on first entry) |
 | `POST /Heartbeat/` | Accrue play time + session counts while the game is open |
+| `POST /AppendFeed/` | Persist activity-feed messages (pruned to the last 100 per player) |
 | `GET /Metrics/` · `GET /Metrics/<playerId>` | Analytics dashboard (see below) |
 | `GET /BiomeSnapshot/<playerId>` | Generated SVG "postcards" of each area |
 | `POST /DevTools/` | Developer-only testing helpers (restricted to one save) |
@@ -121,7 +124,7 @@ All targets stay attainable — every one of a biome's 25 animals can return by 
 
 Four tools, each upgraded with materials gated on biome progress. Higher tiers gather more at once (tier 1→1 … tier 4→4):
 
-- **Gathering Basket** (4 tiers) — carry capacity 80 → 380.
+- **Gathering Basket** (4 tiers) — carry capacity 200 → 800.
 - **Shovel** (4 tiers) — prepare beds, shape mud banks/burrows, dig more per swing.
 - **Watering Can** (4 tiers) — collect 1 → 4 water per fill.
 - **Field Journal** (7 tiers) — a baseline journal plus a dedicated field guide for each area (Willow Meadow → Pelican Shore). The baseline always shows each animal's basic entry and comfort, but the **full diet, shelter, fact, and return hints stay locked** until you **gather that area's own materials and upgrade its guide** — so even the meadow's full entries are earned, not free. You upgrade in each area using resources found there.
@@ -144,8 +147,8 @@ Grouped by biome, the journal shows each animal's actual **sprite thumbnail** (a
 
 A client **heartbeat** accrues play time and counts sessions while the game is open (paused when the tab is hidden). The read-only **Metrics** endpoint surfaces it for dashboards:
 
-- `GET /Metrics/<playerId>` — one player's play time, engagement intensity, recency/status, progression, per-biome health, and a rendered **SVG snapshot** of each unlocked area (ground tinted by health, terrain and placed objects drawn in).
-- `GET /Metrics/` — global **audience** (active/new buckets), **engagement**, **retention** (returning players), **progression**, an **activation funnel** (created → collected → crafted → placed → attracted animal → unlocked 2nd biome), summed action totals, and a per-biome breakdown.
+- `GET /Metrics/<playerId>` — one player's play time, engagement intensity, recency/status, progression, per-biome health, an **achievements** block (earned/total, points, completion, recent unlocks, by-category counts), and a rendered **SVG snapshot** of each unlocked area (ground tinted by health, terrain and placed objects drawn in).
+- `GET /Metrics/` — global **audience** (active/new buckets), **engagement**, **retention** (returning players), **progression**, an **activation funnel** (created → collected → crafted → placed → attracted animal → unlocked 2nd biome), summed action totals, an **achievements** summary (total earned, avg per player, a per-achievement earn distribution so you can see where players stall, and a completion histogram), and a per-biome breakdown.
 - `GET /BiomeSnapshot/<playerId>` — just the area images, as base64 data-URIs + raw SVG.
 
 ## Saves & developer tools
@@ -154,7 +157,7 @@ Each save is a name + passcode pair. Passcodes are **never stored in plaintext**
 
 ## Controls
 
-WASD / arrows to move · **E** / Space to interact · **1–3** select tools · **J** journal · **C** crafting · click animals to observe · Shift+click a placed object to pick it up · Esc closes menus / cancels placement · **`** (backtick) opens the developer panel on the dev save. Gathering spots glow, the nearest interactable gets a pulsing ring, pickups animate into your basket, and the activity feed narrates what you just did. The **?** button opens How to Play with the full reference.
+WASD / arrows to move · **E** / Space to interact · **1–3** select tools · **J** journal · **K** achievements · **F** activity feed · **C** crafting · **P** preserve map · **G** settings · **H** How to Play · click animals to observe · Shift+click a placed object to pick it up · Esc closes menus / cancels placement · **`** (backtick) opens the developer panel on the dev save. Gathering spots glow, the nearest interactable gets a pulsing ring, pickups animate into your basket, and the activity feed narrates what you just did. The **?** button (or **H**) opens How to Play with the full reference.
 
 ## Notes & simplifications
 

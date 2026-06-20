@@ -190,6 +190,369 @@ const PATHS: Record<string, React.ReactNode> = {
 			<path d="M10 10.5v6M14 10.5v6" />
 		</>
 	),
+	star: <path d="M12 3.5 14.6 9.2 21 10 16.3 14.3 17.6 20.5 12 17.3 6.4 20.5 7.7 14.3 3 10 9.4 9.2Z" />,
+	sliders: (
+		<>
+			<path d="M4 7h8M16 7h4M4 12h4M12 12h8M4 17h10M18 17h2" />
+			<circle cx="14" cy="7" r="2" />
+			<circle cx="10" cy="12" r="2" />
+			<circle cx="16" cy="17" r="2" />
+		</>
+	),
+
+	// ---- achievement glyphs (one per achievement; rendered inside a star badge) ----
+	'ach-grasshopper': (
+		<>
+			<path d="M4 13c4-1.5 8-1.5 12 0" />
+			<path d="M16 13c2 0 3-1 3-3" />
+			<path d="M7 13l-3 6M10 13l1 6" />
+			<path d="M16 10l3-3" />
+		</>
+	),
+	'ach-gather-hand': (
+		<>
+			<path d="M4 16c0-3.5 3.5-5.5 8-5.5s8 2 8 5.5" />
+			<circle cx="9" cy="8.5" r="1" fill="currentColor" />
+			<circle cx="12" cy="7.5" r="1" fill="currentColor" />
+			<circle cx="15" cy="8.5" r="1" fill="currentColor" />
+		</>
+	),
+	'ach-mallet': (
+		<>
+			<path d="M4 20 13 11" />
+			<rect x="11" y="4" width="8" height="5.5" rx="1" transform="rotate(45 15 6.75)" />
+		</>
+	),
+	'ach-sprout-thumb': (
+		<>
+			<path d="M12 21v-8" />
+			<path d="M12 13c-3.5 0-5.5-2-5.5-5.5 3.5 0 5.5 2 5.5 5.5Z" />
+			<path d="M12 14c2.5 0 4.5-2 4.5-4.5-2.5 0-4.5 2-4.5 4.5Z" />
+		</>
+	),
+	'ach-droplet-ripple': (
+		<>
+			<path d="M12 3.5c2.5 3.5 4.5 5.5 4.5 8a4.5 4.5 0 1 1-9 0c0-2.5 2-4.5 4.5-8Z" />
+			<path d="M4 19c2.5 1.5 13.5 1.5 16 0" />
+		</>
+	),
+	'ach-wildflower': (
+		<>
+			<circle cx="12" cy="8" r="2.2" />
+			<circle cx="12" cy="4" r="1.6" /><circle cx="8" cy="8" r="1.6" /><circle cx="16" cy="8" r="1.6" />
+			<circle cx="9.4" cy="11.5" r="1.6" /><circle cx="14.6" cy="11.5" r="1.6" />
+			<path d="M12 13v8" />
+			<path d="M12 17c-2.5 0-3.5-1.5-3.5-3 2 0 3.5 1 3.5 3Z" />
+		</>
+	),
+	'ach-butterfly': (
+		<>
+			<path d="M12 6v12" />
+			<path d="M12 9C9 5 4 5 4 9s4 5.5 8 3" />
+			<path d="M12 9c3-4 8-4 8 0s-4 5.5-8 3" />
+			<path d="M12 13c-2 4-6 4-7.5 1.5M12 13c2 4 6 4 7.5 1.5" />
+		</>
+	),
+	'ach-fox-head': (
+		<>
+			<path d="M5 6.5 7.5 11M19 6.5 16.5 11" />
+			<path d="M7.5 8.5C7.5 15 10 18 12 18s4.5-3 4.5-9.5" />
+			<path d="M7.5 8.5 12 6l4.5 2.5" />
+			<circle cx="10" cy="11" r="0.7" fill="currentColor" /><circle cx="14" cy="11" r="0.7" fill="currentColor" />
+		</>
+	),
+	'ach-grass-tuft': (
+		<>
+			<path d="M6 20c-1.5-5 0-8.5 1.5-11" />
+			<path d="M10.5 20c-1-6 .5-9.5 2-12.5" />
+			<path d="M14 20c0-5 1-8.5 2.5-10.5" />
+			<path d="M18 20c-1-4-2.5-6-3.5-7.5" />
+		</>
+	),
+	'ach-meadow-sun': (
+		<>
+			<circle cx="12" cy="9" r="3.3" />
+			<path d="M12 3.2v1.6M5 9h1.6M17.4 9H19M6.2 5l1.1 1.1M17.8 5l-1.1 1.1" />
+			<path d="M4 19c3-2 13-2 16 0" />
+		</>
+	),
+	'ach-fern': (
+		<>
+			<path d="M7 20C7 11 11 6 17.5 5" />
+			<path d="M9 16c1-2 2.2-3 4-3.6M11 12c1-1.6 2.2-2.6 4-3.1M13 9c1-1 2-1.6 3-2" />
+		</>
+	),
+	'ach-tree-hollow': (
+		<>
+			<path d="M8 21V6a4 4 0 0 1 8 0v15" />
+			<ellipse cx="12" cy="11" rx="2" ry="3" />
+		</>
+	),
+	'ach-owl-moon': (
+		<>
+			<circle cx="10" cy="12.5" r="6" />
+			<circle cx="8" cy="11.5" r="1.3" /><circle cx="12" cy="11.5" r="1.3" />
+			<path d="M10 14l1 1.3" />
+			<path d="M18.5 4.5a3.6 3.6 0 1 0 1.2 6.4 4.4 4.4 0 0 1-1.2-6.4Z" />
+		</>
+	),
+	'ach-conifer': (
+		<>
+			<path d="M12 3 6 12h12L12 3Z" />
+			<path d="M8 12 12 18.5 16 12" />
+			<path d="M12 18.5V21" />
+		</>
+	),
+	'ach-three-trees': (
+		<>
+			<path d="M5 19v-3.5M3 15.5h4l-2-4-2 4Z" />
+			<path d="M12 20.5v-6M9 14.5h6l-3-6-3 6Z" />
+			<path d="M19 19v-3.5M17 15.5h4l-2-4-2 4Z" />
+		</>
+	),
+	'ach-cattail': (
+		<>
+			<path d="M10 21V5" />
+			<rect x="8.4" y="3.5" width="3.2" height="6.5" rx="1.6" />
+			<path d="M10 11c2.5 0 4.5-1 6-3.5" />
+			<path d="M4 19c3 1 9 1 12-1" />
+		</>
+	),
+	'ach-beaver-dam': (
+		<>
+			<path d="M4 14 20 10M4 10 20 14" />
+			<path d="M3 18c3 1.2 15 1.2 18 0" />
+		</>
+	),
+	'ach-lake': (
+		<>
+			<path d="M3 9.5c4-2 14-2 18 0" />
+			<path d="M4 14c4-1.5 12-1.5 16 0" />
+			<path d="M5 18.5c3-1 11-1 14 0" />
+		</>
+	),
+	'ach-heron': (
+		<>
+			<path d="M7 5c.5 3.5 1 5.5 3.5 6.5" />
+			<path d="M10.5 11.5 16 10" />
+			<path d="M10.5 11.5v6M10.5 17.5l-2 3M10.5 17.5l2 3" />
+			<path d="M7 5 4.5 4" />
+		</>
+	),
+	'ach-marsh-sun': (
+		<>
+			<circle cx="16" cy="8" r="3" />
+			<path d="M8 19V7.5M11.5 19V10" />
+			<path d="M3 19c4 1 14 1 18 0" />
+		</>
+	),
+	'ach-cactus': (
+		<>
+			<path d="M12 21V7" />
+			<path d="M12 13.5H8.2a2 2 0 0 1-2-2V9.5M12 11h3.8a2 2 0 0 0 2-2V7.8" />
+			<path d="M9 21h6" />
+		</>
+	),
+	'ach-burrow': (
+		<>
+			<path d="M3 17.5a9 6.5 0 0 1 18 0" />
+			<ellipse cx="12" cy="17.5" rx="3.2" ry="2.3" />
+		</>
+	),
+	'ach-rattlesnake': (
+		<>
+			<path d="M6 18.5c0-4.5 8-4 8-8.5a3 3 0 0 0-6 0" />
+			<path d="M14 10c1-1.2 3-1.2 4.2 0" />
+			<path d="M5 18.5l-1.2 2M7.2 18.5l-1.2 2" />
+		</>
+	),
+	'ach-agave': (
+		<>
+			<path d="M12 20.5 8 6M12 20.5 16 6M12 20.5V5M12 20.5 5 12M12 20.5 19 12" />
+		</>
+	),
+	'ach-desert-sun': (
+		<>
+			<circle cx="12" cy="8.5" r="3.3" />
+			<path d="M12 2.2v1.8M3.4 8.5h1.8M18.8 8.5h1.8M5.7 2.7l1.3 1.3M18.3 2.7 17 4" />
+			<path d="M9 20.5v-4M9 17.5h2M15 20.5v-3" />
+		</>
+	),
+	'ach-peak': (
+		<>
+			<path d="M4 19 12 5l8 14Z" />
+			<path d="M9 12.5l3 2 3-3" />
+		</>
+	),
+	'ach-pika': (
+		<>
+			<circle cx="11" cy="13" r="5" />
+			<circle cx="8" cy="9" r="1.6" /><circle cx="14" cy="9" r="1.6" />
+			<path d="M14 13.5 19.5 11" />
+			<circle cx="10.4" cy="13" r="0.6" fill="currentColor" />
+		</>
+	),
+	'ach-eagle': (
+		<>
+			<path d="M3 9c4 1 7 3 9 6 2-3 5-5 9-6" />
+			<path d="M12 15v3.5" />
+			<path d="M11 18.5h2" />
+		</>
+	),
+	'ach-alpine-flower': (
+		<>
+			<circle cx="12" cy="9" r="1.9" />
+			<circle cx="12" cy="5.3" r="1.3" /><circle cx="8.7" cy="8" r="1.3" /><circle cx="15.3" cy="8" r="1.3" />
+			<circle cx="9.7" cy="11.4" r="1.3" /><circle cx="14.3" cy="11.4" r="1.3" />
+			<path d="M12 11v9" />
+		</>
+	),
+	'ach-range': (
+		<>
+			<path d="M2 19 8 9l4 6 3-5 5 9Z" />
+			<path d="M6 12.5l2 1 1.5-1.3" />
+		</>
+	),
+	'ach-wave': (
+		<>
+			<path d="M3 15.5c4 0 5-6 9-6 3 0 4 3 7 2" />
+			<path d="M19 11.5c-1 2-4 3-6 2" />
+			<path d="M4 19c4 1 12 1 16 0" />
+		</>
+	),
+	'ach-seastar': (
+		<>
+			<path d="M12 3 14 9.3 20.5 9.3 15.2 13.2 17.2 19.5 12 15.6 6.8 19.5 8.8 13.2 3.5 9.3 10 9.3Z" />
+		</>
+	),
+	'ach-otter': (
+		<>
+			<path d="M4 13.5c4-2 12-2 16 0" />
+			<ellipse cx="12" cy="11" rx="6" ry="3" />
+			<circle cx="8" cy="10" r="0.8" fill="currentColor" />
+			<path d="M16 9.5c1-1 2.2-1 3.2 0" />
+			<path d="M4 17c4 1 12 1 16 0" />
+		</>
+	),
+	'ach-shell': (
+		<>
+			<path d="M12 19.5 4 9.5a8 6 0 0 1 16 0Z" />
+			<path d="M12 19.5 9 9.5M12 19.5l3-10M12 19.5V8.5" />
+		</>
+	),
+	'ach-pelican': (
+		<>
+			<path d="M7 5.5c1.5 4 1.5 7.5 5 8.5" />
+			<path d="M12 14c4 0 5.5-3 5.5-3l-2 5.5-3.5-2.5Z" />
+			<path d="M12 14v5.5" />
+		</>
+	),
+	'ach-full-basket': (
+		<>
+			<path d="M5 11h14l-1.6 8.5H6.6Z" />
+			<path d="M8 11c0-4 1.8-6.5 4-6.5s4 2.5 4 6.5" />
+			<circle cx="9.5" cy="8.5" r="1" fill="currentColor" /><circle cx="13" cy="7.8" r="1" fill="currentColor" /><circle cx="11.2" cy="9.5" r="1" fill="currentColor" />
+		</>
+	),
+	'ach-blueprint': (
+		<>
+			<path d="M6 4h9l4 4v12H6Z" />
+			<path d="M15 4v4h4" />
+			<path d="M9 12h6M9 15h4" />
+		</>
+	),
+	'ach-watering-can': (
+		<>
+			<rect x="7" y="9.5" width="9" height="8" rx="2" />
+			<path d="M16 11.5l4-2" />
+			<path d="M7 12.5 3 10.5" />
+			<path d="M4 19v1.6M7 19v1.6M10 19v1.6" />
+		</>
+	),
+	'ach-spade-water': (
+		<>
+			<path d="M9 3v6.5M7 3h4M6.5 9.5h5v3a2.5 2.5 0 0 1-5 0ZM9 15v4" />
+			<path d="M14 17.5c2 1 4 1 6 0" />
+		</>
+	),
+	'ach-toolbelt': (
+		<>
+			<path d="M12 20.5 6 7M12 20.5V6M12 20.5 18 7" />
+			<circle cx="6" cy="6" r="1.5" />
+			<rect x="10.4" y="3.8" width="3.2" height="3.2" rx="0.8" />
+			<path d="M16.8 3.8 19 7" />
+		</>
+	),
+	'ach-open-book': (
+		<>
+			<path d="M12 7C9 5 6 5 4 5v12c2 0 5 0 8 2 3-2 6-2 8-2V5c-2 0-5 0-8 2Z" />
+			<path d="M12 7v12" />
+			<path d="M12 11c1-1 2-1.4 3.2-1.4" />
+		</>
+	),
+	'ach-recipe-stack': (
+		<>
+			<rect x="5" y="8" width="14" height="11" rx="1.5" />
+			<path d="M7 5.5h12a1.5 1.5 0 0 1 1.5 1.5v9" />
+			<path d="M8 12h8M8 15h6" />
+		</>
+	),
+	'ach-trail-gate': (
+		<>
+			<path d="M4 6v14M20 6v14" />
+			<path d="M4 9.5h7M4 13h7M4 16.5h7" />
+			<path d="M13 16.5 20 10.5" />
+		</>
+	),
+	'ach-paws-fifty': (
+		<>
+			<circle cx="7" cy="8" r="1.7" /><circle cx="6" cy="11" r="1.1" /><circle cx="8.6" cy="11" r="1.1" />
+			<circle cx="16" cy="9" r="1.7" /><circle cx="15" cy="12" r="1.1" /><circle cx="17.6" cy="12" r="1.1" />
+			<circle cx="11" cy="16" r="1.7" />
+		</>
+	),
+	'ach-preserve-map': (
+		<>
+			<path d="M4 7 9 5 15 7 20 5v12l-5 2-6-2-5 2Z" />
+			<path d="M9 5v12M15 7v12" />
+			<circle cx="12" cy="11" r="1.4" fill="currentColor" />
+		</>
+	),
+	'ach-binoculars': (
+		<>
+			<circle cx="7.5" cy="13" r="3.6" /><circle cx="16.5" cy="13" r="3.6" />
+			<path d="M9 6.5h1.6l.6 4M15 6.5h-1.6l-.6 4" />
+			<path d="M11 13h2" />
+		</>
+	),
+	'ach-balance-leaf': (
+		<>
+			<path d="M12 4.5v15M7.5 19.5h9" />
+			<path d="M4.5 8.5h15" />
+			<path d="M4.5 8.5 2.5 13a3 2 0 0 0 4 0L4.5 8.5ZM19.5 8.5 17.5 13a3 2 0 0 0 4 0L19.5 8.5Z" />
+		</>
+	),
+	'ach-triple-leaf': (
+		<>
+			<path d="M12 20.5c-3-2-5-5-5-9 4 1 6 4 5 9Z" />
+			<path d="M12 20.5c3-2 5-5 5-9-4 1-6 4-5 9Z" />
+			<path d="M12 20.5v-8" />
+		</>
+	),
+	'ach-signpost': (
+		<>
+			<path d="M12 4v16" />
+			<path d="M4 7h10l2.2 2L14 11H4Z" />
+			<path d="M20 12.5H10l-2.2 2L10 16.5h10Z" />
+		</>
+	),
+	'ach-laurel': (
+		<>
+			<path d="M8 4.5C4 7.5 4 14 8 19" />
+			<path d="M16 4.5c4 3 4 9.5 0 14.5" />
+			<path d="M12 9.5v8M12 13.5c-2 0-3-1-3-3 2 0 3 1 3 3ZM12 13.5c2 0 3-1 3-3-2 0-3 1-3 3Z" />
+		</>
+	),
 };
 
 export function Icon({ name, size = 20, className }: { name: string; size?: number; className?: string }) {

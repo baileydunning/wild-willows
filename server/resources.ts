@@ -24,6 +24,7 @@ import toolsData from '../data/tools.json';
 import resourcesData from '../data/resources.json';
 import animals1Data from '../data/animals-1.json';
 import animals2Data from '../data/animals-2.json';
+import achievementsData from '../data/achievements.json';
 
 const db = () => databases.wildwillows;
 
@@ -57,6 +58,7 @@ async function toArray(iterable: any): Promise<any[]> {
 }
 
 async function allOf(table: any): Promise<any[]> {
+	if (!table || typeof table.search !== 'function') return [];
 	return toArray(table.search({}));
 }
 
@@ -67,6 +69,10 @@ async function allOf(table: any): Promise<any[]> {
  * can leak into (or be deleted from) this player's world.
  */
 async function byPlayer(table: any, playerId: string): Promise<any[]> {
+	// Defensive: if a table isn't available yet (e.g. a newly added schema table on
+	// an instance that hasn't been restarted), treat it as empty rather than throwing
+	// — a missing optional table must never break a full state read / refresh.
+	if (!table || typeof table.search !== 'function') return [];
 	// Full scan + filter instead of a secondary-index conditional search. The
 	// indexed `playerId` search proved unreliable across Harper versions/cold
 	// starts — it could return zero rows for a perfectly good save, which made
@@ -107,6 +113,7 @@ async function reconcileDefinitions() {
 		[t.ToolDef, toolsData.records],
 		[t.ResourceType, resourcesData.records],
 		[t.Animal, [...animals1Data.records, ...animals2Data.records]],
+		[t.Achievement, achievementsData.records],
 	];
 	for (const [table, records] of sources) {
 		const valid = new Set(records.map((r: any) => r.id));
@@ -128,19 +135,22 @@ async function defs() {
 	await reconcileDefinitions();
 	if (!defsCache) {
 		const t = db();
-		const [biomes, animals, resources, recipes, objects, tools] = await Promise.all([
+		const [biomes, animals, resources, recipes, objects, tools, achievements] = await Promise.all([
 			allOf(t.Biome),
 			allOf(t.Animal),
 			allOf(t.ResourceType),
 			allOf(t.Recipe),
 			allOf(t.HabitatObject),
 			allOf(t.ToolDef),
+			allOf(t.Achievement),
 		]);
 		const index = (arr: any[]) => new Map(arr.map((r) => [r.id, r]));
+		achievements.sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
 		defsCache = {
-			biomes, animals, resources, recipes, objects, tools,
+			biomes, animals, resources, recipes, objects, tools, achievements,
 			biome: index(biomes), animal: index(animals), resource: index(resources),
 			recipe: index(recipes), object: index(objects), tool: index(tools),
+			achievement: index(achievements),
 		};
 	}
 	return defsCache;
@@ -150,9 +160,15 @@ async function defs() {
 
 const NODE_REGEN_SECONDS = 75;
 const BASE_HEALTH = 5;
+// The grasshopper is always the first animal to return anywhere — the meadow's
+// first sign of life — and every other animal is gated behind it (see recalcBiome).
+const FIRST_ANIMAL_ID = 'grasshopper';
+// How many activity-feed messages we keep per player (the feed is pruned to this
+// on every append so the table never grows unbounded as people play).
+const FEED_CAP = 100;
 // Chance that digging a fresh soil bed turns up a buried material (not every dig).
 const DIG_FIND_CHANCE = 0.75;
-const CAPACITY_BY_BASKET: Record<number, number> = { 1: 80, 2: 160, 3: 260, 4: 380 };
+const CAPACITY_BY_BASKET: Record<number, number> = { 1: 200, 2: 350, 3: 550, 4: 800 };
 
 // New caretakers start empty-handed — the first task is to gather seeds and
 // fiber for a Grass Patch, so the tutorial's opening loop has real stakes.
@@ -559,6 +575,8 @@ function freshSnapshot(created: any) {
 		discoveries: [],
 		nodeStates: [],
 		terrain: [],
+		achievements: [],
+		feed: [],
 		serverTime: Date.now(),
 		nodeRegenSeconds: NODE_REGEN_SECONDS,
 		inventoryCapacity: inventoryCapacity(created.player),
@@ -567,7 +585,7 @@ function freshSnapshot(created: any) {
 
 function inventoryCapacity(player: any): number {
 	const tier = player.tools?.basket || 1;
-	return CAPACITY_BY_BASKET[tier] || 80;
+	return CAPACITY_BY_BASKET[tier] || 200;
 }
 
 // ----------------------------------------------- biome health & animal logic
@@ -812,8 +830,13 @@ async function recalcBiome(
 	// a whole swarm at once. Food-web chains resolve over subsequent actions.
 	const newAnimals: any[] = [];
 	const biomeAnimals = d.animals.filter((a: any) => a.biome === biomeId);
+	// The grasshopper must be the very first animal to come home — the meadow's
+	// first sign of life. Every other animal, in every biome, is gated behind it.
+	const firstAnimalBack = returnedIds.has(FIRST_ANIMAL_ID);
 	for (const animal of biomeAnimals) {
 		if (returnedIds.has(animal.id)) continue;
+		// nothing else returns until the grasshopper has
+		if (!firstAnimalBack && animal.id !== FIRST_ANIMAL_ID) continue;
 		if (meetsRequirements(animal, health, balance, counts, returnedIds, water)) {
 			const disc = {
 				id: `${playerId}:${animal.id}`,
@@ -1056,16 +1079,27 @@ async function snapshot(playerId: string) {
 	if (player && (!areaBiome || !areaBiome.explorable)) {
 		player = { ...player, area: 'meadow', x: 10.5, y: 6.5 };
 	}
-	const [biomeStates, placements, chests, discoveries, nodeStates, terrain] = await Promise.all([
+	const [biomeStates, placements, chests, discoveries, nodeStates, terrain, achievementRows, feedRows] = await Promise.all([
 		byPlayer(t.BiomeState, playerId),
 		byPlayer(t.Placement, playerId),
 		byPlayer(t.Chest, playerId),
 		byPlayer(t.Discovery, playerId),
 		byPlayer(t.NodeState, playerId),
 		byPlayer(t.TerrainTile, playerId),
+		byPlayer(t.PlayerAchievement, playerId),
+		byPlayer(t.FeedEntry, playerId),
 	]);
 	return {
 		player: sanitizePlayer(player), biomeStates, placements, chests, discoveries, nodeStates, terrain,
+		// most-recently earned first, so the client can float fresh unlocks to the top
+		achievements: [...achievementRows]
+			.sort((a: any, b: any) => (b.earnedAt || 0) - (a.earnedAt || 0))
+			.map((r: any) => r.achievementId),
+		// persisted activity feed, oldest→newest (last 100 kept per player)
+		feed: [...feedRows]
+			.sort((a: any, b: any) => (a.at || 0) - (b.at || 0))
+			.slice(-FEED_CAP)
+			.map((r: any) => ({ id: r.id, at: r.at, icon: r.icon, text: r.text })),
 		serverTime: Date.now(),
 		nodeRegenSeconds: NODE_REGEN_SECONDS,
 		inventoryCapacity: inventoryCapacity(player),
@@ -1076,6 +1110,216 @@ async function bodyOf(data: any) {
 	const body = await data;
 	if (!body || typeof body !== 'object') throw new GameError('Request body required');
 	return body;
+}
+
+// ----------------------------------------------------------- achievements
+// Earned server-side from durable state + the metrics action counters, one
+// PlayerAchievement row per achievement. Triggers are pure predicates over a
+// context assembled from the player's live records; we only test the
+// not-yet-earned set, and writes are idempotent on the composite id, so
+// re-evaluating on every action never double-awards. awardAchievements never
+// throws — a hiccup here must never break the action that triggered it.
+
+// Reaching the grasshopper step means the caretaker worked through the guide.
+const TUTORIAL_GRASSHOPPER_STEP = 14;
+
+interface AchCtx {
+	counts: Record<string, number>;
+	health: (b: string) => number;
+	returned: (b: string) => number;
+	disc: (animalId: string) => any;
+	totalReturned: number;
+	kindReturned: (b: string, kind: string) => number;
+	tool: (id: string) => number;
+	unlockedCount: number;
+	craftedDistinct: number;
+	tutorialStep: number;
+	water: (b: string) => { tiles: number; lake: number; river: number };
+	biomesAtHealth: (h: number) => number;
+	unlockedHealthy: (h: number) => boolean;
+}
+
+const ACHIEVEMENT_TRIGGERS: Record<string, (c: AchCtx) => boolean> = {
+	// Earned the moment the grasshopper comes home — the payoff of the whole
+	// starter loop (you can only get here by gathering, crafting, and placing).
+	'welcome-grasshopper': (c) => !!c.disc('grasshopper'),
+	forager: (c) => (c.counts.resourcesCollected || 0) >= 100,
+	'makers-hands': (c) => (c.counts.itemsCrafted || 0) >= 10,
+	'green-thumb': (c) => (c.counts.plantsPlanted || 0) >= 10,
+	waterworks: (c) => (c.counts.terraformActions || 0) >= 15,
+
+	'meadow-first-bloom': (c) => c.returned('meadow') >= 8,
+	'meadow-pollinators': (c) => c.kindReturned('meadow', 'insect') >= 5,
+	'meadow-apex': (c) => !!c.disc('red-fox-meadow'),
+	'meadow-mender': (c) => c.health('meadow') >= 80,
+	'meadow-reborn': (c) => c.returned('meadow') >= 25,
+
+	'forest-understory': (c) => c.returned('forest') >= 10,
+	'forest-cavities': (c) =>
+		!!c.disc('pileated-woodpecker') &&
+		(!!c.disc('wood-duck') || !!c.disc('northern-flying-squirrel') || !!c.disc('great-horned-owl') || !!c.disc('barred-owl')),
+	'forest-night-shift': (c) => !!c.disc('great-horned-owl') && !!c.disc('barred-owl') && !!c.disc('little-brown-bat'),
+	'forest-canopy': (c) => c.health('forest') >= 80,
+	'forest-reborn': (c) => c.returned('forest') >= 25,
+
+	'wetland-first-water': (c) => c.returned('wetland') >= 8,
+	'wetland-engineer': (c) => !!c.disc('beaver'),
+	'wetland-lakemaker': (c) => c.water('wetland').lake >= 6,
+	'wetland-restored': (c) => c.health('wetland') >= 80,
+	'wetland-reborn': (c) => c.returned('wetland') >= 25,
+
+	'desert-first-life': (c) => c.returned('desert') >= 8,
+	'desert-burrows': (c) => !!c.disc('burrowing-owl') && !!c.disc('kangaroo-rat') && !!c.disc('desert-tortoise'),
+	'desert-hunter': (c) => !!c.disc('rattlesnake') || !!c.disc('coyote'),
+	'desert-restored': (c) => c.health('desert') >= 80,
+	'desert-reborn': (c) => c.returned('desert') >= 25,
+
+	'alpine-treeline': (c) => c.returned('alpine') >= 8,
+	'alpine-haypile': (c) => !!c.disc('pika'),
+	'alpine-crown': (c) => !!c.disc('golden-eagle'),
+	'alpine-restored': (c) => c.health('alpine') >= 80,
+	'alpine-reborn': (c) => c.returned('alpine') >= 25,
+
+	'coastal-tide': (c) => c.returned('coastal') >= 8,
+	'coastal-keystone': (c) => !!c.disc('sea-star'),
+	'coastal-otter': (c) => !!c.disc('sea-otter'),
+	'coastal-restored': (c) => c.health('coastal') >= 80,
+	'coastal-reborn': (c) => c.returned('coastal') >= 25,
+
+	'well-stocked': (c) => (c.counts.resourcesCollected || 0) >= 1000,
+	'master-builder': (c) => (c.counts.objectsPlaced || 0) >= 150,
+	'master-gardener': (c) => (c.counts.plantsPlanted || 0) >= 75,
+	landscaper: (c) => (c.counts.terraformActions || 0) >= 150,
+	'fully-equipped': (c) => c.tool('basket') >= 4 && c.tool('shovel') >= 4 && c.tool('watering-can') >= 4,
+	naturalist: (c) => c.tool('field-journal') >= 7,
+	'recipe-collector': (c) => c.craftedDistinct >= 75,
+
+	'open-road': (c) => c.unlockedCount >= 2,
+	'welcoming-committee': (c) => c.totalReturned >= 50,
+	'full-house': (c) => c.totalReturned >= 100,
+	'field-notes': (c) => (c.counts.animalsObserved || 0) >= 100,
+	'steady-hand': (c) => c.unlockedCount >= 3 && c.unlockedHealthy(50),
+	'three-restored': (c) => c.biomesAtHealth(80) >= 3,
+	trailblazer: (c) => c.unlockedCount >= 6,
+	'caretaker-of-the-whole': (c) => c.totalReturned >= 150,
+};
+
+/** Read the achievement ids a player has already earned. */
+async function earnedAchievementIds(playerId: string): Promise<Set<string>> {
+	const rows = await byPlayer(db().PlayerAchievement, playerId);
+	return new Set(rows.map((r: any) => r.achievementId));
+}
+
+/** Derived achievements view for one player's Metrics. */
+async function achievementMetrics(playerId: string) {
+	const d = await defs();
+	const rows = await byPlayer(db().PlayerAchievement, playerId);
+	const total = d.achievements.length || 1;
+	const earnedById = new Map(rows.map((r: any) => [r.achievementId, r]));
+	const points = d.achievements.reduce((sum: number, a: any) => sum + (earnedById.has(a.id) ? a.points || 0 : 0), 0);
+	const byCategory: Record<string, number> = {};
+	for (const a of d.achievements) if (earnedById.has(a.id)) byCategory[a.category] = (byCategory[a.category] || 0) + 1;
+	const recent = [...rows]
+		.sort((a: any, b: any) => (b.earnedAt || 0) - (a.earnedAt || 0))
+		.slice(0, 5)
+		.map((r: any) => ({ id: r.achievementId, name: d.achievement.get(r.achievementId)?.name || r.achievementId, earnedAt: r.earnedAt }));
+	return {
+		earned: rows.length,
+		total: d.achievements.length,
+		points,
+		completion: round1(rows.length / total),
+		byCategory,
+		recent,
+	};
+}
+
+/**
+ * Evaluate every not-yet-earned achievement for a player against their live
+ * state and persist any newly earned ones. Returns the newly-earned definition
+ * records (for logging); the client surfaces them by diffing the snapshot.
+ *
+ * `opts` lets callers fold in writes made earlier in THIS request that the
+ * byPlayer searches can't see yet (Harper doesn't surface a transaction's own
+ * writes to later searches) — e.g. the Discovery just created for a returning
+ * animal, and the freshly recalculated BiomeState. Without this, achievements
+ * like First Friend wouldn't fire until the *next* action.
+ */
+async function awardAchievements(
+	playerId: string,
+	opts: { addDiscoveries?: any[]; freshBiomeStates?: any[] } = {},
+): Promise<any[]> {
+	try {
+		const t = db();
+		const d = await defs();
+		const player = await t.Player.get(playerId);
+		if (!player) return [];
+		const earned = await earnedAchievementIds(playerId);
+
+		let [biomeStates, discoveries, terrain] = await Promise.all([
+			byPlayer(t.BiomeState, playerId),
+			byPlayer(t.Discovery, playerId),
+			byPlayer(t.TerrainTile, playerId),
+		]);
+
+		// fold in this-request writes the searches above can't see yet
+		for (const ad of opts.addDiscoveries || []) {
+			if (ad?.animalId && !discoveries.some((x: any) => x.animalId === ad.animalId)) discoveries.push(ad);
+		}
+		for (const bs of opts.freshBiomeStates || []) {
+			if (!bs?.biomeId) continue;
+			biomeStates = biomeStates.filter((b: any) => b.biomeId !== bs.biomeId);
+			biomeStates.push(bs);
+		}
+
+		const stateByBiome = new Map(biomeStates.map((b: any) => [b.biomeId, b]));
+		const discById = new Map(discoveries.map((x: any) => [x.animalId, x]));
+		const waterCache = new Map<string, { tiles: number; lake: number; river: number }>();
+
+		const unlockedSet = new Set(player.unlockedBiomes || []);
+
+		const ctx: AchCtx = {
+			counts: (player.metrics?.counts || {}) as Record<string, number>,
+			health: (b) => (stateByBiome.get(b) as any)?.health || 0,
+			returned: (b) => (stateByBiome.get(b) as any)?.returnedCount || 0,
+			disc: (animalId) => discById.get(animalId),
+			totalReturned: discoveries.length,
+			kindReturned: (b, kind) =>
+				discoveries.filter((x: any) => {
+					const a = d.animal.get(x.animalId);
+					return a && a.biome === b && a.kind === kind;
+				}).length,
+			tool: (id) => player.tools?.[id] || 1,
+			unlockedCount: (player.unlockedBiomes || []).length,
+			craftedDistinct: Object.keys(player.craftedEver || {}).length,
+			tutorialStep: player.tutorialStep || 0,
+			water: (b) => {
+				if (!waterCache.has(b)) waterCache.set(b, analyzeWater(terrain.filter((tt: any) => tt.area === b)));
+				return waterCache.get(b)!;
+			},
+			biomesAtHealth: (h) => biomeStates.filter((b: any) => (b.health || 0) >= h).length,
+			unlockedHealthy: (h) =>
+				biomeStates.filter((b: any) => unlockedSet.has(b.biomeId)).every((b: any) => (b.health || 0) >= h),
+		};
+
+		const now = Date.now();
+		const newly: any[] = [];
+		for (const def of d.achievements) {
+			if (earned.has(def.id)) continue;
+			const trigger = ACHIEVEMENT_TRIGGERS[def.id];
+			if (!trigger || !trigger(ctx)) continue;
+			await t.PlayerAchievement.put({
+				id: `${playerId}:${def.id}`,
+				playerId,
+				achievementId: def.id,
+				biome: def.biome,
+				earnedAt: now,
+			});
+			newly.push(def);
+		}
+		return newly;
+	} catch {
+		return []; // never let achievement evaluation break the triggering action
+	}
 }
 
 // ================================================================ ENDPOINTS
@@ -1109,6 +1353,7 @@ export class GameData extends PublicEndpoint {
 		return {
 			biomes: d.biomes, animals: d.animals, resources: d.resources,
 			recipes: d.recipes, habitatObjects: d.objects, tools: d.tools,
+			achievements: d.achievements,
 			nodeRegenSeconds: NODE_REGEN_SECONDS,
 			appearanceOptions: {
 				skins: SKIN_TONES, hair: HAIR_COLORS, outfits: OUTFIT_COLORS,
@@ -1151,7 +1396,7 @@ export class DeletePlayer extends PublicEndpoint {
 
 		const t = db();
 		let removed = 0;
-		for (const table of [t.Placement, t.Chest, t.BiomeState, t.Discovery, t.NodeState, t.TerrainTile]) {
+		for (const table of [t.Placement, t.Chest, t.BiomeState, t.Discovery, t.NodeState, t.TerrainTile, t.PlayerAchievement, t.FeedEntry]) {
 			for (const rec of await byPlayer(table, playerId)) {
 				await table.delete(rec.id);
 				removed++;
@@ -1252,6 +1497,7 @@ export class CollectResource extends PublicEndpoint {
 		await t.NodeState.put({ id: nodeKey, playerId, harvestedAt: now });
 
 		await bumpMetrics(player, { resourcesCollected: amount });
+		await awardAchievements(playerId);
 		return { ok: true, gained: { [resourceId]: amount }, inventory, nodeId, harvestedAt: now };
 	}
 }
@@ -1373,6 +1619,7 @@ export class CraftItem extends PublicEndpoint {
 
 		const chests = await byPlayer(t.Chest, playerId);
 		await bumpMetrics(player, { itemsCrafted: 1 });
+		await awardAchievements(playerId);
 		return { ok: true, crafted: recipe.output, craftedItems, inventory, chests, usedFrom, unlockedBiomes };
 	}
 }
@@ -1441,6 +1688,7 @@ export class PlaceObject extends PublicEndpoint {
 			player: { ...player, craftedItems },
 		});
 		await bumpMetrics(player, { objectsPlaced: 1, animalsReturned: recalc.newAnimals?.length || 0 });
+		await awardAchievements(playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
 		return { ok: true, placement, craftedItems, ...recalc };
 	}
 }
@@ -1489,6 +1737,7 @@ export class Plant extends PublicEndpoint {
 			player: { ...player, inventory },
 		});
 		await bumpMetrics(player, { plantsPlanted: 1, animalsReturned: recalc.newAnimals?.length || 0 });
+		await awardAchievements(playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
 		return { ok: true, placement, inventory, usedFrom, ...recalc };
 	}
 }
@@ -1622,6 +1871,7 @@ export class RemoveObject extends PublicEndpoint {
 			})
 			: null;
 		await bumpMetrics(player, { objectsRemoved: 1, animalsReturned: recalc?.newAnimals?.length || 0 });
+		await awardAchievements(playerId, recalc ? { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] } : {});
 		return { ok: true, removed: placementId, craftedItems, refunded, ...(recalc || {}) };
 	}
 }
@@ -1658,6 +1908,7 @@ export class UpgradeTool extends PublicEndpoint {
 		const unlockedBiomes = await checkUnlocks(playerId, { player: { ...player, tools } });
 		const chests = await byPlayer(t.Chest, playerId);
 		await bumpMetrics(player, { toolsUpgraded: 1 });
+		await awardAchievements(playerId);
 		return { ok: true, tools, inventory, chests, usedFrom, unlockedBiomes, upgraded: { toolId, tier: nextTier.tier, name: nextTier.name } };
 	}
 }
@@ -1675,6 +1926,7 @@ export class ObserveAnimal extends PublicEndpoint {
 		const timesObserved = (disc.timesObserved || 0) + 1;
 		await t.Discovery.patch(disc.id, { timesObserved });
 		await bumpMetrics(player, { animalsObserved: 1 });
+		await awardAchievements(playerId);
 		return { ok: true, discovery: { ...disc, timesObserved }, animal: d.animal.get(animalId) };
 	}
 }
@@ -1775,6 +2027,7 @@ export class Terraform extends PublicEndpoint {
 			player: { ...player, inventory },
 		});
 		await bumpMetrics(player, { terraformActions: 1, animalsReturned: recalc.newAnimals?.length || 0 });
+		await awardAchievements(playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
 		return { ok: true, tile, removedId, dug, inventory, ...recalc };
 	}
 }
@@ -1784,7 +2037,9 @@ export class RecalcBiome extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId, biomeId } = await bodyOf(data);
 		await requirePlayer(playerId);
-		return { ok: true, ...(await recalcBiome(playerId, biomeId)) };
+		const recalcResult = await recalcBiome(playerId, biomeId);
+		await awardAchievements(playerId, { addDiscoveries: recalcResult.newAnimals, freshBiomeStates: [recalcResult.biomeState] });
+		return { ok: true, ...recalcResult };
 	}
 }
 
@@ -1829,7 +2084,39 @@ export class SyncPlayer extends PublicEndpoint {
 			}
 		}
 		await t.Player.patch(playerId, patch);
+		// the tutorial finishing (and reaching the grasshopper step) can earn First Friend
+		if (patch.tutorialStep !== undefined) await awardAchievements(playerId);
 		return { ok: true, player: sanitizePlayer(await t.Player.get(playerId)) };
+	}
+}
+
+/**
+ * POST /AppendFeed/ {playerId, entries:[{icon,text,at}]} — persist activity-feed
+ * messages so a player can scroll back through them across sessions. Kept bounded:
+ * after each append the player's feed is pruned to the most recent FEED_CAP rows.
+ */
+export class AppendFeed extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId, entries } = await bodyOf(data);
+		await requirePlayer(playerId);
+		const t = db();
+		const list = Array.isArray(entries) ? entries.slice(0, FEED_CAP) : [];
+		let added = 0;
+		for (const e of list) {
+			const text = String(e?.text || '').slice(0, 500).trim();
+			if (!text) continue;
+			const at = Number(e?.at) || Date.now();
+			const icon = String(e?.icon || 'leaf').slice(0, 40);
+			const id = `f_${playerId}_${at}_${Math.random().toString(36).slice(2, 9)}`;
+			await t.FeedEntry.put({ id, playerId, at, icon, text });
+			added++;
+		}
+		// prune to the most recent FEED_CAP messages for this player
+		const all = (await byPlayer(t.FeedEntry, playerId)).sort((a, b) => (a.at || 0) - (b.at || 0));
+		if (all.length > FEED_CAP) {
+			for (const old of all.slice(0, all.length - FEED_CAP)) await t.FeedEntry.delete(old.id);
+		}
+		return { ok: true, added };
 	}
 }
 
@@ -1869,6 +2156,7 @@ export class Heartbeat extends PublicEndpoint {
 			sessions,
 		};
 		await t.Player.patch(playerId, { metrics });
+		await awardAchievements(playerId); // session-count achievements (e.g. A Familiar Face)
 		return { ok: true, metrics: metricsView({ ...player, metrics }) };
 	}
 }
@@ -1894,6 +2182,7 @@ export class Metrics extends PublicEndpoint {
 					...view,
 					biomeSummary: bm.summary,
 					activation: activationFlags(view, bm.summary, player),
+					achievements: await achievementMetrics(id),
 					biomes: bm.biomes,
 				},
 			};
@@ -1995,6 +2284,30 @@ export class Metrics extends PublicEndpoint {
 			? Math.round(withBiomes.reduce((acc, v) => acc + v.biomeSummary.avgHealth, 0) / withBiomes.length)
 			: 0;
 
+		// Achievements: per-achievement earn counts (where players stall) + averages.
+		const achRows = await allOf(t.PlayerAchievement);
+		const earnedByPlayer = new Map<string, number>();
+		const distribution: Record<string, number> = {};
+		for (const r of achRows) {
+			distribution[r.achievementId] = (distribution[r.achievementId] || 0) + 1;
+			earnedByPlayer.set(r.playerId, (earnedByPlayer.get(r.playerId) || 0) + 1);
+		}
+		// completion histogram in buckets of 10 (0-10, 11-20, …)
+		const completionHistogram: Record<string, number> = {};
+		for (const v of views) {
+			const n = earnedByPlayer.get(v.playerId) || 0;
+			const bucket = n === 0 ? '0' : `${Math.floor((n - 1) / 10) * 10 + 1}-${(Math.floor((n - 1) / 10) + 1) * 10}`;
+			completionHistogram[bucket] = (completionHistogram[bucket] || 0) + 1;
+		}
+		const achievementsSummary = {
+			totalDefined: d.achievements.length,
+			totalEarned: achRows.length,
+			avgPerPlayer: round1(achRows.length / N),
+			playersWithFirstFriend: distribution['welcome-grasshopper'] || 0,
+			distribution,
+			completionHistogram,
+		};
+
 		return {
 			generatedAt: now,
 			summary: {
@@ -2023,6 +2336,7 @@ export class Metrics extends PublicEndpoint {
 				funnel,
 				funnelPct,
 				actionTotals,
+				achievements: achievementsSummary,
 				biomeBreakdown,
 			},
 			players: views,

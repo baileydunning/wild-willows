@@ -4796,12 +4796,12 @@ var tools_default = {
         {
           tier: 1,
           name: "Gathering Basket",
-          effect: "Carry up to 80 materials and gather 1 at a time."
+          effect: "Carry up to 200 materials and gather 1 at a time."
         },
         {
           tier: 2,
           name: "Reinforced Gathering Basket",
-          effect: "Carry up to 160 materials and gather 2 light materials at a time.",
+          effect: "Carry up to 350 materials and gather 2 light materials at a time.",
           materials: {
             fiber: 8,
             branches: 4,
@@ -4815,7 +4815,7 @@ var tools_default = {
         {
           tier: 3,
           name: "Woven Carryall",
-          effect: "Carry up to 260 materials and gather 3 at a time.",
+          effect: "Carry up to 550 materials and gather 3 at a time.",
           materials: {
             fiber: 10,
             bark: 4,
@@ -4829,7 +4829,7 @@ var tools_default = {
         {
           tier: 4,
           name: "Naturalist's Pack",
-          effect: "Carry up to 380 materials and gather 4 at a time.",
+          effect: "Carry up to 800 materials and gather 4 at a time.",
           materials: {
             reeds: 8,
             fiber: 8,
@@ -8390,6 +8390,64 @@ var animals_2_default = {
   ]
 };
 
+// data/achievements.json
+var achievements_default = {
+  database: "wildwillows",
+  table: "Achievement",
+  records: [
+    { id: "welcome-grasshopper", name: "First Friend", biome: "preserve", category: "getting-started", order: 1, points: 10, hidden: false, icon: "ach-grasshopper", flavor: "You saw it through \u2014 gathered, built, shaped the land, and welcomed your first neighbor. A single hop in the grass, and you already know how to bring back a whole meadow.", hint: "Every caretaker's journey begins with one small arrival." },
+    { id: "forager", name: "Forager", biome: "preserve", category: "getting-started", order: 2, points: 10, hidden: false, icon: "ach-gather-hand", flavor: "A hundred fallen things picked up and put to use. You've stopped scrounging and started stockpiling.", hint: "Gather, and keep gathering \u2014 build a real stockpile." },
+    { id: "makers-hands", name: "Maker's Hands", biome: "preserve", category: "getting-started", order: 3, points: 10, hidden: false, icon: "ach-mallet", flavor: "Ten things built by hand. Habitat isn't found \u2014 it's made, one piece at a time.", hint: "Keep crafting; one item won't restore a meadow." },
+    { id: "green-thumb", name: "Green Thumb", biome: "preserve", category: "getting-started", order: 4, points: 10, hidden: false, icon: "ach-sprout-thumb", flavor: "Ten living things in soil you readied yourself. Half of restoration is just patience with a watering can.", hint: "Put down roots \u2014 plant, and plant again." },
+    { id: "waterworks", name: "Waterworks", biome: "preserve", category: "getting-started", order: 5, points: 10, hidden: false, icon: "ach-droplet-ripple", flavor: "Beds dug, ground watered, the first pools shaped. Wet ground is the difference between bare dirt and a place that holds life.", hint: "Work the soil and bring it water, again and again." },
+    { id: "meadow-first-bloom", name: "First Bloom", biome: "meadow", category: "biome", order: 6, points: 15, hidden: false, icon: "ach-wildflower", flavor: "Grasshopper, then a bee, then a sparrow that eats both, then a fox that eats the sparrow. A food web is just neighbors who need each other.", hint: "Coax the meadow well past its first lonely visitor." },
+    { id: "meadow-pollinators", name: "Pollinator Highway", biome: "meadow", category: "biome", order: 7, points: 20, hidden: false, icon: "ach-butterfly", flavor: "Monarch, bumblebee, leafcutter, lady beetle, painted lady \u2014 the unpaid workforce that turns flowers into seeds and seeds into more meadow.", hint: "Bring back the meadow's little winged workforce." },
+    { id: "meadow-apex", name: "Apex of the Grass", biome: "meadow", category: "biome", order: 8, points: 25, hidden: false, icon: "ach-fox-head", flavor: "A fox only settles where there are voles and rabbits to hunt \u2014 so its arrival means the whole chain beneath it is finally fed.", hint: "A meadow is whole when its top hunter trusts it." },
+    { id: "meadow-mender", name: "Meadow Mender", biome: "meadow", category: "biome", order: 9, points: 25, hidden: false, icon: "ach-grass-tuft", flavor: "The dust is gone. Where you started there was bare ground; now there's a meadow that hums.", hint: "Heal Willow Meadow most of the way back." },
+    { id: "meadow-reborn", name: "Willow Meadow Reborn", biome: "meadow", category: "biome", order: 10, points: 50, hidden: false, icon: "ach-meadow-sun", flavor: "Every animal that belongs here is home. The meadow doesn't need you to hum anymore \u2014 but it remembers who started it.", hint: "Leave no meadow animal behind." },
+    { id: "forest-understory", name: "Understory Returns", biome: "forest", category: "biome", order: 11, points: 15, hidden: false, icon: "ach-fern", flavor: "Ferns, shrubs, a squirrel arguing with a woodpecker, newts under the deadwood. A forest is built from the ground up, not the canopy down.", hint: "Rebuild the forest floor, layer by layer." },
+    { id: "forest-cavities", name: "Hollow Dwellers", biome: "forest", category: "biome", order: 12, points: 25, hidden: false, icon: "ach-tree-hollow", flavor: "The big woodpecker carves a hole, uses it once, and leaves it for everyone else. One bird's old home is another's new one.", hint: "Some birds carve homes that others move into \u2014 gather that crowd." },
+    { id: "forest-night-shift", name: "Night Shift", biome: "forest", category: "biome", order: 13, points: 25, hidden: false, icon: "ach-owl-moon", flavor: "After dark a second forest wakes up. The owls hunt what the day birds never see, and the bats take the night's insects.", hint: "Wake the forest that only stirs after dark." },
+    { id: "forest-canopy", name: "Canopy Restored", biome: "forest", category: "biome", order: 14, points: 25, hidden: false, icon: "ach-conifer", flavor: "Shade on the forest floor again. The big trees you raised will outlive everyone reading their rings.", hint: "Raise Old Hollow Forest most of the way back." },
+    { id: "forest-reborn", name: "Old Hollow Forest Reborn", biome: "forest", category: "biome", order: 15, points: 50, hidden: false, icon: "ach-three-trees", flavor: "From a logged-over silence to a full, layered wood \u2014 floor, understory, canopy, and every wing in between.", hint: "Leave no forest animal behind." },
+    { id: "wetland-first-water", name: "Water Returns", biome: "wetland", category: "biome", order: 16, points: 15, hidden: false, icon: "ach-cattail", flavor: "Shape the water and the water brings its own crowd \u2014 frogs, striders, dragonflies skating the surface, a heron stalking the shallows.", hint: "Shape water, and life will find it." },
+    { id: "wetland-engineer", name: "The Engineer", biome: "wetland", category: "biome", order: 17, points: 25, hidden: false, icon: "ach-beaver-dam", flavor: "The beaver doesn't move into habitat \u2014 it builds it. One dam, and otters, herons, and frogs all get a home they couldn't have made themselves.", hint: "Welcome the one who builds habitat for everyone else." },
+    { id: "wetland-lakemaker", name: "Lakemaker", biome: "wetland", category: "biome", order: 18, points: 20, hidden: false, icon: "ach-lake", flavor: "Enough open water to hold a sky. Turtles bask, mergansers dive, and the whole marsh has a center again.", hint: "Open enough connected water to hold a sky." },
+    { id: "wetland-restored", name: "Marsh Restored", biome: "wetland", category: "biome", order: 19, points: 25, hidden: false, icon: "ach-heron", flavor: "Reeds where there was cracked mud, channels that actually flow. A wetland filters everything downstream of it \u2014 quiet, unpaid work.", hint: "Heal Rushwater Wetland most of the way back." },
+    { id: "wetland-reborn", name: "Rushwater Wetland Reborn", biome: "wetland", category: "biome", order: 20, points: 50, hidden: false, icon: "ach-marsh-sun", flavor: "Crane to minnow, the whole drained marsh is wet and loud and alive.", hint: "Leave no wetland animal behind." },
+    { id: "desert-first-life", name: "Life in the Heat", biome: "desert", category: "biome", order: 21, points: 15, hidden: false, icon: "ach-cactus", flavor: "Out here life hides from the sun, not in it. The brush and burrows you've built are the first shade anything's had in years.", hint: "Give the heat something to hide in." },
+    { id: "desert-burrows", name: "Burrow Network", biome: "desert", category: "biome", order: 22, points: 25, hidden: false, icon: "ach-burrow", flavor: "In the desert, real estate is underground. A tortoise digs a burrow and an owl moves into the spare room \u2014 nobody wastes a hole here.", hint: "In the desert, the right neighbors share their holes." },
+    { id: "desert-hunter", name: "Dryland Hunter", biome: "desert", category: "biome", order: 23, points: 25, hidden: false, icon: "ach-rattlesnake", flavor: "A predator that can wait out the heat means there's finally enough prey to be patient for.", hint: "A hunter that waits out the heat needs prey worth waiting for." },
+    { id: "desert-restored", name: "Scrubland Restored", biome: "desert", category: "biome", order: 24, points: 25, hidden: false, icon: "ach-agave", flavor: "Brush and cactus where there was overgrazed flat. You can't flood a desert back \u2014 you have to shade it back, and you did.", hint: "Bring Redstone Scrubland most of the way back." },
+    { id: "desert-reborn", name: "Redstone Scrubland Reborn", biome: "desert", category: "biome", order: 25, points: 50, hidden: false, icon: "ach-desert-sun", flavor: "The hardest country in the preserve, fully alive \u2014 from the elf owl in the cactus to the tarantula under the stone.", hint: "Leave no desert animal behind." },
+    { id: "alpine-treeline", name: "Above the Treeline", biome: "alpine", category: "biome", order: 26, points: 15, hidden: false, icon: "ach-peak", flavor: "Nothing up here is here by accident. Every one of these has chosen the thin air on purpose.", hint: "Coax the first hardy few above the trees." },
+    { id: "alpine-haypile", name: "The Haymaker", biome: "alpine", category: "biome", order: 27, points: 20, hidden: false, icon: "ach-pika", flavor: "The pika spends all summer stacking little hay piles for a winter it refuses to sleep through. Tiny animal, enormous work ethic.", hint: "Welcome the tireless little hay-stacker of the rocks." },
+    { id: "alpine-crown", name: "Crown of the Range", biome: "alpine", category: "biome", order: 28, points: 25, hidden: false, icon: "ach-eagle", flavor: "When the eagle circles the ridge, the marmots whistle and the whole slope listens. The top of the food web has come home.", hint: "Crown the range with its highest hunter." },
+    { id: "alpine-restored", name: "Heights Restored", biome: "alpine", category: "biome", order: 29, points: 25, hidden: false, icon: "ach-alpine-flower", flavor: "Wildflower turf knitted back over the talus. Up here things grow by the inch and recover by the decade \u2014 you sped it up.", hint: "Bring Graywind Heights most of the way back." },
+    { id: "alpine-reborn", name: "Graywind Heights Reborn", biome: "alpine", category: "biome", order: 30, points: 50, hidden: false, icon: "ach-range", flavor: "Goat to ptarmigan to trout in the snowmelt \u2014 the whole high country, restored against the wind.", hint: "Leave no alpine animal behind." },
+    { id: "coastal-tide", name: "The Tide Returns", biome: "coastal", category: "biome", order: 31, points: 15, hidden: false, icon: "ach-wave", flavor: "Crabs in the wrack line, anemones in the pools, gulls working the surf. The tide was always coming in \u2014 now there's a whole shore to meet it.", hint: "Give the tide a shore worth returning to." },
+    { id: "coastal-keystone", name: "Keystone", biome: "coastal", category: "biome", order: 32, points: 25, hidden: false, icon: "ach-seastar", flavor: "The textbook keystone species: pull the sea star out and the mussels take everything. Put it back and the whole tidepool shares the rock again.", hint: "Restore the one animal that holds the whole tidepool together." },
+    { id: "coastal-otter", name: "Otter's Garden", biome: "coastal", category: "biome", order: 33, points: 25, hidden: false, icon: "ach-otter", flavor: "Otters eat the urchins that eat the kelp \u2014 so an otter on the water means a forest under it. Few animals do more with a full belly.", hint: "Welcome the swimmer that keeps the kelp standing." },
+    { id: "coastal-restored", name: "Shore Restored", biome: "coastal", category: "biome", order: 34, points: 25, hidden: false, icon: "ach-shell", flavor: "Anchored dunes, full tidepools, kelp in the wrack. The edge of the whole preserve, holding the line against the sea.", hint: "Bring Pelican Shore most of the way back." },
+    { id: "coastal-reborn", name: "Pelican Shore Reborn", biome: "coastal", category: "biome", order: 35, points: 50, hidden: false, icon: "ach-pelican", flavor: "Whale-spout to clam-siphon. The last and wildest stretch of the preserve, complete.", hint: "Leave no coastal animal behind." },
+    { id: "well-stocked", name: "Well Stocked", biome: "preserve", category: "mastery", order: 36, points: 25, hidden: false, icon: "ach-full-basket", flavor: "A thousand fallen things gathered. You stopped scrounging long ago \u2014 this is provisioning.", hint: "Gather far past what any one project needs." },
+    { id: "master-builder", name: "Master Builder", biome: "preserve", category: "mastery", order: 37, points: 25, hidden: false, icon: "ach-blueprint", flavor: "A hundred and fifty pieces of habitat, placed by hand. The whole preserve has your fingerprints on it.", hint: "Place habitat until the whole preserve bears your hand." },
+    { id: "master-gardener", name: "Master Gardener", biome: "preserve", category: "mastery", order: 38, points: 25, hidden: false, icon: "ach-watering-can", flavor: "Seventy-five living things put in the ground, sprout by patient sprout. Restoration is mostly just showing up with a watering can.", hint: "Plant on a scale that changes the land." },
+    { id: "landscaper", name: "Landscaper", biome: "preserve", category: "mastery", order: 39, points: 25, hidden: false, icon: "ach-spade-water", flavor: "You don't find the right land \u2014 you shape it. Beds, banks, ponds, lakes, and rivers, all on purpose.", hint: "Shape soil and water across the preserve, tirelessly." },
+    { id: "fully-equipped", name: "Fully Equipped", biome: "preserve", category: "mastery", order: 40, points: 30, hidden: false, icon: "ach-toolbelt", flavor: "Top-tier gear for top-tier work. There's nothing left in the preserve you can't carry, dig, or water.", hint: "Carry your basket, shovel, and watering can to their peak." },
+    { id: "naturalist", name: "Naturalist", biome: "preserve", category: "mastery", order: 41, points: 30, hidden: false, icon: "ach-open-book", flavor: "Every guide filled in, every animal's secrets unlocked. You don't just host wildlife now \u2014 you understand it.", hint: "Complete every area's field guide." },
+    { id: "recipe-collector", name: "Recipe Collector", biome: "preserve", category: "mastery", order: 42, points: 30, hidden: false, icon: "ach-recipe-stack", flavor: "Seventy-five different things, each built at least once. You've used nearly every tool on the bench.", hint: "Build a little of almost everything on the bench." },
+    { id: "open-road", name: "Open Road", biome: "preserve", category: "preserve", order: 43, points: 20, hidden: false, icon: "ach-trail-gate", flavor: "The first trail gate swings open. One healed meadow, and the whole preserve starts to feel reachable.", hint: "Heal one biome enough to open the next trail." },
+    { id: "welcoming-committee", name: "Welcoming Committee", biome: "preserve", category: "preserve", order: 44, points: 30, hidden: false, icon: "ach-paws-fifty", flavor: "Fifty species have decided this place is safe again. Word travels fast in the wild.", hint: "Draw a real crowd back to the preserve." },
+    { id: "full-house", name: "Full House", biome: "preserve", category: "preserve", order: 45, points: 50, hidden: false, icon: "ach-preserve-map", flavor: "A hundred kinds of neighbor. The preserve isn't recovering anymore \u2014 it's thriving.", hint: "Fill the preserve with neighbors." },
+    { id: "field-notes", name: "Field Notes", biome: "preserve", category: "preserve", order: 46, points: 25, hidden: false, icon: "ach-binoculars", flavor: "Page after page of observations. You don't just bring animals back \u2014 you sit with them long enough to learn who they are.", hint: "Observe your wild neighbors, again and again, all over the preserve." },
+    { id: "steady-hand", name: "Steady Hand", biome: "preserve", category: "preserve", order: 47, points: 30, hidden: false, icon: "ach-balance-leaf", flavor: "No biome left to languish while you favored another. Every place you've opened is in good health at once.", hint: "Keep every area you've opened in good health at the same time." },
+    { id: "three-restored", name: "Halfway Wild", biome: "preserve", category: "preserve", order: 48, points: 35, hidden: false, icon: "ach-triple-leaf", flavor: "Three damaged places, brought most of the way home. The preserve is tipping from recovering to recovered.", hint: "Bring several different biomes most of the way back." },
+    { id: "trailblazer", name: "Trailblazer", biome: "preserve", category: "preserve", order: 49, points: 40, hidden: false, icon: "ach-signpost", flavor: "Every gate open, every trail walked. From your tent to the sea, it's all connected now.", hint: "Open every trail in the preserve." },
+    { id: "caretaker-of-the-whole", name: "Caretaker of the Whole", biome: "preserve", category: "preserve", order: 50, points: 100, hidden: false, icon: "ach-laurel", flavor: "Every animal in every biome, home. The damaged preserve you inherited is now, simply, wild. The rarest achievement there is.", hint: "Welcome home every animal in every biome." }
+  ]
+};
+
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 var db = () => databases.wildwillows;
@@ -8415,9 +8473,11 @@ async function toArray(iterable) {
   return out;
 }
 async function allOf(table) {
+  if (!table || typeof table.search !== "function") return [];
   return toArray(table.search({}));
 }
 async function byPlayer(table, playerId) {
+  if (!table || typeof table.search !== "function") return [];
   const rows = await toArray(table.search({}));
   return rows.filter((r) => r?.playerId === playerId);
 }
@@ -8436,7 +8496,8 @@ async function reconcileDefinitions() {
     [t.HabitatObject, habitat_objects_default.records],
     [t.ToolDef, tools_default.records],
     [t.ResourceType, resources_default.records],
-    [t.Animal, [...animals_1_default.records, ...animals_2_default.records]]
+    [t.Animal, [...animals_1_default.records, ...animals_2_default.records]],
+    [t.Achievement, achievements_default.records]
   ];
   for (const [table, records] of sources) {
     const valid = new Set(records.map((r) => r.id));
@@ -8451,15 +8512,17 @@ async function defs() {
   await reconcileDefinitions();
   if (!defsCache) {
     const t = db();
-    const [biomes, animals, resources, recipes, objects, tools] = await Promise.all([
+    const [biomes, animals, resources, recipes, objects, tools, achievements] = await Promise.all([
       allOf(t.Biome),
       allOf(t.Animal),
       allOf(t.ResourceType),
       allOf(t.Recipe),
       allOf(t.HabitatObject),
-      allOf(t.ToolDef)
+      allOf(t.ToolDef),
+      allOf(t.Achievement)
     ]);
     const index = (arr) => new Map(arr.map((r) => [r.id, r]));
+    achievements.sort((a, b) => (a.order || 0) - (b.order || 0));
     defsCache = {
       biomes,
       animals,
@@ -8467,20 +8530,24 @@ async function defs() {
       recipes,
       objects,
       tools,
+      achievements,
       biome: index(biomes),
       animal: index(animals),
       resource: index(resources),
       recipe: index(recipes),
       object: index(objects),
-      tool: index(tools)
+      tool: index(tools),
+      achievement: index(achievements)
     };
   }
   return defsCache;
 }
 var NODE_REGEN_SECONDS = 75;
 var BASE_HEALTH = 5;
+var FIRST_ANIMAL_ID = "grasshopper";
+var FEED_CAP = 100;
 var DIG_FIND_CHANCE = 0.75;
-var CAPACITY_BY_BASKET = { 1: 80, 2: 160, 3: 260, 4: 380 };
+var CAPACITY_BY_BASKET = { 1: 200, 2: 350, 3: 550, 4: 800 };
 var START_INVENTORY = { water: 6, seeds: 2, wildflowers: 1 };
 var START_TOOLS = { basket: 1, shovel: 1, "watering-can": 1, "field-journal": 1 };
 var SKIN_TONES = ["#f6d7b8", "#eec39a", "#d9a06b", "#b97f50", "#8d5a3a", "#6b4226"];
@@ -8790,6 +8857,8 @@ function freshSnapshot(created) {
     discoveries: [],
     nodeStates: [],
     terrain: [],
+    achievements: [],
+    feed: [],
     serverTime: Date.now(),
     nodeRegenSeconds: NODE_REGEN_SECONDS,
     inventoryCapacity: inventoryCapacity(created.player)
@@ -8797,7 +8866,7 @@ function freshSnapshot(created) {
 }
 function inventoryCapacity(player) {
   const tier = player.tools?.basket || 1;
-  return CAPACITY_BY_BASKET[tier] || 80;
+  return CAPACITY_BY_BASKET[tier] || 200;
 }
 function placementCounts(placements, d) {
   const now = Date.now();
@@ -8956,8 +9025,10 @@ async function recalcBiome(playerId, biomeId, opts = {}) {
   let balance = computeBalance(d, biomeId, returnedIds);
   const newAnimals = [];
   const biomeAnimals = d.animals.filter((a) => a.biome === biomeId);
+  const firstAnimalBack = returnedIds.has(FIRST_ANIMAL_ID);
   for (const animal of biomeAnimals) {
     if (returnedIds.has(animal.id)) continue;
+    if (!firstAnimalBack && animal.id !== FIRST_ANIMAL_ID) continue;
     if (meetsRequirements(animal, health, balance, counts, returnedIds, water)) {
       const disc = {
         id: `${playerId}:${animal.id}`,
@@ -9153,13 +9224,15 @@ async function snapshot(playerId) {
   if (player && (!areaBiome || !areaBiome.explorable)) {
     player = { ...player, area: "meadow", x: 10.5, y: 6.5 };
   }
-  const [biomeStates, placements, chests, discoveries, nodeStates, terrain] = await Promise.all([
+  const [biomeStates, placements, chests, discoveries, nodeStates, terrain, achievementRows, feedRows] = await Promise.all([
     byPlayer(t.BiomeState, playerId),
     byPlayer(t.Placement, playerId),
     byPlayer(t.Chest, playerId),
     byPlayer(t.Discovery, playerId),
     byPlayer(t.NodeState, playerId),
-    byPlayer(t.TerrainTile, playerId)
+    byPlayer(t.TerrainTile, playerId),
+    byPlayer(t.PlayerAchievement, playerId),
+    byPlayer(t.FeedEntry, playerId)
   ]);
   return {
     player: sanitizePlayer(player),
@@ -9169,6 +9242,10 @@ async function snapshot(playerId) {
     discoveries,
     nodeStates,
     terrain,
+    // most-recently earned first, so the client can float fresh unlocks to the top
+    achievements: [...achievementRows].sort((a, b) => (b.earnedAt || 0) - (a.earnedAt || 0)).map((r) => r.achievementId),
+    // persisted activity feed, oldest→newest (last 100 kept per player)
+    feed: [...feedRows].sort((a, b) => (a.at || 0) - (b.at || 0)).slice(-FEED_CAP).map((r) => ({ id: r.id, at: r.at, icon: r.icon, text: r.text })),
     serverTime: Date.now(),
     nodeRegenSeconds: NODE_REGEN_SECONDS,
     inventoryCapacity: inventoryCapacity(player)
@@ -9178,6 +9255,147 @@ async function bodyOf(data) {
   const body = await data;
   if (!body || typeof body !== "object") throw new GameError("Request body required");
   return body;
+}
+var ACHIEVEMENT_TRIGGERS = {
+  // Earned the moment the grasshopper comes home — the payoff of the whole
+  // starter loop (you can only get here by gathering, crafting, and placing).
+  "welcome-grasshopper": (c) => !!c.disc("grasshopper"),
+  forager: (c) => (c.counts.resourcesCollected || 0) >= 100,
+  "makers-hands": (c) => (c.counts.itemsCrafted || 0) >= 10,
+  "green-thumb": (c) => (c.counts.plantsPlanted || 0) >= 10,
+  waterworks: (c) => (c.counts.terraformActions || 0) >= 15,
+  "meadow-first-bloom": (c) => c.returned("meadow") >= 8,
+  "meadow-pollinators": (c) => c.kindReturned("meadow", "insect") >= 5,
+  "meadow-apex": (c) => !!c.disc("red-fox-meadow"),
+  "meadow-mender": (c) => c.health("meadow") >= 80,
+  "meadow-reborn": (c) => c.returned("meadow") >= 25,
+  "forest-understory": (c) => c.returned("forest") >= 10,
+  "forest-cavities": (c) => !!c.disc("pileated-woodpecker") && (!!c.disc("wood-duck") || !!c.disc("northern-flying-squirrel") || !!c.disc("great-horned-owl") || !!c.disc("barred-owl")),
+  "forest-night-shift": (c) => !!c.disc("great-horned-owl") && !!c.disc("barred-owl") && !!c.disc("little-brown-bat"),
+  "forest-canopy": (c) => c.health("forest") >= 80,
+  "forest-reborn": (c) => c.returned("forest") >= 25,
+  "wetland-first-water": (c) => c.returned("wetland") >= 8,
+  "wetland-engineer": (c) => !!c.disc("beaver"),
+  "wetland-lakemaker": (c) => c.water("wetland").lake >= 6,
+  "wetland-restored": (c) => c.health("wetland") >= 80,
+  "wetland-reborn": (c) => c.returned("wetland") >= 25,
+  "desert-first-life": (c) => c.returned("desert") >= 8,
+  "desert-burrows": (c) => !!c.disc("burrowing-owl") && !!c.disc("kangaroo-rat") && !!c.disc("desert-tortoise"),
+  "desert-hunter": (c) => !!c.disc("rattlesnake") || !!c.disc("coyote"),
+  "desert-restored": (c) => c.health("desert") >= 80,
+  "desert-reborn": (c) => c.returned("desert") >= 25,
+  "alpine-treeline": (c) => c.returned("alpine") >= 8,
+  "alpine-haypile": (c) => !!c.disc("pika"),
+  "alpine-crown": (c) => !!c.disc("golden-eagle"),
+  "alpine-restored": (c) => c.health("alpine") >= 80,
+  "alpine-reborn": (c) => c.returned("alpine") >= 25,
+  "coastal-tide": (c) => c.returned("coastal") >= 8,
+  "coastal-keystone": (c) => !!c.disc("sea-star"),
+  "coastal-otter": (c) => !!c.disc("sea-otter"),
+  "coastal-restored": (c) => c.health("coastal") >= 80,
+  "coastal-reborn": (c) => c.returned("coastal") >= 25,
+  "well-stocked": (c) => (c.counts.resourcesCollected || 0) >= 1e3,
+  "master-builder": (c) => (c.counts.objectsPlaced || 0) >= 150,
+  "master-gardener": (c) => (c.counts.plantsPlanted || 0) >= 75,
+  landscaper: (c) => (c.counts.terraformActions || 0) >= 150,
+  "fully-equipped": (c) => c.tool("basket") >= 4 && c.tool("shovel") >= 4 && c.tool("watering-can") >= 4,
+  naturalist: (c) => c.tool("field-journal") >= 7,
+  "recipe-collector": (c) => c.craftedDistinct >= 75,
+  "open-road": (c) => c.unlockedCount >= 2,
+  "welcoming-committee": (c) => c.totalReturned >= 50,
+  "full-house": (c) => c.totalReturned >= 100,
+  "field-notes": (c) => (c.counts.animalsObserved || 0) >= 100,
+  "steady-hand": (c) => c.unlockedCount >= 3 && c.unlockedHealthy(50),
+  "three-restored": (c) => c.biomesAtHealth(80) >= 3,
+  trailblazer: (c) => c.unlockedCount >= 6,
+  "caretaker-of-the-whole": (c) => c.totalReturned >= 150
+};
+async function earnedAchievementIds(playerId) {
+  const rows = await byPlayer(db().PlayerAchievement, playerId);
+  return new Set(rows.map((r) => r.achievementId));
+}
+async function achievementMetrics(playerId) {
+  const d = await defs();
+  const rows = await byPlayer(db().PlayerAchievement, playerId);
+  const total = d.achievements.length || 1;
+  const earnedById = new Map(rows.map((r) => [r.achievementId, r]));
+  const points = d.achievements.reduce((sum, a) => sum + (earnedById.has(a.id) ? a.points || 0 : 0), 0);
+  const byCategory = {};
+  for (const a of d.achievements) if (earnedById.has(a.id)) byCategory[a.category] = (byCategory[a.category] || 0) + 1;
+  const recent = [...rows].sort((a, b) => (b.earnedAt || 0) - (a.earnedAt || 0)).slice(0, 5).map((r) => ({ id: r.achievementId, name: d.achievement.get(r.achievementId)?.name || r.achievementId, earnedAt: r.earnedAt }));
+  return {
+    earned: rows.length,
+    total: d.achievements.length,
+    points,
+    completion: round1(rows.length / total),
+    byCategory,
+    recent
+  };
+}
+async function awardAchievements(playerId, opts = {}) {
+  try {
+    const t = db();
+    const d = await defs();
+    const player = await t.Player.get(playerId);
+    if (!player) return [];
+    const earned = await earnedAchievementIds(playerId);
+    let [biomeStates, discoveries, terrain] = await Promise.all([
+      byPlayer(t.BiomeState, playerId),
+      byPlayer(t.Discovery, playerId),
+      byPlayer(t.TerrainTile, playerId)
+    ]);
+    for (const ad of opts.addDiscoveries || []) {
+      if (ad?.animalId && !discoveries.some((x) => x.animalId === ad.animalId)) discoveries.push(ad);
+    }
+    for (const bs of opts.freshBiomeStates || []) {
+      if (!bs?.biomeId) continue;
+      biomeStates = biomeStates.filter((b) => b.biomeId !== bs.biomeId);
+      biomeStates.push(bs);
+    }
+    const stateByBiome = new Map(biomeStates.map((b) => [b.biomeId, b]));
+    const discById = new Map(discoveries.map((x) => [x.animalId, x]));
+    const waterCache = /* @__PURE__ */ new Map();
+    const unlockedSet = new Set(player.unlockedBiomes || []);
+    const ctx = {
+      counts: player.metrics?.counts || {},
+      health: (b) => stateByBiome.get(b)?.health || 0,
+      returned: (b) => stateByBiome.get(b)?.returnedCount || 0,
+      disc: (animalId) => discById.get(animalId),
+      totalReturned: discoveries.length,
+      kindReturned: (b, kind) => discoveries.filter((x) => {
+        const a = d.animal.get(x.animalId);
+        return a && a.biome === b && a.kind === kind;
+      }).length,
+      tool: (id) => player.tools?.[id] || 1,
+      unlockedCount: (player.unlockedBiomes || []).length,
+      craftedDistinct: Object.keys(player.craftedEver || {}).length,
+      tutorialStep: player.tutorialStep || 0,
+      water: (b) => {
+        if (!waterCache.has(b)) waterCache.set(b, analyzeWater(terrain.filter((tt) => tt.area === b)));
+        return waterCache.get(b);
+      },
+      biomesAtHealth: (h) => biomeStates.filter((b) => (b.health || 0) >= h).length,
+      unlockedHealthy: (h) => biomeStates.filter((b) => unlockedSet.has(b.biomeId)).every((b) => (b.health || 0) >= h)
+    };
+    const now = Date.now();
+    const newly = [];
+    for (const def of d.achievements) {
+      if (earned.has(def.id)) continue;
+      const trigger = ACHIEVEMENT_TRIGGERS[def.id];
+      if (!trigger || !trigger(ctx)) continue;
+      await t.PlayerAchievement.put({
+        id: `${playerId}:${def.id}`,
+        playerId,
+        achievementId: def.id,
+        biome: def.biome,
+        earnedAt: now
+      });
+      newly.push(def);
+    }
+    return newly;
+  } catch {
+    return [];
+  }
 }
 var PublicEndpoint = class extends Resource {
   allowRead() {
@@ -9203,6 +9421,7 @@ var GameData = class extends PublicEndpoint {
       recipes: d.recipes,
       habitatObjects: d.objects,
       tools: d.tools,
+      achievements: d.achievements,
       nodeRegenSeconds: NODE_REGEN_SECONDS,
       appearanceOptions: {
         skins: SKIN_TONES,
@@ -9239,7 +9458,7 @@ var DeletePlayer = class extends PublicEndpoint {
     if (!await verifyPasscode(player, passcode)) throw new GameError("That passcode doesn't match this save", 403);
     const t = db();
     let removed = 0;
-    for (const table of [t.Placement, t.Chest, t.BiomeState, t.Discovery, t.NodeState, t.TerrainTile]) {
+    for (const table of [t.Placement, t.Chest, t.BiomeState, t.Discovery, t.NodeState, t.TerrainTile, t.PlayerAchievement, t.FeedEntry]) {
       for (const rec of await byPlayer(table, playerId)) {
         await table.delete(rec.id);
         removed++;
@@ -9315,6 +9534,7 @@ var CollectResource = class extends PublicEndpoint {
     await t.Player.patch(playerId, { inventory });
     await t.NodeState.put({ id: nodeKey, playerId, harvestedAt: now });
     await bumpMetrics(player, { resourcesCollected: amount });
+    await awardAchievements(playerId);
     return { ok: true, gained: { [resourceId]: amount }, inventory, nodeId, harvestedAt: now };
   }
 };
@@ -9410,6 +9630,7 @@ var CraftItem = class extends PublicEndpoint {
     const unlockedBiomes = await checkUnlocks(playerId, { player: { ...player, craftedItems, craftedEver } });
     const chests = await byPlayer(t.Chest, playerId);
     await bumpMetrics(player, { itemsCrafted: 1 });
+    await awardAchievements(playerId);
     return { ok: true, crafted: recipe.output, craftedItems, inventory, chests, usedFrom, unlockedBiomes };
   }
 };
@@ -9474,6 +9695,7 @@ var PlaceObject = class extends PublicEndpoint {
       player: { ...player, craftedItems }
     });
     await bumpMetrics(player, { objectsPlaced: 1, animalsReturned: recalc.newAnimals?.length || 0 });
+    await awardAchievements(playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
     return { ok: true, placement, craftedItems, ...recalc };
   }
 };
@@ -9516,6 +9738,7 @@ var Plant = class extends PublicEndpoint {
       player: { ...player, inventory }
     });
     await bumpMetrics(player, { plantsPlanted: 1, animalsReturned: recalc.newAnimals?.length || 0 });
+    await awardAchievements(playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
     return { ok: true, placement, inventory, usedFrom, ...recalc };
   }
 };
@@ -9627,6 +9850,7 @@ var RemoveObject = class extends PublicEndpoint {
       player: { ...player, craftedItems, inventory }
     }) : null;
     await bumpMetrics(player, { objectsRemoved: 1, animalsReturned: recalc?.newAnimals?.length || 0 });
+    await awardAchievements(playerId, recalc ? { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] } : {});
     return { ok: true, removed: placementId, craftedItems, refunded, ...recalc || {} };
   }
 };
@@ -9657,6 +9881,7 @@ var UpgradeTool = class extends PublicEndpoint {
     const unlockedBiomes = await checkUnlocks(playerId, { player: { ...player, tools } });
     const chests = await byPlayer(t.Chest, playerId);
     await bumpMetrics(player, { toolsUpgraded: 1 });
+    await awardAchievements(playerId);
     return { ok: true, tools, inventory, chests, usedFrom, unlockedBiomes, upgraded: { toolId, tier: nextTier.tier, name: nextTier.name } };
   }
 };
@@ -9671,6 +9896,7 @@ var ObserveAnimal = class extends PublicEndpoint {
     const timesObserved = (disc.timesObserved || 0) + 1;
     await t.Discovery.patch(disc.id, { timesObserved });
     await bumpMetrics(player, { animalsObserved: 1 });
+    await awardAchievements(playerId);
     return { ok: true, discovery: { ...disc, timesObserved }, animal: d.animal.get(animalId) };
   }
 };
@@ -9751,6 +9977,7 @@ var Terraform = class extends PublicEndpoint {
       player: { ...player, inventory }
     });
     await bumpMetrics(player, { terraformActions: 1, animalsReturned: recalc.newAnimals?.length || 0 });
+    await awardAchievements(playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
     return { ok: true, tile, removedId, dug, inventory, ...recalc };
   }
 };
@@ -9758,7 +9985,9 @@ var RecalcBiome = class extends PublicEndpoint {
   async post(data) {
     const { playerId, biomeId } = await bodyOf(data);
     await requirePlayer(playerId);
-    return { ok: true, ...await recalcBiome(playerId, biomeId) };
+    const recalcResult = await recalcBiome(playerId, biomeId);
+    await awardAchievements(playerId, { addDiscoveries: recalcResult.newAnimals, freshBiomeStates: [recalcResult.biomeState] });
+    return { ok: true, ...recalcResult };
   }
 };
 var SyncPlayer = class extends PublicEndpoint {
@@ -9794,7 +10023,31 @@ var SyncPlayer = class extends PublicEndpoint {
       }
     }
     await t.Player.patch(playerId, patch);
+    if (patch.tutorialStep !== void 0) await awardAchievements(playerId);
     return { ok: true, player: sanitizePlayer(await t.Player.get(playerId)) };
+  }
+};
+var AppendFeed = class extends PublicEndpoint {
+  async post(data) {
+    const { playerId, entries } = await bodyOf(data);
+    await requirePlayer(playerId);
+    const t = db();
+    const list = Array.isArray(entries) ? entries.slice(0, FEED_CAP) : [];
+    let added = 0;
+    for (const e of list) {
+      const text = String(e?.text || "").slice(0, 500).trim();
+      if (!text) continue;
+      const at = Number(e?.at) || Date.now();
+      const icon = String(e?.icon || "leaf").slice(0, 40);
+      const id = `f_${playerId}_${at}_${Math.random().toString(36).slice(2, 9)}`;
+      await t.FeedEntry.put({ id, playerId, at, icon, text });
+      added++;
+    }
+    const all = (await byPlayer(t.FeedEntry, playerId)).sort((a, b) => (a.at || 0) - (b.at || 0));
+    if (all.length > FEED_CAP) {
+      for (const old of all.slice(0, all.length - FEED_CAP)) await t.FeedEntry.delete(old.id);
+    }
+    return { ok: true, added };
   }
 };
 var SESSION_GAP_MS = 30 * 60 * 1e3;
@@ -9824,6 +10077,7 @@ var Heartbeat = class extends PublicEndpoint {
       sessions
     };
     await t.Player.patch(playerId, { metrics });
+    await awardAchievements(playerId);
     return { ok: true, metrics: metricsView({ ...player, metrics }) };
   }
 };
@@ -9841,6 +10095,7 @@ var Metrics = class extends PublicEndpoint {
           ...view,
           biomeSummary: bm.summary,
           activation: activationFlags(view, bm.summary, player),
+          achievements: await achievementMetrics(id),
           biomes: bm.biomes
         }
       };
@@ -9918,6 +10173,27 @@ var Metrics = class extends PublicEndpoint {
     });
     const withBiomes = views.filter((v) => v.biomeSummary.biomesUnlocked > 0);
     const avgBiomeHealth = withBiomes.length ? Math.round(withBiomes.reduce((acc, v) => acc + v.biomeSummary.avgHealth, 0) / withBiomes.length) : 0;
+    const achRows = await allOf(t.PlayerAchievement);
+    const earnedByPlayer = /* @__PURE__ */ new Map();
+    const distribution = {};
+    for (const r of achRows) {
+      distribution[r.achievementId] = (distribution[r.achievementId] || 0) + 1;
+      earnedByPlayer.set(r.playerId, (earnedByPlayer.get(r.playerId) || 0) + 1);
+    }
+    const completionHistogram = {};
+    for (const v of views) {
+      const n = earnedByPlayer.get(v.playerId) || 0;
+      const bucket = n === 0 ? "0" : `${Math.floor((n - 1) / 10) * 10 + 1}-${(Math.floor((n - 1) / 10) + 1) * 10}`;
+      completionHistogram[bucket] = (completionHistogram[bucket] || 0) + 1;
+    }
+    const achievementsSummary = {
+      totalDefined: d.achievements.length,
+      totalEarned: achRows.length,
+      avgPerPlayer: round1(achRows.length / N),
+      playersWithFirstFriend: distribution["welcome-grasshopper"] || 0,
+      distribution,
+      completionHistogram
+    };
     return {
       generatedAt: now,
       summary: {
@@ -9946,6 +10222,7 @@ var Metrics = class extends PublicEndpoint {
         funnel,
         funnelPct,
         actionTotals,
+        achievements: achievementsSummary,
         biomeBreakdown
       },
       players: views
@@ -10126,6 +10403,7 @@ var DevTools = class extends PublicEndpoint {
   }
 };
 export {
+  AppendFeed,
   BiomeSnapshot,
   ChangePasscode,
   ChestTransfer,
