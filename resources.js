@@ -9055,7 +9055,7 @@ async function recalcBiome(playerId, biomeId, opts = {}) {
     if (comfort !== disc.comfort) await t.Discovery.patch(disc.id, { comfort });
   }
   const returnedCount = [...returnedIds].filter((id) => d.animal.get(id)?.biome === biomeId).length;
-  const prior = await t.BiomeState.get(`${playerId}:${biomeId}`);
+  const prior = await findOwned(t.BiomeState, playerId, `${playerId}:${biomeId}`);
   await t.BiomeState.patch(`${playerId}:${biomeId}`, { health, balance, returnedCount });
   const biomeState = {
     ...prior || { id: `${playerId}:${biomeId}`, playerId, biomeId, unlocked: biomeId === "meadow" },
@@ -9104,7 +9104,7 @@ async function checkUnlocks(playerId, fresh = {}) {
   for (const biome of d.biomes) {
     if (!biome.unlock || unlockedSet.has(biome.id)) continue;
     const u = biome.unlock;
-    const prereq = fresh.freshState?.biomeId === u.biome ? fresh.freshState : await t.BiomeState.get(`${playerId}:${u.biome}`);
+    const prereq = fresh.freshState?.biomeId === u.biome ? fresh.freshState : await findOwned(t.BiomeState, playerId, `${playerId}:${u.biome}`);
     if (!prereq || !unlockedSet.has(u.biome)) continue;
     if ((prereq.health || 0) < (u.minHealth || 0)) continue;
     if ((prereq.returnedCount || 0) < (u.minAnimals || 0)) continue;
@@ -9137,7 +9137,7 @@ function recipeUnlockMet(recipe, ctx) {
 }
 async function recipeUnlockContext(playerId, biomeId, player, d) {
   const t = db();
-  const bs = await t.BiomeState.get(`${playerId}:${biomeId}`);
+  const bs = await findOwned(t.BiomeState, playerId, `${playerId}:${biomeId}`);
   const discoveries = await byPlayer(t.Discovery, playerId);
   const returnedAnimalIds = new Set(
     discoveries.filter((x) => d.animal.get(x.animalId)?.biome === biomeId).map((x) => x.animalId)
@@ -9866,7 +9866,7 @@ var UpgradeTool = class extends PublicEndpoint {
     const nextTier = (toolDef.tiers || []).find((tt) => tt.tier === currentTier + 1);
     if (!nextTier) throw new GameError(`${toolDef.name} is already fully upgraded`);
     if (nextTier.requires?.biome) {
-      const bs = await t.BiomeState.get(`${playerId}:${nextTier.requires.biome}`);
+      const bs = await findOwned(t.BiomeState, playerId, `${playerId}:${nextTier.requires.biome}`);
       if ((bs?.health || 0) < (nextTier.requires.minHealth || 0)) {
         const biome = d.biome.get(nextTier.requires.biome);
         throw new GameError(
