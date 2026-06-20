@@ -1144,6 +1144,9 @@ export class WorldScene extends Phaser.Scene {
 
 	/** Drifting leaves for a little ambient life outdoors. */
 	private startLeaves() {
+		// No drifting leaves on the open coast — they read as odd flecks over the
+		// sand and surf. The shore gets its pelicans and foam instead.
+		if (this.area === 'coastal') return;
 		this.time.addEvent({
 			delay: 2800,
 			loop: true,
