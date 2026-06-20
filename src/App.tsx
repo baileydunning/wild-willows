@@ -8,7 +8,7 @@ import { HUD, Toasts } from './ui/HUD';
 import { AnimalCard, JournalPanel } from './ui/Journal';
 import { AchievementsPanel } from './ui/Achievements';
 import { MobileControls } from './ui/MobileControls';
-import { BiomesPanel, ChestPanel, CraftingPanel, InventoryPanel, ToolsPanel } from './ui/Panels';
+import { BiomesPanel, ChestPanel, CraftingPanel, HomePanel, InventoryPanel, ToolsPanel } from './ui/Panels';
 import { SettingsPanel } from './ui/Settings';
 import { ActivityLog, FeedPanel, Toolbelt } from './ui/Toolbelt';
 import { Tutorial } from './ui/Tutorial';
@@ -141,6 +141,8 @@ function GameScreen() {
 			bridge.on('open-chest', (p: any) => game.openChest(p.chestId)),
 			bridge.on('open-workbench', () => setPanel('crafting')),
 			bridge.on('open-journal', () => setPanel('journal')),
+			bridge.on('open-home', () => setPanel('home')),
+			bridge.on('rest', () => game.rest()),
 			bridge.on('animal-clicked', (p: any) => game.observe(p.animalId)),
 			bridge.on('request-area', (p: any) => game.changeArea(p.area)),
 			bridge.on('plant-matured', (area: any) => game.recalcArea(area)),
@@ -183,8 +185,12 @@ function GameScreen() {
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent) => {
 			if ((e.target as HTMLElement)?.tagName === 'INPUT') return;
-			// backtick toggles the hidden developer panel (developer save only)
-			if (e.key === '`') { if (game.state?.player.id === 'bailey') setDevOpen((v) => !v); return; }
+			// hidden developer panel: Cmd/Ctrl + Shift + Enter (obscure, no username gate)
+			if (e.key === 'Enter' && e.shiftKey && (e.metaKey || e.ctrlKey)) {
+				e.preventDefault();
+				setDevOpen((v) => !v);
+				return;
+			}
 			const k = e.key.toLowerCase();
 			if (k === 'escape') {
 				if (devOpen) { setDevOpen(false); return; }
@@ -226,6 +232,7 @@ function GameScreen() {
 			{panel === 'journal' && <JournalPanel />}
 			{panel === 'achievements' && <AchievementsPanel />}
 			{panel === 'feed' && <FeedPanel />}
+			{panel === 'home' && <HomePanel />}
 			{panel === 'animal' && <AnimalCard />}
 			{panel === 'settings' && <SettingsPanel />}
 			{devOpen && <DevPanel onClose={() => setDevOpen(false)} />}

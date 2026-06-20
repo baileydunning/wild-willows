@@ -295,6 +295,16 @@ input {
 .neighbors-note { display: flex; align-items: flex-start; gap: 5px; margin-top: 4px; color: var(--green-deep); }
 .neighbors-note svg { flex: none; margin-top: 2px; color: var(--gold); }
 
+/* ---- Home panel ---- */
+.home-styles { display: flex; gap: 8px; flex-wrap: wrap; margin: 4px 0 6px; }
+.home-style { display: inline-flex; align-items: center; gap: 7px; padding: 6px 12px; border-radius: 10px; }
+.home-style.on { background: var(--paper-2); border-color: var(--green-deep); font-weight: 700; }
+.home-style-swatch { width: 16px; height: 16px; border-radius: 4px; border: 2px solid; }
+.home-style-swatch.lg { width: 30px; height: 30px; border-radius: 7px; }
+.home-styles { flex-direction: column; }
+.home-style-card { display: flex; align-items: center; gap: 11px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 12px; }
+.home-style-card .grow { flex: 1; }
+
 /* ---- Feed panel (F) ---- */
 .feed-list { display: flex; flex-direction: column; }
 .feed-row { display: flex; align-items: flex-start; gap: 10px; padding: 9px 4px; border-bottom: 1px solid var(--line); }

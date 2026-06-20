@@ -4,9 +4,9 @@ import { useGame } from '../state';
 import { Icon } from './icons';
 
 /**
- * Hidden developer panel for testing — toggled with the backtick (`) key, and
- * only available on the developer save ("bailey"). Calls the server DevTools
- * endpoint, then refreshes state. Not shown in normal play.
+ * Hidden developer panel for testing — opened with Cmd/Ctrl + Shift + Enter,
+ * available to any save. Calls the server DevTools endpoint, then refreshes
+ * state. Never surfaced in normal play.
  */
 export function DevPanel({ onClose }: { onClose: () => void }) {
 	const { data, state, refresh, notify, changeArea } = useGame();
@@ -14,7 +14,7 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 	const [amounts, setAmounts] = useState<Record<string, number>>({});
 	const [fill, setFill] = useState(100);
 	const [health, setHealth] = useState(100);
-	if (!data || !state || state.player.id !== 'bailey') return null;
+	if (!data || !state) return null;
 	const area = state.player.area;
 	const recipesUnlocked = !!state.player.devUnlockAll;
 
@@ -57,7 +57,7 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 					<button className="icon-btn" onClick={onClose} aria-label="Close"><Icon name="close" /></button>
 				</div>
 				<div className="panel-body">
-					<p className="muted small">Testing only — press <b>`</b> (backtick) to toggle.</p>
+					<p className="muted small">Testing only — opened with Cmd/Ctrl + Shift + Enter.</p>
 
 					<h3><Icon name="leaf" size={15} /> This biome <span className="muted small">· {area}</span></h3>
 					<div className="dev-grid">
@@ -109,11 +109,27 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 
 					<h3><Icon name="gear" size={15} /> Whole preserve</h3>
 					<div className="dev-grid">
+						<Btn label="Unlock next area" action="unlock-next" />
 						<Btn label="Unlock all biomes" action="unlock-all" />
+						<button disabled={!!busy} onClick={() => { if (window.confirm('Re-lock every biome except the meadow?')) run('Re-lock all', 'relock-all'); }}>
+							{busy === 'relock-all' ? '…' : 'Re-lock all biomes'}
+						</button>
 						<button disabled={!!busy} onClick={() => run('Toggle recipes', 'unlock-recipes')}>
 							{busy === 'unlock-recipes' ? '…' : recipesUnlocked ? 'Re-lock recipes' : 'Unlock all recipes'}
 						</button>
 						<Btn label="Max all tools" action="max-tools" />
+						<Btn label="Reset tools to tier 1" action="reset-tools" />
+					</div>
+
+					<h3><Icon name="home" size={15} /> Home</h3>
+					<div className="dev-grid">
+						{Object.entries(data.homeStyles || {}).map(([id, s]) => (
+							<Btn key={id} label={`Build: ${s.name}`} action="build-home" args={{ value: id }} />
+						))}
+						<Btn label="Max home (all tracks)" action="max-home" />
+						<button disabled={!!busy} onClick={() => { if (window.confirm('Reset your home to the starter tent?')) run('Reset home', 'reset-home'); }}>
+							{busy === 'reset-home' ? '…' : 'Reset home to tent'}
+						</button>
 					</div>
 
 					<h3><Icon name="basket" size={15} /> Grant resources</h3>

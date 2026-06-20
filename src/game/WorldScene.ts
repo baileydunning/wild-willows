@@ -14,10 +14,14 @@ const COAST_COLS = 4; // columns reserved for the ocean along Pelican Shore's ea
 
 // your base camp: tent + campfire scenery beside the permanent workbench & chest
 const CAMP = { tent: { x: 6.5, y: 4.2 }, fire: { x: 7.6, y: 5.1 } };
+// right in front of the tent door — where you land when you step back out of the home
+const CAMP_TENT_FRONT = { x: CAMP.tent.x, y: CAMP.tent.y + 1.8 };
 const CAMP_BLOCK = { x0: 5.5, y0: 3.2, x1: 9.9, y1: 5.9 }; // keep nodes/placements clear of camp
 
 // spawn points when arriving in an area from another
 const SPAWNS: Record<string, { x: number; y: number }> = {
+	// stepping back out of the home → stand right in front of the camp tent door
+	'meadow:from-home': { x: CAMP_TENT_FRONT.x, y: CAMP_TENT_FRONT.y },
 	// arriving from the west neighbour → enter at the west edge; from the east → east edge
 	'meadow:from-forest': { x: 27.8, y: 10.0 },
 	'forest:from-meadow': { x: 1.8, y: 10.0 },
@@ -82,6 +86,7 @@ export class WorldScene extends Phaser.Scene {
 	private unsubs: Array<() => void> = [];
 	private placementObjectId: string | null = null;
 	private movingPlacementId: string | null = null;
+	private sleeping = false;
 	private ghost: Phaser.GameObjects.Container | null = null;
 	private moveAccum = 0;
 	private lastSynced = { x: 0, y: 0 };
@@ -99,9 +104,29 @@ export class WorldScene extends Phaser.Scene {
 	}
 
 	init(data: any) {
-		const area = data?.area || bridge.shared.state?.player.area || 'meadow';
-		// 'home' is retired — old saves land back in the meadow
-		this.area = area === 'home' ? 'meadow' : area;
+		this.area = data?.area || bridge.shared.state?.player.area || 'meadow';
+	}
+
+	private get isHome() {
+		return this.area === 'home';
+	}
+
+	/** Interior floor rectangle (tile coords) + cosmetics for the current home config. */
+	private homeRoom() {
+		const home = bridge.shared.state?.player?.home || ({ style: 'cabin', space: 1, comfort: 1, decor: 1, light: 1 } as any);
+		const data = bridge.shared.data;
+		const styles = data?.homeStyles || {};
+		const style = styles[home.style] || styles.cabin || { floor: '#c9a373', wall: '#9c7a52', accent: '#b5707a' };
+		const spaceLevels = data?.homeTracks?.space?.levels || [];
+		const inner = spaceLevels[(home.space || 1) - 1]?.inner || { w: 8, h: 6 };
+		const x0 = Math.floor((OUT_W - inner.w) / 2);
+		const y0 = Math.floor((OUT_H - inner.h) / 2);
+		const x1 = x0 + inner.w - 1, y1 = y0 + inner.h - 1;
+		return {
+			x0, y0, x1, y1, floor: style.floor, wall: style.wall, accent: style.accent,
+			decor: home.decor || 1, light: home.light || 1,
+			doorX: Math.round((x0 + x1) / 2), doorY: y1,
+		};
 	}
 
 	private get worldW() {
@@ -157,7 +182,9 @@ export class WorldScene extends Phaser.Scene {
 		const playerKey = makePlayerTexture(this, bridge.shared.state?.player.appearance);
 		this.playerShadow = this.add.image(0, 0, 'shadow').setDepth(2);
 		this.player = this.add.image(0, 0, playerKey).setDepth(1000);
-		const spawn = data?.spawn || this.savedSpawn();
+		let spawn = data?.spawn || this.savedSpawn();
+		// stepping into the home: stand just inside the door
+		if (this.isHome) { const r = this.homeRoom(); spawn = { x: r.doorX + 0.5, y: r.doorY + 0.2 }; }
 		this.player.setPosition(spawn.x * TILE, spawn.y * TILE);
 		this.cameras.main.startFollow(this.player, true, 0.12, 0.12);
 		this.startLeaves();
@@ -339,6 +366,7 @@ export class WorldScene extends Phaser.Scene {
 
 	private drawGround() {
 		this.groundTiles = [];
+		if (this.isHome) { this.drawHomeRoom(); return; }
 		const rng = mulberry32(hashStr(this.area));
 		// Ground tiles fill only the playable region; in the alpine the top rows
 		// are the mountain range, drawn separately below.
@@ -352,6 +380,75 @@ export class WorldScene extends Phaser.Scene {
 		if (this.mtnRows > 0) this.drawMountainBand();
 		if (this.area === 'coastal') this.drawCoastBand();
 		this.tintGround();
+	}
+
+	/** The home interior: a cozy room of floor + walls with a door, sized by tier. */
+	private drawHomeRoom() {
+		const r = this.homeRoom();
+		// dark surround outside the room
+		this.add.rectangle(0, 0, this.worldW, this.worldH, C('#1c2216')).setOrigin(0, 0).setDepth(0);
+		// wall ring (one tile thick around the floor)
+		const wx = (r.x0 - 1) * TILE, wy = (r.y0 - 1) * TILE;
+		const ww = (r.x1 - r.x0 + 3) * TILE, wh = (r.y1 - r.y0 + 3) * TILE;
+		this.add.rectangle(wx, wy, ww, wh, C(r.wall)).setOrigin(0, 0).setDepth(0.1);
+		this.add.rectangle(wx, wy, ww, TILE, 0x000000, 0.18).setOrigin(0, 0).setDepth(0.12); // back-wall shadow
+		// floor
+		const fx = r.x0 * TILE, fy = r.y0 * TILE;
+		const fw = (r.x1 - r.x0 + 1) * TILE, fh = (r.y1 - r.y0 + 1) * TILE;
+		this.add.rectangle(fx, fy, fw, fh, C(r.floor)).setOrigin(0, 0).setDepth(0.2);
+		// faint plank grid
+		for (let gx = r.x0; gx <= r.x1 + 1; gx++) this.add.rectangle(gx * TILE, fy, 1, fh, 0x000000, 0.06).setOrigin(0, 0).setDepth(0.21);
+		for (let gy = r.y0; gy <= r.y1 + 1; gy++) this.add.rectangle(fx, gy * TILE, fw, 1, 0x000000, 0.06).setOrigin(0, 0).setDepth(0.21);
+
+		// Furnishings track: a wall trim line + a centre rug that gets finer per level
+		if (r.decor >= 1) {
+			this.add.rectangle(wx, wy + TILE - 2, ww, 3, C(r.accent), 0.5).setOrigin(0, 0).setDepth(0.13);
+		}
+		if (r.decor >= 2) {
+			const rugW = Math.min(fw - TILE * 2, TILE * (3 + r.decor));
+			const rugH = Math.min(fh - TILE * 2, TILE * (2 + r.decor * 0.5));
+			const cx = fx + fw / 2, cy = fy + fh / 2;
+			this.add.rectangle(cx, cy, rugW, rugH, C(r.accent), 0.7).setDepth(0.22);
+			this.add.rectangle(cx, cy, rugW - 10, rugH - 10, C(r.floor), 0.5).setDepth(0.221);
+			if (r.decor >= 3) this.add.rectangle(cx, cy, rugW - 22, rugH - 22, C(r.accent), 0.55).setDepth(0.222);
+		}
+
+		// Warmth track: windows along the back wall + a soft hearth glow
+		if (r.light >= 2) {
+			const windows = r.light; // 2 → two windows, 3 → three, 4 → four
+			for (let i = 0; i < windows; i++) {
+				const wxp = fx + fw * ((i + 1) / (windows + 1));
+				this.add.rectangle(wxp, wy + TILE / 2, TILE * 0.7, TILE * 0.6, C('#cfe6f2'), 0.85).setDepth(0.14);
+				this.add.rectangle(wxp, wy + TILE / 2, TILE * 0.7, TILE * 0.6).setStrokeStyle(2, C('#000000'), 0.25).setDepth(0.141);
+			}
+		}
+		if (r.light >= 3) {
+			const glow = this.add.image(fx + TILE, fy + fh - TILE, 'glow').setTint(0xffcf80).setDepth(0.23).setScale(1.6).setAlpha(0.5);
+			glow.setBlendMode(Phaser.BlendModes.ADD);
+			this.tweens.add({ targets: glow, alpha: { from: 0.5, to: 0.32 }, duration: 1400, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+		}
+
+		// door on the bottom wall, with a welcome mat just inside it
+		const dpx = r.doorX * TILE + 16;
+		this.add.rectangle(dpx, (r.y1 + 1) * TILE + 16, TILE * 0.82, TILE * 1.1, C('#33251a')).setDepth(0.3);
+		this.add.rectangle(dpx, (r.y1 + 1) * TILE + 14, TILE * 0.6, TILE * 0.92, C('#5a3f28')).setDepth(0.31);
+		this.add.rectangle(dpx, r.doorY * TILE + 16, TILE * 0.95, TILE * 0.55, C(r.accent)).setDepth(0.25).setAlpha(0.7);
+	}
+
+	/** Refresh the home interior: just your placed decor + the exit door. */
+	private refreshHome() {
+		this.waterTiles = new Set();
+		this.waterTileCenters = [];
+		this.bridgeTiles = new Set();
+		this.drawPlacements();
+		const r = this.homeRoom();
+		// the door back out, bottom-center (the upgrade sign lives outside, by the tent)
+		this.registerInteractable({
+			x: r.doorX * TILE + 16,
+			y: r.doorY * TILE + 16,
+			label: 'Step back outside (E)',
+			action: () => bridge.emit('request-area', { area: 'meadow' }),
+		});
 	}
 
 	/** Static, impassable open ocean down the east edge of Pelican Shore. */
@@ -402,6 +499,7 @@ export class WorldScene extends Phaser.Scene {
 	}
 
 	private tintGround() {
+		if (this.isHome) return; // the home has its own floor, not a biome ground tint
 		const biome = this.biomeDef();
 		const state = bridge.shared.state?.biomeStates.find((b) => b.biomeId === this.area);
 		const health = state?.health ?? 5;
@@ -423,6 +521,7 @@ export class WorldScene extends Phaser.Scene {
 		this.dynamic.clear(true, true);
 		this.nodeSprites.clear();
 		this.interactables = [];
+		if (this.isHome) { this.refreshHome(); return; }
 		// collision lookups: open water blocks walking unless bridged
 		const st = bridge.shared.state;
 		this.waterTiles = new Set(
@@ -549,6 +648,19 @@ export class WorldScene extends Phaser.Scene {
 			const tx2 = CAMP.tent.x * TILE, ty2 = CAMP.tent.y * TILE;
 			this.addDyn(this.add.image(tx2, ty2 + 22, 'shadow').setDepth(3).setScale(2.0, 1.1));
 			this.addDyn(this.add.image(tx2, ty2, 'tent').setDepth(ty2));
+			// step inside your home to decorate it
+			this.registerInteractable({
+				x: tx2, y: ty2 + 8, label: 'Step inside your home (E)',
+				action: () => bridge.emit('request-area', { area: 'home' }),
+			});
+			// a signpost just to the left of the tent door opens the home-upgrade panel
+			const sgx = (CAMP.tent.x - 1.2) * TILE, sgy = (CAMP.tent.y + 1.1) * TILE;
+			this.addDyn(this.add.image(sgx, sgy + 16, 'shadow').setDepth(3).setScale(0.9, 0.7));
+			this.addDyn(this.add.image(sgx, sgy, 'sign').setDepth(sgy));
+			this.registerInteractable({
+				x: sgx, y: sgy, label: 'Upgrade your home (E)',
+				action: () => bridge.emit('open-home'),
+			});
 			const fx = CAMP.fire.x * TILE, fy = CAMP.fire.y * TILE;
 			const fireGlow = this.addDyn(this.add.image(fx, fy - 4, 'glow').setTint(0xffb84f).setDepth(fy - 1).setScale(1.3));
 			(fireGlow as Phaser.GameObjects.Image).setBlendMode(Phaser.BlendModes.ADD);
@@ -950,6 +1062,39 @@ export class WorldScene extends Phaser.Scene {
 		this.floatText(x, y - 16, p.action === 'water' ? 'Watered!' : p.action === 'dig' ? 'Soil bed ready' : 'Cleared', '#fff7dd');
 	}
 
+	/** Climb into the bed/bag, dim the room, snooze ~3s, then refresh the preserve. */
+	private sleepAt(bx: number, by: number) {
+		if (this.sleeping) return;
+		this.sleeping = true;
+		// lie the caretaker down on the bed
+		this.player.setPosition(bx, by - 4);
+		this.player.setDepth(by + 30);
+		this.player.setAngle(-78);
+		bridge.emit('toast', { text: 'Goodnight… 💤', kind: 'info' });
+		// a soft dim over the whole view (oversized + screen-fixed so zoom never matters)
+		const dim = this.add.rectangle(-2000, -2000, 6000, 6000, 0x0a1026, 0).setOrigin(0, 0).setScrollFactor(0).setDepth(9000);
+		this.tweens.add({ targets: dim, alpha: 0.6, duration: 600, ease: 'Sine.easeIn' });
+		// drifting "z"s above the sleeper
+		const zzz = this.time.addEvent({
+			delay: 620, loop: true, callback: () => {
+				if (!this.alive) return;
+				const z = this.add.text(this.player.x + 12, this.player.y - 14, 'z', {
+					fontFamily: 'Quicksand, sans-serif', fontSize: '16px', color: '#dfe9ff', fontStyle: 'bold',
+				}).setOrigin(0.5).setDepth(9500);
+				this.tweens.add({ targets: z, y: z.y - 30, x: z.x + 14, alpha: 0, duration: 1300, ease: 'Sine.easeOut', onComplete: () => z.destroy() });
+			},
+		});
+		this.time.delayedCall(3000, () => {
+			zzz.remove();
+			if (!this.alive) return;
+			bridge.emit('rest'); // server-side: refresh all gathering spots
+			this.player.setAngle(0);
+			this.player.setDepth(this.player.y + 16);
+			this.tweens.add({ targets: dim, alpha: 0, duration: 700, ease: 'Sine.easeOut', onComplete: () => dim.destroy() });
+			this.time.delayedCall(700, () => { this.sleeping = false; });
+		});
+	}
+
 	private floatText(x: number, y: number, text: string, color: string) {
 		const t = this.add
 			.text(x, y, text, {
@@ -997,7 +1142,7 @@ export class WorldScene extends Phaser.Scene {
 			// Camp fixtures stay crisp and identical; everything the player crafts
 			// and places gets a little deterministic character seeded from its
 			// placement id, so no two crafted items look exactly alike.
-			const isFixture = def.isChest || ['workbench', 'field-journal-stand', 'bed'].includes(p.objectId);
+			const isFixture = def.isChest || ['workbench', 'field-journal-stand', 'bed', 'home-bed', 'home-sleeping-bag'].includes(p.objectId);
 			const growScale = stillGrowing ? 1 + (age / growMs) * 0.6 : 1;
 			if (isFixture) {
 				img.setScale(growScale);
@@ -1040,6 +1185,8 @@ export class WorldScene extends Phaser.Scene {
 				this.registerInteractable({ x, y, label: 'Craft at the workbench', action: () => bridge.emit('open-workbench') }, img);
 			} else if (p.objectId === 'field-journal-stand') {
 				this.registerInteractable({ x, y, label: 'Read your field journal', action: () => bridge.emit('open-journal') }, img);
+			} else if (p.objectId === 'home-bed' || p.objectId === 'home-sleeping-bag') {
+				this.registerInteractable({ x, y, label: 'Go to sleep (refresh gathering spots)', action: () => this.sleepAt(x, y) }, img);
 			} else if (p.objectId === 'bed') {
 				this.registerInteractable({ x, y, label: 'Rest a moment', action: () => bridge.emit('toast', { text: 'You take a quiet breath. The preserve is in good hands.', kind: 'info' }) }, img);
 			}
@@ -1251,6 +1398,21 @@ export class WorldScene extends Phaser.Scene {
 	}
 
 	private canPlaceAt(tx: number, ty: number, forTerraform = false, ignoreId?: string): boolean {
+		// Indoors: you can only decorate on the floor (inside the walls).
+		if (this.isHome) {
+			const r = this.homeRoom();
+			if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1) return false;
+			const sH = bridge.shared.state;
+			if (sH?.placements.some((p) => p.id !== ignoreId && p.area === 'home' && p.x === tx && p.y === ty)) return false;
+			// items that need a bigger home can't be placed in a small one yet
+			const activeId = this.movingPlacementId
+				? sH?.placements.find((p) => p.id === this.movingPlacementId)?.objectId
+				: this.placementObjectId;
+			const homeMin = activeId ? this.objectDef(activeId)?.homeMin || 0 : 0;
+			const space = bridge.shared.state?.player?.home?.space || 1;
+			if (homeMin > space) return false;
+			return true;
+		}
 		// Pelican Shore: nothing builds on the open ocean; land ends at landRight.
 		const right = this.area === 'coastal' ? this.landRight : OUT_W - 1;
 		if (tx < 1 || ty < (this.playTop || 1) || tx >= right || ty >= this.rows - 1) return false;
@@ -1281,6 +1443,7 @@ export class WorldScene extends Phaser.Scene {
 	}
 
 	private handleMovement(dt: number) {
+		if (this.sleeping) return; // can't roam while asleep
 		const k = this.keys;
 		let vx = 0, vy = 0;
 		if (k.A.isDown || k.LEFT.isDown) vx -= 1;
@@ -1313,6 +1476,12 @@ export class WorldScene extends Phaser.Scene {
 		// open water blocks walking — unless a bridge spans that tile. On Pelican
 		// Shore the ocean band along the east edge is always impassable.
 		const blocked = (px: number, py: number) => {
+			// indoors: the walls (anything off the floor) block movement
+			if (this.isHome) {
+				const r = this.homeRoom();
+				const tx = Math.floor(px / TILE), ty = Math.floor((py + 8) / TILE);
+				return tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1;
+			}
 			if (this.area === 'coastal' && Math.floor(px / TILE) >= this.landRight) return true;
 			const key = `${Math.floor(px / TILE)},${Math.floor((py + 8) / TILE)}`;
 			return this.waterTiles.has(key) && !this.bridgeTiles.has(key);

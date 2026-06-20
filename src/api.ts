@@ -88,6 +88,9 @@ export const api = {
 	move: (placementId: string, x: number, y: number) =>
 		post<any>('/MoveObject/', { playerId: pid(), placementId, x, y }),
 	upgradeTool: (toolId: string) => post<any>('/UpgradeTool/', { playerId: pid(), toolId }),
+	upgradeHome: (track: string) => post<any>('/UpgradeHome/', { playerId: pid(), track }),
+	setHomeStyle: (style: string) => post<any>('/SetHomeStyle/', { playerId: pid(), style }),
+	rest: () => post<any>('/Rest/', { playerId: pid() }),
 	observe: (animalId: string) => post<any>('/ObserveAnimal/', { playerId: pid(), animalId }),
 	terraform: (area: string, x: number, y: number, action: 'dig' | 'water' | 'clear') =>
 		post<any>('/Terraform/', { playerId: pid(), area, x, y, action }),

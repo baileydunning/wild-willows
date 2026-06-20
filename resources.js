@@ -1,4 +1,4 @@
-// data/biomes.json
+// ../../sessions/determined-laughing-babbage/mnt/wild-willows/data/biomes.json
 var biomes_default = {
   database: "wildwillows",
   table: "Biome",
@@ -214,7 +214,7 @@ var biomes_default = {
   ]
 };
 
-// data/recipes.json
+// ../../sessions/determined-laughing-babbage/mnt/wild-willows/data/recipes.json
 var recipes_default = {
   database: "wildwillows",
   table: "Recipe",
@@ -1649,7 +1649,7 @@ var recipes_default = {
     {
       id: "birdhouse",
       name: "Birdhouse",
-      category: "home",
+      category: "structure",
       unlockBiome: "meadow",
       output: {
         itemId: "birdhouse",
@@ -2247,11 +2247,401 @@ var recipes_default = {
         requiresCrafted: "medium-chest",
         label: "Restore Redstone Scrubland to 60% health and craft a Medium Chest first"
       }
+    },
+    {
+      id: "home-rug",
+      name: "Woven Rug",
+      category: "home",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "home-rug",
+        qty: 1
+      },
+      materials: {
+        fiber: 6
+      },
+      unlock: {
+        minHealth: 10,
+        label: "Restore Willow Meadow to 10% health"
+      }
+    },
+    {
+      id: "home-table",
+      name: "Little Table",
+      category: "home",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "home-table",
+        qty: 1
+      },
+      materials: {
+        branches: 6,
+        fiber: 2
+      },
+      unlock: {
+        minHealth: 15,
+        label: "Restore Willow Meadow to 15% health"
+      }
+    },
+    {
+      id: "home-bed",
+      name: "Cozy Bed",
+      category: "home",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "home-bed",
+        qty: 1
+      },
+      materials: {
+        fiber: 8,
+        branches: 4
+      },
+      unlock: {
+        minHealth: 20,
+        label: "Restore Willow Meadow to 20% health"
+      }
+    },
+    {
+      id: "home-bookshelf",
+      name: "Bookshelf",
+      category: "home",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "home-bookshelf",
+        qty: 1
+      },
+      materials: {
+        branches: 8,
+        fiber: 3
+      },
+      unlock: {
+        minHealth: 30,
+        label: "Restore Willow Meadow to 30% health"
+      }
+    },
+    {
+      id: "home-armchair",
+      name: "Cozy Armchair",
+      category: "home",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "home-armchair",
+        qty: 1
+      },
+      materials: {
+        fiber: 7,
+        branches: 3
+      },
+      unlock: {
+        minHealth: 18,
+        label: "Restore Willow Meadow to 18% health"
+      }
+    },
+    {
+      id: "home-fireplace",
+      name: "Stone Fireplace",
+      category: "home",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "home-fireplace",
+        qty: 1
+      },
+      materials: {
+        stones: 8,
+        clay: 3
+      },
+      unlock: {
+        minHealth: 25,
+        label: "Restore Willow Meadow to 25% health"
+      }
+    },
+    {
+      id: "home-lamp",
+      name: "Floor Lamp",
+      category: "home",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "home-lamp",
+        qty: 1
+      },
+      materials: {
+        branches: 4,
+        fiber: 3
+      },
+      unlock: {
+        minHealth: 12,
+        label: "Restore Willow Meadow to 12% health"
+      }
+    },
+    {
+      id: "home-potplant",
+      name: "House Plant",
+      category: "home",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "home-potplant",
+        qty: 1
+      },
+      materials: {
+        clay: 3,
+        wildflowers: 2
+      },
+      unlock: {
+        minHealth: 8,
+        label: "Restore Willow Meadow to 8% health"
+      }
+    },
+    {
+      id: "home-painting",
+      name: "Framed Landscape",
+      category: "home",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "home-painting",
+        qty: 1
+      },
+      materials: {
+        branches: 4,
+        fiber: 4
+      },
+      unlock: {
+        minHealth: 22,
+        label: "Restore Willow Meadow to 22% health"
+      }
+    },
+    {
+      id: "home-sleeping-bag",
+      name: "Sleeping Bag",
+      category: "home",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "home-sleeping-bag",
+        qty: 1
+      },
+      materials: {
+        fiber: 4
+      },
+      unlock: {
+        minHealth: 5,
+        label: "Restore Willow Meadow to 5% health"
+      }
+    },
+    {
+      id: "home-cushions",
+      name: "Floor Cushions",
+      category: "home",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "home-cushions",
+        qty: 1
+      },
+      materials: {
+        fiber: 5
+      },
+      unlock: {
+        minHealth: 10,
+        label: "Restore that biome to 10% health"
+      }
+    },
+    {
+      id: "home-stool",
+      name: "Wooden Stool",
+      category: "home",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "home-stool",
+        qty: 1
+      },
+      materials: {
+        branches: 4
+      },
+      unlock: {
+        minHealth: 14,
+        label: "Restore that biome to 14% health"
+      }
+    },
+    {
+      id: "home-mushroomshelf",
+      name: "Mushroom Shelf",
+      category: "home",
+      unlockBiome: "forest",
+      output: {
+        itemId: "home-mushroomshelf",
+        qty: 1
+      },
+      materials: {
+        mushrooms: 4,
+        branches: 4
+      },
+      unlock: {
+        minHealth: 45,
+        label: "Restore that biome to 45% health"
+      }
+    },
+    {
+      id: "home-reedmat",
+      name: "Reed Floor Mat",
+      category: "home",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "home-reedmat",
+        qty: 1
+      },
+      materials: {
+        reeds: 6
+      },
+      unlock: {
+        minHealth: 30,
+        label: "Restore that biome to 30% health"
+      }
+    },
+    {
+      id: "home-cactuspot",
+      name: "Potted Cactus",
+      category: "home",
+      unlockBiome: "desert",
+      output: {
+        itemId: "home-cactuspot",
+        qty: 1
+      },
+      materials: {
+        sand: 4,
+        clay: 3
+      },
+      unlock: {
+        minHealth: 30,
+        label: "Restore that biome to 30% health"
+      }
+    },
+    {
+      id: "home-driftwoodshelf",
+      name: "Driftwood Shelf",
+      category: "home",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "home-driftwoodshelf",
+        qty: 1
+      },
+      materials: {
+        driftwood: 5
+      },
+      unlock: {
+        minHealth: 30,
+        label: "Restore that biome to 30% health"
+      }
+    },
+    {
+      id: "home-wallclock",
+      name: "Wall Clock",
+      category: "home",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "home-wallclock",
+        qty: 1
+      },
+      materials: {
+        branches: 5,
+        stones: 3
+      },
+      unlock: {
+        minHealth: 40,
+        label: "Restore that biome to 40% health"
+      }
+    },
+    {
+      id: "home-dresser",
+      name: "Wooden Dresser",
+      category: "home",
+      unlockBiome: "forest",
+      output: {
+        itemId: "home-dresser",
+        qty: 1
+      },
+      materials: {
+        branches: 10,
+        bark: 4
+      },
+      unlock: {
+        minHealth: 30,
+        label: "Restore that biome to 30% health"
+      }
+    },
+    {
+      id: "home-peltrug",
+      name: "Woolly Rug",
+      category: "home",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "home-peltrug",
+        qty: 1
+      },
+      materials: {
+        lichen: 4,
+        moss: 4
+      },
+      unlock: {
+        minHealth: 35,
+        label: "Restore that biome to 35% health"
+      }
+    },
+    {
+      id: "home-chandelier",
+      name: "Antler Chandelier",
+      category: "home",
+      unlockBiome: "forest",
+      output: {
+        itemId: "home-chandelier",
+        qty: 1
+      },
+      materials: {
+        branches: 8,
+        bark: 6
+      },
+      unlock: {
+        minHealth: 60,
+        label: "Restore that biome to 60% health"
+      }
+    },
+    {
+      id: "home-aquarium",
+      name: "Aquarium",
+      category: "home",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "home-aquarium",
+        qty: 1
+      },
+      materials: {
+        "clean-water": 4,
+        clay: 6
+      },
+      unlock: {
+        minHealth: 65,
+        label: "Restore that biome to 65% health"
+      }
+    },
+    {
+      id: "home-telescope",
+      name: "Stargazing Telescope",
+      category: "home",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "home-telescope",
+        qty: 1
+      },
+      materials: {
+        "quartz-crystal": 2,
+        branches: 4
+      },
+      unlock: {
+        minHealth: 55,
+        label: "Restore that biome to 55% health"
+      }
     }
   ]
 };
 
-// data/habitat-objects.json
+// ../../sessions/determined-laughing-babbage/mnt/wild-willows/data/habitat-objects.json
 var habitat_objects_default = {
   database: "wildwillows",
   table: "HabitatObject",
@@ -4285,7 +4675,7 @@ var habitat_objects_default = {
     {
       id: "birdhouse",
       name: "Birdhouse",
-      placement: "both",
+      placement: "outdoor",
       biomes: [
         "meadow",
         "forest",
@@ -4779,11 +5169,263 @@ var habitat_objects_default = {
       isChest: true,
       chestCapacity: 500,
       description: "A big iron-banded storage chest. Holds 500 materials \u2014 your main stockpile."
+    },
+    {
+      id: "home-rug",
+      name: "Woven Rug",
+      placement: "indoor",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "rug",
+      color: "#b5707a",
+      description: "A soft woven rug to warm the floor of your home."
+    },
+    {
+      id: "home-table",
+      name: "Little Table",
+      placement: "indoor",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "table",
+      color: "#8a6a48",
+      description: "A small wooden table with a sprig of flowers."
+    },
+    {
+      id: "home-bed",
+      name: "Cozy Bed",
+      placement: "indoor",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "bed",
+      color: "#7a9ac0",
+      description: "A comfortable bed for resting between restoration days.",
+      homeMin: 2
+    },
+    {
+      id: "home-bookshelf",
+      name: "Bookshelf",
+      placement: "indoor",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "bookshelf",
+      color: "#6e4a33",
+      description: "A shelf of field guides and well-thumbed nature books.",
+      homeMin: 2
+    },
+    {
+      id: "home-armchair",
+      name: "Cozy Armchair",
+      placement: "indoor",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "armchair",
+      color: "#a86f80",
+      description: "A plush armchair to sink into after a long day's restoring.",
+      homeMin: 2
+    },
+    {
+      id: "home-fireplace",
+      name: "Stone Fireplace",
+      placement: "indoor",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "fireplace",
+      color: "#8e8e8a",
+      description: "A crackling stone hearth that warms the whole room.",
+      homeMin: 2
+    },
+    {
+      id: "home-lamp",
+      name: "Floor Lamp",
+      placement: "indoor",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "lamp",
+      color: "#f3d98a",
+      description: "A soft floor lamp for cozy evenings indoors."
+    },
+    {
+      id: "home-potplant",
+      name: "House Plant",
+      placement: "indoor",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "potplant",
+      color: "#4f7d3a",
+      description: "A leafy potted plant to bring a little of the meadow inside."
+    },
+    {
+      id: "home-painting",
+      name: "Framed Landscape",
+      placement: "indoor",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "painting",
+      color: "#caa15e",
+      description: "A framed painting of the preserve at its finest."
+    },
+    {
+      id: "home-sleeping-bag",
+      name: "Sleeping Bag",
+      placement: "indoor",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "sleepingbag",
+      color: "#5b7d9a",
+      description: "A simple sleeping bag \u2014 just the thing for a cozy night in the tent."
+    },
+    {
+      id: "home-cushions",
+      name: "Floor Cushions",
+      placement: "indoor",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "cushions",
+      color: "#c98a6a",
+      description: "A pile of soft floor cushions for lounging."
+    },
+    {
+      id: "home-stool",
+      name: "Wooden Stool",
+      placement: "indoor",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "stool",
+      color: "#a86f80",
+      description: "A simple cushioned stool."
+    },
+    {
+      id: "home-mushroomshelf",
+      name: "Mushroom Shelf",
+      placement: "indoor",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "mushroomshelf",
+      color: "#7a5a3a",
+      description: "A little shelf dotted with woodland mushrooms."
+    },
+    {
+      id: "home-reedmat",
+      name: "Reed Floor Mat",
+      placement: "indoor",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "reedmat",
+      color: "#b9a06a",
+      description: "A woven reed mat from the marsh."
+    },
+    {
+      id: "home-cactuspot",
+      name: "Potted Cactus",
+      placement: "indoor",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "cactuspot",
+      color: "#4f8a4a",
+      description: "A hardy little cactus in a clay pot."
+    },
+    {
+      id: "home-driftwoodshelf",
+      name: "Driftwood Shelf",
+      placement: "indoor",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "driftwoodshelf",
+      color: "#b6a68c",
+      description: "A shelf of weathered driftwood with beach finds."
+    },
+    {
+      id: "home-wallclock",
+      name: "Wall Clock",
+      placement: "indoor",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "wallclock",
+      color: "#6e4a33",
+      description: "A handsome wall clock \u2014 a house needs one.",
+      homeMin: 2
+    },
+    {
+      id: "home-dresser",
+      name: "Wooden Dresser",
+      placement: "indoor",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "dresser",
+      color: "#8a6a48",
+      description: "A sturdy chest of drawers.",
+      homeMin: 2
+    },
+    {
+      id: "home-peltrug",
+      name: "Woolly Rug",
+      placement: "indoor",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "peltrug",
+      color: "#caa15e",
+      description: "A thick, warm rug for cold mountain nights.",
+      homeMin: 2
+    },
+    {
+      id: "home-chandelier",
+      name: "Antler Chandelier",
+      placement: "indoor",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "chandelier",
+      color: "#caa15e",
+      description: "A grand candle chandelier \u2014 fit for a lodge.",
+      homeMin: 3
+    },
+    {
+      id: "home-aquarium",
+      name: "Aquarium",
+      placement: "indoor",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "aquarium",
+      color: "#7fb4d8",
+      description: "A glass tank of darting little fish.",
+      homeMin: 3
+    },
+    {
+      id: "home-telescope",
+      name: "Stargazing Telescope",
+      placement: "indoor",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "telescope",
+      color: "#5a6b7a",
+      description: "A brass telescope for the clear mountain sky.",
+      homeMin: 3
     }
   ]
 };
 
-// data/tools.json
+// ../../sessions/determined-laughing-babbage/mnt/wild-willows/data/tools.json
 var tools_default = {
   database: "wildwillows",
   table: "ToolDef",
@@ -5043,7 +5685,7 @@ var tools_default = {
   ]
 };
 
-// data/resources.json
+// ../../sessions/determined-laughing-babbage/mnt/wild-willows/data/resources.json
 var resources_default = {
   database: "wildwillows",
   table: "ResourceType",
@@ -5249,7 +5891,7 @@ var resources_default = {
   ]
 };
 
-// data/animals-1.json
+// ../../sessions/determined-laughing-babbage/mnt/wild-willows/data/animals-1.json
 var animals_1_default = {
   database: "wildwillows",
   table: "Animal",
@@ -6188,7 +6830,7 @@ var animals_1_default = {
   ]
 };
 
-// data/animals-2.json
+// ../../sessions/determined-laughing-babbage/mnt/wild-willows/data/animals-2.json
 var animals_2_default = {
   database: "wildwillows",
   table: "Animal",
@@ -8390,7 +9032,7 @@ var animals_2_default = {
   ]
 };
 
-// data/achievements.json
+// ../../sessions/determined-laughing-babbage/mnt/wild-willows/data/achievements.json
 var achievements_default = {
   database: "wildwillows",
   table: "Achievement",
@@ -8448,7 +9090,7 @@ var achievements_default = {
   ]
 };
 
-// server/resources.ts
+// ../../sessions/determined-laughing-babbage/mnt/wild-willows/server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 var db = () => databases.wildwillows;
 var GameError = class extends Error {
@@ -8546,6 +9188,70 @@ var NODE_REGEN_SECONDS = 75;
 var BASE_HEALTH = 5;
 var FIRST_ANIMAL_ID = "grasshopper";
 var FEED_CAP = 100;
+var HOME_BUILD_GATE = { biome: "meadow", minHealth: 30 };
+var HOME_STYLES = {
+  cabin: { name: "Log Cabin", floor: "#c8a064", wall: "#5e3f29", accent: "#b5707a", materials: { branches: 16, fiber: 6 }, requires: HOME_BUILD_GATE },
+  // warm golden pine + dark logs
+  cottage: { name: "Meadow Cottage", floor: "#e6d3a6", wall: "#aab9c6", accent: "#7fae6a", materials: { wildflowers: 6, fiber: 10, clay: 4 }, requires: HOME_BUILD_GATE },
+  // pale wood + airy blue-grey + green
+  stone: { name: "Stone Hearth", floor: "#a9a499", wall: "#6f6a62", accent: "#d98a4f", materials: { stones: 14, clay: 6 }, requires: HOME_BUILD_GATE }
+  // slate floor + grey stone + hearth orange
+};
+var DEFAULT_HOME = { style: "cabin", space: 1, comfort: 1, decor: 1, light: 1, styleLocked: false };
+var HOME_TRACKS = {
+  space: {
+    name: "Space",
+    blurb: "A bigger room with more floor to decorate.",
+    levels: [
+      { inner: { w: 8, h: 6 } },
+      { inner: { w: 11, h: 8 }, materials: { branches: 12, fiber: 8 }, requires: { biome: "meadow", minHealth: 30 } },
+      { inner: { w: 15, h: 10 }, materials: { branches: 18, stones: 6, clay: 6 }, requires: { biome: "forest", minHealth: 45 } },
+      { inner: { w: 19, h: 12 }, materials: { branches: 24, clay: 10, "clean-water": 6 }, requires: { biome: "wetland", minHealth: 55 } }
+    ]
+  },
+  comfort: {
+    name: "Comfort",
+    blurb: "Carry more on every gathering trip (+capacity).",
+    levels: [
+      { carry: 0 },
+      { carry: 45, materials: { fiber: 10, branches: 4 }, requires: { biome: "meadow", minHealth: 35 } },
+      { carry: 95, materials: { fiber: 14, moss: 6 }, requires: { biome: "forest", minHealth: 50 } },
+      { carry: 160, materials: { reeds: 10, fiber: 12 }, requires: { biome: "wetland", minHealth: 60 } }
+    ]
+  },
+  decor: {
+    name: "Furnishings",
+    blurb: "A finer rug and wall trim in your style.",
+    levels: [
+      {},
+      { materials: { fiber: 8, wildflowers: 4 } },
+      { materials: { fiber: 12, berries: 6 }, requires: { biome: "meadow", minHealth: 50 } },
+      { materials: { fiber: 16, clay: 6 }, requires: { biome: "forest", minHealth: 55 } }
+    ]
+  },
+  light: {
+    name: "Warmth",
+    blurb: "Windows and a warm hearth glow.",
+    levels: [
+      {},
+      { materials: { branches: 6, stones: 4 } },
+      { materials: { stones: 8, clay: 4 }, requires: { biome: "forest", minHealth: 45 } },
+      { materials: { clay: 6, "clean-water": 4 }, requires: { biome: "wetland", minHealth: 55 } }
+    ]
+  }
+};
+function homeOf(player) {
+  if (player?.home) return { ...DEFAULT_HOME, ...player.home };
+  const t = player?.homeTier || 1;
+  return { ...DEFAULT_HOME, space: t, comfort: t, styleLocked: t > 1 };
+}
+var homeCarryBonus = (player) => HOME_TRACKS.comfort.levels[(homeOf(player).comfort || 1) - 1]?.carry || 0;
+function homeRoom(player) {
+  const inner = HOME_TRACKS.space.levels[(homeOf(player).space || 1) - 1]?.inner || { w: 8, h: 6 };
+  const x0 = Math.floor((GRID_W - inner.w) / 2);
+  const y0 = Math.floor((GRID_H - inner.h) / 2);
+  return { x0, y0, x1: x0 + inner.w - 1, y1: y0 + inner.h - 1 };
+}
 var DIG_FIND_CHANCE = 0.75;
 var CAPACITY_BY_BASKET = { 1: 200, 2: 350, 3: 550, 4: 800 };
 var START_INVENTORY = { water: 6, seeds: 2, wildflowers: 1 };
@@ -8809,6 +9515,8 @@ async function createPlayerRecords(playerId, name, passcode, appearance) {
     visitedBiomes: ["meadow"],
     // areas walked into at least once (enables fast-travel)
     tutorialStep: 0,
+    home: { ...DEFAULT_HOME },
+    // your camp tent — upgrade it along four tracks, in two styles
     metrics: freshMetrics(now)
   };
   await t.Player.put(player);
@@ -8866,7 +9574,7 @@ function freshSnapshot(created) {
 }
 function inventoryCapacity(player) {
   const tier = player.tools?.basket || 1;
-  return CAPACITY_BY_BASKET[tier] || 200;
+  return (CAPACITY_BY_BASKET[tier] || 200) + homeCarryBonus(player);
 }
 function placementCounts(placements, d) {
   const now = Date.now();
@@ -9221,7 +9929,7 @@ async function snapshot(playerId) {
   const d = await defs();
   let player = await t.Player.get(playerId);
   const areaBiome = d.biome.get(player?.area);
-  if (player && (!areaBiome || !areaBiome.explorable)) {
+  if (player && player.area !== "home" && (!areaBiome || !areaBiome.explorable)) {
     player = { ...player, area: "meadow", x: 10.5, y: 6.5 };
   }
   const [biomeStates, placements, chests, discoveries, nodeStates, terrain, achievementRows, feedRows] = await Promise.all([
@@ -9422,6 +10130,8 @@ var GameData = class extends PublicEndpoint {
       habitatObjects: d.objects,
       tools: d.tools,
       achievements: d.achievements,
+      homeStyles: HOME_STYLES,
+      homeTracks: HOME_TRACKS,
       nodeRegenSeconds: NODE_REGEN_SECONDS,
       appearanceOptions: {
         skins: SKIN_TONES,
@@ -9489,7 +10199,7 @@ var LoginPlayer = class extends PublicEndpoint {
     if (!await verifyPasscode(player, passcode)) throw new GameError("That passcode doesn't match this save", 403);
     const d = await defs();
     const areaBiome = d.biome.get(player.area);
-    if (!areaBiome || !areaBiome.explorable) {
+    if (player.area === "home" || !areaBiome || !areaBiome.explorable) {
       await db().Player.patch(playerId, { area: "meadow", x: 10.5, y: 6.5 });
     }
     const now = Date.now();
@@ -9604,7 +10314,10 @@ var CraftItem = class extends PublicEndpoint {
     if (outObj?.plantable) {
       throw new GameError(`${recipe.name} is planted, not crafted \u2014 dig a bed, water it, and plant it.`, 400);
     }
-    const devUnlock = !!player.devUnlockAll && playerId === DEV_PLAYER;
+    if (!player.devUnlockAll && outObj?.homeMin && (homeOf(player).space || 1) < outObj.homeMin) {
+      throw new GameError(`${recipe.name} needs a proper house \u2014 upgrade your home's Space first.`, 403);
+    }
+    const devUnlock = !!player.devUnlockAll;
     if (!devUnlock && recipe.unlockBiome && !(player.unlockedBiomes || []).includes(recipe.unlockBiome)) {
       throw new GameError("This recipe unlocks with a biome you have not restored yet", 403);
     }
@@ -9649,11 +10362,20 @@ var PlaceObject = class extends PublicEndpoint {
     if (!Number.isFinite(tx) || !Number.isFinite(ty) || tx < 1 || ty < 1 || tx > 28 || ty > 18) {
       throw new GameError("That spot is out of reach");
     }
-    const biome = d.biome.get(area);
-    if (!biome) throw new GameError(`Unknown area: ${area}`);
-    if (!(player.unlockedBiomes || []).includes(area)) throw new GameError(`${biome.name} is not unlocked yet`, 403);
-    if (def.placement === "indoor") throw new GameError(`${def.name} cannot be placed out in the preserve`);
-    if (!(def.biomes || []).includes(area)) throw new GameError(`${def.name} does not suit the ${biome.name} habitat`);
+    if (area === "home") {
+      if (def.placement === "outdoor") throw new GameError(`${def.name} belongs out in the preserve, not indoors`);
+      if (def.homeMin && (homeOf(player).space || 1) < def.homeMin) {
+        throw new GameError(`${def.name} needs a bigger home \u2014 upgrade your home's Space first.`, 403);
+      }
+      const r = homeRoom(player);
+      if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1) throw new GameError("Place it on the floor inside your home");
+    } else {
+      const biome = d.biome.get(area);
+      if (!biome) throw new GameError(`Unknown area: ${area}`);
+      if (!(player.unlockedBiomes || []).includes(area)) throw new GameError(`${biome.name} is not unlocked yet`, 403);
+      if (def.placement === "indoor") throw new GameError(`${def.name} cannot be placed out in the preserve`);
+      if (!(def.biomes || []).includes(area)) throw new GameError(`${def.name} does not suit the ${biome.name} habitat`);
+    }
     if (def.requiresTool && (player.tools?.[def.requiresTool.id] || 1) < def.requiresTool.tier) {
       throw new GameError(`Placing ${def.name} requires an upgraded ${d.tool.get(def.requiresTool.id)?.name || def.requiresTool.id}`, 403);
     }
@@ -9661,14 +10383,14 @@ var PlaceObject = class extends PublicEndpoint {
     if (placements.some((p) => p.area === area && p.x === tx && p.y === ty)) {
       throw new GameError("That spot is already taken", 409);
     }
-    const tileHere = await findOwned(t.TerrainTile, playerId, `${playerId}:${area}:${tx}:${ty}`);
+    const tileHere = area === "home" ? null : await findOwned(t.TerrainTile, playerId, `${playerId}:${area}:${tx}:${ty}`);
     if (tileHere && tileHere.playerId === playerId) {
       if (tileHere.type === "water") {
         if (!def.bridge) throw new GameError("That is open water \u2014 a wooden bridge can span it", 409);
       } else {
         throw new GameError("That soil bed is for planting \u2014 or clear it with the shovel", 409);
       }
-    } else if (def.bridge) {
+    } else if (def.bridge && area !== "home") {
       throw new GameError("Bridges go over open water \u2014 flood a channel first", 409);
     }
     const craftedItems = { ...player.craftedItems || {} };
@@ -9689,6 +10411,11 @@ var PlaceObject = class extends PublicEndpoint {
         capacity: def.chestCapacity || 60,
         contents: {}
       });
+    }
+    if (area === "home") {
+      await bumpMetrics(player, { objectsPlaced: 1 });
+      await awardAchievements(playerId);
+      return { ok: true, placement, craftedItems };
     }
     const recalc = await recalcBiome(playerId, area, {
       addPlacements: [placement],
@@ -9885,6 +10612,74 @@ var UpgradeTool = class extends PublicEndpoint {
     return { ok: true, tools, inventory, chests, usedFrom, unlockedBiomes, upgraded: { toolId, tier: nextTier.tier, name: nextTier.name } };
   }
 };
+var UpgradeHome = class extends PublicEndpoint {
+  async post(data) {
+    const { playerId, track } = await bodyOf(data);
+    const t = db();
+    const { player } = await requirePlayer(playerId);
+    const def = HOME_TRACKS[track];
+    if (!def) throw new GameError("Unknown home upgrade");
+    const home = homeOf(player);
+    if (!home.styleLocked) throw new GameError("Build your home in a style first.", 403);
+    const level = home[track] || 1;
+    const next = def.levels[level];
+    if (!next) throw new GameError(`Your home's ${def.name.toLowerCase()} is already at its finest.`);
+    if (next.requires?.biome) {
+      const bs = await findOwned(t.BiomeState, playerId, `${playerId}:${next.requires.biome}`);
+      if ((bs?.health || 0) < (next.requires.minHealth || 0)) {
+        const d = await defs();
+        const biome = d.biome.get(next.requires.biome);
+        throw new GameError(`Restore ${biome?.name || next.requires.biome} to ${next.requires.minHealth}% health first`, 403);
+      }
+    }
+    const { usedFrom, inventory } = await consumeMaterials(player, next.materials || {});
+    const updated = { ...home, [track]: level + 1 };
+    await t.Player.patch(playerId, { home: updated });
+    const chests = await byPlayer(t.Chest, playerId);
+    await awardAchievements(playerId);
+    return { ok: true, home: updated, inventory, chests, usedFrom, upgraded: { track, level: level + 1, name: def.name } };
+  }
+};
+var SLEEP_OBJECTS = ["home-sleeping-bag", "home-bed"];
+var Rest = class extends PublicEndpoint {
+  async post(data) {
+    const { playerId } = await bodyOf(data);
+    const t = db();
+    await requirePlayer(playerId);
+    const placements = await byPlayer(t.Placement, playerId);
+    if (!placements.some((p) => SLEEP_OBJECTS.includes(p.objectId))) {
+      throw new GameError("Craft and place a sleeping bag or bed in your home first.", 403);
+    }
+    const nodes = await byPlayer(t.NodeState, playerId);
+    for (const n of nodes) await t.NodeState.delete(n.id);
+    return { ok: true, rested: true, refreshed: nodes.length };
+  }
+};
+var SetHomeStyle = class extends PublicEndpoint {
+  async post(data) {
+    const { playerId, style } = await bodyOf(data);
+    const t = db();
+    const { player } = await requirePlayer(playerId);
+    const styleDef = HOME_STYLES[style];
+    if (!styleDef) throw new GameError("Unknown home style");
+    const home = homeOf(player);
+    if (home.styleLocked) throw new GameError("Your home is already built \u2014 choose upgrades from here.", 403);
+    if (styleDef.requires?.biome) {
+      const bs = await findOwned(t.BiomeState, playerId, `${playerId}:${styleDef.requires.biome}`);
+      if ((bs?.health || 0) < (styleDef.requires.minHealth || 0)) {
+        const d = await defs();
+        const biome = d.biome.get(styleDef.requires.biome);
+        throw new GameError(`Restore ${biome?.name || styleDef.requires.biome} to ${styleDef.requires.minHealth}% health first`, 403);
+      }
+    }
+    const { usedFrom, inventory } = await consumeMaterials(player, styleDef.materials || {});
+    const updated = { ...home, style, styleLocked: true, space: 2 };
+    await t.Player.patch(playerId, { home: updated });
+    const chests = await byPlayer(t.Chest, playerId);
+    await awardAchievements(playerId);
+    return { ok: true, home: updated, inventory, chests, usedFrom, built: HOME_STYLES[style].name };
+  }
+};
 var ObserveAnimal = class extends PublicEndpoint {
   async post(data) {
     const { playerId, animalId } = await bodyOf(data);
@@ -10002,7 +10797,9 @@ var SyncPlayer = class extends PublicEndpoint {
     if (Number.isInteger(tutorialStep) && tutorialStep >= 0 && tutorialStep <= 99) {
       patch.tutorialStep = tutorialStep;
     }
-    if (area) {
+    if (area === "home") {
+      patch.area = "home";
+    } else if (area) {
       const biome = d.biome.get(area);
       if (!biome) throw new GameError(`Unknown area: ${area}`);
       if (!(player.unlockedBiomes || []).includes(area)) {
@@ -10256,11 +11053,9 @@ var BiomeSnapshot = class extends PublicEndpoint {
     return { ok: true, playerId: id, areas };
   }
 };
-var DEV_PLAYER = "bailey";
 var DevTools = class extends PublicEndpoint {
   async post(data) {
     const { playerId, action, area, amount, value, resources } = await bodyOf(data);
-    if (playerId !== DEV_PLAYER) throw new GameError("Dev tools are restricted to the developer save", 403);
     const t = db();
     const d = await defs();
     const { player } = await requirePlayer(playerId);
@@ -10323,6 +11118,57 @@ var DevTools = class extends PublicEndpoint {
         await t.Player.patch(playerId, { unlockedBiomes: ids });
         for (const id of ids) await t.BiomeState.patch(`${playerId}:${id}`, { unlocked: true });
         log.push(`Unlocked all biomes (${ids.length})`);
+        break;
+      }
+      case "unlock-next": {
+        const sorted = [...d.biomes].sort((a, b) => (a.order || 0) - (b.order || 0));
+        const unlocked = new Set(player.unlockedBiomes || ["meadow"]);
+        const nextB = sorted.find((b) => !unlocked.has(b.id));
+        if (!nextB) {
+          log.push("Every biome is already unlocked");
+          break;
+        }
+        unlocked.add(nextB.id);
+        await t.Player.patch(playerId, { unlockedBiomes: [...unlocked] });
+        await t.BiomeState.patch(`${playerId}:${nextB.id}`, { unlocked: true });
+        await seedStartingTerrain(playerId, nextB.id);
+        log.push(`Unlocked the next area: ${nextB.name}`);
+        break;
+      }
+      case "relock-all": {
+        await t.Player.patch(playerId, { unlockedBiomes: ["meadow"] });
+        for (const b of d.biomes) await t.BiomeState.patch(`${playerId}:${b.id}`, { unlocked: b.id === "meadow" });
+        log.push("Re-locked every biome except the meadow");
+        break;
+      }
+      case "reset-tools": {
+        await t.Player.patch(playerId, { tools: { ...START_TOOLS } });
+        log.push("Tools reset to tier 1");
+        break;
+      }
+      case "build-home": {
+        const style = value && HOME_STYLES[value] ? value : "cabin";
+        const home = { ...homeOf(player), style, space: Math.max(2, homeOf(player).space || 1), styleLocked: true };
+        await t.Player.patch(playerId, { home });
+        log.push(`Built home: ${HOME_STYLES[style].name}`);
+        break;
+      }
+      case "max-home": {
+        const home = {
+          style: value && HOME_STYLES[value] ? value : homeOf(player).style || "cabin",
+          space: HOME_TRACKS.space.levels.length,
+          comfort: HOME_TRACKS.comfort.levels.length,
+          decor: HOME_TRACKS.decor.levels.length,
+          light: HOME_TRACKS.light.levels.length,
+          styleLocked: true
+        };
+        await t.Player.patch(playerId, { home });
+        log.push("Home maxed on every track");
+        break;
+      }
+      case "reset-home": {
+        await t.Player.patch(playerId, { home: { ...DEFAULT_HOME } });
+        log.push("Home reset to the starter tent");
         break;
       }
       case "set-health": {
@@ -10424,8 +11270,11 @@ export {
   Plant,
   RecalcBiome,
   RemoveObject,
+  Rest,
+  SetHomeStyle,
   SyncPlayer,
   Terraform,
   UpdateAppearance,
+  UpgradeHome,
   UpgradeTool
 };

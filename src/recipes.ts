@@ -23,6 +23,9 @@ export function recipeUnlocked(recipe: RecipeDef, data: GameData, state: GameSta
 	if (obj?.plantable) return false;
 	// dev override: every recipe is craftable (still never the plantables above)
 	if (player.devUnlockAll) return true;
+	// indoor furniture that needs a proper house can't be crafted until your home's
+	// Space is upgraded that far (a tent only fits the basics)
+	if (obj?.homeMin && (player.home?.space || 1) < obj.homeMin) return false;
 	// the recipe's biome must be open at all
 	if (recipe.unlockBiome && !player.unlockedBiomes.includes(recipe.unlockBiome)) return false;
 	const u = recipe.unlock;

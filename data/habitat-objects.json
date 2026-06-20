@@ -920,7 +920,7 @@
 			],
 			"shape": "coralgarden",
 			"color": "#e58b6f",
-			"description": "Transplanted coral rubble that grows back into a living reef — food and shelter for the whole tideline."
+			"description": "Transplanted coral rubble that grows back into a living reef \u2014 food and shelter for the whole tideline."
 		},
 		{
 			"id": "sea-glass-lantern",
@@ -933,7 +933,7 @@
 			"needs": [],
 			"shape": "seaglasslantern",
 			"color": "#8fc6c2",
-			"description": "Beach-found glass set into a driftwood frame — it throws soft sea-green light at dusk."
+			"description": "Beach-found glass set into a driftwood frame \u2014 it throws soft sea-green light at dusk."
 		},
 		{
 			"id": "tide-chime",
@@ -959,7 +959,7 @@
 			"needs": [],
 			"shape": "pearldisplay",
 			"color": "#f2ece0",
-			"description": "A polished shell cradle showing off the rarest pearls the shore gives up — the pride of a restored coast."
+			"description": "A polished shell cradle showing off the rarest pearls the shore gives up \u2014 the pride of a restored coast."
 		},
 		{
 			"id": "sea-glass-path",
@@ -974,7 +974,7 @@
 			],
 			"shape": "seaglasspath",
 			"color": "#8fc6c2",
-			"description": "Tumbled sea glass pressed into the sand — a glittering walkway that keeps boots off the dunes."
+			"description": "Tumbled sea glass pressed into the sand \u2014 a glittering walkway that keeps boots off the dunes."
 		},
 		{
 			"id": "small-chest",
@@ -2031,7 +2031,7 @@
 		{
 			"id": "birdhouse",
 			"name": "Birdhouse",
-			"placement": "both",
+			"placement": "outdoor",
 			"biomes": [
 				"meadow",
 				"forest",
@@ -2525,6 +2525,258 @@
 			"isChest": true,
 			"chestCapacity": 500,
 			"description": "A big iron-banded storage chest. Holds 500 materials \u2014 your main stockpile."
+		},
+		{
+			"id": "home-rug",
+			"name": "Woven Rug",
+			"placement": "indoor",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "rug",
+			"color": "#b5707a",
+			"description": "A soft woven rug to warm the floor of your home."
+		},
+		{
+			"id": "home-table",
+			"name": "Little Table",
+			"placement": "indoor",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "table",
+			"color": "#8a6a48",
+			"description": "A small wooden table with a sprig of flowers."
+		},
+		{
+			"id": "home-bed",
+			"name": "Cozy Bed",
+			"placement": "indoor",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "bed",
+			"color": "#7a9ac0",
+			"description": "A comfortable bed for resting between restoration days.",
+			"homeMin": 2
+		},
+		{
+			"id": "home-bookshelf",
+			"name": "Bookshelf",
+			"placement": "indoor",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "bookshelf",
+			"color": "#6e4a33",
+			"description": "A shelf of field guides and well-thumbed nature books.",
+			"homeMin": 2
+		},
+		{
+			"id": "home-armchair",
+			"name": "Cozy Armchair",
+			"placement": "indoor",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "armchair",
+			"color": "#a86f80",
+			"description": "A plush armchair to sink into after a long day's restoring.",
+			"homeMin": 2
+		},
+		{
+			"id": "home-fireplace",
+			"name": "Stone Fireplace",
+			"placement": "indoor",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "fireplace",
+			"color": "#8e8e8a",
+			"description": "A crackling stone hearth that warms the whole room.",
+			"homeMin": 2
+		},
+		{
+			"id": "home-lamp",
+			"name": "Floor Lamp",
+			"placement": "indoor",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "lamp",
+			"color": "#f3d98a",
+			"description": "A soft floor lamp for cozy evenings indoors."
+		},
+		{
+			"id": "home-potplant",
+			"name": "House Plant",
+			"placement": "indoor",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "potplant",
+			"color": "#4f7d3a",
+			"description": "A leafy potted plant to bring a little of the meadow inside."
+		},
+		{
+			"id": "home-painting",
+			"name": "Framed Landscape",
+			"placement": "indoor",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "painting",
+			"color": "#caa15e",
+			"description": "A framed painting of the preserve at its finest."
+		},
+		{
+			"id": "home-sleeping-bag",
+			"name": "Sleeping Bag",
+			"placement": "indoor",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "sleepingbag",
+			"color": "#5b7d9a",
+			"description": "A simple sleeping bag \u2014 just the thing for a cozy night in the tent."
+		},
+		{
+			"id": "home-cushions",
+			"name": "Floor Cushions",
+			"placement": "indoor",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "cushions",
+			"color": "#c98a6a",
+			"description": "A pile of soft floor cushions for lounging."
+		},
+		{
+			"id": "home-stool",
+			"name": "Wooden Stool",
+			"placement": "indoor",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "stool",
+			"color": "#a86f80",
+			"description": "A simple cushioned stool."
+		},
+		{
+			"id": "home-mushroomshelf",
+			"name": "Mushroom Shelf",
+			"placement": "indoor",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "mushroomshelf",
+			"color": "#7a5a3a",
+			"description": "A little shelf dotted with woodland mushrooms."
+		},
+		{
+			"id": "home-reedmat",
+			"name": "Reed Floor Mat",
+			"placement": "indoor",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "reedmat",
+			"color": "#b9a06a",
+			"description": "A woven reed mat from the marsh."
+		},
+		{
+			"id": "home-cactuspot",
+			"name": "Potted Cactus",
+			"placement": "indoor",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "cactuspot",
+			"color": "#4f8a4a",
+			"description": "A hardy little cactus in a clay pot."
+		},
+		{
+			"id": "home-driftwoodshelf",
+			"name": "Driftwood Shelf",
+			"placement": "indoor",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "driftwoodshelf",
+			"color": "#b6a68c",
+			"description": "A shelf of weathered driftwood with beach finds."
+		},
+		{
+			"id": "home-wallclock",
+			"name": "Wall Clock",
+			"placement": "indoor",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "wallclock",
+			"color": "#6e4a33",
+			"description": "A handsome wall clock \u2014 a house needs one.",
+			"homeMin": 2
+		},
+		{
+			"id": "home-dresser",
+			"name": "Wooden Dresser",
+			"placement": "indoor",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "dresser",
+			"color": "#8a6a48",
+			"description": "A sturdy chest of drawers.",
+			"homeMin": 2
+		},
+		{
+			"id": "home-peltrug",
+			"name": "Woolly Rug",
+			"placement": "indoor",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "peltrug",
+			"color": "#caa15e",
+			"description": "A thick, warm rug for cold mountain nights.",
+			"homeMin": 2
+		},
+		{
+			"id": "home-chandelier",
+			"name": "Antler Chandelier",
+			"placement": "indoor",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "chandelier",
+			"color": "#caa15e",
+			"description": "A grand candle chandelier \u2014 fit for a lodge.",
+			"homeMin": 3
+		},
+		{
+			"id": "home-aquarium",
+			"name": "Aquarium",
+			"placement": "indoor",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "aquarium",
+			"color": "#7fb4d8",
+			"description": "A glass tank of darting little fish.",
+			"homeMin": 3
+		},
+		{
+			"id": "home-telescope",
+			"name": "Stargazing Telescope",
+			"placement": "indoor",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "telescope",
+			"color": "#5a6b7a",
+			"description": "A brass telescope for the clear mountain sky.",
+			"homeMin": 3
 		}
 	]
 }

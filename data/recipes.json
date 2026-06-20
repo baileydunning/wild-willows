@@ -1432,7 +1432,7 @@
 		{
 			"id": "birdhouse",
 			"name": "Birdhouse",
-			"category": "home",
+			"category": "structure",
 			"unlockBiome": "meadow",
 			"output": {
 				"itemId": "birdhouse",
@@ -2029,6 +2029,396 @@
 				"minHealth": 60,
 				"requiresCrafted": "medium-chest",
 				"label": "Restore Redstone Scrubland to 60% health and craft a Medium Chest first"
+			}
+		},
+		{
+			"id": "home-rug",
+			"name": "Woven Rug",
+			"category": "home",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "home-rug",
+				"qty": 1
+			},
+			"materials": {
+				"fiber": 6
+			},
+			"unlock": {
+				"minHealth": 10,
+				"label": "Restore Willow Meadow to 10% health"
+			}
+		},
+		{
+			"id": "home-table",
+			"name": "Little Table",
+			"category": "home",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "home-table",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 6,
+				"fiber": 2
+			},
+			"unlock": {
+				"minHealth": 15,
+				"label": "Restore Willow Meadow to 15% health"
+			}
+		},
+		{
+			"id": "home-bed",
+			"name": "Cozy Bed",
+			"category": "home",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "home-bed",
+				"qty": 1
+			},
+			"materials": {
+				"fiber": 8,
+				"branches": 4
+			},
+			"unlock": {
+				"minHealth": 20,
+				"label": "Restore Willow Meadow to 20% health"
+			}
+		},
+		{
+			"id": "home-bookshelf",
+			"name": "Bookshelf",
+			"category": "home",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "home-bookshelf",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 8,
+				"fiber": 3
+			},
+			"unlock": {
+				"minHealth": 30,
+				"label": "Restore Willow Meadow to 30% health"
+			}
+		},
+		{
+			"id": "home-armchair",
+			"name": "Cozy Armchair",
+			"category": "home",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "home-armchair",
+				"qty": 1
+			},
+			"materials": {
+				"fiber": 7,
+				"branches": 3
+			},
+			"unlock": {
+				"minHealth": 18,
+				"label": "Restore Willow Meadow to 18% health"
+			}
+		},
+		{
+			"id": "home-fireplace",
+			"name": "Stone Fireplace",
+			"category": "home",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "home-fireplace",
+				"qty": 1
+			},
+			"materials": {
+				"stones": 8,
+				"clay": 3
+			},
+			"unlock": {
+				"minHealth": 25,
+				"label": "Restore Willow Meadow to 25% health"
+			}
+		},
+		{
+			"id": "home-lamp",
+			"name": "Floor Lamp",
+			"category": "home",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "home-lamp",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 4,
+				"fiber": 3
+			},
+			"unlock": {
+				"minHealth": 12,
+				"label": "Restore Willow Meadow to 12% health"
+			}
+		},
+		{
+			"id": "home-potplant",
+			"name": "House Plant",
+			"category": "home",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "home-potplant",
+				"qty": 1
+			},
+			"materials": {
+				"clay": 3,
+				"wildflowers": 2
+			},
+			"unlock": {
+				"minHealth": 8,
+				"label": "Restore Willow Meadow to 8% health"
+			}
+		},
+		{
+			"id": "home-painting",
+			"name": "Framed Landscape",
+			"category": "home",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "home-painting",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 4,
+				"fiber": 4
+			},
+			"unlock": {
+				"minHealth": 22,
+				"label": "Restore Willow Meadow to 22% health"
+			}
+		},
+		{
+			"id": "home-sleeping-bag",
+			"name": "Sleeping Bag",
+			"category": "home",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "home-sleeping-bag",
+				"qty": 1
+			},
+			"materials": {
+				"fiber": 4
+			},
+			"unlock": {
+				"minHealth": 5,
+				"label": "Restore Willow Meadow to 5% health"
+			}
+		},
+		{
+			"id": "home-cushions",
+			"name": "Floor Cushions",
+			"category": "home",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "home-cushions",
+				"qty": 1
+			},
+			"materials": {
+				"fiber": 5
+			},
+			"unlock": {
+				"minHealth": 10,
+				"label": "Restore that biome to 10% health"
+			}
+		},
+		{
+			"id": "home-stool",
+			"name": "Wooden Stool",
+			"category": "home",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "home-stool",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 4
+			},
+			"unlock": {
+				"minHealth": 14,
+				"label": "Restore that biome to 14% health"
+			}
+		},
+		{
+			"id": "home-mushroomshelf",
+			"name": "Mushroom Shelf",
+			"category": "home",
+			"unlockBiome": "forest",
+			"output": {
+				"itemId": "home-mushroomshelf",
+				"qty": 1
+			},
+			"materials": {
+				"mushrooms": 4,
+				"branches": 4
+			},
+			"unlock": {
+				"minHealth": 45,
+				"label": "Restore that biome to 45% health"
+			}
+		},
+		{
+			"id": "home-reedmat",
+			"name": "Reed Floor Mat",
+			"category": "home",
+			"unlockBiome": "wetland",
+			"output": {
+				"itemId": "home-reedmat",
+				"qty": 1
+			},
+			"materials": {
+				"reeds": 6
+			},
+			"unlock": {
+				"minHealth": 30,
+				"label": "Restore that biome to 30% health"
+			}
+		},
+		{
+			"id": "home-cactuspot",
+			"name": "Potted Cactus",
+			"category": "home",
+			"unlockBiome": "desert",
+			"output": {
+				"itemId": "home-cactuspot",
+				"qty": 1
+			},
+			"materials": {
+				"sand": 4,
+				"clay": 3
+			},
+			"unlock": {
+				"minHealth": 30,
+				"label": "Restore that biome to 30% health"
+			}
+		},
+		{
+			"id": "home-driftwoodshelf",
+			"name": "Driftwood Shelf",
+			"category": "home",
+			"unlockBiome": "coastal",
+			"output": {
+				"itemId": "home-driftwoodshelf",
+				"qty": 1
+			},
+			"materials": {
+				"driftwood": 5
+			},
+			"unlock": {
+				"minHealth": 30,
+				"label": "Restore that biome to 30% health"
+			}
+		},
+		{
+			"id": "home-wallclock",
+			"name": "Wall Clock",
+			"category": "home",
+			"unlockBiome": "meadow",
+			"output": {
+				"itemId": "home-wallclock",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 5,
+				"stones": 3
+			},
+			"unlock": {
+				"minHealth": 40,
+				"label": "Restore that biome to 40% health"
+			}
+		},
+		{
+			"id": "home-dresser",
+			"name": "Wooden Dresser",
+			"category": "home",
+			"unlockBiome": "forest",
+			"output": {
+				"itemId": "home-dresser",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 10,
+				"bark": 4
+			},
+			"unlock": {
+				"minHealth": 30,
+				"label": "Restore that biome to 30% health"
+			}
+		},
+		{
+			"id": "home-peltrug",
+			"name": "Woolly Rug",
+			"category": "home",
+			"unlockBiome": "alpine",
+			"output": {
+				"itemId": "home-peltrug",
+				"qty": 1
+			},
+			"materials": {
+				"lichen": 4,
+				"moss": 4
+			},
+			"unlock": {
+				"minHealth": 35,
+				"label": "Restore that biome to 35% health"
+			}
+		},
+		{
+			"id": "home-chandelier",
+			"name": "Antler Chandelier",
+			"category": "home",
+			"unlockBiome": "forest",
+			"output": {
+				"itemId": "home-chandelier",
+				"qty": 1
+			},
+			"materials": {
+				"branches": 8,
+				"bark": 6
+			},
+			"unlock": {
+				"minHealth": 60,
+				"label": "Restore that biome to 60% health"
+			}
+		},
+		{
+			"id": "home-aquarium",
+			"name": "Aquarium",
+			"category": "home",
+			"unlockBiome": "wetland",
+			"output": {
+				"itemId": "home-aquarium",
+				"qty": 1
+			},
+			"materials": {
+				"clean-water": 4,
+				"clay": 6
+			},
+			"unlock": {
+				"minHealth": 65,
+				"label": "Restore that biome to 65% health"
+			}
+		},
+		{
+			"id": "home-telescope",
+			"name": "Stargazing Telescope",
+			"category": "home",
+			"unlockBiome": "alpine",
+			"output": {
+				"itemId": "home-telescope",
+				"qty": 1
+			},
+			"materials": {
+				"quartz-crystal": 2,
+				"branches": 4
+			},
+			"unlock": {
+				"minHealth": 55,
+				"label": "Restore that biome to 55% health"
 			}
 		}
 	]

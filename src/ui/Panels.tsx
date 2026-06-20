@@ -216,8 +216,8 @@ export function ChestPanel() {
 export function CraftingPanel() {
 	const { data, state, setPanel, craft, startPlacement, notify } = useGame();
 	const linked = useLinkedChests();
-	// default the Place filter to the biome you're standing in, so the menu shows
-	// what you can actually build right here
+	// default the Place filter to where you're standing — indoors, a dedicated "home"
+	// filter shows only the camp comforts & furniture you can place inside
 	const [placeFilter, setPlaceFilter] = useState(state?.player.area || 'all');
 	const [typeFilter, setTypeFilter] = useState('all');
 	if (!data || !state) return null;
@@ -249,9 +249,14 @@ export function CraftingPanel() {
 	// stay hidden until earned, then announce themselves with a toast.
 	const unlocked = data.recipes.filter((r) => recipeUnlocked(r, data, state));
 	const visible = unlocked
-		// non-placeable items (restoration kits) aren't tied to any area, so they
-		// always show regardless of the Place filter — never hidden behind it.
-		.filter((r) => placeFilter === 'all' || objOf(r)?.placement === 'none' || (objOf(r)?.biomes || []).includes(placeFilter))
+		// "home" shows only indoor-placeable decor; a biome shows what fits there plus
+		// the area-less kits; "all" shows everything.
+		.filter((r) => {
+			const o = objOf(r);
+			if (placeFilter === 'all') return true;
+			if (placeFilter === 'home') return o?.placement === 'indoor' || o?.placement === 'both';
+			return o?.placement === 'none' || (o?.biomes || []).includes(placeFilter);
+		})
 		.filter((r) => typeFilter === 'all' || r.category === typeFilter)
 		.sort((a, b) => catRank(a.category) - catRank(b.category) || a.name.localeCompare(b.name));
 	const categories = [...new Set(visible.map((r) => r.category))].sort((a, b) => catRank(a) - catRank(b));
@@ -277,6 +282,7 @@ export function CraftingPanel() {
 				<label htmlFor="craft-place">Place:</label>
 				<select id="craft-place" value={placeFilter} onChange={(e) => setPlaceFilter(e.target.value)}>
 					<option value="all">All areas</option>
+					<option value="home">Inside your home</option>
 					{filterAreas.map((b) => (
 						<option key={b.id} value={b.id}>{b.name}</option>
 					))}
@@ -294,10 +300,20 @@ export function CraftingPanel() {
 					<b>Ready to place:</b>
 					{placeable.map(([id, qty]) => {
 						const def = data.habitatObjects.find((o) => o.id === id);
-						const here = (def?.biomes || []).includes(player.area);
+						const indoorOK = def?.placement === 'indoor' || def?.placement === 'both';
+						const homeSpace = player.home?.space || 1;
+						const homeBigEnough = !def?.homeMin || homeSpace >= def.homeMin;
+						const here = player.area === 'home'
+							? (indoorOK && homeBigEnough)
+							: ((def?.biomes || []).includes(player.area) && def?.placement !== 'indoor');
 						if (!here) {
-							const where = (def?.biomes || []).map((b) => data.biomes.find((x) => x.id === b)?.name || b).join(', ');
-							const msg = `${def?.name} can't be placed in ${areaName} — try: ${where || 'another area'}`;
+							const msg = player.area === 'home'
+								? (!indoorOK
+									? `${def?.name} belongs out in the preserve, not in your home.`
+									: `${def?.name} needs a bigger home — upgrade your home's Space first.`)
+								: def?.placement === 'indoor'
+									? `${def?.name} is for inside your home — step into your camp tent to place it.`
+									: `${def?.name} can't be placed in ${areaName} — try: ${(def?.biomes || []).map((b) => data.biomes.find((x) => x.id === b)?.name || b).join(', ') || 'another area'}`;
 							return (
 								<button key={id} className="cant-place" title={msg} onClick={() => notify(msg, 'info')}>
 									{def?.name} ×{qty}
@@ -470,6 +486,110 @@ export function BiomesPanel() {
 						>
 							<Icon name={isHere ? 'pin' : 'walk'} size={18} />
 						</button>
+					</div>
+				);
+			})}
+		</Panel>
+	);
+}
+
+export function HomePanel() {
+	const { data, state, setPanel, upgradeHome, setHomeStyle } = useGame();
+	const linked = useLinkedChests();
+	if (!data || !state) return null;
+	const home = state.player.home || { style: 'cabin', space: 1, comfort: 1, decor: 1, light: 1, styleLocked: false };
+	const styleLocked = !!home.styleLocked;
+	const styles = data.homeStyles || {};
+	const tracks = data.homeTracks || {};
+	const avail = (id: string) => (state.player.inventory?.[id] || 0) + linked.reduce((s, c) => s + (c.contents?.[id] || 0), 0);
+	const biomeName = (id: string) => data.biomes.find((b) => b.id === id)?.name || id;
+	const biomeHealth = (id: string) => state.biomeStates.find((b) => b.biomeId === id)?.health || 0;
+
+	const TRACK_ORDER = ['space', 'comfort', 'decor', 'light'];
+
+	// Stage 1 — still a tent: choose a style to build your house (the first upgrade).
+	// Each style costs its own materials (wood for the cabin, stone for the hearth…).
+	if (!styleLocked) {
+		return (
+			<Panel title="Build Your Home" icon="home" onClose={() => setPanel(null)} wide>
+				<p className="muted">
+					Your home is still a canvas tent. Choose a style to build it into a proper house — each is built from
+					its own materials, this sets its look for good, and it opens up upgrade tracks afterward.
+				</p>
+				<div className="home-styles">
+					{Object.entries(styles).map(([id, s]) => {
+						const mats = s.materials || {};
+						const gateMet = !s.requires || biomeHealth(s.requires.biome) >= s.requires.minHealth;
+						const afford = Object.entries(mats).every(([rid, q]) => avail(rid) >= (q as number));
+						return (
+							<div className={`recipe ${gateMet && afford ? '' : 'recipe-off'}`} key={id}>
+								<div className="grow">
+									<span className="home-style-swatch lg" style={{ background: s.floor, borderColor: s.wall, verticalAlign: 'middle', display: 'inline-block', marginRight: 8 }} />
+									<b>{s.name}</b>
+									<div className="mats">
+										{Object.entries(mats).map(([rid, q]) => (
+											<span key={rid} className={`mat ${avail(rid) >= (q as number) ? 'mat-ok' : 'mat-no'}`}>
+												<span className="swatch" style={{ background: resColor(data, rid) }} />
+												{resName(data, rid)} {Math.min(avail(rid), q as number)}/{q as number}
+											</span>
+										))}
+									</div>
+									{s.requires && !gateMet && (
+										<div className="small unlock-req">
+											<b>Needs:</b> {biomeName(s.requires.biome)} at {s.requires.minHealth}% (now {biomeHealth(s.requires.biome)}%)
+										</div>
+									)}
+								</div>
+								<button disabled={!gateMet || !afford} onClick={() => setHomeStyle(id)}>Build</button>
+							</div>
+						);
+					})}
+				</div>
+			</Panel>
+		);
+	}
+
+	// Stage 2 — built: show the chosen style and the four upgrade tracks.
+	return (
+		<Panel title="Your Home" icon="home" onClose={() => setPanel(null)} wide>
+			<p className="muted">
+				Your <b>{styles[home.style]?.name || 'home'}</b> is built. Decorate it with crafted camp comforts (step
+				inside), and upgrade it along its upgrade tracks.
+			</p>
+			<h3>Upgrades</h3>
+			{TRACK_ORDER.filter((k) => tracks[k]).map((key) => {
+				const def = tracks[key];
+				const level = (home as any)[key] || 1;
+				const maxLevel = def.levels.length;
+				const next = def.levels[level]; // the (level+1)th entry
+				const gateMet = !next?.requires || biomeHealth(next.requires.biome) >= next.requires.minHealth;
+				const canAfford = !next || Object.entries(next.materials || {}).every(([id, q]) => avail(id) >= q);
+				return (
+					<div className={`recipe ${!next || (gateMet && canAfford) ? '' : 'recipe-off'}`} key={key}>
+						<div className="grow">
+							<b>{def.name}</b> <span className="muted small">· level {level}/{maxLevel}</span>
+							<div className="muted small">{def.blurb}</div>
+							{next ? (
+								<>
+									<div className="mats">
+										{Object.entries(next.materials || {}).map(([id, q]) => (
+											<span key={id} className={`mat ${avail(id) >= q ? 'mat-ok' : 'mat-no'}`}>
+												<span className="swatch" style={{ background: resColor(data, id) }} />
+												{resName(data, id)} {Math.min(avail(id), q)}/{q}
+											</span>
+										))}
+									</div>
+									{next.requires && !gateMet && (
+										<div className="small unlock-req">
+											<b>Needs:</b> {biomeName(next.requires.biome)} at {next.requires.minHealth}% (now {biomeHealth(next.requires.biome)}%)
+										</div>
+									)}
+								</>
+							) : (
+								<div className="muted small">Maxed out.</div>
+							)}
+						</div>
+						{next && <button disabled={!gateMet || !canAfford} onClick={() => upgradeHome(key)}>Upgrade</button>}
 					</div>
 				);
 			})}

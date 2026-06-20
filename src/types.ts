@@ -88,6 +88,9 @@ export interface HabitatObjectDef {
 	plantCost?: Record<string, number>;
 	growSeconds?: number;
 	bridge?: boolean;
+	/** Indoor items: minimum home size (Space track level) needed to place — a tent
+	 * fits the basics; a fireplace needs a proper house. */
+	homeMin?: number;
 }
 
 export interface ToolTier {
@@ -118,6 +121,38 @@ export interface AchievementDef {
 	hint: string;
 }
 
+export interface HomeStyleDef {
+	name: string;
+	floor: string;
+	wall: string;
+	accent: string;
+	materials?: Record<string, number>;
+	requires?: { biome: string; minHealth: number };
+}
+
+export interface HomeTrackLevel {
+	inner?: { w: number; h: number };
+	carry?: number;
+	materials?: Record<string, number>;
+	requires?: { biome: string; minHealth: number };
+}
+
+export interface HomeTrackDef {
+	name: string;
+	blurb: string;
+	levels: HomeTrackLevel[];
+}
+
+export interface HomeConfig {
+	style: string;
+	space: number;
+	comfort: number;
+	decor: number;
+	light: number;
+	/** Once you make your first upgrade, your style direction locks in. */
+	styleLocked?: boolean;
+}
+
 export interface AppearanceOptions {
 	skins: string[];
 	hair: string[];
@@ -144,6 +179,8 @@ export interface GameData {
 	habitatObjects: HabitatObjectDef[];
 	tools: ToolDef[];
 	achievements: AchievementDef[];
+	homeStyles: Record<string, HomeStyleDef>;
+	homeTracks: Record<string, HomeTrackDef>;
 	nodeRegenSeconds: number;
 	appearanceOptions: AppearanceOptions;
 }
@@ -163,6 +200,8 @@ export interface Player {
 	/** Areas the player has physically walked into at least once (enables fast-travel). */
 	visitedBiomes?: string[];
 	tutorialStep?: number;
+	/** Home interior config: style direction + four upgrade-track levels. */
+	home?: HomeConfig;
 	/** Dev-only: when true, every recipe is craftable regardless of progress gates. */
 	devUnlockAll?: boolean;
 }
@@ -244,6 +283,7 @@ export type PanelId =
 	| 'biomes'
 	| 'achievements'
 	| 'feed'
+	| 'home'
 	| 'animal'
 	| 'settings'
 	| null;

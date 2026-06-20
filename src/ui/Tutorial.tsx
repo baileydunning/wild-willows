@@ -150,9 +150,16 @@ const STEPS: StepDef[] = [
 	{
 		icon: 'star',
 		title: 'Your first star',
-		text: 'That’s the whole loop — and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don’t come easy. Find them all in the new Achievements menu (press K) — recent unlocks rise to the top. Now the preserve is yours: gather, build, and bring it back to life.',
-		touchText: 'That’s the whole loop — and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don’t come easy. Find them all in the new Achievements menu (the star button) — recent unlocks rise to the top. Now the preserve is yours: gather, build, and bring it back to life.',
-		done: () => false, // info finale — advance with Finish
+		text: 'That’s the whole loop — and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don’t come easy. Find them all in the new Achievements menu (press K) — recent unlocks rise to the top. One last comfort to show you →',
+		touchText: 'That’s the whole loop — and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don’t come easy. Find them all in the new Achievements menu (the star button) — recent unlocks rise to the top. One last comfort to show you →',
+		done: () => false, // info step — advance with Next
+	},
+	{
+		icon: 'home',
+		title: 'Make yourself at home',
+		text: 'Last thing — walk back to your camp tent and press E to step inside your home. It’s yours to decorate with crafted camp comforts, and the sign by the tent upgrades it bigger and cozier (and lets you carry more). Step inside now, and the preserve is all yours — happy restoring!',
+		touchText: 'Last thing — walk back to your camp tent and tap it to step inside your home. It’s yours to decorate with crafted camp comforts, and the sign by the tent upgrades it bigger and cozier. Step inside now, and the preserve is all yours — happy restoring!',
+		done: ({ state }) => state?.player?.area === 'home',
 	},
 ];
 

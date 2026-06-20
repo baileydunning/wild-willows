@@ -166,6 +166,81 @@ const FIRST_ANIMAL_ID = 'grasshopper';
 // How many activity-feed messages we keep per player (the feed is pruned to this
 // on every append so the table never grows unbounded as people play).
 const FEED_CAP = 100;
+
+// ----------------------------------------------------------- the home
+// A personal interior (area id 'home') you step into from your camp tent, decorate
+// with indoor "camp comfort" items, and upgrade. The home upgrades along FOUR
+// independent tracks (Space, Comfort, Furnishings, Warmth) — you can pour
+// materials into whichever you like — and you can take it in one of TWO style
+// directions (a warm Woodland Cabin or a bright Meadow Cottage) that restyle the
+// floor and walls. Space sets the room size; Comfort is the functional perk (a
+// flat carry-capacity bonus); Furnishings and Warmth add cosmetic flourishes.
+// Each style is built from materials that suit it: a log cabin from wood, a cottage
+// from fiber and flowers, a stone hearth from stone. All buildable from the meadow.
+const HOME_BUILD_GATE = { biome: 'meadow', minHealth: 30 };
+const HOME_STYLES: Record<string, { name: string; floor: string; wall: string; accent: string; materials: Record<string, number>; requires: { biome: string; minHealth: number } }> = {
+	cabin: { name: 'Log Cabin', floor: '#c8a064', wall: '#5e3f29', accent: '#b5707a', materials: { branches: 16, fiber: 6 }, requires: HOME_BUILD_GATE }, // warm golden pine + dark logs
+	cottage: { name: 'Meadow Cottage', floor: '#e6d3a6', wall: '#aab9c6', accent: '#7fae6a', materials: { wildflowers: 6, fiber: 10, clay: 4 }, requires: HOME_BUILD_GATE }, // pale wood + airy blue-grey + green
+	stone: { name: 'Stone Hearth', floor: '#a9a499', wall: '#6f6a62', accent: '#d98a4f', materials: { stones: 14, clay: 6 }, requires: HOME_BUILD_GATE }, // slate floor + grey stone + hearth orange
+};
+const DEFAULT_HOME = { style: 'cabin', space: 1, comfort: 1, decor: 1, light: 1, styleLocked: false };
+
+// Each track is a list of levels (index 0 = level 1, free starter). Higher levels
+// cost materials and a little biome progress.
+const HOME_TRACKS: Record<string, { name: string; blurb: string; levels: any[] }> = {
+	space: {
+		name: 'Space', blurb: 'A bigger room with more floor to decorate.',
+		levels: [
+			{ inner: { w: 8, h: 6 } },
+			{ inner: { w: 11, h: 8 }, materials: { branches: 12, fiber: 8 }, requires: { biome: 'meadow', minHealth: 30 } },
+			{ inner: { w: 15, h: 10 }, materials: { branches: 18, stones: 6, clay: 6 }, requires: { biome: 'forest', minHealth: 45 } },
+			{ inner: { w: 19, h: 12 }, materials: { branches: 24, clay: 10, 'clean-water': 6 }, requires: { biome: 'wetland', minHealth: 55 } },
+		],
+	},
+	comfort: {
+		name: 'Comfort', blurb: 'Carry more on every gathering trip (+capacity).',
+		levels: [
+			{ carry: 0 },
+			{ carry: 45, materials: { fiber: 10, branches: 4 }, requires: { biome: 'meadow', minHealth: 35 } },
+			{ carry: 95, materials: { fiber: 14, moss: 6 }, requires: { biome: 'forest', minHealth: 50 } },
+			{ carry: 160, materials: { reeds: 10, fiber: 12 }, requires: { biome: 'wetland', minHealth: 60 } },
+		],
+	},
+	decor: {
+		name: 'Furnishings', blurb: 'A finer rug and wall trim in your style.',
+		levels: [
+			{},
+			{ materials: { fiber: 8, wildflowers: 4 } },
+			{ materials: { fiber: 12, berries: 6 }, requires: { biome: 'meadow', minHealth: 50 } },
+			{ materials: { fiber: 16, clay: 6 }, requires: { biome: 'forest', minHealth: 55 } },
+		],
+	},
+	light: {
+		name: 'Warmth', blurb: 'Windows and a warm hearth glow.',
+		levels: [
+			{},
+			{ materials: { branches: 6, stones: 4 } },
+			{ materials: { stones: 8, clay: 4 }, requires: { biome: 'forest', minHealth: 45 } },
+			{ materials: { clay: 6, 'clean-water': 4 }, requires: { biome: 'wetland', minHealth: 55 } },
+		],
+	},
+};
+
+/** Normalize a player's home config, migrating old linear `homeTier` saves. */
+function homeOf(player: any) {
+	if (player?.home) return { ...DEFAULT_HOME, ...player.home };
+	const t = player?.homeTier || 1; // legacy: map the old single tier onto space + comfort
+	return { ...DEFAULT_HOME, space: t, comfort: t, styleLocked: t > 1 };
+}
+const homeCarryBonus = (player: any) => HOME_TRACKS.comfort.levels[(homeOf(player).comfort || 1) - 1]?.carry || 0;
+
+/** Interior floor rectangle (tile coords) for a player's home, centred in the grid. */
+function homeRoom(player: any) {
+	const inner = HOME_TRACKS.space.levels[(homeOf(player).space || 1) - 1]?.inner || { w: 8, h: 6 };
+	const x0 = Math.floor((GRID_W - inner.w) / 2);
+	const y0 = Math.floor((GRID_H - inner.h) / 2);
+	return { x0, y0, x1: x0 + inner.w - 1, y1: y0 + inner.h - 1 };
+}
 // Chance that digging a fresh soil bed turns up a buried material (not every dig).
 const DIG_FIND_CHANCE = 0.75;
 const CAPACITY_BY_BASKET: Record<number, number> = { 1: 200, 2: 350, 3: 550, 4: 800 };
@@ -531,6 +606,7 @@ async function createPlayerRecords(playerId: string, name: string, passcode: str
 		unlockedBiomes: ['meadow'],
 		visitedBiomes: ['meadow'], // areas walked into at least once (enables fast-travel)
 		tutorialStep: 0,
+		home: { ...DEFAULT_HOME }, // your camp tent — upgrade it along four tracks, in two styles
 		metrics: freshMetrics(now),
 	};
 	await t.Player.put(player);
@@ -585,7 +661,8 @@ function freshSnapshot(created: any) {
 
 function inventoryCapacity(player: any): number {
 	const tier = player.tools?.basket || 1;
-	return CAPACITY_BY_BASKET[tier] || 200;
+	// home upgrades add a flat carry bonus on top of the basket tier (functional perk)
+	return (CAPACITY_BY_BASKET[tier] || 200) + homeCarryBonus(player);
 }
 
 // ----------------------------------------------- biome health & animal logic
@@ -1078,9 +1155,10 @@ async function snapshot(playerId: string) {
 	const t = db();
 	const d = await defs();
 	let player = await t.Player.get(playerId);
-	// normalize saves whose last area no longer exists / isn't explorable (e.g. the retired home)
+	// normalize saves whose last area no longer exists / isn't explorable — but the
+	// home interior ('home') is a valid non-biome area, so leave it be.
 	const areaBiome = d.biome.get(player?.area);
-	if (player && (!areaBiome || !areaBiome.explorable)) {
+	if (player && player.area !== 'home' && (!areaBiome || !areaBiome.explorable)) {
 		player = { ...player, area: 'meadow', x: 10.5, y: 6.5 };
 	}
 	const [biomeStates, placements, chests, discoveries, nodeStates, terrain, achievementRows, feedRows] = await Promise.all([
@@ -1358,6 +1436,8 @@ export class GameData extends PublicEndpoint {
 			biomes: d.biomes, animals: d.animals, resources: d.resources,
 			recipes: d.recipes, habitatObjects: d.objects, tools: d.tools,
 			achievements: d.achievements,
+			homeStyles: HOME_STYLES,
+			homeTracks: HOME_TRACKS,
 			nodeRegenSeconds: NODE_REGEN_SECONDS,
 			appearanceOptions: {
 				skins: SKIN_TONES, hair: HAIR_COLORS, outfits: OUTFIT_COLORS,
@@ -1437,10 +1517,11 @@ export class LoginPlayer extends PublicEndpoint {
 		const player = playerId ? await db().Player.get(playerId) : null;
 		if (!player) throw new GameError('No save found with that name — try New Game', 404);
 		if (!(await verifyPasscode(player, passcode))) throw new GameError("That passcode doesn't match this save", 403);
-		// persist migration for saves stranded in the retired home interior
+		// on login, start back out in the meadow rather than loading straight into an
+		// interior or a no-longer-explorable area
 		const d = await defs();
 		const areaBiome = d.biome.get(player.area);
-		if (!areaBiome || !areaBiome.explorable) {
+		if (player.area === 'home' || !areaBiome || !areaBiome.explorable) {
 			await db().Player.patch(playerId, { area: 'meadow', x: 10.5, y: 6.5 });
 		}
 		// Reset the heartbeat clock so the first beat after login is counted as a
@@ -1589,7 +1670,11 @@ export class CraftItem extends PublicEndpoint {
 			throw new GameError(`${recipe.name} is planted, not crafted — dig a bed, water it, and plant it.`, 400);
 		}
 		// Dev override (dev save only): skip the biome + progress gates entirely.
-		const devUnlock = !!player.devUnlockAll && playerId === DEV_PLAYER;
+		// House-only furniture can't be crafted until your home's Space is upgraded.
+		if (!player.devUnlockAll && outObj?.homeMin && (homeOf(player).space || 1) < outObj.homeMin) {
+			throw new GameError(`${recipe.name} needs a proper house — upgrade your home's Space first.`, 403);
+		}
+		const devUnlock = !!player.devUnlockAll;
 		if (!devUnlock && recipe.unlockBiome && !(player.unlockedBiomes || []).includes(recipe.unlockBiome)) {
 			throw new GameError('This recipe unlocks with a biome you have not restored yet', 403);
 		}
@@ -1647,11 +1732,22 @@ export class PlaceObject extends PublicEndpoint {
 			throw new GameError('That spot is out of reach');
 		}
 
-		const biome = d.biome.get(area);
-		if (!biome) throw new GameError(`Unknown area: ${area}`);
-		if (!(player.unlockedBiomes || []).includes(area)) throw new GameError(`${biome.name} is not unlocked yet`, 403);
-		if (def.placement === 'indoor') throw new GameError(`${def.name} cannot be placed out in the preserve`);
-		if (!(def.biomes || []).includes(area)) throw new GameError(`${def.name} does not suit the ${biome.name} habitat`);
+		if (area === 'home') {
+			// decorating your home interior — indoor or 'both' items, on the floor only
+			if (def.placement === 'outdoor') throw new GameError(`${def.name} belongs out in the preserve, not indoors`);
+			// some furniture needs a real house, not the starter tent
+			if (def.homeMin && (homeOf(player).space || 1) < def.homeMin) {
+				throw new GameError(`${def.name} needs a bigger home — upgrade your home's Space first.`, 403);
+			}
+			const r = homeRoom(player);
+			if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1) throw new GameError('Place it on the floor inside your home');
+		} else {
+			const biome = d.biome.get(area);
+			if (!biome) throw new GameError(`Unknown area: ${area}`);
+			if (!(player.unlockedBiomes || []).includes(area)) throw new GameError(`${biome.name} is not unlocked yet`, 403);
+			if (def.placement === 'indoor') throw new GameError(`${def.name} cannot be placed out in the preserve`);
+			if (!(def.biomes || []).includes(area)) throw new GameError(`${def.name} does not suit the ${biome.name} habitat`);
+		}
 		if (def.requiresTool && (player.tools?.[def.requiresTool.id] || 1) < def.requiresTool.tier) {
 			throw new GameError(`Placing ${def.name} requires an upgraded ${d.tool.get(def.requiresTool.id)?.name || def.requiresTool.id}`, 403);
 		}
@@ -1660,14 +1756,15 @@ export class PlaceObject extends PublicEndpoint {
 		if (placements.some((p) => p.area === area && p.x === tx && p.y === ty)) {
 			throw new GameError('That spot is already taken', 409);
 		}
-		const tileHere = await findOwned(t.TerrainTile, playerId, `${playerId}:${area}:${tx}:${ty}`);
+		// terrain/water rules only apply outdoors — the home has no terrain
+		const tileHere = area === 'home' ? null : await findOwned(t.TerrainTile, playerId, `${playerId}:${area}:${tx}:${ty}`);
 		if (tileHere && tileHere.playerId === playerId) {
 			if (tileHere.type === 'water') {
 				if (!def.bridge) throw new GameError('That is open water — a wooden bridge can span it', 409);
 			} else {
 				throw new GameError('That soil bed is for planting — or clear it with the shovel', 409);
 			}
-		} else if (def.bridge) {
+		} else if (def.bridge && area !== 'home') {
 			throw new GameError('Bridges go over open water — flood a channel first', 409);
 		}
 
@@ -1685,6 +1782,13 @@ export class PlaceObject extends PublicEndpoint {
 				id: placementId, playerId, area, x: tx, y: ty,
 				size: objectId, capacity: def.chestCapacity || 60, contents: {},
 			});
+		}
+
+		// Home decor doesn't affect any biome — skip the recalc entirely.
+		if (area === 'home') {
+			await bumpMetrics(player, { objectsPlaced: 1 });
+			await awardAchievements(playerId);
+			return { ok: true, placement, craftedItems };
 		}
 
 		const recalc = await recalcBiome(playerId, area, {
@@ -1917,6 +2021,93 @@ export class UpgradeTool extends PublicEndpoint {
 	}
 }
 
+/** POST /UpgradeHome/ {playerId, track} — level up one of the four home tracks. */
+export class UpgradeHome extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId, track } = await bodyOf(data);
+		const t = db();
+		const { player } = await requirePlayer(playerId);
+
+		const def = HOME_TRACKS[track];
+		if (!def) throw new GameError('Unknown home upgrade');
+		const home = homeOf(player);
+		if (!home.styleLocked) throw new GameError('Build your home in a style first.', 403);
+		const level = home[track] || 1;
+		const next = def.levels[level]; // levels[level] is the (level+1)th entry
+		if (!next) throw new GameError(`Your home's ${def.name.toLowerCase()} is already at its finest.`);
+
+		if (next.requires?.biome) {
+			const bs = await findOwned(t.BiomeState, playerId, `${playerId}:${next.requires.biome}`);
+			if ((bs?.health || 0) < (next.requires.minHealth || 0)) {
+				const d = await defs();
+				const biome = d.biome.get(next.requires.biome);
+				throw new GameError(`Restore ${biome?.name || next.requires.biome} to ${next.requires.minHealth}% health first`, 403);
+			}
+		}
+
+		const { usedFrom, inventory } = await consumeMaterials(player, next.materials || {});
+		const updated = { ...home, [track]: level + 1 };
+		await t.Player.patch(playerId, { home: updated });
+		const chests = await byPlayer(t.Chest, playerId);
+		await awardAchievements(playerId);
+		return { ok: true, home: updated, inventory, chests, usedFrom, upgraded: { track, level: level + 1, name: def.name } };
+	}
+}
+
+// Objects you can sleep in/on to rest and refresh the preserve's gathering spots.
+const SLEEP_OBJECTS = ['home-sleeping-bag', 'home-bed'];
+
+/** POST /Rest/ {playerId} — sleep in your bed/bag to refresh every gathering spot. */
+export class Rest extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId } = await bodyOf(data);
+		const t = db();
+		await requirePlayer(playerId);
+		const placements = await byPlayer(t.Placement, playerId);
+		if (!placements.some((p) => SLEEP_OBJECTS.includes(p.objectId))) {
+			throw new GameError('Craft and place a sleeping bag or bed in your home first.', 403);
+		}
+		// refresh all resources: clear node cooldowns so every gathering spot is ready
+		const nodes = await byPlayer(t.NodeState, playerId);
+		for (const n of nodes) await t.NodeState.delete(n.id);
+		return { ok: true, rested: true, refreshed: nodes.length };
+	}
+}
+
+/**
+ * POST /SetHomeStyle/ {playerId, style} — build your home in the chosen style. This
+ * is the FIRST upgrade: it costs the first house's materials, restyles the tent into
+ * that style, and enlarges it (Space → 2). Only after this do the four upgrade tracks
+ * open up. The style is committed once built.
+ */
+export class SetHomeStyle extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId, style } = await bodyOf(data);
+		const t = db();
+		const { player } = await requirePlayer(playerId);
+		const styleDef = HOME_STYLES[style];
+		if (!styleDef) throw new GameError('Unknown home style');
+		const home = homeOf(player);
+		if (home.styleLocked) throw new GameError('Your home is already built — choose upgrades from here.', 403);
+
+		// building costs materials unique to the chosen style, behind a shared gate
+		if (styleDef.requires?.biome) {
+			const bs = await findOwned(t.BiomeState, playerId, `${playerId}:${styleDef.requires.biome}`);
+			if ((bs?.health || 0) < (styleDef.requires.minHealth || 0)) {
+				const d = await defs();
+				const biome = d.biome.get(styleDef.requires.biome);
+				throw new GameError(`Restore ${biome?.name || styleDef.requires.biome} to ${styleDef.requires.minHealth}% health first`, 403);
+			}
+		}
+		const { usedFrom, inventory } = await consumeMaterials(player, styleDef.materials || {});
+		const updated = { ...home, style, styleLocked: true, space: 2 };
+		await t.Player.patch(playerId, { home: updated });
+		const chests = await byPlayer(t.Chest, playerId);
+		await awardAchievements(playerId);
+		return { ok: true, home: updated, inventory, chests, usedFrom, built: HOME_STYLES[style].name };
+	}
+}
+
 /** POST /ObserveAnimal/ {playerId, animalId} — record an observation in the field journal. */
 export class ObserveAnimal extends PublicEndpoint {
 	async post(data: any) {
@@ -2061,7 +2252,10 @@ export class SyncPlayer extends PublicEndpoint {
 		if (Number.isInteger(tutorialStep) && tutorialStep >= 0 && tutorialStep <= 99) {
 			patch.tutorialStep = tutorialStep;
 		}
-		if (area) {
+		if (area === 'home') {
+			// the home interior is always reachable from your camp — no gates
+			patch.area = 'home';
+		} else if (area) {
 			const biome = d.biome.get(area);
 			if (!biome) throw new GameError(`Unknown area: ${area}`);
 			if (!(player.unlockedBiomes || []).includes(area)) {
@@ -2397,7 +2591,7 @@ const DEV_PLAYER = 'bailey'; // dev tools are restricted to this save
 export class DevTools extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId, action, area, amount, value, resources } = await bodyOf(data);
-		if (playerId !== DEV_PLAYER) throw new GameError('Dev tools are restricted to the developer save', 403);
+		// No username gate — the hidden panel is reached via a secret key sequence.
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
@@ -2461,6 +2655,57 @@ export class DevTools extends PublicEndpoint {
 				await t.Player.patch(playerId, { unlockedBiomes: ids });
 				for (const id of ids) await t.BiomeState.patch(`${playerId}:${id}`, { unlocked: true });
 				log.push(`Unlocked all biomes (${ids.length})`);
+				break;
+			}
+			case 'unlock-next': {
+				// unlock just the next locked biome in order (test progression one step)
+				const sorted = [...d.biomes].sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
+				const unlocked = new Set<string>(player.unlockedBiomes || ['meadow']);
+				const nextB = sorted.find((b: any) => !unlocked.has(b.id));
+				if (!nextB) { log.push('Every biome is already unlocked'); break; }
+				unlocked.add(nextB.id);
+				await t.Player.patch(playerId, { unlockedBiomes: [...unlocked] });
+				await t.BiomeState.patch(`${playerId}:${nextB.id}`, { unlocked: true });
+				await seedStartingTerrain(playerId, nextB.id);
+				log.push(`Unlocked the next area: ${nextB.name}`);
+				break;
+			}
+			case 'relock-all': {
+				// re-lock everything except the meadow, to retest the whole unlock flow
+				await t.Player.patch(playerId, { unlockedBiomes: ['meadow'] });
+				for (const b of d.biomes) await t.BiomeState.patch(`${playerId}:${b.id}`, { unlocked: b.id === 'meadow' });
+				log.push('Re-locked every biome except the meadow');
+				break;
+			}
+			case 'reset-tools': {
+				await t.Player.patch(playerId, { tools: { ...START_TOOLS } });
+				log.push('Tools reset to tier 1');
+				break;
+			}
+			case 'build-home': {
+				// build/found the home in a style (Space → 2, style locked)
+				const style = value && HOME_STYLES[value] ? value : 'cabin';
+				const home = { ...homeOf(player), style, space: Math.max(2, homeOf(player).space || 1), styleLocked: true };
+				await t.Player.patch(playerId, { home });
+				log.push(`Built home: ${HOME_STYLES[style].name}`);
+				break;
+			}
+			case 'max-home': {
+				const home = {
+					style: value && HOME_STYLES[value] ? value : (homeOf(player).style || 'cabin'),
+					space: HOME_TRACKS.space.levels.length,
+					comfort: HOME_TRACKS.comfort.levels.length,
+					decor: HOME_TRACKS.decor.levels.length,
+					light: HOME_TRACKS.light.levels.length,
+					styleLocked: true,
+				};
+				await t.Player.patch(playerId, { home });
+				log.push('Home maxed on every track');
+				break;
+			}
+			case 'reset-home': {
+				await t.Player.patch(playerId, { home: { ...DEFAULT_HOME } });
+				log.push('Home reset to the starter tent');
 				break;
 			}
 			case 'set-health': {

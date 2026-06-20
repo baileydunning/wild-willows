@@ -59,6 +59,9 @@ interface Ctx {
 	removePlacement: (placementId: string) => Promise<void>;
 	movePlacement: (placementId: string, x: number, y: number) => Promise<void>;
 	upgradeTool: (toolId: string) => Promise<void>;
+	upgradeHome: (track: string) => Promise<void>;
+	setHomeStyle: (style: string) => Promise<void>;
+	rest: () => Promise<void>;
 	observe: (animalId: string) => Promise<void>;
 	changeArea: (area: string) => Promise<void>;
 	recalcArea: (area: string) => Promise<void>;
@@ -98,6 +101,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	const shownFacts = useRef<Set<string>>(new Set());
 	// Last-seen biome health, to fire a progress beat when a threshold is crossed.
 	const prevHealth = useRef<Map<string, number> | null>(null);
+	// Last-seen home config signature, so upgrading/restyling while inside redraws the room.
+	const prevHomeSig = useRef<string | null>(null);
 	// Feed persistence: buffer new lines and flush them to Harper (capped per player),
 	// and seed the in-memory log from the saved feed once per login.
 	const feedBuffer = useRef<{ icon: string; text: string; at: number }[]>([]);
@@ -150,6 +155,19 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
 	useEffect(() => {
 		bridge.shared.state = state;
+	}, [state]);
+
+	// When the home config changes while you're inside it, restart the scene so the
+	// room is redrawn at its new size, style, and trimmings.
+	useEffect(() => {
+		if (!state) return;
+		const h = state.player.home;
+		const sig = h ? `${h.style}:${h.space}:${h.comfort}:${h.decor}:${h.light}` : 'default';
+		const prev = prevHomeSig.current;
+		prevHomeSig.current = sig;
+		if (prev !== null && sig !== prev && state.player.area === 'home') {
+			bridge.emit('area-changed', 'home');
+		}
 	}, [state]);
 
 	// Seed the in-memory log from the player's saved feed, once per login, so they
@@ -296,6 +314,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		prevAchievements.current = null; // and the achievement baseline
 		prevDiscoveries.current = null; // and the narrative baseline
 		prevHealth.current = null; // and the health-milestone baseline
+		prevHomeSig.current = null;
 		shownFacts.current = new Set(); // fresh fact pool next session
 	}, [flushFeed]);
 
@@ -557,6 +576,22 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		[act, toast]
 	);
 
+	const upgradeHome = useCallback(
+		(track: string) => act(() => api.upgradeHome(track), (r) => toast(`Home upgraded: ${r?.upgraded?.name || 'your home'} ${r?.upgraded?.level || ''}`, 'unlock')),
+		[act, toast]
+	);
+	const setHomeStyle = useCallback(
+		(style: string) => act(() => api.setHomeStyle(style), (r) => toast(`You built your ${r?.built || 'home'}!`, 'unlock')),
+		[act, toast]
+	);
+	const rest = useCallback(
+		() => act(() => api.rest(), () => {
+			toast('You sleep soundly — every gathering spot has regrown.', 'unlock');
+			pushLog('drop', 'You rested. The preserve’s gathering spots have all refreshed.', true);
+		}),
+		[act, toast, pushLog]
+	);
+
 	const observe = useCallback(
 		async (animalId: string) => {
 			setAnimalCardId(animalId);
@@ -619,13 +654,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			log, feedLog, selectedTool, setSelectedTool, terraform, plant, setTutorialStep,
 			startNew, startLogin, continueLast, logout,
 			refresh, collect, transfer, craft, discard, place, removePlacement, movePlacement,
-			upgradeTool, observe, changeArea, recalcArea,
+			upgradeTool, upgradeHome, setHomeStyle, rest, observe, changeArea, recalcArea,
 		}),
 		[data, state, dataError, saveStatus, panel, helpOpen, activeChestId, animalCardId,
 			placementObjectId, toasts, toast, dismissToast, log, feedLog, selectedTool, setSelectedTool, terraform, plant,
 			setTutorialStep, startNew, startLogin, continueLast, logout,
 			refresh, collect, transfer, craft, discard, place, removePlacement, movePlacement, upgradeTool,
-			observe, changeArea, recalcArea, openChest, startPlacement, cancelPlacement]
+			observe, changeArea, recalcArea, openChest, startPlacement, cancelPlacement, upgradeHome, setHomeStyle, rest]
 	);
 
 	return <GameCtx.Provider value={value}>{children}</GameCtx.Provider>;
