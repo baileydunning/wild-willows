@@ -8702,6 +8702,8 @@ async function createPlayerRecords(playerId, name, passcode, appearance) {
     craftedItems: {},
     tools: { ...START_TOOLS },
     unlockedBiomes: ["meadow"],
+    visitedBiomes: ["meadow"],
+    // areas walked into at least once (enables fast-travel)
     tutorialStep: 0,
     metrics: freshMetrics(now)
   };
@@ -9732,6 +9734,8 @@ var SyncPlayer = class extends PublicEndpoint {
         throw new GameError(`${biome.name} is part of the preserve plan but not explorable yet`, 403);
       }
       patch.area = area;
+      const visited = player.visitedBiomes || ["meadow"];
+      if (!visited.includes(area)) patch.visitedBiomes = [...visited, area];
       if (STARTING_TERRAIN[area]) {
         const hasTerrain = (await byPlayer(t.TerrainTile, playerId)).some((tt) => tt.area === area);
         if (!hasTerrain) {

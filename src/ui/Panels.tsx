@@ -397,14 +397,22 @@ export function ToolsPanel() {
 }
 
 export function BiomesPanel() {
-	const { data, state, setPanel } = useGame();
+	const { data, state, setPanel, changeArea } = useGame();
 	if (!data || !state) return null;
+	const here = state.player.area;
 	return (
 		<Panel title="The Preserve" icon="map" onClose={() => setPanel(null)} wide>
 			{[...data.biomes].sort((a, b) => a.order - b.order).map((biome) => {
 				const bs = state.biomeStates.find((x) => x.biomeId === biome.id);
 				const unlocked = state.player.unlockedBiomes.includes(biome.id);
 				const total = data.animals.filter((a) => a.biome === biome.id).length;
+				const isHere = biome.id === here;
+				const canTravel = unlocked && biome.explorable && !isHere;
+				const travelTitle = isHere
+					? 'You are here'
+					: !unlocked
+						? `Locked — ${biome.name} isn't open yet`
+						: `Travel to ${biome.name}`;
 				return (
 					<div className={`biome-row ${unlocked && biome.explorable ? '' : 'biome-locked'}`} key={biome.id}>
 						<div className="grow">
@@ -413,6 +421,8 @@ export function BiomesPanel() {
 								<span className="lock soon"><Icon name="sparkle" size={12} /> Coming soon</span>
 							) : !unlocked ? (
 								<span className="lock"><Icon name="lock" size={12} /> locked</span>
+							) : isHere ? (
+								<span className="lock soon"><Icon name="pin" size={12} /> you are here</span>
 							) : null}
 							<div className="muted small">{biome.description}</div>
 							<div className="muted small"><b>Goal:</b> {biome.restorationGoal}</div>
@@ -425,6 +435,15 @@ export function BiomesPanel() {
 								</>
 							)}
 						</div>
+						<button
+							className="travel-icon"
+							disabled={!canTravel}
+							aria-label={travelTitle}
+							title={travelTitle}
+							onClick={async () => { setPanel(null); await changeArea(biome.id); }}
+						>
+							<Icon name={isHere ? 'pin' : 'walk'} size={18} />
+						</button>
 					</div>
 				);
 			})}

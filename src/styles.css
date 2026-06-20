@@ -341,6 +341,11 @@ input {
 .lock { font-size: 12px; color: var(--ink-soft); margin-left: 6px; display: inline-flex; align-items: center; gap: 3px; }
 .lock.soon { color: var(--gold); font-weight: 700; background: rgba(201, 145, 63, 0.14); border-radius: 999px; padding: 1px 9px; }
 .unlock-req { color: #7a5aa0; margin-top: 3px; }
+.travel-icon {
+	flex: 0 0 auto; align-self: center; width: 40px; height: 40px; padding: 0;
+	display: inline-flex; align-items: center; justify-content: center; border-radius: 12px;
+}
+.travel-icon:disabled { opacity: 0.32; cursor: not-allowed; }
 .guide-upsell { display: flex; align-items: center; gap: 6px; color: var(--green-deep); background: var(--paper-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 11px; margin: 4px 0 10px; }
 .craft-filter { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 13px; }
 .craft-filter label { color: var(--ink-soft); font-weight: 600; }

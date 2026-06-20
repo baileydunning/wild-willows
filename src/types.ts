@@ -144,6 +144,8 @@ export interface Player {
 	craftedEver?: Record<string, number>;
 	tools: Record<string, number>;
 	unlockedBiomes: string[];
+	/** Areas the player has physically walked into at least once (enables fast-travel). */
+	visitedBiomes?: string[];
 	tutorialStep?: number;
 	/** Dev-only: when true, every recipe is craftable regardless of progress gates. */
 	devUnlockAll?: boolean;

@@ -511,6 +511,7 @@ async function createPlayerRecords(playerId: string, name: string, passcode: str
 		craftedItems: {},
 		tools: { ...START_TOOLS },
 		unlockedBiomes: ['meadow'],
+		visitedBiomes: ['meadow'], // areas walked into at least once (enables fast-travel)
 		tutorialStep: 0,
 		metrics: freshMetrics(now),
 	};
@@ -1792,6 +1793,10 @@ export class SyncPlayer extends PublicEndpoint {
 				throw new GameError(`${biome.name} is part of the preserve plan but not explorable yet`, 403);
 			}
 			patch.area = area;
+			// Record the first walk into this area — this is what enables fast-travel
+			// to it from the preserve guide (you must have physically arrived once).
+			const visited = player.visitedBiomes || ['meadow'];
+			if (!visited.includes(area)) patch.visitedBiomes = [...visited, area];
 
 			// First time stepping into an area that begins partly shaped, seed its
 			// starting terrain now. This also back-fills saves that unlocked the area
