@@ -91,6 +91,7 @@ export class WorldScene extends Phaser.Scene {
 	private isTouch = false;
 	private alive = false; // true between create() and shutdown (scene.isActive() is false DURING create)
 	private waterTiles = new Set<string>();
+	private waterTileCenters: { x: number; y: number }[] = []; // pixel centers of open-water tiles
 	private bridgeTiles = new Set<string>();
 
 	constructor() {
@@ -427,6 +428,11 @@ export class WorldScene extends Phaser.Scene {
 		this.waterTiles = new Set(
 			(st?.terrain || []).filter((tt) => tt.area === this.area && tt.type === 'water').map((tt) => `${tt.x},${tt.y}`)
 		);
+		// pixel centers of every open-water tile — fish live here, walkers avoid it
+		this.waterTileCenters = [...this.waterTiles].map((k) => {
+			const [tx, ty] = k.split(',').map(Number);
+			return { x: tx * TILE + 16, y: ty * TILE + 16 };
+		});
 		this.bridgeTiles = new Set(
 			(st?.placements || [])
 				.filter((pl) => pl.area === this.area && this.objectDef(pl.objectId)?.bridge)
@@ -1074,6 +1080,19 @@ export class WorldScene extends Phaser.Scene {
 			ax = Phaser.Math.Clamp(ax, TILE, eastEdge);
 			ay = Phaser.Math.Clamp(ay, (this.playTop + 1) * TILE, this.worldH - TILE);
 
+			// Fish belong over open water only; ground-walkers (anything that isn't a
+			// fish, bird, or insect) keep off open water. Birds and insects fly freely.
+			const flying = animal.kind === 'bird' || animal.kind === 'insect';
+			if (animal.kind === 'fish') {
+				const w = this.fishTarget(ax, ay, Infinity, rng);
+				if (w) { ax = w.x; ay = w.y; }
+			} else if (!flying && this.isWaterPx(ax, ay)) {
+				for (let i = 0; i < 14 && this.isWaterPx(ax, ay); i++) {
+					ax = Phaser.Math.Clamp((2 + rng() * (this.landRight - 4)) * TILE, TILE, eastEdge);
+					ay = Phaser.Math.Clamp((this.playTop + 2 + rng() * (OUT_H - 4)) * TILE, (this.playTop + 1) * TILE, this.worldH - TILE);
+				}
+			}
+
 			ensureAnimalTexture(this, animal.id, animal.kind);
 			const { key, tint } = animalTexture(animal.id, animal.kind);
 			if (animal.kind !== 'insect') {
@@ -1140,14 +1159,44 @@ export class WorldScene extends Phaser.Scene {
 		});
 	}
 
+	/** Is this pixel position over an open-water tile? */
+	private isWaterPx(px: number, py: number): boolean {
+		return this.waterTiles.has(`${Math.floor(px / TILE)},${Math.floor(py / TILE)}`);
+	}
+
+	/** Pick a point over open water, preferring tiles within `roam` of home. */
+	private fishTarget(homeX: number, homeY: number, roam: number, rng: () => number): { x: number; y: number } | null {
+		if (!this.waterTileCenters.length) return null;
+		const near = this.waterTileCenters.filter((c) => Phaser.Math.Distance.Between(homeX, homeY, c.x, c.y) <= roam * 1.5);
+		const pool = near.length ? near : this.waterTileCenters;
+		const c = pool[Math.floor(rng() * pool.length)];
+		// jitter within the tile so a fish doesn't snap dead-center
+		return { x: c.x + (rng() - 0.5) * TILE * 0.6, y: c.y + (rng() - 0.5) * TILE * 0.6 };
+	}
+
 	private wander(img: Phaser.GameObjects.Image, homeX: number, homeY: number, kind: string, rng: () => number) {
 		const roam = kind === 'bird' || kind === 'insect' ? 130 : 80;
 		const speed = kind === 'insect' ? 26 : kind === 'bird' ? 42 : 18;
+		const aquatic = kind === 'fish';
+		const flying = kind === 'bird' || kind === 'insect';
 		const hop = () => {
 			if (!img.active) return;
 			const eastEdge = this.area === 'coastal' ? (this.landRight + 1.2) * TILE : this.worldW - TILE;
-			const tx = Phaser.Math.Clamp(homeX + (rng() - 0.5) * roam * 2, TILE, eastEdge);
-			const ty = Phaser.Math.Clamp(homeY + (rng() - 0.5) * roam * 1.4, (this.playTop + 1) * TILE, this.worldH - TILE);
+			let tx: number, ty: number;
+			if (aquatic) {
+				// fish drift only between open-water tiles near them
+				const w = this.fishTarget(homeX, homeY, roam, rng);
+				if (!w) { this.time.delayedCall(1200 + rng() * 2000, hop); return; }
+				tx = w.x; ty = w.y;
+			} else {
+				// walkers re-roll any target that lands on open water; fliers go anywhere
+				let attempts = 0;
+				do {
+					tx = Phaser.Math.Clamp(homeX + (rng() - 0.5) * roam * 2, TILE, eastEdge);
+					ty = Phaser.Math.Clamp(homeY + (rng() - 0.5) * roam * 1.4, (this.playTop + 1) * TILE, this.worldH - TILE);
+				} while (!flying && this.isWaterPx(tx, ty) && ++attempts < 12);
+				if (!flying && this.isWaterPx(tx, ty)) { tx = img.x; ty = img.y; } // stay put rather than step onto water
+			}
 			const dist = Phaser.Math.Distance.Between(img.x, img.y, tx, ty);
 			img.setFlipX(tx < img.x);
 			this.tweens.add({
