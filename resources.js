@@ -18,8 +18,13 @@ var biomes_default = {
         "branches",
         "wildflowers",
         "fiber",
-        "water",
-        "clay"
+        "water"
+      ],
+      digResources: [
+        "clay",
+        "clay",
+        "clay",
+        "stones"
       ],
       palette: {
         damaged: "#b9a37c",
@@ -51,6 +56,11 @@ var biomes_default = {
         "stones",
         "water"
       ],
+      digResources: [
+        "clay",
+        "clay",
+        "stones"
+      ],
       palette: {
         damaged: "#9c8a66",
         healthy: "#5e9455"
@@ -79,6 +89,12 @@ var biomes_default = {
         "water",
         "fiber"
       ],
+      digResources: [
+        "clay",
+        "mud",
+        "mud",
+        "stones"
+      ],
       palette: {
         damaged: "#a8a07a",
         healthy: "#6aa884"
@@ -106,6 +122,13 @@ var biomes_default = {
         "clay",
         "geode",
         "agave-nectar"
+      ],
+      digResources: [
+        "sand",
+        "sand",
+        "clay",
+        "stones",
+        "geode"
       ],
       palette: {
         damaged: "#c78a52",
@@ -140,6 +163,13 @@ var biomes_default = {
         "juniper-berries",
         "obsidian"
       ],
+      digResources: [
+        "stones",
+        "stones",
+        "clay",
+        "obsidian",
+        "quartz-crystal"
+      ],
       palette: {
         damaged: "#a8a8a0",
         healthy: "#9db98c"
@@ -169,6 +199,12 @@ var biomes_default = {
         "sea-glass",
         "coral",
         "pearl"
+      ],
+      digResources: [
+        "sand",
+        "sand",
+        "shells",
+        "coral"
       ],
       palette: {
         damaged: "#c2b9a0",
@@ -5415,7 +5451,7 @@ var animals_1_default = {
       preferredHabitat: "Any recovering grassland",
       fact: "Grasshoppers hear through tiny membranes on their abdomen, not their heads.",
       requirements: {
-        minHealth: 8,
+        minHealth: 15,
         objects: {
           "grass-patch": 1
         },
@@ -8443,6 +8479,7 @@ async function defs() {
 }
 var NODE_REGEN_SECONDS = 75;
 var BASE_HEALTH = 5;
+var DIG_FIND_CHANCE = 0.75;
 var CAPACITY_BY_BASKET = { 1: 80, 2: 160, 3: 260, 4: 380 };
 var START_INVENTORY = { water: 6, seeds: 2, wildflowers: 1 };
 var START_TOOLS = { basket: 1, shovel: 1, "watering-can": 1, "field-journal": 1 };
@@ -9660,11 +9697,23 @@ var Terraform = class extends PublicEndpoint {
     let inventory = player.inventory || {};
     let tile = null;
     let removedId;
+    let dug = null;
     if (action === "dig") {
       if ((player.tools?.shovel || 0) < 1) throw new GameError("You need your shovel for that");
       if (existing) throw new GameError("This ground is already prepared \u2014 water it, or clear it instead");
       tile = { id: tileId, playerId, area, x: tx, y: ty, type: "tilled", updatedAt: Date.now() };
       await t.TerrainTile.put(tile);
+      const pool = biome.digResources || [];
+      if (pool.length && Math.random() < DIG_FIND_CHANCE) {
+        const resId = pool[Math.floor(Math.random() * pool.length)];
+        const room = Math.max(0, inventoryCapacity(player) - sumValues(inventory));
+        const amount = Math.min(player.tools?.shovel || 1, room);
+        if (amount > 0) {
+          inventory = { ...inventory, [resId]: (inventory[resId] || 0) + amount };
+          await t.Player.patch(playerId, { inventory });
+          dug = { resourceId: resId, amount };
+        }
+      }
     } else if (action === "water") {
       if ((player.tools?.["watering-can"] || 0) < 1) throw new GameError("You need your watering can for that");
       if (!existing) throw new GameError("Prepare a soil bed with your shovel first");
@@ -9702,7 +9751,7 @@ var Terraform = class extends PublicEndpoint {
       player: { ...player, inventory }
     });
     await bumpMetrics(player, { terraformActions: 1, animalsReturned: recalc.newAnimals?.length || 0 });
-    return { ok: true, tile, removedId, inventory, ...recalc };
+    return { ok: true, tile, removedId, dug, inventory, ...recalc };
   }
 };
 var RecalcBiome = class extends PublicEndpoint {

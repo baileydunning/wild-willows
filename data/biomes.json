@@ -17,8 +17,13 @@
 				"branches",
 				"wildflowers",
 				"fiber",
-				"water",
-				"clay"
+				"water"
+			],
+			"digResources": [
+				"clay",
+				"clay",
+				"clay",
+				"stones"
 			],
 			"palette": {
 				"damaged": "#b9a37c",
@@ -50,6 +55,11 @@
 				"stones",
 				"water"
 			],
+			"digResources": [
+				"clay",
+				"clay",
+				"stones"
+			],
 			"palette": {
 				"damaged": "#9c8a66",
 				"healthy": "#5e9455"
@@ -78,6 +88,12 @@
 				"water",
 				"fiber"
 			],
+			"digResources": [
+				"clay",
+				"mud",
+				"mud",
+				"stones"
+			],
 			"palette": {
 				"damaged": "#a8a07a",
 				"healthy": "#6aa884"
@@ -105,6 +121,13 @@
 				"clay",
 				"geode",
 				"agave-nectar"
+			],
+			"digResources": [
+				"sand",
+				"sand",
+				"clay",
+				"stones",
+				"geode"
 			],
 			"palette": {
 				"damaged": "#c78a52",
@@ -139,6 +162,13 @@
 				"juniper-berries",
 				"obsidian"
 			],
+			"digResources": [
+				"stones",
+				"stones",
+				"clay",
+				"obsidian",
+				"quartz-crystal"
+			],
 			"palette": {
 				"damaged": "#a8a8a0",
 				"healthy": "#9db98c"
@@ -168,6 +198,12 @@
 				"sea-glass",
 				"coral",
 				"pearl"
+			],
+			"digResources": [
+				"sand",
+				"sand",
+				"shells",
+				"coral"
 			],
 			"palette": {
 				"damaged": "#c2b9a0",

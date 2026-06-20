@@ -213,12 +213,15 @@ export function ChestPanel() {
 }
 
 export function CraftingPanel() {
-	const { data, state, setPanel, craft, startPlacement } = useGame();
+	const { data, state, setPanel, craft, startPlacement, notify } = useGame();
 	const linked = useLinkedChests();
-	const [placeFilter, setPlaceFilter] = useState('all');
+	// default the Place filter to the biome you're standing in, so the menu shows
+	// what you can actually build right here
+	const [placeFilter, setPlaceFilter] = useState(state?.player.area || 'all');
 	const [typeFilter, setTypeFilter] = useState('all');
 	if (!data || !state) return null;
 	const player = state.player;
+	const areaName = data.biomes.find((b) => b.id === player.area)?.name || 'this area';
 
 	const availability = (id: string) => {
 		const inInv = player.inventory?.[id] || 0;
@@ -236,6 +239,9 @@ export function CraftingPanel() {
 		plant: 'Plants & flowers', habitat: 'Habitat objects', structure: 'Structures & decor',
 		decoration: 'Paths', storage: 'Storage', home: 'Camp comforts', kit: 'Restoration kits',
 	};
+	// display order for the category sections — Paths (decoration) sit at the bottom
+	const CAT_ORDER = ['plant', 'habitat', 'structure', 'home', 'storage', 'kit', 'decoration'];
+	const catRank = (c: string) => { const i = CAT_ORDER.indexOf(c); return i === -1 ? 50 : i; };
 	const objOf = (r: RecipeDef) => data.habitatObjects.find((o) => o.id === r.output.itemId);
 	// Only show recipes the player has actually unlocked: their biome is open AND
 	// the biome is restored far enough (health / animals returned). Locked recipes
@@ -246,8 +252,8 @@ export function CraftingPanel() {
 		// always show regardless of the Place filter — never hidden behind it.
 		.filter((r) => placeFilter === 'all' || objOf(r)?.placement === 'none' || (objOf(r)?.biomes || []).includes(placeFilter))
 		.filter((r) => typeFilter === 'all' || r.category === typeFilter)
-		.sort((a, b) => a.category.localeCompare(b.category) || a.name.localeCompare(b.name));
-	const categories = [...new Set(visible.map((r) => r.category))];
+		.sort((a, b) => catRank(a.category) - catRank(b.category) || a.name.localeCompare(b.name));
+	const categories = [...new Set(visible.map((r) => r.category))].sort((a, b) => catRank(a) - catRank(b));
 	// areas + types available to the player, for the filter dropdowns
 	const filterAreas = [...data.biomes]
 		.sort((a, b) => a.order - b.order)
@@ -285,11 +291,24 @@ export function CraftingPanel() {
 			{placeable.length > 0 && (
 				<div className="placeable-bar">
 					<b>Ready to place:</b>
-					{placeable.map(([id, qty]) => (
-						<button key={id} onClick={() => startPlacement(id)}>
-							{data.habitatObjects.find((o) => o.id === id)?.name} ×{qty}
-						</button>
-					))}
+					{placeable.map(([id, qty]) => {
+						const def = data.habitatObjects.find((o) => o.id === id);
+						const here = (def?.biomes || []).includes(player.area);
+						if (!here) {
+							const where = (def?.biomes || []).map((b) => data.biomes.find((x) => x.id === b)?.name || b).join(', ');
+							const msg = `${def?.name} can't be placed in ${areaName} — try: ${where || 'another area'}`;
+							return (
+								<button key={id} className="cant-place" title={msg} onClick={() => notify(msg, 'info')}>
+									{def?.name} ×{qty}
+								</button>
+							);
+						}
+						return (
+							<button key={id} onClick={() => startPlacement(id)}>
+								{def?.name} ×{qty}
+							</button>
+						);
+					})}
 				</div>
 			)}
 			{visible.length === 0 && (

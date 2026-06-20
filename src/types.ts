@@ -17,6 +17,8 @@ export interface BiomeDef {
 		label: string;
 	};
 	resources: string[];
+	/** Materials the shovel can randomly turn up when digging a soil bed here. */
+	digResources?: string[];
 	palette: { damaged: string; healthy: string };
 	canFlood?: boolean;
 }

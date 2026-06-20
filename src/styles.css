@@ -331,6 +331,10 @@ input {
 	display: flex; flex-wrap: wrap; gap: 7px; align-items: center;
 	background: #eff6e9; border: 1.5px solid #aecf9f; border-radius: 13px; padding: 9px 13px; margin-bottom: 9px;
 }
+.placeable-bar .cant-place {
+	opacity: 0.45; filter: grayscale(0.6); cursor: help;
+	border-style: dashed;
+}
 .upgrade-next { margin-top: 4px; }
 
 .biome-row {

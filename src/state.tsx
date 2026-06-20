@@ -260,8 +260,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			act(
 				() => api.terraform(area, x, y, action),
 				(r) => {
-					if (action === 'dig') pushLog('shovel', 'Prepared a soil bed with your shovel.');
-					else if (action === 'water') {
+					if (action === 'dig') {
+						if (r?.dug) {
+							const name = data?.resources.find((x: any) => x.id === r.dug.resourceId)?.name || r.dug.resourceId;
+							pushLog('shovel', `Dug a soil bed and turned up ${r.dug.amount}× ${name}.`);
+							toast(`Dug up ${r.dug.amount}× ${name}!`, 'info');
+						} else {
+							pushLog('shovel', 'Prepared a soil bed with your shovel.');
+						}
+					} else if (action === 'water') {
 						if (r?.tile?.type === 'water') {
 							pushLog('drop', 'Flooded the bed into open water.');
 						} else {
@@ -272,7 +279,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					bridge.emit('terraformed', { x, y, action });
 				}
 			),
-		[act, pushLog, toast]
+		[act, pushLog, toast, data]
 	);
 
 	const plant = useCallback(

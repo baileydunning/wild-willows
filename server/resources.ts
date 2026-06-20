@@ -150,6 +150,8 @@ async function defs() {
 
 const NODE_REGEN_SECONDS = 75;
 const BASE_HEALTH = 5;
+// Chance that digging a fresh soil bed turns up a buried material (not every dig).
+const DIG_FIND_CHANCE = 0.75;
 const CAPACITY_BY_BASKET: Record<number, number> = { 1: 80, 2: 160, 3: 260, 4: 380 };
 
 // New caretakers start empty-handed — the first task is to gather seeds and
@@ -1709,12 +1711,29 @@ export class Terraform extends PublicEndpoint {
 		let inventory = player.inventory || {};
 		let tile: any = null;
 		let removedId: string | undefined;
+		let dug: { resourceId: string; amount: number } | null = null;
 
 		if (action === 'dig') {
 			if ((player.tools?.shovel || 0) < 1) throw new GameError('You need your shovel for that');
 			if (existing) throw new GameError('This ground is already prepared — water it, or clear it instead');
 			tile = { id: tileId, playerId, area, x: tx, y: ty, type: 'tilled', updatedAt: Date.now() };
 			await t.TerrainTile.put(tile);
+
+			// Breaking new ground may turn up a buried material. This only happens
+			// when DIGGING a fresh bed — never when clearing/draining one back over.
+			// The shovel's tier sets how much you pull up at once (tier 1→1 … 4→4),
+			// so upgrading it actually pays off.
+			const pool = biome.digResources || [];
+			if (pool.length && Math.random() < DIG_FIND_CHANCE) {
+				const resId = pool[Math.floor(Math.random() * pool.length)];
+				const room = Math.max(0, inventoryCapacity(player) - sumValues(inventory));
+				const amount = Math.min(player.tools?.shovel || 1, room);
+				if (amount > 0) {
+					inventory = { ...inventory, [resId]: (inventory[resId] || 0) + amount };
+					await t.Player.patch(playerId, { inventory });
+					dug = { resourceId: resId, amount };
+				}
+			}
 		} else if (action === 'water') {
 			if ((player.tools?.['watering-can'] || 0) < 1) throw new GameError('You need your watering can for that');
 			if (!existing) throw new GameError('Prepare a soil bed with your shovel first');
@@ -1756,7 +1775,7 @@ export class Terraform extends PublicEndpoint {
 			player: { ...player, inventory },
 		});
 		await bumpMetrics(player, { terraformActions: 1, animalsReturned: recalc.newAnimals?.length || 0 });
-		return { ok: true, tile, removedId, inventory, ...recalc };
+		return { ok: true, tile, removedId, dug, inventory, ...recalc };
 	}
 }
 

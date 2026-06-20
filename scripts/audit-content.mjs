@@ -9,6 +9,8 @@ const gatherableAt = {}; // biomeId -> Set of resources available once that biom
 let acc = new Set();
 for (const b of order) {
 	(b.resources || []).forEach((r) => acc.add(r));
+	// materials you can also dig up with the shovel count as gatherable here
+	(b.digResources || []).forEach((r) => acc.add(r));
 	gatherableAt[b.id] = new Set(acc);
 }
 const orderOf = Object.fromEntries(order.map((b) => [b.id, b.order]));

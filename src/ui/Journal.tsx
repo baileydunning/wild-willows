@@ -80,7 +80,8 @@ function JournalEntry({ animal, disc, full }: { animal: AnimalDef; disc?: Discov
 
 export function JournalPanel() {
 	const { data, state, setPanel } = useGame();
-	const [tab, setTab] = useState('meadow');
+	// default to the biome you're currently standing in
+	const [tab, setTab] = useState(state?.player.area || 'meadow');
 	if (!data || !state) return null;
 	const biomes = [...data.biomes].sort((a, b) => a.order - b.order);
 	const discs = new Map(state.discoveries.map((d) => [d.animalId, d]));

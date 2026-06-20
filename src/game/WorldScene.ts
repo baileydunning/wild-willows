@@ -1339,8 +1339,8 @@ export class WorldScene extends Phaser.Scene {
 			? `${this.isTouch ? 'Tap' : 'Click'} a tile to place${this.isTouch ? '' : ' · Esc to stop placing'}`
 			: terraforming
 				? (terraforming === 'dig'
-					? `Shovel out: ${this.isTouch ? 'tap' : 'click'} nearby ground to dig a soil bed · dig a shaped tile again to clear or drain it`
-					: `Watering can out: water a soil bed to ready it for planting (1 water) · water again to flood into open water (1 water)`)
+					? `Shovel — ${this.isTouch ? 'tap' : 'click'} ground to dig a bed (may turn up materials)`
+					: `Watering can — ${this.isTouch ? 'tap' : 'click'} a bed to water it, again to flood it`)
 					+ (near ? ` · ${verb} — ${near.label}` : '')
 				: near
 					? `${verb} — ${near.label}`

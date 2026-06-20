@@ -143,8 +143,8 @@ const STEPS: StepDef[] = [
 	{
 		icon: 'paw',
 		title: 'Welcome the grasshopper',
-		text: 'Here’s the moment. A grasshopper returns at just 8% health once a Grass Patch is down — place another patch or two if it hasn’t hopped in yet. When it arrives, click it to observe it and record it in your journal. That’s the whole loop: gather, build, and welcome wildlife home. Keep restoring the meadow to open the forest trail — you’ve got this, caretaker!',
-		touchText: 'Here’s the moment. A grasshopper returns at just 8% health once a Grass Patch is down — place another patch or two if it hasn’t hopped in yet. When it arrives, tap it to observe it and record it in your journal. That’s the whole loop: gather, build, and welcome wildlife home. Keep restoring the meadow to open the forest trail — you’ve got this, caretaker!',
+		text: 'Here’s the moment. A grasshopper returns at 15% meadow health with a Grass Patch down — between watering the land, planting, and your patches you’re already there. If it hasn’t hopped in yet, place another patch or water a bit more. When it arrives, click it to observe it and record it in your journal. That’s the whole loop: gather, build, and welcome wildlife home — keep going to open the forest trail!',
+		touchText: 'Here’s the moment. A grasshopper returns at 15% meadow health with a Grass Patch down — between watering the land, planting, and your patches you’re already there. If it hasn’t hopped in yet, place another patch or water a bit more. When it arrives, tap it to observe it and record it in your journal. That’s the whole loop: gather, build, and welcome wildlife home — keep going to open the forest trail!',
 		done: ({ state }) => state?.discoveries?.some((d: any) => (d.timesObserved || 0) > 0),
 	},
 ];
