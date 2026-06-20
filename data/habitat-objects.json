@@ -907,6 +907,76 @@
 			"description": "A roped-off quiet stretch of upper beach for nesting."
 		},
 		{
+			"id": "coral-garden",
+			"name": "Coral Garden",
+			"placement": "outdoor",
+			"biomes": [
+				"coastal"
+			],
+			"healthValue": 8,
+			"needs": [
+				"food",
+				"shelter"
+			],
+			"shape": "coralgarden",
+			"color": "#e58b6f",
+			"description": "Transplanted coral rubble that grows back into a living reef — food and shelter for the whole tideline."
+		},
+		{
+			"id": "sea-glass-lantern",
+			"name": "Sea Glass Lantern",
+			"placement": "both",
+			"biomes": [
+				"coastal"
+			],
+			"healthValue": 1,
+			"needs": [],
+			"shape": "seaglasslantern",
+			"color": "#8fc6c2",
+			"description": "Beach-found glass set into a driftwood frame — it throws soft sea-green light at dusk."
+		},
+		{
+			"id": "tide-chime",
+			"name": "Tide Chime",
+			"placement": "both",
+			"biomes": [
+				"coastal"
+			],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "tidechime",
+			"color": "#9bbcc8",
+			"description": "Shells and sea glass strung on driftwood that ring softly in the onshore breeze."
+		},
+		{
+			"id": "pearl-display",
+			"name": "Pearl Display",
+			"placement": "both",
+			"biomes": [
+				"coastal"
+			],
+			"healthValue": 1,
+			"needs": [],
+			"shape": "pearldisplay",
+			"color": "#f2ece0",
+			"description": "A polished shell cradle showing off the rarest pearls the shore gives up — the pride of a restored coast."
+		},
+		{
+			"id": "sea-glass-path",
+			"name": "Sea Glass Path",
+			"placement": "outdoor",
+			"biomes": [
+				"coastal"
+			],
+			"healthValue": 1,
+			"needs": [
+				"open"
+			],
+			"shape": "seaglasspath",
+			"color": "#8fc6c2",
+			"description": "Tumbled sea glass pressed into the sand — a glittering walkway that keeps boots off the dunes."
+		},
+		{
 			"id": "small-chest",
 			"name": "Small Chest",
 			"placement": "both",

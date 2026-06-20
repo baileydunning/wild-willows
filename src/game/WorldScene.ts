@@ -10,6 +10,7 @@ export const TILE = 32;
 const OUT_W = 30;
 const OUT_H = 20;
 const MTN_ROWS = 4; // rows reserved for the alpine mountain range (impassable)
+const COAST_COLS = 4; // columns reserved for the ocean along Pelican Shore's east edge (impassable)
 
 // your base camp: tent + campfire scenery beside the permanent workbench & chest
 const CAMP = { tent: { x: 6.5, y: 4.2 }, fire: { x: 7.6, y: 5.1 } };
@@ -31,6 +32,8 @@ const SPAWNS: Record<string, { x: number; y: number }> = {
 	'coastal:from-alpine': { x: 1.8, y: 10.0 },
 	default: { x: 15, y: 11 },
 };
+
+const C = (hex: string) => Phaser.Display.Color.HexStringToColor(hex).color;
 
 function hashStr(s: string): number {
 	let h = 2166136261;
@@ -114,6 +117,12 @@ export class WorldScene extends Phaser.Scene {
 	}
 	private get playTop() {
 		return this.mtnRows;
+	}
+	// Pelican Shore reserves a band of columns on the east for the open ocean
+	// (impassable). landRight is the first ocean column — playable land is
+	// columns 1..landRight-1.
+	private get landRight() {
+		return this.area === 'coastal' ? OUT_W - COAST_COLS : OUT_W;
 	}
 	private get rows() {
 		return OUT_H + this.mtnRows;
@@ -333,14 +342,73 @@ export class WorldScene extends Phaser.Scene {
 		// Ground tiles fill only the playable region; in the alpine the top rows
 		// are the mountain range, drawn separately below.
 		for (let ty = this.playTop; ty < this.rows; ty++) {
-			for (let tx = 0; tx < OUT_W; tx++) {
+			for (let tx = 0; tx < this.landRight; tx++) {
 				const img = this.add.image(tx * TILE + 16, ty * TILE + 16, 'tile').setDepth(0);
 				(img as any).shade = 0.92 + rng() * 0.08;
 				this.groundTiles.push(img);
 			}
 		}
 		if (this.mtnRows > 0) this.drawMountainBand();
+		if (this.area === 'coastal') this.drawCoastBand();
 		this.tintGround();
+	}
+
+	/** Static, impassable open ocean down the east edge of Pelican Shore. */
+	private drawCoastBand() {
+		const edgeX = this.landRight * TILE; // where land meets the surf
+		const h = this.worldH;
+		// deep sea fills the reserved columns out to the world edge
+		this.add.rectangle(edgeX, 0, this.worldW - edgeX, h, C('#2f6f9e')).setOrigin(0, 0).setDepth(0.1);
+		// banded water: a lighter shallow strip near shore, deeper blue beyond
+		this.add.rectangle(edgeX, 0, TILE * 1.6, h, C('#5aa6cf')).setOrigin(0, 0).setDepth(0.12);
+		this.add.rectangle(edgeX + TILE * 1.6, 0, TILE * 1.3, h, C('#3f8cbb')).setOrigin(0, 0).setDepth(0.12);
+		// a damp-sand tideline where the beach gives way to water
+		this.add.rectangle(edgeX - 6, 0, 12, h, C('#bda572')).setOrigin(0, 0).setDepth(0.13).setAlpha(0.7);
+		// rolling foam lines that breathe in and out along the shore
+		for (let i = 0; i < 7; i++) {
+			const y = (i + 0.5) * (h / 7);
+			const foam = this.add.ellipse(edgeX + 4, y, TILE * 1.5, 10, 0xffffff, 0.5).setDepth(0.14);
+			this.tweens.add({
+				targets: foam, x: edgeX + 4 + TILE * 0.6, alpha: { from: 0.5, to: 0.15 },
+				duration: 1800 + i * 160, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+			});
+			// sun-glints further out
+			const glint = this.add.ellipse(edgeX + TILE * (2 + (i % 2)), y - 14, 9, 4, 0xffffff, 0.4).setDepth(0.14);
+			this.tweens.add({ targets: glint, alpha: { from: 0.4, to: 0.05 }, duration: 1300 + i * 130, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+		}
+		// a couple of half-buried rocks at the waterline for texture
+		const rng = mulberry32(hashStr('coast-rocks'));
+		for (let i = 0; i < 5; i++) {
+			const ry = (1 + rng() * (OUT_H - 2)) * TILE;
+			this.add.ellipse(edgeX - 4 + rng() * 6, ry, 16 + rng() * 10, 10, C('#7d7a72')).setDepth(0.15);
+		}
+		// drifting pelicans gliding over the surf — the shore's namesake
+		this.drawPelicans(edgeX);
+	}
+
+	/** Ambient pelicans gliding low over the ocean band. */
+	private drawPelicans(edgeX: number) {
+		const make = (delay: number, yBase: number, scale: number) => {
+			const g = this.add.graphics().setDepth(3500);
+			g.fillStyle(C('#6b5f52'), 1);
+			// simple gliding silhouette: body + two swept wings + bill
+			g.fillEllipse(0, 0, 16 * scale, 6 * scale);
+			g.fillTriangle(-2 * scale, 0, -14 * scale, -7 * scale, -10 * scale, 1 * scale);
+			g.fillTriangle(-2 * scale, 0, 10 * scale, -6 * scale, 6 * scale, 1 * scale);
+			g.fillStyle(C('#c2a05a'), 1).fillRect(7 * scale, -1, 6 * scale, 2);
+			const bird = this.add.container(this.worldW + 30, yBase, [g]).setDepth(3500);
+			const run = () => {
+				bird.setPosition(this.worldW + 30, yBase + (Math.random() - 0.5) * 30);
+				this.tweens.add({
+					targets: bird, x: edgeX - 20, duration: 9000 + Math.random() * 4000, ease: 'Sine.easeInOut',
+					onUpdate: () => { (bird.list[0] as Phaser.GameObjects.Graphics).y = Math.sin(bird.x / 40) * 3; },
+					onComplete: () => { if (this.alive) this.time.delayedCall(2000 + Math.random() * 4000, run); },
+				});
+			};
+			this.time.delayedCall(delay, run);
+		};
+		make(800, this.worldH * 0.3, 1);
+		make(4200, this.worldH * 0.62, 0.8);
 	}
 
 	/** Static, impassable snow-capped range across the top of Graywind Heights. */
@@ -472,7 +540,7 @@ export class WorldScene extends Phaser.Scene {
 		const health = state?.health ?? 5;
 		const rng = mulberry32(hashStr(`${this.area}-doodads`));
 		const spot = (): { x: number; y: number } | null => {
-			const x = (1 + rng() * (OUT_W - 2)) * TILE;
+			const x = (1 + rng() * (this.landRight - 2)) * TILE;
 			const y = (this.playTop + 1.4 + rng() * (this.rows - this.playTop - 2.4)) * TILE;
 			if (this.area === 'meadow' && x > (CAMP_BLOCK.x0 - 0.4) * TILE && x < (CAMP_BLOCK.x1 + 0.4) * TILE && y > (CAMP_BLOCK.y0 - 0.4) * TILE && y < (CAMP_BLOCK.y1 + 0.4) * TILE) return null;
 			return { x, y };
@@ -637,10 +705,27 @@ export class WorldScene extends Phaser.Scene {
 					}
 					const coastal = this.biomeDef('coastal');
 					const text = coastalUnlocked
-						? 'Pelican Shore is unlocked! The descent to the coast opens soon.'
+						? 'Pelican Shore is unlocked! Follow the trail down to the coast.'
 						: `The pass down to the coast is snowed in. ${coastal?.unlock?.label || ''}`;
 					bridge.emit('toast', { text, kind: 'info' });
 				},
+			});
+		} else if (this.area === 'coastal') {
+			// Pelican Shore is the last biome. The ocean runs down the whole east
+			// edge (drawn statically in drawCoastBand), so there's no eastern gate —
+			// only the trail back up to Graywind Heights on the west edge.
+			const gx = 1.2 * TILE;
+			const gy = 9.8 * TILE;
+			this.addDyn(this.add.image(gx, gy, 'gate').setDepth(gy));
+			this.registerInteractable({ x: gx, y: gy, label: 'Walk back up to Graywind Heights', action: () => bridge.emit('request-area', { area: 'alpine' }) });
+
+			// a weathered marker at the end of the shore trail, looking out to sea
+			const sx = (this.landRight - 0.6) * TILE;
+			const sy = 13 * TILE;
+			this.addDyn(this.add.image(sx, sy, 'obj-driftpile').setDepth(sy));
+			this.registerInteractable({
+				x: sx, y: sy, label: 'Look out over the ocean',
+				action: () => bridge.emit('toast', { text: 'The open Pacific stretches east as far as you can see. Sea glass, kelp, coral, and the rare pearl wash up along the tideline.', kind: 'info' }),
 			});
 		}
 	}
@@ -677,7 +762,7 @@ export class WorldScene extends Phaser.Scene {
 		let attempts = 0;
 		while (nodes.length < count && attempts < 400) {
 			attempts++;
-			const tx = 1 + Math.floor(rng() * (OUT_W - 3));
+			const tx = 1 + Math.floor(rng() * (this.landRight - 3));
 			const ty = this.playTop + 1 + Math.floor(rng() * (this.rows - this.playTop - 3));
 			if (this.inCamp(tx, ty)) continue;
 			if (nodes.some((n) => Math.abs(n.tx - tx) < 2 && Math.abs(n.ty - ty) < 2)) continue;
@@ -734,7 +819,7 @@ export class WorldScene extends Phaser.Scene {
 			);
 			if (!hasNearby) {
 				const aKey = `${anchor.tx},${anchor.ty}`;
-				const anchorFree = anchor.tx >= 1 && anchor.ty >= this.playTop && anchor.tx <= OUT_W - 2 && anchor.ty <= this.rows - 2 &&
+				const anchorFree = anchor.tx >= 1 && anchor.ty >= this.playTop && anchor.tx <= this.landRight - 2 && anchor.ty <= this.rows - 2 &&
 					!occupied.has(aKey) && !taken.has(aKey) && !this.inCamp(anchor.tx, anchor.ty);
 				const spot = anchorFree ? anchor : this.findFreeTile(anchor.tx, anchor.ty, occupied, taken);
 				if (spot) {
@@ -758,7 +843,7 @@ export class WorldScene extends Phaser.Scene {
 					if (Math.max(Math.abs(dx), Math.abs(dy)) !== r) continue; // current ring only
 					const tx = cx + dx;
 					const ty = cy + dy;
-					if (tx < 1 || ty < this.playTop || tx > OUT_W - 2 || ty > this.rows - 2) continue;
+					if (tx < 1 || ty < this.playTop || tx > this.landRight - 2 || ty > this.rows - 2) continue;
 					const key = `${tx},${ty}`;
 					if (occupied.has(key) || taken.has(key) || this.inCamp(tx, ty)) continue;
 					return { tx, ty };
@@ -1008,10 +1093,12 @@ export class WorldScene extends Phaser.Scene {
 				ax = a.x * TILE + 16 + (rng() - 0.5) * 90;
 				ay = a.y * TILE + 16 + (rng() - 0.5) * 70;
 			} else {
-				ax = (2 + rng() * (OUT_W - 4)) * TILE;
+				ax = (2 + rng() * (this.landRight - 4)) * TILE;
 				ay = (this.playTop + 2 + rng() * (OUT_H - 4)) * TILE;
 			}
-			ax = Phaser.Math.Clamp(ax, TILE, this.worldW - TILE);
+			// on the shore, let sea creatures drift a touch into the surf but no further
+			const eastEdge = this.area === 'coastal' ? (this.landRight + 1.2) * TILE : this.worldW - TILE;
+			ax = Phaser.Math.Clamp(ax, TILE, eastEdge);
 			ay = Phaser.Math.Clamp(ay, (this.playTop + 1) * TILE, this.worldH - TILE);
 
 			ensureAnimalTexture(this, animal.id, animal.kind);
@@ -1082,7 +1169,8 @@ export class WorldScene extends Phaser.Scene {
 		const speed = kind === 'insect' ? 26 : kind === 'bird' ? 42 : 18;
 		const hop = () => {
 			if (!img.active) return;
-			const tx = Phaser.Math.Clamp(homeX + (rng() - 0.5) * roam * 2, TILE, this.worldW - TILE);
+			const eastEdge = this.area === 'coastal' ? (this.landRight + 1.2) * TILE : this.worldW - TILE;
+			const tx = Phaser.Math.Clamp(homeX + (rng() - 0.5) * roam * 2, TILE, eastEdge);
 			const ty = Phaser.Math.Clamp(homeY + (rng() - 0.5) * roam * 1.4, (this.playTop + 1) * TILE, this.worldH - TILE);
 			const dist = Phaser.Math.Distance.Between(img.x, img.y, tx, ty);
 			img.setFlipX(tx < img.x);
@@ -1138,7 +1226,9 @@ export class WorldScene extends Phaser.Scene {
 	}
 
 	private canPlaceAt(tx: number, ty: number, forTerraform = false, ignoreId?: string): boolean {
-		if (tx < 1 || ty < (this.playTop || 1) || tx >= OUT_W - 1 || ty >= this.rows - 1) return false;
+		// Pelican Shore: nothing builds on the open ocean; land ends at landRight.
+		const right = this.area === 'coastal' ? this.landRight : OUT_W - 1;
+		if (tx < 1 || ty < (this.playTop || 1) || tx >= right || ty >= this.rows - 1) return false;
 		if (this.area === 'meadow' && tx >= 6 && tx <= 8 && ty >= 4 && ty <= 5) return false; // tent + campfire tiles
 		const s = bridge.shared.state;
 		if (s?.placements.some((p) => p.id !== ignoreId && p.area === this.area && p.x === tx && p.y === ty)) return false;
@@ -1195,8 +1285,10 @@ export class WorldScene extends Phaser.Scene {
 
 		if (vx !== 0) this.player.setFlipX(vx < 0);
 
-		// open water blocks walking — unless a bridge spans that tile
+		// open water blocks walking — unless a bridge spans that tile. On Pelican
+		// Shore the ocean band along the east edge is always impassable.
 		const blocked = (px: number, py: number) => {
+			if (this.area === 'coastal' && Math.floor(px / TILE) >= this.landRight) return true;
 			const key = `${Math.floor(px / TILE)},${Math.floor((py + 8) / TILE)}`;
 			return this.waterTiles.has(key) && !this.bridgeTiles.has(key);
 		};

@@ -175,6 +175,30 @@
 			"name": "Obsidian",
 			"tool": "shovel",
 			"color": "#2e2b38"
+		},
+		{
+			"id": "kelp",
+			"name": "Kelp",
+			"tool": "basket",
+			"color": "#4f7a3f"
+		},
+		{
+			"id": "sea-glass",
+			"name": "Sea Glass",
+			"tool": "basket",
+			"color": "#8fc6c2"
+		},
+		{
+			"id": "coral",
+			"name": "Coral",
+			"tool": "shovel",
+			"color": "#e58b6f"
+		},
+		{
+			"id": "pearl",
+			"name": "Pearl",
+			"tool": "basket",
+			"color": "#f2ece0"
 		}
 	]
 }

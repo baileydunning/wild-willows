@@ -149,8 +149,8 @@ var biomes_default = {
       id: "coastal",
       name: "Pelican Shore",
       order: 6,
-      explorable: false,
-      description: "A scoured stretch of coast. The dunes have washed out and the tidepools are empty.",
+      explorable: true,
+      description: "A scoured stretch of coast where the open ocean breaks along the eastern edge. The dunes have washed out and the tidepools are empty, but sea glass, kelp, coral, and the odd pearl still wash up on the tide.",
       restorationGoal: "Anchor the dunes, restore tidepools and kelp wrack, and reopen the shore to coastal life.",
       unlock: {
         biome: "alpine",
@@ -164,7 +164,11 @@ var biomes_default = {
         "shells",
         "driftwood",
         "sand",
-        "water"
+        "water",
+        "kelp",
+        "sea-glass",
+        "coral",
+        "pearl"
       ],
       palette: {
         damaged: "#c2b9a0",
@@ -1009,6 +1013,96 @@ var recipes_default = {
       unlock: {
         minHealth: 65,
         label: "Restore Pelican Shore to 65% health"
+      }
+    },
+    {
+      id: "coral-garden",
+      name: "Coral Garden",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "coral-garden",
+        qty: 1
+      },
+      materials: {
+        coral: 4,
+        kelp: 3,
+        stones: 2,
+        water: 2
+      },
+      unlock: {
+        minHealth: 40,
+        label: "Restore Pelican Shore to 40% health"
+      }
+    },
+    {
+      id: "sea-glass-lantern",
+      name: "Sea Glass Lantern",
+      category: "structure",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "sea-glass-lantern",
+        qty: 1
+      },
+      materials: {
+        "sea-glass": 4,
+        driftwood: 2
+      },
+      unlock: {
+        minHealth: 30,
+        label: "Restore Pelican Shore to 30% health"
+      }
+    },
+    {
+      id: "tide-chime",
+      name: "Tide Chime",
+      category: "home",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "tide-chime",
+        qty: 1
+      },
+      materials: {
+        "sea-glass": 2,
+        shells: 3,
+        driftwood: 1
+      },
+      unlock: {
+        minHealth: 50,
+        label: "Restore Pelican Shore to 50% health"
+      }
+    },
+    {
+      id: "pearl-display",
+      name: "Pearl Display",
+      category: "structure",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "pearl-display",
+        qty: 1
+      },
+      materials: {
+        pearl: 2,
+        shells: 5,
+        driftwood: 2
+      },
+      unlock: {
+        minHealth: 72,
+        label: "Restore Pelican Shore to 72% health"
+      }
+    },
+    {
+      id: "sea-glass-path",
+      name: "Sea Glass Path",
+      category: "decoration",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "sea-glass-path",
+        qty: 1
+      },
+      materials: {
+        "sea-glass": 2,
+        sand: 2
       }
     },
     {
@@ -3031,6 +3125,76 @@ var habitat_objects_default = {
       description: "A roped-off quiet stretch of upper beach for nesting."
     },
     {
+      id: "coral-garden",
+      name: "Coral Garden",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 8,
+      needs: [
+        "food",
+        "shelter"
+      ],
+      shape: "coralgarden",
+      color: "#e58b6f",
+      description: "Transplanted coral rubble that grows back into a living reef \u2014 food and shelter for the whole tideline."
+    },
+    {
+      id: "sea-glass-lantern",
+      name: "Sea Glass Lantern",
+      placement: "both",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 1,
+      needs: [],
+      shape: "seaglasslantern",
+      color: "#8fc6c2",
+      description: "Beach-found glass set into a driftwood frame \u2014 it throws soft sea-green light at dusk."
+    },
+    {
+      id: "tide-chime",
+      name: "Tide Chime",
+      placement: "both",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "tidechime",
+      color: "#9bbcc8",
+      description: "Shells and sea glass strung on driftwood that ring softly in the onshore breeze."
+    },
+    {
+      id: "pearl-display",
+      name: "Pearl Display",
+      placement: "both",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 1,
+      needs: [],
+      shape: "pearldisplay",
+      color: "#f2ece0",
+      description: "A polished shell cradle showing off the rarest pearls the shore gives up \u2014 the pride of a restored coast."
+    },
+    {
+      id: "sea-glass-path",
+      name: "Sea Glass Path",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 1,
+      needs: [
+        "open"
+      ],
+      shape: "seaglasspath",
+      color: "#8fc6c2",
+      description: "Tumbled sea glass pressed into the sand \u2014 a glittering walkway that keeps boots off the dunes."
+    },
+    {
       id: "small-chest",
       name: "Small Chest",
       placement: "both",
@@ -5021,6 +5185,30 @@ var resources_default = {
       name: "Obsidian",
       tool: "shovel",
       color: "#2e2b38"
+    },
+    {
+      id: "kelp",
+      name: "Kelp",
+      tool: "basket",
+      color: "#4f7a3f"
+    },
+    {
+      id: "sea-glass",
+      name: "Sea Glass",
+      tool: "basket",
+      color: "#8fc6c2"
+    },
+    {
+      id: "coral",
+      name: "Coral",
+      tool: "shovel",
+      color: "#e58b6f"
+    },
+    {
+      id: "pearl",
+      name: "Pearl",
+      tool: "basket",
+      color: "#f2ece0"
     }
   ]
 };

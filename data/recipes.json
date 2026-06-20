@@ -835,6 +835,96 @@
 			}
 		},
 		{
+			"id": "coral-garden",
+			"name": "Coral Garden",
+			"category": "habitat",
+			"unlockBiome": "coastal",
+			"output": {
+				"itemId": "coral-garden",
+				"qty": 1
+			},
+			"materials": {
+				"coral": 4,
+				"kelp": 3,
+				"stones": 2,
+				"water": 2
+			},
+			"unlock": {
+				"minHealth": 40,
+				"label": "Restore Pelican Shore to 40% health"
+			}
+		},
+		{
+			"id": "sea-glass-lantern",
+			"name": "Sea Glass Lantern",
+			"category": "structure",
+			"unlockBiome": "coastal",
+			"output": {
+				"itemId": "sea-glass-lantern",
+				"qty": 1
+			},
+			"materials": {
+				"sea-glass": 4,
+				"driftwood": 2
+			},
+			"unlock": {
+				"minHealth": 30,
+				"label": "Restore Pelican Shore to 30% health"
+			}
+		},
+		{
+			"id": "tide-chime",
+			"name": "Tide Chime",
+			"category": "home",
+			"unlockBiome": "coastal",
+			"output": {
+				"itemId": "tide-chime",
+				"qty": 1
+			},
+			"materials": {
+				"sea-glass": 2,
+				"shells": 3,
+				"driftwood": 1
+			},
+			"unlock": {
+				"minHealth": 50,
+				"label": "Restore Pelican Shore to 50% health"
+			}
+		},
+		{
+			"id": "pearl-display",
+			"name": "Pearl Display",
+			"category": "structure",
+			"unlockBiome": "coastal",
+			"output": {
+				"itemId": "pearl-display",
+				"qty": 1
+			},
+			"materials": {
+				"pearl": 2,
+				"shells": 5,
+				"driftwood": 2
+			},
+			"unlock": {
+				"minHealth": 72,
+				"label": "Restore Pelican Shore to 72% health"
+			}
+		},
+		{
+			"id": "sea-glass-path",
+			"name": "Sea Glass Path",
+			"category": "decoration",
+			"unlockBiome": "coastal",
+			"output": {
+				"itemId": "sea-glass-path",
+				"qty": 1
+			},
+			"materials": {
+				"sea-glass": 2,
+				"sand": 2
+			}
+		},
+		{
 			"id": "forest-restoration-kit",
 			"name": "Forest Restoration Kit",
 			"category": "kit",

@@ -148,8 +148,8 @@
 			"id": "coastal",
 			"name": "Pelican Shore",
 			"order": 6,
-			"explorable": false,
-			"description": "A scoured stretch of coast. The dunes have washed out and the tidepools are empty.",
+			"explorable": true,
+			"description": "A scoured stretch of coast where the open ocean breaks along the eastern edge. The dunes have washed out and the tidepools are empty, but sea glass, kelp, coral, and the odd pearl still wash up on the tide.",
 			"restorationGoal": "Anchor the dunes, restore tidepools and kelp wrack, and reopen the shore to coastal life.",
 			"unlock": {
 				"biome": "alpine",
@@ -163,7 +163,11 @@
 				"shells",
 				"driftwood",
 				"sand",
-				"water"
+				"water",
+				"kelp",
+				"sea-glass",
+				"coral",
+				"pearl"
 			],
 			"palette": {
 				"damaged": "#c2b9a0",

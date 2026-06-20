@@ -304,6 +304,34 @@ export function makeNodeTextures(scene: Phaser.Scene) {
 		g.fillStyle(0xffffff, 0.45).lineStyle(1, 0xffffff, 0.45);
 		g.fillRect(9, 9, 1.4, 7).fillRect(18, 11, 1.4, 6); // sharp highlights
 	});
+	n('kelp', 26, 30, (g) => {
+		g.lineStyle(3, C('#3f6432'), 1); // bull-kelp stipes
+		g.lineBetween(8, 28, 6, 8).lineBetween(14, 28, 14, 5).lineBetween(20, 28, 22, 9);
+		g.fillStyle(C('#4f7a3f'), 1); // floats + blades
+		g.fillCircle(6, 7, 3).fillCircle(14, 4, 3.2).fillCircle(22, 8, 3);
+		g.fillStyle(C('#6f9a52'), 1).fillEllipse(3, 13, 5, 9).fillEllipse(25, 14, 5, 9);
+	});
+	n('sea-glass', 26, 22, (g) => {
+		g.fillStyle(C('#dcc890'), 1).fillEllipse(13, 16, 22, 9); // wet sand
+		g.fillStyle(C('#8fc6c2'), 0.92).fillRoundedRect(4, 6, 8, 7, 2); // frosted shards
+		g.fillStyle(C('#a9d8d0'), 0.92).fillRoundedRect(13, 9, 7, 6, 2);
+		g.fillStyle(C('#bcd8e6'), 0.92).fillTriangle(9, 3, 14, 9, 5, 10);
+		g.fillStyle(0xffffff, 0.5).fillCircle(7, 8, 1).fillCircle(16, 11, 1);
+	});
+	n('coral', 28, 26, (g) => {
+		g.fillStyle(C('#cdbfa0'), 1).fillEllipse(14, 22, 24, 8); // sandy base
+		g.fillStyle(C('#e58b6f'), 1); // branching coral
+		g.fillRoundedRect(11, 6, 5, 16, 2).fillRoundedRect(5, 11, 4, 11, 2).fillRoundedRect(18, 9, 4, 13, 2);
+		g.fillStyle(C('#f2a98f'), 1).fillCircle(13, 6, 3).fillCircle(7, 11, 2.6).fillCircle(20, 9, 2.6);
+		g.fillStyle(0xffffff, 0.35).fillCircle(12, 6, 1.2);
+	});
+	n('pearl', 24, 22, (g) => {
+		g.fillStyle(C('#c8b8a8'), 1).fillEllipse(12, 15, 22, 13); // open shell
+		g.lineStyle(1.4, C('#a89a88'), 1);
+		g.lineBetween(12, 5, 4, 16).lineBetween(12, 5, 12, 17).lineBetween(12, 5, 20, 16);
+		g.fillStyle(C('#f2ece0'), 1).fillCircle(12, 13, 4.4); // the pearl
+		g.fillStyle(0xffffff, 0.85).fillCircle(10, 11, 1.6);
+	});
 	tex(scene, 'gate', 40, 44, (g) => {
 		g.fillStyle(C('#8c6a42'), 1).fillRect(2, 6, 6, 38).fillRect(32, 6, 6, 38);
 		g.fillStyle(C('#a3814f'), 1).fillRect(0, 2, 40, 6);
@@ -497,6 +525,50 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 		g.fillStyle(C('#d8c8a0'), 1).fillEllipse(20, 18, 38, 20);
 		g.lineStyle(2, C('#8a6a44'), 1).strokeEllipse(20, 18, 30, 14);
 		g.fillStyle(C('#f4ecd8'), 1).fillEllipse(16, 17, 6, 5).fillEllipse(24, 18, 6, 5);
+	});
+	o('coralgarden', 42, 32, (g) => {
+		g.fillStyle(C('#cdbfa0'), 1).fillEllipse(21, 26, 40, 12); // sandy bed
+		g.fillStyle(C('#5d96c8'), 0.55).fillEllipse(21, 24, 36, 9); // shallow water film
+		const branch = (x: number, h: number, c: string) => {
+			g.fillStyle(C(c), 1).fillRoundedRect(x - 2, 26 - h, 4, h, 2);
+			g.fillCircle(x, 26 - h, 3);
+		};
+		branch(10, 14, '#e58b6f'); branch(17, 20, '#f2a98f'); branch(24, 16, '#e0876f');
+		branch(31, 12, '#e8a07a'); branch(20, 11, '#d96e8a');
+		g.fillStyle(C('#6f9a52'), 1).fillEllipse(6, 22, 5, 12).fillEllipse(36, 21, 5, 12); // kelp fronds
+		g.fillStyle(0xffffff, 0.4).fillCircle(15, 19, 1.2).fillCircle(27, 17, 1.2);
+	});
+	o('seaglasslantern', 22, 44, (g) => {
+		g.fillStyle(C('#7c5a3c'), 1).fillRect(9, 30, 4, 12); // driftwood post
+		g.fillStyle(C('#b0a088'), 1).fillRoundedRect(4, 8, 14, 22, 3); // weathered frame
+		g.fillStyle(C('#8fc6c2'), 1).fillRoundedRect(6, 11, 5, 7, 1); // sea-glass panes
+		g.fillStyle(C('#a9d8d0'), 1).fillRoundedRect(11, 11, 5, 7, 1);
+		g.fillStyle(C('#bcd8e6'), 1).fillRoundedRect(6, 19, 5, 7, 1);
+		g.fillStyle(C('#9fd0cc'), 1).fillRoundedRect(11, 19, 5, 7, 1);
+		g.fillStyle(0xffffff, 0.55).fillCircle(8, 13, 1.2);
+		g.fillStyle(C('#9a7448'), 1).fillRoundedRect(3, 4, 16, 5, 2); // cap
+	});
+	o('tidechime', 28, 40, (g) => {
+		g.fillStyle(C('#b0a088'), 1).fillRoundedRect(6, 6, 16, 4, 2); // driftwood bar
+		const items: [number, string, number][] = [[9, '#e6d8c8', 16], [13, '#8fc6c2', 22], [17, '#9bbcc8', 18], [21, '#a9d8d0', 24]];
+		items.forEach(([x, c, len]) => {
+			g.lineStyle(1, C('#9a948a'), 1).lineBetween(x, 10, x, 14);
+			g.fillStyle(C(c), 1).fillRoundedRect(x - 1.6, 14, 3.2, len, 1);
+			g.fillStyle(0xffffff, 0.4).fillCircle(x - 0.5, 17, 0.9);
+		});
+	});
+	o('pearldisplay', 30, 28, (g) => {
+		g.fillStyle(C('#7c5a3c'), 1).fillRect(7, 22, 5, 6).fillRect(18, 22, 5, 6); // little stand legs
+		g.fillStyle(C('#c8b8a8'), 1).fillEllipse(15, 18, 26, 14); // big shell cradle
+		g.lineStyle(1.4, C('#a89a88'), 1);
+		g.lineBetween(15, 7, 5, 19).lineBetween(15, 7, 15, 20).lineBetween(15, 7, 25, 19);
+		g.fillStyle(C('#f2ece0'), 1).fillCircle(11, 17, 3).fillCircle(19, 17, 3).fillCircle(15, 14, 3.4); // pearls
+		g.fillStyle(0xffffff, 0.85).fillCircle(10, 15, 1.1).fillCircle(18, 15, 1.1).fillCircle(14, 12, 1.2);
+	});
+	o('seaglasspath', 34, 26, (g) => {
+		g.fillStyle(C('#dcc890'), 1).fillRoundedRect(1, 4, 32, 18, 8); // sand
+		const bits: [number, number, string][] = [[8, 9, '#8fc6c2'], [15, 13, '#a9d8d0'], [22, 9, '#bcd8e6'], [27, 15, '#9fd0cc'], [12, 17, '#8fc6c2'], [20, 7, '#a9d8d0']];
+		for (const [x, y, c] of bits) g.fillStyle(C(c), 0.95).fillRoundedRect(x - 2, y - 2, 4.5, 4.5, 1);
 	});
 	o('rug', 40, 28, (g) => {
 		g.fillStyle(C('#b5707a'), 1).fillRoundedRect(2, 2, 36, 24, 5);
