@@ -191,7 +191,7 @@ const HOME_TRACKS: Record<string, { name: string; blurb: string; levels: any[] }
 	space: {
 		name: 'Space', blurb: 'A bigger room with more floor to decorate.',
 		levels: [
-			{ inner: { w: 8, h: 6 } },
+			{ inner: { w: 6, h: 5 } },
 			{ inner: { w: 11, h: 8 }, materials: { branches: 12, fiber: 8 }, requires: { biome: 'meadow', minHealth: 30 } },
 			{ inner: { w: 15, h: 10 }, materials: { branches: 18, stones: 6, clay: 6 }, requires: { biome: 'forest', minHealth: 45 } },
 			{ inner: { w: 19, h: 12 }, materials: { branches: 24, clay: 10, 'clean-water': 6 }, requires: { biome: 'wetland', minHealth: 55 } },

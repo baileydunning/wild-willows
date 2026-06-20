@@ -1,4 +1,4 @@
-// ../../sessions/determined-laughing-babbage/mnt/wild-willows/data/biomes.json
+// data/biomes.json
 var biomes_default = {
   database: "wildwillows",
   table: "Biome",
@@ -214,7 +214,7 @@ var biomes_default = {
   ]
 };
 
-// ../../sessions/determined-laughing-babbage/mnt/wild-willows/data/recipes.json
+// data/recipes.json
 var recipes_default = {
   database: "wildwillows",
   table: "Recipe",
@@ -2641,7 +2641,7 @@ var recipes_default = {
   ]
 };
 
-// ../../sessions/determined-laughing-babbage/mnt/wild-willows/data/habitat-objects.json
+// data/habitat-objects.json
 var habitat_objects_default = {
   database: "wildwillows",
   table: "HabitatObject",
@@ -5425,7 +5425,7 @@ var habitat_objects_default = {
   ]
 };
 
-// ../../sessions/determined-laughing-babbage/mnt/wild-willows/data/tools.json
+// data/tools.json
 var tools_default = {
   database: "wildwillows",
   table: "ToolDef",
@@ -5685,7 +5685,7 @@ var tools_default = {
   ]
 };
 
-// ../../sessions/determined-laughing-babbage/mnt/wild-willows/data/resources.json
+// data/resources.json
 var resources_default = {
   database: "wildwillows",
   table: "ResourceType",
@@ -5891,7 +5891,7 @@ var resources_default = {
   ]
 };
 
-// ../../sessions/determined-laughing-babbage/mnt/wild-willows/data/animals-1.json
+// data/animals-1.json
 var animals_1_default = {
   database: "wildwillows",
   table: "Animal",
@@ -6830,7 +6830,7 @@ var animals_1_default = {
   ]
 };
 
-// ../../sessions/determined-laughing-babbage/mnt/wild-willows/data/animals-2.json
+// data/animals-2.json
 var animals_2_default = {
   database: "wildwillows",
   table: "Animal",
@@ -9032,7 +9032,7 @@ var animals_2_default = {
   ]
 };
 
-// ../../sessions/determined-laughing-babbage/mnt/wild-willows/data/achievements.json
+// data/achievements.json
 var achievements_default = {
   database: "wildwillows",
   table: "Achievement",
@@ -9090,7 +9090,7 @@ var achievements_default = {
   ]
 };
 
-// ../../sessions/determined-laughing-babbage/mnt/wild-willows/server/resources.ts
+// server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 var db = () => databases.wildwillows;
 var GameError = class extends Error {
@@ -9203,7 +9203,7 @@ var HOME_TRACKS = {
     name: "Space",
     blurb: "A bigger room with more floor to decorate.",
     levels: [
-      { inner: { w: 8, h: 6 } },
+      { inner: { w: 6, h: 5 } },
       { inner: { w: 11, h: 8 }, materials: { branches: 12, fiber: 8 }, requires: { biome: "meadow", minHealth: 30 } },
       { inner: { w: 15, h: 10 }, materials: { branches: 18, stones: 6, clay: 6 }, requires: { biome: "forest", minHealth: 45 } },
       { inner: { w: 19, h: 12 }, materials: { branches: 24, clay: 10, "clean-water": 6 }, requires: { biome: "wetland", minHealth: 55 } }

@@ -48,6 +48,8 @@ harper deploy \
 
 Credentials can also go in `CLI_TARGET_USERNAME` / `CLI_TARGET_PASSWORD`. The `dataLoader` seeds all definition tables on every deploy (player data is never touched). Admin credentials are used only by the CLI — they never appear in the frontend.
 
+> **Deploy the prebuilt component — don't deploy straight from the Git URL.** This is a prebuilt component: the bundled `resources.js` and the static `web/` build are committed, and it has **no runtime npm dependencies** (`dependencies` is empty; phaser/react/vite are build-time `devDependencies` only). Always `npm run build` first, then `harper deploy package=.` — that uploads the built files and installs nothing. Pointing Harper at the raw GitHub repo instead makes it clone and run a full `npm install --include=dev`, which unpacks the large **phaser** package on the instance and can fail with `TAR_ENTRY_ERROR Unknown system error -122` (that's `EDQUOT` — the instance's **disk quota exceeded**). Building locally and deploying the package avoids that entirely.
+
 ---
 
 ## Content at a glance
