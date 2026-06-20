@@ -15,9 +15,13 @@ interface StepDef {
 interface Flags {
 	moved: boolean;
 	gathered: boolean;
+	openedBasket: boolean;
 	openedWorkbench: boolean;
 	crafted: boolean;
 	openedJournal: boolean;
+	openedChest: boolean;
+	openedPreserve: boolean;
+	openedTools: boolean;
 }
 
 // Did the player craft a Grass Patch specifically? (the tutorial's first goal)
@@ -34,88 +38,114 @@ const openWaterTiles = (state: any) =>
 const upgradedAnyTool = (state: any) =>
 	Object.values(state?.player?.tools || {}).some((tier: any) => (tier as number) > 1);
 
+// The tutorial is ordered as a natural new-caretaker arc: learn to move and
+// gather, manage storage, work the land (terraform + plant), read the info
+// panels, then put it all together — building toward the emotional payoff of
+// welcoming your very first animal, the grasshopper, as the finale.
 const STEPS: StepDef[] = [
 	{
 		icon: 'walk',
 		title: 'Welcome, caretaker',
-		text: 'This worn-out meadow is yours to restore. Your very first goal: bring the grasshopper home. Let’s do it together. Walk around with WASD or the arrow keys.',
-		touchText: 'This worn-out meadow is yours to restore. Your very first goal: bring the grasshopper home. Let’s do it together. Walk with the joystick in the corner.',
+		text: 'This worn-out meadow is yours to restore. By the end of this short guide you’ll welcome your very first animal home — a little grasshopper. Let’s start simple: walk around with WASD or the arrow keys.',
+		touchText: 'This worn-out meadow is yours to restore. By the end of this short guide you’ll welcome your very first animal home — a little grasshopper. Let’s start simple: walk with the joystick in the corner.',
 		done: ({ flags }) => flags.moved,
 	},
 	{
 		icon: 'basket',
-		title: 'Gather seeds and fiber',
-		text: 'A grasshopper just needs a patch of grass — and a Grass Patch is made from seeds and fiber. See the little glowing spots? Walk up to the grassy and plant ones and press E to gather seeds and fiber.',
-		touchText: 'A grasshopper just needs a patch of grass — and a Grass Patch is made from seeds and fiber. See the little glowing spots? Walk up to the grassy and plant ones and tap to gather seeds and fiber.',
-		done: ({ flags }) => flags.gathered,
-	},
-	{
-		icon: 'hammer',
-		title: 'Open crafting',
-		text: 'Now press C (or the hammer button) to open crafting. You can craft anywhere — it uses your basket plus anything in your chests. Only a few things can be made right now; more unlock as the meadow recovers.',
-		touchText: 'Now tap the hammer button to open crafting. You can craft anywhere — it uses your basket plus anything in your chests. Only a few things can be made right now; more unlock as the meadow recovers.',
-		done: ({ flags }) => flags.openedWorkbench,
+		title: 'Check your basket',
+		text: 'Press B (or the basket button, top-right) to see what you’re carrying. Your basket holds a limited amount — when it fills up you’ll stash the extra in a chest. The toolbelt along the bottom (or number keys 1, 2, 3) switches between your basket, shovel, and watering can.',
+		touchText: 'Tap the basket button (top-right) to see what you’re carrying. Your basket holds a limited amount — when it fills up you’ll stash the extra in a chest. The toolbelt along the bottom switches between your basket, shovel, and watering can.',
+		done: ({ flags }) => flags.openedBasket,
 	},
 	{
 		icon: 'sparkle',
-		title: 'Craft a Grass Patch',
-		text: 'Find Grass Patch in the list and press Craft. Once you carry enough seeds and fiber it lights up. This is the home the grasshopper is waiting for.',
-		done: ({ state }) => hasGrassPatch(state),
+		title: 'Gather materials',
+		text: 'Now fill that basket. See the little glowing spots on the ground? Walk up to one with the basket selected and press E to gather. Collect some seeds and fiber — you’ll need them for the grasshopper’s home later.',
+		touchText: 'Now fill that basket. See the little glowing spots on the ground? Walk up to one with the basket selected and tap it to gather. Collect some seeds and fiber — you’ll need them for the grasshopper’s home later.',
+		done: ({ flags }) => flags.gathered,
 	},
 	{
-		icon: 'pin',
-		title: 'Place the Grass Patch',
-		text: 'Press the green “Ready to place” button at the top of the crafting menu, then click a patch of open ground in the meadow. Watch the biome health meter tick up.',
-		touchText: 'Tap the green “Ready to place” button at the top of the crafting menu, then tap a patch of open ground in the meadow. Watch the biome health meter tick up.',
-		done: ({ state }) => grassPlaced(state),
-	},
-	{
-		icon: 'paw',
-		title: 'Welcome the grasshopper',
-		text: 'A grasshopper returns at just 8% health once a Grass Patch is down — keep gathering and placing a patch or two more if it hasn’t hopped in yet. When it arrives, click it to observe it and record it in your field journal. Welcoming it also unlocks new things to craft — watch for the “new recipe unlocked” note.',
-		touchText: 'A grasshopper returns at just 8% health once a Grass Patch is down — keep gathering and placing a patch or two more if it hasn’t hopped in yet. When it arrives, tap it to observe it and record it in your field journal. Welcoming it also unlocks new things to craft — watch for the “new recipe unlocked” note.',
-		done: ({ state }) => state?.discoveries?.some((d: any) => (d.timesObserved || 0) > 0),
-	},
-	{
-		icon: 'journal',
-		title: 'Open your field journal',
-		text: 'Press J to open your field journal — it lists every animal that can return to each area and who’s back so far. Each area has its own field guide: the basic entry (and comfort) always shows, but the full diet, shelter, and return hints unlock once you gather that area’s materials and upgrade the guide in the Tools panel — starting with the Willow Meadow guide.',
-		touchText: 'Tap the journal button to open your field journal — it lists every animal that can return to each area and who’s back so far. Each area has its own field guide: the basic entry always shows, but full diet, shelter, and return hints unlock once you gather that area’s materials and upgrade the guide in the Tools panel — starting with Willow Meadow.',
-		done: ({ flags }) => flags.openedJournal,
+		icon: 'chest',
+		title: 'Use your camp chest',
+		text: 'Walk to the chest beside your tent and press E to open it. Deposit spare materials here whenever your basket gets full — anything in a chest still counts toward crafting from anywhere, so you never have to carry it all.',
+		touchText: 'Walk to the chest beside your tent and tap it to open it. Deposit spare materials here whenever your basket gets full — anything in a chest still counts toward crafting from anywhere, so you never have to carry it all.',
+		done: ({ flags }) => flags.openedChest,
 	},
 	{
 		icon: 'spade',
-		title: 'Prepare some soil',
-		text: 'Habitat isn’t only crafted — you can plant living things too. Press 2 for the shovel and dig a soil bed on bare ground, then press 3 for the watering can and water the bed. Watering recovers the land (+health) and readies it for planting.',
-		touchText: 'Habitat isn’t only crafted — you can plant living things too. Tap the shovel and dig a soil bed on bare ground, then tap the watering can and water the bed. Watering recovers the land (+health) and readies it for planting.',
+		title: 'Work the land',
+		text: 'The land itself needs healing. Press 2 for the shovel and dig a soil bed on bare ground, then press 3 for the watering can and water it. Watering recovers the land (+health) and readies the bed for planting.',
+		touchText: 'The land itself needs healing. Tap the shovel and dig a soil bed on bare ground, then tap the watering can and water it. Watering recovers the land (+health) and readies the bed for planting.',
 		done: ({ state }) => hasWateredBed(state),
 	},
 	{
 		icon: 'leaf',
 		title: 'Plant something living',
-		text: 'Walk up to your watered bed and press E to plant a flower, grass, or tree (open crafting to see what’s plantable). Plants sprout small and grow in over time — once mature they count as real habitat, and the biome rechecks for new arrivals.',
-		touchText: 'Walk up to your watered bed and tap it to plant a flower, grass, or tree. Plants sprout small and grow in over time — once mature they count as real habitat, and the biome rechecks for new arrivals.',
+		text: 'Walk up to your watered bed and press E to plant a flower, grass, or tree. Plants sprout small and grow in over time — once mature they count as real habitat, and the biome rechecks for new arrivals on its own.',
+		touchText: 'Walk up to your watered bed and tap it to plant a flower, grass, or tree. Plants sprout small and grow in over time — once mature they count as real habitat, and the biome rechecks for new arrivals on its own.',
 		done: ({ state }) => hasPlanted(state),
 	},
 	{
 		icon: 'drop',
-		title: 'Shape water',
-		text: 'Many animals need water. Water a bed once to plant it — water it again to flood it into open water. Flood several tiles next to each other to shape a pond, a long channel for a river, or a wide body for a lake. Try flooding a few connected tiles now.',
-		touchText: 'Many animals need water. Water a bed once to plant it — water it again to flood it into open water. Flood several tiles next to each other to shape a pond, river, or lake. Try flooding a few connected tiles now.',
+		title: 'Shape some water',
+		text: 'Many animals need water. Water a bed once to plant it — water it again to flood it into open water. Flood a few tiles next to each other to shape a pond (a long line makes a river, a wide patch a lake). Try flooding a few connected tiles now.',
+		touchText: 'Many animals need water. Water a bed once to plant it — water it again to flood it into open water. Flood a few tiles next to each other to shape a pond, river, or lake. Try flooding a few connected tiles now.',
 		done: ({ state }) => openWaterTiles(state) >= 3,
 	},
 	{
-		icon: 'tools',
-		title: 'Upgrade your tools',
-		text: 'Press T to open Tools & Upgrades. Spend materials to upgrade your basket, shovel, watering can, or field journal — higher tiers gather more, shape more, and reveal the next area’s field guide. Some upgrades unlock as a biome gets healthier.',
-		touchText: 'Open Tools & Upgrades. Spend materials to upgrade your basket, shovel, watering can, or field journal — higher tiers gather more, shape more, and reveal the next area’s field guide. Some upgrades unlock as a biome gets healthier.',
-		done: ({ state }) => upgradedAnyTool(state),
+		icon: 'journal',
+		title: 'Open your field journal',
+		text: 'Press J to open your field journal — it lists every animal that can return to each area and who’s back so far. Each area has its own field guide: the basic entry always shows, but full diet, shelter, and return hints unlock once you gather that area’s materials and upgrade its guide in the Tools panel.',
+		touchText: 'Tap the journal button to open your field journal — it lists every animal that can return to each area and who’s back so far. Each area has its own field guide: the basic entry always shows, but full diet, shelter, and return hints unlock once you gather that area’s materials and upgrade its guide in the Tools panel.',
+		done: ({ flags }) => flags.openedJournal,
 	},
 	{
-		icon: 'leaf',
-		title: 'That’s the loop',
-		text: 'Gather, craft, plant, terraform, and welcome wildlife — and each animal you bring back and every bit of health you restore unlocks more to craft. Reach 80% health with 10 meadow animals back to open the forest trail. The ? button has everything else.',
-		done: () => false, // finished by the button
+		icon: 'tools',
+		title: 'Tools & upgrades',
+		text: 'Press T to open Tools & Upgrades. Spend materials to upgrade your basket, shovel, watering can, or field journal — higher tiers gather more, shape more, and reveal the next area’s field guide. Some upgrades open up as a biome gets healthier, so check back as you go.',
+		touchText: 'Tap the tools button to open Tools & Upgrades. Spend materials to upgrade your basket, shovel, watering can, or field journal — higher tiers gather more, shape more, and reveal the next area’s field guide. Some upgrades open up as a biome gets healthier, so check back as you go.',
+		done: ({ flags }) => flags.openedTools,
+	},
+	{
+		icon: 'map',
+		title: 'Open the Preserve map',
+		text: 'Press P (or the map button) to open the Preserve. It tracks every area’s health and animals, shows exactly what’s needed to unlock the next one, and lets you fast-travel back to any area you’ve already visited — tap the walk icon on its row.',
+		touchText: 'Tap the map button to open the Preserve. It tracks every area’s health and animals, shows exactly what’s needed to unlock the next one, and lets you fast-travel back to any area you’ve already visited — tap the walk icon on its row.',
+		done: ({ flags }) => flags.openedPreserve,
+	},
+	{
+		icon: 'pin',
+		title: 'Good things to know',
+		text: 'Misplaced something? Shift+click any placed object to pick it back up. Esc closes menus or cancels placing. New areas open through trail gates at the edge of the map. The gear button holds Settings (change your character, lock or delete your save), and the ? button reopens this guide anytime.',
+		touchText: 'Misplaced something? Press and hold a placed object to pick it back up. New areas open through trail gates at the edge of the map. The gear button holds Settings (change your character, lock or delete your save), and the ? button reopens this guide anytime.',
+		done: () => false, // info step — advance with Next
+	},
+	{
+		icon: 'hammer',
+		title: 'Open crafting',
+		text: 'Time to build the grasshopper’s home. Press C (or the hammer button) to open crafting — it draws from your basket plus every chest, anywhere you are. Only a few things can be made now; more unlock as the meadow recovers.',
+		touchText: 'Time to build the grasshopper’s home. Tap the hammer button to open crafting — it draws from your basket plus every chest, anywhere you are. Only a few things can be made now; more unlock as the meadow recovers.',
+		done: ({ flags }) => flags.openedWorkbench,
+	},
+	{
+		icon: 'sparkle',
+		title: 'Craft a Grass Patch',
+		text: 'Find Grass Patch in the list and press Craft. Once you’re carrying enough seeds and fiber it lights up — this is the simple home a grasshopper is waiting for.',
+		done: ({ state }) => hasGrassPatch(state),
+	},
+	{
+		icon: 'pin',
+		title: 'Place the Grass Patch',
+		text: 'Press the green “Ready to place” button at the top of the crafting menu, then click a patch of open ground in the meadow. Watch the biome health meter tick up the moment it’s down.',
+		touchText: 'Tap the green “Ready to place” button at the top of the crafting menu, then tap a patch of open ground in the meadow. Watch the biome health meter tick up the moment it’s down.',
+		done: ({ state }) => grassPlaced(state),
+	},
+	{
+		icon: 'paw',
+		title: 'Welcome the grasshopper',
+		text: 'Here’s the moment. A grasshopper returns at just 8% health once a Grass Patch is down — place another patch or two if it hasn’t hopped in yet. When it arrives, click it to observe it and record it in your journal. That’s the whole loop: gather, build, and welcome wildlife home. Keep restoring the meadow to open the forest trail — you’ve got this, caretaker!',
+		touchText: 'Here’s the moment. A grasshopper returns at just 8% health once a Grass Patch is down — place another patch or two if it hasn’t hopped in yet. When it arrives, tap it to observe it and record it in your journal. That’s the whole loop: gather, build, and welcome wildlife home. Keep restoring the meadow to open the forest trail — you’ve got this, caretaker!',
+		done: ({ state }) => state?.discoveries?.some((d: any) => (d.timesObserved || 0) > 0),
 	},
 ];
 
@@ -135,7 +165,7 @@ const readMs = (text: string) => {
 
 export function Tutorial() {
 	const { state, setTutorialStep, panel } = useGame();
-	const [flags, setFlags] = useState<Flags>({ moved: false, gathered: false, openedWorkbench: false, crafted: false, openedJournal: false });
+	const [flags, setFlags] = useState<Flags>({ moved: false, gathered: false, openedBasket: false, openedWorkbench: false, crafted: false, openedJournal: false, openedChest: false, openedPreserve: false, openedTools: false });
 	const advanceTimer = useRef<number | null>(null);
 	const stepShownAt = useRef<number>(Date.now());
 	const [celebrating, setCelebrating] = useState(false);
@@ -213,6 +243,10 @@ export function Tutorial() {
 	useEffect(() => {
 		if (panel === 'crafting') setFlags((f) => ({ ...f, openedWorkbench: true }));
 		if (panel === 'journal') setFlags((f) => (f.openedJournal ? f : { ...f, openedJournal: true }));
+		if (panel === 'inventory') setFlags((f) => (f.openedBasket ? f : { ...f, openedBasket: true }));
+		if (panel === 'chest') setFlags((f) => (f.openedChest ? f : { ...f, openedChest: true }));
+		if (panel === 'biomes') setFlags((f) => (f.openedPreserve ? f : { ...f, openedPreserve: true }));
+		if (panel === 'tools') setFlags((f) => (f.openedTools ? f : { ...f, openedTools: true }));
 	}, [panel]);
 
 	useEffect(() => {
@@ -261,46 +295,52 @@ export function Tutorial() {
 
 	return (
 		<div className={`tutorial-card ${celebrating ? 'celebrate' : ''}`}>
-			<button
-				className="tutorial-close"
-				title={replaying ? 'Close tutorial' : 'Skip tutorial'}
-				aria-label={replaying ? 'Close tutorial' : 'Skip tutorial'}
-				onClick={() => goTo(DONE_STEP)}
-			>
-				<Icon name="close" size={14} />
-			</button>
-			<div className="tutorial-icon">
-				<Icon name={celebrating ? 'check' : def.icon} size={22} />
+			<div className="tutorial-head">
+				<span className="tutorial-eyebrow"><Icon name="sparkle" size={13} /> Getting started</span>
+				<span className="tutorial-count">Step {step + 1} of {STEPS.length}</span>
+				<button
+					className="tutorial-close"
+					title={replaying ? 'Close tutorial' : 'Skip tutorial'}
+					aria-label={replaying ? 'Close tutorial' : 'Skip tutorial'}
+					onClick={() => goTo(DONE_STEP)}
+				>
+					<Icon name="close" size={14} />
+				</button>
 			</div>
-			<div className="grow">
-				<div className="tutorial-title">{def.title} <span className="tutorial-count">{step + 1}/{STEPS.length}</span></div>
-				<div className="tutorial-text">{(touch && def.touchText) || def.text}</div>
-				<div className="tutorial-footer">
-					<div className="tutorial-dots">
-						{STEPS.map((_, i) => (
-							<span key={i} className={`dot ${i < step ? 'done' : i === step ? 'now' : ''}`} />
-						))}
-					</div>
-					<div className="tutorial-nav">
-						<button
-							className="tutorial-skip"
-							onClick={() => goTo(step - 1)}
-							disabled={step === 0}
-							title="Previous step"
-							aria-label="Previous step"
-						>
-							<Icon name="back" size={14} /> Back
+			<div className="tutorial-main">
+				<div className="tutorial-icon">
+					<Icon name={celebrating ? 'check' : def.icon} size={22} />
+				</div>
+				<div className="grow">
+					<div className="tutorial-title">{celebrating ? 'Nice work!' : def.title}</div>
+					<div className="tutorial-text">{(touch && def.touchText) || def.text}</div>
+				</div>
+			</div>
+			<div className="tutorial-footer">
+				<div className="tutorial-dots">
+					{STEPS.map((_, i) => (
+						<span key={i} className={`dot ${i < step ? 'done' : i === step ? 'now' : ''}`} />
+					))}
+				</div>
+				<div className="tutorial-nav">
+					<button
+						className="tutorial-skip"
+						onClick={() => goTo(step - 1)}
+						disabled={step === 0}
+						title="Previous step"
+						aria-label="Previous step"
+					>
+						<Icon name="back" size={14} /> Back
+					</button>
+					{isLast ? (
+						<button className="tutorial-btn" onClick={() => goTo(DONE_STEP)}>
+							<Icon name="check" size={15} /> Finish
 						</button>
-						{isLast ? (
-							<button className="tutorial-btn" onClick={() => goTo(DONE_STEP)}>
-								<Icon name="check" size={15} /> Finish
-							</button>
-						) : (
-							<button className="tutorial-btn" onClick={() => goTo(step + 1)} title="Next step" aria-label="Next step">
-								Next <Icon name="forward" size={15} />
-							</button>
-						)}
-					</div>
+					) : (
+						<button className="tutorial-btn" onClick={() => goTo(step + 1)} title="Next step" aria-label="Next step">
+							Next <Icon name="forward" size={15} />
+						</button>
+					)}
 				</div>
 			</div>
 		</div>
