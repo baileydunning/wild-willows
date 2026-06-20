@@ -1335,12 +1335,14 @@ export class CraftItem extends PublicEndpoint {
 		if (outObj?.plantable) {
 			throw new GameError(`${recipe.name} is planted, not crafted — dig a bed, water it, and plant it.`, 400);
 		}
-		if (recipe.unlockBiome && !(player.unlockedBiomes || []).includes(recipe.unlockBiome)) {
+		// Dev override (dev save only): skip the biome + progress gates entirely.
+		const devUnlock = !!player.devUnlockAll && playerId === DEV_PLAYER;
+		if (!devUnlock && recipe.unlockBiome && !(player.unlockedBiomes || []).includes(recipe.unlockBiome)) {
 			throw new GameError('This recipe unlocks with a biome you have not restored yet', 403);
 		}
 		// Progress gate: most recipes only unlock once you've restored their biome
 		// far enough (health / animals returned / a keystone animal back).
-		if (recipe.unlock && recipe.unlockBiome) {
+		if (!devUnlock && recipe.unlock && recipe.unlockBiome) {
 			const ctx = await recipeUnlockContext(playerId, recipe.unlockBiome, player, d);
 			if (!recipeUnlockMet(recipe, ctx)) {
 				throw new GameError(`Not unlocked yet — ${recipe.unlock.label}.`, 403);
@@ -2043,7 +2045,10 @@ export class BiomeSnapshot extends PublicEndpoint {
  * POST /DevTools/ {playerId, action, ...args} — testing helpers for development.
  * Not part of normal play; the client only exposes these behind a hidden dev panel.
  * Actions: 'seed-water' (reseed an area's starting terrain), 'clear-terrain',
- * 'grant-resources', 'max-tools', 'unlock-all', 'set-health'.
+ * 'grant-resources', 'max-tools', 'unlock-all', 'set-health', 'reset-biome'
+ * (wipe the area back to its damaged state, keeping chests), 'lock-biome'
+ * (re-lock the area to retest the unlock flow), 'unlock-recipes' (toggle all
+ * recipes craftable), 'welcome-animals' (force every animal in the area back).
  */
 const DEV_PLAYER = 'bailey'; // dev tools are restricted to this save
 
@@ -2121,6 +2126,74 @@ export class DevTools extends PublicEndpoint {
 				const h = Math.max(0, Math.min(100, Number(value) || 100));
 				await t.BiomeState.patch(`${playerId}:${ar}`, { health: h });
 				log.push(`Set ${ar} health to ${h}% (recomputes on next change)`);
+				break;
+			}
+			case 'reset-biome': {
+				// Wipe the current area back to its damaged starting state: remove all
+				// placed habitat, terraforming, returned animals, and node timers, then
+				// reseed the starting terrain and recompute. Chests (and the materials
+				// inside them) are kept so a reset never destroys stored inventory.
+				const ar = area || player.area;
+				let placementsRemoved = 0;
+				for (const pl of (await byPlayer(t.Placement, playerId)).filter((x) => x.area === ar)) {
+					if (d.object.get(pl.objectId)?.isChest) continue; // keep chests + contents
+					await t.Placement.delete(pl.id);
+					placementsRemoved++;
+				}
+				for (const tt of (await byPlayer(t.TerrainTile, playerId)).filter((x) => x.area === ar)) {
+					await t.TerrainTile.delete(tt.id);
+				}
+				let animalsRemoved = 0;
+				for (const disc of (await byPlayer(t.Discovery, playerId)).filter((x) => x.biomeId === ar)) {
+					await t.Discovery.delete(disc.id);
+					animalsRemoved++;
+				}
+				const nodePrefix = `${playerId}:${ar}:`;
+				for (const ns of (await byPlayer(t.NodeState, playerId)).filter((x) => String(x.id).startsWith(nodePrefix))) {
+					await t.NodeState.delete(ns.id);
+				}
+				await t.BiomeState.patch(`${playerId}:${ar}`, { health: BASE_HEALTH, balance: 0, returnedCount: 0 });
+				await seedStartingTerrain(playerId, ar);
+				await recalcBiome(playerId, ar, { player });
+				log.push(`Reset ${ar} to its damaged state — removed ${placementsRemoved} object${placementsRemoved === 1 ? '' : 's'} and sent ${animalsRemoved} animal${animalsRemoved === 1 ? '' : 's'} away (chests kept)`);
+				break;
+			}
+			case 'lock-biome': {
+				// Re-lock the current area so the unlock flow can be retested. The
+				// starting meadow can't be locked — you'd have nowhere to stand.
+				const ar = area || player.area;
+				if (ar === 'meadow') throw new GameError('The starting meadow cannot be locked');
+				const unlocked = (player.unlockedBiomes || []).filter((b: string) => b !== ar);
+				await t.Player.patch(playerId, { unlockedBiomes: unlocked });
+				await t.BiomeState.patch(`${playerId}:${ar}`, { unlocked: false });
+				log.push(`Locked ${ar} again (unlock requirements must be met to re-enter)`);
+				break;
+			}
+			case 'unlock-recipes': {
+				// Toggle the dev "all recipes craftable" override (ignores progress gates).
+				const next = value === undefined ? !player.devUnlockAll : !!value;
+				await t.Player.patch(playerId, { devUnlockAll: next });
+				log.push(next ? 'All recipes unlocked (gates ignored)' : 'Recipe progress gates restored');
+				break;
+			}
+			case 'welcome-animals': {
+				// Force every animal in the current area to return — handy for testing
+				// the journal, balance, and fully-recovered states.
+				const ar = area || player.area;
+				const here = d.animals.filter((a: any) => a.biome === ar);
+				const already = new Set((await byPlayer(t.Discovery, playerId)).filter((x) => x.biomeId === ar).map((x) => x.animalId));
+				let added = 0;
+				for (const animal of here) {
+					if (already.has(animal.id)) continue;
+					await t.Discovery.put({
+						id: `${playerId}:${animal.id}`, playerId, animalId: animal.id, biomeId: ar,
+						comfort: 3, timesObserved: 0, firstObservedAt: Date.now(),
+						whyReturned: whyReturnedText(animal, d),
+					});
+					added++;
+				}
+				await recalcBiome(playerId, ar, { player });
+				log.push(`Welcomed ${added} animal${added === 1 ? '' : 's'} to ${ar} (${here.length} total)`);
 				break;
 			}
 			default:

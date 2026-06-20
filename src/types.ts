@@ -145,6 +145,8 @@ export interface Player {
 	tools: Record<string, number>;
 	unlockedBiomes: string[];
 	tutorialStep?: number;
+	/** Dev-only: when true, every recipe is craftable regardless of progress gates. */
+	devUnlockAll?: boolean;
 }
 
 export interface TerrainTile {

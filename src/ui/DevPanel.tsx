@@ -9,12 +9,14 @@ import { Icon } from './icons';
  * endpoint, then refreshes state. Not shown in normal play.
  */
 export function DevPanel({ onClose }: { onClose: () => void }) {
-	const { data, state, refresh, notify } = useGame();
+	const { data, state, refresh, notify, changeArea } = useGame();
 	const [busy, setBusy] = useState<string | null>(null);
 	const [amounts, setAmounts] = useState<Record<string, number>>({});
 	const [fill, setFill] = useState(100);
+	const [health, setHealth] = useState(100);
 	if (!data || !state || state.player.id !== 'bailey') return null;
 	const area = state.player.area;
+	const recipesUnlocked = !!state.player.devUnlockAll;
 
 	const run = async (label: string, action: string, args: Record<string, any> = {}) => {
 		setBusy(action);
@@ -57,13 +59,61 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 				<div className="panel-body">
 					<p className="muted small">Testing only — press <b>`</b> (backtick) to toggle.</p>
 
+					<h3><Icon name="leaf" size={15} /> This biome <span className="muted small">· {area}</span></h3>
 					<div className="dev-grid">
-						<Btn label="Reseed wetland water" action="seed-water" args={{ area: 'wetland' }} />
-						<Btn label={`Reseed ${area} water`} action="seed-water" args={{ area }} />
+						<Btn label={`Reseed ${area}`} action="seed-water" args={{ area }} />
 						<Btn label={`Clear ${area} terrain`} action="clear-terrain" args={{ area }} />
-						<Btn label="Max all tools" action="max-tools" />
+						<Btn label={`Welcome all animals to ${area}`} action="welcome-animals" args={{ area }} />
+						<button
+							disabled={!!busy}
+							onClick={() => {
+								if (window.confirm(`Reset ${area} to its damaged state? This removes all placed habitat, terraforming, and returned animals here. Chests and their contents are kept.`)) {
+									run(`Reset ${area}`, 'reset-biome', { area });
+								}
+							}}
+						>
+							{busy === 'reset-biome' ? '…' : `Reset ${area}`}
+						</button>
+						<button
+							disabled={!!busy || area === 'meadow'}
+							title={area === 'meadow' ? 'The starting meadow cannot be locked' : ''}
+							onClick={() => run(`Lock ${area}`, 'lock-biome', { area })}
+						>
+							{busy === 'lock-biome' ? '…' : `Lock ${area} again`}
+						</button>
+					</div>
+					<div className="dev-fill">
+						<span className="muted small" style={{ flex: '0 0 auto' }}>Set {area} health</span>
+						<input type="number" min={0} max={100} value={health} onChange={(e) => setHealth(Number(e.target.value))} style={{ width: 70 }} />
+						<button disabled={!!busy} onClick={() => run(`Set ${area} health`, 'set-health', { area, value: health })}>
+							{busy === 'set-health' ? '…' : 'Apply'}
+						</button>
+					</div>
+
+					<h3><Icon name="gear" size={15} /> Travel</h3>
+					<div className="dev-grid">
+						{data.biomes.filter((b) => b.explorable).map((b) => {
+							const unlocked = state.player.unlockedBiomes.includes(b.id);
+							return (
+								<button
+									key={b.id}
+									disabled={!!busy || !unlocked || b.id === area}
+									title={!unlocked ? 'Unlock it first (Unlock all biomes)' : ''}
+									onClick={async () => { await changeArea(b.id); onClose(); }}
+								>
+									{b.id === area ? `${b.name} (here)` : `Go to ${b.name}`}
+								</button>
+							);
+						})}
+					</div>
+
+					<h3><Icon name="gear" size={15} /> Whole preserve</h3>
+					<div className="dev-grid">
 						<Btn label="Unlock all biomes" action="unlock-all" />
-						<Btn label={`Set ${area} health to 100%`} action="set-health" args={{ area, value: 100 }} />
+						<button disabled={!!busy} onClick={() => run('Toggle recipes', 'unlock-recipes')}>
+							{busy === 'unlock-recipes' ? '…' : recipesUnlocked ? 'Re-lock recipes' : 'Unlock all recipes'}
+						</button>
+						<Btn label="Max all tools" action="max-tools" />
 					</div>
 
 					<h3><Icon name="basket" size={15} /> Grant resources</h3>

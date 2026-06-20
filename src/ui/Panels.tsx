@@ -234,7 +234,7 @@ export function CraftingPanel() {
 
 	const catLabel: Record<string, string> = {
 		plant: 'Plants & flowers', habitat: 'Habitat objects', structure: 'Structures & decor',
-		decoration: 'Paths & fences', storage: 'Storage', home: 'Camp comforts', kit: 'Restoration kits',
+		decoration: 'Paths', storage: 'Storage', home: 'Camp comforts', kit: 'Restoration kits',
 	};
 	const objOf = (r: RecipeDef) => data.habitatObjects.find((o) => o.id === r.output.itemId);
 	// Only show recipes the player has actually unlocked: their biome is open AND

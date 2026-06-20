@@ -21,6 +21,8 @@ export function recipeUnlocked(recipe: RecipeDef, data: GameData, state: GameSta
 	// plant them in a watered bed. Keep them out of the crafting menu entirely.
 	const obj = data.habitatObjects.find((o) => o.id === recipe.output.itemId);
 	if (obj?.plantable) return false;
+	// dev override: every recipe is craftable (still never the plantables above)
+	if (player.devUnlockAll) return true;
 	// the recipe's biome must be open at all
 	if (recipe.unlockBiome && !player.unlockedBiomes.includes(recipe.unlockBiome)) return false;
 	const u = recipe.unlock;

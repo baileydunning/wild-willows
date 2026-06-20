@@ -382,33 +382,6 @@ export class WorldScene extends Phaser.Scene {
 			const ry = (1 + rng() * (OUT_H - 2)) * TILE;
 			this.add.ellipse(edgeX - 4 + rng() * 6, ry, 16 + rng() * 10, 10, C('#7d7a72')).setDepth(0.15);
 		}
-		// drifting pelicans gliding over the surf — the shore's namesake
-		this.drawPelicans(edgeX);
-	}
-
-	/** Ambient pelicans gliding low over the ocean band. */
-	private drawPelicans(edgeX: number) {
-		const make = (delay: number, yBase: number, scale: number) => {
-			const g = this.add.graphics().setDepth(3500);
-			g.fillStyle(C('#6b5f52'), 1);
-			// simple gliding silhouette: body + two swept wings + bill
-			g.fillEllipse(0, 0, 16 * scale, 6 * scale);
-			g.fillTriangle(-2 * scale, 0, -14 * scale, -7 * scale, -10 * scale, 1 * scale);
-			g.fillTriangle(-2 * scale, 0, 10 * scale, -6 * scale, 6 * scale, 1 * scale);
-			g.fillStyle(C('#c2a05a'), 1).fillRect(7 * scale, -1, 6 * scale, 2);
-			const bird = this.add.container(this.worldW + 30, yBase, [g]).setDepth(3500);
-			const run = () => {
-				bird.setPosition(this.worldW + 30, yBase + (Math.random() - 0.5) * 30);
-				this.tweens.add({
-					targets: bird, x: edgeX - 20, duration: 9000 + Math.random() * 4000, ease: 'Sine.easeInOut',
-					onUpdate: () => { (bird.list[0] as Phaser.GameObjects.Graphics).y = Math.sin(bird.x / 40) * 3; },
-					onComplete: () => { if (this.alive) this.time.delayedCall(2000 + Math.random() * 4000, run); },
-				});
-			};
-			this.time.delayedCall(delay, run);
-		};
-		make(800, this.worldH * 0.3, 1);
-		make(4200, this.worldH * 0.62, 0.8);
 	}
 
 	/** Static, impassable snow-capped range across the top of Graywind Heights. */
