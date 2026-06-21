@@ -80,6 +80,19 @@ jobs:
   e2e-coop:
     name: E2E (co-op, live Harper)
     runs-on: ubuntu-latest
+    # Answers for Harper's first-run installer so it runs headless (no TTY in CI).
+    # Without these, `harper run .` drops into an interactive prompt and crashes
+    # with ERR_USE_AFTER_CLOSE before the server ever starts.
+    env:
+      # Answers for Harper's first-run installer so it runs headless. `harper run`
+      # performs the install itself on a fresh runner; without these it drops into
+      # an interactive prompt and crashes (ERR_USE_AFTER_CLOSE) with no TTY.
+      # 9926 is Harper's default app/REST port, so it isn't overridden here.
+      TC_AGREEMENT: 'yes'
+      HDB_ADMIN_USERNAME: HDB_ADMIN
+      HDB_ADMIN_PASSWORD: password
+      ROOTPATH: ${{ github.workspace }}/.harper-root
+      OPERATIONSAPI_NETWORK_PORT: '9925'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -93,16 +106,18 @@ jobs:
         run: npx playwright install --with-deps chromium
       - name: Boot Harper and wait for the API
         run: |
-          # `harper run .` serves the component (REST API + static web/) on :9926.
+          # `harper run .` installs Harper on first run (headless via the env above),
+          # then serves the component (REST API + static web/) on :9926.
           npx harper run . > harper.log 2>&1 &
           echo "HARPER_PID=$!" >> "$GITHUB_ENV"
-          for i in $(seq 1 60); do
+          for i in $(seq 1 180); do
             if curl -sk -m 2 https://localhost:9926/GameData/ -o /dev/null; then
               echo "Harper is up after ${i}s"; exit 0
             fi
+            if [ $((i % 15)) -eq 0 ]; then echo "…still waiting (${i}s)"; tail -n 5 harper.log || true; fi
             sleep 1
           done
-          echo "Harper did not become ready in time"; tail -n 50 harper.log; exit 1
+          echo "Harper did not become ready in time"; tail -n 80 harper.log; exit 1
       - name: Run co-op E2E against live Harper
         env:
           COOP_E2E: '1'
