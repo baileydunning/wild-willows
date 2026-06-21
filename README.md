@@ -86,10 +86,12 @@ Credentials can also go in `CLI_TARGET_USERNAME` / `CLI_TARGET_PASSWORD`. The `d
 
 The desktop app (Steam, itch, etc.) wraps the web build in [Electron](https://www.electronjs.org/) (`electron/`). It loads the bundled `web/` build straight from disk (`file://`) — Vite's `base: './'` makes the same build work both from disk and served at Harper's root — so it opens instantly with no server and no install step.
 
+**v1 ships solo-only.** Co-op is hidden behind the `COOP_ENABLED` flag (`src/features.ts`) so the shipped desktop app is fully offline — no server, no account, nothing to install on first run. The multiplayer code is all still in the repo, just dead-code-eliminated from the build (see [Re-enabling co-op](#re-enabling-co-op-later)).
+
 Two play modes, two backends:
 
-- **Solo** runs **entirely in-app and offline.** The same server logic (`server/resources.ts`) executes in the renderer against an in-memory `LocalDb` (`src/solo/`) seeded from `data/*.json`; after each action the world is serialized to a save slot. No passcode — solo saves are local JSON files in `userData/saves/<slotId>.json`, read/written over IPC (`electron/main.js`). No Harper process, nothing to install on first run.
-- **Co-op** talks to the **hosted Harper** over HTTPS (`COOP_BASE_URL` in `src/api.ts`, currently `https://wild.willows.harperfabric.com`) — a shared world needs a shared server.
+- **Solo** (the v1 build) runs **entirely in-app and offline.** The same server logic (`server/resources.ts`) executes in the renderer against an in-memory `LocalDb` (`src/solo/`) seeded from `data/*.json`; after each action the world is serialized to a save slot. No passcode — solo saves are local JSON files in `userData/saves/<slotId>.json`, read/written over IPC (`electron/main.js`).
+- **Co-op** (hidden in v1) talks to the **hosted Harper** over HTTPS (`COOP_BASE_URL` in `src/api.ts`) — a shared world needs a shared server.
 
 The browser/Fabric deploy is unaffected: on the web the app just talks to its own origin.
 
@@ -108,10 +110,27 @@ npm install
 npm run desktop          # builds web + server, then launches Electron
 npm run desktop:run      # launch without rebuilding
 npm run desktop:pack     # unpacked app in dist/ (no installer) — fastest packaged check
-npm run desktop:dist     # full installers in dist/
+npm run desktop:dist     # full installers/archives in dist/
 ```
 
-For Steam, upload the **unpacked** folder (`dist/mac`, `dist/win-unpacked`, `dist/linux-unpacked`), not the installer. Build targets live in `package.json` → `build`: dmg/zip (mac), NSIS (win), AppImage (linux).
+Build targets live in `package.json` → `build`: dmg/zip (mac), NSIS + zip (win), AppImage (linux). The only runtime dependency packaged is `steamworks.js`; `harper` is dev-only now, so it isn't bundled. For **itch.io** you upload the installers/archives (see below); for **Steam** you upload the **unpacked** folder (`dist/mac`, `dist/win-unpacked`, `dist/linux-unpacked`) via `steamcmd`, not the installer.
+
+### Shipping to itch.io (v1)
+
+itch.io is the v1 distribution channel. Solo is offline, so the build is just files players download — no auto-publish is wired up; you upload them by hand.
+
+A Mac can only produce the **macOS** `.dmg`/`.zip`; Windows and Linux need their own OS. So either build locally per machine, or let CI build all three:
+
+- **All platforms via CI (recommended).** `.github/workflows/desktop-build.yml` builds Windows, macOS, and Linux on native runners and uploads each as a downloadable **workflow artifact** (it publishes nothing). Trigger it by pushing a version tag (`git tag v0.1.0 && git push origin v0.1.0`) or via **Actions → "Desktop build (itch.io artifacts)" → Run workflow**, then download `wild-willows-windows` / `-macos` / `-linux` from the run summary.
+- **Locally on your Mac.** `npm run desktop:dist` → macOS `.dmg`/`.zip` in `dist/`.
+
+Then in itch: create the project as a downloadable **Game** ("played on your computer", installable by the itch app), drag each file into **Edit game → Uploads**, confirm the per-file platform tags (Windows / macOS / Linux), add screenshots + cover, and set it Public.
+
+> Unsigned builds (no code-signing cert) launch with a Gatekeeper/SmartScreen warning the first time — normal for itch games; note it on the store page. Signing is part of the Steam roadmap below.
+
+### Re-enabling co-op later
+
+Co-op lives behind one switch — `COOP_ENABLED` in `src/features.ts`, wired through Vite's `__COOP_ENABLED__` define (`vite.config.ts`). Off by default; the co-op code dead-code-eliminates from the build. To bring it back, either build with `COOP_ENABLED=true npm run desktop:dist`, or flip the fallback in `src/features.ts` to `true` permanently — then point `COOP_BASE_URL` (`src/api.ts`) at a live co-op server and move `harper` back to `dependencies` if the desktop app needs a local Harper again. The co-op E2E suite already builds with the flag on, so multiplayer stays tested.
 
 ### Native modules
 
@@ -138,12 +157,17 @@ For development, `steam_appid.txt` holds `480` (Valve's public test app) so the 
 - **Co-op can't connect** — solo needs no network, but co-op must reach `COOP_BASE_URL`; the packaged app's `file://` origin (`Origin: null`) means the hosted Harper has to send CORS headers that allow it.
 - **`WW_STEAM_APPID`** — override the Steam App ID (otherwise `steam_appid.txt`, else `480` in dev).
 
-### Still to do for a real Steam release
+### Next: a Steam release
 
+itch.io is the v1 home. Steam is the natural next step — most of the plumbing is already here (`electron/steam.js` + `metrics-sync.js` wire stats/achievements through `steamworks.js`, and they no-op safely until launched through Steam). What's left before flipping that on:
+
+- **App ID & depots** — register the app in Steamworks, replace `steam_appid.txt` (`480` dev placeholder) with the real ID, and upload the **unpacked** per-OS folders as depots via `steamcmd` (Steam runs the app directly, unlike itch's installers).
+- **Stats & achievements config** — define the Stats/Achievements listed above in the Steamworks dashboard with matching API names so the existing push (`metrics-sync.js`) lights them up.
+- **Code signing** — sign + notarize macOS and sign Windows; required for a clean Steam (and itch) launch with no security warnings.
 - **Controller support** — the game is keyboard-only today; add gamepad input for Steam Deck Verified and couch play.
 - **Steam Cloud** — sync `userData/saves/` so solo progress follows players across machines.
-- **Code signing** — required for distribution on macOS and Windows.
-- **Co-op CORS** — confirm the hosted Harper allows the desktop's `file://` (`Origin: null`) origin on the co-op endpoints, or co-op fetches from the packaged app will be blocked.
+- **Steam overlay** — `electronEnableSteamOverlay()` is already called in `steam.js`; verify it attaches in a packaged build.
+- **(If co-op returns) Co-op CORS** — confirm the hosted Harper allows the desktop's `file://` (`Origin: null`) origin on the co-op endpoints.
 
 ---
 
@@ -267,6 +291,8 @@ Each save is a name + passcode pair. Passcodes are **never stored in plaintext**
 WASD / arrows to move · **E** / Space to interact · **1–4** select tools (basket · shovel · watering can · paint) · **B** basket · **J** journal · **K** achievements · **F** activity feed · **C** crafting · **P** preserve map · **T** tools & upgrades · **U** People (co-op worlds only) · **G** settings · **H** How to Play · click animals to observe · Shift+click a placed object to pick it up · Esc closes menus / cancels placement. Gathering spots glow, the nearest interactable gets a pulsing ring, pickups animate into your basket, and the activity feed narrates what you just did. The **?** button (or **H**) opens How to Play with the full reference. These exactly match the in-game **How to Play** reference and the HUD buttons.
 
 ## Co-op multiplayer
+
+> **Hidden in v1.** Co-op is gated behind `COOP_ENABLED` (`src/features.ts`) and off in the shipped solo-only build. The code below is intact and tested — see [Re-enabling co-op](#re-enabling-co-op-later). When enabled, the title screen shows a Solo/Co-op toggle.
 
 At **New Game** you choose **Solo** or **Co-op** (a toggle on the title screen). A save is bound to one world for its lifetime.
 

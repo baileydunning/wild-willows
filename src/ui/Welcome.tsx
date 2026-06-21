@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api, forgetSave, lastSave, IS_DESKTOP, listSoloSaves, deleteSoloSave, setTransport, type SaveMeta } from '../api';
 import { useGame } from '../state';
+import { COOP_ENABLED } from '../features';
 import type { Appearance } from '../types';
 import { CharacterPreview, Icon } from './icons';
 
@@ -133,27 +134,31 @@ export function WelcomeScreen() {
 
 				{mode === 'menu' && (
 					<div className="menu-buttons">
-						<div className="mode-toggle" role="group" aria-label="Play mode">
-							<button
-								type="button"
-								className={`mode-toggle-btn ${!coop ? 'on' : ''}`}
-								onClick={() => setCoop(false)}
-							>
-								<Icon name="leaf" size={15} /> Solo
-							</button>
-							<button
-								type="button"
-								className={`mode-toggle-btn ${coop ? 'on' : ''}`}
-								onClick={() => setCoop(true)}
-							>
-								<Icon name="user" size={15} /> Co-op
-							</button>
-						</div>
-						<p className="muted small mode-hint">
-							{coop
-								? 'Restore a shared preserve with friends — host one for a join code, or join with a friend’s code.'
-								: 'Your own private preserve, just for you.'}
-						</p>
+						{COOP_ENABLED && (
+							<>
+								<div className="mode-toggle" role="group" aria-label="Play mode">
+									<button
+										type="button"
+										className={`mode-toggle-btn ${!coop ? 'on' : ''}`}
+										onClick={() => setCoop(false)}
+									>
+										<Icon name="leaf" size={15} /> Solo
+									</button>
+									<button
+										type="button"
+										className={`mode-toggle-btn ${coop ? 'on' : ''}`}
+										onClick={() => setCoop(true)}
+									>
+										<Icon name="user" size={15} /> Co-op
+									</button>
+								</div>
+								<p className="muted small mode-hint">
+									{coop
+										? 'Restore a shared preserve with friends — host one for a join code, or join with a friend’s code.'
+										: 'Your own private preserve, just for you.'}
+								</p>
+							</>
+						)}
 						{soloLocal && recentSlot && (
 							<button className="big-btn primary" disabled={busy || !data} onClick={() => run(() => loadSoloSlot(recentSlot.slotId))}>
 								<Icon name="play" /> <span>{busy ? 'Loading your save…' : `Continue as ${recentSlot.name}`}</span>
@@ -246,14 +251,16 @@ export function WelcomeScreen() {
 							else if (joinCtx) run(() => startNewCoop(name, passcode, appearance, { mode: 'join', code: joinCtx.code, token: joinCtx.token, joinWorldId: joinCtx.worldId, worldName: joinCtx.worldName, hostName: joinCtx.hostName }));
 						}}
 					>
-						<div className="mode-banner">
-							<Icon name={coop ? 'user' : 'leaf'} size={15} /> {coop ? (coopKind === 'host' ? 'Host a Preserve' : `Joining ${joinCtx?.worldName || 'a Preserve'}`) : 'New Solo Game'}
-							{!(coop && coopKind === 'join') && (
-								<button type="button" className="link-btn small" onClick={() => setCoop((v) => !v)}>
-									switch to {coop ? 'Solo' : 'Co-op'}
-								</button>
-							)}
-						</div>
+						{COOP_ENABLED && (
+							<div className="mode-banner">
+								<Icon name={coop ? 'user' : 'leaf'} size={15} /> {coop ? (coopKind === 'host' ? 'Host a Preserve' : `Joining ${joinCtx?.worldName || 'a Preserve'}`) : 'New Solo Game'}
+								{!(coop && coopKind === 'join') && (
+									<button type="button" className="link-btn small" onClick={() => setCoop((v) => !v)}>
+										switch to {coop ? 'Solo' : 'Co-op'}
+									</button>
+								)}
+							</div>
+						)}
 						{coop && (
 							<p className="muted small mode-hint">
 								{coopKind === 'host'
