@@ -33,6 +33,38 @@ After changing `server/resources.ts`, run `npm run build:server` (or `npm run de
 
 > **Editing `data/*.json` live:** the server inlines the definition JSON for boot-time reconciliation, so after renaming/removing definition records, rebuild `resources.js` and restart Harper. Write data files atomically (temp + rename) so the live data loader never reads a half-written file.
 
+## Testing
+
+Three layers of tests, all run in CI on every PR and push to `main` (`.github/workflows/ci.yml`):
+
+| Layer | Tool | Location | Covers | Needs a server? |
+|---|---|---|---|---|
+| Unit | Vitest | `tests/unit/` | Pure logic: recipe unlock gating, the local-save DB, save/transport helpers | No |
+| Integration | Vitest | `tests/integration/` | The **real** built server (`resources.js`) against an in-memory Harper mock — create/login, gather, craft, place, plus the full co-op flow (join approval, shared node cooldowns, presence, 6-caretaker cap) | No |
+| E2E (solo) | Playwright | `tests/e2e/solo.spec.ts` | The production web build in offline solo mode: title, character creation, entering the world, Continue | No (`vite preview`) |
+| E2E (co-op) | Playwright | `tests/e2e/coop.spec.ts` | The same build served by a **live Harper** on `localhost:9926` — live `GameData`, player creation, hosting a shared preserve | Yes (Harper) |
+
+```bash
+# unit + integration (fast, no server) — also rebuilds resources.js first
+npm test
+npm run test:unit
+npm run test:integration
+npm run test:watch          # vitest watch mode
+
+# solo E2E (auto-builds the web app and serves it with vite preview)
+npx playwright install chromium     # one-time browser download
+npm run test:e2e:solo
+
+# co-op E2E against a live Harper — boot it in one terminal:
+npm run dev                 # builds + starts Harper on https://localhost:9926
+# …then in another:
+COOP_E2E=1 SKIP_PREVIEW=1 npm run test:e2e:coop
+
+npm run test:all            # typecheck + all Vitest suites + solo E2E
+```
+
+The **integration harness** (`tests/integration/harness.ts`) installs lightweight stand-ins for Harper's `databases` / `Resource` globals, then imports the committed `resources.js` — the exact artifact `harper deploy` ships — giving each test a fresh in-memory world seeded from `data/*.json`. It's the same technique as the `scripts/coop-harness.mjs` smoke harness, refactored for Vitest. The **solo E2E** reaches offline mode by setting `window.wildWillowsDesktop = { isDesktop: true }` before the app boots, which flips the API transport to the in-app solo backend (no network). The **co-op E2E** CI job boots Harper with `harper run .` and waits for `/GameData/` before running. For a quick manual end-to-end API check there's also `scripts/smoke-test.sh`.
+
 ## Deploy to Harper / Fabric
 
 ```bash
@@ -56,10 +88,10 @@ Credentials can also go in `CLI_TARGET_USERNAME` / `CLI_TARGET_PASSWORD`. The `d
 
 - **6 biomes** — Willow Meadow, Old Hollow Forest, Rushwater Wetland, Redstone Scrubland (desert), Graywind Heights (alpine), Pelican Shore (coastal). All six are explorable on foot and fully restorable.
 - **150 animals** — **25 per biome**, each with diet, shelter, a real-world fact, and habitat return requirements. Every animal has a **unique, procedurally-built sprite** composed from its species traits (quills for a porcupine, antlers for a deer, long legs for a heron, a domed shell for a turtle, claws for a crab…), so no two read alike.
-- **138 habitat objects** and **109 recipes** across habitat, structures & decor, paths, storage, camp comforts, and restoration kits. Plantable flowers/grasses/trees are **planted, not crafted** (see below), so 95 of the recipes are craftable items and the rest are the plant set.
-- **Unlockable crafting** — most recipes start locked and unlock one at a time as a biome recovers (health crossed, a keystone animal welcomed), with a clear "New Crafting Recipe Unlocked" callout. New caretakers begin with a handful of starters (Grass Patch + a few) and **no materials** — the first job is to gather.
+- **165 habitat objects** and **136 recipes** across habitat, structures & decor, paths, storage, camp comforts, and restoration kits. Plantable flowers/grasses/trees are **planted, not crafted** (see below), so 122 of the recipes are craftable items and the remaining 14 are the plant set.
+- **Unlockable crafting** — most recipes start locked and unlock one at a time as a biome recovers (health crossed, a keystone animal welcomed), with a clear "New Crafting Recipe Unlocked" callout. New caretakers begin with a handful of starter recipes (Grass Patch + a few) and **almost no materials** (just a little water, seeds, and wildflowers) — the first job is to gather.
 - **Three chest sizes** — Small (**120**), Medium (**250**), and a Large Chest (**500**) that unlocks later, once Redstone Scrubland is restored to 60% and you've crafted a Medium Chest first.
-- **29 gatherable resources**, including biome-exclusive ones (e.g. geode and agave nectar in the desert; quartz crystal, obsidian, pine nuts, lichen, juniper berries, and packed snow in the alpine). Node generation **guarantees every resource appears** in its biome.
+- **33 gatherable resources**, including biome-exclusive ones (e.g. geode and agave nectar in the desert; quartz crystal, obsidian, pine nuts, lichen, juniper berries, and packed snow in the alpine). Node generation **guarantees every resource appears** in its biome.
 - **4 tools** with deep upgrade tracks (basket/shovel/watering can each have 4 tiers; the field journal has 7 — a baseline plus one guide per area).
 - Every biome has **at least 3 plantable tree types** plus its own distinct plants, palette, and animals.
 - **50 achievements** earned for restoration milestones, food-web moments (keystones, predators, ecosystem engineers), gathering/crafting/terraforming mastery, and preserve-wide progress (no hidden ones; locked entries show a non-spoilery hint). The first, **First Friend**, is earned the moment you welcome the grasshopper home — and the **grasshopper is always the first animal to return anywhere**: every other animal is gated behind it. All are server-validated and shown in a dedicated **Achievements** menu (press **K**), most-recent unlocks first, each card a gold ★ badge around its own unique glyph.

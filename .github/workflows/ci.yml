@@ -1,0 +1,122 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+# Cancel superseded runs on the same ref (e.g. rapid pushes to a PR).
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # 1) Typecheck + build the shippable artifacts (server bundle + web build).
+  build:
+    name: Typecheck & build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Typecheck
+        run: npm run check
+      - name: Build server bundle + web client
+        run: npm run build
+      - name: Upload web build
+        uses: actions/upload-artifact@v4
+        with:
+          name: web-build
+          path: |
+            web
+            resources.js
+          retention-days: 3
+
+  # 2) Unit + integration tests (Vitest). Integration drives the real
+  #    resources.js bundle against an in-memory Harper mock — no server needed.
+  unit-integration:
+    name: Unit & integration tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Build server bundle (resources.js) for the integration harness
+        run: npm run build:server
+      - name: Run Vitest (unit + integration)
+        run: npx vitest run
+
+  # 3) Solo E2E (Playwright) — offline solo mode against the static web build.
+  e2e-solo:
+    name: E2E (solo, offline)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Install Playwright Chromium + OS deps
+        run: npx playwright install --with-deps chromium
+      - name: Run solo E2E
+        run: npx playwright test --project=solo
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report-solo
+          path: playwright-report
+          retention-days: 7
+
+  # 4) Co-op E2E (Playwright) — the same build served by a REAL Harper instance
+  #    booted on localhost:9926, exercising the live multiplayer API.
+  e2e-coop:
+    name: E2E (co-op, live Harper)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Build server bundle + web client (Harper serves these)
+        run: npm run build
+      - name: Install Playwright Chromium + OS deps
+        run: npx playwright install --with-deps chromium
+      - name: Boot Harper and wait for the API
+        run: |
+          # `harper run .` serves the component (REST API + static web/) on :9926.
+          npx harper run . > harper.log 2>&1 &
+          echo "HARPER_PID=$!" >> "$GITHUB_ENV"
+          for i in $(seq 1 60); do
+            if curl -sk -m 2 https://localhost:9926/GameData/ -o /dev/null; then
+              echo "Harper is up after ${i}s"; exit 0
+            fi
+            sleep 1
+          done
+          echo "Harper did not become ready in time"; tail -n 50 harper.log; exit 1
+      - name: Run co-op E2E against live Harper
+        env:
+          COOP_E2E: '1'
+          SKIP_PREVIEW: '1'
+          COOP_BASE_URL: https://localhost:9926
+        run: npx playwright test --project=coop
+      - name: Stop Harper
+        if: ${{ always() }}
+        run: '[ -n "$HARPER_PID" ] && kill "$HARPER_PID" || true'
+      - uses: actions/upload-artifact@v4
+        if: ${{ !cancelled() }}
+        with:
+          name: playwright-report-coop
+          path: |
+            playwright-report
+            harper.log
+          retention-days: 7

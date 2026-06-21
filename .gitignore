@@ -11,3 +11,9 @@ dist/
 
 # Steam: dev-only app id file (Steam injects the real id in packaged builds)
 steam_appid.txt
+
+# test + coverage output
+coverage/
+playwright-report/
+test-results/
+.playwright/
