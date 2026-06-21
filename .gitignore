@@ -3,3 +3,5 @@
 node_modules/
 *.log
 .DS_Store
+# Vite writes a temp config bundle on each build; sometimes it isn't cleaned up
+vite.config.*.timestamp-*.mjs

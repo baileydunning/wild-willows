@@ -17,7 +17,7 @@ export function Meter({ label, icon, value, color }: { label: string; icon: stri
 }
 
 export function HUD() {
-	const { data, state, saveStatus, panel, setPanel, helpOpen, setHelpOpen, logout, placementObjectId, cancelPlacement } = useGame();
+	const { data, state, saveStatus, panel, setPanel, helpOpen, setHelpOpen, logout, placementObjectId, cancelPlacement, worlds, activeWorldId } = useGame();
 	const [prompt, setPrompt] = useState('');
 
 	useEffect(() => bridge.on('prompt', (p: string) => setPrompt(p || '')), []);
@@ -37,6 +37,10 @@ export function HUD() {
 	const homeName = homeBuilt ? (data.homeStyles?.[home!.style]?.name || 'Your Home') : 'Canvas Tent';
 	const homeCarry = data.homeTracks?.comfort?.levels?.[((home?.comfort) || 1) - 1]?.carry || 0;
 	const homeDecor = state.placements.filter((p) => p.area === 'home').length;
+
+	const activeWorld = worlds.find((w) => w.worldId === activeWorldId);
+	const isCoop = !!activeWorld && !activeWorld.solo;
+	const peersHere = bridge.shared.presence?.length || 0;
 
 	const toggle = (id: any) => setPanel(panel === id ? null : id);
 	const navBtn = (id: any, icon: string, label: string, keyHint?: string) => (
@@ -62,7 +66,14 @@ export function HUD() {
 					</>
 				) : (
 					<>
-						<div className="hud-area-name"><Icon name="leaf" size={17} /> {biome?.name || 'The Preserve'}</div>
+						<div className="hud-area-name">
+							<Icon name="leaf" size={17} /> {biome?.name || 'The Preserve'}
+							{isCoop && (
+								<button className="coop-badge" onClick={() => setPanel('people')} title="Co-op preserve — invite & see who's here (U)">
+									<Icon name="user" size={12} /> Co-op{peersHere > 0 ? ` · ${peersHere + 1} here` : ''}
+								</button>
+							)}
+						</div>
 						{biome && bState && (
 							<>
 								<Meter label="Health" icon="leaf" value={bState.health} color="#6aa253" />
@@ -90,6 +101,7 @@ export function HUD() {
 				{navBtn('feed', 'chat', 'Activity feed (F)', 'F')}
 				{navBtn('biomes', 'map', 'Preserve overview (P)', 'P')}
 				{navBtn('tools', 'tools', 'Tool upgrades (T)', 'T')}
+				{isCoop && navBtn('people', 'user', 'People — invite & who’s here (U)', 'U')}
 				<button className={`icon-btn ${panel === 'settings' ? 'on' : ''}`} onClick={() => toggle('settings')} title="Settings — change character, delete save (G)" aria-label="Settings">
 					<Icon name="sliders" />
 					<span className="nav-key">G</span>

@@ -98,6 +98,9 @@ export class WorldScene extends Phaser.Scene {
 	private waterTiles = new Set<string>();
 	private waterTileCenters: { x: number; y: number }[] = []; // pixel centers of open-water tiles
 	private bridgeTiles = new Set<string>();
+	// Live co-op: other players in this same area, drawn as their own avatars and
+	// smoothly eased toward the positions reported by the presence loop.
+	private remotes = new Map<string, { sprite: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; label: Phaser.GameObjects.Text; sig: string; walkT: number; lastX: number; lastY: number; moveUntil: number }>();
 
 	constructor() {
 		super('world');
@@ -259,7 +262,7 @@ export class WorldScene extends Phaser.Scene {
 		};
 		ensurePainted();
 
-		this.unsubs.push(bridge.on('world-dirty', () => this.refreshDynamic()));
+		this.unsubs.push(bridge.on('world-dirty', () => { this.refreshDynamic(); this.updateNodeVisuals(); }));
 		this.unsubs.push(bridge.on('enter-placement', (p: any) => this.enterPlacement(p.objectId)));
 		this.unsubs.push(bridge.on('cancel-placement', () => this.exitPlacement()));
 		this.unsubs.push(bridge.on('enter-move', (p: any) => this.enterMove(p.placementId)));
@@ -282,6 +285,7 @@ export class WorldScene extends Phaser.Scene {
 		);
 		this.events.once('shutdown', () => {
 			this.alive = false;
+			this.clearRemotes();
 			this.unsubs.forEach((u) => u());
 			this.unsubs = [];
 		});
@@ -873,8 +877,11 @@ export class WorldScene extends Phaser.Scene {
 	private computeNodes(): NodeDef[] {
 		const biome = this.biomeDef();
 		if (!biome) return [];
-		const playerId = bridge.shared.state?.player.id || 'anon';
-		const rng = mulberry32(hashStr(`${playerId}-${this.area}-nodes`));
+		// Seed node layout by the WORLD id (not the player) so everyone in a co-op
+		// world sees the same nodes in the same spots. Solo worldId === playerId, so
+		// solo layouts are unchanged.
+		const wid = (bridge.shared.state as any)?.worldId || bridge.shared.state?.player.id || 'anon';
+		const rng = mulberry32(hashStr(`${wid}-${this.area}-nodes`));
 		// Node budget — at least twice the resource count (plus a little extra room
 		// for weighted staples), so there's always space for two nodes of every
 		// resource this biome offers.
@@ -993,7 +1000,10 @@ export class WorldScene extends Phaser.Scene {
 	private nodeAvailable(node: NodeDef): boolean {
 		const s = bridge.shared.state;
 		if (!s) return true;
-		const rec = s.nodeStates.find((n) => n.id === `${s.player.id}:${this.area}:${node.id}`);
+		// Node cooldowns are world-scoped now, so match on the world id (falls back to
+		// the player id for solo / legacy rows).
+		const wid = (s as any).worldId || s.player.id;
+		const rec = s.nodeStates.find((n) => n.id === `${wid}:${this.area}:${node.id}`);
 		if (!rec) return true;
 		return Date.now() - rec.harvestedAt >= s.nodeRegenSeconds * 1000;
 	}
@@ -1518,6 +1528,74 @@ export class WorldScene extends Phaser.Scene {
 		this.handleGhost();
 		this.handleInteraction();
 		this.syncPosition(dt);
+		// stream our exact live position (tile coords) for co-op presence
+		bridge.shared.self = { x: this.player.x / TILE, y: this.player.y / TILE, area: this.area };
+		this.updateRemotes(dt);
+	}
+
+	/**
+	 * Draw the other co-op players who are in this same area. Avatars are created
+	 * on demand from each peer's appearance, eased toward their reported tile, and
+	 * removed when a player leaves the area or goes quiet. Pure presentation — it
+	 * reads bridge.shared.presence, which the React presence loop keeps fresh.
+	 */
+	private updateRemotes(dt: number) {
+		if (!this.alive) return;
+		const peers = (bridge.shared.presence || []).filter((p) => p && p.area === this.area && p.playerId);
+		const seen = new Set<string>();
+
+		for (const peer of peers) {
+			seen.add(peer.playerId);
+			const sig = JSON.stringify(peer.appearance || {});
+			let r = this.remotes.get(peer.playerId);
+			if (!r) {
+				const key = makePlayerTexture(this, peer.appearance);
+				const shadow = this.add.image(peer.x * TILE, peer.y * TILE + 15, 'shadow').setDepth(2).setAlpha(0.5);
+				const sprite = this.add.image(peer.x * TILE, peer.y * TILE, key).setDepth(999).setAlpha(0.96);
+				const label = this.add.text(peer.x * TILE, peer.y * TILE - 26, peer.name || 'caretaker', {
+					fontFamily: 'system-ui, sans-serif', fontSize: '11px', color: '#3a2f25',
+					backgroundColor: 'rgba(255,255,255,0.7)', padding: { x: 4, y: 1 },
+				}).setOrigin(0.5).setDepth(10000);
+				r = { sprite, shadow, label, sig, walkT: 0, lastX: peer.x, lastY: peer.y, moveUntil: 0 };
+				this.remotes.set(peer.playerId, r);
+			}
+			if (r.sig !== sig) { r.sprite.setTexture(makePlayerTexture(this, peer.appearance)); r.sig = sig; }
+			// "Walking" is driven by the reported position actually changing — not by
+			// the easing — so a standing player never waddles. A short window keeps the
+			// animation alive smoothly between position updates.
+			if (peer.x !== r.lastX || peer.y !== r.lastY) {
+				r.moveUntil = this.time.now + 220;
+				r.lastX = peer.x; r.lastY = peer.y;
+			}
+			const moving = this.time.now < r.moveUntil;
+			const targetX = peer.x * TILE, targetY = peer.y * TILE;
+			const k = Math.min(1, dt * 12);
+			const nx = r.sprite.x + (targetX - r.sprite.x) * k;
+			const ny = r.sprite.y + (targetY - r.sprite.y) * k;
+			if (Math.abs(targetX - r.sprite.x) > 0.5) r.sprite.setFlipX(targetX < r.sprite.x);
+			// identical waddle to the local player in solo (amplitude 0.075, speed ×11)
+			if (moving) {
+				r.walkT += dt * 11;
+				r.sprite.setRotation(Math.sin(r.walkT) * 0.075);
+			} else {
+				r.sprite.setRotation(r.sprite.rotation * 0.8);
+			}
+			r.sprite.setPosition(nx, ny).setDepth(ny + 30);
+			r.shadow.setPosition(nx, ny + 15);
+			r.label.setPosition(nx, ny - 26);
+		}
+
+		// drop avatars for anyone who left this area / went quiet
+		for (const [id, r] of this.remotes) {
+			if (seen.has(id)) continue;
+			r.sprite.destroy(); r.shadow.destroy(); r.label.destroy();
+			this.remotes.delete(id);
+		}
+	}
+
+	private clearRemotes() {
+		for (const r of this.remotes.values()) { r.sprite.destroy(); r.shadow.destroy(); r.label.destroy(); }
+		this.remotes.clear();
 	}
 
 	private handleMovement(dt: number) {

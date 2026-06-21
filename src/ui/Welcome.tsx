@@ -1,10 +1,16 @@
-import { useState } from 'react';
-import { forgetSave, lastSave } from '../api';
+import { useMemo, useState } from 'react';
+import { api, forgetSave, lastSave } from '../api';
 import { useGame } from '../state';
 import type { Appearance } from '../types';
 import { CharacterPreview, Icon } from './icons';
 
-type Mode = 'menu' | 'new' | 'load';
+type Mode = 'menu' | 'new' | 'load' | 'join-code';
+
+const genToken = () => {
+	try { return crypto.randomUUID(); } catch { return `t_${Date.now()}_${Math.random().toString(36).slice(2)}`; }
+};
+
+interface JoinCtx { code: string; token: string; worldId: string; worldName: string; hostName: string; }
 
 function Scenery() {
 	// decorative dusk-meadow backdrop
@@ -45,13 +51,23 @@ function Scenery() {
 }
 
 export function WelcomeScreen() {
-	const { data, dataError, startNew, startLogin, continueLast, setHelpOpen } = useGame();
+	const { data, dataError, startNew, startNewCoop, startLogin, continueLast, setHelpOpen } = useGame();
 	const [mode, setMode] = useState<Mode>('menu');
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [name, setName] = useState('');
 	const [passcode, setPasscode] = useState('');
-	const [last, setLast] = useState(() => lastSave());
+	// Main-menu world toggle: Solo or Co-op. Co-op New Game then hosts or joins.
+	const [coop, setCoop] = useState(false);
+	const [coopKind, setCoopKind] = useState<'host' | 'join'>('host');
+	const [joinCode, setJoinCode] = useState('');
+	// set once a join code is verified + the request is sent; carried into character creation
+	const [joinCtx, setJoinCtx] = useState<JoinCtx | null>(null);
+	// The most recent save for the currently-selected mode (re-read when toggled),
+	// so "Continue" only appears for a matching solo/co-op save. `bumpLast` lets a
+	// failed continue clear it.
+	const [lastBump, setLastBump] = useState(0);
+	const last = useMemo(() => lastSave(coop ? 'coop' : 'solo'), [coop, lastBump]);
 
 	const opts = data?.appearanceOptions;
 	const [appearance, setAppearance] = useState<Appearance>({
@@ -80,11 +96,11 @@ export function WelcomeScreen() {
 	const onContinue = () =>
 		run(async () => {
 			try {
-				await continueLast();
+				await continueLast(coop ? 'coop' : 'solo');
 			} catch (e: any) {
 				if (last) setName(last.name);
-				forgetSave();
-				setLast(null);
+				forgetSave(coop ? 'coop' : 'solo');
+				setLastBump((n) => n + 1);
 				setMode('load');
 				throw new Error(`${e.message || 'Could not load that save'} — log in below instead.`);
 			}
@@ -105,17 +121,54 @@ export function WelcomeScreen() {
 
 				{mode === 'menu' && (
 					<div className="menu-buttons">
+						<div className="mode-toggle" role="group" aria-label="Play mode">
+							<button
+								type="button"
+								className={`mode-toggle-btn ${!coop ? 'on' : ''}`}
+								onClick={() => setCoop(false)}
+							>
+								<Icon name="leaf" size={15} /> Solo
+							</button>
+							<button
+								type="button"
+								className={`mode-toggle-btn ${coop ? 'on' : ''}`}
+								onClick={() => setCoop(true)}
+							>
+								<Icon name="user" size={15} /> Co-op
+							</button>
+						</div>
+						<p className="muted small mode-hint">
+							{coop
+								? 'Restore a shared preserve with friends — host one for a join code, or join with a friend’s code.'
+								: 'Your own private preserve, just for you.'}
+						</p>
 						{last && (
 							<button className="big-btn primary" disabled={busy || !data} onClick={onContinue}>
 								<Icon name="play" /> <span>{busy ? 'Loading your save…' : `Continue as ${last.name}`}</span>
 							</button>
 						)}
-						<button className={`big-btn ${last ? '' : 'primary'}`} disabled={busy || !data} onClick={() => { setError(null); setMode('new'); }}>
-							<Icon name="plus" /> <span>New Game</span>
-						</button>
-						<button className="big-btn" disabled={busy || !data} onClick={() => { setError(null); setMode('load'); }}>
-							<Icon name="folder" /> <span>Load Game</span>
-						</button>
+						{coop ? (
+							<>
+								<button className={`big-btn ${last ? '' : 'primary'}`} disabled={busy || !data} onClick={() => { setCoopKind('host'); setError(null); setMode('new'); }}>
+									<Icon name="plus" /> <span>Host a New Preserve</span>
+								</button>
+								<button className="big-btn" disabled={busy || !data} onClick={() => { setCoopKind('join'); setError(null); setJoinCtx(null); setMode('join-code'); }}>
+									<Icon name="user" /> <span>Join with a Code</span>
+								</button>
+								<button className="big-btn" disabled={busy || !data} onClick={() => { setError(null); setMode('load'); }}>
+									<Icon name="folder" /> <span>Load a Co-op Save</span>
+								</button>
+							</>
+						) : (
+							<>
+								<button className={`big-btn ${last ? '' : 'primary'}`} disabled={busy || !data} onClick={() => { setError(null); setMode('new'); }}>
+									<Icon name="plus" /> <span>New Game</span>
+								</button>
+								<button className="big-btn" disabled={busy || !data} onClick={() => { setError(null); setMode('load'); }}>
+									<Icon name="folder" /> <span>Load Game</span>
+								</button>
+							</>
+						)}
 						<button className="big-btn subtle" onClick={() => setHelpOpen(true)}>
 							<Icon name="help" /> <span>How to Play</span>
 						</button>
@@ -123,14 +176,75 @@ export function WelcomeScreen() {
 					</div>
 				)}
 
+				{mode === 'join-code' && (
+					<form
+						className="creator"
+						onSubmit={(e) => {
+							e.preventDefault();
+							run(async () => {
+								const code = joinCode.trim();
+								if (name.trim().length < 2) throw new Error('Enter the name you’ll play as');
+								if (code.length < 4) throw new Error('Enter the join code your friend shared');
+								const chk = await api.checkWorldCode(code);
+								if (!chk.exists || !chk.world) throw new Error('No world found with that code — double-check it.');
+								if (chk.world.full) throw new Error('That world is full right now.');
+								const token = genToken();
+								await api.requestJoin(code, token, name.trim());
+								setJoinCtx({ code, token, worldId: chk.world.worldId, worldName: chk.world.name, hostName: chk.world.hostName });
+								setMode('new');
+							});
+						}}
+					>
+						<p className="muted small mode-hint">
+							Enter your caretaker name and the code your friend shared. We’ll let the host know you’d like to join while you build your character.
+						</p>
+						<label className="field">
+							<Icon name="user" size={17} />
+							<input placeholder="Your caretaker name" value={name} maxLength={24} onChange={(e) => setName(e.target.value)} autoFocus />
+						</label>
+						<label className="field">
+							<Icon name="leaf" size={17} />
+							<input placeholder="Join code (e.g. K7P2QM)" value={joinCode} maxLength={6} style={{ textTransform: 'uppercase' }} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} />
+						</label>
+						{error && <p className="form-error">{error}</p>}
+						<div className="form-actions">
+							<button type="button" className="big-btn subtle" onClick={() => setMode('menu')}>
+								<Icon name="back" /> <span>Back</span>
+							</button>
+							<button type="submit" className="big-btn primary" disabled={busy || name.trim().length < 2 || joinCode.trim().length < 4}>
+								<Icon name="user" /> <span>{busy ? 'Asking the host…' : 'Ask to join & build character'}</span>
+							</button>
+						</div>
+					</form>
+				)}
+
 				{mode === 'new' && (
 					<form
 						className="creator"
 						onSubmit={(e) => {
 							e.preventDefault();
-							run(() => startNew(name, passcode, appearance));
+							if (!coop) run(() => startNew(name, passcode, appearance));
+							else if (coopKind === 'host') run(() => startNewCoop(name, passcode, appearance, { mode: 'host' }));
+							else if (joinCtx) run(() => startNewCoop(name, passcode, appearance, { mode: 'join', code: joinCtx.code, token: joinCtx.token, joinWorldId: joinCtx.worldId, worldName: joinCtx.worldName, hostName: joinCtx.hostName }));
 						}}
 					>
+						<div className="mode-banner">
+							<Icon name={coop ? 'user' : 'leaf'} size={15} /> {coop ? (coopKind === 'host' ? 'Host a Preserve' : `Joining ${joinCtx?.worldName || 'a Preserve'}`) : 'New Solo Game'}
+							{!(coop && coopKind === 'join') && (
+								<button type="button" className="link-btn small" onClick={() => setCoop((v) => !v)}>
+									switch to {coop ? 'Solo' : 'Co-op'}
+								</button>
+							)}
+						</div>
+						{coop && (
+							<p className="muted small mode-hint">
+								{coopKind === 'host'
+									? "Start a shared preserve — you'll get a join code to invite friends."
+									: joinCtx
+										? `Joining ${joinCtx.worldName} — ${joinCtx.hostName} is reviewing your request while you customize. You'll enter as soon as they approve.`
+										: "Enter a friend's code to restore their preserve together."}
+							</p>
+						)}
 						<div className="creator-cols">
 							<div className="creator-preview">
 								<CharacterPreview appearance={appearance} />
@@ -218,7 +332,7 @@ export function WelcomeScreen() {
 								<Icon name="back" /> <span>Back</span>
 							</button>
 							<button type="submit" className="big-btn primary" disabled={busy || name.trim().length < 2 || passcode.length < 4}>
-								<Icon name="sparkle" /> <span>{busy ? 'Settling in…' : 'Begin restoring'}</span>
+								<Icon name="sparkle" /> <span>{busy ? 'Settling in…' : !coop ? 'Begin restoring' : coopKind === 'join' ? 'Create & join' : 'Start co-op'}</span>
 							</button>
 						</div>
 					</form>

@@ -15,6 +15,9 @@ import { Tutorial } from './ui/Tutorial';
 import { DevPanel } from './ui/DevPanel';
 import { KeyboardGate } from './ui/KeyboardGate';
 import { WelcomeScreen } from './ui/Welcome';
+import { JoinWaitingScreen } from './ui/JoinWaiting';
+import { JoinApprovalPopup } from './ui/JoinApproval';
+import { PeoplePanel } from './ui/People';
 import { Icon } from './ui/icons';
 
 interface ClickedPlacement {
@@ -210,7 +213,7 @@ function GameScreen() {
 			if (k === 'h') { game.setHelpOpen(!game.helpOpen); return; }
 			// B = basket, J = journal, K = achievements, F = feed, T = tools, P = preserve,
 			// G = settings (gear), C = crafting (I = basket alias)
-			const map: Record<string, any> = { b: 'inventory', i: 'inventory', j: 'journal', k: 'achievements', f: 'feed', t: 'tools', p: 'biomes', g: 'settings', c: 'crafting' };
+			const map: Record<string, any> = { b: 'inventory', i: 'inventory', j: 'journal', k: 'achievements', f: 'feed', t: 'tools', p: 'biomes', g: 'settings', c: 'crafting', u: 'people' };
 			if (map[k]) setPanel(panel === map[k] ? null : map[k]);
 			// number keys select toolbelt tools
 			const toolByKey: Record<string, string> = { '1': 'basket', '2': 'shovel', '3': 'watering-can', '4': 'paint' };
@@ -228,6 +231,7 @@ function GameScreen() {
 			<ActivityLog />
 			<Tutorial />
 			<MobileControls />
+			<JoinApprovalPopup />
 			<Toasts />
 			{clickedPlacement && <PlacementMenu item={clickedPlacement} onClose={() => setClickedPlacement(null)} />}
 			{clickedBed && <PlantMenu bed={clickedBed} onClose={() => setClickedBed(null)} />}
@@ -242,17 +246,19 @@ function GameScreen() {
 			{panel === 'home' && <HomePanel />}
 			{panel === 'animal' && <AnimalCard />}
 			{panel === 'settings' && <SettingsPanel />}
+			{panel === 'people' && <PeoplePanel />}
 			{devOpen && <DevPanel onClose={() => setDevOpen(false)} />}
 		</div>
 	);
 }
 
 function Root() {
-	const { state, data } = useGame();
-	// the game needs both definitions and a logged-in save before it can render
+	const { state, data, pendingJoin } = useGame();
+	// the game needs both definitions and a logged-in save before it can render.
+	// A joiner awaiting host approval sits in the waiting room until let in.
 	return (
 		<>
-			{state && data ? <GameScreen /> : <WelcomeScreen />}
+			{pendingJoin ? <JoinWaitingScreen /> : state && data ? <GameScreen /> : <WelcomeScreen />}
 			<HelpModal />
 		</>
 	);

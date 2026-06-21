@@ -26,7 +26,14 @@ import animals1Data from '../data/animals-1.json';
 import animals2Data from '../data/animals-2.json';
 import achievementsData from '../data/achievements.json';
 
-const db = () => databases.wildwillows;
+// `databases.wildwillows` is undefined right after the database is dropped (until
+// Harper restarts and the component recreates the tables). Fail cleanly with a 503
+// instead of throwing raw TypeErrors on every request.
+const db = () => {
+	const d = (typeof databases !== 'undefined' && databases) ? databases.wildwillows : null;
+	if (!d || !d.Player) throw new GameError('The preserve database is starting up — restart Harper if this persists.', 503);
+	return d;
+};
 
 // ---------------------------------------------------------------- helpers
 
@@ -51,9 +58,58 @@ function sumValues(obj: Record<string, number> | undefined): number {
 	return Object.values(obj).reduce((a, b) => a + (b || 0), 0);
 }
 
+/** True for the Harper structured-encoder error raised on a record written under an
+ *  incompatible (older) schema layout. */
+function isDecodeError(e: any): boolean {
+	return /end of buffer|buffer not reached|decod/i.test(String(e?.message || e));
+}
+
+/**
+ * Remove a record whose stored bytes can't be decoded. A plain delete() also fails
+ * because Harper decodes the record (for index cleanup) on the way out, so we first
+ * OVERWRITE the slot with a valid minimal record (a full put writes fresh bytes and
+ * doesn't read the old corrupt value), then delete that now-decodable record.
+ */
+async function forceRemove(table: any, id: string): Promise<boolean> {
+	try { await table.delete(id); return true; } catch (e) { if (!isDecodeError(e)) throw e; }
+	try {
+		await table.put({ id });   // overwrite the corrupt bytes with a valid stub
+		await table.delete(id);    // now it decodes → deletes cleanly
+		return true;
+	} catch { return false; }
+}
+
+/**
+ * Read one record by id; if it can't be decoded (a leftover from an earlier schema
+ * layout during rapid dev), DELETE the corrupt record and return null instead of
+ * throwing forever. Self-healing — the bad row is removed the moment it's touched.
+ */
+async function safeGet(table: any, id: string): Promise<any | null> {
+	try {
+		const rec = await table.get(id);
+		// Harper decodes lazily (on property access), so force a full read NOW to surface
+		// a corrupt record here where we can delete it — not later in some merge/patch.
+		if (rec) { try { JSON.stringify({ ...rec }); } catch (e) { if (isDecodeError(e)) throw e; } }
+		return rec;
+	} catch (e) {
+		if (isDecodeError(e)) {
+			await forceRemove(table, id);
+			console.error(`purged undecodable record: ${id}`);
+			return null;
+		}
+		throw e;
+	}
+}
+
 async function toArray(iterable: any): Promise<any[]> {
 	const out: any[] = [];
-	for await (const item of iterable) out.push(item);
+	try {
+		for await (const item of iterable) out.push(item);
+	} catch (e: any) {
+		// A record left undecodable by a prior schema version (rapid-dev schema drift)
+		// must not break a whole scan. Keep what we read; skip the rest.
+		console.error('scan: skipping undecodable record(s) —', e?.message || e);
+	}
 	return out;
 }
 
@@ -94,6 +150,117 @@ async function findOwned(table: any, playerId: string, id: string): Promise<any 
 	return rows.find((r: any) => r.id === id) || null;
 }
 
+// ----------------------------------------------------------------- worlds
+// Shared, restorable world state (biomes, terrain, placements, animals,
+// chests, feed) is owned by a World, not a player. Single-player is just a
+// private "world of one" whose id equals the player's id, so legacy rows keyed
+// by playerId already belong to it. `byWorld` matches a row's `worldId`, but
+// falls back to `playerId` for rows written before this column existed — for a
+// solo world those values are identical, so old saves keep working untouched.
+
+/** The world a player is currently acting in. Defaults to their solo world (= their id). */
+function worldOf(player: any): string {
+	return player?.worldId || player?.id;
+}
+
+/** All rows belonging to one world (worldId, falling back to legacy playerId). */
+async function byWorld(table: any, worldId: string): Promise<any[]> {
+	if (!table || typeof table.search !== 'function') return [];
+	const rows = await toArray(table.search({}));
+	return rows.filter((r: any) => (r?.worldId ?? r?.playerId) === worldId);
+}
+
+/** Single record by id, scoped to one world. */
+async function findInWorld(table: any, worldId: string, id: string): Promise<any | null> {
+	const rows = await byWorld(table, worldId);
+	return rows.find((r: any) => r.id === id) || null;
+}
+
+/** Short, unambiguous invite code (no 0/O/1/I to avoid confusion). */
+function genJoinCode(): string {
+	const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+	let out = '';
+	for (let i = 0; i < 6; i++) out += alphabet[Math.floor(Math.random() * alphabet.length)];
+	return out;
+}
+
+const DEFAULT_MAX_MEMBERS = 6;
+
+/**
+ * Ensure a player has a solo "world of one" and is a member of it. Idempotent:
+ * safe to call on every login, which back-fills the World/WorldMember rows for
+ * saves created before multiplayer existed. The solo world's id equals the
+ * playerId, so all of that player's existing world-state rows already belong to
+ * it without any re-keying.
+ */
+async function ensureSoloWorld(player: any): Promise<void> {
+	const t = db();
+	const soloId = player.id;
+	if (!(await t.World.get(soloId))) {
+		await t.World.put({
+			id: soloId,
+			name: `${player.name || 'My'} preserve`,
+			solo: true,
+			ownerId: player.id,
+			joinCode: null,
+			createdAt: player.createdAt || Date.now(),
+			maxMembers: 1,
+		});
+	}
+	const memberId = `${soloId}:${player.id}`;
+	if (!(await t.WorldMember.get(memberId))) {
+		await t.WorldMember.put({
+			id: memberId, worldId: soloId, playerId: player.id,
+			role: 'owner', joinedAt: player.createdAt || Date.now(), lastSeenAt: Date.now(),
+		});
+	}
+	if (!player.worldId) await t.Player.patch(player.id, { worldId: soloId });
+}
+
+/** Every world a player belongs to, shaped for the client's world picker. */
+async function listMemberships(playerId: string): Promise<any[]> {
+	const t = db();
+	const members = (await byPlayer(t.WorldMember, playerId));
+	const out: any[] = [];
+	for (const m of members) {
+		const world = await t.World.get(m.worldId);
+		if (!world) continue;
+		const memberCount = (await byWorld(t.WorldMember, world.id)).length;
+		out.push({
+			worldId: world.id,
+			name: world.name,
+			solo: !!world.solo,
+			role: m.role,
+			joinCode: world.solo ? null : world.joinCode,
+			memberCount,
+			maxMembers: world.maxMembers || DEFAULT_MAX_MEMBERS,
+			isOwner: world.ownerId === playerId,
+		});
+	}
+	// solo first, then most-recently-joined co-op worlds
+	return out.sort((a, b) => (a.solo === b.solo ? 0 : a.solo ? -1 : 1));
+}
+
+/**
+ * A co-op member's set of unlocked biomes is the union of their own and every
+ * biome the shared world has opened. Persisted on the player so the per-action
+ * unlock gates (which read player.unlockedBiomes) admit areas a world-mate
+ * restored. No-op for solo worlds. Call on login / world switch / join.
+ */
+async function syncMemberUnlocks(playerId: string, worldId: string): Promise<string[]> {
+	const t = db();
+	const player = await t.Player.get(playerId);
+	if (!player) return [];
+	const current: string[] = player.unlockedBiomes || ['meadow'];
+	if (worldId === player.id) return current; // solo world — already authoritative
+	const worldStates = await byWorld(t.BiomeState, worldId);
+	const unlocked = new Set(current);
+	for (const bs of worldStates) if (bs.unlocked) unlocked.add(bs.biomeId);
+	const merged = [...unlocked];
+	if (merged.length !== current.length) await t.Player.patch(playerId, { unlockedBiomes: merged });
+	return merged;
+}
+
 /**
  * Reconcile seed tables against the definition JSON, deleting any DB records
  * whose id is no longer in the JSON (renamed or removed). Runs once per worker.
@@ -126,6 +293,46 @@ async function reconcileDefinitions() {
 		// linger on the stored record and keep producing stale behavior. A full
 		// put() replaces the whole record, clearing anything no longer in the JSON.
 		for (const rec of records) await table.put(rec);
+	}
+	// NOTE: we intentionally do NOT scan-and-purge corrupt records on boot. Harper
+	// decodes a record on get/put/delete alike, so a row left undecodable by an
+	// earlier schema layout can't be removed through the Resource API — and merely
+	// reading it (to find it) re-triggers Harper's own "Error decoding record" log.
+	// `safeGet` still drops a corrupt row if it's ever fetched by id, but the clean
+	// fix for accumulated dev-time schema drift is to drop the database (see README).
+}
+
+/**
+ * Proactively delete records left undecodable by an earlier schema layout (rapid
+ * dev schema drift), so Harper stops logging "Error decoding record" on boot and
+ * during scans. Runs once per worker. Enumerates primary keys only (which don't
+ * require decoding the record body), then force-reads each and drops any that fail.
+ */
+let corruptPurged = false;
+async function purgeCorruptRecords() {
+	if (corruptPurged) return;
+	corruptPurged = true;
+	const t = db();
+	const names = ['Player', 'BiomeState', 'Chest', 'Placement', 'Discovery', 'NodeState',
+		'TerrainTile', 'FeedEntry', 'PlayerAchievement', 'WorldMember', 'World', 'WorldPresence', 'JoinRequest'];
+	for (const name of names) {
+		const table = t[name];
+		if (!table || typeof table.search !== 'function') continue;
+		// enumerate ids only — selecting just the primary key avoids decoding bodies
+		const ids: string[] = [];
+		try {
+			for await (const r of table.search({ select: ['id'] })) if (r?.id != null) ids.push(r.id);
+		} catch { continue; } // can't list ids cheaply; per-access safeGet still self-heals
+		let purged = 0;
+		for (const id of ids) {
+			try {
+				const rec = await table.get(id);
+				if (rec) JSON.stringify({ ...rec }); // force the lazy decode
+			} catch (e) {
+				if (isDecodeError(e)) { if (await forceRemove(table, id)) purged++; }
+			}
+		}
+		if (purged) console.error(`purgeCorruptRecords: removed ${purged} undecodable ${name} record(s)`);
 	}
 }
 
@@ -346,7 +553,7 @@ const STARTER_CHEST = { x: 9, y: 5, size: 'small-chest', capacity: 120 };
 /** Load an existing player or fail — creation only happens via /CreatePlayer/. */
 async function requirePlayer(playerId: string): Promise<any> {
 	if (!playerId || typeof playerId !== 'string') throw new GameError('playerId required');
-	const player = await db().Player.get(playerId);
+	const player = await safeGet(db().Player, playerId);
 	if (!player) throw new GameError('No save found — please log in again', 404);
 	return { player };
 }
@@ -597,6 +804,7 @@ async function createPlayerRecords(playerId: string, name: string, passcode: str
 		passcodeHash: hash,
 		appearance,
 		createdAt: now,
+		worldId: playerId, // start in your own private solo world (world of one)
 		area: 'meadow',
 		x: 10.5, // spawn right beside the camp workbench
 		y: 6.5,
@@ -611,8 +819,12 @@ async function createPlayerRecords(playerId: string, name: string, passcode: str
 	};
 	await t.Player.put(player);
 
+	// A new player begins in their own private solo world (id === playerId), so
+	// every seeded row is stamped with that worldId from the start.
+	const wid = playerId;
 	const biomeStates = d.biomes.map((b: any) => ({
-		id: `${playerId}:${b.id}`,
+		id: `${wid}:${b.id}`,
+		worldId: wid,
 		playerId,
 		biomeId: b.id,
 		health: BASE_HEALTH,
@@ -625,14 +837,14 @@ async function createPlayerRecords(playerId: string, name: string, passcode: str
 	const chestPlacementId = `pl_${playerId}_starter-chest`;
 	const placements = [
 		{
-			id: chestPlacementId, playerId, objectId: 'small-chest',
+			id: chestPlacementId, worldId: wid, playerId, objectId: 'small-chest',
 			area: 'meadow', x: STARTER_CHEST.x, y: STARTER_CHEST.y, placedAt: now,
 		},
 	];
 	for (const p of placements) await t.Placement.put(p);
 
 	const chest = {
-		id: chestPlacementId, playerId, area: 'meadow',
+		id: chestPlacementId, worldId: wid, playerId, area: 'meadow',
 		x: STARTER_CHEST.x, y: STARTER_CHEST.y,
 		size: 'small-chest', capacity: STARTER_CHEST.capacity, contents: {},
 	};
@@ -855,6 +1067,7 @@ function whyReturnedText(animal: any, d: any): string {
  * transaction do not see that transaction's own writes yet.
  */
 async function recalcBiome(
+	wid: string,
 	playerId: string,
 	biomeId: string,
 	opts: { addPlacements?: any[]; removeIds?: string[]; player?: any; addTerrain?: any[]; removeTerrainIds?: string[] } = {}
@@ -863,7 +1076,7 @@ async function recalcBiome(
 	const d = await defs();
 	if (!d.biome.get(biomeId)) throw new GameError(`Unknown biome: ${biomeId}`);
 
-	let placements = (await byPlayer(t.Placement, playerId)).filter((p) => p.area === biomeId);
+	let placements = (await byWorld(t.Placement, wid)).filter((p) => p.area === biomeId);
 	if (opts.removeIds?.length) placements = placements.filter((p) => !opts.removeIds!.includes(p.id));
 	for (const ap of opts.addPlacements || []) {
 		if (ap.area !== biomeId) continue;
@@ -876,7 +1089,7 @@ async function recalcBiome(
 
 	// terraformed ground: each watered bed adds +1 health (capped) — tending the
 	// soil itself matters, not just the objects on it
-	let terrain = (await byPlayer(t.TerrainTile, playerId)).filter((tt) => tt.area === biomeId);
+	let terrain = (await byWorld(t.TerrainTile, wid)).filter((tt) => tt.area === biomeId);
 	if (opts.removeTerrainIds?.length) terrain = terrain.filter((tt) => !opts.removeTerrainIds!.includes(tt.id));
 	for (const at of opts.addTerrain || []) {
 		if (at.area !== biomeId) continue;
@@ -894,7 +1107,7 @@ async function recalcBiome(
 	const healthPoints = computeHealthPoints(d, placements, openWaterTiles) + wateredTiles;
 	const health = healthFromPoints(healthPoints);
 
-	const discoveries = await byPlayer(t.Discovery, playerId);
+	const discoveries = await byWorld(t.Discovery, wid);
 	const returnedIds = new Set(discoveries.map((x) => x.animalId));
 
 	// Balance tracks food-web completeness, recomputed as each animal comes back so
@@ -916,7 +1129,8 @@ async function recalcBiome(
 		if (!firstAnimalBack && animal.id !== FIRST_ANIMAL_ID) continue;
 		if (meetsRequirements(animal, health, balance, counts, returnedIds, water)) {
 			const disc = {
-				id: `${playerId}:${animal.id}`,
+				id: `${wid}:${animal.id}`,
+				worldId: wid,
 				playerId,
 				animalId: animal.id,
 				biomeId,
@@ -944,14 +1158,14 @@ async function recalcBiome(
 	}
 
 	const returnedCount = [...returnedIds].filter((id) => d.animal.get(id)?.biome === biomeId).length;
-	const prior = await findOwned(t.BiomeState, playerId, `${playerId}:${biomeId}`);
-	await t.BiomeState.patch(`${playerId}:${biomeId}`, { health, balance, returnedCount });
+	const prior = await findInWorld(t.BiomeState, wid, `${wid}:${biomeId}`);
+	await t.BiomeState.patch(`${wid}:${biomeId}`, { health, balance, returnedCount });
 	const biomeState = {
-		...(prior || { id: `${playerId}:${biomeId}`, playerId, biomeId, unlocked: biomeId === 'meadow' }),
+		...(prior || { id: `${wid}:${biomeId}`, worldId: wid, playerId, biomeId, unlocked: biomeId === 'meadow' }),
 		health, balance, returnedCount,
 	};
 
-	const unlockedBiomes = await checkUnlocks(playerId, { player: opts.player, freshState: biomeState });
+	const unlockedBiomes = await checkUnlocks(wid, playerId, { player: opts.player, freshState: biomeState });
 	return { biomeState, newAnimals, unlockedBiomes };
 }
 
@@ -972,19 +1186,26 @@ const STARTING_TERRAIN: Record<string, { x: number; y: number; type: string }[]>
 };
 
 /** Pre-shape an area's starting terrain the first time it unlocks. */
-async function seedStartingTerrain(playerId: string, biomeId: string) {
+async function seedStartingTerrain(wid: string, playerId: string, biomeId: string) {
 	const layout = STARTING_TERRAIN[biomeId];
 	if (!layout) return;
 	const t = db();
 	for (const cell of layout) {
-		const id = `${playerId}:${biomeId}:${cell.x}:${cell.y}`;
-		if (await t.TerrainTile.get(id)) continue; // never overwrite the player's own work
-		await t.TerrainTile.put({ id, playerId, area: biomeId, x: cell.x, y: cell.y, type: cell.type, updatedAt: Date.now() });
+		const id = `${wid}:${biomeId}:${cell.x}:${cell.y}`;
+		if (await t.TerrainTile.get(id)) continue; // never overwrite the world's own work
+		await t.TerrainTile.put({ id, worldId: wid, playerId, area: biomeId, x: cell.x, y: cell.y, type: cell.type, updatedAt: Date.now() });
 	}
 }
 
-/** Evaluate biome unlock requirements; unlock anything newly earned. */
+/**
+ * Evaluate biome unlock requirements; unlock anything newly earned. Biome
+ * unlock is a world property (BiomeState.unlocked under the world id), but the
+ * acting player's personal `unlockedBiomes` is also updated so their action
+ * gates open immediately. World-mates pick up the new unlock on their next
+ * login / world switch via syncMemberUnlocks.
+ */
 async function checkUnlocks(
+	wid: string,
 	playerId: string,
 	fresh: { player?: any; freshState?: any } = {}
 ): Promise<any[]> {
@@ -993,18 +1214,20 @@ async function checkUnlocks(
 	const player = fresh.player || (await t.Player.get(playerId));
 	const unlockedNow: any[] = [];
 	const unlockedSet = new Set(player.unlockedBiomes || []);
+	// the world's own unlock state is authoritative for prerequisites
+	const worldUnlocked = new Set((await byWorld(t.BiomeState, wid)).filter((b) => b.unlocked).map((b) => b.biomeId));
 
 	for (const biome of d.biomes) {
-		if (!biome.unlock || unlockedSet.has(biome.id)) continue;
+		if (!biome.unlock || worldUnlocked.has(biome.id)) continue;
 		const u = biome.unlock;
 		const prereq =
-			fresh.freshState?.biomeId === u.biome ? fresh.freshState : await findOwned(t.BiomeState, playerId, `${playerId}:${u.biome}`);
-		if (!prereq || !unlockedSet.has(u.biome)) continue;
+			fresh.freshState?.biomeId === u.biome ? fresh.freshState : await findInWorld(t.BiomeState, wid, `${wid}:${u.biome}`);
+		if (!prereq || !worldUnlocked.has(u.biome)) continue;
 		if ((prereq.health || 0) < (u.minHealth || 0)) continue;
 		if ((prereq.returnedCount || 0) < (u.minAnimals || 0)) continue;
 		if (u.minTotalAnimals) {
 			// total animals returned across the whole preserve (all biomes)
-			const totalReturned = (await byPlayer(t.Discovery, playerId)).length;
+			const totalReturned = (await byWorld(t.Discovery, wid)).length;
 			if (totalReturned < u.minTotalAnimals) continue;
 		}
 		if (u.requiresItem) {
@@ -1014,10 +1237,11 @@ async function checkUnlocks(
 		}
 		if (u.requiresTool && (player.tools?.[u.requiresTool.id] || 1) < u.requiresTool.tier) continue;
 
+		worldUnlocked.add(biome.id);
 		unlockedSet.add(biome.id);
 		await t.Player.patch(playerId, { unlockedBiomes: [...unlockedSet] });
-		await t.BiomeState.patch(`${playerId}:${biome.id}`, { unlocked: true });
-		await seedStartingTerrain(playerId, biome.id);
+		await t.BiomeState.patch(`${wid}:${biome.id}`, { unlocked: true });
+		await seedStartingTerrain(wid, playerId, biome.id);
 		unlockedNow.push({ id: biome.id, name: biome.name });
 	}
 	return unlockedNow;
@@ -1049,14 +1273,14 @@ function recipeUnlockMet(
  * Used by CraftItem to enforce the gate server-side (Harper is the source of
  * truth — the client only hides locked recipes for nicer UX).
  */
-async function recipeUnlockContext(playerId: string, biomeId: string, player: any, d: any) {
+async function recipeUnlockContext(wid: string, biomeId: string, player: any, d: any) {
 	const t = db();
-	// Use the reliable per-player scan, not BiomeState.get(): a primary-key .get()
+	// Use the reliable per-world scan, not BiomeState.get(): a primary-key .get()
 	// can return null for a record that exists on a cold Harper instance, which made
 	// health read as 0 and wrongly rejected a craft the client correctly showed as
 	// unlocked (e.g. a Bird Perch at 24% health).
-	const bs = await findOwned(t.BiomeState, playerId, `${playerId}:${biomeId}`);
-	const discoveries = await byPlayer(t.Discovery, playerId);
+	const bs = await findInWorld(t.BiomeState, wid, `${wid}:${biomeId}`);
+	const discoveries = await byWorld(t.Discovery, wid);
 	const returnedAnimalIds = new Set<string>(
 		discoveries.filter((x: any) => d.animal.get(x.animalId)?.biome === biomeId).map((x: any) => x.animalId),
 	);
@@ -1073,15 +1297,15 @@ async function recipeUnlockContext(playerId: string, biomeId: string, player: an
  * exists but its storage record is missing (older/interrupted saves). Rebuilds
  * the Chest row from the placement so the player can use it again.
  */
-async function getOwnedChest(t: any, d: any, chestId: string, playerId: string): Promise<any | null> {
-	const chest = await findOwned(t.Chest, playerId, chestId);
+async function getOwnedChest(t: any, d: any, chestId: string, wid: string): Promise<any | null> {
+	const chest = await findInWorld(t.Chest, wid, chestId);
 	if (chest) return chest;
-	const placement = await findOwned(t.Placement, playerId, chestId);
+	const placement = await findInWorld(t.Placement, wid, chestId);
 	if (placement) {
 		const def = d.object.get(placement.objectId);
 		if (def?.isChest) {
 			const healed = {
-				id: chestId, playerId, area: placement.area, x: placement.x, y: placement.y,
+				id: chestId, worldId: wid, playerId: placement.playerId, area: placement.area, x: placement.x, y: placement.y,
 				size: placement.objectId, capacity: def.chestCapacity || 60, contents: {},
 			};
 			await t.Chest.put(healed);
@@ -1099,9 +1323,10 @@ async function getOwnedChest(t: any, d: any, chestId: string, playerId: string):
  * Throws (and writes nothing) if materials are insufficient.
  * Returns a breakdown of where every material came from.
  */
-async function consumeMaterials(player: any, materials: Record<string, number>) {
+async function consumeMaterials(player: any, materials: Record<string, number>, wid: string = player.id) {
 	const t = db();
-	const chests = await byPlayer(t.Chest, player.id);
+	// crafting draws from the player's basket first, then the shared world's chests
+	const chests = await byWorld(t.Chest, wid);
 
 	// availability check first — never partially consume
 	for (const [resId, qty] of Object.entries(materials)) {
@@ -1151,28 +1376,39 @@ async function consumeMaterials(player: any, materials: Record<string, number>) 
 
 // ------------------------------------------------------- snapshot for client
 
-async function snapshot(playerId: string) {
+async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 	const t = db();
 	const d = await defs();
-	let player = await t.Player.get(playerId);
+	let player = await safeGet(t.Player, playerId);
 	// normalize saves whose last area no longer exists / isn't explorable — but the
 	// home interior ('home') is a valid non-biome area, so leave it be.
 	const areaBiome = d.biome.get(player?.area);
 	if (player && player.area !== 'home' && (!areaBiome || !areaBiome.explorable)) {
 		player = { ...player, area: 'meadow', x: 10.5, y: 6.5 };
 	}
+	// World-owned state is read by the active world id; achievements stay personal.
+	// `opts.worldId` lets a caller force the world even if the player's just-patched
+	// worldId isn't visible yet within the same transaction (e.g. right after joining).
+	const wid = opts.worldId || worldOf(player);
 	const [biomeStates, placements, chests, discoveries, nodeStates, terrain, achievementRows, feedRows] = await Promise.all([
-		byPlayer(t.BiomeState, playerId),
-		byPlayer(t.Placement, playerId),
-		byPlayer(t.Chest, playerId),
-		byPlayer(t.Discovery, playerId),
-		byPlayer(t.NodeState, playerId),
-		byPlayer(t.TerrainTile, playerId),
+		byWorld(t.BiomeState, wid),
+		byWorld(t.Placement, wid),
+		byWorld(t.Chest, wid),
+		byWorld(t.Discovery, wid),
+		byWorld(t.NodeState, wid),
+		byWorld(t.TerrainTile, wid),
 		byPlayer(t.PlayerAchievement, playerId),
-		byPlayer(t.FeedEntry, playerId),
+		byWorld(t.FeedEntry, wid),
 	]);
+	// In a co-op world, a player can roam any biome a world-mate has unlocked, so
+	// the snapshot reflects the union of personal + world-unlocked biomes.
+	if (player && wid !== player.id) {
+		const unlocked = new Set(player.unlockedBiomes || ['meadow']);
+		for (const bs of biomeStates) if (bs.unlocked) unlocked.add(bs.biomeId);
+		player = { ...player, unlockedBiomes: [...unlocked] };
+	}
 	return {
-		player: sanitizePlayer(player), biomeStates, placements, chests, discoveries, nodeStates, terrain,
+		player: sanitizePlayer(player), worldId: wid, biomeStates, placements, chests, discoveries, nodeStates, terrain,
 		// most-recently earned first, so the client can float fresh unlocks to the top
 		achievements: [...achievementRows]
 			.sort((a: any, b: any) => (b.earnedAt || 0) - (a.earnedAt || 0))
@@ -1336,11 +1572,13 @@ async function awardAchievements(
 		const player = await t.Player.get(playerId);
 		if (!player) return [];
 		const earned = await earnedAchievementIds(playerId);
+		// achievement context comes from the world the player is acting in
+		const wid = worldOf(player);
 
 		let [biomeStates, discoveries, terrain] = await Promise.all([
-			byPlayer(t.BiomeState, playerId),
-			byPlayer(t.Discovery, playerId),
-			byPlayer(t.TerrainTile, playerId),
+			byWorld(t.BiomeState, wid),
+			byWorld(t.Discovery, wid),
+			byWorld(t.TerrainTile, wid),
 		]);
 
 		// fold in this-request writes the searches above can't see yet
@@ -1404,6 +1642,33 @@ async function awardAchievements(
 	}
 }
 
+/**
+ * Award achievements for a WORLD-changing action. The actor is evaluated as usual,
+ * but in a co-op world every other member is evaluated too — so world-derived
+ * achievements (welcoming the grasshopper / First Friend, keystones, biome
+ * milestones…) land for everyone at the same moment, since they all share the same
+ * world state. Personal achievements (your own crafting/gathering counts) still
+ * only fire for whoever actually qualifies. Returns the actor's newly-earned set.
+ */
+async function awardWorldAchievements(
+	wid: string,
+	actorId: string,
+	opts: { addDiscoveries?: any[]; freshBiomeStates?: any[] } = {},
+): Promise<any[]> {
+	const newlyForActor = await awardAchievements(actorId, opts);
+	try {
+		const t = db();
+		const world = await t.World.get(wid);
+		if (world && !world.solo) {
+			for (const m of await byWorld(t.WorldMember, wid)) {
+				if (m.playerId === actorId) continue;
+				await awardAchievements(m.playerId, opts); // same world context → shared world achievements
+			}
+		}
+	} catch { /* co-op fan-out is best-effort */ }
+	return newlyForActor;
+}
+
 // ================================================================ ENDPOINTS
 
 /**
@@ -1458,11 +1723,17 @@ export class CreatePlayer extends PublicEndpoint {
 		const playerId = slugId(cleanName);
 		if (!playerId) throw new GameError('That name needs at least one letter or number');
 
-		const existing = await db().Player.get(playerId);
+		const existing = await safeGet(db().Player, playerId);
 		if (existing) throw new GameError('A save with that name already exists — try Load Game instead', 409);
 
 		const created = await createPlayerRecords(playerId, cleanName, code, sanitizeAppearance(appearance));
-		return { ok: true, playerId, state: freshSnapshot(created) };
+		// World plumbing must never block starting a save: if the World/WorldMember
+		// tables aren't ready yet (instance not restarted after the schema change),
+		// fall back to a plain solo session so core play still works.
+		let worlds: any[] = [];
+		try { await ensureSoloWorld(created.player); worlds = await listMemberships(playerId); }
+		catch (e) { console.error('world setup skipped (CreatePlayer):', e); }
+		return { ok: true, playerId, worldId: playerId, worlds, state: freshSnapshot(created) };
 	}
 }
 
@@ -1480,12 +1751,24 @@ export class DeletePlayer extends PublicEndpoint {
 
 		const t = db();
 		let removed = 0;
-		for (const table of [t.Placement, t.Chest, t.BiomeState, t.Discovery, t.NodeState, t.TerrainTile, t.PlayerAchievement, t.FeedEntry]) {
-			for (const rec of await byPlayer(table, playerId)) {
+		// Delete the player's own solo world (id === playerId) and personal records.
+		// Co-op worlds they merely belong to are left intact for the other members.
+		for (const table of [t.Placement, t.Chest, t.BiomeState, t.Discovery, t.NodeState, t.TerrainTile, t.FeedEntry]) {
+			for (const rec of await byWorld(table, playerId)) {
 				await table.delete(rec.id);
 				removed++;
 			}
 		}
+		for (const rec of await byPlayer(t.PlayerAchievement, playerId)) {
+			await t.PlayerAchievement.delete(rec.id);
+			removed++;
+		}
+		// drop every world membership, and the solo World row itself
+		for (const m of await byPlayer(t.WorldMember, playerId)) {
+			await t.WorldMember.delete(m.id);
+			removed++;
+		}
+		if (await t.World.get(playerId)) { await t.World.delete(playerId); removed++; }
 		await t.Player.delete(playerId);
 		return { ok: true, deleted: playerId, recordsRemoved: removed + 1 };
 	}
@@ -1514,7 +1797,7 @@ export class LoginPlayer extends PublicEndpoint {
 	async post(data: any) {
 		const { name, passcode } = await bodyOf(data);
 		const playerId = slugId(String(name || ''));
-		const player = playerId ? await db().Player.get(playerId) : null;
+		const player = playerId ? await safeGet(db().Player, playerId) : null;
 		if (!player) throw new GameError('No save found with that name — try New Game', 404);
 		if (!(await verifyPasscode(player, passcode))) throw new GameError("That passcode doesn't match this save", 403);
 		// on login, start back out in the meadow rather than loading straight into an
@@ -1529,7 +1812,19 @@ export class LoginPlayer extends PublicEndpoint {
 		const now = Date.now();
 		const prev = player.metrics || freshMetrics(player.createdAt || now);
 		await db().Player.patch(playerId, { metrics: { ...prev, lastHeartbeatAt: 0, lastSeenAt: now } });
-		return { ok: true, playerId, state: await snapshot(playerId) };
+		// Back-fill the solo "world of one" for saves made before multiplayer, then
+		// resume whichever world this player was last active in (their solo world by
+		// default, or a co-op world they had joined — this is how you log back in to co-op).
+		// Guarded so a not-yet-migrated instance still logs you in (solo) rather than erroring.
+		let active = player.worldId || playerId;
+		let worlds: any[] = [];
+		try {
+			await ensureSoloWorld(player);
+			active = (await db().Player.get(playerId)).worldId || playerId;
+			await syncMemberUnlocks(playerId, active);
+			worlds = await listMemberships(playerId);
+		} catch (e) { console.error('world setup skipped (LoginPlayer):', e); }
+		return { ok: true, playerId, worldId: active, worlds, state: await snapshot(playerId) };
 	}
 }
 
@@ -1543,6 +1838,328 @@ export class GameState extends PublicEndpoint {
 	}
 }
 
+// ------------------------------------------------------------- worlds API
+// Co-op lets several players restore one shared preserve. Personal progress
+// (inventory, tools, appearance, achievements, position) always stays with the
+// player; only the world (biomes, terrain, placements, animals, chests, feed)
+// is shared. A player can belong to many worlds and switch between them, and
+// because membership is persisted they can log back in straight into a co-op
+// world they had joined.
+
+/** GET/POST /MyWorlds/ {playerId} — every world this player can enter. */
+export class MyWorlds extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId } = await bodyOf(data);
+		const { player } = await requirePlayer(playerId);
+		await ensureSoloWorld(player);
+		return { ok: true, activeWorldId: worldOf(player), worlds: await listMemberships(playerId) };
+	}
+}
+
+/** POST /CreateWorld/ {playerId, name} — start a new shared co-op preserve. */
+export class CreateWorld extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId, name } = await bodyOf(data);
+		const t = db();
+		const { player } = await requirePlayer(playerId);
+		await ensureSoloWorld(player);
+
+		const cleanName = String(name || '').trim() || `${player.name}'s preserve`;
+		if (cleanName.length > 40) throw new GameError('Pick a world name under 40 characters');
+
+		// generate a unique world id + a collision-free join code
+		const worldId = `w_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
+		let joinCode = genJoinCode();
+		const allWorlds = await allOf(t.World);
+		const taken = new Set(allWorlds.map((w: any) => w.joinCode).filter(Boolean));
+		let guard = 0;
+		while (taken.has(joinCode) && guard++ < 20) joinCode = genJoinCode();
+
+		const now = Date.now();
+		await t.World.put({
+			id: worldId, name: cleanName, solo: false, ownerId: playerId,
+			joinCode, createdAt: now, maxMembers: DEFAULT_MAX_MEMBERS,
+		});
+		await t.WorldMember.put({
+			id: `${worldId}:${playerId}`, worldId, playerId,
+			role: 'owner', joinedAt: now, lastSeenAt: now,
+		});
+		// seed the shared world's biome rows (meadow unlocked, like a fresh save) so
+		// restoration starts from scratch in the co-op world
+		const d = await defs();
+		for (const b of d.biomes) {
+			await t.BiomeState.put({
+				id: `${worldId}:${b.id}`, worldId, playerId, biomeId: b.id,
+				health: BASE_HEALTH, balance: 0, returnedCount: 0, unlocked: b.id === 'meadow',
+			});
+		}
+		return { ok: true, world: { worldId, name: cleanName, joinCode, solo: false, role: 'owner', isOwner: true, memberCount: 1, maxMembers: DEFAULT_MAX_MEMBERS }, worlds: await listMemberships(playerId) };
+	}
+}
+
+/** POST /JoinWorld/ {playerId, joinCode} — join a co-op preserve and enter it. */
+/** Find a joinable (non-solo) world by its code. */
+async function worldByCode(t: any, joinCode: any): Promise<any | null> {
+	const code = String(joinCode || '').trim().toUpperCase();
+	if (!code) return null;
+	return (await allOf(t.World)).find((w: any) => !w.solo && w.joinCode === code) || null;
+}
+
+export class JoinWorld extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId, joinCode, token } = await bodyOf(data);
+		const t = db();
+		const { player } = await requirePlayer(playerId);
+		await ensureSoloWorld(player);
+
+		const world = await worldByCode(t, joinCode);
+		if (!world) throw new GameError('No world found with that code', 404);
+
+		const memberId = `${world.id}:${playerId}`;
+		const already = await t.WorldMember.get(memberId);
+		if (!already) {
+			// You can only become a member once the host has APPROVED your request —
+			// redeem the token you got when you entered the code.
+			const tok = String(token || '').trim();
+			const req = tok ? await t.JoinRequest.get(`${world.id}:${tok}`) : null;
+			if (!req || req.status !== 'approved') {
+				throw new GameError('The host hasn’t approved you for this world yet', 403);
+			}
+			const max = world.maxMembers || DEFAULT_MAX_MEMBERS;
+			const members = await byWorld(t.WorldMember, world.id);
+			if (members.length >= max) {
+				throw new GameError(`This preserve is full — ${max} caretakers have joined and it's closed to new players.`, 409);
+			}
+			await t.WorldMember.put({
+				id: memberId, worldId: world.id, playerId,
+				role: 'member', joinedAt: Date.now(), lastSeenAt: Date.now(),
+			});
+			await t.JoinRequest.delete(`${world.id}:${tok}`); // consume the approval
+			// announce the arrival in the shared world feed (everyone sees it)
+			const at = Date.now();
+			await t.FeedEntry.put({
+				id: `f_${world.id}_${at}_${Math.random().toString(36).slice(2, 7)}`,
+				worldId: world.id, playerId, at, icon: 'user', text: `${player.name} joined the preserve!`,
+			});
+		}
+		// entering the world: make it active and open up whatever biomes it has unlocked
+		await t.Player.patch(playerId, { worldId: world.id });
+		await syncMemberUnlocks(playerId, world.id);
+		// The membership/worldId we just wrote may not be visible to reads in this same
+		// transaction yet, so force the active world id and make sure the joined world
+		// is present in the returned list (otherwise the client needs a second load to
+		// recognize co-op).
+		let worldsList = await listMemberships(playerId);
+		if (!worldsList.some((w: any) => w.worldId === world.id)) {
+			const members = await byWorld(t.WorldMember, world.id);
+			const here = members.some((m: any) => m.playerId === playerId) ? members.length : members.length + 1;
+			worldsList = [...worldsList, {
+				worldId: world.id, name: world.name, solo: false,
+				role: world.ownerId === playerId ? 'owner' : 'member',
+				joinCode: world.joinCode, memberCount: here,
+				maxMembers: world.maxMembers || DEFAULT_MAX_MEMBERS, isOwner: world.ownerId === playerId,
+			}];
+		}
+		return { ok: true, worldId: world.id, worlds: worldsList, state: await snapshot(playerId, { worldId: world.id }) };
+	}
+}
+
+/** POST /CheckWorldCode/ {joinCode} — does this code point to a real co-op world? (no account needed) */
+export class CheckWorldCode extends PublicEndpoint {
+	async post(data: any) {
+		const { joinCode } = await bodyOf(data);
+		const t = db();
+		const world = await worldByCode(t, joinCode);
+		if (!world) return { ok: true, exists: false };
+		const memberCount = (await byWorld(t.WorldMember, world.id)).length;
+		const owner = await t.Player.get(world.ownerId);
+		const max = world.maxMembers || DEFAULT_MAX_MEMBERS;
+		return {
+			ok: true, exists: true,
+			world: { worldId: world.id, name: world.name, hostName: owner?.name || 'the host', memberCount, maxMembers: max, full: memberCount >= max },
+		};
+	}
+}
+
+/** POST /RequestJoin/ {joinCode, token, name} — ask the host to let you in (before making a character). */
+export class RequestJoin extends PublicEndpoint {
+	async post(data: any) {
+		const { joinCode, token, name } = await bodyOf(data);
+		const t = db();
+		const world = await worldByCode(t, joinCode);
+		if (!world) throw new GameError('No world found with that code', 404);
+		const tok = String(token || '').trim();
+		if (!tok) throw new GameError('Missing request token');
+		const max = world.maxMembers || DEFAULT_MAX_MEMBERS;
+		const memberCount = (await byWorld(t.WorldMember, world.id)).length;
+		if (memberCount >= max) throw new GameError(`This preserve is full — it already has its ${max} caretakers and is closed to new players.`, 409);
+		const cleanName = String(name || '').trim().slice(0, 24) || 'A caretaker';
+		await t.JoinRequest.put({ id: `${world.id}:${tok}`, worldId: world.id, token: tok, name: cleanName, status: 'pending', createdAt: Date.now() });
+		const owner = await t.Player.get(world.ownerId);
+		return { ok: true, worldId: world.id, world: { name: world.name, hostName: owner?.name || 'the host' } };
+	}
+}
+
+/** POST /JoinRequestStatus/ {worldId, token} — the waiting joiner polls this. */
+export class JoinRequestStatus extends PublicEndpoint {
+	async post(data: any) {
+		const { worldId, token } = await bodyOf(data);
+		const t = db();
+		const req = await t.JoinRequest.get(`${worldId}:${String(token || '').trim()}`);
+		return { ok: true, status: req?.status || 'none' };
+	}
+}
+
+/** POST /PendingJoinRequests/ {playerId} — the host's pending requests for their active world. */
+export class PendingJoinRequests extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId } = await bodyOf(data);
+		const { player } = await requirePlayer(playerId);
+		const t = db();
+		const wid = worldOf(player);
+		const world = await t.World.get(wid);
+		if (!world || world.solo || world.ownerId !== playerId) return { ok: true, requests: [] };
+		const reqs = (await byWorld(t.JoinRequest, wid)).filter((r: any) => r.status === 'pending');
+		reqs.sort((a: any, b: any) => (a.createdAt || 0) - (b.createdAt || 0));
+		return { ok: true, requests: reqs.map((r: any) => ({ token: r.token, name: r.name, createdAt: r.createdAt })) };
+	}
+}
+
+/** POST /ResolveJoin/ {playerId, worldId, token, approve} — host approves or denies a request. */
+export class ResolveJoin extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId, worldId, token, approve } = await bodyOf(data);
+		await requirePlayer(playerId);
+		const t = db();
+		const world = await t.World.get(worldId);
+		if (!world || world.solo) throw new GameError('No such co-op world', 404);
+		if (world.ownerId !== playerId) throw new GameError('Only the host can approve players', 403);
+		const id = `${worldId}:${String(token || '').trim()}`;
+		const req = await t.JoinRequest.get(id);
+		if (!req) throw new GameError('That request is no longer pending', 404);
+		await t.JoinRequest.patch(id, { status: approve ? 'approved' : 'denied', resolvedAt: Date.now() });
+		return { ok: true };
+	}
+}
+
+/**
+ * POST /WorldRoster/ {playerId} — the full join history of the active co-op world:
+ * everyone who has ever joined (caretakers stay on the roster so they can always
+ * return), in join order, plus whether the world has hit its cap and is closed.
+ */
+export class WorldRoster extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId } = await bodyOf(data);
+		const { player } = await requirePlayer(playerId);
+		const t = db();
+		const wid = worldOf(player);
+		const world = await t.World.get(wid);
+		const max = world?.maxMembers || DEFAULT_MAX_MEMBERS;
+		if (!world || world.solo) return { ok: true, roster: [], closed: false, maxMembers: max, joinCode: null };
+		const members = await byWorld(t.WorldMember, wid);
+		const roster: any[] = [];
+		for (const m of members) {
+			const p = await safeGet(t.Player, m.playerId);
+			roster.push({
+				playerId: m.playerId,
+				name: p?.name || 'caretaker',
+				isOwner: m.role === 'owner' || world.ownerId === m.playerId,
+				joinedAt: m.joinedAt || 0,
+			});
+		}
+		roster.sort((a, b) => (a.joinedAt || 0) - (b.joinedAt || 0));
+		return { ok: true, roster, closed: roster.length >= max, maxMembers: max, joinCode: world.joinCode };
+	}
+}
+
+/** POST /SwitchWorld/ {playerId, worldId} — make one of your worlds active and load it. */
+export class SwitchWorld extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId, worldId } = await bodyOf(data);
+		const t = db();
+		const { player } = await requirePlayer(playerId);
+		await ensureSoloWorld(player);
+
+		const target = String(worldId || '');
+		if (!(await t.WorldMember.get(`${target}:${playerId}`))) {
+			throw new GameError('You are not a member of that world', 403);
+		}
+		await t.Player.patch(playerId, { worldId: target });
+		await t.WorldMember.patch(`${target}:${playerId}`, { lastSeenAt: Date.now() });
+		await syncMemberUnlocks(playerId, target);
+		return { ok: true, worldId: target, worlds: await listMemberships(playerId), state: await snapshot(playerId, { worldId: target }) };
+	}
+}
+
+/** POST /LeaveWorld/ {playerId, worldId} — leave a co-op world (your solo world stays). */
+export class LeaveWorld extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId, worldId } = await bodyOf(data);
+		const t = db();
+		const { player } = await requirePlayer(playerId);
+		const target = String(worldId || '');
+		if (target === playerId) throw new GameError('You cannot leave your own solo world');
+		const memberId = `${target}:${playerId}`;
+		if (!(await t.WorldMember.get(memberId))) throw new GameError('You are not in that world', 404);
+		await t.WorldMember.delete(memberId);
+		// if you were standing in that world, fall back to your solo world
+		if (player.worldId === target) {
+			await t.Player.patch(playerId, { worldId: playerId, area: 'meadow', x: 10.5, y: 6.5 });
+			await syncMemberUnlocks(playerId, playerId);
+		}
+		const active = player.worldId === target ? playerId : (player.worldId || playerId);
+		return { ok: true, worldId: active, worlds: await listMemberships(playerId), state: await snapshot(playerId, { worldId: active }) };
+	}
+}
+
+// How recently a member must have pinged to count as "here right now".
+const PRESENCE_WINDOW_MS = 15_000;
+
+/**
+ * POST /Presence/ {playerId, x, y, area} — live co-op presence. The caller's
+ * position is recorded on their WorldMember row, and the positions of every
+ * other member seen within the presence window are returned (with name +
+ * appearance) so the client can render their avatars. A no-op for solo worlds.
+ *
+ * This is the pragmatic v1 transport (a short client poll). The design doc's
+ * end state moves this onto Harper's native pub/sub so positions are pushed,
+ * never persisted; the client contract here stays the same when that lands.
+ */
+export class Presence extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId, x, y, area } = await bodyOf(data);
+		const t = db();
+		const { player } = await requirePlayer(playerId);
+		const wid = worldOf(player);
+		const now = Date.now();
+
+		const px = Number.isFinite(Number(x)) ? Number(x) : player.x;
+		const py = Number.isFinite(Number(y)) ? Number(y) : player.y;
+		const parea = typeof area === 'string' ? area : player.area;
+
+		// solo worlds have no one else — nothing to broadcast
+		const world = await t.World.get(wid);
+		if (world?.solo) return { ok: true, worldId: wid, peers: [] };
+
+		// Merge my live position into the shared WorldPresence record. Writing it
+		// pushes the new map to everyone SUBSCRIBED to this world over WebSocket —
+		// that's the realtime channel (no one polls to see others move). We prune
+		// players who've gone quiet so avatars disappear when someone leaves.
+		const rec = (await t.WorldPresence.get(wid)) || { id: wid, players: {} };
+		const players = { ...(rec.players || {}) };
+		players[playerId] = { playerId, name: player.name, appearance: player.appearance, area: parea, x: px, y: py, t: now };
+		for (const pid of Object.keys(players)) {
+			if (now - (players[pid]?.t || 0) > PRESENCE_WINDOW_MS) delete players[pid];
+		}
+		await t.WorldPresence.put({ id: wid, players, updatedAt: now });
+
+		// Also return the current peers, so a client whose WebSocket isn't connected
+		// (or hasn't connected yet) still has a polling fallback.
+		const peers = Object.values(players).filter((p: any) => p.playerId !== playerId);
+		return { ok: true, worldId: wid, peers };
+	}
+}
+
 /** POST /CollectResource/ {playerId, biomeId, nodeId, resourceId} */
 export class CollectResource extends PublicEndpoint {
 	async post(data: any) {
@@ -1550,6 +2167,7 @@ export class CollectResource extends PublicEndpoint {
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
+		const wid = worldOf(player);
 
 		const biome = d.biome.get(biomeId);
 		if (!biome) throw new GameError(`Unknown biome: ${biomeId}`);
@@ -1559,8 +2177,9 @@ export class CollectResource extends PublicEndpoint {
 		if (!resDef) throw new GameError(`Unknown resource: ${resourceId}`);
 		if (!nodeId || typeof nodeId !== 'string') throw new GameError('nodeId required');
 
-		// node regeneration cooldown
-		const nodeKey = `${playerId}:${biomeId}:${nodeId}`;
+		// node regeneration cooldown — shared across the world so two players can't
+		// both drain the same spot
+		const nodeKey = `${wid}:${biomeId}:${nodeId}`;
 		const nodeState = await t.NodeState.get(nodeKey);
 		const now = Date.now();
 		if (nodeState && now - nodeState.harvestedAt < NODE_REGEN_SECONDS * 1000) {
@@ -1579,7 +2198,7 @@ export class CollectResource extends PublicEndpoint {
 		const inventory = { ...(player.inventory || {}) };
 		inventory[resourceId] = (inventory[resourceId] || 0) + amount;
 		await t.Player.patch(playerId, { inventory });
-		await t.NodeState.put({ id: nodeKey, playerId, harvestedAt: now });
+		await t.NodeState.put({ id: nodeKey, worldId: wid, playerId, harvestedAt: now });
 
 		await bumpMetrics(player, { resourcesCollected: amount });
 		await awardAchievements(playerId);
@@ -1594,8 +2213,9 @@ export class ChestTransfer extends PublicEndpoint {
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
+		const wid = worldOf(player);
 		const amount = posInt(qty, 'qty');
-		const chest = await getOwnedChest(t, d, chestId, playerId);
+		const chest = await getOwnedChest(t, d, chestId, wid);
 		if (!chest) throw new GameError('Chest not found', 404);
 
 		const inventory = { ...(player.inventory || {}) };
@@ -1661,6 +2281,7 @@ export class CraftItem extends PublicEndpoint {
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
+		const wid = worldOf(player);
 
 		const recipe = d.recipe.get(recipeId);
 		if (!recipe) throw new GameError(`Unknown recipe: ${recipeId}`);
@@ -1681,7 +2302,7 @@ export class CraftItem extends PublicEndpoint {
 		// Progress gate: most recipes only unlock once you've restored their biome
 		// far enough (health / animals returned / a keystone animal back).
 		if (!devUnlock && recipe.unlock && recipe.unlockBiome) {
-			const ctx = await recipeUnlockContext(playerId, recipe.unlockBiome, player, d);
+			const ctx = await recipeUnlockContext(wid, recipe.unlockBiome, player, d);
 			if (!recipeUnlockMet(recipe, ctx)) {
 				throw new GameError(`Not unlocked yet — ${recipe.unlock.label}.`, 403);
 			}
@@ -1695,7 +2316,7 @@ export class CraftItem extends PublicEndpoint {
 			throw new GameError(`You have already crafted the ${recipe.name} — it only needs to be made once.`, 409);
 		}
 
-		const { usedFrom, inventory } = await consumeMaterials(player, recipe.materials || {});
+		const { usedFrom, inventory } = await consumeMaterials(player, recipe.materials || {}, wid);
 
 		const craftedItems = { ...(player.craftedItems || {}) };
 		const craftedEver = { ...(player.craftedEver || {}) };
@@ -1704,9 +2325,9 @@ export class CraftItem extends PublicEndpoint {
 		await t.Player.patch(playerId, { craftedItems, craftedEver });
 
 		// crafting key items (e.g. the water restoration kit) can unlock biomes
-		const unlockedBiomes = await checkUnlocks(playerId, { player: { ...player, craftedItems, craftedEver } });
+		const unlockedBiomes = await checkUnlocks(wid, playerId, { player: { ...player, craftedItems, craftedEver } });
 
-		const chests = await byPlayer(t.Chest, playerId);
+		const chests = await byWorld(t.Chest, wid);
 		await bumpMetrics(player, { itemsCrafted: 1 });
 		await awardAchievements(playerId);
 		return { ok: true, crafted: recipe.output, craftedItems, inventory, chests, usedFrom, unlockedBiomes };
@@ -1720,6 +2341,7 @@ export class PlaceObject extends PublicEndpoint {
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
+		const wid = worldOf(player);
 
 		const def = d.object.get(objectId);
 		if (!def) throw new GameError(`Unknown object: ${objectId}`);
@@ -1752,13 +2374,13 @@ export class PlaceObject extends PublicEndpoint {
 			throw new GameError(`Placing ${def.name} requires an upgraded ${d.tool.get(def.requiresTool.id)?.name || def.requiresTool.id}`, 403);
 		}
 
-		const placements = await byPlayer(t.Placement, playerId);
+		const placements = await byWorld(t.Placement, wid);
 		if (placements.some((p) => p.area === area && p.x === tx && p.y === ty)) {
 			throw new GameError('That spot is already taken', 409);
 		}
 		// terrain/water rules only apply outdoors — the home has no terrain
-		const tileHere = area === 'home' ? null : await findOwned(t.TerrainTile, playerId, `${playerId}:${area}:${tx}:${ty}`);
-		if (tileHere && tileHere.playerId === playerId) {
+		const tileHere = area === 'home' ? null : await findInWorld(t.TerrainTile, wid, `${wid}:${area}:${tx}:${ty}`);
+		if (tileHere) {
 			if (tileHere.type === 'water') {
 				if (!def.bridge) throw new GameError('That is open water — a wooden bridge can span it', 409);
 			} else {
@@ -1774,12 +2396,12 @@ export class PlaceObject extends PublicEndpoint {
 		await t.Player.patch(playerId, { craftedItems });
 
 		const placementId = `pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-		const placement = { id: placementId, playerId, objectId, area, x: tx, y: ty, placedAt: Date.now() };
+		const placement = { id: placementId, worldId: wid, playerId, objectId, area, x: tx, y: ty, placedAt: Date.now() };
 		await t.Placement.put(placement);
 
 		if (def.isChest) {
 			await t.Chest.put({
-				id: placementId, playerId, area, x: tx, y: ty,
+				id: placementId, worldId: wid, playerId, area, x: tx, y: ty,
 				size: objectId, capacity: def.chestCapacity || 60, contents: {},
 			});
 		}
@@ -1791,12 +2413,12 @@ export class PlaceObject extends PublicEndpoint {
 			return { ok: true, placement, craftedItems };
 		}
 
-		const recalc = await recalcBiome(playerId, area, {
+		const recalc = await recalcBiome(wid, playerId, area, {
 			addPlacements: [placement],
 			player: { ...player, craftedItems },
 		});
 		await bumpMetrics(player, { objectsPlaced: 1, animalsReturned: recalc.newAnimals?.length || 0 });
-		await awardAchievements(playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
+		await awardWorldAchievements(wid, playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
 		return { ok: true, placement, craftedItems, ...recalc };
 	}
 }
@@ -1812,6 +2434,7 @@ export class Plant extends PublicEndpoint {
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
+		const wid = worldOf(player);
 
 		const biome = d.biome.get(area);
 		if (!biome) throw new GameError(`Unknown area: ${area}`);
@@ -1823,29 +2446,29 @@ export class Plant extends PublicEndpoint {
 
 		const tx = Math.round(Number(x));
 		const ty = Math.round(Number(y));
-		const tileId = `${playerId}:${area}:${tx}:${ty}`;
-		const bed = await findOwned(t.TerrainTile, playerId, tileId);
-		if (!bed || bed.playerId !== playerId || bed.type !== 'watered') {
+		const tileId = `${wid}:${area}:${tx}:${ty}`;
+		const bed = await findInWorld(t.TerrainTile, wid, tileId);
+		if (!bed || bed.type !== 'watered') {
 			throw new GameError('Plant into a watered soil bed — dig with the shovel, then water it');
 		}
 
-		const { usedFrom, inventory } = await consumeMaterials(player, def.plantCost || {});
+		const { usedFrom, inventory } = await consumeMaterials(player, def.plantCost || {}, wid);
 
 		await t.TerrainTile.delete(tileId); // the bed becomes the plant
 		const placementId = `pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 		const placement = {
-			id: placementId, playerId, objectId: plantId, area, x: tx, y: ty,
+			id: placementId, worldId: wid, playerId, objectId: plantId, area, x: tx, y: ty,
 			placedAt: Date.now(), plantedAt: Date.now(),
 		};
 		await t.Placement.put(placement);
 
-		const recalc = await recalcBiome(playerId, area, {
+		const recalc = await recalcBiome(wid, playerId, area, {
 			addPlacements: [placement],
 			removeTerrainIds: [tileId],
 			player: { ...player, inventory },
 		});
 		await bumpMetrics(player, { plantsPlanted: 1, animalsReturned: recalc.newAnimals?.length || 0 });
-		await awardAchievements(playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
+		await awardWorldAchievements(wid, playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
 		return { ok: true, placement, inventory, usedFrom, ...recalc };
 	}
 }
@@ -1866,9 +2489,10 @@ export class MoveObject extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId, placementId, x, y } = await bodyOf(data);
 		const t = db();
-		await requirePlayer(playerId);
+		const { player } = await requirePlayer(playerId);
+		const wid = worldOf(player);
 
-		const placements = await byPlayer(t.Placement, playerId);
+		const placements = await byWorld(t.Placement, wid);
 		const placement = placements.find((p) => p.id === placementId);
 		if (!placement) throw new GameError('Placement not found', 404);
 		if (placement.objectId === 'workbench') throw new GameError('The old workbench stays put');
@@ -1883,8 +2507,8 @@ export class MoveObject extends PublicEndpoint {
 		}
 		const d = await defs();
 		const movingDef = d.object.get(placement.objectId);
-		const tileHere = await findOwned(t.TerrainTile, playerId, `${playerId}:${placement.area}:${tx}:${ty}`);
-		if (tileHere && tileHere.playerId === playerId) {
+		const tileHere = await findInWorld(t.TerrainTile, wid, `${wid}:${placement.area}:${tx}:${ty}`);
+		if (tileHere) {
 			if (tileHere.type === 'water') {
 				if (!movingDef?.bridge) throw new GameError('That is open water — only a bridge can sit there', 409);
 			} else {
@@ -1895,7 +2519,7 @@ export class MoveObject extends PublicEndpoint {
 		}
 
 		await t.Placement.patch(placementId, { x: tx, y: ty });
-		const chest = await getOwnedChest(t, d, placementId, playerId);
+		const chest = await getOwnedChest(t, d, placementId, wid);
 		if (chest) await t.Chest.patch(placementId, { x: tx, y: ty }); // chests move with their contents
 
 		return { ok: true, placement: { ...placement, x: tx, y: ty } };
@@ -1908,14 +2532,15 @@ export class RemoveObject extends PublicEndpoint {
 		const { playerId, placementId } = await bodyOf(data);
 		const t = db();
 		const { player } = await requirePlayer(playerId);
+		const wid = worldOf(player);
 
-		const placement = await findOwned(t.Placement, playerId, placementId);
+		const placement = await findInWorld(t.Placement, wid, placementId);
 		if (!placement) throw new GameError('Placement not found', 404);
 		if (placement.objectId === 'workbench') {
 			throw new GameError('Your crafting station stays put — the preserve needs it');
 		}
 
-		const chest = await findOwned(t.Chest, playerId, placementId);
+		const chest = await findInWorld(t.Chest, wid, placementId);
 		if (chest && sumValues(chest.contents) > 0) {
 			throw new GameError('Empty the chest before picking it up', 409);
 		}
@@ -1933,7 +2558,7 @@ export class RemoveObject extends PublicEndpoint {
 			refunded = { ...def.plantCost };
 			const capacity = inventoryCapacity(player);
 			let carried = sumValues(inventory);
-			const chests = (await byPlayer(t.Chest, playerId)).filter((c) => c.id !== placementId);
+			const chests = (await byWorld(t.Chest, wid)).filter((c) => c.id !== placementId);
 			for (const [resId, qty] of Object.entries(refunded!)) {
 				let remaining = qty as number;
 				const toBasket = Math.min(remaining, Math.max(0, capacity - carried));
@@ -1973,13 +2598,13 @@ export class RemoveObject extends PublicEndpoint {
 
 		// old saves may still hold retired 'home' placements — skip recalc for those
 		const recalc = placement.area !== 'home'
-			? await recalcBiome(playerId, placement.area, {
+			? await recalcBiome(wid, playerId, placement.area, {
 				removeIds: [placementId],
 				player: { ...player, craftedItems, inventory },
 			})
 			: null;
 		await bumpMetrics(player, { objectsRemoved: 1, animalsReturned: recalc?.newAnimals?.length || 0 });
-		await awardAchievements(playerId, recalc ? { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] } : {});
+		await awardWorldAchievements(wid, playerId, recalc ? { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] } : {});
 		return { ok: true, removed: placementId, craftedItems, refunded, ...(recalc || {}) };
 	}
 }
@@ -1994,12 +2619,13 @@ export class UpgradeTool extends PublicEndpoint {
 
 		const toolDef = d.tool.get(toolId);
 		if (!toolDef) throw new GameError(`Unknown tool: ${toolId}`);
+		const wid = worldOf(player);
 		const currentTier = player.tools?.[toolId] || 1;
 		const nextTier = (toolDef.tiers || []).find((tt: any) => tt.tier === currentTier + 1);
 		if (!nextTier) throw new GameError(`${toolDef.name} is already fully upgraded`);
 
 		if (nextTier.requires?.biome) {
-			const bs = await findOwned(t.BiomeState, playerId, `${playerId}:${nextTier.requires.biome}`);
+			const bs = await findInWorld(t.BiomeState, wid, `${wid}:${nextTier.requires.biome}`);
 			if ((bs?.health || 0) < (nextTier.requires.minHealth || 0)) {
 				const biome = d.biome.get(nextTier.requires.biome);
 				throw new GameError(
@@ -2008,13 +2634,13 @@ export class UpgradeTool extends PublicEndpoint {
 			}
 		}
 
-		const { usedFrom, inventory } = await consumeMaterials(player, nextTier.materials || {});
+		const { usedFrom, inventory } = await consumeMaterials(player, nextTier.materials || {}, wid);
 		const tools = { ...(player.tools || {}), [toolId]: nextTier.tier };
 		await t.Player.patch(playerId, { tools });
 
 		// tool upgrades can satisfy biome unlock requirements
-		const unlockedBiomes = await checkUnlocks(playerId, { player: { ...player, tools } });
-		const chests = await byPlayer(t.Chest, playerId);
+		const unlockedBiomes = await checkUnlocks(wid, playerId, { player: { ...player, tools } });
+		const chests = await byWorld(t.Chest, wid);
 		await bumpMetrics(player, { toolsUpgraded: 1 });
 		await awardAchievements(playerId);
 		return { ok: true, tools, inventory, chests, usedFrom, unlockedBiomes, upgraded: { toolId, tier: nextTier.tier, name: nextTier.name } };
@@ -2027,6 +2653,7 @@ export class UpgradeHome extends PublicEndpoint {
 		const { playerId, track } = await bodyOf(data);
 		const t = db();
 		const { player } = await requirePlayer(playerId);
+		const wid = worldOf(player);
 
 		const def = HOME_TRACKS[track];
 		if (!def) throw new GameError('Unknown home upgrade');
@@ -2037,7 +2664,7 @@ export class UpgradeHome extends PublicEndpoint {
 		if (!next) throw new GameError(`Your home's ${def.name.toLowerCase()} is already at its finest.`);
 
 		if (next.requires?.biome) {
-			const bs = await findOwned(t.BiomeState, playerId, `${playerId}:${next.requires.biome}`);
+			const bs = await findInWorld(t.BiomeState, wid, `${wid}:${next.requires.biome}`);
 			if ((bs?.health || 0) < (next.requires.minHealth || 0)) {
 				const d = await defs();
 				const biome = d.biome.get(next.requires.biome);
@@ -2045,10 +2672,10 @@ export class UpgradeHome extends PublicEndpoint {
 			}
 		}
 
-		const { usedFrom, inventory } = await consumeMaterials(player, next.materials || {});
+		const { usedFrom, inventory } = await consumeMaterials(player, next.materials || {}, wid);
 		const updated = { ...home, [track]: level + 1 };
 		await t.Player.patch(playerId, { home: updated });
-		const chests = await byPlayer(t.Chest, playerId);
+		const chests = await byWorld(t.Chest, wid);
 		await awardAchievements(playerId);
 		return { ok: true, home: updated, inventory, chests, usedFrom, upgraded: { track, level: level + 1, name: def.name } };
 	}
@@ -2062,13 +2689,14 @@ export class Rest extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId } = await bodyOf(data);
 		const t = db();
-		await requirePlayer(playerId);
-		const placements = await byPlayer(t.Placement, playerId);
+		const { player } = await requirePlayer(playerId);
+		const wid = worldOf(player);
+		const placements = await byWorld(t.Placement, wid);
 		if (!placements.some((p) => SLEEP_OBJECTS.includes(p.objectId))) {
 			throw new GameError('Craft and place a sleeping bag or bed in your home first.', 403);
 		}
 		// refresh all resources: clear node cooldowns so every gathering spot is ready
-		const nodes = await byPlayer(t.NodeState, playerId);
+		const nodes = await byWorld(t.NodeState, wid);
 		for (const n of nodes) await t.NodeState.delete(n.id);
 		return { ok: true, rested: true, refreshed: nodes.length };
 	}
@@ -2101,7 +2729,7 @@ export class SetPlacementColor extends PublicEndpoint {
 		const { player } = await requirePlayer(playerId);
 		if (!(homeOf(player) as any).styleLocked) throw new GameError('Build your home before you can repaint your things.', 403);
 		if (!isHexColor(color)) throw new GameError('Invalid color');
-		const placement = await findOwned(t.Placement, playerId, placementId);
+		const placement = await findInWorld(t.Placement, worldOf(player), placementId);
 		if (!placement) throw new GameError('That item is not here', 404);
 		await t.Placement.patch(placementId, { color: String(color).trim().toLowerCase() });
 		return { ok: true };
@@ -2123,20 +2751,21 @@ export class SetHomeStyle extends PublicEndpoint {
 		if (!styleDef) throw new GameError('Unknown home style');
 		const home = homeOf(player);
 		if (home.styleLocked) throw new GameError('Your home is already built — choose upgrades from here.', 403);
+		const wid = worldOf(player);
 
 		// building costs materials unique to the chosen style, behind a shared gate
 		if (styleDef.requires?.biome) {
-			const bs = await findOwned(t.BiomeState, playerId, `${playerId}:${styleDef.requires.biome}`);
+			const bs = await findInWorld(t.BiomeState, wid, `${wid}:${styleDef.requires.biome}`);
 			if ((bs?.health || 0) < (styleDef.requires.minHealth || 0)) {
 				const d = await defs();
 				const biome = d.biome.get(styleDef.requires.biome);
 				throw new GameError(`Restore ${biome?.name || styleDef.requires.biome} to ${styleDef.requires.minHealth}% health first`, 403);
 			}
 		}
-		const { usedFrom, inventory } = await consumeMaterials(player, styleDef.materials || {});
+		const { usedFrom, inventory } = await consumeMaterials(player, styleDef.materials || {}, wid);
 		const updated = { ...home, style, styleLocked: true, space: 2 };
 		await t.Player.patch(playerId, { home: updated });
-		const chests = await byPlayer(t.Chest, playerId);
+		const chests = await byWorld(t.Chest, wid);
 		await awardAchievements(playerId);
 		return { ok: true, home: updated, inventory, chests, usedFrom, built: HOME_STYLES[style].name };
 	}
@@ -2149,8 +2778,9 @@ export class ObserveAnimal extends PublicEndpoint {
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
+		const wid = worldOf(player);
 
-		const disc = await t.Discovery.get(`${playerId}:${animalId}`);
+		const disc = await findInWorld(t.Discovery, wid, `${wid}:${animalId}`);
 		if (!disc) throw new GameError('That animal has not returned yet', 404);
 		const timesObserved = (disc.timesObserved || 0) + 1;
 		await t.Discovery.patch(disc.id, { timesObserved });
@@ -2172,6 +2802,7 @@ export class Terraform extends PublicEndpoint {
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
+		const wid = worldOf(player);
 
 		const biome = d.biome.get(area);
 		if (!biome) throw new GameError('You can only shape the ground out in the preserve');
@@ -2182,13 +2813,13 @@ export class Terraform extends PublicEndpoint {
 		if (!Number.isFinite(tx) || !Number.isFinite(ty) || tx < 1 || ty < 1 || tx > 28 || ty > 18) {
 			throw new GameError('That spot is out of reach');
 		}
-		const placements = await byPlayer(t.Placement, playerId);
+		const placements = await byWorld(t.Placement, wid);
 		if (placements.some((p) => p.area === area && p.x === tx && p.y === ty)) {
 			throw new GameError('Something is already placed there');
 		}
 
-		const tileId = `${playerId}:${area}:${tx}:${ty}`;
-		const existing = await findOwned(t.TerrainTile, playerId, tileId);
+		const tileId = `${wid}:${area}:${tx}:${ty}`;
+		const existing = await findInWorld(t.TerrainTile, wid, tileId);
 		let inventory = player.inventory || {};
 		let tile: any = null;
 		let removedId: string | undefined;
@@ -2197,7 +2828,7 @@ export class Terraform extends PublicEndpoint {
 		if (action === 'dig') {
 			if ((player.tools?.shovel || 0) < 1) throw new GameError('You need your shovel for that');
 			if (existing) throw new GameError('This ground is already prepared — water it, or clear it instead');
-			tile = { id: tileId, playerId, area, x: tx, y: ty, type: 'tilled', updatedAt: Date.now() };
+			tile = { id: tileId, worldId: wid, playerId, area, x: tx, y: ty, type: 'tilled', updatedAt: Date.now() };
 			await t.TerrainTile.put(tile);
 
 			// Breaking new ground may turn up a buried material. This only happens
@@ -2250,13 +2881,13 @@ export class Terraform extends PublicEndpoint {
 			throw new GameError("action must be 'dig', 'water', or 'clear'");
 		}
 
-		const recalc = await recalcBiome(playerId, area, {
+		const recalc = await recalcBiome(wid, playerId, area, {
 			addTerrain: tile ? [tile] : [],
 			removeTerrainIds: removedId ? [removedId] : [],
 			player: { ...player, inventory },
 		});
 		await bumpMetrics(player, { terraformActions: 1, animalsReturned: recalc.newAnimals?.length || 0 });
-		await awardAchievements(playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
+		await awardWorldAchievements(wid, playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
 		return { ok: true, tile, removedId, dug, inventory, ...recalc };
 	}
 }
@@ -2265,9 +2896,9 @@ export class Terraform extends PublicEndpoint {
 export class RecalcBiome extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId, biomeId } = await bodyOf(data);
-		await requirePlayer(playerId);
-		const recalcResult = await recalcBiome(playerId, biomeId);
-		await awardAchievements(playerId, { addDiscoveries: recalcResult.newAnimals, freshBiomeStates: [recalcResult.biomeState] });
+		const { player } = await requirePlayer(playerId);
+		const recalcResult = await recalcBiome(worldOf(player), playerId, biomeId);
+		await awardWorldAchievements(worldOf(player), playerId, { addDiscoveries: recalcResult.newAnimals, freshBiomeStates: [recalcResult.biomeState] });
 		return { ok: true, ...recalcResult };
 	}
 }
@@ -2308,10 +2939,11 @@ export class SyncPlayer extends PublicEndpoint {
 			// starting terrain now. This also back-fills saves that unlocked the area
 			// before the starting-terrain feature existed (e.g. wetlands already open).
 			if (STARTING_TERRAIN[area]) {
-				const hasTerrain = (await byPlayer(t.TerrainTile, playerId)).some((tt) => tt.area === area);
+				const wid = worldOf(player);
+				const hasTerrain = (await byWorld(t.TerrainTile, wid)).some((tt) => tt.area === area);
 				if (!hasTerrain) {
-					await seedStartingTerrain(playerId, area);
-					await recalcBiome(playerId, area, { player });
+					await seedStartingTerrain(wid, playerId, area);
+					await recalcBiome(wid, playerId, area, { player });
 				}
 			}
 		}
@@ -2330,7 +2962,8 @@ export class SyncPlayer extends PublicEndpoint {
 export class AppendFeed extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId, entries } = await bodyOf(data);
-		await requirePlayer(playerId);
+		const { player } = await requirePlayer(playerId);
+		const wid = worldOf(player);
 		const t = db();
 		const list = Array.isArray(entries) ? entries.slice(0, FEED_CAP) : [];
 		let added = 0;
@@ -2339,12 +2972,12 @@ export class AppendFeed extends PublicEndpoint {
 			if (!text) continue;
 			const at = Number(e?.at) || Date.now();
 			const icon = String(e?.icon || 'leaf').slice(0, 40);
-			const id = `f_${playerId}_${at}_${Math.random().toString(36).slice(2, 9)}`;
-			await t.FeedEntry.put({ id, playerId, at, icon, text });
+			const id = `f_${wid}_${at}_${Math.random().toString(36).slice(2, 9)}`;
+			await t.FeedEntry.put({ id, worldId: wid, playerId, at, icon, text });
 			added++;
 		}
-		// prune to the most recent FEED_CAP messages for this player
-		const all = (await byPlayer(t.FeedEntry, playerId)).sort((a, b) => (a.at || 0) - (b.at || 0));
+		// prune to the most recent FEED_CAP messages for this world
+		const all = (await byWorld(t.FeedEntry, wid)).sort((a, b) => (a.at || 0) - (b.at || 0));
 		if (all.length > FEED_CAP) {
 			for (const old of all.slice(0, all.length - FEED_CAP)) await t.FeedEntry.delete(old.id);
 		}
@@ -2540,6 +3173,19 @@ export class Metrics extends PublicEndpoint {
 			completionHistogram,
 		};
 
+		// Co-op participation: shared worlds, who's in them, and pending invites.
+		const allWorlds = await allOf(t.World);
+		const coopWorlds = allWorlds.filter((w: any) => !w.solo);
+		const coopIds = new Set(coopWorlds.map((w: any) => w.id));
+		const coopMembers = (await allOf(t.WorldMember)).filter((m: any) => coopIds.has(m.worldId));
+		const pendingJoins = (await allOf(t.JoinRequest)).filter((r: any) => r.status === 'pending').length;
+		const coopSummary = {
+			coopWorlds: coopWorlds.length,
+			playersInCoop: new Set(coopMembers.map((m: any) => m.playerId)).size,
+			avgMembersPerCoopWorld: coopWorlds.length ? round1(coopMembers.length / coopWorlds.length) : 0,
+			pendingJoinRequests: pendingJoins,
+		};
+
 		return {
 			generatedAt: now,
 			summary: {
@@ -2569,6 +3215,7 @@ export class Metrics extends PublicEndpoint {
 				funnelPct,
 				actionTotals,
 				achievements: achievementsSummary,
+				coop: coopSummary,
 				biomeBreakdown,
 			},
 			players: views,
@@ -2638,8 +3285,8 @@ export class DevTools extends PublicEndpoint {
 				for (const tt of (await byPlayer(t.TerrainTile, playerId)).filter((x) => x.area === ar)) {
 					await t.TerrainTile.delete(tt.id);
 				}
-				await seedStartingTerrain(playerId, ar);
-				await recalcBiome(playerId, ar, { player });
+				await seedStartingTerrain(playerId, playerId, ar);
+				await recalcBiome(playerId, playerId, ar, { player });
 				log.push(`Reseeded starting terrain for ${ar}`);
 				break;
 			}
@@ -2650,7 +3297,7 @@ export class DevTools extends PublicEndpoint {
 					await t.TerrainTile.delete(tt.id);
 					n++;
 				}
-				await recalcBiome(playerId, ar, { player });
+				await recalcBiome(playerId, playerId, ar, { player });
 				log.push(`Cleared ${n} terrain tiles in ${ar}`);
 				break;
 			}
@@ -2700,7 +3347,7 @@ export class DevTools extends PublicEndpoint {
 				unlocked.add(nextB.id);
 				await t.Player.patch(playerId, { unlockedBiomes: [...unlocked] });
 				await t.BiomeState.patch(`${playerId}:${nextB.id}`, { unlocked: true });
-				await seedStartingTerrain(playerId, nextB.id);
+				await seedStartingTerrain(playerId, playerId, nextB.id);
 				log.push(`Unlocked the next area: ${nextB.name}`);
 				break;
 			}
@@ -2774,8 +3421,8 @@ export class DevTools extends PublicEndpoint {
 					await t.NodeState.delete(ns.id);
 				}
 				await t.BiomeState.patch(`${playerId}:${ar}`, { health: BASE_HEALTH, balance: 0, returnedCount: 0 });
-				await seedStartingTerrain(playerId, ar);
-				await recalcBiome(playerId, ar, { player });
+				await seedStartingTerrain(playerId, playerId, ar);
+				await recalcBiome(playerId, playerId, ar, { player });
 				log.push(`Reset ${ar} to its damaged state — removed ${placementsRemoved} object${placementsRemoved === 1 ? '' : 's'} and sent ${animalsRemoved} animal${animalsRemoved === 1 ? '' : 's'} away (chests kept)`);
 				break;
 			}
@@ -2813,7 +3460,7 @@ export class DevTools extends PublicEndpoint {
 					});
 					added++;
 				}
-				await recalcBiome(playerId, ar, { player });
+				await recalcBiome(playerId, playerId, ar, { player });
 				log.push(`Welcomed ${added} animal${added === 1 ? '' : 's'} to ${ar} (${here.length} total)`);
 				break;
 			}

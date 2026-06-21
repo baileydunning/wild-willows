@@ -1,10 +1,19 @@
 # Wild Willows — Harper database schema
-# Definition tables are seeded by the dataLoader (data/*.json).
-# State tables hold per-player progress. Tables are intentionally NOT
-# @export-ed: all reads/writes flow through the validated custom
-# resources in resources.js, so the frontend is never trusted directly.
-
-# ---------- definition / seed tables ----------
+#
+# Two kinds of tables:
+#  • Definition/seed tables (below) have a FIXED set of typed columns. They're
+#    seeded from data/*.json and never change shape, so the typed (structon)
+#    encoding is safe and lets us keep helpful @indexed columns.
+#  • Mutable game-state and co-op tables declare ONLY `id @primaryKey`. Every
+#    other field is dynamic, so Harper stores the record as a flexible map rather
+#    than the positional structon encoding. This is deliberate: adding/removing
+#    fields on a positional-encoded table left old AND new rows undecodable
+#    ("Error decoding record: Data read, but end of buffer not reached"). Dynamic
+#    rows never hit that. All reads go through full scans + filters in
+#    resources.js (never indexed conditions), so dropping the column indexes costs
+#    nothing. Tables are not @export-ed — everything flows through the resources.
+#
+# ---------- definition / seed tables (fixed, typed) ----------
 
 type Biome @table(database: "wildwillows") {
 	id: ID @primaryKey
@@ -68,87 +77,28 @@ type Achievement @table(database: "wildwillows") {
 	hint: String             # shown while locked (omitted for hidden ones)
 }
 
-# ---------- player state tables ----------
+# ---------- mutable tables (dynamic — id only; all other fields are flexible) ----------
+# Documented field shapes (stored dynamically, not declared):
 
-type Player @table(database: "wildwillows") {
-	id: ID @primaryKey
-	name: String
-	createdAt: Float
-	area: String
-	x: Float
-	y: Float
-}
+# Player        : name, passcodeSalt, passcodeHash, appearance, createdAt, area, x, y,
+#                 worldId (active world; solo === player id), inventory, craftedItems,
+#                 craftedEver, tools, unlockedBiomes, visitedBiomes, tutorialStep, home, metrics
+type Player @table(database: "wildwillows") { id: ID @primaryKey }
 
-type BiomeState @table(database: "wildwillows") {
-	id: ID @primaryKey # `${playerId}:${biomeId}`
-	playerId: String @indexed
-	biomeId: String
-	health: Int
-	balance: Int
-	returnedCount: Int
-	unlocked: Boolean
-}
+# PlayerAchievement : `${playerId}:${achievementId}` · playerId, achievementId, biome, earnedAt
+type PlayerAchievement @table(database: "wildwillows") { id: ID @primaryKey }
 
-type Chest @table(database: "wildwillows") {
-	id: ID @primaryKey
-	playerId: String @indexed
-	area: String
-	x: Int
-	y: Int
-	size: String
-	capacity: Int
-}
+# World-owned state (id is `${worldId}:...`; worldId/playerId stored on each row)
+type BiomeState @table(database: "wildwillows") { id: ID @primaryKey }   # worldId, playerId, biomeId, health, balance, returnedCount, unlocked
+type Chest @table(database: "wildwillows") { id: ID @primaryKey }        # worldId, playerId, area, x, y, size, capacity, contents
+type Placement @table(database: "wildwillows") { id: ID @primaryKey }    # worldId, playerId, objectId, area, x, y, placedAt, plantedAt, color
+type Discovery @table(database: "wildwillows") { id: ID @primaryKey }    # worldId, playerId, animalId, biomeId, comfort, timesObserved, firstObservedAt, whyReturned
+type NodeState @table(database: "wildwillows") { id: ID @primaryKey }    # worldId, playerId, harvestedAt
+type TerrainTile @table(database: "wildwillows") { id: ID @primaryKey }  # worldId, playerId, area, x, y, type, updatedAt
+type FeedEntry @table(database: "wildwillows") { id: ID @primaryKey }    # worldId, playerId, at, icon, text
 
-type Placement @table(database: "wildwillows") {
-	id: ID @primaryKey
-	playerId: String @indexed
-	objectId: String
-	area: String
-	x: Int
-	y: Int
-	placedAt: Float
-	color: String # optional per-item recolor (the paint tool, home only)
-}
-
-type Discovery @table(database: "wildwillows") {
-	id: ID @primaryKey # `${playerId}:${animalId}`
-	playerId: String @indexed
-	animalId: String
-	biomeId: String
-	comfort: Int
-	timesObserved: Int
-	firstObservedAt: Float
-	whyReturned: String
-}
-
-type NodeState @table(database: "wildwillows") {
-	id: ID @primaryKey # `${playerId}:${area}:${nodeId}`
-	playerId: String @indexed
-	harvestedAt: Float
-}
-
-type TerrainTile @table(database: "wildwillows") {
-	id: ID @primaryKey # `${playerId}:${area}:${x}:${y}`
-	playerId: String @indexed
-	area: String
-	x: Int
-	y: Int
-	type: String # 'tilled' | 'watered'
-	updatedAt: Float
-}
-
-type PlayerAchievement @table(database: "wildwillows") {
-	id: ID @primaryKey # `${playerId}:${achievementId}`
-	playerId: String @indexed
-	achievementId: String
-	biome: String
-	earnedAt: Float
-}
-
-type FeedEntry @table(database: "wildwillows") {
-	id: ID @primaryKey
-	playerId: String @indexed
-	at: Float
-	icon: String
-	text: String
-}
+# ---------- co-op tables (dynamic) ----------
+type World @table(database: "wildwillows") { id: ID @primaryKey }         # name, solo, ownerId, joinCode, createdAt, maxMembers
+type WorldMember @table(database: "wildwillows") { id: ID @primaryKey }   # `${worldId}:${playerId}` · worldId, playerId, role, joinedAt, lastSeenAt
+type WorldPresence @table(database: "wildwillows") { id: ID @primaryKey } # worldId · players { [playerId]: {name, appearance, area, x, y, t} }, updatedAt
+type JoinRequest @table(database: "wildwillows") { id: ID @primaryKey }   # `${worldId}:${token}` · worldId, token, name, status, createdAt, resolvedAt

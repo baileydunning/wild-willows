@@ -70,7 +70,11 @@ Credentials can also go in `CLI_TARGET_USERNAME` / `CLI_TARGET_PASSWORD`. The `d
 
 Definition tables, seeded from `data/*.json` by the built-in dataLoader: `Biome` · `Animal` · `ResourceType` · `Recipe` · `HabitatObject` · `ToolDef` · `Achievement`.
 
-Per-player state tables: `Player` (inventory, crafted items, `craftedEver`, tool tiers, unlocked biomes, position, tutorial step, home config (style + four track levels), and a `metrics` blob) · `BiomeState` (health, balance, returned count, unlocked) · `Chest` · `Placement` · `Discovery` (returned animals: comfort, observations, why they returned) · `NodeState` (resource node regen timestamps) · `TerrainTile` (tilled / watered / open-water tiles) · `PlayerAchievement` (one row per earned achievement) · `FeedEntry` (persisted activity-feed messages, capped at the last 100 per player).
+Personal tables (keyed by playerId): `Player` (inventory, crafted items, `craftedEver`, tool tiers, unlocked biomes, position, tutorial step, home config, active `worldId`, and a `metrics` blob) · `PlayerAchievement` (one row per earned achievement).
+
+World-owned tables (keyed by `worldId`; solo world id === player id): `BiomeState` (health, balance, returned count, unlocked) · `Chest` · `Placement` · `Discovery` (returned animals) · `NodeState` (node regen timestamps) · `TerrainTile` (tilled / watered / open-water tiles) · `FeedEntry` (shared activity feed, last 100 per world). `worldId` is declared **last** on each of these tables and **un-indexed** — Harper's structured encoder only tolerates new attributes appended at the end, so the column was added without rewriting existing rows (legacy rows read it as null; `byWorld` falls back to playerId).
+
+Co-op tables: `World` (id, name, solo, ownerId, joinCode, maxMembers) · `WorldMember` (membership: worldId, playerId, role) · `WorldPresence` (`@export`-ed; one record per world holding the live positions map, subscribed over WebSocket) · `JoinRequest` (pending/approved/denied join requests by token).
 
 Tables are deliberately **not** exported over REST — everything flows through the custom resources below. On boot the server **reconciles** the seed tables against the definition JSON, deleting any orphaned records left by a rename/removal (Harper's loader only upserts, so this prevents stale duplicates like an old "Water Restoration Kit").
 
@@ -94,7 +98,10 @@ Tables are deliberately **not** exported over REST — everything flows through 
 | `POST /RecalcBiome/` | Re-evaluate health / balance / animal returns (also fires when a plant matures) |
 | `POST /SyncPlayer/` | Persist position / area changes (seeds an area's starting terrain on first entry) |
 | `POST /Heartbeat/` | Accrue play time + session counts while the game is open |
-| `POST /AppendFeed/` | Persist activity-feed messages (pruned to the last 100 per player) |
+| `POST /AppendFeed/` | Persist activity-feed messages (pruned to the last 100 per world) |
+| `POST /MyWorlds/` · `POST /CreateWorld/` · `POST /JoinWorld/` · `POST /SwitchWorld/` · `POST /LeaveWorld/` | Co-op worlds: list / host / join / switch / leave (see Co-op multiplayer) |
+| `POST /CheckWorldCode/` · `POST /RequestJoin/` · `POST /JoinRequestStatus/` · `POST /PendingJoinRequests/` · `POST /ResolveJoin/` | Co-op join flow: verify a code, request to join, poll status, host's inbox, host approve/deny |
+| `POST /Presence/` | Co-op live presence (positions merged into `WorldPresence`, pushed over WebSocket) |
 | `GET /Metrics/` · `GET /Metrics/<playerId>` | Analytics dashboard (see below) |
 | `GET /BiomeSnapshot/<playerId>` | Generated SVG "postcards" of each area |
 | `POST /DevTools/` | Developer-only testing helpers (restricted to one save) |
@@ -153,7 +160,7 @@ Grouped by biome, the journal shows each animal's actual **sprite thumbnail** (a
 A client **heartbeat** accrues play time and counts sessions while the game is open (paused when the tab is hidden). The read-only **Metrics** endpoint surfaces it for dashboards:
 
 - `GET /Metrics/<playerId>` — one player's play time, engagement intensity, recency/status, progression, per-biome health, an **achievements** block (earned/total, points, completion, recent unlocks, by-category counts), and a rendered **SVG snapshot** of each unlocked area (ground tinted by health, terrain and placed objects drawn in).
-- `GET /Metrics/` — global **audience** (active/new buckets), **engagement**, **retention** (returning players), **progression**, an **activation funnel** (created → collected → crafted → placed → attracted animal → unlocked 2nd biome), summed action totals, an **achievements** summary (total earned, avg per player, a per-achievement earn distribution so you can see where players stall, and a completion histogram), and a per-biome breakdown.
+- `GET /Metrics/` — global **audience** (active/new buckets), **engagement**, **retention** (returning players), **progression**, an **activation funnel** (created → collected → crafted → placed → attracted animal → unlocked 2nd biome), summed action totals, an **achievements** summary (total earned, avg per player, a per-achievement earn distribution so you can see where players stall, and a completion histogram), a **co-op** summary (number of shared worlds, players in co-op, avg members per world, pending join requests), and a per-biome breakdown.
 - `GET /BiomeSnapshot/<playerId>` — just the area images, as base64 data-URIs + raw SVG.
 
 ## Saves & developer tools
@@ -162,7 +169,20 @@ Each save is a name + passcode pair. Passcodes are **never stored in plaintext**
 
 ## Controls
 
-WASD / arrows to move · **E** / Space to interact · **1–3** select tools · **J** journal · **K** achievements · **F** activity feed · **C** crafting · **P** preserve map · **G** settings · **H** How to Play · click animals to observe · Shift+click a placed object to pick it up · Esc closes menus / cancels placement. Gathering spots glow, the nearest interactable gets a pulsing ring, pickups animate into your basket, and the activity feed narrates what you just did. The **?** button (or **H**) opens How to Play with the full reference.
+WASD / arrows to move · **E** / Space to interact · **1–4** select tools (basket · shovel · watering can · paint) · **B** basket · **J** journal · **K** achievements · **F** activity feed · **C** crafting · **P** preserve map · **T** tools & upgrades · **U** People (co-op worlds only) · **G** settings · **H** How to Play · click animals to observe · Shift+click a placed object to pick it up · Esc closes menus / cancels placement. Gathering spots glow, the nearest interactable gets a pulsing ring, pickups animate into your basket, and the activity feed narrates what you just did. The **?** button (or **H**) opens How to Play with the full reference. These exactly match the in-game **How to Play** reference and the HUD buttons.
+
+## Co-op multiplayer
+
+At **New Game** you choose **Solo** or **Co-op** (a toggle on the title screen). A save is bound to one world for its lifetime.
+
+- **Host** creates a shared preserve and a 6-character **join code**. **Join** verifies a code, sends a request to the host, lets you build your character while the host reviews, then drops you into a **waiting room** until they approve — the host gets a popup listing everyone asking to join, with Approve / Deny. When you're let in, the world feed announces *"{name} joined the preserve!"*.
+- **What's shared vs. personal.** The world — biomes, terrain, placements, plants, chests, returning animals, biome health, the activity feed — is shared by everyone in it. Your **basket, tools, field journal, appearance, position, and achievements stay personal**. (Exception: *world* achievements like **First Friend** are earned by **all** members at once; personal ones like your own crafting counts are not.)
+- **Live presence.** Other players appear as their own caretakers and move smoothly. Each client publishes its exact position ~12×/sec via `POST /Presence/`, which merges it into the per-world `WorldPresence` record and returns the current positions map; Phaser interpolates between updates. (This uses short, quickly-closed reads on purpose — a long-lived WebSocket subscription to the record would hold a Harper read transaction open and get force-closed after a few minutes.) Other world changes (placing, terraforming, collecting) sync on a ~1.5s timer.
+- **People menu (U)** shows the join code to copy, who's currently here, and the host's pending requests. A **Co-op** badge by the area name marks a shared world. The guided tutorial adapts: the host's first step teaches inviting, a joiner's just welcomes them.
+- **Endpoints:** `MyWorlds` · `CreateWorld` · `JoinWorld` · `SwitchWorld` · `LeaveWorld` · `Presence` · `CheckWorldCode` · `RequestJoin` · `JoinRequestStatus` · `PendingJoinRequests` · `ResolveJoin`.
+- **Schema:** world-owned state is keyed by `worldId` (declared at the end of each table, un-indexed, so the column could be added without rewriting existing rows). New tables: `World`, `WorldMember`, `WorldPresence`, `JoinRequest`. Single-player is modelled as a private "world of one" whose id equals the player's id.
+
+> **Clearing dev data (schema-drift corruption).** Rapidly changing a populated table's declared columns can leave old rows that Harper's structured encoder can no longer decode (`Error decoding record: Data read, but end of buffer not reached`). These can't be removed through the app — Harper decodes a record on `get`/`put`/`delete` alike, so even deleting them fails. The clean fix in development is to **drop the `wildwillows` database** and let it re-seed: definition tables reload from `data/*.json` on boot; only player saves are lost. Drop it via Harper Studio, or the operations API: `{ "operation": "drop_database", "database": "wildwillows" }`. (`safeGet` still removes a single corrupt row if it happens to be fetched by id, but it won't sweep a whole table.)
 
 ## Notes & simplifications
 

@@ -9092,7 +9092,11 @@ var achievements_default = {
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
-var db = () => databases.wildwillows;
+var db = () => {
+  const d = typeof databases !== "undefined" && databases ? databases.wildwillows : null;
+  if (!d || !d.Player) throw new GameError("The preserve database is starting up \u2014 restart Harper if this persists.", 503);
+  return d;
+};
 var GameError = class extends Error {
   constructor(message, statusCode = 400) {
     super(message);
@@ -9109,9 +9113,51 @@ function sumValues(obj) {
   if (!obj) return 0;
   return Object.values(obj).reduce((a, b) => a + (b || 0), 0);
 }
+function isDecodeError(e) {
+  return /end of buffer|buffer not reached|decod/i.test(String(e?.message || e));
+}
+async function forceRemove(table, id) {
+  try {
+    await table.delete(id);
+    return true;
+  } catch (e) {
+    if (!isDecodeError(e)) throw e;
+  }
+  try {
+    await table.put({ id });
+    await table.delete(id);
+    return true;
+  } catch {
+    return false;
+  }
+}
+async function safeGet(table, id) {
+  try {
+    const rec = await table.get(id);
+    if (rec) {
+      try {
+        JSON.stringify({ ...rec });
+      } catch (e) {
+        if (isDecodeError(e)) throw e;
+      }
+    }
+    return rec;
+  } catch (e) {
+    if (isDecodeError(e)) {
+      await forceRemove(table, id);
+      console.error(`purged undecodable record: ${id}`);
+      return null;
+    }
+    throw e;
+  }
+}
 async function toArray(iterable) {
   const out = [];
-  for await (const item of iterable) out.push(item);
+  try {
+    for await (const item of iterable) out.push(item);
+  } catch (e) {
+    console.error("scan: skipping undecodable record(s) \u2014", e?.message || e);
+  }
   return out;
 }
 async function allOf(table) {
@@ -9123,9 +9169,85 @@ async function byPlayer(table, playerId) {
   const rows = await toArray(table.search({}));
   return rows.filter((r) => r?.playerId === playerId);
 }
-async function findOwned(table, playerId, id) {
-  const rows = await byPlayer(table, playerId);
+function worldOf(player) {
+  return player?.worldId || player?.id;
+}
+async function byWorld(table, worldId) {
+  if (!table || typeof table.search !== "function") return [];
+  const rows = await toArray(table.search({}));
+  return rows.filter((r) => (r?.worldId ?? r?.playerId) === worldId);
+}
+async function findInWorld(table, worldId, id) {
+  const rows = await byWorld(table, worldId);
   return rows.find((r) => r.id === id) || null;
+}
+function genJoinCode() {
+  const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+  let out = "";
+  for (let i = 0; i < 6; i++) out += alphabet[Math.floor(Math.random() * alphabet.length)];
+  return out;
+}
+var DEFAULT_MAX_MEMBERS = 6;
+async function ensureSoloWorld(player) {
+  const t = db();
+  const soloId = player.id;
+  if (!await t.World.get(soloId)) {
+    await t.World.put({
+      id: soloId,
+      name: `${player.name || "My"} preserve`,
+      solo: true,
+      ownerId: player.id,
+      joinCode: null,
+      createdAt: player.createdAt || Date.now(),
+      maxMembers: 1
+    });
+  }
+  const memberId = `${soloId}:${player.id}`;
+  if (!await t.WorldMember.get(memberId)) {
+    await t.WorldMember.put({
+      id: memberId,
+      worldId: soloId,
+      playerId: player.id,
+      role: "owner",
+      joinedAt: player.createdAt || Date.now(),
+      lastSeenAt: Date.now()
+    });
+  }
+  if (!player.worldId) await t.Player.patch(player.id, { worldId: soloId });
+}
+async function listMemberships(playerId) {
+  const t = db();
+  const members = await byPlayer(t.WorldMember, playerId);
+  const out = [];
+  for (const m of members) {
+    const world = await t.World.get(m.worldId);
+    if (!world) continue;
+    const memberCount = (await byWorld(t.WorldMember, world.id)).length;
+    out.push({
+      worldId: world.id,
+      name: world.name,
+      solo: !!world.solo,
+      role: m.role,
+      joinCode: world.solo ? null : world.joinCode,
+      memberCount,
+      maxMembers: world.maxMembers || DEFAULT_MAX_MEMBERS,
+      isOwner: world.ownerId === playerId
+    });
+  }
+  return out.sort((a, b) => a.solo === b.solo ? 0 : a.solo ? -1 : 1);
+}
+async function syncMemberUnlocks(playerId, worldId) {
+  const t = db();
+  const player = await t.Player.get(playerId);
+  if (!player) return [];
+  const current = player.unlockedBiomes || ["meadow"];
+  if (worldId === player.id) return current;
+  const worldStates = await byWorld(t.BiomeState, worldId);
+  const unlocked = new Set(current);
+  for (const bs of worldStates) if (bs.unlocked) unlocked.add(bs.biomeId);
+  const merged = [...unlocked];
+  if (merged.length !== current.length) await t.Player.patch(playerId, { unlockedBiomes: merged });
+  return merged;
 }
 var defsReconciled = false;
 async function reconcileDefinitions() {
@@ -9315,7 +9437,7 @@ function slugId(name) {
 var STARTER_CHEST = { x: 9, y: 5, size: "small-chest", capacity: 120 };
 async function requirePlayer(playerId) {
   if (!playerId || typeof playerId !== "string") throw new GameError("playerId required");
-  const player = await db().Player.get(playerId);
+  const player = await safeGet(db().Player, playerId);
   if (!player) throw new GameError("No save found \u2014 please log in again", 404);
   return { player };
 }
@@ -9505,6 +9627,8 @@ async function createPlayerRecords(playerId, name, passcode, appearance) {
     passcodeHash: hash,
     appearance,
     createdAt: now,
+    worldId: playerId,
+    // start in your own private solo world (world of one)
     area: "meadow",
     x: 10.5,
     // spawn right beside the camp workbench
@@ -9521,8 +9645,10 @@ async function createPlayerRecords(playerId, name, passcode, appearance) {
     metrics: freshMetrics(now)
   };
   await t.Player.put(player);
+  const wid = playerId;
   const biomeStates = d.biomes.map((b) => ({
-    id: `${playerId}:${b.id}`,
+    id: `${wid}:${b.id}`,
+    worldId: wid,
     playerId,
     biomeId: b.id,
     health: BASE_HEALTH,
@@ -9535,6 +9661,7 @@ async function createPlayerRecords(playerId, name, passcode, appearance) {
   const placements = [
     {
       id: chestPlacementId,
+      worldId: wid,
       playerId,
       objectId: "small-chest",
       area: "meadow",
@@ -9546,6 +9673,7 @@ async function createPlayerRecords(playerId, name, passcode, appearance) {
   for (const p of placements) await t.Placement.put(p);
   const chest = {
     id: chestPlacementId,
+    worldId: wid,
     playerId,
     area: "meadow",
     x: STARTER_CHEST.x,
@@ -9705,11 +9833,11 @@ function whyReturnedText(animal, d) {
   if (req.animals?.length) parts.push(`${req.animals.map((a) => d.animal.get(a)?.name || a).join(" and ")} had already returned`);
   return `Felt safe enough to return once ${parts.join(", ")}.`;
 }
-async function recalcBiome(playerId, biomeId, opts = {}) {
+async function recalcBiome(wid, playerId, biomeId, opts = {}) {
   const t = db();
   const d = await defs();
   if (!d.biome.get(biomeId)) throw new GameError(`Unknown biome: ${biomeId}`);
-  let placements = (await byPlayer(t.Placement, playerId)).filter((p) => p.area === biomeId);
+  let placements = (await byWorld(t.Placement, wid)).filter((p) => p.area === biomeId);
   if (opts.removeIds?.length) placements = placements.filter((p) => !opts.removeIds.includes(p.id));
   for (const ap of opts.addPlacements || []) {
     if (ap.area !== biomeId) continue;
@@ -9717,7 +9845,7 @@ async function recalcBiome(playerId, biomeId, opts = {}) {
     placements.push(ap);
   }
   const counts = placementCounts(placements, d);
-  let terrain = (await byPlayer(t.TerrainTile, playerId)).filter((tt) => tt.area === biomeId);
+  let terrain = (await byWorld(t.TerrainTile, wid)).filter((tt) => tt.area === biomeId);
   if (opts.removeTerrainIds?.length) terrain = terrain.filter((tt) => !opts.removeTerrainIds.includes(tt.id));
   for (const at of opts.addTerrain || []) {
     if (at.area !== biomeId) continue;
@@ -9729,7 +9857,7 @@ async function recalcBiome(playerId, biomeId, opts = {}) {
   const water = analyzeWater(terrain);
   const healthPoints = computeHealthPoints(d, placements, openWaterTiles) + wateredTiles;
   const health = healthFromPoints(healthPoints);
-  const discoveries = await byPlayer(t.Discovery, playerId);
+  const discoveries = await byWorld(t.Discovery, wid);
   const returnedIds = new Set(discoveries.map((x) => x.animalId));
   let balance = computeBalance(d, biomeId, returnedIds);
   const newAnimals = [];
@@ -9740,7 +9868,8 @@ async function recalcBiome(playerId, biomeId, opts = {}) {
     if (!firstAnimalBack && animal.id !== FIRST_ANIMAL_ID) continue;
     if (meetsRequirements(animal, health, balance, counts, returnedIds, water)) {
       const disc = {
-        id: `${playerId}:${animal.id}`,
+        id: `${wid}:${animal.id}`,
+        worldId: wid,
         playerId,
         animalId: animal.id,
         biomeId,
@@ -9764,15 +9893,15 @@ async function recalcBiome(playerId, biomeId, opts = {}) {
     if (comfort !== disc.comfort) await t.Discovery.patch(disc.id, { comfort });
   }
   const returnedCount = [...returnedIds].filter((id) => d.animal.get(id)?.biome === biomeId).length;
-  const prior = await findOwned(t.BiomeState, playerId, `${playerId}:${biomeId}`);
-  await t.BiomeState.patch(`${playerId}:${biomeId}`, { health, balance, returnedCount });
+  const prior = await findInWorld(t.BiomeState, wid, `${wid}:${biomeId}`);
+  await t.BiomeState.patch(`${wid}:${biomeId}`, { health, balance, returnedCount });
   const biomeState = {
-    ...prior || { id: `${playerId}:${biomeId}`, playerId, biomeId, unlocked: biomeId === "meadow" },
+    ...prior || { id: `${wid}:${biomeId}`, worldId: wid, playerId, biomeId, unlocked: biomeId === "meadow" },
     health,
     balance,
     returnedCount
   };
-  const unlockedBiomes = await checkUnlocks(playerId, { player: opts.player, freshState: biomeState });
+  const unlockedBiomes = await checkUnlocks(wid, playerId, { player: opts.player, freshState: biomeState });
   return { biomeState, newAnimals, unlockedBiomes };
 }
 var STARTING_TERRAIN = {
@@ -9794,31 +9923,32 @@ var STARTING_TERRAIN = {
     { x: 11, y: 14, type: "watered" }
   ]
 };
-async function seedStartingTerrain(playerId, biomeId) {
+async function seedStartingTerrain(wid, playerId, biomeId) {
   const layout = STARTING_TERRAIN[biomeId];
   if (!layout) return;
   const t = db();
   for (const cell of layout) {
-    const id = `${playerId}:${biomeId}:${cell.x}:${cell.y}`;
+    const id = `${wid}:${biomeId}:${cell.x}:${cell.y}`;
     if (await t.TerrainTile.get(id)) continue;
-    await t.TerrainTile.put({ id, playerId, area: biomeId, x: cell.x, y: cell.y, type: cell.type, updatedAt: Date.now() });
+    await t.TerrainTile.put({ id, worldId: wid, playerId, area: biomeId, x: cell.x, y: cell.y, type: cell.type, updatedAt: Date.now() });
   }
 }
-async function checkUnlocks(playerId, fresh = {}) {
+async function checkUnlocks(wid, playerId, fresh = {}) {
   const t = db();
   const d = await defs();
   const player = fresh.player || await t.Player.get(playerId);
   const unlockedNow = [];
   const unlockedSet = new Set(player.unlockedBiomes || []);
+  const worldUnlocked = new Set((await byWorld(t.BiomeState, wid)).filter((b) => b.unlocked).map((b) => b.biomeId));
   for (const biome of d.biomes) {
-    if (!biome.unlock || unlockedSet.has(biome.id)) continue;
+    if (!biome.unlock || worldUnlocked.has(biome.id)) continue;
     const u = biome.unlock;
-    const prereq = fresh.freshState?.biomeId === u.biome ? fresh.freshState : await findOwned(t.BiomeState, playerId, `${playerId}:${u.biome}`);
-    if (!prereq || !unlockedSet.has(u.biome)) continue;
+    const prereq = fresh.freshState?.biomeId === u.biome ? fresh.freshState : await findInWorld(t.BiomeState, wid, `${wid}:${u.biome}`);
+    if (!prereq || !worldUnlocked.has(u.biome)) continue;
     if ((prereq.health || 0) < (u.minHealth || 0)) continue;
     if ((prereq.returnedCount || 0) < (u.minAnimals || 0)) continue;
     if (u.minTotalAnimals) {
-      const totalReturned = (await byPlayer(t.Discovery, playerId)).length;
+      const totalReturned = (await byWorld(t.Discovery, wid)).length;
       if (totalReturned < u.minTotalAnimals) continue;
     }
     if (u.requiresItem) {
@@ -9827,10 +9957,11 @@ async function checkUnlocks(playerId, fresh = {}) {
       if (crafted <= 0 && everCrafted <= 0) continue;
     }
     if (u.requiresTool && (player.tools?.[u.requiresTool.id] || 1) < u.requiresTool.tier) continue;
+    worldUnlocked.add(biome.id);
     unlockedSet.add(biome.id);
     await t.Player.patch(playerId, { unlockedBiomes: [...unlockedSet] });
-    await t.BiomeState.patch(`${playerId}:${biome.id}`, { unlocked: true });
-    await seedStartingTerrain(playerId, biome.id);
+    await t.BiomeState.patch(`${wid}:${biome.id}`, { unlocked: true });
+    await seedStartingTerrain(wid, playerId, biome.id);
     unlockedNow.push({ id: biome.id, name: biome.name });
   }
   return unlockedNow;
@@ -9844,10 +9975,10 @@ function recipeUnlockMet(recipe, ctx) {
   if (u.requiresCrafted && (ctx.craftedEver?.[u.requiresCrafted] || 0) <= 0) return false;
   return true;
 }
-async function recipeUnlockContext(playerId, biomeId, player, d) {
+async function recipeUnlockContext(wid, biomeId, player, d) {
   const t = db();
-  const bs = await findOwned(t.BiomeState, playerId, `${playerId}:${biomeId}`);
-  const discoveries = await byPlayer(t.Discovery, playerId);
+  const bs = await findInWorld(t.BiomeState, wid, `${wid}:${biomeId}`);
+  const discoveries = await byWorld(t.Discovery, wid);
   const returnedAnimalIds = new Set(
     discoveries.filter((x) => d.animal.get(x.animalId)?.biome === biomeId).map((x) => x.animalId)
   );
@@ -9858,16 +9989,17 @@ async function recipeUnlockContext(playerId, biomeId, player, d) {
     craftedEver: player.craftedEver || {}
   };
 }
-async function getOwnedChest(t, d, chestId, playerId) {
-  const chest = await findOwned(t.Chest, playerId, chestId);
+async function getOwnedChest(t, d, chestId, wid) {
+  const chest = await findInWorld(t.Chest, wid, chestId);
   if (chest) return chest;
-  const placement = await findOwned(t.Placement, playerId, chestId);
+  const placement = await findInWorld(t.Placement, wid, chestId);
   if (placement) {
     const def = d.object.get(placement.objectId);
     if (def?.isChest) {
       const healed = {
         id: chestId,
-        playerId,
+        worldId: wid,
+        playerId: placement.playerId,
         area: placement.area,
         x: placement.x,
         y: placement.y,
@@ -9881,9 +10013,9 @@ async function getOwnedChest(t, d, chestId, playerId) {
   }
   return null;
 }
-async function consumeMaterials(player, materials) {
+async function consumeMaterials(player, materials, wid = player.id) {
   const t = db();
-  const chests = await byPlayer(t.Chest, player.id);
+  const chests = await byWorld(t.Chest, wid);
   for (const [resId, qty] of Object.entries(materials)) {
     const inInv = player.inventory?.[resId] || 0;
     const inChests = chests.reduce((sum, c) => sum + (c.contents?.[resId] || 0), 0);
@@ -9925,26 +10057,33 @@ async function consumeMaterials(player, materials) {
   }
   return { usedFrom, inventory };
 }
-async function snapshot(playerId) {
+async function snapshot(playerId, opts = {}) {
   const t = db();
   const d = await defs();
-  let player = await t.Player.get(playerId);
+  let player = await safeGet(t.Player, playerId);
   const areaBiome = d.biome.get(player?.area);
   if (player && player.area !== "home" && (!areaBiome || !areaBiome.explorable)) {
     player = { ...player, area: "meadow", x: 10.5, y: 6.5 };
   }
+  const wid = opts.worldId || worldOf(player);
   const [biomeStates, placements, chests, discoveries, nodeStates, terrain, achievementRows, feedRows] = await Promise.all([
-    byPlayer(t.BiomeState, playerId),
-    byPlayer(t.Placement, playerId),
-    byPlayer(t.Chest, playerId),
-    byPlayer(t.Discovery, playerId),
-    byPlayer(t.NodeState, playerId),
-    byPlayer(t.TerrainTile, playerId),
+    byWorld(t.BiomeState, wid),
+    byWorld(t.Placement, wid),
+    byWorld(t.Chest, wid),
+    byWorld(t.Discovery, wid),
+    byWorld(t.NodeState, wid),
+    byWorld(t.TerrainTile, wid),
     byPlayer(t.PlayerAchievement, playerId),
-    byPlayer(t.FeedEntry, playerId)
+    byWorld(t.FeedEntry, wid)
   ]);
+  if (player && wid !== player.id) {
+    const unlocked = new Set(player.unlockedBiomes || ["meadow"]);
+    for (const bs of biomeStates) if (bs.unlocked) unlocked.add(bs.biomeId);
+    player = { ...player, unlockedBiomes: [...unlocked] };
+  }
   return {
     player: sanitizePlayer(player),
+    worldId: wid,
     biomeStates,
     placements,
     chests,
@@ -10048,10 +10187,11 @@ async function awardAchievements(playerId, opts = {}) {
     const player = await t.Player.get(playerId);
     if (!player) return [];
     const earned = await earnedAchievementIds(playerId);
+    const wid = worldOf(player);
     let [biomeStates, discoveries, terrain] = await Promise.all([
-      byPlayer(t.BiomeState, playerId),
-      byPlayer(t.Discovery, playerId),
-      byPlayer(t.TerrainTile, playerId)
+      byWorld(t.BiomeState, wid),
+      byWorld(t.Discovery, wid),
+      byWorld(t.TerrainTile, wid)
     ]);
     for (const ad of opts.addDiscoveries || []) {
       if (ad?.animalId && !discoveries.some((x) => x.animalId === ad.animalId)) discoveries.push(ad);
@@ -10106,6 +10246,21 @@ async function awardAchievements(playerId, opts = {}) {
     return [];
   }
 }
+async function awardWorldAchievements(wid, actorId, opts = {}) {
+  const newlyForActor = await awardAchievements(actorId, opts);
+  try {
+    const t = db();
+    const world = await t.World.get(wid);
+    if (world && !world.solo) {
+      for (const m of await byWorld(t.WorldMember, wid)) {
+        if (m.playerId === actorId) continue;
+        await awardAchievements(m.playerId, opts);
+      }
+    }
+  } catch {
+  }
+  return newlyForActor;
+}
 var PublicEndpoint = class extends Resource {
   allowRead() {
     return true;
@@ -10154,10 +10309,17 @@ var CreatePlayer = class extends PublicEndpoint {
     if (code.length < 4 || code.length > 32) throw new GameError("Pick a passcode of at least 4 characters");
     const playerId = slugId(cleanName);
     if (!playerId) throw new GameError("That name needs at least one letter or number");
-    const existing = await db().Player.get(playerId);
+    const existing = await safeGet(db().Player, playerId);
     if (existing) throw new GameError("A save with that name already exists \u2014 try Load Game instead", 409);
     const created = await createPlayerRecords(playerId, cleanName, code, sanitizeAppearance(appearance));
-    return { ok: true, playerId, state: freshSnapshot(created) };
+    let worlds = [];
+    try {
+      await ensureSoloWorld(created.player);
+      worlds = await listMemberships(playerId);
+    } catch (e) {
+      console.error("world setup skipped (CreatePlayer):", e);
+    }
+    return { ok: true, playerId, worldId: playerId, worlds, state: freshSnapshot(created) };
   }
 };
 var DeletePlayer = class extends PublicEndpoint {
@@ -10169,11 +10331,23 @@ var DeletePlayer = class extends PublicEndpoint {
     if (!await verifyPasscode(player, passcode)) throw new GameError("That passcode doesn't match this save", 403);
     const t = db();
     let removed = 0;
-    for (const table of [t.Placement, t.Chest, t.BiomeState, t.Discovery, t.NodeState, t.TerrainTile, t.PlayerAchievement, t.FeedEntry]) {
-      for (const rec of await byPlayer(table, playerId)) {
+    for (const table of [t.Placement, t.Chest, t.BiomeState, t.Discovery, t.NodeState, t.TerrainTile, t.FeedEntry]) {
+      for (const rec of await byWorld(table, playerId)) {
         await table.delete(rec.id);
         removed++;
       }
+    }
+    for (const rec of await byPlayer(t.PlayerAchievement, playerId)) {
+      await t.PlayerAchievement.delete(rec.id);
+      removed++;
+    }
+    for (const m of await byPlayer(t.WorldMember, playerId)) {
+      await t.WorldMember.delete(m.id);
+      removed++;
+    }
+    if (await t.World.get(playerId)) {
+      await t.World.delete(playerId);
+      removed++;
     }
     await t.Player.delete(playerId);
     return { ok: true, deleted: playerId, recordsRemoved: removed + 1 };
@@ -10195,7 +10369,7 @@ var LoginPlayer = class extends PublicEndpoint {
   async post(data) {
     const { name, passcode } = await bodyOf(data);
     const playerId = slugId(String(name || ""));
-    const player = playerId ? await db().Player.get(playerId) : null;
+    const player = playerId ? await safeGet(db().Player, playerId) : null;
     if (!player) throw new GameError("No save found with that name \u2014 try New Game", 404);
     if (!await verifyPasscode(player, passcode)) throw new GameError("That passcode doesn't match this save", 403);
     const d = await defs();
@@ -10206,7 +10380,17 @@ var LoginPlayer = class extends PublicEndpoint {
     const now = Date.now();
     const prev = player.metrics || freshMetrics(player.createdAt || now);
     await db().Player.patch(playerId, { metrics: { ...prev, lastHeartbeatAt: 0, lastSeenAt: now } });
-    return { ok: true, playerId, state: await snapshot(playerId) };
+    let active = player.worldId || playerId;
+    let worlds = [];
+    try {
+      await ensureSoloWorld(player);
+      active = (await db().Player.get(playerId)).worldId || playerId;
+      await syncMemberUnlocks(playerId, active);
+      worlds = await listMemberships(playerId);
+    } catch (e) {
+      console.error("world setup skipped (LoginPlayer):", e);
+    }
+    return { ok: true, playerId, worldId: active, worlds, state: await snapshot(playerId) };
   }
 };
 var GameState = class extends PublicEndpoint {
@@ -10216,12 +10400,285 @@ var GameState = class extends PublicEndpoint {
     return snapshot(playerId);
   }
 };
+var MyWorlds = class extends PublicEndpoint {
+  async post(data) {
+    const { playerId } = await bodyOf(data);
+    const { player } = await requirePlayer(playerId);
+    await ensureSoloWorld(player);
+    return { ok: true, activeWorldId: worldOf(player), worlds: await listMemberships(playerId) };
+  }
+};
+var CreateWorld = class extends PublicEndpoint {
+  async post(data) {
+    const { playerId, name } = await bodyOf(data);
+    const t = db();
+    const { player } = await requirePlayer(playerId);
+    await ensureSoloWorld(player);
+    const cleanName = String(name || "").trim() || `${player.name}'s preserve`;
+    if (cleanName.length > 40) throw new GameError("Pick a world name under 40 characters");
+    const worldId = `w_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
+    let joinCode = genJoinCode();
+    const allWorlds = await allOf(t.World);
+    const taken = new Set(allWorlds.map((w) => w.joinCode).filter(Boolean));
+    let guard = 0;
+    while (taken.has(joinCode) && guard++ < 20) joinCode = genJoinCode();
+    const now = Date.now();
+    await t.World.put({
+      id: worldId,
+      name: cleanName,
+      solo: false,
+      ownerId: playerId,
+      joinCode,
+      createdAt: now,
+      maxMembers: DEFAULT_MAX_MEMBERS
+    });
+    await t.WorldMember.put({
+      id: `${worldId}:${playerId}`,
+      worldId,
+      playerId,
+      role: "owner",
+      joinedAt: now,
+      lastSeenAt: now
+    });
+    const d = await defs();
+    for (const b of d.biomes) {
+      await t.BiomeState.put({
+        id: `${worldId}:${b.id}`,
+        worldId,
+        playerId,
+        biomeId: b.id,
+        health: BASE_HEALTH,
+        balance: 0,
+        returnedCount: 0,
+        unlocked: b.id === "meadow"
+      });
+    }
+    return { ok: true, world: { worldId, name: cleanName, joinCode, solo: false, role: "owner", isOwner: true, memberCount: 1, maxMembers: DEFAULT_MAX_MEMBERS }, worlds: await listMemberships(playerId) };
+  }
+};
+async function worldByCode(t, joinCode) {
+  const code = String(joinCode || "").trim().toUpperCase();
+  if (!code) return null;
+  return (await allOf(t.World)).find((w) => !w.solo && w.joinCode === code) || null;
+}
+var JoinWorld = class extends PublicEndpoint {
+  async post(data) {
+    const { playerId, joinCode, token } = await bodyOf(data);
+    const t = db();
+    const { player } = await requirePlayer(playerId);
+    await ensureSoloWorld(player);
+    const world = await worldByCode(t, joinCode);
+    if (!world) throw new GameError("No world found with that code", 404);
+    const memberId = `${world.id}:${playerId}`;
+    const already = await t.WorldMember.get(memberId);
+    if (!already) {
+      const tok = String(token || "").trim();
+      const req = tok ? await t.JoinRequest.get(`${world.id}:${tok}`) : null;
+      if (!req || req.status !== "approved") {
+        throw new GameError("The host hasn\u2019t approved you for this world yet", 403);
+      }
+      const max = world.maxMembers || DEFAULT_MAX_MEMBERS;
+      const members = await byWorld(t.WorldMember, world.id);
+      if (members.length >= max) {
+        throw new GameError(`This preserve is full \u2014 ${max} caretakers have joined and it's closed to new players.`, 409);
+      }
+      await t.WorldMember.put({
+        id: memberId,
+        worldId: world.id,
+        playerId,
+        role: "member",
+        joinedAt: Date.now(),
+        lastSeenAt: Date.now()
+      });
+      await t.JoinRequest.delete(`${world.id}:${tok}`);
+      const at = Date.now();
+      await t.FeedEntry.put({
+        id: `f_${world.id}_${at}_${Math.random().toString(36).slice(2, 7)}`,
+        worldId: world.id,
+        playerId,
+        at,
+        icon: "user",
+        text: `${player.name} joined the preserve!`
+      });
+    }
+    await t.Player.patch(playerId, { worldId: world.id });
+    await syncMemberUnlocks(playerId, world.id);
+    let worldsList = await listMemberships(playerId);
+    if (!worldsList.some((w) => w.worldId === world.id)) {
+      const members = await byWorld(t.WorldMember, world.id);
+      const here = members.some((m) => m.playerId === playerId) ? members.length : members.length + 1;
+      worldsList = [...worldsList, {
+        worldId: world.id,
+        name: world.name,
+        solo: false,
+        role: world.ownerId === playerId ? "owner" : "member",
+        joinCode: world.joinCode,
+        memberCount: here,
+        maxMembers: world.maxMembers || DEFAULT_MAX_MEMBERS,
+        isOwner: world.ownerId === playerId
+      }];
+    }
+    return { ok: true, worldId: world.id, worlds: worldsList, state: await snapshot(playerId, { worldId: world.id }) };
+  }
+};
+var CheckWorldCode = class extends PublicEndpoint {
+  async post(data) {
+    const { joinCode } = await bodyOf(data);
+    const t = db();
+    const world = await worldByCode(t, joinCode);
+    if (!world) return { ok: true, exists: false };
+    const memberCount = (await byWorld(t.WorldMember, world.id)).length;
+    const owner = await t.Player.get(world.ownerId);
+    const max = world.maxMembers || DEFAULT_MAX_MEMBERS;
+    return {
+      ok: true,
+      exists: true,
+      world: { worldId: world.id, name: world.name, hostName: owner?.name || "the host", memberCount, maxMembers: max, full: memberCount >= max }
+    };
+  }
+};
+var RequestJoin = class extends PublicEndpoint {
+  async post(data) {
+    const { joinCode, token, name } = await bodyOf(data);
+    const t = db();
+    const world = await worldByCode(t, joinCode);
+    if (!world) throw new GameError("No world found with that code", 404);
+    const tok = String(token || "").trim();
+    if (!tok) throw new GameError("Missing request token");
+    const max = world.maxMembers || DEFAULT_MAX_MEMBERS;
+    const memberCount = (await byWorld(t.WorldMember, world.id)).length;
+    if (memberCount >= max) throw new GameError(`This preserve is full \u2014 it already has its ${max} caretakers and is closed to new players.`, 409);
+    const cleanName = String(name || "").trim().slice(0, 24) || "A caretaker";
+    await t.JoinRequest.put({ id: `${world.id}:${tok}`, worldId: world.id, token: tok, name: cleanName, status: "pending", createdAt: Date.now() });
+    const owner = await t.Player.get(world.ownerId);
+    return { ok: true, worldId: world.id, world: { name: world.name, hostName: owner?.name || "the host" } };
+  }
+};
+var JoinRequestStatus = class extends PublicEndpoint {
+  async post(data) {
+    const { worldId, token } = await bodyOf(data);
+    const t = db();
+    const req = await t.JoinRequest.get(`${worldId}:${String(token || "").trim()}`);
+    return { ok: true, status: req?.status || "none" };
+  }
+};
+var PendingJoinRequests = class extends PublicEndpoint {
+  async post(data) {
+    const { playerId } = await bodyOf(data);
+    const { player } = await requirePlayer(playerId);
+    const t = db();
+    const wid = worldOf(player);
+    const world = await t.World.get(wid);
+    if (!world || world.solo || world.ownerId !== playerId) return { ok: true, requests: [] };
+    const reqs = (await byWorld(t.JoinRequest, wid)).filter((r) => r.status === "pending");
+    reqs.sort((a, b) => (a.createdAt || 0) - (b.createdAt || 0));
+    return { ok: true, requests: reqs.map((r) => ({ token: r.token, name: r.name, createdAt: r.createdAt })) };
+  }
+};
+var ResolveJoin = class extends PublicEndpoint {
+  async post(data) {
+    const { playerId, worldId, token, approve } = await bodyOf(data);
+    await requirePlayer(playerId);
+    const t = db();
+    const world = await t.World.get(worldId);
+    if (!world || world.solo) throw new GameError("No such co-op world", 404);
+    if (world.ownerId !== playerId) throw new GameError("Only the host can approve players", 403);
+    const id = `${worldId}:${String(token || "").trim()}`;
+    const req = await t.JoinRequest.get(id);
+    if (!req) throw new GameError("That request is no longer pending", 404);
+    await t.JoinRequest.patch(id, { status: approve ? "approved" : "denied", resolvedAt: Date.now() });
+    return { ok: true };
+  }
+};
+var WorldRoster = class extends PublicEndpoint {
+  async post(data) {
+    const { playerId } = await bodyOf(data);
+    const { player } = await requirePlayer(playerId);
+    const t = db();
+    const wid = worldOf(player);
+    const world = await t.World.get(wid);
+    const max = world?.maxMembers || DEFAULT_MAX_MEMBERS;
+    if (!world || world.solo) return { ok: true, roster: [], closed: false, maxMembers: max, joinCode: null };
+    const members = await byWorld(t.WorldMember, wid);
+    const roster = [];
+    for (const m of members) {
+      const p = await safeGet(t.Player, m.playerId);
+      roster.push({
+        playerId: m.playerId,
+        name: p?.name || "caretaker",
+        isOwner: m.role === "owner" || world.ownerId === m.playerId,
+        joinedAt: m.joinedAt || 0
+      });
+    }
+    roster.sort((a, b) => (a.joinedAt || 0) - (b.joinedAt || 0));
+    return { ok: true, roster, closed: roster.length >= max, maxMembers: max, joinCode: world.joinCode };
+  }
+};
+var SwitchWorld = class extends PublicEndpoint {
+  async post(data) {
+    const { playerId, worldId } = await bodyOf(data);
+    const t = db();
+    const { player } = await requirePlayer(playerId);
+    await ensureSoloWorld(player);
+    const target = String(worldId || "");
+    if (!await t.WorldMember.get(`${target}:${playerId}`)) {
+      throw new GameError("You are not a member of that world", 403);
+    }
+    await t.Player.patch(playerId, { worldId: target });
+    await t.WorldMember.patch(`${target}:${playerId}`, { lastSeenAt: Date.now() });
+    await syncMemberUnlocks(playerId, target);
+    return { ok: true, worldId: target, worlds: await listMemberships(playerId), state: await snapshot(playerId, { worldId: target }) };
+  }
+};
+var LeaveWorld = class extends PublicEndpoint {
+  async post(data) {
+    const { playerId, worldId } = await bodyOf(data);
+    const t = db();
+    const { player } = await requirePlayer(playerId);
+    const target = String(worldId || "");
+    if (target === playerId) throw new GameError("You cannot leave your own solo world");
+    const memberId = `${target}:${playerId}`;
+    if (!await t.WorldMember.get(memberId)) throw new GameError("You are not in that world", 404);
+    await t.WorldMember.delete(memberId);
+    if (player.worldId === target) {
+      await t.Player.patch(playerId, { worldId: playerId, area: "meadow", x: 10.5, y: 6.5 });
+      await syncMemberUnlocks(playerId, playerId);
+    }
+    const active = player.worldId === target ? playerId : player.worldId || playerId;
+    return { ok: true, worldId: active, worlds: await listMemberships(playerId), state: await snapshot(playerId, { worldId: active }) };
+  }
+};
+var PRESENCE_WINDOW_MS = 15e3;
+var Presence = class extends PublicEndpoint {
+  async post(data) {
+    const { playerId, x, y, area } = await bodyOf(data);
+    const t = db();
+    const { player } = await requirePlayer(playerId);
+    const wid = worldOf(player);
+    const now = Date.now();
+    const px = Number.isFinite(Number(x)) ? Number(x) : player.x;
+    const py = Number.isFinite(Number(y)) ? Number(y) : player.y;
+    const parea = typeof area === "string" ? area : player.area;
+    const world = await t.World.get(wid);
+    if (world?.solo) return { ok: true, worldId: wid, peers: [] };
+    const rec = await t.WorldPresence.get(wid) || { id: wid, players: {} };
+    const players = { ...rec.players || {} };
+    players[playerId] = { playerId, name: player.name, appearance: player.appearance, area: parea, x: px, y: py, t: now };
+    for (const pid of Object.keys(players)) {
+      if (now - (players[pid]?.t || 0) > PRESENCE_WINDOW_MS) delete players[pid];
+    }
+    await t.WorldPresence.put({ id: wid, players, updatedAt: now });
+    const peers = Object.values(players).filter((p) => p.playerId !== playerId);
+    return { ok: true, worldId: wid, peers };
+  }
+};
 var CollectResource = class extends PublicEndpoint {
   async post(data) {
     const { playerId, biomeId, nodeId, resourceId } = await bodyOf(data);
     const t = db();
     const d = await defs();
     const { player } = await requirePlayer(playerId);
+    const wid = worldOf(player);
     const biome = d.biome.get(biomeId);
     if (!biome) throw new GameError(`Unknown biome: ${biomeId}`);
     if (!(player.unlockedBiomes || []).includes(biomeId)) throw new GameError(`${biome.name} is not unlocked yet`, 403);
@@ -10229,7 +10686,7 @@ var CollectResource = class extends PublicEndpoint {
     const resDef = d.resource.get(resourceId);
     if (!resDef) throw new GameError(`Unknown resource: ${resourceId}`);
     if (!nodeId || typeof nodeId !== "string") throw new GameError("nodeId required");
-    const nodeKey = `${playerId}:${biomeId}:${nodeId}`;
+    const nodeKey = `${wid}:${biomeId}:${nodeId}`;
     const nodeState = await t.NodeState.get(nodeKey);
     const now = Date.now();
     if (nodeState && now - nodeState.harvestedAt < NODE_REGEN_SECONDS * 1e3) {
@@ -10243,7 +10700,7 @@ var CollectResource = class extends PublicEndpoint {
     const inventory = { ...player.inventory || {} };
     inventory[resourceId] = (inventory[resourceId] || 0) + amount;
     await t.Player.patch(playerId, { inventory });
-    await t.NodeState.put({ id: nodeKey, playerId, harvestedAt: now });
+    await t.NodeState.put({ id: nodeKey, worldId: wid, playerId, harvestedAt: now });
     await bumpMetrics(player, { resourcesCollected: amount });
     await awardAchievements(playerId);
     return { ok: true, gained: { [resourceId]: amount }, inventory, nodeId, harvestedAt: now };
@@ -10255,8 +10712,9 @@ var ChestTransfer = class extends PublicEndpoint {
     const t = db();
     const d = await defs();
     const { player } = await requirePlayer(playerId);
+    const wid = worldOf(player);
     const amount = posInt(qty, "qty");
-    const chest = await getOwnedChest(t, d, chestId, playerId);
+    const chest = await getOwnedChest(t, d, chestId, wid);
     if (!chest) throw new GameError("Chest not found", 404);
     const inventory = { ...player.inventory || {} };
     const contents = { ...chest.contents || {} };
@@ -10309,6 +10767,7 @@ var CraftItem = class extends PublicEndpoint {
     const t = db();
     const d = await defs();
     const { player } = await requirePlayer(playerId);
+    const wid = worldOf(player);
     const recipe = d.recipe.get(recipeId);
     if (!recipe) throw new GameError(`Unknown recipe: ${recipeId}`);
     const outObj = d.object.get(recipe.output.itemId);
@@ -10323,7 +10782,7 @@ var CraftItem = class extends PublicEndpoint {
       throw new GameError("This recipe unlocks with a biome you have not restored yet", 403);
     }
     if (!devUnlock && recipe.unlock && recipe.unlockBiome) {
-      const ctx = await recipeUnlockContext(playerId, recipe.unlockBiome, player, d);
+      const ctx = await recipeUnlockContext(wid, recipe.unlockBiome, player, d);
       if (!recipeUnlockMet(recipe, ctx)) {
         throw new GameError(`Not unlocked yet \u2014 ${recipe.unlock.label}.`, 403);
       }
@@ -10335,14 +10794,14 @@ var CraftItem = class extends PublicEndpoint {
     if (recipe.once && (player.craftedEver?.[recipe.output.itemId] || 0) > 0) {
       throw new GameError(`You have already crafted the ${recipe.name} \u2014 it only needs to be made once.`, 409);
     }
-    const { usedFrom, inventory } = await consumeMaterials(player, recipe.materials || {});
+    const { usedFrom, inventory } = await consumeMaterials(player, recipe.materials || {}, wid);
     const craftedItems = { ...player.craftedItems || {} };
     const craftedEver = { ...player.craftedEver || {} };
     craftedItems[recipe.output.itemId] = (craftedItems[recipe.output.itemId] || 0) + (recipe.output.qty || 1);
     craftedEver[recipe.output.itemId] = (craftedEver[recipe.output.itemId] || 0) + (recipe.output.qty || 1);
     await t.Player.patch(playerId, { craftedItems, craftedEver });
-    const unlockedBiomes = await checkUnlocks(playerId, { player: { ...player, craftedItems, craftedEver } });
-    const chests = await byPlayer(t.Chest, playerId);
+    const unlockedBiomes = await checkUnlocks(wid, playerId, { player: { ...player, craftedItems, craftedEver } });
+    const chests = await byWorld(t.Chest, wid);
     await bumpMetrics(player, { itemsCrafted: 1 });
     await awardAchievements(playerId);
     return { ok: true, crafted: recipe.output, craftedItems, inventory, chests, usedFrom, unlockedBiomes };
@@ -10354,6 +10813,7 @@ var PlaceObject = class extends PublicEndpoint {
     const t = db();
     const d = await defs();
     const { player } = await requirePlayer(playerId);
+    const wid = worldOf(player);
     const def = d.object.get(objectId);
     if (!def) throw new GameError(`Unknown object: ${objectId}`);
     if (def.placement === "none") throw new GameError(`${def.name} is a kit, not a placeable object`);
@@ -10380,12 +10840,12 @@ var PlaceObject = class extends PublicEndpoint {
     if (def.requiresTool && (player.tools?.[def.requiresTool.id] || 1) < def.requiresTool.tier) {
       throw new GameError(`Placing ${def.name} requires an upgraded ${d.tool.get(def.requiresTool.id)?.name || def.requiresTool.id}`, 403);
     }
-    const placements = await byPlayer(t.Placement, playerId);
+    const placements = await byWorld(t.Placement, wid);
     if (placements.some((p) => p.area === area && p.x === tx && p.y === ty)) {
       throw new GameError("That spot is already taken", 409);
     }
-    const tileHere = area === "home" ? null : await findOwned(t.TerrainTile, playerId, `${playerId}:${area}:${tx}:${ty}`);
-    if (tileHere && tileHere.playerId === playerId) {
+    const tileHere = area === "home" ? null : await findInWorld(t.TerrainTile, wid, `${wid}:${area}:${tx}:${ty}`);
+    if (tileHere) {
       if (tileHere.type === "water") {
         if (!def.bridge) throw new GameError("That is open water \u2014 a wooden bridge can span it", 409);
       } else {
@@ -10399,11 +10859,12 @@ var PlaceObject = class extends PublicEndpoint {
     if (craftedItems[objectId] <= 0) delete craftedItems[objectId];
     await t.Player.patch(playerId, { craftedItems });
     const placementId = `pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-    const placement = { id: placementId, playerId, objectId, area, x: tx, y: ty, placedAt: Date.now() };
+    const placement = { id: placementId, worldId: wid, playerId, objectId, area, x: tx, y: ty, placedAt: Date.now() };
     await t.Placement.put(placement);
     if (def.isChest) {
       await t.Chest.put({
         id: placementId,
+        worldId: wid,
         playerId,
         area,
         x: tx,
@@ -10418,12 +10879,12 @@ var PlaceObject = class extends PublicEndpoint {
       await awardAchievements(playerId);
       return { ok: true, placement, craftedItems };
     }
-    const recalc = await recalcBiome(playerId, area, {
+    const recalc = await recalcBiome(wid, playerId, area, {
       addPlacements: [placement],
       player: { ...player, craftedItems }
     });
     await bumpMetrics(player, { objectsPlaced: 1, animalsReturned: recalc.newAnimals?.length || 0 });
-    await awardAchievements(playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
+    await awardWorldAchievements(wid, playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
     return { ok: true, placement, craftedItems, ...recalc };
   }
 };
@@ -10433,6 +10894,7 @@ var Plant = class extends PublicEndpoint {
     const t = db();
     const d = await defs();
     const { player } = await requirePlayer(playerId);
+    const wid = worldOf(player);
     const biome = d.biome.get(area);
     if (!biome) throw new GameError(`Unknown area: ${area}`);
     if (!(player.unlockedBiomes || []).includes(area)) throw new GameError(`${biome.name} is not unlocked yet`, 403);
@@ -10441,16 +10903,17 @@ var Plant = class extends PublicEndpoint {
     if (!(def.biomes || []).includes(area)) throw new GameError(`${def.name} would not take root in the ${biome.name}`);
     const tx = Math.round(Number(x));
     const ty = Math.round(Number(y));
-    const tileId = `${playerId}:${area}:${tx}:${ty}`;
-    const bed = await findOwned(t.TerrainTile, playerId, tileId);
-    if (!bed || bed.playerId !== playerId || bed.type !== "watered") {
+    const tileId = `${wid}:${area}:${tx}:${ty}`;
+    const bed = await findInWorld(t.TerrainTile, wid, tileId);
+    if (!bed || bed.type !== "watered") {
       throw new GameError("Plant into a watered soil bed \u2014 dig with the shovel, then water it");
     }
-    const { usedFrom, inventory } = await consumeMaterials(player, def.plantCost || {});
+    const { usedFrom, inventory } = await consumeMaterials(player, def.plantCost || {}, wid);
     await t.TerrainTile.delete(tileId);
     const placementId = `pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const placement = {
       id: placementId,
+      worldId: wid,
       playerId,
       objectId: plantId,
       area,
@@ -10460,13 +10923,13 @@ var Plant = class extends PublicEndpoint {
       plantedAt: Date.now()
     };
     await t.Placement.put(placement);
-    const recalc = await recalcBiome(playerId, area, {
+    const recalc = await recalcBiome(wid, playerId, area, {
       addPlacements: [placement],
       removeTerrainIds: [tileId],
       player: { ...player, inventory }
     });
     await bumpMetrics(player, { plantsPlanted: 1, animalsReturned: recalc.newAnimals?.length || 0 });
-    await awardAchievements(playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
+    await awardWorldAchievements(wid, playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
     return { ok: true, placement, inventory, usedFrom, ...recalc };
   }
 };
@@ -10483,8 +10946,9 @@ var MoveObject = class extends PublicEndpoint {
   async post(data) {
     const { playerId, placementId, x, y } = await bodyOf(data);
     const t = db();
-    await requirePlayer(playerId);
-    const placements = await byPlayer(t.Placement, playerId);
+    const { player } = await requirePlayer(playerId);
+    const wid = worldOf(player);
+    const placements = await byWorld(t.Placement, wid);
     const placement = placements.find((p) => p.id === placementId);
     if (!placement) throw new GameError("Placement not found", 404);
     if (placement.objectId === "workbench") throw new GameError("The old workbench stays put");
@@ -10498,8 +10962,8 @@ var MoveObject = class extends PublicEndpoint {
     }
     const d = await defs();
     const movingDef = d.object.get(placement.objectId);
-    const tileHere = await findOwned(t.TerrainTile, playerId, `${playerId}:${placement.area}:${tx}:${ty}`);
-    if (tileHere && tileHere.playerId === playerId) {
+    const tileHere = await findInWorld(t.TerrainTile, wid, `${wid}:${placement.area}:${tx}:${ty}`);
+    if (tileHere) {
       if (tileHere.type === "water") {
         if (!movingDef?.bridge) throw new GameError("That is open water \u2014 only a bridge can sit there", 409);
       } else {
@@ -10509,7 +10973,7 @@ var MoveObject = class extends PublicEndpoint {
       throw new GameError("Bridges go over open water", 409);
     }
     await t.Placement.patch(placementId, { x: tx, y: ty });
-    const chest = await getOwnedChest(t, d, placementId, playerId);
+    const chest = await getOwnedChest(t, d, placementId, wid);
     if (chest) await t.Chest.patch(placementId, { x: tx, y: ty });
     return { ok: true, placement: { ...placement, x: tx, y: ty } };
   }
@@ -10519,12 +10983,13 @@ var RemoveObject = class extends PublicEndpoint {
     const { playerId, placementId } = await bodyOf(data);
     const t = db();
     const { player } = await requirePlayer(playerId);
-    const placement = await findOwned(t.Placement, playerId, placementId);
+    const wid = worldOf(player);
+    const placement = await findInWorld(t.Placement, wid, placementId);
     if (!placement) throw new GameError("Placement not found", 404);
     if (placement.objectId === "workbench") {
       throw new GameError("Your crafting station stays put \u2014 the preserve needs it");
     }
-    const chest = await findOwned(t.Chest, playerId, placementId);
+    const chest = await findInWorld(t.Chest, wid, placementId);
     if (chest && sumValues(chest.contents) > 0) {
       throw new GameError("Empty the chest before picking it up", 409);
     }
@@ -10538,7 +11003,7 @@ var RemoveObject = class extends PublicEndpoint {
       refunded = { ...def.plantCost };
       const capacity = inventoryCapacity(player);
       let carried = sumValues(inventory);
-      const chests = (await byPlayer(t.Chest, playerId)).filter((c) => c.id !== placementId);
+      const chests = (await byWorld(t.Chest, wid)).filter((c) => c.id !== placementId);
       for (const [resId, qty] of Object.entries(refunded)) {
         let remaining = qty;
         const toBasket = Math.min(remaining, Math.max(0, capacity - carried));
@@ -10573,12 +11038,12 @@ var RemoveObject = class extends PublicEndpoint {
     } else {
       await t.Player.patch(playerId, { craftedItems });
     }
-    const recalc = placement.area !== "home" ? await recalcBiome(playerId, placement.area, {
+    const recalc = placement.area !== "home" ? await recalcBiome(wid, playerId, placement.area, {
       removeIds: [placementId],
       player: { ...player, craftedItems, inventory }
     }) : null;
     await bumpMetrics(player, { objectsRemoved: 1, animalsReturned: recalc?.newAnimals?.length || 0 });
-    await awardAchievements(playerId, recalc ? { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] } : {});
+    await awardWorldAchievements(wid, playerId, recalc ? { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] } : {});
     return { ok: true, removed: placementId, craftedItems, refunded, ...recalc || {} };
   }
 };
@@ -10590,11 +11055,12 @@ var UpgradeTool = class extends PublicEndpoint {
     const { player } = await requirePlayer(playerId);
     const toolDef = d.tool.get(toolId);
     if (!toolDef) throw new GameError(`Unknown tool: ${toolId}`);
+    const wid = worldOf(player);
     const currentTier = player.tools?.[toolId] || 1;
     const nextTier = (toolDef.tiers || []).find((tt) => tt.tier === currentTier + 1);
     if (!nextTier) throw new GameError(`${toolDef.name} is already fully upgraded`);
     if (nextTier.requires?.biome) {
-      const bs = await findOwned(t.BiomeState, playerId, `${playerId}:${nextTier.requires.biome}`);
+      const bs = await findInWorld(t.BiomeState, wid, `${wid}:${nextTier.requires.biome}`);
       if ((bs?.health || 0) < (nextTier.requires.minHealth || 0)) {
         const biome = d.biome.get(nextTier.requires.biome);
         throw new GameError(
@@ -10603,11 +11069,11 @@ var UpgradeTool = class extends PublicEndpoint {
         );
       }
     }
-    const { usedFrom, inventory } = await consumeMaterials(player, nextTier.materials || {});
+    const { usedFrom, inventory } = await consumeMaterials(player, nextTier.materials || {}, wid);
     const tools = { ...player.tools || {}, [toolId]: nextTier.tier };
     await t.Player.patch(playerId, { tools });
-    const unlockedBiomes = await checkUnlocks(playerId, { player: { ...player, tools } });
-    const chests = await byPlayer(t.Chest, playerId);
+    const unlockedBiomes = await checkUnlocks(wid, playerId, { player: { ...player, tools } });
+    const chests = await byWorld(t.Chest, wid);
     await bumpMetrics(player, { toolsUpgraded: 1 });
     await awardAchievements(playerId);
     return { ok: true, tools, inventory, chests, usedFrom, unlockedBiomes, upgraded: { toolId, tier: nextTier.tier, name: nextTier.name } };
@@ -10618,6 +11084,7 @@ var UpgradeHome = class extends PublicEndpoint {
     const { playerId, track } = await bodyOf(data);
     const t = db();
     const { player } = await requirePlayer(playerId);
+    const wid = worldOf(player);
     const def = HOME_TRACKS[track];
     if (!def) throw new GameError("Unknown home upgrade");
     const home = homeOf(player);
@@ -10626,17 +11093,17 @@ var UpgradeHome = class extends PublicEndpoint {
     const next = def.levels[level];
     if (!next) throw new GameError(`Your home's ${def.name.toLowerCase()} is already at its finest.`);
     if (next.requires?.biome) {
-      const bs = await findOwned(t.BiomeState, playerId, `${playerId}:${next.requires.biome}`);
+      const bs = await findInWorld(t.BiomeState, wid, `${wid}:${next.requires.biome}`);
       if ((bs?.health || 0) < (next.requires.minHealth || 0)) {
         const d = await defs();
         const biome = d.biome.get(next.requires.biome);
         throw new GameError(`Restore ${biome?.name || next.requires.biome} to ${next.requires.minHealth}% health first`, 403);
       }
     }
-    const { usedFrom, inventory } = await consumeMaterials(player, next.materials || {});
+    const { usedFrom, inventory } = await consumeMaterials(player, next.materials || {}, wid);
     const updated = { ...home, [track]: level + 1 };
     await t.Player.patch(playerId, { home: updated });
-    const chests = await byPlayer(t.Chest, playerId);
+    const chests = await byWorld(t.Chest, wid);
     await awardAchievements(playerId);
     return { ok: true, home: updated, inventory, chests, usedFrom, upgraded: { track, level: level + 1, name: def.name } };
   }
@@ -10646,12 +11113,13 @@ var Rest = class extends PublicEndpoint {
   async post(data) {
     const { playerId } = await bodyOf(data);
     const t = db();
-    await requirePlayer(playerId);
-    const placements = await byPlayer(t.Placement, playerId);
+    const { player } = await requirePlayer(playerId);
+    const wid = worldOf(player);
+    const placements = await byWorld(t.Placement, wid);
     if (!placements.some((p) => SLEEP_OBJECTS.includes(p.objectId))) {
       throw new GameError("Craft and place a sleeping bag or bed in your home first.", 403);
     }
-    const nodes = await byPlayer(t.NodeState, playerId);
+    const nodes = await byWorld(t.NodeState, wid);
     for (const n of nodes) await t.NodeState.delete(n.id);
     return { ok: true, rested: true, refreshed: nodes.length };
   }
@@ -10679,7 +11147,7 @@ var SetPlacementColor = class extends PublicEndpoint {
     const { player } = await requirePlayer(playerId);
     if (!homeOf(player).styleLocked) throw new GameError("Build your home before you can repaint your things.", 403);
     if (!isHexColor(color)) throw new GameError("Invalid color");
-    const placement = await findOwned(t.Placement, playerId, placementId);
+    const placement = await findInWorld(t.Placement, worldOf(player), placementId);
     if (!placement) throw new GameError("That item is not here", 404);
     await t.Placement.patch(placementId, { color: String(color).trim().toLowerCase() });
     return { ok: true };
@@ -10694,18 +11162,19 @@ var SetHomeStyle = class extends PublicEndpoint {
     if (!styleDef) throw new GameError("Unknown home style");
     const home = homeOf(player);
     if (home.styleLocked) throw new GameError("Your home is already built \u2014 choose upgrades from here.", 403);
+    const wid = worldOf(player);
     if (styleDef.requires?.biome) {
-      const bs = await findOwned(t.BiomeState, playerId, `${playerId}:${styleDef.requires.biome}`);
+      const bs = await findInWorld(t.BiomeState, wid, `${wid}:${styleDef.requires.biome}`);
       if ((bs?.health || 0) < (styleDef.requires.minHealth || 0)) {
         const d = await defs();
         const biome = d.biome.get(styleDef.requires.biome);
         throw new GameError(`Restore ${biome?.name || styleDef.requires.biome} to ${styleDef.requires.minHealth}% health first`, 403);
       }
     }
-    const { usedFrom, inventory } = await consumeMaterials(player, styleDef.materials || {});
+    const { usedFrom, inventory } = await consumeMaterials(player, styleDef.materials || {}, wid);
     const updated = { ...home, style, styleLocked: true, space: 2 };
     await t.Player.patch(playerId, { home: updated });
-    const chests = await byPlayer(t.Chest, playerId);
+    const chests = await byWorld(t.Chest, wid);
     await awardAchievements(playerId);
     return { ok: true, home: updated, inventory, chests, usedFrom, built: HOME_STYLES[style].name };
   }
@@ -10716,7 +11185,8 @@ var ObserveAnimal = class extends PublicEndpoint {
     const t = db();
     const d = await defs();
     const { player } = await requirePlayer(playerId);
-    const disc = await t.Discovery.get(`${playerId}:${animalId}`);
+    const wid = worldOf(player);
+    const disc = await findInWorld(t.Discovery, wid, `${wid}:${animalId}`);
     if (!disc) throw new GameError("That animal has not returned yet", 404);
     const timesObserved = (disc.timesObserved || 0) + 1;
     await t.Discovery.patch(disc.id, { timesObserved });
@@ -10731,6 +11201,7 @@ var Terraform = class extends PublicEndpoint {
     const t = db();
     const d = await defs();
     const { player } = await requirePlayer(playerId);
+    const wid = worldOf(player);
     const biome = d.biome.get(area);
     if (!biome) throw new GameError("You can only shape the ground out in the preserve");
     if (!(player.unlockedBiomes || []).includes(area)) throw new GameError(`${biome.name} is not unlocked yet`, 403);
@@ -10739,12 +11210,12 @@ var Terraform = class extends PublicEndpoint {
     if (!Number.isFinite(tx) || !Number.isFinite(ty) || tx < 1 || ty < 1 || tx > 28 || ty > 18) {
       throw new GameError("That spot is out of reach");
     }
-    const placements = await byPlayer(t.Placement, playerId);
+    const placements = await byWorld(t.Placement, wid);
     if (placements.some((p) => p.area === area && p.x === tx && p.y === ty)) {
       throw new GameError("Something is already placed there");
     }
-    const tileId = `${playerId}:${area}:${tx}:${ty}`;
-    const existing = await findOwned(t.TerrainTile, playerId, tileId);
+    const tileId = `${wid}:${area}:${tx}:${ty}`;
+    const existing = await findInWorld(t.TerrainTile, wid, tileId);
     let inventory = player.inventory || {};
     let tile = null;
     let removedId;
@@ -10752,7 +11223,7 @@ var Terraform = class extends PublicEndpoint {
     if (action === "dig") {
       if ((player.tools?.shovel || 0) < 1) throw new GameError("You need your shovel for that");
       if (existing) throw new GameError("This ground is already prepared \u2014 water it, or clear it instead");
-      tile = { id: tileId, playerId, area, x: tx, y: ty, type: "tilled", updatedAt: Date.now() };
+      tile = { id: tileId, worldId: wid, playerId, area, x: tx, y: ty, type: "tilled", updatedAt: Date.now() };
       await t.TerrainTile.put(tile);
       const pool = biome.digResources || [];
       if (pool.length && Math.random() < DIG_FIND_CHANCE) {
@@ -10796,22 +11267,22 @@ var Terraform = class extends PublicEndpoint {
     } else {
       throw new GameError("action must be 'dig', 'water', or 'clear'");
     }
-    const recalc = await recalcBiome(playerId, area, {
+    const recalc = await recalcBiome(wid, playerId, area, {
       addTerrain: tile ? [tile] : [],
       removeTerrainIds: removedId ? [removedId] : [],
       player: { ...player, inventory }
     });
     await bumpMetrics(player, { terraformActions: 1, animalsReturned: recalc.newAnimals?.length || 0 });
-    await awardAchievements(playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
+    await awardWorldAchievements(wid, playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
     return { ok: true, tile, removedId, dug, inventory, ...recalc };
   }
 };
 var RecalcBiome = class extends PublicEndpoint {
   async post(data) {
     const { playerId, biomeId } = await bodyOf(data);
-    await requirePlayer(playerId);
-    const recalcResult = await recalcBiome(playerId, biomeId);
-    await awardAchievements(playerId, { addDiscoveries: recalcResult.newAnimals, freshBiomeStates: [recalcResult.biomeState] });
+    const { player } = await requirePlayer(playerId);
+    const recalcResult = await recalcBiome(worldOf(player), playerId, biomeId);
+    await awardWorldAchievements(worldOf(player), playerId, { addDiscoveries: recalcResult.newAnimals, freshBiomeStates: [recalcResult.biomeState] });
     return { ok: true, ...recalcResult };
   }
 };
@@ -10842,10 +11313,11 @@ var SyncPlayer = class extends PublicEndpoint {
       const visited = player.visitedBiomes || ["meadow"];
       if (!visited.includes(area)) patch.visitedBiomes = [...visited, area];
       if (STARTING_TERRAIN[area]) {
-        const hasTerrain = (await byPlayer(t.TerrainTile, playerId)).some((tt) => tt.area === area);
+        const wid = worldOf(player);
+        const hasTerrain = (await byWorld(t.TerrainTile, wid)).some((tt) => tt.area === area);
         if (!hasTerrain) {
-          await seedStartingTerrain(playerId, area);
-          await recalcBiome(playerId, area, { player });
+          await seedStartingTerrain(wid, playerId, area);
+          await recalcBiome(wid, playerId, area, { player });
         }
       }
     }
@@ -10857,7 +11329,8 @@ var SyncPlayer = class extends PublicEndpoint {
 var AppendFeed = class extends PublicEndpoint {
   async post(data) {
     const { playerId, entries } = await bodyOf(data);
-    await requirePlayer(playerId);
+    const { player } = await requirePlayer(playerId);
+    const wid = worldOf(player);
     const t = db();
     const list = Array.isArray(entries) ? entries.slice(0, FEED_CAP) : [];
     let added = 0;
@@ -10866,11 +11339,11 @@ var AppendFeed = class extends PublicEndpoint {
       if (!text) continue;
       const at = Number(e?.at) || Date.now();
       const icon = String(e?.icon || "leaf").slice(0, 40);
-      const id = `f_${playerId}_${at}_${Math.random().toString(36).slice(2, 9)}`;
-      await t.FeedEntry.put({ id, playerId, at, icon, text });
+      const id = `f_${wid}_${at}_${Math.random().toString(36).slice(2, 9)}`;
+      await t.FeedEntry.put({ id, worldId: wid, playerId, at, icon, text });
       added++;
     }
-    const all = (await byPlayer(t.FeedEntry, playerId)).sort((a, b) => (a.at || 0) - (b.at || 0));
+    const all = (await byWorld(t.FeedEntry, wid)).sort((a, b) => (a.at || 0) - (b.at || 0));
     if (all.length > FEED_CAP) {
       for (const old of all.slice(0, all.length - FEED_CAP)) await t.FeedEntry.delete(old.id);
     }
@@ -11021,6 +11494,17 @@ var Metrics = class extends PublicEndpoint {
       distribution,
       completionHistogram
     };
+    const allWorlds = await allOf(t.World);
+    const coopWorlds = allWorlds.filter((w) => !w.solo);
+    const coopIds = new Set(coopWorlds.map((w) => w.id));
+    const coopMembers = (await allOf(t.WorldMember)).filter((m) => coopIds.has(m.worldId));
+    const pendingJoins = (await allOf(t.JoinRequest)).filter((r) => r.status === "pending").length;
+    const coopSummary = {
+      coopWorlds: coopWorlds.length,
+      playersInCoop: new Set(coopMembers.map((m) => m.playerId)).size,
+      avgMembersPerCoopWorld: coopWorlds.length ? round1(coopMembers.length / coopWorlds.length) : 0,
+      pendingJoinRequests: pendingJoins
+    };
     return {
       generatedAt: now,
       summary: {
@@ -11050,6 +11534,7 @@ var Metrics = class extends PublicEndpoint {
         funnelPct,
         actionTotals,
         achievements: achievementsSummary,
+        coop: coopSummary,
         biomeBreakdown
       },
       players: views
@@ -11096,8 +11581,8 @@ var DevTools = class extends PublicEndpoint {
         for (const tt of (await byPlayer(t.TerrainTile, playerId)).filter((x) => x.area === ar)) {
           await t.TerrainTile.delete(tt.id);
         }
-        await seedStartingTerrain(playerId, ar);
-        await recalcBiome(playerId, ar, { player });
+        await seedStartingTerrain(playerId, playerId, ar);
+        await recalcBiome(playerId, playerId, ar, { player });
         log.push(`Reseeded starting terrain for ${ar}`);
         break;
       }
@@ -11108,7 +11593,7 @@ var DevTools = class extends PublicEndpoint {
           await t.TerrainTile.delete(tt.id);
           n++;
         }
-        await recalcBiome(playerId, ar, { player });
+        await recalcBiome(playerId, playerId, ar, { player });
         log.push(`Cleared ${n} terrain tiles in ${ar}`);
         break;
       }
@@ -11161,7 +11646,7 @@ var DevTools = class extends PublicEndpoint {
         unlocked.add(nextB.id);
         await t.Player.patch(playerId, { unlockedBiomes: [...unlocked] });
         await t.BiomeState.patch(`${playerId}:${nextB.id}`, { unlocked: true });
-        await seedStartingTerrain(playerId, nextB.id);
+        await seedStartingTerrain(playerId, playerId, nextB.id);
         log.push(`Unlocked the next area: ${nextB.name}`);
         break;
       }
@@ -11229,8 +11714,8 @@ var DevTools = class extends PublicEndpoint {
           await t.NodeState.delete(ns.id);
         }
         await t.BiomeState.patch(`${playerId}:${ar}`, { health: BASE_HEALTH, balance: 0, returnedCount: 0 });
-        await seedStartingTerrain(playerId, ar);
-        await recalcBiome(playerId, ar, { player });
+        await seedStartingTerrain(playerId, playerId, ar);
+        await recalcBiome(playerId, playerId, ar, { player });
         log.push(`Reset ${ar} to its damaged state \u2014 removed ${placementsRemoved} object${placementsRemoved === 1 ? "" : "s"} and sent ${animalsRemoved} animal${animalsRemoved === 1 ? "" : "s"} away (chests kept)`);
         break;
       }
@@ -11268,7 +11753,7 @@ var DevTools = class extends PublicEndpoint {
           });
           added++;
         }
-        await recalcBiome(playerId, ar, { player });
+        await recalcBiome(playerId, playerId, ar, { player });
         log.push(`Welcomed ${added} animal${added === 1 ? "" : "s"} to ${ar} (${here.length} total)`);
         break;
       }
@@ -11282,31 +11767,43 @@ export {
   AppendFeed,
   BiomeSnapshot,
   ChangePasscode,
+  CheckWorldCode,
   ChestTransfer,
   CollectResource,
   CraftItem,
   CreatePlayer,
+  CreateWorld,
   DeletePlayer,
   DevTools,
   DiscardItem,
   GameData,
   GameState,
   Heartbeat,
+  JoinRequestStatus,
+  JoinWorld,
+  LeaveWorld,
   LoginPlayer,
   Metrics,
   MoveObject,
+  MyWorlds,
   ObserveAnimal,
+  PendingJoinRequests,
   PlaceObject,
   Plant,
+  Presence,
   RecalcBiome,
   RemoveObject,
+  RequestJoin,
+  ResolveJoin,
   Rest,
   SetHomeColors,
   SetHomeStyle,
   SetPlacementColor,
+  SwitchWorld,
   SyncPlayer,
   Terraform,
   UpdateAppearance,
   UpgradeHome,
-  UpgradeTool
+  UpgradeTool,
+  WorldRoster
 };
