@@ -55,11 +55,32 @@ export interface SoloResult {
 	body: any;
 }
 
+// Single-writer queue. The LocalDb has no transactions, so two requests that
+// interleave at `await` points could each read state before the other's writes
+// land — e.g. two near-simultaneous recalcs both deciding the same animal just
+// "returned", spamming the feed and doing redundant work. Serializing requests
+// gives each one a consistent view (one committed write at a time), which is
+// exactly what a single-player local backend wants.
+let queue: Promise<any> = Promise.resolve();
+
 /**
- * Dispatch an HTTP-shaped request to the in-app server logic.
- * `path` is like '/GameState/foo' or '/CollectResource/'; `method` is GET/POST.
+ * Dispatch an HTTP-shaped request to the in-app server logic, serialized so
+ * requests never interleave. `path` is like '/GameState/foo' or
+ * '/CollectResource/'; `method` is GET/POST.
  */
-export async function soloRequest(path: string, method: string, body?: any): Promise<SoloResult> {
+export function soloRequest(path: string, method: string, body?: any): Promise<SoloResult> {
+	const run = () => dispatch(path, method, body);
+	const result = queue.then(run, run);
+	// Keep the chain alive even if a request rejects (dispatch never throws, but
+	// be defensive).
+	queue = result.then(
+		() => undefined,
+		() => undefined
+	);
+	return result;
+}
+
+async function dispatch(path: string, method: string, body?: any): Promise<SoloResult> {
 	const mod = await endpoints();
 	// Ensure a world exists so static reads (e.g. GameData on the title screen)
 	// work offline before any save is started. New/load reset this explicitly.

@@ -17,7 +17,13 @@ import animals1Data from '../../data/animals-1.json';
 import animals2Data from '../../data/animals-2.json';
 import achievementsData from '../../data/achievements.json';
 
-const clone = <T>(v: T): T => (v == null ? v : JSON.parse(JSON.stringify(v)));
+// Shallow copy only. Deep cloning every row on every read was the original
+// design, but the server does full-table scans on every action, so deep clones
+// (JSON parse/stringify) created huge GC churn that compounded as the world grew
+// and made long sessions lag. A shallow copy protects against the common case
+// (callers mutating a row's top-level fields) at a fraction of the cost; the
+// server writes changes back via put/patch rather than mutating reads in place.
+const copy = <T>(v: T): T => (v && typeof v === 'object' ? { ...(v as any) } : v);
 
 class LocalTable {
 	private rows = new Map<string, any>();
@@ -25,20 +31,20 @@ class LocalTable {
 	// Harper resolves get() to a stored record by primary key (or null).
 	async get(id: any): Promise<any | null> {
 		const rec = this.rows.get(String(id));
-		return rec ? clone(rec) : null;
+		return rec ? copy(rec) : null;
 	}
 
 	// put replaces the whole record (id taken from the record).
 	async put(record: any): Promise<void> {
 		if (!record || record.id == null) throw new Error('put() requires a record with an id');
-		this.rows.set(String(record.id), clone(record));
+		this.rows.set(String(record.id), copy(record));
 	}
 
 	// patch merges a partial into an existing record (shallow, like Harper).
 	async patch(id: any, partial: any): Promise<void> {
 		const key = String(id);
 		const cur = this.rows.get(key) || { id: key };
-		this.rows.set(key, { ...cur, ...clone(partial), id: cur.id ?? key });
+		this.rows.set(key, { ...cur, ...partial, id: cur.id ?? key });
 	}
 
 	async delete(id: any): Promise<void> {
@@ -46,19 +52,22 @@ class LocalTable {
 	}
 
 	// The server only ever calls search({}) / search({ select: ['id'] }) — full
-	// scans that it then filters in JS. Returning the rows array is enough; both
-	// `for await` and `for…of` iterate it.
+	// scans that it then filters in JS. Returns shallow copies; both `for await`
+	// and `for…of` iterate the array.
 	search(_query?: any): any[] {
-		return Array.from(this.rows.values()).map((r) => clone(r));
+		const out: any[] = [];
+		for (const r of this.rows.values()) out.push(copy(r));
+		return out;
 	}
 
 	// --- persistence helpers (dynamic tables only) ---
+	// Returned straight to JSON.stringify, so live refs are fine (no mutation).
 	dump(): any[] {
-		return Array.from(this.rows.values()).map((r) => clone(r));
+		return Array.from(this.rows.values());
 	}
 	load(records: any[]): void {
 		this.rows.clear();
-		for (const r of records || []) if (r && r.id != null) this.rows.set(String(r.id), clone(r));
+		for (const r of records || []) if (r && r.id != null) this.rows.set(String(r.id), r);
 	}
 	get size() {
 		return this.rows.size;

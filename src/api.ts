@@ -37,6 +37,48 @@ export function getSoloSlot(): SaveMeta | null {
 	return soloSlot;
 }
 
+// Throttled autosave: at most one write per window, always capturing the latest
+// state at fire time. Bounds data loss to the window length and avoids writing
+// the whole save on every single action.
+const SAVE_THROTTLE_MS = 1500;
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
+let savePending = false;
+
+function scheduleSoloSave() {
+	savePending = true;
+	if (saveTimer != null) return;
+	saveTimer = setTimeout(() => {
+		saveTimer = null;
+		if (savePending && soloSlot) {
+			savePending = false;
+			persistSolo(soloSlot).catch(() => {});
+		}
+	}, SAVE_THROTTLE_MS);
+}
+
+/** Force any pending solo save to disk now (on quit / tab hide / leaving play). */
+export async function flushSoloSave(): Promise<void> {
+	if (saveTimer != null) {
+		clearTimeout(saveTimer);
+		saveTimer = null;
+	}
+	if (savePending && soloSlot) {
+		savePending = false;
+		try {
+			await persistSolo(soloSlot);
+		} catch {
+			/* best effort */
+		}
+	}
+}
+
+if (typeof window !== 'undefined') {
+	window.addEventListener('beforeunload', () => void flushSoloSave());
+	document.addEventListener('visibilitychange', () => {
+		if (document.visibilityState === 'hidden') void flushSoloSave();
+	});
+}
+
 let currentPlayerId: string | null = null;
 
 export function setPlayerId(id: string | null) {
@@ -106,14 +148,10 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 			err.status = res.status;
 			throw err;
 		}
-		// Autosave the world after any mutating action.
-		if (method !== 'GET' && soloSlot && transport === 'solo') {
-			try {
-				await persistSolo(soloSlot);
-			} catch {
-				/* a failed autosave must not break the action */
-			}
-		}
+		// Autosave the world after any mutating action — throttled so frequent
+		// actions (movement sync, heartbeats) don't serialize+write the whole save
+		// every time. The trailing write captures the latest state.
+		if (method !== 'GET' && soloSlot && transport === 'solo') scheduleSoloSave();
 		return res.body as T;
 	}
 
@@ -257,6 +295,7 @@ export async function resumeSoloGame(slotId: string): Promise<{ playerId: string
 
 /** Leave the active solo game (back to the menu) and reset the transport. */
 export function exitSolo() {
+	void flushSoloSave(); // persist any pending throttled write before we drop it
 	setSoloSlot(null);
 	endSolo();
 	setTransport(isDesktop ? 'solo' : 'web');
