@@ -1724,7 +1724,7 @@ export class CreatePlayer extends PublicEndpoint {
 		if (!playerId) throw new GameError('That name needs at least one letter or number');
 
 		const existing = await safeGet(db().Player, playerId);
-		if (existing) throw new GameError('A save with that name already exists — try Load Game instead', 409);
+		if (existing) throw new GameError('A save with that name already exists', 409);
 
 		const created = await createPlayerRecords(playerId, cleanName, code, sanitizeAppearance(appearance));
 		// World plumbing must never block starting a save: if the World/WorldMember

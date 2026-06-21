@@ -220,6 +220,8 @@ export const api = {
 	recalc: (biomeId: string) => post<any>('/RecalcBiome/', { playerId: pid(), biomeId }),
 	dev: (action: string, args: Record<string, any> = {}) =>
 		post<any>('/DevTools/', { playerId: pid(), action, ...args }),
+	// Per-player metrics view (drives Steam Stats/Achievements on desktop).
+	metrics: (playerId?: string) => request<{ player: any }>(`/Metrics/${playerId ?? pid()}`),
 };
 
 // ---------------------------------------------------------------- solo saves

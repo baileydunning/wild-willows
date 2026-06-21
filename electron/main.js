@@ -13,6 +13,7 @@ const { app, BrowserWindow, shell, ipcMain } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
 const steam = require('./steam');
+const metricsSync = require('./metrics-sync');
 
 // Single instance only — two copies would fight over the same save files.
 if (!app.requestSingleInstanceLock()) {
@@ -103,6 +104,7 @@ function createWindow() {
 
 async function boot() {
 	steam.init(app); // no-op when not launched through Steam
+	metricsSync.start(); // listens for renderer metrics → Steam (no-op without Steam)
 	registerSaveIpc();
 	createWindow();
 	try {
@@ -129,6 +131,6 @@ app.on('activate', () => {
 	if (BrowserWindow.getAllWindows().length === 0) boot();
 });
 
-app.on('before-quit', () => { steam.shutdown(); });
+app.on('before-quit', () => { metricsSync.stop(); steam.shutdown(); });
 process.on('SIGINT', () => process.exit(0));
 process.on('SIGTERM', () => process.exit(0));

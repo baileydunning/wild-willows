@@ -182,7 +182,7 @@ export function WelcomeScreen() {
 									<Icon name="plus" /> <span>New Game</span>
 								</button>
 								<button className="big-btn" disabled={busy || !data || (soloLocal && !(slots && slots.length))} onClick={() => { setError(null); refreshSlots(); setMode('load'); }}>
-									<Icon name="folder" /> <span>{soloLocal && slots && slots.length ? `Load Game (${slots.length})` : 'Load Game'}</span>
+									<Icon name="folder" /> <span>Load Game</span>
 								</button>
 							</>
 						)}
