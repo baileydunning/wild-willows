@@ -3061,7 +3061,7 @@ var habitat_objects_default = {
     {
       id: "simple-path",
       name: "Stepping-Stone Path",
-      placement: "both",
+      placement: "outdoor",
       biomes: [
         "meadow",
         "forest",
@@ -3569,7 +3569,7 @@ var habitat_objects_default = {
     {
       id: "sea-glass-lantern",
       name: "Sea Glass Lantern",
-      placement: "both",
+      placement: "outdoor",
       biomes: [
         "coastal"
       ],
@@ -3595,7 +3595,7 @@ var habitat_objects_default = {
     {
       id: "pearl-display",
       name: "Pearl Display",
-      placement: "both",
+      placement: "outdoor",
       biomes: [
         "coastal"
       ],
@@ -3754,7 +3754,7 @@ var habitat_objects_default = {
     {
       id: "stone-lantern",
       name: "Stone Lantern",
-      placement: "both",
+      placement: "outdoor",
       biomes: [
         "meadow",
         "forest",
@@ -3772,7 +3772,7 @@ var habitat_objects_default = {
     {
       id: "wooden-bench",
       name: "Wooden Bench",
-      placement: "both",
+      placement: "outdoor",
       biomes: [
         "meadow",
         "forest",
@@ -3825,7 +3825,7 @@ var habitat_objects_default = {
     {
       id: "trail-signpost",
       name: "Trail Signpost",
-      placement: "both",
+      placement: "outdoor",
       biomes: [
         "meadow",
         "forest",
@@ -3843,7 +3843,7 @@ var habitat_objects_default = {
     {
       id: "planter-box",
       name: "Planter Box",
-      placement: "both",
+      placement: "outdoor",
       biomes: [
         "meadow",
         "forest",
@@ -3863,7 +3863,7 @@ var habitat_objects_default = {
     {
       id: "gazebo",
       name: "Gazebo",
-      placement: "both",
+      placement: "outdoor",
       biomes: [
         "meadow",
         "forest",
@@ -4378,7 +4378,7 @@ var habitat_objects_default = {
     {
       id: "crystal-cairn",
       name: "Crystal Cairn",
-      placement: "both",
+      placement: "outdoor",
       biomes: [
         "desert"
       ],
@@ -4391,7 +4391,7 @@ var habitat_objects_default = {
     {
       id: "sun-totem",
       name: "Sun Totem",
-      placement: "both",
+      placement: "outdoor",
       biomes: [
         "desert"
       ],
@@ -4765,7 +4765,7 @@ var habitat_objects_default = {
     {
       id: "sundial",
       name: "Sundial",
-      placement: "both",
+      placement: "outdoor",
       biomes: [
         "meadow",
         "forest",
@@ -4783,7 +4783,7 @@ var habitat_objects_default = {
     {
       id: "stone-cairn",
       name: "Stone Cairn",
-      placement: "both",
+      placement: "outdoor",
       biomes: [
         "meadow",
         "forest",
@@ -5114,7 +5114,7 @@ var habitat_objects_default = {
     {
       id: "summit-prayer-flags",
       name: "Summit Prayer Flags",
-      placement: "both",
+      placement: "outdoor",
       biomes: [
         "alpine"
       ],
@@ -5140,7 +5140,7 @@ var habitat_objects_default = {
     {
       id: "obsidian-totem",
       name: "Obsidian Totem",
-      placement: "both",
+      placement: "outdoor",
       biomes: [
         "alpine"
       ],
@@ -9204,9 +9204,10 @@ var HOME_TRACKS = {
     blurb: "A bigger room with more floor to decorate.",
     levels: [
       { inner: { w: 6, h: 5 } },
-      { inner: { w: 11, h: 8 }, materials: { branches: 12, fiber: 8 }, requires: { biome: "meadow", minHealth: 30 } },
-      { inner: { w: 15, h: 10 }, materials: { branches: 18, stones: 6, clay: 6 }, requires: { biome: "forest", minHealth: 45 } },
-      { inner: { w: 19, h: 12 }, materials: { branches: 24, clay: 10, "clean-water": 6 }, requires: { biome: "wetland", minHealth: 55 } }
+      // tent
+      { inner: { w: 8, h: 6 }, materials: { branches: 12, fiber: 8 }, requires: { biome: "meadow", minHealth: 30 } },
+      { inner: { w: 10, h: 7 }, materials: { branches: 18, stones: 6, clay: 6 }, requires: { biome: "forest", minHealth: 45 } },
+      { inner: { w: 12, h: 9 }, materials: { branches: 24, clay: 10, "clean-water": 6 }, requires: { biome: "wetland", minHealth: 55 } }
     ]
   },
   comfort: {
@@ -10655,6 +10656,35 @@ var Rest = class extends PublicEndpoint {
     return { ok: true, rested: true, refreshed: nodes.length };
   }
 };
+var isHexColor = (c) => typeof c === "string" && /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(c.trim());
+var SetHomeColors = class extends PublicEndpoint {
+  async post(data) {
+    const { playerId, colors } = await bodyOf(data);
+    const t = db();
+    const { player } = await requirePlayer(playerId);
+    const home = homeOf(player);
+    if (!home.styleLocked) throw new GameError("Build your home before you can repaint it.", 403);
+    const next = { ...home.colors };
+    for (const k of ["floor", "wall", "accent", "rug"]) {
+      if (colors?.[k] && isHexColor(colors[k])) next[k] = String(colors[k]).trim().toLowerCase();
+    }
+    await t.Player.patch(playerId, { home: { ...home, colors: next } });
+    return { ok: true };
+  }
+};
+var SetPlacementColor = class extends PublicEndpoint {
+  async post(data) {
+    const { playerId, placementId, color } = await bodyOf(data);
+    const t = db();
+    const { player } = await requirePlayer(playerId);
+    if (!homeOf(player).styleLocked) throw new GameError("Build your home before you can repaint your things.", 403);
+    if (!isHexColor(color)) throw new GameError("Invalid color");
+    const placement = await findOwned(t.Placement, playerId, placementId);
+    if (!placement) throw new GameError("That item is not here", 404);
+    await t.Placement.patch(placementId, { color: String(color).trim().toLowerCase() });
+    return { ok: true };
+  }
+};
 var SetHomeStyle = class extends PublicEndpoint {
   async post(data) {
     const { playerId, style } = await bodyOf(data);
@@ -11271,7 +11301,9 @@ export {
   RecalcBiome,
   RemoveObject,
   Rest,
+  SetHomeColors,
   SetHomeStyle,
+  SetPlacementColor,
   SyncPlayer,
   Terraform,
   UpdateAppearance,

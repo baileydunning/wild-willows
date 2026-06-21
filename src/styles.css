@@ -315,8 +315,9 @@ input {
 
 /* ---- top-right nav: key-letter overlays (mirrors the toolbelt) ---- */
 .hud-top-right .icon-btn { position: relative; }
-.nav-key {
-	position: absolute; bottom: -4px; right: -4px;
+/* one shared key-letter badge for the top-right nav AND the toolbelt */
+.nav-key, .tool-key {
+	position: absolute; bottom: -4px; right: -4px; left: auto; transform: none;
 	min-width: 15px; height: 15px; padding: 0 3px; box-sizing: border-box;
 	display: flex; align-items: center; justify-content: center;
 	font-size: 10px; font-weight: 800; line-height: 1;
@@ -514,6 +515,16 @@ kbd {
 	background: rgba(250, 245, 232, 0.94); border: 1.5px solid var(--line);
 	border-radius: 18px; box-shadow: 0 4px 16px rgba(33, 41, 25, 0.25);
 }
+.paint-palette {
+	position: absolute; left: 50%; transform: translateX(-50%); bottom: 132px; z-index: 12;
+	display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; padding: 7px 9px; max-width: 86vw;
+	background: rgba(250, 245, 232, 0.97); border: 1.5px solid var(--line);
+	border-radius: 14px; box-shadow: 0 4px 16px rgba(33, 41, 25, 0.25);
+}
+.paint-swatch { width: 22px; height: 22px; border-radius: 6px; border: 2px solid rgba(0, 0, 0, 0.15); cursor: pointer; padding: 0; }
+.paint-swatch:hover { transform: scale(1.12); }
+.paint-swatch.on { border-color: var(--ink); box-shadow: 0 0 0 2px var(--gold); }
+.tool-tier.paint-dot { border: 1.5px solid rgba(255, 255, 255, 0.85); }
 .tool-slot {
 	position: relative;
 	width: 46px; height: 46px; padding: 0; border-radius: 14px;
@@ -528,14 +539,6 @@ kbd {
 	background: var(--gold); color: #fff;
 	display: flex; align-items: center; justify-content: center;
 	border: 1.5px solid #fff;
-}
-.tool-key {
-	position: absolute; bottom: -4px; right: -3px;
-	min-width: 15px; height: 15px; padding: 0 3px;
-	border-radius: 6px; background: #fff;
-	border: 1px solid var(--line);
-	font-size: 9.5px; font-weight: 700; color: var(--ink-soft);
-	display: flex; align-items: center; justify-content: center;
 }
 .tool-slot.on .tool-key { background: var(--green-deep); color: #fff; border-color: var(--green-deep); }
 .belt-divider { width: 1.5px; align-self: stretch; background: var(--line); margin: 2px 3px; }

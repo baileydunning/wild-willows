@@ -191,6 +191,16 @@ const PATHS: Record<string, React.ReactNode> = {
 		</>
 	),
 	star: <path d="M12 3.5 14.6 9.2 21 10 16.3 14.3 17.6 20.5 12 17.3 6.4 20.5 7.7 14.3 3 10 9.4 9.2Z" />,
+	paint: (
+		<>
+			{/* wooden handle */}
+			<path d="M19.4 3.2 L20.8 4.6 L13.9 11.5 L12.5 10.1 Z" fill="currentColor" />
+			{/* metal ferrule + filled bristle head dipping to a paint tip */}
+			<path d="M12.5 10.1 L13.9 11.5 L10.1 15.3 a3.4 3.4 0 0 1 -2.3 1 L5.6 16.4 L5.7 14.5 a3.4 3.4 0 0 1 1 -2.3 Z" fill="currentColor" />
+			{/* a little painted swoosh under the brush */}
+			<path d="M4.4 18.8 c1.5 1.1 3.2 1.1 4.6 -0.1" />
+		</>
+	),
 	sliders: (
 		<>
 			<path d="M4 7h8M16 7h4M4 12h4M12 12h8M4 17h10M18 17h2" />

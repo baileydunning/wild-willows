@@ -143,6 +143,12 @@ function GameScreen() {
 			bridge.on('open-journal', () => setPanel('journal')),
 			bridge.on('open-home', () => setPanel('home')),
 			bridge.on('rest', () => game.rest()),
+			bridge.on('paint-click', (p: any) => {
+				if (p?.placementId) game.paintPlacement(p.placementId, game.paintColor);
+				else if (p?.target === 'wall') game.paintHome('wall', game.paintColor);
+				else if (p?.target === 'rug') game.paintHome('rug', game.paintColor);
+				else game.paintHome('floor', game.paintColor);
+			}),
 			bridge.on('animal-clicked', (p: any) => game.observe(p.animalId)),
 			bridge.on('request-area', (p: any) => game.changeArea(p.area)),
 			bridge.on('plant-matured', (area: any) => game.recalcArea(area)),
@@ -206,7 +212,7 @@ function GameScreen() {
 			const map: Record<string, any> = { b: 'inventory', i: 'inventory', j: 'journal', k: 'achievements', f: 'feed', t: 'tools', p: 'biomes', g: 'settings', c: 'crafting' };
 			if (map[k]) setPanel(panel === map[k] ? null : map[k]);
 			// number keys select toolbelt tools
-			const toolByKey: Record<string, string> = { '1': 'basket', '2': 'shovel', '3': 'watering-can' };
+			const toolByKey: Record<string, string> = { '1': 'basket', '2': 'shovel', '3': 'watering-can', '4': 'paint' };
 			if (toolByKey[k]) game.setSelectedTool(toolByKey[k]);
 		};
 		window.addEventListener('keydown', onKey);

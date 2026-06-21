@@ -151,6 +151,8 @@ export interface HomeConfig {
 	light: number;
 	/** Once you make your first upgrade, your style direction locks in. */
 	styleLocked?: boolean;
+	/** Custom interior colors painted over the style palette (paint tool). */
+	colors?: { floor?: string; wall?: string; accent?: string; rug?: string };
 }
 
 export interface AppearanceOptions {
@@ -240,6 +242,8 @@ export interface Placement {
 	x: number;
 	y: number;
 	plantedAt?: number;
+	/** Optional per-item recolor (paint tool, home only). */
+	color?: string;
 }
 
 export interface Discovery {

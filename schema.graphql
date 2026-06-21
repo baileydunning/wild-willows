@@ -107,6 +107,7 @@ type Placement @table(database: "wildwillows") {
 	x: Int
 	y: Int
 	placedAt: Float
+	color: String # optional per-item recolor (the paint tool, home only)
 }
 
 type Discovery @table(database: "wildwillows") {

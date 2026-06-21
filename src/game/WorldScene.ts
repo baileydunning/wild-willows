@@ -122,8 +122,13 @@ export class WorldScene extends Phaser.Scene {
 		const x0 = Math.floor((OUT_W - inner.w) / 2);
 		const y0 = Math.floor((OUT_H - inner.h) / 2);
 		const x1 = x0 + inner.w - 1, y1 = y0 + inner.h - 1;
+		const colors = home.colors || {};
 		return {
-			x0, y0, x1, y1, floor: style.floor, wall: style.wall, accent: style.accent,
+			x0, y0, x1, y1,
+			floor: colors.floor || style.floor,
+			wall: colors.wall || style.wall,
+			accent: colors.accent || style.accent,
+			rug: colors.rug || colors.accent || style.accent,
 			decor: home.decor || 1, light: home.light || 1,
 			doorX: Math.round((x0 + x1) / 2), doorY: y1,
 		};
@@ -175,10 +180,13 @@ export class WorldScene extends Phaser.Scene {
 		this.cameras.main.setBackgroundColor('#26301f');
 		this.applyZoom();
 		this.scale.on('resize', () => this.applyZoom());
-		this.drawGround();
 
+		// groups must exist before drawGround(): the home room is now drawn into the
+		// dynamic group so it can be repainted live when you use the paint tool.
 		this.dynamic = this.add.group();
 		this.animals = this.add.group();
+
+		this.drawGround();
 		const playerKey = makePlayerTexture(this, bridge.shared.state?.player.appearance);
 		this.playerShadow = this.add.image(0, 0, 'shadow').setDepth(2);
 		this.player = this.add.image(0, 0, playerKey).setDepth(1000);
@@ -260,6 +268,7 @@ export class WorldScene extends Phaser.Scene {
 				if (this.alive) this.player.setTexture(makePlayerTexture(this, appearance));
 			})
 		);
+		this.unsubs.push(bridge.on('home-upgraded', () => this.playBuild()));
 		this.unsubs.push(bridge.on('tool-selected', (toolId: string) => (this.activeTool = toolId)));
 		this.unsubs.push(bridge.on('mobile-interact', () => this.nearestInteractable()?.action()));
 		this.unsubs.push(bridge.on('collected', (p: any) => this.playPickup(p)));
@@ -281,6 +290,28 @@ export class WorldScene extends Phaser.Scene {
 		this.input.on('pointerdown', (pointer: Phaser.Input.Pointer, over: any[]) => {
 			const tx = Math.floor(pointer.worldX / TILE);
 			const ty = Math.floor(pointer.worldY / TILE);
+			// paint tool (indoors): recolor whatever you click — an item, the rug,
+			// the walls, or the floor underneath.
+			if (this.activeTool === 'paint' && this.isHome) {
+				const hit = (bridge.shared.state?.placements || []).find((p) => p.area === 'home' && p.x === tx && p.y === ty);
+				if (hit) { bridge.emit('paint-click', { placementId: hit.id }); return; }
+				const r = this.homeRoom();
+				const inFloor = tx >= r.x0 && tx <= r.x1 && ty >= r.y0 && ty <= r.y1;
+				const inRing = tx >= r.x0 - 1 && tx <= r.x1 + 1 && ty >= r.y0 - 1 && ty <= r.y1 + 1;
+				if (!inFloor && inRing) { bridge.emit('paint-click', { target: 'wall' }); return; }
+				if (inFloor) {
+					// rug hit-test mirrors how drawHomeRoom lays the centre rug out
+					const fx = r.x0 * TILE, fy = r.y0 * TILE;
+					const fw = (r.x1 - r.x0 + 1) * TILE, fh = (r.y1 - r.y0 + 1) * TILE;
+					const rugW = Math.min(fw - TILE * 2, TILE * (3 + r.decor));
+					const rugH = Math.min(fh - TILE * 2, TILE * (2 + r.decor * 0.5));
+					const cx = fx + fw / 2, cy = fy + fh / 2;
+					const onRug = r.decor >= 2 &&
+						Math.abs(pointer.worldX - cx) <= rugW / 2 && Math.abs(pointer.worldY - cy) <= rugH / 2;
+					bridge.emit('paint-click', onRug ? { target: 'rug' } : { target: 'floor' });
+				}
+				return;
+			}
 			if (this.movingPlacementId) {
 				if (this.canPlaceAt(tx, ty, false, this.movingPlacementId)) {
 					bridge.emit('move-to', { placementId: this.movingPlacementId, x: tx, y: ty });
@@ -386,31 +417,31 @@ export class WorldScene extends Phaser.Scene {
 	private drawHomeRoom() {
 		const r = this.homeRoom();
 		// dark surround outside the room
-		this.add.rectangle(0, 0, this.worldW, this.worldH, C('#1c2216')).setOrigin(0, 0).setDepth(0);
+		this.addDyn(this.add.rectangle(0, 0, this.worldW, this.worldH, C('#1c2216')).setOrigin(0, 0).setDepth(0));
 		// wall ring (one tile thick around the floor)
 		const wx = (r.x0 - 1) * TILE, wy = (r.y0 - 1) * TILE;
 		const ww = (r.x1 - r.x0 + 3) * TILE, wh = (r.y1 - r.y0 + 3) * TILE;
-		this.add.rectangle(wx, wy, ww, wh, C(r.wall)).setOrigin(0, 0).setDepth(0.1);
-		this.add.rectangle(wx, wy, ww, TILE, 0x000000, 0.18).setOrigin(0, 0).setDepth(0.12); // back-wall shadow
+		this.addDyn(this.add.rectangle(wx, wy, ww, wh, C(r.wall)).setOrigin(0, 0).setDepth(0.1));
+		this.addDyn(this.add.rectangle(wx, wy, ww, TILE, 0x000000, 0.18).setOrigin(0, 0).setDepth(0.12)); // back-wall shadow
 		// floor
 		const fx = r.x0 * TILE, fy = r.y0 * TILE;
 		const fw = (r.x1 - r.x0 + 1) * TILE, fh = (r.y1 - r.y0 + 1) * TILE;
-		this.add.rectangle(fx, fy, fw, fh, C(r.floor)).setOrigin(0, 0).setDepth(0.2);
+		this.addDyn(this.add.rectangle(fx, fy, fw, fh, C(r.floor)).setOrigin(0, 0).setDepth(0.2));
 		// faint plank grid
-		for (let gx = r.x0; gx <= r.x1 + 1; gx++) this.add.rectangle(gx * TILE, fy, 1, fh, 0x000000, 0.06).setOrigin(0, 0).setDepth(0.21);
-		for (let gy = r.y0; gy <= r.y1 + 1; gy++) this.add.rectangle(fx, gy * TILE, fw, 1, 0x000000, 0.06).setOrigin(0, 0).setDepth(0.21);
+		for (let gx = r.x0; gx <= r.x1 + 1; gx++) this.addDyn(this.add.rectangle(gx * TILE, fy, 1, fh, 0x000000, 0.06).setOrigin(0, 0).setDepth(0.21));
+		for (let gy = r.y0; gy <= r.y1 + 1; gy++) this.addDyn(this.add.rectangle(fx, gy * TILE, fw, 1, 0x000000, 0.06).setOrigin(0, 0).setDepth(0.21));
 
 		// Furnishings track: a wall trim line + a centre rug that gets finer per level
 		if (r.decor >= 1) {
-			this.add.rectangle(wx, wy + TILE - 2, ww, 3, C(r.accent), 0.5).setOrigin(0, 0).setDepth(0.13);
+			this.addDyn(this.add.rectangle(wx, wy + TILE - 2, ww, 3, C(r.accent), 0.5).setOrigin(0, 0).setDepth(0.13));
 		}
 		if (r.decor >= 2) {
 			const rugW = Math.min(fw - TILE * 2, TILE * (3 + r.decor));
 			const rugH = Math.min(fh - TILE * 2, TILE * (2 + r.decor * 0.5));
 			const cx = fx + fw / 2, cy = fy + fh / 2;
-			this.add.rectangle(cx, cy, rugW, rugH, C(r.accent), 0.7).setDepth(0.22);
-			this.add.rectangle(cx, cy, rugW - 10, rugH - 10, C(r.floor), 0.5).setDepth(0.221);
-			if (r.decor >= 3) this.add.rectangle(cx, cy, rugW - 22, rugH - 22, C(r.accent), 0.55).setDepth(0.222);
+			this.addDyn(this.add.rectangle(cx, cy, rugW, rugH, C(r.rug), 0.8).setDepth(0.22));
+			this.addDyn(this.add.rectangle(cx, cy, rugW - 10, rugH - 10, C(r.floor), 0.35).setDepth(0.221));
+			if (r.decor >= 3) this.addDyn(this.add.rectangle(cx, cy, rugW - 22, rugH - 22, C(r.rug), 0.6).setDepth(0.222));
 		}
 
 		// Warmth track: windows along the back wall + a soft hearth glow
@@ -418,21 +449,21 @@ export class WorldScene extends Phaser.Scene {
 			const windows = r.light; // 2 → two windows, 3 → three, 4 → four
 			for (let i = 0; i < windows; i++) {
 				const wxp = fx + fw * ((i + 1) / (windows + 1));
-				this.add.rectangle(wxp, wy + TILE / 2, TILE * 0.7, TILE * 0.6, C('#cfe6f2'), 0.85).setDepth(0.14);
-				this.add.rectangle(wxp, wy + TILE / 2, TILE * 0.7, TILE * 0.6).setStrokeStyle(2, C('#000000'), 0.25).setDepth(0.141);
+				this.addDyn(this.add.rectangle(wxp, wy + TILE / 2, TILE * 0.7, TILE * 0.6, C('#cfe6f2'), 0.85).setDepth(0.14));
+				this.addDyn(this.add.rectangle(wxp, wy + TILE / 2, TILE * 0.7, TILE * 0.6).setStrokeStyle(2, C('#000000'), 0.25).setDepth(0.141));
 			}
 		}
 		if (r.light >= 3) {
-			const glow = this.add.image(fx + TILE, fy + fh - TILE, 'glow').setTint(0xffcf80).setDepth(0.23).setScale(1.6).setAlpha(0.5);
+			const glow = this.addDyn(this.add.image(fx + TILE, fy + fh - TILE, 'glow').setTint(0xffcf80).setDepth(0.23).setScale(1.6).setAlpha(0.5));
 			glow.setBlendMode(Phaser.BlendModes.ADD);
 			this.tweens.add({ targets: glow, alpha: { from: 0.5, to: 0.32 }, duration: 1400, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
 		}
 
 		// door on the bottom wall, with a welcome mat just inside it
 		const dpx = r.doorX * TILE + 16;
-		this.add.rectangle(dpx, (r.y1 + 1) * TILE + 16, TILE * 0.82, TILE * 1.1, C('#33251a')).setDepth(0.3);
-		this.add.rectangle(dpx, (r.y1 + 1) * TILE + 14, TILE * 0.6, TILE * 0.92, C('#5a3f28')).setDepth(0.31);
-		this.add.rectangle(dpx, r.doorY * TILE + 16, TILE * 0.95, TILE * 0.55, C(r.accent)).setDepth(0.25).setAlpha(0.7);
+		this.addDyn(this.add.rectangle(dpx, (r.y1 + 1) * TILE + 16, TILE * 0.82, TILE * 1.1, C('#33251a')).setDepth(0.3));
+		this.addDyn(this.add.rectangle(dpx, (r.y1 + 1) * TILE + 14, TILE * 0.6, TILE * 0.92, C('#5a3f28')).setDepth(0.31));
+		this.addDyn(this.add.rectangle(dpx, r.doorY * TILE + 16, TILE * 0.95, TILE * 0.55, C(r.accent)).setDepth(0.25).setAlpha(0.7));
 	}
 
 	/** Refresh the home interior: just your placed decor + the exit door. */
@@ -440,6 +471,7 @@ export class WorldScene extends Phaser.Scene {
 		this.waterTiles = new Set();
 		this.waterTileCenters = [];
 		this.bridgeTiles = new Set();
+		this.drawHomeRoom(); // repaint floor/walls/rug so live recolors show immediately
 		this.drawPlacements();
 		const r = this.homeRoom();
 		// the door back out, bottom-center (the upgrade sign lives outside, by the tent)
@@ -593,6 +625,7 @@ export class WorldScene extends Phaser.Scene {
 			this.addDyn(this.add.zone(it.x, it.y, 44, 46).setOrigin(0.5).setInteractive({ useHandCursor: true }));
 		target.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
 			if (this.placementObjectId || this.movingPlacementId) return;
+			if (this.activeTool === 'paint' && this.isHome) return; // painting takes over clicks indoors
 			// Only ground tiles (watered beds) let terraform clicks pass through to
 			// the soil beneath (flooding/clearing). Chests, nodes, and stations always
 			// run their own action — holding the shovel or can no longer turns
@@ -646,21 +679,34 @@ export class WorldScene extends Phaser.Scene {
 		if (this.area === 'meadow') {
 			// base camp: tent + flickering campfire (the workbench/chest are placements)
 			const tx2 = CAMP.tent.x * TILE, ty2 = CAMP.tent.y * TILE;
-			this.addDyn(this.add.image(tx2, ty2 + 22, 'shadow').setDepth(3).setScale(2.0, 1.1));
-			this.addDyn(this.add.image(tx2, ty2, 'tent').setDepth(ty2));
+			// the camp building reflects your home: a tent until you build it, then your
+			// chosen style, growing a little as Space is upgraded
+			const homeC: any = state?.player?.home;
+			const built = !!homeC?.styleLocked;
+			const wantKey = built ? `home-${homeC.style}` : 'tent';
+			const homeKey = this.textures.exists(wantKey) ? wantKey : 'tent';
+			// the camp building grows gradually: a small tent, then each Space level a bit bigger
+			const homeScale = built ? 1 + Math.max(0, (homeC.space || 2) - 2) * 0.1 : 0.85;
+			this.addDyn(this.add.image(tx2, ty2 + 22, 'shadow').setDepth(3).setScale(2.0 * homeScale, 1.1));
+			this.addDyn(this.add.image(tx2, ty2, homeKey).setDepth(ty2).setScale(homeScale));
 			// step inside your home to decorate it
 			this.registerInteractable({
 				x: tx2, y: ty2 + 8, label: 'Step inside your home (E)',
 				action: () => bridge.emit('request-area', { area: 'home' }),
 			});
-			// a signpost just to the left of the tent door opens the home-upgrade panel
-			const sgx = (CAMP.tent.x - 1.2) * TILE, sgy = (CAMP.tent.y + 1.1) * TILE;
-			this.addDyn(this.add.image(sgx, sgy + 16, 'shadow').setDepth(3).setScale(0.9, 0.7));
-			this.addDyn(this.add.image(sgx, sgy, 'sign').setDepth(sgy));
-			this.registerInteractable({
-				x: sgx, y: sgy, label: 'Upgrade your home (E)',
-				action: () => bridge.emit('open-home'),
-			});
+			// the upgrade signpost — shown only while something's left to upgrade
+			const tracks = bridge.shared.data?.homeTracks as any;
+			const fullyUpgraded = built && tracks &&
+				['space', 'comfort', 'decor', 'light'].every((k) => (homeC[k] || 1) >= (tracks[k]?.levels.length || 1));
+			if (!fullyUpgraded) {
+				const sgx = (CAMP.tent.x - 1.2) * TILE, sgy = (CAMP.tent.y + 1.1) * TILE;
+				this.addDyn(this.add.image(sgx, sgy + 16, 'shadow').setDepth(3).setScale(0.9, 0.7));
+				this.addDyn(this.add.image(sgx, sgy, 'sign').setDepth(sgy));
+				this.registerInteractable({
+					x: sgx, y: sgy, label: 'Upgrade your home (E)',
+					action: () => bridge.emit('open-home'),
+				});
+			}
 			const fx = CAMP.fire.x * TILE, fy = CAMP.fire.y * TILE;
 			const fireGlow = this.addDyn(this.add.image(fx, fy - 4, 'glow').setTint(0xffb84f).setDepth(fy - 1).setScale(1.3));
 			(fireGlow as Phaser.GameObjects.Image).setBlendMode(Phaser.BlendModes.ADD);
@@ -1062,6 +1108,35 @@ export class WorldScene extends Phaser.Scene {
 		this.floatText(x, y - 16, p.action === 'water' ? 'Watered!' : p.action === 'dig' ? 'Soil bed ready' : 'Cleared', '#fff7dd');
 	}
 
+	/** A ~3s construction flourish on the camp building when the home is built/upgraded. */
+	private playBuild() {
+		if (!this.alive || this.area !== 'meadow') return; // the camp building lives in the meadow
+		const bx = CAMP.tent.x * TILE, by = CAMP.tent.y * TILE;
+		// a tarp drops over the building while "construction" happens, then lifts
+		const tarp = this.add.rectangle(bx, by - 4, 86, 74, C('#cdbb94'), 0.9).setDepth(by + 60);
+		this.tweens.add({ targets: tarp, alpha: { from: 0, to: 0.9 }, duration: 250 });
+		// sawdust puffs + sparkles kicking up around the base
+		const puffs = this.time.addEvent({
+			delay: 150, loop: true, callback: () => {
+				if (!this.alive) return;
+				const d = this.add.image(bx + (Math.random() - 0.5) * 64, by + 22 + (Math.random() - 0.5) * 16, 'glow')
+					.setTint(0xe6d2a4).setDepth(by + 70).setScale(0.45).setAlpha(0.75).setBlendMode(Phaser.BlendModes.ADD);
+				this.tweens.add({ targets: d, y: d.y - 20, alpha: 0, scale: 0.8, duration: 620, ease: 'Sine.easeOut', onComplete: () => d.destroy() });
+			},
+		});
+		const hammer = this.time.addEvent({ delay: 800, loop: true, callback: () => { if (this.alive) this.floatText(bx + (Math.random() - 0.5) * 30, by - 26, 'tap tap', '#fff7dd'); } });
+		this.floatText(bx, by - 34, 'Building…', '#fff7dd');
+		this.time.delayedCall(3000, () => {
+			puffs.remove();
+			hammer.remove();
+			if (!this.alive) { tarp.destroy(); return; }
+			// lift the tarp to reveal the finished building, and give it a happy little pop
+			this.tweens.add({ targets: tarp, alpha: 0, y: by - 40, duration: 500, ease: 'Sine.easeIn', onComplete: () => tarp.destroy() });
+			this.floatText(bx, by - 34, 'Done! ✨', '#d8eec2');
+			bridge.emit('world-dirty'); // ensure the finished building is drawn
+		});
+	}
+
 	/** Climb into the bed/bag, dim the room, snooze ~3s, then refresh the preserve. */
 	private sleepAt(bx: number, by: number) {
 		if (this.sleeping) return;
@@ -1155,11 +1230,14 @@ export class WorldScene extends Phaser.Scene {
 				const v = Math.round(255 * shade);
 				img.setTint((v << 16) | (v << 8) | v);
 			}
+			// paint-tool recolor: a per-item color override wins over the default tint
+			if (p.color) img.setTint(Phaser.Display.Color.HexStringToColor(p.color).color);
 
 			img.setInteractive({ useHandCursor: true });
 			const hasPrimaryAction = isFixture;
 			img.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
 				if (this.placementObjectId || this.movingPlacementId) return;
+				if (this.activeTool === 'paint' && this.isHome) return; // painting handled globally
 				// shovel digs planted things back up — materials are refunded
 				if (this.terraformAction() === 'dig' && def.plantable && p.plantedAt) {
 					const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, x, y);
@@ -1476,13 +1554,21 @@ export class WorldScene extends Phaser.Scene {
 		// open water blocks walking — unless a bridge spans that tile. On Pelican
 		// Shore the ocean band along the east edge is always impassable.
 		const blocked = (px: number, py: number) => {
-			// indoors: the walls (anything off the floor) block movement
+			// indoors: the walls (anything off the floor) block movement — but the
+			// door threshold (one tile below the floor, centred) is walkable so you
+			// can step right up to the door before leaving.
 			if (this.isHome) {
 				const r = this.homeRoom();
 				const tx = Math.floor(px / TILE), ty = Math.floor((py + 8) / TILE);
+				if (tx === r.doorX && ty === r.y1 + 1) return false;
 				return tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1;
 			}
 			if (this.area === 'coastal' && Math.floor(px / TILE) >= this.landRight) return true;
+			// the camp building (tent/house) is solid — walk around it, not through it
+			if (this.area === 'meadow') {
+				const hx = Math.floor(px / TILE), hy = Math.floor((py + 8) / TILE);
+				if (hx >= 5 && hx <= 7 && hy >= 3 && hy <= 5) return true;
+			}
 			const key = `${Math.floor(px / TILE)},${Math.floor((py + 8) / TILE)}`;
 			return this.waterTiles.has(key) && !this.bridgeTiles.has(key);
 		};

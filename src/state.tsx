@@ -62,6 +62,10 @@ interface Ctx {
 	upgradeHome: (track: string) => Promise<void>;
 	setHomeStyle: (style: string) => Promise<void>;
 	rest: () => Promise<void>;
+	paintColor: string;
+	setPaintColor: (c: string) => void;
+	paintHome: (part: 'floor' | 'wall' | 'rug', color: string) => Promise<void>;
+	paintPlacement: (placementId: string, color: string) => Promise<void>;
 	observe: (animalId: string) => Promise<void>;
 	changeArea: (area: string) => Promise<void>;
 	recalcArea: (area: string) => Promise<void>;
@@ -88,6 +92,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	const [log, setLog] = useState<LogEntry[]>([]);
 	const [feedLog, setFeedLog] = useState<LogEntry[]>([]);
 	const [selectedTool, setSelectedToolState] = useState('basket');
+	const [paintColor, setPaintColor] = useState('#c8a064');
 	const saveTimer = useRef<number | null>(null);
 	const logSeq = useRef(1);
 	// Tracks which recipes were unlocked last time we looked, so we can announce
@@ -165,8 +170,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		const sig = h ? `${h.style}:${h.space}:${h.comfort}:${h.decor}:${h.light}` : 'default';
 		const prev = prevHomeSig.current;
 		prevHomeSig.current = sig;
-		if (prev !== null && sig !== prev && state.player.area === 'home') {
-			bridge.emit('area-changed', 'home');
+		if (prev !== null && sig !== prev) {
+			if (state.player.area === 'home') bridge.emit('area-changed', 'home'); // redraw the room
+			else bridge.emit('home-upgraded'); // play the build animation on the camp building
 		}
 	}, [state]);
 
@@ -584,6 +590,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		(style: string) => act(() => api.setHomeStyle(style), (r) => toast(`You built your ${r?.built || 'home'}!`, 'unlock')),
 		[act, toast]
 	);
+	const paintHome = useCallback((part: 'floor' | 'wall' | 'rug', color: string) => act(() => api.setHomeColors({ [part]: color })), [act]);
+	const paintPlacement = useCallback((placementId: string, color: string) => act(() => api.setPlacementColor(placementId, color)), [act]);
 	const rest = useCallback(
 		() => act(() => api.rest(), () => {
 			toast('You sleep soundly — every gathering spot has regrown.', 'unlock');
@@ -654,13 +662,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			log, feedLog, selectedTool, setSelectedTool, terraform, plant, setTutorialStep,
 			startNew, startLogin, continueLast, logout,
 			refresh, collect, transfer, craft, discard, place, removePlacement, movePlacement,
-			upgradeTool, upgradeHome, setHomeStyle, rest, observe, changeArea, recalcArea,
+			upgradeTool, upgradeHome, setHomeStyle, rest, paintColor, setPaintColor, paintHome, paintPlacement,
+			observe, changeArea, recalcArea,
 		}),
 		[data, state, dataError, saveStatus, panel, helpOpen, activeChestId, animalCardId,
 			placementObjectId, toasts, toast, dismissToast, log, feedLog, selectedTool, setSelectedTool, terraform, plant,
 			setTutorialStep, startNew, startLogin, continueLast, logout,
 			refresh, collect, transfer, craft, discard, place, removePlacement, movePlacement, upgradeTool,
-			observe, changeArea, recalcArea, openChest, startPlacement, cancelPlacement, upgradeHome, setHomeStyle, rest]
+			observe, changeArea, recalcArea, openChest, startPlacement, cancelPlacement, upgradeHome, setHomeStyle, rest,
+			paintColor, setPaintColor, paintHome, paintPlacement]
 	);
 
 	return <GameCtx.Provider value={value}>{children}</GameCtx.Provider>;

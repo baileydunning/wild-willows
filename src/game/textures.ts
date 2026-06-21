@@ -72,6 +72,34 @@ export function makeBaseTextures(scene: Phaser.Scene) {
 		g.fillStyle(C('#6a4a3a'), 1).fillTriangle(32, 12, 22, 48, 42, 48); // opening
 		g.lineStyle(2, C('#8c6a42'), 1).lineBetween(32, 4, 32, 0);
 	});
+	// Home exteriors — what the meadow camp building looks like once you've built it.
+	tex(scene, 'home-cabin', 66, 58, (g) => {
+		g.fillStyle(C('#6e4a33'), 1).fillRect(8, 26, 50, 30); // log walls
+		g.lineStyle(1, C('#5a3a26'), 0.7); for (let y = 31; y < 56; y += 6) g.lineBetween(8, y, 58, y);
+		g.fillStyle(C('#4a3322'), 1).fillTriangle(2, 28, 33, 5, 64, 28); // roof
+		g.fillStyle(C('#caa15e'), 1).fillRect(28, 40, 12, 16); // door
+		g.fillStyle(C('#cfe6f2'), 1).fillRect(14, 33, 8, 8).fillRect(44, 33, 8, 8); // windows
+		g.fillStyle(C('#5a3a26'), 1).fillRect(48, 8, 7, 15); // chimney
+	});
+	tex(scene, 'home-cottage', 66, 58, (g) => {
+		g.fillStyle(C('#efe4c8'), 1).fillRect(8, 26, 50, 30); // pale plaster walls
+		g.fillStyle(C('#7e96ab'), 1).fillTriangle(2, 28, 33, 5, 64, 28); // blue-grey roof
+		g.fillStyle(C('#a86f80'), 1).fillRect(28, 40, 12, 16); // door
+		g.fillStyle(C('#cfe6f2'), 1).fillRect(14, 33, 9, 9).fillRect(43, 33, 9, 9);
+		g.lineStyle(1.5, C('#7e96ab'), 1).strokeRect(14, 33, 9, 9).strokeRect(43, 33, 9, 9);
+		g.fillStyle(C('#5e8a4a'), 1).fillRect(8, 53, 50, 3); // window box greenery
+		[16, 24, 42, 50].forEach((sx) => { g.fillStyle(C('#e86a6a'), 1).fillCircle(sx, 53, 2); });
+	});
+	tex(scene, 'home-stone', 66, 58, (g) => {
+		g.fillStyle(C('#8a857c'), 1).fillRect(8, 26, 50, 30); // stone block walls
+		g.lineStyle(1, C('#6f6a62'), 0.8);
+		for (let y = 32; y < 56; y += 7) g.lineBetween(8, y, 58, y);
+		for (let x = 18; x < 58; x += 12) g.lineBetween(x, 26, x, 56);
+		g.fillStyle(C('#5b5650'), 1).fillTriangle(2, 28, 33, 5, 64, 28); // slate roof
+		g.fillStyle(C('#6e4a33'), 1).fillRect(28, 40, 12, 16); // door
+		g.fillStyle(C('#f3d98a'), 1).fillRect(14, 33, 8, 8).fillRect(44, 33, 8, 8); // warm-lit windows
+		g.fillStyle(C('#6f6a62'), 1).fillRect(47, 8, 8, 16); // chimney
+	});
 	tex(scene, 'tilled', 30, 30, (g) => {
 		g.fillStyle(C('#8a6a48'), 1).fillRoundedRect(1, 1, 28, 28, 7);
 		g.lineStyle(2.5, C('#6e5238'), 0.9);

@@ -91,6 +91,10 @@ export const api = {
 	upgradeHome: (track: string) => post<any>('/UpgradeHome/', { playerId: pid(), track }),
 	setHomeStyle: (style: string) => post<any>('/SetHomeStyle/', { playerId: pid(), style }),
 	rest: () => post<any>('/Rest/', { playerId: pid() }),
+	setHomeColors: (colors: { floor?: string; wall?: string; accent?: string; rug?: string }) =>
+		post<any>('/SetHomeColors/', { playerId: pid(), colors }),
+	setPlacementColor: (placementId: string, color: string) =>
+		post<any>('/SetPlacementColor/', { playerId: pid(), placementId, color }),
 	observe: (animalId: string) => post<any>('/ObserveAnimal/', { playerId: pid(), animalId }),
 	terraform: (area: string, x: number, y: number, action: 'dig' | 'water' | 'clear') =>
 		post<any>('/Terraform/', { playerId: pid(), area, x, y, action }),

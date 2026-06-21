@@ -191,10 +191,10 @@ const HOME_TRACKS: Record<string, { name: string; blurb: string; levels: any[] }
 	space: {
 		name: 'Space', blurb: 'A bigger room with more floor to decorate.',
 		levels: [
-			{ inner: { w: 6, h: 5 } },
-			{ inner: { w: 11, h: 8 }, materials: { branches: 12, fiber: 8 }, requires: { biome: 'meadow', minHealth: 30 } },
-			{ inner: { w: 15, h: 10 }, materials: { branches: 18, stones: 6, clay: 6 }, requires: { biome: 'forest', minHealth: 45 } },
-			{ inner: { w: 19, h: 12 }, materials: { branches: 24, clay: 10, 'clean-water': 6 }, requires: { biome: 'wetland', minHealth: 55 } },
+			{ inner: { w: 6, h: 5 } }, // tent
+			{ inner: { w: 8, h: 6 }, materials: { branches: 12, fiber: 8 }, requires: { biome: 'meadow', minHealth: 30 } },
+			{ inner: { w: 10, h: 7 }, materials: { branches: 18, stones: 6, clay: 6 }, requires: { biome: 'forest', minHealth: 45 } },
+			{ inner: { w: 12, h: 9 }, materials: { branches: 24, clay: 10, 'clean-water': 6 }, requires: { biome: 'wetland', minHealth: 55 } },
 		],
 	},
 	comfort: {
@@ -2071,6 +2071,40 @@ export class Rest extends PublicEndpoint {
 		const nodes = await byPlayer(t.NodeState, playerId);
 		for (const n of nodes) await t.NodeState.delete(n.id);
 		return { ok: true, rested: true, refreshed: nodes.length };
+	}
+}
+
+const isHexColor = (c: any) => typeof c === 'string' && /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(c.trim());
+
+/** POST /SetHomeColors/ {playerId, colors:{floor?,wall?,accent?}} — recolor the home interior (paint tool, built homes only). */
+export class SetHomeColors extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId, colors } = await bodyOf(data);
+		const t = db();
+		const { player } = await requirePlayer(playerId);
+		const home = homeOf(player) as any;
+		if (!home.styleLocked) throw new GameError('Build your home before you can repaint it.', 403);
+		const next: Record<string, string> = { ...home.colors };
+		for (const k of ['floor', 'wall', 'accent', 'rug']) {
+			if (colors?.[k] && isHexColor(colors[k])) next[k] = String(colors[k]).trim().toLowerCase();
+		}
+		await t.Player.patch(playerId, { home: { ...home, colors: next } });
+		return { ok: true };
+	}
+}
+
+/** POST /SetPlacementColor/ {playerId, placementId, color} — recolor one placed item (paint tool). */
+export class SetPlacementColor extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId, placementId, color } = await bodyOf(data);
+		const t = db();
+		const { player } = await requirePlayer(playerId);
+		if (!(homeOf(player) as any).styleLocked) throw new GameError('Build your home before you can repaint your things.', 403);
+		if (!isHexColor(color)) throw new GameError('Invalid color');
+		const placement = await findOwned(t.Placement, playerId, placementId);
+		if (!placement) throw new GameError('That item is not here', 404);
+		await t.Placement.patch(placementId, { color: String(color).trim().toLowerCase() });
+		return { ok: true };
 	}
 }
 

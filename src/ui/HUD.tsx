@@ -30,6 +30,14 @@ export function HUD() {
 	const returnedAll = state.biomeStates.reduce((sum, b) => sum + (b.returnedCount || 0), 0);
 	const allAnimals = data.animals.length;
 
+	// indoors: show home info instead of biome health/animals
+	const isHome = area === 'home';
+	const home = state.player.home;
+	const homeBuilt = !!home?.styleLocked;
+	const homeName = homeBuilt ? (data.homeStyles?.[home!.style]?.name || 'Your Home') : 'Canvas Tent';
+	const homeCarry = data.homeTracks?.comfort?.levels?.[((home?.comfort) || 1) - 1]?.carry || 0;
+	const homeDecor = state.placements.filter((p) => p.area === 'home').length;
+
 	const toggle = (id: any) => setPanel(panel === id ? null : id);
 	const navBtn = (id: any, icon: string, label: string, keyHint?: string) => (
 		<button
@@ -46,17 +54,27 @@ export function HUD() {
 	return (
 		<>
 			<div className="hud-top-left">
-				<div className="hud-area-name"><Icon name="leaf" size={17} /> {biome?.name || 'The Preserve'}</div>
-				{biome && bState && (
+				{isHome ? (
 					<>
-						<Meter label="Health" icon="leaf" value={bState.health} color="#6aa253" />
-						<Meter label="Balance" icon="scales" value={bState.balance} color="#5b9cab" />
-						<div className="hud-returned">
-							<Icon name="paw" size={14} /> {bState.returnedCount}/{totalAnimals} animals returned
-						</div>
-						<div className="hud-returned hud-returned-total">
-							<Icon name="paw" size={12} /> {returnedAll}/{allAnimals} across the preserve
-						</div>
+						<div className="hud-area-name"><Icon name="home" size={17} /> Your Home</div>
+						<div className="hud-returned"><Icon name="sparkle" size={13} /> {homeName}{homeCarry > 0 ? ` · +${homeCarry} carry` : ''}</div>
+						<div className="hud-returned hud-returned-total"><Icon name="leaf" size={12} /> {homeDecor} {homeDecor === 1 ? 'thing' : 'things'} placed</div>
+					</>
+				) : (
+					<>
+						<div className="hud-area-name"><Icon name="leaf" size={17} /> {biome?.name || 'The Preserve'}</div>
+						{biome && bState && (
+							<>
+								<Meter label="Health" icon="leaf" value={bState.health} color="#6aa253" />
+								<Meter label="Balance" icon="scales" value={bState.balance} color="#5b9cab" />
+								<div className="hud-returned">
+									<Icon name="paw" size={14} /> {bState.returnedCount}/{totalAnimals} animals returned
+								</div>
+								<div className="hud-returned hud-returned-total">
+									<Icon name="paw" size={12} /> {returnedAll}/{allAnimals} across the preserve
+								</div>
+							</>
+						)}
 					</>
 				)}
 			</div>
@@ -71,6 +89,7 @@ export function HUD() {
 				{navBtn('achievements', 'star', 'Achievements (K)', 'K')}
 				{navBtn('feed', 'chat', 'Activity feed (F)', 'F')}
 				{navBtn('biomes', 'map', 'Preserve overview (P)', 'P')}
+				{navBtn('tools', 'tools', 'Tool upgrades (T)', 'T')}
 				<button className={`icon-btn ${panel === 'settings' ? 'on' : ''}`} onClick={() => toggle('settings')} title="Settings — change character, delete save (G)" aria-label="Settings">
 					<Icon name="sliders" />
 					<span className="nav-key">G</span>

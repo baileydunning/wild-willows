@@ -8,12 +8,35 @@ export const TOOL_META: Array<{ id: string; icon: string; key: string; how: stri
 	{ id: 'watering-can', icon: 'can', key: '3', how: 'Terraform — water a soil bed to make it plantable; water it again to flood it into open water. Chain water tiles into ponds, rivers, and lakes.' },
 ];
 
+const PAINT_PALETTE = [
+	'#c8a064', '#e6d3a6', '#b5895a', '#8a6a48', '#a9a499', '#6f6a62',
+	'#b5707a', '#7fae6a', '#7a9ac0', '#e3c75f', '#d98a4f', '#9e6f9e',
+	'#e6e0d2', '#3a3a2c',
+];
+
 export function Toolbelt() {
-	const { data, state, selectedTool, setSelectedTool, setPanel, panel, notify } = useGame();
+	const { data, state, selectedTool, setSelectedTool, setPanel, panel, notify, paintColor, setPaintColor } = useGame();
 	if (!data || !state) return null;
+	// the paint tool only exists indoors, and only once the home is built into a house
+	const canPaint = state.player.area === 'home' && !!state.player.home?.styleLocked;
 
 	return (
-		<div className="toolbelt">
+		<div className="toolbelt-wrap">
+			{canPaint && selectedTool === 'paint' && (
+				<div className="paint-palette">
+					{PAINT_PALETTE.map((c) => (
+						<button
+							key={c}
+							className={`paint-swatch ${paintColor === c ? 'on' : ''}`}
+							style={{ background: c }}
+							title={c}
+							aria-label={`Paint color ${c}`}
+							onClick={() => setPaintColor(c)}
+						/>
+					))}
+				</div>
+			)}
+			<div className="toolbelt">
 			{TOOL_META.map((meta) => {
 				const def = data.tools.find((t) => t.id === meta.id);
 				const tier = state.player.tools?.[meta.id] || 1;
@@ -36,6 +59,18 @@ export function Toolbelt() {
 					</button>
 				);
 			})}
+			{canPaint && (
+				<button
+					className={`tool-slot ${selectedTool === 'paint' ? 'on' : ''}`}
+					title="Paint (4) — recolor the floor, walls, rug, or any item: select, then click it"
+					aria-label="Paint"
+					onClick={() => { setSelectedTool('paint'); notify('Paint: pick a color, then click the floor, walls, rug, or an item to recolor it.'); }}
+				>
+					<Icon name="paint" size={22} />
+					<span className="tool-key">4</span>
+					<span className="tool-tier paint-dot" style={{ background: paintColor }} />
+				</button>
+			)}
 			<span className="belt-divider" />
 			<button
 				className={`tool-slot craft ${panel === 'crafting' ? 'on' : ''}`}
@@ -46,15 +81,7 @@ export function Toolbelt() {
 				<Icon name="hammer" size={22} />
 				<span className="tool-key">C</span>
 			</button>
-			<button
-				className="tool-slot subtle"
-				title="Tool upgrades (T)"
-				aria-label="Tool upgrades"
-				onClick={() => setPanel('tools')}
-			>
-				<Icon name="tools" size={20} />
-				<span className="tool-key">T</span>
-			</button>
+			</div>
 		</div>
 	);
 }
