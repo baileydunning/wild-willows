@@ -4,7 +4,7 @@ import { useGame } from '../state';
 import { Icon } from './icons';
 
 /**
- * Hidden developer panel for testing — opened with Cmd/Ctrl + Shift + Enter,
+ * Hidden developer panel for testing — opened with Cmd/Ctrl + Shift + Delete,
  * available to any save. Calls the server DevTools endpoint, then refreshes
  * state. Never surfaced in normal play.
  */
@@ -57,7 +57,7 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 					<button className="icon-btn" onClick={onClose} aria-label="Close"><Icon name="close" /></button>
 				</div>
 				<div className="panel-body">
-					<p className="muted small">Testing only — opened with Cmd/Ctrl + Shift + Enter.</p>
+					<p className="muted small">Testing only — opened with Cmd/Ctrl + Shift + Delete.</p>
 
 					<h3><Icon name="leaf" size={15} /> This biome <span className="muted small">· {area}</span></h3>
 					<div className="dev-grid">

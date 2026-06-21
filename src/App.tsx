@@ -191,8 +191,9 @@ function GameScreen() {
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent) => {
 			if ((e.target as HTMLElement)?.tagName === 'INPUT') return;
-			// hidden developer panel: Cmd/Ctrl + Shift + Enter (obscure, no username gate)
-			if (e.key === 'Enter' && e.shiftKey && (e.metaKey || e.ctrlKey)) {
+			// hidden developer panel: Cmd/Ctrl + Shift + Delete (obscure, no username gate).
+			// Macs label Backspace as "delete", so accept both keys.
+			if ((e.key === 'Delete' || e.key === 'Backspace') && e.shiftKey && (e.metaKey || e.ctrlKey)) {
 				e.preventDefault();
 				setDevOpen((v) => !v);
 				return;
