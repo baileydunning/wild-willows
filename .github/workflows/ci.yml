@@ -91,8 +91,13 @@ jobs:
       TC_AGREEMENT: 'yes'
       HDB_ADMIN_USERNAME: HDB_ADMIN
       HDB_ADMIN_PASSWORD: password
-      ROOTPATH: ${{ github.workspace }}/.harper-root
+      # Must NOT be a hidden dir — Harper's installer rejects a path segment that
+      # starts with a dot ("fails to match the directory path pattern").
+      ROOTPATH: ${{ runner.temp }}/harper-root
       OPERATIONSAPI_NETWORK_PORT: '9925'
+      # Answers the remaining install prompts so it runs fully headless:
+      DEFAULTS_MODE: dev          # the "dev / prod" config preset (dev = easy access)
+      REPLICATION_HOSTNAME: localhost   # the "hostname for the Harper instance" prompt
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
