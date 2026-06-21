@@ -2,7 +2,7 @@ import React, { useMemo, useState } from 'react';
 import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import type { ChestState, RecipeDef } from '../types';
-import { recipeUnlocked } from '../recipes';
+import { recipeUnlocked, recipeMatchesSearch } from '../recipes';
 import { Meter } from './HUD';
 import { Icon } from './icons';
 import { BIOME_LORE, loreStage } from './lore';
@@ -220,6 +220,7 @@ export function CraftingPanel() {
 	// filter shows only the camp comforts & furniture you can place inside
 	const [placeFilter, setPlaceFilter] = useState(state?.player.area || 'all');
 	const [typeFilter, setTypeFilter] = useState('all');
+	const [query, setQuery] = useState('');
 	if (!data || !state) return null;
 	const player = state.player;
 	const areaName = data.biomes.find((b) => b.id === player.area)?.name || 'this area';
@@ -258,6 +259,8 @@ export function CraftingPanel() {
 			return o?.placement === 'none' || (o?.biomes || []).includes(placeFilter);
 		})
 		.filter((r) => typeFilter === 'all' || r.category === typeFilter)
+		// free-text search across the recipe name, what it makes, and its type
+		.filter((r) => recipeMatchesSearch(r, objOf(r), catLabel[r.category] || r.category, query))
 		.sort((a, b) => catRank(a.category) - catRank(b.category) || a.name.localeCompare(b.name));
 	const categories = [...new Set(visible.map((r) => r.category))].sort((a, b) => catRank(a) - catRank(b));
 	// areas + types available to the player, for the filter dropdowns
@@ -294,6 +297,17 @@ export function CraftingPanel() {
 						<option key={c} value={c}>{catLabel[c] || c}</option>
 					))}
 				</select>
+				<label htmlFor="craft-search" className="sr-only">Search recipes</label>
+				<input
+					id="craft-search"
+					className="craft-search"
+					type="search"
+					placeholder="Search recipes…"
+					value={query}
+					onChange={(e) => setQuery(e.target.value)}
+					autoComplete="off"
+					aria-label="Search recipes"
+				/>
 			</div>
 			{placeable.length > 0 && (
 				<div className="placeable-bar">
@@ -329,7 +343,9 @@ export function CraftingPanel() {
 				</div>
 			)}
 			{visible.length === 0 && (
-				<p className="muted small">Nothing to craft for this area yet — restore it further or pick a different place.</p>
+				query.trim()
+					? <p className="muted small">No recipes match “{query.trim()}” — try a different search{(placeFilter !== 'all' || typeFilter !== 'all') ? ' or widen the filters' : ''}.</p>
+					: <p className="muted small">Nothing to craft for this area yet — restore it further or pick a different place.</p>
 			)}
 			{categories.map((cat) => (
 				<div key={cat}>

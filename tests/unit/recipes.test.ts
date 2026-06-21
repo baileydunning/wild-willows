@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { recipeUnlocked, unlockedRecipeIds } from '../../src/recipes';
+import { recipeUnlocked, unlockedRecipeIds, recipeMatchesSearch } from '../../src/recipes';
 import type { GameData, GameState, RecipeDef, HabitatObjectDef, AnimalDef } from '../../src/types';
 
 // --- tiny fixture builders -------------------------------------------------
@@ -178,5 +178,38 @@ describe('unlockedRecipeIds', () => {
 	it('returns an empty set when data or state is missing', () => {
 		expect(unlockedRecipeIds(null, null).size).toBe(0);
 		expect(unlockedRecipeIds(makeData(), null).size).toBe(0);
+	});
+});
+
+describe('recipeMatchesSearch', () => {
+	const r = recipe({ id: 'bird-perch', name: 'Bird Perch', category: 'habitat', output: { itemId: 'bird-perch', qty: 1 } });
+	const o = obj({ id: 'bird-perch', name: 'Bird Perch', description: 'A cozy spot where songbirds love to rest.' });
+
+	it('matches everything when the query is empty or whitespace', () => {
+		expect(recipeMatchesSearch(r, o, 'Habitat objects', '')).toBe(true);
+		expect(recipeMatchesSearch(r, o, 'Habitat objects', '   ')).toBe(true);
+	});
+
+	it('matches the recipe name, case-insensitively', () => {
+		expect(recipeMatchesSearch(r, o, 'Habitat objects', 'bird')).toBe(true);
+		expect(recipeMatchesSearch(r, o, 'Habitat objects', 'PERCH')).toBe(true);
+	});
+
+	it('matches the produced object name and description', () => {
+		expect(recipeMatchesSearch(r, o, 'Habitat objects', 'songbirds')).toBe(true);
+		expect(recipeMatchesSearch(r, o, 'Habitat objects', 'cozy')).toBe(true);
+	});
+
+	it('matches the type label', () => {
+		expect(recipeMatchesSearch(r, o, 'Habitat objects', 'habitat')).toBe(true);
+	});
+
+	it('does not match unrelated queries', () => {
+		expect(recipeMatchesSearch(r, o, 'Habitat objects', 'pond')).toBe(false);
+	});
+
+	it('tolerates a missing object (searches name + type only)', () => {
+		expect(recipeMatchesSearch(r, undefined, 'Habitat objects', 'bird')).toBe(true);
+		expect(recipeMatchesSearch(r, undefined, 'Habitat objects', 'songbirds')).toBe(false);
 	});
 });
