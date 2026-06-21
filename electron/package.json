@@ -1,0 +1,4 @@
+{
+	"//": "Marks the electron/ folder as CommonJS so main.js/preload.js can use require(), even though the root package is an ES module (the web app). Do not remove.",
+	"type": "commonjs"
+}

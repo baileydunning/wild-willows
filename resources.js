@@ -10310,7 +10310,7 @@ var CreatePlayer = class extends PublicEndpoint {
     const playerId = slugId(cleanName);
     if (!playerId) throw new GameError("That name needs at least one letter or number");
     const existing = await safeGet(db().Player, playerId);
-    if (existing) throw new GameError("A save with that name already exists \u2014 try Load Game instead", 409);
+    if (existing) throw new GameError("A save with that name already exists", 409);
     const created = await createPlayerRecords(playerId, cleanName, code, sanitizeAppearance(appearance));
     let worlds = [];
     try {
@@ -11388,7 +11388,7 @@ var Metrics = class extends PublicEndpoint {
     if (id) {
       const player = await t.Player.get(id);
       if (!player) throw new GameError("No save found with that id", 404);
-      const bm = await biomeMetrics(id, { images: true });
+      const bm = await biomeMetrics(id);
       const view = metricsView(player);
       return {
         player: {

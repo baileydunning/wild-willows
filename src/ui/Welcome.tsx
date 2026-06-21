@@ -1,5 +1,5 @@
-import { useMemo, useState } from 'react';
-import { api, forgetSave, lastSave } from '../api';
+import { useEffect, useMemo, useState } from 'react';
+import { api, forgetSave, lastSave, IS_DESKTOP, listSoloSaves, deleteSoloSave, setTransport, type SaveMeta } from '../api';
 import { useGame } from '../state';
 import type { Appearance } from '../types';
 import { CharacterPreview, Icon } from './icons';
@@ -51,7 +51,7 @@ function Scenery() {
 }
 
 export function WelcomeScreen() {
-	const { data, dataError, startNew, startNewCoop, startLogin, continueLast, setHelpOpen } = useGame();
+	const { data, dataError, startNew, startNewCoop, startLogin, continueLast, startNewSolo, loadSoloSlot, setHelpOpen } = useGame();
 	const [mode, setMode] = useState<Mode>('menu');
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -68,6 +68,18 @@ export function WelcomeScreen() {
 	// failed continue clear it.
 	const [lastBump, setLastBump] = useState(0);
 	const last = useMemo(() => lastSave(coop ? 'coop' : 'solo'), [coop, lastBump]);
+
+	// Desktop solo: no passcode, local save slots (each with the saved avatar).
+	const soloLocal = IS_DESKTOP && !coop;
+	const [slots, setSlots] = useState<SaveMeta[] | null>(null);
+	const refreshSlots = () => { if (soloLocal) listSoloSaves().then(setSlots).catch(() => setSlots([])); };
+	useEffect(() => { refreshSlots(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [soloLocal]);
+	const recentSlot = soloLocal ? slots?.[0] ?? null : null;
+
+	// On desktop, point the API at the right backend for the selected mode BEFORE
+	// any call fires: solo → in-app/offline, co-op → hosted Harper. (Web ignores
+	// this and always uses its own origin.)
+	useEffect(() => { if (IS_DESKTOP) setTransport(coop ? 'coop' : 'solo'); }, [coop]);
 
 	const opts = data?.appearanceOptions;
 	const [appearance, setAppearance] = useState<Appearance>({
@@ -142,7 +154,12 @@ export function WelcomeScreen() {
 								? 'Restore a shared preserve with friends — host one for a join code, or join with a friend’s code.'
 								: 'Your own private preserve, just for you.'}
 						</p>
-						{last && (
+						{soloLocal && recentSlot && (
+							<button className="big-btn primary" disabled={busy || !data} onClick={() => run(() => loadSoloSlot(recentSlot.slotId))}>
+								<Icon name="play" /> <span>{busy ? 'Loading your save…' : `Continue as ${recentSlot.name}`}</span>
+							</button>
+						)}
+						{!soloLocal && last && (
 							<button className="big-btn primary" disabled={busy || !data} onClick={onContinue}>
 								<Icon name="play" /> <span>{busy ? 'Loading your save…' : `Continue as ${last.name}`}</span>
 							</button>
@@ -161,10 +178,10 @@ export function WelcomeScreen() {
 							</>
 						) : (
 							<>
-								<button className={`big-btn ${last ? '' : 'primary'}`} disabled={busy || !data} onClick={() => { setError(null); setMode('new'); }}>
+								<button className={`big-btn ${(soloLocal ? recentSlot : last) ? '' : 'primary'}`} disabled={busy || !data} onClick={() => { setError(null); setMode('new'); }}>
 									<Icon name="plus" /> <span>New Game</span>
 								</button>
-								<button className="big-btn" disabled={busy || !data} onClick={() => { setError(null); setMode('load'); }}>
+								<button className="big-btn" disabled={busy || !data || (soloLocal && !(slots && slots.length))} onClick={() => { setError(null); refreshSlots(); setMode('load'); }}>
 									<Icon name="folder" /> <span>Load Game</span>
 								</button>
 							</>
@@ -223,7 +240,8 @@ export function WelcomeScreen() {
 						className="creator"
 						onSubmit={(e) => {
 							e.preventDefault();
-							if (!coop) run(() => startNew(name, passcode, appearance));
+							if (soloLocal) run(() => startNewSolo(name, appearance));
+							else if (!coop) run(() => startNew(name, passcode, appearance));
 							else if (coopKind === 'host') run(() => startNewCoop(name, passcode, appearance, { mode: 'host' }));
 							else if (joinCtx) run(() => startNewCoop(name, passcode, appearance, { mode: 'join', code: joinCtx.code, token: joinCtx.token, joinWorldId: joinCtx.worldId, worldName: joinCtx.worldName, hostName: joinCtx.hostName }));
 						}}
@@ -260,15 +278,17 @@ export function WelcomeScreen() {
 										autoFocus
 									/>
 								</label>
-								<label className="field">
-									<Icon name="lock" size={17} />
-									<input
-										placeholder="Passcode (4+ characters)"
-										type="password"
-										value={passcode}
-										onChange={(e) => setPasscode(e.target.value)}
-									/>
-								</label>
+								{!soloLocal && (
+									<label className="field">
+										<Icon name="lock" size={17} />
+										<input
+											placeholder="Passcode (4+ characters)"
+											type="password"
+											value={passcode}
+											onChange={(e) => setPasscode(e.target.value)}
+										/>
+									</label>
+								)}
 
 								<div className="swatch-row">
 									<span className="swatch-label">Skin</span>
@@ -331,14 +351,64 @@ export function WelcomeScreen() {
 							<button type="button" className="big-btn subtle" onClick={() => setMode('menu')}>
 								<Icon name="back" /> <span>Back</span>
 							</button>
-							<button type="submit" className="big-btn primary" disabled={busy || name.trim().length < 2 || passcode.length < 4}>
+							<button type="submit" className="big-btn primary" disabled={busy || name.trim().length < 2 || (!soloLocal && passcode.length < 4)}>
 								<Icon name="sparkle" /> <span>{busy ? 'Settling in…' : !coop ? 'Begin restoring' : coopKind === 'join' ? 'Create & join' : 'Start co-op'}</span>
 							</button>
 						</div>
 					</form>
 				)}
 
-				{mode === 'load' && (
+				{mode === 'load' && soloLocal && (
+					<div className="creator">
+						<p className="muted small mode-hint">Pick up where you left off — your saves live on this computer.</p>
+						<div className="save-slots">
+							{(slots || []).length === 0 && (
+								<p className="muted small">No saved games yet. Start a New Game to begin your preserve.</p>
+							)}
+							{(slots || []).map((s) => (
+								<div key={s.slotId} className="save-slot">
+									<button
+										type="button"
+										className="save-slot-main"
+										disabled={busy}
+										onClick={() => run(() => loadSoloSlot(s.slotId))}
+									>
+										<span className="save-slot-avatar">
+											<CharacterPreview appearance={s.appearance} size={56} />
+										</span>
+										<span className="save-slot-info">
+											<span className="save-slot-name">{s.name}</span>
+											<span className="muted small">
+												{new Date(s.updatedAt).toLocaleDateString(undefined, { month: 'short', day: 'numeric' })} · {new Date(s.updatedAt).toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' })}
+											</span>
+										</span>
+									</button>
+									<button
+										type="button"
+										className="save-slot-del"
+										title={`Delete ${s.name}`}
+										disabled={busy}
+										onClick={async () => {
+											if (!window.confirm(`Delete "${s.name}"? This can't be undone.`)) return;
+											await deleteSoloSave(s.slotId);
+											refreshSlots();
+										}}
+									>
+										<Icon name="trash" size={16} />
+									</button>
+								</div>
+							))}
+						</div>
+						{error && <p className="form-error">{error}</p>}
+						<div className="form-actions">
+							<button type="button" className="big-btn subtle" onClick={() => setMode('menu')}>
+								<Icon name="back" /> <span>Back</span>
+							</button>
+						</div>
+					</div>
+				)}
+
+				{mode === 'load' && !soloLocal && (
 					<form
 						className="creator"
 						onSubmit={(e) => {

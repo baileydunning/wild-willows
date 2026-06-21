@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1" />
+		<title>Wild Willows</title>
+		<style>
+			:root {
+				color-scheme: dark;
+				--bg-top: #233018;
+				--bg-bottom: #18210f;
+				--fg: #eef3e6;
+				--muted: rgba(238, 243, 230, 0.66);
+				--accent: #9ccc65;
+				--accent-soft: rgba(156, 204, 101, 0.18);
+				--danger: #d98a6a;
+			}
+			* { box-sizing: border-box; }
+			html, body { margin: 0; height: 100%; }
+			body {
+				background: radial-gradient(120% 120% at 50% 0%, var(--bg-top), var(--bg-bottom));
+				color: var(--fg);
+				font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+				-webkit-font-smoothing: antialiased;
+			}
+			.screen {
+				height: 100%;
+				display: none;
+				flex-direction: column;
+				align-items: center;
+				justify-content: center;
+				gap: 1.5rem;
+				text-align: center;
+				padding: 2.5rem;
+			}
+			/* Loading is shown by default; #error overrides via :target. */
+			#loading { display: flex; }
+			:target#error { display: flex; }
+			body:has(#error:target) #loading { display: none; }
+
+			.badge {
+				width: 84px;
+				height: 84px;
+				display: grid;
+				place-items: center;
+				border-radius: 999px;
+				background: var(--accent-soft);
+			}
+			.badge svg { width: 46px; height: 46px; }
+			.icon-leaf { color: var(--accent); transform-origin: 60% 80%; animation: sway 2.6s ease-in-out infinite; }
+			.icon-wilt { color: var(--danger); }
+			@keyframes sway { 0%, 100% { transform: rotate(-7deg); } 50% { transform: rotate(7deg); } }
+
+			h1 { font-size: 1.7rem; font-weight: 600; margin: 0; letter-spacing: 0.01em; }
+			.msg { color: var(--muted); font-size: 0.98rem; max-width: 34rem; line-height: 1.55; margin: 0; }
+
+			.dots { display: flex; gap: 0.45rem; }
+			.dots span {
+				width: 9px; height: 9px; border-radius: 50%;
+				background: var(--accent); opacity: 0.35;
+				animation: pulse 1.2s ease-in-out infinite;
+			}
+			.dots span:nth-child(2) { animation-delay: 0.18s; }
+			.dots span:nth-child(3) { animation-delay: 0.36s; }
+			@keyframes pulse { 0%, 100% { opacity: 0.3; transform: translateY(0); } 50% { opacity: 1; transform: translateY(-4px); } }
+
+			.detail {
+				display: none;
+				max-width: 32rem;
+				color: var(--muted);
+				font-family: inherit;
+				white-space: normal;
+				font-size: 0.9rem;
+				line-height: 1.5;
+				margin: 0;
+			}
+			.detail.visible { display: block; }
+			.hint { color: rgba(238, 243, 230, 0.4); font-size: 0.78rem; margin: 0; }
+		</style>
+	</head>
+	<body>
+		<section id="loading" class="screen">
+			<div class="badge">
+				<!-- leaf icon -->
+				<svg class="icon-leaf" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+					<path d="M2 21c0-3 1.85-5.36 5.08-6" />
+				</svg>
+			</div>
+			<h1>Waking up the preserve</h1>
+			<div class="dots" aria-label="Loading"><span></span><span></span><span></span></div>
+			<p class="msg">The local world is starting up. First launch installs and seeds the preserve, so it can take a minute or two — after that it opens quickly.</p>
+		</section>
+
+		<section id="error" class="screen">
+			<div class="badge">
+				<!-- wilted / alert leaf icon -->
+				<svg class="icon-wilt" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+					<path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10Z" />
+					<line x1="12" y1="9" x2="12" y2="13" />
+					<line x1="12" y1="16.5" x2="12" y2="16.5" />
+				</svg>
+			</div>
+			<h1>Couldn't start the world</h1>
+			<p class="msg">The local Wild Willows backend failed to start. Try relaunching the app. The details below can help track down why.</p>
+			<pre id="errorDetail" class="detail"></pre>
+			<p id="errorHint" class="hint"></p>
+		</section>
+
+		<script>
+			// Called by the main process on failure to fill in the real reason.
+			window.__wwShowError = function (detail, logPath) {
+				if (location.hash !== '#error') location.hash = '#error';
+				var el = document.getElementById('errorDetail');
+				if (el && detail) { el.textContent = detail; el.classList.add('visible'); }
+				var hint = document.getElementById('errorHint');
+				if (hint && logPath) hint.textContent = 'Full log: ' + logPath;
+			};
+		</script>
+	</body>
+</html>

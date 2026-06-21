@@ -930,3 +930,29 @@ kbd {
 .presence-dot::before { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--ink-soft); display: inline-block; }
 .presence-dot.on { color: var(--green-deep); }
 .presence-dot.on::before { background: var(--green-2); box-shadow: 0 0 5px var(--green-2); }
+
+/* ---- solo save slots (desktop) ---- */
+.save-slots { display: flex; flex-direction: column; gap: 10px; margin: 6px 0 4px; max-height: 320px; overflow-y: auto; }
+.save-slot { display: flex; align-items: stretch; gap: 8px; }
+.save-slot-main {
+	flex: 1; display: flex; align-items: center; gap: 14px; text-align: left;
+	padding: 10px 14px; border-radius: 14px; cursor: pointer;
+	background: rgba(255, 255, 255, 0.55); border: 2px solid var(--green-2, #7aa06a);
+	transition: transform 0.08s ease, background 0.15s ease, box-shadow 0.15s ease;
+}
+.save-slot-main:hover:not(:disabled) { background: rgba(255, 255, 255, 0.85); transform: translateY(-1px); box-shadow: 0 4px 12px rgba(40, 60, 30, 0.18); }
+.save-slot-main:disabled { opacity: 0.6; cursor: default; }
+.save-slot-avatar {
+	flex: 0 0 auto; width: 56px; height: 56px; border-radius: 50%; overflow: hidden;
+	display: grid; place-items: center; background: rgba(120, 160, 106, 0.18);
+}
+.save-slot-avatar svg { width: 100%; height: 100%; }
+.save-slot-info { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.save-slot-name { font-weight: 600; font-size: 1.05rem; color: var(--ink, #34402a); }
+.save-slot-del {
+	flex: 0 0 auto; width: 44px; border-radius: 12px; cursor: pointer;
+	background: rgba(255, 255, 255, 0.4); border: 2px solid rgba(150, 90, 90, 0.4); color: #8a4a4a;
+	display: grid; place-items: center; transition: background 0.15s ease;
+}
+.save-slot-del:hover:not(:disabled) { background: rgba(200, 120, 120, 0.18); }
+.save-slot-del:disabled { opacity: 0.5; cursor: default; }

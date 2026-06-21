@@ -1,9 +1,83 @@
-// Thin client for the Harper-backed game API. Every persisted action goes
-// through these calls — the frontend never computes game state on its own.
+// Client for the game API. Every persisted action goes through these calls.
+//
+// Transport: on the web the frontend talks to its own origin (the deployed
+// Harper). On the desktop build there are two backends — SOLO runs the same
+// server logic in-app against local save files (fully offline, see src/solo),
+// and CO-OP talks to the hosted Harper. `transport` selects which is live.
 
 import type { Appearance, GameData, GameState, WorldSummary, Peer, RosterEntry } from './types';
+import { soloRequest } from './solo/backend';
+import { persist as persistSolo, type SaveMeta } from './solo/saves';
 
 const STORAGE_KEY = 'wild-willows:last-save';
+
+// Hosted Harper for desktop co-op. (Web builds ignore this and use their own
+// origin.) Override-able later via Settings if needed.
+export const COOP_BASE_URL = 'https://wild.willows.harperfabric.com';
+
+const isDesktop = !!(globalThis as any).wildWillowsDesktop?.isDesktop;
+
+export type Transport = 'web' | 'solo' | 'coop';
+// Desktop defaults to solo so the title screen + solo play work with no network;
+// the web build always uses its own origin.
+let transport: Transport = isDesktop ? 'solo' : 'web';
+let soloSlot: SaveMeta | null = null;
+
+export function setTransport(t: Transport) {
+	transport = t;
+}
+export function getTransport(): Transport {
+	return transport;
+}
+// The save slot the active solo game autosaves to after each action.
+export function setSoloSlot(meta: SaveMeta | null) {
+	soloSlot = meta;
+}
+export function getSoloSlot(): SaveMeta | null {
+	return soloSlot;
+}
+
+// Throttled autosave: at most one write per window, always capturing the latest
+// state at fire time. Bounds data loss to the window length and avoids writing
+// the whole save on every single action.
+const SAVE_THROTTLE_MS = 1500;
+let saveTimer: ReturnType<typeof setTimeout> | null = null;
+let savePending = false;
+
+function scheduleSoloSave() {
+	savePending = true;
+	if (saveTimer != null) return;
+	saveTimer = setTimeout(() => {
+		saveTimer = null;
+		if (savePending && soloSlot) {
+			savePending = false;
+			persistSolo(soloSlot).catch(() => {});
+		}
+	}, SAVE_THROTTLE_MS);
+}
+
+/** Force any pending solo save to disk now (on quit / tab hide / leaving play). */
+export async function flushSoloSave(): Promise<void> {
+	if (saveTimer != null) {
+		clearTimeout(saveTimer);
+		saveTimer = null;
+	}
+	if (savePending && soloSlot) {
+		savePending = false;
+		try {
+			await persistSolo(soloSlot);
+		} catch {
+			/* best effort */
+		}
+	}
+}
+
+if (typeof window !== 'undefined') {
+	window.addEventListener('beforeunload', () => void flushSoloSave());
+	document.addEventListener('visibilitychange', () => {
+		if (document.visibilityState === 'hidden') void flushSoloSave();
+	});
+}
 
 let currentPlayerId: string | null = null;
 
@@ -57,8 +131,33 @@ export function forgetSave(mode?: SaveMode) {
 	} catch { /* ignore */ }
 }
 
+// GameData is static definitions bundled with the app, so on desktop it's always
+// served locally — the title screen then works offline regardless of mode.
+const isLocalCall = (path: string) =>
+	transport === 'solo' || (isDesktop && path.startsWith('/GameData'));
+
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
-	const res = await fetch(path, {
+	const method = (options?.method || 'GET').toUpperCase();
+
+	// --- solo / local in-app backend ---
+	if (isLocalCall(path)) {
+		const body = options?.body ? JSON.parse(String(options.body)) : undefined;
+		const res = await soloRequest(path, method, body);
+		if (res.status >= 400) {
+			const err: any = new Error(res.body?.title || `Request failed (${res.status})`);
+			err.status = res.status;
+			throw err;
+		}
+		// Autosave the world after any mutating action — throttled so frequent
+		// actions (movement sync, heartbeats) don't serialize+write the whole save
+		// every time. The trailing write captures the latest state.
+		if (method !== 'GET' && soloSlot && transport === 'solo') scheduleSoloSave();
+		return res.body as T;
+	}
+
+	// --- web (same origin) or desktop co-op (hosted Harper) ---
+	const base = transport === 'coop' && isDesktop ? COOP_BASE_URL : '';
+	const res = await fetch(base + path, {
 		headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
 		...options,
 	});
@@ -159,4 +258,48 @@ export const api = {
 	recalc: (biomeId: string) => post<any>('/RecalcBiome/', { playerId: pid(), biomeId }),
 	dev: (action: string, args: Record<string, any> = {}) =>
 		post<any>('/DevTools/', { playerId: pid(), action, ...args }),
+	// Per-player metrics view (drives Steam Stats/Achievements on desktop).
+	metrics: (playerId?: string) => request<{ player: any }>(`/Metrics/${playerId ?? pid()}`),
 };
+
+// ---------------------------------------------------------------- solo saves
+// Desktop solo play needs no passcode and no server: start a save, autosave to a
+// local slot, and load it back. These wrap the in-app backend + slot storage.
+
+import { newSoloGame as backendNew, loadSoloGame as backendLoad, endSolo } from './solo/backend';
+import { createSlot, listSaves as listSoloSaves, loadSaveData, deleteSave as deleteSoloSave } from './solo/saves';
+
+export type { SaveMeta } from './solo/saves';
+export { listSoloSaves, deleteSoloSave };
+
+/** Start a fresh solo game (no passcode) and create its save slot. */
+export async function startSoloGame(name: string, appearance: Appearance): Promise<{ playerId: string; state: GameState; slot: SaveMeta }> {
+	setTransport('solo');
+	const created = await backendNew(name, appearance);
+	const slot = await createSlot({ playerId: created.playerId, name, appearance });
+	setSoloSlot(slot);
+	setPlayerId(created.playerId);
+	return { playerId: created.playerId, state: created.state, slot };
+}
+
+/** Load a solo save slot back into play. */
+export async function resumeSoloGame(slotId: string): Promise<{ playerId: string; state: GameState; slot: SaveMeta }> {
+	setTransport('solo');
+	const file = await loadSaveData(slotId);
+	if (!file) throw new Error('That save could not be found');
+	const state = await backendLoad(file.meta.playerId, file.data);
+	setSoloSlot(file.meta);
+	setPlayerId(file.meta.playerId);
+	return { playerId: file.meta.playerId, state, slot: file.meta };
+}
+
+/** Leave the active solo game (back to the menu) and reset the transport. */
+export function exitSolo() {
+	void flushSoloSave(); // persist any pending throttled write before we drop it
+	setSoloSlot(null);
+	endSolo();
+	setTransport(isDesktop ? 'solo' : 'web');
+}
+
+/** True on the desktop (Electron) build. The web build always uses its origin. */
+export const IS_DESKTOP = isDesktop;

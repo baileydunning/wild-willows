@@ -182,8 +182,6 @@ At **New Game** you choose **Solo** or **Co-op** (a toggle on the title screen).
 - **Endpoints:** `MyWorlds` · `CreateWorld` · `JoinWorld` · `SwitchWorld` · `LeaveWorld` · `Presence` · `CheckWorldCode` · `RequestJoin` · `JoinRequestStatus` · `PendingJoinRequests` · `ResolveJoin`.
 - **Schema:** world-owned state is keyed by `worldId` (declared at the end of each table, un-indexed, so the column could be added without rewriting existing rows). New tables: `World`, `WorldMember`, `WorldPresence`, `JoinRequest`. Single-player is modelled as a private "world of one" whose id equals the player's id.
 
-> **Clearing dev data (schema-drift corruption).** Rapidly changing a populated table's declared columns can leave old rows that Harper's structured encoder can no longer decode (`Error decoding record: Data read, but end of buffer not reached`). These can't be removed through the app — Harper decodes a record on `get`/`put`/`delete` alike, so even deleting them fails. The clean fix in development is to **drop the `wildwillows` database** and let it re-seed: definition tables reload from `data/*.json` on boot; only player saves are lost. Drop it via Harper Studio, or the operations API: `{ "operation": "drop_database", "database": "wildwillows" }`. (`safeGet` still removes a single corrupt row if it happens to be fetched by id, but it won't sweep a whole table.)
-
 ## Notes & simplifications
 
 - Passcodes are salted + scrypt-hashed, but auth is still lightweight: game endpoints identify a save by the `playerId` in the request body rather than a verified session token, so anyone who knows a save's id could act on it. Add per-request session tokens (issued on login/create, checked on every mutation) before anything public.

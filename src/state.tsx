@@ -1,5 +1,5 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { api, forgetSave, getPlayerId, lastSave, rememberSave, setPlayerId } from './api';
+import { api, forgetSave, getPlayerId, lastSave, rememberSave, setPlayerId, startSoloGame, resumeSoloGame, exitSolo } from './api';
 import { bridge } from './game/bridge';
 import { unlockedRecipeIds } from './recipes';
 import { narrativeBeats, nextFeedFact, healthMilestoneLine, HEALTH_THRESHOLDS } from './ui/narrative';
@@ -49,6 +49,9 @@ interface Ctx {
 	startNew: (name: string, passcode: string, appearance: Appearance) => Promise<void>;
 	startLogin: (name: string, passcode: string) => Promise<void>;
 	continueLast: (mode?: 'solo' | 'coop') => Promise<void>;
+	// Desktop solo: no passcode, local save slots.
+	startNewSolo: (name: string, appearance: Appearance) => Promise<void>;
+	loadSoloSlot: (slotId: string) => Promise<void>;
 	logout: () => void;
 	refresh: () => Promise<void>;
 	collect: (biomeId: string, nodeId: string, resourceId: string) => Promise<void>;
@@ -334,6 +337,32 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		adoptState(r.state);
 	}, [adoptState, applyWorlds]);
 
+	// Desktop solo: no passcode, no server. Start a fresh save in the in-app
+	// backend (writes a local slot), or load an existing slot back into play.
+	const startNewSolo = useCallback(async (name: string, appearance: Appearance) => {
+		const { playerId, state } = await startSoloGame(name, appearance);
+		try {
+			const w = await api.myWorlds();
+			applyWorlds(w.worlds || [], w.activeWorldId || playerId);
+		} catch {
+			applyWorlds([], playerId);
+		}
+		feedSeeded.current = false;
+		adoptState(state);
+	}, [adoptState, applyWorlds]);
+
+	const loadSoloSlot = useCallback(async (slotId: string) => {
+		const { playerId, state } = await resumeSoloGame(slotId);
+		try {
+			const w = await api.myWorlds();
+			applyWorlds(w.worlds || [], w.activeWorldId || playerId);
+		} catch {
+			applyWorlds([], playerId);
+		}
+		feedSeeded.current = false;
+		adoptState(state);
+	}, [adoptState, applyWorlds]);
+
 	// Co-op: a new game that lives in a shared world — either you HOST a fresh one
 	// (and get a code to share) or JOIN a friend's with their code. A save belongs to
 	// exactly one world, chosen here at New Game; there's no spinning up more later.
@@ -438,6 +467,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
 	const logout = useCallback(() => {
 		flushFeed(); // persist any unsaved feed lines before we drop the session
+		exitSolo(); // tear down any in-app solo world + reset transport (no-op on web)
 		setPlayerId(null);
 		setState(null);
 		bridge.shared.state = null;
@@ -880,7 +910,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			activeChestId, openChest, animalCardId, setAnimalCardId,
 			placementObjectId, startPlacement, cancelPlacement, toasts, notify: toast, dismissToast,
 			log, feedLog, selectedTool, setSelectedTool, terraform, plant, setTutorialStep,
-			startNew, startLogin, continueLast, logout,
+			startNew, startLogin, continueLast, startNewSolo, loadSoloSlot, logout,
 			refresh, collect, transfer, craft, discard, place, removePlacement, movePlacement,
 			upgradeTool, upgradeHome, setHomeStyle, rest, paintColor, setPaintColor, paintHome, paintPlacement,
 			observe, changeArea, recalcArea,
@@ -889,7 +919,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		}),
 		[data, state, dataError, saveStatus, panel, helpOpen, activeChestId, animalCardId,
 			placementObjectId, toasts, toast, dismissToast, log, feedLog, selectedTool, setSelectedTool, terraform, plant,
-			setTutorialStep, startNew, startLogin, continueLast, logout,
+			setTutorialStep, startNew, startLogin, continueLast, startNewSolo, loadSoloSlot, logout,
 			refresh, collect, transfer, craft, discard, place, removePlacement, movePlacement, upgradeTool,
 			observe, changeArea, recalcArea, openChest, startPlacement, cancelPlacement, upgradeHome, setHomeStyle, rest,
 			paintColor, setPaintColor, paintHome, paintPlacement,
