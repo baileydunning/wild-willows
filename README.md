@@ -82,6 +82,69 @@ Credentials can also go in `CLI_TARGET_USERNAME` / `CLI_TARGET_PASSWORD`. The `d
 
 > **Deploy the prebuilt component — don't deploy straight from the Git URL.** This is a prebuilt component: the bundled `resources.js` and the static `web/` build are committed, and it has **no runtime npm dependencies** (`dependencies` is empty; phaser/react/vite are build-time `devDependencies` only). Always `npm run build` first, then `harper deploy package=.` — that uploads the built files and installs nothing. Pointing Harper at the raw GitHub repo instead makes it clone and run a full `npm install --include=dev`, which unpacks the large **phaser** package on the instance and can fail with `TAR_ENTRY_ERROR Unknown system error -122` (that's `EDQUOT` — the instance's **disk quota exceeded**). Building locally and deploying the package avoids that entirely.
 
+## Desktop / Steam build
+
+The desktop app (Steam, itch, etc.) wraps the web build in [Electron](https://www.electronjs.org/) (`electron/`). It loads the bundled `web/` build straight from disk (`file://`) — Vite's `base: './'` makes the same build work both from disk and served at Harper's root — so it opens instantly with no server and no install step.
+
+Two play modes, two backends:
+
+- **Solo** runs **entirely in-app and offline.** The same server logic (`server/resources.ts`) executes in the renderer against an in-memory `LocalDb` (`src/solo/`) seeded from `data/*.json`; after each action the world is serialized to a save slot. No passcode — solo saves are local JSON files in `userData/saves/<slotId>.json`, read/written over IPC (`electron/main.js`). No Harper process, nothing to install on first run.
+- **Co-op** talks to the **hosted Harper** over HTTPS (`COOP_BASE_URL` in `src/api.ts`, currently `https://wild.willows.harperfabric.com`) — a shared world needs a shared server.
+
+The browser/Fabric deploy is unaffected: on the web the app just talks to its own origin.
+
+| `electron/` file | Role |
+|---|---|
+| `main.js` | App lifecycle + window; loads the bundled web build; solo save-file store over IPC |
+| `preload.js` | Context-isolated bridge: the `wildWillowsDesktop` flag, the saves API, and the Steam metric push |
+| `steam.js` | Steamworks init / stats / achievements (no-op outside Steam) |
+| `metrics-sync.js` | Maps the renderer's metrics onto Steam Stats + milestone achievements |
+| `package.json` | Marks this folder CommonJS (the repo root stays ESM for the web app) |
+
+### Run & package
+
+```bash
+npm install
+npm run desktop          # builds web + server, then launches Electron
+npm run desktop:run      # launch without rebuilding
+npm run desktop:pack     # unpacked app in dist/ (no installer) — fastest packaged check
+npm run desktop:dist     # full installers in dist/
+```
+
+For Steam, upload the **unpacked** folder (`dist/mac`, `dist/win-unpacked`, `dist/linux-unpacked`), not the installer. Build targets live in `package.json` → `build`: dmg/zip (mac), NSIS (win), AppImage (linux).
+
+### Native modules
+
+`steamworks.js` is the one **native** dependency the packaged app loads, so it must be built for Electron's ABI rather than your system Node's. electron-builder handles this automatically (`npmRebuild: true`), and `asarUnpack` keeps it outside the asar so its `.node` binary stays loadable. If a packaged build fails with a `NODE_MODULE_VERSION` mismatch, rebuild explicitly:
+
+```bash
+npx electron-rebuild -f -w steamworks.js
+```
+
+### Steam Stats & Achievements
+
+The renderer owns the live metrics (solo in-app, co-op via the hosted Harper), so `src/solo/steamSync.ts` pushes the active player's `/Metrics/` view to the main process every ~60s (and again on hide/quit); `electron/metrics-sync.js` maps the numbers onto Steam Stats and milestone achievements via `electron/steam.js`. Everything no-ops unless the app is launched through Steam, so `npm run desktop` still works.
+
+Define these in the Steamworks dashboard with matching API names:
+
+- **Stats (INT):** `play_minutes`, `sessions`, `resources_collected`, `items_crafted`, `objects_placed`, `plants_planted`, `animals_observed`, `animals_returned`, `biomes_unlocked`.
+- **Achievements:** `ACH_FIRST_ANIMAL`, `ACH_FIRST_CRAFT`, `ACH_SECOND_BIOME`, `ACH_NATURALIST`, `ACH_GREEN_THUMB`, `ACH_DEDICATED` — unlock thresholds live in `ACHIEVEMENTS` in `metrics-sync.js`.
+
+For development, `steam_appid.txt` holds `480` (Valve's public test app) so the Steam API initializes with the Steam client running. Set `WW_STEAM_APPID` or replace the file with your real App ID once you have one; in packaged Steam builds Steam injects the App ID.
+
+### Troubleshooting & knobs
+
+- **Reset a solo world** — delete the relevant save file in `userData/saves/` (all of them for a clean slate). On macOS `userData` is `~/Library/Application Support/Wild Willows`.
+- **Co-op can't connect** — solo needs no network, but co-op must reach `COOP_BASE_URL`; the packaged app's `file://` origin (`Origin: null`) means the hosted Harper has to send CORS headers that allow it.
+- **`WW_STEAM_APPID`** — override the Steam App ID (otherwise `steam_appid.txt`, else `480` in dev).
+
+### Still to do for a real Steam release
+
+- **Controller support** — the game is keyboard-only today; add gamepad input for Steam Deck Verified and couch play.
+- **Steam Cloud** — sync `userData/saves/` so solo progress follows players across machines.
+- **Code signing** — required for distribution on macOS and Windows.
+- **Co-op CORS** — confirm the hosted Harper allows the desktop's `file://` (`Origin: null`) origin on the co-op endpoints, or co-op fetches from the packaged app will be blocked.
+
 ---
 
 ## Content at a glance

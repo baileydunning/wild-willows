@@ -10,7 +10,8 @@
  * Steam, so `npm run desktop` still works.
  *
  * Stat and achievement API names below must match what you define in the
- * Steamworks dashboard (App Admin → Stats / Achievements). See DESKTOP.md.
+ * Steamworks dashboard (App Admin → Stats / Achievements). See the
+ * "Desktop / Steam build" section of README.md.
  */
 
 const { ipcMain } = require('electron');
