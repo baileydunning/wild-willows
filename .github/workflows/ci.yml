@@ -106,7 +106,11 @@ jobs:
           cache: npm
       - run: npm ci
       - name: Build server bundle + web client (Harper serves these)
+        # Co-op is hidden in the default (solo-only) build, so bake it back in
+        # for the multiplayer E2E suite. See src/features.ts / vite.config.ts.
         run: npm run build
+        env:
+          COOP_ENABLED: 'true'
       - name: Install Playwright Chromium + OS deps
         run: npx playwright install --with-deps chromium
       - name: Boot Harper and wait for the API

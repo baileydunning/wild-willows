@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { bridge } from '../game/bridge';
 import { useGame } from '../state';
+import { COOP_ENABLED } from '../features';
 import { Icon } from './icons';
 
 export function Meter({ label, icon, value, color }: { label: string; icon: string; value: number; color: string }) {
@@ -39,7 +40,7 @@ export function HUD() {
 	const homeDecor = state.placements.filter((p) => p.area === 'home').length;
 
 	const activeWorld = worlds.find((w) => w.worldId === activeWorldId);
-	const isCoop = !!activeWorld && !activeWorld.solo;
+	const isCoop = COOP_ENABLED && !!activeWorld && !activeWorld.solo;
 	const peersHere = bridge.shared.presence?.length || 0;
 
 	const toggle = (id: any) => setPanel(panel === id ? null : id);
@@ -91,7 +92,7 @@ export function HUD() {
 			</div>
 
 			<div className="hud-top-right">
-				<span className={`save-pill save-${saveStatus}`} title="Progress syncs to Harper automatically">
+				<span className={`save-pill save-${saveStatus}`} title={COOP_ENABLED ? 'Progress saves automatically' : 'Progress saves automatically to this computer'}>
 					<Icon name="cloud" size={15} />
 					<span>{saveStatus === 'saving' ? 'Saving' : saveStatus === 'saved' ? 'Saved' : saveStatus === 'error' ? 'Retry' : 'Synced'}</span>
 				</span>

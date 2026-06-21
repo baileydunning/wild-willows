@@ -43,6 +43,10 @@ export default defineConfig({
 	// build stamp shown in the UI so you can always tell which build you're running
 	define: {
 		__BUILD_TIME__: JSON.stringify(new Date().toISOString()),
+		// Co-op (hosted-Harper multiplayer) is OFF by default for the solo-only
+		// v1. Build with COOP_ENABLED=true to bake it back in (e.g. the co-op
+		// E2E job does this). See src/features.ts.
+		__COOP_ENABLED__: JSON.stringify(process.env.COOP_ENABLED === 'true'),
 	},
 	build: {
 		outDir: 'web',

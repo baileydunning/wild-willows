@@ -28,13 +28,13 @@
 		"desktop:pack": "npm run build && electron-builder --dir",
 		"desktop:dist": "npm run build && electron-builder"
 	},
-	"comment": "The Harper WEB deploy is prebuilt (bundled resources.js + static web/) and the client baked into web/assets, so it needs no runtime npm deps — phaser/react/etc. stay out of `dependencies` on purpose. `steamworks.js` is the desktop-only native module that electron-builder must package (it only bundles production `dependencies`, and asarUnpack references it). `harper` is here for local web dev (`harper dev .`) — the desktop app no longer spawns a local Harper (solo runs in-app; co-op uses the hosted server). NOTE: if `harper deploy` installs `dependencies` server-side, move `harper`/`steamworks.js` out (e.g. to a desktop-only package) so the web deploy stays clean.",
+	"comment": "v1 ships SOLO-ONLY on itch.io: solo runs the game logic in-app against local save files (fully offline), so the desktop app needs no server and no network. `steamworks.js` is the only runtime dependency electron-builder must package (native, desktop-only, asarUnpacked). `harper` is a DEV-ONLY tool now (local web dev via `harper dev .`, and the co-op E2E harness) — it is intentionally NOT a production dependency so electron-builder doesn't bundle its heavy/native tree into every platform's app (which also de-risks the cross-platform CI builds). Co-op (hosted Harper) is hidden behind COOP_ENABLED in src/features.ts; flip it on and move `harper` back to `dependencies` if you ship co-op.",
 	"dependencies": {
-		"harper": "^5.1.0",
 		"steamworks.js": "^0.4.0"
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.49.1",
+		"harper": "^5.1.0",
 		"@types/react": "^18.3.12",
 		"@types/react-dom": "^18.3.1",
 		"@vitejs/plugin-react": "^4.3.4",
@@ -65,7 +65,6 @@
 			{ "from": "schema.graphql", "to": "component/schema.graphql" }
 		],
 		"asarUnpack": [
-			"node_modules/harper/**/*",
 			"node_modules/steamworks.js/**/*"
 		],
 		"npmRebuild": true,
@@ -75,7 +74,7 @@
 			"target": ["dmg", "zip"]
 		},
 		"win": {
-			"target": ["nsis"]
+			"target": ["nsis", "zip"]
 		},
 		"linux": {
 			"category": "Game",

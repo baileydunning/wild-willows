@@ -1,0 +1,71 @@
+name: Desktop build (itch.io artifacts)
+
+# Builds the solo-only desktop app for Windows, macOS, and Linux on native
+# runners and uploads the installers/archives as workflow artifacts. Nothing is
+# auto-published — download the artifacts from the run summary and upload them
+# to itch.io by hand (see RELEASING.md).
+#
+# Run it by pushing a version tag (e.g. `git tag v0.1.0 && git push --tags`)
+# or manually from the Actions tab ("Run workflow").
+
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+# Don't let two runs on the same tag/ref pile up.
+concurrency:
+  group: desktop-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            artifact: wild-willows-windows
+          - os: macos-latest
+            artifact: wild-willows-macos
+          - os: ubuntu-latest
+            artifact: wild-willows-linux
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web client + server bundle
+        run: npm run build
+
+      - name: Package desktop app
+        # electron-builder picks the targets for the host OS from package.json
+        # ("build" key). --publish never => produce files only, never upload.
+        run: npx electron-builder --publish never
+        env:
+          # No Apple Developer cert in CI — skip signing so the mac build
+          # doesn't fail looking for an identity. (Users will need to
+          # right-click → Open the first time; documented in RELEASING.md.)
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+          # GH token lets electron-builder fetch its own helper binaries reliably.
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload installers/archives
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          if-no-files-found: error
+          retention-days: 14
+          path: |
+            dist/*.exe
+            dist/*.dmg
+            dist/*.zip
+            dist/*.AppImage
