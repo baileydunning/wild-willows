@@ -1,5 +1,6 @@
 import Phaser from 'phaser';
 import { bridge } from './bridge';
+import { canPaintClick } from './interactions';
 import {
 	animalScale, animalTexture, ensureAnimalTexture, makeAnimalTextures, makeBaseTextures, makeNodeTextures,
 	makeObjectTextures, makePlayerTexture,
@@ -295,8 +296,9 @@ export class WorldScene extends Phaser.Scene {
 			const tx = Math.floor(pointer.worldX / TILE);
 			const ty = Math.floor(pointer.worldY / TILE);
 			// paint tool (indoors): recolor whatever you click — an item, the rug,
-			// the walls, or the floor underneath.
-			if (this.activeTool === 'paint' && this.isHome) {
+			// the walls, or the floor underneath. While placing or moving an object,
+			// a click means "drop it here", so placement/move (below) take priority.
+			if (canPaintClick({ tool: this.activeTool, isHome: this.isHome, placing: !!this.placementObjectId, moving: !!this.movingPlacementId })) {
 				const hit = (bridge.shared.state?.placements || []).find((p) => p.area === 'home' && p.x === tx && p.y === ty);
 				if (hit) { bridge.emit('paint-click', { placementId: hit.id }); return; }
 				const r = this.homeRoom();

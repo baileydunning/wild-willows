@@ -2,7 +2,7 @@
 // Harper is the source of truth and re-validates every craft; this is purely so
 // the UI can hide locked recipes and announce newly unlocked ones.
 
-import type { GameData, GameState, RecipeDef } from './types';
+import type { GameData, GameState, RecipeDef, HabitatObjectDef } from './types';
 
 /** Animal ids that have returned in a given biome. */
 function returnedInBiome(data: GameData, state: GameState, biomeId: string): Set<string> {
@@ -40,6 +40,27 @@ export function recipeUnlocked(recipe: RecipeDef, data: GameData, state: GameSta
 	if (u.requiresAnimal && !returned.has(u.requiresAnimal)) return false;
 	if (u.requiresCrafted && (player.craftedEver?.[u.requiresCrafted] || 0) <= 0) return false;
 	return true;
+}
+
+/**
+ * Does a recipe match the crafting-menu search box? Case-insensitive match
+ * against the recipe name, what it produces (object name + description), and its
+ * type label. An empty/whitespace query matches everything.
+ */
+export function recipeMatchesSearch(
+	recipe: RecipeDef,
+	obj: HabitatObjectDef | undefined,
+	typeLabel: string,
+	query: string,
+): boolean {
+	const q = query.trim().toLowerCase();
+	if (!q) return true;
+	return (
+		recipe.name.toLowerCase().includes(q) ||
+		(obj?.name || '').toLowerCase().includes(q) ||
+		(obj?.description || '').toLowerCase().includes(q) ||
+		(typeLabel || '').toLowerCase().includes(q)
+	);
 }
 
 /** The set of recipe ids the player can currently craft. */
