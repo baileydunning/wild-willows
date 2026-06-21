@@ -3039,8 +3039,9 @@ export class Metrics extends PublicEndpoint {
 		if (id) {
 			const player = await t.Player.get(id);
 			if (!player) throw new GameError('No save found with that id', 404);
-			// Per-player lookup includes full biome health + rendered area snapshots.
-			const bm = await biomeMetrics(id, { images: true });
+			// Per-player lookup includes full biome health numbers (no rendered
+			// area snapshots — those were removed).
+			const bm = await biomeMetrics(id);
 			const view = metricsView(player);
 			return {
 				player: {

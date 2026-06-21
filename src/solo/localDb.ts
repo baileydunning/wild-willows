@@ -1,0 +1,119 @@
+// In-memory implementation of the tiny slice of the Harper table API that the
+// game server (server/resources.ts) actually uses: get / put / patch / delete /
+// search. One LocalDb instance == one solo save's world. The server logic runs
+// against this exactly as it would against `databases.wildwillows`, so there is
+// a single source of truth for all game rules.
+//
+// The static "definition" tables (Biome, Animal, …) are seeded from the same
+// data/*.json the Harper data loader uses. The dynamic per-save tables start
+// empty and are what we serialize to a save file on disk.
+
+import biomesData from '../../data/biomes.json';
+import recipesData from '../../data/recipes.json';
+import objectsData from '../../data/habitat-objects.json';
+import toolsData from '../../data/tools.json';
+import resourcesData from '../../data/resources.json';
+import animals1Data from '../../data/animals-1.json';
+import animals2Data from '../../data/animals-2.json';
+import achievementsData from '../../data/achievements.json';
+
+const clone = <T>(v: T): T => (v == null ? v : JSON.parse(JSON.stringify(v)));
+
+class LocalTable {
+	private rows = new Map<string, any>();
+
+	// Harper resolves get() to a stored record by primary key (or null).
+	async get(id: any): Promise<any | null> {
+		const rec = this.rows.get(String(id));
+		return rec ? clone(rec) : null;
+	}
+
+	// put replaces the whole record (id taken from the record).
+	async put(record: any): Promise<void> {
+		if (!record || record.id == null) throw new Error('put() requires a record with an id');
+		this.rows.set(String(record.id), clone(record));
+	}
+
+	// patch merges a partial into an existing record (shallow, like Harper).
+	async patch(id: any, partial: any): Promise<void> {
+		const key = String(id);
+		const cur = this.rows.get(key) || { id: key };
+		this.rows.set(key, { ...cur, ...clone(partial), id: cur.id ?? key });
+	}
+
+	async delete(id: any): Promise<void> {
+		this.rows.delete(String(id));
+	}
+
+	// The server only ever calls search({}) / search({ select: ['id'] }) — full
+	// scans that it then filters in JS. Returning the rows array is enough; both
+	// `for await` and `for…of` iterate it.
+	search(_query?: any): any[] {
+		return Array.from(this.rows.values()).map((r) => clone(r));
+	}
+
+	// --- persistence helpers (dynamic tables only) ---
+	dump(): any[] {
+		return Array.from(this.rows.values()).map((r) => clone(r));
+	}
+	load(records: any[]): void {
+		this.rows.clear();
+		for (const r of records || []) if (r && r.id != null) this.rows.set(String(r.id), clone(r));
+	}
+	get size() {
+		return this.rows.size;
+	}
+}
+
+// Tables whose contents define a player's save (everything else is static defs).
+export const DYNAMIC_TABLES = [
+	'Player',
+	'PlayerAchievement',
+	'BiomeState',
+	'Chest',
+	'Placement',
+	'Discovery',
+	'NodeState',
+	'TerrainTile',
+	'FeedEntry',
+	'World',
+	'WorldMember',
+	'WorldPresence',
+	'JoinRequest',
+] as const;
+
+const SEED: Record<string, { records: any[] }> = {
+	Biome: biomesData as any,
+	Animal: { records: [...(animals1Data as any).records, ...(animals2Data as any).records] },
+	ResourceType: resourcesData as any,
+	Recipe: recipesData as any,
+	HabitatObject: objectsData as any,
+	ToolDef: toolsData as any,
+	Achievement: achievementsData as any,
+};
+
+export type LocalDatabase = Record<string, LocalTable>;
+
+/** Build a fresh save database: static defs seeded, dynamic tables empty. */
+export function makeLocalDatabase(): LocalDatabase {
+	const db: LocalDatabase = {};
+	for (const [name, data] of Object.entries(SEED)) {
+		const t = new LocalTable();
+		for (const rec of data.records || []) if (rec && rec.id != null) void t.put(rec);
+		db[name] = t;
+	}
+	for (const name of DYNAMIC_TABLES) db[name] = new LocalTable();
+	return db;
+}
+
+/** Serialize only the dynamic (per-save) tables for writing to disk. */
+export function serializeSave(db: LocalDatabase): Record<string, any[]> {
+	const out: Record<string, any[]> = {};
+	for (const name of DYNAMIC_TABLES) out[name] = db[name].dump();
+	return out;
+}
+
+/** Hydrate dynamic tables from a previously serialized save. */
+export function hydrateSave(db: LocalDatabase, data: Record<string, any[]>): void {
+	for (const name of DYNAMIC_TABLES) db[name].load(data?.[name] || []);
+}

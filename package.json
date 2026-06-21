@@ -20,7 +20,7 @@
 		"desktop:pack": "npm run build && electron-builder --dir",
 		"desktop:dist": "npm run build && electron-builder"
 	},
-	"comment": "For the Harper WEB deploy, the component is prebuilt (bundled resources.js + the static web/ build) and needs NO runtime npm deps — phaser/react/etc. are baked into web/assets at build time. We deliberately keep those OUT of `dependencies` so `harper deploy package=.` doesn't install the (large) phaser package. The one exception is `harper` itself: the Electron desktop app spawns a local Harper process (electron/harper.js does require.resolve('harper')), and electron-builder only packages production `dependencies`, so `harper` must live here for the desktop build.",
+	"comment": "The Harper WEB deploy is prebuilt (bundled resources.js + static web/) and the client baked into web/assets, so it needs no runtime npm deps — phaser/react/etc. stay out of `dependencies` on purpose. `steamworks.js` is the desktop-only native module that electron-builder must package (it only bundles production `dependencies`, and asarUnpack references it). `harper` is here for local web dev (`harper dev .`) — the desktop app no longer spawns a local Harper (solo runs in-app; co-op uses the hosted server). NOTE: if `harper deploy` installs `dependencies` server-side, move `harper`/`steamworks.js` out (e.g. to a desktop-only package) so the web deploy stays clean.",
 	"dependencies": {
 		"harper": "^5.1.0",
 		"steamworks.js": "^0.4.0"

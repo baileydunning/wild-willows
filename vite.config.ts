@@ -1,5 +1,6 @@
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
+import { fileURLToPath } from 'node:url';
 
 // API endpoints exposed by Harper custom resources — proxied to the local
 // Harper instance during `npm run dev:web` development.
@@ -27,6 +28,18 @@ const harperEndpoints = [
 
 export default defineConfig({
 	plugins: [react()],
+	// Relative asset paths so the same build works BOTH served at Harper's root
+	// (web/co-op) and loaded straight from disk (file://) in the desktop app.
+	base: './',
+	// The solo backend reuses the server logic, which imports `node:crypto`. In
+	// the browser bundle we swap in a tiny local stand-in (see src/solo/cryptoShim).
+	// The server's own esbuild build keeps the real node:crypto, so Harper is
+	// unaffected.
+	resolve: {
+		alias: {
+			'node:crypto': fileURLToPath(new URL('./src/solo/cryptoShim.ts', import.meta.url)),
+		},
+	},
 	// build stamp shown in the UI so you can always tell which build you're running
 	define: {
 		__BUILD_TIME__: JSON.stringify(new Date().toISOString()),

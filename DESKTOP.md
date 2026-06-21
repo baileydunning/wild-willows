@@ -1,49 +1,51 @@
 # Wild Willows — Desktop / Steam build
 
-This wraps the **existing** web app in [Electron](https://www.electronjs.org/) so
-it can ship as a standalone desktop game (Steam, itch, etc.). It is **purely
-additive** — nothing about the web/browser build or the Harper/Fabric deploy
-changes. The desktop app simply boots a *local* Harper instance (same server,
-same `web/` build, same REST API) and points a window at it, so Harper stays the
-source of truth exactly as it is today.
+This wraps the web app in [Electron](https://www.electronjs.org/) so it can ship
+as a standalone desktop game (Steam, itch, etc.).
+
+Two play modes, two backends:
+
+- **Solo** runs **entirely in-app, fully offline.** The exact same game server
+  logic (`server/resources.ts`) executes inside the renderer against an
+  in-memory database, persisted to local JSON save files — no Harper process, no
+  network. See `src/solo/`.
+- **Co-op** talks to the **hosted Harper** over HTTPS (`COOP_BASE_URL` in
+  `src/api.ts`, currently `https://wild.willows.harperfabric.com`), because a
+  shared world needs a shared server.
+
+The web/browser build and the Harper/Fabric deploy are unaffected — on the web
+the app just talks to its own origin as before.
 
 ```
 electron/
-  main.js        app lifecycle + window, orchestrates the Harper child process
-  harper.js      spawns local Harper, waits for it, syncs the component, shutdown
-  preload.js     tiny context-isolated bridge (desktop flag + version)
-  loading.html   splash shown while the local world boots
+  main.js        app lifecycle + window; loads the bundled web build (offline)
+                 and provides the solo save-file store over IPC
+  preload.js     context-isolated bridge: desktop flag + saves API
+  steam.js       Steamworks init / stats / achievements (no-op outside Steam)
+  metrics-sync.js  (legacy) Steam stat sync — see note below
+  harper.js      (legacy) local-Harper launcher — no longer used at boot
   package.json   marks this folder as CommonJS (root stays ESM for the web app)
 ```
 
 ## How it works
 
-1. On launch, the component files (`config.yaml`, `schema.graphql`, `resources.js`,
-   `data/`, `web/`) are copied into a **writable** per-user folder
-   (`userData/component`) — required because a packaged app is read-only and
-   Harper is a separate process that can't read from inside an asar archive.
-2. On first launch the app runs `harper install` into `~/WildWillows/harper-root`
-   (unattended, via `ROOTPATH` + `HDB_ADMIN_USERNAME`/`HDB_ADMIN_PASSWORD`). The
-   root lives there rather than under `userData` because Harper's config
-   validator rejects spaces/dots in `rootPath`, and the macOS `userData` path
-   (`~/Library/Application Support/…`) contains a space. The
-   installer writes a complete, schema-valid config and generates the TLS certs,
-   JWT keys, super-user and database dir — things a hand-written config can't
-   provide. The app/REST port and `authorizeLocal: true` are baked in via
-   `HTTP_SECUREPORT` / `AUTHENTICATION_AUTHORIZELOCAL`. The subprocess also gets
-   an **isolated `HOME`** (`userData/harper-home`) so the installer neither sees
-   nor clobbers a developer's global Harper (whose boot file lives at
-   `~/.harperdb/...`) — without this, the installer detects the global install
-   and crashes querying its system database.
-3. Subsequent launches skip install and just `harper run` against that ready
-   root. First boot still seeds the preserve (150 animals, 126 objects, 97
-   recipes…), so it's slow once; later launches are quick. Electron polls the
-   endpoint and, once Harper answers, loads `https://127.0.0.1:9926/`.
-4. On quit, the Harper child process is torn down. Harper output is also written
-   to `userData/logs/harper.log` for troubleshooting.
+1. On launch the app loads the **bundled `web/` build straight from disk**
+   (`file://`), so it opens instantly and needs no server to play solo. (The
+   build uses Vite `base: './'` so the same `web/` works both from disk and when
+   served at Harper's root for web/co-op.)
+2. **Solo:** picking *New Game* or *Load Game* runs the real server endpoints in
+   the renderer (`src/solo/backend.ts` installs `Resource`/`databases` shims and
+   imports `server/resources.ts`). State lives in an in-memory `LocalDb`
+   (`src/solo/localDb.ts`) seeded from `data/*.json`; after every action the
+   world is serialized to a save slot. No passcode — solo saves are local files,
+   each just a name + character. Slots are JSON files in `userData/saves/`
+   (offline, durable, Steam-Cloud-syncable), read/written over IPC.
+3. **Co-op:** selecting Co-op points the API client at the hosted Harper. Hosting
+   or joining, presence, and approvals all go to that shared server.
+4. There is no local Harper child process and nothing to install on first run.
 
-Because it's a single local player, this is a true **offline, own-it-forever**
-build — no hosted server, no network dependency.
+Solo is a true **offline, own-it-forever** experience; co-op requires a network
+connection to the shared server.
 
 ## Run it (dev)
 
@@ -96,11 +98,14 @@ installed version (`harper --version`) and confirm `ls node_modules/harper`.
 
 ## Steam Stats & Achievements
 
-The desktop app pushes metrics to Steam with **no game-code changes**: each
-install has one local Harper player, so `electron/metrics-sync.js` polls the
-local `/Metrics/` endpoint every 60s and maps the numbers onto Steam via
-`electron/steam.js`. Everything is a no-op unless the app is launched through
-Steam, so `npm run desktop` still works.
+> **Heads-up — needs rewiring.** `electron/metrics-sync.js` was written for the
+> old local-Harper model: it polls a local `/Metrics/` endpoint, which no longer
+> exists now that solo runs in-app. It fails gracefully (so nothing crashes) but
+> currently pushes **no** stats. To restore Steam Stats/Achievements, have the
+> renderer report its in-app metrics to the main process over IPC (e.g. call the
+> local `/Metrics/` endpoint via `soloRequest` and forward the numbers), then map
+> them onto Steam via `electron/steam.js`. The stat/achievement mapping below is
+> still the right target.
 
 Define these in the Steamworks dashboard (App Admin → **Stats**, then
 **Achievements**) with matching API names:
@@ -123,11 +128,12 @@ actual metric field names to the console — use them to confirm the mapping.
 
 - **Controller support** — the game is keyboard-only today; add gamepad input
   for Steam Deck Verified and couch play.
-- **Steamworks** — achievements + Steam Cloud (sync the `userData/harper-root`
-  data dir) via `steamworks.js`.
+- **Steamworks** — re-wire Steam Stats/Achievements to the in-app metrics (see
+  note above), and sync the `userData/saves/` folder via Steam Cloud.
 - **Code signing** — required for distribution on macOS and Windows.
-- **Saves** — the name+passcode multi-save flow is built for a shared server and
-  is redundant offline; consider simplifying to local saves.
+- **Co-op over the internet** — verify the hosted Harper (`COOP_BASE_URL`) sends
+  CORS headers that allow the desktop's `file://` origin (`Origin: null`) for the
+  co-op endpoints; otherwise co-op fetches from the packaged app will be blocked.
 
 ## Troubleshooting
 

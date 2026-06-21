@@ -3,24 +3,71 @@
 /**
  * Wild Willows — desktop (Steam) shell.
  *
- * This is a thin wrapper around the EXISTING web app. It does not change the
- * game: it boots a local Harper instance (same server, same web build, same
- * API) and loads it in a window. The browser/Fabric deployment is unaffected.
+ * Solo play runs entirely in-app (the same game logic, against local save files
+ * in userData/saves), so the desktop app loads the BUNDLED web build straight
+ * from disk and needs no server and no network to play solo. Co-op talks to the
+ * hosted Harper over HTTPS from the renderer (see src/api.ts COOP_BASE_URL).
  */
 
-const { app, BrowserWindow, shell, session } = require('electron');
+const { app, BrowserWindow, shell, ipcMain } = require('electron');
 const path = require('node:path');
-const harper = require('./harper');
+const fs = require('node:fs');
 const steam = require('./steam');
-const metricsSync = require('./metrics-sync');
 
-// Single instance only — two copies would fight over the Harper port/data.
+// Single instance only — two copies would fight over the same save files.
 if (!app.requestSingleInstanceLock()) {
 	app.quit();
 	process.exit(0);
 }
 
 let mainWindow = null;
+
+// --- where the bundled web build lives (dev vs packaged) ---
+function webIndexPath() {
+	if (app.isPackaged) {
+		const packaged = path.join(process.resourcesPath, 'component', 'web', 'index.html');
+		if (fs.existsSync(packaged)) return packaged;
+	}
+	return path.join(__dirname, '..', 'web', 'index.html');
+}
+
+// --- solo save files: userData/saves/<slotId>.json ---
+function savesDir() {
+	const dir = path.join(app.getPath('userData'), 'saves');
+	fs.mkdirSync(dir, { recursive: true });
+	return dir;
+}
+const slotFile = (slotId) => path.join(savesDir(), `${String(slotId).replace(/[^a-zA-Z0-9_-]/g, '')}.json`);
+
+function registerSaveIpc() {
+	ipcMain.handle('saves:list', async () => {
+		try {
+			return fs
+				.readdirSync(savesDir())
+				.filter((f) => f.endsWith('.json'))
+				.map((f) => f.slice(0, -5));
+		} catch {
+			return [];
+		}
+	});
+	ipcMain.handle('saves:read', async (_e, slotId) => {
+		try {
+			return fs.readFileSync(slotFile(slotId), 'utf8');
+		} catch {
+			return null;
+		}
+	});
+	ipcMain.handle('saves:write', async (_e, slotId, contents) => {
+		fs.writeFileSync(slotFile(slotId), String(contents), 'utf8');
+	});
+	ipcMain.handle('saves:remove', async (_e, slotId) => {
+		try {
+			fs.unlinkSync(slotFile(slotId));
+		} catch {
+			/* already gone */
+		}
+	});
+}
 
 function createWindow() {
 	mainWindow = new BrowserWindow({
@@ -40,12 +87,9 @@ function createWindow() {
 
 	mainWindow.once('ready-to-show', () => mainWindow.show());
 
-	// Show the splash immediately while Harper boots.
-	mainWindow.loadFile(path.join(__dirname, 'loading.html'));
-
-	// Open external links in the system browser, never in-app.
+	// Open external (http/https) links in the system browser; keep file:// in-app.
 	mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-		if (!url.startsWith(harper.BASE_URL)) {
+		if (/^https?:/i.test(url)) {
 			shell.openExternal(url);
 			return { action: 'deny' };
 		}
@@ -57,46 +101,14 @@ function createWindow() {
 	});
 }
 
-// Harper serves over HTTPS with a self-signed cert in local dev. Accept it ONLY
-// for our loopback origin; everything else uses normal certificate validation.
-app.on('certificate-error', (event, _webContents, url, _error, _cert, callback) => {
-	if (url.startsWith(`https://${harper.HOST}:${harper.PORT}`)) {
-		event.preventDefault();
-		callback(true);
-	} else {
-		callback(false);
-	}
-});
-
-// Harper's loopback endpoint uses a self-signed cert. Tell Chromium's verifier
-// to trust it for our host only — this prevents the handshake from even being
-// flagged (quieter than just catching `certificate-error` after the fact).
-function trustLoopbackCert() {
-	session.defaultSession.setCertificateVerifyProc((request, callback) => {
-		if (request.hostname === harper.HOST) callback(0); // 0 = trusted/valid
-		else callback(-3); // -3 = fall back to Chromium's default verification
-	});
-}
-
 async function boot() {
-	trustLoopbackCert();
 	steam.init(app); // no-op when not launched through Steam
+	registerSaveIpc();
 	createWindow();
 	try {
-		const url = await harper.start(app);
-		if (mainWindow) await mainWindow.loadURL(url);
-		metricsSync.start(); // poll local metrics → Steam Stats (no-op without Steam)
+		await mainWindow.loadFile(webIndexPath());
 	} catch (err) {
-		console.error('[main] Harper failed to start:', err);
-		if (mainWindow) {
-			await mainWindow.loadFile(path.join(__dirname, 'loading.html'), { hash: 'error' });
-			// Keep the UI clean: just a one-line reason. Full detail is in the log.
-			const reason = String(err && err.message ? err.message : err).split('\n')[0];
-			const logPath = harper.getLogFilePath() || '';
-			await mainWindow.webContents.executeJavaScript(
-				`window.__wwShowError(${JSON.stringify(reason)}, ${JSON.stringify(logPath)});`
-			).catch(() => {});
-		}
+		console.error('[main] failed to load app:', err);
 	}
 }
 
@@ -110,7 +122,6 @@ app.on('second-instance', () => {
 });
 
 app.on('window-all-closed', () => {
-	// Quit on all platforms; the local backend should not outlive the window.
 	app.quit();
 });
 
@@ -118,14 +129,6 @@ app.on('activate', () => {
 	if (BrowserWindow.getAllWindows().length === 0) boot();
 });
 
-// Make sure Harper is torn down whenever the app exits.
-app.on('before-quit', () => { metricsSync.stop(); steam.shutdown(); harper.stop(); });
-process.on('exit', () => harper.stop());
-process.on('SIGINT', () => {
-	harper.stop();
-	process.exit(0);
-});
-process.on('SIGTERM', () => {
-	harper.stop();
-	process.exit(0);
-});
+app.on('before-quit', () => { steam.shutdown(); });
+process.on('SIGINT', () => process.exit(0));
+process.on('SIGTERM', () => process.exit(0));
