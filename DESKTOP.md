@@ -98,14 +98,12 @@ installed version (`harper --version`) and confirm `ls node_modules/harper`.
 
 ## Steam Stats & Achievements
 
-> **Heads-up — needs rewiring.** `electron/metrics-sync.js` was written for the
-> old local-Harper model: it polls a local `/Metrics/` endpoint, which no longer
-> exists now that solo runs in-app. It fails gracefully (so nothing crashes) but
-> currently pushes **no** stats. To restore Steam Stats/Achievements, have the
-> renderer report its in-app metrics to the main process over IPC (e.g. call the
-> local `/Metrics/` endpoint via `soloRequest` and forward the numbers), then map
-> them onto Steam via `electron/steam.js`. The stat/achievement mapping below is
-> still the right target.
+The renderer owns the live game metrics (solo runs in-app; co-op uses the hosted
+Harper), so `src/solo/steamSync.ts` periodically reads the active player's
+`/Metrics/` view and pushes it to the main process over IPC (`steam:metrics`).
+`electron/metrics-sync.js` receives it and maps the numbers onto Steam Stats +
+the milestone achievements via `electron/steam.js`. Everything is a no-op unless
+the app is launched through Steam, so `npm run desktop` still works.
 
 Define these in the Steamworks dashboard (App Admin → **Stats**, then
 **Achievements**) with matching API names:
@@ -128,8 +126,9 @@ actual metric field names to the console — use them to confirm the mapping.
 
 - **Controller support** — the game is keyboard-only today; add gamepad input
   for Steam Deck Verified and couch play.
-- **Steamworks** — re-wire Steam Stats/Achievements to the in-app metrics (see
-  note above), and sync the `userData/saves/` folder via Steam Cloud.
+- **Steamworks** — define the Stats/Achievements (API names below) in the
+  dashboard so the wired-up sync has targets, and sync `userData/saves/` via
+  Steam Cloud.
 - **Code signing** — required for distribution on macOS and Windows.
 - **Co-op over the internet** — verify the hosted Harper (`COOP_BASE_URL`) sends
   CORS headers that allow the desktop's `file://` origin (`Origin: null`) for the
