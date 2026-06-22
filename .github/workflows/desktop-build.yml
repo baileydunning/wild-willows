@@ -106,7 +106,17 @@ jobs:
 
       - name: Install butler
         run: |
-          curl -sL -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
+          set -euo pipefail
+          # Retry on transient DNS/network errors (curl exit 6 = couldn't resolve host).
+          for i in 1 2 3 4 5; do
+            if curl -fL --connect-timeout 20 --retry 5 --retry-delay 5 --retry-all-errors \
+                 -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default; then
+              break
+            fi
+            echo "butler download attempt $i failed; retrying in 10s…"
+            sleep 10
+            [ "$i" = 5 ] && { echo "Could not download butler after 5 attempts"; exit 1; }
+          done
           unzip -q butler.zip -d "$HOME/butler"
           chmod +x "$HOME/butler/butler"
           "$HOME/butler/butler" -V
