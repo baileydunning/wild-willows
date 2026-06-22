@@ -117,16 +117,52 @@ Build targets live in `package.json` → `build`: dmg/zip (mac), NSIS + zip (win
 
 ### Shipping to itch.io (v1)
 
-itch.io is the v1 distribution channel. Solo is offline, so the build is just files players download — no auto-publish is wired up; you upload them by hand.
+itch.io is the v1 distribution channel ([bai13y/wild-willows](https://bai13y.itch.io/wild-willows)). Solo is offline, so the build is just files players download.
 
 A Mac can only produce the **macOS** `.dmg`/`.zip`; Windows and Linux need their own OS. So either build locally per machine, or let CI build all three:
 
-- **All platforms via CI (recommended).** `.github/workflows/desktop-build.yml` builds Windows, macOS, and Linux on native runners and uploads each as a downloadable **workflow artifact** (it publishes nothing). Trigger it by pushing a version tag (`git tag v0.1.0 && git push origin v0.1.0`) or via **Actions → "Desktop build (itch.io artifacts)" → Run workflow**, then download `wild-willows-windows` / `-macos` / `-linux` from the run summary.
-- **Locally on your Mac.** `npm run desktop:dist` → macOS `.dmg`/`.zip` in `dist/`.
+- **Auto-build + publish via CI (recommended).** `.github/workflows/desktop-build.yml` builds Windows, macOS, and Linux on native runners, then — on a **version-tag push** — publishes each with `butler` to the `windows` / `osx` / `linux` channels of `bai13y/wild-willows`:
+  ```bash
+  git tag v0.1.0 && git push origin v0.1.0
+  ```
+  A plain **Actions → Run workflow** (manual) just builds the artifacts and skips publishing. Publishing needs the `BUTLER_API_KEY` secret (from https://itch.io/user/settings/api-keys). butler uploads update the itch page in place — version, channels, and itch-app installs are handled for you, no manual drag-and-drop.
+- **Locally on your Mac.** `npm run desktop:dist` → macOS `.dmg`/`.zip` in `dist/`, then drag into **Edit game → Uploads** by hand if you're not using the tag flow.
 
-Then in itch: create the project as a downloadable **Game** ("played on your computer", installable by the itch app), drag each file into **Edit game → Uploads**, confirm the per-file platform tags (Windows / macOS / Linux), add screenshots + cover, and set it Public.
+On the itch page itself, set it up once as a downloadable **Game** ("played on your computer", installable by the itch app), add screenshots + cover + tags + the AI disclosure, and set it Public. After that, tagging a release keeps the builds current automatically.
 
-> Unsigned builds (no code-signing cert) launch with a Gatekeeper/SmartScreen warning the first time — normal for itch games; note it on the store page. Signing is part of the Steam roadmap below.
+> Windows builds are unsigned, so SmartScreen shows a "Windows protected your PC" prompt the first time (More info → Run anyway) — normal for itch games; note it on the store page.
+
+### Signing & notarizing the macOS build
+
+The macOS build is configured to **code-sign + notarize** so it opens with no Gatekeeper "damaged"/unidentified-developer warning. Config lives in `package.json` → `build.mac` (`hardenedRuntime`, `entitlements: build/entitlements.mac.plist`, `notarize.teamId: JB4CT3MZ6L`) and the entitlements plist grants the JIT / library-validation exceptions Electron + `steamworks.js` need.
+
+To produce a signed, notarized build you need, on your Mac:
+
+- A **Developer ID Application** certificate installed in your login keychain (from your Apple Developer account — *not* "Apple Distribution", which is App-Store-only).
+- An **app-specific password** generated at [appleid.apple.com](https://appleid.apple.com) (Sign-In & Security → App-Specific Passwords).
+
+Then build with the notarization credentials in the environment:
+
+```bash
+export APPLE_ID="you@example.com"               # your Apple Developer account email
+export APPLE_APP_SPECIFIC_PASSWORD="abcd-efgh-ijkl-mnop"
+export APPLE_TEAM_ID="JB4CT3MZ6L"
+npm run desktop:dist
+```
+
+electron-builder finds the Developer ID cert in the keychain, signs the app + nested `steamworks.js` binary, then submits to Apple's notary service and staples the ticket. The resulting `dist/*.dmg` / `*-mac.zip` open cleanly on any Mac. (Notarization adds a few minutes while Apple's service processes the upload.)
+
+> The bundle id (`build.appId`) is `io.harper.wildwillows` and must exactly match the registered App ID, or signing/notarization fails.
+>
+**Signing in CI.** `desktop-build.yml` signs + notarizes on the macOS runner when these repository secrets are set (Settings → Secrets and variables → Actions); they're applied on the mac runner only, so Windows/Linux stay unsigned, and if they're absent the mac build just comes out unsigned (no failure):
+
+| Secret | Value |
+|---|---|
+| `APPLE_ID` | Apple **account email** (your Apple ID login) — *not* the bundle id `io.harper.wildwillows`. |
+| `APPLE_TEAM_ID` | `JB4CT3MZ6L` |
+| `APPLE_APP_SPECIFIC_PASSWORD` | App-specific password from [appleid.apple.com](https://appleid.apple.com) (Sign-In & Security → App-Specific Passwords). |
+| `MAC_CSC_LINK` | "Developer ID Application" cert exported as `.p12`, base64-encoded: `base64 -i cert.p12 \| pbcopy`. |
+| `MAC_CSC_KEY_PASSWORD` | The password set when exporting that `.p12`. |
 
 ### Re-enabling co-op later
 
@@ -163,7 +199,7 @@ itch.io is the v1 home. Steam is the natural next step — most of the plumbing 
 
 - **App ID & depots** — register the app in Steamworks, replace `steam_appid.txt` (`480` dev placeholder) with the real ID, and upload the **unpacked** per-OS folders as depots via `steamcmd` (Steam runs the app directly, unlike itch's installers).
 - **Stats & achievements config** — define the Stats/Achievements listed above in the Steamworks dashboard with matching API names so the existing push (`metrics-sync.js`) lights them up.
-- **Code signing** — sign + notarize macOS and sign Windows; required for a clean Steam (and itch) launch with no security warnings.
+- **Code signing** — macOS signing + notarization is wired up (see above); Windows signing still needs a code-signing cert to clear SmartScreen.
 - **Controller support** — the game is keyboard-only today; add gamepad input for Steam Deck Verified and couch play.
 - **Steam Cloud** — sync `userData/saves/` so solo progress follows players across machines.
 - **Steam overlay** — `electronEnableSteamOverlay()` is already called in `steam.js`; verify it attaches in a packaged build.

@@ -51,7 +51,7 @@
 		"vitest": "^3.2.4"
 	},
 	"build": {
-		"appId": "io.harperdb.wildwillows",
+		"appId": "io.harper.wildwillows",
 		"productName": "Wild Willows",
 		"files": [
 			"electron/**/*",
@@ -71,7 +71,12 @@
 		"buildDependenciesFromSource": false,
 		"mac": {
 			"category": "public.app-category.games",
-			"target": ["dmg", "zip"]
+			"target": ["dmg", "zip"],
+			"hardenedRuntime": true,
+			"gatekeeperAssess": false,
+			"entitlements": "build/entitlements.mac.plist",
+			"entitlementsInherit": "build/entitlements.mac.plist",
+			"notarize": { "teamId": "JB4CT3MZ6L" }
 		},
 		"win": {
 			"target": ["nsis", "zip"]
