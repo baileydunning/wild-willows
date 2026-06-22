@@ -25,6 +25,12 @@ import resourcesData from '../data/resources.json';
 import animals1Data from '../data/animals-1.json';
 import animals2Data from '../data/animals-2.json';
 import achievementsData from '../data/achievements.json';
+import { weatherSnapshot } from './weather';
+
+// Biome ids for the weather block (weather is per-biome; climate differs by
+// biome). Derived once from the static seed data so the weather snapshot stays
+// a pure function and needs no async defs() lookup.
+const WEATHER_BIOME_IDS: string[] = biomesData.records.map((b: any) => b.id);
 
 // `databases.wildwillows` is undefined right after the database is dropped (until
 // Harper restarts and the component recreates the tables). Fail cleanly with a 503
@@ -855,6 +861,8 @@ async function createPlayerRecords(playerId: string, name: string, passcode: str
 
 /** Full state snapshot built from freshly created records (first login). */
 function freshSnapshot(created: any) {
+	const now = Date.now();
+	const worldId = created.player?.worldId || created.player?.id;
 	return {
 		player: sanitizePlayer(created.player),
 		biomeStates: created.seeded.biomeStates,
@@ -865,7 +873,8 @@ function freshSnapshot(created: any) {
 		terrain: [],
 		achievements: [],
 		feed: [],
-		serverTime: Date.now(),
+		serverTime: now,
+		weather: weatherSnapshot(worldId, now, WEATHER_BIOME_IDS),
 		nodeRegenSeconds: NODE_REGEN_SECONDS,
 		inventoryCapacity: inventoryCapacity(created.player),
 	};
@@ -1407,6 +1416,7 @@ async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 		for (const bs of biomeStates) if (bs.unlocked) unlocked.add(bs.biomeId);
 		player = { ...player, unlockedBiomes: [...unlocked] };
 	}
+	const now = Date.now();
 	return {
 		player: sanitizePlayer(player), worldId: wid, biomeStates, placements, chests, discoveries, nodeStates, terrain,
 		// most-recently earned first, so the client can float fresh unlocks to the top
@@ -1418,7 +1428,8 @@ async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 			.sort((a: any, b: any) => (a.at || 0) - (b.at || 0))
 			.slice(-FEED_CAP)
 			.map((r: any) => ({ id: r.id, at: r.at, icon: r.icon, text: r.text })),
-		serverTime: Date.now(),
+		serverTime: now,
+		weather: weatherSnapshot(wid, now, WEATHER_BIOME_IDS),
 		nodeRegenSeconds: NODE_REGEN_SECONDS,
 		inventoryCapacity: inventoryCapacity(player),
 	};

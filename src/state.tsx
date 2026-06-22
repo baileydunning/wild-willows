@@ -3,6 +3,7 @@ import { api, forgetSave, getPlayerId, lastSave, rememberSave, setPlayerId, star
 import { bridge } from './game/bridge';
 import { unlockedRecipeIds } from './recipes';
 import { narrativeBeats, nextFeedFact, healthMilestoneLine, HEALTH_THRESHOLDS } from './ui/narrative';
+import { weatherForArea, weatherFeedLine, seasonFeedLine } from './weather';
 import type { Appearance, GameData, GameState, PanelId, WorldSummary, PendingRequest } from './types';
 
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
@@ -135,6 +136,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	const shownFacts = useRef<Set<string>>(new Set());
 	// Last-seen biome health, to fire a progress beat when a threshold is crossed.
 	const prevHealth = useRef<Map<string, number> | null>(null);
+	// Last-seen weather (per current area) and season, to fire feed beats on change.
+	const prevWeather = useRef<string | null>(null);
+	const prevSeason = useRef<string | null>(null);
 	// Last-seen home config signature, so upgrading/restyling while inside redraws the room.
 	const prevHomeSig = useRef<string | null>(null);
 	// Feed persistence: buffer new lines and flush them to Harper (capped per player),
@@ -291,6 +295,31 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			}
 		}
 	}, [data, state, pushLog]);
+
+	// Weather beats (retention): when the weather in the player's current biome
+	// changes — or the season turns — weave a flavor line into the feed. Same
+	// snapshot-diff pattern as the health milestones above. Baseline is seeded
+	// silently on the first state so we never announce weather the moment you log
+	// in (that's the welcome-back summary's job in a later phase).
+	useEffect(() => {
+		if (!state?.weather) return;
+		const area = state.player.area;
+		const nowWeather = weatherForArea(state, area);
+		const nowSeason = state.weather.season;
+		const pw = prevWeather.current;
+		const ps = prevSeason.current;
+		prevWeather.current = nowWeather;
+		prevSeason.current = nowSeason;
+		if (pw === null) return; // seed baseline silently
+		if (ps !== null && nowSeason !== ps) {
+			const sl = seasonFeedLine(nowSeason);
+			if (sl) pushLog(sl.icon, sl.text, true);
+		}
+		if (nowWeather !== pw && area !== 'home') {
+			const wl = weatherFeedLine(nowWeather, 'onArrive');
+			if (wl) pushLog(wl.icon, wl.text, true);
+		}
+	}, [state, pushLog]);
 
 	const markSaved = useCallback(() => {
 		setSaveStatus('saved');

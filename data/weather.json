@@ -1,0 +1,126 @@
+{
+  "_comment": "Weather is DERIVED, not stored. This file is static config consumed by server/weather.ts — it is NOT a seeded Harper table, so it needs no schema entry and never goes through reconcileDefinitions. `config` sets the time scale; `seasons` lists the cycle order; `types` defines each weather kind (visuals + Phase 3 effect params); `climate` is per-biome × per-season weighted odds used to draw each game-day's weather deterministically.",
+  "config": {
+    "dayMs": 1440000,
+    "daysPerSeason": 3,
+    "dayPhases": [
+      { "id": "dawn", "until": 0.15 },
+      { "id": "day", "until": 0.6 },
+      { "id": "dusk", "until": 0.72 },
+      { "id": "night", "until": 1 }
+    ]
+  },
+  "seasons": ["spring", "summer", "autumn", "winter"],
+  "seasonStyle": {
+    "_comment": "tint = ground color the biome lerps toward; accent = HUD chip color; label = display name.",
+    "spring": { "label": "Spring", "tint": "#a9d77a", "tintAmount": 0.12, "accent": "#8fc46a" },
+    "summer": { "label": "Summer", "tint": "#c7d96a", "tintAmount": 0.1, "accent": "#cdbb4e" },
+    "autumn": { "label": "Autumn", "tint": "#d99a52", "tintAmount": 0.22, "accent": "#d4863c" },
+    "winter": { "label": "Winter", "tint": "#cdd6e0", "tintAmount": 0.28, "accent": "#9fb4c9" }
+  },
+  "dayPhaseStyle": {
+    "_comment": "A full-screen lighting overlay: color + max alpha. day is clear; dawn/dusk warm; night dim & cool.",
+    "dawn": { "label": "Dawn", "color": "#ffb37a", "alpha": 0.14 },
+    "day": { "label": "Day", "color": "#ffffff", "alpha": 0 },
+    "dusk": { "label": "Dusk", "color": "#ff9866", "alpha": 0.18 },
+    "night": { "label": "Night", "color": "#16204a", "alpha": 0.36 }
+  },
+  "types": {
+    "clear": { "name": "Clear", "icon": "sun", "tags": [], "growthMult": 1, "waterPerDay": 0, "flavor": "Open sky and easy light.", "particle": null, "overlay": null },
+    "cloudy": { "name": "Cloudy", "icon": "cloud", "tags": [], "growthMult": 1, "waterPerDay": 0, "flavor": "A soft grey lid over the preserve.", "particle": null, "overlay": { "color": "#9aa6ad", "alpha": 0.14 } },
+    "rain": { "name": "Rain", "icon": "drop", "tags": ["wet"], "growthMult": 1.25, "waterPerDay": 4, "flavor": "Steady rain — the ground drinks it in.", "particle": "rain", "overlay": { "color": "#5d6f86", "alpha": 0.2 } },
+    "storm": { "name": "Storm", "icon": "drop", "tags": ["wet", "harsh"], "growthMult": 1.1, "waterPerDay": 6, "flavor": "Wind and heavy rain sweep through.", "particle": "rain", "overlay": { "color": "#3f4a63", "alpha": 0.34 } },
+    "fog": { "name": "Fog", "icon": "cloud", "tags": [], "growthMult": 1, "waterPerDay": 1, "flavor": "Mist softens every edge.", "particle": null, "overlay": { "color": "#d7dde0", "alpha": 0.3 } },
+    "snow": { "name": "Snow", "icon": "sparkle", "tags": ["cold"], "growthMult": 0.9, "waterPerDay": 1, "flavor": "Quiet snow settles over the slope.", "particle": "snow", "overlay": { "color": "#cdd9e6", "alpha": 0.16 } },
+    "heat": { "name": "Dry Heat", "icon": "sun", "tags": ["harsh", "dry"], "growthMult": 1, "waterPerDay": -3, "flavor": "Hot and dry — beds lose their moisture.", "particle": null, "overlay": { "color": "#ffca7a", "alpha": 0.12 } }
+  },
+  "feed": {
+    "_comment": "Retention hook: when a biome's weather CHANGES, one of these lines is surfaced in the activity feed. `onArrive` fires when the player is present as it starts; `overnight` is the login summary for weather that passed while they were away (Phase 4 wiring). Multiple lines per key so repeat visits stay fresh.",
+    "clear": {
+      "icon": "sun",
+      "onArrive": ["The clouds break and sun pours over the preserve.", "Skies clear — a bright, easy day settles in."],
+      "overnight": ["You wake to clear skies over the preserve."]
+    },
+    "cloudy": {
+      "icon": "cloud",
+      "onArrive": ["A soft grey lid slides over the sky.", "Clouds gather, gentle and cool."],
+      "overnight": ["A quiet, overcast morning."]
+    },
+    "rain": {
+      "icon": "drop",
+      "onArrive": ["Rain begins to fall — your soil beds drink it in.", "A steady rain moves through. The watered ground deepens.", "First drops, then a steady patter. The preserve greens a little."],
+      "overnight": ["Rain passed through overnight — your beds woke up watered.", "You return to rain-fed soil; the ground recovered while you were away."]
+    },
+    "storm": {
+      "icon": "drop",
+      "onArrive": ["A storm rolls in — wind, then heavy rain.", "Thunder in the distance; the rain comes down hard."],
+      "overnight": ["A storm swept through while you were gone. The ground is soaked."]
+    },
+    "fog": {
+      "icon": "cloud",
+      "onArrive": ["Mist rises and softens every edge of the preserve.", "Fog settles in, hushing the morning."],
+      "overnight": ["You arrive to a preserve wrapped in fog."]
+    },
+    "snow": {
+      "icon": "sparkle",
+      "onArrive": ["Snow begins to fall, quiet and slow.", "The first flakes settle over the slope."],
+      "overnight": ["Snow fell overnight — the preserve is dusted white."]
+    },
+    "heat": {
+      "icon": "sun",
+      "onArrive": ["The air turns hot and dry — keep an eye on your beds.", "Dry heat builds; the soil will want watering."],
+      "overnight": ["A dry, hot spell set in while you were away — some beds have dried out."]
+    },
+    "season": {
+      "icon": "sparkle",
+      "spring": ["Spring arrives. New growth stirs across the preserve."],
+      "summer": ["Summer settles in, long and bright."],
+      "autumn": ["Autumn turns the preserve gold and amber."],
+      "winter": ["Winter comes quiet and cold to the preserve."]
+    }
+  },
+  "climate": {
+    "default": {
+      "spring": { "clear": 4, "cloudy": 3, "rain": 3, "fog": 1 },
+      "summer": { "clear": 6, "cloudy": 2, "rain": 2, "storm": 1 },
+      "autumn": { "clear": 3, "cloudy": 4, "rain": 2, "fog": 2 },
+      "winter": { "clear": 3, "cloudy": 3, "rain": 1, "snow": 2, "fog": 1 }
+    },
+    "meadow": {
+      "spring": { "clear": 4, "cloudy": 3, "rain": 3 },
+      "summer": { "clear": 6, "cloudy": 2, "rain": 1, "storm": 1 },
+      "autumn": { "clear": 3, "cloudy": 4, "rain": 2, "fog": 1 },
+      "winter": { "clear": 3, "cloudy": 3, "rain": 1, "snow": 1, "fog": 1 }
+    },
+    "forest": {
+      "spring": { "clear": 3, "cloudy": 3, "rain": 3, "fog": 2 },
+      "summer": { "clear": 4, "cloudy": 3, "rain": 2, "storm": 1, "fog": 1 },
+      "autumn": { "clear": 2, "cloudy": 4, "rain": 3, "fog": 3 },
+      "winter": { "clear": 2, "cloudy": 4, "rain": 1, "snow": 2, "fog": 2 }
+    },
+    "wetland": {
+      "spring": { "cloudy": 3, "rain": 4, "storm": 1, "fog": 2 },
+      "summer": { "clear": 2, "cloudy": 3, "rain": 4, "storm": 2, "fog": 1 },
+      "autumn": { "cloudy": 4, "rain": 4, "fog": 3 },
+      "winter": { "cloudy": 3, "rain": 3, "snow": 1, "fog": 3 }
+    },
+    "desert": {
+      "spring": { "clear": 6, "heat": 3, "cloudy": 1, "rain": 1 },
+      "summer": { "clear": 5, "heat": 6, "storm": 1 },
+      "autumn": { "clear": 6, "heat": 3, "cloudy": 1 },
+      "winter": { "clear": 6, "heat": 1, "cloudy": 2, "rain": 1 }
+    },
+    "alpine": {
+      "spring": { "clear": 3, "cloudy": 3, "rain": 2, "snow": 2, "fog": 1 },
+      "summer": { "clear": 4, "cloudy": 3, "rain": 2, "storm": 1 },
+      "autumn": { "clear": 2, "cloudy": 3, "snow": 3, "fog": 2 },
+      "winter": { "clear": 1, "cloudy": 2, "snow": 6, "fog": 2 }
+    },
+    "coastal": {
+      "spring": { "clear": 3, "cloudy": 3, "rain": 2, "fog": 3, "storm": 1 },
+      "summer": { "clear": 5, "cloudy": 3, "fog": 2, "storm": 1 },
+      "autumn": { "clear": 2, "cloudy": 4, "rain": 2, "fog": 3, "storm": 1 },
+      "winter": { "cloudy": 3, "rain": 3, "fog": 3, "storm": 2 }
+    }
+  }
+}

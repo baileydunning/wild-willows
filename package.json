@@ -51,7 +51,7 @@
 		"vitest": "^3.2.4"
 	},
 	"build": {
-		"appId": "io.harperdb.wildwillows",
+		"appId": "io.harper.wildwillows",
 		"productName": "Wild Willows",
 		"files": [
 			"electron/**/*",
