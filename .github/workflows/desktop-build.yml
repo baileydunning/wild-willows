@@ -1,12 +1,16 @@
-name: Desktop build (itch.io artifacts)
+name: Desktop build & publish
 
 # Builds the solo-only desktop app for Windows, macOS, and Linux on native
-# runners and uploads the installers/archives as workflow artifacts. Nothing is
-# auto-published — download the artifacts from the run summary and upload them
-# to itch.io by hand (see RELEASING.md).
+# runners. On a version-tag push it then publishes each build to itch.io with
+# butler (channels windows / osx / linux of bai13y/wild-willows). A plain manual
+# run just builds the artifacts and skips publishing.
 #
-# Run it by pushing a version tag (e.g. `git tag v0.1.0 && git push --tags`)
-# or manually from the Actions tab ("Run workflow").
+# Triggers:
+#   git tag v0.1.0 && git push origin v0.1.0   → build AND publish to itch
+#   Actions tab → Run workflow                 → build artifacts only (no publish)
+#
+# Required repo secret for publishing:
+#   BUTLER_API_KEY   from https://itch.io/user/settings/api-keys
 
 on:
   push:
@@ -49,14 +53,34 @@ jobs:
       - name: Package desktop app
         # electron-builder picks the targets for the host OS from package.json
         # ("build" key). --publish never => produce files only, never upload.
-        run: npx electron-builder --publish never
+        # On a version tag (v0.1.1) we override the app version FROM the tag, so
+        # package.json never has to be bumped by hand. `shell: bash` works on all
+        # three runners (Git Bash on Windows).
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            npx electron-builder --publish never -c.extraMetadata.version="${GITHUB_REF_NAME#v}"
+          else
+            npx electron-builder --publish never
+          fi
         env:
-          # No Apple Developer cert in CI — skip signing so the mac build
-          # doesn't fail looking for an identity. (Users will need to
-          # right-click → Open the first time; documented in RELEASING.md.)
-          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
           # GH token lets electron-builder fetch its own helper binaries reliably.
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # --- macOS code signing + notarization (mac runner only) ---
+          # Apply the signing secrets only on macOS; on Windows/Linux these
+          # stay empty so those builds are produced unsigned (no mac cert is
+          # ever handed to a non-mac runner). If the secrets aren't set yet,
+          # the mac build simply comes out unsigned and notarization is skipped.
+          #   MAC_CSC_LINK             base64 of your "Developer ID Application" .p12
+          #   MAC_CSC_KEY_PASSWORD     the .p12 export password
+          #   APPLE_ID                 Apple Developer account email
+          #   APPLE_APP_SPECIFIC_PASSWORD  app-specific password from appleid.apple.com
+          #   APPLE_TEAM_ID            JB4CT3MZ6L
+          CSC_LINK: ${{ matrix.os == 'macos-latest' && secrets.MAC_CSC_LINK || '' }}
+          CSC_KEY_PASSWORD: ${{ matrix.os == 'macos-latest' && secrets.MAC_CSC_KEY_PASSWORD || '' }}
+          APPLE_ID: ${{ matrix.os == 'macos-latest' && secrets.APPLE_ID || '' }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ matrix.os == 'macos-latest' && secrets.APPLE_APP_SPECIFIC_PASSWORD || '' }}
+          APPLE_TEAM_ID: ${{ matrix.os == 'macos-latest' && secrets.APPLE_TEAM_ID || '' }}
 
       - name: Upload installers/archives
         uses: actions/upload-artifact@v4
@@ -69,3 +93,52 @@ jobs:
             dist/*.dmg
             dist/*.zip
             dist/*.AppImage
+
+  # Publish to itch.io with butler — only on a version-tag push.
+  publish:
+    name: Publish to itch.io
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download all build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts
+
+      - name: Install butler
+        run: |
+          curl -sL -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default
+          unzip -q butler.zip -d "$HOME/butler"
+          chmod +x "$HOME/butler/butler"
+          "$HOME/butler/butler" -V
+
+      - name: Push builds to itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        run: |
+          set -euo pipefail
+          BUTLER="$HOME/butler/butler"
+          GAME="bai13y/wild-willows"
+          VERSION="${GITHUB_REF_NAME#v}"   # tag v0.1.0 -> 0.1.0
+
+          # Pick the best file per platform: portable zip for win/mac, AppImage for linux.
+          win=$(ls artifacts/wild-willows-windows/*.zip 2>/dev/null | head -1 || true)
+          [ -z "$win" ] && win=$(ls artifacts/wild-willows-windows/*.exe 2>/dev/null | head -1 || true)
+          mac=$(ls artifacts/wild-willows-macos/*-mac.zip 2>/dev/null | head -1 || true)
+          [ -z "$mac" ] && mac=$(ls artifacts/wild-willows-macos/*.dmg 2>/dev/null | head -1 || true)
+          lin=$(ls artifacts/wild-willows-linux/*.AppImage 2>/dev/null | head -1 || true)
+
+          push() { # $1=file  $2=channel
+            if [ -n "$1" ]; then
+              echo "Pushing $1 -> $GAME:$2 (v$VERSION)"
+              "$BUTLER" push "$1" "$GAME:$2" --userversion "$VERSION"
+            else
+              echo "No file for channel $2 — skipping"
+            fi
+          }
+          push "$win" windows
+          push "$mac" osx
+          push "$lin" linux
+
+          "$BUTLER" status "$GAME"
