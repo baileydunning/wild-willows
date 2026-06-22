@@ -104,49 +104,39 @@ jobs:
         with:
           path: artifacts
 
-      - name: Install butler
-        run: |
-          set -euo pipefail
-          # Retry on transient DNS/network errors (curl exit 6 = couldn't resolve host).
-          for i in 1 2 3 4 5; do
-            if curl -fL --connect-timeout 20 --retry 5 --retry-delay 5 --retry-all-errors \
-                 -o butler.zip https://broth.itch.ovh/butler/linux-amd64/LATEST/archive/default; then
-              break
-            fi
-            echo "butler download attempt $i failed; retrying in 10s…"
-            sleep 10
-            [ "$i" = 5 ] && { echo "Could not download butler after 5 attempts"; exit 1; }
-          done
-          unzip -q butler.zip -d "$HOME/butler"
-          chmod +x "$HOME/butler/butler"
-          "$HOME/butler/butler" -V
+      # tag v0.1.0 -> 0.1.0
+      - name: Compute version
+        id: ver
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
 
-      - name: Push builds to itch.io
+      # The maintained action installs butler and pushes in one step. It's run
+      # once per channel, pointing at each platform's artifact directory.
+      - name: Publish Windows build
+        uses: yeslayla/butler-publish-itchio-action@v1.0.3
         env:
-          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
-        run: |
-          set -euo pipefail
-          BUTLER="$HOME/butler/butler"
-          GAME="bai13y/wild-willows"
-          VERSION="${GITHUB_REF_NAME#v}"   # tag v0.1.0 -> 0.1.0
+          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_API_KEY }}
+          CHANNEL: windows
+          ITCH_GAME: wild-willows
+          ITCH_USER: bai13y
+          PACKAGE: artifacts/wild-willows-windows
+          VERSION: ${{ steps.ver.outputs.version }}
 
-          # Pick the best file per platform: portable zip for win/mac, AppImage for linux.
-          win=$(ls artifacts/wild-willows-windows/*.zip 2>/dev/null | head -1 || true)
-          [ -z "$win" ] && win=$(ls artifacts/wild-willows-windows/*.exe 2>/dev/null | head -1 || true)
-          mac=$(ls artifacts/wild-willows-macos/*-mac.zip 2>/dev/null | head -1 || true)
-          [ -z "$mac" ] && mac=$(ls artifacts/wild-willows-macos/*.dmg 2>/dev/null | head -1 || true)
-          lin=$(ls artifacts/wild-willows-linux/*.AppImage 2>/dev/null | head -1 || true)
+      - name: Publish macOS build
+        uses: yeslayla/butler-publish-itchio-action@v1.0.3
+        env:
+          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_API_KEY }}
+          CHANNEL: osx
+          ITCH_GAME: wild-willows
+          ITCH_USER: bai13y
+          PACKAGE: artifacts/wild-willows-macos
+          VERSION: ${{ steps.ver.outputs.version }}
 
-          push() { # $1=file  $2=channel
-            if [ -n "$1" ]; then
-              echo "Pushing $1 -> $GAME:$2 (v$VERSION)"
-              "$BUTLER" push "$1" "$GAME:$2" --userversion "$VERSION"
-            else
-              echo "No file for channel $2 — skipping"
-            fi
-          }
-          push "$win" windows
-          push "$mac" osx
-          push "$lin" linux
-
-          "$BUTLER" status "$GAME"
+      - name: Publish Linux build
+        uses: yeslayla/butler-publish-itchio-action@v1.0.3
+        env:
+          BUTLER_CREDENTIALS: ${{ secrets.BUTLER_API_KEY }}
+          CHANNEL: linux
+          ITCH_GAME: wild-willows
+          ITCH_USER: bai13y
+          PACKAGE: artifacts/wild-willows-linux
+          VERSION: ${{ steps.ver.outputs.version }}
