@@ -53,7 +53,16 @@ jobs:
       - name: Package desktop app
         # electron-builder picks the targets for the host OS from package.json
         # ("build" key). --publish never => produce files only, never upload.
-        run: npx electron-builder --publish never
+        # On a version tag (v0.1.1) we override the app version FROM the tag, so
+        # package.json never has to be bumped by hand. `shell: bash` works on all
+        # three runners (Git Bash on Windows).
+        shell: bash
+        run: |
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
+            npx electron-builder --publish never -c.extraMetadata.version="${GITHUB_REF_NAME#v}"
+          else
+            npx electron-builder --publish never
+          fi
         env:
           # GH token lets electron-builder fetch its own helper binaries reliably.
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -126,6 +126,8 @@ A Mac can only produce the **macOS** `.dmg`/`.zip`; Windows and Linux need their
   git tag v0.1.0 && git push origin v0.1.0
   ```
   A plain **Actions → Run workflow** (manual) just builds the artifacts and skips publishing. Publishing needs the `BUTLER_API_KEY` secret (from https://itch.io/user/settings/api-keys). butler uploads update the itch page in place — version, channels, and itch-app installs are handled for you, no manual drag-and-drop.
+
+  The release version comes **from the tag** (`v0.1.1` → `0.1.1` artifacts + itch version) via `electron-builder -c.extraMetadata.version`, so you don't bump `package.json` by hand — just tag. (`package.json`'s version is only the local-dev default.)
 - **Locally on your Mac.** `npm run desktop:dist` → macOS `.dmg`/`.zip` in `dist/`, then drag into **Edit game → Uploads** by hand if you're not using the tag flow.
 
 On the itch page itself, set it up once as a downloadable **Game** ("played on your computer", installable by the itch app), add screenshots + cover + tags + the AI disclosure, and set it Public. After that, tagging a release keeps the builds current automatically.
