@@ -50,37 +50,35 @@ jobs:
       - name: Build web client + server bundle
         run: npm run build
 
-      - name: Package desktop app
-        # electron-builder picks the targets for the host OS from package.json
-        # ("build" key). --publish never => produce files only, never upload.
-        # On a version tag (v0.1.1) we override the app version FROM the tag, so
-        # package.json never has to be bumped by hand. `shell: bash` works on all
-        # three runners (Git Bash on Windows).
+      # macOS: signed + notarized. Kept separate from the other OSes so CSC_LINK
+      # is NEVER defined on a non-mac runner — Windows reads CSC_LINK as its own
+      # signing cert (WIN_CSC_LINK) and fails on an empty value. The version is
+      # taken from the tag (v0.1.1 → 0.1.1), so package.json is never bumped.
+      - name: Package desktop app (macOS, signed)
+        if: matrix.os == 'macos-latest'
         shell: bash
         run: |
-          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then
-            npx electron-builder --publish never -c.extraMetadata.version="${GITHUB_REF_NAME#v}"
-          else
-            npx electron-builder --publish never
-          fi
+          EXTRA=""
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then EXTRA="-c.extraMetadata.version=${GITHUB_REF_NAME#v}"; fi
+          npx electron-builder --publish never $EXTRA
         env:
-          # GH token lets electron-builder fetch its own helper binaries reliably.
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          # --- macOS code signing + notarization (mac runner only) ---
-          # Apply the signing secrets only on macOS; on Windows/Linux these
-          # stay empty so those builds are produced unsigned (no mac cert is
-          # ever handed to a non-mac runner). If the secrets aren't set yet,
-          # the mac build simply comes out unsigned and notarization is skipped.
-          #   MAC_CSC_LINK             base64 of your "Developer ID Application" .p12
-          #   MAC_CSC_KEY_PASSWORD     the .p12 export password
-          #   APPLE_ID                 Apple Developer account email
-          #   APPLE_APP_SPECIFIC_PASSWORD  app-specific password from appleid.apple.com
-          #   APPLE_TEAM_ID            JB4CT3MZ6L
-          CSC_LINK: ${{ matrix.os == 'macos-latest' && secrets.MAC_CSC_LINK || '' }}
-          CSC_KEY_PASSWORD: ${{ matrix.os == 'macos-latest' && secrets.MAC_CSC_KEY_PASSWORD || '' }}
-          APPLE_ID: ${{ matrix.os == 'macos-latest' && secrets.APPLE_ID || '' }}
-          APPLE_APP_SPECIFIC_PASSWORD: ${{ matrix.os == 'macos-latest' && secrets.APPLE_APP_SPECIFIC_PASSWORD || '' }}
-          APPLE_TEAM_ID: ${{ matrix.os == 'macos-latest' && secrets.APPLE_TEAM_ID || '' }}
+          CSC_LINK: ${{ secrets.MAC_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAC_CSC_KEY_PASSWORD }}
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+          APPLE_TEAM_ID: ${{ secrets.APPLE_TEAM_ID }}
+
+      # Windows + Linux: unsigned (no signing env at all).
+      - name: Package desktop app (Windows / Linux)
+        if: matrix.os != 'macos-latest'
+        shell: bash
+        run: |
+          EXTRA=""
+          if [[ "$GITHUB_REF" == refs/tags/v* ]]; then EXTRA="-c.extraMetadata.version=${GITHUB_REF_NAME#v}"; fi
+          npx electron-builder --publish never $EXTRA
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload installers/archives
         uses: actions/upload-artifact@v4
