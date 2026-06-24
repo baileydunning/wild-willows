@@ -1,4 +1,5 @@
 import { useGame } from '../state';
+import { COOP_ENABLED } from '../features';
 import { Icon } from './icons';
 
 const STEPS: Array<{ icon: string; title: string; text: string }> = [
@@ -7,7 +8,8 @@ const STEPS: Array<{ icon: string; title: string; text: string }> = [
 	{ icon: 'hammer', title: 'Craft & unlock', text: 'Press C or the hammer button anytime, anywhere to turn materials into habitat. You begin with just a few recipes — a Grass Patch and a handful of basics. As a biome’s health rises and animals return, new recipes unlock one at a time (watch for the “New Crafting Recipe Unlocked” message). Fully restoring a biome also opens the next area, with its own set of recipes to discover.' },
 	{ icon: 'pin', title: 'Rebuild', text: 'Place habitat out in the biome. Every piece raises biome health, and variety — food, water, shelter, plants, open space — raises ecological balance. Terraform with the shovel and watering can: dig a bed, water it, then interact with it to plant flowers and trees — or flood it again to shape ponds, rivers, and lakes.' },
 	{ icon: 'paw', title: 'Welcome them back', text: 'When the habitat truly supports an animal, it returns on its own. Click any animal to observe it and read about its real-world life.' },
-	{ icon: 'journal', title: 'Record & grow', text: 'Your field journal fills in with every return. Upgrade tools to gather more, restore harder habitats, and unlock the next biome.' },
+	{ icon: 'journal', title: 'Record & grow', text: 'Your field journal fills in with every return. Upgrade tools to gather more, restore harder habitats, and unlock the next biome. In the journal you can flip to “Unknown first” or search to see who you’re still missing in an area.' },
+	{ icon: 'cloud', title: 'Read the weather', text: 'Each biome has its own weather that shifts on its own and slowly drifts through the seasons. Open the Weather & Seasons guide (press M) to see what’s happening across the preserve and learn how each condition shapes the biome you’re standing in. Keep an eye out — unusual weather can leave rare materials to gather while it lasts, and the right habitat will even draw certain animals home.' },
 ];
 
 const KEYS: Array<{ keys: string[]; does: string }> = [
@@ -24,6 +26,7 @@ const KEYS: Array<{ keys: string[]; does: string }> = [
 	{ keys: ['F'], does: 'Open the activity feed (last 100 events)' },
 	{ keys: ['T'], does: 'Open tools & upgrades' },
 	{ keys: ['P'], does: 'Open the preserve overview' },
+	{ keys: ['M'], does: 'Open the weather & seasons guide' },
 	{ keys: ['U'], does: 'People — invite friends & see who’s here (co-op worlds only)' },
 	{ keys: ['G'], does: 'Open settings' },
 	{ keys: ['H'], does: 'Open this How to Play guide' },
@@ -31,8 +34,12 @@ const KEYS: Array<{ keys: string[]; does: string }> = [
 ];
 
 export function HelpModal() {
-	const { helpOpen, setHelpOpen, setTutorialStep, state } = useGame();
+	const { helpOpen, setHelpOpen, setTutorialStep, state, worlds, activeWorldId } = useGame();
 	if (!helpOpen) return null;
+	// In solo play there's no People/invite system, so drop those keys entirely.
+	const activeWorld = worlds?.find((w) => w.worldId === activeWorldId);
+	const isCoop = COOP_ENABLED && !!activeWorld && !activeWorld.solo;
+	const keys = KEYS.filter((k) => isCoop || !k.keys.includes('U'));
 	const replay = () => {
 		setTutorialStep(0); // restart the interactive tutorial from the first step
 		setHelpOpen(false);
@@ -70,7 +77,7 @@ export function HelpModal() {
 					</div>
 					<div className="help-section-label"><Icon name="keyboard" size={15} /> Keyboard & mouse</div>
 					<div className="key-list">
-						{KEYS.map((k) => (
+						{keys.map((k) => (
 							<div className="key-row" key={k.does}>
 								<span className="kbds">
 									{k.keys.map((key) => (

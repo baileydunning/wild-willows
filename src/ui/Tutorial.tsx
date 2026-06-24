@@ -23,6 +23,7 @@ interface Flags {
 	openedPreserve: boolean;
 	openedTools: boolean;
 	openedPeople: boolean;
+	openedWeather: boolean;
 }
 
 // Did the player craft a Grass Patch specifically? (the tutorial's first goal)
@@ -145,6 +146,13 @@ const BASE_STEPS: StepDef[] = [
 		done: ({ flags }) => flags.openedPreserve,
 	},
 	{
+		icon: 'cloud',
+		title: 'Weather & seasons',
+		text: 'Press M to open the Weather & Seasons guide. Each area has its own weather that shifts on its own and slowly drifts through the seasons — the guide shows what’s happening across the whole preserve and explains, in real ecology, how today’s weather and season shape the area you’re standing in. Watch the skies, too: unusual weather can leave rare materials to gather while it lasts.',
+		touchText: 'Tap the weather button (the cloud, top-right) to open the Weather & Seasons guide. Each area has its own weather that shifts on its own and slowly drifts through the seasons — the guide shows what’s happening across the preserve and explains how today’s weather and season shape the area you’re in. Watch the skies: unusual weather can leave rare materials to gather while it lasts.',
+		done: ({ flags }) => flags.openedWeather,
+	},
+	{
 		icon: 'pin',
 		title: 'Good things to know',
 		text: 'Misplaced something? Shift+click any placed object to pick it back up. Esc closes menus or cancels placing. New areas open through trail gates at the edge of the map. The gear button holds Settings (change your character, lock or delete your save), and the ? button reopens this guide anytime.',
@@ -216,7 +224,7 @@ const readMs = (text: string, step: number) => {
 
 export function Tutorial() {
 	const { state, setTutorialStep, panel, worlds, activeWorldId } = useGame();
-	const [flags, setFlags] = useState<Flags>({ moved: false, gathered: false, openedBasket: false, openedWorkbench: false, crafted: false, openedJournal: false, openedChest: false, openedPreserve: false, openedTools: false, openedPeople: false });
+	const [flags, setFlags] = useState<Flags>({ moved: false, gathered: false, openedBasket: false, openedWorkbench: false, crafted: false, openedJournal: false, openedChest: false, openedPreserve: false, openedTools: false, openedPeople: false, openedWeather: false });
 	const advanceTimer = useRef<number | null>(null);
 	const stepShownAt = useRef<number>(Date.now());
 	const [celebrating, setCelebrating] = useState(false);
@@ -309,6 +317,7 @@ export function Tutorial() {
 		if (panel === 'biomes') setFlags((f) => (f.openedPreserve ? f : { ...f, openedPreserve: true }));
 		if (panel === 'tools') setFlags((f) => (f.openedTools ? f : { ...f, openedTools: true }));
 		if (panel === 'people') setFlags((f) => (f.openedPeople ? f : { ...f, openedPeople: true }));
+		if (panel === 'weather') setFlags((f) => (f.openedWeather ? f : { ...f, openedWeather: true }));
 	}, [panel]);
 
 	useEffect(() => {
