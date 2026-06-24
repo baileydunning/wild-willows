@@ -2777,6 +2777,85 @@
 			"color": "#5a6b7a",
 			"description": "A brass telescope for the clear mountain sky.",
 			"homeMin": 3
+		},
+		{
+			"id": "rain-basin",
+			"name": "Rain Basin",
+			"placement": "outdoor",
+			"biomes": ["meadow", "forest", "wetland"],
+			"healthValue": 5,
+			"needs": ["water"],
+			"shape": "rainbasin",
+			"color": "#6fa8d6",
+			"description": "A carved stone bowl that catches rainwater — a drinking spot for visiting wildlife."
+		},
+		{
+			"id": "dew-lantern",
+			"name": "Dewlit Lantern",
+			"placement": "both",
+			"biomes": ["meadow", "forest", "wetland", "alpine", "coastal"],
+			"healthValue": 1,
+			"needs": [],
+			"shape": "dewlantern",
+			"color": "#a8d2c0",
+			"description": "A glass globe of glowing morning dew that throws a soft green light."
+		},
+		{
+			"id": "sunstone-cairn",
+			"name": "Sunstone Cairn",
+			"placement": "outdoor",
+			"biomes": ["desert", "meadow", "forest"],
+			"healthValue": 4,
+			"needs": ["shelter"],
+			"shape": "sunstonecairn",
+			"color": "#e6a94e",
+			"description": "A stack of sun-baked stones that hold the day's warmth into the cool evening."
+		},
+		{
+			"id": "frostflower-planter",
+			"name": "Frostflower Planter",
+			"placement": "both",
+			"biomes": ["alpine", "forest", "meadow"],
+			"healthValue": 3,
+			"needs": ["plant"],
+			"shape": "frostflowerplanter",
+			"color": "#bcd9e8",
+			"description": "A planter of pale ice-blooms that keep their shape long after the snow has gone."
+		},
+		{
+			"id": "stormglass-lantern",
+			"name": "Stormglass Lantern",
+			"placement": "both",
+			"biomes": ["desert", "coastal", "wetland"],
+			"healthValue": 1,
+			"needs": [],
+			"shape": "stormglasslantern",
+			"color": "#5566a3",
+			"description": "A shard of lightning-fused glass that flickers with a cold inner light."
+		},
+		{
+			"id": "frostflower-vase",
+			"name": "Frostflower Vase",
+			"placement": "indoor",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "frostflowervase",
+			"color": "#bcd9e8",
+			"description": "A glass vase of ice-blooms for the windowsill — they never wilt.",
+			"homeMin": 1
+		},
+		{
+			"id": "stormglass-chandelier",
+			"name": "Stormglass Chandelier",
+			"placement": "indoor",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "stormglasschandelier",
+			"color": "#5566a3",
+			"description": "A hanging cluster of lightning-glass shards that scatters cool light across the room.",
+			"homeMin": 2
 		}
 	]
 }

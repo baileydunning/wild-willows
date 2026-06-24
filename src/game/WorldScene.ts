@@ -5,6 +5,7 @@ import {
 	animalScale, animalTexture, ensureAnimalTexture, makeAnimalTextures, makeBaseTextures, makeNodeTextures,
 	makeObjectTextures, makePlayerTexture,
 } from './textures';
+import { seasonStyle, weatherType, liveWeatherType, gatherResourceFor } from '../weather';
 import type { BiomeDef, HabitatObjectDef } from '../types';
 
 export const TILE = 32;
@@ -39,6 +40,12 @@ const SPAWNS: Record<string, { x: number; y: number }> = {
 };
 
 const C = (hex: string) => Phaser.Display.Color.HexStringToColor(hex).color;
+
+// Has any weather been shown yet this session? The first weather you see is
+// allowed to "start up" (rain/snow building from the top); every biome you
+// transfer into afterwards should already be mid-storm, so we pre-warm the
+// emitter on entry. Module-scoped so it survives scene.restart().
+let weatherShownThisSession = false;
 
 function hashStr(s: string): number {
 	let h = 2166136261;
@@ -102,6 +109,11 @@ export class WorldScene extends Phaser.Scene {
 	// Live co-op: other players in this same area, drawn as their own avatars and
 	// smoothly eased toward the positions reported by the presence loop.
 	private remotes = new Map<string, { sprite: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; label: Phaser.GameObjects.Text; sig: string; walkT: number; lastX: number; lastY: number; moveUntil: number }>();
+	// Weather visuals: a camera-locked full-screen weather-colour tint and a
+	// world-locked rain/snow particle emitter, swapped when the weather changes.
+	private weatherOverlay?: Phaser.GameObjects.Rectangle;
+	private weatherEmitter?: Phaser.GameObjects.Particles.ParticleEmitter;
+	private weatherSig = '';
 
 	constructor() {
 		super('world');
@@ -174,6 +186,11 @@ export class WorldScene extends Phaser.Scene {
 
 	create(data: any) {
 		this.alive = true;
+		// scene.restart() reuses this instance, so stale (now-destroyed) weather
+		// overlay/emitter references must be cleared before they're recreated.
+		this.weatherOverlay = undefined;
+		this.weatherEmitter = undefined;
+		this.weatherSig = '';
 		makeBaseTextures(this);
 		makeObjectTextures(this);
 		makeAnimalTextures(this);
@@ -263,7 +280,7 @@ export class WorldScene extends Phaser.Scene {
 		};
 		ensurePainted();
 
-		this.unsubs.push(bridge.on('world-dirty', () => { this.refreshDynamic(); this.updateNodeVisuals(); }));
+		this.unsubs.push(bridge.on('world-dirty', () => { this.refreshDynamic(); this.updateNodeVisuals(); this.applyWeather(); }));
 		this.unsubs.push(bridge.on('enter-placement', (p: any) => this.enterPlacement(p.objectId)));
 		this.unsubs.push(bridge.on('cancel-placement', () => this.exitPlacement()));
 		this.unsubs.push(bridge.on('enter-move', (p: any) => this.enterMove(p.placementId)));
@@ -292,6 +309,10 @@ export class WorldScene extends Phaser.Scene {
 		});
 
 		this.time.addEvent({ delay: 4000, loop: true, callback: () => this.updateNodeVisuals() });
+		// Paint weather now (entering = pre-fill so a storm you walk into is already
+		// going), then keep it fresh as the weather rolls over every ~10 min.
+		this.applyWeather(true);
+		this.time.addEvent({ delay: 5000, loop: true, callback: () => this.applyWeather() });
 		this.input.on('pointerdown', (pointer: Phaser.Input.Pointer, over: any[]) => {
 			const tx = Math.floor(pointer.worldX / TILE);
 			const ty = Math.floor(pointer.worldY / TILE);
@@ -545,11 +566,133 @@ export class WorldScene extends Phaser.Scene {
 		const to = Phaser.Display.Color.HexStringToColor(biome?.palette.healthy || '#8fbf6f');
 		const t = Phaser.Math.Clamp(health / 100, 0, 1);
 		const mix = Phaser.Display.Color.Interpolate.ColorWithColor(from, to, 100, Math.round(t * 100));
+		// Lerp the health colour toward the season's tint so spring greens, autumn
+		// ambers and winter pales read at a glance. Amount is per-season (winter
+		// shifts most). seasonStyle falls back safely if the snapshot is absent.
+		let baseR = mix.r, baseG = mix.g, baseB = mix.b;
+		const season = bridge.shared.state?.weather?.season;
+		if (season) {
+			const ss = seasonStyle(season);
+			const tintC = Phaser.Display.Color.HexStringToColor(ss.tint);
+			const amt = Phaser.Math.Clamp(ss.tintAmount, 0, 1);
+			baseR += (tintC.red - baseR) * amt;
+			baseG += (tintC.green - baseG) * amt;
+			baseB += (tintC.blue - baseB) * amt;
+		}
 		for (const img of this.groundTiles) {
 			const s = (img as any).shade ?? 1;
-			const color = Phaser.Display.Color.GetColor(mix.r * s, mix.g * s, mix.b * s);
+			const color = Phaser.Display.Color.GetColor(baseR * s, baseG * s, baseB * s);
 			img.setTint(color);
 		}
+	}
+
+	// ------------------------------------------------- weather visuals
+
+	/**
+	 * Apply the current weather to the scene: a weather-colour tint plus rain/snow
+	 * particles (outdoors only). The weather is a deterministic per-block roll that
+	 * turns over every ~10 minutes; this diffs against weatherSig and only rebuilds
+	 * the overlay/particles when the type actually changes. No day/night lighting —
+	 * the only thing that changes is the weather itself.
+	 */
+	private get worldId(): string | null {
+		const s = bridge.shared.state;
+		return (s as any)?.worldId || s?.player?.id || null;
+	}
+
+	/** The current weather type for this area (rolls over every ~10 min). */
+	private currentWeatherType(): string {
+		if (this.isHome) return 'clear';
+		return liveWeatherType(this.worldId, this.area, bridge.shared.state?.weather);
+	}
+
+	/** `entering` = the player just walked into this biome (scene create/restart),
+	 *  so pre-fill the rain/snow so it's already established — unless this is the
+	 *  very first weather of the session, which is allowed to animate in. Weather
+	 *  that changes while you're standing here always animates in. */
+	private applyWeather(entering = false) {
+		if (!this.alive) return;
+		const typeId = this.currentWeatherType();
+		const sig = `${typeId}|${this.isHome ? 'in' : 'out'}`;
+		if (sig === this.weatherSig) return;
+		this.weatherSig = sig;
+
+		const wt = weatherType(typeId);
+		this.ensureWeatherOverlay();
+		if (!this.isHome && wt.overlay) {
+			this.weatherOverlay!.setFillStyle(C(wt.overlay.color)).setAlpha(wt.overlay.alpha).setVisible(true);
+		} else {
+			this.weatherOverlay!.setVisible(false);
+		}
+		const prewarm = entering && weatherShownThisSession;
+		this.setWeatherParticles(this.isHome ? null : wt.particle, prewarm);
+		weatherShownThisSession = true;
+		// Weather-gated gather nodes appear/vanish with the weather, so redraw the
+		// dynamic layer whenever the type turns over.
+		this.refreshDynamic();
+	}
+
+	private ensureWeatherOverlay() {
+		if (this.weatherOverlay) return;
+		this.weatherOverlay = this.add.rectangle(-3000, -3000, 9000, 9000, 0xffffff, 0)
+			.setOrigin(0, 0).setScrollFactor(0).setDepth(5005).setVisible(false);
+	}
+
+	/** Lazily build the 1-colour rain streak and snow dot textures. */
+	private ensureWeatherTextures() {
+		if (!this.textures.exists('wx-rain')) {
+			const g = this.make.graphics({ x: 0, y: 0 });
+			g.fillStyle(0xbcd2e8, 1).fillRect(0, 0, 2, 12);
+			g.generateTexture('wx-rain', 2, 12);
+			g.destroy();
+		}
+		if (!this.textures.exists('wx-snow')) {
+			const g = this.make.graphics({ x: 0, y: 0 });
+			g.fillStyle(0xffffff, 1).fillCircle(3, 3, 3);
+			g.generateTexture('wx-snow', 6, 6);
+			g.destroy();
+		}
+	}
+
+	/**
+	 * Swap in (or clear) the falling-weather emitter. Particles are world-locked
+	 * and emitted across the full map width so the fall looks uniform wherever the
+	 * camera is; they sit above the colour tints so they stay crisp.
+	 */
+	private setWeatherParticles(kind: 'rain' | 'snow' | null, prewarm = false) {
+		if (this.weatherEmitter) { this.weatherEmitter.destroy(); this.weatherEmitter = undefined; }
+		if (!kind) return;
+		this.ensureWeatherTextures();
+		const w = this.worldW;
+		const lifespan = kind === 'rain' ? 1700 : 13000;
+		if (kind === 'rain') {
+			this.weatherEmitter = this.add.particles(0, 0, 'wx-rain', {
+				x: { min: -40, max: w + 40 },
+				y: -20,
+				lifespan,
+				speedY: { min: 520, max: 700 },
+				speedX: { min: -60, max: -20 },
+				scaleY: { min: 0.8, max: 1.5 },
+				alpha: { min: 0.25, max: 0.5 },
+				quantity: 4,
+				frequency: 28,
+			}).setDepth(5020);
+		} else {
+			this.weatherEmitter = this.add.particles(0, 0, 'wx-snow', {
+				x: { min: -40, max: w + 40 },
+				y: -20,
+				lifespan,
+				speedY: { min: 45, max: 85 },
+				speedX: { min: -25, max: 25 },
+				scale: { min: 0.45, max: 1 },
+				alpha: { min: 0.5, max: 0.9 },
+				quantity: 2,
+				frequency: 80,
+			}).setDepth(5020);
+		}
+		// Pre-fill so the screen is already full of falling weather on biome entry
+		// (Phaser advances the emitter as if `lifespan` ms had already elapsed).
+		if (prewarm) this.weatherEmitter.fastForward(lifespan, 50);
 	}
 
 	// ------------------------------------------------- dynamic world objects
@@ -970,6 +1113,25 @@ export class WorldScene extends Phaser.Scene {
 				const spot = anchorFree ? anchor : this.findFreeTile(anchor.tx, anchor.ty, occupied, taken);
 				if (spot) {
 					nodes.push({ id: 'nw', resourceId: waterRes, tx: spot.tx, ty: spot.ty });
+					taken.add(`${spot.tx},${spot.ty}`);
+				}
+			}
+		}
+
+		// Weather-gated gather nodes: while a special weather is active in this biome
+		// (rain, storm, snow, fog, heat) a couple of spots for its unique resource
+		// appear, then vanish when the weather turns over. Positions are seeded by
+		// world+biome+weather so co-op players find them in the same places.
+		const wxType = liveWeatherType(this.worldId, this.area, bridge.shared.state?.weather);
+		const wxRes = gatherResourceFor(bridge.shared.data?.resources, this.area, wxType);
+		if (wxRes) {
+			const wrng = mulberry32(hashStr(`${this.worldId}:${this.area}:wx:${wxType}`));
+			for (let i = 0; i < 2; i++) {
+				const ax = 2 + Math.floor(wrng() * Math.max(1, this.landRight - 4));
+				const ay = this.playTop + 1 + Math.floor(wrng() * Math.max(1, this.rows - this.playTop - 3));
+				const spot = this.findFreeTile(ax, ay, occupied, taken);
+				if (spot) {
+					nodes.push({ id: `wx-${wxRes.id}-${i}`, resourceId: wxRes.id, tx: spot.tx, ty: spot.ty });
 					taken.add(`${spot.tx},${spot.ty}`);
 				}
 			}

@@ -510,9 +510,10 @@
 				"objects": {
 					"alpine-wildflower-patch": 1,
 					"grass-patch": 1,
-					"rock-pile": 1
+					"rock-pile": 1,
+					"frostflower-planter": 1
 				},
-				"hint": "Alpine shrubs and quiet nesting cover."
+				"hint": "Alpine shrubs and quiet nesting cover, with hardy frostflowers in bloom."
 			}
 		},
 		{
@@ -2029,9 +2030,10 @@
 				"objects": {
 					"rock-crevice": 1,
 					"cactus-patch": 1,
-					"desert-brush": 1
+					"desert-brush": 1,
+					"sunstone-cairn": 1
 				},
-				"hint": "A rock crevice to wedge into, with cactus and brush to graze."
+				"hint": "A rock crevice to wedge into, with cactus and brush to graze — and a sun-warmed cairn to bask on."
 			}
 		},
 		{

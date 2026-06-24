@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import { COOP_ENABLED } from '../features';
+import { weatherType, seasonStyle, liveSeason, liveWeatherType } from '../weather';
 import { Icon } from './icons';
 
 export function Meter({ label, icon, value, color }: { label: string; icon: string; value: number; color: string }) {
@@ -20,6 +21,13 @@ export function Meter({ label, icon, value, color }: { label: string; icon: stri
 export function HUD() {
 	const { data, state, saveStatus, panel, setPanel, helpOpen, setHelpOpen, logout, placementObjectId, cancelPlacement, worlds, activeWorldId } = useGame();
 	const [prompt, setPrompt] = useState('');
+	// Tick occasionally so the weather chip reflects the ~10-min weather change
+	// even when the player is idle (no state refresh).
+	const [, setTick] = useState(0);
+	useEffect(() => {
+		const id = window.setInterval(() => setTick((n) => n + 1), 10000);
+		return () => window.clearInterval(id);
+	}, []);
 
 	useEffect(() => bridge.on('prompt', (p: string) => setPrompt(p || '')), []);
 
@@ -75,6 +83,18 @@ export function HUD() {
 								</button>
 							)}
 						</div>
+						{state.weather && (() => {
+							const snap = state.weather;
+							const worldId = (state as any).worldId || state.player.id;
+							const wt = weatherType(liveWeatherType(worldId, area, snap));
+							const ss = seasonStyle(liveSeason(snap));
+							return (
+								<div className="hud-weather" title={`${wt.name} · ${ss.label}`}>
+									<Icon name={wt.icon} size={13} /> {wt.name}
+									<span className="hud-season" style={{ color: ss.accent, borderColor: ss.accent }}>{ss.label}</span>
+								</div>
+							);
+						})()}
 						{biome && bState && (
 							<>
 								<Meter label="Health" icon="leaf" value={bState.health} color="#6aa253" />
@@ -101,6 +121,7 @@ export function HUD() {
 				{navBtn('achievements', 'star', 'Achievements (K)', 'K')}
 				{navBtn('feed', 'chat', 'Activity feed (F)', 'F')}
 				{navBtn('biomes', 'map', 'Preserve overview (P)', 'P')}
+				{navBtn('weather', 'cloud', 'Weather & seasons (M)', 'M')}
 				{navBtn('tools', 'tools', 'Tool upgrades (T)', 'T')}
 				{isCoop && navBtn('people', 'user', 'People — invite & who’s here (U)', 'U')}
 				<button className={`icon-btn ${panel === 'settings' ? 'on' : ''}`} onClick={() => toggle('settings')} title="Settings — change character, delete save (G)" aria-label="Settings">

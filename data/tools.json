@@ -220,7 +220,8 @@
 					"materials": {
 						"cactus-fruit": 2,
 						"sand": 3,
-						"agave-nectar": 1
+						"agave-nectar": 1,
+						"sunstone": 1
 					},
 					"requires": {
 						"biome": "desert"

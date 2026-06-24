@@ -8,7 +8,7 @@ import { HUD, Toasts } from './ui/HUD';
 import { AnimalCard, JournalPanel } from './ui/Journal';
 import { AchievementsPanel } from './ui/Achievements';
 import { MobileControls } from './ui/MobileControls';
-import { BiomesPanel, ChestPanel, CraftingPanel, HomePanel, InventoryPanel, ToolsPanel } from './ui/Panels';
+import { BiomesPanel, ChestPanel, CraftingPanel, HomePanel, InventoryPanel, ToolsPanel, WeatherPanel } from './ui/Panels';
 import { SettingsPanel } from './ui/Settings';
 import { ActivityLog, FeedPanel, Toolbelt } from './ui/Toolbelt';
 import { Tutorial } from './ui/Tutorial';
@@ -213,7 +213,7 @@ function GameScreen() {
 			if (k === 'h') { game.setHelpOpen(!game.helpOpen); return; }
 			// B = basket, J = journal, K = achievements, F = feed, T = tools, P = preserve,
 			// G = settings (gear), C = crafting (I = basket alias)
-			const map: Record<string, any> = { b: 'inventory', i: 'inventory', j: 'journal', k: 'achievements', f: 'feed', t: 'tools', p: 'biomes', g: 'settings', c: 'crafting', u: 'people' };
+			const map: Record<string, any> = { b: 'inventory', i: 'inventory', j: 'journal', k: 'achievements', f: 'feed', t: 'tools', p: 'biomes', g: 'settings', c: 'crafting', u: 'people', m: 'weather' };
 			if (map[k]) setPanel(panel === map[k] ? null : map[k]);
 			// number keys select toolbelt tools
 			const toolByKey: Record<string, string> = { '1': 'basket', '2': 'shovel', '3': 'watering-can', '4': 'paint' };
@@ -247,6 +247,7 @@ function GameScreen() {
 			{panel === 'animal' && <AnimalCard />}
 			{panel === 'settings' && <SettingsPanel />}
 			{panel === 'people' && <PeoplePanel />}
+			{panel === 'weather' && <WeatherPanel />}
 			{devOpen && <DevPanel onClose={() => setDevOpen(false)} />}
 		</div>
 	);

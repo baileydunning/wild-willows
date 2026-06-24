@@ -1330,6 +1330,90 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 		g.fillStyle(0xffffff, 0.5).fillRect(10, 8, 2, 20); // sharp highlight
 		g.fillStyle(C('#8fd0e8'), 0.5).fillCircle(12, 12, 2); // cold glint
 	});
+
+	// ---- weather-resource craftables (bespoke art) ----
+	// Rain Basin — a carved stone bowl brimming with collected rainwater.
+	o('rainbasin', 34, 30, (g) => {
+		g.fillStyle(C('#7d7a72'), 1).fillEllipse(17, 24, 28, 9);            // stone base shadow
+		g.fillStyle(C('#9a978d'), 1).fillRoundedRect(4, 12, 26, 12, 5);     // bowl body
+		g.fillStyle(C('#84817a'), 1).fillEllipse(17, 12, 26, 9);            // rim
+		g.fillStyle(C('#6fa8d6'), 1).fillEllipse(17, 12, 20, 6);            // water
+		g.fillStyle(C('#bfe0f4'), 0.8).fillEllipse(13, 11, 7, 2);          // sky glint
+		g.lineStyle(1, C('#bfe0f4'), 0.5).strokeEllipse(17, 12, 13, 4);     // ripple
+		g.fillStyle(C('#cdecff'), 0.9).fillCircle(21, 6, 1).fillCircle(15, 4, 1); // falling drops
+	});
+	// Dewlit Lantern — a glass globe of glowing morning dew on a slim post.
+	o('dewlantern', 24, 38, (g) => {
+		g.fillStyle(C('#6e5a3a'), 1).fillRect(11, 20, 2, 16);              // post
+		g.fillStyle(C('#5a4a30'), 1).fillEllipse(12, 36, 12, 4);          // foot
+		g.fillStyle(C('#a8d2c0'), 0.35).fillCircle(12, 13, 11);          // soft glow halo
+		g.fillStyle(C('#cdeee0'), 0.95).fillCircle(12, 13, 7);          // dew globe
+		g.fillStyle(C('#7fc4a8'), 0.9).fillCircle(12, 15, 4);          // dew pool inside
+		g.fillStyle(0xffffff, 0.9).fillCircle(9, 10, 1.6);            // highlight
+		g.fillStyle(C('#6e5a3a'), 1).fillRect(7, 4, 10, 2);          // top cap
+	});
+	// Sunstone Cairn — a stack of warm, sun-baked stones with an inner glow.
+	o('sunstonecairn', 30, 34, (g) => {
+		g.fillStyle(C('#b98a3a'), 1).fillEllipse(15, 30, 24, 7);          // base
+		g.fillStyle(C('#e6a94e'), 1).fillEllipse(15, 27, 20, 9);          // bottom stone
+		g.fillStyle(C('#eebb63'), 1).fillEllipse(14, 19, 15, 8);          // mid stone
+		g.fillStyle(C('#f5cf7e'), 1).fillEllipse(15, 12, 10, 7);          // top stone
+		g.fillStyle(C('#fff0c4'), 0.7).fillCircle(15, 12, 3);            // warm glow
+		g.fillStyle(0xffffff, 0.5).fillCircle(12, 10, 1.4);            // glint
+		g.lineStyle(1, C('#a8742c'), 0.5).strokeEllipse(15, 27, 10, 4);   // seam
+	});
+	// Frostflower Planter — pale-blue ice blooms in a wooden box.
+	o('frostflowerplanter', 32, 30, (g) => {
+		g.fillStyle(C('#6e5a3a'), 1).fillRoundedRect(5, 18, 22, 10, 2);    // planter box
+		g.fillStyle(C('#5a4a30'), 1).fillRect(5, 18, 22, 2);             // soil line
+		const bloom = (x: number, y: number) => {
+			g.fillStyle(C('#bcd9e8'), 1);
+			for (let i = 0; i < 5; i++) { const an = (i / 5) * Math.PI * 2; g.fillCircle(x + Math.cos(an) * 3.2, y + Math.sin(an) * 3.2, 2.2); }
+			g.fillStyle(C('#eaf6ff'), 1).fillCircle(x, y, 2);            // pale core
+		};
+		g.lineStyle(1, C('#8fb8cc'), 1).lineBetween(11, 18, 11, 10).lineBetween(21, 18, 21, 12);
+		bloom(11, 8); bloom(21, 10);
+		g.fillStyle(0xffffff, 0.6).fillCircle(9, 6, 1);                // frost sparkle
+	});
+	// Stormglass Lantern — a shard of lightning-fused glass throwing cold light.
+	o('stormglasslantern', 26, 38, (g) => {
+		g.fillStyle(C('#3a2f4a'), 1).fillRect(12, 22, 2, 14);            // post
+		g.fillStyle(C('#2c2438'), 1).fillEllipse(13, 36, 12, 4);        // foot
+		g.fillStyle(C('#7b8fd6'), 0.3).fillCircle(13, 13, 12);         // electric halo
+		g.fillStyle(C('#5566a3'), 1).fillTriangle(13, 3, 6, 22, 20, 22); // glass shard
+		g.fillStyle(C('#8fa0e0'), 0.9).fillTriangle(13, 7, 9, 20, 17, 20); // inner glass
+		g.lineStyle(1.5, C('#dfe6ff'), 0.95).lineBetween(13, 8, 10, 15).lineBetween(10, 15, 15, 16).lineBetween(15, 16, 12, 21); // lightning
+		g.fillStyle(0xffffff, 0.8).fillCircle(11, 11, 1.2);           // glint
+	});
+
+	// ---- weather-resource home decor (indoor, bespoke art) ----
+	// Frostflower Vase — a clear glass vase of pale ice-blooms on the sill.
+	o('frostflowervase', 26, 34, (g) => {
+		g.fillStyle(C('#cfe6f2'), 0.5).fillRoundedRect(8, 16, 10, 14, 3);   // glass vase body
+		g.fillStyle(C('#eaf6ff'), 0.7).fillRoundedRect(9, 17, 4, 12, 2);    // glass highlight
+		g.fillStyle(C('#9fc4d8'), 0.6).fillEllipse(13, 30, 12, 4);          // base shadow
+		g.lineStyle(1, C('#8fb8cc'), 1).lineBetween(13, 16, 10, 8).lineBetween(13, 16, 16, 6).lineBetween(13, 16, 13, 5); // stems
+		const bloom = (x: number, y: number) => {
+			g.fillStyle(C('#bcd9e8'), 1);
+			for (let i = 0; i < 5; i++) { const an = (i / 5) * Math.PI * 2; g.fillCircle(x + Math.cos(an) * 3, y + Math.sin(an) * 3, 2); }
+			g.fillStyle(C('#eaf6ff'), 1).fillCircle(x, y, 1.8);
+		};
+		bloom(10, 7); bloom(16, 5); bloom(13, 4);
+		g.fillStyle(0xffffff, 0.6).fillCircle(9, 3, 0.9);                   // frost sparkle
+	});
+	// Stormglass Chandelier — hanging cluster of lightning-glass shards.
+	o('stormglasschandelier', 36, 30, (g) => {
+		g.fillStyle(C('#3a2f4a'), 1).fillRect(17, 0, 2, 6);                 // chain
+		g.fillStyle(C('#2c2438'), 1).fillRoundedRect(7, 5, 22, 3, 1);       // crossbar
+		g.fillStyle(C('#7b8fd6'), 0.25).fillEllipse(18, 16, 30, 18);       // cool glow
+		const shard = (x: number) => {
+			g.fillStyle(C('#5566a3'), 1).fillTriangle(x, 8, x - 3, 22, x + 3, 22);
+			g.fillStyle(C('#8fa0e0'), 0.9).fillTriangle(x, 11, x - 1.5, 21, x + 1.5, 21);
+			g.fillStyle(0xffffff, 0.8).fillCircle(x - 1, 12, 0.9);
+		};
+		shard(9); shard(18); shard(27);
+		g.lineStyle(1, C('#dfe6ff'), 0.7).lineBetween(9, 22, 18, 26).lineBetween(18, 26, 27, 22); // light arc
+	});
 }
 
 /**

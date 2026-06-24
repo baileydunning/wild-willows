@@ -34,14 +34,14 @@
 	},
 	"devDependencies": {
 		"@playwright/test": "^1.49.1",
-		"harper": "^5.1.0",
 		"@types/react": "^18.3.12",
 		"@types/react-dom": "^18.3.1",
 		"@vitejs/plugin-react": "^4.3.4",
 		"@vitest/coverage-v8": "^3.2.4",
-		"electron": "^31.0.0",
+		"electron": "^31.7.7",
 		"electron-builder": "^24.13.3",
 		"esbuild": "^0.24.0",
+		"harper": "^5.1.0",
 		"jsdom": "^25.0.1",
 		"phaser": "^3.85.2",
 		"react": "^18.3.1",
@@ -58,11 +58,26 @@
 			"package.json"
 		],
 		"extraResources": [
-			{ "from": "web", "to": "component/web" },
-			{ "from": "data", "to": "component/data" },
-			{ "from": "resources.js", "to": "component/resources.js" },
-			{ "from": "config.yaml", "to": "component/config.yaml" },
-			{ "from": "schema.graphql", "to": "component/schema.graphql" }
+			{
+				"from": "web",
+				"to": "component/web"
+			},
+			{
+				"from": "data",
+				"to": "component/data"
+			},
+			{
+				"from": "resources.js",
+				"to": "component/resources.js"
+			},
+			{
+				"from": "config.yaml",
+				"to": "component/config.yaml"
+			},
+			{
+				"from": "schema.graphql",
+				"to": "component/schema.graphql"
+			}
 		],
 		"asarUnpack": [
 			"node_modules/steamworks.js/**/*"
@@ -71,14 +86,22 @@
 		"buildDependenciesFromSource": false,
 		"mac": {
 			"category": "public.app-category.games",
-			"target": ["dmg", "zip"]
+			"target": [
+				"dmg",
+				"zip"
+			]
 		},
 		"win": {
-			"target": ["nsis", "zip"]
+			"target": [
+				"nsis",
+				"zip"
+			]
 		},
 		"linux": {
 			"category": "Game",
-			"target": ["AppImage"]
+			"target": [
+				"AppImage"
+			]
 		}
 	}
 }

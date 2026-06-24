@@ -1,8 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import type { ChestState, RecipeDef } from '../types';
 import { recipeUnlocked, recipeMatchesSearch } from '../recipes';
+import {
+	weatherType, seasonStyle, liveSeason, liveWeatherType, forecastType, gatherResourceFor, weatherEffect, seasonEffect,
+} from '../weather';
 import { Meter } from './HUD';
 import { Icon } from './icons';
 import { BIOME_LORE, loreStage } from './lore';
@@ -609,6 +612,84 @@ export function HomePanel() {
 					</div>
 				);
 			})}
+		</Panel>
+	);
+}
+
+export function WeatherPanel() {
+	const { data, state, setPanel } = useGame();
+	// Tick once a second so the live clock, day-progress bar, and countdown
+	// advance smoothly while the panel is open.
+	const [, setTick] = useState(0);
+	useEffect(() => {
+		const id = window.setInterval(() => setTick((n) => n + 1), 1000);
+		return () => window.clearInterval(id);
+	}, []);
+	if (!data || !state) return null;
+
+	const snap = state.weather;
+	const worldId = (state as any).worldId || state.player.id;
+	const here = state.player.area;
+	const ss = seasonStyle(liveSeason(snap));
+
+	const unlockedBiomes = [...data.biomes]
+		.filter((b) => b.explorable && state.player.unlockedBiomes.includes(b.id))
+		.sort((a, b) => a.order - b.order);
+
+	const season = liveSeason(snap);
+	const hereType = liveWeatherType(worldId, here, snap);
+	const hereWt = weatherType(hereType);
+	const hereName = data.biomes.find((b) => b.id === here)?.name || 'this biome';
+	const wxText = weatherEffect(here, hereType);
+	const seasonText = seasonEffect(here, season);
+	// Whether something is gatherable right now — used only as a vague teaser; the
+	// resource itself stays a surprise you discover out in the world.
+	const teaseGather = !!gatherResourceFor(data.resources, here, hereType);
+
+	const cell = (t: string) => {
+		const wt = weatherType(t);
+		return <span className="wx-cell" title={wt.name}><Icon name={wt.icon} size={14} /> {wt.name}</span>;
+	};
+
+	return (
+		<Panel title="Weather & Seasons" icon="cloud" onClose={() => setPanel(null)} wide>
+			<div className="wx-now">
+				<span className="hud-season" style={{ color: ss.accent, borderColor: ss.accent }}>{ss.label}</span>
+				{here !== 'home' && <span className="muted small">{hereName}</span>}
+			</div>
+
+			{here !== 'home' && (
+				<>
+					<div className="wx-effect">
+						<div className="wx-effect-head"><Icon name={hereWt.icon} size={16} /> <b>{hereWt.name}</b> over {hereName}</div>
+						{wxText && <p>{wxText}</p>}
+						{teaseGather && <p className="muted small">Unusual weather like this can leave something worth finding — explore {hereName} while it lasts.</p>}
+					</div>
+					<div className="wx-effect">
+						<div className="wx-effect-head"><Icon name="sparkle" size={16} /> <b>{ss.label}</b> in {hereName}</div>
+						{seasonText && <p>{seasonText}</p>}
+					</div>
+				</>
+			)}
+
+			<h3>Across the preserve</h3>
+			<table className="wx-table">
+				<thead>
+					<tr><th>Biome</th><th>Now</th><th>Next</th><th>Later</th></tr>
+				</thead>
+				<tbody>
+					{unlockedBiomes.map((b) => (
+						<tr key={b.id} className={b.id === here ? 'wx-here' : ''}>
+							<td>{b.name}{b.id === here && <span className="muted small"> · here</span>}</td>
+							<td>{cell(liveWeatherType(worldId, b.id, snap))}</td>
+							<td>{cell(forecastType(worldId, b.id, snap, 1))}</td>
+							<td>{cell(forecastType(worldId, b.id, snap, 2))}</td>
+						</tr>
+					))}
+				</tbody>
+			</table>
+
+			<p className="muted small">Seasons drift from spring through summer, autumn, and winter, shifting which weather each biome is likely to see.</p>
 		</Panel>
 	);
 }

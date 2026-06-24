@@ -239,9 +239,10 @@
 				"objects": {
 					"native-grass-patch": 2,
 					"bird-perch": 1,
-					"shrub": 1
+					"shrub": 1,
+					"rain-basin": 1
 				},
-				"hint": "Meadowlarks need real expanses of native grass before they will nest."
+				"hint": "Meadowlarks need real expanses of native grass before they will nest, with a basin to drink and bathe."
 			}
 		},
 		{

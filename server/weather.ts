@@ -35,6 +35,34 @@ const DAY_PHASES: { id: string; until: number }[] = CFG?.dayPhases || [
 type Climate = Record<string, Record<string, Record<string, number>>>;
 const CLIMATE: Climate = weatherData.climate as Climate;
 
+// Weather-gated gather: biome -> weather type -> resource id. A node for that
+// resource appears in the biome only while the weather is active. Same weather
+// can map to different resources in different biomes.
+// Strip the `_comment` doc key (and any non-object entries) so consumers can
+// safely iterate this as biome → {weather: resource} without hitting the string.
+const GATHER: Record<string, Record<string, string>> = Object.fromEntries(
+	Object.entries(((weatherData as any).gather as Record<string, unknown>) || {})
+		.filter(([k, v]) => k !== '_comment' && v !== null && typeof v === 'object'),
+) as Record<string, Record<string, string>>;
+
+/** The resource id gatherable in `biome` while `type` weather is active, if any. */
+export function gatherResourceIdFor(biome: string, type: string): string | undefined {
+	return GATHER[biome]?.[type];
+}
+
+/** The full biome→weather→resource map (read-only), for menus/legends. */
+export function weatherGatherMap(): Record<string, Record<string, string>> {
+	return GATHER;
+}
+
+/** Whether a resource id is ever obtained as a weather-gated gather (any biome). */
+export function isWeatherGatheredResource(id: string): boolean {
+	for (const biome of Object.keys(GATHER)) {
+		for (const t of Object.keys(GATHER[biome])) if (GATHER[biome][t] === id) return true;
+	}
+	return false;
+}
+
 // --- seeded PRNG (deterministic) -------------------------------------------
 // FNV-1a string hash -> 32-bit seed, then mulberry32 for a uniform [0,1). Both
 // are tiny, dependency-free, and stable across platforms (server + browser).

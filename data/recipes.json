@@ -2420,6 +2420,62 @@
 				"minHealth": 55,
 				"label": "Restore that biome to 55% health"
 			}
+		},
+		{
+			"id": "rain-basin",
+			"name": "Rain Basin",
+			"category": "decoration",
+			"unlockBiome": "meadow",
+			"output": { "itemId": "rain-basin", "qty": 1 },
+			"materials": { "rainwater": 3, "stones": 2 }
+		},
+		{
+			"id": "dew-lantern",
+			"name": "Dewlit Lantern",
+			"category": "decoration",
+			"unlockBiome": "forest",
+			"output": { "itemId": "dew-lantern", "qty": 1 },
+			"materials": { "dewdrops": 3, "branches": 2 }
+		},
+		{
+			"id": "sunstone-cairn",
+			"name": "Sunstone Cairn",
+			"category": "decoration",
+			"unlockBiome": "desert",
+			"output": { "itemId": "sunstone-cairn", "qty": 1 },
+			"materials": { "sunstone": 3, "stones": 3 }
+		},
+		{
+			"id": "frostflower-planter",
+			"name": "Frostflower Planter",
+			"category": "decoration",
+			"unlockBiome": "alpine",
+			"output": { "itemId": "frostflower-planter", "qty": 1 },
+			"materials": { "frostflower": 3, "stones": 2 }
+		},
+		{
+			"id": "stormglass-lantern",
+			"name": "Stormglass Lantern",
+			"category": "decoration",
+			"unlockBiome": "desert",
+			"output": { "itemId": "stormglass-lantern", "qty": 1 },
+			"materials": { "stormglass": 2, "stones": 2 }
+		},
+		{
+			"id": "frostflower-vase",
+			"name": "Frostflower Vase",
+			"category": "home",
+			"unlockBiome": "alpine",
+			"output": { "itemId": "frostflower-vase", "qty": 1 },
+			"materials": { "frostflower": 2, "clay": 2 }
+		},
+		{
+			"id": "stormglass-chandelier",
+			"name": "Stormglass Chandelier",
+			"category": "home",
+			"unlockBiome": "desert",
+			"output": { "itemId": "stormglass-chandelier", "qty": 1 },
+			"materials": { "stormglass": 3, "branches": 3 }
 		}
 	]
 }

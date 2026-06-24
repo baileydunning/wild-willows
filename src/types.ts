@@ -354,4 +354,5 @@ export type PanelId =
 	| 'animal'
 	| 'settings'
 	| 'people'
+	| 'weather'
 	| null;

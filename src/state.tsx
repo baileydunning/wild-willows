@@ -136,8 +136,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	const shownFacts = useRef<Set<string>>(new Set());
 	// Last-seen biome health, to fire a progress beat when a threshold is crossed.
 	const prevHealth = useRef<Map<string, number> | null>(null);
-	// Last-seen weather (per current area) and season, to fire feed beats on change.
-	const prevWeather = useRef<string | null>(null);
+	// Last-seen weather per biome (so feed beats fire only on real weather changes,
+	// not when walking between biomes) and the last-seen season.
+	const prevWeatherByArea = useRef<Record<string, string>>({});
 	const prevSeason = useRef<string | null>(null);
 	// Last-seen home config signature, so upgrading/restyling while inside redraws the room.
 	const prevHomeSig = useRef<string | null>(null);
@@ -306,16 +307,21 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		const area = state.player.area;
 		const nowWeather = weatherForArea(state, area);
 		const nowSeason = state.weather.season;
-		const pw = prevWeather.current;
 		const ps = prevSeason.current;
-		prevWeather.current = nowWeather;
 		prevSeason.current = nowSeason;
-		if (pw === null) return; // seed baseline silently
 		if (ps !== null && nowSeason !== ps) {
 			const sl = seasonFeedLine(nowSeason);
 			if (sl) pushLog(sl.icon, sl.text, true);
 		}
-		if (nowWeather !== pw && area !== 'home') {
+		// Announce weather PER biome: only when a biome's weather actually changes
+		// over time — never just because the player walked into a different biome
+		// (which previously fired a line on every area change). The first time we
+		// see a biome we silently seed its baseline.
+		const seen = prevWeatherByArea.current;
+		const had = Object.prototype.hasOwnProperty.call(seen, area);
+		const prev = seen[area];
+		seen[area] = nowWeather;
+		if (had && nowWeather !== prev && area !== 'home') {
 			const wl = weatherFeedLine(nowWeather, 'onArrive');
 			if (wl) pushLog(wl.icon, wl.text, true);
 		}
