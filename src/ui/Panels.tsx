@@ -76,6 +76,8 @@ export function InventoryPanel() {
 	if (!data || !state) return null;
 	const inv = Object.entries(state.player.inventory || {}).filter(([, q]) => q > 0);
 	const carried = inv.reduce((a, [, q]) => a + q, 0);
+	// Restoration kits (and any kit-category craftable) are protected from discard.
+	const kitItemIds = new Set(data.recipes.filter((r) => r.category === 'kit').map((r) => r.output.itemId));
 
 	const toss = (kind: 'material' | 'crafted', id: string, qty: number, name: string) => {
 		if (window.confirm(`Throw away ${qty}× ${name}? This can't be undone.`)) discard(kind, id, qty, name);
@@ -109,6 +111,9 @@ export function InventoryPanel() {
 						{Object.entries(state.player.craftedItems).map(([id, qty]) => {
 							const def = data.habitatObjects.find((o) => o.id === id);
 							const name = def?.name || id;
+							// Restoration kits are milestone items — crafting them is what counts,
+							// so they can't be thrown away by mistake.
+							const isKit = kitItemIds.has(id);
 							return (
 								<div className="cell row" key={id}>
 									<span className="grow">{name}</span>
@@ -118,14 +123,16 @@ export function InventoryPanel() {
 											<Icon name="pin" size={12} /> Place
 										</button>
 									)}
-									<button className="subtle" title={`Throw away one ${name}`} onClick={() => toss('crafted', id, 1, name)}>
-										<Icon name="trash" size={12} />
-									</button>
+									{!isKit && (
+										<button className="subtle" title={`Throw away one ${name}`} onClick={() => toss('crafted', id, 1, name)}>
+											<Icon name="trash" size={12} />
+										</button>
+									)}
 								</div>
 							);
 						})}
 					</div>
-					<p className="muted">Kits (like restoration kits) are not placed — crafting them is what counts.</p>
+					<p className="muted">Kits (like restoration kits) are not placed and can't be discarded — crafting them is what counts.</p>
 				</>
 			)}
 		</Panel>
@@ -263,7 +270,7 @@ export function CraftingPanel() {
 		})
 		.filter((r) => typeFilter === 'all' || r.category === typeFilter)
 		// free-text search across the recipe name, what it makes, and its type
-		.filter((r) => recipeMatchesSearch(r, objOf(r), catLabel[r.category] || r.category, query))
+		.filter((r) => recipeMatchesSearch(r, objOf(r), catLabel[r.category] || r.category, query, Object.keys(r.materials).map((m) => resName(data, m))))
 		.sort((a, b) => catRank(a.category) - catRank(b.category) || a.name.localeCompare(b.name));
 	const categories = [...new Set(visible.map((r) => r.category))].sort((a, b) => catRank(a) - catRank(b));
 	// areas + types available to the player, for the filter dropdowns

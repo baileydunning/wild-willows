@@ -1078,16 +1078,20 @@ export class WorldScene extends Phaser.Scene {
 			}
 		}
 
-		// Coverage safety net — every gatherable resource MUST have at least TWO
-		// spawn spots the moment the world spawns. The placement loop above covers
-		// this normally, but if anything slipped through (an unusually crowded map
-		// that exhausted placement attempts), force extra nodes in on the nearest
-		// free tiles. This makes "two of each" a hard guarantee, not a statistic.
+		// Coverage safety net — every gatherable resource MUST have at least a
+		// minimum number of spawn spots the moment the world spawns. The placement
+		// loop above covers this normally, but if anything slipped through (an
+		// unusually crowded map that exhausted placement attempts), force extra
+		// nodes in on the nearest free tiles so the guarantee is hard, not a
+		// statistic. Fallen branches are an early staple, so the meadow and forest
+		// keep at least three.
 		const MIN_PER_RESOURCE = 2;
+		const minFor = (r: string) =>
+			r === 'branches' && (this.area === 'meadow' || this.area === 'forest') ? 3 : MIN_PER_RESOURCE;
 		const perResource = new Map<string, number>();
 		for (const n of nodes) perResource.set(n.resourceId, (perResource.get(n.resourceId) || 0) + 1);
 		for (const r of res) {
-			while ((perResource.get(r) || 0) < MIN_PER_RESOURCE) {
+			while ((perResource.get(r) || 0) < minFor(r)) {
 				const spot = this.findFreeTile(Math.floor(OUT_W / 2), this.playTop + Math.floor(OUT_H / 2), occupied, taken);
 				if (!spot) break;
 				nodes.push({ id: `n${nodes.length}`, resourceId: r, tx: spot.tx, ty: spot.ty });

@@ -1414,6 +1414,37 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 		shard(9); shard(18); shard(27);
 		g.lineStyle(1, C('#dfe6ff'), 0.7).lineBetween(9, 22, 18, 26).lineBetween(18, 26, 27, 22); // light arc
 	});
+
+	// ---- wetland craftables (bespoke art) ----
+	// Boardwalk — raised plank walkway over the marsh.
+	o('boardwalk', 40, 24, (g) => {
+		g.fillStyle(C('#46708a'), 0.5).fillRect(0, 14, 40, 10);             // water beneath
+		g.fillStyle(C('#5a3f28'), 1).fillRect(4, 18, 2, 5).fillRect(20, 18, 2, 5).fillRect(34, 18, 2, 5); // posts
+		g.fillStyle(C('#9a7448'), 1).fillRect(2, 10, 36, 6);               // deck
+		g.fillStyle(C('#7c5a3c'), 1);
+		for (let x = 4; x < 38; x += 5) g.fillRect(x, 10, 1, 6);           // plank seams
+		g.fillStyle(C('#b8956a'), 1).fillRect(2, 10, 36, 1);              // sunlit top edge
+	});
+	// Heron Rookery — a tall snag with a stick nest for wading birds.
+	o('heronrookery', 30, 40, (g) => {
+		g.fillStyle(C('#8a8270'), 1).fillRect(13, 10, 4, 28);              // dead trunk
+		g.fillStyle(C('#6f6857'), 1).fillRect(13, 10, 1.5, 28);           // shadow side
+		g.fillStyle(C('#7a6a4a'), 1).fillRect(6, 16, 8, 2).fillRect(16, 22, 8, 2); // bare branches
+		g.fillStyle(C('#5a4a30'), 1).fillEllipse(15, 8, 20, 8);           // stick nest
+		g.fillStyle(C('#6e5a3a'), 1);
+		for (let i = 0; i < 7; i++) g.fillRect(6 + i * 3, 6, 2, 1);       // nest sticks
+		g.fillStyle(C('#eae6da'), 1).fillCircle(12, 7, 1.4).fillCircle(17, 7, 1.4); // eggs
+	});
+	// Dragonfly Pond — open water ringed with reeds, a dragonfly skimming.
+	o('dragonflypond', 36, 28, (g) => {
+		g.fillStyle(C('#3f7d6a'), 1).fillEllipse(18, 18, 32, 16);          // pond
+		g.fillStyle(C('#5aa6cf'), 0.8).fillEllipse(18, 16, 24, 10);       // open water
+		g.fillStyle(0xffffff, 0.4).fillEllipse(13, 14, 8, 2);            // glint
+		g.lineStyle(2, C('#6da84e'), 1).lineBetween(5, 22, 4, 10).lineBetween(31, 22, 33, 9).lineBetween(9, 23, 8, 13); // reeds
+		g.fillStyle(C('#3a5f2e'), 1).fillCircle(4, 9, 1.5).fillCircle(33, 8, 1.5); // reed heads
+		g.fillStyle(C('#5b9cab'), 1).fillRect(19, 9, 6, 1.4);            // dragonfly wings
+		g.fillStyle(C('#2f6f6a'), 1).fillRect(21, 8, 2, 4);              // dragonfly body
+	});
 }
 
 /**
@@ -1477,6 +1508,7 @@ export function ensureAnimalTexture(scene: Phaser.Scene, id: string, kind: strin
 		g.fillStyle(0x2e2018, 1).fillCircle(29, 8, 1.3);
 	});
 	a('fox', 32, 26, (g) => {
+		g.fillStyle(C('#46301f'), 1).fillRect(9, 19, 3, 6).fillRect(14, 20, 3, 6).fillRect(20, 19, 3, 6); // dark-socked legs
 		g.fillStyle(C('#d3722e'), 1).fillEllipse(15, 16, 20, 12).fillCircle(25, 10, 6);
 		g.fillTriangle(21, 3, 24, 9, 19, 9).fillTriangle(27, 3, 30, 9, 25, 9); // ears
 		g.fillEllipse(4, 16, 12, 8); // tail

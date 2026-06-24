@@ -2693,6 +2693,32 @@ var recipes_default = {
       unlockBiome: "desert",
       output: { itemId: "stormglass-chandelier", qty: 1 },
       materials: { stormglass: 3, branches: 3 }
+    },
+    {
+      id: "boardwalk",
+      name: "Marsh Boardwalk",
+      category: "structure",
+      unlockBiome: "wetland",
+      output: { itemId: "boardwalk", qty: 1 },
+      materials: { branches: 6, reeds: 4, clay: 2 }
+    },
+    {
+      id: "heron-rookery",
+      name: "Heron Rookery",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: { itemId: "heron-rookery", qty: 1 },
+      materials: { branches: 10, reeds: 5, mud: 3 },
+      unlock: { minHealth: 45, label: "Restore Rushwater Wetland to 45% health" }
+    },
+    {
+      id: "dragonfly-pond",
+      name: "Dragonfly Pond",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: { itemId: "dragonfly-pond", qty: 1 },
+      materials: { clay: 6, "clean-water": 5, reeds: 4 },
+      unlock: { minHealth: 40, label: "Restore Rushwater Wetland to 40% health" }
     }
   ]
 };
@@ -5556,6 +5582,39 @@ var habitat_objects_default = {
       color: "#5566a3",
       description: "A hanging cluster of lightning-glass shards that scatters cool light across the room.",
       homeMin: 2
+    },
+    {
+      id: "boardwalk",
+      name: "Marsh Boardwalk",
+      placement: "outdoor",
+      biomes: ["wetland"],
+      healthValue: 2,
+      needs: [],
+      shape: "boardwalk",
+      color: "#9a7448",
+      description: "A raised plank walkway that lets you cross the marsh without trampling the reeds and mud below."
+    },
+    {
+      id: "heron-rookery",
+      name: "Heron Rookery",
+      placement: "outdoor",
+      biomes: ["wetland"],
+      healthValue: 6,
+      needs: ["shelter"],
+      shape: "heronrookery",
+      color: "#8a8270",
+      description: "A tall marsh snag crowned with a stick nest \u2014 exactly the high, safe perch that herons and egrets raise their young on."
+    },
+    {
+      id: "dragonfly-pond",
+      name: "Dragonfly Pond",
+      placement: "outdoor",
+      biomes: ["wetland"],
+      healthValue: 7,
+      needs: ["water"],
+      shape: "dragonflypond",
+      color: "#5aa6cf",
+      description: "A clear pool ringed with reeds \u2014 open water where dragonflies hunt and frogs and newts breed."
     }
   ]
 };
