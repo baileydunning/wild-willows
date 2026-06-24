@@ -1,8 +1,11 @@
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import type { ChestState, RecipeDef } from '../types';
 import { recipeUnlocked, recipeMatchesSearch } from '../recipes';
+import {
+	weatherType, seasonStyle, liveSeason, liveWeatherType, forecastType, gatherResourceFor, weatherEffect, seasonEffect,
+} from '../weather';
 import { Meter } from './HUD';
 import { Icon } from './icons';
 import { BIOME_LORE, loreStage } from './lore';
@@ -73,6 +76,8 @@ export function InventoryPanel() {
 	if (!data || !state) return null;
 	const inv = Object.entries(state.player.inventory || {}).filter(([, q]) => q > 0);
 	const carried = inv.reduce((a, [, q]) => a + q, 0);
+	// Restoration kits (and any kit-category craftable) are protected from discard.
+	const kitItemIds = new Set(data.recipes.filter((r) => r.category === 'kit').map((r) => r.output.itemId));
 
 	const toss = (kind: 'material' | 'crafted', id: string, qty: number, name: string) => {
 		if (window.confirm(`Throw away ${qty}× ${name}? This can't be undone.`)) discard(kind, id, qty, name);
@@ -106,6 +111,9 @@ export function InventoryPanel() {
 						{Object.entries(state.player.craftedItems).map(([id, qty]) => {
 							const def = data.habitatObjects.find((o) => o.id === id);
 							const name = def?.name || id;
+							// Restoration kits are milestone items — crafting them is what counts,
+							// so they can't be thrown away by mistake.
+							const isKit = kitItemIds.has(id);
 							return (
 								<div className="cell row" key={id}>
 									<span className="grow">{name}</span>
@@ -115,14 +123,16 @@ export function InventoryPanel() {
 											<Icon name="pin" size={12} /> Place
 										</button>
 									)}
-									<button className="subtle" title={`Throw away one ${name}`} onClick={() => toss('crafted', id, 1, name)}>
-										<Icon name="trash" size={12} />
-									</button>
+									{!isKit && (
+										<button className="subtle" title={`Throw away one ${name}`} onClick={() => toss('crafted', id, 1, name)}>
+											<Icon name="trash" size={12} />
+										</button>
+									)}
 								</div>
 							);
 						})}
 					</div>
-					<p className="muted">Kits (like restoration kits) are not placed — crafting them is what counts.</p>
+					<p className="muted">Kits (like restoration kits) are not placed and can't be discarded — crafting them is what counts.</p>
 				</>
 			)}
 		</Panel>
@@ -260,7 +270,7 @@ export function CraftingPanel() {
 		})
 		.filter((r) => typeFilter === 'all' || r.category === typeFilter)
 		// free-text search across the recipe name, what it makes, and its type
-		.filter((r) => recipeMatchesSearch(r, objOf(r), catLabel[r.category] || r.category, query))
+		.filter((r) => recipeMatchesSearch(r, objOf(r), catLabel[r.category] || r.category, query, Object.keys(r.materials).map((m) => resName(data, m))))
 		.sort((a, b) => catRank(a.category) - catRank(b.category) || a.name.localeCompare(b.name));
 	const categories = [...new Set(visible.map((r) => r.category))].sort((a, b) => catRank(a) - catRank(b));
 	// areas + types available to the player, for the filter dropdowns
@@ -609,6 +619,84 @@ export function HomePanel() {
 					</div>
 				);
 			})}
+		</Panel>
+	);
+}
+
+export function WeatherPanel() {
+	const { data, state, setPanel } = useGame();
+	// Tick once a second so the live clock, day-progress bar, and countdown
+	// advance smoothly while the panel is open.
+	const [, setTick] = useState(0);
+	useEffect(() => {
+		const id = window.setInterval(() => setTick((n) => n + 1), 1000);
+		return () => window.clearInterval(id);
+	}, []);
+	if (!data || !state) return null;
+
+	const snap = state.weather;
+	const worldId = (state as any).worldId || state.player.id;
+	const here = state.player.area;
+	const ss = seasonStyle(liveSeason(snap));
+
+	const unlockedBiomes = [...data.biomes]
+		.filter((b) => b.explorable && state.player.unlockedBiomes.includes(b.id))
+		.sort((a, b) => a.order - b.order);
+
+	const season = liveSeason(snap);
+	const hereType = liveWeatherType(worldId, here, snap);
+	const hereWt = weatherType(hereType);
+	const hereName = data.biomes.find((b) => b.id === here)?.name || 'this biome';
+	const wxText = weatherEffect(here, hereType);
+	const seasonText = seasonEffect(here, season);
+	// Whether something is gatherable right now — used only as a vague teaser; the
+	// resource itself stays a surprise you discover out in the world.
+	const teaseGather = !!gatherResourceFor(data.resources, here, hereType);
+
+	const cell = (t: string) => {
+		const wt = weatherType(t);
+		return <span className="wx-cell" title={wt.name}><Icon name={wt.icon} size={14} /> {wt.name}</span>;
+	};
+
+	return (
+		<Panel title="Weather & Seasons" icon="cloud" onClose={() => setPanel(null)} wide>
+			<div className="wx-now">
+				<span className="hud-season" style={{ color: ss.accent, borderColor: ss.accent }}>{ss.label}</span>
+				{here !== 'home' && <span className="muted small">{hereName}</span>}
+			</div>
+
+			{here !== 'home' && (
+				<>
+					<div className="wx-effect">
+						<div className="wx-effect-head"><Icon name={hereWt.icon} size={16} /> <b>{hereWt.name}</b> over {hereName}</div>
+						{wxText && <p>{wxText}</p>}
+						{teaseGather && <p className="muted small">Unusual weather like this can leave something worth finding — explore {hereName} while it lasts.</p>}
+					</div>
+					<div className="wx-effect">
+						<div className="wx-effect-head"><Icon name="sparkle" size={16} /> <b>{ss.label}</b> in {hereName}</div>
+						{seasonText && <p>{seasonText}</p>}
+					</div>
+				</>
+			)}
+
+			<h3>Across the preserve</h3>
+			<table className="wx-table">
+				<thead>
+					<tr><th>Biome</th><th>Now</th><th>Next</th><th>Later</th></tr>
+				</thead>
+				<tbody>
+					{unlockedBiomes.map((b) => (
+						<tr key={b.id} className={b.id === here ? 'wx-here' : ''}>
+							<td>{b.name}{b.id === here && <span className="muted small"> · here</span>}</td>
+							<td>{cell(liveWeatherType(worldId, b.id, snap))}</td>
+							<td>{cell(forecastType(worldId, b.id, snap, 1))}</td>
+							<td>{cell(forecastType(worldId, b.id, snap, 2))}</td>
+						</tr>
+					))}
+				</tbody>
+			</table>
+
+			<p className="muted small">Seasons drift from spring through summer, autumn, and winter, shifting which weather each biome is likely to see.</p>
 		</Panel>
 	);
 }

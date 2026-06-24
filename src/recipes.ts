@@ -44,14 +44,16 @@ export function recipeUnlocked(recipe: RecipeDef, data: GameData, state: GameSta
 
 /**
  * Does a recipe match the crafting-menu search box? Case-insensitive match
- * against the recipe name, what it produces (object name + description), and its
- * type label. An empty/whitespace query matches everything.
+ * against the recipe name, what it produces (object name + description), its
+ * type label, and its ingredient names (so you can search by what you have, e.g.
+ * "reeds" or "clay"). An empty/whitespace query matches everything.
  */
 export function recipeMatchesSearch(
 	recipe: RecipeDef,
 	obj: HabitatObjectDef | undefined,
 	typeLabel: string,
 	query: string,
+	materialNames: string[] = [],
 ): boolean {
 	const q = query.trim().toLowerCase();
 	if (!q) return true;
@@ -59,7 +61,8 @@ export function recipeMatchesSearch(
 		recipe.name.toLowerCase().includes(q) ||
 		(obj?.name || '').toLowerCase().includes(q) ||
 		(obj?.description || '').toLowerCase().includes(q) ||
-		(typeLabel || '').toLowerCase().includes(q)
+		(typeLabel || '').toLowerCase().includes(q) ||
+		materialNames.some((m) => m.toLowerCase().includes(q))
 	);
 }
 

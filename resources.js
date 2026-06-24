@@ -2637,6 +2637,88 @@ var recipes_default = {
         minHealth: 55,
         label: "Restore that biome to 55% health"
       }
+    },
+    {
+      id: "rain-basin",
+      name: "Rain Basin",
+      category: "decoration",
+      unlockBiome: "meadow",
+      output: { itemId: "rain-basin", qty: 1 },
+      materials: { rainwater: 3, stones: 2 }
+    },
+    {
+      id: "dew-lantern",
+      name: "Dewlit Lantern",
+      category: "decoration",
+      unlockBiome: "forest",
+      output: { itemId: "dew-lantern", qty: 1 },
+      materials: { dewdrops: 3, branches: 2 }
+    },
+    {
+      id: "sunstone-cairn",
+      name: "Sunstone Cairn",
+      category: "decoration",
+      unlockBiome: "desert",
+      output: { itemId: "sunstone-cairn", qty: 1 },
+      materials: { sunstone: 3, stones: 3 }
+    },
+    {
+      id: "frostflower-planter",
+      name: "Frostflower Planter",
+      category: "decoration",
+      unlockBiome: "alpine",
+      output: { itemId: "frostflower-planter", qty: 1 },
+      materials: { frostflower: 3, stones: 2 }
+    },
+    {
+      id: "stormglass-lantern",
+      name: "Stormglass Lantern",
+      category: "decoration",
+      unlockBiome: "desert",
+      output: { itemId: "stormglass-lantern", qty: 1 },
+      materials: { stormglass: 2, stones: 2 }
+    },
+    {
+      id: "frostflower-vase",
+      name: "Frostflower Vase",
+      category: "home",
+      unlockBiome: "alpine",
+      output: { itemId: "frostflower-vase", qty: 1 },
+      materials: { frostflower: 2, clay: 2 }
+    },
+    {
+      id: "stormglass-chandelier",
+      name: "Stormglass Chandelier",
+      category: "home",
+      unlockBiome: "desert",
+      output: { itemId: "stormglass-chandelier", qty: 1 },
+      materials: { stormglass: 3, branches: 3 }
+    },
+    {
+      id: "boardwalk",
+      name: "Marsh Boardwalk",
+      category: "structure",
+      unlockBiome: "wetland",
+      output: { itemId: "boardwalk", qty: 1 },
+      materials: { branches: 6, reeds: 4, clay: 2 }
+    },
+    {
+      id: "heron-rookery",
+      name: "Heron Rookery",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: { itemId: "heron-rookery", qty: 1 },
+      materials: { branches: 10, reeds: 5, mud: 3 },
+      unlock: { minHealth: 45, label: "Restore Rushwater Wetland to 45% health" }
+    },
+    {
+      id: "dragonfly-pond",
+      name: "Dragonfly Pond",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: { itemId: "dragonfly-pond", qty: 1 },
+      materials: { clay: 6, "clean-water": 5, reeds: 4 },
+      unlock: { minHealth: 40, label: "Restore Rushwater Wetland to 40% health" }
     }
   ]
 };
@@ -5421,6 +5503,118 @@ var habitat_objects_default = {
       color: "#5a6b7a",
       description: "A brass telescope for the clear mountain sky.",
       homeMin: 3
+    },
+    {
+      id: "rain-basin",
+      name: "Rain Basin",
+      placement: "outdoor",
+      biomes: ["meadow", "forest", "wetland"],
+      healthValue: 5,
+      needs: ["water"],
+      shape: "rainbasin",
+      color: "#6fa8d6",
+      description: "A carved stone bowl that catches rainwater \u2014 a drinking spot for visiting wildlife."
+    },
+    {
+      id: "dew-lantern",
+      name: "Dewlit Lantern",
+      placement: "both",
+      biomes: ["meadow", "forest", "wetland", "alpine", "coastal"],
+      healthValue: 1,
+      needs: [],
+      shape: "dewlantern",
+      color: "#a8d2c0",
+      description: "A glass globe of glowing morning dew that throws a soft green light."
+    },
+    {
+      id: "sunstone-cairn",
+      name: "Sunstone Cairn",
+      placement: "outdoor",
+      biomes: ["desert", "meadow", "forest"],
+      healthValue: 4,
+      needs: ["shelter"],
+      shape: "sunstonecairn",
+      color: "#e6a94e",
+      description: "A stack of sun-baked stones that hold the day's warmth into the cool evening."
+    },
+    {
+      id: "frostflower-planter",
+      name: "Frostflower Planter",
+      placement: "both",
+      biomes: ["alpine", "forest", "meadow"],
+      healthValue: 3,
+      needs: ["plant"],
+      shape: "frostflowerplanter",
+      color: "#bcd9e8",
+      description: "A planter of pale ice-blooms that keep their shape long after the snow has gone."
+    },
+    {
+      id: "stormglass-lantern",
+      name: "Stormglass Lantern",
+      placement: "both",
+      biomes: ["desert", "coastal", "wetland"],
+      healthValue: 1,
+      needs: [],
+      shape: "stormglasslantern",
+      color: "#5566a3",
+      description: "A shard of lightning-fused glass that flickers with a cold inner light."
+    },
+    {
+      id: "frostflower-vase",
+      name: "Frostflower Vase",
+      placement: "indoor",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "frostflowervase",
+      color: "#bcd9e8",
+      description: "A glass vase of ice-blooms for the windowsill \u2014 they never wilt.",
+      homeMin: 1
+    },
+    {
+      id: "stormglass-chandelier",
+      name: "Stormglass Chandelier",
+      placement: "indoor",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "stormglasschandelier",
+      color: "#5566a3",
+      description: "A hanging cluster of lightning-glass shards that scatters cool light across the room.",
+      homeMin: 2
+    },
+    {
+      id: "boardwalk",
+      name: "Marsh Boardwalk",
+      placement: "outdoor",
+      biomes: ["wetland"],
+      healthValue: 2,
+      needs: [],
+      shape: "boardwalk",
+      color: "#9a7448",
+      description: "A raised plank walkway that lets you cross the marsh without trampling the reeds and mud below."
+    },
+    {
+      id: "heron-rookery",
+      name: "Heron Rookery",
+      placement: "outdoor",
+      biomes: ["wetland"],
+      healthValue: 6,
+      needs: ["shelter"],
+      shape: "heronrookery",
+      color: "#8a8270",
+      description: "A tall marsh snag crowned with a stick nest \u2014 exactly the high, safe perch that herons and egrets raise their young on."
+    },
+    {
+      id: "dragonfly-pond",
+      name: "Dragonfly Pond",
+      placement: "outdoor",
+      biomes: ["wetland"],
+      healthValue: 7,
+      needs: ["water"],
+      shape: "dragonflypond",
+      color: "#5aa6cf",
+      description: "A clear pool ringed with reeds \u2014 open water where dragonflies hunt and frogs and newts breed."
     }
   ]
 };
@@ -5648,7 +5842,8 @@ var tools_default = {
           materials: {
             "cactus-fruit": 2,
             sand: 3,
-            "agave-nectar": 1
+            "agave-nectar": 1,
+            sunstone: 1
           },
           requires: {
             biome: "desert"
@@ -5887,6 +6082,36 @@ var resources_default = {
       name: "Pearl",
       tool: "basket",
       color: "#f2ece0"
+    },
+    {
+      id: "rainwater",
+      name: "Rainwater",
+      tool: "basket",
+      color: "#6fa8d6"
+    },
+    {
+      id: "stormglass",
+      name: "Stormglass",
+      tool: "basket",
+      color: "#5566a3"
+    },
+    {
+      id: "frostflower",
+      name: "Frostflower",
+      tool: "basket",
+      color: "#bcd9e8"
+    },
+    {
+      id: "dewdrops",
+      name: "Morning Dew",
+      tool: "basket",
+      color: "#a8d2c0"
+    },
+    {
+      id: "sunstone",
+      name: "Sunstone",
+      tool: "shovel",
+      color: "#e6a94e"
     }
   ]
 };
@@ -6133,9 +6358,10 @@ var animals_1_default = {
         objects: {
           "native-grass-patch": 2,
           "bird-perch": 1,
-          shrub: 1
+          shrub: 1,
+          "rain-basin": 1
         },
-        hint: "Meadowlarks need real expanses of native grass before they will nest."
+        hint: "Meadowlarks need real expanses of native grass before they will nest, with a basin to drink and bathe."
       }
     },
     {
@@ -7343,9 +7569,10 @@ var animals_2_default = {
         objects: {
           "alpine-wildflower-patch": 1,
           "grass-patch": 1,
-          "rock-pile": 1
+          "rock-pile": 1,
+          "frostflower-planter": 1
         },
-        hint: "Alpine shrubs and quiet nesting cover."
+        hint: "Alpine shrubs and quiet nesting cover, with hardy frostflowers in bloom."
       }
     },
     {
@@ -8862,9 +9089,10 @@ var animals_2_default = {
         objects: {
           "rock-crevice": 1,
           "cactus-patch": 1,
-          "desert-brush": 1
+          "desert-brush": 1,
+          "sunstone-cairn": 1
         },
-        hint: "A rock crevice to wedge into, with cactus and brush to graze."
+        hint: "A rock crevice to wedge into, with cactus and brush to graze \u2014 and a sun-warmed cairn to bask on."
       }
     },
     {
@@ -9090,8 +9318,326 @@ var achievements_default = {
   ]
 };
 
+// data/weather.json
+var weather_default = {
+  _comment: "Weather is DERIVED, not stored. This file is static config consumed by server/weather.ts \u2014 it is NOT a seeded Harper table, so it needs no schema entry and never goes through reconcileDefinitions. `config` sets the time scale; `seasons` lists the cycle order; `types` defines each weather kind (visuals + Phase 3 effect params); `climate` is per-biome \xD7 per-season weighted odds used to draw each game-day's weather deterministically.",
+  config: {
+    dayMs: 6e5,
+    daysPerSeason: 3,
+    dayPhases: [
+      { id: "dawn", until: 0.08 },
+      { id: "day", until: 0.74 },
+      { id: "dusk", until: 0.84 },
+      { id: "night", until: 1 }
+    ]
+  },
+  seasons: ["spring", "summer", "autumn", "winter"],
+  gather: {
+    _comment: "biome \u2192 weather type \u2192 resource id. A weather-gated gather node for that resource appears in the biome ONLY while that weather is active. The same weather can yield different resources in different biomes (e.g. a desert storm fuses sand into stormglass; a temperate rain just pools rainwater).",
+    meadow: { rain: "rainwater", fog: "dewdrops" },
+    forest: { rain: "rainwater", fog: "dewdrops" },
+    wetland: { rain: "rainwater", fog: "dewdrops" },
+    desert: { heat: "sunstone", storm: "stormglass" },
+    alpine: { snow: "frostflower", fog: "dewdrops" },
+    coastal: { storm: "stormglass", fog: "dewdrops" }
+  },
+  effects: {
+    _comment: "Educational ecology grounded in credible sources (USGS, NOAA/NWS, NPS, US FWS, EPA, university extension, Britannica, Audubon, Smithsonian). Shown in the weather menu for the biome you're standing in while that weather is happening. `_default` applies unless a biome-specific line is given.",
+    clear: {
+      _default: "Bright, sunny days are when most green life does its best work, soaking up sunlight to grow. Pollinators like bees and butterflies are most active in clear, warm weather, and many animals bask to warm up before the day's business begins.",
+      desert: "Deserts get punishing amounts of sunlight, and with little water or plant cover the bare ground heats fast. Because the dry, cloudless air holds almost no moisture, that heat escapes back to the sky quickly after sunset, so a blistering day can turn into a near-freezing night \u2014 one of the desert's signatures.",
+      alpine: "High in the mountains the thin air filters out less sunlight, so ultraviolet rays grow stronger with every step up in elevation. Alpine life must endure this intense UV while also surviving freeze-thaw cycles, where the ground thaws by day and refreezes by night, constantly churning the soil and challenging plant roots.",
+      coastal: "When the tide pulls back on a clear, sunny day, tidepool creatures like barnacles, limpets, and mussels are left exposed to bake in the open air. They face both overheating and drying out, and are specially built to endure the twice-daily swing between being underwater and sun-baked.",
+      meadow: "Many prairie grasses are sun-lovers, using an extra-efficient form of photosynthesis (called C4) that works best in hot, bright conditions, peaking around 90-95 degrees. The grasses are mostly wind-pollinated, but the wildflowers scattered among them draw busy bees and butterflies on sunny days."
+    },
+    cloudy: {
+      _default: "Overcast skies soften the day, lowering the sun's intensity and slowing how fast soil and surfaces dry out. The cooler, calmer conditions ease heat stress on plants and animals, and the steady grey light keeps the whole landscape ticking along at a gentler pace."
+    },
+    rain: {
+      _default: "Rain is the great refresher, soaking the soil and waking up roots, seeds, and the countless small lives that depend on moisture. After a good rain many plants green up quickly and decomposition speeds back up, recycling nutrients into the ground.",
+      desert: "A desert rain can transform the land almost overnight. Water soaks dormant seeds and triggers bursts of short-lived 'ephemeral' wildflowers, while spadefoot toads, cued by the vibration of falling rain, dig up from underground where they've waited for months. They rush to temporary pools to breed in loud choruses, and because the pools dry fast, their tadpoles race to transform in record time.",
+      wetland: "A marsh runs on rain, which sets its 'hydroperiod' \u2014 the stretch of time the wetland stays wet. That timing largely decides which frogs and salamanders can breed there, since their larvae need the water to last long enough to grow up. A good rainy spell can fill a marsh just long enough for a whole new generation to develop.",
+      forest: "Rain brings the forest's quiet recyclers to life. Mushrooms \u2014 the fruiting bodies of fungi \u2014 pop up after wet weather, while underground a lace-like web of fungal threads spreads through the soil and dead wood, breaking fallen leaves and logs into fertile earth and even linking tree roots into a sharing network.",
+      meadow: "Grasslands respond fast to rain, since how much a meadow grows is tightly tied to how much it rains. After a soaking the grasses green up and shoot upward quickly, and the timing of rain through the season shapes how lush the whole meadow becomes."
+    },
+    storm: {
+      _default: "Storms bring wind and heavy rain that knock things down and stir things up \u2014 but this disturbance is a natural, even healthy part of how wild places work. Storms reshape the land, clear away the old, and open room for new growth.",
+      forest: "Wind is the leading cause of 'treefall gaps' \u2014 the openings left when a storm topples one or more trees. Each gap lets a sudden burst of sunlight reach the shaded floor, sparking a flush of new seedlings, which keeps the woodland varied in age and full of opportunity.",
+      coastal: "Storm waves rip giant kelp off the seafloor and fling it ashore as 'wrack,' which fuels the entire sandy-beach food web \u2014 roughly 40% of beach invertebrates depend on it. Beach hoppers and kelp flies feed on the wrack, and they in turn feed shorebirds; on rocky shores those same waves overturn boulders and open fresh space that resets the community.",
+      desert: "In the Sonoran Desert, summer's monsoon brings booming afternoon thunderstorms that ease the heat but create its most dangerous weather. Hard rain runs off the sun-baked ground into normally dry creek beds \u2014 arroyos, or washes \u2014 which can fill with fast, deadly floodwater in under a minute, sometimes while the storm is still miles away.",
+      wetland: "Wetlands act like natural sponges. During a big storm a marsh swells, soaking up the rush of rain and floodwater and then releasing it slowly, which lowers the flood peak and protects the land downstream.",
+      alpine: "In the mountains, thunderstorms tend to build in the early afternoon, which makes the open ground above the treeline especially dangerous \u2014 there's nothing tall to draw the lightning away. Hikers are urged to reach high summits early and head back down before noon."
+    },
+    fog: {
+      _default: "Fog is really a cloud resting at ground level, formed when moist air cools until its water vapor condenses into countless tiny floating droplets. For many plants it is a gift of moisture, settling onto leaves and soil even when no rain falls.",
+      forest: "When fog drifts through a forest, the leaves, branches, and the mosses and lichens clinging to them comb tiny droplets from the air. The droplets merge and fall like a slow rain \u2014 'fog drip' \u2014 watering the understory, which is why mosses, ferns, and lichens drape so thickly over the trunks.",
+      coastal: "Fog defines many seashores, forming where the ocean's moist air meets cooler air and drifts inland as a marine layer. It brings welcome moisture and shade that ease summer's hot, dry stress \u2014 genuine relief for creatures stranded above the water at low tide, who face the greatest danger on cloudless, sun-baked days.",
+      wetland: "A marsh sits under a near-constant blanket of moisture, so on calm, cool nights it readily forms fog and heavy dew as the humid air over the water saturates. This can be a real extra source of water for plants at the water's edge, keeping the wetland damp between rains."
+    },
+    snow: {
+      _default: "A blanket of snow doesn't just cover the land \u2014 it insulates it. Deep snow traps heat rising from the soil, creating a hidden, sheltered world at ground level called the subnivean zone, a humid space that stays remarkably steady around 32 degrees even when the air above is bitter. Mice, voles, and shrews stay active down there all winter.",
+      alpine: "Mountain snowpack is a natural water tower, storing winter's snow and releasing it slowly as it melts through spring and summer, feeding streams when water is needed most \u2014 in the Colorado River Basin, 70-85% of the year's runoff begins as mountain snow. Beneath the deep snow, the insulated subnivean space lets small mammals like pikas survive the cold.",
+      forest: "Snow piling on branches adds weight that can bend or snap limbs \u2014 a strain called snow load. But on the ground that same snow becomes a cozy blanket, insulating the soil and the roots, seeds, and creatures sheltering beneath it from the deep freeze above."
+    },
+    heat: {
+      _default: "During a hot, dry spell, plants lose precious water to the air through their leaves (transpiration, which also cools them like sweating) and may wilt or pause growth to conserve it. Many animals turn crepuscular \u2014 active at dawn and dusk \u2014 while sheltering in burrows or shade through the scorching midday.",
+      desert: "Desert life is the master of heat and drought. Cacti store water in fleshy stems, spread shallow roots to grab rain fast, and open their pores only at night to lose less water; a big barrel cactus can last over a year without rain. Some animals enter estivation, a summer version of hibernation, to wait out the worst.",
+      wetland: "As a marsh dries down in heat, the shrinking water crowds fish, crayfish, and other prey into shallow pools \u2014 easy buffets for wading birds like wood storks and ibises. Many wetlands are meant to rise and fall this way; these flood-and-dry cycles are a healthy part of marsh life.",
+      coastal: "On hot days, animals exposed at low tide can face air far warmer than the seawater they're used to. Stranded between tides under a strong sun, mussels, limpets, and barnacles risk overheating and drying out, and an extreme heat spell during a midday low tide can trigger die-offs.",
+      meadow: "Grasslands are built for drought. Deep, dense roots and stored soil moisture let warm-season grasses endure hot, dry summers, and when the moisture runs out they simply go dormant, pausing aboveground growth and pulling resources down to their roots \u2014 then spring back when the rains return.",
+      forest: "In a heat wave, trees lose water through their leaves faster than their roots can replace it, so they wilt their foliage or close their leaf pores to ration moisture, slowing growth. The deep shade beneath a full canopy offers a cool refuge, often many degrees cooler than open ground."
+    }
+  },
+  seasonEffects: {
+    _comment: "How each season shapes life in a biome, grounded in the same credible sources. Shown in the weather menu for the biome you're standing in. `_default` applies unless a biome-specific line is given.",
+    spring: {
+      _default: "Spring brings the 'green wave' of fresh growth sweeping across the land, and with it a flush of waking insects. Migrating birds time their return to this bounty, arriving to breed just as food becomes plentiful, while pollinators emerge to visit the first flowers.",
+      desert: "In the desert, spring is the season of the 'superbloom,' when an unusually wet, well-timed winter wakes thousands of dormant seeds that burst into flower at once. The winter rains must be generous enough to carry the plants through blooming; sudden heat or wind can cut the display short.",
+      forest: "On the forest floor, 'spring ephemerals' race to grow, bloom, and set seed in the brief window before the trees leaf out and steal the sunlight. Many capture most of their whole year's energy in these few sunny weeks, feeding the first hungry bees before the canopy closes.",
+      wetland: "As snowmelt and rain refill the marsh, frogs and toads emerge to breed in a noisy spring chorus \u2014 some species gathering for just a few frantic days. The wet meadows become vital rest stops for waterfowl and shorebirds migrating north.",
+      alpine: "Spring comes late and slowly to the high country. Deep snow can linger well into the warm season, and as long as it lasts it holds the plants back, delaying green-up \u2014 which is why the peaks look wintry while the valleys below have already turned green.",
+      meadow: "As warmth and rain arrive, the meadow greens up and the earliest wildflowers bloom, drawing out pollinators. Ground-nesting birds like bobolinks and meadowlarks build their nests right in the grass, while emerging insects feed the next generation."
+    },
+    summer: {
+      _default: "Summer is the season of fullest growth, when long days and warmth push plants to their peak and the landscape brims with life. It is also the season of heat, when plants and animals alike must work to keep cool and hold onto water.",
+      alpine: "Above the treeline the growing season is breathtakingly short, so alpine wildflowers must sprout, bloom, and set seed in just a few weeks, many growing as low, dense 'cushions' that hug the ground against the wind. Pikas spend summer gathering grasses into 'haypiles' among the rocks to eat through winter.",
+      forest: "In summer the leafy canopy is fully closed, and the shaded understory may get less than a tenth of the sunlight hitting the treetops. With light so scarce below, understory plants compete hard for what filters through \u2014 exactly why the spring wildflowers finished early.",
+      meadow: "Summer is the meadow's peak, when grasses grow tallest and set seed and wildflowers reach full bloom. Grasslands are also shaped by fire and wonderfully adapted to it: the growing points of many prairie plants sit safely underground, letting them resprout quickly \u2014 often more vigorously \u2014 after a burn.",
+      coastal: "Summer is nesting season on the shore. The threatened western snowy plover nests from about March through September, laying eggs in simple scrapes right on the open sand, camouflaged with shell and driftwood. Because the nests are so easy to step on, many beaches set up protected zones.",
+      desert: "In the Sonoran Desert, summer means the monsoon, when afternoon thunderstorms roll in to break the heat. The hard rains revive the parched land but also run off the baked ground into washes that can flood in an instant \u2014 the most dramatic season in the desert calendar."
+    },
+    autumn: {
+      _default: "Autumn is the season of letting go and storing up. Plants senesce, drawing nutrients back into their roots and stems before winter, while many animals migrate or busily gather and cache food for the cold months ahead.",
+      forest: "Autumn's blaze of color is active, not just withering: trees pull chlorophyll back out of their leaves, and as the green fades the hidden yellows and oranges shine through while fresh reds are newly made. Many oaks have 'mast years,' dropping huge synchronized acorn crops that squirrels, jays, and chipmunks bury \u2014 a good acorn year often decides who survives winter.",
+      meadow: "In autumn the grasses turn golden and slip toward dormancy, having scattered their seeds. On the open prairie the wind is a great seed-spreader, carrying lightweight, sometimes plumed or winged seeds far from the parent plant to take root in new ground."
+    },
+    winter: {
+      _default: "Winter pushes life into dormancy and rest. Many animals hibernate or enter torpor, deliberately dropping their body temperature and slowing their metabolism to save energy when food is scarce; true hibernators like ground squirrels can cool dramatically, while bears merely sleep lightly and are easily roused.",
+      forest: "Deciduous trees survive winter by dropping their leaves and shutting down photosynthesis, first reclaiming their sugars into trunk and roots; shedding those freeze-vulnerable leaves protects the tree. Evergreen conifers keep waxy needles to limit water loss but mostly pause too, while animals that didn't migrate hibernate or live off autumn's caches.",
+      wetland: "When winter freezes the marsh into ice, cold-blooded amphibians go dormant. Aquatic frogs settle near the bottom and breathe through their skin, while wood frogs and spring peepers can survive freezing nearly solid by making a natural antifreeze in their cells. Most waterfowl move on once open water grows scarce.",
+      alpine: "High-mountain animals face winter in different ways. Marmots hibernate deep in their burrows on summer fat, while pikas don't hibernate at all \u2014 they stay active beneath the snow on the haypiles they stored, relying on the insulating snowpack against the bitter wind. Both depend on snow, so their numbers rise and fall with each winter's snowfall.",
+      meadow: "In winter the visible grass dies back, but the plants are far from dead. Prairie plants store life in vast root systems reaching as deep as several meters, along with underground crowns. These hidden growing points let the meadow ride out the cold and burst back when warmth returns.",
+      coastal: "Winter brings the strongest storms and biggest waves of the year to the coast. They tear loose great rafts of kelp and cast them ashore as wrack, a seasonal feast for sand-dwelling creatures and the shorebirds that eat them, while the heavy surf overturns rocks and refreshes the intertidal community."
+    }
+  },
+  seasonStyle: {
+    _comment: "tint = ground color the biome lerps toward; accent = HUD chip color; label = display name.",
+    spring: { label: "Spring", tint: "#a9d77a", tintAmount: 0.12, accent: "#8fc46a" },
+    summer: { label: "Summer", tint: "#c7d96a", tintAmount: 0.1, accent: "#cdbb4e" },
+    autumn: { label: "Autumn", tint: "#d99a52", tintAmount: 0.22, accent: "#d4863c" },
+    winter: { label: "Winter", tint: "#cdd6e0", tintAmount: 0.28, accent: "#9fb4c9" }
+  },
+  dayPhaseStyle: {
+    _comment: "A full-screen lighting overlay: color + max alpha. day is clear; dawn/dusk warm; night dim & cool.",
+    dawn: { label: "Dawn", color: "#ffb37a", alpha: 0.16 },
+    day: { label: "Day", color: "#ffffff", alpha: 0 },
+    dusk: { label: "Dusk", color: "#ff8a55", alpha: 0.24 },
+    night: { label: "Night", color: "#070b1c", alpha: 0.66 }
+  },
+  types: {
+    clear: { name: "Clear", icon: "sun", tags: [], growthMult: 1, waterPerDay: 0, flavor: "Open sky and easy light.", particle: null, overlay: null },
+    cloudy: { name: "Cloudy", icon: "cloud", tags: [], growthMult: 1, waterPerDay: 0, flavor: "A soft grey lid over the preserve.", particle: null, overlay: { color: "#9aa6ad", alpha: 0.14 } },
+    rain: { name: "Rain", icon: "drop", tags: ["wet"], growthMult: 1.25, waterPerDay: 4, flavor: "Steady rain \u2014 the ground drinks it in.", particle: "rain", overlay: { color: "#5d6f86", alpha: 0.2 } },
+    storm: { name: "Storm", icon: "drop", tags: ["wet", "harsh"], growthMult: 1.1, waterPerDay: 6, flavor: "Wind and heavy rain sweep through.", particle: "rain", overlay: { color: "#3f4a63", alpha: 0.34 } },
+    fog: { name: "Fog", icon: "cloud", tags: [], growthMult: 1, waterPerDay: 1, flavor: "Mist softens every edge.", particle: null, overlay: { color: "#d7dde0", alpha: 0.3 } },
+    snow: { name: "Snow", icon: "sparkle", tags: ["cold"], growthMult: 0.9, waterPerDay: 1, flavor: "Quiet snow settles over the slope.", particle: "snow", overlay: { color: "#cdd9e6", alpha: 0.16 } },
+    heat: { name: "Dry Heat", icon: "sun", tags: ["harsh", "dry"], growthMult: 1, waterPerDay: -3, flavor: "Hot and dry \u2014 beds lose their moisture.", particle: null, overlay: { color: "#ffca7a", alpha: 0.12 } }
+  },
+  feed: {
+    _comment: "Retention hook: when a biome's weather CHANGES, one of these lines is surfaced in the activity feed. `onArrive` fires when the player is present as it starts; `overnight` is the login summary for weather that passed while they were away (Phase 4 wiring). Multiple lines per key so repeat visits stay fresh.",
+    clear: {
+      icon: "sun",
+      onArrive: ["The clouds break and sun pours over the preserve.", "Skies clear \u2014 a bright, easy day settles in.", "The last cloud slips away; warmth spreads across the grass.", "Sunlight finds the meadow again and the birds pick up.", "Blue sky returns, clean and wide over the preserve."],
+      overnight: ["You wake to clear skies over the preserve.", "Morning breaks bright and cloudless."]
+    },
+    cloudy: {
+      icon: "cloud",
+      onArrive: ["A soft grey lid slides over the sky.", "Clouds gather, gentle and cool.", "The light goes flat and silver as cloud rolls in.", "A cool overcast settles \u2014 the colours go quiet."],
+      overnight: ["A quiet, overcast morning.", "You arrive under a low grey sky."]
+    },
+    rain: {
+      icon: "drop",
+      onArrive: ["Rain begins to fall \u2014 your soil beds drink it in.", "A steady rain moves through. The watered ground deepens.", "First drops, then a steady patter. The preserve greens a little.", "Rain taps across the leaves; the whole preserve smells of wet earth.", "A gentle downpour settles in \u2014 puddles gather along the paths."],
+      overnight: ["Rain passed through overnight \u2014 your beds woke up watered.", "You return to rain-fed soil; the ground recovered while you were away.", "Overnight rain left every leaf beaded and bright."]
+    },
+    storm: {
+      icon: "drop",
+      onArrive: ["A storm rolls in \u2014 wind, then heavy rain.", "Thunder in the distance; the rain comes down hard.", "The sky darkens fast and the wind bends the grass flat.", "Lightning flickers over the ridge \u2014 best stay close to camp.", "A real storm breaks: sheeting rain, rattling branches."],
+      overnight: ["A storm swept through while you were gone. The ground is soaked.", "You return to snapped twigs and standing water \u2014 a storm had passed."]
+    },
+    fog: {
+      icon: "cloud",
+      onArrive: ["Mist rises and softens every edge of the preserve.", "Fog settles in, hushing the morning.", "A thick fog rolls through; shapes blur a few steps out.", "The world goes quiet and white as fog drifts across the ground."],
+      overnight: ["You arrive to a preserve wrapped in fog.", "Morning fog hangs low between the trees."]
+    },
+    snow: {
+      icon: "sparkle",
+      onArrive: ["Snow begins to fall, quiet and slow.", "The first flakes settle over the slope.", "Snow drifts down in fat, lazy flakes and the world hushes.", "A clean white layer creeps across the ground as snow falls."],
+      overnight: ["Snow fell overnight \u2014 the preserve is dusted white.", "You wake to fresh snow and a hush over everything."]
+    },
+    heat: {
+      icon: "sun",
+      onArrive: ["The air turns hot and dry \u2014 keep an eye on your beds.", "Dry heat builds; the soil will want watering.", "A heat haze shimmers over the ground \u2014 the beds will go thirsty.", "The sun beats down hard and the earth starts to crack and dry."],
+      overnight: ["A dry, hot spell set in while you were away \u2014 some beds have dried out.", "You return to parched, dusty ground after a hot stretch."]
+    },
+    season: {
+      icon: "sparkle",
+      spring: ["Spring arrives. New growth stirs across the preserve.", "Spring greens the ground and the first buds open."],
+      summer: ["Summer settles in, long and bright.", "Summer arrives \u2014 the days stretch long and warm."],
+      autumn: ["Autumn turns the preserve gold and amber.", "Autumn arrives; the leaves begin to turn and drift."],
+      winter: ["Winter comes quiet and cold to the preserve.", "Winter settles in \u2014 still, cold, and bright."]
+    }
+  },
+  climate: {
+    default: {
+      spring: { clear: 4, cloudy: 3, rain: 3, fog: 1 },
+      summer: { clear: 6, cloudy: 2, rain: 2, storm: 1 },
+      autumn: { clear: 3, cloudy: 4, rain: 2, fog: 2 },
+      winter: { clear: 3, cloudy: 3, rain: 1, snow: 2, fog: 1 }
+    },
+    meadow: {
+      spring: { clear: 4, cloudy: 3, rain: 3 },
+      summer: { clear: 6, cloudy: 2, rain: 1, storm: 1 },
+      autumn: { clear: 3, cloudy: 4, rain: 2, fog: 1 },
+      winter: { clear: 3, cloudy: 3, rain: 1, snow: 1, fog: 1 }
+    },
+    forest: {
+      spring: { clear: 3, cloudy: 3, rain: 3, fog: 2 },
+      summer: { clear: 4, cloudy: 3, rain: 2, storm: 1, fog: 1 },
+      autumn: { clear: 2, cloudy: 4, rain: 3, fog: 3 },
+      winter: { clear: 2, cloudy: 4, rain: 1, snow: 2, fog: 2 }
+    },
+    wetland: {
+      spring: { cloudy: 3, rain: 4, storm: 1, fog: 2 },
+      summer: { clear: 2, cloudy: 3, rain: 4, storm: 2, fog: 1 },
+      autumn: { cloudy: 4, rain: 4, fog: 3 },
+      winter: { cloudy: 3, rain: 3, snow: 1, fog: 3 }
+    },
+    desert: {
+      spring: { clear: 6, heat: 3, cloudy: 1, rain: 1 },
+      summer: { clear: 5, heat: 6, storm: 1 },
+      autumn: { clear: 6, heat: 3, cloudy: 1 },
+      winter: { clear: 6, heat: 1, cloudy: 2, rain: 1 }
+    },
+    alpine: {
+      spring: { clear: 3, cloudy: 3, rain: 2, snow: 2, fog: 1 },
+      summer: { clear: 4, cloudy: 3, rain: 2, storm: 1 },
+      autumn: { clear: 2, cloudy: 3, snow: 3, fog: 2 },
+      winter: { clear: 1, cloudy: 2, snow: 6, fog: 2 }
+    },
+    coastal: {
+      spring: { clear: 3, cloudy: 3, rain: 2, fog: 3, storm: 1 },
+      summer: { clear: 5, cloudy: 3, fog: 2, storm: 1 },
+      autumn: { clear: 2, cloudy: 4, rain: 2, fog: 3, storm: 1 },
+      winter: { cloudy: 3, rain: 3, fog: 3, storm: 2 }
+    }
+  }
+};
+
+// server/weather.ts
+var MINUTE = 6e4;
+var CFG = weather_default.config;
+var DAY_MS = Number(CFG?.dayMs) || 24 * MINUTE;
+var DAYS_PER_SEASON = Number(CFG?.daysPerSeason) || 3;
+var SEASONS = weather_default.seasons || ["spring", "summer", "autumn", "winter"];
+var DAY_PHASES = CFG?.dayPhases || [
+  { id: "dawn", until: 0.15 },
+  { id: "day", until: 0.6 },
+  { id: "dusk", until: 0.72 },
+  { id: "night", until: 1 }
+];
+var CLIMATE = weather_default.climate;
+var GATHER = Object.fromEntries(
+  Object.entries(weather_default.gather || {}).filter(([k, v]) => k !== "_comment" && v !== null && typeof v === "object")
+);
+function gatherResourceIdFor(biome, type) {
+  return GATHER[biome]?.[type];
+}
+function isWeatherGatheredResource(id) {
+  for (const biome of Object.keys(GATHER)) {
+    for (const t of Object.keys(GATHER[biome])) if (GATHER[biome][t] === id) return true;
+  }
+  return false;
+}
+function fnv1a(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+function mulberry32(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a |= 0;
+    a = a + 1831565813 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
+function pickWeighted(weights, rng) {
+  const keys = Object.keys(weights);
+  if (keys.length === 0) return "clear";
+  let total = 0;
+  for (const k of keys) total += Math.max(0, weights[k]);
+  if (total <= 0) return keys[0];
+  let r = rng() * total;
+  for (const k of keys) {
+    r -= Math.max(0, weights[k]);
+    if (r < 0) return k;
+  }
+  return keys[keys.length - 1];
+}
+function dayIndexAt(t) {
+  return Math.floor(t / DAY_MS);
+}
+function dayProgressAt(t) {
+  const m = t % DAY_MS;
+  return (m < 0 ? m + DAY_MS : m) / DAY_MS;
+}
+function dayStartAt(t) {
+  return dayIndexAt(t) * DAY_MS;
+}
+function dayPhaseAt(t) {
+  const p = dayProgressAt(t);
+  for (const ph of DAY_PHASES) if (p < ph.until) return ph.id;
+  return DAY_PHASES[DAY_PHASES.length - 1].id;
+}
+function seasonAt(t) {
+  const day = dayIndexAt(t);
+  const idx = Math.floor(day / DAYS_PER_SEASON) % SEASONS.length;
+  return SEASONS[(idx + SEASONS.length) % SEASONS.length];
+}
+function weatherTypeAt(worldId, biomeId, t) {
+  const day = dayIndexAt(t);
+  const season = seasonAt(t);
+  const perBiome = CLIMATE[biomeId] || CLIMATE.default;
+  const weights = perBiome && perBiome[season] || CLIMATE.default && CLIMATE.default[season] || { clear: 1 };
+  const rng = mulberry32(fnv1a(`${worldId}:${biomeId}:${day}`));
+  return pickWeighted(weights, rng);
+}
+function weatherSnapshot(worldId, t, biomeIds) {
+  const since = dayStartAt(t);
+  const byBiome = {};
+  for (const id of biomeIds) byBiome[id] = { type: weatherTypeAt(worldId, id, t), since };
+  return {
+    season: seasonAt(t),
+    dayPhase: dayPhaseAt(t),
+    dayProgress: dayProgressAt(t),
+    dayIndex: dayIndexAt(t),
+    dayMs: DAY_MS,
+    byBiome
+  };
+}
+
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
+var WEATHER_BIOME_IDS = biomes_default.records.map((b) => b.id);
+function weatherTimeFromPlay(player) {
+  return Math.max(0, Math.round((player?.metrics?.playSeconds || 0) * 1e3));
+}
 var db = () => {
   const d = typeof databases !== "undefined" && databases ? databases.wildwillows : null;
   if (!d || !d.Player) throw new GameError("The preserve database is starting up \u2014 restart Harper if this persists.", 503);
@@ -9463,7 +10009,7 @@ async function bumpMetrics(player, deltas = {}) {
   await db().Player.patch(player.id, { metrics });
   return metrics;
 }
-var DAY_MS = 864e5;
+var DAY_MS2 = 864e5;
 var round1 = (n) => Math.round(n * 10) / 10;
 function metricsView(player) {
   const now = Date.now();
@@ -9475,7 +10021,7 @@ function metricsView(player) {
   const createdAt = player.createdAt || m.firstSeenAt || now;
   const lastSeenAt = m.lastSeenAt || null;
   const hoursSinceActive = lastSeenAt ? round1((now - lastSeenAt) / 36e5) : null;
-  const daysSinceJoined = Math.floor((now - createdAt) / DAY_MS);
+  const daysSinceJoined = Math.floor((now - createdAt) / DAY_MS2);
   let status = "dormant";
   if (hoursSinceActive != null) {
     if (hoursSinceActive <= 24) status = "active";
@@ -9490,7 +10036,7 @@ function metricsView(player) {
     daysSinceJoined,
     hoursSinceActive,
     status,
-    isNewToday: now - createdAt <= DAY_MS,
+    isNewToday: now - createdAt <= DAY_MS2,
     // time + sessions
     sessions,
     playSeconds,
@@ -9686,6 +10232,9 @@ async function createPlayerRecords(playerId, name, passcode, appearance) {
   return { player, seeded: { biomeStates, placements, chests: [chest] } };
 }
 function freshSnapshot(created) {
+  const now = Date.now();
+  const worldId = created.player?.worldId || created.player?.id;
+  const wxTime = weatherTimeFromPlay(created.player);
   return {
     player: sanitizePlayer(created.player),
     biomeStates: created.seeded.biomeStates,
@@ -9696,7 +10245,8 @@ function freshSnapshot(created) {
     terrain: [],
     achievements: [],
     feed: [],
-    serverTime: Date.now(),
+    serverTime: now,
+    weather: weatherSnapshot(worldId, wxTime, WEATHER_BIOME_IDS),
     nodeRegenSeconds: NODE_REGEN_SECONDS,
     inventoryCapacity: inventoryCapacity(created.player)
   };
@@ -10081,6 +10631,8 @@ async function snapshot(playerId, opts = {}) {
     for (const bs of biomeStates) if (bs.unlocked) unlocked.add(bs.biomeId);
     player = { ...player, unlockedBiomes: [...unlocked] };
   }
+  const now = Date.now();
+  const wxTime = weatherTimeFromPlay(player);
   return {
     player: sanitizePlayer(player),
     worldId: wid,
@@ -10094,7 +10646,8 @@ async function snapshot(playerId, opts = {}) {
     achievements: [...achievementRows].sort((a, b) => (b.earnedAt || 0) - (a.earnedAt || 0)).map((r) => r.achievementId),
     // persisted activity feed, oldest→newest (last 100 kept per player)
     feed: [...feedRows].sort((a, b) => (a.at || 0) - (b.at || 0)).slice(-FEED_CAP).map((r) => ({ id: r.id, at: r.at, icon: r.icon, text: r.text })),
-    serverTime: Date.now(),
+    serverTime: now,
+    weather: weatherSnapshot(wid, wxTime, WEATHER_BIOME_IDS),
     nodeRegenSeconds: NODE_REGEN_SECONDS,
     inventoryCapacity: inventoryCapacity(player)
   };
@@ -10682,9 +11235,16 @@ var CollectResource = class extends PublicEndpoint {
     const biome = d.biome.get(biomeId);
     if (!biome) throw new GameError(`Unknown biome: ${biomeId}`);
     if (!(player.unlockedBiomes || []).includes(biomeId)) throw new GameError(`${biome.name} is not unlocked yet`, 403);
-    if (!(biome.resources || []).includes(resourceId)) throw new GameError(`${resourceId} is not found in ${biome.name}`);
     const resDef = d.resource.get(resourceId);
     if (!resDef) throw new GameError(`Unknown resource: ${resourceId}`);
+    if (isWeatherGatheredResource(resourceId)) {
+      const active = weatherTypeAt(wid, biomeId, weatherTimeFromPlay(player));
+      if (gatherResourceIdFor(biomeId, active) !== resourceId) {
+        throw new GameError(`${resDef.name} only appears in certain weather here`, 409);
+      }
+    } else if (!(biome.resources || []).includes(resourceId)) {
+      throw new GameError(`${resourceId} is not found in ${biome.name}`);
+    }
     if (!nodeId || typeof nodeId !== "string") throw new GameError("nodeId required");
     const nodeKey = `${wid}:${biomeId}:${nodeId}`;
     const nodeState = await t.NodeState.get(nodeKey);
@@ -11428,8 +11988,8 @@ var Metrics = class extends PublicEndpoint {
       activeLast24h: views.filter((v) => v.status === "active").length,
       activeLast7d: views.filter((v) => v.status === "active" || v.status === "recent").length,
       dormant: views.filter((v) => v.status === "dormant").length,
-      newLast24h: views.filter((v) => now - v.createdAt <= DAY_MS).length,
-      newLast7d: views.filter((v) => now - v.createdAt <= 7 * DAY_MS).length
+      newLast24h: views.filter((v) => now - v.createdAt <= DAY_MS2).length,
+      newLast7d: views.filter((v) => now - v.createdAt <= 7 * DAY_MS2).length
     };
     const returningPlayers = views.filter((v) => v.sessions >= 2).length;
     const funnel = {

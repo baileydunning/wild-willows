@@ -82,20 +82,31 @@ export function JournalPanel() {
 	const { data, state, setPanel } = useGame();
 	// default to the biome you're currently standing in
 	const [tab, setTab] = useState(state?.player.area || 'meadow');
+	const [unknownFirst, setUnknownFirst] = useState(false);
+	const [query, setQuery] = useState('');
 	if (!data || !state) return null;
 	const biomes = [...data.biomes].sort((a, b) => a.order - b.order);
 	const discs = new Map(state.discoveries.map((d) => [d.animalId, d]));
-	const animals = data.animals
-		.filter((a) => a.biome === tab)
-		// Returned animals rise to the top (most recent first); the rest follow,
-		// easiest-to-attract next so the player can see what to chase.
+	const q = query.trim().toLowerCase();
+	const allInTab = data.animals.filter((a) => a.biome === tab);
+	const animals = allInTab
+		// Search by name (once known), kind, rarity, or the word "unknown" for ones
+		// still to be discovered.
+		.filter((a) => {
+			if (!q) return true;
+			const known = discs.has(a.id);
+			const hay = [a.kind, a.rarity, known ? a.name : 'unknown', known ? '' : 'undiscovered'].join(' ').toLowerCase();
+			return hay.includes(q);
+		})
+		// By default returned animals rise to the top (most recent first); the
+		// "unknown first" toggle flips it so you can see who's still to find.
 		.sort((a, b) => {
 			const da = discs.get(a.id), db = discs.get(b.id);
-			if (!!da !== !!db) return da ? -1 : 1;
+			if (!!da !== !!db) return (da ? -1 : 1) * (unknownFirst ? -1 : 1);
 			if (da && db) return (db.firstObservedAt || 0) - (da.firstObservedAt || 0);
 			return (a.requirements?.minHealth || 0) - (b.requirements?.minHealth || 0);
 		});
-	const returned = animals.filter((a) => discs.has(a.id)).length;
+	const returned = allInTab.filter((a) => discs.has(a.id)).length;
 	// Full entries for an area need the field guide upgraded to that area's tier.
 	const tabBiome = biomes.find((b) => b.id === tab);
 	const guideTier = state.player.tools?.['field-journal'] || 1;
@@ -104,13 +115,16 @@ export function JournalPanel() {
 	// area, just with diet/shelter/fact/hints locked behind the upgrade.
 	const needTier = (tabBiome?.order || 1) + 1;
 	const full = guideTier >= needTier;
-	const guideName = data.tools.find((t) => t.id === 'field-journal')?.tiers.find((tt) => tt.tier === guideTier)?.name || 'Field Journal';
+	// The title is the field guide for the biome you're VIEWING (the tab), so it's
+	// always clear which guide is open — not just the journal tier you own.
+	const tierName = (tier: number) => data.tools.find((t) => t.id === 'field-journal')?.tiers.find((tt) => tt.tier === tier)?.name;
+	const tabGuideName = tierName(needTier) || `${tabBiome?.name || 'Field'} Field Guide`;
 
 	return (
 		<div className="panel-backdrop" onClick={() => setPanel(null)}>
 			<div className="panel panel-wide" onClick={(e) => e.stopPropagation()}>
 				<div className="panel-head">
-					<h2><Icon name="journal" size={20} /> {guideName} <span className="muted small">· Tier {guideTier}</span></h2>
+					<h2><Icon name="journal" size={20} /> {tabGuideName}</h2>
 					<button className="icon-btn" onClick={() => setPanel(null)} aria-label="Close"><Icon name="close" /></button>
 				</div>
 				<div className="tabs">
@@ -125,12 +139,31 @@ export function JournalPanel() {
 					})}
 				</div>
 				<div className="panel-body">
-					<p className="muted small">{returned}/{animals.length} animals have returned to this biome.</p>
+					<div className="journal-controls">
+						<span className="muted small grow">{returned}/{allInTab.length} animals have returned to {tabBiome?.name || 'this biome'}.</span>
+						<button
+							className={`chip-toggle ${unknownFirst ? 'on' : ''}`}
+							onClick={() => setUnknownFirst((v) => !v)}
+							title="Sort animals you haven't found yet to the top"
+						>
+							<Icon name="paw" size={12} /> Unknown first
+						</button>
+						<input
+							className="craft-search"
+							type="search"
+							placeholder="Search by name or kind…"
+							value={query}
+							onChange={(e) => setQuery(e.target.value)}
+							autoComplete="off"
+							aria-label="Search the field guide"
+						/>
+					</div>
 					{!full && (
 						<div className="guide-upsell small">
 							<Icon name="lock" size={13} /> Upgrade your field guide to <b>Tier {needTier}</b> to read full entries and return hints for {tabBiome?.name}. See the Tools panel.
 						</div>
 					)}
+					{animals.length === 0 && <p className="muted small">No animals match your search.</p>}
 					{animals.map((a) => (
 						<JournalEntry key={a.id} animal={a} disc={discs.get(a.id)} full={full} />
 					))}

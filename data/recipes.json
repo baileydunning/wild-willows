@@ -2420,6 +2420,88 @@
 				"minHealth": 55,
 				"label": "Restore that biome to 55% health"
 			}
+		},
+		{
+			"id": "rain-basin",
+			"name": "Rain Basin",
+			"category": "decoration",
+			"unlockBiome": "meadow",
+			"output": { "itemId": "rain-basin", "qty": 1 },
+			"materials": { "rainwater": 3, "stones": 2 }
+		},
+		{
+			"id": "dew-lantern",
+			"name": "Dewlit Lantern",
+			"category": "decoration",
+			"unlockBiome": "forest",
+			"output": { "itemId": "dew-lantern", "qty": 1 },
+			"materials": { "dewdrops": 3, "branches": 2 }
+		},
+		{
+			"id": "sunstone-cairn",
+			"name": "Sunstone Cairn",
+			"category": "decoration",
+			"unlockBiome": "desert",
+			"output": { "itemId": "sunstone-cairn", "qty": 1 },
+			"materials": { "sunstone": 3, "stones": 3 }
+		},
+		{
+			"id": "frostflower-planter",
+			"name": "Frostflower Planter",
+			"category": "decoration",
+			"unlockBiome": "alpine",
+			"output": { "itemId": "frostflower-planter", "qty": 1 },
+			"materials": { "frostflower": 3, "stones": 2 }
+		},
+		{
+			"id": "stormglass-lantern",
+			"name": "Stormglass Lantern",
+			"category": "decoration",
+			"unlockBiome": "desert",
+			"output": { "itemId": "stormglass-lantern", "qty": 1 },
+			"materials": { "stormglass": 2, "stones": 2 }
+		},
+		{
+			"id": "frostflower-vase",
+			"name": "Frostflower Vase",
+			"category": "home",
+			"unlockBiome": "alpine",
+			"output": { "itemId": "frostflower-vase", "qty": 1 },
+			"materials": { "frostflower": 2, "clay": 2 }
+		},
+		{
+			"id": "stormglass-chandelier",
+			"name": "Stormglass Chandelier",
+			"category": "home",
+			"unlockBiome": "desert",
+			"output": { "itemId": "stormglass-chandelier", "qty": 1 },
+			"materials": { "stormglass": 3, "branches": 3 }
+		},
+		{
+			"id": "boardwalk",
+			"name": "Marsh Boardwalk",
+			"category": "structure",
+			"unlockBiome": "wetland",
+			"output": { "itemId": "boardwalk", "qty": 1 },
+			"materials": { "branches": 6, "reeds": 4, "clay": 2 }
+		},
+		{
+			"id": "heron-rookery",
+			"name": "Heron Rookery",
+			"category": "habitat",
+			"unlockBiome": "wetland",
+			"output": { "itemId": "heron-rookery", "qty": 1 },
+			"materials": { "branches": 10, "reeds": 5, "mud": 3 },
+			"unlock": { "minHealth": 45, "label": "Restore Rushwater Wetland to 45% health" }
+		},
+		{
+			"id": "dragonfly-pond",
+			"name": "Dragonfly Pond",
+			"category": "habitat",
+			"unlockBiome": "wetland",
+			"output": { "itemId": "dragonfly-pond", "qty": 1 },
+			"materials": { "clay": 6, "clean-water": 5, "reeds": 4 },
+			"unlock": { "minHealth": 40, "label": "Restore Rushwater Wetland to 40% health" }
 		}
 	]
 }

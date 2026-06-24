@@ -25,6 +25,21 @@ import resourcesData from '../data/resources.json';
 import animals1Data from '../data/animals-1.json';
 import animals2Data from '../data/animals-2.json';
 import achievementsData from '../data/achievements.json';
+import { weatherSnapshot, weatherTypeAt, gatherResourceIdFor, isWeatherGatheredResource } from './weather';
+
+// Biome ids for the weather block (weather is per-biome; climate differs by
+// biome). Derived once from the static seed data so the weather snapshot stays
+// a pure function and needs no async defs() lookup.
+const WEATHER_BIOME_IDS: string[] = biomesData.records.map((b: any) => b.id);
+
+/** Weather/day time is measured from accrued PLAY TIME (player.metrics.playSeconds,
+ *  accumulated from heartbeats — see Heartbeat), NOT wall-clock time. So the
+ *  calendar only advances while the game is actually being played: every world
+ *  starts at Day 1 and reaches Day 2 after ~one day's worth of real play. Pure
+ *  function of stored data. */
+function weatherTimeFromPlay(player: any): number {
+	return Math.max(0, Math.round((player?.metrics?.playSeconds || 0) * 1000));
+}
 
 // `databases.wildwillows` is undefined right after the database is dropped (until
 // Harper restarts and the component recreates the tables). Fail cleanly with a 503
@@ -855,6 +870,9 @@ async function createPlayerRecords(playerId: string, name: string, passcode: str
 
 /** Full state snapshot built from freshly created records (first login). */
 function freshSnapshot(created: any) {
+	const now = Date.now();
+	const worldId = created.player?.worldId || created.player?.id;
+	const wxTime = weatherTimeFromPlay(created.player);
 	return {
 		player: sanitizePlayer(created.player),
 		biomeStates: created.seeded.biomeStates,
@@ -865,7 +883,8 @@ function freshSnapshot(created: any) {
 		terrain: [],
 		achievements: [],
 		feed: [],
-		serverTime: Date.now(),
+		serverTime: now,
+		weather: weatherSnapshot(worldId, wxTime, WEATHER_BIOME_IDS),
 		nodeRegenSeconds: NODE_REGEN_SECONDS,
 		inventoryCapacity: inventoryCapacity(created.player),
 	};
@@ -1407,6 +1426,8 @@ async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 		for (const bs of biomeStates) if (bs.unlocked) unlocked.add(bs.biomeId);
 		player = { ...player, unlockedBiomes: [...unlocked] };
 	}
+	const now = Date.now();
+	const wxTime = weatherTimeFromPlay(player);
 	return {
 		player: sanitizePlayer(player), worldId: wid, biomeStates, placements, chests, discoveries, nodeStates, terrain,
 		// most-recently earned first, so the client can float fresh unlocks to the top
@@ -1418,7 +1439,8 @@ async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 			.sort((a: any, b: any) => (a.at || 0) - (b.at || 0))
 			.slice(-FEED_CAP)
 			.map((r: any) => ({ id: r.id, at: r.at, icon: r.icon, text: r.text })),
-		serverTime: Date.now(),
+		serverTime: now,
+		weather: weatherSnapshot(wid, wxTime, WEATHER_BIOME_IDS),
 		nodeRegenSeconds: NODE_REGEN_SECONDS,
 		inventoryCapacity: inventoryCapacity(player),
 	};
@@ -2172,9 +2194,21 @@ export class CollectResource extends PublicEndpoint {
 		const biome = d.biome.get(biomeId);
 		if (!biome) throw new GameError(`Unknown biome: ${biomeId}`);
 		if (!(player.unlockedBiomes || []).includes(biomeId)) throw new GameError(`${biome.name} is not unlocked yet`, 403);
-		if (!(biome.resources || []).includes(resourceId)) throw new GameError(`${resourceId} is not found in ${biome.name}`);
 		const resDef = d.resource.get(resourceId);
 		if (!resDef) throw new GameError(`Unknown resource: ${resourceId}`);
+		// Weather-gated resources sidestep the biome resource list, but the matching
+		// weather must actually be active in this biome right now (recomputed from the
+		// same deterministic function the client used to spawn the node).
+		if (isWeatherGatheredResource(resourceId)) {
+			// Weather-gated: the resource must be the one this biome's CURRENT weather
+			// yields (recomputed from the same play-time base the snapshot used).
+			const active = weatherTypeAt(wid, biomeId, weatherTimeFromPlay(player));
+			if (gatherResourceIdFor(biomeId, active) !== resourceId) {
+				throw new GameError(`${resDef.name} only appears in certain weather here`, 409);
+			}
+		} else if (!(biome.resources || []).includes(resourceId)) {
+			throw new GameError(`${resourceId} is not found in ${biome.name}`);
+		}
 		if (!nodeId || typeof nodeId !== 'string') throw new GameError('nodeId required');
 
 		// node regeneration cooldown — shared across the world so two players can't

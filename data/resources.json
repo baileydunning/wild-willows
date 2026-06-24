@@ -199,6 +199,36 @@
 			"name": "Pearl",
 			"tool": "basket",
 			"color": "#f2ece0"
+		},
+		{
+			"id": "rainwater",
+			"name": "Rainwater",
+			"tool": "basket",
+			"color": "#6fa8d6"
+		},
+		{
+			"id": "stormglass",
+			"name": "Stormglass",
+			"tool": "basket",
+			"color": "#5566a3"
+		},
+		{
+			"id": "frostflower",
+			"name": "Frostflower",
+			"tool": "basket",
+			"color": "#bcd9e8"
+		},
+		{
+			"id": "dewdrops",
+			"name": "Morning Dew",
+			"tool": "basket",
+			"color": "#a8d2c0"
+		},
+		{
+			"id": "sunstone",
+			"name": "Sunstone",
+			"tool": "shovel",
+			"color": "#e6a94e"
 		}
 	]
 }

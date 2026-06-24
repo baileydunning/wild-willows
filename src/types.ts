@@ -267,6 +267,23 @@ export interface BiomeState {
 	unlocked: boolean;
 }
 
+/**
+ * Derived weather block included in every state snapshot. Weather is a pure
+ * deterministic function of (worldId, serverTime) computed server-side
+ * (see server/weather.ts) — the client only reads it, never computes state.
+ */
+export interface WeatherSnapshot {
+	season: string;
+	dayPhase: string;
+	/** 0..1 progress through the current in-game day. */
+	dayProgress: number;
+	dayIndex: number;
+	/** Real-time length of one in-game day, so the client can advance lighting locally. */
+	dayMs: number;
+	/** Active weather per biome (climate differs by biome). */
+	byBiome: Record<string, { type: string; since: number }>;
+}
+
 export interface ChestState {
 	id: string;
 	area: string;
@@ -318,6 +335,8 @@ export interface GameState {
 	/** Persisted activity-feed messages (oldest→newest, last 100 kept per player). */
 	feed: { id: string; at: number; icon: string; text: string }[];
 	serverTime: number;
+	/** Derived weather/season/day-phase for this world at serverTime. */
+	weather?: WeatherSnapshot;
 	nodeRegenSeconds: number;
 	inventoryCapacity: number;
 }
@@ -335,4 +354,5 @@ export type PanelId =
 	| 'animal'
 	| 'settings'
 	| 'people'
+	| 'weather'
 	| null;
