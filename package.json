@@ -88,8 +88,14 @@
 		"mac": {
 			"category": "public.app-category.games",
 			"target": [
-				"dmg",
-				"zip"
+				{
+					"target": "dmg",
+					"arch": "universal"
+				},
+				{
+					"target": "zip",
+					"arch": "universal"
+				}
 			],
 			"hardenedRuntime": true,
 			"gatekeeperAssess": false,
