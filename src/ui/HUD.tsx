@@ -21,6 +21,8 @@ export function Meter({ label, icon, value, color }: { label: string; icon: stri
 export function HUD() {
 	const { data, state, saveStatus, panel, setPanel, helpOpen, setHelpOpen, logout, placementObjectId, cancelPlacement, worlds, activeWorldId } = useGame();
 	const [prompt, setPrompt] = useState('');
+	// The top-right menu can be tucked away so it's out of the scene.
+	const [navOpen, setNavOpen] = useState(true);
 	// Tick occasionally so the weather chip reflects the ~10-min weather change
 	// even when the player is idle (no state refresh).
 	const [, setTick] = useState(0);
@@ -111,11 +113,25 @@ export function HUD() {
 				)}
 			</div>
 
-			<div className="hud-top-right">
-				<span className={`save-pill save-${saveStatus}`} title={COOP_ENABLED ? 'Progress saves automatically' : 'Progress saves automatically to this computer'}>
-					<Icon name="cloud" size={15} />
-					<span>{saveStatus === 'saving' ? 'Saving' : saveStatus === 'saved' ? 'Saved' : saveStatus === 'error' ? 'Retry' : 'Synced'}</span>
-				</span>
+			<div className={`hud-top-right ${navOpen ? '' : 'nav-collapsed'}`}>
+				{/* Collapse toggle so the whole menu can tuck out of the way. */}
+				<button
+					className="icon-btn nav-toggle"
+					onClick={() => setNavOpen((v) => !v)}
+					title={navOpen ? 'Hide menu' : 'Show menu'}
+					aria-label={navOpen ? 'Hide menu' : 'Show menu'}
+					aria-expanded={navOpen}
+				>
+					<Icon name={navOpen ? 'forward' : 'back'} />
+				</button>
+				{/* A save only surfaces if it FAILS — no persistent "Synced" chip. */}
+				{saveStatus === 'error' && (
+					<span className="save-pill save-error" title="A save didn't go through — it'll keep retrying">
+						<Icon name="cloud" size={15} />
+						<span>Retry</span>
+					</span>
+				)}
+				{navOpen && (<>
 				{/* Buttons are grouped by purpose so the toolbar reads as a few small
 				    clusters rather than one long row: Learn (what you've discovered),
 				    Build (your stuff & upgrades), World (places & people), System. */}
@@ -144,6 +160,7 @@ export function HUD() {
 					</div>
 				</div>
 				<div className="nav-group nav-group-system" role="group" aria-label="System">
+					<span className="nav-group-label">System</span>
 					<div className="nav-group-btns">
 						<button className={`icon-btn ${panel === 'settings' ? 'on' : ''}`} onClick={() => toggle('settings')} title="Settings — change character, delete save (G)" aria-label="Settings">
 							<Icon name="sliders" />
@@ -158,6 +175,7 @@ export function HUD() {
 						</button>
 					</div>
 				</div>
+				</>)}
 			</div>
 
 			{(placementObjectId || prompt) && (

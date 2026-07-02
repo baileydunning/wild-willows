@@ -61,6 +61,10 @@ button.link { background: none; border: none; padding: 0; color: var(--green); t
 }
 .icon-btn.on { color: #fff; }
 .icon-btn.subtle { color: var(--ink-soft); }
+/* No orange system focus ring on mouse click; keep a subtle green ring for
+   keyboard users only. */
+.icon-btn:focus { outline: none; }
+.icon-btn:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; }
 
 input {
 	font-family: var(--font-body);
@@ -216,9 +220,10 @@ input {
 	text-transform: uppercase; color: var(--ink-soft); line-height: 1;
 }
 .nav-group-btns { display: flex; gap: 4px; align-items: center; }
-.nav-group-system { justify-content: flex-end; }
-/* keep the system group's buttons bottom-aligned with labeled groups above */
-.nav-group-system .nav-group-btns { margin-top: 11px; }
+.nav-toggle { color: var(--ink-soft); align-self: center; }
+.nav-toggle:hover { color: var(--green-deep); }
+/* when collapsed the bar is just the toggle handle — keep it snug */
+.hud-top-right.nav-collapsed { padding: 6px; gap: 0; }
 .hud-area-name {
 	font-size: 18px; color: var(--green-deep);
 	display: flex; align-items: center; gap: 7px;
@@ -230,8 +235,10 @@ input {
 .hud-season { font-size: 10.5px; font-weight: 700; padding: 1px 7px; border-radius: 9px; border: 1px solid currentColor; opacity: 0.9; }
 .hud-weather .wx-sep { opacity: 0.4; }
 
-.journal-controls { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-bottom: 8px; }
-.journal-controls .grow { flex: 1; }
+.journal-controls { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
+.journal-controls-top { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.journal-controls .grow { flex: 1; min-width: 140px; }
+.journal-search { width: 100%; box-sizing: border-box; }
 .chip-toggle { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 11px; border: 1px solid var(--ink-soft); background: var(--paper-2); color: var(--ink-soft); cursor: pointer; }
 .chip-toggle.on { background: #6aa253; border-color: #6aa253; color: #fff; }
 
@@ -448,7 +455,9 @@ input {
 	display: inline-flex; align-items: center; justify-content: center; border-radius: 12px;
 }
 .travel-icon:disabled { opacity: 0.32; cursor: not-allowed; }
-.guide-upsell { display: flex; align-items: center; gap: 6px; color: var(--green-deep); background: var(--paper-2); border: 1px solid var(--line); border-radius: 10px; padding: 8px 11px; margin: 4px 0 10px; }
+.guide-upsell { display: flex; align-items: flex-start; gap: 7px; color: var(--green-deep); background: var(--paper-2); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; margin: 4px 0 10px; line-height: 1.5; }
+.guide-upsell svg { flex: none; margin-top: 2px; }
+.guide-upsell b { white-space: nowrap; }
 .craft-filter { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 13px; }
 .craft-filter label { color: var(--ink-soft); font-weight: 600; }
 .craft-filter select {
@@ -499,6 +508,20 @@ input {
 /* ================= journal ================= */
 .tabs { display: flex; flex-wrap: wrap; gap: 5px; padding: 10px 20px 0; }
 .tabs button { font-size: 12.5px; padding: 5px 11px; display: inline-flex; align-items: center; gap: 4px; border-radius: 10px; }
+/* one horizontal, scrollable row of places — nothing wraps or gets cut off.
+   Roomier padding/gaps, and the scrollbar itself is hidden (still scrolls). */
+.tabs-scroll {
+	flex: none; align-items: center;
+	flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden;
+	gap: 8px; padding: 12px 20px 14px; -webkit-overflow-scrolling: touch;
+	scroll-snap-type: x proximity; border-bottom: 1.5px solid var(--line);
+	scrollbar-width: none; -ms-overflow-style: none;
+}
+.tabs-scroll::-webkit-scrollbar { display: none; height: 0; }
+.tabs-scroll button {
+	flex: 0 0 auto; scroll-snap-align: start; white-space: nowrap;
+	font-size: 13px; padding: 9px 18px; border-radius: 13px; margin: 0; line-height: 1.25;
+}
 .journal-entry {
 	display: flex; gap: 12px; background: var(--cream); border: 1.5px solid var(--line);
 	border-radius: 14px; padding: 11px 14px; margin-bottom: 9px;
@@ -578,6 +601,61 @@ input {
 }
 .foodweb-node .ani-thumb { width: 34px; height: 34px; object-fit: contain; }
 .foodweb-node-unknown { border-color: var(--line); border-style: dashed; color: var(--ink-soft); opacity: 0.65; cursor: default; }
+
+/* ---- light, scannable entry list (depth lives on the info card) ---- */
+.entry-list { display: flex; flex-direction: column; gap: 7px; }
+.entry-link {
+	display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+	background: var(--cream); border: 1.5px solid var(--line); border-radius: 14px;
+	padding: 9px 12px; cursor: pointer; transition: border-color 0.12s, background 0.12s, transform 0.06s;
+}
+.entry-link:hover { border-color: var(--green); background: var(--paper-2); }
+.entry-link:active { transform: scale(0.995); }
+.entry-title { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.entry-title b { font-size: 14.5px; }
+.entry-sub { display: flex; align-items: center; gap: 8px; margin-top: 2px; }
+.entry-sub em { font-style: italic; }
+.entry-meta {
+	display: flex; align-items: center; gap: 4px; margin-top: 3px;
+	white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.entry-meta svg { flex: none; color: var(--green); }
+.entry-chevron { color: var(--ink-soft); flex: none; }
+.entry-link:hover .entry-chevron { color: var(--green); }
+
+/* ---- "All animals" overview grid ---- */
+.overview-empty { display: flex; align-items: flex-start; gap: 6px; padding: 14px 4px; line-height: 1.5; }
+.overview-empty svg { flex: none; margin-top: 2px; color: var(--green); }
+.overview-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 9px; }
+.overview-card {
+	display: flex; flex-direction: column; align-items: center; gap: 4px; text-align: center;
+	background: var(--cream); border: 1.5px solid var(--line); border-radius: 14px;
+	padding: 12px 8px 10px; cursor: pointer; transition: border-color 0.12s, background 0.12s, transform 0.06s;
+}
+.overview-card:hover { border-color: var(--green); background: var(--paper-2); transform: translateY(-1px); }
+.overview-card .ani-thumb { width: 52px; height: 52px; object-fit: contain; }
+.overview-name { font-weight: 700; font-size: 13px; line-height: 1.2; }
+.overview-biome { display: inline-flex; align-items: center; gap: 3px; font-size: 11px; color: var(--ink-soft); }
+.overview-biome svg { color: var(--green); }
+
+/* ---- richer info card ---- */
+.card-hero { text-align: center; padding-bottom: 4px; border-bottom: 1.5px solid var(--line); margin-bottom: 10px; }
+.card-hero .ani-thumb-lg { width: 104px; height: 104px; }
+.card-meta { display: flex; align-items: center; justify-content: center; gap: 6px; flex-wrap: wrap; margin: 2px 0 8px; text-transform: capitalize; }
+.card-meta .dot { opacity: 0.5; }
+.card-biome { display: inline-flex; align-items: center; gap: 4px; color: var(--green-deep); font-weight: 600; }
+.card-biome svg { color: var(--green); }
+.card-badges { display: flex; align-items: center; justify-content: center; gap: 7px; flex-wrap: wrap; }
+.card-seen { text-align: center; margin: 8px 0; }
+.card-section { margin: 12px 0; }
+.card-section h3 {
+	display: flex; align-items: center; gap: 6px; margin: 0 0 5px;
+	font-family: var(--font-display); font-size: 13px; letter-spacing: 0.03em;
+	text-transform: uppercase; color: var(--green-deep);
+}
+.card-section h3 svg { color: var(--green); }
+.card-section p { margin: 4px 0; line-height: 1.55; }
+.card-fact { font-size: 13.5px; }
 
 /* ================= help ================= */
 .help-intro {
