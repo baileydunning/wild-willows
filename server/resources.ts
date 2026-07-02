@@ -3306,7 +3306,7 @@ const DEV_PLAYER = 'bailey'; // dev tools are restricted to this save
 
 export class DevTools extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, action, area, amount, value, resources } = await bodyOf(data);
+		const { playerId, action, area, amount, value, resources, animalId } = await bodyOf(data);
 		// No username gate — the hidden panel is reached via a secret key sequence.
 		const t = db();
 		const d = await defs();
@@ -3497,6 +3497,33 @@ export class DevTools extends PublicEndpoint {
 				}
 				await recalcBiome(playerId, playerId, ar, { player });
 				log.push(`Welcomed ${added} animal${added === 1 ? '' : 's'} to ${ar} (${here.length} total)`);
+				break;
+			}
+			case 'spawn-animal': {
+				// Force a single animal (by id) to return — handy for checking one
+				// species' sprite/entry without restoring its whole habitat.
+				const animal = d.animals.find((a: any) => a.id === animalId);
+				if (!animal) throw new GameError(`Unknown animal: ${animalId}`);
+				const discId = `${playerId}:${animal.id}`;
+				const existing = await t.Discovery.get(discId);
+				if (!existing) {
+					await t.Discovery.put({
+						id: discId, playerId, animalId: animal.id, biomeId: animal.biome,
+						comfort: 85, timesObserved: 1, firstObservedAt: Date.now(),
+						whyReturned: whyReturnedText(animal, d),
+					});
+				}
+				// Make sure the animal's biome is reachable so you can actually go see it.
+				const unlocked: string[] = player.unlockedBiomes || ['meadow'];
+				if (!unlocked.includes(animal.biome)) {
+					await t.Player.patch(playerId, { unlockedBiomes: [...unlocked, animal.biome] });
+				}
+				// recalcBiome recomputes comfort from the (probably bare) habitat, which
+				// would drop this animal to "rarely seen" and skip drawing it. Run it for
+				// returnedCount/unlocks, then force comfort high so the spawn is visible.
+				await recalcBiome(playerId, playerId, animal.biome, { player });
+				await t.Discovery.patch(discId, { comfort: 85 });
+				log.push(`Spawned ${animal.name} in ${animal.biome} — comfort 85, biome unlocked`);
 				break;
 			}
 			default:

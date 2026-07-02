@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { api } from '../api';
 import { useGame } from '../state';
+import { animalSpriteDataUri } from '../game/textures';
 import { Icon } from './icons';
 
 /**
@@ -14,6 +15,7 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 	const [amounts, setAmounts] = useState<Record<string, number>>({});
 	const [fill, setFill] = useState(100);
 	const [health, setHealth] = useState(100);
+	const [spawnQuery, setSpawnQuery] = useState('');
 	if (!data || !state) return null;
 	const area = state.player.area;
 	const recipesUnlocked = !!state.player.devUnlockAll;
@@ -89,6 +91,55 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 							{busy === 'set-health' ? '…' : 'Apply'}
 						</button>
 					</div>
+
+					<h3><Icon name="paw" size={15} /> Spawn animal</h3>
+					<p className="muted small">Type an animal's name — click a match to bring it back to its biome right away.</p>
+					{(() => {
+						const q = spawnQuery.trim().toLowerCase();
+						const discovered = new Set(state.discoveries.map((disc) => disc.animalId));
+						const biomeName = (id: string) => data.biomes.find((b) => b.id === id)?.name || id;
+						const matches = q
+							? data.animals
+									.filter((an) =>
+										[an.name, an.id, an.biome, an.kind, an.rarity].join(' ').toLowerCase().includes(q)
+									)
+									.sort((a, b) => a.name.localeCompare(b.name))
+									.slice(0, 12)
+							: [];
+						return (
+							<>
+								<input
+									className="craft-search"
+									type="search"
+									placeholder="e.g. raccoon, bear, owl, forest…"
+									value={spawnQuery}
+									onChange={(e) => setSpawnQuery(e.target.value)}
+									autoComplete="off"
+									autoFocus
+									aria-label="Search animals to spawn"
+								/>
+								{q && (
+									<div className="dev-spawn-results">
+										{matches.length === 0 && <p className="muted small">No animals match “{spawnQuery}”.</p>}
+										{matches.map((an) => (
+											<button
+												key={an.id}
+												className="dev-spawn-row"
+												disabled={!!busy}
+												title={`Spawn ${an.name} in the ${biomeName(an.biome)}`}
+												onClick={() => run(`Spawn ${an.name}`, 'spawn-animal', { animalId: an.id })}
+											>
+												<img className="ani-thumb" src={animalSpriteDataUri(an.id, an.kind)} alt="" />
+												<span className="grow">{an.name}</span>
+												<span className="muted small">{biomeName(an.biome)} · {an.rarity}</span>
+												{discovered.has(an.id) ? <span className="dev-spawn-here">✓ here</span> : <Icon name="plus" size={14} />}
+											</button>
+										))}
+									</div>
+								)}
+							</>
+						);
+					})()}
 
 					<h3><Icon name="gear" size={15} /> Travel</h3>
 					<div className="dev-grid">

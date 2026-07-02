@@ -1,0 +1,412 @@
+[
+  {
+    "id": "tidepool-crab",
+    "scientificName": "Pachygrapsus crassipes",
+    "diet": "Mostly algae, plus detritus, worms, snails, and carrion",
+    "shelter": "Tidepool rocks and crevices",
+    "preferredHabitat": "Rocky tidepools and intertidal splash zone",
+    "fact": "Striped shore crabs graze algae but will scavenge and even turn cannibal after molting.",
+    "role": "An abundant intertidal grazer-scavenger that keeps rock surfaces clear of algae and recycles carrion. It is a key prey item for gulls, shorebirds, and larger crabs, linking algae to higher predators.",
+    "trophic": "omnivore",
+    "eats": [],
+    "eatenBy": ["gull", "black-oystercatcher", "black-turnstone"],
+    "eatsOther": ["algae", "kelp"],
+    "sources": [
+      {"name": "Animal Diversity Web - Pachygrapsus crassipes", "url": "https://animaldiversity.org/accounts/Pachygrapsus_crassipes/"}
+    ]
+  },
+  {
+    "id": "hermit-crab",
+    "scientificName": "Pagurus samuelis",
+    "diet": "Algae, detritus, and scavenged carrion",
+    "shelter": "Borrowed empty snail shells",
+    "preferredHabitat": "Tidepools with a supply of empty shells",
+    "fact": "When a better shell appears, hermit crabs line up by size and swap shells down the chain.",
+    "role": "A tidepool scavenger that cleans up algae and carrion and recycles empty snail shells as portable armor. It is common prey for gulls, fish, and octopus in the intertidal food web.",
+    "trophic": "scavenger",
+    "eats": [],
+    "eatenBy": ["gull", "black-turnstone"],
+    "eatsOther": ["algae"],
+    "sources": [
+      {"name": "iNaturalist - Blueband Hermit Crab (Pagurus samuelis)", "url": "https://www.inaturalist.org/taxa/49095-Pagurus-samuelis"}
+    ]
+  },
+  {
+    "id": "sea-star",
+    "scientificName": "Pisaster ochraceus",
+    "diet": "Mussels, barnacles, limpets, chitons, and snails",
+    "shelter": "Tidepool rock faces and crevices",
+    "preferredHabitat": "Wave-washed rocky intertidal with shellfish",
+    "fact": "The classic keystone predator: removing it lets mussels overrun the whole shore.",
+    "role": "The textbook keystone predator of the rocky shore. By eating mussels it sets the mussel bed's lower limit and keeps space open for many other species, maintaining intertidal biodiversity.",
+    "trophic": "mesopredator",
+    "eats": ["mussel"],
+    "eatenBy": ["gull", "sea-otter"],
+    "eatsOther": ["mussels", "barnacles"],
+    "sources": [
+      {"name": "Animal Diversity Web - Pisaster ochraceus", "url": "https://animaldiversity.org/accounts/Pisaster_ochraceus/"}
+    ]
+  },
+  {
+    "id": "anemone",
+    "scientificName": "Anthopleura xanthogrammica",
+    "diet": "Crabs, detached mussels, and small fish stung by its tentacles",
+    "shelter": "Tidepool walls, often below mussel beds",
+    "preferredHabitat": "Clear, surge-fed tidepools near mussel beds",
+    "fact": "Its green glow comes from algae living inside its tissues that share sugars.",
+    "role": "A sit-and-wait carnivore of tidepools that ambushes prey washed off the rocks, while also farming symbiotic algae for extra food. It is a minor predator that helps recycle dislodged shellfish and crabs.",
+    "trophic": "mesopredator",
+    "eats": ["mussel", "tidepool-crab", "purple-shore-crab"],
+    "eatenBy": [],
+    "eatsOther": ["mussels"],
+    "sources": [
+      {"name": "Animal Diversity Web - Anthopleura xanthogrammica", "url": "https://animaldiversity.org/accounts/Anthopleura_xanthogrammica/"},
+      {"name": "Monterey Bay Aquarium - Giant green anemone", "url": "https://www.montereybayaquarium.org/animals-the-ocean/animals-a-to-z/giant-green-anemone"}
+    ]
+  },
+  {
+    "id": "mussel",
+    "scientificName": "Mytilus californianus",
+    "diet": "Plankton filtered from seawater",
+    "shelter": "Dense beds anchored to wave-washed rock",
+    "preferredHabitat": "Exposed rocky shore with clean moving water",
+    "fact": "A single mussel filters several liters of seawater an hour as it feeds.",
+    "role": "A reef-building filter feeder whose beds create habitat for countless small animals. It is the key prey that ties together the shore's top predators, from ochre sea stars to sea otters and oystercatchers.",
+    "trophic": "filter-feeder",
+    "eats": [],
+    "eatenBy": ["sea-star", "sea-otter", "gull", "black-oystercatcher", "black-turnstone", "anemone"],
+    "eatsOther": ["plankton"],
+    "sources": [
+      {"name": "Animal Diversity Web - Mytilus californianus", "url": "https://animaldiversity.org/accounts/Mytilus_californianus/"},
+      {"name": "Monterey Bay Aquarium - California mussel", "url": "https://www.montereybayaquarium.org/animals-the-ocean/animals-a-to-z/california-mussel"}
+    ]
+  },
+  {
+    "id": "clam",
+    "scientificName": "Leukoma staminea",
+    "diet": "Plankton filtered from seawater",
+    "shelter": "Buried in sand and gravel",
+    "preferredHabitat": "Stable sand and gravel near tidepools",
+    "fact": "You can estimate a littleneck clam's age by counting the growth rings on its shell.",
+    "role": "A buried filter feeder that helps clean coastal water and stores energy in sheltered sediment. It is important prey for sea otters, shorebirds, crabs, and gulls that dig or crack it open.",
+    "trophic": "filter-feeder",
+    "eats": [],
+    "eatenBy": ["sea-otter", "gull"],
+    "eatsOther": ["plankton"],
+    "sources": [
+      {"name": "WDFW - Pacific littleneck clam", "url": "https://wdfw.wa.gov/species-habitats/species/leukoma-staminea"},
+      {"name": "Animal Diversity Web - Enhydra lutris (predation on clams)", "url": "https://animaldiversity.org/accounts/Enhydra_lutris/"}
+    ]
+  },
+  {
+    "id": "shorebird",
+    "scientificName": "Charadrius nivosus",
+    "diet": "Sand crustaceans, mole crabs, and kelp-fly larvae",
+    "shelter": "Shallow scrapes hidden on open sand",
+    "preferredHabitat": "Undisturbed sandy beaches and dune edges",
+    "fact": "Snowy plover chicks can run and feed themselves within hours of hatching.",
+    "role": "A small beach forager that snaps up tiny crustaceans and kelp flies along the tide line. A threatened species and sensitive indicator of quiet, undisturbed beach; its nests fail easily where beaches are busy.",
+    "trophic": "insectivore",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": ["mole crabs", "fly larvae"],
+    "sources": [
+      {"name": "All About Birds - Snowy Plover Life History", "url": "https://www.allaboutbirds.org/guide/Snowy_Plover/lifehistory"},
+      {"name": "USFWS - Western Snowy Plover", "url": "https://www.fws.gov/species/western-snowy-plover-charadrius-nivosus-nivosus"}
+    ]
+  },
+  {
+    "id": "gull",
+    "scientificName": "Larus occidentalis",
+    "diet": "Fish, crabs, clams, sea stars, and carrion",
+    "shelter": "Open beach, rocky points, and islands",
+    "preferredHabitat": "Any shoreline with food to scavenge or catch",
+    "fact": "Western gulls crack clams by dropping them from the air onto rocks below.",
+    "role": "A bold generalist that scavenges carrion and preys on crabs, shellfish, and even sea stars, cleaning the beach and linking many prey to the top of the food web. Foxes and coyotes take gulls and their eggs on land.",
+    "trophic": "omnivore",
+    "eats": ["tidepool-crab", "hermit-crab", "purple-shore-crab", "clam", "mussel", "sea-star"],
+    "eatenBy": [],
+    "eatsOther": ["fish", "clams", "mussels"],
+    "sources": [
+      {"name": "All About Birds - Western Gull Life History", "url": "https://www.allaboutbirds.org/guide/Western_Gull/lifehistory"}
+    ]
+  },
+  {
+    "id": "pelican",
+    "scientificName": "Pelecanus occidentalis",
+    "diet": "Small schooling fish, especially anchovies",
+    "shelter": "Quiet roosts on rocks and sandbars",
+    "preferredHabitat": "Fish-rich nearshore water with quiet roosts",
+    "fact": "Brown pelicans plunge-dive from up to 65 feet, twisting to protect the neck on impact.",
+    "role": "A plunge-diving fish specialist whose recovery after DDT is a major conservation success. Its presence signals healthy schools of forage fish like anchovies in nearshore water.",
+    "trophic": "apex-predator",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": ["fish"],
+    "sources": [
+      {"name": "All About Birds - Brown Pelican Life History", "url": "https://www.allaboutbirds.org/guide/Brown_Pelican/lifehistory"}
+    ]
+  },
+  {
+    "id": "cormorant",
+    "scientificName": "Urile pelagicus",
+    "diet": "Small fish, plus crabs and shrimp chased underwater",
+    "shelter": "Cliff and rock roosts",
+    "preferredHabitat": "Rocky shore with clear diving water",
+    "fact": "Cormorant feathers soak through on purpose, so less buoyancy makes them better divers.",
+    "role": "A pursuit-diving fish hunter that works rocky reefs and the water column. It depends on clear water and healthy fish stocks, so thriving cormorants signal a productive rocky shore.",
+    "trophic": "apex-predator",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": ["fish"],
+    "sources": [
+      {"name": "All About Birds - Pelagic Cormorant Life History", "url": "https://www.allaboutbirds.org/guide/Pelagic_Cormorant/lifehistory"}
+    ]
+  },
+  {
+    "id": "sea-turtle",
+    "scientificName": "Chelonia mydas",
+    "diet": "Mostly seagrass and algae as adults; omnivorous when young",
+    "shelter": "Offshore waters; nests on quiet sand",
+    "preferredHabitat": "Clean shallow water with seagrass and undisturbed beach",
+    "fact": "Green sea turtles return to nest on the very beach where they hatched decades earlier.",
+    "role": "The only mostly herbivorous sea turtle; adults graze seagrass and algae, keeping beds healthy, while juveniles start as omnivores. Its nesting success is a strong indicator of clean water and undisturbed beaches.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": ["seagrass", "algae"],
+    "sources": [
+      {"name": "NOAA Fisheries - Green Turtle", "url": "https://www.fisheries.noaa.gov/species/green-turtle"},
+      {"name": "Animal Diversity Web - Chelonia mydas", "url": "https://animaldiversity.org/accounts/Chelonia_mydas/"}
+    ]
+  },
+  {
+    "id": "harbor-seal",
+    "scientificName": "Phoca vitulina",
+    "diet": "Fish, plus squid, octopus, and crustaceans",
+    "shelter": "Quiet haul-out beaches and rocks",
+    "preferredHabitat": "Calm, clean water with undisturbed haul-out shore",
+    "fact": "Harbor seals can sleep underwater, surfacing to breathe without fully waking.",
+    "role": "A generalist marine predator that eats whatever fish is abundant and easy to catch. Sharks and killer whales are its main predators offshore, but on this restored coast it sits near the top of the food web.",
+    "trophic": "apex-predator",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": ["fish"],
+    "sources": [
+      {"name": "Animal Diversity Web - Phoca vitulina", "url": "https://animaldiversity.org/accounts/Phoca_vitulina/"},
+      {"name": "NOAA Fisheries - Harbor Seal", "url": "https://www.fisheries.noaa.gov/species/harbor-seal"}
+    ]
+  },
+  {
+    "id": "sea-otter",
+    "scientificName": "Enhydra lutris",
+    "diet": "Sea urchins, crabs, mussels, clams, and other shellfish",
+    "shelter": "Kelp canopy anchor points",
+    "preferredHabitat": "Kelp forest and rocky shore with abundant shellfish",
+    "fact": "Sea otters wrap up in kelp before sleeping so they don't drift away.",
+    "role": "A keystone species: by eating sea urchins it stops them overgrazing kelp, letting kelp forests and the life they shelter thrive. It also preys heavily on mussels and clams along the rocky shore.",
+    "trophic": "apex-predator",
+    "eats": ["mussel", "clam", "sea-star"],
+    "eatenBy": [],
+    "eatsOther": ["sea urchins", "crabs", "clams"],
+    "sources": [
+      {"name": "Animal Diversity Web - Enhydra lutris", "url": "https://animaldiversity.org/accounts/Enhydra_lutris/"},
+      {"name": "Monterey Bay Aquarium - Sea otter", "url": "https://www.montereybayaquarium.org/animals-the-ocean/animals-a-to-z/sea-otter"}
+    ]
+  },
+  {
+    "id": "dolphin",
+    "scientificName": "Tursiops truncatus",
+    "diet": "Fish, squid, and crustaceans",
+    "shelter": "Open coastal water",
+    "preferredHabitat": "Clean, lively nearshore water",
+    "fact": "Bottlenose dolphins call each other by name, using signature whistles unique to each one.",
+    "role": "A clever, cooperative predator that herds fish and hunts squid in nearshore water. Larger sharks and orcas can prey on it, but in this roster it is a top predator whose presence marks a lively, fish-rich coast.",
+    "trophic": "apex-predator",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": ["fish"],
+    "sources": [
+      {"name": "NOAA Fisheries - Common Bottlenose Dolphin", "url": "https://www.fisheries.noaa.gov/species/common-bottlenose-dolphin"}
+    ]
+  },
+  {
+    "id": "migrating-whale",
+    "scientificName": "Eschrichtius robustus",
+    "diet": "Amphipods and other tiny bottom crustaceans, sifted from sediment",
+    "shelter": "Open ocean; passes close to healthy shores",
+    "preferredHabitat": "Seen offshore from a fully restored coast",
+    "fact": "Gray whales migrate up to 14,000 miles round trip, among the longest of any mammal.",
+    "role": "A bottom-feeding baleen whale that rolls on its side to suck up sediment and filter out tiny crustaceans. Killer whales are its main predator; a passing gray whale is a sign of a fully restored, productive coast.",
+    "trophic": "filter-feeder",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": ["plankton"],
+    "sources": [
+      {"name": "NOAA Fisheries - Gray Whale", "url": "https://www.fisheries.noaa.gov/species/gray-whale"},
+      {"name": "Animal Diversity Web - Eschrichtius robustus", "url": "https://animaldiversity.org/accounts/Eschrichtius_robustus/"}
+    ]
+  },
+  {
+    "id": "sanderling",
+    "scientificName": "Calidris alba",
+    "diet": "Small crabs, amphipods, worms, and mollusks",
+    "shelter": "Open beach above the surf line",
+    "preferredHabitat": "Sandy surf line and wave-washed beach",
+    "fact": "Sanderlings chase retreating waves in busy little sprints to grab stranded invertebrates.",
+    "role": "A wave-chasing sandpiper that feeds on small crustaceans and worms churned up by the surf. Falcons are a key predator, and its winter flocks track the health of open sandy beaches.",
+    "trophic": "insectivore",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": ["mole crabs", "clams"],
+    "sources": [
+      {"name": "All About Birds - Sanderling Life History", "url": "https://www.allaboutbirds.org/guide/Sanderling/lifehistory"}
+    ]
+  },
+  {
+    "id": "black-oystercatcher",
+    "scientificName": "Haematopus bachmani",
+    "diet": "Mussels and limpets, plus whelks and crabs",
+    "shelter": "Rocky shore ledges just above the tide",
+    "preferredHabitat": "Rocky intertidal reefs and tidepool shores",
+    "fact": "Its long red bill pries shellfish open and cuts the muscle before the shell shuts.",
+    "role": "A rocky-shore specialist that pries mussels and limpets from the rocks, timing feeding to the tides. It is a sensitive indicator of intertidal health, thriving only where shellfish are plentiful.",
+    "trophic": "mesopredator",
+    "eats": ["mussel"],
+    "eatenBy": [],
+    "eatsOther": ["mussels", "clams"],
+    "sources": [
+      {"name": "All About Birds - Black Oystercatcher Life History", "url": "https://www.allaboutbirds.org/guide/Black_Oystercatcher/lifehistory"}
+    ]
+  },
+  {
+    "id": "purple-shore-crab",
+    "scientificName": "Hemigrapsus nudus",
+    "diet": "Sea lettuce and other green algae, plus occasional carrion",
+    "shelter": "Under rocks in the intertidal",
+    "preferredHabitat": "Sheltered rocky intertidal under stones",
+    "fact": "They scrape green algae from rocks and scuttle sideways under stones at low tide.",
+    "role": "A small grazing crab that scrapes algae from intertidal rocks and occasionally scavenges. It is common prey for gulls, anemones, and tidepool fish, moving algal energy up the food web.",
+    "trophic": "omnivore",
+    "eats": [],
+    "eatenBy": ["gull", "anemone", "black-turnstone"],
+    "eatsOther": ["algae", "kelp"],
+    "sources": [
+      {"name": "iNaturalist - Purple Shore Crab (Hemigrapsus nudus)", "url": "https://www.inaturalist.org/taxa/48342-Hemigrapsus-nudus"}
+    ]
+  },
+  {
+    "id": "brant-goose",
+    "scientificName": "Branta bernicla",
+    "diet": "Eelgrass and large green algae like sea lettuce",
+    "shelter": "Open shoreline and shallow bays",
+    "preferredHabitat": "Shallow coastal bays with eelgrass beds",
+    "fact": "Whole flocks of brant depend on eelgrass beds to fuel their long migrations.",
+    "role": "A small sea goose that grazes almost entirely on eelgrass and green algae in shallow bays. Its dependence on eelgrass makes healthy brant flocks a clear indicator of intact seagrass beds.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": ["seagrass", "algae"],
+    "sources": [
+      {"name": "All About Birds - Brant Life History", "url": "https://www.allaboutbirds.org/guide/Brant/lifehistory"}
+    ]
+  },
+  {
+    "id": "snowy-plover",
+    "scientificName": "Charadrius nivosus nivosus",
+    "diet": "Beach invertebrates: crustaceans, flies, and small mollusks",
+    "shelter": "Shallow scrapes on open sand",
+    "preferredHabitat": "Quiet sandy dunes and open beach",
+    "fact": "Western snowy plovers nest in tiny scrapes right on the open sand.",
+    "role": "A threatened beach-nesting plover that feeds on small invertebrates along the sand and tide line. Extremely sensitive to disturbance, it is a flagship indicator of protected, undisturbed dune beaches.",
+    "trophic": "insectivore",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": ["mole crabs", "fly larvae"],
+    "sources": [
+      {"name": "All About Birds - Snowy Plover Life History", "url": "https://www.allaboutbirds.org/guide/Snowy_Plover/lifehistory"},
+      {"name": "USFWS - Western Snowy Plover", "url": "https://www.fws.gov/species/western-snowy-plover-charadrius-nivosus-nivosus"}
+    ]
+  },
+  {
+    "id": "annas-hummingbird",
+    "scientificName": "Calypte anna",
+    "diet": "Flower nectar and small insects",
+    "shelter": "Shrubs and small trees in coastal scrub",
+    "preferredHabitat": "Flowering coastal scrub and gardens",
+    "fact": "Males dive from about 27 m and pull up with a loud chirp made by their tail feathers.",
+    "role": "A year-round coastal hummingbird that feeds on nectar and small insects, pollinating shrubs like manzanita and gooseberry as it forages. It links flowering coastal scrub to the wider food web.",
+    "trophic": "omnivore",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": [],
+    "sources": [
+      {"name": "All About Birds - Anna's Hummingbird Life History", "url": "https://www.allaboutbirds.org/guide/Annas_Hummingbird/lifehistory"}
+    ]
+  },
+  {
+    "id": "acorn-woodpecker",
+    "scientificName": "Melanerpes formicivorus",
+    "diet": "Acorns and insects, plus sap and fruit",
+    "shelter": "Oak granary trees with stored acorns",
+    "preferredHabitat": "Coastal oak woodland",
+    "fact": "It drills thousands of holes in a granary tree and stores a single acorn in each.",
+    "role": "A social woodpecker that hoards acorns in shared granary trees and hawks flying insects. Its acorn caching and old cavities support other coastal-woodland animals, making it a habitat keystone in oak groves.",
+    "trophic": "omnivore",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": [],
+    "sources": [
+      {"name": "All About Birds - Acorn Woodpecker Life History", "url": "https://www.allaboutbirds.org/guide/Acorn_Woodpecker/lifehistory"}
+    ]
+  },
+  {
+    "id": "black-turnstone",
+    "scientificName": "Arenaria melanocephala",
+    "diet": "Barnacles, limpets, mussels, and small invertebrates",
+    "shelter": "Rocky shoreline and beach wrack",
+    "preferredHabitat": "Rocky intertidal shores",
+    "fact": "Turnstones flip over stones and shells to snatch the creatures hiding beneath.",
+    "role": "A rocky-shore forager that pries barnacles and limpets loose and flips wrack to find hidden prey. It helps keep intertidal invertebrate numbers in check and depends on rich rocky shores.",
+    "trophic": "insectivore",
+    "eats": ["mussel"],
+    "eatenBy": [],
+    "eatsOther": ["mussels", "barnacles"],
+    "sources": [
+      {"name": "All About Birds - Black Turnstone Life History", "url": "https://www.allaboutbirds.org/guide/Black_Turnstone/lifehistory"}
+    ]
+  },
+  {
+    "id": "pigeon-guillemot",
+    "scientificName": "Cepphus columba",
+    "diet": "Small fish, plus crabs, worms, and mollusks",
+    "shelter": "Bluff and rock crevices above water",
+    "preferredHabitat": "Rocky nesting bluffs over clear water",
+    "fact": "Pigeon guillemots have bright coral-red feet and matching mouth linings.",
+    "role": "A diving seabird that chases small fish and pries invertebrates from crevices near the seafloor. It nests in rocky bluffs and depends on the healthy nearshore fish and habitat that kelp forests support.",
+    "trophic": "apex-predator",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": ["fish"],
+    "sources": [
+      {"name": "All About Birds - Pigeon Guillemot Life History", "url": "https://www.allaboutbirds.org/guide/Pigeon_Guillemot/lifehistory"}
+    ]
+  },
+  {
+    "id": "bat-star",
+    "scientificName": "Patiria miniata",
+    "diet": "Algae, detritus, and dead plants and animals",
+    "shelter": "Tidepools and eelgrass beds",
+    "preferredHabitat": "Shallow rocky tidepools and eelgrass",
+    "fact": "A bat star can have anywhere from four to nine arms, not always five.",
+    "role": "An omnivorous scavenger that spreads its stomach over the seafloor to digest algae and carrion. It is a cleanup crew of the shallows, recycling dead matter and keeping tidepools and eelgrass beds tidy.",
+    "trophic": "scavenger",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": ["algae"],
+    "sources": [
+      {"name": "Monterey Bay Aquarium - Bat star", "url": "https://www.montereybayaquarium.org/animals-the-ocean/animals-a-to-z/bat-star"},
+      {"name": "Animal Diversity Web - Patiria miniata", "url": "https://animaldiversity.org/accounts/Patiria_miniata/"}
+    ]
+  }
+]

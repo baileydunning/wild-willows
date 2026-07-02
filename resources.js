@@ -6128,9 +6128,9 @@ var animals_1_default = {
       kind: "mammal",
       rarity: "common",
       featured: true,
-      diet: "Grasses, clover, and berries",
-      shelter: "Shrub cover and brush piles",
-      preferredHabitat: "Open grass with shrubby edges to dart into",
+      diet: "Grasses and clover in summer; twigs, bark, and buds in winter",
+      shelter: "Rests in shallow grass 'forms'; uses brush piles and old burrows",
+      preferredHabitat: "Meadows and field edges with brushy fencerows to bolt into",
       fact: "Cottontails rest in shallow ground depressions called 'forms' rather than digging their own burrows.",
       requirements: {
         minHealth: 25,
@@ -6140,7 +6140,37 @@ var animals_1_default = {
           shrub: 1
         },
         hint: "Plant native grass and a berry bush, with shrub cover close by."
-      }
+      },
+      scientificName: "Sylvilagus floridanus",
+      role: "An abundant grazing herbivore and cornerstone prey animal of the meadow. It feeds on grasses, clover, and woody browse and breeds rapidly to offset heavy predation. Foxes, hawks, owls, and badgers all depend on cottontails as a food source.",
+      trophic: "herbivore",
+      eatenBy: [
+        "american-badger",
+        "barn-owl",
+        "bobcat",
+        "great-horned-owl",
+        "red-fox-forest",
+        "red-fox-meadow",
+        "red-tailed-hawk"
+      ],
+      eatsOther: [
+        "bark",
+        "berries",
+        "buds",
+        "clover",
+        "grasses",
+        "twigs"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Sylvilagus floridanus",
+          url: "https://animaldiversity.org/accounts/Sylvilagus_floridanus/"
+        },
+        {
+          name: "NHPBS NatureWorks \u2014 Eastern Cottontail",
+          url: "https://nhpbs.org/natureworks/easterncottontail.htm"
+        }
+      ]
     },
     {
       id: "monarch-butterfly",
@@ -6149,10 +6179,10 @@ var animals_1_default = {
       kind: "insect",
       rarity: "common",
       featured: true,
-      diet: "Flower nectar; caterpillars eat only milkweed",
-      shelter: "Flower patches and sheltering plants",
-      preferredHabitat: "Sunny flower patches with milkweed",
-      fact: "Monarchs migrate up to 3,000 miles, and no single butterfly makes the whole round trip.",
+      diet: "Caterpillars eat only milkweed; adults sip flower nectar",
+      shelter: "Roosts in trees and shrubs; overwinters clustered in dense groves",
+      preferredHabitat: "Open meadows and roadsides with milkweed and nectar flowers",
+      fact: "Monarchs migrate up to 3,000 miles, but no single butterfly makes the whole round trip; it takes several generations.",
       requirements: {
         minHealth: 15,
         objects: {
@@ -6160,7 +6190,24 @@ var animals_1_default = {
           "butterfly-flowers": 1
         },
         hint: "Wildflowers plus dedicated butterfly flowers with milkweed."
-      }
+      },
+      scientificName: "Danaus plexippus",
+      role: "A milkweed specialist and iconic pollinator whose caterpillars sequester the plant's cardenolide toxins, making both larvae and adults poisonous to most predators. Their bright orange warning coloration keeps nearly all birds and mammals away, so they have very few predators. Adults are important late-season nectar visitors.",
+      trophic: "herbivore",
+      eatsOther: [
+        "flower nectar (adult)",
+        "milkweed leaves (caterpillar)"
+      ],
+      sources: [
+        {
+          name: "U.S. Fish & Wildlife Service \u2014 Monarch",
+          url: "https://www.fws.gov/species/monarch-danaus-plexippus"
+        },
+        {
+          name: "PNAS \u2014 Cardenolide sequestration and toxicity in monarchs",
+          url: "https://www.pnas.org/doi/10.1073/pnas.2024463118"
+        }
+      ]
     },
     {
       id: "song-sparrow",
@@ -6169,10 +6216,10 @@ var animals_1_default = {
       kind: "bird",
       rarity: "common",
       featured: true,
-      diet: "Seeds and small insects",
-      shelter: "Low shrubs and grass tussocks",
-      preferredHabitat: "Brushy edges with singing perches",
-      fact: "A single song sparrow may know as many as 20 different song variations.",
+      diet: "Insects and invertebrates in summer; seeds and fruits year-round",
+      shelter: "Cup nest hidden on the ground or low in shrubs and grass tussocks",
+      preferredHabitat: "Brushy edges, weedy fields, and marsh edges with singing perches",
+      fact: "A male Song Sparrow can learn up to about 20 different tunes and sing hundreds of variations of them.",
       requirements: {
         minHealth: 16,
         objects: {
@@ -6180,7 +6227,38 @@ var animals_1_default = {
           "bird-perch": 1
         },
         hint: "Shrubs, native grass, and somewhere high to sing from."
-      }
+      },
+      scientificName: "Melospiza melodia",
+      role: "A ground-foraging omnivore that switches between insects in the breeding season and seeds/fruit the rest of the year, so it both controls insects and disperses seeds. Its abundance makes it a key prey item for meadow hawks and snakes, linking ground invertebrates to larger predators.",
+      trophic: "omnivore",
+      eats: [
+        "grasshopper",
+        "lady-beetle",
+        "praying-mantis"
+      ],
+      eatenBy: [
+        "coopers-hawk",
+        "garter-snake-meadow",
+        "red-fox-meadow",
+        "red-tailed-hawk"
+      ],
+      eatsOther: [
+        "berries",
+        "caterpillars",
+        "seeds",
+        "spiders",
+        "wild fruit"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Song Sparrow Life History",
+          url: "https://www.allaboutbirds.org/guide/Song_Sparrow/lifehistory"
+        },
+        {
+          name: "Audubon Field Guide \u2014 Song Sparrow",
+          url: "https://www.audubon.org/field-guide/bird/song-sparrow"
+        }
+      ]
     },
     {
       id: "mule-deer",
@@ -6189,10 +6267,10 @@ var animals_1_default = {
       kind: "mammal",
       rarity: "uncommon",
       featured: true,
-      diet: "Grasses, shrubs, and tender shoots",
-      shelter: "Shrub thickets at the meadow edge",
-      preferredHabitat: "Healthy open meadow with browse and water",
-      fact: "Mule deer are named for their oversized ears, which move independently like a mule's.",
+      diet: "Browses shrubs, forbs, twigs, buds, and seasonal grasses",
+      shelter: "Beds in brushy cover, tall grass, or forest edges; no permanent den",
+      preferredHabitat: "Open meadows and shrublands with browse and water nearby",
+      fact: "Mule deer are named for their oversized, mule-like ears, which rotate independently to pinpoint the direction of danger.",
       requirements: {
         minHealth: 55,
         objects: {
@@ -6201,7 +6279,27 @@ var animals_1_default = {
           "small-pond": 1
         },
         hint: "A healthier meadow with plenty of browse and a pond to drink from."
-      }
+      },
+      scientificName: "Odocoileus hemionus",
+      role: "A large grazing herbivore that shapes meadow vegetation by browsing shrubs and forbs. Its grazing and droppings help cycle nutrients and keep browse in check. Its usual predators (coyotes, mountain lions) are absent from this meadow roster, so it faces little predation here.",
+      trophic: "herbivore",
+      eatsOther: [
+        "buds",
+        "forbs",
+        "grasses",
+        "shrubs",
+        "twigs"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Odocoileus hemionus",
+          url: "https://animaldiversity.org/accounts/Odocoileus_hemionus/"
+        },
+        {
+          name: "Landmark Wildlife \u2014 Mule Deer ears and senses",
+          url: "https://landmarkwildlife.com/stot-this-way-texas-mule-deers-big-ears-bigger-personality/"
+        }
+      ]
     },
     {
       id: "red-fox-meadow",
@@ -6210,10 +6308,10 @@ var animals_1_default = {
       kind: "mammal",
       rarity: "rare",
       featured: true,
-      diet: "Voles, rabbits, insects, and berries",
-      shelter: "Hollow logs and dense shrub cover",
-      preferredHabitat: "A thriving meadow with plenty of small animals",
-      fact: "Red foxes use Earth's magnetic field to help judge their famous high pounce on hidden prey.",
+      diet: "Voles, rabbits, squirrels, birds, and insects; also berries and carrion",
+      shelter: "Digs earthen dens or enlarges burrows; uses brush and hollows",
+      preferredHabitat: "Meadows, farmland edges, and hedgerows across open country",
+      fact: "When 'mousing,' red foxes tend to pounce facing magnetic northeast, apparently using Earth's magnetic field as a rangefinder to judge the leap.",
       requirements: {
         minHealth: 65,
         minBalance: 40,
@@ -6227,7 +6325,36 @@ var animals_1_default = {
           "cottontail-rabbit"
         ],
         hint: "Foxes only return once smaller animals are back, with denning cover and a balanced meadow."
-      }
+      },
+      scientificName: "Vulpes vulpes",
+      role: "A generalist mesopredator that helps control rodent and rabbit populations, hunting by stalk-and-pounce and rounding out its diet with insects, berries, and carrion. With larger predators like coyotes absent from this roster, it sits near the top of the meadow food web.",
+      trophic: "mesopredator",
+      eats: [
+        "cottontail-rabbit",
+        "garter-snake-meadow",
+        "grasshopper",
+        "ground-squirrel",
+        "killdeer",
+        "meadow-vole",
+        "song-sparrow",
+        "western-meadowlark"
+      ],
+      eatsOther: [
+        "berries",
+        "bird eggs",
+        "carrion",
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Phys.org \u2014 Predation by foxes aided by Earth's magnetic field",
+          url: "https://phys.org/news/2011-01-predation-foxes-aided-earth-magnetic.html"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Vulpes vulpes",
+          url: "https://animaldiversity.org/accounts/Vulpes_vulpes/"
+        }
+      ]
     },
     {
       id: "meadow-vole",
@@ -6235,10 +6362,10 @@ var animals_1_default = {
       biome: "meadow",
       kind: "mammal",
       rarity: "common",
-      diet: "Grass stems, seeds, and roots",
-      shelter: "Runways under dense grass",
-      preferredHabitat: "Thick grass with hidden runways",
-      fact: "Meadow voles cut tiny tunnels through grass called runways, which feed half the food web.",
+      diet: "Herbivore; grasses, sedges, seeds, roots, and bark in winter",
+      shelter: "Shallow burrows and grass nests linked by surface runways",
+      preferredHabitat: "Moist grassy meadows and fields with dense ground cover",
+      fact: "Voles mow narrow 'runways' through the grass \u2014 tidy little highways they patrol between burrow openings.",
       requirements: {
         minHealth: 10,
         objects: {
@@ -6246,7 +6373,39 @@ var animals_1_default = {
           "native-grass-patch": 1
         },
         hint: "Any thick grass cover will do \u2014 voles arrive early."
-      }
+      },
+      scientificName: "Microtus pennsylvanicus",
+      role: "A keystone prey species and prolific breeder that converts meadow plants into food for nearly every predator. Its grazing and runway-building shape the grass layer. Its abundance drives the populations of hawks, owls, foxes, snakes, and badgers.",
+      trophic: "herbivore",
+      eatenBy: [
+        "american-badger",
+        "barn-owl",
+        "barred-owl",
+        "bobcat",
+        "garter-snake-meadow",
+        "great-horned-owl",
+        "red-fox-forest",
+        "red-fox-meadow",
+        "red-tailed-hawk",
+        "western-screech-owl"
+      ],
+      eatsOther: [
+        "bark",
+        "grasses",
+        "roots",
+        "sedges",
+        "seeds"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Microtus pennsylvanicus",
+          url: "https://animaldiversity.org/accounts/Microtus_pennsylvanicus/"
+        },
+        {
+          name: "Chesapeake Bay Program \u2014 Meadow vole",
+          url: "https://www.chesapeakebay.net/discover/field-guide/entry/meadow-vole"
+        }
+      ]
     },
     {
       id: "ground-squirrel",
@@ -6254,10 +6413,10 @@ var animals_1_default = {
       biome: "meadow",
       kind: "mammal",
       rarity: "common",
-      diet: "Seeds, grasses, and flowers",
-      shelter: "Burrows near rock cover",
-      preferredHabitat: "Open grass near rocky lookout points",
-      fact: "Ground squirrels kick sand at rattlesnakes and wave their heated tails to confuse them.",
+      diet: "Mostly seeds, grasses, and flowers, plus insects like grasshoppers",
+      shelter: "Extensive multi-entrance burrow systems dug in open ground",
+      preferredHabitat: "Open grassy meadows and slopes near rocky lookout points",
+      fact: "Facing a rattlesnake, these squirrels kick sand and wave heated tails \u2014 flushing their tails with blood to jam the snake's infrared 'vision.'",
       requirements: {
         minHealth: 14,
         objects: {
@@ -6265,7 +6424,37 @@ var animals_1_default = {
           "native-grass-patch": 1
         },
         hint: "Grass to eat and rocks to keep watch from."
-      }
+      },
+      scientificName: "Otospermophilus beecheyi",
+      role: "A burrowing omnivore whose diggings aerate soil and whose abandoned burrows shelter other species. It eats seeds, greens, and insects and is major prey for hawks, foxes, snakes, and badgers. Its colonies anchor the meadow's rodent-based food web.",
+      trophic: "omnivore",
+      eats: [
+        "grasshopper"
+      ],
+      eatenBy: [
+        "american-badger",
+        "barn-owl",
+        "garter-snake-meadow",
+        "red-fox-meadow",
+        "red-tailed-hawk"
+      ],
+      eatsOther: [
+        "flowers",
+        "fruit",
+        "grasses",
+        "insects",
+        "seeds"
+      ],
+      sources: [
+        {
+          name: "PNAS \u2014 Ground squirrels heat their tails to discourage rattlesnake attack",
+          url: "https://www.pnas.org/doi/10.1073/pnas.0707286104"
+        },
+        {
+          name: "The Ethogram (UC Davis) \u2014 California ground squirrel",
+          url: "https://theethogram.com/2020/01/21/creature-feature-california-ground-squirrel/"
+        }
+      ]
     },
     {
       id: "garter-snake-meadow",
@@ -6273,9 +6462,9 @@ var animals_1_default = {
       biome: "meadow",
       kind: "reptile",
       rarity: "uncommon",
-      diet: "Worms, insects, and small rodents",
-      shelter: "Rock piles and grass cover",
-      preferredHabitat: "Sunny rocks beside hunting grass",
+      diet: "Earthworms, amphibians, slugs, small fish, insects, and small rodents",
+      shelter: "Shelters under rocks and logs; overwinters in communal dens",
+      preferredHabitat: "Moist meadows and grasslands near sunny rocks and water",
       fact: "Garter snakes are mildly venomous to their tiny prey but completely harmless to people.",
       requirements: {
         minHealth: 20,
@@ -6285,7 +6474,39 @@ var animals_1_default = {
           shrub: 1
         },
         hint: "Warm rocks, grass to hunt in, and small prey already about."
-      }
+      },
+      scientificName: "Thamnophis sirtalis",
+      role: "A common meadow mesopredator that hunts earthworms, amphibians, fish, insects, and small rodents, using mild venomous saliva to subdue small prey. It helps control invertebrate and amphibian populations. It is preyed on by hawks, owls, and foxes.",
+      trophic: "mesopredator",
+      eats: [
+        "grasshopper",
+        "ground-squirrel",
+        "meadow-vole",
+        "praying-mantis",
+        "song-sparrow"
+      ],
+      eatenBy: [
+        "barn-owl",
+        "coopers-hawk",
+        "red-fox-meadow",
+        "red-tailed-hawk"
+      ],
+      eatsOther: [
+        "amphibians",
+        "earthworms",
+        "slugs",
+        "small fish"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Thamnophis sirtalis",
+          url: "https://animaldiversity.org/accounts/Thamnophis_sirtalis/"
+        },
+        {
+          name: "U.S. Fish & Wildlife Service \u2014 Common Garter Snake",
+          url: "https://www.fws.gov/species/common-garter-snake-thamnophis-sirtalis"
+        }
+      ]
     },
     {
       id: "bumblebee",
@@ -6293,10 +6514,10 @@ var animals_1_default = {
       biome: "meadow",
       kind: "insect",
       rarity: "common",
-      diet: "Nectar and pollen",
-      shelter: "Old burrows and grass tussocks",
-      preferredHabitat: "Flower-rich meadow",
-      fact: "Bumblebees 'buzz pollinate' \u2014 vibrating flowers at just the right frequency to shake pollen loose.",
+      diet: "Nectar for energy and pollen for protein, from many flower types",
+      shelter: "Nests in abandoned rodent burrows, grass tussocks, or ground cavities",
+      preferredHabitat: "Flower-rich meadows and grasslands with continuous bloom",
+      fact: "Bumblebees 'buzz pollinate' \u2014 vibrating their flight muscles to shake pollen loose from flowers like tomatoes and blueberries.",
       requirements: {
         minHealth: 25,
         objects: {
@@ -6305,7 +6526,29 @@ var animals_1_default = {
           shrub: 1
         },
         hint: "The more kinds of flowers, the better."
-      }
+      },
+      scientificName: "Bombus spp.",
+      role: "A generalist, large-bodied pollinator that visits a huge variety of flowers for nectar and pollen. Its buzz pollination unlocks pollen that many other bees cannot reach, making it vital to meadow plant reproduction. It is preyed on by ambush hunters and aerial insectivores.",
+      trophic: "herbivore",
+      eatenBy: [
+        "barn-swallow",
+        "eastern-bluebird",
+        "praying-mantis"
+      ],
+      eatsOther: [
+        "flower nectar",
+        "pollen"
+      ],
+      sources: [
+        {
+          name: "Xerces Society \u2014 About Bumble Bees",
+          url: "https://xerces.org/bumble-bees/about"
+        },
+        {
+          name: "USDA Forest Service \u2014 Bumblebees (Bombus spp.)",
+          url: "https://www.fs.usda.gov/wildflowers/pollinators/pollinator-of-the-month/bumblebees.shtml"
+        }
+      ]
     },
     {
       id: "grasshopper",
@@ -6313,17 +6556,46 @@ var animals_1_default = {
       biome: "meadow",
       kind: "insect",
       rarity: "common",
-      diet: "Grasses and leafy plants",
-      shelter: "Tall grass",
-      preferredHabitat: "Any recovering grassland",
-      fact: "Grasshoppers hear through tiny membranes on their abdomen, not their heads.",
+      diet: "Herbivore feeding on grasses, sedges, and broadleaf forbs",
+      shelter: "Shelters in grass and low vegetation; lays eggs in soil",
+      preferredHabitat: "Sunny grasslands and meadows rich in grasses and forbs",
+      fact: "Grasshoppers hear through tympana \u2014 eardrum-like membranes on the first segment of the abdomen, not their heads.",
       requirements: {
         minHealth: 15,
         objects: {
           "grass-patch": 1
         },
         hint: "Grasshoppers return almost as soon as the grass does."
-      }
+      },
+      scientificName: "Melanoplus spp. (family Acrididae)",
+      role: "A dominant plant-eater and the meadow's key prey base, converting grasses and forbs into food for a huge range of predators. Its abundance supports birds, snakes, mammals, and other insects. Booms in grasshopper numbers ripple up the whole food web.",
+      trophic: "herbivore",
+      eatenBy: [
+        "eastern-bluebird",
+        "garter-snake-meadow",
+        "ground-squirrel",
+        "killdeer",
+        "praying-mantis",
+        "red-fox-meadow",
+        "song-sparrow",
+        "western-meadowlark",
+        "western-screech-owl"
+      ],
+      eatsOther: [
+        "grasses",
+        "leaves and forbs",
+        "sedges"
+      ],
+      sources: [
+        {
+          name: "Britannica \u2014 Short-horned grasshopper (Acrididae)",
+          url: "https://www.britannica.com/animal/short-horned-grasshopper"
+        },
+        {
+          name: "Ecology and Evolution \u2014 Grasshopper diet (gut-content sequencing)",
+          url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC4559048/"
+        }
+      ]
     },
     {
       id: "lady-beetle",
@@ -6331,17 +6603,42 @@ var animals_1_default = {
       biome: "meadow",
       kind: "insect",
       rarity: "common",
-      diet: "Aphids and other tiny insects",
-      shelter: "Flower stems and leaf litter",
-      preferredHabitat: "Flower patches with plenty of aphids",
-      fact: "A single lady beetle can eat 5,000 aphids over its lifetime \u2014 a gardener's best friend.",
+      diet: "Predator of aphids and other small, soft-bodied insects",
+      shelter: "Overwinters in leaf litter and aggregations; shelters on foliage",
+      preferredHabitat: "Meadows and gardens with aphid-infested plants",
+      fact: "A single lady beetle can eat around 5,000 aphids over its lifetime \u2014 roughly 50 a day.",
       requirements: {
         minHealth: 12,
         objects: {
           "clover-patch": 1
         },
         hint: "Flowers bring aphids, and aphids bring lady beetles."
-      }
+      },
+      scientificName: "Hippodamia convergens (family Coccinellidae)",
+      role: "A voracious small predator that controls aphids and other soft-bodied pests as both larva and adult, making it a valuable biological-control insect. In turn it is eaten by insectivorous birds and larger insect predators, linking the aphid layer up into the food web.",
+      trophic: "insectivore",
+      eatenBy: [
+        "eastern-bluebird",
+        "praying-mantis",
+        "song-sparrow",
+        "western-meadowlark"
+      ],
+      eatsOther: [
+        "aphids",
+        "scale insects",
+        "small soft-bodied insects",
+        "thrips"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Hippodamia convergens",
+          url: "https://animaldiversity.org/accounts/Hippodamia_convergens/"
+        },
+        {
+          name: "UC ANR \u2014 Lady beetle aphid consumption",
+          url: "https://ucanr.edu/blog/bug-squad/article/incredible-aphid-eating-machines"
+        }
+      ]
     },
     {
       id: "western-meadowlark",
@@ -6349,10 +6646,10 @@ var animals_1_default = {
       biome: "meadow",
       kind: "bird",
       rarity: "uncommon",
-      diet: "Insects, grain, and weed seeds",
-      shelter: "Ground nests woven into thick grass",
-      preferredHabitat: "Wide native grassland with song perches",
-      fact: "The western meadowlark's flute-like song is the state bird anthem of six U.S. states.",
+      diet: "Mostly insects in summer (beetles, grasshoppers); seeds and grain in winter",
+      shelter: "Domed grass nest woven on the ground, often with a covered runway",
+      preferredHabitat: "Wide native grasslands and meadows with song perches",
+      fact: "The Western Meadowlark's flute-like song is the state bird anthem of six U.S. states.",
       requirements: {
         minHealth: 45,
         objects: {
@@ -6362,7 +6659,39 @@ var animals_1_default = {
           "rain-basin": 1
         },
         hint: "Meadowlarks need real expanses of native grass before they will nest, with a basin to drink and bathe."
-      }
+      },
+      scientificName: "Sturnella neglecta",
+      role: "A grassland omnivore that eats large numbers of grasshoppers, crickets, and beetles in summer while taking seeds in winter, helping keep insect populations in check. As a plump ground bird it is important prey for hawks and mammalian predators of the meadow.",
+      trophic: "omnivore",
+      eats: [
+        "grasshopper",
+        "lady-beetle",
+        "praying-mantis"
+      ],
+      eatenBy: [
+        "american-badger",
+        "coopers-hawk",
+        "red-fox-meadow",
+        "red-tailed-hawk"
+      ],
+      eatsOther: [
+        "ants",
+        "beetles",
+        "caterpillars",
+        "crickets",
+        "seeds",
+        "waste grain"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Western Meadowlark",
+          url: "https://www.allaboutbirds.org/guide/Western_Meadowlark/lifehistory"
+        },
+        {
+          name: "Audubon Field Guide \u2014 Western Meadowlark",
+          url: "https://www.audubon.org/field-guide/bird/western-meadowlark"
+        }
+      ]
     },
     {
       id: "barn-swallow",
@@ -6370,10 +6699,10 @@ var animals_1_default = {
       biome: "meadow",
       kind: "bird",
       rarity: "uncommon",
-      diet: "Flying insects caught on the wing",
-      shelter: "Mud nests on sheltered ledges",
-      preferredHabitat: "Open air above water and flowers",
-      fact: "Barn swallows build their cup nests from up to 1,000 individual beakfuls of mud.",
+      diet: "Flying insects caught midair: flies, beetles, bees, wasps, and moths",
+      shelter: "Cup nest of mud pellets and grass on beams under eaves and bridges",
+      preferredHabitat: "Open country for foraging near water, flowers, and structures",
+      fact: "Barn Swallows build their cup nests from up to 1,000 individual beakfuls of mud.",
       requirements: {
         minHealth: 40,
         objects: {
@@ -6382,7 +6711,37 @@ var animals_1_default = {
           shrub: 1
         },
         hint: "A pond for mud and insects, and a perch to rest between flights."
-      }
+      },
+      scientificName: "Hirundo rustica",
+      role: "An aerial insectivore that snaps up huge numbers of flying insects over meadows, following livestock and machinery to catch flushed prey. It is a natural check on flies and flying pests, and both adults and fledglings are hunted by fast-flying hawks.",
+      trophic: "insectivore",
+      eats: [
+        "bumblebee",
+        "leafcutter-bee",
+        "painted-lady",
+        "red-admiral"
+      ],
+      eatenBy: [
+        "coopers-hawk",
+        "red-tailed-hawk"
+      ],
+      eatsOther: [
+        "beetles",
+        "flies",
+        "flying insects",
+        "moths",
+        "wasps"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Barn Swallow Life History",
+          url: "https://www.allaboutbirds.org/guide/Barn_Swallow/lifehistory"
+        },
+        {
+          name: "Audubon Field Guide \u2014 Barn Swallow",
+          url: "https://www.audubon.org/field-guide/bird/barn-swallow"
+        }
+      ]
     },
     {
       id: "red-tailed-hawk",
@@ -6390,10 +6749,10 @@ var animals_1_default = {
       biome: "meadow",
       kind: "bird",
       rarity: "rare",
-      diet: "Voles, squirrels, and other small animals",
-      shelter: "Tall perches overlooking open ground",
-      preferredHabitat: "A full, busy meadow seen from above",
-      fact: "That piercing 'eagle' cry in the movies is almost always actually a red-tailed hawk.",
+      diet: "Mostly small mammals (voles, ground squirrels, rabbits); also birds and snakes",
+      shelter: "Bulky stick nest in the crown of a tall tree or on a cliff ledge",
+      preferredHabitat: "Open country: grasslands, fields, and meadows seen from above",
+      fact: "That piercing 'eagle' cry in the movies is almost always actually a Red-tailed Hawk.",
       requirements: {
         minHealth: 70,
         minBalance: 40,
@@ -6406,7 +6765,35 @@ var animals_1_default = {
           "ground-squirrel"
         ],
         hint: "Hawks watch for a meadow already full of small animals."
-      }
+      },
+      scientificName: "Buteo jamaicensis",
+      role: "The meadow's apex daytime hunter, soaring on broad wings or watching from a perch for prey below. By preying on voles, ground squirrels, rabbits, and birds it keeps herbivore numbers in check. Adults have essentially no predators in the meadow.",
+      trophic: "apex-predator",
+      eats: [
+        "barn-swallow",
+        "cottontail-rabbit",
+        "eastern-bluebird",
+        "garter-snake-meadow",
+        "ground-squirrel",
+        "killdeer",
+        "meadow-vole",
+        "song-sparrow",
+        "western-meadowlark"
+      ],
+      eatsOther: [
+        "carrion",
+        "mice"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Red-tailed Hawk Life History",
+          url: "https://www.allaboutbirds.org/guide/Red-tailed_Hawk/lifehistory"
+        },
+        {
+          name: "Cornell Lab All About Birds \u2014 Red-tailed Hawk Overview",
+          url: "https://www.allaboutbirds.org/guide/Red-tailed_Hawk/overview"
+        }
+      ]
     },
     {
       id: "barn-owl",
@@ -6414,10 +6801,10 @@ var animals_1_default = {
       biome: "meadow",
       kind: "bird",
       rarity: "rare",
-      diet: "Voles and mice, hunted at night",
-      shelter: "Dark cavities and quiet structures",
-      preferredHabitat: "Quiet meadow nights with rustling grass",
-      fact: "A barn owl can strike prey in total darkness, guided by ears set at different heights.",
+      diet: "Almost entirely small mammals \u2014 voles, mice, and shrews; hunted at night",
+      shelter: "Nests in tree hollows, cliff crevices, and quiet building cavities",
+      preferredHabitat: "Open grasslands and meadows hunted on silent wings at night",
+      fact: "A Barn Owl's heart-shaped facial disc funnels sound so precisely it can catch prey in total darkness by ear alone.",
       requirements: {
         minHealth: 75,
         minBalance: 40,
@@ -6429,7 +6816,31 @@ var animals_1_default = {
           "meadow-vole"
         ],
         hint: "A quiet, healthy meadow with plenty of voles and a dark place to roost."
-      }
+      },
+      scientificName: "Tyto alba",
+      role: "The meadow's night-shift rodent hunter, coursing low over the grass on silent wings and swallowing voles and mice whole. This makes it a major check on rodent populations. In the meadow it sits near the top of the food web with no regular predators.",
+      trophic: "apex-predator",
+      eats: [
+        "cottontail-rabbit",
+        "garter-snake-meadow",
+        "ground-squirrel",
+        "meadow-vole"
+      ],
+      eatsOther: [
+        "mice",
+        "rats",
+        "shrews"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Barn Owl Life History",
+          url: "https://www.allaboutbirds.org/guide/American_Barn_Owl/lifehistory"
+        },
+        {
+          name: "Audubon Field Guide \u2014 Barn Owl",
+          url: "https://www.audubon.org/field-guide/bird/barn-owl"
+        }
+      ]
     },
     {
       id: "tree-squirrel",
@@ -6438,10 +6849,10 @@ var animals_1_default = {
       kind: "mammal",
       rarity: "common",
       featured: true,
-      diet: "Acorns, pinecones, seeds, and fungi",
-      shelter: "Tree hollows and leafy dreys",
-      preferredHabitat: "Trees with fallen logs and seed caches below",
-      fact: "Squirrels forget some of their buried caches every year \u2014 and those lost seeds become new trees.",
+      diet: "Acorns, nuts, seeds, tree buds, and fungi; occasional insects and bird eggs",
+      shelter: "Tree cavity dens and leaf-and-twig dreys built high in the canopy",
+      preferredHabitat: "Mature deciduous or mixed forest rich in oaks and hickories",
+      fact: "Gray squirrels scatter-hoard thousands of nuts each year, and the caches they forget grow into new trees.",
       requirements: {
         minHealth: 15,
         objects: {
@@ -6449,7 +6860,38 @@ var animals_1_default = {
           "log-shelter": 1
         },
         hint: "A nesting tree and fallen logs with seeds to cache."
-      }
+      },
+      scientificName: "Sciurus carolinensis",
+      role: "Tree squirrels are major seed predators and accidental seed dispersers whose buried, forgotten nuts regenerate the forest canopy. They also spread mycorrhizal fungal spores and occasionally raid bird nests. As abundant prey they feed nearly every forest mesopredator and raptor.",
+      trophic: "omnivore",
+      eats: [
+        "nuthatch",
+        "woodpecker"
+      ],
+      eatenBy: [
+        "barred-owl",
+        "black-bear",
+        "bobcat",
+        "fisher",
+        "great-horned-owl",
+        "red-fox-forest"
+      ],
+      eatsOther: [
+        "acorns",
+        "berries",
+        "bird eggs",
+        "fungi",
+        "insects",
+        "nuts",
+        "seeds",
+        "tree buds"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Sciurus carolinensis",
+          url: "https://animaldiversity.org/accounts/Sciurus_carolinensis/"
+        }
+      ]
     },
     {
       id: "woodpecker",
@@ -6458,17 +6900,46 @@ var animals_1_default = {
       kind: "bird",
       rarity: "common",
       featured: true,
-      diet: "Beetle larvae and insects under bark",
-      shelter: "Cavities drilled into standing deadwood",
-      preferredHabitat: "Standing dead snags full of insects",
-      fact: "Woodpeckers wrap their long tongues around the back of their skull as built-in shock absorbers.",
+      diet: "Mostly insects\u2014beetle larvae, ants, caterpillars\u2014with some berries, seeds, and sap",
+      shelter: "Self-excavated cavities in standing deadwood; roosts in cavities year-round",
+      preferredHabitat: "Open deciduous and mixed woodland with dead snags full of insects",
+      fact: "Downy woodpeckers are small enough to hammer into goldenrod galls for fly larvae that larger woodpeckers can't reach.",
       requirements: {
         minHealth: 16,
         objects: {
           "standing-deadwood": 1
         },
         hint: "Woodpeckers need standing deadwood \u2014 keep some snags up."
-      }
+      },
+      scientificName: "Picoides pubescens",
+      role: "Woodpeckers regulate wood-boring beetles and bark insects, easing pest pressure on trees. Their abandoned cavities house nuthatches, wrens, and flying squirrels, making them ecosystem engineers. They feed hawks, owls, and nest-raiding squirrels and snakes.",
+      trophic: "insectivore",
+      eatenBy: [
+        "barred-owl",
+        "fisher",
+        "garter-snake-forest",
+        "great-horned-owl",
+        "tree-squirrel"
+      ],
+      eatsOther: [
+        "acorns",
+        "ants",
+        "beetle larvae",
+        "berries",
+        "caterpillars",
+        "sap",
+        "spiders"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Downy Woodpecker",
+          url: "https://www.allaboutbirds.org/guide/Downy_Woodpecker/lifehistory"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Picoides pubescens",
+          url: "https://animaldiversity.org/accounts/Picoides_pubescens/"
+        }
+      ]
     },
     {
       id: "forest-salamander",
@@ -6477,10 +6948,10 @@ var animals_1_default = {
       kind: "amphibian",
       rarity: "uncommon",
       featured: true,
-      diet: "Tiny insects and invertebrates",
-      shelter: "Damp logs and cool leaf litter",
-      preferredHabitat: "Shaded, damp logs near clean water",
-      fact: "Many forest salamanders have no lungs at all \u2014 they breathe entirely through their moist skin.",
+      diet: "Small invertebrates: mites, springtails, spiders, beetles, ants, and earthworms",
+      shelter: "Under logs, rocks, and moist leaf litter; retreats into soil burrows",
+      preferredHabitat: "Cool, damp deciduous forest floor with abundant woody debris",
+      fact: "In some eastern forests the combined weight of these tiny lungless salamanders exceeds that of all the birds.",
       requirements: {
         minHealth: 40,
         objects: {
@@ -6489,7 +6960,32 @@ var animals_1_default = {
           shrub: 1
         },
         hint: "Damp shaded logs and clean shallow water."
-      }
+      },
+      scientificName: "Plethodon cinereus",
+      role: "Red-backed salamanders are a keystone of the forest-floor detritus web, controlling the mites and springtails that break down leaf litter. Their huge collective biomass makes them a key food subsidy for snakes, birds, and small mammals. They breathe through their skin, so they signal forest moisture and soil health.",
+      trophic: "insectivore",
+      eatenBy: [
+        "barred-owl",
+        "garter-snake-forest",
+        "great-horned-owl",
+        "raccoon",
+        "red-fox-forest"
+      ],
+      eatsOther: [
+        "ants",
+        "beetles",
+        "earthworms",
+        "mites",
+        "snails",
+        "spiders",
+        "springtails"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Plethodon cinereus",
+          url: "https://animaldiversity.org/accounts/Plethodon_cinereus/"
+        }
+      ]
     },
     {
       id: "great-horned-owl",
@@ -6498,10 +6994,10 @@ var animals_1_default = {
       kind: "bird",
       rarity: "rare",
       featured: true,
-      diet: "Squirrels, rabbits, and other small animals",
-      shelter: "Tall trees with quiet, hidden roosts",
-      preferredHabitat: "Mature quiet forest with plentiful prey",
-      fact: "A great horned owl's grip is strong enough that it can carry prey heavier than itself.",
+      diet: "Mammals and birds\u2014rabbits, voles, squirrels, chipmunks, skunks\u2014plus reptiles and frogs",
+      shelter: "Adopts old hawk, crow, or heron stick nests in large trees; also snags and ledges",
+      preferredHabitat: "Mature forest broken by open ground, across nearly every biome",
+      fact: "Great horned owls are among the only predators that routinely kill and eat skunks, seemingly unbothered by the spray.",
       requirements: {
         minHealth: 65,
         minBalance: 40,
@@ -6514,7 +7010,50 @@ var animals_1_default = {
           "chipmunk"
         ],
         hint: "Tall trees, quiet shelter, and prey animals already returned."
-      }
+      },
+      scientificName: "Bubo virginianus",
+      role: "The great horned owl sits at the top of the nocturnal forest food web, with the most varied prey base of any North American raptor. It regulates rabbits, squirrels, chipmunks, and even other owls, so its loss lets prey populations surge. Adults have essentially no predators; only eggs and young are vulnerable.",
+      trophic: "apex-predator",
+      eats: [
+        "barred-owl",
+        "bobcat",
+        "chipmunk",
+        "cottontail-rabbit",
+        "forest-salamander",
+        "garter-snake-forest",
+        "little-brown-bat",
+        "meadow-vole",
+        "northern-flying-squirrel",
+        "nuthatch",
+        "pacific-wren",
+        "pileated-woodpecker",
+        "porcupine",
+        "raccoon",
+        "red-fox-forest",
+        "spotted-towhee",
+        "tree-squirrel",
+        "wood-duck",
+        "woodpecker"
+      ],
+      eatsOther: [
+        "carrion",
+        "frogs",
+        "insects",
+        "mice",
+        "rabbits",
+        "skunks",
+        "voles"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Great Horned Owl",
+          url: "https://www.allaboutbirds.org/guide/Great_Horned_Owl/lifehistory"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Bubo virginianus",
+          url: "https://animaldiversity.org/accounts/Bubo_virginianus/"
+        }
+      ]
     },
     {
       id: "black-bear",
@@ -6523,10 +7062,10 @@ var animals_1_default = {
       kind: "mammal",
       rarity: "rare",
       featured: true,
-      diet: "Berries, nuts, insects, and fish",
-      shelter: "Dense cover and sheltered dens",
-      preferredHabitat: "A deeply restored forest with abundant food",
-      fact: "Black bears can smell food from over a mile away \u2014 the best nose in the forest.",
+      diet: "Berries, nuts, grasses, and forbs; insects, fish, and carrion; fawns opportunistically",
+      shelter: "Dens in hollow trees, root masses, rock crevices, or dug cavities; hibernates in winter",
+      preferredHabitat: "Dense forest with thick understory and abundant berry and nut mast",
+      fact: "Black bear cubs are born during hibernation weighing under half a pound\u2014the smallest newborns relative to adult size of any placental mammal.",
       requirements: {
         minHealth: 75,
         minBalance: 50,
@@ -6536,7 +7075,39 @@ var animals_1_default = {
           "log-shelter": 1
         },
         hint: "Bears return only to a richly restored forest: lots of berries, water, shelter, and space."
-      }
+      },
+      scientificName: "Ursus americanus",
+      role: "Black bears are generalist omnivores that disperse berry seeds, dig up and regulate colonial insects, and opportunistically take deer fawns and elk calves. As the most abundant large carnivore in North American forests, they link the mast, insect, and vertebrate food layers at once. Adults have essentially no natural predators.",
+      trophic: "omnivore",
+      eats: [
+        "chipmunk",
+        "elk-forest",
+        "freshwater-fish",
+        "garter-snake-forest",
+        "mule-deer-forest",
+        "porcupine",
+        "red-fox-forest",
+        "tree-squirrel"
+      ],
+      eatsOther: [
+        "acorns",
+        "berries",
+        "carrion",
+        "grasses",
+        "honey",
+        "insects",
+        "nuts"
+      ],
+      sources: [
+        {
+          name: "NPS \u2014 Black Bears",
+          url: "https://www.nps.gov/subjects/bears/black-bears.htm"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Ursus americanus",
+          url: "https://animaldiversity.org/accounts/Ursus_americanus/"
+        }
+      ]
     },
     {
       id: "red-fox-forest",
@@ -6544,10 +7115,10 @@ var animals_1_default = {
       biome: "forest",
       kind: "mammal",
       rarity: "uncommon",
-      diet: "Small mammals, insects, and fruit",
-      shelter: "Hollow logs and root dens",
-      preferredHabitat: "Forest edges with denning cover",
-      fact: "Fox pairs often reuse and expand the same den site for generations.",
+      diet: "Rodents, rabbits, birds, and reptiles; insects, fruit, and carrion",
+      shelter: "Earthen dens dug into slopes or taken over from other animals, reused for generations",
+      preferredHabitat: "Forest edges and scrub-woodland mixes; avoids dense unbroken forest",
+      fact: "Red foxes have around 28 distinct calls, and each individual's voice is recognizable to other foxes.",
       requirements: {
         minHealth: 60,
         objects: {
@@ -6559,7 +7130,46 @@ var animals_1_default = {
           "chipmunk"
         ],
         hint: "Denning cover and small prey back in the woods."
-      }
+      },
+      scientificName: "Vulpes vulpes",
+      role: "The red fox is a versatile mesopredator that keeps small rodents, rabbits, and ground-nesting birds in check while dispersing seeds through the fruit it eats. It sits below apex predators like bears and bobcats and above the small mammals it hunts. Fox pairs often reuse and expand the same den site across generations.",
+      trophic: "mesopredator",
+      eats: [
+        "chipmunk",
+        "cottontail-rabbit",
+        "fisher",
+        "forest-salamander",
+        "garter-snake-forest",
+        "meadow-vole",
+        "northern-flying-squirrel",
+        "pileated-woodpecker",
+        "raccoon",
+        "spotted-towhee",
+        "tree-squirrel",
+        "wood-duck"
+      ],
+      eatenBy: [
+        "black-bear",
+        "bobcat",
+        "great-horned-owl"
+      ],
+      eatsOther: [
+        "berries",
+        "carrion",
+        "earthworms",
+        "fruit",
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Vulpes vulpes",
+          url: "https://animaldiversity.org/accounts/Vulpes_vulpes/"
+        },
+        {
+          name: "National Wildlife Federation \u2014 Raccoon (fox as predator)",
+          url: "https://www.nwf.org/Educational-Resources/Wildlife-Guide/Mammals/Raccoon"
+        }
+      ]
     },
     {
       id: "mule-deer-forest",
@@ -6567,10 +7177,10 @@ var animals_1_default = {
       biome: "forest",
       kind: "mammal",
       rarity: "uncommon",
-      diet: "Shrubs, twigs, and forest browse",
-      shelter: "Thickets and shaded bedding spots",
-      preferredHabitat: "Forest openings with browse and water",
-      fact: "Mule deer bound in a four-footed pogo gait called 'stotting' to clear obstacles downhill.",
+      diet: "Browser: leaves, twigs, and forbs in summer; woody browse, acorns, and berries in winter",
+      shelter: "No fixed den; beds in dense shrubs and forest cover for warmth and safety",
+      preferredHabitat: "Forest edges and open woodland with shrubby browse and water",
+      fact: "A bounding mule deer releases an alarm scent from its hind legs that alerts every nearby deer at once.",
       requirements: {
         minHealth: 55,
         objects: {
@@ -6579,7 +7189,33 @@ var animals_1_default = {
           "fern-grove": 1
         },
         hint: "Shrubby browse and a quiet pond."
-      }
+      },
+      scientificName: "Odocoileus hemionus",
+      role: "Mule deer are key large browsers that shape the forest understory and the regeneration of shrubs and young conifers. They form a critical prey base for large carnivores, while their fawns feed bobcats, foxes, and bears. Seasonal migrations move nutrients across the landscape.",
+      trophic: "herbivore",
+      eatenBy: [
+        "black-bear",
+        "bobcat"
+      ],
+      eatsOther: [
+        "acorns",
+        "bark",
+        "berries",
+        "forbs",
+        "grasses",
+        "leaves",
+        "twigs"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Odocoileus hemionus",
+          url: "https://animaldiversity.org/accounts/Odocoileus_hemionus/"
+        },
+        {
+          name: "NPS \u2014 Mule Deer",
+          url: "https://www.nps.gov/articles/000/mule-deer.htm"
+        }
+      ]
     },
     {
       id: "elk-forest",
@@ -6587,10 +7223,10 @@ var animals_1_default = {
       biome: "forest",
       kind: "mammal",
       rarity: "rare",
-      diet: "Grasses and forest forage",
-      shelter: "Forest meadows and timber edges",
-      preferredHabitat: "Grassy clearings inside recovering forest",
-      fact: "A bull elk's bugle can carry for miles \u2014 one of the loudest calls of any land mammal in North America.",
+      diet: "Grasses, sedges, and forbs in summer; woody browse and bark in winter",
+      shelter: "No fixed shelter; calves hidden in dense vegetation; the herd shares vigilance",
+      preferredHabitat: "Grassy clearings and open woodland edges within larger forest",
+      fact: "In Yellowstone, elk make up about 85% of winter wolf kills and their carcasses feed at least a dozen scavenger species.",
       requirements: {
         minHealth: 70,
         objects: {
@@ -6599,7 +7235,33 @@ var animals_1_default = {
           shrub: 1
         },
         hint: "Grassy clearings and water in a healthy forest."
-      }
+      },
+      scientificName: "Cervus canadensis",
+      role: "Elk are a dominant large herbivore whose heavy grazing shapes grasslands, willows, and aspen; their decline lets vegetation rebound. As the primary prey of wolves, cougars, and bears, they anchor the large-predator food web, and their carcasses sustain a broad scavenger guild. Migrations redistribute nutrients across elevations.",
+      trophic: "herbivore",
+      eatenBy: [
+        "black-bear",
+        "bobcat"
+      ],
+      eatsOther: [
+        "acorns",
+        "bark",
+        "forbs",
+        "fungi",
+        "grasses",
+        "lichens",
+        "sedges"
+      ],
+      sources: [
+        {
+          name: "NPS Yellowstone \u2014 Elk",
+          url: "https://www.nps.gov/yell/learn/nature/elk.htm"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Cervus elaphus",
+          url: "https://animaldiversity.org/accounts/Cervus_elaphus/"
+        }
+      ]
     },
     {
       id: "raccoon",
@@ -6607,10 +7269,10 @@ var animals_1_default = {
       biome: "forest",
       kind: "mammal",
       rarity: "common",
-      diet: "Almost anything: fruit, insects, crayfish",
-      shelter: "Hollow logs and tree cavities",
-      preferredHabitat: "Woods near water for washing and foraging",
-      fact: "A raccoon's front paws have four times more touch receptors than its eyes have light receptors.",
+      diet: "Opportunistic: crayfish, insects, frogs, fish, small mammals, bird eggs, fruit, and nuts",
+      shelter: "Hollow tree dens preferred; also rock crevices, burrows, and structures",
+      preferredHabitat: "Moist forest near water for foraging and dabbling",
+      fact: "A raccoon's sensitive forepaws carry about four times more touch receptors than its eyes have light receptors.",
       requirements: {
         minHealth: 45,
         objects: {
@@ -6619,7 +7281,51 @@ var animals_1_default = {
           shrub: 1
         },
         hint: "A den log near water to dabble in."
-      }
+      },
+      scientificName: "Procyon lotor",
+      role: "Raccoons are adaptable omnivores that regulate crayfish, frogs, and invertebrates while dispersing fruit seeds and preying on bird nests. Their high density makes them a major mid-trophic connector between the aquatic and forest webs. Coyotes, large owls, and bobcats keep them in the mesopredator tier.",
+      trophic: "omnivore",
+      eats: [
+        "banana-slug",
+        "barred-owl",
+        "chipmunk",
+        "ensatina",
+        "forest-salamander",
+        "freshwater-fish",
+        "garter-snake-forest",
+        "little-brown-bat",
+        "northern-flying-squirrel",
+        "pacific-wren",
+        "pileated-woodpecker",
+        "rough-skinned-newt",
+        "spotted-towhee",
+        "wood-duck"
+      ],
+      eatenBy: [
+        "bobcat",
+        "fisher",
+        "great-horned-owl",
+        "red-fox-forest"
+      ],
+      eatsOther: [
+        "acorns",
+        "berries",
+        "bird eggs",
+        "carrion",
+        "crayfish",
+        "insects",
+        "nuts"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Procyon lotor",
+          url: "https://animaldiversity.org/accounts/Procyon_lotor/"
+        },
+        {
+          name: "National Wildlife Federation \u2014 Raccoon",
+          url: "https://www.nwf.org/Educational-Resources/Wildlife-Guide/Mammals/Raccoon"
+        }
+      ]
     },
     {
       id: "porcupine",
@@ -6627,10 +7333,10 @@ var animals_1_default = {
       biome: "forest",
       kind: "mammal",
       rarity: "uncommon",
-      diet: "Bark, twigs, and spring buds",
-      shelter: "Rock dens and hollow trees",
-      preferredHabitat: "Quiet woods with bark to nibble",
-      fact: "Porcupine quills have microscopic backward barbs but also a mild antibiotic coating \u2014 protection against their own clumsy falls.",
+      diet: "Strict herbivore: inner bark in winter; buds, twigs, leaves, and mast in warmer months",
+      shelter: "Rock dens, hollow logs, and tree canopies; reuses the same dens seasonally",
+      preferredHabitat: "Coniferous and mixed forest with trees offering edible bark",
+      fact: "The fisher is one of the only predators able to kill porcupines, flipping them to reach the quill-free belly.",
       requirements: {
         minHealth: 50,
         objects: {
@@ -6639,7 +7345,35 @@ var animals_1_default = {
           shrub: 1
         },
         hint: "Trees to climb and brushy shelter below."
-      }
+      },
+      scientificName: "Erethizon dorsatum",
+      role: "Porcupines are ecosystem engineers whose bark-stripping kills or deforms trees, creating snags for cavity nesters and diversifying forest structure. Their mast feeding competes with deer and squirrels. They are the main prey base for fishers and a supplemental meal for bobcats and bears.",
+      trophic: "herbivore",
+      eatenBy: [
+        "black-bear",
+        "bobcat",
+        "fisher",
+        "great-horned-owl"
+      ],
+      eatsOther: [
+        "acorns",
+        "buds",
+        "conifer needles",
+        "grasses",
+        "inner bark",
+        "leaves",
+        "twigs"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Erethizon dorsatum",
+          url: "https://animaldiversity.org/accounts/Erethizon_dorsatum/"
+        },
+        {
+          name: "NPS Acadia \u2014 Porcupines",
+          url: "https://www.nps.gov/articles/acadia-porcupines.htm"
+        }
+      ]
     },
     {
       id: "bobcat",
@@ -6647,10 +7381,10 @@ var animals_1_default = {
       biome: "forest",
       kind: "mammal",
       rarity: "rare",
-      diet: "Rabbits, squirrels, and birds",
-      shelter: "Rock ledges and dense thickets",
-      preferredHabitat: "A quiet, prey-rich forest",
-      fact: "Bobcats are named for their short 'bobbed' tails and can leap ten feet in a single pounce.",
+      diet: "Obligate carnivore: rabbits, rodents, squirrels, and deer fawns; some birds and reptiles",
+      shelter: "Dens in hollow logs, brush piles, thickets, and rock crevices",
+      preferredHabitat: "Forest with dense understory, brushland, and rocky terrain",
+      fact: "In the eastern U.S. bobcat numbers rise and fall closely with the local cottontail rabbit supply.",
       requirements: {
         minHealth: 75,
         minBalance: 45,
@@ -6664,7 +7398,46 @@ var animals_1_default = {
           "chipmunk"
         ],
         hint: "Bobcats follow plentiful prey and need rocky, brushy cover."
-      }
+      },
+      scientificName: "Lynx rufus",
+      role: "Bobcats are keystone mesopredators that suppress rabbits, rodents, and squirrels, easing browsing pressure on forest plants. As mid-level hunters they sit below cougars and wolves and above the small mammals they take. They help structure entire small-mammal communities.",
+      trophic: "mesopredator",
+      eats: [
+        "chipmunk",
+        "cottontail-rabbit",
+        "elk-forest",
+        "fisher",
+        "meadow-vole",
+        "mule-deer-forest",
+        "northern-flying-squirrel",
+        "pileated-woodpecker",
+        "porcupine",
+        "raccoon",
+        "red-fox-forest",
+        "spotted-towhee",
+        "tree-squirrel"
+      ],
+      eatenBy: [
+        "fisher",
+        "great-horned-owl"
+      ],
+      eatsOther: [
+        "birds",
+        "mice",
+        "rabbits",
+        "reptiles",
+        "voles"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Lynx rufus",
+          url: "https://animaldiversity.org/accounts/Lynx_rufus/"
+        },
+        {
+          name: "IUCN Red List \u2014 Lynx rufus",
+          url: "https://www.iucnredlist.org/species/12521/50655874"
+        }
+      ]
     },
     {
       id: "chipmunk",
@@ -6672,10 +7445,10 @@ var animals_1_default = {
       biome: "forest",
       kind: "mammal",
       rarity: "common",
-      diet: "Seeds, nuts, and berries",
-      shelter: "Burrows under rocks and logs",
-      preferredHabitat: "Forest floor with rocky hideouts",
-      fact: "A chipmunk's cheek pouches can stretch to three times the size of its head.",
+      diet: "Seeds, nuts, and fruit, plus insects, worms, slugs, fungi, and occasional bird eggs",
+      shelter: "Underground burrows up to 10 m long with nest and food-storage chambers",
+      preferredHabitat: "Mature deciduous forest with logs, stumps, and rocky cover",
+      fact: "Chipmunks don't truly hibernate\u2014they wake through winter to eat from seed caches holding over a liter of food.",
       requirements: {
         minHealth: 12,
         objects: {
@@ -6683,7 +7456,35 @@ var animals_1_default = {
           "fallen-branch-shelter": 1
         },
         hint: "Rocky cover and brush piles on the forest floor."
-      }
+      },
+      scientificName: "Tamias striatus",
+      role: "Chipmunks are important scatter-hoarders that disperse tree seeds and fungal spores, aiding forest regeneration. They eat many insects in summer and, as abundant prey, feed a wide guild of predators from weasels to owls. Their burrows aerate soil and shelter other small animals.",
+      trophic: "omnivore",
+      eatenBy: [
+        "barred-owl",
+        "black-bear",
+        "bobcat",
+        "fisher",
+        "great-horned-owl",
+        "raccoon",
+        "red-fox-forest"
+      ],
+      eatsOther: [
+        "acorns",
+        "berries",
+        "bird eggs",
+        "earthworms",
+        "fungi",
+        "insects",
+        "nuts",
+        "seeds"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Tamias striatus",
+          url: "https://animaldiversity.org/accounts/Tamias_striatus/"
+        }
+      ]
     },
     {
       id: "nuthatch",
@@ -6691,10 +7492,10 @@ var animals_1_default = {
       biome: "forest",
       kind: "bird",
       rarity: "common",
-      diet: "Insects and seeds wedged into bark",
-      shelter: "Tree cavities",
-      preferredHabitat: "Trees with rough bark to forage down",
-      fact: "Nuthatches are the only birds that routinely walk headfirst down tree trunks.",
+      diet: "Insects and spiders in summer; seeds, acorns, and cached nuts through winter",
+      shelter: "Tree cavities and old woodpecker holes in mature hardwoods; also nest boxes",
+      preferredHabitat: "Mature deciduous and mixed forest with large oaks and hickories",
+      fact: "Nuthatches sweep smelly insects around their nest hole, apparently to mask their scent from squirrels.",
       requirements: {
         minHealth: 40,
         objects: {
@@ -6703,7 +7504,34 @@ var animals_1_default = {
           shrub: 1
         },
         hint: "Live trees to forage and deadwood to nest in."
-      }
+      },
+      scientificName: "Sitta carolinensis",
+      role: "Nuthatches prey on bark-dwelling insects, including tent caterpillars and wood borers, helping check forest pests. By wedging and caching acorns and seeds in bark they aid short-distance seed dispersal. They bridge the insect and seed layers and serve as prey for hawks and owls.",
+      trophic: "omnivore",
+      eatenBy: [
+        "barred-owl",
+        "great-horned-owl",
+        "pileated-woodpecker",
+        "tree-squirrel"
+      ],
+      eatsOther: [
+        "acorns",
+        "insect eggs",
+        "insects",
+        "nuts",
+        "seeds",
+        "spiders"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 White-breasted Nuthatch",
+          url: "https://www.allaboutbirds.org/guide/White-breasted_Nuthatch/"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Sitta carolinensis",
+          url: "https://animaldiversity.org/accounts/Sitta_carolinensis/"
+        }
+      ]
     },
     {
       id: "garter-snake-forest",
@@ -6711,10 +7539,10 @@ var animals_1_default = {
       biome: "forest",
       kind: "reptile",
       rarity: "uncommon",
-      diet: "Worms, amphibians, and small rodents",
-      shelter: "Sun-warmed rocks near cover",
-      preferredHabitat: "Sunny forest openings with rocks",
-      fact: "Garter snakes gather in large groups to hibernate through cold winters, sharing body heat.",
+      diet: "Earthworms, amphibians, and slugs; also leeches, fish, insects, and small rodents",
+      shelter: "Communal winter dens in burrows and rock piles; hides under logs and rocks",
+      preferredHabitat: "Moist forest edges and riparian zones near ponds and streams",
+      fact: "Garter snakes are the main predator of the toxic rough-skinned newt, and some have evolved resistance to its poison.",
       requirements: {
         minHealth: 45,
         objects: {
@@ -6723,7 +7551,46 @@ var animals_1_default = {
           shrub: 1
         },
         hint: "A sunny rock pile beside grassy hunting ground."
-      }
+      },
+      scientificName: "Thamnophis sirtalis",
+      role: "Garter snakes are generalist mid-web predators that suppress earthworms, slugs, amphibians, and small fish. In the Pacific Northwest they are the key check on rough-skinned newts, and their toxin resistance makes them a famous coevolutionary node. They are important prey for raptors, corvids, and larger predators.",
+      trophic: "mesopredator",
+      eats: [
+        "banana-slug",
+        "ensatina",
+        "forest-salamander",
+        "little-brown-bat",
+        "pacific-wren",
+        "rough-skinned-newt",
+        "spotted-towhee",
+        "wood-duck",
+        "woodpecker"
+      ],
+      eatenBy: [
+        "barred-owl",
+        "black-bear",
+        "fisher",
+        "great-horned-owl",
+        "raccoon",
+        "red-fox-forest"
+      ],
+      eatsOther: [
+        "earthworms",
+        "insects",
+        "leeches",
+        "slugs",
+        "small fish"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Thamnophis sirtalis",
+          url: "https://animaldiversity.org/accounts/Thamnophis_sirtalis/"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Taricha granulosa",
+          url: "https://animaldiversity.org/accounts/Taricha_granulosa/"
+        }
+      ]
     },
     {
       id: "banana-slug",
@@ -6731,10 +7598,10 @@ var animals_1_default = {
       biome: "forest",
       kind: "invertebrate",
       rarity: "common",
-      diet: "Leaves, fungi, and forest debris",
-      shelter: "Damp logs and moss",
-      preferredHabitat: "Cool, damp forest floor",
-      fact: "Banana slugs are champion recyclers, turning fallen leaves into rich soil as they go.",
+      diet: "Dead leaves, fungi, decaying matter, and animal scat; occasional live seedlings",
+      shelter: "Under logs and bark; seals into a mucus cocoon during dry spells",
+      preferredHabitat: "Cool, shaded, persistently moist Pacific forest floor",
+      fact: "Banana slugs pass viable seeds and fungal spores through their gut, seeding plants and mycorrhizal networks as they crawl.",
       requirements: {
         minHealth: 35,
         objects: {
@@ -6743,7 +7610,34 @@ var animals_1_default = {
           shrub: 1
         },
         hint: "Keep the forest floor damp, mossy, and full of logs."
-      }
+      },
+      scientificName: "Ariolimax columbianus",
+      role: "Banana slugs are primary decomposers that break down leaf litter and scat, returning nutrients to the soil. They disperse seeds and mycorrhizal spores, partnering with both plants and the fungal networks that feed forest trees. Their numbing mucus deters most predators, leaving garter snakes and shrews as the main consumers.",
+      trophic: "decomposer",
+      eatenBy: [
+        "ensatina",
+        "garter-snake-forest",
+        "raccoon"
+      ],
+      eatsOther: [
+        "algae",
+        "animal scat",
+        "carrion",
+        "dead leaves",
+        "fungi",
+        "lichen",
+        "seedlings"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Ariolimax columbianus",
+          url: "https://animaldiversity.org/accounts/Ariolimax_columbianus/"
+        },
+        {
+          name: "NPS Muir Woods \u2014 Banana Slug",
+          url: "https://www.nps.gov/muwo/learn/nature/banana-slug.htm"
+        }
+      ]
     },
     {
       id: "beaver",
@@ -6752,10 +7646,10 @@ var animals_1_default = {
       kind: "mammal",
       rarity: "rare",
       featured: true,
-      diet: "Bark, twigs, and aquatic plants",
-      shelter: "Lodges built of mud and branches",
-      preferredHabitat: "Channels with mud banks and woody food",
-      fact: "Beavers are ecosystem engineers \u2014 their dams create wetlands that support hundreds of other species.",
+      diet: "Bark and cambium of willow and aspen, plus aquatic plants",
+      shelter: "Stick-and-mud lodges with underwater entrances",
+      preferredHabitat: "Slow channels with mud banks and woody plants to fell",
+      fact: "Beaver dams create wetlands that store water and support hundreds of other species.",
       requirements: {
         minHealth: 70,
         objects: {
@@ -6764,7 +7658,24 @@ var animals_1_default = {
           "reed-bed": 1
         },
         hint: "Restored water channels, mud banks, and woody plants."
-      }
+      },
+      scientificName: "Castor canadensis",
+      role: "The wetland's ecosystem engineer. By felling trees and building dams, beavers flood new ponds, raise the water table, and create habitat that most other marsh species depend on.",
+      trophic: "herbivore",
+      eatenBy: [
+        "river-otter"
+      ],
+      eatsOther: [
+        "aquatic plants",
+        "bark",
+        "twigs"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Castor canadensis",
+          url: "https://animaldiversity.org/accounts/Castor_canadensis/"
+        }
+      ]
     },
     {
       id: "river-otter",
@@ -6773,10 +7684,10 @@ var animals_1_default = {
       kind: "mammal",
       rarity: "rare",
       featured: true,
-      diet: "Fish, crayfish, and frogs",
+      diet: "Fish, crayfish, frogs, and other aquatic animals",
       shelter: "Bank dens with underwater entrances",
-      preferredHabitat: "Clean water busy with fish",
-      fact: "River otters slide down mudbanks on their bellies \u2014 sometimes purely, as far as anyone can tell, for fun.",
+      preferredHabitat: "Clean water rich with fish and slow prey",
+      fact: "River otters can hold their breath underwater for up to eight minutes while hunting.",
       requirements: {
         minHealth: 75,
         objects: {
@@ -6788,7 +7699,29 @@ var animals_1_default = {
           "freshwater-fish"
         ],
         hint: "Otters follow the fish. Restore clean water and den banks first."
-      }
+      },
+      scientificName: "Lontra canadensis",
+      role: "An agile aquatic mesopredator that patrols channels for fish and crayfish. Otters keep fish and amphibian numbers in check and are a sign of clean, well-connected water.",
+      trophic: "mesopredator",
+      eats: [
+        "beaver",
+        "chorus-frog",
+        "freshwater-fish",
+        "muskrat",
+        "northern-leopard-frog",
+        "painted-turtle",
+        "spotted-turtle"
+      ],
+      eatsOther: [
+        "crayfish",
+        "fish"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Lontra canadensis",
+          url: "https://animaldiversity.org/accounts/Lontra_canadensis/"
+        }
+      ]
     },
     {
       id: "muskrat",
@@ -6796,9 +7729,9 @@ var animals_1_default = {
       biome: "wetland",
       kind: "mammal",
       rarity: "common",
-      diet: "Cattails, reeds, and roots",
-      shelter: "Dome lodges woven from reeds",
-      preferredHabitat: "Reedy shallows",
+      diet: "Mainly cattails, reeds, and roots; sometimes clams and small fish",
+      shelter: "Dome lodges woven from reeds, and bank burrows",
+      preferredHabitat: "Reedy shallows with abundant cattails",
       fact: "Muskrats can stay underwater for up to 15 minutes on a single breath.",
       requirements: {
         minHealth: 40,
@@ -6808,7 +7741,27 @@ var animals_1_default = {
           "sedge-tussock": 1
         },
         hint: "Reeds to eat and build with, water to swim."
-      }
+      },
+      scientificName: "Ondatra zibethicus",
+      role: "A mostly plant-eating rodent that clips reeds and cattails, opening water lanes used by ducks and other marsh life. It is important prey for mink and otters.",
+      trophic: "herbivore",
+      eats: [
+        "spotted-turtle"
+      ],
+      eatenBy: [
+        "mink",
+        "river-otter"
+      ],
+      eatsOther: [
+        "aquatic plants",
+        "cattail roots"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Ondatra zibethicus",
+          url: "https://animaldiversity.org/accounts/Ondatra_zibethicus/"
+        }
+      ]
     },
     {
       id: "mink",
@@ -6816,10 +7769,10 @@ var animals_1_default = {
       biome: "wetland",
       kind: "mammal",
       rarity: "rare",
-      diet: "Fish, frogs, and small mammals",
-      shelter: "Bank burrows near water",
+      diet: "Fish, frogs, crayfish, and small mammals like muskrats",
+      shelter: "Bank burrows, often taken over from muskrats",
       preferredHabitat: "Brushy banks beside busy water",
-      fact: "Mink are strong swimmers that can dive over 15 feet deep when hunting.",
+      fact: "Mink can swim up to 30 metres underwater when chasing prey.",
       requirements: {
         minHealth: 65,
         objects: {
@@ -6831,7 +7784,34 @@ var animals_1_default = {
           "chorus-frog"
         ],
         hint: "Bank shelter and plenty of small wetland prey."
-      }
+      },
+      scientificName: "Neogale vison",
+      role: "A fierce semi-aquatic hunter that takes fish, frogs, and even muskrats. Mink are versatile mesopredators that help regulate small wetland prey.",
+      trophic: "mesopredator",
+      eats: [
+        "chorus-frog",
+        "freshwater-fish",
+        "hooded-merganser",
+        "mallard-duck",
+        "muskrat",
+        "northern-leopard-frog",
+        "painted-turtle",
+        "red-winged-blackbird"
+      ],
+      eatsOther: [
+        "crayfish",
+        "fish"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - American mink",
+          url: "https://animaldiversity.org/accounts/Neovison_vison/"
+        },
+        {
+          name: "NatureServe Explorer - Neogale vison",
+          url: "https://explorer.natureserve.org/Taxon/ELEMENT_GLOBAL.2.791856/Neogale_vison"
+        }
+      ]
     },
     {
       id: "great-blue-heron",
@@ -6840,10 +7820,10 @@ var animals_1_default = {
       kind: "bird",
       rarity: "uncommon",
       featured: true,
-      diet: "Fish, frogs, and small aquatic animals",
-      shelter: "Quiet, raised nesting platforms",
+      diet: "Fish, frogs, and small aquatic animals; also voles and other birds",
+      shelter: "Colonial stick nests high in trees near water",
       preferredHabitat: "Still shallows for slow, patient hunting",
-      fact: "Herons strike faster than the eye can follow, but may stand motionless for an hour first.",
+      fact: "A great blue heron can strike like lightning to spear a fish or snap up a vole.",
       requirements: {
         minHealth: 60,
         objects: {
@@ -6855,7 +7835,25 @@ var animals_1_default = {
           "freshwater-fish"
         ],
         hint: "Shallow water with fish, reeds, and quiet nesting space."
-      }
+      },
+      scientificName: "Ardea herodias",
+      role: "The tall, patient sentinel of the shallows and a top predator of the wetland's fish community. It stalks slowly, then strikes faster than the eye can follow.",
+      trophic: "apex-predator",
+      eats: [
+        "chorus-frog",
+        "dragonfly",
+        "freshwater-fish",
+        "northern-leopard-frog"
+      ],
+      eatsOther: [
+        "fish"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds - Great Blue Heron",
+          url: "https://www.allaboutbirds.org/guide/Great_Blue_Heron/lifehistory"
+        }
+      ]
     },
     {
       id: "mallard-duck",
@@ -6863,10 +7861,10 @@ var animals_1_default = {
       biome: "wetland",
       kind: "bird",
       rarity: "common",
-      diet: "Seeds, aquatic plants, and insects",
-      shelter: "Reedy water edges",
-      preferredHabitat: "Calm pools with cover",
-      fact: "Mallards can sleep with one eye open, resting one half of their brain at a time.",
+      diet: "Seeds and aquatic plants, plus insect larvae, snails, and worms",
+      shelter: "Ground nests hidden in reedy water edges",
+      preferredHabitat: "Calm pools with reed cover",
+      fact: "Mallards can sleep with one eye open, resting half their brain at a time.",
       requirements: {
         minHealth: 25,
         objects: {
@@ -6874,7 +7872,25 @@ var animals_1_default = {
           "reed-bed": 1
         },
         hint: "Calm shallow water with reed cover."
-      }
+      },
+      scientificName: "Anas platyrhynchos",
+      role: "A dabbling omnivore that tips forward to feed on seeds, plants, and small invertebrates. Its ducklings and eggs feed many marsh predators.",
+      trophic: "omnivore",
+      eatenBy: [
+        "mink",
+        "snapping-turtle"
+      ],
+      eatsOther: [
+        "aquatic plants",
+        "insect larvae",
+        "seeds"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds - Mallard",
+          url: "https://www.allaboutbirds.org/guide/Mallard/lifehistory"
+        }
+      ]
     },
     {
       id: "red-winged-blackbird",
@@ -6882,17 +7898,33 @@ var animals_1_default = {
       biome: "wetland",
       kind: "bird",
       rarity: "common",
-      diet: "Insects and seeds",
-      shelter: "Nests woven into standing reeds",
-      preferredHabitat: "Dense reed beds",
-      fact: "Male red-winged blackbirds may defend territories holding a dozen nests at once.",
+      diet: "Insects in summer, seeds and grain the rest of the year",
+      shelter: "Cup nests woven into standing reeds",
+      preferredHabitat: "Dense reed beds and cattail marsh",
+      fact: "Male red-winged blackbirds can hide or flash their scarlet shoulder patches at will.",
       requirements: {
         minHealth: 25,
         objects: {
           "reed-bed": 2
         },
         hint: "The thicker the reeds, the better."
-      }
+      },
+      scientificName: "Agelaius phoeniceus",
+      role: "An abundant, noisy marsh songbird that eats insects and seeds. Males fiercely defend reed-bed territories that may hold a dozen nests.",
+      trophic: "omnivore",
+      eatenBy: [
+        "mink"
+      ],
+      eatsOther: [
+        "insects",
+        "seeds"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds - Red-winged Blackbird",
+          url: "https://www.allaboutbirds.org/guide/Red-winged_Blackbird/lifehistory"
+        }
+      ]
     },
     {
       id: "sandhill-crane",
@@ -6901,9 +7933,9 @@ var animals_1_default = {
       kind: "bird",
       rarity: "rare",
       diet: "Grains, tubers, insects, and small animals",
-      shelter: "Open marsh with wide sightlines",
+      shelter: "Large ground mounds of marsh plants near standing water",
       preferredHabitat: "Broad, quiet, restored marshland",
-      fact: "Sandhill cranes dance \u2014 leaping, bowing, and tossing grass \u2014 at any age, not just to court.",
+      fact: "Sandhill cranes mate for life and choose partners through leaping, bowing dances.",
       requirements: {
         minHealth: 75,
         minBalance: 45,
@@ -6913,7 +7945,24 @@ var animals_1_default = {
           "sedge-tussock": 1
         },
         hint: "Cranes need a wide, quiet, well-balanced marsh."
-      }
+      },
+      scientificName: "Antigone canadensis",
+      role: "A stately omnivore of open marsh that probes for tubers and grain and snaps up insects and small animals. Its presence signals a wide, healthy wetland.",
+      trophic: "omnivore",
+      eats: [
+        "chorus-frog"
+      ],
+      eatsOther: [
+        "grain",
+        "insects",
+        "tubers"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds - Sandhill Crane",
+          url: "https://www.allaboutbirds.org/guide/Sandhill_Crane/lifehistory"
+        }
+      ]
     },
     {
       id: "painted-turtle",
@@ -6921,10 +7970,10 @@ var animals_1_default = {
       biome: "wetland",
       kind: "reptile",
       rarity: "common",
-      diet: "Aquatic plants, insects, and small fish",
-      shelter: "Muddy pond bottoms; basking logs",
-      preferredHabitat: "Still water with basking spots",
-      fact: "Painted turtles survive frozen winters by breathing through their skin under the ice.",
+      diet: "Aquatic plants, insects, small fish, and carrion",
+      shelter: "Muddy pond bottoms; basks on logs",
+      preferredHabitat: "Still water with basking logs",
+      fact: "Painted turtles overwinter under the ice, taking in oxygen through their skin.",
       requirements: {
         minHealth: 45,
         objects: {
@@ -6933,7 +7982,32 @@ var animals_1_default = {
           "reed-bed": 1
         },
         hint: "Still water and a soft bank to bask on."
-      }
+      },
+      scientificName: "Chrysemys picta",
+      role: "A basking omnivore that grazes plants and hunts insects and small fish, and cleans up carrion. Young are mostly carnivorous, shifting toward plants with age.",
+      trophic: "omnivore",
+      eats: [
+        "freshwater-fish"
+      ],
+      eatenBy: [
+        "mink",
+        "river-otter"
+      ],
+      eatsOther: [
+        "aquatic plants",
+        "detritus",
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Chrysemys picta",
+          url: "https://animaldiversity.org/accounts/Chrysemys_picta/"
+        },
+        {
+          name: "Turtle Guardians - Overwintering Herpetofauna",
+          url: "https://www.turtleguardians.com/2024/05/butt-breathers-and-frogsicles-overwintering-herpetofauna-at-their-northern-range-limit/"
+        }
+      ]
     },
     {
       id: "chorus-frog",
@@ -6942,10 +8016,10 @@ var animals_1_default = {
       kind: "amphibian",
       rarity: "common",
       featured: true,
-      diet: "Small insects",
+      diet: "Small insects and other tiny invertebrates",
       shelter: "Shallow water and wet vegetation",
       preferredHabitat: "Shallow pools ringed with reeds",
-      fact: "A chorus frog's call sounds like a thumb dragged across a comb \u2014 and carries half a mile.",
+      fact: "A chorus frog's comb-like call carries up to half a mile across the marsh.",
       requirements: {
         minHealth: 30,
         objects: {
@@ -6953,7 +8027,32 @@ var animals_1_default = {
           "reed-bed": 1
         },
         hint: "Shallow water, reeds, and insect life."
-      }
+      },
+      scientificName: "Pseudacris triseriata",
+      role: "A tiny insectivore whose spring chorus fills the marsh. It eats small invertebrates and is itself vital prey for herons, mink, and snakes.",
+      trophic: "insectivore",
+      eats: [
+        "damselfly",
+        "dragonfly",
+        "water-strider"
+      ],
+      eatenBy: [
+        "american-bittern",
+        "great-blue-heron",
+        "mink",
+        "river-otter",
+        "sandhill-crane"
+      ],
+      eatsOther: [
+        "insect larvae",
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Pseudacris triseriata",
+          url: "https://animaldiversity.org/accounts/Pseudacris_triseriata/"
+        }
+      ]
     },
     {
       id: "wetland-salamander",
@@ -6961,10 +8060,10 @@ var animals_1_default = {
       biome: "wetland",
       kind: "amphibian",
       rarity: "uncommon",
-      diet: "Worms, insects, and small invertebrates",
-      shelter: "Damp burrows near breeding pools",
+      diet: "Worms, insects, small invertebrates, and even small vertebrates",
+      shelter: "Damp burrows near fishless breeding pools",
       preferredHabitat: "Fishless pools with soft banks",
-      fact: "Tiger salamanders may live 15 years or more, returning to the same breeding pool each spring.",
+      fact: "Tiger salamanders are among the largest land salamanders in North America.",
       requirements: {
         minHealth: 50,
         objects: {
@@ -6973,7 +8072,21 @@ var animals_1_default = {
           "reed-bed": 1
         },
         hint: "Quiet breeding pools with soft digging banks."
-      }
+      },
+      scientificName: "Ambystoma tigrinum",
+      role: "A voracious burrowing carnivore that hunts worms and invertebrates near breeding pools. Larvae grow in fishless water and can even turn cannibal.",
+      trophic: "insectivore",
+      eatsOther: [
+        "insect larvae",
+        "insects",
+        "worms"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Ambystoma tigrinum",
+          url: "https://animaldiversity.org/accounts/Ambystoma_tigrinum/"
+        }
+      ]
     },
     {
       id: "dragonfly",
@@ -6982,10 +8095,10 @@ var animals_1_default = {
       kind: "insect",
       rarity: "common",
       featured: true,
-      diet: "Mosquitoes and flying insects",
-      shelter: "Emergent reed stems",
+      diet: "Flying insects as adults; aquatic larvae eat mosquito larvae and tadpoles",
+      shelter: "Emergent reed stems; larvae live in the water",
       preferredHabitat: "Clean water with reed perches",
-      fact: "Dragonflies catch up to 95% of the prey they chase \u2014 perhaps the most successful hunters on Earth.",
+      fact: "Dragonflies catch up to 95% of the prey they chase, among Earth's best hunters.",
       requirements: {
         minHealth: 35,
         objects: {
@@ -6994,7 +8107,29 @@ var animals_1_default = {
           "sedge-tussock": 1
         },
         hint: "Clean water and reeds for the larvae to climb."
-      }
+      },
+      scientificName: "Anisoptera (Odonata)",
+      role: "A top invertebrate predator both in the air and underwater. Adults hawk flying insects while aquatic nymphs devour mosquito larvae and tiny fish.",
+      trophic: "insectivore",
+      eats: [
+        "damselfly"
+      ],
+      eatenBy: [
+        "chorus-frog",
+        "freshwater-fish",
+        "great-blue-heron",
+        "northern-leopard-frog"
+      ],
+      eatsOther: [
+        "insect larvae",
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Natural History Museum - Dragonflies: The ultimate hunters",
+          url: "https://www.nhm.ac.uk/discover/dragonflies-the-ultimate-hunters.html"
+        }
+      ]
     },
     {
       id: "damselfly",
@@ -7002,10 +8137,10 @@ var animals_1_default = {
       biome: "wetland",
       kind: "insect",
       rarity: "common",
-      diet: "Small flying insects",
-      shelter: "Waterside vegetation",
+      diet: "Small flying insects as adults; larvae eat aquatic invertebrates",
+      shelter: "Waterside vegetation; larvae among submerged plants",
       preferredHabitat: "Calm, clean shallows",
-      fact: "Unlike dragonflies, damselflies fold their wings together over their backs at rest.",
+      fact: "Damselflies fold their wings together over the back at rest, unlike dragonflies.",
       requirements: {
         minHealth: 35,
         objects: {
@@ -7014,7 +8149,26 @@ var animals_1_default = {
           "sedge-tussock": 1
         },
         hint: "Calm, clean water with plants at the edge."
-      }
+      },
+      scientificName: "Zygoptera (Odonata)",
+      role: "A slender aerial insectivore that snatches midges and mosquitoes with its legs. Its aquatic nymphs hunt tiny invertebrates and feed marsh fish and frogs.",
+      trophic: "insectivore",
+      eatenBy: [
+        "chorus-frog",
+        "dragonfly",
+        "freshwater-fish",
+        "northern-leopard-frog"
+      ],
+      eatsOther: [
+        "insect larvae",
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Britannica - Damselfly",
+          url: "https://www.britannica.com/animal/damselfly"
+        }
+      ]
     },
     {
       id: "water-strider",
@@ -7022,17 +8176,39 @@ var animals_1_default = {
       biome: "wetland",
       kind: "insect",
       rarity: "common",
-      diet: "Insects trapped on the water surface",
-      shelter: "Still water surfaces",
+      diet: "Insects and larvae trapped on the water surface; also scavenges",
+      shelter: "Still water surfaces among emergent plants",
       preferredHabitat: "Any calm pool",
-      fact: "Water striders ride the surface tension of water on legs covered in thousands of microscopic hairs.",
+      fact: "Water striders ride the surface on legs coated in thousands of tiny hairs.",
       requirements: {
         minHealth: 12,
         objects: {
           "shallow-water-pool": 1
         },
         hint: "One calm pool is enough."
-      }
+      },
+      scientificName: "Gerridae (Hemiptera)",
+      role: "A surface-skating predator and scavenger that seizes insects trapped in the water film. It is easy prey for fish, frogs, and wading birds.",
+      trophic: "insectivore",
+      eatenBy: [
+        "chorus-frog",
+        "freshwater-fish",
+        "northern-leopard-frog"
+      ],
+      eatsOther: [
+        "detritus",
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Britannica - Water strider",
+          url: "https://www.britannica.com/animal/water-strider"
+        },
+        {
+          name: "National Wildlife Federation - Water Striders",
+          url: "https://www.nwf.org/Educational-Resources/Wildlife-Guide/Invertebrates/Water-Striders"
+        }
+      ]
     },
     {
       id: "freshwater-fish",
@@ -7040,10 +8216,10 @@ var animals_1_default = {
       biome: "wetland",
       kind: "fish",
       rarity: "common",
-      diet: "Algae, plankton, and insect larvae",
+      diet: "Algae, plankton, insect larvae, and small invertebrates",
       shelter: "Deeper pools and reed roots",
       preferredHabitat: "Connected clean pools",
-      fact: "Healthy minnow schools are the foundation that herons, otters, and mink all depend on.",
+      fact: "Minnow schools are the foundation that herons, otters, and mink all depend on.",
       requirements: {
         minHealth: 35,
         objects: {
@@ -7051,7 +8227,44 @@ var animals_1_default = {
           "reed-bed": 1
         },
         hint: "Connected clean pools with reedy cover bring fish back \u2014 and everyone who eats them."
-      }
+      },
+      scientificName: "Leuciscidae",
+      role: "The forage base of the wetland food web. These schooling fish graze algae and plankton and eat insect larvae, then feed nearly every predator in the marsh.",
+      trophic: "omnivore",
+      eats: [
+        "damselfly",
+        "dragonfly",
+        "water-strider"
+      ],
+      eatenBy: [
+        "american-bittern",
+        "belted-kingfisher",
+        "black-bear",
+        "great-blue-heron",
+        "green-heron",
+        "hooded-merganser",
+        "mink",
+        "painted-turtle",
+        "raccoon",
+        "river-otter",
+        "snapping-turtle"
+      ],
+      eatsOther: [
+        "algae",
+        "detritus",
+        "insect larvae",
+        "plankton"
+      ],
+      sources: [
+        {
+          name: "USGS - Minnow (Leuciscidae) trophic dynamics study",
+          url: "https://www.usgs.gov/publications/effects-stream-intermittency-minnow-leuciscidae-and-darter-percidae-trophic-dynamics"
+        },
+        {
+          name: "Encyclopaedia Britannica - Minnow",
+          url: "https://www.britannica.com/animal/minnow"
+        }
+      ]
     }
   ]
 };
@@ -7068,10 +8281,10 @@ var animals_2_default = {
       kind: "mammal",
       rarity: "common",
       featured: true,
-      diet: "Grasses, mesquite, and cactus",
-      shelter: "Brush cover and borrowed burrows",
-      preferredHabitat: "Brushy flats with shade",
-      fact: "Desert cottontails get nearly all their water from the plants they eat.",
+      diet: "Grasses, mesquite, cactus pads, and other desert plants",
+      shelter: "Brush cover and borrowed or natural burrows",
+      preferredHabitat: "Brushy flats with shade and open forage",
+      fact: "Desert cottontails get most of their water from the plants they eat.",
       requirements: {
         minHealth: 25,
         objects: {
@@ -7079,7 +8292,26 @@ var animals_2_default = {
           "burrow-mound": 1
         },
         hint: "Brush for cover and a burrow bank to shelter in."
-      }
+      },
+      scientificName: "Sylvilagus audubonii",
+      role: "A common desert herbivore that grazes grasses and browse. It is a cornerstone prey species, feeding foxes, coyotes, bobcats, and raptors. Its abundance helps support the desert's predators.",
+      trophic: "herbivore",
+      eatenBy: [
+        "coyote",
+        "kit-fox",
+        "rattlesnake"
+      ],
+      eatsOther: [
+        "cactus pads",
+        "grasses",
+        "mesquite"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Sylvilagus audubonii",
+          url: "https://animaldiversity.org/accounts/Sylvilagus_audubonii/"
+        }
+      ]
     },
     {
       id: "kit-fox",
@@ -7088,10 +8320,10 @@ var animals_2_default = {
       kind: "mammal",
       rarity: "rare",
       featured: true,
-      diet: "Kangaroo rats, rabbits, and insects",
-      shelter: "Cool underground dens",
-      preferredHabitat: "A thriving desert full of prey",
-      fact: "Kit foxes rarely drink water at all, surviving almost entirely on moisture from prey.",
+      diet: "Kangaroo rats, rabbits, insects, and occasional fruit",
+      shelter: "Cool underground dens with several entrances",
+      preferredHabitat: "Open desert with abundant small prey",
+      fact: "The smallest wild dog in North America, its huge ears both hear prey and shed heat.",
       requirements: {
         minHealth: 70,
         minBalance: 40,
@@ -7105,7 +8337,32 @@ var animals_2_default = {
           "desert-cottontail"
         ],
         hint: "Kit foxes return when prey is plentiful and dens are ready."
-      }
+      },
+      scientificName: "Vulpes macrotis",
+      role: "A small nocturnal desert canid and mesopredator that hunts rodents and rabbits. It seldom needs to drink, getting moisture from prey. Coyotes are its main threat.",
+      trophic: "mesopredator",
+      eats: [
+        "antelope-squirrel",
+        "desert-cottontail",
+        "desert-iguana",
+        "desert-tortoise",
+        "jackrabbit",
+        "kangaroo-mouse",
+        "kangaroo-rat"
+      ],
+      eatenBy: [
+        "coyote"
+      ],
+      eatsOther: [
+        "cactus fruit",
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Vulpes macrotis",
+          url: "https://animaldiversity.org/accounts/Vulpes_macrotis/"
+        }
+      ]
     },
     {
       id: "coyote",
@@ -7113,10 +8370,10 @@ var animals_2_default = {
       biome: "desert",
       kind: "mammal",
       rarity: "rare",
-      diet: "Rodents, rabbits, fruit, and insects",
+      diet: "Rodents, rabbits, fruit, carrion, and insects",
       shelter: "Brushy washes and rock dens",
       preferredHabitat: "Open desert with prey and cover",
-      fact: "Coyote pairs duet at dusk; two voices echoing can sound like a whole chorus.",
+      fact: "The most vocal wild mammal in North America; a howling pack sounds like many more.",
       requirements: {
         minHealth: 75,
         objects: {
@@ -7128,7 +8385,35 @@ var animals_2_default = {
           "jackrabbit"
         ],
         hint: "Cover, shade, and prey on the move."
-      }
+      },
+      scientificName: "Canis latrans",
+      role: "The desert's most adaptable predator, an omnivore taking rodents, rabbits, fruit, and carrion. It is the top mammalian predator here and the main killer of kit foxes. Its howls carry for miles at dusk.",
+      trophic: "apex-predator",
+      eats: [
+        "antelope-squirrel",
+        "burrowing-owl",
+        "chuckwalla",
+        "desert-cottontail",
+        "desert-tortoise",
+        "gambels-quail",
+        "horned-lizard",
+        "jackrabbit",
+        "kangaroo-rat",
+        "kit-fox",
+        "rattlesnake",
+        "roadrunner"
+      ],
+      eatsOther: [
+        "cactus fruit",
+        "carrion",
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Canis latrans",
+          url: "https://animaldiversity.org/accounts/Canis_latrans/"
+        }
+      ]
     },
     {
       id: "kangaroo-rat",
@@ -7138,9 +8423,9 @@ var animals_2_default = {
       rarity: "common",
       featured: true,
       diet: "Seeds, carefully cached underground",
-      shelter: "Deep burrow systems",
+      shelter: "Deep burrow systems in loose soil",
       preferredHabitat: "Loose soil below seed-bearing brush",
-      fact: "Kangaroo rats never need to drink \u2014 their bodies make water from dry seeds.",
+      fact: "Kangaroo rats never sweat or pant and get by on water made from the dry seeds they eat.",
       requirements: {
         minHealth: 25,
         objects: {
@@ -7148,7 +8433,26 @@ var animals_2_default = {
           "desert-brush": 1
         },
         hint: "Burrow banks and seed plants nearby."
-      }
+      },
+      scientificName: "Dipodomys merriami",
+      role: "A seed-eating rodent and key desert prey species. It caches seeds underground, shaping which plants grow. It feeds nearly every desert predator, from rattlesnakes to owls to foxes.",
+      trophic: "herbivore",
+      eatenBy: [
+        "burrowing-owl",
+        "coyote",
+        "kit-fox",
+        "rattlesnake"
+      ],
+      eatsOther: [
+        "mesquite",
+        "seeds"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Dipodomys merriami",
+          url: "https://animaldiversity.org/accounts/Dipodomys_merriami/"
+        }
+      ]
     },
     {
       id: "jackrabbit",
@@ -7156,17 +8460,34 @@ var animals_2_default = {
       biome: "desert",
       kind: "mammal",
       rarity: "common",
-      diet: "Grasses, cactus, and shrubs",
-      shelter: "Shade forms under brush",
+      diet: "Grasses, cactus, and woody twigs and bark",
+      shelter: "Shade forms scraped under brush",
       preferredHabitat: "Open flats with scattered brush",
-      fact: "A jackrabbit's enormous ears act like radiators, releasing heat to keep it cool.",
+      fact: "A jackrabbit's enormous ears act like radiators, releasing body heat to keep it cool.",
       requirements: {
         minHealth: 30,
         objects: {
           "desert-brush": 2
         },
         hint: "Open running room with brush for shade."
-      }
+      },
+      scientificName: "Lepus californicus",
+      role: "A fast, open-country herbivore that browses grasses, twigs, and cactus. It is major prey for coyotes, bobcats, and large raptors. Its big ears both hear predators and dump heat.",
+      trophic: "herbivore",
+      eatenBy: [
+        "coyote",
+        "kit-fox"
+      ],
+      eatsOther: [
+        "cactus pads",
+        "grasses"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Lepus californicus",
+          url: "https://animaldiversity.org/accounts/Lepus_californicus/"
+        }
+      ]
     },
     {
       id: "roadrunner",
@@ -7175,10 +8496,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "uncommon",
       featured: true,
-      diet: "Lizards, insects, and small snakes",
+      diet: "Lizards, insects, scorpions, and small snakes",
       shelter: "Low nests in brush and cactus",
       preferredHabitat: "Open hunting ground with brushy edges",
-      fact: "Roadrunners can sprint over 20 mph and will even take on rattlesnakes.",
+      fact: "It slams large prey against rocks to break the bones, and will kill and eat rattlesnakes.",
       requirements: {
         minHealth: 50,
         objects: {
@@ -7190,7 +8511,37 @@ var animals_2_default = {
           "horned-lizard"
         ],
         hint: "Open desert, brush, and reptile prey about."
-      }
+      },
+      scientificName: "Geococcyx californianus",
+      role: "A ground-running predatory bird that sprints down lizards, insects, scorpions, and snakes. It is a key mesopredator on small desert reptiles and arthropods. Coyotes and hawks hunt it.",
+      trophic: "mesopredator",
+      eats: [
+        "banded-gecko",
+        "cactus-wren",
+        "collared-lizard",
+        "gambels-quail",
+        "horned-lizard",
+        "rattlesnake",
+        "scorpion",
+        "tarantula"
+      ],
+      eatenBy: [
+        "coyote"
+      ],
+      eatsOther: [
+        "cactus fruit",
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Greater Roadrunner",
+          url: "https://www.allaboutbirds.org/guide/Greater_Roadrunner/lifehistory"
+        },
+        {
+          name: "Audubon \u2014 Greater Roadrunner",
+          url: "https://www.audubon.org/field-guide/bird/greater-roadrunner"
+        }
+      ]
     },
     {
       id: "burrowing-owl",
@@ -7200,9 +8551,9 @@ var animals_2_default = {
       rarity: "uncommon",
       featured: true,
       diet: "Insects and small rodents",
-      shelter: "Underground burrows, often borrowed",
+      shelter: "Underground burrows dug by other animals",
       preferredHabitat: "Burrow mounds with open hunting space",
-      fact: "Burrowing owls imitate a rattlesnake's rattle to scare intruders away from their burrows.",
+      fact: "It hisses a raspy call that mimics a rattlesnake to scare intruders out of its burrow.",
       requirements: {
         minHealth: 55,
         objects: {
@@ -7210,7 +8561,31 @@ var animals_2_default = {
           "desert-brush": 1
         },
         hint: "Ready-made burrows and open ground to hunt over."
-      }
+      },
+      scientificName: "Athene cunicularia",
+      role: "A small ground-dwelling owl that nests in borrowed burrows and hunts insects by day and rodents at night. It is both an insectivore and a mesopredator on small mammals. Badgers and coyotes prey on it.",
+      trophic: "insectivore",
+      eats: [
+        "kangaroo-mouse",
+        "kangaroo-rat",
+        "scorpion"
+      ],
+      eatenBy: [
+        "coyote"
+      ],
+      eatsOther: [
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Burrowing Owl",
+          url: "https://www.allaboutbirds.org/guide/Burrowing_Owl/lifehistory"
+        },
+        {
+          name: "Audubon \u2014 Burrowing Owl",
+          url: "https://www.audubon.org/field-guide/bird/burrowing-owl"
+        }
+      ]
     },
     {
       id: "gambels-quail",
@@ -7221,7 +8596,7 @@ var animals_2_default = {
       diet: "Seeds, leaves, and cactus fruit",
       shelter: "Dense brush thickets",
       preferredHabitat: "Brushy cover with seed plants",
-      fact: "Quail coveys post a lookout on a high branch while the rest of the family feeds.",
+      fact: "A male sentinel calls from a perch while the rest of the covey feeds below.",
       requirements: {
         minHealth: 40,
         objects: {
@@ -7230,7 +8605,29 @@ var animals_2_default = {
           "rock-pile": 1
         },
         hint: "Thick brush to hide a whole covey."
-      }
+      },
+      scientificName: "Callipepla gambelii",
+      role: "A social, ground-feeding quail that eats seeds, greens, and cactus fruit. It is important prey for coyotes, bobcats, and desert hawks. Coveys post a lookout while the flock forages.",
+      trophic: "herbivore",
+      eatenBy: [
+        "coyote",
+        "roadrunner"
+      ],
+      eatsOther: [
+        "cactus fruit",
+        "insects",
+        "seeds"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Gambel's Quail",
+          url: "https://www.allaboutbirds.org/guide/Gambels_Quail/lifehistory"
+        },
+        {
+          name: "Audubon \u2014 Gambel's Quail",
+          url: "https://www.audubon.org/field-guide/bird/gambels-quail"
+        }
+      ]
     },
     {
       id: "desert-tortoise",
@@ -7241,7 +8638,7 @@ var animals_2_default = {
       diet: "Grasses, wildflowers, and cactus pads",
       shelter: "Long, cool burrows",
       preferredHabitat: "Native plants with shade and burrow ground",
-      fact: "Desert tortoises can live 80 years, spending 95% of that time underground.",
+      fact: "Desert tortoises can live 80 years and spend up to 98% of their lives in burrows.",
       requirements: {
         minHealth: 65,
         objects: {
@@ -7250,7 +8647,25 @@ var animals_2_default = {
           "shaded-rock-shelter": 1
         },
         hint: "Shade, native plants, and burrow habitat."
-      }
+      },
+      scientificName: "Gopherus agassizii",
+      role: "A long-lived herbivore and ecosystem engineer. Its burrows, which can exceed 10 metres, shelter snakes, lizards, rodents, and insects. Adults are nearly predator-free, but eggs and young are widely eaten.",
+      trophic: "herbivore",
+      eatenBy: [
+        "coyote",
+        "kit-fox"
+      ],
+      eatsOther: [
+        "cactus pads",
+        "grasses",
+        "wildflowers"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Gopherus agassizii",
+          url: "https://animaldiversity.org/accounts/Gopherus_agassizii/"
+        }
+      ]
     },
     {
       id: "horned-lizard",
@@ -7258,10 +8673,10 @@ var animals_2_default = {
       biome: "desert",
       kind: "reptile",
       rarity: "common",
-      diet: "Ants, almost exclusively",
+      diet: "Mostly ants, plus other small insects",
       shelter: "Loose sand and rock edges",
       preferredHabitat: "Sunny open ground near ant trails",
-      fact: "Horned lizards can squirt blood from their eyes to startle predators.",
+      fact: "Texas horned lizards can squirt a jet of blood from their eyes to startle predators.",
       requirements: {
         minHealth: 16,
         objects: {
@@ -7269,7 +8684,27 @@ var animals_2_default = {
           "rock-crevice": 1
         },
         hint: "Sunny rocks and sandy ground bring the ants \u2014 and the lizards."
-      }
+      },
+      scientificName: "Phrynosoma cornutum",
+      role: "A specialist insectivore that feeds mainly on harvester ants, with a large stomach to process them. It is prey for roadrunners, hawks, shrikes, and snakes. Its blood-squirting defense targets canid predators.",
+      trophic: "insectivore",
+      eatenBy: [
+        "coyote",
+        "roadrunner"
+      ],
+      eatsOther: [
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Sherbrooke & Middendorf 2001, Copeia \u2014 blood squirting (PDF)",
+          url: "http://yubawatershedinstitute.org/wp-content/uploads/2015/04/Blood-squirting.pdf"
+        },
+        {
+          name: "Wikipedia \u2014 Texas horned lizard",
+          url: "https://en.wikipedia.org/wiki/Texas_horned_lizard"
+        }
+      ]
     },
     {
       id: "collared-lizard",
@@ -7280,7 +8715,7 @@ var animals_2_default = {
       diet: "Insects and smaller lizards",
       shelter: "Rock piles and ledges",
       preferredHabitat: "Boulder fields with lookout rocks",
-      fact: "Collared lizards sprint on their hind legs like tiny dinosaurs.",
+      fact: "Collared lizards sprint on their hind legs like tiny dinosaurs, tail streaming behind.",
       requirements: {
         minHealth: 45,
         objects: {
@@ -7288,7 +8723,26 @@ var animals_2_default = {
           "desert-brush": 1
         },
         hint: "Plenty of warm rock to perch and hunt from."
-      }
+      },
+      scientificName: "Crotaphytus collaris",
+      role: "An active, sit-and-wait predator of insects and smaller lizards among the rocks. It is a mesopredator on desert arthropods and hatchling reptiles. Hawks, snakes, and roadrunners prey on it.",
+      trophic: "insectivore",
+      eats: [
+        "banded-gecko"
+      ],
+      eatenBy: [
+        "rattlesnake",
+        "roadrunner"
+      ],
+      eatsOther: [
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Crotaphytus collaris",
+          url: "https://animaldiversity.org/accounts/Crotaphytus_collaris/"
+        }
+      ]
     },
     {
       id: "rattlesnake",
@@ -7299,7 +8753,7 @@ var animals_2_default = {
       diet: "Rodents and small mammals",
       shelter: "Rock crevices and burrows",
       preferredHabitat: "Rocky shelter near busy rodent trails",
-      fact: "A rattlesnake adds a new rattle segment each time it sheds \u2014 but segments break, so you can't count age.",
+      fact: "It adds a rattle segment at each shed, but segments break, so you can't count its age.",
       requirements: {
         minHealth: 60,
         objects: {
@@ -7311,7 +8765,32 @@ var animals_2_default = {
           "kangaroo-rat"
         ],
         hint: "Rocky shelter and rodents to hunt."
-      }
+      },
+      scientificName: "Crotalus atrox",
+      role: "A venomous ambush predator and key control on desert rodent populations. It swallows prey whole and eats only every few weeks. Roadrunners, hawks, and coyotes are among its predators.",
+      trophic: "mesopredator",
+      eats: [
+        "antelope-squirrel",
+        "banded-gecko",
+        "cactus-wren",
+        "chuckwalla",
+        "collared-lizard",
+        "desert-cottontail",
+        "desert-iguana",
+        "gila-woodpecker",
+        "kangaroo-mouse",
+        "kangaroo-rat"
+      ],
+      eatenBy: [
+        "coyote",
+        "roadrunner"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Crotalus atrox",
+          url: "https://animaldiversity.org/accounts/Crotalus_atrox/"
+        }
+      ]
     },
     {
       id: "tarantula",
@@ -7322,7 +8801,7 @@ var animals_2_default = {
       diet: "Insects and other small invertebrates",
       shelter: "Silk-lined ground burrows",
       preferredHabitat: "Undisturbed ground with burrow banks",
-      fact: "Desert tarantulas may live 25 years, most of it within a few feet of one burrow.",
+      fact: "A desert tarantula may live 25 years, most of it within a few feet of one burrow.",
       requirements: {
         minHealth: 45,
         objects: {
@@ -7330,7 +8809,25 @@ var animals_2_default = {
           "desert-brush": 1
         },
         hint: "Quiet, diggable ground."
-      }
+      },
+      scientificName: "Aphonopelma chalcodes",
+      role: "A long-lived, nocturnal ambush predator of insects and other invertebrates from its burrow. It is a mesopredator on desert arthropods. Birds, snakes, and the tarantula hawk wasp prey on it.",
+      trophic: "insectivore",
+      eats: [
+        "scorpion"
+      ],
+      eatenBy: [
+        "roadrunner"
+      ],
+      eatsOther: [
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Aphonopelma chalcodes",
+          url: "https://animaldiversity.org/accounts/Aphonopelma_chalcodes/"
+        }
+      ]
     },
     {
       id: "scorpion",
@@ -7338,17 +8835,36 @@ var animals_2_default = {
       biome: "desert",
       kind: "invertebrate",
       rarity: "common",
-      diet: "Insects and spiders",
-      shelter: "Under rocks and bark",
+      diet: "Insects, spiders, and other small invertebrates",
+      shelter: "Burrows and cover under rocks and bark",
       preferredHabitat: "Rocky cover with night hunting ground",
-      fact: "Scorpions glow blue-green under ultraviolet light \u2014 no one is entirely sure why.",
+      fact: "Scorpions glow blue-green under ultraviolet light, and no one is entirely sure why.",
       requirements: {
         minHealth: 12,
         objects: {
           "rock-pile": 1
         },
         hint: "Rocks to hide beneath by day."
-      }
+      },
+      scientificName: "Hadrurus arizonensis",
+      role: "The largest scorpion in North America, a nocturnal ambush predator of insects, spiders, and even other scorpions. It is a mesopredator on desert arthropods and small prey. Owls, lizards, and roadrunners hunt it.",
+      trophic: "insectivore",
+      eatenBy: [
+        "banded-gecko",
+        "burrowing-owl",
+        "elf-owl",
+        "roadrunner",
+        "tarantula"
+      ],
+      eatsOther: [
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Hadrurus arizonensis",
+          url: "https://animaldiversity.org/accounts/Hadrurus_arizonensis/"
+        }
+      ]
     },
     {
       id: "desert-bee",
@@ -7357,16 +8873,33 @@ var animals_2_default = {
       kind: "insect",
       rarity: "common",
       diet: "Cactus flower nectar and pollen",
-      shelter: "Tiny ground nests",
+      shelter: "Tiny solitary ground nests",
       preferredHabitat: "Blooming cactus and brush",
-      fact: "Most desert bees are solitary \u2014 a single mother bee digs and stocks her own tiny nest.",
+      fact: "Solitary cactus bees nest alone but gather by the thousands in shared ground colonies.",
       requirements: {
         minHealth: 20,
         objects: {
           "cactus-patch": 1
         },
         hint: "Cactus blooms are the desert's flower patch."
-      }
+      },
+      scientificName: "Diadasia rinconis",
+      role: "A solitary native bee and key pollinator of desert cacti such as prickly pear and cholla. As a herbivore on nectar and pollen, it sustains cactus reproduction. Lizards, birds, and spiders prey on it.",
+      trophic: "herbivore",
+      eatenBy: [
+        "banded-gecko",
+        "cactus-wren"
+      ],
+      eatsOther: [
+        "cactus flower nectar",
+        "pollen"
+      ],
+      sources: [
+        {
+          name: "Arizona-Sonora Desert Museum \u2014 Bees",
+          url: "https://www.desertmuseum.org/books/nhsd_bees.php"
+        }
+      ]
     },
     {
       id: "mountain-goat",
@@ -7375,10 +8908,10 @@ var animals_2_default = {
       kind: "mammal",
       rarity: "rare",
       featured: true,
-      diet: "Alpine grasses, sedges, and lichens",
-      shelter: "Cliff ledges and rocky terrain",
-      preferredHabitat: "Steep rock above flowering turf",
-      fact: "Mountain goats' cloven hooves have rubbery pads that grip rock like climbing shoes.",
+      diet: "Alpine grasses, sedges, forbs, woody browse, mosses, and lichens",
+      shelter: "Shallow bedding depressions pawed into cliff ledges and rocky terrain",
+      preferredHabitat: "Steep alpine and subalpine cliffs with escape terrain above turf",
+      fact: "Both sexes grow permanent black horns; you can count the annual rings to age one.",
       requirements: {
         minHealth: 70,
         objects: {
@@ -7387,7 +8920,26 @@ var animals_2_default = {
           "heather-mat": 1
         },
         hint: "Rocky terrain and restored alpine vegetation."
-      }
+      },
+      scientificName: "Oreamnos americanus",
+      role: "A sure-footed alpine grazer of the highest cliffs, browsing grasses, forbs, and lichens across the rock. Its rubbery-padded hooves grip terrain few predators can follow. Kids and adults are still taken by cougars, and eagles snatch newborns from ledges.",
+      trophic: "herbivore",
+      eatenBy: [
+        "golden-eagle"
+      ],
+      eatsOther: [
+        "alpine plants",
+        "grasses",
+        "lichen",
+        "moss",
+        "sedges"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Oreamnos americanus",
+          url: "https://animaldiversity.org/accounts/Oreamnos_americanus/"
+        }
+      ]
     },
     {
       id: "bighorn-sheep",
@@ -7395,10 +8947,10 @@ var animals_2_default = {
       biome: "alpine",
       kind: "mammal",
       rarity: "rare",
-      diet: "Grasses and alpine browse",
-      shelter: "Rocky slopes with escape routes",
-      preferredHabitat: "Open slopes near cliff safety",
-      fact: "A bighorn ram's curled horns can weigh more than all the bones in its body combined.",
+      diet: "Chiefly grasses and sedges, with forbs and woody browse in winter",
+      shelter: "Beds on rocky ledges and rugged escape terrain near cliffs",
+      preferredHabitat: "Open grassy mountain slopes beside rugged, rocky cliffs",
+      fact: "Bighorns flee across rocky ledges barely a few inches wide to escape predators.",
       requirements: {
         minHealth: 75,
         objects: {
@@ -7407,7 +8959,28 @@ var animals_2_default = {
           "alpine-wildflower-patch": 1
         },
         hint: "Grassy slopes with rocky escape ground."
-      }
+      },
+      scientificName: "Ovis canadensis",
+      role: "A cliff-edge grazer that crops grasses and forbs on open slopes, never far from rugged escape terrain. Rams clash horns in booming rutting contests each fall. Lambs and adults are hunted by cougars, and eagles may take the very young.",
+      trophic: "herbivore",
+      eatenBy: [
+        "golden-eagle"
+      ],
+      eatsOther: [
+        "alpine plants",
+        "grasses",
+        "sedges"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Ovis canadensis",
+          url: "https://animaldiversity.org/accounts/Ovis_canadensis/"
+        },
+        {
+          name: "National Wildlife Federation - Bighorn Sheep",
+          url: "https://www.nwf.org/Educational-Resources/Wildlife-Guide/Mammals/bighorn-sheep"
+        }
+      ]
     },
     {
       id: "pika",
@@ -7416,10 +8989,10 @@ var animals_2_default = {
       kind: "mammal",
       rarity: "common",
       featured: true,
-      diet: "Grasses and wildflowers, dried into haypiles",
-      shelter: "Cool gaps deep in talus rock",
-      preferredHabitat: "Rock piles beside flower meadows",
-      fact: "Pikas spend all summer harvesting and sun-drying little haystacks to eat under the winter snow.",
+      diet: "Grasses, forbs, and wildflowers, gathered and dried into winter haypiles",
+      shelter: "Cool gaps deep within talus and broken rock",
+      preferredHabitat: "Talus slopes and rock piles bordering alpine flower meadows",
+      fact: "Pikas cut and sun-dry little haystacks of plants to eat beneath the winter snow.",
       requirements: {
         minHealth: 14,
         objects: {
@@ -7427,7 +9000,28 @@ var animals_2_default = {
           "rock-pile": 1
         },
         hint: "Cool rock piles and flowers to harvest."
-      }
+      },
+      scientificName: "Ochotona princeps",
+      role: "A tiny talus-dwelling relative of rabbits and the engine of the alpine food web. It spends summer harvesting haypiles of forbs and grasses to survive under snow. Pikas are hunted by weasels, martens, foxes, and eagles alike.",
+      trophic: "herbivore",
+      eatenBy: [
+        "ermine",
+        "fox-alpine",
+        "golden-eagle",
+        "pine-marten"
+      ],
+      eatsOther: [
+        "alpine plants",
+        "grasses",
+        "lichen",
+        "wildflowers"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Ochotona princeps",
+          url: "https://animaldiversity.org/accounts/Ochotona_princeps/"
+        }
+      ]
     },
     {
       id: "marmot",
@@ -7436,10 +9030,10 @@ var animals_2_default = {
       kind: "mammal",
       rarity: "common",
       featured: true,
-      diet: "Grasses, flowers, and seeds",
-      shelter: "Deep burrows under boulders",
-      preferredHabitat: "Open meadow patches with burrows",
-      fact: "Marmots hibernate up to eight months a year \u2014 more than half their lives are spent asleep.",
+      diet: "Grasses, flowering plants, and seeds in late summer",
+      shelter: "Deep burrow systems dug beneath boulders",
+      preferredHabitat: "Open meadow patches with boulders and burrow ground",
+      fact: "Predation causes about 98% of yellow-bellied marmots' summer deaths.",
       requirements: {
         minHealth: 35,
         objects: {
@@ -7447,7 +9041,26 @@ var animals_2_default = {
           "alpine-wildflower-patch": 1
         },
         hint: "Burrows, meadow patches, and open space."
-      }
+      },
+      scientificName: "Marmota flaviventris",
+      role: "A stout, sun-loving rodent that grazes meadow plants and fattens on seeds before an eight-month hibernation. Colonies whistle alarm calls from boulder lookouts. They are prime prey for golden eagles, coyotes, and foxes.",
+      trophic: "herbivore",
+      eatenBy: [
+        "fox-alpine",
+        "golden-eagle"
+      ],
+      eatsOther: [
+        "alpine plants",
+        "grasses",
+        "seeds",
+        "wildflowers"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Marmota flaviventris",
+          url: "https://animaldiversity.org/accounts/Marmota_flaviventris/"
+        }
+      ]
     },
     {
       id: "snowshoe-hare",
@@ -7455,10 +9068,10 @@ var animals_2_default = {
       biome: "alpine",
       kind: "mammal",
       rarity: "uncommon",
-      diet: "Grasses, buds, and bark",
-      shelter: "Dense low cover",
-      preferredHabitat: "Brushy patches near open turf",
-      fact: "Snowshoe hares change coat color with the seasons \u2014 brown in summer, white in winter.",
+      diet: "Green plants in summer; buds, twigs, bark, and conifer needles in winter",
+      shelter: "Shallow forms under dense shrubs and conifer cover",
+      preferredHabitat: "Brushy thickets and dense understory near open turf",
+      fact: "Its molt from brown to winter white is triggered by day length, not snow.",
       requirements: {
         minHealth: 40,
         objects: {
@@ -7466,7 +9079,30 @@ var animals_2_default = {
           "rock-pile": 1
         },
         hint: "Cover and forage at the treeline."
-      }
+      },
+      scientificName: "Lepus americanus",
+      role: "A browsing hare of brushy treeline cover whose coat flips brown-to-white with the seasons. Its numbers cycle roughly every ten years, driving predator populations. Martens, foxes, eagles, and owls all hunt it.",
+      trophic: "herbivore",
+      eatenBy: [
+        "golden-eagle",
+        "pine-marten"
+      ],
+      eatsOther: [
+        "alpine plants",
+        "bark",
+        "buds",
+        "grasses"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Lepus americanus",
+          url: "https://animaldiversity.org/accounts/Lepus_americanus/"
+        },
+        {
+          name: "USFS Fire Effects Information System - Lepus americanus",
+          url: "https://research.fs.usda.gov/feis/species-reviews/leam"
+        }
+      ]
     },
     {
       id: "elk-alpine",
@@ -7474,10 +9110,10 @@ var animals_2_default = {
       biome: "alpine",
       kind: "mammal",
       rarity: "rare",
-      diet: "Alpine grasses and forbs",
-      shelter: "High meadows in summer",
-      preferredHabitat: "Restored high meadows with water",
-      fact: "Elk migrate up and down mountains with the seasons, following the 'green wave' of new growth.",
+      diet: "Grasses, sedges, and forbs in summer; browse, bark, and lichens in winter",
+      shelter: "Beds in timber edges and shaded cover beside meadows",
+      preferredHabitat: "High summer meadows near forest cover and snowmelt water",
+      fact: "Elk chase the 'green wave' of new growth up the mountains each summer.",
       requirements: {
         minHealth: 70,
         objects: {
@@ -7486,7 +9122,26 @@ var animals_2_default = {
           "rock-pile": 1
         },
         hint: "High meadow forage and snowmelt water."
-      }
+      },
+      scientificName: "Cervus canadensis",
+      role: "A large migratory grazer that summers in high meadows, following fresh growth uphill and bugling through the autumn rut. Bulls regrow massive antlers yearly. Cougars take adults, while eagles and coyotes may take newborn calves.",
+      trophic: "herbivore",
+      eatsOther: [
+        "alpine plants",
+        "bark",
+        "grasses",
+        "sedges"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Cervus",
+          url: "https://animaldiversity.org/accounts/Cervus_elaphus/"
+        },
+        {
+          name: "WDFW - Elk (Cervus canadensis)",
+          url: "https://wdfw.wa.gov/species-habitats/species/cervus-canadensis"
+        }
+      ]
     },
     {
       id: "mule-deer-alpine",
@@ -7494,10 +9149,10 @@ var animals_2_default = {
       biome: "alpine",
       kind: "mammal",
       rarity: "uncommon",
-      diet: "Alpine browse and forbs",
-      shelter: "Krummholz thickets",
-      preferredHabitat: "High meadows in summer",
-      fact: "Mule deer summer high in the mountains and walk the same routes back down each fall.",
+      diet: "A selective browser of shrubs, forbs, buds, fruits, and lichens",
+      shelter: "Beds in shaded thickets and krummholz cover",
+      preferredHabitat: "High summer meadows and shrublands with clean water",
+      fact: "Mule deer clear obstacles with a bounding, four-footed gait called stotting.",
       requirements: {
         minHealth: 55,
         objects: {
@@ -7506,7 +9161,29 @@ var animals_2_default = {
           "snowmelt-pool": 1
         },
         hint: "Forage and clean water up high."
-      }
+      },
+      scientificName: "Odocoileus hemionus",
+      role: "A selective high-country browser that summers in alpine meadows and shrublands before migrating down each fall. It picks the most digestible forbs, buds, and browse. Cougars are its main predator; fawns are also taken by eagles and coyotes.",
+      trophic: "herbivore",
+      eatenBy: [
+        "golden-eagle"
+      ],
+      eatsOther: [
+        "alpine plants",
+        "buds",
+        "lichen",
+        "shrubs"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Odocoileus hemionus",
+          url: "https://animaldiversity.org/accounts/Odocoileus_hemionus/"
+        },
+        {
+          name: "CDFW - Mule Deer Natural History",
+          url: "https://wildlife.ca.gov/Regions/6/Mule-Deer/Natural-History"
+        }
+      ]
     },
     {
       id: "fox-alpine",
@@ -7514,10 +9191,10 @@ var animals_2_default = {
       biome: "alpine",
       kind: "mammal",
       rarity: "rare",
-      diet: "Voles, pikas, and ground birds",
-      shelter: "Rock dens",
-      preferredHabitat: "High country with small prey",
-      fact: "Mountain foxes listen for animals moving beneath deep snow, then dive in headfirst.",
+      diet: "Voles, pikas, hares, ground birds and eggs, insects, and berries",
+      shelter: "Earthen dens, often burrows co-opted from other animals",
+      preferredHabitat: "High country with rocky cover and abundant small prey",
+      fact: "Red foxes often move into burrows dug by rabbits or marmots instead of digging.",
       requirements: {
         minHealth: 65,
         objects: {
@@ -7529,7 +9206,42 @@ var animals_2_default = {
           "marmot"
         ],
         hint: "Foxes follow the pikas and marmots."
-      }
+      },
+      scientificName: "Vulpes vulpes",
+      role: "An adaptable mountain mesopredator that hunts pikas, marmots, and ground birds and rounds out its diet with insects and berries. It listens for prey moving beneath the snow, then dives in headfirst. Golden eagles are its main threat here.",
+      trophic: "mesopredator",
+      eats: [
+        "alpine-chipmunk",
+        "american-pipit",
+        "boreal-toad",
+        "cascades-frog",
+        "ermine",
+        "marmot",
+        "mountain-chickadee",
+        "pika",
+        "pine-grosbeak",
+        "ptarmigan",
+        "white-crowned-sparrow"
+      ],
+      eatenBy: [
+        "golden-eagle"
+      ],
+      eatsOther: [
+        "berries",
+        "insects",
+        "seeds",
+        "voles"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Vulpes vulpes",
+          url: "https://animaldiversity.org/accounts/Vulpes_vulpes/"
+        },
+        {
+          name: "USFWS - Sierra Nevada Red Fox",
+          url: "https://www.fws.gov/species/sierra-nevada-red-fox-vulpes-vulpes-necator"
+        }
+      ]
     },
     {
       id: "pine-marten",
@@ -7537,10 +9249,10 @@ var animals_2_default = {
       biome: "alpine",
       kind: "mammal",
       rarity: "rare",
-      diet: "Voles, squirrels, and berries",
-      shelter: "Rock crevices and snags",
-      preferredHabitat: "Treeline edges with rocky cover",
-      fact: "Pine martens hunt beneath the snowpack in winter, using tunnels no one else can reach.",
+      diet: "Voles, red squirrels, pikas, hares, birds, eggs, insects, and berries",
+      shelter: "Dens in tree cavities, hollow logs, stumps, and rock crevices",
+      preferredHabitat: "Structurally complex treeline forest with rocky cover",
+      fact: "Pine martens hunt beneath the winter snowpack through tunnels others can't reach.",
       requirements: {
         minHealth: 70,
         objects: {
@@ -7551,7 +9263,39 @@ var animals_2_default = {
           "snowshoe-hare"
         ],
         hint: "Rocky cover and prey near the treeline."
-      }
+      },
+      scientificName: "Martes americana",
+      role: "An agile treeline weasel that hunts voles, squirrels, pikas, and young hares, adding berries and insects in season. It ranges over complex forest and rock, even beneath the snowpack. Great horned owls, eagles, and larger carnivores prey on it.",
+      trophic: "mesopredator",
+      eats: [
+        "alpine-chipmunk",
+        "ermine",
+        "mountain-chickadee",
+        "pika",
+        "pine-grosbeak",
+        "ptarmigan",
+        "snowshoe-hare",
+        "white-crowned-sparrow"
+      ],
+      eatenBy: [
+        "golden-eagle"
+      ],
+      eatsOther: [
+        "berries",
+        "insects",
+        "squirrels",
+        "voles"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Martes americana",
+          url: "https://animaldiversity.org/accounts/Martes_americana/"
+        },
+        {
+          name: "Alaska Dept. of Fish & Game - American Marten",
+          url: "https://www.adfg.alaska.gov/index.cfm?adfg=americanmarten.main"
+        }
+      ]
     },
     {
       id: "ptarmigan",
@@ -7560,10 +9304,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "uncommon",
       featured: true,
-      diet: "Buds, seeds, and alpine plants",
-      shelter: "Camouflaged ground nests",
-      preferredHabitat: "Low shrubs and safe nesting cover",
-      fact: "Ptarmigan grow feathered snowshoes on their feet each winter.",
+      diet: "Buds, twigs, leaves, seeds, and flowers; willow is the sole winter food",
+      shelter: "Camouflaged ground scrapes among lichen-covered alpine rocks",
+      preferredHabitat: "Alpine tundra above treeline year-round, wintering in willow basins",
+      fact: "It is the only North American bird living entirely above treeline all year.",
       requirements: {
         minHealth: 55,
         objects: {
@@ -7573,7 +9317,32 @@ var animals_2_default = {
           "frostflower-planter": 1
         },
         hint: "Alpine shrubs and quiet nesting cover, with hardy frostflowers in bloom."
-      }
+      },
+      scientificName: "Lagopus leucura",
+      role: "A superbly camouflaged alpine grouse that grazes buds, leaves, and seeds, surviving winter almost entirely on willow. It grows feathered 'snowshoes' on its feet each winter. Eagles, foxes, weasels, and martens all hunt it and its chicks.",
+      trophic: "herbivore",
+      eatenBy: [
+        "ermine",
+        "fox-alpine",
+        "golden-eagle",
+        "pine-marten"
+      ],
+      eatsOther: [
+        "alpine plants",
+        "buds",
+        "insects",
+        "seeds"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds - White-tailed Ptarmigan",
+          url: "https://www.allaboutbirds.org/guide/White-tailed_Ptarmigan/lifehistory"
+        },
+        {
+          name: "Animal Diversity Web - Lagopus leucura",
+          url: "https://animaldiversity.org/accounts/Lagopus_leucura/"
+        }
+      ]
     },
     {
       id: "clarks-nutcracker",
@@ -7581,10 +9350,10 @@ var animals_2_default = {
       biome: "alpine",
       kind: "bird",
       rarity: "uncommon",
-      diet: "Pine seeds, cached by the thousand",
-      shelter: "High conifers",
-      preferredHabitat: "Treeline with seed sources",
-      fact: "A Clark's nutcracker can remember thousands of seed cache locations months later, even under snow.",
+      diet: "Pine seeds cached by the thousand, plus insects and small animals",
+      shelter: "Cup nest in conifer branches, sited near winter seed caches",
+      preferredHabitat: "High conifer forest and treeline near pine-seed sources",
+      fact: "It can relocate thousands of buried seed caches months later, even under snow.",
       requirements: {
         minHealth: 50,
         objects: {
@@ -7593,7 +9362,25 @@ var animals_2_default = {
           "heather-mat": 1
         },
         hint: "A recovering treeline with seeds to cache."
-      }
+      },
+      scientificName: "Nucifraga columbiana",
+      role: "A mountain corvid that harvests and buries thousands of pine seeds, replanting the very forests it depends on. Its cached hoard lets it breed in deep winter. It also takes insects and small vertebrates when available.",
+      trophic: "omnivore",
+      eatsOther: [
+        "insects",
+        "pine seeds",
+        "seeds"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds - Clark's Nutcracker",
+          url: "https://www.allaboutbirds.org/guide/Clarks_Nutcracker/lifehistory"
+        },
+        {
+          name: "Animal Diversity Web - Nucifraga columbiana",
+          url: "https://animaldiversity.org/accounts/Nucifraga_columbiana/"
+        }
+      ]
     },
     {
       id: "golden-eagle",
@@ -7601,10 +9388,10 @@ var animals_2_default = {
       biome: "alpine",
       kind: "bird",
       rarity: "rare",
-      diet: "Marmots, hares, and ptarmigan",
-      shelter: "Cliff eyries",
-      preferredHabitat: "High, healthy country with abundant prey",
-      fact: "Golden eagles can spot a hare from more than a mile away and dive at over 150 mph.",
+      diet: "Marmots, hares, ground squirrels, ptarmigan and other birds, plus carrion",
+      shelter: "Huge stick eyries on cliffs and steep escarpments",
+      preferredHabitat: "Open, high country with cliffs and abundant medium prey",
+      fact: "Golden eagles sometimes line their nests with aromatic leaves, perhaps to deter insects.",
       requirements: {
         minHealth: 75,
         minBalance: 45,
@@ -7617,7 +9404,38 @@ var animals_2_default = {
           "snowshoe-hare"
         ],
         hint: "Eagles arrive last \u2014 when the high country is truly alive again."
-      }
+      },
+      scientificName: "Aquila chrysaetos",
+      role: "The apex hunter of the high country, taking marmots, hares, and ptarmigan and even smaller carnivores in powerful stoops. It arrives only when the mountain teems with prey. Adults have essentially no predators.",
+      trophic: "apex-predator",
+      eats: [
+        "alpine-chipmunk",
+        "bighorn-sheep",
+        "ermine",
+        "fox-alpine",
+        "marmot",
+        "mountain-goat",
+        "mule-deer-alpine",
+        "pika",
+        "pine-grosbeak",
+        "pine-marten",
+        "ptarmigan",
+        "snowshoe-hare"
+      ],
+      eatsOther: [
+        "carrion",
+        "ground squirrels"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds - Golden Eagle",
+          url: "https://www.allaboutbirds.org/guide/Golden_Eagle/lifehistory"
+        },
+        {
+          name: "Birds of the World - Golden Eagle Food Habits",
+          url: "https://birdsoftheworld.org/bow/species/goleag/cur/foodhabits"
+        }
+      ]
     },
     {
       id: "alpine-butterfly",
@@ -7625,17 +9443,34 @@ var animals_2_default = {
       biome: "alpine",
       kind: "insect",
       rarity: "common",
-      diet: "Alpine flower nectar",
-      shelter: "Low turf and warm rocks",
-      preferredHabitat: "Flowering alpine turf",
-      fact: "Some alpine butterflies take two full summers to grow up, pausing each winter under the snow.",
+      diet: "Larvae eat stonecrop; adults sip nectar from Sedum and daisy-family flowers",
+      shelter: "No nest; larvae shelter in leaf litter and rocks, overwintering as eggs",
+      preferredHabitat: "Rocky open alpine and montane slopes where stonecrop grows",
+      fact: "Its pale red-and-black wings warn predators that it tastes unpalatable.",
       requirements: {
         minHealth: 25,
         objects: {
           "alpine-wildflower-patch": 1
         },
         hint: "Alpine flowers in bloom."
-      }
+      },
+      scientificName: "Parnassius smintheus",
+      role: "A hardy alpine butterfly whose caterpillars feed only on stonecrop while adults nectar across the meadow flowers. Its aposematic wings advertise a foul taste. Birds and spiders that ignore the warning still catch some.",
+      trophic: "herbivore",
+      eatsOther: [
+        "alpine plants",
+        "nectar"
+      ],
+      sources: [
+        {
+          name: "Butterflies and Moths of North America - Parnassius smintheus",
+          url: "https://www.butterfliesandmoths.org/species/Parnassius-smintheus"
+        },
+        {
+          name: "Washington Butterfly Assoc. - Mountain Parnassian",
+          url: "https://wabutterflyassoc.org/species-profile-mountain-parnassian-parnassius-smintheus/"
+        }
+      ]
     },
     {
       id: "bumblebee-alpine",
@@ -7643,17 +9478,35 @@ var animals_2_default = {
       biome: "alpine",
       kind: "insect",
       rarity: "common",
-      diet: "Nectar and pollen",
-      shelter: "Old burrows in turf",
-      preferredHabitat: "High flower patches",
-      fact: "Bumblebees shiver their flight muscles to warm up, letting them fly in near-freezing air.",
+      diet: "Nectar and pollen from deep-throated alpine flowers",
+      shelter: "Colonial nests in ground cavities and old rodent burrows",
+      preferredHabitat: "High alpine and boreal flower meadows, often above treeline",
+      fact: "This bee's tongue grew measurably shorter from 1966 to 2014 as flowers declined.",
       requirements: {
         minHealth: 25,
         objects: {
           "alpine-wildflower-patch": 2
         },
         hint: "More flowers, more bees \u2014 even up here."
-      }
+      },
+      scientificName: "Bombus balteatus",
+      role: "A cold-tolerant, long-tongued bumblebee that pollinates deep alpine blossoms, shivering its flight muscles to fly in near-freezing air. Its colonies nest underground. Birds, crab spiders, and robber flies prey on foragers.",
+      trophic: "herbivore",
+      eatsOther: [
+        "alpine plants",
+        "nectar",
+        "pollen"
+      ],
+      sources: [
+        {
+          name: "Molecular Ecology - Alpine bumblebee tongue-length study",
+          url: "https://onlinelibrary.wiley.com/doi/full/10.1111/mec.16291"
+        },
+        {
+          name: "Bombus balteatus - Wikipedia",
+          url: "https://en.wikipedia.org/wiki/Bombus_balteatus"
+        }
+      ]
     },
     {
       id: "snowmelt-trout",
@@ -7661,10 +9514,10 @@ var animals_2_default = {
       biome: "alpine",
       kind: "fish",
       rarity: "uncommon",
-      diet: "Aquatic insects",
-      shelter: "Cold, clean pools",
-      preferredHabitat: "Connected snowmelt water",
-      fact: "Cutthroat trout need water so cold and clean that their presence is itself a health report for the mountain.",
+      diet: "Aquatic and terrestrial insects; larger fish add small fish to the diet",
+      shelter: "Cold, clear pools and undercut banks; gravel riffles for spawning",
+      preferredHabitat: "Cold, clear, connected snowmelt streams and mountain lakes",
+      fact: "A poor competitor, native cutthroat are displaced by introduced brown and brook trout.",
       requirements: {
         minHealth: 60,
         objects: {
@@ -7672,7 +9525,28 @@ var animals_2_default = {
           "rock-pile": 1
         },
         hint: "Cold, clean, connected snowmelt pools."
-      }
+      },
+      scientificName: "Oncorhynchus clarkii",
+      role: "A cold-water native whose presence signals a clean, healthy mountain stream. It picks off drifting insects and, when large, smaller fish. It is threatened by non-native trout that out-compete and prey on it.",
+      trophic: "insectivore",
+      eats: [
+        "cascades-frog"
+      ],
+      eatsOther: [
+        "aquatic insects",
+        "crustaceans",
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Oncorhynchus clarkii",
+          url: "https://animaldiversity.org/accounts/Oncorhynchus_clarkii/"
+        },
+        {
+          name: "USGS - Cutthroat trout diet study",
+          url: "https://www.usgs.gov/publications/changing-patterns-coastal-cutthroat-trout-oncorhynchus-clarki-clarki-diet-and-prey-a"
+        }
+      ]
     },
     {
       id: "tidepool-crab",
@@ -7681,17 +9555,36 @@ var animals_2_default = {
       kind: "invertebrate",
       rarity: "common",
       featured: true,
-      diet: "Algae and scraps",
+      diet: "Mostly algae, plus detritus, worms, snails, and carrion",
       shelter: "Tidepool rocks and crevices",
-      preferredHabitat: "Rocky tidepools",
-      fact: "Shore crabs can change color slowly to match their home pool.",
+      preferredHabitat: "Rocky tidepools and intertidal splash zone",
+      fact: "Striped shore crabs graze algae but will scavenge and even turn cannibal after molting.",
       requirements: {
         minHealth: 12,
         objects: {
           tidepool: 1
         },
         hint: "Restore the tidepools and the crabs scuttle back first."
-      }
+      },
+      scientificName: "Pachygrapsus crassipes",
+      role: "An abundant intertidal grazer-scavenger that keeps rock surfaces clear of algae and recycles carrion. It is a key prey item for gulls, shorebirds, and larger crabs, linking algae to higher predators.",
+      trophic: "omnivore",
+      eatenBy: [
+        "anemone",
+        "black-oystercatcher",
+        "black-turnstone",
+        "gull"
+      ],
+      eatsOther: [
+        "algae",
+        "kelp"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Pachygrapsus crassipes",
+          url: "https://animaldiversity.org/accounts/Pachygrapsus_crassipes/"
+        }
+      ]
     },
     {
       id: "hermit-crab",
@@ -7699,10 +9592,10 @@ var animals_2_default = {
       biome: "coastal",
       kind: "invertebrate",
       rarity: "common",
-      diet: "Algae and detritus",
-      shelter: "Borrowed shells",
-      preferredHabitat: "Tidepools with empty shells",
-      fact: "When a perfect shell appears, hermit crabs line up by size and swap shells in a chain.",
+      diet: "Algae, detritus, and scavenged carrion",
+      shelter: "Borrowed empty snail shells",
+      preferredHabitat: "Tidepools with a supply of empty shells",
+      fact: "When a better shell appears, hermit crabs line up by size and swap shells down the chain.",
       requirements: {
         minHealth: 35,
         objects: {
@@ -7711,7 +9604,23 @@ var animals_2_default = {
           "dune-grass": 1
         },
         hint: "Tidepools plus washed-up shells to move into."
-      }
+      },
+      scientificName: "Pagurus samuelis",
+      role: "A tidepool scavenger that cleans up algae and carrion and recycles empty snail shells as portable armor. It is common prey for gulls, fish, and octopus in the intertidal food web.",
+      trophic: "scavenger",
+      eatenBy: [
+        "black-turnstone",
+        "gull"
+      ],
+      eatsOther: [
+        "algae"
+      ],
+      sources: [
+        {
+          name: "iNaturalist - Blueband Hermit Crab (Pagurus samuelis)",
+          url: "https://www.inaturalist.org/taxa/49095-Pagurus-samuelis"
+        }
+      ]
     },
     {
       id: "sea-star",
@@ -7720,10 +9629,10 @@ var animals_2_default = {
       kind: "invertebrate",
       rarity: "uncommon",
       featured: true,
-      diet: "Mussels and barnacles",
-      shelter: "Tidepool rock faces",
-      preferredHabitat: "Established tidepools with shellfish",
-      fact: "Sea stars are keystone predators \u2014 one species' presence reshapes the whole shoreline community.",
+      diet: "Mussels, barnacles, limpets, chitons, and snails",
+      shelter: "Tidepool rock faces and crevices",
+      preferredHabitat: "Wave-washed rocky intertidal with shellfish",
+      fact: "The classic keystone predator: removing it lets mussels overrun the whole shore.",
       requirements: {
         minHealth: 50,
         objects: {
@@ -7734,7 +9643,27 @@ var animals_2_default = {
           "mussel"
         ],
         hint: "Sea stars need established pools with mussels to eat."
-      }
+      },
+      scientificName: "Pisaster ochraceus",
+      role: "The textbook keystone predator of the rocky shore. By eating mussels it sets the mussel bed's lower limit and keeps space open for many other species, maintaining intertidal biodiversity.",
+      trophic: "mesopredator",
+      eats: [
+        "mussel"
+      ],
+      eatenBy: [
+        "gull",
+        "sea-otter"
+      ],
+      eatsOther: [
+        "barnacles",
+        "mussels"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Pisaster ochraceus",
+          url: "https://animaldiversity.org/accounts/Pisaster_ochraceus/"
+        }
+      ]
     },
     {
       id: "anemone",
@@ -7742,17 +9671,38 @@ var animals_2_default = {
       biome: "coastal",
       kind: "invertebrate",
       rarity: "common",
-      diet: "Small animals caught by stinging tentacles",
-      shelter: "Tidepool walls",
-      preferredHabitat: "Clear, restored tidepools",
-      fact: "The green color comes partly from algae living inside the anemone's tissues \u2014 roommates that pay rent in sugar.",
+      diet: "Crabs, detached mussels, and small fish stung by its tentacles",
+      shelter: "Tidepool walls, often below mussel beds",
+      preferredHabitat: "Clear, surge-fed tidepools near mussel beds",
+      fact: "Its green glow comes from algae living inside its tissues that share sugars.",
       requirements: {
         minHealth: 30,
         objects: {
           tidepool: 1
         },
         hint: "Clear, quiet pools."
-      }
+      },
+      scientificName: "Anthopleura xanthogrammica",
+      role: "A sit-and-wait carnivore of tidepools that ambushes prey washed off the rocks, while also farming symbiotic algae for extra food. It is a minor predator that helps recycle dislodged shellfish and crabs.",
+      trophic: "mesopredator",
+      eats: [
+        "mussel",
+        "purple-shore-crab",
+        "tidepool-crab"
+      ],
+      eatsOther: [
+        "mussels"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Anthopleura xanthogrammica",
+          url: "https://animaldiversity.org/accounts/Anthopleura_xanthogrammica/"
+        },
+        {
+          name: "Monterey Bay Aquarium - Giant green anemone",
+          url: "https://www.montereybayaquarium.org/animals-the-ocean/animals-a-to-z/giant-green-anemone"
+        }
+      ]
     },
     {
       id: "mussel",
@@ -7760,17 +9710,41 @@ var animals_2_default = {
       biome: "coastal",
       kind: "invertebrate",
       rarity: "common",
-      diet: "Filtered plankton",
-      shelter: "Dense beds on wave-washed rock",
-      preferredHabitat: "Rocky shore with clean water",
-      fact: "A single mussel filters and cleans several liters of seawater every hour.",
+      diet: "Plankton filtered from seawater",
+      shelter: "Dense beds anchored to wave-washed rock",
+      preferredHabitat: "Exposed rocky shore with clean moving water",
+      fact: "A single mussel filters several liters of seawater an hour as it feeds.",
       requirements: {
         minHealth: 30,
         objects: {
           tidepool: 1
         },
         hint: "Clean water over rocky shore."
-      }
+      },
+      scientificName: "Mytilus californianus",
+      role: "A reef-building filter feeder whose beds create habitat for countless small animals. It is the key prey that ties together the shore's top predators, from ochre sea stars to sea otters and oystercatchers.",
+      trophic: "filter-feeder",
+      eatenBy: [
+        "anemone",
+        "black-oystercatcher",
+        "black-turnstone",
+        "gull",
+        "sea-otter",
+        "sea-star"
+      ],
+      eatsOther: [
+        "plankton"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Mytilus californianus",
+          url: "https://animaldiversity.org/accounts/Mytilus_californianus/"
+        },
+        {
+          name: "Monterey Bay Aquarium - California mussel",
+          url: "https://www.montereybayaquarium.org/animals-the-ocean/animals-a-to-z/california-mussel"
+        }
+      ]
     },
     {
       id: "clam",
@@ -7778,10 +9752,10 @@ var animals_2_default = {
       biome: "coastal",
       kind: "invertebrate",
       rarity: "common",
-      diet: "Filtered plankton",
+      diet: "Plankton filtered from seawater",
       shelter: "Buried in sand and gravel",
-      preferredHabitat: "Stable sand near tidepools",
-      fact: "You can estimate a clam's age by counting the growth rings on its shell, like a tree.",
+      preferredHabitat: "Stable sand and gravel near tidepools",
+      fact: "You can estimate a littleneck clam's age by counting the growth rings on its shell.",
       requirements: {
         minHealth: 30,
         objects: {
@@ -7789,7 +9763,27 @@ var animals_2_default = {
           "dune-grass": 1
         },
         hint: "Stable, quiet sand to dig into."
-      }
+      },
+      scientificName: "Leukoma staminea",
+      role: "A buried filter feeder that helps clean coastal water and stores energy in sheltered sediment. It is important prey for sea otters, shorebirds, crabs, and gulls that dig or crack it open.",
+      trophic: "filter-feeder",
+      eatenBy: [
+        "gull",
+        "sea-otter"
+      ],
+      eatsOther: [
+        "plankton"
+      ],
+      sources: [
+        {
+          name: "WDFW - Pacific littleneck clam",
+          url: "https://wdfw.wa.gov/species-habitats/species/leukoma-staminea"
+        },
+        {
+          name: "Animal Diversity Web - Enhydra lutris (predation on clams)",
+          url: "https://animaldiversity.org/accounts/Enhydra_lutris/"
+        }
+      ]
     },
     {
       id: "shorebird",
@@ -7798,9 +9792,9 @@ var animals_2_default = {
       kind: "bird",
       rarity: "uncommon",
       featured: true,
-      diet: "Sand crustaceans and kelp-fly larvae",
-      shelter: "Shallow scrapes hidden in dunes",
-      preferredHabitat: "Protected dunes with quiet nesting beach",
+      diet: "Sand crustaceans, mole crabs, and kelp-fly larvae",
+      shelter: "Shallow scrapes hidden on open sand",
+      preferredHabitat: "Undisturbed sandy beaches and dune edges",
       fact: "Snowy plover chicks can run and feed themselves within hours of hatching.",
       requirements: {
         minHealth: 50,
@@ -7810,7 +9804,24 @@ var animals_2_default = {
           tidepool: 1
         },
         hint: "Anchored dunes and a protected stretch of quiet beach."
-      }
+      },
+      scientificName: "Charadrius nivosus",
+      role: "A small beach forager that snaps up tiny crustaceans and kelp flies along the tide line. A threatened species and sensitive indicator of quiet, undisturbed beach; its nests fail easily where beaches are busy.",
+      trophic: "insectivore",
+      eatsOther: [
+        "fly larvae",
+        "mole crabs"
+      ],
+      sources: [
+        {
+          name: "All About Birds - Snowy Plover Life History",
+          url: "https://www.allaboutbirds.org/guide/Snowy_Plover/lifehistory"
+        },
+        {
+          name: "USFWS - Western Snowy Plover",
+          url: "https://www.fws.gov/species/western-snowy-plover-charadrius-nivosus-nivosus"
+        }
+      ]
     },
     {
       id: "gull",
@@ -7818,17 +9829,39 @@ var animals_2_default = {
       biome: "coastal",
       kind: "bird",
       rarity: "common",
-      diet: "Fish, shellfish, and whatever washes up",
-      shelter: "Open beach and rocky points",
-      preferredHabitat: "Any recovering shoreline",
-      fact: "Gulls drop clams onto rocks from the air to crack them open.",
+      diet: "Fish, crabs, clams, sea stars, and carrion",
+      shelter: "Open beach, rocky points, and islands",
+      preferredHabitat: "Any shoreline with food to scavenge or catch",
+      fact: "Western gulls crack clams by dropping them from the air onto rocks below.",
       requirements: {
         minHealth: 20,
         objects: {
           "kelp-wrack": 1
         },
         hint: "Gulls show up as soon as there's a beach worth patrolling."
-      }
+      },
+      scientificName: "Larus occidentalis",
+      role: "A bold generalist that scavenges carrion and preys on crabs, shellfish, and even sea stars, cleaning the beach and linking many prey to the top of the food web. Foxes and coyotes take gulls and their eggs on land.",
+      trophic: "omnivore",
+      eats: [
+        "clam",
+        "hermit-crab",
+        "mussel",
+        "purple-shore-crab",
+        "sea-star",
+        "tidepool-crab"
+      ],
+      eatsOther: [
+        "clams",
+        "fish",
+        "mussels"
+      ],
+      sources: [
+        {
+          name: "All About Birds - Western Gull Life History",
+          url: "https://www.allaboutbirds.org/guide/Western_Gull/lifehistory"
+        }
+      ]
     },
     {
       id: "pelican",
@@ -7836,10 +9869,10 @@ var animals_2_default = {
       biome: "coastal",
       kind: "bird",
       rarity: "uncommon",
-      diet: "Fish caught in plunge dives",
-      shelter: "Quiet roosts on rocks and sand",
-      preferredHabitat: "Fish-rich water with quiet roosts",
-      fact: "Brown pelicans dive from 30 feet up, with air sacs under the skin to cushion the splash.",
+      diet: "Small schooling fish, especially anchovies",
+      shelter: "Quiet roosts on rocks and sandbars",
+      preferredHabitat: "Fish-rich nearshore water with quiet roosts",
+      fact: "Brown pelicans plunge-dive from up to 65 feet, twisting to protect the neck on impact.",
       requirements: {
         minHealth: 55,
         objects: {
@@ -7848,7 +9881,19 @@ var animals_2_default = {
           "dune-grass": 1
         },
         hint: "Quiet roosting space and fishable water."
-      }
+      },
+      scientificName: "Pelecanus occidentalis",
+      role: "A plunge-diving fish specialist whose recovery after DDT is a major conservation success. Its presence signals healthy schools of forage fish like anchovies in nearshore water.",
+      trophic: "apex-predator",
+      eatsOther: [
+        "fish"
+      ],
+      sources: [
+        {
+          name: "All About Birds - Brown Pelican Life History",
+          url: "https://www.allaboutbirds.org/guide/Brown_Pelican/lifehistory"
+        }
+      ]
     },
     {
       id: "cormorant",
@@ -7856,10 +9901,10 @@ var animals_2_default = {
       biome: "coastal",
       kind: "bird",
       rarity: "uncommon",
-      diet: "Fish chased underwater",
+      diet: "Small fish, plus crabs and shrimp chased underwater",
       shelter: "Cliff and rock roosts",
-      preferredHabitat: "Rocky shore with diving water",
-      fact: "Cormorant feathers soak through on purpose \u2014 less buoyancy makes them better divers.",
+      preferredHabitat: "Rocky shore with clear diving water",
+      fact: "Cormorant feathers soak through on purpose, so less buoyancy makes them better divers.",
       requirements: {
         minHealth: 55,
         objects: {
@@ -7867,7 +9912,19 @@ var animals_2_default = {
           "dune-grass": 1
         },
         hint: "Healthy rocky shallows to dive in."
-      }
+      },
+      scientificName: "Urile pelagicus",
+      role: "A pursuit-diving fish hunter that works rocky reefs and the water column. It depends on clear water and healthy fish stocks, so thriving cormorants signal a productive rocky shore.",
+      trophic: "apex-predator",
+      eatsOther: [
+        "fish"
+      ],
+      sources: [
+        {
+          name: "All About Birds - Pelagic Cormorant Life History",
+          url: "https://www.allaboutbirds.org/guide/Pelagic_Cormorant/lifehistory"
+        }
+      ]
     },
     {
       id: "sea-turtle",
@@ -7875,10 +9932,10 @@ var animals_2_default = {
       biome: "coastal",
       kind: "reptile",
       rarity: "rare",
-      diet: "Seagrass and algae",
+      diet: "Mostly seagrass and algae as adults; omnivorous when young",
       shelter: "Offshore waters; nests on quiet sand",
-      preferredHabitat: "Clean water and undisturbed beach",
-      fact: "Green sea turtles return to nest on the very beach where they hatched, decades later.",
+      preferredHabitat: "Clean shallow water with seagrass and undisturbed beach",
+      fact: "Green sea turtles return to nest on the very beach where they hatched decades earlier.",
       requirements: {
         minHealth: 75,
         objects: {
@@ -7887,7 +9944,24 @@ var animals_2_default = {
           "kelp-wrack": 1
         },
         hint: "An undisturbed nesting beach and clean water."
-      }
+      },
+      scientificName: "Chelonia mydas",
+      role: "The only mostly herbivorous sea turtle; adults graze seagrass and algae, keeping beds healthy, while juveniles start as omnivores. Its nesting success is a strong indicator of clean water and undisturbed beaches.",
+      trophic: "herbivore",
+      eatsOther: [
+        "algae",
+        "seagrass"
+      ],
+      sources: [
+        {
+          name: "NOAA Fisheries - Green Turtle",
+          url: "https://www.fisheries.noaa.gov/species/green-turtle"
+        },
+        {
+          name: "Animal Diversity Web - Chelonia mydas",
+          url: "https://animaldiversity.org/accounts/Chelonia_mydas/"
+        }
+      ]
     },
     {
       id: "harbor-seal",
@@ -7896,9 +9970,9 @@ var animals_2_default = {
       kind: "mammal",
       rarity: "rare",
       featured: true,
-      diet: "Fish and squid",
-      shelter: "Quiet haul-out beaches",
-      preferredHabitat: "Calm, clean water with undisturbed shore",
+      diet: "Fish, plus squid, octopus, and crustaceans",
+      shelter: "Quiet haul-out beaches and rocks",
+      preferredHabitat: "Calm, clean water with undisturbed haul-out shore",
       fact: "Harbor seals can sleep underwater, surfacing to breathe without fully waking.",
       requirements: {
         minHealth: 70,
@@ -7908,7 +9982,23 @@ var animals_2_default = {
           "dune-grass": 1
         },
         hint: "Quiet beaches and clean water \u2014 seals need calm above all."
-      }
+      },
+      scientificName: "Phoca vitulina",
+      role: "A generalist marine predator that eats whatever fish is abundant and easy to catch. Sharks and killer whales are its main predators offshore, but on this restored coast it sits near the top of the food web.",
+      trophic: "apex-predator",
+      eatsOther: [
+        "fish"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Phoca vitulina",
+          url: "https://animaldiversity.org/accounts/Phoca_vitulina/"
+        },
+        {
+          name: "NOAA Fisheries - Harbor Seal",
+          url: "https://www.fisheries.noaa.gov/species/harbor-seal"
+        }
+      ]
     },
     {
       id: "sea-otter",
@@ -7916,10 +10006,10 @@ var animals_2_default = {
       biome: "coastal",
       kind: "mammal",
       rarity: "rare",
-      diet: "Sea urchins, crabs, and shellfish",
+      diet: "Sea urchins, crabs, mussels, clams, and other shellfish",
       shelter: "Kelp canopy anchor points",
-      preferredHabitat: "Kelp habitat with abundant shellfish",
-      fact: "Sea otters wrap themselves in kelp before sleeping so they don't drift away \u2014 and sometimes hold hands.",
+      preferredHabitat: "Kelp forest and rocky shore with abundant shellfish",
+      fact: "Sea otters wrap up in kelp before sleeping so they don't drift away.",
       requirements: {
         minHealth: 75,
         minBalance: 45,
@@ -7933,7 +10023,30 @@ var animals_2_default = {
           "clam"
         ],
         hint: "Kelp habitat and shellfish beds first; otters follow."
-      }
+      },
+      scientificName: "Enhydra lutris",
+      role: "A keystone species: by eating sea urchins it stops them overgrazing kelp, letting kelp forests and the life they shelter thrive. It also preys heavily on mussels and clams along the rocky shore.",
+      trophic: "apex-predator",
+      eats: [
+        "clam",
+        "mussel",
+        "sea-star"
+      ],
+      eatsOther: [
+        "clams",
+        "crabs",
+        "sea urchins"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Enhydra lutris",
+          url: "https://animaldiversity.org/accounts/Enhydra_lutris/"
+        },
+        {
+          name: "Monterey Bay Aquarium - Sea otter",
+          url: "https://www.montereybayaquarium.org/animals-the-ocean/animals-a-to-z/sea-otter"
+        }
+      ]
     },
     {
       id: "dolphin",
@@ -7941,10 +10054,10 @@ var animals_2_default = {
       biome: "coastal",
       kind: "mammal",
       rarity: "rare",
-      diet: "Fish and squid",
+      diet: "Fish, squid, and crustaceans",
       shelter: "Open coastal water",
       preferredHabitat: "Clean, lively nearshore water",
-      fact: "Dolphins call each other by name, using signature whistles unique to each individual.",
+      fact: "Bottlenose dolphins call each other by name, using signature whistles unique to each one.",
       requirements: {
         minHealth: 75,
         objects: {
@@ -7953,7 +10066,19 @@ var animals_2_default = {
           "dune-grass": 1
         },
         hint: "A clean, busy shoreline brings dolphins close in."
-      }
+      },
+      scientificName: "Tursiops truncatus",
+      role: "A clever, cooperative predator that herds fish and hunts squid in nearshore water. Larger sharks and orcas can prey on it, but in this roster it is a top predator whose presence marks a lively, fish-rich coast.",
+      trophic: "apex-predator",
+      eatsOther: [
+        "fish"
+      ],
+      sources: [
+        {
+          name: "NOAA Fisheries - Common Bottlenose Dolphin",
+          url: "https://www.fisheries.noaa.gov/species/common-bottlenose-dolphin"
+        }
+      ]
     },
     {
       id: "migrating-whale",
@@ -7961,10 +10086,10 @@ var animals_2_default = {
       biome: "coastal",
       kind: "mammal",
       rarity: "rare",
-      diet: "Tiny crustaceans sifted from the seafloor",
+      diet: "Amphipods and other tiny bottom crustaceans, sifted from sediment",
       shelter: "Open ocean; passes close to healthy shores",
       preferredHabitat: "Seen offshore from a fully restored coast",
-      fact: "Gray whales make one of the longest migrations of any mammal \u2014 up to 14,000 miles round trip.",
+      fact: "Gray whales migrate up to 14,000 miles round trip, among the longest of any mammal.",
       requirements: {
         minHealth: 75,
         minBalance: 50,
@@ -7974,7 +10099,23 @@ var animals_2_default = {
           "coastal-nesting-area": 1
         },
         hint: "Only a truly thriving shore earns a whale sighting. Watch the horizon."
-      }
+      },
+      scientificName: "Eschrichtius robustus",
+      role: "A bottom-feeding baleen whale that rolls on its side to suck up sediment and filter out tiny crustaceans. Killer whales are its main predator; a passing gray whale is a sign of a fully restored, productive coast.",
+      trophic: "filter-feeder",
+      eatsOther: [
+        "plankton"
+      ],
+      sources: [
+        {
+          name: "NOAA Fisheries - Gray Whale",
+          url: "https://www.fisheries.noaa.gov/species/gray-whale"
+        },
+        {
+          name: "Animal Diversity Web - Eschrichtius robustus",
+          url: "https://animaldiversity.org/accounts/Eschrichtius_robustus/"
+        }
+      ]
     },
     {
       id: "american-goldfinch",
@@ -7983,10 +10124,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "common",
       featured: false,
-      diet: "Thistle and wildflower seeds",
-      shelter: "Shrubby field edges",
-      preferredHabitat: "Open wildflower meadow with perches",
-      fact: "They nest late so their chicks hatch with the thistle seed crop.",
+      diet: "Almost entirely seeds \u2014 thistle, sunflower, aster, and grass seeds",
+      shelter: "Tightly woven cup nest lashed high in a shrub with spider silk",
+      preferredHabitat: "Weedy fields and open areas with thistle, sunflower, and asters",
+      fact: "Goldfinches are strict vegetarians and nest late in summer so thistle down is ready to line their nests.",
       requirements: {
         minHealth: 45,
         objects: {
@@ -7995,7 +10136,30 @@ var animals_2_default = {
           shrub: 1
         },
         hint: "Plant a wildflower patch and add a bird perch."
-      }
+      },
+      scientificName: "Spinus tristis",
+      role: "A specialist granivore that thrives on thistle and other composite seeds, making it an important disperser of weedy plant seeds across the meadow. Being small and abundant, it is prey for agile bird-hunting hawks and small owls.",
+      trophic: "herbivore",
+      eatenBy: [
+        "coopers-hawk",
+        "western-screech-owl"
+      ],
+      eatsOther: [
+        "aster seeds",
+        "grass seeds",
+        "sunflower seeds",
+        "thistle seeds"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 American Goldfinch Life History",
+          url: "https://www.allaboutbirds.org/guide/American_Goldfinch/lifehistory"
+        },
+        {
+          name: "Audubon Field Guide \u2014 American Goldfinch",
+          url: "https://www.audubon.org/field-guide/bird/american-goldfinch"
+        }
+      ]
     },
     {
       id: "eastern-bluebird",
@@ -8004,10 +10168,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "uncommon",
       featured: false,
-      diet: "Insects and berries",
-      shelter: "Cavities and nest boxes",
-      preferredHabitat: "Grassy openings with scattered perches",
-      fact: "A pair will raise two or three broods in a single good season.",
+      diet: "Mainly ground insects (caterpillars, beetles, grasshoppers); fruit in winter",
+      shelter: "Grass-lined nest inside tree cavities, old woodpecker holes, or boxes",
+      preferredHabitat: "Grassy openings with scattered trees and perches to hunt from",
+      fact: "Eastern Bluebirds can spot a tiny insect in the grass from about 60 feet away, then drop down to grab it.",
       requirements: {
         minHealth: 55,
         objects: {
@@ -8016,7 +10180,38 @@ var animals_2_default = {
           "berry-bush": 1
         },
         hint: "Native grass, a berry bush, and a perch to hunt from."
-      }
+      },
+      scientificName: "Sialia sialis",
+      role: "A cavity-nesting insectivore that hunts caterpillars, beetles, and grasshoppers from perches, switching to berries in winter, both controlling insects and dispersing fruit seeds. It competes for nest holes and is preyed on by hawks and small owls.",
+      trophic: "insectivore",
+      eats: [
+        "bumblebee",
+        "grasshopper",
+        "lady-beetle",
+        "praying-mantis"
+      ],
+      eatenBy: [
+        "coopers-hawk",
+        "red-tailed-hawk",
+        "western-screech-owl"
+      ],
+      eatsOther: [
+        "beetles",
+        "berries",
+        "caterpillars",
+        "crickets",
+        "spiders"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Eastern Bluebird Life History",
+          url: "https://www.allaboutbirds.org/guide/Eastern_Bluebird/lifehistory"
+        },
+        {
+          name: "Audubon Field Guide \u2014 Eastern Bluebird",
+          url: "https://www.audubon.org/field-guide/bird/eastern-bluebird"
+        }
+      ]
     },
     {
       id: "leafcutter-bee",
@@ -8025,10 +10220,10 @@ var animals_2_default = {
       kind: "insect",
       rarity: "common",
       featured: false,
-      diet: "Pollen and nectar",
-      shelter: "Hollow stems and soft soil",
-      preferredHabitat: "Clover and wildflowers",
-      fact: "They snip neat half-circles from leaves to line their nests.",
+      diet: "Adults eat nectar and pollen from many flowering plants",
+      shelter: "Nests in hollow stems and soil, lining cells with cut leaf pieces",
+      preferredHabitat: "Meadows and gardens with diverse flowers and nesting cavities",
+      fact: "Female leafcutter bees snip neat circles from leaves to build and seal their nest cells.",
       requirements: {
         minHealth: 40,
         objects: {
@@ -8037,7 +10232,28 @@ var animals_2_default = {
           shrub: 1
         },
         hint: "Clover and wildflowers side by side."
-      }
+      },
+      scientificName: "Megachile spp.",
+      role: "A solitary native bee that pollinates a wide range of meadow and crop plants, carrying pollen on the underside of its abdomen. Its leaf-lined nest cells provision the next generation with pollen and nectar. Adults are caught by ambush predators and aerial insectivores.",
+      trophic: "herbivore",
+      eatenBy: [
+        "barn-swallow",
+        "praying-mantis"
+      ],
+      eatsOther: [
+        "flower nectar",
+        "pollen"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Megachile rotundata",
+          url: "https://animaldiversity.org/accounts/Megachile_rotundata/"
+        },
+        {
+          name: "USDA Forest Service \u2014 Leafcutter Bees (Megachile spp.)",
+          url: "https://www.fs.usda.gov/wildflowers/pollinators/pollinator-of-the-month/megachile_bees.shtml"
+        }
+      ]
     },
     {
       id: "painted-lady",
@@ -8046,10 +10262,10 @@ var animals_2_default = {
       kind: "insect",
       rarity: "common",
       featured: false,
-      diet: "Flower nectar",
-      shelter: "Sheltered grass",
-      preferredHabitat: "Sunny flowering meadow",
-      fact: "Painted ladies migrate thousands of miles across continents.",
+      diet: "Adults nectar on composite flowers; caterpillars eat thistles and mallows",
+      shelter: "Rests on vegetation; caterpillars build silk nests on host plants",
+      preferredHabitat: "Open meadows and disturbed ground with thistles and nectar flowers",
+      fact: "Painted ladies migrate thousands of miles across continents \u2014 one of the most widespread butterflies on Earth.",
       requirements: {
         minHealth: 40,
         objects: {
@@ -8058,7 +10274,29 @@ var animals_2_default = {
           shrub: 1
         },
         hint: "Butterfly flowers near a clover patch."
-      }
+      },
+      scientificName: "Vanessa cardui",
+      role: "A wide-ranging migratory butterfly and generalist nectar pollinator whose caterpillars feed on thistles, mallows, and over 100 other host plants. Population booms can trigger massive migrations. Adults and larvae are eaten by birds, wasps, and spiders.",
+      trophic: "herbivore",
+      eatenBy: [
+        "barn-swallow",
+        "praying-mantis"
+      ],
+      eatsOther: [
+        "flower nectar (adult)",
+        "mallows (caterpillar)",
+        "thistles (caterpillar)"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Vanessa cardui",
+          url: "https://animaldiversity.org/accounts/Vanessa_cardui/"
+        },
+        {
+          name: "Butterflies and Moths of North America \u2014 Painted Lady",
+          url: "https://www.butterfliesandmoths.org/species/Vanessa-cardui"
+        }
+      ]
     },
     {
       id: "american-badger",
@@ -8067,10 +10305,10 @@ var animals_2_default = {
       kind: "mammal",
       rarity: "rare",
       featured: false,
-      diet: "Ground squirrels and voles",
-      shelter: "Dug burrows",
-      preferredHabitat: "Open grassland with prey and cover",
-      fact: "Badgers and coyotes sometimes hunt the same fields together.",
+      diet: "Digs out ground squirrels, gophers, voles, and mice; also insects",
+      shelter: "Digs its own large underground burrows; a powerful excavator",
+      preferredHabitat: "Open meadows and grasslands with diggable soil and rodent prey",
+      fact: "Badgers sometimes team up with coyotes: the badger digs prey out below while the coyote catches those that bolt above ground.",
       requirements: {
         minHealth: 65,
         objects: {
@@ -8082,7 +10320,33 @@ var animals_2_default = {
           "meadow-vole"
         ],
         hint: "Brush pile and rock pile, once voles have returned."
-      }
+      },
+      scientificName: "Taxidea taxus",
+      role: "A fossorial carnivore that hunts by digging burrowing rodents straight out of their tunnels, keeping ground squirrel and vole numbers down. Its abandoned burrows benefit other animals. Adult badgers have essentially no predators in this meadow.",
+      trophic: "mesopredator",
+      eats: [
+        "cottontail-rabbit",
+        "ground-squirrel",
+        "meadow-vole",
+        "western-meadowlark"
+      ],
+      eatsOther: [
+        "carrion",
+        "ground-nesting bird eggs",
+        "insects",
+        "mice",
+        "pocket gophers"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Taxidea taxus",
+          url: "https://animaldiversity.org/accounts/Taxidea_taxus/"
+        },
+        {
+          name: "NHPBS NatureWorks \u2014 American Badger",
+          url: "https://nhpbs.org/natureworks/americanbadger.htm"
+        }
+      ]
     },
     {
       id: "pileated-woodpecker",
@@ -8091,10 +10355,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "uncommon",
       featured: false,
-      diet: "Carpenter ants and beetle grubs",
-      shelter: "Dead trees",
-      preferredHabitat: "Mature forest with standing deadwood",
-      fact: "Their rectangular excavations later become homes for other animals.",
+      diet: "Carpenter ants and wood-boring beetle larvae; also termites, berries, and nuts",
+      shelter: "Excavates a new rectangular nest cavity each year in large dead snags",
+      preferredHabitat: "Mature and old-growth forest with big standing snags and downed logs",
+      fact: "Its deep rectangular excavations can be large enough to snap a small tree in half.",
       requirements: {
         minHealth: 55,
         objects: {
@@ -8103,7 +10367,39 @@ var animals_2_default = {
           shrub: 1
         },
         hint: "Standing deadwood beside a nesting tree."
-      }
+      },
+      scientificName: "Dryocopus pileatus",
+      role: "The pileated woodpecker is a keystone ecosystem engineer whose big cavities become homes for wood ducks, flying squirrels, fishers, bats, and barred owls. It regulates carpenter ant and beetle populations and opens decaying wood to fungi and decomposers. It sits as a secondary consumer and feeds raptors and mustelids.",
+      trophic: "insectivore",
+      eats: [
+        "nuthatch"
+      ],
+      eatenBy: [
+        "barred-owl",
+        "bobcat",
+        "fisher",
+        "great-horned-owl",
+        "raccoon",
+        "red-fox-forest"
+      ],
+      eatsOther: [
+        "acorns",
+        "beetle larvae",
+        "berries",
+        "carpenter ants",
+        "nuts",
+        "termites"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Pileated Woodpecker",
+          url: "https://www.allaboutbirds.org/guide/Pileated_Woodpecker/lifehistory"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Dryocopus pileatus",
+          url: "https://animaldiversity.org/accounts/Dryocopus_pileatus/"
+        }
+      ]
     },
     {
       id: "pacific-wren",
@@ -8112,10 +10408,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "common",
       featured: false,
-      diet: "Forest-floor insects",
-      shelter: "Root tangles and ferns",
-      preferredHabitat: "Damp shaded understory",
-      fact: "A tiny bird with a song of over thirty notes per second.",
+      diet: "Beetles, caterpillars, ants, flies, spiders, and millipedes; some winter berries",
+      shelter: "Domed nests low in upturned roots, decaying logs, and stream banks",
+      preferredHabitat: "Old-growth conifer forest with dense understory near streams",
+      fact: "Pacific wren numbers along streams rise with salmon runs, whose nutrients boost the insects the wrens eat.",
       requirements: {
         minHealth: 50,
         objects: {
@@ -8124,7 +10420,35 @@ var animals_2_default = {
           shrub: 1
         },
         hint: "Ferns and a mushroom log in the shade."
-      }
+      },
+      scientificName: "Troglodytes pacificus",
+      role: "The Pacific wren is a secondary consumer that suppresses understory invertebrates in old-growth forest, passing that energy up to hawks, corvids, and weasels. Its dependence on damp, log-strewn old growth and salmon-fed streams makes it a living indicator of both forest and watershed health. It nests low in root tangles and rotting wood.",
+      trophic: "insectivore",
+      eatenBy: [
+        "barred-owl",
+        "garter-snake-forest",
+        "great-horned-owl",
+        "raccoon"
+      ],
+      eatsOther: [
+        "ants",
+        "beetles",
+        "berries",
+        "caterpillars",
+        "millipedes",
+        "snails",
+        "spiders"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Pacific Wren",
+          url: "https://www.allaboutbirds.org/guide/Pacific_Wren/lifehistory"
+        },
+        {
+          name: "Audubon \u2014 Pacific Wren",
+          url: "https://www.audubon.org/field-guide/bird/pacific-wren"
+        }
+      ]
     },
     {
       id: "rough-skinned-newt",
@@ -8133,10 +10457,10 @@ var animals_2_default = {
       kind: "amphibian",
       rarity: "uncommon",
       featured: false,
-      diet: "Insects and worms",
-      shelter: "Logs and leaf litter",
-      preferredHabitat: "Forest pools and damp ground",
-      fact: "Their skin carries one of the most potent natural toxins known.",
+      diet: "Insects, earthworms, slugs, snails, and amphibian and fish eggs",
+      shelter: "Under rotting logs, rocks, and leaf litter; in ponds during breeding season",
+      preferredHabitat: "Pacific conifer forest near still or slow water",
+      fact: "Its skin holds enough tetrodotoxin to kill several adults, driving a famous poison arms race with garter snakes.",
       requirements: {
         minHealth: 55,
         objects: {
@@ -8147,7 +10471,33 @@ var animals_2_default = {
           tiles: 3
         },
         hint: "A mushroom log and a few flooded water tiles."
-      }
+      },
+      scientificName: "Taricha granulosa",
+      role: "The rough-skinned newt is a mid-trophic consumer of insects, worms, and amphibian eggs, shaping wetland invertebrate and amphibian communities. Its potent tetrodotoxin defense drives adaptive evolution in resistant garter snakes, one of biology's best-known coevolutionary arms races. The toxin leaves it nearly free from most other predators.",
+      trophic: "insectivore",
+      eatenBy: [
+        "barred-owl",
+        "garter-snake-forest",
+        "raccoon"
+      ],
+      eatsOther: [
+        "amphibian eggs",
+        "earthworms",
+        "fish eggs",
+        "insects",
+        "slugs",
+        "snails"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Taricha granulosa",
+          url: "https://animaldiversity.org/accounts/Taricha_granulosa/"
+        },
+        {
+          name: "USGS \u2014 Barred Owl predation on Taricha granulosa",
+          url: "https://www.usgs.gov/publications/taricha-granulosa-rough-skinned-newt-predation"
+        }
+      ]
     },
     {
       id: "northern-flying-squirrel",
@@ -8156,10 +10506,10 @@ var animals_2_default = {
       kind: "mammal",
       rarity: "rare",
       featured: false,
-      diet: "Fungi, lichen, and seeds",
-      shelter: "Tree cavities",
-      preferredHabitat: "Old forest with connected canopy",
-      fact: "They glide between trees and help spread truffle spores.",
+      diet: "Mostly underground truffle fungi; also lichens, seeds, nuts, fruit, and insects",
+      shelter: "Tree cavities, old woodpecker holes, and branch dreys; huddles in winter groups",
+      preferredHabitat: "Closed-canopy mature conifer forest rich in mycorrhizal fungi",
+      fact: "Fungal spores turn up in nearly every flying squirrel dropping, making it the forest's key truffle disperser.",
       requirements: {
         minHealth: 65,
         objects: {
@@ -8171,7 +10521,37 @@ var animals_2_default = {
           "tree-squirrel"
         ],
         hint: "Nesting tree and a stump, once tree squirrels are back."
-      }
+      },
+      scientificName: "Glaucomys sabrinus",
+      role: "The northern flying squirrel is a keystone mutualist, the main disperser of underground mycorrhizal fungi that conifers depend on for nutrients. This squirrel-fungi-tree partnership underpins forest regeneration. It is also a prime prey item for owls, martens, and fishers, funneling energy from the fungal layer up to top predators.",
+      trophic: "omnivore",
+      eatenBy: [
+        "barred-owl",
+        "bobcat",
+        "fisher",
+        "great-horned-owl",
+        "raccoon",
+        "red-fox-forest"
+      ],
+      eatsOther: [
+        "acorns",
+        "fungi",
+        "insects",
+        "lichens",
+        "nuts",
+        "seeds",
+        "truffles"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Glaucomys sabrinus",
+          url: "https://animaldiversity.org/accounts/Glaucomys_sabrinus/"
+        },
+        {
+          name: "USDA Forest Service \u2014 Meyer et al. 2005 (truffle spore dispersal)",
+          url: "https://www.fs.usda.gov/psw/publications/meyer/captured/psw_2005_meyer003.pdf"
+        }
+      ]
     },
     {
       id: "wood-duck",
@@ -8180,10 +10560,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "uncommon",
       featured: false,
-      diet: "Seeds, acorns, and insects",
-      shelter: "Tree cavities over water",
-      preferredHabitat: "Wooded pools and slow water",
-      fact: "Ducklings leap from high nest cavities the day after hatching.",
+      diet: "Acorns, seeds, and aquatic plants; ducklings and spring birds also eat insects and snails",
+      shelter: "Obligate cavity nester in tree holes and nest boxes near water",
+      preferredHabitat: "Bottomland hardwood and wooded swamps with slow water and cavity trees",
+      fact: "A day after hatching, wood duck ducklings leap from nest cavities up to 50 feet high and land unhurt.",
       requirements: {
         minHealth: 60,
         objects: {
@@ -8194,7 +10574,37 @@ var animals_2_default = {
           lake: 4
         },
         hint: "A nesting tree beside a flooded pool of 4+ water tiles."
-      }
+      },
+      scientificName: "Aix sponsa",
+      role: "Wood ducks are omnivorous consumers linking bottomland forest and wetland food webs, dispersing acorn and aquatic-plant seeds and regulating shallow-water invertebrates. As prey they feed great horned owls, mink, raccoons, and snapping turtles. Depending on woodpecker cavities, their abundance signals healthy wooded wetlands.",
+      trophic: "omnivore",
+      eatenBy: [
+        "barred-owl",
+        "fisher",
+        "garter-snake-forest",
+        "great-horned-owl",
+        "raccoon",
+        "red-fox-forest"
+      ],
+      eatsOther: [
+        "acorns",
+        "aquatic plants",
+        "duckweed",
+        "insects",
+        "nuts",
+        "seeds",
+        "snails"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Wood Duck",
+          url: "https://www.allaboutbirds.org/guide/Wood_Duck/lifehistory"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Aix sponsa",
+          url: "https://animaldiversity.org/accounts/Aix_sponsa/"
+        }
+      ]
     },
     {
       id: "american-bittern",
@@ -8203,10 +10613,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "rare",
       featured: false,
-      diet: "Fish, frogs, and insects",
-      shelter: "Dense reeds",
-      preferredHabitat: "Tall marsh vegetation",
-      fact: "It freezes with its bill skyward to vanish among the reeds.",
+      diet: "Fish, frogs, insects, crayfish, snakes, and small mammals",
+      shelter: "Platform nests hidden low in dense reeds",
+      preferredHabitat: "Tall marsh vegetation over shallow water",
+      fact: "The bittern freezes bill-skyward, swaying like a reed to vanish in the marsh.",
       requirements: {
         minHealth: 60,
         objects: {
@@ -8218,7 +10628,25 @@ var animals_2_default = {
           tiles: 4
         },
         hint: "Thick reeds and cattails beside open water."
-      }
+      },
+      scientificName: "Botaurus lentiginosus",
+      role: "A secretive ambush predator of the reed beds. It stands motionless, then seizes fish, frogs, and insects, relying on stripy camouflage to stay hidden.",
+      trophic: "mesopredator",
+      eats: [
+        "chorus-frog",
+        "freshwater-fish",
+        "northern-leopard-frog"
+      ],
+      eatsOther: [
+        "crayfish",
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds - American Bittern",
+          url: "https://www.allaboutbirds.org/guide/American_Bittern/lifehistory"
+        }
+      ]
     },
     {
       id: "belted-kingfisher",
@@ -8227,10 +10655,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "uncommon",
       featured: false,
-      diet: "Small fish",
-      shelter: "Earthen bank burrows",
-      preferredHabitat: "Clear flowing water with perches",
-      fact: "They dig nesting tunnels up to two metres into a stream bank.",
+      diet: "Small fish and crayfish, plus other aquatic prey",
+      shelter: "Tunnel burrows dug into earthen banks",
+      preferredHabitat: "Clear water with perches over fishable shallows",
+      fact: "Kingfishers dive headfirst into the water with their eyes closed to grab fish.",
       requirements: {
         minHealth: 65,
         objects: {
@@ -8244,7 +10672,23 @@ var animals_2_default = {
           "freshwater-fish"
         ],
         hint: "Carve a river 4+ tiles long with fish present, plus a platform."
-      }
+      },
+      scientificName: "Megaceryle alcyon",
+      role: "A plunge-diving fish specialist that watches from a perch and dives on small fish and crayfish. It nests in tunnels dug metres into stream banks.",
+      trophic: "mesopredator",
+      eats: [
+        "freshwater-fish"
+      ],
+      eatsOther: [
+        "crayfish",
+        "fish"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds - Belted Kingfisher",
+          url: "https://www.allaboutbirds.org/guide/Belted_Kingfisher/lifehistory"
+        }
+      ]
     },
     {
       id: "northern-leopard-frog",
@@ -8253,10 +10697,10 @@ var animals_2_default = {
       kind: "amphibian",
       rarity: "common",
       featured: false,
-      diet: "Insects and spiders",
-      shelter: "Shallow water and grass",
+      diet: "Insects, spiders, worms, and other small animals",
+      shelter: "Shallow water and grassy margins",
       preferredHabitat: "Lily-fringed shallows",
-      fact: "Their loud snore-like call carries across the marsh at night.",
+      fact: "Leopard frogs escape with erratic zig-zag leaps straight back into the water.",
       requirements: {
         minHealth: 50,
         objects: {
@@ -8267,7 +10711,36 @@ var animals_2_default = {
           tiles: 3
         },
         hint: "A lily pool and a few open-water tiles."
-      }
+      },
+      scientificName: "Lithobates pipiens",
+      role: "A wide-mouthed generalist that eats almost any small animal it can swallow, from insects to smaller frogs. It is key prey for herons, mink, and snakes.",
+      trophic: "insectivore",
+      eats: [
+        "damselfly",
+        "dragonfly",
+        "water-strider"
+      ],
+      eatenBy: [
+        "american-bittern",
+        "great-blue-heron",
+        "green-heron",
+        "mink",
+        "river-otter"
+      ],
+      eatsOther: [
+        "insects",
+        "worms"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Lithobates pipiens",
+          url: "https://animaldiversity.org/accounts/Lithobates_pipiens/"
+        },
+        {
+          name: "U.S. National Park Service - Northern Leopard Frog",
+          url: "https://www.nps.gov/articles/northern-leopard-frog.htm"
+        }
+      ]
     },
     {
       id: "snapping-turtle",
@@ -8276,10 +10749,10 @@ var animals_2_default = {
       kind: "reptile",
       rarity: "uncommon",
       featured: false,
-      diet: "Fish, plants, and carrion",
-      shelter: "Muddy lake bottoms",
-      preferredHabitat: "Deep still water with mud",
-      fact: "They can live for over a century in the same quiet pond.",
+      diet: "Fish, aquatic plants, carrion, and almost anything it can catch",
+      shelter: "Muddy lake and pond bottoms",
+      preferredHabitat: "Deep still water with a soft mud bottom",
+      fact: "Adult snapping turtles have almost no natural predators and can live for decades.",
       requirements: {
         minHealth: 60,
         objects: {
@@ -8290,7 +10763,25 @@ var animals_2_default = {
           lake: 5
         },
         hint: "A mud bank beside a lake of 5+ connected water tiles."
-      }
+      },
+      scientificName: "Chelydra serpentina",
+      role: "A heavily armored omnivore and scavenger lurking on the pond bottom. As an adult it sits near the top of the wetland food web, eating fish, ducklings, plants, and carrion.",
+      trophic: "omnivore",
+      eats: [
+        "freshwater-fish",
+        "mallard-duck"
+      ],
+      eatsOther: [
+        "aquatic plants",
+        "detritus",
+        "fish"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Chelydra serpentina",
+          url: "https://animaldiversity.org/accounts/Chelydra_serpentina/"
+        }
+      ]
     },
     {
       id: "marsh-wren",
@@ -8299,10 +10790,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "common",
       featured: false,
-      diet: "Marsh insects",
-      shelter: "Woven reed nests",
+      diet: "Insects and spiders picked from marsh vegetation",
+      shelter: "Woven dome nests among cattails and bulrushes",
       preferredHabitat: "Cattail and sedge stands",
-      fact: "Males build many dummy nests to court a mate.",
+      fact: "Males build many dummy nests and even destroy neighbours' eggs.",
       requirements: {
         minHealth: 50,
         objects: {
@@ -8311,7 +10802,19 @@ var animals_2_default = {
           "shallow-water-pool": 1
         },
         hint: "Two reed beds and a sedge tussock."
-      }
+      },
+      scientificName: "Cistothorus palustris",
+      role: "A tiny, feisty insectivore of the reeds. It gleans insects and spiders from stems and famously builds several decoy nests to court a mate.",
+      trophic: "insectivore",
+      eatsOther: [
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds - Marsh Wren",
+          url: "https://www.allaboutbirds.org/guide/Marsh_Wren/lifehistory"
+        }
+      ]
     },
     {
       id: "gila-woodpecker",
@@ -8320,10 +10823,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "uncommon",
       featured: false,
-      diet: "Insects, cactus fruit",
-      shelter: "Cactus cavities",
+      diet: "Insects, cactus fruit, and berries",
+      shelter: "Cavities excavated in saguaro cactus",
       preferredHabitat: "Saguaro and cactus stands",
-      fact: "Their abandoned cactus holes shelter owls and lizards later.",
+      fact: "Its abandoned saguaro cavities later shelter elf owls, pygmy-owls, and kestrels.",
       requirements: {
         minHealth: 50,
         objects: {
@@ -8331,7 +10834,28 @@ var animals_2_default = {
           "desert-brush": 1
         },
         hint: "Two cactus patches for nesting cavities."
-      }
+      },
+      scientificName: "Melanerpes uropygialis",
+      role: "A cactus-nesting woodpecker and desert keystone builder. It eats insects, cactus fruit, and berries, and its old nest holes house many other desert animals. Hawks, snakes, and bobcats prey on it.",
+      trophic: "omnivore",
+      eatenBy: [
+        "rattlesnake"
+      ],
+      eatsOther: [
+        "berries",
+        "cactus fruit",
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Arizona-Sonora Desert Museum \u2014 Gila Woodpecker",
+          url: "https://www.desertmuseum.org/kids/oz/long-fact-sheets/Gila%20Woodpecker.php"
+        },
+        {
+          name: "Cornell Lab All About Birds \u2014 Gila Woodpecker",
+          url: "https://www.allaboutbirds.org/guide/Gila_Woodpecker/overview"
+        }
+      ]
     },
     {
       id: "cactus-wren",
@@ -8340,10 +10864,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "common",
       featured: false,
-      diet: "Insects and seeds",
+      diet: "Spiders, insects, and some fruit",
       shelter: "Thorny cactus and brush",
       preferredHabitat: "Open desert with cactus",
-      fact: "They build football-shaped nests deep in spiny cholla.",
+      fact: "Cactus wrens use their football-shaped cholla nests year-round, even sleeping in them.",
       requirements: {
         minHealth: 45,
         objects: {
@@ -8352,7 +10876,27 @@ var animals_2_default = {
           "rock-pile": 1
         },
         hint: "A cactus patch and desert brush."
-      }
+      },
+      scientificName: "Campylorhynchus brunneicapillus",
+      role: "The largest North American wren, an insectivore gleaning spiders and insects and taking cactus fruit. It gets most of its water from food. Snakes, roadrunners, and hawks prey on it and its nests.",
+      trophic: "insectivore",
+      eats: [
+        "desert-bee"
+      ],
+      eatenBy: [
+        "rattlesnake",
+        "roadrunner"
+      ],
+      eatsOther: [
+        "cactus fruit",
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Cactus Wren",
+          url: "https://www.allaboutbirds.org/guide/Cactus_Wren/lifehistory"
+        }
+      ]
     },
     {
       id: "desert-iguana",
@@ -8361,10 +10905,10 @@ var animals_2_default = {
       kind: "reptile",
       rarity: "uncommon",
       featured: false,
-      diet: "Flowers and leaves",
+      diet: "Flowers, buds, and leaves, especially creosote",
       shelter: "Burrows under shrubs",
       preferredHabitat: "Hot sandy flats with cover",
-      fact: "It stays active at temperatures that drive other lizards to shade.",
+      fact: "Desert iguanas stay active near 40C, heat that drives other lizards into the shade.",
       requirements: {
         minHealth: 50,
         objects: {
@@ -8373,7 +10917,24 @@ var animals_2_default = {
           "desert-brush": 1
         },
         hint: "An agave rosette and a rock pile."
-      }
+      },
+      scientificName: "Dipsosaurus dorsalis",
+      role: "A heat-loving herbivorous lizard that feeds mainly on creosote bush flowers and leaves. It is a desert plant grazer and prey for snakes, raptors, and foxes. It shelters in burrows through the hottest hours.",
+      trophic: "herbivore",
+      eatenBy: [
+        "kit-fox",
+        "rattlesnake"
+      ],
+      eatsOther: [
+        "flowers",
+        "leaves"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Dipsosaurus dorsalis",
+          url: "https://animaldiversity.org/accounts/Dipsosaurus_dorsalis/"
+        }
+      ]
     },
     {
       id: "kangaroo-mouse",
@@ -8382,10 +10943,10 @@ var animals_2_default = {
       kind: "mammal",
       rarity: "uncommon",
       featured: false,
-      diet: "Seeds",
-      shelter: "Sand burrows",
+      diet: "Seeds, plus insects in summer",
+      shelter: "Sand burrows plugged by day",
       preferredHabitat: "Fine sandy desert",
-      fact: "It survives on metabolic water and may never drink at all.",
+      fact: "It survives on water made from its food and may go a lifetime without ever drinking.",
       requirements: {
         minHealth: 50,
         objects: {
@@ -8394,7 +10955,25 @@ var animals_2_default = {
           "cactus-patch": 1
         },
         hint: "A burrow mound near desert brush."
-      }
+      },
+      scientificName: "Microdipodops pallidus",
+      role: "A tiny seed-eating rodent that stores fat in its tail for lean times. It is prey for rattlesnakes, owls, and foxes, making it part of the base of the desert food web. It rarely if ever needs to drink.",
+      trophic: "herbivore",
+      eatenBy: [
+        "burrowing-owl",
+        "kit-fox",
+        "rattlesnake"
+      ],
+      eatsOther: [
+        "insects",
+        "seeds"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Microdipodops pallidus",
+          url: "https://animaldiversity.org/accounts/Microdipodops_pallidus/"
+        }
+      ]
     },
     {
       id: "banded-gecko",
@@ -8403,10 +10982,10 @@ var animals_2_default = {
       kind: "reptile",
       rarity: "common",
       featured: false,
-      diet: "Insects and spiders",
+      diet: "Insects, spiders, and small scorpions",
       shelter: "Rock crevices",
       preferredHabitat: "Sheltered rocky desert",
-      fact: "Unlike most geckos it has movable eyelids and a soft voice.",
+      fact: "Unlike most geckos, the banded gecko has movable eyelids and squeaks when captured.",
       requirements: {
         minHealth: 45,
         objects: {
@@ -8415,7 +10994,28 @@ var animals_2_default = {
           "desert-brush": 1
         },
         hint: "Ocotillo beside a shaded rock shelter."
-      }
+      },
+      scientificName: "Coleonyx variegatus",
+      role: "A small nocturnal gecko that hunts insects, spiders, and even young scorpions. It is a mesopredator on tiny desert prey and food for larger lizards, snakes, and roadrunners. It sheds its tail to escape.",
+      trophic: "insectivore",
+      eats: [
+        "desert-bee",
+        "scorpion"
+      ],
+      eatenBy: [
+        "collared-lizard",
+        "rattlesnake",
+        "roadrunner"
+      ],
+      eatsOther: [
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Arizona-Sonora Desert Museum \u2014 Western Banded Gecko",
+          url: "https://www.desertmuseum.org/books/nhsd_banded_gecko.php"
+        }
+      ]
     },
     {
       id: "rosy-finch",
@@ -8424,10 +11024,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "uncommon",
       featured: false,
-      diet: "Seeds and insects",
-      shelter: "Cliff crevices",
-      preferredHabitat: "High talus and wildflower turf",
-      fact: "They nest higher than almost any other songbird in North America.",
+      diet: "Tiny alpine plant seeds and insects, often gleaned off snowfields",
+      shelter: "Bulky cup of moss and grass tucked into a cliff crack or talus",
+      preferredHabitat: "Alpine zones above treeline: talus, scree, cliffs, and glaciers",
+      fact: "It nests higher than nearly any other songbird in North America.",
       requirements: {
         minHealth: 50,
         objects: {
@@ -8436,7 +11036,25 @@ var animals_2_default = {
           "heather-mat": 1
         },
         hint: "Alpine wildflowers and a rock pile."
-      }
+      },
+      scientificName: "Leucosticte tephrocotis",
+      role: "A high-altitude songbird that hops across snow and talus gathering wind-borne seeds and chilled insects. It nests in rock crevices above treeline. Falcons and hawks are its main predators.",
+      trophic: "omnivore",
+      eatsOther: [
+        "alpine plants",
+        "insects",
+        "seeds"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds - Gray-crowned Rosy-Finch",
+          url: "https://www.allaboutbirds.org/guide/Gray-crowned_Rosy-Finch/lifehistory"
+        },
+        {
+          name: "USFWS - Gray-crowned Rosy-Finch",
+          url: "https://www.fws.gov/species/grey-crowned-rosy-finch-leucosticte-tephrocotis"
+        }
+      ]
     },
     {
       id: "american-pipit",
@@ -8445,10 +11063,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "common",
       featured: false,
-      diet: "Insects and seeds",
-      shelter: "Tundra tussocks",
-      preferredHabitat: "Open alpine meadow",
-      fact: "It bobs its tail constantly as it walks the high meadows.",
+      diet: "Mostly insects and their larvae, plus spiders and some seeds",
+      shelter: "Ground nest of grass tucked beside a rock or vegetation clump",
+      preferredHabitat: "Open alpine meadows and tundra in the breeding season",
+      fact: "It forages at snowbank edges for insects chilled after drifting up from below.",
       requirements: {
         minHealth: 50,
         objects: {
@@ -8457,7 +11075,28 @@ var animals_2_default = {
           "rock-pile": 1
         },
         hint: "A heather mat and alpine wildflowers."
-      }
+      },
+      scientificName: "Anthus rubescens",
+      role: "A slender ground-walking songbird of open alpine meadows that constantly bobs its tail as it hunts insects. It gleans chilled prey from snowbank margins. Hawks and nest raiders are its chief threats.",
+      trophic: "insectivore",
+      eatenBy: [
+        "fox-alpine"
+      ],
+      eatsOther: [
+        "insects",
+        "seeds",
+        "spiders"
+      ],
+      sources: [
+        {
+          name: "Birds of the World - American Pipit Food Habits",
+          url: "https://birdsoftheworld.org/bow/species/amepip/cur/foodhabits"
+        },
+        {
+          name: "Audubon Field Guide - American Pipit",
+          url: "https://www.audubon.org/field-guide/bird/american-pipit"
+        }
+      ]
     },
     {
       id: "ermine",
@@ -8466,10 +11105,10 @@ var animals_2_default = {
       kind: "mammal",
       rarity: "rare",
       featured: false,
-      diet: "Small rodents",
-      shelter: "Rock crevices and burrows",
-      preferredHabitat: "Talus near meadows",
-      fact: "Its coat turns pure white in winter except for a black tail tip.",
+      diet: "Small rodents, especially voles; also pikas, birds, eggs, and insects",
+      shelter: "Dens in prey burrows, rock piles, and hollow logs, lined with fur",
+      preferredHabitat: "Talus and shrubby edges near meadows with dense rodent prey",
+      fact: "Its coat turns pure white in winter except for a jet-black tail tip.",
       requirements: {
         minHealth: 65,
         objects: {
@@ -8481,7 +11120,37 @@ var animals_2_default = {
           "pika"
         ],
         hint: "Rock pile and krummholz, once pikas are back."
-      }
+      },
+      scientificName: "Mustela richardsonii",
+      role: "A small, fierce weasel that specializes in voles and other rodents, also taking young pikas and ground-bird eggs. It hunts prey burrows it can slip right into. Foxes, martens, and raptors prey on it in turn.",
+      trophic: "mesopredator",
+      eats: [
+        "alpine-chipmunk",
+        "mountain-chickadee",
+        "pika",
+        "ptarmigan",
+        "white-crowned-sparrow"
+      ],
+      eatenBy: [
+        "fox-alpine",
+        "golden-eagle",
+        "pine-marten"
+      ],
+      eatsOther: [
+        "insects",
+        "mice",
+        "voles"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Mustela erminea",
+          url: "https://animaldiversity.org/accounts/Mustela_erminea/"
+        },
+        {
+          name: "Idaho Fish and Game - Mustela erminea",
+          url: "https://idfg.idaho.gov/species/taxa/17667"
+        }
+      ]
     },
     {
       id: "boreal-toad",
@@ -8490,10 +11159,10 @@ var animals_2_default = {
       kind: "amphibian",
       rarity: "uncommon",
       featured: false,
-      diet: "Insects",
-      shelter: "Damp shelter near pools",
-      preferredHabitat: "Snowmelt ponds and seeps",
-      fact: "They can take years to mature in the short alpine summers.",
+      diet: "Beetles, ants, flies, and other invertebrates; tadpoles graze algae",
+      shelter: "Burrows, rodent holes, logs, and rocks in moist cover near pools",
+      preferredHabitat: "Subalpine and alpine wet meadows with open breeding pools",
+      fact: "Rocky Mountain boreal toads have crashed from the deadly amphibian chytrid fungus.",
       requirements: {
         minHealth: 55,
         objects: {
@@ -8504,7 +11173,27 @@ var animals_2_default = {
           tiles: 3
         },
         hint: "A snowmelt pool and a few open-water tiles."
-      }
+      },
+      scientificName: "Anaxyrus boreas boreas",
+      role: "The high country's only toad, an insect-eating amphibian that breeds in shallow snowmelt pools and takes years to mature. Its tadpoles graze algae. Chytrid fungus has devastated southern populations, making it a conservation flagship.",
+      trophic: "insectivore",
+      eatenBy: [
+        "fox-alpine"
+      ],
+      eatsOther: [
+        "insects",
+        "invertebrates"
+      ],
+      sources: [
+        {
+          name: "USFS FEIS - Anaxyrus boreas",
+          url: "https://www.fs.usda.gov/database/feis/animals/amphibian/anbo/all.html"
+        },
+        {
+          name: "USFWS - Boreal toad species profile",
+          url: "https://ecos.fws.gov/ecp/species/D026"
+        }
+      ]
     },
     {
       id: "mountain-bluebird",
@@ -8513,10 +11202,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "common",
       featured: false,
-      diet: "Insects",
-      shelter: "Tree-line cavities",
-      preferredHabitat: "High meadows with scattered trees",
-      fact: "Males are an almost unreal sky-blue all over.",
+      diet: "Mostly insects caught in flight; berries and seeds in colder months",
+      shelter: "Old woodpecker holes, natural cavities, and nest boxes",
+      preferredHabitat: "Open high meadows with scattered trees and hunting perches",
+      fact: "It cannot dig its own hole, so it reuses old woodpecker cavities and nest boxes.",
       requirements: {
         minHealth: 50,
         objects: {
@@ -8525,7 +11214,25 @@ var animals_2_default = {
           "rock-pile": 1
         },
         hint: "A krummholz pine and alpine wildflowers."
-      }
+      },
+      scientificName: "Sialia currucoides",
+      role: "A brilliant sky-blue thrush of open high meadows that hover-hunts insects on the wing and adds berries in the cold. As a cavity nester it depends on old woodpecker holes. Hawks and cavity raiders prey on it.",
+      trophic: "insectivore",
+      eatsOther: [
+        "berries",
+        "insects",
+        "seeds"
+      ],
+      sources: [
+        {
+          name: "Audubon Field Guide - Mountain Bluebird",
+          url: "https://www.audubon.org/field-guide/bird/mountain-bluebird"
+        },
+        {
+          name: "Sialis.org - Mountain Bluebird biology",
+          url: "https://www.sialis.org/moblbio/"
+        }
+      ]
     },
     {
       id: "sanderling",
@@ -8534,10 +11241,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "common",
       featured: false,
-      diet: "Tiny crustaceans",
-      shelter: "Open beach",
-      preferredHabitat: "Sandy surf line",
-      fact: "They chase the retreating waves in busy little sprints.",
+      diet: "Small crabs, amphipods, worms, and mollusks",
+      shelter: "Open beach above the surf line",
+      preferredHabitat: "Sandy surf line and wave-washed beach",
+      fact: "Sanderlings chase retreating waves in busy little sprints to grab stranded invertebrates.",
       requirements: {
         minHealth: 50,
         objects: {
@@ -8546,7 +11253,20 @@ var animals_2_default = {
           "kelp-wrack": 1
         },
         hint: "Two dune-grass plantings and a tidepool."
-      }
+      },
+      scientificName: "Calidris alba",
+      role: "A wave-chasing sandpiper that feeds on small crustaceans and worms churned up by the surf. Falcons are a key predator, and its winter flocks track the health of open sandy beaches.",
+      trophic: "insectivore",
+      eatsOther: [
+        "clams",
+        "mole crabs"
+      ],
+      sources: [
+        {
+          name: "All About Birds - Sanderling Life History",
+          url: "https://www.allaboutbirds.org/guide/Sanderling/lifehistory"
+        }
+      ]
     },
     {
       id: "black-oystercatcher",
@@ -8555,10 +11275,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "uncommon",
       featured: false,
-      diet: "Mussels and limpets",
-      shelter: "Rocky shore ledges",
-      preferredHabitat: "Tidepool reefs",
-      fact: "Its long red bill pries shellfish from the rocks.",
+      diet: "Mussels and limpets, plus whelks and crabs",
+      shelter: "Rocky shore ledges just above the tide",
+      preferredHabitat: "Rocky intertidal reefs and tidepool shores",
+      fact: "Its long red bill pries shellfish open and cuts the muscle before the shell shuts.",
       requirements: {
         minHealth: 55,
         objects: {
@@ -8567,7 +11287,24 @@ var animals_2_default = {
           "dune-grass": 1
         },
         hint: "An oyster bed beside a tidepool."
-      }
+      },
+      scientificName: "Haematopus bachmani",
+      role: "A rocky-shore specialist that pries mussels and limpets from the rocks, timing feeding to the tides. It is a sensitive indicator of intertidal health, thriving only where shellfish are plentiful.",
+      trophic: "mesopredator",
+      eats: [
+        "mussel",
+        "tidepool-crab"
+      ],
+      eatsOther: [
+        "clams",
+        "mussels"
+      ],
+      sources: [
+        {
+          name: "All About Birds - Black Oystercatcher Life History",
+          url: "https://www.allaboutbirds.org/guide/Black_Oystercatcher/lifehistory"
+        }
+      ]
     },
     {
       id: "purple-shore-crab",
@@ -8576,10 +11313,10 @@ var animals_2_default = {
       kind: "invertebrate",
       rarity: "common",
       featured: false,
-      diet: "Algae and detritus",
-      shelter: "Under rocks",
-      preferredHabitat: "Sheltered rocky intertidal",
-      fact: "They scuttle sideways under stones when the tide pulls back.",
+      diet: "Sea lettuce and other green algae, plus occasional carrion",
+      shelter: "Under rocks in the intertidal",
+      preferredHabitat: "Sheltered rocky intertidal under stones",
+      fact: "They scrape green algae from rocks and scuttle sideways under stones at low tide.",
       requirements: {
         minHealth: 45,
         objects: {
@@ -8588,7 +11325,25 @@ var animals_2_default = {
           "dune-grass": 1
         },
         hint: "A tidepool and an oyster bed."
-      }
+      },
+      scientificName: "Hemigrapsus nudus",
+      role: "A small grazing crab that scrapes algae from intertidal rocks and occasionally scavenges. It is common prey for gulls, anemones, and tidepool fish, moving algal energy up the food web.",
+      trophic: "omnivore",
+      eatenBy: [
+        "anemone",
+        "black-turnstone",
+        "gull"
+      ],
+      eatsOther: [
+        "algae",
+        "kelp"
+      ],
+      sources: [
+        {
+          name: "iNaturalist - Purple Shore Crab (Hemigrapsus nudus)",
+          url: "https://www.inaturalist.org/taxa/48342-Hemigrapsus-nudus"
+        }
+      ]
     },
     {
       id: "brant-goose",
@@ -8597,10 +11352,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "uncommon",
       featured: false,
-      diet: "Eelgrass",
-      shelter: "Open shoreline",
-      preferredHabitat: "Shallow bays with eelgrass",
-      fact: "Whole flocks depend on eelgrass beds to fuel their migration.",
+      diet: "Eelgrass and large green algae like sea lettuce",
+      shelter: "Open shoreline and shallow bays",
+      preferredHabitat: "Shallow coastal bays with eelgrass beds",
+      fact: "Whole flocks of brant depend on eelgrass beds to fuel their long migrations.",
       requirements: {
         minHealth: 60,
         objects: {
@@ -8611,7 +11366,20 @@ var animals_2_default = {
           tiles: 4
         },
         hint: "An eelgrass bed beside open water."
-      }
+      },
+      scientificName: "Branta bernicla",
+      role: "A small sea goose that grazes almost entirely on eelgrass and green algae in shallow bays. Its dependence on eelgrass makes healthy brant flocks a clear indicator of intact seagrass beds.",
+      trophic: "herbivore",
+      eatsOther: [
+        "algae",
+        "seagrass"
+      ],
+      sources: [
+        {
+          name: "All About Birds - Brant Life History",
+          url: "https://www.allaboutbirds.org/guide/Brant/lifehistory"
+        }
+      ]
     },
     {
       id: "snowy-plover",
@@ -8620,10 +11388,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "rare",
       featured: false,
-      diet: "Beach invertebrates",
-      shelter: "Dune scrapes",
-      preferredHabitat: "Quiet sandy dunes",
-      fact: "They nest in tiny scrapes right on the open sand.",
+      diet: "Beach invertebrates: crustaceans, flies, and small mollusks",
+      shelter: "Shallow scrapes on open sand",
+      preferredHabitat: "Quiet sandy dunes and open beach",
+      fact: "Western snowy plovers nest in tiny scrapes right on the open sand.",
       requirements: {
         minHealth: 60,
         objects: {
@@ -8632,7 +11400,24 @@ var animals_2_default = {
           tidepool: 1
         },
         hint: "Dune grass and a coastal nesting area."
-      }
+      },
+      scientificName: "Charadrius nivosus nivosus",
+      role: "A threatened beach-nesting plover that feeds on small invertebrates along the sand and tide line. Extremely sensitive to disturbance, it is a flagship indicator of protected, undisturbed dune beaches.",
+      trophic: "insectivore",
+      eatsOther: [
+        "fly larvae",
+        "mole crabs"
+      ],
+      sources: [
+        {
+          name: "All About Birds - Snowy Plover Life History",
+          url: "https://www.allaboutbirds.org/guide/Snowy_Plover/lifehistory"
+        },
+        {
+          name: "USFWS - Western Snowy Plover",
+          url: "https://www.fws.gov/species/western-snowy-plover-charadrius-nivosus-nivosus"
+        }
+      ]
     },
     {
       id: "costas-hummingbird",
@@ -8642,9 +11427,9 @@ var animals_2_default = {
       rarity: "uncommon",
       featured: false,
       diet: "Flower nectar and tiny insects",
-      shelter: "Shrub and cactus",
+      shelter: "Nests in shrubs and cactus",
       preferredHabitat: "Blooming desert with nectar sources",
-      fact: "Males dive and flash violet throat feathers to court a mate.",
+      fact: "Courting males dive past a female with a shrill whistle, flashing violet throat feathers.",
       requirements: {
         minHealth: 40,
         objects: {
@@ -8652,7 +11437,20 @@ var animals_2_default = {
           "cactus-patch": 1
         },
         hint: "A nectar feeder beside a cactus patch."
-      }
+      },
+      scientificName: "Calypte costae",
+      role: "A small desert hummingbird that feeds on nectar from agave, chuparosa, and other blooms plus tiny insects. It is an important pollinator and a nectar-feeding herbivore. Snakes and predatory birds take it.",
+      trophic: "herbivore",
+      eatsOther: [
+        "insects",
+        "nectar"
+      ],
+      sources: [
+        {
+          name: "Audubon \u2014 Costa's Hummingbird",
+          url: "https://www.audubon.org/field-guide/bird/costas-hummingbird"
+        }
+      ]
     },
     {
       id: "coopers-hawk",
@@ -8661,10 +11459,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "uncommon",
       featured: false,
-      diet: "Small birds",
-      shelter: "Tree cover",
-      preferredHabitat: "Wooded meadow edges",
-      fact: "It threads through dense branches at full speed chasing songbirds.",
+      diet: "Mainly medium and small birds; also chipmunks, mice, and squirrels",
+      shelter: "Builds a stick nest high in a tree, on a limb or in a crotch",
+      preferredHabitat: "Woodland edges and open country with scattered trees near meadows",
+      fact: "Cooper's Hawks thread through dense cover at high speed to ambush songbirds \u2014 a risky style that leaves many with healed chest-bone fractures.",
       requirements: {
         minHealth: 55,
         objects: {
@@ -8676,7 +11474,34 @@ var animals_2_default = {
           "song-sparrow"
         ],
         hint: "Plant an oak, add a bird perch and a shrub, once sparrows are back."
-      }
+      },
+      scientificName: "Accipiter cooperii",
+      role: "A bird-hunting mesopredator that patrols meadow edges and thickets for songbirds. Its agile, low pursuit flight lets it pluck sparrows, finches, and bluebirds from cover. It controls small-bird numbers but can itself be displaced by larger raptors.",
+      trophic: "mesopredator",
+      eats: [
+        "american-goldfinch",
+        "barn-swallow",
+        "eastern-bluebird",
+        "garter-snake-meadow",
+        "killdeer",
+        "song-sparrow",
+        "western-meadowlark"
+      ],
+      eatsOther: [
+        "chipmunks",
+        "mice",
+        "squirrels"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Cooper's Hawk Life History",
+          url: "https://www.allaboutbirds.org/guide/Coopers_Hawk/lifehistory"
+        },
+        {
+          name: "Cornell Lab All About Birds \u2014 Cooper's Hawk Overview",
+          url: "https://www.allaboutbirds.org/guide/Coopers_Hawk/overview"
+        }
+      ]
     },
     {
       id: "western-screech-owl",
@@ -8685,10 +11510,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "uncommon",
       featured: false,
-      diet: "Insects and mice",
-      shelter: "Tree cavities",
-      preferredHabitat: "Oaks with hollows",
-      fact: "Its bouncing-ball call rolls through the dusk.",
+      diet: "Small mammals and large insects; also small birds and worms",
+      shelter: "Roosts and nests in tree cavities, old woodpecker holes, and boxes",
+      preferredHabitat: "Wooded edges and brushy areas bordering open meadows",
+      fact: "This pint-sized owl occasionally takes prey larger than itself, including cottontail rabbits.",
       requirements: {
         minHealth: 55,
         objects: {
@@ -8697,7 +11522,31 @@ var animals_2_default = {
           "log-shelter": 1
         },
         hint: "Plant an oak and craft a hollow log and log shelter."
-      }
+      },
+      scientificName: "Megascops kennicottii",
+      role: "A small nocturnal mesopredator that sits and waits, then drops onto rodents and insects, gleaning grasshoppers and beetles and snatching voles and mice on the ground. It bridges insect and rodent control in the meadow at night.",
+      trophic: "mesopredator",
+      eats: [
+        "american-goldfinch",
+        "eastern-bluebird",
+        "grasshopper",
+        "meadow-vole"
+      ],
+      eatsOther: [
+        "deer mice",
+        "large insects",
+        "worms"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Western Screech-Owl Life History",
+          url: "https://www.allaboutbirds.org/guide/Western_Screech-Owl/lifehistory"
+        },
+        {
+          name: "Cornell Lab All About Birds \u2014 Western Screech-Owl Overview",
+          url: "https://www.allaboutbirds.org/guide/Western_Screech-Owl/overview"
+        }
+      ]
     },
     {
       id: "barred-owl",
@@ -8706,10 +11555,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "uncommon",
       featured: false,
-      diet: "Rodents and amphibians",
-      shelter: "Large tree cavities",
-      preferredHabitat: "Mature damp woodland",
-      fact: "Its 'who-cooks-for-you' call is the voice of the old forest.",
+      diet: "Small mammals, birds, amphibians, reptiles, fish, and invertebrates",
+      shelter: "Large tree cavities in mature forest; also old hawk, crow, or squirrel nests",
+      preferredHabitat: "Mature mixed or conifer forest near water with large cavity trees",
+      fact: "Barred owls sometimes wade into shallow water to catch fish\u2014unusual hunting for a woodland owl.",
       requirements: {
         minHealth: 55,
         objects: {
@@ -8718,7 +11567,47 @@ var animals_2_default = {
           "standing-deadwood": 1
         },
         hint: "A nesting tree, a planted oak, and standing deadwood."
-      }
+      },
+      scientificName: "Strix varia",
+      role: "The barred owl is a mid-level predator that regulates mice, voles, chipmunks, squirrels, and amphibians. It sits between small prey and the apex great horned owl, which is its main predator. Its need for large cavity trees makes it an indicator of mature forest health.",
+      trophic: "mesopredator",
+      eats: [
+        "chipmunk",
+        "forest-salamander",
+        "garter-snake-forest",
+        "little-brown-bat",
+        "meadow-vole",
+        "northern-flying-squirrel",
+        "nuthatch",
+        "pacific-wren",
+        "pileated-woodpecker",
+        "rough-skinned-newt",
+        "spotted-towhee",
+        "tree-squirrel",
+        "wood-duck",
+        "woodpecker"
+      ],
+      eatenBy: [
+        "great-horned-owl",
+        "raccoon"
+      ],
+      eatsOther: [
+        "crayfish",
+        "fish",
+        "insects",
+        "mice",
+        "voles"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Strix varia",
+          url: "https://animaldiversity.org/accounts/Strix_varia/"
+        },
+        {
+          name: "Cornell Lab All About Birds \u2014 Barred Owl",
+          url: "https://www.allaboutbirds.org/guide/Barred_Owl/lifehistory"
+        }
+      ]
     },
     {
       id: "fisher",
@@ -8727,10 +11616,10 @@ var animals_2_default = {
       kind: "mammal",
       rarity: "rare",
       featured: false,
-      diet: "Small mammals",
-      shelter: "Tree dens and stumps",
-      preferredHabitat: "Dense old forest",
-      fact: "One of the few predators that can hunt porcupines.",
+      diet: "Small and medium mammals\u2014porcupines, hares, squirrels, mice; also birds and fruit",
+      shelter: "Dens in hollow trees, logs, stumps, and ground burrows; young in high tree cavities",
+      preferredHabitat: "Dense conifer and mixed forest with high canopy closure and hollow trees",
+      fact: "The fisher is one of the only predators that regularly kills porcupines, slashing the face until it can flip it over.",
       requirements: {
         minHealth: 60,
         objects: {
@@ -8742,7 +11631,45 @@ var animals_2_default = {
           "tree-squirrel"
         ],
         hint: "Plant a birch, add a stump and mushroom log, once squirrels are back."
-      }
+      },
+      scientificName: "Pekania pennanti",
+      role: "The fisher is a powerful mid-level forest predator and one of the few checks on porcupine numbers, which otherwise damage timber. It partly fills the niche of vanished apex predators, and its presence signals mature, connected forest. Young fishers are prey for bobcats, foxes, and lynx.",
+      trophic: "mesopredator",
+      eats: [
+        "bobcat",
+        "chipmunk",
+        "garter-snake-forest",
+        "little-brown-bat",
+        "northern-flying-squirrel",
+        "pileated-woodpecker",
+        "porcupine",
+        "raccoon",
+        "tree-squirrel",
+        "wood-duck",
+        "woodpecker"
+      ],
+      eatenBy: [
+        "bobcat",
+        "red-fox-forest"
+      ],
+      eatsOther: [
+        "berries",
+        "carrion",
+        "hares",
+        "nuts",
+        "shrews",
+        "voles"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Martes pennanti",
+          url: "https://animaldiversity.org/accounts/Martes_pennanti/"
+        },
+        {
+          name: "NPS \u2014 Species Spotlight: Fisher",
+          url: "https://www.nps.gov/articles/netn-species-spotlight-fisher.htm"
+        }
+      ]
     },
     {
       id: "prothonotary-warbler",
@@ -8751,10 +11678,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "rare",
       featured: false,
-      diet: "Insects",
-      shelter: "Cavities over water",
-      preferredHabitat: "Flooded cypress swamp",
-      fact: "A glowing-gold warbler that nests in holes above the water.",
+      diet: "Insects and spiders; some snails, fruit, and seeds off-season",
+      shelter: "Tree cavities and nest boxes over standing water",
+      preferredHabitat: "Flooded wooded swamp",
+      fact: "It is one of only two North American warblers that nest in tree cavities.",
       requirements: {
         minHealth: 55,
         objects: {
@@ -8763,7 +11690,19 @@ var animals_2_default = {
           "nesting-platform": 1
         },
         hint: "Plant a bald cypress with a reed bed and nesting platform."
-      }
+      },
+      scientificName: "Protonotaria citrea",
+      role: "A glowing-gold swamp warbler that gleans insects and spiders over the water. Unusually for a warbler, it nests in cavities, often above standing water.",
+      trophic: "insectivore",
+      eatsOther: [
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds - Prothonotary Warbler",
+          url: "https://www.allaboutbirds.org/guide/Prothonotary_Warbler/lifehistory"
+        }
+      ]
     },
     {
       id: "green-heron",
@@ -8772,10 +11711,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "uncommon",
       featured: false,
-      diet: "Fish and frogs",
-      shelter: "Overhanging branches",
+      diet: "Mainly small fish; also insects, crustaceans, and frogs",
+      shelter: "Stick nests in trees and shrubs overhanging water",
       preferredHabitat: "Quiet wooded shallows",
-      fact: "One of the few birds that uses bait \u2014 dropping insects to lure fish.",
+      fact: "The green heron drops bait on the water to lure fish within striking range.",
       requirements: {
         minHealth: 55,
         objects: {
@@ -8786,7 +11725,24 @@ var animals_2_default = {
           tiles: 3
         },
         hint: "Plant a water tupelo by a lily pool and open water."
-      }
+      },
+      scientificName: "Butorides virescens",
+      role: "A small, crafty heron of shady shallows and one of few tool-using birds. It fishes patiently and sometimes baits the surface to draw fish close.",
+      trophic: "mesopredator",
+      eats: [
+        "freshwater-fish",
+        "northern-leopard-frog"
+      ],
+      eatsOther: [
+        "fish",
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds - Green Heron",
+          url: "https://www.allaboutbirds.org/guide/Green_Heron/lifehistory"
+        }
+      ]
     },
     {
       id: "elf-owl",
@@ -8796,9 +11752,9 @@ var animals_2_default = {
       rarity: "rare",
       featured: false,
       diet: "Insects and scorpions",
-      shelter: "Cactus and tree cavities",
+      shelter: "Cavities in cactus and trees",
       preferredHabitat: "Mesquite and saguaro desert",
-      fact: "The smallest owl in the world, no bigger than a sparrow.",
+      fact: "The world's smallest owl plucks the stinger off scorpions before eating them.",
       requirements: {
         minHealth: 55,
         objects: {
@@ -8807,7 +11763,26 @@ var animals_2_default = {
           "cactus-patch": 1
         },
         hint: "Plant a mesquite and an ironwood beside a cactus patch."
-      }
+      },
+      scientificName: "Micrathene whitneyi",
+      role: "The world's smallest owl, a nocturnal insectivore that hunts insects and scorpions and nests in old woodpecker holes. It is a mesopredator on desert arthropods. Snakes and larger owls threaten it.",
+      trophic: "insectivore",
+      eats: [
+        "scorpion"
+      ],
+      eatsOther: [
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Elf Owl",
+          url: "https://www.allaboutbirds.org/guide/Elf_Owl/lifehistory"
+        },
+        {
+          name: "Cornell Lab All About Birds \u2014 Elf Owl Overview",
+          url: "https://www.allaboutbirds.org/guide/Elf_Owl/overview"
+        }
+      ]
     },
     {
       id: "mountain-chickadee",
@@ -8816,9 +11791,9 @@ var animals_2_default = {
       kind: "bird",
       rarity: "common",
       featured: false,
-      diet: "Insects and conifer seeds",
-      shelter: "Conifer cavities",
-      preferredHabitat: "High evergreen slopes",
+      diet: "Insects and spiders in summer; conifer seeds and nuts in fall and winter",
+      shelter: "Old woodpecker holes and natural cavities in conifers and aspen",
+      preferredHabitat: "High evergreen forests of pine, fir, and spruce in the West",
       fact: "It caches thousands of seeds and remembers where it hid them.",
       requirements: {
         minHealth: 55,
@@ -8828,7 +11803,31 @@ var animals_2_default = {
           "alpine-wildflower-patch": 1
         },
         hint: "Plant a subalpine fir and krummholz with alpine wildflowers."
-      }
+      },
+      scientificName: "Poecile gambeli",
+      role: "A busy conifer-forest insectivore that gleans insects from twigs and switches to cached pine seeds in winter. Often the nucleus of mixed foraging flocks, it disperses conifer seeds. Small hawks, weasels, and martens prey on it and its nestlings.",
+      trophic: "insectivore",
+      eatenBy: [
+        "ermine",
+        "fox-alpine",
+        "pine-marten"
+      ],
+      eatsOther: [
+        "conifer seeds",
+        "insects",
+        "seeds",
+        "spiders"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds - Mountain Chickadee",
+          url: "https://www.allaboutbirds.org/guide/Mountain_Chickadee/lifehistory"
+        },
+        {
+          name: "Audubon Field Guide - Mountain Chickadee",
+          url: "https://www.audubon.org/field-guide/bird/mountain-chickadee"
+        }
+      ]
     },
     {
       id: "pine-grosbeak",
@@ -8837,10 +11836,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "uncommon",
       featured: false,
-      diet: "Buds, seeds, berries",
-      shelter: "Dense conifers",
-      preferredHabitat: "Subalpine forest",
-      fact: "A plump, unhurried finch of the cold high forests.",
+      diet: "Buds, seeds, and fruits of conifers and shrubs; some insects in summer",
+      shelter: "Concealed cup nest near the trunk of a dense conifer",
+      preferredHabitat: "Open subalpine spruce, fir, and pine forest near timberline",
+      fact: "A plump, unhurried finch of the cold high forests, nipping buds and needles.",
       requirements: {
         minHealth: 55,
         objects: {
@@ -8849,7 +11848,31 @@ var animals_2_default = {
           "rock-pile": 1
         },
         hint: "Plant an aspen and a subalpine fir near a rock pile."
-      }
+      },
+      scientificName: "Pinicola enucleator",
+      role: "A large, sluggish finch that lives almost entirely on conifer buds, seeds, and fruits, adding insects to feed its young. It helps disperse tree and shrub seeds. Martens, small raptors, and foxes prey on it, especially at nests.",
+      trophic: "omnivore",
+      eatenBy: [
+        "fox-alpine",
+        "golden-eagle",
+        "pine-marten"
+      ],
+      eatsOther: [
+        "berries",
+        "conifer buds",
+        "insects",
+        "seeds"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds - Pine Grosbeak",
+          url: "https://www.allaboutbirds.org/guide/Pine_Grosbeak/lifehistory"
+        },
+        {
+          name: "Audubon Field Guide - Pine Grosbeak",
+          url: "https://www.audubon.org/field-guide/bird/pine-grosbeak"
+        }
+      ]
     },
     {
       id: "annas-hummingbird",
@@ -8858,10 +11881,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "common",
       featured: false,
-      diet: "Nectar and insects",
-      shelter: "Shrubs and small trees",
-      preferredHabitat: "Flowering coastal scrub",
-      fact: "Males dive 27 m and pull up with a loud chirp from their tail feathers.",
+      diet: "Flower nectar and small insects",
+      shelter: "Shrubs and small trees in coastal scrub",
+      preferredHabitat: "Flowering coastal scrub and gardens",
+      fact: "Males dive from about 27 m and pull up with a loud chirp made by their tail feathers.",
       requirements: {
         minHealth: 50,
         objects: {
@@ -8870,7 +11893,16 @@ var animals_2_default = {
           "sea-thrift": 1
         },
         hint: "Plant a Monterey cypress with dune grass and sea thrift."
-      }
+      },
+      scientificName: "Calypte anna",
+      role: "A year-round coastal hummingbird that feeds on nectar and small insects, pollinating shrubs like manzanita and gooseberry as it forages. It links flowering coastal scrub to the wider food web.",
+      trophic: "omnivore",
+      sources: [
+        {
+          name: "All About Birds - Anna's Hummingbird Life History",
+          url: "https://www.allaboutbirds.org/guide/Annas_Hummingbird/lifehistory"
+        }
+      ]
     },
     {
       id: "acorn-woodpecker",
@@ -8879,10 +11911,10 @@ var animals_2_default = {
       kind: "bird",
       rarity: "uncommon",
       featured: false,
-      diet: "Acorns and insects",
-      shelter: "Oak granary trees",
+      diet: "Acorns and insects, plus sap and fruit",
+      shelter: "Oak granary trees with stored acorns",
       preferredHabitat: "Coastal oak woodland",
-      fact: "It drills thousands of holes in a 'granary tree' and stores an acorn in each.",
+      fact: "It drills thousands of holes in a granary tree and stores a single acorn in each.",
       requirements: {
         minHealth: 55,
         objects: {
@@ -8891,7 +11923,16 @@ var animals_2_default = {
           tidepool: 1
         },
         hint: "Plant a coast live oak near a driftwood shelter and tidepool."
-      }
+      },
+      scientificName: "Melanerpes formicivorus",
+      role: "A social woodpecker that hoards acorns in shared granary trees and hawks flying insects. Its acorn caching and old cavities support other coastal-woodland animals, making it a habitat keystone in oak groves.",
+      trophic: "omnivore",
+      sources: [
+        {
+          name: "All About Birds - Acorn Woodpecker Life History",
+          url: "https://www.allaboutbirds.org/guide/Acorn_Woodpecker/lifehistory"
+        }
+      ]
     },
     {
       id: "praying-mantis",
@@ -8899,10 +11940,10 @@ var animals_2_default = {
       biome: "meadow",
       kind: "insect",
       rarity: "uncommon",
-      diet: "Insects it ambushes",
-      shelter: "Tall grass and shrubs",
-      preferredHabitat: "Dense grass with flowering cover",
-      fact: "A mantis can swivel its head almost 180\xB0 \u2014 unique among insects.",
+      diet: "Ambush predator eating live insects \u2014 bees, grasshoppers, and more",
+      shelter: "Perches motionless on plants; lays eggs in a foam egg case (ootheca)",
+      preferredHabitat: "Meadows and shrubby edges with dense vegetation for ambush",
+      fact: "A praying mantis can swivel its head almost 180 degrees \u2014 unique among insects \u2014 for a wide field of view.",
       requirements: {
         minHealth: 24,
         objects: {
@@ -8911,7 +11952,39 @@ var animals_2_default = {
           "insect-hotel": 1
         },
         hint: "Tall grass, a shrub, and an insect hotel give it cover to hunt from."
-      }
+      },
+      scientificName: "Stagmomantis spp. / Mantis religiosa",
+      role: "A sit-and-wait ambush mesopredator that seizes prey with spined forelegs in a strike faster than a blink. As a generalist it eats grasshoppers, bees, beetles, and other insects, helping regulate insect numbers. It is itself taken by birds, garter snakes, and small owls.",
+      trophic: "mesopredator",
+      eats: [
+        "bumblebee",
+        "grasshopper",
+        "lady-beetle",
+        "leafcutter-bee",
+        "painted-lady",
+        "red-admiral"
+      ],
+      eatenBy: [
+        "eastern-bluebird",
+        "garter-snake-meadow",
+        "song-sparrow",
+        "western-meadowlark"
+      ],
+      eatsOther: [
+        "flies",
+        "moths",
+        "other live insects"
+      ],
+      sources: [
+        {
+          name: "NC State Extension \u2014 Praying Mantids",
+          url: "https://growingsmallfarms.ces.ncsu.edu/news/challenging-the-conventional-wisdom-about-praying-mantids/"
+        },
+        {
+          name: "National Geographic \u2014 Praying mantis",
+          url: "https://www.nationalgeographic.com/animals/invertebrates/facts/praying-mantis"
+        }
+      ]
     },
     {
       id: "killdeer",
@@ -8919,10 +11992,10 @@ var animals_2_default = {
       biome: "meadow",
       kind: "bird",
       rarity: "common",
-      diet: "Insects and worms",
-      shelter: "Open ground near stones",
-      preferredHabitat: "Bare, stony open ground",
-      fact: "Killdeer fake a broken wing, dragging it to lure predators from the nest.",
+      diet: "Invertebrates \u2014 earthworms, grasshoppers, beetles, and snails",
+      shelter: "Nests in a bare ground scrape lined with pebbles and shell bits",
+      preferredHabitat: "Open, flat ground with very short grass and scattered stones",
+      fact: "Killdeer fake a broken wing, dragging it as if injured to lure predators away from the nest.",
       requirements: {
         minHealth: 35,
         objects: {
@@ -8931,7 +12004,33 @@ var animals_2_default = {
           "dry-stone-wall": 1
         },
         hint: "Open native grass with a rock pile and a stone wall to nest beside."
-      }
+      },
+      scientificName: "Charadrius vociferus",
+      role: "A ground-foraging insectivore that races and halts across open meadow, snapping up worms and insects. As abundant, exposed ground-nesters they are important prey for meadow hunters, which take adults, chicks, and eggs alike.",
+      trophic: "insectivore",
+      eats: [
+        "grasshopper"
+      ],
+      eatenBy: [
+        "coopers-hawk",
+        "red-fox-meadow",
+        "red-tailed-hawk"
+      ],
+      eatsOther: [
+        "beetles",
+        "earthworms",
+        "snails"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Killdeer Life History",
+          url: "https://www.allaboutbirds.org/guide/Killdeer/lifehistory"
+        },
+        {
+          name: "Audubon Field Guide \u2014 Killdeer",
+          url: "https://www.audubon.org/field-guide/bird/killdeer"
+        }
+      ]
     },
     {
       id: "red-admiral",
@@ -8939,10 +12038,10 @@ var animals_2_default = {
       biome: "meadow",
       kind: "insect",
       rarity: "common",
-      diet: "Flower nectar and sap",
-      shelter: "Sheltered sunny spots",
-      preferredHabitat: "Flowery clearings out of the wind",
-      fact: "Red admirals are famously bold, often landing on people who stay still.",
+      diet: "Adults prefer tree sap, fermenting fruit, and nectar; caterpillars eat nettles",
+      shelter: "Caterpillars fold nettle leaves into shelters; adults roost on trees",
+      preferredHabitat: "Flowery clearings and woodland edges near nettle patches",
+      fact: "Red admirals are bold and territorial, and will readily land and perch on people who stay still.",
       requirements: {
         minHealth: 30,
         objects: {
@@ -8951,7 +12050,30 @@ var animals_2_default = {
           "insect-hotel": 1
         },
         hint: "Butterfly flowers and wildflowers beside an insect hotel."
-      }
+      },
+      scientificName: "Vanessa atalanta",
+      role: "A fast, territorial butterfly that feeds mainly on tree sap, fruit, and dung, visiting flowers as a nectar pollinator when preferred foods are scarce; its caterpillars specialize on stinging nettles. Lacking chemical defenses, it relies on camouflage and speed to escape birds and other predators.",
+      trophic: "herbivore",
+      eatenBy: [
+        "barn-swallow",
+        "praying-mantis"
+      ],
+      eatsOther: [
+        "fermenting fruit",
+        "flower nectar",
+        "nettles (caterpillar)",
+        "tree sap"
+      ],
+      sources: [
+        {
+          name: "USDA Forest Service \u2014 Red Admiral Butterfly",
+          url: "https://www.fs.usda.gov/wildflowers/pollinators/pollinator-of-the-month/red-admiral-butterfly.shtml"
+        },
+        {
+          name: "Butterflies and Moths of North America \u2014 Red Admiral",
+          url: "https://www.butterfliesandmoths.org/species/Vanessa-atalanta"
+        }
+      ]
     },
     {
       id: "little-brown-bat",
@@ -8959,10 +12081,10 @@ var animals_2_default = {
       biome: "forest",
       kind: "mammal",
       rarity: "uncommon",
-      diet: "Night-flying insects",
-      shelter: "Roost boxes and snags",
-      preferredHabitat: "Woodland edges with roosts",
-      fact: "One little brown bat can catch over a thousand insects in a single hour.",
+      diet: "Strict insectivore: midges, caddisflies, mayflies, moths, beetles, and mosquitoes",
+      shelter: "Roosts in tree hollows, under bark, and in buildings; hibernates in caves and mines",
+      preferredHabitat: "Forested land near streams, ponds, and openings for aerial feeding",
+      fact: "White-nose syndrome, a cold-loving fungus, has wiped out over 90% of little brown bats at many hibernation sites.",
       requirements: {
         minHealth: 46,
         objects: {
@@ -8971,7 +12093,35 @@ var animals_2_default = {
           shrub: 1
         },
         hint: "A bat box near standing deadwood, with shrubs full of insects."
-      }
+      },
+      scientificName: "Myotis lucifugus",
+      role: "Little brown bats are voracious insectivores, each eating up to half its body weight in insects a night and suppressing forest and aquatic pests. They are a mid-web link between the insect layer and larger predators like owls, fishers, and snakes. White-nose syndrome has caused catastrophic declines.",
+      trophic: "insectivore",
+      eatenBy: [
+        "barred-owl",
+        "fisher",
+        "garter-snake-forest",
+        "great-horned-owl",
+        "raccoon"
+      ],
+      eatsOther: [
+        "beetles",
+        "caddisflies",
+        "mayflies",
+        "midges",
+        "mosquitoes",
+        "moths"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Myotis lucifugus",
+          url: "https://animaldiversity.org/accounts/Myotis_lucifugus/"
+        },
+        {
+          name: "USGS \u2014 White-Nose Syndrome",
+          url: "https://www.usgs.gov/centers/nwhc/science/white-nose-syndrome"
+        }
+      ]
     },
     {
       id: "ensatina",
@@ -8979,10 +12129,10 @@ var animals_2_default = {
       biome: "forest",
       kind: "amphibian",
       rarity: "uncommon",
-      diet: "Small invertebrates",
-      shelter: "Moist leaf litter and logs",
-      preferredHabitat: "Damp shaded forest floor",
-      fact: "Ensatinas breathe entirely through their skin \u2014 they have no lungs at all.",
+      diet: "Invertebrates: worms, ants, beetles, spiders, centipedes, millipedes, and snails",
+      shelter: "Under rocks, bark, and logs on the forest floor; retreats underground when dry",
+      preferredHabitat: "Moist, shaded forest floor rich in coarse woody debris",
+      fact: "Ensatinas are lungless, breathing through their skin, and can drop a wriggling, poison-laced tail to escape.",
       requirements: {
         minHealth: 42,
         objects: {
@@ -8991,7 +12141,36 @@ var animals_2_default = {
           "shallow-water-pool": 1
         },
         hint: "Leaf litter and a mushroom log beside a shallow pool."
-      }
+      },
+      scientificName: "Ensatina eschscholtzii",
+      role: "The ensatina is an abundant forest-floor predator that suppresses decomposer invertebrates like centipedes, millipedes, and sowbugs, linking the detritus web to vertebrate predators. Being lungless, it depends on damp, intact forest, making it an indicator of forest-floor moisture. It is prey for garter snakes, raccoons, and jays.",
+      trophic: "insectivore",
+      eats: [
+        "banana-slug"
+      ],
+      eatenBy: [
+        "garter-snake-forest",
+        "raccoon"
+      ],
+      eatsOther: [
+        "ants",
+        "beetles",
+        "centipedes",
+        "earthworms",
+        "millipedes",
+        "snails",
+        "spiders"
+      ],
+      sources: [
+        {
+          name: "CaliforniaHerps \u2014 Ensatina eschscholtzii",
+          url: "https://californiaherps.com/salamanders/pages/e.e.oregonensis.html"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Plethodontidae (lungless salamanders)",
+          url: "https://animaldiversity.org/accounts/Plethodontidae/"
+        }
+      ]
     },
     {
       id: "spotted-towhee",
@@ -8999,10 +12178,10 @@ var animals_2_default = {
       biome: "forest",
       kind: "bird",
       rarity: "common",
-      diet: "Seeds and ground insects",
-      shelter: "Brushy thickets",
-      preferredHabitat: "Shrubby understory with leaf litter",
-      fact: "Towhees forage with a backward double-scratch hop to flick leaves aside.",
+      diet: "Insects and invertebrates in summer; seeds, acorns, and berries in fall and winter",
+      shelter: "Dense shrubby thickets and brushy edges; nests on or near the ground",
+      preferredHabitat: "Brushy forest edges and chaparral with deep leaf litter",
+      fact: "The spotted towhee feeds with a two-footed backward hop that flicks leaf litter aside to expose food.",
       requirements: {
         minHealth: 38,
         objects: {
@@ -9011,7 +12190,37 @@ var animals_2_default = {
           "leaf-litter-pile": 1
         },
         hint: "A brush pile and shrubs over a bed of leaf litter."
-      }
+      },
+      scientificName: "Pipilo maculatus",
+      role: "The spotted towhee is an omnivorous ground forager that bridges the invertebrate and seed layers, eating ground beetles and caterpillars in summer and dispersing seeds in winter. Its ground nesting leaves it vulnerable to foxes, raccoons, and snakes, while hawks and owls take adults. It helps turn over and recycle forest-floor litter.",
+      trophic: "omnivore",
+      eatenBy: [
+        "barred-owl",
+        "bobcat",
+        "garter-snake-forest",
+        "great-horned-owl",
+        "raccoon",
+        "red-fox-forest"
+      ],
+      eatsOther: [
+        "acorns",
+        "berries",
+        "insects",
+        "millipedes",
+        "seeds",
+        "sowbugs",
+        "spiders"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Spotted Towhee",
+          url: "https://www.allaboutbirds.org/guide/Spotted_Towhee/lifehistory"
+        },
+        {
+          name: "Audubon \u2014 Spotted Towhee",
+          url: "https://www.audubon.org/field-guide/bird/spotted-towhee"
+        }
+      ]
     },
     {
       id: "hooded-merganser",
@@ -9019,10 +12228,10 @@ var animals_2_default = {
       biome: "wetland",
       kind: "bird",
       rarity: "uncommon",
-      diet: "Small fish and insects",
-      shelter: "Tree cavities and nest boxes",
+      diet: "Small fish, crayfish, aquatic insects, and amphibians",
+      shelter: "Tree cavities and nest boxes near water",
       preferredHabitat: "Quiet wooded ponds",
-      fact: "Merganser ducklings leap from nest cavities high in trees the day they hatch.",
+      fact: "Hooded merganser ducklings can dive for their own food at just one day old.",
       requirements: {
         minHealth: 46,
         objects: {
@@ -9033,7 +12242,27 @@ var animals_2_default = {
           tiles: 3
         },
         hint: "A duck nest box beside reeds and open water."
-      }
+      },
+      scientificName: "Lophodytes cucullatus",
+      role: "A small diving duck with a serrated bill for gripping slippery prey. It pursues fish, crayfish, and insects underwater and nests in tree cavities.",
+      trophic: "mesopredator",
+      eats: [
+        "freshwater-fish"
+      ],
+      eatenBy: [
+        "mink"
+      ],
+      eatsOther: [
+        "crayfish",
+        "fish",
+        "insect larvae"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds - Hooded Merganser",
+          url: "https://www.allaboutbirds.org/guide/Hooded_Merganser/lifehistory"
+        }
+      ]
     },
     {
       id: "spotted-turtle",
@@ -9041,10 +12270,10 @@ var animals_2_default = {
       biome: "wetland",
       kind: "reptile",
       rarity: "uncommon",
-      diet: "Aquatic plants and insects",
-      shelter: "Basking logs and shallows",
+      diet: "Aquatic plants, insects, worms, mollusks, and small invertebrates",
+      shelter: "Basking logs and shallow, muddy-bottomed water",
       preferredHabitat: "Sunny shallow marsh",
-      fact: "Each spotted turtle has a unique pattern of yellow polka dots on its shell.",
+      fact: "Each spotted turtle wears a unique pattern of yellow polka dots on its shell.",
       requirements: {
         minHealth: 42,
         objects: {
@@ -9053,7 +12282,29 @@ var animals_2_default = {
           "reed-bed": 1
         },
         hint: "A basking log in a reedy, shallow pool."
-      }
+      },
+      scientificName: "Clemmys guttata",
+      role: "A small, declining omnivore that forages underwater for plants and invertebrates. It basks on logs and buries in mud when startled.",
+      trophic: "omnivore",
+      eatenBy: [
+        "muskrat",
+        "river-otter"
+      ],
+      eatsOther: [
+        "aquatic plants",
+        "insects",
+        "worms"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Clemmys guttata",
+          url: "https://animaldiversity.org/accounts/Clemmys_guttata/"
+        },
+        {
+          name: "U.S. Fish & Wildlife Service - Spotted Turtle",
+          url: "https://www.fws.gov/species/spotted-turtle-clemmys-guttata"
+        }
+      ]
     },
     {
       id: "common-yellowthroat",
@@ -9061,10 +12312,10 @@ var animals_2_default = {
       biome: "wetland",
       kind: "bird",
       rarity: "common",
-      diet: "Marsh insects",
-      shelter: "Dense cattails and reeds",
+      diet: "Insects and spiders gleaned from low vegetation",
+      shelter: "Bulky grass cups low in cattails and sedges",
       preferredHabitat: "Thick marsh vegetation",
-      fact: "The male yellowthroat wears a black bandit mask across its eyes.",
+      fact: "The male's black bandit mask is a signal that rivals will attack on sight.",
       requirements: {
         minHealth: 40,
         objects: {
@@ -9072,7 +12323,19 @@ var animals_2_default = {
           "reed-bed": 2
         },
         hint: "A cattail stand among thick reed beds."
-      }
+      },
+      scientificName: "Geothlypis trichas",
+      role: "A masked marsh warbler that gleans insects and spiders from dense low cover. It skulks through cattails and briars in search of prey.",
+      trophic: "insectivore",
+      eatsOther: [
+        "insects"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds - Common Yellowthroat",
+          url: "https://www.allaboutbirds.org/guide/Common_Yellowthroat/lifehistory"
+        }
+      ]
     },
     {
       id: "chuckwalla",
@@ -9080,10 +12343,10 @@ var animals_2_default = {
       biome: "desert",
       kind: "reptile",
       rarity: "uncommon",
-      diet: "Desert flowers and leaves",
+      diet: "Desert flowers, leaves, and fruit",
       shelter: "Rock crevices",
       preferredHabitat: "Boulder piles near brush",
-      fact: "A threatened chuckwalla wedges into a crack and puffs up so it cannot be pulled out.",
+      fact: "A threatened chuckwalla wedges into a crack and inflates its lungs to lock itself in.",
       requirements: {
         minHealth: 40,
         objects: {
@@ -9093,7 +12356,24 @@ var animals_2_default = {
           "sunstone-cairn": 1
         },
         hint: "A rock crevice to wedge into, with cactus and brush to graze \u2014 and a sun-warmed cairn to bask on."
-      }
+      },
+      scientificName: "Sauromalus ater",
+      role: "A large herbivorous lizard that grazes desert leaves, flowers, and fruit among boulders. It is a plant-eater and prey for hawks, kestrels, coyotes, and rattlesnakes. Its lung-inflation defense locks it into crevices.",
+      trophic: "herbivore",
+      eatenBy: [
+        "coyote",
+        "rattlesnake"
+      ],
+      eatsOther: [
+        "flowers",
+        "leaves"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Sauromalus ater",
+          url: "https://animaldiversity.org/accounts/Sauromalus_ater/"
+        }
+      ]
     },
     {
       id: "phainopepla",
@@ -9101,10 +12381,10 @@ var animals_2_default = {
       biome: "desert",
       kind: "bird",
       rarity: "uncommon",
-      diet: "Mistletoe berries and insects",
+      diet: "Mistletoe berries and flying insects",
       shelter: "Tall desert brush",
       preferredHabitat: "Brushy desert with water nearby",
-      fact: "Phainopeplas can mimic the calls of a dozen other desert birds.",
+      fact: "The phainopepla is desert mistletoe's key seed disperser; the two depend on each other.",
       requirements: {
         minHealth: 46,
         objects: {
@@ -9112,7 +12392,24 @@ var animals_2_default = {
           "dew-basin": 1
         },
         hint: "Dense desert brush beside a dew basin."
-      }
+      },
+      scientificName: "Phainopepla nitens",
+      role: "A glossy desert songbird whose winter diet is mostly desert mistletoe berries, plus insects caught on the wing. It is a crucial mistletoe seed disperser and a fruit-and-insect omnivore. Snakes and raptors prey on it.",
+      trophic: "omnivore",
+      eatsOther: [
+        "insects",
+        "mistletoe berries"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Phainopepla",
+          url: "https://www.allaboutbirds.org/guide/Phainopepla/lifehistory"
+        },
+        {
+          name: "Audubon \u2014 Phainopepla",
+          url: "https://www.audubon.org/field-guide/bird/phainopepla"
+        }
+      ]
     },
     {
       id: "antelope-squirrel",
@@ -9120,10 +12417,10 @@ var animals_2_default = {
       biome: "desert",
       kind: "mammal",
       rarity: "common",
-      diet: "Seeds, fruit, and insects",
+      diet: "Seeds, fruit, greens, and insects",
       shelter: "Burrows and rock cracks",
       preferredHabitat: "Open desert with burrows",
-      fact: "It carries its tail arched over its back like a parasol against the sun.",
+      fact: "It carries its tail arched over its back like a parasol to shade itself from the sun.",
       requirements: {
         minHealth: 38,
         objects: {
@@ -9132,7 +12429,30 @@ var animals_2_default = {
           "rock-crevice": 1
         },
         hint: "A burrow and a rock crevice among desert brush."
-      }
+      },
+      scientificName: "Ammospermophilus leucurus",
+      role: "A diurnal, heat-tolerant omnivore that eats seeds, greens, fruit, and insects even in midday heat. It is prey for hawks, foxes, bobcats, and snakes. It shades itself with its tail and dumps heat on cool ground.",
+      trophic: "omnivore",
+      eatenBy: [
+        "coyote",
+        "kit-fox",
+        "rattlesnake"
+      ],
+      eatsOther: [
+        "cactus fruit",
+        "insects",
+        "seeds"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Ammospermophilus leucurus",
+          url: "https://animaldiversity.org/accounts/Ammospermophilus_leucurus/"
+        },
+        {
+          name: "NPS Mojave \u2014 White-tailed Antelope Squirrel",
+          url: "https://www.nps.gov/moja/learn/nature/white-tailed-antelope-ground-squirrel.htm"
+        }
+      ]
     },
     {
       id: "alpine-chipmunk",
@@ -9140,10 +12460,10 @@ var animals_2_default = {
       biome: "alpine",
       kind: "mammal",
       rarity: "common",
-      diet: "Seeds and alpine flowers",
-      shelter: "Talus and rock piles",
-      preferredHabitat: "High rocky meadows",
-      fact: "The alpine chipmunk lives higher than almost any other chipmunk on Earth.",
+      diet: "Seeds of sedges, forbs, and grasses, plus berries, fungi, pine seeds, and eggs",
+      shelter: "Nests deep in crevices between talus rocks and boulders",
+      preferredHabitat: "High talus slopes and rocky meadows of the Sierra Nevada",
+      fact: "It ranges higher than almost any other chipmunk, up to 3,900 meters.",
       requirements: {
         minHealth: 40,
         objects: {
@@ -9152,7 +12472,33 @@ var animals_2_default = {
           "rock-pile": 1
         },
         hint: "A talus pile and rock pile among alpine wildflowers."
-      }
+      },
+      scientificName: "Tamias alpinus",
+      role: "A tiny, high-altitude seed-eater that caches seeds and helps disperse alpine plants across the talus. It also raids the eggs of rosy-finches and sparrows. Foxes, weasels, martens, and raptors all hunt it, tying it into the predator web.",
+      trophic: "herbivore",
+      eatenBy: [
+        "ermine",
+        "fox-alpine",
+        "golden-eagle",
+        "pine-marten"
+      ],
+      eatsOther: [
+        "alpine plants",
+        "berries",
+        "fungi",
+        "nuts",
+        "seeds"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Tamias alpinus",
+          url: "https://animaldiversity.org/accounts/Tamias_alpinus/"
+        },
+        {
+          name: "IUCN Red List - Tamias alpinus",
+          url: "https://www.iucnredlist.org/species/42568/22268290"
+        }
+      ]
     },
     {
       id: "white-crowned-sparrow",
@@ -9160,10 +12506,10 @@ var animals_2_default = {
       biome: "alpine",
       kind: "bird",
       rarity: "common",
-      diet: "Seeds and insects",
-      shelter: "Low shrubs and nest ledges",
-      preferredHabitat: "Krummholz edges and heath",
-      fact: "Young white-crowns learn their song dialect from the neighbours they grow up near.",
+      diet: "Mainly weed and grass seeds, plus caterpillars, beetles, and other insects",
+      shelter: "Ground or low-shrub cup nest among mosses, lichens, and heath",
+      preferredHabitat: "Krummholz edges, alpine meadows, and heath with bare ground",
+      fact: "Young white-crowns learn their song dialect from the neighbours nearby.",
       requirements: {
         minHealth: 48,
         objects: {
@@ -9172,7 +12518,30 @@ var animals_2_default = {
           "krummholz-pine": 1
         },
         hint: "A heather mat and nest shelf sheltered by krummholz pine."
-      }
+      },
+      scientificName: "Zonotrichia leucophrys",
+      role: "A ground-foraging sparrow of alpine meadow and krummholz edges that eats seeds and summer insects. It disperses seeds and feeds insect larvae to its chicks. Foxes, weasels, and martens hunt the adults and raid its low nests.",
+      trophic: "omnivore",
+      eatenBy: [
+        "ermine",
+        "fox-alpine",
+        "pine-marten"
+      ],
+      eatsOther: [
+        "berries",
+        "insects",
+        "seeds"
+      ],
+      sources: [
+        {
+          name: "Cornell Lab All About Birds - White-crowned Sparrow",
+          url: "https://www.allaboutbirds.org/guide/White-crowned_Sparrow/lifehistory"
+        },
+        {
+          name: "Audubon Field Guide - White-crowned Sparrow",
+          url: "https://www.audubon.org/field-guide/bird/white-crowned-sparrow"
+        }
+      ]
     },
     {
       id: "cascades-frog",
@@ -9180,10 +12549,10 @@ var animals_2_default = {
       biome: "alpine",
       kind: "amphibian",
       rarity: "rare",
-      diet: "Insects and spiders",
-      shelter: "Snowmelt pools",
-      preferredHabitat: "Cold high-country ponds",
-      fact: "Cascades frogs can stay active in near-freezing snowmelt water.",
+      diet: "An aquatic and semiaquatic insectivore, taking insects and spiders",
+      shelter: "Snowmelt ponds and lakes; hibernates in soil under lake bottoms",
+      preferredHabitat: "Cold high-country ponds and streams near coniferous forest",
+      fact: "It stays active in near-freezing snowmelt water and basks on wet rocks.",
       requirements: {
         minHealth: 52,
         objects: {
@@ -9194,7 +12563,29 @@ var animals_2_default = {
           tiles: 3
         },
         hint: "A snowmelt pool beside a talus pile, with open water near."
-      }
+      },
+      scientificName: "Rana cascadae",
+      role: "A cold-adapted mountain frog that eats insects and spiders while its tadpoles graze algae in snowmelt pools. It links pond invertebrates to larger predators. Introduced trout eat its tadpoles, driving steep declines across its southern range.",
+      trophic: "insectivore",
+      eatenBy: [
+        "fox-alpine",
+        "snowmelt-trout"
+      ],
+      eatsOther: [
+        "aquatic insects",
+        "insects",
+        "spiders"
+      ],
+      sources: [
+        {
+          name: "Animal Diversity Web - Rana cascadae",
+          url: "https://animaldiversity.org/accounts/Rana_cascadae/"
+        },
+        {
+          name: "IUCN Red List - Rana cascadae",
+          url: "https://www.iucnredlist.org/species/19176/78907070"
+        }
+      ]
     },
     {
       id: "black-turnstone",
@@ -9202,8 +12593,8 @@ var animals_2_default = {
       biome: "coastal",
       kind: "bird",
       rarity: "common",
-      diet: "Tidepool invertebrates",
-      shelter: "Rocky shoreline",
+      diet: "Barnacles, limpets, mussels, and small invertebrates",
+      shelter: "Rocky shoreline and beach wrack",
       preferredHabitat: "Rocky intertidal shores",
       fact: "Turnstones flip over stones and shells to snatch the creatures hiding beneath.",
       requirements: {
@@ -9214,7 +12605,26 @@ var animals_2_default = {
           "kelp-wrack": 1
         },
         hint: "Tidepools and kelp wrack with a driftwood pile to shelter in."
-      }
+      },
+      scientificName: "Arenaria melanocephala",
+      role: "A rocky-shore forager that pries barnacles and limpets loose and flips wrack to find hidden prey. It helps keep intertidal invertebrate numbers in check and depends on rich rocky shores.",
+      trophic: "insectivore",
+      eats: [
+        "hermit-crab",
+        "mussel",
+        "purple-shore-crab",
+        "tidepool-crab"
+      ],
+      eatsOther: [
+        "barnacles",
+        "mussels"
+      ],
+      sources: [
+        {
+          name: "All About Birds - Black Turnstone Life History",
+          url: "https://www.allaboutbirds.org/guide/Black_Turnstone/lifehistory"
+        }
+      ]
     },
     {
       id: "pigeon-guillemot",
@@ -9222,9 +12632,9 @@ var animals_2_default = {
       biome: "coastal",
       kind: "bird",
       rarity: "uncommon",
-      diet: "Small fish",
-      shelter: "Bluff crevices",
-      preferredHabitat: "Rocky nesting bluffs over water",
+      diet: "Small fish, plus crabs, worms, and mollusks",
+      shelter: "Bluff and rock crevices above water",
+      preferredHabitat: "Rocky nesting bluffs over clear water",
       fact: "Pigeon guillemots have bright coral-red feet and matching mouth linings.",
       requirements: {
         minHealth: 52,
@@ -9236,7 +12646,19 @@ var animals_2_default = {
           tiles: 4
         },
         hint: "A nesting bluff above open water near an oyster bed."
-      }
+      },
+      scientificName: "Cepphus columba",
+      role: "A diving seabird that chases small fish and pries invertebrates from crevices near the seafloor. It nests in rocky bluffs and depends on the healthy nearshore fish and habitat that kelp forests support.",
+      trophic: "apex-predator",
+      eatsOther: [
+        "fish"
+      ],
+      sources: [
+        {
+          name: "All About Birds - Pigeon Guillemot Life History",
+          url: "https://www.allaboutbirds.org/guide/Pigeon_Guillemot/lifehistory"
+        }
+      ]
     },
     {
       id: "bat-star",
@@ -9244,9 +12666,9 @@ var animals_2_default = {
       biome: "coastal",
       kind: "invertebrate",
       rarity: "common",
-      diet: "Algae and detritus",
-      shelter: "Tidepools and eelgrass",
-      preferredHabitat: "Shallow rocky tidepools",
+      diet: "Algae, detritus, and dead plants and animals",
+      shelter: "Tidepools and eelgrass beds",
+      preferredHabitat: "Shallow rocky tidepools and eelgrass",
       fact: "A bat star can have anywhere from four to nine arms, not always five.",
       requirements: {
         minHealth: 45,
@@ -9255,7 +12677,23 @@ var animals_2_default = {
           "eelgrass-bed": 1
         },
         hint: "A couple of tidepools with an eelgrass bed."
-      }
+      },
+      scientificName: "Patiria miniata",
+      role: "An omnivorous scavenger that spreads its stomach over the seafloor to digest algae and carrion. It is a cleanup crew of the shallows, recycling dead matter and keeping tidepools and eelgrass beds tidy.",
+      trophic: "scavenger",
+      eatsOther: [
+        "algae"
+      ],
+      sources: [
+        {
+          name: "Monterey Bay Aquarium - Bat star",
+          url: "https://www.montereybayaquarium.org/animals-the-ocean/animals-a-to-z/bat-star"
+        },
+        {
+          name: "Animal Diversity Web - Patiria miniata",
+          url: "https://animaldiversity.org/accounts/Patiria_miniata/"
+        }
+      ]
     }
   ]
 };
@@ -12130,7 +15568,7 @@ var BiomeSnapshot = class extends PublicEndpoint {
 };
 var DevTools = class extends PublicEndpoint {
   async post(data) {
-    const { playerId, action, area, amount, value, resources } = await bodyOf(data);
+    const { playerId, action, area, amount, value, resources, animalId } = await bodyOf(data);
     const t = db();
     const d = await defs();
     const { player } = await requirePlayer(playerId);
@@ -12315,6 +15753,32 @@ var DevTools = class extends PublicEndpoint {
         }
         await recalcBiome(playerId, playerId, ar, { player });
         log.push(`Welcomed ${added} animal${added === 1 ? "" : "s"} to ${ar} (${here.length} total)`);
+        break;
+      }
+      case "spawn-animal": {
+        const animal = d.animals.find((a) => a.id === animalId);
+        if (!animal) throw new GameError(`Unknown animal: ${animalId}`);
+        const discId = `${playerId}:${animal.id}`;
+        const existing = await t.Discovery.get(discId);
+        if (!existing) {
+          await t.Discovery.put({
+            id: discId,
+            playerId,
+            animalId: animal.id,
+            biomeId: animal.biome,
+            comfort: 85,
+            timesObserved: 1,
+            firstObservedAt: Date.now(),
+            whyReturned: whyReturnedText(animal, d)
+          });
+        }
+        const unlocked = player.unlockedBiomes || ["meadow"];
+        if (!unlocked.includes(animal.biome)) {
+          await t.Player.patch(playerId, { unlockedBiomes: [...unlocked, animal.biome] });
+        }
+        await recalcBiome(playerId, playerId, animal.biome, { player });
+        await t.Discovery.patch(discId, { comfort: 85 });
+        log.push(`Spawned ${animal.name} in ${animal.biome} \u2014 comfort 85, biome unlocked`);
         break;
       }
       default:

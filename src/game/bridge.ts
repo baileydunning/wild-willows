@@ -20,12 +20,16 @@ class Bridge {
 		joy: { x: number; y: number };
 		presence: Peer[];
 		self: { x: number; y: number; area: string } | null;
+		// True while a React panel/card/help overlay is open. The world ignores
+		// pointer clicks in this state so you can't move or place "through" a modal.
+		uiBlocking: boolean;
 	} = {
 		data: null,
 		state: null,
 		joy: { x: 0, y: 0 },
 		presence: [],
 		self: null,
+		uiBlocking: false,
 	};
 
 	on(event: string, fn: Handler) {

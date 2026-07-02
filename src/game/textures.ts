@@ -1555,17 +1555,32 @@ export function ensureAnimalTexture(scene: Phaser.Scene, id: string, kind: strin
 		g.fillStyle(0x2e2018, 1).fillCircle(9, 12, 1.6).fillCircle(17, 12, 1.6);
 		g.fillStyle(C('#e3c75f'), 1).fillTriangle(13, 14, 11, 17, 15, 17);
 	});
-	a('bear', 40, 34, (g) => {
-		g.fillStyle(0x2a2118, 1); // four stubby legs under the body
-		g.fillRoundedRect(8, 23, 8, 10, 3).fillRoundedRect(25, 23, 8, 10, 3);
-		g.fillStyle(0x33291f, 1).fillEllipse(20, 19, 32, 19); // body
+	a('bear', 40, 32, (g) => {
+		// Matches the house style (deer/fox): body, head, ears, muzzle + nose,
+		// and a single small light eye-dot each — like the bat — since the fur
+		// is dark. No eye whites/pupils/catchlights; those read too detailed.
+		g.fillStyle(0x2a2118, 1).fillRoundedRect(11, 22, 8, 9, 3).fillRoundedRect(25, 22, 8, 9, 3); // legs
+		g.fillStyle(C('#6e4d34'), 1).fillEllipse(20, 18, 32, 18); // body (warm brown, light enough for dark eyes)
 		g.fillCircle(29, 12, 9); // head
 		g.fillCircle(23, 5, 4).fillCircle(35, 5, 4); // ears
-		g.fillStyle(0x4a3a2a, 1).fillCircle(23, 5, 2).fillCircle(35, 5, 2); // inner ears
-		g.fillStyle(C('#7a5d42'), 1).fillEllipse(32, 15, 10, 7); // muzzle
-		g.fillStyle(0x000000, 1).fillCircle(35, 14, 1.8); // nose
-		g.fillStyle(0xffffff, 1).fillCircle(25, 10, 2.2).fillCircle(31, 9, 2.2); // eye whites
-		g.fillStyle(0x000000, 1).fillCircle(25, 10, 1.2).fillCircle(31, 9, 1.2); // pupils
+		g.fillStyle(C('#9a7a54'), 1).fillEllipse(31, 15, 9, 6); // muzzle
+		g.fillStyle(0x1a1410, 1).fillCircle(34, 14, 1.4); // nose
+		g.fillStyle(0x2e2018, 1).fillCircle(26, 10, 1.3).fillCircle(31, 10, 1.3); // eyes (dark, like fox/deer)
+	});
+	a('raccoon', 38, 30, (g) => {
+		// Matches the house style: body, head, ears, ringed tail, pale muzzle,
+		// bandit mask, and a single small light eye-dot on the mask (like the
+		// yellowthroat's masked face). No pupils/catchlights.
+		g.fillStyle(C('#6e6857'), 1).fillRoundedRect(13, 21, 5, 9, 2).fillRoundedRect(24, 21, 5, 9, 2); // legs
+		g.fillStyle(C('#8a7a5c'), 1).fillEllipse(6, 17, 15, 10); // ringed tail
+		g.fillStyle(0x4a3f30, 1).fillEllipse(4, 18, 4, 8).fillEllipse(10, 15, 3.5, 9); // tail rings
+		g.fillStyle(C('#9c988a'), 1).fillEllipse(20, 18, 26, 15); // body
+		g.fillCircle(28, 12, 9); // head
+		g.fillCircle(22, 4, 4).fillCircle(34, 4, 4); // ears
+		g.fillStyle(C('#efe9dc'), 1).fillEllipse(28, 15, 12, 9); // pale muzzle
+		g.fillStyle(0x3a3128, 1).fillEllipse(24.5, 10.5, 6, 5).fillEllipse(31.5, 10.5, 6, 5); // bandit mask
+		g.fillStyle(C('#f2ece0'), 1).fillCircle(25, 10.5, 1.3).fillCircle(31, 10.5, 1.3); // eyes
+		g.fillStyle(0x2e2018, 1).fillEllipse(28, 16, 2.2, 1.6); // nose
 	});
 
 	// --- unique sprites for the newer animals ---
@@ -1776,6 +1791,7 @@ const FEATURED_TEXTURE: Record<string, string> = {
 	'great-horned-owl': 'ani-owl',
 	'barn-owl': 'ani-owl',
 	'black-bear': 'ani-bear',
+	'raccoon': 'ani-raccoon',
 	'mule-deer-forest': 'ani-deer',
 	'mule-deer-alpine': 'ani-deer',
 	// newer animals — each gets its own bespoke sprite
@@ -1919,16 +1935,80 @@ function composeAnimalDraw(id: string, kind: string): { w: number; h: number; dr
 			}) };
 		}
 
+		// Waterfowl: a low, boat-shaped body that sits on the water, rounded head,
+		// and a broad flat bill — reads clearly as a duck/goose vs a songbird.
+		if (t(/duck|mallard|merganser|teal|widgeon|wigeon|goose|brant|gadwall|pintail|shoveler/)) {
+			return { w: 30, h: 22, draw: draw((g) => {
+				const goose = t(/goose|brant/);
+				g.fillStyle(BODY, 1);
+				g.fillEllipse(13, 15, 22, 11);                 // boat body
+				g.fillTriangle(2, 12, 8, 16, 4, 17);           // upswept tail
+				if (goose) { g.fillRect(20, 4, 3.4, 9); g.fillCircle(22, 4, 3.8); }  // long neck + head
+				else g.fillCircle(23, 9, 5);                   // tucked head
+				const hx = goose ? 22 : 25, hy = goose ? 4 : 9;
+				g.fillStyle(C('#e0a93f'), 1).fillEllipse(hx + 4, hy + 0.5, 6, 3.2); // broad flat bill
+				g.fillStyle(0xffffff, 0.5).fillEllipse(11, 13, 12, 4); // wing highlight
+				g.fillStyle(DK, 1).fillCircle(hx, hy - 0.5, 1.1);
+			}) };
+		}
+		// Ground cuckoo (roadrunner): long body, very long tail, shaggy crest,
+		// long striding legs, straight bill.
+		if (t(/roadrunner/)) {
+			return { w: 34, h: 26, draw: draw((g) => {
+				g.lineStyle(1.5, C('#8a6a44'), 1).lineBetween(12, 16, 11, 24).lineBetween(16, 16, 18, 24); // legs
+				g.fillStyle(BODY, 1);
+				g.fillEllipse(13, 12, 16, 9);                  // body
+				g.fillTriangle(1, 4, 8, 12, 6, 16);            // long cocked tail
+				g.fillRect(18, 6, 3, 6); g.fillCircle(21, 6, 4);// neck + head
+				g.fillTriangle(19, 1, 22, -3, 24, 3);          // shaggy crest
+				g.fillStyle(C('#e0a93f'), 1).fillTriangle(24, 5, 31, 6, 24, 7.5); // long straight bill
+				g.fillStyle(DK, 1).fillCircle(22, 5, 1.1);
+			}) };
+		}
+		// Small shorebird (plover / sandpiper / sanderling / turnstone): compact
+		// upright body, two thin legs, and a short-to-medium straight probing bill.
+		if (t(/plover|sanderling|sandpiper|turnstone|shorebird|killdeer|dunlin|dowitcher|godwit|yellowlegs/)) {
+			return { w: 26, h: 26, draw: draw((g) => {
+				g.lineStyle(1.3, C('#c9a35c'), 1).lineBetween(11, 16, 10, 24).lineBetween(15, 16, 16, 24); // legs
+				g.fillStyle(BODY, 1);
+				g.fillEllipse(12, 12, 15, 11);                 // plump body
+				g.fillCircle(18, 6, 4);                        // head high on body
+				g.fillTriangle(2, 9, 7, 12, 3, 14);            // short tail
+				g.fillStyle(DK, 1);
+				g.fillTriangle(21, 5.5, 27, 6, 21, 7);         // straight bill
+				g.fillCircle(19, 5, 1.1);
+			}) };
+		}
+		// Seabird (gull / tern / cormorant): sleek elongated body; gulls get a
+		// slightly hooked bill, cormorants a long neck + hook.
+		if (t(/gull|tern|cormorant|guillemot|kittiwake/)) {
+			const corm = t(/cormorant|guillemot/);
+			return { w: 30, h: 24, draw: draw((g) => {
+				g.fillStyle(BODY, 1);
+				g.fillEllipse(13, 14, 20, 10);                 // sleek body
+				g.fillTriangle(2, 11, 8, 15, 3, 16);           // tail
+				if (corm) { g.fillRect(19, 5, 3, 8); g.fillCircle(21, 5, 4); }
+				else g.fillCircle(21, 9, 4.6);
+				const hx = corm ? 21 : 22, hy = corm ? 5 : 9;
+				g.fillStyle(C('#e0a93f'), 1).fillTriangle(hx + 3, hy - 1, hx + 9, hy, hx + 3, hy + 1.5); // hooked-ish bill
+				g.lineStyle(1.4, C('#e0a93f'), 1).lineBetween(hx + 9, hy, hx + 8, hy + 1.5);
+				g.fillStyle(0x000000, 0.14).fillEllipse(9, 11, 13, 4); // grey wing
+				g.fillStyle(DK, 1).fillCircle(hx, hy - 0.5, 1.1);
+			}) };
+		}
 		const wader = t(/heron|crane|egret|bittern|stilt|flamingo|sandhill/);
 		const raptor = t(/hawk|eagle|owl|falcon|kite|harrier/);
+		const finch = t(/finch|grosbeak|goldfinch|sparrow|bunting|crossbill|junco|towhee/);
+		const chunky = t(/ptarmigan|quail|grouse|partridge/);
 		return { w: 28, h: wader ? 30 : 24, draw: draw((g) => {
 			const baseY = wader ? 12 : 13;
 			g.fillStyle(BODY, 1);
 			// legs
 			if (wader) { g.lineStyle(1.4, C('#c9a35c'), 1); g.lineBetween(12, baseY + 8, 11, 29).lineBetween(16, baseY + 8, 17, 29); g.fillStyle(BODY, 1); }
 			else g.fillStyle(BODY, 1);
-			// body + head
-			g.fillEllipse(13, baseY, 17, 12).fillCircle(20, baseY - 6, 4.6);
+			// body + head — plump, rounded body for chunky ground birds (ptarmigan/quail)
+			if (chunky) g.fillEllipse(12, baseY, 20, 15).fillCircle(20, baseY - 7, 4.6);
+			else g.fillEllipse(13, baseY, 17, 12).fillCircle(20, baseY - 6, 4.6);
 			if (wader) { g.fillRect(18, baseY - 10, 3, 8); g.fillCircle(20, baseY - 11, 4.2); } // long neck + head
 			// tail
 			if (t(/wren/)) g.fillTriangle(3, baseY - 5, 7, baseY, 4, baseY - 1);
@@ -1940,6 +2020,8 @@ function composeAnimalDraw(id: string, kind: string): { w: number; h: number; dr
 			if (t(/hummingbird/)) { g.fillStyle(DK, 1); g.lineStyle(1.2, DK, 1).lineBetween(hx + 3, hy, hx + 11, hy - 1); }
 			else if (t(/heron|crane|egret|bittern|kingfisher|woodpecker|sapsucker|stork|pelican|oystercatcher/)) { g.fillStyle(C('#e0a93f'), 1).fillTriangle(hx + 3, hy - 1.5, hx + 11, hy, hx + 3, hy + 1.5); }
 			else if (raptor) { g.fillStyle(C('#e0a93f'), 1).fillTriangle(hx + 3, hy - 1, hx + 8, hy + 1, hx + 3, hy + 2.5); }
+			// finches/sparrows/grosbeaks: short, deep conical seed-cracking bill
+			else if (finch) { g.fillStyle(C('#d8b25a'), 1).fillTriangle(hx + 3, hy - 2, hx + 7, hy, hx + 3, hy + 2); }
 			else { g.fillStyle(C('#e0a93f'), 1).fillTriangle(hx + 3, hy - 1, hx + 7, hy, hx + 3, hy + 1.5); }
 			if (t(/pelican/)) { g.fillStyle(C('#e8c98a'), 1).fillEllipse(hx + 6, hy + 3, 7, 5); }
 			// owl big eyes / ear tufts

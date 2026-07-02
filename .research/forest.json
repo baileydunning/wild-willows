@@ -1,0 +1,987 @@
+[
+  {
+    "id": "tree-squirrel",
+    "scientificName": "Sciurus carolinensis",
+    "diet": "Acorns, nuts, seeds, tree buds, and fungi; occasional insects and bird eggs",
+    "shelter": "Tree cavity dens and leaf-and-twig dreys built high in the canopy",
+    "preferredHabitat": "Mature deciduous or mixed forest rich in oaks and hickories",
+    "fact": "Gray squirrels scatter-hoard thousands of nuts each year, and the caches they forget grow into new trees.",
+    "role": "Tree squirrels are major seed predators and accidental seed dispersers whose buried, forgotten nuts regenerate the forest canopy. They also spread mycorrhizal fungal spores and occasionally raid bird nests. As abundant prey they feed nearly every forest mesopredator and raptor.",
+    "trophic": "omnivore",
+    "eats": [
+      "nuthatch",
+      "woodpecker"
+    ],
+    "eatenBy": [
+      "barred-owl",
+      "black-bear",
+      "bobcat",
+      "fisher",
+      "great-horned-owl",
+      "red-fox-forest"
+    ],
+    "eatsOther": [
+      "acorns",
+      "nuts",
+      "seeds",
+      "fungi",
+      "tree buds",
+      "berries",
+      "insects",
+      "bird eggs"
+    ],
+    "sources": [
+      {
+        "name": "Animal Diversity Web — Sciurus carolinensis",
+        "url": "https://animaldiversity.org/accounts/Sciurus_carolinensis/"
+      }
+    ]
+  },
+  {
+    "id": "woodpecker",
+    "scientificName": "Picoides pubescens",
+    "diet": "Mostly insects—beetle larvae, ants, caterpillars—with some berries, seeds, and sap",
+    "shelter": "Self-excavated cavities in standing deadwood; roosts in cavities year-round",
+    "preferredHabitat": "Open deciduous and mixed woodland with dead snags full of insects",
+    "fact": "Downy woodpeckers are small enough to hammer into goldenrod galls for fly larvae that larger woodpeckers can't reach.",
+    "role": "Woodpeckers regulate wood-boring beetles and bark insects, easing pest pressure on trees. Their abandoned cavities house nuthatches, wrens, and flying squirrels, making them ecosystem engineers. They feed hawks, owls, and nest-raiding squirrels and snakes.",
+    "trophic": "insectivore",
+    "eats": [],
+    "eatenBy": [
+      "barred-owl",
+      "fisher",
+      "garter-snake-forest",
+      "great-horned-owl",
+      "tree-squirrel"
+    ],
+    "eatsOther": [
+      "beetle larvae",
+      "ants",
+      "caterpillars",
+      "spiders",
+      "berries",
+      "acorns",
+      "sap"
+    ],
+    "sources": [
+      {
+        "name": "Cornell Lab All About Birds — Downy Woodpecker",
+        "url": "https://www.allaboutbirds.org/guide/Downy_Woodpecker/lifehistory"
+      },
+      {
+        "name": "Animal Diversity Web — Picoides pubescens",
+        "url": "https://animaldiversity.org/accounts/Picoides_pubescens/"
+      }
+    ]
+  },
+  {
+    "id": "forest-salamander",
+    "scientificName": "Plethodon cinereus",
+    "diet": "Small invertebrates: mites, springtails, spiders, beetles, ants, and earthworms",
+    "shelter": "Under logs, rocks, and moist leaf litter; retreats into soil burrows",
+    "preferredHabitat": "Cool, damp deciduous forest floor with abundant woody debris",
+    "fact": "In some eastern forests the combined weight of these tiny lungless salamanders exceeds that of all the birds.",
+    "role": "Red-backed salamanders are a keystone of the forest-floor detritus web, controlling the mites and springtails that break down leaf litter. Their huge collective biomass makes them a key food subsidy for snakes, birds, and small mammals. They breathe through their skin, so they signal forest moisture and soil health.",
+    "trophic": "insectivore",
+    "eats": [],
+    "eatenBy": [
+      "barred-owl",
+      "garter-snake-forest",
+      "great-horned-owl",
+      "raccoon",
+      "red-fox-forest"
+    ],
+    "eatsOther": [
+      "mites",
+      "springtails",
+      "spiders",
+      "beetles",
+      "ants",
+      "earthworms",
+      "snails"
+    ],
+    "sources": [
+      {
+        "name": "Animal Diversity Web — Plethodon cinereus",
+        "url": "https://animaldiversity.org/accounts/Plethodon_cinereus/"
+      }
+    ]
+  },
+  {
+    "id": "great-horned-owl",
+    "scientificName": "Bubo virginianus",
+    "diet": "Mammals and birds—rabbits, voles, squirrels, chipmunks, skunks—plus reptiles and frogs",
+    "shelter": "Adopts old hawk, crow, or heron stick nests in large trees; also snags and ledges",
+    "preferredHabitat": "Mature forest broken by open ground, across nearly every biome",
+    "fact": "Great horned owls are among the only predators that routinely kill and eat skunks, seemingly unbothered by the spray.",
+    "role": "The great horned owl sits at the top of the nocturnal forest food web, with the most varied prey base of any North American raptor. It regulates rabbits, squirrels, chipmunks, and even other owls, so its loss lets prey populations surge. Adults have essentially no predators; only eggs and young are vulnerable.",
+    "trophic": "apex-predator",
+    "eats": [
+      "barred-owl",
+      "bobcat",
+      "chipmunk",
+      "cottontail-rabbit",
+      "forest-salamander",
+      "garter-snake-forest",
+      "little-brown-bat",
+      "meadow-vole",
+      "northern-flying-squirrel",
+      "nuthatch",
+      "pacific-wren",
+      "pileated-woodpecker",
+      "porcupine",
+      "raccoon",
+      "red-fox-forest",
+      "spotted-towhee",
+      "tree-squirrel",
+      "wood-duck",
+      "woodpecker"
+    ],
+    "eatenBy": [],
+    "eatsOther": [
+      "voles",
+      "mice",
+      "rabbits",
+      "skunks",
+      "frogs",
+      "insects",
+      "carrion"
+    ],
+    "sources": [
+      {
+        "name": "Cornell Lab All About Birds — Great Horned Owl",
+        "url": "https://www.allaboutbirds.org/guide/Great_Horned_Owl/lifehistory"
+      },
+      {
+        "name": "Animal Diversity Web — Bubo virginianus",
+        "url": "https://animaldiversity.org/accounts/Bubo_virginianus/"
+      }
+    ]
+  },
+  {
+    "id": "black-bear",
+    "scientificName": "Ursus americanus",
+    "diet": "Berries, nuts, grasses, and forbs; insects, fish, and carrion; fawns opportunistically",
+    "shelter": "Dens in hollow trees, root masses, rock crevices, or dug cavities; hibernates in winter",
+    "preferredHabitat": "Dense forest with thick understory and abundant berry and nut mast",
+    "fact": "Black bear cubs are born during hibernation weighing under half a pound—the smallest newborns relative to adult size of any placental mammal.",
+    "role": "Black bears are generalist omnivores that disperse berry seeds, dig up and regulate colonial insects, and opportunistically take deer fawns and elk calves. As the most abundant large carnivore in North American forests, they link the mast, insect, and vertebrate food layers at once. Adults have essentially no natural predators.",
+    "trophic": "omnivore",
+    "eats": [
+      "chipmunk",
+      "elk-forest",
+      "freshwater-fish",
+      "garter-snake-forest",
+      "mule-deer-forest",
+      "porcupine",
+      "red-fox-forest",
+      "tree-squirrel"
+    ],
+    "eatenBy": [],
+    "eatsOther": [
+      "berries",
+      "acorns",
+      "nuts",
+      "grasses",
+      "insects",
+      "honey",
+      "carrion"
+    ],
+    "sources": [
+      {
+        "name": "NPS — Black Bears",
+        "url": "https://www.nps.gov/subjects/bears/black-bears.htm"
+      },
+      {
+        "name": "Animal Diversity Web — Ursus americanus",
+        "url": "https://animaldiversity.org/accounts/Ursus_americanus/"
+      }
+    ]
+  },
+  {
+    "id": "red-fox-forest",
+    "scientificName": "Vulpes vulpes",
+    "diet": "Rodents, rabbits, birds, and reptiles; insects, fruit, and carrion",
+    "shelter": "Earthen dens dug into slopes or taken over from other animals, reused for generations",
+    "preferredHabitat": "Forest edges and scrub-woodland mixes; avoids dense unbroken forest",
+    "fact": "Red foxes have around 28 distinct calls, and each individual's voice is recognizable to other foxes.",
+    "role": "The red fox is a versatile mesopredator that keeps small rodents, rabbits, and ground-nesting birds in check while dispersing seeds through the fruit it eats. It sits below apex predators like bears and bobcats and above the small mammals it hunts. Fox pairs often reuse and expand the same den site across generations.",
+    "trophic": "mesopredator",
+    "eats": [
+      "chipmunk",
+      "cottontail-rabbit",
+      "fisher",
+      "forest-salamander",
+      "garter-snake-forest",
+      "meadow-vole",
+      "northern-flying-squirrel",
+      "pileated-woodpecker",
+      "raccoon",
+      "spotted-towhee",
+      "tree-squirrel",
+      "wood-duck"
+    ],
+    "eatenBy": [
+      "black-bear",
+      "bobcat",
+      "great-horned-owl"
+    ],
+    "eatsOther": [
+      "berries",
+      "fruit",
+      "insects",
+      "earthworms",
+      "carrion"
+    ],
+    "sources": [
+      {
+        "name": "Animal Diversity Web — Vulpes vulpes",
+        "url": "https://animaldiversity.org/accounts/Vulpes_vulpes/"
+      },
+      {
+        "name": "National Wildlife Federation — Raccoon (fox as predator)",
+        "url": "https://www.nwf.org/Educational-Resources/Wildlife-Guide/Mammals/Raccoon"
+      }
+    ]
+  },
+  {
+    "id": "mule-deer-forest",
+    "scientificName": "Odocoileus hemionus",
+    "diet": "Browser: leaves, twigs, and forbs in summer; woody browse, acorns, and berries in winter",
+    "shelter": "No fixed den; beds in dense shrubs and forest cover for warmth and safety",
+    "preferredHabitat": "Forest edges and open woodland with shrubby browse and water",
+    "fact": "A bounding mule deer releases an alarm scent from its hind legs that alerts every nearby deer at once.",
+    "role": "Mule deer are key large browsers that shape the forest understory and the regeneration of shrubs and young conifers. They form a critical prey base for large carnivores, while their fawns feed bobcats, foxes, and bears. Seasonal migrations move nutrients across the landscape.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": [
+      "black-bear",
+      "bobcat"
+    ],
+    "eatsOther": [
+      "leaves",
+      "twigs",
+      "forbs",
+      "acorns",
+      "berries",
+      "grasses",
+      "bark"
+    ],
+    "sources": [
+      {
+        "name": "Animal Diversity Web — Odocoileus hemionus",
+        "url": "https://animaldiversity.org/accounts/Odocoileus_hemionus/"
+      },
+      {
+        "name": "NPS — Mule Deer",
+        "url": "https://www.nps.gov/articles/000/mule-deer.htm"
+      }
+    ]
+  },
+  {
+    "id": "elk-forest",
+    "scientificName": "Cervus canadensis",
+    "diet": "Grasses, sedges, and forbs in summer; woody browse and bark in winter",
+    "shelter": "No fixed shelter; calves hidden in dense vegetation; the herd shares vigilance",
+    "preferredHabitat": "Grassy clearings and open woodland edges within larger forest",
+    "fact": "In Yellowstone, elk make up about 85% of winter wolf kills and their carcasses feed at least a dozen scavenger species.",
+    "role": "Elk are a dominant large herbivore whose heavy grazing shapes grasslands, willows, and aspen; their decline lets vegetation rebound. As the primary prey of wolves, cougars, and bears, they anchor the large-predator food web, and their carcasses sustain a broad scavenger guild. Migrations redistribute nutrients across elevations.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": [
+      "black-bear",
+      "bobcat"
+    ],
+    "eatsOther": [
+      "grasses",
+      "sedges",
+      "forbs",
+      "bark",
+      "lichens",
+      "fungi",
+      "acorns"
+    ],
+    "sources": [
+      {
+        "name": "NPS Yellowstone — Elk",
+        "url": "https://www.nps.gov/yell/learn/nature/elk.htm"
+      },
+      {
+        "name": "Animal Diversity Web — Cervus elaphus",
+        "url": "https://animaldiversity.org/accounts/Cervus_elaphus/"
+      }
+    ]
+  },
+  {
+    "id": "raccoon",
+    "scientificName": "Procyon lotor",
+    "diet": "Opportunistic: crayfish, insects, frogs, fish, small mammals, bird eggs, fruit, and nuts",
+    "shelter": "Hollow tree dens preferred; also rock crevices, burrows, and structures",
+    "preferredHabitat": "Moist forest near water for foraging and dabbling",
+    "fact": "A raccoon's sensitive forepaws carry about four times more touch receptors than its eyes have light receptors.",
+    "role": "Raccoons are adaptable omnivores that regulate crayfish, frogs, and invertebrates while dispersing fruit seeds and preying on bird nests. Their high density makes them a major mid-trophic connector between the aquatic and forest webs. Coyotes, large owls, and bobcats keep them in the mesopredator tier.",
+    "trophic": "omnivore",
+    "eats": [
+      "banana-slug",
+      "barred-owl",
+      "chipmunk",
+      "ensatina",
+      "forest-salamander",
+      "freshwater-fish",
+      "garter-snake-forest",
+      "little-brown-bat",
+      "northern-flying-squirrel",
+      "pacific-wren",
+      "pileated-woodpecker",
+      "rough-skinned-newt",
+      "spotted-towhee",
+      "wood-duck"
+    ],
+    "eatenBy": [
+      "bobcat",
+      "fisher",
+      "great-horned-owl",
+      "red-fox-forest"
+    ],
+    "eatsOther": [
+      "crayfish",
+      "insects",
+      "acorns",
+      "berries",
+      "nuts",
+      "carrion",
+      "bird eggs"
+    ],
+    "sources": [
+      {
+        "name": "Animal Diversity Web — Procyon lotor",
+        "url": "https://animaldiversity.org/accounts/Procyon_lotor/"
+      },
+      {
+        "name": "National Wildlife Federation — Raccoon",
+        "url": "https://www.nwf.org/Educational-Resources/Wildlife-Guide/Mammals/Raccoon"
+      }
+    ]
+  },
+  {
+    "id": "porcupine",
+    "scientificName": "Erethizon dorsatum",
+    "diet": "Strict herbivore: inner bark in winter; buds, twigs, leaves, and mast in warmer months",
+    "shelter": "Rock dens, hollow logs, and tree canopies; reuses the same dens seasonally",
+    "preferredHabitat": "Coniferous and mixed forest with trees offering edible bark",
+    "fact": "The fisher is one of the only predators able to kill porcupines, flipping them to reach the quill-free belly.",
+    "role": "Porcupines are ecosystem engineers whose bark-stripping kills or deforms trees, creating snags for cavity nesters and diversifying forest structure. Their mast feeding competes with deer and squirrels. They are the main prey base for fishers and a supplemental meal for bobcats and bears.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": [
+      "black-bear",
+      "bobcat",
+      "fisher",
+      "great-horned-owl"
+    ],
+    "eatsOther": [
+      "inner bark",
+      "twigs",
+      "buds",
+      "conifer needles",
+      "acorns",
+      "grasses",
+      "leaves"
+    ],
+    "sources": [
+      {
+        "name": "Animal Diversity Web — Erethizon dorsatum",
+        "url": "https://animaldiversity.org/accounts/Erethizon_dorsatum/"
+      },
+      {
+        "name": "NPS Acadia — Porcupines",
+        "url": "https://www.nps.gov/articles/acadia-porcupines.htm"
+      }
+    ]
+  },
+  {
+    "id": "bobcat",
+    "scientificName": "Lynx rufus",
+    "diet": "Obligate carnivore: rabbits, rodents, squirrels, and deer fawns; some birds and reptiles",
+    "shelter": "Dens in hollow logs, brush piles, thickets, and rock crevices",
+    "preferredHabitat": "Forest with dense understory, brushland, and rocky terrain",
+    "fact": "In the eastern U.S. bobcat numbers rise and fall closely with the local cottontail rabbit supply.",
+    "role": "Bobcats are keystone mesopredators that suppress rabbits, rodents, and squirrels, easing browsing pressure on forest plants. As mid-level hunters they sit below cougars and wolves and above the small mammals they take. They help structure entire small-mammal communities.",
+    "trophic": "mesopredator",
+    "eats": [
+      "chipmunk",
+      "cottontail-rabbit",
+      "elk-forest",
+      "fisher",
+      "meadow-vole",
+      "mule-deer-forest",
+      "northern-flying-squirrel",
+      "pileated-woodpecker",
+      "porcupine",
+      "raccoon",
+      "red-fox-forest",
+      "spotted-towhee",
+      "tree-squirrel"
+    ],
+    "eatenBy": [
+      "fisher",
+      "great-horned-owl"
+    ],
+    "eatsOther": [
+      "rabbits",
+      "voles",
+      "mice",
+      "birds",
+      "reptiles"
+    ],
+    "sources": [
+      {
+        "name": "Animal Diversity Web — Lynx rufus",
+        "url": "https://animaldiversity.org/accounts/Lynx_rufus/"
+      },
+      {
+        "name": "IUCN Red List — Lynx rufus",
+        "url": "https://www.iucnredlist.org/species/12521/50655874"
+      }
+    ]
+  },
+  {
+    "id": "chipmunk",
+    "scientificName": "Tamias striatus",
+    "diet": "Seeds, nuts, and fruit, plus insects, worms, slugs, fungi, and occasional bird eggs",
+    "shelter": "Underground burrows up to 10 m long with nest and food-storage chambers",
+    "preferredHabitat": "Mature deciduous forest with logs, stumps, and rocky cover",
+    "fact": "Chipmunks don't truly hibernate—they wake through winter to eat from seed caches holding over a liter of food.",
+    "role": "Chipmunks are important scatter-hoarders that disperse tree seeds and fungal spores, aiding forest regeneration. They eat many insects in summer and, as abundant prey, feed a wide guild of predators from weasels to owls. Their burrows aerate soil and shelter other small animals.",
+    "trophic": "omnivore",
+    "eats": [],
+    "eatenBy": [
+      "barred-owl",
+      "black-bear",
+      "bobcat",
+      "fisher",
+      "great-horned-owl",
+      "raccoon",
+      "red-fox-forest"
+    ],
+    "eatsOther": [
+      "acorns",
+      "nuts",
+      "seeds",
+      "berries",
+      "fungi",
+      "insects",
+      "earthworms",
+      "bird eggs"
+    ],
+    "sources": [
+      {
+        "name": "Animal Diversity Web — Tamias striatus",
+        "url": "https://animaldiversity.org/accounts/Tamias_striatus/"
+      }
+    ]
+  },
+  {
+    "id": "nuthatch",
+    "scientificName": "Sitta carolinensis",
+    "diet": "Insects and spiders in summer; seeds, acorns, and cached nuts through winter",
+    "shelter": "Tree cavities and old woodpecker holes in mature hardwoods; also nest boxes",
+    "preferredHabitat": "Mature deciduous and mixed forest with large oaks and hickories",
+    "fact": "Nuthatches sweep smelly insects around their nest hole, apparently to mask their scent from squirrels.",
+    "role": "Nuthatches prey on bark-dwelling insects, including tent caterpillars and wood borers, helping check forest pests. By wedging and caching acorns and seeds in bark they aid short-distance seed dispersal. They bridge the insect and seed layers and serve as prey for hawks and owls.",
+    "trophic": "omnivore",
+    "eats": [],
+    "eatenBy": [
+      "barred-owl",
+      "great-horned-owl",
+      "pileated-woodpecker",
+      "tree-squirrel"
+    ],
+    "eatsOther": [
+      "insects",
+      "spiders",
+      "acorns",
+      "nuts",
+      "seeds",
+      "insect eggs"
+    ],
+    "sources": [
+      {
+        "name": "Cornell Lab All About Birds — White-breasted Nuthatch",
+        "url": "https://www.allaboutbirds.org/guide/White-breasted_Nuthatch/"
+      },
+      {
+        "name": "Animal Diversity Web — Sitta carolinensis",
+        "url": "https://animaldiversity.org/accounts/Sitta_carolinensis/"
+      }
+    ]
+  },
+  {
+    "id": "garter-snake-forest",
+    "scientificName": "Thamnophis sirtalis",
+    "diet": "Earthworms, amphibians, and slugs; also leeches, fish, insects, and small rodents",
+    "shelter": "Communal winter dens in burrows and rock piles; hides under logs and rocks",
+    "preferredHabitat": "Moist forest edges and riparian zones near ponds and streams",
+    "fact": "Garter snakes are the main predator of the toxic rough-skinned newt, and some have evolved resistance to its poison.",
+    "role": "Garter snakes are generalist mid-web predators that suppress earthworms, slugs, amphibians, and small fish. In the Pacific Northwest they are the key check on rough-skinned newts, and their toxin resistance makes them a famous coevolutionary node. They are important prey for raptors, corvids, and larger predators.",
+    "trophic": "mesopredator",
+    "eats": [
+      "banana-slug",
+      "ensatina",
+      "forest-salamander",
+      "little-brown-bat",
+      "pacific-wren",
+      "rough-skinned-newt",
+      "spotted-towhee",
+      "wood-duck",
+      "woodpecker"
+    ],
+    "eatenBy": [
+      "barred-owl",
+      "black-bear",
+      "fisher",
+      "great-horned-owl",
+      "raccoon",
+      "red-fox-forest"
+    ],
+    "eatsOther": [
+      "earthworms",
+      "slugs",
+      "leeches",
+      "insects",
+      "small fish"
+    ],
+    "sources": [
+      {
+        "name": "Animal Diversity Web — Thamnophis sirtalis",
+        "url": "https://animaldiversity.org/accounts/Thamnophis_sirtalis/"
+      },
+      {
+        "name": "Animal Diversity Web — Taricha granulosa",
+        "url": "https://animaldiversity.org/accounts/Taricha_granulosa/"
+      }
+    ]
+  },
+  {
+    "id": "banana-slug",
+    "scientificName": "Ariolimax columbianus",
+    "diet": "Dead leaves, fungi, decaying matter, and animal scat; occasional live seedlings",
+    "shelter": "Under logs and bark; seals into a mucus cocoon during dry spells",
+    "preferredHabitat": "Cool, shaded, persistently moist Pacific forest floor",
+    "fact": "Banana slugs pass viable seeds and fungal spores through their gut, seeding plants and mycorrhizal networks as they crawl.",
+    "role": "Banana slugs are primary decomposers that break down leaf litter and scat, returning nutrients to the soil. They disperse seeds and mycorrhizal spores, partnering with both plants and the fungal networks that feed forest trees. Their numbing mucus deters most predators, leaving garter snakes and shrews as the main consumers.",
+    "trophic": "decomposer",
+    "eats": [],
+    "eatenBy": [
+      "ensatina",
+      "garter-snake-forest",
+      "raccoon"
+    ],
+    "eatsOther": [
+      "dead leaves",
+      "fungi",
+      "carrion",
+      "animal scat",
+      "lichen",
+      "algae",
+      "seedlings"
+    ],
+    "sources": [
+      {
+        "name": "Animal Diversity Web — Ariolimax columbianus",
+        "url": "https://animaldiversity.org/accounts/Ariolimax_columbianus/"
+      },
+      {
+        "name": "NPS Muir Woods — Banana Slug",
+        "url": "https://www.nps.gov/muwo/learn/nature/banana-slug.htm"
+      }
+    ]
+  },
+  {
+    "id": "pileated-woodpecker",
+    "scientificName": "Dryocopus pileatus",
+    "diet": "Carpenter ants and wood-boring beetle larvae; also termites, berries, and nuts",
+    "shelter": "Excavates a new rectangular nest cavity each year in large dead snags",
+    "preferredHabitat": "Mature and old-growth forest with big standing snags and downed logs",
+    "fact": "Its deep rectangular excavations can be large enough to snap a small tree in half.",
+    "role": "The pileated woodpecker is a keystone ecosystem engineer whose big cavities become homes for wood ducks, flying squirrels, fishers, bats, and barred owls. It regulates carpenter ant and beetle populations and opens decaying wood to fungi and decomposers. It sits as a secondary consumer and feeds raptors and mustelids.",
+    "trophic": "insectivore",
+    "eats": [
+      "nuthatch"
+    ],
+    "eatenBy": [
+      "barred-owl",
+      "bobcat",
+      "fisher",
+      "great-horned-owl",
+      "raccoon",
+      "red-fox-forest"
+    ],
+    "eatsOther": [
+      "carpenter ants",
+      "beetle larvae",
+      "termites",
+      "berries",
+      "acorns",
+      "nuts"
+    ],
+    "sources": [
+      {
+        "name": "Cornell Lab All About Birds — Pileated Woodpecker",
+        "url": "https://www.allaboutbirds.org/guide/Pileated_Woodpecker/lifehistory"
+      },
+      {
+        "name": "Animal Diversity Web — Dryocopus pileatus",
+        "url": "https://animaldiversity.org/accounts/Dryocopus_pileatus/"
+      }
+    ]
+  },
+  {
+    "id": "pacific-wren",
+    "scientificName": "Troglodytes pacificus",
+    "diet": "Beetles, caterpillars, ants, flies, spiders, and millipedes; some winter berries",
+    "shelter": "Domed nests low in upturned roots, decaying logs, and stream banks",
+    "preferredHabitat": "Old-growth conifer forest with dense understory near streams",
+    "fact": "Pacific wren numbers along streams rise with salmon runs, whose nutrients boost the insects the wrens eat.",
+    "role": "The Pacific wren is a secondary consumer that suppresses understory invertebrates in old-growth forest, passing that energy up to hawks, corvids, and weasels. Its dependence on damp, log-strewn old growth and salmon-fed streams makes it a living indicator of both forest and watershed health. It nests low in root tangles and rotting wood.",
+    "trophic": "insectivore",
+    "eats": [],
+    "eatenBy": [
+      "barred-owl",
+      "garter-snake-forest",
+      "great-horned-owl",
+      "raccoon"
+    ],
+    "eatsOther": [
+      "beetles",
+      "caterpillars",
+      "ants",
+      "spiders",
+      "millipedes",
+      "snails",
+      "berries"
+    ],
+    "sources": [
+      {
+        "name": "Cornell Lab All About Birds — Pacific Wren",
+        "url": "https://www.allaboutbirds.org/guide/Pacific_Wren/lifehistory"
+      },
+      {
+        "name": "Audubon — Pacific Wren",
+        "url": "https://www.audubon.org/field-guide/bird/pacific-wren"
+      }
+    ]
+  },
+  {
+    "id": "rough-skinned-newt",
+    "scientificName": "Taricha granulosa",
+    "diet": "Insects, earthworms, slugs, snails, and amphibian and fish eggs",
+    "shelter": "Under rotting logs, rocks, and leaf litter; in ponds during breeding season",
+    "preferredHabitat": "Pacific conifer forest near still or slow water",
+    "fact": "Its skin holds enough tetrodotoxin to kill several adults, driving a famous poison arms race with garter snakes.",
+    "role": "The rough-skinned newt is a mid-trophic consumer of insects, worms, and amphibian eggs, shaping wetland invertebrate and amphibian communities. Its potent tetrodotoxin defense drives adaptive evolution in resistant garter snakes, one of biology's best-known coevolutionary arms races. The toxin leaves it nearly free from most other predators.",
+    "trophic": "insectivore",
+    "eats": [],
+    "eatenBy": [
+      "barred-owl",
+      "garter-snake-forest",
+      "raccoon"
+    ],
+    "eatsOther": [
+      "insects",
+      "earthworms",
+      "slugs",
+      "snails",
+      "amphibian eggs",
+      "fish eggs"
+    ],
+    "sources": [
+      {
+        "name": "Animal Diversity Web — Taricha granulosa",
+        "url": "https://animaldiversity.org/accounts/Taricha_granulosa/"
+      },
+      {
+        "name": "USGS — Barred Owl predation on Taricha granulosa",
+        "url": "https://www.usgs.gov/publications/taricha-granulosa-rough-skinned-newt-predation"
+      }
+    ]
+  },
+  {
+    "id": "northern-flying-squirrel",
+    "scientificName": "Glaucomys sabrinus",
+    "diet": "Mostly underground truffle fungi; also lichens, seeds, nuts, fruit, and insects",
+    "shelter": "Tree cavities, old woodpecker holes, and branch dreys; huddles in winter groups",
+    "preferredHabitat": "Closed-canopy mature conifer forest rich in mycorrhizal fungi",
+    "fact": "Fungal spores turn up in nearly every flying squirrel dropping, making it the forest's key truffle disperser.",
+    "role": "The northern flying squirrel is a keystone mutualist, the main disperser of underground mycorrhizal fungi that conifers depend on for nutrients. This squirrel-fungi-tree partnership underpins forest regeneration. It is also a prime prey item for owls, martens, and fishers, funneling energy from the fungal layer up to top predators.",
+    "trophic": "omnivore",
+    "eats": [],
+    "eatenBy": [
+      "barred-owl",
+      "bobcat",
+      "fisher",
+      "great-horned-owl",
+      "raccoon",
+      "red-fox-forest"
+    ],
+    "eatsOther": [
+      "truffles",
+      "fungi",
+      "lichens",
+      "acorns",
+      "seeds",
+      "nuts",
+      "insects"
+    ],
+    "sources": [
+      {
+        "name": "Animal Diversity Web — Glaucomys sabrinus",
+        "url": "https://animaldiversity.org/accounts/Glaucomys_sabrinus/"
+      },
+      {
+        "name": "USDA Forest Service — Meyer et al. 2005 (truffle spore dispersal)",
+        "url": "https://www.fs.usda.gov/psw/publications/meyer/captured/psw_2005_meyer003.pdf"
+      }
+    ]
+  },
+  {
+    "id": "wood-duck",
+    "scientificName": "Aix sponsa",
+    "diet": "Acorns, seeds, and aquatic plants; ducklings and spring birds also eat insects and snails",
+    "shelter": "Obligate cavity nester in tree holes and nest boxes near water",
+    "preferredHabitat": "Bottomland hardwood and wooded swamps with slow water and cavity trees",
+    "fact": "A day after hatching, wood duck ducklings leap from nest cavities up to 50 feet high and land unhurt.",
+    "role": "Wood ducks are omnivorous consumers linking bottomland forest and wetland food webs, dispersing acorn and aquatic-plant seeds and regulating shallow-water invertebrates. As prey they feed great horned owls, mink, raccoons, and snapping turtles. Depending on woodpecker cavities, their abundance signals healthy wooded wetlands.",
+    "trophic": "omnivore",
+    "eats": [],
+    "eatenBy": [
+      "barred-owl",
+      "fisher",
+      "garter-snake-forest",
+      "great-horned-owl",
+      "raccoon",
+      "red-fox-forest"
+    ],
+    "eatsOther": [
+      "acorns",
+      "nuts",
+      "seeds",
+      "aquatic plants",
+      "duckweed",
+      "insects",
+      "snails"
+    ],
+    "sources": [
+      {
+        "name": "Cornell Lab All About Birds — Wood Duck",
+        "url": "https://www.allaboutbirds.org/guide/Wood_Duck/lifehistory"
+      },
+      {
+        "name": "Animal Diversity Web — Aix sponsa",
+        "url": "https://animaldiversity.org/accounts/Aix_sponsa/"
+      }
+    ]
+  },
+  {
+    "id": "barred-owl",
+    "scientificName": "Strix varia",
+    "diet": "Small mammals, birds, amphibians, reptiles, fish, and invertebrates",
+    "shelter": "Large tree cavities in mature forest; also old hawk, crow, or squirrel nests",
+    "preferredHabitat": "Mature mixed or conifer forest near water with large cavity trees",
+    "fact": "Barred owls sometimes wade into shallow water to catch fish—unusual hunting for a woodland owl.",
+    "role": "The barred owl is a mid-level predator that regulates mice, voles, chipmunks, squirrels, and amphibians. It sits between small prey and the apex great horned owl, which is its main predator. Its need for large cavity trees makes it an indicator of mature forest health.",
+    "trophic": "mesopredator",
+    "eats": [
+      "chipmunk",
+      "forest-salamander",
+      "garter-snake-forest",
+      "little-brown-bat",
+      "meadow-vole",
+      "northern-flying-squirrel",
+      "nuthatch",
+      "pacific-wren",
+      "pileated-woodpecker",
+      "rough-skinned-newt",
+      "spotted-towhee",
+      "tree-squirrel",
+      "wood-duck",
+      "woodpecker"
+    ],
+    "eatenBy": [
+      "great-horned-owl",
+      "raccoon"
+    ],
+    "eatsOther": [
+      "voles",
+      "mice",
+      "crayfish",
+      "fish",
+      "insects"
+    ],
+    "sources": [
+      {
+        "name": "Animal Diversity Web — Strix varia",
+        "url": "https://animaldiversity.org/accounts/Strix_varia/"
+      },
+      {
+        "name": "Cornell Lab All About Birds — Barred Owl",
+        "url": "https://www.allaboutbirds.org/guide/Barred_Owl/lifehistory"
+      }
+    ]
+  },
+  {
+    "id": "fisher",
+    "scientificName": "Pekania pennanti",
+    "diet": "Small and medium mammals—porcupines, hares, squirrels, mice; also birds and fruit",
+    "shelter": "Dens in hollow trees, logs, stumps, and ground burrows; young in high tree cavities",
+    "preferredHabitat": "Dense conifer and mixed forest with high canopy closure and hollow trees",
+    "fact": "The fisher is one of the only predators that regularly kills porcupines, slashing the face until it can flip it over.",
+    "role": "The fisher is a powerful mid-level forest predator and one of the few checks on porcupine numbers, which otherwise damage timber. It partly fills the niche of vanished apex predators, and its presence signals mature, connected forest. Young fishers are prey for bobcats, foxes, and lynx.",
+    "trophic": "mesopredator",
+    "eats": [
+      "bobcat",
+      "chipmunk",
+      "garter-snake-forest",
+      "little-brown-bat",
+      "northern-flying-squirrel",
+      "pileated-woodpecker",
+      "porcupine",
+      "raccoon",
+      "tree-squirrel",
+      "wood-duck",
+      "woodpecker"
+    ],
+    "eatenBy": [
+      "bobcat",
+      "red-fox-forest"
+    ],
+    "eatsOther": [
+      "hares",
+      "voles",
+      "shrews",
+      "berries",
+      "nuts",
+      "carrion"
+    ],
+    "sources": [
+      {
+        "name": "Animal Diversity Web — Martes pennanti",
+        "url": "https://animaldiversity.org/accounts/Martes_pennanti/"
+      },
+      {
+        "name": "NPS — Species Spotlight: Fisher",
+        "url": "https://www.nps.gov/articles/netn-species-spotlight-fisher.htm"
+      }
+    ]
+  },
+  {
+    "id": "little-brown-bat",
+    "scientificName": "Myotis lucifugus",
+    "diet": "Strict insectivore: midges, caddisflies, mayflies, moths, beetles, and mosquitoes",
+    "shelter": "Roosts in tree hollows, under bark, and in buildings; hibernates in caves and mines",
+    "preferredHabitat": "Forested land near streams, ponds, and openings for aerial feeding",
+    "fact": "White-nose syndrome, a cold-loving fungus, has wiped out over 90% of little brown bats at many hibernation sites.",
+    "role": "Little brown bats are voracious insectivores, each eating up to half its body weight in insects a night and suppressing forest and aquatic pests. They are a mid-web link between the insect layer and larger predators like owls, fishers, and snakes. White-nose syndrome has caused catastrophic declines.",
+    "trophic": "insectivore",
+    "eats": [],
+    "eatenBy": [
+      "barred-owl",
+      "fisher",
+      "garter-snake-forest",
+      "great-horned-owl",
+      "raccoon"
+    ],
+    "eatsOther": [
+      "midges",
+      "caddisflies",
+      "mayflies",
+      "moths",
+      "beetles",
+      "mosquitoes"
+    ],
+    "sources": [
+      {
+        "name": "Animal Diversity Web — Myotis lucifugus",
+        "url": "https://animaldiversity.org/accounts/Myotis_lucifugus/"
+      },
+      {
+        "name": "USGS — White-Nose Syndrome",
+        "url": "https://www.usgs.gov/centers/nwhc/science/white-nose-syndrome"
+      }
+    ]
+  },
+  {
+    "id": "ensatina",
+    "scientificName": "Ensatina eschscholtzii",
+    "diet": "Invertebrates: worms, ants, beetles, spiders, centipedes, millipedes, and snails",
+    "shelter": "Under rocks, bark, and logs on the forest floor; retreats underground when dry",
+    "preferredHabitat": "Moist, shaded forest floor rich in coarse woody debris",
+    "fact": "Ensatinas are lungless, breathing through their skin, and can drop a wriggling, poison-laced tail to escape.",
+    "role": "The ensatina is an abundant forest-floor predator that suppresses decomposer invertebrates like centipedes, millipedes, and sowbugs, linking the detritus web to vertebrate predators. Being lungless, it depends on damp, intact forest, making it an indicator of forest-floor moisture. It is prey for garter snakes, raccoons, and jays.",
+    "trophic": "insectivore",
+    "eats": [
+      "banana-slug"
+    ],
+    "eatenBy": [
+      "garter-snake-forest",
+      "raccoon"
+    ],
+    "eatsOther": [
+      "earthworms",
+      "ants",
+      "beetles",
+      "spiders",
+      "centipedes",
+      "millipedes",
+      "snails"
+    ],
+    "sources": [
+      {
+        "name": "CaliforniaHerps — Ensatina eschscholtzii",
+        "url": "https://californiaherps.com/salamanders/pages/e.e.oregonensis.html"
+      },
+      {
+        "name": "Animal Diversity Web — Plethodontidae (lungless salamanders)",
+        "url": "https://animaldiversity.org/accounts/Plethodontidae/"
+      }
+    ]
+  },
+  {
+    "id": "spotted-towhee",
+    "scientificName": "Pipilo maculatus",
+    "diet": "Insects and invertebrates in summer; seeds, acorns, and berries in fall and winter",
+    "shelter": "Dense shrubby thickets and brushy edges; nests on or near the ground",
+    "preferredHabitat": "Brushy forest edges and chaparral with deep leaf litter",
+    "fact": "The spotted towhee feeds with a two-footed backward hop that flicks leaf litter aside to expose food.",
+    "role": "The spotted towhee is an omnivorous ground forager that bridges the invertebrate and seed layers, eating ground beetles and caterpillars in summer and dispersing seeds in winter. Its ground nesting leaves it vulnerable to foxes, raccoons, and snakes, while hawks and owls take adults. It helps turn over and recycle forest-floor litter.",
+    "trophic": "omnivore",
+    "eats": [],
+    "eatenBy": [
+      "barred-owl",
+      "bobcat",
+      "garter-snake-forest",
+      "great-horned-owl",
+      "raccoon",
+      "red-fox-forest"
+    ],
+    "eatsOther": [
+      "acorns",
+      "berries",
+      "seeds",
+      "insects",
+      "spiders",
+      "millipedes",
+      "sowbugs"
+    ],
+    "sources": [
+      {
+        "name": "Cornell Lab All About Birds — Spotted Towhee",
+        "url": "https://www.allaboutbirds.org/guide/Spotted_Towhee/lifehistory"
+      },
+      {
+        "name": "Audubon — Spotted Towhee",
+        "url": "https://www.audubon.org/field-guide/bird/spotted-towhee"
+      }
+    ]
+  }
+]

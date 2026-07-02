@@ -205,7 +205,20 @@ input {
 	backdrop-filter: blur(3px);
 }
 .hud-top-left { left: 12px; flex-direction: column; align-items: stretch; min-width: 248px; }
-.hud-top-right { right: 12px; padding: 8px 10px; }
+.hud-top-right { right: 12px; padding: 8px 10px; gap: 6px; }
+
+/* grouped nav clusters: a small label over each set of buttons, with a thin
+   divider between groups so the toolbar reads as Learn / Build / World / System */
+.nav-group { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.nav-group + .nav-group { border-left: 1.5px solid var(--line); padding-left: 6px; margin-left: 0; }
+.nav-group-label {
+	font-family: var(--font-display); font-size: 9px; letter-spacing: 0.06em;
+	text-transform: uppercase; color: var(--ink-soft); line-height: 1;
+}
+.nav-group-btns { display: flex; gap: 4px; align-items: center; }
+.nav-group-system { justify-content: flex-end; }
+/* keep the system group's buttons bottom-aligned with labeled groups above */
+.nav-group-system .nav-group-btns { margin-top: 11px; }
 .hud-area-name {
 	font-size: 18px; color: var(--green-deep);
 	display: flex; align-items: center; gap: 7px;
@@ -472,6 +485,16 @@ input {
 .dev-res { display: flex; align-items: center; gap: 6px; font-size: 13px; }
 .dev-res-name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .dev-res input { width: 56px; }
+.dev-spawn-results { display: flex; flex-direction: column; gap: 4px; margin: 6px 0 10px; max-height: 240px; overflow-y: auto; }
+.dev-spawn-row {
+	display: flex; align-items: center; gap: 8px; width: 100%; text-align: left;
+	padding: 5px 9px; border: 1.5px solid var(--line); border-radius: 10px;
+	background: var(--cream); cursor: pointer;
+}
+.dev-spawn-row:hover:not(:disabled) { border-color: var(--green); background: var(--paper-2); }
+.dev-spawn-row .ani-thumb { width: 30px; height: 30px; object-fit: contain; flex: none; }
+.dev-spawn-row .grow { flex: 1; font-weight: 600; }
+.dev-spawn-here { font-size: 11px; font-weight: 700; color: var(--green-deep); }
 
 /* ================= journal ================= */
 .tabs { display: flex; flex-wrap: wrap; gap: 5px; padding: 10px 20px 0; }
@@ -499,6 +522,62 @@ input {
 .fact svg { flex-shrink: 0; margin-top: 2px; color: var(--green); }
 .req-details ul { margin: 3px 0 0 18px; padding: 0; }
 .animal-card .panel-body p { margin: 8px 0; }
+
+/* scientific name + trophic badge */
+.sci-name { font-style: italic; color: var(--ink-soft); font-size: 12px; }
+.sci-name-lg { font-style: italic; color: var(--ink-soft); text-align: center; margin: -2px 0 6px; }
+.card-meta { display: flex; align-items: center; justify-content: center; gap: 7px; flex-wrap: wrap; }
+.trophic-badge {
+	display: inline-flex; align-items: center; gap: 4px; vertical-align: middle;
+	font-size: 10.5px; font-weight: 700; color: #fff; padding: 2px 8px; border-radius: 10px;
+	white-space: nowrap;
+}
+.trophic-badge svg { opacity: 0.9; }
+.role-note { color: var(--ink); line-height: 1.5; margin: 6px 0; }
+
+/* food-web links (eats / eaten by) */
+.foodweb-links { margin: 6px 0; display: flex; flex-direction: column; gap: 4px; }
+.foodweb-row { display: flex; align-items: flex-start; gap: 8px; }
+.foodweb-label {
+	display: inline-flex; align-items: center; gap: 4px; flex: none; min-width: 74px;
+	font-weight: 700; color: var(--green-deep); padding-top: 3px;
+}
+.foodweb-chips { display: flex; flex-wrap: wrap; gap: 5px; }
+.web-chip {
+	font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 11px;
+	border: 1.5px solid var(--green); background: var(--paper-2); color: var(--green-deep); cursor: pointer;
+}
+.web-chip:hover:not(:disabled) { background: var(--green); color: #fff; }
+.web-chip-unknown { border-color: var(--line); color: var(--ink-soft); border-style: dashed; cursor: default; opacity: 0.7; }
+.web-chip-forage { border-color: #c9a35c; color: #8a6a2c; background: #f6efdd; cursor: default; }
+
+.sources { margin-top: 5px; display: flex; align-items: baseline; gap: 4px; flex-wrap: wrap; line-height: 1.5; }
+.sources svg { color: var(--green); position: relative; top: 1px; }
+.sources a { color: var(--green-deep); text-decoration: underline; }
+
+/* view switch (Entries / Food web) */
+.view-switch { display: inline-flex; border: 1px solid var(--line); border-radius: 11px; overflow: hidden; }
+.view-switch button {
+	font-size: 12px; font-weight: 700; padding: 4px 11px; border: none; border-radius: 0;
+	display: inline-flex; align-items: center; gap: 5px; background: var(--paper-2); color: var(--ink-soft); cursor: pointer;
+}
+.view-switch button.on { background: var(--green); color: #fff; }
+
+/* food-web layered diagram */
+.foodweb-view { display: flex; flex-direction: column; gap: 10px; }
+.foodweb-tier { border: 1.5px solid var(--line); border-radius: 12px; padding: 8px 10px; background: var(--cream); }
+.foodweb-tier-label {
+	font-family: var(--font-display); font-size: 11.5px; letter-spacing: 0.03em; text-transform: uppercase;
+	color: var(--green-deep); margin-bottom: 6px;
+}
+.foodweb-tier-row { display: flex; flex-wrap: wrap; gap: 8px; }
+.foodweb-node {
+	display: flex; flex-direction: column; align-items: center; gap: 2px; width: 68px;
+	padding: 6px 4px; border: 2px solid var(--green); border-radius: 10px; background: var(--paper);
+	font-size: 10.5px; text-align: center; cursor: pointer; line-height: 1.2;
+}
+.foodweb-node .ani-thumb { width: 34px; height: 34px; object-fit: contain; }
+.foodweb-node-unknown { border-color: var(--line); border-style: dashed; color: var(--ink-soft); opacity: 0.65; cursor: default; }
 
 /* ================= help ================= */
 .help-intro {
@@ -748,8 +827,12 @@ kbd {
 	.hud-top-left { min-width: 0; max-width: 46vw; padding: 7px 10px; }
 	.hud-area-name { font-size: 14px; }
 	.meter-label { display: none; }
-	.hud-top-right { padding: 6px 7px; gap: 4px; flex-wrap: wrap; max-width: 50vw; justify-content: flex-end; }
+	.hud-top-right { padding: 6px 7px; gap: 4px; flex-wrap: wrap; max-width: 62vw; justify-content: flex-end; }
 	.hud-top-right .icon-btn { width: 38px; height: 38px; }
+	/* on small screens hide the tiny group labels and dividers to save room */
+	.nav-group-label { display: none; }
+	.nav-group + .nav-group { border-left: none; padding-left: 0; }
+	.nav-group-system .nav-group-btns { margin-top: 0; }
 	.save-text, .save-pill span { display: none; }
 	.save-pill { padding: 5px 7px; }
 

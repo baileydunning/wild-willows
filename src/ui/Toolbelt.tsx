@@ -15,7 +15,7 @@ const PAINT_PALETTE = [
 ];
 
 export function Toolbelt() {
-	const { data, state, selectedTool, setSelectedTool, setPanel, panel, notify, paintColor, setPaintColor } = useGame();
+	const { data, state, selectedTool, setSelectedTool, notify, paintColor, setPaintColor } = useGame();
 	if (!data || !state) return null;
 	// the paint tool only exists indoors, and only once the home is built into a house
 	const canPaint = state.player.area === 'home' && !!state.player.home?.styleLocked;
@@ -71,16 +71,6 @@ export function Toolbelt() {
 					<span className="tool-tier paint-dot" style={{ background: paintColor }} />
 				</button>
 			)}
-			<span className="belt-divider" />
-			<button
-				className={`tool-slot craft ${panel === 'crafting' ? 'on' : ''}`}
-				title="Craft (C) — anywhere, using your basket and chests"
-				aria-label="Craft"
-				onClick={() => setPanel(panel === 'crafting' ? null : 'crafting')}
-			>
-				<Icon name="hammer" size={22} />
-				<span className="tool-key">C</span>
-			</button>
 			</div>
 		</div>
 	);

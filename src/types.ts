@@ -65,6 +65,13 @@ export interface BiomeDef {
 	canFlood?: boolean;
 }
 
+export interface AnimalSource {
+	/** Publisher/source name, e.g. "Cornell Lab — All About Birds". */
+	name: string;
+	/** Canonical URL for the reference. */
+	url: string;
+}
+
 export interface AnimalDef {
 	id: string;
 	name: string;
@@ -76,6 +83,20 @@ export interface AnimalDef {
 	rarity: string;
 	featured?: boolean;
 	preferredHabitat: string;
+	/** Latin binomial (or genus for composite entries), verified against sources. */
+	scientificName?: string;
+	/** 2–3 sentence ecosystem-role write-up (keystone, pollinator, engineer, …). */
+	role?: string;
+	/** Coarse trophic position for the food-web view and a badge. */
+	trophic?: 'producer' | 'herbivore' | 'omnivore' | 'insectivore' | 'mesopredator' | 'apex-predator' | 'scavenger' | 'filter-feeder' | 'decomposer';
+	/** Animal ids (in this game) this species eats. Cross-biome links allowed. */
+	eats?: string[];
+	/** Animal ids (in this game) that eat this species. */
+	eatenBy?: string[];
+	/** Non-animal food/forage eaten (e.g. "grasses", "nectar", "carrion"). */
+	eatsOther?: string[];
+	/** Credible references backing this entry's ecology. */
+	sources?: AnimalSource[];
 	requirements: {
 		minHealth?: number;
 		minBalance?: number;

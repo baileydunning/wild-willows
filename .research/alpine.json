@@ -1,0 +1,424 @@
+[
+  {
+    "id": "mountain-goat",
+    "scientificName": "Oreamnos americanus",
+    "diet": "Alpine grasses, sedges, forbs, woody browse, mosses, and lichens",
+    "shelter": "Shallow bedding depressions pawed into cliff ledges and rocky terrain",
+    "preferredHabitat": "Steep alpine and subalpine cliffs with escape terrain above turf",
+    "fact": "Both sexes grow permanent black horns; you can count the annual rings to age one.",
+    "role": "A sure-footed alpine grazer of the highest cliffs, browsing grasses, forbs, and lichens across the rock. Its rubbery-padded hooves grip terrain few predators can follow. Kids and adults are still taken by cougars, and eagles snatch newborns from ledges.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["golden-eagle"],
+    "eatsOther": ["alpine plants", "grasses", "sedges", "lichen", "moss"],
+    "sources": [
+      { "name": "Animal Diversity Web - Oreamnos americanus", "url": "https://animaldiversity.org/accounts/Oreamnos_americanus/" }
+    ]
+  },
+  {
+    "id": "bighorn-sheep",
+    "scientificName": "Ovis canadensis",
+    "diet": "Chiefly grasses and sedges, with forbs and woody browse in winter",
+    "shelter": "Beds on rocky ledges and rugged escape terrain near cliffs",
+    "preferredHabitat": "Open grassy mountain slopes beside rugged, rocky cliffs",
+    "fact": "Bighorns flee across rocky ledges barely a few inches wide to escape predators.",
+    "role": "A cliff-edge grazer that crops grasses and forbs on open slopes, never far from rugged escape terrain. Rams clash horns in booming rutting contests each fall. Lambs and adults are hunted by cougars, and eagles may take the very young.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["golden-eagle"],
+    "eatsOther": ["grasses", "sedges", "alpine plants"],
+    "sources": [
+      { "name": "Animal Diversity Web - Ovis canadensis", "url": "https://animaldiversity.org/accounts/Ovis_canadensis/" },
+      { "name": "National Wildlife Federation - Bighorn Sheep", "url": "https://www.nwf.org/Educational-Resources/Wildlife-Guide/Mammals/bighorn-sheep" }
+    ]
+  },
+  {
+    "id": "pika",
+    "scientificName": "Ochotona princeps",
+    "diet": "Grasses, forbs, and wildflowers, gathered and dried into winter haypiles",
+    "shelter": "Cool gaps deep within talus and broken rock",
+    "preferredHabitat": "Talus slopes and rock piles bordering alpine flower meadows",
+    "fact": "Pikas cut and sun-dry little haystacks of plants to eat beneath the winter snow.",
+    "role": "A tiny talus-dwelling relative of rabbits and the engine of the alpine food web. It spends summer harvesting haypiles of forbs and grasses to survive under snow. Pikas are hunted by weasels, martens, foxes, and eagles alike.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["fox-alpine", "pine-marten", "ermine", "golden-eagle"],
+    "eatsOther": ["alpine plants", "grasses", "wildflowers", "lichen"],
+    "sources": [
+      { "name": "Animal Diversity Web - Ochotona princeps", "url": "https://animaldiversity.org/accounts/Ochotona_princeps/" }
+    ]
+  },
+  {
+    "id": "marmot",
+    "scientificName": "Marmota flaviventris",
+    "diet": "Grasses, flowering plants, and seeds in late summer",
+    "shelter": "Deep burrow systems dug beneath boulders",
+    "preferredHabitat": "Open meadow patches with boulders and burrow ground",
+    "fact": "Predation causes about 98% of yellow-bellied marmots' summer deaths.",
+    "role": "A stout, sun-loving rodent that grazes meadow plants and fattens on seeds before an eight-month hibernation. Colonies whistle alarm calls from boulder lookouts. They are prime prey for golden eagles, coyotes, and foxes.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["fox-alpine", "golden-eagle"],
+    "eatsOther": ["grasses", "wildflowers", "seeds", "alpine plants"],
+    "sources": [
+      { "name": "Animal Diversity Web - Marmota flaviventris", "url": "https://animaldiversity.org/accounts/Marmota_flaviventris/" }
+    ]
+  },
+  {
+    "id": "snowshoe-hare",
+    "scientificName": "Lepus americanus",
+    "diet": "Green plants in summer; buds, twigs, bark, and conifer needles in winter",
+    "shelter": "Shallow forms under dense shrubs and conifer cover",
+    "preferredHabitat": "Brushy thickets and dense understory near open turf",
+    "fact": "Its molt from brown to winter white is triggered by day length, not snow.",
+    "role": "A browsing hare of brushy treeline cover whose coat flips brown-to-white with the seasons. Its numbers cycle roughly every ten years, driving predator populations. Martens, foxes, eagles, and owls all hunt it.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["pine-marten", "golden-eagle"],
+    "eatsOther": ["grasses", "buds", "bark", "alpine plants"],
+    "sources": [
+      { "name": "Animal Diversity Web - Lepus americanus", "url": "https://animaldiversity.org/accounts/Lepus_americanus/" },
+      { "name": "USFS Fire Effects Information System - Lepus americanus", "url": "https://research.fs.usda.gov/feis/species-reviews/leam" }
+    ]
+  },
+  {
+    "id": "elk-alpine",
+    "scientificName": "Cervus canadensis",
+    "diet": "Grasses, sedges, and forbs in summer; browse, bark, and lichens in winter",
+    "shelter": "Beds in timber edges and shaded cover beside meadows",
+    "preferredHabitat": "High summer meadows near forest cover and snowmelt water",
+    "fact": "Elk chase the 'green wave' of new growth up the mountains each summer.",
+    "role": "A large migratory grazer that summers in high meadows, following fresh growth uphill and bugling through the autumn rut. Bulls regrow massive antlers yearly. Cougars take adults, while eagles and coyotes may take newborn calves.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": ["grasses", "sedges", "alpine plants", "bark"],
+    "sources": [
+      { "name": "Animal Diversity Web - Cervus", "url": "https://animaldiversity.org/accounts/Cervus_elaphus/" },
+      { "name": "WDFW - Elk (Cervus canadensis)", "url": "https://wdfw.wa.gov/species-habitats/species/cervus-canadensis" }
+    ]
+  },
+  {
+    "id": "mule-deer-alpine",
+    "scientificName": "Odocoileus hemionus",
+    "diet": "A selective browser of shrubs, forbs, buds, fruits, and lichens",
+    "shelter": "Beds in shaded thickets and krummholz cover",
+    "preferredHabitat": "High summer meadows and shrublands with clean water",
+    "fact": "Mule deer clear obstacles with a bounding, four-footed gait called stotting.",
+    "role": "A selective high-country browser that summers in alpine meadows and shrublands before migrating down each fall. It picks the most digestible forbs, buds, and browse. Cougars are its main predator; fawns are also taken by eagles and coyotes.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["golden-eagle"],
+    "eatsOther": ["alpine plants", "shrubs", "buds", "lichen"],
+    "sources": [
+      { "name": "Animal Diversity Web - Odocoileus hemionus", "url": "https://animaldiversity.org/accounts/Odocoileus_hemionus/" },
+      { "name": "CDFW - Mule Deer Natural History", "url": "https://wildlife.ca.gov/Regions/6/Mule-Deer/Natural-History" }
+    ]
+  },
+  {
+    "id": "fox-alpine",
+    "scientificName": "Vulpes vulpes",
+    "diet": "Voles, pikas, hares, ground birds and eggs, insects, and berries",
+    "shelter": "Earthen dens, often burrows co-opted from other animals",
+    "preferredHabitat": "High country with rocky cover and abundant small prey",
+    "fact": "Red foxes often move into burrows dug by rabbits or marmots instead of digging.",
+    "role": "An adaptable mountain mesopredator that hunts pikas, marmots, and ground birds and rounds out its diet with insects and berries. It listens for prey moving beneath the snow, then dives in headfirst. Golden eagles are its main threat here.",
+    "trophic": "mesopredator",
+    "eats": ["pika", "marmot", "ptarmigan", "boreal-toad"],
+    "eatenBy": ["golden-eagle"],
+    "eatsOther": ["voles", "insects", "berries", "seeds"],
+    "sources": [
+      { "name": "Animal Diversity Web - Vulpes vulpes", "url": "https://animaldiversity.org/accounts/Vulpes_vulpes/" },
+      { "name": "USFWS - Sierra Nevada Red Fox", "url": "https://www.fws.gov/species/sierra-nevada-red-fox-vulpes-vulpes-necator" }
+    ]
+  },
+  {
+    "id": "pine-marten",
+    "scientificName": "Martes americana",
+    "diet": "Voles, red squirrels, pikas, hares, birds, eggs, insects, and berries",
+    "shelter": "Dens in tree cavities, hollow logs, stumps, and rock crevices",
+    "preferredHabitat": "Structurally complex treeline forest with rocky cover",
+    "fact": "Pine martens hunt beneath the winter snowpack through tunnels others can't reach.",
+    "role": "An agile treeline weasel that hunts voles, squirrels, pikas, and young hares, adding berries and insects in season. It ranges over complex forest and rock, even beneath the snowpack. Great horned owls, eagles, and larger carnivores prey on it.",
+    "trophic": "mesopredator",
+    "eats": ["pika", "snowshoe-hare", "ptarmigan"],
+    "eatenBy": ["golden-eagle"],
+    "eatsOther": ["voles", "squirrels", "insects", "berries"],
+    "sources": [
+      { "name": "Animal Diversity Web - Martes americana", "url": "https://animaldiversity.org/accounts/Martes_americana/" },
+      { "name": "Alaska Dept. of Fish & Game - American Marten", "url": "https://www.adfg.alaska.gov/index.cfm?adfg=americanmarten.main" }
+    ]
+  },
+  {
+    "id": "ptarmigan",
+    "scientificName": "Lagopus leucura",
+    "diet": "Buds, twigs, leaves, seeds, and flowers; willow is the sole winter food",
+    "shelter": "Camouflaged ground scrapes among lichen-covered alpine rocks",
+    "preferredHabitat": "Alpine tundra above treeline year-round, wintering in willow basins",
+    "fact": "It is the only North American bird living entirely above treeline all year.",
+    "role": "A superbly camouflaged alpine grouse that grazes buds, leaves, and seeds, surviving winter almost entirely on willow. It grows feathered 'snowshoes' on its feet each winter. Eagles, foxes, weasels, and martens all hunt it and its chicks.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["golden-eagle", "fox-alpine", "pine-marten", "ermine"],
+    "eatsOther": ["buds", "seeds", "alpine plants", "insects"],
+    "sources": [
+      { "name": "Cornell Lab All About Birds - White-tailed Ptarmigan", "url": "https://www.allaboutbirds.org/guide/White-tailed_Ptarmigan/lifehistory" },
+      { "name": "Animal Diversity Web - Lagopus leucura", "url": "https://animaldiversity.org/accounts/Lagopus_leucura/" }
+    ]
+  },
+  {
+    "id": "clarks-nutcracker",
+    "scientificName": "Nucifraga columbiana",
+    "diet": "Pine seeds cached by the thousand, plus insects and small animals",
+    "shelter": "Cup nest in conifer branches, sited near winter seed caches",
+    "preferredHabitat": "High conifer forest and treeline near pine-seed sources",
+    "fact": "It can relocate thousands of buried seed caches months later, even under snow.",
+    "role": "A mountain corvid that harvests and buries thousands of pine seeds, replanting the very forests it depends on. Its cached hoard lets it breed in deep winter. It also takes insects and small vertebrates when available.",
+    "trophic": "omnivore",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": ["pine seeds", "seeds", "insects"],
+    "sources": [
+      { "name": "Cornell Lab All About Birds - Clark's Nutcracker", "url": "https://www.allaboutbirds.org/guide/Clarks_Nutcracker/lifehistory" },
+      { "name": "Animal Diversity Web - Nucifraga columbiana", "url": "https://animaldiversity.org/accounts/Nucifraga_columbiana/" }
+    ]
+  },
+  {
+    "id": "golden-eagle",
+    "scientificName": "Aquila chrysaetos",
+    "diet": "Marmots, hares, ground squirrels, ptarmigan and other birds, plus carrion",
+    "shelter": "Huge stick eyries on cliffs and steep escarpments",
+    "preferredHabitat": "Open, high country with cliffs and abundant medium prey",
+    "fact": "Golden eagles sometimes line their nests with aromatic leaves, perhaps to deter insects.",
+    "role": "The apex hunter of the high country, taking marmots, hares, and ptarmigan and even smaller carnivores in powerful stoops. It arrives only when the mountain teems with prey. Adults have essentially no predators.",
+    "trophic": "apex-predator",
+    "eats": ["marmot", "snowshoe-hare", "ptarmigan", "pika", "fox-alpine", "pine-marten", "ermine", "mule-deer-alpine", "mountain-goat", "bighorn-sheep"],
+    "eatenBy": [],
+    "eatsOther": ["ground squirrels", "carrion"],
+    "sources": [
+      { "name": "Cornell Lab All About Birds - Golden Eagle", "url": "https://www.allaboutbirds.org/guide/Golden_Eagle/lifehistory" },
+      { "name": "Birds of the World - Golden Eagle Food Habits", "url": "https://birdsoftheworld.org/bow/species/goleag/cur/foodhabits" }
+    ]
+  },
+  {
+    "id": "alpine-butterfly",
+    "scientificName": "Parnassius smintheus",
+    "diet": "Larvae eat stonecrop; adults sip nectar from Sedum and daisy-family flowers",
+    "shelter": "No nest; larvae shelter in leaf litter and rocks, overwintering as eggs",
+    "preferredHabitat": "Rocky open alpine and montane slopes where stonecrop grows",
+    "fact": "Its pale red-and-black wings warn predators that it tastes unpalatable.",
+    "role": "A hardy alpine butterfly whose caterpillars feed only on stonecrop while adults nectar across the meadow flowers. Its aposematic wings advertise a foul taste. Birds and spiders that ignore the warning still catch some.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": ["nectar", "alpine plants"],
+    "sources": [
+      { "name": "Butterflies and Moths of North America - Parnassius smintheus", "url": "https://www.butterfliesandmoths.org/species/Parnassius-smintheus" },
+      { "name": "Washington Butterfly Assoc. - Mountain Parnassian", "url": "https://wabutterflyassoc.org/species-profile-mountain-parnassian-parnassius-smintheus/" }
+    ]
+  },
+  {
+    "id": "bumblebee-alpine",
+    "scientificName": "Bombus balteatus",
+    "diet": "Nectar and pollen from deep-throated alpine flowers",
+    "shelter": "Colonial nests in ground cavities and old rodent burrows",
+    "preferredHabitat": "High alpine and boreal flower meadows, often above treeline",
+    "fact": "This bee's tongue grew measurably shorter from 1966 to 2014 as flowers declined.",
+    "role": "A cold-tolerant, long-tongued bumblebee that pollinates deep alpine blossoms, shivering its flight muscles to fly in near-freezing air. Its colonies nest underground. Birds, crab spiders, and robber flies prey on foragers.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": ["nectar", "pollen", "alpine plants"],
+    "sources": [
+      { "name": "Molecular Ecology - Alpine bumblebee tongue-length study", "url": "https://onlinelibrary.wiley.com/doi/full/10.1111/mec.16291" },
+      { "name": "Bombus balteatus - Wikipedia", "url": "https://en.wikipedia.org/wiki/Bombus_balteatus" }
+    ]
+  },
+  {
+    "id": "snowmelt-trout",
+    "scientificName": "Oncorhynchus clarkii",
+    "diet": "Aquatic and terrestrial insects; larger fish add small fish to the diet",
+    "shelter": "Cold, clear pools and undercut banks; gravel riffles for spawning",
+    "preferredHabitat": "Cold, clear, connected snowmelt streams and mountain lakes",
+    "fact": "A poor competitor, native cutthroat are displaced by introduced brown and brook trout.",
+    "role": "A cold-water native whose presence signals a clean, healthy mountain stream. It picks off drifting insects and, when large, smaller fish. It is threatened by non-native trout that out-compete and prey on it.",
+    "trophic": "insectivore",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": ["insects", "aquatic insects", "crustaceans"],
+    "sources": [
+      { "name": "Animal Diversity Web - Oncorhynchus clarkii", "url": "https://animaldiversity.org/accounts/Oncorhynchus_clarkii/" },
+      { "name": "USGS - Cutthroat trout diet study", "url": "https://www.usgs.gov/publications/changing-patterns-coastal-cutthroat-trout-oncorhynchus-clarki-clarki-diet-and-prey-a" }
+    ]
+  },
+  {
+    "id": "rosy-finch",
+    "scientificName": "Leucosticte tephrocotis",
+    "diet": "Tiny alpine plant seeds and insects, often gleaned off snowfields",
+    "shelter": "Bulky cup of moss and grass tucked into a cliff crack or talus",
+    "preferredHabitat": "Alpine zones above treeline: talus, scree, cliffs, and glaciers",
+    "fact": "It nests higher than nearly any other songbird in North America.",
+    "role": "A high-altitude songbird that hops across snow and talus gathering wind-borne seeds and chilled insects. It nests in rock crevices above treeline. Falcons and hawks are its main predators.",
+    "trophic": "omnivore",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": ["seeds", "insects", "alpine plants"],
+    "sources": [
+      { "name": "Cornell Lab All About Birds - Gray-crowned Rosy-Finch", "url": "https://www.allaboutbirds.org/guide/Gray-crowned_Rosy-Finch/lifehistory" },
+      { "name": "USFWS - Gray-crowned Rosy-Finch", "url": "https://www.fws.gov/species/grey-crowned-rosy-finch-leucosticte-tephrocotis" }
+    ]
+  },
+  {
+    "id": "american-pipit",
+    "scientificName": "Anthus rubescens",
+    "diet": "Mostly insects and their larvae, plus spiders and some seeds",
+    "shelter": "Ground nest of grass tucked beside a rock or vegetation clump",
+    "preferredHabitat": "Open alpine meadows and tundra in the breeding season",
+    "fact": "It forages at snowbank edges for insects chilled after drifting up from below.",
+    "role": "A slender ground-walking songbird of open alpine meadows that constantly bobs its tail as it hunts insects. It gleans chilled prey from snowbank margins. Hawks and nest raiders are its chief threats.",
+    "trophic": "insectivore",
+    "eats": [],
+    "eatenBy": ["fox-alpine"],
+    "eatsOther": ["insects", "spiders", "seeds"],
+    "sources": [
+      { "name": "Birds of the World - American Pipit Food Habits", "url": "https://birdsoftheworld.org/bow/species/amepip/cur/foodhabits" },
+      { "name": "Audubon Field Guide - American Pipit", "url": "https://www.audubon.org/field-guide/bird/american-pipit" }
+    ]
+  },
+  {
+    "id": "ermine",
+    "scientificName": "Mustela richardsonii",
+    "diet": "Small rodents, especially voles; also pikas, birds, eggs, and insects",
+    "shelter": "Dens in prey burrows, rock piles, and hollow logs, lined with fur",
+    "preferredHabitat": "Talus and shrubby edges near meadows with dense rodent prey",
+    "fact": "Its coat turns pure white in winter except for a jet-black tail tip.",
+    "role": "A small, fierce weasel that specializes in voles and other rodents, also taking young pikas and ground-bird eggs. It hunts prey burrows it can slip right into. Foxes, martens, and raptors prey on it in turn.",
+    "trophic": "mesopredator",
+    "eats": ["pika", "ptarmigan"],
+    "eatenBy": ["fox-alpine", "pine-marten", "golden-eagle"],
+    "eatsOther": ["voles", "mice", "insects"],
+    "sources": [
+      { "name": "Animal Diversity Web - Mustela erminea", "url": "https://animaldiversity.org/accounts/Mustela_erminea/" },
+      { "name": "Idaho Fish and Game - Mustela erminea", "url": "https://idfg.idaho.gov/species/taxa/17667" }
+    ]
+  },
+  {
+    "id": "boreal-toad",
+    "scientificName": "Anaxyrus boreas boreas",
+    "diet": "Beetles, ants, flies, and other invertebrates; tadpoles graze algae",
+    "shelter": "Burrows, rodent holes, logs, and rocks in moist cover near pools",
+    "preferredHabitat": "Subalpine and alpine wet meadows with open breeding pools",
+    "fact": "Rocky Mountain boreal toads have crashed from the deadly amphibian chytrid fungus.",
+    "role": "The high country's only toad, an insect-eating amphibian that breeds in shallow snowmelt pools and takes years to mature. Its tadpoles graze algae. Chytrid fungus has devastated southern populations, making it a conservation flagship.",
+    "trophic": "insectivore",
+    "eats": [],
+    "eatenBy": ["fox-alpine"],
+    "eatsOther": ["insects", "invertebrates"],
+    "sources": [
+      { "name": "USFS FEIS - Anaxyrus boreas", "url": "https://www.fs.usda.gov/database/feis/animals/amphibian/anbo/all.html" },
+      { "name": "USFWS - Boreal toad species profile", "url": "https://ecos.fws.gov/ecp/species/D026" }
+    ]
+  },
+  {
+    "id": "mountain-bluebird",
+    "scientificName": "Sialia currucoides",
+    "diet": "Mostly insects caught in flight; berries and seeds in colder months",
+    "shelter": "Old woodpecker holes, natural cavities, and nest boxes",
+    "preferredHabitat": "Open high meadows with scattered trees and hunting perches",
+    "fact": "It cannot dig its own hole, so it reuses old woodpecker cavities and nest boxes.",
+    "role": "A brilliant sky-blue thrush of open high meadows that hover-hunts insects on the wing and adds berries in the cold. As a cavity nester it depends on old woodpecker holes. Hawks and cavity raiders prey on it.",
+    "trophic": "insectivore",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": ["insects", "berries", "seeds"],
+    "sources": [
+      { "name": "Audubon Field Guide - Mountain Bluebird", "url": "https://www.audubon.org/field-guide/bird/mountain-bluebird" },
+      { "name": "Sialis.org - Mountain Bluebird biology", "url": "https://www.sialis.org/moblbio/" }
+    ]
+  },
+  {
+    "id": "alpine-chipmunk",
+    "scientificName": "Tamias alpinus",
+    "diet": "Seeds of sedges, forbs, and grasses, plus berries, fungi, pine seeds, and eggs",
+    "shelter": "Nests deep in crevices between talus rocks and boulders",
+    "preferredHabitat": "High talus slopes and rocky meadows of the Sierra Nevada",
+    "fact": "It ranges higher than almost any other chipmunk, up to 3,900 meters.",
+    "role": "A tiny, high-altitude seed-eater that caches seeds and helps disperse alpine plants across the talus. It also raids the eggs of rosy-finches and sparrows. Foxes, weasels, martens, and raptors all hunt it, tying it into the predator web.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["fox-alpine", "ermine", "pine-marten", "golden-eagle"],
+    "eatsOther": ["seeds", "nuts", "berries", "alpine plants", "fungi"],
+    "sources": [
+      { "name": "Animal Diversity Web - Tamias alpinus", "url": "https://animaldiversity.org/accounts/Tamias_alpinus/" },
+      { "name": "IUCN Red List - Tamias alpinus", "url": "https://www.iucnredlist.org/species/42568/22268290" }
+    ]
+  },
+  {
+    "id": "cascades-frog",
+    "scientificName": "Rana cascadae",
+    "diet": "An aquatic and semiaquatic insectivore, taking insects and spiders",
+    "shelter": "Snowmelt ponds and lakes; hibernates in soil under lake bottoms",
+    "preferredHabitat": "Cold high-country ponds and streams near coniferous forest",
+    "fact": "It stays active in near-freezing snowmelt water and basks on wet rocks.",
+    "role": "A cold-adapted mountain frog that eats insects and spiders while its tadpoles graze algae in snowmelt pools. It links pond invertebrates to larger predators. Introduced trout eat its tadpoles, driving steep declines across its southern range.",
+    "trophic": "insectivore",
+    "eats": [],
+    "eatenBy": ["snowmelt-trout", "fox-alpine"],
+    "eatsOther": ["insects", "spiders", "aquatic insects"],
+    "sources": [
+      { "name": "Animal Diversity Web - Rana cascadae", "url": "https://animaldiversity.org/accounts/Rana_cascadae/" },
+      { "name": "IUCN Red List - Rana cascadae", "url": "https://www.iucnredlist.org/species/19176/78907070" }
+    ]
+  },
+  {
+    "id": "mountain-chickadee",
+    "scientificName": "Poecile gambeli",
+    "diet": "Insects and spiders in summer; conifer seeds and nuts in fall and winter",
+    "shelter": "Old woodpecker holes and natural cavities in conifers and aspen",
+    "preferredHabitat": "High evergreen forests of pine, fir, and spruce in the West",
+    "fact": "It caches thousands of seeds and remembers where it hid them.",
+    "role": "A busy conifer-forest insectivore that gleans insects from twigs and switches to cached pine seeds in winter. Often the nucleus of mixed foraging flocks, it disperses conifer seeds. Small hawks, weasels, and martens prey on it and its nestlings.",
+    "trophic": "insectivore",
+    "eats": [],
+    "eatenBy": ["pine-marten", "ermine", "fox-alpine"],
+    "eatsOther": ["insects", "spiders", "conifer seeds", "seeds"],
+    "sources": [
+      { "name": "Cornell Lab All About Birds - Mountain Chickadee", "url": "https://www.allaboutbirds.org/guide/Mountain_Chickadee/lifehistory" },
+      { "name": "Audubon Field Guide - Mountain Chickadee", "url": "https://www.audubon.org/field-guide/bird/mountain-chickadee" }
+    ]
+  },
+  {
+    "id": "pine-grosbeak",
+    "scientificName": "Pinicola enucleator",
+    "diet": "Buds, seeds, and fruits of conifers and shrubs; some insects in summer",
+    "shelter": "Concealed cup nest near the trunk of a dense conifer",
+    "preferredHabitat": "Open subalpine spruce, fir, and pine forest near timberline",
+    "fact": "A plump, unhurried finch of the cold high forests, nipping buds and needles.",
+    "role": "A large, sluggish finch that lives almost entirely on conifer buds, seeds, and fruits, adding insects to feed its young. It helps disperse tree and shrub seeds. Martens, small raptors, and foxes prey on it, especially at nests.",
+    "trophic": "omnivore",
+    "eats": [],
+    "eatenBy": ["pine-marten", "golden-eagle", "fox-alpine"],
+    "eatsOther": ["conifer buds", "seeds", "berries", "insects"],
+    "sources": [
+      { "name": "Cornell Lab All About Birds - Pine Grosbeak", "url": "https://www.allaboutbirds.org/guide/Pine_Grosbeak/lifehistory" },
+      { "name": "Audubon Field Guide - Pine Grosbeak", "url": "https://www.audubon.org/field-guide/bird/pine-grosbeak" }
+    ]
+  },
+  {
+    "id": "white-crowned-sparrow",
+    "scientificName": "Zonotrichia leucophrys",
+    "diet": "Mainly weed and grass seeds, plus caterpillars, beetles, and other insects",
+    "shelter": "Ground or low-shrub cup nest among mosses, lichens, and heath",
+    "preferredHabitat": "Krummholz edges, alpine meadows, and heath with bare ground",
+    "fact": "Young white-crowns learn their song dialect from the neighbours nearby.",
+    "role": "A ground-foraging sparrow of alpine meadow and krummholz edges that eats seeds and summer insects. It disperses seeds and feeds insect larvae to its chicks. Foxes, weasels, and martens hunt the adults and raid its low nests.",
+    "trophic": "omnivore",
+    "eats": [],
+    "eatenBy": ["fox-alpine", "ermine", "pine-marten"],
+    "eatsOther": ["seeds", "insects", "berries"],
+    "sources": [
+      { "name": "Cornell Lab All About Birds - White-crowned Sparrow", "url": "https://www.allaboutbirds.org/guide/White-crowned_Sparrow/lifehistory" },
+      { "name": "Audubon Field Guide - White-crowned Sparrow", "url": "https://www.audubon.org/field-guide/bird/white-crowned-sparrow" }
+    ]
+  }
+]
