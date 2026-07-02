@@ -1,0 +1,410 @@
+[
+  {
+    "id": "desert-cottontail",
+    "scientificName": "Sylvilagus audubonii",
+    "diet": "Grasses, mesquite, cactus pads, and other desert plants",
+    "shelter": "Brush cover and borrowed or natural burrows",
+    "preferredHabitat": "Brushy flats with shade and open forage",
+    "fact": "Desert cottontails get most of their water from the plants they eat.",
+    "role": "A common desert herbivore that grazes grasses and browse. It is a cornerstone prey species, feeding foxes, coyotes, bobcats, and raptors. Its abundance helps support the desert's predators.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["kit-fox", "coyote", "rattlesnake"],
+    "eatsOther": ["grasses", "cactus pads", "mesquite"],
+    "sources": [
+      {"name": "Animal Diversity Web — Sylvilagus audubonii", "url": "https://animaldiversity.org/accounts/Sylvilagus_audubonii/"}
+    ]
+  },
+  {
+    "id": "kit-fox",
+    "scientificName": "Vulpes macrotis",
+    "diet": "Kangaroo rats, rabbits, insects, and occasional fruit",
+    "shelter": "Cool underground dens with several entrances",
+    "preferredHabitat": "Open desert with abundant small prey",
+    "fact": "The smallest wild dog in North America, its huge ears both hear prey and shed heat.",
+    "role": "A small nocturnal desert canid and mesopredator that hunts rodents and rabbits. It seldom needs to drink, getting moisture from prey. Coyotes are its main threat.",
+    "trophic": "mesopredator",
+    "eats": ["kangaroo-rat", "kangaroo-mouse", "desert-cottontail", "jackrabbit", "antelope-squirrel"],
+    "eatenBy": ["coyote"],
+    "eatsOther": ["insects", "cactus fruit"],
+    "sources": [
+      {"name": "Animal Diversity Web — Vulpes macrotis", "url": "https://animaldiversity.org/accounts/Vulpes_macrotis/"}
+    ]
+  },
+  {
+    "id": "coyote",
+    "scientificName": "Canis latrans",
+    "diet": "Rodents, rabbits, fruit, carrion, and insects",
+    "shelter": "Brushy washes and rock dens",
+    "preferredHabitat": "Open desert with prey and cover",
+    "fact": "The most vocal wild mammal in North America; a howling pack sounds like many more.",
+    "role": "The desert's most adaptable predator, an omnivore taking rodents, rabbits, fruit, and carrion. It is the top mammalian predator here and the main killer of kit foxes. Its howls carry for miles at dusk.",
+    "trophic": "apex-predator",
+    "eats": ["kangaroo-rat", "jackrabbit", "desert-cottontail", "kit-fox", "antelope-squirrel", "gambels-quail"],
+    "eatenBy": [],
+    "eatsOther": ["cactus fruit", "insects", "carrion"],
+    "sources": [
+      {"name": "Animal Diversity Web — Canis latrans", "url": "https://animaldiversity.org/accounts/Canis_latrans/"}
+    ]
+  },
+  {
+    "id": "kangaroo-rat",
+    "scientificName": "Dipodomys merriami",
+    "diet": "Seeds, carefully cached underground",
+    "shelter": "Deep burrow systems in loose soil",
+    "preferredHabitat": "Loose soil below seed-bearing brush",
+    "fact": "Kangaroo rats never sweat or pant and get by on water made from the dry seeds they eat.",
+    "role": "A seed-eating rodent and key desert prey species. It caches seeds underground, shaping which plants grow. It feeds nearly every desert predator, from rattlesnakes to owls to foxes.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["kit-fox", "coyote", "rattlesnake", "burrowing-owl"],
+    "eatsOther": ["seeds", "mesquite"],
+    "sources": [
+      {"name": "Animal Diversity Web — Dipodomys merriami", "url": "https://animaldiversity.org/accounts/Dipodomys_merriami/"}
+    ]
+  },
+  {
+    "id": "jackrabbit",
+    "scientificName": "Lepus californicus",
+    "diet": "Grasses, cactus, and woody twigs and bark",
+    "shelter": "Shade forms scraped under brush",
+    "preferredHabitat": "Open flats with scattered brush",
+    "fact": "A jackrabbit's enormous ears act like radiators, releasing body heat to keep it cool.",
+    "role": "A fast, open-country herbivore that browses grasses, twigs, and cactus. It is major prey for coyotes, bobcats, and large raptors. Its big ears both hear predators and dump heat.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["coyote", "kit-fox"],
+    "eatsOther": ["grasses", "cactus pads"],
+    "sources": [
+      {"name": "Animal Diversity Web — Lepus californicus", "url": "https://animaldiversity.org/accounts/Lepus_californicus/"}
+    ]
+  },
+  {
+    "id": "roadrunner",
+    "scientificName": "Geococcyx californianus",
+    "diet": "Lizards, insects, scorpions, and small snakes",
+    "shelter": "Low nests in brush and cactus",
+    "preferredHabitat": "Open hunting ground with brushy edges",
+    "fact": "It slams large prey against rocks to break the bones, and will kill and eat rattlesnakes.",
+    "role": "A ground-running predatory bird that sprints down lizards, insects, scorpions, and snakes. It is a key mesopredator on small desert reptiles and arthropods. Coyotes and hawks hunt it.",
+    "trophic": "mesopredator",
+    "eats": ["horned-lizard", "scorpion", "banded-gecko", "collared-lizard", "tarantula", "cactus-wren"],
+    "eatenBy": ["coyote"],
+    "eatsOther": ["insects", "cactus fruit"],
+    "sources": [
+      {"name": "Cornell Lab All About Birds — Greater Roadrunner", "url": "https://www.allaboutbirds.org/guide/Greater_Roadrunner/lifehistory"},
+      {"name": "Audubon — Greater Roadrunner", "url": "https://www.audubon.org/field-guide/bird/greater-roadrunner"}
+    ]
+  },
+  {
+    "id": "burrowing-owl",
+    "scientificName": "Athene cunicularia",
+    "diet": "Insects and small rodents",
+    "shelter": "Underground burrows dug by other animals",
+    "preferredHabitat": "Burrow mounds with open hunting space",
+    "fact": "It hisses a raspy call that mimics a rattlesnake to scare intruders out of its burrow.",
+    "role": "A small ground-dwelling owl that nests in borrowed burrows and hunts insects by day and rodents at night. It is both an insectivore and a mesopredator on small mammals. Badgers and coyotes prey on it.",
+    "trophic": "insectivore",
+    "eats": ["kangaroo-rat", "kangaroo-mouse", "scorpion"],
+    "eatenBy": ["coyote"],
+    "eatsOther": ["insects"],
+    "sources": [
+      {"name": "Cornell Lab All About Birds — Burrowing Owl", "url": "https://www.allaboutbirds.org/guide/Burrowing_Owl/lifehistory"},
+      {"name": "Audubon — Burrowing Owl", "url": "https://www.audubon.org/field-guide/bird/burrowing-owl"}
+    ]
+  },
+  {
+    "id": "gambels-quail",
+    "scientificName": "Callipepla gambelii",
+    "diet": "Seeds, leaves, and cactus fruit",
+    "shelter": "Dense brush thickets",
+    "preferredHabitat": "Brushy cover with seed plants",
+    "fact": "A male sentinel calls from a perch while the rest of the covey feeds below.",
+    "role": "A social, ground-feeding quail that eats seeds, greens, and cactus fruit. It is important prey for coyotes, bobcats, and desert hawks. Coveys post a lookout while the flock forages.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["coyote", "roadrunner"],
+    "eatsOther": ["seeds", "cactus fruit", "insects"],
+    "sources": [
+      {"name": "Cornell Lab All About Birds — Gambel's Quail", "url": "https://www.allaboutbirds.org/guide/Gambels_Quail/lifehistory"},
+      {"name": "Audubon — Gambel's Quail", "url": "https://www.audubon.org/field-guide/bird/gambels-quail"}
+    ]
+  },
+  {
+    "id": "desert-tortoise",
+    "scientificName": "Gopherus agassizii",
+    "diet": "Grasses, wildflowers, and cactus pads",
+    "shelter": "Long, cool burrows",
+    "preferredHabitat": "Native plants with shade and burrow ground",
+    "fact": "Desert tortoises can live 80 years and spend up to 98% of their lives in burrows.",
+    "role": "A long-lived herbivore and ecosystem engineer. Its burrows, which can exceed 10 metres, shelter snakes, lizards, rodents, and insects. Adults are nearly predator-free, but eggs and young are widely eaten.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["coyote", "kit-fox"],
+    "eatsOther": ["grasses", "wildflowers", "cactus pads"],
+    "sources": [
+      {"name": "Animal Diversity Web — Gopherus agassizii", "url": "https://animaldiversity.org/accounts/Gopherus_agassizii/"}
+    ]
+  },
+  {
+    "id": "horned-lizard",
+    "scientificName": "Phrynosoma cornutum",
+    "diet": "Mostly ants, plus other small insects",
+    "shelter": "Loose sand and rock edges",
+    "preferredHabitat": "Sunny open ground near ant trails",
+    "fact": "Texas horned lizards can squirt a jet of blood from their eyes to startle predators.",
+    "role": "A specialist insectivore that feeds mainly on harvester ants, with a large stomach to process them. It is prey for roadrunners, hawks, shrikes, and snakes. Its blood-squirting defense targets canid predators.",
+    "trophic": "insectivore",
+    "eats": [],
+    "eatenBy": ["roadrunner", "coyote"],
+    "eatsOther": ["insects"],
+    "sources": [
+      {"name": "Sherbrooke & Middendorf 2001, Copeia — blood squirting (PDF)", "url": "http://yubawatershedinstitute.org/wp-content/uploads/2015/04/Blood-squirting.pdf"},
+      {"name": "Wikipedia — Texas horned lizard", "url": "https://en.wikipedia.org/wiki/Texas_horned_lizard"}
+    ]
+  },
+  {
+    "id": "collared-lizard",
+    "scientificName": "Crotaphytus collaris",
+    "diet": "Insects and smaller lizards",
+    "shelter": "Rock piles and ledges",
+    "preferredHabitat": "Boulder fields with lookout rocks",
+    "fact": "Collared lizards sprint on their hind legs like tiny dinosaurs, tail streaming behind.",
+    "role": "An active, sit-and-wait predator of insects and smaller lizards among the rocks. It is a mesopredator on desert arthropods and hatchling reptiles. Hawks, snakes, and roadrunners prey on it.",
+    "trophic": "insectivore",
+    "eats": ["banded-gecko"],
+    "eatenBy": ["roadrunner", "rattlesnake"],
+    "eatsOther": ["insects"],
+    "sources": [
+      {"name": "Animal Diversity Web — Crotaphytus collaris", "url": "https://animaldiversity.org/accounts/Crotaphytus_collaris/"}
+    ]
+  },
+  {
+    "id": "rattlesnake",
+    "scientificName": "Crotalus atrox",
+    "diet": "Rodents and small mammals",
+    "shelter": "Rock crevices and burrows",
+    "preferredHabitat": "Rocky shelter near busy rodent trails",
+    "fact": "It adds a rattle segment at each shed, but segments break, so you can't count its age.",
+    "role": "A venomous ambush predator and key control on desert rodent populations. It swallows prey whole and eats only every few weeks. Roadrunners, hawks, and coyotes are among its predators.",
+    "trophic": "mesopredator",
+    "eats": ["kangaroo-rat", "kangaroo-mouse", "desert-cottontail", "antelope-squirrel", "collared-lizard"],
+    "eatenBy": ["roadrunner", "coyote"],
+    "eatsOther": [],
+    "sources": [
+      {"name": "Animal Diversity Web — Crotalus atrox", "url": "https://animaldiversity.org/accounts/Crotalus_atrox/"}
+    ]
+  },
+  {
+    "id": "tarantula",
+    "scientificName": "Aphonopelma chalcodes",
+    "diet": "Insects and other small invertebrates",
+    "shelter": "Silk-lined ground burrows",
+    "preferredHabitat": "Undisturbed ground with burrow banks",
+    "fact": "A desert tarantula may live 25 years, most of it within a few feet of one burrow.",
+    "role": "A long-lived, nocturnal ambush predator of insects and other invertebrates from its burrow. It is a mesopredator on desert arthropods. Birds, snakes, and the tarantula hawk wasp prey on it.",
+    "trophic": "insectivore",
+    "eats": ["scorpion"],
+    "eatenBy": ["roadrunner"],
+    "eatsOther": ["insects"],
+    "sources": [
+      {"name": "Animal Diversity Web — Aphonopelma chalcodes", "url": "https://animaldiversity.org/accounts/Aphonopelma_chalcodes/"}
+    ]
+  },
+  {
+    "id": "scorpion",
+    "scientificName": "Hadrurus arizonensis",
+    "diet": "Insects, spiders, and other small invertebrates",
+    "shelter": "Burrows and cover under rocks and bark",
+    "preferredHabitat": "Rocky cover with night hunting ground",
+    "fact": "Scorpions glow blue-green under ultraviolet light, and no one is entirely sure why.",
+    "role": "The largest scorpion in North America, a nocturnal ambush predator of insects, spiders, and even other scorpions. It is a mesopredator on desert arthropods and small prey. Owls, lizards, and roadrunners hunt it.",
+    "trophic": "insectivore",
+    "eats": [],
+    "eatenBy": ["roadrunner", "burrowing-owl", "elf-owl", "banded-gecko"],
+    "eatsOther": ["insects"],
+    "sources": [
+      {"name": "Animal Diversity Web — Hadrurus arizonensis", "url": "https://animaldiversity.org/accounts/Hadrurus_arizonensis/"}
+    ]
+  },
+  {
+    "id": "desert-bee",
+    "scientificName": "Diadasia rinconis",
+    "diet": "Cactus flower nectar and pollen",
+    "shelter": "Tiny solitary ground nests",
+    "preferredHabitat": "Blooming cactus and brush",
+    "fact": "Solitary cactus bees nest alone but gather by the thousands in shared ground colonies.",
+    "role": "A solitary native bee and key pollinator of desert cacti such as prickly pear and cholla. As a herbivore on nectar and pollen, it sustains cactus reproduction. Lizards, birds, and spiders prey on it.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["banded-gecko", "cactus-wren"],
+    "eatsOther": ["cactus flower nectar", "pollen"],
+    "sources": [
+      {"name": "Arizona-Sonora Desert Museum — Bees", "url": "https://www.desertmuseum.org/books/nhsd_bees.php"}
+    ]
+  },
+  {
+    "id": "gila-woodpecker",
+    "scientificName": "Melanerpes uropygialis",
+    "diet": "Insects, cactus fruit, and berries",
+    "shelter": "Cavities excavated in saguaro cactus",
+    "preferredHabitat": "Saguaro and cactus stands",
+    "fact": "Its abandoned saguaro cavities later shelter elf owls, pygmy-owls, and kestrels.",
+    "role": "A cactus-nesting woodpecker and desert keystone builder. It eats insects, cactus fruit, and berries, and its old nest holes house many other desert animals. Hawks, snakes, and bobcats prey on it.",
+    "trophic": "omnivore",
+    "eats": [],
+    "eatenBy": ["rattlesnake"],
+    "eatsOther": ["insects", "cactus fruit", "berries"],
+    "sources": [
+      {"name": "Arizona-Sonora Desert Museum — Gila Woodpecker", "url": "https://www.desertmuseum.org/kids/oz/long-fact-sheets/Gila%20Woodpecker.php"},
+      {"name": "Cornell Lab All About Birds — Gila Woodpecker", "url": "https://www.allaboutbirds.org/guide/Gila_Woodpecker/overview"}
+    ]
+  },
+  {
+    "id": "cactus-wren",
+    "scientificName": "Campylorhynchus brunneicapillus",
+    "diet": "Spiders, insects, and some fruit",
+    "shelter": "Thorny cactus and brush",
+    "preferredHabitat": "Open desert with cactus",
+    "fact": "Cactus wrens use their football-shaped cholla nests year-round, even sleeping in them.",
+    "role": "The largest North American wren, an insectivore gleaning spiders and insects and taking cactus fruit. It gets most of its water from food. Snakes, roadrunners, and hawks prey on it and its nests.",
+    "trophic": "insectivore",
+    "eats": ["desert-bee"],
+    "eatenBy": ["roadrunner", "rattlesnake"],
+    "eatsOther": ["insects", "cactus fruit"],
+    "sources": [
+      {"name": "Cornell Lab All About Birds — Cactus Wren", "url": "https://www.allaboutbirds.org/guide/Cactus_Wren/lifehistory"}
+    ]
+  },
+  {
+    "id": "desert-iguana",
+    "scientificName": "Dipsosaurus dorsalis",
+    "diet": "Flowers, buds, and leaves, especially creosote",
+    "shelter": "Burrows under shrubs",
+    "preferredHabitat": "Hot sandy flats with cover",
+    "fact": "Desert iguanas stay active near 40C, heat that drives other lizards into the shade.",
+    "role": "A heat-loving herbivorous lizard that feeds mainly on creosote bush flowers and leaves. It is a desert plant grazer and prey for snakes, raptors, and foxes. It shelters in burrows through the hottest hours.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["rattlesnake", "kit-fox"],
+    "eatsOther": ["flowers", "leaves"],
+    "sources": [
+      {"name": "Animal Diversity Web — Dipsosaurus dorsalis", "url": "https://animaldiversity.org/accounts/Dipsosaurus_dorsalis/"}
+    ]
+  },
+  {
+    "id": "kangaroo-mouse",
+    "scientificName": "Microdipodops pallidus",
+    "diet": "Seeds, plus insects in summer",
+    "shelter": "Sand burrows plugged by day",
+    "preferredHabitat": "Fine sandy desert",
+    "fact": "It survives on water made from its food and may go a lifetime without ever drinking.",
+    "role": "A tiny seed-eating rodent that stores fat in its tail for lean times. It is prey for rattlesnakes, owls, and foxes, making it part of the base of the desert food web. It rarely if ever needs to drink.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["rattlesnake", "kit-fox", "burrowing-owl"],
+    "eatsOther": ["seeds", "insects"],
+    "sources": [
+      {"name": "Animal Diversity Web — Microdipodops pallidus", "url": "https://animaldiversity.org/accounts/Microdipodops_pallidus/"}
+    ]
+  },
+  {
+    "id": "banded-gecko",
+    "scientificName": "Coleonyx variegatus",
+    "diet": "Insects, spiders, and small scorpions",
+    "shelter": "Rock crevices",
+    "preferredHabitat": "Sheltered rocky desert",
+    "fact": "Unlike most geckos, the banded gecko has movable eyelids and squeaks when captured.",
+    "role": "A small nocturnal gecko that hunts insects, spiders, and even young scorpions. It is a mesopredator on tiny desert prey and food for larger lizards, snakes, and roadrunners. It sheds its tail to escape.",
+    "trophic": "insectivore",
+    "eats": ["scorpion", "desert-bee"],
+    "eatenBy": ["roadrunner", "collared-lizard", "rattlesnake"],
+    "eatsOther": ["insects"],
+    "sources": [
+      {"name": "Arizona-Sonora Desert Museum — Western Banded Gecko", "url": "https://www.desertmuseum.org/books/nhsd_banded_gecko.php"}
+    ]
+  },
+  {
+    "id": "costas-hummingbird",
+    "scientificName": "Calypte costae",
+    "diet": "Flower nectar and tiny insects",
+    "shelter": "Nests in shrubs and cactus",
+    "preferredHabitat": "Blooming desert with nectar sources",
+    "fact": "Courting males dive past a female with a shrill whistle, flashing violet throat feathers.",
+    "role": "A small desert hummingbird that feeds on nectar from agave, chuparosa, and other blooms plus tiny insects. It is an important pollinator and a nectar-feeding herbivore. Snakes and predatory birds take it.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": ["nectar", "insects"],
+    "sources": [
+      {"name": "Audubon — Costa's Hummingbird", "url": "https://www.audubon.org/field-guide/bird/costas-hummingbird"}
+    ]
+  },
+  {
+    "id": "elf-owl",
+    "scientificName": "Micrathene whitneyi",
+    "diet": "Insects and scorpions",
+    "shelter": "Cavities in cactus and trees",
+    "preferredHabitat": "Mesquite and saguaro desert",
+    "fact": "The world's smallest owl plucks the stinger off scorpions before eating them.",
+    "role": "The world's smallest owl, a nocturnal insectivore that hunts insects and scorpions and nests in old woodpecker holes. It is a mesopredator on desert arthropods. Snakes and larger owls threaten it.",
+    "trophic": "insectivore",
+    "eats": ["scorpion"],
+    "eatenBy": [],
+    "eatsOther": ["insects"],
+    "sources": [
+      {"name": "Cornell Lab All About Birds — Elf Owl", "url": "https://www.allaboutbirds.org/guide/Elf_Owl/lifehistory"},
+      {"name": "Cornell Lab All About Birds — Elf Owl Overview", "url": "https://www.allaboutbirds.org/guide/Elf_Owl/overview"}
+    ]
+  },
+  {
+    "id": "chuckwalla",
+    "scientificName": "Sauromalus ater",
+    "diet": "Desert flowers, leaves, and fruit",
+    "shelter": "Rock crevices",
+    "preferredHabitat": "Boulder piles near brush",
+    "fact": "A threatened chuckwalla wedges into a crack and inflates its lungs to lock itself in.",
+    "role": "A large herbivorous lizard that grazes desert leaves, flowers, and fruit among boulders. It is a plant-eater and prey for hawks, kestrels, coyotes, and rattlesnakes. Its lung-inflation defense locks it into crevices.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["coyote", "rattlesnake"],
+    "eatsOther": ["flowers", "leaves"],
+    "sources": [
+      {"name": "Animal Diversity Web — Sauromalus ater", "url": "https://animaldiversity.org/accounts/Sauromalus_ater/"}
+    ]
+  },
+  {
+    "id": "phainopepla",
+    "scientificName": "Phainopepla nitens",
+    "diet": "Mistletoe berries and flying insects",
+    "shelter": "Tall desert brush",
+    "preferredHabitat": "Brushy desert with water nearby",
+    "fact": "The phainopepla is desert mistletoe's key seed disperser; the two depend on each other.",
+    "role": "A glossy desert songbird whose winter diet is mostly desert mistletoe berries, plus insects caught on the wing. It is a crucial mistletoe seed disperser and a fruit-and-insect omnivore. Snakes and raptors prey on it.",
+    "trophic": "omnivore",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": ["mistletoe berries", "insects"],
+    "sources": [
+      {"name": "Cornell Lab All About Birds — Phainopepla", "url": "https://www.allaboutbirds.org/guide/Phainopepla/lifehistory"},
+      {"name": "Audubon — Phainopepla", "url": "https://www.audubon.org/field-guide/bird/phainopepla"}
+    ]
+  },
+  {
+    "id": "antelope-squirrel",
+    "scientificName": "Ammospermophilus leucurus",
+    "diet": "Seeds, fruit, greens, and insects",
+    "shelter": "Burrows and rock cracks",
+    "preferredHabitat": "Open desert with burrows",
+    "fact": "It carries its tail arched over its back like a parasol to shade itself from the sun.",
+    "role": "A diurnal, heat-tolerant omnivore that eats seeds, greens, fruit, and insects even in midday heat. It is prey for hawks, foxes, bobcats, and snakes. It shades itself with its tail and dumps heat on cool ground.",
+    "trophic": "omnivore",
+    "eats": [],
+    "eatenBy": ["coyote", "kit-fox", "rattlesnake"],
+    "eatsOther": ["seeds", "cactus fruit", "insects"],
+    "sources": [
+      {"name": "Animal Diversity Web — Ammospermophilus leucurus", "url": "https://animaldiversity.org/accounts/Ammospermophilus_leucurus/"},
+      {"name": "NPS Mojave — White-tailed Antelope Squirrel", "url": "https://www.nps.gov/moja/learn/nature/white-tailed-antelope-ground-squirrel.htm"}
+    ]
+  }
+]

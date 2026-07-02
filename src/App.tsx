@@ -128,6 +128,12 @@ function GameScreen() {
 	const [clickedBed, setClickedBed] = useState<ClickedBed | null>(null);
 	const [devOpen, setDevOpen] = useState(false);
 
+	// Tell the Phaser world when a modal overlay is open so it swallows world
+	// clicks (no moving/placing "through" a panel, card, help, or plant menu).
+	useEffect(() => {
+		bridge.shared.uiBlocking = !!panel || game.helpOpen || !!clickedBed || devOpen;
+	}, [panel, game.helpOpen, clickedBed, devOpen]);
+
 	// On login the world scene can boot a moment before (or after) the saved state
 	// is ready, which used to leave the preserve blank until the first place/dig.
 	// Nudge the scene to repaint a few times right after it mounts so placements,

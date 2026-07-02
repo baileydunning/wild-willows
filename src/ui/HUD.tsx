@@ -116,25 +116,48 @@ export function HUD() {
 					<Icon name="cloud" size={15} />
 					<span>{saveStatus === 'saving' ? 'Saving' : saveStatus === 'saved' ? 'Saved' : saveStatus === 'error' ? 'Retry' : 'Synced'}</span>
 				</span>
-				{navBtn('inventory', 'basket', 'Basket contents (B)', 'B')}
-				{navBtn('journal', 'journal', 'Field journal (J)', 'J')}
-				{navBtn('achievements', 'star', 'Achievements (K)', 'K')}
-				{navBtn('feed', 'chat', 'Activity feed (F)', 'F')}
-				{navBtn('biomes', 'map', 'Preserve overview (P)', 'P')}
-				{navBtn('weather', 'cloud', 'Weather & seasons (M)', 'M')}
-				{navBtn('tools', 'tools', 'Tool upgrades (T)', 'T')}
-				{isCoop && navBtn('people', 'user', 'People — invite & who’s here (U)', 'U')}
-				<button className={`icon-btn ${panel === 'settings' ? 'on' : ''}`} onClick={() => toggle('settings')} title="Settings — change character, delete save (G)" aria-label="Settings">
-					<Icon name="sliders" />
-					<span className="nav-key">G</span>
-				</button>
-				<button className={`icon-btn ${helpOpen ? 'on' : ''}`} onClick={() => setHelpOpen(!helpOpen)} title="How to play (H)" aria-label="How to play">
-					<Icon name="help" />
-					<span className="nav-key">H</span>
-				</button>
-				<button className="icon-btn subtle" onClick={logout} title={`Save & quit (${state.player.name})`} aria-label="Save and quit">
-					<Icon name="logout" />
-				</button>
+				{/* Buttons are grouped by purpose so the toolbar reads as a few small
+				    clusters rather than one long row: Learn (what you've discovered),
+				    Build (your stuff & upgrades), World (places & people), System. */}
+				<div className="nav-group" role="group" aria-label="Learn">
+					<span className="nav-group-label">Learn</span>
+					<div className="nav-group-btns">
+						{navBtn('journal', 'journal', 'Field journal (J)', 'J')}
+						{navBtn('achievements', 'star', 'Achievements (K)', 'K')}
+						{navBtn('feed', 'chat', 'Activity feed (F)', 'F')}
+					</div>
+				</div>
+				<div className="nav-group" role="group" aria-label="Build">
+					<span className="nav-group-label">Build</span>
+					<div className="nav-group-btns">
+						{navBtn('inventory', 'basket', 'Basket contents (B)', 'B')}
+						{navBtn('crafting', 'hammer', 'Crafting (C)', 'C')}
+						{navBtn('tools', 'tools', 'Tool upgrades (T)', 'T')}
+					</div>
+				</div>
+				<div className="nav-group" role="group" aria-label="World">
+					<span className="nav-group-label">World</span>
+					<div className="nav-group-btns">
+						{navBtn('biomes', 'map', 'Preserve overview (P)', 'P')}
+						{navBtn('weather', 'cloud', 'Weather & seasons (M)', 'M')}
+						{isCoop && navBtn('people', 'user', 'People — invite & who’s here (U)', 'U')}
+					</div>
+				</div>
+				<div className="nav-group nav-group-system" role="group" aria-label="System">
+					<div className="nav-group-btns">
+						<button className={`icon-btn ${panel === 'settings' ? 'on' : ''}`} onClick={() => toggle('settings')} title="Settings — change character, delete save (G)" aria-label="Settings">
+							<Icon name="sliders" />
+							<span className="nav-key">G</span>
+						</button>
+						<button className={`icon-btn ${helpOpen ? 'on' : ''}`} onClick={() => setHelpOpen(!helpOpen)} title="How to play (H)" aria-label="How to play">
+							<Icon name="help" />
+							<span className="nav-key">H</span>
+						</button>
+						<button className="icon-btn subtle" onClick={logout} title={`Save & quit (${state.player.name})`} aria-label="Save and quit">
+							<Icon name="logout" />
+						</button>
+					</div>
+				</div>
 			</div>
 
 			{(placementObjectId || prompt) && (

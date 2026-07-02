@@ -1,0 +1,427 @@
+[
+  {
+    "id": "cottontail-rabbit",
+    "scientificName": "Sylvilagus floridanus",
+    "diet": "Grasses and clover in summer; twigs, bark, and buds in winter",
+    "shelter": "Rests in shallow grass 'forms'; uses brush piles and old burrows",
+    "preferredHabitat": "Meadows and field edges with brushy fencerows to bolt into",
+    "fact": "Cottontails rest in shallow ground depressions called 'forms' rather than digging their own burrows.",
+    "role": "An abundant grazing herbivore and cornerstone prey animal of the meadow. It feeds on grasses, clover, and woody browse and breeds rapidly to offset heavy predation. Foxes, hawks, owls, and badgers all depend on cottontails as a food source.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["red-fox-meadow", "red-tailed-hawk", "american-badger", "barn-owl"],
+    "eatsOther": ["grasses", "clover", "bark", "twigs", "buds", "berries"],
+    "sources": [
+      { "name": "Animal Diversity Web — Sylvilagus floridanus", "url": "https://animaldiversity.org/accounts/Sylvilagus_floridanus/" },
+      { "name": "NHPBS NatureWorks — Eastern Cottontail", "url": "https://nhpbs.org/natureworks/easterncottontail.htm" }
+    ]
+  },
+  {
+    "id": "monarch-butterfly",
+    "scientificName": "Danaus plexippus",
+    "diet": "Caterpillars eat only milkweed; adults sip flower nectar",
+    "shelter": "Roosts in trees and shrubs; overwinters clustered in dense groves",
+    "preferredHabitat": "Open meadows and roadsides with milkweed and nectar flowers",
+    "fact": "Monarchs migrate up to 3,000 miles, but no single butterfly makes the whole round trip; it takes several generations.",
+    "role": "A milkweed specialist and iconic pollinator whose caterpillars sequester the plant's cardenolide toxins, making both larvae and adults poisonous to most predators. Their bright orange warning coloration keeps nearly all birds and mammals away, so they have very few predators. Adults are important late-season nectar visitors.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": ["milkweed leaves (caterpillar)", "flower nectar (adult)"],
+    "sources": [
+      { "name": "U.S. Fish & Wildlife Service — Monarch", "url": "https://www.fws.gov/species/monarch-danaus-plexippus" },
+      { "name": "PNAS — Cardenolide sequestration and toxicity in monarchs", "url": "https://www.pnas.org/doi/10.1073/pnas.2024463118" }
+    ]
+  },
+  {
+    "id": "song-sparrow",
+    "scientificName": "Melospiza melodia",
+    "diet": "Insects and invertebrates in summer; seeds and fruits year-round",
+    "shelter": "Cup nest hidden on the ground or low in shrubs and grass tussocks",
+    "preferredHabitat": "Brushy edges, weedy fields, and marsh edges with singing perches",
+    "fact": "A male Song Sparrow can learn up to about 20 different tunes and sing hundreds of variations of them.",
+    "role": "A ground-foraging omnivore that switches between insects in the breeding season and seeds/fruit the rest of the year, so it both controls insects and disperses seeds. Its abundance makes it a key prey item for meadow hawks and snakes, linking ground invertebrates to larger predators.",
+    "trophic": "omnivore",
+    "eats": ["grasshopper", "lady-beetle", "praying-mantis"],
+    "eatenBy": ["coopers-hawk", "red-tailed-hawk", "garter-snake-meadow", "red-fox-meadow"],
+    "eatsOther": ["caterpillars", "spiders", "seeds", "wild fruit", "berries"],
+    "sources": [
+      { "name": "Cornell Lab All About Birds — Song Sparrow Life History", "url": "https://www.allaboutbirds.org/guide/Song_Sparrow/lifehistory" },
+      { "name": "Audubon Field Guide — Song Sparrow", "url": "https://www.audubon.org/field-guide/bird/song-sparrow" }
+    ]
+  },
+  {
+    "id": "mule-deer",
+    "scientificName": "Odocoileus hemionus",
+    "diet": "Browses shrubs, forbs, twigs, buds, and seasonal grasses",
+    "shelter": "Beds in brushy cover, tall grass, or forest edges; no permanent den",
+    "preferredHabitat": "Open meadows and shrublands with browse and water nearby",
+    "fact": "Mule deer are named for their oversized, mule-like ears, which rotate independently to pinpoint the direction of danger.",
+    "role": "A large grazing herbivore that shapes meadow vegetation by browsing shrubs and forbs. Its grazing and droppings help cycle nutrients and keep browse in check. Its usual predators (coyotes, mountain lions) are absent from this meadow roster, so it faces little predation here.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": [],
+    "eatsOther": ["grasses", "shrubs", "forbs", "twigs", "buds"],
+    "sources": [
+      { "name": "Animal Diversity Web — Odocoileus hemionus", "url": "https://animaldiversity.org/accounts/Odocoileus_hemionus/" },
+      { "name": "Landmark Wildlife — Mule Deer ears and senses", "url": "https://landmarkwildlife.com/stot-this-way-texas-mule-deers-big-ears-bigger-personality/" }
+    ]
+  },
+  {
+    "id": "red-fox-meadow",
+    "scientificName": "Vulpes vulpes",
+    "diet": "Voles, rabbits, squirrels, birds, and insects; also berries and carrion",
+    "shelter": "Digs earthen dens or enlarges burrows; uses brush and hollows",
+    "preferredHabitat": "Meadows, farmland edges, and hedgerows across open country",
+    "fact": "When 'mousing,' red foxes tend to pounce facing magnetic northeast, apparently using Earth's magnetic field as a rangefinder to judge the leap.",
+    "role": "A generalist mesopredator that helps control rodent and rabbit populations, hunting by stalk-and-pounce and rounding out its diet with insects, berries, and carrion. With larger predators like coyotes absent from this roster, it sits near the top of the meadow food web.",
+    "trophic": "mesopredator",
+    "eats": ["meadow-vole", "cottontail-rabbit", "ground-squirrel", "grasshopper", "killdeer", "song-sparrow", "western-meadowlark", "garter-snake-meadow"],
+    "eatenBy": [],
+    "eatsOther": ["berries", "insects", "bird eggs", "carrion"],
+    "sources": [
+      { "name": "Phys.org — Predation by foxes aided by Earth's magnetic field", "url": "https://phys.org/news/2011-01-predation-foxes-aided-earth-magnetic.html" },
+      { "name": "Animal Diversity Web — Vulpes vulpes", "url": "https://animaldiversity.org/accounts/Vulpes_vulpes/" }
+    ]
+  },
+  {
+    "id": "meadow-vole",
+    "scientificName": "Microtus pennsylvanicus",
+    "diet": "Herbivore; grasses, sedges, seeds, roots, and bark in winter",
+    "shelter": "Shallow burrows and grass nests linked by surface runways",
+    "preferredHabitat": "Moist grassy meadows and fields with dense ground cover",
+    "fact": "Voles mow narrow 'runways' through the grass — tidy little highways they patrol between burrow openings.",
+    "role": "A keystone prey species and prolific breeder that converts meadow plants into food for nearly every predator. Its grazing and runway-building shape the grass layer. Its abundance drives the populations of hawks, owls, foxes, snakes, and badgers.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["red-fox-meadow", "red-tailed-hawk", "barn-owl", "american-badger", "garter-snake-meadow", "western-screech-owl"],
+    "eatsOther": ["grasses", "sedges", "seeds", "roots", "bark"],
+    "sources": [
+      { "name": "Animal Diversity Web — Microtus pennsylvanicus", "url": "https://animaldiversity.org/accounts/Microtus_pennsylvanicus/" },
+      { "name": "Chesapeake Bay Program — Meadow vole", "url": "https://www.chesapeakebay.net/discover/field-guide/entry/meadow-vole" }
+    ]
+  },
+  {
+    "id": "ground-squirrel",
+    "scientificName": "Otospermophilus beecheyi",
+    "diet": "Mostly seeds, grasses, and flowers, plus insects like grasshoppers",
+    "shelter": "Extensive multi-entrance burrow systems dug in open ground",
+    "preferredHabitat": "Open grassy meadows and slopes near rocky lookout points",
+    "fact": "Facing a rattlesnake, these squirrels kick sand and wave heated tails — flushing their tails with blood to jam the snake's infrared 'vision.'",
+    "role": "A burrowing omnivore whose diggings aerate soil and whose abandoned burrows shelter other species. It eats seeds, greens, and insects and is major prey for hawks, foxes, snakes, and badgers. Its colonies anchor the meadow's rodent-based food web.",
+    "trophic": "omnivore",
+    "eats": ["grasshopper"],
+    "eatenBy": ["red-tailed-hawk", "red-fox-meadow", "barn-owl", "american-badger", "garter-snake-meadow"],
+    "eatsOther": ["seeds", "grasses", "flowers", "insects", "fruit"],
+    "sources": [
+      { "name": "PNAS — Ground squirrels heat their tails to discourage rattlesnake attack", "url": "https://www.pnas.org/doi/10.1073/pnas.0707286104" },
+      { "name": "The Ethogram (UC Davis) — California ground squirrel", "url": "https://theethogram.com/2020/01/21/creature-feature-california-ground-squirrel/" }
+    ]
+  },
+  {
+    "id": "garter-snake-meadow",
+    "scientificName": "Thamnophis sirtalis",
+    "diet": "Earthworms, amphibians, slugs, small fish, insects, and small rodents",
+    "shelter": "Shelters under rocks and logs; overwinters in communal dens",
+    "preferredHabitat": "Moist meadows and grasslands near sunny rocks and water",
+    "fact": "Garter snakes are mildly venomous to their tiny prey but completely harmless to people.",
+    "role": "A common meadow mesopredator that hunts earthworms, amphibians, fish, insects, and small rodents, using mild venomous saliva to subdue small prey. It helps control invertebrate and amphibian populations. It is preyed on by hawks, owls, and foxes.",
+    "trophic": "mesopredator",
+    "eats": ["grasshopper", "meadow-vole", "praying-mantis", "song-sparrow", "ground-squirrel"],
+    "eatenBy": ["red-tailed-hawk", "red-fox-meadow", "coopers-hawk", "barn-owl"],
+    "eatsOther": ["earthworms", "slugs", "amphibians", "small fish"],
+    "sources": [
+      { "name": "Animal Diversity Web — Thamnophis sirtalis", "url": "https://animaldiversity.org/accounts/Thamnophis_sirtalis/" },
+      { "name": "U.S. Fish & Wildlife Service — Common Garter Snake", "url": "https://www.fws.gov/species/common-garter-snake-thamnophis-sirtalis" }
+    ]
+  },
+  {
+    "id": "bumblebee",
+    "scientificName": "Bombus spp.",
+    "diet": "Nectar for energy and pollen for protein, from many flower types",
+    "shelter": "Nests in abandoned rodent burrows, grass tussocks, or ground cavities",
+    "preferredHabitat": "Flower-rich meadows and grasslands with continuous bloom",
+    "fact": "Bumblebees 'buzz pollinate' — vibrating their flight muscles to shake pollen loose from flowers like tomatoes and blueberries.",
+    "role": "A generalist, large-bodied pollinator that visits a huge variety of flowers for nectar and pollen. Its buzz pollination unlocks pollen that many other bees cannot reach, making it vital to meadow plant reproduction. It is preyed on by ambush hunters and aerial insectivores.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["praying-mantis", "barn-swallow", "eastern-bluebird"],
+    "eatsOther": ["flower nectar", "pollen"],
+    "sources": [
+      { "name": "Xerces Society — About Bumble Bees", "url": "https://xerces.org/bumble-bees/about" },
+      { "name": "USDA Forest Service — Bumblebees (Bombus spp.)", "url": "https://www.fs.usda.gov/wildflowers/pollinators/pollinator-of-the-month/bumblebees.shtml" }
+    ]
+  },
+  {
+    "id": "grasshopper",
+    "scientificName": "Melanoplus spp. (family Acrididae)",
+    "diet": "Herbivore feeding on grasses, sedges, and broadleaf forbs",
+    "shelter": "Shelters in grass and low vegetation; lays eggs in soil",
+    "preferredHabitat": "Sunny grasslands and meadows rich in grasses and forbs",
+    "fact": "Grasshoppers hear through tympana — eardrum-like membranes on the first segment of the abdomen, not their heads.",
+    "role": "A dominant plant-eater and the meadow's key prey base, converting grasses and forbs into food for a huge range of predators. Its abundance supports birds, snakes, mammals, and other insects. Booms in grasshopper numbers ripple up the whole food web.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["song-sparrow", "western-meadowlark", "eastern-bluebird", "killdeer", "garter-snake-meadow", "praying-mantis", "western-screech-owl", "red-fox-meadow", "ground-squirrel"],
+    "eatsOther": ["grasses", "sedges", "leaves and forbs"],
+    "sources": [
+      { "name": "Britannica — Short-horned grasshopper (Acrididae)", "url": "https://www.britannica.com/animal/short-horned-grasshopper" },
+      { "name": "Ecology and Evolution — Grasshopper diet (gut-content sequencing)", "url": "https://pmc.ncbi.nlm.nih.gov/articles/PMC4559048/" }
+    ]
+  },
+  {
+    "id": "lady-beetle",
+    "scientificName": "Hippodamia convergens (family Coccinellidae)",
+    "diet": "Predator of aphids and other small, soft-bodied insects",
+    "shelter": "Overwinters in leaf litter and aggregations; shelters on foliage",
+    "preferredHabitat": "Meadows and gardens with aphid-infested plants",
+    "fact": "A single lady beetle can eat around 5,000 aphids over its lifetime — roughly 50 a day.",
+    "role": "A voracious small predator that controls aphids and other soft-bodied pests as both larva and adult, making it a valuable biological-control insect. In turn it is eaten by insectivorous birds and larger insect predators, linking the aphid layer up into the food web.",
+    "trophic": "insectivore",
+    "eats": [],
+    "eatenBy": ["song-sparrow", "western-meadowlark", "eastern-bluebird", "praying-mantis"],
+    "eatsOther": ["aphids", "scale insects", "thrips", "small soft-bodied insects"],
+    "sources": [
+      { "name": "Animal Diversity Web — Hippodamia convergens", "url": "https://animaldiversity.org/accounts/Hippodamia_convergens/" },
+      { "name": "UC ANR — Lady beetle aphid consumption", "url": "https://ucanr.edu/blog/bug-squad/article/incredible-aphid-eating-machines" }
+    ]
+  },
+  {
+    "id": "western-meadowlark",
+    "scientificName": "Sturnella neglecta",
+    "diet": "Mostly insects in summer (beetles, grasshoppers); seeds and grain in winter",
+    "shelter": "Domed grass nest woven on the ground, often with a covered runway",
+    "preferredHabitat": "Wide native grasslands and meadows with song perches",
+    "fact": "The Western Meadowlark's flute-like song is the state bird anthem of six U.S. states.",
+    "role": "A grassland omnivore that eats large numbers of grasshoppers, crickets, and beetles in summer while taking seeds in winter, helping keep insect populations in check. As a plump ground bird it is important prey for hawks and mammalian predators of the meadow.",
+    "trophic": "omnivore",
+    "eats": ["grasshopper", "lady-beetle", "praying-mantis"],
+    "eatenBy": ["red-tailed-hawk", "coopers-hawk", "red-fox-meadow", "american-badger"],
+    "eatsOther": ["beetles", "crickets", "caterpillars", "ants", "seeds", "waste grain"],
+    "sources": [
+      { "name": "Cornell Lab All About Birds — Western Meadowlark", "url": "https://www.allaboutbirds.org/guide/Western_Meadowlark/lifehistory" },
+      { "name": "Audubon Field Guide — Western Meadowlark", "url": "https://www.audubon.org/field-guide/bird/western-meadowlark" }
+    ]
+  },
+  {
+    "id": "barn-swallow",
+    "scientificName": "Hirundo rustica",
+    "diet": "Flying insects caught midair: flies, beetles, bees, wasps, and moths",
+    "shelter": "Cup nest of mud pellets and grass on beams under eaves and bridges",
+    "preferredHabitat": "Open country for foraging near water, flowers, and structures",
+    "fact": "Barn Swallows build their cup nests from up to 1,000 individual beakfuls of mud.",
+    "role": "An aerial insectivore that snaps up huge numbers of flying insects over meadows, following livestock and machinery to catch flushed prey. It is a natural check on flies and flying pests, and both adults and fledglings are hunted by fast-flying hawks.",
+    "trophic": "insectivore",
+    "eats": ["bumblebee", "leafcutter-bee", "painted-lady", "red-admiral"],
+    "eatenBy": ["coopers-hawk", "red-tailed-hawk"],
+    "eatsOther": ["flies", "beetles", "wasps", "moths", "flying insects"],
+    "sources": [
+      { "name": "Cornell Lab All About Birds — Barn Swallow Life History", "url": "https://www.allaboutbirds.org/guide/Barn_Swallow/lifehistory" },
+      { "name": "Audubon Field Guide — Barn Swallow", "url": "https://www.audubon.org/field-guide/bird/barn-swallow" }
+    ]
+  },
+  {
+    "id": "red-tailed-hawk",
+    "scientificName": "Buteo jamaicensis",
+    "diet": "Mostly small mammals (voles, ground squirrels, rabbits); also birds and snakes",
+    "shelter": "Bulky stick nest in the crown of a tall tree or on a cliff ledge",
+    "preferredHabitat": "Open country: grasslands, fields, and meadows seen from above",
+    "fact": "That piercing 'eagle' cry in the movies is almost always actually a Red-tailed Hawk.",
+    "role": "The meadow's apex daytime hunter, soaring on broad wings or watching from a perch for prey below. By preying on voles, ground squirrels, rabbits, and birds it keeps herbivore numbers in check. Adults have essentially no predators in the meadow.",
+    "trophic": "apex-predator",
+    "eats": ["meadow-vole", "ground-squirrel", "cottontail-rabbit", "song-sparrow", "western-meadowlark", "garter-snake-meadow", "killdeer", "barn-swallow", "eastern-bluebird"],
+    "eatenBy": [],
+    "eatsOther": ["mice", "carrion"],
+    "sources": [
+      { "name": "Cornell Lab All About Birds — Red-tailed Hawk Life History", "url": "https://www.allaboutbirds.org/guide/Red-tailed_Hawk/lifehistory" },
+      { "name": "Cornell Lab All About Birds — Red-tailed Hawk Overview", "url": "https://www.allaboutbirds.org/guide/Red-tailed_Hawk/overview" }
+    ]
+  },
+  {
+    "id": "barn-owl",
+    "scientificName": "Tyto alba",
+    "diet": "Almost entirely small mammals — voles, mice, and shrews; hunted at night",
+    "shelter": "Nests in tree hollows, cliff crevices, and quiet building cavities",
+    "preferredHabitat": "Open grasslands and meadows hunted on silent wings at night",
+    "fact": "A Barn Owl's heart-shaped facial disc funnels sound so precisely it can catch prey in total darkness by ear alone.",
+    "role": "The meadow's night-shift rodent hunter, coursing low over the grass on silent wings and swallowing voles and mice whole. This makes it a major check on rodent populations. In the meadow it sits near the top of the food web with no regular predators.",
+    "trophic": "apex-predator",
+    "eats": ["meadow-vole", "ground-squirrel", "cottontail-rabbit", "garter-snake-meadow"],
+    "eatenBy": [],
+    "eatsOther": ["mice", "rats", "shrews"],
+    "sources": [
+      { "name": "Cornell Lab All About Birds — Barn Owl Life History", "url": "https://www.allaboutbirds.org/guide/American_Barn_Owl/lifehistory" },
+      { "name": "Audubon Field Guide — Barn Owl", "url": "https://www.audubon.org/field-guide/bird/barn-owl" }
+    ]
+  },
+  {
+    "id": "american-goldfinch",
+    "scientificName": "Spinus tristis",
+    "diet": "Almost entirely seeds — thistle, sunflower, aster, and grass seeds",
+    "shelter": "Tightly woven cup nest lashed high in a shrub with spider silk",
+    "preferredHabitat": "Weedy fields and open areas with thistle, sunflower, and asters",
+    "fact": "Goldfinches are strict vegetarians and nest late in summer so thistle down is ready to line their nests.",
+    "role": "A specialist granivore that thrives on thistle and other composite seeds, making it an important disperser of weedy plant seeds across the meadow. Being small and abundant, it is prey for agile bird-hunting hawks and small owls.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["coopers-hawk", "western-screech-owl"],
+    "eatsOther": ["thistle seeds", "sunflower seeds", "aster seeds", "grass seeds"],
+    "sources": [
+      { "name": "Cornell Lab All About Birds — American Goldfinch Life History", "url": "https://www.allaboutbirds.org/guide/American_Goldfinch/lifehistory" },
+      { "name": "Audubon Field Guide — American Goldfinch", "url": "https://www.audubon.org/field-guide/bird/american-goldfinch" }
+    ]
+  },
+  {
+    "id": "eastern-bluebird",
+    "scientificName": "Sialia sialis",
+    "diet": "Mainly ground insects (caterpillars, beetles, grasshoppers); fruit in winter",
+    "shelter": "Grass-lined nest inside tree cavities, old woodpecker holes, or boxes",
+    "preferredHabitat": "Grassy openings with scattered trees and perches to hunt from",
+    "fact": "Eastern Bluebirds can spot a tiny insect in the grass from about 60 feet away, then drop down to grab it.",
+    "role": "A cavity-nesting insectivore that hunts caterpillars, beetles, and grasshoppers from perches, switching to berries in winter, both controlling insects and dispersing fruit seeds. It competes for nest holes and is preyed on by hawks and small owls.",
+    "trophic": "insectivore",
+    "eats": ["grasshopper", "lady-beetle", "praying-mantis", "bumblebee"],
+    "eatenBy": ["coopers-hawk", "western-screech-owl", "red-tailed-hawk"],
+    "eatsOther": ["caterpillars", "beetles", "crickets", "spiders", "berries"],
+    "sources": [
+      { "name": "Cornell Lab All About Birds — Eastern Bluebird Life History", "url": "https://www.allaboutbirds.org/guide/Eastern_Bluebird/lifehistory" },
+      { "name": "Audubon Field Guide — Eastern Bluebird", "url": "https://www.audubon.org/field-guide/bird/eastern-bluebird" }
+    ]
+  },
+  {
+    "id": "leafcutter-bee",
+    "scientificName": "Megachile spp.",
+    "diet": "Adults eat nectar and pollen from many flowering plants",
+    "shelter": "Nests in hollow stems and soil, lining cells with cut leaf pieces",
+    "preferredHabitat": "Meadows and gardens with diverse flowers and nesting cavities",
+    "fact": "Female leafcutter bees snip neat circles from leaves to build and seal their nest cells.",
+    "role": "A solitary native bee that pollinates a wide range of meadow and crop plants, carrying pollen on the underside of its abdomen. Its leaf-lined nest cells provision the next generation with pollen and nectar. Adults are caught by ambush predators and aerial insectivores.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["praying-mantis", "barn-swallow"],
+    "eatsOther": ["flower nectar", "pollen"],
+    "sources": [
+      { "name": "Animal Diversity Web — Megachile rotundata", "url": "https://animaldiversity.org/accounts/Megachile_rotundata/" },
+      { "name": "USDA Forest Service — Leafcutter Bees (Megachile spp.)", "url": "https://www.fs.usda.gov/wildflowers/pollinators/pollinator-of-the-month/megachile_bees.shtml" }
+    ]
+  },
+  {
+    "id": "painted-lady",
+    "scientificName": "Vanessa cardui",
+    "diet": "Adults nectar on composite flowers; caterpillars eat thistles and mallows",
+    "shelter": "Rests on vegetation; caterpillars build silk nests on host plants",
+    "preferredHabitat": "Open meadows and disturbed ground with thistles and nectar flowers",
+    "fact": "Painted ladies migrate thousands of miles across continents — one of the most widespread butterflies on Earth.",
+    "role": "A wide-ranging migratory butterfly and generalist nectar pollinator whose caterpillars feed on thistles, mallows, and over 100 other host plants. Population booms can trigger massive migrations. Adults and larvae are eaten by birds, wasps, and spiders.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["barn-swallow", "praying-mantis"],
+    "eatsOther": ["flower nectar (adult)", "thistles (caterpillar)", "mallows (caterpillar)"],
+    "sources": [
+      { "name": "Animal Diversity Web — Vanessa cardui", "url": "https://animaldiversity.org/accounts/Vanessa_cardui/" },
+      { "name": "Butterflies and Moths of North America — Painted Lady", "url": "https://www.butterfliesandmoths.org/species/Vanessa-cardui" }
+    ]
+  },
+  {
+    "id": "american-badger",
+    "scientificName": "Taxidea taxus",
+    "diet": "Digs out ground squirrels, gophers, voles, and mice; also insects",
+    "shelter": "Digs its own large underground burrows; a powerful excavator",
+    "preferredHabitat": "Open meadows and grasslands with diggable soil and rodent prey",
+    "fact": "Badgers sometimes team up with coyotes: the badger digs prey out below while the coyote catches those that bolt above ground.",
+    "role": "A fossorial carnivore that hunts by digging burrowing rodents straight out of their tunnels, keeping ground squirrel and vole numbers down. Its abandoned burrows benefit other animals. Adult badgers have essentially no predators in this meadow.",
+    "trophic": "mesopredator",
+    "eats": ["ground-squirrel", "meadow-vole", "cottontail-rabbit", "western-meadowlark"],
+    "eatenBy": [],
+    "eatsOther": ["pocket gophers", "mice", "insects", "ground-nesting bird eggs", "carrion"],
+    "sources": [
+      { "name": "Animal Diversity Web — Taxidea taxus", "url": "https://animaldiversity.org/accounts/Taxidea_taxus/" },
+      { "name": "NHPBS NatureWorks — American Badger", "url": "https://nhpbs.org/natureworks/americanbadger.htm" }
+    ]
+  },
+  {
+    "id": "coopers-hawk",
+    "scientificName": "Accipiter cooperii",
+    "diet": "Mainly medium and small birds; also chipmunks, mice, and squirrels",
+    "shelter": "Builds a stick nest high in a tree, on a limb or in a crotch",
+    "preferredHabitat": "Woodland edges and open country with scattered trees near meadows",
+    "fact": "Cooper's Hawks thread through dense cover at high speed to ambush songbirds — a risky style that leaves many with healed chest-bone fractures.",
+    "role": "A bird-hunting mesopredator that patrols meadow edges and thickets for songbirds. Its agile, low pursuit flight lets it pluck sparrows, finches, and bluebirds from cover. It controls small-bird numbers but can itself be displaced by larger raptors.",
+    "trophic": "mesopredator",
+    "eats": ["song-sparrow", "american-goldfinch", "eastern-bluebird", "western-meadowlark", "killdeer", "barn-swallow", "garter-snake-meadow"],
+    "eatenBy": [],
+    "eatsOther": ["chipmunks", "mice", "squirrels"],
+    "sources": [
+      { "name": "Cornell Lab All About Birds — Cooper's Hawk Life History", "url": "https://www.allaboutbirds.org/guide/Coopers_Hawk/lifehistory" },
+      { "name": "Cornell Lab All About Birds — Cooper's Hawk Overview", "url": "https://www.allaboutbirds.org/guide/Coopers_Hawk/overview" }
+    ]
+  },
+  {
+    "id": "western-screech-owl",
+    "scientificName": "Megascops kennicottii",
+    "diet": "Small mammals and large insects; also small birds and worms",
+    "shelter": "Roosts and nests in tree cavities, old woodpecker holes, and boxes",
+    "preferredHabitat": "Wooded edges and brushy areas bordering open meadows",
+    "fact": "This pint-sized owl occasionally takes prey larger than itself, including cottontail rabbits.",
+    "role": "A small nocturnal mesopredator that sits and waits, then drops onto rodents and insects, gleaning grasshoppers and beetles and snatching voles and mice on the ground. It bridges insect and rodent control in the meadow at night.",
+    "trophic": "mesopredator",
+    "eats": ["meadow-vole", "grasshopper", "american-goldfinch", "eastern-bluebird"],
+    "eatenBy": [],
+    "eatsOther": ["deer mice", "large insects", "worms"],
+    "sources": [
+      { "name": "Cornell Lab All About Birds — Western Screech-Owl Life History", "url": "https://www.allaboutbirds.org/guide/Western_Screech-Owl/lifehistory" },
+      { "name": "Cornell Lab All About Birds — Western Screech-Owl Overview", "url": "https://www.allaboutbirds.org/guide/Western_Screech-Owl/overview" }
+    ]
+  },
+  {
+    "id": "praying-mantis",
+    "scientificName": "Stagmomantis spp. / Mantis religiosa",
+    "diet": "Ambush predator eating live insects — bees, grasshoppers, and more",
+    "shelter": "Perches motionless on plants; lays eggs in a foam egg case (ootheca)",
+    "preferredHabitat": "Meadows and shrubby edges with dense vegetation for ambush",
+    "fact": "A praying mantis can swivel its head almost 180 degrees — unique among insects — for a wide field of view.",
+    "role": "A sit-and-wait ambush mesopredator that seizes prey with spined forelegs in a strike faster than a blink. As a generalist it eats grasshoppers, bees, beetles, and other insects, helping regulate insect numbers. It is itself taken by birds, garter snakes, and small owls.",
+    "trophic": "mesopredator",
+    "eats": ["grasshopper", "bumblebee", "lady-beetle", "leafcutter-bee", "painted-lady", "red-admiral"],
+    "eatenBy": ["song-sparrow", "eastern-bluebird", "garter-snake-meadow", "western-meadowlark"],
+    "eatsOther": ["flies", "moths", "other live insects"],
+    "sources": [
+      { "name": "NC State Extension — Praying Mantids", "url": "https://growingsmallfarms.ces.ncsu.edu/news/challenging-the-conventional-wisdom-about-praying-mantids/" },
+      { "name": "National Geographic — Praying mantis", "url": "https://www.nationalgeographic.com/animals/invertebrates/facts/praying-mantis" }
+    ]
+  },
+  {
+    "id": "killdeer",
+    "scientificName": "Charadrius vociferus",
+    "diet": "Invertebrates — earthworms, grasshoppers, beetles, and snails",
+    "shelter": "Nests in a bare ground scrape lined with pebbles and shell bits",
+    "preferredHabitat": "Open, flat ground with very short grass and scattered stones",
+    "fact": "Killdeer fake a broken wing, dragging it as if injured to lure predators away from the nest.",
+    "role": "A ground-foraging insectivore that races and halts across open meadow, snapping up worms and insects. As abundant, exposed ground-nesters they are important prey for meadow hunters, which take adults, chicks, and eggs alike.",
+    "trophic": "insectivore",
+    "eats": ["grasshopper"],
+    "eatenBy": ["coopers-hawk", "red-fox-meadow", "red-tailed-hawk"],
+    "eatsOther": ["earthworms", "beetles", "snails"],
+    "sources": [
+      { "name": "Cornell Lab All About Birds — Killdeer Life History", "url": "https://www.allaboutbirds.org/guide/Killdeer/lifehistory" },
+      { "name": "Audubon Field Guide — Killdeer", "url": "https://www.audubon.org/field-guide/bird/killdeer" }
+    ]
+  },
+  {
+    "id": "red-admiral",
+    "scientificName": "Vanessa atalanta",
+    "diet": "Adults prefer tree sap, fermenting fruit, and nectar; caterpillars eat nettles",
+    "shelter": "Caterpillars fold nettle leaves into shelters; adults roost on trees",
+    "preferredHabitat": "Flowery clearings and woodland edges near nettle patches",
+    "fact": "Red admirals are bold and territorial, and will readily land and perch on people who stay still.",
+    "role": "A fast, territorial butterfly that feeds mainly on tree sap, fruit, and dung, visiting flowers as a nectar pollinator when preferred foods are scarce; its caterpillars specialize on stinging nettles. Lacking chemical defenses, it relies on camouflage and speed to escape birds and other predators.",
+    "trophic": "herbivore",
+    "eats": [],
+    "eatenBy": ["barn-swallow", "praying-mantis"],
+    "eatsOther": ["tree sap", "fermenting fruit", "flower nectar", "nettles (caterpillar)"],
+    "sources": [
+      { "name": "USDA Forest Service — Red Admiral Butterfly", "url": "https://www.fs.usda.gov/wildflowers/pollinators/pollinator-of-the-month/red-admiral-butterfly.shtml" },
+      { "name": "Butterflies and Moths of North America — Red Admiral", "url": "https://www.butterfliesandmoths.org/species/Vanessa-atalanta" }
+    ]
+  }
+]

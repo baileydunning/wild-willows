@@ -314,6 +314,9 @@ export class WorldScene extends Phaser.Scene {
 		this.applyWeather(true);
 		this.time.addEvent({ delay: 5000, loop: true, callback: () => this.applyWeather() });
 		this.input.on('pointerdown', (pointer: Phaser.Input.Pointer, over: any[]) => {
+			// A panel/card/help overlay is open — swallow the click so it doesn't
+			// move the player or place items on the world behind the modal.
+			if (bridge.shared.uiBlocking) return;
 			const tx = Math.floor(pointer.worldX / TILE);
 			const ty = Math.floor(pointer.worldY / TILE);
 			// paint tool (indoors): recolor whatever you click — an item, the rug,
