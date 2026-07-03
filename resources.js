@@ -15992,30 +15992,68 @@ var Metrics = class extends PublicEndpoint {
       const biomeSummary = summarizeBiomes(statesByPlayer.get(p.id) || []);
       return { ...view, biomeSummary, activation: activationFlags(view, biomeSummary, p) };
     }).sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
-    const N = views.length || 1;
+    let soloViews = [];
+    try {
+      soloViews = (await allOf(t.SoloMetrics)).map((r) => {
+        const s = r.snapshot || {};
+        const lastSeenAt = s.lastSeenAt || r.updatedAt || null;
+        const createdAt = s.createdAt || r.createdAt || now;
+        const hoursSinceActive = lastSeenAt ? round1((now - lastSeenAt) / 36e5) : null;
+        let status = "dormant";
+        if (hoursSinceActive != null) {
+          if (hoursSinceActive <= 24) status = "active";
+          else if (hoursSinceActive <= 24 * 7) status = "recent";
+        }
+        return {
+          ...s,
+          playerId: r.id,
+          // slot-scoped id — solo name slugs can collide across machines
+          solo: true,
+          platform: r.platform || null,
+          build: r.build || null,
+          lastSyncedAt: r.updatedAt || null,
+          counts: s.counts || {},
+          playSeconds: s.playSeconds || 0,
+          sessions: s.sessions || 0,
+          totalActions: s.totalActions || 0,
+          unlockedBiomes: s.unlockedBiomes || 0,
+          activation: s.activation || {},
+          biomeSummary: s.biomeSummary || { biomesUnlocked: 0, avgHealth: 0, biomesFullyRestored: 0, totalReturned: 0 },
+          createdAt,
+          lastSeenAt,
+          hoursSinceActive,
+          status,
+          daysSinceJoined: Math.floor((now - createdAt) / DAY_MS2),
+          isNewToday: now - createdAt <= DAY_MS2
+        };
+      });
+    } catch {
+    }
+    const all = [...views, ...soloViews].sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
+    const N = all.length || 1;
     const pct = (n) => Math.round(n / N * 100);
     const actionTotals = {};
-    for (const v of views) {
+    for (const v of all) {
       for (const [k, n] of Object.entries(v.counts)) actionTotals[k] = (actionTotals[k] || 0) + n;
     }
-    const totalPlaySeconds = views.reduce((acc, v) => acc + v.playSeconds, 0);
-    const totalSessions = views.reduce((acc, v) => acc + v.sessions, 0);
-    const totalActions = views.reduce((acc, v) => acc + v.totalActions, 0);
+    const totalPlaySeconds = all.reduce((acc, v) => acc + v.playSeconds, 0);
+    const totalSessions = all.reduce((acc, v) => acc + v.sessions, 0);
+    const totalActions = all.reduce((acc, v) => acc + v.totalActions, 0);
     const audience = {
-      activeLast24h: views.filter((v) => v.status === "active").length,
-      activeLast7d: views.filter((v) => v.status === "active" || v.status === "recent").length,
-      dormant: views.filter((v) => v.status === "dormant").length,
-      newLast24h: views.filter((v) => now - v.createdAt <= DAY_MS2).length,
-      newLast7d: views.filter((v) => now - v.createdAt <= 7 * DAY_MS2).length
+      activeLast24h: all.filter((v) => v.status === "active").length,
+      activeLast7d: all.filter((v) => v.status === "active" || v.status === "recent").length,
+      dormant: all.filter((v) => v.status === "dormant").length,
+      newLast24h: all.filter((v) => now - v.createdAt <= DAY_MS2).length,
+      newLast7d: all.filter((v) => now - v.createdAt <= 7 * DAY_MS2).length
     };
-    const returningPlayers = views.filter((v) => v.sessions >= 2).length;
+    const returningPlayers = all.filter((v) => v.sessions >= 2).length;
     const funnel = {
-      created: views.length,
-      collected: views.filter((v) => v.activation.collected).length,
-      crafted: views.filter((v) => v.activation.crafted).length,
-      placed: views.filter((v) => v.activation.placed).length,
-      attractedAnimal: views.filter((v) => v.activation.attractedAnimal).length,
-      unlockedSecondBiome: views.filter((v) => v.activation.unlockedSecondBiome).length
+      created: all.length,
+      collected: all.filter((v) => v.activation.collected).length,
+      crafted: all.filter((v) => v.activation.crafted).length,
+      placed: all.filter((v) => v.activation.placed).length,
+      attractedAnimal: all.filter((v) => v.activation.attractedAnimal).length,
+      unlockedSecondBiome: all.filter((v) => v.activation.unlockedSecondBiome).length
     };
     const funnelPct = {
       collected: pct(funnel.collected),
@@ -16025,7 +16063,7 @@ var Metrics = class extends PublicEndpoint {
       unlockedSecondBiome: pct(funnel.unlockedSecondBiome)
     };
     const areaTally = {};
-    for (const v of views) if (v.currentArea) areaTally[v.currentArea] = (areaTally[v.currentArea] || 0) + 1;
+    for (const v of all) if (v.currentArea) areaTally[v.currentArea] = (areaTally[v.currentArea] || 0) + 1;
     const mostPopularArea = Object.entries(areaTally).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
     const perBiome = /* @__PURE__ */ new Map();
     for (const s of allStates) {
@@ -16048,7 +16086,7 @@ var Metrics = class extends PublicEndpoint {
         fullyRestored: e?.fully || 0
       };
     });
-    const withBiomes = views.filter((v) => v.biomeSummary.biomesUnlocked > 0);
+    const withBiomes = all.filter((v) => v.biomeSummary.biomesUnlocked > 0);
     const avgBiomeHealth = withBiomes.length ? Math.round(withBiomes.reduce((acc, v) => acc + v.biomeSummary.avgHealth, 0) / withBiomes.length) : 0;
     const achRows = await allOf(t.PlayerAchievement);
     const earnedByPlayer = /* @__PURE__ */ new Map();
@@ -16066,7 +16104,8 @@ var Metrics = class extends PublicEndpoint {
     const achievementsSummary = {
       totalDefined: d.achievements.length,
       totalEarned: achRows.length,
-      avgPerPlayer: round1(achRows.length / N),
+      // hosted denominator — PlayerAchievement rows only exist for hosted saves
+      avgPerPlayer: round1(achRows.length / (views.length || 1)),
       playersWithFirstFriend: distribution["welcome-grasshopper"] || 0,
       distribution,
       completionHistogram
@@ -16085,7 +16124,9 @@ var Metrics = class extends PublicEndpoint {
     return {
       generatedAt: now,
       summary: {
-        players: views.length,
+        players: all.length,
+        hostedPlayers: views.length,
+        soloPlayers: soloViews.length,
         audience,
         engagement: {
           totalPlayHours: round1(totalPlaySeconds / 3600),
@@ -16103,8 +16144,8 @@ var Metrics = class extends PublicEndpoint {
         },
         progression: {
           avgBiomeHealth,
-          biomesFullyRestored: views.reduce((acc, v) => acc + v.biomeSummary.biomesFullyRestored, 0),
-          avgUnlockedBiomes: round1(views.reduce((acc, v) => acc + v.unlockedBiomes, 0) / N),
+          biomesFullyRestored: all.reduce((acc, v) => acc + (v.biomeSummary.biomesFullyRestored || 0), 0),
+          avgUnlockedBiomes: round1(all.reduce((acc, v) => acc + v.unlockedBiomes, 0) / N),
           mostPopularArea
         },
         funnel,
@@ -16114,7 +16155,9 @@ var Metrics = class extends PublicEndpoint {
         coop: coopSummary,
         biomeBreakdown
       },
-      players: views
+      // One combined list — solo entries carry `solo: true` (+ platform/build
+      // /lastSyncedAt) so a dashboard can still tell them apart.
+      players: all
     };
   }
 };
@@ -16389,6 +16432,31 @@ var ListFeedback = class extends Resource {
     return { count: rows.length, feedback: rows };
   }
 };
+var METRICS_SNAPSHOT_MAX_BYTES = 24e3;
+var SyncMetrics = class extends PublicEndpoint {
+  async post(data) {
+    const body = await bodyOf(data);
+    const clientId = String(body.clientId || "").trim().slice(0, 64);
+    if (!clientId) throw new GameError("clientId required");
+    const snapshot2 = body.snapshot && typeof body.snapshot === "object" && !Array.isArray(body.snapshot) ? body.snapshot : null;
+    if (!snapshot2) throw new GameError("snapshot required");
+    if (JSON.stringify(snapshot2).length > METRICS_SNAPSHOT_MAX_BYTES) throw new GameError("snapshot too large");
+    const t = db();
+    const id = `solo:${clientId}`;
+    const existing = await safeGet(t.SoloMetrics, id);
+    await t.SoloMetrics.put({
+      id,
+      clientId,
+      name: String(body.name || snapshot2.name || "").slice(0, 40),
+      platform: String(body.platform || "").slice(0, 20) || null,
+      build: String(body.build || "").slice(0, 40) || null,
+      snapshot: snapshot2,
+      createdAt: existing?.createdAt || Date.now(),
+      updatedAt: Date.now()
+    });
+    return { ok: true };
+  }
+};
 export {
   AppendFeed,
   BiomeSnapshot,
@@ -16429,6 +16497,7 @@ export {
   SetPlacementColor,
   SubmitFeedback,
   SwitchWorld,
+  SyncMetrics,
   SyncPlayer,
   Terraform,
   UpdateAppearance,

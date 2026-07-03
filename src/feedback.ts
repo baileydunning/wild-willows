@@ -86,6 +86,9 @@ async function postFeedback(item: FeedbackItem): Promise<'sent' | 'invalid' | 'r
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
 			body: JSON.stringify(item),
+			// A hung (not just down) Harper must never leave the send button
+			// spinning forever — time out and queue instead.
+			signal: AbortSignal.timeout(10_000),
 		});
 		if (res.ok) {
 			const body = await res.json().catch(() => null);

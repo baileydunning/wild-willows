@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { api, forgetSave, getPlayerId, lastSave, rememberSave, setPlayerId, startSoloGame, resumeSoloGame, exitSolo } from './api';
 import { flushFeedbackQueue } from './feedback';
+import { pokeMetricsUplink } from './solo/metricsUplink';
 import { bridge } from './game/bridge';
 import { unlockedRecipeIds } from './recipes';
 import { narrativeBeats, nextFeedFact, healthMilestoneLine, HEALTH_THRESHOLDS } from './ui/narrative';
@@ -593,10 +594,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
 	// Feedback written while offline waits in a localStorage queue; retry it at
 	// the start of every session. Items are deleted only once the server
-	// confirms it stored them (see src/feedback.ts). Fire-and-forget.
+	// confirms it stored them (see src/feedback.ts). Fire-and-forget. A solo
+	// session also uplinks its metrics right away (then every few minutes via
+	// the interval in metricsUplink.ts), so fresh saves appear on dashboards
+	// without waiting for the first interval.
 	useEffect(() => {
 		if (!sessionPlayerId) return;
 		void flushFeedbackQueue();
+		pokeMetricsUplink();
 	}, [sessionPlayerId]);
 
 	// Co-op presence. We publish our exact position ~12×/sec; each publish returns
