@@ -71,17 +71,19 @@ export function hatPalette(hat: string, custom?: string | null): { a: string; b:
 }
 
 /**
- * The flower crown's blooms. A custom color doesn't flatten them to one tone —
- * it rotates the WHOLE bouquet's hues by however far the pick sits from the
- * classic pink, so dragging around the color wheel keeps four distinct,
- * harmonious flowers (pick orange → orange/green/blue/yellow, etc.).
+ * The flower crown's blooms. A custom color doesn't flatten them to one tone:
+ * the FIRST bloom becomes exactly the picked color, and the other three keep
+ * their hue/saturation/lightness offsets relative to it — so every movement in
+ * the picker (hue, shade, brightness) visibly re-tints the whole bouquet while
+ * the four flowers stay distinct and harmonious.
  */
 export function flowerPalette(custom?: string | null): string[] {
 	const base = ['#e87a9e', '#f4c95f', '#c45ad0', '#e8954f'];
 	if (!custom) return base;
-	const dh = hexToHsl(custom).h - hexToHsl(base[0]).h;
-	return base.map((c) => {
-		const { h, s, l } = hexToHsl(c);
-		return hslToHex(h + dh, s, l);
+	const c = hexToHsl(custom);
+	const b0 = hexToHsl(base[0]);
+	return base.map((hex) => {
+		const b = hexToHsl(hex);
+		return hslToHex(c.h + (b.h - b0.h), c.s + (b.s - b0.s), c.l + (b.l - b0.l));
 	});
 }
