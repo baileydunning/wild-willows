@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { api, forgetSave } from '../api';
+import { api, forgetSave, getTransport } from '../api';
+import { sendFeedback } from '../feedback';
 import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import type { Appearance } from '../types';
@@ -93,9 +94,15 @@ export function SettingsPanel() {
 	const [newPass, setNewPass] = useState('');
 	const [confirmPass, setConfirmPass] = useState('');
 	const [changing, setChanging] = useState(false);
+	const [fbMessage, setFbMessage] = useState('');
+	const [fbEmail, setFbEmail] = useState('');
+	const [sendingFb, setSendingFb] = useState(false);
 
 	if (!state) return null;
 	const player = state.player;
+	// Solo saves have no real passcode (a fixed local token) and are deleted from
+	// the title screen's load menu, so both account sections only apply online.
+	const isSolo = getTransport() === 'solo';
 
 	const saveLook = async () => {
 		setSaving(true);
@@ -136,6 +143,23 @@ export function SettingsPanel() {
 		}
 	};
 
+	const submitFeedback = async () => {
+		setError(null);
+		setSendingFb(true);
+		try {
+			const { sent } = await sendFeedback(fbMessage, fbEmail, state);
+			setFbMessage('');
+			setFbEmail('');
+			notify(sent
+				? 'Feedback sent — thank you!'
+				: 'You look offline — your feedback is saved and will send when you next start the game.');
+		} catch (e: any) {
+			setError(e.message || 'Could not send feedback');
+		} finally {
+			setSendingFb(false);
+		}
+	};
+
 	const deleteSave = async () => {
 		if (!window.confirm(`Permanently delete "${player.name}"? The preserve, journal, and all progress will be gone for good.`)) return;
 		setDeleting(true);
@@ -166,6 +190,7 @@ export function SettingsPanel() {
 						</button>
 					</div>
 
+					{!isSolo && <>
 					<h3><Icon name="lock" size={15} /> Change passcode</h3>
 					<p className="muted small">
 						Enter your current passcode and choose a new one (4–32 characters). You’ll use it the next time you load this save.
@@ -201,6 +226,31 @@ export function SettingsPanel() {
 						<button className="delete-save-btn" style={{ width: 'auto', marginTop: 0 }} disabled={deleting || !passcode} onClick={deleteSave}>
 							<Icon name="trash" size={15} /> <span>{deleting ? 'Deleting…' : 'Delete forever'}</span>
 						</button>
+					</div>
+					</>}
+
+					<h3><Icon name="chat" size={15} /> Send feedback</h3>
+					<p className="muted small">
+						Spotted a bug, or have an idea for the preserve? Send a note straight to the developer. A little info about
+						your game (build, platform, playtime) rides along to help track it down.
+					</p>
+					<div className="feedback-row">
+						<textarea
+							placeholder="What's on your mind?"
+							value={fbMessage}
+							maxLength={4000}
+							onChange={(e) => setFbMessage(e.target.value)}
+							aria-label="Feedback message"
+						/>
+						<div className="feedback-actions">
+							<label className="field">
+								<Icon name="user" size={16} />
+								<input type="email" placeholder="Your email (optional — only if you'd like a reply)" value={fbEmail} onChange={(e) => setFbEmail(e.target.value)} />
+							</label>
+							<button className="big-btn primary" style={{ width: 'auto', marginTop: 0 }} disabled={sendingFb || !fbMessage.trim()} onClick={submitFeedback}>
+								<Icon name="forward" size={15} /> <span>{sendingFb ? 'Sending…' : 'Send feedback'}</span>
+							</button>
+						</div>
 					</div>
 					{error && <p className="form-error">{error}</p>}
 					<p className="build-stamp">build {new Date(__BUILD_TIME__).toLocaleString()}</p>

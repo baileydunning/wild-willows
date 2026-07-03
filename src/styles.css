@@ -868,6 +868,18 @@ kbd {
 .pass-row .field { flex: 1 1 150px; min-width: 0; }
 .pass-row .field input { width: 100%; min-width: 0; }
 
+/* Settings — send feedback to the developer */
+.feedback-row { display: flex; flex-direction: column; gap: 10px; }
+.feedback-row textarea {
+	width: 100%; min-height: 88px; resize: vertical; box-sizing: border-box;
+	background: var(--cream); border: 1.5px solid var(--line); border-radius: 12px;
+	padding: 9px 13px; color: var(--ink); font: inherit; font-size: 13.5px;
+}
+.feedback-row textarea:focus { border-color: var(--green); outline: none; }
+.feedback-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.feedback-actions .field { flex: 1 1 220px; min-width: 0; }
+.feedback-actions .field input { width: 100%; min-width: 0; }
+
 /* ================= mobile controls ================= */
 .joystick {
 	position: absolute; left: 18px; bottom: 116px; z-index: 40;

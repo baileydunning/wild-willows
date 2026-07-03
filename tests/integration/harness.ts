@@ -55,6 +55,7 @@ const TABLES = [
 	'Biome', 'Animal', 'ResourceType', 'Recipe', 'HabitatObject', 'ToolDef', 'Achievement',
 	'World', 'WorldMember', 'Player', 'BiomeState', 'Chest', 'Placement', 'Discovery',
 	'NodeState', 'TerrainTile', 'PlayerAchievement', 'FeedEntry', 'WorldPresence', 'JoinRequest',
+	'Feedback',
 ];
 
 export type Db = Record<string, Table>;

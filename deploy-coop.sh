@@ -23,12 +23,17 @@ trap 'rm -rf "$STAGE"' EXIT
 
 cp config.yaml schema.graphql resources.js "$STAGE"/
 cp -R web data "$STAGE"/
+# nodemailer is the ONLY server dependency: SubmitFeedback lazy-imports it to
+# email player feedback (see server/resources.ts). Everything else stays out so
+# the deploy stays a ~3 MB upload (see the comment above).
 cat > "$STAGE/package.json" <<'JSON'
 {
   "name": "wild-willows",
   "version": "0.1.0",
   "type": "module",
-  "dependencies": {}
+  "dependencies": {
+    "nodemailer": "^6.9.16"
+  }
 }
 JSON
 

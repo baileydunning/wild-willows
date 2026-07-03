@@ -1,5 +1,6 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { api, forgetSave, getPlayerId, lastSave, rememberSave, setPlayerId, startSoloGame, resumeSoloGame, exitSolo } from './api';
+import { flushFeedbackQueue } from './feedback';
 import { bridge } from './game/bridge';
 import { unlockedRecipeIds } from './recipes';
 import { narrativeBeats, nextFeedFact, healthMilestoneLine, HEALTH_THRESHOLDS } from './ui/narrative';
@@ -589,6 +590,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			document.removeEventListener('visibilitychange', onVisible);
 		};
 	}, [sessionPlayerId, pushLog, toast, refresh]);
+
+	// Feedback written while offline waits in a localStorage queue; retry it at
+	// the start of every session. Items are deleted only once the server
+	// confirms it stored them (see src/feedback.ts). Fire-and-forget.
+	useEffect(() => {
+		if (!sessionPlayerId) return;
+		void flushFeedbackQueue();
+	}, [sessionPlayerId]);
 
 	// Co-op presence. We publish our exact position ~12×/sec; each publish returns
 	// the world's current positions map, which we apply straight to the avatars

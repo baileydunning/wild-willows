@@ -96,6 +96,7 @@ type Discovery @table(database: "wildwillows") { id: ID @primaryKey }    # world
 type NodeState @table(database: "wildwillows") { id: ID @primaryKey }    # worldId, playerId, harvestedAt
 type TerrainTile @table(database: "wildwillows") { id: ID @primaryKey }  # worldId, playerId, area, x, y, type, updatedAt
 type FeedEntry @table(database: "wildwillows") { id: ID @primaryKey }    # worldId, playerId, at, icon, text
+type Feedback @table(database: "wildwillows") { id: ID @primaryKey }     # message, replyTo, metrics, queuedAt, createdAt, emailedAt (player feedback → emailed to the developer by SubmitFeedback)
 
 # ---------- co-op tables (dynamic) ----------
 type World @table(database: "wildwillows") { id: ID @primaryKey }         # name, solo, ownerId, joinCode, createdAt, maxMembers

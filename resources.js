@@ -16366,6 +16366,76 @@ var DevTools = class extends PublicEndpoint {
     return { ok: true, log, state: await snapshot(playerId) };
   }
 };
+var FEEDBACK_TO = "wildwillowsgame@gmail.com";
+var FEEDBACK_MAX_CHARS = 4e3;
+function feedbackMetricsLines(metrics) {
+  const entries = Object.entries(metrics || {}).slice(0, 40);
+  if (!entries.length) return "(none provided)";
+  return entries.map(([k, v]) => `${k}: ${typeof v === "object" ? JSON.stringify(v) : String(v)}`).join("\n");
+}
+async function sendFeedbackEmail(rec) {
+  if (typeof process === "undefined" || !process.versions?.node) return false;
+  const env = process.env;
+  const user = env.SMTP_USER || env.GMAIL_USER;
+  const pass = env.SMTP_PASS || env.GMAIL_APP_PASSWORD;
+  if (!user || !pass) {
+    console.error("SubmitFeedback: email skipped \u2014 set GMAIL_USER and GMAIL_APP_PASSWORD (or SMTP_*) on the server");
+    return false;
+  }
+  try {
+    const modName = "nodemailer";
+    const nodemailer = (await import(
+      /* @vite-ignore */
+      modName
+    )).default;
+    const transporter = nodemailer.createTransport({
+      host: env.SMTP_HOST || "smtp.gmail.com",
+      port: Number(env.SMTP_PORT || 465),
+      secure: (env.SMTP_SECURE ?? "true") !== "false",
+      auth: { user, pass }
+    });
+    const firstLine = String(rec.message).split("\n")[0].slice(0, 60);
+    await transporter.sendMail({
+      from: `"Wild Willows" <${user}>`,
+      to: FEEDBACK_TO,
+      replyTo: rec.replyTo || void 0,
+      subject: `Wild Willows feedback \u2014 ${firstLine}`,
+      text: [
+        rec.message,
+        "",
+        "--- player info ---",
+        feedbackMetricsLines(rec.metrics),
+        "",
+        `reply-to: ${rec.replyTo || "(not provided)"}`,
+        `submitted: ${new Date(rec.createdAt).toISOString()}`,
+        rec.queuedAt ? `written offline at: ${new Date(rec.queuedAt).toISOString()}` : null,
+        `feedback id: ${rec.id}`
+      ].filter((l) => l != null).join("\n")
+    });
+    return true;
+  } catch (e) {
+    console.error("SubmitFeedback: email failed:", e);
+    return false;
+  }
+}
+var SubmitFeedback = class extends PublicEndpoint {
+  async post(data) {
+    const body = await bodyOf(data);
+    const message = String(body.message || "").trim();
+    if (!message) throw new GameError("Please write a little something first");
+    if (message.length > FEEDBACK_MAX_CHARS) throw new GameError(`Feedback is limited to ${FEEDBACK_MAX_CHARS} characters`);
+    const replyTo = String(body.replyTo || "").trim().slice(0, 200) || null;
+    if (replyTo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(replyTo)) throw new GameError("That reply email doesn\u2019t look right \u2014 leave it blank if you don\u2019t want a response");
+    const metrics = body.metrics && typeof body.metrics === "object" && !Array.isArray(body.metrics) ? body.metrics : {};
+    const queuedAt = Number(body.queuedAt) || null;
+    const id = `fb_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+    const rec = { id, message, replyTo, metrics, queuedAt, createdAt: Date.now(), emailedAt: null };
+    await db().Feedback.put(rec);
+    const emailed = await sendFeedbackEmail(rec);
+    if (emailed) await db().Feedback.patch(id, { emailedAt: Date.now() });
+    return { ok: true, id, emailed };
+  }
+};
 export {
   AppendFeed,
   BiomeSnapshot,
@@ -16403,6 +16473,7 @@ export {
   SetHomeColors,
   SetHomeStyle,
   SetPlacementColor,
+  SubmitFeedback,
   SwitchWorld,
   SyncPlayer,
   Terraform,
