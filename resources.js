@@ -16366,92 +16366,7 @@ var DevTools = class extends PublicEndpoint {
     return { ok: true, log, state: await snapshot(playerId) };
   }
 };
-var FEEDBACK_TO = "wildwillowsgame@gmail.com";
 var FEEDBACK_MAX_CHARS = 4e3;
-function feedbackMetricsLines(metrics) {
-  const entries = Object.entries(metrics || {}).slice(0, 40);
-  if (!entries.length) return "(none provided)";
-  return entries.map(([k, v]) => `${k}: ${typeof v === "object" ? JSON.stringify(v) : String(v)}`).join("\n");
-}
-var smtpCredsCache;
-async function feedbackCreds() {
-  if (smtpCredsCache !== void 0) return smtpCredsCache;
-  const env = process.env;
-  const user = env.SMTP_USER || env.GMAIL_USER;
-  const pass = env.SMTP_PASS || env.GMAIL_APP_PASSWORD;
-  if (user && pass) {
-    return smtpCredsCache = {
-      user,
-      pass,
-      host: env.SMTP_HOST || void 0,
-      port: env.SMTP_PORT ? Number(env.SMTP_PORT) : void 0,
-      secure: env.SMTP_SECURE ? env.SMTP_SECURE !== "false" : void 0
-    };
-  }
-  try {
-    const fsName = "node:fs";
-    const { readFileSync } = await import(
-      /* @vite-ignore */
-      fsName
-    );
-    const secretsFile = "./feedback-secrets.json";
-    const j = JSON.parse(readFileSync(new URL(secretsFile, import.meta.url), "utf8"));
-    if (j?.user && j?.pass) {
-      return smtpCredsCache = {
-        user: String(j.user),
-        pass: String(j.pass),
-        host: j.host || void 0,
-        port: j.port ? Number(j.port) : void 0,
-        secure: typeof j.secure === "boolean" ? j.secure : void 0
-      };
-    }
-  } catch {
-  }
-  return smtpCredsCache = null;
-}
-async function sendFeedbackEmail(rec) {
-  if (typeof process === "undefined" || !process.versions?.node) return false;
-  const creds = await feedbackCreds();
-  if (!creds) {
-    console.error("SubmitFeedback: email skipped \u2014 set GMAIL_USER/GMAIL_APP_PASSWORD env vars or deploy a feedback-secrets.json");
-    return false;
-  }
-  try {
-    const modName = "nodemailer";
-    const nodemailer = (await import(
-      /* @vite-ignore */
-      modName
-    )).default;
-    const transporter = nodemailer.createTransport({
-      host: creds.host || "smtp.gmail.com",
-      port: creds.port ?? 465,
-      secure: creds.secure ?? true,
-      auth: { user: creds.user, pass: creds.pass }
-    });
-    const firstLine = String(rec.message).split("\n")[0].slice(0, 60);
-    await transporter.sendMail({
-      from: `"Wild Willows" <${creds.user}>`,
-      to: FEEDBACK_TO,
-      replyTo: rec.replyTo || void 0,
-      subject: `Wild Willows feedback \u2014 ${firstLine}`,
-      text: [
-        rec.message,
-        "",
-        "--- player info ---",
-        feedbackMetricsLines(rec.metrics),
-        "",
-        `reply-to: ${rec.replyTo || "(not provided)"}`,
-        `submitted: ${new Date(rec.createdAt).toISOString()}`,
-        rec.queuedAt ? `written offline at: ${new Date(rec.queuedAt).toISOString()}` : null,
-        `feedback id: ${rec.id}`
-      ].filter((l) => l != null).join("\n")
-    });
-    return true;
-  } catch (e) {
-    console.error("SubmitFeedback: email failed:", e);
-    return false;
-  }
-}
 var SubmitFeedback = class extends PublicEndpoint {
   async post(data) {
     const body = await bodyOf(data);
@@ -16463,11 +16378,15 @@ var SubmitFeedback = class extends PublicEndpoint {
     const metrics = body.metrics && typeof body.metrics === "object" && !Array.isArray(body.metrics) ? body.metrics : {};
     const queuedAt = Number(body.queuedAt) || null;
     const id = `fb_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
-    const rec = { id, message, replyTo, metrics, queuedAt, createdAt: Date.now(), emailedAt: null };
-    await db().Feedback.put(rec);
-    const emailed = await sendFeedbackEmail(rec);
-    if (emailed) await db().Feedback.patch(id, { emailedAt: Date.now() });
-    return { ok: true, id, emailed };
+    await db().Feedback.put({ id, message, replyTo, metrics, queuedAt, createdAt: Date.now() });
+    return { ok: true, id };
+  }
+};
+var ListFeedback = class extends Resource {
+  async get() {
+    const rows = await allOf(db().Feedback);
+    rows.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    return { count: rows.length, feedback: rows };
   }
 };
 export {
@@ -16490,6 +16409,7 @@ export {
   JoinRequestStatus,
   JoinWorld,
   LeaveWorld,
+  ListFeedback,
   LoginPlayer,
   Metrics,
   MoveObject,

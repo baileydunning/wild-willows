@@ -1,9 +1,10 @@
-// Player feedback → the developer's inbox (wildwillowsgame@gmail.com).
+// Player feedback → the hosted Harper's Feedback table (the developer reads
+// it back with the admin-only GET /ListFeedback/ endpoint).
 //
 // Feedback ALWAYS travels over the network to the hosted Harper — even from
 // the solo desktop build, whose game transport is the offline in-app backend —
-// because sending an email inherently needs a server. When the network isn't
-// there (desktop offline, flaky wifi), the item is queued in localStorage and
+// because it has to land in the shared table. When the network isn't there
+// (desktop offline, flaky wifi), the item is queued in localStorage and
 // retried at the start of every session until the server confirms it stored
 // the feedback; only then is it deleted from the queue.
 

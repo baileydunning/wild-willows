@@ -8,7 +8,7 @@ import { setTransport } from '../../src/api';
 
 const QUEUE_KEY = 'wild-willows:feedback-queue';
 
-const okResponse = () => ({ ok: true, status: 200, json: async () => ({ ok: true, id: 'fb_1', emailed: true }) });
+const okResponse = () => ({ ok: true, status: 200, json: async () => ({ ok: true, id: 'fb_1' }) });
 const badRequest = () => ({ ok: false, status: 400, json: async () => ({ title: 'nope' }) });
 
 beforeEach(() => {

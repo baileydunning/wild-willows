@@ -3981,130 +3981,18 @@ export class DevTools extends PublicEndpoint {
 
 // ---------------------------------------------------------------- feedback
 // Player feedback flows: client → POST /SubmitFeedback/ (always over the
-// network to the hosted Harper, even from solo desktop builds) → stored in
-// the Feedback table → emailed to the developer. The stored row is the source
-// of truth; the email is best-effort (SMTP creds may be missing or flaky), and
-// `emailedAt` records whether it went out. The client keeps an offline queue
-// and retries at session start until this endpoint returns ok.
+// network to the hosted Harper, even from solo desktop builds — the client
+// keeps an offline queue in localStorage and retries at session start until
+// this returns ok) → stored in the Feedback table. The developer reads it
+// back with GET /ListFeedback/, which requires Harper admin auth:
+//   curl -u HDB_ADMIN https://wild.willows.harperfabric.com/ListFeedback/
 
-const FEEDBACK_TO = 'wildwillowsgame@gmail.com';
 const FEEDBACK_MAX_CHARS = 4000;
-
-/** Render the client-supplied metrics blob as tidy `key: value` lines. */
-function feedbackMetricsLines(metrics: Record<string, any>): string {
-	const entries = Object.entries(metrics || {}).slice(0, 40);
-	if (!entries.length) return '(none provided)';
-	return entries.map(([k, v]) => `${k}: ${typeof v === 'object' ? JSON.stringify(v) : String(v)}`).join('\n');
-}
-
-interface SmtpCreds {
-	user: string;
-	pass: string;
-	host?: string;
-	port?: number;
-	secure?: boolean;
-}
-
-let smtpCredsCache: SmtpCreds | null | undefined; // undefined = not looked up yet
-
-/**
- * SMTP credentials for the feedback email, from either source:
- *  1. env vars — GMAIL_USER / GMAIL_APP_PASSWORD (or SMTP_USER/SMTP_PASS,
- *     plus optional SMTP_HOST/SMTP_PORT/SMTP_SECURE for other providers);
- *  2. a gitignored `feedback-secrets.json` next to resources.js — deploys
- *     can't set env vars on the hosted Harper, so the GitHub deploy workflow
- *     and deploy-coop.sh stage this file into the component instead
- *     ({ user, pass, host?, port?, secure? }).
- */
-async function feedbackCreds(): Promise<SmtpCreds | null> {
-	if (smtpCredsCache !== undefined) return smtpCredsCache;
-	const env = process.env;
-	const user = env.SMTP_USER || env.GMAIL_USER;
-	const pass = env.SMTP_PASS || env.GMAIL_APP_PASSWORD;
-	if (user && pass) {
-		return (smtpCredsCache = {
-			user, pass,
-			host: env.SMTP_HOST || undefined,
-			port: env.SMTP_PORT ? Number(env.SMTP_PORT) : undefined,
-			secure: env.SMTP_SECURE ? env.SMTP_SECURE !== 'false' : undefined,
-		});
-	}
-	try {
-		// Non-literal specifiers keep the web/solo bundlers from touching node:fs
-		// or resolving the (absent) secrets file at build time.
-		const fsName = 'node:fs';
-		const { readFileSync } = await import(/* @vite-ignore */ fsName);
-		const secretsFile = './feedback-secrets.json';
-		const j = JSON.parse(readFileSync(new URL(secretsFile, import.meta.url), 'utf8'));
-		if (j?.user && j?.pass) {
-			return (smtpCredsCache = {
-				user: String(j.user), pass: String(j.pass),
-				host: j.host || undefined,
-				port: j.port ? Number(j.port) : undefined,
-				secure: typeof j.secure === 'boolean' ? j.secure : undefined,
-			});
-		}
-	} catch {
-		/* no secrets file — email stays disabled */
-	}
-	return (smtpCredsCache = null);
-}
-
-/**
- * Email the feedback to the developer. Best-effort: returns false (never
- * throws) when SMTP isn't configured or the send fails — the Feedback row is
- * already stored either way. Credentials come from feedbackCreds() above;
- * nodemailer is loaded lazily so the solo in-app bundle (which imports this
- * module in the browser) never touches it.
- */
-async function sendFeedbackEmail(rec: any): Promise<boolean> {
-	if (typeof process === 'undefined' || !process.versions?.node) return false; // browser (solo) — never emails
-	const creds = await feedbackCreds();
-	if (!creds) {
-		console.error('SubmitFeedback: email skipped — set GMAIL_USER/GMAIL_APP_PASSWORD env vars or deploy a feedback-secrets.json');
-		return false;
-	}
-	try {
-		// Non-literal specifier + @vite-ignore: the web/solo bundlers skip this
-		// entirely; on Harper it resolves from the component's node_modules.
-		const modName = 'nodemailer';
-		const nodemailer: any = (await import(/* @vite-ignore */ modName)).default;
-		const transporter = nodemailer.createTransport({
-			host: creds.host || 'smtp.gmail.com',
-			port: creds.port ?? 465,
-			secure: creds.secure ?? true,
-			auth: { user: creds.user, pass: creds.pass },
-		});
-		const firstLine = String(rec.message).split('\n')[0].slice(0, 60);
-		await transporter.sendMail({
-			from: `"Wild Willows" <${creds.user}>`,
-			to: FEEDBACK_TO,
-			replyTo: rec.replyTo || undefined,
-			subject: `Wild Willows feedback — ${firstLine}`,
-			text: [
-				rec.message,
-				'',
-				'--- player info ---',
-				feedbackMetricsLines(rec.metrics),
-				'',
-				`reply-to: ${rec.replyTo || '(not provided)'}`,
-				`submitted: ${new Date(rec.createdAt).toISOString()}`,
-				rec.queuedAt ? `written offline at: ${new Date(rec.queuedAt).toISOString()}` : null,
-				`feedback id: ${rec.id}`,
-			].filter((l) => l != null).join('\n'),
-		});
-		return true;
-	} catch (e) {
-		console.error('SubmitFeedback: email failed:', e);
-		return false;
-	}
-}
 
 /**
  * POST /SubmitFeedback/ {message, replyTo?, metrics?, queuedAt?} — store the
- * feedback and email it to the developer. Returns ok:true once the row is
- * durably stored (the client then drops its local copy); `emailed` reports
- * whether the mail actually went out.
+ * feedback. Returns ok:true once the row is durably stored, which is the
+ * client's cue to drop its local offline-queue copy.
  */
 export class SubmitFeedback extends PublicEndpoint {
 	async post(data: any) {
@@ -4118,11 +4006,22 @@ export class SubmitFeedback extends PublicEndpoint {
 		const queuedAt = Number(body.queuedAt) || null;
 
 		const id = `fb_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
-		const rec = { id, message, replyTo, metrics, queuedAt, createdAt: Date.now(), emailedAt: null as number | null };
-		await db().Feedback.put(rec);
+		await db().Feedback.put({ id, message, replyTo, metrics, queuedAt, createdAt: Date.now() });
+		return { ok: true, id };
+	}
+}
 
-		const emailed = await sendFeedbackEmail(rec);
-		if (emailed) await db().Feedback.patch(id, { emailedAt: Date.now() });
-		return { ok: true, id, emailed };
+/**
+ * GET /ListFeedback/ — every piece of player feedback, newest first.
+ *
+ * Deliberately extends the raw Resource (NOT PublicEndpoint), so Harper's
+ * default permissions apply: only an authenticated super user can read it.
+ * Feedback rows carry players' reply emails, which must never be public.
+ */
+export class ListFeedback extends Resource {
+	async get() {
+		const rows = await allOf(db().Feedback);
+		rows.sort((a: any, b: any) => (b.createdAt || 0) - (a.createdAt || 0));
+		return { count: rows.length, feedback: rows };
 	}
 }
