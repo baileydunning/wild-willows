@@ -32,7 +32,7 @@ var biomes_default = {
       },
       grid: {
         cols: 44,
-        rows: 20
+        rows: 26
       }
     },
     {
@@ -68,6 +68,10 @@ var biomes_default = {
       palette: {
         damaged: "#9c8a66",
         healthy: "#5e9455"
+      },
+      grid: {
+        cols: 30,
+        rows: 26
       }
     },
     {
@@ -102,6 +106,10 @@ var biomes_default = {
       palette: {
         damaged: "#a8a07a",
         healthy: "#6aa884"
+      },
+      grid: {
+        cols: 30,
+        rows: 26
       }
     },
     {
@@ -138,7 +146,11 @@ var biomes_default = {
         damaged: "#c78a52",
         healthy: "#e08a3c"
       },
-      canFlood: false
+      canFlood: false,
+      grid: {
+        cols: 30,
+        rows: 26
+      }
     },
     {
       id: "alpine",
@@ -177,6 +189,10 @@ var biomes_default = {
       palette: {
         damaged: "#a8a8a0",
         healthy: "#9db98c"
+      },
+      grid: {
+        cols: 30,
+        rows: 26
       }
     },
     {
@@ -213,6 +229,10 @@ var biomes_default = {
       palette: {
         damaged: "#c2b9a0",
         healthy: "#e8d9a8"
+      },
+      grid: {
+        cols: 30,
+        rows: 26
       }
     }
   ]
@@ -13444,8 +13464,9 @@ async function ensureSoloWorld(player, opts = {}) {
       maxMembers: 1,
       // brand-new saves are seeded at the shifted meadow coordinates already,
       // so the world starts aligned to the current camp offset; older worlds
-      // omit this and get realigned by migrateMeadowWest below.
-      meadowShift: opts.freshGrid ? MEADOW_SHIFT : 0
+      // omit these and get realigned by migrateMeadowWest below.
+      meadowShift: opts.freshGrid ? MEADOW_SHIFT : 0,
+      meadowShiftY: opts.freshGrid ? MEADOW_SHIFT_Y : 0
     });
   }
   const memberId = `${soloId}:${player.id}`;
@@ -13683,27 +13704,30 @@ function slugId(name) {
 }
 var STARTER_CHEST = { x: 23, y: 5, size: "small-chest", capacity: 120 };
 var MEADOW_SHIFT = 14;
+var MEADOW_SHIFT_Y = 0;
 async function migrateMeadowWest(wid) {
   const t = db();
   const world = await safeGet(t.World, wid);
   const applied = typeof world?.meadowShift === "number" ? world.meadowShift : 0;
+  const appliedY = typeof world?.meadowShiftY === "number" ? world.meadowShiftY : 0;
   const delta = MEADOW_SHIFT - applied;
-  if (delta !== 0) {
+  const deltaY = MEADOW_SHIFT_Y - appliedY;
+  if (delta !== 0 || deltaY !== 0) {
     for (const table of [t.Placement, t.TerrainTile, t.Chest]) {
       for (const row of await byWorld(table, wid)) {
         if (row.area !== "meadow") continue;
-        await table.patch(row.id, { x: (Number(row.x) || 0) + delta });
+        await table.patch(row.id, { x: (Number(row.x) || 0) + delta, y: (Number(row.y) || 0) + deltaY });
       }
     }
     for (const m of await byWorld(t.WorldMember, wid)) {
       const p = await safeGet(t.Player, m.playerId);
       if (p?.area === "meadow" && worldOf(p) === wid) {
-        await t.Player.patch(p.id, { x: (Number(p.x) || 0) + delta });
+        await t.Player.patch(p.id, { x: (Number(p.x) || 0) + delta, y: (Number(p.y) || 0) + deltaY });
       }
     }
   }
-  if (world && applied !== MEADOW_SHIFT) await t.World.patch(wid, { meadowShift: MEADOW_SHIFT });
-  return delta !== 0;
+  if (world && (applied !== MEADOW_SHIFT || appliedY !== MEADOW_SHIFT_Y)) await t.World.patch(wid, { meadowShift: MEADOW_SHIFT, meadowShiftY: MEADOW_SHIFT_Y });
+  return delta !== 0 || deltaY !== 0;
 }
 async function requirePlayer(playerId) {
   if (!playerId || typeof playerId !== "string") throw new GameError("playerId required");

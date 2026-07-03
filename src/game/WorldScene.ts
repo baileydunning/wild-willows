@@ -15,18 +15,20 @@ export const TILE = 32;
 // caretaker and you walk to see the rest.
 const OUT_W = 30;
 const OUT_H = 20;
-// "Normal" zoom fits the world to the screen (height-limited on the wide
-// meadow) — the original framing, showing as much as possible without any void
-// beyond the edges. The world scrolls with the player; you walk east to reach
-// the forest gate at the meadow's end.
+// "Normal" zoom shows a fixed VIEW_W×VIEW_H tile window — a function of the
+// SCREEN, not the biome's world size — so every biome reads at exactly the same
+// zoom regardless of how big it is (the meadow no longer feels zoomed out just
+// because it's wider). The world scrolls with the player to reveal the rest.
+const VIEW_W = 30;
+const VIEW_H = 20;
 const MTN_ROWS = 4; // rows reserved for the alpine mountain range (impassable)
 const COAST_COLS = 4; // columns reserved for the ocean along Pelican Shore's east edge (impassable)
 
 // your base camp: tent + campfire scenery beside the permanent workbench & chest.
-// The camp keeps its original main-branch arrangement, but the meadow now opens
-// a wide strip of wild land to the WEST of it — so camp coordinates sit 14 tiles
-// east of where they were on main, leaving room to walk west with the house
-// sitting roughly centered (west room ≈ the run east to the forest gate).
+// The camp keeps its EXACT main-branch arrangement (tent, campfire, chest, sign
+// all in the same relative spots and the same distance to the forest gate); the
+// whole block just sits MEADOW_SHIFT tiles further east so a strip of wild land
+// opens to its WEST. Nothing from main moved relative to the rest of the meadow.
 const CAMP = { tent: { x: 20.5, y: 4.2 }, fire: { x: 21.6, y: 5.1 } };
 // right in front of the tent door — where you land when you step back out of the home
 const CAMP_TENT_FRONT = { x: CAMP.tent.x, y: CAMP.tent.y + 1.8 };
@@ -46,12 +48,14 @@ const C = (hex: string) => Phaser.Display.Color.HexStringToColor(hex).color;
 // emitter on entry. Module-scoped so it survives scene.restart().
 let weatherShownThisSession = false;
 
-// Player-chosen zoom (+/− keys), multiplied onto the normal fit zoom.
+// Player-chosen zoom (+/− keys), multiplied onto the normal window zoom.
 // Module-scoped so it survives area changes; every session starts back at
-// normal (1). Deliberately narrow range — a nudge, not a telescope. The ceiling
-// is small on purpose so you can never zoom in too far.
-const USER_ZOOM_MIN = 1;
-const USER_ZOOM_MAX = 1.15;
+// normal (1). Exactly one step out and one step in from "perfect" — a nudge,
+// not a telescope. ZOOM_STEP is both the per-press factor and the range bound,
+// so one press reaches the limit either way.
+const ZOOM_STEP = 1.25;
+const USER_ZOOM_MIN = 1 / ZOOM_STEP;
+const USER_ZOOM_MAX = ZOOM_STEP;
 let userZoom = 1;
 
 function hashStr(s: string): number {
@@ -259,8 +263,8 @@ export class WorldScene extends Phaser.Scene {
 		// + / − zoom the camera window in and out a little. Scene keyboard input is
 		// already disabled while a text field has focus, so typing never zooms.
 		this.input.keyboard!.on('keydown', (e: KeyboardEvent) => {
-			if (e.key === '+' || e.key === '=') this.nudgeZoom(1.15);
-			else if (e.key === '-' || e.key === '_') this.nudgeZoom(1 / 1.15);
+			if (e.key === '+' || e.key === '=') this.nudgeZoom(ZOOM_STEP);
+			else if (e.key === '-' || e.key === '_') this.nudgeZoom(1 / ZOOM_STEP);
 		});
 
 		// When the player is typing in a text field (passcode, save name, chest
@@ -400,20 +404,21 @@ export class WorldScene extends Phaser.Scene {
 	}
 
 	/**
-	 * Fit-to-screen camera zoom: shows as much of the map as fits without any
-	 * void beyond the edges (height-limited on the wide meadow). This is the
-	 * normal framing every area opens at. The camera follows the caretaker
-	 * (startFollow in create), so bigger preserves are explored by walking — the
-	 * far corners, including the forest gate at the meadow's east end, scroll
-	 * into view. The player can nudge in a little with + and − (see nudgeZoom),
-	 * but never far: the ceiling is deliberately low so you can't over-zoom.
+	 * Windowed camera zoom that is the SAME in every biome. The base framing is a
+	 * fixed VIEW_W×VIEW_H tile window derived only from the screen, so a big biome
+	 * (the wide meadow) reads at exactly the same zoom as a small one — it never
+	 * feels zoomed out just because the world is larger. The camera follows the
+	 * caretaker (startFollow in create) and scrolls to reveal the rest by walking.
+	 * + / − nudge one step in / out from this "perfect" zoom, but `fit` is kept as
+	 * a floor so zooming out never reveals empty void past the world's edges (so a
+	 * biome only smaller than the window in one dimension simply can't zoom out).
 	 */
 	private applyZoom(smooth = false) {
 		const w = this.scale.width;
 		const h = this.scale.height;
-		const fit = Math.max(w / this.worldW, h / this.worldH);
-		const base = Phaser.Math.Clamp(fit, 0.85, 1.7);
-		const zoom = Phaser.Math.Clamp(base * userZoom, fit, base * USER_ZOOM_MAX);
+		const fit = Math.max(w / this.worldW, h / this.worldH); // never show past the world edge
+		const base = Phaser.Math.Clamp(Math.max(w / (VIEW_W * TILE), h / (VIEW_H * TILE)), 0.85, 2.6);
+		const zoom = Phaser.Math.Clamp(base * userZoom, Math.max(fit, base * USER_ZOOM_MIN), base * USER_ZOOM_MAX);
 		if (smooth) this.cameras.main.zoomTo(zoom, 150, 'Sine.easeInOut');
 		else this.cameras.main.setZoom(zoom);
 	}
@@ -1759,7 +1764,7 @@ export class WorldScene extends Phaser.Scene {
 		// Pelican Shore: nothing builds on the open ocean; land ends at landRight.
 		const right = this.area === 'coastal' ? this.landRight : this.cols - 1;
 		if (tx < 1 || ty < (this.playTop || 1) || tx >= right || ty >= this.rows - 1) return false;
-		if (this.area === 'meadow' && tx >= CAMP.tent.x - 0.5 && tx <= CAMP.tent.x + 1.5 && ty >= 4 && ty <= 5) return false; // tent + campfire tiles
+		if (this.area === 'meadow' && tx >= CAMP.tent.x - 0.5 && tx <= CAMP.tent.x + 1.5 && ty >= Math.floor(CAMP.tent.y) && ty <= Math.floor(CAMP.fire.y)) return false; // tent + campfire tiles (rows derived from the camp so they track it)
 		const s = bridge.shared.state;
 		if (s?.placements.some((p) => p.id !== ignoreId && p.area === this.area && p.x === tx && p.y === ty)) return false;
 		// note: resource nodes never block building — if you build on a regen spot,
@@ -1900,7 +1905,7 @@ export class WorldScene extends Phaser.Scene {
 			// the camp building (tent/house) is solid — walk around it, not through it
 			if (this.area === 'meadow') {
 				const hx = Math.floor(px / TILE), hy = Math.floor((py + 8) / TILE);
-				if (hx >= CAMP.tent.x - 1.5 && hx <= CAMP.tent.x + 1.5 && hy >= 3 && hy <= 5) return true;
+				if (hx >= CAMP.tent.x - 1.5 && hx <= CAMP.tent.x + 1.5 && hy >= Math.floor(CAMP.tent.y) - 1 && hy <= Math.floor(CAMP.tent.y) + 1) return true;
 			}
 			const key = `${Math.floor(px / TILE)},${Math.floor((py + 8) / TILE)}`;
 			return this.waterTiles.has(key) && !this.bridgeTiles.has(key);
