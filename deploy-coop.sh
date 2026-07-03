@@ -15,7 +15,7 @@ set -euo pipefail
 #                        (default: true; see src/features.ts)
 
 # --- edit these if needed ---
-PROJECT="wild-willows"                                            # MUST match the component name already deployed
+PROJECT="wild"                                            # MUST match the component name already deployed
 TARGET="${TARGET_URL:-https://wild.willows.harperfabric.com:9925}" # operations API endpoint
 USERNAME="${HARPER_USER:-HDB_ADMIN}"
 # ----------------------------
@@ -52,6 +52,13 @@ du -sh "$STAGE"
 echo
 
 if [[ -z "${HARPER_PW:-}" ]]; then
+  # Only prompt when a human is attached — in CI an empty HARPER_PW means the
+  # secret is missing/misnamed, and prompting would hang the job until timeout.
+  if [[ ! -t 0 ]]; then
+    echo "ERROR: HARPER_PW is empty and there's no TTY to prompt on." >&2
+    echo "       Set the HARPER_PASSWORD repo secret (see .github/workflows/deploy.yml)." >&2
+    exit 1
+  fi
   read -s -p "Harper password for $USERNAME: " HARPER_PW
   echo
 fi

@@ -66,4 +66,5 @@ jobs:
           COOP_ENABLED: ${{ (github.event_name == 'workflow_dispatch' && inputs.coop_enabled == false) && 'false' || 'true' }}
         run: |
           export PATH="$PWD/node_modules/.bin:$PATH"
-          ./deploy-coop.sh
+          # `bash` rather than ./ so the deploy never breaks on the exec bit
+          bash ./deploy-coop.sh
