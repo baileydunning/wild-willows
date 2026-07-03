@@ -2,6 +2,7 @@
 // All icons inherit currentColor so they re-tint with the UI.
 
 import React from 'react';
+import { hatPalette, flowerPalette } from '../color';
 import type { Appearance } from '../types';
 
 const PATHS: Record<string, React.ReactNode> = {
@@ -592,8 +593,10 @@ export function Icon({ name, size = 20, className }: { name: string; size?: numb
 
 /** Cute SVG portrait that mirrors the in-game procedural sprite. */
 export function CharacterPreview({ appearance, size = 150 }: { appearance: Appearance; size?: number }) {
-	const { skin, hair, outfit, hat, hairstyle = 'short', body = 'slim' } = appearance;
+	const { skin, hair, outfit, hat, hatColor, hairstyle = 'short', beard = 'none', body = 'slim' } = appearance;
 	const bw = body === 'round' ? 8 : 0; // extra body width
+	const hp = hatPalette(hat, hatColor); // a/b/line — classic or custom-tinted
+	const flowers = flowerPalette(hatColor); // crown blooms hue-rotate together
 	return (
 		<svg width={size} height={size * 1.13} viewBox="0 0 100 113" aria-label="Your character">
 			<ellipse cx="50" cy="104" rx={26 + bw / 2} ry="7" fill="#000" opacity="0.12" />
@@ -636,6 +639,24 @@ export function CharacterPreview({ appearance, size = 150 }: { appearance: Appea
 				</>
 			)}
 			{hairstyle === 'afro' && <circle cx="50" cy="33" r="28" fill={hair} />}
+			{hairstyle === 'bob' && (
+				<g fill={hair}>
+					<ellipse cx="30" cy="42" rx="8" ry="14" />
+					<ellipse cx="70" cy="42" rx="8" ry="14" />
+				</g>
+			)}
+			{hairstyle === 'braid' && (
+				<>
+					<g fill={hair}>
+						<ellipse cx="68" cy="34" rx="8" ry="9" />
+						<circle cx="71" cy="49" r="6.2" />
+						<circle cx="73" cy="58" r="5.5" />
+						<circle cx="74.5" cy="66" r="4.8" />
+						<circle cx="75" cy="73" r="4" />
+					</g>
+					<ellipse cx="75" cy="78.5" rx="3.2" ry="2.4" fill="#c9913f" />
+				</>
+			)}
 			{/* body */}
 			<path
 				d={`M${30 - bw} 70 Q${30 - bw} 56 50 56 Q${70 + bw} 56 ${70 + bw} 70 L${68 + bw} 96 Q${68 + bw} 102 60 102 L40 102 Q${32 - bw} 102 ${32 - bw} 96 Z`}
@@ -674,7 +695,8 @@ export function CharacterPreview({ appearance, size = 150 }: { appearance: Appea
 			{hairstyle === 'mohawk' && (
 				<path d="M43 24 L46 5 L49 21 L52 3 L55 21 L58 6 L60 24 Q52 19 43 24 Z" fill={hair} />
 			)}
-			{!['curly', 'curly-long', 'afro', 'mohawk'].includes(hairstyle) && (
+			{/* 'bald' draws no hair at all */}
+			{!['curly', 'curly-long', 'afro', 'mohawk', 'bald'].includes(hairstyle) && (
 				<path d="M30 34 Q31 18 50 17 Q69 18 70 34 Q66 26 50 25.5 Q34 26 30 34 Z" fill={hair} />
 			)}
 			{hairstyle === 'bun' && hat === 'none' && (
@@ -691,39 +713,47 @@ export function CharacterPreview({ appearance, size = 150 }: { appearance: Appea
 			<path d="M46.5 47 Q50 50 53.5 47" stroke="#3b2e25" strokeWidth="1.7" fill="none" strokeLinecap="round" />
 			<circle cx="37" cy="45" r="3.4" fill="#e88" opacity="0.35" />
 			<circle cx="63" cy="45" r="3.4" fill="#e88" opacity="0.35" />
+			{/* beard (always the hair color): a soft, short jaw wrap with the smile kept visible */}
+			{beard === 'beard' && (
+				<g>
+					<path d="M32 43 Q34.5 58.5 50 59 Q65.5 58.5 68 43 Q63.5 50.5 56.5 50.8 Q53 50.8 50 49.8 Q47 50.8 43.5 50.8 Q36.5 50.5 32 43 Z" fill={hair} />
+					<path d="M42.5 45.3 Q46 43.6 50 45.1 Q54 43.6 57.5 45.3 Q54 46.9 50 46.2 Q46 46.9 42.5 45.3 Z" fill={hair} />
+					<path d="M46.5 47.2 Q50 50 53.5 47.2" stroke="#3b2e25" strokeWidth="1.7" fill="none" strokeLinecap="round" />
+				</g>
+			)}
 			{/* hats */}
 			{hat === 'straw' && (
 				<g>
-					<ellipse cx="50" cy="23" rx="27" ry="8" fill="#c9a35c" />
-					<path d="M36 22 Q36 8 50 8 Q64 8 64 22 Q57 19 50 19 Q43 19 36 22 Z" fill="#d8b56e" />
-					<path d="M36 20.5 Q50 24.5 64 20.5" stroke="#a3814f" strokeWidth="3" fill="none" />
+					<ellipse cx="50" cy="23" rx="27" ry="8" fill={hp.a} />
+					<path d="M36 22 Q36 8 50 8 Q64 8 64 22 Q57 19 50 19 Q43 19 36 22 Z" fill={hp.b} />
+					<path d="M36 20.5 Q50 24.5 64 20.5" stroke={hp.line} strokeWidth="3" fill="none" />
 				</g>
 			)}
 			{hat === 'leaf' && (
 				<g transform="rotate(-8 50 16)">
-					<path d="M28 20 Q42 2 72 9 Q67 26 40 25 Q32 24 28 20 Z" fill="#5d8a4a" />
-					<path d="M30 19.5 Q50 17 68 11" stroke="#436b35" strokeWidth="1.8" fill="none" />
+					<path d="M28 20 Q42 2 72 9 Q67 26 40 25 Q32 24 28 20 Z" fill={hp.a} />
+					<path d="M30 19.5 Q50 17 68 11" stroke={hp.line} strokeWidth="1.8" fill="none" />
 				</g>
 			)}
 			{hat === 'beanie' && (
 				<g>
-					<path d="M31 26 Q31 9 50 9 Q69 9 69 26 L69 28 Q59 24 50 24 Q41 24 31 28 Z" fill="#b5707a" />
-					<path d="M31 27.5 Q50 22.5 69 27.5 L69 31 Q50 26.5 31 31 Z" fill="#9e5f69" />
+					<path d="M31 26 Q31 9 50 9 Q69 9 69 26 L69 28 Q59 24 50 24 Q41 24 31 28 Z" fill={hp.a} />
+					<path d="M31 27.5 Q50 22.5 69 27.5 L69 31 Q50 26.5 31 31 Z" fill={hp.b} />
 					<circle cx="50" cy="8" r="4.5" fill="#e8d8c8" />
 				</g>
 			)}
 			{hat === 'cap' && (
 				<g>
-					<path d="M30 25 Q30 9 50 9 Q70 9 70 25 Z" fill="#5f86b0" />
-					<path d="M51 24 Q70 22 82 27 Q70 31 51 28 Z" fill="#4f739a" />
-					<circle cx="50" cy="10" r="2.4" fill="#3f5f80" />
+					<path d="M30 25 Q30 9 50 9 Q70 9 70 25 Z" fill={hp.a} />
+					<path d="M51 24 Q70 22 82 27 Q70 31 51 28 Z" fill={hp.b} />
+					<circle cx="50" cy="10" r="2.4" fill={hp.line} />
 				</g>
 			)}
 			{hat === 'bucket' && (
 				<g>
-					<path d="M35 23 Q35 10 50 10 Q65 10 65 23 Z" fill="#9aa86a" />
-					<path d="M27 22 L73 22 Q70 30 50 31 Q30 30 27 22 Z" fill="#86945a" />
-					<path d="M35 23 L65 23 L65 25 Q50 27 35 25 Z" fill="#86945a" />
+					<path d="M35 23 Q35 10 50 10 Q65 10 65 23 Z" fill={hp.a} />
+					<path d="M27 22 L73 22 Q70 30 50 31 Q30 30 27 22 Z" fill={hp.b} />
+					<path d="M35 23 L65 23 L65 25 Q50 27 35 25 Z" fill={hp.b} />
 				</g>
 			)}
 			{hat === 'flower' && (
@@ -732,7 +762,7 @@ export function CharacterPreview({ appearance, size = 150 }: { appearance: Appea
 					{[32, 43, 54, 65].map((x, i) => (
 						<g key={i}>
 							{[0, 1.26, 2.51, 3.77, 5.03].map((ang, j) => (
-								<circle key={j} cx={x + Math.cos(ang) * 3.4} cy={24 + Math.sin(ang) * 3.4} r="2.4" fill={['#e87a9e', '#f4c95f', '#c45ad0', '#e8954f'][i]} />
+								<circle key={j} cx={x + Math.cos(ang) * 3.4} cy={24 + Math.sin(ang) * 3.4} r="2.4" fill={flowers[i]} />
 							))}
 							<circle cx={x} cy="24" r="1.7" fill="#fff3c4" />
 						</g>
@@ -741,13 +771,58 @@ export function CharacterPreview({ appearance, size = 150 }: { appearance: Appea
 			)}
 			{hat === 'party' && (
 				<g>
-					<path d="M50 1 L39 26 L61 26 Z" fill="#d77bb1" />
-					<path d="M50 1 L45.5 12 L54.5 12 Z" fill="#e89ac0" />
-					<path d="M43.5 19 L56.5 19 L58 26 L42 26 Z" fill="#7d6b9e" />
+					<path d="M50 1 L39 26 L61 26 Z" fill={hp.a} />
+					<path d="M50 1 L45.5 12 L54.5 12 Z" fill={hp.b} />
+					<path d="M43.5 19 L56.5 19 L58 26 L42 26 Z" fill={hp.line} />
 					<circle cx="50" cy="2" r="3.4" fill="#f4e08a" />
 				</g>
 			)}
-			{hat === 'none' && !['curly', 'curly-long', 'afro', 'mohawk', 'bun'].includes(hairstyle) && (
+			{hat === 'ranger' && (
+				<g>
+					<ellipse cx="50" cy="23" rx="29" ry="7" fill={hp.a} />
+					<path d="M37 22 Q37 8 50 8 Q63 8 63 22 Q57 18.5 50 18.5 Q43 18.5 37 22 Z" fill={hp.b} />
+					<path d="M37 21 Q50 25 63 21" stroke={hp.line} strokeWidth="3" fill="none" />
+				</g>
+			)}
+			{hat === 'mushroom' && (
+				<g>
+					<path d="M29 22 Q29 3 50 3 Q71 3 71 22 Q71 25 67 25 L33 25 Q29 25 29 22 Z" fill={hp.a} />
+					<path d="M33 25 L67 25 Q60 28.5 50 28.5 Q40 28.5 33 25 Z" fill={hp.line} />
+					<circle cx="40" cy="11" r="3.4" fill="#f6efe3" />
+					<circle cx="56" cy="8.5" r="4" fill="#f6efe3" />
+					<circle cx="63" cy="17" r="2.6" fill="#f6efe3" />
+					<circle cx="45" cy="18" r="2" fill="#f6efe3" />
+				</g>
+			)}
+			{hat === 'wizard' && (
+				<g>
+					<ellipse cx="50" cy="22" rx="26" ry="7" fill={hp.a} />
+					<path d="M53 -6 Q50 6 61 22 L38 22 Q50 9 53 -6 Z" fill={hp.b} />
+					<path d="M39 21 Q50 17.5 60 21" stroke={hp.line} strokeWidth="3" fill="none" />
+					<path d="M55 6 L56.2 9 L59.4 9.2 L56.9 11.1 L57.8 14.2 L55 12.4 L52.2 14.2 L53.1 11.1 L50.6 9.2 L53.8 9 Z" fill="#f4e08a" />
+				</g>
+			)}
+			{hat === 'crown' && (
+				<g>
+					<path d="M36 24 L36 11 L42.5 17.5 L50 7 L57.5 17.5 L64 11 L64 24 Q50 20 36 24 Z" fill={hp.a} />
+					<path d="M36 24 L64 24 L64 27 Q50 23 36 27 Z" fill={hp.line} />
+					<circle cx="50" cy="20" r="2.1" fill="#c0503f" />
+					<circle cx="42" cy="21.4" r="1.5" fill="#3f6fa8" />
+					<circle cx="58" cy="21.4" r="1.5" fill="#3f6fa8" />
+				</g>
+			)}
+			{hat === 'bandana' && (
+				<g>
+					<path d="M30 32 Q30 12 50 11 Q70 12 70 32 Q60 24 50 24 Q40 24 30 32 Z" fill={hp.a} />
+					<path d="M33 26 Q50 20 67 26" stroke={hp.line} strokeWidth="2" fill="none" opacity="0.6" />
+					<path d="M68 25 L79 29 L71 33 Z" fill={hp.a} />
+					<path d="M70 30 L77.5 39 L68.5 35.5 Z" fill={hp.b} />
+					<circle cx="44" cy="17.5" r="1.2" fill="#fff" opacity="0.55" />
+					<circle cx="56" cy="17.5" r="1.2" fill="#fff" opacity="0.55" />
+					<circle cx="50" cy="14" r="1.2" fill="#fff" opacity="0.55" />
+				</g>
+			)}
+			{hat === 'none' && !['curly', 'curly-long', 'afro', 'mohawk', 'bun', 'bald'].includes(hairstyle) && (
 				<path d="M31 32 Q31 14 50 14 Q69 14 69 32 Q66 22 50 21 Q34 22 31 32 Z" fill={hair} />
 			)}
 		</svg>

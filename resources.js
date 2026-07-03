@@ -13650,8 +13650,10 @@ var START_TOOLS = { basket: 1, shovel: 1, "watering-can": 1, "field-journal": 1 
 var SKIN_TONES = ["#f6d7b8", "#eec39a", "#d9a06b", "#b97f50", "#8d5a3a", "#6b4226"];
 var HAIR_COLORS = ["#3b2e25", "#6e4a33", "#a3692f", "#c9913f", "#d9b380", "#8c8c8c"];
 var OUTFIT_COLORS = ["#4a7c59", "#7a9ac0", "#b5707a", "#c9913f", "#7d6b9e", "#5d8a8a"];
-var HAT_STYLES = ["straw", "leaf", "beanie", "cap", "bucket", "flower", "party", "none"];
-var HAIRSTYLES = ["short", "long", "curly", "curly-long", "bun", "ponytail", "pigtails", "afro", "mohawk"];
+var HAT_STYLES = ["straw", "leaf", "beanie", "cap", "bucket", "flower", "party", "ranger", "mushroom", "wizard", "crown", "bandana", "none"];
+var HAT_COLORS = ["#c9a35c", "#b5707a", "#5f86b0", "#5d8a4a", "#7d6b9e", "#b05555"];
+var HAIRSTYLES = ["short", "bald", "long", "bob", "curly", "curly-long", "bun", "braid", "ponytail", "pigtails", "afro", "mohawk"];
+var BEARD_STYLES = ["none", "beard"];
 var BODY_TYPES = ["slim", "round"];
 function cleanHex(c, fallback) {
   return typeof c === "string" && /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(c.trim()) ? c.trim().toLowerCase() : fallback;
@@ -13663,7 +13665,10 @@ function sanitizeAppearance(a) {
     hair: cleanHex(a.hair, HAIR_COLORS[1]),
     outfit: cleanHex(a.outfit, OUTFIT_COLORS[0]),
     hat: HAT_STYLES.includes(a.hat) ? a.hat : "straw",
+    // null means "the hat's classic colors" — only a valid hex overrides it
+    hatColor: typeof a.hatColor === "string" && /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(a.hatColor.trim()) ? a.hatColor.trim().toLowerCase() : null,
     hairstyle: HAIRSTYLES.includes(a.hairstyle) ? a.hairstyle : "short",
+    beard: BEARD_STYLES.includes(a.beard) ? a.beard : "none",
     body: BODY_TYPES.includes(a.body) ? a.body : "slim"
   };
 }
@@ -14767,7 +14772,9 @@ var GameData = class extends PublicEndpoint {
         hair: HAIR_COLORS,
         outfits: OUTFIT_COLORS,
         hats: HAT_STYLES,
+        hatColors: HAT_COLORS,
         hairstyles: HAIRSTYLES,
+        beards: BEARD_STYLES,
         bodies: BODY_TYPES
       }
     };
@@ -16010,6 +16017,8 @@ var Metrics = class extends PublicEndpoint {
           // slot-scoped id — solo name slugs can collide across machines
           solo: true,
           platform: r.platform || null,
+          os: r.os || null,
+          version: r.version || null,
           build: r.build || null,
           lastSyncedAt: r.updatedAt || null,
           counts: s.counts || {},
@@ -16449,7 +16458,13 @@ var SyncMetrics = class extends PublicEndpoint {
       clientId,
       name: String(body.name || snapshot2.name || "").slice(0, 40),
       platform: String(body.platform || "").slice(0, 20) || null,
+      // desktop | web
+      os: String(body.os || "").slice(0, 20) || null,
+      // mac | windows | linux | …
+      version: String(body.version || "").slice(0, 24) || null,
+      // wild-willows release
       build: String(body.build || "").slice(0, 40) || null,
+      // build timestamp
       snapshot: snapshot2,
       createdAt: existing?.createdAt || Date.now(),
       updatedAt: Date.now()

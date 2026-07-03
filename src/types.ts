@@ -233,7 +233,9 @@ export interface AppearanceOptions {
 	hair: string[];
 	outfits: string[];
 	hats: string[];
+	hatColors: string[];
 	hairstyles: string[];
+	beards: string[];
 	bodies: string[];
 }
 
@@ -241,9 +243,13 @@ export interface Appearance {
 	skin: string;
 	hair: string;
 	outfit: string;
-	hat: string; 
-	hairstyle: string; 
-	body: string; 
+	hat: string;
+	/** Custom hat color; unset/null = the hat's classic colors. */
+	hatColor?: string | null;
+	hairstyle: string;
+	/** Facial hair (drawn in the hair color); 'none' by default. */
+	beard?: string;
+	body: string;
 }
 
 export interface GameData {

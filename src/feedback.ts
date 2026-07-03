@@ -9,6 +9,7 @@
 // the feedback; only then is it deleted from the queue.
 
 import { COOP_BASE_URL, IS_DESKTOP, getTransport } from './api';
+import { APP_VERSION, BUILD_TIME, detectOS } from './platform';
 import type { GameState } from './types';
 
 const QUEUE_KEY = 'wild-willows:feedback-queue';
@@ -51,8 +52,10 @@ export const pendingFeedbackCount = () => readQueue().length;
 
 export function gatherFeedbackMetrics(state: GameState | null): Record<string, any> {
 	const m: Record<string, any> = {
-		build: typeof __BUILD_TIME__ !== 'undefined' ? __BUILD_TIME__ : 'unknown',
+		version: APP_VERSION,
+		build: BUILD_TIME,
 		platform: IS_DESKTOP ? 'desktop' : 'web',
+		os: detectOS(), // mac / windows / linux / …
 		mode: getTransport(), // solo | coop | web
 		userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
 	};

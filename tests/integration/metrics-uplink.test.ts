@@ -20,11 +20,13 @@ const snapshot = (over: Record<string, any> = {}) => ({
 describe('SyncMetrics', () => {
 	it('upserts one row per save slot, preserving createdAt across updates', async () => {
 		const slot = 'a3f0c1d2-0000-4000-8000-123456789abc';
-		let r = await w.post('SyncMetrics', { clientId: slot, name: 'Sam', platform: 'desktop', snapshot: snapshot() });
+		let r = await w.post('SyncMetrics', { clientId: slot, name: 'Sam', platform: 'desktop', os: 'mac', version: '0.1.0', snapshot: snapshot() });
 		expect(r.ok).toBe(true);
 
 		const first = await w.db.SoloMetrics.get(`solo:${slot}`);
 		expect(first.snapshot.playMinutes).toBe(20);
+		expect(first.os).toBe('mac');
+		expect(first.version).toBe('0.1.0');
 
 		await new Promise((res) => setTimeout(res, 5));
 		r = await w.post('SyncMetrics', { clientId: slot, name: 'Sam', platform: 'desktop', snapshot: snapshot({ playMinutes: 25, sessions: 4 }) });
@@ -48,7 +50,7 @@ describe('SyncMetrics', () => {
 		// one hosted player + one uplinked solo save
 		await w.post('CreatePlayer', { name: 'Hosted Holly', passcode: '1234', appearance });
 		await w.post('SyncMetrics', {
-			clientId: 'slot-9', name: 'Solo Sam', platform: 'desktop',
+			clientId: 'slot-9', name: 'Solo Sam', platform: 'desktop', os: 'linux', version: '0.1.0',
 			snapshot: snapshot({ name: 'Solo Sam', lastSeenAt: Date.now(), activation: { collected: true } }),
 		});
 
@@ -61,6 +63,8 @@ describe('SyncMetrics', () => {
 		expect(sam.name).toBe('Solo Sam');
 		expect(sam.playMinutes).toBe(20);
 		expect(sam.platform).toBe('desktop');
+		expect(sam.os).toBe('linux');
+		expect(sam.version).toBe('0.1.0');
 		// aggregates count the solo player like anyone else
 		expect(out.summary.engagement.totalPlaySeconds).toBeGreaterThanOrEqual(1200);
 		expect(out.summary.funnel.created).toBe(2);

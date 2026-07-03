@@ -4,6 +4,7 @@ import { useGame } from '../state';
 import { COOP_ENABLED } from '../features';
 import type { Appearance } from '../types';
 import { CharacterPreview, Icon } from './icons';
+import { AppearanceRows } from './Settings';
 
 type Mode = 'menu' | 'new' | 'load' | 'join-code';
 
@@ -82,13 +83,13 @@ export function WelcomeScreen() {
 	// this and always uses its own origin.)
 	useEffect(() => { if (IS_DESKTOP) setTransport(coop ? 'coop' : 'solo'); }, [coop]);
 
-	const opts = data?.appearanceOptions;
 	const [appearance, setAppearance] = useState<Appearance>({
 		skin: '#eec39a',
 		hair: '#6e4a33',
 		outfit: '#4a7c59',
 		hat: 'straw',
 		hairstyle: 'short',
+		beard: 'none',
 		body: 'slim',
 	});
 
@@ -118,10 +119,6 @@ export function WelcomeScreen() {
 				throw new Error(`${e.message || 'Could not load that save'} — log in below instead.`);
 			}
 		});
-
-	const hatLabel: Record<string, string> = { straw: 'Straw hat', leaf: 'Leaf hat', beanie: 'Beanie', cap: 'Cap', bucket: 'Bucket hat', flower: 'Flower crown', party: 'Party hat', none: 'No hat' };
-	const hairstyleLabel: Record<string, string> = { short: 'Short', long: 'Long', curly: 'Curly', 'curly-long': 'Curly long', bun: 'Bun', ponytail: 'Ponytail', pigtails: 'Pigtails', afro: 'Afro', mohawk: 'Mohawk' };
-	const bodyLabel: Record<string, string> = { slim: 'Slender', round: 'Sturdy' };
 
 	return (
 		<div className="welcome">
@@ -297,60 +294,7 @@ export function WelcomeScreen() {
 									</label>
 								)}
 
-								<div className="swatch-row">
-									<span className="swatch-label">Skin</span>
-									{(opts?.skins || []).map((c) => (
-										<button type="button" key={c} className={`swatch-btn ${appearance.skin === c ? 'sel' : ''}`} style={{ background: c }} onClick={() => setAppearance((a) => ({ ...a, skin: c }))} aria-label={`Skin ${c}`} />
-									))}
-									<label className="swatch-pick" title="Pick any skin color">
-										<Icon name="eyedropper" size={14} />
-										<input type="color" value={appearance.skin} onChange={(e) => setAppearance((a) => ({ ...a, skin: e.target.value }))} aria-label="Custom skin color" />
-									</label>
-								</div>
-								<div className="swatch-row">
-									<span className="swatch-label">Hair</span>
-									{(opts?.hair || []).map((c) => (
-										<button type="button" key={c} className={`swatch-btn ${appearance.hair === c ? 'sel' : ''}`} style={{ background: c }} onClick={() => setAppearance((a) => ({ ...a, hair: c }))} aria-label={`Hair ${c}`} />
-									))}
-									<label className="swatch-pick" title="Pick any hair color">
-										<Icon name="eyedropper" size={14} />
-										<input type="color" value={appearance.hair} onChange={(e) => setAppearance((a) => ({ ...a, hair: e.target.value }))} aria-label="Custom hair color" />
-									</label>
-								</div>
-								<div className="swatch-row">
-									<span className="swatch-label">Style</span>
-									{(opts?.hairstyles || []).map((h) => (
-										<button type="button" key={h} className={`hat-btn ${appearance.hairstyle === h ? 'sel' : ''}`} onClick={() => setAppearance((a) => ({ ...a, hairstyle: h }))}>
-											{hairstyleLabel[h] || h}
-										</button>
-									))}
-								</div>
-								<div className="swatch-row">
-									<span className="swatch-label">Build</span>
-									{(opts?.bodies || []).map((b) => (
-										<button type="button" key={b} className={`hat-btn ${appearance.body === b ? 'sel' : ''}`} onClick={() => setAppearance((a) => ({ ...a, body: b }))}>
-											{bodyLabel[b] || b}
-										</button>
-									))}
-								</div>
-								<div className="swatch-row">
-									<span className="swatch-label">Outfit</span>
-									{(opts?.outfits || []).map((c) => (
-										<button type="button" key={c} className={`swatch-btn ${appearance.outfit === c ? 'sel' : ''}`} style={{ background: c }} onClick={() => setAppearance((a) => ({ ...a, outfit: c }))} aria-label={`Outfit ${c}`} />
-									))}
-									<label className="swatch-pick" title="Pick any outfit color">
-										<Icon name="eyedropper" size={14} />
-										<input type="color" value={appearance.outfit} onChange={(e) => setAppearance((a) => ({ ...a, outfit: e.target.value }))} aria-label="Custom outfit color" />
-									</label>
-								</div>
-								<div className="swatch-row">
-									<span className="swatch-label">Hat</span>
-									{(opts?.hats || []).map((h) => (
-										<button type="button" key={h} className={`hat-btn ${appearance.hat === h ? 'sel' : ''}`} onClick={() => setAppearance((a) => ({ ...a, hat: h }))}>
-											{hatLabel[h] || h}
-										</button>
-									))}
-								</div>
+								<AppearanceRows value={appearance} onChange={setAppearance} />
 							</div>
 						</div>
 						{error && <p className="form-error">{error}</p>}
