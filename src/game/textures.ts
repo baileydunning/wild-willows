@@ -3,6 +3,7 @@
 
 import Phaser from 'phaser';
 import { bridge } from './bridge';
+import { hatPalette, flowerPalette } from '../color';
 
 const C = (hex: string) => Phaser.Display.Color.HexStringToColor(hex).color;
 
@@ -2542,19 +2543,22 @@ export function animalSpriteDataUri(animalId: string, kind: string, opts: { silh
  */
 export function makePlayerTexture(
 	scene: Phaser.Scene,
-	appearance: { skin?: string; hair?: string; outfit?: string; hat?: string; hairstyle?: string; body?: string } | undefined
+	appearance: { skin?: string; hair?: string; outfit?: string; hat?: string; hatColor?: string | null; hairstyle?: string; beard?: string; body?: string } | undefined
 ): string {
 	const a = {
 		skin: appearance?.skin || '#eec39a',
 		hair: appearance?.hair || '#6e4a33',
 		outfit: appearance?.outfit || '#4a7c59',
 		hat: appearance?.hat || 'straw',
+		hatColor: appearance?.hatColor || null,
 		hairstyle: appearance?.hairstyle || 'short',
+		beard: appearance?.beard || 'none',
 		body: appearance?.body || 'slim',
 	};
-	const key = `player-${a.skin}-${a.hair}-${a.outfit}-${a.hat}-${a.hairstyle}-${a.body}`.replace(/#/g, '');
+	const key = `player-${a.skin}-${a.hair}-${a.outfit}-${a.hat}-${a.hatColor || 'classic'}-${a.hairstyle}-${a.beard}-${a.body}`.replace(/#/g, '');
 	tex(scene, key, 32, 36, (g) => {
 		const skin = C(a.skin), hair = C(a.hair), outfit = C(a.outfit);
+		const hp = hatPalette(a.hat, a.hatColor); // classic or custom-tinted hat tones
 		const bw = a.body === 'round' ? 21 : 17; // body width by build
 		// long styles fall behind the body
 		if (a.hairstyle === 'long') {
@@ -2573,6 +2577,14 @@ export function makePlayerTexture(
 		if (a.hairstyle === 'afro') {
 			g.fillStyle(hair, 1).fillCircle(16, 11, 11.5);
 		}
+		if (a.hairstyle === 'bob') {
+			g.fillStyle(hair, 1).fillEllipse(9.5, 14, 6.5, 11).fillEllipse(22.5, 14, 6.5, 11);
+		}
+		if (a.hairstyle === 'braid') {
+			g.fillStyle(hair, 1).fillEllipse(22.5, 11.5, 6, 7);
+			g.fillCircle(24.5, 16.5, 3.2).fillCircle(25.5, 21, 2.9).fillCircle(26, 25, 2.5);
+			g.fillStyle(C('#c9913f'), 1).fillRect(24.7, 27, 2.6, 1.4);
+		}
 		// body
 		g.fillStyle(outfit, 1).fillEllipse(16, 25, bw, 16);
 		g.fillStyle(0xffffff, 0.14).fillEllipse(16, 22, bw - 6, 7);
@@ -2590,6 +2602,8 @@ export function makePlayerTexture(
 			g.fillTriangle(12.5, 9, 14, 1.5, 15.5, 9);
 			g.fillTriangle(15, 9, 16, 0, 17, 9);
 			g.fillTriangle(16.5, 9, 18, 1.5, 19.5, 9);
+		} else if (a.hairstyle === 'bald') {
+			// no hair at all
 		} else {
 			g.fillEllipse(16, 7.4, 15, 7);
 		}
@@ -2597,39 +2611,74 @@ export function makePlayerTexture(
 			g.fillCircle(16, 2.4, 4);
 			g.fillStyle(C('#c9913f'), 1).fillRect(13, 4.6, 6, 1.6);
 		}
+		// beard (always the hair color): a soft, short jaw wrap
+		if (a.beard === 'beard') {
+			g.fillStyle(hair, 1).fillEllipse(16, 17.6, 13, 7);
+			g.fillStyle(hair, 1).fillEllipse(13.9, 15.8, 3.8, 1.8).fillEllipse(18.1, 15.8, 3.8, 1.8);
+		}
 		// face
 		g.fillStyle(0x3b2e25, 1).fillCircle(13, 13, 1.2).fillCircle(19, 13, 1.2);
-		g.fillStyle(0xe88888, 0.4).fillCircle(10.6, 15.2, 1.5).fillCircle(21.4, 15.2, 1.5);
-		// hats
+		if (a.beard !== 'beard') {
+			g.fillStyle(0xe88888, 0.4).fillCircle(10.6, 15.2, 1.5).fillCircle(21.4, 15.2, 1.5);
+		}
+		// hats — tones come from hatPalette so a custom hatColor recolors every hat
 		if (a.hat === 'straw') {
-			g.fillStyle(C('#c9a35c'), 1).fillEllipse(16, 7, 21, 6);
-			g.fillStyle(C('#d8b56e'), 1).fillEllipse(16, 4, 11, 6);
-			g.lineStyle(1.5, C('#a3814f'), 1).lineBetween(10, 6.5, 22, 6.5);
+			g.fillStyle(C(hp.a), 1).fillEllipse(16, 7, 21, 6);
+			g.fillStyle(C(hp.b), 1).fillEllipse(16, 4, 11, 6);
+			g.lineStyle(1.5, C(hp.line), 1).lineBetween(10, 6.5, 22, 6.5);
 		} else if (a.hat === 'leaf') {
-			g.fillStyle(C('#5d8a4a'), 1).fillEllipse(16, 5, 17, 6);
-			g.lineStyle(1.2, C('#436b35'), 1).lineBetween(9, 5.5, 23, 4);
+			g.fillStyle(C(hp.a), 1).fillEllipse(16, 5, 17, 6);
+			g.lineStyle(1.2, C(hp.line), 1).lineBetween(9, 5.5, 23, 4);
 		} else if (a.hat === 'beanie') {
-			g.fillStyle(C('#b5707a'), 1).fillEllipse(16, 5.6, 16, 8);
-			g.fillStyle(C('#9e5f69'), 1).fillRect(8, 7, 16, 2.4);
+			g.fillStyle(C(hp.a), 1).fillEllipse(16, 5.6, 16, 8);
+			g.fillStyle(C(hp.b), 1).fillRect(8, 7, 16, 2.4);
 			g.fillStyle(C('#e8d8c8'), 1).fillCircle(16, 1.8, 2);
 		} else if (a.hat === 'cap') {
-			g.fillStyle(C('#5f86b0'), 1).fillEllipse(16, 6, 16, 11);
-			g.fillStyle(C('#4f739a'), 1).fillEllipse(23, 8.4, 13, 4);
+			g.fillStyle(C(hp.a), 1).fillEllipse(16, 6, 16, 11);
+			g.fillStyle(C(hp.b), 1).fillEllipse(23, 8.4, 13, 4);
 		} else if (a.hat === 'bucket') {
-			g.fillStyle(C('#9aa86a'), 1).fillEllipse(16, 6, 15, 10);
-			g.fillStyle(C('#86945a'), 1).fillEllipse(16, 9.2, 20, 4);
+			g.fillStyle(C(hp.a), 1).fillEllipse(16, 6, 15, 10);
+			g.fillStyle(C(hp.b), 1).fillEllipse(16, 9.2, 20, 4);
 		} else if (a.hat === 'flower') {
 			g.lineStyle(2, C('#5d8a4a'), 1).lineBetween(9, 7.6, 23, 7.6);
-			const fc = ['#e87a9e', '#f4c95f', '#c45ad0'];
+			const fc = flowerPalette(a.hatColor); // blooms hue-rotate together
 			[10, 16, 22].forEach((x, i) => {
 				g.fillStyle(C(fc[i]), 1).fillCircle(x, 6.6, 1.9);
 				g.fillStyle(C('#fff3c4'), 1).fillCircle(x, 6.6, 0.8);
 			});
 		} else if (a.hat === 'party') {
-			g.fillStyle(C('#d77bb1'), 1).fillTriangle(16, -0.5, 11.5, 8.5, 20.5, 8.5);
-			g.fillStyle(C('#e89ac0'), 1).fillTriangle(16, 2.5, 14, 6.5, 18, 6.5);
+			g.fillStyle(C(hp.a), 1).fillTriangle(16, -0.5, 11.5, 8.5, 20.5, 8.5);
+			g.fillStyle(C(hp.b), 1).fillTriangle(16, 2.5, 14, 6.5, 18, 6.5);
 			g.fillStyle(C('#f4e08a'), 1).fillCircle(16, 0.4, 1.5);
-		} else if (!['bun', 'curly', 'curly-long', 'afro', 'mohawk'].includes(a.hairstyle)) {
+		} else if (a.hat === 'ranger') {
+			g.fillStyle(C(hp.a), 1).fillEllipse(16, 7, 23, 5);
+			g.fillStyle(C(hp.b), 1).fillEllipse(16, 3.8, 10.5, 6.5);
+			g.lineStyle(1.5, C(hp.line), 1).lineBetween(11, 6.5, 21, 6.5);
+		} else if (a.hat === 'mushroom') {
+			g.fillStyle(C(hp.a), 1).fillEllipse(16, 4.6, 18, 8.5);
+			g.fillStyle(C(hp.line), 1).fillEllipse(16, 8, 13, 2.4);
+			g.fillStyle(C('#f6efe3'), 1).fillCircle(13, 3.2, 1.2).fillCircle(18.5, 2.6, 1.4).fillCircle(20.5, 5.4, 0.9).fillCircle(14.5, 5.8, 0.8);
+		} else if (a.hat === 'wizard') {
+			g.fillStyle(C(hp.a), 1).fillEllipse(16, 8, 19, 4.5);
+			g.fillStyle(C(hp.b), 1).fillTriangle(16.8, -3, 10.5, 8, 21.8, 8);
+			g.lineStyle(1.5, C(hp.line), 1).lineBetween(11.5, 7.5, 20.5, 7.5);
+			g.fillStyle(C('#f4e08a'), 1).fillCircle(17.8, 2.5, 1);
+		} else if (a.hat === 'crown') {
+			g.fillStyle(C(hp.a), 1).fillPoints([
+				{ x: 10, y: 8 }, { x: 10, y: 3 }, { x: 12.5, y: 5.5 }, { x: 16, y: 1.2 },
+				{ x: 19.5, y: 5.5 }, { x: 22, y: 3 }, { x: 22, y: 8 },
+			], true);
+			g.fillStyle(C(hp.line), 1).fillRect(10, 7, 12, 1.4);
+			g.fillStyle(C('#c0503f'), 1).fillCircle(16, 6, 0.9);
+			g.fillStyle(C('#3f6fa8'), 1).fillCircle(12.8, 6.4, 0.7).fillCircle(19.2, 6.4, 0.7);
+		} else if (a.hat === 'bandana') {
+			g.fillStyle(C(hp.a), 1).fillEllipse(16, 6.5, 17, 8.5);
+			g.lineStyle(1, C(hp.line), 0.6).lineBetween(10.5, 7.5, 21.5, 7.5);
+			g.fillStyle(C(hp.a), 1).fillTriangle(23, 7.5, 27, 9.5, 23.5, 11);
+			g.fillStyle(C(hp.b), 1).fillTriangle(23.5, 10, 26, 13.5, 22.5, 12.5);
+			g.fillStyle(0xffffff, 0.55);
+			g.fillCircle(13.5, 4.5, 0.6).fillCircle(18.5, 4.5, 0.6).fillCircle(16, 3, 0.6);
+		} else if (!['bun', 'curly', 'curly-long', 'afro', 'mohawk', 'bald'].includes(a.hairstyle)) {
 			g.fillStyle(hair, 1).fillEllipse(16, 5.6, 14, 7);
 		}
 	});
