@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { bridge } from '../game/bridge';
 import { useGame } from '../state';
+import { isTypingTarget } from '../typing';
 import { Icon } from './icons';
 import { isTouchDevice } from './MobileControls';
 
@@ -292,6 +293,7 @@ export function Tutorial() {
 			bridge.on('collected', () => setFlags((f) => ({ ...f, gathered: true }))),
 		];
 		const onKey = (e: KeyboardEvent) => {
+			if (isTypingTarget(e.target)) return; // typing a "w" in a text box isn't walking
 			if (['w', 'a', 's', 'd', 'arrowup', 'arrowdown', 'arrowleft', 'arrowright'].includes(e.key.toLowerCase())) {
 				setFlags((f) => (f.moved ? f : { ...f, moved: true }));
 			}

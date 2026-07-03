@@ -6,6 +6,7 @@ import {
 	makeObjectTextures, makePlayerTexture,
 } from './textures';
 import { seasonStyle, weatherType, liveWeatherType, gatherResourceFor } from '../weather';
+import { isTypingTarget } from '../typing';
 import type { BiomeDef, HabitatObjectDef } from '../types';
 
 export const TILE = 32;
@@ -268,17 +269,11 @@ export class WorldScene extends Phaser.Scene {
 		});
 
 		// When the player is typing in a text field (passcode, save name, chest
-		// amounts, …) the game must NOT eat those keystrokes for movement. Disable
-		// the scene's keyboard (and Phaser's global key capture) whenever a text
-		// input is focused, and restore it the moment focus leaves.
-		const isTextEntry = (el: EventTarget | null) => {
-			const n = el as HTMLElement | null;
-			if (!n) return false;
-			const tag = n.tagName;
-			return tag === 'INPUT' || tag === 'TEXTAREA' || tag === 'SELECT' || n.isContentEditable;
-		};
+		// amounts, feedback, …) the game must NOT eat those keystrokes for
+		// movement. Disable the scene's keyboard (and Phaser's global key capture)
+		// whenever a text input is focused, and restore it the moment focus leaves.
 		const onFocusIn = (e: FocusEvent) => {
-			if (!isTextEntry(e.target)) return;
+			if (!isTypingTarget(e.target)) return;
 			const kb = this.input.keyboard;
 			if (!kb) return;
 			kb.enabled = false;
@@ -286,7 +281,7 @@ export class WorldScene extends Phaser.Scene {
 			kb.resetKeys(); // drop any held WASD so the player stops dead
 		};
 		const onFocusOut = (e: FocusEvent) => {
-			if (!isTextEntry(e.target)) return;
+			if (!isTypingTarget(e.target)) return;
 			const kb = this.input.keyboard;
 			if (!kb) return;
 			kb.enabled = true;
@@ -294,6 +289,12 @@ export class WorldScene extends Phaser.Scene {
 		};
 		document.addEventListener('focusin', onFocusIn);
 		document.addEventListener('focusout', onFocusOut);
+		// A text box may already hold focus when this scene (re)starts — e.g.
+		// changing areas or reloading while a panel's field is active.
+		if (isTypingTarget(document.activeElement)) {
+			this.input.keyboard!.enabled = false;
+			this.input.keyboard!.disableGlobalCapture();
+		}
 		this.events.once('shutdown', () => {
 			document.removeEventListener('focusin', onFocusIn);
 			document.removeEventListener('focusout', onFocusOut);

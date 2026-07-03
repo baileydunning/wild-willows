@@ -3997,21 +3997,71 @@ function feedbackMetricsLines(metrics: Record<string, any>): string {
 	return entries.map(([k, v]) => `${k}: ${typeof v === 'object' ? JSON.stringify(v) : String(v)}`).join('\n');
 }
 
+interface SmtpCreds {
+	user: string;
+	pass: string;
+	host?: string;
+	port?: number;
+	secure?: boolean;
+}
+
+let smtpCredsCache: SmtpCreds | null | undefined; // undefined = not looked up yet
+
 /**
- * Email the feedback to the developer. Best-effort: returns false (never
- * throws) when SMTP isn't configured or the send fails — the Feedback row is
- * already stored either way. Uses Gmail SMTP with an app password via
- * GMAIL_USER / GMAIL_APP_PASSWORD (or SMTP_HOST/SMTP_PORT/SMTP_USER/SMTP_PASS
- * for any other provider). nodemailer is loaded lazily so the solo in-app
- * bundle (which imports this module in the browser) never touches it.
+ * SMTP credentials for the feedback email, from either source:
+ *  1. env vars — GMAIL_USER / GMAIL_APP_PASSWORD (or SMTP_USER/SMTP_PASS,
+ *     plus optional SMTP_HOST/SMTP_PORT/SMTP_SECURE for other providers);
+ *  2. a gitignored `feedback-secrets.json` next to resources.js — deploys
+ *     can't set env vars on the hosted Harper, so the GitHub deploy workflow
+ *     and deploy-coop.sh stage this file into the component instead
+ *     ({ user, pass, host?, port?, secure? }).
  */
-async function sendFeedbackEmail(rec: any): Promise<boolean> {
-	if (typeof process === 'undefined' || !process.versions?.node) return false; // browser (solo) — never emails
+async function feedbackCreds(): Promise<SmtpCreds | null> {
+	if (smtpCredsCache !== undefined) return smtpCredsCache;
 	const env = process.env;
 	const user = env.SMTP_USER || env.GMAIL_USER;
 	const pass = env.SMTP_PASS || env.GMAIL_APP_PASSWORD;
-	if (!user || !pass) {
-		console.error('SubmitFeedback: email skipped — set GMAIL_USER and GMAIL_APP_PASSWORD (or SMTP_*) on the server');
+	if (user && pass) {
+		return (smtpCredsCache = {
+			user, pass,
+			host: env.SMTP_HOST || undefined,
+			port: env.SMTP_PORT ? Number(env.SMTP_PORT) : undefined,
+			secure: env.SMTP_SECURE ? env.SMTP_SECURE !== 'false' : undefined,
+		});
+	}
+	try {
+		// Non-literal specifiers keep the web/solo bundlers from touching node:fs
+		// or resolving the (absent) secrets file at build time.
+		const fsName = 'node:fs';
+		const { readFileSync } = await import(/* @vite-ignore */ fsName);
+		const secretsFile = './feedback-secrets.json';
+		const j = JSON.parse(readFileSync(new URL(secretsFile, import.meta.url), 'utf8'));
+		if (j?.user && j?.pass) {
+			return (smtpCredsCache = {
+				user: String(j.user), pass: String(j.pass),
+				host: j.host || undefined,
+				port: j.port ? Number(j.port) : undefined,
+				secure: typeof j.secure === 'boolean' ? j.secure : undefined,
+			});
+		}
+	} catch {
+		/* no secrets file — email stays disabled */
+	}
+	return (smtpCredsCache = null);
+}
+
+/**
+ * Email the feedback to the developer. Best-effort: returns false (never
+ * throws) when SMTP isn't configured or the send fails — the Feedback row is
+ * already stored either way. Credentials come from feedbackCreds() above;
+ * nodemailer is loaded lazily so the solo in-app bundle (which imports this
+ * module in the browser) never touches it.
+ */
+async function sendFeedbackEmail(rec: any): Promise<boolean> {
+	if (typeof process === 'undefined' || !process.versions?.node) return false; // browser (solo) — never emails
+	const creds = await feedbackCreds();
+	if (!creds) {
+		console.error('SubmitFeedback: email skipped — set GMAIL_USER/GMAIL_APP_PASSWORD env vars or deploy a feedback-secrets.json');
 		return false;
 	}
 	try {
@@ -4020,14 +4070,14 @@ async function sendFeedbackEmail(rec: any): Promise<boolean> {
 		const modName = 'nodemailer';
 		const nodemailer: any = (await import(/* @vite-ignore */ modName)).default;
 		const transporter = nodemailer.createTransport({
-			host: env.SMTP_HOST || 'smtp.gmail.com',
-			port: Number(env.SMTP_PORT || 465),
-			secure: (env.SMTP_SECURE ?? 'true') !== 'false',
-			auth: { user, pass },
+			host: creds.host || 'smtp.gmail.com',
+			port: creds.port ?? 465,
+			secure: creds.secure ?? true,
+			auth: { user: creds.user, pass: creds.pass },
 		});
 		const firstLine = String(rec.message).split('\n')[0].slice(0, 60);
 		await transporter.sendMail({
-			from: `"Wild Willows" <${user}>`,
+			from: `"Wild Willows" <${creds.user}>`,
 			to: FEEDBACK_TO,
 			replyTo: rec.replyTo || undefined,
 			subject: `Wild Willows feedback — ${firstLine}`,

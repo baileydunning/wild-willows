@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useGame } from '../state';
+import { isTypingTarget } from '../typing';
 import { Icon } from './icons';
 
 /**
@@ -25,7 +26,7 @@ export function TasksWidget() {
 	// O toggles the board (same input guard as the panel shortcuts)
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent) => {
-			if ((e.target as HTMLElement)?.tagName === 'INPUT') return;
+			if (isTypingTarget(e.target)) return;
 			if (e.key.toLowerCase() === 'o' && !e.metaKey && !e.ctrlKey && !e.altKey) toggle();
 		};
 		window.addEventListener('keydown', onKey);

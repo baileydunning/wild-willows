@@ -3,6 +3,7 @@ import { api } from './api';
 import { bridge } from './game/bridge';
 import { PhaserGame } from './game/PhaserGame';
 import { GameProvider, useGame } from './state';
+import { isTypingTarget } from './typing';
 import { HelpModal } from './ui/Help';
 import { HUD, Toasts } from './ui/HUD';
 import { AnimalCard, JournalPanel } from './ui/Journal';
@@ -199,7 +200,13 @@ function GameScreen() {
 	// Keyboard shortcuts for panels (documented in How to Play).
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent) => {
-			if ((e.target as HTMLElement)?.tagName === 'INPUT') return;
+			// Typing in any text box (passcode, feedback, chest amounts, …) must
+			// never trigger panel/tool shortcuts — letters belong to the text.
+			// Escape steps out of the box first; pressing it again closes the panel.
+			if (isTypingTarget(e.target)) {
+				if (e.key === 'Escape') (e.target as HTMLElement).blur();
+				return;
+			}
 			// hidden developer panel: Cmd/Ctrl + Shift + Delete (obscure, no username gate).
 			// Macs label Backspace as "delete", so accept both keys.
 			if ((e.key === 'Delete' || e.key === 'Backspace') && e.shiftKey && (e.metaKey || e.ctrlKey)) {

@@ -877,6 +877,11 @@ kbd {
 }
 .feedback-row textarea:focus { border-color: var(--green); outline: none; }
 .feedback-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.feedback-sent {
+	display: inline-flex; align-items: center; gap: 7px;
+	padding: 9px 18px; border-radius: 12px; font-weight: 700;
+	background: var(--cream); border: 1.5px solid var(--green); color: var(--green-deep, var(--green));
+}
 .feedback-actions .field { flex: 1 1 220px; min-width: 0; }
 .feedback-actions .field input { width: 100%; min-width: 0; }
 

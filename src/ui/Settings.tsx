@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api, forgetSave, getTransport } from '../api';
 import { sendFeedback } from '../feedback';
 import { bridge } from '../game/bridge';
@@ -97,6 +97,10 @@ export function SettingsPanel() {
 	const [fbMessage, setFbMessage] = useState('');
 	const [fbEmail, setFbEmail] = useState('');
 	const [sendingFb, setSendingFb] = useState(false);
+	// After a confirmed send, "Sent!" replaces the button for a little while.
+	const [fbSent, setFbSent] = useState(false);
+	const fbSentTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+	useEffect(() => () => { if (fbSentTimer.current) clearTimeout(fbSentTimer.current); }, []);
 
 	if (!state) return null;
 	const player = state.player;
@@ -150,9 +154,14 @@ export function SettingsPanel() {
 			const { sent } = await sendFeedback(fbMessage, fbEmail, state);
 			setFbMessage('');
 			setFbEmail('');
-			notify(sent
-				? 'Feedback sent — thank you!'
-				: 'You look offline — your feedback is saved and will send when you next start the game.');
+			if (sent) {
+				// Confirmed by the server: swap the button for "Sent!" for 5s.
+				setFbSent(true);
+				if (fbSentTimer.current) clearTimeout(fbSentTimer.current);
+				fbSentTimer.current = setTimeout(() => setFbSent(false), 5000);
+			} else {
+				notify('You look offline — your feedback is saved and will send when you next start the game.');
+			}
 		} catch (e: any) {
 			setError(e.message || 'Could not send feedback');
 		} finally {
@@ -231,8 +240,7 @@ export function SettingsPanel() {
 
 					<h3><Icon name="chat" size={15} /> Send feedback</h3>
 					<p className="muted small">
-						Spotted a bug, or have an idea for the preserve? Send a note straight to the developer. A little info about
-						your game (build, platform, playtime) rides along to help track it down.
+						Spotted a bug, or have an idea for the preserve? Send a note straight to the developer.
 					</p>
 					<div className="feedback-row">
 						<textarea
@@ -247,9 +255,15 @@ export function SettingsPanel() {
 								<Icon name="user" size={16} />
 								<input type="email" placeholder="Your email (optional — only if you'd like a reply)" value={fbEmail} onChange={(e) => setFbEmail(e.target.value)} />
 							</label>
-							<button className="big-btn primary" style={{ width: 'auto', marginTop: 0 }} disabled={sendingFb || !fbMessage.trim()} onClick={submitFeedback}>
-								<Icon name="forward" size={15} /> <span>{sendingFb ? 'Sending…' : 'Send feedback'}</span>
-							</button>
+							{fbSent ? (
+								<span className="feedback-sent" role="status">
+									<Icon name="check" size={15} /> <span>Sent!</span>
+								</span>
+							) : (
+								<button className="big-btn primary" style={{ width: 'auto', marginTop: 0 }} disabled={sendingFb || !fbMessage.trim()} onClick={submitFeedback}>
+									<Icon name="forward" size={15} /> <span>{sendingFb ? 'Sending…' : 'Send feedback'}</span>
+								</button>
+							)}
 						</div>
 					</div>
 					{error && <p className="form-error">{error}</p>}
