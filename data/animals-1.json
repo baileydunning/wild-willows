@@ -645,7 +645,16 @@
 					"meadow-vole",
 					"ground-squirrel"
 				],
-				"hint": "Hawks watch for a meadow already full of small animals."
+				"hint": "Hawks watch for a meadow already full of small animals.",
+				"conditions": {
+					"weather": [
+						"clear",
+						"cloudy"
+					],
+					"dayPhase": [
+						"day"
+					]
+				}
 			},
 			"scientificName": "Buteo jamaicensis",
 			"role": "The meadow's apex daytime hunter, soaring on broad wings or watching from a perch for prey below. By preying on voles, ground squirrels, rabbits, and birds it keeps herbivore numbers in check. Adults have essentially no predators in the meadow.",
@@ -696,7 +705,13 @@
 				"animals": [
 					"meadow-vole"
 				],
-				"hint": "A quiet, healthy meadow with plenty of voles and a dark place to roost."
+				"hint": "A quiet, healthy meadow with plenty of voles and a dark place to roost.",
+				"conditions": {
+					"dayPhase": [
+						"dusk",
+						"night"
+					]
+				}
 			},
 			"scientificName": "Tyto alba",
 			"role": "The meadow's night-shift rodent hunter, coursing low over the grass on silent wings and swallowing voles and mice whole. This makes it a major check on rodent populations. In the meadow it sits near the top of the food web with no regular predators.",
@@ -955,7 +970,14 @@
 					"small-pond": 1,
 					"log-shelter": 1
 				},
-				"hint": "Bears return only to a richly restored forest: lots of berries, water, shelter, and space."
+				"hint": "Bears return only to a richly restored forest: lots of berries, water, shelter, and space.",
+				"conditions": {
+					"season": [
+						"spring",
+						"summer",
+						"autumn"
+					]
+				}
 			},
 			"scientificName": "Ursus americanus",
 			"role": "Black bears are generalist omnivores that disperse berry seeds, dig up and regulate colonial insects, and opportunistically take deer fawns and elk calves. As the most abundant large carnivore in North American forests, they link the mast, insect, and vertebrate food layers at once. Adults have essentially no natural predators.",
@@ -1115,7 +1137,13 @@
 					"small-pond": 1,
 					"shrub": 1
 				},
-				"hint": "Grassy clearings and water in a healthy forest."
+				"hint": "Grassy clearings and water in a healthy forest.",
+				"conditions": {
+					"season": [
+						"autumn",
+						"winter"
+					]
+				}
 			},
 			"scientificName": "Cervus canadensis",
 			"role": "Elk are a dominant large herbivore whose heavy grazing shapes grasslands, willows, and aspen; their decline lets vegetation rebound. As the primary prey of wolves, cougars, and bears, they anchor the large-predator food web, and their carcasses sustain a broad scavenger guild. Migrations redistribute nutrients across elevations.",
@@ -1278,7 +1306,14 @@
 					"tree-squirrel",
 					"chipmunk"
 				],
-				"hint": "Bobcats follow plentiful prey and need rocky, brushy cover."
+				"hint": "Bobcats follow plentiful prey and need rocky, brushy cover.",
+				"conditions": {
+					"dayPhase": [
+						"dawn",
+						"dusk",
+						"night"
+					]
+				}
 			},
 			"scientificName": "Lynx rufus",
 			"role": "Bobcats are keystone mesopredators that suppress rabbits, rodents, and squirrels, easing browsing pressure on forest plants. As mid-level hunters they sit below cougars and wolves and above the small mammals they take. They help structure entire small-mammal communities.",
@@ -1825,7 +1860,13 @@
 					"reed-bed": 2,
 					"sedge-tussock": 1
 				},
-				"hint": "Cranes need a wide, quiet, well-balanced marsh."
+				"hint": "Cranes need a wide, quiet, well-balanced marsh.",
+				"conditions": {
+					"season": [
+						"spring",
+						"autumn"
+					]
+				}
 			},
 			"scientificName": "Antigone canadensis",
 			"role": "A stately omnivore of open marsh that probes for tubers and grain and snaps up insects and small animals. Its presence signals a wide, healthy wetland.",

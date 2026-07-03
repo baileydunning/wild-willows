@@ -28,6 +28,10 @@
 			"palette": {
 				"damaged": "#b9a37c",
 				"healthy": "#8fbf6f"
+			},
+			"grid": {
+				"cols": 44,
+				"rows": 26
 			}
 		},
 		{
@@ -63,6 +67,10 @@
 			"palette": {
 				"damaged": "#9c8a66",
 				"healthy": "#5e9455"
+			},
+			"grid": {
+				"cols": 30,
+				"rows": 26
 			}
 		},
 		{
@@ -97,6 +105,10 @@
 			"palette": {
 				"damaged": "#a8a07a",
 				"healthy": "#6aa884"
+			},
+			"grid": {
+				"cols": 30,
+				"rows": 26
 			}
 		},
 		{
@@ -133,7 +145,11 @@
 				"damaged": "#c78a52",
 				"healthy": "#e08a3c"
 			},
-			"canFlood": false
+			"canFlood": false,
+			"grid": {
+				"cols": 30,
+				"rows": 26
+			}
 		},
 		{
 			"id": "alpine",
@@ -172,6 +188,10 @@
 			"palette": {
 				"damaged": "#a8a8a0",
 				"healthy": "#9db98c"
+			},
+			"grid": {
+				"cols": 30,
+				"rows": 26
 			}
 		},
 		{
@@ -208,6 +228,10 @@
 			"palette": {
 				"damaged": "#c2b9a0",
 				"healthy": "#e8d9a8"
+			},
+			"grid": {
+				"cols": 30,
+				"rows": 26
 			}
 		}
 	]

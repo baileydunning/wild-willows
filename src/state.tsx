@@ -1,5 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { api, forgetSave, getPlayerId, lastSave, rememberSave, setPlayerId, startSoloGame, resumeSoloGame, exitSolo } from './api';
+import { flushFeedbackQueue } from './feedback';
+import { pokeMetricsUplink } from './solo/metricsUplink';
 import { bridge } from './game/bridge';
 import { unlockedRecipeIds } from './recipes';
 import { narrativeBeats, nextFeedFact, healthMilestoneLine, HEALTH_THRESHOLDS } from './ui/narrative';
@@ -71,6 +73,7 @@ interface Ctx {
 	paintHome: (part: 'floor' | 'wall' | 'rug', color: string) => Promise<void>;
 	paintPlacement: (placementId: string, color: string) => Promise<void>;
 	observe: (animalId: string) => Promise<void>;
+	claimTask: (taskId: string) => Promise<void>;
 	changeArea: (area: string) => Promise<void>;
 	recalcArea: (area: string) => Promise<void>;
 	// multiplayer: the world this save belongs to (solo, or one co-op world)
@@ -140,6 +143,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	// not when walking between biomes) and the last-seen season.
 	const prevWeatherByArea = useRef<Record<string, string>>({});
 	const prevSeason = useRef<string | null>(null);
+	const prevTasksDone = useRef<Set<string> | null>(null);
 	// Last-seen home config signature, so upgrading/restyling while inside redraws the room.
 	const prevHomeSig = useRef<string | null>(null);
 	// Feed persistence: buffer new lines and flush them to Harper (capped per player),
@@ -296,6 +300,23 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			}
 		}
 	}, [data, state, pushLog]);
+
+	// Daily-task beats: the moment a task crosses its target, nudge the player to
+	// claim the reward. Baseline seeds silently so reloads don't replay old wins.
+	useEffect(() => {
+		const tasks = state?.dailyTasks?.tasks;
+		if (!tasks) return;
+		const done = new Set(tasks.filter((t) => t.progress >= t.target).map((t) => t.id));
+		const before = prevTasksDone.current;
+		prevTasksDone.current = done;
+		if (!before) return;
+		for (const t of tasks) {
+			if (done.has(t.id) && !before.has(t.id) && !t.claimed) {
+				toast('Task complete — claim your reward on the board', 'unlock');
+				pushLog('sparkle', `Daily task complete: ${t.text}`, true);
+			}
+		}
+	}, [state, toast, pushLog]);
 
 	// Weather beats (retention): when the weather in the player's current biome
 	// changes — or the season turns — weave a flavor line into the feed. Same
@@ -523,6 +544,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		prevDiscoveries.current = null; // and the narrative baseline
 		prevHealth.current = null; // and the health-milestone baseline
 		prevHomeSig.current = null;
+		prevTasksDone.current = null; // and the daily-task baseline
 		shownFacts.current = new Set(); // fresh fact pool next session
 	}, [flushFeed]);
 
@@ -534,7 +556,31 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		if (!sessionPlayerId) return;
 		const beat = () => {
 			if (document.visibilityState === 'hidden') return;
-			api.heartbeat().catch(() => undefined);
+			api.heartbeat().then((r: any) => {
+				if (!r) return;
+				// The preserve kept living while the game was closed: the heartbeat is
+				// where "time passed" lands (matured plants, health gains, arrivals).
+				const wb = r.welcomeBack;
+				if (wb) {
+					const bits: string[] = [];
+					if (wb.matured) bits.push(wb.matured === 1 ? 'one of your plantings matured' : `${wb.matured} of your plantings matured`);
+					if (wb.healthGain) bits.push(`the land grew ${wb.healthGain} point${wb.healthGain === 1 ? '' : 's'} healthier`);
+					if (bits.length) {
+						pushLog('leaf', `While you were away, ${bits.join(' and ')}.`, true);
+						toast('Your preserve kept growing while you were away', 'unlock');
+					}
+				}
+				if (r.newAnimals?.length) {
+					for (const na of r.newAnimals) {
+						const name = na.animal?.name || 'An animal';
+						toast(`${name} has returned to the preserve!`, 'animal');
+						pushLog('paw', `${name} felt safe enough to return${wb ? ' while you were away' : ''}!`, true);
+						if (na.animal?.fact) pushLog('paw', `${name}: ${na.animal.fact}`, true);
+					}
+				}
+				// pull the recalculated world (health, discoveries) into view
+				if (r.newAnimals?.length || r.biomeStates?.length) refresh().catch(() => undefined);
+			}).catch(() => undefined);
 		};
 		beat(); // open the session right away
 		const id = window.setInterval(beat, 30_000);
@@ -544,6 +590,18 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			window.clearInterval(id);
 			document.removeEventListener('visibilitychange', onVisible);
 		};
+	}, [sessionPlayerId, pushLog, toast, refresh]);
+
+	// Feedback written while offline waits in a localStorage queue; retry it at
+	// the start of every session. Items are deleted only once the server
+	// confirms it stored them (see src/feedback.ts). Fire-and-forget. A solo
+	// session also uplinks its metrics right away (then every few minutes via
+	// the interval in metricsUplink.ts), so fresh saves appear on dashboards
+	// without waiting for the first interval.
+	useEffect(() => {
+		if (!sessionPlayerId) return;
+		void flushFeedbackQueue();
+		pokeMetricsUplink();
 	}, [sessionPlayerId]);
 
 	// Co-op presence. We publish our exact position ~12×/sec; each publish returns
@@ -885,10 +943,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		[act, toast, pushLog]
 	);
 
+	// Opening an animal's card IS the observation — reading about the animal in
+	// the journal (or clicking it in the world, which opens the same card) is
+	// what counts. Unreturned animals just open silently; nothing to record yet.
 	const observe = useCallback(
 		async (animalId: string) => {
 			setAnimalCardId(animalId);
 			setPanel('animal');
+			const returned = bridge.shared.state?.discoveries?.some((d) => d.animalId === animalId);
+			if (!returned) return;
 			try {
 				setSaveStatus('saving');
 				await api.observe(animalId);
@@ -899,6 +962,23 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			}
 		},
 		[refresh, markSaved]
+	);
+
+	const claimTask = useCallback(
+		(taskId: string) =>
+			act(
+				() => api.claimTask(taskId),
+				(r) => {
+					const gainedTxt = Object.entries(r?.gained || {})
+						.map(([id, q]) => `${q}× ${data?.resources.find((x) => x.id === id)?.name || id}`)
+						.join(', ');
+					if (gainedTxt) {
+						toast(`Task reward — ${gainedTxt}`, 'unlock');
+						pushLog('sparkle', `Daily task finished: earned ${gainedTxt}.`, true);
+					}
+				}
+			),
+		[act, data, toast, pushLog]
 	);
 
 	const changeArea = useCallback(
@@ -948,7 +1028,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			startNew, startLogin, continueLast, startNewSolo, loadSoloSlot, logout,
 			refresh, collect, transfer, craft, discard, place, removePlacement, movePlacement,
 			upgradeTool, upgradeHome, setHomeStyle, rest, paintColor, setPaintColor, paintHome, paintPlacement,
-			observe, changeArea, recalcArea,
+			observe, claimTask, changeArea, recalcArea,
 			worlds, activeWorldId, startNewCoop, refreshWorlds,
 			pendingJoin, checkJoinApproval, playSoloInstead, pendingRequests, approveJoin, denyJoin,
 		}),
@@ -956,7 +1036,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			placementObjectId, toasts, toast, dismissToast, log, feedLog, selectedTool, setSelectedTool, terraform, plant,
 			setTutorialStep, startNew, startLogin, continueLast, startNewSolo, loadSoloSlot, logout,
 			refresh, collect, transfer, craft, discard, place, removePlacement, movePlacement, upgradeTool,
-			observe, changeArea, recalcArea, openChest, startPlacement, cancelPlacement, upgradeHome, setHomeStyle, rest,
+			observe, claimTask, changeArea, recalcArea, openChest, startPlacement, cancelPlacement, upgradeHome, setHomeStyle, rest,
 			paintColor, setPaintColor, paintHome, paintPlacement,
 			worlds, activeWorldId, startNewCoop, refreshWorlds,
 			pendingJoin, checkJoinApproval, playSoloInstead, pendingRequests, approveJoin, denyJoin]

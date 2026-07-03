@@ -233,6 +233,7 @@ input {
 
 .hud-weather { font-size: 12.5px; color: var(--ink-soft); display: flex; align-items: center; gap: 6px; margin: 2px 0; font-weight: 700; }
 .hud-season { font-size: 10.5px; font-weight: 700; padding: 1px 7px; border-radius: 9px; border: 1px solid currentColor; opacity: 0.9; }
+.hud-dayphase { font-size: 10.5px; font-weight: 700; padding: 1px 7px; border-radius: 9px; border: 1px solid currentColor; opacity: 0.9; display: inline-flex; align-items: center; gap: 3px; }
 .hud-weather .wx-sep { opacity: 0.4; }
 
 .journal-controls { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }
@@ -867,6 +868,23 @@ kbd {
 .pass-row .field { flex: 1 1 150px; min-width: 0; }
 .pass-row .field input { width: 100%; min-width: 0; }
 
+/* Settings — send feedback to the developer */
+.feedback-row { display: flex; flex-direction: column; gap: 10px; }
+.feedback-row textarea {
+	width: 100%; min-height: 88px; resize: vertical; box-sizing: border-box;
+	background: var(--cream); border: 1.5px solid var(--line); border-radius: 12px;
+	padding: 9px 13px; color: var(--ink); font: inherit; font-size: 13.5px;
+}
+.feedback-row textarea:focus { border-color: var(--green); outline: none; }
+.feedback-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+.feedback-sent {
+	display: inline-flex; align-items: center; gap: 7px;
+	padding: 9px 18px; border-radius: 12px; font-weight: 700;
+	background: var(--cream); border: 1.5px solid var(--green); color: var(--green-deep, var(--green));
+}
+.feedback-actions .field { flex: 1 1 220px; min-width: 0; }
+.feedback-actions .field input { width: 100%; min-width: 0; }
+
 /* ================= mobile controls ================= */
 .joystick {
 	position: absolute; left: 18px; bottom: 116px; z-index: 40;
@@ -1161,3 +1179,56 @@ kbd {
 }
 .save-slot-del:hover:not(:disabled) { background: rgba(200, 120, 120, 0.18); }
 .save-slot-del:disabled { opacity: 0.5; cursor: default; }
+
+/* ---------- Today's Tasks (collapsible on-screen board) ---------- */
+/* the left column stacks the biome card and the task board */
+.hud-left-col {
+	position: absolute; top: 12px; left: 12px; z-index: 10;
+	display: flex; flex-direction: column; gap: 8px; align-items: stretch;
+}
+.hud-left-col .hud-top-left { position: static; }
+.tasks-widget {
+	background: rgba(250, 245, 232, 0.94);
+	border: 1.5px solid var(--line);
+	border-radius: 14px;
+	box-shadow: 0 4px 16px rgba(33, 41, 25, 0.25);
+	backdrop-filter: blur(3px);
+}
+.tasks-board { padding: 8px 10px 9px; }
+.tasks-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 6px; }
+.tasks-title { display: inline-flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 700; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.04em; }
+.tasks-title svg { color: var(--green-2, #6aa253); }
+.tasks-collapse {
+	background: none; border: none; padding: 2px 4px; cursor: pointer;
+	color: var(--ink-soft); border-radius: 6px; display: inline-flex;
+}
+.tasks-collapse:hover { background: rgba(94, 74, 50, 0.1); }
+.tasks-row { display: flex; align-items: center; gap: 8px; padding: 5px 0; }
+.tasks-row + .tasks-row { border-top: 1px dashed rgba(94, 74, 50, 0.16); }
+.tasks-row-icon { color: var(--green-2, #6aa253); display: flex; flex-shrink: 0; }
+.tasks-row-main { flex: 1; min-width: 0; }
+.tasks-row-text { display: block; font-size: 12.5px; font-weight: 600; line-height: 1.25; }
+.tasks-row-bar { display: flex; align-items: center; gap: 6px; margin-top: 3px; }
+.tasks-row-bar .meter-track { flex: 1; }
+.tasks-row-count { font-size: 11px; color: var(--ink-soft); white-space: nowrap; }
+.tasks-claim {
+	flex-shrink: 0; font-size: 12px; font-weight: 700; padding: 4px 10px;
+	border-radius: 10px; border: 1.5px solid var(--green-2, #6aa253);
+	background: var(--green-2, #6aa253); color: #fdf9ec; cursor: pointer;
+	animation: tasks-pulse 2.2s ease-in-out infinite;
+}
+.tasks-pill {
+	display: inline-flex; align-items: center; gap: 5px; align-self: flex-start;
+	padding: 5px 11px; font-size: 12.5px; font-weight: 700;
+	color: var(--ink-soft); cursor: pointer;
+}
+.tasks-pill svg { color: var(--green-2, #6aa253); }
+.tasks-glow { border-color: var(--gold, #d9a94f); box-shadow: 0 0 10px 2px rgba(217, 169, 79, 0.55); }
+@keyframes tasks-pulse {
+	0%, 100% { box-shadow: 0 0 0 0 rgba(106, 162, 83, 0.4); }
+	50% { box-shadow: 0 0 8px 2px rgba(106, 162, 83, 0.55); }
+}
+@media (max-width: 900px) {
+	.hud-left-col { max-width: 46vw; }
+	.tasks-row-text { font-size: 11.5px; }
+}

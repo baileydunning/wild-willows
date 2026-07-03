@@ -63,6 +63,9 @@ export interface BiomeDef {
 	digResources?: string[];
 	palette: { damaged: string; healthy: string };
 	canFlood?: boolean;
+	/** Playable grid size (tiles). Biomes are different sizes — the meadow is the
+	 * biggest. Alpine's mountain band / coastal's ocean band are added on top. */
+	grid?: { cols: number; rows: number };
 }
 
 export interface AnimalSource {
@@ -103,6 +106,9 @@ export interface AnimalDef {
 		objects?: Record<string, number>;
 		animals?: string[];
 		hint?: string;
+		/** Rare-sighting gate: this animal only returns while the live weather /
+		 * season / day-phase matches (any listed value). Derived server-side. */
+		conditions?: { weather?: string[]; season?: string[]; dayPhase?: string[] };
 	};
 }
 
@@ -150,6 +156,10 @@ export interface HabitatObjectDef {
 	plantable?: boolean;
 	plantCost?: Record<string, number>;
 	growSeconds?: number;
+	/** Real-time growth: hours until this living habitat is fully grown… */
+	matureHours?: number;
+	/** …and the bonus restoration points it contributes once it is. */
+	matureBonus?: number;
 	bridge?: boolean;
 	/** Indoor items: minimum home size (Space track level) needed to place — a tent
 	 * fits the basics; a fireplace needs a proper house. */
@@ -321,6 +331,7 @@ export interface Placement {
 	area: string;
 	x: number;
 	y: number;
+	placedAt?: number;
 	plantedAt?: number;
 	/** Optional per-item recolor (paint tool, home only). */
 	color?: string;
@@ -358,8 +369,29 @@ export interface GameState {
 	serverTime: number;
 	/** Derived weather/season/day-phase for this world at serverTime. */
 	weather?: WeatherSnapshot;
+	/** Today's rotating task board (derived server-side; resets at UTC midnight). */
+	dailyTasks?: DailyTasksBlock;
 	nodeRegenSeconds: number;
 	inventoryCapacity: number;
+}
+
+export interface DailyTask {
+	id: string;
+	kind: 'gather' | 'craft' | 'place' | 'water' | 'plant' | 'observe';
+	icon: string;
+	text: string;
+	target: number;
+	counter: string;
+	reward: Record<string, number>;
+	progress: number;
+	claimed: boolean;
+}
+
+export interface DailyTasksBlock {
+	dayKey: number;
+	/** When this board expires (UTC midnight) and a fresh one appears. */
+	endsAt: number;
+	tasks: DailyTask[];
 }
 
 export type PanelId =

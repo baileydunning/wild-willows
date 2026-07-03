@@ -2,8 +2,9 @@ import { useEffect, useState } from 'react';
 import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import { COOP_ENABLED } from '../features';
-import { weatherType, seasonStyle, liveSeason, liveWeatherType } from '../weather';
+import { weatherType, seasonStyle, liveSeason, liveWeatherType, liveDayPhase, dayPhaseStyle } from '../weather';
 import { Icon } from './icons';
+import { TasksWidget } from './TasksWidget';
 
 export function Meter({ label, icon, value, color }: { label: string; icon: string; value: number; color: string }) {
 	return (
@@ -68,6 +69,7 @@ export function HUD() {
 
 	return (
 		<>
+			<div className="hud-left-col">
 			<div className="hud-top-left">
 				{isHome ? (
 					<>
@@ -90,9 +92,15 @@ export function HUD() {
 							const worldId = (state as any).worldId || state.player.id;
 							const wt = weatherType(liveWeatherType(worldId, area, snap));
 							const ss = seasonStyle(liveSeason(snap));
+							const phase = liveDayPhase(snap);
+							const ps = dayPhaseStyle(phase);
+							const phaseAccent: Record<string, string> = { dawn: '#e0913f', day: '#d9a13a', dusk: '#c96a3a', night: '#6274b4' };
+							const pAccent = phaseAccent[phase] || '#d9a13a';
+							const pIcon = phase === 'night' ? 'star' : 'sun';
 							return (
-								<div className="hud-weather" title={`${wt.name} · ${ss.label}`}>
+								<div className="hud-weather" title={`${wt.name} · ${ss.label} · ${ps.label}`}>
 									<Icon name={wt.icon} size={13} /> {wt.name}
+									<span className="hud-dayphase" style={{ color: pAccent, borderColor: pAccent }}><Icon name={pIcon} size={11} /> {ps.label}</span>
 									<span className="hud-season" style={{ color: ss.accent, borderColor: ss.accent }}>{ss.label}</span>
 								</div>
 							);
@@ -111,6 +119,9 @@ export function HUD() {
 						)}
 					</>
 				)}
+			</div>
+			{/* Today's tasks sit right under the biome card, out of the toasts' way. */}
+			<TasksWidget />
 			</div>
 
 			<div className={`hud-top-right ${navOpen ? '' : 'nav-collapsed'}`}>

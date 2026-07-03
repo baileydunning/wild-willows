@@ -29,6 +29,10 @@ var biomes_default = {
       palette: {
         damaged: "#b9a37c",
         healthy: "#8fbf6f"
+      },
+      grid: {
+        cols: 44,
+        rows: 26
       }
     },
     {
@@ -64,6 +68,10 @@ var biomes_default = {
       palette: {
         damaged: "#9c8a66",
         healthy: "#5e9455"
+      },
+      grid: {
+        cols: 30,
+        rows: 26
       }
     },
     {
@@ -98,6 +106,10 @@ var biomes_default = {
       palette: {
         damaged: "#a8a07a",
         healthy: "#6aa884"
+      },
+      grid: {
+        cols: 30,
+        rows: 26
       }
     },
     {
@@ -134,7 +146,11 @@ var biomes_default = {
         damaged: "#c78a52",
         healthy: "#e08a3c"
       },
-      canFlood: false
+      canFlood: false,
+      grid: {
+        cols: 30,
+        rows: 26
+      }
     },
     {
       id: "alpine",
@@ -173,6 +189,10 @@ var biomes_default = {
       palette: {
         damaged: "#a8a8a0",
         healthy: "#9db98c"
+      },
+      grid: {
+        cols: 30,
+        rows: 26
       }
     },
     {
@@ -209,6 +229,10 @@ var biomes_default = {
       palette: {
         damaged: "#c2b9a0",
         healthy: "#e8d9a8"
+      },
+      grid: {
+        cols: 30,
+        rows: 26
       }
     }
   ]
@@ -2744,7 +2768,9 @@ var habitat_objects_default = {
       ],
       shape: "patch",
       color: "#7ab35c",
-      description: "A soft patch of regrowing grass. A first step for any bare ground."
+      description: "A soft patch of regrowing grass. A first step for any bare ground.",
+      matureHours: 2,
+      matureBonus: 1
     },
     {
       id: "native-grass-patch",
@@ -2760,7 +2786,9 @@ var habitat_objects_default = {
       ],
       shape: "patch",
       color: "#5f9e44",
-      description: "Deep-rooted native bunchgrass. Food and cover for meadow life."
+      description: "Deep-rooted native bunchgrass. Food and cover for meadow life.",
+      matureHours: 2,
+      matureBonus: 1
     },
     {
       id: "wildflower-patch",
@@ -2781,7 +2809,9 @@ var habitat_objects_default = {
         seeds: 2
       },
       growSeconds: 45,
-      description: "Mixed native wildflowers. Pollinators can spot it from far away."
+      description: "Mixed native wildflowers. Pollinators can spot it from far away.",
+      matureHours: 2,
+      matureBonus: 1
     },
     {
       id: "poppy-patch",
@@ -2804,7 +2834,9 @@ var habitat_objects_default = {
         wildflowers: 1
       },
       growSeconds: 45,
-      description: "Bright field poppies, grown from seed in a watered bed."
+      description: "Bright field poppies, grown from seed in a watered bed.",
+      matureHours: 2,
+      matureBonus: 1
     },
     {
       id: "sunflower-patch",
@@ -2825,7 +2857,9 @@ var habitat_objects_default = {
         seeds: 3
       },
       growSeconds: 60,
-      description: "Tall sunflowers that feed seed-eating birds all season."
+      description: "Tall sunflowers that feed seed-eating birds all season.",
+      matureHours: 2,
+      matureBonus: 1
     },
     {
       id: "lupine-patch",
@@ -2848,7 +2882,9 @@ var habitat_objects_default = {
         fiber: 1
       },
       growSeconds: 50,
-      description: "Spires of blue lupine that fix the soil as they bloom."
+      description: "Spires of blue lupine that fix the soil as they bloom.",
+      matureHours: 2,
+      matureBonus: 1
     },
     {
       id: "willow-tree",
@@ -2872,7 +2908,9 @@ var habitat_objects_default = {
         seeds: 2
       },
       growSeconds: 90,
-      description: "The preserve's namesake \u2014 a graceful willow grown from a watered bed."
+      description: "The preserve's namesake \u2014 a graceful willow grown from a watered bed.",
+      matureHours: 8,
+      matureBonus: 2
     },
     {
       id: "oak-tree",
@@ -2895,7 +2933,9 @@ var habitat_objects_default = {
         acorns: 2
       },
       growSeconds: 90,
-      description: "An acorn-grown oak. Squirrels and jays will thank you for decades."
+      description: "An acorn-grown oak. Squirrels and jays will thank you for decades.",
+      matureHours: 8,
+      matureBonus: 2
     },
     {
       id: "pine-tree",
@@ -2918,7 +2958,9 @@ var habitat_objects_default = {
         pinecones: 2
       },
       growSeconds: 90,
-      description: "A young pine grown from a cone \u2014 evergreen shelter in any season."
+      description: "A young pine grown from a cone \u2014 evergreen shelter in any season.",
+      matureHours: 8,
+      matureBonus: 2
     },
     {
       id: "butterfly-flowers",
@@ -2934,7 +2976,9 @@ var habitat_objects_default = {
       ],
       shape: "flowers",
       color: "#e8954f",
-      description: "Milkweed and nectar flowers, planted especially for butterflies."
+      description: "Milkweed and nectar flowers, planted especially for butterflies.",
+      matureHours: 2,
+      matureBonus: 1
     },
     {
       id: "pollinator-garden",
@@ -2950,7 +2994,9 @@ var habitat_objects_default = {
       ],
       shape: "flowers",
       color: "#c45ad0",
-      description: "A dense, season-long banquet for bees and butterflies."
+      description: "A dense, season-long banquet for bees and butterflies.",
+      matureHours: 2,
+      matureBonus: 1
     },
     {
       id: "shrub",
@@ -2967,7 +3013,9 @@ var habitat_objects_default = {
       ],
       shape: "bush",
       color: "#4f7d3a",
-      description: "A young native shrub. Quick cover for anyone passing through."
+      description: "A young native shrub. Quick cover for anyone passing through.",
+      matureHours: 4,
+      matureBonus: 1
     },
     {
       id: "berry-bush",
@@ -2990,7 +3038,9 @@ var habitat_objects_default = {
         berries: 2
       },
       growSeconds: 70,
-      description: "A thornless native berry bush. Songbirds, rabbits, deer, and bears all visit. Sow it in a watered bed from seeds and a few berries."
+      description: "A thornless native berry bush. Songbirds, rabbits, deer, and bears all visit. Sow it in a watered bed from seeds and a few berries.",
+      matureHours: 4,
+      matureBonus: 1
     },
     {
       id: "small-pond",
@@ -3295,7 +3345,9 @@ var habitat_objects_default = {
       ],
       shape: "tree",
       color: "#3f6e38",
-      description: "A fast-growing native tree planted for squirrels, owls, and nuthatches."
+      description: "A fast-growing native tree planted for squirrels, owls, and nuthatches.",
+      matureHours: 8,
+      matureBonus: 2
     },
     {
       id: "standing-deadwood",
@@ -3348,7 +3400,9 @@ var habitat_objects_default = {
       plantCost: {
         reeds: 3
       },
-      growSeconds: 45
+      growSeconds: 45,
+      matureHours: 4,
+      matureBonus: 1
     },
     {
       id: "mud-bank",
@@ -3404,7 +3458,9 @@ var habitat_objects_default = {
       plantCost: {
         reeds: 2
       },
-      growSeconds: 45
+      growSeconds: 45,
+      matureHours: 4,
+      matureBonus: 1
     },
     {
       id: "marsh-log",
@@ -3475,7 +3531,9 @@ var habitat_objects_default = {
       plantCost: {
         "cactus-fruit": 2
       },
-      growSeconds: 70
+      growSeconds: 70,
+      matureHours: 4,
+      matureBonus: 1
     },
     {
       id: "desert-brush",
@@ -3496,7 +3554,9 @@ var habitat_objects_default = {
       plantCost: {
         sand: 2
       },
-      growSeconds: 50
+      growSeconds: 50,
+      matureHours: 4,
+      matureBonus: 1
     },
     {
       id: "shaded-rock-shelter",
@@ -3532,7 +3592,9 @@ var habitat_objects_default = {
       plantCost: {
         "alpine-flowers": 2
       },
-      growSeconds: 45
+      growSeconds: 45,
+      matureHours: 2,
+      matureBonus: 1
     },
     {
       id: "snowmelt-pool",
@@ -3584,7 +3646,9 @@ var habitat_objects_default = {
       plantCost: {
         sand: 2
       },
-      growSeconds: 45
+      growSeconds: 45,
+      matureHours: 4,
+      matureBonus: 1
     },
     {
       id: "driftwood-shelter",
@@ -3614,7 +3678,9 @@ var habitat_objects_default = {
       ],
       shape: "kelp",
       color: "#6a7a3a",
-      description: "A protected line of washed-up kelp \u2014 a buffet for the whole beach."
+      description: "A protected line of washed-up kelp \u2014 a buffet for the whole beach.",
+      matureHours: 4,
+      matureBonus: 1
     },
     {
       id: "coastal-nesting-area",
@@ -3975,7 +4041,9 @@ var habitat_objects_default = {
       ],
       shape: "clover",
       color: "#6fae5a",
-      description: "Low clover and trefoil \u2014 nectar for bees and forage for rabbits."
+      description: "Low clover and trefoil \u2014 nectar for bees and forage for rabbits.",
+      matureHours: 2,
+      matureBonus: 1
     },
     {
       id: "brush-pile",
@@ -4012,7 +4080,9 @@ var habitat_objects_default = {
       plantCost: {
         moss: 2
       },
-      growSeconds: 50
+      growSeconds: 50,
+      matureHours: 4,
+      matureBonus: 1
     },
     {
       id: "tree-stump",
@@ -4048,7 +4118,9 @@ var habitat_objects_default = {
       plantCost: {
         reeds: 2
       },
-      growSeconds: 45
+      growSeconds: 45,
+      matureHours: 4,
+      matureBonus: 1
     },
     {
       id: "alder-snag",
@@ -4086,7 +4158,9 @@ var habitat_objects_default = {
         "cactus-fruit": 1,
         sand: 1
       },
-      growSeconds: 60
+      growSeconds: 60,
+      matureHours: 4,
+      matureBonus: 1
     },
     {
       id: "ocotillo",
@@ -4108,7 +4182,9 @@ var habitat_objects_default = {
         sand: 1,
         branches: 1
       },
-      growSeconds: 60
+      growSeconds: 60,
+      matureHours: 4,
+      matureBonus: 1
     },
     {
       id: "heather-mat",
@@ -4129,7 +4205,9 @@ var habitat_objects_default = {
       plantCost: {
         "alpine-flowers": 2
       },
-      growSeconds: 50
+      growSeconds: 50,
+      matureHours: 4,
+      matureBonus: 1
     },
     {
       id: "krummholz-pine",
@@ -4144,7 +4222,9 @@ var habitat_objects_default = {
       ],
       shape: "krummholz",
       color: "#3f5e3a",
-      description: "A wind-sculpted dwarf pine \u2014 rare shelter at the tree line."
+      description: "A wind-sculpted dwarf pine \u2014 rare shelter at the tree line.",
+      matureHours: 8,
+      matureBonus: 2
     },
     {
       id: "eelgrass-bed",
@@ -4166,7 +4246,9 @@ var habitat_objects_default = {
         sand: 1,
         driftwood: 1
       },
-      growSeconds: 45
+      growSeconds: 45,
+      matureHours: 4,
+      matureBonus: 1
     },
     {
       id: "oyster-bed",
@@ -4203,7 +4285,9 @@ var habitat_objects_default = {
         seeds: 2
       },
       growSeconds: 45,
-      description: "Cheerful oxeye daisies that open with the morning sun."
+      description: "Cheerful oxeye daisies that open with the morning sun.",
+      matureHours: 2,
+      matureBonus: 1
     },
     {
       id: "foxglove",
@@ -4225,7 +4309,9 @@ var habitat_objects_default = {
         wildflowers: 1
       },
       growSeconds: 50,
-      description: "Tall pink foxglove spires \u2014 a bumblebee favourite."
+      description: "Tall pink foxglove spires \u2014 a bumblebee favourite.",
+      matureHours: 2,
+      matureBonus: 1
     },
     {
       id: "mushroom-ring",
@@ -4246,7 +4332,9 @@ var habitat_objects_default = {
         mushrooms: 2
       },
       growSeconds: 45,
-      description: "A fairy ring of woodland mushrooms in the leaf litter."
+      description: "A fairy ring of woodland mushrooms in the leaf litter.",
+      matureHours: 2,
+      matureBonus: 1
     },
     {
       id: "birch-tree",
@@ -4268,7 +4356,9 @@ var habitat_objects_default = {
         bark: 1
       },
       growSeconds: 90,
-      description: "A slender white-barked birch grown from a watered bed."
+      description: "A slender white-barked birch grown from a watered bed.",
+      matureHours: 8,
+      matureBonus: 2
     },
     {
       id: "marsh-marigold",
@@ -4290,7 +4380,9 @@ var habitat_objects_default = {
         seeds: 1
       },
       growSeconds: 45,
-      description: "Golden marsh marigolds that ring the shallows in spring."
+      description: "Golden marsh marigolds that ring the shallows in spring.",
+      matureHours: 2,
+      matureBonus: 1
     },
     {
       id: "bulrush",
@@ -4311,7 +4403,9 @@ var habitat_objects_default = {
         reeds: 2
       },
       growSeconds: 45,
-      description: "Stately bulrushes with brown velvet heads along the bank."
+      description: "Stately bulrushes with brown velvet heads along the bank.",
+      matureHours: 4,
+      matureBonus: 1
     },
     {
       id: "prickly-pear",
@@ -4332,7 +4426,9 @@ var habitat_objects_default = {
         "cactus-fruit": 2
       },
       growSeconds: 70,
-      description: "Pad cactus with sweet fruit and bright blooms."
+      description: "Pad cactus with sweet fruit and bright blooms.",
+      matureHours: 4,
+      matureBonus: 1
     },
     {
       id: "desert-marigold",
@@ -4354,7 +4450,9 @@ var habitat_objects_default = {
         seeds: 1
       },
       growSeconds: 50,
-      description: "Drought-tough marigolds that glow against the sand."
+      description: "Drought-tough marigolds that glow against the sand.",
+      matureHours: 2,
+      matureBonus: 1
     },
     {
       id: "gentian-patch",
@@ -4375,7 +4473,9 @@ var habitat_objects_default = {
         "alpine-flowers": 2
       },
       growSeconds: 45,
-      description: "Vivid blue alpine gentians, low against the wind."
+      description: "Vivid blue alpine gentians, low against the wind.",
+      matureHours: 2,
+      matureBonus: 1
     },
     {
       id: "moss-cushion",
@@ -4396,7 +4496,9 @@ var habitat_objects_default = {
         moss: 2
       },
       growSeconds: 45,
-      description: "A springy cushion of moss dotted with tiny blooms."
+      description: "A springy cushion of moss dotted with tiny blooms.",
+      matureHours: 2,
+      matureBonus: 1
     },
     {
       id: "sea-thrift",
@@ -4418,7 +4520,9 @@ var habitat_objects_default = {
         seeds: 1
       },
       growSeconds: 45,
-      description: "Pink sea-thrift pompoms that thrive in salt spray."
+      description: "Pink sea-thrift pompoms that thrive in salt spray.",
+      matureHours: 2,
+      matureBonus: 1
     },
     {
       id: "beach-shrub",
@@ -4440,7 +4544,9 @@ var habitat_objects_default = {
         driftwood: 1
       },
       growSeconds: 55,
-      description: "A salt-hardy grey-green coastal shrub."
+      description: "A salt-hardy grey-green coastal shrub.",
+      matureHours: 4,
+      matureBonus: 1
     },
     {
       id: "nectar-feeder",
@@ -4503,7 +4609,9 @@ var habitat_objects_default = {
         sand: 1
       },
       growSeconds: 90,
-      description: "The green-barked desert tree \u2014 rare shade and yellow blooms for the scrubland."
+      description: "The green-barked desert tree \u2014 rare shade and yellow blooms for the scrubland.",
+      matureHours: 8,
+      matureBonus: 2
     },
     {
       id: "shore-pine",
@@ -4525,7 +4633,9 @@ var habitat_objects_default = {
         sand: 1
       },
       growSeconds: 90,
-      description: "A salt-bent pine that anchors the back dunes and shelters shorebirds."
+      description: "A salt-bent pine that anchors the back dunes and shelters shorebirds.",
+      matureHours: 8,
+      matureBonus: 2
     },
     {
       id: "bald-cypress",
@@ -4547,7 +4657,9 @@ var habitat_objects_default = {
         reeds: 1
       },
       growSeconds: 90,
-      description: "A towering swamp cypress with feathery needles and a flared, knee-rooted base."
+      description: "A towering swamp cypress with feathery needles and a flared, knee-rooted base.",
+      matureHours: 8,
+      matureBonus: 2
     },
     {
       id: "water-tupelo",
@@ -4569,7 +4681,9 @@ var habitat_objects_default = {
         mud: 1
       },
       growSeconds: 90,
-      description: "A round-crowned wetland tree whose swollen base stands right in the water."
+      description: "A round-crowned wetland tree whose swollen base stands right in the water.",
+      matureHours: 8,
+      matureBonus: 2
     },
     {
       id: "mesquite-tree",
@@ -4591,7 +4705,9 @@ var habitat_objects_default = {
         sand: 1
       },
       growSeconds: 90,
-      description: "A low, spreading desert tree \u2014 airy shade and seed pods for the scrubland."
+      description: "A low, spreading desert tree \u2014 airy shade and seed pods for the scrubland.",
+      matureHours: 8,
+      matureBonus: 2
     },
     {
       id: "desert-ironwood",
@@ -4613,7 +4729,9 @@ var habitat_objects_default = {
         sand: 1
       },
       growSeconds: 90,
-      description: "A dense, slow-growing ironwood \u2014 a vital nurse tree in the open desert."
+      description: "A dense, slow-growing ironwood \u2014 a vital nurse tree in the open desert.",
+      matureHours: 8,
+      matureBonus: 2
     },
     {
       id: "subalpine-fir",
@@ -4634,7 +4752,9 @@ var habitat_objects_default = {
         seeds: 2
       },
       growSeconds: 90,
-      description: "A slender spire fir that shrugs off the high-country snow."
+      description: "A slender spire fir that shrugs off the high-country snow.",
+      matureHours: 8,
+      matureBonus: 2
     },
     {
       id: "quaking-aspen",
@@ -4655,7 +4775,9 @@ var habitat_objects_default = {
         seeds: 2
       },
       growSeconds: 90,
-      description: "White-barked aspen whose golden leaves shiver in the alpine wind."
+      description: "White-barked aspen whose golden leaves shiver in the alpine wind.",
+      matureHours: 8,
+      matureBonus: 2
     },
     {
       id: "monterey-cypress",
@@ -4677,7 +4799,9 @@ var habitat_objects_default = {
         sand: 1
       },
       growSeconds: 90,
-      description: "A wind-flattened coastal cypress sculpted by the sea breeze."
+      description: "A wind-flattened coastal cypress sculpted by the sea breeze.",
+      matureHours: 8,
+      matureBonus: 2
     },
     {
       id: "coast-live-oak",
@@ -4698,7 +4822,9 @@ var habitat_objects_default = {
         seeds: 2
       },
       growSeconds: 90,
-      description: "A broad evergreen oak that anchors the back shore with deep shade."
+      description: "A broad evergreen oak that anchors the back shore with deep shade.",
+      matureHours: 8,
+      matureBonus: 2
     },
     {
       id: "campfire",
@@ -5161,7 +5287,9 @@ var habitat_objects_default = {
       ],
       shape: "juniper",
       color: "#5d7a66",
-      description: "A low, hardy juniper heavy with frosted berries \u2014 cover and winter food where little else grows."
+      description: "A low, hardy juniper heavy with frosted berries \u2014 cover and winter food where little else grows.",
+      matureHours: 8,
+      matureBonus: 2
     },
     {
       id: "cliff-nest-niche",
@@ -5508,9 +5636,15 @@ var habitat_objects_default = {
       id: "rain-basin",
       name: "Rain Basin",
       placement: "outdoor",
-      biomes: ["meadow", "forest", "wetland"],
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland"
+      ],
       healthValue: 5,
-      needs: ["water"],
+      needs: [
+        "water"
+      ],
       shape: "rainbasin",
       color: "#6fa8d6",
       description: "A carved stone bowl that catches rainwater \u2014 a drinking spot for visiting wildlife."
@@ -5519,7 +5653,13 @@ var habitat_objects_default = {
       id: "dew-lantern",
       name: "Dewlit Lantern",
       placement: "both",
-      biomes: ["meadow", "forest", "wetland", "alpine", "coastal"],
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "alpine",
+        "coastal"
+      ],
       healthValue: 1,
       needs: [],
       shape: "dewlantern",
@@ -5530,9 +5670,15 @@ var habitat_objects_default = {
       id: "sunstone-cairn",
       name: "Sunstone Cairn",
       placement: "outdoor",
-      biomes: ["desert", "meadow", "forest"],
+      biomes: [
+        "desert",
+        "meadow",
+        "forest"
+      ],
       healthValue: 4,
-      needs: ["shelter"],
+      needs: [
+        "shelter"
+      ],
       shape: "sunstonecairn",
       color: "#e6a94e",
       description: "A stack of sun-baked stones that hold the day's warmth into the cool evening."
@@ -5541,9 +5687,15 @@ var habitat_objects_default = {
       id: "frostflower-planter",
       name: "Frostflower Planter",
       placement: "both",
-      biomes: ["alpine", "forest", "meadow"],
+      biomes: [
+        "alpine",
+        "forest",
+        "meadow"
+      ],
       healthValue: 3,
-      needs: ["plant"],
+      needs: [
+        "plant"
+      ],
       shape: "frostflowerplanter",
       color: "#bcd9e8",
       description: "A planter of pale ice-blooms that keep their shape long after the snow has gone."
@@ -5552,7 +5704,11 @@ var habitat_objects_default = {
       id: "stormglass-lantern",
       name: "Stormglass Lantern",
       placement: "both",
-      biomes: ["desert", "coastal", "wetland"],
+      biomes: [
+        "desert",
+        "coastal",
+        "wetland"
+      ],
       healthValue: 1,
       needs: [],
       shape: "stormglasslantern",
@@ -5587,7 +5743,9 @@ var habitat_objects_default = {
       id: "boardwalk",
       name: "Marsh Boardwalk",
       placement: "outdoor",
-      biomes: ["wetland"],
+      biomes: [
+        "wetland"
+      ],
       healthValue: 2,
       needs: [],
       shape: "boardwalk",
@@ -5598,9 +5756,13 @@ var habitat_objects_default = {
       id: "heron-rookery",
       name: "Heron Rookery",
       placement: "outdoor",
-      biomes: ["wetland"],
+      biomes: [
+        "wetland"
+      ],
       healthValue: 6,
-      needs: ["shelter"],
+      needs: [
+        "shelter"
+      ],
       shape: "heronrookery",
       color: "#8a8270",
       description: "A tall marsh snag crowned with a stick nest \u2014 exactly the high, safe perch that herons and egrets raise their young on."
@@ -5609,9 +5771,13 @@ var habitat_objects_default = {
       id: "dragonfly-pond",
       name: "Dragonfly Pond",
       placement: "outdoor",
-      biomes: ["wetland"],
+      biomes: [
+        "wetland"
+      ],
       healthValue: 7,
-      needs: ["water"],
+      needs: [
+        "water"
+      ],
       shape: "dragonflypond",
       color: "#5aa6cf",
       description: "A clear pool ringed with reeds \u2014 open water where dragonflies hunt and frogs and newts breed."
@@ -6764,7 +6930,16 @@ var animals_1_default = {
           "meadow-vole",
           "ground-squirrel"
         ],
-        hint: "Hawks watch for a meadow already full of small animals."
+        hint: "Hawks watch for a meadow already full of small animals.",
+        conditions: {
+          weather: [
+            "clear",
+            "cloudy"
+          ],
+          dayPhase: [
+            "day"
+          ]
+        }
       },
       scientificName: "Buteo jamaicensis",
       role: "The meadow's apex daytime hunter, soaring on broad wings or watching from a perch for prey below. By preying on voles, ground squirrels, rabbits, and birds it keeps herbivore numbers in check. Adults have essentially no predators in the meadow.",
@@ -6815,7 +6990,13 @@ var animals_1_default = {
         animals: [
           "meadow-vole"
         ],
-        hint: "A quiet, healthy meadow with plenty of voles and a dark place to roost."
+        hint: "A quiet, healthy meadow with plenty of voles and a dark place to roost.",
+        conditions: {
+          dayPhase: [
+            "dusk",
+            "night"
+          ]
+        }
       },
       scientificName: "Tyto alba",
       role: "The meadow's night-shift rodent hunter, coursing low over the grass on silent wings and swallowing voles and mice whole. This makes it a major check on rodent populations. In the meadow it sits near the top of the food web with no regular predators.",
@@ -7074,7 +7255,14 @@ var animals_1_default = {
           "small-pond": 1,
           "log-shelter": 1
         },
-        hint: "Bears return only to a richly restored forest: lots of berries, water, shelter, and space."
+        hint: "Bears return only to a richly restored forest: lots of berries, water, shelter, and space.",
+        conditions: {
+          season: [
+            "spring",
+            "summer",
+            "autumn"
+          ]
+        }
       },
       scientificName: "Ursus americanus",
       role: "Black bears are generalist omnivores that disperse berry seeds, dig up and regulate colonial insects, and opportunistically take deer fawns and elk calves. As the most abundant large carnivore in North American forests, they link the mast, insect, and vertebrate food layers at once. Adults have essentially no natural predators.",
@@ -7234,7 +7422,13 @@ var animals_1_default = {
           "small-pond": 1,
           shrub: 1
         },
-        hint: "Grassy clearings and water in a healthy forest."
+        hint: "Grassy clearings and water in a healthy forest.",
+        conditions: {
+          season: [
+            "autumn",
+            "winter"
+          ]
+        }
       },
       scientificName: "Cervus canadensis",
       role: "Elk are a dominant large herbivore whose heavy grazing shapes grasslands, willows, and aspen; their decline lets vegetation rebound. As the primary prey of wolves, cougars, and bears, they anchor the large-predator food web, and their carcasses sustain a broad scavenger guild. Migrations redistribute nutrients across elevations.",
@@ -7397,7 +7591,14 @@ var animals_1_default = {
           "tree-squirrel",
           "chipmunk"
         ],
-        hint: "Bobcats follow plentiful prey and need rocky, brushy cover."
+        hint: "Bobcats follow plentiful prey and need rocky, brushy cover.",
+        conditions: {
+          dayPhase: [
+            "dawn",
+            "dusk",
+            "night"
+          ]
+        }
       },
       scientificName: "Lynx rufus",
       role: "Bobcats are keystone mesopredators that suppress rabbits, rodents, and squirrels, easing browsing pressure on forest plants. As mid-level hunters they sit below cougars and wolves and above the small mammals they take. They help structure entire small-mammal communities.",
@@ -7944,7 +8145,13 @@ var animals_1_default = {
           "reed-bed": 2,
           "sedge-tussock": 1
         },
-        hint: "Cranes need a wide, quiet, well-balanced marsh."
+        hint: "Cranes need a wide, quiet, well-balanced marsh.",
+        conditions: {
+          season: [
+            "spring",
+            "autumn"
+          ]
+        }
       },
       scientificName: "Antigone canadensis",
       role: "A stately omnivore of open marsh that probes for tubers and grain and snaps up insects and small animals. Its presence signals a wide, healthy wetland.",
@@ -8336,7 +8543,13 @@ var animals_2_default = {
           "kangaroo-rat",
           "desert-cottontail"
         ],
-        hint: "Kit foxes return when prey is plentiful and dens are ready."
+        hint: "Kit foxes return when prey is plentiful and dens are ready.",
+        conditions: {
+          dayPhase: [
+            "dusk",
+            "night"
+          ]
+        }
       },
       scientificName: "Vulpes macrotis",
       role: "A small nocturnal desert canid and mesopredator that hunts rodents and rabbits. It seldom needs to drink, getting moisture from prey. Coyotes are its main threat.",
@@ -10098,7 +10311,13 @@ var animals_2_default = {
           "dune-grass": 2,
           "coastal-nesting-area": 1
         },
-        hint: "Only a truly thriving shore earns a whale sighting. Watch the horizon."
+        hint: "Only a truly thriving shore earns a whale sighting. Watch the horizon.",
+        conditions: {
+          season: [
+            "winter",
+            "spring"
+          ]
+        }
       },
       scientificName: "Eschrichtius robustus",
       role: "A bottom-feeding baleen whale that rolls on its side to suck up sediment and filter out tiny crustaceans. Killer whales are its main predator; a passing gray whale is a sign of a fully restored, productive coast.",
@@ -10627,7 +10846,13 @@ var animals_2_default = {
         water: {
           tiles: 4
         },
-        hint: "Thick reeds and cattails beside open water."
+        hint: "Thick reeds and cattails beside open water.",
+        conditions: {
+          dayPhase: [
+            "dawn",
+            "dusk"
+          ]
+        }
       },
       scientificName: "Botaurus lentiginosus",
       role: "A secretive ambush predator of the reed beds. It stands motionless, then seizes fish, frogs, and insects, relying on stripy camouflage to stay hidden.",
@@ -11119,7 +11344,12 @@ var animals_2_default = {
         animals: [
           "pika"
         ],
-        hint: "Rock pile and krummholz, once pikas are back."
+        hint: "Rock pile and krummholz, once pikas are back.",
+        conditions: {
+          season: [
+            "winter"
+          ]
+        }
       },
       scientificName: "Mustela richardsonii",
       role: "A small, fierce weasel that specializes in voles and other rodents, also taking young pikas and ground-bird eggs. It hunts prey burrows it can slip right into. Foxes, martens, and raptors prey on it in turn.",
@@ -11399,7 +11629,13 @@ var animals_2_default = {
           "coastal-nesting-area": 1,
           tidepool: 1
         },
-        hint: "Dune grass and a coastal nesting area."
+        hint: "Dune grass and a coastal nesting area.",
+        conditions: {
+          season: [
+            "spring",
+            "summer"
+          ]
+        }
       },
       scientificName: "Charadrius nivosus nivosus",
       role: "A threatened beach-nesting plover that feeds on small invertebrates along the sand and tide line. Extremely sensitive to disturbance, it is a flagship indicator of protected, undisturbed dune beaches.",
@@ -11689,7 +11925,13 @@ var animals_2_default = {
           "reed-bed": 1,
           "nesting-platform": 1
         },
-        hint: "Plant a bald cypress with a reed bed and nesting platform."
+        hint: "Plant a bald cypress with a reed bed and nesting platform.",
+        conditions: {
+          season: [
+            "spring",
+            "summer"
+          ]
+        }
       },
       scientificName: "Protonotaria citrea",
       role: "A glowing-gold swamp warbler that gleans insects and spiders over the water. Unusually for a warbler, it nests in cavities, often above standing water.",
@@ -11762,7 +12004,16 @@ var animals_2_default = {
           "desert-ironwood": 1,
           "cactus-patch": 1
         },
-        hint: "Plant a mesquite and an ironwood beside a cactus patch."
+        hint: "Plant a mesquite and an ironwood beside a cactus patch.",
+        conditions: {
+          dayPhase: [
+            "night"
+          ],
+          season: [
+            "spring",
+            "summer"
+          ]
+        }
       },
       scientificName: "Micrathene whitneyi",
       role: "The world's smallest owl, a nocturnal insectivore that hunts insects and scorpions and nests in old woodpecker holes. It is a mesopredator on desert arthropods. Snakes and larger owls threaten it.",
@@ -12562,7 +12813,16 @@ var animals_2_default = {
         water: {
           tiles: 3
         },
-        hint: "A snowmelt pool beside a talus pile, with open water near."
+        hint: "A snowmelt pool beside a talus pile, with open water near.",
+        conditions: {
+          weather: [
+            "rain"
+          ],
+          season: [
+            "spring",
+            "summer"
+          ]
+        }
       },
       scientificName: "Rana cascadae",
       role: "A cold-adapted mountain frog that eats insects and spiders while its tadpoles graze algae in snowmelt pools. It links pond invertebrates to larger predators. Introduced trout eat its tadpoles, driving steep declines across its southern range.",
@@ -13088,6 +13348,24 @@ var GameError = class extends Error {
   }
 };
 var clamp = (n, lo, hi) => Math.max(lo, Math.min(hi, n));
+function hash32(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) {
+    h ^= str.charCodeAt(i);
+    h = Math.imul(h, 16777619);
+  }
+  return h >>> 0;
+}
+function seededRng(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a |= 0;
+    a = a + 1831565813 | 0;
+    let t = Math.imul(a ^ a >>> 15, 1 | a);
+    t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t;
+    return ((t ^ t >>> 14) >>> 0) / 4294967296;
+  };
+}
 function posInt(n, label) {
   const v = Number(n);
   if (!Number.isInteger(v) || v <= 0) throw new GameError(`${label} must be a positive whole number`);
@@ -13172,7 +13450,7 @@ function genJoinCode() {
   return out;
 }
 var DEFAULT_MAX_MEMBERS = 6;
-async function ensureSoloWorld(player) {
+async function ensureSoloWorld(player, opts = {}) {
   const t = db();
   const soloId = player.id;
   if (!await t.World.get(soloId)) {
@@ -13183,7 +13461,12 @@ async function ensureSoloWorld(player) {
       ownerId: player.id,
       joinCode: null,
       createdAt: player.createdAt || Date.now(),
-      maxMembers: 1
+      maxMembers: 1,
+      // brand-new saves are seeded at the shifted meadow coordinates already,
+      // so the world starts aligned to the current camp offset; older worlds
+      // omit these and get realigned by migrateMeadowWest below.
+      meadowShift: opts.freshGrid ? MEADOW_SHIFT : 0,
+      meadowShiftY: opts.freshGrid ? MEADOW_SHIFT_Y : 0
     });
   }
   const memberId = `${soloId}:${player.id}`;
@@ -13198,6 +13481,7 @@ async function ensureSoloWorld(player) {
     });
   }
   if (!player.worldId) await t.Player.patch(player.id, { worldId: soloId });
+  if (!opts.freshGrid) await migrateMeadowWest(soloId);
 }
 async function listMemberships(playerId) {
   const t = db();
@@ -13418,7 +13702,33 @@ async function verifyPasscode(player, passcode) {
 function slugId(name) {
   return String(name).trim().toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
 }
-var STARTER_CHEST = { x: 9, y: 5, size: "small-chest", capacity: 120 };
+var STARTER_CHEST = { x: 23, y: 5, size: "small-chest", capacity: 120 };
+var MEADOW_SHIFT = 14;
+var MEADOW_SHIFT_Y = 0;
+async function migrateMeadowWest(wid) {
+  const t = db();
+  const world = await safeGet(t.World, wid);
+  const applied = typeof world?.meadowShift === "number" ? world.meadowShift : 0;
+  const appliedY = typeof world?.meadowShiftY === "number" ? world.meadowShiftY : 0;
+  const delta = MEADOW_SHIFT - applied;
+  const deltaY = MEADOW_SHIFT_Y - appliedY;
+  if (delta !== 0 || deltaY !== 0) {
+    for (const table of [t.Placement, t.TerrainTile, t.Chest]) {
+      for (const row of await byWorld(table, wid)) {
+        if (row.area !== "meadow") continue;
+        await table.patch(row.id, { x: (Number(row.x) || 0) + delta, y: (Number(row.y) || 0) + deltaY });
+      }
+    }
+    for (const m of await byWorld(t.WorldMember, wid)) {
+      const p = await safeGet(t.Player, m.playerId);
+      if (p?.area === "meadow" && worldOf(p) === wid) {
+        await t.Player.patch(p.id, { x: (Number(p.x) || 0) + delta, y: (Number(p.y) || 0) + deltaY });
+      }
+    }
+  }
+  if (world && (applied !== MEADOW_SHIFT || appliedY !== MEADOW_SHIFT_Y)) await t.World.patch(wid, { meadowShift: MEADOW_SHIFT, meadowShiftY: MEADOW_SHIFT_Y });
+  return delta !== 0 || deltaY !== 0;
+}
 async function requirePlayer(playerId) {
   if (!playerId || typeof playerId !== "string") throw new GameError("playerId required");
   const player = await safeGet(db().Player, playerId);
@@ -13435,16 +13745,25 @@ function freshMetrics(now) {
     counts: {}
   };
 }
-async function bumpMetrics(player, deltas = {}) {
+async function bumpMetrics(player, deltas = {}, dailyDeltas = {}) {
   if (!player?.id) return null;
   const entries = Object.entries(deltas).filter(([, v]) => v);
-  if (!entries.length) return player.metrics || null;
+  const dailyEntries = Object.entries(dailyDeltas).filter(([, v]) => v);
+  if (!entries.length && !dailyEntries.length) return player.metrics || null;
   const now = Date.now();
   const prev = player.metrics || freshMetrics(player.createdAt || now);
   const counts = { ...prev.counts || {} };
   for (const [k, v] of entries) counts[k] = (counts[k] || 0) + v;
   const metrics = { ...prev, counts, lastSeenAt: now };
-  await db().Player.patch(player.id, { metrics });
+  const patch = { metrics };
+  if (dailyEntries.length) {
+    const dayKey = Math.floor(now / DAY_MS2);
+    const prevDaily = player.daily?.dayKey === dayKey ? player.daily : { dayKey, counts: {} };
+    const dcounts = { ...prevDaily.counts || {} };
+    for (const [k, v] of dailyEntries) dcounts[k] = (dcounts[k] || 0) + v;
+    patch.daily = { dayKey, counts: dcounts };
+  }
+  await db().Player.patch(player.id, patch);
   return metrics;
 }
 var DAY_MS2 = 864e5;
@@ -13503,6 +13822,13 @@ function activationFlags(view, biomeSummary, player) {
 }
 var GRID_W = 30;
 var GRID_H = 20;
+var ALPINE_MTN_ROWS = 4;
+function areaGrid(d, area) {
+  const g = area === "home" ? null : d.biome.get(area)?.grid;
+  const cols = g?.cols || GRID_W;
+  const rows = (g?.rows || GRID_H) + (area === "alpine" ? ALPINE_MTN_ROWS : 0);
+  return { cols, rows };
+}
 var TERRAIN_COLORS = {
   tilled: "#8a6a48",
   watered: "#6b4f33",
@@ -13523,8 +13849,9 @@ function renderBiomeSVG(d, biome, health, placements, terrain) {
   const cell = 16;
   const pad = 8;
   const labelH = 22;
-  const W = GRID_W * cell + pad * 2;
-  const H = GRID_H * cell + pad * 2 + labelH;
+  const grid = areaGrid(d, biome?.id || "");
+  const W = grid.cols * cell + pad * 2;
+  const H = grid.rows * cell + pad * 2 + labelH;
   const damaged = biome?.palette?.damaged || "#b9a37c";
   const healthy = biome?.palette?.healthy || "#8fbf6f";
   const ground = lerpHex(damaged, healthy, health / 100);
@@ -13533,8 +13860,8 @@ function renderBiomeSVG(d, biome, health, placements, terrain) {
   const py = (y) => pad + y * cell;
   const parts = [];
   parts.push(`<rect x="0" y="0" width="${W}" height="${H}" rx="10" fill="${ground}"/>`);
-  for (let gy = 0; gy < GRID_H; gy++) {
-    for (let gx = 0; gx < GRID_W; gx++) {
+  for (let gy = 0; gy < grid.rows; gy++) {
+    for (let gx = 0; gx < grid.cols; gx++) {
       if ((gx + gy) % 2 === 0) {
         parts.push(`<rect x="${px(gx)}" y="${py(gy)}" width="${cell}" height="${cell}" fill="${groundDark}" opacity="0.22"/>`);
       }
@@ -13614,7 +13941,7 @@ async function createPlayerRecords(playerId, name, passcode, appearance) {
     worldId: playerId,
     // start in your own private solo world (world of one)
     area: "meadow",
-    x: 10.5,
+    x: 24.5,
     // spawn right beside the camp workbench
     y: 6.5,
     inventory: { ...START_INVENTORY },
@@ -13669,8 +13996,9 @@ async function createPlayerRecords(playerId, name, passcode, appearance) {
   await t.Chest.put(chest);
   return { player, seeded: { biomeStates, placements, chests: [chest] } };
 }
-function freshSnapshot(created) {
+async function freshSnapshot(created) {
   const now = Date.now();
+  const d = await defs();
   const worldId = created.player?.worldId || created.player?.id;
   const wxTime = weatherTimeFromPlay(created.player);
   return {
@@ -13685,6 +14013,7 @@ function freshSnapshot(created) {
     feed: [],
     serverTime: now,
     weather: weatherSnapshot(worldId, wxTime, WEATHER_BIOME_IDS),
+    dailyTasks: dailyTasksBlock(worldId, created.player, d, 0, now),
     nodeRegenSeconds: NODE_REGEN_SECONDS,
     inventoryCapacity: inventoryCapacity(created.player)
   };
@@ -13711,13 +14040,30 @@ function healthFromPoints(points) {
   const recovered = (100 - BASE_HEALTH) * (1 - Math.exp(-Math.max(0, points) / HEALTH_SCALE));
   return clamp(Math.round(BASE_HEALTH + recovered), 0, 100);
 }
-function computeHealthPoints(d, placements, openWaterTiles = 0) {
+function matureMs(def) {
+  return (def?.matureHours || 0) * 36e5;
+}
+function isMature(def, p, now) {
+  const ms = matureMs(def);
+  return ms > 0 && now - (p.placedAt || 0) >= ms;
+}
+function maturedBetween(def, p, a, b) {
+  const ms = matureMs(def);
+  if (ms <= 0) return false;
+  const at = (p.placedAt || 0) + ms;
+  return at > a && at <= b;
+}
+var MATURE_POINTS_CAP = 8;
+function computeHealthPoints(d, placements, openWaterTiles = 0, now = Date.now()) {
   let points = 0;
+  let maturePoints = 0;
   for (const p of placements) {
     const def = d.object.get(p.objectId);
     if (!def) continue;
     points += def.healthValue || 0;
+    if (isMature(def, p, now)) maturePoints += def.matureBonus || 0;
   }
+  points += Math.min(maturePoints, MATURE_POINTS_CAP);
   if (openWaterTiles > 0) points += 2 * Math.min(openWaterTiles, 7);
   return points;
 }
@@ -13771,10 +14117,20 @@ function analyzeWater(terrain) {
   }
   return { tiles: cells.size, lake, river };
 }
-function meetsRequirements(animal, health, balance, counts, returnedIds, water) {
+function meetsConditions(animal, wx) {
+  const cond = animal.requirements?.conditions;
+  if (!cond) return true;
+  if (!wx) return false;
+  if (Array.isArray(cond.weather) && cond.weather.length && !cond.weather.includes(wx.type)) return false;
+  if (Array.isArray(cond.season) && cond.season.length && !cond.season.includes(wx.season)) return false;
+  if (Array.isArray(cond.dayPhase) && cond.dayPhase.length && !cond.dayPhase.includes(wx.dayPhase)) return false;
+  return true;
+}
+function meetsRequirements(animal, health, balance, counts, returnedIds, water, wx = null) {
   const req = animal.requirements || {};
   if (health < (req.minHealth || 0)) return false;
   if (balance < (req.minBalance || 0)) return false;
+  if (!meetsConditions(animal, wx)) return false;
   for (const [objectId, qty] of Object.entries(req.objects || {})) {
     if ((counts[objectId] || 0) < qty) return false;
   }
@@ -13791,17 +14147,21 @@ function meetsRequirements(animal, health, balance, counts, returnedIds, water) 
 }
 function computeComfort(animal, counts) {
   const req = animal.requirements?.objects || {};
-  let comfort = 40;
+  const liked = Object.keys(req);
+  if (!liked.length) return 70;
+  let comfort = 30;
   let missing = 0;
+  let extras = 0;
   for (const [objectId, qty] of Object.entries(req)) {
     const have = counts[objectId] || 0;
     if (have >= qty) {
-      comfort += 12;
-      comfort += Math.min(3, have - qty) * 5;
+      comfort += Math.round(30 / liked.length);
+      extras += have - qty;
     } else {
       missing++;
     }
   }
+  comfort += Math.round(40 * (1 - Math.exp(-extras / 6)));
   comfort -= missing * 25;
   return clamp(comfort, 5, 100);
 }
@@ -13819,6 +14179,14 @@ function whyReturnedText(animal, d) {
   if (req.minHealth) parts.push(`biome health reached ${req.minHealth}%`);
   if (req.minBalance) parts.push(`ecological balance reached ${req.minBalance}%`);
   if (req.animals?.length) parts.push(`${req.animals.map((a) => d.animal.get(a)?.name || a).join(" and ")} had already returned`);
+  const cond = req.conditions;
+  if (cond) {
+    const bits = [];
+    if (cond.weather?.length) bits.push(cond.weather.join(" or "));
+    if (cond.season?.length) bits.push(`in ${cond.season.join(" or ")}`);
+    if (cond.dayPhase?.length) bits.push(`at ${cond.dayPhase.join(" or ")}`);
+    if (bits.length) parts.push(`the moment was right (${bits.join(", ")})`);
+  }
   return `Felt safe enough to return once ${parts.join(", ")}.`;
 }
 async function recalcBiome(wid, playerId, biomeId, opts = {}) {
@@ -13843,8 +14211,16 @@ async function recalcBiome(wid, playerId, biomeId, opts = {}) {
   const wateredTiles = Math.min(10, terrain.filter((tt) => tt.type === "watered").length);
   const openWaterTiles = terrain.filter((tt) => tt.type === "water").length;
   const water = analyzeWater(terrain);
-  const healthPoints = computeHealthPoints(d, placements, openWaterTiles) + wateredTiles;
+  const now = Date.now();
+  const healthPoints = computeHealthPoints(d, placements, openWaterTiles, now) + wateredTiles;
   const health = healthFromPoints(healthPoints);
+  const actor = opts.player || await safeGet(t.Player, playerId);
+  const wxTime = actor ? weatherTimeFromPlay(actor) : null;
+  const wx = wxTime === null ? null : {
+    type: weatherTypeAt(wid, biomeId, wxTime),
+    season: seasonAt(wxTime),
+    dayPhase: dayPhaseAt(wxTime)
+  };
   const discoveries = await byWorld(t.Discovery, wid);
   const returnedIds = new Set(discoveries.map((x) => x.animalId));
   let balance = computeBalance(d, biomeId, returnedIds);
@@ -13854,7 +14230,7 @@ async function recalcBiome(wid, playerId, biomeId, opts = {}) {
   for (const animal of biomeAnimals) {
     if (returnedIds.has(animal.id)) continue;
     if (!firstAnimalBack && animal.id !== FIRST_ANIMAL_ID) continue;
-    if (meetsRequirements(animal, health, balance, counts, returnedIds, water)) {
+    if (meetsRequirements(animal, health, balance, counts, returnedIds, water, wx)) {
       const disc = {
         id: `${wid}:${animal.id}`,
         worldId: wid,
@@ -14045,13 +14421,118 @@ async function consumeMaterials(player, materials, wid = player.id) {
   }
   return { usedFrom, inventory };
 }
+function dailyTasksFor(wid, player, d, discoveredCount, now) {
+  const dayKey = Math.floor(now / DAY_MS2);
+  const rng = seededRng(hash32(`tasks:${wid}:${dayKey}`));
+  const unlocked = player?.unlockedBiomes?.length ? player.unlockedBiomes : ["meadow"];
+  const resPool = [...new Set(unlocked.flatMap((id) => d.biome.get(id)?.resources || []))].filter((r) => r !== "water" && !isWeatherGatheredResource(r) && d.resource.get(r));
+  const pickFrom = (arr) => arr[Math.floor(rng() * arr.length)];
+  const bundle = () => {
+    const out = {};
+    const pool = [...resPool];
+    for (let i = 0; i < 2 && pool.length; i++) {
+      const r = pool.splice(Math.floor(rng() * pool.length), 1)[0];
+      out[r] = 4 + Math.floor(rng() * 4);
+    }
+    return out;
+  };
+  const candidates = [];
+  if (resPool.length) {
+    const res = pickFrom(resPool);
+    const target = [8, 12, 16][Math.floor(rng() * 3)];
+    candidates.push({
+      id: `${dayKey}-gather`,
+      kind: "gather",
+      icon: "basket",
+      text: `Gather ${target}\xD7 ${d.resource.get(res)?.name || res}`,
+      target,
+      counter: `res:${res}`,
+      reward: bundle()
+    });
+  }
+  {
+    const target = 2 + Math.floor(rng() * 2);
+    candidates.push({
+      id: `${dayKey}-craft`,
+      kind: "craft",
+      icon: "hammer",
+      text: `Craft ${target} ${target === 1 ? "item" : "items"} at the workbench`,
+      target,
+      counter: "craft",
+      reward: bundle()
+    });
+  }
+  {
+    const target = 2 + Math.floor(rng() * 2);
+    candidates.push({
+      id: `${dayKey}-place`,
+      kind: "place",
+      icon: "pin",
+      text: `Place ${target} crafted ${target === 1 ? "thing" : "things"}`,
+      target,
+      counter: "place",
+      reward: bundle()
+    });
+  }
+  {
+    const target = 3 + Math.floor(rng() * 3);
+    candidates.push({
+      id: `${dayKey}-water`,
+      kind: "water",
+      icon: "drop",
+      text: `Water ${target} soil beds`,
+      target,
+      counter: "water",
+      reward: bundle()
+    });
+  }
+  candidates.push({
+    id: `${dayKey}-plant`,
+    kind: "plant",
+    icon: "leaf",
+    text: "Plant 2 seedlings in watered beds",
+    target: 2,
+    counter: "plant",
+    reward: bundle()
+  });
+  if (discoveredCount >= 3) {
+    candidates.push({
+      id: `${dayKey}-observe`,
+      kind: "observe",
+      icon: "journal",
+      text: "Read about 3 animals in your journal",
+      target: 3,
+      counter: "observe",
+      reward: bundle()
+    });
+  }
+  for (let i = candidates.length - 1; i > 0; i--) {
+    const j = Math.floor(rng() * (i + 1));
+    [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+  }
+  return { dayKey, endsAt: (dayKey + 1) * DAY_MS2, tasks: candidates.slice(0, 3) };
+}
+function dailyTasksBlock(wid, player, d, discoveredCount, now) {
+  const gen = dailyTasksFor(wid, player, d, discoveredCount, now);
+  const daily = player?.daily?.dayKey === gen.dayKey ? player.daily.counts || {} : {};
+  const claims = player?.taskClaims?.dayKey === gen.dayKey ? player.taskClaims.claimed || {} : {};
+  return {
+    dayKey: gen.dayKey,
+    endsAt: gen.endsAt,
+    tasks: gen.tasks.map((task) => ({
+      ...task,
+      progress: Math.min(task.target, daily[task.counter] || 0),
+      claimed: !!claims[task.id]
+    }))
+  };
+}
 async function snapshot(playerId, opts = {}) {
   const t = db();
   const d = await defs();
   let player = await safeGet(t.Player, playerId);
   const areaBiome = d.biome.get(player?.area);
   if (player && player.area !== "home" && (!areaBiome || !areaBiome.explorable)) {
-    player = { ...player, area: "meadow", x: 10.5, y: 6.5 };
+    player = { ...player, area: "meadow", x: 24.5, y: 6.5 };
   }
   const wid = opts.worldId || worldOf(player);
   const [biomeStates, placements, chests, discoveries, nodeStates, terrain, achievementRows, feedRows] = await Promise.all([
@@ -14086,6 +14567,7 @@ async function snapshot(playerId, opts = {}) {
     feed: [...feedRows].sort((a, b) => (a.at || 0) - (b.at || 0)).slice(-FEED_CAP).map((r) => ({ id: r.id, at: r.at, icon: r.icon, text: r.text })),
     serverTime: now,
     weather: weatherSnapshot(wid, wxTime, WEATHER_BIOME_IDS),
+    dailyTasks: dailyTasksBlock(wid, player, d, discoveries.length, now),
     nodeRegenSeconds: NODE_REGEN_SECONDS,
     inventoryCapacity: inventoryCapacity(player)
   };
@@ -14305,12 +14787,12 @@ var CreatePlayer = class extends PublicEndpoint {
     const created = await createPlayerRecords(playerId, cleanName, code, sanitizeAppearance(appearance));
     let worlds = [];
     try {
-      await ensureSoloWorld(created.player);
+      await ensureSoloWorld(created.player, { freshGrid: true });
       worlds = await listMemberships(playerId);
     } catch (e) {
       console.error("world setup skipped (CreatePlayer):", e);
     }
-    return { ok: true, playerId, worldId: playerId, worlds, state: freshSnapshot(created) };
+    return { ok: true, playerId, worldId: playerId, worlds, state: await freshSnapshot(created) };
   }
 };
 var DeletePlayer = class extends PublicEndpoint {
@@ -14364,13 +14846,9 @@ var LoginPlayer = class extends PublicEndpoint {
     if (!player) throw new GameError("No save found with that name \u2014 try New Game", 404);
     if (!await verifyPasscode(player, passcode)) throw new GameError("That passcode doesn't match this save", 403);
     const d = await defs();
-    const areaBiome = d.biome.get(player.area);
-    if (player.area === "home" || !areaBiome || !areaBiome.explorable) {
-      await db().Player.patch(playerId, { area: "meadow", x: 10.5, y: 6.5 });
-    }
     const now = Date.now();
     const prev = player.metrics || freshMetrics(player.createdAt || now);
-    await db().Player.patch(playerId, { metrics: { ...prev, lastHeartbeatAt: 0, lastSeenAt: now } });
+    await db().Player.patch(playerId, { metrics: { ...prev, lastHeartbeatAt: 0 } });
     let active = player.worldId || playerId;
     let worlds = [];
     try {
@@ -14380,6 +14858,10 @@ var LoginPlayer = class extends PublicEndpoint {
       worlds = await listMemberships(playerId);
     } catch (e) {
       console.error("world setup skipped (LoginPlayer):", e);
+    }
+    const areaBiome = d.biome.get(player.area);
+    if (player.area === "home" || !areaBiome || !areaBiome.explorable) {
+      await db().Player.patch(playerId, { area: "meadow", x: 24.5, y: 6.5 });
     }
     return { ok: true, playerId, worldId: active, worlds, state: await snapshot(playerId) };
   }
@@ -14632,7 +15114,7 @@ var LeaveWorld = class extends PublicEndpoint {
     if (!await t.WorldMember.get(memberId)) throw new GameError("You are not in that world", 404);
     await t.WorldMember.delete(memberId);
     if (player.worldId === target) {
-      await t.Player.patch(playerId, { worldId: playerId, area: "meadow", x: 10.5, y: 6.5 });
+      await t.Player.patch(playerId, { worldId: playerId, area: "meadow", x: 24.5, y: 6.5 });
       await syncMemberUnlocks(playerId, playerId);
     }
     const active = player.worldId === target ? playerId : player.worldId || playerId;
@@ -14699,7 +15181,7 @@ var CollectResource = class extends PublicEndpoint {
     inventory[resourceId] = (inventory[resourceId] || 0) + amount;
     await t.Player.patch(playerId, { inventory });
     await t.NodeState.put({ id: nodeKey, worldId: wid, playerId, harvestedAt: now });
-    await bumpMetrics(player, { resourcesCollected: amount });
+    await bumpMetrics(player, { resourcesCollected: amount }, { [`res:${resourceId}`]: amount });
     await awardAchievements(playerId);
     return { ok: true, gained: { [resourceId]: amount }, inventory, nodeId, harvestedAt: now };
   }
@@ -14800,7 +15282,7 @@ var CraftItem = class extends PublicEndpoint {
     await t.Player.patch(playerId, { craftedItems, craftedEver });
     const unlockedBiomes = await checkUnlocks(wid, playerId, { player: { ...player, craftedItems, craftedEver } });
     const chests = await byWorld(t.Chest, wid);
-    await bumpMetrics(player, { itemsCrafted: 1 });
+    await bumpMetrics(player, { itemsCrafted: 1 }, { craft: 1 });
     await awardAchievements(playerId);
     return { ok: true, crafted: recipe.output, craftedItems, inventory, chests, usedFrom, unlockedBiomes };
   }
@@ -14818,7 +15300,8 @@ var PlaceObject = class extends PublicEndpoint {
     if ((player.craftedItems?.[objectId] || 0) <= 0) throw new GameError(`You have no crafted ${def.name} to place`);
     const tx = Math.round(Number(x));
     const ty = Math.round(Number(y));
-    if (!Number.isFinite(tx) || !Number.isFinite(ty) || tx < 1 || ty < 1 || tx > 28 || ty > 18) {
+    const grid = areaGrid(d, area);
+    if (!Number.isFinite(tx) || !Number.isFinite(ty) || tx < 1 || ty < 1 || tx > grid.cols - 2 || ty > grid.rows - 2) {
       throw new GameError("That spot is out of reach");
     }
     if (area === "home") {
@@ -14873,7 +15356,7 @@ var PlaceObject = class extends PublicEndpoint {
       });
     }
     if (area === "home") {
-      await bumpMetrics(player, { objectsPlaced: 1 });
+      await bumpMetrics(player, { objectsPlaced: 1 }, { place: 1 });
       await awardAchievements(playerId);
       return { ok: true, placement, craftedItems };
     }
@@ -14881,7 +15364,7 @@ var PlaceObject = class extends PublicEndpoint {
       addPlacements: [placement],
       player: { ...player, craftedItems }
     });
-    await bumpMetrics(player, { objectsPlaced: 1, animalsReturned: recalc.newAnimals?.length || 0 });
+    await bumpMetrics(player, { objectsPlaced: 1, animalsReturned: recalc.newAnimals?.length || 0 }, { place: 1 });
     await awardWorldAchievements(wid, playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
     return { ok: true, placement, craftedItems, ...recalc };
   }
@@ -14926,7 +15409,7 @@ var Plant = class extends PublicEndpoint {
       removeTerrainIds: [tileId],
       player: { ...player, inventory }
     });
-    await bumpMetrics(player, { plantsPlanted: 1, animalsReturned: recalc.newAnimals?.length || 0 });
+    await bumpMetrics(player, { plantsPlanted: 1, animalsReturned: recalc.newAnimals?.length || 0 }, { plant: 1 });
     await awardWorldAchievements(wid, playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
     return { ok: true, placement, inventory, usedFrom, ...recalc };
   }
@@ -14950,9 +15433,11 @@ var MoveObject = class extends PublicEndpoint {
     const placement = placements.find((p) => p.id === placementId);
     if (!placement) throw new GameError("Placement not found", 404);
     if (placement.objectId === "workbench") throw new GameError("The old workbench stays put");
+    const dGrid = await defs();
+    const grid = areaGrid(dGrid, placement.area);
     const tx = Math.round(Number(x));
     const ty = Math.round(Number(y));
-    if (!Number.isFinite(tx) || !Number.isFinite(ty) || tx < 1 || ty < 1 || tx > 28 || ty > 18) {
+    if (!Number.isFinite(tx) || !Number.isFinite(ty) || tx < 1 || ty < 1 || tx > grid.cols - 2 || ty > grid.rows - 2) {
       throw new GameError("That spot is out of reach");
     }
     if (placements.some((p) => p.id !== placementId && p.area === placement.area && p.x === tx && p.y === ty)) {
@@ -15186,11 +15671,51 @@ var ObserveAnimal = class extends PublicEndpoint {
     const wid = worldOf(player);
     const disc = await findInWorld(t.Discovery, wid, `${wid}:${animalId}`);
     if (!disc) throw new GameError("That animal has not returned yet", 404);
+    const dayKey = Math.floor(Date.now() / DAY_MS2);
+    const firstToday = disc.lastObservedDayKey !== dayKey;
     const timesObserved = (disc.timesObserved || 0) + 1;
-    await t.Discovery.patch(disc.id, { timesObserved });
-    await bumpMetrics(player, { animalsObserved: 1 });
+    await t.Discovery.patch(disc.id, { timesObserved, lastObservedDayKey: dayKey });
+    await bumpMetrics(player, { animalsObserved: 1 }, firstToday ? { observe: 1 } : {});
     await awardAchievements(playerId);
     return { ok: true, discovery: { ...disc, timesObserved }, animal: d.animal.get(animalId) };
+  }
+};
+var ClaimTask = class extends PublicEndpoint {
+  async post(data) {
+    const { playerId, taskId } = await bodyOf(data);
+    const t = db();
+    const d = await defs();
+    const { player } = await requirePlayer(playerId);
+    const wid = worldOf(player);
+    const now = Date.now();
+    const discoveries = await byWorld(t.Discovery, wid);
+    const block = dailyTasksBlock(wid, player, d, discoveries.length, now);
+    const task = block.tasks.find((x) => x.id === String(taskId || ""));
+    if (!task) throw new GameError("That task is not on today's board", 404);
+    if (task.claimed) throw new GameError("Already claimed \u2014 fresh tasks arrive tomorrow", 409);
+    if (task.progress < task.target) throw new GameError("Not finished yet \u2014 check the board for what remains", 409);
+    const capacity = inventoryCapacity(player);
+    const inventory = { ...player.inventory || {} };
+    let room = Math.max(0, capacity - sumValues(inventory));
+    const gained = {};
+    for (const [resId, qty] of Object.entries(task.reward || {})) {
+      const take = Math.min(qty, room);
+      if (take <= 0) continue;
+      inventory[resId] = (inventory[resId] || 0) + take;
+      gained[resId] = take;
+      room -= take;
+    }
+    if (!Object.keys(gained).length) throw new GameError("Your basket is full \u2014 make room for the reward first", 409);
+    const claims = player.taskClaims?.dayKey === block.dayKey ? { dayKey: block.dayKey, claimed: { ...player.taskClaims.claimed || {} } } : { dayKey: block.dayKey, claimed: {} };
+    claims.claimed[task.id] = true;
+    await t.Player.patch(playerId, { inventory, taskClaims: claims });
+    await bumpMetrics(player, { tasksCompleted: 1 });
+    await awardAchievements(playerId);
+    const dailyTasks = {
+      ...block,
+      tasks: block.tasks.map((x) => x.id === task.id ? { ...x, claimed: true } : x)
+    };
+    return { ok: true, taskId: task.id, gained, inventory, dailyTasks };
   }
 };
 var Terraform = class extends PublicEndpoint {
@@ -15205,7 +15730,8 @@ var Terraform = class extends PublicEndpoint {
     if (!(player.unlockedBiomes || []).includes(area)) throw new GameError(`${biome.name} is not unlocked yet`, 403);
     const tx = Math.round(Number(x));
     const ty = Math.round(Number(y));
-    if (!Number.isFinite(tx) || !Number.isFinite(ty) || tx < 1 || ty < 1 || tx > 28 || ty > 18) {
+    const grid = areaGrid(d, area);
+    if (!Number.isFinite(tx) || !Number.isFinite(ty) || tx < 1 || ty < 1 || tx > grid.cols - 2 || ty > grid.rows - 2) {
       throw new GameError("That spot is out of reach");
     }
     const placements = await byWorld(t.Placement, wid);
@@ -15270,7 +15796,7 @@ var Terraform = class extends PublicEndpoint {
       removeTerrainIds: removedId ? [removedId] : [],
       player: { ...player, inventory }
     });
-    await bumpMetrics(player, { terraformActions: 1, animalsReturned: recalc.newAnimals?.length || 0 });
+    await bumpMetrics(player, { terraformActions: 1, animalsReturned: recalc.newAnimals?.length || 0 }, action === "water" ? { water: 1 } : {});
     await awardWorldAchievements(wid, playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
     return { ok: true, tile, removedId, dug, inventory, ...recalc };
   }
@@ -15354,6 +15880,7 @@ var Heartbeat = class extends PublicEndpoint {
   async post(data) {
     const { playerId } = await bodyOf(data);
     const t = db();
+    const d = await defs();
     const { player } = await requirePlayer(playerId);
     const now = Date.now();
     const prev = player.metrics || freshMetrics(player.createdAt || now);
@@ -15361,7 +15888,8 @@ var Heartbeat = class extends PublicEndpoint {
     const gap = now - last;
     let playSeconds = prev.playSeconds || 0;
     let sessions = prev.sessions || 0;
-    if (last === 0 || gap > SESSION_GAP_MS) {
+    const newSession = last === 0 || gap > SESSION_GAP_MS;
+    if (newSession) {
       sessions += 1;
     } else {
       playSeconds += Math.min(gap, MAX_BEAT_MS) / 1e3;
@@ -15375,8 +15903,59 @@ var Heartbeat = class extends PublicEndpoint {
       sessions
     };
     await t.Player.patch(playerId, { metrics });
+    const wid = worldOf(player);
+    let welcomeBack = null;
+    const newAnimals = [];
+    const freshBiomeStates = [];
+    try {
+      const awaySince = prev.lastSeenAt || 0;
+      const longAway = newSession && awaySince > 0 && now - awaySince > 10 * 6e4;
+      const placements = await byWorld(t.Placement, wid);
+      const sinceBeat = last > 0 ? last : now;
+      const crossed = /* @__PURE__ */ new Set();
+      for (const p of placements) {
+        const def = d.object.get(p.objectId);
+        if (maturedBetween(def, p, longAway ? awaySince : sinceBeat, now)) crossed.add(p.area);
+      }
+      const biomeStates = await byWorld(t.BiomeState, wid);
+      const unlockedIds = new Set(biomeStates.filter((b) => b.unlocked).map((b) => b.biomeId));
+      const toRecalc = longAway ? [...unlockedIds] : [...crossed].filter((b) => unlockedIds.has(b));
+      let healthGain = 0;
+      for (const biomeId of toRecalc) {
+        const before = biomeStates.find((b) => b.biomeId === biomeId)?.health || 0;
+        const r = await recalcBiome(wid, playerId, biomeId, { player });
+        healthGain += Math.max(0, (r.biomeState?.health || 0) - before);
+        newAnimals.push(...r.newAnimals || []);
+        freshBiomeStates.push(r.biomeState);
+      }
+      if (newAnimals.length || freshBiomeStates.length) {
+        await awardWorldAchievements(wid, playerId, { addDiscoveries: newAnimals, freshBiomeStates });
+      }
+      if (longAway) {
+        const matured = placements.filter((p) => {
+          const def = d.object.get(p.objectId);
+          return unlockedIds.has(p.area) && maturedBetween(def, p, awaySince, now);
+        }).length;
+        if (matured > 0 || newAnimals.length > 0 || healthGain > 0) {
+          welcomeBack = {
+            awayHours: Math.round((now - awaySince) / 36e5 * 10) / 10,
+            matured,
+            healthGain,
+            arrivals: newAnimals.map((n) => n.animal?.name).filter(Boolean)
+          };
+        }
+      }
+    } catch (e) {
+      console.error("heartbeat growth pass skipped:", e);
+    }
     await awardAchievements(playerId);
-    return { ok: true, metrics: metricsView({ ...player, metrics }) };
+    return {
+      ok: true,
+      metrics: metricsView({ ...player, metrics }),
+      ...newAnimals.length ? { newAnimals } : {},
+      ...freshBiomeStates.length ? { biomeStates: freshBiomeStates } : {},
+      ...welcomeBack ? { welcomeBack } : {}
+    };
   }
 };
 var Metrics = class extends PublicEndpoint {
@@ -15413,30 +15992,68 @@ var Metrics = class extends PublicEndpoint {
       const biomeSummary = summarizeBiomes(statesByPlayer.get(p.id) || []);
       return { ...view, biomeSummary, activation: activationFlags(view, biomeSummary, p) };
     }).sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
-    const N = views.length || 1;
+    let soloViews = [];
+    try {
+      soloViews = (await allOf(t.SoloMetrics)).map((r) => {
+        const s = r.snapshot || {};
+        const lastSeenAt = s.lastSeenAt || r.updatedAt || null;
+        const createdAt = s.createdAt || r.createdAt || now;
+        const hoursSinceActive = lastSeenAt ? round1((now - lastSeenAt) / 36e5) : null;
+        let status = "dormant";
+        if (hoursSinceActive != null) {
+          if (hoursSinceActive <= 24) status = "active";
+          else if (hoursSinceActive <= 24 * 7) status = "recent";
+        }
+        return {
+          ...s,
+          playerId: r.id,
+          // slot-scoped id — solo name slugs can collide across machines
+          solo: true,
+          platform: r.platform || null,
+          build: r.build || null,
+          lastSyncedAt: r.updatedAt || null,
+          counts: s.counts || {},
+          playSeconds: s.playSeconds || 0,
+          sessions: s.sessions || 0,
+          totalActions: s.totalActions || 0,
+          unlockedBiomes: s.unlockedBiomes || 0,
+          activation: s.activation || {},
+          biomeSummary: s.biomeSummary || { biomesUnlocked: 0, avgHealth: 0, biomesFullyRestored: 0, totalReturned: 0 },
+          createdAt,
+          lastSeenAt,
+          hoursSinceActive,
+          status,
+          daysSinceJoined: Math.floor((now - createdAt) / DAY_MS2),
+          isNewToday: now - createdAt <= DAY_MS2
+        };
+      });
+    } catch {
+    }
+    const all = [...views, ...soloViews].sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
+    const N = all.length || 1;
     const pct = (n) => Math.round(n / N * 100);
     const actionTotals = {};
-    for (const v of views) {
+    for (const v of all) {
       for (const [k, n] of Object.entries(v.counts)) actionTotals[k] = (actionTotals[k] || 0) + n;
     }
-    const totalPlaySeconds = views.reduce((acc, v) => acc + v.playSeconds, 0);
-    const totalSessions = views.reduce((acc, v) => acc + v.sessions, 0);
-    const totalActions = views.reduce((acc, v) => acc + v.totalActions, 0);
+    const totalPlaySeconds = all.reduce((acc, v) => acc + v.playSeconds, 0);
+    const totalSessions = all.reduce((acc, v) => acc + v.sessions, 0);
+    const totalActions = all.reduce((acc, v) => acc + v.totalActions, 0);
     const audience = {
-      activeLast24h: views.filter((v) => v.status === "active").length,
-      activeLast7d: views.filter((v) => v.status === "active" || v.status === "recent").length,
-      dormant: views.filter((v) => v.status === "dormant").length,
-      newLast24h: views.filter((v) => now - v.createdAt <= DAY_MS2).length,
-      newLast7d: views.filter((v) => now - v.createdAt <= 7 * DAY_MS2).length
+      activeLast24h: all.filter((v) => v.status === "active").length,
+      activeLast7d: all.filter((v) => v.status === "active" || v.status === "recent").length,
+      dormant: all.filter((v) => v.status === "dormant").length,
+      newLast24h: all.filter((v) => now - v.createdAt <= DAY_MS2).length,
+      newLast7d: all.filter((v) => now - v.createdAt <= 7 * DAY_MS2).length
     };
-    const returningPlayers = views.filter((v) => v.sessions >= 2).length;
+    const returningPlayers = all.filter((v) => v.sessions >= 2).length;
     const funnel = {
-      created: views.length,
-      collected: views.filter((v) => v.activation.collected).length,
-      crafted: views.filter((v) => v.activation.crafted).length,
-      placed: views.filter((v) => v.activation.placed).length,
-      attractedAnimal: views.filter((v) => v.activation.attractedAnimal).length,
-      unlockedSecondBiome: views.filter((v) => v.activation.unlockedSecondBiome).length
+      created: all.length,
+      collected: all.filter((v) => v.activation.collected).length,
+      crafted: all.filter((v) => v.activation.crafted).length,
+      placed: all.filter((v) => v.activation.placed).length,
+      attractedAnimal: all.filter((v) => v.activation.attractedAnimal).length,
+      unlockedSecondBiome: all.filter((v) => v.activation.unlockedSecondBiome).length
     };
     const funnelPct = {
       collected: pct(funnel.collected),
@@ -15446,7 +16063,7 @@ var Metrics = class extends PublicEndpoint {
       unlockedSecondBiome: pct(funnel.unlockedSecondBiome)
     };
     const areaTally = {};
-    for (const v of views) if (v.currentArea) areaTally[v.currentArea] = (areaTally[v.currentArea] || 0) + 1;
+    for (const v of all) if (v.currentArea) areaTally[v.currentArea] = (areaTally[v.currentArea] || 0) + 1;
     const mostPopularArea = Object.entries(areaTally).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
     const perBiome = /* @__PURE__ */ new Map();
     for (const s of allStates) {
@@ -15469,7 +16086,7 @@ var Metrics = class extends PublicEndpoint {
         fullyRestored: e?.fully || 0
       };
     });
-    const withBiomes = views.filter((v) => v.biomeSummary.biomesUnlocked > 0);
+    const withBiomes = all.filter((v) => v.biomeSummary.biomesUnlocked > 0);
     const avgBiomeHealth = withBiomes.length ? Math.round(withBiomes.reduce((acc, v) => acc + v.biomeSummary.avgHealth, 0) / withBiomes.length) : 0;
     const achRows = await allOf(t.PlayerAchievement);
     const earnedByPlayer = /* @__PURE__ */ new Map();
@@ -15487,7 +16104,8 @@ var Metrics = class extends PublicEndpoint {
     const achievementsSummary = {
       totalDefined: d.achievements.length,
       totalEarned: achRows.length,
-      avgPerPlayer: round1(achRows.length / N),
+      // hosted denominator — PlayerAchievement rows only exist for hosted saves
+      avgPerPlayer: round1(achRows.length / (views.length || 1)),
       playersWithFirstFriend: distribution["welcome-grasshopper"] || 0,
       distribution,
       completionHistogram
@@ -15506,7 +16124,9 @@ var Metrics = class extends PublicEndpoint {
     return {
       generatedAt: now,
       summary: {
-        players: views.length,
+        players: all.length,
+        hostedPlayers: views.length,
+        soloPlayers: soloViews.length,
         audience,
         engagement: {
           totalPlayHours: round1(totalPlaySeconds / 3600),
@@ -15524,8 +16144,8 @@ var Metrics = class extends PublicEndpoint {
         },
         progression: {
           avgBiomeHealth,
-          biomesFullyRestored: views.reduce((acc, v) => acc + v.biomeSummary.biomesFullyRestored, 0),
-          avgUnlockedBiomes: round1(views.reduce((acc, v) => acc + v.unlockedBiomes, 0) / N),
+          biomesFullyRestored: all.reduce((acc, v) => acc + (v.biomeSummary.biomesFullyRestored || 0), 0),
+          avgUnlockedBiomes: round1(all.reduce((acc, v) => acc + v.unlockedBiomes, 0) / N),
           mostPopularArea
         },
         funnel,
@@ -15535,7 +16155,9 @@ var Metrics = class extends PublicEndpoint {
         coop: coopSummary,
         biomeBreakdown
       },
-      players: views
+      // One combined list — solo entries carry `solo: true` (+ platform/build
+      // /lastSyncedAt) so a dashboard can still tell them apart.
+      players: all
     };
   }
 };
@@ -15787,12 +16409,61 @@ var DevTools = class extends PublicEndpoint {
     return { ok: true, log, state: await snapshot(playerId) };
   }
 };
+var FEEDBACK_MAX_CHARS = 4e3;
+var SubmitFeedback = class extends PublicEndpoint {
+  async post(data) {
+    const body = await bodyOf(data);
+    const message = String(body.message || "").trim();
+    if (!message) throw new GameError("Please write a little something first");
+    if (message.length > FEEDBACK_MAX_CHARS) throw new GameError(`Feedback is limited to ${FEEDBACK_MAX_CHARS} characters`);
+    const replyTo = String(body.replyTo || "").trim().slice(0, 200) || null;
+    if (replyTo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(replyTo)) throw new GameError("That reply email doesn\u2019t look right \u2014 leave it blank if you don\u2019t want a response");
+    const metrics = body.metrics && typeof body.metrics === "object" && !Array.isArray(body.metrics) ? body.metrics : {};
+    const queuedAt = Number(body.queuedAt) || null;
+    const id = `fb_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
+    await db().Feedback.put({ id, message, replyTo, metrics, queuedAt, createdAt: Date.now() });
+    return { ok: true, id };
+  }
+};
+var ListFeedback = class extends Resource {
+  async get() {
+    const rows = await allOf(db().Feedback);
+    rows.sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+    return { count: rows.length, feedback: rows };
+  }
+};
+var METRICS_SNAPSHOT_MAX_BYTES = 24e3;
+var SyncMetrics = class extends PublicEndpoint {
+  async post(data) {
+    const body = await bodyOf(data);
+    const clientId = String(body.clientId || "").trim().slice(0, 64);
+    if (!clientId) throw new GameError("clientId required");
+    const snapshot2 = body.snapshot && typeof body.snapshot === "object" && !Array.isArray(body.snapshot) ? body.snapshot : null;
+    if (!snapshot2) throw new GameError("snapshot required");
+    if (JSON.stringify(snapshot2).length > METRICS_SNAPSHOT_MAX_BYTES) throw new GameError("snapshot too large");
+    const t = db();
+    const id = `solo:${clientId}`;
+    const existing = await safeGet(t.SoloMetrics, id);
+    await t.SoloMetrics.put({
+      id,
+      clientId,
+      name: String(body.name || snapshot2.name || "").slice(0, 40),
+      platform: String(body.platform || "").slice(0, 20) || null,
+      build: String(body.build || "").slice(0, 40) || null,
+      snapshot: snapshot2,
+      createdAt: existing?.createdAt || Date.now(),
+      updatedAt: Date.now()
+    });
+    return { ok: true };
+  }
+};
 export {
   AppendFeed,
   BiomeSnapshot,
   ChangePasscode,
   CheckWorldCode,
   ChestTransfer,
+  ClaimTask,
   CollectResource,
   CraftItem,
   CreatePlayer,
@@ -15806,6 +16477,7 @@ export {
   JoinRequestStatus,
   JoinWorld,
   LeaveWorld,
+  ListFeedback,
   LoginPlayer,
   Metrics,
   MoveObject,
@@ -15823,7 +16495,9 @@ export {
   SetHomeColors,
   SetHomeStyle,
   SetPlacementColor,
+  SubmitFeedback,
   SwitchWorld,
+  SyncMetrics,
   SyncPlayer,
   Terraform,
   UpdateAppearance,
