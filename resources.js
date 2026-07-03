@@ -16373,13 +16373,47 @@ function feedbackMetricsLines(metrics) {
   if (!entries.length) return "(none provided)";
   return entries.map(([k, v]) => `${k}: ${typeof v === "object" ? JSON.stringify(v) : String(v)}`).join("\n");
 }
-async function sendFeedbackEmail(rec) {
-  if (typeof process === "undefined" || !process.versions?.node) return false;
+var smtpCredsCache;
+async function feedbackCreds() {
+  if (smtpCredsCache !== void 0) return smtpCredsCache;
   const env = process.env;
   const user = env.SMTP_USER || env.GMAIL_USER;
   const pass = env.SMTP_PASS || env.GMAIL_APP_PASSWORD;
-  if (!user || !pass) {
-    console.error("SubmitFeedback: email skipped \u2014 set GMAIL_USER and GMAIL_APP_PASSWORD (or SMTP_*) on the server");
+  if (user && pass) {
+    return smtpCredsCache = {
+      user,
+      pass,
+      host: env.SMTP_HOST || void 0,
+      port: env.SMTP_PORT ? Number(env.SMTP_PORT) : void 0,
+      secure: env.SMTP_SECURE ? env.SMTP_SECURE !== "false" : void 0
+    };
+  }
+  try {
+    const fsName = "node:fs";
+    const { readFileSync } = await import(
+      /* @vite-ignore */
+      fsName
+    );
+    const secretsFile = "./feedback-secrets.json";
+    const j = JSON.parse(readFileSync(new URL(secretsFile, import.meta.url), "utf8"));
+    if (j?.user && j?.pass) {
+      return smtpCredsCache = {
+        user: String(j.user),
+        pass: String(j.pass),
+        host: j.host || void 0,
+        port: j.port ? Number(j.port) : void 0,
+        secure: typeof j.secure === "boolean" ? j.secure : void 0
+      };
+    }
+  } catch {
+  }
+  return smtpCredsCache = null;
+}
+async function sendFeedbackEmail(rec) {
+  if (typeof process === "undefined" || !process.versions?.node) return false;
+  const creds = await feedbackCreds();
+  if (!creds) {
+    console.error("SubmitFeedback: email skipped \u2014 set GMAIL_USER/GMAIL_APP_PASSWORD env vars or deploy a feedback-secrets.json");
     return false;
   }
   try {
@@ -16389,14 +16423,14 @@ async function sendFeedbackEmail(rec) {
       modName
     )).default;
     const transporter = nodemailer.createTransport({
-      host: env.SMTP_HOST || "smtp.gmail.com",
-      port: Number(env.SMTP_PORT || 465),
-      secure: (env.SMTP_SECURE ?? "true") !== "false",
-      auth: { user, pass }
+      host: creds.host || "smtp.gmail.com",
+      port: creds.port ?? 465,
+      secure: creds.secure ?? true,
+      auth: { user: creds.user, pass: creds.pass }
     });
     const firstLine = String(rec.message).split("\n")[0].slice(0, 60);
     await transporter.sendMail({
-      from: `"Wild Willows" <${user}>`,
+      from: `"Wild Willows" <${creds.user}>`,
       to: FEEDBACK_TO,
       replyTo: rec.replyTo || void 0,
       subject: `Wild Willows feedback \u2014 ${firstLine}`,

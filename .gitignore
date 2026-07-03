@@ -12,6 +12,10 @@ dist/
 # Steam: dev-only app id file (Steam injects the real id in packaged builds)
 steam_appid.txt
 
+# feedback-email SMTP credentials — staged into the deploy by deploy-coop.sh /
+# the deploy workflow, never committed (see server/resources.ts feedbackCreds)
+feedback-secrets.json
+
 # test + coverage output
 coverage/
 playwright-report/

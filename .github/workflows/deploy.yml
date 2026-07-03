@@ -1,0 +1,76 @@
+name: Deploy to Harper
+
+# Builds the co-op web + server bundle and deploys it to the hosted Harper at
+# wild.willows.harperfabric.com. The heavy lifting is ./deploy-coop.sh — the
+# same script used for manual deploys — so there is exactly one deploy recipe.
+# (Deploy pattern modeled on HarperFast/nextjs-example's build-and-deploy.yml:
+# configure a local Harper for the CLI, then `harper deploy` to the target.)
+#
+# Triggers:
+#   Actions tab → Run workflow   → manual deploy of any branch
+#   git tag deploy-* && push     → tagged deploy (e.g. deploy-2026-07-03)
+#
+# Required repo secrets (Settings → Secrets and variables → Actions):
+#   HARPER_PASSWORD      password for the hosted instance's admin user
+#   GMAIL_USER           address the feedback email is SENT FROM (any account
+#                        you can make an App Password for — the mail is always
+#                        DELIVERED TO wildwillowsgame@gmail.com)
+#   GMAIL_APP_PASSWORD   a Google App Password for GMAIL_USER (16 chars,
+#                        myaccount.google.com/apppasswords — NOT the real
+#                        account password)
+# Optional secrets:
+#   HARPER_USERNAME      defaults to HDB_ADMIN
+
+on:
+  workflow_dispatch:
+    inputs:
+      coop_enabled:
+        description: 'Build with co-op enabled (Solo/Co-op toggle + multiplayer UI)'
+        type: boolean
+        default: true
+  push:
+    tags: ['deploy-*']
+
+# Never run two deploys at once; a queued deploy waits for the active one.
+concurrency:
+  group: deploy-coop
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Build & deploy co-op server
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+
+      # The harper CLI wants a configured local instance before `deploy` works
+      # (it never actually serves anything here). All answers come from env
+      # vars so the install is non-interactive.
+      - name: Configure local Harper for the CLI
+        env:
+          TC_AGREEMENT: 'yes'
+          HDB_ADMIN_USERNAME: 'admin'
+          HDB_ADMIN_PASSWORD: 'password'
+          ROOTPATH: /tmp/hdb
+          OPERATIONSAPI_NETWORK_PORT: 9925
+        run: npx harper install
+
+      # deploy-coop.sh builds (COOP_ENABLED=true), stages the ~3 MB component
+      # (with feedback-secrets.json built from the Gmail secrets), and runs
+      # `harper deploy` against wild.willows.harperfabric.com.
+      - name: Build & deploy
+        env:
+          HARPER_PW: ${{ secrets.HARPER_PASSWORD }}
+          HARPER_USER: ${{ secrets.HARPER_USERNAME }}
+          GMAIL_USER: ${{ secrets.GMAIL_USER }}
+          GMAIL_APP_PASSWORD: ${{ secrets.GMAIL_APP_PASSWORD }}
+          # Manual runs expose a checkbox; tag deploys default to co-op ON.
+          COOP_ENABLED: ${{ (github.event_name == 'workflow_dispatch' && inputs.coop_enabled == false) && 'false' || 'true' }}
+        run: |
+          export PATH="$PWD/node_modules/.bin:$PATH"
+          ./deploy-coop.sh
