@@ -114,7 +114,7 @@ export async function sendFeedback(message: string, replyTo: string, state: Game
 	};
 	const result = await postFeedback(item);
 	if (result === 'sent') return { sent: true };
-	if (result === 'invalid') throw new Error('The server couldn’t accept that feedback — check the reply email and try again');
+	if (result === 'invalid') throw new Error('The server couldn’t accept that feedback — try again later');
 	writeQueue([...readQueue(), item]);
 	return { sent: false };
 }
