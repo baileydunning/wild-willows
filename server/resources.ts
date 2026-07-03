@@ -25,7 +25,7 @@ import resourcesData from '../data/resources.json';
 import animals1Data from '../data/animals-1.json';
 import animals2Data from '../data/animals-2.json';
 import achievementsData from '../data/achievements.json';
-import { weatherSnapshot, weatherTypeAt, gatherResourceIdFor, isWeatherGatheredResource } from './weather';
+import { weatherSnapshot, weatherTypeAt, gatherResourceIdFor, isWeatherGatheredResource, seasonAt, dayPhaseAt } from './weather';
 
 // Biome ids for the weather block (weather is per-biome; climate differs by
 // biome). Derived once from the static seed data so the weather snapshot stays
@@ -61,6 +61,29 @@ class GameError extends Error {
 }
 
 const clamp = (n: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, n));
+
+// Deterministic PRNG (FNV-1a → mulberry32) — the same tiny pair the client and
+// weather module use. Daily tasks are a pure function of (worldId, UTC day), so
+// every device/member derives the identical task list with no stored state.
+function hash32(str: string): number {
+	let h = 0x811c9dc5;
+	for (let i = 0; i < str.length; i++) {
+		h ^= str.charCodeAt(i);
+		h = Math.imul(h, 0x01000193);
+	}
+	return h >>> 0;
+}
+
+function seededRng(seed: number): () => number {
+	let a = seed >>> 0;
+	return () => {
+		a |= 0;
+		a = (a + 0x6d2b79f5) | 0;
+		let t = Math.imul(a ^ (a >>> 15), 1 | a);
+		t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+	};
+}
 
 function posInt(n: any, label: string): number {
 	const v = Number(n);
@@ -208,7 +231,7 @@ const DEFAULT_MAX_MEMBERS = 6;
  * playerId, so all of that player's existing world-state rows already belong to
  * it without any re-keying.
  */
-async function ensureSoloWorld(player: any): Promise<void> {
+async function ensureSoloWorld(player: any, opts: { freshGrid?: boolean } = {}): Promise<void> {
 	const t = db();
 	const soloId = player.id;
 	if (!(await t.World.get(soloId))) {
@@ -220,6 +243,10 @@ async function ensureSoloWorld(player: any): Promise<void> {
 			joinCode: null,
 			createdAt: player.createdAt || Date.now(),
 			maxMembers: 1,
+			// brand-new saves are seeded at the shifted meadow coordinates already,
+			// so the world starts aligned to the current camp offset; older worlds
+			// omit this and get realigned by migrateMeadowWest below.
+			meadowShift: opts.freshGrid ? MEADOW_SHIFT : 0,
 		});
 	}
 	const memberId = `${soloId}:${player.id}`;
@@ -230,6 +257,9 @@ async function ensureSoloWorld(player: any): Promise<void> {
 		});
 	}
 	if (!player.worldId) await t.Player.patch(player.id, { worldId: soloId });
+	// realign an existing solo world's meadow to the current camp offset (no-op
+	// for a just-created, already-aligned world)
+	if (!opts.freshGrid) await migrateMeadowWest(soloId);
 }
 
 /** Every world a player belongs to, shaped for the client's world picker. */
@@ -561,7 +591,48 @@ function slugId(name: string): string {
 
 // Starter base camp: tent + campfire scenery with a storage chest. Crafting
 // needs no station — it works anywhere, from the basket plus any chests.
-const STARTER_CHEST = { x: 9, y: 5, size: 'small-chest', capacity: 120 };
+const STARTER_CHEST = { x: 23, y: 5, size: 'small-chest', capacity: 120 };
+
+// The meadow opens a wide strip of wild land to the WEST of camp so you can walk
+// out there with the house sitting roughly centered. The camp keeps its original
+// main-branch arrangement — everything that already existed (camp, placements,
+// terrain, the forest gate) just sits MEADOW_SHIFT tiles further east now.
+const MEADOW_SHIFT = 14;
+
+/**
+ * Save migration that keeps a world's meadow aligned with the current camp
+ * offset (MEADOW_SHIFT). It stores how far a world's meadow has already been
+ * shifted east (`world.meadowShift`) and moves every meadow row (placements,
+ * terrain, chests) and every member standing in the meadow by the DIFFERENCE
+ * to reach the current offset — so it's self-correcting if the offset is ever
+ * retuned, and a no-op once a world is already aligned. Worlds without the
+ * numeric field are treated as main-branch baseline (0). Brand-new worlds are
+ * created already aligned (their camp is seeded at the shifted coordinates).
+ */
+async function migrateMeadowWest(wid: string): Promise<boolean> {
+	const t = db();
+	const world = await safeGet(t.World, wid);
+	const applied = typeof world?.meadowShift === 'number' ? world.meadowShift : 0;
+	const delta = MEADOW_SHIFT - applied;
+	if (delta !== 0) {
+		for (const table of [t.Placement, t.TerrainTile, t.Chest]) {
+			for (const row of await byWorld(table, wid)) {
+				if (row.area !== 'meadow') continue;
+				await table.patch(row.id, { x: (Number(row.x) || 0) + delta });
+			}
+		}
+		// every member standing in the meadow moves with their camp (read fresh
+		// from the DB so we never shift a stale in-memory position)
+		for (const m of await byWorld(t.WorldMember, wid)) {
+			const p = await safeGet(t.Player, m.playerId);
+			if (p?.area === 'meadow' && worldOf(p) === wid) {
+				await t.Player.patch(p.id, { x: (Number(p.x) || 0) + delta });
+			}
+		}
+	}
+	if (world && applied !== MEADOW_SHIFT) await t.World.patch(wid, { meadowShift: MEADOW_SHIFT });
+	return delta !== 0;
+}
 
 // ------------------------------------------------------------ player setup
 
@@ -594,17 +665,31 @@ function freshMetrics(now: number) {
  * Merge action-count deltas into player.metrics and persist. `player` is the
  * record we already loaded (counters live in their own key, so this never
  * clobbers a concurrent inventory/crafted patch). No-ops if nothing to add.
+ *
+ * `dailyDeltas` additionally bumps the player's per-day counters (player.daily
+ * = { dayKey, counts }), which power the daily task board. The day bucket
+ * rolls over automatically the first time it's bumped on a new UTC day — no
+ * background job needed, and reads just ignore a stale bucket.
  */
-async function bumpMetrics(player: any, deltas: Record<string, number> = {}): Promise<any> {
+async function bumpMetrics(player: any, deltas: Record<string, number> = {}, dailyDeltas: Record<string, number> = {}): Promise<any> {
 	if (!player?.id) return null;
 	const entries = Object.entries(deltas).filter(([, v]) => v);
-	if (!entries.length) return player.metrics || null;
+	const dailyEntries = Object.entries(dailyDeltas).filter(([, v]) => v);
+	if (!entries.length && !dailyEntries.length) return player.metrics || null;
 	const now = Date.now();
 	const prev = player.metrics || freshMetrics(player.createdAt || now);
 	const counts = { ...(prev.counts || {}) };
 	for (const [k, v] of entries) counts[k] = (counts[k] || 0) + v;
 	const metrics = { ...prev, counts, lastSeenAt: now };
-	await db().Player.patch(player.id, { metrics });
+	const patch: any = { metrics };
+	if (dailyEntries.length) {
+		const dayKey = Math.floor(now / DAY_MS);
+		const prevDaily = player.daily?.dayKey === dayKey ? player.daily : { dayKey, counts: {} };
+		const dcounts = { ...(prevDaily.counts || {}) };
+		for (const [k, v] of dailyEntries) dcounts[k] = (dcounts[k] || 0) + v;
+		patch.daily = { dayKey, counts: dcounts };
+	}
+	await db().Player.patch(player.id, patch);
 	return metrics;
 }
 
@@ -681,8 +766,22 @@ function activationFlags(view: any, biomeSummary: any, player: any) {
 // placed object as a colored marker), returned as a base64 data URI so it drops
 // straight into an <img src> or a dashboard.
 
-const GRID_W = 30; // matches OUT_W in the client world scene
+const GRID_W = 30; // base grid (home interior / fallback) — matches OUT_W in the client
 const GRID_H = 20; // matches OUT_H
+const ALPINE_MTN_ROWS = 4; // impassable band the client adds above the alpine's playable grid
+
+/**
+ * Placement bounds for an area. Biomes carry their own playable grid in
+ * data/biomes.json (`grid`) — the meadow is the biggest — and the alpine adds
+ * its mountain band on top, growing the world downward. The home interior
+ * stays on the base grid (its floor rect is validated separately anyway).
+ */
+function areaGrid(d: any, area: string): { cols: number; rows: number } {
+	const g = area === 'home' ? null : d.biome.get(area)?.grid;
+	const cols = g?.cols || GRID_W;
+	const rows = (g?.rows || GRID_H) + (area === 'alpine' ? ALPINE_MTN_ROWS : 0);
+	return { cols, rows };
+}
 
 const TERRAIN_COLORS: Record<string, string> = {
 	tilled: '#8a6a48',
@@ -710,8 +809,9 @@ function renderBiomeSVG(d: any, biome: any, health: number, placements: any[], t
 	const cell = 16;
 	const pad = 8;
 	const labelH = 22;
-	const W = GRID_W * cell + pad * 2;
-	const H = GRID_H * cell + pad * 2 + labelH;
+	const grid = areaGrid(d, biome?.id || '');
+	const W = grid.cols * cell + pad * 2;
+	const H = grid.rows * cell + pad * 2 + labelH;
 	const damaged = biome?.palette?.damaged || '#b9a37c';
 	const healthy = biome?.palette?.healthy || '#8fbf6f';
 	const ground = lerpHex(damaged, healthy, health / 100);
@@ -722,8 +822,8 @@ function renderBiomeSVG(d: any, biome: any, health: number, placements: any[], t
 	const parts: string[] = [];
 	parts.push(`<rect x="0" y="0" width="${W}" height="${H}" rx="10" fill="${ground}"/>`);
 	// faint checkerboard for a bit of ground texture
-	for (let gy = 0; gy < GRID_H; gy++) {
-		for (let gx = 0; gx < GRID_W; gx++) {
+	for (let gy = 0; gy < grid.rows; gy++) {
+		for (let gx = 0; gx < grid.cols; gx++) {
 			if ((gx + gy) % 2 === 0) {
 				parts.push(`<rect x="${px(gx)}" y="${py(gy)}" width="${cell}" height="${cell}" fill="${groundDark}" opacity="0.22"/>`);
 			}
@@ -821,7 +921,7 @@ async function createPlayerRecords(playerId: string, name: string, passcode: str
 		createdAt: now,
 		worldId: playerId, // start in your own private solo world (world of one)
 		area: 'meadow',
-		x: 10.5, // spawn right beside the camp workbench
+		x: 24.5, // spawn right beside the camp workbench
 		y: 6.5,
 		inventory: { ...START_INVENTORY },
 		craftedItems: {},
@@ -869,8 +969,9 @@ async function createPlayerRecords(playerId: string, name: string, passcode: str
 }
 
 /** Full state snapshot built from freshly created records (first login). */
-function freshSnapshot(created: any) {
+async function freshSnapshot(created: any) {
 	const now = Date.now();
+	const d = await defs();
 	const worldId = created.player?.worldId || created.player?.id;
 	const wxTime = weatherTimeFromPlay(created.player);
 	return {
@@ -885,6 +986,7 @@ function freshSnapshot(created: any) {
 		feed: [],
 		serverTime: now,
 		weather: weatherSnapshot(worldId, wxTime, WEATHER_BIOME_IDS),
+		dailyTasks: dailyTasksBlock(worldId, created.player, d, 0, now),
 		nodeRegenSeconds: NODE_REGEN_SECONDS,
 		inventoryCapacity: inventoryCapacity(created.player),
 	};
@@ -930,14 +1032,50 @@ function healthFromPoints(points: number): number {
 	return clamp(Math.round(BASE_HEALTH + recovered), 0, 100);
 }
 
+// ---- habitat growth over real time -----------------------------------------
+// Living habitat (trees, shrubs, flower patches…) keeps growing after it's
+// placed — in real wall-clock hours, whether or not the game is open. A mature
+// plant contributes bonus restoration points, so a preserve is literally
+// healthier when you come back to it. Defs opt in via `matureHours` (+
+// `matureBonus` points once grown). Everything derives from the placement's
+// own placedAt timestamp: no background tick, no stored growth state.
+
+/** ms until this placement is fully grown (0 = grows instantly / not a grower). */
+function matureMs(def: any): number {
+	return (def?.matureHours || 0) * 3_600_000;
+}
+
+/** True once a placement has been in the ground long enough to mature. */
+function isMature(def: any, p: any, now: number): boolean {
+	const ms = matureMs(def);
+	return ms > 0 && now - (p.placedAt || 0) >= ms;
+}
+
+/** True if the placement crossed its maturity threshold inside (a, b]. */
+function maturedBetween(def: any, p: any, a: number, b: number): boolean {
+	const ms = matureMs(def);
+	if (ms <= 0) return false;
+	const at = (p.placedAt || 0) + ms;
+	return at > a && at <= b;
+}
+
+// Growth is a gentle bonus, not a shortcut: the total restoration points a
+// biome can earn from matured habitat is capped, so leaving the game closed
+// never does the real work of restoring the land — it just rewards patience.
+const MATURE_POINTS_CAP = 8;
+
 /** Raw restoration points from everything placed/shaped in a biome. */
-function computeHealthPoints(d: any, placements: any[], openWaterTiles = 0): number {
+function computeHealthPoints(d: any, placements: any[], openWaterTiles = 0, now = Date.now()): number {
 	let points = 0;
+	let maturePoints = 0;
 	for (const p of placements) {
 		const def = d.object.get(p.objectId);
 		if (!def) continue;
 		points += def.healthValue || 0;
+		// fully grown living habitat is worth a little more than the day it went in
+		if (isMature(def, p, now)) maturePoints += def.matureBonus || 0;
 	}
+	points += Math.min(maturePoints, MATURE_POINTS_CAP);
 	// shovel-shaped ponds/lakes/rivers: each open-water tile is real water habitat
 	if (openWaterTiles > 0) points += 2 * Math.min(openWaterTiles, 7);
 	return points;
@@ -1016,6 +1154,30 @@ function analyzeWater(terrain: any[]) {
 	return { tiles: cells.size, lake, river };
 }
 
+/** The live weather/season/day-phase context an animal's `conditions` are tested against. */
+interface WxContext {
+	type: string;
+	season: string;
+	dayPhase: string;
+}
+
+/**
+ * Some rare animals only venture out under the right sky: `conditions` on an
+ * animal's requirements gates its RETURN on the live weather/season/day-phase
+ * (any listed value matches). The habitat can be perfect, but a storm-loving
+ * heron still waits for the storm — so there's always a reason to come back
+ * in different weather, seasons, and times of day.
+ */
+function meetsConditions(animal: any, wx: WxContext | null): boolean {
+	const cond = animal.requirements?.conditions;
+	if (!cond) return true;
+	if (!wx) return false; // can't verify the sky → the rare visitor waits
+	if (Array.isArray(cond.weather) && cond.weather.length && !cond.weather.includes(wx.type)) return false;
+	if (Array.isArray(cond.season) && cond.season.length && !cond.season.includes(wx.season)) return false;
+	if (Array.isArray(cond.dayPhase) && cond.dayPhase.length && !cond.dayPhase.includes(wx.dayPhase)) return false;
+	return true;
+}
+
 function meetsRequirements(
 	animal: any,
 	health: number,
@@ -1023,10 +1185,12 @@ function meetsRequirements(
 	counts: Record<string, number>,
 	returnedIds: Set<string>,
 	water: { tiles: number; lake: number; river: number },
+	wx: WxContext | null = null,
 ) {
 	const req = animal.requirements || {};
 	if (health < (req.minHealth || 0)) return false;
 	if (balance < (req.minBalance || 0)) return false;
+	if (!meetsConditions(animal, wx)) return false;
 	for (const [objectId, qty] of Object.entries(req.objects || {})) {
 		if ((counts[objectId] || 0) < (qty as number)) return false;
 	}
@@ -1043,19 +1207,33 @@ function meetsRequirements(
 	return true;
 }
 
+/**
+ * Comfort is earned through play: an animal settles in as you place MORE of
+ * the habitat it likes. Meeting its bare needs makes it merely Settled (~60);
+ * every extra copy of a liked object beyond that adds comfort with gentle
+ * diminishing returns, so a lovingly over-built habitat is what gets an animal
+ * to Thriving (90+). Losing a required piece hurts badly — the animal becomes
+ * rarely seen (but is never gone). Recomputed on every biome recalc, so it
+ * always reflects what's actually standing in the world.
+ */
 function computeComfort(animal: any, counts: Record<string, number>): number {
 	const req = animal.requirements?.objects || {};
-	let comfort = 40;
+	const liked = Object.keys(req);
+	if (!liked.length) return 70; // nothing in particular it needs — content by default
+	let comfort = 30;
 	let missing = 0;
+	let extras = 0;
 	for (const [objectId, qty] of Object.entries(req)) {
 		const have = counts[objectId] || 0;
 		if (have >= (qty as number)) {
-			comfort += 12;
-			comfort += Math.min(3, have - (qty as number)) * 5; // extra matching habitat = happier
+			comfort += Math.round(30 / liked.length); // all needs met → Settled (~60)
+			extras += have - (qty as number);
 		} else {
 			missing++;
 		}
 	}
+	// every extra liked thing helps, with diminishing returns (up to +40)
+	comfort += Math.round(40 * (1 - Math.exp(-extras / 6)));
 	comfort -= missing * 25;
 	return clamp(comfort, 5, 100);
 }
@@ -1074,6 +1252,14 @@ function whyReturnedText(animal: any, d: any): string {
 	if (req.minHealth) parts.push(`biome health reached ${req.minHealth}%`);
 	if (req.minBalance) parts.push(`ecological balance reached ${req.minBalance}%`);
 	if (req.animals?.length) parts.push(`${req.animals.map((a: string) => d.animal.get(a)?.name || a).join(' and ')} had already returned`);
+	const cond = req.conditions;
+	if (cond) {
+		const bits: string[] = [];
+		if (cond.weather?.length) bits.push(cond.weather.join(' or '));
+		if (cond.season?.length) bits.push(`in ${cond.season.join(' or ')}`);
+		if (cond.dayPhase?.length) bits.push(`at ${cond.dayPhase.join(' or ')}`);
+		if (bits.length) parts.push(`the moment was right (${bits.join(', ')})`);
+	}
 	return `Felt safe enough to return once ${parts.join(', ')}.`;
 }
 
@@ -1123,8 +1309,19 @@ async function recalcBiome(
 	const water = analyzeWater(terrain);
 
 	// tended soil beds are worth 1 restoration point each, on the same slow curve
-	const healthPoints = computeHealthPoints(d, placements, openWaterTiles) + wateredTiles;
+	const now = Date.now();
+	const healthPoints = computeHealthPoints(d, placements, openWaterTiles, now) + wateredTiles;
 	const health = healthFromPoints(healthPoints);
+
+	// Live sky for condition-gated rare animals: derived from the acting player's
+	// play-time clock, same as the weather snapshot and weather-gated gathering.
+	const actor = opts.player || (await safeGet(t.Player, playerId));
+	const wxTime = actor ? weatherTimeFromPlay(actor) : null;
+	const wx: WxContext | null = wxTime === null ? null : {
+		type: weatherTypeAt(wid, biomeId, wxTime),
+		season: seasonAt(wxTime),
+		dayPhase: dayPhaseAt(wxTime),
+	};
 
 	const discoveries = await byWorld(t.Discovery, wid);
 	const returnedIds = new Set(discoveries.map((x) => x.animalId));
@@ -1146,7 +1343,7 @@ async function recalcBiome(
 		if (returnedIds.has(animal.id)) continue;
 		// nothing else returns until the grasshopper has
 		if (!firstAnimalBack && animal.id !== FIRST_ANIMAL_ID) continue;
-		if (meetsRequirements(animal, health, balance, counts, returnedIds, water)) {
+		if (meetsRequirements(animal, health, balance, counts, returnedIds, water, wx)) {
 			const disc = {
 				id: `${wid}:${animal.id}`,
 				worldId: wid,
@@ -1395,6 +1592,117 @@ async function consumeMaterials(player: any, materials: Record<string, number>, 
 
 // ------------------------------------------------------- snapshot for client
 
+// ------------------------------------------------------------- daily tasks
+// A small rotating task board: three light, doable goals per real (UTC) day,
+// derived deterministically from (worldId, day) — no stored task rows, no
+// scheduler. Progress reads the per-day counters bumped by normal play
+// (player.daily), claims live in player.taskClaims, and everything resets
+// itself at midnight simply because the dayKey changes. Rewards are small
+// material bundles drawn from the biomes the player has unlocked, so a claim
+// always nudges the next craft without unbalancing the economy.
+
+interface DailyTask {
+	id: string;
+	kind: 'gather' | 'craft' | 'place' | 'water' | 'plant' | 'observe';
+	icon: string;
+	text: string;
+	target: number;
+	/** player.daily counter key this task reads. */
+	counter: string;
+	reward: Record<string, number>;
+}
+
+function dailyTasksFor(wid: string, player: any, d: any, discoveredCount: number, now: number): { dayKey: number; endsAt: number; tasks: DailyTask[] } {
+	const dayKey = Math.floor(now / DAY_MS);
+	const rng = seededRng(hash32(`tasks:${wid}:${dayKey}`));
+	const unlocked: string[] = player?.unlockedBiomes?.length ? player.unlockedBiomes : ['meadow'];
+	// gatherable pool: solid materials from unlocked biomes (weather-gated
+	// specials are excluded so a task never depends on the right sky)
+	const resPool = [...new Set(unlocked.flatMap((id: string) => d.biome.get(id)?.resources || []))]
+		.filter((r) => r !== 'water' && !isWeatherGatheredResource(r) && d.resource.get(r));
+
+	const pickFrom = <T,>(arr: T[]): T => arr[Math.floor(rng() * arr.length)];
+	const bundle = (): Record<string, number> => {
+		const out: Record<string, number> = {};
+		const pool = [...resPool];
+		for (let i = 0; i < 2 && pool.length; i++) {
+			const r = pool.splice(Math.floor(rng() * pool.length), 1)[0];
+			out[r] = 4 + Math.floor(rng() * 4); // 4–7 of each
+		}
+		return out;
+	};
+
+	const candidates: DailyTask[] = [];
+	if (resPool.length) {
+		const res = pickFrom(resPool);
+		const target = [8, 12, 16][Math.floor(rng() * 3)];
+		candidates.push({
+			id: `${dayKey}-gather`, kind: 'gather', icon: 'basket',
+			text: `Gather ${target}× ${d.resource.get(res)?.name || res}`,
+			target, counter: `res:${res}`, reward: bundle(),
+		});
+	}
+	{
+		const target = 2 + Math.floor(rng() * 2);
+		candidates.push({
+			id: `${dayKey}-craft`, kind: 'craft', icon: 'hammer',
+			text: `Craft ${target} ${target === 1 ? 'item' : 'items'} at the workbench`,
+			target, counter: 'craft', reward: bundle(),
+		});
+	}
+	{
+		const target = 2 + Math.floor(rng() * 2);
+		candidates.push({
+			id: `${dayKey}-place`, kind: 'place', icon: 'pin',
+			text: `Place ${target} crafted ${target === 1 ? 'thing' : 'things'}`,
+			target, counter: 'place', reward: bundle(),
+		});
+	}
+	{
+		const target = 3 + Math.floor(rng() * 3);
+		candidates.push({
+			id: `${dayKey}-water`, kind: 'water', icon: 'drop',
+			text: `Water ${target} soil beds`,
+			target, counter: 'water', reward: bundle(),
+		});
+	}
+	candidates.push({
+		id: `${dayKey}-plant`, kind: 'plant', icon: 'leaf',
+		text: 'Plant 2 seedlings in watered beds',
+		target: 2, counter: 'plant', reward: bundle(),
+	});
+	if (discoveredCount >= 3) {
+		candidates.push({
+			id: `${dayKey}-observe`, kind: 'observe', icon: 'journal',
+			text: 'Read about 3 animals in your journal',
+			target: 3, counter: 'observe', reward: bundle(),
+		});
+	}
+
+	// seeded shuffle → the day's three
+	for (let i = candidates.length - 1; i > 0; i--) {
+		const j = Math.floor(rng() * (i + 1));
+		[candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+	}
+	return { dayKey, endsAt: (dayKey + 1) * DAY_MS, tasks: candidates.slice(0, 3) };
+}
+
+/** The day's tasks with this player's live progress + claim state folded in. */
+function dailyTasksBlock(wid: string, player: any, d: any, discoveredCount: number, now: number) {
+	const gen = dailyTasksFor(wid, player, d, discoveredCount, now);
+	const daily = player?.daily?.dayKey === gen.dayKey ? player.daily.counts || {} : {};
+	const claims = player?.taskClaims?.dayKey === gen.dayKey ? player.taskClaims.claimed || {} : {};
+	return {
+		dayKey: gen.dayKey,
+		endsAt: gen.endsAt,
+		tasks: gen.tasks.map((task) => ({
+			...task,
+			progress: Math.min(task.target, daily[task.counter] || 0),
+			claimed: !!claims[task.id],
+		})),
+	};
+}
+
 async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 	const t = db();
 	const d = await defs();
@@ -1403,7 +1711,7 @@ async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 	// home interior ('home') is a valid non-biome area, so leave it be.
 	const areaBiome = d.biome.get(player?.area);
 	if (player && player.area !== 'home' && (!areaBiome || !areaBiome.explorable)) {
-		player = { ...player, area: 'meadow', x: 10.5, y: 6.5 };
+		player = { ...player, area: 'meadow', x: 24.5, y: 6.5 };
 	}
 	// World-owned state is read by the active world id; achievements stay personal.
 	// `opts.worldId` lets a caller force the world even if the player's just-patched
@@ -1441,6 +1749,7 @@ async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 			.map((r: any) => ({ id: r.id, at: r.at, icon: r.icon, text: r.text })),
 		serverTime: now,
 		weather: weatherSnapshot(wid, wxTime, WEATHER_BIOME_IDS),
+		dailyTasks: dailyTasksBlock(wid, player, d, discoveries.length, now),
 		nodeRegenSeconds: NODE_REGEN_SECONDS,
 		inventoryCapacity: inventoryCapacity(player),
 	};
@@ -1753,9 +2062,9 @@ export class CreatePlayer extends PublicEndpoint {
 		// tables aren't ready yet (instance not restarted after the schema change),
 		// fall back to a plain solo session so core play still works.
 		let worlds: any[] = [];
-		try { await ensureSoloWorld(created.player); worlds = await listMemberships(playerId); }
+		try { await ensureSoloWorld(created.player, { freshGrid: true }); worlds = await listMemberships(playerId); }
 		catch (e) { console.error('world setup skipped (CreatePlayer):', e); }
-		return { ok: true, playerId, worldId: playerId, worlds, state: freshSnapshot(created) };
+		return { ok: true, playerId, worldId: playerId, worlds, state: await freshSnapshot(created) };
 	}
 }
 
@@ -1822,21 +2131,18 @@ export class LoginPlayer extends PublicEndpoint {
 		const player = playerId ? await safeGet(db().Player, playerId) : null;
 		if (!player) throw new GameError('No save found with that name — try New Game', 404);
 		if (!(await verifyPasscode(player, passcode))) throw new GameError("That passcode doesn't match this save", 403);
-		// on login, start back out in the meadow rather than loading straight into an
-		// interior or a no-longer-explorable area
 		const d = await defs();
-		const areaBiome = d.biome.get(player.area);
-		if (player.area === 'home' || !areaBiome || !areaBiome.explorable) {
-			await db().Player.patch(playerId, { area: 'meadow', x: 10.5, y: 6.5 });
-		}
 		// Reset the heartbeat clock so the first beat after login is counted as a
 		// fresh play session (and back-fill metrics for saves made before tracking).
+		// lastSeenAt is deliberately NOT bumped here — the first heartbeat reads it
+		// to measure the absence for the welcome-back growth summary, then updates it.
 		const now = Date.now();
 		const prev = player.metrics || freshMetrics(player.createdAt || now);
-		await db().Player.patch(playerId, { metrics: { ...prev, lastHeartbeatAt: 0, lastSeenAt: now } });
-		// Back-fill the solo "world of one" for saves made before multiplayer, then
-		// resume whichever world this player was last active in (their solo world by
-		// default, or a co-op world they had joined — this is how you log back in to co-op).
+		await db().Player.patch(playerId, { metrics: { ...prev, lastHeartbeatAt: 0 } });
+		// Back-fill the solo "world of one" for saves made before multiplayer (this
+		// also realigns the meadow to the current camp offset), then resume whichever
+		// world this player was last active in (their solo world by default, or a
+		// co-op world they had joined — this is how you log back in to co-op).
 		// Guarded so a not-yet-migrated instance still logs you in (solo) rather than erroring.
 		let active = player.worldId || playerId;
 		let worlds: any[] = [];
@@ -1846,6 +2152,13 @@ export class LoginPlayer extends PublicEndpoint {
 			await syncMemberUnlocks(playerId, active);
 			worlds = await listMemberships(playerId);
 		} catch (e) { console.error('world setup skipped (LoginPlayer):', e); }
+		// On login, start back out in the meadow rather than loading straight into an
+		// interior or a no-longer-explorable area. Done AFTER the meadow realignment
+		// above so a returning player lands on the current spawn, never a shifted one.
+		const areaBiome = d.biome.get(player.area);
+		if (player.area === 'home' || !areaBiome || !areaBiome.explorable) {
+			await db().Player.patch(playerId, { area: 'meadow', x: 24.5, y: 6.5 });
+		}
 		return { ok: true, playerId, worldId: active, worlds, state: await snapshot(playerId) };
 	}
 }
@@ -2126,7 +2439,7 @@ export class LeaveWorld extends PublicEndpoint {
 		await t.WorldMember.delete(memberId);
 		// if you were standing in that world, fall back to your solo world
 		if (player.worldId === target) {
-			await t.Player.patch(playerId, { worldId: playerId, area: 'meadow', x: 10.5, y: 6.5 });
+			await t.Player.patch(playerId, { worldId: playerId, area: 'meadow', x: 24.5, y: 6.5 });
 			await syncMemberUnlocks(playerId, playerId);
 		}
 		const active = player.worldId === target ? playerId : (player.worldId || playerId);
@@ -2234,7 +2547,7 @@ export class CollectResource extends PublicEndpoint {
 		await t.Player.patch(playerId, { inventory });
 		await t.NodeState.put({ id: nodeKey, worldId: wid, playerId, harvestedAt: now });
 
-		await bumpMetrics(player, { resourcesCollected: amount });
+		await bumpMetrics(player, { resourcesCollected: amount }, { [`res:${resourceId}`]: amount });
 		await awardAchievements(playerId);
 		return { ok: true, gained: { [resourceId]: amount }, inventory, nodeId, harvestedAt: now };
 	}
@@ -2362,7 +2675,7 @@ export class CraftItem extends PublicEndpoint {
 		const unlockedBiomes = await checkUnlocks(wid, playerId, { player: { ...player, craftedItems, craftedEver } });
 
 		const chests = await byWorld(t.Chest, wid);
-		await bumpMetrics(player, { itemsCrafted: 1 });
+		await bumpMetrics(player, { itemsCrafted: 1 }, { craft: 1 });
 		await awardAchievements(playerId);
 		return { ok: true, crafted: recipe.output, craftedItems, inventory, chests, usedFrom, unlockedBiomes };
 	}
@@ -2384,7 +2697,8 @@ export class PlaceObject extends PublicEndpoint {
 
 		const tx = Math.round(Number(x));
 		const ty = Math.round(Number(y));
-		if (!Number.isFinite(tx) || !Number.isFinite(ty) || tx < 1 || ty < 1 || tx > 28 || ty > 18) {
+		const grid = areaGrid(d, area);
+		if (!Number.isFinite(tx) || !Number.isFinite(ty) || tx < 1 || ty < 1 || tx > grid.cols - 2 || ty > grid.rows - 2) {
 			throw new GameError('That spot is out of reach');
 		}
 
@@ -2442,7 +2756,7 @@ export class PlaceObject extends PublicEndpoint {
 
 		// Home decor doesn't affect any biome — skip the recalc entirely.
 		if (area === 'home') {
-			await bumpMetrics(player, { objectsPlaced: 1 });
+			await bumpMetrics(player, { objectsPlaced: 1 }, { place: 1 });
 			await awardAchievements(playerId);
 			return { ok: true, placement, craftedItems };
 		}
@@ -2451,7 +2765,7 @@ export class PlaceObject extends PublicEndpoint {
 			addPlacements: [placement],
 			player: { ...player, craftedItems },
 		});
-		await bumpMetrics(player, { objectsPlaced: 1, animalsReturned: recalc.newAnimals?.length || 0 });
+		await bumpMetrics(player, { objectsPlaced: 1, animalsReturned: recalc.newAnimals?.length || 0 }, { place: 1 });
 		await awardWorldAchievements(wid, playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
 		return { ok: true, placement, craftedItems, ...recalc };
 	}
@@ -2501,7 +2815,7 @@ export class Plant extends PublicEndpoint {
 			removeTerrainIds: [tileId],
 			player: { ...player, inventory },
 		});
-		await bumpMetrics(player, { plantsPlanted: 1, animalsReturned: recalc.newAnimals?.length || 0 });
+		await bumpMetrics(player, { plantsPlanted: 1, animalsReturned: recalc.newAnimals?.length || 0 }, { plant: 1 });
 		await awardWorldAchievements(wid, playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
 		return { ok: true, placement, inventory, usedFrom, ...recalc };
 	}
@@ -2531,9 +2845,11 @@ export class MoveObject extends PublicEndpoint {
 		if (!placement) throw new GameError('Placement not found', 404);
 		if (placement.objectId === 'workbench') throw new GameError('The old workbench stays put');
 
+		const dGrid = await defs();
+		const grid = areaGrid(dGrid, placement.area);
 		const tx = Math.round(Number(x));
 		const ty = Math.round(Number(y));
-		if (!Number.isFinite(tx) || !Number.isFinite(ty) || tx < 1 || ty < 1 || tx > 28 || ty > 18) {
+		if (!Number.isFinite(tx) || !Number.isFinite(ty) || tx < 1 || ty < 1 || tx > grid.cols - 2 || ty > grid.rows - 2) {
 			throw new GameError('That spot is out of reach');
 		}
 		if (placements.some((p) => p.id !== placementId && p.area === placement.area && p.x === tx && p.y === ty)) {
@@ -2816,11 +3132,67 @@ export class ObserveAnimal extends PublicEndpoint {
 
 		const disc = await findInWorld(t.Discovery, wid, `${wid}:${animalId}`);
 		if (!disc) throw new GameError('That animal has not returned yet', 404);
+		// An observation is READING about the animal — opening its journal card
+		// (or clicking it in the world, which opens the same card). The daily
+		// "read about N animals" task only counts each animal once per day, so
+		// re-opening the same card isn't farmable.
+		const dayKey = Math.floor(Date.now() / DAY_MS);
+		const firstToday = disc.lastObservedDayKey !== dayKey;
 		const timesObserved = (disc.timesObserved || 0) + 1;
-		await t.Discovery.patch(disc.id, { timesObserved });
-		await bumpMetrics(player, { animalsObserved: 1 });
+		await t.Discovery.patch(disc.id, { timesObserved, lastObservedDayKey: dayKey });
+		await bumpMetrics(player, { animalsObserved: 1 }, firstToday ? { observe: 1 } : {});
 		await awardAchievements(playerId);
 		return { ok: true, discovery: { ...disc, timesObserved }, animal: d.animal.get(animalId) };
+	}
+}
+
+/**
+ * POST /ClaimTask/ {playerId, taskId} — claim a finished daily task's reward.
+ * The board itself is derived (see dailyTasksFor); only the claim is stored.
+ */
+export class ClaimTask extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId, taskId } = await bodyOf(data);
+		const t = db();
+		const d = await defs();
+		const { player } = await requirePlayer(playerId);
+		const wid = worldOf(player);
+		const now = Date.now();
+
+		const discoveries = await byWorld(t.Discovery, wid);
+		const block = dailyTasksBlock(wid, player, d, discoveries.length, now);
+		const task = block.tasks.find((x: any) => x.id === String(taskId || ''));
+		if (!task) throw new GameError("That task is not on today's board", 404);
+		if (task.claimed) throw new GameError('Already claimed — fresh tasks arrive tomorrow', 409);
+		if (task.progress < task.target) throw new GameError('Not finished yet — check the board for what remains', 409);
+
+		// grant the material bundle, respecting carrying capacity
+		const capacity = inventoryCapacity(player);
+		const inventory = { ...(player.inventory || {}) };
+		let room = Math.max(0, capacity - sumValues(inventory));
+		const gained: Record<string, number> = {};
+		for (const [resId, qty] of Object.entries(task.reward || {})) {
+			const take = Math.min(qty as number, room);
+			if (take <= 0) continue;
+			inventory[resId] = (inventory[resId] || 0) + take;
+			gained[resId] = take;
+			room -= take;
+		}
+		if (!Object.keys(gained).length) throw new GameError('Your basket is full — make room for the reward first', 409);
+
+		const claims = player.taskClaims?.dayKey === block.dayKey
+			? { dayKey: block.dayKey, claimed: { ...(player.taskClaims.claimed || {}) } }
+			: { dayKey: block.dayKey, claimed: {} as Record<string, boolean> };
+		claims.claimed[task.id] = true;
+		await t.Player.patch(playerId, { inventory, taskClaims: claims });
+		await bumpMetrics(player, { tasksCompleted: 1 });
+		await awardAchievements(playerId);
+
+		const dailyTasks = {
+			...block,
+			tasks: block.tasks.map((x: any) => (x.id === task.id ? { ...x, claimed: true } : x)),
+		};
+		return { ok: true, taskId: task.id, gained, inventory, dailyTasks };
 	}
 }
 
@@ -2844,7 +3216,8 @@ export class Terraform extends PublicEndpoint {
 
 		const tx = Math.round(Number(x));
 		const ty = Math.round(Number(y));
-		if (!Number.isFinite(tx) || !Number.isFinite(ty) || tx < 1 || ty < 1 || tx > 28 || ty > 18) {
+		const grid = areaGrid(d, area);
+		if (!Number.isFinite(tx) || !Number.isFinite(ty) || tx < 1 || ty < 1 || tx > grid.cols - 2 || ty > grid.rows - 2) {
 			throw new GameError('That spot is out of reach');
 		}
 		const placements = await byWorld(t.Placement, wid);
@@ -2920,7 +3293,7 @@ export class Terraform extends PublicEndpoint {
 			removeTerrainIds: removedId ? [removedId] : [],
 			player: { ...player, inventory },
 		});
-		await bumpMetrics(player, { terraformActions: 1, animalsReturned: recalc.newAnimals?.length || 0 });
+		await bumpMetrics(player, { terraformActions: 1, animalsReturned: recalc.newAnimals?.length || 0 }, action === 'water' ? { water: 1 } : {});
 		await awardWorldAchievements(wid, playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
 		return { ok: true, tile, removedId, dug, inventory, ...recalc };
 	}
@@ -3032,6 +3405,7 @@ export class Heartbeat extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId } = await bodyOf(data);
 		const t = db();
+		const d = await defs();
 		const { player } = await requirePlayer(playerId);
 		const now = Date.now();
 		const prev = player.metrics || freshMetrics(player.createdAt || now);
@@ -3040,7 +3414,8 @@ export class Heartbeat extends PublicEndpoint {
 
 		let playSeconds = prev.playSeconds || 0;
 		let sessions = prev.sessions || 0;
-		if (last === 0 || gap > SESSION_GAP_MS) {
+		const newSession = last === 0 || gap > SESSION_GAP_MS;
+		if (newSession) {
 			sessions += 1; // first beat of a new play session
 		} else {
 			playSeconds += Math.min(gap, MAX_BEAT_MS) / 1000;
@@ -3055,8 +3430,72 @@ export class Heartbeat extends PublicEndpoint {
 			sessions,
 		};
 		await t.Player.patch(playerId, { metrics });
+
+		// ---- habitat growth: the preserve keeps living while the game is closed ----
+		// Placements mature on wall-clock time (see matureMs), but biome health is
+		// only ever recomputed on actions. The heartbeat is the "time passed" action:
+		//  • every beat: if any placement crossed maturity since the last beat,
+		//    recalc just those biomes (a tree finishing growth mid-session counts);
+		//  • first beat of a session after a real absence: recalc every unlocked
+		//    biome and shape a small welcome-back summary for the client.
+		const wid = worldOf(player);
+		let welcomeBack: any = null;
+		const newAnimals: any[] = [];
+		const freshBiomeStates: any[] = [];
+		try {
+			const awaySince = prev.lastSeenAt || 0;
+			const longAway = newSession && awaySince > 0 && now - awaySince > 10 * 60_000;
+			const placements = await byWorld(t.Placement, wid);
+			const sinceBeat = last > 0 ? last : now;
+
+			// biomes with a growth threshold crossed since we last looked
+			const crossed = new Set<string>();
+			for (const p of placements) {
+				const def = d.object.get(p.objectId);
+				if (maturedBetween(def, p, longAway ? awaySince : sinceBeat, now)) crossed.add(p.area);
+			}
+
+			const biomeStates = await byWorld(t.BiomeState, wid);
+			const unlockedIds = new Set(biomeStates.filter((b: any) => b.unlocked).map((b: any) => b.biomeId));
+			const toRecalc = longAway ? [...unlockedIds] : [...crossed].filter((b) => unlockedIds.has(b));
+
+			let healthGain = 0;
+			for (const biomeId of toRecalc) {
+				const before = biomeStates.find((b: any) => b.biomeId === biomeId)?.health || 0;
+				const r = await recalcBiome(wid, playerId, biomeId, { player });
+				healthGain += Math.max(0, (r.biomeState?.health || 0) - before);
+				newAnimals.push(...(r.newAnimals || []));
+				freshBiomeStates.push(r.biomeState);
+			}
+			if (newAnimals.length || freshBiomeStates.length) {
+				await awardWorldAchievements(wid, playerId, { addDiscoveries: newAnimals, freshBiomeStates });
+			}
+			if (longAway) {
+				const matured = placements.filter((p) => {
+					const def = d.object.get(p.objectId);
+					return unlockedIds.has(p.area) && maturedBetween(def, p, awaySince, now);
+				}).length;
+				if (matured > 0 || newAnimals.length > 0 || healthGain > 0) {
+					welcomeBack = {
+						awayHours: Math.round(((now - awaySince) / 3_600_000) * 10) / 10,
+						matured,
+						healthGain,
+						arrivals: newAnimals.map((n: any) => n.animal?.name).filter(Boolean),
+					};
+				}
+			}
+		} catch (e) {
+			console.error('heartbeat growth pass skipped:', e); // growth must never break the heartbeat
+		}
+
 		await awardAchievements(playerId); // session-count achievements (e.g. A Familiar Face)
-		return { ok: true, metrics: metricsView({ ...player, metrics }) };
+		return {
+			ok: true,
+			metrics: metricsView({ ...player, metrics }),
+			...(newAnimals.length ? { newAnimals } : {}),
+			...(freshBiomeStates.length ? { biomeStates: freshBiomeStates } : {}),
+			...(welcomeBack ? { welcomeBack } : {}),
+		};
 	}
 }
 

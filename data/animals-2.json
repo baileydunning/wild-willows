@@ -64,7 +64,13 @@
 					"kangaroo-rat",
 					"desert-cottontail"
 				],
-				"hint": "Kit foxes return when prey is plentiful and dens are ready."
+				"hint": "Kit foxes return when prey is plentiful and dens are ready.",
+				"conditions": {
+					"dayPhase": [
+						"dusk",
+						"night"
+					]
+				}
 			},
 			"scientificName": "Vulpes macrotis",
 			"role": "A small nocturnal desert canid and mesopredator that hunts rodents and rabbits. It seldom needs to drink, getting moisture from prey. Coyotes are its main threat.",
@@ -1826,7 +1832,13 @@
 					"dune-grass": 2,
 					"coastal-nesting-area": 1
 				},
-				"hint": "Only a truly thriving shore earns a whale sighting. Watch the horizon."
+				"hint": "Only a truly thriving shore earns a whale sighting. Watch the horizon.",
+				"conditions": {
+					"season": [
+						"winter",
+						"spring"
+					]
+				}
 			},
 			"scientificName": "Eschrichtius robustus",
 			"role": "A bottom-feeding baleen whale that rolls on its side to suck up sediment and filter out tiny crustaceans. Killer whales are its main predator; a passing gray whale is a sign of a fully restored, productive coast.",
@@ -2355,7 +2367,13 @@
 				"water": {
 					"tiles": 4
 				},
-				"hint": "Thick reeds and cattails beside open water."
+				"hint": "Thick reeds and cattails beside open water.",
+				"conditions": {
+					"dayPhase": [
+						"dawn",
+						"dusk"
+					]
+				}
 			},
 			"scientificName": "Botaurus lentiginosus",
 			"role": "A secretive ambush predator of the reed beds. It stands motionless, then seizes fish, frogs, and insects, relying on stripy camouflage to stay hidden.",
@@ -2847,7 +2865,12 @@
 				"animals": [
 					"pika"
 				],
-				"hint": "Rock pile and krummholz, once pikas are back."
+				"hint": "Rock pile and krummholz, once pikas are back.",
+				"conditions": {
+					"season": [
+						"winter"
+					]
+				}
 			},
 			"scientificName": "Mustela richardsonii",
 			"role": "A small, fierce weasel that specializes in voles and other rodents, also taking young pikas and ground-bird eggs. It hunts prey burrows it can slip right into. Foxes, martens, and raptors prey on it in turn.",
@@ -3127,7 +3150,13 @@
 					"coastal-nesting-area": 1,
 					"tidepool": 1
 				},
-				"hint": "Dune grass and a coastal nesting area."
+				"hint": "Dune grass and a coastal nesting area.",
+				"conditions": {
+					"season": [
+						"spring",
+						"summer"
+					]
+				}
 			},
 			"scientificName": "Charadrius nivosus nivosus",
 			"role": "A threatened beach-nesting plover that feeds on small invertebrates along the sand and tide line. Extremely sensitive to disturbance, it is a flagship indicator of protected, undisturbed dune beaches.",
@@ -3417,7 +3446,13 @@
 					"reed-bed": 1,
 					"nesting-platform": 1
 				},
-				"hint": "Plant a bald cypress with a reed bed and nesting platform."
+				"hint": "Plant a bald cypress with a reed bed and nesting platform.",
+				"conditions": {
+					"season": [
+						"spring",
+						"summer"
+					]
+				}
 			},
 			"scientificName": "Protonotaria citrea",
 			"role": "A glowing-gold swamp warbler that gleans insects and spiders over the water. Unusually for a warbler, it nests in cavities, often above standing water.",
@@ -3490,7 +3525,16 @@
 					"desert-ironwood": 1,
 					"cactus-patch": 1
 				},
-				"hint": "Plant a mesquite and an ironwood beside a cactus patch."
+				"hint": "Plant a mesquite and an ironwood beside a cactus patch.",
+				"conditions": {
+					"dayPhase": [
+						"night"
+					],
+					"season": [
+						"spring",
+						"summer"
+					]
+				}
 			},
 			"scientificName": "Micrathene whitneyi",
 			"role": "The world's smallest owl, a nocturnal insectivore that hunts insects and scorpions and nests in old woodpecker holes. It is a mesopredator on desert arthropods. Snakes and larger owls threaten it.",
@@ -4290,7 +4334,16 @@
 				"water": {
 					"tiles": 3
 				},
-				"hint": "A snowmelt pool beside a talus pile, with open water near."
+				"hint": "A snowmelt pool beside a talus pile, with open water near.",
+				"conditions": {
+					"weather": [
+						"rain"
+					],
+					"season": [
+						"spring",
+						"summer"
+					]
+				}
 			},
 			"scientificName": "Rana cascadae",
 			"role": "A cold-adapted mountain frog that eats insects and spiders while its tadpoles graze algae in snowmelt pools. It links pond invertebrates to larger predators. Introduced trout eat its tadpoles, driving steep declines across its southern range.",

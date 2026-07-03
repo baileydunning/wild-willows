@@ -9,7 +9,8 @@ const STEPS: Array<{ icon: string; title: string; text: string }> = [
 	{ icon: 'pin', title: 'Rebuild', text: 'Place habitat out in the biome. Every piece raises biome health, and variety — food, water, shelter, plants, open space — raises ecological balance. Terraform with the shovel and watering can: dig a bed, water it, then interact with it to plant flowers and trees — or flood it again to shape ponds, rivers, and lakes.' },
 	{ icon: 'paw', title: 'Welcome them back', text: 'When the habitat truly supports an animal, it returns on its own. Click any animal to observe it and read about its real-world life.' },
 	{ icon: 'journal', title: 'Record & grow', text: 'Your field journal fills in with every return. Upgrade tools to gather more, restore harder habitats, and unlock the next biome. In the journal you can flip to “Unknown first” or search to see who you’re still missing in an area.' },
-	{ icon: 'cloud', title: 'Read the weather', text: 'Each biome has its own weather that shifts on its own and slowly drifts through the seasons. Open the Weather & Seasons guide (press M) to see what’s happening across the preserve and learn how each condition shapes the biome you’re standing in. Keep an eye out — unusual weather can leave rare materials to gather while it lasts, and the right habitat will even draw certain animals home.' },
+	{ icon: 'cloud', title: 'Read the weather', text: 'Each biome has its own weather that shifts on its own and slowly drifts through the seasons. Open the Weather & Seasons guide (press M) to see what’s happening across the preserve and learn how each condition shapes the biome you’re standing in. Keep an eye out — unusual weather can leave rare materials to gather while it lasts, and a few elusive animals only show themselves in the right weather, season, or time of day (their journal hint says when).' },
+	{ icon: 'check', title: 'Check the board', text: 'Every day the preserve posts three small tasks on the board by the top-right menu — finish one and claim a bundle of materials. Claimed tasks tidy themselves away (press O to tuck the board out of sight). Your plantings also keep growing in real time even while the game is closed: trees take hours to reach full size, and mature habitat nudges the land a little healthier, so there’s always something new when you come back.' },
 ];
 
 const KEYS: Array<{ keys: string[]; does: string }> = [
@@ -23,6 +24,7 @@ const KEYS: Array<{ keys: string[]; does: string }> = [
 	{ keys: ['B'], does: 'Open your basket' },
 	{ keys: ['J'], does: 'Open the field journal' },
 	{ keys: ['K'], does: 'Open achievements' },
+	{ keys: ['O'], does: 'Tuck away / show the daily task board' },
 	{ keys: ['F'], does: 'Open the activity feed (last 100 events)' },
 	{ keys: ['T'], does: 'Open tools & upgrades' },
 	{ keys: ['P'], does: 'Open the preserve overview' },
@@ -30,6 +32,7 @@ const KEYS: Array<{ keys: string[]; does: string }> = [
 	{ keys: ['U'], does: 'People — invite friends & see who’s here (co-op worlds only)' },
 	{ keys: ['G'], does: 'Open settings' },
 	{ keys: ['H'], does: 'Open this How to Play guide' },
+	{ keys: ['+', '−'], does: 'Zoom the camera in / out' },
 	{ keys: ['Esc'], does: 'Close menus · cancel placing' },
 ];
 

@@ -218,7 +218,8 @@ function GameScreen() {
 			// H toggles the How-to-Play help modal (it isn't a panel).
 			if (k === 'h') { game.setHelpOpen(!game.helpOpen); return; }
 			// B = basket, J = journal, K = achievements, F = feed, T = tools, P = preserve,
-			// G = settings (gear), C = crafting (I = basket alias)
+			// G = settings (gear), C = crafting (I = basket alias). O (the daily task
+			// board's collapse toggle) is handled inside TasksWidget itself.
 			const map: Record<string, any> = { b: 'inventory', i: 'inventory', j: 'journal', k: 'achievements', f: 'feed', t: 'tools', p: 'biomes', g: 'settings', c: 'crafting', u: 'people', m: 'weather' };
 			if (map[k]) setPanel(panel === map[k] ? null : map[k]);
 			// number keys select toolbelt tools

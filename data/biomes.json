@@ -28,6 +28,10 @@
 			"palette": {
 				"damaged": "#b9a37c",
 				"healthy": "#8fbf6f"
+			},
+			"grid": {
+				"cols": 44,
+				"rows": 20
 			}
 		},
 		{

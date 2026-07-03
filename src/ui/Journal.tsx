@@ -38,11 +38,28 @@ function TrophicBadge({ trophic }: { trophic?: string }) {
 	);
 }
 
+/** "Comes out when…" line for rare animals gated on the live weather/season/time. */
+export function conditionsLine(animal: AnimalDef): string | null {
+	const cond = animal.requirements?.conditions;
+	if (!cond) return null;
+	const bits: string[] = [];
+	if (cond.weather?.length) bits.push(`during ${cond.weather.join(' or ')}`);
+	if (cond.season?.length) bits.push(`in ${cond.season.join(' or ')}`);
+	if (cond.dayPhase?.length) bits.push(`at ${cond.dayPhase.join(' or ')}`);
+	return bits.length ? `Only ventures out ${bits.join(', ')}` : null;
+}
+
 function RequirementHints({ animal, full }: { animal: AnimalDef; full: boolean }) {
 	const { data } = useGame();
 	const req = animal.requirements || {};
+	const condLine = conditionsLine(animal);
 	if (!full) {
-		return <div className="muted small">Hint: {req.hint || 'Restore more habitat and see who arrives.'}</div>;
+		return (
+			<div className="muted small">
+				Hint: {req.hint || 'Restore more habitat and see who arrives.'}
+				{condLine && <> <Icon name="cloud" size={11} /> {condLine}.</>}
+			</div>
+		);
 	}
 	return (
 		<div className="small req-details">
@@ -56,6 +73,7 @@ function RequirementHints({ animal, full }: { animal: AnimalDef; full: boolean }
 				{(req.animals || []).map((id) => (
 					<li key={id}>{data?.animals.find((a) => a.id === id)?.name || id} already returned</li>
 				))}
+				{condLine ? <li><Icon name="cloud" size={11} /> {condLine} — check the weather panel (M)</li> : null}
 			</ul>
 		</div>
 	);
@@ -67,11 +85,11 @@ function RequirementHints({ animal, full }: { animal: AnimalDef; full: boolean }
  * `eatsOther`). Clicking a chip opens that animal's info card — walk the web.
  */
 function FoodWebLinks({ animal }: { animal: AnimalDef }) {
-	const { data, state, setAnimalCardId, setPanel } = useGame();
+	const { data, state, observe } = useGame();
 	if (!data || !state) return null;
 	const known = new Set(state.discoveries.map((d) => d.animalId));
 	const nameOf = (id: string) => data.animals.find((a) => a.id === id)?.name || id;
-	const openCard = (id: string) => { setAnimalCardId(id); setPanel('animal'); };
+	const openCard = (id: string) => { void observe(id); }; // reading the entry = observing
 	const chip = (id: string) => {
 		const seen = known.has(id);
 		return (
@@ -117,7 +135,7 @@ function FoodWebLinks({ animal }: { animal: AnimalDef }) {
  * ecology (role, diet, food web, field note) lives on the card, not here.
  */
 function JournalEntry({ animal, disc, full }: { animal: AnimalDef; disc?: Discovery; full: boolean }) {
-	const { setAnimalCardId, setPanel } = useGame();
+	const { observe } = useGame();
 	if (!disc) {
 		return (
 			<div className="journal-entry entry-unknown">
@@ -133,7 +151,7 @@ function JournalEntry({ animal, disc, full }: { animal: AnimalDef; disc?: Discov
 	}
 	const c = comfortLabel(disc.comfort);
 	return (
-		<button className="journal-entry entry-link" onClick={() => { setAnimalCardId(animal.id); setPanel('animal'); }}>
+		<button className="journal-entry entry-link" onClick={() => { void observe(animal.id); }}>
 			<div className="silhouette known">
 				<img className="ani-thumb" src={animalSpriteDataUri(animal.id, animal.kind)} alt={animal.name} />
 			</div>
@@ -159,8 +177,8 @@ function JournalEntry({ animal, disc, full }: { animal: AnimalDef; disc?: Discov
  * predators at the top. Discovered animals light up; the rest are silhouettes.
  */
 function FoodWebView({ animals, discs }: { animals: AnimalDef[]; discs: Map<string, Discovery> }) {
-	const { setAnimalCardId, setPanel } = useGame();
-	const openCard = (id: string) => { setAnimalCardId(id); setPanel('animal'); };
+	const { observe } = useGame();
+	const openCard = (id: string) => { void observe(id); }; // reading the entry = observing
 	const tiers: { label: string; test: (a: AnimalDef) => boolean }[] = [
 		{ label: 'Apex predators', test: (a) => a.trophic === 'apex-predator' },
 		{ label: 'Mid predators', test: (a) => a.trophic === 'mesopredator' },
@@ -219,9 +237,9 @@ function FoodWebView({ animals, discs }: { animals: AnimalDef[]; discs: Map<stri
  * opens the full info card.
  */
 function OverviewGrid({ query }: { query: string }) {
-	const { data, state, setAnimalCardId, setPanel } = useGame();
+	const { data, state, observe } = useGame();
 	if (!data || !state) return null;
-	const openCard = (id: string) => { setAnimalCardId(id); setPanel('animal'); };
+	const openCard = (id: string) => { void observe(id); }; // reading the entry = observing
 	const order = new Map(data.biomes.map((b) => [b.id, b.order]));
 	const biomeName = (id: string) => data.biomes.find((b) => b.id === id)?.name || id;
 	const q = query.trim().toLowerCase();
@@ -449,6 +467,15 @@ export function AnimalCard() {
 					{disc && (
 						<p className="muted small card-seen">
 							Observed {disc.timesObserved} time{disc.timesObserved === 1 ? '' : 's'} · first seen {new Date(disc.firstObservedAt).toLocaleDateString()}
+						</p>
+					)}
+					{disc && disc.comfort < 90 && Object.keys(animal.requirements?.objects || {}).length > 0 && (
+						<p className="muted small card-seen">
+							<Icon name="leaf" size={11} /> Comfort grows with habitat: place more of what it likes —{' '}
+							{Object.keys(animal.requirements.objects || {})
+								.map((id) => data?.habitatObjects.find((o) => o.id === id)?.name || id)
+								.join(', ')}{' '}
+							— and it will truly settle in.
 						</p>
 					)}
 					{neighbors && (

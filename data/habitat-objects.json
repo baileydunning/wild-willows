@@ -18,7 +18,9 @@
 			],
 			"shape": "patch",
 			"color": "#7ab35c",
-			"description": "A soft patch of regrowing grass. A first step for any bare ground."
+			"description": "A soft patch of regrowing grass. A first step for any bare ground.",
+			"matureHours": 2,
+			"matureBonus": 1
 		},
 		{
 			"id": "native-grass-patch",
@@ -34,7 +36,9 @@
 			],
 			"shape": "patch",
 			"color": "#5f9e44",
-			"description": "Deep-rooted native bunchgrass. Food and cover for meadow life."
+			"description": "Deep-rooted native bunchgrass. Food and cover for meadow life.",
+			"matureHours": 2,
+			"matureBonus": 1
 		},
 		{
 			"id": "wildflower-patch",
@@ -55,7 +59,9 @@
 				"seeds": 2
 			},
 			"growSeconds": 45,
-			"description": "Mixed native wildflowers. Pollinators can spot it from far away."
+			"description": "Mixed native wildflowers. Pollinators can spot it from far away.",
+			"matureHours": 2,
+			"matureBonus": 1
 		},
 		{
 			"id": "poppy-patch",
@@ -78,7 +84,9 @@
 				"wildflowers": 1
 			},
 			"growSeconds": 45,
-			"description": "Bright field poppies, grown from seed in a watered bed."
+			"description": "Bright field poppies, grown from seed in a watered bed.",
+			"matureHours": 2,
+			"matureBonus": 1
 		},
 		{
 			"id": "sunflower-patch",
@@ -99,7 +107,9 @@
 				"seeds": 3
 			},
 			"growSeconds": 60,
-			"description": "Tall sunflowers that feed seed-eating birds all season."
+			"description": "Tall sunflowers that feed seed-eating birds all season.",
+			"matureHours": 2,
+			"matureBonus": 1
 		},
 		{
 			"id": "lupine-patch",
@@ -122,7 +132,9 @@
 				"fiber": 1
 			},
 			"growSeconds": 50,
-			"description": "Spires of blue lupine that fix the soil as they bloom."
+			"description": "Spires of blue lupine that fix the soil as they bloom.",
+			"matureHours": 2,
+			"matureBonus": 1
 		},
 		{
 			"id": "willow-tree",
@@ -146,7 +158,9 @@
 				"seeds": 2
 			},
 			"growSeconds": 90,
-			"description": "The preserve's namesake — a graceful willow grown from a watered bed."
+			"description": "The preserve's namesake — a graceful willow grown from a watered bed.",
+			"matureHours": 8,
+			"matureBonus": 2
 		},
 		{
 			"id": "oak-tree",
@@ -169,7 +183,9 @@
 				"acorns": 2
 			},
 			"growSeconds": 90,
-			"description": "An acorn-grown oak. Squirrels and jays will thank you for decades."
+			"description": "An acorn-grown oak. Squirrels and jays will thank you for decades.",
+			"matureHours": 8,
+			"matureBonus": 2
 		},
 		{
 			"id": "pine-tree",
@@ -192,7 +208,9 @@
 				"pinecones": 2
 			},
 			"growSeconds": 90,
-			"description": "A young pine grown from a cone — evergreen shelter in any season."
+			"description": "A young pine grown from a cone — evergreen shelter in any season.",
+			"matureHours": 8,
+			"matureBonus": 2
 		},
 		{
 			"id": "butterfly-flowers",
@@ -208,7 +226,9 @@
 			],
 			"shape": "flowers",
 			"color": "#e8954f",
-			"description": "Milkweed and nectar flowers, planted especially for butterflies."
+			"description": "Milkweed and nectar flowers, planted especially for butterflies.",
+			"matureHours": 2,
+			"matureBonus": 1
 		},
 		{
 			"id": "pollinator-garden",
@@ -224,7 +244,9 @@
 			],
 			"shape": "flowers",
 			"color": "#c45ad0",
-			"description": "A dense, season-long banquet for bees and butterflies."
+			"description": "A dense, season-long banquet for bees and butterflies.",
+			"matureHours": 2,
+			"matureBonus": 1
 		},
 		{
 			"id": "shrub",
@@ -241,7 +263,9 @@
 			],
 			"shape": "bush",
 			"color": "#4f7d3a",
-			"description": "A young native shrub. Quick cover for anyone passing through."
+			"description": "A young native shrub. Quick cover for anyone passing through.",
+			"matureHours": 4,
+			"matureBonus": 1
 		},
 		{
 			"id": "berry-bush",
@@ -264,7 +288,9 @@
 				"berries": 2
 			},
 			"growSeconds": 70,
-			"description": "A thornless native berry bush. Songbirds, rabbits, deer, and bears all visit. Sow it in a watered bed from seeds and a few berries."
+			"description": "A thornless native berry bush. Songbirds, rabbits, deer, and bears all visit. Sow it in a watered bed from seeds and a few berries.",
+			"matureHours": 4,
+			"matureBonus": 1
 		},
 		{
 			"id": "small-pond",
@@ -569,7 +595,9 @@
 			],
 			"shape": "tree",
 			"color": "#3f6e38",
-			"description": "A fast-growing native tree planted for squirrels, owls, and nuthatches."
+			"description": "A fast-growing native tree planted for squirrels, owls, and nuthatches.",
+			"matureHours": 8,
+			"matureBonus": 2
 		},
 		{
 			"id": "standing-deadwood",
@@ -622,7 +650,9 @@
 			"plantCost": {
 				"reeds": 3
 			},
-			"growSeconds": 45
+			"growSeconds": 45,
+			"matureHours": 4,
+			"matureBonus": 1
 		},
 		{
 			"id": "mud-bank",
@@ -678,7 +708,9 @@
 			"plantCost": {
 				"reeds": 2
 			},
-			"growSeconds": 45
+			"growSeconds": 45,
+			"matureHours": 4,
+			"matureBonus": 1
 		},
 		{
 			"id": "marsh-log",
@@ -749,7 +781,9 @@
 			"plantCost": {
 				"cactus-fruit": 2
 			},
-			"growSeconds": 70
+			"growSeconds": 70,
+			"matureHours": 4,
+			"matureBonus": 1
 		},
 		{
 			"id": "desert-brush",
@@ -770,7 +804,9 @@
 			"plantCost": {
 				"sand": 2
 			},
-			"growSeconds": 50
+			"growSeconds": 50,
+			"matureHours": 4,
+			"matureBonus": 1
 		},
 		{
 			"id": "shaded-rock-shelter",
@@ -806,7 +842,9 @@
 			"plantCost": {
 				"alpine-flowers": 2
 			},
-			"growSeconds": 45
+			"growSeconds": 45,
+			"matureHours": 2,
+			"matureBonus": 1
 		},
 		{
 			"id": "snowmelt-pool",
@@ -858,7 +896,9 @@
 			"plantCost": {
 				"sand": 2
 			},
-			"growSeconds": 45
+			"growSeconds": 45,
+			"matureHours": 4,
+			"matureBonus": 1
 		},
 		{
 			"id": "driftwood-shelter",
@@ -888,7 +928,9 @@
 			],
 			"shape": "kelp",
 			"color": "#6a7a3a",
-			"description": "A protected line of washed-up kelp — a buffet for the whole beach."
+			"description": "A protected line of washed-up kelp — a buffet for the whole beach.",
+			"matureHours": 4,
+			"matureBonus": 1
 		},
 		{
 			"id": "coastal-nesting-area",
@@ -1249,7 +1291,9 @@
 			],
 			"shape": "clover",
 			"color": "#6fae5a",
-			"description": "Low clover and trefoil — nectar for bees and forage for rabbits."
+			"description": "Low clover and trefoil — nectar for bees and forage for rabbits.",
+			"matureHours": 2,
+			"matureBonus": 1
 		},
 		{
 			"id": "brush-pile",
@@ -1286,7 +1330,9 @@
 			"plantCost": {
 				"moss": 2
 			},
-			"growSeconds": 50
+			"growSeconds": 50,
+			"matureHours": 4,
+			"matureBonus": 1
 		},
 		{
 			"id": "tree-stump",
@@ -1322,7 +1368,9 @@
 			"plantCost": {
 				"reeds": 2
 			},
-			"growSeconds": 45
+			"growSeconds": 45,
+			"matureHours": 4,
+			"matureBonus": 1
 		},
 		{
 			"id": "alder-snag",
@@ -1360,7 +1408,9 @@
 				"cactus-fruit": 1,
 				"sand": 1
 			},
-			"growSeconds": 60
+			"growSeconds": 60,
+			"matureHours": 4,
+			"matureBonus": 1
 		},
 		{
 			"id": "ocotillo",
@@ -1382,7 +1432,9 @@
 				"sand": 1,
 				"branches": 1
 			},
-			"growSeconds": 60
+			"growSeconds": 60,
+			"matureHours": 4,
+			"matureBonus": 1
 		},
 		{
 			"id": "heather-mat",
@@ -1403,7 +1455,9 @@
 			"plantCost": {
 				"alpine-flowers": 2
 			},
-			"growSeconds": 50
+			"growSeconds": 50,
+			"matureHours": 4,
+			"matureBonus": 1
 		},
 		{
 			"id": "krummholz-pine",
@@ -1418,7 +1472,9 @@
 			],
 			"shape": "krummholz",
 			"color": "#3f5e3a",
-			"description": "A wind-sculpted dwarf pine — rare shelter at the tree line."
+			"description": "A wind-sculpted dwarf pine — rare shelter at the tree line.",
+			"matureHours": 8,
+			"matureBonus": 2
 		},
 		{
 			"id": "eelgrass-bed",
@@ -1440,7 +1496,9 @@
 				"sand": 1,
 				"driftwood": 1
 			},
-			"growSeconds": 45
+			"growSeconds": 45,
+			"matureHours": 4,
+			"matureBonus": 1
 		},
 		{
 			"id": "oyster-bed",
@@ -1477,7 +1535,9 @@
 				"seeds": 2
 			},
 			"growSeconds": 45,
-			"description": "Cheerful oxeye daisies that open with the morning sun."
+			"description": "Cheerful oxeye daisies that open with the morning sun.",
+			"matureHours": 2,
+			"matureBonus": 1
 		},
 		{
 			"id": "foxglove",
@@ -1499,7 +1559,9 @@
 				"wildflowers": 1
 			},
 			"growSeconds": 50,
-			"description": "Tall pink foxglove spires — a bumblebee favourite."
+			"description": "Tall pink foxglove spires — a bumblebee favourite.",
+			"matureHours": 2,
+			"matureBonus": 1
 		},
 		{
 			"id": "mushroom-ring",
@@ -1520,7 +1582,9 @@
 				"mushrooms": 2
 			},
 			"growSeconds": 45,
-			"description": "A fairy ring of woodland mushrooms in the leaf litter."
+			"description": "A fairy ring of woodland mushrooms in the leaf litter.",
+			"matureHours": 2,
+			"matureBonus": 1
 		},
 		{
 			"id": "birch-tree",
@@ -1542,7 +1606,9 @@
 				"bark": 1
 			},
 			"growSeconds": 90,
-			"description": "A slender white-barked birch grown from a watered bed."
+			"description": "A slender white-barked birch grown from a watered bed.",
+			"matureHours": 8,
+			"matureBonus": 2
 		},
 		{
 			"id": "marsh-marigold",
@@ -1564,7 +1630,9 @@
 				"seeds": 1
 			},
 			"growSeconds": 45,
-			"description": "Golden marsh marigolds that ring the shallows in spring."
+			"description": "Golden marsh marigolds that ring the shallows in spring.",
+			"matureHours": 2,
+			"matureBonus": 1
 		},
 		{
 			"id": "bulrush",
@@ -1585,7 +1653,9 @@
 				"reeds": 2
 			},
 			"growSeconds": 45,
-			"description": "Stately bulrushes with brown velvet heads along the bank."
+			"description": "Stately bulrushes with brown velvet heads along the bank.",
+			"matureHours": 4,
+			"matureBonus": 1
 		},
 		{
 			"id": "prickly-pear",
@@ -1606,7 +1676,9 @@
 				"cactus-fruit": 2
 			},
 			"growSeconds": 70,
-			"description": "Pad cactus with sweet fruit and bright blooms."
+			"description": "Pad cactus with sweet fruit and bright blooms.",
+			"matureHours": 4,
+			"matureBonus": 1
 		},
 		{
 			"id": "desert-marigold",
@@ -1628,7 +1700,9 @@
 				"seeds": 1
 			},
 			"growSeconds": 50,
-			"description": "Drought-tough marigolds that glow against the sand."
+			"description": "Drought-tough marigolds that glow against the sand.",
+			"matureHours": 2,
+			"matureBonus": 1
 		},
 		{
 			"id": "gentian-patch",
@@ -1649,7 +1723,9 @@
 				"alpine-flowers": 2
 			},
 			"growSeconds": 45,
-			"description": "Vivid blue alpine gentians, low against the wind."
+			"description": "Vivid blue alpine gentians, low against the wind.",
+			"matureHours": 2,
+			"matureBonus": 1
 		},
 		{
 			"id": "moss-cushion",
@@ -1670,7 +1746,9 @@
 				"moss": 2
 			},
 			"growSeconds": 45,
-			"description": "A springy cushion of moss dotted with tiny blooms."
+			"description": "A springy cushion of moss dotted with tiny blooms.",
+			"matureHours": 2,
+			"matureBonus": 1
 		},
 		{
 			"id": "sea-thrift",
@@ -1692,7 +1770,9 @@
 				"seeds": 1
 			},
 			"growSeconds": 45,
-			"description": "Pink sea-thrift pompoms that thrive in salt spray."
+			"description": "Pink sea-thrift pompoms that thrive in salt spray.",
+			"matureHours": 2,
+			"matureBonus": 1
 		},
 		{
 			"id": "beach-shrub",
@@ -1714,7 +1794,9 @@
 				"driftwood": 1
 			},
 			"growSeconds": 55,
-			"description": "A salt-hardy grey-green coastal shrub."
+			"description": "A salt-hardy grey-green coastal shrub.",
+			"matureHours": 4,
+			"matureBonus": 1
 		},
 		{
 			"id": "nectar-feeder",
@@ -1777,7 +1859,9 @@
 				"sand": 1
 			},
 			"growSeconds": 90,
-			"description": "The green-barked desert tree — rare shade and yellow blooms for the scrubland."
+			"description": "The green-barked desert tree — rare shade and yellow blooms for the scrubland.",
+			"matureHours": 8,
+			"matureBonus": 2
 		},
 		{
 			"id": "shore-pine",
@@ -1799,7 +1883,9 @@
 				"sand": 1
 			},
 			"growSeconds": 90,
-			"description": "A salt-bent pine that anchors the back dunes and shelters shorebirds."
+			"description": "A salt-bent pine that anchors the back dunes and shelters shorebirds.",
+			"matureHours": 8,
+			"matureBonus": 2
 		},
 		{
 			"id": "bald-cypress",
@@ -1821,7 +1907,9 @@
 				"reeds": 1
 			},
 			"growSeconds": 90,
-			"description": "A towering swamp cypress with feathery needles and a flared, knee-rooted base."
+			"description": "A towering swamp cypress with feathery needles and a flared, knee-rooted base.",
+			"matureHours": 8,
+			"matureBonus": 2
 		},
 		{
 			"id": "water-tupelo",
@@ -1843,7 +1931,9 @@
 				"mud": 1
 			},
 			"growSeconds": 90,
-			"description": "A round-crowned wetland tree whose swollen base stands right in the water."
+			"description": "A round-crowned wetland tree whose swollen base stands right in the water.",
+			"matureHours": 8,
+			"matureBonus": 2
 		},
 		{
 			"id": "mesquite-tree",
@@ -1865,7 +1955,9 @@
 				"sand": 1
 			},
 			"growSeconds": 90,
-			"description": "A low, spreading desert tree — airy shade and seed pods for the scrubland."
+			"description": "A low, spreading desert tree — airy shade and seed pods for the scrubland.",
+			"matureHours": 8,
+			"matureBonus": 2
 		},
 		{
 			"id": "desert-ironwood",
@@ -1887,7 +1979,9 @@
 				"sand": 1
 			},
 			"growSeconds": 90,
-			"description": "A dense, slow-growing ironwood — a vital nurse tree in the open desert."
+			"description": "A dense, slow-growing ironwood — a vital nurse tree in the open desert.",
+			"matureHours": 8,
+			"matureBonus": 2
 		},
 		{
 			"id": "subalpine-fir",
@@ -1908,7 +2002,9 @@
 				"seeds": 2
 			},
 			"growSeconds": 90,
-			"description": "A slender spire fir that shrugs off the high-country snow."
+			"description": "A slender spire fir that shrugs off the high-country snow.",
+			"matureHours": 8,
+			"matureBonus": 2
 		},
 		{
 			"id": "quaking-aspen",
@@ -1929,7 +2025,9 @@
 				"seeds": 2
 			},
 			"growSeconds": 90,
-			"description": "White-barked aspen whose golden leaves shiver in the alpine wind."
+			"description": "White-barked aspen whose golden leaves shiver in the alpine wind.",
+			"matureHours": 8,
+			"matureBonus": 2
 		},
 		{
 			"id": "monterey-cypress",
@@ -1951,7 +2049,9 @@
 				"sand": 1
 			},
 			"growSeconds": 90,
-			"description": "A wind-flattened coastal cypress sculpted by the sea breeze."
+			"description": "A wind-flattened coastal cypress sculpted by the sea breeze.",
+			"matureHours": 8,
+			"matureBonus": 2
 		},
 		{
 			"id": "coast-live-oak",
@@ -1972,7 +2072,9 @@
 				"seeds": 2
 			},
 			"growSeconds": 90,
-			"description": "A broad evergreen oak that anchors the back shore with deep shade."
+			"description": "A broad evergreen oak that anchors the back shore with deep shade.",
+			"matureHours": 8,
+			"matureBonus": 2
 		},
 		{
 			"id": "campfire",
@@ -2435,7 +2537,9 @@
 			],
 			"shape": "juniper",
 			"color": "#5d7a66",
-			"description": "A low, hardy juniper heavy with frosted berries — cover and winter food where little else grows."
+			"description": "A low, hardy juniper heavy with frosted berries — cover and winter food where little else grows.",
+			"matureHours": 8,
+			"matureBonus": 2
 		},
 		{
 			"id": "cliff-nest-niche",
@@ -2782,9 +2886,15 @@
 			"id": "rain-basin",
 			"name": "Rain Basin",
 			"placement": "outdoor",
-			"biomes": ["meadow", "forest", "wetland"],
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland"
+			],
 			"healthValue": 5,
-			"needs": ["water"],
+			"needs": [
+				"water"
+			],
 			"shape": "rainbasin",
 			"color": "#6fa8d6",
 			"description": "A carved stone bowl that catches rainwater — a drinking spot for visiting wildlife."
@@ -2793,7 +2903,13 @@
 			"id": "dew-lantern",
 			"name": "Dewlit Lantern",
 			"placement": "both",
-			"biomes": ["meadow", "forest", "wetland", "alpine", "coastal"],
+			"biomes": [
+				"meadow",
+				"forest",
+				"wetland",
+				"alpine",
+				"coastal"
+			],
 			"healthValue": 1,
 			"needs": [],
 			"shape": "dewlantern",
@@ -2804,9 +2920,15 @@
 			"id": "sunstone-cairn",
 			"name": "Sunstone Cairn",
 			"placement": "outdoor",
-			"biomes": ["desert", "meadow", "forest"],
+			"biomes": [
+				"desert",
+				"meadow",
+				"forest"
+			],
 			"healthValue": 4,
-			"needs": ["shelter"],
+			"needs": [
+				"shelter"
+			],
 			"shape": "sunstonecairn",
 			"color": "#e6a94e",
 			"description": "A stack of sun-baked stones that hold the day's warmth into the cool evening."
@@ -2815,9 +2937,15 @@
 			"id": "frostflower-planter",
 			"name": "Frostflower Planter",
 			"placement": "both",
-			"biomes": ["alpine", "forest", "meadow"],
+			"biomes": [
+				"alpine",
+				"forest",
+				"meadow"
+			],
 			"healthValue": 3,
-			"needs": ["plant"],
+			"needs": [
+				"plant"
+			],
 			"shape": "frostflowerplanter",
 			"color": "#bcd9e8",
 			"description": "A planter of pale ice-blooms that keep their shape long after the snow has gone."
@@ -2826,7 +2954,11 @@
 			"id": "stormglass-lantern",
 			"name": "Stormglass Lantern",
 			"placement": "both",
-			"biomes": ["desert", "coastal", "wetland"],
+			"biomes": [
+				"desert",
+				"coastal",
+				"wetland"
+			],
 			"healthValue": 1,
 			"needs": [],
 			"shape": "stormglasslantern",
@@ -2861,7 +2993,9 @@
 			"id": "boardwalk",
 			"name": "Marsh Boardwalk",
 			"placement": "outdoor",
-			"biomes": ["wetland"],
+			"biomes": [
+				"wetland"
+			],
 			"healthValue": 2,
 			"needs": [],
 			"shape": "boardwalk",
@@ -2872,9 +3006,13 @@
 			"id": "heron-rookery",
 			"name": "Heron Rookery",
 			"placement": "outdoor",
-			"biomes": ["wetland"],
+			"biomes": [
+				"wetland"
+			],
 			"healthValue": 6,
-			"needs": ["shelter"],
+			"needs": [
+				"shelter"
+			],
 			"shape": "heronrookery",
 			"color": "#8a8270",
 			"description": "A tall marsh snag crowned with a stick nest — exactly the high, safe perch that herons and egrets raise their young on."
@@ -2883,9 +3021,13 @@
 			"id": "dragonfly-pond",
 			"name": "Dragonfly Pond",
 			"placement": "outdoor",
-			"biomes": ["wetland"],
+			"biomes": [
+				"wetland"
+			],
 			"healthValue": 7,
-			"needs": ["water"],
+			"needs": [
+				"water"
+			],
 			"shape": "dragonflypond",
 			"color": "#5aa6cf",
 			"description": "A clear pool ringed with reeds — open water where dragonflies hunt and frogs and newts breed."

@@ -246,6 +246,7 @@ export const api = {
 	setPlacementColor: (placementId: string, color: string) =>
 		post<any>('/SetPlacementColor/', { playerId: pid(), placementId, color }),
 	observe: (animalId: string) => post<any>('/ObserveAnimal/', { playerId: pid(), animalId }),
+	claimTask: (taskId: string) => post<any>('/ClaimTask/', { playerId: pid(), taskId }),
 	terraform: (area: string, x: number, y: number, action: 'dig' | 'water' | 'clear') =>
 		post<any>('/Terraform/', { playerId: pid(), area, x, y, action }),
 	plant: (area: string, x: number, y: number, plantId: string) =>

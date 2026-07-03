@@ -9,35 +9,34 @@ import { seasonStyle, weatherType, liveWeatherType, gatherResourceFor } from '..
 import type { BiomeDef, HabitatObjectDef } from '../types';
 
 export const TILE = 32;
+// Base grid — the home interior's world size, and the fallback for any biome
+// without an explicit `grid` in data/biomes.json. Outdoor biomes are BIGGER
+// than the screen now (the meadow especially): the camera follows the
+// caretaker and you walk to see the rest.
 const OUT_W = 30;
 const OUT_H = 20;
+// "Normal" zoom fits the world to the screen (height-limited on the wide
+// meadow) — the original framing, showing as much as possible without any void
+// beyond the edges. The world scrolls with the player; you walk east to reach
+// the forest gate at the meadow's end.
 const MTN_ROWS = 4; // rows reserved for the alpine mountain range (impassable)
 const COAST_COLS = 4; // columns reserved for the ocean along Pelican Shore's east edge (impassable)
 
-// your base camp: tent + campfire scenery beside the permanent workbench & chest
-const CAMP = { tent: { x: 6.5, y: 4.2 }, fire: { x: 7.6, y: 5.1 } };
+// your base camp: tent + campfire scenery beside the permanent workbench & chest.
+// The camp keeps its original main-branch arrangement, but the meadow now opens
+// a wide strip of wild land to the WEST of it — so camp coordinates sit 14 tiles
+// east of where they were on main, leaving room to walk west with the house
+// sitting roughly centered (west room ≈ the run east to the forest gate).
+const CAMP = { tent: { x: 20.5, y: 4.2 }, fire: { x: 21.6, y: 5.1 } };
 // right in front of the tent door — where you land when you step back out of the home
 const CAMP_TENT_FRONT = { x: CAMP.tent.x, y: CAMP.tent.y + 1.8 };
-const CAMP_BLOCK = { x0: 5.5, y0: 3.2, x1: 9.9, y1: 5.9 }; // keep nodes/placements clear of camp
+const CAMP_BLOCK = { x0: 19.5, y0: 3.2, x1: 23.9, y1: 5.9 }; // keep nodes/placements clear of camp
 
-// spawn points when arriving in an area from another
-const SPAWNS: Record<string, { x: number; y: number }> = {
-	// stepping back out of the home → stand right in front of the camp tent door
-	'meadow:from-home': { x: CAMP_TENT_FRONT.x, y: CAMP_TENT_FRONT.y },
-	// arriving from the west neighbour → enter at the west edge; from the east → east edge
-	'meadow:from-forest': { x: 27.8, y: 10.0 },
-	'forest:from-meadow': { x: 1.8, y: 10.0 },
-	'forest:from-wetland': { x: 27.8, y: 10.0 },
-	'wetland:from-forest': { x: 1.8, y: 10.0 },
-	'wetland:from-desert': { x: 27.8, y: 10.0 },
-	'desert:from-wetland': { x: 1.8, y: 10.0 },
-	// alpine grows downward by MTN_ROWS (4), so its edge gates sit ~4 rows lower
-	'desert:from-alpine': { x: 27.8, y: 10.0 },
-	'alpine:from-desert': { x: 1.8, y: 13.8 },
-	'alpine:from-coastal': { x: 27.8, y: 13.8 },
-	'coastal:from-alpine': { x: 1.8, y: 10.0 },
-	default: { x: 15, y: 11 },
-};
+// The west→east walking order of the preserve — arrivals enter at the edge
+// facing the biome they came from. Spawn positions are computed from each
+// area's own grid size (see spawnFor), since biomes are different sizes now.
+const AREA_ORDER = ['meadow', 'forest', 'wetland', 'desert', 'alpine', 'coastal'];
+const SPAWN_DEFAULT = { x: 24, y: 11 };
 
 const C = (hex: string) => Phaser.Display.Color.HexStringToColor(hex).color;
 
@@ -46,6 +45,14 @@ const C = (hex: string) => Phaser.Display.Color.HexStringToColor(hex).color;
 // transfer into afterwards should already be mid-storm, so we pre-warm the
 // emitter on entry. Module-scoped so it survives scene.restart().
 let weatherShownThisSession = false;
+
+// Player-chosen zoom (+/− keys), multiplied onto the normal fit zoom.
+// Module-scoped so it survives area changes; every session starts back at
+// normal (1). Deliberately narrow range — a nudge, not a telescope. The ceiling
+// is small on purpose so you can never zoom in too far.
+const USER_ZOOM_MIN = 1;
+const USER_ZOOM_MAX = 1.15;
+let userZoom = 1;
 
 function hashStr(s: string): number {
 	let h = 2166136261;
@@ -150,8 +157,35 @@ export class WorldScene extends Phaser.Scene {
 		};
 	}
 
+	/**
+	 * World dimensions for any area. Outdoor biomes read their size from
+	 * data/biomes.json (`grid`); the home interior stays at the base 30×20.
+	 * Alpine adds an impassable mountain band on top; coastal reserves ocean
+	 * columns on the east.
+	 */
+	private dimsOf(area: string) {
+		const g = area === 'home' ? null : this.biomeDef(area)?.grid;
+		const cols = g?.cols || OUT_W;
+		const baseRows = g?.rows || OUT_H;
+		const mtn = area === 'alpine' ? MTN_ROWS : 0;
+		return {
+			cols,
+			baseRows,
+			rows: baseRows + mtn,
+			playTop: mtn,
+			landRight: area === 'coastal' ? cols - COAST_COLS : cols,
+			// gates sit at the vertical middle of the playable band
+			gateY: mtn + baseRows / 2 - 0.2,
+		};
+	}
+	private get cols() {
+		return this.dimsOf(this.area).cols;
+	}
+	private get baseRows() {
+		return this.dimsOf(this.area).baseRows;
+	}
 	private get worldW() {
-		return OUT_W * TILE;
+		return this.cols * TILE;
 	}
 	private get worldH() {
 		return this.rows * TILE;
@@ -169,10 +203,10 @@ export class WorldScene extends Phaser.Scene {
 	// (impassable). landRight is the first ocean column — playable land is
 	// columns 1..landRight-1.
 	private get landRight() {
-		return this.area === 'coastal' ? OUT_W - COAST_COLS : OUT_W;
+		return this.area === 'coastal' ? this.cols - COAST_COLS : this.cols;
 	}
 	private get rows() {
-		return OUT_H + this.mtnRows;
+		return this.baseRows + this.mtnRows;
 	}
 	private biomeDef(id = this.area): BiomeDef | undefined {
 		return bridge.shared.data?.biomes.find((b) => b.id === id);
@@ -221,6 +255,12 @@ export class WorldScene extends Phaser.Scene {
 		this.keys = this.input.keyboard!.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,E,SPACE,ESC,SHIFT');
 		this.input.keyboard!.on('keydown-ESC', () => {
 			if (this.placementObjectId || this.movingPlacementId) bridge.emit('placement-exited');
+		});
+		// + / − zoom the camera window in and out a little. Scene keyboard input is
+		// already disabled while a text field has focus, so typing never zooms.
+		this.input.keyboard!.on('keydown', (e: KeyboardEvent) => {
+			if (e.key === '+' || e.key === '=') this.nudgeZoom(1.15);
+			else if (e.key === '-' || e.key === '_') this.nudgeZoom(1 / 1.15);
 		});
 
 		// When the player is typing in a text field (passcode, save name, chest
@@ -296,9 +336,8 @@ export class WorldScene extends Phaser.Scene {
 		this.unsubs.push(bridge.on('terraformed', (p: any) => this.playTerraformFx(p)));
 		this.unsubs.push(
 			bridge.on('area-changed', (area: string) => {
-				const key = `${area}:from-${this.area}`;
 				this.exitPlacement();
-				this.scene.restart({ area, spawn: SPAWNS[key] || SPAWNS.default });
+				this.scene.restart({ area, spawn: this.spawnFor(area, this.area) });
 			})
 		);
 		this.events.once('shutdown', () => {
@@ -360,12 +399,29 @@ export class WorldScene extends Phaser.Scene {
 		});
 	}
 
-	/** Fit-to-screen camera zoom: fills phones edge-to-edge, stays cozy on desktop. */
-	private applyZoom() {
+	/**
+	 * Fit-to-screen camera zoom: shows as much of the map as fits without any
+	 * void beyond the edges (height-limited on the wide meadow). This is the
+	 * normal framing every area opens at. The camera follows the caretaker
+	 * (startFollow in create), so bigger preserves are explored by walking — the
+	 * far corners, including the forest gate at the meadow's east end, scroll
+	 * into view. The player can nudge in a little with + and − (see nudgeZoom),
+	 * but never far: the ceiling is deliberately low so you can't over-zoom.
+	 */
+	private applyZoom(smooth = false) {
 		const w = this.scale.width;
 		const h = this.scale.height;
-		const zoom = Phaser.Math.Clamp(Math.max(w / this.worldW, h / this.worldH), 0.85, 1.7);
-		this.cameras.main.setZoom(zoom);
+		const fit = Math.max(w / this.worldW, h / this.worldH);
+		const base = Phaser.Math.Clamp(fit, 0.85, 1.7);
+		const zoom = Phaser.Math.Clamp(base * userZoom, fit, base * USER_ZOOM_MAX);
+		if (smooth) this.cameras.main.zoomTo(zoom, 150, 'Sine.easeInOut');
+		else this.cameras.main.setZoom(zoom);
+	}
+
+	/** + / − keys: step the camera window in or out a notch. */
+	private nudgeZoom(factor: number) {
+		userZoom = Phaser.Math.Clamp(userZoom * factor, USER_ZOOM_MIN, USER_ZOOM_MAX);
+		this.applyZoom(true);
 	}
 
 	private terraformAction(): 'dig' | 'water' | null {
@@ -413,6 +469,22 @@ export class WorldScene extends Phaser.Scene {
 		return Math.abs(tx - px) <= 2.4 && Math.abs(ty - py) <= 2.4 && this.canPlaceAt(tx, ty, true);
 	}
 
+	/**
+	 * Where to stand when arriving in `area` from `from`: beside the gate on the
+	 * edge that faces where you came from, computed from the destination's own
+	 * grid size (biomes are different sizes now, the meadow biggest of all).
+	 */
+	private spawnFor(area: string, from: string): { x: number; y: number } {
+		// stepping back out of the home → right in front of the camp tent door
+		if (area === 'meadow' && from === 'home') return { ...CAMP_TENT_FRONT };
+		const ai = AREA_ORDER.indexOf(area);
+		const fi = AREA_ORDER.indexOf(from);
+		if (ai < 0 || fi < 0) return { ...SPAWN_DEFAULT };
+		const d = this.dimsOf(area);
+		// came from the west neighbour → appear at the west edge; from the east → east edge
+		return fi < ai ? { x: 1.8, y: d.gateY } : { x: d.cols - 2.2, y: d.gateY };
+	}
+
 	private savedSpawn() {
 		const p = bridge.shared.state?.player;
 		if (p && p.area === this.area && Number.isFinite(p.x)) {
@@ -420,7 +492,7 @@ export class WorldScene extends Phaser.Scene {
 			const y = Phaser.Math.Clamp(p.y, this.playTop + 1, this.worldH / TILE - 1);
 			return { x, y };
 		}
-		return SPAWNS.default;
+		return { ...SPAWN_DEFAULT };
 	}
 
 	// ------------------------------------------------------------- ground
@@ -539,7 +611,7 @@ export class WorldScene extends Phaser.Scene {
 		// a couple of half-buried rocks at the waterline for texture
 		const rng = mulberry32(hashStr('coast-rocks'));
 		for (let i = 0; i < 5; i++) {
-			const ry = (1 + rng() * (OUT_H - 2)) * TILE;
+			const ry = (1 + rng() * (this.baseRows - 2)) * TILE;
 			this.add.ellipse(edgeX - 4 + rng() * 6, ry, 16 + rng() * 10, 10, C('#7d7a72')).setDepth(0.15);
 		}
 	}
@@ -815,10 +887,12 @@ export class WorldScene extends Phaser.Scene {
 				this.addDyn(this.add.image(p.x, p.y, key).setDepth(1).setAlpha(alpha).setAngle(rng() * 20 - 10));
 			}
 		};
-		scatter('crack', Math.round(((100 - health) / 100) * 26), 0.8);
-		scatter('pebble', 12, 0.8);
-		scatter('tuft', Math.round((health / 100) * 44) + 4);
-		scatter('tinyflower', Math.max(0, Math.round(((health - 25) / 100) * 26)));
+		// density scales with the biome's playable area so big maps aren't barren
+		const dScale = Math.max(1, (this.landRight * (this.rows - this.playTop)) / (30 * 20));
+		scatter('crack', Math.round(((100 - health) / 100) * 26 * dScale), 0.8);
+		scatter('pebble', Math.round(12 * dScale), 0.8);
+		scatter('tuft', Math.round(((health / 100) * 44 + 4) * dScale));
+		scatter('tinyflower', Math.max(0, Math.round(((health - 25) / 100) * 26 * dScale)));
 	}
 
 	private addDyn<T extends Phaser.GameObjects.GameObject>(obj: T): T {
@@ -865,8 +939,8 @@ export class WorldScene extends Phaser.Scene {
 			const fire = this.addDyn(this.add.image(fx, fy, 'campfire').setDepth(fy));
 			this.tweens.add({ targets: [fire, fireGlow], alpha: { from: 1, to: 0.75 }, duration: 420, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
 
-			const gx = (OUT_W - 1.2) * TILE;
-			const gy = 9.8 * TILE;
+			const gx = (this.cols - 1.2) * TILE;
+			const gy = this.dimsOf(this.area).gateY * TILE;
 			const forestUnlocked = state?.player.unlockedBiomes.includes('forest');
 			const forestOpen = forestUnlocked && this.biomeDef('forest')?.explorable;
 			this.addDyn(this.add.image(gx, gy, forestOpen ? 'gate' : 'sign').setDepth(gy));
@@ -882,12 +956,12 @@ export class WorldScene extends Phaser.Scene {
 			});
 		} else if (this.area === 'forest') {
 			const gx = 1.2 * TILE;
-			const gy = 9.8 * TILE;
+			const gy = this.dimsOf(this.area).gateY * TILE;
 			this.addDyn(this.add.image(gx, gy, 'gate').setDepth(gy));
 			this.registerInteractable({ x: gx, y: gy, label: 'Walk back to Willow Meadow', action: () => bridge.emit('request-area', { area: 'meadow' }) });
 
-			const sx = (OUT_W - 1.2) * TILE;
-			const sy = 9.8 * TILE;
+			const sx = (this.cols - 1.2) * TILE;
+			const sy = gy;
 			const wetlandUnlocked = state?.player.unlockedBiomes.includes('wetland');
 			const wetlandExplorable = this.biomeDef('wetland')?.explorable;
 			const wetlandOpen = wetlandUnlocked && wetlandExplorable;
@@ -909,20 +983,20 @@ export class WorldScene extends Phaser.Scene {
 			// a few standing dead snags for atmosphere
 			const rng = mulberry32(hashStr('forest-snags'));
 			for (let i = 0; i < 5; i++) {
-				const x = (4 + rng() * 22) * TILE;
+				const x = (4 + rng() * (this.cols - 8)) * TILE;
 				const y = (2 + rng() * 4) * TILE;
 				this.addDyn(this.add.image(x, y, 'obj-deadwood').setDepth(y).setAlpha(0.85).setTint(0xb9aa8e));
 			}
 		} else if (this.area === 'wetland') {
 			// gate back to the forest on the west edge
 			const gx = 1.2 * TILE;
-			const gy = 9.8 * TILE;
+			const gy = this.dimsOf(this.area).gateY * TILE;
 			this.addDyn(this.add.image(gx, gy, 'gate').setDepth(gy));
 			this.registerInteractable({ x: gx, y: gy, label: 'Walk back to Old Hollow Forest', action: () => bridge.emit('request-area', { area: 'forest' }) });
 
 			// trail east toward the desert (Redstone Scrubland)
-			const sx = (OUT_W - 1.2) * TILE;
-			const sy = 9.8 * TILE;
+			const sx = (this.cols - 1.2) * TILE;
+			const sy = gy;
 			const desertUnlocked = state?.player.unlockedBiomes.includes('desert');
 			const desertExplorable = this.biomeDef('desert')?.explorable;
 			const desertOpen = desertUnlocked && desertExplorable;
@@ -944,13 +1018,13 @@ export class WorldScene extends Phaser.Scene {
 		} else if (this.area === 'desert') {
 			// gate back to the wetland on the west edge
 			const gx = 1.2 * TILE;
-			const gy = 9.8 * TILE;
+			const gy = this.dimsOf(this.area).gateY * TILE;
 			this.addDyn(this.add.image(gx, gy, 'gate').setDepth(gy));
 			this.registerInteractable({ x: gx, y: gy, label: 'Walk back to Rushwater Wetland', action: () => bridge.emit('request-area', { area: 'wetland' }) });
 
 			// trail east toward the alpine heights (Graywind Heights)
-			const sx = (OUT_W - 1.2) * TILE;
-			const sy = 9.8 * TILE;
+			const sx = (this.cols - 1.2) * TILE;
+			const sy = gy;
 			const alpineUnlocked = state?.player.unlockedBiomes.includes('alpine');
 			const alpineExplorable = this.biomeDef('alpine')?.explorable;
 			const alpineOpen = alpineUnlocked && alpineExplorable;
@@ -972,7 +1046,7 @@ export class WorldScene extends Phaser.Scene {
 		} else if (this.area === 'alpine') {
 			// Graywind Heights: the mountain range is drawn statically (drawGround);
 			// here we just place the trail gates in the playable region below it.
-			const gy = (this.playTop + 9.8) * TILE;
+			const gy = this.dimsOf(this.area).gateY * TILE;
 
 			// gate back to the desert on the west edge
 			const gx = 1.2 * TILE;
@@ -980,7 +1054,7 @@ export class WorldScene extends Phaser.Scene {
 			this.registerInteractable({ x: gx, y: gy, label: 'Walk back to Redstone Scrubland', action: () => bridge.emit('request-area', { area: 'desert' }) });
 
 			// trail east toward the coast (Pelican Shore)
-			const sx = (OUT_W - 1.2) * TILE;
+			const sx = (this.cols - 1.2) * TILE;
 			const coastalUnlocked = state?.player.unlockedBiomes.includes('coastal');
 			const coastalExplorable = this.biomeDef('coastal')?.explorable;
 			const coastalOpen = coastalUnlocked && coastalExplorable;
@@ -1004,7 +1078,7 @@ export class WorldScene extends Phaser.Scene {
 			// edge (drawn statically in drawCoastBand), so there's no eastern gate —
 			// only the trail back up to Graywind Heights on the west edge.
 			const gx = 1.2 * TILE;
-			const gy = 9.8 * TILE;
+			const gy = this.dimsOf(this.area).gateY * TILE;
 			this.addDyn(this.add.image(gx, gy, 'gate').setDepth(gy));
 			this.registerInteractable({ x: gx, y: gy, label: 'Walk back up to Graywind Heights', action: () => bridge.emit('request-area', { area: 'alpine' }) });
 
@@ -1032,9 +1106,11 @@ export class WorldScene extends Phaser.Scene {
 		const rng = mulberry32(hashStr(`${wid}-${this.area}-nodes`));
 		// Node budget — at least twice the resource count (plus a little extra room
 		// for weighted staples), so there's always space for two nodes of every
-		// resource this biome offers.
+		// resource this biome offers. Scaled with the biome's playable area so
+		// bigger preserves (the meadow especially) don't feel picked bare.
 		const res = biome.resources || [];
-		const count = Math.max(20, res.length * 2 + 4);
+		const areaScale = Math.max(1, (this.landRight * (this.rows - this.playTop)) / (30 * 20));
+		const count = Math.round(Math.max(20, res.length * 2 + 4) * areaScale);
 
 		// Build the resource bag for this area. GUARANTEE every biome resource
 		// appears at least TWICE (two of each, placed first), then fill the rest
@@ -1052,7 +1128,7 @@ export class WorldScene extends Phaser.Scene {
 
 		const nodes: NodeDef[] = [];
 		let attempts = 0;
-		while (nodes.length < count && attempts < 400) {
+		while (nodes.length < count && attempts < 900) {
 			attempts++;
 			const tx = 1 + Math.floor(rng() * (this.landRight - 3));
 			const ty = this.playTop + 1 + Math.floor(rng() * (this.rows - this.playTop - 3));
@@ -1095,7 +1171,7 @@ export class WorldScene extends Phaser.Scene {
 		for (const n of nodes) perResource.set(n.resourceId, (perResource.get(n.resourceId) || 0) + 1);
 		for (const r of res) {
 			while ((perResource.get(r) || 0) < minFor(r)) {
-				const spot = this.findFreeTile(Math.floor(OUT_W / 2), this.playTop + Math.floor(OUT_H / 2), occupied, taken);
+				const spot = this.findFreeTile(Math.floor(this.cols / 2), this.playTop + Math.floor(this.baseRows / 2), occupied, taken);
 				if (!spot) break;
 				nodes.push({ id: `n${nodes.length}`, resourceId: r, tx: spot.tx, ty: spot.ty });
 				taken.add(`${spot.tx},${spot.ty}`);
@@ -1108,7 +1184,7 @@ export class WorldScene extends Phaser.Scene {
 		// which have no water resource.)
 		const waterRes = res.includes('water') ? 'water' : res.includes('clean-water') ? 'clean-water' : null;
 		if (waterRes) {
-			const anchor = this.area === 'meadow' ? { tx: 12, ty: 8 } : { tx: 4, ty: 11 };
+			const anchor = this.area === 'meadow' ? { tx: 26, ty: 8 } : { tx: 4, ty: 11 };
 			const hasNearby = nodes.some(
 				(n) => (n.resourceId === 'water' || n.resourceId === 'clean-water') &&
 					Math.abs(n.tx - anchor.tx) <= 5 && Math.abs(n.ty - anchor.ty) <= 5,
@@ -1400,13 +1476,21 @@ export class WorldScene extends Phaser.Scene {
 			// placement id, so no two crafted items look exactly alike.
 			const isFixture = def.isChest || ['workbench', 'field-journal-stand', 'bed', 'home-bed', 'home-sleeping-bag'].includes(p.objectId);
 			const growScale = stillGrowing ? 1 + (age / growMs) * 0.6 : 1;
+			// Living habitat keeps growing for real hours after placement
+			// (matureHours): young plants render smaller and ease up to full size
+			// as they mature — so the preserve visibly grows between sessions.
+			const matMs = (def.matureHours || 0) * 3_600_000;
+			const placedAge = Date.now() - (p.placedAt || 0);
+			const matureScale = matMs > 0 && !stillGrowing && p.placedAt
+				? 0.72 + 0.28 * Math.min(1, placedAge / matMs)
+				: 1;
 			if (isFixture) {
-				img.setScale(growScale);
+				img.setScale(growScale * matureScale);
 			} else {
 				const vr = mulberry32(hashStr(p.id));
 				img.setFlipX(vr() < 0.5);
 				img.setRotation((vr() - 0.5) * 0.12); // ±~3.5° lean
-				img.setScale(growScale * (0.9 + vr() * 0.2)); // 0.9–1.1 size
+				img.setScale(growScale * matureScale * (0.9 + vr() * 0.2)); // 0.9–1.1 size
 				const shade = 0.82 + vr() * 0.18; // 0.82–1.0 brightness
 				const v = Math.round(255 * shade);
 				img.setTint((v << 16) | (v << 8) | v);
@@ -1479,7 +1563,7 @@ export class WorldScene extends Phaser.Scene {
 				ay = a.y * TILE + 16 + (rng() - 0.5) * 70;
 			} else {
 				ax = (2 + rng() * (this.landRight - 4)) * TILE;
-				ay = (this.playTop + 2 + rng() * (OUT_H - 4)) * TILE;
+				ay = (this.playTop + 2 + rng() * (this.baseRows - 4)) * TILE;
 			}
 			// on the shore, let sea creatures drift a touch into the surf but no further
 			const eastEdge = this.area === 'coastal' ? (this.landRight + 1.2) * TILE : this.worldW - TILE;
@@ -1495,7 +1579,7 @@ export class WorldScene extends Phaser.Scene {
 			} else if (!flying && this.isWaterPx(ax, ay)) {
 				for (let i = 0; i < 14 && this.isWaterPx(ax, ay); i++) {
 					ax = Phaser.Math.Clamp((2 + rng() * (this.landRight - 4)) * TILE, TILE, eastEdge);
-					ay = Phaser.Math.Clamp((this.playTop + 2 + rng() * (OUT_H - 4)) * TILE, (this.playTop + 1) * TILE, this.worldH - TILE);
+					ay = Phaser.Math.Clamp((this.playTop + 2 + rng() * (this.baseRows - 4)) * TILE, (this.playTop + 1) * TILE, this.worldH - TILE);
 				}
 			}
 
@@ -1673,9 +1757,9 @@ export class WorldScene extends Phaser.Scene {
 			return true;
 		}
 		// Pelican Shore: nothing builds on the open ocean; land ends at landRight.
-		const right = this.area === 'coastal' ? this.landRight : OUT_W - 1;
+		const right = this.area === 'coastal' ? this.landRight : this.cols - 1;
 		if (tx < 1 || ty < (this.playTop || 1) || tx >= right || ty >= this.rows - 1) return false;
-		if (this.area === 'meadow' && tx >= 6 && tx <= 8 && ty >= 4 && ty <= 5) return false; // tent + campfire tiles
+		if (this.area === 'meadow' && tx >= CAMP.tent.x - 0.5 && tx <= CAMP.tent.x + 1.5 && ty >= 4 && ty <= 5) return false; // tent + campfire tiles
 		const s = bridge.shared.state;
 		if (s?.placements.some((p) => p.id !== ignoreId && p.area === this.area && p.x === tx && p.y === ty)) return false;
 		// note: resource nodes never block building — if you build on a regen spot,
@@ -1816,7 +1900,7 @@ export class WorldScene extends Phaser.Scene {
 			// the camp building (tent/house) is solid — walk around it, not through it
 			if (this.area === 'meadow') {
 				const hx = Math.floor(px / TILE), hy = Math.floor((py + 8) / TILE);
-				if (hx >= 5 && hx <= 7 && hy >= 3 && hy <= 5) return true;
+				if (hx >= CAMP.tent.x - 1.5 && hx <= CAMP.tent.x + 1.5 && hy >= 3 && hy <= 5) return true;
 			}
 			const key = `${Math.floor(px / TILE)},${Math.floor((py + 8) / TILE)}`;
 			return this.waterTiles.has(key) && !this.bridgeTiles.has(key);

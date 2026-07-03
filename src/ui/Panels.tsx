@@ -700,3 +700,4 @@ export function WeatherPanel() {
 		</Panel>
 	);
 }
+
