@@ -233,6 +233,7 @@ input {
 
 .hud-weather { font-size: 12.5px; color: var(--ink-soft); display: flex; align-items: center; gap: 6px; margin: 2px 0; font-weight: 700; }
 .hud-season { font-size: 10.5px; font-weight: 700; padding: 1px 7px; border-radius: 9px; border: 1px solid currentColor; opacity: 0.9; }
+.hud-dayphase { font-size: 10.5px; font-weight: 700; padding: 1px 7px; border-radius: 9px; border: 1px solid currentColor; opacity: 0.9; display: inline-flex; align-items: center; gap: 3px; }
 .hud-weather .wx-sep { opacity: 0.4; }
 
 .journal-controls { display: flex; flex-direction: column; gap: 8px; margin-bottom: 10px; }

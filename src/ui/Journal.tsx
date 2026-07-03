@@ -49,6 +49,41 @@ export function conditionsLine(animal: AnimalDef): string | null {
 	return bits.length ? `Only ventures out ${bits.join(', ')}` : null;
 }
 
+/**
+ * Friendly "when to spot them" notes derived from an animal's sighting
+ * conditions — time of day (activity pattern), season, and weather. Returns an
+ * empty list when the animal can turn up anytime, so the card only shows this
+ * section when there's actually a viewing window worth knowing.
+ */
+export function activityNotes(animal: AnimalDef): { icon: string; text: string }[] {
+	const cond = animal.requirements?.conditions;
+	if (!cond) return [];
+	const join = (xs: string[], word: 'and' | 'or') =>
+		xs.length <= 1 ? xs[0] : xs.slice(0, -1).join(', ') + ` ${word} ` + xs[xs.length - 1];
+	const notes: { icon: string; text: string }[] = [];
+
+	// Time of day → an activity pattern players can plan around.
+	const ph = cond.dayPhase || [];
+	if (ph.length) {
+		const set = new Set(ph);
+		const isOnly = (...vals: string[]) => vals.length === set.size && vals.every((v) => set.has(v));
+		let text: string;
+		if (isOnly('dawn', 'dusk')) text = 'Most active at dawn and dusk (crepuscular)';
+		else if (set.has('night') && !set.has('day') && !set.has('dawn')) text = set.has('dusk') ? 'Out from dusk through the night (nocturnal)' : 'Active at night (nocturnal)';
+		else if (isOnly('day')) text = 'Active in daylight (diurnal)';
+		else text = `Active at ${join(ph, 'and')}`;
+		notes.push({ icon: 'sun', text });
+	}
+	// Season → when it's around at all.
+	if (cond.season?.length) notes.push({ icon: 'leaf', text: `Around mainly in ${join(cond.season, 'and')}` });
+	// Weather → what conditions coax it out.
+	if (cond.weather?.length) {
+		const w = cond.weather;
+		notes.push({ icon: 'cloud', text: w.length === 1 && w[0] === 'rain' ? 'Ventures out in the rain' : `Comes out in ${join(w, 'or')} weather` });
+	}
+	return notes;
+}
+
 function RequirementHints({ animal, full }: { animal: AnimalDef; full: boolean }) {
 	const { data } = useGame();
 	const req = animal.requirements || {};
@@ -496,9 +531,16 @@ export function AnimalCard() {
 									<FoodWebLinks animal={animal} />
 								</div>
 							) : null}
+							{activityNotes(animal).length > 0 && (
+								<div className="card-section">
+									<h3><Icon name="sun" size={14} /> When to spot them</h3>
+									{activityNotes(animal).map((n, i) => (
+										<p key={i} className="card-fact"><Icon name={n.icon} size={12} /> {n.text}</p>
+									))}
+								</div>
+							)}
 							<div className="card-section">
-								<h3><Icon name="leaf" size={14} /> Habitat &amp; diet</h3>
-								<p className="card-fact"><b>Diet:</b> {animal.diet}</p>
+								<h3><Icon name="leaf" size={14} /> Habitat</h3>
 								<p className="card-fact"><b>Shelter:</b> {animal.shelter}</p>
 								<p className="card-fact"><b>Preferred habitat:</b> {animal.preferredHabitat}</p>
 								{disc && <p className="muted small">{disc.whyReturned}</p>}
