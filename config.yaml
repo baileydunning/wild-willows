@@ -1,4 +1,9 @@
 # Wild Willows — Harper application config
+#
+# ENDPOINTS ONLY: the hosted Harper serves no static files. The game UI ships
+# inside the desktop app (locally, `npm run dev:web` serves it and proxies API
+# calls here). The privacy / age-suitability pages are served by endpoints in
+# resources.js (GET /privacy.html, GET /age-rating.html), not static hosting.
 rest: true
 
 graphqlSchema:
@@ -9,7 +14,3 @@ jsResource:
 
 dataLoader:
   files: 'data/*.json'
-
-static:
-  files: 'web/**'
-  index: true

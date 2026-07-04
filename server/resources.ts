@@ -26,6 +26,9 @@ import animals1Data from '../data/animals-1.json';
 import animals2Data from '../data/animals-2.json';
 import achievementsData from '../data/achievements.json';
 import { weatherSnapshot, weatherTypeAt, gatherResourceIdFor, isWeatherGatheredResource, seasonAt, dayPhaseAt } from './weather';
+// Policy pages (privacy / age suitability), inlined from public/*.html by
+// scripts/build-pages.mjs — served as endpoints, see the bottom of this file.
+import { privacyHtml, ageRatingHtml } from './pages';
 
 // Biome ids for the weather block (weather is per-biome; climate differs by
 // biome). Derived once from the static seed data so the weather snapshot stays
@@ -4130,3 +4133,42 @@ export class SyncMetrics extends PublicEndpoint {
 		return { ok: true };
 	}
 }
+
+// ---------------------------------------------------------------- policy pages
+// The hosted Harper serves NO static files — it is endpoints only (the game UI
+// ships inside the desktop app). But store listings still need public URLs for
+// the privacy policy and age-suitability pages, so these two endpoints return
+// the HTML inlined from public/*.html (via scripts/build-pages.mjs, run by
+// `npm run build:server`). Returning { headers, body } bypasses Harper's
+// content negotiation, so the browser gets real text/html.
+//
+// Harper's path matcher also strips a .html suffix when resolving a resource,
+// so the canonical store-facing URLs work as plain pages:
+//   GET /privacy.html     → privacy      (also /privacy/)
+//   GET /age-rating.html  → age-rating   (also /age-rating/)
+
+const htmlPage = (html: string) => ({
+	status: 200,
+	headers: {
+		'content-type': 'text/html; charset=utf-8',
+		'cache-control': 'public, max-age=3600',
+	},
+	body: html,
+});
+
+/** GET /privacy.html — the privacy policy (linked from App Store Connect, itch, etc.). */
+class PrivacyPage extends PublicEndpoint {
+	async get() {
+		return htmlPage(privacyHtml);
+	}
+}
+
+/** GET /age-rating.html — age-suitability / content information page. */
+class AgeRatingPage extends PublicEndpoint {
+	async get() {
+		return htmlPage(ageRatingHtml);
+	}
+}
+
+// Export under the exact URL paths (string export names keep the hyphen).
+export { PrivacyPage as privacy, AgeRatingPage as 'age-rating' };

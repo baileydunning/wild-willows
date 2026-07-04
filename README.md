@@ -4,7 +4,7 @@ A cozy nature-restoration life sim. You've set up camp at the edge of a damaged 
 
 **Harper is the source of truth.** Player progress, inventory, chests, crafting, placements, terrain, biome health, ecological balance, animal discoveries, comfort levels, tool upgrades, biome unlocks, and play metrics all live in Harper and are validated server-side. The browser never computes game state on its own.
 
-Built with TypeScript, React + Vite (UI shell), Phaser 3 (world), and Harper v5 (database, API resources, seeded data, static hosting). All art — terrain, objects, animals, the player, and journal thumbnails — is procedurally generated from simple shapes at boot, so the game ships with zero asset files.
+Built with TypeScript, React + Vite (UI shell), Phaser 3 (world), and Harper v5 (database, API resources, seeded data). **The hosted Harper is endpoints only** — it serves no static files; the game UI ships inside the desktop app (locally, Vite serves it and proxies API calls to Harper). All art — terrain, objects, animals, the player, and journal thumbnails — is procedurally generated from simple shapes at boot, so the game ships with zero asset files.
 
 ---
 
@@ -14,22 +14,15 @@ Prerequisites: Node 24+, Harper v5 (`npm install -g harper`).
 
 ```bash
 npm install
-npm run build        # builds resources.js (esbuild) and web/ (vite)
-harper run .         # or: harper dev .  (watches for changes)
+npm run dev          # terminal 1 — builds resources.js, starts Harper (API only) on :9926
+npm run dev:web      # terminal 2 — vite serves the UI on http://localhost:5173, proxying API calls to Harper
 ```
 
-Open **https://localhost:9926/** (Harper local dev uses a self-signed certificate — accept the browser warning). Choose **New Game**, customize your caretaker (skin, hair color, hairstyle, build, outfit, hat), pick a name and passcode, and begin. **Load Game** signs back into any save from any browser; the last save on a device also gets a one-click **Continue**. An interactive tutorial walks new caretakers through the loop (skippable; progress saved to Harper).
+Open **http://localhost:5173/**. Harper is **endpoints only** (no static hosting — see `config.yaml`), so the UI is always served by Vite locally; the dev proxy (`vite.config.ts`) accepts Harper's self-signed local certificate for you. Choose **New Game**, customize your caretaker (skin, hair color, hairstyle, build, outfit, hat), pick a name and passcode, and begin. **Load Game** signs back into any save from any browser; the last save on a device also gets a one-click **Continue**. An interactive tutorial walks new caretakers through the loop (skippable; progress saved to Harper).
 
 > **Keyboard required.** Wild Willows is a keyboard game (WASD/arrows to roam, letter keys for panels, number keys for tools), so it gates to devices with a keyboard. A computer (any mouse/trackpad) is allowed; a touch-only phone/tablet sees a "connect a keyboard" screen until a key is pressed.
 
-Frontend hot-reload during development:
-
-```bash
-harper run .         # terminal 1 — backend on :9926
-npm run dev:web      # terminal 2 — vite on http://localhost:5173, proxies API to Harper
-```
-
-After changing `server/resources.ts`, run `npm run build:server` (or `npm run dev`, which rebuilds then starts `harper dev .`). A scripted end-to-end API check lives at `scripts/smoke-test.sh`.
+After changing `server/resources.ts`, run `npm run build:server` (or restart `npm run dev`, which rebuilds then starts `harper dev .`). To check the **production build** instead of the dev server, `npm run build:web && npx vite preview` serves it on :4173 with the same API proxy. A scripted end-to-end API check lives at `scripts/smoke-test.sh`.
 
 > **Editing `data/*.json` live:** the server inlines the definition JSON for boot-time reconciliation, so after renaming/removing definition records, rebuild `resources.js` and restart Harper. Write data files atomically (temp + rename) so the live data loader never reads a half-written file.
 
@@ -42,7 +35,7 @@ Three layers of tests, all run in CI on every PR and push to `main` (`.github/wo
 | Unit | Vitest | `tests/unit/` | Pure logic: recipe unlock gating, the local-save DB, save/transport helpers | No |
 | Integration | Vitest | `tests/integration/` | The **real** built server (`resources.js`) against an in-memory Harper mock — create/login, gather, craft, place, plus the full co-op flow (join approval, shared node cooldowns, presence, 6-caretaker cap) | No |
 | E2E (solo) | Playwright | `tests/e2e/solo.spec.ts` | The production web build in offline solo mode: title, character creation, entering the world, Continue | No (`vite preview`) |
-| E2E (co-op) | Playwright | `tests/e2e/coop.spec.ts` | The same build served by a **live Harper** on `localhost:9926` — live `GameData`, player creation, hosting a shared preserve | Yes (Harper) |
+| E2E (co-op) | Playwright | `tests/e2e/coop.spec.ts` | The same build served by `vite preview`, with API calls **proxied to a live Harper** on `localhost:9926` (Harper is endpoints-only) — live `GameData`, player creation, hosting a shared preserve | Yes (Harper) |
 
 ```bash
 # unit + integration (fast, no server) — also rebuilds resources.js first
@@ -56,31 +49,28 @@ npx playwright install chromium     # one-time browser download
 npm run test:e2e:solo
 
 # co-op E2E against a live Harper — boot it in one terminal:
-npm run dev                 # builds + starts Harper on https://localhost:9926
-# …then in another:
-COOP_E2E=1 SKIP_PREVIEW=1 npm run test:e2e:coop
+npm run dev                 # builds + starts Harper (API only) on https://localhost:9926
+# …then in another (Playwright builds + previews the web app itself,
+# with the co-op UI baked in and API calls proxied to that Harper):
+COOP_E2E=1 npm run test:e2e:coop
 
 npm run test:all            # typecheck + all Vitest suites + solo E2E
 ```
 
-The **integration harness** (`tests/integration/harness.ts`) installs lightweight stand-ins for Harper's `databases` / `Resource` globals, then imports the committed `resources.js` — the exact artifact `harper deploy` ships — giving each test a fresh in-memory world seeded from `data/*.json`. It's the same technique as the `scripts/coop-harness.mjs` smoke harness, refactored for Vitest. The **solo E2E** reaches offline mode by setting `window.wildWillowsDesktop = { isDesktop: true }` before the app boots, which flips the API transport to the in-app solo backend (no network). The **co-op E2E** CI job boots Harper with `harper run .` and waits for `/GameData/` before running. For a quick manual end-to-end API check there's also `scripts/smoke-test.sh`.
+The **integration harness** (`tests/integration/harness.ts`) installs lightweight stand-ins for Harper's `databases` / `Resource` globals, then imports the committed `resources.js` — the exact artifact `harper deploy` ships — giving each test a fresh in-memory world seeded from `data/*.json`. It's the same technique as the `scripts/coop-harness.mjs` smoke harness, refactored for Vitest. The **solo E2E** reaches offline mode by setting `window.wildWillowsDesktop = { isDesktop: true }` before the app boots, which flips the API transport to the in-app solo backend (no network). The **co-op E2E** CI job boots Harper with `harper run .` (endpoints only) and waits for `/GameData/`; Playwright's own webServer then builds the app with `COOP_ENABLED=true` and serves it via `vite preview`, whose proxy carries API calls to that Harper. For a quick manual end-to-end API check there's also `scripts/smoke-test.sh`.
 
 ## Deploy to Harper / Fabric
 
+**The hosted Harper is endpoints only** — the deployed component is just `config.yaml`, `schema.graphql`, `resources.js`, and `data/` (no `web/` build; the game UI ships in the desktop app). The one deploy recipe is `./deploy-coop.sh` (also run by `.github/workflows/deploy.yml`):
+
 ```bash
-npm run build
-harper deploy \
-  project=wild-willows \
-  package=. \
-  target=<your-instance-url> \
-  username=<HARPER_USERNAME> \
-  password=<HARPER_PASSWORD> \
-  restart=true
+./deploy-coop.sh                 # builds resources.js, stages the component, prompts for the Harper password
+# env knobs: HARPER_PW, HARPER_USER (default HDB_ADMIN), TARGET_URL
 ```
 
-Credentials can also go in `CLI_TARGET_USERNAME` / `CLI_TARGET_PASSWORD`. The `dataLoader` seeds all definition tables on every deploy (player data is never touched). Admin credentials are used only by the CLI — they never appear in the frontend.
+The `dataLoader` seeds all definition tables on every deploy (player data is never touched). Admin credentials are used only by the CLI — they never appear in the frontend. The policy pages (`/privacy.html`, `/age-rating.html`) are served by endpoints inside `resources.js`, so they deploy with everything else.
 
-> **Deploy the prebuilt component — don't deploy straight from the Git URL.** This is a prebuilt component: the bundled `resources.js` and the static `web/` build are committed, and it has **no runtime npm dependencies** (`dependencies` is empty; phaser/react/vite are build-time `devDependencies` only). Always `npm run build` first, then `harper deploy package=.` — that uploads the built files and installs nothing. Pointing Harper at the raw GitHub repo instead makes it clone and run a full `npm install --include=dev`, which unpacks the large **phaser** package on the instance and can fail with `TAR_ENTRY_ERROR Unknown system error -122` (that's `EDQUOT` — the instance's **disk quota exceeded**). Building locally and deploying the package avoids that entirely.
+> **Deploy the staged component — don't deploy straight from the Git URL or the repo root.** `deploy-coop.sh` stages only the component files into a temp dir (a few MB). Harper packages the WHOLE directory when you point it at the repo (ignoring `.gitignore`), which would upload `node_modules` (~1.1G) + `dist/`, and deploying from the raw GitHub URL makes the instance run a full `npm install --include=dev` — unpacking the large **phaser** package there can fail with `TAR_ENTRY_ERROR Unknown system error -122` (that's `EDQUOT` — **disk quota exceeded**). The staged component has **no runtime npm dependencies**, so the instance installs nothing.
 
 ## Desktop / Steam build
 
@@ -93,7 +83,7 @@ Two play modes, two backends:
 - **Solo** (the v1 build) runs **entirely in-app and offline.** The same server logic (`server/resources.ts`) executes in the renderer against an in-memory `LocalDb` (`src/solo/`) seeded from `data/*.json`; after each action the world is serialized to a save slot. No passcode — solo saves are local JSON files in `userData/saves/<slotId>.json`, read/written over IPC (`electron/main.js`).
 - **Co-op** (hidden in v1) talks to the **hosted Harper** over HTTPS (`COOP_BASE_URL` in `src/api.ts`) — a shared world needs a shared server.
 
-The browser/Fabric deploy is unaffected: on the web the app just talks to its own origin.
+There is no hosted web version of the game UI — the hosted Harper is endpoints only (metrics uplink, feedback, dashboards, and the co-op API if re-enabled).
 
 | `electron/` file | Role |
 |---|---|
@@ -111,6 +101,7 @@ npm run desktop          # builds web + server, then launches Electron
 npm run desktop:run      # launch without rebuilding
 npm run desktop:pack     # unpacked app in dist/ (no installer) — fastest packaged check
 npm run desktop:dist     # full installers/archives in dist/
+npm run desktop:mas      # sandboxed Mac App Store .pkg (universal) — see below
 ```
 
 Build targets live in `package.json` → `build`: dmg/zip (mac), NSIS + zip (win), AppImage (linux). The only runtime dependency packaged is `steamworks.js`; `harper` is dev-only now, so it isn't bundled. For **itch.io** you upload the installers/archives (see below); for **Steam** you upload the **unpacked** folder (`dist/mac`, `dist/win-unpacked`, `dist/linux-unpacked`) via `steamcmd`, not the installer.
@@ -165,6 +156,23 @@ electron-builder finds the Developer ID cert in the keychain, signs the app + ne
 | `APPLE_APP_SPECIFIC_PASSWORD` | App-specific password from [appleid.apple.com](https://appleid.apple.com) (Sign-In & Security → App-Specific Passwords). |
 | `MAC_CSC_LINK` | "Developer ID Application" cert exported as `.p12`, base64-encoded: `base64 -i cert.p12 \| pbcopy`. |
 | `MAC_CSC_KEY_PASSWORD` | The password set when exporting that `.p12`. |
+
+### Mac App Store build
+
+`npm run desktop:mas` builds the **Mac App Store variant** (electron-builder `mas` target, universal, signed `.pkg`). It inherits the `mac` config, so everything notarized-DMG-specific is overridden in `package.json` → `build.mas`:
+
+- **App Sandbox instead of hardened runtime + notarization.** MAS apps must run sandboxed; the entitlements pair is `build/entitlements.mas.plist` (app-sandbox, JIT for V8, `network.client` for the solo metrics uplink, and the `TEAM_ID.bundle_id` application group Electron's helpers need) + `build/entitlements.mas.inherit.plist` for child processes. Solo saves already live in `app.getPath('userData')`, which the sandbox allows, so no file-access entitlements are needed.
+- **Provisioning profile** from developer.apple.com (Profiles → Distribution → Mac App Store Connect) goes at `build/embedded.provisionprofile` — gitignored; CI decodes it from a secret.
+- **Certificates:** the `mas` target signs with **Apple Distribution** (the `.app`) and **Mac Installer Distribution** (the `.pkg`) — *not* the Developer ID cert the DMG uses.
+- **`steamworks.js` is excluded** (Steam can't run inside the MAS sandbox; `electron/steam.js` already no-ops when the module is missing).
+- **`ITSAppUsesNonExemptEncryption=false`** in `extendInfo` answers App Store Connect's export-compliance question (HTTPS only).
+
+Two CI workflows cover it (secrets: `MAS_CSC_LINK` — base64 `.p12` containing **both** distribution certs, `MAS_CSC_KEY_PASSWORD`, `MAS_PROVISIONING_PROFILE` — base64 profile, plus the existing `APPLE_ID` / `APPLE_APP_SPECIFIC_PASSWORD` for the upload):
+
+- `.github/workflows/mas-build.yml` — manual run; builds + signs the `.pkg` and uploads it as a GitHub artifact only (submit it yourself via Transporter/Xcode/altool).
+- `.github/workflows/mas-release.yml` — on a `mas-v*` tag push (`git tag mas-v0.1.6 && git push origin mas-v0.1.6`) builds and **uploads to App Store Connect**; the version comes from the tag. A manual run just builds the artifact. Note ASC rejects re-uploads of a version+build it has already seen — bump the tag.
+
+App Store Connect also needs **screenshots** (`scripts/mas-screenshots.py` converts window captures to Apple's required 16:10 sizes by scaling to 2880×1800 and edge-padding) and a **privacy policy URL** — that's `public/privacy.html` (prose source of truth: `PRIVACY.md`), served at `https://wild.willows.harperfabric.com/privacy.html`. The hosted Harper is endpoints-only, so the page is **served by an endpoint**: `scripts/build-pages.mjs` inlines `public/*.html` into `server/pages.ts` during `npm run build:server`, and the `privacy` / `age-rating` exports in `resources.js` return the HTML (Harper's path matcher strips the `.html` suffix). Deploy (`./deploy-coop.sh`) after rebuilding. The **age-suitability page** (`/age-rating.html`) documents the content basis for the ratings (Apple 4+ / ESRB Everyone / PEGI 3): non-violent, educational, no ads/IAP/chat/UGC. For the App Privacy questionnaire: the app collects **Gameplay Content / Product Interaction** (anonymous per-save-slot metrics snapshots, not linked to identity, for analytics) and, only when a player submits feedback, an optional **email address** (linked only to that feedback, for support). No tracking, no ads, no third-party analytics.
 
 ### Re-enabling co-op later
 
@@ -221,6 +229,7 @@ itch.io is the v1 home. Steam is the natural next step — most of the plumbing 
 - Every biome has **at least 3 plantable tree types** plus its own distinct plants, palette, and animals.
 - **50 achievements** earned for restoration milestones, food-web moments (keystones, predators, ecosystem engineers), gathering/crafting/terraforming mastery, and preserve-wide progress (no hidden ones; locked entries show a non-spoilery hint). The first, **First Friend**, is earned the moment you welcome the grasshopper home — and the **grasshopper is always the first animal to return anywhere**: every other animal is gated behind it. All are server-validated and shown in a dedicated **Achievements** menu (press **K**), most-recent unlocks first, each card a gold ★ badge around its own unique glyph.
 - **A home you can step inside, decorate, and upgrade.** Walk up to your camp tent in Willow Meadow and press **E** to step into your home interior (the sign right by the door upgrades it). Decorate by crafting **indoor-only "camp comfort" items** — a starter sleeping bag, rug, lamp, house plant, plus hammock, string lights, armchair, fireplace, bookshelf and more — and placing them on the floor (the crafting menu has a dedicated **"Inside your home"** filter). Some bigger pieces (fireplace, bed, bookshelf, armchair) need a proper **house**, not the starter tent. First you **build** your home by choosing one of three distinct styles — a **Log Cabin** (wood), a **Meadow Cottage** (fiber & flowers), or a **Stone Hearth** (stone) — each built from its own materials, which sets its look for good. After that, upgrade along its **upgrade tracks** — **Space** (bigger room), **Comfort** (a flat carry-capacity perk on top of your basket), **Furnishings** (rug + wall trim), and **Warmth** (windows + a hearth glow). Upgrades cost materials and a little biome progress.
+- **Daily tasks** — a small rotating board of three light goals per real (UTC) day (gather / craft / place / water / plant / observe), derived deterministically from `(worldId, day)` — no stored task rows, no scheduler. Progress reads per-day counters bumped by normal play; rewards are small material bundles drawn from your unlocked biomes. The board sits under the top-right nav (**O** collapses it) and disappears once everything's claimed.
 - **A living, biome-specific feed.** A corner activity feed narrates everything you do, and the notable beats also persist to a **Feed** menu (press **F**, last 100 kept per player in Harper); the prominent toast notifications are reserved for the big moments (animal returns, biome unlocks, achievements, errors). The narrative is woven into the feed: as combinations of animals and crafted habitat come together, contextual lines surface — predator + prey, ecosystem engineers, keystone species — and each biome has **50+ randomized lines** (ecology, atmosphere, coexistence, and fun facts) that appear over time, **always specific to the area you're in**, with many gated to that biome's recovery, the animals back there, or the habitat you've built. Crossing a biome health threshold and welcoming an animal both add their own beats.
 
 ## Database schema (`schema.graphql`)
@@ -233,6 +242,8 @@ World-owned tables (keyed by `worldId`; solo world id === player id): `BiomeStat
 
 Co-op tables: `World` (id, name, solo, ownerId, joinCode, maxMembers) · `WorldMember` (membership: worldId, playerId, role) · `WorldPresence` (`@export`-ed; one record per world holding the live positions map, subscribed over WebSocket) · `JoinRequest` (pending/approved/denied join requests by token).
 
+Standalone tables: `Feedback` (player-submitted feedback: message, optional reply email, diagnostic context; written via `POST /SubmitFeedback/`, readable only by an authenticated super user via `GET /ListFeedback/`) · `SoloMetrics` (one row per solo save slot, upserted by the desktop metrics uplink via `POST /SyncMetrics/`).
+
 Tables are deliberately **not** exported over REST — everything flows through the custom resources below. On boot the server **reconciles** the seed tables against the definition JSON, deleting any orphaned records left by a rename/removal (Harper's loader only upserts, so this prevents stale duplicates like an old "Water Restoration Kit").
 
 ## API resources (`server/resources.ts` → `resources.js`)
@@ -241,27 +252,35 @@ Tables are deliberately **not** exported over REST — everything flows through 
 |---|---|
 | `GET /GameData/` | All static definitions + character appearance options |
 | `POST /CreatePlayer/` · `POST /LoginPlayer/` · `POST /DeletePlayer/` | Create / load / delete a save (name + passcode) |
+| `POST /ChangePasscode/` · `POST /UpdateAppearance/` | Change a save's passcode (current one must match) / restyle your caretaker anytime |
 | `GET /GameState/<playerId>` | Full state snapshot |
 | `POST /CollectResource/` | Gather from a node (cooldown, basket capacity, tool-tier yield 1–4) |
 | `POST /ChestTransfer/` | Deposit / withdraw with capacity enforced |
 | `POST /CraftItem/` | Craft from basket + all chests; restoration kits are one-time |
-| `POST /PlaceObject/` · `POST /RemoveObject/` | Place / pick up objects → recalculates the biome |
+| `POST /PlaceObject/` · `POST /RemoveObject/` · `POST /MoveObject/` | Place / pick up / relocate objects → recalculates the biome |
+| `POST /DiscardItem/` | Throw away basket materials or crafted items (server-validated; kits can't be discarded) |
 | `POST /Plant/` | Plant into a watered bed; the plant grows in over time |
 | `POST /Terraform/` | Shovel digs beds, watering can waters (1 water) or floods into open water; dry biomes can't be flooded |
 | `POST /UpgradeTool/` | Tool upgrades (materials + biome-progress gates) |
 | `POST /UpgradeHome/` | Level up one of the home's upgrade tracks (materials + biome-progress gate) |
 | `POST /SetHomeStyle/` | Build your home in a chosen style (Log Cabin / Meadow Cottage / Stone Hearth) — the first upgrade |
+| `POST /SetHomeColors/` · `POST /SetPlacementColor/` | Paint tool: recolor the home interior (floor/wall/accent, built homes only) / recolor one placed item |
+| `POST /Rest/` | Sleep in your bed or sleeping bag to refresh every gathering spot |
+| `POST /ClaimTask/` | Claim a finished daily task's reward (the board itself is derived per world + UTC day; only claims are stored) |
 | `POST /ObserveAnimal/` | Record a field-journal observation |
 | `POST /RecalcBiome/` | Re-evaluate health / balance / animal returns (also fires when a plant matures) |
 | `POST /SyncPlayer/` | Persist position / area changes (seeds an area's starting terrain on first entry) |
 | `POST /Heartbeat/` | Accrue play time + session counts while the game is open |
 | `POST /AppendFeed/` | Persist activity-feed messages (pruned to the last 100 per world) |
-| `POST /MyWorlds/` · `POST /CreateWorld/` · `POST /JoinWorld/` · `POST /SwitchWorld/` · `POST /LeaveWorld/` | Co-op worlds: list / host / join / switch / leave (see Co-op multiplayer) |
+| `POST /MyWorlds/` · `POST /CreateWorld/` · `POST /JoinWorld/` · `POST /SwitchWorld/` · `POST /LeaveWorld/` · `POST /WorldRoster/` | Co-op worlds: list / host / join / switch / leave / roster of everyone who's ever joined (see Co-op multiplayer) |
 | `POST /CheckWorldCode/` · `POST /RequestJoin/` · `POST /JoinRequestStatus/` · `POST /PendingJoinRequests/` · `POST /ResolveJoin/` | Co-op join flow: verify a code, request to join, poll status, host's inbox, host approve/deny |
 | `POST /Presence/` | Co-op live presence (positions merged into `WorldPresence`, pushed over WebSocket) |
 | `GET /Metrics/` · `GET /Metrics/<playerId>` | Analytics dashboard (see below) |
+| `POST /SyncMetrics/` | Solo metrics uplink: upserts one solo save's metrics snapshot into `SoloMetrics`, keyed by the save slot's UUID (see Metrics & analytics) |
+| `POST /SubmitFeedback/` · `GET /ListFeedback/` | Player feedback (message + optional reply email + diagnostic context) → `Feedback` table; reading it back is super-user-only |
 | `GET /BiomeSnapshot/<playerId>` | Generated SVG "postcards" of each area |
 | `POST /DevTools/` | Developer-only testing helpers (restricted to one save) |
+| `GET /privacy.html` · `GET /age-rating.html` | Policy pages (privacy policy, age suitability) served as endpoints — HTML inlined from `public/*.html` by `scripts/build-pages.mjs`, for store listings |
 
 ## How animals return
 
@@ -330,13 +349,17 @@ A client **heartbeat** accrues play time and counts sessions while the game is o
 - `GET /Metrics/` — global **audience** (active/new buckets), **engagement**, **retention** (returning players), **progression**, an **activation funnel** (created → collected → crafted → placed → attracted animal → unlocked 2nd biome), summed action totals, an **achievements** summary (total earned, avg per player, a per-achievement earn distribution so you can see where players stall, and a completion histogram), a **co-op** summary (number of shared worlds, players in co-op, avg members per world, pending join requests), and a per-biome breakdown.
 - `GET /BiomeSnapshot/<playerId>` — just the area images, as base64 data-URIs + raw SVG.
 
+**Solo metrics uplink.** Solo players never appear in the hosted `Player` table (their world lives in local save files), so the client periodically POSTs the local save's derived metrics view to the hosted Harper (`src/solo/metricsUplink.ts` → `POST /SyncMetrics/` → `SoloMetrics` table, every ~5 min plus a flush on hide/close). Each report is a full snapshot keyed by the save slot's UUID, so missed reports lose nothing; it's strictly best-effort and solo stays fully playable offline. The global `/Metrics/` view then reports solo players alongside hosted ones. What's sent and why is spelled out for players in the privacy policy (`public/privacy.html`, inlined into `resources.js` by `scripts/build-pages.mjs` and served by the `privacy` endpoint at `/privacy.html`; prose source of truth `PRIVACY.md`).
+
+**Player feedback.** Settings has a feedback form (`src/feedback.ts`): the message, an optional reply email, and light diagnostic context (version, build, platform/OS, progression numbers) POST to the hosted Harper's `/SubmitFeedback/` — even from the solo desktop build, since it must land in the shared `Feedback` table. Offline sends queue in localStorage and retry each session until the server confirms storage. Reading feedback back is super-user-only (`GET /ListFeedback/`).
+
 ## Saves & developer tools
 
 Each save is a name + passcode pair. Passcodes are **never stored in plaintext** — each save keeps a random salt and a scrypt hash, verified in constant time; legacy plaintext saves are transparently re-hashed on their next login. No secret fields (passcode, hash, or salt) are ever returned to the client. **Settings → Lock this save** logs out and clears the remembered session so reopening requires the passcode. A hidden **developer panel** (opened with **Cmd/Ctrl + Shift + Delete** so players won't stumble onto it; no username gate) offers testing helpers: reseed/clear an area's terrain, grant chosen amounts of each resource, max all tools, unlock all biomes, and set biome health.
 
 ## Controls
 
-WASD / arrows to move · **E** / Space to interact · **1–4** select tools (basket · shovel · watering can · paint) · **B** basket · **J** journal · **K** achievements · **F** activity feed · **C** crafting · **P** preserve map · **M** weather & seasons guide · **T** tools & upgrades · **U** People (co-op worlds only) · **G** settings · **H** How to Play · click animals to observe · Shift+click a placed object to pick it up · Esc closes menus / cancels placement. Gathering spots glow, the nearest interactable gets a pulsing ring, pickups animate into your basket, and the activity feed narrates what you just did. The **?** button (or **H**) opens How to Play with the full reference. These exactly match the in-game **How to Play** reference and the HUD buttons.
+WASD / arrows to move · **E** / Space to interact · **1–4** select tools (basket · shovel · watering can · paint) · **B** basket · **J** journal · **K** achievements · **F** activity feed · **C** crafting · **P** preserve map · **M** weather & seasons guide · **T** tools & upgrades · **O** today's tasks board · **U** People (co-op worlds only) · **G** settings · **H** How to Play · click animals to observe · Shift+click a placed object to pick it up · Esc closes menus / cancels placement. Gathering spots glow, the nearest interactable gets a pulsing ring, pickups animate into your basket, and the activity feed narrates what you just did. The **?** button (or **H**) opens How to Play with the full reference. These exactly match the in-game **How to Play** reference and the HUD buttons.
 
 ## Co-op multiplayer
 

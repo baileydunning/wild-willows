@@ -1,13 +1,14 @@
 import { test, expect } from '@playwright/test';
 
-// Live co-op E2E: the production web build served by a real Harper instance
-// (https://localhost:9926 by default), exercising the hosted API end to end.
+// Live co-op E2E: the production web build served by `vite preview`, with API
+// calls proxied to a real Harper (https://localhost:9926 by default — Harper is
+// endpoints-only and serves no static files; see preview.proxy in vite.config.ts).
 // CI boots Harper before this suite; locally: `npm run dev` in another terminal,
 // then `COOP_E2E=1 npx playwright test --project=coop`.
 
 const uniq = () => `E2E ${Date.now().toString(36)}${Math.floor(Math.random() * 1e4)}`;
 
-test('Harper serves the app and the static game data', async ({ page, request }) => {
+test('the app loads and Harper serves the live game data', async ({ page, request }) => {
 	const res = await request.get('/GameData/', { headers: { Accept: 'application/json' } });
 	expect(res.ok()).toBeTruthy();
 	const data = await res.json();
