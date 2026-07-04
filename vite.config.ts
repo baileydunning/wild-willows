@@ -103,6 +103,13 @@ export default defineConfig({
 	build: {
 		outDir: 'web',
 		emptyOutDir: true,
+		// The solo backend bundles server/resources.ts, whose policy-page
+		// endpoints use an ES2022 string export name (`export { … as
+		// 'age-rating' }` — Harper maps export names to URL paths, and the
+		// hyphen needs the string form). Vite's default target (es2020/chrome87)
+		// rejects that syntax, and there's no hosted web UI to support old
+		// browsers for: the build runs in Electron (Chromium 126) and local dev.
+		target: 'es2022',
 	},
 	server: {
 		port: 5173,
