@@ -12,5 +12,9 @@ graphqlSchema:
 jsResource:
   files: 'resources.js'
 
+# Seed-table files only — enumerated (brace glob) rather than data/*.json
+# because data/weather.json is NOT a seed file: it's build-time config imported
+# by server/weather.ts + src/weather.ts, with no database/table/records shape,
+# and the data loader throws "missing required table property" if it sweeps it up.
 dataLoader:
-  files: 'data/*.json'
+  files: 'data/{achievements,animals-1,animals-2,biomes,habitat-objects,recipes,resources,tools}.json'
