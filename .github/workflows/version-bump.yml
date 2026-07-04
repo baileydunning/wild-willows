@@ -1,0 +1,60 @@
+name: Sync package.json version to tag
+
+# Keeps package.json (and package-lock.json) in lockstep with the latest release
+# tag. Runs on any release-tag push — itch-v*, mas-v*, or a plain v* — strips the
+# prefix to the bare version (itch-v0.1.6 / mas-v0.1.6 / v0.1.6 → 0.1.6) and, if
+# it differs from what's committed on main, writes it and commits back to main.
+#
+# This is deliberately its own workflow so the desktop-build and mas-release
+# builds (which BOTH fire on a plain v* tag) don't race to push the same commit.
+# The commit lands on main with [skip ci] so it doesn't kick off another CI run.
+#
+# NOTE: pushing to main requires the default GITHUB_TOKEN to be allowed to push.
+# If main is a protected branch, add this workflow's bot (github-actions[bot]) to
+# the allowed pushers, or the final git push step will fail.
+
+on:
+  push:
+    tags: ['v*', 'itch-v*', 'mas-v*']
+
+concurrency:
+  group: version-bump
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  bump:
+    name: Sync version on main
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Write tag version into package.json
+        shell: bash
+        run: |
+          set -euo pipefail
+          VER="${GITHUB_REF_NAME#itch-}"; VER="${VER#mas-}"; VER="${VER#v}"
+          echo "Tag $GITHUB_REF_NAME -> version $VER"
+          # --allow-same-version: no error if package.json already matches.
+          # --no-git-tag-version: don't create a tag/commit (we commit ourselves).
+          npm version "$VER" --no-git-tag-version --allow-same-version
+
+      - name: Commit & push if changed
+        shell: bash
+        run: |
+          set -euo pipefail
+          if git diff --quiet -- package.json package-lock.json; then
+            echo "package.json already at this version — nothing to commit."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add package.json package-lock.json
+          git commit -m "chore: sync version to ${GITHUB_REF_NAME} [skip ci]"
+          git push origin main
