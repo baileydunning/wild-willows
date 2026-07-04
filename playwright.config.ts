@@ -1,18 +1,18 @@
 import { defineConfig, devices } from '@playwright/test';
 
-// Two E2E suites:
+// Two E2E suites, BOTH driving the production web build served by `vite preview`
+// (Harper is endpoints-only — it serves no static files):
 //
-//  • solo  — drives the production web build served by `vite preview`, with the
-//            app nudged into offline solo mode (no backend). Fast + hermetic, so
-//            it runs on every PR.
-//  • coop  — drives the SAME build served by a real Harper instance on
-//            https://localhost:9926, exercising the live co-op API. The Harper
-//            server is started by CI (or `npm run dev`) before these run; set
-//            COOP_BASE_URL to point elsewhere.
+//  • solo  — the app nudged into offline solo mode (no backend). Fast +
+//            hermetic, so it runs on every PR.
+//  • coop  — the SAME preview server, but with API calls proxied to a real
+//            Harper on https://localhost:9926 (see the `preview.proxy` block in
+//            vite.config.ts), exercising the live co-op API. The Harper server
+//            is started by CI (or `npm run dev`) before these run; set
+//            COOP_BASE_URL to proxy to a different Harper.
 //
 // Run one suite:  npx playwright test --project=solo
-const COOP_BASE_URL = process.env.COOP_BASE_URL || 'https://localhost:9926';
-const SOLO_BASE_URL = process.env.SOLO_BASE_URL || 'http://localhost:4173';
+const PREVIEW_URL = process.env.PREVIEW_URL || 'http://localhost:4173';
 const RUN_COOP = !!process.env.COOP_E2E; // opt-in: needs a live Harper
 
 export default defineConfig({
@@ -28,31 +28,33 @@ export default defineConfig({
 		{
 			name: 'solo',
 			testMatch: /solo\.spec\.ts/,
-			use: { ...devices['Desktop Chrome'], baseURL: SOLO_BASE_URL },
+			use: { ...devices['Desktop Chrome'], baseURL: PREVIEW_URL },
 		},
 		...(RUN_COOP
 			? [
 					{
 						name: 'coop',
 						testMatch: /coop\.spec\.ts/,
-						use: {
-							...devices['Desktop Chrome'],
-							baseURL: COOP_BASE_URL,
-							ignoreHTTPSErrors: true, // Harper local dev uses a self-signed cert
-						},
+						use: { ...devices['Desktop Chrome'], baseURL: PREVIEW_URL },
 					},
 				]
 			: []),
 	],
 
-	// The solo suite needs the built web app served statically. The co-op suite
-	// is served by Harper instead, so its CI job sets SKIP_PREVIEW=1 to opt out.
+	// Both suites are served by `vite preview`. When the co-op suite is enabled,
+	// the web build bakes the co-op UI back in (COOP_ENABLED — see src/features.ts)
+	// and the preview proxy carries API calls to the live Harper. SKIP_PREVIEW=1
+	// opts out if you're already running a preview server yourself.
 	webServer: process.env.SKIP_PREVIEW
 		? undefined
 		: {
 				command: 'npm run build:web && npx vite preview --port 4173 --strictPort',
-				url: SOLO_BASE_URL,
+				url: PREVIEW_URL,
 				timeout: 180_000,
 				reuseExistingServer: !process.env.CI,
+				env: {
+					...process.env,
+					...(RUN_COOP ? { COOP_ENABLED: 'true' } : {}),
+				},
 			},
 });

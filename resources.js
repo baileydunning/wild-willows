@@ -13330,6 +13330,236 @@ function weatherSnapshot(worldId, t, biomeIds) {
   };
 }
 
+// server/pages.ts
+var privacyHtml = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Privacy Policy \u2014 Wild Willows</title>
+<meta name="description" content="Privacy policy for Wild Willows, a cozy nature-restoration game.">
+<style>
+	:root {
+		--bg: #f4f1e8;
+		--card: #fffdf7;
+		--ink: #33402e;
+		--muted: #6b7263;
+		--accent: #4a7c46;
+		--rule: #dcd6c4;
+	}
+	* { box-sizing: border-box; }
+	body {
+		margin: 0;
+		background: var(--bg);
+		color: var(--ink);
+		font: 17px/1.65 Georgia, 'Times New Roman', serif;
+	}
+	main {
+		max-width: 46rem;
+		margin: 0 auto;
+		padding: 3rem 1.5rem 5rem;
+	}
+	.card {
+		background: var(--card);
+		border: 1px solid var(--rule);
+		border-radius: 14px;
+		padding: 2.5rem 2.75rem;
+	}
+	h1 {
+		font-size: 1.9rem;
+		line-height: 1.25;
+		margin: 0 0 0.25rem;
+		color: var(--accent);
+	}
+	.meta { color: var(--muted); font-size: 0.95rem; margin: 0 0 1.75rem; }
+	h2 {
+		font-size: 1.2rem;
+		margin: 2.25rem 0 0.6rem;
+		color: var(--accent);
+		border-bottom: 1px solid var(--rule);
+		padding-bottom: 0.35rem;
+	}
+	ul { padding-left: 1.3rem; }
+	li { margin: 0.4rem 0; }
+	a { color: var(--accent); }
+	strong { color: var(--ink); }
+	.footer { color: var(--muted); font-size: 0.9rem; margin-top: 2.5rem; text-align: center; }
+	@media (max-width: 540px) { .card { padding: 1.5rem 1.25rem; } }
+</style>
+</head>
+<body>
+<main>
+	<div class="card">
+		<h1>Wild Willows \u2014 Privacy Policy</h1>
+		<p class="meta">Effective July 3, 2026 \xB7 Developer: Bailey Dunning \xB7 <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a></p>
+
+		<p>Wild Willows is a cozy nature-restoration game. It is designed to work fully offline, requires no account, and collects as little as possible. This page explains exactly what data the game handles, what (if anything) leaves your device, and how to reach us about it.</p>
+
+		<h2>The short version</h2>
+		<ul>
+			<li>No account, no sign-in, no ads, no tracking, no third-party analytics.</li>
+			<li>Your world lives in save files on your own device.</li>
+			<li>When you're online, the game periodically sends us an <strong>anonymous gameplay-statistics snapshot</strong> (play time, things crafted, animals returned, and so on) identified only by a random ID, so we can see how the game is being played and improve it.</li>
+			<li>The only personal information we ever receive is what <strong>you choose to type into the feedback form</strong> \u2014 including an optional email address if you'd like a reply.</li>
+		</ul>
+
+		<h2>Data stored on your device</h2>
+		<p>Your saves are local files in the app's data folder. Each save holds your caretaker's name and appearance, your world (terrain, placements, plants, animals, chests), and gameplay counters. The game also uses local browser-style storage for small preferences and to queue unsent feedback while offline. None of this local data is readable by us; deleting the app (or the save files) removes it.</p>
+		<p>The Mac App Store build is solo-only: there is no multiplayer, no account, and no passcode. The game is fully playable with no internet connection.</p>
+
+		<h2>Gameplay statistics we collect (automatic, anonymous)</h2>
+		<p>While the game is open and a network connection exists, it sends a snapshot of your save's gameplay statistics to our server roughly every five minutes, plus once when the window is hidden or closed. Each snapshot contains:</p>
+		<ul>
+			<li>a <strong>random identifier</strong> for the save slot (a UUID generated on your device \u2014 it is not derived from you, your device, or your Apple&nbsp;ID, and we cannot use it to identify you);</li>
+			<li>the <strong>name you gave the save</strong> (we suggest a caretaker name rather than your real name);</li>
+			<li>basic <strong>app and platform information</strong>: app version, build timestamp, platform ("desktop" or "web"), and operating system family (mac / windows / linux);</li>
+			<li><strong>gameplay counters</strong>: play time, number of sessions, resources collected, items crafted, objects placed, plants planted, animals observed and returned, biomes unlocked, achievements earned, and similar progression numbers.</li>
+		</ul>
+		<p>That's the whole list. Snapshots contain no location data, no contact information, no device identifiers, and no advertising identifiers. We use them solely to understand how Wild Willows is played and to improve it. Sending is best-effort: if you're offline, reports are simply skipped \u2014 they are not queued, and the game does not nag you to connect.</p>
+
+		<h2>Feedback you choose to send</h2>
+		<p>The in-game feedback form (in Settings) sends us whatever message you type, plus light diagnostic context so a report like "the game feels slow" makes sense: app version and build, platform and operating system, browser user-agent string, your save's name, tutorial progress, unlocked biomes, achievement count, and play time.</p>
+		<p>You may optionally include an <strong>email address</strong> if you'd like a reply. It is used only to respond to your feedback \u2014 never for marketing, and never shared. If you're offline when you submit, the feedback is stored on your device and sent automatically once a connection returns. On our server, feedback (including any reply email) is readable only by the developer.</p>
+
+		<h2>What we don't do</h2>
+		<p>We do not sell, rent, or share your data with anyone. The game contains no advertising, no tracking SDKs, no third-party analytics, and no social integrations. We do not profile you, and we do not combine game data with data from other sources. The app makes outgoing HTTPS connections only, and only to our own server. (Builds distributed through the Mac App Store contain no Steam integration; builds launched through Steam sync gameplay stats and achievements to your Steam profile, which is governed by Valve's privacy policy.)</p>
+
+		<h2>Where data is stored</h2>
+		<p>Gameplay snapshots and feedback are stored in our database on our hosting provider's infrastructure, which processes the data only on our behalf. Data is transmitted over HTTPS.</p>
+
+		<h2>Retention and deletion</h2>
+		<p>Gameplay snapshots are kept so long-term trends stay visible; each save slot has exactly one row that is overwritten by its latest snapshot. Feedback is kept until it has been read and acted on. To have either deleted, email <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a> \u2014 include your save's name for snapshots, or the approximate date and message for feedback, and we'll remove it. Deleting the app from your device stops all collection immediately.</p>
+
+		<h2>Children</h2>
+		<p>Wild Willows is suitable for all ages. We do not knowingly collect personal information from children; the game never asks for a real name, and the only free-text personal data anywhere is the optional feedback email. If you believe a child has submitted personal information through the feedback form, contact us and we will delete it.</p>
+
+		<h2>The web and co-op versions</h2>
+		<p>If you play the browser version (or a future co-op build), your save lives on our server instead of your device: the save name, a passcode (stored only as a salted hash, never in plaintext), your caretaker's appearance, and your world state. Co-op worlds additionally share world state and live player positions with the other members of that world. Everything else in this policy \u2014 no ads, no tracking, no sharing \u2014 applies identically.</p>
+
+		<h2>Changes to this policy</h2>
+		<p>If the game's data practices ever change, we will update this policy, revise the effective date above, and note the change in the game's release notes. Material changes will be called out in-game.</p>
+
+		<h2>Contact</h2>
+		<p>Questions, concerns, or deletion requests: <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a>.</p>
+	</div>
+	<p class="footer">Wild Willows \u{1F33F} \xB7 <a href="/age-rating.html">Age Suitability</a></p>
+</main>
+</body>
+</html>
+`;
+var ageRatingHtml = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Age Suitability \u2014 Wild Willows</title>
+<meta name="description" content="Age suitability and content information for Wild Willows, a cozy nature-restoration game.">
+<style>
+	:root {
+		--bg: #f4f1e8;
+		--card: #fffdf7;
+		--ink: #33402e;
+		--muted: #6b7263;
+		--accent: #4a7c46;
+		--rule: #dcd6c4;
+	}
+	* { box-sizing: border-box; }
+	body {
+		margin: 0;
+		background: var(--bg);
+		color: var(--ink);
+		font: 17px/1.65 Georgia, 'Times New Roman', serif;
+	}
+	main {
+		max-width: 46rem;
+		margin: 0 auto;
+		padding: 3rem 1.5rem 5rem;
+	}
+	.card {
+		background: var(--card);
+		border: 1px solid var(--rule);
+		border-radius: 14px;
+		padding: 2.5rem 2.75rem;
+	}
+	h1 {
+		font-size: 1.9rem;
+		line-height: 1.25;
+		margin: 0 0 0.25rem;
+		color: var(--accent);
+	}
+	.meta { color: var(--muted); font-size: 0.95rem; margin: 0 0 1.75rem; }
+	h2 {
+		font-size: 1.2rem;
+		margin: 2.25rem 0 0.6rem;
+		color: var(--accent);
+		border-bottom: 1px solid var(--rule);
+		padding-bottom: 0.35rem;
+	}
+	ul { padding-left: 1.3rem; }
+	li { margin: 0.4rem 0; }
+	a { color: var(--accent); }
+	strong { color: var(--ink); }
+	.badge {
+		display: inline-block;
+		background: var(--accent);
+		color: #fffdf7;
+		border-radius: 999px;
+		padding: 0.15rem 0.9rem;
+		font-size: 0.95rem;
+		margin: 0 0.4rem 0.4rem 0;
+	}
+	.footer { color: var(--muted); font-size: 0.9rem; margin-top: 2.5rem; text-align: center; }
+	@media (max-width: 540px) { .card { padding: 1.5rem 1.25rem; } }
+</style>
+</head>
+<body>
+<main>
+	<div class="card">
+		<h1>Wild Willows \u2014 Age Suitability</h1>
+		<p class="meta">Effective July 3, 2026 \xB7 Developer: Bailey Dunning \xB7 <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a></p>
+
+		<p>Wild Willows is a cozy nature-restoration game: you gather fallen materials, craft and plant habitat, and watch real animals return as the land recovers. It is designed to be <strong>suitable for all ages</strong>.</p>
+
+		<p>
+			<span class="badge">Apple App Store: 4+</span>
+			<span class="badge">ESRB: Everyone</span>
+			<span class="badge">PEGI: 3</span>
+		</p>
+
+		<h2>What the game contains</h2>
+		<ul>
+			<li><strong>Gentle, non-violent play.</strong> There is no combat, no enemies, and no way to fail. Animals are observed and welcomed home \u2014 never hunted, harmed, captured, or lost. Nothing dies.</li>
+			<li><strong>Educational nature content.</strong> Every animal comes with a real-world fact, and an in-game weather &amp; seasons guide explains real ecology in plain language, grounded in credible sources (USGS, NOAA, NPS, Audubon, and similar).</li>
+			<li><strong>Mild ambient weather only.</strong> Rain, storms, fog, snow, and heat are visual atmosphere \u2014 they never threaten the player or the animals.</li>
+			<li><strong>Simple friendly art.</strong> All visuals are soft, procedurally generated shapes; there is no realistic, frightening, or graphic imagery.</li>
+		</ul>
+
+		<h2>What the game does not contain</h2>
+		<ul>
+			<li>No violence, blood, or scary content</li>
+			<li>No profanity, crude humor, or mature themes</li>
+			<li>No alcohol, tobacco, or drug references</li>
+			<li>No gambling, simulated or otherwise</li>
+			<li>No advertising of any kind</li>
+			<li>No in-app purchases, loot boxes, or microtransactions</li>
+			<li>No chat, social features, or user-generated content from other players (the Mac App Store build is solo-only)</li>
+			<li>No account, sign-in, or personal information required to play</li>
+		</ul>
+
+		<h2>Online features</h2>
+		<p>The game is fully playable offline. When online, it sends only anonymous gameplay statistics (play time, items crafted, animals returned) so we can improve the game \u2014 nothing personal, and nothing is shown to or shared with other players. An optional feedback form in Settings sends a message privately to the developer; it is the only free-text input that leaves the device, and including an email address is optional. Full details are in the <a href="/privacy.html">privacy policy</a>.</p>
+
+		<p>If a future update enables the optional co-op mode (web version), players join a shared world only by invite code with the host's explicit approval, and other players see just a chosen caretaker name and character \u2014 there is no chat system.</p>
+
+		<h2>For parents</h2>
+		<p>Wild Willows has no mechanisms that pressure play: no timers that punish absence (a world you leave is exactly where you left it), no daily-login streaks to lose, no purchases to make, and no strangers to encounter. If you have any questions, email <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a>.</p>
+	</div>
+	<p class="footer">Wild Willows \u{1F33F} \xB7 <a href="/privacy.html">Privacy Policy</a></p>
+</main>
+</body>
+</html>
+`;
+
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 var WEATHER_BIOME_IDS = biomes_default.records.map((b) => b.id);
@@ -16472,6 +16702,24 @@ var SyncMetrics = class extends PublicEndpoint {
     return { ok: true };
   }
 };
+var htmlPage = (html) => ({
+  status: 200,
+  headers: {
+    "content-type": "text/html; charset=utf-8",
+    "cache-control": "public, max-age=3600"
+  },
+  body: html
+});
+var PrivacyPage = class extends PublicEndpoint {
+  async get() {
+    return htmlPage(privacyHtml);
+  }
+};
+var AgeRatingPage = class extends PublicEndpoint {
+  async get() {
+    return htmlPage(ageRatingHtml);
+  }
+};
 export {
   AppendFeed,
   BiomeSnapshot,
@@ -16518,5 +16766,7 @@ export {
   UpdateAppearance,
   UpgradeHome,
   UpgradeTool,
-  WorldRoster
+  WorldRoster,
+  AgeRatingPage as "age-rating",
+  PrivacyPage as privacy
 };

@@ -9,15 +9,23 @@ const APP_VERSION: string = JSON.parse(
 	readFileSync(fileURLToPath(new URL('./package.json', import.meta.url)), 'utf8')
 ).version || '0.0.0';
 
-// API endpoints exposed by Harper custom resources — proxied to the local
-// Harper instance during `npm run dev:web` development.
+// API endpoints exposed by Harper custom resources — proxied to the Harper
+// instance during `npm run dev:web` development AND by `vite preview` (the
+// co-op E2E suite drives the built app through preview, with the API proxied
+// to a live Harper). Harper is ENDPOINTS ONLY — it serves no static files —
+// so this proxy is the only way the web UI reaches it. Keep this list in sync
+// with the exported classes in server/resources.ts.
+const HARPER_TARGET = process.env.COOP_BASE_URL || 'https://localhost:9926';
 const harperEndpoints = [
+	// game data + saves
 	'GameData',
 	'GameState',
 	'CreatePlayer',
 	'LoginPlayer',
 	'DeletePlayer',
+	'ChangePasscode',
 	'UpdateAppearance',
+	// core loop
 	'CollectResource',
 	'ChestTransfer',
 	'CraftItem',
@@ -31,7 +39,43 @@ const harperEndpoints = [
 	'SyncPlayer',
 	'Terraform',
 	'Plant',
+	'Rest',
+	'ClaimTask',
+	'Heartbeat',
+	'AppendFeed',
+	// home
+	'UpgradeHome',
+	'SetHomeStyle',
+	'SetHomeColors',
+	'SetPlacementColor',
+	// co-op
+	'MyWorlds',
+	'CreateWorld',
+	'JoinWorld',
+	'SwitchWorld',
+	'LeaveWorld',
+	'WorldRoster',
+	'CheckWorldCode',
+	'RequestJoin',
+	'JoinRequestStatus',
+	'PendingJoinRequests',
+	'ResolveJoin',
+	'Presence',
+	// telemetry, feedback, dashboards, dev
+	'Metrics',
+	'BiomeSnapshot',
+	'SubmitFeedback',
+	'SyncMetrics',
+	'DevTools',
 ];
+
+// Harper serves REST over HTTPS (self-signed in local dev), hence secure: false.
+const harperProxy = Object.fromEntries(
+	harperEndpoints.map((name) => [
+		`/${name}`,
+		{ target: HARPER_TARGET, changeOrigin: true, secure: false },
+	])
+);
 
 export default defineConfig({
 	plugins: [react()],
@@ -59,15 +103,22 @@ export default defineConfig({
 	build: {
 		outDir: 'web',
 		emptyOutDir: true,
+		// The solo backend bundles server/resources.ts, whose policy-page
+		// endpoints use an ES2022 string export name (`export { … as
+		// 'age-rating' }` — Harper maps export names to URL paths, and the
+		// hyphen needs the string form). Vite's default target (es2020/chrome87)
+		// rejects that syntax, and there's no hosted web UI to support old
+		// browsers for: the build runs in Electron (Chromium 126) and local dev.
+		target: 'es2022',
 	},
 	server: {
 		port: 5173,
-		// Harper serves REST over HTTPS (self-signed in local dev), hence secure: false.
-		proxy: Object.fromEntries(
-			harperEndpoints.map((name) => [
-				`/${name}`,
-				{ target: 'https://localhost:9926', changeOrigin: true, secure: false },
-			])
-		),
+		proxy: harperProxy,
+	},
+	// `vite preview` (solo + co-op E2E, and quick local checks of the built app)
+	// gets the same proxy explicitly — don't rely on it inheriting server.proxy.
+	preview: {
+		port: 4173,
+		proxy: harperProxy,
 	},
 });

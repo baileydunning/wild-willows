@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Deploys the co-op web + server component to the hosted Harper. Used two ways:
+# Deploys the server component (ENDPOINTS ONLY — no static web/ build; the game
+# UI ships in the desktop app) to the hosted Harper. Used two ways:
 #   • locally:  ./deploy-coop.sh          (prompts for the Harper password)
 #   • from CI:  .github/workflows/deploy.yml sets HARPER_PW from GitHub
 #                secrets and runs this same script, so there is exactly one
@@ -11,8 +12,6 @@ set -euo pipefail
 #   HARPER_PW            Harper password (skips the interactive prompt)
 #   HARPER_USER          Harper username        (default: HDB_ADMIN)
 #   TARGET_URL           operations API endpoint (default: the hosted Harper below)
-#   COOP_ENABLED         'true'/'false' — bake co-op UI into the web build
-#                        (default: true; see src/features.ts)
 
 # --- edit these if needed ---
 PROJECT="wild"                                            # MUST match the component name already deployed
@@ -22,9 +21,8 @@ USERNAME="${HARPER_USER:-HDB_ADMIN}"
 
 cd "$(dirname "$0")"
 
-COOP_ENABLED="${COOP_ENABLED:-true}"
-echo "Building web + server with co-op ${COOP_ENABLED} ..."
-COOP_ENABLED="$COOP_ENABLED" npm run build
+echo "Building server bundle (resources.js) ..."
+npm run build:server
 
 # Harper packages the WHOLE directory when you omit `package=`, and it ignores
 # .gitignore, so deploying from the repo root would upload node_modules (~1.1G)
@@ -35,8 +33,10 @@ COOP_ENABLED="$COOP_ENABLED" npm run build
 STAGE="$(mktemp -d)"
 trap 'rm -rf "$STAGE"' EXIT
 
+# Endpoints only — no web/ build is deployed (the game UI ships in the desktop
+# app; the policy pages are endpoints inside resources.js).
 cp config.yaml schema.graphql resources.js "$STAGE"/
-cp -R web data "$STAGE"/
+cp -R data "$STAGE"/
 cat > "$STAGE/package.json" <<'JSON'
 {
   "name": "wild-willows",
