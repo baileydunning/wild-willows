@@ -3,7 +3,7 @@ import { bridge } from './bridge';
 import { canPaintClick } from './interactions';
 import {
 	animalScale, animalTexture, ensureAnimalTexture, makeAnimalTextures, makeBaseTextures, makeNodeTextures,
-	makeObjectTextures, makePlayerTexture,
+	makeObjectTextures, makePlayerTexture, INV_TEX_SCALE, TEX_SCALE,
 } from './textures';
 import { seasonStyle, weatherType, liveWeatherType, gatherResourceFor } from '../weather';
 import { isTypingTarget } from '../typing';
@@ -248,8 +248,8 @@ export class WorldScene extends Phaser.Scene {
 
 		this.drawGround();
 		const playerKey = makePlayerTexture(this, bridge.shared.state?.player.appearance);
-		this.playerShadow = this.add.image(0, 0, 'shadow').setDepth(2);
-		this.player = this.add.image(0, 0, playerKey).setDepth(1000);
+		this.playerShadow = this.img(0, 0, 'shadow').setDepth(2);
+		this.player = this.img(0, 0, playerKey).setDepth(1000);
 		let spawn = data?.spawn || this.savedSpawn();
 		// stepping into the home: stand just inside the door
 		if (this.isHome) { const r = this.homeRoom(); spawn = { x: r.doorX + 0.5, y: r.doorY + 0.2 }; }
@@ -301,15 +301,15 @@ export class WorldScene extends Phaser.Scene {
 		});
 
 		// nearest-interactable highlight (pulsing ring + key hint)
-		const ring = this.add.image(0, 0, 'ring').setTint(0xffe9a8);
+		const ring = this.img(0, 0, 'ring').setTint(0xffe9a8);
 		const badgeBg = this.add.circle(0, -30, 9.5, 0x2b3321, 0.92).setStrokeStyle(1.5, 0xffe9a8, 1);
 		const badgeText = this.add
 			.text(0, -30, this.isTouch ? '·' : 'E', { fontFamily: 'Quicksand, sans-serif', fontSize: '11px', color: '#f0e8d4', fontStyle: 'bold' })
 			.setOrigin(0.5);
 		this.highlight = this.add.container(0, 0, [ring, badgeBg, badgeText]).setDepth(6000).setVisible(false);
-		this.tweens.add({ targets: ring, scale: { from: 0.92, to: 1.08 }, alpha: { from: 0.95, to: 0.6 }, duration: 700, yoyo: true, repeat: -1 });
+		this.tweens.add({ targets: ring, scale: { from: 0.92 * INV_TEX_SCALE, to: 1.08 * INV_TEX_SCALE }, alpha: { from: 0.95, to: 0.6 }, duration: 700, yoyo: true, repeat: -1 });
 
-		this.tileCursor = this.add.image(0, 0, 'ghost-ok').setDepth(5900).setVisible(false).setAlpha(0.8);
+		this.tileCursor = this.img(0, 0, 'ghost-ok').setDepth(5900).setVisible(false).setAlpha(0.8);
 
 		this.refreshDynamic();
 		// Fresh-login safety net: on login the scene can finish booting before the
@@ -417,8 +417,11 @@ export class WorldScene extends Phaser.Scene {
 	private applyZoom(smooth = false) {
 		const w = this.scale.width;
 		const h = this.scale.height;
+		// Game pixels are device pixels (see PhaserGame.tsx), so the clamp — tuned in
+		// CSS pixels — scales by the display ratio to keep framing identical on HiDPI.
+		const dpr = this.scale.displayScale.x || 1;
 		const fit = Math.max(w / this.worldW, h / this.worldH); // never show past the world edge
-		const base = Phaser.Math.Clamp(Math.max(w / (VIEW_W * TILE), h / (VIEW_H * TILE)), 0.85, 2.6);
+		const base = Phaser.Math.Clamp(Math.max(w / (VIEW_W * TILE), h / (VIEW_H * TILE)), 0.85 * dpr, 2.6 * dpr);
 		const zoom = Phaser.Math.Clamp(base * userZoom, Math.max(fit, base * USER_ZOOM_MIN), base * USER_ZOOM_MAX);
 		if (smooth) this.cameras.main.zoomTo(zoom, 150, 'Sine.easeInOut');
 		else this.cameras.main.setZoom(zoom);
@@ -511,7 +514,7 @@ export class WorldScene extends Phaser.Scene {
 		// are the mountain range, drawn separately below.
 		for (let ty = this.playTop; ty < this.rows; ty++) {
 			for (let tx = 0; tx < this.landRight; tx++) {
-				const img = this.add.image(tx * TILE + 16, ty * TILE + 16, 'tile').setDepth(0);
+				const img = this.img(tx * TILE + 16, ty * TILE + 16, 'tile').setDepth(0);
 				(img as any).shade = 0.92 + rng() * 0.08;
 				this.groundTiles.push(img);
 			}
@@ -562,7 +565,7 @@ export class WorldScene extends Phaser.Scene {
 			}
 		}
 		if (r.light >= 3) {
-			const glow = this.addDyn(this.add.image(fx + TILE, fy + fh - TILE, 'glow').setTint(0xffcf80).setDepth(0.23).setScale(1.6).setAlpha(0.5));
+			const glow = this.addDyn(this.img(fx + TILE, fy + fh - TILE, 'glow').setTint(0xffcf80).setDepth(0.23).setScale(1.6 * INV_TEX_SCALE).setAlpha(0.5));
 			glow.setBlendMode(Phaser.BlendModes.ADD);
 			this.tweens.add({ targets: glow, alpha: { from: 0.5, to: 0.32 }, duration: 1400, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
 		}
@@ -632,7 +635,7 @@ export class WorldScene extends Phaser.Scene {
 		const ridgeW = 420, ridgeH = 150;
 		const y = bandH - ridgeH + 6; // anchor peaks so their base meets the ground line
 		for (let x = -20; x < this.worldW + ridgeW; x += ridgeW) {
-			this.add.image(x, y, 'mtnridge').setOrigin(0, 0).setDepth(0.2);
+			this.img(x, y, 'mtnridge').setOrigin(0, 0).setDepth(0.2);
 		}
 		// soft snowline where the rock meets the meadow
 		this.add.rectangle(0, bandH - 3, this.worldW, 6, 0xffffff, 0.25).setOrigin(0, 0).setDepth(0.25);
@@ -719,18 +722,21 @@ export class WorldScene extends Phaser.Scene {
 			.setOrigin(0, 0).setScrollFactor(0).setDepth(5005).setVisible(false);
 	}
 
-	/** Lazily build the 1-colour rain streak and snow dot textures. */
+	/** Lazily build the 1-colour rain streak and snow dot textures.
+	 * Supersampled like every other texture (see textures.ts) — the emitter
+	 * configs compensate with INV_TEX_SCALE particle scales. */
 	private ensureWeatherTextures() {
+		const S = TEX_SCALE;
 		if (!this.textures.exists('wx-rain')) {
 			const g = this.make.graphics({ x: 0, y: 0 });
-			g.fillStyle(0xbcd2e8, 1).fillRect(0, 0, 2, 12);
-			g.generateTexture('wx-rain', 2, 12);
+			g.scaleCanvas(S, S).fillStyle(0xbcd2e8, 1).fillRect(0, 0, 2, 12);
+			g.generateTexture('wx-rain', 2 * S, 12 * S);
 			g.destroy();
 		}
 		if (!this.textures.exists('wx-snow')) {
 			const g = this.make.graphics({ x: 0, y: 0 });
-			g.fillStyle(0xffffff, 1).fillCircle(3, 3, 3);
-			g.generateTexture('wx-snow', 6, 6);
+			g.scaleCanvas(S, S).fillStyle(0xffffff, 1).fillCircle(3, 3, 3);
+			g.generateTexture('wx-snow', 6 * S, 6 * S);
 			g.destroy();
 		}
 	}
@@ -753,7 +759,8 @@ export class WorldScene extends Phaser.Scene {
 				lifespan,
 				speedY: { min: 520, max: 700 },
 				speedX: { min: -60, max: -20 },
-				scaleY: { min: 0.8, max: 1.5 },
+				scaleX: INV_TEX_SCALE,
+				scaleY: { min: 0.8 * INV_TEX_SCALE, max: 1.5 * INV_TEX_SCALE },
 				alpha: { min: 0.25, max: 0.5 },
 				quantity: 4,
 				frequency: 28,
@@ -765,7 +772,7 @@ export class WorldScene extends Phaser.Scene {
 				lifespan,
 				speedY: { min: 45, max: 85 },
 				speedX: { min: -25, max: 25 },
-				scale: { min: 0.45, max: 1 },
+				scale: { min: 0.45 * INV_TEX_SCALE, max: 1 * INV_TEX_SCALE },
 				alpha: { min: 0.5, max: 0.9 },
 				quantity: 2,
 				frequency: 80,
@@ -827,11 +834,11 @@ export class WorldScene extends Phaser.Scene {
 			const x = tile.x * TILE + 16;
 			const y = tile.y * TILE + 16;
 			if (tile.type === 'water') {
-				const img = this.addDyn(this.add.image(x, y, 'terrain-water').setDepth(1.6));
+				const img = this.addDyn(this.img(x, y, 'terrain-water').setDepth(1.6));
 				this.tweens.add({ targets: img, alpha: { from: 1, to: 0.86 }, duration: 1300 + ((tile.x + tile.y) % 4) * 180, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
 				continue;
 			}
-			this.addDyn(this.add.image(x, y, tile.type === 'watered' ? 'watered' : 'tilled').setDepth(1.5));
+			this.addDyn(this.img(x, y, tile.type === 'watered' ? 'watered' : 'tilled').setDepth(1.5));
 			if (tile.type === 'watered') {
 				// watered beds are ready for planting; terraform clicks still reach the
 				// soil here so the can/shovel can flood or clear it (with confirmation)
@@ -890,7 +897,7 @@ export class WorldScene extends Phaser.Scene {
 			for (let i = 0; i < count; i++) {
 				const p = spot();
 				if (!p) continue;
-				this.addDyn(this.add.image(p.x, p.y, key).setDepth(1).setAlpha(alpha).setAngle(rng() * 20 - 10));
+				this.addDyn(this.img(p.x, p.y, key).setDepth(1).setAlpha(alpha).setAngle(rng() * 20 - 10));
 			}
 		};
 		// density scales with the biome's playable area so big maps aren't barren
@@ -906,6 +913,15 @@ export class WorldScene extends Phaser.Scene {
 		return obj;
 	}
 
+	/**
+	 * `add.image` wrapper — procedural textures are TEX_SCALE× supersampled
+	 * (see textures.ts), so every sprite renders at INV_TEX_SCALE to appear at
+	 * its logical size. Any later setScale must multiply by INV_TEX_SCALE too.
+	 */
+	private img(x: number, y: number, key: string): Phaser.GameObjects.Image {
+		return this.add.image(x, y, key).setScale(INV_TEX_SCALE);
+	}
+
 	private drawStaticFeatures() {
 		const state = bridge.shared.state;
 		if (this.area === 'meadow') {
@@ -919,8 +935,8 @@ export class WorldScene extends Phaser.Scene {
 			const homeKey = this.textures.exists(wantKey) ? wantKey : 'tent';
 			// the camp building grows gradually: a small tent, then each Space level a bit bigger
 			const homeScale = built ? 1 + Math.max(0, (homeC.space || 2) - 2) * 0.1 : 0.85;
-			this.addDyn(this.add.image(tx2, ty2 + 22, 'shadow').setDepth(3).setScale(2.0 * homeScale, 1.1));
-			this.addDyn(this.add.image(tx2, ty2, homeKey).setDepth(ty2).setScale(homeScale));
+			this.addDyn(this.img(tx2, ty2 + 22, 'shadow').setDepth(3).setScale(2.0 * homeScale * INV_TEX_SCALE, 1.1 * INV_TEX_SCALE));
+			this.addDyn(this.img(tx2, ty2, homeKey).setDepth(ty2).setScale(homeScale * INV_TEX_SCALE));
 			// step inside your home to decorate it
 			this.registerInteractable({
 				x: tx2, y: ty2 + 8, label: 'Step inside your home (E)',
@@ -932,24 +948,24 @@ export class WorldScene extends Phaser.Scene {
 				['space', 'comfort', 'decor', 'light'].every((k) => (homeC[k] || 1) >= (tracks[k]?.levels.length || 1));
 			if (!fullyUpgraded) {
 				const sgx = (CAMP.tent.x - 1.2) * TILE, sgy = (CAMP.tent.y + 1.1) * TILE;
-				this.addDyn(this.add.image(sgx, sgy + 16, 'shadow').setDepth(3).setScale(0.9, 0.7));
-				this.addDyn(this.add.image(sgx, sgy, 'sign').setDepth(sgy));
+				this.addDyn(this.img(sgx, sgy + 16, 'shadow').setDepth(3).setScale(0.9 * INV_TEX_SCALE, 0.7 * INV_TEX_SCALE));
+				this.addDyn(this.img(sgx, sgy, 'sign').setDepth(sgy));
 				this.registerInteractable({
 					x: sgx, y: sgy, label: 'Upgrade your home (E)',
 					action: () => bridge.emit('open-home'),
 				});
 			}
 			const fx = CAMP.fire.x * TILE, fy = CAMP.fire.y * TILE;
-			const fireGlow = this.addDyn(this.add.image(fx, fy - 4, 'glow').setTint(0xffb84f).setDepth(fy - 1).setScale(1.3));
+			const fireGlow = this.addDyn(this.img(fx, fy - 4, 'glow').setTint(0xffb84f).setDepth(fy - 1).setScale(1.3 * INV_TEX_SCALE));
 			(fireGlow as Phaser.GameObjects.Image).setBlendMode(Phaser.BlendModes.ADD);
-			const fire = this.addDyn(this.add.image(fx, fy, 'campfire').setDepth(fy));
+			const fire = this.addDyn(this.img(fx, fy, 'campfire').setDepth(fy));
 			this.tweens.add({ targets: [fire, fireGlow], alpha: { from: 1, to: 0.75 }, duration: 420, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
 
 			const gx = (this.cols - 1.2) * TILE;
 			const gy = this.dimsOf(this.area).gateY * TILE;
 			const forestUnlocked = state?.player.unlockedBiomes.includes('forest');
 			const forestOpen = forestUnlocked && this.biomeDef('forest')?.explorable;
-			this.addDyn(this.add.image(gx, gy, forestOpen ? 'gate' : 'sign').setDepth(gy));
+			this.addDyn(this.img(gx, gy, forestOpen ? 'gate' : 'sign').setDepth(gy));
 			this.registerInteractable({
 				x: gx, y: gy, label: forestOpen ? 'Walk to Old Hollow Forest' : 'Read the trail sign (Old Hollow Forest)',
 				action: () => {
@@ -963,7 +979,7 @@ export class WorldScene extends Phaser.Scene {
 		} else if (this.area === 'forest') {
 			const gx = 1.2 * TILE;
 			const gy = this.dimsOf(this.area).gateY * TILE;
-			this.addDyn(this.add.image(gx, gy, 'gate').setDepth(gy));
+			this.addDyn(this.img(gx, gy, 'gate').setDepth(gy));
 			this.registerInteractable({ x: gx, y: gy, label: 'Walk back to Willow Meadow', action: () => bridge.emit('request-area', { area: 'meadow' }) });
 
 			const sx = (this.cols - 1.2) * TILE;
@@ -971,7 +987,7 @@ export class WorldScene extends Phaser.Scene {
 			const wetlandUnlocked = state?.player.unlockedBiomes.includes('wetland');
 			const wetlandExplorable = this.biomeDef('wetland')?.explorable;
 			const wetlandOpen = wetlandUnlocked && wetlandExplorable;
-			this.addDyn(this.add.image(sx, sy, wetlandOpen ? 'gate' : 'sign').setDepth(sy));
+			this.addDyn(this.img(sx, sy, wetlandOpen ? 'gate' : 'sign').setDepth(sy));
 			this.registerInteractable({
 				x: sx, y: sy, label: wetlandOpen ? 'Walk to Rushwater Wetland' : 'Read the trail sign (Rushwater Wetland)',
 				action: () => {
@@ -991,13 +1007,13 @@ export class WorldScene extends Phaser.Scene {
 			for (let i = 0; i < 5; i++) {
 				const x = (4 + rng() * (this.cols - 8)) * TILE;
 				const y = (2 + rng() * 4) * TILE;
-				this.addDyn(this.add.image(x, y, 'obj-deadwood').setDepth(y).setAlpha(0.85).setTint(0xb9aa8e));
+				this.addDyn(this.img(x, y, 'obj-deadwood').setDepth(y).setAlpha(0.85).setTint(0xb9aa8e));
 			}
 		} else if (this.area === 'wetland') {
 			// gate back to the forest on the west edge
 			const gx = 1.2 * TILE;
 			const gy = this.dimsOf(this.area).gateY * TILE;
-			this.addDyn(this.add.image(gx, gy, 'gate').setDepth(gy));
+			this.addDyn(this.img(gx, gy, 'gate').setDepth(gy));
 			this.registerInteractable({ x: gx, y: gy, label: 'Walk back to Old Hollow Forest', action: () => bridge.emit('request-area', { area: 'forest' }) });
 
 			// trail east toward the desert (Redstone Scrubland)
@@ -1006,7 +1022,7 @@ export class WorldScene extends Phaser.Scene {
 			const desertUnlocked = state?.player.unlockedBiomes.includes('desert');
 			const desertExplorable = this.biomeDef('desert')?.explorable;
 			const desertOpen = desertUnlocked && desertExplorable;
-			this.addDyn(this.add.image(sx, sy, desertOpen ? 'gate' : 'sign').setDepth(sy));
+			this.addDyn(this.img(sx, sy, desertOpen ? 'gate' : 'sign').setDepth(sy));
 			this.registerInteractable({
 				x: sx, y: sy, label: desertOpen ? 'Walk to Redstone Scrubland' : 'Read the trail sign (Redstone Scrubland)',
 				action: () => {
@@ -1025,7 +1041,7 @@ export class WorldScene extends Phaser.Scene {
 			// gate back to the wetland on the west edge
 			const gx = 1.2 * TILE;
 			const gy = this.dimsOf(this.area).gateY * TILE;
-			this.addDyn(this.add.image(gx, gy, 'gate').setDepth(gy));
+			this.addDyn(this.img(gx, gy, 'gate').setDepth(gy));
 			this.registerInteractable({ x: gx, y: gy, label: 'Walk back to Rushwater Wetland', action: () => bridge.emit('request-area', { area: 'wetland' }) });
 
 			// trail east toward the alpine heights (Graywind Heights)
@@ -1034,7 +1050,7 @@ export class WorldScene extends Phaser.Scene {
 			const alpineUnlocked = state?.player.unlockedBiomes.includes('alpine');
 			const alpineExplorable = this.biomeDef('alpine')?.explorable;
 			const alpineOpen = alpineUnlocked && alpineExplorable;
-			this.addDyn(this.add.image(sx, sy, alpineOpen ? 'gate' : 'sign').setDepth(sy));
+			this.addDyn(this.img(sx, sy, alpineOpen ? 'gate' : 'sign').setDepth(sy));
 			this.registerInteractable({
 				x: sx, y: sy, label: alpineOpen ? 'Walk to Graywind Heights' : 'Read the trail sign (Graywind Heights)',
 				action: () => {
@@ -1056,7 +1072,7 @@ export class WorldScene extends Phaser.Scene {
 
 			// gate back to the desert on the west edge
 			const gx = 1.2 * TILE;
-			this.addDyn(this.add.image(gx, gy, 'gate').setDepth(gy));
+			this.addDyn(this.img(gx, gy, 'gate').setDepth(gy));
 			this.registerInteractable({ x: gx, y: gy, label: 'Walk back to Redstone Scrubland', action: () => bridge.emit('request-area', { area: 'desert' }) });
 
 			// trail east toward the coast (Pelican Shore)
@@ -1064,7 +1080,7 @@ export class WorldScene extends Phaser.Scene {
 			const coastalUnlocked = state?.player.unlockedBiomes.includes('coastal');
 			const coastalExplorable = this.biomeDef('coastal')?.explorable;
 			const coastalOpen = coastalUnlocked && coastalExplorable;
-			this.addDyn(this.add.image(sx, gy, coastalOpen ? 'gate' : 'sign').setDepth(gy));
+			this.addDyn(this.img(sx, gy, coastalOpen ? 'gate' : 'sign').setDepth(gy));
 			this.registerInteractable({
 				x: sx, y: gy, label: coastalOpen ? 'Walk to Pelican Shore' : 'Read the trail sign (Pelican Shore)',
 				action: () => {
@@ -1085,13 +1101,13 @@ export class WorldScene extends Phaser.Scene {
 			// only the trail back up to Graywind Heights on the west edge.
 			const gx = 1.2 * TILE;
 			const gy = this.dimsOf(this.area).gateY * TILE;
-			this.addDyn(this.add.image(gx, gy, 'gate').setDepth(gy));
+			this.addDyn(this.img(gx, gy, 'gate').setDepth(gy));
 			this.registerInteractable({ x: gx, y: gy, label: 'Walk back up to Graywind Heights', action: () => bridge.emit('request-area', { area: 'alpine' }) });
 
 			// a weathered marker at the end of the shore trail, looking out to sea
 			const sx = (this.landRight - 0.6) * TILE;
 			const sy = 13 * TILE;
-			this.addDyn(this.add.image(sx, sy, 'obj-driftpile').setDepth(sy));
+			this.addDyn(this.img(sx, sy, 'obj-driftpile').setDepth(sy));
 			this.registerInteractable({
 				x: sx, y: sy, label: 'Look out over the ocean',
 				action: () => bridge.emit('toast', { text: 'The open Pacific stretches east as far as you can see. Sea glass, kelp, coral, and the rare pearl wash up along the tideline.', kind: 'info' }),
@@ -1271,9 +1287,9 @@ export class WorldScene extends Phaser.Scene {
 			const container = this.add.container(x, y).setDepth(y);
 
 			const texKey = this.textures.exists(`rnode-${node.resourceId}`) ? `rnode-${node.resourceId}` : 'node';
-			const img = this.add.image(0, 0, texKey);
+			const img = this.img(0, 0, texKey);
 			if (texKey === 'node') img.setTint(Phaser.Display.Color.HexStringToColor(res?.color || '#999999').color);
-			const sprout = this.add.image(0, 2, 'sprout');
+			const sprout = this.img(0, 2, 'sprout');
 			container.add([img, sprout]);
 			(container as any).nodeImg = img;
 			(container as any).sproutImg = sprout;
@@ -1320,22 +1336,22 @@ export class WorldScene extends Phaser.Scene {
 		// tool swing beside the player
 		const toolKey = `tool-${p.tool}`;
 		if (this.textures.exists(toolKey)) {
-			const toolImg = this.add.image(this.player.x + 14, this.player.y - 4, toolKey).setDepth(6500).setAngle(-30);
+			const toolImg = this.img(this.player.x + 14, this.player.y - 4, toolKey).setDepth(6500).setAngle(-30);
 			this.tweens.add({
 				targets: toolImg, angle: 28, duration: 220, yoyo: true,
 				onComplete: () => this.tweens.add({ targets: toolImg, alpha: 0, duration: 160, onComplete: () => toolImg.destroy() }),
 			});
 		}
 		// little squash on the player — you can see yourself grab it
-		this.tweens.add({ targets: this.player, scaleX: 1.12, scaleY: 0.9, duration: 110, yoyo: true });
+		this.tweens.add({ targets: this.player, scaleX: 1.12 * INV_TEX_SCALE, scaleY: 0.9 * INV_TEX_SCALE, duration: 110, yoyo: true });
 
 		for (let i = 0; i < Math.min(p.qty, 3); i++) {
-			const item = this.add.image(sx, sy, texKey).setDepth(6400).setScale(0.55);
+			const item = this.img(sx, sy, texKey).setDepth(6400).setScale(0.55 * INV_TEX_SCALE);
 			this.tweens.add({
 				targets: item,
 				x: { value: () => this.player.x, duration: 430 + i * 90, ease: 'Sine.easeIn' },
 				y: { value: () => this.player.y - 6, duration: 430 + i * 90, ease: 'Back.easeIn' },
-				scale: 0.2,
+				scale: 0.2 * INV_TEX_SCALE,
 				alpha: { from: 1, to: 0.7 },
 				delay: i * 70,
 				onComplete: () => item.destroy(),
@@ -1350,7 +1366,7 @@ export class WorldScene extends Phaser.Scene {
 		const x = p.x * TILE + 16;
 		const y = p.y * TILE + 16;
 		const toolKey = p.action === 'water' ? 'tool-watering-can' : 'tool-shovel';
-		const toolImg = this.add.image(x + 10, y - 12, toolKey).setDepth(6500).setAngle(-25);
+		const toolImg = this.img(x + 10, y - 12, toolKey).setDepth(6500).setAngle(-25);
 		this.tweens.add({
 			targets: toolImg, angle: 30, duration: 240, yoyo: true,
 			onComplete: () => toolImg.destroy(),
@@ -1382,9 +1398,9 @@ export class WorldScene extends Phaser.Scene {
 		const puffs = this.time.addEvent({
 			delay: 150, loop: true, callback: () => {
 				if (!this.alive) return;
-				const d = this.add.image(bx + (Math.random() - 0.5) * 64, by + 22 + (Math.random() - 0.5) * 16, 'glow')
-					.setTint(0xe6d2a4).setDepth(by + 70).setScale(0.45).setAlpha(0.75).setBlendMode(Phaser.BlendModes.ADD);
-				this.tweens.add({ targets: d, y: d.y - 20, alpha: 0, scale: 0.8, duration: 620, ease: 'Sine.easeOut', onComplete: () => d.destroy() });
+				const d = this.img(bx + (Math.random() - 0.5) * 64, by + 22 + (Math.random() - 0.5) * 16, 'glow')
+					.setTint(0xe6d2a4).setDepth(by + 70).setScale(0.45 * INV_TEX_SCALE).setAlpha(0.75).setBlendMode(Phaser.BlendModes.ADD);
+				this.tweens.add({ targets: d, y: d.y - 20, alpha: 0, scale: 0.8 * INV_TEX_SCALE, duration: 620, ease: 'Sine.easeOut', onComplete: () => d.destroy() });
 			},
 		});
 		const hammer = this.time.addEvent({ delay: 800, loop: true, callback: () => { if (this.alive) this.floatText(bx + (Math.random() - 0.5) * 30, by - 26, 'tap tap', '#fff7dd'); } });
@@ -1418,6 +1434,7 @@ export class WorldScene extends Phaser.Scene {
 				if (!this.alive) return;
 				const z = this.add.text(this.player.x + 12, this.player.y - 14, 'z', {
 					fontFamily: 'Quicksand, sans-serif', fontSize: '16px', color: '#dfe9ff', fontStyle: 'bold',
+					resolution: 4, // stays crisp under camera zoom
 				}).setOrigin(0.5).setDepth(9500);
 				this.tweens.add({ targets: z, y: z.y - 30, x: z.x + 14, alpha: 0, duration: 1300, ease: 'Sine.easeOut', onComplete: () => z.destroy() });
 			},
@@ -1454,7 +1471,7 @@ export class WorldScene extends Phaser.Scene {
 			const x = p.x * TILE + 16;
 			const y = p.y * TILE + 16;
 			const tall = ['tree', 'deadwood', 'perch', 'platform', 'willow', 'oak', 'pine'].includes(def.shape || '');
-			this.addDyn(this.add.image(x, y + (tall ? 22 : 10), 'shadow').setDepth(3).setScale(tall ? 1.0 : 1.2, 0.9));
+			this.addDyn(this.img(x, y + (tall ? 22 : 10), 'shadow').setDepth(3).setScale((tall ? 1.0 : 1.2) * INV_TEX_SCALE, 0.9 * INV_TEX_SCALE));
 
 			// freshly planted things start as a sprout and grow in
 			const growMs = (def.growSeconds || 0) * 1000;
@@ -1466,7 +1483,7 @@ export class WorldScene extends Phaser.Scene {
 			const shapeKey = `obj-${def.shape || 'kit'}`;
 			const objKey = this.textures.exists(shapeKey) ? shapeKey : 'obj-kit';
 			const img = this.addDyn(
-				this.add.image(x, y, stillGrowing ? 'sprout' : objKey).setDepth(y)
+				this.img(x, y, stillGrowing ? 'sprout' : objKey).setDepth(y)
 			);
 			if (stillGrowing) {
 				this.time.delayedCall(growMs - age + 300, () => {
@@ -1491,12 +1508,12 @@ export class WorldScene extends Phaser.Scene {
 				? 0.72 + 0.28 * Math.min(1, placedAge / matMs)
 				: 1;
 			if (isFixture) {
-				img.setScale(growScale * matureScale);
+				img.setScale(growScale * matureScale * INV_TEX_SCALE);
 			} else {
 				const vr = mulberry32(hashStr(p.id));
 				img.setFlipX(vr() < 0.5);
 				img.setRotation((vr() - 0.5) * 0.12); // ±~3.5° lean
-				img.setScale(growScale * matureScale * (0.9 + vr() * 0.2)); // 0.9–1.1 size
+				img.setScale(growScale * matureScale * (0.9 + vr() * 0.2) * INV_TEX_SCALE); // 0.9–1.1 size
 				const shade = 0.82 + vr() * 0.18; // 0.82–1.0 brightness
 				const v = Math.round(255 * shade);
 				img.setTint((v << 16) | (v << 8) | v);
@@ -1592,7 +1609,7 @@ export class WorldScene extends Phaser.Scene {
 			ensureAnimalTexture(this, animal.id, animal.kind);
 			const { key, tint } = animalTexture(animal.id, animal.kind);
 			if (animal.kind !== 'insect') {
-				const sh = this.add.image(ax, ay + 9, 'shadow').setDepth(3).setScale(0.75, 0.7).setAlpha(0.8);
+				const sh = this.img(ax, ay + 9, 'shadow').setDepth(3).setScale(0.75 * INV_TEX_SCALE, 0.7 * INV_TEX_SCALE).setAlpha(0.8);
 				this.animals.add(sh);
 				const shadowTimer = this.time.addEvent({
 					delay: 90, loop: true,
@@ -1602,12 +1619,12 @@ export class WorldScene extends Phaser.Scene {
 						else if (!sh.active) shadowTimer.remove(); // stop following once the animal layer is cleared
 					},
 				});
-				const img = this.add.image(ax, ay, key).setDepth(ay);
+				const img = this.img(ax, ay, key).setDepth(ay);
 				this.animals.add(img);
 				(sh as any).animal = img;
 				this.decorateAnimal(img, animal, tint, rng);
 			} else {
-				const img = this.add.image(ax, ay, key).setDepth(ay);
+				const img = this.img(ax, ay, key).setDepth(ay);
 				this.animals.add(img);
 				this.decorateAnimal(img, animal, tint, rng);
 			}
@@ -1618,7 +1635,7 @@ export class WorldScene extends Phaser.Scene {
 		if (tint) img.setTint(tint);
 		// proportional size per species (bear ≫ chipmunk ≫ salamander), with a
 		// touch of per-animal jitter so individuals still vary
-		const scale = animalScale(animal.id, animal.kind);
+		const scale = animalScale(animal.id, animal.kind) * INV_TEX_SCALE;
 		img.setScale(scale);
 		img.setInteractive({ useHandCursor: true });
 		img.on('pointerdown', () => bridge.emit('animal-clicked', { animalId: animal.id }));
@@ -1641,7 +1658,7 @@ export class WorldScene extends Phaser.Scene {
 			callback: () => {
 				if (!this.alive) return;
 				const x = Math.random() * this.worldW;
-				const leaf = this.add.image(x, -8, 'leaf-fall').setDepth(4000).setAlpha(0.85);
+				const leaf = this.img(x, -8, 'leaf-fall').setDepth(4000).setAlpha(0.85);
 				this.tweens.add({
 					targets: leaf,
 					y: this.worldH + 12,
@@ -1715,9 +1732,9 @@ export class WorldScene extends Phaser.Scene {
 		this.placementObjectId = objectId;
 		const def = this.objectDef(objectId);
 		const ghost = this.add.container(0, 0).setDepth(5000).setAlpha(0.8);
-		const frame = this.add.image(0, 0, 'ghost-ok');
+		const frame = this.img(0, 0, 'ghost-ok');
 		const pk = `obj-${def?.shape || 'kit'}`;
-		const preview = this.add.image(0, 0, this.textures.exists(pk) ? pk : 'obj-kit').setAlpha(0.75);
+		const preview = this.img(0, 0, this.textures.exists(pk) ? pk : 'obj-kit').setAlpha(0.75);
 		ghost.add([frame, preview]);
 		(ghost as any).frame = frame;
 		this.ghost = ghost;
@@ -1731,9 +1748,9 @@ export class WorldScene extends Phaser.Scene {
 		this.movingPlacementId = placementId;
 		const def = this.objectDef(placement.objectId);
 		const ghost = this.add.container(0, 0).setDepth(5000).setAlpha(0.85);
-		const frame = this.add.image(0, 0, 'ghost-ok');
+		const frame = this.img(0, 0, 'ghost-ok');
 		const pk = `obj-${def?.shape || 'kit'}`;
-		const preview = this.add.image(0, 0, this.textures.exists(pk) ? pk : 'obj-kit').setAlpha(0.8);
+		const preview = this.img(0, 0, this.textures.exists(pk) ? pk : 'obj-kit').setAlpha(0.8);
 		ghost.add([frame, preview]);
 		(ghost as any).frame = frame;
 		this.ghost = ghost;
@@ -1811,11 +1828,12 @@ export class WorldScene extends Phaser.Scene {
 			let r = this.remotes.get(peer.playerId);
 			if (!r) {
 				const key = makePlayerTexture(this, peer.appearance);
-				const shadow = this.add.image(peer.x * TILE, peer.y * TILE + 15, 'shadow').setDepth(2).setAlpha(0.5);
-				const sprite = this.add.image(peer.x * TILE, peer.y * TILE, key).setDepth(999).setAlpha(0.96);
+				const shadow = this.img(peer.x * TILE, peer.y * TILE + 15, 'shadow').setDepth(2).setAlpha(0.5);
+				const sprite = this.img(peer.x * TILE, peer.y * TILE, key).setDepth(999).setAlpha(0.96);
 				const label = this.add.text(peer.x * TILE, peer.y * TILE - 26, peer.name || 'caretaker', {
 					fontFamily: 'system-ui, sans-serif', fontSize: '11px', color: '#3a2f25',
 					backgroundColor: 'rgba(255,255,255,0.7)', padding: { x: 4, y: 1 },
+					resolution: 4, // stays crisp under camera zoom
 				}).setOrigin(0.5).setDepth(10000);
 				r = { sprite, shadow, label, sig, walkT: 0, lastX: peer.x, lastY: peer.y, moveUntil: 0 };
 				this.remotes.set(peer.playerId, r);

@@ -9,11 +9,22 @@ const C = (hex: string) => Phaser.Display.Color.HexStringToColor(hex).color;
 
 type G = Phaser.GameObjects.Graphics;
 
+/**
+ * Supersampling factor for all procedural textures. Shapes are authored in
+ * "logical" pixels (32px tiles) but rasterized TEX_SCALE× larger so they stay
+ * crisp under camera zoom + HiDPI. Every sprite must render at
+ * `INV_TEX_SCALE` scale to appear at its logical size — WorldScene's `img()`
+ * helper does this. Power of two so logical sizes stay float-exact (no tile seams).
+ */
+export const TEX_SCALE = 4;
+export const INV_TEX_SCALE = 1 / TEX_SCALE;
+
 function tex(scene: Phaser.Scene, key: string, w: number, h: number, draw: (g: G) => void) {
 	if (scene.textures.exists(key)) return;
 	const g = scene.make.graphics({ x: 0, y: 0 }, false);
+	g.scaleCanvas(TEX_SCALE, TEX_SCALE); // rasterize the logical-pixel draw commands 4× sharper
 	draw(g);
-	g.generateTexture(key, w, h);
+	g.generateTexture(key, w * TEX_SCALE, h * TEX_SCALE);
 	g.destroy();
 }
 
