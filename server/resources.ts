@@ -2267,7 +2267,7 @@ export class GameData extends PublicEndpoint {
 		const d = await defs();
 		return {
 			biomes: d.biomes, animals: d.animals, resources: d.resources,
-			recipes: d.recipes, habitatObjects: d.objects, tools: d.tools,
+			recipes: d.recipes, habitatObjects: d.objects.map((o: any) => ({ ...o, rotatable: isRotatable(o) })), tools: d.tools,
 			achievements: d.achievements,
 			homeStyles: HOME_STYLES,
 			homeTracks: HOME_TRACKS,
@@ -2929,6 +2929,24 @@ function normRot(v: any): number {
 	return ((Math.round(n / 90) * 90) % 360 + 360) % 360;
 }
 
+// Only things with a real orientation can be rotated — paths, fences/walls,
+// bridges, and directional furniture. Trees, flowers, bushes, rocks, ponds and
+// radial decor (lanterns, vases, chimes, gnomes…) always sit at 0°.
+const ROTATABLE_IDS = new Set<string>([
+	'wooden-fence', 'dry-stone-wall',
+	'wooden-bench', 'hammock', 'picnic-blanket', 'garden-arch', 'trail-signpost', 'flower-cart',
+	'home-bed', 'home-sleeping-bag', 'home-bookshelf', 'home-armchair', 'home-fireplace', 'home-table',
+	'home-dresser', 'home-driftwoodshelf', 'home-mushroomshelf', 'home-reedmat', 'home-peltrug', 'home-rug',
+	'home-cushions', 'home-stool', 'home-aquarium', 'home-telescope',
+]);
+function isRotatable(def: any): boolean {
+	if (!def) return false;
+	if (def.rotatable === true) return true;      // explicit data opt-in
+	if (def.bridge) return true;                  // bridges span water either way
+	if (/-path$/.test(def.id)) return true;       // any path
+	return ROTATABLE_IDS.has(def.id);
+}
+
 /** POST /PlaceObject/ {playerId, objectId, area, x, y, rotation?} — area is a biome id or 'home'. */
 export class PlaceObject extends PublicEndpoint {
 	async post(data: any) {
@@ -2994,7 +3012,7 @@ export class PlaceObject extends PublicEndpoint {
 		await t.Player.patch(playerId, { craftedItems });
 
 		const placementId = `pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-		const placement = { id: placementId, worldId: wid, playerId, objectId, area, x: tx, y: ty, placedAt: Date.now(), rotation: normRot(rotation) };
+		const placement = { id: placementId, worldId: wid, playerId, objectId, area, x: tx, y: ty, placedAt: Date.now(), rotation: isRotatable(def) ? normRot(rotation) : 0 };
 		await t.Placement.put(placement);
 
 		if (def.isChest) {
@@ -3118,7 +3136,7 @@ export class MoveObject extends PublicEndpoint {
 		}
 
 		const patch: any = { x: tx, y: ty };
-		if (rotation !== undefined) patch.rotation = normRot(rotation);
+		if (rotation !== undefined && isRotatable(movingDef)) patch.rotation = normRot(rotation);
 		await t.Placement.patch(placementId, patch);
 		const chest = await getOwnedChest(t, d, placementId, wid);
 		if (chest) await t.Chest.patch(placementId, { x: tx, y: ty }); // chests move with their contents

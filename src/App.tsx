@@ -110,14 +110,16 @@ function PlacementMenu({ item, onClose }: { item: ClickedPlacement; onClose: () 
 			>
 				<Icon name="pin" size={15} /> Move
 			</button>
-			<button
-				onClick={() => {
-					rotatePlacement(item.placementId);
-					onClose();
-				}}
-			>
-				<Icon name="gear" size={15} /> Rotate
-			</button>
+			{def?.rotatable && (
+				<button
+					onClick={() => {
+						rotatePlacement(item.placementId);
+						onClose();
+					}}
+				>
+					<Icon name="gear" size={15} /> Rotate
+				</button>
+			)}
 			<button
 				onClick={() => {
 					removePlacement(item.placementId);

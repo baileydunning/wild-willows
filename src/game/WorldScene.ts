@@ -272,9 +272,11 @@ export class WorldScene extends Phaser.Scene {
 			else if (e.key === '-' || e.key === '_') this.nudgeZoom(1 / ZOOM_STEP);
 			// "\" (the key under Delete) turns the object you're placing or moving a
 			// quarter-turn; the ghost preview rotates so you can line it up first.
-			// "/" is accepted too for keyboards/layouts where it's handier.
+			// "/" is accepted too. Only paths/fences/bridges/furniture rotate — trees,
+			// flowers, rocks and radial decor always sit upright.
 			else if ((e.key === '\\' || e.code === 'Backslash' || e.key === '/' || e.code === 'Slash') && (this.placementObjectId || this.movingPlacementId)) {
 				e.preventDefault();
+				if (!this.activeRotatable()) { bridge.emit('toast', { text: 'That piece doesn’t rotate', kind: 'info' }); return; }
 				this.placeRotation = (this.placeRotation + 90) % 360;
 				const preview = this.ghost && (this.ghost as any).preview as Phaser.GameObjects.Image | undefined;
 				preview?.setRotation(Phaser.Math.DegToRad(this.placeRotation));
@@ -1863,6 +1865,17 @@ export class WorldScene extends Phaser.Scene {
 		this.ghost = null;
 	}
 
+	/** The object id currently being placed or moved, if any. */
+	private activeObjectId(): string | null {
+		if (this.movingPlacementId) return bridge.shared.state?.placements.find((p) => p.id === this.movingPlacementId)?.objectId ?? null;
+		return this.placementObjectId;
+	}
+	/** Whether the active place/move object can be rotated (paths, bridges, furniture…). */
+	private activeRotatable(): boolean {
+		const id = this.activeObjectId();
+		return !!(id && this.objectDef(id)?.rotatable);
+	}
+
 	private canPlaceAt(tx: number, ty: number, forTerraform = false, ignoreId?: string): boolean {
 		// Indoors: you can only decorate on the floor (inside the walls).
 		if (this.isHome) {
@@ -2094,10 +2107,11 @@ export class WorldScene extends Phaser.Scene {
 		}
 
 		const verb = this.isTouch ? 'Tap' : 'E';
+		const rotHint = !this.isTouch && this.activeRotatable() ? ' · \\ to rotate' : '';
 		const prompt = this.movingPlacementId
-			? `${this.isTouch ? 'Tap' : 'Click'} a tile to move it there${this.isTouch ? '' : ' · \\ to rotate · Esc to cancel'}`
+			? `${this.isTouch ? 'Tap' : 'Click'} a tile to move it there${rotHint}${this.isTouch ? '' : ' · Esc to cancel'}`
 			: this.placementObjectId
-			? `${this.isTouch ? 'Tap' : 'Click'} a tile to place${this.isTouch ? '' : ' · \\ to rotate · Esc to stop placing'}`
+			? `${this.isTouch ? 'Tap' : 'Click'} a tile to place${rotHint}${this.isTouch ? '' : ' · Esc to stop placing'}`
 			: terraforming
 				? (terraforming === 'dig'
 					? `Shovel — ${this.isTouch ? 'tap' : 'click'} ground to dig a bed (may turn up materials)`

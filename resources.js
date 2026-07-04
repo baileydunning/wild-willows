@@ -15275,7 +15275,7 @@ var GameData = class extends PublicEndpoint {
       animals: d.animals,
       resources: d.resources,
       recipes: d.recipes,
-      habitatObjects: d.objects,
+      habitatObjects: d.objects.map((o) => ({ ...o, rotatable: isRotatable(o) })),
       tools: d.tools,
       achievements: d.achievements,
       homeStyles: HOME_STYLES,
@@ -15816,6 +15816,39 @@ function normRot(v) {
   if (!Number.isFinite(n)) return 0;
   return (Math.round(n / 90) * 90 % 360 + 360) % 360;
 }
+var ROTATABLE_IDS = /* @__PURE__ */ new Set([
+  "wooden-fence",
+  "dry-stone-wall",
+  "wooden-bench",
+  "hammock",
+  "picnic-blanket",
+  "garden-arch",
+  "trail-signpost",
+  "flower-cart",
+  "home-bed",
+  "home-sleeping-bag",
+  "home-bookshelf",
+  "home-armchair",
+  "home-fireplace",
+  "home-table",
+  "home-dresser",
+  "home-driftwoodshelf",
+  "home-mushroomshelf",
+  "home-reedmat",
+  "home-peltrug",
+  "home-rug",
+  "home-cushions",
+  "home-stool",
+  "home-aquarium",
+  "home-telescope"
+]);
+function isRotatable(def) {
+  if (!def) return false;
+  if (def.rotatable === true) return true;
+  if (def.bridge) return true;
+  if (/-path$/.test(def.id)) return true;
+  return ROTATABLE_IDS.has(def.id);
+}
 var PlaceObject = class extends PublicEndpoint {
   async post(data) {
     const { playerId, objectId, area, x, y, rotation } = await bodyOf(data);
@@ -15870,7 +15903,7 @@ var PlaceObject = class extends PublicEndpoint {
     if (craftedItems[objectId] <= 0) delete craftedItems[objectId];
     await t.Player.patch(playerId, { craftedItems });
     const placementId = `pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-    const placement = { id: placementId, worldId: wid, playerId, objectId, area, x: tx, y: ty, placedAt: Date.now(), rotation: normRot(rotation) };
+    const placement = { id: placementId, worldId: wid, playerId, objectId, area, x: tx, y: ty, placedAt: Date.now(), rotation: isRotatable(def) ? normRot(rotation) : 0 };
     await t.Placement.put(placement);
     if (def.isChest) {
       await t.Chest.put({
@@ -15985,7 +16018,7 @@ var MoveObject = class extends PublicEndpoint {
       throw new GameError("Bridges go over open water", 409);
     }
     const patch = { x: tx, y: ty };
-    if (rotation !== void 0) patch.rotation = normRot(rotation);
+    if (rotation !== void 0 && isRotatable(movingDef)) patch.rotation = normRot(rotation);
     await t.Placement.patch(placementId, patch);
     const chest = await getOwnedChest(t, d, placementId, wid);
     if (chest) await t.Chest.patch(placementId, { x: tx, y: ty });

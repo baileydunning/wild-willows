@@ -164,6 +164,9 @@ export interface HabitatObjectDef {
 	/** Indoor items: minimum home size (Space track level) needed to place — a tent
 	 * fits the basics; a fireplace needs a proper house. */
 	homeMin?: number;
+	/** Whether this object can be rotated when placing/moving (paths, fences,
+	 * bridges, directional furniture). Computed server-side, sent in GameData. */
+	rotatable?: boolean;
 }
 
 export interface ToolTier {

@@ -2297,33 +2297,28 @@ function composeAnimalDraw(id: string, kind: string): { w: number; h: number; dr
 		// under a heavy brow, a folded wing with drooping primaries, and gripping
 		// yellow talons. Reads as a predator, not a generic songbird.
 		if (t(/eagle/)) {
-			return { w: 36, h: 30, draw: draw((g) => {
-				// legs + splayed talons
-				g.lineStyle(2.4, C('#e0a93f'), 1).lineBetween(16, 24, 15, 28).lineBetween(20, 24, 21, 28);
-				g.fillStyle(C('#e0a93f'), 1);
-				g.fillTriangle(12, 28, 17, 27, 15, 30).fillTriangle(19, 28, 24, 27, 21, 30);
-				// broad, upright body
-				g.fillStyle(BODY, 1).fillEllipse(18, 17, 22, 22);
-				// folded wing draped over the back — clearly shaded, with three
-				// drooping primary "fingers" along the trailing edge
-				g.fillStyle(0x000000, 0.22).fillEllipse(13, 16, 15, 19);
-				g.fillTriangle(6, 15, 12, 17, 7, 27).fillTriangle(9, 16, 14, 18, 10, 28).fillTriangle(12, 17, 16, 19, 13, 28);
-				// short, blunt tail under the wing tips
-				g.fillStyle(0x000000, 0.28).fillTriangle(5, 24, 13, 22, 9, 30);
-				// pale streaked chest (subtle — keeps the tint readable)
-				g.fillStyle(0xffffff, 0.13).fillEllipse(21, 21, 10, 9);
-				// head, hunched forward on the shoulders
-				g.fillStyle(BODY, 1).fillCircle(25, 10, 6.4);
-				// the golden eagle's signature: a tawny nape/crown at the back of the head
-				g.fillStyle(C('#c79a3f'), 1).fillEllipse(22, 7, 9, 8);
-				g.fillStyle(BODY, 1).fillEllipse(27, 11, 8, 9); // face stays body colour in front
-				// heavy hooked bill: yellow cere into a dark, down-curved hook
-				g.fillStyle(C('#e6b84a'), 1).fillTriangle(29, 7, 34, 9, 29, 11);
-				g.fillStyle(C('#33302b'), 1).fillTriangle(32, 7.5, 35.5, 10, 32, 11).fillTriangle(34.5, 9.6, 35.8, 10.2, 33.5, 12.4);
-				// fierce amber eye under a heavy brow
-				g.lineStyle(1.7, C('#4a3a22'), 1).lineBetween(22, 7.6, 28, 8.4);
-				g.fillStyle(C('#f2c033'), 1).fillCircle(27, 10, 2.1);
-				g.fillStyle(DK, 1).fillCircle(27.4, 10, 1.05);
+			// Same clean, flat silhouette as the other birds — but unmistakably a
+			// raptor: a hooked bill, the golden eagle's tawny nape, a fierce amber
+			// eye, and gripping talons. No muddy overlays.
+			return { w: 30, h: 26, draw: draw((g) => {
+				// short perched legs + talons
+				g.lineStyle(1.6, C('#e0a93f'), 1).lineBetween(12, 17, 11, 23).lineBetween(16, 17, 17, 23);
+				g.fillStyle(C('#e0a93f'), 1).fillTriangle(8, 23, 13, 22, 10, 25).fillTriangle(15, 23, 20, 22, 17, 25);
+				// simple tail + plump body + rounded head (matches the other birds)
+				g.fillStyle(BODY, 1);
+				g.fillTriangle(2, 8, 9, 13, 3, 15);
+				g.fillEllipse(13, 13, 19, 15);
+				g.fillCircle(20, 7, 5.4);
+				// one restrained folded-wing accent, same touch as the gull/duck
+				g.fillStyle(0x000000, 0.12).fillEllipse(11, 13, 13, 6);
+				// the golden eagle's signature tawny nape, a clean patch on the crown
+				g.fillStyle(C('#c79a3f'), 1).fillEllipse(17, 5, 6, 5);
+				// heavy hooked bill: yellow, tipped with a small dark down-curved hook
+				g.fillStyle(C('#e0a93f'), 1).fillTriangle(23, 5.5, 29, 7, 23, 9);
+				g.fillStyle(C('#33302b'), 1).fillTriangle(27, 6.4, 29.6, 8, 27, 9.2);
+				// fierce amber eye
+				g.fillStyle(C('#f2c033'), 1).fillCircle(21, 6, 1.7);
+				g.fillStyle(DK, 1).fillCircle(21.3, 6, 1);
 			}) };
 		}
 
@@ -2358,14 +2353,25 @@ function composeAnimalDraw(id: string, kind: string): { w: number; h: number; dr
 			// finches/sparrows/grosbeaks: short, deep conical seed-cracking bill
 			else if (finch) { g.fillStyle(C('#d8b25a'), 1).fillTriangle(hx + 3, hy - 2, hx + 7, hy, hx + 3, hy + 2); }
 			else { g.fillStyle(C('#e0a93f'), 1).fillTriangle(hx + 3, hy - 1, hx + 7, hy, hx + 3, hy + 1.5); }
-			if (t(/pelican/)) { g.fillStyle(C('#e8c98a'), 1).fillEllipse(hx + 6, hy + 3, 7, 5); }
+			// pelican: a big orange gular pouch slung under the long bill
+			if (t(/pelican/)) { g.fillStyle(C('#e6a63c'), 1).fillEllipse(hx + 6, hy + 4, 11, 8); g.fillStyle(C('#f0c060'), 1).fillEllipse(hx + 6, hy + 3, 8, 5); }
 			// owl big eyes / ear tufts
 			if (t(/owl/)) { g.fillStyle(C('#f4e3b1'), 1).fillCircle(18, hy, 2).fillCircle(22, hy, 2); g.fillStyle(DK, 1).fillCircle(18, hy, 1).fillCircle(22, hy, 1); g.fillStyle(BODY, 1).fillTriangle(16, hy - 4, 18, hy - 7, 19, hy - 3).fillTriangle(21, hy - 3, 22, hy - 7, 24, hy - 4); }
 			// other raptors: a fierce amber eye under a heavy brow
 			else if (raptor) { g.lineStyle(1.4, C('#5a4a30'), 1).lineBetween(18, hy - 1.5, 23, hy - 0.5); g.fillStyle(C('#f2c033'), 1).fillCircle(21, hy, 1.8); g.fillStyle(DK, 1).fillCircle(21.3, hy, 1); }
 			else g.fillStyle(DK, 1).fillCircle(21, hy, 1.1);
-			// woodpecker red cap
-			if (t(/woodpecker|sapsucker/)) { g.fillStyle(C('#c0392b'), 1).fillCircle(20, hy - 4, 2.4); }
+			// woodpecker: a white cheek patch under a red cap (classic trunk-clinger)
+			if (t(/woodpecker|sapsucker/)) {
+				g.fillStyle(0xffffff, 0.82).fillEllipse(19, hy + 1.5, 6, 4.5);
+				g.fillStyle(DK, 1).fillCircle(21, hy, 1.1);
+				g.fillStyle(C('#c0392b'), 1).fillCircle(19, hy - 4, 2.6);
+			}
+			// hummingbird: an iridescent gorget at the throat + a swept blur-wing
+			if (t(/hummingbird/)) {
+				g.fillStyle(0x000000, 0.14).fillTriangle(7, baseY - 3, 15, baseY - 1, 9, baseY + 3);
+				g.fillStyle(C('#c0396b'), 1).fillEllipse(19, baseY - 3.5, 5, 4);
+				g.fillStyle(DK, 1).fillCircle(20, baseY - 6, 1.05);
+			}
 		}) };
 	}
 
