@@ -61,9 +61,10 @@ interface Ctx {
 	transfer: (chestId: string, resourceId: string, qty: number, dir: 'deposit' | 'withdraw') => Promise<void>;
 	craft: (recipeId: string) => Promise<void>;
 	discard: (kind: 'material' | 'crafted', id: string, qty: number, name?: string) => Promise<void>;
-	place: (objectId: string, area: string, x: number, y: number) => Promise<void>;
+	place: (objectId: string, area: string, x: number, y: number, rotation?: number) => Promise<void>;
 	removePlacement: (placementId: string) => Promise<void>;
-	movePlacement: (placementId: string, x: number, y: number) => Promise<void>;
+	movePlacement: (placementId: string, x: number, y: number, rotation?: number) => Promise<void>;
+	rotatePlacement: (placementId: string) => Promise<void>;
 	upgradeTool: (toolId: string) => Promise<void>;
 	upgradeHome: (track: string) => Promise<void>;
 	setHomeStyle: (style: string) => Promise<void>;
@@ -877,9 +878,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	);
 
 	const place = useCallback(
-		(objectId: string, area: string, x: number, y: number) =>
+		(objectId: string, area: string, x: number, y: number, rotation = 0) =>
 			act(
-				() => api.place(objectId, area, x, y),
+				() => api.place(objectId, area, x, y, rotation),
 				(r) => {
 					const name = data?.habitatObjects.find((o) => o.id === objectId)?.name || objectId;
 					const h = r?.biomeState?.health;
@@ -908,11 +909,24 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	);
 
 	const movePlacement = useCallback(
-		(placementId: string, x: number, y: number) =>
+		(placementId: string, x: number, y: number, rotation?: number) =>
 			act(
-				() => api.move(placementId, x, y),
+				() => api.move(placementId, x, y, rotation),
 				() => pushLog('pin', 'Moved it to a new spot.')
 			),
+		[act, pushLog]
+	);
+
+	// Rotate a placed object a quarter-turn in place (Move popup button).
+	const rotatePlacement = useCallback(
+		(placementId: string) => {
+			const p = bridge.shared.state?.placements.find((pl: any) => pl.id === placementId);
+			if (!p) return Promise.resolve();
+			return act(
+				() => api.move(placementId, p.x, p.y, (((p.rotation || 0) + 90) % 360)),
+				() => pushLog('pin', 'Turned it a quarter-turn.')
+			);
+		},
 		[act, pushLog]
 	);
 
@@ -1026,7 +1040,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			placementObjectId, startPlacement, cancelPlacement, toasts, notify: toast, dismissToast,
 			log, feedLog, selectedTool, setSelectedTool, terraform, plant, setTutorialStep,
 			startNew, startLogin, continueLast, startNewSolo, loadSoloSlot, logout,
-			refresh, collect, transfer, craft, discard, place, removePlacement, movePlacement,
+			refresh, collect, transfer, craft, discard, place, removePlacement, movePlacement, rotatePlacement,
 			upgradeTool, upgradeHome, setHomeStyle, rest, paintColor, setPaintColor, paintHome, paintPlacement,
 			observe, claimTask, changeArea, recalcArea,
 			worlds, activeWorldId, startNewCoop, refreshWorlds,
@@ -1035,7 +1049,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		[data, state, dataError, saveStatus, panel, helpOpen, activeChestId, animalCardId,
 			placementObjectId, toasts, toast, dismissToast, log, feedLog, selectedTool, setSelectedTool, terraform, plant,
 			setTutorialStep, startNew, startLogin, continueLast, startNewSolo, loadSoloSlot, logout,
-			refresh, collect, transfer, craft, discard, place, removePlacement, movePlacement, upgradeTool,
+			refresh, collect, transfer, craft, discard, place, removePlacement, movePlacement, rotatePlacement, upgradeTool,
 			observe, claimTask, changeArea, recalcArea, openChest, startPlacement, cancelPlacement, upgradeHome, setHomeStyle, rest,
 			paintColor, setPaintColor, paintHome, paintPlacement,
 			worlds, activeWorldId, startNewCoop, refreshWorlds,

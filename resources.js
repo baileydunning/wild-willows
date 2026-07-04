@@ -187,8 +187,8 @@ var biomes_default = {
         "quartz-crystal"
       ],
       palette: {
-        damaged: "#a8a8a0",
-        healthy: "#9db98c"
+        damaged: "#9a9992",
+        healthy: "#a6ad93"
       },
       grid: {
         cols: 30,
@@ -231,9 +231,10 @@ var biomes_default = {
         healthy: "#e8d9a8"
       },
       grid: {
-        cols: 30,
+        cols: 36,
         rows: 26
-      }
+      },
+      oceanCols: 10
     }
   ]
 };
@@ -10174,7 +10175,8 @@ var animals_2_default = {
           name: "Animal Diversity Web - Chelonia mydas",
           url: "https://animaldiversity.org/accounts/Chelonia_mydas/"
         }
-      ]
+      ],
+      ocean: true
     },
     {
       id: "harbor-seal",
@@ -10211,7 +10213,8 @@ var animals_2_default = {
           name: "NOAA Fisheries - Harbor Seal",
           url: "https://www.fisheries.noaa.gov/species/harbor-seal"
         }
-      ]
+      ],
+      ocean: true
     },
     {
       id: "sea-otter",
@@ -10259,7 +10262,8 @@ var animals_2_default = {
           name: "Monterey Bay Aquarium - Sea otter",
           url: "https://www.montereybayaquarium.org/animals-the-ocean/animals-a-to-z/sea-otter"
         }
-      ]
+      ],
+      ocean: true
     },
     {
       id: "dolphin",
@@ -10291,7 +10295,8 @@ var animals_2_default = {
           name: "NOAA Fisheries - Common Bottlenose Dolphin",
           url: "https://www.fisheries.noaa.gov/species/common-bottlenose-dolphin"
         }
-      ]
+      ],
+      ocean: true
     },
     {
       id: "migrating-whale",
@@ -10334,7 +10339,8 @@ var animals_2_default = {
           name: "Animal Diversity Web - Eschrichtius robustus",
           url: "https://animaldiversity.org/accounts/Eschrichtius_robustus/"
         }
-      ]
+      ],
+      ocean: true
     },
     {
       id: "american-goldfinch",
@@ -13316,18 +13322,23 @@ function weatherTypeAt(worldId, biomeId, t) {
   const rng = mulberry32(fnv1a(`${worldId}:${biomeId}:${day}`));
   return pickWeighted(weights, rng);
 }
-function weatherSnapshot(worldId, t, biomeIds) {
+var WEATHER_TYPES = Object.keys(weather_default.types || {});
+function weatherSnapshot(worldId, t, biomeIds, override) {
   const since = dayStartAt(t);
+  const forcedType = override?.type || null;
+  const forcedSeason = override?.season || null;
   const byBiome = {};
-  for (const id of biomeIds) byBiome[id] = { type: weatherTypeAt(worldId, id, t), since };
-  return {
-    season: seasonAt(t),
+  for (const id of biomeIds) byBiome[id] = { type: forcedType || weatherTypeAt(worldId, id, t), since };
+  const snap = {
+    season: forcedSeason || seasonAt(t),
     dayPhase: dayPhaseAt(t),
     dayProgress: dayProgressAt(t),
     dayIndex: dayIndexAt(t),
     dayMs: DAY_MS,
     byBiome
   };
+  if (forcedType || forcedSeason) snap.override = { type: forcedType, season: forcedSeason };
+  return snap;
 }
 
 // server/pages.ts
@@ -13779,6 +13790,18 @@ async function findInWorld(table, worldId, id) {
   const rows = await byWorld(table, worldId);
   return rows.find((r) => r.id === id) || null;
 }
+async function findTerrainAt(table, worldId, area, x, y) {
+  const rows = await byWorld(table, worldId);
+  return rows.find((r) => r.area === area && r.x === x && r.y === y) || null;
+}
+async function findBiomeState(table, worldId, biomeId) {
+  const rows = await byWorld(table, worldId);
+  return rows.find((r) => r.biomeId === biomeId) || null;
+}
+async function findDiscovery(table, worldId, animalId) {
+  const rows = await byWorld(table, worldId);
+  return rows.find((r) => r.animalId === animalId) || null;
+}
 function genJoinCode() {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let out = "";
@@ -14092,14 +14115,15 @@ async function bumpMetrics(player, deltas = {}, dailyDeltas = {}) {
   const dailyEntries = Object.entries(dailyDeltas).filter(([, v]) => v);
   if (!entries.length && !dailyEntries.length) return player.metrics || null;
   const now = Date.now();
-  const prev = player.metrics || freshMetrics(player.createdAt || now);
+  const live = await db().Player.get(player.id) || player;
+  const prev = live.metrics || freshMetrics(live.createdAt || now);
   const counts = { ...prev.counts || {} };
   for (const [k, v] of entries) counts[k] = (counts[k] || 0) + v;
   const metrics = { ...prev, counts, lastSeenAt: now };
   const patch = { metrics };
   if (dailyEntries.length) {
-    const dayKey = Math.floor(now / DAY_MS2);
-    const prevDaily = player.daily?.dayKey === dayKey ? player.daily : { dayKey, counts: {} };
+    const dayKey = playerDayKey(live, now);
+    const prevDaily = live.daily?.dayKey === dayKey ? live.daily : { dayKey, counts: {} };
     const dcounts = { ...prevDaily.counts || {} };
     for (const [k, v] of dailyEntries) dcounts[k] = (dcounts[k] || 0) + v;
     patch.daily = { dayKey, counts: dcounts };
@@ -14108,6 +14132,15 @@ async function bumpMetrics(player, deltas = {}, dailyDeltas = {}) {
   return metrics;
 }
 var DAY_MS2 = 864e5;
+var TASK_RESET_HOUR = 4;
+var tzMs = (player) => (Number.isFinite(player?.tzOffsetMinutes) ? player.tzOffsetMinutes : 0) * 6e4;
+var sanitizeTzOffset = (v) => {
+  const n = Math.round(Number(v));
+  return Number.isFinite(n) ? clamp(n, -840, 840) : 0;
+};
+function playerDayKey(player, at) {
+  return Math.floor((at + tzMs(player) - TASK_RESET_HOUR * 36e5) / DAY_MS2);
+}
 var round1 = (n) => Math.round(n * 10) / 10;
 function metricsView(player) {
   const now = Date.now();
@@ -14163,7 +14196,7 @@ function activationFlags(view, biomeSummary, player) {
 }
 var GRID_W = 30;
 var GRID_H = 20;
-var ALPINE_MTN_ROWS = 4;
+var ALPINE_MTN_ROWS = 8;
 function areaGrid(d, area) {
   const g = area === "home" ? null : d.biome.get(area)?.grid;
   const cols = g?.cols || GRID_W;
@@ -14267,7 +14300,7 @@ function summarizeBiomes(rows) {
     totalAnimalsReturned: rows.reduce((a, r) => a + (r.returnedCount || 0), 0)
   };
 }
-async function createPlayerRecords(playerId, name, passcode, appearance) {
+async function createPlayerRecords(playerId, name, passcode, appearance, tzOffsetMinutes = 0) {
   const t = db();
   const d = await defs();
   const now = Date.now();
@@ -14278,12 +14311,14 @@ async function createPlayerRecords(playerId, name, passcode, appearance) {
     passcodeSalt: salt,
     passcodeHash: hash,
     appearance,
+    tzOffsetMinutes,
+    // local-morning task resets (see playerDayKey)
     createdAt: now,
     worldId: playerId,
     // start in your own private solo world (world of one)
     area: "meadow",
     x: 24.5,
-    // spawn right beside the camp workbench
+    // spawn right beside the camp crafting station
     y: 6.5,
     inventory: { ...START_INVENTORY },
     craftedItems: {},
@@ -14354,7 +14389,7 @@ async function freshSnapshot(created) {
     feed: [],
     serverTime: now,
     weather: weatherSnapshot(worldId, wxTime, WEATHER_BIOME_IDS),
-    dailyTasks: dailyTasksBlock(worldId, created.player, d, 0, now),
+    dailyTasks: dailyTasksBlock({ wid: worldId, player: created.player, d, discoveries: [], biomeStates: created.seeded.biomeStates, now }),
     nodeRegenSeconds: NODE_REGEN_SECONDS,
     inventoryCapacity: inventoryCapacity(created.player)
   };
@@ -14598,14 +14633,26 @@ async function recalcBiome(wid, playerId, biomeId, opts = {}) {
     if (comfort !== disc.comfort) await t.Discovery.patch(disc.id, { comfort });
   }
   const returnedCount = [...returnedIds].filter((id) => d.animal.get(id)?.biome === biomeId).length;
-  const prior = await findInWorld(t.BiomeState, wid, `${wid}:${biomeId}`);
-  await t.BiomeState.patch(`${wid}:${biomeId}`, { health, balance, returnedCount });
+  const prior = await findBiomeState(t.BiomeState, wid, biomeId);
+  const bsId = prior?.id ?? `${wid}:${biomeId}`;
+  await t.BiomeState.patch(bsId, { health, balance, returnedCount });
   const biomeState = {
-    ...prior || { id: `${wid}:${biomeId}`, worldId: wid, playerId, biomeId, unlocked: biomeId === "meadow" },
+    ...prior || { id: bsId, worldId: wid, playerId, biomeId, unlocked: biomeId === "meadow" },
     health,
     balance,
     returnedCount
   };
+  const healthGain = health - (prior?.health ?? BASE_HEALTH);
+  const dailyDeltas = {};
+  if (healthGain > 0) dailyDeltas[`health:${biomeId}`] = healthGain;
+  if (newAnimals.length) {
+    dailyDeltas[`animal:${biomeId}`] = newAnimals.length;
+    dailyDeltas.animal = newAnimals.length;
+  }
+  if (Object.keys(dailyDeltas).length) {
+    const actor2 = opts.player || await t.Player.get(playerId);
+    if (actor2) await bumpMetrics(actor2, {}, dailyDeltas);
+  }
   const unlockedBiomes = await checkUnlocks(wid, playerId, { player: opts.player, freshState: biomeState });
   return { biomeState, newAnimals, unlockedBiomes };
 }
@@ -14648,7 +14695,7 @@ async function checkUnlocks(wid, playerId, fresh = {}) {
   for (const biome of d.biomes) {
     if (!biome.unlock || worldUnlocked.has(biome.id)) continue;
     const u = biome.unlock;
-    const prereq = fresh.freshState?.biomeId === u.biome ? fresh.freshState : await findInWorld(t.BiomeState, wid, `${wid}:${u.biome}`);
+    const prereq = fresh.freshState?.biomeId === u.biome ? fresh.freshState : await findBiomeState(t.BiomeState, wid, u.biome);
     if (!prereq || !worldUnlocked.has(u.biome)) continue;
     if ((prereq.health || 0) < (u.minHealth || 0)) continue;
     if ((prereq.returnedCount || 0) < (u.minAnimals || 0)) continue;
@@ -14665,7 +14712,8 @@ async function checkUnlocks(wid, playerId, fresh = {}) {
     worldUnlocked.add(biome.id);
     unlockedSet.add(biome.id);
     await t.Player.patch(playerId, { unlockedBiomes: [...unlockedSet] });
-    await t.BiomeState.patch(`${wid}:${biome.id}`, { unlocked: true });
+    const bsRow = await findBiomeState(t.BiomeState, wid, biome.id);
+    await t.BiomeState.patch(bsRow?.id ?? `${wid}:${biome.id}`, { unlocked: true });
     await seedStartingTerrain(wid, playerId, biome.id);
     unlockedNow.push({ id: biome.id, name: biome.name });
   }
@@ -14682,7 +14730,7 @@ function recipeUnlockMet(recipe, ctx) {
 }
 async function recipeUnlockContext(wid, biomeId, player, d) {
   const t = db();
-  const bs = await findInWorld(t.BiomeState, wid, `${wid}:${biomeId}`);
+  const bs = await findBiomeState(t.BiomeState, wid, biomeId);
   const discoveries = await byWorld(t.Discovery, wid);
   const returnedAnimalIds = new Set(
     discoveries.filter((x) => d.animal.get(x.animalId)?.biome === biomeId).map((x) => x.animalId)
@@ -14762,10 +14810,96 @@ async function consumeMaterials(player, materials, wid = player.id) {
   }
   return { usedFrom, inventory };
 }
-function dailyTasksFor(wid, player, d, discoveredCount, now) {
-  const dayKey = Math.floor(now / DAY_MS2);
+function milestonePin(ctx, dayKey, claims, daily, bundle) {
+  const { player, d, discoveries, biomeStates } = ctx;
+  const bs = new Map(biomeStates.map((b) => [b.biomeId, b]));
+  const gh = discoveries.find((x) => x.animalId === FIRST_ANIMAL_ID);
+  const welcomeId = `${dayKey}-welcome`;
+  const welcomedToday = gh && playerDayKey(player, gh.firstObservedAt || ctx.now) === dayKey;
+  if (!gh || welcomedToday && !claims[welcomeId]) {
+    return {
+      id: welcomeId,
+      kind: "welcome",
+      icon: "sparkle",
+      text: "Welcome the grasshopper home",
+      target: 1,
+      counter: "",
+      reward: bundle(),
+      hint: "Craft and place a grass patch, then bring the meadow to 15% health \u2014 the grasshopper hops home on its own.",
+      live: gh ? 1 : 0
+    };
+  }
+  for (const biome of d.biomes) {
+    const u = biome.unlock;
+    if (!u || bs.get(biome.id)?.unlocked) continue;
+    const prereq = bs.get(u.biome);
+    if (!prereq?.unlocked) continue;
+    const prereqName = d.biome.get(u.biome)?.name || u.biome;
+    const steps = [];
+    if (u.minHealth) {
+      const remaining = Math.max(0, u.minHealth - (prereq.health || 0));
+      const target = Math.max(1, Math.min(3, Math.ceil(remaining)));
+      steps.push({
+        step: "health",
+        icon: "leaf",
+        unmet: remaining > 0,
+        text: `Raise ${prereqName}'s health by ${target}`,
+        target,
+        counter: `health:${u.biome}`
+      });
+    }
+    if (u.minAnimals) {
+      steps.push({
+        step: "animals",
+        icon: "sparkle",
+        unmet: (prereq.returnedCount || 0) < u.minAnimals,
+        text: `Welcome a new animal back to ${prereqName}`,
+        target: 1,
+        counter: `animal:${u.biome}`
+      });
+    }
+    if (u.minTotalAnimals) {
+      steps.push({
+        step: "total",
+        icon: "journal",
+        unmet: discoveries.length < u.minTotalAnimals,
+        text: "Welcome a new animal, anywhere in the preserve",
+        target: 1,
+        counter: "animal"
+      });
+    }
+    if (u.requiresItem) {
+      const itemName = d.object.get(u.requiresItem)?.name || u.requiresItem;
+      const have = (player?.craftedItems?.[u.requiresItem] || 0) + (player?.craftedEver?.[u.requiresItem] || 0);
+      steps.push({ step: "kit", icon: "hammer", unmet: have <= 0, text: `Craft a ${itemName}`, target: 1, counter: "", live: Math.min(1, have) });
+    }
+    for (const step of steps) {
+      const id = `${dayKey}-goal-${biome.id}-${step.step}`;
+      if (claims[id]) continue;
+      const progressedToday = step.counter ? (daily[step.counter] || 0) > 0 : (step.live || 0) > 0;
+      if (!step.unmet && !progressedToday) continue;
+      return {
+        id,
+        kind: "goal",
+        icon: step.icon,
+        text: step.text,
+        target: step.target,
+        counter: step.counter,
+        reward: bundle(),
+        ...step.counter ? {} : { live: step.live }
+      };
+    }
+    return null;
+  }
+  return null;
+}
+function dailyTasksFor(ctx, claims, daily) {
+  const { wid, player, d, discoveries, now } = ctx;
+  const discoveredCount = discoveries.length;
+  const dayKey = playerDayKey(player, now);
+  const endsAt = (dayKey + 1) * DAY_MS2 + TASK_RESET_HOUR * 36e5 - tzMs(player);
   const rng = seededRng(hash32(`tasks:${wid}:${dayKey}`));
-  const unlocked = player?.unlockedBiomes?.length ? player.unlockedBiomes : ["meadow"];
+  const unlocked = ctx.unlockedBiomes?.length ? ctx.unlockedBiomes : player?.unlockedBiomes?.length ? player.unlockedBiomes : ["meadow"];
   const resPool = [...new Set(unlocked.flatMap((id) => d.biome.get(id)?.resources || []))].filter((r) => r !== "water" && !isWeatherGatheredResource(r) && d.resource.get(r));
   const pickFrom = (arr) => arr[Math.floor(rng() * arr.length)];
   const bundle = () => {
@@ -14797,7 +14931,7 @@ function dailyTasksFor(wid, player, d, discoveredCount, now) {
       id: `${dayKey}-craft`,
       kind: "craft",
       icon: "hammer",
-      text: `Craft ${target} ${target === 1 ? "item" : "items"} at the workbench`,
+      text: `Craft ${target} ${target === 1 ? "item" : "items"}`,
       target,
       counter: "craft",
       reward: bundle()
@@ -14851,18 +14985,61 @@ function dailyTasksFor(wid, player, d, discoveredCount, now) {
     const j = Math.floor(rng() * (i + 1));
     [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
   }
-  return { dayKey, endsAt: (dayKey + 1) * DAY_MS2, tasks: candidates.slice(0, 3) };
+  const firstDay = playerDayKey(player, player?.createdAt || now) === dayKey;
+  if (firstDay) {
+    const grasshopperHome = discoveries.some((x) => x.animalId === FIRST_ANIMAL_ID);
+    return {
+      dayKey,
+      endsAt,
+      tasks: [
+        {
+          id: `${dayKey}-welcome`,
+          kind: "welcome",
+          icon: "sparkle",
+          text: "Welcome the grasshopper home",
+          target: 1,
+          counter: "",
+          reward: bundle(),
+          hint: "Craft and place a grass patch, then bring the meadow to 15% health \u2014 the grasshopper hops home on its own.",
+          live: grasshopperHome ? 1 : 0
+        },
+        {
+          id: `${dayKey}-gather`,
+          kind: "gather",
+          icon: "basket",
+          text: "Collect 10 seeds",
+          target: 10,
+          counter: "res:seeds",
+          reward: bundle()
+        },
+        {
+          id: `${dayKey}-plant`,
+          kind: "plant",
+          icon: "leaf",
+          text: "Plant 3 seedlings",
+          target: 3,
+          counter: "plant",
+          reward: bundle()
+        }
+      ]
+    };
+  }
+  const pin = milestonePin(ctx, dayKey, claims, daily, bundle);
+  const tasks = pin ? [pin, ...candidates.slice(0, 2)] : candidates.slice(0, 3);
+  return { dayKey, endsAt, tasks };
 }
-function dailyTasksBlock(wid, player, d, discoveredCount, now) {
-  const gen = dailyTasksFor(wid, player, d, discoveredCount, now);
-  const daily = player?.daily?.dayKey === gen.dayKey ? player.daily.counts || {} : {};
-  const claims = player?.taskClaims?.dayKey === gen.dayKey ? player.taskClaims.claimed || {} : {};
+function dailyTasksBlock(ctx) {
+  const { player } = ctx;
+  const dayKey = playerDayKey(player, ctx.now);
+  const claims = player?.taskClaims?.dayKey === dayKey ? player.taskClaims.claimed || {} : {};
+  const daily = player?.daily?.dayKey === dayKey ? player.daily.counts || {} : {};
+  const gen = dailyTasksFor(ctx, claims, daily);
   return {
     dayKey: gen.dayKey,
     endsAt: gen.endsAt,
-    tasks: gen.tasks.map((task) => ({
+    tasks: gen.tasks.map(({ live, ...task }) => ({
       ...task,
-      progress: Math.min(task.target, daily[task.counter] || 0),
+      progress: live != null ? live : Math.min(task.target, daily[task.counter] || 0),
       claimed: !!claims[task.id]
     }))
   };
@@ -14886,6 +15063,7 @@ async function snapshot(playerId, opts = {}) {
     byPlayer(t.PlayerAchievement, playerId),
     byWorld(t.FeedEntry, wid)
   ]);
+  const personalUnlocked = [...player?.unlockedBiomes?.length ? player.unlockedBiomes : ["meadow"]];
   if (player && wid !== player.id) {
     const unlocked = new Set(player.unlockedBiomes || ["meadow"]);
     for (const bs of biomeStates) if (bs.unlocked) unlocked.add(bs.biomeId);
@@ -14907,8 +15085,8 @@ async function snapshot(playerId, opts = {}) {
     // persisted activity feed, oldest→newest (last 100 kept per player)
     feed: [...feedRows].sort((a, b) => (a.at || 0) - (b.at || 0)).slice(-FEED_CAP).map((r) => ({ id: r.id, at: r.at, icon: r.icon, text: r.text })),
     serverTime: now,
-    weather: weatherSnapshot(wid, wxTime, WEATHER_BIOME_IDS),
-    dailyTasks: dailyTasksBlock(wid, player, d, discoveries.length, now),
+    weather: weatherSnapshot(wid, wxTime, WEATHER_BIOME_IDS, player?.devWeather || null),
+    dailyTasks: dailyTasksBlock({ wid, player, d, discoveries, biomeStates, now, unlockedBiomes: personalUnlocked }),
     nodeRegenSeconds: NODE_REGEN_SECONDS,
     inventoryCapacity: inventoryCapacity(player)
   };
@@ -15097,7 +15275,7 @@ var GameData = class extends PublicEndpoint {
       animals: d.animals,
       resources: d.resources,
       recipes: d.recipes,
-      habitatObjects: d.objects,
+      habitatObjects: d.objects.map((o) => ({ ...o, rotatable: isRotatable(o) })),
       tools: d.tools,
       achievements: d.achievements,
       homeStyles: HOME_STYLES,
@@ -15118,7 +15296,7 @@ var GameData = class extends PublicEndpoint {
 };
 var CreatePlayer = class extends PublicEndpoint {
   async post(data) {
-    const { name, passcode, appearance } = await bodyOf(data);
+    const { name, passcode, appearance, tzOffsetMinutes } = await bodyOf(data);
     const cleanName = String(name || "").trim();
     if (cleanName.length < 2 || cleanName.length > 24) throw new GameError("Pick a name between 2 and 24 characters");
     const code = String(passcode || "");
@@ -15127,7 +15305,7 @@ var CreatePlayer = class extends PublicEndpoint {
     if (!playerId) throw new GameError("That name needs at least one letter or number");
     const existing = await safeGet(db().Player, playerId);
     if (existing) throw new GameError("A save with that name already exists", 409);
-    const created = await createPlayerRecords(playerId, cleanName, code, sanitizeAppearance(appearance));
+    const created = await createPlayerRecords(playerId, cleanName, code, sanitizeAppearance(appearance), sanitizeTzOffset(tzOffsetMinutes));
     let worlds = [];
     try {
       await ensureSoloWorld(created.player, { freshGrid: true });
@@ -15183,7 +15361,7 @@ var ChangePasscode = class extends PublicEndpoint {
 };
 var LoginPlayer = class extends PublicEndpoint {
   async post(data) {
-    const { name, passcode } = await bodyOf(data);
+    const { name, passcode, tzOffsetMinutes } = await bodyOf(data);
     const playerId = slugId(String(name || ""));
     const player = playerId ? await safeGet(db().Player, playerId) : null;
     if (!player) throw new GameError("No save found with that name \u2014 try New Game", 404);
@@ -15191,7 +15369,10 @@ var LoginPlayer = class extends PublicEndpoint {
     const d = await defs();
     const now = Date.now();
     const prev = player.metrics || freshMetrics(player.createdAt || now);
-    await db().Player.patch(playerId, { metrics: { ...prev, lastHeartbeatAt: 0 } });
+    await db().Player.patch(playerId, {
+      metrics: { ...prev, lastHeartbeatAt: 0 },
+      ...tzOffsetMinutes != null ? { tzOffsetMinutes: sanitizeTzOffset(tzOffsetMinutes) } : {}
+    });
     let active = player.worldId || playerId;
     let worlds = [];
     try {
@@ -15630,9 +15811,47 @@ var CraftItem = class extends PublicEndpoint {
     return { ok: true, crafted: recipe.output, craftedItems, inventory, chests, usedFrom, unlockedBiomes };
   }
 };
+function normRot(v) {
+  const n = Number(v);
+  if (!Number.isFinite(n)) return 0;
+  return (Math.round(n / 90) * 90 % 360 + 360) % 360;
+}
+var ROTATABLE_IDS = /* @__PURE__ */ new Set([
+  "wooden-fence",
+  "dry-stone-wall",
+  "wooden-bench",
+  "hammock",
+  "picnic-blanket",
+  "garden-arch",
+  "trail-signpost",
+  "flower-cart",
+  "home-bed",
+  "home-sleeping-bag",
+  "home-bookshelf",
+  "home-armchair",
+  "home-fireplace",
+  "home-table",
+  "home-dresser",
+  "home-driftwoodshelf",
+  "home-mushroomshelf",
+  "home-reedmat",
+  "home-peltrug",
+  "home-rug",
+  "home-cushions",
+  "home-stool",
+  "home-aquarium",
+  "home-telescope"
+]);
+function isRotatable(def) {
+  if (!def) return false;
+  if (def.rotatable === true) return true;
+  if (def.bridge) return true;
+  if (/-path$/.test(def.id)) return true;
+  return ROTATABLE_IDS.has(def.id);
+}
 var PlaceObject = class extends PublicEndpoint {
   async post(data) {
-    const { playerId, objectId, area, x, y } = await bodyOf(data);
+    const { playerId, objectId, area, x, y, rotation } = await bodyOf(data);
     const t = db();
     const d = await defs();
     const { player } = await requirePlayer(playerId);
@@ -15660,6 +15879,7 @@ var PlaceObject = class extends PublicEndpoint {
       if (!(player.unlockedBiomes || []).includes(area)) throw new GameError(`${biome.name} is not unlocked yet`, 403);
       if (def.placement === "indoor") throw new GameError(`${def.name} cannot be placed out in the preserve`);
       if (!(def.biomes || []).includes(area)) throw new GameError(`${def.name} does not suit the ${biome.name} habitat`);
+      if (biome.oceanCols && tx >= grid.cols - biome.oceanCols) throw new GameError("That is open ocean \u2014 build on the shore", 409);
     }
     if (def.requiresTool && (player.tools?.[def.requiresTool.id] || 1) < def.requiresTool.tier) {
       throw new GameError(`Placing ${def.name} requires an upgraded ${d.tool.get(def.requiresTool.id)?.name || def.requiresTool.id}`, 403);
@@ -15668,7 +15888,7 @@ var PlaceObject = class extends PublicEndpoint {
     if (placements.some((p) => p.area === area && p.x === tx && p.y === ty)) {
       throw new GameError("That spot is already taken", 409);
     }
-    const tileHere = area === "home" ? null : await findInWorld(t.TerrainTile, wid, `${wid}:${area}:${tx}:${ty}`);
+    const tileHere = area === "home" ? null : await findTerrainAt(t.TerrainTile, wid, area, tx, ty);
     if (tileHere) {
       if (tileHere.type === "water") {
         if (!def.bridge) throw new GameError("That is open water \u2014 a wooden bridge can span it", 409);
@@ -15683,7 +15903,7 @@ var PlaceObject = class extends PublicEndpoint {
     if (craftedItems[objectId] <= 0) delete craftedItems[objectId];
     await t.Player.patch(playerId, { craftedItems });
     const placementId = `pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-    const placement = { id: placementId, worldId: wid, playerId, objectId, area, x: tx, y: ty, placedAt: Date.now() };
+    const placement = { id: placementId, worldId: wid, playerId, objectId, area, x: tx, y: ty, placedAt: Date.now(), rotation: isRotatable(def) ? normRot(rotation) : 0 };
     await t.Placement.put(placement);
     if (def.isChest) {
       await t.Chest.put({
@@ -15727,13 +15947,12 @@ var Plant = class extends PublicEndpoint {
     if (!(def.biomes || []).includes(area)) throw new GameError(`${def.name} would not take root in the ${biome.name}`);
     const tx = Math.round(Number(x));
     const ty = Math.round(Number(y));
-    const tileId = `${wid}:${area}:${tx}:${ty}`;
-    const bed = await findInWorld(t.TerrainTile, wid, tileId);
+    const bed = await findTerrainAt(t.TerrainTile, wid, area, tx, ty);
     if (!bed || bed.type !== "watered") {
       throw new GameError("Plant into a watered soil bed \u2014 dig with the shovel, then water it");
     }
     const { usedFrom, inventory } = await consumeMaterials(player, def.plantCost || {}, wid);
-    await t.TerrainTile.delete(tileId);
+    await t.TerrainTile.delete(bed.id);
     const placementId = `pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const placement = {
       id: placementId,
@@ -15749,7 +15968,7 @@ var Plant = class extends PublicEndpoint {
     await t.Placement.put(placement);
     const recalc = await recalcBiome(wid, playerId, area, {
       addPlacements: [placement],
-      removeTerrainIds: [tileId],
+      removeTerrainIds: [bed.id],
       player: { ...player, inventory }
     });
     await bumpMetrics(player, { plantsPlanted: 1, animalsReturned: recalc.newAnimals?.length || 0 }, { plant: 1 });
@@ -15768,14 +15987,14 @@ var UpdateAppearance = class extends PublicEndpoint {
 };
 var MoveObject = class extends PublicEndpoint {
   async post(data) {
-    const { playerId, placementId, x, y } = await bodyOf(data);
+    const { playerId, placementId, x, y, rotation } = await bodyOf(data);
     const t = db();
     const { player } = await requirePlayer(playerId);
     const wid = worldOf(player);
     const placements = await byWorld(t.Placement, wid);
     const placement = placements.find((p) => p.id === placementId);
     if (!placement) throw new GameError("Placement not found", 404);
-    if (placement.objectId === "workbench") throw new GameError("The old workbench stays put");
+    if (placement.objectId === "workbench") throw new GameError("Your crafting station stays put \u2014 the preserve needs it");
     const dGrid = await defs();
     const grid = areaGrid(dGrid, placement.area);
     const tx = Math.round(Number(x));
@@ -15788,7 +16007,7 @@ var MoveObject = class extends PublicEndpoint {
     }
     const d = await defs();
     const movingDef = d.object.get(placement.objectId);
-    const tileHere = await findInWorld(t.TerrainTile, wid, `${wid}:${placement.area}:${tx}:${ty}`);
+    const tileHere = await findTerrainAt(t.TerrainTile, wid, placement.area, tx, ty);
     if (tileHere) {
       if (tileHere.type === "water") {
         if (!movingDef?.bridge) throw new GameError("That is open water \u2014 only a bridge can sit there", 409);
@@ -15798,10 +16017,12 @@ var MoveObject = class extends PublicEndpoint {
     } else if (movingDef?.bridge) {
       throw new GameError("Bridges go over open water", 409);
     }
-    await t.Placement.patch(placementId, { x: tx, y: ty });
+    const patch = { x: tx, y: ty };
+    if (rotation !== void 0 && isRotatable(movingDef)) patch.rotation = normRot(rotation);
+    await t.Placement.patch(placementId, patch);
     const chest = await getOwnedChest(t, d, placementId, wid);
     if (chest) await t.Chest.patch(placementId, { x: tx, y: ty });
-    return { ok: true, placement: { ...placement, x: tx, y: ty } };
+    return { ok: true, placement: { ...placement, ...patch } };
   }
 };
 var RemoveObject = class extends PublicEndpoint {
@@ -15886,7 +16107,7 @@ var UpgradeTool = class extends PublicEndpoint {
     const nextTier = (toolDef.tiers || []).find((tt) => tt.tier === currentTier + 1);
     if (!nextTier) throw new GameError(`${toolDef.name} is already fully upgraded`);
     if (nextTier.requires?.biome) {
-      const bs = await findInWorld(t.BiomeState, wid, `${wid}:${nextTier.requires.biome}`);
+      const bs = await findBiomeState(t.BiomeState, wid, nextTier.requires.biome);
       if ((bs?.health || 0) < (nextTier.requires.minHealth || 0)) {
         const biome = d.biome.get(nextTier.requires.biome);
         throw new GameError(
@@ -15919,7 +16140,7 @@ var UpgradeHome = class extends PublicEndpoint {
     const next = def.levels[level];
     if (!next) throw new GameError(`Your home's ${def.name.toLowerCase()} is already at its finest.`);
     if (next.requires?.biome) {
-      const bs = await findInWorld(t.BiomeState, wid, `${wid}:${next.requires.biome}`);
+      const bs = await findBiomeState(t.BiomeState, wid, next.requires.biome);
       if ((bs?.health || 0) < (next.requires.minHealth || 0)) {
         const d = await defs();
         const biome = d.biome.get(next.requires.biome);
@@ -15990,7 +16211,7 @@ var SetHomeStyle = class extends PublicEndpoint {
     if (home.styleLocked) throw new GameError("Your home is already built \u2014 choose upgrades from here.", 403);
     const wid = worldOf(player);
     if (styleDef.requires?.biome) {
-      const bs = await findInWorld(t.BiomeState, wid, `${wid}:${styleDef.requires.biome}`);
+      const bs = await findBiomeState(t.BiomeState, wid, styleDef.requires.biome);
       if ((bs?.health || 0) < (styleDef.requires.minHealth || 0)) {
         const d = await defs();
         const biome = d.biome.get(styleDef.requires.biome);
@@ -16012,9 +16233,9 @@ var ObserveAnimal = class extends PublicEndpoint {
     const d = await defs();
     const { player } = await requirePlayer(playerId);
     const wid = worldOf(player);
-    const disc = await findInWorld(t.Discovery, wid, `${wid}:${animalId}`);
+    const disc = await findDiscovery(t.Discovery, wid, animalId);
     if (!disc) throw new GameError("That animal has not returned yet", 404);
-    const dayKey = Math.floor(Date.now() / DAY_MS2);
+    const dayKey = playerDayKey(player, Date.now());
     const firstToday = disc.lastObservedDayKey !== dayKey;
     const timesObserved = (disc.timesObserved || 0) + 1;
     await t.Discovery.patch(disc.id, { timesObserved, lastObservedDayKey: dayKey });
@@ -16031,8 +16252,8 @@ var ClaimTask = class extends PublicEndpoint {
     const { player } = await requirePlayer(playerId);
     const wid = worldOf(player);
     const now = Date.now();
-    const discoveries = await byWorld(t.Discovery, wid);
-    const block = dailyTasksBlock(wid, player, d, discoveries.length, now);
+    const [discoveries, biomeStates] = await Promise.all([byWorld(t.Discovery, wid), byWorld(t.BiomeState, wid)]);
+    const block = dailyTasksBlock({ wid, player, d, discoveries, biomeStates, now, unlockedBiomes: player.unlockedBiomes });
     const task = block.tasks.find((x) => x.id === String(taskId || ""));
     if (!task) throw new GameError("That task is not on today's board", 404);
     if (task.claimed) throw new GameError("Already claimed \u2014 fresh tasks arrive tomorrow", 409);
@@ -16082,7 +16303,7 @@ var Terraform = class extends PublicEndpoint {
       throw new GameError("Something is already placed there");
     }
     const tileId = `${wid}:${area}:${tx}:${ty}`;
-    const existing = await findInWorld(t.TerrainTile, wid, tileId);
+    const existing = await findTerrainAt(t.TerrainTile, wid, area, tx, ty);
     let inventory = player.inventory || {};
     let tile = null;
     let removedId;
@@ -16126,11 +16347,11 @@ var Terraform = class extends PublicEndpoint {
       }
       await t.Player.patch(playerId, { inventory });
       tile = { ...existing, type: newType, updatedAt: Date.now() };
-      await t.TerrainTile.patch(tileId, { type: newType, updatedAt: Date.now() });
+      await t.TerrainTile.patch(existing.id, { type: newType, updatedAt: Date.now() });
     } else if (action === "clear") {
       if (!existing) throw new GameError("Nothing to clear here");
-      await t.TerrainTile.delete(tileId);
-      removedId = tileId;
+      await t.TerrainTile.delete(existing.id);
+      removedId = existing.id;
     } else {
       throw new GameError("action must be 'dig', 'water', or 'clear'");
     }
@@ -16746,6 +16967,165 @@ var DevTools = class extends PublicEndpoint {
         await recalcBiome(playerId, playerId, animal.biome, { player });
         await t.Discovery.patch(discId, { comfort: 85 });
         log.push(`Spawned ${animal.name} in ${animal.biome} \u2014 comfort 85, biome unlocked`);
+        break;
+      }
+      case "populate-biome": {
+        const ar = area || player.area;
+        const biome = d.biome.get(ar);
+        if (!biome || ar === "home") throw new GameError(`Cannot populate ${ar}`);
+        const wid = worldOf(player);
+        const unlockedSet = new Set(player.unlockedBiomes || ["meadow"]);
+        if (!unlockedSet.has(ar)) {
+          unlockedSet.add(ar);
+          await t.Player.patch(playerId, { unlockedBiomes: [...unlockedSet] });
+        }
+        for (const pl of (await byWorld(t.Placement, wid)).filter((p) => p.area === ar)) {
+          if (d.object.get(pl.objectId)?.isChest) continue;
+          await t.Placement.delete(pl.id);
+        }
+        for (const tt of (await byWorld(t.TerrainTile, wid)).filter((x) => x.area === ar)) {
+          await t.TerrainTile.delete(tt.id);
+        }
+        const grid = areaGrid(d, ar);
+        const playTop = ar === "alpine" ? ALPINE_MTN_ROWS : 0;
+        const landRight = ar === "coastal" ? grid.cols - (biome.oceanCols || 0) : grid.cols;
+        const xMin = 2, xMax = landRight - 2;
+        const yMin = playTop + 2, yMax = grid.rows - 2;
+        const inCamp = (x, y) => ar === "meadow" && x >= 19 && x <= 24 && y >= 3 && y <= 6;
+        const OLD = Date.now() - 45 * 864e5;
+        const rng = seededRng(hash32(`populate:${wid}:${ar}`));
+        const ri = (lo, hi) => lo + Math.floor(rng() * (hi - lo + 1));
+        const pick = (arr) => arr[Math.floor(rng() * arr.length)];
+        const occupied = /* @__PURE__ */ new Set();
+        (await byWorld(t.Chest, wid)).filter((c) => c.area === ar).forEach((c) => occupied.add(`${c.x},${c.y}`));
+        const free = (x, y) => x >= xMin && x <= xMax && y >= yMin && y <= yMax && !inCamp(x, y) && !occupied.has(`${x},${y}`);
+        const waterCells = [];
+        const carve = (x, y) => {
+          if (free(x, y)) {
+            occupied.add(`${x},${y}`);
+            waterCells.push({ x, y });
+          }
+        };
+        if (biome.canFlood !== false) {
+          const lx = ri(xMin + 1, Math.max(xMin + 1, Math.min(xMax - 4, xMin + 8)));
+          const ly = ri(yMin + 1, Math.max(yMin + 1, Math.min(yMax - 3, yMin + 6)));
+          for (let dy = 0; dy < 3; dy++) for (let dx = 0; dx < 4; dx++) {
+            if ((dx === 0 || dx === 3) && (dy === 0 || dy === 2)) continue;
+            carve(lx + dx, ly + dy);
+          }
+          carve(lx + 1, ly - 1);
+          carve(lx + 2, ly + 3);
+          let rx = ri(Math.floor((xMin + xMax) / 2), xMax - 2), ry = yMin;
+          carve(rx, ry);
+          for (let i = 0, steps = ri(13, 18); i < steps && ry < yMax; i++) {
+            if (rng() < 0.25 && rx > xMin + 1 && rx < xMax - 1) rx += rng() < 0.5 ? -1 : 1;
+            else ry += 1;
+            carve(rx, ry);
+            if (rng() < 0.25) carve(Math.min(xMax, rx + 1), ry);
+          }
+        }
+        const usable = d.objects.filter((o) => (o.biomes || []).includes(ar) && o.placement !== "indoor" && o.placement !== "none" && !o.isChest && !o.bridge);
+        if (!usable.length) throw new GameError(`No placeable objects exist for ${biome.name}`);
+        const isPath = (o) => /-path$/.test(o.id) || o.id === "wooden-fence" || o.id === "dry-stone-wall";
+        const trees = usable.filter((o) => o.plantable && (o.growSeconds || 0) >= 80);
+        const flowers = usable.filter((o) => o.plantable && (o.growSeconds || 0) < 80);
+        const NATURE = /* @__PURE__ */ new Set(["shrub", "rock-pile", "hollow-log", "log-shelter", "brush-pile", "stone-cairn", "rock-cairn", "clover-patch", "butterfly-flowers", "pollinator-garden", "fallen-branch-shelter", "insect-hotel", "birdhouse", "bird-perch"]);
+        const nature = usable.filter((o) => !o.plantable && !isPath(o) && NATURE.has(o.id));
+        const paths = usable.filter(isPath);
+        const decor = usable.filter((o) => !o.plantable && !isPath(o) && !NATURE.has(o.id));
+        const undergrowth = nature.length ? nature : flowers;
+        const places = [];
+        const place = (def, x, y) => {
+          if (!def || !free(x, y)) return false;
+          occupied.add(`${x},${y}`);
+          const row = { id: `pl_dev_${ar}_${x}_${y}`, worldId: wid, playerId, objectId: def.id, area: ar, x, y, placedAt: OLD };
+          if (def.plantable) row.plantedAt = OLD;
+          places.push(row);
+          return true;
+        };
+        const cluster = (pool, cx, cy, count, radius) => {
+          if (!pool.length) return;
+          const dom = rng() < 0.65 ? pick(pool) : null;
+          for (let n = 0, tries = 0; n < count && tries < count * 8; tries++) {
+            const def = dom && rng() < 0.7 ? dom : pick(pool);
+            if (place(def, cx + ri(-radius, radius), cy + ri(-radius, radius))) n++;
+          }
+        };
+        for (let i = 0, anchors = ri(8, 12); i < anchors; i++) {
+          const cx = ri(xMin, xMax), cy = ri(yMin, yMax);
+          const roll = rng();
+          if (roll < 0.4 && flowers.length) cluster(flowers, cx, cy, ri(4, 8), 2);
+          else if (roll < 0.72 && trees.length) {
+            cluster(trees, cx, cy, ri(2, 4), 2);
+            cluster(undergrowth, cx, cy, ri(1, 3), 2);
+          } else cluster(undergrowth, cx, cy, ri(3, 6), 2);
+        }
+        if (paths.length) {
+          for (let i = 0, runs = ri(1, 2); i < runs; i++) {
+            const def = pick(paths);
+            const horiz = rng() < 0.5;
+            const len = ri(4, 6);
+            const sx = ri(xMin, Math.max(xMin, xMax - (horiz ? len : 0)));
+            const sy = ri(yMin, Math.max(yMin, yMax - (horiz ? 0 : len)));
+            for (let k = 0; k < len; k++) place(def, sx + (horiz ? k : 0), sy + (horiz ? 0 : k));
+          }
+        }
+        for (let n = 0, tries = 0, want = ri(14, 20); decor.length && n < want && tries < want * 12; tries++) {
+          if (place(pick(decor), ri(xMin, xMax), ri(yMin, yMax))) n++;
+        }
+        for (let tries = 0; places.length < 34 && tries < 500; tries++) {
+          place(pick(usable), ri(xMin, xMax), ri(yMin, yMax));
+        }
+        for (const w of waterCells) {
+          await t.TerrainTile.put({ id: `${wid}:${ar}:${w.x}:${w.y}`, worldId: wid, playerId, area: ar, x: w.x, y: w.y, type: "water", updatedAt: Date.now() });
+        }
+        for (const row of places) await t.Placement.put(row);
+        const waterTiles = waterCells.length;
+        const placed = places.length;
+        const here = d.animals.filter((a) => a.biome === ar);
+        const already = new Set((await byWorld(t.Discovery, wid)).filter((x) => x.biomeId === ar).map((x) => x.animalId));
+        for (const animal of here) {
+          if (already.has(animal.id)) continue;
+          await t.Discovery.put({
+            id: `${wid}:${animal.id}`,
+            worldId: wid,
+            playerId,
+            animalId: animal.id,
+            biomeId: ar,
+            comfort: 90,
+            timesObserved: 0,
+            firstObservedAt: Date.now(),
+            whyReturned: whyReturnedText(animal, d)
+          });
+        }
+        await recalcBiome(wid, playerId, ar, { player });
+        const bs = await findBiomeState(t.BiomeState, wid, ar);
+        await t.BiomeState.patch(bs?.id ?? `${wid}:${ar}`, { health: 100, balance: 100, returnedCount: here.length });
+        for (const disc of (await byWorld(t.Discovery, wid)).filter((x) => x.biomeId === ar)) {
+          await t.Discovery.patch(disc.id, { comfort: 90 });
+        }
+        log.push(`Populated ${biome.name}: ${placed} objects, ${waterTiles} water tiles, ${here.length} animals home, health 100`);
+        break;
+      }
+      case "set-weather": {
+        const v = value && typeof value === "object" ? value : null;
+        if (!v || v.clear) {
+          await t.Player.patch(playerId, { devWeather: null });
+          log.push("Weather override cleared \u2014 back to the live sky");
+          break;
+        }
+        const cur = player.devWeather || {};
+        const next = { type: cur.type ?? null, season: cur.season ?? null };
+        if ("type" in v) {
+          if (v.type && !WEATHER_TYPES.includes(v.type)) throw new GameError(`Unknown weather type: ${v.type}`);
+          next.type = v.type || null;
+        }
+        if ("season" in v) {
+          if (v.season && !SEASONS.includes(v.season)) throw new GameError(`Unknown season: ${v.season}`);
+          next.season = v.season || null;
+        }
+        await t.Player.patch(playerId, { devWeather: next });
+        log.push(`Weather override: ${next.type || "live"} \xB7 ${next.season || "live"}`);
         break;
       }
       default:

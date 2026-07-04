@@ -4,8 +4,29 @@ import { hatPalette } from '../color';
 import { sendFeedback } from '../feedback';
 import { bridge } from '../game/bridge';
 import { useGame } from '../state';
-import type { Appearance } from '../types';
+import type { Appearance, AppearanceOptions } from '../types';
 import { CharacterPreview, Icon } from './icons';
+
+/**
+ * One roll of the dice — a fully random appearance from the available options.
+ * Hats usually keep their classic colors; sometimes the roll re-tints them.
+ */
+export function randomizeAppearance(opts: AppearanceOptions | undefined, current: Appearance): Appearance {
+	if (!opts) return current;
+	const pick = <T,>(arr: T[] | undefined): T | undefined =>
+		arr && arr.length ? arr[Math.floor(Math.random() * arr.length)] : undefined;
+	const hat = pick(opts.hats) ?? current.hat;
+	return {
+		skin: pick(opts.skins) ?? current.skin,
+		hair: pick(opts.hair) ?? current.hair,
+		outfit: pick(opts.outfits) ?? current.outfit,
+		hat,
+		hatColor: hat !== 'none' && Math.random() < 0.35 ? pick(opts.hatColors) ?? null : null,
+		hairstyle: pick(opts.hairstyles) ?? current.hairstyle,
+		beard: pick(opts.beards) ?? current.beard ?? 'none',
+		body: pick(opts.bodies) ?? current.body,
+	};
+}
 
 /**
  * The appearance option rows (Skin/Hair/Style/Beard/Build/Outfit/Hat/Hat

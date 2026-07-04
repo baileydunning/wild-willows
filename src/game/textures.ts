@@ -9,11 +9,22 @@ const C = (hex: string) => Phaser.Display.Color.HexStringToColor(hex).color;
 
 type G = Phaser.GameObjects.Graphics;
 
+/**
+ * Supersampling factor for all procedural textures. Shapes are authored in
+ * "logical" pixels (32px tiles) but rasterized TEX_SCALE× larger so they stay
+ * crisp under camera zoom + HiDPI. Every sprite must render at
+ * `INV_TEX_SCALE` scale to appear at its logical size — WorldScene's `img()`
+ * helper does this. Power of two so logical sizes stay float-exact (no tile seams).
+ */
+export const TEX_SCALE = 4;
+export const INV_TEX_SCALE = 1 / TEX_SCALE;
+
 function tex(scene: Phaser.Scene, key: string, w: number, h: number, draw: (g: G) => void) {
 	if (scene.textures.exists(key)) return;
 	const g = scene.make.graphics({ x: 0, y: 0 }, false);
+	g.scaleCanvas(TEX_SCALE, TEX_SCALE); // rasterize the logical-pixel draw commands 4× sharper
 	draw(g);
-	g.generateTexture(key, w, h);
+	g.generateTexture(key, w * TEX_SCALE, h * TEX_SCALE);
 	g.destroy();
 }
 
@@ -2281,8 +2292,38 @@ function composeAnimalDraw(id: string, kind: string): { w: number; h: number; dr
 				g.fillStyle(DK, 1).fillCircle(hx, hy - 0.5, 1.1);
 			}) };
 		}
+		// Eagle — the apex raptor. A big, upright, broad-chested hunter: heavy
+		// hooked bill, the golden eagle's signature tawny nape, a fierce amber eye
+		// under a heavy brow, a folded wing with drooping primaries, and gripping
+		// yellow talons. Reads as a predator, not a generic songbird.
+		if (t(/eagle/)) {
+			// Same clean, flat silhouette as the other birds — but unmistakably a
+			// raptor: a hooked bill, the golden eagle's tawny nape, a fierce amber
+			// eye, and gripping talons. No muddy overlays.
+			return { w: 30, h: 26, draw: draw((g) => {
+				// short perched legs + talons
+				g.lineStyle(1.6, C('#e0a93f'), 1).lineBetween(12, 17, 11, 23).lineBetween(16, 17, 17, 23);
+				g.fillStyle(C('#e0a93f'), 1).fillTriangle(8, 23, 13, 22, 10, 25).fillTriangle(15, 23, 20, 22, 17, 25);
+				// simple tail + plump body + rounded head (matches the other birds)
+				g.fillStyle(BODY, 1);
+				g.fillTriangle(2, 8, 9, 13, 3, 15);
+				g.fillEllipse(13, 13, 19, 15);
+				g.fillCircle(20, 7, 5.4);
+				// one restrained folded-wing accent, same touch as the gull/duck
+				g.fillStyle(0x000000, 0.12).fillEllipse(11, 13, 13, 6);
+				// the golden eagle's signature tawny nape, a clean patch on the crown
+				g.fillStyle(C('#c79a3f'), 1).fillEllipse(17, 5, 6, 5);
+				// heavy hooked bill: yellow, tipped with a small dark down-curved hook
+				g.fillStyle(C('#e0a93f'), 1).fillTriangle(23, 5.5, 29, 7, 23, 9);
+				g.fillStyle(C('#33302b'), 1).fillTriangle(27, 6.4, 29.6, 8, 27, 9.2);
+				// fierce amber eye
+				g.fillStyle(C('#f2c033'), 1).fillCircle(21, 6, 1.7);
+				g.fillStyle(DK, 1).fillCircle(21.3, 6, 1);
+			}) };
+		}
+
 		const wader = t(/heron|crane|egret|bittern|stilt|flamingo|sandhill/);
-		const raptor = t(/hawk|eagle|owl|falcon|kite|harrier/);
+		const raptor = t(/hawk|owl|falcon|kite|harrier|osprey|goshawk|kestrel|merlin/);
 		const finch = t(/finch|grosbeak|goldfinch|sparrow|bunting|crossbill|junco|towhee/);
 		const chunky = t(/ptarmigan|quail|grouse|partridge/);
 		// Long-billed birds need a wider canvas so the bill tip isn't clipped;
@@ -2308,16 +2349,29 @@ function composeAnimalDraw(id: string, kind: string): { w: number; h: number; dr
 			const hx = 20, hy = wader ? baseY - 10 : baseY - 6;
 			if (t(/hummingbird/)) { g.fillStyle(DK, 1); g.lineStyle(1.2, DK, 1).lineBetween(hx + 3, hy, hx + 11, hy - 1); }
 			else if (t(/heron|crane|egret|bittern|kingfisher|woodpecker|sapsucker|stork|pelican|oystercatcher/)) { g.fillStyle(C('#e0a93f'), 1).fillTriangle(hx + 3, hy - 1.5, hx + 11, hy, hx + 3, hy + 1.5); }
-			else if (raptor) { g.fillStyle(C('#e0a93f'), 1).fillTriangle(hx + 3, hy - 1, hx + 8, hy + 1, hx + 3, hy + 2.5); }
+			else if (raptor) { g.fillStyle(C('#e6b84a'), 1).fillTriangle(hx + 3, hy - 1, hx + 7, hy + 0.5, hx + 3, hy + 2.5); g.fillStyle(C('#33302b'), 1).fillTriangle(hx + 6, hy - 0.2, hx + 9, hy + 1, hx + 5.5, hy + 2); }
 			// finches/sparrows/grosbeaks: short, deep conical seed-cracking bill
 			else if (finch) { g.fillStyle(C('#d8b25a'), 1).fillTriangle(hx + 3, hy - 2, hx + 7, hy, hx + 3, hy + 2); }
 			else { g.fillStyle(C('#e0a93f'), 1).fillTriangle(hx + 3, hy - 1, hx + 7, hy, hx + 3, hy + 1.5); }
-			if (t(/pelican/)) { g.fillStyle(C('#e8c98a'), 1).fillEllipse(hx + 6, hy + 3, 7, 5); }
+			// pelican: a big orange gular pouch slung under the long bill
+			if (t(/pelican/)) { g.fillStyle(C('#e6a63c'), 1).fillEllipse(hx + 6, hy + 4, 11, 8); g.fillStyle(C('#f0c060'), 1).fillEllipse(hx + 6, hy + 3, 8, 5); }
 			// owl big eyes / ear tufts
 			if (t(/owl/)) { g.fillStyle(C('#f4e3b1'), 1).fillCircle(18, hy, 2).fillCircle(22, hy, 2); g.fillStyle(DK, 1).fillCircle(18, hy, 1).fillCircle(22, hy, 1); g.fillStyle(BODY, 1).fillTriangle(16, hy - 4, 18, hy - 7, 19, hy - 3).fillTriangle(21, hy - 3, 22, hy - 7, 24, hy - 4); }
+			// other raptors: a fierce amber eye under a heavy brow
+			else if (raptor) { g.lineStyle(1.4, C('#5a4a30'), 1).lineBetween(18, hy - 1.5, 23, hy - 0.5); g.fillStyle(C('#f2c033'), 1).fillCircle(21, hy, 1.8); g.fillStyle(DK, 1).fillCircle(21.3, hy, 1); }
 			else g.fillStyle(DK, 1).fillCircle(21, hy, 1.1);
-			// woodpecker red cap
-			if (t(/woodpecker|sapsucker/)) { g.fillStyle(C('#c0392b'), 1).fillCircle(20, hy - 4, 2.4); }
+			// woodpecker: a white cheek patch under a red cap (classic trunk-clinger)
+			if (t(/woodpecker|sapsucker/)) {
+				g.fillStyle(0xffffff, 0.82).fillEllipse(19, hy + 1.5, 6, 4.5);
+				g.fillStyle(DK, 1).fillCircle(21, hy, 1.1);
+				g.fillStyle(C('#c0392b'), 1).fillCircle(19, hy - 4, 2.6);
+			}
+			// hummingbird: an iridescent gorget at the throat + a swept blur-wing
+			if (t(/hummingbird/)) {
+				g.fillStyle(0x000000, 0.14).fillTriangle(7, baseY - 3, 15, baseY - 1, 9, baseY + 3);
+				g.fillStyle(C('#c0396b'), 1).fillEllipse(19, baseY - 3.5, 5, 4);
+				g.fillStyle(DK, 1).fillCircle(20, baseY - 6, 1.05);
+			}
 		}) };
 	}
 

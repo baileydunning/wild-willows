@@ -111,11 +111,20 @@ export async function createSlot(meta: Omit<SaveMeta, 'slotId' | 'createdAt' | '
 	return full;
 }
 
-/** Snapshot the active world to a slot (autosave after each action). */
+/** Snapshot the active world to a slot (autosave after each action). Keeps the
+ *  load-menu meta in sync with the live player — appearance and name can change
+ *  in-game (restyle your caretaker), so re-read them from the saved player row
+ *  instead of trusting the meta captured when the slot was created/loaded. */
 export async function persist(meta: SaveMeta): Promise<void> {
 	const data = serializeActiveSave();
 	if (!data) return;
-	const updated: SaveMeta = { ...meta, updatedAt: Date.now() };
+	const player = (data.Player || []).find((p: any) => p?.id === meta.playerId);
+	const updated: SaveMeta = {
+		...meta,
+		name: player?.name ?? meta.name,
+		appearance: player?.appearance ?? meta.appearance,
+		updatedAt: Date.now(),
+	};
 	await writeRaw(meta.slotId, { meta: updated, data });
 }
 

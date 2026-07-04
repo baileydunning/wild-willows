@@ -5,8 +5,14 @@ name: Mac App Store release
 # where it lands as a new build on the app record for review/release. A plain
 # manual run just builds the signed .pkg artifact and skips the upload.
 #
+# Tag scheme (mirrors desktop-build.yml):
+#   mas-v0.1.6   → Mac App Store ONLY  (this workflow)
+#   itch-v0.1.6  → itch.io ONLY  (desktop-build.yml)
+#   v0.1.6       → BOTH  (this workflow AND desktop-build.yml fire)
+#
 # Triggers:
 #   git tag mas-v0.1.6 && git push origin mas-v0.1.6  → build AND upload to ASC
+#   git tag v0.1.6 && git push origin v0.1.6          → build AND upload to ASC (+ itch fires too)
 #   Actions tab → Run workflow                        → build artifact only
 #
 # Required repo secrets (Settings → Secrets and variables → Actions):
@@ -30,7 +36,7 @@ name: Mac App Store release
 
 on:
   push:
-    tags: ['mas-v*']
+    tags: ['mas-v*', 'v*']
   workflow_dispatch:
 
 concurrency:
@@ -69,7 +75,7 @@ jobs:
         shell: bash
         run: |
           EXTRA=""
-          if [[ "$GITHUB_REF" == refs/tags/mas-v* ]]; then EXTRA="-c.extraMetadata.version=${GITHUB_REF_NAME#mas-v}"; fi
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then VER="${GITHUB_REF_NAME#mas-}"; VER="${VER#v}"; EXTRA="-c.extraMetadata.version=$VER"; fi
           npx electron-builder --mac mas --universal --publish never $EXTRA
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -89,7 +95,7 @@ jobs:
       # only). After it succeeds, pick the build in App Store Connect and
       # submit for review.
       - name: Upload to App Store Connect
-        if: startsWith(github.ref, 'refs/tags/mas-v')
+        if: startsWith(github.ref, 'refs/tags/')
         env:
           APPLE_ID: ${{ secrets.APPLE_ID }}
           APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}

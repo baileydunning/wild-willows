@@ -26,6 +26,9 @@ interface ClickedPlacement {
 	objectId: string;
 	name: string;
 	plantedAt?: number;
+	x?: number;
+	y?: number;
+	rotation?: number;
 }
 
 interface ClickedBed {
@@ -93,7 +96,7 @@ function PlantMenu({ bed, onClose }: { bed: ClickedBed; onClose: () => void }) {
 
 /** Small action menu when you click one of your placed items. */
 function PlacementMenu({ item, onClose }: { item: ClickedPlacement; onClose: () => void }) {
-	const { removePlacement, data } = useGame();
+	const { removePlacement, rotatePlacement, data } = useGame();
 	const def = data?.habitatObjects.find((o) => o.id === item.objectId);
 	const planted = !!(def?.plantable && item.plantedAt);
 	return (
@@ -107,6 +110,16 @@ function PlacementMenu({ item, onClose }: { item: ClickedPlacement; onClose: () 
 			>
 				<Icon name="pin" size={15} /> Move
 			</button>
+			{def?.rotatable && (
+				<button
+					onClick={() => {
+						rotatePlacement(item.placementId);
+						onClose();
+					}}
+				>
+					<Icon name="gear" size={15} /> Rotate
+				</button>
+			)}
 			<button
 				onClick={() => {
 					removePlacement(item.placementId);
@@ -149,7 +162,7 @@ function GameScreen() {
 		const subs = [
 			bridge.on('collect-node', (p: any) => game.collect(p.biomeId, p.nodeId, p.resourceId)),
 			bridge.on('open-chest', (p: any) => game.openChest(p.chestId)),
-			bridge.on('open-workbench', () => setPanel('crafting')),
+			bridge.on('open-crafting', () => setPanel('crafting')),
 			bridge.on('open-journal', () => setPanel('journal')),
 			bridge.on('open-home', () => setPanel('home')),
 			bridge.on('rest', () => game.rest()),
@@ -171,7 +184,7 @@ function GameScreen() {
 			}),
 			bridge.on('place-at', async (p: any) => {
 				const area = bridge.shared.state?.player.area || 'meadow';
-				await game.place(p.objectId, area, p.x, p.y);
+				await game.place(p.objectId, area, p.x, p.y, p.rotation || 0);
 				const remaining = bridge.shared.state?.player.craftedItems?.[p.objectId] || 0;
 				if (remaining <= 0) cancelPlacement();
 			}),
@@ -192,7 +205,7 @@ function GameScreen() {
 					game.removePlacement(p.placementId);
 				}
 			}),
-			bridge.on('move-to', (p: any) => game.movePlacement(p.placementId, p.x, p.y)),
+			bridge.on('move-to', (p: any) => game.movePlacement(p.placementId, p.x, p.y, p.rotation)),
 		];
 		return () => subs.forEach((u) => u());
 	}, [game, setPanel, cancelPlacement, notify]);

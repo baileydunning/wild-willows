@@ -141,6 +141,15 @@ export function weatherTypeAt(worldId: string, biomeId: string, t: number): stri
 	return pickWeighted(weights, rng);
 }
 
+/** Every weather type id defined in the data (clear, cloudy, rain, …). */
+export const WEATHER_TYPES: string[] = Object.keys((weatherData as any).types || {});
+
+/** A dev-tools override that forces weather and/or season for filming. */
+export interface WeatherOverride {
+	type?: string | null;
+	season?: string | null;
+}
+
 export interface WeatherSnapshot {
 	season: string;
 	dayPhase: string;
@@ -148,22 +157,29 @@ export interface WeatherSnapshot {
 	dayIndex: number;
 	dayMs: number;
 	byBiome: Record<string, { type: string; since: number }>;
+	/** present only when a dev override is active; the client honors it verbatim */
+	override?: WeatherOverride;
 }
 
 /**
  * The complete weather block embedded in every state snapshot. `biomeIds` is
  * passed in (from the biome defs) so this module stays free of Harper deps.
+ * `override` (dev tools) pins the season and/or every biome's weather type.
  */
-export function weatherSnapshot(worldId: string, t: number, biomeIds: string[]): WeatherSnapshot {
+export function weatherSnapshot(worldId: string, t: number, biomeIds: string[], override?: WeatherOverride | null): WeatherSnapshot {
 	const since = dayStartAt(t);
+	const forcedType = override?.type || null;
+	const forcedSeason = override?.season || null;
 	const byBiome: Record<string, { type: string; since: number }> = {};
-	for (const id of biomeIds) byBiome[id] = { type: weatherTypeAt(worldId, id, t), since };
-	return {
-		season: seasonAt(t),
+	for (const id of biomeIds) byBiome[id] = { type: forcedType || weatherTypeAt(worldId, id, t), since };
+	const snap: WeatherSnapshot = {
+		season: forcedSeason || seasonAt(t),
 		dayPhase: dayPhaseAt(t),
 		dayProgress: dayProgressAt(t),
 		dayIndex: dayIndexAt(t),
 		dayMs: DAY_MS,
 		byBiome,
 	};
+	if (forcedType || forcedSeason) snap.override = { type: forcedType, season: forcedSeason };
+	return snap;
 }

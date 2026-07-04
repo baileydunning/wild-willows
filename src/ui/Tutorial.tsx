@@ -17,7 +17,7 @@ interface Flags {
 	moved: boolean;
 	gathered: boolean;
 	openedBasket: boolean;
-	openedWorkbench: boolean;
+	openedCrafting: boolean;
 	crafted: boolean;
 	openedJournal: boolean;
 	openedChest: boolean;
@@ -165,7 +165,7 @@ const BASE_STEPS: StepDef[] = [
 		title: 'Open crafting',
 		text: 'Time to build the grasshopper’s home. Press C (or the hammer button) to open crafting — it draws from your basket plus every chest, anywhere you are. Only a few things can be made now; more unlock as the meadow recovers.',
 		touchText: 'Time to build the grasshopper’s home. Tap the hammer button to open crafting — it draws from your basket plus every chest, anywhere you are. Only a few things can be made now; more unlock as the meadow recovers.',
-		done: ({ flags }) => flags.openedWorkbench,
+		done: ({ flags }) => flags.openedCrafting,
 	},
 	{
 		icon: 'sparkle',
@@ -225,7 +225,7 @@ const readMs = (text: string, step: number) => {
 
 export function Tutorial() {
 	const { state, setTutorialStep, panel, worlds, activeWorldId } = useGame();
-	const [flags, setFlags] = useState<Flags>({ moved: false, gathered: false, openedBasket: false, openedWorkbench: false, crafted: false, openedJournal: false, openedChest: false, openedPreserve: false, openedTools: false, openedPeople: false, openedWeather: false });
+	const [flags, setFlags] = useState<Flags>({ moved: false, gathered: false, openedBasket: false, openedCrafting: false, crafted: false, openedJournal: false, openedChest: false, openedPreserve: false, openedTools: false, openedPeople: false, openedWeather: false });
 	const advanceTimer = useRef<number | null>(null);
 	const stepShownAt = useRef<number>(Date.now());
 	const [celebrating, setCelebrating] = useState(false);
@@ -312,7 +312,7 @@ export function Tutorial() {
 	}, []);
 
 	useEffect(() => {
-		if (panel === 'crafting') setFlags((f) => ({ ...f, openedWorkbench: true }));
+		if (panel === 'crafting') setFlags((f) => ({ ...f, openedCrafting: true }));
 		if (panel === 'journal') setFlags((f) => (f.openedJournal ? f : { ...f, openedJournal: true }));
 		if (panel === 'inventory') setFlags((f) => (f.openedBasket ? f : { ...f, openedBasket: true }));
 		if (panel === 'chest') setFlags((f) => (f.openedChest ? f : { ...f, openedChest: true }));

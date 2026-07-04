@@ -164,6 +164,9 @@ export interface HabitatObjectDef {
 	/** Indoor items: minimum home size (Space track level) needed to place — a tent
 	 * fits the basics; a fireplace needs a proper house. */
 	homeMin?: number;
+	/** Whether this object can be rotated when placing/moving (paths, fences,
+	 * bridges, directional furniture). Computed server-side, sent in GameData. */
+	rotatable?: boolean;
 }
 
 export interface ToolTier {
@@ -319,6 +322,8 @@ export interface WeatherSnapshot {
 	dayMs: number;
 	/** Active weather per biome (climate differs by biome). */
 	byBiome: Record<string, { type: string; since: number }>;
+	/** Present only when a dev override forces weather/season — honored verbatim. */
+	override?: { type?: string | null; season?: string | null };
 }
 
 export interface ChestState {
@@ -341,6 +346,8 @@ export interface Placement {
 	plantedAt?: number;
 	/** Optional per-item recolor (paint tool, home only). */
 	color?: string;
+	/** Quarter-turn rotation in degrees (0/90/180/270), set when placing/moving. */
+	rotation?: number;
 }
 
 export interface Discovery {
@@ -383,19 +390,21 @@ export interface GameState {
 
 export interface DailyTask {
 	id: string;
-	kind: 'gather' | 'craft' | 'place' | 'water' | 'plant' | 'observe';
+	kind: 'gather' | 'craft' | 'place' | 'water' | 'plant' | 'observe' | 'welcome' | 'goal';
 	icon: string;
 	text: string;
 	target: number;
 	counter: string;
 	reward: Record<string, number>;
+	/** optional "how do I do this?" nudge, shown as a hover tip on the board */
+	hint?: string;
 	progress: number;
 	claimed: boolean;
 }
 
 export interface DailyTasksBlock {
 	dayKey: number;
-	/** When this board expires (UTC midnight) and a fresh one appears. */
+	/** When this board expires (the next local morning) and a fresh one appears. */
 	endsAt: number;
 	tasks: DailyTask[];
 }
