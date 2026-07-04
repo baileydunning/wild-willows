@@ -18,6 +18,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 const pages = {
 	privacyHtml: 'public/privacy.html',
 	ageRatingHtml: 'public/age-rating.html',
+	supportHtml: 'public/support.html',
 };
 
 let out =

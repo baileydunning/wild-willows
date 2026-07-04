@@ -28,7 +28,7 @@ import achievementsData from '../data/achievements.json';
 import { weatherSnapshot, weatherTypeAt, gatherResourceIdFor, isWeatherGatheredResource, seasonAt, dayPhaseAt } from './weather';
 // Policy pages (privacy / age suitability), inlined from public/*.html by
 // scripts/build-pages.mjs — served as endpoints, see the bottom of this file.
-import { privacyHtml, ageRatingHtml } from './pages';
+import { privacyHtml, ageRatingHtml, supportHtml } from './pages';
 
 // Biome ids for the weather block (weather is per-biome; climate differs by
 // biome). Derived once from the static seed data so the weather snapshot stays
@@ -4170,5 +4170,12 @@ class AgeRatingPage extends PublicEndpoint {
 	}
 }
 
+/** GET /support.html — support / FAQ page (App Store Connect's Support URL). */
+class SupportPage extends PublicEndpoint {
+	async get() {
+		return htmlPage(supportHtml);
+	}
+}
+
 // Export under the exact URL paths (string export names keep the hyphen).
-export { PrivacyPage as privacy, AgeRatingPage as 'age-rating' };
+export { PrivacyPage as privacy, AgeRatingPage as 'age-rating', SupportPage as support };
