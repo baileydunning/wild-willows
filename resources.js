@@ -14804,7 +14804,7 @@ function milestonePin(ctx, dayKey, claims, daily, bundle) {
       target: 1,
       counter: "",
       reward: bundle(),
-      hint: "Try crafting and placing one grass patch",
+      hint: "Craft and place a grass patch, then bring the meadow to 15% health \u2014 the grasshopper hops home on its own.",
       live: gh ? 1 : 0
     };
   }
@@ -14979,7 +14979,7 @@ function dailyTasksFor(ctx, claims, daily) {
           target: 1,
           counter: "",
           reward: bundle(),
-          hint: "Try crafting and placing one grass patch",
+          hint: "Craft and place a grass patch, then bring the meadow to 15% health \u2014 the grasshopper hops home on its own.",
           live: grasshopperHome ? 1 : 0
         },
         {

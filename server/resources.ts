@@ -1726,7 +1726,7 @@ function milestonePin(
 		return {
 			id: welcomeId, kind: 'welcome', icon: 'sparkle',
 			text: 'Welcome the grasshopper home', target: 1, counter: '', reward: bundle(),
-			hint: 'Try crafting and placing one grass patch',
+			hint: 'Craft and place a grass patch, then bring the meadow to 15% health — the grasshopper hops home on its own.',
 			live: gh ? 1 : 0,
 		};
 	}
@@ -1873,7 +1873,7 @@ function dailyTasksFor(ctx: TaskCtx, claims: Record<string, boolean>, daily: Rec
 				{
 					id: `${dayKey}-welcome`, kind: 'welcome', icon: 'sparkle',
 					text: 'Welcome the grasshopper home', target: 1, counter: '', reward: bundle(),
-					hint: 'Try crafting and placing one grass patch',
+					hint: 'Craft and place a grass patch, then bring the meadow to 15% health — the grasshopper hops home on its own.',
 					live: grasshopperHome ? 1 : 0,
 				},
 				{
