@@ -12,6 +12,10 @@ dist/
 # Steam: dev-only app id file (Steam injects the real id in packaged builds)
 steam_appid.txt
 
+# Mac App Store: provisioning profile (CI decodes it from the
+# MAS_PROVISIONING_PROFILE secret; keep the local copy out of git)
+build/embedded.provisionprofile
+
 # test + coverage output
 coverage/
 playwright-report/

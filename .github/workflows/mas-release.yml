@@ -1,0 +1,101 @@
+name: Mac App Store release
+
+# Builds the sandboxed Mac App Store variant (electron-builder `mas` target,
+# universal .pkg) and — on a mas-v* tag push — uploads it to App Store Connect,
+# where it lands as a new build on the app record for review/release. A plain
+# manual run just builds the signed .pkg artifact and skips the upload.
+#
+# Triggers:
+#   git tag mas-v0.1.6 && git push origin mas-v0.1.6  → build AND upload to ASC
+#   Actions tab → Run workflow                        → build artifact only
+#
+# Required repo secrets (Settings → Secrets and variables → Actions):
+#   MAS_CSC_LINK                 base64 of a .p12 exported from Keychain that
+#                                contains BOTH certs the mas target signs with:
+#                                "Apple Distribution" (the .app) and
+#                                "Mac Installer Distribution" (the .pkg).
+#                                Select both in Keychain Access → export as one .p12,
+#                                then: base64 -i certs.p12 | pbcopy
+#   MAS_CSC_KEY_PASSWORD         password chosen for that .p12 export
+#   MAS_PROVISIONING_PROFILE     base64 of the Mac App Store provisioning profile
+#                                for io.harper.wildwillows (developer.apple.com →
+#                                Profiles → Distribution → Mac App Store Connect):
+#                                base64 -i WildWillows_MAS.provisionprofile | pbcopy
+#   APPLE_ID                     (already set for notarization) Apple ID email
+#   APPLE_APP_SPECIFIC_PASSWORD  (already set) app-specific password for it
+#
+# The version is taken from the tag (mas-v0.1.6 → 0.1.6), same as
+# desktop-build.yml, so package.json is never bumped. NOTE: App Store Connect
+# rejects re-uploads of a version+build it has already seen — bump the tag.
+
+on:
+  push:
+    tags: ['mas-v*']
+  workflow_dispatch:
+
+concurrency:
+  group: mas-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build, sign & upload (.pkg)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web client + server bundle
+        run: npm run build
+
+      # The mas config points at build/embedded.provisionprofile (gitignored);
+      # materialize it from the secret.
+      - name: Install provisioning profile
+        env:
+          MAS_PROVISIONING_PROFILE: ${{ secrets.MAS_PROVISIONING_PROFILE }}
+        run: printf '%s' "$MAS_PROVISIONING_PROFILE" | base64 --decode > build/embedded.provisionprofile
+
+      # Sandboxed MAS build: App Sandbox entitlements, no Steam, no notarization
+      # (App Review replaces it). electron-builder picks both signing identities
+      # out of the CSC_LINK .p12.
+      - name: Package Mac App Store build (universal, signed)
+        shell: bash
+        run: |
+          EXTRA=""
+          if [[ "$GITHUB_REF" == refs/tags/mas-v* ]]; then EXTRA="-c.extraMetadata.version=${GITHUB_REF_NAME#mas-v}"; fi
+          npx electron-builder --mac mas --universal --publish never $EXTRA
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_LINK: ${{ secrets.MAS_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAS_CSC_KEY_PASSWORD }}
+
+      - name: Upload .pkg artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wild-willows-mas
+          if-no-files-found: error
+          retention-days: 14
+          path: dist/**/*.pkg
+
+      # Only a tagged run ships to App Store Connect. altool remains Apple's
+      # supported CLI for STORE UPLOADS (it was deprecated for notarization
+      # only). After it succeeds, pick the build in App Store Connect and
+      # submit for review.
+      - name: Upload to App Store Connect
+        if: startsWith(github.ref, 'refs/tags/mas-v')
+        env:
+          APPLE_ID: ${{ secrets.APPLE_ID }}
+          APPLE_APP_SPECIFIC_PASSWORD: ${{ secrets.APPLE_APP_SPECIFIC_PASSWORD }}
+        run: |
+          set -euo pipefail
+          PKG=$(find dist -name '*.pkg' | head -1)
+          echo "Uploading $PKG"
+          xcrun altool --upload-app -f "$PKG" --type osx \
+            -u "$APPLE_ID" -p "$APPLE_APP_SPECIFIC_PASSWORD"

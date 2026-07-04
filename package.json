@@ -27,7 +27,8 @@
 		"desktop": "npm run build && electron .",
 		"desktop:run": "electron .",
 		"desktop:pack": "npm run build && electron-builder --dir",
-		"desktop:dist": "npm run build && electron-builder"
+		"desktop:dist": "npm run build && electron-builder",
+		"desktop:mas": "npm run build && electron-builder --mac mas --universal"
 	},
 	"comment": "v1 ships SOLO-ONLY on itch.io: solo runs the game logic in-app against local save files (fully offline), so the desktop app needs no server and no network. `steamworks.js` is the only runtime dependency electron-builder must package (native, desktop-only, asarUnpacked). `harper` is a DEV-ONLY tool now (local web dev via `harper dev .`, and the co-op E2E harness) — it is intentionally NOT a production dependency so electron-builder doesn't bundle its heavy/native tree into every platform's app (which also de-risks the cross-platform CI builds). Co-op (hosted Harper) is hidden behind COOP_ENABLED in src/features.ts; flip it on and move `harper` back to `dependencies` if you ship co-op.",
 	"dependencies": {
@@ -104,6 +105,21 @@
 			"notarize": {
 				"teamId": "JB4CT3MZ6L"
 			}
+		},
+		"masComment": "Mac App Store variant (`npm run desktop:mas`). Inherits `mac` config, so everything notarized-DMG-specific is overridden here: MAS uses the App Sandbox instead of the hardened runtime + notarization, its own entitlements pair, and a provisioning profile from developer.apple.com (put it at build/embedded.provisionprofile — gitignored; CI decodes it from a secret). steamworks.js is excluded: Steam can't run inside the MAS sandbox and electron/steam.js already no-ops when the module is missing. ITSAppUsesNonExemptEncryption=false answers App Store Connect's export-compliance question (HTTPS only).",
+		"mas": {
+			"hardenedRuntime": false,
+			"notarize": false,
+			"entitlements": "build/entitlements.mas.plist",
+			"entitlementsInherit": "build/entitlements.mas.inherit.plist",
+			"provisioningProfile": "build/embedded.provisionprofile",
+			"extendInfo": {
+				"ITSAppUsesNonExemptEncryption": false
+			},
+			"files": [
+				"!**/node_modules/steamworks.js/**"
+			],
+			"asarUnpack": []
 		},
 		"win": {
 			"target": [

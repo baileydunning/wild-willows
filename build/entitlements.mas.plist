@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<!-- Mac App Store builds are REQUIRED to run in the App Sandbox. Solo saves
+	     already live in app.getPath('userData') (electron/main.js), which the
+	     sandbox allows, so no file-access entitlements are needed. -->
+	<key>com.apple.security.app-sandbox</key>
+	<true/>
+	<!-- Electron's JS engine (V8) JITs code. -->
+	<key>com.apple.security.cs.allow-jit</key>
+	<true/>
+	<!-- Outgoing HTTPS only: the solo metrics uplink posts snapshots to the
+	     hosted Harper (src/solo/metricsUplink.ts → /SyncMetrics/). -->
+	<key>com.apple.security.network.client</key>
+	<true/>
+	<!-- Lets the main app and Electron's Chromium helper processes talk to each
+	     other inside the sandbox (per Electron's MAS submission guide). Must be
+	     TEAM_ID.bundle_id. -->
+	<key>com.apple.security.application-groups</key>
+	<array>
+		<string>JB4CT3MZ6L.io.harper.wildwillows</string>
+	</array>
+</dict>
+</plist>
