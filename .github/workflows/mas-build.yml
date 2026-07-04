@@ -1,0 +1,84 @@
+name: Mac App Store build (artifact only)
+
+# Builds the sandboxed Mac App Store variant (electron-builder `mas` target,
+# universal, signed .pkg) and uploads it as a downloadable GitHub artifact.
+# It does NOT upload to App Store Connect — download the .pkg from the run's
+# Artifacts and submit it yourself (Transporter, Xcode, or altool).
+#
+# This is the build-only sibling of mas-release.yml (which also ships to ASC
+# on a mas-v* tag). Use this when you just want the signed package in hand.
+#
+# Trigger: Actions tab → "Mac App Store build (artifact only)" → Run workflow.
+#   Optionally set a version; leave blank to use package.json's version.
+#
+# Required repo secrets (Settings → Secrets and variables → Actions) — the same
+# ones mas-release.yml uses:
+#   MAS_CSC_LINK                 base64 of a .p12 exported from Keychain that
+#                                contains BOTH certs the mas target signs with:
+#                                "Apple Distribution" (the .app) and
+#                                "Mac Installer Distribution" (the .pkg).
+#                                base64 -i certs.p12 | pbcopy
+#   MAS_CSC_KEY_PASSWORD         password chosen for that .p12 export
+#   MAS_PROVISIONING_PROFILE     base64 of the Mac App Store provisioning profile
+#                                for io.harper.wildwillows:
+#                                base64 -i WildWillows_MAS.provisionprofile | pbcopy
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'App version for the build (e.g. 0.1.6). Blank = use package.json.'
+        required: false
+        default: ''
+
+concurrency:
+  group: mas-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build & sign (.pkg)
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web client + server bundle
+        run: npm run build
+
+      # The mas config points at build/embedded.provisionprofile (gitignored);
+      # materialize it from the secret.
+      - name: Install provisioning profile
+        env:
+          MAS_PROVISIONING_PROFILE: ${{ secrets.MAS_PROVISIONING_PROFILE }}
+        run: printf '%s' "$MAS_PROVISIONING_PROFILE" | base64 --decode > build/embedded.provisionprofile
+
+      # Sandboxed MAS build: App Sandbox entitlements, no Steam, no notarization
+      # (App Review replaces it). electron-builder picks both signing identities
+      # out of the CSC_LINK .p12.
+      - name: Package Mac App Store build (universal, signed)
+        shell: bash
+        env:
+          APP_VERSION: ${{ inputs.version }}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          CSC_LINK: ${{ secrets.MAS_CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.MAS_CSC_KEY_PASSWORD }}
+        run: |
+          EXTRA=""
+          if [ -n "$APP_VERSION" ]; then EXTRA="-c.extraMetadata.version=$APP_VERSION"; fi
+          npx electron-builder --mac mas --universal --publish never $EXTRA
+
+      - name: Upload .pkg artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wild-willows-mas
+          if-no-files-found: error
+          retention-days: 14
+          path: dist/**/*.pkg
