@@ -217,6 +217,20 @@ async function findInWorld(table: any, worldId: string, id: string): Promise<any
 	return rows.find((r: any) => r.id === id) || null;
 }
 
+/**
+ * Find a terrain tile by its board position (area + x + y), scoped to the world
+ * — independent of the row's id string. Older saves keyed terrain ids off the
+ * playerId (`${playerId}:${area}:${x}:${y}`) while current code keys them off
+ * the worldId, so an exact-id lookup misses legacy beds even though they still
+ * render (the world snapshot matches them by worldId). Matching on coordinates
+ * recognizes them regardless of the id scheme; callers act on the tile's real
+ * `.id`, so legacy rows are patched/deleted correctly and heal over time.
+ */
+async function findTerrainAt(table: any, worldId: string, area: string, x: number, y: number): Promise<any | null> {
+	const rows = await byWorld(table, worldId);
+	return rows.find((r: any) => r.area === area && r.x === x && r.y === y) || null;
+}
+
 /** Short, unambiguous invite code (no 0/O/1/I to avoid confusion). */
 function genJoinCode(): string {
 	const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -2926,7 +2940,7 @@ export class PlaceObject extends PublicEndpoint {
 			throw new GameError('That spot is already taken', 409);
 		}
 		// terrain/water rules only apply outdoors — the home has no terrain
-		const tileHere = area === 'home' ? null : await findInWorld(t.TerrainTile, wid, `${wid}:${area}:${tx}:${ty}`);
+		const tileHere = area === 'home' ? null : await findTerrainAt(t.TerrainTile, wid, area, tx, ty);
 		if (tileHere) {
 			if (tileHere.type === 'water') {
 				if (!def.bridge) throw new GameError('That is open water — a wooden bridge can span it', 409);
@@ -2993,15 +3007,14 @@ export class Plant extends PublicEndpoint {
 
 		const tx = Math.round(Number(x));
 		const ty = Math.round(Number(y));
-		const tileId = `${wid}:${area}:${tx}:${ty}`;
-		const bed = await findInWorld(t.TerrainTile, wid, tileId);
+		const bed = await findTerrainAt(t.TerrainTile, wid, area, tx, ty);
 		if (!bed || bed.type !== 'watered') {
 			throw new GameError('Plant into a watered soil bed — dig with the shovel, then water it');
 		}
 
 		const { usedFrom, inventory } = await consumeMaterials(player, def.plantCost || {}, wid);
 
-		await t.TerrainTile.delete(tileId); // the bed becomes the plant
+		await t.TerrainTile.delete(bed.id); // the bed becomes the plant
 		const placementId = `pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 		const placement = {
 			id: placementId, worldId: wid, playerId, objectId: plantId, area, x: tx, y: ty,
@@ -3011,7 +3024,7 @@ export class Plant extends PublicEndpoint {
 
 		const recalc = await recalcBiome(wid, playerId, area, {
 			addPlacements: [placement],
-			removeTerrainIds: [tileId],
+			removeTerrainIds: [bed.id],
 			player: { ...player, inventory },
 		});
 		await bumpMetrics(player, { plantsPlanted: 1, animalsReturned: recalc.newAnimals?.length || 0 }, { plant: 1 });
@@ -3056,7 +3069,7 @@ export class MoveObject extends PublicEndpoint {
 		}
 		const d = await defs();
 		const movingDef = d.object.get(placement.objectId);
-		const tileHere = await findInWorld(t.TerrainTile, wid, `${wid}:${placement.area}:${tx}:${ty}`);
+		const tileHere = await findTerrainAt(t.TerrainTile, wid, placement.area, tx, ty);
 		if (tileHere) {
 			if (tileHere.type === 'water') {
 				if (!movingDef?.bridge) throw new GameError('That is open water — only a bridge can sit there', 409);
@@ -3425,7 +3438,9 @@ export class Terraform extends PublicEndpoint {
 		}
 
 		const tileId = `${wid}:${area}:${tx}:${ty}`;
-		const existing = await findInWorld(t.TerrainTile, wid, tileId);
+		// Match by position, not id: legacy beds carry an old id but must still be
+		// recognized here (see findTerrainAt). A freshly dug bed uses `tileId`.
+		const existing = await findTerrainAt(t.TerrainTile, wid, area, tx, ty);
 		let inventory = player.inventory || {};
 		let tile: any = null;
 		let removedId: string | undefined;
@@ -3478,11 +3493,11 @@ export class Terraform extends PublicEndpoint {
 			}
 			await t.Player.patch(playerId, { inventory });
 			tile = { ...existing, type: newType, updatedAt: Date.now() };
-			await t.TerrainTile.patch(tileId, { type: newType, updatedAt: Date.now() });
+			await t.TerrainTile.patch(existing.id, { type: newType, updatedAt: Date.now() });
 		} else if (action === 'clear') {
 			if (!existing) throw new GameError('Nothing to clear here');
-			await t.TerrainTile.delete(tileId);
-			removedId = tileId;
+			await t.TerrainTile.delete(existing.id);
+			removedId = existing.id;
 		} else {
 			throw new GameError("action must be 'dig', 'water', or 'clear'");
 		}

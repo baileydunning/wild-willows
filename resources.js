@@ -13779,6 +13779,10 @@ async function findInWorld(table, worldId, id) {
   const rows = await byWorld(table, worldId);
   return rows.find((r) => r.id === id) || null;
 }
+async function findTerrainAt(table, worldId, area, x, y) {
+  const rows = await byWorld(table, worldId);
+  return rows.find((r) => r.area === area && r.x === x && r.y === y) || null;
+}
 function genJoinCode() {
   const alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
   let out = "";
@@ -15823,7 +15827,7 @@ var PlaceObject = class extends PublicEndpoint {
     if (placements.some((p) => p.area === area && p.x === tx && p.y === ty)) {
       throw new GameError("That spot is already taken", 409);
     }
-    const tileHere = area === "home" ? null : await findInWorld(t.TerrainTile, wid, `${wid}:${area}:${tx}:${ty}`);
+    const tileHere = area === "home" ? null : await findTerrainAt(t.TerrainTile, wid, area, tx, ty);
     if (tileHere) {
       if (tileHere.type === "water") {
         if (!def.bridge) throw new GameError("That is open water \u2014 a wooden bridge can span it", 409);
@@ -15882,13 +15886,12 @@ var Plant = class extends PublicEndpoint {
     if (!(def.biomes || []).includes(area)) throw new GameError(`${def.name} would not take root in the ${biome.name}`);
     const tx = Math.round(Number(x));
     const ty = Math.round(Number(y));
-    const tileId = `${wid}:${area}:${tx}:${ty}`;
-    const bed = await findInWorld(t.TerrainTile, wid, tileId);
+    const bed = await findTerrainAt(t.TerrainTile, wid, area, tx, ty);
     if (!bed || bed.type !== "watered") {
       throw new GameError("Plant into a watered soil bed \u2014 dig with the shovel, then water it");
     }
     const { usedFrom, inventory } = await consumeMaterials(player, def.plantCost || {}, wid);
-    await t.TerrainTile.delete(tileId);
+    await t.TerrainTile.delete(bed.id);
     const placementId = `pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
     const placement = {
       id: placementId,
@@ -15904,7 +15907,7 @@ var Plant = class extends PublicEndpoint {
     await t.Placement.put(placement);
     const recalc = await recalcBiome(wid, playerId, area, {
       addPlacements: [placement],
-      removeTerrainIds: [tileId],
+      removeTerrainIds: [bed.id],
       player: { ...player, inventory }
     });
     await bumpMetrics(player, { plantsPlanted: 1, animalsReturned: recalc.newAnimals?.length || 0 }, { plant: 1 });
@@ -15943,7 +15946,7 @@ var MoveObject = class extends PublicEndpoint {
     }
     const d = await defs();
     const movingDef = d.object.get(placement.objectId);
-    const tileHere = await findInWorld(t.TerrainTile, wid, `${wid}:${placement.area}:${tx}:${ty}`);
+    const tileHere = await findTerrainAt(t.TerrainTile, wid, placement.area, tx, ty);
     if (tileHere) {
       if (tileHere.type === "water") {
         if (!movingDef?.bridge) throw new GameError("That is open water \u2014 only a bridge can sit there", 409);
@@ -16237,7 +16240,7 @@ var Terraform = class extends PublicEndpoint {
       throw new GameError("Something is already placed there");
     }
     const tileId = `${wid}:${area}:${tx}:${ty}`;
-    const existing = await findInWorld(t.TerrainTile, wid, tileId);
+    const existing = await findTerrainAt(t.TerrainTile, wid, area, tx, ty);
     let inventory = player.inventory || {};
     let tile = null;
     let removedId;
@@ -16281,11 +16284,11 @@ var Terraform = class extends PublicEndpoint {
       }
       await t.Player.patch(playerId, { inventory });
       tile = { ...existing, type: newType, updatedAt: Date.now() };
-      await t.TerrainTile.patch(tileId, { type: newType, updatedAt: Date.now() });
+      await t.TerrainTile.patch(existing.id, { type: newType, updatedAt: Date.now() });
     } else if (action === "clear") {
       if (!existing) throw new GameError("Nothing to clear here");
-      await t.TerrainTile.delete(tileId);
-      removedId = tileId;
+      await t.TerrainTile.delete(existing.id);
+      removedId = existing.id;
     } else {
       throw new GameError("action must be 'dig', 'water', or 'clear'");
     }

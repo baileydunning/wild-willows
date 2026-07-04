@@ -16,6 +16,8 @@ export function TasksWidget() {
 	const [collapsed, setCollapsed] = useState<boolean>(() => {
 		try { return localStorage.getItem(COLLAPSE_KEY) === '1'; } catch { return false; }
 	});
+	// Which task's how-to hint is expanded (click the ? to toggle). Only one at a time.
+	const [openHint, setOpenHint] = useState<string | null>(null);
 	const toggle = () => {
 		setCollapsed((c) => {
 			try { localStorage.setItem(COLLAPSE_KEY, c ? '0' : '1'); } catch { /* private mode */ }
@@ -73,11 +75,20 @@ export function TasksWidget() {
 							<span className="tasks-row-text">
 							{t.text}
 							{t.hint && (
-								<span className="tasks-hint" title={t.hint} aria-label={t.hint} role="img">
+								<button
+									type="button"
+									className="tasks-hint"
+									onClick={() => setOpenHint((cur) => (cur === t.id ? null : t.id))}
+									aria-label={openHint === t.id ? 'Hide how-to' : 'How to do this'}
+									aria-expanded={openHint === t.id}
+								>
 									<Icon name="help" size={12} />
-								</span>
+								</button>
 							)}
 						</span>
+							{t.hint && openHint === t.id && (
+								<p className="tasks-hint-text">{t.hint}</p>
+							)}
 							<div className="tasks-row-bar">
 								<div className="meter-track">
 									<div
