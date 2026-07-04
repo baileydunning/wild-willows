@@ -25,7 +25,7 @@ const VIEW_H = 20;
 const MTN_ROWS = 4; // rows reserved for the alpine mountain range (impassable)
 const COAST_COLS = 4; // columns reserved for the ocean along Pelican Shore's east edge (impassable)
 
-// your base camp: tent + campfire scenery beside the permanent workbench & chest.
+// your base camp: tent + campfire scenery beside the permanent crafting station & chest.
 // The camp keeps its EXACT main-branch arrangement (tent, campfire, chest, sign
 // all in the same relative spots and the same distance to the forest gate); the
 // whole block just sits MEADOW_SHIFT tiles further east so a strip of wild land
@@ -218,7 +218,7 @@ export class WorldScene extends Phaser.Scene {
 	}
 	private objectDef(id: string): HabitatObjectDef | undefined {
 		if (id === 'workbench') {
-			return { id, name: 'Workbench', shape: 'workbench', placement: 'outdoor' } as any;
+			return { id, name: 'Crafting Station', shape: 'workbench', placement: 'outdoor' } as any;
 		}
 		return bridge.shared.data?.habitatObjects.find((o) => o.id === id);
 	}
@@ -925,7 +925,7 @@ export class WorldScene extends Phaser.Scene {
 	private drawStaticFeatures() {
 		const state = bridge.shared.state;
 		if (this.area === 'meadow') {
-			// base camp: tent + flickering campfire (the workbench/chest are placements)
+			// base camp: tent + flickering campfire (the crafting station/chest are placements)
 			const tx2 = CAMP.tent.x * TILE, ty2 = CAMP.tent.y * TILE;
 			// the camp building reflects your home: a tent until you build it, then your
 			// chosen style, growing a little as Space is upgraded
@@ -1548,7 +1548,7 @@ export class WorldScene extends Phaser.Scene {
 			if (def.isChest) {
 				this.registerInteractable({ x, y, label: `Open ${def.name}`, action: () => bridge.emit('open-chest', { chestId: p.id }) }, img);
 			} else if (p.objectId === 'workbench') {
-				this.registerInteractable({ x, y, label: 'Craft at the workbench', action: () => bridge.emit('open-workbench') }, img);
+				this.registerInteractable({ x, y, label: 'Open crafting (E)', action: () => bridge.emit('open-crafting') }, img);
 			} else if (p.objectId === 'field-journal-stand') {
 				this.registerInteractable({ x, y, label: 'Read your field journal', action: () => bridge.emit('open-journal') }, img);
 			} else if (p.objectId === 'home-bed' || p.objectId === 'home-sleeping-bag') {

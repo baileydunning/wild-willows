@@ -55,7 +55,7 @@ class Bridge {
 
 // Events used:
 //  React -> Phaser: 'world-dirty', 'enter-placement', 'cancel-placement', 'area-changed'
-//  Phaser -> React: 'collect-node', 'open-chest', 'open-workbench', 'open-journal',
+//  Phaser -> React: 'collect-node', 'open-chest', 'open-crafting', 'open-journal',
 //                   'animal-clicked', 'request-area', 'place-at', 'toast', 'prompt',
 //                   'placement-exited', 'remove-placement'
 export const bridge = new Bridge();

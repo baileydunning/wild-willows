@@ -149,7 +149,7 @@ function GameScreen() {
 		const subs = [
 			bridge.on('collect-node', (p: any) => game.collect(p.biomeId, p.nodeId, p.resourceId)),
 			bridge.on('open-chest', (p: any) => game.openChest(p.chestId)),
-			bridge.on('open-workbench', () => setPanel('crafting')),
+			bridge.on('open-crafting', () => setPanel('crafting')),
 			bridge.on('open-journal', () => setPanel('journal')),
 			bridge.on('open-home', () => setPanel('home')),
 			bridge.on('rest', () => game.rest()),

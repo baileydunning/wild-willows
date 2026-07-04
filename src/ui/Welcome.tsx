@@ -4,7 +4,7 @@ import { useGame } from '../state';
 import { COOP_ENABLED } from '../features';
 import type { Appearance } from '../types';
 import { CharacterPreview, Icon } from './icons';
-import { AppearanceRows } from './Settings';
+import { AppearanceRows, randomizeAppearance } from './Settings';
 
 type Mode = 'menu' | 'new' | 'load' | 'join-code';
 
@@ -281,6 +281,15 @@ export function WelcomeScreen() {
 										maxLength={24}
 										autoFocus
 									/>
+									<button
+										type="button"
+										className="dice-btn"
+										onClick={(e) => { e.preventDefault(); setAppearance(randomizeAppearance(data?.appearanceOptions, appearance)); }}
+										title="Randomize appearance"
+										aria-label="Randomize appearance"
+									>
+										<Icon name="dice" size={16} />
+									</button>
 								</label>
 								{!soloLocal && (
 									<label className="field">

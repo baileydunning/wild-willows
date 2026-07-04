@@ -383,19 +383,21 @@ export interface GameState {
 
 export interface DailyTask {
 	id: string;
-	kind: 'gather' | 'craft' | 'place' | 'water' | 'plant' | 'observe';
+	kind: 'gather' | 'craft' | 'place' | 'water' | 'plant' | 'observe' | 'welcome' | 'goal';
 	icon: string;
 	text: string;
 	target: number;
 	counter: string;
 	reward: Record<string, number>;
+	/** optional "how do I do this?" nudge, shown as a hover tip on the board */
+	hint?: string;
 	progress: number;
 	claimed: boolean;
 }
 
 export interface DailyTasksBlock {
 	dayKey: number;
-	/** When this board expires (UTC midnight) and a fresh one appears. */
+	/** When this board expires (the next local morning) and a fresh one appears. */
 	endsAt: number;
 	tasks: DailyTask[];
 }

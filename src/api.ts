@@ -189,9 +189,9 @@ export const api = {
 	gameData: () => request<GameData>('/GameData/'),
 	gameState: (playerId?: string) => request<GameState>(`/GameState/${playerId ?? pid()}`),
 	createPlayer: (name: string, passcode: string, appearance: Appearance) =>
-		post<{ ok: boolean; playerId: string; worldId: string; worlds: WorldSummary[]; state: GameState }>('/CreatePlayer/', { name, passcode, appearance }),
+		post<{ ok: boolean; playerId: string; worldId: string; worlds: WorldSummary[]; state: GameState }>('/CreatePlayer/', { name, passcode, appearance, tzOffsetMinutes: -new Date().getTimezoneOffset() }),
 	login: (name: string, passcode: string) =>
-		post<{ ok: boolean; playerId: string; worldId: string; worlds: WorldSummary[]; state: GameState }>('/LoginPlayer/', { name, passcode }),
+		post<{ ok: boolean; playerId: string; worldId: string; worlds: WorldSummary[]; state: GameState }>('/LoginPlayer/', { name, passcode, tzOffsetMinutes: -new Date().getTimezoneOffset() }),
 
 	// --- multiplayer: shared co-op worlds (personal progress stays per-player) ---
 	myWorlds: () => post<{ ok: boolean; activeWorldId: string; worlds: WorldSummary[] }>('/MyWorlds/', { playerId: pid() }),

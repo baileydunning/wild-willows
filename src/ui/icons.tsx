@@ -570,6 +570,16 @@ const PATHS: Record<string, React.ReactNode> = {
 			<path d="M12 9.5v8M12 13.5c-2 0-3-1-3-3 2 0 3 1 3 3ZM12 13.5c2 0 3-1 3-3-2 0-3 1-3 3Z" />
 		</>
 	),
+	dice: (
+		<>
+			<rect x="3.5" y="3.5" width="17" height="17" rx="4" />
+			<circle cx="8.6" cy="8.6" r="0.9" fill="currentColor" />
+			<circle cx="15.4" cy="8.6" r="0.9" fill="currentColor" />
+			<circle cx="12" cy="12" r="0.9" fill="currentColor" />
+			<circle cx="8.6" cy="15.4" r="0.9" fill="currentColor" />
+			<circle cx="15.4" cy="15.4" r="0.9" fill="currentColor" />
+		</>
+	),
 };
 
 export function Icon({ name, size = 20, className }: { name: string; size?: number; className?: string }) {

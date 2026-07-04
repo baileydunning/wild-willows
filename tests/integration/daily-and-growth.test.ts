@@ -2,7 +2,8 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { freshWorld, appearance, meadowResource, type World } from './harness';
 
 // Retention systems, driven through the real server bundle:
-//  • the daily task board (derived per UTC day, progress from play, claimable rewards)
+//  • the daily task board (fresh each player-local morning; day one is a fixed
+//    starter trio, then the next real milestone stays pinned as task #1)
 //  • habitat growth over real wall-clock time (mature plants add health)
 //  • the heartbeat welcome-back pass ("while you were away…")
 //  • condition-gated rare sightings (weather / season / day-phase)
@@ -33,6 +34,53 @@ describe('daily task board', () => {
 		expect(s2.dailyTasks.tasks).toEqual(dt.tasks);
 	});
 
+	it("day one is the fixed starter trio, grasshopper first", async () => {
+		const dt = (await w.get('GameState', pid)).dailyTasks;
+		expect(dt.tasks.map((t: any) => t.text)).toEqual([
+			'Welcome the grasshopper home',
+			'Collect 10 seeds',
+			'Plant 3 seedlings',
+		]);
+		expect(dt.tasks[0].kind).toBe('welcome');
+		expect(dt.tasks[0].progress).toBe(0);
+		// the pinned starter task carries a "how do I do this?" hover hint
+		expect(dt.tasks[0].hint).toContain('grass patch');
+	});
+
+	it('after day one the board pins the real next milestone', async () => {
+		const DAY = 86_400_000;
+		// age the save two days so the fixed starter board no longer applies
+		await w.db.Player.patch(pid, { createdAt: Date.now() - 2 * DAY });
+		// no grasshopper yet -> welcoming it stays pinned as task #1
+		let dt = (await w.get('GameState', pid)).dailyTasks;
+		expect(dt.tasks[0].kind).toBe('welcome');
+		expect(dt.tasks).toHaveLength(3);
+		// the grasshopper comes home -> the pin completes (claimable today)…
+		await w.db.Discovery.put({
+			id: `${pid}:grasshopper`, worldId: pid, playerId: pid, animalId: 'grasshopper', biomeId: 'meadow',
+			comfort: 60, timesObserved: 0, firstObservedAt: Date.now(), whyReturned: 'test',
+		});
+		dt = (await w.get('GameState', pid)).dailyTasks;
+		expect(dt.tasks[0].kind).toBe('welcome');
+		expect(dt.tasks[0].progress).toBe(1);
+		// …and once claimed, the next milestone surfaces as a SMALL daily step:
+		// a few points of meadow health, never the whole 80-point mountain
+		await w.post('ClaimTask', { playerId: pid, taskId: dt.tasks[0].id });
+		dt = (await w.get('GameState', pid)).dailyTasks;
+		expect(dt.tasks[0].kind).toBe('goal');
+		expect(dt.tasks[0].text).toContain("Willow Meadow's health by 3");
+		expect(dt.tasks[0].target).toBe(3);
+		expect(dt.tasks[0].counter).toBe('health:meadow');
+		// finish + claim today's step -> the next bite-size step appears at once
+		const p = await w.db.Player.get(pid);
+		await w.db.Player.patch(pid, { daily: { dayKey: dt.dayKey, counts: { ...(p.daily?.counts || {}), 'health:meadow': 3 } } });
+		await w.post('ClaimTask', { playerId: pid, taskId: dt.tasks[0].id });
+		dt = (await w.get('GameState', pid)).dailyTasks;
+		expect(dt.tasks[0].kind).toBe('goal');
+		expect(dt.tasks[0].text).toContain('Welcome a new animal back to Willow Meadow');
+		expect(dt.tasks[0].target).toBe(1);
+	});
+
 	it('advances progress from normal play (gathering bumps daily counters)', async () => {
 		const res = meadowResource();
 		await w.post('CollectResource', { playerId: pid, biomeId: 'meadow', nodeId: 'n0', resourceId: res });
@@ -42,7 +90,7 @@ describe('daily task board', () => {
 
 	it('pays out a finished task exactly once and rejects early claims', async () => {
 		const dt = (await w.get('GameState', pid)).dailyTasks;
-		const task = dt.tasks[0];
+		const task = dt.tasks.find((t: any) => t.counter); // a counter-driven task (not the pinned milestone)
 		// an unfinished task cannot be claimed
 		await expect(w.post('ClaimTask', { playerId: pid, taskId: task.id })).rejects.toThrow();
 		// finish it (simulate the day's play), then claim

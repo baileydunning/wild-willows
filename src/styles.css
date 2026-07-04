@@ -151,6 +151,17 @@ input {
 	padding: 9px 13px; color: var(--ink-soft);
 }
 .field:focus-within { border-color: var(--green); }
+.dice-btn {
+	margin-left: auto; padding: 2px; border: none; background: none;
+	color: var(--ink-soft); cursor: pointer; display: inline-flex;
+	transition: color 0.15s ease, transform 0.15s ease;
+}
+.dice-btn:hover { color: var(--green); transform: rotate(20deg); }
+.tasks-hint {
+	display: inline-flex; vertical-align: -2px; margin-left: 5px;
+	color: var(--ink-soft); opacity: 0.75; cursor: help;
+}
+.tasks-hint:hover { opacity: 1; color: var(--green); }
 .swatch-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
 .swatch-label { width: 44px; font-size: 12.5px; color: var(--ink-soft); font-weight: 700; }
 .swatch-btn {

@@ -70,7 +70,14 @@ export function TasksWidget() {
 					<div key={t.id} className="tasks-row" title={`Reward: ${rewardTxt}`}>
 						<span className="tasks-row-icon"><Icon name={t.icon} size={14} /></span>
 						<div className="tasks-row-main">
-							<span className="tasks-row-text">{t.text}</span>
+							<span className="tasks-row-text">
+							{t.text}
+							{t.hint && (
+								<span className="tasks-hint" title={t.hint} aria-label={t.hint} role="img">
+									<Icon name="help" size={12} />
+								</span>
+							)}
+						</span>
 							<div className="tasks-row-bar">
 								<div className="meter-track">
 									<div
