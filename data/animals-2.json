@@ -1695,7 +1695,8 @@
 					"name": "Animal Diversity Web - Chelonia mydas",
 					"url": "https://animaldiversity.org/accounts/Chelonia_mydas/"
 				}
-			]
+			],
+			"ocean": true
 		},
 		{
 			"id": "harbor-seal",
@@ -1732,7 +1733,8 @@
 					"name": "NOAA Fisheries - Harbor Seal",
 					"url": "https://www.fisheries.noaa.gov/species/harbor-seal"
 				}
-			]
+			],
+			"ocean": true
 		},
 		{
 			"id": "sea-otter",
@@ -1780,7 +1782,8 @@
 					"name": "Monterey Bay Aquarium - Sea otter",
 					"url": "https://www.montereybayaquarium.org/animals-the-ocean/animals-a-to-z/sea-otter"
 				}
-			]
+			],
+			"ocean": true
 		},
 		{
 			"id": "dolphin",
@@ -1812,7 +1815,8 @@
 					"name": "NOAA Fisheries - Common Bottlenose Dolphin",
 					"url": "https://www.fisheries.noaa.gov/species/common-bottlenose-dolphin"
 				}
-			]
+			],
+			"ocean": true
 		},
 		{
 			"id": "migrating-whale",
@@ -1855,7 +1859,8 @@
 					"name": "Animal Diversity Web - Eschrichtius robustus",
 					"url": "https://animaldiversity.org/accounts/Eschrichtius_robustus/"
 				}
-			]
+			],
+			"ocean": true
 		},
 		{
 			"id": "american-goldfinch",

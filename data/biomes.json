@@ -186,8 +186,8 @@
 				"quartz-crystal"
 			],
 			"palette": {
-				"damaged": "#a8a8a0",
-				"healthy": "#9db98c"
+				"damaged": "#9a9992",
+				"healthy": "#a6ad93"
 			},
 			"grid": {
 				"cols": 30,
@@ -230,9 +230,10 @@
 				"healthy": "#e8d9a8"
 			},
 			"grid": {
-				"cols": 30,
+				"cols": 36,
 				"rows": 26
-			}
+			},
+			"oceanCols": 10
 		}
 	]
 }

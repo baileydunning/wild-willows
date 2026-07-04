@@ -25,7 +25,7 @@ import resourcesData from '../data/resources.json';
 import animals1Data from '../data/animals-1.json';
 import animals2Data from '../data/animals-2.json';
 import achievementsData from '../data/achievements.json';
-import { weatherSnapshot, weatherTypeAt, gatherResourceIdFor, isWeatherGatheredResource, seasonAt, dayPhaseAt } from './weather';
+import { weatherSnapshot, weatherTypeAt, gatherResourceIdFor, isWeatherGatheredResource, seasonAt, dayPhaseAt, WEATHER_TYPES, SEASONS } from './weather';
 // Policy pages (privacy / age suitability), inlined from public/*.html by
 // scripts/build-pages.mjs — served as endpoints, see the bottom of this file.
 import { privacyHtml, ageRatingHtml, supportHtml } from './pages';
@@ -229,6 +229,20 @@ async function findInWorld(table: any, worldId: string, id: string): Promise<any
 async function findTerrainAt(table: any, worldId: string, area: string, x: number, y: number): Promise<any | null> {
 	const rows = await byWorld(table, worldId);
 	return rows.find((r: any) => r.area === area && r.x === x && r.y === y) || null;
+}
+
+/**
+ * Find a world's BiomeState / Discovery row by its natural key (biomeId /
+ * animalId) rather than a reconstructed `${worldId}:${key}` id — same legacy-id
+ * safeguard as findTerrainAt. Callers patch the row's real `.id`.
+ */
+async function findBiomeState(table: any, worldId: string, biomeId: string): Promise<any | null> {
+	const rows = await byWorld(table, worldId);
+	return rows.find((r: any) => r.biomeId === biomeId) || null;
+}
+async function findDiscovery(table: any, worldId: string, animalId: string): Promise<any | null> {
+	const rows = await byWorld(table, worldId);
+	return rows.find((r: any) => r.animalId === animalId) || null;
 }
 
 /** Short, unambiguous invite code (no 0/O/1/I to avoid confusion). */
@@ -816,7 +830,7 @@ function activationFlags(view: any, biomeSummary: any, player: any) {
 
 const GRID_W = 30; // base grid (home interior / fallback) — matches OUT_W in the client
 const GRID_H = 20; // matches OUT_H
-const ALPINE_MTN_ROWS = 4; // impassable band the client adds above the alpine's playable grid
+const ALPINE_MTN_ROWS = 8; // impassable band the client adds above the alpine's playable grid (must match client MTN_ROWS)
 
 /**
  * Placement bounds for an area. Biomes carry their own playable grid in
@@ -1423,10 +1437,11 @@ async function recalcBiome(
 	}
 
 	const returnedCount = [...returnedIds].filter((id) => d.animal.get(id)?.biome === biomeId).length;
-	const prior = await findInWorld(t.BiomeState, wid, `${wid}:${biomeId}`);
-	await t.BiomeState.patch(`${wid}:${biomeId}`, { health, balance, returnedCount });
+	const prior = await findBiomeState(t.BiomeState, wid, biomeId);
+	const bsId = prior?.id ?? `${wid}:${biomeId}`;
+	await t.BiomeState.patch(bsId, { health, balance, returnedCount });
 	const biomeState = {
-		...(prior || { id: `${wid}:${biomeId}`, worldId: wid, playerId, biomeId, unlocked: biomeId === 'meadow' }),
+		...(prior || { id: bsId, worldId: wid, playerId, biomeId, unlocked: biomeId === 'meadow' }),
 		health, balance, returnedCount,
 	};
 
@@ -1500,7 +1515,7 @@ async function checkUnlocks(
 		if (!biome.unlock || worldUnlocked.has(biome.id)) continue;
 		const u = biome.unlock;
 		const prereq =
-			fresh.freshState?.biomeId === u.biome ? fresh.freshState : await findInWorld(t.BiomeState, wid, `${wid}:${u.biome}`);
+			fresh.freshState?.biomeId === u.biome ? fresh.freshState : await findBiomeState(t.BiomeState, wid, u.biome);
 		if (!prereq || !worldUnlocked.has(u.biome)) continue;
 		if ((prereq.health || 0) < (u.minHealth || 0)) continue;
 		if ((prereq.returnedCount || 0) < (u.minAnimals || 0)) continue;
@@ -1519,7 +1534,8 @@ async function checkUnlocks(
 		worldUnlocked.add(biome.id);
 		unlockedSet.add(biome.id);
 		await t.Player.patch(playerId, { unlockedBiomes: [...unlockedSet] });
-		await t.BiomeState.patch(`${wid}:${biome.id}`, { unlocked: true });
+		const bsRow = await findBiomeState(t.BiomeState, wid, biome.id);
+		await t.BiomeState.patch(bsRow?.id ?? `${wid}:${biome.id}`, { unlocked: true });
 		await seedStartingTerrain(wid, playerId, biome.id);
 		unlockedNow.push({ id: biome.id, name: biome.name });
 	}
@@ -1558,7 +1574,7 @@ async function recipeUnlockContext(wid: string, biomeId: string, player: any, d:
 	// can return null for a record that exists on a cold Harper instance, which made
 	// health read as 0 and wrongly rejected a craft the client correctly showed as
 	// unlocked (e.g. a Bird Perch at 24% health).
-	const bs = await findInWorld(t.BiomeState, wid, `${wid}:${biomeId}`);
+	const bs = await findBiomeState(t.BiomeState, wid, biomeId);
 	const discoveries = await byWorld(t.Discovery, wid);
 	const returnedAnimalIds = new Set<string>(
 		discoveries.filter((x: any) => d.animal.get(x.animalId)?.biome === biomeId).map((x: any) => x.animalId),
@@ -1699,6 +1715,10 @@ interface TaskCtx {
 	/** every BiomeState row in this world */
 	biomeStates: any[];
 	now: number;
+	/** The biomes the PLAYER personally unlocked — the reward/gather pool draws
+	 *  only from these, never the wider co-op roam set, so tasks stay specific to
+	 *  what you've unlocked and the shown reward matches what's granted on claim. */
+	unlockedBiomes?: string[];
 }
 
 /**
@@ -1792,7 +1812,11 @@ function dailyTasksFor(ctx: TaskCtx, claims: Record<string, boolean>, daily: Rec
 	const dayKey = playerDayKey(player, now);
 	const endsAt = (dayKey + 1) * DAY_MS + TASK_RESET_HOUR * 3_600_000 - tzMs(player);
 	const rng = seededRng(hash32(`tasks:${wid}:${dayKey}`));
-	const unlocked: string[] = player?.unlockedBiomes?.length ? player.unlockedBiomes : ['meadow'];
+	// Personal unlocked biomes only — NOT the co-op roam-expanded set the snapshot
+	// may carry — so the pool matches on both the snapshot and claim paths.
+	const unlocked: string[] = ctx.unlockedBiomes?.length
+		? ctx.unlockedBiomes
+		: (player?.unlockedBiomes?.length ? player.unlockedBiomes : ['meadow']);
 	// gatherable pool: solid materials from unlocked biomes (weather-gated
 	// specials are excluded so a task never depends on the right sky)
 	const resPool = [...new Set(unlocked.flatMap((id: string) => d.biome.get(id)?.resources || []))]
@@ -1936,6 +1960,10 @@ async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 		byPlayer(t.PlayerAchievement, playerId),
 		byWorld(t.FeedEntry, wid),
 	]);
+	// The player's OWN unlocked biomes, before any co-op roam expansion below —
+	// daily tasks & their rewards are scoped to these so you never get items from
+	// (or tasks about) a biome you haven't personally unlocked.
+	const personalUnlocked = [...(player?.unlockedBiomes?.length ? player.unlockedBiomes : ['meadow'])];
 	// In a co-op world, a player can roam any biome a world-mate has unlocked, so
 	// the snapshot reflects the union of personal + world-unlocked biomes.
 	if (player && wid !== player.id) {
@@ -1957,8 +1985,8 @@ async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 			.slice(-FEED_CAP)
 			.map((r: any) => ({ id: r.id, at: r.at, icon: r.icon, text: r.text })),
 		serverTime: now,
-		weather: weatherSnapshot(wid, wxTime, WEATHER_BIOME_IDS),
-		dailyTasks: dailyTasksBlock({ wid, player, d, discoveries, biomeStates, now }),
+		weather: weatherSnapshot(wid, wxTime, WEATHER_BIOME_IDS, player?.devWeather || null),
+		dailyTasks: dailyTasksBlock({ wid, player, d, discoveries, biomeStates, now, unlockedBiomes: personalUnlocked }),
 		nodeRegenSeconds: NODE_REGEN_SECONDS,
 		inventoryCapacity: inventoryCapacity(player),
 	};
@@ -2894,10 +2922,17 @@ export class CraftItem extends PublicEndpoint {
 	}
 }
 
-/** POST /PlaceObject/ {playerId, objectId, area, x, y} — area is a biome id or 'home'. */
+/** Snap any angle to the nearest quarter-turn in [0,90,180,270]. Non-numbers → 0. */
+function normRot(v: any): number {
+	const n = Number(v);
+	if (!Number.isFinite(n)) return 0;
+	return ((Math.round(n / 90) * 90) % 360 + 360) % 360;
+}
+
+/** POST /PlaceObject/ {playerId, objectId, area, x, y, rotation?} — area is a biome id or 'home'. */
 export class PlaceObject extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, objectId, area, x, y } = await bodyOf(data);
+		const { playerId, objectId, area, x, y, rotation } = await bodyOf(data);
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
@@ -2930,6 +2965,8 @@ export class PlaceObject extends PublicEndpoint {
 			if (!(player.unlockedBiomes || []).includes(area)) throw new GameError(`${biome.name} is not unlocked yet`, 403);
 			if (def.placement === 'indoor') throw new GameError(`${def.name} cannot be placed out in the preserve`);
 			if (!(def.biomes || []).includes(area)) throw new GameError(`${def.name} does not suit the ${biome.name} habitat`);
+			// nothing builds on the open ocean — coastal land ends before the reserved ocean columns
+			if (biome.oceanCols && tx >= grid.cols - biome.oceanCols) throw new GameError('That is open ocean — build on the shore', 409);
 		}
 		if (def.requiresTool && (player.tools?.[def.requiresTool.id] || 1) < def.requiresTool.tier) {
 			throw new GameError(`Placing ${def.name} requires an upgraded ${d.tool.get(def.requiresTool.id)?.name || def.requiresTool.id}`, 403);
@@ -2957,7 +2994,7 @@ export class PlaceObject extends PublicEndpoint {
 		await t.Player.patch(playerId, { craftedItems });
 
 		const placementId = `pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-		const placement = { id: placementId, worldId: wid, playerId, objectId, area, x: tx, y: ty, placedAt: Date.now() };
+		const placement = { id: placementId, worldId: wid, playerId, objectId, area, x: tx, y: ty, placedAt: Date.now(), rotation: normRot(rotation) };
 		await t.Placement.put(placement);
 
 		if (def.isChest) {
@@ -3047,7 +3084,7 @@ export class UpdateAppearance extends PublicEndpoint {
 /** POST /MoveObject/ {playerId, placementId, x, y} — relocate a placed object within its area. */
 export class MoveObject extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, placementId, x, y } = await bodyOf(data);
+		const { playerId, placementId, x, y, rotation } = await bodyOf(data);
 		const t = db();
 		const { player } = await requirePlayer(playerId);
 		const wid = worldOf(player);
@@ -3080,11 +3117,13 @@ export class MoveObject extends PublicEndpoint {
 			throw new GameError('Bridges go over open water', 409);
 		}
 
-		await t.Placement.patch(placementId, { x: tx, y: ty });
+		const patch: any = { x: tx, y: ty };
+		if (rotation !== undefined) patch.rotation = normRot(rotation);
+		await t.Placement.patch(placementId, patch);
 		const chest = await getOwnedChest(t, d, placementId, wid);
 		if (chest) await t.Chest.patch(placementId, { x: tx, y: ty }); // chests move with their contents
 
-		return { ok: true, placement: { ...placement, x: tx, y: ty } };
+		return { ok: true, placement: { ...placement, ...patch } };
 	}
 }
 
@@ -3187,7 +3226,7 @@ export class UpgradeTool extends PublicEndpoint {
 		if (!nextTier) throw new GameError(`${toolDef.name} is already fully upgraded`);
 
 		if (nextTier.requires?.biome) {
-			const bs = await findInWorld(t.BiomeState, wid, `${wid}:${nextTier.requires.biome}`);
+			const bs = await findBiomeState(t.BiomeState, wid, nextTier.requires.biome);
 			if ((bs?.health || 0) < (nextTier.requires.minHealth || 0)) {
 				const biome = d.biome.get(nextTier.requires.biome);
 				throw new GameError(
@@ -3226,7 +3265,7 @@ export class UpgradeHome extends PublicEndpoint {
 		if (!next) throw new GameError(`Your home's ${def.name.toLowerCase()} is already at its finest.`);
 
 		if (next.requires?.biome) {
-			const bs = await findInWorld(t.BiomeState, wid, `${wid}:${next.requires.biome}`);
+			const bs = await findBiomeState(t.BiomeState, wid, next.requires.biome);
 			if ((bs?.health || 0) < (next.requires.minHealth || 0)) {
 				const d = await defs();
 				const biome = d.biome.get(next.requires.biome);
@@ -3317,7 +3356,7 @@ export class SetHomeStyle extends PublicEndpoint {
 
 		// building costs materials unique to the chosen style, behind a shared gate
 		if (styleDef.requires?.biome) {
-			const bs = await findInWorld(t.BiomeState, wid, `${wid}:${styleDef.requires.biome}`);
+			const bs = await findBiomeState(t.BiomeState, wid, styleDef.requires.biome);
 			if ((bs?.health || 0) < (styleDef.requires.minHealth || 0)) {
 				const d = await defs();
 				const biome = d.biome.get(styleDef.requires.biome);
@@ -3342,7 +3381,7 @@ export class ObserveAnimal extends PublicEndpoint {
 		const { player } = await requirePlayer(playerId);
 		const wid = worldOf(player);
 
-		const disc = await findInWorld(t.Discovery, wid, `${wid}:${animalId}`);
+		const disc = await findDiscovery(t.Discovery, wid, animalId);
 		if (!disc) throw new GameError('That animal has not returned yet', 404);
 		// An observation is READING about the animal — opening its journal card
 		// (or clicking it in the world, which opens the same card). The daily
@@ -3372,7 +3411,7 @@ export class ClaimTask extends PublicEndpoint {
 		const now = Date.now();
 
 		const [discoveries, biomeStates] = await Promise.all([byWorld(t.Discovery, wid), byWorld(t.BiomeState, wid)]);
-		const block = dailyTasksBlock({ wid, player, d, discoveries, biomeStates, now });
+		const block = dailyTasksBlock({ wid, player, d, discoveries, biomeStates, now, unlockedBiomes: player.unlockedBiomes });
 		const task = block.tasks.find((x: any) => x.id === String(taskId || ''));
 		if (!task) throw new GameError("That task is not on today's board", 404);
 		if (task.claimed) throw new GameError('Already claimed — fresh tasks arrive tomorrow', 409);
@@ -4008,7 +4047,9 @@ export class BiomeSnapshot extends PublicEndpoint {
  * 'grant-resources', 'max-tools', 'unlock-all', 'set-health', 'reset-biome'
  * (wipe the area back to its damaged state, keeping chests), 'lock-biome'
  * (re-lock the area to retest the unlock flow), 'unlock-recipes' (toggle all
- * recipes craftable), 'welcome-animals' (force every animal in the area back).
+ * recipes craftable), 'welcome-animals' (force every animal in the area back),
+ * 'populate-biome' (build a fully-restored showcase biome for screenshots/video),
+ * 'set-weather' (force weather/season for filming; value {type?,season?} or clear).
  */
 const DEV_PLAYER = 'bailey'; // dev tools are restricted to this save
 
@@ -4232,6 +4273,197 @@ export class DevTools extends PublicEndpoint {
 				await recalcBiome(playerId, playerId, animal.biome, { player });
 				await t.Discovery.patch(discId, { comfort: 85 });
 				log.push(`Spawned ${animal.name} in ${animal.biome} — comfort 85, biome unlocked`);
+				break;
+			}
+			case 'populate-biome': {
+				// Showcase builder: turn the current area into a lush, fully-restored
+				// biome for screenshots/video — naturally SCATTERED clusters of trees,
+				// flowers and shrubs, crafted accents dotted about, path runs, a carved
+				// lake + winding river (where the biome holds water), every animal home
+				// and comfortable, and health/balance pinned at 100. Deterministic per
+				// biome so the scene is repeatable. Chests are kept; all other placements
+				// + terrain here are replaced for a clean look.
+				const ar = area || player.area;
+				const biome = d.biome.get(ar);
+				if (!biome || ar === 'home') throw new GameError(`Cannot populate ${ar}`);
+				const wid = worldOf(player);
+
+				// make sure the area is reachable so you can walk in and film it
+				const unlockedSet = new Set<string>(player.unlockedBiomes || ['meadow']);
+				if (!unlockedSet.has(ar)) {
+					unlockedSet.add(ar);
+					await t.Player.patch(playerId, { unlockedBiomes: [...unlockedSet] });
+				}
+
+				// clean canvas: drop existing non-chest placements + all terrain here
+				for (const pl of (await byWorld(t.Placement, wid)).filter((p) => p.area === ar)) {
+					if (d.object.get(pl.objectId)?.isChest) continue;
+					await t.Placement.delete(pl.id);
+				}
+				for (const tt of (await byWorld(t.TerrainTile, wid)).filter((x) => x.area === ar)) {
+					await t.TerrainTile.delete(tt.id);
+				}
+
+				// playable region (mirror the client): alpine reserves a mountain band on
+				// top, coastal reserves ocean columns on the east; the meadow keeps camp clear.
+				const grid = areaGrid(d, ar);
+				const playTop = ar === 'alpine' ? ALPINE_MTN_ROWS : 0;
+				const landRight = ar === 'coastal' ? grid.cols - (biome.oceanCols || 0) : grid.cols;
+				const xMin = 2, xMax = landRight - 2;
+				const yMin = playTop + 2, yMax = grid.rows - 2;
+				const inCamp = (x: number, y: number) => ar === 'meadow' && x >= 19 && x <= 24 && y >= 3 && y <= 6;
+				const OLD = Date.now() - 45 * 86400000; // 45 days ago → plants read fully grown, objects fully "matured"
+
+				// Deterministic per (world, biome) so re-running rebuilds the same scene.
+				const rng = seededRng(hash32(`populate:${wid}:${ar}`));
+				const ri = (lo: number, hi: number) => lo + Math.floor(rng() * (hi - lo + 1));
+				const pick = <T,>(arr: T[]): T => arr[Math.floor(rng() * arr.length)];
+
+				const occupied = new Set<string>();
+				(await byWorld(t.Chest, wid)).filter((c) => c.area === ar).forEach((c) => occupied.add(`${c.x},${c.y}`));
+				const free = (x: number, y: number) =>
+					x >= xMin && x <= xMax && y >= yMin && y <= yMax && !inCamp(x, y) && !occupied.has(`${x},${y}`);
+
+				// ---- water: shovel out a lake (big blob) and a river (long channel) ----
+				const waterCells: { x: number; y: number }[] = [];
+				const carve = (x: number, y: number) => { if (free(x, y)) { occupied.add(`${x},${y}`); waterCells.push({ x, y }); } };
+				if (biome.canFlood !== false) {
+					// lake: a rounded blob toward the left-center of the map
+					const lx = ri(xMin + 1, Math.max(xMin + 1, Math.min(xMax - 4, xMin + 8)));
+					const ly = ri(yMin + 1, Math.max(yMin + 1, Math.min(yMax - 3, yMin + 6)));
+					for (let dy = 0; dy < 3; dy++) for (let dx = 0; dx < 4; dx++) {
+						if ((dx === 0 || dx === 3) && (dy === 0 || dy === 2)) continue; // clip corners → rounder
+						carve(lx + dx, ly + dy);
+					}
+					carve(lx + 1, ly - 1); carve(lx + 2, ly + 3); // organic edges
+					// river: a channel winding downhill — one 4-connected step at a time
+					// (mostly down, occasional bend) so it stays a single connected river.
+					let rx = ri(Math.floor((xMin + xMax) / 2), xMax - 2), ry = yMin;
+					carve(rx, ry);
+					for (let i = 0, steps = ri(13, 18); i < steps && ry < yMax; i++) {
+						if (rng() < 0.25 && rx > xMin + 1 && rx < xMax - 1) rx += rng() < 0.5 ? -1 : 1; // bend
+						else ry += 1; // flow down
+						carve(rx, ry);
+						if (rng() < 0.25) carve(Math.min(xMax, rx + 1), ry); // gentle widening (adjacent)
+					}
+				}
+
+				// ---- object pools, classified by how they want to be laid out ----
+				const usable = d.objects.filter((o: any) =>
+					(o.biomes || []).includes(ar) && o.placement !== 'indoor' && o.placement !== 'none' && !o.isChest && !o.bridge);
+				if (!usable.length) throw new GameError(`No placeable objects exist for ${biome.name}`);
+				const isPath = (o: any) => /-path$/.test(o.id) || o.id === 'wooden-fence' || o.id === 'dry-stone-wall';
+				const trees = usable.filter((o: any) => o.plantable && (o.growSeconds || 0) >= 80);
+				const flowers = usable.filter((o: any) => o.plantable && (o.growSeconds || 0) < 80);
+				const NATURE = new Set(['shrub', 'rock-pile', 'hollow-log', 'log-shelter', 'brush-pile', 'stone-cairn', 'rock-cairn', 'clover-patch', 'butterfly-flowers', 'pollinator-garden', 'fallen-branch-shelter', 'insect-hotel', 'birdhouse', 'bird-perch']);
+				const nature = usable.filter((o: any) => !o.plantable && !isPath(o) && NATURE.has(o.id));
+				const paths = usable.filter(isPath);
+				const decor = usable.filter((o: any) => !o.plantable && !isPath(o) && !NATURE.has(o.id));
+				const undergrowth = nature.length ? nature : flowers; // fallback for biomes with no "nature" props
+
+				const places: any[] = [];
+				const place = (def: any, x: number, y: number) => {
+					if (!def || !free(x, y)) return false;
+					occupied.add(`${x},${y}`);
+					const row: any = { id: `pl_dev_${ar}_${x}_${y}`, worldId: wid, playerId, objectId: def.id, area: ar, x, y, placedAt: OLD };
+					if (def.plantable) row.plantedAt = OLD; // reads fully grown, not a sprout
+					places.push(row);
+					return true;
+				};
+				// A tight cluster of one theme around an anchor — usually dominated by a
+				// single species so it reads as a natural patch/grove, not a mix.
+				const cluster = (pool: any[], cx: number, cy: number, count: number, radius: number) => {
+					if (!pool.length) return;
+					const dom = rng() < 0.65 ? pick(pool) : null;
+					for (let n = 0, tries = 0; n < count && tries < count * 8; tries++) {
+						const def = dom && rng() < 0.7 ? dom : pick(pool);
+						if (place(def, cx + ri(-radius, radius), cy + ri(-radius, radius))) n++;
+					}
+				};
+
+				// themed clusters scattered across the WHOLE map — groves, flower patches,
+				// shrubby corners — so it never lines up in rows.
+				for (let i = 0, anchors = ri(8, 12); i < anchors; i++) {
+					const cx = ri(xMin, xMax), cy = ri(yMin, yMax);
+					const roll = rng();
+					if (roll < 0.4 && flowers.length) cluster(flowers, cx, cy, ri(4, 8), 2);
+					else if (roll < 0.72 && trees.length) { cluster(trees, cx, cy, ri(2, 4), 2); cluster(undergrowth, cx, cy, ri(1, 3), 2); }
+					else cluster(undergrowth, cx, cy, ri(3, 6), 2);
+				}
+
+				// a path run or two (and paths/fences are the one thing that looks right in a line)
+				if (paths.length) {
+					for (let i = 0, runs = ri(1, 2); i < runs; i++) {
+						const def = pick(paths);
+						const horiz = rng() < 0.5;
+						const len = ri(4, 6);
+						const sx = ri(xMin, Math.max(xMin, xMax - (horiz ? len : 0)));
+						const sy = ri(yMin, Math.max(yMin, yMax - (horiz ? 0 : len)));
+						for (let k = 0; k < len; k++) place(def, sx + (horiz ? k : 0), sy + (horiz ? 0 : k));
+					}
+				}
+
+				// crafted accents dotted individually across the map (never clumped)
+				for (let n = 0, tries = 0, want = ri(14, 20); decor.length && n < want && tries < want * 12; tries++) {
+					if (place(pick(decor), ri(xMin, xMax), ri(yMin, yMax))) n++;
+				}
+				// top-up so every biome reads lush even if it has few plant/nature types
+				for (let tries = 0; places.length < 34 && tries < 500; tries++) {
+					place(pick(usable), ri(xMin, xMax), ri(yMin, yMax));
+				}
+
+				// commit water + placements
+				for (const w of waterCells) {
+					await t.TerrainTile.put({ id: `${wid}:${ar}:${w.x}:${w.y}`, worldId: wid, playerId, area: ar, x: w.x, y: w.y, type: 'water', updatedAt: Date.now() });
+				}
+				for (const row of places) await t.Placement.put(row);
+				const waterTiles = waterCells.length;
+				const placed = places.length;
+
+				// welcome every animal home, then recalc and pin the showcase numbers
+				const here = d.animals.filter((a: any) => a.biome === ar);
+				const already = new Set((await byWorld(t.Discovery, wid)).filter((x) => x.biomeId === ar).map((x) => x.animalId));
+				for (const animal of here) {
+					if (already.has(animal.id)) continue;
+					await t.Discovery.put({
+						id: `${wid}:${animal.id}`, worldId: wid, playerId, animalId: animal.id, biomeId: ar,
+						comfort: 90, timesObserved: 0, firstObservedAt: Date.now(), whyReturned: whyReturnedText(animal, d),
+					});
+				}
+				await recalcBiome(wid, playerId, ar, { player });
+				// recalc recomputes comfort/health from the habitat; force the picture-perfect
+				// state so every animal is drawn (comfort high) and the meters read full.
+				const bs = await findBiomeState(t.BiomeState, wid, ar);
+				await t.BiomeState.patch(bs?.id ?? `${wid}:${ar}`, { health: 100, balance: 100, returnedCount: here.length });
+				for (const disc of (await byWorld(t.Discovery, wid)).filter((x) => x.biomeId === ar)) {
+					await t.Discovery.patch(disc.id, { comfort: 90 });
+				}
+				log.push(`Populated ${biome.name}: ${placed} objects, ${waterTiles} water tiles, ${here.length} animals home, health 100`);
+				break;
+			}
+			case 'set-weather': {
+				// Force the weather and/or season for filming — a persistent override
+				// on the player that the snapshot (and the client's live clock) honor.
+				// `value: { type?, season? }` merges into the current override; a null/
+				// empty value (or value.clear) lifts the override back to the live sky.
+				const v = value && typeof value === 'object' ? value : null;
+				if (!v || v.clear) {
+					await t.Player.patch(playerId, { devWeather: null });
+					log.push('Weather override cleared — back to the live sky');
+					break;
+				}
+				const cur = player.devWeather || {};
+				const next: any = { type: cur.type ?? null, season: cur.season ?? null };
+				if ('type' in v) {
+					if (v.type && !WEATHER_TYPES.includes(v.type)) throw new GameError(`Unknown weather type: ${v.type}`);
+					next.type = v.type || null;
+				}
+				if ('season' in v) {
+					if (v.season && !SEASONS.includes(v.season)) throw new GameError(`Unknown season: ${v.season}`);
+					next.season = v.season || null;
+				}
+				await t.Player.patch(playerId, { devWeather: next });
+				log.push(`Weather override: ${next.type || 'live'} · ${next.season || 'live'}`);
 				break;
 			}
 			default:

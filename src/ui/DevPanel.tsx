@@ -3,6 +3,7 @@ import { api } from '../api';
 import { useGame } from '../state';
 import { animalSpriteDataUri } from '../game/textures';
 import { Icon } from './icons';
+import { WEATHER_TYPES, SEASONS, weatherType, seasonStyle } from '../weather';
 
 /**
  * Hidden developer panel for testing — opened with Cmd/Ctrl + Shift + Delete,
@@ -63,6 +64,13 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 
 					<h3><Icon name="leaf" size={15} /> This biome <span className="muted small">· {area}</span></h3>
 					<div className="dev-grid">
+						<button
+							disabled={!!busy}
+							title={`Scatter habitat, mature plant clusters, path runs, a lake + river, every animal home, and 100% health — a showcase for screenshots/video. Replaces existing placements & terrain here (chests kept).`}
+							onClick={() => run(`Populate ${area}`, 'populate-biome', { area })}
+						>
+							<Icon name="sparkle" size={13} /> {busy === 'populate-biome' ? 'Populating…' : `Populate ${area} (showcase)`}
+						</button>
 						<Btn label={`Reseed ${area}`} action="seed-water" args={{ area }} />
 						<Btn label={`Clear ${area} terrain`} action="clear-terrain" args={{ area }} />
 						<Btn label={`Welcome all animals to ${area}`} action="welcome-animals" args={{ area }} />
@@ -91,6 +99,47 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 							{busy === 'set-health' ? '…' : 'Apply'}
 						</button>
 					</div>
+
+					<h3><Icon name="cloud" size={15} /> Weather &amp; season</h3>
+					{(() => {
+						const ov = state.weather?.override;
+						const curType = ov?.type || null;
+						const curSeason = ov?.season || null;
+						return (
+							<>
+								<p className="muted small">
+									Force the sky for filming. {ov ? `Override: ${curType ? weatherType(curType).name : 'live'} · ${curSeason ? seasonStyle(curSeason).label : 'live'}.` : 'Currently following the live clock.'}
+								</p>
+								<div className="dev-grid">
+									{WEATHER_TYPES.map((id) => (
+										<button
+											key={id}
+											disabled={!!busy}
+											style={curType === id ? { outline: '2px solid var(--green)' } : undefined}
+											onClick={() => run(`Weather: ${id}`, 'set-weather', { value: { type: id } })}
+										>
+											{weatherType(id).name}
+										</button>
+									))}
+								</div>
+								<div className="dev-grid" style={{ marginTop: 6 }}>
+									{SEASONS.map((s) => (
+										<button
+											key={s}
+											disabled={!!busy}
+											style={curSeason === s ? { outline: '2px solid var(--green)' } : undefined}
+											onClick={() => run(`Season: ${s}`, 'set-weather', { value: { season: s } })}
+										>
+											{seasonStyle(s).label}
+										</button>
+									))}
+									<button disabled={!!busy || !ov} onClick={() => run('Weather cleared', 'set-weather', { value: { clear: true } })}>
+										Back to live
+									</button>
+								</div>
+							</>
+						);
+					})()}
 
 					<h3><Icon name="paw" size={15} /> Spawn animal</h3>
 					<p className="muted small">Type an animal's name — click a match to bring it back to its biome right away.</p>

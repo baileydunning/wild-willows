@@ -319,6 +319,8 @@ export interface WeatherSnapshot {
 	dayMs: number;
 	/** Active weather per biome (climate differs by biome). */
 	byBiome: Record<string, { type: string; since: number }>;
+	/** Present only when a dev override forces weather/season — honored verbatim. */
+	override?: { type?: string | null; season?: string | null };
 }
 
 export interface ChestState {
@@ -341,6 +343,8 @@ export interface Placement {
 	plantedAt?: number;
 	/** Optional per-item recolor (paint tool, home only). */
 	color?: string;
+	/** Quarter-turn rotation in degrees (0/90/180/270), set when placing/moving. */
+	rotation?: number;
 }
 
 export interface Discovery {

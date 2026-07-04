@@ -11,7 +11,7 @@ import weatherConfig from '../data/weather.json';
 // header in server/weather.ts), so the client reuses the SAME functions the
 // server stamped the snapshot with. This keeps the live day/night clock and the
 // forecast perfectly in step with the server — no second implementation to drift.
-import { dayPhaseAt, dayProgressAt, seasonAt, weatherTypeAt, dayStartAt, DAY_MS, DAYS_PER_SEASON, SEASONS, gatherResourceIdFor, weatherGatherMap } from '../server/weather';
+import { dayPhaseAt, dayProgressAt, seasonAt, weatherTypeAt, dayStartAt, DAY_MS, DAYS_PER_SEASON, SEASONS, WEATHER_TYPES, gatherResourceIdFor, weatherGatherMap } from '../server/weather';
 import type { GameState, ResourceDef, WeatherSnapshot } from './types';
 
 export type { WeatherSnapshot };
@@ -147,6 +147,7 @@ export function liveDayProgress(snap: WeatherSnapshot | null | undefined): numbe
 	return snap ? dayProgressAt(liveTime(snap)) : 0;
 }
 export function liveSeason(snap: WeatherSnapshot | null | undefined): string {
+	if (snap?.override?.season) return snap.override.season; // dev override wins
 	return snap ? seasonAt(liveTime(snap)) : 'spring';
 }
 
@@ -178,12 +179,14 @@ export function liveCalendar(snap: WeatherSnapshot | null | undefined): Calendar
  *  on time even without a state refresh. Falls back to the snapshot if we have
  *  no worldId to seed the deterministic roll. */
 export function liveWeatherType(worldId: string | null | undefined, biome: string, snap: WeatherSnapshot | null | undefined): string {
+	if (snap?.override?.type) return snap.override.type; // dev override wins
 	if (worldId) return weatherTypeAt(worldId, biome, liveTime(snap));
 	return snap?.byBiome?.[biome]?.type || 'clear';
 }
 
 /** Forecast: the weather type for `biome` `daysAhead` in-game days from now. */
 export function forecastType(worldId: string, biome: string, snap: WeatherSnapshot | null | undefined, daysAhead: number): string {
+	if (snap?.override?.type) return snap.override.type; // dev override pins the sky
 	const t = dayStartAt(liveTime(snap)) + daysAhead * DAY_MS;
 	return weatherTypeAt(worldId, biome, t);
 }
@@ -202,7 +205,7 @@ export function gatherResourceFor(resources: ResourceDef[] | undefined, biome: s
 	return id ? (resources || []).find((r) => r.id === id) : undefined;
 }
 
-export { gatherResourceIdFor, weatherGatherMap };
+export { gatherResourceIdFor, weatherGatherMap, SEASONS, WEATHER_TYPES };
 
 // --- continuous day/night lighting -----------------------------------------
 // dayPhaseStyle gives a colour+alpha per discrete phase; for a smooth rotating

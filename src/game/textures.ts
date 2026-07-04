@@ -2292,8 +2292,43 @@ function composeAnimalDraw(id: string, kind: string): { w: number; h: number; dr
 				g.fillStyle(DK, 1).fillCircle(hx, hy - 0.5, 1.1);
 			}) };
 		}
+		// Eagle — the apex raptor. A big, upright, broad-chested hunter: heavy
+		// hooked bill, the golden eagle's signature tawny nape, a fierce amber eye
+		// under a heavy brow, a folded wing with drooping primaries, and gripping
+		// yellow talons. Reads as a predator, not a generic songbird.
+		if (t(/eagle/)) {
+			return { w: 36, h: 30, draw: draw((g) => {
+				// legs + splayed talons
+				g.lineStyle(2.4, C('#e0a93f'), 1).lineBetween(16, 24, 15, 28).lineBetween(20, 24, 21, 28);
+				g.fillStyle(C('#e0a93f'), 1);
+				g.fillTriangle(12, 28, 17, 27, 15, 30).fillTriangle(19, 28, 24, 27, 21, 30);
+				// broad, upright body
+				g.fillStyle(BODY, 1).fillEllipse(18, 17, 22, 22);
+				// folded wing draped over the back — clearly shaded, with three
+				// drooping primary "fingers" along the trailing edge
+				g.fillStyle(0x000000, 0.22).fillEllipse(13, 16, 15, 19);
+				g.fillTriangle(6, 15, 12, 17, 7, 27).fillTriangle(9, 16, 14, 18, 10, 28).fillTriangle(12, 17, 16, 19, 13, 28);
+				// short, blunt tail under the wing tips
+				g.fillStyle(0x000000, 0.28).fillTriangle(5, 24, 13, 22, 9, 30);
+				// pale streaked chest (subtle — keeps the tint readable)
+				g.fillStyle(0xffffff, 0.13).fillEllipse(21, 21, 10, 9);
+				// head, hunched forward on the shoulders
+				g.fillStyle(BODY, 1).fillCircle(25, 10, 6.4);
+				// the golden eagle's signature: a tawny nape/crown at the back of the head
+				g.fillStyle(C('#c79a3f'), 1).fillEllipse(22, 7, 9, 8);
+				g.fillStyle(BODY, 1).fillEllipse(27, 11, 8, 9); // face stays body colour in front
+				// heavy hooked bill: yellow cere into a dark, down-curved hook
+				g.fillStyle(C('#e6b84a'), 1).fillTriangle(29, 7, 34, 9, 29, 11);
+				g.fillStyle(C('#33302b'), 1).fillTriangle(32, 7.5, 35.5, 10, 32, 11).fillTriangle(34.5, 9.6, 35.8, 10.2, 33.5, 12.4);
+				// fierce amber eye under a heavy brow
+				g.lineStyle(1.7, C('#4a3a22'), 1).lineBetween(22, 7.6, 28, 8.4);
+				g.fillStyle(C('#f2c033'), 1).fillCircle(27, 10, 2.1);
+				g.fillStyle(DK, 1).fillCircle(27.4, 10, 1.05);
+			}) };
+		}
+
 		const wader = t(/heron|crane|egret|bittern|stilt|flamingo|sandhill/);
-		const raptor = t(/hawk|eagle|owl|falcon|kite|harrier/);
+		const raptor = t(/hawk|owl|falcon|kite|harrier|osprey|goshawk|kestrel|merlin/);
 		const finch = t(/finch|grosbeak|goldfinch|sparrow|bunting|crossbill|junco|towhee/);
 		const chunky = t(/ptarmigan|quail|grouse|partridge/);
 		// Long-billed birds need a wider canvas so the bill tip isn't clipped;
@@ -2319,13 +2354,15 @@ function composeAnimalDraw(id: string, kind: string): { w: number; h: number; dr
 			const hx = 20, hy = wader ? baseY - 10 : baseY - 6;
 			if (t(/hummingbird/)) { g.fillStyle(DK, 1); g.lineStyle(1.2, DK, 1).lineBetween(hx + 3, hy, hx + 11, hy - 1); }
 			else if (t(/heron|crane|egret|bittern|kingfisher|woodpecker|sapsucker|stork|pelican|oystercatcher/)) { g.fillStyle(C('#e0a93f'), 1).fillTriangle(hx + 3, hy - 1.5, hx + 11, hy, hx + 3, hy + 1.5); }
-			else if (raptor) { g.fillStyle(C('#e0a93f'), 1).fillTriangle(hx + 3, hy - 1, hx + 8, hy + 1, hx + 3, hy + 2.5); }
+			else if (raptor) { g.fillStyle(C('#e6b84a'), 1).fillTriangle(hx + 3, hy - 1, hx + 7, hy + 0.5, hx + 3, hy + 2.5); g.fillStyle(C('#33302b'), 1).fillTriangle(hx + 6, hy - 0.2, hx + 9, hy + 1, hx + 5.5, hy + 2); }
 			// finches/sparrows/grosbeaks: short, deep conical seed-cracking bill
 			else if (finch) { g.fillStyle(C('#d8b25a'), 1).fillTriangle(hx + 3, hy - 2, hx + 7, hy, hx + 3, hy + 2); }
 			else { g.fillStyle(C('#e0a93f'), 1).fillTriangle(hx + 3, hy - 1, hx + 7, hy, hx + 3, hy + 1.5); }
 			if (t(/pelican/)) { g.fillStyle(C('#e8c98a'), 1).fillEllipse(hx + 6, hy + 3, 7, 5); }
 			// owl big eyes / ear tufts
 			if (t(/owl/)) { g.fillStyle(C('#f4e3b1'), 1).fillCircle(18, hy, 2).fillCircle(22, hy, 2); g.fillStyle(DK, 1).fillCircle(18, hy, 1).fillCircle(22, hy, 1); g.fillStyle(BODY, 1).fillTriangle(16, hy - 4, 18, hy - 7, 19, hy - 3).fillTriangle(21, hy - 3, 22, hy - 7, 24, hy - 4); }
+			// other raptors: a fierce amber eye under a heavy brow
+			else if (raptor) { g.lineStyle(1.4, C('#5a4a30'), 1).lineBetween(18, hy - 1.5, 23, hy - 0.5); g.fillStyle(C('#f2c033'), 1).fillCircle(21, hy, 1.8); g.fillStyle(DK, 1).fillCircle(21.3, hy, 1); }
 			else g.fillStyle(DK, 1).fillCircle(21, hy, 1.1);
 			// woodpecker red cap
 			if (t(/woodpecker|sapsucker/)) { g.fillStyle(C('#c0392b'), 1).fillCircle(20, hy - 4, 2.4); }

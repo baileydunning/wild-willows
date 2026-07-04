@@ -22,7 +22,7 @@ const OUT_H = 20;
 // because it's wider). The world scrolls with the player to reveal the rest.
 const VIEW_W = 30;
 const VIEW_H = 20;
-const MTN_ROWS = 4; // rows reserved for the alpine mountain range (impassable)
+const MTN_ROWS = 8; // rows reserved for the alpine mountain range (impassable) — a tall, close range
 const COAST_COLS = 4; // columns reserved for the ocean along Pelican Shore's east edge (impassable)
 
 // your base camp: tent + campfire scenery beside the permanent crafting station & chest.
@@ -108,6 +108,7 @@ export class WorldScene extends Phaser.Scene {
 	private movingPlacementId: string | null = null;
 	private sleeping = false;
 	private ghost: Phaser.GameObjects.Container | null = null;
+	private placeRotation = 0; // degrees (0/90/180/270) applied to the object being placed/moved
 	private moveAccum = 0;
 	private lastSynced = { x: 0, y: 0 };
 	private activeTool = 'basket';
@@ -178,7 +179,7 @@ export class WorldScene extends Phaser.Scene {
 			baseRows,
 			rows: baseRows + mtn,
 			playTop: mtn,
-			landRight: area === 'coastal' ? cols - COAST_COLS : cols,
+			landRight: area === 'coastal' ? cols - ((this.biomeDef(area) as any)?.oceanCols ?? COAST_COLS) : cols,
 			// gates sit at the vertical middle of the playable band
 			gateY: mtn + baseRows / 2 - 0.2,
 		};
@@ -207,8 +208,11 @@ export class WorldScene extends Phaser.Scene {
 	// Pelican Shore reserves a band of columns on the east for the open ocean
 	// (impassable). landRight is the first ocean column — playable land is
 	// columns 1..landRight-1.
+	private get oceanCols() {
+		return this.area === 'coastal' ? ((this.biomeDef() as any)?.oceanCols ?? COAST_COLS) : 0;
+	}
 	private get landRight() {
-		return this.area === 'coastal' ? this.cols - COAST_COLS : this.cols;
+		return this.cols - this.oceanCols;
 	}
 	private get rows() {
 		return this.baseRows + this.mtnRows;
@@ -266,6 +270,15 @@ export class WorldScene extends Phaser.Scene {
 		this.input.keyboard!.on('keydown', (e: KeyboardEvent) => {
 			if (e.key === '+' || e.key === '=') this.nudgeZoom(ZOOM_STEP);
 			else if (e.key === '-' || e.key === '_') this.nudgeZoom(1 / ZOOM_STEP);
+			// "\" (the key under Delete) turns the object you're placing or moving a
+			// quarter-turn; the ghost preview rotates so you can line it up first.
+			// "/" is accepted too for keyboards/layouts where it's handier.
+			else if ((e.key === '\\' || e.code === 'Backslash' || e.key === '/' || e.code === 'Slash') && (this.placementObjectId || this.movingPlacementId)) {
+				e.preventDefault();
+				this.placeRotation = (this.placeRotation + 90) % 360;
+				const preview = this.ghost && (this.ghost as any).preview as Phaser.GameObjects.Image | undefined;
+				preview?.setRotation(Phaser.Math.DegToRad(this.placeRotation));
+			}
 		});
 
 		// When the player is typing in a text field (passcode, save name, chest
@@ -388,13 +401,13 @@ export class WorldScene extends Phaser.Scene {
 			}
 			if (this.movingPlacementId) {
 				if (this.canPlaceAt(tx, ty, false, this.movingPlacementId)) {
-					bridge.emit('move-to', { placementId: this.movingPlacementId, x: tx, y: ty });
+					bridge.emit('move-to', { placementId: this.movingPlacementId, x: tx, y: ty, rotation: this.placeRotation });
 					this.exitPlacement();
 				}
 				return;
 			}
 			if (this.placementObjectId) {
-				if (this.canPlaceAt(tx, ty)) bridge.emit('place-at', { objectId: this.placementObjectId, x: tx, y: ty });
+				if (this.canPlaceAt(tx, ty)) bridge.emit('place-at', { objectId: this.placementObjectId, x: tx, y: ty, rotation: this.placeRotation });
 				return;
 			}
 			// terraform with shovel / watering can on an empty reachable tile
@@ -628,17 +641,48 @@ export class WorldScene extends Phaser.Scene {
 	/** Static, impassable snow-capped range across the top of Graywind Heights. */
 	private drawMountainBand() {
 		const bandH = this.playTop * TILE;
-		// pale sky behind the peaks so gaps above the ridge don't show the void
-		this.add.rectangle(0, 0, this.worldW, bandH, Phaser.Display.Color.HexStringToColor('#aeb9c9').color)
-			.setOrigin(0, 0).setDepth(0.1);
-		// the ridge silhouette, tiled across the full width, sitting on the band base
-		const ridgeW = 420, ridgeH = 150;
-		const y = bandH - ridgeH + 6; // anchor peaks so their base meets the ground line
-		for (let x = -20; x < this.worldW + ridgeW; x += ridgeW) {
-			this.img(x, y, 'mtnridge').setOrigin(0, 0).setDepth(0.2);
+		const W = this.worldW;
+		const g = this.add.graphics().setDepth(0.1);
+		// cool, high-altitude sky behind the range
+		g.fillStyle(C('#c6cfdc'), 1).fillRect(0, 0, W, bandH);
+		const rng = mulberry32(hashStr('graywind-range'));
+
+		// One jagged silhouette layer: a straight base with a peaked top edge. Peaks
+		// are drawn crisp as polygons (no texture scaling), sized to the band, so the
+		// range stays sharp however tall the band is. Returns the peak apexes.
+		const range = (color: number, base: number, lo: number, hi: number, step: number): { x: number; y: number }[] => {
+			const pts: Phaser.Geom.Point[] = [new Phaser.Geom.Point(-4, bandH + 2)];
+			const peaks: { x: number; y: number }[] = [];
+			let x = -step * 0.5;
+			while (x < W + step) {
+				const ph = lo + rng() * (hi - lo);      // this peak's height above the base
+				const px = x + rng() * step * 0.5;
+				peaks.push({ x: px, y: base - ph });
+				pts.push(new Phaser.Geom.Point(px, base - ph));            // peak
+				// saddle sits partway down the peak so ridges connect, not spikes
+				pts.push(new Phaser.Geom.Point(px + step * 0.5, base - ph * (0.42 + rng() * 0.18)));
+				x += step;
+			}
+			pts.push(new Phaser.Geom.Point(W + 4, bandH + 2));
+			g.fillStyle(color, 1);
+			g.fillPoints(pts, true);
+			return peaks;
+		};
+
+		// three receding ranges: hazy far → cool mid → dark, tall near
+		range(C('#aebaca'), bandH * 0.86, bandH * 0.34, bandH * 0.58, 150);
+		range(C('#8d97ab'), bandH * 1.02, bandH * 0.52, bandH * 0.8, 200);
+		const near = range(C('#6b7384'), bandH * 1.04, bandH * 0.72, bandH * 1.02, 250);
+
+		// snow caps on the tall near peaks
+		g.fillStyle(C('#eef4fb'), 0.95);
+		const cap = Math.max(10, bandH * 0.11);
+		for (const p of near) {
+			if (p.y > bandH * 0.55) continue; // only the ones that rise high
+			g.fillTriangle(p.x, p.y + 1, p.x - cap * 0.55, p.y + cap, p.x + cap * 0.55, p.y + cap);
 		}
-		// soft snowline where the rock meets the meadow
-		this.add.rectangle(0, bandH - 3, this.worldW, 6, 0xffffff, 0.25).setOrigin(0, 0).setDepth(0.25);
+		// soft snowline mist where rock meets the slope
+		g.fillStyle(0xffffff, 0.16).fillRect(0, bandH - 7, W, 7);
 	}
 
 	private tintGround() {
@@ -902,6 +946,31 @@ export class WorldScene extends Phaser.Scene {
 		};
 		// density scales with the biome's playable area so big maps aren't barren
 		const dScale = Math.max(1, (this.landRight * (this.rows - this.playTop)) / (30 * 20));
+
+		// Graywind Heights reads as high, rocky tundra — scree, boulders and snow
+		// patches dominate; even fully restored it stays sparse and grey-green, not
+		// a lush green meadow.
+		if (this.area === 'alpine') {
+			scatter('crack', Math.round(((100 - health) / 100) * 18 * dScale), 0.7);
+			scatter('pebble', Math.round(30 * dScale), 0.85); // heavy scree
+			// scattered boulders (bigger grey rocks)
+			for (let i = 0; i < Math.round(16 * dScale); i++) {
+				const p = spot(); if (!p) continue;
+				const w = 16 + rng() * 16;
+				this.addDyn(this.add.ellipse(p.x, p.y, w, w * 0.72, C('#8f8e88')).setDepth(1));
+				this.addDyn(this.add.ellipse(p.x - w * 0.15, p.y - w * 0.18, w * 0.5, w * 0.32, C('#a7a69f')).setDepth(1.01).setAlpha(0.8));
+			}
+			// snow patches — more as the slope recovers and holds snowmelt
+			for (let i = 0; i < Math.round((6 + (health / 100) * 16) * dScale); i++) {
+				const p = spot(); if (!p) continue;
+				this.addDyn(this.add.ellipse(p.x, p.y, 20 + rng() * 22, 12 + rng() * 12, 0xffffff, 0.7).setDepth(0.9));
+			}
+			// only sparse alpine turf + a few hardy blooms, never a full green carpet
+			scatter('tuft', Math.round(((health / 100) * 14 + 3) * dScale), 0.85);
+			scatter('tinyflower', Math.max(0, Math.round(((health - 40) / 100) * 10 * dScale)));
+			return;
+		}
+
 		scatter('crack', Math.round(((100 - health) / 100) * 26 * dScale), 0.8);
 		scatter('pebble', Math.round(12 * dScale), 0.8);
 		scatter('tuft', Math.round(((health / 100) * 44 + 4) * dScale));
@@ -1507,12 +1576,15 @@ export class WorldScene extends Phaser.Scene {
 			const matureScale = matMs > 0 && !stillGrowing && p.placedAt
 				? 0.72 + 0.28 * Math.min(1, placedAge / matMs)
 				: 1;
+			// player-chosen quarter-turn (see PlaceObject/MoveObject), radians
+			const rot = Phaser.Math.DegToRad((p as any).rotation || 0);
 			if (isFixture) {
 				img.setScale(growScale * matureScale * INV_TEX_SCALE);
+				if (rot) img.setRotation(rot);
 			} else {
 				const vr = mulberry32(hashStr(p.id));
 				img.setFlipX(vr() < 0.5);
-				img.setRotation((vr() - 0.5) * 0.12); // ±~3.5° lean
+				img.setRotation(rot + (vr() - 0.5) * 0.12); // chosen turn + a natural ±~3.5° lean
 				img.setScale(growScale * matureScale * (0.9 + vr() * 0.2) * INV_TEX_SCALE); // 0.9–1.1 size
 				const shade = 0.82 + vr() * 0.18; // 0.82–1.0 brightness
 				const v = Math.round(255 * shade);
@@ -1540,7 +1612,7 @@ export class WorldScene extends Phaser.Scene {
 				}
 				if (!hasPrimaryAction) {
 					const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, x, y);
-					if (dist <= 110) bridge.emit('placement-clicked', { placementId: p.id, objectId: p.objectId, name: def.name, plantedAt: p.plantedAt });
+					if (dist <= 110) bridge.emit('placement-clicked', { placementId: p.id, objectId: p.objectId, name: def.name, plantedAt: p.plantedAt, x: p.x, y: p.y, rotation: p.rotation || 0 });
 					else bridge.emit('toast', { text: 'Walk a little closer first.', kind: 'info' });
 				}
 			});
@@ -1606,9 +1678,14 @@ export class WorldScene extends Phaser.Scene {
 				}
 			}
 
+			// marine swimmers (dolphin/whale/seal/otter/turtle) ride the open ocean
+			// band, overriding the land placement above and skipping the ground shadow.
+			const swimmer = this.area === 'coastal' && (animal as any).ocean === true;
+			if (swimmer) { const o = this.oceanTarget(rng); ax = o.x; ay = o.y; }
+
 			ensureAnimalTexture(this, animal.id, animal.kind);
 			const { key, tint } = animalTexture(animal.id, animal.kind);
-			if (animal.kind !== 'insect') {
+			if (animal.kind !== 'insect' && !swimmer) {
 				const sh = this.img(ax, ay + 9, 'shadow').setDepth(3).setScale(0.75 * INV_TEX_SCALE, 0.7 * INV_TEX_SCALE).setAlpha(0.8);
 				this.animals.add(sh);
 				const shadowTimer = this.time.addEvent({
@@ -1622,16 +1699,16 @@ export class WorldScene extends Phaser.Scene {
 				const img = this.img(ax, ay, key).setDepth(ay);
 				this.animals.add(img);
 				(sh as any).animal = img;
-				this.decorateAnimal(img, animal, tint, rng);
+				this.decorateAnimal(img, animal, tint, rng, swimmer);
 			} else {
 				const img = this.img(ax, ay, key).setDepth(ay);
 				this.animals.add(img);
-				this.decorateAnimal(img, animal, tint, rng);
+				this.decorateAnimal(img, animal, tint, rng, swimmer);
 			}
 		}
 	}
 
-	private decorateAnimal(img: Phaser.GameObjects.Image, animal: any, tint: number | null, rng: () => number) {
+	private decorateAnimal(img: Phaser.GameObjects.Image, animal: any, tint: number | null, rng: () => number, ocean = false) {
 		if (tint) img.setTint(tint);
 		// proportional size per species (bear ≫ chipmunk ≫ salamander), with a
 		// touch of per-animal jitter so individuals still vary
@@ -1644,7 +1721,21 @@ export class WorldScene extends Phaser.Scene {
 			targets: img, scaleY: { from: scale, to: scale * 0.94 },
 			duration: 650 + rng() * 450, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
 		});
-		this.wander(img, img.x, img.y, animal.kind, rng);
+		this.wander(img, img.x, img.y, animal.kind, rng, ocean);
+	}
+
+	/** A point out in the open ocean band (east of the shore), for marine swimmers. */
+	private oceanTarget(rng: () => number, homeX?: number, homeY?: number, roam = Infinity): { x: number; y: number } {
+		const x0 = (this.landRight + 0.6) * TILE;
+		const x1 = (this.cols - 0.8) * TILE;
+		const y0 = (this.playTop + 0.8) * TILE;
+		const y1 = this.worldH - TILE;
+		for (let i = 0; i < 8; i++) {
+			const x = x0 + rng() * Math.max(1, x1 - x0);
+			const y = y0 + rng() * Math.max(1, y1 - y0);
+			if (homeX == null || Phaser.Math.Distance.Between(homeX, homeY!, x, y) <= roam * 1.5) return { x, y };
+		}
+		return { x: (x0 + x1) / 2, y: y0 + rng() * Math.max(1, y1 - y0) };
 	}
 
 	/** Drifting leaves for a little ambient life outdoors. */
@@ -1687,16 +1778,20 @@ export class WorldScene extends Phaser.Scene {
 		return { x: c.x + (rng() - 0.5) * TILE * 0.6, y: c.y + (rng() - 0.5) * TILE * 0.6 };
 	}
 
-	private wander(img: Phaser.GameObjects.Image, homeX: number, homeY: number, kind: string, rng: () => number) {
-		const roam = kind === 'bird' || kind === 'insect' ? 130 : 80;
-		const speed = kind === 'insect' ? 26 : kind === 'bird' ? 42 : 18;
+	private wander(img: Phaser.GameObjects.Image, homeX: number, homeY: number, kind: string, rng: () => number, ocean = false) {
+		const roam = ocean ? 140 : kind === 'bird' || kind === 'insect' ? 130 : 80;
+		const speed = ocean ? 22 : kind === 'insect' ? 26 : kind === 'bird' ? 42 : 18;
 		const aquatic = kind === 'fish';
 		const flying = kind === 'bird' || kind === 'insect';
 		const hop = () => {
 			if (!img.active) return;
 			const eastEdge = this.area === 'coastal' ? (this.landRight + 1.2) * TILE : this.worldW - TILE;
 			let tx: number, ty: number;
-			if (aquatic) {
+			if (ocean) {
+				// marine swimmers drift around the open ocean band, near their spot
+				const w = this.oceanTarget(rng, homeX, homeY, roam);
+				tx = w.x; ty = w.y;
+			} else if (aquatic) {
 				// fish drift only between open-water tiles near them
 				const w = this.fishTarget(homeX, homeY, roam, rng);
 				if (!w) { this.time.delayedCall(1200 + rng() * 2000, hop); return; }
@@ -1730,6 +1825,7 @@ export class WorldScene extends Phaser.Scene {
 	private enterPlacement(objectId: string) {
 		this.exitPlacement();
 		this.placementObjectId = objectId;
+		this.placeRotation = 0;
 		const def = this.objectDef(objectId);
 		const ghost = this.add.container(0, 0).setDepth(5000).setAlpha(0.8);
 		const frame = this.img(0, 0, 'ghost-ok');
@@ -1737,6 +1833,7 @@ export class WorldScene extends Phaser.Scene {
 		const preview = this.img(0, 0, this.textures.exists(pk) ? pk : 'obj-kit').setAlpha(0.75);
 		ghost.add([frame, preview]);
 		(ghost as any).frame = frame;
+		(ghost as any).preview = preview;
 		this.ghost = ghost;
 	}
 
@@ -1746,13 +1843,16 @@ export class WorldScene extends Phaser.Scene {
 		const placement = bridge.shared.state?.placements.find((p) => p.id === placementId);
 		if (!placement) return;
 		this.movingPlacementId = placementId;
+		this.placeRotation = (placement as any).rotation || 0;
 		const def = this.objectDef(placement.objectId);
 		const ghost = this.add.container(0, 0).setDepth(5000).setAlpha(0.85);
 		const frame = this.img(0, 0, 'ghost-ok');
 		const pk = `obj-${def?.shape || 'kit'}`;
 		const preview = this.img(0, 0, this.textures.exists(pk) ? pk : 'obj-kit').setAlpha(0.8);
+		preview.setRotation(Phaser.Math.DegToRad(this.placeRotation));
 		ghost.add([frame, preview]);
 		(ghost as any).frame = frame;
+		(ghost as any).preview = preview;
 		this.ghost = ghost;
 	}
 
@@ -1995,9 +2095,9 @@ export class WorldScene extends Phaser.Scene {
 
 		const verb = this.isTouch ? 'Tap' : 'E';
 		const prompt = this.movingPlacementId
-			? `${this.isTouch ? 'Tap' : 'Click'} a tile to move it there${this.isTouch ? '' : ' · Esc to cancel'}`
+			? `${this.isTouch ? 'Tap' : 'Click'} a tile to move it there${this.isTouch ? '' : ' · \\ to rotate · Esc to cancel'}`
 			: this.placementObjectId
-			? `${this.isTouch ? 'Tap' : 'Click'} a tile to place${this.isTouch ? '' : ' · Esc to stop placing'}`
+			? `${this.isTouch ? 'Tap' : 'Click'} a tile to place${this.isTouch ? '' : ' · \\ to rotate · Esc to stop placing'}`
 			: terraforming
 				? (terraforming === 'dig'
 					? `Shovel — ${this.isTouch ? 'tap' : 'click'} ground to dig a bed (may turn up materials)`

@@ -232,11 +232,11 @@ export const api = {
 	craft: (recipeId: string) => post<any>('/CraftItem/', { playerId: pid(), recipeId }),
 	discard: (kind: 'material' | 'crafted', id: string, qty: number) =>
 		post<any>('/DiscardItem/', { playerId: pid(), kind, id, qty }),
-	place: (objectId: string, area: string, x: number, y: number) =>
-		post<any>('/PlaceObject/', { playerId: pid(), objectId, area, x, y }),
+	place: (objectId: string, area: string, x: number, y: number, rotation = 0) =>
+		post<any>('/PlaceObject/', { playerId: pid(), objectId, area, x, y, rotation }),
 	remove: (placementId: string) => post<any>('/RemoveObject/', { playerId: pid(), placementId }),
-	move: (placementId: string, x: number, y: number) =>
-		post<any>('/MoveObject/', { playerId: pid(), placementId, x, y }),
+	move: (placementId: string, x: number, y: number, rotation?: number) =>
+		post<any>('/MoveObject/', { playerId: pid(), placementId, x, y, rotation }),
 	upgradeTool: (toolId: string) => post<any>('/UpgradeTool/', { playerId: pid(), toolId }),
 	upgradeHome: (track: string) => post<any>('/UpgradeHome/', { playerId: pid(), track }),
 	setHomeStyle: (style: string) => post<any>('/SetHomeStyle/', { playerId: pid(), style }),
