@@ -2197,7 +2197,7 @@ var recipes_default = {
     {
       id: "summit-prayer-flags",
       name: "Summit Prayer Flags",
-      category: "decoration",
+      category: "structure",
       unlockBiome: "alpine",
       output: {
         itemId: "summit-prayer-flags",
@@ -2234,7 +2234,7 @@ var recipes_default = {
     {
       id: "obsidian-totem",
       name: "Obsidian Totem",
-      category: "decoration",
+      category: "structure",
       unlockBiome: "alpine",
       output: {
         itemId: "obsidian-totem",
@@ -2665,7 +2665,7 @@ var recipes_default = {
     {
       id: "rain-basin",
       name: "Rain Basin",
-      category: "decoration",
+      category: "structure",
       unlockBiome: "meadow",
       output: { itemId: "rain-basin", qty: 1 },
       materials: { rainwater: 3, stones: 2 }
@@ -2673,7 +2673,7 @@ var recipes_default = {
     {
       id: "dew-lantern",
       name: "Dewlit Lantern",
-      category: "decoration",
+      category: "structure",
       unlockBiome: "forest",
       output: { itemId: "dew-lantern", qty: 1 },
       materials: { dewdrops: 3, branches: 2 }
@@ -2681,7 +2681,7 @@ var recipes_default = {
     {
       id: "sunstone-cairn",
       name: "Sunstone Cairn",
-      category: "decoration",
+      category: "structure",
       unlockBiome: "desert",
       output: { itemId: "sunstone-cairn", qty: 1 },
       materials: { sunstone: 3, stones: 3 }
@@ -2689,7 +2689,7 @@ var recipes_default = {
     {
       id: "frostflower-planter",
       name: "Frostflower Planter",
-      category: "decoration",
+      category: "structure",
       unlockBiome: "alpine",
       output: { itemId: "frostflower-planter", qty: 1 },
       materials: { frostflower: 3, stones: 2 }
@@ -2697,7 +2697,7 @@ var recipes_default = {
     {
       id: "stormglass-lantern",
       name: "Stormglass Lantern",
-      category: "decoration",
+      category: "structure",
       unlockBiome: "desert",
       output: { itemId: "stormglass-lantern", qty: 1 },
       materials: { stormglass: 2, stones: 2 }
