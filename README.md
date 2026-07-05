@@ -341,6 +341,16 @@ Every biome has its own **weather**, and it changes on its own — about every t
 
 Grouped by biome, the journal shows each animal's actual **sprite thumbnail** (a colored creature for returned animals, a silhouette for ones still to come), comfort level, why it returned, and — once the field guide is upgraded for that area — full diet/shelter/habitat notes and exact return hints. The header names the **field guide for the area you're viewing** (e.g. "Rushwater Wetland Field Guide"), and you can toggle **Unknown first** to surface the animals you haven't found yet or **search** by name or kind.
 
+## Localization (i18n)
+
+All player-facing text flows through a zero-dependency i18n layer (`src/i18n/`), so the game ships English-only today but is fully structured for translation. `core.ts` is the engine — `t(key, params)` with `{name}` interpolation and `{one, other}` plurals, `tList()` for randomized line pools, and `content(kind, id, field, fallback)` for data-content overlays — and it's environment-free, so the exact same module runs in the React UI, in Phaser, inside `server/resources.ts` (both the hosted bundle and the solo in-renderer import — in solo, switching language localizes server errors live), and under Vitest.
+
+English catalogs live in `src/i18n/en/` split by area: `app.json` (shell, HUD, toasts, settings), `panels.json` (journal, crafting, achievements, tutorial, help…), `narrative.json` (feed beats, per-biome line pools, biome lore), `game.json` (in-world Phaser prompts), and `server.json` (every `GameError`, daily tasks, "why it returned" prose). The client entry (`src/i18n/index.ts`) registers all of them and persists the language choice (Settings → Language); the server entry (`src/i18n/server.ts`) registers only `server.json` so the hosted bundle stays lean.
+
+**Game content** (animal names/facts, recipes, biomes, weather guide prose in `data/*.json`) is *not* duplicated into catalogs — display sites wrap it in `content()`, whose fallback is the English text already in the data. `npm run i18n:extract` generates the full translator template (`src/i18n/templates/content.en.json`, ~1,900 fields); a translation is that file copied to `src/i18n/<locale>/content.json` with values translated.
+
+**Adding a language:** create `src/i18n/<locale>/*.json` mirroring the en catalogs (plus the content overlay from the template — partial files are fine, everything falls back to English), register it in `src/i18n/index.ts`, and add it to `LOCALE_NAMES` there so Settings offers it. `npm run i18n:check` (also part of `npm run check`, so CI runs it) lints that every `t()` key referenced in code exists in the en catalogs and reports locale-parity gaps for any other locale. Known v1 limits: hosted co-op errors stay English (no per-request locale yet), persisted feed entries keep the language they were written in, and the store-listing pages (`public/*.html`) are deliberately English-only.
+
 ## Metrics & analytics
 
 A client **heartbeat** accrues play time and counts sessions while the game is open (paused when the tab is hidden). The read-only **Metrics** endpoint surfaces it for dashboards:

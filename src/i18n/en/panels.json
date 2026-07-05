@@ -1,0 +1,477 @@
+{
+	"_readme": "Panel strings: journal, achievements, crafting, map, tasks, people, tutorial, help, keyboard gate (Panels, Journal, Achievements, Tutorial, Help, TasksWidget, People, Join*, KeyboardGate, MobileControls). Keys are referenced as panels.<key>.",
+	"common": {
+		"close": "Close",
+		"all": "all"
+	},
+	"areaTags": {
+		"usedInCrafting": "Used in crafting",
+		"placeIn": "Place in:",
+		"allAreas": "All areas",
+		"camp": "Camp"
+	},
+	"inventory": {
+		"title": "Gathering Basket — {carried}/{capacity}",
+		"confirmDiscard": "Throw away {qty}× {name}? This can't be undone.",
+		"empty": "Your basket is empty. Gather fallen branches, seeds, and stones out in the preserve.",
+		"tossOne": "Throw away one {name}",
+		"tossAll": "Throw away all {name}",
+		"craftedItems": "Crafted items",
+		"placeItem": "Place {name}",
+		"place": "Place",
+		"kitsNote": "Kits (like restoration kits) are not placed and can't be discarded — crafting them is what counts."
+	},
+	"chest": {
+		"title": "{name} — {used}/{capacity}",
+		"fallbackName": "Chest",
+		"deposit": "Your basket → deposit",
+		"nothingToDeposit": "Nothing to deposit.",
+		"chestFull": "This chest is full — withdraw something first.",
+		"withdraw": "Chest → withdraw",
+		"chestEmpty": "This chest is empty.",
+		"basketFull": "Your basket is full — deposit or discard something first.",
+		"move": "Move chest",
+		"pickUp": "Pick up (must be empty)",
+		"storageNote": "Crafting can use materials straight from any of your chests — store freely."
+	},
+	"crafting": {
+		"title": "Crafting",
+		"thisArea": "this area",
+		"intro": {
+			"one": "Craft anywhere: materials come from your basket first, then from your chests ({count} chest in storage).",
+			"other": "Craft anywhere: materials come from your basket first, then from your chests ({count} chests in storage)."
+		},
+		"category": {
+			"plant": "Plants & flowers",
+			"habitat": "Habitat objects",
+			"structure": "Structures & decor",
+			"decoration": "Paths",
+			"storage": "Storage",
+			"home": "Camp comforts",
+			"kit": "Restoration kits"
+		},
+		"placeLabel": "Place:",
+		"allAreas": "All areas",
+		"insideHome": "Inside your home",
+		"typeLabel": "Type:",
+		"allTypes": "All types",
+		"searchRecipes": "Search recipes",
+		"searchPlaceholder": "Search recipes…",
+		"readyToPlace": "Ready to place:",
+		"notIndoor": "{name} belongs out in the preserve, not in your home.",
+		"needsBiggerHome": "{name} needs a bigger home — upgrade your home's Space first.",
+		"indoorOnly": "{name} is for inside your home — step into your camp tent to place it.",
+		"wrongArea": "{name} can't be placed in {area} — try: {areas}",
+		"anotherArea": "another area",
+		"noMatch": "No recipes match “{query}” — try a different search.",
+		"noMatchWiden": "No recipes match “{query}” — try a different search or widen the filters.",
+		"nothingToCraft": "Nothing to craft for this area yet — restore it further or pick a different place.",
+		"onceTag": "one-time",
+		"onceTitle": "Can only be crafted once",
+		"matTitle": "{inBasket} in basket, {inChests} in linked chests",
+		"requiresTool": "Requires an upgraded tool — see Tools panel.",
+		"crafted": "Crafted ✓",
+		"craft": "Craft"
+	},
+	"tools": {
+		"title": "Tools & Upgrades",
+		"tier": "tier {tier}",
+		"upgradeNext": "Upgrade →",
+		"restoreFirst": "Restore {biome} to {health}% health first (now {current}%)",
+		"fullyUpgraded": "Fully upgraded.",
+		"upgrade": "Upgrade",
+		"note": "Upgrades use materials from your basket and chests."
+	},
+	"biomes": {
+		"title": "The Preserve",
+		"youAreHere": "You are here",
+		"lockedTitle": "Locked — {biome} isn't open yet",
+		"travelTo": "Travel to {biome}",
+		"comingSoon": "Coming soon",
+		"locked": "locked",
+		"hereTag": "you are here",
+		"goal": "Goal:",
+		"toUnlock": "To unlock:",
+		"health": "Health",
+		"balance": "Balance",
+		"animalsReturned": "{returned}/{total} animals returned"
+	},
+	"home": {
+		"buildTitle": "Build Your Home",
+		"buildIntro": "Your home is still a canvas tent. Choose a style to build it into a proper house — each is built from its own materials, this sets its look for good, and it opens up upgrade tracks afterward.",
+		"needs": "Needs:",
+		"needsGate": "{biome} at {health}% (now {current}%)",
+		"build": "Build",
+		"title": "Your Home",
+		"fallbackName": "home",
+		"builtIntro": "Your {style} is built. Decorate it with crafted camp comforts (step inside), and upgrade it along its upgrade tracks.",
+		"upgrades": "Upgrades",
+		"level": "· level {level}/{max}",
+		"maxedOut": "Maxed out.",
+		"upgrade": "Upgrade"
+	},
+	"weather": {
+		"title": "Weather & Seasons",
+		"thisBiome": "this biome",
+		"over": "over {biome}",
+		"inBiome": "in {biome}",
+		"tease": "Unusual weather like this can leave something worth finding — explore {biome} while it lasts.",
+		"acrossPreserve": "Across the preserve",
+		"colBiome": "Biome",
+		"colNow": "Now",
+		"colNext": "Next",
+		"colLater": "Later",
+		"here": "· here",
+		"seasonsNote": "Seasons drift from spring through summer, autumn, and winter, shifting which weather each biome is likely to see."
+	},
+	"journal": {
+		"title": "Field Journal",
+		"fieldGuide": "{biome} Field Guide",
+		"fieldFallback": "Field",
+		"allAnimals": "All animals",
+		"lockedTab": "{biome} is still locked — unlock it in the world first",
+		"summaryAll": "{returned} of {total} animals have returned across the preserve.",
+		"summaryBiome": "{returned}/{total} animals have returned to {biome}.",
+		"entriesTitle": "Entry list",
+		"entries": "Entries",
+		"foodWebTitle": "Food web for this biome",
+		"foodWeb": "Food web",
+		"unknownFirstTitle": "Sort animals you haven't found yet to the top",
+		"unknownFirst": "Unknown first",
+		"searchPlaceholder": "Search by name, kind, or role…",
+		"searchAria": "Search the field guide",
+		"upsell": "Upgrade your field guide to Tier {tier} to read the full info card — ecology, diet, and food-web links — for {biome}. See the Tools panel.",
+		"noMatch": "No animals match your search.",
+		"overviewEmpty": "No animals have returned yet. Restore habitat and they'll start arriving — check back here to see everyone who's home.",
+		"comfort": {
+			"thriving": "Thriving",
+			"settled": "Settled",
+			"cautious": "Cautious",
+			"rarely-seen": "Rarely seen"
+		},
+		"trophic": {
+			"producer": "Producer",
+			"decomposer": "Decomposer",
+			"filter-feeder": "Filter feeder",
+			"herbivore": "Herbivore",
+			"insectivore": "Insectivore",
+			"scavenger": "Scavenger",
+			"omnivore": "Omnivore",
+			"mesopredator": "Mid predator",
+			"apex-predator": "Apex predator",
+			"wildlife": "Wildlife"
+		},
+		"seasons": {
+			"spring": "spring",
+			"summer": "summer",
+			"autumn": "autumn",
+			"winter": "winter"
+		},
+		"dayPhases": {
+			"dawn": "dawn",
+			"day": "day",
+			"dusk": "dusk",
+			"night": "night"
+		},
+		"cond": {
+			"and": "and",
+			"or": "or",
+			"during": "during {list}",
+			"inSeason": "in {list}",
+			"atTime": "at {list}",
+			"line": "Only ventures out {bits}"
+		},
+		"activity": {
+			"crepuscular": "Most active at dawn and dusk (crepuscular)",
+			"duskNocturnal": "Out from dusk through the night (nocturnal)",
+			"nocturnal": "Active at night (nocturnal)",
+			"diurnal": "Active in daylight (diurnal)",
+			"activeAt": "Active at {phases}",
+			"seasonal": "Around mainly in {seasons}",
+			"rain": "Ventures out in the rain",
+			"weather": "Comes out in {list} weather"
+		},
+		"hint": "Hint: {hint}",
+		"hintDefault": "Restore more habitat and see who arrives.",
+		"minHealth": "Biome health ≥ {value}%",
+		"minBalance": "Ecological balance ≥ {value}%",
+		"objectReq": "{qty}× {name}",
+		"animalReq": "{name} already returned",
+		"condCheck": "{cond} — check the weather panel (M)",
+		"openEntry": "Open {name}",
+		"notDiscovered": "Not yet discovered",
+		"unknownChip": "??? {kind}",
+		"eats": "Eats",
+		"eatenBy": "Eaten by",
+		"unknownEntry": "Unknown {kind}",
+		"eatsDiet": "Eats {diet}",
+		"tiers": {
+			"apex": "Apex predators",
+			"mid": "Mid predators",
+			"omnivores": "Omnivores · insectivores · scavengers",
+			"herbivores": "Herbivores · filter feeders",
+			"producers": "Producers · decomposers"
+		},
+		"foodWebIntro": "Higher rows hunt the rows below. {returned}/{total} discovered — restore more habitat to reveal the rest of the web.",
+		"undiscovered": "Undiscovered {kind}",
+		"neighborsAfter": "Settled in after the {list} were already here.",
+		"neighborsFollowed": "The {list} followed once this one was back.",
+		"comfortBadge": "{label} · {comfort}%",
+		"observed": {
+			"one": "Observed {count} time · first seen {date}",
+			"other": "Observed {count} times · first seen {date}"
+		},
+		"comfortGrows": "Comfort grows with habitat: place more of what it likes — {items} — and it will truly settle in.",
+		"neighborsLabel": "Neighbors:",
+		"roleTitle": "Role in the ecosystem",
+		"whenToSpot": "When to spot them",
+		"habitatTitle": "Habitat",
+		"shelterLabel": "Shelter:",
+		"preferredLabel": "Preferred habitat:",
+		"fieldNote": "Field note:",
+		"backToJournal": "← Back to field journal",
+		"lockedCard": "Upgrade your field guide to Tier {tier} to read this animal's full entry — its ecological role, diet, and food-web links."
+	},
+	"achievements": {
+		"title": "Achievements",
+		"summary": "· {earned}/{total} · {points} pts",
+		"tabAll": "All",
+		"tabPreserve": "Preserve"
+	},
+	"tutorial": {
+		"gettingStarted": "Getting started",
+		"stepCount": "Step {step} of {total}",
+		"closeTutorial": "Close tutorial",
+		"skipTutorial": "Skip tutorial",
+		"niceWork": "Nice work!",
+		"back": "Back",
+		"prevStep": "Previous step",
+		"next": "Next",
+		"nextStep": "Next step",
+		"finish": "Finish",
+		"coopHostInvite": {
+			"title": "Welcome to co-op!",
+			"text": "You’re restoring this preserve together with friends. First things first — invite them. Press U (or the green “Co-op” badge, top-left, or the people button, top-right) to open the People menu, where you can copy your join code. Friends choose New Game → Co-op → “Join a friend’s world” and enter that code to play here with you. Open the People menu now to see it.",
+			"touch": "You’re restoring this preserve together with friends. First things first — invite them. Tap the green “Co-op” badge (top) or the people button to open the People menu, where you can copy your join code. Friends choose New Game → Co-op → “Join a friend’s world” and enter that code to play with you. Open the People menu now to see it."
+		},
+		"coopHostTogether": {
+			"title": "Restoring together",
+			"text": "As friends join, you’ll see them roaming the very same preserve — the land, buildings, plants, and the animals that return are all shared, so your work adds up together. Your own basket, tools, field journal, and achievements always stay yours. Now let’s learn the basics →",
+			"touch": "As friends join, you’ll see them roaming the very same preserve — the land, buildings, plants, and animals are all shared, so your work adds up together. Your own basket, tools, journal, and achievements always stay yours. Now let’s learn the basics →"
+		},
+		"coopJoinWelcome": {
+			"title": "Welcome to the preserve!",
+			"text": "You’ve joined a shared preserve — you’ll see the host and other caretakers roaming the very same world. The land, buildings, plants, and the animals that return are all shared, so your work adds up together. Your own basket, tools, field journal, and achievements always stay yours. Now let’s learn the basics →",
+			"touch": "You’ve joined a shared preserve — you’ll see the host and other caretakers roaming the very same world. The land, buildings, plants, and animals are all shared, so your work adds up together. Your own basket, tools, journal, and achievements always stay yours. Now let’s learn the basics →"
+		},
+		"welcome": {
+			"title": "Welcome, caretaker",
+			"text": "This worn-out meadow is yours to restore. By the end of this short guide you’ll welcome your very first animal home — a little grasshopper. Let’s start simple: walk around with WASD or the arrow keys.",
+			"touch": "This worn-out meadow is yours to restore. By the end of this short guide you’ll welcome your very first animal home — a little grasshopper. Let’s start simple: walk with the joystick in the corner."
+		},
+		"basket": {
+			"title": "Check your basket",
+			"text": "Press B (or the basket button, top-right) to see what you’re carrying. Your basket holds a limited amount — when it fills up you’ll stash the extra in a chest. The toolbelt along the bottom (or number keys 1, 2, 3) switches between your basket, shovel, and watering can.",
+			"touch": "Tap the basket button (top-right) to see what you’re carrying. Your basket holds a limited amount — when it fills up you’ll stash the extra in a chest. The toolbelt along the bottom switches between your basket, shovel, and watering can."
+		},
+		"gather": {
+			"title": "Gather materials",
+			"text": "Now fill that basket. See the little glowing spots on the ground? Walk up to one with the basket selected and press E or the Space bar to gather — E and Space interact with anything you walk up to. Collect some seeds and fiber — you’ll need them for the grasshopper’s home later.",
+			"touch": "Now fill that basket. See the little glowing spots on the ground? Walk up to one with the basket selected and tap it to gather. Collect some seeds and fiber — you’ll need them for the grasshopper’s home later."
+		},
+		"chest": {
+			"title": "Use your camp chest",
+			"text": "Walk to the chest beside your tent and press E or Space to open it. Deposit spare materials here whenever your basket gets full — anything in a chest still counts toward crafting from anywhere, so you never have to carry it all.",
+			"touch": "Walk to the chest beside your tent and tap it to open it. Deposit spare materials here whenever your basket gets full — anything in a chest still counts toward crafting from anywhere, so you never have to carry it all."
+		},
+		"land": {
+			"title": "Work the land",
+			"text": "The land itself needs healing. Press 2 for the shovel and dig a soil bed on bare ground, then press 3 for the watering can and water it. Watering recovers the land (+health) and readies the bed for planting.",
+			"touch": "The land itself needs healing. Tap the shovel and dig a soil bed on bare ground, then tap the watering can and water it. Watering recovers the land (+health) and readies the bed for planting."
+		},
+		"plant": {
+			"title": "Plant something living",
+			"text": "Walk up to your watered bed and press E or Space to plant a flower, grass, or tree. Plants sprout small and grow in over time — once mature they count as real habitat, and the biome rechecks for new arrivals on its own.",
+			"touch": "Walk up to your watered bed and tap it to plant a flower, grass, or tree. Plants sprout small and grow in over time — once mature they count as real habitat, and the biome rechecks for new arrivals on its own."
+		},
+		"water": {
+			"title": "Shape some water",
+			"text": "Many animals need water. Water a bed once to plant it — water it again to flood it into open water. Flood a few tiles next to each other to shape a pond (a long line makes a river, a wide patch a lake). Try flooding a few connected tiles now.",
+			"touch": "Many animals need water. Water a bed once to plant it — water it again to flood it into open water. Flood a few tiles next to each other to shape a pond, river, or lake. Try flooding a few connected tiles now."
+		},
+		"journal": {
+			"title": "Open your field journal",
+			"text": "Press J to open your field journal — it lists every animal that can return to each area and who’s back so far. Each area has its own field guide: the basic entry always shows, but full diet, shelter, and return hints unlock once you gather that area’s materials and upgrade its guide in the Tools panel.",
+			"touch": "Tap the journal button to open your field journal — it lists every animal that can return to each area and who’s back so far. Each area has its own field guide: the basic entry always shows, but full diet, shelter, and return hints unlock once you gather that area’s materials and upgrade its guide in the Tools panel."
+		},
+		"tools": {
+			"title": "Tools & upgrades",
+			"text": "Press T to open Tools & Upgrades. Spend materials to upgrade your basket, shovel, watering can, or field journal — higher tiers gather more, shape more, and reveal the next area’s field guide. Some upgrades open up as a biome gets healthier, so check back as you go.",
+			"touch": "Tap the tools button to open Tools & Upgrades. Spend materials to upgrade your basket, shovel, watering can, or field journal — higher tiers gather more, shape more, and reveal the next area’s field guide. Some upgrades open up as a biome gets healthier, so check back as you go."
+		},
+		"map": {
+			"title": "Open the Preserve map",
+			"text": "Press P (or the map button) to open the Preserve. It tracks every area’s health and animals, shows exactly what’s needed to unlock the next one, and lets you fast-travel back to any area you’ve already visited — tap the walk icon on its row.",
+			"touch": "Tap the map button to open the Preserve. It tracks every area’s health and animals, shows exactly what’s needed to unlock the next one, and lets you fast-travel back to any area you’ve already visited — tap the walk icon on its row."
+		},
+		"weather": {
+			"title": "Weather & seasons",
+			"text": "Press M to open the Weather & Seasons guide. Each area has its own weather that shifts on its own and slowly drifts through the seasons — the guide shows what’s happening across the whole preserve and explains, in real ecology, how today’s weather and season shape the area you’re standing in. Watch the skies, too: unusual weather can leave rare materials to gather while it lasts.",
+			"touch": "Tap the weather button (the cloud, top-right) to open the Weather & Seasons guide. Each area has its own weather that shifts on its own and slowly drifts through the seasons — the guide shows what’s happening across the preserve and explains how today’s weather and season shape the area you’re in. Watch the skies: unusual weather can leave rare materials to gather while it lasts."
+		},
+		"tips": {
+			"title": "Good things to know",
+			"text": "Misplaced something? Shift+click any placed object to pick it back up. Esc closes menus or cancels placing. New areas open through trail gates at the edge of the map. The gear button holds Settings (change your character, lock or delete your save), and the ? button reopens this guide anytime.",
+			"touch": "Misplaced something? Press and hold a placed object to pick it back up. New areas open through trail gates at the edge of the map. The gear button holds Settings (change your character, lock or delete your save), and the ? button reopens this guide anytime."
+		},
+		"crafting": {
+			"title": "Open crafting",
+			"text": "Time to build the grasshopper’s home. Press C (or the hammer button) to open crafting — it draws from your basket plus every chest, anywhere you are. Only a few things can be made now; more unlock as the meadow recovers.",
+			"touch": "Time to build the grasshopper’s home. Tap the hammer button to open crafting — it draws from your basket plus every chest, anywhere you are. Only a few things can be made now; more unlock as the meadow recovers."
+		},
+		"craftGrass": {
+			"title": "Craft a Grass Patch",
+			"text": "Find Grass Patch in the list and press Craft. Once you’re carrying enough seeds and fiber it lights up — this is the simple home a grasshopper is waiting for."
+		},
+		"placeGrass": {
+			"title": "Place the Grass Patch",
+			"text": "Press the green “Ready to place” button at the top of the crafting menu, then click a patch of open ground in the meadow. Watch the biome health meter tick up the moment it’s down.",
+			"touch": "Tap the green “Ready to place” button at the top of the crafting menu, then tap a patch of open ground in the meadow. Watch the biome health meter tick up the moment it’s down."
+		},
+		"grasshopper": {
+			"title": "Welcome the grasshopper",
+			"text": "Here’s the moment. A grasshopper returns at 15% meadow health with a Grass Patch down — between watering the land, planting, and your patches you’re already there. If it hasn’t hopped in yet, place another patch or water a bit more. When it arrives, click it to observe it and record it in your journal — then click Next for one last thing.",
+			"touch": "Here’s the moment. A grasshopper returns at 15% meadow health with a Grass Patch down — between watering the land, planting, and your patches you’re already there. If it hasn’t hopped in yet, place another patch or water a bit more. When it arrives, tap it to observe it and record it in your journal — then tap Next for one last thing."
+		},
+		"star": {
+			"title": "Your first star",
+			"text": "That’s the whole loop — and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don’t come easy. Find them all in the new Achievements menu (press K) — recent unlocks rise to the top. One last comfort to show you →",
+			"touch": "That’s the whole loop — and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don’t come easy. Find them all in the new Achievements menu (the star button) — recent unlocks rise to the top. One last comfort to show you →"
+		},
+		"home": {
+			"title": "Make yourself at home",
+			"text": "Last thing — walk back to your camp tent and press E to step inside your home. It’s yours to decorate with crafted camp comforts, and the sign by the tent upgrades it bigger and cozier (and lets you carry more). Step inside now, and the preserve is all yours — happy restoring!",
+			"touch": "Last thing — walk back to your camp tent and tap it to step inside your home. It’s yours to decorate with crafted camp comforts, and the sign by the tent upgrades it bigger and cozier. Step inside now, and the preserve is all yours — happy restoring!"
+		}
+	},
+	"help": {
+		"title": "How to Play",
+		"replayTitle": "Restart the interactive tutorial",
+		"replay": "Replay tutorial",
+		"intro": "Wild Willows is a gentle loop: gather what nature has let go, craft it into habitat, place it in the biome, and welcome wildlife home. New recipes unlock as each biome recovers.",
+		"loopLabel": "The loop",
+		"keysLabel": "Keyboard & mouse",
+		"loop": {
+			"gather": {
+				"title": "Gather",
+				"text": "Wander the preserve and collect fallen branches, seeds, stones, and flowers from gathering spots. They regrow on their own — you only ever take what nature has already let go."
+			},
+			"store": {
+				"title": "Store",
+				"text": "Drop materials into chests so your basket stays light — crafting can use everything in storage, wherever the chest sits."
+			},
+			"craft": {
+				"title": "Craft & unlock",
+				"text": "Press C or the hammer button anytime, anywhere to turn materials into habitat. You begin with just a few recipes — a Grass Patch and a handful of basics. As a biome’s health rises and animals return, new recipes unlock one at a time (watch for the “New Crafting Recipe Unlocked” message). Fully restoring a biome also opens the next area, with its own set of recipes to discover."
+			},
+			"rebuild": {
+				"title": "Rebuild",
+				"text": "Place habitat out in the biome. Every piece raises biome health, and variety — food, water, shelter, plants, open space — raises ecological balance. Terraform with the shovel and watering can: dig a bed, water it, then interact with it to plant flowers and trees — or flood it again to shape ponds, rivers, and lakes."
+			},
+			"welcome": {
+				"title": "Welcome them back",
+				"text": "When the habitat truly supports an animal, it returns on its own. Click any animal to observe it and read about its real-world life."
+			},
+			"record": {
+				"title": "Record & grow",
+				"text": "Your field journal fills in with every return. Upgrade tools to gather more, restore harder habitats, and unlock the next biome. In the journal you can flip to “Unknown first” or search to see who you’re still missing in an area."
+			},
+			"weather": {
+				"title": "Read the weather",
+				"text": "Each biome has its own weather that shifts on its own and slowly drifts through the seasons. Open the Weather & Seasons guide (press M) to see what’s happening across the preserve and learn how each condition shapes the biome you’re standing in. Keep an eye out — unusual weather can leave rare materials to gather while it lasts, and a few elusive animals only show themselves in the right weather, season, or time of day (their journal hint says when)."
+			},
+			"board": {
+				"title": "Check the board",
+				"text": "Every day the preserve posts three small tasks on the board by the top-right menu — finish one and claim a bundle of materials. Claimed tasks tidy themselves away (press O to tuck the board out of sight). Your plantings also keep growing in real time even while the game is closed: trees take hours to reach full size, and mature habitat nudges the land a little healthier, so there’s always something new when you come back."
+			}
+		},
+		"keys": {
+			"move": "Move (arrow keys work too)",
+			"interact": "Interact — gather, open chests, craft, doors",
+			"space": "Interact (same as E)",
+			"click": "Observe an animal · open a placed item’s menu (move / rotate / pick up)",
+			"shiftClick": "Instantly pick a placed object back up",
+			"rotate": "Rotate the object you’re placing or moving a quarter-turn",
+			"toolSelect": "Select a tool: basket, shovel, watering can, paint (paint works in your home)",
+			"crafting": "Open crafting — works anywhere",
+			"basket": "Open your basket",
+			"journal": "Open the field journal",
+			"achievements": "Open achievements",
+			"tasks": "Tuck away / show the daily task board",
+			"feed": "Open the activity feed (last 100 events)",
+			"tools": "Open tools & upgrades",
+			"preserve": "Open the preserve overview",
+			"weather": "Open the weather & seasons guide",
+			"people": "People — invite friends & see who’s here (co-op worlds only)",
+			"settings": "Open settings",
+			"help": "Open this How to Play guide",
+			"zoom": "Zoom the camera in / out",
+			"esc": "Close menus · cancel placing"
+		}
+	},
+	"tasks": {
+		"pillTitle": "Today's tasks (O)",
+		"pillAria": "Today's tasks: {done} of {total} done",
+		"title": "Today's tasks",
+		"collapseTitle": "Tuck away (O)",
+		"collapseAria": "Collapse the task board",
+		"rewardItem": "{qty}× {name}",
+		"rewardTitle": "Reward: {reward}",
+		"claim": "Claim",
+		"claimTitle": "Claim: {reward}"
+	},
+	"people": {
+		"title": "People",
+		"titleCoop": "Caretakers",
+		"soloInfo": "This is a solo preserve — just you. To restore a preserve together with friends, start a New Game and choose Co-op: you'll get a join code to share.",
+		"invite": "Invite friends to {world}",
+		"closedInfo": "This preserve is full ({count}/{max}) and closed to new players. Everyone who has joined can always come back.",
+		"shareInfo": "Share this code ({count}/{max} caretakers so far). Friends open New Game → Co-op → Join a friend's world and enter it.",
+		"codeIs": "Your code is {code}",
+		"copied": "Copied ✓",
+		"copyCode": "Copy code",
+		"wantsToJoin": "Wants to join ({count})",
+		"asking": "· is asking to join",
+		"approve": "Approve",
+		"deny": "Deny",
+		"canNowJoin": "{name} can now join",
+		"couldNotApprove": "Could not approve",
+		"couldNotDeny": "Could not deny",
+		"caretakers": "Caretakers ({count}/{max})",
+		"closedTag": "· closed",
+		"host": "· host",
+		"you": "· you",
+		"hereNow": "here now",
+		"away": "away",
+		"justYou": "Just you so far. Share the code above to invite friends.",
+		"membersNote": "Up to {max} caretakers per preserve. Everyone listed has joined and can return any time from Continue or Load Game."
+	},
+	"joinApproval": {
+		"wantsToJoin": {
+			"one": "Someone wants to join",
+			"other": "{count} caretakers want to join"
+		},
+		"letIn": "Let in",
+		"no": "No",
+		"error": "Could not respond to that request"
+	},
+	"joinWaiting": {
+		"denied": "{host} didn’t let you into {world} this time. You can still play your own solo preserve, or head back.",
+		"backToMenu": "Back to menu",
+		"playSolo": "Play solo instead",
+		"waiting": "Waiting for the host…",
+		"ready": "Your character’s ready! {host} just needs to let you in to {world}. This page will open the world the moment they approve.",
+		"cancel": "Cancel",
+		"playSoloWait": "Play solo while you wait"
+	}
+}

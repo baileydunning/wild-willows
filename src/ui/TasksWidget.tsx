@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useGame } from '../state';
 import { isTypingTarget } from '../typing';
+import { useI18n } from '../i18n/react';
 import { Icon } from './icons';
 
 /**
@@ -13,6 +14,7 @@ const COLLAPSE_KEY = 'ww-tasks-collapsed';
 
 export function TasksWidget() {
 	const { data, state, claimTask } = useGame();
+	const { t, content } = useI18n();
 	const [collapsed, setCollapsed] = useState<boolean>(() => {
 		try { return localStorage.getItem(COLLAPSE_KEY) === '1'; } catch { return false; }
 	});
@@ -35,20 +37,23 @@ export function TasksWidget() {
 
 	if (!data || !state) return null;
 	const tasks = state.dailyTasks?.tasks || [];
-	const open = tasks.filter((t) => !t.claimed);
+	const open = tasks.filter((task) => !task.claimed);
 	if (!open.length) return null; // all claimed (or no board) — out of the way until tomorrow
 
-	const doneCount = tasks.filter((t) => t.progress >= t.target).length;
-	const claimable = open.some((t) => t.progress >= t.target);
-	const resName = (id: string) => data.resources.find((r) => r.id === id)?.name || id;
+	const doneCount = tasks.filter((task) => task.progress >= task.target).length;
+	const claimable = open.some((task) => task.progress >= task.target);
+	const resName = (id: string) => {
+		const r = data.resources.find((rr) => rr.id === id);
+		return r ? content('resource', r.id, 'name', r.name) : id;
+	};
 
 	if (collapsed) {
 		return (
 			<button
 				className={`tasks-widget tasks-pill ${claimable ? 'tasks-glow' : ''}`}
 				onClick={toggle}
-				title="Today's tasks (O)"
-				aria-label={`Today's tasks: ${doneCount} of ${tasks.length} done`}
+				title={t('panels.tasks.pillTitle')}
+				aria-label={t('panels.tasks.pillAria', { done: doneCount, total: tasks.length })}
 			>
 				<Icon name="check" size={14} /> {doneCount}/{tasks.length}
 			</button>
@@ -58,24 +63,24 @@ export function TasksWidget() {
 	return (
 		<div className="tasks-widget tasks-board">
 			<div className="tasks-head">
-				<span className="tasks-title"><Icon name="check" size={14} /> Today's tasks</span>
-				<button className="tasks-collapse" onClick={toggle} title="Tuck away (O)" aria-label="Collapse the task board">
+				<span className="tasks-title"><Icon name="check" size={14} /> {t('panels.tasks.title')}</span>
+				<button className="tasks-collapse" onClick={toggle} title={t('panels.tasks.collapseTitle')} aria-label={t('panels.tasks.collapseAria')}>
 					<Icon name="forward" size={13} />
 				</button>
 			</div>
-			{open.map((t) => {
-				const done = t.progress >= t.target;
-				const rewardTxt = Object.entries(t.reward).map(([id, q]) => `${q}× ${resName(id)}`).join(', ');
+			{open.map((task) => {
+				const done = task.progress >= task.target;
+				const rewardTxt = Object.entries(task.reward).map(([id, q]) => t('panels.tasks.rewardItem', { qty: q, name: resName(id) })).join(', ');
 				return (
-					<div key={t.id} className="tasks-row" title={`Reward: ${rewardTxt}`}>
-						<span className="tasks-row-icon"><Icon name={t.icon} size={14} /></span>
+					<div key={task.id} className="tasks-row" title={t('panels.tasks.rewardTitle', { reward: rewardTxt })}>
+						<span className="tasks-row-icon"><Icon name={task.icon} size={14} /></span>
 						<div className="tasks-row-main">
 							<span className="tasks-row-text">
-							{t.text}
-							{t.hint && (
-								<span className="tasks-hint" tabIndex={0} role="note" aria-label={t.hint}>
+							{task.text}
+							{task.hint && (
+								<span className="tasks-hint" tabIndex={0} role="note" aria-label={task.hint}>
 									<Icon name="help" size={12} />
-									<span className="tasks-hint-tip" role="tooltip">{t.hint}</span>
+									<span className="tasks-hint-tip" role="tooltip">{task.hint}</span>
 								</span>
 							)}
 						</span>
@@ -83,15 +88,15 @@ export function TasksWidget() {
 								<div className="meter-track">
 									<div
 										className="meter-fill"
-										style={{ width: `${Math.min(100, (t.progress / t.target) * 100)}%`, background: done ? 'var(--green-2, #6aa253)' : '#b89b5e' }}
+										style={{ width: `${Math.min(100, (task.progress / task.target) * 100)}%`, background: done ? 'var(--green-2, #6aa253)' : '#b89b5e' }}
 									/>
 								</div>
-								<span className="tasks-row-count">{t.progress}/{t.target}</span>
+								<span className="tasks-row-count">{task.progress}/{task.target}</span>
 							</div>
 						</div>
 						{done && (
-							<button className="tasks-claim" onClick={() => claimTask(t.id)} title={`Claim: ${rewardTxt}`}>
-								Claim
+							<button className="tasks-claim" onClick={() => claimTask(task.id)} title={t('panels.tasks.claimTitle', { reward: rewardTxt })}>
+								{t('panels.tasks.claim')}
 							</button>
 						)}
 					</div>

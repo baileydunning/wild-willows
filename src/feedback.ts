@@ -9,6 +9,7 @@
 // the feedback; only then is it deleted from the queue.
 
 import { COOP_BASE_URL, IS_DESKTOP, getTransport } from './api';
+import { t } from './i18n';
 import { APP_VERSION, BUILD_TIME, detectOS } from './platform';
 import type { GameState } from './types';
 
@@ -117,7 +118,7 @@ export async function sendFeedback(message: string, replyTo: string, state: Game
 	};
 	const result = await postFeedback(item);
 	if (result === 'sent') return { sent: true };
-	if (result === 'invalid') throw new Error('The server couldn’t accept that feedback — try again later');
+	if (result === 'invalid') throw new Error(t('app.error.feedbackRejected'));
 	writeQueue([...readQueue(), item]);
 	return { sent: false };
 }

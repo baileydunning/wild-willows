@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api, forgetSave, lastSave, IS_DESKTOP, listSoloSaves, deleteSoloSave, setTransport, type SaveMeta } from '../api';
 import { useGame } from '../state';
+import { useI18n } from '../i18n/react';
 import { COOP_ENABLED } from '../features';
 import type { Appearance } from '../types';
 import { CharacterPreview, Icon } from './icons';
@@ -54,6 +55,7 @@ function Scenery() {
 
 export function WelcomeScreen() {
 	const { data, dataError, startNew, startNewCoop, startLogin, continueLast, startNewSolo, loadSoloSlot, setHelpOpen } = useGame();
+	const { t } = useI18n();
 	const [mode, setMode] = useState<Mode>('menu');
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -99,7 +101,7 @@ export function WelcomeScreen() {
 		try {
 			await fn();
 		} catch (e: any) {
-			setError(e.message || 'Something went wrong');
+			setError(e.message || t('app.error.generic'));
 		} finally {
 			setBusy(false);
 		}
@@ -116,7 +118,7 @@ export function WelcomeScreen() {
 				forgetSave(coop ? 'coop' : 'solo');
 				setLastBump((n) => n + 1);
 				setMode('load');
-				throw new Error(`${e.message || 'Could not load that save'} — log in below instead.`);
+				throw new Error(t('app.welcome.continueFailed', { message: e.message || t('app.error.loadSave') }));
 			}
 		});
 
@@ -125,7 +127,7 @@ export function WelcomeScreen() {
 			<div className="welcome-sky" />
 			<Scenery />
 			<div className="welcome-card">
-				<h1 className="game-title">Wild Willows</h1>
+				<h1 className="game-title">{t('app.title')}</h1>
 
 				{dataError && <p className="form-error"><Icon name="help" size={16} /> {dataError}</p>}
 
@@ -133,65 +135,65 @@ export function WelcomeScreen() {
 					<div className="menu-buttons">
 						{COOP_ENABLED && (
 							<>
-								<div className="mode-toggle" role="group" aria-label="Play mode">
+								<div className="mode-toggle" role="group" aria-label={t('app.welcome.playMode')}>
 									<button
 										type="button"
 										className={`mode-toggle-btn ${!coop ? 'on' : ''}`}
 										onClick={() => setCoop(false)}
 									>
-										<Icon name="leaf" size={15} /> Solo
+										<Icon name="leaf" size={15} /> {t('app.welcome.solo')}
 									</button>
 									<button
 										type="button"
 										className={`mode-toggle-btn ${coop ? 'on' : ''}`}
 										onClick={() => setCoop(true)}
 									>
-										<Icon name="user" size={15} /> Co-op
+										<Icon name="user" size={15} /> {t('app.welcome.coop')}
 									</button>
 								</div>
 								<p className="muted small mode-hint">
 									{coop
-										? 'Restore a shared preserve with friends — host one for a join code, or join with a friend’s code.'
-										: 'Your own private preserve, just for you.'}
+										? t('app.welcome.coopHint')
+										: t('app.welcome.soloHint')}
 								</p>
 							</>
 						)}
 						{soloLocal && recentSlot && (
 							<button className="big-btn primary" disabled={busy || !data} onClick={() => run(() => loadSoloSlot(recentSlot.slotId))}>
-								<Icon name="play" /> <span>{busy ? 'Loading your save…' : `Continue as ${recentSlot.name}`}</span>
+								<Icon name="play" /> <span>{busy ? t('app.welcome.loadingSave') : t('app.welcome.continueAs', { name: recentSlot.name })}</span>
 							</button>
 						)}
 						{!soloLocal && last && (
 							<button className="big-btn primary" disabled={busy || !data} onClick={onContinue}>
-								<Icon name="play" /> <span>{busy ? 'Loading your save…' : `Continue as ${last.name}`}</span>
+								<Icon name="play" /> <span>{busy ? t('app.welcome.loadingSave') : t('app.welcome.continueAs', { name: last.name })}</span>
 							</button>
 						)}
 						{coop ? (
 							<>
 								<button className={`big-btn ${last ? '' : 'primary'}`} disabled={busy || !data} onClick={() => { setCoopKind('host'); setError(null); setMode('new'); }}>
-									<Icon name="plus" /> <span>Host a New Preserve</span>
+									<Icon name="plus" /> <span>{t('app.welcome.hostNew')}</span>
 								</button>
 								<button className="big-btn" disabled={busy || !data} onClick={() => { setCoopKind('join'); setError(null); setJoinCtx(null); setMode('join-code'); }}>
-									<Icon name="user" /> <span>Join with a Code</span>
+									<Icon name="user" /> <span>{t('app.welcome.joinWithCode')}</span>
 								</button>
 								<button className="big-btn" disabled={busy || !data} onClick={() => { setError(null); setMode('load'); }}>
-									<Icon name="folder" /> <span>Load a Co-op Save</span>
+									<Icon name="folder" /> <span>{t('app.welcome.loadCoopSave')}</span>
 								</button>
 							</>
 						) : (
 							<>
 								<button className={`big-btn ${(soloLocal ? recentSlot : last) ? '' : 'primary'}`} disabled={busy || !data} onClick={() => { setError(null); setMode('new'); }}>
-									<Icon name="plus" /> <span>New Game</span>
+									<Icon name="plus" /> <span>{t('app.welcome.newGame')}</span>
 								</button>
 								<button className="big-btn" disabled={busy || !data || (soloLocal && !(slots && slots.length))} onClick={() => { setError(null); refreshSlots(); setMode('load'); }}>
-									<Icon name="folder" /> <span>Load Game</span>
+									<Icon name="folder" /> <span>{t('app.welcome.loadGame')}</span>
 								</button>
 							</>
 						)}
 						<button className="big-btn subtle" onClick={() => setHelpOpen(true)}>
-							<Icon name="help" /> <span>How to Play</span>
+							<Icon name="help" /> <span>{t('app.welcome.howToPlay')}</span>
 						</button>
-						{!data && !dataError && <p className="muted small">Reaching the preserve…</p>}
+						{!data && !dataError && <p className="muted small">{t('app.welcome.reaching')}</p>}
 					</div>
 				)}
 
@@ -202,11 +204,11 @@ export function WelcomeScreen() {
 							e.preventDefault();
 							run(async () => {
 								const code = joinCode.trim();
-								if (name.trim().length < 2) throw new Error('Enter the name you’ll play as');
-								if (code.length < 4) throw new Error('Enter the join code your friend shared');
+								if (name.trim().length < 2) throw new Error(t('app.welcome.errName'));
+								if (code.length < 4) throw new Error(t('app.welcome.errCode'));
 								const chk = await api.checkWorldCode(code);
-								if (!chk.exists || !chk.world) throw new Error('No world found with that code — double-check it.');
-								if (chk.world.full) throw new Error('That world is full right now.');
+								if (!chk.exists || !chk.world) throw new Error(t('app.welcome.errNoWorld'));
+								if (chk.world.full) throw new Error(t('app.welcome.errWorldFull'));
 								const token = genToken();
 								await api.requestJoin(code, token, name.trim());
 								setJoinCtx({ code, token, worldId: chk.world.worldId, worldName: chk.world.name, hostName: chk.world.hostName });
@@ -215,23 +217,23 @@ export function WelcomeScreen() {
 						}}
 					>
 						<p className="muted small mode-hint">
-							Enter your caretaker name and the code your friend shared. We’ll let the host know you’d like to join while you build your character.
+							{t('app.welcome.joinHint')}
 						</p>
 						<label className="field">
 							<Icon name="user" size={17} />
-							<input placeholder="Your caretaker name" value={name} maxLength={24} onChange={(e) => setName(e.target.value)} autoFocus />
+							<input placeholder={t('app.welcome.yourNamePlaceholder')} value={name} maxLength={24} onChange={(e) => setName(e.target.value)} autoFocus />
 						</label>
 						<label className="field">
 							<Icon name="leaf" size={17} />
-							<input placeholder="Join code (e.g. K7P2QM)" value={joinCode} maxLength={6} style={{ textTransform: 'uppercase' }} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} />
+							<input placeholder={t('app.welcome.joinCodePlaceholder')} value={joinCode} maxLength={6} style={{ textTransform: 'uppercase' }} onChange={(e) => setJoinCode(e.target.value.toUpperCase())} />
 						</label>
 						{error && <p className="form-error">{error}</p>}
 						<div className="form-actions">
 							<button type="button" className="big-btn subtle" onClick={() => setMode('menu')}>
-								<Icon name="back" /> <span>Back</span>
+								<Icon name="back" /> <span>{t('app.common.back')}</span>
 							</button>
 							<button type="submit" className="big-btn primary" disabled={busy || name.trim().length < 2 || joinCode.trim().length < 4}>
-								<Icon name="user" /> <span>{busy ? 'Asking the host…' : 'Ask to join & build character'}</span>
+								<Icon name="user" /> <span>{busy ? t('app.welcome.askingHost') : t('app.welcome.askToJoin')}</span>
 							</button>
 						</div>
 					</form>
@@ -250,10 +252,10 @@ export function WelcomeScreen() {
 					>
 						{COOP_ENABLED && (
 							<div className="mode-banner">
-								<Icon name={coop ? 'user' : 'leaf'} size={15} /> {coop ? (coopKind === 'host' ? 'Host a Preserve' : `Joining ${joinCtx?.worldName || 'a Preserve'}`) : 'New Solo Game'}
+								<Icon name={coop ? 'user' : 'leaf'} size={15} /> {coop ? (coopKind === 'host' ? t('app.welcome.hostBanner') : t('app.welcome.joiningBanner', { name: joinCtx?.worldName || t('app.welcome.aPreserve') })) : t('app.welcome.newSoloBanner')}
 								{!(coop && coopKind === 'join') && (
 									<button type="button" className="link-btn small" onClick={() => setCoop((v) => !v)}>
-										switch to {coop ? 'Solo' : 'Co-op'}
+										{coop ? t('app.welcome.switchToSolo') : t('app.welcome.switchToCoop')}
 									</button>
 								)}
 							</div>
@@ -261,10 +263,10 @@ export function WelcomeScreen() {
 						{coop && (
 							<p className="muted small mode-hint">
 								{coopKind === 'host'
-									? "Start a shared preserve — you'll get a join code to invite friends."
+									? t('app.welcome.hostFormHint')
 									: joinCtx
-										? `Joining ${joinCtx.worldName} — ${joinCtx.hostName} is reviewing your request while you customize. You'll enter as soon as they approve.`
-										: "Enter a friend's code to restore their preserve together."}
+										? t('app.welcome.joinFormHint', { world: joinCtx.worldName, host: joinCtx.hostName })
+										: t('app.welcome.codeFormHint')}
 							</p>
 						)}
 						<div className="creator-cols">
@@ -275,7 +277,7 @@ export function WelcomeScreen() {
 								<label className="field">
 									<Icon name="user" size={17} />
 									<input
-										placeholder="Caretaker name"
+										placeholder={t('app.welcome.namePlaceholder')}
 										value={name}
 										onChange={(e) => setName(e.target.value)}
 										maxLength={24}
@@ -285,8 +287,8 @@ export function WelcomeScreen() {
 										type="button"
 										className="dice-btn"
 										onClick={(e) => { e.preventDefault(); setAppearance(randomizeAppearance(data?.appearanceOptions, appearance)); }}
-										title="Randomize appearance"
-										aria-label="Randomize appearance"
+										title={t('app.welcome.randomize')}
+										aria-label={t('app.welcome.randomize')}
 									>
 										<Icon name="dice" size={16} />
 									</button>
@@ -295,7 +297,7 @@ export function WelcomeScreen() {
 									<label className="field">
 										<Icon name="lock" size={17} />
 										<input
-											placeholder="Passcode (4+ characters)"
+											placeholder={t('app.welcome.passcodeNewPlaceholder')}
 											type="password"
 											value={passcode}
 											onChange={(e) => setPasscode(e.target.value)}
@@ -309,10 +311,10 @@ export function WelcomeScreen() {
 						{error && <p className="form-error">{error}</p>}
 						<div className="form-actions">
 							<button type="button" className="big-btn subtle" onClick={() => setMode('menu')}>
-								<Icon name="back" /> <span>Back</span>
+								<Icon name="back" /> <span>{t('app.common.back')}</span>
 							</button>
 							<button type="submit" className="big-btn primary" disabled={busy || name.trim().length < 2 || (!soloLocal && passcode.length < 4)}>
-								<Icon name="sparkle" /> <span>{busy ? 'Settling in…' : !coop ? 'Begin restoring' : coopKind === 'join' ? 'Create & join' : 'Start co-op'}</span>
+								<Icon name="sparkle" /> <span>{busy ? t('app.welcome.settlingIn') : !coop ? t('app.welcome.beginRestoring') : coopKind === 'join' ? t('app.welcome.createAndJoin') : t('app.welcome.startCoop')}</span>
 							</button>
 						</div>
 					</form>
@@ -320,10 +322,10 @@ export function WelcomeScreen() {
 
 				{mode === 'load' && soloLocal && (
 					<div className="creator">
-						<p className="muted small mode-hint">Pick up where you left off — your saves live on this computer.</p>
+						<p className="muted small mode-hint">{t('app.welcome.loadHint')}</p>
 						<div className="save-slots">
 							{(slots || []).length === 0 && (
-								<p className="muted small">No saved games yet. Start a New Game to begin your preserve.</p>
+								<p className="muted small">{t('app.welcome.noSaves')}</p>
 							)}
 							{(slots || []).map((s) => (
 								<div key={s.slotId} className="save-slot">
@@ -346,10 +348,10 @@ export function WelcomeScreen() {
 									<button
 										type="button"
 										className="save-slot-del"
-										title={`Delete ${s.name}`}
+										title={t('app.welcome.deleteSave', { name: s.name })}
 										disabled={busy}
 										onClick={async () => {
-											if (!window.confirm(`Delete "${s.name}"? This can't be undone.`)) return;
+											if (!window.confirm(t('app.confirm.deleteSlot', { name: s.name }))) return;
 											await deleteSoloSave(s.slotId);
 											refreshSlots();
 										}}
@@ -362,7 +364,7 @@ export function WelcomeScreen() {
 						{error && <p className="form-error">{error}</p>}
 						<div className="form-actions">
 							<button type="button" className="big-btn subtle" onClick={() => setMode('menu')}>
-								<Icon name="back" /> <span>Back</span>
+								<Icon name="back" /> <span>{t('app.common.back')}</span>
 							</button>
 						</div>
 					</div>
@@ -378,19 +380,19 @@ export function WelcomeScreen() {
 					>
 						<label className="field">
 							<Icon name="user" size={17} />
-							<input placeholder="Caretaker name" value={name} onChange={(e) => setName(e.target.value)} autoFocus />
+							<input placeholder={t('app.welcome.namePlaceholder')} value={name} onChange={(e) => setName(e.target.value)} autoFocus />
 						</label>
 						<label className="field">
 							<Icon name="lock" size={17} />
-							<input placeholder="Passcode" type="password" value={passcode} onChange={(e) => setPasscode(e.target.value)} />
+							<input placeholder={t('app.welcome.passcodePlaceholder')} type="password" value={passcode} onChange={(e) => setPasscode(e.target.value)} />
 						</label>
 						{error && <p className="form-error">{error}</p>}
 						<div className="form-actions">
 							<button type="button" className="big-btn subtle" onClick={() => setMode('menu')}>
-								<Icon name="back" /> <span>Back</span>
+								<Icon name="back" /> <span>{t('app.common.back')}</span>
 							</button>
 							<button type="submit" className="big-btn primary" disabled={busy || !name.trim() || !passcode}>
-								<Icon name="play" /> <span>{busy ? 'Walking the trail…' : 'Load Game'}</span>
+								<Icon name="play" /> <span>{busy ? t('app.welcome.walkingTrail') : t('app.welcome.loadGame')}</span>
 							</button>
 						</div>
 					</form>

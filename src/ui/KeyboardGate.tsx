@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from 'react';
+import { useI18n } from '../i18n/react';
 
 /**
  * Wild Willows is a keyboard game (WASD / arrows to roam, letter keys for
@@ -14,6 +15,7 @@ function hasFinePointer(): boolean {
 }
 
 export function KeyboardGate({ children }: { children: ReactNode }) {
+	const { t } = useI18n();
 	const [finePointer, setFinePointer] = useState(hasFinePointer);
 	const [keyboardSeen, setKeyboardSeen] = useState(false);
 
@@ -39,7 +41,7 @@ export function KeyboardGate({ children }: { children: ReactNode }) {
 	return (
 		<div className="kb-gate">
 			<div className="kb-gate-card">
-				<h1>Wild Willows needs a keyboard</h1>
+				<h1>{t('app.kbGate.title')}</h1>
 				<div className="kb-gate-keys" aria-hidden="true">
 					<kbd>W</kbd>
 					<kbd>A</kbd>
@@ -47,12 +49,10 @@ export function KeyboardGate({ children }: { children: ReactNode }) {
 					<kbd>D</kbd>
 				</div>
 				<p>
-					You roam the preserve with <b>WASD</b> or the <b>arrow keys</b>, and reach for
-					your basket, tools, and journal with shortcut keys — so it doesn&rsquo;t work on a
-					phone or tablet on its own.
+					{t('app.kbGate.body1')}<b>{t('app.kbGate.wasd')}</b>{t('app.kbGate.body2')}<b>{t('app.kbGate.arrowKeys')}</b>{t('app.kbGate.body3')}
 				</p>
 				<p className="kb-gate-hint">
-					Open Wild Willows on a computer, or connect a keyboard and press any key to begin.
+					{t('app.kbGate.hint')}
 				</p>
 			</div>
 		</div>

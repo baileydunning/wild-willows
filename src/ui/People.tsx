@@ -3,6 +3,7 @@ import { api } from '../api';
 import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import type { Peer, RosterEntry } from '../types';
+import { useI18n } from '../i18n/react';
 import { Icon } from './icons';
 
 /**
@@ -13,6 +14,7 @@ import { Icon } from './icons';
  */
 export function PeoplePanel() {
 	const { worlds, activeWorldId, state, setPanel, refreshWorlds, notify, pendingRequests, approveJoin, denyJoin } = useGame();
+	const { t } = useI18n();
 	const [copied, setCopied] = useState(false);
 	const [busyToken, setBusyToken] = useState<string | null>(null);
 	const [roster, setRoster] = useState<RosterEntry[]>([]);
@@ -50,34 +52,33 @@ export function PeoplePanel() {
 	const copy = async () => {
 		if (!world?.joinCode) return;
 		try { await navigator.clipboard.writeText(world.joinCode); setCopied(true); window.setTimeout(() => setCopied(false), 1500); }
-		catch { notify(`Your code is ${world.joinCode}`, 'info'); }
+		catch { notify(t('panels.people.codeIs', { code: world.joinCode }), 'info'); }
 	};
 
 	return (
 		<div className="panel-backdrop" onClick={() => setPanel(null)}>
 			<div className="panel" onClick={(e) => e.stopPropagation()}>
 				<div className="panel-head">
-					<h2><Icon name="user" size={20} /> {isCoop ? 'Caretakers' : 'People'}</h2>
-					<button className="icon-btn" onClick={() => setPanel(null)} aria-label="Close"><Icon name="close" /></button>
+					<h2><Icon name="user" size={20} /> {isCoop ? t('panels.people.titleCoop') : t('panels.people.title')}</h2>
+					<button className="icon-btn" onClick={() => setPanel(null)} aria-label={t('panels.common.close')}><Icon name="close" /></button>
 				</div>
 				<div className="panel-body">
 					{!isCoop ? (
 						<p className="muted">
-							This is a <b>solo</b> preserve — just you. To restore a preserve together with friends,
-							start a <b>New Game</b> and choose <b>Co-op</b>: you'll get a join code to share.
+							{t('panels.people.soloInfo')}
 						</p>
 					) : (
 						<>
 							<div className="recipe">
 								<div className="grow">
-									<b>Invite friends to {world!.name}</b>
+									<b>{t('panels.people.invite', { world: world!.name })}</b>
 									{closed ? (
 										<div className="muted small">
-											This preserve is <b>full ({roster.length}/{maxMembers})</b> and closed to new players. Everyone who has joined can always come back.
+											{t('panels.people.closedInfo', { count: roster.length, max: maxMembers })}
 										</div>
 									) : (
 										<div className="muted small">
-											Share this code ({roster.length}/{maxMembers} caretakers so far). Friends open <b>New Game → Co-op → Join a friend's world</b> and enter it.
+											{t('panels.people.shareInfo', { count: roster.length, max: maxMembers })}
 										</div>
 									)}
 									<div className="join-code-big" style={{ marginTop: 6, letterSpacing: 2, fontWeight: 700, fontSize: 22 }}>
@@ -85,36 +86,36 @@ export function PeoplePanel() {
 									</div>
 								</div>
 								<button className="primary" onClick={copy} disabled={!world!.joinCode}>
-									<Icon name="plus" size={14} /> {copied ? 'Copied ✓' : 'Copy code'}
+									<Icon name="plus" size={14} /> {copied ? t('panels.people.copied') : t('panels.people.copyCode')}
 								</button>
 							</div>
 
 							{world!.isOwner && pendingRequests.length > 0 && (
 								<>
-									<h3>Wants to join ({pendingRequests.length})</h3>
+									<h3>{t('panels.people.wantsToJoin', { count: pendingRequests.length })}</h3>
 									<div className="world-list">
 										{pendingRequests.map((rq) => (
 											<div className="recipe world-row" key={rq.token}>
-												<div className="grow"><b>{rq.name}</b> <span className="muted small">· is asking to join</span></div>
+												<div className="grow"><b>{rq.name}</b> <span className="muted small">{t('panels.people.asking')}</span></div>
 												<button className="primary" disabled={busyToken === rq.token} onClick={async () => {
 													setBusyToken(rq.token);
-													try { await approveJoin(rq.token); notify(`${rq.name} can now join`, 'unlock'); }
-													catch (e: any) { notify(e?.message || 'Could not approve', 'error'); }
+													try { await approveJoin(rq.token); notify(t('panels.people.canNowJoin', { name: rq.name }), 'unlock'); }
+													catch (e: any) { notify(e?.message || t('panels.people.couldNotApprove'), 'error'); }
 													finally { setBusyToken(null); }
-												}}>Approve</button>
+												}}>{t('panels.people.approve')}</button>
 												<button className="subtle" disabled={busyToken === rq.token} onClick={async () => {
 													setBusyToken(rq.token);
 													try { await denyJoin(rq.token); }
-													catch (e: any) { notify(e?.message || 'Could not deny', 'error'); }
+													catch (e: any) { notify(e?.message || t('panels.people.couldNotDeny'), 'error'); }
 													finally { setBusyToken(null); }
-												}}>Deny</button>
+												}}>{t('panels.people.deny')}</button>
 											</div>
 										))}
 									</div>
 								</>
 							)}
 
-							<h3>Caretakers ({roster.length}/{maxMembers}){closed ? ' · closed' : ''}</h3>
+							<h3>{t('panels.people.caretakers', { count: roster.length, max: maxMembers })}{closed ? ` ${t('panels.people.closedTag')}` : ''}</h3>
 							<div className="world-list">
 								{roster.map((m) => {
 									const online = onlineIds.has(m.playerId);
@@ -123,17 +124,17 @@ export function PeoplePanel() {
 										<div className={`recipe world-row ${online ? 'world-active' : ''}`} key={m.playerId}>
 											<div className="grow">
 												<b>{m.name}</b>
-												{m.isOwner && <span className="muted small"> · host</span>}
-												{isMe && <span className="muted small"> · you</span>}
+												{m.isOwner && <span className="muted small"> {t('panels.people.host')}</span>}
+												{isMe && <span className="muted small"> {t('panels.people.you')}</span>}
 											</div>
-											<span className={`muted small presence-dot ${online ? 'on' : 'off'}`}>{online ? 'here now' : 'away'}</span>
+											<span className={`muted small presence-dot ${online ? 'on' : 'off'}`}>{online ? t('panels.people.hereNow') : t('panels.people.away')}</span>
 										</div>
 									);
 								})}
-								{roster.length === 0 && <p className="muted small">Just you so far. Share the code above to invite friends.</p>}
+								{roster.length === 0 && <p className="muted small">{t('panels.people.justYou')}</p>}
 							</div>
 							<p className="muted small">
-								Up to {maxMembers} caretakers per preserve. Everyone listed has joined and can return any time from <b>Continue</b> or <b>Load Game</b>.
+								{t('panels.people.membersNote', { max: maxMembers })}
 							</p>
 						</>
 					)}

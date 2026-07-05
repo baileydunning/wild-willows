@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { bridge } from '../game/bridge';
+import { useI18n } from '../i18n/react';
 import { Icon } from './icons';
 
 export function isTouchDevice() {
@@ -8,6 +9,7 @@ export function isTouchDevice() {
 
 /** Virtual joystick + interact button for phones and tablets. */
 export function MobileControls() {
+	const { t } = useI18n();
 	const [active, setActive] = useState(false);
 	const baseRef = useRef<HTMLDivElement>(null);
 	const [knob, setKnob] = useState({ x: 0, y: 0 });
@@ -69,7 +71,7 @@ export function MobileControls() {
 			</div>
 			<button
 				className="interact-btn"
-				aria-label="Interact"
+				aria-label={t('app.mobile.interact')}
 				onPointerDown={(e) => {
 					e.preventDefault();
 					bridge.emit('mobile-interact');

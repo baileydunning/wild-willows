@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useGame } from '../state';
+import { useI18n } from '../i18n/react';
 import { Icon } from './icons';
 
 /**
@@ -9,6 +10,7 @@ import { Icon } from './icons';
  */
 export function JoinWaitingScreen() {
 	const { pendingJoin, checkJoinApproval, playSoloInstead, logout } = useGame();
+	const { t } = useI18n();
 	const [status, setStatus] = useState<'pending' | 'denied' | 'none'>('pending');
 
 	useEffect(() => {
@@ -37,25 +39,23 @@ export function JoinWaitingScreen() {
 					<>
 						<div className="tutorial-icon" style={{ margin: '0 auto 10px' }}><Icon name="close" size={22} /></div>
 						<p className="muted">
-							{pendingJoin.hostName} didn’t let you into <b>{pendingJoin.worldName}</b> this time.
-							You can still play your own solo preserve, or head back.
+							{t('panels.joinWaiting.denied', { host: pendingJoin.hostName, world: pendingJoin.worldName })}
 						</p>
 						<div className="form-actions">
-							<button className="big-btn subtle" onClick={logout}><Icon name="back" /> <span>Back to menu</span></button>
-							<button className="big-btn primary" onClick={playSoloInstead}><Icon name="leaf" /> <span>Play solo instead</span></button>
+							<button className="big-btn subtle" onClick={logout}><Icon name="back" /> <span>{t('panels.joinWaiting.backToMenu')}</span></button>
+							<button className="big-btn primary" onClick={playSoloInstead}><Icon name="leaf" /> <span>{t('panels.joinWaiting.playSolo')}</span></button>
 						</div>
 					</>
 				) : (
 					<>
 						<div className="tutorial-icon spin-slow" style={{ margin: '0 auto 10px' }}><Icon name="leaf" size={22} /></div>
-						<h2 style={{ margin: '0 0 4px' }}>Waiting for the host…</h2>
+						<h2 style={{ margin: '0 0 4px' }}>{t('panels.joinWaiting.waiting')}</h2>
 						<p className="muted">
-							Your character’s ready! <b>{pendingJoin.hostName}</b> just needs to let you in to <b>{pendingJoin.worldName}</b>.
-							This page will open the world the moment they approve.
+							{t('panels.joinWaiting.ready', { host: pendingJoin.hostName, world: pendingJoin.worldName })}
 						</p>
 						<div className="form-actions">
-							<button className="big-btn subtle" onClick={logout}><Icon name="close" size={14} /> <span>Cancel</span></button>
-							<button className="big-btn" onClick={playSoloInstead}><Icon name="leaf" /> <span>Play solo while you wait</span></button>
+							<button className="big-btn subtle" onClick={logout}><Icon name="close" size={14} /> <span>{t('panels.joinWaiting.cancel')}</span></button>
+							<button className="big-btn" onClick={playSoloInstead}><Icon name="leaf" /> <span>{t('panels.joinWaiting.playSoloWait')}</span></button>
 						</div>
 					</>
 				)}

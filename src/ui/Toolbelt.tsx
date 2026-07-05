@@ -1,11 +1,13 @@
 import { useEffect, useRef, useState } from 'react';
 import { useGame } from '../state';
+import { useI18n } from '../i18n/react';
 import { Icon } from './icons';
 
+// `how` is a catalog key (app.toolbelt.how.*), resolved with t() at render time.
 export const TOOL_META: Array<{ id: string; icon: string; key: string; how: string }> = [
-	{ id: 'basket', icon: 'basket', key: '1', how: 'Your gathering tool — walk to any gathering spot and interact to collect it into your basket.' },
-	{ id: 'shovel', icon: 'spade', key: '2', how: 'Terraform — dig soil beds in nearby ground; dig a shaped tile again to clear or drain it.' },
-	{ id: 'watering-can', icon: 'can', key: '3', how: 'Terraform — water a soil bed to make it plantable; water it again to flood it into open water. Chain water tiles into ponds, rivers, and lakes.' },
+	{ id: 'basket', icon: 'basket', key: '1', how: 'app.toolbelt.how.basket' },
+	{ id: 'shovel', icon: 'spade', key: '2', how: 'app.toolbelt.how.shovel' },
+	{ id: 'watering-can', icon: 'can', key: '3', how: 'app.toolbelt.how.watering-can' },
 ];
 
 const PAINT_PALETTE = [
@@ -16,6 +18,7 @@ const PAINT_PALETTE = [
 
 export function Toolbelt() {
 	const { data, state, selectedTool, setSelectedTool, notify, paintColor, setPaintColor } = useGame();
+	const { t, content } = useI18n();
 	if (!data || !state) return null;
 	// the paint tool only exists indoors, and only once the home is built into a house
 	const canPaint = state.player.area === 'home' && !!state.player.home?.styleLocked;
@@ -30,7 +33,7 @@ export function Toolbelt() {
 							className={`paint-swatch ${paintColor === c ? 'on' : ''}`}
 							style={{ background: c }}
 							title={c}
-							aria-label={`Paint color ${c}`}
+							aria-label={t('app.toolbelt.paintColorAria', { color: c })}
 							onClick={() => setPaintColor(c)}
 						/>
 					))}
@@ -38,19 +41,21 @@ export function Toolbelt() {
 			)}
 			<div className="toolbelt">
 			{TOOL_META.map((meta) => {
-				const def = data.tools.find((t) => t.id === meta.id);
+				const def = data.tools.find((tool) => tool.id === meta.id);
 				const tier = state.player.tools?.[meta.id] || 1;
-				const tierDef = def?.tiers.find((t) => t.tier === tier);
+				const tierDef = def?.tiers.find((td) => td.tier === tier);
 				const selected = selectedTool === meta.id;
+				const toolName = content('tool', meta.id, 'name', tierDef?.name || def?.name || meta.id);
+				const how = t(meta.how);
 				return (
 					<button
 						key={meta.id}
 						className={`tool-slot ${selected ? 'on' : ''}`}
-						title={`${tierDef?.name || def?.name} (${meta.key}): ${meta.how}`}
-						aria-label={tierDef?.name || def?.name}
+						title={t('app.toolbelt.titleFormat', { name: toolName, key: meta.key, how })}
+						aria-label={toolName}
 						onClick={() => {
 							setSelectedTool(meta.id);
-							notify(`${tierDef?.name || def?.name}: ${meta.how}`);
+							notify(t('app.toolbelt.selected', { name: toolName, how }));
 						}}
 					>
 						<Icon name={meta.icon} size={22} />
@@ -62,9 +67,9 @@ export function Toolbelt() {
 			{canPaint && (
 				<button
 					className={`tool-slot ${selectedTool === 'paint' ? 'on' : ''}`}
-					title="Paint (4) — recolor the floor, walls, rug, or any item: select, then click it"
-					aria-label="Paint"
-					onClick={() => { setSelectedTool('paint'); notify('Paint: pick a color, then click the floor, walls, rug, or an item to recolor it.'); }}
+					title={t('app.toolbelt.paintTitle')}
+					aria-label={t('app.toolbelt.paint')}
+					onClick={() => { setSelectedTool('paint'); notify(t('app.toolbelt.paintHow')); }}
 				>
 					<Icon name="paint" size={22} />
 					<span className="tool-key">4</span>
@@ -87,17 +92,18 @@ function feedTime(at: number): string {
 /** The full activity feed as a panel (F) — scroll back through the last 100 notable moments. */
 export function FeedPanel() {
 	const { feedLog, setPanel } = useGame();
+	const { t } = useI18n();
 	const entries = [...feedLog].reverse(); // notable beats only, newest first
 	return (
 		<div className="panel-backdrop" onClick={() => setPanel(null)}>
 			<div className="panel" onClick={(e) => e.stopPropagation()}>
 				<div className="panel-head">
-					<h2><Icon name="chat" size={20} /> Activity Feed</h2>
-					<button className="icon-btn" onClick={() => setPanel(null)} aria-label="Close"><Icon name="close" /></button>
+					<h2><Icon name="chat" size={20} /> {t('app.feedPanel.title')}</h2>
+					<button className="icon-btn" onClick={() => setPanel(null)} aria-label={t('app.common.close')}><Icon name="close" /></button>
 				</div>
 				<div className="panel-body">
 					{entries.length === 0 ? (
-						<p className="muted small">No notable moments yet. Gather, build, and welcome wildlife home — the highlights will collect here.</p>
+						<p className="muted small">{t('app.feedPanel.empty')}</p>
 					) : (
 						<div className="feed-list">
 							{entries.map((entry) => (
@@ -119,6 +125,7 @@ const LOG_PREF_KEY = 'wild-willows:log-open';
 
 export function ActivityLog() {
 	const { log, panel } = useGame();
+	const { t } = useI18n();
 	const [open, setOpen] = useState(() => {
 		try {
 			return localStorage.getItem(LOG_PREF_KEY) !== '0';
@@ -174,8 +181,8 @@ export function ActivityLog() {
 			<button
 				className="log-toggle"
 				onClick={toggle}
-				title={open ? 'Hide activity feed' : 'Show activity feed'}
-				aria-label={open ? 'Hide activity feed' : 'Show activity feed'}
+				title={open ? t('app.activityLog.hide') : t('app.activityLog.show')}
+				aria-label={open ? t('app.activityLog.hide') : t('app.activityLog.show')}
 			>
 				<Icon name="chat" size={15} />
 				<Icon name={open ? 'close' : 'back'} size={11} className={open ? '' : 'flip'} />
