@@ -104,6 +104,26 @@ input {
 	50% { opacity: 0.95; transform: translate(8px, -12px); }
 }
 
+.welcome-lang {
+	position: absolute; top: 14px; right: 16px; z-index: 3;
+	display: flex; align-items: center; gap: 6px;
+}
+.welcome-lang select {
+	font-family: var(--font-body); font-weight: 600; font-size: 13px;
+	color: var(--ink);
+	background: var(--paper);
+	border: none;
+	border-radius: 10px;
+	padding: 5px 9px;
+	cursor: pointer;
+	box-shadow: var(--shadow);
+}
+.welcome-lang select:focus { outline: none; }
+
+/* Language dropdown (Settings): borderless, no focus outline, per design. */
+.lang-filter select { border: none; }
+.lang-filter select:focus { outline: none; }
+
 .welcome-card {
 	position: relative; z-index: 2;
 	width: 560px; max-width: 94vw; max-height: 92vh; overflow-y: auto;

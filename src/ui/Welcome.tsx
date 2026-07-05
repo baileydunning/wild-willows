@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { api, forgetSave, lastSave, IS_DESKTOP, listSoloSaves, deleteSoloSave, setTransport, type SaveMeta } from '../api';
 import { useGame } from '../state';
+import { LOCALE_NAMES, chooseLocale } from '../i18n';
 import { useI18n } from '../i18n/react';
 import { COOP_ENABLED } from '../features';
 import type { Appearance } from '../types';
@@ -55,7 +56,7 @@ function Scenery() {
 
 export function WelcomeScreen() {
 	const { data, dataError, startNew, startNewCoop, startLogin, continueLast, startNewSolo, loadSoloSlot, setHelpOpen } = useGame();
-	const { t } = useI18n();
+	const { t, locale } = useI18n();
 	const [mode, setMode] = useState<Mode>('menu');
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -126,6 +127,13 @@ export function WelcomeScreen() {
 		<div className="welcome">
 			<div className="welcome-sky" />
 			<Scenery />
+			<div className="welcome-lang">
+				<select aria-label={t('app.settings.language')} value={locale} onChange={(e) => void chooseLocale(e.target.value)}>
+					{Object.entries(LOCALE_NAMES).map(([code, name]) => (
+						<option key={code} value={code}>{name}</option>
+					))}
+				</select>
+			</div>
 			<div className="welcome-card">
 				<h1 className="game-title">{t('app.title')}</h1>
 

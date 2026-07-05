@@ -257,9 +257,9 @@ export function SettingsPanel() {
 					</div>
 
 					<h3><Icon name="chat" size={15} /> {t('app.settings.language')}</h3>
-					<div className="craft-filter">
+					<div className="craft-filter lang-filter">
 						<label htmlFor="settings-language">{t('app.settings.language')}:</label>
-						<select id="settings-language" value={locale} onChange={(e) => chooseLocale(e.target.value)}>
+						<select id="settings-language" value={locale} onChange={(e) => void chooseLocale(e.target.value)}>
 							{Object.entries(LOCALE_NAMES).map(([code, name]) => (
 								<option key={code} value={code}>{name}</option>
 							))}

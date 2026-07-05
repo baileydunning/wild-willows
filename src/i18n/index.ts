@@ -26,25 +26,56 @@ registerCatalog('en', {
 /** Languages offered in Settings, in display order. */
 export const LOCALE_NAMES: Record<string, string> = {
 	en: 'English',
+	es: 'Español',
 };
+
+// Non-English catalogs load on demand (dynamic imports → their own Vite chunks),
+// so players who stay in English never download them. Each loader registers
+// every catalog for its locale, including the data-content overlay.
+const LOCALE_LOADERS: Record<string, () => Promise<void>> = {
+	es: async () => {
+		const [app, panels, narrative, server, game, content] = await Promise.all([
+			import('./es/app.json'),
+			import('./es/panels.json'),
+			import('./es/narrative.json'),
+			import('./es/server.json'),
+			import('./es/game.json'),
+			import('./es/content.json'),
+		]);
+		registerCatalog('es', {
+			app: app.default,
+			panels: panels.default,
+			narrative: narrative.default,
+			server: server.default,
+			game: game.default,
+		});
+		registerCatalog('es', content.default); // already wrapped in { content: … }
+	},
+};
+const loadedLocales = new Set(['en']);
 
 const STORAGE_KEY = 'ww:locale';
 
-/** Persist + apply a language choice. */
-export function chooseLocale(locale: string): void {
+/** Persist + apply a language choice (loading its catalogs if needed). */
+export async function chooseLocale(locale: string): Promise<void> {
 	if (!(locale in LOCALE_NAMES)) return;
 	try {
 		localStorage.setItem(STORAGE_KEY, locale);
 	} catch {
 		/* storage unavailable (private mode etc.) — still applies for the session */
 	}
+	if (!loadedLocales.has(locale)) {
+		await LOCALE_LOADERS[locale]?.();
+		loadedLocales.add(locale);
+	}
 	setLocale(locale);
 }
 
-// Restore the saved language at import time, before anything renders.
+// Restore the saved language at import time. Catalog loading is async; the UI
+// renders English for a beat, then every subscribed component re-renders.
 try {
 	const saved = localStorage.getItem(STORAGE_KEY);
-	if (saved && saved in LOCALE_NAMES && saved !== getLocale()) setLocale(saved);
+	if (saved && saved in LOCALE_NAMES && saved !== getLocale()) void chooseLocale(saved);
 } catch {
 	/* storage unavailable */
 }
