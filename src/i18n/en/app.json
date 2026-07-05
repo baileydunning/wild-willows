@@ -1,5 +1,8 @@
 {
 	"_readme": "App shell strings: title screen, HUD, toolbelt, settings, toasts (App.tsx, state.tsx, Welcome, HUD, Toolbelt, Settings, feedback). Keys are referenced as app.<key>.",
+	"langModal": {
+		"title": "Choose your language"
+	},
 	"title": "Wild Willows",
 	"common": {
 		"close": "Close",
@@ -126,6 +129,7 @@
 		"newGame": "New Game",
 		"loadGame": "Load Game",
 		"howToPlay": "How to Play",
+		"language": "Language",
 		"reaching": "Reaching the preserve…",
 		"errName": "Enter the name you’ll play as",
 		"errCode": "Enter the join code your friend shared",

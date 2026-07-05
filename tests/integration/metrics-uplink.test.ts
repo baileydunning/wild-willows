@@ -71,4 +71,32 @@ describe('SyncMetrics', () => {
 		expect(out.summary.funnel.collected).toBe(1); // from the solo snapshot's activation
 		expect(out.summary.audience.activeLast24h).toBeGreaterThanOrEqual(1);
 	});
+
+	it('tracks interface language from the heartbeat and the solo uplink', async () => {
+		// hosted player reports language on the heartbeat (normalized to lowercase)
+		const a = await w.post('CreatePlayer', { name: 'Lang Lucy', passcode: '1234', appearance });
+		await w.post('Heartbeat', { playerId: a.playerId, language: 'ES' });
+		const one = await w.get('Metrics', a.playerId);
+		expect(one.player.language).toBe('es');
+
+		// solo uplink carries it too
+		await w.post('SyncMetrics', {
+			clientId: 'slot-lang', name: 'Solo Sam', language: 'en',
+			snapshot: snapshot({ name: 'Solo Sam', lastSeenAt: Date.now() }),
+		});
+
+		const out = await w.get('Metrics');
+		const solo = out.players.find((p: any) => p.solo);
+		expect(solo.language).toBe('en');
+		// audience breakdown counts hosted + solo together
+		expect(out.summary.languages).toEqual({ es: 1, en: 1 });
+	});
+
+	it('keeps the last reported language when a heartbeat omits it', async () => {
+		const a = await w.post('CreatePlayer', { name: 'Quiet Quinn', passcode: '1234', appearance });
+		await w.post('Heartbeat', { playerId: a.playerId, language: 'es' });
+		await w.post('Heartbeat', { playerId: a.playerId }); // e.g. an older client
+		const one = await w.get('Metrics', a.playerId);
+		expect(one.player.language).toBe('es');
+	});
 });

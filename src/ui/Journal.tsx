@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useGame } from '../state';
-import type { AnimalDef, Discovery } from '../types';
+import type { AnimalDef, Discovery, GameData } from '../types';
 import { animalSpriteDataUri } from '../game/textures';
 import { t, content } from '../i18n';
 import { useI18n } from '../i18n/react';
@@ -165,7 +165,7 @@ function FoodWebLinks({ animal }: { animal: AnimalDef }) {
 					<span className="foodweb-label"><Icon name="leaf" size={12} /> {t('panels.journal.eats')}</span>
 					<span className="foodweb-chips">
 						{eats.map(chip)}
-						{forage.map((f) => <span key={f} className="web-chip web-chip-forage">{f}</span>)}
+						{forage.map((f) => <span key={f} className="web-chip web-chip-forage">{content('forage', f, 'name', f)}</span>)}
 					</span>
 				</div>
 			)}
@@ -486,6 +486,51 @@ function neighborsNote(animal: AnimalDef, animals: AnimalDef[], returned: Set<st
 	return null;
 }
 
+/**
+ * "Why it returned" — recomputed at render time in the CURRENT language. The
+ * copy persisted on the Discovery row is frozen in whatever language was
+ * active when the animal came back (old saves: English), so we don't display
+ * it. Mirrors the server's whyReturnedText (server/resources.ts) — it's a pure
+ * function of the animal's static requirements — but resolves object/animal
+ * names through the content overlay and weather/season/day-phase ids through
+ * their localized labels.
+ */
+function whyReturnedLine(animal: AnimalDef, data: GameData): string {
+	const req = (animal.requirements || {}) as any;
+	const parts: string[] = [];
+	const objName = (id: string) => {
+		const def = data.habitatObjects.find((o) => o.id === id);
+		return def ? content('habitatObject', def.id, 'name', def.name) : id;
+	};
+	const animalName = (id: string) => {
+		const a = data.animals.find((aa) => aa.id === id);
+		return a ? content('animal', a.id, 'name', a.name) : id;
+	};
+	const objs = Object.entries(req.objects || {}).map(([id, q]) =>
+		t('server.whyReturned.objectQty', { qty: q as number, name: objName(id) }));
+	if (objs.length) parts.push(t('server.whyReturned.habitat', { objects: objs.join(t('server.list.comma')) }));
+	if (req.water) {
+		const w = req.water;
+		if (w.lake) parts.push(t('server.whyReturned.lake', { tiles: w.lake }));
+		else if (w.river) parts.push(t('server.whyReturned.river', { tiles: w.river }));
+		else if (w.tiles) parts.push(t('server.whyReturned.tiles', { tiles: w.tiles }));
+	}
+	if (req.minHealth) parts.push(t('server.whyReturned.health', { health: req.minHealth }));
+	if (req.minBalance) parts.push(t('server.whyReturned.balance', { balance: req.minBalance }));
+	if (req.animals?.length) {
+		parts.push(t('server.whyReturned.animals', { animals: req.animals.map(animalName).join(t('server.list.and')) }));
+	}
+	const cond = req.conditions;
+	if (cond) {
+		const bits: string[] = [];
+		if (cond.weather?.length) bits.push(cond.weather.map((w: string) => content('weather', w, 'name', w)).join(t('server.list.or')));
+		if (cond.season?.length) bits.push(t('server.whyReturned.inSeason', { seasons: cond.season.map((s: string) => content('weather', `season.${s}`, 'label', s)).join(t('server.list.or')) }));
+		if (cond.dayPhase?.length) bits.push(t('server.whyReturned.atPhase', { phases: cond.dayPhase.map((p: string) => content('weather', `dayPhase.${p}`, 'label', p)).join(t('server.list.or')) }));
+		if (bits.length) parts.push(t('server.whyReturned.moment', { conditions: bits.join(t('server.list.comma')) }));
+	}
+	return t('server.whyReturned.sentence', { reasons: parts.join(t('server.list.comma')) });
+}
+
 export function AnimalCard() {
 	const { data, state, animalCardId, setAnimalCardId, setPanel } = useGame();
 	const { t, content } = useI18n();
@@ -578,7 +623,7 @@ export function AnimalCard() {
 								<h3><Icon name="leaf" size={14} /> {t('panels.journal.habitatTitle')}</h3>
 								<p className="card-fact"><b>{t('panels.journal.shelterLabel')}</b> {content('animal', animal.id, 'shelter', animal.shelter)}</p>
 								<p className="card-fact"><b>{t('panels.journal.preferredLabel')}</b> {content('animal', animal.id, 'preferredHabitat', animal.preferredHabitat)}</p>
-								{disc && <p className="muted small">{disc.whyReturned}</p>}
+								{disc && <p className="muted small">{whyReturnedLine(animal, data)}</p>}
 							</div>
 							<p className="fact"><Icon name="leaf" size={14} /> <b>{t('panels.journal.fieldNote')}</b> {content('animal', animal.id, 'fact', animal.fact)}</p>
 							<button className="link" onClick={backToJournal}>{t('panels.journal.backToJournal')}</button>

@@ -1652,6 +1652,413 @@
 				}
 			}
 		},
+		"forage": {
+			"acorns": {
+				"name": "acorns"
+			},
+			"algae": {
+				"name": "algae"
+			},
+			"alpine plants": {
+				"name": "alpine plants"
+			},
+			"amphibian eggs": {
+				"name": "amphibian eggs"
+			},
+			"amphibians": {
+				"name": "amphibians"
+			},
+			"animal scat": {
+				"name": "animal scat"
+			},
+			"ants": {
+				"name": "ants"
+			},
+			"aphids": {
+				"name": "aphids"
+			},
+			"aquatic insects": {
+				"name": "aquatic insects"
+			},
+			"aquatic plants": {
+				"name": "aquatic plants"
+			},
+			"aster seeds": {
+				"name": "aster seeds"
+			},
+			"bark": {
+				"name": "bark"
+			},
+			"barnacles": {
+				"name": "barnacles"
+			},
+			"beetle larvae": {
+				"name": "beetle larvae"
+			},
+			"beetles": {
+				"name": "beetles"
+			},
+			"berries": {
+				"name": "berries"
+			},
+			"bird eggs": {
+				"name": "bird eggs"
+			},
+			"birds": {
+				"name": "birds"
+			},
+			"buds": {
+				"name": "buds"
+			},
+			"cactus flower nectar": {
+				"name": "cactus flower nectar"
+			},
+			"cactus fruit": {
+				"name": "cactus fruit"
+			},
+			"cactus pads": {
+				"name": "cactus pads"
+			},
+			"caddisflies": {
+				"name": "caddisflies"
+			},
+			"carpenter ants": {
+				"name": "carpenter ants"
+			},
+			"carrion": {
+				"name": "carrion"
+			},
+			"caterpillars": {
+				"name": "caterpillars"
+			},
+			"cattail roots": {
+				"name": "cattail roots"
+			},
+			"centipedes": {
+				"name": "centipedes"
+			},
+			"chipmunks": {
+				"name": "chipmunks"
+			},
+			"clams": {
+				"name": "clams"
+			},
+			"clover": {
+				"name": "clover"
+			},
+			"conifer buds": {
+				"name": "conifer buds"
+			},
+			"conifer needles": {
+				"name": "conifer needles"
+			},
+			"conifer seeds": {
+				"name": "conifer seeds"
+			},
+			"crabs": {
+				"name": "crabs"
+			},
+			"crayfish": {
+				"name": "crayfish"
+			},
+			"crickets": {
+				"name": "crickets"
+			},
+			"crustaceans": {
+				"name": "crustaceans"
+			},
+			"dead leaves": {
+				"name": "dead leaves"
+			},
+			"deer mice": {
+				"name": "deer mice"
+			},
+			"detritus": {
+				"name": "detritus"
+			},
+			"duckweed": {
+				"name": "duckweed"
+			},
+			"earthworms": {
+				"name": "earthworms"
+			},
+			"fermenting fruit": {
+				"name": "fermenting fruit"
+			},
+			"fish": {
+				"name": "fish"
+			},
+			"fish eggs": {
+				"name": "fish eggs"
+			},
+			"flies": {
+				"name": "flies"
+			},
+			"flower nectar": {
+				"name": "flower nectar"
+			},
+			"flower nectar (adult)": {
+				"name": "flower nectar (adult)"
+			},
+			"flowers": {
+				"name": "flowers"
+			},
+			"fly larvae": {
+				"name": "fly larvae"
+			},
+			"flying insects": {
+				"name": "flying insects"
+			},
+			"forbs": {
+				"name": "forbs"
+			},
+			"frogs": {
+				"name": "frogs"
+			},
+			"fruit": {
+				"name": "fruit"
+			},
+			"fungi": {
+				"name": "fungi"
+			},
+			"grain": {
+				"name": "grain"
+			},
+			"grass seeds": {
+				"name": "grass seeds"
+			},
+			"grasses": {
+				"name": "grasses"
+			},
+			"ground squirrels": {
+				"name": "ground squirrels"
+			},
+			"ground-nesting bird eggs": {
+				"name": "ground-nesting bird eggs"
+			},
+			"hares": {
+				"name": "hares"
+			},
+			"honey": {
+				"name": "honey"
+			},
+			"inner bark": {
+				"name": "inner bark"
+			},
+			"insect eggs": {
+				"name": "insect eggs"
+			},
+			"insect larvae": {
+				"name": "insect larvae"
+			},
+			"insects": {
+				"name": "insects"
+			},
+			"invertebrates": {
+				"name": "invertebrates"
+			},
+			"kelp": {
+				"name": "kelp"
+			},
+			"large insects": {
+				"name": "large insects"
+			},
+			"leaves": {
+				"name": "leaves"
+			},
+			"leaves and forbs": {
+				"name": "leaves and forbs"
+			},
+			"leeches": {
+				"name": "leeches"
+			},
+			"lichen": {
+				"name": "lichen"
+			},
+			"lichens": {
+				"name": "lichens"
+			},
+			"mallows (caterpillar)": {
+				"name": "mallows (caterpillar)"
+			},
+			"mayflies": {
+				"name": "mayflies"
+			},
+			"mesquite": {
+				"name": "mesquite"
+			},
+			"mice": {
+				"name": "mice"
+			},
+			"midges": {
+				"name": "midges"
+			},
+			"milkweed leaves (caterpillar)": {
+				"name": "milkweed leaves (caterpillar)"
+			},
+			"millipedes": {
+				"name": "millipedes"
+			},
+			"mistletoe berries": {
+				"name": "mistletoe berries"
+			},
+			"mites": {
+				"name": "mites"
+			},
+			"mole crabs": {
+				"name": "mole crabs"
+			},
+			"mosquitoes": {
+				"name": "mosquitoes"
+			},
+			"moss": {
+				"name": "moss"
+			},
+			"moths": {
+				"name": "moths"
+			},
+			"mussels": {
+				"name": "mussels"
+			},
+			"nectar": {
+				"name": "nectar"
+			},
+			"nettles (caterpillar)": {
+				"name": "nettles (caterpillar)"
+			},
+			"nuts": {
+				"name": "nuts"
+			},
+			"other live insects": {
+				"name": "other live insects"
+			},
+			"pine seeds": {
+				"name": "pine seeds"
+			},
+			"plankton": {
+				"name": "plankton"
+			},
+			"pocket gophers": {
+				"name": "pocket gophers"
+			},
+			"pollen": {
+				"name": "pollen"
+			},
+			"rabbits": {
+				"name": "rabbits"
+			},
+			"rats": {
+				"name": "rats"
+			},
+			"reptiles": {
+				"name": "reptiles"
+			},
+			"roots": {
+				"name": "roots"
+			},
+			"sap": {
+				"name": "sap"
+			},
+			"scale insects": {
+				"name": "scale insects"
+			},
+			"sea urchins": {
+				"name": "sea urchins"
+			},
+			"seagrass": {
+				"name": "seagrass"
+			},
+			"sedges": {
+				"name": "sedges"
+			},
+			"seedlings": {
+				"name": "seedlings"
+			},
+			"seeds": {
+				"name": "seeds"
+			},
+			"shrews": {
+				"name": "shrews"
+			},
+			"shrubs": {
+				"name": "shrubs"
+			},
+			"skunks": {
+				"name": "skunks"
+			},
+			"slugs": {
+				"name": "slugs"
+			},
+			"small fish": {
+				"name": "small fish"
+			},
+			"small soft-bodied insects": {
+				"name": "small soft-bodied insects"
+			},
+			"snails": {
+				"name": "snails"
+			},
+			"sowbugs": {
+				"name": "sowbugs"
+			},
+			"spiders": {
+				"name": "spiders"
+			},
+			"springtails": {
+				"name": "springtails"
+			},
+			"squirrels": {
+				"name": "squirrels"
+			},
+			"sunflower seeds": {
+				"name": "sunflower seeds"
+			},
+			"termites": {
+				"name": "termites"
+			},
+			"thistle seeds": {
+				"name": "thistle seeds"
+			},
+			"thistles (caterpillar)": {
+				"name": "thistles (caterpillar)"
+			},
+			"thrips": {
+				"name": "thrips"
+			},
+			"tree buds": {
+				"name": "tree buds"
+			},
+			"tree sap": {
+				"name": "tree sap"
+			},
+			"truffles": {
+				"name": "truffles"
+			},
+			"tubers": {
+				"name": "tubers"
+			},
+			"twigs": {
+				"name": "twigs"
+			},
+			"voles": {
+				"name": "voles"
+			},
+			"wasps": {
+				"name": "wasps"
+			},
+			"waste grain": {
+				"name": "waste grain"
+			},
+			"wild fruit": {
+				"name": "wild fruit"
+			},
+			"wildflowers": {
+				"name": "wildflowers"
+			},
+			"worms": {
+				"name": "worms"
+			}
+		},
 		"habitatObject": {
 			"agave-rosette": {
 				"description": "A spiny rosette whose tall bloom feeds desert pollinators.",

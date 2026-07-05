@@ -13645,7 +13645,7 @@ var privacyHtml = `<!doctype html>
 		<ul>
 			<li>a <strong>random identifier</strong> for the save slot (a UUID generated on your device \u2014 it is not derived from you, your device, or your Apple&nbsp;ID, and I cannot use it to identify you);</li>
 			<li>the <strong>name you gave the save</strong> (I suggest a caretaker name rather than your real name);</li>
-			<li>basic <strong>app and platform information</strong>: app version, build timestamp, platform ("desktop" or "web"), and operating system family (mac / windows / linux);</li>
+			<li>basic <strong>app and platform information</strong>: app version, build timestamp, platform ("desktop" or "web"), operating system family (mac / windows / linux), and the interface language you play in (e.g. English or Spanish);</li>
 			<li><strong>gameplay counters</strong>: play time, number of sessions, resources collected, items crafted, objects placed, plants planted, animals observed and returned, biomes unlocked, achievements earned, and similar progression numbers.</li>
 		</ul>
 		<p>That's the whole list. Snapshots contain no location data, no contact information, no device identifiers, and no advertising identifiers. I use them solely to understand how Wild Willows is played and to improve it. Sending is best-effort: if you're offline, reports are simply skipped \u2014 they are not queued, and the game does not nag you to connect.</p>
@@ -14390,6 +14390,8 @@ function metricsView(player) {
     hoursSinceActive,
     status,
     isNewToday: now - createdAt <= DAY_MS2,
+    language: m.language || null,
+    // interface language from the heartbeat
     // time + sessions
     sessions,
     playSeconds,
@@ -16664,12 +16666,13 @@ var SESSION_GAP_MS = 30 * 60 * 1e3;
 var MAX_BEAT_MS = 90 * 1e3;
 var Heartbeat = class extends PublicEndpoint {
   async post(data) {
-    const { playerId } = await bodyOf(data);
+    const { playerId, language } = await bodyOf(data);
     const t2 = db();
     const d = await defs();
     const { player } = await requirePlayer(playerId);
     const now = Date.now();
     const prev = player.metrics || freshMetrics(player.createdAt || now);
+    const lang = typeof language === "string" && language.trim() ? language.trim().toLowerCase().slice(0, 12) : null;
     const last = prev.lastHeartbeatAt || 0;
     const gap = now - last;
     let playSeconds = prev.playSeconds || 0;
@@ -16686,7 +16689,8 @@ var Heartbeat = class extends PublicEndpoint {
       lastSeenAt: now,
       lastHeartbeatAt: now,
       playSeconds: Math.round(playSeconds),
-      sessions
+      sessions,
+      ...lang ? { language: lang } : {}
     };
     await t2.Player.patch(playerId, { metrics });
     const wid = worldOf(player);
@@ -16797,6 +16801,7 @@ var Metrics = class extends PublicEndpoint {
           solo: true,
           platform: r.platform || null,
           os: r.os || null,
+          language: r.language || s.language || null,
           version: r.version || null,
           build: r.build || null,
           lastSyncedAt: r.updatedAt || null,
@@ -16834,6 +16839,11 @@ var Metrics = class extends PublicEndpoint {
       newLast24h: all.filter((v) => now - v.createdAt <= DAY_MS2).length,
       newLast7d: all.filter((v) => now - v.createdAt <= 7 * DAY_MS2).length
     };
+    const languages = {};
+    for (const v of all) {
+      const l = v.language || "en";
+      languages[l] = (languages[l] || 0) + 1;
+    }
     const returningPlayers = all.filter((v) => v.sessions >= 2).length;
     const funnel = {
       created: all.length,
@@ -16916,6 +16926,7 @@ var Metrics = class extends PublicEndpoint {
         hostedPlayers: views.length,
         soloPlayers: soloViews.length,
         audience,
+        languages,
         engagement: {
           totalPlayHours: round1(totalPlaySeconds / 3600),
           totalPlaySeconds,
@@ -17403,6 +17414,8 @@ var SyncMetrics = class extends PublicEndpoint {
       // wild-willows release
       build: String(body.build || "").slice(0, 40) || null,
       // build timestamp
+      language: String(body.language || snapshot2.language || "").trim().toLowerCase().slice(0, 12) || null,
+      // interface language
       snapshot: snapshot2,
       createdAt: existing?.createdAt || Date.now(),
       updatedAt: Date.now()

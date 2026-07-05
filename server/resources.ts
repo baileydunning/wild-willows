@@ -792,6 +792,7 @@ function metricsView(player: any) {
 		hoursSinceActive,
 		status,
 		isNewToday: now - createdAt <= DAY_MS,
+		language: m.language || null, // interface language from the heartbeat
 		// time + sessions
 		sessions,
 		playSeconds,
@@ -3677,12 +3678,15 @@ const MAX_BEAT_MS = 90 * 1000; // credit at most this much play time per beat (g
  */
 export class Heartbeat extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId } = await bodyOf(data);
+		const { playerId, language } = await bodyOf(data);
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
 		const now = Date.now();
 		const prev = player.metrics || freshMetrics(player.createdAt || now);
+		// Interface language, reported by the client on every beat (BCP-47-ish
+		// short code, e.g. "en"/"es"). Kept on the metrics blob for dashboards.
+		const lang = typeof language === 'string' && language.trim() ? language.trim().toLowerCase().slice(0, 12) : null;
 		const last = prev.lastHeartbeatAt || 0;
 		const gap = now - last;
 
@@ -3702,6 +3706,7 @@ export class Heartbeat extends PublicEndpoint {
 			lastHeartbeatAt: now,
 			playSeconds: Math.round(playSeconds),
 			sessions,
+			...(lang ? { language: lang } : {}),
 		};
 		await t.Player.patch(playerId, { metrics });
 
@@ -3847,6 +3852,7 @@ export class Metrics extends PublicEndpoint {
 					solo: true,
 					platform: r.platform || null,
 					os: r.os || null,
+					language: r.language || s.language || null,
 					version: r.version || null,
 					build: r.build || null,
 					lastSyncedAt: r.updatedAt || null,
@@ -3892,6 +3898,14 @@ export class Metrics extends PublicEndpoint {
 			newLast24h: all.filter((v) => now - v.createdAt <= DAY_MS).length,
 			newLast7d: all.filter((v) => now - v.createdAt <= 7 * DAY_MS).length,
 		};
+
+		// Interface language, from the heartbeat / solo uplink. Saves that predate
+		// language tracking count as 'en' — English was the only language then.
+		const languages: Record<string, number> = {};
+		for (const v of all) {
+			const l = v.language || 'en';
+			languages[l] = (languages[l] || 0) + 1;
+		}
 
 		// Retention: did they come back for more than one session?
 		const returningPlayers = all.filter((v) => v.sessions >= 2).length;
@@ -3992,6 +4006,7 @@ export class Metrics extends PublicEndpoint {
 				hostedPlayers: views.length,
 				soloPlayers: soloViews.length,
 				audience,
+				languages,
 				engagement: {
 					totalPlayHours: round1(totalPlaySeconds / 3600),
 					totalPlaySeconds,
@@ -4577,6 +4592,7 @@ export class SyncMetrics extends PublicEndpoint {
 			os: String(body.os || '').slice(0, 20) || null,             // mac | windows | linux | …
 			version: String(body.version || '').slice(0, 24) || null,   // wild-willows release
 			build: String(body.build || '').slice(0, 40) || null,       // build timestamp
+			language: String(body.language || snapshot.language || '').trim().toLowerCase().slice(0, 12) || null, // interface language
 			snapshot,
 			createdAt: existing?.createdAt || Date.now(),
 			updatedAt: Date.now(),

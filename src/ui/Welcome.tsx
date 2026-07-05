@@ -58,6 +58,7 @@ export function WelcomeScreen() {
 	const { data, dataError, startNew, startNewCoop, startLogin, continueLast, startNewSolo, loadSoloSlot, setHelpOpen } = useGame();
 	const { t, locale } = useI18n();
 	const [mode, setMode] = useState<Mode>('menu');
+	const [langOpen, setLangOpen] = useState(false);
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [name, setName] = useState('');
@@ -127,13 +128,6 @@ export function WelcomeScreen() {
 		<div className="welcome">
 			<div className="welcome-sky" />
 			<Scenery />
-			<div className="welcome-lang">
-				<select aria-label={t('app.settings.language')} value={locale} onChange={(e) => void chooseLocale(e.target.value)}>
-					{Object.entries(LOCALE_NAMES).map(([code, name]) => (
-						<option key={code} value={code}>{name}</option>
-					))}
-				</select>
-			</div>
 			<div className="welcome-card">
 				<h1 className="game-title">{t('app.title')}</h1>
 
@@ -198,9 +192,14 @@ export function WelcomeScreen() {
 								</button>
 							</>
 						)}
-						<button className="big-btn subtle" onClick={() => setHelpOpen(true)}>
-							<Icon name="help" /> <span>{t('app.welcome.howToPlay')}</span>
-						</button>
+						<div className="menu-links">
+							<button className="big-btn subtle" onClick={() => setHelpOpen(true)}>
+								<Icon name="help" /> <span>{t('app.welcome.howToPlay')}</span>
+							</button>
+							<button className="big-btn subtle" onClick={() => setLangOpen(true)}>
+								<Icon name="globe" /> <span>{t('app.welcome.language')}</span>
+							</button>
+						</div>
 						{!data && !dataError && <p className="muted small">{t('app.welcome.reaching')}</p>}
 					</div>
 				)}
@@ -407,6 +406,28 @@ export function WelcomeScreen() {
 				)}
 
 			</div>
+
+			{langOpen && (
+				<div className="panel-backdrop help-backdrop" onClick={() => setLangOpen(false)}>
+					<div className="panel lang-panel" role="dialog" aria-modal="true" aria-label={t('app.langModal.title')} onClick={(e) => e.stopPropagation()}>
+						<div className="panel-head">
+							<h2><Icon name="globe" size={18} /> {t('app.langModal.title')}</h2>
+							<button className="icon-btn" onClick={() => setLangOpen(false)} aria-label={t('panels.common.close')}><Icon name="close" /></button>
+						</div>
+						<div className="panel-body lang-options">
+							{Object.entries(LOCALE_NAMES).map(([code, name]) => (
+								<button
+									key={code}
+									className={`big-btn ${locale === code ? 'primary' : ''}`}
+									onClick={() => { void chooseLocale(code); setLangOpen(false); }}
+								>
+									<span>{name}</span> {locale === code && <Icon name="check" size={16} />}
+								</button>
+							))}
+						</div>
+					</div>
+				</div>
+			)}
 		</div>
 	);
 }

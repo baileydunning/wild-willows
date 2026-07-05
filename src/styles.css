@@ -104,21 +104,14 @@ input {
 	50% { opacity: 0.95; transform: translate(8px, -12px); }
 }
 
-.welcome-lang {
-	position: absolute; top: 14px; right: 16px; z-index: 3;
-	display: flex; align-items: center; gap: 6px;
-}
-.welcome-lang select {
-	font-family: var(--font-body); font-weight: 600; font-size: 13px;
-	color: var(--ink);
-	background: var(--paper);
-	border: none;
-	border-radius: 10px;
-	padding: 5px 9px;
-	cursor: pointer;
-	box-shadow: var(--shadow);
-}
-.welcome-lang select:focus { outline: none; }
+/* Title screen: How to Play + Language sit side by side under the menu. */
+.menu-links { display: flex; justify-content: center; gap: 8px; }
+.menu-links .big-btn { flex: 0 1 auto; }
+
+/* Language modal (title screen). */
+.lang-panel { width: 320px; }
+.lang-panel .lang-options { display: flex; flex-direction: column; gap: 10px; }
+.lang-panel .big-btn span { flex: 1; text-align: center; }
 
 /* Language dropdown (Settings): borderless, no focus outline, per design. */
 .lang-filter select { border: none; }
@@ -201,7 +194,9 @@ input {
 	opacity: 1; visibility: visible; transform: translateY(0);
 }
 .swatch-row { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.swatch-label { width: 44px; font-size: 12.5px; color: var(--ink-soft); font-weight: 700; }
+/* min-width keeps rows roughly aligned; auto width lets longer localized
+   labels (Complexión, Sombrero…) take the room they need instead of cropping. */
+.swatch-label { width: auto; min-width: 44px; flex-shrink: 0; font-size: 12.5px; color: var(--ink-soft); font-weight: 700; }
 .swatch-btn {
 	width: 24px; height: 24px; border-radius: 50%; padding: 0;
 	border: 2px solid rgba(0, 0, 0, 0.15);
@@ -508,7 +503,8 @@ input {
 .guide-upsell { display: flex; align-items: flex-start; gap: 7px; color: var(--green-deep); background: var(--paper-2); border: 1px solid var(--line); border-radius: 10px; padding: 9px 12px; margin: 4px 0 10px; line-height: 1.5; }
 .guide-upsell svg { flex: none; margin-top: 2px; }
 .guide-upsell b { white-space: nowrap; }
-.craft-filter { display: flex; align-items: center; gap: 8px; margin: 0 0 12px; font-size: 13px; }
+/* flex-wrap: longer localized labels (e.g. Spanish) push the search box to its own line */
+.craft-filter { display: flex; align-items: center; flex-wrap: wrap; gap: 8px; row-gap: 8px; margin: 0 0 12px; font-size: 13px; }
 .craft-filter label { color: var(--ink-soft); font-weight: 600; }
 .craft-filter select {
 	font-family: var(--font-body);

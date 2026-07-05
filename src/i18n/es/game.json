@@ -4,13 +4,13 @@
 		"craftingStation": "Estación de fabricación"
 	},
 	"label": {
-		"stepOutside": "Volver a salir (E)",
+		"stepOutside": "Volver afuera (E)",
 		"plantBed": "Plantar en este bancal regado",
 		"stepInside": "Entrar a tu hogar (E)",
 		"upgradeHome": "Mejorar tu hogar (E)",
 		"walkTo": "Caminar hasta {name}",
 		"walkBackTo": "Volver caminando a {name}",
-		"walkBackUpTo": "Volver a subir a {name}",
+		"walkBackUpTo": "Subir de vuelta a {name}",
 		"readTrailSign": "Leer el letrero del sendero ({name})",
 		"lookOcean": "Contemplar el océano",
 		"gather": "Recolectar {name}",
@@ -27,7 +27,7 @@
 		"forestOvergrown": "El sendero del bosque está cubierto de maleza. {label}",
 		"restoreMeadowFirst": "Restaura la pradera primero.",
 		"wetlandUnlocked": "¡El Humedal de los Juncos está desbloqueado! Sigue la pasarela hacia el este para adentrarte en el pantano.",
-		"wetlandWashedOut": "El camino del humedal está arrasado por el agua. {label}",
+		"wetlandWashedOut": "El agua se llevó el camino del humedal. {label}",
 		"desertUnlocked": "¡El Matorral de Piedra Roja está desbloqueado! El sendero del desierto hacia el este se abrirá pronto.",
 		"desertBlocked": "El sendero del desierto está bloqueado. {label}",
 		"alpineUnlocked": "¡Las Cumbres del Viento Gris están desbloqueadas! El sendero de la montaña se abrirá pronto.",
@@ -43,7 +43,7 @@
 		"clearWateredBed": "¿Despejar este bancal regado? El agua que usaste en él se perderá."
 	},
 	"block": {
-		"standingHere": "Estás justo aquí — apártate antes de inundar este bancal y convertirlo en agua abierta."
+		"standingHere": "Estás justo encima — apártate antes de inundar este bancal y convertirlo en agua abierta."
 	},
 	"float": {
 		"pickup": "+{qty} {name}",

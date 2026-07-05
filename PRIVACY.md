@@ -25,7 +25,7 @@ While the game is open and a network connection exists, it sends a snapshot of y
 
 - a **random identifier** for the save slot (a UUID generated on your device — it is not derived from you, your device, or your Apple ID, and I cannot use it to identify you);
 - the **name you gave the save** (I suggest a caretaker name rather than your real name);
-- basic **app and platform information**: app version, build timestamp, platform ("desktop" or "web"), and operating system family (mac / windows / linux);
+- basic **app and platform information**: app version, build timestamp, platform ("desktop" or "web"), operating system family (mac / windows / linux), and the interface language you play in (e.g. English or Spanish);
 - **gameplay counters**: play time, number of sessions, resources collected, items crafted, objects placed, plants planted, animals observed and returned, biomes unlocked, achievements earned, and similar progression numbers.
 
 That's the whole list. Snapshots contain no location data, no contact information, no device identifiers, and no advertising identifiers. I use them solely to understand how Wild Willows is played (for example, where players stall in the early game) and to improve it. Sending is best-effort: if you're offline, reports are simply skipped — they are not queued, and the game does not nag you to connect.

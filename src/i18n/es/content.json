@@ -72,7 +72,7 @@
 				"name": "Cazador de las Tierras Secas"
 			},
 			"desert-reborn": {
-				"flavor": "La tierra más dura de la reserva, plenamente viva: desde el tecolote enano en el cactus hasta la tarántula bajo la piedra.",
+				"flavor": "La tierra más dura de la reserva, plenamente viva: desde el tecolote elfo en el cactus hasta la tarántula bajo la piedra.",
 				"hint": "No dejes atrás a ningún animal del desierto.",
 				"name": "El Matorral de Piedra Roja Renace"
 			},
@@ -714,9 +714,9 @@
 			},
 			"elk-alpine": {
 				"diet": "Pastos, juncias y herbáceas en verano; ramoneo, corteza y líquenes en invierno",
-				"fact": "Los uapitíes persiguen la 'ola verde' del nuevo crecimiento montaña arriba cada verano.",
+				"fact": "Los wapitíes persiguen la 'ola verde' del nuevo crecimiento montaña arriba cada verano.",
 				"hint": "Forraje en praderas altas y agua de deshielo.",
-				"name": "Uapití",
+				"name": "Wapití",
 				"preferredHabitat": "Praderas altas de verano cerca de la cobertura del bosque y agua de deshielo",
 				"role": "Un gran pastoreador migratorio que veranea en praderas altas, siguiendo el crecimiento fresco cuesta arriba y bramando durante el celo otoñal. Los machos regeneran cornamentas enormes cada año. Los pumas cazan adultos, mientras que águilas y coyotes pueden llevarse crías recién nacidas.",
 				"shelter": "Camas en los bordes del bosque y cobertura sombreada junto a las praderas"
@@ -1209,11 +1209,11 @@
 			},
 			"pika": {
 				"diet": "Pastos, herbáceas y flores silvestres, recolectados y secados en pajares para el invierno",
-				"fact": "Las picas cortan y secan al sol pequeños montones de plantas para comerlos bajo la nieve del invierno.",
+				"fact": "Las pikas cortan y secan al sol pequeños montones de plantas para comerlos bajo la nieve del invierno.",
 				"hint": "Pilas de roca frescas y flores que cosechar.",
-				"name": "Pica americana",
+				"name": "Pika americana",
 				"preferredHabitat": "Laderas de talud y pilas de rocas que bordean praderas alpinas floridas",
-				"role": "Un diminuto pariente de los conejos que habita el talud y motor de la red trófica alpina. Pasa el verano recolectando pajares de herbáceas y pastos para sobrevivir bajo la nieve. A las picas las cazan por igual comadrejas, martas, zorros y águilas.",
+				"role": "Un diminuto pariente de los conejos que habita el talud y motor de la red trófica alpina. Pasa el verano recolectando pajares de herbáceas y pastos para sobrevivir bajo la nieve. A las pikas las cazan por igual comadrejas, martas, zorros y águilas.",
 				"shelter": "Huecos frescos en lo profundo del talud y la roca fragmentada"
 			},
 			"pileated-woodpecker": {
@@ -1551,9 +1551,9 @@
 			},
 			"western-meadowlark": {
 				"diet": "Sobre todo insectos en verano (escarabajos, saltamontes); semillas y grano en invierno",
-				"fact": "El canto aflautado de la pradera occidental es el himno del ave estatal de seis estados de EE. UU.",
-				"hint": "Las praderas occidentales necesitan verdaderas extensiones de pasto nativo antes de anidar, con una cuenca para beber y bañarse.",
-				"name": "Pradera occidental",
+				"fact": "El canto aflautado del pradero occidental es el himno del ave estatal de seis estados de EE. UU.",
+				"hint": "Los praderos occidentales necesitan verdaderas extensiones de pasto nativo antes de anidar, con una cuenca para beber y bañarse.",
+				"name": "Pradero occidental",
 				"preferredHabitat": "Amplios pastizales y praderas nativas con posaderos para cantar",
 				"role": "Un omnívoro de pastizal que come grandes cantidades de saltamontes, grillos y escarabajos en verano y semillas en invierno, ayudando a mantener a raya las poblaciones de insectos. Como ave regordeta de suelo, es una presa importante para halcones y mamíferos depredadores de la pradera.",
 				"shelter": "Nido de pasto abovedado tejido en el suelo, a menudo con un pasillo cubierto"
@@ -1649,6 +1649,413 @@
 				"unlock": {
 					"label": "Restaura el Bosque de la Vieja Hondonada al 80% de salud con 10 animales del bosque de regreso, dale la bienvenida a 25 animales en toda la reserva y fabrica un Kit de Restauración del Humedal."
 				}
+			}
+		},
+		"forage": {
+			"acorns": {
+				"name": "bellotas"
+			},
+			"algae": {
+				"name": "algas"
+			},
+			"alpine plants": {
+				"name": "plantas alpinas"
+			},
+			"amphibian eggs": {
+				"name": "huevos de anfibio"
+			},
+			"amphibians": {
+				"name": "anfibios"
+			},
+			"animal scat": {
+				"name": "excrementos de animales"
+			},
+			"ants": {
+				"name": "hormigas"
+			},
+			"aphids": {
+				"name": "pulgones"
+			},
+			"aquatic insects": {
+				"name": "insectos acuáticos"
+			},
+			"aquatic plants": {
+				"name": "plantas acuáticas"
+			},
+			"aster seeds": {
+				"name": "semillas de áster"
+			},
+			"bark": {
+				"name": "corteza"
+			},
+			"barnacles": {
+				"name": "percebes"
+			},
+			"beetle larvae": {
+				"name": "larvas de escarabajo"
+			},
+			"beetles": {
+				"name": "escarabajos"
+			},
+			"berries": {
+				"name": "bayas"
+			},
+			"bird eggs": {
+				"name": "huevos de ave"
+			},
+			"birds": {
+				"name": "aves"
+			},
+			"buds": {
+				"name": "brotes"
+			},
+			"cactus flower nectar": {
+				"name": "néctar de flor de cactus"
+			},
+			"cactus fruit": {
+				"name": "fruta de cactus"
+			},
+			"cactus pads": {
+				"name": "pencas de cactus"
+			},
+			"caddisflies": {
+				"name": "frigáneas"
+			},
+			"carpenter ants": {
+				"name": "hormigas carpinteras"
+			},
+			"carrion": {
+				"name": "carroña"
+			},
+			"caterpillars": {
+				"name": "orugas"
+			},
+			"cattail roots": {
+				"name": "raíces de totora"
+			},
+			"centipedes": {
+				"name": "ciempiés"
+			},
+			"chipmunks": {
+				"name": "ardillas listadas"
+			},
+			"clams": {
+				"name": "almejas"
+			},
+			"clover": {
+				"name": "trébol"
+			},
+			"conifer buds": {
+				"name": "brotes de conífera"
+			},
+			"conifer needles": {
+				"name": "agujas de conífera"
+			},
+			"conifer seeds": {
+				"name": "semillas de conífera"
+			},
+			"crabs": {
+				"name": "cangrejos"
+			},
+			"crayfish": {
+				"name": "cangrejos de río"
+			},
+			"crickets": {
+				"name": "grillos"
+			},
+			"crustaceans": {
+				"name": "crustáceos"
+			},
+			"dead leaves": {
+				"name": "hojas muertas"
+			},
+			"deer mice": {
+				"name": "ratones ciervo"
+			},
+			"detritus": {
+				"name": "detritos"
+			},
+			"duckweed": {
+				"name": "lenteja de agua"
+			},
+			"earthworms": {
+				"name": "lombrices de tierra"
+			},
+			"fermenting fruit": {
+				"name": "fruta fermentada"
+			},
+			"fish": {
+				"name": "peces"
+			},
+			"fish eggs": {
+				"name": "huevas de pez"
+			},
+			"flies": {
+				"name": "moscas"
+			},
+			"flower nectar": {
+				"name": "néctar de flores"
+			},
+			"flower nectar (adult)": {
+				"name": "néctar de flores (adulto)"
+			},
+			"flowers": {
+				"name": "flores"
+			},
+			"fly larvae": {
+				"name": "larvas de mosca"
+			},
+			"flying insects": {
+				"name": "insectos voladores"
+			},
+			"forbs": {
+				"name": "hierbas de hoja ancha"
+			},
+			"frogs": {
+				"name": "ranas"
+			},
+			"fruit": {
+				"name": "fruta"
+			},
+			"fungi": {
+				"name": "hongos"
+			},
+			"grain": {
+				"name": "grano"
+			},
+			"grass seeds": {
+				"name": "semillas de pasto"
+			},
+			"grasses": {
+				"name": "pastos"
+			},
+			"ground squirrels": {
+				"name": "ardillas terrestres"
+			},
+			"ground-nesting bird eggs": {
+				"name": "huevos de aves que anidan en el suelo"
+			},
+			"hares": {
+				"name": "liebres"
+			},
+			"honey": {
+				"name": "miel"
+			},
+			"inner bark": {
+				"name": "corteza interna"
+			},
+			"insect eggs": {
+				"name": "huevos de insecto"
+			},
+			"insect larvae": {
+				"name": "larvas de insecto"
+			},
+			"insects": {
+				"name": "insectos"
+			},
+			"invertebrates": {
+				"name": "invertebrados"
+			},
+			"kelp": {
+				"name": "kelp"
+			},
+			"large insects": {
+				"name": "insectos grandes"
+			},
+			"leaves": {
+				"name": "hojas"
+			},
+			"leaves and forbs": {
+				"name": "hojas y hierbas"
+			},
+			"leeches": {
+				"name": "sanguijuelas"
+			},
+			"lichen": {
+				"name": "liquen"
+			},
+			"lichens": {
+				"name": "líquenes"
+			},
+			"mallows (caterpillar)": {
+				"name": "malvas (oruga)"
+			},
+			"mayflies": {
+				"name": "efímeras"
+			},
+			"mesquite": {
+				"name": "mezquite"
+			},
+			"mice": {
+				"name": "ratones"
+			},
+			"midges": {
+				"name": "jejenes"
+			},
+			"milkweed leaves (caterpillar)": {
+				"name": "hojas de algodoncillo (oruga)"
+			},
+			"millipedes": {
+				"name": "milpiés"
+			},
+			"mistletoe berries": {
+				"name": "bayas de muérdago"
+			},
+			"mites": {
+				"name": "ácaros"
+			},
+			"mole crabs": {
+				"name": "pulgas de mar"
+			},
+			"mosquitoes": {
+				"name": "mosquitos"
+			},
+			"moss": {
+				"name": "musgo"
+			},
+			"moths": {
+				"name": "polillas"
+			},
+			"mussels": {
+				"name": "mejillones"
+			},
+			"nectar": {
+				"name": "néctar"
+			},
+			"nettles (caterpillar)": {
+				"name": "ortigas (oruga)"
+			},
+			"nuts": {
+				"name": "frutos secos"
+			},
+			"other live insects": {
+				"name": "otros insectos vivos"
+			},
+			"pine seeds": {
+				"name": "piñones"
+			},
+			"plankton": {
+				"name": "plancton"
+			},
+			"pocket gophers": {
+				"name": "tuzas"
+			},
+			"pollen": {
+				"name": "polen"
+			},
+			"rabbits": {
+				"name": "conejos"
+			},
+			"rats": {
+				"name": "ratas"
+			},
+			"reptiles": {
+				"name": "reptiles"
+			},
+			"roots": {
+				"name": "raíces"
+			},
+			"sap": {
+				"name": "savia"
+			},
+			"scale insects": {
+				"name": "cochinillas"
+			},
+			"sea urchins": {
+				"name": "erizos de mar"
+			},
+			"seagrass": {
+				"name": "pasto marino"
+			},
+			"sedges": {
+				"name": "juncias"
+			},
+			"seedlings": {
+				"name": "plántulas"
+			},
+			"seeds": {
+				"name": "semillas"
+			},
+			"shrews": {
+				"name": "musarañas"
+			},
+			"shrubs": {
+				"name": "arbustos"
+			},
+			"skunks": {
+				"name": "zorrillos"
+			},
+			"slugs": {
+				"name": "babosas"
+			},
+			"small fish": {
+				"name": "peces pequeños"
+			},
+			"small soft-bodied insects": {
+				"name": "insectos pequeños de cuerpo blando"
+			},
+			"snails": {
+				"name": "caracoles"
+			},
+			"sowbugs": {
+				"name": "cochinillas de humedad"
+			},
+			"spiders": {
+				"name": "arañas"
+			},
+			"springtails": {
+				"name": "colémbolos"
+			},
+			"squirrels": {
+				"name": "ardillas"
+			},
+			"sunflower seeds": {
+				"name": "semillas de girasol"
+			},
+			"termites": {
+				"name": "termitas"
+			},
+			"thistle seeds": {
+				"name": "semillas de cardo"
+			},
+			"thistles (caterpillar)": {
+				"name": "cardos (oruga)"
+			},
+			"thrips": {
+				"name": "trips"
+			},
+			"tree buds": {
+				"name": "brotes de árbol"
+			},
+			"tree sap": {
+				"name": "savia de árbol"
+			},
+			"truffles": {
+				"name": "trufas"
+			},
+			"tubers": {
+				"name": "tubérculos"
+			},
+			"twigs": {
+				"name": "ramitas"
+			},
+			"voles": {
+				"name": "topillos"
+			},
+			"wasps": {
+				"name": "avispas"
+			},
+			"waste grain": {
+				"name": "grano residual"
+			},
+			"wild fruit": {
+				"name": "fruta silvestre"
+			},
+			"wildflowers": {
+				"name": "flores silvestres"
+			},
+			"worms": {
+				"name": "gusanos"
 			}
 		},
 		"habitatObject": {

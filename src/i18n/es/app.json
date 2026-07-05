@@ -1,5 +1,8 @@
 {
 	"_readme": "App shell strings: title screen, HUD, toolbelt, settings, toasts (App.tsx, state.tsx, Welcome, HUD, Toolbelt, Settings, feedback). Keys are referenced as app.<key>.",
+	"langModal": {
+		"title": "Elige tu idioma"
+	},
 	"title": "Wild Willows",
 	"common": {
 		"close": "Cerrar",
@@ -47,7 +50,7 @@
 		"homeBuilt": "¡Construiste tu {name}!",
 		"rested": "Duermes profundamente — todos los puntos de recolección han vuelto a crecer.",
 		"taskReward": "Recompensa de tarea — {items}",
-		"joinRequest": "{name} quiere unirse — presiona U para dejarle entrar"
+		"joinRequest": "{name} quiere unirse — presiona U para permitirle entrar"
 	},
 	"feed": {
 		"recipeUnlocked": "Nueva receta de fabricación desbloqueada — {name}.",
@@ -126,6 +129,7 @@
 		"newGame": "Nueva partida",
 		"loadGame": "Cargar partida",
 		"howToPlay": "Cómo jugar",
+		"language": "Idioma",
 		"reaching": "Llegando a la reserva…",
 		"errName": "Ingresa el nombre con el que jugarás",
 		"errCode": "Ingresa el código de invitación que compartió tu amigo",
@@ -152,7 +156,7 @@
 		"beginRestoring": "Comenzar a restaurar",
 		"createAndJoin": "Crear y unirte",
 		"startCoop": "Iniciar cooperativo",
-		"loadHint": "Retoma donde lo dejaste — tus partidas viven en esta computadora.",
+		"loadHint": "Retoma donde lo dejaste — tus partidas se guardan en esta computadora.",
 		"noSaves": "Aún no hay partidas guardadas. Comienza una Nueva partida para empezar tu reserva.",
 		"deleteSave": "Eliminar {name}",
 		"passcodePlaceholder": "Clave",
@@ -161,7 +165,7 @@
 	},
 	"hud": {
 		"yourHome": "Tu hogar",
-		"canvasTent": "Tienda de lona",
+		"canvasTent": "Carpa de lona",
 		"carrySuffix": " · +{count} de carga",
 		"thingsPlaced": { "one": "{count} cosa colocada", "other": "{count} cosas colocadas" },
 		"thePreserve": "La reserva",
@@ -201,7 +205,7 @@
 	},
 	"toolbelt": {
 		"how": {
-			"basket": "Tu herramienta de recolección — camina hasta cualquier punto de recolección e interactúa para guardarlo en tu cesta.",
+			"basket": "Tu herramienta de recolección — camina hasta cualquier punto de recolección e interactúa para recolectarlo en tu cesta.",
 			"shovel": "Terraformar — cava bancales en el suelo cercano; vuelve a cavar una casilla ya trabajada para despejarla o drenarla.",
 			"watering-can": "Terraformar — riega un bancal para poder plantar en él; riégalo de nuevo para inundarlo y convertirlo en agua abierta. Encadena casillas de agua para formar estanques, ríos y lagos."
 		},
@@ -225,7 +229,7 @@
 		"hair": "Cabello",
 		"style": "Estilo",
 		"beard": "Barba",
-		"build": "Complexión",
+		"build": "Cuerpo",
 		"outfit": "Atuendo",
 		"hat": "Sombrero",
 		"hatLabel": {
@@ -233,7 +237,7 @@
 			"party": "Gorro de fiesta", "ranger": "Sombrero de guardabosques", "mushroom": "Sombrero de hongo", "wizard": "Sombrero de mago", "crown": "Corona", "bandana": "Pañuelo", "none": "Sin sombrero"
 		},
 		"hairstyleLabel": {
-			"short": "Corto", "bald": "Calvo", "long": "Largo", "bob": "Bob", "curly": "Rizado", "curly-long": "Rizado largo",
+			"short": "Corto", "bald": "Sin cabello", "long": "Largo", "bob": "Bob", "curly": "Rizado", "curly-long": "Rizado largo",
 			"bun": "Moño", "braid": "Trenza lateral", "ponytail": "Cola de caballo", "pigtails": "Coletas", "afro": "Afro", "mohawk": "Mohicano"
 		},
 		"beardLabel": { "none": "Sin barba", "beard": "Barba" },

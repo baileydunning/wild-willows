@@ -6,7 +6,7 @@
 // and CO-OP talks to the hosted Harper. `transport` selects which is live.
 
 import type { Appearance, GameData, GameState, WorldSummary, Peer, RosterEntry } from './types';
-import { t } from './i18n';
+import { t, getLocale } from './i18n';
 import { soloRequest } from './solo/backend';
 import { persist as persistSolo, type SaveMeta } from './solo/saves';
 
@@ -254,7 +254,8 @@ export const api = {
 		post<any>('/Plant/', { playerId: pid(), area, x, y, plantId }),
 	syncPlayer: (x: number, y: number, area?: string, tutorialStep?: number) =>
 		post<any>('/SyncPlayer/', { playerId: pid(), x, y, area, tutorialStep }),
-	heartbeat: () => post<any>('/Heartbeat/', { playerId: pid() }),
+	// language rides on the heartbeat so metrics can report interface language
+	heartbeat: () => post<any>('/Heartbeat/', { playerId: pid(), language: getLocale() }),
 	appendFeed: (entries: { icon: string; text: string; at: number }[]) =>
 		post<any>('/AppendFeed/', { playerId: pid(), entries }),
 	recalc: (biomeId: string) => post<any>('/RecalcBiome/', { playerId: pid(), biomeId }),

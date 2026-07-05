@@ -121,6 +121,19 @@ const kinds = {
 
 	achievement: () => extractRecords(['data/achievements.json'], ['name', 'flavor', 'hint']),
 
+	// Generic forage terms from the animals' `eatsOther` lists ("barnacles",
+	// "grass seeds", …). Shown as food-web chips in the journal, resolved via
+	// content('forage', term, 'name', term).
+	forage: () => {
+		const bucket = {};
+		for (const file of ['data/animals-1.json', 'data/animals-2.json']) {
+			for (const rec of readJson(file).records) {
+				for (const term of rec.eatsOther || []) put(bucket, term, { name: term });
+			}
+		}
+		return bucket;
+	},
+
 	// weather.json is static config, not a records table: weather types carry a
 	// display name + flavor line, per-biome educational "effects" prose, and
 	// activity-feed line pools; seasons and day phases carry display labels
