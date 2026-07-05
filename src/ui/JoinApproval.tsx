@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useGame } from '../state';
+import { useI18n } from '../i18n/react';
 import { Icon } from './icons';
 
 /**
@@ -9,6 +10,7 @@ import { Icon } from './icons';
  */
 export function JoinApprovalPopup() {
 	const { worlds, activeWorldId, pendingRequests, approveJoin, denyJoin, notify } = useGame();
+	const { t } = useI18n();
 	const [busy, setBusy] = useState<string | null>(null);
 
 	const world = worlds.find((w) => w.worldId === activeWorldId);
@@ -17,10 +19,10 @@ export function JoinApprovalPopup() {
 	const act = async (token: string, name: string, approve: boolean) => {
 		setBusy(token);
 		try {
-			if (approve) { await approveJoin(token); notify(`${name} can now join`, 'unlock'); }
+			if (approve) { await approveJoin(token); notify(t('panels.people.canNowJoin', { name }), 'unlock'); }
 			else await denyJoin(token);
 		} catch (e: any) {
-			notify(e?.message || 'Could not respond to that request', 'error');
+			notify(e?.message || t('panels.joinApproval.error'), 'error');
 		} finally {
 			setBusy(null);
 		}
@@ -30,17 +32,17 @@ export function JoinApprovalPopup() {
 		<div className="approval-pop">
 			<div className="approval-head">
 				<Icon name="user" size={16} />
-				<b>{pendingRequests.length === 1 ? 'Someone wants to join' : `${pendingRequests.length} caretakers want to join`}</b>
+				<b>{t('panels.joinApproval.wantsToJoin', { count: pendingRequests.length })}</b>
 			</div>
 			<div className="approval-list">
 				{pendingRequests.map((rq) => (
 					<div className="approval-row" key={rq.token}>
 						<span className="grow"><b>{rq.name}</b></span>
 						<button className="approve-btn" disabled={busy === rq.token} onClick={() => act(rq.token, rq.name, true)}>
-							<Icon name="check" size={14} /> Let in
+							<Icon name="check" size={14} /> {t('panels.joinApproval.letIn')}
 						</button>
 						<button className="deny-btn" disabled={busy === rq.token} onClick={() => act(rq.token, rq.name, false)}>
-							<Icon name="close" size={14} /> No
+							<Icon name="close" size={14} /> {t('panels.joinApproval.no')}
 						</button>
 					</div>
 				))}

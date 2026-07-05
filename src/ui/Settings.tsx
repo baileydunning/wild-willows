@@ -4,6 +4,8 @@ import { hatPalette } from '../color';
 import { sendFeedback } from '../feedback';
 import { bridge } from '../game/bridge';
 import { useGame } from '../state';
+import { hasKey, LOCALE_NAMES, chooseLocale } from '../i18n';
+import { useI18n } from '../i18n/react';
 import type { Appearance, AppearanceOptions } from '../types';
 import { CharacterPreview, Icon } from './icons';
 
@@ -35,87 +37,84 @@ export function randomizeAppearance(opts: AppearanceOptions | undefined, current
  */
 export function AppearanceRows({ value, onChange }: { value: Appearance; onChange: (a: Appearance) => void }) {
 	const { data } = useGame();
+	const { t } = useI18n();
 	const opts = data?.appearanceOptions;
-	const hatLabel: Record<string, string> = {
-		straw: 'Straw hat', leaf: 'Leaf hat', beanie: 'Beanie', cap: 'Cap', bucket: 'Bucket hat', flower: 'Flower crown',
-		party: 'Party hat', ranger: 'Ranger hat', mushroom: 'Mushroom cap', wizard: 'Wizard hat', crown: 'Crown', bandana: 'Bandana', none: 'No hat',
+	// Option labels live in the catalog (app.appearance.<group>.<id>); unknown
+	// ids (newer data than this client) fall back to the raw id, as before.
+	const optLabel = (group: string, id: string) => {
+		const k = `app.appearance.${group}.${id}`;
+		return hasKey(k) ? t(k) : id;
 	};
-	const hairstyleLabel: Record<string, string> = {
-		short: 'Short', bald: 'Bald', long: 'Long', bob: 'Bob', curly: 'Curly', 'curly-long': 'Curly long',
-		bun: 'Bun', braid: 'Side braid', ponytail: 'Ponytail', pigtails: 'Pigtails', afro: 'Afro', mohawk: 'Mohawk',
-	};
-	const beardLabel: Record<string, string> = { none: 'No beard', beard: 'Beard' };
-	const bodyLabel: Record<string, string> = { slim: 'Slender', round: 'Sturdy' };
 	const set = (patch: Partial<Appearance>) => onChange({ ...value, ...patch });
 
 	return (
 		<>
 			<div className="swatch-row">
-				<span className="swatch-label">Skin</span>
+				<span className="swatch-label">{t('app.appearance.skin')}</span>
 				{(opts?.skins || []).map((c) => (
-					<button type="button" key={c} className={`swatch-btn ${value.skin === c ? 'sel' : ''}`} style={{ background: c }} onClick={() => set({ skin: c })} aria-label={`Skin ${c}`} />
+					<button type="button" key={c} className={`swatch-btn ${value.skin === c ? 'sel' : ''}`} style={{ background: c }} onClick={() => set({ skin: c })} aria-label={t('app.appearance.skinAria', { color: c })} />
 				))}
-				<label className="swatch-pick" title="Pick any skin color">
+				<label className="swatch-pick" title={t('app.appearance.pickSkin')}>
 					<Icon name="eyedropper" size={14} />
-					<input type="color" value={value.skin} onChange={(e) => set({ skin: e.target.value })} aria-label="Custom skin color" />
+					<input type="color" value={value.skin} onChange={(e) => set({ skin: e.target.value })} aria-label={t('app.appearance.customSkin')} />
 				</label>
 			</div>
 			<div className="swatch-row">
-				<span className="swatch-label">Hair</span>
+				<span className="swatch-label">{t('app.appearance.hair')}</span>
 				{(opts?.hair || []).map((c) => (
-					<button type="button" key={c} className={`swatch-btn ${value.hair === c ? 'sel' : ''}`} style={{ background: c }} onClick={() => set({ hair: c })} aria-label={`Hair ${c}`} />
+					<button type="button" key={c} className={`swatch-btn ${value.hair === c ? 'sel' : ''}`} style={{ background: c }} onClick={() => set({ hair: c })} aria-label={t('app.appearance.hairAria', { color: c })} />
 				))}
-				<label className="swatch-pick" title="Pick any hair color">
+				<label className="swatch-pick" title={t('app.appearance.pickHair')}>
 					<Icon name="eyedropper" size={14} />
-					<input type="color" value={value.hair} onChange={(e) => set({ hair: e.target.value })} aria-label="Custom hair color" />
+					<input type="color" value={value.hair} onChange={(e) => set({ hair: e.target.value })} aria-label={t('app.appearance.customHair')} />
 				</label>
 			</div>
 			<div className="swatch-row">
-				<span className="swatch-label">Style</span>
+				<span className="swatch-label">{t('app.appearance.style')}</span>
 				{(opts?.hairstyles || []).map((h) => (
 					<button type="button" key={h} className={`hat-btn ${value.hairstyle === h ? 'sel' : ''}`} onClick={() => set({ hairstyle: h })}>
-						{hairstyleLabel[h] || h}
+						{optLabel('hairstyleLabel', h)}
 					</button>
 				))}
 			</div>
 			<div className="swatch-row">
-				<span className="swatch-label">Beard</span>
+				<span className="swatch-label">{t('app.appearance.beard')}</span>
 				{(opts?.beards || []).map((b) => (
 					<button type="button" key={b} className={`hat-btn ${(value.beard || 'none') === b ? 'sel' : ''}`} onClick={() => set({ beard: b })}>
-						{beardLabel[b] || b}
+						{optLabel('beardLabel', b)}
 					</button>
 				))}
 			</div>
 			<div className="swatch-row">
-				<span className="swatch-label">Build</span>
+				<span className="swatch-label">{t('app.appearance.build')}</span>
 				{(opts?.bodies || []).map((b) => (
 					<button type="button" key={b} className={`hat-btn ${value.body === b ? 'sel' : ''}`} onClick={() => set({ body: b })}>
-						{bodyLabel[b] || b}
+						{optLabel('bodyLabel', b)}
 					</button>
 				))}
 			</div>
 			<div className="swatch-row">
-				<span className="swatch-label">Outfit</span>
+				<span className="swatch-label">{t('app.appearance.outfit')}</span>
 				{(opts?.outfits || []).map((c) => (
-					<button type="button" key={c} className={`swatch-btn ${value.outfit === c ? 'sel' : ''}`} style={{ background: c }} onClick={() => set({ outfit: c })} aria-label={`Outfit ${c}`} />
+					<button type="button" key={c} className={`swatch-btn ${value.outfit === c ? 'sel' : ''}`} style={{ background: c }} onClick={() => set({ outfit: c })} aria-label={t('app.appearance.outfitAria', { color: c })} />
 				))}
-				<label className="swatch-pick" title="Pick any outfit color">
+				<label className="swatch-pick" title={t('app.appearance.pickOutfit')}>
 					<Icon name="eyedropper" size={14} />
-					<input type="color" value={value.outfit} onChange={(e) => set({ outfit: e.target.value })} aria-label="Custom outfit color" />
+					<input type="color" value={value.outfit} onChange={(e) => set({ outfit: e.target.value })} aria-label={t('app.appearance.customOutfit')} />
 				</label>
 			</div>
 			<div className="swatch-row">
-				<span className="swatch-label">Hat</span>
+				<span className="swatch-label">{t('app.appearance.hat')}</span>
 				{(opts?.hats || []).map((h) => (
 					// picking a hat starts from its classic colors; the eyedropper re-tints
 					<button type="button" key={h} className={`hat-btn ${value.hat === h ? 'sel' : ''}`} onClick={() => set({ hat: h, hatColor: null })}>
-						{hatLabel[h] || h}
+						{optLabel('hatLabel', h)}
 					</button>
 				))}
 				{value.hat !== 'none' && (
-					<label className="swatch-pick" title={value.hat === 'flower' ? 'Recolor the crown — every bloom re-tints together' : 'Recolor this hat'}>
+					<label className="swatch-pick" title={value.hat === 'flower' ? t('app.appearance.recolorCrown') : t('app.appearance.recolorHat')}>
 						<Icon name="eyedropper" size={14} />
-						<input type="color" value={value.hatColor || hatPalette(value.hat).a} onChange={(e) => set({ hatColor: e.target.value })} aria-label="Custom hat color" />
+						<input type="color" value={value.hatColor || hatPalette(value.hat).a} onChange={(e) => set({ hatColor: e.target.value })} aria-label={t('app.appearance.customHat')} />
 					</label>
 				)}
 			</div>
@@ -139,6 +138,7 @@ export function AppearanceEditor({ value, onChange }: { value: Appearance; onCha
 
 export function SettingsPanel() {
 	const { state, setPanel, notify, refresh, logout } = useGame();
+	const { t, locale } = useI18n();
 	const defaults: Appearance = {
 		skin: '#eec39a', hair: '#6e4a33', outfit: '#4a7c59', hat: 'straw', hairstyle: 'short', beard: 'none', body: 'slim',
 	};
@@ -172,9 +172,9 @@ export function SettingsPanel() {
 			const r = await api.updateAppearance(appearance);
 			bridge.emit('appearance-changed', r.appearance);
 			await refresh();
-			notify('Your new look is saved.');
+			notify(t('app.settings.lookSaved'));
 		} catch (e: any) {
-			setError(e.message || 'Could not save your look');
+			setError(e.message || t('app.settings.errSaveLook'));
 		} finally {
 			setSaving(false);
 		}
@@ -183,11 +183,11 @@ export function SettingsPanel() {
 	const changePass = async () => {
 		setError(null);
 		if (newPass.length < 4 || newPass.length > 32) {
-			setError('Your new passcode must be between 4 and 32 characters');
+			setError(t('app.settings.errPasscodeLength'));
 			return;
 		}
 		if (newPass !== confirmPass) {
-			setError('The new passcodes don’t match');
+			setError(t('app.settings.errPasscodeMatch'));
 			return;
 		}
 		setChanging(true);
@@ -196,9 +196,9 @@ export function SettingsPanel() {
 			setCurPass('');
 			setNewPass('');
 			setConfirmPass('');
-			notify('Your passcode has been updated.');
+			notify(t('app.settings.passcodeUpdated'));
 		} catch (e: any) {
-			setError(e.message || 'Could not change your passcode');
+			setError(e.message || t('app.settings.errChangePasscode'));
 		} finally {
 			setChanging(false);
 		}
@@ -217,17 +217,17 @@ export function SettingsPanel() {
 				if (fbSentTimer.current) clearTimeout(fbSentTimer.current);
 				fbSentTimer.current = setTimeout(() => setFbSent(false), 5000);
 			} else {
-				notify('You look offline — your feedback is saved and will send when you next start the game.');
+				notify(t('app.settings.feedbackQueued'));
 			}
 		} catch (e: any) {
-			setError(e.message || 'Could not send feedback');
+			setError(e.message || t('app.settings.errFeedback'));
 		} finally {
 			setSendingFb(false);
 		}
 	};
 
 	const deleteSave = async () => {
-		if (!window.confirm(`Permanently delete "${player.name}"? The preserve, journal, and all progress will be gone for good.`)) return;
+		if (!window.confirm(t('app.confirm.deleteSave', { name: player.name }))) return;
 		setDeleting(true);
 		setError(null);
 		try {
@@ -235,7 +235,7 @@ export function SettingsPanel() {
 			forgetSave();
 			logout();
 		} catch (e: any) {
-			setError(e.message || 'Could not delete the save');
+			setError(e.message || t('app.settings.errDelete'));
 			setDeleting(false);
 		}
 	};
@@ -244,87 +244,96 @@ export function SettingsPanel() {
 		<div className="panel-backdrop" onClick={() => setPanel(null)}>
 			<div className="panel panel-wide" onClick={(e) => e.stopPropagation()}>
 				<div className="panel-head">
-					<h2><Icon name="gear" size={20} /> Settings</h2>
-					<button className="icon-btn" onClick={() => setPanel(null)} aria-label="Close"><Icon name="close" /></button>
+					<h2><Icon name="gear" size={20} /> {t('app.settings.title')}</h2>
+					<button className="icon-btn" onClick={() => setPanel(null)} aria-label={t('app.common.close')}><Icon name="close" /></button>
 				</div>
 				<div className="panel-body">
-					<h3><Icon name="user" size={15} /> Your caretaker — {player.name}</h3>
+					<h3><Icon name="user" size={15} /> {t('app.settings.yourCaretaker', { name: player.name })}</h3>
 					<AppearanceEditor value={appearance} onChange={setAppearance} />
 					<div className="form-actions" style={{ justifyContent: 'flex-end' }}>
 						<button className="big-btn primary" onClick={saveLook} disabled={saving}>
-							<Icon name="check" /> <span>{saving ? 'Saving…' : 'Save new look'}</span>
+							<Icon name="check" /> <span>{saving ? t('app.settings.saving') : t('app.settings.saveLook')}</span>
 						</button>
 					</div>
 
+					<h3><Icon name="chat" size={15} /> {t('app.settings.language')}</h3>
+					<div className="craft-filter lang-filter">
+						<label htmlFor="settings-language">{t('app.settings.language')}:</label>
+						<select id="settings-language" value={locale} onChange={(e) => void chooseLocale(e.target.value)}>
+							{Object.entries(LOCALE_NAMES).map(([code, name]) => (
+								<option key={code} value={code}>{name}</option>
+							))}
+						</select>
+					</div>
+
 					{!isSolo && <>
-					<h3><Icon name="lock" size={15} /> Change passcode</h3>
+					<h3><Icon name="lock" size={15} /> {t('app.settings.changePasscode')}</h3>
 					<p className="muted small">
-						Enter your current passcode and choose a new one (4–32 characters). You’ll use it the next time you load this save.
+						{t('app.settings.changePasscodeHint')}
 					</p>
 					<div className="pass-row">
 						<label className="field">
 							<Icon name="lock" size={16} />
-							<input type="password" placeholder="Current passcode" value={curPass} onChange={(e) => setCurPass(e.target.value)} />
+							<input type="password" placeholder={t('app.settings.currentPasscode')} value={curPass} onChange={(e) => setCurPass(e.target.value)} />
 						</label>
 						<label className="field">
 							<Icon name="lock" size={16} />
-							<input type="password" placeholder="New passcode" value={newPass} onChange={(e) => setNewPass(e.target.value)} />
+							<input type="password" placeholder={t('app.settings.newPasscode')} value={newPass} onChange={(e) => setNewPass(e.target.value)} />
 						</label>
 						<label className="field">
 							<Icon name="lock" size={16} />
-							<input type="password" placeholder="Confirm new" value={confirmPass} onChange={(e) => setConfirmPass(e.target.value)} />
+							<input type="password" placeholder={t('app.settings.confirmNew')} value={confirmPass} onChange={(e) => setConfirmPass(e.target.value)} />
 						</label>
 						<button className="big-btn primary" style={{ width: 'auto', marginTop: 0 }} disabled={changing || !curPass || !newPass || !confirmPass} onClick={changePass}>
-							<Icon name="check" size={15} /> <span>{changing ? 'Updating…' : 'Update passcode'}</span>
+							<Icon name="check" size={15} /> <span>{changing ? t('app.settings.updating') : t('app.settings.updatePasscode')}</span>
 						</button>
 					</div>
 
-					<h3><Icon name="trash" size={15} /> Delete this save</h3>
+					<h3><Icon name="trash" size={15} /> {t('app.settings.deleteSaveTitle')}</h3>
 					<p className="muted small">
-						Deleting "{player.name}" permanently removes the preserve, journal, chests, and all progress from Harper. Enter your
-						passcode to confirm.
+						{t('app.settings.deleteSaveHint', { name: player.name })}
 					</p>
 					<div className="danger-row">
 						<label className="field">
 							<Icon name="lock" size={16} />
-							<input type="password" placeholder="Passcode" value={passcode} onChange={(e) => setPasscode(e.target.value)} />
+							<input type="password" placeholder={t('app.settings.passcode')} value={passcode} onChange={(e) => setPasscode(e.target.value)} />
 						</label>
 						<button className="delete-save-btn" style={{ width: 'auto', marginTop: 0 }} disabled={deleting || !passcode} onClick={deleteSave}>
-							<Icon name="trash" size={15} /> <span>{deleting ? 'Deleting…' : 'Delete forever'}</span>
+							<Icon name="trash" size={15} /> <span>{deleting ? t('app.settings.deleting') : t('app.settings.deleteForever')}</span>
 						</button>
 					</div>
 					</>}
 
-					<h3><Icon name="chat" size={15} /> Send feedback</h3>
+					<h3><Icon name="chat" size={15} /> {t('app.settings.sendFeedback')}</h3>
 					<p className="muted small">
-						Spotted a bug, or have an idea for the preserve? Send a note straight to the developer.
+						{t('app.settings.feedbackHint')}
 					</p>
 					<div className="feedback-row">
 						<textarea
-							placeholder="What's on your mind?"
+							placeholder={t('app.settings.feedbackPlaceholder')}
 							value={fbMessage}
 							maxLength={4000}
 							onChange={(e) => setFbMessage(e.target.value)}
-							aria-label="Feedback message"
+							aria-label={t('app.settings.feedbackAria')}
 						/>
 						<div className="feedback-actions">
 							<label className="field">
 								<Icon name="user" size={16} />
-								<input type="email" placeholder="Your email (optional — only if you'd like a reply)" value={fbEmail} onChange={(e) => setFbEmail(e.target.value)} />
+								<input type="email" placeholder={t('app.settings.emailPlaceholder')} value={fbEmail} onChange={(e) => setFbEmail(e.target.value)} />
 							</label>
 							{fbSent ? (
 								<span className="feedback-sent" role="status">
-									<Icon name="check" size={15} /> <span>Sent!</span>
+									<Icon name="check" size={15} /> <span>{t('app.settings.sent')}</span>
 								</span>
 							) : (
 								<button className="big-btn primary" style={{ width: 'auto', marginTop: 0 }} disabled={sendingFb || !fbMessage.trim()} onClick={submitFeedback}>
-									<Icon name="forward" size={15} /> <span>{sendingFb ? 'Sending…' : 'Send feedback'}</span>
+									<Icon name="forward" size={15} /> <span>{sendingFb ? t('app.settings.sending') : t('app.settings.sendFeedback')}</span>
 								</button>
 							)}
 						</div>
 					</div>
 					{error && <p className="form-error">{error}</p>}
-					<p className="build-stamp">build {new Date(__BUILD_TIME__).toLocaleString()}</p>
+					<p className="build-stamp">{t('app.settings.build', { time: new Date(__BUILD_TIME__).toLocaleString() })}</p>
 				</div>
 			</div>
 		</div>

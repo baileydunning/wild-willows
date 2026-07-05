@@ -1,0 +1,72 @@
+{
+	"_readme": "In-world Phaser strings: interaction prompts, world labels (src/game/*.ts). Keys are referenced as game.<key>.",
+	"object": {
+		"craftingStation": "Crafting Station"
+	},
+	"label": {
+		"stepOutside": "Step back outside (E)",
+		"plantBed": "Plant in this watered bed",
+		"stepInside": "Step inside your home (E)",
+		"upgradeHome": "Upgrade your home (E)",
+		"walkTo": "Walk to {name}",
+		"walkBackTo": "Walk back to {name}",
+		"walkBackUpTo": "Walk back up to {name}",
+		"readTrailSign": "Read the trail sign ({name})",
+		"lookOcean": "Look out over the ocean",
+		"gather": "Gather {name}",
+		"openChest": "Open {name}",
+		"openCrafting": "Open crafting (E)",
+		"readJournal": "Read your field journal",
+		"sleep": "Go to sleep (refresh gathering spots)",
+		"restMoment": "Rest a moment",
+		"caretaker": "caretaker"
+	},
+	"toast": {
+		"noRotate": "That piece doesn’t rotate",
+		"walkCloser": "Walk a little closer first.",
+		"forestOvergrown": "The forest trail is overgrown. {label}",
+		"restoreMeadowFirst": "Restore the meadow first.",
+		"wetlandUnlocked": "Rushwater Wetland is unlocked! Follow the boardwalk east to step into the marsh.",
+		"wetlandWashedOut": "The wetland path is washed out. {label}",
+		"desertUnlocked": "Redstone Scrubland is unlocked! The desert trail east opens soon.",
+		"desertBlocked": "The desert trail is blocked. {label}",
+		"alpineUnlocked": "Graywind Heights is unlocked! The mountain trail opens soon.",
+		"alpineBlocked": "The mountain trail is blocked. {label}",
+		"coastalUnlocked": "Pelican Shore is unlocked! Follow the trail down to the coast.",
+		"coastalSnowedIn": "The pass down to the coast is snowed in. {label}",
+		"oceanView": "The open Pacific stretches east as far as you can see. Sea glass, kelp, coral, and the rare pearl wash up along the tideline.",
+		"stillRegrowing": "Still regrowing — let it rest a little longer.",
+		"goodnight": "Goodnight… 💤",
+		"quietBreath": "You take a quiet breath. The preserve is in good hands."
+	},
+	"confirm": {
+		"clearWateredBed": "Clear this watered soil bed? The water used on it is lost."
+	},
+	"block": {
+		"standingHere": "You're standing here — step off before flooding this bed into open water."
+	},
+	"float": {
+		"pickup": "+{qty} {name}",
+		"watered": "Watered!",
+		"bedReady": "Soil bed ready",
+		"cleared": "Cleared",
+		"tapTap": "tap tap",
+		"building": "Building…",
+		"done": "Done! ✨"
+	},
+	"prompt": {
+		"tap": "Tap",
+		"click": "Click",
+		"tapLower": "tap",
+		"clickLower": "click",
+		"rotateHint": " · \\ to rotate",
+		"escCancel": " · Esc to cancel",
+		"escStopPlacing": " · Esc to stop placing",
+		"moveTile": "{verb} a tile to move it there",
+		"placeTile": "{verb} a tile to place",
+		"shovel": "Shovel — {verb} ground to dig a bed (may turn up materials)",
+		"wateringCan": "Watering can — {verb} a bed to water it, again to flood it",
+		"near": "{verb} — {label}",
+		"nearSuffix": " · {verb} — {label}"
+	}
+}

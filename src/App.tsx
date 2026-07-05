@@ -3,6 +3,7 @@ import { api } from './api';
 import { bridge } from './game/bridge';
 import { PhaserGame } from './game/PhaserGame';
 import { GameProvider, useGame } from './state';
+import { useI18n } from './i18n/react';
 import { isTypingTarget } from './typing';
 import { HelpModal } from './ui/Help';
 import { HUD, Toasts } from './ui/HUD';
@@ -40,6 +41,7 @@ interface ClickedBed {
 /** Pick what to sow in a watered soil bed — flowers and trees, costs from basket + chests. */
 function PlantMenu({ bed, onClose }: { bed: ClickedBed; onClose: () => void }) {
 	const { data, state, plant } = useGame();
+	const { t, content } = useI18n();
 	if (!data || !state) return null;
 	const avail = (resId: string) =>
 		(state.player.inventory?.[resId] || 0) + state.chests.reduce((s, c) => s + (c.contents?.[resId] || 0), 0);
@@ -52,12 +54,12 @@ function PlantMenu({ bed, onClose }: { bed: ClickedBed; onClose: () => void }) {
 		return (
 			<div className="recipe" key={o.id}>
 				<div className="grow">
-					<b>{o.name}</b>
-					<div className="muted small">{o.description}</div>
+					<b>{content('habitatObject', o.id, 'name', o.name)}</b>
+					<div className="muted small">{content('habitatObject', o.id, 'description', o.description || '')}</div>
 					<div className="mats">
 						{Object.entries(o.plantCost || {}).map(([id, q]) => (
 							<span key={id} className={`mat ${avail(id) >= q ? 'mat-ok' : 'mat-no'}`}>
-								{data.resources.find((r) => r.id === id)?.name || id} {Math.min(avail(id), q)}/{q}
+								{content('resource', id, 'name', data.resources.find((r) => r.id === id)?.name || id)} {Math.min(avail(id), q)}/{q}
 							</span>
 						))}
 					</div>
@@ -69,7 +71,7 @@ function PlantMenu({ bed, onClose }: { bed: ClickedBed; onClose: () => void }) {
 						onClose();
 					}}
 				>
-					Plant
+					{t('app.plantMenu.plant')}
 				</button>
 			</div>
 		);
@@ -79,15 +81,15 @@ function PlantMenu({ bed, onClose }: { bed: ClickedBed; onClose: () => void }) {
 		<div className="panel-backdrop" onClick={onClose}>
 			<div className="panel" onClick={(e) => e.stopPropagation()}>
 				<div className="panel-head">
-					<h2><Icon name="leaf" size={20} /> Plant in the watered bed</h2>
-					<button className="icon-btn" onClick={onClose} aria-label="Close"><Icon name="close" /></button>
+					<h2><Icon name="leaf" size={20} /> {t('app.plantMenu.title')}</h2>
+					<button className="icon-btn" onClick={onClose} aria-label={t('app.common.close')}><Icon name="close" /></button>
 				</div>
 				<div className="panel-body">
-					<h3>Flowers</h3>
+					<h3>{t('app.plantMenu.flowers')}</h3>
 					{flowers.map(row)}
-					<h3>Trees</h3>
+					<h3>{t('app.plantMenu.trees')}</h3>
 					{trees.map(row)}
-					<p className="muted small">Planted things sprout right away and grow in over a minute or two.</p>
+					<p className="muted small">{t('app.plantMenu.hint')}</p>
 				</div>
 			</div>
 		</div>
@@ -97,18 +99,19 @@ function PlantMenu({ bed, onClose }: { bed: ClickedBed; onClose: () => void }) {
 /** Small action menu when you click one of your placed items. */
 function PlacementMenu({ item, onClose }: { item: ClickedPlacement; onClose: () => void }) {
 	const { removePlacement, rotatePlacement, data } = useGame();
+	const { t, content } = useI18n();
 	const def = data?.habitatObjects.find((o) => o.id === item.objectId);
 	const planted = !!(def?.plantable && item.plantedAt);
 	return (
 		<div className="placement-menu">
-			<b>{item.name}</b>
+			<b>{content('habitatObject', item.objectId, 'name', item.name)}</b>
 			<button
 				onClick={() => {
 					bridge.emit('enter-move', { placementId: item.placementId });
 					onClose();
 				}}
 			>
-				<Icon name="pin" size={15} /> Move
+				<Icon name="pin" size={15} /> {t('app.placementMenu.move')}
 			</button>
 			{def?.rotatable && (
 				<button
@@ -117,7 +120,7 @@ function PlacementMenu({ item, onClose }: { item: ClickedPlacement; onClose: () 
 						onClose();
 					}}
 				>
-					<Icon name="gear" size={15} /> Rotate
+					<Icon name="gear" size={15} /> {t('app.placementMenu.rotate')}
 				</button>
 			)}
 			<button
@@ -126,9 +129,9 @@ function PlacementMenu({ item, onClose }: { item: ClickedPlacement; onClose: () 
 					onClose();
 				}}
 			>
-				<Icon name={planted ? 'spade' : 'basket'} size={15} /> {planted ? 'Dig up (returns materials)' : 'Pick up'}
+				<Icon name={planted ? 'spade' : 'basket'} size={15} /> {planted ? t('app.placementMenu.digUp') : t('app.placementMenu.pickUp')}
 			</button>
-			<button className="icon-btn subtle" onClick={onClose} aria-label="Close" style={{ width: 30, height: 30 }}>
+			<button className="icon-btn subtle" onClick={onClose} aria-label={t('app.common.close')} style={{ width: 30, height: 30 }}>
 				<Icon name="close" size={14} />
 			</button>
 		</div>
@@ -137,6 +140,7 @@ function PlacementMenu({ item, onClose }: { item: ClickedPlacement; onClose: () 
 
 function GameScreen() {
 	const game = useGame();
+	const { t } = useI18n();
 	const { panel, setPanel, placementObjectId, cancelPlacement, notify } = game;
 	const [clickedPlacement, setClickedPlacement] = useState<ClickedPlacement | null>(null);
 	const [clickedBed, setClickedBed] = useState<ClickedBed | null>(null);
@@ -178,7 +182,7 @@ function GameScreen() {
 			bridge.on('toast', (p: any) => notify(p.text, p.kind || 'info')),
 			bridge.on('placement-exited', () => cancelPlacement()),
 			bridge.on('remove-placement', (p: any) => {
-				if (window.confirm(`Pick up ${p.name}? Animals that depend on it may visit less often.`)) {
+				if (window.confirm(t('app.confirm.pickUpPlacement', { name: p.name }))) {
 					game.removePlacement(p.placementId);
 				}
 			}),
@@ -201,7 +205,7 @@ function GameScreen() {
 			bridge.on('placement-clicked', (p: any) => setClickedPlacement(p)),
 			bridge.on('bed-clicked', (p: any) => setClickedBed(p)),
 			bridge.on('dig-up', (p: any) => {
-				if (window.confirm(`Dig up ${p.name}? Its planting materials are refunded.`)) {
+				if (window.confirm(t('app.confirm.digUpPlacement', { name: p.name }))) {
 					game.removePlacement(p.placementId);
 				}
 			}),

@@ -9,6 +9,7 @@
 // save slot's UUID, missed reports lose nothing once a connection returns.
 
 import { api, getPlayerId, getSoloSlot, getTransport, COOP_BASE_URL, IS_DESKTOP } from '../api';
+import { getLocale } from '../i18n';
 import { APP_VERSION, BUILD_TIME, detectOS } from '../platform';
 
 const REPORT_MS = 5 * 60 * 1000; // network-friendly cadence; Steam's local sync stays at 60s
@@ -46,6 +47,7 @@ async function reportOnce(): Promise<void> {
 				os: detectOS(), // mac / windows / linux / …
 				version: APP_VERSION,
 				build: BUILD_TIME,
+				language: getLocale(), // interface language for the audience breakdown
 				snapshot,
 			}),
 		});

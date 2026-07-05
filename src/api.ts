@@ -6,6 +6,7 @@
 // and CO-OP talks to the hosted Harper. `transport` selects which is live.
 
 import type { Appearance, GameData, GameState, WorldSummary, Peer, RosterEntry } from './types';
+import { t, getLocale } from './i18n';
 import { soloRequest } from './solo/backend';
 import { persist as persistSolo, type SaveMeta } from './solo/saves';
 
@@ -144,7 +145,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 		const body = options?.body ? JSON.parse(String(options.body)) : undefined;
 		const res = await soloRequest(path, method, body);
 		if (res.status >= 400) {
-			const err: any = new Error(res.body?.title || `Request failed (${res.status})`);
+			const err: any = new Error(res.body?.title || t('app.error.requestFailed', { status: res.status }));
 			err.status = res.status;
 			throw err;
 		}
@@ -162,7 +163,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 		...options,
 	});
 	if (!res.ok) {
-		let message = `Request failed (${res.status})`;
+		let message = t('app.error.requestFailed', { status: res.status });
 		try {
 			const body = await res.json();
 			message = body?.title || body?.error || body?.message || message;
@@ -181,7 +182,7 @@ function post<T>(path: string, body: object): Promise<T> {
 }
 
 const pid = () => {
-	if (!currentPlayerId) throw new Error('Not logged in');
+	if (!currentPlayerId) throw new Error(t('app.error.notLoggedIn'));
 	return currentPlayerId;
 };
 
@@ -253,7 +254,8 @@ export const api = {
 		post<any>('/Plant/', { playerId: pid(), area, x, y, plantId }),
 	syncPlayer: (x: number, y: number, area?: string, tutorialStep?: number) =>
 		post<any>('/SyncPlayer/', { playerId: pid(), x, y, area, tutorialStep }),
-	heartbeat: () => post<any>('/Heartbeat/', { playerId: pid() }),
+	// language rides on the heartbeat so metrics can report interface language
+	heartbeat: () => post<any>('/Heartbeat/', { playerId: pid(), language: getLocale() }),
 	appendFeed: (entries: { icon: string; text: string; at: number }[]) =>
 		post<any>('/AppendFeed/', { playerId: pid(), entries }),
 	recalc: (biomeId: string) => post<any>('/RecalcBiome/', { playerId: pid(), biomeId }),
@@ -287,7 +289,7 @@ export async function startSoloGame(name: string, appearance: Appearance): Promi
 export async function resumeSoloGame(slotId: string): Promise<{ playerId: string; state: GameState; slot: SaveMeta }> {
 	setTransport('solo');
 	const file = await loadSaveData(slotId);
-	if (!file) throw new Error('That save could not be found');
+	if (!file) throw new Error(t('app.error.saveNotFound'));
 	const state = await backendLoad(file.meta.playerId, file.data);
 	setSoloSlot(file.meta);
 	setPlayerId(file.meta.playerId);

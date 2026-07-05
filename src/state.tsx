@@ -1,6 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { api, forgetSave, getPlayerId, lastSave, rememberSave, setPlayerId, startSoloGame, resumeSoloGame, exitSolo } from './api';
 import { flushFeedbackQueue } from './feedback';
+import { t, content } from './i18n';
 import { pokeMetricsUplink } from './solo/metricsUplink';
 import { bridge } from './game/bridge';
 import { unlockedRecipeIds } from './recipes';
@@ -196,7 +197,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				setData(d);
 				bridge.shared.data = d;
 			})
-			.catch(() => setDataError('Could not reach the Harper backend. Is it running? (see README)'));
+			.catch(() => setDataError(t('app.error.backendUnreachable')));
 	}, []);
 
 	useEffect(() => {
@@ -238,13 +239,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		if (!prev) return; // baseline seeded, nothing to announce yet
 		const added = [...now].filter((id) => !prev.has(id));
 		if (!added.length) return;
-		const names = added
-			.map((id) => data.recipes.find((r) => r.id === id)?.name)
-			.filter(Boolean) as string[];
+		const defs = added
+			.map((id) => data.recipes.find((r) => r.id === id))
+			.filter(Boolean) as typeof data.recipes;
 		// Recipes are tuned to unlock roughly one at a time; announce each by name.
 		// (Cap the toasts if several ever land together so we don't flood the HUD.)
-		names.slice(0, 3).forEach((name) => toast(`New Crafting Recipe Unlocked — ${name}`, 'unlock'));
-		for (const name of names) pushLog('sparkle', `New Crafting Recipe Unlocked — ${name}.`, true);
+		defs.slice(0, 3).forEach((r) => toast(t('app.toast.recipeUnlocked', { name: content('recipe', r.id, 'name', r.name) }), 'unlock'));
+		for (const r of defs) pushLog('sparkle', t('app.feed.recipeUnlocked', { name: content('recipe', r.id, 'name', r.name) }), true);
 	}, [data, state, toast, pushLog]);
 
 	// Announce freshly earned achievements by diffing the snapshot (the server
@@ -261,8 +262,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		const defs = added
 			.map((id) => data.achievements.find((a) => a.id === id))
 			.filter(Boolean) as typeof data.achievements;
-		defs.slice(0, 3).forEach((a) => toast(`Achievement unlocked — ${a.name}`, 'achievement'));
-		for (const a of defs) pushLog('star', `Achievement unlocked: ${a.name}. ${a.flavor}`, true);
+		defs.slice(0, 3).forEach((a) => toast(t('app.toast.achievementUnlocked', { name: content('achievement', a.id, 'name', a.name) }), 'achievement'));
+		for (const a of defs) pushLog('star', t('app.feed.achievementUnlocked', { name: content('achievement', a.id, 'name', a.name), flavor: content('achievement', a.id, 'flavor', a.flavor) }), true);
 	}, [data, state, toast, pushLog]);
 
 	// Weave narrative beats into the feed as combinations of animals return — e.g.
@@ -292,10 +293,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		for (const [biomeId, h] of cur) {
 			const p = prev.get(biomeId);
 			if (p === undefined) continue;
-			const name = data.biomes.find((b) => b.id === biomeId)?.name || biomeId;
-			for (const t of HEALTH_THRESHOLDS) {
-				if (p < t && h >= t) {
-					const line = healthMilestoneLine(t, name);
+			const biomeDef = data.biomes.find((b) => b.id === biomeId);
+			const name = biomeDef ? content('biome', biomeDef.id, 'name', biomeDef.name) : biomeId;
+			for (const th of HEALTH_THRESHOLDS) {
+				if (p < th && h >= th) {
+					const line = healthMilestoneLine(th, name);
 					if (line) pushLog('leaf', line, true);
 				}
 			}
@@ -307,14 +309,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	useEffect(() => {
 		const tasks = state?.dailyTasks?.tasks;
 		if (!tasks) return;
-		const done = new Set(tasks.filter((t) => t.progress >= t.target).map((t) => t.id));
+		const done = new Set(tasks.filter((task) => task.progress >= task.target).map((task) => task.id));
 		const before = prevTasksDone.current;
 		prevTasksDone.current = done;
 		if (!before) return;
-		for (const t of tasks) {
-			if (done.has(t.id) && !before.has(t.id) && !t.claimed) {
-				toast('Task complete — claim your reward on the board', 'unlock');
-				pushLog('sparkle', `Daily task complete: ${t.text}`, true);
+		for (const task of tasks) {
+			if (done.has(task.id) && !before.has(task.id) && !task.claimed) {
+				toast(t('app.toast.taskComplete'), 'unlock');
+				pushLog('sparkle', t('app.feed.taskComplete', { text: task.text }), true);
 			}
 		}
 	}, [state, toast, pushLog]);
@@ -376,11 +378,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		if (hosting && joinCode) {
 			// auto-copy the code so the host can paste it to friends right away
 			try { navigator.clipboard?.writeText(joinCode).catch(() => undefined); } catch { /* clipboard unavailable */ }
-			pushLog('leaf', `Co-op preserve started! Your join code is ${joinCode} — copied to your clipboard. Invite friends: have them open New Game → Co-op → "Join a friend's world" and enter ${joinCode}. Open the People menu (U) any time to copy it again.`, true);
-			toast(`Co-op started — code ${joinCode} copied to clipboard`, 'unlock');
+			pushLog('leaf', t('app.coop.hostWelcomeFeed', { code: joinCode }), true);
+			toast(t('app.coop.hostWelcomeToast', { code: joinCode }), 'unlock');
 		} else {
-			pushLog('leaf', `You joined a co-op preserve — restore it together! Open the People menu (top-right) to see who's here and copy the code.`, true);
-			toast(`Joined the co-op preserve`, 'unlock');
+			pushLog('leaf', t('app.coop.joinWelcomeFeed'), true);
+			toast(t('app.coop.joinWelcomeToast'), 'unlock');
 		}
 	}, [pushLog, toast]);
 
@@ -443,13 +445,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			} catch (e: any) {
 				if (e?.status === 403 && opts.joinWorldId && opts.token) {
 					adoptState(r.state); // hold in the (solo) session behind the waiting room
-					setPendingJoin({ worldId: opts.joinWorldId, worldName: opts.worldName || 'the preserve', hostName: opts.hostName || 'the host', code: (opts.code || '').trim(), token: opts.token });
+					setPendingJoin({ worldId: opts.joinWorldId, worldName: opts.worldName || t('app.coop.fallbackWorldName'), hostName: opts.hostName || t('app.coop.fallbackHostName'), code: (opts.code || '').trim(), token: opts.token });
 				} else {
 					throw e;
 				}
 			}
 		} else {
-			const c = await api.createWorld(opts.worldName || `${name}'s preserve`);
+			const c = await api.createWorld(opts.worldName || t('app.coop.defaultWorldName', { name }));
 			const s = await api.switchWorld(c.world.worldId);
 			applyWorlds(s.worlds || [], s.worldId);
 			feedSeeded.current = false;
@@ -500,7 +502,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
 	const continueLast = useCallback(async (mode?: 'solo' | 'coop') => {
 		const last = lastSave(mode);
-		if (!last) throw new Error('No previous save on this device');
+		if (!last) throw new Error(t('app.error.noPreviousSave'));
 		setPlayerId(last.playerId);
 		try {
 			adoptState(await api.gameState());
@@ -564,19 +566,19 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				const wb = r.welcomeBack;
 				if (wb) {
 					const bits: string[] = [];
-					if (wb.matured) bits.push(wb.matured === 1 ? 'one of your plantings matured' : `${wb.matured} of your plantings matured`);
-					if (wb.healthGain) bits.push(`the land grew ${wb.healthGain} point${wb.healthGain === 1 ? '' : 's'} healthier`);
+					if (wb.matured) bits.push(t('app.welcomeBack.matured', { count: wb.matured }));
+					if (wb.healthGain) bits.push(t('app.welcomeBack.healthGain', { count: wb.healthGain }));
 					if (bits.length) {
-						pushLog('leaf', `While you were away, ${bits.join(' and ')}.`, true);
-						toast('Your preserve kept growing while you were away', 'unlock');
+						pushLog('leaf', t('app.welcomeBack.summary', { bits: bits.join(t('app.list.and')) }), true);
+						toast(t('app.toast.preserveGrew'), 'unlock');
 					}
 				}
 				if (r.newAnimals?.length) {
 					for (const na of r.newAnimals) {
-						const name = na.animal?.name || 'An animal';
-						toast(`${name} has returned to the preserve!`, 'animal');
-						pushLog('paw', `${name} felt safe enough to return${wb ? ' while you were away' : ''}!`, true);
-						if (na.animal?.fact) pushLog('paw', `${name}: ${na.animal.fact}`, true);
+						const name = na.animal ? content('animal', na.animal.id, 'name', na.animal.name || t('app.fallback.animal')) : t('app.fallback.animal');
+						toast(t('app.toast.animalReturned', { name }), 'animal');
+						pushLog('paw', wb ? t('app.feed.animalReturnedWhileAway', { name }) : t('app.feed.animalReturned', { name }), true);
+						if (na.animal?.fact) pushLog('paw', t('app.feed.animalFact', { name, fact: content('animal', na.animal.id, 'fact', na.animal.fact) }), true);
 					}
 				}
 				// pull the recalculated world (health, discoveries) into view
@@ -669,7 +671,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				for (const rq of reqs) {
 					if (!seenRequestTokens.current.has(rq.token)) {
 						seenRequestTokens.current.add(rq.token);
-						toast(`${rq.name} wants to join — press U to let them in`, 'unlock');
+						toast(t('app.toast.joinRequest', { name: rq.name }), 'unlock');
 					}
 				}
 			} catch { /* not a host, or offline */ }
@@ -738,24 +740,28 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				const result = await fn();
 				if (result?.newAnimals?.length) {
 					for (const na of result.newAnimals) {
-						const name = na.animal?.name || 'An animal';
-						toast(`${name} has returned to the preserve!`, 'animal');
-						pushLog('paw', `${name} felt safe enough to return!`, true);
+						const name = na.animal ? content('animal', na.animal.id, 'name', na.animal.name || t('app.fallback.animal')) : t('app.fallback.animal');
+						toast(t('app.toast.animalReturned', { name }), 'animal');
+						pushLog('paw', t('app.feed.animalReturned', { name }), true);
 						// coexistence beat: if it arrived after animals it depends on, say so
 						const prereqs = (na.animal?.requirements?.animals || [])
-							.map((id: string) => data?.animals.find((a) => a.id === id)?.name)
+							.map((id: string) => {
+								const dep = data?.animals.find((a) => a.id === id);
+								return dep ? content('animal', dep.id, 'name', dep.name) : undefined;
+							})
 							.filter(Boolean);
 						if (prereqs.length) {
-							pushLog('leaf', `${name} came back now that the ${prereqs.join(' and ')} had returned — the food web is filling in.`, true);
+							pushLog('leaf', t('app.feed.animalPrereqs', { name, others: prereqs.join(t('app.list.and')) }), true);
 						}
 						// a fun fact about the animal that just arrived (shows in both feeds)
-						if (na.animal?.fact) pushLog('paw', `${name}: ${na.animal.fact}`, true);
+						if (na.animal?.fact) pushLog('paw', t('app.feed.animalFact', { name, fact: content('animal', na.animal.id, 'fact', na.animal.fact) }), true);
 					}
 				}
 				if (result?.unlockedBiomes?.length) {
 					for (const b of result.unlockedBiomes) {
-						toast(`New biome unlocked: ${b.name}!`, 'unlock');
-						pushLog('sparkle', `New biome unlocked: ${b.name}!`, true);
+						const bName = b?.id ? content('biome', b.id, 'name', b.name) : b.name;
+						toast(t('app.toast.biomeUnlocked', { name: bName }), 'unlock');
+						pushLog('sparkle', t('app.feed.biomeUnlocked', { name: bName }), true);
 					}
 				}
 				onResult?.(result);
@@ -763,7 +769,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				markSaved();
 			} catch (e: any) {
 				setSaveStatus('error');
-				toast(e.message || 'Something went wrong', 'error');
+				toast(e.message || t('app.error.generic'), 'error');
 				window.setTimeout(() => setSaveStatus('idle'), 1500);
 			} finally {
 				actionInFlight.current = false;
@@ -779,7 +785,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				(r) => {
 					const res = data?.resources.find((x) => x.id === resourceId);
 					const qty = r?.gained?.[resourceId] || 1;
-					pushLog('basket', `Gathered ${qty}× ${res?.name || resourceId} into your basket.`);
+					pushLog('basket', t('app.log.gathered', { qty, name: res ? content('resource', res.id, 'name', res.name) : resourceId }));
 					// the basket is the gathering tool — other tools are for shaping the land
 					bridge.emit('collected', { nodeId, resourceId, qty, tool: 'basket', color: res?.color });
 				}
@@ -794,20 +800,21 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				(r) => {
 					if (action === 'dig') {
 						if (r?.dug) {
-							const name = data?.resources.find((x: any) => x.id === r.dug.resourceId)?.name || r.dug.resourceId;
-							pushLog('shovel', `Dug a soil bed and turned up ${r.dug.amount}× ${name}.`);
-							toast(`Dug up ${r.dug.amount}× ${name}!`, 'info');
+							const resDef = data?.resources.find((x: any) => x.id === r.dug.resourceId);
+							const name = resDef ? content('resource', resDef.id, 'name', resDef.name) : r.dug.resourceId;
+							pushLog('shovel', t('app.log.dugTurnedUp', { qty: r.dug.amount, name }));
+							toast(t('app.toast.dugUp', { qty: r.dug.amount, name }), 'info');
 						} else {
-							pushLog('shovel', 'Prepared a soil bed with your shovel.');
+							pushLog('shovel', t('app.log.preparedBed'));
 						}
 					} else if (action === 'water') {
 						if (r?.tile?.type === 'water') {
-							pushLog('drop', 'Flooded the bed into open water.');
+							pushLog('drop', t('app.log.flooded'));
 						} else {
-							pushLog('drop', 'Watered the soil — the ground here will recover (+1 biome health).');
-							toast('Bed ready — walk up and press E (or tap it) to plant.');
+							pushLog('drop', t('app.log.watered'));
+							toast(t('app.toast.bedReady'));
 						}
-					} else pushLog('shovel', 'Cleared the soil bed.');
+					} else pushLog('shovel', t('app.log.clearedBed'));
 					bridge.emit('terraformed', { x, y, action });
 				}
 			),
@@ -819,8 +826,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			act(
 				() => api.plant(area, x, y, plantId),
 				() => {
-					const name = data?.habitatObjects.find((o) => o.id === plantId)?.name || 'something';
-					pushLog('leaf', `Planted ${name} in the watered bed — give it a little time to grow.`);
+					const def = data?.habitatObjects.find((o) => o.id === plantId);
+					const name = def ? content('habitatObject', def.id, 'name', def.name) : t('app.fallback.plant');
+					pushLog('leaf', t('app.log.planted', { name }));
 				}
 			),
 		[act, data, pushLog]
@@ -852,10 +860,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			act(
 				() => api.craft(recipeId),
 				(r) => {
-					const name = data?.habitatObjects.find((o) => o.id === r?.crafted?.itemId)?.name || 'Item';
+					const def = data?.habitatObjects.find((o) => o.id === r?.crafted?.itemId);
+					const name = def ? content('habitatObject', def.id, 'name', def.name) : t('app.fallback.item');
 					const fromChests = Object.keys(r?.usedFrom?.chests || {}).length > 0;
-					toast(`Crafted ${name}${fromChests ? ' (used linked chest materials)' : ''}`);
-					pushLog('hammer', `Crafted ${name}${fromChests ? ' using linked chest storage' : ''}.`);
+					toast(t(fromChests ? 'app.toast.craftedFromChests' : 'app.toast.crafted', { name }));
+					pushLog('hammer', t(fromChests ? 'app.log.craftedFromChests' : 'app.log.crafted', { name }));
 				}
 			),
 		[act, data, toast]
@@ -866,12 +875,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			act(
 				() => api.discard(kind, id, qty),
 				() => {
+					const def = kind === 'crafted'
+						? data?.habitatObjects.find((o) => o.id === id)
+						: data?.resources.find((r) => r.id === id);
 					const label = name
-						|| (kind === 'crafted'
-							? data?.habitatObjects.find((o) => o.id === id)?.name
-							: data?.resources.find((r) => r.id === id)?.name)
+						|| (def && content(kind === 'crafted' ? 'habitatObject' : 'resource', def.id, 'name', def.name))
 						|| id;
-					pushLog('basket', `Threw away ${qty}× ${label}.`);
+					pushLog('basket', t('app.log.discarded', { qty, name: label }));
 				}
 			),
 		[act, data, pushLog]
@@ -882,9 +892,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			act(
 				() => api.place(objectId, area, x, y, rotation),
 				(r) => {
-					const name = data?.habitatObjects.find((o) => o.id === objectId)?.name || objectId;
+					const def = data?.habitatObjects.find((o) => o.id === objectId);
+					const name = def ? content('habitatObject', def.id, 'name', def.name) : objectId;
 					const h = r?.biomeState?.health;
-					pushLog('pin', `Placed ${name}${typeof h === 'number' ? ` — biome health now ${h}%` : ''}.`);
+					pushLog('pin', typeof h === 'number' ? t('app.log.placedWithHealth', { name, health: h }) : t('app.log.placed', { name }));
 				}
 			),
 		[act, data, pushLog]
@@ -897,11 +908,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				(r) => {
 					if (r?.refunded) {
 						const back = Object.entries(r.refunded)
-							.map(([id, q]) => `${q}× ${data?.resources.find((x) => x.id === id)?.name || id}`)
+							.map(([id, q]) => {
+								const def = data?.resources.find((x) => x.id === id);
+								return t('app.format.qtyName', { qty: q as number, name: def ? content('resource', def.id, 'name', def.name) : id });
+							})
 							.join(', ');
-						pushLog('spade', `Dug it up — got back ${back}.`);
+						pushLog('spade', t('app.log.dugUpRefund', { items: back }));
 					} else {
-						pushLog('basket', 'Picked the item back up — it is in your crafted items again.');
+						pushLog('basket', t('app.log.pickedUp'));
 					}
 				}
 			),
@@ -912,7 +926,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		(placementId: string, x: number, y: number, rotation?: number) =>
 			act(
 				() => api.move(placementId, x, y, rotation),
-				() => pushLog('pin', 'Moved it to a new spot.')
+				() => pushLog('pin', t('app.log.moved'))
 			),
 		[act, pushLog]
 	);
@@ -924,7 +938,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			if (!p) return Promise.resolve();
 			return act(
 				() => api.move(placementId, p.x, p.y, (((p.rotation || 0) + 90) % 360)),
-				() => pushLog('pin', 'Turned it a quarter-turn.')
+				() => pushLog('pin', t('app.log.rotated'))
 			);
 		},
 		[act, pushLog]
@@ -934,25 +948,25 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		(toolId: string) =>
 			act(
 				() => api.upgradeTool(toolId),
-				(r) => toast(`Upgraded: ${r?.upgraded?.name || toolId}`)
+				(r) => toast(t('app.toast.toolUpgraded', { name: r?.upgraded?.name || toolId }))
 			),
 		[act, toast]
 	);
 
 	const upgradeHome = useCallback(
-		(track: string) => act(() => api.upgradeHome(track), (r) => toast(`Home upgraded: ${r?.upgraded?.name || 'your home'} ${r?.upgraded?.level || ''}`, 'unlock')),
+		(track: string) => act(() => api.upgradeHome(track), (r) => toast(t('app.toast.homeUpgraded', { name: r?.upgraded?.name || t('app.fallback.home'), level: r?.upgraded?.level || '' }), 'unlock')),
 		[act, toast]
 	);
 	const setHomeStyle = useCallback(
-		(style: string) => act(() => api.setHomeStyle(style), (r) => toast(`You built your ${r?.built || 'home'}!`, 'unlock')),
+		(style: string) => act(() => api.setHomeStyle(style), (r) => toast(t('app.toast.homeBuilt', { name: r?.built || t('app.fallback.homeBuilt') }), 'unlock')),
 		[act, toast]
 	);
 	const paintHome = useCallback((part: 'floor' | 'wall' | 'rug', color: string) => act(() => api.setHomeColors({ [part]: color })), [act]);
 	const paintPlacement = useCallback((placementId: string, color: string) => act(() => api.setPlacementColor(placementId, color)), [act]);
 	const rest = useCallback(
 		() => act(() => api.rest(), () => {
-			toast('You sleep soundly — every gathering spot has regrown.', 'unlock');
-			pushLog('drop', 'You rested. The preserve’s gathering spots have all refreshed.', true);
+			toast(t('app.toast.rested'), 'unlock');
+			pushLog('drop', t('app.log.rested'), true);
 		}),
 		[act, toast, pushLog]
 	);
@@ -984,11 +998,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				() => api.claimTask(taskId),
 				(r) => {
 					const gainedTxt = Object.entries(r?.gained || {})
-						.map(([id, q]) => `${q}× ${data?.resources.find((x) => x.id === id)?.name || id}`)
+						.map(([id, q]) => {
+							const def = data?.resources.find((x) => x.id === id);
+							return t('app.format.qtyName', { qty: q as number, name: def ? content('resource', def.id, 'name', def.name) : id });
+						})
 						.join(', ');
 					if (gainedTxt) {
-						toast(`Task reward — ${gainedTxt}`, 'unlock');
-						pushLog('sparkle', `Daily task finished: earned ${gainedTxt}.`, true);
+						toast(t('app.toast.taskReward', { items: gainedTxt }), 'unlock');
+						pushLog('sparkle', t('app.feed.taskReward', { items: gainedTxt }), true);
 					}
 				}
 			),
@@ -1007,7 +1024,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				markSaved();
 			} catch (e: any) {
 				setSaveStatus('idle');
-				toast(e.message || 'You cannot go there yet', 'error');
+				toast(e.message || t('app.error.cannotGoThere'), 'error');
 			}
 		},
 		[state, markSaved, toast, adoptState]

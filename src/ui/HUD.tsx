@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { bridge } from '../game/bridge';
 import { useGame } from '../state';
+import { useI18n } from '../i18n/react';
 import { COOP_ENABLED } from '../features';
 import { weatherType, seasonStyle, liveSeason, liveWeatherType, liveDayPhase, dayPhaseStyle } from '../weather';
 import { Icon } from './icons';
@@ -21,6 +22,7 @@ export function Meter({ label, icon, value, color }: { label: string; icon: stri
 
 export function HUD() {
 	const { data, state, saveStatus, panel, setPanel, helpOpen, setHelpOpen, logout, placementObjectId, cancelPlacement, worlds, activeWorldId } = useGame();
+	const { t, content } = useI18n();
 	const [prompt, setPrompt] = useState('');
 	// The top-right menu can be tucked away so it's out of the scene.
 	const [navOpen, setNavOpen] = useState(true);
@@ -46,7 +48,7 @@ export function HUD() {
 	const isHome = area === 'home';
 	const home = state.player.home;
 	const homeBuilt = !!home?.styleLocked;
-	const homeName = homeBuilt ? (data.homeStyles?.[home!.style]?.name || 'Your Home') : 'Canvas Tent';
+	const homeName = homeBuilt ? (data.homeStyles?.[home!.style]?.name || t('app.hud.yourHome')) : t('app.hud.canvasTent');
 	const homeCarry = data.homeTracks?.comfort?.levels?.[((home?.comfort) || 1) - 1]?.carry || 0;
 	const homeDecor = state.placements.filter((p) => p.area === 'home').length;
 
@@ -73,47 +75,54 @@ export function HUD() {
 			<div className="hud-top-left">
 				{isHome ? (
 					<>
-						<div className="hud-area-name"><Icon name="home" size={17} /> Your Home</div>
-						<div className="hud-returned"><Icon name="sparkle" size={13} /> {homeName}{homeCarry > 0 ? ` · +${homeCarry} carry` : ''}</div>
-						<div className="hud-returned hud-returned-total"><Icon name="leaf" size={12} /> {homeDecor} {homeDecor === 1 ? 'thing' : 'things'} placed</div>
+						<div className="hud-area-name"><Icon name="home" size={17} /> {t('app.hud.yourHome')}</div>
+						<div className="hud-returned"><Icon name="sparkle" size={13} /> {homeName}{homeCarry > 0 ? t('app.hud.carrySuffix', { count: homeCarry }) : ''}</div>
+						<div className="hud-returned hud-returned-total"><Icon name="leaf" size={12} /> {t('app.hud.thingsPlaced', { count: homeDecor })}</div>
 					</>
 				) : (
 					<>
 						<div className="hud-area-name">
-							<Icon name="leaf" size={17} /> {biome?.name || 'The Preserve'}
+							<Icon name="leaf" size={17} /> {biome ? content('biome', biome.id, 'name', biome.name) : t('app.hud.thePreserve')}
 							{isCoop && (
-								<button className="coop-badge" onClick={() => setPanel('people')} title="Co-op preserve — invite & see who's here (U)">
-									<Icon name="user" size={12} /> Co-op{peersHere > 0 ? ` · ${peersHere + 1} here` : ''}
+								<button className="coop-badge" onClick={() => setPanel('people')} title={t('app.hud.coopBadgeTitle')}>
+									<Icon name="user" size={12} /> {t('app.hud.coop')}{peersHere > 0 ? t('app.hud.hereCount', { count: peersHere + 1 }) : ''}
 								</button>
 							)}
 						</div>
 						{state.weather && (() => {
 							const snap = state.weather;
 							const worldId = (state as any).worldId || state.player.id;
-							const wt = weatherType(liveWeatherType(worldId, area, snap));
-							const ss = seasonStyle(liveSeason(snap));
+							const wtId = liveWeatherType(worldId, area, snap);
+							const wt = weatherType(wtId);
+							const wtName = content('weather', wtId, 'name', wt.name);
+							const seasonId = liveSeason(snap);
+							const ss = seasonStyle(seasonId);
+							// Season/day-phase labels are data content (data/weather.json); overlay
+							// keys nest under weather.season.* / weather.dayPhase.* per the template.
+							const ssLabel = content('weather', `season.${seasonId}`, 'label', ss.label);
 							const phase = liveDayPhase(snap);
 							const ps = dayPhaseStyle(phase);
+							const psLabel = content('weather', `dayPhase.${phase}`, 'label', ps.label);
 							const phaseAccent: Record<string, string> = { dawn: '#e0913f', day: '#d9a13a', dusk: '#c96a3a', night: '#6274b4' };
 							const pAccent = phaseAccent[phase] || '#d9a13a';
 							const pIcon = phase === 'night' ? 'star' : 'sun';
 							return (
-								<div className="hud-weather" title={`${wt.name} · ${ss.label} · ${ps.label}`}>
-									<Icon name={wt.icon} size={13} /> {wt.name}
-									<span className="hud-dayphase" style={{ color: pAccent, borderColor: pAccent }}><Icon name={pIcon} size={11} /> {ps.label}</span>
-									<span className="hud-season" style={{ color: ss.accent, borderColor: ss.accent }}>{ss.label}</span>
+								<div className="hud-weather" title={`${wtName} · ${ssLabel} · ${psLabel}`}>
+									<Icon name={wt.icon} size={13} /> {wtName}
+									<span className="hud-dayphase" style={{ color: pAccent, borderColor: pAccent }}><Icon name={pIcon} size={11} /> {psLabel}</span>
+									<span className="hud-season" style={{ color: ss.accent, borderColor: ss.accent }}>{ssLabel}</span>
 								</div>
 							);
 						})()}
 						{biome && bState && (
 							<>
-								<Meter label="Health" icon="leaf" value={bState.health} color="#6aa253" />
-								<Meter label="Balance" icon="scales" value={bState.balance} color="#5b9cab" />
+								<Meter label={t('app.hud.health')} icon="leaf" value={bState.health} color="#6aa253" />
+								<Meter label={t('app.hud.balance')} icon="scales" value={bState.balance} color="#5b9cab" />
 								<div className="hud-returned">
-									<Icon name="paw" size={14} /> {bState.returnedCount}/{totalAnimals} animals returned
+									<Icon name="paw" size={14} /> {t('app.hud.animalsReturned', { returned: bState.returnedCount, total: totalAnimals })}
 								</div>
 								<div className="hud-returned hud-returned-total">
-									<Icon name="paw" size={12} /> {returnedAll}/{allAnimals} across the preserve
+									<Icon name="paw" size={12} /> {t('app.hud.acrossPreserve', { returned: returnedAll, total: allAnimals })}
 								</div>
 							</>
 						)}
@@ -129,59 +138,59 @@ export function HUD() {
 				<button
 					className="icon-btn nav-toggle"
 					onClick={() => setNavOpen((v) => !v)}
-					title={navOpen ? 'Hide menu' : 'Show menu'}
-					aria-label={navOpen ? 'Hide menu' : 'Show menu'}
+					title={navOpen ? t('app.hud.hideMenu') : t('app.hud.showMenu')}
+					aria-label={navOpen ? t('app.hud.hideMenu') : t('app.hud.showMenu')}
 					aria-expanded={navOpen}
 				>
 					<Icon name={navOpen ? 'forward' : 'back'} />
 				</button>
 				{/* A save only surfaces if it FAILS — no persistent "Synced" chip. */}
 				{saveStatus === 'error' && (
-					<span className="save-pill save-error" title="A save didn't go through — it'll keep retrying">
+					<span className="save-pill save-error" title={t('app.hud.saveRetryTitle')}>
 						<Icon name="cloud" size={15} />
-						<span>Retry</span>
+						<span>{t('app.hud.retry')}</span>
 					</span>
 				)}
 				{navOpen && (<>
 				{/* Buttons are grouped by purpose so the toolbar reads as a few small
 				    clusters rather than one long row: Learn (what you've discovered),
 				    Build (your stuff & upgrades), World (places & people), System. */}
-				<div className="nav-group" role="group" aria-label="Learn">
-					<span className="nav-group-label">Learn</span>
+				<div className="nav-group" role="group" aria-label={t('app.hud.groupLearn')}>
+					<span className="nav-group-label">{t('app.hud.groupLearn')}</span>
 					<div className="nav-group-btns">
-						{navBtn('journal', 'journal', 'Field journal (J)', 'J')}
-						{navBtn('achievements', 'star', 'Achievements (K)', 'K')}
-						{navBtn('feed', 'chat', 'Activity feed (F)', 'F')}
+						{navBtn('journal', 'journal', t('app.hud.navJournal'), 'J')}
+						{navBtn('achievements', 'star', t('app.hud.navAchievements'), 'K')}
+						{navBtn('feed', 'chat', t('app.hud.navFeed'), 'F')}
 					</div>
 				</div>
-				<div className="nav-group" role="group" aria-label="Build">
-					<span className="nav-group-label">Build</span>
+				<div className="nav-group" role="group" aria-label={t('app.hud.groupBuild')}>
+					<span className="nav-group-label">{t('app.hud.groupBuild')}</span>
 					<div className="nav-group-btns">
-						{navBtn('inventory', 'basket', 'Basket contents (B)', 'B')}
-						{navBtn('crafting', 'hammer', 'Crafting (C)', 'C')}
-						{navBtn('tools', 'tools', 'Tool upgrades (T)', 'T')}
+						{navBtn('inventory', 'basket', t('app.hud.navInventory'), 'B')}
+						{navBtn('crafting', 'hammer', t('app.hud.navCrafting'), 'C')}
+						{navBtn('tools', 'tools', t('app.hud.navTools'), 'T')}
 					</div>
 				</div>
-				<div className="nav-group" role="group" aria-label="World">
-					<span className="nav-group-label">World</span>
+				<div className="nav-group" role="group" aria-label={t('app.hud.groupWorld')}>
+					<span className="nav-group-label">{t('app.hud.groupWorld')}</span>
 					<div className="nav-group-btns">
-						{navBtn('biomes', 'map', 'Preserve overview (P)', 'P')}
-						{navBtn('weather', 'cloud', 'Weather & seasons (M)', 'M')}
-						{isCoop && navBtn('people', 'user', 'People — invite & who’s here (U)', 'U')}
+						{navBtn('biomes', 'map', t('app.hud.navBiomes'), 'P')}
+						{navBtn('weather', 'cloud', t('app.hud.navWeather'), 'M')}
+						{isCoop && navBtn('people', 'user', t('app.hud.navPeople'), 'U')}
 					</div>
 				</div>
-				<div className="nav-group nav-group-system" role="group" aria-label="System">
-					<span className="nav-group-label">System</span>
+				<div className="nav-group nav-group-system" role="group" aria-label={t('app.hud.groupSystem')}>
+					<span className="nav-group-label">{t('app.hud.groupSystem')}</span>
 					<div className="nav-group-btns">
-						<button className={`icon-btn ${panel === 'settings' ? 'on' : ''}`} onClick={() => toggle('settings')} title="Settings — change character, delete save (G)" aria-label="Settings">
+						<button className={`icon-btn ${panel === 'settings' ? 'on' : ''}`} onClick={() => toggle('settings')} title={t('app.hud.settingsTitle')} aria-label={t('app.hud.settings')}>
 							<Icon name="sliders" />
 							<span className="nav-key">G</span>
 						</button>
-						<button className={`icon-btn ${helpOpen ? 'on' : ''}`} onClick={() => setHelpOpen(!helpOpen)} title="How to play (H)" aria-label="How to play">
+						<button className={`icon-btn ${helpOpen ? 'on' : ''}`} onClick={() => setHelpOpen(!helpOpen)} title={t('app.hud.howToPlayTitle')} aria-label={t('app.hud.howToPlay')}>
 							<Icon name="help" />
 							<span className="nav-key">H</span>
 						</button>
-						<button className="icon-btn subtle" onClick={logout} title={`Save & quit (${state.player.name})`} aria-label="Save and quit">
+						<button className="icon-btn subtle" onClick={logout} title={t('app.hud.saveQuitTitle', { name: state.player.name })} aria-label={t('app.hud.saveQuit')}>
 							<Icon name="logout" />
 						</button>
 					</div>
@@ -194,8 +203,8 @@ export function HUD() {
 					{placementObjectId ? (
 						<span className="prompt-line">
 							<Icon name="pin" size={15} />
-							Placing <b>{data.habitatObjects.find((o) => o.id === placementObjectId)?.name}</b> — click a tile
-							<button className="link" onClick={cancelPlacement}>stop placing</button>
+							{t('app.hud.placing')} <b>{content('habitatObject', placementObjectId, 'name', data.habitatObjects.find((o) => o.id === placementObjectId)?.name || '')}</b> {t('app.hud.placingHint')}
+							<button className="link" onClick={cancelPlacement}>{t('app.hud.stopPlacing')}</button>
 						</span>
 					) : (
 						<span className="prompt-line"><Icon name="sparkle" size={15} /> {prompt}</span>
@@ -208,18 +217,19 @@ export function HUD() {
 
 export function Toasts() {
 	const { toasts, dismissToast } = useGame();
+	const { t } = useI18n();
 	const iconFor = { animal: 'paw', unlock: 'sparkle', error: 'help', info: 'leaf', achievement: 'star' } as const;
 	return (
 		<div className="toasts">
-			{toasts.map((t) => (
-				<div key={t.id} className={`toast toast-${t.kind}`}>
-					<Icon name={iconFor[t.kind] || 'leaf'} size={17} />
-					<span>{t.text}</span>
+			{toasts.map((toast) => (
+				<div key={toast.id} className={`toast toast-${toast.kind}`}>
+					<Icon name={iconFor[toast.kind] || 'leaf'} size={17} />
+					<span>{toast.text}</span>
 					<button
 						className="toast-close"
-						onClick={() => dismissToast(t.id)}
-						title="Dismiss"
-						aria-label="Dismiss message"
+						onClick={() => dismissToast(toast.id)}
+						title={t('app.common.dismiss')}
+						aria-label={t('app.common.dismissMessage')}
 					>
 						<Icon name="close" size={13} />
 					</button>

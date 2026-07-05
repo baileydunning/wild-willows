@@ -6,6 +6,7 @@ import {
 	makeObjectTextures, makePlayerTexture, INV_TEX_SCALE, TEX_SCALE,
 } from './textures';
 import { seasonStyle, weatherType, liveWeatherType, gatherResourceFor } from '../weather';
+import { t, content } from '../i18n';
 import { isTypingTarget } from '../typing';
 import type { BiomeDef, HabitatObjectDef } from '../types';
 
@@ -222,9 +223,14 @@ export class WorldScene extends Phaser.Scene {
 	}
 	private objectDef(id: string): HabitatObjectDef | undefined {
 		if (id === 'workbench') {
-			return { id, name: 'Crafting Station', shape: 'workbench', placement: 'outdoor' } as any;
+			return { id, name: t('game.object.craftingStation'), shape: 'workbench', placement: 'outdoor' } as any;
 		}
 		return bridge.shared.data?.habitatObjects.find((o) => o.id === id);
+	}
+
+	/** Localized display name of a biome (content overlay wins; data name, then a literal, as fallback). */
+	private biomeName(id: string, fallback: string): string {
+		return content('biome', id, 'name', this.biomeDef(id)?.name || fallback);
 	}
 
 	create(data: any) {
@@ -276,7 +282,7 @@ export class WorldScene extends Phaser.Scene {
 			// flowers, rocks and radial decor always sit upright.
 			else if ((e.key === '\\' || e.code === 'Backslash' || e.key === '/' || e.code === 'Slash') && (this.placementObjectId || this.movingPlacementId)) {
 				e.preventDefault();
-				if (!this.activeRotatable()) { bridge.emit('toast', { text: 'That piece doesn’t rotate', kind: 'info' }); return; }
+				if (!this.activeRotatable()) { bridge.emit('toast', { text: t('game.toast.noRotate'), kind: 'info' }); return; }
 				this.placeRotation = (this.placeRotation + 90) % 360;
 				const preview = this.ghost && (this.ghost as any).preview as Phaser.GameObjects.Image | undefined;
 				preview?.setRotation(Phaser.Math.DegToRad(this.placeRotation));
@@ -473,14 +479,14 @@ export class WorldScene extends Phaser.Scene {
 		let confirm: string | undefined;
 		let block: string | undefined;
 		if (existing?.type === 'watered') {
-			if (action === 'clear') confirm = 'Clear this watered soil bed? The water used on it is lost.';
+			if (action === 'clear') confirm = t('game.confirm.clearWateredBed');
 			else if (action === 'water') {
 				// Flooding the tile you're standing on would strand you in open
 				// water, so block it outright instead of asking — same tile key the
 				// movement collision uses.
 				const onTile = Math.floor(this.player.x / TILE) === tx
 					&& Math.floor((this.player.y + 8) / TILE) === ty;
-				if (onTile) block = "You're standing here — step off before flooding this bed into open water.";
+				if (onTile) block = t('game.block.standingHere');
 				// otherwise flooding happens immediately — no confirmation prompt
 			}
 		}
@@ -604,7 +610,7 @@ export class WorldScene extends Phaser.Scene {
 		this.registerInteractable({
 			x: r.doorX * TILE + 16,
 			y: r.doorY * TILE + 16,
-			label: 'Step back outside (E)',
+			label: t('game.label.stepOutside'),
 			action: () => bridge.emit('request-area', { area: 'meadow' }),
 		});
 	}
@@ -889,7 +895,7 @@ export class WorldScene extends Phaser.Scene {
 				// watered beds are ready for planting; terraform clicks still reach the
 				// soil here so the can/shovel can flood or clear it (with confirmation)
 				this.registerInteractable({
-					x, y, label: 'Plant in this watered bed',
+					x, y, label: t('game.label.plantBed'),
 					action: () => bridge.emit('bed-clicked', { area: this.area, x: tile.x, y: tile.y }),
 				}, undefined, { terraformPassthrough: true });
 			}
@@ -924,7 +930,7 @@ export class WorldScene extends Phaser.Scene {
 			if (pointer.event && (pointer.event as MouseEvent).shiftKey) return; // shift = pick up
 			const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, it.x, it.y);
 			if (dist <= 96) it.action();
-			else bridge.emit('toast', { text: 'Walk a little closer first.', kind: 'info' });
+			else bridge.emit('toast', { text: t('game.toast.walkCloser'), kind: 'info' });
 		});
 	}
 
@@ -1010,7 +1016,7 @@ export class WorldScene extends Phaser.Scene {
 			this.addDyn(this.img(tx2, ty2, homeKey).setDepth(ty2).setScale(homeScale * INV_TEX_SCALE));
 			// step inside your home to decorate it
 			this.registerInteractable({
-				x: tx2, y: ty2 + 8, label: 'Step inside your home (E)',
+				x: tx2, y: ty2 + 8, label: t('game.label.stepInside'),
 				action: () => bridge.emit('request-area', { area: 'home' }),
 			});
 			// the upgrade signpost — shown only while something's left to upgrade
@@ -1022,7 +1028,7 @@ export class WorldScene extends Phaser.Scene {
 				this.addDyn(this.img(sgx, sgy + 16, 'shadow').setDepth(3).setScale(0.9 * INV_TEX_SCALE, 0.7 * INV_TEX_SCALE));
 				this.addDyn(this.img(sgx, sgy, 'sign').setDepth(sgy));
 				this.registerInteractable({
-					x: sgx, y: sgy, label: 'Upgrade your home (E)',
+					x: sgx, y: sgy, label: t('game.label.upgradeHome'),
 					action: () => bridge.emit('open-home'),
 				});
 			}
@@ -1037,13 +1043,14 @@ export class WorldScene extends Phaser.Scene {
 			const forestUnlocked = state?.player.unlockedBiomes.includes('forest');
 			const forestOpen = forestUnlocked && this.biomeDef('forest')?.explorable;
 			this.addDyn(this.img(gx, gy, forestOpen ? 'gate' : 'sign').setDepth(gy));
+			const forestName = this.biomeName('forest', 'Old Hollow Forest');
 			this.registerInteractable({
-				x: gx, y: gy, label: forestOpen ? 'Walk to Old Hollow Forest' : 'Read the trail sign (Old Hollow Forest)',
+				x: gx, y: gy, label: forestOpen ? t('game.label.walkTo', { name: forestName }) : t('game.label.readTrailSign', { name: forestName }),
 				action: () => {
 					if (forestOpen) bridge.emit('request-area', { area: 'forest' });
 					else {
-						const label = this.biomeDef('forest')?.unlock?.label || 'Restore the meadow first.';
-						bridge.emit('toast', { text: `The forest trail is overgrown. ${label}`, kind: 'info' });
+						const label = this.biomeDef('forest')?.unlock?.label || t('game.toast.restoreMeadowFirst');
+						bridge.emit('toast', { text: t('game.toast.forestOvergrown', { label }), kind: 'info' });
 					}
 				},
 			});
@@ -1051,7 +1058,7 @@ export class WorldScene extends Phaser.Scene {
 			const gx = 1.2 * TILE;
 			const gy = this.dimsOf(this.area).gateY * TILE;
 			this.addDyn(this.img(gx, gy, 'gate').setDepth(gy));
-			this.registerInteractable({ x: gx, y: gy, label: 'Walk back to Willow Meadow', action: () => bridge.emit('request-area', { area: 'meadow' }) });
+			this.registerInteractable({ x: gx, y: gy, label: t('game.label.walkBackTo', { name: this.biomeName('meadow', 'Willow Meadow') }), action: () => bridge.emit('request-area', { area: 'meadow' }) });
 
 			const sx = (this.cols - 1.2) * TILE;
 			const sy = gy;
@@ -1059,8 +1066,9 @@ export class WorldScene extends Phaser.Scene {
 			const wetlandExplorable = this.biomeDef('wetland')?.explorable;
 			const wetlandOpen = wetlandUnlocked && wetlandExplorable;
 			this.addDyn(this.img(sx, sy, wetlandOpen ? 'gate' : 'sign').setDepth(sy));
+			const wetlandName = this.biomeName('wetland', 'Rushwater Wetland');
 			this.registerInteractable({
-				x: sx, y: sy, label: wetlandOpen ? 'Walk to Rushwater Wetland' : 'Read the trail sign (Rushwater Wetland)',
+				x: sx, y: sy, label: wetlandOpen ? t('game.label.walkTo', { name: wetlandName }) : t('game.label.readTrailSign', { name: wetlandName }),
 				action: () => {
 					if (wetlandOpen) {
 						bridge.emit('request-area', { area: 'wetland' });
@@ -1068,8 +1076,8 @@ export class WorldScene extends Phaser.Scene {
 					}
 					const wetland = this.biomeDef('wetland');
 					const text = wetlandUnlocked
-						? 'Rushwater Wetland is unlocked! Follow the boardwalk east to step into the marsh.'
-						: `The wetland path is washed out. ${wetland?.unlock?.label || ''}`;
+						? t('game.toast.wetlandUnlocked')
+						: t('game.toast.wetlandWashedOut', { label: wetland?.unlock?.label || '' });
 					bridge.emit('toast', { text, kind: 'info' });
 				},
 			});
@@ -1085,7 +1093,7 @@ export class WorldScene extends Phaser.Scene {
 			const gx = 1.2 * TILE;
 			const gy = this.dimsOf(this.area).gateY * TILE;
 			this.addDyn(this.img(gx, gy, 'gate').setDepth(gy));
-			this.registerInteractable({ x: gx, y: gy, label: 'Walk back to Old Hollow Forest', action: () => bridge.emit('request-area', { area: 'forest' }) });
+			this.registerInteractable({ x: gx, y: gy, label: t('game.label.walkBackTo', { name: this.biomeName('forest', 'Old Hollow Forest') }), action: () => bridge.emit('request-area', { area: 'forest' }) });
 
 			// trail east toward the desert (Redstone Scrubland)
 			const sx = (this.cols - 1.2) * TILE;
@@ -1094,8 +1102,9 @@ export class WorldScene extends Phaser.Scene {
 			const desertExplorable = this.biomeDef('desert')?.explorable;
 			const desertOpen = desertUnlocked && desertExplorable;
 			this.addDyn(this.img(sx, sy, desertOpen ? 'gate' : 'sign').setDepth(sy));
+			const desertName = this.biomeName('desert', 'Redstone Scrubland');
 			this.registerInteractable({
-				x: sx, y: sy, label: desertOpen ? 'Walk to Redstone Scrubland' : 'Read the trail sign (Redstone Scrubland)',
+				x: sx, y: sy, label: desertOpen ? t('game.label.walkTo', { name: desertName }) : t('game.label.readTrailSign', { name: desertName }),
 				action: () => {
 					if (desertOpen) {
 						bridge.emit('request-area', { area: 'desert' });
@@ -1103,8 +1112,8 @@ export class WorldScene extends Phaser.Scene {
 					}
 					const desert = this.biomeDef('desert');
 					const text = desertUnlocked
-						? 'Redstone Scrubland is unlocked! The desert trail east opens soon.'
-						: `The desert trail is blocked. ${desert?.unlock?.label || ''}`;
+						? t('game.toast.desertUnlocked')
+						: t('game.toast.desertBlocked', { label: desert?.unlock?.label || '' });
 					bridge.emit('toast', { text, kind: 'info' });
 				},
 			});
@@ -1113,7 +1122,7 @@ export class WorldScene extends Phaser.Scene {
 			const gx = 1.2 * TILE;
 			const gy = this.dimsOf(this.area).gateY * TILE;
 			this.addDyn(this.img(gx, gy, 'gate').setDepth(gy));
-			this.registerInteractable({ x: gx, y: gy, label: 'Walk back to Rushwater Wetland', action: () => bridge.emit('request-area', { area: 'wetland' }) });
+			this.registerInteractable({ x: gx, y: gy, label: t('game.label.walkBackTo', { name: this.biomeName('wetland', 'Rushwater Wetland') }), action: () => bridge.emit('request-area', { area: 'wetland' }) });
 
 			// trail east toward the alpine heights (Graywind Heights)
 			const sx = (this.cols - 1.2) * TILE;
@@ -1122,8 +1131,9 @@ export class WorldScene extends Phaser.Scene {
 			const alpineExplorable = this.biomeDef('alpine')?.explorable;
 			const alpineOpen = alpineUnlocked && alpineExplorable;
 			this.addDyn(this.img(sx, sy, alpineOpen ? 'gate' : 'sign').setDepth(sy));
+			const alpineName = this.biomeName('alpine', 'Graywind Heights');
 			this.registerInteractable({
-				x: sx, y: sy, label: alpineOpen ? 'Walk to Graywind Heights' : 'Read the trail sign (Graywind Heights)',
+				x: sx, y: sy, label: alpineOpen ? t('game.label.walkTo', { name: alpineName }) : t('game.label.readTrailSign', { name: alpineName }),
 				action: () => {
 					if (alpineOpen) {
 						bridge.emit('request-area', { area: 'alpine' });
@@ -1131,8 +1141,8 @@ export class WorldScene extends Phaser.Scene {
 					}
 					const alpine = this.biomeDef('alpine');
 					const text = alpineUnlocked
-						? 'Graywind Heights is unlocked! The mountain trail opens soon.'
-						: `The mountain trail is blocked. ${alpine?.unlock?.label || ''}`;
+						? t('game.toast.alpineUnlocked')
+						: t('game.toast.alpineBlocked', { label: alpine?.unlock?.label || '' });
 					bridge.emit('toast', { text, kind: 'info' });
 				},
 			});
@@ -1144,7 +1154,7 @@ export class WorldScene extends Phaser.Scene {
 			// gate back to the desert on the west edge
 			const gx = 1.2 * TILE;
 			this.addDyn(this.img(gx, gy, 'gate').setDepth(gy));
-			this.registerInteractable({ x: gx, y: gy, label: 'Walk back to Redstone Scrubland', action: () => bridge.emit('request-area', { area: 'desert' }) });
+			this.registerInteractable({ x: gx, y: gy, label: t('game.label.walkBackTo', { name: this.biomeName('desert', 'Redstone Scrubland') }), action: () => bridge.emit('request-area', { area: 'desert' }) });
 
 			// trail east toward the coast (Pelican Shore)
 			const sx = (this.cols - 1.2) * TILE;
@@ -1152,8 +1162,9 @@ export class WorldScene extends Phaser.Scene {
 			const coastalExplorable = this.biomeDef('coastal')?.explorable;
 			const coastalOpen = coastalUnlocked && coastalExplorable;
 			this.addDyn(this.img(sx, gy, coastalOpen ? 'gate' : 'sign').setDepth(gy));
+			const coastalName = this.biomeName('coastal', 'Pelican Shore');
 			this.registerInteractable({
-				x: sx, y: gy, label: coastalOpen ? 'Walk to Pelican Shore' : 'Read the trail sign (Pelican Shore)',
+				x: sx, y: gy, label: coastalOpen ? t('game.label.walkTo', { name: coastalName }) : t('game.label.readTrailSign', { name: coastalName }),
 				action: () => {
 					if (coastalOpen) {
 						bridge.emit('request-area', { area: 'coastal' });
@@ -1161,8 +1172,8 @@ export class WorldScene extends Phaser.Scene {
 					}
 					const coastal = this.biomeDef('coastal');
 					const text = coastalUnlocked
-						? 'Pelican Shore is unlocked! Follow the trail down to the coast.'
-						: `The pass down to the coast is snowed in. ${coastal?.unlock?.label || ''}`;
+						? t('game.toast.coastalUnlocked')
+						: t('game.toast.coastalSnowedIn', { label: coastal?.unlock?.label || '' });
 					bridge.emit('toast', { text, kind: 'info' });
 				},
 			});
@@ -1173,15 +1184,15 @@ export class WorldScene extends Phaser.Scene {
 			const gx = 1.2 * TILE;
 			const gy = this.dimsOf(this.area).gateY * TILE;
 			this.addDyn(this.img(gx, gy, 'gate').setDepth(gy));
-			this.registerInteractable({ x: gx, y: gy, label: 'Walk back up to Graywind Heights', action: () => bridge.emit('request-area', { area: 'alpine' }) });
+			this.registerInteractable({ x: gx, y: gy, label: t('game.label.walkBackUpTo', { name: this.biomeName('alpine', 'Graywind Heights') }), action: () => bridge.emit('request-area', { area: 'alpine' }) });
 
 			// a weathered marker at the end of the shore trail, looking out to sea
 			const sx = (this.landRight - 0.6) * TILE;
 			const sy = 13 * TILE;
 			this.addDyn(this.img(sx, sy, 'obj-driftpile').setDepth(sy));
 			this.registerInteractable({
-				x: sx, y: sy, label: 'Look out over the ocean',
-				action: () => bridge.emit('toast', { text: 'The open Pacific stretches east as far as you can see. Sea glass, kelp, coral, and the rare pearl wash up along the tideline.', kind: 'info' }),
+				x: sx, y: sy, label: t('game.label.lookOcean'),
+				action: () => bridge.emit('toast', { text: t('game.toast.oceanView'), kind: 'info' }),
 			});
 		}
 	}
@@ -1372,10 +1383,10 @@ export class WorldScene extends Phaser.Scene {
 				duration: 1100 + (node.tx % 5) * 130, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
 			});
 			const it: Interactable = {
-				x, y, label: `Gather ${res?.name || node.resourceId}`,
+				x, y, label: t('game.label.gather', { name: content('resource', node.resourceId, 'name', res?.name || node.resourceId) }),
 				action: () => {
 					if (this.nodeAvailable(node)) bridge.emit('collect-node', { biomeId: this.area, nodeId: node.id, resourceId: node.resourceId });
-					else bridge.emit('toast', { text: 'Still regrowing — let it rest a little longer.', kind: 'info' });
+					else bridge.emit('toast', { text: t('game.toast.stillRegrowing'), kind: 'info' });
 				},
 			};
 			this.registerInteractable(it, container);
@@ -1429,7 +1440,7 @@ export class WorldScene extends Phaser.Scene {
 			});
 		}
 		const res = bridge.shared.data?.resources.find((r) => r.id === p.resourceId);
-		this.floatText(sx, sy - 18, `+${p.qty} ${res?.name || p.resourceId}`, '#fff7dd');
+		this.floatText(sx, sy - 18, t('game.float.pickup', { qty: p.qty, name: content('resource', p.resourceId, 'name', res?.name || p.resourceId) }), '#fff7dd');
 	}
 
 	private playTerraformFx(p: { x: number; y: number; action: string }) {
@@ -1455,7 +1466,7 @@ export class WorldScene extends Phaser.Scene {
 				onComplete: () => speck.destroy(),
 			});
 		}
-		this.floatText(x, y - 16, p.action === 'water' ? 'Watered!' : p.action === 'dig' ? 'Soil bed ready' : 'Cleared', '#fff7dd');
+		this.floatText(x, y - 16, p.action === 'water' ? t('game.float.watered') : p.action === 'dig' ? t('game.float.bedReady') : t('game.float.cleared'), '#fff7dd');
 	}
 
 	/** A ~3s construction flourish on the camp building when the home is built/upgraded. */
@@ -1474,15 +1485,15 @@ export class WorldScene extends Phaser.Scene {
 				this.tweens.add({ targets: d, y: d.y - 20, alpha: 0, scale: 0.8 * INV_TEX_SCALE, duration: 620, ease: 'Sine.easeOut', onComplete: () => d.destroy() });
 			},
 		});
-		const hammer = this.time.addEvent({ delay: 800, loop: true, callback: () => { if (this.alive) this.floatText(bx + (Math.random() - 0.5) * 30, by - 26, 'tap tap', '#fff7dd'); } });
-		this.floatText(bx, by - 34, 'Building…', '#fff7dd');
+		const hammer = this.time.addEvent({ delay: 800, loop: true, callback: () => { if (this.alive) this.floatText(bx + (Math.random() - 0.5) * 30, by - 26, t('game.float.tapTap'), '#fff7dd'); } });
+		this.floatText(bx, by - 34, t('game.float.building'), '#fff7dd');
 		this.time.delayedCall(3000, () => {
 			puffs.remove();
 			hammer.remove();
 			if (!this.alive) { tarp.destroy(); return; }
 			// lift the tarp to reveal the finished building, and give it a happy little pop
 			this.tweens.add({ targets: tarp, alpha: 0, y: by - 40, duration: 500, ease: 'Sine.easeIn', onComplete: () => tarp.destroy() });
-			this.floatText(bx, by - 34, 'Done! ✨', '#d8eec2');
+			this.floatText(bx, by - 34, t('game.float.done'), '#d8eec2');
 			bridge.emit('world-dirty'); // ensure the finished building is drawn
 		});
 	}
@@ -1495,7 +1506,7 @@ export class WorldScene extends Phaser.Scene {
 		this.player.setPosition(bx, by - 4);
 		this.player.setDepth(by + 30);
 		this.player.setAngle(-78);
-		bridge.emit('toast', { text: 'Goodnight… 💤', kind: 'info' });
+		bridge.emit('toast', { text: t('game.toast.goodnight'), kind: 'info' });
 		// a soft dim over the whole view (oversized + screen-fixed so zoom never matters)
 		const dim = this.add.rectangle(-2000, -2000, 6000, 6000, 0x0a1026, 0).setOrigin(0, 0).setScrollFactor(0).setDepth(9000);
 		this.tweens.add({ targets: dim, alpha: 0.6, duration: 600, ease: 'Sine.easeIn' });
@@ -1597,38 +1608,39 @@ export class WorldScene extends Phaser.Scene {
 
 			img.setInteractive({ useHandCursor: true });
 			const hasPrimaryAction = isFixture;
+			const defName = content('habitatObject', p.objectId, 'name', def.name);
 			img.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
 				if (this.placementObjectId || this.movingPlacementId) return;
 				if (this.activeTool === 'paint' && this.isHome) return; // painting handled globally
 				// shovel digs planted things back up — materials are refunded
 				if (this.terraformAction() === 'dig' && def.plantable && p.plantedAt) {
 					const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, x, y);
-					if (dist <= 110) bridge.emit('dig-up', { placementId: p.id, name: def.name });
-					else bridge.emit('toast', { text: 'Walk a little closer first.', kind: 'info' });
+					if (dist <= 110) bridge.emit('dig-up', { placementId: p.id, name: defName });
+					else bridge.emit('toast', { text: t('game.toast.walkCloser'), kind: 'info' });
 					return;
 				}
 				if (this.terraformAction()) return;
 				if (pointer.event && (pointer.event as MouseEvent).shiftKey) {
-					bridge.emit('remove-placement', { placementId: p.id, objectId: p.objectId, name: def.name });
+					bridge.emit('remove-placement', { placementId: p.id, objectId: p.objectId, name: defName });
 					return;
 				}
 				if (!hasPrimaryAction) {
 					const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, x, y);
-					if (dist <= 110) bridge.emit('placement-clicked', { placementId: p.id, objectId: p.objectId, name: def.name, plantedAt: p.plantedAt, x: p.x, y: p.y, rotation: p.rotation || 0 });
-					else bridge.emit('toast', { text: 'Walk a little closer first.', kind: 'info' });
+					if (dist <= 110) bridge.emit('placement-clicked', { placementId: p.id, objectId: p.objectId, name: defName, plantedAt: p.plantedAt, x: p.x, y: p.y, rotation: p.rotation || 0 });
+					else bridge.emit('toast', { text: t('game.toast.walkCloser'), kind: 'info' });
 				}
 			});
 
 			if (def.isChest) {
-				this.registerInteractable({ x, y, label: `Open ${def.name}`, action: () => bridge.emit('open-chest', { chestId: p.id }) }, img);
+				this.registerInteractable({ x, y, label: t('game.label.openChest', { name: defName }), action: () => bridge.emit('open-chest', { chestId: p.id }) }, img);
 			} else if (p.objectId === 'workbench') {
-				this.registerInteractable({ x, y, label: 'Open crafting (E)', action: () => bridge.emit('open-crafting') }, img);
+				this.registerInteractable({ x, y, label: t('game.label.openCrafting'), action: () => bridge.emit('open-crafting') }, img);
 			} else if (p.objectId === 'field-journal-stand') {
-				this.registerInteractable({ x, y, label: 'Read your field journal', action: () => bridge.emit('open-journal') }, img);
+				this.registerInteractable({ x, y, label: t('game.label.readJournal'), action: () => bridge.emit('open-journal') }, img);
 			} else if (p.objectId === 'home-bed' || p.objectId === 'home-sleeping-bag') {
-				this.registerInteractable({ x, y, label: 'Go to sleep (refresh gathering spots)', action: () => this.sleepAt(x, y) }, img);
+				this.registerInteractable({ x, y, label: t('game.label.sleep'), action: () => this.sleepAt(x, y) }, img);
 			} else if (p.objectId === 'bed') {
-				this.registerInteractable({ x, y, label: 'Rest a moment', action: () => bridge.emit('toast', { text: 'You take a quiet breath. The preserve is in good hands.', kind: 'info' }) }, img);
+				this.registerInteractable({ x, y, label: t('game.label.restMoment'), action: () => bridge.emit('toast', { text: t('game.toast.quietBreath'), kind: 'info' }) }, img);
 			}
 		}
 	}
@@ -1943,7 +1955,7 @@ export class WorldScene extends Phaser.Scene {
 				const key = makePlayerTexture(this, peer.appearance);
 				const shadow = this.img(peer.x * TILE, peer.y * TILE + 15, 'shadow').setDepth(2).setAlpha(0.5);
 				const sprite = this.img(peer.x * TILE, peer.y * TILE, key).setDepth(999).setAlpha(0.96);
-				const label = this.add.text(peer.x * TILE, peer.y * TILE - 26, peer.name || 'caretaker', {
+				const label = this.add.text(peer.x * TILE, peer.y * TILE - 26, peer.name || t('game.label.caretaker'), {
 					fontFamily: 'system-ui, sans-serif', fontSize: '11px', color: '#3a2f25',
 					backgroundColor: 'rgba(255,255,255,0.7)', padding: { x: 4, y: 1 },
 					resolution: 4, // stays crisp under camera zoom
@@ -2106,19 +2118,19 @@ export class WorldScene extends Phaser.Scene {
 			this.tileCursor.setVisible(false);
 		}
 
-		const verb = this.isTouch ? 'Tap' : 'E';
-		const rotHint = !this.isTouch && this.activeRotatable() ? ' · \\ to rotate' : '';
+		const verb = this.isTouch ? t('game.prompt.tap') : 'E';
+		const clickVerb = this.isTouch ? t('game.prompt.tap') : t('game.prompt.click');
+		const lowVerb = this.isTouch ? t('game.prompt.tapLower') : t('game.prompt.clickLower');
+		const rotHint = !this.isTouch && this.activeRotatable() ? t('game.prompt.rotateHint') : '';
 		const prompt = this.movingPlacementId
-			? `${this.isTouch ? 'Tap' : 'Click'} a tile to move it there${rotHint}${this.isTouch ? '' : ' · Esc to cancel'}`
+			? t('game.prompt.moveTile', { verb: clickVerb }) + rotHint + (this.isTouch ? '' : t('game.prompt.escCancel'))
 			: this.placementObjectId
-			? `${this.isTouch ? 'Tap' : 'Click'} a tile to place${rotHint}${this.isTouch ? '' : ' · Esc to stop placing'}`
+			? t('game.prompt.placeTile', { verb: clickVerb }) + rotHint + (this.isTouch ? '' : t('game.prompt.escStopPlacing'))
 			: terraforming
-				? (terraforming === 'dig'
-					? `Shovel — ${this.isTouch ? 'tap' : 'click'} ground to dig a bed (may turn up materials)`
-					: `Watering can — ${this.isTouch ? 'tap' : 'click'} a bed to water it, again to flood it`)
-					+ (near ? ` · ${verb} — ${near.label}` : '')
+				? t(terraforming === 'dig' ? 'game.prompt.shovel' : 'game.prompt.wateringCan', { verb: lowVerb })
+					+ (near ? t('game.prompt.nearSuffix', { verb, label: near.label }) : '')
 				: near
-					? `${verb} — ${near.label}`
+					? t('game.prompt.near', { verb, label: near.label })
 					: '';
 		if (prompt !== this.lastPrompt) {
 			this.lastPrompt = prompt;

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useGame } from '../state';
 import type { AchievementDef } from '../types';
+import { useI18n } from '../i18n/react';
 import { Icon } from './icons';
 
 /**
@@ -11,6 +12,7 @@ import { Icon } from './icons';
  */
 export function AchievementsPanel() {
 	const { data, state, setPanel } = useGame();
+	const { t, content } = useI18n();
 	const [tab, setTab] = useState<string>('all');
 	if (!data || !state) return null;
 
@@ -26,9 +28,9 @@ export function AchievementsPanel() {
 	// Tabs: All, Preserve (getting-started + cross-biome), then each biome in order.
 	const biomes = [...data.biomes].sort((a, b) => a.order - b.order);
 	const tabs: { id: string; label: string }[] = [
-		{ id: 'all', label: 'All' },
-		{ id: 'preserve', label: 'Preserve' },
-		...biomes.map((b) => ({ id: b.id, label: b.name })),
+		{ id: 'all', label: t('panels.achievements.tabAll') },
+		{ id: 'preserve', label: t('panels.achievements.tabPreserve') },
+		...biomes.map((b) => ({ id: b.id, label: content('biome', b.id, 'name', b.name) })),
 	];
 
 	const inTab = (a: AchievementDef) =>
@@ -50,8 +52,8 @@ export function AchievementsPanel() {
 		<div className="panel-backdrop" onClick={() => setPanel(null)}>
 			<div className="panel panel-wide" onClick={(e) => e.stopPropagation()}>
 				<div className="panel-head">
-					<h2><Icon name="star" size={20} /> Achievements <span className="muted small">· {totalEarned}/{total} · {points} pts</span></h2>
-					<button className="icon-btn" onClick={() => setPanel(null)} aria-label="Close"><Icon name="close" /></button>
+					<h2><Icon name="star" size={20} /> {t('panels.achievements.title')} <span className="muted small">{t('panels.achievements.summary', { earned: totalEarned, total, points })}</span></h2>
+					<button className="icon-btn" onClick={() => setPanel(null)} aria-label={t('panels.common.close')}><Icon name="close" /></button>
 				</div>
 				<div className="ach-progress">
 					<div className="ach-progress-fill" style={{ width: `${Math.round((totalEarned / (total || 1)) * 100)}%` }} />
@@ -75,13 +77,13 @@ export function AchievementsPanel() {
 									</div>
 									<div className="grow">
 										<div className="ach-name">
-											{a.name}
+											{content('achievement', a.id, 'name', a.name)}
 											{earned && <span className="ach-pts">+{a.points}</span>}
 										</div>
 										{earned ? (
-											<div className="small ach-flavor">{a.flavor}</div>
+											<div className="small ach-flavor">{content('achievement', a.id, 'flavor', a.flavor)}</div>
 										) : (
-											<div className="muted small">{a.hint}</div>
+											<div className="muted small">{content('achievement', a.id, 'hint', a.hint)}</div>
 										)}
 									</div>
 								</div>

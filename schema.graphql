@@ -97,7 +97,11 @@ type NodeState @table(database: "wildwillows") { id: ID @primaryKey }    # world
 type TerrainTile @table(database: "wildwillows") { id: ID @primaryKey }  # worldId, playerId, area, x, y, type, updatedAt
 type FeedEntry @table(database: "wildwillows") { id: ID @primaryKey }    # worldId, playerId, at, icon, text
 type Feedback @table(database: "wildwillows") { id: ID @primaryKey }     # message, replyTo, metrics, queuedAt, createdAt (player feedback via SubmitFeedback; read with admin-only ListFeedback)
-type SoloMetrics @table(database: "wildwillows") { id: ID @primaryKey }  # `solo:${slotId}` · clientId, name, platform (desktop|web), os (mac|windows|linux|…), version, build, snapshot (metrics view), createdAt, updatedAt (solo saves' uplinked metrics via SyncMetrics)
+type SoloMetrics @table(database: "wildwillows") { 
+	id: ID @primaryKey
+	name: String @indexed
+	os: String @indexed
+}  # `solo:${slotId}` · clientId, name, platform (desktop|web), os (mac|windows|linux|…), version, build, language (interface language, e.g. en|es), snapshot (metrics view), createdAt, updatedAt (solo saves' uplinked metrics via SyncMetrics)
 
 # ---------- co-op tables (dynamic) ----------
 type World @table(database: "wildwillows") { id: ID @primaryKey }         # name, solo, ownerId, joinCode, createdAt, maxMembers
