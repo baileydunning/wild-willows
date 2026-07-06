@@ -50,7 +50,9 @@
 		"homeBuilt": "You built your {name}!",
 		"rested": "You sleep soundly — every gathering spot has regrown.",
 		"taskReward": "Task reward — {items}",
-		"joinRequest": "{name} wants to join — press U to let them in"
+		"joinRequest": "{name} wants to join — press U to let them in",
+		"perkForage": "Your cabin's forager's instinct turned up an extra {name}!",
+		"perkThrift": "Hearthkeeper's thrift! Got back {items}."
 	},
 	"feed": {
 		"recipeUnlocked": "New Crafting Recipe Unlocked — {name}.",
@@ -80,7 +82,8 @@
 		"pickedUp": "Picked the item back up — it is in your crafted items again.",
 		"moved": "Moved it to a new spot.",
 		"rotated": "Turned it a quarter-turn.",
-		"rested": "You rested. The preserve’s gathering spots have all refreshed."
+		"rested": "You rested. The preserve’s gathering spots have all refreshed.",
+		"plantedHeadStart": "Planted {name} — your cottage's green thumb gave it a {pct}% head start."
 	},
 	"welcomeBack": {
 		"matured": { "one": "one of your plantings matured", "other": "{count} of your plantings matured" },
@@ -150,7 +153,7 @@
 		"joinFormHint": "Joining {world} — {host} is reviewing your request while you customize. You'll enter as soon as they approve.",
 		"codeFormHint": "Enter a friend's code to restore their preserve together.",
 		"namePlaceholder": "Caretaker name",
-		"randomize": "Randomize appearance",
+		"randomize": "Surprise me — random name & look",
 		"passcodeNewPlaceholder": "Passcode (4+ characters)",
 		"settlingIn": "Settling in…",
 		"beginRestoring": "Begin restoring",
@@ -161,7 +164,11 @@
 		"deleteSave": "Delete {name}",
 		"passcodePlaceholder": "Passcode",
 		"walkingTrail": "Walking the trail…",
-		"continueFailed": "{message} — log in below instead."
+		"continueFailed": "{message} — log in below instead.",
+		"importSave": "Import Save",
+		"importing": "Importing…",
+		"importDone": "Imported {name} — pick it below to play.",
+		"errImport": "That save file is missing, edited, or damaged — it couldn’t be imported."
 	},
 	"hud": {
 		"yourHome": "Your Home",
@@ -176,6 +183,7 @@
 		"balance": "Balance",
 		"animalsReturned": "{returned}/{total} animals returned",
 		"acrossPreserve": "{returned}/{total} across the preserve",
+		"weatherLabel": "Weather",
 		"hideMenu": "Hide menu",
 		"showMenu": "Show menu",
 		"saveRetryTitle": "A save didn't go through — it'll keep retrying",
@@ -279,6 +287,22 @@
 		"deleting": "Deleting…",
 		"deleteForever": "Delete forever",
 		"errDelete": "Could not delete the save",
+		"exportSaveTitle": "Back up this save",
+		"exportSaveHint": "Download a copy of this preserve — world, journal, progress, and your caretaker’s name and look — as a single file. Keep it as a backup or move it to another computer.",
+		"exportSave": "Export save",
+		"exporting": "Exporting…",
+		"saveExported": "Save exported.",
+		"errExport": "Couldn’t export this save.",
+		"accessibility": "Accessibility",
+		"reduceMotion": "Reduce motion",
+		"reduceMotionHint": "Turn off UI animations and in-world weather particles like rain and snow.",
+		"colorblind": "Colorblind mode",
+		"colorblindHint": "Turns on a high-contrast theme and clearer weather cues that don’t rely on color alone.",
+		"textSize": "Text size",
+		"textSm": "Small",
+		"textMd": "Normal",
+		"textLg": "Large",
+		"textXl": "Extra large",
 		"language": "Language",
 		"sendFeedback": "Send feedback",
 		"feedbackHint": "Spotted a bug, or have an idea for the preserve? Send a note straight to the developer.",

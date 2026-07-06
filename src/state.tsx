@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { api, forgetSave, getPlayerId, lastSave, rememberSave, setPlayerId, startSoloGame, resumeSoloGame, exitSolo } from './api';
 import { flushFeedbackQueue } from './feedback';
-import { t, content } from './i18n';
+import { t, content, onLocaleChange } from './i18n';
 import { pokeMetricsUplink } from './solo/metricsUplink';
 import { bridge } from './game/bridge';
 import { unlockedRecipeIds } from './recipes';
@@ -595,6 +595,17 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		};
 	}, [sessionPlayerId, pushLog, toast, refresh]);
 
+	// The daily-task board is server-derived text (tr('server.task.*')), so it's
+	// rendered in whatever language was active when the state was built. The es
+	// catalog loads asynchronously, so tasks can bake in English before it applies
+	// — and switching language mid-game should re-localize them. Re-fetch the
+	// state on every locale change so the board regenerates in the new language.
+	useEffect(() => {
+		return onLocaleChange(() => {
+			if (getPlayerId()) refresh().catch(() => undefined);
+		});
+	}, [refresh]);
+
 	// Feedback written while offline waits in a localStorage queue; retry it at
 	// the start of every session. Items are deleted only once the server
 	// confirms it stored them (see src/feedback.ts). Fire-and-forget. A solo
@@ -785,12 +796,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				(r) => {
 					const res = data?.resources.find((x) => x.id === resourceId);
 					const qty = r?.gained?.[resourceId] || 1;
-					pushLog('basket', t('app.log.gathered', { qty, name: res ? content('resource', res.id, 'name', res.name) : resourceId }));
+					const name = res ? content('resource', res.id, 'name', res.name) : resourceId;
+					pushLog('basket', t('app.log.gathered', { qty, name }));
+					// house perk (Log Cabin): the forager's instinct found one extra
+					if (r?.perkBonus) toast(t('app.toast.perkForage', { name }), 'unlock');
 					// the basket is the gathering tool — other tools are for shaping the land
 					bridge.emit('collected', { nodeId, resourceId, qty, tool: 'basket', color: res?.color });
 				}
 			),
-		[act, data, pushLog]
+		[act, data, pushLog, toast]
 	);
 
 	const terraform = useCallback(
@@ -825,10 +839,12 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		(area: string, x: number, y: number, plantId: string) =>
 			act(
 				() => api.plant(area, x, y, plantId),
-				() => {
+				(r) => {
 					const def = data?.habitatObjects.find((o) => o.id === plantId);
 					const name = def ? content('habitatObject', def.id, 'name', def.name) : t('app.fallback.plant');
-					pushLog('leaf', t('app.log.planted', { name }));
+					// house perk (Meadow Cottage): green thumb — planted with a head start
+					if (r?.perkGrowth) pushLog('leaf', t('app.log.plantedHeadStart', { name, pct: Math.round(r.perkGrowth * 100) }));
+					else pushLog('leaf', t('app.log.planted', { name }));
 				}
 			),
 		[act, data, pushLog]
@@ -865,6 +881,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					const fromChests = Object.keys(r?.usedFrom?.chests || {}).length > 0;
 					toast(t(fromChests ? 'app.toast.craftedFromChests' : 'app.toast.crafted', { name }));
 					pushLog('hammer', t(fromChests ? 'app.log.craftedFromChests' : 'app.log.crafted', { name }));
+					// house perk (Stone Hearth): thrift returned part of the materials
+					if (r?.refund && Object.keys(r.refund).length) {
+						const items = Object.entries(r.refund as Record<string, number>)
+							.map(([rid, q]) => {
+								const rd = data?.resources.find((x) => x.id === rid);
+								return `${q}× ${rd ? content('resource', rd.id, 'name', rd.name) : rid}`;
+							})
+							.join(', ');
+						toast(t('app.toast.perkThrift', { items }), 'unlock');
+					}
 				}
 			),
 		[act, data, toast]

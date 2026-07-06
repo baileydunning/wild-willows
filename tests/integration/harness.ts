@@ -106,7 +106,7 @@ export async function loadServer(): Promise<Record<string, any>> {
 export interface World {
 	db: Db;
 	post<T = any>(cls: string, body: any): Promise<T>;
-	get<T = any>(cls: string, id?: string): Promise<T>;
+	get<T = any>(cls: string, id?: string, query?: Record<string, string | string[]>): Promise<T>;
 }
 
 /** Reset to a brand-new world and return helpers bound to the loaded server. */
@@ -123,7 +123,18 @@ export async function freshWorld(): Promise<World> {
 			return holder.db;
 		},
 		post: (cls, body) => inst(cls).post(body),
-		get: (cls, id) => inst(cls, id).get(),
+		// Mirror Harper: get() receives a RequestTarget (a URLSearchParams subclass)
+		// carrying the path id plus any query params.
+		get: (cls, id, query) => {
+			const target = new URLSearchParams() as URLSearchParams & { id?: string };
+			if (query) {
+				for (const [k, vals] of Object.entries(query)) {
+					for (const v of Array.isArray(vals) ? vals : [vals]) target.append(k, String(v));
+				}
+			}
+			target.id = id;
+			return inst(cls, id).get(target);
+		},
 	};
 }
 

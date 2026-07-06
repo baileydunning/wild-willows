@@ -138,3 +138,173 @@ export async function deleteSave(slotId: string): Promise<void> {
 }
 
 export const soloSavesAvailable = () => hasDesktopSaves() || typeof localStorage !== 'undefined';
+
+// ---- export / import (single-file backups) ----
+//
+// Saves are single local JSON files with no cloud sync, so a corrupt write or a
+// new machine loses everything. These let a player back a save up to a file and
+// bring it back later — the cheap, itch-friendly "export/import save".
+//
+// An exported file is an ENCRYPTED envelope: { app, v, nonce, sig, enc }. The
+// save JSON is encrypted (so the file can't be read or edited in a text editor)
+// and carries an integrity tag `sig` (so a tampered or half-written file is
+// rejected on import instead of loading broken / cheated state).
+//
+// Honest scope: this is strong obfuscation, NOT unbreakable encryption. It's a
+// solo, offline game, so the key necessarily ships inside the client and someone
+// determined who digs it out can still decrypt. It stops the easy paths (reading
+// the file, hand-editing values, "export, bump the numbers, re-import") and
+// catches corruption. Real competitive integrity lives on the server (co-op).
+const SAVE_APP_TAG = 'wild-willows';
+const SAVE_FORMAT_VERSION = 1;
+const SIG_SECRET = 'wild-willows/solo-save/sig/v1';
+const ENC_SECRET = 'wild-willows/solo-save/enc/v1';
+
+/** Two-lane FNV-1a-style mix into four 32-bit words. Deterministic, synchronous,
+ *  dependency-free; the shared primitive under both the tag and the keystream. */
+function hash128(s: string): [number, number, number, number] {
+	let h1 = 0x811c9dc5 >>> 0;
+	let h2 = 0xc2b2ae35 >>> 0;
+	for (let i = 0; i < s.length; i++) {
+		const c = s.charCodeAt(i);
+		h1 = Math.imul(h1 ^ c, 0x01000193) >>> 0;
+		h2 = Math.imul(h2 ^ c, 0x85ebca77) >>> 0;
+		h1 ^= h1 >>> 15;
+		h2 ^= h2 >>> 13;
+	}
+	h1 = (h1 ^ s.length) >>> 0;
+	const h3 = Math.imul(h1 ^ h2, 0x27d4eb2f) >>> 0;
+	const h4 = (h1 + h2) >>> 0;
+	return [h1, h2, h3, h4];
+}
+
+const hex32 = (n: number) => (n >>> 0).toString(16).padStart(8, '0');
+
+/** Keyed integrity tag over a plaintext payload, as 128-bit hex. */
+function signPayload(payload: string): string {
+	const [a, b, c, d] = hash128(SIG_SECRET + ' ' + payload);
+	return hex32(a) + hex32(b) + hex32(c) + hex32(d);
+}
+
+/** Constant-ish time string compare for the integrity tag. */
+function tagsMatch(a: string, b: string): boolean {
+	if (typeof a !== 'string' || typeof b !== 'string' || a.length !== b.length) return false;
+	let diff = 0;
+	for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+	return diff === 0;
+}
+
+// ---- keystream cipher (hash-based CTR) + base64 ----
+
+function keystreamBlock(nonce: string, counter: number): Uint8Array {
+	const [a, b, c, d] = hash128(`${ENC_SECRET}|${nonce}|${counter}`);
+	const out = new Uint8Array(16);
+	const words = [a, b, c, d];
+	for (let i = 0; i < 4; i++) {
+		out[i * 4] = words[i] & 0xff;
+		out[i * 4 + 1] = (words[i] >>> 8) & 0xff;
+		out[i * 4 + 2] = (words[i] >>> 16) & 0xff;
+		out[i * 4 + 3] = (words[i] >>> 24) & 0xff;
+	}
+	return out;
+}
+
+/** XOR bytes against the nonce-seeded keystream (encrypt and decrypt are identical). */
+function xorKeystream(bytes: Uint8Array, nonce: string): Uint8Array {
+	const out = new Uint8Array(bytes.length);
+	let block = keystreamBlock(nonce, 0);
+	let counter = 0;
+	let bi = 0;
+	for (let i = 0; i < bytes.length; i++) {
+		if (bi >= block.length) {
+			block = keystreamBlock(nonce, ++counter);
+			bi = 0;
+		}
+		out[i] = bytes[i] ^ block[bi++];
+	}
+	return out;
+}
+
+function bytesToB64(bytes: Uint8Array): string {
+	let bin = '';
+	for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
+	return btoa(bin);
+}
+
+function b64ToBytes(b64: string): Uint8Array {
+	const bin = atob(b64);
+	const out = new Uint8Array(bin.length);
+	for (let i = 0; i < bin.length; i++) out[i] = bin.charCodeAt(i);
+	return out;
+}
+
+/** The active save as an encrypted, pretty-printed envelope for download/backup. */
+export async function exportSlot(slotId: string): Promise<string | null> {
+	const file = await readRaw(slotId);
+	if (!file?.meta) return null;
+	// Normalize the embedded slotId to match how it was stored/listed.
+	const save: SaveFile = { meta: { ...file.meta, slotId }, data: file.data || {} };
+	const payload = JSON.stringify(save);
+	const nonce = newSlotId(); // per-file, so identical saves export differently
+	const cipher = xorKeystream(new TextEncoder().encode(payload), nonce);
+	return JSON.stringify({
+		app: SAVE_APP_TAG,
+		v: SAVE_FORMAT_VERSION,
+		nonce,
+		sig: signPayload(payload), // MAC over the plaintext, checked after decrypt
+		enc: bytesToB64(cipher),
+	}, null, 2);
+}
+
+/** True when a parsed object looks like a Wild Willows save payload. */
+function looksLikeSave(parsed: any): parsed is SaveFile {
+	return !!parsed
+		&& typeof parsed === 'object'
+		&& parsed.meta && typeof parsed.meta === 'object'
+		&& typeof parsed.meta.playerId === 'string' && parsed.meta.playerId
+		&& parsed.data && typeof parsed.data === 'object' && !Array.isArray(parsed.data);
+}
+
+/** Bring an exported save file back in as a NEW slot: decrypt, verify the
+ *  integrity tag (rejecting edited or corrupted files), then always mint a fresh
+ *  slotId so importing never clobbers an existing save. Throws 'invalid-save'
+ *  for anything missing, malformed, tampered with, or damaged. */
+export async function importSave(contents: string): Promise<SaveMeta> {
+	let env: any;
+	try {
+		env = JSON.parse(contents);
+	} catch {
+		throw new Error('invalid-save');
+	}
+	// Must be our encrypted envelope — bare JSON or a foreign file is refused.
+	if (!env || typeof env !== 'object' || env.app !== SAVE_APP_TAG
+		|| typeof env.nonce !== 'string' || typeof env.sig !== 'string' || typeof env.enc !== 'string') {
+		throw new Error('invalid-save');
+	}
+
+	let save: any;
+	try {
+		const plain = new TextDecoder().decode(xorKeystream(b64ToBytes(env.enc), env.nonce));
+		// Verify the tag against the decrypted plaintext before trusting it, then
+		// parse. Tampered ciphertext decrypts to garbage → tag mismatch or bad JSON.
+		if (!tagsMatch(signPayload(plain), env.sig)) throw new Error('invalid-save');
+		save = JSON.parse(plain);
+	} catch {
+		throw new Error('invalid-save');
+	}
+	if (!looksLikeSave(save)) throw new Error('invalid-save');
+
+	const now = Date.now();
+	const slotId = newSlotId();
+	const src = save.meta;
+	const meta: SaveMeta = {
+		slotId,
+		playerId: src.playerId,
+		name: typeof src.name === 'string' && src.name.trim() ? src.name : 'Caretaker',
+		appearance: src.appearance ?? {},
+		createdAt: typeof src.createdAt === 'number' ? src.createdAt : now,
+		updatedAt: now,
+	};
+	await writeRaw(slotId, { meta, data: save.data });
+	return meta;
+}

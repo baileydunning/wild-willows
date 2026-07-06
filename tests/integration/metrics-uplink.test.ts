@@ -46,8 +46,8 @@ describe('SyncMetrics', () => {
 		await expect(w.post('SyncMetrics', { clientId: 'slot-1', snapshot: { blob: 'x'.repeat(30_000) } })).rejects.toThrow();
 	});
 
-	it('feeds solo players into the regular Metrics view and its aggregates', async () => {
-		// one hosted player + one uplinked solo save
+	it('builds the dashboard purely from SoloMetrics, excluding hosted players', async () => {
+		// A hosted player exists but must NOT appear — the dashboard is solo-only.
 		await w.post('CreatePlayer', { name: 'Hosted Holly', passcode: '1234', appearance });
 		await w.post('SyncMetrics', {
 			clientId: 'slot-9', name: 'Solo Sam', platform: 'desktop', os: 'linux', version: '0.1.0',
@@ -55,21 +55,25 @@ describe('SyncMetrics', () => {
 		});
 
 		const out = await w.get('Metrics');
-		// one combined player list, solo entries flagged
-		expect(out.summary.players).toBe(2);
-		expect(out.summary.hostedPlayers).toBe(1);
+		expect(out.source).toBe('solo-metrics');
+		// only the uplinked solo save is counted; Hosted Holly is ignored
+		expect(out.summary.players).toBe(1);
 		expect(out.summary.soloPlayers).toBe(1);
-		const sam = out.players.find((p: any) => p.solo);
+		expect(out.players).toHaveLength(1);
+		const sam = out.players[0];
+		expect(sam.solo).toBe(true);
 		expect(sam.name).toBe('Solo Sam');
 		expect(sam.playMinutes).toBe(20);
 		expect(sam.platform).toBe('desktop');
 		expect(sam.os).toBe('linux');
 		expect(sam.version).toBe('0.1.0');
-		// aggregates count the solo player like anyone else
+		// aggregates derive entirely from the snapshot
 		expect(out.summary.engagement.totalPlaySeconds).toBeGreaterThanOrEqual(1200);
-		expect(out.summary.funnel.created).toBe(2);
+		expect(out.summary.funnel.created).toBe(1);
 		expect(out.summary.funnel.collected).toBe(1); // from the solo snapshot's activation
-		expect(out.summary.audience.activeLast24h).toBeGreaterThanOrEqual(1);
+		expect(out.summary.audience.activeLast24h).toBe(1);
+		expect(out.summary.platforms).toEqual({ desktop: 1 });
+		expect(out.summary.operatingSystems).toEqual({ linux: 1 });
 	});
 
 	it('tracks interface language from the heartbeat and the solo uplink', async () => {
@@ -88,8 +92,49 @@ describe('SyncMetrics', () => {
 		const out = await w.get('Metrics');
 		const solo = out.players.find((p: any) => p.solo);
 		expect(solo.language).toBe('en');
-		// audience breakdown counts hosted + solo together
-		expect(out.summary.languages).toEqual({ es: 1, en: 1 });
+		// solo-only dashboard: the hosted player's 'es' is not counted here, only
+		// the uplinked solo save. (Per-player /Metrics/<id> above still sees 'es'.)
+		expect(out.summary.languages).toEqual({ en: 1 });
+	});
+
+	it('omits saves by name via ?exclude= so you can drop your own test data', async () => {
+		await w.post('SyncMetrics', {
+			clientId: 'slot-me', name: 'Bailey', os: 'mac',
+			snapshot: snapshot({ name: 'Bailey', lastSeenAt: Date.now(), playSeconds: 9999 }),
+		});
+		await w.post('SyncMetrics', {
+			clientId: 'slot-real', name: 'Real Player', os: 'windows',
+			snapshot: snapshot({ name: 'Real Player', lastSeenAt: Date.now(), playSeconds: 600 }),
+		});
+
+		// unfiltered: both saves present
+		const all = await w.get('Metrics');
+		expect(all.summary.players).toBe(2);
+
+		// exclude my own save by name (case-insensitive)
+		const filtered = await w.get('Metrics', undefined, { exclude: 'bailey' });
+		expect(filtered.summary.players).toBe(1);
+		expect(filtered.summary.excludedNames).toEqual(['bailey']);
+		expect(filtered.players.map((p: any) => p.name)).toEqual(['Real Player']);
+		// aggregates reflect only the remaining save
+		expect(filtered.summary.engagement.totalPlaySeconds).toBe(600);
+
+		// comma-separated and repeatable both work
+		const multi = await w.get('Metrics', undefined, { exclude: ['Bailey,Real Player'] });
+		expect(multi.summary.players).toBe(0);
+	});
+
+	it('records cosmetic actions in counts but keeps them out of totalActions', async () => {
+		const p = await w.post('CreatePlayer', { name: 'Cosmo', passcode: '1234', appearance });
+		await w.post('UpdateAppearance', { playerId: p.playerId, appearance });
+		await w.post('UpdateAppearance', { playerId: p.playerId, appearance });
+
+		const one = await w.get('Metrics', p.playerId);
+		// tracked for engagement insight...
+		expect(one.player.counts.appearanceChanges).toBe(2);
+		// ...but cosmetic fiddling must not inflate the gameplay-intensity signal
+		expect(one.player.totalActions).toBe(0);
+		expect(one.player.actionsPerMinute).toBe(0);
 	});
 
 	it('keeps the last reported language when a heartbeat omits it', async () => {

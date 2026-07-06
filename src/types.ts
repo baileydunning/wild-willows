@@ -197,6 +197,15 @@ export interface AchievementDef {
 	hint: string;
 }
 
+/** A house style's signature perk. Strength = min(cap, base + perLevel × extra
+ * track levels beyond a fresh build). See homePerkStrength(). */
+export interface HomePerkDef {
+	id: 'forage' | 'growth' | 'thrift';
+	base: number;
+	perLevel: number;
+	cap: number;
+}
+
 export interface HomeStyleDef {
 	name: string;
 	floor: string;
@@ -204,6 +213,17 @@ export interface HomeStyleDef {
 	accent: string;
 	materials?: Record<string, number>;
 	requires?: { biome: string; minHealth: number };
+	/** Signature gameplay perk this style grants once built. */
+	perk?: HomePerkDef;
+}
+
+/** A freshly built house has 5 total track levels (space 2 + three tracks at 1). */
+const HOME_BASE_LEVELS = 5;
+
+/** Current strength (0..1) of a style perk given the home's track levels. */
+export function homePerkStrength(perk: HomePerkDef, home: HomeConfig): number {
+	const levels = (home.space || 1) + (home.comfort || 1) + (home.decor || 1) + (home.light || 1);
+	return Math.min(perk.cap, perk.base + perk.perLevel * Math.max(0, levels - HOME_BASE_LEVELS));
 }
 
 export interface HomeTrackLevel {

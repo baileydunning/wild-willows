@@ -1,11 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { api, forgetSave, getTransport } from '../api';
+import { api, forgetSave, getTransport, exportActiveSolo } from '../api';
 import { hatPalette } from '../color';
 import { sendFeedback } from '../feedback';
 import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import { hasKey, LOCALE_NAMES, chooseLocale } from '../i18n';
 import { useI18n } from '../i18n/react';
+import { usePrefs, setPrefs, type TextScale } from '../prefs';
 import type { Appearance, AppearanceOptions } from '../types';
 import { CharacterPreview, Icon } from './icons';
 
@@ -136,6 +137,46 @@ export function AppearanceEditor({ value, onChange }: { value: Appearance; onCha
 	);
 }
 
+/** Accessibility controls (reduce motion, colorblind/high-contrast, text size).
+ *  Shared by the in-game Settings panel and the title-screen Accessibility modal. */
+export function AccessibilityControls() {
+	const { t } = useI18n();
+	const prefs = usePrefs();
+	return (
+		<>
+			<div className="a11y-row">
+				<span className="a11y-label">
+					<b>{t('app.settings.reduceMotion')}</b>
+					<span className="muted small">{t('app.settings.reduceMotionHint')}</span>
+				</span>
+				<label className="switch">
+					<input type="checkbox" checked={prefs.reduceMotion} onChange={(e) => setPrefs({ reduceMotion: e.target.checked })} aria-label={t('app.settings.reduceMotion')} />
+					<span className="track" /><span className="thumb" />
+				</label>
+			</div>
+			<div className="a11y-row">
+				<span className="a11y-label">
+					<b>{t('app.settings.colorblind')}</b>
+					<span className="muted small">{t('app.settings.colorblindHint')}</span>
+				</span>
+				<label className="switch">
+					<input type="checkbox" checked={prefs.colorblind} onChange={(e) => setPrefs({ colorblind: e.target.checked })} aria-label={t('app.settings.colorblind')} />
+					<span className="track" /><span className="thumb" />
+				</label>
+			</div>
+			<div className="craft-filter lang-filter">
+				<label htmlFor="settings-textscale">{t('app.settings.textSize')}:</label>
+				<select id="settings-textscale" value={prefs.textScale} onChange={(e) => setPrefs({ textScale: e.target.value as TextScale })}>
+					<option value="sm">{t('app.settings.textSm')}</option>
+					<option value="md">{t('app.settings.textMd')}</option>
+					<option value="lg">{t('app.settings.textLg')}</option>
+					<option value="xl">{t('app.settings.textXl')}</option>
+				</select>
+			</div>
+		</>
+	);
+}
+
 export function SettingsPanel() {
 	const { state, setPanel, notify, refresh, logout } = useGame();
 	const { t, locale } = useI18n();
@@ -144,6 +185,7 @@ export function SettingsPanel() {
 	};
 	const [appearance, setAppearance] = useState<Appearance>({ ...defaults, ...(state?.player.appearance || {}) });
 	const [saving, setSaving] = useState(false);
+	const [exporting, setExporting] = useState(false);
 	const [passcode, setPasscode] = useState('');
 	const [deleting, setDeleting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -177,6 +219,34 @@ export function SettingsPanel() {
 			setError(e.message || t('app.settings.errSaveLook'));
 		} finally {
 			setSaving(false);
+		}
+	};
+
+	// Export the active solo save to a downloadable JSON file — the whole world
+	// plus the caretaker's name and look — so the player has an offline backup.
+	const exportSave = async () => {
+		setExporting(true);
+		setError(null);
+		try {
+			const out = await exportActiveSolo();
+			if (!out) {
+				setError(t('app.settings.errExport'));
+				return;
+			}
+			const blob = new Blob([out.contents], { type: 'application/json' });
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = out.filename;
+			document.body.appendChild(a);
+			a.click();
+			a.remove();
+			setTimeout(() => URL.revokeObjectURL(url), 1000);
+			notify(t('app.settings.saveExported'));
+		} catch (e: any) {
+			setError(e.message || t('app.settings.errExport'));
+		} finally {
+			setExporting(false);
 		}
 	};
 
@@ -247,16 +317,16 @@ export function SettingsPanel() {
 					<h2><Icon name="gear" size={20} /> {t('app.settings.title')}</h2>
 					<button className="icon-btn" onClick={() => setPanel(null)} aria-label={t('app.common.close')}><Icon name="close" /></button>
 				</div>
-				<div className="panel-body">
+				<div className="panel-body settings-body">
 					<h3><Icon name="user" size={15} /> {t('app.settings.yourCaretaker', { name: player.name })}</h3>
 					<AppearanceEditor value={appearance} onChange={setAppearance} />
-					<div className="form-actions" style={{ justifyContent: 'flex-end' }}>
+					<div className="form-actions end">
 						<button className="big-btn primary" onClick={saveLook} disabled={saving}>
 							<Icon name="check" /> <span>{saving ? t('app.settings.saving') : t('app.settings.saveLook')}</span>
 						</button>
 					</div>
 
-					<h3><Icon name="chat" size={15} /> {t('app.settings.language')}</h3>
+					<h3><Icon name="globe" size={15} /> {t('app.settings.language')}</h3>
 					<div className="craft-filter lang-filter">
 						<label htmlFor="settings-language">{t('app.settings.language')}:</label>
 						<select id="settings-language" value={locale} onChange={(e) => void chooseLocale(e.target.value)}>
@@ -265,6 +335,21 @@ export function SettingsPanel() {
 							))}
 						</select>
 					</div>
+
+					<h3><Icon name="sliders" size={15} /> {t('app.settings.accessibility')}</h3>
+					<AccessibilityControls />
+
+					{isSolo && <>
+					<h3><Icon name="download" size={15} /> {t('app.settings.exportSaveTitle')}</h3>
+					<p className="muted small">
+						{t('app.settings.exportSaveHint')}
+					</p>
+					<div className="form-actions end">
+						<button className="big-btn primary" onClick={exportSave} disabled={exporting}>
+							<Icon name="download" size={15} /> <span>{exporting ? t('app.settings.exporting') : t('app.settings.exportSave')}</span>
+						</button>
+					</div>
+					</>}
 
 					{!isSolo && <>
 					<h3><Icon name="lock" size={15} /> {t('app.settings.changePasscode')}</h3>

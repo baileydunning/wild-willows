@@ -14161,11 +14161,11 @@ var FIRST_ANIMAL_ID = "grasshopper";
 var FEED_CAP = 100;
 var HOME_BUILD_GATE = { biome: "meadow", minHealth: 30 };
 var HOME_STYLES = {
-  cabin: { name: "Log Cabin", floor: "#c8a064", wall: "#5e3f29", accent: "#b5707a", materials: { branches: 16, fiber: 6 }, requires: HOME_BUILD_GATE },
+  cabin: { name: "Log Cabin", floor: "#c8a064", wall: "#5e3f29", accent: "#b5707a", materials: { branches: 16, fiber: 6 }, requires: HOME_BUILD_GATE, perk: { id: "forage", base: 0.1, perLevel: 0.05, cap: 0.6 } },
   // warm golden pine + dark logs
-  cottage: { name: "Meadow Cottage", floor: "#e6d3a6", wall: "#aab9c6", accent: "#7fae6a", materials: { wildflowers: 6, fiber: 10, clay: 4 }, requires: HOME_BUILD_GATE },
+  cottage: { name: "Meadow Cottage", floor: "#e6d3a6", wall: "#aab9c6", accent: "#7fae6a", materials: { wildflowers: 6, fiber: 10, clay: 4 }, requires: HOME_BUILD_GATE, perk: { id: "growth", base: 0.1, perLevel: 0.04, cap: 0.5 } },
   // pale wood + airy blue-grey + green
-  stone: { name: "Stone Hearth", floor: "#a9a499", wall: "#6f6a62", accent: "#d98a4f", materials: { stones: 14, clay: 6 }, requires: HOME_BUILD_GATE }
+  stone: { name: "Stone Hearth", floor: "#a9a499", wall: "#6f6a62", accent: "#d98a4f", materials: { stones: 14, clay: 6 }, requires: HOME_BUILD_GATE, perk: { id: "thrift", base: 0.1, perLevel: 0.05, cap: 0.6 } }
   // slate floor + grey stone + hearth orange
 };
 var DEFAULT_HOME = { style: "cabin", space: 1, comfort: 1, decor: 1, light: 1, styleLocked: false };
@@ -14218,6 +14218,16 @@ function homeOf(player) {
   return { ...DEFAULT_HOME, space: t2, comfort: t2, styleLocked: t2 > 1 };
 }
 var homeCarryBonus = (player) => HOME_TRACKS.comfort.levels[(homeOf(player).comfort || 1) - 1]?.carry || 0;
+var HOME_BASE_LEVELS = 5;
+function homePerk(player) {
+  const home = homeOf(player);
+  if (!home.styleLocked) return null;
+  const perk = HOME_STYLES[home.style]?.perk;
+  if (!perk) return null;
+  const levels = (home.space || 1) + (home.comfort || 1) + (home.decor || 1) + (home.light || 1);
+  const strength = Math.min(perk.cap, perk.base + perk.perLevel * Math.max(0, levels - HOME_BASE_LEVELS));
+  return { id: perk.id, strength };
+}
 function homeRoom(player) {
   const inner = HOME_TRACKS.space.levels[(homeOf(player).space || 1) - 1]?.inner || { w: 8, h: 6 };
   const x0 = Math.floor((GRID_W - inner.w) / 2);
@@ -14364,13 +14374,14 @@ function playerDayKey(player, at) {
   return Math.floor((at + tzMs(player) - TASK_RESET_HOUR * 36e5) / DAY_MS2);
 }
 var round1 = (n) => Math.round(n * 10) / 10;
+var META_COUNTERS = /* @__PURE__ */ new Set(["recolors", "appearanceChanges"]);
 function metricsView(player) {
   const now = Date.now();
   const m = player.metrics || freshMetrics(player.createdAt || now);
   const playSeconds = m.playSeconds || 0;
   const sessions = m.sessions || 0;
   const counts = m.counts || {};
-  const totalActions = Object.values(counts).reduce((a, b) => a + (b || 0), 0);
+  const totalActions = Object.entries(counts).reduce((a, [k, b]) => a + (META_COUNTERS.has(k) ? 0 : b || 0), 0);
   const createdAt = player.createdAt || m.firstSeenAt || now;
   const lastSeenAt = m.lastSeenAt || null;
   const hoursSinceActive = lastSeenAt ? round1((now - lastSeenAt) / 36e5) : null;
@@ -15925,13 +15936,16 @@ var CollectResource = class extends PublicEndpoint {
     if (carried >= capacity) throw new GameError(t("server.err.basketFullStore"), 409);
     const toolTier = player.tools?.[resDef.tool] || 1;
     const amount = Math.min(Math.max(1, toolTier), capacity - carried);
+    const perk = homePerk(player);
+    const perkBonus = perk?.id === "forage" && capacity - carried - amount > 0 && Math.random() < perk.strength ? 1 : 0;
+    const total = amount + perkBonus;
     const inventory = { ...player.inventory || {} };
-    inventory[resourceId] = (inventory[resourceId] || 0) + amount;
+    inventory[resourceId] = (inventory[resourceId] || 0) + total;
     await t2.Player.patch(playerId, { inventory });
     await t2.NodeState.put({ id: nodeKey, worldId: wid, playerId, harvestedAt: now });
-    await bumpMetrics(player, { resourcesCollected: amount }, { [`res:${resourceId}`]: amount });
+    await bumpMetrics(player, { resourcesCollected: total }, { [`res:${resourceId}`]: total });
     await awardAchievements(playerId);
-    return { ok: true, gained: { [resourceId]: amount }, inventory, nodeId, harvestedAt: now };
+    return { ok: true, gained: { [resourceId]: total }, perkBonus: perkBonus || void 0, inventory, nodeId, harvestedAt: now };
   }
 };
 var ChestTransfer = class extends PublicEndpoint {
@@ -15963,6 +15977,7 @@ var ChestTransfer = class extends PublicEndpoint {
     }
     await t2.Player.patch(playerId, { inventory });
     await t2.Chest.patch(chestId, { contents });
+    await bumpMetrics(player, direction === "deposit" ? { chestDeposits: 1 } : { chestWithdrawals: 1 });
     return { ok: true, inventory, chest: { ...chest, contents } };
   }
 };
@@ -15979,6 +15994,7 @@ var DiscardItem = class extends PublicEndpoint {
       craftedItems[id] -= amount;
       if (craftedItems[id] <= 0) delete craftedItems[id];
       await t2.Player.patch(playerId, { craftedItems });
+      await bumpMetrics(player, { itemsDiscarded: amount });
       return { ok: true, craftedItems };
     }
     const inventory = { ...player.inventory || {} };
@@ -15986,6 +16002,7 @@ var DiscardItem = class extends PublicEndpoint {
     inventory[id] -= amount;
     if (inventory[id] <= 0) delete inventory[id];
     await t2.Player.patch(playerId, { inventory });
+    await bumpMetrics(player, { itemsDiscarded: amount });
     return { ok: true, inventory };
   }
 };
@@ -16023,16 +16040,30 @@ var CraftItem = class extends PublicEndpoint {
       throw new GameError(t("server.err.craftOnce", { name: recipe.name }), 409);
     }
     const { usedFrom, inventory } = await consumeMaterials(player, recipe.materials || {}, wid);
+    const perk = homePerk(player);
+    let refund;
+    if (perk?.id === "thrift" && Object.keys(recipe.materials || {}).length && Math.random() < perk.strength) {
+      let room = inventoryCapacity(player) - sumValues(inventory);
+      for (const [rid, q] of Object.entries(recipe.materials || {})) {
+        const back = Math.min(Math.max(1, Math.floor(q / 2)), Math.max(0, room));
+        if (back > 0) {
+          refund = refund || {};
+          refund[rid] = back;
+          inventory[rid] = (inventory[rid] || 0) + back;
+          room -= back;
+        }
+      }
+    }
     const craftedItems = { ...player.craftedItems || {} };
     const craftedEver = { ...player.craftedEver || {} };
     craftedItems[recipe.output.itemId] = (craftedItems[recipe.output.itemId] || 0) + (recipe.output.qty || 1);
     craftedEver[recipe.output.itemId] = (craftedEver[recipe.output.itemId] || 0) + (recipe.output.qty || 1);
-    await t2.Player.patch(playerId, { craftedItems, craftedEver });
+    await t2.Player.patch(playerId, refund ? { craftedItems, craftedEver, inventory } : { craftedItems, craftedEver });
     const unlockedBiomes = await checkUnlocks(wid, playerId, { player: { ...player, craftedItems, craftedEver } });
     const chests = await byWorld(t2.Chest, wid);
     await bumpMetrics(player, { itemsCrafted: 1 }, { craft: 1 });
     await awardAchievements(playerId);
-    return { ok: true, crafted: recipe.output, craftedItems, inventory, chests, usedFrom, unlockedBiomes };
+    return { ok: true, crafted: recipe.output, craftedItems, inventory, chests, usedFrom, refund, unlockedBiomes };
   }
 };
 function normRot(v) {
@@ -16177,7 +16208,10 @@ var Plant = class extends PublicEndpoint {
     }
     const { usedFrom, inventory } = await consumeMaterials(player, def.plantCost || {}, wid);
     await t2.TerrainTile.delete(bed.id);
-    const placementId = `pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+    const perk = homePerk(player);
+    const headStart = perk?.id === "growth" ? perk.strength : 0;
+    const now = Date.now();
+    const placementId = `pl_${now}_${Math.random().toString(36).slice(2, 8)}`;
     const placement = {
       id: placementId,
       worldId: wid,
@@ -16186,8 +16220,8 @@ var Plant = class extends PublicEndpoint {
       area,
       x: tx,
       y: ty,
-      placedAt: Date.now(),
-      plantedAt: Date.now()
+      placedAt: now - Math.round(matureMs(def) * headStart),
+      plantedAt: now - Math.round((def.growSeconds || 0) * 1e3 * headStart)
     };
     await t2.Placement.put(placement);
     const recalc = await recalcBiome(wid, playerId, area, {
@@ -16197,15 +16231,16 @@ var Plant = class extends PublicEndpoint {
     });
     await bumpMetrics(player, { plantsPlanted: 1, animalsReturned: recalc.newAnimals?.length || 0 }, { plant: 1 });
     await awardWorldAchievements(wid, playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
-    return { ok: true, placement, inventory, usedFrom, ...recalc };
+    return { ok: true, placement, inventory, usedFrom, perkGrowth: headStart || void 0, ...recalc };
   }
 };
 var UpdateAppearance = class extends PublicEndpoint {
   async post(data) {
     const { playerId, appearance } = await bodyOf(data);
-    await requirePlayer(playerId);
+    const { player } = await requirePlayer(playerId);
     const clean = sanitizeAppearance(appearance);
     await db().Player.patch(playerId, { appearance: clean });
+    await bumpMetrics(player, { appearanceChanges: 1 });
     return { ok: true, appearance: clean };
   }
 };
@@ -16246,6 +16281,7 @@ var MoveObject = class extends PublicEndpoint {
     await t2.Placement.patch(placementId, patch);
     const chest = await getOwnedChest(t2, d, placementId, wid);
     if (chest) await t2.Chest.patch(placementId, { x: tx, y: ty });
+    await bumpMetrics(player, { objectsMoved: 1 });
     return { ok: true, placement: { ...placement, ...patch } };
   }
 };
@@ -16376,6 +16412,7 @@ var UpgradeHome = class extends PublicEndpoint {
     await t2.Player.patch(playerId, { home: updated });
     const chests = await byWorld(t2.Chest, wid);
     await awardAchievements(playerId);
+    await bumpMetrics(player, { homeUpgrades: 1 });
     return { ok: true, home: updated, inventory, chests, usedFrom, upgraded: { track, level: level + 1, name: def.name } };
   }
 };
@@ -16392,6 +16429,7 @@ var Rest = class extends PublicEndpoint {
     }
     const nodes = await byWorld(t2.NodeState, wid);
     for (const n of nodes) await t2.NodeState.delete(n.id);
+    await bumpMetrics(player, { restsTaken: 1 });
     return { ok: true, rested: true, refreshed: nodes.length };
   }
 };
@@ -16408,6 +16446,7 @@ var SetHomeColors = class extends PublicEndpoint {
       if (colors?.[k] && isHexColor(colors[k])) next[k] = String(colors[k]).trim().toLowerCase();
     }
     await t2.Player.patch(playerId, { home: { ...home, colors: next } });
+    await bumpMetrics(player, { recolors: 1 });
     return { ok: true };
   }
 };
@@ -16421,6 +16460,7 @@ var SetPlacementColor = class extends PublicEndpoint {
     const placement = await findInWorld(t2.Placement, worldOf(player), placementId);
     if (!placement) throw new GameError(t("server.err.itemNotHere"), 404);
     await t2.Placement.patch(placementId, { color: String(color).trim().toLowerCase() });
+    await bumpMetrics(player, { recolors: 1 });
     return { ok: true };
   }
 };
@@ -16447,6 +16487,7 @@ var SetHomeStyle = class extends PublicEndpoint {
     await t2.Player.patch(playerId, { home: updated });
     const chests = await byWorld(t2.Chest, wid);
     await awardAchievements(playerId);
+    await bumpMetrics(player, { homesBuilt: 1 });
     return { ok: true, home: updated, inventory, chests, usedFrom, built: HOME_STYLES[style].name };
   }
 };
@@ -16749,9 +16790,9 @@ var Heartbeat = class extends PublicEndpoint {
   }
 };
 var Metrics = class extends PublicEndpoint {
-  async get() {
+  async get(target) {
     const t2 = db();
-    const id = String(this.getId?.() || "").trim();
+    const id = String(this.getId?.() || target?.id || "").trim();
     if (id) {
       const player = await t2.Player.get(id);
       if (!player) throw new GameError(t("server.err.noSaveWithId"), 404);
@@ -16768,61 +16809,61 @@ var Metrics = class extends PublicEndpoint {
       };
     }
     const now = Date.now();
-    const players = await allOf(t2.Player);
-    const allStates = await allOf(t2.BiomeState);
-    const d = await defs();
-    const statesByPlayer = /* @__PURE__ */ new Map();
-    for (const s of allStates) {
-      const arr = statesByPlayer.get(s.playerId) || [];
-      arr.push(s);
-      statesByPlayer.set(s.playerId, arr);
-    }
-    const views = players.map((p) => {
-      const view = metricsView(p);
-      const biomeSummary = summarizeBiomes(statesByPlayer.get(p.id) || []);
-      return { ...view, biomeSummary, activation: activationFlags(view, biomeSummary, p) };
-    }).sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
-    let soloViews = [];
+    let soloRows = [];
     try {
-      soloViews = (await allOf(t2.SoloMetrics)).map((r) => {
-        const s = r.snapshot || {};
-        const lastSeenAt = s.lastSeenAt || r.updatedAt || null;
-        const createdAt = s.createdAt || r.createdAt || now;
-        const hoursSinceActive = lastSeenAt ? round1((now - lastSeenAt) / 36e5) : null;
-        let status = "dormant";
-        if (hoursSinceActive != null) {
-          if (hoursSinceActive <= 24) status = "active";
-          else if (hoursSinceActive <= 24 * 7) status = "recent";
-        }
-        return {
-          ...s,
-          playerId: r.id,
-          // slot-scoped id — solo name slugs can collide across machines
-          solo: true,
-          platform: r.platform || null,
-          os: r.os || null,
-          language: r.language || s.language || null,
-          version: r.version || null,
-          build: r.build || null,
-          lastSyncedAt: r.updatedAt || null,
-          counts: s.counts || {},
-          playSeconds: s.playSeconds || 0,
-          sessions: s.sessions || 0,
-          totalActions: s.totalActions || 0,
-          unlockedBiomes: s.unlockedBiomes || 0,
-          activation: s.activation || {},
-          biomeSummary: s.biomeSummary || { biomesUnlocked: 0, avgHealth: 0, biomesFullyRestored: 0, totalReturned: 0 },
-          createdAt,
-          lastSeenAt,
-          hoursSinceActive,
-          status,
-          daysSinceJoined: Math.floor((now - createdAt) / DAY_MS2),
-          isNewToday: now - createdAt <= DAY_MS2
-        };
-      });
+      soloRows = await allOf(t2.SoloMetrics);
     } catch {
     }
-    const all = [...views, ...soloViews].sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
+    let all = soloRows.map((r) => {
+      const s = r.snapshot || {};
+      const lastSeenAt = s.lastSeenAt || r.updatedAt || null;
+      const createdAt = s.createdAt || r.createdAt || now;
+      const hoursSinceActive = lastSeenAt ? round1((now - lastSeenAt) / 36e5) : null;
+      let status = "dormant";
+      if (hoursSinceActive != null) {
+        if (hoursSinceActive <= 24) status = "active";
+        else if (hoursSinceActive <= 24 * 7) status = "recent";
+      }
+      return {
+        ...s,
+        playerId: r.id,
+        // slot-scoped id — solo name slugs can collide across machines
+        name: r.name || s.name || null,
+        solo: true,
+        platform: r.platform || null,
+        os: r.os || null,
+        language: r.language || s.language || null,
+        version: r.version || null,
+        build: r.build || null,
+        lastSyncedAt: r.updatedAt || null,
+        counts: s.counts || {},
+        playSeconds: s.playSeconds || 0,
+        sessions: s.sessions || 0,
+        totalActions: s.totalActions || 0,
+        currentArea: s.currentArea || null,
+        unlockedBiomes: s.unlockedBiomes || 0,
+        tutorialStep: s.tutorialStep || 0,
+        activation: s.activation || {},
+        achievements: s.achievements || null,
+        biomeSummary: s.biomeSummary || { biomesUnlocked: 0, avgHealth: 0, biomesFullyRestored: 0, totalAnimalsReturned: 0 },
+        createdAt,
+        lastSeenAt,
+        hoursSinceActive,
+        status,
+        daysSinceJoined: Math.floor((now - createdAt) / DAY_MS2),
+        isNewToday: now - createdAt <= DAY_MS2
+      };
+    }).sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
+    const excludedNames = /* @__PURE__ */ new Set();
+    try {
+      const raw = typeof target?.getAll === "function" ? [...target.getAll("exclude"), ...target.getAll("excludeName")] : [];
+      for (const part of raw.flatMap((s) => String(s).split(","))) {
+        const n = part.trim().toLowerCase();
+        if (n) excludedNames.add(n);
+      }
+    } catch {
+    }
+    if (excludedNames.size) all = all.filter((v) => !excludedNames.has(String(v.name || "").trim().toLowerCase()));
     const N = all.length || 1;
     const pct = (n) => Math.round(n / N * 100);
     const actionTotals = {};
@@ -16839,19 +16880,26 @@ var Metrics = class extends PublicEndpoint {
       newLast24h: all.filter((v) => now - v.createdAt <= DAY_MS2).length,
       newLast7d: all.filter((v) => now - v.createdAt <= 7 * DAY_MS2).length
     };
-    const languages = {};
-    for (const v of all) {
-      const l = v.language || "en";
-      languages[l] = (languages[l] || 0) + 1;
-    }
+    const tally = (pick) => {
+      const out = {};
+      for (const v of all) {
+        const k = pick(v) || "unknown";
+        out[k] = (out[k] || 0) + 1;
+      }
+      return out;
+    };
+    const languages = tally((v) => v.language || "en");
+    const platforms = tally((v) => v.platform);
+    const operatingSystems = tally((v) => v.os);
+    const versions = tally((v) => v.version);
     const returningPlayers = all.filter((v) => v.sessions >= 2).length;
     const funnel = {
       created: all.length,
-      collected: all.filter((v) => v.activation.collected).length,
-      crafted: all.filter((v) => v.activation.crafted).length,
-      placed: all.filter((v) => v.activation.placed).length,
-      attractedAnimal: all.filter((v) => v.activation.attractedAnimal).length,
-      unlockedSecondBiome: all.filter((v) => v.activation.unlockedSecondBiome).length
+      collected: all.filter((v) => v.activation?.collected).length,
+      crafted: all.filter((v) => v.activation?.crafted).length,
+      placed: all.filter((v) => v.activation?.placed).length,
+      attractedAnimal: all.filter((v) => v.activation?.attractedAnimal).length,
+      unlockedSecondBiome: all.filter((v) => v.activation?.unlockedSecondBiome).length
     };
     const funnelPct = {
       collected: pct(funnel.collected),
@@ -16863,70 +16911,47 @@ var Metrics = class extends PublicEndpoint {
     const areaTally = {};
     for (const v of all) if (v.currentArea) areaTally[v.currentArea] = (areaTally[v.currentArea] || 0) + 1;
     const mostPopularArea = Object.entries(areaTally).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
-    const perBiome = /* @__PURE__ */ new Map();
-    for (const s of allStates) {
-      if (!s.unlocked) continue;
-      const e = perBiome.get(s.biomeId) || { players: 0, healthSum: 0, returned: 0, fully: 0 };
-      e.players++;
-      e.healthSum += s.health || 0;
-      e.returned += s.returnedCount || 0;
-      if ((s.health || 0) >= 100) e.fully++;
-      perBiome.set(s.biomeId, e);
+    const tutorialTally = {};
+    for (const v of all) {
+      const k = String(v.tutorialStep || 0);
+      tutorialTally[k] = (tutorialTally[k] || 0) + 1;
     }
-    const biomeBreakdown = d.biomes.map((b) => {
-      const e = perBiome.get(b.id);
-      return {
-        biomeId: b.id,
-        name: b.name,
-        playersUnlocked: e?.players || 0,
-        avgHealth: e?.players ? Math.round(e.healthSum / e.players) : 0,
-        totalAnimalsReturned: e?.returned || 0,
-        fullyRestored: e?.fully || 0
-      };
-    });
-    const withBiomes = all.filter((v) => v.biomeSummary.biomesUnlocked > 0);
-    const avgBiomeHealth = withBiomes.length ? Math.round(withBiomes.reduce((acc, v) => acc + v.biomeSummary.avgHealth, 0) / withBiomes.length) : 0;
-    const achRows = await allOf(t2.PlayerAchievement);
-    const earnedByPlayer = /* @__PURE__ */ new Map();
-    const distribution = {};
-    for (const r of achRows) {
-      distribution[r.achievementId] = (distribution[r.achievementId] || 0) + 1;
-      earnedByPlayer.set(r.playerId, (earnedByPlayer.get(r.playerId) || 0) + 1);
-    }
+    const withBiomes = all.filter((v) => (v.biomeSummary?.biomesUnlocked || 0) > 0);
+    const avgBiomeHealth = withBiomes.length ? Math.round(withBiomes.reduce((acc, v) => acc + (v.biomeSummary.avgHealth || 0), 0) / withBiomes.length) : 0;
+    const withAch = all.filter((v) => v.achievements);
+    const totalEarned = withAch.reduce((acc, v) => acc + (v.achievements.earned || 0), 0);
+    const recentDistribution = {};
+    const byCategory = {};
     const completionHistogram = {};
-    for (const v of views) {
-      const n = earnedByPlayer.get(v.playerId) || 0;
-      const bucket = n === 0 ? "0" : `${Math.floor((n - 1) / 10) * 10 + 1}-${(Math.floor((n - 1) / 10) + 1) * 10}`;
+    for (const v of withAch) {
+      for (const rec of v.achievements.recent || []) if (rec?.id) recentDistribution[rec.id] = (recentDistribution[rec.id] || 0) + 1;
+      for (const [cat, n] of Object.entries(v.achievements.byCategory || {})) byCategory[cat] = (byCategory[cat] || 0) + n;
+      const e = v.achievements.earned || 0;
+      const bucket = e === 0 ? "0" : `${Math.floor((e - 1) / 10) * 10 + 1}-${(Math.floor((e - 1) / 10) + 1) * 10}`;
       completionHistogram[bucket] = (completionHistogram[bucket] || 0) + 1;
     }
     const achievementsSummary = {
-      totalDefined: d.achievements.length,
-      totalEarned: achRows.length,
-      // hosted denominator — PlayerAchievement rows only exist for hosted saves
-      avgPerPlayer: round1(achRows.length / (views.length || 1)),
-      playersWithFirstFriend: distribution["welcome-grasshopper"] || 0,
-      distribution,
+      totalDefined: withAch.reduce((m, v) => Math.max(m, v.achievements.total || 0), 0),
+      totalEarned,
+      avgPerPlayer: round1(totalEarned / (withAch.length || 1)),
+      avgCompletionPct: withAch.length ? Math.round(withAch.reduce((a, v) => a + (v.achievements.completion || 0), 0) / withAch.length * 100) : 0,
+      avgPoints: round1(withAch.reduce((a, v) => a + (v.achievements.points || 0), 0) / (withAch.length || 1)),
+      byCategory,
+      recentDistribution,
       completionHistogram
-    };
-    const allWorlds = await allOf(t2.World);
-    const coopWorlds = allWorlds.filter((w) => !w.solo);
-    const coopIds = new Set(coopWorlds.map((w) => w.id));
-    const coopMembers = (await allOf(t2.WorldMember)).filter((m) => coopIds.has(m.worldId));
-    const pendingJoins = (await allOf(t2.JoinRequest)).filter((r) => r.status === "pending").length;
-    const coopSummary = {
-      coopWorlds: coopWorlds.length,
-      playersInCoop: new Set(coopMembers.map((m) => m.playerId)).size,
-      avgMembersPerCoopWorld: coopWorlds.length ? round1(coopMembers.length / coopWorlds.length) : 0,
-      pendingJoinRequests: pendingJoins
     };
     return {
       generatedAt: now,
+      source: "solo-metrics",
       summary: {
         players: all.length,
-        hostedPlayers: views.length,
-        soloPlayers: soloViews.length,
+        soloPlayers: all.length,
+        excludedNames: [...excludedNames],
         audience,
         languages,
+        platforms,
+        operatingSystems,
+        versions,
         engagement: {
           totalPlayHours: round1(totalPlaySeconds / 3600),
           totalPlaySeconds,
@@ -16943,19 +16968,16 @@ var Metrics = class extends PublicEndpoint {
         },
         progression: {
           avgBiomeHealth,
-          biomesFullyRestored: all.reduce((acc, v) => acc + (v.biomeSummary.biomesFullyRestored || 0), 0),
-          avgUnlockedBiomes: round1(all.reduce((acc, v) => acc + v.unlockedBiomes, 0) / N),
-          mostPopularArea
+          biomesFullyRestored: all.reduce((acc, v) => acc + (v.biomeSummary?.biomesFullyRestored || 0), 0),
+          avgUnlockedBiomes: round1(all.reduce((acc, v) => acc + (v.unlockedBiomes || 0), 0) / N),
+          mostPopularArea,
+          tutorialStepHistogram: tutorialTally
         },
         funnel,
         funnelPct,
         actionTotals,
-        achievements: achievementsSummary,
-        coop: coopSummary,
-        biomeBreakdown
+        achievements: achievementsSummary
       },
-      // One combined list — solo entries carry `solo: true` (+ platform/build
-      // /lastSyncedAt) so a dashboard can still tell them apart.
       players: all
     };
   }

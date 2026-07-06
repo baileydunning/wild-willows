@@ -50,7 +50,9 @@
 		"homeBuilt": "¡Construiste tu {name}!",
 		"rested": "Duermes profundamente — todos los puntos de recolección han vuelto a crecer.",
 		"taskReward": "Recompensa de tarea — {items}",
-		"joinRequest": "{name} quiere unirse — presiona U para permitirle entrar"
+		"joinRequest": "{name} quiere unirse — presiona U para permitirle entrar",
+		"perkForage": "¡El instinto recolector de tu cabaña consiguió un {name} extra!",
+		"perkThrift": "¡Ahorro del hogar! Recuperaste {items}."
 	},
 	"feed": {
 		"recipeUnlocked": "Nueva receta de fabricación desbloqueada — {name}.",
@@ -80,7 +82,8 @@
 		"pickedUp": "Recogiste el objeto — está de nuevo entre tus objetos fabricados.",
 		"moved": "Lo moviste a un nuevo lugar.",
 		"rotated": "Lo giraste un cuarto de vuelta.",
-		"rested": "Descansaste. Todos los puntos de recolección de la reserva se han renovado."
+		"rested": "Descansaste. Todos los puntos de recolección de la reserva se han renovado.",
+		"plantedHeadStart": "Plantaste {name} — la mano verde de tu casita le dio un {pct}% de ventaja."
 	},
 	"welcomeBack": {
 		"matured": { "one": "una de tus siembras maduró", "other": "{count} de tus siembras maduraron" },
@@ -150,7 +153,7 @@
 		"joinFormHint": "Uniéndote a {world} — {host} está revisando tu solicitud mientras personalizas tu personaje. Entrarás en cuanto la apruebe.",
 		"codeFormHint": "Ingresa el código de un amigo para restaurar su reserva juntos.",
 		"namePlaceholder": "Nombre de cuidador",
-		"randomize": "Apariencia aleatoria",
+		"randomize": "Sorpréndeme — nombre y aspecto al azar",
 		"passcodeNewPlaceholder": "Clave (4+ caracteres)",
 		"settlingIn": "Acomodándote…",
 		"beginRestoring": "Comenzar a restaurar",
@@ -161,7 +164,11 @@
 		"deleteSave": "Eliminar {name}",
 		"passcodePlaceholder": "Clave",
 		"walkingTrail": "Caminando por el sendero…",
-		"continueFailed": "{message} — mejor inicia sesión abajo."
+		"continueFailed": "{message} — mejor inicia sesión abajo.",
+		"importSave": "Importar partida",
+		"importing": "Importando…",
+		"importDone": "Se importó {name}; elígela abajo para jugar.",
+		"errImport": "Ese archivo de partida falta, fue editado o está dañado — no se pudo importar."
 	},
 	"hud": {
 		"yourHome": "Tu hogar",
@@ -176,6 +183,7 @@
 		"balance": "Equilibrio",
 		"animalsReturned": "{returned}/{total} animales regresaron",
 		"acrossPreserve": "{returned}/{total} en toda la reserva",
+		"weatherLabel": "Clima",
 		"hideMenu": "Ocultar menú",
 		"showMenu": "Mostrar menú",
 		"saveRetryTitle": "Un guardado no se completó — seguirá reintentándose",
@@ -279,6 +287,22 @@
 		"deleting": "Eliminando…",
 		"deleteForever": "Eliminar para siempre",
 		"errDelete": "No se pudo eliminar la partida",
+		"exportSaveTitle": "Respalda esta partida",
+		"exportSaveHint": "Descarga una copia de esta reserva — el mundo, el diario, el progreso y el nombre y aspecto de tu cuidador — en un solo archivo. Guárdala como respaldo o llévala a otra computadora.",
+		"exportSave": "Exportar partida",
+		"exporting": "Exportando…",
+		"saveExported": "Partida exportada.",
+		"errExport": "No se pudo exportar esta partida.",
+		"accessibility": "Accesibilidad",
+		"reduceMotion": "Reducir movimiento",
+		"reduceMotionHint": "Desactiva las animaciones de la interfaz y las partículas del clima como la lluvia y la nieve.",
+		"colorblind": "Modo daltónico",
+		"colorblindHint": "Activa un tema de alto contraste e indicaciones del clima más claras que no dependen solo del color.",
+		"textSize": "Tamaño del texto",
+		"textSm": "Pequeño",
+		"textMd": "Normal",
+		"textLg": "Grande",
+		"textXl": "Muy grande",
 		"language": "Idioma",
 		"sendFeedback": "Enviar comentarios",
 		"feedbackHint": "¿Encontraste un error o tienes una idea para la reserva? Envía una nota directamente al desarrollador.",
