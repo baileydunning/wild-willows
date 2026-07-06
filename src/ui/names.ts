@@ -10,11 +10,17 @@ export const CARETAKER_NAMES: readonly string[] = [
 	'Willow', 'Fern', 'Hazel', 'Wren', 'Clover', 'Juniper', 'Aspen', 'Linden',
 	'Sorrel', 'Bracken', 'Robin', 'Reed', 'Ivy', 'Sage', 'Poppy', 'Briar',
 	'Rowan', 'Heath', 'Fenn', 'Marlow', 'Dell', 'Cricket', 'Pippin', 'Cedar',
-	'Birch', 'Alder', 'Elm', 'Maple', 'Bay', 'Otter', 'Wisp', 'Meadow',
-	'Thistle', 'Nettle', 'Basil', 'Dahlia', 'Fable', 'Hollis', 'Moss', 'Laurel',
-	'Sparrow', 'Finch', 'Lark', 'Bramble', 'Comfrey', 'Yarrow', 'Tansy', 'Marsh',
-	'Bluebell', 'Acorn', 'Fox', 'Hollow', 'Vale', 'Brook', 'Cobweb', 'Dewy',
-	'Sable', 'Pip', 'Teasel', 'Sedge',
+	'Birch', 'Alder', 'Elm', 'Maple', 'Bay', 'Wisp', 'Meadow', 'Thistle',
+	'Basil', 'Dahlia', 'Fable', 'Hollis', 'Moss', 'Laurel', 'Sparrow', 'Finch',
+	'Lark', 'Bramble', 'Yarrow', 'Tansy', 'Bluebell', 'Fox', 'Vale', 'Brook',
+	'Sable', 'Pip', 'Sedge',
+
+	'Ash', 'Aster', 'Autumn', 'Blossom', 'Bram', 'Bryony', 'Calla', 'Cassia',
+	'Daisy', 'Dawn', 'Dove', 'Eden', 'Ember', 'Fawn', 'Flint', 'Flora',
+	'Forest', 'Gale', 'Glen', 'Honey', 'Iris', 'Jasper', 'Kestrel', 'Lilac',
+	'Luna', 'Magnolia', 'Mica', 'Mira', 'Myrtle', 'Olive', 'Petal', 'Rain',
+	'River', 'Rue', 'Skye', 'Sol', 'Sprig', 'Starling', 'Sylvan', 'Violet',
+	'Winter', 'Zephyr',
 ];
 
 /**
