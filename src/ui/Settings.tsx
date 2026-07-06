@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { api, forgetSave, getTransport } from '../api';
+import { api, forgetSave, getTransport, exportActiveSolo } from '../api';
 import { hatPalette } from '../color';
 import { sendFeedback } from '../feedback';
 import { bridge } from '../game/bridge';
@@ -144,6 +144,7 @@ export function SettingsPanel() {
 	};
 	const [appearance, setAppearance] = useState<Appearance>({ ...defaults, ...(state?.player.appearance || {}) });
 	const [saving, setSaving] = useState(false);
+	const [exporting, setExporting] = useState(false);
 	const [passcode, setPasscode] = useState('');
 	const [deleting, setDeleting] = useState(false);
 	const [error, setError] = useState<string | null>(null);
@@ -177,6 +178,34 @@ export function SettingsPanel() {
 			setError(e.message || t('app.settings.errSaveLook'));
 		} finally {
 			setSaving(false);
+		}
+	};
+
+	// Export the active solo save to a downloadable JSON file — the whole world
+	// plus the caretaker's name and look — so the player has an offline backup.
+	const exportSave = async () => {
+		setExporting(true);
+		setError(null);
+		try {
+			const out = await exportActiveSolo();
+			if (!out) {
+				setError(t('app.settings.errExport'));
+				return;
+			}
+			const blob = new Blob([out.contents], { type: 'application/json' });
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = out.filename;
+			document.body.appendChild(a);
+			a.click();
+			a.remove();
+			setTimeout(() => URL.revokeObjectURL(url), 1000);
+			notify(t('app.settings.saveExported'));
+		} catch (e: any) {
+			setError(e.message || t('app.settings.errExport'));
+		} finally {
+			setExporting(false);
 		}
 	};
 
@@ -265,6 +294,18 @@ export function SettingsPanel() {
 							))}
 						</select>
 					</div>
+
+					{isSolo && <>
+					<h3><Icon name="download" size={15} /> {t('app.settings.exportSaveTitle')}</h3>
+					<p className="muted small">
+						{t('app.settings.exportSaveHint')}
+					</p>
+					<div className="form-actions" style={{ justifyContent: 'flex-start' }}>
+						<button className="big-btn" style={{ width: 'auto', marginTop: 0 }} onClick={exportSave} disabled={exporting}>
+							<Icon name="download" size={15} /> <span>{exporting ? t('app.settings.exporting') : t('app.settings.exportSave')}</span>
+						</button>
+					</div>
+					</>}
 
 					{!isSolo && <>
 					<h3><Icon name="lock" size={15} /> {t('app.settings.changePasscode')}</h3>

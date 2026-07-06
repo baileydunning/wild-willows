@@ -264,6 +264,10 @@ input {
 	text-transform: uppercase; color: var(--ink-soft); line-height: 1;
 }
 .nav-group-btns { display: flex; gap: 4px; align-items: center; }
+/* Progressive disclosure: when a group's buttons are all gated off (early game),
+   its button row is empty — hide the whole cluster (label + divider) so the
+   first-run toolbar stays uncluttered. The System group always has buttons. */
+.nav-group:has(.nav-group-btns:empty) { display: none; }
 .nav-toggle { color: var(--ink-soft); align-self: center; }
 .nav-toggle:hover { color: var(--green-deep); }
 /* when collapsed the bar is just the toggle handle — keep it snug */

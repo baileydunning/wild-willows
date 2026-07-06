@@ -270,10 +270,29 @@ export const api = {
 // local slot, and load it back. These wrap the in-app backend + slot storage.
 
 import { newSoloGame as backendNew, loadSoloGame as backendLoad, endSolo } from './solo/backend';
-import { createSlot, listSaves as listSoloSaves, loadSaveData, deleteSave as deleteSoloSave } from './solo/saves';
+import { createSlot, listSaves as listSoloSaves, loadSaveData, deleteSave as deleteSoloSave, exportSlot, importSave } from './solo/saves';
 
 export type { SaveMeta } from './solo/saves';
 export { listSoloSaves, deleteSoloSave };
+
+/** Export the active solo save as a downloadable file. Flushes any pending
+ *  autosave first so the backup captures the very latest state — the whole
+ *  world, journal, progress, AND the caretaker's name + appearance. */
+export async function exportActiveSolo(): Promise<{ filename: string; contents: string } | null> {
+	await flushSoloSave();
+	const slot = getSoloSlot();
+	if (!slot) return null;
+	const contents = await exportSlot(slot.slotId);
+	if (!contents) return null;
+	const safe = (slot.name || 'save').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'save';
+	const stamp = new Date().toISOString().slice(0, 10);
+	return { filename: `wild-willows-${safe}-${stamp}.json`, contents };
+}
+
+/** Import an exported save file as a new local slot; returns the new slot meta. */
+export async function importSoloSave(contents: string): Promise<SaveMeta> {
+	return importSave(contents);
+}
 
 /** Start a fresh solo game (no passcode) and create its save slot. */
 export async function startSoloGame(name: string, appearance: Appearance): Promise<{ playerId: string; state: GameState; slot: SaveMeta }> {

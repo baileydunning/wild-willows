@@ -1,5 +1,5 @@
-import { useEffect, useMemo, useState } from 'react';
-import { api, forgetSave, lastSave, IS_DESKTOP, listSoloSaves, deleteSoloSave, setTransport, type SaveMeta } from '../api';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { api, forgetSave, lastSave, IS_DESKTOP, listSoloSaves, deleteSoloSave, importSoloSave, setTransport, type SaveMeta } from '../api';
 import { useGame } from '../state';
 import { LOCALE_NAMES, chooseLocale } from '../i18n';
 import { useI18n } from '../i18n/react';
@@ -7,6 +7,7 @@ import { COOP_ENABLED } from '../features';
 import type { Appearance } from '../types';
 import { CharacterPreview, Icon } from './icons';
 import { AppearanceRows, randomizeAppearance } from './Settings';
+import { randomName } from './names';
 
 type Mode = 'menu' | 'new' | 'load' | 'join-code';
 
@@ -82,6 +83,27 @@ export function WelcomeScreen() {
 	useEffect(() => { refreshSlots(); /* eslint-disable-next-line react-hooks/exhaustive-deps */ }, [soloLocal]);
 	const recentSlot = soloLocal ? slots?.[0] ?? null : null;
 
+	// Import a save file the player exported earlier (e.g. moving to a new machine
+	// or restoring a backup). Lands as a new slot — never clobbers an existing one.
+	const fileRef = useRef<HTMLInputElement | null>(null);
+	const [notice, setNotice] = useState<string | null>(null);
+	const onImportFile = async (file: File | null | undefined) => {
+		if (!file) return;
+		setNotice(null);
+		await run(async () => {
+			const text = await file.text();
+			let meta: SaveMeta;
+			try {
+				meta = await importSoloSave(text);
+			} catch {
+				throw new Error(t('app.welcome.errImport'));
+			}
+			refreshSlots();
+			setMode('load');
+			setNotice(t('app.welcome.importDone', { name: meta.name }));
+		});
+	};
+
 	// On desktop, point the API at the right backend for the selected mode BEFORE
 	// any call fires: solo → in-app/offline, co-op → hosted Harper. (Web ignores
 	// this and always uses its own origin.)
@@ -96,6 +118,15 @@ export function WelcomeScreen() {
 		beard: 'none',
 		body: 'slim',
 	});
+
+	// Suggest a random caretaker name when opening the New Game creator (only if
+	// the field is empty), so first-timers start with a friendly name they can
+	// keep, reroll with the dice, or type over. Load/Join forms keep the field
+	// blank — there you enter your own existing name.
+	useEffect(() => {
+		if (mode === 'new' && !name.trim()) setName(randomName());
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [mode]);
 
 	const run = async (fn: () => Promise<void>) => {
 		setBusy(true);
@@ -130,6 +161,20 @@ export function WelcomeScreen() {
 			<Scenery />
 			<div className="welcome-card">
 				<h1 className="game-title">{t('app.title')}</h1>
+
+				{soloLocal && (
+					// Off-screen (not display:none) so the native picker reliably opens when
+					// clicked programmatically in Electron. No `accept` filter — the file is
+					// validated on import, and a strict filter can grey out valid saves.
+					<input
+						ref={fileRef}
+						type="file"
+						aria-hidden="true"
+						tabIndex={-1}
+						style={{ position: 'absolute', width: 1, height: 1, opacity: 0, pointerEvents: 'none' }}
+						onChange={(e) => { const f = e.target.files?.[0]; e.target.value = ''; void onImportFile(f); }}
+					/>
+				)}
 
 				{dataError && <p className="form-error"><Icon name="help" size={16} /> {dataError}</p>}
 
@@ -187,7 +232,7 @@ export function WelcomeScreen() {
 								<button className={`big-btn ${(soloLocal ? recentSlot : last) ? '' : 'primary'}`} disabled={busy || !data} onClick={() => { setError(null); setMode('new'); }}>
 									<Icon name="plus" /> <span>{t('app.welcome.newGame')}</span>
 								</button>
-								<button className="big-btn" disabled={busy || !data || (soloLocal && !(slots && slots.length))} onClick={() => { setError(null); refreshSlots(); setMode('load'); }}>
+								<button className="big-btn" disabled={busy || !data} onClick={() => { setError(null); refreshSlots(); setMode('load'); }}>
 									<Icon name="folder" /> <span>{t('app.welcome.loadGame')}</span>
 								</button>
 							</>
@@ -293,7 +338,7 @@ export function WelcomeScreen() {
 									<button
 										type="button"
 										className="dice-btn"
-										onClick={(e) => { e.preventDefault(); setAppearance(randomizeAppearance(data?.appearanceOptions, appearance)); }}
+										onClick={(e) => { e.preventDefault(); setAppearance(randomizeAppearance(data?.appearanceOptions, appearance)); setName(randomName(name)); }}
 										title={t('app.welcome.randomize')}
 										aria-label={t('app.welcome.randomize')}
 									>
@@ -330,6 +375,7 @@ export function WelcomeScreen() {
 				{mode === 'load' && soloLocal && (
 					<div className="creator">
 						<p className="muted small mode-hint">{t('app.welcome.loadHint')}</p>
+						{notice && <p className="form-notice"><Icon name="check" size={14} /> {notice}</p>}
 						<div className="save-slots">
 							{(slots || []).length === 0 && (
 								<p className="muted small">{t('app.welcome.noSaves')}</p>
@@ -372,6 +418,9 @@ export function WelcomeScreen() {
 						<div className="form-actions">
 							<button type="button" className="big-btn subtle" onClick={() => setMode('menu')}>
 								<Icon name="back" /> <span>{t('app.common.back')}</span>
+							</button>
+							<button type="button" className="big-btn subtle" disabled={busy} onClick={() => { fileRef.current?.click(); setError(null); setNotice(null); }}>
+								<Icon name="upload" /> <span>{busy ? t('app.welcome.importing') : t('app.welcome.importSave')}</span>
 							</button>
 						</div>
 					</div>

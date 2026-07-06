@@ -56,6 +56,32 @@ export function HUD() {
 	const isCoop = COOP_ENABLED && !!activeWorld && !activeWorld.solo;
 	const peersHere = bridge.shared.presence?.length || 0;
 
+	// Progressive disclosure: keep the first-run screen calm by revealing toolbar
+	// buttons as they become relevant, instead of dumping every cluster at once.
+	// A button shows once EITHER the tutorial has reached the step that teaches it
+	// OR the player has organically done the thing — so nothing ever stays stuck
+	// hidden if someone ignores, skips, or closes the tutorial (skipping/closing
+	// jumps tutorialStep to DONE, and free-play trips the organic signals anyway).
+	// Old/finished saves (no tutorialStep) default to "done" → everything shows.
+	const tutStep = state.player.tutorialStep ?? 99;
+	// Co-op prepends 1–2 intro steps, so the base-arc thresholds shift accordingly.
+	const stepOffset = isCoop ? (activeWorld?.isOwner ? 2 : 1) : 0;
+	const taught = (baseStep: number) => tutStep >= baseStep + stepOffset;
+	const gathered = (state.nodeStates?.length || 0) > 0 || Object.keys(state.player.inventory || {}).length > 0;
+	const crafted = Object.keys(state.player.craftedEver || state.player.craftedItems || {}).length > 0;
+	const discovered = (state.discoveries?.length || 0) > 0;
+	const moreBiomes = (state.player.unlockedBiomes?.length || 0) > 1 || (state.player.visitedBiomes?.length || 0) > 1;
+	const show = {
+		feed: taught(1) || (state.feed?.length || 0) > 0,
+		journal: taught(7) || discovered,
+		achievements: taught(16) || state.achievements.length > 0,
+		inventory: taught(1) || gathered || crafted,
+		crafting: taught(12) || gathered || crafted,
+		tools: taught(8) || crafted || moreBiomes,
+		biomes: taught(9) || moreBiomes,
+		weather: taught(10) || moreBiomes,
+	};
+
 	const toggle = (id: any) => setPanel(panel === id ? null : id);
 	const navBtn = (id: any, icon: string, label: string, keyHint?: string) => (
 		<button
@@ -158,24 +184,24 @@ export function HUD() {
 				<div className="nav-group" role="group" aria-label={t('app.hud.groupLearn')}>
 					<span className="nav-group-label">{t('app.hud.groupLearn')}</span>
 					<div className="nav-group-btns">
-						{navBtn('journal', 'journal', t('app.hud.navJournal'), 'J')}
-						{navBtn('achievements', 'star', t('app.hud.navAchievements'), 'K')}
-						{navBtn('feed', 'chat', t('app.hud.navFeed'), 'F')}
+						{show.journal && navBtn('journal', 'journal', t('app.hud.navJournal'), 'J')}
+						{show.achievements && navBtn('achievements', 'star', t('app.hud.navAchievements'), 'K')}
+						{show.feed && navBtn('feed', 'chat', t('app.hud.navFeed'), 'F')}
 					</div>
 				</div>
 				<div className="nav-group" role="group" aria-label={t('app.hud.groupBuild')}>
 					<span className="nav-group-label">{t('app.hud.groupBuild')}</span>
 					<div className="nav-group-btns">
-						{navBtn('inventory', 'basket', t('app.hud.navInventory'), 'B')}
-						{navBtn('crafting', 'hammer', t('app.hud.navCrafting'), 'C')}
-						{navBtn('tools', 'tools', t('app.hud.navTools'), 'T')}
+						{show.inventory && navBtn('inventory', 'basket', t('app.hud.navInventory'), 'B')}
+						{show.crafting && navBtn('crafting', 'hammer', t('app.hud.navCrafting'), 'C')}
+						{show.tools && navBtn('tools', 'tools', t('app.hud.navTools'), 'T')}
 					</div>
 				</div>
 				<div className="nav-group" role="group" aria-label={t('app.hud.groupWorld')}>
 					<span className="nav-group-label">{t('app.hud.groupWorld')}</span>
 					<div className="nav-group-btns">
-						{navBtn('biomes', 'map', t('app.hud.navBiomes'), 'P')}
-						{navBtn('weather', 'cloud', t('app.hud.navWeather'), 'M')}
+						{show.biomes && navBtn('biomes', 'map', t('app.hud.navBiomes'), 'P')}
+						{show.weather && navBtn('weather', 'cloud', t('app.hud.navWeather'), 'M')}
 						{isCoop && navBtn('people', 'user', t('app.hud.navPeople'), 'U')}
 					</div>
 				</div>
