@@ -276,16 +276,16 @@ export function SettingsPanel() {
 					<h2><Icon name="gear" size={20} /> {t('app.settings.title')}</h2>
 					<button className="icon-btn" onClick={() => setPanel(null)} aria-label={t('app.common.close')}><Icon name="close" /></button>
 				</div>
-				<div className="panel-body">
+				<div className="panel-body settings-body">
 					<h3><Icon name="user" size={15} /> {t('app.settings.yourCaretaker', { name: player.name })}</h3>
 					<AppearanceEditor value={appearance} onChange={setAppearance} />
-					<div className="form-actions" style={{ justifyContent: 'flex-end' }}>
+					<div className="form-actions end">
 						<button className="big-btn primary" onClick={saveLook} disabled={saving}>
 							<Icon name="check" /> <span>{saving ? t('app.settings.saving') : t('app.settings.saveLook')}</span>
 						</button>
 					</div>
 
-					<h3><Icon name="chat" size={15} /> {t('app.settings.language')}</h3>
+					<h3><Icon name="globe" size={15} /> {t('app.settings.language')}</h3>
 					<div className="craft-filter lang-filter">
 						<label htmlFor="settings-language">{t('app.settings.language')}:</label>
 						<select id="settings-language" value={locale} onChange={(e) => void chooseLocale(e.target.value)}>
@@ -300,8 +300,8 @@ export function SettingsPanel() {
 					<p className="muted small">
 						{t('app.settings.exportSaveHint')}
 					</p>
-					<div className="form-actions" style={{ justifyContent: 'flex-start' }}>
-						<button className="big-btn" style={{ width: 'auto', marginTop: 0 }} onClick={exportSave} disabled={exporting}>
+					<div className="form-actions end">
+						<button className="big-btn primary" onClick={exportSave} disabled={exporting}>
 							<Icon name="download" size={15} /> <span>{exporting ? t('app.settings.exporting') : t('app.settings.exportSave')}</span>
 						</button>
 					</div>

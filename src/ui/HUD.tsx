@@ -209,7 +209,7 @@ export function HUD() {
 					<span className="nav-group-label">{t('app.hud.groupSystem')}</span>
 					<div className="nav-group-btns">
 						<button className={`icon-btn ${panel === 'settings' ? 'on' : ''}`} onClick={() => toggle('settings')} title={t('app.hud.settingsTitle')} aria-label={t('app.hud.settings')}>
-							<Icon name="sliders" />
+							<Icon name="gear" />
 							<span className="nav-key">G</span>
 						</button>
 						<button className={`icon-btn ${helpOpen ? 'on' : ''}`} onClick={() => setHelpOpen(!helpOpen)} title={t('app.hud.howToPlayTitle')} aria-label={t('app.hud.howToPlay')}>
