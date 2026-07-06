@@ -119,14 +119,9 @@ export function WelcomeScreen() {
 		body: 'slim',
 	});
 
-	// Suggest a random caretaker name when opening the New Game creator (only if
-	// the field is empty), so first-timers start with a friendly name they can
-	// keep, reroll with the dice, or type over. Load/Join forms keep the field
-	// blank — there you enter your own existing name.
-	useEffect(() => {
-		if (mode === 'new' && !name.trim()) setName(randomName());
-		// eslint-disable-next-line react-hooks/exhaustive-deps
-	}, [mode]);
+	// The New Game creator opens with an empty name field — naming yourself is
+	// part of the fun. The dice button is the only thing that rolls a random
+	// caretaker name (see randomizeAppearance's onClick below).
 
 	const run = async (fn: () => Promise<void>) => {
 		setBusy(true);
