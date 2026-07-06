@@ -7,6 +7,7 @@ import {
 } from './textures';
 import { seasonStyle, weatherType, liveWeatherType, gatherResourceFor } from '../weather';
 import { t, content } from '../i18n';
+import { getPrefs, subscribe as subscribePrefs } from '../prefs';
 import { isTypingTarget } from '../typing';
 import type { BiomeDef, HabitatObjectDef } from '../types';
 
@@ -316,11 +317,6 @@ export class WorldScene extends Phaser.Scene {
 			this.input.keyboard!.enabled = false;
 			this.input.keyboard!.disableGlobalCapture();
 		}
-		this.events.once('shutdown', () => {
-			document.removeEventListener('focusin', onFocusIn);
-			document.removeEventListener('focusout', onFocusOut);
-		});
-
 		// nearest-interactable highlight (pulsing ring + key hint)
 		const ring = this.img(0, 0, 'ring').setTint(0xffe9a8);
 		const badgeBg = this.add.circle(0, -30, 9.5, 0x2b3321, 0.92).setStrokeStyle(1.5, 0xffe9a8, 1);
@@ -328,7 +324,32 @@ export class WorldScene extends Phaser.Scene {
 			.text(0, -30, this.isTouch ? '·' : 'E', { fontFamily: 'Quicksand, sans-serif', fontSize: '11px', color: '#f0e8d4', fontStyle: 'bold' })
 			.setOrigin(0.5);
 		this.highlight = this.add.container(0, 0, [ring, badgeBg, badgeText]).setDepth(6000).setVisible(false);
-		this.tweens.add({ targets: ring, scale: { from: 0.92 * INV_TEX_SCALE, to: 1.08 * INV_TEX_SCALE }, alpha: { from: 0.95, to: 0.6 }, duration: 700, yoyo: true, repeat: -1 });
+		const ringPulse = this.tweens.add({ targets: ring, scale: { from: 0.92 * INV_TEX_SCALE, to: 1.08 * INV_TEX_SCALE }, alpha: { from: 0.95, to: 0.6 }, duration: 700, yoyo: true, repeat: -1 });
+		// Honor reduce-motion: hold the ring steady instead of pulsing.
+		const applyRingMotion = () => {
+			if (getPrefs().reduceMotion) {
+				ringPulse.pause();
+				ring.setScale(INV_TEX_SCALE).setAlpha(0.95);
+			} else if (ringPulse.paused) {
+				ringPulse.resume();
+			}
+		};
+		applyRingMotion();
+
+		// Re-apply motion-sensitive visuals when accessibility prefs change: toggling
+		// reduce-motion adds/removes rain/snow particles (force a rebuild by clearing
+		// the weather signature) and pauses/resumes the highlight-ring pulse live.
+		const unsubPrefs = subscribePrefs(() => {
+			if (!this.alive) return;
+			this.weatherSig = '';
+			this.applyWeather();
+			applyRingMotion();
+		});
+		this.events.once('shutdown', () => {
+			document.removeEventListener('focusin', onFocusIn);
+			document.removeEventListener('focusout', onFocusOut);
+			unsubPrefs();
+		});
 
 		this.tileCursor = this.img(0, 0, 'ghost-ok').setDepth(5900).setVisible(false).setAlpha(0.8);
 
@@ -760,8 +781,11 @@ export class WorldScene extends Phaser.Scene {
 		} else {
 			this.weatherOverlay!.setVisible(false);
 		}
+		// Reduced-motion players get the weather color/overlay but not the animated
+		// rain/snow particles (the colorblind banner still names the weather).
 		const prewarm = entering && weatherShownThisSession;
-		this.setWeatherParticles(this.isHome ? null : wt.particle, prewarm);
+		const particle = this.isHome || getPrefs().reduceMotion ? null : wt.particle;
+		this.setWeatherParticles(particle, prewarm);
 		weatherShownThisSession = true;
 		// Weather-gated gather nodes appear/vanish with the weather, so redraw the
 		// dynamic layer whenever the type turns over.

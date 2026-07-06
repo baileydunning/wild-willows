@@ -6,6 +6,7 @@ import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import { hasKey, LOCALE_NAMES, chooseLocale } from '../i18n';
 import { useI18n } from '../i18n/react';
+import { usePrefs, setPrefs, type TextScale } from '../prefs';
 import type { Appearance, AppearanceOptions } from '../types';
 import { CharacterPreview, Icon } from './icons';
 
@@ -133,6 +134,46 @@ export function AppearanceEditor({ value, onChange }: { value: Appearance; onCha
 				<AppearanceRows value={value} onChange={onChange} />
 			</div>
 		</div>
+	);
+}
+
+/** Accessibility controls (reduce motion, colorblind/high-contrast, text size).
+ *  Shared by the in-game Settings panel and the title-screen Accessibility modal. */
+export function AccessibilityControls() {
+	const { t } = useI18n();
+	const prefs = usePrefs();
+	return (
+		<>
+			<div className="a11y-row">
+				<span className="a11y-label">
+					<b>{t('app.settings.reduceMotion')}</b>
+					<span className="muted small">{t('app.settings.reduceMotionHint')}</span>
+				</span>
+				<label className="switch">
+					<input type="checkbox" checked={prefs.reduceMotion} onChange={(e) => setPrefs({ reduceMotion: e.target.checked })} aria-label={t('app.settings.reduceMotion')} />
+					<span className="track" /><span className="thumb" />
+				</label>
+			</div>
+			<div className="a11y-row">
+				<span className="a11y-label">
+					<b>{t('app.settings.colorblind')}</b>
+					<span className="muted small">{t('app.settings.colorblindHint')}</span>
+				</span>
+				<label className="switch">
+					<input type="checkbox" checked={prefs.colorblind} onChange={(e) => setPrefs({ colorblind: e.target.checked })} aria-label={t('app.settings.colorblind')} />
+					<span className="track" /><span className="thumb" />
+				</label>
+			</div>
+			<div className="craft-filter lang-filter">
+				<label htmlFor="settings-textscale">{t('app.settings.textSize')}:</label>
+				<select id="settings-textscale" value={prefs.textScale} onChange={(e) => setPrefs({ textScale: e.target.value as TextScale })}>
+					<option value="sm">{t('app.settings.textSm')}</option>
+					<option value="md">{t('app.settings.textMd')}</option>
+					<option value="lg">{t('app.settings.textLg')}</option>
+					<option value="xl">{t('app.settings.textXl')}</option>
+				</select>
+			</div>
+		</>
 	);
 }
 
@@ -294,6 +335,9 @@ export function SettingsPanel() {
 							))}
 						</select>
 					</div>
+
+					<h3><Icon name="sliders" size={15} /> {t('app.settings.accessibility')}</h3>
+					<AccessibilityControls />
 
 					{isSolo && <>
 					<h3><Icon name="download" size={15} /> {t('app.settings.exportSaveTitle')}</h3>
