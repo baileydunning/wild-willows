@@ -98,7 +98,7 @@
 	},
 	"home": {
 		"buildTitle": "Construye tu hogar",
-		"buildIntro": "Tu hogar todavía es una tienda de lona. Elige un estilo para convertirla en una casa de verdad — cada uno se construye con sus propios materiales, esto define su aspecto para siempre y después abre líneas de mejora.",
+		"buildIntro": "Tu hogar todavía es una tienda de lona. Elige un estilo para convertirla en una casa de verdad — cada uno se construye con sus propios materiales, define su aspecto para siempre y otorga su propia ventaja distintiva, que se fortalece con cada mejora posterior.",
 		"needs": "Necesita:",
 		"needsGate": "{biome} al {health}% (ahora {current}%)",
 		"build": "Construir",
@@ -108,7 +108,20 @@
 		"upgrades": "Mejoras",
 		"level": "· nivel {level}/{max}",
 		"maxedOut": "Al máximo.",
-		"upgrade": "Mejorar"
+		"upgrade": "Mejorar",
+		"perkActive": "· ventaja de la casa",
+		"perkName": {
+			"forage": "Instinto recolector",
+			"growth": "Mano verde",
+			"thrift": "Ahorro del hogar"
+		},
+		"perkBlurb": {
+			"forage": "Recolectar tiene un {pct}% de probabilidad de conseguir un material extra.",
+			"growth": "Las nuevas plantas empiezan con un {pct}% de crecimiento.",
+			"thrift": "Fabricar tiene un {pct}% de probabilidad de devolver la mitad de sus materiales."
+		},
+		"perkGrows": "Cada mejora la fortalece.",
+		"perkMax": "Al máximo de fuerza."
 	},
 	"weather": {
 		"title": "Clima y estaciones",

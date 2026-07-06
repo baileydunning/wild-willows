@@ -50,7 +50,9 @@
 		"homeBuilt": "¡Construiste tu {name}!",
 		"rested": "Duermes profundamente — todos los puntos de recolección han vuelto a crecer.",
 		"taskReward": "Recompensa de tarea — {items}",
-		"joinRequest": "{name} quiere unirse — presiona U para permitirle entrar"
+		"joinRequest": "{name} quiere unirse — presiona U para permitirle entrar",
+		"perkForage": "¡El instinto recolector de tu cabaña consiguió un {name} extra!",
+		"perkThrift": "¡Ahorro del hogar! Recuperaste {items}."
 	},
 	"feed": {
 		"recipeUnlocked": "Nueva receta de fabricación desbloqueada — {name}.",
@@ -80,7 +82,8 @@
 		"pickedUp": "Recogiste el objeto — está de nuevo entre tus objetos fabricados.",
 		"moved": "Lo moviste a un nuevo lugar.",
 		"rotated": "Lo giraste un cuarto de vuelta.",
-		"rested": "Descansaste. Todos los puntos de recolección de la reserva se han renovado."
+		"rested": "Descansaste. Todos los puntos de recolección de la reserva se han renovado.",
+		"plantedHeadStart": "Plantaste {name} — la mano verde de tu casita le dio un {pct}% de ventaja."
 	},
 	"welcomeBack": {
 		"matured": { "one": "una de tus siembras maduró", "other": "{count} de tus siembras maduraron" },

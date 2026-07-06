@@ -98,7 +98,7 @@
 	},
 	"home": {
 		"buildTitle": "Build Your Home",
-		"buildIntro": "Your home is still a canvas tent. Choose a style to build it into a proper house — each is built from its own materials, this sets its look for good, and it opens up upgrade tracks afterward.",
+		"buildIntro": "Your home is still a canvas tent. Choose a style to build it into a proper house — each is built from its own materials, sets its look for good, and grants its own signature perk that grows with every upgrade afterward.",
 		"needs": "Needs:",
 		"needsGate": "{biome} at {health}% (now {current}%)",
 		"build": "Build",
@@ -108,7 +108,20 @@
 		"upgrades": "Upgrades",
 		"level": "· level {level}/{max}",
 		"maxedOut": "Maxed out.",
-		"upgrade": "Upgrade"
+		"upgrade": "Upgrade",
+		"perkActive": "· house perk",
+		"perkName": {
+			"forage": "Forager's Instinct",
+			"growth": "Green Thumb",
+			"thrift": "Hearthkeeper's Thrift"
+		},
+		"perkBlurb": {
+			"forage": "Gathering has a {pct}% chance to turn up an extra material.",
+			"growth": "New plantings start {pct}% grown.",
+			"thrift": "Crafting has a {pct}% chance to return half its materials."
+		},
+		"perkGrows": "Every upgrade strengthens it.",
+		"perkMax": "Fully strengthened."
 	},
 	"weather": {
 		"title": "Weather & Seasons",

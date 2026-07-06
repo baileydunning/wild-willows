@@ -403,6 +403,8 @@ input {
 .home-styles { flex-direction: column; }
 .home-style-card { display: flex; align-items: center; gap: 11px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 12px; }
 .home-style-card .grow { flex: 1; }
+.home-perk { color: #7a5aa0; margin-top: 3px; }
+.home-perk-card { background: var(--paper-2); border-color: var(--green-deep); }
 
 /* ---- Feed panel (F) ---- */
 .feed-list { display: flex; flex-direction: column; }

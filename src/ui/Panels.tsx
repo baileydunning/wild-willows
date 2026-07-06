@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import type { ChestState, RecipeDef } from '../types';
+import { homePerkStrength } from '../types';
 import { recipeUnlocked, recipeMatchesSearch } from '../recipes';
 import {
 	weatherType, seasonStyle, liveSeason, liveWeatherType, forecastType, gatherResourceFor, weatherEffect, seasonEffect,
@@ -578,6 +579,11 @@ export function HomePanel() {
 								<div className="grow">
 									<span className="home-style-swatch lg" style={{ background: s.floor, borderColor: s.wall, verticalAlign: 'middle', display: 'inline-block', marginRight: 8 }} />
 									<b>{s.name}</b>
+									{s.perk && (
+										<div className="small home-perk">
+											<Icon name="sparkle" size={12} /> <b>{t(`panels.home.perkName.${s.perk.id}`)}</b> — {t(`panels.home.perkBlurb.${s.perk.id}`, { pct: Math.round(s.perk.base * 100) })} {t('panels.home.perkGrows')}
+										</div>
+									)}
 									<div className="mats">
 										{Object.entries(mats).map(([rid, q]) => (
 											<span key={rid} className={`mat ${avail(rid) >= (q as number) ? 'mat-ok' : 'mat-no'}`}>
@@ -601,12 +607,25 @@ export function HomePanel() {
 		);
 	}
 
-	// Stage 2 — built: show the chosen style and the four upgrade tracks.
+	// Stage 2 — built: show the chosen style, its live perk, and the four upgrade tracks.
+	const perk = styles[home.style]?.perk;
+	const perkStrength = perk ? homePerkStrength(perk, home) : 0;
 	return (
 		<Panel title={t('panels.home.title')} icon="home" onClose={() => setPanel(null)} wide>
 			<p className="muted">
 				{t('panels.home.builtIntro', { style: styles[home.style]?.name || t('panels.home.fallbackName') })}
 			</p>
+			{perk && (
+				<div className="recipe home-perk-card">
+					<div className="grow">
+						<Icon name="sparkle" size={14} /> <b>{t(`panels.home.perkName.${perk.id}`)}</b> <span className="muted small">{t('panels.home.perkActive')}</span>
+						<div className="muted small">
+							{t(`panels.home.perkBlurb.${perk.id}`, { pct: Math.round(perkStrength * 100) })}{' '}
+							{perkStrength < perk.cap ? t('panels.home.perkGrows') : t('panels.home.perkMax')}
+						</div>
+					</div>
+				</div>
+			)}
 			<h3>{t('panels.home.upgrades')}</h3>
 			{TRACK_ORDER.filter((k) => tracks[k]).map((key) => {
 				const def = tracks[key];

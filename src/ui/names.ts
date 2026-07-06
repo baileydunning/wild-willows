@@ -15,7 +15,7 @@ export const CARETAKER_NAMES: readonly string[] = [
 	'Lark', 'Bramble', 'Yarrow', 'Tansy', 'Bluebell', 'Fox', 'Vale', 'Brook',
 	'Sable', 'Pip', 'Sedge',
 
-	'Ash', 'Aster', 'Autumn', 'Blossom', 'Bram', 'Bryony', 'Calla', 'Cassia',
+	'Ash', 'Aster', 'Autumn', 'Blossom', 'Bram', 'Calla', 'Cassia',
 	'Daisy', 'Dawn', 'Dove', 'Eden', 'Ember', 'Fawn', 'Flint', 'Flora',
 	'Forest', 'Gale', 'Glen', 'Honey', 'Iris', 'Jasper', 'Kestrel', 'Lilac',
 	'Luna', 'Magnolia', 'Mica', 'Mira', 'Myrtle', 'Olive', 'Petal', 'Rain',

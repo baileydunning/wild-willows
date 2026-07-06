@@ -464,11 +464,20 @@ const FEED_CAP = 100;
 // flat carry-capacity bonus); Furnishings and Warmth add cosmetic flourishes.
 // Each style is built from materials that suit it: a log cabin from wood, a cottage
 // from fiber and flowers, a stone hearth from stone. All buildable from the meadow.
+//
+// SIGNATURE PERKS: each style also carries a perk in the spirit of its build —
+// the cabin's woodcraft finds extra materials while gathering, the cottage's
+// green thumb gives new plantings a growth head start, the stone hearth's
+// thrift sometimes returns crafting materials. A perk's strength starts at
+// `base` when the house is built and gains `perLevel` for EVERY level added on
+// ANY of the four tracks (capped at `cap`), so each upgrade makes the house
+// play better, not just look better. See homePerk() for the math.
 const HOME_BUILD_GATE = { biome: 'meadow', minHealth: 30 };
-const HOME_STYLES: Record<string, { name: string; floor: string; wall: string; accent: string; materials: Record<string, number>; requires: { biome: string; minHealth: number } }> = {
-	cabin: { name: 'Log Cabin', floor: '#c8a064', wall: '#5e3f29', accent: '#b5707a', materials: { branches: 16, fiber: 6 }, requires: HOME_BUILD_GATE }, // warm golden pine + dark logs
-	cottage: { name: 'Meadow Cottage', floor: '#e6d3a6', wall: '#aab9c6', accent: '#7fae6a', materials: { wildflowers: 6, fiber: 10, clay: 4 }, requires: HOME_BUILD_GATE }, // pale wood + airy blue-grey + green
-	stone: { name: 'Stone Hearth', floor: '#a9a499', wall: '#6f6a62', accent: '#d98a4f', materials: { stones: 14, clay: 6 }, requires: HOME_BUILD_GATE }, // slate floor + grey stone + hearth orange
+type HomePerkDef = { id: 'forage' | 'growth' | 'thrift'; base: number; perLevel: number; cap: number };
+const HOME_STYLES: Record<string, { name: string; floor: string; wall: string; accent: string; materials: Record<string, number>; requires: { biome: string; minHealth: number }; perk: HomePerkDef }> = {
+	cabin: { name: 'Log Cabin', floor: '#c8a064', wall: '#5e3f29', accent: '#b5707a', materials: { branches: 16, fiber: 6 }, requires: HOME_BUILD_GATE, perk: { id: 'forage', base: 0.1, perLevel: 0.05, cap: 0.6 } }, // warm golden pine + dark logs
+	cottage: { name: 'Meadow Cottage', floor: '#e6d3a6', wall: '#aab9c6', accent: '#7fae6a', materials: { wildflowers: 6, fiber: 10, clay: 4 }, requires: HOME_BUILD_GATE, perk: { id: 'growth', base: 0.1, perLevel: 0.04, cap: 0.5 } }, // pale wood + airy blue-grey + green
+	stone: { name: 'Stone Hearth', floor: '#a9a499', wall: '#6f6a62', accent: '#d98a4f', materials: { stones: 14, clay: 6 }, requires: HOME_BUILD_GATE, perk: { id: 'thrift', base: 0.1, perLevel: 0.05, cap: 0.6 } }, // slate floor + grey stone + hearth orange
 };
 const DEFAULT_HOME = { style: 'cabin', space: 1, comfort: 1, decor: 1, light: 1, styleLocked: false };
 
@@ -520,6 +529,24 @@ function homeOf(player: any) {
 	return { ...DEFAULT_HOME, space: t, comfort: t, styleLocked: t > 1 };
 }
 const homeCarryBonus = (player: any) => HOME_TRACKS.comfort.levels[(homeOf(player).comfort || 1) - 1]?.carry || 0;
+
+// A freshly built house sits at 5 total track levels (space 2 + three at 1);
+// every level bought on any track past that strengthens the style's perk.
+const HOME_BASE_LEVELS = 5;
+
+/**
+ * The signature perk of the player's house style, with its CURRENT strength
+ * (0..1). null until the house is actually built — a tent grants nothing.
+ */
+function homePerk(player: any): { id: HomePerkDef['id']; strength: number } | null {
+	const home = homeOf(player);
+	if (!home.styleLocked) return null;
+	const perk = HOME_STYLES[home.style]?.perk;
+	if (!perk) return null;
+	const levels = (home.space || 1) + (home.comfort || 1) + (home.decor || 1) + (home.light || 1);
+	const strength = Math.min(perk.cap, perk.base + perk.perLevel * Math.max(0, levels - HOME_BASE_LEVELS));
+	return { id: perk.id, strength };
+}
 
 /** Interior floor rectangle (tile coords) for a player's home, centred in the grid. */
 function homeRoom(player: any) {
@@ -2792,14 +2819,20 @@ export class CollectResource extends PublicEndpoint {
 		const toolTier = player.tools?.[resDef.tool] || 1;
 		const amount = Math.min(Math.max(1, toolTier), capacity - carried);
 
+		// House perk (Log Cabin — forager's instinct): a chance to spot one extra
+		// material on every gather. The chance grows with every home upgrade.
+		const perk = homePerk(player);
+		const perkBonus = perk?.id === 'forage' && capacity - carried - amount > 0 && Math.random() < perk.strength ? 1 : 0;
+		const total = amount + perkBonus;
+
 		const inventory = { ...(player.inventory || {}) };
-		inventory[resourceId] = (inventory[resourceId] || 0) + amount;
+		inventory[resourceId] = (inventory[resourceId] || 0) + total;
 		await t.Player.patch(playerId, { inventory });
 		await t.NodeState.put({ id: nodeKey, worldId: wid, playerId, harvestedAt: now });
 
-		await bumpMetrics(player, { resourcesCollected: amount }, { [`res:${resourceId}`]: amount });
+		await bumpMetrics(player, { resourcesCollected: total }, { [`res:${resourceId}`]: total });
 		await awardAchievements(playerId);
-		return { ok: true, gained: { [resourceId]: amount }, inventory, nodeId, harvestedAt: now };
+		return { ok: true, gained: { [resourceId]: total }, perkBonus: perkBonus || undefined, inventory, nodeId, harvestedAt: now };
 	}
 }
 
@@ -2918,11 +2951,29 @@ export class CraftItem extends PublicEndpoint {
 
 		const { usedFrom, inventory } = await consumeMaterials(player, recipe.materials || {}, wid);
 
+		// House perk (Stone Hearth — hearthkeeper's thrift): a chance that crafting
+		// hands back half of each material it consumed (rounded down, at least 1).
+		// Refunds land in the basket and never overflow its capacity.
+		const perk = homePerk(player);
+		let refund: Record<string, number> | undefined;
+		if (perk?.id === 'thrift' && Object.keys(recipe.materials || {}).length && Math.random() < perk.strength) {
+			let room = inventoryCapacity(player) - sumValues(inventory);
+			for (const [rid, q] of Object.entries(recipe.materials || {})) {
+				const back = Math.min(Math.max(1, Math.floor((q as number) / 2)), Math.max(0, room));
+				if (back > 0) {
+					refund = refund || {};
+					refund[rid] = back;
+					inventory[rid] = (inventory[rid] || 0) + back;
+					room -= back;
+				}
+			}
+		}
+
 		const craftedItems = { ...(player.craftedItems || {}) };
 		const craftedEver = { ...(player.craftedEver || {}) };
 		craftedItems[recipe.output.itemId] = (craftedItems[recipe.output.itemId] || 0) + (recipe.output.qty || 1);
 		craftedEver[recipe.output.itemId] = (craftedEver[recipe.output.itemId] || 0) + (recipe.output.qty || 1);
-		await t.Player.patch(playerId, { craftedItems, craftedEver });
+		await t.Player.patch(playerId, refund ? { craftedItems, craftedEver, inventory } : { craftedItems, craftedEver });
 
 		// crafting key items (e.g. the water restoration kit) can unlock biomes
 		const unlockedBiomes = await checkUnlocks(wid, playerId, { player: { ...player, craftedItems, craftedEver } });
@@ -2930,7 +2981,7 @@ export class CraftItem extends PublicEndpoint {
 		const chests = await byWorld(t.Chest, wid);
 		await bumpMetrics(player, { itemsCrafted: 1 }, { craft: 1 });
 		await awardAchievements(playerId);
-		return { ok: true, crafted: recipe.output, craftedItems, inventory, chests, usedFrom, unlockedBiomes };
+		return { ok: true, crafted: recipe.output, craftedItems, inventory, chests, usedFrom, refund, unlockedBiomes };
 	}
 }
 
@@ -3082,10 +3133,19 @@ export class Plant extends PublicEndpoint {
 		const { usedFrom, inventory } = await consumeMaterials(player, def.plantCost || {}, wid);
 
 		await t.TerrainTile.delete(bed.id); // the bed becomes the plant
-		const placementId = `pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+
+		// House perk (Meadow Cottage — green thumb): new plantings start partly
+		// grown. Implemented by backdating the planting timestamps a fraction of
+		// the grow/mature time — everything downstream (sprout gating, mature
+		// habitat bonuses) already derives from these, so no extra state needed.
+		const perk = homePerk(player);
+		const headStart = perk?.id === 'growth' ? perk.strength : 0;
+		const now = Date.now();
+		const placementId = `pl_${now}_${Math.random().toString(36).slice(2, 8)}`;
 		const placement = {
 			id: placementId, worldId: wid, playerId, objectId: plantId, area, x: tx, y: ty,
-			placedAt: Date.now(), plantedAt: Date.now(),
+			placedAt: now - Math.round(matureMs(def) * headStart),
+			plantedAt: now - Math.round((def.growSeconds || 0) * 1000 * headStart),
 		};
 		await t.Placement.put(placement);
 
@@ -3096,7 +3156,7 @@ export class Plant extends PublicEndpoint {
 		});
 		await bumpMetrics(player, { plantsPlanted: 1, animalsReturned: recalc.newAnimals?.length || 0 }, { plant: 1 });
 		await awardWorldAchievements(wid, playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
-		return { ok: true, placement, inventory, usedFrom, ...recalc };
+		return { ok: true, placement, inventory, usedFrom, perkGrowth: headStart || undefined, ...recalc };
 	}
 }
 
