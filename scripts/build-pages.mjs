@@ -28,5 +28,13 @@ for (const [name, path] of Object.entries(pages)) {
 	const html = readFileSync(join(root, path), 'utf8');
 	out += `/** Inlined from ${path} */\nexport const ${name}: string = ${JSON.stringify(html)};\n\n`;
 }
+
+// Unique stamp for THIS build, baked into the bundle and served by the
+// GET /Version/ endpoint. deploy-coop.sh compares the served stamp against the
+// staged bundle after deploying, so a node that silently kept the old
+// component fails the deploy instead of quietly serving stale code.
+const buildStamp = `${JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version}+${new Date().toISOString()}`;
+out += `/** Stamp for this build (app version + build time) — see GET /Version/. */\nexport const buildStamp: string = ${JSON.stringify(buildStamp)};\n`;
+
 writeFileSync(join(root, 'server/pages.ts'), out);
-console.log(`server/pages.ts generated from ${Object.values(pages).join(', ')}`);
+console.log(`server/pages.ts generated from ${Object.values(pages).join(', ')} (build ${buildStamp})`);
