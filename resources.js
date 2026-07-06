@@ -17105,9 +17105,11 @@ class Heartbeat extends PublicEndpoint {
  * Read-only analytics view, safe to point a dashboard or cron at.
  */
 class Metrics extends PublicEndpoint {
-    async get() {
+    async get(target) {
         const t$1 = db();
-        const id = String(this.getId?.() || '').trim();
+        // `target` is Harper's RequestTarget (a URLSearchParams subclass): it carries
+        // the path id and any ?query parameters.
+        const id = String(this.getId?.() || target?.id || '').trim();
         if (id) {
             const player = await t$1.Player.get(id);
             if (!player)
@@ -17137,7 +17139,7 @@ class Metrics extends PublicEndpoint {
             soloRows = await allOf(t$1.SoloMetrics);
         }
         catch { /* SoloMetrics table not created yet — empty dashboard */ }
-        const all = soloRows
+        let all = soloRows
             .map((r) => {
             const s = r.snapshot || {};
             const lastSeenAt = s.lastSeenAt || r.updatedAt || null;
@@ -17180,6 +17182,21 @@ class Metrics extends PublicEndpoint {
             };
         })
             .sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
+        // Optional `?exclude=<name>` filter (repeatable and/or comma-separated) so you
+        // can drop your own test saves and not skew the numbers. Case-insensitive match
+        // on the save's display name.
+        const excludedNames = new Set();
+        try {
+            const raw = typeof target?.getAll === 'function' ? [...target.getAll('exclude'), ...target.getAll('excludeName')] : [];
+            for (const part of raw.flatMap((s) => String(s).split(','))) {
+                const n = part.trim().toLowerCase();
+                if (n)
+                    excludedNames.add(n);
+            }
+        }
+        catch { /* no query params on this target */ }
+        if (excludedNames.size)
+            all = all.filter((v) => !excludedNames.has(String(v.name || '').trim().toLowerCase()));
         const N = all.length || 1;
         const pct = (n) => Math.round((n / N) * 100);
         // Per-counter action totals across everyone (includes cosmetic counters).
@@ -17280,6 +17297,7 @@ class Metrics extends PublicEndpoint {
             summary: {
                 players: all.length,
                 soloPlayers: all.length,
+                excludedNames: [...excludedNames],
                 audience,
                 languages,
                 platforms,

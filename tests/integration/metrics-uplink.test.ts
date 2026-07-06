@@ -97,6 +97,33 @@ describe('SyncMetrics', () => {
 		expect(out.summary.languages).toEqual({ en: 1 });
 	});
 
+	it('omits saves by name via ?exclude= so you can drop your own test data', async () => {
+		await w.post('SyncMetrics', {
+			clientId: 'slot-me', name: 'Bailey', os: 'mac',
+			snapshot: snapshot({ name: 'Bailey', lastSeenAt: Date.now(), playSeconds: 9999 }),
+		});
+		await w.post('SyncMetrics', {
+			clientId: 'slot-real', name: 'Real Player', os: 'windows',
+			snapshot: snapshot({ name: 'Real Player', lastSeenAt: Date.now(), playSeconds: 600 }),
+		});
+
+		// unfiltered: both saves present
+		const all = await w.get('Metrics');
+		expect(all.summary.players).toBe(2);
+
+		// exclude my own save by name (case-insensitive)
+		const filtered = await w.get('Metrics', undefined, { exclude: 'bailey' });
+		expect(filtered.summary.players).toBe(1);
+		expect(filtered.summary.excludedNames).toEqual(['bailey']);
+		expect(filtered.players.map((p: any) => p.name)).toEqual(['Real Player']);
+		// aggregates reflect only the remaining save
+		expect(filtered.summary.engagement.totalPlaySeconds).toBe(600);
+
+		// comma-separated and repeatable both work
+		const multi = await w.get('Metrics', undefined, { exclude: ['Bailey,Real Player'] });
+		expect(multi.summary.players).toBe(0);
+	});
+
 	it('records cosmetic actions in counts but keeps them out of totalActions', async () => {
 		const p = await w.post('CreatePlayer', { name: 'Cosmo', passcode: '1234', appearance });
 		await w.post('UpdateAppearance', { playerId: p.playerId, appearance });

@@ -3799,9 +3799,11 @@ export class Heartbeat extends PublicEndpoint {
  * Read-only analytics view, safe to point a dashboard or cron at.
  */
 export class Metrics extends PublicEndpoint {
-	async get() {
+	async get(target?: any) {
 		const t = db();
-		const id = String((this as any).getId?.() || '').trim();
+		// `target` is Harper's RequestTarget (a URLSearchParams subclass): it carries
+		// the path id and any ?query parameters.
+		const id = String((this as any).getId?.() || target?.id || '').trim();
 
 		if (id) {
 			const player = await t.Player.get(id);
@@ -3832,7 +3834,7 @@ export class Metrics extends PublicEndpoint {
 			soloRows = await allOf(t.SoloMetrics);
 		} catch { /* SoloMetrics table not created yet — empty dashboard */ }
 
-		const all = soloRows
+		let all = soloRows
 			.map((r: any) => {
 				const s = r.snapshot || {};
 				const lastSeenAt = s.lastSeenAt || r.updatedAt || null;
@@ -3873,6 +3875,19 @@ export class Metrics extends PublicEndpoint {
 				};
 			})
 			.sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
+
+		// Optional `?exclude=<name>` filter (repeatable and/or comma-separated) so you
+		// can drop your own test saves and not skew the numbers. Case-insensitive match
+		// on the save's display name.
+		const excludedNames = new Set<string>();
+		try {
+			const raw: string[] = typeof target?.getAll === 'function' ? [...target.getAll('exclude'), ...target.getAll('excludeName')] : [];
+			for (const part of raw.flatMap((s: string) => String(s).split(','))) {
+				const n = part.trim().toLowerCase();
+				if (n) excludedNames.add(n);
+			}
+		} catch { /* no query params on this target */ }
+		if (excludedNames.size) all = all.filter((v) => !excludedNames.has(String(v.name || '').trim().toLowerCase()));
 
 		const N = all.length || 1;
 		const pct = (n: number) => Math.round((n / N) * 100);
@@ -3973,6 +3988,7 @@ export class Metrics extends PublicEndpoint {
 			summary: {
 				players: all.length,
 				soloPlayers: all.length,
+				excludedNames: [...excludedNames],
 				audience,
 				languages,
 				platforms,
