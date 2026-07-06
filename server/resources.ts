@@ -762,13 +762,18 @@ function playerDayKey(player: any, at: number): number {
 }
 const round1 = (n: number) => Math.round(n * 10) / 10;
 
+// Cosmetic / UI-fiddling counters — recorded in `counts` for engagement insight
+// but kept OUT of totalActions (and actionsPerMinute) so those stay a
+// gameplay-intensity signal.
+const META_COUNTERS = new Set(['recolors', 'appearanceChanges']);
+
 function metricsView(player: any) {
 	const now = Date.now();
 	const m = player.metrics || freshMetrics(player.createdAt || now);
 	const playSeconds = m.playSeconds || 0;
 	const sessions = m.sessions || 0;
 	const counts: Record<string, number> = m.counts || {};
-	const totalActions = Object.values(counts).reduce((a, b) => a + (b || 0), 0);
+	const totalActions = Object.entries(counts).reduce((a, [k, b]) => a + (META_COUNTERS.has(k) ? 0 : b || 0), 0);
 	const createdAt = player.createdAt || m.firstSeenAt || now;
 	const lastSeenAt = m.lastSeenAt || null;
 
@@ -2831,6 +2836,7 @@ export class ChestTransfer extends PublicEndpoint {
 
 		await t.Player.patch(playerId, { inventory });
 		await t.Chest.patch(chestId, { contents });
+		await bumpMetrics(player, direction === 'deposit' ? { chestDeposits: 1 } : { chestWithdrawals: 1 });
 		return { ok: true, inventory, chest: { ...chest, contents } };
 	}
 }
@@ -2854,6 +2860,7 @@ export class DiscardItem extends PublicEndpoint {
 			craftedItems[id] -= amount;
 			if (craftedItems[id] <= 0) delete craftedItems[id];
 			await t.Player.patch(playerId, { craftedItems });
+			await bumpMetrics(player, { itemsDiscarded: amount });
 			return { ok: true, craftedItems };
 		}
 
@@ -2862,6 +2869,7 @@ export class DiscardItem extends PublicEndpoint {
 		inventory[id] -= amount;
 		if (inventory[id] <= 0) delete inventory[id];
 		await t.Player.patch(playerId, { inventory });
+		await bumpMetrics(player, { itemsDiscarded: amount });
 		return { ok: true, inventory };
 	}
 }
@@ -3096,9 +3104,10 @@ export class Plant extends PublicEndpoint {
 export class UpdateAppearance extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId, appearance } = await bodyOf(data);
-		await requirePlayer(playerId);
+		const { player } = await requirePlayer(playerId);
 		const clean = sanitizeAppearance(appearance);
 		await db().Player.patch(playerId, { appearance: clean });
+		await bumpMetrics(player, { appearanceChanges: 1 });
 		return { ok: true, appearance: clean };
 	}
 }
@@ -3145,6 +3154,7 @@ export class MoveObject extends PublicEndpoint {
 		const chest = await getOwnedChest(t, d, placementId, wid);
 		if (chest) await t.Chest.patch(placementId, { x: tx, y: ty }); // chests move with their contents
 
+		await bumpMetrics(player, { objectsMoved: 1 });
 		return { ok: true, placement: { ...placement, ...patch } };
 	}
 }
@@ -3300,6 +3310,7 @@ export class UpgradeHome extends PublicEndpoint {
 		await t.Player.patch(playerId, { home: updated });
 		const chests = await byWorld(t.Chest, wid);
 		await awardAchievements(playerId);
+		await bumpMetrics(player, { homeUpgrades: 1 });
 		return { ok: true, home: updated, inventory, chests, usedFrom, upgraded: { track, level: level + 1, name: def.name } };
 	}
 }
@@ -3321,6 +3332,7 @@ export class Rest extends PublicEndpoint {
 		// refresh all resources: clear node cooldowns so every gathering spot is ready
 		const nodes = await byWorld(t.NodeState, wid);
 		for (const n of nodes) await t.NodeState.delete(n.id);
+		await bumpMetrics(player, { restsTaken: 1 });
 		return { ok: true, rested: true, refreshed: nodes.length };
 	}
 }
@@ -3340,6 +3352,7 @@ export class SetHomeColors extends PublicEndpoint {
 			if (colors?.[k] && isHexColor(colors[k])) next[k] = String(colors[k]).trim().toLowerCase();
 		}
 		await t.Player.patch(playerId, { home: { ...home, colors: next } });
+		await bumpMetrics(player, { recolors: 1 });
 		return { ok: true };
 	}
 }
@@ -3355,6 +3368,7 @@ export class SetPlacementColor extends PublicEndpoint {
 		const placement = await findInWorld(t.Placement, worldOf(player), placementId);
 		if (!placement) throw new GameError(tr('server.err.itemNotHere'), 404);
 		await t.Placement.patch(placementId, { color: String(color).trim().toLowerCase() });
+		await bumpMetrics(player, { recolors: 1 });
 		return { ok: true };
 	}
 }
@@ -3390,6 +3404,7 @@ export class SetHomeStyle extends PublicEndpoint {
 		await t.Player.patch(playerId, { home: updated });
 		const chests = await byWorld(t.Chest, wid);
 		await awardAchievements(playerId);
+		await bumpMetrics(player, { homesBuilt: 1 });
 		return { ok: true, home: updated, inventory, chests, usedFrom, built: HOME_STYLES[style].name };
 	}
 }
@@ -3806,37 +3821,19 @@ export class Metrics extends PublicEndpoint {
 			};
 		}
 
-		// Global view stays light: biome health summaries per player, no images.
+		// Dashboard view — sourced ENTIRELY from the SoloMetrics table. Every solo
+		// save periodically uplinks a full metrics snapshot (see SyncMetrics), so this
+		// endpoint never touches the live Player/BiomeState tables; it just rolls up
+		// whatever snapshots have landed. Hosted web/co-op players are intentionally
+		// out of scope here.
 		const now = Date.now();
-		const players = await allOf(t.Player);
-		const allStates = await allOf(t.BiomeState);
-		const d = await defs();
-
-		const statesByPlayer = new Map<string, any[]>();
-		for (const s of allStates) {
-			const arr = statesByPlayer.get(s.playerId) || [];
-			arr.push(s);
-			statesByPlayer.set(s.playerId, arr);
-		}
-
-		const views = players
-			.map((p) => {
-				const view = metricsView(p);
-				const biomeSummary = summarizeBiomes(statesByPlayer.get(p.id) || []);
-				return { ...view, biomeSummary, activation: activationFlags(view, biomeSummary, p) };
-			})
-			.sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
-
-		// Solo desktop/web players sync their local metrics view up periodically
-		// (see SyncMetrics). Each snapshot has the same shape as a hosted view
-		// (metricsView + biomeSummary + activation), so they merge straight into
-		// the same list and every aggregate below counts them like anyone else.
-		// Recency fields are recomputed here — the snapshot's were frozen at
-		// sync time. A missing table (instance not restarted after the schema
-		// deploy yet) must never break the dashboard.
-		let soloViews: any[] = [];
+		let soloRows: any[] = [];
 		try {
-			soloViews = (await allOf(t.SoloMetrics)).map((r: any) => {
+			soloRows = await allOf(t.SoloMetrics);
+		} catch { /* SoloMetrics table not created yet — empty dashboard */ }
+
+		const all = soloRows
+			.map((r: any) => {
 				const s = r.snapshot || {};
 				const lastSeenAt = s.lastSeenAt || r.updatedAt || null;
 				const createdAt = s.createdAt || r.createdAt || now;
@@ -3849,6 +3846,7 @@ export class Metrics extends PublicEndpoint {
 				return {
 					...s,
 					playerId: r.id, // slot-scoped id — solo name slugs can collide across machines
+					name: r.name || s.name || null,
 					solo: true,
 					platform: r.platform || null,
 					os: r.os || null,
@@ -3860,9 +3858,12 @@ export class Metrics extends PublicEndpoint {
 					playSeconds: s.playSeconds || 0,
 					sessions: s.sessions || 0,
 					totalActions: s.totalActions || 0,
+					currentArea: s.currentArea || null,
 					unlockedBiomes: s.unlockedBiomes || 0,
+					tutorialStep: s.tutorialStep || 0,
 					activation: s.activation || {},
-					biomeSummary: s.biomeSummary || { biomesUnlocked: 0, avgHealth: 0, biomesFullyRestored: 0, totalReturned: 0 },
+					achievements: s.achievements || null,
+					biomeSummary: s.biomeSummary || { biomesUnlocked: 0, avgHealth: 0, biomesFullyRestored: 0, totalAnimalsReturned: 0 },
 					createdAt,
 					lastSeenAt,
 					hoursSinceActive,
@@ -3870,17 +3871,13 @@ export class Metrics extends PublicEndpoint {
 					daysSinceJoined: Math.floor((now - createdAt) / DAY_MS),
 					isNewToday: now - createdAt <= DAY_MS,
 				};
-			});
-		} catch { /* SoloMetrics table not created yet */ }
-
-		// Hosted + solo in one list — "players" means everyone from here down.
-		const all = [...views, ...soloViews]
+			})
 			.sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
 
 		const N = all.length || 1;
 		const pct = (n: number) => Math.round((n / N) * 100);
 
-		// Action totals across everyone.
+		// Per-counter action totals across everyone (includes cosmetic counters).
 		const actionTotals: Record<string, number> = {};
 		for (const v of all) {
 			for (const [k, n] of Object.entries(v.counts)) actionTotals[k] = (actionTotals[k] || 0) + (n as number);
@@ -3890,7 +3887,7 @@ export class Metrics extends PublicEndpoint {
 		const totalSessions = all.reduce((acc, v) => acc + v.sessions, 0);
 		const totalActions = all.reduce((acc, v) => acc + v.totalActions, 0);
 
-		// Audience buckets by recency / recency of joining.
+		// Audience buckets by recency.
 		const audience = {
 			activeLast24h: all.filter((v) => v.status === 'active').length,
 			activeLast7d: all.filter((v) => v.status === 'active' || v.status === 'recent').length,
@@ -3899,13 +3896,16 @@ export class Metrics extends PublicEndpoint {
 			newLast7d: all.filter((v) => now - v.createdAt <= 7 * DAY_MS).length,
 		};
 
-		// Interface language, from the heartbeat / solo uplink. Saves that predate
-		// language tracking count as 'en' — English was the only language then.
-		const languages: Record<string, number> = {};
-		for (const v of all) {
-			const l = v.language || 'en';
-			languages[l] = (languages[l] || 0) + 1;
-		}
+		// Composition breakdowns straight off the uplink envelope.
+		const tally = (pick: (v: any) => string | null) => {
+			const out: Record<string, number> = {};
+			for (const v of all) { const k = pick(v) || 'unknown'; out[k] = (out[k] || 0) + 1; }
+			return out;
+		};
+		const languages = tally((v) => v.language || 'en');
+		const platforms = tally((v) => v.platform);
+		const operatingSystems = tally((v) => v.os);
+		const versions = tally((v) => v.version);
 
 		// Retention: did they come back for more than one session?
 		const returningPlayers = all.filter((v) => v.sessions >= 2).length;
@@ -3913,11 +3913,11 @@ export class Metrics extends PublicEndpoint {
 		// Activation funnel — how far players get from first launch.
 		const funnel = {
 			created: all.length,
-			collected: all.filter((v) => v.activation.collected).length,
-			crafted: all.filter((v) => v.activation.crafted).length,
-			placed: all.filter((v) => v.activation.placed).length,
-			attractedAnimal: all.filter((v) => v.activation.attractedAnimal).length,
-			unlockedSecondBiome: all.filter((v) => v.activation.unlockedSecondBiome).length,
+			collected: all.filter((v) => v.activation?.collected).length,
+			crafted: all.filter((v) => v.activation?.crafted).length,
+			placed: all.filter((v) => v.activation?.placed).length,
+			attractedAnimal: all.filter((v) => v.activation?.attractedAnimal).length,
+			unlockedSecondBiome: all.filter((v) => v.activation?.unlockedSecondBiome).length,
 		};
 		const funnelPct = {
 			collected: pct(funnel.collected),
@@ -3927,86 +3927,57 @@ export class Metrics extends PublicEndpoint {
 			unlockedSecondBiome: pct(funnel.unlockedSecondBiome),
 		};
 
-		// Where players spend time, and where they stall.
+		// Where players are in the world.
 		const areaTally: Record<string, number> = {};
 		for (const v of all) if (v.currentArea) areaTally[v.currentArea] = (areaTally[v.currentArea] || 0) + 1;
-		const mostPopularArea =
-			Object.entries(areaTally).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
+		const mostPopularArea = Object.entries(areaTally).sort((a, b) => b[1] - a[1])[0]?.[0] || null;
 
-		const perBiome = new Map<string, { players: number; healthSum: number; returned: number; fully: number }>();
-		for (const s of allStates) {
-			if (!s.unlocked) continue;
-			const e = perBiome.get(s.biomeId) || { players: 0, healthSum: 0, returned: 0, fully: 0 };
-			e.players++;
-			e.healthSum += s.health || 0;
-			e.returned += s.returnedCount || 0;
-			if ((s.health || 0) >= 100) e.fully++;
-			perBiome.set(s.biomeId, e);
-		}
-		const biomeBreakdown = d.biomes.map((b: any) => {
-			const e = perBiome.get(b.id);
-			return {
-				biomeId: b.id,
-				name: b.name,
-				playersUnlocked: e?.players || 0,
-				avgHealth: e?.players ? Math.round(e.healthSum / e.players) : 0,
-				totalAnimalsReturned: e?.returned || 0,
-				fullyRestored: e?.fully || 0,
-			};
-		});
+		// Tutorial progress — where first-run players stall.
+		const tutorialTally: Record<string, number> = {};
+		for (const v of all) { const k = String(v.tutorialStep || 0); tutorialTally[k] = (tutorialTally[k] || 0) + 1; }
 
-		const withBiomes = all.filter((v) => v.biomeSummary.biomesUnlocked > 0);
+		// Biome restoration, rolled up from each snapshot's biomeSummary.
+		const withBiomes = all.filter((v) => (v.biomeSummary?.biomesUnlocked || 0) > 0);
 		const avgBiomeHealth = withBiomes.length
-			? Math.round(withBiomes.reduce((acc, v) => acc + v.biomeSummary.avgHealth, 0) / withBiomes.length)
+			? Math.round(withBiomes.reduce((acc, v) => acc + (v.biomeSummary.avgHealth || 0), 0) / withBiomes.length)
 			: 0;
 
-		// Achievements: per-achievement earn counts (where players stall) + averages.
-		const achRows = await allOf(t.PlayerAchievement);
-		const earnedByPlayer = new Map<string, number>();
-		const distribution: Record<string, number> = {};
-		for (const r of achRows) {
-			distribution[r.achievementId] = (distribution[r.achievementId] || 0) + 1;
-			earnedByPlayer.set(r.playerId, (earnedByPlayer.get(r.playerId) || 0) + 1);
-		}
-		// completion histogram in buckets of 10 (0-10, 11-20, …) — hosted players
-		// only: solo achievement rows live in local saves, not PlayerAchievement.
+		// Achievements, rolled up from each snapshot's achievements block. Hosted
+		// PlayerAchievement rows are out of scope — this dashboard is solo-only.
+		const withAch = all.filter((v) => v.achievements);
+		const totalEarned = withAch.reduce((acc, v) => acc + (v.achievements.earned || 0), 0);
+		const recentDistribution: Record<string, number> = {};
+		const byCategory: Record<string, number> = {};
 		const completionHistogram: Record<string, number> = {};
-		for (const v of views) {
-			const n = earnedByPlayer.get(v.playerId) || 0;
-			const bucket = n === 0 ? '0' : `${Math.floor((n - 1) / 10) * 10 + 1}-${(Math.floor((n - 1) / 10) + 1) * 10}`;
+		for (const v of withAch) {
+			for (const rec of v.achievements.recent || []) if (rec?.id) recentDistribution[rec.id] = (recentDistribution[rec.id] || 0) + 1;
+			for (const [cat, n] of Object.entries(v.achievements.byCategory || {})) byCategory[cat] = (byCategory[cat] || 0) + (n as number);
+			const e = v.achievements.earned || 0;
+			const bucket = e === 0 ? '0' : `${Math.floor((e - 1) / 10) * 10 + 1}-${(Math.floor((e - 1) / 10) + 1) * 10}`;
 			completionHistogram[bucket] = (completionHistogram[bucket] || 0) + 1;
 		}
 		const achievementsSummary = {
-			totalDefined: d.achievements.length,
-			totalEarned: achRows.length,
-			// hosted denominator — PlayerAchievement rows only exist for hosted saves
-			avgPerPlayer: round1(achRows.length / (views.length || 1)),
-			playersWithFirstFriend: distribution['welcome-grasshopper'] || 0,
-			distribution,
+			totalDefined: withAch.reduce((m, v) => Math.max(m, v.achievements.total || 0), 0),
+			totalEarned,
+			avgPerPlayer: round1(totalEarned / (withAch.length || 1)),
+			avgCompletionPct: withAch.length ? Math.round((withAch.reduce((a, v) => a + (v.achievements.completion || 0), 0) / withAch.length) * 100) : 0,
+			avgPoints: round1(withAch.reduce((a, v) => a + (v.achievements.points || 0), 0) / (withAch.length || 1)),
+			byCategory,
+			recentDistribution,
 			completionHistogram,
-		};
-
-		// Co-op participation: shared worlds, who's in them, and pending invites.
-		const allWorlds = await allOf(t.World);
-		const coopWorlds = allWorlds.filter((w: any) => !w.solo);
-		const coopIds = new Set(coopWorlds.map((w: any) => w.id));
-		const coopMembers = (await allOf(t.WorldMember)).filter((m: any) => coopIds.has(m.worldId));
-		const pendingJoins = (await allOf(t.JoinRequest)).filter((r: any) => r.status === 'pending').length;
-		const coopSummary = {
-			coopWorlds: coopWorlds.length,
-			playersInCoop: new Set(coopMembers.map((m: any) => m.playerId)).size,
-			avgMembersPerCoopWorld: coopWorlds.length ? round1(coopMembers.length / coopWorlds.length) : 0,
-			pendingJoinRequests: pendingJoins,
 		};
 
 		return {
 			generatedAt: now,
+			source: 'solo-metrics',
 			summary: {
 				players: all.length,
-				hostedPlayers: views.length,
-				soloPlayers: soloViews.length,
+				soloPlayers: all.length,
 				audience,
 				languages,
+				platforms,
+				operatingSystems,
+				versions,
 				engagement: {
 					totalPlayHours: round1(totalPlaySeconds / 3600),
 					totalPlaySeconds,
@@ -4023,19 +3994,16 @@ export class Metrics extends PublicEndpoint {
 				},
 				progression: {
 					avgBiomeHealth,
-					biomesFullyRestored: all.reduce((acc, v) => acc + (v.biomeSummary.biomesFullyRestored || 0), 0),
-					avgUnlockedBiomes: round1(all.reduce((acc, v) => acc + v.unlockedBiomes, 0) / N),
+					biomesFullyRestored: all.reduce((acc, v) => acc + (v.biomeSummary?.biomesFullyRestored || 0), 0),
+					avgUnlockedBiomes: round1(all.reduce((acc, v) => acc + (v.unlockedBiomes || 0), 0) / N),
 					mostPopularArea,
+					tutorialStepHistogram: tutorialTally,
 				},
 				funnel,
 				funnelPct,
 				actionTotals,
 				achievements: achievementsSummary,
-				coop: coopSummary,
-				biomeBreakdown,
 			},
-			// One combined list — solo entries carry `solo: true` (+ platform/build
-			// /lastSyncedAt) so a dashboard can still tell them apart.
 			players: all,
 		};
 	}

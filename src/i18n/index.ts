@@ -71,14 +71,18 @@ export async function chooseLocale(locale: string): Promise<void> {
 	setLocale(locale);
 }
 
-// Restore the saved language at import time. Catalog loading is async; the UI
-// renders English for a beat, then every subscribed component re-renders.
-try {
-	const saved = localStorage.getItem(STORAGE_KEY);
-	if (saved && saved in LOCALE_NAMES && saved !== getLocale()) void chooseLocale(saved);
-} catch {
-	/* storage unavailable */
-}
+// Restore the saved language at import time. Catalog loading is async, so we
+// expose `localeReady` — main.tsx awaits it before the first render so that
+// server-derived text (daily tasks) and the narrative feed are generated in the
+// saved language from the start, instead of baking in English for a beat.
+export const localeReady: Promise<void> = (async () => {
+	try {
+		const saved = localStorage.getItem(STORAGE_KEY);
+		if (saved && saved in LOCALE_NAMES && saved !== getLocale()) await chooseLocale(saved);
+	} catch {
+		/* storage unavailable */
+	}
+})();
 
 export { t, tList, content, hasKey, getLocale, setLocale, onLocaleChange, availableLocales } from './core';
 export type { Params } from './core';

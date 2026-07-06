@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { api, forgetSave, getPlayerId, lastSave, rememberSave, setPlayerId, startSoloGame, resumeSoloGame, exitSolo } from './api';
 import { flushFeedbackQueue } from './feedback';
-import { t, content } from './i18n';
+import { t, content, onLocaleChange } from './i18n';
 import { pokeMetricsUplink } from './solo/metricsUplink';
 import { bridge } from './game/bridge';
 import { unlockedRecipeIds } from './recipes';
@@ -594,6 +594,17 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			document.removeEventListener('visibilitychange', onVisible);
 		};
 	}, [sessionPlayerId, pushLog, toast, refresh]);
+
+	// The daily-task board is server-derived text (tr('server.task.*')), so it's
+	// rendered in whatever language was active when the state was built. The es
+	// catalog loads asynchronously, so tasks can bake in English before it applies
+	// — and switching language mid-game should re-localize them. Re-fetch the
+	// state on every locale change so the board regenerates in the new language.
+	useEffect(() => {
+		return onLocaleChange(() => {
+			if (getPlayerId()) refresh().catch(() => undefined);
+		});
+	}, [refresh]);
 
 	// Feedback written while offline waits in a localStorage queue; retry it at
 	// the start of every session. Items are deleted only once the server
