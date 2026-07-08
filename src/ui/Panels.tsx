@@ -6,11 +6,12 @@ import { homePerkStrength } from '../types';
 import { recipeUnlocked, recipeMatchesSearch } from '../recipes';
 import {
 	weatherType, seasonStyle, liveSeason, liveWeatherType, forecastType, gatherResourceFor, weatherEffect, seasonEffect,
+	WEATHER_TYPES, gatherResourceIdFor,
 } from '../weather';
 import { content } from '../i18n';
 import { useI18n } from '../i18n/react';
 import { Meter } from './HUD';
-import { Icon } from './icons';
+import { Icon, ResourceIcon } from './icons';
 import { BIOME_LORE, loreStage } from './lore';
 
 function Panel({ title, icon, children, onClose, wide, bodyRef }: { title: string; icon?: string; children: React.ReactNode; onClose: () => void; wide?: boolean; bodyRef?: React.Ref<HTMLDivElement> }) {
@@ -101,13 +102,16 @@ export function InventoryPanel() {
 
 	return (
 		<Panel title={t('panels.inventory.title', { carried, capacity: state.inventoryCapacity })} icon="basket" onClose={() => setPanel(null)}>
+			<button className="link materials-link" onClick={() => setPanel('materials')}>
+				<Icon name="help" size={13} /> {t('panels.inventory.materialsGuide')}
+			</button>
 			{inv.length === 0 && <p className="muted">{t('panels.inventory.empty')}</p>}
 			<div className="grid">
 				{inv.map(([id, qty]) => {
 					const name = resName(data, id);
 					return (
 						<div className="cell row" key={id}>
-							<span className="swatch" style={{ background: resColor(data, id) }} />
+							<ResourceIcon id={id} color={resColor(data, id)} />
 							<span className="grow">{name}</span>
 							<b>×{qty}</b>
 							<button className="subtle" title={t('panels.inventory.tossOne', { name })} onClick={() => toss('material', id, 1, name)}>
@@ -191,7 +195,7 @@ export function ChestPanel() {
 		);
 		return (
 			<div className="cell row" key={id}>
-				<span className="swatch" style={{ background: resColor(data, id) }} />
+				<ResourceIcon id={id} color={resColor(data, id)} />
 				<span className="grow">{resName(data, id)}</span>
 				<b>×{qty}</b>
 				{btn('1', Math.min(1, max))}
@@ -449,7 +453,7 @@ export function CraftingPanel() {
 											const enough = av.total >= q;
 											return (
 												<span key={id} className={`mat ${enough ? 'mat-ok' : 'mat-no'}`} title={t('panels.crafting.matTitle', { inBasket: av.inInv, inChests: av.inChests })}>
-													<span className="swatch" style={{ background: resColor(data, id) }} />
+													<ResourceIcon id={id} color={resColor(data, id)} />
 													{resName(data, id)} {Math.min(av.total, q)}/{q}
 													<em className="mat-src">
 														<Icon name="basket" size={11} /> {av.inInv}
@@ -512,7 +516,7 @@ export function ToolsPanel() {
 									<div className="mats">
 										{Object.entries(next.materials || {}).map(([id, q]) => (
 											<span key={id} className={`mat ${availability(id) >= q ? 'mat-ok' : 'mat-no'}`}>
-												<span className="swatch" style={{ background: resColor(data, id) }} />
+												<ResourceIcon id={id} color={resColor(data, id)} />
 												{resName(data, id)} {Math.min(availability(id), q)}/{q}
 											</span>
 										))}
@@ -641,7 +645,7 @@ export function HomePanel() {
 									<div className="mats">
 										{Object.entries(mats).map(([rid, q]) => (
 											<span key={rid} className={`mat ${avail(rid) >= (q as number) ? 'mat-ok' : 'mat-no'}`}>
-												<span className="swatch" style={{ background: resColor(data, rid) }} />
+												<ResourceIcon id={rid} color={resColor(data, rid)} />
 												{resName(data, rid)} {Math.min(avail(rid), q as number)}/{q as number}
 											</span>
 										))}
@@ -698,7 +702,7 @@ export function HomePanel() {
 									<div className="mats">
 										{Object.entries(next.materials || {}).map(([id, q]) => (
 											<span key={id} className={`mat ${avail(id) >= q ? 'mat-ok' : 'mat-no'}`}>
-												<span className="swatch" style={{ background: resColor(data, id) }} />
+												<ResourceIcon id={id} color={resColor(data, id)} />
 												{resName(data, id)} {Math.min(avail(id), q)}/{q}
 											</span>
 										))}
@@ -809,6 +813,71 @@ export function WeatherPanel() {
 			</table>
 
 			<p className="muted small">{t('panels.weather.seasonsNote')}</p>
+		</Panel>
+	);
+}
+
+/**
+ * Materials guide — a picture book of everything you can gather where you're
+ * standing: the sprite you'll spot in the world, its name, and how to collect
+ * it (which tool, and whether it only shows up in certain weather). Kills the
+ * "blindly pressing E hoping it's plant fiber" problem the playtest surfaced.
+ */
+export function MaterialsPanel() {
+	const { data, state, setPanel } = useGame();
+	const { t, content } = useI18n();
+	if (!data || !state) return null;
+	const area = state.player.area;
+	const biome = data.biomes.find((b) => b.id === area);
+	const resById = (id: string) => data.resources.find((r) => r.id === id);
+
+	// Always-gatherable materials for this biome, then the weather-gated extras
+	// that only appear while a particular weather is active.
+	const baseIds = biome?.resources || [];
+	const weatherGated: { id: string; weatherId: string }[] = [];
+	for (const wx of WEATHER_TYPES) {
+		const rid = gatherResourceIdFor(area, wx);
+		if (rid && !baseIds.includes(rid) && !weatherGated.some((w) => w.id === rid)) {
+			weatherGated.push({ id: rid, weatherId: wx });
+		}
+	}
+
+	const row = (id: string, note?: string) => {
+		const r = resById(id);
+		if (!r) return null;
+		return (
+			<div className="recipe material-row" key={id + (note || '')}>
+				<ResourceIcon id={id} size={30} color={r.color} />
+				<div className="grow">
+					<b>{content('resource', id, 'name', r.name)}</b>
+					<div className="muted small">{note || t(`panels.materials.gatherWith.${r.tool}`)}</div>
+				</div>
+			</div>
+		);
+	};
+
+	return (
+		<Panel title={t('panels.materials.title')} icon="basket" onClose={() => setPanel(null)} wide>
+			{area === 'home' ? (
+				<p className="muted">{t('panels.materials.homeNote')}</p>
+			) : (
+				<>
+					<p className="muted">{t('panels.materials.intro', { biome: biome ? content('biome', biome.id, 'name', biome.name) : t('panels.crafting.thisArea') })}</p>
+					{baseIds.length === 0 && weatherGated.length === 0 && <p className="muted small">{t('panels.materials.empty')}</p>}
+					{baseIds.map((id) => row(id))}
+					{weatherGated.length > 0 && (
+						<>
+							<h3>{t('panels.materials.weatherTitle')}</h3>
+							{weatherGated.map(({ id, weatherId }) => {
+								const wt = weatherType(weatherId);
+								const wname = content('weather', weatherId, 'name', wt.name);
+								return row(id, t('panels.materials.weatherNote', { weather: wname }));
+							})}
+						</>
+					)}
+					<p className="muted small">{t('panels.materials.note')}</p>
+				</>
+			)}
 		</Panel>
 	);
 }

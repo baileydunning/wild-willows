@@ -19,7 +19,22 @@
 		"craftedItems": "Crafted items",
 		"placeItem": "Place {name}",
 		"place": "Place",
-		"kitsNote": "Kits (like restoration kits) are not placed and can't be discarded — crafting them is what counts."
+		"kitsNote": "Kits (like restoration kits) are not placed and can't be discarded — crafting them is what counts.",
+		"materialsGuide": "What can I gather here?"
+	},
+	"materials": {
+		"title": "Materials Guide",
+		"intro": "Here's everything you can gather in {biome} right now — look for these on the ground, walk up, and press E or Space to collect.",
+		"empty": "Nothing to gather in this area yet.",
+		"note": "Gathering spots regrow on their own — you only ever take what nature has already let go.",
+		"homeNote": "There's nothing to gather inside your home. Step out into the preserve to collect materials.",
+		"weatherTitle": "Only in certain weather",
+		"weatherNote": "Appears during {weather} — gather it while it lasts.",
+		"gatherWith": {
+			"basket": "Gather with your basket (tool 1).",
+			"shovel": "Dig up with your shovel (tool 2).",
+			"watering-can": "Draw with your watering can (tool 3)."
+		}
 	},
 	"chest": {
 		"title": "{name} — {used}/{capacity}",
@@ -255,6 +270,16 @@
 	"tutorial": {
 		"gettingStarted": "Getting started",
 		"stepCount": "Step {step} of {total}",
+		"chapterCount": "Chapter {chapter} of {total}",
+		"goToStep": "Go to step {step}",
+		"chapters": {
+			"moveGather": "Move & Gather",
+			"workLand": "Work the Land",
+			"readLand": "Read the Land",
+			"firstFriend": "First Friend"
+		},
+		"minimize": "Minimize",
+		"expand": "Expand",
 		"closeTutorial": "Close tutorial",
 		"skipTutorial": "Skip tutorial",
 		"niceWork": "Nice work!",
@@ -280,8 +305,13 @@
 		},
 		"welcome": {
 			"title": "Welcome, caretaker",
-			"text": "This worn-out meadow is yours to restore. By the end of this short guide you’ll welcome your very first animal home — a little grasshopper. Let’s start simple: walk around with WASD or the arrow keys.",
-			"touch": "This worn-out meadow is yours to restore. By the end of this short guide you’ll welcome your very first animal home — a little grasshopper. Let’s start simple: walk with the joystick in the corner."
+			"text": "This worn-out meadow is yours to restore. Let’s start simple — walk around with WASD or the arrow keys. (Press H anytime for the full How to Play.)",
+			"touch": "This worn-out meadow is yours to restore. Let’s start simple — walk with the joystick in the corner."
+		},
+		"coreLoop": {
+			"title": "Your job here",
+			"text": "Restore each biome until its animals come home. Every animal that returns brings the land back to life — and fully restoring a biome opens the trail to the next one. That’s the whole loop: gather materials, build habitat, welcome wildlife. First up, a little grasshopper.",
+			"touch": "Restore each biome until its animals come home. Every animal that returns brings the land back to life — and fully restoring a biome opens the trail to the next one. That’s the whole loop: gather, build habitat, welcome wildlife. First up, a little grasshopper."
 		},
 		"basket": {
 			"title": "Check your basket",
@@ -351,6 +381,11 @@
 			"title": "Place the Grass Patch",
 			"text": "Press the green “Ready to place” button at the top of the crafting menu, then click a patch of open ground in the meadow. Watch the biome health meter tick up the moment it’s down.",
 			"touch": "Tap the green “Ready to place” button at the top of the crafting menu, then tap a patch of open ground in the meadow. Watch the biome health meter tick up the moment it’s down."
+		},
+		"proximity": {
+			"title": "Build little neighborhoods",
+			"text": "Here’s a secret: animals return to neighborhoods, not scattered pieces. Place food, water, and shelter near each other — a patch by a pond by a shrub — and far more wildlife will settle in than if everything’s spread out.",
+			"touch": "Here’s a secret: animals return to neighborhoods, not scattered pieces. Place food, water, and shelter near each other — a patch by a pond by a shrub — and far more wildlife will settle in than if everything’s spread out."
 		},
 		"grasshopper": {
 			"title": "Welcome the grasshopper",

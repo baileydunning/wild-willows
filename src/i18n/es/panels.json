@@ -19,7 +19,22 @@
 		"craftedItems": "Objetos fabricados",
 		"placeItem": "Colocar {name}",
 		"place": "Colocar",
-		"kitsNote": "Los kits (como los kits de restauración) no se colocan y no se pueden tirar — lo que cuenta es fabricarlos."
+		"kitsNote": "Los kits (como los kits de restauración) no se colocan y no se pueden tirar — lo que cuenta es fabricarlos.",
+		"materialsGuide": "¿Qué puedo recolectar aquí?"
+	},
+	"materials": {
+		"title": "Guía de materiales",
+		"intro": "Esto es todo lo que puedes recolectar en {biome} ahora mismo — búscalo en el suelo, acércate y pulsa E o Espacio para recogerlo.",
+		"empty": "Todavía no hay nada que recolectar en esta zona.",
+		"note": "Los puntos de recolección se regeneran solos — solo tomas lo que la naturaleza ya ha soltado.",
+		"homeNote": "No hay nada que recolectar dentro de tu hogar. Sal a la reserva para recoger materiales.",
+		"weatherTitle": "Solo con cierto clima",
+		"weatherNote": "Aparece durante {weather} — recógelo mientras dure.",
+		"gatherWith": {
+			"basket": "Recoge con tu cesta (herramienta 1).",
+			"shovel": "Desentierra con tu pala (herramienta 2).",
+			"watering-can": "Extrae con tu regadera (herramienta 3)."
+		}
 	},
 	"chest": {
 		"title": "{name} — {used}/{capacity}",
@@ -255,6 +270,16 @@
 	"tutorial": {
 		"gettingStarted": "Primeros pasos",
 		"stepCount": "Paso {step} de {total}",
+		"chapterCount": "Capítulo {chapter} de {total}",
+		"goToStep": "Ir al paso {step}",
+		"chapters": {
+			"moveGather": "Moverse y recolectar",
+			"workLand": "Trabajar la tierra",
+			"readLand": "Leer la tierra",
+			"firstFriend": "Primer amigo"
+		},
+		"minimize": "Minimizar",
+		"expand": "Expandir",
 		"closeTutorial": "Cerrar tutorial",
 		"skipTutorial": "Saltar tutorial",
 		"niceWork": "¡Bien hecho!",
@@ -280,8 +305,13 @@
 		},
 		"welcome": {
 			"title": "Bienvenido, cuidador",
-			"text": "Esta pradera desgastada es tuya para restaurarla. Al final de esta breve guía le darás la bienvenida a tu primer animal — un pequeño saltamontes. Empecemos por lo sencillo: camina con WASD o las flechas del teclado.",
-			"touch": "Esta pradera desgastada es tuya para restaurarla. Al final de esta breve guía le darás la bienvenida a tu primer animal — un pequeño saltamontes. Empecemos por lo sencillo: camina con el joystick de la esquina."
+			"text": "Esta pradera desgastada es tuya para restaurarla. Empecemos por lo sencillo: camina con WASD o las flechas del teclado. (Pulsa H en cualquier momento para la guía completa.)",
+			"touch": "Esta pradera desgastada es tuya para restaurarla. Empecemos por lo sencillo: camina con el joystick de la esquina."
+		},
+		"coreLoop": {
+			"title": "Tu misión aquí",
+			"text": "Restaura cada bioma hasta que sus animales regresen. Cada animal que vuelve devuelve la vida a la tierra — y restaurar un bioma por completo abre el sendero al siguiente. Ese es todo el ciclo: recolecta materiales, construye hábitat, da la bienvenida a la fauna. El primero, un pequeño saltamontes.",
+			"touch": "Restaura cada bioma hasta que sus animales regresen. Cada animal que vuelve devuelve la vida a la tierra — y restaurar un bioma por completo abre el sendero al siguiente. Ese es todo el ciclo: recolecta, construye hábitat, da la bienvenida a la fauna. El primero, un pequeño saltamontes."
 		},
 		"basket": {
 			"title": "Revisa tu cesta",
@@ -351,6 +381,11 @@
 			"title": "Coloca el Parche de pasto",
 			"text": "Presiona el botón verde “Listo para colocar” en la parte superior del menú de fabricación y luego haz clic en un pedazo de suelo despejado de la pradera. Observa cómo sube el medidor de salud del bioma en cuanto quede colocado.",
 			"touch": "Toca el botón verde “Listo para colocar” en la parte superior del menú de fabricación y luego toca un pedazo de suelo despejado de la pradera. Observa cómo sube el medidor de salud del bioma en cuanto quede colocado."
+		},
+		"proximity": {
+			"title": "Crea pequeños vecindarios",
+			"text": "Un secreto: los animales regresan a vecindarios, no a piezas dispersas. Coloca comida, agua y refugio cerca unos de otros — un parche junto a un estanque junto a un arbusto — y volverá mucha más fauna que si todo está separado.",
+			"touch": "Un secreto: los animales regresan a vecindarios, no a piezas dispersas. Coloca comida, agua y refugio cerca unos de otros — un parche junto a un estanque junto a un arbusto — y volverá mucha más fauna que si todo está separado."
 		},
 		"grasshopper": {
 			"title": "Dale la bienvenida al saltamontes",

@@ -3,6 +3,7 @@ import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import { isTypingTarget } from '../typing';
 import { useI18n } from '../i18n/react';
+import { useDraggable } from './useDraggable';
 import { Icon } from './icons';
 import { isTouchDevice } from './MobileControls';
 
@@ -12,8 +13,21 @@ interface StepDef {
 	key: string;
 	/** Whether the step has a touch-specific variant (`<key>.touch`). */
 	hasTouch?: boolean;
+	/** Which named chapter (1-based) this step belongs to. The card shows
+	 *  "Chapter N of 4" + dots for the current chapter only, so a new caretaker
+	 *  never faces an intimidating "step 1 of 18". */
+	chapter: number;
 	done: (args: { state: any; flags: Flags }) => boolean;
 }
+
+// The four named phases of the new-caretaker arc. Co-op intro steps fold into
+// chapter 1. Labels live in panels.tutorial.chapters.*.
+const CHAPTERS = [
+	'panels.tutorial.chapters.moveGather',
+	'panels.tutorial.chapters.workLand',
+	'panels.tutorial.chapters.readLand',
+	'panels.tutorial.chapters.firstFriend',
+];
 
 interface Flags {
 	moved: boolean;
@@ -56,12 +70,14 @@ const COOP_HOST_INTRO: StepDef[] = [
 		icon: 'user',
 		key: 'panels.tutorial.coopHostInvite',
 		hasTouch: true,
+		chapter: 1,
 		done: ({ flags }) => flags.openedPeople,
 	},
 	{
 		icon: 'sparkle',
 		key: 'panels.tutorial.coopHostTogether',
 		hasTouch: true,
+		chapter: 1,
 		done: () => false, // info step — advance with Next
 	},
 ];
@@ -71,121 +87,182 @@ const COOP_JOIN_INTRO: StepDef[] = [
 		icon: 'sparkle',
 		key: 'panels.tutorial.coopJoinWelcome',
 		hasTouch: true,
+		chapter: 1,
 		done: () => false, // info step — advance with Next
 	},
 ];
 
 const BASE_STEPS: StepDef[] = [
+	// ── Chapter 1 · Move & Gather ──────────────────────────────────────────
 	{
 		icon: 'walk',
 		key: 'panels.tutorial.welcome',
 		hasTouch: true,
+		chapter: 1,
 		done: ({ flags }) => flags.moved,
+	},
+	{
+		// The core loop, stated plainly right up front (playtest: the goal was
+		// never made explicit). Info step — read it, then Next.
+		icon: 'sparkle',
+		key: 'panels.tutorial.coreLoop',
+		hasTouch: true,
+		chapter: 1,
+		done: () => false,
 	},
 	{
 		icon: 'basket',
 		key: 'panels.tutorial.basket',
 		hasTouch: true,
+		chapter: 1,
 		done: ({ flags }) => flags.openedBasket,
 	},
 	{
 		icon: 'sparkle',
 		key: 'panels.tutorial.gather',
 		hasTouch: true,
+		chapter: 1,
 		done: ({ flags }) => flags.gathered,
 	},
 	{
 		icon: 'chest',
 		key: 'panels.tutorial.chest',
 		hasTouch: true,
+		chapter: 1,
 		done: ({ flags }) => flags.openedChest,
 	},
+	// ── Chapter 2 · Work the Land ──────────────────────────────────────────
 	{
 		icon: 'spade',
 		key: 'panels.tutorial.land',
 		hasTouch: true,
+		chapter: 2,
 		done: ({ state }) => hasWateredBed(state),
 	},
 	{
 		icon: 'leaf',
 		key: 'panels.tutorial.plant',
 		hasTouch: true,
+		chapter: 2,
 		done: ({ state }) => hasPlanted(state),
 	},
 	{
 		icon: 'drop',
 		key: 'panels.tutorial.water',
 		hasTouch: true,
+		chapter: 2,
 		done: ({ state }) => openWaterTiles(state) >= 3,
 	},
+	// ── Chapter 3 · Read the Land ──────────────────────────────────────────
 	{
 		icon: 'journal',
 		key: 'panels.tutorial.journal',
 		hasTouch: true,
+		chapter: 3,
 		done: ({ flags }) => flags.openedJournal,
 	},
 	{
 		icon: 'tools',
 		key: 'panels.tutorial.tools',
 		hasTouch: true,
+		chapter: 3,
 		done: ({ flags }) => flags.openedTools,
 	},
 	{
 		icon: 'map',
 		key: 'panels.tutorial.map',
 		hasTouch: true,
+		chapter: 3,
 		done: ({ flags }) => flags.openedPreserve,
 	},
 	{
 		icon: 'cloud',
 		key: 'panels.tutorial.weather',
 		hasTouch: true,
+		chapter: 3,
 		done: ({ flags }) => flags.openedWeather,
 	},
 	{
 		icon: 'pin',
 		key: 'panels.tutorial.tips',
 		hasTouch: true,
+		chapter: 3,
 		done: () => false, // info step — advance with Next
 	},
+	// ── Chapter 4 · First Friend ───────────────────────────────────────────
 	{
 		icon: 'hammer',
 		key: 'panels.tutorial.crafting',
 		hasTouch: true,
+		chapter: 4,
 		done: ({ flags }) => flags.openedCrafting,
 	},
 	{
 		icon: 'sparkle',
 		key: 'panels.tutorial.craftGrass',
+		chapter: 4,
 		done: ({ state }) => hasGrassPatch(state),
 	},
 	{
 		icon: 'pin',
 		key: 'panels.tutorial.placeGrass',
 		hasTouch: true,
+		chapter: 4,
 		done: ({ state }) => grassPlaced(state),
+	},
+	{
+		// Proximity mechanic — never taught in the playtest. Info step.
+		icon: 'pin',
+		key: 'panels.tutorial.proximity',
+		hasTouch: true,
+		chapter: 4,
+		done: () => false,
 	},
 	{
 		icon: 'paw',
 		key: 'panels.tutorial.grasshopper',
 		hasTouch: true,
+		chapter: 4,
 		done: ({ state }) => state?.discoveries?.some((d: any) => (d.timesObserved || 0) > 0),
 	},
 	{
 		icon: 'star',
 		key: 'panels.tutorial.star',
 		hasTouch: true,
+		chapter: 4,
 		done: () => false, // info step — advance with Next
 	},
 	{
 		icon: 'home',
 		key: 'panels.tutorial.home',
 		hasTouch: true,
+		chapter: 4,
 		done: ({ state }) => state?.player?.area === 'home',
 	},
 ];
 
 const DONE_STEP = 99;
+
+// Remember which step the player was on when they last closed the tutorial, so
+// reopening it from the Help menu resumes there instead of starting over.
+// Finishing the whole tutorial clears this (a replay then starts fresh at 0).
+const TUT_POS_KEY = 'wild-willows:tutorial-pos';
+function saveTutorialPos(step: number) {
+	try { localStorage.setItem(TUT_POS_KEY, String(step)); } catch { /* ignore */ }
+}
+function clearTutorialPos() {
+	try { localStorage.removeItem(TUT_POS_KEY); } catch { /* ignore */ }
+}
+/** The step a Help-menu replay should resume from (0 if none saved). */
+export function savedTutorialPos(): number {
+	try {
+		const v = localStorage.getItem(TUT_POS_KEY);
+		const n = v == null ? 0 : parseInt(v, 10);
+		return Number.isFinite(n) && n >= 0 ? n : 0;
+	} catch {
+		return 0;
+	}
+}
 
 // How long the "nice job!" check animation plays before we move on.
 const CELEBRATE_MS = 850;
@@ -213,6 +290,17 @@ export function Tutorial() {
 	const stepShownAt = useRef<number>(Date.now());
 	const [celebrating, setCelebrating] = useState(false);
 	const touch = isTouchDevice();
+	// The card can be dragged anywhere by its header; the spot is remembered.
+	const { ref: dragRef, handleProps, style: dragStyle } = useDraggable('wild-willows:tutorial-cardpos');
+	// Collapse to just the header bar to get it out of the way; state is remembered.
+	const [minimized, setMinimized] = useState(() => {
+		try { return localStorage.getItem('wild-willows:tutorial-min') === '1'; } catch { return false; }
+	});
+	const toggleMinimized = () => setMinimized((m) => {
+		const next = !m;
+		try { localStorage.setItem('wild-willows:tutorial-min', next ? '1' : '0'); } catch { /* ignore */ }
+		return next;
+	});
 
 	// Co-op saves get an intro ahead of the normal arc: the host learns to invite
 	// people; a joiner just gets a welcome (no invite step — it isn't their world).
@@ -255,10 +343,12 @@ export function Tutorial() {
 	}, [step, frontier]);
 
 	// Remember when the current card first appeared, so auto-advance can hold it
-	// on screen for a minimum reading time.
+	// on screen for a minimum reading time. Also remember the live step so that
+	// closing (or just leaving) and reopening from Help resumes right here.
 	useEffect(() => {
 		stepShownAt.current = Date.now();
-	}, [step]);
+		if (step >= 0 && step < STEPS.length) saveTutorialPos(step);
+	}, [step, STEPS.length]);
 
 	const goTo = (next: number) => {
 		if (advanceTimer.current) {
@@ -348,21 +438,35 @@ export function Tutorial() {
 	if (!state || step >= STEPS.length) return null;
 	const def = STEPS[step];
 	const isLast = step === STEPS.length - 1;
+	// Show only the current chapter's dots, so the first screen reads
+	// "Chapter 1 of 4" instead of an intimidating "step 1 of 18".
+	const curChapter = def.chapter;
+	const chapterStepIdxs = STEPS.map((s, i) => ({ s, i })).filter((x) => x.s.chapter === curChapter).map((x) => x.i);
 
 	return (
-		<div className={`tutorial-card ${celebrating ? 'celebrate' : ''}`}>
-			<div className="tutorial-head">
-				<span className="tutorial-eyebrow"><Icon name="sparkle" size={13} /> {t('panels.tutorial.gettingStarted')}</span>
-				<span className="tutorial-count">{t('panels.tutorial.stepCount', { step: step + 1, total: STEPS.length })}</span>
+		<div ref={dragRef} className={`tutorial-card ${celebrating ? 'celebrate' : ''} ${minimized ? 'minimized' : ''}`} style={dragStyle}>
+			<div className="tutorial-head tutorial-head-drag" {...handleProps}>
+				<span className="tutorial-eyebrow"><Icon name="sparkle" size={13} /> {t(CHAPTERS[curChapter - 1])}</span>
+				<span className="tutorial-count">{t('panels.tutorial.chapterCount', { chapter: curChapter, total: CHAPTERS.length })}</span>
+				<button
+					className="tutorial-close"
+					title={minimized ? t('panels.tutorial.expand') : t('panels.tutorial.minimize')}
+					aria-label={minimized ? t('panels.tutorial.expand') : t('panels.tutorial.minimize')}
+					aria-expanded={!minimized}
+					onClick={toggleMinimized}
+				>
+					<Icon name="forward" size={14} className={minimized ? 'chev-up' : 'chev-down'} />
+				</button>
 				<button
 					className="tutorial-close"
 					title={replaying ? t('panels.tutorial.closeTutorial') : t('panels.tutorial.skipTutorial')}
 					aria-label={replaying ? t('panels.tutorial.closeTutorial') : t('panels.tutorial.skipTutorial')}
-					onClick={() => goTo(DONE_STEP)}
+					onClick={() => { saveTutorialPos(step); goTo(DONE_STEP); }}
 				>
 					<Icon name="close" size={14} />
 				</button>
 			</div>
+			{!minimized && <>
 			<div className="tutorial-main">
 				<div className="tutorial-icon">
 					<Icon name={celebrating ? 'check' : def.icon} size={22} />
@@ -374,8 +478,15 @@ export function Tutorial() {
 			</div>
 			<div className="tutorial-footer">
 				<div className="tutorial-dots">
-					{STEPS.map((_, i) => (
-						<span key={i} className={`dot ${i < step ? 'done' : i === step ? 'now' : ''}`} />
+					{chapterStepIdxs.map((i) => (
+						<button
+							key={i}
+							type="button"
+							className={`dot ${i < step ? 'done' : i === step ? 'now' : ''}`}
+							onClick={() => goTo(i)}
+							aria-label={t('panels.tutorial.goToStep', { step: i + 1 })}
+							aria-current={i === step ? 'step' : undefined}
+						/>
 					))}
 				</div>
 				<div className="tutorial-nav">
@@ -389,7 +500,7 @@ export function Tutorial() {
 						<Icon name="back" size={14} /> {t('panels.tutorial.back')}
 					</button>
 					{isLast ? (
-						<button className="tutorial-btn" onClick={() => goTo(DONE_STEP)}>
+						<button className="tutorial-btn" onClick={() => { clearTutorialPos(); goTo(DONE_STEP); }}>
 							<Icon name="check" size={15} /> {t('panels.tutorial.finish')}
 						</button>
 					) : (
@@ -399,6 +510,7 @@ export function Tutorial() {
 					)}
 				</div>
 			</div>
+			</>}
 		</div>
 	);
 }

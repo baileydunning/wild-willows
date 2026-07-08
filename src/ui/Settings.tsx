@@ -3,7 +3,9 @@ import { api, forgetSave, getTransport, exportActiveSolo } from '../api';
 import { hatPalette } from '../color';
 import { sendFeedback } from '../feedback';
 import { bridge } from '../game/bridge';
+import { COOP_ENABLED } from '../features';
 import { useGame } from '../state';
+import { visibleShortcuts } from '../shortcuts';
 import { hasKey, LOCALE_NAMES, chooseLocale } from '../i18n';
 import { useI18n } from '../i18n/react';
 import { usePrefs, setPrefs, type TextScale } from '../prefs';
@@ -178,8 +180,10 @@ export function AccessibilityControls() {
 }
 
 export function SettingsPanel() {
-	const { state, setPanel, notify, refresh, logout } = useGame();
+	const { state, setPanel, notify, refresh, logout, worlds, activeWorldId } = useGame();
 	const { t, locale } = useI18n();
+	const activeWorld = worlds?.find((w) => w.worldId === activeWorldId);
+	const isCoop = COOP_ENABLED && !!activeWorld && !activeWorld.solo;
 	const defaults: Appearance = {
 		skin: '#eec39a', hair: '#6e4a33', outfit: '#4a7c59', hat: 'straw', hairstyle: 'short', beard: 'none', body: 'slim',
 	};
@@ -338,6 +342,20 @@ export function SettingsPanel() {
 
 					<h3><Icon name="sliders" size={15} /> {t('app.settings.accessibility')}</h3>
 					<AccessibilityControls />
+
+					<h3><Icon name="keyboard" size={15} /> {t('app.settings.controls')}</h3>
+					<div className="key-list">
+						{visibleShortcuts(isCoop).map((k) => (
+							<div className="key-row" key={k.does}>
+								<span className="kbds">
+									{k.keys.map((key) => (
+										<kbd key={key}>{key}</kbd>
+									))}
+								</span>
+								<span>{t(k.does)}</span>
+							</div>
+						))}
+					</div>
 
 					{isSolo && <>
 					<h3><Icon name="download" size={15} /> {t('app.settings.exportSaveTitle')}</h3>

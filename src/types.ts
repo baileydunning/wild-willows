@@ -443,4 +443,5 @@ export type PanelId =
 	| 'settings'
 	| 'people'
 	| 'weather'
+	| 'materials'
 	| null;

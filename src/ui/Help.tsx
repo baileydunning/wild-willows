@@ -1,6 +1,8 @@
 import { useGame } from '../state';
 import { COOP_ENABLED } from '../features';
 import { useI18n } from '../i18n/react';
+import { visibleShortcuts } from '../shortcuts';
+import { savedTutorialPos } from './Tutorial';
 import { Icon } from './icons';
 
 // Step copy lives in the panels.help.loop.* catalog keys.
@@ -15,31 +17,6 @@ const STEPS: Array<{ icon: string; key: string }> = [
 	{ icon: 'check', key: 'board' },
 ];
 
-// The literal key caps stay as-is; only the description is translated.
-const KEYS: Array<{ keys: string[]; does: string }> = [
-	{ keys: ['W', 'A', 'S', 'D'], does: 'panels.help.keys.move' },
-	{ keys: ['E'], does: 'panels.help.keys.interact' },
-	{ keys: ['Space'], does: 'panels.help.keys.space' },
-	{ keys: ['Click'], does: 'panels.help.keys.click' },
-	{ keys: ['Shift', 'Click'], does: 'panels.help.keys.shiftClick' },
-	{ keys: ['\\'], does: 'panels.help.keys.rotate' },
-	{ keys: ['1', '2', '3', '4'], does: 'panels.help.keys.toolSelect' },
-	{ keys: ['C'], does: 'panels.help.keys.crafting' },
-	{ keys: ['B'], does: 'panels.help.keys.basket' },
-	{ keys: ['J'], does: 'panels.help.keys.journal' },
-	{ keys: ['K'], does: 'panels.help.keys.achievements' },
-	{ keys: ['Tab', 'O'], does: 'panels.help.keys.tasks' },
-	{ keys: ['F'], does: 'panels.help.keys.feed' },
-	{ keys: ['T'], does: 'panels.help.keys.tools' },
-	{ keys: ['M', 'P'], does: 'panels.help.keys.preserve' },
-	{ keys: ['N'], does: 'panels.help.keys.weather' },
-	{ keys: ['U'], does: 'panels.help.keys.people' },
-	{ keys: ['G'], does: 'panels.help.keys.settings' },
-	{ keys: ['H'], does: 'panels.help.keys.help' },
-	{ keys: ['+', '−'], does: 'panels.help.keys.zoom' },
-	{ keys: ['Esc'], does: 'panels.help.keys.esc' },
-];
-
 export function HelpModal() {
 	const { helpOpen, setHelpOpen, setTutorialStep, state, worlds, activeWorldId } = useGame();
 	const { t } = useI18n();
@@ -47,9 +24,11 @@ export function HelpModal() {
 	// In solo play there's no People/invite system, so drop those keys entirely.
 	const activeWorld = worlds?.find((w) => w.worldId === activeWorldId);
 	const isCoop = COOP_ENABLED && !!activeWorld && !activeWorld.solo;
-	const keys = KEYS.filter((k) => isCoop || !k.keys.includes('U'));
+	const keys = visibleShortcuts(isCoop);
 	const replay = () => {
-		setTutorialStep(0); // restart the interactive tutorial from the first step
+		// Resume where the player last left the tutorial (0 if they finished it or
+		// never opened it) so reopening it from Help picks up where they closed it.
+		setTutorialStep(savedTutorialPos());
 		setHelpOpen(false);
 	};
 	return (

@@ -773,6 +773,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 						const bName = b?.id ? content('biome', b.id, 'name', b.name) : b.name;
 						toast(t('app.toast.biomeUnlocked', { name: bName }), 'unlock');
 						pushLog('sparkle', t('app.feed.biomeUnlocked', { name: bName }), true);
+						// Reinforce the core loop each time a new area opens (playtest #12).
+						pushLog('leaf', t('app.feed.loopReminder', { name: bName }), true);
 					}
 				}
 				onResult?.(result);

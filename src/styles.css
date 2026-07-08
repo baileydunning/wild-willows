@@ -340,6 +340,19 @@ input {
 .prompt-line svg { color: #c2dba8; flex-shrink: 0; }
 .muted-line { opacity: 0.85; }
 .hud-bottom .link { color: #c2dba8; margin-left: 4px; }
+/* While something is ready to place, the prompt bar reads as an active call to
+   action: a warm green wash with a soft pulsing glow so it's obvious the next
+   click drops the item (playtest: the "ready to place" state went unnoticed). */
+.hud-bottom.placing {
+	background: rgba(74, 124, 89, 0.94);
+	color: #fff;
+	animation: place-glow 1.6s ease-in-out infinite;
+}
+.hud-bottom.placing .prompt-line svg { color: #eaf6df; }
+@keyframes place-glow {
+	0%, 100% { box-shadow: 0 4px 16px rgba(33, 41, 25, 0.3), 0 0 0 0 rgba(122, 190, 106, 0.5); }
+	50% { box-shadow: 0 4px 18px rgba(33, 41, 25, 0.35), 0 0 0 6px rgba(122, 190, 106, 0); }
+}
 
 /* ================= toasts ================= */
 .toasts { position: absolute; top: 96px; right: 14px; z-index: 30; display: flex; flex-direction: column; gap: 7px; }
@@ -865,6 +878,17 @@ kbd {
 	display: flex; align-items: center; gap: 9px;
 	background: var(--green); color: #fff; padding: 11px 16px;
 }
+/* The header doubles as a drag handle — grab it to move the guide anywhere.
+   touch-action:none so dragging on touch devices doesn't scroll the page. */
+.tutorial-head-drag { cursor: grab; touch-action: none; }
+.tutorial-head-drag:active { cursor: grabbing; }
+.tutorial-head-drag button { cursor: pointer; }
+/* minimize/expand chevron (reuses the right-facing arrow, rotated) */
+.chev-down { transform: rotate(90deg); }
+.chev-up { transform: rotate(-90deg); }
+/* Collapsed to just the header bar: no attention pulse, corners fully rounded. */
+.tutorial-card.minimized { animation: none; }
+.tutorial-card.minimized .tutorial-head { border-radius: 17px; }
 .tutorial-card.celebrate .tutorial-head { background: var(--green-2); }
 .tutorial-eyebrow {
 	display: inline-flex; align-items: center; gap: 6px;
@@ -881,10 +905,16 @@ kbd {
 .tutorial-card.celebrate .tutorial-icon { background: var(--green-2); color: #fff; }
 .tutorial-title { font-family: var(--font-display); font-size: calc(20px * var(--ui-scale)); color: var(--green-deep); }
 .tutorial-text { font-size: calc(15px * var(--ui-scale)); line-height: 1.5; color: var(--ink); margin-top: 5px; }
-.tutorial-dots { display: flex; flex-wrap: wrap; gap: 4px; flex: 1 1 auto; min-width: 0; }
+.tutorial-dots { display: flex; flex-wrap: wrap; gap: 4px; flex: 1 1 auto; min-width: 0; align-items: center; }
 .dot { width: 7px; height: 7px; border-radius: 50%; background: #ddd4bb; flex: none; }
 .dot.done { background: var(--green-2); }
 .dot.now { background: var(--gold); transform: scale(1.3); }
+/* The tutorial dots are now clickable — jump straight to any step in the
+   chapter — so they render as reset buttons with a clear hover affordance. */
+.tutorial-dots button.dot { padding: 0; border: 0; appearance: none; cursor: pointer; transition: transform 0.12s ease, background 0.12s ease; }
+.tutorial-dots button.dot:hover { background: var(--gold); transform: scale(1.4); }
+.tutorial-dots button.dot.now:hover { transform: scale(1.5); }
+.tutorial-dots button.dot:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .tutorial-skip, .tutorial-btn {
 	flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px;
 	font-size: calc(14px * var(--ui-scale)); font-weight: 700; padding: 8px 15px; border-radius: 11px;

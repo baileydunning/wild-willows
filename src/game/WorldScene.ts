@@ -3,7 +3,7 @@ import { bridge } from './bridge';
 import { canPaintClick } from './interactions';
 import {
 	animalScale, animalTexture, ensureAnimalTexture, makeAnimalTextures, makeBaseTextures, makeNodeTextures,
-	makeObjectTextures, makePlayerTexture, INV_TEX_SCALE, TEX_SCALE,
+	makeObjectTextures, makePlayerTexture, snapshotResourceIcons, INV_TEX_SCALE, TEX_SCALE,
 } from './textures';
 import { seasonStyle, weatherType, liveWeatherType, gatherResourceFor } from '../weather';
 import { t, content } from '../i18n';
@@ -125,6 +125,11 @@ export class WorldScene extends Phaser.Scene {
 	private activeTool = 'basket';
 	private highlight!: Phaser.GameObjects.Container;
 	private tileCursor!: Phaser.GameObjects.Image;
+	// The interactable the pointer is currently hovering (for hover feedback), and
+	// a signature of the last dynamic-layer build so redundant world-dirty events
+	// (boot nudges, unrelated saves) don't tear down and rebuild every sprite/tween.
+	private hoveredIt: Interactable | null = null;
+	private dynamicSig = '';
 	private isTouch = false;
 	private alive = false; // true between create() and shutdown (scene.isActive() is false DURING create)
 	private waterTiles = new Set<string>();
@@ -250,10 +255,12 @@ export class WorldScene extends Phaser.Scene {
 		this.weatherOverlay = undefined;
 		this.weatherEmitter = undefined;
 		this.weatherSig = '';
+		this.dynamicSig = ''; // force a full dynamic rebuild on (re)create
 		makeBaseTextures(this);
 		makeObjectTextures(this);
 		makeAnimalTextures(this);
 		makeNodeTextures(this);
+		snapshotResourceIcons(this); // cache resource sprites as data URLs for the DOM UI
 		this.isTouch = this.sys.game.device.input.touch && !this.sys.game.device.os.desktop;
 
 		// Indoors the camera stays clamped to the room; outdoors it's unbounded so
@@ -1048,16 +1055,51 @@ export class WorldScene extends Phaser.Scene {
 		}
 		// Pre-fill so the screen is already full of falling weather on biome entry
 		// (Phaser advances the emitter as if `lifespan` ms had already elapsed).
-		if (prewarm) this.weatherEmitter.fastForward(lifespan, 50);
+		// Coarser step (500ms) keeps snow's 13s prewarm from simulating in one
+		// frame — the screen still fills, but the spike on biome entry is gone.
+		if (prewarm) this.weatherEmitter.fastForward(lifespan, 500);
 	}
 
 	// ------------------------------------------------- dynamic world objects
 
-	private refreshDynamic() {
+	/** Signature of everything the dynamic layer draws — terrain, placements, node
+	 *  layout inputs, biome health (tint/doodads) and the current weather (which
+	 *  spawns weather-gated nodes). If it's unchanged, the previously built layer
+	 *  is already correct, so we skip the full teardown+rebuild (and the dozens of
+	 *  ambient tweens that came with it). world-dirty fires on every gather, place,
+	 *  and boot nudge, so most fires are no-ops that used to rebuild everything. */
+	private computeDynamicSig(): string {
+		const st = bridge.shared.state;
+		if (!st) return '';
+		const health = st.biomeStates.find((b) => b.biomeId === this.area)?.health ?? 5;
+		const terrain = (st.terrain || [])
+			.filter((tt) => tt.area === this.area)
+			.map((tt) => `${tt.x},${tt.y}:${tt.type}`)
+			.sort()
+			.join('|');
+		const placements = (st.placements || [])
+			.filter((pl) => pl.area === this.area)
+			.map((pl) => `${pl.id}:${pl.objectId}:${pl.x},${pl.y}:${pl.rotation || 0}:${pl.plantedAt || 0}`)
+			.sort()
+			.join('|');
+		const wx = liveWeatherType(this.worldId, this.area, st.weather);
+		return `${this.area}#h${health}#wx${wx}#t${terrain}#p${placements}`;
+	}
+
+	private refreshDynamic(force = false) {
 		if (!this.alive) return;
+		// Skip the rebuild when nothing the dynamic layer depends on has changed.
+		// Indoors always rebuilds — it's a single cheap room, and the paint tool
+		// repaints walls/rugs/placements live (colour changes aren't in the sig).
+		if (!force && !this.isHome) {
+			const sig = this.computeDynamicSig();
+			if (sig === this.dynamicSig) return;
+			this.dynamicSig = sig;
+		}
 		this.dynamic.clear(true, true);
 		this.nodeSprites.clear();
 		this.interactables = [];
+		this.hoveredIt = null; // its hit zone was just destroyed; a fresh pointerover will re-set it
 		if (this.isHome) { this.refreshHome(); return; }
 		// collision lookups: open water blocks walking unless bridged
 		const st = bridge.shared.state;
@@ -1127,7 +1169,11 @@ export class WorldScene extends Phaser.Scene {
 		this.interactables.push(it);
 		const target =
 			hitObject ||
-			this.addDyn(this.add.zone(it.x, it.y, 44, 46).setOrigin(0.5).setInteractive({ useHandCursor: true }));
+			this.addDyn(this.add.zone(it.x, it.y, 52, 52).setOrigin(0.5).setInteractive({ useHandCursor: true }));
+		// Hover feedback: light up the interactable under the pointer even before you
+		// reach it, so it's clear what a click will act on (visuals are unchanged).
+		target.on('pointerover', () => { if (!bridge.shared.uiBlocking) this.hoveredIt = it; });
+		target.on('pointerout', () => { if (this.hoveredIt === it) this.hoveredIt = null; });
 		target.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
 			if (bridge.shared.uiBlocking) return; // a modal is open — clicks don't reach the world
 			if (this.placementObjectId || this.movingPlacementId) return;
@@ -1146,7 +1192,7 @@ export class WorldScene extends Phaser.Scene {
 			}
 			if (pointer.event && (pointer.event as MouseEvent).shiftKey) return; // shift = pick up
 			const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, it.x, it.y);
-			if (dist <= 96) it.action();
+			if (dist <= 120) it.action();
 			else bridge.emit('toast', { text: t('game.toast.walkCloser'), kind: 'info' });
 		});
 	}
@@ -1592,7 +1638,7 @@ export class WorldScene extends Phaser.Scene {
 			container.add([img, sprout]);
 			(container as any).nodeImg = img;
 			(container as any).sproutImg = sprout;
-			container.setSize(36, 36).setInteractive({ useHandCursor: true });
+			container.setSize(52, 52).setInteractive({ useHandCursor: true });
 			this.addDyn(container);
 			this.nodeSprites.set(node.id, container);
 			this.tweens.add({
@@ -1787,7 +1833,7 @@ export class WorldScene extends Phaser.Scene {
 			if (stillGrowing) {
 				this.time.delayedCall(growMs - age + 300, () => {
 					if (!this.alive) return;
-					this.refreshDynamic();
+					this.refreshDynamic(true); // sprout→grown swap isn't a state change, so force it
 					// the plant is now mature habitat — re-check who can return
 					bridge.emit('plant-matured', this.area);
 				});
@@ -1833,7 +1879,7 @@ export class WorldScene extends Phaser.Scene {
 				// shovel digs planted things back up — materials are refunded
 				if (this.terraformAction() === 'dig' && def.plantable && p.plantedAt) {
 					const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, x, y);
-					if (dist <= 110) bridge.emit('dig-up', { placementId: p.id, name: defName });
+					if (dist <= 120) bridge.emit('dig-up', { placementId: p.id, name: defName });
 					else bridge.emit('toast', { text: t('game.toast.walkCloser'), kind: 'info' });
 					return;
 				}
@@ -1844,7 +1890,7 @@ export class WorldScene extends Phaser.Scene {
 				}
 				if (!hasPrimaryAction) {
 					const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, x, y);
-					if (dist <= 110) bridge.emit('placement-clicked', { placementId: p.id, objectId: p.objectId, name: defName, plantedAt: p.plantedAt, x: p.x, y: p.y, rotation: p.rotation || 0 });
+					if (dist <= 120) bridge.emit('placement-clicked', { placementId: p.id, objectId: p.objectId, name: defName, plantedAt: p.plantedAt, x: p.x, y: p.y, rotation: p.rotation || 0 });
 					else bridge.emit('toast', { text: t('game.toast.walkCloser'), kind: 'info' });
 				}
 			});
@@ -2320,10 +2366,13 @@ export class WorldScene extends Phaser.Scene {
 		// E/Space interactions stay available while terraforming — only clicks shape
 		// the ground, so holding the shovel/can no longer locks you out of chests and beds
 		const near = busy ? null : this.nearestInteractable();
+		// Prefer the thing you're standing beside; otherwise light up whatever the
+		// pointer is hovering, so it's clear what a click would act on.
+		const focus = near || (busy || terraforming ? null : this.hoveredIt);
 
 		// pulsing highlight on whatever you can interact with right now
-		if (near) {
-			this.highlight.setVisible(true).setPosition(near.x, near.y + 2);
+		if (focus) {
+			this.highlight.setVisible(true).setPosition(focus.x, focus.y + 2);
 		} else {
 			this.highlight.setVisible(false);
 		}

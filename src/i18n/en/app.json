@@ -63,6 +63,7 @@
 		"animalFact": "{name}: {fact}",
 		"animalPrereqs": "{name} came back now that the {others} had returned — the food web is filling in.",
 		"biomeUnlocked": "New biome unlocked: {name}!",
+		"loopReminder": "Same loop in {name}: build habitat until its animals come home, and the next trail opens.",
 		"taskReward": "Daily task finished: earned {items}."
 	},
 	"log": {
@@ -330,6 +331,7 @@
 		"saveExported": "Save exported.",
 		"errExport": "Couldn’t export this save.",
 		"accessibility": "Accessibility",
+		"controls": "Controls",
 		"reduceMotion": "Reduce motion",
 		"reduceMotionHint": "Turn off UI animations and in-world weather particles like rain and snow.",
 		"colorblind": "Colorblind mode",

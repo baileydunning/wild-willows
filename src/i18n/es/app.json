@@ -63,6 +63,7 @@
 		"animalFact": "{name}: {fact}",
 		"animalPrereqs": "{name} regresó ahora que {others} habían vuelto — la red alimentaria se está completando.",
 		"biomeUnlocked": "¡Nuevo bioma desbloqueado: {name}!",
+		"loopReminder": "El mismo ciclo en {name}: construye hábitat hasta que sus animales regresen, y se abrirá el siguiente sendero.",
 		"taskReward": "Tarea del día terminada: obtuviste {items}."
 	},
 	"log": {
@@ -330,6 +331,7 @@
 		"saveExported": "Partida exportada.",
 		"errExport": "No se pudo exportar esta partida.",
 		"accessibility": "Accesibilidad",
+		"controls": "Controles",
 		"reduceMotion": "Reducir movimiento",
 		"reduceMotionHint": "Desactiva las animaciones de la interfaz y las partículas del clima como la lluvia y la nieve.",
 		"colorblind": "Modo daltónico",

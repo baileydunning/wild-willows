@@ -287,8 +287,14 @@ export function makeNodeTextures(scene: Phaser.Scene) {
 		g.fillStyle(0xffffff, 0.85).fillCircle(20, 8, 1.4);
 	});
 	n('fiber', 26, 26, (g) => {
-		g.lineStyle(2.2, C('#b8b06a'), 1);
+		// A bundle of dried grass fibre. Brighter, thicker strands than before with
+		// pale seed heads at the tips so it reads clearly against green ground —
+		// no dark outline, matching the fill-based style of the other nodes.
+		g.lineStyle(2.6, C('#cfc47a'), 1); // bright fibre strands
 		g.lineBetween(6, 24, 3, 6).lineBetween(11, 24, 10, 3).lineBetween(16, 24, 17, 4).lineBetween(21, 24, 24, 7);
+		g.fillStyle(C('#efe6b0'), 1); // fluffy seed heads at the tips
+		g.fillEllipse(3, 5, 5, 4).fillEllipse(10, 2.5, 5.2, 4.2).fillEllipse(17, 3.5, 5, 4).fillEllipse(24, 6.5, 5, 4);
+		g.fillStyle(0xffffff, 0.55).fillCircle(9.4, 2, 1.2).fillCircle(16.4, 3, 1.1);
 	});
 	n('mushrooms', 28, 24, (g) => {
 		g.fillStyle(C('#f0e2cc'), 1).fillRoundedRect(7, 12, 5, 10, 2).fillRoundedRect(18, 14, 5, 8, 2);
@@ -446,6 +452,25 @@ export function makeNodeTextures(scene: Phaser.Scene) {
 		g.fillStyle(0xd87f7f, 0.35).fillRect(0, 0, 36, 36);
 		g.lineStyle(2, 0xc0392b, 0.9).strokeRect(1, 1, 34, 34);
 	});
+}
+
+/**
+ * Bridge the generated resource sprites to the DOM: snapshot every `rnode-*`
+ * texture to a PNG data URL and cache it on `bridge.shared.resourceIcons`,
+ * keyed by resource id. One-time cost at boot; the React UI (`ResourceIcon`)
+ * then shows the same hand-drawn picture the world uses instead of a flat
+ * colour swatch. Must run after makeNodeTextures.
+ */
+export function snapshotResourceIcons(scene: Phaser.Scene) {
+	const icons: Record<string, string> = {};
+	for (const key of scene.textures.getTextureKeys()) {
+		if (!key.startsWith('rnode-')) continue;
+		try {
+			const uri = scene.textures.getBase64(key);
+			if (uri) icons[key.slice('rnode-'.length)] = uri;
+		} catch { /* a texture that can't be rasterized just falls back to a swatch */ }
+	}
+	bridge.shared.resourceIcons = icons;
 }
 
 /** Habitat / home object sprites, keyed `obj-<shape>`. */

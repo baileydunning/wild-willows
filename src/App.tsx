@@ -10,7 +10,7 @@ import { HUD, Toasts } from './ui/HUD';
 import { AnimalCard, JournalPanel } from './ui/Journal';
 import { AchievementsPanel } from './ui/Achievements';
 import { MobileControls } from './ui/MobileControls';
-import { BiomesPanel, ChestPanel, CraftingPanel, HomePanel, InventoryPanel, ToolsPanel, WeatherPanel } from './ui/Panels';
+import { BiomesPanel, ChestPanel, CraftingPanel, HomePanel, InventoryPanel, MaterialsPanel, ToolsPanel, WeatherPanel } from './ui/Panels';
 import { SettingsPanel } from './ui/Settings';
 import { ActivityLog, FeedPanel, Toolbelt } from './ui/Toolbelt';
 import { Tutorial } from './ui/Tutorial';
@@ -286,6 +286,7 @@ function GameScreen() {
 			{panel === 'settings' && <SettingsPanel />}
 			{panel === 'people' && <PeoplePanel />}
 			{panel === 'weather' && <WeatherPanel />}
+			{panel === 'materials' && <MaterialsPanel />}
 			{devOpen && <DevPanel onClose={() => setDevOpen(false)} />}
 		</div>
 	);

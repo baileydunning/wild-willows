@@ -225,7 +225,7 @@ export function HUD() {
 			</div>
 
 			{(placementObjectId || prompt) && (
-				<div className="hud-bottom">
+				<div className={`hud-bottom ${placementObjectId ? 'placing' : ''}`}>
 					{placementObjectId ? (
 						<span className="prompt-line">
 							<Icon name="pin" size={15} />
