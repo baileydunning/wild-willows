@@ -126,13 +126,19 @@
 	"task": {
 		"welcomeGrasshopper": "Dale la bienvenida al saltamontes que vuelve a casa",
 		"welcomeGrasshopperHint": "Fabrica y coloca un parche de pasto, luego lleva la pradera al 15% de salud — el saltamontes vuelve a casa por su cuenta.",
-		"raiseHealth": "Sube la salud de {biome} en {count}",
+		"raiseHealth": "Sube la salud de {biome} de {current}% a {goal}%",
 		"welcomeNewAnimal": "Dale la bienvenida a un nuevo animal en {biome}",
 		"welcomeAnyAnimal": "Dale la bienvenida a un nuevo animal, en cualquier parte de la reserva",
 		"craftKit": "Fabrica un {item}",
 		"gather": "Recolecta {count}× {resource}",
-		"craft": { "one": "Fabrica {count} objeto", "other": "Fabrica {count} objetos" },
-		"place": { "one": "Coloca {count} objeto fabricado", "other": "Coloca {count} objetos fabricados" },
+		"craft": {
+			"one": "Fabrica {count} objeto",
+			"other": "Fabrica {count} objetos"
+		},
+		"place": {
+			"one": "Coloca {count} objeto fabricado",
+			"other": "Coloca {count} objetos fabricados"
+		},
 		"water": "Riega {count} bancales",
 		"plantBeds": "Planta 2 plántulas en bancales regados",
 		"observe": "Lee sobre 3 animales en tu diario de campo",

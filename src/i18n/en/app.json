@@ -86,8 +86,14 @@
 		"plantedHeadStart": "Planted {name} — your cottage's green thumb gave it a {pct}% head start."
 	},
 	"welcomeBack": {
-		"matured": { "one": "one of your plantings matured", "other": "{count} of your plantings matured" },
-		"healthGain": { "one": "the land grew {count} point healthier", "other": "the land grew {count} points healthier" },
+		"matured": {
+			"one": "one of your plantings matured",
+			"other": "{count} of your plantings matured"
+		},
+		"healthGain": {
+			"one": "the land grew {count} point healthier",
+			"other": "the land grew {count} points healthier"
+		},
 		"summary": "While you were away, {bits}."
 	},
 	"coop": {
@@ -174,7 +180,10 @@
 		"yourHome": "Your Home",
 		"canvasTent": "Canvas Tent",
 		"carrySuffix": " · +{count} carry",
-		"thingsPlaced": { "one": "{count} thing placed", "other": "{count} things placed" },
+		"thingsPlaced": {
+			"one": "{count} thing placed",
+			"other": "{count} things placed"
+		},
 		"thePreserve": "The Preserve",
 		"coop": "Co-op",
 		"hereCount": " · {count} here",
@@ -198,8 +207,8 @@
 		"navInventory": "Basket contents (B)",
 		"navCrafting": "Crafting (C)",
 		"navTools": "Tool upgrades (T)",
-		"navBiomes": "Preserve overview (P)",
-		"navWeather": "Weather & seasons (M)",
+		"navBiomes": "Preserve map (M)",
+		"navWeather": "Weather & seasons (N)",
 		"navPeople": "People — invite & who’s here (U)",
 		"settingsTitle": "Settings — change character, delete save (G)",
 		"settings": "Settings",
@@ -241,15 +250,42 @@
 		"outfit": "Outfit",
 		"hat": "Hat",
 		"hatLabel": {
-			"straw": "Straw hat", "leaf": "Leaf hat", "beanie": "Beanie", "cap": "Cap", "bucket": "Bucket hat", "flower": "Flower crown",
-			"party": "Party hat", "ranger": "Ranger hat", "mushroom": "Mushroom cap", "wizard": "Wizard hat", "crown": "Crown", "bandana": "Bandana", "none": "No hat"
+			"straw": "Straw hat",
+			"leaf": "Leaf hat",
+			"beanie": "Beanie",
+			"cap": "Cap",
+			"bucket": "Bucket hat",
+			"flower": "Flower crown",
+			"party": "Party hat",
+			"ranger": "Ranger hat",
+			"mushroom": "Mushroom cap",
+			"wizard": "Wizard hat",
+			"crown": "Crown",
+			"bandana": "Bandana",
+			"none": "No hat"
 		},
 		"hairstyleLabel": {
-			"short": "Short", "bald": "Bald", "long": "Long", "bob": "Bob", "curly": "Curly", "curly-long": "Curly long",
-			"bun": "Bun", "braid": "Side braid", "ponytail": "Ponytail", "pigtails": "Pigtails", "afro": "Afro", "mohawk": "Mohawk"
+			"short": "Short",
+			"bald": "Bald",
+			"long": "Long",
+			"bob": "Bob",
+			"curly": "Curly",
+			"curly-long": "Curly long",
+			"bun": "Bun",
+			"braid": "Side braid",
+			"ponytail": "Ponytail",
+			"pigtails": "Pigtails",
+			"afro": "Afro",
+			"mohawk": "Mohawk"
 		},
-		"beardLabel": { "none": "No beard", "beard": "Beard" },
-		"bodyLabel": { "slim": "Slender", "round": "Sturdy" },
+		"beardLabel": {
+			"none": "No beard",
+			"beard": "Beard"
+		},
+		"bodyLabel": {
+			"slim": "Slender",
+			"round": "Sturdy"
+		},
 		"skinAria": "Skin {color}",
 		"hairAria": "Hair {color}",
 		"outfitAria": "Outfit {color}",

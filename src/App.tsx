@@ -233,18 +233,25 @@ function GameScreen() {
 			}
 			const k = e.key.toLowerCase();
 			if (k === 'escape') {
+				// One consistent close chain: Escape always dismisses the topmost
+				// thing — dev panel, help, the plant/placement popups, then panels,
+				// then placement mode. (Playtest: Esc "sometimes worked" because the
+				// popups weren't in this chain.)
 				if (devOpen) { setDevOpen(false); return; }
 				if (game.helpOpen) { game.setHelpOpen(false); return; }
+				if (clickedBed) { setClickedBed(null); return; }
+				if (clickedPlacement) { setClickedPlacement(null); return; }
 				if (panel) setPanel(null);
 				else if (placementObjectId) cancelPlacement();
 				return;
 			}
 			// H toggles the How-to-Play help modal (it isn't a panel).
 			if (k === 'h') { game.setHelpOpen(!game.helpOpen); return; }
-			// B = basket, J = journal, K = achievements, F = feed, T = tools, P = preserve,
+			// B = basket, J = journal, K = achievements, F = feed, T = tools,
+			// M = map/preserve (P kept as a legacy alias), N = weather & seasons,
 			// G = settings (gear), C = crafting (I = basket alias). O (the daily task
 			// board's collapse toggle) is handled inside TasksWidget itself.
-			const map: Record<string, any> = { b: 'inventory', i: 'inventory', j: 'journal', k: 'achievements', f: 'feed', t: 'tools', p: 'biomes', g: 'settings', c: 'crafting', u: 'people', m: 'weather' };
+			const map: Record<string, any> = { b: 'inventory', i: 'inventory', j: 'journal', k: 'achievements', f: 'feed', t: 'tools', m: 'biomes', p: 'biomes', g: 'settings', c: 'crafting', u: 'people', n: 'weather' };
 			if (map[k]) setPanel(panel === map[k] ? null : map[k]);
 			// number keys select toolbelt tools
 			const toolByKey: Record<string, string> = { '1': 'basket', '2': 'shovel', '3': 'watering-can', '4': 'paint' };
@@ -252,7 +259,7 @@ function GameScreen() {
 		};
 		window.addEventListener('keydown', onKey);
 		return () => window.removeEventListener('keydown', onKey);
-	}, [panel, setPanel, placementObjectId, cancelPlacement, game, devOpen]);
+	}, [panel, setPanel, placementObjectId, cancelPlacement, game, devOpen, clickedBed, clickedPlacement]);
 
 	return (
 		<div className="game-screen">

@@ -126,13 +126,19 @@
 	"task": {
 		"welcomeGrasshopper": "Welcome the grasshopper home",
 		"welcomeGrasshopperHint": "Craft and place a grass patch, then bring the meadow to 15% health — the grasshopper hops home on its own.",
-		"raiseHealth": "Raise {biome}'s health by {count}",
+		"raiseHealth": "Raise {biome}'s health from {current}% to {goal}%",
 		"welcomeNewAnimal": "Welcome a new animal back to {biome}",
 		"welcomeAnyAnimal": "Welcome a new animal, anywhere in the preserve",
 		"craftKit": "Craft a {item}",
 		"gather": "Gather {count}× {resource}",
-		"craft": { "one": "Craft {count} item", "other": "Craft {count} items" },
-		"place": { "one": "Place {count} crafted thing", "other": "Place {count} crafted things" },
+		"craft": {
+			"one": "Craft {count} item",
+			"other": "Craft {count} items"
+		},
+		"place": {
+			"one": "Place {count} crafted thing",
+			"other": "Place {count} crafted things"
+		},
 		"water": "Water {count} soil beds",
 		"plantBeds": "Plant 2 seedlings in watered beds",
 		"observe": "Read about 3 animals in your journal",

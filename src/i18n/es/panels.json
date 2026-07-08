@@ -71,7 +71,8 @@
 		"matTitle": "{inBasket} en la cesta, {inChests} en cofres vinculados",
 		"requiresTool": "Requiere una herramienta mejorada — mira el panel de Herramientas.",
 		"crafted": "Fabricado ✓",
-		"craft": "Fabricar"
+		"craft": "Fabricar",
+		"plantedNotCrafted": "Se planta, no se fabrica — cava un bancal con la pala (2), riégalo con la regadera (3) y luego haz clic en el bancal regado para elegirlo en el menú de plantado."
 	},
 	"tools": {
 		"title": "Herramientas y mejoras",
@@ -210,7 +211,7 @@
 		"minBalance": "Equilibrio ecológico ≥ {value}%",
 		"objectReq": "{qty}× {name}",
 		"animalReq": "{name} ya regresó",
-		"condCheck": "{cond} — consulta el panel del clima (M)",
+		"condCheck": "{cond} — consulta el panel del clima (N)",
 		"openEntry": "Abrir {name}",
 		"notDiscovered": "Aún sin descubrir",
 		"unknownChip": "??? {kind}",
@@ -324,12 +325,12 @@
 		},
 		"map": {
 			"title": "Abre el mapa de la Reserva",
-			"text": "Presiona P (o el botón del mapa) para abrir la Reserva. Registra la salud y los animales de cada área, muestra exactamente qué falta para desbloquear la siguiente y te permite viajar rápido a cualquier área que ya hayas visitado — toca el ícono de caminar en su fila.",
+			"text": "Presiona M (o el botón del mapa) para abrir la Reserva. Registra la salud y los animales de cada área, muestra exactamente qué falta para desbloquear la siguiente y te permite viajar rápido a cualquier área que ya hayas visitado — toca el ícono de caminar en su fila.",
 			"touch": "Toca el botón del mapa para abrir la Reserva. Registra la salud y los animales de cada área, muestra exactamente qué falta para desbloquear la siguiente y te permite viajar rápido a cualquier área que ya hayas visitado — toca el ícono de caminar en su fila."
 		},
 		"weather": {
 			"title": "Clima y estaciones",
-			"text": "Presiona M para abrir la guía de Clima y estaciones. Cada área tiene su propio clima, que cambia por sí solo y avanza lentamente por las estaciones — la guía muestra qué está pasando en toda la reserva y explica, con ecología real, cómo el clima y la estación de hoy moldean el área donde estás. Mira también el cielo: un clima inusual puede dejar materiales raros para recolectar mientras dure.",
+			"text": "Presiona N para abrir la guía de Clima y estaciones. Cada área tiene su propio clima, que cambia por sí solo y avanza lentamente por las estaciones — la guía muestra qué está pasando en toda la reserva y explica, con ecología real, cómo el clima y la estación de hoy moldean el área donde estás. Mira también el cielo: un clima inusual puede dejar materiales raros para recolectar mientras dure.",
 			"touch": "Toca el botón del clima (la nube, arriba a la derecha) para abrir la guía de Clima y estaciones. Cada área tiene su propio clima, que cambia por sí solo y avanza lentamente por las estaciones — la guía muestra qué está pasando en toda la reserva y explica cómo el clima y la estación de hoy moldean el área donde estás. Mira el cielo: un clima inusual puede dejar materiales raros para recolectar mientras dure."
 		},
 		"tips": {
@@ -401,7 +402,7 @@
 			},
 			"weather": {
 				"title": "Leer el clima",
-				"text": "Cada bioma tiene su propio clima, que cambia por sí solo y avanza lentamente por las estaciones. Abre la guía de Clima y estaciones (presiona M) para ver qué pasa en toda la reserva y aprender cómo cada condición moldea el bioma donde estás. Mantente atento — un clima inusual puede dejar materiales raros para recolectar mientras dure, y unos pocos animales esquivos solo se dejan ver con el clima, la estación o la hora del día adecuados (su pista en el diario dice cuándo)."
+				"text": "Cada bioma tiene su propio clima, que cambia por sí solo y avanza lentamente por las estaciones. Abre la guía de Clima y estaciones (presiona N) para ver qué pasa en toda la reserva y aprender cómo cada condición moldea el bioma donde estás. Mantente atento — un clima inusual puede dejar materiales raros para recolectar mientras dure, y unos pocos animales esquivos solo se dejan ver con el clima, la estación o la hora del día adecuados (su pista en el diario dice cuándo)."
 			},
 			"board": {
 				"title": "Revisar el tablero",

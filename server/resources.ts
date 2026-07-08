@@ -1800,9 +1800,12 @@ function milestonePin(
 		if (u.minHealth) {
 			const remaining = Math.max(0, u.minHealth - (prereq.health || 0));
 			const target = Math.max(1, Math.min(3, Math.ceil(remaining)));
+			// "from X% to Y%" instead of "by N" — playtest: at 89% health, "raise
+			// health by 3" read as ambiguous (3 what? out of what?).
+			const current = Math.round(prereq.health || 0);
 			steps.push({
 				step: 'health', icon: 'leaf', unmet: remaining > 0,
-				text: tr('server.task.raiseHealth', { biome: prereqName, count: target }),
+				text: tr('server.task.raiseHealth', { biome: prereqName, count: target, current, goal: Math.min(100, current + target) }),
 				target, counter: `health:${u.biome}`,
 			});
 		}

@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import type { ChestState, RecipeDef } from '../types';
@@ -13,7 +13,7 @@ import { Meter } from './HUD';
 import { Icon } from './icons';
 import { BIOME_LORE, loreStage } from './lore';
 
-function Panel({ title, icon, children, onClose, wide }: { title: string; icon?: string; children: React.ReactNode; onClose: () => void; wide?: boolean }) {
+function Panel({ title, icon, children, onClose, wide, bodyRef }: { title: string; icon?: string; children: React.ReactNode; onClose: () => void; wide?: boolean; bodyRef?: React.Ref<HTMLDivElement> }) {
 	const { t } = useI18n();
 	return (
 		<div className="panel-backdrop" onClick={onClose}>
@@ -22,7 +22,7 @@ function Panel({ title, icon, children, onClose, wide }: { title: string; icon?:
 					<h2>{icon && <Icon name={icon} size={20} />} {title}</h2>
 					<button className="icon-btn" onClick={onClose} aria-label={t('panels.common.close')}><Icon name="close" /></button>
 				</div>
-				<div className="panel-body">{children}</div>
+				<div className="panel-body" ref={bodyRef}>{children}</div>
 			</div>
 		</div>
 	);
@@ -70,6 +70,15 @@ function AreaTags({ data, def }: { data: any; def: any }) {
 		</span>
 	);
 }
+
+// The crafting menu's filters, search text, and scroll position survive
+// close/reopen within a session — you come back to the recipe you were on.
+const craftingMemory: { placeFilter: string | null; typeFilter: string; query: string; scrollTop: number } = {
+	placeFilter: null,
+	typeFilter: 'all',
+	query: '',
+	scrollTop: 0,
+};
 
 // All of your chests feed crafting — no station or proximity required.
 export function useLinkedChests(): ChestState[] {
@@ -236,10 +245,26 @@ export function CraftingPanel() {
 	const { t, content } = useI18n();
 	const linked = useLinkedChests();
 	// default the Place filter to where you're standing — indoors, a dedicated "home"
-	// filter shows only the camp comforts & furniture you can place inside
-	const [placeFilter, setPlaceFilter] = useState(state?.player.area || 'all');
-	const [typeFilter, setTypeFilter] = useState('all');
-	const [query, setQuery] = useState('');
+	// filter shows only the camp comforts & furniture you can place inside.
+	// Reopening the menu restores your last filters, search, and scroll position
+	// (playtest: it reset to the top every time, losing the recipe you were on).
+	const [placeFilter, setPlaceFilter] = useState(craftingMemory.placeFilter ?? (state?.player.area || 'all'));
+	const [typeFilter, setTypeFilter] = useState(craftingMemory.typeFilter);
+	const [query, setQuery] = useState(craftingMemory.query);
+	const bodyRef = useRef<HTMLDivElement | null>(null);
+	useEffect(() => {
+		craftingMemory.placeFilter = placeFilter;
+		craftingMemory.typeFilter = typeFilter;
+		craftingMemory.query = query;
+	}, [placeFilter, typeFilter, query]);
+	useEffect(() => {
+		const el = bodyRef.current;
+		if (!el) return;
+		el.scrollTop = craftingMemory.scrollTop;
+		const save = () => { craftingMemory.scrollTop = el.scrollTop; };
+		el.addEventListener('scroll', save, { passive: true });
+		return () => el.removeEventListener('scroll', save);
+	}, []);
 	if (!data || !state) return null;
 	const player = state.player;
 	const areaBiome = data.biomes.find((b) => b.id === player.area);
@@ -295,8 +320,24 @@ export function CraftingPanel() {
 		return def && def.placement !== 'none';
 	});
 
+	// Plantables (wildflowers, grasses, trees…) are hidden from crafting by
+	// design (recipes.ts) — you PLANT them. Searching for one used to come up
+	// silently empty (playtest: "wildflower" stalled the whole session), so
+	// cross-reference them instead of leaving the player stranded.
+	const q = query.trim().toLowerCase();
+	const plantableMatches = q
+		? data.habitatObjects
+			.filter((o) =>
+				o.plantable &&
+				(o.biomes || []).some((b) => player.unlockedBiomes.includes(b)) &&
+				(o.name.toLowerCase().includes(q) ||
+					content('habitatObject', o.id, 'name', o.name).toLowerCase().includes(q) ||
+					(o.description || '').toLowerCase().includes(q)))
+			.slice(0, 4)
+		: [];
+
 	return (
-		<Panel title={t('panels.crafting.title')} icon="hammer" onClose={() => setPanel(null)} wide>
+		<Panel title={t('panels.crafting.title')} icon="hammer" onClose={() => setPanel(null)} wide bodyRef={bodyRef}>
 			<p className="muted">
 				{t('panels.crafting.intro', { count: linked.length })}
 			</p>
@@ -369,7 +410,20 @@ export function CraftingPanel() {
 					})}
 				</div>
 			)}
-			{visible.length === 0 && (
+			{plantableMatches.length > 0 && (
+				<div>
+					{plantableMatches.map((o) => (
+						<div className="recipe" key={o.id}>
+							<div className="grow">
+								<b><Icon name="leaf" size={14} /> {content('habitatObject', o.id, 'name', o.name)}</b>
+								<div className="muted small">{t('panels.crafting.plantedNotCrafted')}</div>
+								<AreaTags data={data} def={o} />
+							</div>
+						</div>
+					))}
+				</div>
+			)}
+			{visible.length === 0 && plantableMatches.length === 0 && (
 				query.trim()
 					? <p className="muted small">{t((placeFilter !== 'all' || typeFilter !== 'all') ? 'panels.crafting.noMatchWiden' : 'panels.crafting.noMatch', { query: query.trim() })}</p>
 					: <p className="muted small">{t('panels.crafting.nothingToCraft')}</p>

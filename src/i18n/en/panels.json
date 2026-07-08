@@ -71,7 +71,8 @@
 		"matTitle": "{inBasket} in basket, {inChests} in linked chests",
 		"requiresTool": "Requires an upgraded tool — see Tools panel.",
 		"crafted": "Crafted ✓",
-		"craft": "Craft"
+		"craft": "Craft",
+		"plantedNotCrafted": "Planted, not crafted — dig a soil bed with the shovel (2), water it with the can (3), then click the watered bed and pick it from the planting menu."
 	},
 	"tools": {
 		"title": "Tools & Upgrades",
@@ -210,7 +211,7 @@
 		"minBalance": "Ecological balance ≥ {value}%",
 		"objectReq": "{qty}× {name}",
 		"animalReq": "{name} already returned",
-		"condCheck": "{cond} — check the weather panel (M)",
+		"condCheck": "{cond} — check the weather panel (N)",
 		"openEntry": "Open {name}",
 		"notDiscovered": "Not yet discovered",
 		"unknownChip": "??? {kind}",
@@ -324,12 +325,12 @@
 		},
 		"map": {
 			"title": "Open the Preserve map",
-			"text": "Press P (or the map button) to open the Preserve. It tracks every area’s health and animals, shows exactly what’s needed to unlock the next one, and lets you fast-travel back to any area you’ve already visited — tap the walk icon on its row.",
+			"text": "Press M (or the map button) to open the Preserve. It tracks every area’s health and animals, shows exactly what’s needed to unlock the next one, and lets you fast-travel back to any area you’ve already visited — tap the walk icon on its row.",
 			"touch": "Tap the map button to open the Preserve. It tracks every area’s health and animals, shows exactly what’s needed to unlock the next one, and lets you fast-travel back to any area you’ve already visited — tap the walk icon on its row."
 		},
 		"weather": {
 			"title": "Weather & seasons",
-			"text": "Press M to open the Weather & Seasons guide. Each area has its own weather that shifts on its own and slowly drifts through the seasons — the guide shows what’s happening across the whole preserve and explains, in real ecology, how today’s weather and season shape the area you’re standing in. Watch the skies, too: unusual weather can leave rare materials to gather while it lasts.",
+			"text": "Press N to open the Weather & Seasons guide. Each area has its own weather that shifts on its own and slowly drifts through the seasons — the guide shows what’s happening across the whole preserve and explains, in real ecology, how today’s weather and season shape the area you’re standing in. Watch the skies, too: unusual weather can leave rare materials to gather while it lasts.",
 			"touch": "Tap the weather button (the cloud, top-right) to open the Weather & Seasons guide. Each area has its own weather that shifts on its own and slowly drifts through the seasons — the guide shows what’s happening across the preserve and explains how today’s weather and season shape the area you’re in. Watch the skies: unusual weather can leave rare materials to gather while it lasts."
 		},
 		"tips": {
@@ -401,7 +402,7 @@
 			},
 			"weather": {
 				"title": "Read the weather",
-				"text": "Each biome has its own weather that shifts on its own and slowly drifts through the seasons. Open the Weather & Seasons guide (press M) to see what’s happening across the preserve and learn how each condition shapes the biome you’re standing in. Keep an eye out — unusual weather can leave rare materials to gather while it lasts, and a few elusive animals only show themselves in the right weather, season, or time of day (their journal hint says when)."
+				"text": "Each biome has its own weather that shifts on its own and slowly drifts through the seasons. Open the Weather & Seasons guide (press N) to see what’s happening across the preserve and learn how each condition shapes the biome you’re standing in. Keep an eye out — unusual weather can leave rare materials to gather while it lasts, and a few elusive animals only show themselves in the right weather, season, or time of day (their journal hint says when)."
 			},
 			"board": {
 				"title": "Check the board",

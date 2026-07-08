@@ -13470,13 +13470,19 @@ var server_default = {
   task: {
     welcomeGrasshopper: "Welcome the grasshopper home",
     welcomeGrasshopperHint: "Craft and place a grass patch, then bring the meadow to 15% health \u2014 the grasshopper hops home on its own.",
-    raiseHealth: "Raise {biome}'s health by {count}",
+    raiseHealth: "Raise {biome}'s health from {current}% to {goal}%",
     welcomeNewAnimal: "Welcome a new animal back to {biome}",
     welcomeAnyAnimal: "Welcome a new animal, anywhere in the preserve",
     craftKit: "Craft a {item}",
     gather: "Gather {count}\xD7 {resource}",
-    craft: { one: "Craft {count} item", other: "Craft {count} items" },
-    place: { one: "Place {count} crafted thing", other: "Place {count} crafted things" },
+    craft: {
+      one: "Craft {count} item",
+      other: "Craft {count} items"
+    },
+    place: {
+      one: "Place {count} crafted thing",
+      other: "Place {count} crafted things"
+    },
     water: "Water {count} soil beds",
     plantBeds: "Plant 2 seedlings in watered beds",
     observe: "Read about 3 animals in your journal",
@@ -13898,6 +13904,7 @@ var supportHtml = `<!doctype html>
 </body>
 </html>
 `;
+var buildStamp = "0.1.9+2026-07-08T21:26:55.954Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
@@ -15074,11 +15081,12 @@ function milestonePin(ctx, dayKey, claims, daily, bundle) {
     if (u.minHealth) {
       const remaining = Math.max(0, u.minHealth - (prereq.health || 0));
       const target = Math.max(1, Math.min(3, Math.ceil(remaining)));
+      const current = Math.round(prereq.health || 0);
       steps.push({
         step: "health",
         icon: "leaf",
         unmet: remaining > 0,
-        text: t("server.task.raiseHealth", { biome: prereqName, count: target }),
+        text: t("server.task.raiseHealth", { biome: prereqName, count: target, current, goal: Math.min(100, current + target) }),
         target,
         counter: `health:${u.biome}`
       });
@@ -15500,6 +15508,11 @@ var PublicEndpoint = class extends Resource {
   }
   allowDelete() {
     return false;
+  }
+};
+var Version = class extends PublicEndpoint {
+  async get() {
+    return { build: buildStamp };
   }
 };
 var GameData = class extends PublicEndpoint {
@@ -17514,6 +17527,7 @@ export {
   UpdateAppearance,
   UpgradeHome,
   UpgradeTool,
+  Version,
   WorldRoster,
   AgeRatingPage as "age-rating",
   PrivacyPage as privacy,

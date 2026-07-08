@@ -200,8 +200,8 @@ export function HUD() {
 				<div className="nav-group" role="group" aria-label={t('app.hud.groupWorld')}>
 					<span className="nav-group-label">{t('app.hud.groupWorld')}</span>
 					<div className="nav-group-btns">
-						{show.biomes && navBtn('biomes', 'map', t('app.hud.navBiomes'), 'P')}
-						{show.weather && navBtn('weather', 'cloud', t('app.hud.navWeather'), 'M')}
+						{show.biomes && navBtn('biomes', 'map', t('app.hud.navBiomes'), 'M')}
+						{show.weather && navBtn('weather', 'cloud', t('app.hud.navWeather'), 'N')}
 						{isCoop && navBtn('people', 'user', t('app.hud.navPeople'), 'U')}
 					</div>
 				</div>

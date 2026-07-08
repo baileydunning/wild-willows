@@ -86,8 +86,14 @@
 		"plantedHeadStart": "Plantaste {name} — la mano verde de tu casita le dio un {pct}% de ventaja."
 	},
 	"welcomeBack": {
-		"matured": { "one": "una de tus siembras maduró", "other": "{count} de tus siembras maduraron" },
-		"healthGain": { "one": "la tierra se volvió {count} punto más sana", "other": "la tierra se volvió {count} puntos más sana" },
+		"matured": {
+			"one": "una de tus siembras maduró",
+			"other": "{count} de tus siembras maduraron"
+		},
+		"healthGain": {
+			"one": "la tierra se volvió {count} punto más sana",
+			"other": "la tierra se volvió {count} puntos más sana"
+		},
 		"summary": "Mientras no estabas, {bits}."
 	},
 	"coop": {
@@ -174,7 +180,10 @@
 		"yourHome": "Tu hogar",
 		"canvasTent": "Carpa de lona",
 		"carrySuffix": " · +{count} de carga",
-		"thingsPlaced": { "one": "{count} cosa colocada", "other": "{count} cosas colocadas" },
+		"thingsPlaced": {
+			"one": "{count} cosa colocada",
+			"other": "{count} cosas colocadas"
+		},
 		"thePreserve": "La reserva",
 		"coop": "Cooperativo",
 		"hereCount": " · {count} aquí",
@@ -198,8 +207,8 @@
 		"navInventory": "Contenido de la cesta (B)",
 		"navCrafting": "Fabricación (C)",
 		"navTools": "Mejoras de herramientas (T)",
-		"navBiomes": "Vista general de la reserva (P)",
-		"navWeather": "Clima y estaciones (M)",
+		"navBiomes": "Mapa de la reserva (M)",
+		"navWeather": "Clima y estaciones (N)",
 		"navPeople": "Personas — invita y mira quién está aquí (U)",
 		"settingsTitle": "Configuración — cambiar personaje, eliminar partida (G)",
 		"settings": "Configuración",
@@ -241,15 +250,42 @@
 		"outfit": "Atuendo",
 		"hat": "Sombrero",
 		"hatLabel": {
-			"straw": "Sombrero de paja", "leaf": "Sombrero de hoja", "beanie": "Gorro tejido", "cap": "Gorra", "bucket": "Sombrero de pescador", "flower": "Corona de flores",
-			"party": "Gorro de fiesta", "ranger": "Sombrero de guardabosques", "mushroom": "Sombrero de hongo", "wizard": "Sombrero de mago", "crown": "Corona", "bandana": "Pañuelo", "none": "Sin sombrero"
+			"straw": "Sombrero de paja",
+			"leaf": "Sombrero de hoja",
+			"beanie": "Gorro tejido",
+			"cap": "Gorra",
+			"bucket": "Sombrero de pescador",
+			"flower": "Corona de flores",
+			"party": "Gorro de fiesta",
+			"ranger": "Sombrero de guardabosques",
+			"mushroom": "Sombrero de hongo",
+			"wizard": "Sombrero de mago",
+			"crown": "Corona",
+			"bandana": "Pañuelo",
+			"none": "Sin sombrero"
 		},
 		"hairstyleLabel": {
-			"short": "Corto", "bald": "Sin cabello", "long": "Largo", "bob": "Bob", "curly": "Rizado", "curly-long": "Rizado largo",
-			"bun": "Moño", "braid": "Trenza lateral", "ponytail": "Cola de caballo", "pigtails": "Coletas", "afro": "Afro", "mohawk": "Mohicano"
+			"short": "Corto",
+			"bald": "Sin cabello",
+			"long": "Largo",
+			"bob": "Bob",
+			"curly": "Rizado",
+			"curly-long": "Rizado largo",
+			"bun": "Moño",
+			"braid": "Trenza lateral",
+			"ponytail": "Cola de caballo",
+			"pigtails": "Coletas",
+			"afro": "Afro",
+			"mohawk": "Mohicano"
 		},
-		"beardLabel": { "none": "Sin barba", "beard": "Barba" },
-		"bodyLabel": { "slim": "Esbelto", "round": "Robusto" },
+		"beardLabel": {
+			"none": "Sin barba",
+			"beard": "Barba"
+		},
+		"bodyLabel": {
+			"slim": "Esbelto",
+			"round": "Robusto"
+		},
 		"skinAria": "Piel {color}",
 		"hairAria": "Cabello {color}",
 		"outfitAria": "Atuendo {color}",
