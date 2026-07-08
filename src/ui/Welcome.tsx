@@ -56,10 +56,14 @@ function Scenery() {
 }
 
 export function WelcomeScreen() {
-	const { data, dataError, startNew, startNewCoop, startLogin, continueLast, startNewSolo, loadSoloSlot, setHelpOpen } = useGame();
+	const { data, dataError, startNew, startNewCoop, startLogin, continueLast, startNewSolo, loadSoloSlot } = useGame();
 	const { t, locale } = useI18n();
 	const [mode, setMode] = useState<Mode>('menu');
 	const [settingsOpen, setSettingsOpen] = useState(false);
+	// The title screen gets its own short, welcoming intro — not the dense
+	// in-game How to Play (full loop + every keyboard shortcut), which would
+	// overwhelm someone who hasn't even started yet.
+	const [introOpen, setIntroOpen] = useState(false);
 	const [busy, setBusy] = useState(false);
 	const [error, setError] = useState<string | null>(null);
 	const [name, setName] = useState('');
@@ -233,7 +237,7 @@ export function WelcomeScreen() {
 							</>
 						)}
 						<div className="menu-links">
-							<button className="big-btn subtle" onClick={() => setHelpOpen(true)}>
+							<button className="big-btn subtle" onClick={() => setIntroOpen(true)}>
 								<Icon name="help" /> <span>{t('app.welcome.howToPlay')}</span>
 							</button>
 							<button className="big-btn subtle" onClick={() => setSettingsOpen(true)}>
@@ -450,6 +454,56 @@ export function WelcomeScreen() {
 				)}
 
 			</div>
+
+			{introOpen && (
+				<div className="panel-backdrop help-backdrop" onClick={() => setIntroOpen(false)}>
+					<div className="panel welcome-intro" role="dialog" aria-modal="true" aria-label={t('app.welcome.intro.title')} onClick={(e) => e.stopPropagation()}>
+						<div className="panel-head">
+							<h2><Icon name="leaf" size={18} /> {t('app.welcome.intro.title')}</h2>
+							<button className="icon-btn" onClick={() => setIntroOpen(false)} aria-label={t('panels.common.close')}><Icon name="close" /></button>
+						</div>
+						<div className="panel-body">
+							<p className="welcome-intro-lede">{t('app.welcome.intro.lede')}</p>
+							<div className="welcome-intro-steps">
+								<div className="welcome-intro-step">
+									<span className="welcome-intro-icon"><Icon name="basket" size={22} /></span>
+									<div>
+										<b>{t('app.welcome.intro.gatherTitle')}</b>
+										<p>{t('app.welcome.intro.gatherText')}</p>
+									</div>
+								</div>
+								<div className="welcome-intro-step">
+									<span className="welcome-intro-icon"><Icon name="hammer" size={22} /></span>
+									<div>
+										<b>{t('app.welcome.intro.craftTitle')}</b>
+										<p>{t('app.welcome.intro.craftText')}</p>
+									</div>
+								</div>
+								<div className="welcome-intro-step">
+									<span className="welcome-intro-icon"><Icon name="paw" size={22} /></span>
+									<div>
+										<b>{t('app.welcome.intro.welcomeTitle')}</b>
+										<p>{t('app.welcome.intro.welcomeText')}</p>
+									</div>
+								</div>
+								<div className="welcome-intro-step">
+									<span className="welcome-intro-icon"><Icon name="map" size={22} /></span>
+									<div>
+										<b>{t('app.welcome.intro.unlockTitle')}</b>
+										<p>{t('app.welcome.intro.unlockText')}</p>
+									</div>
+								</div>
+							</div>
+							<p className="welcome-intro-reassure"><Icon name="sparkle" size={15} /> {t('app.welcome.intro.reassure')}</p>
+							<div className="form-actions end">
+								<button className="big-btn primary" style={{ width: 'auto', marginTop: 0 }} onClick={() => setIntroOpen(false)}>
+									<Icon name="check" size={15} /> <span>{t('app.welcome.intro.gotIt')}</span>
+								</button>
+							</div>
+						</div>
+					</div>
+				</div>
+			)}
 
 			{settingsOpen && (
 				<div className="panel-backdrop help-backdrop" onClick={() => setSettingsOpen(false)}>

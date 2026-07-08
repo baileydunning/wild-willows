@@ -770,6 +770,33 @@ input {
 	font-size: calc(11px * var(--ui-scale)); font-weight: 700;
 	display: flex; align-items: center; justify-content: center;
 }
+
+/* ===== title-screen intro (a gentle, un-intimidating How to Play) ===== */
+.welcome-intro { max-width: 460px; }
+.welcome-intro-lede {
+	margin: 0 0 14px; font-size: calc(14px * var(--ui-scale));
+	color: var(--ink-soft); line-height: 1.5;
+}
+.welcome-intro-steps { display: flex; flex-direction: column; gap: 10px; }
+.welcome-intro-step {
+	display: flex; gap: 13px; align-items: center;
+	background: linear-gradient(180deg, #fffdf6, var(--cream));
+	border: 1.5px solid var(--line); border-radius: 16px; padding: 12px 15px;
+}
+.welcome-intro-step b { font-size: calc(14.5px * var(--ui-scale)); color: var(--green-deep); }
+.welcome-intro-step p { margin: 3px 0 0; font-size: calc(12.5px * var(--ui-scale)); color: var(--ink-soft); line-height: 1.45; }
+.welcome-intro-icon {
+	flex-shrink: 0; width: 44px; height: 44px; border-radius: 14px;
+	background: radial-gradient(circle at 30% 25%, #eef6e3, #dcebca);
+	color: var(--green-deep); border: 1.5px solid #cfe0b6;
+	display: flex; align-items: center; justify-content: center;
+}
+.welcome-intro-reassure {
+	margin: 14px 0 4px; display: flex; align-items: center; gap: 8px;
+	font-size: calc(13px * var(--ui-scale)); color: var(--green-deep);
+	background: rgba(122, 168, 90, 0.12); border-radius: 12px; padding: 10px 13px; line-height: 1.45;
+}
+.welcome-intro-reassure svg { flex-shrink: 0; color: var(--green); }
 .key-list {
 	display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px;
 	background: var(--cream); border: 1.5px solid var(--line);
