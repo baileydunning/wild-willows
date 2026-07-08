@@ -406,7 +406,7 @@
 			},
 			"board": {
 				"title": "Revisar el tablero",
-				"text": "Cada día la reserva publica tres pequeñas tareas en el tablero junto al menú superior derecho — completa una y reclama un paquete de materiales. Las tareas reclamadas se ordenan solas (presiona O para esconder el tablero). Tus plantas también siguen creciendo en tiempo real aunque el juego esté cerrado: los árboles tardan horas en alcanzar su tamaño completo, y el hábitat maduro deja la tierra un poquito más sana, así que siempre hay algo nuevo cuando regresas."
+				"text": "Cada día la reserva publica tres pequeñas tareas en el tablero junto al menú superior derecho — completa una y reclama un paquete de materiales. Las tareas reclamadas se ordenan solas (presiona Tab (u O) para esconder el tablero). Tus plantas también siguen creciendo en tiempo real aunque el juego esté cerrado: los árboles tardan horas en alcanzar su tamaño completo, y el hábitat maduro deja la tierra un poquito más sana, así que siempre hay algo nuevo cuando regresas."
 			}
 		},
 		"keys": {

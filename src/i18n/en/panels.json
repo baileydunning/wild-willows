@@ -406,7 +406,7 @@
 			},
 			"board": {
 				"title": "Check the board",
-				"text": "Every day the preserve posts three small tasks on the board by the top-right menu — finish one and claim a bundle of materials. Claimed tasks tidy themselves away (press O to tuck the board out of sight). Your plantings also keep growing in real time even while the game is closed: trees take hours to reach full size, and mature habitat nudges the land a little healthier, so there’s always something new when you come back."
+				"text": "Every day the preserve posts three small tasks on the board by the top-right menu — finish one and claim a bundle of materials. Claimed tasks tidy themselves away (press Tab (or O) to tuck the board out of sight). Your plantings also keep growing in real time even while the game is closed: trees take hours to reach full size, and mature habitat nudges the land a little healthier, so there’s always something new when you come back."
 			}
 		},
 		"keys": {

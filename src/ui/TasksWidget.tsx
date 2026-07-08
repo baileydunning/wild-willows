@@ -25,11 +25,14 @@ export function TasksWidget() {
 		});
 	};
 
-	// O toggles the board (same input guard as the panel shortcuts)
+	// Tab (or O) toggles the board (same input guard as the panel shortcuts).
+	// Tab is swallowed here so it doesn't also move browser focus around.
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent) => {
 			if (isTypingTarget(e.target)) return;
-			if (e.key.toLowerCase() === 'o' && !e.metaKey && !e.ctrlKey && !e.altKey) toggle();
+			if (e.metaKey || e.ctrlKey || e.altKey) return;
+			if (e.key === 'Tab') { e.preventDefault(); toggle(); return; }
+			if (e.key.toLowerCase() === 'o') toggle();
 		};
 		window.addEventListener('keydown', onKey);
 		return () => window.removeEventListener('keydown', onKey);

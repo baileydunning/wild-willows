@@ -16,11 +16,9 @@ Each item lists where it lives in the code and concrete steps.
 - Same message in the no-match copy (`panels.crafting.noMatch`, `src/i18n/en/panels.json`).
 - The PlantMenu (`src/App.tsx:42-97`) is the actual planting UI — mention it by name in the tutorial `land`/`plant` steps.
 
-### 2. Edge gathering spots trapped under UI (32:01, 50:24, 52:33)
-**Trace:** node spawn bounds are `findFreeTile()` in `src/game/WorldScene.ts:1379-1394` (`tx ∈ [1, landRight-2]`, `ty ∈ [playTop, rows-2]`) and `computeNodes` scatter (~line 1250-1370). Camera is clamped to the exact world rect: `cameras.main.setBounds(0,0,worldW,worldH)` (line 250) and `applyZoom()` (line 463) uses `fit` as a zoom floor so you can never see past the edge. Fixed UI (HUD left column, toolbelt, tutorial card, activity log) covers those screen edges — so an edge tile can never be brought to screen center.
-- Add a boundary margin: draw a fence/hedge ring (reviewer: "nobody complains about a fence") in `drawGround()`/`drawStaticFeatures`, and pad `setBounds` by ~2 tiles on every side (`setBounds(-2*TILE, -2*TILE, worldW+4*TILE, worldH+4*TILE)`), dropping the `fit` floor in `applyZoom` accordingly, so the camera can scroll edge tiles away from screen borders.
-- Belt-and-braces: inset spawn bounds in `findFreeTile` and the scatter loops by 1 extra tile (`ty ≤ rows-3`, `tx ≥ 2`) so nothing generates in the worst corners.
-- Keep player collision at the real world edge (movement clamp, ~`update()`), fence is visual.
+### 2. Edge gathering spots trapped under UI (32:01, 50:24, 52:33) — ✅ done (no fence, per Bailey)
+**Trace:** camera was clamped to the exact world rect (`setBounds` + `fit` floor in `applyZoom`), so edge tiles could never scroll clear of fixed UI. Player movement was already hard-clamped at the world edge (`handleMovement`).
+**Shipped (v2, per Bailey):** outdoors the camera is now UNBOUNDED — it always keeps the caretaker centered, so the player can never end up under the fixed UI at all (indoors stays clamped to the room). The world is ringed with `SURROUND_X/Y` (20×14 tiles) of identical-shade ground + sparse tufts/pebbles (`drawSurround`) sized to cover the widest possible view, so past-the-edge land blends seamlessly; alpine sky/range and coastal ocean extend through it, rain/snow falls across it. Movement stays hard-clamped at the true world edge — no fence, no darker ring. The edge is marked all the way around (`drawEdgeGrass`): tall grass in green biomes (forest mixes in trees), boulders in alpine/desert/coastal. The unwalkable surround is densely overgrown per biome (`surroundDeco`): uncut meadow grass (3 mixed sprites), unbroken forest woods (`wildtree` + understory), marsh reeds, desert scrub/rock, alpine scree + snow patches, coastal dune grass. Gate trails run OUTWARD past the edge toward the next biome, through a cleared corridor in the growth — beside the gate, never under it. Also fixed: clicking animals/placements/interactables through open modals (object-level pointerdown handlers now check `uiBlocking`).
 
 ### 3. Lag spikes (0:32, 1:01:30)
 **Suspects found in `WorldScene.ts`:**
@@ -157,10 +155,44 @@ Decide placeholder vs final. Everything is procedural canvas (`textures.ts`, 278
 Failure-reason messaging, destructive-action confirms (`window.confirm` flows in `App.tsx`), hover/highlight feedback, numbered tutorial nav + replay (Tutorial frontier/replay logic), current-vs-upgraded tool stats, reward tooltips (TasksWidget titles), the activity log, save/continue, real animal facts. Most live in the files this plan touches — regression-check them (there are Playwright e2e projects: `npm run test:e2e:solo`).
 
 ## Progress
-✅ Done: #1 wildflower search cross-reference, #4 map on M (P alias, weather moved to N), #5 Escape closes all popups, #6 crafting menu memory (filters/search/scroll), #7 task copy "from X% to Y%" (en+es). Verified: tsc, i18n check, 91 unit tests.
+✅ **Done & verified** (tsc, i18n check, 91 unit tests):
+- #1 Wildflower search cross-reference ("planted, not crafted" rows)
+- #2 Edge spots / walking under UI — unbounded outdoor camera (player always centered), per-biome overgrown surround (grass sets in 4 real palettes, forest `wildtree` mix, marsh reeds, desert straw+sandstone, alpine sage+scree+snow, coastal dune grass; no edge line along the ocean), outward gate trails through cleared corridors
+- #4 Map on M (P alias; weather → N) · #5 Escape closes all popups · #6 crafting menu memory · #7 "from X% to Y%" task copy (en+es)
+- Bonus: Tab toggles the task board · click-through-modal bug fixed (uiBlocking on object-level handlers)
 
-## Suggested order
-1. **Week 1 (P0 + fast P1):** #1 wildflower search row, #4 map key, #5 Escape chain, #6 crafting memory, #7 task copy, #3 profiling.
-2. **Week 2-3:** #2 fence + camera padding, #8-#12 copy/tutorial, #13 resource icons + materials guide, #14 hitboxes.
-3. **Week 4+:** #15-#18 (drag windows, pins, handoff), #19 audio.
-4. **Next milestone:** #20 harvestable plants first, then #21-#24.
+## Remaining scope (from the playtest review)
+
+### Sprint 1 — finish the quick wins (all Small unless noted)
+| Item | Effort | Where |
+|---|---|---|
+| #3 Lag fixes: diff `refreshDynamic` instead of full rebuild, cap ambient tweens, soften snow `fastForward` | **M** | `WorldScene.ts:868,863` |
+| #8 Copy pass: field-guide rewrite (his 18:07 version), basket-tip position audit, craft/place/plant wording, ready-to-place prominence | S | `i18n/en+es/panels.json`, `HUD.tsx` |
+| #9 Controls list in Settings (single `SHORTCUTS` table consumed by App/Help/Settings) | S | new `src/shortcuts.ts`, `Settings.tsx` |
+| #10 Proximity mechanic tutorial step | S | `Tutorial.tsx`, `panels.json` |
+| #11+#12 Tutorial chapters (4 named phases, per-chapter dots) + explicit core-loop card (animals back → biomes unlock) | **M** | `Tutorial.tsx`, `panels.json` |
+| #13 Resource icons in UI + Materials guide panel (pictures of what you can collect, where/when) | **M** | `textures.ts` → data-URLs via bridge, new panel |
+| #14 Hitboxes: zones 44→52px, action radius 96→120, hover cursor feedback | S | `WorldScene.ts:942,960,1049` |
+
+### Sprint 2 — UI systems
+| Item | Effort | Where |
+|---|---|---|
+| #15 Draggable windows (`useDraggable` hook on panel/tutorial/plant/placement menus, persisted positions, layout reset) | **M** | `Panels.tsx`, `Tutorial.tsx`, `App.tsx`, CSS |
+| #16 Weather panel docks to the side | S | with #15 |
+| #17 Pinnable objectives (pin recipes → tracked on TasksWidget with live have/need) | **M** | `Panels.tsx`, `TasksWidget.tsx`, `state.tsx` |
+| #18 Post-tutorial handoff card → goal tasks as persistent "north star" | S | `Tutorial.tsx`, `TasksWidget.tsx` |
+
+### Sprint 3 — audio (his most-repeated note)
+| Item | Effort | Where |
+|---|---|---|
+| #19 `src/game/audio.ts`: title + per-biome ambient loops, gather/craft/place/UI SFX, weather beds, arrival chime; volume prefs in Settings; title-screen music + motion | **L** | new file, `prefs.ts`, `Settings.tsx`, `Welcome.tsx`; CC0 assets |
+
+### Next milestone — design bets (order by Entertainment-score impact)
+| Item | Effort | Notes |
+|---|---|---|
+| #20 Harvestable plants | **L** | `yield` in habitat-objects.json, `harvestPlacement` server action, Harvest button + ready-glint. Biggest loop fix. |
+| #21 Day-night rendering | S–M | phase system already exists (`liveDayPhase`); add world tint overlay, then phase-gated nodes/animals |
+| #23 Water: near-miss feedback from `analyzeWater`, rain-refilled water nodes, wading/bridges decision | **M** | `resources.ts`, `WorldScene.ts` |
+| #22 Animals alive: tier 1 client behaviors (drink/nibble/flee/pairs), tier 2 feed-the-hungry moments | **M–L** | `WorldScene.ts`, then server |
+| #24 Animation pass: 2-3 frame loops (butterfly flap, snake slither, walk cycles) + journal cute pass | **M–L** | `textures.ts` |
+| #25 Art direction decision: placeholder vs final; keep texture keys stable either way | — | store-page messaging |

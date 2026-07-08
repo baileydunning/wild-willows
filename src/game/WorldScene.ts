@@ -24,6 +24,15 @@ const OUT_H = 20;
 // because it's wider). The world scrolls with the player to reveal the rest.
 const VIEW_W = 30;
 const VIEW_H = 20;
+// Outdoors the camera has NO bounds: it keeps the caretaker centered even at
+// the world edge, so the player (and any gathering spot they stand beside) can
+// never get stuck under the fixed UI panels (HUD, task board, toolbelt) — a
+// playtest "big problem". The world is ringed with matching ground (see
+// drawSurround) sized to cover the widest possible camera view, so the space
+// past the edge reads as more preserve — you just can't walk there
+// (handleMovement clamps at the true edge).
+const SURROUND_X = 20; // tiles of surround left/right (≥ half the widest view)
+const SURROUND_Y = 14; // tiles of surround above/below (≥ half the tallest view)
 const MTN_ROWS = 8; // rows reserved for the alpine mountain range (impassable) — a tall, close range
 const COAST_COLS = 4; // columns reserved for the ocean along Pelican Shore's east edge (impassable)
 
@@ -247,7 +256,10 @@ export class WorldScene extends Phaser.Scene {
 		makeNodeTextures(this);
 		this.isTouch = this.sys.game.device.input.touch && !this.sys.game.device.os.desktop;
 
-		this.cameras.main.setBounds(0, 0, this.worldW, this.worldH);
+		// Indoors the camera stays clamped to the room; outdoors it's unbounded so
+		// the caretaker is always centered — never hidden under the fixed UI.
+		if (this.isHome) this.cameras.main.setBounds(0, 0, this.worldW, this.worldH);
+		else this.cameras.main.removeBounds();
 		this.cameras.main.setBackgroundColor('#26301f');
 		this.applyZoom();
 		this.scale.on('resize', () => this.applyZoom());
@@ -462,8 +474,11 @@ export class WorldScene extends Phaser.Scene {
 		// Game pixels are device pixels (see PhaserGame.tsx), so the clamp — tuned in
 		// CSS pixels — scales by the display ratio to keep framing identical on HiDPI.
 		const dpr = this.scale.displayScale.x || 1;
-		const fit = Math.max(w / this.worldW, h / this.worldH); // never show past the world edge
 		const base = Phaser.Math.Clamp(Math.max(w / (VIEW_W * TILE), h / (VIEW_H * TILE)), 0.85 * dpr, 2.6 * dpr);
+		// Indoors the `fit` floor stops the camera showing past the room's world
+		// rect; outdoors the surround ring covers the widest view, so only the
+		// user-zoom range applies.
+		const fit = this.isHome ? Math.max(w / this.worldW, h / this.worldH) : 0;
 		const zoom = Phaser.Math.Clamp(base * userZoom, Math.max(fit, base * USER_ZOOM_MIN), base * USER_ZOOM_MAX);
 		if (smooth) this.cameras.main.zoomTo(zoom, 150, 'Sine.easeInOut');
 		else this.cameras.main.setZoom(zoom);
@@ -561,9 +576,182 @@ export class WorldScene extends Phaser.Scene {
 				this.groundTiles.push(img);
 			}
 		}
+		this.drawSurround(rng);
+		this.drawEdgeGrass(rng);
 		if (this.mtnRows > 0) this.drawMountainBand();
 		if (this.area === 'coastal') this.drawCoastBand();
 		this.tintGround();
+	}
+
+	/**
+	 * The walkable edge is marked all the way around: a soft line of taller
+	 * grass in the green biomes, a line of boulders in the rocky ones (alpine,
+	 * desert, coastal). Where a gate leads to the next biome the line parts,
+	 * and a clearly worn dirt trail runs from the world side of the gate into
+	 * the biome — the way onward is obvious (the trail sits beside the gate,
+	 * never underneath it).
+	 */
+	private drawEdgeGrass(rng: () => number) {
+		const rocky = this.area === 'alpine' || this.area === 'desert' || this.area === 'coastal';
+		// desert rocks bake to sandstone; alpine/coastal stay cool grey
+		const rockTint = this.area === 'desert' ? C('#d8b98a') : undefined;
+		// A loose, scattered line — mixed sizes, mixed sprites, generous jitter —
+		// so the boundary reads as wild growth, not a solid wall of repeats.
+		// each biome's edge line is drawn in its own vegetation so the boundary
+		// looks like it belongs: green grass (forest mixes in trees), desert
+		// straw + sandstone, alpine sage + scree, dune grass + beach rock
+		const grassPrefix = this.area === 'desert' ? 'drygrass'
+			: this.area === 'alpine' ? 'palegrass'
+			: this.area === 'coastal' ? 'dunegrass' : 'tallgrass';
+		const clump = (px: number, py: number) => {
+			const r = rng();
+			const key = rocky ? (r < 0.45 ? 'boulder' : r < 0.75 ? grassPrefix : `${grassPrefix}3`)
+				: this.area === 'forest' && r < 0.25 ? 'wildtree'
+				: r < 0.3 ? 'tuft' : grassPrefix;
+			const s = (key === 'tuft' ? 1.1 : key === 'wildtree' ? 0.9 : key === 'boulder' ? 0.65 : 0.55) + rng() * 0.4;
+			const jx = (rng() - 0.5) * 18;
+			const jy = (rng() - 0.5) * 12;
+			// depth clamps ≥1 so the top edge sorts ABOVE the ground tiles (a
+			// negative-y clump would otherwise vanish beneath them)
+			const img = this.img(px + jx, py + jy, key)
+				.setDepth(Math.max(py + jy, 1)).setScale(s * INV_TEX_SCALE).setAlpha(0.96);
+			if (key === 'boulder') { if (rockTint !== undefined) img.setTint(rockTint); }
+			else if (key !== 'wildtree') img.setAngle(rng() * 20 - 10);
+		};
+		const gy = this.dimsOf(this.area).gateY;
+		const ai = AREA_ORDER.indexOf(this.area);
+		// which edges actually lead somewhere (coastal's east is open ocean)
+		const westGate = ai > 0;
+		const eastGate = ai >= 0 && ai < AREA_ORDER.length - 1 && this.area !== 'coastal';
+		const GAP = 2.2; // half-width (tiles) of the opening left around a gate
+
+		// A clearly worn dirt trail heading OUT through the opening, from the
+		// world edge off toward the next biome — the way onward is obvious. It
+		// stays entirely outside the world, clear of the gate (which sits 1.2
+		// tiles inside the edge).
+		const trail = (edgeTx: number, outward: 1 | -1) => {
+			const py = gy * TILE; // gate row
+			const g = this.add.graphics().setDepth(0.5); // above ground, below objects
+			for (let i = 0.2; i <= 3.8; i += 0.34) {
+				const px = (edgeTx + i * outward) * TILE;
+				const wob = Math.sin(i * 1.7) * 4;
+				g.fillStyle(C('#b59a6d'), 0.95).fillEllipse(px, py + wob, TILE * 1.15, TILE * 0.78);
+			}
+			for (let i = 0.4; i <= 3.6; i += 0.5) {
+				const px = (edgeTx + i * outward) * TILE;
+				const wob = Math.sin(i * 1.7) * 4;
+				g.fillStyle(C('#9c7f55'), 0.65).fillEllipse(px, py + wob, TILE * 0.6, TILE * 0.3);
+			}
+		};
+
+		const step = 0.75;
+		const topY = this.playTop * TILE - 6;
+		const botY = this.rows * TILE + 8;
+		// top & bottom lines — stopping short of the coastal surf (no edge line
+		// on the ocean; the tideline IS the boundary there), and skipping the
+		// alpine top entirely (the mountain range IS that boundary)
+		for (let tx = -1; tx < this.cols + 1; tx += step) {
+			const px = tx * TILE + 16;
+			if (this.area === 'coastal' && tx > this.landRight - 1.5) continue;
+			if (this.mtnRows === 0 && rng() < 0.8) clump(px, topY);
+			if (rng() < 0.8) clump(px, botY);
+		}
+		// west & east lines, parted only around real gates (coastal has no east
+		// line at all — open water needs no marker)
+		for (let ty = this.playTop - 1; ty < this.rows + 1; ty += step) {
+			const py = ty * TILE + 16;
+			const nearGate = Math.abs(ty - gy) < GAP;
+			if (!(westGate && nearGate) && rng() < 0.8) clump(-8, py);
+			if (this.area !== 'coastal' && !(eastGate && nearGate) && rng() < 0.8) clump(this.landRight * TILE + 8, py);
+		}
+		if (westGate) trail(0, -1);
+		if (eastGate) trail(this.landRight, 1);
+	}
+
+	/**
+	 * The camera is unbounded outdoors (it always centers the caretaker), so
+	 * ring the world with enough matching ground to cover the widest possible
+	 * view. The unexplorable land is OVERGROWN: nearly every surround tile
+	 * carries one of three tall-grass sprites (mixed, flipped, jittered — never
+	 * a repeat pattern), so past the boundary reads as wild uncut meadow you
+	 * clearly can't walk into. Rocky biomes tint the growth dry/pale. The
+	 * alpine sky/mountains and the coastal ocean extend into their own
+	 * surround instead (drawMountainBand / drawCoastBand).
+	 */
+	private drawSurround(rng: () => number) {
+		// keep the outward gate trails (drawEdgeGrass) clear of growth
+		const gy = this.dimsOf(this.area).gateY;
+		const ai = AREA_ORDER.indexOf(this.area);
+		const westGate = ai > 0;
+		const eastGate = ai >= 0 && ai < AREA_ORDER.length - 1 && this.area !== 'coastal';
+		const onTrail = (tx: number, ty: number) =>
+			Math.abs(ty + 0.5 - gy) < 1.6 &&
+			((westGate && tx < 0 && tx >= -4.5) || (eastGate && tx >= this.landRight && tx < this.landRight + 4.5));
+		for (let ty = -SURROUND_Y; ty < this.rows + SURROUND_Y; ty++) {
+			for (let tx = -SURROUND_X; tx < this.cols + SURROUND_X; tx++) {
+				// the playable region is already drawn
+				if (tx >= 0 && tx < this.landRight && ty >= this.playTop && ty < this.rows) continue;
+				// the mountain band (and the sky above it) paints its own surround
+				if (this.mtnRows > 0 && ty < this.playTop) continue;
+				// the coastal ocean (and its surround) is painted by drawCoastBand
+				if (this.area === 'coastal' && tx >= this.landRight) continue;
+				const img = this.img(tx * TILE + 16, ty * TILE + 16, 'tile').setDepth(0);
+				(img as any).shade = 0.92 + rng() * 0.08; // same as the playable field
+				this.groundTiles.push(img);
+				if (!onTrail(tx, ty)) this.surroundDeco(tx, ty, rng);
+			}
+		}
+	}
+
+	/**
+	 * One tile's worth of wild growth in the unwalkable surround — per biome,
+	 * so every boundary makes sense at a glance: uncut grass around the
+	 * meadow, unbroken woods past the forest, dense reeds around the wetland,
+	 * dry scrub and rock beyond the desert, scree and snow in the alpine, dune
+	 * grass along the coast.
+	 */
+	private surroundDeco(tx: number, ty: number, rng: () => number) {
+		const jx = () => tx * TILE + 16 + (rng() - 0.5) * 14;
+		const jy = () => ty * TILE + 16 + (rng() - 0.5) * 12;
+		const sprite = (key: string, scale: number, tint?: number, alpha = 0.97) => {
+			const py = jy();
+			const img = this.img(jx(), py, key)
+				.setDepth(Math.max(py, 1)).setScale(scale * INV_TEX_SCALE)
+				.setAngle(rng() * 10 - 5).setAlpha(alpha).setFlipX(rng() < 0.5);
+			if (tint !== undefined) img.setTint(tint);
+			return img;
+		};
+		const grass = (prefix = 'tallgrass', scale = 0.8 + rng() * 0.35) => {
+			const r = rng();
+			sprite(r < 0.35 ? prefix : r < 0.65 ? `${prefix}2` : `${prefix}3`, scale);
+		};
+		const roll = rng();
+		switch (this.area) {
+			case 'forest': // deep unbroken woods with a grassy understory
+				if (roll < 0.42) sprite('wildtree', 1 + rng() * 0.5).setAngle(0);
+				else if (roll < 0.85) grass();
+				break;
+			case 'wetland': // dense marsh reeds
+				if (roll < 0.9) grass('tallgrass', 0.9 + rng() * 0.4);
+				break;
+			case 'desert': // dry straw scrub thinning into rock and open sand
+				if (roll < 0.45) grass('drygrass', 0.7 + rng() * 0.35);
+				else if (roll < 0.55) sprite('boulder', 0.6 + rng() * 0.4, 0xd8b98a).setAngle(0);
+				else if (roll < 0.62) sprite('pebble', 1, undefined, 0.8);
+				break;
+			case 'alpine': // hardy pale turf, scree, the odd snow patch
+				if (roll < 0.38) grass('palegrass', 0.65 + rng() * 0.35);
+				else if (roll < 0.52) sprite('boulder', 0.55 + rng() * 0.5).setAngle(0);
+				else if (roll < 0.58) this.add.ellipse(jx(), jy(), 18 + rng() * 18, 10 + rng() * 10, 0xffffff, 0.55).setDepth(1);
+				break;
+			case 'coastal': // wind-blown dune grass and the odd rock
+				if (roll < 0.62) grass('dunegrass', 0.7 + rng() * 0.35);
+				else if (roll < 0.68) sprite('boulder', 0.55 + rng() * 0.4).setAngle(0);
+				break;
+			default: // meadow (and anything new): uncut wild meadow
+				if (roll < 0.88) grass();
+				else if (roll < 0.92) sprite('pebble', 1, undefined, 0.8);
+		}
 	}
 
 	/** The home interior: a cozy room of floor + walls with a door, sized by tier. */
@@ -639,14 +827,16 @@ export class WorldScene extends Phaser.Scene {
 	/** Static, impassable open ocean down the east edge of Pelican Shore. */
 	private drawCoastBand() {
 		const edgeX = this.landRight * TILE; // where land meets the surf
-		const h = this.worldH;
-		// deep sea fills the reserved columns out to the world edge
-		this.add.rectangle(edgeX, 0, this.worldW - edgeX, h, C('#2f6f9e')).setOrigin(0, 0).setDepth(0.1);
+		// the sea continues through the surround (north, south, east)
+		const y0 = -SURROUND_Y * TILE;
+		const h = this.worldH + SURROUND_Y * TILE * 2;
+		// deep sea fills the reserved columns out past the world edge
+		this.add.rectangle(edgeX, y0, this.worldW + SURROUND_X * TILE - edgeX, h, C('#2f6f9e')).setOrigin(0, 0).setDepth(0.1);
 		// banded water: a lighter shallow strip near shore, deeper blue beyond
-		this.add.rectangle(edgeX, 0, TILE * 1.6, h, C('#5aa6cf')).setOrigin(0, 0).setDepth(0.12);
-		this.add.rectangle(edgeX + TILE * 1.6, 0, TILE * 1.3, h, C('#3f8cbb')).setOrigin(0, 0).setDepth(0.12);
+		this.add.rectangle(edgeX, y0, TILE * 1.6, h, C('#5aa6cf')).setOrigin(0, 0).setDepth(0.12);
+		this.add.rectangle(edgeX + TILE * 1.6, y0, TILE * 1.3, h, C('#3f8cbb')).setOrigin(0, 0).setDepth(0.12);
 		// a damp-sand tideline where the beach gives way to water
-		this.add.rectangle(edgeX - 6, 0, 12, h, C('#bda572')).setOrigin(0, 0).setDepth(0.13).setAlpha(0.7);
+		this.add.rectangle(edgeX - 6, y0, 12, h, C('#bda572')).setOrigin(0, 0).setDepth(0.13).setAlpha(0.7);
 		// rolling foam lines that breathe in and out along the shore
 		for (let i = 0; i < 7; i++) {
 			const y = (i + 0.5) * (h / 7);
@@ -671,19 +861,21 @@ export class WorldScene extends Phaser.Scene {
 	private drawMountainBand() {
 		const bandH = this.playTop * TILE;
 		const W = this.worldW;
+		const PAD = SURROUND_X * TILE; // the range continues across the surround
+		const PAD_Y = SURROUND_Y * TILE;
 		const g = this.add.graphics().setDepth(0.1);
-		// cool, high-altitude sky behind the range
-		g.fillStyle(C('#c6cfdc'), 1).fillRect(0, 0, W, bandH);
+		// cool, high-altitude sky behind the range (covers the surround above too)
+		g.fillStyle(C('#c6cfdc'), 1).fillRect(-PAD, -PAD_Y, W + PAD * 2, bandH + PAD_Y);
 		const rng = mulberry32(hashStr('graywind-range'));
 
 		// One jagged silhouette layer: a straight base with a peaked top edge. Peaks
 		// are drawn crisp as polygons (no texture scaling), sized to the band, so the
 		// range stays sharp however tall the band is. Returns the peak apexes.
 		const range = (color: number, base: number, lo: number, hi: number, step: number): { x: number; y: number }[] => {
-			const pts: Phaser.Geom.Point[] = [new Phaser.Geom.Point(-4, bandH + 2)];
+			const pts: Phaser.Geom.Point[] = [new Phaser.Geom.Point(-PAD - 4, bandH + 2)];
 			const peaks: { x: number; y: number }[] = [];
-			let x = -step * 0.5;
-			while (x < W + step) {
+			let x = -PAD - step * 0.5;
+			while (x < W + PAD + step) {
 				const ph = lo + rng() * (hi - lo);      // this peak's height above the base
 				const px = x + rng() * step * 0.5;
 				peaks.push({ x: px, y: base - ph });
@@ -692,7 +884,7 @@ export class WorldScene extends Phaser.Scene {
 				pts.push(new Phaser.Geom.Point(px + step * 0.5, base - ph * (0.42 + rng() * 0.18)));
 				x += step;
 			}
-			pts.push(new Phaser.Geom.Point(W + 4, bandH + 2));
+			pts.push(new Phaser.Geom.Point(W + PAD + 4, bandH + 2));
 			g.fillStyle(color, 1);
 			g.fillPoints(pts, true);
 			return peaks;
@@ -711,7 +903,7 @@ export class WorldScene extends Phaser.Scene {
 			g.fillTriangle(p.x, p.y + 1, p.x - cap * 0.55, p.y + cap, p.x + cap * 0.55, p.y + cap);
 		}
 		// soft snowline mist where rock meets the slope
-		g.fillStyle(0xffffff, 0.16).fillRect(0, bandH - 7, W, 7);
+		g.fillStyle(0xffffff, 0.16).fillRect(-PAD, bandH - 7, W + PAD * 2, 7);
 	}
 
 	private tintGround() {
@@ -826,11 +1018,11 @@ export class WorldScene extends Phaser.Scene {
 		if (this.weatherEmitter) { this.weatherEmitter.destroy(); this.weatherEmitter = undefined; }
 		if (!kind) return;
 		this.ensureWeatherTextures();
-		const w = this.worldW;
+		const w = this.worldW + SURROUND_X * TILE; // fall covers the surround too
 		const lifespan = kind === 'rain' ? 1700 : 13000;
 		if (kind === 'rain') {
 			this.weatherEmitter = this.add.particles(0, 0, 'wx-rain', {
-				x: { min: -40, max: w + 40 },
+				x: { min: -SURROUND_X * TILE - 40, max: w + 40 },
 				y: -20,
 				lifespan,
 				speedY: { min: 520, max: 700 },
@@ -843,7 +1035,7 @@ export class WorldScene extends Phaser.Scene {
 			}).setDepth(5020);
 		} else {
 			this.weatherEmitter = this.add.particles(0, 0, 'wx-snow', {
-				x: { min: -40, max: w + 40 },
+				x: { min: -SURROUND_X * TILE - 40, max: w + 40 },
 				y: -20,
 				lifespan,
 				speedY: { min: 45, max: 85 },
@@ -937,6 +1129,7 @@ export class WorldScene extends Phaser.Scene {
 			hitObject ||
 			this.addDyn(this.add.zone(it.x, it.y, 44, 46).setOrigin(0.5).setInteractive({ useHandCursor: true }));
 		target.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+			if (bridge.shared.uiBlocking) return; // a modal is open — clicks don't reach the world
 			if (this.placementObjectId || this.movingPlacementId) return;
 			if (this.activeTool === 'paint' && this.isHome) return; // painting takes over clicks indoors
 			// Only ground tiles (watered beds) let terraform clicks pass through to
@@ -1634,6 +1827,7 @@ export class WorldScene extends Phaser.Scene {
 			const hasPrimaryAction = isFixture;
 			const defName = content('habitatObject', p.objectId, 'name', def.name);
 			img.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+				if (bridge.shared.uiBlocking) return; // a modal is open — clicks don't reach the world
 				if (this.placementObjectId || this.movingPlacementId) return;
 				if (this.activeTool === 'paint' && this.isHome) return; // painting handled globally
 				// shovel digs planted things back up — materials are refunded
@@ -1753,7 +1947,10 @@ export class WorldScene extends Phaser.Scene {
 		const scale = animalScale(animal.id, animal.kind) * INV_TEX_SCALE;
 		img.setScale(scale);
 		img.setInteractive({ useHandCursor: true });
-		img.on('pointerdown', () => bridge.emit('animal-clicked', { animalId: animal.id }));
+		img.on('pointerdown', () => {
+			if (bridge.shared.uiBlocking) return; // a modal is open — clicks don't reach the world
+			bridge.emit('animal-clicked', { animalId: animal.id });
+		});
 		// gentle breathing — everything in the preserve feels alive (keeps its base size)
 		this.tweens.add({
 			targets: img, scaleY: { from: scale, to: scale * 0.94 },

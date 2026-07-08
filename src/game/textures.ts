@@ -43,6 +43,55 @@ export function makeBaseTextures(scene: Phaser.Scene) {
 		g.lineStyle(2, C('#5f9e44'), 0.9);
 		g.lineBetween(3, 11, 2, 4).lineBetween(7, 11, 7, 2).lineBetween(11, 11, 12, 4);
 	});
+	// Tall boundary/surround grass — three clump shapes × four biome palettes
+	// (drawn in real colors, NOT runtime tints — multiply-tinting green blades
+	// just muddies them). The overgrown surround mixes all three shapes so the
+	// growth never reads as a repeat.
+	const grassSet = (prefix: string, dark: string, light: string, head: string | null) => {
+		// upright clump with seed heads
+		tex(scene, prefix, 18, 26, (g) => {
+			g.lineStyle(2, C(dark), 0.95);
+			g.lineBetween(3, 25, 1, 8).lineBetween(8, 25, 7, 3).lineBetween(13, 25, 15, 7);
+			g.lineStyle(2, C(light), 0.9);
+			g.lineBetween(5, 25, 4, 5).lineBetween(11, 25, 12, 4).lineBetween(16, 25, 17, 10);
+			if (head) g.fillStyle(C(head), 0.9).fillEllipse(7, 3, 3, 5).fillEllipse(12, 4, 3, 5);
+		});
+		// wider, wind-bent clump, blades draping right
+		tex(scene, `${prefix}2`, 20, 24, (g) => {
+			g.lineStyle(2, C(dark), 0.95);
+			g.lineBetween(4, 23, 2, 6).lineBetween(9, 23, 11, 4).lineBetween(14, 23, 18, 8);
+			g.lineStyle(2, C(light), 0.9);
+			g.lineBetween(6, 23, 6, 3).lineBetween(12, 23, 15, 6);
+			if (head) g.fillStyle(C(head), 0.85).fillEllipse(15, 6, 3, 5);
+		});
+		// shorter, bushier tussock — no seed heads
+		tex(scene, `${prefix}3`, 16, 20, (g) => {
+			g.lineStyle(2, C(dark), 0.95);
+			g.lineBetween(3, 19, 1, 7).lineBetween(6, 19, 5, 4).lineBetween(9, 19, 9, 3);
+			g.lineBetween(12, 19, 13, 5).lineBetween(15, 19, 16, 8);
+		});
+	};
+	grassSet('tallgrass', '#4f8a3c', '#5f9e44', '#b9c98a'); // lush green (meadow/forest/wetland)
+	grassSet('drygrass', '#a8874a', '#c4a75e', '#e0cf96'); // sun-cured desert straw
+	grassSet('palegrass', '#7c8a6e', '#98a687', '#cfd8c2'); // hardy alpine sage
+	grassSet('dunegrass', '#9a9a55', '#b5b06a', '#e3d8a0'); // salt-bleached dune grass
+	// wild tree — fills the forest's unwalkable surround (mixed with grass) so
+	// the woods read as continuing unbroken past the boundary
+	tex(scene, 'wildtree', 36, 44, (g) => {
+		g.fillStyle(C('#6b4a2f'), 1).fillRect(16, 28, 5, 14); // trunk
+		g.fillStyle(C('#00000c'), 0.12).fillEllipse(18, 41, 24, 6); // ground shadow
+		g.fillStyle(C('#4e7a3a'), 1).fillCircle(18, 18, 13).fillCircle(9, 24, 9).fillCircle(28, 23, 9);
+		g.fillStyle(C('#5f9247'), 1).fillCircle(15, 14, 8).fillCircle(24, 17, 7);
+		g.fillStyle(C('#77a85c'), 0.9).fillCircle(13, 11, 4).fillCircle(21, 12, 3.5);
+	});
+	// boundary boulder — the rocky biomes (alpine, desert, coastal) mark their
+	// walkable edge with rocks instead of tall grass (tinted per biome)
+	tex(scene, 'boulder', 26, 20, (g) => {
+		g.fillStyle(0x8a8880, 1).fillEllipse(13, 12, 24, 15);
+		g.fillStyle(0xa5a39a, 1).fillEllipse(11, 9, 14, 8);
+		g.fillStyle(0xffffff, 0.22).fillEllipse(9, 7, 6, 3.5);
+		g.fillStyle(0x000000, 0.15).fillEllipse(13, 18, 22, 4);
+	});
 	tex(scene, 'tinyflower', 10, 10, (g) => {
 		g.fillStyle(0xffffff, 0.95);
 		g.fillCircle(3, 5, 2.2).fillCircle(7, 5, 2.2).fillCircle(5, 3, 2.2).fillCircle(5, 7, 2.2);

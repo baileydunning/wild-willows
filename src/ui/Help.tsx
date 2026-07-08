@@ -28,7 +28,7 @@ const KEYS: Array<{ keys: string[]; does: string }> = [
 	{ keys: ['B'], does: 'panels.help.keys.basket' },
 	{ keys: ['J'], does: 'panels.help.keys.journal' },
 	{ keys: ['K'], does: 'panels.help.keys.achievements' },
-	{ keys: ['O'], does: 'panels.help.keys.tasks' },
+	{ keys: ['Tab', 'O'], does: 'panels.help.keys.tasks' },
 	{ keys: ['F'], does: 'panels.help.keys.feed' },
 	{ keys: ['T'], does: 'panels.help.keys.tools' },
 	{ keys: ['M', 'P'], does: 'panels.help.keys.preserve' },
