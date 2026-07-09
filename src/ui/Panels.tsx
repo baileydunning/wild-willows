@@ -583,8 +583,8 @@ export function BiomesPanel() {
 							{biome.explorable && !unlocked && biome.unlock && <div className="small unlock-req"><b>{t('panels.biomes.toUnlock')}</b> {content('biome', biome.id, 'unlock.label', biome.unlock.label)}</div>}
 							{unlocked && bs && (
 								<>
-									<Meter label={t('panels.biomes.health')} icon="leaf" value={bs.health} color="#6aa253" />
-									<Meter label={t('panels.biomes.balance')} icon="drop" value={bs.balance} color="#5b9cab" />
+									<Meter label={t('panels.biomes.health')} icon="leaf" value={bs.health} color="#6aa253" hint={t('app.hud.healthHint')} />
+									<Meter label={t('panels.biomes.balance')} icon="drop" value={bs.balance} color="#5b9cab" hint={t('app.hud.balanceHint')} />
 									<div className="muted small">{t('panels.biomes.animalsReturned', { returned: bs.returnedCount, total })}</div>
 									{BIOME_LORE[biome.id] && (
 										<div className="biome-lore small">

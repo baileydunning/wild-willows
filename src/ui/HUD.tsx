@@ -8,15 +8,21 @@ import { weatherType, seasonStyle, liveSeason, liveWeatherType, liveDayPhase, da
 import { Icon } from './icons';
 import { TasksWidget } from './TasksWidget';
 
-export function Meter({ label, icon, value, color }: { label: string; icon: string; value: number; color: string }) {
+export function Meter({ label, icon, value, color, hint }: { label: string; icon: string; value: number; color: string; hint?: string }) {
 	return (
-		<div className="meter" title={`${label}: ${value}%`}>
+		<div className="meter">
 			<span className="meter-icon" style={{ color }}><Icon name={icon} size={15} /></span>
 			<span className="meter-label">{label}</span>
 			<div className="meter-track">
 				<div className="meter-fill" style={{ width: `${Math.min(100, value)}%`, background: color }} />
 			</div>
 			<span className="meter-value">{value}%</span>
+			{hint && (
+				<span className="meter-hint" tabIndex={0} role="note" aria-label={hint}>
+					<Icon name="help" size={12} />
+					<span className="meter-hint-tip" role="tooltip">{hint}</span>
+				</span>
+			)}
 		</div>
 	);
 }
@@ -164,8 +170,8 @@ export function HUD() {
 						})()}
 						{biome && bState && (
 							<>
-								<Meter label={t('app.hud.health')} icon="leaf" value={bState.health} color="#6aa253" />
-								<Meter label={t('app.hud.balance')} icon="scales" value={bState.balance} color="#5b9cab" />
+								<Meter label={t('app.hud.health')} icon="leaf" value={bState.health} color="#6aa253" hint={t('app.hud.healthHint')} />
+								<Meter label={t('app.hud.balance')} icon="scales" value={bState.balance} color="#5b9cab" hint={t('app.hud.balanceHint')} />
 								<div className="hud-returned">
 									<Icon name="paw" size={14} /> {t('app.hud.animalsReturned', { returned: bState.returnedCount, total: totalAnimals })}
 								</div>

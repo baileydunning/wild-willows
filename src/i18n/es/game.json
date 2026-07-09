@@ -21,6 +21,16 @@
 		"restMoment": "Descansar un momento",
 		"caretaker": "cuidador"
 	},
+	"gate": {
+		"locked": "{name} aún no está abierto.",
+		"stillNeeds": "Para abrir {name}: {needs}",
+		"almost": "{name} está listo — ¡cruza!",
+		"sep": " · ",
+		"needHealth": "{biome} al {goal}% de salud (ahora {cur}%)",
+		"needAnimals": "{goal} animales de regreso en {biome} (ahora {cur})",
+		"needTotalAnimals": "{goal} animales en toda la reserva (ahora {cur})",
+		"needKit": "fabrica un {item}"
+	},
 	"toast": {
 		"noRotate": "Esa pieza no gira",
 		"walkCloser": "Acércate un poco más primero.",

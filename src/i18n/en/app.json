@@ -212,6 +212,8 @@
 		"coopBadgeTitle": "Co-op preserve — invite & see who's here (U)",
 		"health": "Health",
 		"balance": "Balance",
+		"healthHint": "Raise health by watering the land and adding habitat — dig a bed and water it, plant flowers and trees, and place crafted pieces. Every bit of restored habitat nudges it up.",
+		"balanceHint": "Balance reflects how complete the animal community is — not just how many are back, but the variety. Welcome a mix of animal kinds (insects, birds, mammals…) and especially the predators at the top, who only return once the animals they feed on are here. It reaches 100% only when every animal has returned.",
 		"animalsReturned": "{returned}/{total} animals returned",
 		"acrossPreserve": "{returned}/{total} across the preserve",
 		"weatherLabel": "Weather",

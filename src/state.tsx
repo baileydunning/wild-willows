@@ -182,6 +182,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		}
 	}, []);
 
+	// Walking up to a locked gate posts what's still needed to the corner feed
+	// (Phaser figures out the details; it only fires when the remaining list
+	// changes, so it doesn't spam). Kept out of the persistent Feed menu.
+	useEffect(() => bridge.on('gate-info', (p: any) => {
+		if (p?.text) pushLog('map', p.text, false);
+	}), [pushLog]);
+
 	// Push any buffered feed lines to Harper. Best-effort: on failure we just keep
 	// them buffered for the next flush.
 	const flushFeed = useCallback(() => {
@@ -1063,7 +1070,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				g.kind === goal.kind && g.itemId === goal.itemId && g.resourceId === goal.resourceId &&
 				g.animalId === goal.animalId && g.track === goal.track && g.biomeId === goal.biomeId;
 			if (cur.some(same)) { toast(t('app.toast.goalAlready'), 'info'); return; }
-			if (cur.length >= 12) { toast(t('app.toast.goalLimit'), 'info'); return; }
+			if (cur.length >= 6) { toast(t('app.toast.goalLimit'), 'info'); return; }
 			await act(() => api.setGoals([...cur, goal]));
 			toast(t('app.toast.goalAdded'), 'unlock');
 		},

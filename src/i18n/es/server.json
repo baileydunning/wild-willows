@@ -148,6 +148,8 @@
 	},
 	"goal": {
 		"craft": "Fabrica {count}× {item}",
+		"build": "Fabrica y coloca {count}× {item}",
+		"grow": "Planta {count}× {item}",
 		"plant": "Planta {count} cosas",
 		"collect": "Recolecta {count}× {resource}",
 		"observe": "Lee sobre {count} animales",

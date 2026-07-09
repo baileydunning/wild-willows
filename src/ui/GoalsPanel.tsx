@@ -9,10 +9,10 @@ import { Icon } from './icons';
 // entries, so the picker never lists animals you've already welcomed home.
 const KINDS: CustomGoalKind[] = ['craft', 'plant', 'collect', 'observe', 'unlock', 'home'];
 const KIND_ICON: Record<CustomGoalKind, string> = {
-	craft: 'hammer', plant: 'leaf', collect: 'basket', observe: 'journal', welcome: 'paw', home: 'home', unlock: 'map',
+	craft: 'hammer', build: 'hammer', grow: 'leaf', plant: 'leaf', collect: 'basket', observe: 'journal', welcome: 'paw', home: 'home', unlock: 'map',
 };
 const HOME_TRACKS = ['space', 'comfort', 'decor', 'light'];
-const MAX_GOALS = 12;
+const MAX_GOALS = 6;
 
 /**
  * The goals builder — where the player designs their own task list. The three
@@ -67,6 +67,11 @@ export function GoalsPanel() {
 	const label = (g: CustomGoal): string => {
 		switch (g.kind) {
 			case 'craft': return t('panels.goals.label.craft', { count: g.target, item: craftables.find((c) => c.id === g.itemId)?.name || g.itemId || '' });
+			case 'build': return t('panels.goals.label.build', { count: g.target, item: craftables.find((c) => c.id === g.itemId)?.name || g.itemId || '' });
+			case 'grow': {
+				const o = data.habitatObjects.find((h) => h.id === g.itemId);
+				return t('panels.goals.label.grow', { count: g.target, item: o ? content('habitatObject', o.id, 'name', o.name) : g.itemId || '' });
+			}
 			case 'plant': return t('panels.goals.label.plant', { count: g.target });
 			case 'collect': return t('panels.goals.label.collect', { count: g.target, resource: resName(g.resourceId || '') });
 			case 'observe': return t('panels.goals.label.observe', { count: g.target });
@@ -118,14 +123,16 @@ export function GoalsPanel() {
 					<div className="goals-list">
 						{active.map((g, i) => {
 							const bt = boardTask(g.id);
-							const progress = bt ? bt.progress : g.target;
+							// use the board task's target (build goals run to 2× the object count)
+							const target = bt ? bt.target : g.target;
+							const progress = bt ? bt.progress : target;
 							return (
 								<div className="goals-row" key={g.id || i}>
 									<span className="goals-row-icon"><Icon name={KIND_ICON[g.kind]} size={15} /></span>
 									<div className="grow">
 										<span className="goals-row-text">{label(g)}</span>
 										<div className="goals-row-meta">
-											<span className="muted small">{progress}/{g.target}</span>
+											<span className="muted small">{progress}/{target}</span>
 										</div>
 									</div>
 									<div className="goals-row-actions">

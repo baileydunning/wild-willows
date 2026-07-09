@@ -212,6 +212,8 @@
 		"coopBadgeTitle": "Reserva cooperativa — invita y mira quién está aquí (U)",
 		"health": "Salud",
 		"balance": "Equilibrio",
+		"healthHint": "Sube la salud regando la tierra y añadiendo hábitat — cava un bancal y riégalo, planta flores y árboles, y coloca piezas fabricadas. Cada trozo de hábitat restaurado la sube un poco.",
+		"balanceHint": "El equilibrio refleja lo completa que es la comunidad de animales — no solo cuántos han vuelto, sino la variedad. Da la bienvenida a una mezcla de tipos de animales (insectos, aves, mamíferos…) y sobre todo a los depredadores de la cima, que solo regresan cuando están sus presas. Llega al 100% solo cuando han vuelto todos los animales.",
 		"animalsReturned": "{returned}/{total} animales regresaron",
 		"acrossPreserve": "{returned}/{total} en toda la reserva",
 		"weatherLabel": "Clima",

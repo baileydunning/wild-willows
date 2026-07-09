@@ -432,19 +432,20 @@ export interface DailyTasksBlock {
 }
 
 /** A player-authored goal — the building block of the custom task list. */
-export type CustomGoalKind = 'craft' | 'plant' | 'collect' | 'observe' | 'welcome' | 'home' | 'unlock';
+export type CustomGoalKind = 'craft' | 'build' | 'grow' | 'plant' | 'collect' | 'observe' | 'welcome' | 'home' | 'unlock';
 export interface CustomGoal {
 	id: string;
 	kind: CustomGoalKind;
 	target: number;
-	/** habitat-object id (craft), resource id (collect), animal id (welcome), home track (home), biome id (unlock). */
+	/** habitat-object id (craft/build), resource id (collect), animal id (welcome), home track (home), biome id (unlock). */
 	itemId?: string;
 	resourceId?: string;
 	animalId?: string;
 	track?: string;
 	biomeId?: string;
-	/** metric value captured when the goal was created (server-managed). */
+	/** metric value(s) captured when the goal was created (server-managed). */
 	base?: number;
+	basePlace?: number;
 }
 
 export type PanelId =

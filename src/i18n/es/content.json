@@ -1634,7 +1634,7 @@
 				"name": "Bosque de la Vieja Hondonada",
 				"restorationGoal": "Reconstruye el sotobosque, haz crecer árboles para anidar y madera muerta, y dale la bienvenida de vuelta a los animales del bosque.",
 				"unlock": {
-					"label": "Restaura la Pradera de los Sauces al 80% de salud, dale la bienvenida a 10 animales de la pradera y fabrica un Kit de Restauración del Bosque."
+					"label": "Restaura la Pradera de los Sauces al 60% de salud, dale la bienvenida a 10 animales de la pradera y fabrica un Kit de Restauración del Bosque."
 				}
 			},
 			"meadow": {

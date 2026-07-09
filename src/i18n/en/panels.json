@@ -531,6 +531,8 @@
 		},
 		"label": {
 			"craft": "Craft {count}× {item}",
+			"build": "Craft and place {count}× {item}",
+			"grow": "Plant {count}× {item}",
 			"plant": "Plant {count} things",
 			"collect": "Collect {count}× {resource}",
 			"observe": "Read about {count} animals",

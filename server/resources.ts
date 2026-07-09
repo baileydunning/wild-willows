@@ -1972,7 +1972,7 @@ function dailyTasksFor(ctx: TaskCtx, claims: Record<string, boolean>, daily: Rec
 // durable world state (not the day counters, which reset), claims are permanent
 // (player.goalClaims), and each finished goal grants one small fixed bundle.
 
-type GoalKind = 'craft' | 'plant' | 'collect' | 'observe' | 'welcome' | 'home' | 'unlock';
+type GoalKind = 'craft' | 'build' | 'grow' | 'plant' | 'collect' | 'observe' | 'welcome' | 'home' | 'unlock';
 interface CustomGoal {
 	id: string;
 	kind: GoalKind;
@@ -1983,17 +1983,20 @@ interface CustomGoal {
 	track?: string;
 	biomeId?: string;
 	/** The metric value at the moment the goal was created. Progress for the
-	 *  cumulative kinds (craft/plant/collect/observe) is measured as NEW work done
-	 *  SINCE this baseline, so a fresh goal starts at 0 instead of instantly
+	 *  cumulative kinds (craft/build/plant/collect/observe) is measured as NEW work
+	 *  done SINCE this baseline, so a fresh goal starts at 0 instead of instantly
 	 *  completing off past progress. */
 	base?: number;
+	/** Second baseline for 'build' goals — the placed count at creation (base
+	 *  tracks crafting, basePlace tracks placing). */
+	basePlace?: number;
 }
 
 const GOAL_ICON: Record<GoalKind, string> = {
-	craft: 'hammer', plant: 'leaf', collect: 'basket', observe: 'journal', welcome: 'paw', home: 'home', unlock: 'map',
+	craft: 'hammer', build: 'hammer', grow: 'leaf', plant: 'leaf', collect: 'basket', observe: 'journal', welcome: 'paw', home: 'home', unlock: 'map',
 };
 const GOAL_HOME_TRACKS = ['space', 'comfort', 'decor', 'light'];
-const MAX_CUSTOM_GOALS = 12;
+const MAX_CUSTOM_GOALS = 6;
 
 /** Staple materials from the player's unlocked biomes (no water / weather specials). */
 function goalRewardPool(ctx: TaskCtx): string[] {
@@ -2024,10 +2027,22 @@ function heldAmount(ctx: TaskCtx, resId: string): number {
 	return inv + inChests;
 }
 
+/** How many of a given object are placed in the world right now. */
+function placedCountFor(ctx: TaskCtx, objectId: string): number {
+	return (ctx.placements || []).filter((p: any) => p.objectId === objectId).length;
+}
+
+/** How many of a given plantable object have been planted (placement + plantedAt). */
+function plantedCountFor(ctx: TaskCtx, objectId: string): number {
+	return (ctx.placements || []).filter((p: any) => p.objectId === objectId && typeof p.plantedAt === 'number').length;
+}
+
 /** The raw, absolute metric a goal tracks (before the baseline is subtracted). */
 function goalMetric(goal: CustomGoal, ctx: TaskCtx): number {
 	switch (goal.kind) {
-		case 'craft': return ctx.player?.craftedEver?.[goal.itemId || ''] || 0;
+		case 'craft':
+		case 'build': return ctx.player?.craftedEver?.[goal.itemId || ''] || 0;
+		case 'grow': return plantedCountFor(ctx, goal.itemId || '');
 		case 'plant': return (ctx.placements || []).filter((p: any) => typeof p.plantedAt === 'number').length;
 		case 'collect': return heldAmount(ctx, goal.resourceId || '');
 		case 'observe': return ctx.discoveries.filter((x: any) => (x.timesObserved || 0) > 0).length;
@@ -2041,10 +2056,18 @@ function goalMetric(goal: CustomGoal, ctx: TaskCtx): number {
 function goalProgress(goal: CustomGoal, ctx: TaskCtx): number {
 	switch (goal.kind) {
 		case 'craft':
+		case 'grow':
 		case 'plant':
 		case 'collect':
 		case 'observe':
 			return Math.max(0, Math.min(goal.target, goalMetric(goal, ctx) - (goal.base || 0)));
+		case 'build': {
+			// Two steps per object: crafting it counts halfway, placing it completes.
+			// Progress is out of target*2 (see the board's target below).
+			const crafted = Math.max(0, Math.min(goal.target, (ctx.player?.craftedEver?.[goal.itemId || ''] || 0) - (goal.base || 0)));
+			const placed = Math.max(0, Math.min(goal.target, placedCountFor(ctx, goal.itemId || '') - (goal.basePlace || 0)));
+			return crafted + placed;
+		}
 		case 'welcome': return ctx.discoveries.some((x: any) => x.animalId === goal.animalId) ? 1 : 0;
 		case 'home': return (ctx.player?.home?.[goal.track || ''] as number) >= goal.target ? goal.target : Math.min(goal.target, (ctx.player?.home?.[goal.track || ''] as number) || 1);
 		case 'unlock': return ctx.biomeStates.some((b: any) => b.biomeId === goal.biomeId && b.unlocked) ? 1 : 0;
@@ -2057,6 +2080,8 @@ function goalText(goal: CustomGoal, ctx: TaskCtx): string {
 	const d = ctx.d;
 	switch (goal.kind) {
 		case 'craft': return tr('server.goal.craft', { count: goal.target, item: d.object.get(goal.itemId)?.name || goal.itemId });
+		case 'build': return tr('server.goal.build', { count: goal.target, item: d.object.get(goal.itemId)?.name || goal.itemId });
+		case 'grow': return tr('server.goal.grow', { count: goal.target, item: d.object.get(goal.itemId)?.name || goal.itemId });
 		case 'plant': return tr('server.goal.plant', { count: goal.target });
 		case 'collect': return tr('server.goal.collect', { count: goal.target, resource: d.resource.get(goal.resourceId)?.name || goal.resourceId });
 		case 'observe': return tr('server.goal.observe', { count: goal.target });
@@ -2083,7 +2108,7 @@ function starterTasks(ctx: TaskCtx): any[] {
  *  SetGoals can preserve each goal's baseline across edits. */
 function sanitizeGoals(goals: any[], d: any): CustomGoal[] {
 	const out: CustomGoal[] = [];
-	const kinds: GoalKind[] = ['craft', 'plant', 'collect', 'observe', 'welcome', 'home', 'unlock'];
+	const kinds: GoalKind[] = ['craft', 'build', 'grow', 'plant', 'collect', 'observe', 'welcome', 'home', 'unlock'];
 	for (const g of Array.isArray(goals) ? goals : []) {
 		if (out.length >= MAX_CUSTOM_GOALS) break;
 		const kind = g?.kind as GoalKind;
@@ -2091,7 +2116,7 @@ function sanitizeGoals(goals: any[], d: any): CustomGoal[] {
 		const id = typeof g?.id === 'string' && g.id ? g.id.slice(0, 40) : `cg_${Math.random().toString(36).slice(2, 10)}`;
 		const target = Math.max(1, Math.min(99, Math.floor(Number(g?.target) || 1)));
 		const goal: CustomGoal = { id, kind, target };
-		if (kind === 'craft') { if (!d.object.get(g?.itemId)) continue; goal.itemId = g.itemId; }
+		if (kind === 'craft' || kind === 'build' || kind === 'grow') { if (!d.object.get(g?.itemId)) continue; goal.itemId = g.itemId; }
 		else if (kind === 'collect') { if (!d.resource.get(g?.resourceId)) continue; goal.resourceId = g.resourceId; }
 		else if (kind === 'welcome') { if (!d.animal.get(g?.animalId)) continue; goal.animalId = g.animalId; goal.target = 1; }
 		else if (kind === 'home') { if (!GOAL_HOME_TRACKS.includes(g?.track)) continue; goal.track = g.track; }
@@ -2113,9 +2138,12 @@ function dailyTasksBlock(ctx: TaskCtx) {
 	}
 	for (const g of (player?.customGoals || []) as CustomGoal[]) {
 		if (goalClaims[g.id]) continue;
+		// build goals have two steps per object (craft + place), so the bar runs to
+		// twice the object count.
+		const target = g.kind === 'build' ? g.target * 2 : g.target;
 		tasks.push({
 			id: g.id, kind: g.kind, icon: GOAL_ICON[g.kind] || 'check',
-			text: goalText(g, ctx), target: g.target, counter: '',
+			text: goalText(g, ctx), target, counter: '',
 			reward: goalReward(ctx, g.id), progress: goalProgress(g, ctx), claimed: false,
 		});
 	}
@@ -3733,7 +3761,11 @@ export class SetGoals extends PublicEndpoint {
 		const clean = sanitizeGoals(goals, d).map((g) => {
 			const existing = prev.get(g.id);
 			const base = existing && typeof existing.base === 'number' ? existing.base : goalMetric(g, ctx);
-			return { ...g, base };
+			const out: CustomGoal = { ...g, base };
+			if (g.kind === 'build') {
+				out.basePlace = existing && typeof existing.basePlace === 'number' ? existing.basePlace : placedCountFor(ctx, g.itemId || '');
+			}
+			return out;
 		});
 		await t.Player.patch(playerId, { customGoals: clean });
 		return { ok: true, customGoals: clean };

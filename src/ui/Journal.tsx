@@ -191,24 +191,26 @@ function FoodWebLinks({ animal }: { animal: AnimalDef }) {
  * ecology (role, diet, food web, field note) lives on the card, not here.
  */
 function JournalEntry({ animal, disc, full }: { animal: AnimalDef; disc?: Discovery; full: boolean }) {
-	const { observe, addGoal, setGoals, state, notify } = useGame();
-	// Adding this animal as a goal builds out the habitat it needs: one "craft
-	// {object}" goal per required habitat piece, rather than a vague "bring back
-	// the animal" goal. (Animals with no specific object requirement fall back to
-	// a welcome goal, since there's nothing concrete to build.)
+	const { data, observe, addGoal, setGoals, state, notify } = useGame();
+	// Adding this animal as a goal builds out the habitat it needs: one goal per
+	// required piece — "plant" for plantable habitat (flowers, grasses, trees) and
+	// "craft and place" for built structures. (Animals with no specific object
+	// requirement fall back to a welcome goal, since there's nothing to build.)
 	const addHabitatGoals = () => {
 		const objs = Object.entries(animal.requirements?.objects || {});
 		if (!objs.length) { addGoal({ kind: 'welcome', animalId: animal.id, target: 1 }); return; }
 		const cur = state?.customGoals || [];
-		if (cur.length >= 12) { notify(t('app.toast.goalLimit'), 'info'); return; }
+		if (cur.length >= 6) { notify(t('app.toast.goalLimit'), 'info'); return; }
 		const toAdd: any[] = [];
 		for (const [id, q] of objs) {
-			if (cur.some((g) => g.kind === 'craft' && g.itemId === id)) continue;
+			const def = data?.habitatObjects.find((o) => o.id === id);
+			const kind = def?.plantable ? 'grow' : 'build';
+			if (cur.some((g) => (g.kind === 'build' || g.kind === 'grow') && g.itemId === id)) continue;
 			if (toAdd.some((g) => g.itemId === id)) continue;
-			toAdd.push({ id: '', kind: 'craft', itemId: id, target: Number(q) || 1 });
+			toAdd.push({ id: '', kind, itemId: id, target: Number(q) || 1 });
 		}
 		if (!toAdd.length) { notify(t('app.toast.goalAlready'), 'info'); return; }
-		void setGoals([...cur, ...toAdd].slice(0, 12));
+		void setGoals([...cur, ...toAdd].slice(0, 6));
 		// Don't name the animal — it hasn't been discovered yet.
 		notify(t('app.toast.habitatGoalAdded'), 'unlock');
 	};

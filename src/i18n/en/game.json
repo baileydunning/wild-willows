@@ -21,6 +21,16 @@
 		"restMoment": "Rest a moment",
 		"caretaker": "caretaker"
 	},
+	"gate": {
+		"locked": "{name} isn't open yet.",
+		"stillNeeds": "To open {name}: {needs}",
+		"almost": "{name} is ready — step through!",
+		"sep": " · ",
+		"needHealth": "{biome} at {goal}% health (now {cur}%)",
+		"needAnimals": "{goal} animals back in {biome} (now {cur})",
+		"needTotalAnimals": "{goal} animals across the preserve (now {cur})",
+		"needKit": "craft a {item}"
+	},
 	"toast": {
 		"noRotate": "That piece doesn’t rotate",
 		"walkCloser": "Walk a little closer first.",

@@ -98,6 +98,9 @@ interface Interactable {
 	y: number;
 	label: string;
 	action: () => void;
+	/** Optional live-computed prompt (recomputed each frame while you're near),
+	 *  used for locked gates so the bottom bar always shows what's still needed. */
+	liveLabel?: () => string;
 }
 
 export class WorldScene extends Phaser.Scene {
@@ -107,6 +110,10 @@ export class WorldScene extends Phaser.Scene {
 	private walkT = 0;
 	private keys!: any;
 	private groundTiles: Phaser.GameObjects.Image[] = [];
+	// Living vegetation out in the unwalkable surround/edge — tinted from dead
+	// (brown) to alive as the biome's health rises, so the whole world beyond the
+	// fence recovers alongside it.
+	private healthDeco: Phaser.GameObjects.Image[] = [];
 	private dynamic!: Phaser.GameObjects.Group;
 	private animals!: Phaser.GameObjects.Group; // animals live in their own layer so a
 	private animalSig = '';                      // routine refresh doesn't reset their wandering
@@ -129,6 +136,7 @@ export class WorldScene extends Phaser.Scene {
 	// a signature of the last dynamic-layer build so redundant world-dirty events
 	// (boot nudges, unrelated saves) don't tear down and rebuild every sprite/tween.
 	private hoveredIt: Interactable | null = null;
+	private lastGateInfo: string | null = null;
 	private dynamicSig = '';
 	private isTouch = false;
 	private alive = false; // true between create() and shutdown (scene.isActive() is false DURING create)
@@ -572,6 +580,7 @@ export class WorldScene extends Phaser.Scene {
 
 	private drawGround() {
 		this.groundTiles = [];
+		this.healthDeco = [];
 		if (this.isHome) { this.drawHomeRoom(); return; }
 		const rng = mulberry32(hashStr(this.area));
 		// Ground tiles fill only the playable region; in the alpine the top rows
@@ -623,7 +632,10 @@ export class WorldScene extends Phaser.Scene {
 			const img = this.img(px + jx, py + jy, key)
 				.setDepth(Math.max(py + jy, 1)).setScale(s * INV_TEX_SCALE).setAlpha(0.96);
 			if (key === 'boulder') { if (rockTint !== undefined) img.setTint(rockTint); }
-			else if (key !== 'wildtree') img.setAngle(rng() * 20 - 10);
+			else {
+				if (key !== 'wildtree') img.setAngle(rng() * 20 - 10);
+				this.healthDeco.push(img); // grass/trees along the edge recover with health
+			}
 		};
 		const gy = this.dimsOf(this.area).gateY;
 		const ai = AREA_ORDER.indexOf(this.area);
@@ -720,22 +732,23 @@ export class WorldScene extends Phaser.Scene {
 	private surroundDeco(tx: number, ty: number, rng: () => number) {
 		const jx = () => tx * TILE + 16 + (rng() - 0.5) * 14;
 		const jy = () => ty * TILE + 16 + (rng() - 0.5) * 12;
-		const sprite = (key: string, scale: number, tint?: number, alpha = 0.97) => {
+		const sprite = (key: string, scale: number, tint?: number, alpha = 0.97, living = false) => {
 			const py = jy();
 			const img = this.img(jx(), py, key)
 				.setDepth(Math.max(py, 1)).setScale(scale * INV_TEX_SCALE)
 				.setAngle(rng() * 10 - 5).setAlpha(alpha).setFlipX(rng() < 0.5);
 			if (tint !== undefined) img.setTint(tint);
+			else if (living) this.healthDeco.push(img); // recovers with biome health
 			return img;
 		};
 		const grass = (prefix = 'tallgrass', scale = 0.8 + rng() * 0.35) => {
 			const r = rng();
-			sprite(r < 0.35 ? prefix : r < 0.65 ? `${prefix}2` : `${prefix}3`, scale);
+			sprite(r < 0.35 ? prefix : r < 0.65 ? `${prefix}2` : `${prefix}3`, scale, undefined, 0.97, true);
 		};
 		const roll = rng();
 		switch (this.area) {
 			case 'forest': // deep unbroken woods with a grassy understory
-				if (roll < 0.42) sprite('wildtree', 1 + rng() * 0.5).setAngle(0);
+				if (roll < 0.42) sprite('wildtree', 1 + rng() * 0.5, undefined, 0.97, true).setAngle(0);
 				else if (roll < 0.85) grass();
 				break;
 			case 'wetland': // dense marsh reeds
@@ -940,6 +953,13 @@ export class WorldScene extends Phaser.Scene {
 			const color = Phaser.Display.Color.GetColor(baseR * s, baseG * s, baseB * s);
 			img.setTint(color);
 		}
+		// Surround/edge vegetation withers to a dry brown when the biome is sick and
+		// greens back up as it heals — a multiplicative tint from "dead" toward white
+		// (white = the sprite's own colour) by health.
+		const dead = Phaser.Display.Color.HexStringToColor('#9c8a5a');
+		const dmix = Phaser.Display.Color.Interpolate.ColorWithColor(dead, { r: 255, g: 255, b: 255, a: 255 } as any, 100, Math.round(t * 100));
+		const decoTint = Phaser.Display.Color.GetColor(dmix.r, dmix.g, dmix.b);
+		for (const img of this.healthDeco) img.setTint(decoTint);
 	}
 
 	// ------------------------------------------------- weather visuals
@@ -1262,6 +1282,93 @@ export class WorldScene extends Phaser.Scene {
 		return this.add.image(x, y, key).setScale(INV_TEX_SCALE);
 	}
 
+	/**
+	 * A gentle golden shimmer over a trail gate that's been unlocked but not yet
+	 * walked through — so a freshly opened way onward is unmistakable. Stops once
+	 * the destination biome has been visited (and respects reduce-motion).
+	 */
+	private gateSparkle(x: number, y: number, targetBiome: string) {
+		const visited = bridge.shared.state?.player.visitedBiomes || [];
+		if (visited.includes(targetBiome)) return; // already been through — no shimmer
+		if (getPrefs().reduceMotion) return;
+		if (!this.textures.exists('gate-sparkle')) {
+			const g = this.make.graphics({ x: 0, y: 0 }, false);
+			g.scaleCanvas(TEX_SCALE, TEX_SCALE);
+			g.fillStyle(0xffffff, 1);
+			// a small 4-point star
+			g.fillPoints([
+				{ x: 6, y: 0 }, { x: 7.4, y: 4.6 }, { x: 12, y: 6 }, { x: 7.4, y: 7.4 },
+				{ x: 6, y: 12 }, { x: 4.6, y: 7.4 }, { x: 0, y: 6 }, { x: 4.6, y: 4.6 },
+			], true);
+			g.generateTexture('gate-sparkle', 12 * TEX_SCALE, 12 * TEX_SCALE);
+			g.destroy();
+		}
+		// A handful of little stars around the gate that twinkle in and out — built
+		// from tweened sprites (the same reliable path the rest of the world uses)
+		// rather than a particle emitter.
+		const rng = mulberry32(hashStr(`gate-sparkle:${this.area}:${targetBiome}`));
+		const tints = [0xffe9a8, 0xfff4c2, 0xcde7ff];
+		for (let i = 0; i < 6; i++) {
+			const ox = (rng() - 0.5) * 46;
+			const oy = (rng() - 0.5) * 50 - 6;
+			const star = this.addDyn(this.img(x + ox, y + oy, 'gate-sparkle'))
+				.setDepth(y + 60).setAlpha(0).setScale(0).setTint(tints[i % tints.length]);
+			star.setBlendMode(Phaser.BlendModes.ADD);
+			const peak = 0.12 + rng() * 0.09;
+			this.tweens.add({
+				targets: star,
+				scale: { from: 0, to: peak },
+				alpha: { from: 0, to: 0.95 },
+				angle: { from: -20, to: 40 },
+				duration: 620 + rng() * 360,
+				delay: i * 200 + rng() * 220,
+				hold: 90,
+				yoyo: true,
+				repeat: -1,
+				repeatDelay: 500 + rng() * 900,
+				ease: 'Sine.easeInOut',
+			});
+		}
+	}
+
+	/**
+	 * Live "what's still needed to open this gate" line, for the bottom prompt when
+	 * standing at a locked gate. Compares the destination biome's unlock rules to
+	 * current progress and lists only the parts not yet met.
+	 */
+	private gateRequirementText(biomeId: string): string {
+		const st = bridge.shared.state;
+		const d = bridge.shared.data;
+		const biome = d?.biomes.find((b) => b.id === biomeId);
+		const name = this.biomeName(biomeId, biome?.name || biomeId);
+		const u: any = biome?.unlock;
+		if (!u || !st) return t('game.gate.locked', { name });
+		const prereqName = this.biomeName(u.biome, d?.biomes.find((b) => b.id === u.biome)?.name || u.biome);
+		const prereq = st.biomeStates.find((b) => b.biomeId === u.biome);
+		const needs: string[] = [];
+		if (u.minHealth) {
+			const cur = Math.round(prereq?.health || 0);
+			if (cur < u.minHealth) needs.push(t('game.gate.needHealth', { biome: prereqName, goal: u.minHealth, cur }));
+		}
+		if (u.minAnimals) {
+			const cur = prereq?.returnedCount || 0;
+			if (cur < u.minAnimals) needs.push(t('game.gate.needAnimals', { biome: prereqName, goal: u.minAnimals, cur }));
+		}
+		if (u.minTotalAnimals) {
+			const cur = st.discoveries?.length || 0;
+			if (cur < u.minTotalAnimals) needs.push(t('game.gate.needTotalAnimals', { goal: u.minTotalAnimals, cur }));
+		}
+		if (u.requiresItem) {
+			const have = (st.player.craftedItems?.[u.requiresItem] || 0) + ((st.player as any).craftedEver?.[u.requiresItem] || 0);
+			if (have <= 0) {
+				const obj = d?.habitatObjects.find((o) => o.id === u.requiresItem);
+				needs.push(t('game.gate.needKit', { item: obj ? content('habitatObject', obj.id, 'name', obj.name) : u.requiresItem }));
+			}
+		}
+		if (!needs.length) return t('game.gate.almost', { name });
+		return t('game.gate.stillNeeds', { name, needs: needs.join(t('game.gate.sep')) });
+	}
+
 	private drawStaticFeatures() {
 		const state = bridge.shared.state;
 		if (this.area === 'meadow') {
@@ -1306,9 +1413,11 @@ export class WorldScene extends Phaser.Scene {
 			const forestUnlocked = state?.player.unlockedBiomes.includes('forest');
 			const forestOpen = forestUnlocked && this.biomeDef('forest')?.explorable;
 			this.addDyn(this.img(gx, gy, forestOpen ? 'gate' : 'sign').setDepth(gy));
+			if (forestOpen) this.gateSparkle(gx, gy, 'forest');
 			const forestName = this.biomeName('forest', 'Old Hollow Forest');
 			this.registerInteractable({
 				x: gx, y: gy, label: forestOpen ? t('game.label.walkTo', { name: forestName }) : t('game.label.readTrailSign', { name: forestName }),
+				liveLabel: forestOpen ? undefined : () => this.gateRequirementText('forest'),
 				action: () => {
 					if (forestOpen) bridge.emit('request-area', { area: 'forest' });
 					else {
@@ -1329,9 +1438,11 @@ export class WorldScene extends Phaser.Scene {
 			const wetlandExplorable = this.biomeDef('wetland')?.explorable;
 			const wetlandOpen = wetlandUnlocked && wetlandExplorable;
 			this.addDyn(this.img(sx, sy, wetlandOpen ? 'gate' : 'sign').setDepth(sy));
+			if (wetlandOpen) this.gateSparkle(sx, sy, 'wetland');
 			const wetlandName = this.biomeName('wetland', 'Rushwater Wetland');
 			this.registerInteractable({
 				x: sx, y: sy, label: wetlandOpen ? t('game.label.walkTo', { name: wetlandName }) : t('game.label.readTrailSign', { name: wetlandName }),
+				liveLabel: wetlandOpen ? undefined : () => this.gateRequirementText('wetland'),
 				action: () => {
 					if (wetlandOpen) {
 						bridge.emit('request-area', { area: 'wetland' });
@@ -1365,9 +1476,11 @@ export class WorldScene extends Phaser.Scene {
 			const desertExplorable = this.biomeDef('desert')?.explorable;
 			const desertOpen = desertUnlocked && desertExplorable;
 			this.addDyn(this.img(sx, sy, desertOpen ? 'gate' : 'sign').setDepth(sy));
+			if (desertOpen) this.gateSparkle(sx, sy, 'desert');
 			const desertName = this.biomeName('desert', 'Redstone Scrubland');
 			this.registerInteractable({
 				x: sx, y: sy, label: desertOpen ? t('game.label.walkTo', { name: desertName }) : t('game.label.readTrailSign', { name: desertName }),
+				liveLabel: desertOpen ? undefined : () => this.gateRequirementText('desert'),
 				action: () => {
 					if (desertOpen) {
 						bridge.emit('request-area', { area: 'desert' });
@@ -1394,9 +1507,11 @@ export class WorldScene extends Phaser.Scene {
 			const alpineExplorable = this.biomeDef('alpine')?.explorable;
 			const alpineOpen = alpineUnlocked && alpineExplorable;
 			this.addDyn(this.img(sx, sy, alpineOpen ? 'gate' : 'sign').setDepth(sy));
+			if (alpineOpen) this.gateSparkle(sx, sy, 'alpine');
 			const alpineName = this.biomeName('alpine', 'Graywind Heights');
 			this.registerInteractable({
 				x: sx, y: sy, label: alpineOpen ? t('game.label.walkTo', { name: alpineName }) : t('game.label.readTrailSign', { name: alpineName }),
+				liveLabel: alpineOpen ? undefined : () => this.gateRequirementText('alpine'),
 				action: () => {
 					if (alpineOpen) {
 						bridge.emit('request-area', { area: 'alpine' });
@@ -1425,9 +1540,11 @@ export class WorldScene extends Phaser.Scene {
 			const coastalExplorable = this.biomeDef('coastal')?.explorable;
 			const coastalOpen = coastalUnlocked && coastalExplorable;
 			this.addDyn(this.img(sx, gy, coastalOpen ? 'gate' : 'sign').setDepth(gy));
+			if (coastalOpen) this.gateSparkle(sx, gy, 'coastal');
 			const coastalName = this.biomeName('coastal', 'Pelican Shore');
 			this.registerInteractable({
 				x: sx, y: gy, label: coastalOpen ? t('game.label.walkTo', { name: coastalName }) : t('game.label.readTrailSign', { name: coastalName }),
+				liveLabel: coastalOpen ? undefined : () => this.gateRequirementText('coastal'),
 				action: () => {
 					if (coastalOpen) {
 						bridge.emit('request-area', { area: 'coastal' });
@@ -2370,6 +2487,17 @@ export class WorldScene extends Phaser.Scene {
 		// pointer is hovering, so it's clear what a click would act on.
 		const focus = near || (busy || terraforming ? null : this.hoveredIt);
 
+		// Walked up to a locked gate → post what's still needed to the corner feed,
+		// but only when the remaining list actually CHANGES (not on every approach),
+		// so repeatedly walking up to the same gate doesn't spam the feed.
+		if (near?.liveLabel) {
+			const info = near.liveLabel();
+			if (info !== this.lastGateInfo) {
+				this.lastGateInfo = info;
+				bridge.emit('gate-info', { text: info });
+			}
+		}
+
 		// pulsing highlight on whatever you can interact with right now
 		if (focus) {
 			this.highlight.setVisible(true).setPosition(focus.x, focus.y + 2);
@@ -2392,6 +2520,10 @@ export class WorldScene extends Phaser.Scene {
 		const clickVerb = this.isTouch ? t('game.prompt.tap') : t('game.prompt.click');
 		const lowVerb = this.isTouch ? t('game.prompt.tapLower') : t('game.prompt.clickLower');
 		const rotHint = !this.isTouch && this.activeRotatable() ? t('game.prompt.rotateHint') : '';
+		// A locked gate's detailed "what's still needed" text goes to the corner feed
+		// (see gate-info below), not this narrow bar — here it just shows its short
+		// "read the trail sign" label like any other interactable.
+		const nearMain = near ? t('game.prompt.near', { verb, label: near.label }) : '';
 		const prompt = this.movingPlacementId
 			? t('game.prompt.moveTile', { verb: clickVerb }) + rotHint + (this.isTouch ? '' : t('game.prompt.escCancel'))
 			: this.placementObjectId
@@ -2399,9 +2531,7 @@ export class WorldScene extends Phaser.Scene {
 			: terraforming
 				? t(terraforming === 'dig' ? 'game.prompt.shovel' : 'game.prompt.wateringCan', { verb: lowVerb })
 					+ (near ? t('game.prompt.nearSuffix', { verb, label: near.label }) : '')
-				: near
-					? t('game.prompt.near', { verb, label: near.label })
-					: '';
+				: nearMain;
 		if (prompt !== this.lastPrompt) {
 			this.lastPrompt = prompt;
 			bridge.emit('prompt', prompt);

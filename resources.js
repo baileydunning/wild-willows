@@ -44,10 +44,10 @@ var biomes_default = {
       restorationGoal: "Rebuild the understory, raise nesting trees and deadwood, and welcome the forest animals back.",
       unlock: {
         biome: "meadow",
-        minHealth: 80,
+        minHealth: 60,
         minAnimals: 10,
         requiresItem: "forest-restoration-kit",
-        label: "Restore Willow Meadow to 80% health, welcome 10 meadow animals, and craft a Forest Restoration Kit."
+        label: "Restore Willow Meadow to 60% health, welcome 10 meadow animals, and craft a Forest Restoration Kit."
       },
       resources: [
         "branches",
@@ -13492,6 +13492,8 @@ var server_default = {
   },
   goal: {
     craft: "Craft {count}\xD7 {item}",
+    build: "Craft and place {count}\xD7 {item}",
+    grow: "Plant {count}\xD7 {item}",
     plant: "Plant {count} things",
     collect: "Collect {count}\xD7 {resource}",
     observe: "Read about {count} animals",
@@ -13920,7 +13922,7 @@ var supportHtml = `<!doctype html>
 </body>
 </html>
 `;
-var buildStamp = "0.1.9+2026-07-09T00:51:16.217Z";
+var buildStamp = "0.1.9+2026-07-09T03:52:14.542Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
@@ -15075,6 +15077,8 @@ async function consumeMaterials(player, materials, wid = player.id) {
 }
 var GOAL_ICON = {
   craft: "hammer",
+  build: "hammer",
+  grow: "leaf",
   plant: "leaf",
   collect: "basket",
   observe: "journal",
@@ -15083,7 +15087,7 @@ var GOAL_ICON = {
   unlock: "map"
 };
 var GOAL_HOME_TRACKS = ["space", "comfort", "decor", "light"];
-var MAX_CUSTOM_GOALS = 12;
+var MAX_CUSTOM_GOALS = 6;
 function goalRewardPool(ctx) {
   const unlocked = ctx.unlockedBiomes?.length ? ctx.unlockedBiomes : ctx.player?.unlockedBiomes?.length ? ctx.player.unlockedBiomes : ["meadow"];
   const all = unlocked.flatMap((id) => ctx.d.biome.get(id)?.resources || []);
@@ -15106,10 +15110,19 @@ function heldAmount(ctx, resId) {
   const inChests = (ctx.chests || []).reduce((s, c) => s + (c.contents?.[resId] || 0), 0);
   return inv + inChests;
 }
+function placedCountFor(ctx, objectId) {
+  return (ctx.placements || []).filter((p) => p.objectId === objectId).length;
+}
+function plantedCountFor(ctx, objectId) {
+  return (ctx.placements || []).filter((p) => p.objectId === objectId && typeof p.plantedAt === "number").length;
+}
 function goalMetric(goal, ctx) {
   switch (goal.kind) {
     case "craft":
+    case "build":
       return ctx.player?.craftedEver?.[goal.itemId || ""] || 0;
+    case "grow":
+      return plantedCountFor(ctx, goal.itemId || "");
     case "plant":
       return (ctx.placements || []).filter((p) => typeof p.plantedAt === "number").length;
     case "collect":
@@ -15123,10 +15136,16 @@ function goalMetric(goal, ctx) {
 function goalProgress(goal, ctx) {
   switch (goal.kind) {
     case "craft":
+    case "grow":
     case "plant":
     case "collect":
     case "observe":
       return Math.max(0, Math.min(goal.target, goalMetric(goal, ctx) - (goal.base || 0)));
+    case "build": {
+      const crafted = Math.max(0, Math.min(goal.target, (ctx.player?.craftedEver?.[goal.itemId || ""] || 0) - (goal.base || 0)));
+      const placed = Math.max(0, Math.min(goal.target, placedCountFor(ctx, goal.itemId || "") - (goal.basePlace || 0)));
+      return crafted + placed;
+    }
     case "welcome":
       return ctx.discoveries.some((x) => x.animalId === goal.animalId) ? 1 : 0;
     case "home":
@@ -15142,6 +15161,10 @@ function goalText(goal, ctx) {
   switch (goal.kind) {
     case "craft":
       return t("server.goal.craft", { count: goal.target, item: d.object.get(goal.itemId)?.name || goal.itemId });
+    case "build":
+      return t("server.goal.build", { count: goal.target, item: d.object.get(goal.itemId)?.name || goal.itemId });
+    case "grow":
+      return t("server.goal.grow", { count: goal.target, item: d.object.get(goal.itemId)?.name || goal.itemId });
     case "plant":
       return t("server.goal.plant", { count: goal.target });
     case "collect":
@@ -15169,7 +15192,7 @@ function starterTasks(ctx) {
 }
 function sanitizeGoals(goals, d) {
   const out = [];
-  const kinds = ["craft", "plant", "collect", "observe", "welcome", "home", "unlock"];
+  const kinds = ["craft", "build", "grow", "plant", "collect", "observe", "welcome", "home", "unlock"];
   for (const g of Array.isArray(goals) ? goals : []) {
     if (out.length >= MAX_CUSTOM_GOALS) break;
     const kind = g?.kind;
@@ -15177,7 +15200,7 @@ function sanitizeGoals(goals, d) {
     const id = typeof g?.id === "string" && g.id ? g.id.slice(0, 40) : `cg_${Math.random().toString(36).slice(2, 10)}`;
     const target = Math.max(1, Math.min(99, Math.floor(Number(g?.target) || 1)));
     const goal = { id, kind, target };
-    if (kind === "craft") {
+    if (kind === "craft" || kind === "build" || kind === "grow") {
       if (!d.object.get(g?.itemId)) continue;
       goal.itemId = g.itemId;
     } else if (kind === "collect") {
@@ -15210,12 +15233,13 @@ function dailyTasksBlock(ctx) {
   }
   for (const g of player?.customGoals || []) {
     if (goalClaims[g.id]) continue;
+    const target = g.kind === "build" ? g.target * 2 : g.target;
     tasks.push({
       id: g.id,
       kind: g.kind,
       icon: GOAL_ICON[g.kind] || "check",
       text: goalText(g, ctx),
-      target: g.target,
+      target,
       counter: "",
       reward: goalReward(ctx, g.id),
       progress: goalProgress(g, ctx),
@@ -16521,7 +16545,11 @@ var SetGoals = class extends PublicEndpoint {
     const clean = sanitizeGoals(goals, d).map((g) => {
       const existing = prev.get(g.id);
       const base = existing && typeof existing.base === "number" ? existing.base : goalMetric(g, ctx);
-      return { ...g, base };
+      const out = { ...g, base };
+      if (g.kind === "build") {
+        out.basePlace = existing && typeof existing.basePlace === "number" ? existing.basePlace : placedCountFor(ctx, g.itemId || "");
+      }
+      return out;
     });
     await t2.Player.patch(playerId, { customGoals: clean });
     return { ok: true, customGoals: clean };

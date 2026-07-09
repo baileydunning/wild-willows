@@ -427,6 +427,53 @@ export function makeNodeTextures(scene: Phaser.Scene) {
 		g.fillStyle(C('#f2ece0'), 1).fillCircle(12, 13, 4.4); // the pearl
 		g.fillStyle(0xffffff, 0.85).fillCircle(10, 11, 1.6);
 	});
+
+	// ---- weather-gated gather nodes (appear only during certain weather) ----
+	n('rainwater', 28, 24, (g) => {
+		// a shallow rain puddle with a fresh drop falling in
+		g.fillStyle(C('#5b93c4'), 0.95).fillEllipse(14, 18, 24, 11);
+		g.fillStyle(C('#7fb4dd'), 1).fillEllipse(14, 17, 17, 7);
+		g.fillStyle(0xffffff, 0.5).fillEllipse(11, 16, 7, 2.4); // sheen
+		g.fillStyle(C('#bfe0f5'), 1).fillCircle(17, 6, 3).fillTriangle(14.4, 5.5, 19.6, 5.5, 17, 0.6); // drop
+		g.fillStyle(0xffffff, 0.7).fillCircle(16, 5, 1);
+	});
+	n('dewdrops', 26, 26, (g) => {
+		// dewdrops clinging to a blade of grass
+		g.lineStyle(2.4, C('#6f9a5a'), 1).lineBetween(9, 25, 13, 3);
+		g.lineStyle(2, C('#82ad68'), 1).lineBetween(16, 25, 13, 8);
+		const drop = (x: number, y: number, r: number) => {
+			g.fillStyle(C('#a8d2c0'), 0.9).fillCircle(x, y, r);
+			g.fillStyle(0xffffff, 0.75).fillCircle(x - r * 0.3, y - r * 0.3, r * 0.35);
+		};
+		drop(12, 10, 4); drop(15.5, 16, 3); drop(9, 20, 2.6);
+	});
+	n('sunstone', 26, 24, (g) => {
+		// a warm, faceted amber gem catching the light
+		g.fillStyle(C('#c77d2e'), 1).fillPoints([{ x: 13, y: 2 }, { x: 23, y: 11 }, { x: 13, y: 22 }, { x: 3, y: 11 }], true);
+		g.fillStyle(C('#e6a94e'), 1).fillPoints([{ x: 13, y: 2 }, { x: 18, y: 11 }, { x: 13, y: 22 }, { x: 8, y: 11 }], true);
+		g.fillStyle(C('#f4cf82'), 1).fillTriangle(13, 2, 18, 11, 8, 11); // bright top facet
+		g.fillStyle(0xffffff, 0.85).fillCircle(11, 8, 1.4); // glint
+	});
+	n('stormglass', 26, 26, (g) => {
+		// a jagged shard of storm-fused glass, with a little spark
+		g.fillStyle(C('#3c4677'), 1).fillPoints([{ x: 9, y: 24 }, { x: 6, y: 12 }, { x: 12, y: 2 }, { x: 16, y: 12 }, { x: 14, y: 24 }], true);
+		g.fillStyle(C('#5566a3'), 1).fillPoints([{ x: 12, y: 2 }, { x: 16, y: 12 }, { x: 14, y: 24 }, { x: 11, y: 13 }], true);
+		g.fillStyle(C('#aeb8e6'), 0.9).fillTriangle(12, 2, 15, 11, 10, 11); // lit facet
+		g.lineStyle(1.6, C('#eaf0ff'), 0.95).lineBetween(18, 6, 21, 10).lineBetween(21, 10, 19, 11).lineBetween(19, 11, 22, 15);
+	});
+	n('frostflower', 26, 26, (g) => {
+		// a six-spoked ice crystal with a bright frozen center
+		g.lineStyle(2, C('#8fb6cf'), 1);
+		for (const a of [0, Math.PI / 3, (2 * Math.PI) / 3, Math.PI, (4 * Math.PI) / 3, (5 * Math.PI) / 3]) {
+			const dx = Math.cos(a) * 10, dy = Math.sin(a) * 10;
+			g.lineBetween(13, 13, 13 + dx, 13 + dy);
+			const bx = 13 + dx * 0.6, by = 13 + dy * 0.6;
+			g.lineBetween(bx, by, bx + Math.cos(a + 0.6) * 3.2, by + Math.sin(a + 0.6) * 3.2);
+			g.lineBetween(bx, by, bx + Math.cos(a - 0.6) * 3.2, by + Math.sin(a - 0.6) * 3.2);
+		}
+		g.fillStyle(C('#dceaf4'), 1).fillCircle(13, 13, 3.2);
+		g.fillStyle(0xffffff, 0.9).fillCircle(12, 12, 1.3);
+	});
 	tex(scene, 'gate', 40, 44, (g) => {
 		g.fillStyle(C('#8c6a42'), 1).fillRect(2, 6, 6, 38).fillRect(32, 6, 6, 38);
 		g.fillStyle(C('#a3814f'), 1).fillRect(0, 2, 40, 6);

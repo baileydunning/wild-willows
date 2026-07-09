@@ -326,6 +326,23 @@ input {
 .meter-track { flex: 1; min-width: 40px; height: 10px; background: #e4dcc2; border-radius: 6px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.08); }
 .meter-fill { height: 100%; border-radius: 6px; transition: width 0.6s ease; }
 .meter-value { flex: none; width: calc(36px * var(--ui-scale)); text-align: right; font-size: calc(11.5px * var(--ui-scale)); font-weight: 700; }
+/* little "?" next to a meter explaining how to raise it (hover/focus tooltip) */
+.meter-hint { position: relative; flex: none; display: inline-flex; vertical-align: -2px; color: var(--ink-soft); opacity: 0.7; cursor: help; }
+.meter-hint:hover, .meter-hint:focus-visible { opacity: 1; color: var(--green); outline: none; }
+.meter-hint-tip {
+	position: absolute; z-index: 60;
+	top: calc(100% + 6px); left: 0;
+	width: max-content; max-width: 240px;
+	padding: 7px 10px;
+	font-size: calc(11.5px * var(--ui-scale)); line-height: 1.4; color: var(--ink-soft); text-align: left; font-weight: 400;
+	background: var(--cream); border: 1px solid var(--line); border-radius: 9px;
+	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+	opacity: 0; visibility: hidden; transform: translateY(-2px);
+	transition: opacity 0.12s ease, transform 0.12s ease, visibility 0.12s;
+	pointer-events: none;
+}
+.meter-hint:hover .meter-hint-tip,
+.meter-hint:focus-within .meter-hint-tip { opacity: 1; visibility: visible; transform: translateY(0); }
 
 .save-pill {
 	display: inline-flex; align-items: center; gap: 5px;
