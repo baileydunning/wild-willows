@@ -50,6 +50,11 @@
 		"homeBuilt": "¡Construiste tu {name}!",
 		"rested": "Duermes profundamente — todos los puntos de recolección han vuelto a crecer.",
 		"taskReward": "Recompensa de tarea — {items}",
+		"goalComplete": "Objetivo cumplido: {goal}",
+		"goalAdded": "Añadido a tus objetivos — mira el tablero (L)",
+		"habitatGoalAdded": "Añadido su hábitat a tus objetivos — mira el tablero (L)",
+		"goalAlready": "Ese ya es uno de tus objetivos",
+		"goalLimit": "Ya sigues el máximo de objetivos a la vez — termina o quita uno primero",
 		"joinRequest": "{name} quiere unirse — presiona U para permitirle entrar",
 		"perkForage": "¡El instinto recolector de tu cabaña consiguió un {name} extra!",
 		"perkThrift": "¡Ahorro del hogar! Recuperaste {items}."
@@ -64,7 +69,8 @@
 		"animalPrereqs": "{name} regresó ahora que {others} habían vuelto — la red alimentaria se está completando.",
 		"biomeUnlocked": "¡Nuevo bioma desbloqueado: {name}!",
 		"loopReminder": "El mismo ciclo en {name}: construye hábitat hasta que sus animales regresen, y se abrirá el siguiente sendero.",
-		"taskReward": "Tarea del día terminada: obtuviste {items}."
+		"taskReward": "Tarea del día terminada: obtuviste {items}.",
+		"goalComplete": "Objetivo cumplido: {goal}"
 	},
 	"log": {
 		"gathered": "Recolectaste {qty}× {name} en tu cesta.",
@@ -199,6 +205,7 @@
 			"one": "{count} cosa colocada",
 			"other": "{count} cosas colocadas"
 		},
+		"trackLevel": "Nv{level}",
 		"thePreserve": "La reserva",
 		"coop": "Cooperativo",
 		"hereCount": " · {count} aquí",
@@ -222,6 +229,7 @@
 		"navInventory": "Contenido de la cesta (B)",
 		"navCrafting": "Fabricación (C)",
 		"navTools": "Mejoras de herramientas (T)",
+		"navGoals": "Tus objetivos (L)",
 		"navBiomes": "Mapa de la reserva (M)",
 		"navWeather": "Clima y estaciones (N)",
 		"navPeople": "Personas — invita y mira quién está aquí (U)",

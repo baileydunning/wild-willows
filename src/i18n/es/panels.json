@@ -87,6 +87,7 @@
 		"requiresTool": "Requiere una herramienta mejorada — mira el panel de Herramientas.",
 		"crafted": "Fabricado ✓",
 		"craft": "Fabricar",
+		"addGoal": "Añadir fabricar esto a tus objetivos",
 		"plantedNotCrafted": "Se planta, no se fabrica — cava un bancal con la pala (2), riégalo con la regadera (3) y luego haz clic en el bancal regado para elegirlo en el menú de plantado."
 	},
 	"tools": {
@@ -110,7 +111,8 @@
 		"toUnlock": "Para desbloquear:",
 		"health": "Salud",
 		"balance": "Equilibrio",
-		"animalsReturned": "{returned}/{total} animales han regresado"
+		"animalsReturned": "{returned}/{total} animales han regresado",
+		"addGoal": "Añadir desbloquear {biome} a tus objetivos"
 	},
 	"home": {
 		"buildTitle": "Construye tu hogar",
@@ -259,6 +261,8 @@
 		"preferredLabel": "Hábitat preferido:",
 		"fieldNote": "Nota de campo:",
 		"backToJournal": "← Volver al diario de campo",
+		"addGoal": "Añadir construir su hábitat a tus objetivos",
+		"animalReqUnknown": "Primero debe regresar otro {kind}",
 		"lockedCard": "Mejora tu guía de campo al nivel {tier} para leer la entrada completa de este animal — su rol ecológico, su dieta y sus vínculos en la red trófica."
 	},
 	"achievements": {
@@ -397,10 +401,15 @@
 			"text": "Ese es todo el ciclo — y darle la bienvenida al saltamontes acaba de ganarte tu primer logro, ★ Primer Amigo. Hay 50 estrellas por descubrir en la reserva: por restaurar cada bioma, traer de vuelta a los grandes depredadores, dominar tus herramientas y recibir fauna por toda la reserva. No llegan fácil. Encuéntralas todas en el nuevo menú de Logros (presiona K) — los desbloqueos recientes suben al principio. Una última comodidad que mostrarte →",
 			"touch": "Ese es todo el ciclo — y darle la bienvenida al saltamontes acaba de ganarte tu primer logro, ★ Primer Amigo. Hay 50 estrellas por descubrir en la reserva: por restaurar cada bioma, traer de vuelta a los grandes depredadores, dominar tus herramientas y recibir fauna por toda la reserva. No llegan fácil. Encuéntralas todas en el nuevo menú de Logros (el botón de la estrella) — los desbloqueos recientes suben al principio. Una última comodidad que mostrarte →"
 		},
+		"goals": {
+			"title": "Fija tus propios objetivos",
+			"text": "El tablero de arriba a la izquierda es tu lista de tareas. Fija tus propios objetivos para jugar a tu manera — ya sea fabricar una construcción concreta, plantar toda una pradera, traer de vuelta un animal en particular, recolectar materiales o desbloquear el siguiente bioma. El primero ya está ahí: desbloquea el Bosque de la Vieja Hondonada, la próxima área. Abre el tablero con el botón de objetivos (o presiona L) para añadir y ordenar más; completar cualquier objetivo da un pequeño paquete de materiales. También puedes añadir un objetivo directamente desde los menús de fabricación, diario y reserva.",
+			"touch": "El tablero de arriba a la izquierda es tu lista de tareas. Fija tus propios objetivos para jugar a tu manera — ya sea fabricar una construcción concreta, plantar toda una pradera, traer de vuelta un animal en particular, recolectar materiales o desbloquear el siguiente bioma. El primero ya está ahí: desbloquea el Bosque de la Vieja Hondonada, la próxima área. Toca el botón de objetivos para añadir y ordenar más; completar cualquier objetivo da un pequeño paquete de materiales. También puedes añadir un objetivo directamente desde los menús de fabricación, diario y reserva."
+		},
 		"home": {
 			"title": "Siéntete como en casa",
-			"text": "Lo último — vuelve a tu tienda del campamento y presiona E para entrar a tu hogar. Es tuyo para decorarlo con comodidades del campamento que fabriques, y el letrero junto a la tienda lo mejora para hacerlo más grande y acogedor (y te deja cargar más). Entra ahora, y la reserva es toda tuya — ¡feliz restauración!",
-			"touch": "Lo último — vuelve a tu tienda del campamento y tócala para entrar a tu hogar. Es tuyo para decorarlo con comodidades del campamento que fabriques, y el letrero junto a la tienda lo mejora para hacerlo más grande y acogedor. Entra ahora, y la reserva es toda tuya — ¡feliz restauración!"
+			"text": "Lo último — vuelve a tu tienda del campamento y presiona E para entrar. El letrero junto a la tienda primero convierte tu tienda en una casa de verdad (cada estilo tiene su propia ventaja), y luego la mejora por cuatro vías: Espacio (un hogar más grande que te deja cargar más), Comodidad (fortalece la ventaja de tu casa), Decoración y Luz. Las mejoras más altas se abren a medida que tus biomas mejoran de salud, y dentro puedes colocar comodidades del campamento que fabriques. Entra ahora — la reserva es toda tuya. ¡Feliz restauración!",
+			"touch": "Lo último — vuelve a tu tienda del campamento y tócala para entrar. El letrero junto a la tienda primero convierte tu tienda en una casa de verdad (cada estilo tiene su propia ventaja), y luego la mejora por cuatro vías: Espacio (un hogar más grande que te deja cargar más), Comodidad (fortalece la ventaja de tu casa), Decoración y Luz. Las mejoras más altas se abren a medida que tus biomas mejoran de salud, y dentro puedes colocar comodidades del campamento que fabriques. Entra ahora — la reserva es toda tuya. ¡Feliz restauración!"
 		}
 	},
 	"help": {
@@ -440,8 +449,8 @@
 				"text": "Cada bioma tiene su propio clima, que cambia por sí solo y avanza lentamente por las estaciones. Abre la guía de Clima y estaciones (presiona N) para ver qué pasa en toda la reserva y aprender cómo cada condición moldea el bioma donde estás. Mantente atento — un clima inusual puede dejar materiales raros para recolectar mientras dure, y unos pocos animales esquivos solo se dejan ver con el clima, la estación o la hora del día adecuados (su pista en el diario dice cuándo)."
 			},
 			"board": {
-				"title": "Revisar el tablero",
-				"text": "Cada día la reserva publica tres pequeñas tareas en el tablero junto al menú superior derecho — completa una y reclama un paquete de materiales. Las tareas reclamadas se ordenan solas (presiona Tab (u O) para esconder el tablero). Tus plantas también siguen creciendo en tiempo real aunque el juego esté cerrado: los árboles tardan horas en alcanzar su tamaño completo, y el hábitat maduro deja la tierra un poquito más sana, así que siempre hay algo nuevo cuando regresas."
+				"title": "Fija tus propios objetivos",
+				"text": "El tablero de arriba a la izquierda es tu propia lista de objetivos. Siempre empieza con los mismos tres — dale la bienvenida al saltamontes, recolecta semillas, fabrica algo — y a partir de ahí es tuyo para construir. Abre el menú de objetivos (presiona L, o el engranaje del tablero) para añadir los tuyos: fabrica un objeto concreto, planta cierta cantidad de cosas, recolecta un material, lee sobre animales, trae de vuelta un animal o mejora tu hogar. Ordénalos en un plan, y completar cualquier objetivo da un pequeño paquete de materiales (presiona Tab u O para esconder el tablero). Tus plantas también siguen creciendo en tiempo real aunque el juego esté cerrado, así que siempre hay algo nuevo cuando regresas."
 			}
 		},
 		"keys": {
@@ -456,7 +465,8 @@
 			"basket": "Abrir tu cesta",
 			"journal": "Abrir el diario de campo",
 			"achievements": "Abrir los logros",
-			"tasks": "Esconder / mostrar el tablero de tareas del día",
+			"tasks": "Esconder / mostrar el tablero de objetivos",
+			"goals": "Abre el creador de objetivos — diseña tu propia lista de tareas",
 			"feed": "Abrir el registro de actividad (últimos 100 eventos)",
 			"tools": "Abrir herramientas y mejoras",
 			"preserve": "Abrir el resumen de la reserva",
@@ -469,15 +479,65 @@
 		}
 	},
 	"tasks": {
-		"pillTitle": "Tareas del día (O)",
-		"pillAria": "Tareas del día: {done} de {total} completadas",
-		"title": "Tareas del día",
+		"pillTitle": "Tus objetivos (O)",
+		"pillAria": "Tus objetivos: {done} de {total} completados",
+		"title": "Tus objetivos",
+		"editTitle": "Editar tus objetivos",
 		"collapseTitle": "Esconder (O)",
-		"collapseAria": "Contraer el tablero de tareas",
+		"collapseAria": "Contraer el tablero de objetivos",
 		"rewardItem": "{qty}× {name}",
 		"rewardTitle": "Recompensa: {reward}",
 		"claim": "Reclamar",
 		"claimTitle": "Reclamar: {reward}"
+	},
+	"goals": {
+		"title": "Tus objetivos",
+		"intro": "Esta es tu lista. Los tres primeros objetivos son el comienzo para todos — dale la bienvenida al saltamontes, recolecta semillas, fabrica algo. Después, la lista es tuya: añade lo que quieras lograr, en el orden que prefieras.",
+		"empty": "Aún no hay objetivos propios — añade uno abajo para empezar a diseñar tu aventura.",
+		"addTitle": "Añadir un objetivo",
+		"add": "Añadir objetivo",
+		"remove": "Quitar objetivo",
+		"moveUp": "Subir",
+		"moveDown": "Bajar",
+		"done": "Hecho",
+		"rewardNote": "Completar cualquier objetivo otorga un pequeño paquete de materiales — recláma­lo en el tablero.",
+		"limitReached": "Puedes seguir hasta {max} objetivos a la vez. Termina o quita uno para añadir otro.",
+		"typeLabel": "Tipo de objetivo:",
+		"type": {
+			"craft": "Fabricar un objeto",
+			"plant": "Plantar cosas",
+			"collect": "Recolectar un material",
+			"observe": "Leer sobre animales",
+			"welcome": "Traer de vuelta un animal",
+			"home": "Mejorar tu hogar",
+			"unlock": "Desbloquear un bioma"
+		},
+		"countLabel": "Cuántos:",
+		"levelLabel": "Al nivel:",
+		"itemLabel": "Objeto a fabricar",
+		"resourceLabel": "Material a recolectar",
+		"animalLabel": "Animal a traer de vuelta",
+		"trackLabel": "Mejora del hogar",
+		"biomeLabel": "Bioma a desbloquear",
+		"pickItem": "Elige un objeto…",
+		"pickResource": "Elige un material…",
+		"pickAnimal": "Elige un animal…",
+		"pickBiome": "Elige un bioma…",
+		"track": {
+			"space": "Espacio",
+			"comfort": "Comodidad",
+			"decor": "Decoración",
+			"light": "Luz"
+		},
+		"label": {
+			"craft": "Fabrica {count}× {item}",
+			"plant": "Planta {count} cosas",
+			"collect": "Recolecta {count}× {resource}",
+			"observe": "Lee sobre {count} animales",
+			"welcome": "Trae de vuelta al {animal}",
+			"home": "Mejora {track} al nivel {level}",
+			"unlock": "Desbloquea {biome}"
+		}
 	},
 	"people": {
 		"title": "Personas",

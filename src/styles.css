@@ -281,6 +281,14 @@ input {
 }
 .hud-returned { font-size: calc(12.5px * var(--ui-scale)); color: var(--ink-soft); display: flex; align-items: center; gap: 6px; }
 .hud-returned-total { font-size: calc(11px * var(--ui-scale)); opacity: 0.72; margin-top: 1px; }
+/* Your Home card: the active house perk + every upgrade track level */
+.hud-home-perk { margin-top: 3px; font-size: calc(11.5px * var(--ui-scale)); color: var(--green-deep); display: flex; align-items: center; gap: 5px; font-weight: 600; }
+.hud-home-tracks { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px; }
+.hud-home-track {
+	font-size: calc(10.5px * var(--ui-scale)); color: var(--ink-soft);
+	background: rgba(122, 168, 90, 0.14); border: 1px solid rgba(122, 168, 90, 0.3);
+	border-radius: 999px; padding: 1px 7px; white-space: nowrap;
+}
 
 .hud-weather { font-size: calc(12.5px * var(--ui-scale)); color: var(--ink-soft); display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 2px 0; font-weight: 700; }
 .hud-season { font-size: calc(10.5px * var(--ui-scale)); font-weight: 700; padding: 1px 7px; border-radius: 9px; border: 1px solid currentColor; opacity: 0.9; }
@@ -1442,3 +1450,34 @@ kbd {
 .switch input:checked ~ .track { background: var(--green); }
 .switch input:checked ~ .thumb { transform: translateX(20px); }
 .switch input:focus-visible ~ .track { outline: 2px solid var(--green-deep); outline-offset: 2px; }
+
+/* ===== goals builder (the custom task list menu) ===== */
+/* keep the board's two header buttons together at the right */
+.tasks-head .tasks-title { margin-right: auto; }
+.goals-list { display: flex; flex-direction: column; gap: 8px; margin: 6px 0 4px; }
+.goals-row {
+	display: flex; align-items: center; gap: 11px;
+	background: linear-gradient(180deg, #fffdf6, var(--cream));
+	border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 13px;
+}
+.goals-row.goals-done { opacity: 0.7; }
+.goals-row-icon {
+	flex-shrink: 0; width: 34px; height: 34px; border-radius: 10px;
+	background: radial-gradient(circle at 30% 25%, #eef6e3, #dcebca);
+	color: var(--green-deep); border: 1.5px solid #cfe0b6;
+	display: flex; align-items: center; justify-content: center;
+}
+.goals-row-text { font-weight: 600; color: var(--ink); font-size: calc(13.5px * var(--ui-scale)); }
+.goals-row-meta { margin-top: 2px; }
+.goals-badge { display: inline-flex; align-items: center; gap: 4px; color: var(--green-2, #6aa253); font-size: calc(11.5px * var(--ui-scale)); font-weight: 700; }
+.goals-row-actions { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+.goals-builder { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; }
+.goals-builder .craft-filter { flex: 1 1 auto; }
+.goals-count { display: inline-flex; flex-direction: column; gap: 3px; font-size: calc(12px * var(--ui-scale)); color: var(--ink-soft); }
+.goals-count input { width: 72px; padding: 5px 8px; border: 1.5px solid var(--line); border-radius: 8px; font: inherit; }
+/* "add to your goals" affordance shared by the crafting, journal and biome rows */
+.recipe-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.biome-row-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.add-goal-btn { color: var(--green-deep); border: 1.5px solid var(--line); border-radius: 9px; }
+.add-goal-btn:hover { background: rgba(122, 168, 90, 0.16); border-color: #cfe0b6; }
+.entry-unknown .add-goal-btn { align-self: center; }

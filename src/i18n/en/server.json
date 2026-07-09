@@ -143,7 +143,23 @@
 		"plantBeds": "Plant 2 seedlings in watered beds",
 		"observe": "Read about 3 animals in your journal",
 		"collectSeeds": "Collect 10 seeds",
-		"plantThree": "Plant 3 seedlings"
+		"plantThree": "Plant 3 seedlings",
+		"craftFirst": "Craft your first habitat"
+	},
+	"goal": {
+		"craft": "Craft {count}× {item}",
+		"plant": "Plant {count} things",
+		"collect": "Collect {count}× {resource}",
+		"observe": "Read about {count} animals",
+		"welcome": "Bring back the {animal}",
+		"home": "Upgrade your home's {track} to level {level}",
+		"unlock": "Unlock {biome}",
+		"track": {
+			"space": "space",
+			"comfort": "comfort",
+			"decor": "decor",
+			"light": "light"
+		}
 	},
 	"feed": {
 		"joinedWorld": "{name} joined the preserve!"

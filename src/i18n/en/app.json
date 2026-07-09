@@ -50,6 +50,11 @@
 		"homeBuilt": "You built your {name}!",
 		"rested": "You sleep soundly — every gathering spot has regrown.",
 		"taskReward": "Task reward — {items}",
+		"goalComplete": "Goal complete: {goal}",
+		"goalAdded": "Added to your goals — see the board (L)",
+		"habitatGoalAdded": "Added its habitat to your goals — see the board (L)",
+		"goalAlready": "That's already one of your goals",
+		"goalLimit": "You're tracking the most goals at once — finish or remove one first",
 		"joinRequest": "{name} wants to join — press U to let them in",
 		"perkForage": "Your cabin's forager's instinct turned up an extra {name}!",
 		"perkThrift": "Hearthkeeper's thrift! Got back {items}."
@@ -64,7 +69,8 @@
 		"animalPrereqs": "{name} came back now that the {others} had returned — the food web is filling in.",
 		"biomeUnlocked": "New biome unlocked: {name}!",
 		"loopReminder": "Same loop in {name}: build habitat until its animals come home, and the next trail opens.",
-		"taskReward": "Daily task finished: earned {items}."
+		"taskReward": "Daily task finished: earned {items}.",
+		"goalComplete": "Goal complete: {goal}"
 	},
 	"log": {
 		"gathered": "Gathered {qty}× {name} into your basket.",
@@ -199,6 +205,7 @@
 			"one": "{count} thing placed",
 			"other": "{count} things placed"
 		},
+		"trackLevel": "Lv{level}",
 		"thePreserve": "The Preserve",
 		"coop": "Co-op",
 		"hereCount": " · {count} here",
@@ -222,6 +229,7 @@
 		"navInventory": "Basket contents (B)",
 		"navCrafting": "Crafting (C)",
 		"navTools": "Tool upgrades (T)",
+		"navGoals": "Your goals (L)",
 		"navBiomes": "Preserve map (M)",
 		"navWeather": "Weather & seasons (N)",
 		"navPeople": "People — invite & who’s here (U)",

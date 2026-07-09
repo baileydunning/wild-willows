@@ -245,7 +245,7 @@ export function ChestPanel() {
 }
 
 export function CraftingPanel() {
-	const { data, state, setPanel, craft, startPlacement, notify } = useGame();
+	const { data, state, setPanel, craft, startPlacement, notify, addGoal } = useGame();
 	const { t, content } = useI18n();
 	const linked = useLinkedChests();
 	// default the Place filter to where you're standing — indoors, a dedicated "home"
@@ -467,7 +467,17 @@ export function CraftingPanel() {
 										<div className="muted small">{t('panels.crafting.requiresTool')}</div>
 									)}
 								</div>
-								<button disabled={!ok} onClick={() => craft(r.id)}>{made ? t('panels.crafting.crafted') : t('panels.crafting.craft')}</button>
+								<div className="recipe-actions">
+									<button
+										className="icon-btn subtle add-goal-btn"
+										title={t('panels.crafting.addGoal')}
+										aria-label={t('panels.crafting.addGoal')}
+										onClick={() => addGoal({ kind: 'craft', itemId: r.output.itemId, target: 1 })}
+									>
+										<Icon name="check" size={13} />
+									</button>
+									<button disabled={!ok} onClick={() => craft(r.id)}>{made ? t('panels.crafting.crafted') : t('panels.crafting.craft')}</button>
+								</div>
 							</div>
 						);
 					})}
@@ -539,7 +549,7 @@ export function ToolsPanel() {
 }
 
 export function BiomesPanel() {
-	const { data, state, setPanel, changeArea } = useGame();
+	const { data, state, setPanel, changeArea, addGoal } = useGame();
 	const { t, content } = useI18n();
 	if (!data || !state) return null;
 	const here = state.player.area;
@@ -585,15 +595,27 @@ export function BiomesPanel() {
 								</>
 							)}
 						</div>
-						<button
-							className="travel-icon"
-							disabled={!canTravel}
-							aria-label={travelTitle}
-							title={travelTitle}
-							onClick={async () => { setPanel(null); await changeArea(biome.id); }}
-						>
-							<Icon name={isHere ? 'pin' : 'walk'} size={18} />
-						</button>
+						<div className="biome-row-actions">
+							{biome.explorable && !unlocked && (
+								<button
+									className="icon-btn subtle add-goal-btn"
+									title={t('panels.biomes.addGoal', { biome: biomeName })}
+									aria-label={t('panels.biomes.addGoal', { biome: biomeName })}
+									onClick={() => addGoal({ kind: 'unlock', biomeId: biome.id, target: 1 })}
+								>
+									<Icon name="check" size={14} />
+								</button>
+							)}
+							<button
+								className="travel-icon"
+								disabled={!canTravel}
+								aria-label={travelTitle}
+								title={travelTitle}
+								onClick={async () => { setPanel(null); await changeArea(biome.id); }}
+							>
+								<Icon name={isHere ? 'pin' : 'walk'} size={18} />
+							</button>
+						</div>
 					</div>
 				);
 			})}

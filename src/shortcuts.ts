@@ -20,6 +20,7 @@ export const SHORTCUTS: Shortcut[] = [
 	{ keys: ['J'], does: 'panels.help.keys.journal' },
 	{ keys: ['K'], does: 'panels.help.keys.achievements' },
 	{ keys: ['Tab', 'O'], does: 'panels.help.keys.tasks' },
+	{ keys: ['L'], does: 'panels.help.keys.goals' },
 	{ keys: ['F'], does: 'panels.help.keys.feed' },
 	{ keys: ['T'], does: 'panels.help.keys.tools' },
 	{ keys: ['M', 'P'], does: 'panels.help.keys.preserve' },

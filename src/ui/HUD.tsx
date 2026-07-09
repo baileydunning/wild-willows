@@ -3,6 +3,7 @@ import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import { useI18n } from '../i18n/react';
 import { COOP_ENABLED } from '../features';
+import { homePerkStrength } from '../types';
 import { weatherType, seasonStyle, liveSeason, liveWeatherType, liveDayPhase, dayPhaseStyle } from '../weather';
 import { Icon } from './icons';
 import { TasksWidget } from './TasksWidget';
@@ -51,6 +52,13 @@ export function HUD() {
 	const homeName = homeBuilt ? (data.homeStyles?.[home!.style]?.name || t('app.hud.yourHome')) : t('app.hud.canvasTent');
 	const homeCarry = data.homeTracks?.comfort?.levels?.[((home?.comfort) || 1) - 1]?.carry || 0;
 	const homeDecor = state.placements.filter((p) => p.area === 'home').length;
+	// The house perk (and its current strength) + every upgrade track level, so
+	// the Your Home card shows all the buffs and upgrades you've earned.
+	const homeStyleDef = homeBuilt ? data.homeStyles?.[home!.style] : undefined;
+	const homePerk = homeStyleDef?.perk;
+	const homePerkStr = homePerk && home ? homePerkStrength(homePerk, home) : 0;
+	const homeTrackDefs: Record<string, any> = data.homeTracks || {};
+	const HOME_TRACK_ORDER = ['space', 'comfort', 'decor', 'light'];
 
 	const activeWorld = worlds.find((w) => w.worldId === activeWorldId);
 	const isCoop = COOP_ENABLED && !!activeWorld && !activeWorld.solo;
@@ -104,6 +112,20 @@ export function HUD() {
 						<div className="hud-area-name"><Icon name="home" size={17} /> {t('app.hud.yourHome')}</div>
 						<div className="hud-returned"><Icon name="sparkle" size={13} /> {homeName}{homeCarry > 0 ? t('app.hud.carrySuffix', { count: homeCarry }) : ''}</div>
 						<div className="hud-returned hud-returned-total"><Icon name="leaf" size={12} /> {t('app.hud.thingsPlaced', { count: homeDecor })}</div>
+						{homeBuilt && homePerk && (
+							<div className="hud-home-perk" title={t(`panels.home.perkBlurb.${homePerk.id}`, { pct: Math.round(homePerkStr * 100) })}>
+								<Icon name="sparkle" size={12} /> {t(`panels.home.perkName.${homePerk.id}`)} · {Math.round(homePerkStr * 100)}%
+							</div>
+						)}
+						{homeBuilt && (
+							<div className="hud-home-tracks">
+								{HOME_TRACK_ORDER.filter((k) => homeTrackDefs[k]).map((k) => (
+									<span key={k} className="hud-home-track" title={homeTrackDefs[k].name}>
+										{homeTrackDefs[k].name} {t('app.hud.trackLevel', { level: (home as any)?.[k] || 1 })}
+									</span>
+								))}
+							</div>
+						)}
 					</>
 				) : (
 					<>
@@ -195,6 +217,7 @@ export function HUD() {
 						{show.inventory && navBtn('inventory', 'basket', t('app.hud.navInventory'), 'B')}
 						{show.crafting && navBtn('crafting', 'hammer', t('app.hud.navCrafting'), 'C')}
 						{show.tools && navBtn('tools', 'tools', t('app.hud.navTools'), 'T')}
+						{navBtn('goals', 'check', t('app.hud.navGoals'), 'L')}
 					</div>
 				</div>
 				<div className="nav-group" role="group" aria-label={t('app.hud.groupWorld')}>

@@ -13,7 +13,7 @@ import { Icon } from './icons';
 const COLLAPSE_KEY = 'ww-tasks-collapsed';
 
 export function TasksWidget() {
-	const { data, state, claimTask } = useGame();
+	const { data, state, claimTask, setPanel } = useGame();
 	const { t, content } = useI18n();
 	const [collapsed, setCollapsed] = useState<boolean>(() => {
 		try { return localStorage.getItem(COLLAPSE_KEY) === '1'; } catch { return false; }
@@ -67,6 +67,9 @@ export function TasksWidget() {
 		<div className="tasks-widget tasks-board">
 			<div className="tasks-head">
 				<span className="tasks-title"><Icon name="check" size={14} /> {t('panels.tasks.title')}</span>
+				<button className="tasks-collapse" onClick={() => setPanel('goals')} title={t('panels.tasks.editTitle')} aria-label={t('panels.tasks.editTitle')}>
+					<Icon name="gear" size={13} />
+				</button>
 				<button className="tasks-collapse" onClick={toggle} title={t('panels.tasks.collapseTitle')} aria-label={t('panels.tasks.collapseAria')}>
 					<Icon name="forward" size={13} />
 				</button>

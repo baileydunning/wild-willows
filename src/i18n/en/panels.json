@@ -87,6 +87,7 @@
 		"requiresTool": "Requires an upgraded tool — see Tools panel.",
 		"crafted": "Crafted ✓",
 		"craft": "Craft",
+		"addGoal": "Add crafting this to your goals",
 		"plantedNotCrafted": "Planted, not crafted — dig a soil bed with the shovel (2), water it with the can (3), then click the watered bed and pick it from the planting menu."
 	},
 	"tools": {
@@ -110,7 +111,8 @@
 		"toUnlock": "To unlock:",
 		"health": "Health",
 		"balance": "Balance",
-		"animalsReturned": "{returned}/{total} animals returned"
+		"animalsReturned": "{returned}/{total} animals returned",
+		"addGoal": "Add unlocking {biome} to your goals"
 	},
 	"home": {
 		"buildTitle": "Build Your Home",
@@ -259,6 +261,8 @@
 		"preferredLabel": "Preferred habitat:",
 		"fieldNote": "Field note:",
 		"backToJournal": "← Back to field journal",
+		"addGoal": "Add building its habitat to your goals",
+		"animalReqUnknown": "Another {kind} needs to return first",
 		"lockedCard": "Upgrade your field guide to Tier {tier} to read this animal's full entry — its ecological role, diet, and food-web links."
 	},
 	"achievements": {
@@ -397,10 +401,15 @@
 			"text": "That’s the whole loop — and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don’t come easy. Find them all in the new Achievements menu (press K) — recent unlocks rise to the top. One last comfort to show you →",
 			"touch": "That’s the whole loop — and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don’t come easy. Find them all in the new Achievements menu (the star button) — recent unlocks rise to the top. One last comfort to show you →"
 		},
+		"goals": {
+			"title": "Set your own goals",
+			"text": "The board at the top-left is your task list. Set your own goals to play the game your way — whether that's crafting a specific build, planting out a meadow, bringing back a particular animal, collecting materials, or unlocking the next biome. Your first one's already there: unlock Old Hollow Forest, the next area. Open the board with the goals button (or press L) to add and reorder more; finishing any goal grants a small bundle of materials. You can also add a goal straight from the crafting, journal, and preserve menus.",
+			"touch": "The board at the top-left is your task list. Set your own goals to play the game your way — whether that's crafting a specific build, planting out a meadow, bringing back a particular animal, collecting materials, or unlocking the next biome. Your first one's already there: unlock Old Hollow Forest, the next area. Tap the goals button to add and reorder more; finishing any goal grants a small bundle of materials. You can also add a goal straight from the crafting, journal, and preserve menus."
+		},
 		"home": {
 			"title": "Make yourself at home",
-			"text": "Last thing — walk back to your camp tent and press E to step inside your home. It’s yours to decorate with crafted camp comforts, and the sign by the tent upgrades it bigger and cozier (and lets you carry more). Step inside now, and the preserve is all yours — happy restoring!",
-			"touch": "Last thing — walk back to your camp tent and tap it to step inside your home. It’s yours to decorate with crafted camp comforts, and the sign by the tent upgrades it bigger and cozier. Step inside now, and the preserve is all yours — happy restoring!"
+			"text": "Last thing — walk back to your camp tent and press E to step inside. The sign by the tent first builds your tent into a real house (each style has its own perk), then upgrades it along four tracks: Space (a bigger home that lets you carry more), Comfort (strengthens your house perk), Decor, and Light. Higher upgrades open as your biomes get healthier, and inside you can place crafted camp comforts. Step in now — the preserve is all yours. Happy restoring!",
+			"touch": "Last thing — walk back to your camp tent and tap it to step inside. The sign by the tent first builds your tent into a real house (each style has its own perk), then upgrades it along four tracks: Space (a bigger home that lets you carry more), Comfort (strengthens your house perk), Decor, and Light. Higher upgrades open as your biomes get healthier, and inside you can place crafted camp comforts. Step in now — the preserve is all yours. Happy restoring!"
 		}
 	},
 	"help": {
@@ -440,8 +449,8 @@
 				"text": "Each biome has its own weather that shifts on its own and slowly drifts through the seasons. Open the Weather & Seasons guide (press N) to see what’s happening across the preserve and learn how each condition shapes the biome you’re standing in. Keep an eye out — unusual weather can leave rare materials to gather while it lasts, and a few elusive animals only show themselves in the right weather, season, or time of day (their journal hint says when)."
 			},
 			"board": {
-				"title": "Check the board",
-				"text": "Every day the preserve posts three small tasks on the board by the top-right menu — finish one and claim a bundle of materials. Claimed tasks tidy themselves away (press Tab (or O) to tuck the board out of sight). Your plantings also keep growing in real time even while the game is closed: trees take hours to reach full size, and mature habitat nudges the land a little healthier, so there’s always something new when you come back."
+				"title": "Set your own goals",
+				"text": "The board at the top-left is your own goal list. It always starts with the same three goals — welcome the grasshopper, gather seeds, craft something — and after that it’s yours to build. Open the goals menu (press L, or the gear on the board) to add your own: craft a specific item, plant a number of things, collect a material, read about animals, bring an animal back, or upgrade your home. Reorder them into a plan, and finishing any goal earns a small bundle of materials (press Tab or O to tuck the board away). Your plantings also keep growing in real time even while the game is closed, so there’s always something new when you come back."
 			}
 		},
 		"keys": {
@@ -456,7 +465,8 @@
 			"basket": "Open your basket",
 			"journal": "Open the field journal",
 			"achievements": "Open achievements",
-			"tasks": "Tuck away / show the daily task board",
+			"tasks": "Tuck away / show the goal board",
+			"goals": "Open the goals builder — design your own task list",
 			"feed": "Open the activity feed (last 100 events)",
 			"tools": "Open tools & upgrades",
 			"preserve": "Open the preserve overview",
@@ -469,15 +479,65 @@
 		}
 	},
 	"tasks": {
-		"pillTitle": "Today's tasks (O)",
-		"pillAria": "Today's tasks: {done} of {total} done",
-		"title": "Today's tasks",
+		"pillTitle": "Your goals (O)",
+		"pillAria": "Your goals: {done} of {total} done",
+		"title": "Your goals",
+		"editTitle": "Edit your goals",
 		"collapseTitle": "Tuck away (O)",
-		"collapseAria": "Collapse the task board",
+		"collapseAria": "Collapse the goal board",
 		"rewardItem": "{qty}× {name}",
 		"rewardTitle": "Reward: {reward}",
 		"claim": "Claim",
 		"claimTitle": "Claim: {reward}"
+	},
+	"goals": {
+		"title": "Your Goals",
+		"intro": "This is your list. The first three goals are how everyone starts — welcome the grasshopper, gather seeds, craft something. After that, the list is yours: add whatever you want to work toward, in any order.",
+		"empty": "No custom goals yet — add one below to start shaping your own adventure.",
+		"addTitle": "Add a goal",
+		"add": "Add goal",
+		"remove": "Remove goal",
+		"moveUp": "Move up",
+		"moveDown": "Move down",
+		"done": "Done",
+		"rewardNote": "Finishing any goal grants a small bundle of materials — claim it on the board.",
+		"limitReached": "You can track up to {max} custom goals at once. Finish or remove one to add another.",
+		"typeLabel": "Goal type:",
+		"type": {
+			"craft": "Craft an item",
+			"plant": "Plant things",
+			"collect": "Collect a material",
+			"observe": "Read about animals",
+			"welcome": "Bring back an animal",
+			"home": "Upgrade your home",
+			"unlock": "Unlock a biome"
+		},
+		"countLabel": "How many:",
+		"levelLabel": "To level:",
+		"itemLabel": "Item to craft",
+		"resourceLabel": "Material to collect",
+		"animalLabel": "Animal to bring back",
+		"trackLabel": "Home upgrade",
+		"biomeLabel": "Biome to unlock",
+		"pickItem": "Choose an item…",
+		"pickResource": "Choose a material…",
+		"pickAnimal": "Choose an animal…",
+		"pickBiome": "Choose a biome…",
+		"track": {
+			"space": "Space",
+			"comfort": "Comfort",
+			"decor": "Decor",
+			"light": "Light"
+		},
+		"label": {
+			"craft": "Craft {count}× {item}",
+			"plant": "Plant {count} things",
+			"collect": "Collect {count}× {resource}",
+			"observe": "Read about {count} animals",
+			"welcome": "Bring back the {animal}",
+			"home": "Upgrade {track} to level {level}",
+			"unlock": "Unlock {biome}"
+		}
 	},
 	"people": {
 		"title": "People",

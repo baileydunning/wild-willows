@@ -233,6 +233,14 @@ const BASE_STEPS: StepDef[] = [
 		done: () => false, // info step — advance with Next
 	},
 	{
+		// Teach the custom goals system — the board is the player's own list.
+		icon: 'check',
+		key: 'panels.tutorial.goals',
+		hasTouch: true,
+		chapter: 4,
+		done: () => false, // info step — advance with Next
+	},
+	{
 		icon: 'home',
 		key: 'panels.tutorial.home',
 		hasTouch: true,

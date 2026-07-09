@@ -14,6 +14,7 @@ import { BiomesPanel, ChestPanel, CraftingPanel, HomePanel, InventoryPanel, Mate
 import { SettingsPanel } from './ui/Settings';
 import { ActivityLog, FeedPanel, Toolbelt } from './ui/Toolbelt';
 import { Tutorial } from './ui/Tutorial';
+import { GoalsPanel } from './ui/GoalsPanel';
 import { DevPanel } from './ui/DevPanel';
 import { KeyboardGate } from './ui/KeyboardGate';
 import { WelcomeScreen } from './ui/Welcome';
@@ -251,7 +252,7 @@ function GameScreen() {
 			// M = map/preserve (P kept as a legacy alias), N = weather & seasons,
 			// G = settings (gear), C = crafting (I = basket alias). O (the daily task
 			// board's collapse toggle) is handled inside TasksWidget itself.
-			const map: Record<string, any> = { b: 'inventory', i: 'inventory', j: 'journal', k: 'achievements', f: 'feed', t: 'tools', m: 'biomes', p: 'biomes', g: 'settings', c: 'crafting', u: 'people', n: 'weather' };
+			const map: Record<string, any> = { b: 'inventory', i: 'inventory', j: 'journal', k: 'achievements', f: 'feed', t: 'tools', m: 'biomes', p: 'biomes', g: 'settings', c: 'crafting', u: 'people', n: 'weather', l: 'goals' };
 			if (map[k]) setPanel(panel === map[k] ? null : map[k]);
 			// number keys select toolbelt tools
 			const toolByKey: Record<string, string> = { '1': 'basket', '2': 'shovel', '3': 'watering-can', '4': 'paint' };
@@ -287,6 +288,7 @@ function GameScreen() {
 			{panel === 'people' && <PeoplePanel />}
 			{panel === 'weather' && <WeatherPanel />}
 			{panel === 'materials' && <MaterialsPanel />}
+			{panel === 'goals' && <GoalsPanel />}
 			{devOpen && <DevPanel onClose={() => setDevOpen(false)} />}
 		</div>
 	);

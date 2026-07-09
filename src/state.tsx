@@ -76,6 +76,8 @@ interface Ctx {
 	paintPlacement: (placementId: string, color: string) => Promise<void>;
 	observe: (animalId: string) => Promise<void>;
 	claimTask: (taskId: string) => Promise<void>;
+	setGoals: (goals: any[]) => Promise<void>;
+	addGoal: (goal: any) => Promise<void>;
 	changeArea: (area: string) => Promise<void>;
 	recalcArea: (area: string) => Promise<void>;
 	// multiplayer: the world this save belongs to (solo, or one co-op world)
@@ -1025,6 +1027,12 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			act(
 				() => api.claimTask(taskId),
 				(r) => {
+					// Announce the finished goal itself in BOTH feeds (corner log + Feed
+					// menu, via notable=true), then the reward it granted.
+					if (r?.text) {
+						toast(t('app.toast.goalComplete', { goal: r.text }), 'achievement');
+						pushLog('check', t('app.feed.goalComplete', { goal: r.text }), true);
+					}
 					const gainedTxt = Object.entries(r?.gained || {})
 						.map(([id, q]) => {
 							const def = data?.resources.find((x) => x.id === id);
@@ -1038,6 +1046,28 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				}
 			),
 		[act, data, toast, pushLog]
+	);
+
+	// Save the player's custom goal list (add/remove/reorder are edits to it).
+	const setGoals = useCallback(
+		(goals: any[]) => act(() => api.setGoals(goals)),
+		[act]
+	);
+
+	// Add a single goal from a menu (journal / crafting / biomes), skipping exact
+	// duplicates and respecting the list cap. Announces the add with a toast.
+	const addGoal = useCallback(
+		async (goal: any) => {
+			const cur = (bridge.shared.state as any)?.customGoals || state?.customGoals || [];
+			const same = (g: any) =>
+				g.kind === goal.kind && g.itemId === goal.itemId && g.resourceId === goal.resourceId &&
+				g.animalId === goal.animalId && g.track === goal.track && g.biomeId === goal.biomeId;
+			if (cur.some(same)) { toast(t('app.toast.goalAlready'), 'info'); return; }
+			if (cur.length >= 12) { toast(t('app.toast.goalLimit'), 'info'); return; }
+			await act(() => api.setGoals([...cur, goal]));
+			toast(t('app.toast.goalAdded'), 'unlock');
+		},
+		[act, state, toast]
 	);
 
 	const changeArea = useCallback(
@@ -1087,7 +1117,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			startNew, startLogin, continueLast, startNewSolo, loadSoloSlot, logout,
 			refresh, collect, transfer, craft, discard, place, removePlacement, movePlacement, rotatePlacement,
 			upgradeTool, upgradeHome, setHomeStyle, rest, paintColor, setPaintColor, paintHome, paintPlacement,
-			observe, claimTask, changeArea, recalcArea,
+			observe, claimTask, setGoals, addGoal, changeArea, recalcArea,
 			worlds, activeWorldId, startNewCoop, refreshWorlds,
 			pendingJoin, checkJoinApproval, playSoloInstead, pendingRequests, approveJoin, denyJoin,
 		}),
@@ -1095,7 +1125,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			placementObjectId, toasts, toast, dismissToast, log, feedLog, selectedTool, setSelectedTool, terraform, plant,
 			setTutorialStep, startNew, startLogin, continueLast, startNewSolo, loadSoloSlot, logout,
 			refresh, collect, transfer, craft, discard, place, removePlacement, movePlacement, rotatePlacement, upgradeTool,
-			observe, claimTask, changeArea, recalcArea, openChest, startPlacement, cancelPlacement, upgradeHome, setHomeStyle, rest,
+			observe, claimTask, setGoals, addGoal, changeArea, recalcArea, openChest, startPlacement, cancelPlacement, upgradeHome, setHomeStyle, rest,
 			paintColor, setPaintColor, paintHome, paintPlacement,
 			worlds, activeWorldId, startNewCoop, refreshWorlds,
 			pendingJoin, checkJoinApproval, playSoloInstead, pendingRequests, approveJoin, denyJoin]

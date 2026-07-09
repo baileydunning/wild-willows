@@ -143,7 +143,23 @@
 		"plantBeds": "Planta 2 plántulas en bancales regados",
 		"observe": "Lee sobre 3 animales en tu diario de campo",
 		"collectSeeds": "Recolecta 10 semillas",
-		"plantThree": "Planta 3 plántulas"
+		"plantThree": "Planta 3 plántulas",
+		"craftFirst": "Fabrica tu primer hábitat"
+	},
+	"goal": {
+		"craft": "Fabrica {count}× {item}",
+		"plant": "Planta {count} cosas",
+		"collect": "Recolecta {count}× {resource}",
+		"observe": "Lee sobre {count} animales",
+		"welcome": "Trae de vuelta al {animal}",
+		"home": "Mejora {track} de tu hogar al nivel {level}",
+		"unlock": "Desbloquea {biome}",
+		"track": {
+			"space": "el espacio",
+			"comfort": "la comodidad",
+			"decor": "la decoración",
+			"light": "la luz"
+		}
 	},
 	"feed": {
 		"joinedWorld": "¡{name} se unió a la reserva!"

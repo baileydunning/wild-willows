@@ -1030,6 +1030,10 @@ async function createPlayerRecords(playerId: string, name: string, passcode: str
 		tutorialStep: 0,
 		home: { ...DEFAULT_HOME }, // your camp tent — upgrade it along four tracks, in two styles
 		metrics: freshMetrics(now),
+		// The first goal players chase on their own (after the three fixed
+		// starters): open the next biome. Seeded so the board points somewhere the
+		// moment onboarding ends; it's editable/removable like any goal.
+		customGoals: [{ id: 'cg-unlock-forest', kind: 'unlock', biomeId: 'forest', target: 1, base: 0 }],
 	};
 	await t.Player.put(player);
 
@@ -1085,7 +1089,8 @@ async function freshSnapshot(created: any) {
 		feed: [],
 		serverTime: now,
 		weather: weatherSnapshot(worldId, wxTime, WEATHER_BIOME_IDS),
-		dailyTasks: dailyTasksBlock({ wid: worldId, player: created.player, d, discoveries: [], biomeStates: created.seeded.biomeStates, now }),
+		dailyTasks: dailyTasksBlock({ wid: worldId, player: created.player, d, discoveries: [], biomeStates: created.seeded.biomeStates, placements: created.seeded.placements, chests: created.seeded.chests, now }),
+		customGoals: created.player.customGoals || [],
 		nodeRegenSeconds: NODE_REGEN_SECONDS,
 		inventoryCapacity: inventoryCapacity(created.player),
 	};
@@ -1750,6 +1755,10 @@ interface TaskCtx {
 	discoveries: any[];
 	/** every BiomeState row in this world */
 	biomeStates: any[];
+	/** every Placement row in this world (for "plant N" goal progress) */
+	placements?: any[];
+	/** every Chest row in this world (for "collect N" goal progress) */
+	chests?: any[];
 	now: number;
 	/** The biomes the PLAYER personally unlocked — the reward/gather pool draws
 	 *  only from these, never the wider co-op roam set, so tasks stay specific to
@@ -1957,22 +1966,160 @@ function dailyTasksFor(ctx: TaskCtx, claims: Record<string, boolean>, daily: Rec
 	return { dayKey, endsAt, tasks };
 }
 
-/** The day's tasks with this player's live progress + claim state folded in. */
+// ---- player-authored goals (the custom task list) -------------------------
+// The board is the player's OWN list now: three fixed starters that teach the
+// core loop, then whatever goals the player builds. Progress is read from
+// durable world state (not the day counters, which reset), claims are permanent
+// (player.goalClaims), and each finished goal grants one small fixed bundle.
+
+type GoalKind = 'craft' | 'plant' | 'collect' | 'observe' | 'welcome' | 'home' | 'unlock';
+interface CustomGoal {
+	id: string;
+	kind: GoalKind;
+	target: number;
+	itemId?: string;
+	resourceId?: string;
+	animalId?: string;
+	track?: string;
+	biomeId?: string;
+	/** The metric value at the moment the goal was created. Progress for the
+	 *  cumulative kinds (craft/plant/collect/observe) is measured as NEW work done
+	 *  SINCE this baseline, so a fresh goal starts at 0 instead of instantly
+	 *  completing off past progress. */
+	base?: number;
+}
+
+const GOAL_ICON: Record<GoalKind, string> = {
+	craft: 'hammer', plant: 'leaf', collect: 'basket', observe: 'journal', welcome: 'paw', home: 'home', unlock: 'map',
+};
+const GOAL_HOME_TRACKS = ['space', 'comfort', 'decor', 'light'];
+const MAX_CUSTOM_GOALS = 12;
+
+/** Staple materials from the player's unlocked biomes (no water / weather specials). */
+function goalRewardPool(ctx: TaskCtx): string[] {
+	const unlocked: string[] = ctx.unlockedBiomes?.length ? ctx.unlockedBiomes
+		: (ctx.player?.unlockedBiomes?.length ? ctx.player.unlockedBiomes : ['meadow']);
+	const all = unlocked.flatMap((id: string) => (ctx.d.biome.get(id)?.resources || []) as string[]);
+	return [...new Set<string>(all)]
+		.filter((r) => r !== 'water' && !isWeatherGatheredResource(r) && ctx.d.resource.get(r));
+}
+/** A small, deterministic-per-key reward bundle for a finished goal. */
+function goalReward(ctx: TaskCtx, key: string): Record<string, number> {
+	const pool = goalRewardPool(ctx);
+	const out: Record<string, number> = {};
+	if (!pool.length) return out;
+	const rng = seededRng(hash32(`goalreward:${key}`));
+	const p = [...pool];
+	for (let i = 0; i < 2 && p.length; i++) {
+		const r = p.splice(Math.floor(rng() * p.length), 1)[0];
+		out[r] = 3 + Math.floor(rng() * 3); // 3–5 each — deliberately small
+	}
+	return out;
+}
+
+/** How much of a resource the player is holding, basket + all chests. */
+function heldAmount(ctx: TaskCtx, resId: string): number {
+	const inv = ctx.player?.inventory?.[resId] || 0;
+	const inChests = (ctx.chests || []).reduce((s: number, c: any) => s + (c.contents?.[resId] || 0), 0);
+	return inv + inChests;
+}
+
+/** The raw, absolute metric a goal tracks (before the baseline is subtracted). */
+function goalMetric(goal: CustomGoal, ctx: TaskCtx): number {
+	switch (goal.kind) {
+		case 'craft': return ctx.player?.craftedEver?.[goal.itemId || ''] || 0;
+		case 'plant': return (ctx.placements || []).filter((p: any) => typeof p.plantedAt === 'number').length;
+		case 'collect': return heldAmount(ctx, goal.resourceId || '');
+		case 'observe': return ctx.discoveries.filter((x: any) => (x.timesObserved || 0) > 0).length;
+		default: return 0;
+	}
+}
+
+/** Live progress for one player-set goal, read from durable world state.
+ *  Cumulative kinds count only NEW work since the goal's baseline, so a freshly
+ *  added goal never starts already-complete. */
+function goalProgress(goal: CustomGoal, ctx: TaskCtx): number {
+	switch (goal.kind) {
+		case 'craft':
+		case 'plant':
+		case 'collect':
+		case 'observe':
+			return Math.max(0, Math.min(goal.target, goalMetric(goal, ctx) - (goal.base || 0)));
+		case 'welcome': return ctx.discoveries.some((x: any) => x.animalId === goal.animalId) ? 1 : 0;
+		case 'home': return (ctx.player?.home?.[goal.track || ''] as number) >= goal.target ? goal.target : Math.min(goal.target, (ctx.player?.home?.[goal.track || ''] as number) || 1);
+		case 'unlock': return ctx.biomeStates.some((b: any) => b.biomeId === goal.biomeId && b.unlocked) ? 1 : 0;
+		default: return 0;
+	}
+}
+
+/** Localized board label for a goal. */
+function goalText(goal: CustomGoal, ctx: TaskCtx): string {
+	const d = ctx.d;
+	switch (goal.kind) {
+		case 'craft': return tr('server.goal.craft', { count: goal.target, item: d.object.get(goal.itemId)?.name || goal.itemId });
+		case 'plant': return tr('server.goal.plant', { count: goal.target });
+		case 'collect': return tr('server.goal.collect', { count: goal.target, resource: d.resource.get(goal.resourceId)?.name || goal.resourceId });
+		case 'observe': return tr('server.goal.observe', { count: goal.target });
+		case 'welcome': return tr('server.goal.welcome', { animal: d.animal.get(goal.animalId)?.name || goal.animalId });
+		case 'home': return tr('server.goal.home', { track: tr(`server.goal.track.${goal.track}`), level: goal.target });
+		case 'unlock': return tr('server.goal.unlock', { biome: d.biome.get(goal.biomeId)?.name || goal.biomeId });
+		default: return '';
+	}
+}
+
+/** The three fixed starter tasks that always begin the game (until claimed). */
+function starterTasks(ctx: TaskCtx): any[] {
+	const grasshopper = ctx.discoveries.some((x: any) => x.animalId === FIRST_ANIMAL_ID);
+	const craftedAny = Object.keys(ctx.player?.craftedEver || {}).length > 0;
+	return [
+		{ id: 'start-welcome', kind: 'welcome', icon: 'sparkle', text: tr('server.task.welcomeGrasshopper'), hint: tr('server.task.welcomeGrasshopperHint'), target: 1, progress: grasshopper ? 1 : 0 },
+		{ id: 'start-gather', kind: 'gather', icon: 'basket', text: tr('server.task.collectSeeds'), target: 10, progress: Math.min(10, heldAmount(ctx, 'seeds')) },
+		{ id: 'start-craft', kind: 'craft', icon: 'hammer', text: tr('server.task.craftFirst'), target: 1, progress: craftedAny ? 1 : 0 },
+	];
+}
+
+/** Validate + normalize a player-submitted goal list (rewards + baselines are
+ *  never client-supplied — they're derived server-side). Existing ids are kept so
+ *  SetGoals can preserve each goal's baseline across edits. */
+function sanitizeGoals(goals: any[], d: any): CustomGoal[] {
+	const out: CustomGoal[] = [];
+	const kinds: GoalKind[] = ['craft', 'plant', 'collect', 'observe', 'welcome', 'home', 'unlock'];
+	for (const g of Array.isArray(goals) ? goals : []) {
+		if (out.length >= MAX_CUSTOM_GOALS) break;
+		const kind = g?.kind as GoalKind;
+		if (!kinds.includes(kind)) continue;
+		const id = typeof g?.id === 'string' && g.id ? g.id.slice(0, 40) : `cg_${Math.random().toString(36).slice(2, 10)}`;
+		const target = Math.max(1, Math.min(99, Math.floor(Number(g?.target) || 1)));
+		const goal: CustomGoal = { id, kind, target };
+		if (kind === 'craft') { if (!d.object.get(g?.itemId)) continue; goal.itemId = g.itemId; }
+		else if (kind === 'collect') { if (!d.resource.get(g?.resourceId)) continue; goal.resourceId = g.resourceId; }
+		else if (kind === 'welcome') { if (!d.animal.get(g?.animalId)) continue; goal.animalId = g.animalId; goal.target = 1; }
+		else if (kind === 'home') { if (!GOAL_HOME_TRACKS.includes(g?.track)) continue; goal.track = g.track; }
+		else if (kind === 'unlock') { if (!d.biome.get(g?.biomeId)) continue; goal.biomeId = g.biomeId; goal.target = 1; }
+		out.push(goal);
+	}
+	return out;
+}
+
+/** The on-screen board: three fixed starters, then the player's own goal list. */
 function dailyTasksBlock(ctx: TaskCtx) {
-	const { player } = ctx;
-	const dayKey = playerDayKey(player, ctx.now);
-	const claims = player?.taskClaims?.dayKey === dayKey ? player.taskClaims.claimed || {} : {};
-	const daily = player?.daily?.dayKey === dayKey ? player.daily.counts || {} : {};
-	const gen = dailyTasksFor(ctx, claims, daily);
-	return {
-		dayKey: gen.dayKey,
-		endsAt: gen.endsAt,
-		tasks: gen.tasks.map(({ live, ...task }) => ({
-			...task,
-			progress: live != null ? live : Math.min(task.target, daily[task.counter] || 0),
-			claimed: !!claims[task.id],
-		})),
-	};
+	const { player, now } = ctx;
+	const dayKey = playerDayKey(player, now);
+	const goalClaims: Record<string, boolean> = player?.goalClaims || {};
+	const tasks: any[] = [];
+	for (const s of starterTasks(ctx)) {
+		if (goalClaims[s.id]) continue;
+		tasks.push({ ...s, counter: '', reward: goalReward(ctx, s.id), claimed: false });
+	}
+	for (const g of (player?.customGoals || []) as CustomGoal[]) {
+		if (goalClaims[g.id]) continue;
+		tasks.push({
+			id: g.id, kind: g.kind, icon: GOAL_ICON[g.kind] || 'check',
+			text: goalText(g, ctx), target: g.target, counter: '',
+			reward: goalReward(ctx, g.id), progress: goalProgress(g, ctx), claimed: false,
+		});
+	}
+	return { dayKey, endsAt: 0, tasks };
 }
 
 async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
@@ -2025,7 +2172,8 @@ async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 			.map((r: any) => ({ id: r.id, at: r.at, icon: r.icon, text: r.text })),
 		serverTime: now,
 		weather: weatherSnapshot(wid, wxTime, WEATHER_BIOME_IDS, player?.devWeather || null),
-		dailyTasks: dailyTasksBlock({ wid, player, d, discoveries, biomeStates, now, unlockedBiomes: personalUnlocked }),
+		dailyTasks: dailyTasksBlock({ wid, player, d, discoveries, biomeStates, placements, chests, now, unlockedBiomes: personalUnlocked }),
+		customGoals: player?.customGoals || [],
 		nodeRegenSeconds: NODE_REGEN_SECONDS,
 		inventoryCapacity: inventoryCapacity(player),
 	};
@@ -3522,8 +3670,10 @@ export class ClaimTask extends PublicEndpoint {
 		const wid = worldOf(player);
 		const now = Date.now();
 
-		const [discoveries, biomeStates] = await Promise.all([byWorld(t.Discovery, wid), byWorld(t.BiomeState, wid)]);
-		const block = dailyTasksBlock({ wid, player, d, discoveries, biomeStates, now, unlockedBiomes: player.unlockedBiomes });
+		const [discoveries, biomeStates, placements, chests] = await Promise.all([
+			byWorld(t.Discovery, wid), byWorld(t.BiomeState, wid), byWorld(t.Placement, wid), byWorld(t.Chest, wid),
+		]);
+		const block = dailyTasksBlock({ wid, player, d, discoveries, biomeStates, placements, chests, now, unlockedBiomes: player.unlockedBiomes });
 		const task = block.tasks.find((x: any) => x.id === String(taskId || ''));
 		if (!task) throw new GameError(tr('server.err.taskNotOnBoard'), 404);
 		if (task.claimed) throw new GameError(tr('server.err.taskAlreadyClaimed'), 409);
@@ -3543,11 +3693,9 @@ export class ClaimTask extends PublicEndpoint {
 		}
 		if (!Object.keys(gained).length) throw new GameError(tr('server.err.basketFullReward'), 409);
 
-		const claims = player.taskClaims?.dayKey === block.dayKey
-			? { dayKey: block.dayKey, claimed: { ...(player.taskClaims.claimed || {}) } }
-			: { dayKey: block.dayKey, claimed: {} as Record<string, boolean> };
-		claims.claimed[task.id] = true;
-		await t.Player.patch(playerId, { inventory, taskClaims: claims });
+		// Starters and player-set goals claim permanently (they aren't day-scoped).
+		const goalClaims = { ...(player.goalClaims || {}), [task.id]: true };
+		await t.Player.patch(playerId, { inventory, goalClaims });
 		await bumpMetrics(player, { tasksCompleted: 1 });
 		await awardAchievements(playerId);
 
@@ -3555,7 +3703,40 @@ export class ClaimTask extends PublicEndpoint {
 			...block,
 			tasks: block.tasks.map((x: any) => (x.id === task.id ? { ...x, claimed: true } : x)),
 		};
-		return { ok: true, taskId: task.id, gained, inventory, dailyTasks };
+		return { ok: true, taskId: task.id, text: task.text, gained, inventory, dailyTasks };
+	}
+}
+
+/**
+ * POST /SetGoals/ {playerId, goals:[…]} — replace the player's custom goal list.
+ * The client sends the full ordered list (add/remove/reorder are just edits to
+ * it); the server validates every entry and stores it. Rewards are NEVER taken
+ * from the client — they're derived on claim — so a crafted request can't grant
+ * itself materials.
+ */
+export class SetGoals extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId, goals } = await bodyOf(data);
+		const { player } = await requirePlayer(playerId);
+		const t = db();
+		const d = await defs();
+		const wid = worldOf(player);
+		const now = Date.now();
+		const [discoveries, biomeStates, placements, chests] = await Promise.all([
+			byWorld(t.Discovery, wid), byWorld(t.BiomeState, wid), byWorld(t.Placement, wid), byWorld(t.Chest, wid),
+		]);
+		const ctx: TaskCtx = { wid, player, d, discoveries, biomeStates, placements, chests, now, unlockedBiomes: player.unlockedBiomes };
+		// Preserve each existing goal's baseline across edits (reorder/remove); a
+		// brand-new goal gets its baseline captured NOW, so progress counts only the
+		// work done from here on (fixes goals that showed complete the instant added).
+		const prev = new Map<string, CustomGoal>((player.customGoals || []).map((g: CustomGoal) => [g.id, g]));
+		const clean = sanitizeGoals(goals, d).map((g) => {
+			const existing = prev.get(g.id);
+			const base = existing && typeof existing.base === 'number' ? existing.base : goalMetric(g, ctx);
+			return { ...g, base };
+		});
+		await t.Player.patch(playerId, { customGoals: clean });
+		return { ok: true, customGoals: clean };
 	}
 }
 

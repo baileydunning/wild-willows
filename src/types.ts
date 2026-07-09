@@ -402,8 +402,10 @@ export interface GameState {
 	serverTime: number;
 	/** Derived weather/season/day-phase for this world at serverTime. */
 	weather?: WeatherSnapshot;
-	/** Today's rotating task board (derived server-side; resets at UTC midnight). */
+	/** The on-screen task board: fixed starters + the player's own goals. */
 	dailyTasks?: DailyTasksBlock;
+	/** The player's saved custom goal definitions (for the goals builder menu). */
+	customGoals?: CustomGoal[];
 	nodeRegenSeconds: number;
 	inventoryCapacity: number;
 }
@@ -429,6 +431,22 @@ export interface DailyTasksBlock {
 	tasks: DailyTask[];
 }
 
+/** A player-authored goal — the building block of the custom task list. */
+export type CustomGoalKind = 'craft' | 'plant' | 'collect' | 'observe' | 'welcome' | 'home' | 'unlock';
+export interface CustomGoal {
+	id: string;
+	kind: CustomGoalKind;
+	target: number;
+	/** habitat-object id (craft), resource id (collect), animal id (welcome), home track (home), biome id (unlock). */
+	itemId?: string;
+	resourceId?: string;
+	animalId?: string;
+	track?: string;
+	biomeId?: string;
+	/** metric value captured when the goal was created (server-managed). */
+	base?: number;
+}
+
 export type PanelId =
 	| 'inventory'
 	| 'crafting'
@@ -444,4 +462,5 @@ export type PanelId =
 	| 'people'
 	| 'weather'
 	| 'materials'
+	| 'goals'
 	| null;

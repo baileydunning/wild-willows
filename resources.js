@@ -13487,7 +13487,23 @@ var server_default = {
     plantBeds: "Plant 2 seedlings in watered beds",
     observe: "Read about 3 animals in your journal",
     collectSeeds: "Collect 10 seeds",
-    plantThree: "Plant 3 seedlings"
+    plantThree: "Plant 3 seedlings",
+    craftFirst: "Craft your first habitat"
+  },
+  goal: {
+    craft: "Craft {count}\xD7 {item}",
+    plant: "Plant {count} things",
+    collect: "Collect {count}\xD7 {resource}",
+    observe: "Read about {count} animals",
+    welcome: "Bring back the {animal}",
+    home: "Upgrade your home's {track} to level {level}",
+    unlock: "Unlock {biome}",
+    track: {
+      space: "space",
+      comfort: "comfort",
+      decor: "decor",
+      light: "light"
+    }
   },
   feed: {
     joinedWorld: "{name} joined the preserve!"
@@ -13904,7 +13920,7 @@ var supportHtml = `<!doctype html>
 </body>
 </html>
 `;
-var buildStamp = "0.1.9+2026-07-08T23:52:38.961Z";
+var buildStamp = "0.1.9+2026-07-09T00:51:16.217Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
@@ -14571,7 +14587,11 @@ async function createPlayerRecords(playerId, name, passcode, appearance, tzOffse
     tutorialStep: 0,
     home: { ...DEFAULT_HOME },
     // your camp tent — upgrade it along four tracks, in two styles
-    metrics: freshMetrics(now)
+    metrics: freshMetrics(now),
+    // The first goal players chase on their own (after the three fixed
+    // starters): open the next biome. Seeded so the board points somewhere the
+    // moment onboarding ends; it's editable/removable like any goal.
+    customGoals: [{ id: "cg-unlock-forest", kind: "unlock", biomeId: "forest", target: 1, base: 0 }]
   };
   await t2.Player.put(player);
   const wid = playerId;
@@ -14631,7 +14651,8 @@ async function freshSnapshot(created) {
     feed: [],
     serverTime: now,
     weather: weatherSnapshot(worldId, wxTime, WEATHER_BIOME_IDS),
-    dailyTasks: dailyTasksBlock({ wid: worldId, player: created.player, d, discoveries: [], biomeStates: created.seeded.biomeStates, now }),
+    dailyTasks: dailyTasksBlock({ wid: worldId, player: created.player, d, discoveries: [], biomeStates: created.seeded.biomeStates, placements: created.seeded.placements, chests: created.seeded.chests, now }),
+    customGoals: created.player.customGoals || [],
     nodeRegenSeconds: NODE_REGEN_SECONDS,
     inventoryCapacity: inventoryCapacity(created.player)
   };
@@ -15052,240 +15073,156 @@ async function consumeMaterials(player, materials, wid = player.id) {
   }
   return { usedFrom, inventory };
 }
-function milestonePin(ctx, dayKey, claims, daily, bundle) {
-  const { player, d, discoveries, biomeStates } = ctx;
-  const bs = new Map(biomeStates.map((b) => [b.biomeId, b]));
-  const gh = discoveries.find((x) => x.animalId === FIRST_ANIMAL_ID);
-  const welcomeId = `${dayKey}-welcome`;
-  const welcomedToday = gh && playerDayKey(player, gh.firstObservedAt || ctx.now) === dayKey;
-  if (!gh || welcomedToday && !claims[welcomeId]) {
-    return {
-      id: welcomeId,
-      kind: "welcome",
-      icon: "sparkle",
-      text: t("server.task.welcomeGrasshopper"),
-      target: 1,
-      counter: "",
-      reward: bundle(),
-      hint: t("server.task.welcomeGrasshopperHint"),
-      live: gh ? 1 : 0
-    };
-  }
-  for (const biome of d.biomes) {
-    const u = biome.unlock;
-    if (!u || bs.get(biome.id)?.unlocked) continue;
-    const prereq = bs.get(u.biome);
-    if (!prereq?.unlocked) continue;
-    const prereqName = d.biome.get(u.biome)?.name || u.biome;
-    const steps = [];
-    if (u.minHealth) {
-      const remaining = Math.max(0, u.minHealth - (prereq.health || 0));
-      const target = Math.max(1, Math.min(3, Math.ceil(remaining)));
-      const current = Math.round(prereq.health || 0);
-      steps.push({
-        step: "health",
-        icon: "leaf",
-        unmet: remaining > 0,
-        text: t("server.task.raiseHealth", { biome: prereqName, count: target, current, goal: Math.min(100, current + target) }),
-        target,
-        counter: `health:${u.biome}`
-      });
-    }
-    if (u.minAnimals) {
-      steps.push({
-        step: "animals",
-        icon: "sparkle",
-        unmet: (prereq.returnedCount || 0) < u.minAnimals,
-        text: t("server.task.welcomeNewAnimal", { biome: prereqName }),
-        target: 1,
-        counter: `animal:${u.biome}`
-      });
-    }
-    if (u.minTotalAnimals) {
-      steps.push({
-        step: "total",
-        icon: "journal",
-        unmet: discoveries.length < u.minTotalAnimals,
-        text: t("server.task.welcomeAnyAnimal"),
-        target: 1,
-        counter: "animal"
-      });
-    }
-    if (u.requiresItem) {
-      const itemName = d.object.get(u.requiresItem)?.name || u.requiresItem;
-      const have = (player?.craftedItems?.[u.requiresItem] || 0) + (player?.craftedEver?.[u.requiresItem] || 0);
-      steps.push({ step: "kit", icon: "hammer", unmet: have <= 0, text: t("server.task.craftKit", { item: itemName }), target: 1, counter: "", live: Math.min(1, have) });
-    }
-    for (const step of steps) {
-      const id = `${dayKey}-goal-${biome.id}-${step.step}`;
-      if (claims[id]) continue;
-      const progressedToday = step.counter ? (daily[step.counter] || 0) > 0 : (step.live || 0) > 0;
-      if (!step.unmet && !progressedToday) continue;
-      return {
-        id,
-        kind: "goal",
-        icon: step.icon,
-        text: step.text,
-        target: step.target,
-        counter: step.counter,
-        reward: bundle(),
-        ...step.counter ? {} : { live: step.live }
-      };
-    }
-    return null;
-  }
-  return null;
+var GOAL_ICON = {
+  craft: "hammer",
+  plant: "leaf",
+  collect: "basket",
+  observe: "journal",
+  welcome: "paw",
+  home: "home",
+  unlock: "map"
+};
+var GOAL_HOME_TRACKS = ["space", "comfort", "decor", "light"];
+var MAX_CUSTOM_GOALS = 12;
+function goalRewardPool(ctx) {
+  const unlocked = ctx.unlockedBiomes?.length ? ctx.unlockedBiomes : ctx.player?.unlockedBiomes?.length ? ctx.player.unlockedBiomes : ["meadow"];
+  const all = unlocked.flatMap((id) => ctx.d.biome.get(id)?.resources || []);
+  return [...new Set(all)].filter((r) => r !== "water" && !isWeatherGatheredResource(r) && ctx.d.resource.get(r));
 }
-function dailyTasksFor(ctx, claims, daily) {
-  const { wid, player, d, discoveries, now } = ctx;
-  const discoveredCount = discoveries.length;
-  const dayKey = playerDayKey(player, now);
-  const endsAt = (dayKey + 1) * DAY_MS2 + TASK_RESET_HOUR * 36e5 - tzMs(player);
-  const rng = seededRng(hash32(`tasks:${wid}:${dayKey}`));
-  const unlocked = ctx.unlockedBiomes?.length ? ctx.unlockedBiomes : player?.unlockedBiomes?.length ? player.unlockedBiomes : ["meadow"];
-  const resPool = [...new Set(unlocked.flatMap((id) => d.biome.get(id)?.resources || []))].filter((r) => r !== "water" && !isWeatherGatheredResource(r) && d.resource.get(r));
-  const pickFrom = (arr) => arr[Math.floor(rng() * arr.length)];
-  const bundle = () => {
-    const out = {};
-    const pool = [...resPool];
-    for (let i = 0; i < 2 && pool.length; i++) {
-      const r = pool.splice(Math.floor(rng() * pool.length), 1)[0];
-      out[r] = 4 + Math.floor(rng() * 4);
+function goalReward(ctx, key) {
+  const pool = goalRewardPool(ctx);
+  const out = {};
+  if (!pool.length) return out;
+  const rng = seededRng(hash32(`goalreward:${key}`));
+  const p = [...pool];
+  for (let i = 0; i < 2 && p.length; i++) {
+    const r = p.splice(Math.floor(rng() * p.length), 1)[0];
+    out[r] = 3 + Math.floor(rng() * 3);
+  }
+  return out;
+}
+function heldAmount(ctx, resId) {
+  const inv = ctx.player?.inventory?.[resId] || 0;
+  const inChests = (ctx.chests || []).reduce((s, c) => s + (c.contents?.[resId] || 0), 0);
+  return inv + inChests;
+}
+function goalMetric(goal, ctx) {
+  switch (goal.kind) {
+    case "craft":
+      return ctx.player?.craftedEver?.[goal.itemId || ""] || 0;
+    case "plant":
+      return (ctx.placements || []).filter((p) => typeof p.plantedAt === "number").length;
+    case "collect":
+      return heldAmount(ctx, goal.resourceId || "");
+    case "observe":
+      return ctx.discoveries.filter((x) => (x.timesObserved || 0) > 0).length;
+    default:
+      return 0;
+  }
+}
+function goalProgress(goal, ctx) {
+  switch (goal.kind) {
+    case "craft":
+    case "plant":
+    case "collect":
+    case "observe":
+      return Math.max(0, Math.min(goal.target, goalMetric(goal, ctx) - (goal.base || 0)));
+    case "welcome":
+      return ctx.discoveries.some((x) => x.animalId === goal.animalId) ? 1 : 0;
+    case "home":
+      return ctx.player?.home?.[goal.track || ""] >= goal.target ? goal.target : Math.min(goal.target, ctx.player?.home?.[goal.track || ""] || 1);
+    case "unlock":
+      return ctx.biomeStates.some((b) => b.biomeId === goal.biomeId && b.unlocked) ? 1 : 0;
+    default:
+      return 0;
+  }
+}
+function goalText(goal, ctx) {
+  const d = ctx.d;
+  switch (goal.kind) {
+    case "craft":
+      return t("server.goal.craft", { count: goal.target, item: d.object.get(goal.itemId)?.name || goal.itemId });
+    case "plant":
+      return t("server.goal.plant", { count: goal.target });
+    case "collect":
+      return t("server.goal.collect", { count: goal.target, resource: d.resource.get(goal.resourceId)?.name || goal.resourceId });
+    case "observe":
+      return t("server.goal.observe", { count: goal.target });
+    case "welcome":
+      return t("server.goal.welcome", { animal: d.animal.get(goal.animalId)?.name || goal.animalId });
+    case "home":
+      return t("server.goal.home", { track: t(`server.goal.track.${goal.track}`), level: goal.target });
+    case "unlock":
+      return t("server.goal.unlock", { biome: d.biome.get(goal.biomeId)?.name || goal.biomeId });
+    default:
+      return "";
+  }
+}
+function starterTasks(ctx) {
+  const grasshopper = ctx.discoveries.some((x) => x.animalId === FIRST_ANIMAL_ID);
+  const craftedAny = Object.keys(ctx.player?.craftedEver || {}).length > 0;
+  return [
+    { id: "start-welcome", kind: "welcome", icon: "sparkle", text: t("server.task.welcomeGrasshopper"), hint: t("server.task.welcomeGrasshopperHint"), target: 1, progress: grasshopper ? 1 : 0 },
+    { id: "start-gather", kind: "gather", icon: "basket", text: t("server.task.collectSeeds"), target: 10, progress: Math.min(10, heldAmount(ctx, "seeds")) },
+    { id: "start-craft", kind: "craft", icon: "hammer", text: t("server.task.craftFirst"), target: 1, progress: craftedAny ? 1 : 0 }
+  ];
+}
+function sanitizeGoals(goals, d) {
+  const out = [];
+  const kinds = ["craft", "plant", "collect", "observe", "welcome", "home", "unlock"];
+  for (const g of Array.isArray(goals) ? goals : []) {
+    if (out.length >= MAX_CUSTOM_GOALS) break;
+    const kind = g?.kind;
+    if (!kinds.includes(kind)) continue;
+    const id = typeof g?.id === "string" && g.id ? g.id.slice(0, 40) : `cg_${Math.random().toString(36).slice(2, 10)}`;
+    const target = Math.max(1, Math.min(99, Math.floor(Number(g?.target) || 1)));
+    const goal = { id, kind, target };
+    if (kind === "craft") {
+      if (!d.object.get(g?.itemId)) continue;
+      goal.itemId = g.itemId;
+    } else if (kind === "collect") {
+      if (!d.resource.get(g?.resourceId)) continue;
+      goal.resourceId = g.resourceId;
+    } else if (kind === "welcome") {
+      if (!d.animal.get(g?.animalId)) continue;
+      goal.animalId = g.animalId;
+      goal.target = 1;
+    } else if (kind === "home") {
+      if (!GOAL_HOME_TRACKS.includes(g?.track)) continue;
+      goal.track = g.track;
+    } else if (kind === "unlock") {
+      if (!d.biome.get(g?.biomeId)) continue;
+      goal.biomeId = g.biomeId;
+      goal.target = 1;
     }
-    return out;
-  };
-  const candidates = [];
-  if (resPool.length) {
-    const res = pickFrom(resPool);
-    const target = [8, 12, 16][Math.floor(rng() * 3)];
-    candidates.push({
-      id: `${dayKey}-gather`,
-      kind: "gather",
-      icon: "basket",
-      text: t("server.task.gather", { count: target, resource: d.resource.get(res)?.name || res }),
-      target,
-      counter: `res:${res}`,
-      reward: bundle()
-    });
+    out.push(goal);
   }
-  {
-    const target = 2 + Math.floor(rng() * 2);
-    candidates.push({
-      id: `${dayKey}-craft`,
-      kind: "craft",
-      icon: "hammer",
-      text: t("server.task.craft", { count: target }),
-      target,
-      counter: "craft",
-      reward: bundle()
-    });
-  }
-  {
-    const target = 2 + Math.floor(rng() * 2);
-    candidates.push({
-      id: `${dayKey}-place`,
-      kind: "place",
-      icon: "pin",
-      text: t("server.task.place", { count: target }),
-      target,
-      counter: "place",
-      reward: bundle()
-    });
-  }
-  {
-    const target = 3 + Math.floor(rng() * 3);
-    candidates.push({
-      id: `${dayKey}-water`,
-      kind: "water",
-      icon: "drop",
-      text: t("server.task.water", { count: target }),
-      target,
-      counter: "water",
-      reward: bundle()
-    });
-  }
-  candidates.push({
-    id: `${dayKey}-plant`,
-    kind: "plant",
-    icon: "leaf",
-    text: t("server.task.plantBeds"),
-    target: 2,
-    counter: "plant",
-    reward: bundle()
-  });
-  if (discoveredCount >= 3) {
-    candidates.push({
-      id: `${dayKey}-observe`,
-      kind: "observe",
-      icon: "journal",
-      text: t("server.task.observe"),
-      target: 3,
-      counter: "observe",
-      reward: bundle()
-    });
-  }
-  for (let i = candidates.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
-  }
-  const firstDay = playerDayKey(player, player?.createdAt || now) === dayKey;
-  if (firstDay) {
-    const grasshopperHome = discoveries.some((x) => x.animalId === FIRST_ANIMAL_ID);
-    return {
-      dayKey,
-      endsAt,
-      tasks: [
-        {
-          id: `${dayKey}-welcome`,
-          kind: "welcome",
-          icon: "sparkle",
-          text: t("server.task.welcomeGrasshopper"),
-          target: 1,
-          counter: "",
-          reward: bundle(),
-          hint: t("server.task.welcomeGrasshopperHint"),
-          live: grasshopperHome ? 1 : 0
-        },
-        {
-          id: `${dayKey}-gather`,
-          kind: "gather",
-          icon: "basket",
-          text: t("server.task.collectSeeds"),
-          target: 10,
-          counter: "res:seeds",
-          reward: bundle()
-        },
-        {
-          id: `${dayKey}-plant`,
-          kind: "plant",
-          icon: "leaf",
-          text: t("server.task.plantThree"),
-          target: 3,
-          counter: "plant",
-          reward: bundle()
-        }
-      ]
-    };
-  }
-  const pin = milestonePin(ctx, dayKey, claims, daily, bundle);
-  const tasks = pin ? [pin, ...candidates.slice(0, 2)] : candidates.slice(0, 3);
-  return { dayKey, endsAt, tasks };
+  return out;
 }
 function dailyTasksBlock(ctx) {
-  const { player } = ctx;
-  const dayKey = playerDayKey(player, ctx.now);
-  const claims = player?.taskClaims?.dayKey === dayKey ? player.taskClaims.claimed || {} : {};
-  const daily = player?.daily?.dayKey === dayKey ? player.daily.counts || {} : {};
-  const gen = dailyTasksFor(ctx, claims, daily);
-  return {
-    dayKey: gen.dayKey,
-    endsAt: gen.endsAt,
-    tasks: gen.tasks.map(({ live, ...task }) => ({
-      ...task,
-      progress: live != null ? live : Math.min(task.target, daily[task.counter] || 0),
-      claimed: !!claims[task.id]
-    }))
-  };
+  const { player, now } = ctx;
+  const dayKey = playerDayKey(player, now);
+  const goalClaims = player?.goalClaims || {};
+  const tasks = [];
+  for (const s of starterTasks(ctx)) {
+    if (goalClaims[s.id]) continue;
+    tasks.push({ ...s, counter: "", reward: goalReward(ctx, s.id), claimed: false });
+  }
+  for (const g of player?.customGoals || []) {
+    if (goalClaims[g.id]) continue;
+    tasks.push({
+      id: g.id,
+      kind: g.kind,
+      icon: GOAL_ICON[g.kind] || "check",
+      text: goalText(g, ctx),
+      target: g.target,
+      counter: "",
+      reward: goalReward(ctx, g.id),
+      progress: goalProgress(g, ctx),
+      claimed: false
+    });
+  }
+  return { dayKey, endsAt: 0, tasks };
 }
 async function snapshot(playerId, opts = {}) {
   const t2 = db();
@@ -15329,7 +15266,8 @@ async function snapshot(playerId, opts = {}) {
     feed: [...feedRows].sort((a, b) => (a.at || 0) - (b.at || 0)).slice(-FEED_CAP).map((r) => ({ id: r.id, at: r.at, icon: r.icon, text: r.text })),
     serverTime: now,
     weather: weatherSnapshot(wid, wxTime, WEATHER_BIOME_IDS, player?.devWeather || null),
-    dailyTasks: dailyTasksBlock({ wid, player, d, discoveries, biomeStates, now, unlockedBiomes: personalUnlocked }),
+    dailyTasks: dailyTasksBlock({ wid, player, d, discoveries, biomeStates, placements, chests, now, unlockedBiomes: personalUnlocked }),
+    customGoals: player?.customGoals || [],
     nodeRegenSeconds: NODE_REGEN_SECONDS,
     inventoryCapacity: inventoryCapacity(player)
   };
@@ -16530,8 +16468,13 @@ var ClaimTask = class extends PublicEndpoint {
     const { player } = await requirePlayer(playerId);
     const wid = worldOf(player);
     const now = Date.now();
-    const [discoveries, biomeStates] = await Promise.all([byWorld(t2.Discovery, wid), byWorld(t2.BiomeState, wid)]);
-    const block = dailyTasksBlock({ wid, player, d, discoveries, biomeStates, now, unlockedBiomes: player.unlockedBiomes });
+    const [discoveries, biomeStates, placements, chests] = await Promise.all([
+      byWorld(t2.Discovery, wid),
+      byWorld(t2.BiomeState, wid),
+      byWorld(t2.Placement, wid),
+      byWorld(t2.Chest, wid)
+    ]);
+    const block = dailyTasksBlock({ wid, player, d, discoveries, biomeStates, placements, chests, now, unlockedBiomes: player.unlockedBiomes });
     const task = block.tasks.find((x) => x.id === String(taskId || ""));
     if (!task) throw new GameError(t("server.err.taskNotOnBoard"), 404);
     if (task.claimed) throw new GameError(t("server.err.taskAlreadyClaimed"), 409);
@@ -16548,16 +16491,40 @@ var ClaimTask = class extends PublicEndpoint {
       room -= take;
     }
     if (!Object.keys(gained).length) throw new GameError(t("server.err.basketFullReward"), 409);
-    const claims = player.taskClaims?.dayKey === block.dayKey ? { dayKey: block.dayKey, claimed: { ...player.taskClaims.claimed || {} } } : { dayKey: block.dayKey, claimed: {} };
-    claims.claimed[task.id] = true;
-    await t2.Player.patch(playerId, { inventory, taskClaims: claims });
+    const goalClaims = { ...player.goalClaims || {}, [task.id]: true };
+    await t2.Player.patch(playerId, { inventory, goalClaims });
     await bumpMetrics(player, { tasksCompleted: 1 });
     await awardAchievements(playerId);
     const dailyTasks = {
       ...block,
       tasks: block.tasks.map((x) => x.id === task.id ? { ...x, claimed: true } : x)
     };
-    return { ok: true, taskId: task.id, gained, inventory, dailyTasks };
+    return { ok: true, taskId: task.id, text: task.text, gained, inventory, dailyTasks };
+  }
+};
+var SetGoals = class extends PublicEndpoint {
+  async post(data) {
+    const { playerId, goals } = await bodyOf(data);
+    const { player } = await requirePlayer(playerId);
+    const t2 = db();
+    const d = await defs();
+    const wid = worldOf(player);
+    const now = Date.now();
+    const [discoveries, biomeStates, placements, chests] = await Promise.all([
+      byWorld(t2.Discovery, wid),
+      byWorld(t2.BiomeState, wid),
+      byWorld(t2.Placement, wid),
+      byWorld(t2.Chest, wid)
+    ]);
+    const ctx = { wid, player, d, discoveries, biomeStates, placements, chests, now, unlockedBiomes: player.unlockedBiomes };
+    const prev = new Map((player.customGoals || []).map((g) => [g.id, g]));
+    const clean = sanitizeGoals(goals, d).map((g) => {
+      const existing = prev.get(g.id);
+      const base = existing && typeof existing.base === "number" ? existing.base : goalMetric(g, ctx);
+      return { ...g, base };
+    });
+    await t2.Player.patch(playerId, { customGoals: clean });
+    return { ok: true, customGoals: clean };
   }
 };
 var Terraform = class extends PublicEndpoint {
@@ -17516,6 +17483,7 @@ export {
   RequestJoin,
   ResolveJoin,
   Rest,
+  SetGoals,
   SetHomeColors,
   SetHomeStyle,
   SetPlacementColor,

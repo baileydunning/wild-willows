@@ -93,7 +93,8 @@ export function activityNotes(animal: AnimalDef): { icon: string; text: string }
 }
 
 function RequirementHints({ animal, full }: { animal: AnimalDef; full: boolean }) {
-	const { data } = useGame();
+	const { data, state } = useGame();
+	const seen = new Set((state?.discoveries || []).map((d) => d.animalId));
 	const req = animal.requirements || {};
 	const condLine = conditionsLine(animal);
 	const hint = req.hint ? content('animal', animal.id, 'hint', req.hint) : t('panels.journal.hintDefault');
@@ -117,6 +118,11 @@ function RequirementHints({ animal, full }: { animal: AnimalDef; full: boolean }
 				})}
 				{(req.animals || []).map((id) => {
 					const a = data?.animals.find((aa) => aa.id === id);
+					// Don't leak the name of an animal the player hasn't discovered yet —
+					// show its kind instead (e.g. "another bird needs to return first").
+					if (a && !seen.has(id)) {
+						return <li key={id}>{t('panels.journal.animalReqUnknown', { kind: content('animal', a.id, 'kind', a.kind) })}</li>;
+					}
 					return <li key={id}>{t('panels.journal.animalReq', { name: a ? content('animal', a.id, 'name', a.name) : id })}</li>;
 				})}
 				{condLine ? <li><Icon name="cloud" size={11} /> {t('panels.journal.condCheck', { cond: condLine })}</li> : null}
@@ -185,7 +191,27 @@ function FoodWebLinks({ animal }: { animal: AnimalDef }) {
  * ecology (role, diet, food web, field note) lives on the card, not here.
  */
 function JournalEntry({ animal, disc, full }: { animal: AnimalDef; disc?: Discovery; full: boolean }) {
-	const { observe } = useGame();
+	const { observe, addGoal, setGoals, state, notify } = useGame();
+	// Adding this animal as a goal builds out the habitat it needs: one "craft
+	// {object}" goal per required habitat piece, rather than a vague "bring back
+	// the animal" goal. (Animals with no specific object requirement fall back to
+	// a welcome goal, since there's nothing concrete to build.)
+	const addHabitatGoals = () => {
+		const objs = Object.entries(animal.requirements?.objects || {});
+		if (!objs.length) { addGoal({ kind: 'welcome', animalId: animal.id, target: 1 }); return; }
+		const cur = state?.customGoals || [];
+		if (cur.length >= 12) { notify(t('app.toast.goalLimit'), 'info'); return; }
+		const toAdd: any[] = [];
+		for (const [id, q] of objs) {
+			if (cur.some((g) => g.kind === 'craft' && g.itemId === id)) continue;
+			if (toAdd.some((g) => g.itemId === id)) continue;
+			toAdd.push({ id: '', kind: 'craft', itemId: id, target: Number(q) || 1 });
+		}
+		if (!toAdd.length) { notify(t('app.toast.goalAlready'), 'info'); return; }
+		void setGoals([...cur, ...toAdd].slice(0, 12));
+		// Don't name the animal — it hasn't been discovered yet.
+		notify(t('app.toast.habitatGoalAdded'), 'unlock');
+	};
 	if (!disc) {
 		return (
 			<div className="journal-entry entry-unknown">
@@ -196,6 +222,14 @@ function JournalEntry({ animal, disc, full }: { animal: AnimalDef; disc?: Discov
 					<b>{t('panels.journal.unknownEntry', { kind: content('animal', animal.id, 'kind', animal.kind) })}</b> <span className="muted small">({content('animal', animal.id, 'rarity', animal.rarity)})</span>
 					<RequirementHints animal={animal} full={full} />
 				</div>
+				<button
+					className="icon-btn subtle add-goal-btn"
+					title={t('panels.journal.addGoal')}
+					aria-label={t('panels.journal.addGoal')}
+					onClick={addHabitatGoals}
+				>
+					<Icon name="check" size={14} />
+				</button>
 			</div>
 		);
 	}
