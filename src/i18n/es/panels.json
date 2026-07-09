@@ -113,7 +113,10 @@
 		"health": "Salud",
 		"balance": "Equilibrio",
 		"animalsReturned": "{returned}/{total} animales han regresado",
-		"addGoal": "Añadir desbloquear {biome} a tus objetivos"
+		"addGoal": "Añadir desbloquear {biome} a tus objetivos",
+		"mapAria": "Mapa de la reserva — {open} de {total} biomas abiertos",
+		"animalsShort": "{returned}/{total} en casa",
+		"mapSummary": "{open} de {total} biomas abiertos — restaura cada uno para abrir el siguiente sendero."
 	},
 	"home": {
 		"buildTitle": "Construye tu hogar",
@@ -140,7 +143,8 @@
 			"thrift": "Fabricar tiene un {pct}% de probabilidad de devolver la mitad de sus materiales."
 		},
 		"perkGrows": "Cada mejora la fortalece.",
-		"perkMax": "Al máximo de fuerza."
+		"perkMax": "Al máximo de fuerza.",
+		"addGoal": "Fijar como objetivo"
 	},
 	"weather": {
 		"title": "Clima y estaciones",

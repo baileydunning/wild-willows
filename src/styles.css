@@ -563,6 +563,50 @@ input {
 	border-radius: 14px; padding: 11px 15px; margin-bottom: 9px;
 }
 .biome-locked { opacity: 0.82; }
+
+/* ---- Illustrated preserve trail map ---- */
+.preserve-map {
+	display: flex; align-items: flex-start; gap: 2px;
+	padding: 18px 14px 14px; margin-bottom: 8px;
+	border: 1px solid #d6e2c1; border-radius: 18px;
+	background: radial-gradient(120% 140% at 15% 0%, #f6faee 0%, #eaf1da 55%, #dfe9cb 100%);
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+	overflow-x: auto;
+}
+.pm-stop {
+	flex: 0 0 auto; width: 88px; padding: 0; background: none; border: none;
+	display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer;
+}
+.pm-stop:disabled { cursor: default; }
+.pm-ring {
+	width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center;
+	background: conic-gradient(from -90deg, #6aa253 calc(var(--h, 0) * 1%), rgba(90,70,40,0.13) 0);
+	box-shadow: 0 3px 8px rgba(60,80,40,0.18);
+	transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+.pm-stop:not(:disabled):hover .pm-ring { transform: translateY(-3px) scale(1.06); box-shadow: 0 6px 14px rgba(60,80,40,0.26); }
+.pm-disc {
+	width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center;
+	background: var(--c, #8fbf6f); color: #fff; border: 2px solid rgba(255,255,255,0.75);
+}
+.pm-disc svg { filter: drop-shadow(0 1px 1px rgba(0,0,0,0.25)); }
+.pm-locked .pm-ring { background: rgba(90,70,40,0.13); box-shadow: none; }
+.pm-locked .pm-disc { background: #b7b2a3; color: #f2efe6; }
+.pm-here .pm-disc { box-shadow: 0 0 0 3px var(--gold, #c9913f); }
+.pm-here .pm-ring { animation: pm-pulse 2.4s ease-in-out infinite; }
+@keyframes pm-pulse { 0%,100% { box-shadow: 0 3px 8px rgba(60,80,40,0.18); } 50% { box-shadow: 0 3px 14px rgba(201,145,63,0.5); } }
+.pm-name { font-weight: 700; font-size: calc(11.5px * var(--ui-scale)); color: var(--ink); text-align: center; line-height: 1.12; }
+.pm-locked .pm-name { color: var(--ink-soft); }
+.pm-sub { font-size: calc(10px * var(--ui-scale)); color: var(--ink-soft); text-align: center; }
+.pm-link {
+	flex: 1 1 auto; min-width: 12px; height: 3px; margin-top: 29px; border-radius: 3px; align-self: flex-start;
+	background: repeating-linear-gradient(90deg, rgba(90,70,40,0.28) 0 5px, transparent 5px 10px);
+}
+.pm-link-open { background: linear-gradient(90deg, var(--green-2, #6aa253), #7bb060); }
+.preserve-map-cap { margin: 0 0 14px; text-align: center; }
+
+/* Full-screen confetti overlay — draws only while pieces are falling. */
+.confetti-canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; }
 .lock { font-size: calc(12px * var(--ui-scale)); color: var(--ink-soft); margin-left: 6px; display: inline-flex; align-items: center; gap: 3px; }
 .lock.soon { color: var(--gold); font-weight: 700; background: rgba(201, 145, 63, 0.14); border-radius: 999px; padding: 1px 9px; }
 .unlock-req { color: #7a5aa0; margin-top: 3px; }

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { api } from '../api';
 import { useGame } from '../state';
 import { animalSpriteDataUri } from '../game/textures';
+import { bridge } from '../game/bridge';
 import { Icon } from './icons';
 import { WEATHER_TYPES, SEASONS, weatherType, seasonStyle } from '../weather';
 
@@ -257,6 +258,13 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 					<div className="form-actions" style={{ justifyContent: 'flex-end' }}>
 						<button className="big-btn primary" disabled={!!busy} onClick={grant}>
 							<Icon name="check" /> <span>Grant selected</span>
+						</button>
+					</div>
+
+					<h3><Icon name="star" size={15} /> Celebrate</h3>
+					<div className="dev-grid">
+						<button disabled={!!busy} onClick={() => bridge.emit('confetti')}>
+							<Icon name="sparkle" size={13} /> Trigger confetti
 						</button>
 					</div>
 

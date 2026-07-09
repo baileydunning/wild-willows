@@ -277,6 +277,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			.filter(Boolean) as typeof data.achievements;
 		defs.slice(0, 3).forEach((a) => toast(t('app.toast.achievementUnlocked', { name: content('achievement', a.id, 'name', a.name) }), 'achievement'));
 		for (const a of defs) pushLog('star', t('app.feed.achievementUnlocked', { name: content('achievement', a.id, 'name', a.name), flavor: content('achievement', a.id, 'flavor', a.flavor) }), true);
+		// The grand finale — every animal in every biome home — rains confetti.
+		if (added.includes('caretaker-of-the-whole')) bridge.emit('confetti');
 	}, [data, state, toast, pushLog]);
 
 	// Weave narrative beats into the feed as combinations of animals return — e.g.

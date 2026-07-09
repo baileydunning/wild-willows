@@ -556,9 +556,50 @@ export function BiomesPanel() {
 	const { t, content } = useI18n();
 	if (!data || !state) return null;
 	const here = state.player.area;
+	const ordered = [...data.biomes].sort((a, b) => a.order - b.order);
+	const openCount = ordered.filter((b) => state.player.unlockedBiomes.includes(b.id)).length;
 	return (
 		<Panel title={t('panels.biomes.title')} icon="map" onClose={() => setPanel(null)} wide>
-			{[...data.biomes].sort((a, b) => a.order - b.order).map((biome) => {
+			{/* Illustrated trail map: the six biomes as waypoints along a path, each a
+			    health-ring badge (filled by restoration), linked by trail segments that
+			    light up as you open the next area. Tap an open, non-current one to travel. */}
+			<div className="preserve-map" role="img" aria-label={t('panels.biomes.mapAria', { open: openCount, total: ordered.length })}>
+				{ordered.map((biome, i) => {
+					const bs = state.biomeStates.find((x) => x.biomeId === biome.id);
+					const unlocked = state.player.unlockedBiomes.includes(biome.id);
+					const isHere = biome.id === here;
+					const total = data.animals.filter((a) => a.biome === biome.id).length;
+					const color = biome.palette?.healthy || '#8fbf6f';
+					const health = unlocked && bs ? Math.round(bs.health) : 0;
+					const canTravel = unlocked && biome.explorable && !isHere;
+					const biomeName = content('biome', biome.id, 'name', biome.name);
+					const glyph = isHere ? 'pin' : !unlocked ? 'lock' : 'leaf';
+					const sub = unlocked
+						? t('panels.biomes.animalsShort', { returned: bs?.returnedCount || 0, total })
+						: biome.explorable ? t('panels.biomes.locked') : t('panels.biomes.comingSoon');
+					const title = isHere ? t('panels.biomes.youAreHere') : canTravel ? t('panels.biomes.travelTo', { biome: biomeName }) : t('panels.biomes.lockedTitle', { biome: biomeName });
+					return (
+						<React.Fragment key={biome.id}>
+							{i > 0 && <span className={`pm-link ${unlocked ? 'pm-link-open' : ''}`} />}
+							<button
+								className={`pm-stop ${unlocked ? '' : 'pm-locked'} ${isHere ? 'pm-here' : ''}`}
+								disabled={!canTravel}
+								title={title}
+								aria-label={title}
+								onClick={async () => { setPanel(null); await changeArea(biome.id); }}
+								style={{ ['--c' as any]: color, ['--h' as any]: health }}
+							>
+								<span className="pm-ring"><span className="pm-disc"><Icon name={glyph} size={18} /></span></span>
+								<span className="pm-name">{biomeName}</span>
+								<span className="pm-sub">{sub}</span>
+							</button>
+						</React.Fragment>
+					);
+				})}
+			</div>
+			<p className="muted small preserve-map-cap">{t('panels.biomes.mapSummary', { open: openCount, total: ordered.length })}</p>
+
+			{ordered.map((biome) => {
 				const bs = state.biomeStates.find((x) => x.biomeId === biome.id);
 				const unlocked = state.player.unlockedBiomes.includes(biome.id);
 				const total = data.animals.filter((a) => a.biome === biome.id).length;
@@ -615,12 +656,15 @@ export function BiomesPanel() {
 }
 
 export function HomePanel() {
-	const { data, state, setPanel, upgradeHome, setHomeStyle } = useGame();
+	const { data, state, setPanel, upgradeHome, setHomeStyle, addGoal } = useGame();
 	const { t, content } = useI18n();
 	const linked = useLinkedChests();
 	if (!data || !state) return null;
 	const home = state.player.home || { style: 'cabin', space: 1, comfort: 1, decor: 1, light: 1, styleLocked: false };
 	const styleLocked = !!home.styleLocked;
+	// Only one home goal at a time (matching the goals builder + server rule), so
+	// the "add as goal" buttons hide once a home goal is already on the board.
+	const hasHomeGoal = (state.customGoals || []).some((g) => g.kind === 'home');
 	const styles = data.homeStyles || {};
 	const tracks = data.homeTracks || {};
 	const avail = (id: string) => (state.player.inventory?.[id] || 0) + linked.reduce((s, c) => s + (c.contents?.[id] || 0), 0);
@@ -669,7 +713,14 @@ export function HomePanel() {
 										</div>
 									)}
 								</div>
-								<button disabled={!gateMet || !afford} onClick={() => setHomeStyle(id)}>{t('panels.home.build')}</button>
+								<div className="recipe-actions">
+									{!hasHomeGoal && (
+										<button className="icon-btn subtle add-goal-btn" title={t('panels.home.addGoal')} aria-label={t('panels.home.addGoal')} onClick={() => addGoal({ kind: 'home', track: 'build', styleId: id, target: 1 })}>
+											<Icon name="target" size={13} />
+										</button>
+									)}
+									<button disabled={!gateMet || !afford} onClick={() => setHomeStyle(id)}>{t('panels.home.build')}</button>
+								</div>
 							</div>
 						);
 					})}
@@ -730,7 +781,16 @@ export function HomePanel() {
 								<div className="muted small">{t('panels.home.maxedOut')}</div>
 							)}
 						</div>
-						{next && <button disabled={!gateMet || !canAfford} onClick={() => upgradeHome(key)}>{t('panels.home.upgrade')}</button>}
+						{next && (
+							<div className="recipe-actions">
+								{!hasHomeGoal && (
+									<button className="icon-btn subtle add-goal-btn" title={t('panels.home.addGoal')} aria-label={t('panels.home.addGoal')} onClick={() => addGoal({ kind: 'home', track: key, target: level + 1 })}>
+										<Icon name="target" size={13} />
+									</button>
+								)}
+								<button disabled={!gateMet || !canAfford} onClick={() => upgradeHome(key)}>{t('panels.home.upgrade')}</button>
+							</div>
+						)}
 					</div>
 				);
 			})}

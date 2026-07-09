@@ -113,7 +113,10 @@
 		"health": "Health",
 		"balance": "Balance",
 		"animalsReturned": "{returned}/{total} animals returned",
-		"addGoal": "Add unlocking {biome} to your goals"
+		"addGoal": "Add unlocking {biome} to your goals",
+		"mapAria": "Preserve map — {open} of {total} biomes open",
+		"animalsShort": "{returned}/{total} home",
+		"mapSummary": "{open} of {total} biomes open — restore each to open the next trail."
 	},
 	"home": {
 		"buildTitle": "Build Your Home",
@@ -140,7 +143,8 @@
 			"thrift": "Crafting has a {pct}% chance to return half its materials."
 		},
 		"perkGrows": "Every upgrade strengthens it.",
-		"perkMax": "Fully strengthened."
+		"perkMax": "Fully strengthened.",
+		"addGoal": "Set as a goal"
 	},
 	"weather": {
 		"title": "Weather & Seasons",

@@ -8,6 +8,7 @@ import { harvestReadyAt } from './types';
 import { isTypingTarget } from './typing';
 import { HelpModal } from './ui/Help';
 import { HUD, Toasts } from './ui/HUD';
+import { Confetti } from './ui/Confetti';
 import { AnimalCard, JournalPanel } from './ui/Journal';
 import { AchievementsPanel } from './ui/Achievements';
 import { MobileControls } from './ui/MobileControls';
@@ -289,6 +290,7 @@ function GameScreen() {
 			<MobileControls />
 			<JoinApprovalPopup />
 			<Toasts />
+			<Confetti />
 			{clickedPlacement && <PlacementMenu item={clickedPlacement} onClose={() => setClickedPlacement(null)} />}
 			{clickedBed && <PlantMenu bed={clickedBed} onClose={() => setClickedBed(null)} />}
 			{panel === 'inventory' && <InventoryPanel />}
