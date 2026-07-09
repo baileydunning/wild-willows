@@ -60,7 +60,9 @@
 		"goalStartersFirst": "Finish your first three goals before adding more.",
 		"joinRequest": "{name} wants to join — press U to let them in",
 		"perkForage": "Your cabin's forager's instinct turned up an extra {name}!",
-		"perkThrift": "Hearthkeeper's thrift! Got back {items}."
+		"perkThrift": "Hearthkeeper's thrift! Got back {items}.",
+		"goalAffordable": "You can already make that — no need to set it as a goal.",
+		"goalUnlockKit": "That kit is part of unlocking a biome — it's already on your board."
 	},
 	"feed": {
 		"recipeUnlocked": "New Crafting Recipe Unlocked — {name}.",
@@ -255,7 +257,8 @@
 		"saveQuit": "Save and quit",
 		"placing": "Placing",
 		"placingHint": "— click a tile",
-		"stopPlacing": "stop placing"
+		"stopPlacing": "stop placing",
+		"dayTimerTitle": "The preserve clock — a full day passes in about 24 minutes."
 	},
 	"toolbelt": {
 		"how": {

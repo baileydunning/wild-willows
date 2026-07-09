@@ -318,6 +318,9 @@ export function CraftingPanel() {
 		.filter((b) => player.unlockedBiomes.includes(b.id));
 	const filterTypes = [...new Set(unlocked.map((r) => r.category))].sort((a, b) => (catLabel[a] || a).localeCompare(catLabel[b] || b));
 	const alreadyMade = (r: RecipeDef) => !!r.once && (player.craftedEver?.[r.output.itemId] || 0) > 0;
+	// Biome-unlock kits are tracked by the "unlock next biome" goal, so they don't
+	// get their own craft-goal button.
+	const unlockKitIds = new Set(data.biomes.map((b) => b.unlock?.requiresItem).filter(Boolean) as string[]);
 
 	const placeable = Object.entries(player.craftedItems || {}).filter(([id]) => {
 		const def = data.habitatObjects.find((o) => o.id === id);
@@ -468,8 +471,9 @@ export function CraftingPanel() {
 									)}
 								</div>
 								<div className="recipe-actions">
-									{/* A once-only recipe you've already made can't be crafted again — hide the goal button then. */}
-									{!(r.once && made) && (
+									{/* Hide the "set as goal" button when it'd be busywork: a once-only
+									    recipe already made, or one you can already afford to craft now. */}
+									{!(r.once && made) && !canCraft(r) && !unlockKitIds.has(r.output.itemId) && (
 										<button
 											className="icon-btn subtle add-goal-btn"
 											title={t('panels.crafting.addGoal')}

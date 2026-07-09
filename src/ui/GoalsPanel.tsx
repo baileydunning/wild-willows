@@ -38,19 +38,25 @@ export function GoalsPanel() {
 
 	// Craftable outputs (from recipes), gatherable resources, and animals to bring
 	// back — the pools the player picks targets from.
+	// Biome-unlock kits (forest-restoration-kit, …) are already tracked by the
+	// pinned "unlock the next biome" goal, so they never appear as their own craft goal.
+	const unlockKitIds = useMemo(
+		() => new Set((data?.biomes || []).map((b) => b.unlock?.requiresItem).filter(Boolean) as string[]),
+		[data]
+	);
 	const craftables = useMemo(() => {
 		if (!data) return [] as { id: string; name: string }[];
 		const seen = new Set<string>();
 		const out: { id: string; name: string }[] = [];
 		for (const r of data.recipes) {
 			const id = r.output.itemId;
-			if (seen.has(id)) continue;
+			if (seen.has(id) || unlockKitIds.has(id)) continue;
 			seen.add(id);
 			const o = data.habitatObjects.find((h) => h.id === id);
 			out.push({ id, name: o ? content('habitatObject', o.id, 'name', o.name) : id });
 		}
 		return out.sort((a, b) => a.name.localeCompare(b.name));
-	}, [data, content]);
+	}, [data, content, unlockKitIds]);
 	const animals = useMemo(
 		() => (data?.animals || []).map((a) => ({ id: a.id, name: content('animal', a.id, 'name', a.name) })).sort((a, b) => a.name.localeCompare(b.name)),
 		[data, content]
@@ -154,7 +160,7 @@ export function GoalsPanel() {
 		if (!startersDone) return; // finish the three starters first
 		if (active.length >= limit) return;
 		const g: CustomGoal = { id: '', kind, target: Math.max(1, Math.min(99, Math.floor(count) || 1)) };
-		if (kind === 'craft') { if (!itemId) return; g.itemId = itemId; }
+		if (kind === 'craft') { if (!itemId || craftAffordable) return; g.itemId = itemId; }
 		else if (kind === 'collect') { if (!resourceId) return; g.resourceId = resourceId; }
 		else if (kind === 'welcomeTotal') { if (welcomeLeft <= 0) return; g.target = Math.min(g.target, welcomeLeft); } // can't aim past what's reachable
 		else if (kind === 'unlock') { if (!biomeId) return; g.biomeId = biomeId; g.target = 1; }
@@ -187,6 +193,11 @@ export function GoalsPanel() {
 		[next[i], next[j]] = [next[j], next[i]];
 		save(next);
 	};
+
+	// A craft goal you can already fully afford (for the chosen count) is busywork,
+	// so it's blocked with a note. Uses basket + linked chests, like the server.
+	const chosenRecipe = kind === 'craft' && itemId ? data.recipes.find((r) => r.output.itemId === itemId) : null;
+	const craftAffordable = !!chosenRecipe && Object.entries(chosenRecipe.materials || {}).every(([mid, need]) => held(mid) >= (need as number) * Math.max(1, Math.floor(count) || 1));
 
 	// Count field is for the tally-style goals; home uses its own level select.
 	const showCount = ['craft', 'plant', 'collect', 'observe', 'welcomeTotal'].includes(kind);
@@ -354,7 +365,8 @@ export function GoalsPanel() {
 							</div>
 							<p className="goals-desc"><Icon name={KIND_ICON[kind]} size={13} /> {t(homeDescKey)}</p>
 							{homeMaxed && <p className="muted small">{t('panels.goals.homeMaxed', { track: t(`panels.goals.track.${track}`) })}</p>}
-							<button className="big-btn primary" style={{ width: 'auto', marginTop: 0 }} onClick={addGoal} disabled={homeMaxed}>
+							{craftAffordable && <p className="muted small">{t('panels.goals.affordableNote')}</p>}
+							<button className="big-btn primary" style={{ width: 'auto', marginTop: 0 }} onClick={addGoal} disabled={homeMaxed || craftAffordable}>
 								<Icon name="check" size={15} /> <span>{t('panels.goals.add')}</span>
 							</button>
 						</div>

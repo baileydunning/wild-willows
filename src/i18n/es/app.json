@@ -60,7 +60,9 @@
 		"goalStartersFirst": "Termina tus tres primeros objetivos antes de añadir más.",
 		"joinRequest": "{name} quiere unirse — presiona U para permitirle entrar",
 		"perkForage": "¡El instinto recolector de tu cabaña consiguió un {name} extra!",
-		"perkThrift": "¡Ahorro del hogar! Recuperaste {items}."
+		"perkThrift": "¡Ahorro del hogar! Recuperaste {items}.",
+		"goalAffordable": "Ya puedes fabricar eso — no hace falta fijarlo como objetivo.",
+		"goalUnlockKit": "Ese kit es parte de desbloquear un bioma — ya está en tu tablero."
 	},
 	"feed": {
 		"recipeUnlocked": "Nueva receta de fabricación desbloqueada — {name}.",
@@ -255,7 +257,8 @@
 		"saveQuit": "Guardar y salir",
 		"placing": "Colocando",
 		"placingHint": "— haz clic en una casilla",
-		"stopPlacing": "dejar de colocar"
+		"stopPlacing": "dejar de colocar",
+		"dayTimerTitle": "El reloj de la reserva — un día completo pasa en unos 24 minutos."
 	},
 	"toolbelt": {
 		"how": {

@@ -192,7 +192,8 @@
 			"biomeAnimals": "Build every animal's habitat here until the whole biome is home."
 		},
 		"restore": "Restore {biome} to {pct}% health",
-		"biomeAnimals": "Welcome all {count} animals to {biome}"
+		"biomeAnimals": "Welcome all {count} animals to {biome}",
+		"upgradeGuide": "Upgrade your field guide (Tools) to reveal exactly what it needs."
 	},
 	"nextbiome": {
 		"title": "Unlock {biome}",

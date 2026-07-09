@@ -485,7 +485,7 @@
 			},
 			"board": {
 				"title": "Set your own goals",
-				"text": "The board at the left always points to your next milestone — unlocking the next biome — with a checklist of exactly what it needs. Below that, add goals of your own: open the goals menu (press G, or the gear on the board) to craft a specific item, plant a number of things, collect a material, read about animals, or upgrade your home; add an animal to attract from its field-journal entry. You can hold three goals at a time (six once the whole preserve is open), reorder them, and finishing one earns a small bundle of materials (press Tab to tuck the board away). Your plantings also keep growing in real time even while the game is closed, so there’s always something new when you come back."
+				"text": "The board at the left always points to your next milestone — opening the next biome — with a checklist of what it needs. Below it, add goals of your own (press G): craft an item, plant, gather a material, read about animals, restore a biome, or upgrade your home — plus animals to attract from the field journal. Hold three at a time (six once the whole preserve is open); finishing one earns a small bundle of materials. Press Tab to tuck the board away."
 			}
 		},
 		"keys": {
@@ -605,7 +605,8 @@
 		},
 		"healthLabel": "To health:",
 		"ownHead": "Your own goals",
-		"pinnedTag": "Next up"
+		"pinnedTag": "Next up",
+		"affordableNote": "You already have the materials for that — just craft it."
 	},
 	"people": {
 		"title": "People",

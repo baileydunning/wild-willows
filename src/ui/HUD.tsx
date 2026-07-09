@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import { useI18n } from '../i18n/react';
@@ -23,6 +23,50 @@ export function Meter({ label, icon, value, color, hint }: { label: string; icon
 					<span className="meter-hint-tip" role="tooltip">{hint}</span>
 				</span>
 			)}
+		</div>
+	);
+}
+
+/**
+ * A gentle day clock for the biome card: the preserve cycles a full 24-hour day
+ * in about 24 real minutes, so one in-game hour passes each real minute. We show
+ * the whole-hour time (e.g. 14:00) and step the bar by the hour — so it advances
+ * calmly once a minute and never jitters as the underlying clock is re-estimated.
+ */
+function DayTimer() {
+	const { state } = useGame();
+	const { t } = useI18n();
+	const [, setTick] = useState(0);
+	useEffect(() => {
+		const id = window.setInterval(() => setTick((n) => n + 1), 5000);
+		return () => window.clearInterval(id);
+	}, []);
+	const snap = state?.weather;
+	const dayMs = snap?.dayMs || 24 * 60 * 1000;
+	// Free-running wall-clock anchor. The shared liveTime() yanks back to the
+	// snapshot every few seconds, which (in solo, where the snapshot rarely
+	// refreshes) leaves the clock stuck — so we keep our own anchor here and
+	// re-sync it only when the server's day actually moves.
+	const anchor = useRef<{ base: number; wall: number } | null>(null);
+	const dayIndex = snap?.dayIndex, dayProgress = snap?.dayProgress;
+	useEffect(() => {
+		if (dayIndex == null || dayProgress == null) return;
+		anchor.current = { base: (dayIndex + dayProgress) * dayMs, wall: Date.now() };
+	}, [dayIndex, dayProgress, dayMs]);
+	if (!snap || !anchor.current) return null;
+	const now = anchor.current.base + (Date.now() - anchor.current.wall);
+	const progress = ((now % dayMs) + dayMs) % dayMs / dayMs;
+	const hour = Math.floor(progress * 24) % 24; // whole in-game hour, 0–23
+	const night = hour >= 20 || hour < 6;
+	const clock = `${String(hour).padStart(2, '0')}:00`;
+	const pct = (hour / 24) * 100; // stepped — moves once per in-game hour
+	return (
+		<div className="hud-daytimer" title={t('app.hud.dayTimerTitle')}>
+			<div className={`daytimer-track ${night ? 'night' : ''}`}>
+				<div className="daytimer-fill" style={{ width: `${pct}%` }} />
+				<span className="daytimer-knob" style={{ left: `${pct}%` }}><Icon name={night ? 'star' : 'sun'} size={10} /></span>
+			</div>
+			<span className="daytimer-label">{clock}</span>
 		</div>
 	);
 }
@@ -168,6 +212,7 @@ export function HUD() {
 								</div>
 							);
 						})()}
+						{state.weather && area !== 'home' && <DayTimer />}
 						{biome && bState && (
 							<>
 								<Meter label={t('app.hud.health')} icon="leaf" value={bState.health} color="#6aa253" hint={t('app.hud.healthHint')} />

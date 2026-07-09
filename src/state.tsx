@@ -6,7 +6,7 @@ import { pokeMetricsUplink } from './solo/metricsUplink';
 import { bridge } from './game/bridge';
 import { unlockedRecipeIds } from './recipes';
 import { narrativeBeats, nextFeedFact, healthMilestoneLine, HEALTH_THRESHOLDS } from './ui/narrative';
-import { weatherForArea, weatherFeedLine, seasonFeedLine } from './weather';
+import { weatherForArea, weatherFeedLine, seasonFeedLine, liveCalendar } from './weather';
 import type { Appearance, GameData, GameState, PanelId, WorldSummary, PendingRequest } from './types';
 
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
@@ -627,6 +627,28 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		};
 	}, [sessionPlayerId, pushLog, toast, refresh]);
 
+	// Day-rollover refresh: the in-game day (~24 real min) turns over on its own,
+	// bringing new weather. Solo play has no world poll, so without this the
+	// snapshot would sit stale while idle and only catch up (jumping the day +
+	// weather) on your next action. Watch the live clock and pull a fresh snapshot
+	// the moment the day index changes, so weather turns over smoothly on time.
+	const lastDayIndex = useRef<number | null>(null);
+	useEffect(() => {
+		if (!sessionPlayerId) return;
+		const check = () => {
+			const snap = bridge.shared.state?.weather;
+			if (!snap) return;
+			const idx = liveCalendar(snap).dayIndex;
+			if (lastDayIndex.current === null) { lastDayIndex.current = idx; return; }
+			if (idx !== lastDayIndex.current) {
+				lastDayIndex.current = idx;
+				if (document.visibilityState !== 'hidden' && !actionInFlight.current) refresh().catch(() => undefined);
+			}
+		};
+		const id = window.setInterval(check, 4000);
+		return () => window.clearInterval(id);
+	}, [sessionPlayerId, refresh]);
+
 	// The daily-task board is server-derived text (tr('server.task.*')), so it's
 	// rendered in whatever language was active when the state was built. The es
 	// catalog loads asynchronously, so tasks can bake in English before it applies
@@ -1105,6 +1127,17 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		[act]
 	);
 
+	// Whether the player already holds enough materials (basket + chests) to craft
+	// `count` of an item right now — used to reject pointless "craft X" goals.
+	const canAffordCraft = useCallback((itemId: string | undefined, count: number) => {
+		const d = bridge.shared.data; const st = bridge.shared.state;
+		if (!d || !st || !itemId) return false;
+		const recipe = (d.recipes || []).find((r: any) => r.output?.itemId === itemId);
+		if (!recipe) return false;
+		const held = (id: string) => (st.player.inventory?.[id] || 0) + (st.chests || []).reduce((s: number, c: any) => s + (c.contents?.[id] || 0), 0);
+		return Object.entries(recipe.materials || {}).every(([mid, need]) => held(mid) >= (need as number) * count);
+	}, []);
+
 	// Add a single goal from a menu (journal / crafting / biomes), skipping exact
 	// duplicates and respecting the list cap. Announces the add with a toast.
 	const addGoal = useCallback(
@@ -1121,10 +1154,20 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				g.animalId === goal.animalId && g.track === goal.track && g.biomeId === goal.biomeId;
 			if (cur.some(same)) { toast(t('app.toast.goalAlready'), 'info'); return; }
 			if (cur.length >= limit) { toast(t('app.toast.goalLimit', { max: limit }), 'info'); return; }
+			// No busywork goals: if you already have the materials to make it right now,
+			// there's nothing to work toward — just craft it.
+			if ((goal.kind === 'craft' || goal.kind === 'build') && canAffordCraft(goal.itemId, goal.target || 1)) {
+				toast(t('app.toast.goalAffordable'), 'info'); return;
+			}
+			// Biome-unlock kits are already tracked by the pinned "unlock next biome" goal.
+			if ((goal.kind === 'craft' || goal.kind === 'build') &&
+				(bridge.shared.data?.biomes || []).some((b: any) => b.unlock?.requiresItem === goal.itemId)) {
+				toast(t('app.toast.goalUnlockKit'), 'info'); return;
+			}
 			await act(() => api.setGoals([...cur, goal]));
 			toast(t('app.toast.goalAdded'), 'unlock');
 		},
-		[act, state, toast]
+		[act, state, toast, canAffordCraft]
 	);
 
 	const changeArea = useCallback(

@@ -14461,7 +14461,8 @@ var server_default = {
       biomeAnimals: "Build every animal's habitat here until the whole biome is home."
     },
     restore: "Restore {biome} to {pct}% health",
-    biomeAnimals: "Welcome all {count} animals to {biome}"
+    biomeAnimals: "Welcome all {count} animals to {biome}",
+    upgradeGuide: "Upgrade your field guide (Tools) to reveal exactly what it needs."
   },
   nextbiome: {
     title: "Unlock {biome}",
@@ -14886,7 +14887,7 @@ var supportHtml = `<!doctype html>
 </body>
 </html>
 `;
-var buildStamp = "0.1.9+2026-07-09T22:25:21.348Z";
+var buildStamp = "0.1.9+2026-07-09T23:19:08.136Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
@@ -16102,6 +16103,11 @@ function nextBiomeGoal(ctx) {
 function attractSteps(animalId, ctx) {
   const a = ctx.d.animal.get(animalId);
   if (!a) return [];
+  const needTier = (ctx.d.biome.get(a.biome)?.order || 1) + 1;
+  const guideTier = ctx.player?.tools?.["field-journal"] || 1;
+  if (guideTier < needTier) {
+    return [{ text: t("server.goal.upgradeGuide"), done: false }];
+  }
   const steps = [];
   for (const [oid, need] of Object.entries(a.requirements?.objects || {})) {
     const have = (ctx.placements || []).filter((p) => p.objectId === oid && p.area === a.biome).length;

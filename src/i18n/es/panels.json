@@ -485,7 +485,7 @@
 			},
 			"board": {
 				"title": "Fija tus propios objetivos",
-				"text": "El tablero de la izquierda siempre apunta a tu próxima meta — desbloquear el siguiente bioma — con una lista de exactamente lo que necesita. Debajo, añade tus propios objetivos: abre el menú de objetivos (presiona G, o el engranaje del tablero) para fabricar un objeto concreto, plantar cierta cantidad de cosas, recolectar un material, leer sobre animales o mejorar tu hogar; añade un animal que atraer desde su entrada del diario. Puedes tener tres objetivos a la vez (seis con toda la reserva abierta), ordenarlos, y completar uno da un pequeño paquete de materiales (presiona Tab para esconder el tablero). Tus plantas también siguen creciendo en tiempo real aunque el juego esté cerrado, así que siempre hay algo nuevo cuando regresas."
+				"text": "El tablero de la izquierda siempre apunta a tu próxima meta — abrir el siguiente bioma — con una lista de lo que necesita. Debajo, añade tus propios objetivos (presiona G): fabricar un objeto, plantar, reunir un material, leer sobre animales, restaurar un bioma o mejorar tu hogar — y animales que atraer desde el diario de campo. Ten tres a la vez (seis con toda la reserva abierta); completar uno da un pequeño paquete de materiales. Presiona Tab para esconder el tablero."
 			}
 		},
 		"keys": {
@@ -605,7 +605,8 @@
 		},
 		"healthLabel": "A salud:",
 		"ownHead": "Tus propios objetivos",
-		"pinnedTag": "Siguiente"
+		"pinnedTag": "Siguiente",
+		"affordableNote": "Ya tienes los materiales para eso — solo fabrícalo."
 	},
 	"people": {
 		"title": "Personas",

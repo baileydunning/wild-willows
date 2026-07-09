@@ -192,7 +192,8 @@
 			"biomeAnimals": "Construye el hábitat de cada animal aquí hasta que todo el bioma esté en casa."
 		},
 		"restore": "Restaura {biome} al {pct}% de salud",
-		"biomeAnimals": "Da la bienvenida a los {count} animales de {biome}"
+		"biomeAnimals": "Da la bienvenida a los {count} animales de {biome}",
+		"upgradeGuide": "Mejora tu guía de campo (Herramientas) para revelar exactamente lo que necesita."
 	},
 	"nextbiome": {
 		"title": "Desbloquea {biome}",

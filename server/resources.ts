@@ -2062,6 +2062,15 @@ function nextBiomeGoal(ctx: TaskCtx): any | null {
 function attractSteps(animalId: string, ctx: TaskCtx): { text: string; done: boolean }[] {
 	const a = ctx.d.animal.get(animalId);
 	if (!a) return [];
+	// Gated by the field guide: the exact habitat an animal needs is only revealed
+	// once the player has upgraded their field journal to this biome's guide tier
+	// (same rule as the journal). Until then, nudge them to upgrade instead of
+	// spoiling the checklist.
+	const needTier = (ctx.d.biome.get(a.biome)?.order || 1) + 1;
+	const guideTier = ctx.player?.tools?.['field-journal'] || 1;
+	if (guideTier < needTier) {
+		return [{ text: tr('server.goal.upgradeGuide'), done: false }];
+	}
 	const steps: { text: string; done: boolean }[] = [];
 	for (const [oid, need] of Object.entries(a.requirements?.objects || {})) {
 		const have = (ctx.placements || []).filter((p: any) => p.objectId === oid && p.area === a.biome).length;
