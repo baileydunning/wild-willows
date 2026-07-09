@@ -71,6 +71,9 @@
 		"wouldNotTakeRoot": "{name} no echaría raíces en {biome}",
 		"plantIntoWatered": "Planta en un bancal regado — cava con la pala y luego riégalo",
 		"placementNotFound": "Colocación no encontrada",
+		"notHarvestable": "No hay nada que cosechar de eso",
+		"notReadyYet": "Aún no está listo para cosechar — dale tiempo para volver a crecer",
+		"basketFullHarvest": "Tu cesta está llena — haz espacio antes de cosechar",
 		"workbenchStays": "Tu estación de fabricación se queda en su lugar — la reserva la necesita",
 		"openWaterBridgeOnly": "Eso es agua abierta — solo un puente puede ir ahí",
 		"bedForPlantingShort": "Ese bancal es para plantar",
@@ -125,7 +128,7 @@
 	},
 	"task": {
 		"welcomeGrasshopper": "Dale la bienvenida al saltamontes que vuelve a casa",
-		"welcomeGrasshopperHint": "Fabrica y coloca un parche de pasto, luego lleva la pradera al 15% de salud — el saltamontes vuelve a casa por su cuenta.",
+		"welcomeGrasshopperHint": "Fabrica y coloca un parche de pasto, luego lleva la pradera al 10% de salud — el saltamontes vuelve a casa por su cuenta.",
 		"raiseHealth": "Sube la salud de {biome} de {current}% a {goal}%",
 		"welcomeNewAnimal": "Dale la bienvenida a un nuevo animal en {biome}",
 		"welcomeAnyAnimal": "Dale la bienvenida a un nuevo animal, en cualquier parte de la reserva",

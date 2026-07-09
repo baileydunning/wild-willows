@@ -393,8 +393,8 @@
 		},
 		"grasshopper": {
 			"title": "Dale la bienvenida al saltamontes",
-			"text": "Llegó el momento. Un saltamontes regresa cuando la pradera está al 15% de salud y hay un Parche de pasto colocado — entre regar la tierra, plantar y tus parches, ya lo tienes. Si todavía no ha llegado dando saltos, coloca otro parche o riega un poco más. Cuando aparezca, haz clic en él para observarlo y registrarlo en tu diario — luego haz clic en Siguiente para una última cosa.",
-			"touch": "Llegó el momento. Un saltamontes regresa cuando la pradera está al 15% de salud y hay un Parche de pasto colocado — entre regar la tierra, plantar y tus parches, ya lo tienes. Si todavía no ha llegado dando saltos, coloca otro parche o riega un poco más. Cuando aparezca, tócalo para observarlo y registrarlo en tu diario — luego toca Siguiente para una última cosa."
+			"text": "Llegó el momento. Un saltamontes regresa cuando la pradera está al 10% de salud y hay un Parche de pasto colocado — entre regar la tierra, plantar y tus parches, ya lo tienes. Si todavía no ha llegado dando saltos, coloca otro parche o riega un poco más. Cuando aparezca, haz clic en él para observarlo y registrarlo en tu diario — luego haz clic en Siguiente para una última cosa.",
+			"touch": "Llegó el momento. Un saltamontes regresa cuando la pradera está al 10% de salud y hay un Parche de pasto colocado — entre regar la tierra, plantar y tus parches, ya lo tienes. Si todavía no ha llegado dando saltos, coloca otro parche o riega un poco más. Cuando aparezca, tócalo para observarlo y registrarlo en tu diario — luego toca Siguiente para una última cosa."
 		},
 		"star": {
 			"title": "Tu primera estrella",

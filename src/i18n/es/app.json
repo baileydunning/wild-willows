@@ -50,6 +50,7 @@
 		"homeBuilt": "¡Construiste tu {name}!",
 		"rested": "Duermes profundamente — todos los puntos de recolección han vuelto a crecer.",
 		"taskReward": "Recompensa de tarea — {items}",
+		"harvested": "Cosechaste {items}",
 		"goalComplete": "Objetivo cumplido: {goal}",
 		"goalAdded": "Añadido a tus objetivos — mira el tablero (L)",
 		"habitatGoalAdded": "Añadido su hábitat a tus objetivos — mira el tablero (L)",
@@ -70,6 +71,7 @@
 		"biomeUnlocked": "¡Nuevo bioma desbloqueado: {name}!",
 		"loopReminder": "El mismo ciclo en {name}: construye hábitat hasta que sus animales regresen, y se abrirá el siguiente sendero.",
 		"taskReward": "Tarea del día terminada: obtuviste {items}.",
+		"harvested": "Cosechaste {items} — la planta volverá a crecer.",
 		"goalComplete": "Objetivo cumplido: {goal}"
 	},
 	"log": {
@@ -129,7 +131,8 @@
 		"move": "Mover",
 		"rotate": "Girar",
 		"digUp": "Desenterrar (devuelve los materiales)",
-		"pickUp": "Recoger"
+		"pickUp": "Recoger",
+		"harvest": "Cosechar {name}"
 	},
 	"welcome": {
 		"playMode": "Modo de juego",

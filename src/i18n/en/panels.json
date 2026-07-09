@@ -393,8 +393,8 @@
 		},
 		"grasshopper": {
 			"title": "Welcome the grasshopper",
-			"text": "Here’s the moment. A grasshopper returns at 15% meadow health with a Grass Patch down — between watering the land, planting, and your patches you’re already there. If it hasn’t hopped in yet, place another patch or water a bit more. When it arrives, click it to observe it and record it in your journal — then click Next for one last thing.",
-			"touch": "Here’s the moment. A grasshopper returns at 15% meadow health with a Grass Patch down — between watering the land, planting, and your patches you’re already there. If it hasn’t hopped in yet, place another patch or water a bit more. When it arrives, tap it to observe it and record it in your journal — then tap Next for one last thing."
+			"text": "Here’s the moment. A grasshopper returns at 10% meadow health with a Grass Patch down — between watering the land, planting, and your patches you’re already there. If it hasn’t hopped in yet, place another patch or water a bit more. When it arrives, click it to observe it and record it in your journal — then click Next for one last thing.",
+			"touch": "Here’s the moment. A grasshopper returns at 10% meadow health with a Grass Patch down — between watering the land, planting, and your patches you’re already there. If it hasn’t hopped in yet, place another patch or water a bit more. When it arrives, tap it to observe it and record it in your journal — then tap Next for one last thing."
 		},
 		"star": {
 			"title": "Your first star",

@@ -50,6 +50,7 @@
 		"homeBuilt": "You built your {name}!",
 		"rested": "You sleep soundly — every gathering spot has regrown.",
 		"taskReward": "Task reward — {items}",
+		"harvested": "Harvested {items}",
 		"goalComplete": "Goal complete: {goal}",
 		"goalAdded": "Added to your goals — see the board (L)",
 		"habitatGoalAdded": "Added its habitat to your goals — see the board (L)",
@@ -70,6 +71,7 @@
 		"biomeUnlocked": "New biome unlocked: {name}!",
 		"loopReminder": "Same loop in {name}: build habitat until its animals come home, and the next trail opens.",
 		"taskReward": "Daily task finished: earned {items}.",
+		"harvested": "Harvested {items} — the plant will grow back.",
 		"goalComplete": "Goal complete: {goal}"
 	},
 	"log": {
@@ -129,7 +131,8 @@
 		"move": "Move",
 		"rotate": "Rotate",
 		"digUp": "Dig up (returns materials)",
-		"pickUp": "Pick up"
+		"pickUp": "Pick up",
+		"harvest": "Harvest {name}"
 	},
 	"welcome": {
 		"playMode": "Play mode",

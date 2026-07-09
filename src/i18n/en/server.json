@@ -71,6 +71,9 @@
 		"wouldNotTakeRoot": "{name} would not take root in the {biome}",
 		"plantIntoWatered": "Plant into a watered soil bed — dig with the shovel, then water it",
 		"placementNotFound": "Placement not found",
+		"notHarvestable": "There's nothing to harvest from that",
+		"notReadyYet": "Not ready to harvest yet — give it time to grow back",
+		"basketFullHarvest": "Your basket is full — make room before harvesting",
 		"workbenchStays": "Your crafting station stays put — the preserve needs it",
 		"openWaterBridgeOnly": "That is open water — only a bridge can sit there",
 		"bedForPlantingShort": "That soil bed is for planting",
@@ -125,7 +128,7 @@
 	},
 	"task": {
 		"welcomeGrasshopper": "Welcome the grasshopper home",
-		"welcomeGrasshopperHint": "Craft and place a grass patch, then bring the meadow to 15% health — the grasshopper hops home on its own.",
+		"welcomeGrasshopperHint": "Craft and place a grass patch, then bring the meadow to 10% health — the grasshopper hops home on its own.",
 		"raiseHealth": "Raise {biome}'s health from {current}% to {goal}%",
 		"welcomeNewAnimal": "Welcome a new animal back to {biome}",
 		"welcomeAnyAnimal": "Welcome a new animal, anywhere in the preserve",

@@ -14,6 +14,7 @@
 		"readTrailSign": "Leer el letrero del sendero ({name})",
 		"lookOcean": "Contemplar el océano",
 		"gather": "Recolectar {name}",
+		"harvest": "Cosechar {name}",
 		"openChest": "Abrir {name}",
 		"openCrafting": "Abrir fabricación (E)",
 		"readJournal": "Leer tu diario de campo",
