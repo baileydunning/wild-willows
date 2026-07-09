@@ -2812,7 +2812,12 @@ var habitat_objects_default = {
       growSeconds: 45,
       description: "Mixed native wildflowers. Pollinators can spot it from far away.",
       matureHours: 2,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "wildflowers",
+        qty: 2,
+        regrowSeconds: 45
+      }
     },
     {
       id: "poppy-patch",
@@ -2837,7 +2842,12 @@ var habitat_objects_default = {
       growSeconds: 45,
       description: "Bright field poppies, grown from seed in a watered bed.",
       matureHours: 2,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "wildflowers",
+        qty: 1,
+        regrowSeconds: 45
+      }
     },
     {
       id: "sunflower-patch",
@@ -2860,7 +2870,12 @@ var habitat_objects_default = {
       growSeconds: 60,
       description: "Tall sunflowers that feed seed-eating birds all season.",
       matureHours: 2,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "seeds",
+        qty: 2,
+        regrowSeconds: 60
+      }
     },
     {
       id: "lupine-patch",
@@ -2885,7 +2900,12 @@ var habitat_objects_default = {
       growSeconds: 50,
       description: "Spires of blue lupine that fix the soil as they bloom.",
       matureHours: 2,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "wildflowers",
+        qty: 1,
+        regrowSeconds: 50
+      }
     },
     {
       id: "willow-tree",
@@ -2936,7 +2956,12 @@ var habitat_objects_default = {
       growSeconds: 90,
       description: "An acorn-grown oak. Squirrels and jays will thank you for decades.",
       matureHours: 8,
-      matureBonus: 2
+      matureBonus: 2,
+      yield: {
+        resourceId: "acorns",
+        qty: 2,
+        regrowSeconds: 90
+      }
     },
     {
       id: "pine-tree",
@@ -2961,7 +2986,12 @@ var habitat_objects_default = {
       growSeconds: 90,
       description: "A young pine grown from a cone \u2014 evergreen shelter in any season.",
       matureHours: 8,
-      matureBonus: 2
+      matureBonus: 2,
+      yield: {
+        resourceId: "pinecones",
+        qty: 2,
+        regrowSeconds: 90
+      }
     },
     {
       id: "butterfly-flowers",
@@ -3041,7 +3071,12 @@ var habitat_objects_default = {
       growSeconds: 70,
       description: "A thornless native berry bush. Songbirds, rabbits, deer, and bears all visit. Sow it in a watered bed from seeds and a few berries.",
       matureHours: 4,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "berries",
+        qty: 2,
+        regrowSeconds: 60
+      }
     },
     {
       id: "small-pond",
@@ -3403,7 +3438,12 @@ var habitat_objects_default = {
       },
       growSeconds: 45,
       matureHours: 4,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "reeds",
+        qty: 2,
+        regrowSeconds: 45
+      }
     },
     {
       id: "mud-bank",
@@ -3461,7 +3501,12 @@ var habitat_objects_default = {
       },
       growSeconds: 45,
       matureHours: 4,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "reeds",
+        qty: 1,
+        regrowSeconds: 45
+      }
     },
     {
       id: "marsh-log",
@@ -3534,7 +3579,12 @@ var habitat_objects_default = {
       },
       growSeconds: 70,
       matureHours: 4,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "cactus-fruit",
+        qty: 2,
+        regrowSeconds: 70
+      }
     },
     {
       id: "desert-brush",
@@ -3595,7 +3645,12 @@ var habitat_objects_default = {
       },
       growSeconds: 45,
       matureHours: 2,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "alpine-flowers",
+        qty: 2,
+        regrowSeconds: 45
+      }
     },
     {
       id: "snowmelt-pool",
@@ -4161,7 +4216,12 @@ var habitat_objects_default = {
       },
       growSeconds: 60,
       matureHours: 4,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "agave-nectar",
+        qty: 1,
+        regrowSeconds: 60
+      }
     },
     {
       id: "ocotillo",
@@ -4208,7 +4268,12 @@ var habitat_objects_default = {
       },
       growSeconds: 50,
       matureHours: 4,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "alpine-flowers",
+        qty: 1,
+        regrowSeconds: 50
+      }
     },
     {
       id: "krummholz-pine",
@@ -4288,7 +4353,12 @@ var habitat_objects_default = {
       growSeconds: 45,
       description: "Cheerful oxeye daisies that open with the morning sun.",
       matureHours: 2,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "wildflowers",
+        qty: 1,
+        regrowSeconds: 45
+      }
     },
     {
       id: "foxglove",
@@ -4312,7 +4382,12 @@ var habitat_objects_default = {
       growSeconds: 50,
       description: "Tall pink foxglove spires \u2014 a bumblebee favourite.",
       matureHours: 2,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "wildflowers",
+        qty: 1,
+        regrowSeconds: 50
+      }
     },
     {
       id: "mushroom-ring",
@@ -4335,7 +4410,12 @@ var habitat_objects_default = {
       growSeconds: 45,
       description: "A fairy ring of woodland mushrooms in the leaf litter.",
       matureHours: 2,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "mushrooms",
+        qty: 2,
+        regrowSeconds: 45
+      }
     },
     {
       id: "birch-tree",
@@ -4359,7 +4439,12 @@ var habitat_objects_default = {
       growSeconds: 90,
       description: "A slender white-barked birch grown from a watered bed.",
       matureHours: 8,
-      matureBonus: 2
+      matureBonus: 2,
+      yield: {
+        resourceId: "bark",
+        qty: 1,
+        regrowSeconds: 90
+      }
     },
     {
       id: "marsh-marigold",
@@ -4383,7 +4468,12 @@ var habitat_objects_default = {
       growSeconds: 45,
       description: "Golden marsh marigolds that ring the shallows in spring.",
       matureHours: 2,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "wildflowers",
+        qty: 1,
+        regrowSeconds: 45
+      }
     },
     {
       id: "bulrush",
@@ -4406,7 +4496,12 @@ var habitat_objects_default = {
       growSeconds: 45,
       description: "Stately bulrushes with brown velvet heads along the bank.",
       matureHours: 4,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "reeds",
+        qty: 1,
+        regrowSeconds: 45
+      }
     },
     {
       id: "prickly-pear",
@@ -4429,7 +4524,12 @@ var habitat_objects_default = {
       growSeconds: 70,
       description: "Pad cactus with sweet fruit and bright blooms.",
       matureHours: 4,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "cactus-fruit",
+        qty: 2,
+        regrowSeconds: 70
+      }
     },
     {
       id: "desert-marigold",
@@ -4453,7 +4553,12 @@ var habitat_objects_default = {
       growSeconds: 50,
       description: "Drought-tough marigolds that glow against the sand.",
       matureHours: 2,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "wildflowers",
+        qty: 1,
+        regrowSeconds: 50
+      }
     },
     {
       id: "gentian-patch",
@@ -4476,7 +4581,12 @@ var habitat_objects_default = {
       growSeconds: 45,
       description: "Vivid blue alpine gentians, low against the wind.",
       matureHours: 2,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "alpine-flowers",
+        qty: 1,
+        regrowSeconds: 45
+      }
     },
     {
       id: "moss-cushion",
@@ -4523,7 +4633,12 @@ var habitat_objects_default = {
       growSeconds: 45,
       description: "Pink sea-thrift pompoms that thrive in salt spray.",
       matureHours: 2,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "wildflowers",
+        qty: 1,
+        regrowSeconds: 45
+      }
     },
     {
       id: "beach-shrub",
@@ -6728,7 +6843,7 @@ var animals_1_default = {
       preferredHabitat: "Sunny grasslands and meadows rich in grasses and forbs",
       fact: "Grasshoppers hear through tympana \u2014 eardrum-like membranes on the first segment of the abdomen, not their heads.",
       requirements: {
-        minHealth: 15,
+        minHealth: 10,
         objects: {
           "grass-patch": 1
         },
@@ -13415,6 +13530,9 @@ var server_default = {
     wouldNotTakeRoot: "{name} would not take root in the {biome}",
     plantIntoWatered: "Plant into a watered soil bed \u2014 dig with the shovel, then water it",
     placementNotFound: "Placement not found",
+    notHarvestable: "There's nothing to harvest from that",
+    notReadyYet: "Not ready to harvest yet \u2014 give it time to grow back",
+    basketFullHarvest: "Your basket is full \u2014 make room before harvesting",
     workbenchStays: "Your crafting station stays put \u2014 the preserve needs it",
     openWaterBridgeOnly: "That is open water \u2014 only a bridge can sit there",
     bedForPlantingShort: "That soil bed is for planting",
@@ -13469,7 +13587,7 @@ var server_default = {
   },
   task: {
     welcomeGrasshopper: "Welcome the grasshopper home",
-    welcomeGrasshopperHint: "Craft and place a grass patch, then bring the meadow to 15% health \u2014 the grasshopper hops home on its own.",
+    welcomeGrasshopperHint: "Craft and place a grass patch, then bring the meadow to 10% health \u2014 the grasshopper hops home on its own.",
     raiseHealth: "Raise {biome}'s health from {current}% to {goal}%",
     welcomeNewAnimal: "Welcome a new animal back to {biome}",
     welcomeAnyAnimal: "Welcome a new animal, anywhere in the preserve",
@@ -13922,7 +14040,7 @@ var supportHtml = `<!doctype html>
 </body>
 </html>
 `;
-var buildStamp = "0.1.9+2026-07-09T03:52:14.542Z";
+var buildStamp = "0.1.9+2026-07-09T04:25:13.486Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
@@ -14849,7 +14967,7 @@ async function recalcBiome(wid, playerId, biomeId, opts = {}) {
     terrain = terrain.filter((tt) => tt.id !== at.id);
     terrain.push(at);
   }
-  const wateredTiles = Math.min(10, terrain.filter((tt) => tt.type === "watered").length);
+  const wateredTiles = Math.min(3, terrain.filter((tt) => tt.type === "watered").length) * 0.5;
   const openWaterTiles = terrain.filter((tt) => tt.type === "water").length;
   const water = analyzeWater(terrain);
   const now = Date.now();
@@ -16209,6 +16327,40 @@ var Plant = class extends PublicEndpoint {
     return { ok: true, placement, inventory, usedFrom, perkGrowth: headStart || void 0, ...recalc };
   }
 };
+function harvestReadyAt(def, placement) {
+  const y = def?.yield;
+  if (!y || !def?.plantable || !placement?.plantedAt) return null;
+  const growMs = (def.growSeconds || 0) * 1e3;
+  const regrowMs = (y.regrowSeconds || 60) * 1e3;
+  return placement.lastHarvestAt ? placement.lastHarvestAt + regrowMs : placement.plantedAt + growMs;
+}
+var HarvestPlacement = class extends PublicEndpoint {
+  async post(data) {
+    const { playerId, placementId } = await bodyOf(data);
+    const t2 = db();
+    const d = await defs();
+    const { player } = await requirePlayer(playerId);
+    const wid = worldOf(player);
+    const now = Date.now();
+    const placement = (await byWorld(t2.Placement, wid)).find((p) => p.id === placementId);
+    if (!placement) throw new GameError(t("server.err.placementNotFound"), 404);
+    const def = d.object.get(placement.objectId);
+    const y = def?.yield;
+    if (!y) throw new GameError(t("server.err.notHarvestable"));
+    const readyAt = harvestReadyAt(def, placement);
+    if (readyAt == null || now < readyAt) throw new GameError(t("server.err.notReadyYet"));
+    const capacity = inventoryCapacity(player);
+    const inventory = { ...player.inventory || {} };
+    const room = Math.max(0, capacity - sumValues(inventory));
+    const take = Math.min(y.qty || 1, room);
+    if (take <= 0) throw new GameError(t("server.err.basketFullHarvest"), 409);
+    inventory[y.resourceId] = (inventory[y.resourceId] || 0) + take;
+    await t2.Player.patch(playerId, { inventory });
+    await t2.Placement.patch(placementId, { lastHarvestAt: now });
+    await bumpMetrics(player, { resourcesCollected: take });
+    return { ok: true, placementId, gained: { [y.resourceId]: take }, inventory, placement: { ...placement, lastHarvestAt: now } };
+  }
+};
 var UpdateAppearance = class extends PublicEndpoint {
   async post(data) {
     const { playerId, appearance } = await bodyOf(data);
@@ -16515,8 +16667,14 @@ var ClaimTask = class extends PublicEndpoint {
       room -= take;
     }
     if (!Object.keys(gained).length) throw new GameError(t("server.err.basketFullReward"), 409);
-    const goalClaims = { ...player.goalClaims || {}, [task.id]: true };
-    await t2.Player.patch(playerId, { inventory, goalClaims });
+    const isStarter = String(task.id).startsWith("start-");
+    const patch = { inventory };
+    if (isStarter) {
+      patch.goalClaims = { ...player.goalClaims || {}, [task.id]: true };
+    } else {
+      patch.customGoals = (player.customGoals || []).filter((g) => g.id !== task.id);
+    }
+    await t2.Player.patch(playerId, patch);
     await bumpMetrics(player, { tasksCompleted: 1 });
     await awardAchievements(playerId);
     const dailyTasks = {
@@ -17492,6 +17650,7 @@ export {
   DiscardItem,
   GameData,
   GameState,
+  HarvestPlacement,
   Heartbeat,
   JoinRequestStatus,
   JoinWorld,

@@ -1407,7 +1407,11 @@ async function recalcBiome(
 		terrain = terrain.filter((tt) => tt.id !== at.id);
 		terrain.push(at);
 	}
-	const wateredTiles = Math.min(10, terrain.filter((tt) => tt.type === 'watered').length);
+	// Watered beds nudge health only a LITTLE — a few beds, half a point each — so
+	// you can't spam dig+water your way to enough health to pull animals back. Real
+	// recovery comes from placed/planted habitat; a bare bed is just a step toward
+	// planting. (Capped low on purpose.)
+	const wateredTiles = Math.min(3, terrain.filter((tt) => tt.type === 'watered').length) * 0.5;
 	const openWaterTiles = terrain.filter((tt) => tt.type === 'water').length;
 	// rivers and lakes shaped with the watering can feed water-dwelling animals
 	const water = analyzeWater(terrain);
@@ -3351,6 +3355,57 @@ export class Plant extends PublicEndpoint {
 	}
 }
 
+/**
+ * When a planted, yield-bearing plant is ready to harvest — mature the first
+ * time, then `regrowSeconds` after each harvest. Returns the ms timestamp it
+ * becomes ready, or null if it never yields.
+ */
+function harvestReadyAt(def: any, placement: any): number | null {
+	const y = def?.yield;
+	if (!y || !def?.plantable || !placement?.plantedAt) return null;
+	const growMs = (def.growSeconds || 0) * 1000;
+	const regrowMs = (y.regrowSeconds || 60) * 1000;
+	return placement.lastHarvestAt ? placement.lastHarvestAt + regrowMs : placement.plantedAt + growMs;
+}
+
+/**
+ * POST /HarvestPlacement/ {playerId, placementId} — gather a mature plant's
+ * yield (berries, flowers, acorns…) without uprooting it. The plant stays and
+ * regrows its yield after `regrowSeconds`, turning planting into a renewable
+ * source instead of dig-up-and-replant.
+ */
+export class HarvestPlacement extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId, placementId } = await bodyOf(data);
+		const t = db();
+		const d = await defs();
+		const { player } = await requirePlayer(playerId);
+		const wid = worldOf(player);
+		const now = Date.now();
+
+		const placement = (await byWorld(t.Placement, wid)).find((p) => p.id === placementId);
+		if (!placement) throw new GameError(tr('server.err.placementNotFound'), 404);
+		const def = d.object.get(placement.objectId);
+		const y = def?.yield;
+		if (!y) throw new GameError(tr('server.err.notHarvestable'));
+		const readyAt = harvestReadyAt(def, placement);
+		if (readyAt == null || now < readyAt) throw new GameError(tr('server.err.notReadyYet'));
+
+		// grant the yield, respecting carrying capacity
+		const capacity = inventoryCapacity(player);
+		const inventory = { ...(player.inventory || {}) };
+		const room = Math.max(0, capacity - sumValues(inventory));
+		const take = Math.min(y.qty || 1, room);
+		if (take <= 0) throw new GameError(tr('server.err.basketFullHarvest'), 409);
+		inventory[y.resourceId] = (inventory[y.resourceId] || 0) + take;
+
+		await t.Player.patch(playerId, { inventory });
+		await t.Placement.patch(placementId, { lastHarvestAt: now });
+		await bumpMetrics(player, { resourcesCollected: take });
+		return { ok: true, placementId, gained: { [y.resourceId]: take }, inventory, placement: { ...placement, lastHarvestAt: now } };
+	}
+}
+
 /** POST /UpdateAppearance/ {playerId, appearance} — restyle your caretaker anytime. */
 export class UpdateAppearance extends PublicEndpoint {
 	async post(data: any) {
@@ -3721,9 +3776,18 @@ export class ClaimTask extends PublicEndpoint {
 		}
 		if (!Object.keys(gained).length) throw new GameError(tr('server.err.basketFullReward'), 409);
 
-		// Starters and player-set goals claim permanently (they aren't day-scoped).
-		const goalClaims = { ...(player.goalClaims || {}), [task.id]: true };
-		await t.Player.patch(playerId, { inventory, goalClaims });
+		// Clear the finished goal out for good. Starters (start-*) aren't stored in
+		// the goal list, so they're remembered via goalClaims; a player-set goal is
+		// removed from customGoals entirely, so it leaves the board, the goals menu,
+		// and frees its slot (no lingering "done" entries piling up).
+		const isStarter = String(task.id).startsWith('start-');
+		const patch: any = { inventory };
+		if (isStarter) {
+			patch.goalClaims = { ...(player.goalClaims || {}), [task.id]: true };
+		} else {
+			patch.customGoals = (player.customGoals || []).filter((g: CustomGoal) => g.id !== task.id);
+		}
+		await t.Player.patch(playerId, patch);
 		await bumpMetrics(player, { tasksCompleted: 1 });
 		await awardAchievements(playerId);
 

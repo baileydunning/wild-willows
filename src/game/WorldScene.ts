@@ -9,6 +9,7 @@ import { seasonStyle, weatherType, liveWeatherType, gatherResourceFor } from '..
 import { t, content } from '../i18n';
 import { getPrefs, subscribe as subscribePrefs } from '../prefs';
 import { isTypingTarget } from '../typing';
+import { harvestReadyAt } from '../types';
 import type { BiomeDef, HabitatObjectDef } from '../types';
 
 export const TILE = 32;
@@ -1099,7 +1100,7 @@ export class WorldScene extends Phaser.Scene {
 			.join('|');
 		const placements = (st.placements || [])
 			.filter((pl) => pl.area === this.area)
-			.map((pl) => `${pl.id}:${pl.objectId}:${pl.x},${pl.y}:${pl.rotation || 0}:${pl.plantedAt || 0}`)
+			.map((pl) => `${pl.id}:${pl.objectId}:${pl.x},${pl.y}:${pl.rotation || 0}:${pl.plantedAt || 0}:${(pl as any).lastHarvestAt || 0}`)
 			.sort()
 			.join('|');
 		const wx = liveWeatherType(this.worldId, this.area, st.weather);
@@ -1956,6 +1957,51 @@ export class WorldScene extends Phaser.Scene {
 				});
 			}
 
+			// Harvest-ready plants get a soft golden glint above them; if one will
+			// become ready later (regrowing after a harvest), nudge a repaint then so
+			// the glint appears on its own.
+			if (def.yield && p.plantedAt && !stillGrowing) {
+				const readyAt = harvestReadyAt(def, { plantedAt: p.plantedAt, lastHarvestAt: (p as any).lastHarvestAt });
+				const now = Date.now();
+				if (readyAt != null && now >= readyAt) {
+					// A single small, dim star that twinkles occasionally above the plant —
+					// staggered per-plant so a field of ready plants doesn't pulse in
+					// unison (the old full glow on every plant read as a wall of light).
+					if (!this.textures.exists('harvest-mote')) {
+						const g = this.make.graphics({ x: 0, y: 0 }, false);
+						g.scaleCanvas(TEX_SCALE, TEX_SCALE);
+						g.fillStyle(0xffffff, 1).fillPoints([
+							{ x: 5, y: 0 }, { x: 6.2, y: 3.8 }, { x: 10, y: 5 }, { x: 6.2, y: 6.2 },
+							{ x: 5, y: 10 }, { x: 3.8, y: 6.2 }, { x: 0, y: 5 }, { x: 3.8, y: 3.8 },
+						], true);
+						g.generateTexture('harvest-mote', 10 * TEX_SCALE, 10 * TEX_SCALE);
+						g.destroy();
+					}
+					const stagger = hashStr(p.id) % 1400;
+					const mote = this.addDyn(this.img(x + (tall ? 7 : 5), y - (tall ? 22 : 10), 'harvest-mote').setDepth(y + 40).setTint(0xffe9a8).setAlpha(0).setScale(0.12));
+					mote.setBlendMode(Phaser.BlendModes.ADD);
+					this.tweens.add({
+						targets: mote,
+						alpha: { from: 0, to: 0.7 },
+						scale: { from: 0.08, to: 0.17 },
+						angle: { from: 0, to: 40 },
+						duration: 780, delay: stagger, hold: 120, yoyo: true,
+						repeat: -1, repeatDelay: 900 + (hashStr(p.id + 'r') % 900),
+						ease: 'Sine.easeInOut',
+					});
+					// Register it so E / Space (and the mobile interact button) harvest the
+					// nearest ready plant, just like gathering a node. Clicking still opens
+					// the placement menu (which also has a Harvest button).
+					this.interactables.push({
+						x, y,
+						label: t('game.label.harvest', { name: content('habitatObject', p.objectId, 'name', def.name) }),
+						action: () => bridge.emit('harvest-placement', { placementId: p.id }),
+					});
+				} else if (readyAt != null) {
+					this.time.delayedCall(readyAt - now + 200, () => { if (this.alive) this.refreshDynamic(true); });
+				}
+			}
+
 			// Camp fixtures stay crisp and identical; everything the player crafts
 			// and places gets a little deterministic character seeded from its
 			// placement id, so no two crafted items look exactly alike.
@@ -2007,7 +2053,7 @@ export class WorldScene extends Phaser.Scene {
 				}
 				if (!hasPrimaryAction) {
 					const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, x, y);
-					if (dist <= 120) bridge.emit('placement-clicked', { placementId: p.id, objectId: p.objectId, name: defName, plantedAt: p.plantedAt, x: p.x, y: p.y, rotation: p.rotation || 0 });
+					if (dist <= 120) bridge.emit('placement-clicked', { placementId: p.id, objectId: p.objectId, name: defName, plantedAt: p.plantedAt, lastHarvestAt: (p as any).lastHarvestAt, x: p.x, y: p.y, rotation: p.rotation || 0 });
 					else bridge.emit('toast', { text: t('game.toast.walkCloser'), kind: 'info' });
 				}
 			});

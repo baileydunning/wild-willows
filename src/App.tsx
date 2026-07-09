@@ -4,6 +4,7 @@ import { bridge } from './game/bridge';
 import { PhaserGame } from './game/PhaserGame';
 import { GameProvider, useGame } from './state';
 import { useI18n } from './i18n/react';
+import { harvestReadyAt } from './types';
 import { isTypingTarget } from './typing';
 import { HelpModal } from './ui/Help';
 import { HUD, Toasts } from './ui/HUD';
@@ -28,6 +29,7 @@ interface ClickedPlacement {
 	objectId: string;
 	name: string;
 	plantedAt?: number;
+	lastHarvestAt?: number;
 	x?: number;
 	y?: number;
 	rotation?: number;
@@ -99,13 +101,27 @@ function PlantMenu({ bed, onClose }: { bed: ClickedBed; onClose: () => void }) {
 
 /** Small action menu when you click one of your placed items. */
 function PlacementMenu({ item, onClose }: { item: ClickedPlacement; onClose: () => void }) {
-	const { removePlacement, rotatePlacement, data } = useGame();
+	const { removePlacement, rotatePlacement, harvest, data } = useGame();
 	const { t, content } = useI18n();
 	const def = data?.habitatObjects.find((o) => o.id === item.objectId);
 	const planted = !!(def?.plantable && item.plantedAt);
+	const readyAt = harvestReadyAt(def, { plantedAt: item.plantedAt, lastHarvestAt: item.lastHarvestAt });
+	const canHarvest = readyAt != null && Date.now() >= readyAt;
+	const yieldName = def?.yield ? content('resource', def.yield.resourceId, 'name', data?.resources.find((r) => r.id === def.yield!.resourceId)?.name || def.yield.resourceId) : '';
 	return (
 		<div className="placement-menu">
 			<b>{content('habitatObject', item.objectId, 'name', item.name)}</b>
+			{canHarvest && (
+				<button
+					className="harvest-btn"
+					onClick={() => {
+						harvest(item.placementId);
+						onClose();
+					}}
+				>
+					<Icon name="basket" size={15} /> {t('app.placementMenu.harvest', { name: yieldName })}
+				</button>
+			)}
 			<button
 				onClick={() => {
 					bridge.emit('enter-move', { placementId: item.placementId });
@@ -204,6 +220,7 @@ function GameScreen() {
 				game.terraform(p.area, p.x, p.y, p.action);
 			}),
 			bridge.on('placement-clicked', (p: any) => setClickedPlacement(p)),
+			bridge.on('harvest-placement', (p: any) => game.harvest(p.placementId)),
 			bridge.on('bed-clicked', (p: any) => setClickedBed(p)),
 			bridge.on('dig-up', (p: any) => {
 				if (window.confirm(t('app.confirm.digUpPlacement', { name: p.name }))) {

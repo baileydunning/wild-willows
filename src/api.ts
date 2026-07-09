@@ -253,6 +253,7 @@ export const api = {
 		post<any>('/Terraform/', { playerId: pid(), area, x, y, action }),
 	plant: (area: string, x: number, y: number, plantId: string) =>
 		post<any>('/Plant/', { playerId: pid(), area, x, y, plantId }),
+	harvest: (placementId: string) => post<any>('/HarvestPlacement/', { playerId: pid(), placementId }),
 	syncPlayer: (x: number, y: number, area?: string, tutorialStep?: number) =>
 		post<any>('/SyncPlayer/', { playerId: pid(), x, y, area, tutorialStep }),
 	// language rides on the heartbeat so metrics can report interface language

@@ -160,6 +160,9 @@ export interface HabitatObjectDef {
 	matureHours?: number;
 	/** …and the bonus restoration points it contributes once it is. */
 	matureBonus?: number;
+	/** A renewable harvest: once mature, gathering grants this yield and the plant
+	 * regrows it after `regrowSeconds` (it stays planted). */
+	yield?: { resourceId: string; qty: number; regrowSeconds: number };
 	bridge?: boolean;
 	/** Indoor items: minimum home size (Space track level) needed to place — a tent
 	 * fits the basics; a fireplace needs a proper house. */
@@ -224,6 +227,17 @@ const HOME_BASE_LEVELS = 5;
 export function homePerkStrength(perk: HomePerkDef, home: HomeConfig): number {
 	const levels = (home.space || 1) + (home.comfort || 1) + (home.decor || 1) + (home.light || 1);
 	return Math.min(perk.cap, perk.base + perk.perLevel * Math.max(0, levels - HOME_BASE_LEVELS));
+}
+
+/** When a yield-bearing plant is ready to harvest — its maturity the first time,
+ *  then `regrowSeconds` after each harvest. null if it never yields / isn't
+ *  planted. Shared by the client UI and the world glint. */
+export function harvestReadyAt(def: HabitatObjectDef | undefined, p: { plantedAt?: number; lastHarvestAt?: number } | undefined): number | null {
+	const y = def?.yield;
+	if (!y || !def?.plantable || !p?.plantedAt) return null;
+	const growMs = (def.growSeconds || 0) * 1000;
+	const regrowMs = (y.regrowSeconds || 60) * 1000;
+	return p.lastHarvestAt ? p.lastHarvestAt + regrowMs : p.plantedAt + growMs;
 }
 
 export interface HomeTrackLevel {
@@ -364,6 +378,8 @@ export interface Placement {
 	y: number;
 	placedAt?: number;
 	plantedAt?: number;
+	/** When this plant's yield was last harvested (drives regrow timing). */
+	lastHarvestAt?: number;
 	/** Optional per-item recolor (paint tool, home only). */
 	color?: string;
 	/** Quarter-turn rotation in degrees (0/90/180/270), set when placing/moving. */

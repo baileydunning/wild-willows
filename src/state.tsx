@@ -64,6 +64,7 @@ interface Ctx {
 	discard: (kind: 'material' | 'crafted', id: string, qty: number, name?: string) => Promise<void>;
 	place: (objectId: string, area: string, x: number, y: number, rotation?: number) => Promise<void>;
 	removePlacement: (placementId: string) => Promise<void>;
+	harvest: (placementId: string) => Promise<void>;
 	movePlacement: (placementId: string, x: number, y: number, rotation?: number) => Promise<void>;
 	rotatePlacement: (placementId: string) => Promise<void>;
 	upgradeTool: (toolId: string) => Promise<void>;
@@ -861,6 +862,27 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		[act, data, pushLog]
 	);
 
+	// Gather a mature plant's yield without uprooting it — it regrows for next time.
+	const harvest = useCallback(
+		(placementId: string) =>
+			act(
+				() => api.harvest(placementId),
+				(r) => {
+					const gained = Object.entries(r?.gained || {})
+						.map(([id, q]) => {
+							const def = data?.resources.find((x) => x.id === id);
+							return t('app.format.qtyName', { qty: q as number, name: def ? content('resource', def.id, 'name', def.name) : id });
+						})
+						.join(', ');
+					if (gained) {
+						toast(t('app.toast.harvested', { items: gained }), 'unlock');
+						pushLog('leaf', t('app.feed.harvested', { items: gained }), true);
+					}
+				}
+			),
+		[act, data, toast, pushLog]
+	);
+
 	const setSelectedTool = useCallback((toolId: string) => {
 		setSelectedToolState(toolId);
 		bridge.emit('tool-selected', toolId);
@@ -1122,7 +1144,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			placementObjectId, startPlacement, cancelPlacement, toasts, notify: toast, dismissToast,
 			log, feedLog, selectedTool, setSelectedTool, terraform, plant, setTutorialStep,
 			startNew, startLogin, continueLast, startNewSolo, loadSoloSlot, logout,
-			refresh, collect, transfer, craft, discard, place, removePlacement, movePlacement, rotatePlacement,
+			refresh, collect, transfer, craft, discard, place, removePlacement, harvest, movePlacement, rotatePlacement,
 			upgradeTool, upgradeHome, setHomeStyle, rest, paintColor, setPaintColor, paintHome, paintPlacement,
 			observe, claimTask, setGoals, addGoal, changeArea, recalcArea,
 			worlds, activeWorldId, startNewCoop, refreshWorlds,
@@ -1131,7 +1153,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		[data, state, dataError, saveStatus, panel, helpOpen, activeChestId, animalCardId,
 			placementObjectId, toasts, toast, dismissToast, log, feedLog, selectedTool, setSelectedTool, terraform, plant,
 			setTutorialStep, startNew, startLogin, continueLast, startNewSolo, loadSoloSlot, logout,
-			refresh, collect, transfer, craft, discard, place, removePlacement, movePlacement, rotatePlacement, upgradeTool,
+			refresh, collect, transfer, craft, discard, place, removePlacement, harvest, movePlacement, rotatePlacement, upgradeTool,
 			observe, claimTask, setGoals, addGoal, changeArea, recalcArea, openChest, startPlacement, cancelPlacement, upgradeHome, setHomeStyle, rest,
 			paintColor, setPaintColor, paintHome, paintPlacement,
 			worlds, activeWorldId, startNewCoop, refreshWorlds,

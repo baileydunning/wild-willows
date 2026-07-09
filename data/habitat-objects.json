@@ -61,7 +61,12 @@
 			"growSeconds": 45,
 			"description": "Mixed native wildflowers. Pollinators can spot it from far away.",
 			"matureHours": 2,
-			"matureBonus": 1
+			"matureBonus": 1,
+			"yield": {
+				"resourceId": "wildflowers",
+				"qty": 2,
+				"regrowSeconds": 45
+			}
 		},
 		{
 			"id": "poppy-patch",
@@ -86,7 +91,12 @@
 			"growSeconds": 45,
 			"description": "Bright field poppies, grown from seed in a watered bed.",
 			"matureHours": 2,
-			"matureBonus": 1
+			"matureBonus": 1,
+			"yield": {
+				"resourceId": "wildflowers",
+				"qty": 1,
+				"regrowSeconds": 45
+			}
 		},
 		{
 			"id": "sunflower-patch",
@@ -109,7 +119,12 @@
 			"growSeconds": 60,
 			"description": "Tall sunflowers that feed seed-eating birds all season.",
 			"matureHours": 2,
-			"matureBonus": 1
+			"matureBonus": 1,
+			"yield": {
+				"resourceId": "seeds",
+				"qty": 2,
+				"regrowSeconds": 60
+			}
 		},
 		{
 			"id": "lupine-patch",
@@ -134,7 +149,12 @@
 			"growSeconds": 50,
 			"description": "Spires of blue lupine that fix the soil as they bloom.",
 			"matureHours": 2,
-			"matureBonus": 1
+			"matureBonus": 1,
+			"yield": {
+				"resourceId": "wildflowers",
+				"qty": 1,
+				"regrowSeconds": 50
+			}
 		},
 		{
 			"id": "willow-tree",
@@ -185,7 +205,12 @@
 			"growSeconds": 90,
 			"description": "An acorn-grown oak. Squirrels and jays will thank you for decades.",
 			"matureHours": 8,
-			"matureBonus": 2
+			"matureBonus": 2,
+			"yield": {
+				"resourceId": "acorns",
+				"qty": 2,
+				"regrowSeconds": 90
+			}
 		},
 		{
 			"id": "pine-tree",
@@ -210,7 +235,12 @@
 			"growSeconds": 90,
 			"description": "A young pine grown from a cone — evergreen shelter in any season.",
 			"matureHours": 8,
-			"matureBonus": 2
+			"matureBonus": 2,
+			"yield": {
+				"resourceId": "pinecones",
+				"qty": 2,
+				"regrowSeconds": 90
+			}
 		},
 		{
 			"id": "butterfly-flowers",
@@ -290,7 +320,12 @@
 			"growSeconds": 70,
 			"description": "A thornless native berry bush. Songbirds, rabbits, deer, and bears all visit. Sow it in a watered bed from seeds and a few berries.",
 			"matureHours": 4,
-			"matureBonus": 1
+			"matureBonus": 1,
+			"yield": {
+				"resourceId": "berries",
+				"qty": 2,
+				"regrowSeconds": 60
+			}
 		},
 		{
 			"id": "small-pond",
@@ -652,7 +687,12 @@
 			},
 			"growSeconds": 45,
 			"matureHours": 4,
-			"matureBonus": 1
+			"matureBonus": 1,
+			"yield": {
+				"resourceId": "reeds",
+				"qty": 2,
+				"regrowSeconds": 45
+			}
 		},
 		{
 			"id": "mud-bank",
@@ -710,7 +750,12 @@
 			},
 			"growSeconds": 45,
 			"matureHours": 4,
-			"matureBonus": 1
+			"matureBonus": 1,
+			"yield": {
+				"resourceId": "reeds",
+				"qty": 1,
+				"regrowSeconds": 45
+			}
 		},
 		{
 			"id": "marsh-log",
@@ -783,7 +828,12 @@
 			},
 			"growSeconds": 70,
 			"matureHours": 4,
-			"matureBonus": 1
+			"matureBonus": 1,
+			"yield": {
+				"resourceId": "cactus-fruit",
+				"qty": 2,
+				"regrowSeconds": 70
+			}
 		},
 		{
 			"id": "desert-brush",
@@ -844,7 +894,12 @@
 			},
 			"growSeconds": 45,
 			"matureHours": 2,
-			"matureBonus": 1
+			"matureBonus": 1,
+			"yield": {
+				"resourceId": "alpine-flowers",
+				"qty": 2,
+				"regrowSeconds": 45
+			}
 		},
 		{
 			"id": "snowmelt-pool",
@@ -1410,7 +1465,12 @@
 			},
 			"growSeconds": 60,
 			"matureHours": 4,
-			"matureBonus": 1
+			"matureBonus": 1,
+			"yield": {
+				"resourceId": "agave-nectar",
+				"qty": 1,
+				"regrowSeconds": 60
+			}
 		},
 		{
 			"id": "ocotillo",
@@ -1457,7 +1517,12 @@
 			},
 			"growSeconds": 50,
 			"matureHours": 4,
-			"matureBonus": 1
+			"matureBonus": 1,
+			"yield": {
+				"resourceId": "alpine-flowers",
+				"qty": 1,
+				"regrowSeconds": 50
+			}
 		},
 		{
 			"id": "krummholz-pine",
@@ -1537,7 +1602,12 @@
 			"growSeconds": 45,
 			"description": "Cheerful oxeye daisies that open with the morning sun.",
 			"matureHours": 2,
-			"matureBonus": 1
+			"matureBonus": 1,
+			"yield": {
+				"resourceId": "wildflowers",
+				"qty": 1,
+				"regrowSeconds": 45
+			}
 		},
 		{
 			"id": "foxglove",
@@ -1561,7 +1631,12 @@
 			"growSeconds": 50,
 			"description": "Tall pink foxglove spires — a bumblebee favourite.",
 			"matureHours": 2,
-			"matureBonus": 1
+			"matureBonus": 1,
+			"yield": {
+				"resourceId": "wildflowers",
+				"qty": 1,
+				"regrowSeconds": 50
+			}
 		},
 		{
 			"id": "mushroom-ring",
@@ -1584,7 +1659,12 @@
 			"growSeconds": 45,
 			"description": "A fairy ring of woodland mushrooms in the leaf litter.",
 			"matureHours": 2,
-			"matureBonus": 1
+			"matureBonus": 1,
+			"yield": {
+				"resourceId": "mushrooms",
+				"qty": 2,
+				"regrowSeconds": 45
+			}
 		},
 		{
 			"id": "birch-tree",
@@ -1608,7 +1688,12 @@
 			"growSeconds": 90,
 			"description": "A slender white-barked birch grown from a watered bed.",
 			"matureHours": 8,
-			"matureBonus": 2
+			"matureBonus": 2,
+			"yield": {
+				"resourceId": "bark",
+				"qty": 1,
+				"regrowSeconds": 90
+			}
 		},
 		{
 			"id": "marsh-marigold",
@@ -1632,7 +1717,12 @@
 			"growSeconds": 45,
 			"description": "Golden marsh marigolds that ring the shallows in spring.",
 			"matureHours": 2,
-			"matureBonus": 1
+			"matureBonus": 1,
+			"yield": {
+				"resourceId": "wildflowers",
+				"qty": 1,
+				"regrowSeconds": 45
+			}
 		},
 		{
 			"id": "bulrush",
@@ -1655,7 +1745,12 @@
 			"growSeconds": 45,
 			"description": "Stately bulrushes with brown velvet heads along the bank.",
 			"matureHours": 4,
-			"matureBonus": 1
+			"matureBonus": 1,
+			"yield": {
+				"resourceId": "reeds",
+				"qty": 1,
+				"regrowSeconds": 45
+			}
 		},
 		{
 			"id": "prickly-pear",
@@ -1678,7 +1773,12 @@
 			"growSeconds": 70,
 			"description": "Pad cactus with sweet fruit and bright blooms.",
 			"matureHours": 4,
-			"matureBonus": 1
+			"matureBonus": 1,
+			"yield": {
+				"resourceId": "cactus-fruit",
+				"qty": 2,
+				"regrowSeconds": 70
+			}
 		},
 		{
 			"id": "desert-marigold",
@@ -1702,7 +1802,12 @@
 			"growSeconds": 50,
 			"description": "Drought-tough marigolds that glow against the sand.",
 			"matureHours": 2,
-			"matureBonus": 1
+			"matureBonus": 1,
+			"yield": {
+				"resourceId": "wildflowers",
+				"qty": 1,
+				"regrowSeconds": 50
+			}
 		},
 		{
 			"id": "gentian-patch",
@@ -1725,7 +1830,12 @@
 			"growSeconds": 45,
 			"description": "Vivid blue alpine gentians, low against the wind.",
 			"matureHours": 2,
-			"matureBonus": 1
+			"matureBonus": 1,
+			"yield": {
+				"resourceId": "alpine-flowers",
+				"qty": 1,
+				"regrowSeconds": 45
+			}
 		},
 		{
 			"id": "moss-cushion",
@@ -1772,7 +1882,12 @@
 			"growSeconds": 45,
 			"description": "Pink sea-thrift pompoms that thrive in salt spray.",
 			"matureHours": 2,
-			"matureBonus": 1
+			"matureBonus": 1,
+			"yield": {
+				"resourceId": "wildflowers",
+				"qty": 1,
+				"regrowSeconds": 45
+			}
 		},
 		{
 			"id": "beach-shrub",
