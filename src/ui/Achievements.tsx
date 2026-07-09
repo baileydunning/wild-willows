@@ -164,20 +164,17 @@ export function AchievementsPanel() {
 									<div className="grow">
 										<div className="ach-name">
 											{content('achievement', a.id, 'name', a.name)}
-											{a.req && (
-												<span className="tasks-hint ach-req-hint" tabIndex={0} role="note" aria-label={t('panels.achievements.reqTitle') + ': ' + reqText(a.req)}>
-													<Icon name="help" size={12} />
-													<span className="tasks-hint-tip" role="tooltip">
-														<span className="tasks-hint-line">{t('panels.achievements.reqTitle')}</span>
-														<span>{reqText(a.req)}</span>
-														{!earned && progressText(a.req) && <span className="ach-req-progress">{progressText(a.req)}</span>}
-													</span>
-												</span>
-											)}
 											{earned && <span className="ach-pts">+{a.points}</span>}
 										</div>
 										{earned ? (
 											<div className="small ach-flavor">{content('achievement', a.id, 'flavor', a.flavor)}</div>
+										) : a.req ? (
+											// Exact requirement + live progress, inline so it's always visible
+											// (a hover tooltip clipped against the scrolling panel's edges).
+											<div className="ach-req-inline small">
+												<span className="ach-req-text">{reqText(a.req)}</span>
+												{progressText(a.req) && <span className="ach-req-progress">{progressText(a.req)}</span>}
+											</div>
 										) : (
 											<div className="muted small">{content('achievement', a.id, 'hint', a.hint)}</div>
 										)}
