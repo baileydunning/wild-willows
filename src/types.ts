@@ -198,7 +198,22 @@ export interface AchievementDef {
 	icon: string;
 	flavor: string;
 	hint: string;
+	/** Structured, exact unlock criteria — rendered into a plain requirement line
+	 *  (see reqText in Achievements.tsx). Mirrors the server's ACHIEVEMENT_TRIGGERS. */
+	req?: AchievementReq;
 }
+
+/** Machine-readable achievement criteria (kept in sync with server triggers). */
+export type AchievementReq =
+	| { t: 'collect' | 'craft' | 'craftDistinct' | 'plant' | 'terraform' | 'place' | 'observe' | 'unlocked' | 'total'; n: number }
+	| { t: 'returned' | 'health' | 'lake'; biome: string; n: number }
+	| { t: 'kindReturned'; biome: string; kind: string; n: number }
+	| { t: 'tools'; n: number }
+	| { t: 'tool'; id: string; n: number }
+	| { t: 'biomesAtHealth'; h: number; n: number }
+	| { t: 'healthyOpen'; h: number; min: number }
+	| { t: 'animal'; ids: string[]; mode?: 'all' | 'any' }
+	| { t: 'animalChain'; all: string[]; any: string[] };
 
 /** A house style's signature perk. Strength = min(cap, base + perLevel × extra
  * track levels beyond a fresh build). See homePerkStrength(). */
@@ -422,13 +437,15 @@ export interface GameState {
 	dailyTasks?: DailyTasksBlock;
 	/** The player's saved custom goal definitions (for the goals builder menu). */
 	customGoals?: CustomGoal[];
+	/** How many custom goals may be held at once (3, or 6 once all biomes open). */
+	goalLimit?: number;
 	nodeRegenSeconds: number;
 	inventoryCapacity: number;
 }
 
 export interface DailyTask {
 	id: string;
-	kind: 'gather' | 'craft' | 'place' | 'water' | 'plant' | 'observe' | 'welcome' | 'goal';
+	kind: string;
 	icon: string;
 	text: string;
 	target: number;
@@ -438,6 +455,11 @@ export interface DailyTask {
 	hint?: string;
 	progress: number;
 	claimed: boolean;
+	/** Sub-requirement checklist (unlock-next-biome shows these inline; attract /
+	 *  craft goals show them in a hover info box). */
+	steps?: { text: string; done: boolean }[];
+	/** Guidance goal — always on the board, tracks progress, isn't claimed. */
+	pinned?: boolean;
 }
 
 export interface DailyTasksBlock {
@@ -448,7 +470,7 @@ export interface DailyTasksBlock {
 }
 
 /** A player-authored goal — the building block of the custom task list. */
-export type CustomGoalKind = 'craft' | 'build' | 'grow' | 'plant' | 'collect' | 'observe' | 'welcome' | 'home' | 'unlock';
+export type CustomGoalKind = 'craft' | 'build' | 'grow' | 'plant' | 'collect' | 'observe' | 'welcome' | 'attract' | 'welcomeTotal' | 'home' | 'unlock' | 'health' | 'biomeAnimals';
 export interface CustomGoal {
 	id: string;
 	kind: CustomGoalKind;
@@ -458,6 +480,8 @@ export interface CustomGoal {
 	resourceId?: string;
 	animalId?: string;
 	track?: string;
+	/** which house style to build (home goals with track 'build'). */
+	styleId?: string;
 	biomeId?: string;
 	/** metric value(s) captured when the goal was created (server-managed). */
 	base?: number;

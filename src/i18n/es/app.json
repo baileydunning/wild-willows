@@ -38,6 +38,7 @@
 		"recipeUnlocked": "Nueva receta de fabricación desbloqueada — {name}",
 		"achievementUnlocked": "Logro desbloqueado — {name}",
 		"taskComplete": "Tarea completada — reclama tu recompensa en el tablero",
+		"startersDone": "¡Añade tus propios objetivos! Ya puedes diseñar los tuyos — abre el tablero (G).",
 		"preserveGrew": "La reserva siguió creciendo mientras no estabas",
 		"animalReturned": "¡{name} ha regresado a la reserva!",
 		"biomeUnlocked": "¡Nuevo bioma desbloqueado: {name}!",
@@ -52,10 +53,11 @@
 		"taskReward": "Recompensa de tarea — {items}",
 		"harvested": "Cosechaste {items}",
 		"goalComplete": "Objetivo cumplido: {goal}",
-		"goalAdded": "Añadido a tus objetivos — mira el tablero (L)",
-		"habitatGoalAdded": "Añadido su hábitat a tus objetivos — mira el tablero (L)",
+		"goalAdded": "Añadido a tus objetivos — mira el tablero (G)",
+		"habitatGoalAdded": "Añadido su hábitat a tus objetivos — mira el tablero (G)",
 		"goalAlready": "Ese ya es uno de tus objetivos",
-		"goalLimit": "Ya sigues el máximo de objetivos a la vez — termina o quita uno primero",
+		"goalLimit": "Puedes tener {max} objetivos a la vez — termina o quita uno primero",
+		"goalStartersFirst": "Termina tus tres primeros objetivos antes de añadir más.",
 		"joinRequest": "{name} quiere unirse — presiona U para permitirle entrar",
 		"perkForage": "¡El instinto recolector de tu cabaña consiguió un {name} extra!",
 		"perkThrift": "¡Ahorro del hogar! Recuperaste {items}."
@@ -72,7 +74,8 @@
 		"loopReminder": "El mismo ciclo en {name}: construye hábitat hasta que sus animales regresen, y se abrirá el siguiente sendero.",
 		"taskReward": "Tarea del día terminada: obtuviste {items}.",
 		"harvested": "Cosechaste {items} — la planta volverá a crecer.",
-		"goalComplete": "Objetivo cumplido: {goal}"
+		"goalComplete": "Objetivo cumplido: {goal}",
+		"startersDone": "¡Terminaste tus primeros objetivos, ahora puedes añadir los tuyos! Abre el tablero (G) para diseñarlos."
 	},
 	"log": {
 		"gathered": "Recolectaste {qty}× {name} en tu cesta.",
@@ -126,6 +129,12 @@
 		"trees": "Árboles",
 		"plant": "Plantar",
 		"hint": "Lo que plantes brota de inmediato y termina de crecer en un minuto o dos."
+	},
+	"goalsIntro": {
+		"title": "Ahora: fija tus propios objetivos",
+		"body": "¡Bien hecho, ya le tomaste el ritmo! De aquí en adelante, el tablero es tuyo. Fija tus propios objetivos — fabrica algo concreto, planta, recolecta materiales, lee sobre animales, recibe fauna o mejora tu hogar — y síguelos aquí mismo. Puedes tener tres a la vez.",
+		"open": "Abrir objetivos",
+		"later": "Más tarde"
 	},
 	"placementMenu": {
 		"move": "Mover",
@@ -234,11 +243,11 @@
 		"navInventory": "Contenido de la cesta (B)",
 		"navCrafting": "Fabricación (C)",
 		"navTools": "Mejoras de herramientas (T)",
-		"navGoals": "Tus objetivos (L)",
+		"navGoals": "Tus objetivos (G)",
 		"navBiomes": "Mapa de la reserva (M)",
 		"navWeather": "Clima y estaciones (N)",
 		"navPeople": "Personas — invita y mira quién está aquí (U)",
-		"settingsTitle": "Configuración — cambiar personaje, eliminar partida (G)",
+		"settingsTitle": "Configuración — cambiar personaje, eliminar partida (O)",
 		"settings": "Configuración",
 		"howToPlayTitle": "Cómo jugar (H)",
 		"howToPlay": "Cómo jugar",

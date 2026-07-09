@@ -25,14 +25,13 @@ export function TasksWidget() {
 		});
 	};
 
-	// Tab (or O) toggles the board (same input guard as the panel shortcuts).
-	// Tab is swallowed here so it doesn't also move browser focus around.
+	// Tab toggles the board (same input guard as the panel shortcuts). Tab is
+	// swallowed here so it doesn't also move browser focus around.
 	useEffect(() => {
 		const onKey = (e: KeyboardEvent) => {
 			if (isTypingTarget(e.target)) return;
 			if (e.metaKey || e.ctrlKey || e.altKey) return;
 			if (e.key === 'Tab') { e.preventDefault(); toggle(); return; }
-			if (e.key.toLowerCase() === 'o') toggle();
 		};
 		window.addEventListener('keydown', onKey);
 		return () => window.removeEventListener('keydown', onKey);
@@ -44,7 +43,7 @@ export function TasksWidget() {
 	if (!open.length) return null; // all claimed (or no board) — out of the way until tomorrow
 
 	const doneCount = tasks.filter((task) => task.progress >= task.target).length;
-	const claimable = open.some((task) => task.progress >= task.target);
+	const claimable = open.some((task) => !task.pinned && task.progress >= task.target);
 	const resName = (id: string) => {
 		const r = data.resources.find((rr) => rr.id === id);
 		return r ? content('resource', r.id, 'name', r.name) : id;
@@ -58,7 +57,7 @@ export function TasksWidget() {
 				title={t('panels.tasks.pillTitle')}
 				aria-label={t('panels.tasks.pillAria', { done: doneCount, total: tasks.length })}
 			>
-				<Icon name="check" size={14} /> {doneCount}/{tasks.length}
+				<Icon name="target" size={14} /> {doneCount}/{tasks.length}
 			</button>
 		);
 	}
@@ -66,7 +65,7 @@ export function TasksWidget() {
 	return (
 		<div className="tasks-widget tasks-board">
 			<div className="tasks-head">
-				<span className="tasks-title"><Icon name="check" size={14} /> {t('panels.tasks.title')}</span>
+				<span className="tasks-title"><Icon name="target" size={14} /> {t('panels.tasks.title')}</span>
 				<button className="tasks-collapse" onClick={() => setPanel('goals')} title={t('panels.tasks.editTitle')} aria-label={t('panels.tasks.editTitle')}>
 					<Icon name="gear" size={13} />
 				</button>
@@ -76,32 +75,55 @@ export function TasksWidget() {
 			</div>
 			{open.map((task) => {
 				const done = task.progress >= task.target;
-				const rewardTxt = Object.entries(task.reward).map(([id, q]) => t('panels.tasks.rewardItem', { qty: q, name: resName(id) })).join(', ');
+				const steps = task.steps || [];
+				// Pinned guidance (unlock-next-biome) shows its checklist inline; other
+				// step-bearing goals (attract / craft) tuck it into the hover info box.
+				const inlineSteps = task.pinned && steps.length > 0;
+				const hoverSteps = !task.pinned ? steps : [];
+				const showInfo = !!task.hint || hoverSteps.length > 0;
 				return (
-					<div key={task.id} className="tasks-row" title={t('panels.tasks.rewardTitle', { reward: rewardTxt })}>
+					<div key={task.id} className={`tasks-row ${task.pinned ? 'tasks-row-pinned' : ''}`}>
 						<span className="tasks-row-icon"><Icon name={task.icon} size={14} /></span>
 						<div className="tasks-row-main">
 							<span className="tasks-row-text">
 							{task.text}
-							{task.hint && (
-								<span className="tasks-hint" tabIndex={0} role="note" aria-label={task.hint}>
+							{/* One info tooltip per task: how-to hint on top, then any checklist. */}
+							{showInfo && (
+								<span className="tasks-hint" tabIndex={0} role="note" aria-label={task.hint || hoverSteps.map((s) => s.text).join(', ')}>
 									<Icon name="help" size={12} />
-									<span className="tasks-hint-tip" role="tooltip">{task.hint}</span>
+									<span className="tasks-hint-tip" role="tooltip">
+										{task.hint && <span className="tasks-hint-line">{task.hint}</span>}
+										{hoverSteps.map((s, i) => (
+											<span key={i} className={`tasks-step ${s.done ? 'done' : ''}`}>
+												<span className="tasks-step-box">{s.done && <Icon name="check" size={10} />}</span> {s.text}
+											</span>
+										))}
+									</span>
 								</span>
 							)}
 						</span>
-							<div className="tasks-row-bar">
-								<div className="meter-track">
-									<div
-										className="meter-fill"
-										style={{ width: `${Math.min(100, (task.progress / task.target) * 100)}%`, background: done ? 'var(--green-2, #6aa253)' : '#b89b5e' }}
-									/>
+							{inlineSteps ? (
+								<div className="tasks-steps">
+									{steps.map((s, i) => (
+										<span key={i} className={`tasks-step ${s.done ? 'done' : ''}`}>
+											<span className="tasks-step-box">{s.done && <Icon name="check" size={10} />}</span> {s.text}
+										</span>
+									))}
 								</div>
-								<span className="tasks-row-count">{task.progress}/{task.target}</span>
-							</div>
+							) : (
+								<div className="tasks-row-bar">
+									<div className="meter-track">
+										<div
+											className="meter-fill"
+											style={{ width: `${Math.min(100, (task.progress / task.target) * 100)}%`, background: done ? 'var(--green-2, #6aa253)' : '#b89b5e' }}
+										/>
+									</div>
+									<span className="tasks-row-count">{task.progress}/{task.target}</span>
+								</div>
+							)}
 						</div>
-						{done && (
-							<button className="tasks-claim" onClick={() => claimTask(task.id)} title={t('panels.tasks.claimTitle', { reward: rewardTxt })}>
+						{done && !task.pinned && (
+							<button className="tasks-claim" onClick={() => claimTask(task.id)} aria-label={t('panels.tasks.claim')}>
 								{t('panels.tasks.claim')}
 							</button>
 						)}

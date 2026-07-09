@@ -86,6 +86,13 @@ const PATHS: Record<string, React.ReactNode> = {
 			<path d="M19 16.5l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2Z" />
 		</>
 	),
+	target: (
+		<>
+			<circle cx="12" cy="12" r="8.5" />
+			<circle cx="12" cy="12" r="4.6" />
+			<circle cx="12" cy="12" r="1.2" fill="currentColor" />
+		</>
+	),
 	leaf: (
 		<>
 			<path d="M5 19C5 9 11 4.5 20 4c.5 9-4 15-13.5 15" />

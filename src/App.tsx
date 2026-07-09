@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api } from './api';
 import { bridge } from './game/bridge';
 import { PhaserGame } from './game/PhaserGame';
@@ -267,9 +267,9 @@ function GameScreen() {
 			if (k === 'h') { game.setHelpOpen(!game.helpOpen); return; }
 			// B = basket, J = journal, K = achievements, F = feed, T = tools,
 			// M = map/preserve (P kept as a legacy alias), N = weather & seasons,
-			// G = settings (gear), C = crafting (I = basket alias). O (the daily task
-			// board's collapse toggle) is handled inside TasksWidget itself.
-			const map: Record<string, any> = { b: 'inventory', i: 'inventory', j: 'journal', k: 'achievements', f: 'feed', t: 'tools', m: 'biomes', p: 'biomes', g: 'settings', c: 'crafting', u: 'people', n: 'weather', l: 'goals' };
+			// G = goals, C = crafting (I = basket alias), O = options/settings (gear).
+			// The daily task board's collapse toggle is Tab, handled in TasksWidget.
+			const map: Record<string, any> = { b: 'inventory', i: 'inventory', j: 'journal', k: 'achievements', f: 'feed', t: 'tools', m: 'biomes', p: 'biomes', g: 'goals', c: 'crafting', u: 'people', n: 'weather', o: 'settings' };
 			if (map[k]) setPanel(panel === map[k] ? null : map[k]);
 			// number keys select toolbelt tools
 			const toolByKey: Record<string, string> = { '1': 'basket', '2': 'shovel', '3': 'watering-can', '4': 'paint' };

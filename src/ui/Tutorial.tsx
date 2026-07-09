@@ -24,9 +24,9 @@ interface StepDef {
 // chapter 1. Labels live in panels.tutorial.chapters.*.
 const CHAPTERS = [
 	'panels.tutorial.chapters.moveGather',
-	'panels.tutorial.chapters.workLand',
-	'panels.tutorial.chapters.readLand',
-	'panels.tutorial.chapters.firstFriend',
+	'panels.tutorial.chapters.healLand',
+	'panels.tutorial.chapters.buildWelcome',
+	'panels.tutorial.chapters.settleIn',
 ];
 
 interface Flags {
@@ -102,10 +102,15 @@ const BASE_STEPS: StepDef[] = [
 		done: ({ flags }) => flags.moved,
 	},
 	{
-		// The core loop, stated plainly right up front (playtest: the goal was
-		// never made explicit). Info step — read it, then Next.
 		icon: 'sparkle',
 		key: 'panels.tutorial.coreLoop',
+		hasTouch: true,
+		chapter: 1,
+		done: () => false,
+	},
+	{
+		icon: 'target',
+		key: 'panels.tutorial.goals',
 		hasTouch: true,
 		chapter: 1,
 		done: () => false,
@@ -131,7 +136,7 @@ const BASE_STEPS: StepDef[] = [
 		chapter: 1,
 		done: ({ flags }) => flags.openedChest,
 	},
-	// ── Chapter 2 · Work the Land ──────────────────────────────────────────
+	// ── Chapter 2 · Heal the Land ──────────────────────────────────────────
 	{
 		icon: 'spade',
 		key: 'panels.tutorial.land',
@@ -153,92 +158,83 @@ const BASE_STEPS: StepDef[] = [
 		chapter: 2,
 		done: ({ state }) => openWaterTiles(state) >= 3,
 	},
-	// ── Chapter 3 · Read the Land ──────────────────────────────────────────
-	{
-		icon: 'journal',
-		key: 'panels.tutorial.journal',
-		hasTouch: true,
-		chapter: 3,
-		done: ({ flags }) => flags.openedJournal,
-	},
-	{
-		icon: 'tools',
-		key: 'panels.tutorial.tools',
-		hasTouch: true,
-		chapter: 3,
-		done: ({ flags }) => flags.openedTools,
-	},
-	{
-		icon: 'map',
-		key: 'panels.tutorial.map',
-		hasTouch: true,
-		chapter: 3,
-		done: ({ flags }) => flags.openedPreserve,
-	},
-	{
-		icon: 'cloud',
-		key: 'panels.tutorial.weather',
-		hasTouch: true,
-		chapter: 3,
-		done: ({ flags }) => flags.openedWeather,
-	},
-	{
-		icon: 'pin',
-		key: 'panels.tutorial.tips',
-		hasTouch: true,
-		chapter: 3,
-		done: () => false, // info step — advance with Next
-	},
-	// ── Chapter 4 · First Friend ───────────────────────────────────────────
+	// ── Chapter 3 · Build & Welcome ─────────────────────────────────────────
 	{
 		icon: 'hammer',
 		key: 'panels.tutorial.crafting',
 		hasTouch: true,
-		chapter: 4,
+		chapter: 3,
 		done: ({ flags }) => flags.openedCrafting,
 	},
 	{
 		icon: 'sparkle',
 		key: 'panels.tutorial.craftGrass',
-		chapter: 4,
+		chapter: 3,
 		done: ({ state }) => hasGrassPatch(state),
 	},
 	{
 		icon: 'pin',
 		key: 'panels.tutorial.placeGrass',
 		hasTouch: true,
-		chapter: 4,
+		chapter: 3,
 		done: ({ state }) => grassPlaced(state),
 	},
 	{
-		// Proximity mechanic — never taught in the playtest. Info step.
 		icon: 'pin',
 		key: 'panels.tutorial.proximity',
 		hasTouch: true,
-		chapter: 4,
+		chapter: 3,
 		done: () => false,
 	},
 	{
 		icon: 'paw',
 		key: 'panels.tutorial.grasshopper',
 		hasTouch: true,
-		chapter: 4,
+		chapter: 3,
 		done: ({ state }) => state?.discoveries?.some((d: any) => (d.timesObserved || 0) > 0),
 	},
 	{
 		icon: 'star',
 		key: 'panels.tutorial.star',
 		hasTouch: true,
-		chapter: 4,
-		done: () => false, // info step — advance with Next
+		chapter: 3,
+		done: () => false,
 	},
+	// ── Chapter 4 · Explore & Settle In ─────────────────────────────────────
 	{
-		// Teach the custom goals system — the board is the player's own list.
-		icon: 'check',
-		key: 'panels.tutorial.goals',
+		icon: 'journal',
+		key: 'panels.tutorial.journal',
 		hasTouch: true,
 		chapter: 4,
-		done: () => false, // info step — advance with Next
+		done: ({ flags }) => flags.openedJournal,
+	},
+	{
+		icon: 'tools',
+		key: 'panels.tutorial.tools',
+		hasTouch: true,
+		chapter: 4,
+		done: ({ flags }) => flags.openedTools,
+	},
+	{
+		icon: 'map',
+		key: 'panels.tutorial.map',
+		hasTouch: true,
+		chapter: 4,
+		done: ({ flags }) => flags.openedPreserve,
+	},
+	{
+		icon: 'cloud',
+		key: 'panels.tutorial.weather',
+		hasTouch: true,
+		chapter: 4,
+		done: ({ flags }) => flags.openedWeather,
+	},
+	{
+		icon: 'pin',
+		key: 'panels.tutorial.tips',
+		hasTouch: true,
+		chapter: 4,
+		done: () => false,
 	},
 	{
 		icon: 'home',
@@ -275,9 +271,10 @@ export function savedTutorialPos(): number {
 // How long the "nice job!" check animation plays before we move on.
 const CELEBRATE_MS = 850;
 
-// The opening card stays up a good while so new caretakers can read the intro
-// before being whisked into the loop — even if they tap a movement key right away.
-const FIRST_STEP_HOLD = 7000;
+// The opening card stays up a good long while (30s) so new caretakers can read
+// the intro before being whisked into the loop — even if they move right away.
+// It never auto-advances before this, though the player can always click Next.
+const FIRST_STEP_HOLD = 30000;
 
 // Minimum time a step's card stays up before it's allowed to auto-advance, so
 // the player always gets a chance to read it (and isn't yanked forward the

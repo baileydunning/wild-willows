@@ -259,6 +259,24 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 							<Icon name="check" /> <span>Grant selected</span>
 						</button>
 					</div>
+
+					<h3><Icon name="logout" size={15} /> Restart game</h3>
+					<p className="muted small">Wipes this save back to a brand-new game (fresh onboarding, no progress) — keeps your name, passcode, and character look.</p>
+					<div className="dev-grid">
+						<button
+							disabled={!!busy}
+							onClick={() => {
+								if (!window.confirm('Restart the whole game? This erases ALL progress (biomes, animals, home, goals, inventory) and starts you over at the tutorial. Your character is kept.')) return;
+								// Replay onboarding: clear the client-side tutorial / goals-intro flags.
+								for (const k of ['wild-willows:tutorial-pos', 'wild-willows:tutorial-min', 'wild-willows:tutorial-cardpos', 'ww-goals-intro', 'ww-tasks-collapsed']) {
+									try { localStorage.removeItem(k); } catch { /* ignore */ }
+								}
+								void run('Restarted game', 'restart-game').then(onClose);
+							}}
+						>
+							{busy === 'restart-game' ? 'Restarting…' : 'Restart from scratch'}
+						</button>
+					</div>
 				</div>
 			</div>
 		</div>

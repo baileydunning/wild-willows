@@ -34,7 +34,8 @@
 			"basket": "Recoge con tu cesta (herramienta 1).",
 			"shovel": "Desentierra con tu pala (herramienta 2).",
 			"watering-can": "Extrae con tu regadera (herramienta 3)."
-		}
+		},
+		"findOrDig": "Encuéntralo en el suelo o cávalo con tu pala (herramienta 2)."
 	},
 	"chest": {
 		"title": "{name} — {used}/{capacity}",
@@ -261,7 +262,7 @@
 		"preferredLabel": "Hábitat preferido:",
 		"fieldNote": "Nota de campo:",
 		"backToJournal": "← Volver al diario de campo",
-		"addGoal": "Añadir construir su hábitat a tus objetivos",
+		"addGoal": "Añadir 'atraer a este animal' a tus objetivos",
 		"animalReqUnknown": "Primero debe regresar otro {kind}",
 		"lockedCard": "Mejora tu guía de campo al nivel {tier} para leer la entrada completa de este animal — su rol ecológico, su dieta y sus vínculos en la red trófica."
 	},
@@ -269,7 +270,37 @@
 		"title": "Logros",
 		"summary": "· {earned}/{total} · {points} pts",
 		"tabAll": "Todos",
-		"tabPreserve": "Reserva"
+		"tabPreserve": "Reserva",
+		"reqTitle": "Cómo conseguirlo",
+		"and": "y",
+		"or": "o",
+		"kind": {
+			"insect": "insectos"
+		},
+		"req": {
+			"collect": "Recolecta {n} materiales en total.",
+			"craft": "Fabrica {n} objetos.",
+			"craftDistinct": "Fabrica {n} recetas diferentes.",
+			"plant": "Planta {n} seres vivos.",
+			"terraform": "Cava o riega la tierra {n} veces.",
+			"place": "Coloca {n} piezas de hábitat.",
+			"observe": "Observa animales {n} veces.",
+			"returned": "Da la bienvenida a {n} animales en {biome}.",
+			"kindReturned": "Da la bienvenida a {n} {kind} en {biome}.",
+			"health": "Sube {biome} al {n}% de salud.",
+			"lake": "Forma un lago de {n}+ casillas de agua conectadas en {biome}.",
+			"tools": "Mejora tu cesta, pala y regadera al nivel {n}.",
+			"tool": "Mejora tu {tool} al nivel {n}.",
+			"unlocked": "Desbloquea {n} biomas.",
+			"total": "Da la bienvenida a {n} especies en toda la reserva.",
+			"biomesAtHealth": "Lleva {n} biomas al {h}% de salud.",
+			"healthyOpen": "Mantén cada bioma abierto al {h}%+ de salud ({min}+ abiertos).",
+			"animalOne": "Trae de vuelta a {animal}.",
+			"animalAll": "Trae de vuelta a {animals}.",
+			"animalAny": "Trae de vuelta a {animals}.",
+			"animalChain": "Trae de vuelta a {first}, y a uno de: {any}."
+		},
+		"progress": "Progreso: {value}"
 	},
 	"tutorial": {
 		"gettingStarted": "Primeros pasos",
@@ -277,10 +308,10 @@
 		"chapterCount": "Capítulo {chapter} de {total}",
 		"goToStep": "Ir al paso {step}",
 		"chapters": {
-			"moveGather": "Moverse y recolectar",
-			"workLand": "Trabajar la tierra",
-			"readLand": "Leer la tierra",
-			"firstFriend": "Primer amigo"
+			"moveGather": "Primeros pasos",
+			"healLand": "Sanar la tierra",
+			"buildWelcome": "Construir y dar la bienvenida",
+			"settleIn": "Explorar e instalarse"
 		},
 		"minimize": "Minimizar",
 		"expand": "Expandir",
@@ -398,13 +429,13 @@
 		},
 		"star": {
 			"title": "Tu primera estrella",
-			"text": "Ese es todo el ciclo — y darle la bienvenida al saltamontes acaba de ganarte tu primer logro, ★ Primer Amigo. Hay 50 estrellas por descubrir en la reserva: por restaurar cada bioma, traer de vuelta a los grandes depredadores, dominar tus herramientas y recibir fauna por toda la reserva. No llegan fácil. Encuéntralas todas en el nuevo menú de Logros (presiona K) — los desbloqueos recientes suben al principio. Una última comodidad que mostrarte →",
-			"touch": "Ese es todo el ciclo — y darle la bienvenida al saltamontes acaba de ganarte tu primer logro, ★ Primer Amigo. Hay 50 estrellas por descubrir en la reserva: por restaurar cada bioma, traer de vuelta a los grandes depredadores, dominar tus herramientas y recibir fauna por toda la reserva. No llegan fácil. Encuéntralas todas en el nuevo menú de Logros (el botón de la estrella) — los desbloqueos recientes suben al principio. Una última comodidad que mostrarte →"
+			"text": "Ese es todo el ciclo — y darle la bienvenida al saltamontes acaba de ganarte tu primer logro, ★ Primer Amigo. Hay 50 estrellas por descubrir en la reserva: por restaurar cada bioma, traer de vuelta a los grandes depredadores, dominar tus herramientas y recibir fauna por toda la reserva. No llegan fácil. Encuéntralas todas en el nuevo menú de Logros (presiona K) — los desbloqueos recientes suben al principio. Ahora, un recorrido rápido por tus otros menús →",
+			"touch": "Ese es todo el ciclo — y darle la bienvenida al saltamontes acaba de ganarte tu primer logro, ★ Primer Amigo. Hay 50 estrellas por descubrir en la reserva: por restaurar cada bioma, traer de vuelta a los grandes depredadores, dominar tus herramientas y recibir fauna por toda la reserva. No llegan fácil. Encuéntralas todas en el nuevo menú de Logros (el botón de la estrella) — los desbloqueos recientes suben al principio. Ahora, un recorrido rápido por tus otros menús →"
 		},
 		"goals": {
 			"title": "Fija tus propios objetivos",
-			"text": "El tablero de arriba a la izquierda es tu lista de tareas. Fija tus propios objetivos para jugar a tu manera — ya sea fabricar una construcción concreta, plantar toda una pradera, traer de vuelta un animal en particular, recolectar materiales o desbloquear el siguiente bioma. El primero ya está ahí: desbloquea el Bosque de la Vieja Hondonada, la próxima área. Abre el tablero con el botón de objetivos (o presiona L) para añadir y ordenar más; completar cualquier objetivo da un pequeño paquete de materiales. También puedes añadir un objetivo directamente desde los menús de fabricación, diario y reserva.",
-			"touch": "El tablero de arriba a la izquierda es tu lista de tareas. Fija tus propios objetivos para jugar a tu manera — ya sea fabricar una construcción concreta, plantar toda una pradera, traer de vuelta un animal en particular, recolectar materiales o desbloquear el siguiente bioma. El primero ya está ahí: desbloquea el Bosque de la Vieja Hondonada, la próxima área. Toca el botón de objetivos para añadir y ordenar más; completar cualquier objetivo da un pequeño paquete de materiales. También puedes añadir un objetivo directamente desde los menús de fabricación, diario y reserva."
+			"text": "El tablero de la izquierda es tu lista de tareas. Empieza con estos primeros objetivos — recolecta semillas, fabrica algo, dale la bienvenida al saltamontes. Cuando los completes, fijas tus propios objetivos (presiona G) para jugar la reserva a tu manera.",
+			"touch": "El tablero de la izquierda es tu lista de tareas. Empieza con estos primeros objetivos — recolecta semillas, fabrica algo, dale la bienvenida al saltamontes. Cuando los completes, fijas tus propios objetivos para jugar la reserva a tu manera."
 		},
 		"home": {
 			"title": "Siéntete como en casa",
@@ -450,7 +481,7 @@
 			},
 			"board": {
 				"title": "Fija tus propios objetivos",
-				"text": "El tablero de arriba a la izquierda es tu propia lista de objetivos. Siempre empieza con los mismos tres — dale la bienvenida al saltamontes, recolecta semillas, fabrica algo — y a partir de ahí es tuyo para construir. Abre el menú de objetivos (presiona L, o el engranaje del tablero) para añadir los tuyos: fabrica un objeto concreto, planta cierta cantidad de cosas, recolecta un material, lee sobre animales, trae de vuelta un animal o mejora tu hogar. Ordénalos en un plan, y completar cualquier objetivo da un pequeño paquete de materiales (presiona Tab u O para esconder el tablero). Tus plantas también siguen creciendo en tiempo real aunque el juego esté cerrado, así que siempre hay algo nuevo cuando regresas."
+				"text": "El tablero de la izquierda siempre apunta a tu próxima meta — desbloquear el siguiente bioma — con una lista de exactamente lo que necesita. Debajo, añade tus propios objetivos: abre el menú de objetivos (presiona G, o el engranaje del tablero) para fabricar un objeto concreto, plantar cierta cantidad de cosas, recolectar un material, leer sobre animales o mejorar tu hogar; añade un animal que atraer desde su entrada del diario. Puedes tener tres objetivos a la vez (seis con toda la reserva abierta), ordenarlos, y completar uno da un pequeño paquete de materiales (presiona Tab para esconder el tablero). Tus plantas también siguen creciendo en tiempo real aunque el juego esté cerrado, así que siempre hay algo nuevo cuando regresas."
 			}
 		},
 		"keys": {
@@ -479,11 +510,11 @@
 		}
 	},
 	"tasks": {
-		"pillTitle": "Tus objetivos (O)",
+		"pillTitle": "Tus objetivos (Tab)",
 		"pillAria": "Tus objetivos: {done} de {total} completados",
 		"title": "Tus objetivos",
 		"editTitle": "Editar tus objetivos",
-		"collapseTitle": "Esconder (O)",
+		"collapseTitle": "Esconder (Tab)",
 		"collapseAria": "Contraer el tablero de objetivos",
 		"rewardItem": "{qty}× {name}",
 		"rewardTitle": "Recompensa: {reward}",
@@ -492,26 +523,45 @@
 	},
 	"goals": {
 		"title": "Tus objetivos",
-		"intro": "Esta es tu lista. Los tres primeros objetivos son el comienzo para todos — dale la bienvenida al saltamontes, recolecta semillas, fabrica algo. Después, la lista es tuya: añade lo que quieras lograr, en el orden que prefieras.",
-		"empty": "Aún no hay objetivos propios — añade uno abajo para empezar a diseñar tu aventura.",
+		"intro": "Juega la reserva a tu manera. Elige algo que perseguir — una construcción concreta, cosas que plantar, un material que reunir, animales sobre los que leer, o restaurar tu hogar o un bioma entero — y aparecerá en el tablero con el progreso en vivo. Completar uno otorga un pequeño paquete de materiales.",
+		"slots": "{used} de {max} espacios de objetivo usados",
+		"empty": "Aún no tienes objetivos propios — elige un tipo abajo para añadir uno.",
 		"addTitle": "Añadir un objetivo",
 		"add": "Añadir objetivo",
 		"remove": "Quitar objetivo",
 		"moveUp": "Subir",
 		"moveDown": "Bajar",
 		"done": "Hecho",
+		"creature": "animal",
 		"rewardNote": "Completar cualquier objetivo otorga un pequeño paquete de materiales — recláma­lo en el tablero.",
-		"limitReached": "Puedes seguir hasta {max} objetivos a la vez. Termina o quita uno para añadir otro.",
+		"moreNote": "Puedes tener 3 objetivos a la vez — 6 cuando toda la reserva esté desbloqueada. Consejo: también puedes añadir un objetivo para un animal concreto desde su entrada del diario de campo, o un objeto concreto para fabricar desde el menú de fabricación — busca el botón de diana.",
+		"startersFirst": "Termina tus tres primeros objetivos (semillas, fabricar, saltamontes) para empezar a diseñar los tuyos.",
+		"limitReached": "Ya tienes los {max} objetivos a la vez. Termina o quita uno para añadir otro.",
 		"typeLabel": "Tipo de objetivo:",
 		"type": {
 			"craft": "Fabricar un objeto",
 			"plant": "Plantar cosas",
 			"collect": "Recolectar un material",
 			"observe": "Leer sobre animales",
-			"welcome": "Traer de vuelta un animal",
+			"welcomeTotal": "Recibir animales",
 			"home": "Mejorar tu hogar",
-			"unlock": "Desbloquear un bioma"
+			"unlock": "Desbloquear un bioma",
+			"health": "Restaurar un bioma",
+			"biomeAnimals": "Completar un bioma"
 		},
+		"desc": {
+			"craft": "Fabrica cierta cantidad de un objeto concreto — p. ej. 3 bebederos. Pasa el cursor sobre el objetivo para ver los materiales que necesita.",
+			"plant": "Planta cierta cantidad de seres vivos (flores, pastos, árboles) en cualquier parte de la reserva.",
+			"collect": "Reúne cierta cantidad de un material, como 20 semillas o 10 piedras.",
+			"observe": "Lee sobre cierta cantidad de animales en tu diario de campo.",
+			"welcomeTotal": "Recibe cierta cantidad de animales nuevos en toda la reserva.",
+			"home": "Mejora una de las vías de tu hogar (Espacio, Comodidad, Decoración, Luz) hacia un nivel más alto.",
+			"homeBuild": "Tu hogar aún es una tienda — elige un estilo de casa abajo para fijarlo como objetivo. Su ⓘ muestra los materiales que necesita cada estilo.",
+			"unlock": "Abre un bioma concreto. Cada uno tiene sus propios requisitos — mira la lista en el tablero.",
+			"health": "Sana un bioma desbloqueado hasta una salud objetivo — el broche final para un lugar que amas.",
+			"biomeAnimals": "Da la bienvenida a todos los animales de un bioma desbloqueado — una red trófica completa, de arriba a abajo."
+		},
+		"homeMaxed": "La mejora de {track} ya está en su tope — elige otra vía.",
 		"countLabel": "Cuántos:",
 		"levelLabel": "Al nivel:",
 		"itemLabel": "Objeto a fabricar",
@@ -519,10 +569,14 @@
 		"animalLabel": "Animal a traer de vuelta",
 		"trackLabel": "Mejora del hogar",
 		"biomeLabel": "Bioma a desbloquear",
+		"styleLabel": "Estilo de casa",
+		"matsTitle": "Materiales para construir:",
+		"matLine": "{have}/{need} {name}",
 		"pickItem": "Elige un objeto…",
 		"pickResource": "Elige un material…",
 		"pickAnimal": "Elige un animal…",
 		"pickBiome": "Elige un bioma…",
+		"pickStyle": "Elige un estilo…",
 		"track": {
 			"space": "Espacio",
 			"comfort": "Comodidad",
@@ -536,10 +590,18 @@
 			"plant": "Planta {count} cosas",
 			"collect": "Recolecta {count}× {resource}",
 			"observe": "Lee sobre {count} animales",
+			"welcomeTotal": "Da la bienvenida a {count} animales a la reserva",
 			"welcome": "Trae de vuelta al {animal}",
+			"attract": "Atrae a un {kind} misterioso",
 			"home": "Mejora {track} al nivel {level}",
-			"unlock": "Desbloquea {biome}"
-		}
+			"homeBuild": "Construye tu hogar: {style}",
+			"unlock": "Desbloquea {biome}",
+			"health": "Restaura {biome} al {pct}% de salud",
+			"biomeAnimals": "Da la bienvenida a todos los animales de {biome}"
+		},
+		"healthLabel": "A salud:",
+		"ownHead": "Tus propios objetivos",
+		"pinnedTag": "Siguiente"
 	},
 	"people": {
 		"title": "Personas",

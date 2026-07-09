@@ -34,7 +34,8 @@
 			"basket": "Gather with your basket (tool 1).",
 			"shovel": "Dig up with your shovel (tool 2).",
 			"watering-can": "Draw with your watering can (tool 3)."
-		}
+		},
+		"findOrDig": "Find it on the ground, or dig it up with your shovel (tool 2)."
 	},
 	"chest": {
 		"title": "{name} — {used}/{capacity}",
@@ -261,7 +262,7 @@
 		"preferredLabel": "Preferred habitat:",
 		"fieldNote": "Field note:",
 		"backToJournal": "← Back to field journal",
-		"addGoal": "Add building its habitat to your goals",
+		"addGoal": "Add 'attract this animal' to your goals",
 		"animalReqUnknown": "Another {kind} needs to return first",
 		"lockedCard": "Upgrade your field guide to Tier {tier} to read this animal's full entry — its ecological role, diet, and food-web links."
 	},
@@ -269,7 +270,37 @@
 		"title": "Achievements",
 		"summary": "· {earned}/{total} · {points} pts",
 		"tabAll": "All",
-		"tabPreserve": "Preserve"
+		"tabPreserve": "Preserve",
+		"reqTitle": "How to earn it",
+		"and": "and",
+		"or": "or",
+		"kind": {
+			"insect": "insects"
+		},
+		"req": {
+			"collect": "Gather {n} materials in all.",
+			"craft": "Craft {n} items.",
+			"craftDistinct": "Craft {n} different recipes.",
+			"plant": "Plant {n} living things.",
+			"terraform": "Dig or water the land {n} times.",
+			"place": "Place {n} pieces of habitat.",
+			"observe": "Observe animals {n} times.",
+			"returned": "Welcome {n} animals to {biome}.",
+			"kindReturned": "Welcome {n} {kind} to {biome}.",
+			"health": "Raise {biome} to {n}% health.",
+			"lake": "Shape a lake of {n}+ connected water tiles in {biome}.",
+			"tools": "Upgrade your basket, shovel, and watering can to tier {n}.",
+			"tool": "Upgrade your {tool} to tier {n}.",
+			"unlocked": "Unlock {n} biomes.",
+			"total": "Welcome {n} species across the whole preserve.",
+			"biomesAtHealth": "Bring {n} biomes to {h}% health.",
+			"healthyOpen": "Keep every opened biome at {h}%+ health ({min}+ open).",
+			"animalOne": "Bring back the {animal}.",
+			"animalAll": "Bring back the {animals}.",
+			"animalAny": "Bring back the {animals}.",
+			"animalChain": "Bring back the {first}, plus one of: {any}."
+		},
+		"progress": "Progress: {value}"
 	},
 	"tutorial": {
 		"gettingStarted": "Getting started",
@@ -277,10 +308,10 @@
 		"chapterCount": "Chapter {chapter} of {total}",
 		"goToStep": "Go to step {step}",
 		"chapters": {
-			"moveGather": "Move & Gather",
-			"workLand": "Work the Land",
-			"readLand": "Read the Land",
-			"firstFriend": "First Friend"
+			"moveGather": "Getting Started",
+			"healLand": "Heal the Land",
+			"buildWelcome": "Build & Welcome",
+			"settleIn": "Explore & Settle In"
 		},
 		"minimize": "Minimize",
 		"expand": "Expand",
@@ -398,13 +429,13 @@
 		},
 		"star": {
 			"title": "Your first star",
-			"text": "That’s the whole loop — and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don’t come easy. Find them all in the new Achievements menu (press K) — recent unlocks rise to the top. One last comfort to show you →",
-			"touch": "That’s the whole loop — and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don’t come easy. Find them all in the new Achievements menu (the star button) — recent unlocks rise to the top. One last comfort to show you →"
+			"text": "That’s the whole loop — and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don’t come easy. Find them all in the new Achievements menu (press K) — recent unlocks rise to the top. Next, a quick tour of your other menus →",
+			"touch": "That’s the whole loop — and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don’t come easy. Find them all in the new Achievements menu (the star button) — recent unlocks rise to the top. Next, a quick tour of your other menus →"
 		},
 		"goals": {
 			"title": "Set your own goals",
-			"text": "The board at the top-left is your task list. Set your own goals to play the game your way — whether that's crafting a specific build, planting out a meadow, bringing back a particular animal, collecting materials, or unlocking the next biome. Your first one's already there: unlock Old Hollow Forest, the next area. Open the board with the goals button (or press L) to add and reorder more; finishing any goal grants a small bundle of materials. You can also add a goal straight from the crafting, journal, and preserve menus.",
-			"touch": "The board at the top-left is your task list. Set your own goals to play the game your way — whether that's crafting a specific build, planting out a meadow, bringing back a particular animal, collecting materials, or unlocking the next biome. Your first one's already there: unlock Old Hollow Forest, the next area. Tap the goals button to add and reorder more; finishing any goal grants a small bundle of materials. You can also add a goal straight from the crafting, journal, and preserve menus."
+			"text": "The board at the left is your task list. Start with these first goals — gather seeds, craft something, welcome the grasshopper home. Once they're done, you set your own goals (press G) to play the preserve your way.",
+			"touch": "The board at the left is your task list. Start with these first goals — gather seeds, craft something, welcome the grasshopper home. Once they're done, you set your own goals to play the preserve your way."
 		},
 		"home": {
 			"title": "Make yourself at home",
@@ -450,7 +481,7 @@
 			},
 			"board": {
 				"title": "Set your own goals",
-				"text": "The board at the top-left is your own goal list. It always starts with the same three goals — welcome the grasshopper, gather seeds, craft something — and after that it’s yours to build. Open the goals menu (press L, or the gear on the board) to add your own: craft a specific item, plant a number of things, collect a material, read about animals, bring an animal back, or upgrade your home. Reorder them into a plan, and finishing any goal earns a small bundle of materials (press Tab or O to tuck the board away). Your plantings also keep growing in real time even while the game is closed, so there’s always something new when you come back."
+				"text": "The board at the left always points to your next milestone — unlocking the next biome — with a checklist of exactly what it needs. Below that, add goals of your own: open the goals menu (press G, or the gear on the board) to craft a specific item, plant a number of things, collect a material, read about animals, or upgrade your home; add an animal to attract from its field-journal entry. You can hold three goals at a time (six once the whole preserve is open), reorder them, and finishing one earns a small bundle of materials (press Tab to tuck the board away). Your plantings also keep growing in real time even while the game is closed, so there’s always something new when you come back."
 			}
 		},
 		"keys": {
@@ -479,11 +510,11 @@
 		}
 	},
 	"tasks": {
-		"pillTitle": "Your goals (O)",
+		"pillTitle": "Your goals (Tab)",
 		"pillAria": "Your goals: {done} of {total} done",
 		"title": "Your goals",
 		"editTitle": "Edit your goals",
-		"collapseTitle": "Tuck away (O)",
+		"collapseTitle": "Tuck away (Tab)",
 		"collapseAria": "Collapse the goal board",
 		"rewardItem": "{qty}× {name}",
 		"rewardTitle": "Reward: {reward}",
@@ -492,26 +523,45 @@
 	},
 	"goals": {
 		"title": "Your Goals",
-		"intro": "This is your list. The first three goals are how everyone starts — welcome the grasshopper, gather seeds, craft something. After that, the list is yours: add whatever you want to work toward, in any order.",
-		"empty": "No custom goals yet — add one below to start shaping your own adventure.",
+		"intro": "Play the preserve your way. Pick something to work toward — a specific build, things to plant, a material to gather, animals to read up on, or restoring your home or a whole biome — and it shows on the board with live progress. Finishing one grants a small bundle of materials.",
+		"slots": "{used} of {max} goal slots used",
+		"empty": "No goals of your own yet — pick a type below to add one.",
 		"addTitle": "Add a goal",
 		"add": "Add goal",
 		"remove": "Remove goal",
 		"moveUp": "Move up",
 		"moveDown": "Move down",
 		"done": "Done",
+		"creature": "creature",
 		"rewardNote": "Finishing any goal grants a small bundle of materials — claim it on the board.",
-		"limitReached": "You can track up to {max} custom goals at once. Finish or remove one to add another.",
+		"moreNote": "You can hold 3 goals at a time — 6 once the whole preserve is unlocked. Tip: you can also add a goal for a specific animal from its field-journal entry, or a specific item to craft from the crafting menu — look for the target button.",
+		"startersFirst": "Finish your first three goals (seeds, craft, grasshopper) to start designing your own.",
+		"limitReached": "You're holding all {max} goals at once. Finish or remove one to add another.",
 		"typeLabel": "Goal type:",
 		"type": {
 			"craft": "Craft an item",
 			"plant": "Plant things",
 			"collect": "Collect a material",
 			"observe": "Read about animals",
-			"welcome": "Bring back an animal",
+			"welcomeTotal": "Welcome animals",
 			"home": "Upgrade your home",
-			"unlock": "Unlock a biome"
+			"unlock": "Unlock a biome",
+			"health": "Restore a biome",
+			"biomeAnimals": "Complete a biome"
 		},
+		"desc": {
+			"craft": "Craft a set number of a specific item — e.g. 3 bird baths. Hover the finished goal to see the materials it needs.",
+			"plant": "Plant a number of living things (flowers, grasses, trees) anywhere in the preserve.",
+			"collect": "Gather a set amount of one material, like 20 seeds or 10 stones.",
+			"observe": "Read about a number of animals in your field journal.",
+			"welcomeTotal": "Welcome a number of new animals back across the whole preserve.",
+			"home": "Upgrade one of your home's tracks (Space, Comfort, Decor, Light) toward a higher level.",
+			"homeBuild": "Your home is still a tent — pick a house style below to make it your goal. Its ⓘ shows the materials each style needs.",
+			"unlock": "Open a specific biome. Each one has its own requirements — see the checklist on the board.",
+			"health": "Heal an unlocked biome up to a target health — the late-game capstone for a place you love.",
+			"biomeAnimals": "Welcome every animal that belongs in one unlocked biome — a full food web, top to bottom."
+		},
+		"homeMaxed": "Your {track} upgrade is already at the top — pick another track.",
 		"countLabel": "How many:",
 		"levelLabel": "To level:",
 		"itemLabel": "Item to craft",
@@ -519,10 +569,14 @@
 		"animalLabel": "Animal to bring back",
 		"trackLabel": "Home upgrade",
 		"biomeLabel": "Biome to unlock",
+		"styleLabel": "House style",
+		"matsTitle": "Materials to build:",
+		"matLine": "{have}/{need} {name}",
 		"pickItem": "Choose an item…",
 		"pickResource": "Choose a material…",
 		"pickAnimal": "Choose an animal…",
 		"pickBiome": "Choose a biome…",
+		"pickStyle": "Choose a style…",
 		"track": {
 			"space": "Space",
 			"comfort": "Comfort",
@@ -536,10 +590,18 @@
 			"plant": "Plant {count} things",
 			"collect": "Collect {count}× {resource}",
 			"observe": "Read about {count} animals",
+			"welcomeTotal": "Welcome {count} animals to the preserve",
 			"welcome": "Bring back the {animal}",
+			"attract": "Attract a mystery {kind}",
 			"home": "Upgrade {track} to level {level}",
-			"unlock": "Unlock {biome}"
-		}
+			"homeBuild": "Build your home: {style}",
+			"unlock": "Unlock {biome}",
+			"health": "Restore {biome} to {pct}% health",
+			"biomeAnimals": "Welcome every animal in {biome}"
+		},
+		"healthLabel": "To health:",
+		"ownHead": "Your own goals",
+		"pinnedTag": "Next up"
 	},
 	"people": {
 		"title": "People",

@@ -149,6 +149,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	const prevWeatherByArea = useRef<Record<string, string>>({});
 	const prevSeason = useRef<string | null>(null);
 	const prevTasksDone = useRef<Set<string> | null>(null);
+	// Whether the three fixed starters were on the board last snapshot — so we can
+	// announce (once) when the last of them clears and the player unlocks the builder.
+	const prevStartersPresent = useRef<boolean | null>(null);
 	// Last-seen home config signature, so upgrading/restyling while inside redraws the room.
 	const prevHomeSig = useRef<string | null>(null);
 	// Feed persistence: buffer new lines and flush them to Harper (capped per player),
@@ -330,6 +333,22 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			}
 		}
 	}, [state, toast, pushLog]);
+
+	// Starters graduation: when the last of the three fixed starters clears off the
+	// board, cheer the player on to design their own goals — once, as a toast and a
+	// feed line. We only fire on the present→absent transition we actually witnessed
+	// this session, so returning saves that finished long ago stay quiet.
+	useEffect(() => {
+		const tasks = state?.dailyTasks?.tasks;
+		if (!tasks) return;
+		const present = tasks.some((tk) => tk.id.startsWith('start-'));
+		const before = prevStartersPresent.current;
+		prevStartersPresent.current = present;
+		if (before && !present) {
+			toast(t('app.toast.startersDone'), 'unlock');
+			pushLog('target', t('app.feed.startersDone'), true);
+		}
+	}, [state, toast, pushLog, t]);
 
 	// Weather beats (retention): when the weather in the player's current biome
 	// changes — or the season turns — weave a flavor line into the feed. Same
@@ -558,6 +577,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		prevHealth.current = null; // and the health-milestone baseline
 		prevHomeSig.current = null;
 		prevTasksDone.current = null; // and the daily-task baseline
+		prevStartersPresent.current = null; // and the starters-graduation baseline
 		shownFacts.current = new Set(); // fresh fact pool next session
 	}, [flushFeed]);
 
@@ -1087,12 +1107,18 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	// duplicates and respecting the list cap. Announces the add with a toast.
 	const addGoal = useCallback(
 		async (goal: any) => {
-			const cur = (bridge.shared.state as any)?.customGoals || state?.customGoals || [];
+			const live = (bridge.shared.state as any) || state;
+			const cur = live?.customGoals || [];
+			const limit = live?.goalLimit ?? 3;
+			// Gate custom goals behind the three fixed starters (same rule as the goals
+			// builder) — the field-journal "attract" button reaches here too.
+			const startersDone = !((live?.dailyTasks?.tasks || []).some((tk: any) => typeof tk.id === 'string' && tk.id.startsWith('start-')));
+			if (!startersDone) { toast(t('app.toast.goalStartersFirst'), 'info'); return; }
 			const same = (g: any) =>
 				g.kind === goal.kind && g.itemId === goal.itemId && g.resourceId === goal.resourceId &&
 				g.animalId === goal.animalId && g.track === goal.track && g.biomeId === goal.biomeId;
 			if (cur.some(same)) { toast(t('app.toast.goalAlready'), 'info'); return; }
-			if (cur.length >= 6) { toast(t('app.toast.goalLimit'), 'info'); return; }
+			if (cur.length >= limit) { toast(t('app.toast.goalLimit', { max: limit }), 'info'); return; }
 			await act(() => api.setGoals([...cur, goal]));
 			toast(t('app.toast.goalAdded'), 'unlock');
 		},

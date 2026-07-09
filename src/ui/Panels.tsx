@@ -468,14 +468,17 @@ export function CraftingPanel() {
 									)}
 								</div>
 								<div className="recipe-actions">
-									<button
-										className="icon-btn subtle add-goal-btn"
-										title={t('panels.crafting.addGoal')}
-										aria-label={t('panels.crafting.addGoal')}
-										onClick={() => addGoal({ kind: 'craft', itemId: r.output.itemId, target: 1 })}
-									>
-										<Icon name="check" size={13} />
-									</button>
+									{/* A once-only recipe you've already made can't be crafted again — hide the goal button then. */}
+									{!(r.once && made) && (
+										<button
+											className="icon-btn subtle add-goal-btn"
+											title={t('panels.crafting.addGoal')}
+											aria-label={t('panels.crafting.addGoal')}
+											onClick={() => addGoal({ kind: 'craft', itemId: r.output.itemId, target: 1 })}
+										>
+											<Icon name="target" size={13} />
+										</button>
+									)}
 									<button disabled={!ok} onClick={() => craft(r.id)}>{made ? t('panels.crafting.crafted') : t('panels.crafting.craft')}</button>
 								</div>
 							</div>
@@ -549,7 +552,7 @@ export function ToolsPanel() {
 }
 
 export function BiomesPanel() {
-	const { data, state, setPanel, changeArea, addGoal } = useGame();
+	const { data, state, setPanel, changeArea } = useGame();
 	const { t, content } = useI18n();
 	if (!data || !state) return null;
 	const here = state.player.area;
@@ -583,8 +586,8 @@ export function BiomesPanel() {
 							{biome.explorable && !unlocked && biome.unlock && <div className="small unlock-req"><b>{t('panels.biomes.toUnlock')}</b> {content('biome', biome.id, 'unlock.label', biome.unlock.label)}</div>}
 							{unlocked && bs && (
 								<>
-									<Meter label={t('panels.biomes.health')} icon="leaf" value={bs.health} color="#6aa253" hint={t('app.hud.healthHint')} />
-									<Meter label={t('panels.biomes.balance')} icon="drop" value={bs.balance} color="#5b9cab" hint={t('app.hud.balanceHint')} />
+									<Meter label={t('panels.biomes.health')} icon="leaf" value={bs.health} color="#6aa253" />
+									<Meter label={t('panels.biomes.balance')} icon="drop" value={bs.balance} color="#5b9cab" />
 									<div className="muted small">{t('panels.biomes.animalsReturned', { returned: bs.returnedCount, total })}</div>
 									{BIOME_LORE[biome.id] && (
 										<div className="biome-lore small">
@@ -595,27 +598,15 @@ export function BiomesPanel() {
 								</>
 							)}
 						</div>
-						<div className="biome-row-actions">
-							{biome.explorable && !unlocked && (
-								<button
-									className="icon-btn subtle add-goal-btn"
-									title={t('panels.biomes.addGoal', { biome: biomeName })}
-									aria-label={t('panels.biomes.addGoal', { biome: biomeName })}
-									onClick={() => addGoal({ kind: 'unlock', biomeId: biome.id, target: 1 })}
-								>
-									<Icon name="check" size={14} />
-								</button>
-							)}
-							<button
-								className="travel-icon"
-								disabled={!canTravel}
-								aria-label={travelTitle}
-								title={travelTitle}
-								onClick={async () => { setPanel(null); await changeArea(biome.id); }}
-							>
-								<Icon name={isHere ? 'pin' : 'walk'} size={18} />
-							</button>
-						</div>
+						<button
+							className="travel-icon"
+							disabled={!canTravel}
+							aria-label={travelTitle}
+							title={travelTitle}
+							onClick={async () => { setPanel(null); await changeArea(biome.id); }}
+						>
+							<Icon name={isHere ? 'pin' : 'walk'} size={18} />
+						</button>
 					</div>
 				);
 			})}
@@ -856,6 +847,19 @@ export function MaterialsPanel() {
 	// Always-gatherable materials for this biome, then the weather-gated extras
 	// that only appear while a particular weather is active.
 	const baseIds = biome?.resources || [];
+	// Diggable materials (shovel). Some, like stones, are BOTH surface-gatherable and
+	// diggable — those get a combined note rather than a duplicate row.
+	const surfaceSet = new Set(baseIds);
+	const digSet = new Set(biome?.digResources || []);
+	// One row per material: surface ones first (data order), then dig-only ones.
+	const allIds = [...baseIds, ...[...digSet].filter((id) => !surfaceSet.has(id))];
+	const gatherNote = (id: string) => {
+		const r = resById(id);
+		const canDig = digSet.has(id), canSurface = surfaceSet.has(id);
+		if (canSurface && canDig) return t('panels.materials.findOrDig');
+		if (canDig) return t('panels.materials.gatherWith.shovel');
+		return t(`panels.materials.gatherWith.${r?.tool}`);
+	};
 	const weatherGated: { id: string; weatherId: string }[] = [];
 	for (const wx of WEATHER_TYPES) {
 		const rid = gatherResourceIdFor(area, wx);
@@ -885,8 +889,8 @@ export function MaterialsPanel() {
 			) : (
 				<>
 					<p className="muted">{t('panels.materials.intro', { biome: biome ? content('biome', biome.id, 'name', biome.name) : t('panels.crafting.thisArea') })}</p>
-					{baseIds.length === 0 && weatherGated.length === 0 && <p className="muted small">{t('panels.materials.empty')}</p>}
-					{baseIds.map((id) => row(id))}
+					{allIds.length === 0 && weatherGated.length === 0 && <p className="muted small">{t('panels.materials.empty')}</p>}
+					{allIds.map((id) => row(id, gatherNote(id)))}
 					{weatherGated.length > 0 && (
 						<>
 							<h3>{t('panels.materials.weatherTitle')}</h3>

@@ -223,7 +223,7 @@ export function HUD() {
 						{show.inventory && navBtn('inventory', 'basket', t('app.hud.navInventory'), 'B')}
 						{show.crafting && navBtn('crafting', 'hammer', t('app.hud.navCrafting'), 'C')}
 						{show.tools && navBtn('tools', 'tools', t('app.hud.navTools'), 'T')}
-						{navBtn('goals', 'check', t('app.hud.navGoals'), 'L')}
+						{navBtn('goals', 'target', t('app.hud.navGoals'), 'G')}
 					</div>
 				</div>
 				<div className="nav-group" role="group" aria-label={t('app.hud.groupWorld')}>
@@ -239,7 +239,7 @@ export function HUD() {
 					<div className="nav-group-btns">
 						<button className={`icon-btn ${panel === 'settings' ? 'on' : ''}`} onClick={() => toggle('settings')} title={t('app.hud.settingsTitle')} aria-label={t('app.hud.settings')}>
 							<Icon name="gear" />
-							<span className="nav-key">G</span>
+							<span className="nav-key">O</span>
 						</button>
 						<button className={`icon-btn ${helpOpen ? 'on' : ''}`} onClick={() => setHelpOpen(!helpOpen)} title={t('app.hud.howToPlayTitle')} aria-label={t('app.hud.howToPlay')}>
 							<Icon name="help" />

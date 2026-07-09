@@ -38,6 +38,7 @@
 		"recipeUnlocked": "New Crafting Recipe Unlocked — {name}",
 		"achievementUnlocked": "Achievement unlocked — {name}",
 		"taskComplete": "Task complete — claim your reward on the board",
+		"startersDone": "Add your own goals! You can now design your own — open the board (G).",
 		"preserveGrew": "Your preserve kept growing while you were away",
 		"animalReturned": "{name} has returned to the preserve!",
 		"biomeUnlocked": "New biome unlocked: {name}!",
@@ -52,10 +53,11 @@
 		"taskReward": "Task reward — {items}",
 		"harvested": "Harvested {items}",
 		"goalComplete": "Goal complete: {goal}",
-		"goalAdded": "Added to your goals — see the board (L)",
-		"habitatGoalAdded": "Added its habitat to your goals — see the board (L)",
+		"goalAdded": "Added to your goals — see the board (G)",
+		"habitatGoalAdded": "Added its habitat to your goals — see the board (G)",
 		"goalAlready": "That's already one of your goals",
-		"goalLimit": "You're tracking the most goals at once — finish or remove one first",
+		"goalLimit": "You can hold {max} goals at once — finish or remove one first",
+		"goalStartersFirst": "Finish your first three goals before adding more.",
 		"joinRequest": "{name} wants to join — press U to let them in",
 		"perkForage": "Your cabin's forager's instinct turned up an extra {name}!",
 		"perkThrift": "Hearthkeeper's thrift! Got back {items}."
@@ -72,7 +74,8 @@
 		"loopReminder": "Same loop in {name}: build habitat until its animals come home, and the next trail opens.",
 		"taskReward": "Daily task finished: earned {items}.",
 		"harvested": "Harvested {items} — the plant will grow back.",
-		"goalComplete": "Goal complete: {goal}"
+		"goalComplete": "Goal complete: {goal}",
+		"startersDone": "You finished your first goals — now you can add your own! Open the board (G) to design them."
 	},
 	"log": {
 		"gathered": "Gathered {qty}× {name} into your basket.",
@@ -126,6 +129,12 @@
 		"trees": "Trees",
 		"plant": "Plant",
 		"hint": "Planted things sprout right away and grow in over a minute or two."
+	},
+	"goalsIntro": {
+		"title": "Now: set your own goals",
+		"body": "Nicely done — you've got the hang of it! From here, the board is yours. Set your own goals — craft something specific, plant, collect materials, read up on animals, welcome wildlife, or upgrade your home — and track them right here. You can hold three at a time.",
+		"open": "Open goals",
+		"later": "Later"
 	},
 	"placementMenu": {
 		"move": "Move",
@@ -234,11 +243,11 @@
 		"navInventory": "Basket contents (B)",
 		"navCrafting": "Crafting (C)",
 		"navTools": "Tool upgrades (T)",
-		"navGoals": "Your goals (L)",
+		"navGoals": "Your goals (G)",
 		"navBiomes": "Preserve map (M)",
 		"navWeather": "Weather & seasons (N)",
 		"navPeople": "People — invite & who’s here (U)",
-		"settingsTitle": "Settings — change character, delete save (G)",
+		"settingsTitle": "Settings — change character, delete save (O)",
 		"settings": "Settings",
 		"howToPlayTitle": "How to play (H)",
 		"howToPlay": "How to play",
