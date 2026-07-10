@@ -4372,7 +4372,13 @@ export class Metrics extends PublicEndpoint {
 
 		let all = soloRows
 			.map((r: any) => {
-				const s = r.snapshot || {};
+				// snapshot is stored as a JSON string (see SyncMetrics); tolerate any
+				// legacy object rows too.
+				let s: any = {};
+				if (r.snapshot) {
+					try { s = typeof r.snapshot === 'string' ? JSON.parse(r.snapshot) : r.snapshot; }
+					catch { s = {}; }
+				}
 				const lastSeenAt = s.lastSeenAt || r.updatedAt || null;
 				const createdAt = s.createdAt || r.createdAt || now;
 				const hoursSinceActive = lastSeenAt ? round1((now - lastSeenAt) / 3_600_000) : null;
@@ -5132,7 +5138,12 @@ export class SyncMetrics extends PublicEndpoint {
 		if (!clientId) throw new GameError(tr('server.err.clientIdRequired'));
 		const snapshot = body.snapshot && typeof body.snapshot === 'object' && !Array.isArray(body.snapshot) ? body.snapshot : null;
 		if (!snapshot) throw new GameError(tr('server.err.snapshotRequired'));
-		if (JSON.stringify(snapshot).length > METRICS_SNAPSHOT_MAX_BYTES) throw new GameError(tr('server.err.snapshotTooLarge'));
+		// Store the metrics view as a JSON STRING, not a nested map: this table is
+		// typed (positional structon encoding), which cannot safely hold a nested
+		// object — a scalar string round-trips cleanly. Read back with JSON.parse
+		// in the /Metrics/ dashboard.
+		const snapshotJson = JSON.stringify(snapshot);
+		if (snapshotJson.length > METRICS_SNAPSHOT_MAX_BYTES) throw new GameError(tr('server.err.snapshotTooLarge'));
 
 		const t = db();
 		const id = `solo:${clientId}`;
@@ -5146,7 +5157,7 @@ export class SyncMetrics extends PublicEndpoint {
 			version: String(body.version || '').slice(0, 24) || null,   // wild-willows release
 			build: String(body.build || '').slice(0, 40) || null,       // build timestamp
 			language: String(body.language || snapshot.language || '').trim().toLowerCase().slice(0, 12) || null, // interface language
-			snapshot,
+			snapshot: snapshotJson,
 			createdAt: existing?.createdAt || Date.now(),
 			updatedAt: Date.now(),
 		});
