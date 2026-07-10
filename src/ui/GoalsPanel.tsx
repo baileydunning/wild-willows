@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useGame } from '../state';
 import { useI18n } from '../i18n/react';
 import type { CustomGoal, CustomGoalKind } from '../types';
+import { recipeUnlocked } from '../recipes';
 import { Icon } from './icons';
 
 // Buildable-from-scratch goal kinds. "Bring back an animal" (welcome) is
@@ -45,18 +46,32 @@ export function GoalsPanel() {
 		[data]
 	);
 	const craftables = useMemo(() => {
-		if (!data) return [] as { id: string; name: string }[];
+		if (!data || !state) return [] as { id: string; name: string }[];
+		// Held amount = basket + every linked chest (matches the server's tally).
+		const heldOf = (id: string) =>
+			(state.player.inventory?.[id] || 0) + (state.chests || []).reduce((s, c) => s + (c.contents?.[id] || 0), 0);
 		const seen = new Set<string>();
 		const out: { id: string; name: string }[] = [];
 		for (const r of data.recipes) {
 			const id = r.output.itemId;
 			if (seen.has(id) || unlockKitIds.has(id)) continue;
+			// Only recipes you can ACTUALLY craft right now — unlocked for your
+			// progress (open biome, health/animal gates met), never locked recipes
+			// from biomes you haven't reached or plantables.
+			if (!recipeUnlocked(r, data, state)) continue;
+			// …and only ones you DON'T already have the materials for. A craft goal
+			// you could fulfil this instant is busywork, so leave it off the picker
+			// (matches the add-button's affordable guard). Not-affordable-for-one
+			// implies not-affordable-for-any-count, so every listed item is a valid
+			// goal at whatever count you pick.
+			const affordable = Object.entries(r.materials || {}).every(([mid, need]) => heldOf(mid) >= (need as number));
+			if (affordable) continue;
 			seen.add(id);
 			const o = data.habitatObjects.find((h) => h.id === id);
 			out.push({ id, name: o ? content('habitatObject', o.id, 'name', o.name) : id });
 		}
 		return out.sort((a, b) => a.name.localeCompare(b.name));
-	}, [data, content, unlockKitIds]);
+	}, [data, state, content, unlockKitIds]);
 	const animals = useMemo(
 		() => (data?.animals || []).map((a) => ({ id: a.id, name: content('animal', a.id, 'name', a.name) })).sort((a, b) => a.name.localeCompare(b.name)),
 		[data, content]
@@ -101,6 +116,13 @@ export function GoalsPanel() {
 	const animalTotal = (id: string) => data.animals.filter((a) => a.biome === id).length;
 	const returnedIn = (id: string) => state.discoveries.filter((d) => d.biomeId === id).length;
 	const animalBiomes = openBiomes.filter((b) => animalTotal(b.id) > 0 && returnedIn(b.id) < animalTotal(b.id));
+	// Resources you can ACTUALLY gather right now — only those found in biomes
+	// you've unlocked. A collect goal for a locked biome's material is impossible,
+	// and the server scopes rewards/targets to your personal biomes anyway.
+	const gatherableResIds = new Set(
+		data.biomes.filter((b) => unlockedSet.has(b.id)).flatMap((b) => b.resources || []),
+	);
+	const collectables = data.resources.filter((r) => gatherableResIds.has(r.id));
 	// The picker only offers goals you can actually make progress on right now.
 	const kindOptions = KINDS.filter((k) => {
 		if (k === 'home') return !hasHomeGoal && !homeFullyUpgraded;
@@ -284,7 +306,7 @@ export function GoalsPanel() {
 								{kind === 'collect' && (
 									<select aria-label={t('panels.goals.resourceLabel')} value={resourceId} onChange={(e) => setResourceId(e.target.value)}>
 										<option value="">{t('panels.goals.pickResource')}</option>
-										{data.resources.map((r) => <option key={r.id} value={r.id}>{content('resource', r.id, 'name', r.name)}</option>)}
+										{collectables.map((r) => <option key={r.id} value={r.id}>{content('resource', r.id, 'name', r.name)}</option>)}
 									</select>
 								)}
 								{kind === 'unlock' && (

@@ -1563,6 +1563,10 @@ async function checkUnlocks(
 	const player = fresh.player || (await t.Player.get(playerId));
 	const unlockedNow: any[] = [];
 	const unlockedSet = new Set(player.unlockedBiomes || []);
+	// Newly-unlocked biomes each drop a one-time, claimable "welcome bundle" onto
+	// the task board (see dailyTasksBlock). Existing saves start with no pending
+	// rewards, so they aren't retroactively gifted for biomes opened long ago.
+	const pendingRewards = new Set<string>(player.pendingUnlockRewards || []);
 	// the world's own unlock state is authoritative for prerequisites
 	const worldUnlocked = new Set((await byWorld(t.BiomeState, wid)).filter((b) => b.unlocked).map((b) => b.biomeId));
 
@@ -1588,7 +1592,8 @@ async function checkUnlocks(
 
 		worldUnlocked.add(biome.id);
 		unlockedSet.add(biome.id);
-		await t.Player.patch(playerId, { unlockedBiomes: [...unlockedSet] });
+		pendingRewards.add(biome.id);
+		await t.Player.patch(playerId, { unlockedBiomes: [...unlockedSet], pendingUnlockRewards: [...pendingRewards] });
 		const bsRow = await findBiomeState(t.BiomeState, wid, biome.id);
 		await t.BiomeState.patch(bsRow?.id ?? `${wid}:${biome.id}`, { unlocked: true });
 		await seedStartingTerrain(wid, playerId, biome.id);
@@ -2036,6 +2041,11 @@ function nextBiomeGoal(ctx: TaskCtx): any | null {
 		if (!u || bs.get(biome.id)?.unlocked) continue;
 		const prereq = bs.get(u.biome);
 		if (!prereq?.unlocked) continue; // not the frontier yet
+		// You only get "unlock the next area" guidance once you've actually walked
+		// through the gate into its prerequisite biome — arriving there is what
+		// surfaces what's next, not merely unlocking it (the meadow counts as
+		// visited from the start, so the very first goal still shows immediately).
+		if (!(player?.visitedBiomes || ['meadow']).includes(u.biome)) continue;
 		const prereqName = d.biome.get(u.biome)?.name || u.biome;
 		const name = d.biome.get(biome.id)?.name || biome.id;
 		const steps: { text: string; done: boolean }[] = [];
@@ -2124,6 +2134,23 @@ function goalReward(ctx: TaskCtx, key: string): Record<string, number> {
 	for (let i = 0; i < 2 && p.length; i++) {
 		const r = p.splice(Math.floor(rng() * p.length), 1)[0];
 		out[r] = 3 + Math.floor(rng() * 3); // 3–5 each — deliberately small
+	}
+	return out;
+}
+
+/** One-time "welcome bundle" for freshly unlocking a biome: a couple of THAT
+ *  biome's own resources (the next area), deterministic per biome so the reward
+ *  shown on the board equals the reward granted on claim. */
+function unlockBundle(ctx: TaskCtx, biomeId: string): Record<string, number> {
+	const pool = ((ctx.d.biome.get(biomeId)?.resources || []) as string[])
+		.filter((r) => r !== 'water' && !isWeatherGatheredResource(r) && ctx.d.resource.get(r));
+	const out: Record<string, number> = {};
+	if (!pool.length) return out;
+	const rng = seededRng(hash32(`unlockreward:${biomeId}`));
+	const p = [...pool];
+	for (let i = 0; i < 2 && p.length; i++) {
+		const r = p.splice(Math.floor(rng() * p.length), 1)[0];
+		out[r] = 4 + Math.floor(rng() * 3); // 4–6 each — a small welcome to the new area
 	}
 	return out;
 }
@@ -2280,14 +2307,31 @@ function sanitizeGoals(goals: any[], d: any): CustomGoal[] {
 
 /** The on-screen board: three fixed starters, then the player's own goal list. */
 function dailyTasksBlock(ctx: TaskCtx) {
-	const { player, now } = ctx;
+	const { player, now, d } = ctx;
 	const dayKey = playerDayKey(player, now);
 	const goalClaims: Record<string, boolean> = player?.goalClaims || {};
 	const tasks: any[] = [];
+	const pendingUnlock = (player?.pendingUnlockRewards || []) as string[];
 	// The always-on "unlock the next biome" guidance (with its checklist) leads
-	// the board.
-	const nb = nextBiomeGoal(ctx);
-	if (nb) tasks.push(nb);
+	// the board — but NOT while a welcome bundle is still waiting to be claimed.
+	// Freshly unlocking a biome should feel like an arrival, so we hold back any
+	// mention of the *next* biome until the player claims their bundle.
+	if (!pendingUnlock.length) {
+		const nb = nextBiomeGoal(ctx);
+		if (nb) tasks.push(nb);
+	}
+	// A just-unlocked biome shows a one-time, CLAIMABLE welcome bundle (a couple
+	// of that new area's resources) — it flags the unlock in the task bar and the
+	// player has to claim it. Cleared from player.pendingUnlockRewards on claim.
+	for (const bid of pendingUnlock) {
+		const bname = d.biome.get(bid)?.name || bid;
+		tasks.push({
+			id: `unlock-reward:${bid}`, kind: 'unlock', icon: 'sparkle',
+			text: tr('server.unlockreward.title', { biome: bname }),
+			hint: tr('server.unlockreward.hint', { biome: bname }),
+			target: 1, progress: 1, counter: '', reward: unlockBundle(ctx, bid), claimed: false,
+		});
+	}
 	// Then the three fixed starters, while any remain unclaimed.
 	for (const s of starterTasks(ctx)) {
 		if (goalClaims[s.id]) continue;
@@ -3950,8 +3994,13 @@ export class ClaimTask extends PublicEndpoint {
 		// removed from customGoals entirely, so it leaves the board, the goals menu,
 		// and frees its slot (no lingering "done" entries piling up).
 		const isStarter = String(task.id).startsWith('start-');
+		const isUnlockReward = String(task.id).startsWith('unlock-reward:');
 		const patch: any = { inventory };
-		if (isStarter) {
+		if (isUnlockReward) {
+			// one-time welcome bundle — drop it from the pending list so it doesn't reappear
+			const bid = String(task.id).slice('unlock-reward:'.length);
+			patch.pendingUnlockRewards = (player.pendingUnlockRewards || []).filter((id: string) => id !== bid);
+		} else if (isStarter) {
 			patch.goalClaims = { ...(player.goalClaims || {}), [task.id]: true };
 		} else {
 			patch.customGoals = (player.customGoals || []).filter((g: CustomGoal) => g.id !== task.id);

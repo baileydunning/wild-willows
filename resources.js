@@ -14472,6 +14472,10 @@ var server_default = {
     total: "{goal} animals across the preserve ({cur} now)",
     craft: "Craft a {item}"
   },
+  unlockreward: {
+    title: "{biome} unlocked!\nClaim your welcome bundle",
+    hint: "A handful of {biome} materials to get you started there."
+  },
   feed: {
     joinedWorld: "{name} joined the preserve!"
   },
@@ -14887,7 +14891,7 @@ var supportHtml = `<!doctype html>
 </body>
 </html>
 `;
-var buildStamp = "0.1.10+2026-07-10T02:08:11.548Z";
+var buildStamp = "0.1.10+2026-07-10T03:05:14.985Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
@@ -15921,6 +15925,7 @@ async function checkUnlocks(wid, playerId, fresh = {}) {
   const player = fresh.player || await t2.Player.get(playerId);
   const unlockedNow = [];
   const unlockedSet = new Set(player.unlockedBiomes || []);
+  const pendingRewards = new Set(player.pendingUnlockRewards || []);
   const worldUnlocked = new Set((await byWorld(t2.BiomeState, wid)).filter((b) => b.unlocked).map((b) => b.biomeId));
   for (const biome of d.biomes) {
     if (!biome.unlock || worldUnlocked.has(biome.id)) continue;
@@ -15941,7 +15946,8 @@ async function checkUnlocks(wid, playerId, fresh = {}) {
     if (u.requiresTool && (player.tools?.[u.requiresTool.id] || 1) < u.requiresTool.tier) continue;
     worldUnlocked.add(biome.id);
     unlockedSet.add(biome.id);
-    await t2.Player.patch(playerId, { unlockedBiomes: [...unlockedSet] });
+    pendingRewards.add(biome.id);
+    await t2.Player.patch(playerId, { unlockedBiomes: [...unlockedSet], pendingUnlockRewards: [...pendingRewards] });
     const bsRow = await findBiomeState(t2.BiomeState, wid, biome.id);
     await t2.BiomeState.patch(bsRow?.id ?? `${wid}:${biome.id}`, { unlocked: true });
     await seedStartingTerrain(wid, playerId, biome.id);
@@ -16070,6 +16076,7 @@ function nextBiomeGoal(ctx) {
     if (!u || bs.get(biome.id)?.unlocked) continue;
     const prereq = bs.get(u.biome);
     if (!prereq?.unlocked) continue;
+    if (!(player?.visitedBiomes || ["meadow"]).includes(u.biome)) continue;
     const prereqName = d.biome.get(u.biome)?.name || u.biome;
     const name = d.biome.get(biome.id)?.name || biome.id;
     const steps = [];
@@ -16147,6 +16154,18 @@ function goalReward(ctx, key) {
   for (let i = 0; i < 2 && p.length; i++) {
     const r = p.splice(Math.floor(rng() * p.length), 1)[0];
     out[r] = 3 + Math.floor(rng() * 3);
+  }
+  return out;
+}
+function unlockBundle(ctx, biomeId) {
+  const pool = (ctx.d.biome.get(biomeId)?.resources || []).filter((r) => r !== "water" && !isWeatherGatheredResource(r) && ctx.d.resource.get(r));
+  const out = {};
+  if (!pool.length) return out;
+  const rng = seededRng(hash32(`unlockreward:${biomeId}`));
+  const p = [...pool];
+  for (let i = 0; i < 2 && p.length; i++) {
+    const r = p.splice(Math.floor(rng() * p.length), 1)[0];
+    out[r] = 4 + Math.floor(rng() * 3);
   }
   return out;
 }
@@ -16315,12 +16334,30 @@ function sanitizeGoals(goals, d) {
   return out;
 }
 function dailyTasksBlock(ctx) {
-  const { player, now } = ctx;
+  const { player, now, d } = ctx;
   const dayKey = playerDayKey(player, now);
   const goalClaims = player?.goalClaims || {};
   const tasks = [];
-  const nb = nextBiomeGoal(ctx);
-  if (nb) tasks.push(nb);
+  const pendingUnlock = player?.pendingUnlockRewards || [];
+  if (!pendingUnlock.length) {
+    const nb = nextBiomeGoal(ctx);
+    if (nb) tasks.push(nb);
+  }
+  for (const bid of pendingUnlock) {
+    const bname = d.biome.get(bid)?.name || bid;
+    tasks.push({
+      id: `unlock-reward:${bid}`,
+      kind: "unlock",
+      icon: "sparkle",
+      text: t("server.unlockreward.title", { biome: bname }),
+      hint: t("server.unlockreward.hint", { biome: bname }),
+      target: 1,
+      progress: 1,
+      counter: "",
+      reward: unlockBundle(ctx, bid),
+      claimed: false
+    });
+  }
   for (const s of starterTasks(ctx)) {
     if (goalClaims[s.id]) continue;
     tasks.push({ ...s, counter: "", reward: goalReward(ctx, s.id), claimed: false });
@@ -17653,8 +17690,12 @@ var ClaimTask = class extends PublicEndpoint {
     }
     if (!Object.keys(gained).length) throw new GameError(t("server.err.basketFullReward"), 409);
     const isStarter = String(task.id).startsWith("start-");
+    const isUnlockReward = String(task.id).startsWith("unlock-reward:");
     const patch = { inventory };
-    if (isStarter) {
+    if (isUnlockReward) {
+      const bid = String(task.id).slice("unlock-reward:".length);
+      patch.pendingUnlockRewards = (player.pendingUnlockRewards || []).filter((id) => id !== bid);
+    } else if (isStarter) {
       patch.goalClaims = { ...player.goalClaims || {}, [task.id]: true };
     } else {
       patch.customGoals = (player.customGoals || []).filter((g) => g.id !== task.id);

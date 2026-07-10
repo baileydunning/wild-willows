@@ -1,5 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { freshWorld, appearance, meadowResource, type World } from './harness';
+
+const forestResources = new Set<string>(
+	JSON.parse(readFileSync('data/biomes.json', 'utf8')).records.find((b: any) => b.id === 'forest').resources,
+);
 
 // Retention systems, driven through the real server bundle:
 //  • the daily task board (fresh each player-local morning; day one is a fixed
@@ -194,5 +199,52 @@ describe('condition-gated rare sightings', () => {
 	it('waits through the wrong day-phase and returns in the right one', async () => {
 		expect(await owlMeadow(60)).toBe(false); // dawn — owls are asleep
 		expect(await owlMeadow(480)).toBe(true); // night — the owl hunts
+	});
+});
+
+describe('biome unlock reward', () => {
+	it('a freshly unlocked biome drops a claimable welcome bundle of that area’s resources', async () => {
+		const w2 = await freshWorld();
+		const pid = (await w2.post('CreatePlayer', { name: 'Unlocker', passcode: '1234', appearance })).playerId;
+		// Meet the forest's unlock bar on the meadow (60% health, 10 animals back),
+		// then craft the kit that opens it — that's what triggers checkUnlocks.
+		let meadow: any;
+		for await (const b of w2.db.BiomeState.search()) if (b.biomeId === 'meadow') meadow = b;
+		await w2.db.BiomeState.patch(meadow.id, { health: 60, returnedCount: 10 });
+		const p = await w2.db.Player.get(pid);
+		await w2.db.Player.patch(pid, { inventory: { ...(p.inventory || {}), fiber: 8, branches: 8, stones: 6, water: 4 } });
+		expect((await w2.post('CraftItem', { playerId: pid, recipeId: 'forest-restoration-kit' })).ok).toBe(true);
+
+		// Forest is now open, and a pending welcome bundle is recorded.
+		const player = await w2.db.Player.get(pid);
+		expect(player.unlockedBiomes).toContain('forest');
+		expect(player.pendingUnlockRewards).toContain('forest');
+
+		// The board shows it as a claimable (not pinned) task with a reward drawn
+		// from the NEW area's resources.
+		const dt = (await w2.get('GameState', pid)).dailyTasks;
+		const reward = dt.tasks.find((t: any) => t.id === 'unlock-reward:forest');
+		expect(reward).toBeTruthy();
+		expect(reward.pinned).toBeFalsy();
+		expect(reward.progress).toBe(reward.target); // complete → claimable
+		expect(Object.keys(reward.reward).length).toBeGreaterThan(0);
+		for (const rid of Object.keys(reward.reward)) expect(forestResources.has(rid)).toBe(true);
+		// Nothing about the NEXT biome shows until this bundle is claimed.
+		expect(dt.tasks.some((t: any) => t.id === 'next-biome')).toBe(false);
+
+		// Claiming grants the shown bundle exactly once, then it clears.
+		const claim = await w2.post('ClaimTask', { playerId: pid, taskId: 'unlock-reward:forest' });
+		expect(claim.ok).toBe(true);
+		expect(claim.gained).toEqual(reward.reward);
+		expect((await w2.db.Player.get(pid)).pendingUnlockRewards).not.toContain('forest');
+		const dt2 = (await w2.get('GameState', pid)).dailyTasks;
+		expect(dt2.tasks.some((t: any) => t.id === 'unlock-reward:forest')).toBe(false);
+		// The next-area guidance stays hidden until you've walked through the gate
+		// into the new biome — claiming the bundle alone isn't enough.
+		expect(dt2.tasks.some((t: any) => t.id === 'next-biome')).toBe(false);
+		await w2.db.Player.patch(pid, { visitedBiomes: ['meadow', 'forest'] });
+		const dt3 = (await w2.get('GameState', pid)).dailyTasks;
+		expect(dt3.tasks.some((t: any) => t.id === 'next-biome')).toBe(true);
+		await expect(w2.post('ClaimTask', { playerId: pid, taskId: 'unlock-reward:forest' })).rejects.toThrow();
 	});
 });

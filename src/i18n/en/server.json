@@ -203,6 +203,10 @@
 		"total": "{goal} animals across the preserve ({cur} now)",
 		"craft": "Craft a {item}"
 	},
+	"unlockreward": {
+		"title": "{biome} unlocked!\nClaim your welcome bundle",
+		"hint": "A handful of {biome} materials to get you started there."
+	},
 	"feed": {
 		"joinedWorld": "{name} joined the preserve!"
 	},

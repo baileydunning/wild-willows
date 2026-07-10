@@ -1429,7 +1429,7 @@ kbd {
 .tasks-row + .tasks-row { border-top: 1px dashed rgba(94, 74, 50, 0.16); }
 .tasks-row-icon { color: var(--green-2, #6aa253); display: flex; flex-shrink: 0; }
 .tasks-row-main { flex: 1; min-width: 0; }
-.tasks-row-text { display: block; font-size: calc(12.5px * var(--ui-scale)); font-weight: 600; line-height: 1.25; }
+.tasks-row-text { display: block; font-size: calc(12.5px * var(--ui-scale)); font-weight: 600; line-height: 1.25; white-space: pre-line; }
 .tasks-row-bar { display: flex; align-items: center; gap: 6px; margin-top: 3px; }
 .tasks-row-bar .meter-track { flex: 1; }
 .tasks-row-count { font-size: calc(11px * var(--ui-scale)); color: var(--ink-soft); white-space: nowrap; }

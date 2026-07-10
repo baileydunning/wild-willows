@@ -203,6 +203,10 @@
 		"total": "{goal} animales en toda la reserva ({cur} ahora)",
 		"craft": "Fabrica un {item}"
 	},
+	"unlockreward": {
+		"title": "¡{biome} desbloqueada!\nReclama tu paquete de bienvenida",
+		"hint": "Un puñado de materiales de {biome} para empezar allí."
+	},
 	"feed": {
 		"joinedWorld": "¡{name} se unió a la reserva!"
 	},
