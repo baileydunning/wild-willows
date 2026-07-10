@@ -13951,12 +13951,13 @@ var achievements_default = {
 var weather_default = {
   _comment: "Weather is DERIVED, not stored. This file is static config consumed by server/weather.ts \u2014 it is NOT a seeded Harper table, so it needs no schema entry and never goes through reconcileDefinitions. `config` sets the time scale; `seasons` lists the cycle order; `types` defines each weather kind (visuals + Phase 3 effect params); `climate` is per-biome \xD7 per-season weighted odds used to draw each game-day's weather deterministically.",
   config: {
-    dayMs: 6e5,
+    dayMs: 72e4,
     daysPerSeason: 3,
     dayPhases: [
-      { id: "dawn", until: 0.08 },
-      { id: "day", until: 0.74 },
-      { id: "dusk", until: 0.84 },
+      { id: "night", until: 0.2083 },
+      { id: "dawn", until: 0.2917 },
+      { id: "day", until: 0.75 },
+      { id: "dusk", until: 0.8333 },
       { id: "night", until: 1 }
     ]
   },
@@ -14057,10 +14058,10 @@ var weather_default = {
     winter: { label: "Winter", tint: "#cdd6e0", tintAmount: 0.28, accent: "#9fb4c9" }
   },
   dayPhaseStyle: {
-    _comment: "A full-screen lighting overlay: color + max alpha. day is clear; dawn/dusk warm; night dim & cool.",
-    dawn: { label: "Dawn", color: "#ffb37a", alpha: 0.16 },
+    _comment: "Lighting overlay: `color`/`alpha` = uniform full-screen tint (used for the night dim + a light warm ground wash at dawn/dusk). `sky` = optional warm gradient concentrated at the TOP of the view (dawn/dusk sunset glow) so a strong sunset doesn't brown the whole ground. day is clear; night dim & cool.",
+    dawn: { label: "Dawn", color: "#ffcaa0", alpha: 0.07, sky: { color: "#ffb478", alpha: 0.3 } },
     day: { label: "Day", color: "#ffffff", alpha: 0 },
-    dusk: { label: "Dusk", color: "#ff8a55", alpha: 0.24 },
+    dusk: { label: "Dusk", color: "#f0b09a", alpha: 0.07, sky: { color: "#ff9152", alpha: 0.42 } },
     night: { label: "Night", color: "#070b1c", alpha: 0.66 }
   },
   types: {
@@ -14233,6 +14234,20 @@ function dayPhaseAt(t2) {
   const p = dayProgressAt(t2);
   for (const ph of DAY_PHASES) if (p < ph.until) return ph.id;
   return DAY_PHASES[DAY_PHASES.length - 1].id;
+}
+function nextPhaseAt(t2, phaseId) {
+  let start = 0;
+  for (let i = 0; i < DAY_PHASES.length; i++) {
+    if (DAY_PHASES[i].id === phaseId) {
+      start = i === 0 ? 0 : DAY_PHASES[i - 1].until;
+      break;
+    }
+  }
+  const target = dayStartAt(t2) + start * DAY_MS;
+  return target > t2 ? target : target + DAY_MS;
+}
+function nextDawnAt(t2) {
+  return nextPhaseAt(t2, "dawn");
 }
 function seasonAt(t2) {
   const day = dayIndexAt(t2);
@@ -14891,7 +14906,7 @@ var supportHtml = `<!doctype html>
 </body>
 </html>
 `;
-var buildStamp = "0.1.10+2026-07-10T20:02:18.848Z";
+var buildStamp = "0.1.10+2026-07-10T21:11:41.570Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
@@ -17574,8 +17589,7 @@ var Rest = class extends PublicEndpoint {
     const nodes = await byWorld(t2.NodeState, wid);
     for (const n of nodes) await t2.NodeState.delete(n.id);
     const nowT = weatherTimeFromPlay(player);
-    const intoDay = (nowT % DAY_MS + DAY_MS) % DAY_MS;
-    const skip = intoDay === 0 ? 0 : DAY_MS - intoDay;
+    const skip = nextDawnAt(nowT) - nowT;
     await t2.Player.patch(playerId, { clockOffsetMs: (player.clockOffsetMs || 0) + skip });
     await bumpMetrics(player, { restsTaken: 1 });
     return { ok: true, rested: true, refreshed: nodes.length };
@@ -18230,6 +18244,14 @@ var DevTools = class extends PublicEndpoint {
     const { player } = await requirePlayer(playerId);
     const log = [];
     switch (action) {
+      case "set-time": {
+        const phase = String(value || "dawn");
+        const nowT = weatherTimeFromPlay(player);
+        const skip = nextPhaseAt(nowT, phase) - nowT;
+        await t2.Player.patch(playerId, { clockOffsetMs: (player.clockOffsetMs || 0) + skip });
+        log.push(`Set time to ${phase}`);
+        break;
+      }
       case "seed-water": {
         const ar = area || "wetland";
         for (const tt of (await byPlayer(t2.TerrainTile, playerId)).filter((x) => x.area === ar)) {

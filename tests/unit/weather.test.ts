@@ -53,12 +53,13 @@ describe('weather: cycles', () => {
 		expect(dayProgressAt(DAY_MS / 2)).toBeCloseTo(0.5, 5);
 	});
 
-	it('day phases cover the whole day and start at dawn', () => {
-		expect(dayPhaseAt(0)).toBe('dawn');
+	it('day phases cover the whole day; midnight is night (dawn comes later)', () => {
+		expect(dayPhaseAt(0)).toBe('night'); // the day starts at midnight, mid-night
 		const phases = new Set<string>();
 		for (let i = 0; i < 200; i++) phases.add(dayPhaseAt((i / 200) * DAY_MS));
 		expect(phases.has('dawn')).toBe(true);
 		expect(phases.has('day')).toBe(true);
+		expect(phases.has('dusk')).toBe(true);
 		expect(phases.has('night')).toBe(true);
 	});
 

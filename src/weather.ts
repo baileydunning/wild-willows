@@ -34,6 +34,10 @@ interface DayPhaseStyle {
 	label: string;
 	color: string;
 	alpha: number;
+	/** Optional top-weighted "sky glow" gradient (warm dawn/dusk): concentrates the
+	 *  colour toward the top of the view and fades down, so a strong sunset doesn't
+	 *  wash the whole ground brown. Rendered as a separate gradient overlay. */
+	sky?: { color: string; alpha: number };
 }
 
 const TYPES = weatherConfig.types as Record<string, WeatherTypeStyle>;
@@ -125,19 +129,24 @@ export function seasonFeedLine(season: string): { icon: string; text: string } |
 let _haveAnchor = false;
 let _anchorServerT = 0;
 let _anchorWallT = 0;
+let _anchorBase = NaN;
 
-/** Continuously-advancing play-time estimate (ms) derived from a snapshot. */
+/** Continuously-advancing play-time estimate (ms) derived from a snapshot.
+ *  Re-syncs ONLY when the snapshot's play-time actually moves (a heartbeat, an
+ *  action, or a world reset); the rest of the time it free-runs on wall time so
+ *  the day/night cycle, weather, and season keep advancing while the player is
+ *  idle instead of stalling between snapshot refreshes. (Same approach the HUD
+ *  DayTimer uses for its clock, so all of them stay in sync.) */
 export function liveTime(snap: WeatherSnapshot | null | undefined): number {
 	if (!snap) return _haveAnchor ? _anchorServerT + (Date.now() - _anchorWallT) : Date.now();
 	const base = (snap.dayIndex + snap.dayProgress) * snap.dayMs;
-	const estimate = _haveAnchor ? _anchorServerT + (Date.now() - _anchorWallT) : base;
-	if (!_haveAnchor || base > estimate + 250 || base < estimate - 5000) {
+	if (!_haveAnchor || base !== _anchorBase) {
 		_haveAnchor = true;
+		_anchorBase = base;
 		_anchorServerT = base;
 		_anchorWallT = Date.now();
-		return base;
 	}
-	return estimate;
+	return _anchorServerT + (Date.now() - _anchorWallT);
 }
 
 export function liveDayPhase(snap: WeatherSnapshot | null | undefined): string {
@@ -237,6 +246,15 @@ const LIGHT_KEYS: LightKey[] = (() => {
 	}
 	return keys.sort((a, b) => a.at - b.at);
 })();
+
+/** Map a 0..1 day progress to its phase id (dawn/day/dusk/night), using the same
+ *  bands as the server clock — lets callers derive the phase from their own
+ *  free-running progress instead of the shared (idle-stalling) liveTime. */
+export function phaseAtProgress(progress: number): string {
+	const p = ((progress % 1) + 1) % 1;
+	for (const b of DAY_PHASE_BANDS) if (p < b.until) return b.id;
+	return DAY_PHASE_BANDS[DAY_PHASE_BANDS.length - 1].id;
+}
 
 /** Interpolated full-screen lighting (rgb 0-255 + alpha) for a 0..1 day progress. */
 export function lightingAt(progress: number): { r: number; g: number; b: number; alpha: number } {

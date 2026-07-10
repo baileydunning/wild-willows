@@ -5,7 +5,7 @@ import {
 	animalScale, animalTexture, ensureAnimalTexture, makeAnimalTextures, makeBaseTextures, makeNodeTextures,
 	makeObjectTextures, makePlayerTexture, snapshotResourceIcons, INV_TEX_SCALE, TEX_SCALE,
 } from './textures';
-import { seasonStyle, weatherType, liveWeatherType, gatherResourceFor } from '../weather';
+import { seasonStyle, weatherType, liveWeatherType, dayPhaseStyle, phaseAtProgress, gatherResourceFor } from '../weather';
 import { t, content } from '../i18n';
 import { getPrefs, subscribe as subscribePrefs } from '../prefs';
 import { isTypingTarget } from '../typing';
@@ -152,6 +152,21 @@ export class WorldScene extends Phaser.Scene {
 	private weatherOverlay?: Phaser.GameObjects.Rectangle;
 	private weatherEmitter?: Phaser.GameObjects.Particles.ParticleEmitter;
 	private weatherSig = '';
+	// Day/night: a second full-screen tint that eases through dawn → day → dusk →
+	// night → dawn over the play-time day. lightState is the value being tweened.
+	private lightOverlay?: Phaser.GameObjects.Rectangle;
+	private lightTween?: Phaser.Tweens.Tween;
+	private lightState = { r: 255, g: 255, b: 255, a: 0 };
+	private lightPhase = ''; // current day phase the tint is set to (dawn/day/dusk/night)
+	// Warm "sky glow" gradient (dawn/dusk): a top-weighted overlay so a strong
+	// sunset colours the top of the view without washing the whole ground brown.
+	private skyOverlay?: Phaser.GameObjects.Image;
+	private skyTween?: Phaser.Tweens.Tween;
+	private skyState = { r: 255, g: 200, b: 150, a: 0 };
+	// Free-running day clock (mirrors the HUD's DayTimer): advances on wall time so
+	// the cycle keeps moving even when idle, and re-syncs when the snapshot's day moves.
+	private dayAnchor?: { base: number; wall: number };
+	private lastSnapDay = -1;
 
 	constructor() {
 		super('world');
@@ -264,6 +279,13 @@ export class WorldScene extends Phaser.Scene {
 		this.weatherOverlay = undefined;
 		this.weatherEmitter = undefined;
 		this.weatherSig = '';
+		this.lightOverlay = undefined;
+		this.lightTween = undefined;
+		this.lightPhase = '';
+		this.skyOverlay = undefined;
+		this.skyTween = undefined;
+		this.dayAnchor = undefined;
+		this.lastSnapDay = -1;
 		this.dynamicSig = ''; // force a full dynamic rebuild on (re)create
 		makeBaseTextures(this);
 		makeObjectTextures(this);
@@ -435,6 +457,10 @@ export class WorldScene extends Phaser.Scene {
 		// going), then keep it fresh as the weather rolls over every ~10 min.
 		this.applyWeather(true);
 		this.time.addEvent({ delay: 5000, loop: true, callback: () => this.applyWeather() });
+		// Day/night lighting: snap to the current phase on entry, then hold steady
+		// through each phase and ease over 15s to the next one at the boundary.
+		this.applyDayNight(true);
+		this.time.addEvent({ delay: 2000, loop: true, callback: () => this.applyDayNight() });
 		this.input.on('pointerdown', (pointer: Phaser.Input.Pointer, over: any[]) => {
 			// A panel/card/help overlay is open — swallow the click so it doesn't
 			// move the player or place items on the world behind the modal.
@@ -1024,6 +1050,114 @@ export class WorldScene extends Phaser.Scene {
 		if (this.weatherOverlay) return;
 		this.weatherOverlay = this.add.rectangle(-3000, -3000, 9000, 9000, 0xffffff, 0)
 			.setOrigin(0, 0).setScrollFactor(0).setDepth(5005).setVisible(false);
+	}
+
+	/** Free-running 0..1 day progress. Mirrors the HUD's DayTimer: anchor to the
+	 *  snapshot's play-time, then advance on wall time (so the cycle keeps moving
+	 *  while idle), re-syncing only when the snapshot's day actually moves. */
+	private currentDayProgress(): number | null {
+		const snap = bridge.shared.state?.weather;
+		if (!snap) return null;
+		const dayMs = snap.dayMs || 720000;
+		const base = (snap.dayIndex + snap.dayProgress) * dayMs;
+		if (!this.dayAnchor || base !== this.lastSnapDay) {
+			this.dayAnchor = { base, wall: Date.now() };
+			this.lastSnapDay = base;
+		}
+		const now = this.dayAnchor.base + (Date.now() - this.dayAnchor.wall);
+		return (((now % dayMs) + dayMs) % dayMs) / dayMs;
+	}
+
+	private ensureLightOverlay() {
+		if (this.lightOverlay) return;
+		// Sits just above the weather tint, camera-locked, below any UI/sleep dim.
+		this.lightOverlay = this.add.rectangle(-3000, -3000, 9000, 9000, 0xffffff, 0)
+			.setOrigin(0, 0).setScrollFactor(0).setDepth(5006).setVisible(false);
+	}
+
+	private ensureSkyOverlay() {
+		if (this.skyOverlay) return;
+		// One-time vertical gradient texture: opaque (white) at the top, fading to
+		// clear by ~80% down. Tinted per phase; stretched to the camera view each
+		// frame so the warm band always hugs the top of the screen.
+		if (!this.textures.exists('sky-glow')) {
+			const H = 256;
+			const ct = this.textures.createCanvas('sky-glow', 8, H);
+			if (ct) {
+				const g = ct.getContext().createLinearGradient(0, 0, 0, H);
+				g.addColorStop(0, 'rgba(255,255,255,1)');
+				g.addColorStop(0.45, 'rgba(255,255,255,0.4)');
+				g.addColorStop(0.8, 'rgba(255,255,255,0)');
+				g.addColorStop(1, 'rgba(255,255,255,0)');
+				const cx = ct.getContext();
+				cx.fillStyle = g;
+				cx.fillRect(0, 0, 8, H);
+				ct.refresh();
+			}
+		}
+		this.skyOverlay = this.add.image(0, 0, 'sky-glow').setOrigin(0, 0).setDepth(5007).setVisible(false);
+	}
+
+	/** Keep the sky-glow gradient covering the visible camera area (top of the
+	 *  gradient = top of the screen) as the camera follows the player. */
+	private positionSkyOverlay() {
+		if (!this.skyOverlay?.visible) return;
+		const v = this.cameras.main.worldView;
+		this.skyOverlay.setPosition(v.x, v.y).setDisplaySize(v.width, v.height);
+	}
+
+	/** Day/night lighting. Each phase (dawn/day/dusk/night — equal quarters of the
+	 *  day) holds a steady tint; when the play-time clock crosses into the next
+	 *  phase, the tint eases over ~15s to that phase's colour and then holds again.
+	 *  The phase comes from the same clock the HUD shows, so they stay in sync.
+	 *  Outdoors only — the home keeps its own lighting. */
+	private applyDayNight(snap = false) {
+		if (!this.alive) return;
+		this.ensureLightOverlay();
+		this.ensureSkyOverlay();
+		if (this.isHome) { this.lightOverlay!.setVisible(false); this.skyOverlay!.setVisible(false); return; }
+		const progress = this.currentDayProgress();
+		if (progress == null) return;
+		const phase = phaseAtProgress(progress);
+		if (phase === this.lightPhase && !snap) return; // mid-phase — hold steady
+		this.lightPhase = phase;
+		const st = dayPhaseStyle(phase);
+		const flat = Phaser.Display.Color.IntegerToColor(C(st.color));
+		const skyC = Phaser.Display.Color.IntegerToColor(C(st.sky?.color || '#ffffff'));
+		const skyA = st.sky?.alpha || 0;
+		const paint = () => {
+			this.lightOverlay!
+				.setFillStyle(Phaser.Display.Color.GetColor(
+					Math.round(this.lightState.r), Math.round(this.lightState.g), Math.round(this.lightState.b),
+				))
+				.setAlpha(this.lightState.a)
+				.setVisible(this.lightState.a > 0.001);
+			const s = this.skyState;
+			this.skyOverlay!
+				.setTint(Phaser.Display.Color.GetColor(Math.round(s.r), Math.round(s.g), Math.round(s.b)))
+				.setAlpha(s.a)
+				.setVisible(s.a > 0.001);
+			this.positionSkyOverlay();
+		};
+		this.lightTween?.stop();
+		this.skyTween?.stop();
+		if (snap || getPrefs().reduceMotion) {
+			this.lightState = { r: flat.red, g: flat.green, b: flat.blue, a: st.alpha };
+			this.skyState = { r: skyC.red, g: skyC.green, b: skyC.blue, a: skyA };
+			paint();
+			return;
+		}
+		// ~15s ease from the old phase's lighting to the new one (flat + sky glow).
+		this.lightTween = this.tweens.add({
+			targets: this.lightState,
+			r: flat.red, g: flat.green, b: flat.blue, a: st.alpha,
+			duration: 15000, ease: 'Sine.easeInOut', onUpdate: paint, onComplete: paint,
+		});
+		this.skyTween = this.tweens.add({
+			targets: this.skyState,
+			r: skyC.red, g: skyC.green, b: skyC.blue, a: skyA,
+			duration: 15000, ease: 'Sine.easeInOut', onUpdate: paint, onComplete: paint,
+		});
 	}
 
 	/** Lazily build the 1-colour rain streak and snow dot textures.
@@ -2376,6 +2510,7 @@ export class WorldScene extends Phaser.Scene {
 		this.handleGhost();
 		this.handleInteraction();
 		this.syncPosition(dt);
+		this.positionSkyOverlay(); // keep the sunset glow hugging the top of the view
 		// stream our exact live position (tile coords) for co-op presence
 		bridge.shared.self = { x: this.player.x / TILE, y: this.player.y / TILE, area: this.area };
 		this.updateRemotes(dt);

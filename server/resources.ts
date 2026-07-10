@@ -25,7 +25,7 @@ import resourcesData from '../data/resources.json';
 import animals1Data from '../data/animals-1.json';
 import animals2Data from '../data/animals-2.json';
 import achievementsData from '../data/achievements.json';
-import { weatherSnapshot, weatherTypeAt, gatherResourceIdFor, isWeatherGatheredResource, seasonAt, dayPhaseAt, WEATHER_TYPES, SEASONS, DAY_MS as WEATHER_DAY_MS } from './weather';
+import { weatherSnapshot, weatherTypeAt, gatherResourceIdFor, isWeatherGatheredResource, seasonAt, dayPhaseAt, nextDawnAt, nextPhaseAt, WEATHER_TYPES, SEASONS } from './weather';
 // Player-facing text goes through tr() (i18n `t`, aliased because most handlers
 // shadow the bare name with `const t = db()`).
 import { t as tr } from '../src/i18n/server';
@@ -3845,10 +3845,11 @@ export class Rest extends PublicEndpoint {
 		// refresh all resources: clear node cooldowns so every gathering spot is ready
 		const nodes = await byWorld(t.NodeState, wid);
 		for (const n of nodes) await t.NodeState.delete(n.id);
-		// Sleep through to sunrise: advance the in-game clock to the start of the next day.
+		// Sleep through to sunrise: advance the in-game clock to the next dawn (first
+		// light), not raw day-start — the day now begins mid-night, so day-start
+		// would wake you at 00:00 in the dark.
 		const nowT = weatherTimeFromPlay(player);
-		const intoDay = ((nowT % WEATHER_DAY_MS) + WEATHER_DAY_MS) % WEATHER_DAY_MS;
-		const skip = intoDay === 0 ? 0 : WEATHER_DAY_MS - intoDay;
+		const skip = nextDawnAt(nowT) - nowT;
 		await t.Player.patch(playerId, { clockOffsetMs: (player.clockOffsetMs || 0) + skip });
 		await bumpMetrics(player, { restsTaken: 1 });
 		return { ok: true, rested: true, refreshed: nodes.length };
@@ -4688,6 +4689,17 @@ export class DevTools extends PublicEndpoint {
 		const log: string[] = [];
 
 		switch (action) {
+			case 'set-time': {
+				// Jump the in-game clock forward to the start of a chosen phase, so the
+				// HUD clock, weather, and world lighting all reflect it. `value` is the
+				// phase id (dawn/day/dusk/night).
+				const phase = String(value || 'dawn');
+				const nowT = weatherTimeFromPlay(player);
+				const skip = nextPhaseAt(nowT, phase) - nowT;
+				await t.Player.patch(playerId, { clockOffsetMs: (player.clockOffsetMs || 0) + skip });
+				log.push(`Set time to ${phase}`);
+				break;
+			}
 			case 'seed-water': {
 				// reset the area's terrain and lay down its starting layout again
 				const ar = area || 'wetland';

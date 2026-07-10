@@ -125,6 +125,22 @@ export function dayPhaseAt(t: number): string {
 	return DAY_PHASES[DAY_PHASES.length - 1].id;
 }
 
+/** Play-time (ms) at which the given phase next begins at or after t. */
+export function nextPhaseAt(t: number, phaseId: string): number {
+	let start = 0; // day-progress where the phase begins (the band boundary before it)
+	for (let i = 0; i < DAY_PHASES.length; i++) {
+		if (DAY_PHASES[i].id === phaseId) { start = i === 0 ? 0 : DAY_PHASES[i - 1].until; break; }
+	}
+	const target = dayStartAt(t) + start * DAY_MS;
+	return target > t ? target : target + DAY_MS;
+}
+
+/** Next dawn ("sunrise"). Sleeping advances to this so you wake at first light,
+ *  not at midnight — matters now that the day starts (progress 0) mid-night. */
+export function nextDawnAt(t: number): number {
+	return nextPhaseAt(t, 'dawn');
+}
+
 export function seasonAt(t: number): string {
 	const day = dayIndexAt(t);
 	const idx = Math.floor(day / DAYS_PER_SEASON) % SEASONS.length;
