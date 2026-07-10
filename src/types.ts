@@ -333,6 +333,9 @@ export interface Player {
 	/** Areas the player has physically walked into at least once (enables fast-travel). */
 	visitedBiomes?: string[];
 	tutorialStep?: number;
+	/** Furthest tutorial step ever reached. Progressive UI keys off this so
+	 *  replaying the tutorial (which rewinds tutorialStep) never re-hides menu. */
+	tutorialMaxStep?: number;
 	/** Home interior config: style direction + four upgrade-track levels. */
 	home?: HomeConfig;
 	/** Dev-only: when true, every recipe is craftable regardless of progress gates. */

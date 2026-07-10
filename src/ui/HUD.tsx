@@ -121,7 +121,10 @@ export function HUD() {
 	// hidden if someone ignores, skips, or closes the tutorial (skipping/closing
 	// jumps tutorialStep to DONE, and free-play trips the organic signals anyway).
 	// Old/finished saves (no tutorialStep) default to "done" → everything shows.
-	const tutStep = state.player.tutorialStep ?? 99;
+	// Use the FURTHEST step ever reached (tutorialMaxStep), never the live step:
+	// replaying the tutorial from Help rewinds tutorialStep to 0, and keying off
+	// the live value would re-hide menu buttons the player already unlocked.
+	const tutStep = Math.max(state.player.tutorialMaxStep ?? 0, state.player.tutorialStep ?? 99);
 	// Co-op prepends 1–2 intro steps, so the base-arc thresholds shift accordingly.
 	const stepOffset = isCoop ? (activeWorld?.isOwner ? 2 : 1) : 0;
 	const taught = (baseStep: number) => tutStep >= baseStep + stepOffset;

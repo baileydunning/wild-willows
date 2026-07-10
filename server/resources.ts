@@ -4142,6 +4142,13 @@ export class SyncPlayer extends PublicEndpoint {
 		if (Number.isFinite(Number(y))) patch.y = Number(y);
 		if (Number.isInteger(tutorialStep) && tutorialStep >= 0 && tutorialStep <= 99) {
 			patch.tutorialStep = tutorialStep;
+			// High-water mark: the furthest tutorial step this save ever reached.
+			// Progressive UI (HUD nav buttons) keys off THIS, not the live step, so
+			// replaying the tutorial from Help — which rewinds tutorialStep back to
+			// 0 — never re-hides menu items the player already unlocked. Seed from
+			// the current persisted step so pre-existing finished saves keep their
+			// reveal on the very first sync after upgrading.
+			patch.tutorialMaxStep = Math.max(player.tutorialMaxStep ?? 0, player.tutorialStep ?? 0, tutorialStep);
 		}
 		if (area === 'home') {
 			// the home interior is always reachable from your camp — no gates

@@ -14887,7 +14887,7 @@ var supportHtml = `<!doctype html>
 </body>
 </html>
 `;
-var buildStamp = "0.1.10+2026-07-10T01:26:30.260Z";
+var buildStamp = "0.1.10+2026-07-10T01:29:36.262Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
