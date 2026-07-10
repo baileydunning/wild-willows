@@ -60,14 +60,14 @@ describe('daily tasks stay scoped to personally-unlocked biomes', () => {
 			});
 		}
 
-		// Find a task and force it complete via its per-day counter, then claim.
+		// Complete the gather starter (progress = held seeds) and claim it.
 		const s = await w.get('GameState', pid);
-		const task = s.dailyTasks.tasks.find((t: any) => t.counter && t.counter !== '');
+		const task = s.dailyTasks.tasks.find((t: any) => t.id === 'start-gather');
 		expect(task).toBeTruthy();
 		const pp = w.db.Player._rows.get(pid);
 		w.db.Player._rows.set(pid, {
 			...pp,
-			daily: { dayKey: s.dailyTasks.dayKey, counts: { [task.counter]: task.target } },
+			inventory: { ...(pp.inventory || {}), seeds: task.target },
 		});
 
 		const claimed = await w.post('ClaimTask', { playerId: pid, taskId: task.id });

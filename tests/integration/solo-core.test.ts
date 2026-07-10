@@ -78,7 +78,9 @@ describe('crafting + placing', () => {
 	let pid: string;
 	beforeEach(async () => {
 		pid = (await w.post('CreatePlayer', { name: 'Sam', passcode: '1234', appearance })).playerId;
-		// grass-patch needs seeds (in the starter loadout) + fiber (gathered).
+		// grass-patch needs seeds + fiber. New caretakers start with neither (the
+		// opening task is "gather 12 seeds"), so gather both here.
+		await w.post('CollectResource', { playerId: pid, biomeId: 'meadow', nodeId: 'n0', resourceId: 'seeds' });
 		await w.post('CollectResource', { playerId: pid, biomeId: 'meadow', nodeId: 'fiber-node', resourceId: 'fiber' });
 	});
 

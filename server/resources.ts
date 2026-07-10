@@ -4329,6 +4329,14 @@ export class Heartbeat extends PublicEndpoint {
 	}
 }
 
+// Small in-memory cache for the global dashboard rollup. The dashboard branch
+// full-scans SoloMetrics and JSON.parses every row's snapshot; that's the only
+// expensive part, so we cache the scanned+parsed rows for a short TTL and let
+// each request apply its ?exclude filter + aggregation cheaply on top. Reset on
+// every new uplink (SyncMetrics) so a player's own report shows up immediately.
+let dashboardCache: { at: number; all: any[] } | null = null;
+const DASHBOARD_CACHE_MS = 30_000;
+
 /**
  * GET /Metrics/        — global summary plus a per-player leaderboard.
  * GET /Metrics/<id>    — one player's metrics.
@@ -4365,12 +4373,16 @@ export class Metrics extends PublicEndpoint {
 		// whatever snapshots have landed. Hosted web/co-op players are intentionally
 		// out of scope here.
 		const now = Date.now();
+		let all: any[];
+		if (dashboardCache && now - dashboardCache.at < DASHBOARD_CACHE_MS) {
+			all = dashboardCache.all; // fresh enough — skip the full scan + JSON.parse
+		} else {
 		let soloRows: any[] = [];
 		try {
 			soloRows = await allOf(t.SoloMetrics);
 		} catch { /* SoloMetrics table not created yet — empty dashboard */ }
 
-		let all = soloRows
+		all = soloRows
 			.map((r: any) => {
 				// snapshot is stored as a JSON string (see SyncMetrics); tolerate any
 				// legacy object rows too.
@@ -4417,6 +4429,8 @@ export class Metrics extends PublicEndpoint {
 				};
 			})
 			.sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
+			dashboardCache = { at: now, all }; // cache the scanned + parsed rollup
+		}
 
 		// Optional `?exclude=<name>` filter (repeatable and/or comma-separated) so you
 		// can drop your own test saves and not skew the numbers. Case-insensitive match
@@ -5161,6 +5175,7 @@ export class SyncMetrics extends PublicEndpoint {
 			createdAt: existing?.createdAt || Date.now(),
 			updatedAt: Date.now(),
 		});
+		dashboardCache = null; // new data landed — force the next dashboard read to rebuild
 		return { ok: true };
 	}
 }

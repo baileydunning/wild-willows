@@ -14887,7 +14887,7 @@ var supportHtml = `<!doctype html>
 </body>
 </html>
 `;
-var buildStamp = "0.1.10+2026-07-10T01:29:36.262Z";
+var buildStamp = "0.1.10+2026-07-10T02:08:11.548Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
@@ -17806,6 +17806,7 @@ var SyncPlayer = class extends PublicEndpoint {
     if (Number.isFinite(Number(y))) patch.y = Number(y);
     if (Number.isInteger(tutorialStep) && tutorialStep >= 0 && tutorialStep <= 99) {
       patch.tutorialStep = tutorialStep;
+      patch.tutorialMaxStep = Math.max(player.tutorialMaxStep ?? 0, player.tutorialStep ?? 0, tutorialStep);
     }
     if (area === "home") {
       patch.area = "home";
@@ -17945,6 +17946,8 @@ var Heartbeat = class extends PublicEndpoint {
     };
   }
 };
+var dashboardCache = null;
+var DASHBOARD_CACHE_MS = 3e4;
 var Metrics = class extends PublicEndpoint {
   async get(target) {
     const t2 = db();
@@ -17965,51 +17968,64 @@ var Metrics = class extends PublicEndpoint {
       };
     }
     const now = Date.now();
-    let soloRows = [];
-    try {
-      soloRows = await allOf(t2.SoloMetrics);
-    } catch {
-    }
-    let all = soloRows.map((r) => {
-      const s = r.snapshot || {};
-      const lastSeenAt = s.lastSeenAt || r.updatedAt || null;
-      const createdAt = s.createdAt || r.createdAt || now;
-      const hoursSinceActive = lastSeenAt ? round1((now - lastSeenAt) / 36e5) : null;
-      let status = "dormant";
-      if (hoursSinceActive != null) {
-        if (hoursSinceActive <= 24) status = "active";
-        else if (hoursSinceActive <= 24 * 7) status = "recent";
+    let all;
+    if (dashboardCache && now - dashboardCache.at < DASHBOARD_CACHE_MS) {
+      all = dashboardCache.all;
+    } else {
+      let soloRows = [];
+      try {
+        soloRows = await allOf(t2.SoloMetrics);
+      } catch {
       }
-      return {
-        ...s,
-        playerId: r.id,
-        // slot-scoped id — solo name slugs can collide across machines
-        name: r.name || s.name || null,
-        solo: true,
-        platform: r.platform || null,
-        os: r.os || null,
-        language: r.language || s.language || null,
-        version: r.version || null,
-        build: r.build || null,
-        lastSyncedAt: r.updatedAt || null,
-        counts: s.counts || {},
-        playSeconds: s.playSeconds || 0,
-        sessions: s.sessions || 0,
-        totalActions: s.totalActions || 0,
-        currentArea: s.currentArea || null,
-        unlockedBiomes: s.unlockedBiomes || 0,
-        tutorialStep: s.tutorialStep || 0,
-        activation: s.activation || {},
-        achievements: s.achievements || null,
-        biomeSummary: s.biomeSummary || { biomesUnlocked: 0, avgHealth: 0, biomesFullyRestored: 0, totalAnimalsReturned: 0 },
-        createdAt,
-        lastSeenAt,
-        hoursSinceActive,
-        status,
-        daysSinceJoined: Math.floor((now - createdAt) / DAY_MS2),
-        isNewToday: now - createdAt <= DAY_MS2
-      };
-    }).sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
+      all = soloRows.map((r) => {
+        let s = {};
+        if (r.snapshot) {
+          try {
+            s = typeof r.snapshot === "string" ? JSON.parse(r.snapshot) : r.snapshot;
+          } catch {
+            s = {};
+          }
+        }
+        const lastSeenAt = s.lastSeenAt || r.updatedAt || null;
+        const createdAt = s.createdAt || r.createdAt || now;
+        const hoursSinceActive = lastSeenAt ? round1((now - lastSeenAt) / 36e5) : null;
+        let status = "dormant";
+        if (hoursSinceActive != null) {
+          if (hoursSinceActive <= 24) status = "active";
+          else if (hoursSinceActive <= 24 * 7) status = "recent";
+        }
+        return {
+          ...s,
+          playerId: r.id,
+          // slot-scoped id — solo name slugs can collide across machines
+          name: r.name || s.name || null,
+          solo: true,
+          platform: r.platform || null,
+          os: r.os || null,
+          language: r.language || s.language || null,
+          version: r.version || null,
+          build: r.build || null,
+          lastSyncedAt: r.updatedAt || null,
+          counts: s.counts || {},
+          playSeconds: s.playSeconds || 0,
+          sessions: s.sessions || 0,
+          totalActions: s.totalActions || 0,
+          currentArea: s.currentArea || null,
+          unlockedBiomes: s.unlockedBiomes || 0,
+          tutorialStep: s.tutorialStep || 0,
+          activation: s.activation || {},
+          achievements: s.achievements || null,
+          biomeSummary: s.biomeSummary || { biomesUnlocked: 0, avgHealth: 0, biomesFullyRestored: 0, totalAnimalsReturned: 0 },
+          createdAt,
+          lastSeenAt,
+          hoursSinceActive,
+          status,
+          daysSinceJoined: Math.floor((now - createdAt) / DAY_MS2),
+          isNewToday: now - createdAt <= DAY_MS2
+        };
+      }).sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
+      dashboardCache = { at: now, all };
+    }
     const excludedNames = /* @__PURE__ */ new Set();
     try {
       const raw = typeof target?.getAll === "function" ? [...target.getAll("exclude"), ...target.getAll("excludeName")] : [];
@@ -18619,7 +18635,8 @@ var SyncMetrics = class extends PublicEndpoint {
     if (!clientId) throw new GameError(t("server.err.clientIdRequired"));
     const snapshot2 = body.snapshot && typeof body.snapshot === "object" && !Array.isArray(body.snapshot) ? body.snapshot : null;
     if (!snapshot2) throw new GameError(t("server.err.snapshotRequired"));
-    if (JSON.stringify(snapshot2).length > METRICS_SNAPSHOT_MAX_BYTES) throw new GameError(t("server.err.snapshotTooLarge"));
+    const snapshotJson = JSON.stringify(snapshot2);
+    if (snapshotJson.length > METRICS_SNAPSHOT_MAX_BYTES) throw new GameError(t("server.err.snapshotTooLarge"));
     const t2 = db();
     const id = `solo:${clientId}`;
     const existing = await safeGet(t2.SoloMetrics, id);
@@ -18637,10 +18654,11 @@ var SyncMetrics = class extends PublicEndpoint {
       // build timestamp
       language: String(body.language || snapshot2.language || "").trim().toLowerCase().slice(0, 12) || null,
       // interface language
-      snapshot: snapshot2,
+      snapshot: snapshotJson,
       createdAt: existing?.createdAt || Date.now(),
       updatedAt: Date.now()
     });
+    dashboardCache = null;
     return { ok: true };
   }
 };
