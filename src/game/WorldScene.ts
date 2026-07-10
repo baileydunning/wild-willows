@@ -1115,6 +1115,21 @@ export class WorldScene extends Phaser.Scene {
 		if (!this.alive) return;
 		this.ensureLightOverlay();
 		this.ensureSkyOverlay();
+		// Accessibility: no day/night cycle for reduce-motion OR colorblind mode —
+		// hold a clear, steady daytime look. Reduce-motion avoids the animated fades
+		// (and the abrupt luminance swing a snap would cause); colorblind mode keeps
+		// the palette true instead of shifting every colour under a tint.
+		const prefs = getPrefs();
+		if (prefs.reduceMotion || prefs.colorblind) {
+			this.lightTween?.stop();
+			this.skyTween?.stop();
+			this.lightPhase = 'off'; // so it re-applies the real phase if turned back on
+			this.lightState = { r: 255, g: 255, b: 255, a: 0 };
+			this.skyState = { r: 255, g: 255, b: 255, a: 0 };
+			this.lightOverlay!.setVisible(false);
+			this.skyOverlay!.setVisible(false);
+			return;
+		}
 		if (this.isHome) { this.lightOverlay!.setVisible(false); this.skyOverlay!.setVisible(false); return; }
 		const progress = this.currentDayProgress();
 		if (progress == null) return;
@@ -1141,7 +1156,7 @@ export class WorldScene extends Phaser.Scene {
 		};
 		this.lightTween?.stop();
 		this.skyTween?.stop();
-		if (snap || getPrefs().reduceMotion) {
+		if (snap) {
 			this.lightState = { r: flat.red, g: flat.green, b: flat.blue, a: st.alpha };
 			this.skyState = { r: skyC.red, g: skyC.green, b: skyC.blue, a: skyA };
 			paint();
