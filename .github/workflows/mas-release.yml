@@ -55,6 +55,12 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
 
+      # Fail fast (before build/sign/upload) if the sandboxed MAS build would
+      # bounce on launch — i.e. Electron's single-instance lock isn't guarded by
+      # `process.mas`. See scripts/check-mas-singleton.mjs for the full story.
+      - name: Guard against MAS bounce-on-launch
+        run: node scripts/check-mas-singleton.mjs
+
       - name: Install dependencies
         run: npm ci
 

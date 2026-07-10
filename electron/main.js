@@ -16,7 +16,12 @@ const steam = require('./steam');
 const metricsSync = require('./metrics-sync');
 
 // Single instance only — two copies would fight over the same save files.
-if (!app.requestSingleInstanceLock()) {
+// NOT in the Mac App Store build: the App Sandbox blocks Electron's singleton
+// from bind()ing its Unix socket in $TMPDIR ("Operation not permitted"), so
+// requestSingleInstanceLock() returns false and the app silently quits on
+// launch for every store download. Launch Services already prevents a second
+// copy of a sandboxed store app, so the lock is unnecessary there.
+if (!process.mas && !app.requestSingleInstanceLock()) {
 	app.quit();
 	process.exit(0);
 }

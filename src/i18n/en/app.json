@@ -49,7 +49,7 @@
 		"toolUpgraded": "Upgraded: {name}",
 		"homeUpgraded": "Home upgraded: {name} {level}",
 		"homeBuilt": "You built your {name}!",
-		"rested": "You sleep soundly — every gathering spot has regrown.",
+		"rested": "You sleep soundly and wake at dawn — every gathering spot has regrown.",
 		"taskReward": "Task reward — {items}",
 		"harvested": "Harvested {items}",
 		"goalComplete": "Goal complete: {goal}",
@@ -96,7 +96,7 @@
 		"pickedUp": "Picked the item back up — it is in your crafted items again.",
 		"moved": "Moved it to a new spot.",
 		"rotated": "Turned it a quarter-turn.",
-		"rested": "You rested. The preserve’s gathering spots have all refreshed.",
+		"rested": "You slept through to dawn — a new day begins, and every gathering spot has refreshed.",
 		"plantedHeadStart": "Planted {name} — your cottage's green thumb gave it a {pct}% head start."
 	},
 	"welcomeBack": {

@@ -49,7 +49,7 @@
 		"toolUpgraded": "Mejora: {name}",
 		"homeUpgraded": "Hogar mejorado: {name} {level}",
 		"homeBuilt": "¡Construiste tu {name}!",
-		"rested": "Duermes profundamente — todos los puntos de recolección han vuelto a crecer.",
+		"rested": "Duermes profundamente y despiertas al amanecer — todos los puntos de recolección han vuelto a crecer.",
 		"taskReward": "Recompensa de tarea — {items}",
 		"harvested": "Cosechaste {items}",
 		"goalComplete": "Objetivo cumplido: {goal}",
@@ -96,7 +96,7 @@
 		"pickedUp": "Recogiste el objeto — está de nuevo entre tus objetos fabricados.",
 		"moved": "Lo moviste a un nuevo lugar.",
 		"rotated": "Lo giraste un cuarto de vuelta.",
-		"rested": "Descansaste. Todos los puntos de recolección de la reserva se han renovado.",
+		"rested": "Dormiste hasta el amanecer — comienza un nuevo día y todos los puntos de recolección se han renovado.",
 		"plantedHeadStart": "Plantaste {name} — la mano verde de tu casita le dio un {pct}% de ventaja."
 	},
 	"welcomeBack": {

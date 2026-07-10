@@ -25,7 +25,7 @@ import resourcesData from '../data/resources.json';
 import animals1Data from '../data/animals-1.json';
 import animals2Data from '../data/animals-2.json';
 import achievementsData from '../data/achievements.json';
-import { weatherSnapshot, weatherTypeAt, gatherResourceIdFor, isWeatherGatheredResource, seasonAt, dayPhaseAt, WEATHER_TYPES, SEASONS } from './weather';
+import { weatherSnapshot, weatherTypeAt, gatherResourceIdFor, isWeatherGatheredResource, seasonAt, dayPhaseAt, WEATHER_TYPES, SEASONS, DAY_MS as WEATHER_DAY_MS } from './weather';
 // Player-facing text goes through tr() (i18n `t`, aliased because most handlers
 // shadow the bare name with `const t = db()`).
 import { t as tr } from '../src/i18n/server';
@@ -44,7 +44,9 @@ const WEATHER_BIOME_IDS: string[] = biomesData.records.map((b: any) => b.id);
  *  starts at Day 1 and reaches Day 2 after ~one day's worth of real play. Pure
  *  function of stored data. */
 function weatherTimeFromPlay(player: any): number {
-	return Math.max(0, Math.round((player?.metrics?.playSeconds || 0) * 1000));
+	// `clockOffsetMs` lets in-game actions nudge the calendar forward (e.g. sleeping
+	// skips to the start of the next day) on top of accrued play time.
+	return Math.max(0, Math.round((player?.metrics?.playSeconds || 0) * 1000) + (player?.clockOffsetMs || 0));
 }
 
 // `databases.wildwillows` is undefined right after the database is dropped (until
@@ -3799,6 +3801,11 @@ export class Rest extends PublicEndpoint {
 		// refresh all resources: clear node cooldowns so every gathering spot is ready
 		const nodes = await byWorld(t.NodeState, wid);
 		for (const n of nodes) await t.NodeState.delete(n.id);
+		// Sleep through to sunrise: advance the in-game clock to the start of the next day.
+		const nowT = weatherTimeFromPlay(player);
+		const intoDay = ((nowT % WEATHER_DAY_MS) + WEATHER_DAY_MS) % WEATHER_DAY_MS;
+		const skip = intoDay === 0 ? 0 : WEATHER_DAY_MS - intoDay;
+		await t.Player.patch(playerId, { clockOffsetMs: (player.clockOffsetMs || 0) + skip });
 		await bumpMetrics(player, { restsTaken: 1 });
 		return { ok: true, rested: true, refreshed: nodes.length };
 	}
