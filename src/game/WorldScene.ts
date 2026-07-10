@@ -423,7 +423,21 @@ export class WorldScene extends Phaser.Scene {
 				if (this.alive) this.player.setTexture(makePlayerTexture(this, appearance));
 			})
 		);
-		this.unsubs.push(bridge.on('home-upgraded', () => this.playBuild()));
+		this.unsubs.push(bridge.on('home-upgraded', () => {
+			this.playBuild();
+			// The camp building (meadow) and the home interior are STATIC features,
+			// so refreshing the dynamic layer isn't enough — an upgrade wouldn't show
+			// until you walked out and back in. Rebuild the scene in place (only where
+			// the home is actually visible), keeping the player put. In the meadow,
+			// wait for the build animation to finish first so the reveal lands.
+			if (this.area !== 'meadow' && !this.isHome) return;
+			const delay = this.area === 'meadow' ? 3200 : 200;
+			this.time.delayedCall(delay, () => {
+				if (!this.alive) return;
+				this.exitPlacement();
+				this.scene.restart({ area: this.area, spawn: { x: this.player.x / TILE, y: this.player.y / TILE } });
+			});
+		}));
 		this.unsubs.push(bridge.on('tool-selected', (toolId: string) => (this.activeTool = toolId)));
 		this.unsubs.push(bridge.on('mobile-interact', () => this.nearestInteractable()?.action()));
 		this.unsubs.push(bridge.on('collected', (p: any) => this.playPickup(p)));
