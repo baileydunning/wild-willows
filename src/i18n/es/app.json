@@ -375,6 +375,8 @@
 		"reduceMotionHint": "Desactiva las animaciones de la interfaz y las partículas del clima como la lluvia y la nieve.",
 		"colorblind": "Modo daltónico",
 		"colorblindHint": "Activa un tema de alto contraste e indicaciones del clima más claras que no dependen solo del color.",
+		"dyslexiaFont": "Fuente para dislexia",
+		"dyslexiaFontHint": "Cambia a OpenDyslexic: sus letras tienen bases más gruesas y pesadas que anclan cada forma, dificultando que se giren o inviertan, de modo que las letras parecidas se distinguen mejor.",
 		"textSize": "Tamaño del texto",
 		"textSm": "Pequeño",
 		"textMd": "Normal",

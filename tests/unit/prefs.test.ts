@@ -16,16 +16,29 @@ import { normalizePrefs, getPrefs, setPrefs, subscribe, TEXT_SCALE_VALUES } from
 describe('accessibility prefs', () => {
 	beforeEach(() => {
 		store.clear();
-		setPrefs({ reduceMotion: false, colorblind: false, textScale: 'md' });
+		setPrefs({ reduceMotion: false, colorblind: false, dyslexiaFont: false, textScale: 'md' });
 	});
 
 	it('normalizes unknown/missing fields to safe defaults', () => {
-		expect(normalizePrefs(null)).toEqual({ reduceMotion: false, colorblind: false, textScale: 'md' });
-		expect(normalizePrefs('nonsense')).toEqual({ reduceMotion: false, colorblind: false, textScale: 'md' });
+		expect(normalizePrefs(null)).toEqual({ reduceMotion: false, colorblind: false, dyslexiaFont: false, textScale: 'md' });
+		expect(normalizePrefs('nonsense')).toEqual({ reduceMotion: false, colorblind: false, dyslexiaFont: false, textScale: 'md' });
 		// bad textScale falls back; valid booleans preserved
-		expect(normalizePrefs({ textScale: 'huge', colorblind: true })).toEqual({ reduceMotion: false, colorblind: true, textScale: 'md' });
+		expect(normalizePrefs({ textScale: 'huge', colorblind: true })).toEqual({ reduceMotion: false, colorblind: true, dyslexiaFont: false, textScale: 'md' });
 		// reduceMotion default can be seeded from the OS setting
 		expect(normalizePrefs({}, true).reduceMotion).toBe(true);
+	});
+
+	it('caps text scale at lg when the dyslexia font is on (xl overflows it)', () => {
+		expect(normalizePrefs({ dyslexiaFont: true, textScale: 'xl' }).textScale).toBe('lg');
+		// smaller scales are left alone
+		expect(normalizePrefs({ dyslexiaFont: true, textScale: 'md' }).textScale).toBe('md');
+		// xl is fine without the font
+		expect(normalizePrefs({ dyslexiaFont: false, textScale: 'xl' }).textScale).toBe('xl');
+		// turning the font on while already at xl clamps down
+		setPrefs({ textScale: 'xl' });
+		expect(getPrefs().textScale).toBe('xl');
+		setPrefs({ dyslexiaFont: true });
+		expect(getPrefs().textScale).toBe('lg');
 	});
 
 	it('persists changes and reflects them in getPrefs', () => {
@@ -41,7 +54,7 @@ describe('accessibility prefs', () => {
 	it('merges patches without dropping other fields', () => {
 		setPrefs({ reduceMotion: true });
 		setPrefs({ textScale: 'xl' });
-		expect(getPrefs()).toEqual({ reduceMotion: true, colorblind: false, textScale: 'xl' });
+		expect(getPrefs()).toEqual({ reduceMotion: true, colorblind: false, dyslexiaFont: false, textScale: 'xl' });
 	});
 
 	it('notifies subscribers on change and stops after unsubscribe', () => {

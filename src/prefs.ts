@@ -13,6 +13,8 @@ export interface Prefs {
 	reduceMotion: boolean;
 	/** Stronger, labeled weather cues that don't rely on color alone. */
 	colorblind: boolean;
+	/** Switch the UI to a dyslexia-friendly typeface with roomier spacing. */
+	dyslexiaFont: boolean;
 	/** UI text/control scale. */
 	textScale: TextScale;
 }
@@ -22,7 +24,7 @@ export const TEXT_SCALE_VALUES: Record<TextScale, number> = { sm: 0.85, md: 1, l
 const TEXT_SCALES: TextScale[] = ['sm', 'md', 'lg', 'xl'];
 
 const STORAGE_KEY = 'ww:a11y';
-const DEFAULTS: Prefs = { reduceMotion: false, colorblind: false, textScale: 'md' };
+const DEFAULTS: Prefs = { reduceMotion: false, colorblind: false, dyslexiaFont: false, textScale: 'md' };
 
 function systemReduceMotion(): boolean {
 	try {
@@ -37,10 +39,16 @@ function systemReduceMotion(): boolean {
  *  fresh install so motion-sensitive players get sensible defaults). */
 export function normalizePrefs(raw: any, fallbackReduce = false): Prefs {
 	const o = raw && typeof raw === 'object' ? raw : {};
+	const dyslexiaFont = typeof o.dyslexiaFont === 'boolean' ? o.dyslexiaFont : DEFAULTS.dyslexiaFont;
+	let textScale: TextScale = TEXT_SCALES.includes(o.textScale) ? o.textScale : DEFAULTS.textScale;
+	// OpenDyslexic already renders larger than the default face, so the extra-large
+	// step on top of it overflows the UI. Cap at large whenever the font is on.
+	if (dyslexiaFont && textScale === 'xl') textScale = 'lg';
 	return {
 		reduceMotion: typeof o.reduceMotion === 'boolean' ? o.reduceMotion : fallbackReduce,
 		colorblind: typeof o.colorblind === 'boolean' ? o.colorblind : DEFAULTS.colorblind,
-		textScale: TEXT_SCALES.includes(o.textScale) ? o.textScale : DEFAULTS.textScale,
+		dyslexiaFont,
+		textScale,
 	};
 }
 
@@ -56,6 +64,7 @@ function applyToDom(p: Prefs): void {
 	const root = document.documentElement;
 	root.dataset.reduceMotion = p.reduceMotion ? '1' : '0';
 	root.dataset.colorblind = p.colorblind ? '1' : '0';
+	root.dataset.dyslexiaFont = p.dyslexiaFont ? '1' : '0';
 	root.dataset.textScale = p.textScale;
 	root.style.setProperty('--ui-scale', String(TEXT_SCALE_VALUES[p.textScale]));
 }

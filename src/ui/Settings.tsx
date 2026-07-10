@@ -166,13 +166,24 @@ export function AccessibilityControls() {
 					<span className="track" /><span className="thumb" />
 				</label>
 			</div>
+			<div className="a11y-row">
+				<span className="a11y-label">
+					<b>{t('app.settings.dyslexiaFont')}</b>
+					<span className="muted small">{t('app.settings.dyslexiaFontHint')}</span>
+				</span>
+				<label className="switch">
+					<input type="checkbox" checked={prefs.dyslexiaFont} onChange={(e) => setPrefs({ dyslexiaFont: e.target.checked })} aria-label={t('app.settings.dyslexiaFont')} />
+					<span className="track" /><span className="thumb" />
+				</label>
+			</div>
 			<div className="craft-filter lang-filter">
 				<label htmlFor="settings-textscale">{t('app.settings.textSize')}:</label>
 				<select id="settings-textscale" value={prefs.textScale} onChange={(e) => setPrefs({ textScale: e.target.value as TextScale })}>
 					<option value="sm">{t('app.settings.textSm')}</option>
 					<option value="md">{t('app.settings.textMd')}</option>
 					<option value="lg">{t('app.settings.textLg')}</option>
-					<option value="xl">{t('app.settings.textXl')}</option>
+					{/* OpenDyslexic already runs large, so extra-large overflows the UI. */}
+					<option value="xl" disabled={prefs.dyslexiaFont}>{t('app.settings.textXl')}</option>
 				</select>
 			</div>
 		</>

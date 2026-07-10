@@ -1548,6 +1548,27 @@ kbd {
 [data-colorblind="1"] .hud-dayphase,
 [data-colorblind="1"] .hud-season { color: #000 !important; border-color: #000 !important; opacity: 1; }
 
+/* ---- dyslexia-friendly typeface ----
+   Swaps the UI fonts for a dyslexia-friendly stack and opens up the spacing
+   (letter/word spacing + line-height are evidence-based reading aids). Uses
+   OpenDyslexic (weighted-bottom dyslexia-specific font) is bundled via @fontsource
+   (imported in main.tsx), so it's always available. We keep spacing TIGHT (normal
+   letter/word spacing, modest line-height) so it doesn't read like a spaced-out
+   kids' book — the earlier storybook feel was mostly the extra spacing, not the
+   font. Only affects the DOM UI (the Phaser canvas has its own fonts). */
+[data-dyslexia-font="1"] {
+	--font-display: 'OpenDyslexic', Verdana, Tahoma, sans-serif;
+	--font-body: 'OpenDyslexic', Verdana, Tahoma, sans-serif;
+}
+[data-dyslexia-font="1"] body {
+	line-height: 1.35;
+}
+/* OpenDyslexic's glyphs are noticeably wider than the default UI face, so
+   fixed-width label columns that fit the normal font overflow and get drawn
+   over by the meter bars. Widen the HUD stat label column while the font is
+   active so "Health"/"Balance" fit and the bars stay aligned. */
+[data-dyslexia-font="1"] .meter-label { width: calc(74px * var(--ui-scale)); }
+
 /* Settings toggle switch. */
 .a11y-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 0 0 12px; }
 .a11y-row .a11y-label { display: flex; flex-direction: column; gap: 1px; }
