@@ -29,7 +29,10 @@ test('create a solo character and enter the preserve', async ({ page }) => {
 
 	// Entering the world swaps the welcome card for the game screen (Phaser canvas + HUD).
 	await expect(page.locator('.game-screen')).toBeVisible({ timeout: 30_000 });
-	await expect(page.locator('canvas')).toBeVisible();
+	// Target the Phaser game canvas specifically — the confetti overlay adds a
+	// second, aria-hidden `canvas.confetti-canvas` that would make a bare
+	// `canvas` locator ambiguous under strict mode.
+	await expect(page.locator('canvas:not(.confetti-canvas)')).toBeVisible();
 });
 
 test('the solo save is remembered for "Continue"', async ({ page }) => {
