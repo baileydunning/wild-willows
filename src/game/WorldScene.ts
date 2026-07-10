@@ -395,7 +395,26 @@ export class WorldScene extends Phaser.Scene {
 		};
 		ensurePainted();
 
-		this.unsubs.push(bridge.on('world-dirty', () => { this.refreshDynamic(); this.updateNodeVisuals(); this.applyWeather(); }));
+		// Gates and other static features are built once when the scene loads.
+		// Unlocking a biome fires world-dirty, but that only refreshes the DYNAMIC
+		// layer, so a newly-opened gate would stay a locked "sign" until the next
+		// area change — the "I unlocked it but can't get through" bug. When the set
+		// of unlocked biomes grows, rebuild the scene in place (keeping the player
+		// where they stand) so the gate opens right away.
+		let lastUnlockedCount = (bridge.shared.state?.player.unlockedBiomes || []).length;
+		this.unsubs.push(bridge.on('world-dirty', () => {
+			this.refreshDynamic();
+			this.updateNodeVisuals();
+			this.applyWeather();
+			const n = (bridge.shared.state?.player.unlockedBiomes || []).length;
+			if (n > lastUnlockedCount && !this.isHome) {
+				lastUnlockedCount = n;
+				this.exitPlacement();
+				this.scene.restart({ area: this.area, spawn: { x: this.player.x / TILE, y: this.player.y / TILE } });
+				return;
+			}
+			lastUnlockedCount = n;
+		}));
 		this.unsubs.push(bridge.on('enter-placement', (p: any) => this.enterPlacement(p.objectId)));
 		this.unsubs.push(bridge.on('cancel-placement', () => this.exitPlacement()));
 		this.unsubs.push(bridge.on('enter-move', (p: any) => this.enterMove(p.placementId)));
