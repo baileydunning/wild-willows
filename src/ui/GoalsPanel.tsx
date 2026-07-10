@@ -275,7 +275,7 @@ export function GoalsPanel() {
 										</div>
 									</div>
 									<div className="goals-row-actions">
-										<button className="icon-btn subtle" disabled={i === 0} onClick={() => move(i, -1)} title={t('panels.goals.moveUp')} aria-label={t('panels.goals.moveUp')}><Icon name="back" size={13} className="chev-up" /></button>
+										<button className="icon-btn subtle" disabled={i === 0} onClick={() => move(i, -1)} title={t('panels.goals.moveUp')} aria-label={t('panels.goals.moveUp')}><Icon name="forward" size={13} className="chev-up" /></button>
 										<button className="icon-btn subtle" disabled={i === active.length - 1} onClick={() => move(i, 1)} title={t('panels.goals.moveDown')} aria-label={t('panels.goals.moveDown')}><Icon name="forward" size={13} className="chev-down" /></button>
 										<button className="icon-btn subtle" onClick={() => remove(i)} title={t('panels.goals.remove')} aria-label={t('panels.goals.remove')}><Icon name="trash" size={13} /></button>
 									</div>

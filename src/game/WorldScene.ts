@@ -395,26 +395,11 @@ export class WorldScene extends Phaser.Scene {
 		};
 		ensurePainted();
 
-		// Gates and other static features are built once when the scene loads.
-		// Unlocking a biome fires world-dirty, but that only refreshes the DYNAMIC
-		// layer, so a newly-opened gate would stay a locked "sign" until the next
-		// area change — the "I unlocked it but can't get through" bug. When the set
-		// of unlocked biomes grows, rebuild the scene in place (keeping the player
-		// where they stand) so the gate opens right away.
-		let lastUnlockedCount = (bridge.shared.state?.player.unlockedBiomes || []).length;
-		this.unsubs.push(bridge.on('world-dirty', () => {
-			this.refreshDynamic();
-			this.updateNodeVisuals();
-			this.applyWeather();
-			const n = (bridge.shared.state?.player.unlockedBiomes || []).length;
-			if (n > lastUnlockedCount && !this.isHome) {
-				lastUnlockedCount = n;
-				this.exitPlacement();
-				this.scene.restart({ area: this.area, spawn: { x: this.player.x / TILE, y: this.player.y / TILE } });
-				return;
-			}
-			lastUnlockedCount = n;
-		}));
+		// unlockedBiomes + home config are now part of the dynamic signature, so a
+		// biome unlock (opens a gate) or a home upgrade (changes the camp building)
+		// changes the sig and refreshDynamic rebuilds the static features in place —
+		// no scene restart, no flash.
+		this.unsubs.push(bridge.on('world-dirty', () => { this.refreshDynamic(); this.updateNodeVisuals(); this.applyWeather(); }));
 		this.unsubs.push(bridge.on('enter-placement', (p: any) => this.enterPlacement(p.objectId)));
 		this.unsubs.push(bridge.on('cancel-placement', () => this.exitPlacement()));
 		this.unsubs.push(bridge.on('enter-move', (p: any) => this.enterMove(p.placementId)));
@@ -423,21 +408,11 @@ export class WorldScene extends Phaser.Scene {
 				if (this.alive) this.player.setTexture(makePlayerTexture(this, appearance));
 			})
 		);
-		this.unsubs.push(bridge.on('home-upgraded', () => {
-			this.playBuild();
-			// The camp building (meadow) and the home interior are STATIC features,
-			// so refreshing the dynamic layer isn't enough — an upgrade wouldn't show
-			// until you walked out and back in. Rebuild the scene in place (only where
-			// the home is actually visible), keeping the player put. In the meadow,
-			// wait for the build animation to finish first so the reveal lands.
-			if (this.area !== 'meadow' && !this.isHome) return;
-			const delay = this.area === 'meadow' ? 3200 : 200;
-			this.time.delayedCall(delay, () => {
-				if (!this.alive) return;
-				this.exitPlacement();
-				this.scene.restart({ area: this.area, spawn: { x: this.player.x / TILE, y: this.player.y / TILE } });
-			});
-		}));
+		// The build animation plays on the camp building; its reveal fires world-dirty,
+		// and since home config is now in the dynamic signature, refreshDynamic redraws
+		// the upgraded building right under the lifting tarp — a smooth transition, no
+		// restart. (Indoors always rebuilds, so the decorated room updates too.)
+		this.unsubs.push(bridge.on('home-upgraded', () => this.playBuild()));
 		this.unsubs.push(bridge.on('tool-selected', (toolId: string) => (this.activeTool = toolId)));
 		this.unsubs.push(bridge.on('mobile-interact', () => this.nearestInteractable()?.action()));
 		this.unsubs.push(bridge.on('collected', (p: any) => this.playPickup(p)));
@@ -1137,7 +1112,14 @@ export class WorldScene extends Phaser.Scene {
 			.sort()
 			.join('|');
 		const wx = liveWeatherType(this.worldId, this.area, st.weather);
-		return `${this.area}#h${health}#wx${wx}#t${terrain}#p${placements}`;
+		// Unlock state and home config also drive static features (gates open when a
+		// biome unlocks; the camp building changes as the home is built/upgraded), so
+		// they belong in the signature — otherwise refreshDynamic skips the rebuild
+		// and those stay stale until an area change.
+		const unlocked = (st.player?.unlockedBiomes || []).slice().sort().join(',');
+		const h: any = st.player?.home || {};
+		const home = `${h.style || ''}:${h.styleLocked ? 1 : 0}:${h.space || 0}:${h.comfort || 0}:${h.decor || 0}:${h.light || 0}`;
+		return `${this.area}#h${health}#wx${wx}#t${terrain}#p${placements}#u${unlocked}#hm${home}`;
 	}
 
 	private refreshDynamic(force = false) {
