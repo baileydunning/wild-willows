@@ -14887,13 +14887,13 @@ var supportHtml = `<!doctype html>
 </body>
 </html>
 `;
-var buildStamp = "0.1.9+2026-07-09T23:19:08.136Z";
+var buildStamp = "0.1.10+2026-07-10T01:26:30.260Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 var WEATHER_BIOME_IDS = biomes_default.records.map((b) => b.id);
 function weatherTimeFromPlay(player) {
-  return Math.max(0, Math.round((player?.metrics?.playSeconds || 0) * 1e3));
+  return Math.max(0, Math.round((player?.metrics?.playSeconds || 0) * 1e3) + (player?.clockOffsetMs || 0));
 }
 var db = () => {
   const d = typeof databases !== "undefined" && databases ? databases.wildwillows : null;
@@ -17536,6 +17536,10 @@ var Rest = class extends PublicEndpoint {
     }
     const nodes = await byWorld(t2.NodeState, wid);
     for (const n of nodes) await t2.NodeState.delete(n.id);
+    const nowT = weatherTimeFromPlay(player);
+    const intoDay = (nowT % DAY_MS + DAY_MS) % DAY_MS;
+    const skip = intoDay === 0 ? 0 : DAY_MS - intoDay;
+    await t2.Player.patch(playerId, { clockOffsetMs: (player.clockOffsetMs || 0) + skip });
     await bumpMetrics(player, { restsTaken: 1 });
     return { ok: true, rested: true, refreshed: nodes.length };
   }
