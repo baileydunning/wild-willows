@@ -71,6 +71,9 @@
 		"wouldNotTakeRoot": "{name} would not take root in the {biome}",
 		"plantIntoWatered": "Plant into a watered soil bed — dig with the shovel, then water it",
 		"placementNotFound": "Placement not found",
+		"notHarvestable": "There's nothing to harvest from that",
+		"notReadyYet": "Not ready to harvest yet — give it time to grow back",
+		"basketFullHarvest": "Your basket is full — make room before harvesting",
 		"workbenchStays": "Your crafting station stays put — the preserve needs it",
 		"openWaterBridgeOnly": "That is open water — only a bridge can sit there",
 		"bedForPlantingShort": "That soil bed is for planting",
@@ -93,6 +96,7 @@
 		"animalNotReturned": "That animal has not returned yet",
 		"taskNotOnBoard": "That task is not on today's board",
 		"taskAlreadyClaimed": "Already claimed — fresh tasks arrive tomorrow",
+		"taskNotClaimable": "That's a guidance goal — it tracks progress but isn't claimed",
 		"taskNotFinished": "Not finished yet — check the board for what remains",
 		"basketFullReward": "Your basket is full — make room for the reward first",
 		"terraformOutdoors": "You can only shape the ground out in the preserve",
@@ -125,19 +129,83 @@
 	},
 	"task": {
 		"welcomeGrasshopper": "Welcome the grasshopper home",
-		"welcomeGrasshopperHint": "Craft and place a grass patch, then bring the meadow to 15% health — the grasshopper hops home on its own.",
-		"raiseHealth": "Raise {biome}'s health by {count}",
+		"welcomeGrasshopperHint": "Craft and place a grass patch, then bring the meadow to 10% health — the grasshopper hops home on its own.",
+		"raiseHealth": "Raise {biome}'s health from {current}% to {goal}%",
 		"welcomeNewAnimal": "Welcome a new animal back to {biome}",
 		"welcomeAnyAnimal": "Welcome a new animal, anywhere in the preserve",
 		"craftKit": "Craft a {item}",
 		"gather": "Gather {count}× {resource}",
-		"craft": { "one": "Craft {count} item", "other": "Craft {count} items" },
-		"place": { "one": "Place {count} crafted thing", "other": "Place {count} crafted things" },
+		"craft": {
+			"one": "Craft {count} item",
+			"other": "Craft {count} items"
+		},
+		"place": {
+			"one": "Place {count} crafted thing",
+			"other": "Place {count} crafted things"
+		},
 		"water": "Water {count} soil beds",
 		"plantBeds": "Plant 2 seedlings in watered beds",
 		"observe": "Read about 3 animals in your journal",
-		"collectSeeds": "Collect 10 seeds",
-		"plantThree": "Plant 3 seedlings"
+		"collectSeeds": "Gather 12 seeds",
+		"gatherHint": "Select your basket (1), walk onto a glowing spot on the ground, and press E or Space.",
+		"plantThree": "Plant 3 seedlings",
+		"craftFirst": "Craft your first habitat",
+		"craftFirstHint": "Open crafting (C), pick something you can afford, and press Craft."
+	},
+	"goal": {
+		"craft": "Craft {count}× {item}",
+		"build": "Craft and place {count}× {item}",
+		"grow": "Plant {count}× {item}",
+		"plant": "Plant {count} things",
+		"collect": "Collect {count}× {resource}",
+		"observe": "Read about {count} animals",
+		"welcome": "Bring back the {animal}",
+		"attract": "Attract a mystery {kind}",
+		"welcomeTotal": "Welcome {count} animals to the preserve",
+		"creature": "creature",
+		"habitatStep": "{have}/{need} {name}",
+		"healthStep": "Biome health {cur}/{need}%",
+		"matStep": "{have}/{need} {name}",
+		"home": "Upgrade your home's {track} to level {level}",
+		"buildHome": "Build your home: {style}",
+		"aHouse": "a house",
+		"unlock": "Unlock {biome}",
+		"track": {
+			"space": "space",
+			"comfort": "comfort",
+			"decor": "decor",
+			"light": "light"
+		},
+		"hint": {
+			"craft": "Open crafting (C) and make it — the hover box lists the materials it needs.",
+			"build": "Craft it (C), then place it out in the biome from the 'ready to place' bar.",
+			"grow": "Dig a bed (2), water it (3), then plant it from the bed's menu.",
+			"plant": "Dig a bed with the shovel, water it, then plant something living.",
+			"collect": "Gather this material from glowing spots out in the preserve.",
+			"observe": "Open an animal's entry in your field journal (J) to read about it.",
+			"welcome": "Build the habitat it needs — it returns on its own.",
+			"attract": "Build the habitat in the info box; the animal comes back on its own.",
+			"welcomeTotal": "Restore habitat across your biomes — animals return on their own.",
+			"home": "Use the sign by your camp tent to upgrade your home.",
+			"unlock": "Meet the requirements shown to open this biome.",
+			"health": "Heal the land — plant, water, and place habitat until this biome recovers.",
+			"biomeAnimals": "Build every animal's habitat here until the whole biome is home."
+		},
+		"restore": "Restore {biome} to {pct}% health",
+		"biomeAnimals": "Welcome all {count} animals to {biome}",
+		"upgradeGuide": "Upgrade your field guide (Tools) to reveal exactly what it needs."
+	},
+	"nextbiome": {
+		"title": "Unlock {biome}",
+		"hint": "Tick off each requirement below to open {biome}.",
+		"health": "{biome} at {goal}% health ({cur}% now)",
+		"animals": "{goal} animals back in {biome} ({cur} now)",
+		"total": "{goal} animals across the preserve ({cur} now)",
+		"craft": "Craft a {item}"
+	},
+	"unlockreward": {
+		"title": "{biome} unlocked!\nClaim your welcome bundle",
+		"hint": "A handful of {biome} materials to get you started there."
 	},
 	"feed": {
 		"joinedWorld": "{name} joined the preserve!"

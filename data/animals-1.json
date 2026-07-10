@@ -442,7 +442,7 @@
 			"preferredHabitat": "Sunny grasslands and meadows rich in grasses and forbs",
 			"fact": "Grasshoppers hear through tympana — eardrum-like membranes on the first segment of the abdomen, not their heads.",
 			"requirements": {
-				"minHealth": 15,
+				"minHealth": 10,
 				"objects": {
 					"grass-patch": 1
 				},

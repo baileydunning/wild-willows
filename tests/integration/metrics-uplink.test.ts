@@ -24,7 +24,8 @@ describe('SyncMetrics', () => {
 		expect(r.ok).toBe(true);
 
 		const first = await w.db.SoloMetrics.get(`solo:${slot}`);
-		expect(first.snapshot.playMinutes).toBe(20);
+		// snapshot is stored as a JSON string (all-scalar row → structon-safe); parse to read it.
+		expect(JSON.parse(first.snapshot).playMinutes).toBe(20);
 		expect(first.os).toBe('mac');
 		expect(first.version).toBe('0.1.0');
 
@@ -35,7 +36,7 @@ describe('SyncMetrics', () => {
 		const rows = [];
 		for await (const row of w.db.SoloMetrics.search()) rows.push(row);
 		expect(rows).toHaveLength(1); // same slot → same row, not a new one
-		expect(rows[0].snapshot.playMinutes).toBe(25);
+		expect(JSON.parse(rows[0].snapshot).playMinutes).toBe(25);
 		expect(rows[0].createdAt).toBe(first.createdAt);
 		expect(rows[0].updatedAt).toBeGreaterThan(first.updatedAt);
 	});

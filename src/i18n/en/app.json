@@ -38,6 +38,7 @@
 		"recipeUnlocked": "New Crafting Recipe Unlocked — {name}",
 		"achievementUnlocked": "Achievement unlocked — {name}",
 		"taskComplete": "Task complete — claim your reward on the board",
+		"startersDone": "Add your own goals! You can now design your own — open the board (G).",
 		"preserveGrew": "Your preserve kept growing while you were away",
 		"animalReturned": "{name} has returned to the preserve!",
 		"biomeUnlocked": "New biome unlocked: {name}!",
@@ -48,11 +49,20 @@
 		"toolUpgraded": "Upgraded: {name}",
 		"homeUpgraded": "Home upgraded: {name} {level}",
 		"homeBuilt": "You built your {name}!",
-		"rested": "You sleep soundly — every gathering spot has regrown.",
+		"rested": "You sleep soundly and wake at dawn — every gathering spot has regrown.",
 		"taskReward": "Task reward — {items}",
+		"harvested": "Harvested {items}",
+		"goalComplete": "Goal complete: {goal}",
+		"goalAdded": "Added to your goals — see the board (G)",
+		"habitatGoalAdded": "Added its habitat to your goals — see the board (G)",
+		"goalAlready": "That's already one of your goals",
+		"goalLimit": "You can hold {max} goals at once — finish or remove one first",
+		"goalStartersFirst": "Finish your first three goals before adding more.",
 		"joinRequest": "{name} wants to join — press U to let them in",
 		"perkForage": "Your cabin's forager's instinct turned up an extra {name}!",
-		"perkThrift": "Hearthkeeper's thrift! Got back {items}."
+		"perkThrift": "Hearthkeeper's thrift! Got back {items}.",
+		"goalAffordable": "You can already make that — no need to set it as a goal.",
+		"goalUnlockKit": "That kit is part of unlocking a biome — it's already on your board."
 	},
 	"feed": {
 		"recipeUnlocked": "New Crafting Recipe Unlocked — {name}.",
@@ -63,7 +73,11 @@
 		"animalFact": "{name}: {fact}",
 		"animalPrereqs": "{name} came back now that the {others} had returned — the food web is filling in.",
 		"biomeUnlocked": "New biome unlocked: {name}!",
-		"taskReward": "Daily task finished: earned {items}."
+		"loopReminder": "Same loop in {name}: build habitat until its animals come home, and the next trail opens.",
+		"taskReward": "Daily task finished: earned {items}.",
+		"harvested": "Harvested {items} — the plant will grow back.",
+		"goalComplete": "Goal complete: {goal}",
+		"startersDone": "You finished your first goals — now you can add your own! Open the board (G) to design them."
 	},
 	"log": {
 		"gathered": "Gathered {qty}× {name} into your basket.",
@@ -82,12 +96,18 @@
 		"pickedUp": "Picked the item back up — it is in your crafted items again.",
 		"moved": "Moved it to a new spot.",
 		"rotated": "Turned it a quarter-turn.",
-		"rested": "You rested. The preserve’s gathering spots have all refreshed.",
+		"rested": "You slept through to dawn — a new day begins, and every gathering spot has refreshed.",
 		"plantedHeadStart": "Planted {name} — your cottage's green thumb gave it a {pct}% head start."
 	},
 	"welcomeBack": {
-		"matured": { "one": "one of your plantings matured", "other": "{count} of your plantings matured" },
-		"healthGain": { "one": "the land grew {count} point healthier", "other": "the land grew {count} points healthier" },
+		"matured": {
+			"one": "one of your plantings matured",
+			"other": "{count} of your plantings matured"
+		},
+		"healthGain": {
+			"one": "the land grew {count} point healthier",
+			"other": "the land grew {count} points healthier"
+		},
 		"summary": "While you were away, {bits}."
 	},
 	"coop": {
@@ -112,11 +132,18 @@
 		"plant": "Plant",
 		"hint": "Planted things sprout right away and grow in over a minute or two."
 	},
+	"goalsIntro": {
+		"title": "Now: set your own goals",
+		"body": "Nicely done — you've got the hang of it! From here, the board is yours. Set your own goals — craft something specific, plant, collect materials, read up on animals, welcome wildlife, or upgrade your home — and track them right here. You can hold three at a time.",
+		"open": "Open goals",
+		"later": "Later"
+	},
 	"placementMenu": {
 		"move": "Move",
 		"rotate": "Rotate",
 		"digUp": "Dig up (returns materials)",
-		"pickUp": "Pick up"
+		"pickUp": "Pick up",
+		"harvest": "Harvest {name}"
 	},
 	"welcome": {
 		"playMode": "Play mode",
@@ -132,6 +159,20 @@
 		"newGame": "New Game",
 		"loadGame": "Load Game",
 		"howToPlay": "How to Play",
+		"intro": {
+			"title": "Welcome to Wild Willows",
+			"lede": "A cozy game about bringing a worn-out nature preserve back to life, at your own pace. No failing, no timers — just you and the land.",
+			"gatherTitle": "Gather",
+			"gatherText": "Wander the meadow and pick up seeds, branches, and stones that nature has let go.",
+			"craftTitle": "Craft",
+			"craftText": "Turn what you gather into plants, ponds, and shelter, and place them around the land.",
+			"welcomeTitle": "Welcome wildlife",
+			"welcomeText": "As the land heals, animals find their way home — click any one to meet it.",
+			"unlockTitle": "Unlock biomes",
+			"unlockText": "Fully restore a biome and the trail to the next one opens — a whole new place to bring back.",
+			"reassure": "New here? When you start, a friendly guide walks you through your first steps — there’s nothing to memorize.",
+			"gotIt": "Got it"
+		},
 		"language": "Language",
 		"reaching": "Reaching the preserve…",
 		"errName": "Enter the name you’ll play as",
@@ -174,13 +215,19 @@
 		"yourHome": "Your Home",
 		"canvasTent": "Canvas Tent",
 		"carrySuffix": " · +{count} carry",
-		"thingsPlaced": { "one": "{count} thing placed", "other": "{count} things placed" },
+		"thingsPlaced": {
+			"one": "{count} thing placed",
+			"other": "{count} things placed"
+		},
+		"trackLevel": "Lv{level}",
 		"thePreserve": "The Preserve",
 		"coop": "Co-op",
 		"hereCount": " · {count} here",
 		"coopBadgeTitle": "Co-op preserve — invite & see who's here (U)",
 		"health": "Health",
 		"balance": "Balance",
+		"healthHint": "Raise health by watering the land and adding habitat — dig a bed and water it, plant flowers and trees, and place crafted pieces. Every bit of restored habitat nudges it up.",
+		"balanceHint": "Balance reflects how complete the animal community is — not just how many are back, but the variety. Welcome a mix of animal kinds (insects, birds, mammals…) and especially the predators at the top, who only return once the animals they feed on are here. It reaches 100% only when every animal has returned.",
 		"animalsReturned": "{returned}/{total} animals returned",
 		"acrossPreserve": "{returned}/{total} across the preserve",
 		"weatherLabel": "Weather",
@@ -198,10 +245,11 @@
 		"navInventory": "Basket contents (B)",
 		"navCrafting": "Crafting (C)",
 		"navTools": "Tool upgrades (T)",
-		"navBiomes": "Preserve overview (P)",
-		"navWeather": "Weather & seasons (M)",
+		"navGoals": "Your goals (G)",
+		"navBiomes": "Preserve map (M)",
+		"navWeather": "Weather & seasons (N)",
 		"navPeople": "People — invite & who’s here (U)",
-		"settingsTitle": "Settings — change character, delete save (G)",
+		"settingsTitle": "Settings — change character, delete save (O)",
 		"settings": "Settings",
 		"howToPlayTitle": "How to play (H)",
 		"howToPlay": "How to play",
@@ -209,7 +257,8 @@
 		"saveQuit": "Save and quit",
 		"placing": "Placing",
 		"placingHint": "— click a tile",
-		"stopPlacing": "stop placing"
+		"stopPlacing": "stop placing",
+		"dayTimerTitle": "The preserve clock — a full day passes in about 24 minutes."
 	},
 	"toolbelt": {
 		"how": {
@@ -241,15 +290,42 @@
 		"outfit": "Outfit",
 		"hat": "Hat",
 		"hatLabel": {
-			"straw": "Straw hat", "leaf": "Leaf hat", "beanie": "Beanie", "cap": "Cap", "bucket": "Bucket hat", "flower": "Flower crown",
-			"party": "Party hat", "ranger": "Ranger hat", "mushroom": "Mushroom cap", "wizard": "Wizard hat", "crown": "Crown", "bandana": "Bandana", "none": "No hat"
+			"straw": "Straw hat",
+			"leaf": "Leaf hat",
+			"beanie": "Beanie",
+			"cap": "Cap",
+			"bucket": "Bucket hat",
+			"flower": "Flower crown",
+			"party": "Party hat",
+			"ranger": "Ranger hat",
+			"mushroom": "Mushroom cap",
+			"wizard": "Wizard hat",
+			"crown": "Crown",
+			"bandana": "Bandana",
+			"none": "No hat"
 		},
 		"hairstyleLabel": {
-			"short": "Short", "bald": "Bald", "long": "Long", "bob": "Bob", "curly": "Curly", "curly-long": "Curly long",
-			"bun": "Bun", "braid": "Side braid", "ponytail": "Ponytail", "pigtails": "Pigtails", "afro": "Afro", "mohawk": "Mohawk"
+			"short": "Short",
+			"bald": "Bald",
+			"long": "Long",
+			"bob": "Bob",
+			"curly": "Curly",
+			"curly-long": "Curly long",
+			"bun": "Bun",
+			"braid": "Side braid",
+			"ponytail": "Ponytail",
+			"pigtails": "Pigtails",
+			"afro": "Afro",
+			"mohawk": "Mohawk"
 		},
-		"beardLabel": { "none": "No beard", "beard": "Beard" },
-		"bodyLabel": { "slim": "Slender", "round": "Sturdy" },
+		"beardLabel": {
+			"none": "No beard",
+			"beard": "Beard"
+		},
+		"bodyLabel": {
+			"slim": "Slender",
+			"round": "Sturdy"
+		},
 		"skinAria": "Skin {color}",
 		"hairAria": "Hair {color}",
 		"outfitAria": "Outfit {color}",
@@ -294,6 +370,7 @@
 		"saveExported": "Save exported.",
 		"errExport": "Couldn’t export this save.",
 		"accessibility": "Accessibility",
+		"controls": "Controls",
 		"reduceMotion": "Reduce motion",
 		"reduceMotionHint": "Turn off UI animations and in-world weather particles like rain and snow.",
 		"colorblind": "Colorblind mode",

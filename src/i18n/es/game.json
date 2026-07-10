@@ -14,12 +14,23 @@
 		"readTrailSign": "Leer el letrero del sendero ({name})",
 		"lookOcean": "Contemplar el océano",
 		"gather": "Recolectar {name}",
+		"harvest": "Cosechar {name}",
 		"openChest": "Abrir {name}",
 		"openCrafting": "Abrir fabricación (E)",
 		"readJournal": "Leer tu diario de campo",
 		"sleep": "Ir a dormir (renueva los puntos de recolección)",
 		"restMoment": "Descansar un momento",
 		"caretaker": "cuidador"
+	},
+	"gate": {
+		"locked": "{name} aún no está abierto.",
+		"stillNeeds": "Para abrir {name}: {needs}",
+		"almost": "{name} está listo — ¡cruza!",
+		"sep": " · ",
+		"needHealth": "{biome} al {goal}% de salud (ahora {cur}%)",
+		"needAnimals": "{goal} animales de regreso en {biome} (ahora {cur})",
+		"needTotalAnimals": "{goal} animales en toda la reserva (ahora {cur})",
+		"needKit": "fabrica un {item}"
 	},
 	"toast": {
 		"noRotate": "Esa pieza no gira",

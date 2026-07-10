@@ -43,6 +43,55 @@ export function makeBaseTextures(scene: Phaser.Scene) {
 		g.lineStyle(2, C('#5f9e44'), 0.9);
 		g.lineBetween(3, 11, 2, 4).lineBetween(7, 11, 7, 2).lineBetween(11, 11, 12, 4);
 	});
+	// Tall boundary/surround grass — three clump shapes × four biome palettes
+	// (drawn in real colors, NOT runtime tints — multiply-tinting green blades
+	// just muddies them). The overgrown surround mixes all three shapes so the
+	// growth never reads as a repeat.
+	const grassSet = (prefix: string, dark: string, light: string, head: string | null) => {
+		// upright clump with seed heads
+		tex(scene, prefix, 18, 26, (g) => {
+			g.lineStyle(2, C(dark), 0.95);
+			g.lineBetween(3, 25, 1, 8).lineBetween(8, 25, 7, 3).lineBetween(13, 25, 15, 7);
+			g.lineStyle(2, C(light), 0.9);
+			g.lineBetween(5, 25, 4, 5).lineBetween(11, 25, 12, 4).lineBetween(16, 25, 17, 10);
+			if (head) g.fillStyle(C(head), 0.9).fillEllipse(7, 3, 3, 5).fillEllipse(12, 4, 3, 5);
+		});
+		// wider, wind-bent clump, blades draping right
+		tex(scene, `${prefix}2`, 20, 24, (g) => {
+			g.lineStyle(2, C(dark), 0.95);
+			g.lineBetween(4, 23, 2, 6).lineBetween(9, 23, 11, 4).lineBetween(14, 23, 18, 8);
+			g.lineStyle(2, C(light), 0.9);
+			g.lineBetween(6, 23, 6, 3).lineBetween(12, 23, 15, 6);
+			if (head) g.fillStyle(C(head), 0.85).fillEllipse(15, 6, 3, 5);
+		});
+		// shorter, bushier tussock — no seed heads
+		tex(scene, `${prefix}3`, 16, 20, (g) => {
+			g.lineStyle(2, C(dark), 0.95);
+			g.lineBetween(3, 19, 1, 7).lineBetween(6, 19, 5, 4).lineBetween(9, 19, 9, 3);
+			g.lineBetween(12, 19, 13, 5).lineBetween(15, 19, 16, 8);
+		});
+	};
+	grassSet('tallgrass', '#4f8a3c', '#5f9e44', '#b9c98a'); // lush green (meadow/forest/wetland)
+	grassSet('drygrass', '#a8874a', '#c4a75e', '#e0cf96'); // sun-cured desert straw
+	grassSet('palegrass', '#7c8a6e', '#98a687', '#cfd8c2'); // hardy alpine sage
+	grassSet('dunegrass', '#9a9a55', '#b5b06a', '#e3d8a0'); // salt-bleached dune grass
+	// wild tree — fills the forest's unwalkable surround (mixed with grass) so
+	// the woods read as continuing unbroken past the boundary
+	tex(scene, 'wildtree', 36, 44, (g) => {
+		g.fillStyle(C('#6b4a2f'), 1).fillRect(16, 28, 5, 14); // trunk
+		g.fillStyle(C('#00000c'), 0.12).fillEllipse(18, 41, 24, 6); // ground shadow
+		g.fillStyle(C('#4e7a3a'), 1).fillCircle(18, 18, 13).fillCircle(9, 24, 9).fillCircle(28, 23, 9);
+		g.fillStyle(C('#5f9247'), 1).fillCircle(15, 14, 8).fillCircle(24, 17, 7);
+		g.fillStyle(C('#77a85c'), 0.9).fillCircle(13, 11, 4).fillCircle(21, 12, 3.5);
+	});
+	// boundary boulder — the rocky biomes (alpine, desert, coastal) mark their
+	// walkable edge with rocks instead of tall grass (tinted per biome)
+	tex(scene, 'boulder', 26, 20, (g) => {
+		g.fillStyle(0x8a8880, 1).fillEllipse(13, 12, 24, 15);
+		g.fillStyle(0xa5a39a, 1).fillEllipse(11, 9, 14, 8);
+		g.fillStyle(0xffffff, 0.22).fillEllipse(9, 7, 6, 3.5);
+		g.fillStyle(0x000000, 0.15).fillEllipse(13, 18, 22, 4);
+	});
 	tex(scene, 'tinyflower', 10, 10, (g) => {
 		g.fillStyle(0xffffff, 0.95);
 		g.fillCircle(3, 5, 2.2).fillCircle(7, 5, 2.2).fillCircle(5, 3, 2.2).fillCircle(5, 7, 2.2);
@@ -238,8 +287,14 @@ export function makeNodeTextures(scene: Phaser.Scene) {
 		g.fillStyle(0xffffff, 0.85).fillCircle(20, 8, 1.4);
 	});
 	n('fiber', 26, 26, (g) => {
-		g.lineStyle(2.2, C('#b8b06a'), 1);
+		// A bundle of dried grass fibre. Brighter, thicker strands than before with
+		// pale seed heads at the tips so it reads clearly against green ground —
+		// no dark outline, matching the fill-based style of the other nodes.
+		g.lineStyle(2.6, C('#cfc47a'), 1); // bright fibre strands
 		g.lineBetween(6, 24, 3, 6).lineBetween(11, 24, 10, 3).lineBetween(16, 24, 17, 4).lineBetween(21, 24, 24, 7);
+		g.fillStyle(C('#efe6b0'), 1); // fluffy seed heads at the tips
+		g.fillEllipse(3, 5, 5, 4).fillEllipse(10, 2.5, 5.2, 4.2).fillEllipse(17, 3.5, 5, 4).fillEllipse(24, 6.5, 5, 4);
+		g.fillStyle(0xffffff, 0.55).fillCircle(9.4, 2, 1.2).fillCircle(16.4, 3, 1.1);
 	});
 	n('mushrooms', 28, 24, (g) => {
 		g.fillStyle(C('#f0e2cc'), 1).fillRoundedRect(7, 12, 5, 10, 2).fillRoundedRect(18, 14, 5, 8, 2);
@@ -372,6 +427,53 @@ export function makeNodeTextures(scene: Phaser.Scene) {
 		g.fillStyle(C('#f2ece0'), 1).fillCircle(12, 13, 4.4); // the pearl
 		g.fillStyle(0xffffff, 0.85).fillCircle(10, 11, 1.6);
 	});
+
+	// ---- weather-gated gather nodes (appear only during certain weather) ----
+	n('rainwater', 28, 24, (g) => {
+		// a shallow rain puddle with a fresh drop falling in
+		g.fillStyle(C('#5b93c4'), 0.95).fillEllipse(14, 18, 24, 11);
+		g.fillStyle(C('#7fb4dd'), 1).fillEllipse(14, 17, 17, 7);
+		g.fillStyle(0xffffff, 0.5).fillEllipse(11, 16, 7, 2.4); // sheen
+		g.fillStyle(C('#bfe0f5'), 1).fillCircle(17, 6, 3).fillTriangle(14.4, 5.5, 19.6, 5.5, 17, 0.6); // drop
+		g.fillStyle(0xffffff, 0.7).fillCircle(16, 5, 1);
+	});
+	n('dewdrops', 26, 26, (g) => {
+		// dewdrops clinging to a blade of grass
+		g.lineStyle(2.4, C('#6f9a5a'), 1).lineBetween(9, 25, 13, 3);
+		g.lineStyle(2, C('#82ad68'), 1).lineBetween(16, 25, 13, 8);
+		const drop = (x: number, y: number, r: number) => {
+			g.fillStyle(C('#a8d2c0'), 0.9).fillCircle(x, y, r);
+			g.fillStyle(0xffffff, 0.75).fillCircle(x - r * 0.3, y - r * 0.3, r * 0.35);
+		};
+		drop(12, 10, 4); drop(15.5, 16, 3); drop(9, 20, 2.6);
+	});
+	n('sunstone', 26, 24, (g) => {
+		// a warm, faceted amber gem catching the light
+		g.fillStyle(C('#c77d2e'), 1).fillPoints([{ x: 13, y: 2 }, { x: 23, y: 11 }, { x: 13, y: 22 }, { x: 3, y: 11 }], true);
+		g.fillStyle(C('#e6a94e'), 1).fillPoints([{ x: 13, y: 2 }, { x: 18, y: 11 }, { x: 13, y: 22 }, { x: 8, y: 11 }], true);
+		g.fillStyle(C('#f4cf82'), 1).fillTriangle(13, 2, 18, 11, 8, 11); // bright top facet
+		g.fillStyle(0xffffff, 0.85).fillCircle(11, 8, 1.4); // glint
+	});
+	n('stormglass', 26, 26, (g) => {
+		// a jagged shard of storm-fused glass, with a little spark
+		g.fillStyle(C('#3c4677'), 1).fillPoints([{ x: 9, y: 24 }, { x: 6, y: 12 }, { x: 12, y: 2 }, { x: 16, y: 12 }, { x: 14, y: 24 }], true);
+		g.fillStyle(C('#5566a3'), 1).fillPoints([{ x: 12, y: 2 }, { x: 16, y: 12 }, { x: 14, y: 24 }, { x: 11, y: 13 }], true);
+		g.fillStyle(C('#aeb8e6'), 0.9).fillTriangle(12, 2, 15, 11, 10, 11); // lit facet
+		g.lineStyle(1.6, C('#eaf0ff'), 0.95).lineBetween(18, 6, 21, 10).lineBetween(21, 10, 19, 11).lineBetween(19, 11, 22, 15);
+	});
+	n('frostflower', 26, 26, (g) => {
+		// a six-spoked ice crystal with a bright frozen center
+		g.lineStyle(2, C('#8fb6cf'), 1);
+		for (const a of [0, Math.PI / 3, (2 * Math.PI) / 3, Math.PI, (4 * Math.PI) / 3, (5 * Math.PI) / 3]) {
+			const dx = Math.cos(a) * 10, dy = Math.sin(a) * 10;
+			g.lineBetween(13, 13, 13 + dx, 13 + dy);
+			const bx = 13 + dx * 0.6, by = 13 + dy * 0.6;
+			g.lineBetween(bx, by, bx + Math.cos(a + 0.6) * 3.2, by + Math.sin(a + 0.6) * 3.2);
+			g.lineBetween(bx, by, bx + Math.cos(a - 0.6) * 3.2, by + Math.sin(a - 0.6) * 3.2);
+		}
+		g.fillStyle(C('#dceaf4'), 1).fillCircle(13, 13, 3.2);
+		g.fillStyle(0xffffff, 0.9).fillCircle(12, 12, 1.3);
+	});
 	tex(scene, 'gate', 40, 44, (g) => {
 		g.fillStyle(C('#8c6a42'), 1).fillRect(2, 6, 6, 38).fillRect(32, 6, 6, 38);
 		g.fillStyle(C('#a3814f'), 1).fillRect(0, 2, 40, 6);
@@ -397,6 +499,25 @@ export function makeNodeTextures(scene: Phaser.Scene) {
 		g.fillStyle(0xd87f7f, 0.35).fillRect(0, 0, 36, 36);
 		g.lineStyle(2, 0xc0392b, 0.9).strokeRect(1, 1, 34, 34);
 	});
+}
+
+/**
+ * Bridge the generated resource sprites to the DOM: snapshot every `rnode-*`
+ * texture to a PNG data URL and cache it on `bridge.shared.resourceIcons`,
+ * keyed by resource id. One-time cost at boot; the React UI (`ResourceIcon`)
+ * then shows the same hand-drawn picture the world uses instead of a flat
+ * colour swatch. Must run after makeNodeTextures.
+ */
+export function snapshotResourceIcons(scene: Phaser.Scene) {
+	const icons: Record<string, string> = {};
+	for (const key of scene.textures.getTextureKeys()) {
+		if (!key.startsWith('rnode-')) continue;
+		try {
+			const uri = scene.textures.getBase64(key);
+			if (uri) icons[key.slice('rnode-'.length)] = uri;
+		} catch { /* a texture that can't be rasterized just falls back to a swatch */ }
+	}
+	bridge.shared.resourceIcons = icons;
 }
 
 /** Habitat / home object sprites, keyed `obj-<shape>`. */

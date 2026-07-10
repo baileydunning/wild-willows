@@ -19,7 +19,23 @@
 		"craftedItems": "Crafted items",
 		"placeItem": "Place {name}",
 		"place": "Place",
-		"kitsNote": "Kits (like restoration kits) are not placed and can't be discarded — crafting them is what counts."
+		"kitsNote": "Kits (like restoration kits) are not placed and can't be discarded — crafting them is what counts.",
+		"materialsGuide": "What can I gather here?"
+	},
+	"materials": {
+		"title": "Materials Guide",
+		"intro": "Here's everything you can gather in {biome} right now — look for these on the ground, walk up, and press E or Space to collect.",
+		"empty": "Nothing to gather in this area yet.",
+		"note": "Gathering spots regrow on their own — you only ever take what nature has already let go.",
+		"homeNote": "There's nothing to gather inside your home. Step out into the preserve to collect materials.",
+		"weatherTitle": "Only in certain weather",
+		"weatherNote": "Appears during {weather} — gather it while it lasts.",
+		"gatherWith": {
+			"basket": "Gather with your basket (tool 1).",
+			"shovel": "Dig up with your shovel (tool 2).",
+			"watering-can": "Draw with your watering can (tool 3)."
+		},
+		"findOrDig": "Find it on the ground, or dig it up with your shovel (tool 2)."
 	},
 	"chest": {
 		"title": "{name} — {used}/{capacity}",
@@ -71,7 +87,9 @@
 		"matTitle": "{inBasket} in basket, {inChests} in linked chests",
 		"requiresTool": "Requires an upgraded tool — see Tools panel.",
 		"crafted": "Crafted ✓",
-		"craft": "Craft"
+		"craft": "Craft",
+		"addGoal": "Add crafting this to your goals",
+		"plantedNotCrafted": "Planted, not crafted — dig a soil bed with the shovel (2), water it with the can (3), then click the watered bed and pick it from the planting menu."
 	},
 	"tools": {
 		"title": "Tools & Upgrades",
@@ -94,7 +112,11 @@
 		"toUnlock": "To unlock:",
 		"health": "Health",
 		"balance": "Balance",
-		"animalsReturned": "{returned}/{total} animals returned"
+		"animalsReturned": "{returned}/{total} animals returned",
+		"addGoal": "Add unlocking {biome} to your goals",
+		"mapAria": "Preserve map — {open} of {total} biomes open",
+		"animalsShort": "{returned}/{total} home",
+		"mapSummary": "{open} of {total} biomes open — restore each to open the next trail."
 	},
 	"home": {
 		"buildTitle": "Build Your Home",
@@ -121,7 +143,8 @@
 			"thrift": "Crafting has a {pct}% chance to return half its materials."
 		},
 		"perkGrows": "Every upgrade strengthens it.",
-		"perkMax": "Fully strengthened."
+		"perkMax": "Fully strengthened.",
+		"addGoal": "Set as a goal"
 	},
 	"weather": {
 		"title": "Weather & Seasons",
@@ -210,7 +233,7 @@
 		"minBalance": "Ecological balance ≥ {value}%",
 		"objectReq": "{qty}× {name}",
 		"animalReq": "{name} already returned",
-		"condCheck": "{cond} — check the weather panel (M)",
+		"condCheck": "{cond} — check the weather panel (N)",
 		"openEntry": "Open {name}",
 		"notDiscovered": "Not yet discovered",
 		"unknownChip": "??? {kind}",
@@ -243,17 +266,59 @@
 		"preferredLabel": "Preferred habitat:",
 		"fieldNote": "Field note:",
 		"backToJournal": "← Back to field journal",
+		"addGoal": "Add 'attract this animal' to your goals",
+		"animalReqUnknown": "Another {kind} needs to return first",
 		"lockedCard": "Upgrade your field guide to Tier {tier} to read this animal's full entry — its ecological role, diet, and food-web links."
 	},
 	"achievements": {
 		"title": "Achievements",
 		"summary": "· {earned}/{total} · {points} pts",
 		"tabAll": "All",
-		"tabPreserve": "Preserve"
+		"tabPreserve": "Preserve",
+		"reqTitle": "How to earn it",
+		"and": "and",
+		"or": "or",
+		"kind": {
+			"insect": "insects"
+		},
+		"req": {
+			"collect": "Gather {n} materials in all.",
+			"craft": "Craft {n} items.",
+			"craftDistinct": "Craft {n} different recipes.",
+			"plant": "Plant {n} living things.",
+			"terraform": "Dig or water the land {n} times.",
+			"place": "Place {n} pieces of habitat.",
+			"observe": "Observe animals {n} times.",
+			"returned": "Welcome {n} animals to {biome}.",
+			"kindReturned": "Welcome {n} {kind} to {biome}.",
+			"health": "Raise {biome} to {n}% health.",
+			"lake": "Shape a lake of {n}+ connected water tiles in {biome}.",
+			"tools": "Upgrade your basket, shovel, and watering can to tier {n}.",
+			"tool": "Upgrade your {tool} to tier {n}.",
+			"unlocked": "Unlock {n} biomes.",
+			"total": "Welcome {n} species across the whole preserve.",
+			"biomesAtHealth": "Bring {n} biomes to {h}% health.",
+			"healthyOpen": "Keep every opened biome at {h}%+ health ({min}+ open).",
+			"animalOne": "Bring back the {animal}.",
+			"animalAll": "Bring back the {animals}.",
+			"animalAny": "Bring back the {animals}.",
+			"animalChain": "Bring back the {first}, plus one of: {any}."
+		},
+		"progress": "Progress: {value}"
 	},
 	"tutorial": {
 		"gettingStarted": "Getting started",
 		"stepCount": "Step {step} of {total}",
+		"chapterCount": "Chapter {chapter} of {total}",
+		"goToStep": "Go to step {step}",
+		"chapters": {
+			"moveGather": "Getting Started",
+			"healLand": "Heal the Land",
+			"buildWelcome": "Build & Welcome",
+			"settleIn": "Explore & Settle In"
+		},
+		"minimize": "Minimize",
+		"expand": "Expand",
 		"closeTutorial": "Close tutorial",
 		"skipTutorial": "Skip tutorial",
 		"niceWork": "Nice work!",
@@ -279,8 +344,13 @@
 		},
 		"welcome": {
 			"title": "Welcome, caretaker",
-			"text": "This worn-out meadow is yours to restore. By the end of this short guide you’ll welcome your very first animal home — a little grasshopper. Let’s start simple: walk around with WASD or the arrow keys.",
-			"touch": "This worn-out meadow is yours to restore. By the end of this short guide you’ll welcome your very first animal home — a little grasshopper. Let’s start simple: walk with the joystick in the corner."
+			"text": "This worn-out meadow is yours to restore. Let’s start simple — walk around with WASD or the arrow keys. (Press H anytime for the full How to Play.)",
+			"touch": "This worn-out meadow is yours to restore. Let’s start simple — walk with the joystick in the corner."
+		},
+		"coreLoop": {
+			"title": "Your job here",
+			"text": "Restore each biome until its animals come home. Every animal that returns brings the land back to life — and fully restoring a biome opens the trail to the next one. That’s the whole loop: gather materials, build habitat, welcome wildlife. First up, a little grasshopper.",
+			"touch": "Restore each biome until its animals come home. Every animal that returns brings the land back to life — and fully restoring a biome opens the trail to the next one. That’s the whole loop: gather, build habitat, welcome wildlife. First up, a little grasshopper."
 		},
 		"basket": {
 			"title": "Check your basket",
@@ -324,12 +394,12 @@
 		},
 		"map": {
 			"title": "Open the Preserve map",
-			"text": "Press P (or the map button) to open the Preserve. It tracks every area’s health and animals, shows exactly what’s needed to unlock the next one, and lets you fast-travel back to any area you’ve already visited — tap the walk icon on its row.",
+			"text": "Press M (or the map button) to open the Preserve. It tracks every area’s health and animals, shows exactly what’s needed to unlock the next one, and lets you fast-travel back to any area you’ve already visited — tap the walk icon on its row.",
 			"touch": "Tap the map button to open the Preserve. It tracks every area’s health and animals, shows exactly what’s needed to unlock the next one, and lets you fast-travel back to any area you’ve already visited — tap the walk icon on its row."
 		},
 		"weather": {
 			"title": "Weather & seasons",
-			"text": "Press M to open the Weather & Seasons guide. Each area has its own weather that shifts on its own and slowly drifts through the seasons — the guide shows what’s happening across the whole preserve and explains, in real ecology, how today’s weather and season shape the area you’re standing in. Watch the skies, too: unusual weather can leave rare materials to gather while it lasts.",
+			"text": "Press N to open the Weather & Seasons guide. Each area has its own weather that shifts on its own and slowly drifts through the seasons — the guide shows what’s happening across the whole preserve and explains, in real ecology, how today’s weather and season shape the area you’re standing in. Watch the skies, too: unusual weather can leave rare materials to gather while it lasts.",
 			"touch": "Tap the weather button (the cloud, top-right) to open the Weather & Seasons guide. Each area has its own weather that shifts on its own and slowly drifts through the seasons — the guide shows what’s happening across the preserve and explains how today’s weather and season shape the area you’re in. Watch the skies: unusual weather can leave rare materials to gather while it lasts."
 		},
 		"tips": {
@@ -351,20 +421,30 @@
 			"text": "Press the green “Ready to place” button at the top of the crafting menu, then click a patch of open ground in the meadow. Watch the biome health meter tick up the moment it’s down.",
 			"touch": "Tap the green “Ready to place” button at the top of the crafting menu, then tap a patch of open ground in the meadow. Watch the biome health meter tick up the moment it’s down."
 		},
+		"proximity": {
+			"title": "Build little neighborhoods",
+			"text": "Here’s a secret: animals return to neighborhoods, not scattered pieces. Place food, water, and shelter near each other — a patch by a pond by a shrub — and far more wildlife will settle in than if everything’s spread out.",
+			"touch": "Here’s a secret: animals return to neighborhoods, not scattered pieces. Place food, water, and shelter near each other — a patch by a pond by a shrub — and far more wildlife will settle in than if everything’s spread out."
+		},
 		"grasshopper": {
 			"title": "Welcome the grasshopper",
-			"text": "Here’s the moment. A grasshopper returns at 15% meadow health with a Grass Patch down — between watering the land, planting, and your patches you’re already there. If it hasn’t hopped in yet, place another patch or water a bit more. When it arrives, click it to observe it and record it in your journal — then click Next for one last thing.",
-			"touch": "Here’s the moment. A grasshopper returns at 15% meadow health with a Grass Patch down — between watering the land, planting, and your patches you’re already there. If it hasn’t hopped in yet, place another patch or water a bit more. When it arrives, tap it to observe it and record it in your journal — then tap Next for one last thing."
+			"text": "Here’s the moment. A grasshopper returns at 10% meadow health with a Grass Patch down — between watering the land, planting, and your patches you’re already there. If it hasn’t hopped in yet, place another patch or water a bit more. When it arrives, click it to observe it and record it in your journal — then click Next for one last thing.",
+			"touch": "Here’s the moment. A grasshopper returns at 10% meadow health with a Grass Patch down — between watering the land, planting, and your patches you’re already there. If it hasn’t hopped in yet, place another patch or water a bit more. When it arrives, tap it to observe it and record it in your journal — then tap Next for one last thing."
 		},
 		"star": {
 			"title": "Your first star",
-			"text": "That’s the whole loop — and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don’t come easy. Find them all in the new Achievements menu (press K) — recent unlocks rise to the top. One last comfort to show you →",
-			"touch": "That’s the whole loop — and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don’t come easy. Find them all in the new Achievements menu (the star button) — recent unlocks rise to the top. One last comfort to show you →"
+			"text": "That’s the whole loop — and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don’t come easy. Find them all in the new Achievements menu (press K) — recent unlocks rise to the top. Next, a quick tour of your other menus →",
+			"touch": "That’s the whole loop — and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don’t come easy. Find them all in the new Achievements menu (the star button) — recent unlocks rise to the top. Next, a quick tour of your other menus →"
+		},
+		"goals": {
+			"title": "Set your own goals",
+			"text": "The board at the left is your task list. Start with these first goals — gather seeds, craft something, welcome the grasshopper home. Once they're done, you set your own goals (press G) to play the preserve your way.",
+			"touch": "The board at the left is your task list. Start with these first goals — gather seeds, craft something, welcome the grasshopper home. Once they're done, you set your own goals to play the preserve your way."
 		},
 		"home": {
 			"title": "Make yourself at home",
-			"text": "Last thing — walk back to your camp tent and press E to step inside your home. It’s yours to decorate with crafted camp comforts, and the sign by the tent upgrades it bigger and cozier (and lets you carry more). Step inside now, and the preserve is all yours — happy restoring!",
-			"touch": "Last thing — walk back to your camp tent and tap it to step inside your home. It’s yours to decorate with crafted camp comforts, and the sign by the tent upgrades it bigger and cozier. Step inside now, and the preserve is all yours — happy restoring!"
+			"text": "Last thing — walk back to your camp tent and press E to step inside. The sign by the tent first builds your tent into a real house (each style has its own perk), then upgrades it along four tracks: Space (a bigger home that lets you carry more), Comfort (strengthens your house perk), Decor, and Light. Higher upgrades open as your biomes get healthier, and inside you can place crafted camp comforts. Step in now — the preserve is all yours. Happy restoring!",
+			"touch": "Last thing — walk back to your camp tent and tap it to step inside. The sign by the tent first builds your tent into a real house (each style has its own perk), then upgrades it along four tracks: Space (a bigger home that lets you carry more), Comfort (strengthens your house perk), Decor, and Light. Higher upgrades open as your biomes get healthier, and inside you can place crafted camp comforts. Step in now — the preserve is all yours. Happy restoring!"
 		}
 	},
 	"help": {
@@ -401,11 +481,11 @@
 			},
 			"weather": {
 				"title": "Read the weather",
-				"text": "Each biome has its own weather that shifts on its own and slowly drifts through the seasons. Open the Weather & Seasons guide (press M) to see what’s happening across the preserve and learn how each condition shapes the biome you’re standing in. Keep an eye out — unusual weather can leave rare materials to gather while it lasts, and a few elusive animals only show themselves in the right weather, season, or time of day (their journal hint says when)."
+				"text": "Each biome has its own weather that shifts on its own and slowly drifts through the seasons. Open the Weather & Seasons guide (press N) to see what’s happening across the preserve and learn how each condition shapes the biome you’re standing in. Keep an eye out — unusual weather can leave rare materials to gather while it lasts, and a few elusive animals only show themselves in the right weather, season, or time of day (their journal hint says when)."
 			},
 			"board": {
-				"title": "Check the board",
-				"text": "Every day the preserve posts three small tasks on the board by the top-right menu — finish one and claim a bundle of materials. Claimed tasks tidy themselves away (press O to tuck the board out of sight). Your plantings also keep growing in real time even while the game is closed: trees take hours to reach full size, and mature habitat nudges the land a little healthier, so there’s always something new when you come back."
+				"title": "Set your own goals",
+				"text": "The board at the left always points to your next milestone — opening the next biome — with a checklist of what it needs. Below it, add goals of your own (press G): craft an item, plant, gather a material, read about animals, restore a biome, or upgrade your home — plus animals to attract from the field journal. Hold three at a time (six once the whole preserve is open); finishing one earns a small bundle of materials. Press Tab to tuck the board away."
 			}
 		},
 		"keys": {
@@ -420,7 +500,8 @@
 			"basket": "Open your basket",
 			"journal": "Open the field journal",
 			"achievements": "Open achievements",
-			"tasks": "Tuck away / show the daily task board",
+			"tasks": "Tuck away / show the goal board",
+			"goals": "Open the goals builder — design your own task list",
 			"feed": "Open the activity feed (last 100 events)",
 			"tools": "Open tools & upgrades",
 			"preserve": "Open the preserve overview",
@@ -433,15 +514,99 @@
 		}
 	},
 	"tasks": {
-		"pillTitle": "Today's tasks (O)",
-		"pillAria": "Today's tasks: {done} of {total} done",
-		"title": "Today's tasks",
-		"collapseTitle": "Tuck away (O)",
-		"collapseAria": "Collapse the task board",
+		"pillTitle": "Your goals (Tab)",
+		"pillAria": "Your goals: {done} of {total} done",
+		"title": "Your goals",
+		"editTitle": "Edit your goals",
+		"collapseTitle": "Tuck away (Tab)",
+		"collapseAria": "Collapse the goal board",
 		"rewardItem": "{qty}× {name}",
 		"rewardTitle": "Reward: {reward}",
 		"claim": "Claim",
 		"claimTitle": "Claim: {reward}"
+	},
+	"goals": {
+		"title": "Your Goals",
+		"intro": "Play the preserve your way. Pick something to work toward — a specific build, things to plant, a material to gather, animals to read up on, or restoring your home or a whole biome — and it shows on the board with live progress. Finishing one grants a small bundle of materials.",
+		"slots": "{used} of {max} goal slots used",
+		"empty": "No goals of your own yet — pick a type below to add one.",
+		"addTitle": "Add a goal",
+		"add": "Add goal",
+		"remove": "Remove goal",
+		"moveUp": "Move up",
+		"moveDown": "Move down",
+		"done": "Done",
+		"creature": "creature",
+		"rewardNote": "Finishing any goal grants a small bundle of materials — claim it on the board.",
+		"moreNote": "You can hold 3 goals at a time — 6 once the whole preserve is unlocked. Tip: you can also add a goal for a specific animal from its field-journal entry, or a specific item to craft from the crafting menu — look for the target button.",
+		"startersFirst": "Finish your first three goals (seeds, craft, grasshopper) to start designing your own.",
+		"limitReached": "You're holding all {max} goals at once. Finish or remove one to add another.",
+		"typeLabel": "Goal type:",
+		"type": {
+			"craft": "Craft an item",
+			"plant": "Plant things",
+			"collect": "Collect a material",
+			"observe": "Read about animals",
+			"welcomeTotal": "Welcome animals",
+			"home": "Upgrade your home",
+			"unlock": "Unlock a biome",
+			"health": "Restore a biome",
+			"biomeAnimals": "Complete a biome"
+		},
+		"desc": {
+			"craft": "Craft a set number of a specific item — e.g. 3 bird baths. Hover the finished goal to see the materials it needs.",
+			"plant": "Plant a number of living things (flowers, grasses, trees) anywhere in the preserve.",
+			"collect": "Gather a set amount of one material, like 20 seeds or 10 stones.",
+			"observe": "Read about a number of animals in your field journal.",
+			"welcomeTotal": "Welcome a number of new animals back across the whole preserve.",
+			"home": "Upgrade one of your home's tracks (Space, Comfort, Decor, Light) toward a higher level.",
+			"homeBuild": "Your home is still a tent — pick a house style below to make it your goal. Its ⓘ shows the materials each style needs.",
+			"unlock": "Open a specific biome. Each one has its own requirements — see the checklist on the board.",
+			"health": "Heal an unlocked biome up to a target health — the late-game capstone for a place you love.",
+			"biomeAnimals": "Welcome every animal that belongs in one unlocked biome — a full food web, top to bottom."
+		},
+		"homeMaxed": "Your {track} upgrade is already at the top — pick another track.",
+		"countLabel": "How many:",
+		"levelLabel": "To level:",
+		"itemLabel": "Item to craft",
+		"resourceLabel": "Material to collect",
+		"animalLabel": "Animal to bring back",
+		"trackLabel": "Home upgrade",
+		"biomeLabel": "Biome to unlock",
+		"styleLabel": "House style",
+		"matsTitle": "Materials to build:",
+		"matLine": "{have}/{need} {name}",
+		"pickItem": "Choose an item…",
+		"pickResource": "Choose a material…",
+		"pickAnimal": "Choose an animal…",
+		"pickBiome": "Choose a biome…",
+		"pickStyle": "Choose a style…",
+		"track": {
+			"space": "Space",
+			"comfort": "Comfort",
+			"decor": "Decor",
+			"light": "Light"
+		},
+		"label": {
+			"craft": "Craft {count}× {item}",
+			"build": "Craft and place {count}× {item}",
+			"grow": "Plant {count}× {item}",
+			"plant": "Plant {count} things",
+			"collect": "Collect {count}× {resource}",
+			"observe": "Read about {count} animals",
+			"welcomeTotal": "Welcome {count} animals to the preserve",
+			"welcome": "Bring back the {animal}",
+			"attract": "Attract a mystery {kind}",
+			"home": "Upgrade {track} to level {level}",
+			"homeBuild": "Build your home: {style}",
+			"unlock": "Unlock {biome}",
+			"health": "Restore {biome} to {pct}% health",
+			"biomeAnimals": "Welcome every animal in {biome}"
+		},
+		"healthLabel": "To health:",
+		"ownHead": "Your own goals",
+		"pinnedTag": "Next up",
+		"affordableNote": "You already have the materials for that — just craft it."
 	},
 	"people": {
 		"title": "People",

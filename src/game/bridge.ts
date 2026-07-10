@@ -23,6 +23,10 @@ class Bridge {
 		// True while a React panel/card/help overlay is open. The world ignores
 		// pointer clicks in this state so you can't move or place "through" a modal.
 		uiBlocking: boolean;
+		// Hand-drawn resource sprites (`rnode-*`) snapshotted to data URLs once at
+		// boot, so the DOM UI can show the same picture the world uses instead of a
+		// flat colour swatch. Keyed by resource id.
+		resourceIcons: Record<string, string>;
 	} = {
 		data: null,
 		state: null,
@@ -30,6 +34,7 @@ class Bridge {
 		presence: [],
 		self: null,
 		uiBlocking: false,
+		resourceIcons: {},
 	};
 
 	on(event: string, fn: Handler) {

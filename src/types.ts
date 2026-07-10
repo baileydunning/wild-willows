@@ -160,6 +160,9 @@ export interface HabitatObjectDef {
 	matureHours?: number;
 	/** …and the bonus restoration points it contributes once it is. */
 	matureBonus?: number;
+	/** A renewable harvest: once mature, gathering grants this yield and the plant
+	 * regrows it after `regrowSeconds` (it stays planted). */
+	yield?: { resourceId: string; qty: number; regrowSeconds: number };
 	bridge?: boolean;
 	/** Indoor items: minimum home size (Space track level) needed to place — a tent
 	 * fits the basics; a fireplace needs a proper house. */
@@ -195,7 +198,22 @@ export interface AchievementDef {
 	icon: string;
 	flavor: string;
 	hint: string;
+	/** Structured, exact unlock criteria — rendered into a plain requirement line
+	 *  (see reqText in Achievements.tsx). Mirrors the server's ACHIEVEMENT_TRIGGERS. */
+	req?: AchievementReq;
 }
+
+/** Machine-readable achievement criteria (kept in sync with server triggers). */
+export type AchievementReq =
+	| { t: 'collect' | 'craft' | 'craftDistinct' | 'plant' | 'terraform' | 'place' | 'observe' | 'unlocked' | 'total'; n: number }
+	| { t: 'returned' | 'health' | 'lake'; biome: string; n: number }
+	| { t: 'kindReturned'; biome: string; kind: string; n: number }
+	| { t: 'tools'; n: number }
+	| { t: 'tool'; id: string; n: number }
+	| { t: 'biomesAtHealth'; h: number; n: number }
+	| { t: 'healthyOpen'; h: number; min: number }
+	| { t: 'animal'; ids: string[]; mode?: 'all' | 'any' }
+	| { t: 'animalChain'; all: string[]; any: string[] };
 
 /** A house style's signature perk. Strength = min(cap, base + perLevel × extra
  * track levels beyond a fresh build). See homePerkStrength(). */
@@ -224,6 +242,17 @@ const HOME_BASE_LEVELS = 5;
 export function homePerkStrength(perk: HomePerkDef, home: HomeConfig): number {
 	const levels = (home.space || 1) + (home.comfort || 1) + (home.decor || 1) + (home.light || 1);
 	return Math.min(perk.cap, perk.base + perk.perLevel * Math.max(0, levels - HOME_BASE_LEVELS));
+}
+
+/** When a yield-bearing plant is ready to harvest — its maturity the first time,
+ *  then `regrowSeconds` after each harvest. null if it never yields / isn't
+ *  planted. Shared by the client UI and the world glint. */
+export function harvestReadyAt(def: HabitatObjectDef | undefined, p: { plantedAt?: number; lastHarvestAt?: number } | undefined): number | null {
+	const y = def?.yield;
+	if (!y || !def?.plantable || !p?.plantedAt) return null;
+	const growMs = (def.growSeconds || 0) * 1000;
+	const regrowMs = (y.regrowSeconds || 60) * 1000;
+	return p.lastHarvestAt ? p.lastHarvestAt + regrowMs : p.plantedAt + growMs;
 }
 
 export interface HomeTrackLevel {
@@ -304,6 +333,9 @@ export interface Player {
 	/** Areas the player has physically walked into at least once (enables fast-travel). */
 	visitedBiomes?: string[];
 	tutorialStep?: number;
+	/** Furthest tutorial step ever reached. Progressive UI keys off this so
+	 *  replaying the tutorial (which rewinds tutorialStep) never re-hides menu. */
+	tutorialMaxStep?: number;
 	/** Home interior config: style direction + four upgrade-track levels. */
 	home?: HomeConfig;
 	/** Dev-only: when true, every recipe is craftable regardless of progress gates. */
@@ -364,6 +396,8 @@ export interface Placement {
 	y: number;
 	placedAt?: number;
 	plantedAt?: number;
+	/** When this plant's yield was last harvested (drives regrow timing). */
+	lastHarvestAt?: number;
 	/** Optional per-item recolor (paint tool, home only). */
 	color?: string;
 	/** Quarter-turn rotation in degrees (0/90/180/270), set when placing/moving. */
@@ -402,15 +436,19 @@ export interface GameState {
 	serverTime: number;
 	/** Derived weather/season/day-phase for this world at serverTime. */
 	weather?: WeatherSnapshot;
-	/** Today's rotating task board (derived server-side; resets at UTC midnight). */
+	/** The on-screen task board: fixed starters + the player's own goals. */
 	dailyTasks?: DailyTasksBlock;
+	/** The player's saved custom goal definitions (for the goals builder menu). */
+	customGoals?: CustomGoal[];
+	/** How many custom goals may be held at once (3, or 6 once all biomes open). */
+	goalLimit?: number;
 	nodeRegenSeconds: number;
 	inventoryCapacity: number;
 }
 
 export interface DailyTask {
 	id: string;
-	kind: 'gather' | 'craft' | 'place' | 'water' | 'plant' | 'observe' | 'welcome' | 'goal';
+	kind: string;
 	icon: string;
 	text: string;
 	target: number;
@@ -420,6 +458,11 @@ export interface DailyTask {
 	hint?: string;
 	progress: number;
 	claimed: boolean;
+	/** Sub-requirement checklist (unlock-next-biome shows these inline; attract /
+	 *  craft goals show them in a hover info box). */
+	steps?: { text: string; done: boolean }[];
+	/** Guidance goal — always on the board, tracks progress, isn't claimed. */
+	pinned?: boolean;
 }
 
 export interface DailyTasksBlock {
@@ -427,6 +470,25 @@ export interface DailyTasksBlock {
 	/** When this board expires (the next local morning) and a fresh one appears. */
 	endsAt: number;
 	tasks: DailyTask[];
+}
+
+/** A player-authored goal — the building block of the custom task list. */
+export type CustomGoalKind = 'craft' | 'build' | 'grow' | 'plant' | 'collect' | 'observe' | 'welcome' | 'attract' | 'welcomeTotal' | 'home' | 'unlock' | 'health' | 'biomeAnimals';
+export interface CustomGoal {
+	id: string;
+	kind: CustomGoalKind;
+	target: number;
+	/** habitat-object id (craft/build), resource id (collect), animal id (welcome), home track (home), biome id (unlock). */
+	itemId?: string;
+	resourceId?: string;
+	animalId?: string;
+	track?: string;
+	/** which house style to build (home goals with track 'build'). */
+	styleId?: string;
+	biomeId?: string;
+	/** metric value(s) captured when the goal was created (server-managed). */
+	base?: number;
+	basePlace?: number;
 }
 
 export type PanelId =
@@ -443,4 +505,6 @@ export type PanelId =
 	| 'settings'
 	| 'people'
 	| 'weather'
+	| 'materials'
+	| 'goals'
 	| null;

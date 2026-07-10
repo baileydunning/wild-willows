@@ -51,6 +51,8 @@ button:active:not(:disabled) { transform: translateY(0); }
 button:disabled { opacity: 0.45; cursor: default; }
 button.on { background: var(--green); color: #fff; border-color: var(--green); }
 button.link { background: none; border: none; padding: 0; color: var(--green); text-decoration: underline; font-weight: 600; }
+/* The "What can I gather here?" link sits above the item grid — give it room. */
+.materials-link { display: inline-flex; align-items: center; gap: 6px; margin: 6px 0 14px; }
 
 .icon-btn {
 	display: inline-flex; align-items: center; justify-content: center;
@@ -181,8 +183,10 @@ input {
 /* Floating tooltip — overlays, never grows the task board. */
 .tasks-hint-tip {
 	position: absolute; z-index: 50;
-	top: calc(100% + 6px); right: 0;
-	width: max-content; max-width: 220px;
+	/* the goal board sits at the top-left, so open the tooltip rightward (anchored
+	   to the ? icon) — anchoring right pushed it off the left screen edge. */
+	top: calc(100% + 6px); left: 0;
+	width: max-content; max-width: min(240px, 60vw);
 	padding: 7px 10px;
 	font-size: calc(12px * var(--ui-scale)); line-height: 1.4; color: var(--ink-soft); text-align: left;
 	background: var(--cream); border: 1px solid var(--line); border-radius: 9px;
@@ -281,6 +285,14 @@ input {
 }
 .hud-returned { font-size: calc(12.5px * var(--ui-scale)); color: var(--ink-soft); display: flex; align-items: center; gap: 6px; }
 .hud-returned-total { font-size: calc(11px * var(--ui-scale)); opacity: 0.72; margin-top: 1px; }
+/* Your Home card: the active house perk + every upgrade track level */
+.hud-home-perk { margin-top: 3px; font-size: calc(11.5px * var(--ui-scale)); color: var(--green-deep); display: flex; align-items: center; gap: 5px; font-weight: 600; }
+.hud-home-tracks { margin-top: 4px; display: flex; flex-wrap: wrap; gap: 4px; }
+.hud-home-track {
+	font-size: calc(10.5px * var(--ui-scale)); color: var(--ink-soft);
+	background: rgba(122, 168, 90, 0.14); border: 1px solid rgba(122, 168, 90, 0.3);
+	border-radius: 999px; padding: 1px 7px; white-space: nowrap;
+}
 
 .hud-weather { font-size: calc(12.5px * var(--ui-scale)); color: var(--ink-soft); display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin: 2px 0; font-weight: 700; }
 .hud-season { font-size: calc(10.5px * var(--ui-scale)); font-weight: 700; padding: 1px 7px; border-radius: 9px; border: 1px solid currentColor; opacity: 0.9; }
@@ -318,6 +330,23 @@ input {
 .meter-track { flex: 1; min-width: 40px; height: 10px; background: #e4dcc2; border-radius: 6px; overflow: hidden; box-shadow: inset 0 1px 2px rgba(0,0,0,0.08); }
 .meter-fill { height: 100%; border-radius: 6px; transition: width 0.6s ease; }
 .meter-value { flex: none; width: calc(36px * var(--ui-scale)); text-align: right; font-size: calc(11.5px * var(--ui-scale)); font-weight: 700; }
+/* little "?" next to a meter explaining how to raise it (hover/focus tooltip) */
+.meter-hint { position: relative; flex: none; display: inline-flex; vertical-align: -2px; color: var(--ink-soft); opacity: 0.7; cursor: help; }
+.meter-hint:hover, .meter-hint:focus-visible { opacity: 1; color: var(--green); outline: none; }
+.meter-hint-tip {
+	position: absolute; z-index: 60;
+	top: calc(100% + 6px); left: 0;
+	width: max-content; max-width: 240px;
+	padding: 7px 10px;
+	font-size: calc(11.5px * var(--ui-scale)); line-height: 1.4; color: var(--ink-soft); text-align: left; font-weight: 400;
+	background: var(--cream); border: 1px solid var(--line); border-radius: 9px;
+	box-shadow: 0 4px 14px rgba(0, 0, 0, 0.14);
+	opacity: 0; visibility: hidden; transform: translateY(-2px);
+	transition: opacity 0.12s ease, transform 0.12s ease, visibility 0.12s;
+	pointer-events: none;
+}
+.meter-hint:hover .meter-hint-tip,
+.meter-hint:focus-within .meter-hint-tip { opacity: 1; visibility: visible; transform: translateY(0); }
 
 .save-pill {
 	display: inline-flex; align-items: center; gap: 5px;
@@ -340,6 +369,19 @@ input {
 .prompt-line svg { color: #c2dba8; flex-shrink: 0; }
 .muted-line { opacity: 0.85; }
 .hud-bottom .link { color: #c2dba8; margin-left: 4px; }
+/* While something is ready to place, the prompt bar reads as an active call to
+   action: a warm green wash with a soft pulsing glow so it's obvious the next
+   click drops the item (playtest: the "ready to place" state went unnoticed). */
+.hud-bottom.placing {
+	background: rgba(74, 124, 89, 0.94);
+	color: #fff;
+	animation: place-glow 1.6s ease-in-out infinite;
+}
+.hud-bottom.placing .prompt-line svg { color: #eaf6df; }
+@keyframes place-glow {
+	0%, 100% { box-shadow: 0 4px 16px rgba(33, 41, 25, 0.3), 0 0 0 0 rgba(122, 190, 106, 0.5); }
+	50% { box-shadow: 0 4px 18px rgba(33, 41, 25, 0.35), 0 0 0 6px rgba(122, 190, 106, 0); }
+}
 
 /* ================= toasts ================= */
 .toasts { position: absolute; top: 96px; right: 14px; z-index: 30; display: flex; flex-direction: column; gap: 7px; }
@@ -374,9 +416,17 @@ input {
 .ach-progress-fill { height: 100%; background: var(--gold); border-radius: 999px; transition: width 0.4s ease; }
 .ach-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
 @media (max-width: 620px) { .ach-grid { grid-template-columns: 1fr; } }
-.ach-card { display: flex; gap: 11px; align-items: flex-start; padding: 11px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+.ach-card { position: relative; display: flex; gap: 11px; align-items: flex-start; padding: 11px; border: 1px solid var(--line); border-radius: 12px; background: var(--paper); }
+/* Locked cards fade via opacity, which makes each its own stacking layer — so a
+   later card would paint over an earlier card's open tooltip. Lift the hovered/
+   focused card above its neighbours so its requirement tooltip stays on top. */
+.ach-card:hover, .ach-card:focus-within { z-index: 30; }
 .ach-card.earned { border-color: rgba(201,145,63,0.55); background: linear-gradient(180deg, rgba(201,145,63,0.10), var(--paper)); }
-.ach-card.locked { opacity: 0.72; }
+/* "Locked" look WITHOUT opacity on the card — opacity would also fade the
+   requirement tooltip (a child can't be more opaque than its parent). Mute the
+   badge and title instead; the tooltip stays crisp and fully opaque. */
+.ach-card.locked .ach-badge { opacity: 0.7; }
+.ach-card.locked .ach-name { color: var(--ink-soft); }
 .ach-badge { position: relative; flex: none; width: 46px; height: 46px; display: grid; place-items: center; }
 .ach-badge .ach-star { color: var(--line); }
 .ach-card.earned .ach-badge .ach-star { color: var(--gold); fill: rgba(201,145,63,0.22); }
@@ -385,6 +435,11 @@ input {
 .ach-name { font-weight: 700; font-size: calc(13.5px * var(--ui-scale)); display: flex; align-items: center; gap: 7px; }
 .ach-pts { font-size: calc(11px * var(--ui-scale)); font-weight: 700; color: var(--gold); background: rgba(201,145,63,0.16); border-radius: 999px; padding: 1px 7px; }
 .ach-flavor { color: var(--ink-soft); }
+/* Exact requirement + progress, shown inline under a locked achievement (a hover
+   tooltip kept clipping against the scrolling panel's edges). */
+.ach-req-inline { display: flex; flex-direction: column; gap: 2px; margin-top: 2px; }
+.ach-req-text { color: var(--ink-soft); }
+.ach-req-progress { font-weight: 700; color: var(--green-deep, #4a7a3a); }
 
 /* ---- biome lore + coexistence notes ---- */
 .biome-lore { margin-top: 7px; border-left: 2px solid rgba(201,145,63,0.4); padding-left: 9px; }
@@ -508,6 +563,68 @@ input {
 	border-radius: 14px; padding: 11px 15px; margin-bottom: 9px;
 }
 .biome-locked { opacity: 0.82; }
+
+/* ---- Illustrated preserve trail map ---- */
+.preserve-map {
+	display: flex; align-items: flex-start; gap: 2px;
+	padding: 18px 14px 14px; margin-bottom: 8px;
+	border: 1px solid #d6e2c1; border-radius: 18px;
+	background: radial-gradient(120% 140% at 15% 0%, #f6faee 0%, #eaf1da 55%, #dfe9cb 100%);
+	box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+	overflow-x: auto;
+}
+.pm-stop {
+	flex: 0 0 auto; width: 88px; padding: 0; background: none; border: none;
+	display: flex; flex-direction: column; align-items: center; gap: 5px; cursor: pointer;
+}
+.pm-stop:disabled { cursor: default; }
+.pm-ring {
+	width: 60px; height: 60px; border-radius: 50%; display: grid; place-items: center;
+	background: conic-gradient(from -90deg, #6aa253 calc(var(--h, 0) * 1%), rgba(90,70,40,0.13) 0);
+	box-shadow: 0 3px 8px rgba(60,80,40,0.18);
+	transition: transform 0.16s ease, box-shadow 0.16s ease;
+}
+.pm-stop:not(:disabled):hover .pm-ring { transform: translateY(-3px) scale(1.06); box-shadow: 0 6px 14px rgba(60,80,40,0.26); }
+.pm-disc {
+	width: 46px; height: 46px; border-radius: 50%; display: grid; place-items: center;
+	background: var(--c, #8fbf6f); color: #fff; border: 2px solid rgba(255,255,255,0.75);
+}
+.pm-disc svg { filter: drop-shadow(0 1px 1px rgba(0,0,0,0.25)); }
+.pm-locked .pm-ring { background: rgba(90,70,40,0.13); box-shadow: none; }
+.pm-locked .pm-disc { background: #b7b2a3; color: #f2efe6; }
+.pm-here .pm-disc { box-shadow: 0 0 0 3px var(--gold, #c9913f); }
+.pm-here .pm-ring { animation: pm-pulse 2.4s ease-in-out infinite; }
+@keyframes pm-pulse { 0%,100% { box-shadow: 0 3px 8px rgba(60,80,40,0.18); } 50% { box-shadow: 0 3px 14px rgba(201,145,63,0.5); } }
+.pm-name { font-weight: 700; font-size: calc(11.5px * var(--ui-scale)); color: var(--ink); text-align: center; line-height: 1.12; }
+.pm-locked .pm-name { color: var(--ink-soft); }
+.pm-sub { font-size: calc(10px * var(--ui-scale)); color: var(--ink-soft); text-align: center; }
+.pm-link {
+	flex: 1 1 auto; min-width: 12px; height: 3px; margin-top: 29px; border-radius: 3px; align-self: flex-start;
+	background: repeating-linear-gradient(90deg, rgba(90,70,40,0.28) 0 5px, transparent 5px 10px);
+}
+.pm-link-open { background: linear-gradient(90deg, var(--green-2, #6aa253), #7bb060); }
+.preserve-map-cap { margin: 0 0 14px; text-align: center; }
+
+/* Chilled-out day-cycle timer in the biome card. */
+.hud-daytimer { display: flex; align-items: center; gap: 8px; margin: 7px 0 2px; }
+.daytimer-track {
+	position: relative; flex: 1 1 auto; height: 7px; border-radius: 999px;
+	background: linear-gradient(90deg, #f4e2a8, #f6c98a 45%, #c98a6a 72%, #6f79b8 100%);
+	box-shadow: inset 0 0 0 1px rgba(0,0,0,0.06);
+}
+.daytimer-track.night { filter: saturate(0.8) brightness(0.94); }
+.daytimer-fill { position: absolute; inset: 0 auto 0 0; border-radius: 999px; background: rgba(255,255,255,0.28); }
+.daytimer-knob {
+	position: absolute; top: 50%; transform: translate(-50%, -50%);
+	width: 17px; height: 17px; border-radius: 50%; display: grid; place-items: center;
+	background: #fffbe9; color: #c9913f; border: 1.5px solid rgba(0,0,0,0.08);
+	box-shadow: 0 1px 4px rgba(0,0,0,0.2);
+}
+.daytimer-track.night .daytimer-knob { color: #6274b4; }
+.daytimer-label { flex: 0 0 auto; font-size: calc(11px * var(--ui-scale)); font-weight: 700; color: var(--ink-soft); font-variant-numeric: tabular-nums; }
+
+/* Full-screen confetti overlay — draws only while pieces are falling. */
+.confetti-canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 9999; }
 .lock { font-size: calc(12px * var(--ui-scale)); color: var(--ink-soft); margin-left: 6px; display: inline-flex; align-items: center; gap: 3px; }
 .lock.soon { color: var(--gold); font-weight: 700; background: rgba(201, 145, 63, 0.14); border-radius: 999px; padding: 1px 9px; }
 .unlock-req { color: #7a5aa0; margin-top: 3px; }
@@ -757,6 +874,33 @@ input {
 	font-size: calc(11px * var(--ui-scale)); font-weight: 700;
 	display: flex; align-items: center; justify-content: center;
 }
+
+/* ===== title-screen intro (a gentle, un-intimidating How to Play) ===== */
+.welcome-intro { max-width: 460px; }
+.welcome-intro-lede {
+	margin: 0 0 14px; font-size: calc(14px * var(--ui-scale));
+	color: var(--ink-soft); line-height: 1.5;
+}
+.welcome-intro-steps { display: flex; flex-direction: column; gap: 10px; }
+.welcome-intro-step {
+	display: flex; gap: 13px; align-items: center;
+	background: linear-gradient(180deg, #fffdf6, var(--cream));
+	border: 1.5px solid var(--line); border-radius: 16px; padding: 12px 15px;
+}
+.welcome-intro-step b { font-size: calc(14.5px * var(--ui-scale)); color: var(--green-deep); }
+.welcome-intro-step p { margin: 3px 0 0; font-size: calc(12.5px * var(--ui-scale)); color: var(--ink-soft); line-height: 1.45; }
+.welcome-intro-icon {
+	flex-shrink: 0; width: 44px; height: 44px; border-radius: 14px;
+	background: radial-gradient(circle at 30% 25%, #eef6e3, #dcebca);
+	color: var(--green-deep); border: 1.5px solid #cfe0b6;
+	display: flex; align-items: center; justify-content: center;
+}
+.welcome-intro-reassure {
+	margin: 14px 0 4px; display: flex; align-items: center; gap: 8px;
+	font-size: calc(13px * var(--ui-scale)); color: var(--green-deep);
+	background: rgba(122, 168, 90, 0.12); border-radius: 12px; padding: 10px 13px; line-height: 1.45;
+}
+.welcome-intro-reassure svg { flex-shrink: 0; color: var(--green); }
 .key-list {
 	display: grid; grid-template-columns: 1fr 1fr; gap: 4px 14px;
 	background: var(--cream); border: 1.5px solid var(--line);
@@ -865,6 +1009,17 @@ kbd {
 	display: flex; align-items: center; gap: 9px;
 	background: var(--green); color: #fff; padding: 11px 16px;
 }
+/* The header doubles as a drag handle — grab it to move the guide anywhere.
+   touch-action:none so dragging on touch devices doesn't scroll the page. */
+.tutorial-head-drag { cursor: grab; touch-action: none; }
+.tutorial-head-drag:active { cursor: grabbing; }
+.tutorial-head-drag button { cursor: pointer; }
+/* minimize/expand chevron (reuses the right-facing arrow, rotated) */
+.chev-down { transform: rotate(90deg); }
+.chev-up { transform: rotate(-90deg); }
+/* Collapsed to just the header bar: no attention pulse, corners fully rounded. */
+.tutorial-card.minimized { animation: none; }
+.tutorial-card.minimized .tutorial-head { border-radius: 17px; }
 .tutorial-card.celebrate .tutorial-head { background: var(--green-2); }
 .tutorial-eyebrow {
 	display: inline-flex; align-items: center; gap: 6px;
@@ -881,10 +1036,16 @@ kbd {
 .tutorial-card.celebrate .tutorial-icon { background: var(--green-2); color: #fff; }
 .tutorial-title { font-family: var(--font-display); font-size: calc(20px * var(--ui-scale)); color: var(--green-deep); }
 .tutorial-text { font-size: calc(15px * var(--ui-scale)); line-height: 1.5; color: var(--ink); margin-top: 5px; }
-.tutorial-dots { display: flex; flex-wrap: wrap; gap: 4px; flex: 1 1 auto; min-width: 0; }
+.tutorial-dots { display: flex; flex-wrap: wrap; gap: 4px; flex: 1 1 auto; min-width: 0; align-items: center; }
 .dot { width: 7px; height: 7px; border-radius: 50%; background: #ddd4bb; flex: none; }
 .dot.done { background: var(--green-2); }
 .dot.now { background: var(--gold); transform: scale(1.3); }
+/* The tutorial dots are now clickable — jump straight to any step in the
+   chapter — so they render as reset buttons with a clear hover affordance. */
+.tutorial-dots button.dot { padding: 0; border: 0; appearance: none; cursor: pointer; transition: transform 0.12s ease, background 0.12s ease; }
+.tutorial-dots button.dot:hover { background: var(--gold); transform: scale(1.4); }
+.tutorial-dots button.dot.now:hover { transform: scale(1.5); }
+.tutorial-dots button.dot:focus-visible { outline: 2px solid var(--gold); outline-offset: 2px; }
 .tutorial-skip, .tutorial-btn {
 	flex-shrink: 0; display: inline-flex; align-items: center; gap: 5px;
 	font-size: calc(14px * var(--ui-scale)); font-weight: 700; padding: 8px 15px; border-radius: 11px;
@@ -1268,10 +1429,23 @@ kbd {
 .tasks-row + .tasks-row { border-top: 1px dashed rgba(94, 74, 50, 0.16); }
 .tasks-row-icon { color: var(--green-2, #6aa253); display: flex; flex-shrink: 0; }
 .tasks-row-main { flex: 1; min-width: 0; }
-.tasks-row-text { display: block; font-size: calc(12.5px * var(--ui-scale)); font-weight: 600; line-height: 1.25; }
+.tasks-row-text { display: block; font-size: calc(12.5px * var(--ui-scale)); font-weight: 600; line-height: 1.25; white-space: pre-line; }
 .tasks-row-bar { display: flex; align-items: center; gap: 6px; margin-top: 3px; }
 .tasks-row-bar .meter-track { flex: 1; }
 .tasks-row-count { font-size: calc(11px * var(--ui-scale)); color: var(--ink-soft); white-space: nowrap; }
+/* checklist of sub-requirements (unlock-next-biome inline; attract/craft in hover) */
+.tasks-steps { display: flex; flex-direction: column; gap: 2px; margin-top: 3px; }
+.tasks-step { display: flex; align-items: center; gap: 5px; font-size: calc(11px * var(--ui-scale)); color: var(--ink-soft); line-height: 1.3; }
+.tasks-step.done { color: var(--green-2, #6aa253); }
+.tasks-step-box {
+	flex-shrink: 0; width: 13px; height: 13px; border-radius: 4px;
+	border: 1.5px solid var(--line); display: inline-flex; align-items: center; justify-content: center; color: #fff;
+}
+.tasks-step.done .tasks-step-box { background: var(--green-2, #6aa253); border-color: var(--green-2, #6aa253); }
+.tasks-hint-tip .tasks-step { white-space: normal; align-items: flex-start; }
+.tasks-hint-tip .tasks-step-box { margin-top: 1px; }
+.tasks-hint-line { display: block; margin-bottom: 5px; }
+.tasks-row-pinned { background: rgba(122, 168, 90, 0.14); border-radius: 10px; padding: 4px 6px; margin: 0 -2px; box-shadow: inset 3px 0 0 var(--green-2, #6aa253); }
 .tasks-claim {
 	flex-shrink: 0; font-size: calc(12px * var(--ui-scale)); font-weight: 700; padding: 4px 10px;
 	border-radius: 10px; border: 1.5px solid var(--green-2, #6aa253);
@@ -1385,3 +1559,45 @@ kbd {
 .switch input:checked ~ .track { background: var(--green); }
 .switch input:checked ~ .thumb { transform: translateX(20px); }
 .switch input:focus-visible ~ .track { outline: 2px solid var(--green-deep); outline-offset: 2px; }
+
+/* ===== goals builder (the custom task list menu) ===== */
+/* keep the board's two header buttons together at the right */
+.tasks-head .tasks-title { margin-right: auto; }
+.goals-list { display: flex; flex-direction: column; gap: 8px; margin: 6px 0 4px; }
+.goals-row {
+	display: flex; align-items: center; gap: 11px;
+	background: linear-gradient(180deg, #fffdf6, var(--cream));
+	border: 1.5px solid var(--line); border-radius: 14px; padding: 10px 13px;
+}
+.goals-row.goals-done { opacity: 0.7; }
+/* System goals (starters + next-biome) shown read-only in the menu. */
+.goals-fixed { margin-bottom: 10px; }
+.goals-row-readonly { background: linear-gradient(180deg, #fbfaf3, #f0eee2); }
+/* Subtle spotlight on the always-on "unlock the next biome" goal. */
+.goals-row-pinned { border-color: #bcd39c; box-shadow: inset 3px 0 0 var(--green-2, #6aa253); background: linear-gradient(180deg, #f5faec, #e9f2d8); }
+.goals-pin-tag { flex-shrink: 0; font-size: calc(10.5px * var(--ui-scale)); font-weight: 800; letter-spacing: 0.03em; text-transform: uppercase; color: var(--green-deep); background: rgba(122,168,90,0.18); border-radius: 999px; padding: 2px 8px; }
+.goals-own-head { margin-top: 4px; }
+.goals-row-icon {
+	flex-shrink: 0; width: 34px; height: 34px; border-radius: 10px;
+	background: radial-gradient(circle at 30% 25%, #eef6e3, #dcebca);
+	color: var(--green-deep); border: 1.5px solid #cfe0b6;
+	display: flex; align-items: center; justify-content: center;
+}
+.goals-row-text { font-weight: 600; color: var(--ink); font-size: calc(13.5px * var(--ui-scale)); }
+.goals-row-meta { margin-top: 2px; }
+.goals-badge { display: inline-flex; align-items: center; gap: 4px; color: var(--green-2, #6aa253); font-size: calc(11.5px * var(--ui-scale)); font-weight: 700; }
+.goals-row-actions { display: flex; align-items: center; gap: 2px; flex-shrink: 0; }
+.goals-builder { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 10px; }
+.goals-builder .craft-filter { flex: 1 1 auto; }
+.goals-count { display: inline-flex; flex-direction: column; gap: 3px; font-size: calc(12px * var(--ui-scale)); color: var(--ink-soft); }
+.goals-count input { width: 72px; padding: 5px 8px; border: 1.5px solid var(--line); border-radius: 8px; font: inherit; }
+.goals-style-pick { display: inline-flex; align-items: center; gap: 6px; }
+.goals-slots { font-size: calc(11.5px * var(--ui-scale)); font-weight: 700; color: var(--ink-soft); margin: 2px 0 8px; }
+.goals-desc { display: flex; align-items: flex-start; gap: 6px; margin: 8px 0; font-size: calc(12px * var(--ui-scale)); color: var(--ink-soft); line-height: 1.45; }
+.goals-desc svg { flex-shrink: 0; margin-top: 2px; color: var(--green-deep); }
+/* "add to your goals" affordance shared by the crafting, journal and biome rows */
+.recipe-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.biome-row-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+.add-goal-btn { color: var(--green-deep); border: 1.5px solid var(--line); border-radius: 9px; }
+.add-goal-btn:hover { background: rgba(122, 168, 90, 0.16); border-color: #cfe0b6; }
+.entry-unknown .add-goal-btn { align-self: center; }

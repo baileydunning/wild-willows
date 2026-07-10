@@ -3,12 +3,13 @@ import { bridge } from './bridge';
 import { canPaintClick } from './interactions';
 import {
 	animalScale, animalTexture, ensureAnimalTexture, makeAnimalTextures, makeBaseTextures, makeNodeTextures,
-	makeObjectTextures, makePlayerTexture, INV_TEX_SCALE, TEX_SCALE,
+	makeObjectTextures, makePlayerTexture, snapshotResourceIcons, INV_TEX_SCALE, TEX_SCALE,
 } from './textures';
 import { seasonStyle, weatherType, liveWeatherType, gatherResourceFor } from '../weather';
 import { t, content } from '../i18n';
 import { getPrefs, subscribe as subscribePrefs } from '../prefs';
 import { isTypingTarget } from '../typing';
+import { harvestReadyAt } from '../types';
 import type { BiomeDef, HabitatObjectDef } from '../types';
 
 export const TILE = 32;
@@ -24,6 +25,15 @@ const OUT_H = 20;
 // because it's wider). The world scrolls with the player to reveal the rest.
 const VIEW_W = 30;
 const VIEW_H = 20;
+// Outdoors the camera has NO bounds: it keeps the caretaker centered even at
+// the world edge, so the player (and any gathering spot they stand beside) can
+// never get stuck under the fixed UI panels (HUD, task board, toolbelt) — a
+// playtest "big problem". The world is ringed with matching ground (see
+// drawSurround) sized to cover the widest possible camera view, so the space
+// past the edge reads as more preserve — you just can't walk there
+// (handleMovement clamps at the true edge).
+const SURROUND_X = 20; // tiles of surround left/right (≥ half the widest view)
+const SURROUND_Y = 14; // tiles of surround above/below (≥ half the tallest view)
 const MTN_ROWS = 8; // rows reserved for the alpine mountain range (impassable) — a tall, close range
 const COAST_COLS = 4; // columns reserved for the ocean along Pelican Shore's east edge (impassable)
 
@@ -89,6 +99,9 @@ interface Interactable {
 	y: number;
 	label: string;
 	action: () => void;
+	/** Optional live-computed prompt (recomputed each frame while you're near),
+	 *  used for locked gates so the bottom bar always shows what's still needed. */
+	liveLabel?: () => string;
 }
 
 export class WorldScene extends Phaser.Scene {
@@ -98,6 +111,10 @@ export class WorldScene extends Phaser.Scene {
 	private walkT = 0;
 	private keys!: any;
 	private groundTiles: Phaser.GameObjects.Image[] = [];
+	// Living vegetation out in the unwalkable surround/edge — tinted from dead
+	// (brown) to alive as the biome's health rises, so the whole world beyond the
+	// fence recovers alongside it.
+	private healthDeco: Phaser.GameObjects.Image[] = [];
 	private dynamic!: Phaser.GameObjects.Group;
 	private animals!: Phaser.GameObjects.Group; // animals live in their own layer so a
 	private animalSig = '';                      // routine refresh doesn't reset their wandering
@@ -116,6 +133,12 @@ export class WorldScene extends Phaser.Scene {
 	private activeTool = 'basket';
 	private highlight!: Phaser.GameObjects.Container;
 	private tileCursor!: Phaser.GameObjects.Image;
+	// The interactable the pointer is currently hovering (for hover feedback), and
+	// a signature of the last dynamic-layer build so redundant world-dirty events
+	// (boot nudges, unrelated saves) don't tear down and rebuild every sprite/tween.
+	private hoveredIt: Interactable | null = null;
+	private lastGateInfo: string | null = null;
+	private dynamicSig = '';
 	private isTouch = false;
 	private alive = false; // true between create() and shutdown (scene.isActive() is false DURING create)
 	private waterTiles = new Set<string>();
@@ -241,13 +264,18 @@ export class WorldScene extends Phaser.Scene {
 		this.weatherOverlay = undefined;
 		this.weatherEmitter = undefined;
 		this.weatherSig = '';
+		this.dynamicSig = ''; // force a full dynamic rebuild on (re)create
 		makeBaseTextures(this);
 		makeObjectTextures(this);
 		makeAnimalTextures(this);
 		makeNodeTextures(this);
+		snapshotResourceIcons(this); // cache resource sprites as data URLs for the DOM UI
 		this.isTouch = this.sys.game.device.input.touch && !this.sys.game.device.os.desktop;
 
-		this.cameras.main.setBounds(0, 0, this.worldW, this.worldH);
+		// Indoors the camera stays clamped to the room; outdoors it's unbounded so
+		// the caretaker is always centered — never hidden under the fixed UI.
+		if (this.isHome) this.cameras.main.setBounds(0, 0, this.worldW, this.worldH);
+		else this.cameras.main.removeBounds();
 		this.cameras.main.setBackgroundColor('#26301f');
 		this.applyZoom();
 		this.scale.on('resize', () => this.applyZoom());
@@ -462,8 +490,11 @@ export class WorldScene extends Phaser.Scene {
 		// Game pixels are device pixels (see PhaserGame.tsx), so the clamp — tuned in
 		// CSS pixels — scales by the display ratio to keep framing identical on HiDPI.
 		const dpr = this.scale.displayScale.x || 1;
-		const fit = Math.max(w / this.worldW, h / this.worldH); // never show past the world edge
 		const base = Phaser.Math.Clamp(Math.max(w / (VIEW_W * TILE), h / (VIEW_H * TILE)), 0.85 * dpr, 2.6 * dpr);
+		// Indoors the `fit` floor stops the camera showing past the room's world
+		// rect; outdoors the surround ring covers the widest view, so only the
+		// user-zoom range applies.
+		const fit = this.isHome ? Math.max(w / this.worldW, h / this.worldH) : 0;
 		const zoom = Phaser.Math.Clamp(base * userZoom, Math.max(fit, base * USER_ZOOM_MIN), base * USER_ZOOM_MAX);
 		if (smooth) this.cameras.main.zoomTo(zoom, 150, 'Sine.easeInOut');
 		else this.cameras.main.setZoom(zoom);
@@ -550,6 +581,7 @@ export class WorldScene extends Phaser.Scene {
 
 	private drawGround() {
 		this.groundTiles = [];
+		this.healthDeco = [];
 		if (this.isHome) { this.drawHomeRoom(); return; }
 		const rng = mulberry32(hashStr(this.area));
 		// Ground tiles fill only the playable region; in the alpine the top rows
@@ -561,9 +593,186 @@ export class WorldScene extends Phaser.Scene {
 				this.groundTiles.push(img);
 			}
 		}
+		this.drawSurround(rng);
+		this.drawEdgeGrass(rng);
 		if (this.mtnRows > 0) this.drawMountainBand();
 		if (this.area === 'coastal') this.drawCoastBand();
 		this.tintGround();
+	}
+
+	/**
+	 * The walkable edge is marked all the way around: a soft line of taller
+	 * grass in the green biomes, a line of boulders in the rocky ones (alpine,
+	 * desert, coastal). Where a gate leads to the next biome the line parts,
+	 * and a clearly worn dirt trail runs from the world side of the gate into
+	 * the biome — the way onward is obvious (the trail sits beside the gate,
+	 * never underneath it).
+	 */
+	private drawEdgeGrass(rng: () => number) {
+		const rocky = this.area === 'alpine' || this.area === 'desert' || this.area === 'coastal';
+		// desert rocks bake to sandstone; alpine/coastal stay cool grey
+		const rockTint = this.area === 'desert' ? C('#d8b98a') : undefined;
+		// A loose, scattered line — mixed sizes, mixed sprites, generous jitter —
+		// so the boundary reads as wild growth, not a solid wall of repeats.
+		// each biome's edge line is drawn in its own vegetation so the boundary
+		// looks like it belongs: green grass (forest mixes in trees), desert
+		// straw + sandstone, alpine sage + scree, dune grass + beach rock
+		const grassPrefix = this.area === 'desert' ? 'drygrass'
+			: this.area === 'alpine' ? 'palegrass'
+			: this.area === 'coastal' ? 'dunegrass' : 'tallgrass';
+		const clump = (px: number, py: number) => {
+			const r = rng();
+			const key = rocky ? (r < 0.45 ? 'boulder' : r < 0.75 ? grassPrefix : `${grassPrefix}3`)
+				: this.area === 'forest' && r < 0.25 ? 'wildtree'
+				: r < 0.3 ? 'tuft' : grassPrefix;
+			const s = (key === 'tuft' ? 1.1 : key === 'wildtree' ? 0.9 : key === 'boulder' ? 0.65 : 0.55) + rng() * 0.4;
+			const jx = (rng() - 0.5) * 18;
+			const jy = (rng() - 0.5) * 12;
+			// depth clamps ≥1 so the top edge sorts ABOVE the ground tiles (a
+			// negative-y clump would otherwise vanish beneath them)
+			const img = this.img(px + jx, py + jy, key)
+				.setDepth(Math.max(py + jy, 1)).setScale(s * INV_TEX_SCALE).setAlpha(0.96);
+			if (key === 'boulder') { if (rockTint !== undefined) img.setTint(rockTint); }
+			else {
+				if (key !== 'wildtree') img.setAngle(rng() * 20 - 10);
+				this.healthDeco.push(img); // grass/trees along the edge recover with health
+			}
+		};
+		const gy = this.dimsOf(this.area).gateY;
+		const ai = AREA_ORDER.indexOf(this.area);
+		// which edges actually lead somewhere (coastal's east is open ocean)
+		const westGate = ai > 0;
+		const eastGate = ai >= 0 && ai < AREA_ORDER.length - 1 && this.area !== 'coastal';
+		const GAP = 2.2; // half-width (tiles) of the opening left around a gate
+
+		// A clearly worn dirt trail heading OUT through the opening, from the
+		// world edge off toward the next biome — the way onward is obvious. It
+		// stays entirely outside the world, clear of the gate (which sits 1.2
+		// tiles inside the edge).
+		const trail = (edgeTx: number, outward: 1 | -1) => {
+			const py = gy * TILE; // gate row
+			const g = this.add.graphics().setDepth(0.5); // above ground, below objects
+			for (let i = 0.2; i <= 3.8; i += 0.34) {
+				const px = (edgeTx + i * outward) * TILE;
+				const wob = Math.sin(i * 1.7) * 4;
+				g.fillStyle(C('#b59a6d'), 0.95).fillEllipse(px, py + wob, TILE * 1.15, TILE * 0.78);
+			}
+			for (let i = 0.4; i <= 3.6; i += 0.5) {
+				const px = (edgeTx + i * outward) * TILE;
+				const wob = Math.sin(i * 1.7) * 4;
+				g.fillStyle(C('#9c7f55'), 0.65).fillEllipse(px, py + wob, TILE * 0.6, TILE * 0.3);
+			}
+		};
+
+		const step = 0.75;
+		const topY = this.playTop * TILE - 6;
+		const botY = this.rows * TILE + 8;
+		// top & bottom lines — stopping short of the coastal surf (no edge line
+		// on the ocean; the tideline IS the boundary there), and skipping the
+		// alpine top entirely (the mountain range IS that boundary)
+		for (let tx = -1; tx < this.cols + 1; tx += step) {
+			const px = tx * TILE + 16;
+			if (this.area === 'coastal' && tx > this.landRight - 1.5) continue;
+			if (this.mtnRows === 0 && rng() < 0.8) clump(px, topY);
+			if (rng() < 0.8) clump(px, botY);
+		}
+		// west & east lines, parted only around real gates (coastal has no east
+		// line at all — open water needs no marker)
+		for (let ty = this.playTop - 1; ty < this.rows + 1; ty += step) {
+			const py = ty * TILE + 16;
+			const nearGate = Math.abs(ty - gy) < GAP;
+			if (!(westGate && nearGate) && rng() < 0.8) clump(-8, py);
+			if (this.area !== 'coastal' && !(eastGate && nearGate) && rng() < 0.8) clump(this.landRight * TILE + 8, py);
+		}
+		if (westGate) trail(0, -1);
+		if (eastGate) trail(this.landRight, 1);
+	}
+
+	/**
+	 * The camera is unbounded outdoors (it always centers the caretaker), so
+	 * ring the world with enough matching ground to cover the widest possible
+	 * view. The unexplorable land is OVERGROWN: nearly every surround tile
+	 * carries one of three tall-grass sprites (mixed, flipped, jittered — never
+	 * a repeat pattern), so past the boundary reads as wild uncut meadow you
+	 * clearly can't walk into. Rocky biomes tint the growth dry/pale. The
+	 * alpine sky/mountains and the coastal ocean extend into their own
+	 * surround instead (drawMountainBand / drawCoastBand).
+	 */
+	private drawSurround(rng: () => number) {
+		// keep the outward gate trails (drawEdgeGrass) clear of growth
+		const gy = this.dimsOf(this.area).gateY;
+		const ai = AREA_ORDER.indexOf(this.area);
+		const westGate = ai > 0;
+		const eastGate = ai >= 0 && ai < AREA_ORDER.length - 1 && this.area !== 'coastal';
+		const onTrail = (tx: number, ty: number) =>
+			Math.abs(ty + 0.5 - gy) < 1.6 &&
+			((westGate && tx < 0 && tx >= -4.5) || (eastGate && tx >= this.landRight && tx < this.landRight + 4.5));
+		for (let ty = -SURROUND_Y; ty < this.rows + SURROUND_Y; ty++) {
+			for (let tx = -SURROUND_X; tx < this.cols + SURROUND_X; tx++) {
+				// the playable region is already drawn
+				if (tx >= 0 && tx < this.landRight && ty >= this.playTop && ty < this.rows) continue;
+				// the mountain band (and the sky above it) paints its own surround
+				if (this.mtnRows > 0 && ty < this.playTop) continue;
+				// the coastal ocean (and its surround) is painted by drawCoastBand
+				if (this.area === 'coastal' && tx >= this.landRight) continue;
+				const img = this.img(tx * TILE + 16, ty * TILE + 16, 'tile').setDepth(0);
+				(img as any).shade = 0.92 + rng() * 0.08; // same as the playable field
+				this.groundTiles.push(img);
+				if (!onTrail(tx, ty)) this.surroundDeco(tx, ty, rng);
+			}
+		}
+	}
+
+	/**
+	 * One tile's worth of wild growth in the unwalkable surround — per biome,
+	 * so every boundary makes sense at a glance: uncut grass around the
+	 * meadow, unbroken woods past the forest, dense reeds around the wetland,
+	 * dry scrub and rock beyond the desert, scree and snow in the alpine, dune
+	 * grass along the coast.
+	 */
+	private surroundDeco(tx: number, ty: number, rng: () => number) {
+		const jx = () => tx * TILE + 16 + (rng() - 0.5) * 14;
+		const jy = () => ty * TILE + 16 + (rng() - 0.5) * 12;
+		const sprite = (key: string, scale: number, tint?: number, alpha = 0.97, living = false) => {
+			const py = jy();
+			const img = this.img(jx(), py, key)
+				.setDepth(Math.max(py, 1)).setScale(scale * INV_TEX_SCALE)
+				.setAngle(rng() * 10 - 5).setAlpha(alpha).setFlipX(rng() < 0.5);
+			if (tint !== undefined) img.setTint(tint);
+			else if (living) this.healthDeco.push(img); // recovers with biome health
+			return img;
+		};
+		const grass = (prefix = 'tallgrass', scale = 0.8 + rng() * 0.35) => {
+			const r = rng();
+			sprite(r < 0.35 ? prefix : r < 0.65 ? `${prefix}2` : `${prefix}3`, scale, undefined, 0.97, true);
+		};
+		const roll = rng();
+		switch (this.area) {
+			case 'forest': // deep unbroken woods with a grassy understory
+				if (roll < 0.42) sprite('wildtree', 1 + rng() * 0.5, undefined, 0.97, true).setAngle(0);
+				else if (roll < 0.85) grass();
+				break;
+			case 'wetland': // dense marsh reeds
+				if (roll < 0.9) grass('tallgrass', 0.9 + rng() * 0.4);
+				break;
+			case 'desert': // dry straw scrub thinning into rock and open sand
+				if (roll < 0.45) grass('drygrass', 0.7 + rng() * 0.35);
+				else if (roll < 0.55) sprite('boulder', 0.6 + rng() * 0.4, 0xd8b98a).setAngle(0);
+				else if (roll < 0.62) sprite('pebble', 1, undefined, 0.8);
+				break;
+			case 'alpine': // hardy pale turf, scree, the odd snow patch
+				if (roll < 0.38) grass('palegrass', 0.65 + rng() * 0.35);
+				else if (roll < 0.52) sprite('boulder', 0.55 + rng() * 0.5).setAngle(0);
+				else if (roll < 0.58) this.add.ellipse(jx(), jy(), 18 + rng() * 18, 10 + rng() * 10, 0xffffff, 0.55).setDepth(1);
+				break;
+			case 'coastal': // wind-blown dune grass and the odd rock
+				if (roll < 0.62) grass('dunegrass', 0.7 + rng() * 0.35);
+				else if (roll < 0.68) sprite('boulder', 0.55 + rng() * 0.4).setAngle(0);
+				break;
+			default: // meadow (and anything new): uncut wild meadow
+				if (roll < 0.88) grass();
+				else if (roll < 0.92) sprite('pebble', 1, undefined, 0.8);
+		}
 	}
 
 	/** The home interior: a cozy room of floor + walls with a door, sized by tier. */
@@ -639,14 +848,16 @@ export class WorldScene extends Phaser.Scene {
 	/** Static, impassable open ocean down the east edge of Pelican Shore. */
 	private drawCoastBand() {
 		const edgeX = this.landRight * TILE; // where land meets the surf
-		const h = this.worldH;
-		// deep sea fills the reserved columns out to the world edge
-		this.add.rectangle(edgeX, 0, this.worldW - edgeX, h, C('#2f6f9e')).setOrigin(0, 0).setDepth(0.1);
+		// the sea continues through the surround (north, south, east)
+		const y0 = -SURROUND_Y * TILE;
+		const h = this.worldH + SURROUND_Y * TILE * 2;
+		// deep sea fills the reserved columns out past the world edge
+		this.add.rectangle(edgeX, y0, this.worldW + SURROUND_X * TILE - edgeX, h, C('#2f6f9e')).setOrigin(0, 0).setDepth(0.1);
 		// banded water: a lighter shallow strip near shore, deeper blue beyond
-		this.add.rectangle(edgeX, 0, TILE * 1.6, h, C('#5aa6cf')).setOrigin(0, 0).setDepth(0.12);
-		this.add.rectangle(edgeX + TILE * 1.6, 0, TILE * 1.3, h, C('#3f8cbb')).setOrigin(0, 0).setDepth(0.12);
+		this.add.rectangle(edgeX, y0, TILE * 1.6, h, C('#5aa6cf')).setOrigin(0, 0).setDepth(0.12);
+		this.add.rectangle(edgeX + TILE * 1.6, y0, TILE * 1.3, h, C('#3f8cbb')).setOrigin(0, 0).setDepth(0.12);
 		// a damp-sand tideline where the beach gives way to water
-		this.add.rectangle(edgeX - 6, 0, 12, h, C('#bda572')).setOrigin(0, 0).setDepth(0.13).setAlpha(0.7);
+		this.add.rectangle(edgeX - 6, y0, 12, h, C('#bda572')).setOrigin(0, 0).setDepth(0.13).setAlpha(0.7);
 		// rolling foam lines that breathe in and out along the shore
 		for (let i = 0; i < 7; i++) {
 			const y = (i + 0.5) * (h / 7);
@@ -671,19 +882,21 @@ export class WorldScene extends Phaser.Scene {
 	private drawMountainBand() {
 		const bandH = this.playTop * TILE;
 		const W = this.worldW;
+		const PAD = SURROUND_X * TILE; // the range continues across the surround
+		const PAD_Y = SURROUND_Y * TILE;
 		const g = this.add.graphics().setDepth(0.1);
-		// cool, high-altitude sky behind the range
-		g.fillStyle(C('#c6cfdc'), 1).fillRect(0, 0, W, bandH);
+		// cool, high-altitude sky behind the range (covers the surround above too)
+		g.fillStyle(C('#c6cfdc'), 1).fillRect(-PAD, -PAD_Y, W + PAD * 2, bandH + PAD_Y);
 		const rng = mulberry32(hashStr('graywind-range'));
 
 		// One jagged silhouette layer: a straight base with a peaked top edge. Peaks
 		// are drawn crisp as polygons (no texture scaling), sized to the band, so the
 		// range stays sharp however tall the band is. Returns the peak apexes.
 		const range = (color: number, base: number, lo: number, hi: number, step: number): { x: number; y: number }[] => {
-			const pts: Phaser.Geom.Point[] = [new Phaser.Geom.Point(-4, bandH + 2)];
+			const pts: Phaser.Geom.Point[] = [new Phaser.Geom.Point(-PAD - 4, bandH + 2)];
 			const peaks: { x: number; y: number }[] = [];
-			let x = -step * 0.5;
-			while (x < W + step) {
+			let x = -PAD - step * 0.5;
+			while (x < W + PAD + step) {
 				const ph = lo + rng() * (hi - lo);      // this peak's height above the base
 				const px = x + rng() * step * 0.5;
 				peaks.push({ x: px, y: base - ph });
@@ -692,7 +905,7 @@ export class WorldScene extends Phaser.Scene {
 				pts.push(new Phaser.Geom.Point(px + step * 0.5, base - ph * (0.42 + rng() * 0.18)));
 				x += step;
 			}
-			pts.push(new Phaser.Geom.Point(W + 4, bandH + 2));
+			pts.push(new Phaser.Geom.Point(W + PAD + 4, bandH + 2));
 			g.fillStyle(color, 1);
 			g.fillPoints(pts, true);
 			return peaks;
@@ -711,7 +924,7 @@ export class WorldScene extends Phaser.Scene {
 			g.fillTriangle(p.x, p.y + 1, p.x - cap * 0.55, p.y + cap, p.x + cap * 0.55, p.y + cap);
 		}
 		// soft snowline mist where rock meets the slope
-		g.fillStyle(0xffffff, 0.16).fillRect(0, bandH - 7, W, 7);
+		g.fillStyle(0xffffff, 0.16).fillRect(-PAD, bandH - 7, W + PAD * 2, 7);
 	}
 
 	private tintGround() {
@@ -741,6 +954,13 @@ export class WorldScene extends Phaser.Scene {
 			const color = Phaser.Display.Color.GetColor(baseR * s, baseG * s, baseB * s);
 			img.setTint(color);
 		}
+		// Surround/edge vegetation withers to a dry brown when the biome is sick and
+		// greens back up as it heals — a multiplicative tint from "dead" toward white
+		// (white = the sprite's own colour) by health.
+		const dead = Phaser.Display.Color.HexStringToColor('#9c8a5a');
+		const dmix = Phaser.Display.Color.Interpolate.ColorWithColor(dead, { r: 255, g: 255, b: 255, a: 255 } as any, 100, Math.round(t * 100));
+		const decoTint = Phaser.Display.Color.GetColor(dmix.r, dmix.g, dmix.b);
+		for (const img of this.healthDeco) img.setTint(decoTint);
 	}
 
 	// ------------------------------------------------- weather visuals
@@ -826,11 +1046,11 @@ export class WorldScene extends Phaser.Scene {
 		if (this.weatherEmitter) { this.weatherEmitter.destroy(); this.weatherEmitter = undefined; }
 		if (!kind) return;
 		this.ensureWeatherTextures();
-		const w = this.worldW;
+		const w = this.worldW + SURROUND_X * TILE; // fall covers the surround too
 		const lifespan = kind === 'rain' ? 1700 : 13000;
 		if (kind === 'rain') {
 			this.weatherEmitter = this.add.particles(0, 0, 'wx-rain', {
-				x: { min: -40, max: w + 40 },
+				x: { min: -SURROUND_X * TILE - 40, max: w + 40 },
 				y: -20,
 				lifespan,
 				speedY: { min: 520, max: 700 },
@@ -843,7 +1063,7 @@ export class WorldScene extends Phaser.Scene {
 			}).setDepth(5020);
 		} else {
 			this.weatherEmitter = this.add.particles(0, 0, 'wx-snow', {
-				x: { min: -40, max: w + 40 },
+				x: { min: -SURROUND_X * TILE - 40, max: w + 40 },
 				y: -20,
 				lifespan,
 				speedY: { min: 45, max: 85 },
@@ -856,16 +1076,51 @@ export class WorldScene extends Phaser.Scene {
 		}
 		// Pre-fill so the screen is already full of falling weather on biome entry
 		// (Phaser advances the emitter as if `lifespan` ms had already elapsed).
-		if (prewarm) this.weatherEmitter.fastForward(lifespan, 50);
+		// Coarser step (500ms) keeps snow's 13s prewarm from simulating in one
+		// frame — the screen still fills, but the spike on biome entry is gone.
+		if (prewarm) this.weatherEmitter.fastForward(lifespan, 500);
 	}
 
 	// ------------------------------------------------- dynamic world objects
 
-	private refreshDynamic() {
+	/** Signature of everything the dynamic layer draws — terrain, placements, node
+	 *  layout inputs, biome health (tint/doodads) and the current weather (which
+	 *  spawns weather-gated nodes). If it's unchanged, the previously built layer
+	 *  is already correct, so we skip the full teardown+rebuild (and the dozens of
+	 *  ambient tweens that came with it). world-dirty fires on every gather, place,
+	 *  and boot nudge, so most fires are no-ops that used to rebuild everything. */
+	private computeDynamicSig(): string {
+		const st = bridge.shared.state;
+		if (!st) return '';
+		const health = st.biomeStates.find((b) => b.biomeId === this.area)?.health ?? 5;
+		const terrain = (st.terrain || [])
+			.filter((tt) => tt.area === this.area)
+			.map((tt) => `${tt.x},${tt.y}:${tt.type}`)
+			.sort()
+			.join('|');
+		const placements = (st.placements || [])
+			.filter((pl) => pl.area === this.area)
+			.map((pl) => `${pl.id}:${pl.objectId}:${pl.x},${pl.y}:${pl.rotation || 0}:${pl.plantedAt || 0}:${(pl as any).lastHarvestAt || 0}`)
+			.sort()
+			.join('|');
+		const wx = liveWeatherType(this.worldId, this.area, st.weather);
+		return `${this.area}#h${health}#wx${wx}#t${terrain}#p${placements}`;
+	}
+
+	private refreshDynamic(force = false) {
 		if (!this.alive) return;
+		// Skip the rebuild when nothing the dynamic layer depends on has changed.
+		// Indoors always rebuilds — it's a single cheap room, and the paint tool
+		// repaints walls/rugs/placements live (colour changes aren't in the sig).
+		if (!force && !this.isHome) {
+			const sig = this.computeDynamicSig();
+			if (sig === this.dynamicSig) return;
+			this.dynamicSig = sig;
+		}
 		this.dynamic.clear(true, true);
 		this.nodeSprites.clear();
 		this.interactables = [];
+		this.hoveredIt = null; // its hit zone was just destroyed; a fresh pointerover will re-set it
 		if (this.isHome) { this.refreshHome(); return; }
 		// collision lookups: open water blocks walking unless bridged
 		const st = bridge.shared.state;
@@ -935,8 +1190,13 @@ export class WorldScene extends Phaser.Scene {
 		this.interactables.push(it);
 		const target =
 			hitObject ||
-			this.addDyn(this.add.zone(it.x, it.y, 44, 46).setOrigin(0.5).setInteractive({ useHandCursor: true }));
+			this.addDyn(this.add.zone(it.x, it.y, 52, 52).setOrigin(0.5).setInteractive({ useHandCursor: true }));
+		// Hover feedback: light up the interactable under the pointer even before you
+		// reach it, so it's clear what a click will act on (visuals are unchanged).
+		target.on('pointerover', () => { if (!bridge.shared.uiBlocking) this.hoveredIt = it; });
+		target.on('pointerout', () => { if (this.hoveredIt === it) this.hoveredIt = null; });
 		target.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+			if (bridge.shared.uiBlocking) return; // a modal is open — clicks don't reach the world
 			if (this.placementObjectId || this.movingPlacementId) return;
 			if (this.activeTool === 'paint' && this.isHome) return; // painting takes over clicks indoors
 			// Only ground tiles (watered beds) let terraform clicks pass through to
@@ -953,7 +1213,7 @@ export class WorldScene extends Phaser.Scene {
 			}
 			if (pointer.event && (pointer.event as MouseEvent).shiftKey) return; // shift = pick up
 			const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, it.x, it.y);
-			if (dist <= 96) it.action();
+			if (dist <= 120) it.action();
 			else bridge.emit('toast', { text: t('game.toast.walkCloser'), kind: 'info' });
 		});
 	}
@@ -1023,6 +1283,93 @@ export class WorldScene extends Phaser.Scene {
 		return this.add.image(x, y, key).setScale(INV_TEX_SCALE);
 	}
 
+	/**
+	 * A gentle golden shimmer over a trail gate that's been unlocked but not yet
+	 * walked through — so a freshly opened way onward is unmistakable. Stops once
+	 * the destination biome has been visited (and respects reduce-motion).
+	 */
+	private gateSparkle(x: number, y: number, targetBiome: string) {
+		const visited = bridge.shared.state?.player.visitedBiomes || [];
+		if (visited.includes(targetBiome)) return; // already been through — no shimmer
+		if (getPrefs().reduceMotion) return;
+		if (!this.textures.exists('gate-sparkle')) {
+			const g = this.make.graphics({ x: 0, y: 0 }, false);
+			g.scaleCanvas(TEX_SCALE, TEX_SCALE);
+			g.fillStyle(0xffffff, 1);
+			// a small 4-point star
+			g.fillPoints([
+				{ x: 6, y: 0 }, { x: 7.4, y: 4.6 }, { x: 12, y: 6 }, { x: 7.4, y: 7.4 },
+				{ x: 6, y: 12 }, { x: 4.6, y: 7.4 }, { x: 0, y: 6 }, { x: 4.6, y: 4.6 },
+			], true);
+			g.generateTexture('gate-sparkle', 12 * TEX_SCALE, 12 * TEX_SCALE);
+			g.destroy();
+		}
+		// A handful of little stars around the gate that twinkle in and out — built
+		// from tweened sprites (the same reliable path the rest of the world uses)
+		// rather than a particle emitter.
+		const rng = mulberry32(hashStr(`gate-sparkle:${this.area}:${targetBiome}`));
+		const tints = [0xffe9a8, 0xfff4c2, 0xcde7ff];
+		for (let i = 0; i < 6; i++) {
+			const ox = (rng() - 0.5) * 46;
+			const oy = (rng() - 0.5) * 50 - 6;
+			const star = this.addDyn(this.img(x + ox, y + oy, 'gate-sparkle'))
+				.setDepth(y + 60).setAlpha(0).setScale(0).setTint(tints[i % tints.length]);
+			star.setBlendMode(Phaser.BlendModes.ADD);
+			const peak = 0.12 + rng() * 0.09;
+			this.tweens.add({
+				targets: star,
+				scale: { from: 0, to: peak },
+				alpha: { from: 0, to: 0.95 },
+				angle: { from: -20, to: 40 },
+				duration: 620 + rng() * 360,
+				delay: i * 200 + rng() * 220,
+				hold: 90,
+				yoyo: true,
+				repeat: -1,
+				repeatDelay: 500 + rng() * 900,
+				ease: 'Sine.easeInOut',
+			});
+		}
+	}
+
+	/**
+	 * Live "what's still needed to open this gate" line, for the bottom prompt when
+	 * standing at a locked gate. Compares the destination biome's unlock rules to
+	 * current progress and lists only the parts not yet met.
+	 */
+	private gateRequirementText(biomeId: string): string {
+		const st = bridge.shared.state;
+		const d = bridge.shared.data;
+		const biome = d?.biomes.find((b) => b.id === biomeId);
+		const name = this.biomeName(biomeId, biome?.name || biomeId);
+		const u: any = biome?.unlock;
+		if (!u || !st) return t('game.gate.locked', { name });
+		const prereqName = this.biomeName(u.biome, d?.biomes.find((b) => b.id === u.biome)?.name || u.biome);
+		const prereq = st.biomeStates.find((b) => b.biomeId === u.biome);
+		const needs: string[] = [];
+		if (u.minHealth) {
+			const cur = Math.round(prereq?.health || 0);
+			if (cur < u.minHealth) needs.push(t('game.gate.needHealth', { biome: prereqName, goal: u.minHealth, cur }));
+		}
+		if (u.minAnimals) {
+			const cur = prereq?.returnedCount || 0;
+			if (cur < u.minAnimals) needs.push(t('game.gate.needAnimals', { biome: prereqName, goal: u.minAnimals, cur }));
+		}
+		if (u.minTotalAnimals) {
+			const cur = st.discoveries?.length || 0;
+			if (cur < u.minTotalAnimals) needs.push(t('game.gate.needTotalAnimals', { goal: u.minTotalAnimals, cur }));
+		}
+		if (u.requiresItem) {
+			const have = (st.player.craftedItems?.[u.requiresItem] || 0) + ((st.player as any).craftedEver?.[u.requiresItem] || 0);
+			if (have <= 0) {
+				const obj = d?.habitatObjects.find((o) => o.id === u.requiresItem);
+				needs.push(t('game.gate.needKit', { item: obj ? content('habitatObject', obj.id, 'name', obj.name) : u.requiresItem }));
+			}
+		}
+		if (!needs.length) return t('game.gate.almost', { name });
+		return t('game.gate.stillNeeds', { name, needs: needs.join(t('game.gate.sep')) });
+	}
+
 	private drawStaticFeatures() {
 		const state = bridge.shared.state;
 		if (this.area === 'meadow') {
@@ -1067,9 +1414,11 @@ export class WorldScene extends Phaser.Scene {
 			const forestUnlocked = state?.player.unlockedBiomes.includes('forest');
 			const forestOpen = forestUnlocked && this.biomeDef('forest')?.explorable;
 			this.addDyn(this.img(gx, gy, forestOpen ? 'gate' : 'sign').setDepth(gy));
+			if (forestOpen) this.gateSparkle(gx, gy, 'forest');
 			const forestName = this.biomeName('forest', 'Old Hollow Forest');
 			this.registerInteractable({
 				x: gx, y: gy, label: forestOpen ? t('game.label.walkTo', { name: forestName }) : t('game.label.readTrailSign', { name: forestName }),
+				liveLabel: forestOpen ? undefined : () => this.gateRequirementText('forest'),
 				action: () => {
 					if (forestOpen) bridge.emit('request-area', { area: 'forest' });
 					else {
@@ -1090,9 +1439,11 @@ export class WorldScene extends Phaser.Scene {
 			const wetlandExplorable = this.biomeDef('wetland')?.explorable;
 			const wetlandOpen = wetlandUnlocked && wetlandExplorable;
 			this.addDyn(this.img(sx, sy, wetlandOpen ? 'gate' : 'sign').setDepth(sy));
+			if (wetlandOpen) this.gateSparkle(sx, sy, 'wetland');
 			const wetlandName = this.biomeName('wetland', 'Rushwater Wetland');
 			this.registerInteractable({
 				x: sx, y: sy, label: wetlandOpen ? t('game.label.walkTo', { name: wetlandName }) : t('game.label.readTrailSign', { name: wetlandName }),
+				liveLabel: wetlandOpen ? undefined : () => this.gateRequirementText('wetland'),
 				action: () => {
 					if (wetlandOpen) {
 						bridge.emit('request-area', { area: 'wetland' });
@@ -1126,9 +1477,11 @@ export class WorldScene extends Phaser.Scene {
 			const desertExplorable = this.biomeDef('desert')?.explorable;
 			const desertOpen = desertUnlocked && desertExplorable;
 			this.addDyn(this.img(sx, sy, desertOpen ? 'gate' : 'sign').setDepth(sy));
+			if (desertOpen) this.gateSparkle(sx, sy, 'desert');
 			const desertName = this.biomeName('desert', 'Redstone Scrubland');
 			this.registerInteractable({
 				x: sx, y: sy, label: desertOpen ? t('game.label.walkTo', { name: desertName }) : t('game.label.readTrailSign', { name: desertName }),
+				liveLabel: desertOpen ? undefined : () => this.gateRequirementText('desert'),
 				action: () => {
 					if (desertOpen) {
 						bridge.emit('request-area', { area: 'desert' });
@@ -1155,9 +1508,11 @@ export class WorldScene extends Phaser.Scene {
 			const alpineExplorable = this.biomeDef('alpine')?.explorable;
 			const alpineOpen = alpineUnlocked && alpineExplorable;
 			this.addDyn(this.img(sx, sy, alpineOpen ? 'gate' : 'sign').setDepth(sy));
+			if (alpineOpen) this.gateSparkle(sx, sy, 'alpine');
 			const alpineName = this.biomeName('alpine', 'Graywind Heights');
 			this.registerInteractable({
 				x: sx, y: sy, label: alpineOpen ? t('game.label.walkTo', { name: alpineName }) : t('game.label.readTrailSign', { name: alpineName }),
+				liveLabel: alpineOpen ? undefined : () => this.gateRequirementText('alpine'),
 				action: () => {
 					if (alpineOpen) {
 						bridge.emit('request-area', { area: 'alpine' });
@@ -1186,9 +1541,11 @@ export class WorldScene extends Phaser.Scene {
 			const coastalExplorable = this.biomeDef('coastal')?.explorable;
 			const coastalOpen = coastalUnlocked && coastalExplorable;
 			this.addDyn(this.img(sx, gy, coastalOpen ? 'gate' : 'sign').setDepth(gy));
+			if (coastalOpen) this.gateSparkle(sx, gy, 'coastal');
 			const coastalName = this.biomeName('coastal', 'Pelican Shore');
 			this.registerInteractable({
 				x: sx, y: gy, label: coastalOpen ? t('game.label.walkTo', { name: coastalName }) : t('game.label.readTrailSign', { name: coastalName }),
+				liveLabel: coastalOpen ? undefined : () => this.gateRequirementText('coastal'),
 				action: () => {
 					if (coastalOpen) {
 						bridge.emit('request-area', { area: 'coastal' });
@@ -1399,7 +1756,7 @@ export class WorldScene extends Phaser.Scene {
 			container.add([img, sprout]);
 			(container as any).nodeImg = img;
 			(container as any).sproutImg = sprout;
-			container.setSize(36, 36).setInteractive({ useHandCursor: true });
+			container.setSize(52, 52).setInteractive({ useHandCursor: true });
 			this.addDyn(container);
 			this.nodeSprites.set(node.id, container);
 			this.tweens.add({
@@ -1594,10 +1951,55 @@ export class WorldScene extends Phaser.Scene {
 			if (stillGrowing) {
 				this.time.delayedCall(growMs - age + 300, () => {
 					if (!this.alive) return;
-					this.refreshDynamic();
+					this.refreshDynamic(true); // sprout→grown swap isn't a state change, so force it
 					// the plant is now mature habitat — re-check who can return
 					bridge.emit('plant-matured', this.area);
 				});
+			}
+
+			// Harvest-ready plants get a soft golden glint above them; if one will
+			// become ready later (regrowing after a harvest), nudge a repaint then so
+			// the glint appears on its own.
+			if (def.yield && p.plantedAt && !stillGrowing) {
+				const readyAt = harvestReadyAt(def, { plantedAt: p.plantedAt, lastHarvestAt: (p as any).lastHarvestAt });
+				const now = Date.now();
+				if (readyAt != null && now >= readyAt) {
+					// A single small, dim star that twinkles occasionally above the plant —
+					// staggered per-plant so a field of ready plants doesn't pulse in
+					// unison (the old full glow on every plant read as a wall of light).
+					if (!this.textures.exists('harvest-mote')) {
+						const g = this.make.graphics({ x: 0, y: 0 }, false);
+						g.scaleCanvas(TEX_SCALE, TEX_SCALE);
+						g.fillStyle(0xffffff, 1).fillPoints([
+							{ x: 5, y: 0 }, { x: 6.2, y: 3.8 }, { x: 10, y: 5 }, { x: 6.2, y: 6.2 },
+							{ x: 5, y: 10 }, { x: 3.8, y: 6.2 }, { x: 0, y: 5 }, { x: 3.8, y: 3.8 },
+						], true);
+						g.generateTexture('harvest-mote', 10 * TEX_SCALE, 10 * TEX_SCALE);
+						g.destroy();
+					}
+					const stagger = hashStr(p.id) % 1400;
+					const mote = this.addDyn(this.img(x + (tall ? 7 : 5), y - (tall ? 22 : 10), 'harvest-mote').setDepth(y + 40).setTint(0xffe9a8).setAlpha(0).setScale(0.12));
+					mote.setBlendMode(Phaser.BlendModes.ADD);
+					this.tweens.add({
+						targets: mote,
+						alpha: { from: 0, to: 0.7 },
+						scale: { from: 0.08, to: 0.17 },
+						angle: { from: 0, to: 40 },
+						duration: 780, delay: stagger, hold: 120, yoyo: true,
+						repeat: -1, repeatDelay: 900 + (hashStr(p.id + 'r') % 900),
+						ease: 'Sine.easeInOut',
+					});
+					// Register it so E / Space (and the mobile interact button) harvest the
+					// nearest ready plant, just like gathering a node. Clicking still opens
+					// the placement menu (which also has a Harvest button).
+					this.interactables.push({
+						x, y,
+						label: t('game.label.harvest', { name: content('habitatObject', p.objectId, 'name', def.name) }),
+						action: () => bridge.emit('harvest-placement', { placementId: p.id }),
+					});
+				} else if (readyAt != null) {
+					this.time.delayedCall(readyAt - now + 200, () => { if (this.alive) this.refreshDynamic(true); });
+				}
 			}
 
 			// Camp fixtures stay crisp and identical; everything the player crafts
@@ -1634,12 +2036,13 @@ export class WorldScene extends Phaser.Scene {
 			const hasPrimaryAction = isFixture;
 			const defName = content('habitatObject', p.objectId, 'name', def.name);
 			img.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+				if (bridge.shared.uiBlocking) return; // a modal is open — clicks don't reach the world
 				if (this.placementObjectId || this.movingPlacementId) return;
 				if (this.activeTool === 'paint' && this.isHome) return; // painting handled globally
 				// shovel digs planted things back up — materials are refunded
 				if (this.terraformAction() === 'dig' && def.plantable && p.plantedAt) {
 					const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, x, y);
-					if (dist <= 110) bridge.emit('dig-up', { placementId: p.id, name: defName });
+					if (dist <= 120) bridge.emit('dig-up', { placementId: p.id, name: defName });
 					else bridge.emit('toast', { text: t('game.toast.walkCloser'), kind: 'info' });
 					return;
 				}
@@ -1650,7 +2053,7 @@ export class WorldScene extends Phaser.Scene {
 				}
 				if (!hasPrimaryAction) {
 					const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, x, y);
-					if (dist <= 110) bridge.emit('placement-clicked', { placementId: p.id, objectId: p.objectId, name: defName, plantedAt: p.plantedAt, x: p.x, y: p.y, rotation: p.rotation || 0 });
+					if (dist <= 120) bridge.emit('placement-clicked', { placementId: p.id, objectId: p.objectId, name: defName, plantedAt: p.plantedAt, lastHarvestAt: (p as any).lastHarvestAt, x: p.x, y: p.y, rotation: p.rotation || 0 });
 					else bridge.emit('toast', { text: t('game.toast.walkCloser'), kind: 'info' });
 				}
 			});
@@ -1753,7 +2156,10 @@ export class WorldScene extends Phaser.Scene {
 		const scale = animalScale(animal.id, animal.kind) * INV_TEX_SCALE;
 		img.setScale(scale);
 		img.setInteractive({ useHandCursor: true });
-		img.on('pointerdown', () => bridge.emit('animal-clicked', { animalId: animal.id }));
+		img.on('pointerdown', () => {
+			if (bridge.shared.uiBlocking) return; // a modal is open — clicks don't reach the world
+			bridge.emit('animal-clicked', { animalId: animal.id });
+		});
 		// gentle breathing — everything in the preserve feels alive (keeps its base size)
 		this.tweens.add({
 			targets: img, scaleY: { from: scale, to: scale * 0.94 },
@@ -2123,10 +2529,24 @@ export class WorldScene extends Phaser.Scene {
 		// E/Space interactions stay available while terraforming — only clicks shape
 		// the ground, so holding the shovel/can no longer locks you out of chests and beds
 		const near = busy ? null : this.nearestInteractable();
+		// Prefer the thing you're standing beside; otherwise light up whatever the
+		// pointer is hovering, so it's clear what a click would act on.
+		const focus = near || (busy || terraforming ? null : this.hoveredIt);
+
+		// Walked up to a locked gate → post what's still needed to the corner feed,
+		// but only when the remaining list actually CHANGES (not on every approach),
+		// so repeatedly walking up to the same gate doesn't spam the feed.
+		if (near?.liveLabel) {
+			const info = near.liveLabel();
+			if (info !== this.lastGateInfo) {
+				this.lastGateInfo = info;
+				bridge.emit('gate-info', { text: info });
+			}
+		}
 
 		// pulsing highlight on whatever you can interact with right now
-		if (near) {
-			this.highlight.setVisible(true).setPosition(near.x, near.y + 2);
+		if (focus) {
+			this.highlight.setVisible(true).setPosition(focus.x, focus.y + 2);
 		} else {
 			this.highlight.setVisible(false);
 		}
@@ -2146,6 +2566,10 @@ export class WorldScene extends Phaser.Scene {
 		const clickVerb = this.isTouch ? t('game.prompt.tap') : t('game.prompt.click');
 		const lowVerb = this.isTouch ? t('game.prompt.tapLower') : t('game.prompt.clickLower');
 		const rotHint = !this.isTouch && this.activeRotatable() ? t('game.prompt.rotateHint') : '';
+		// A locked gate's detailed "what's still needed" text goes to the corner feed
+		// (see gate-info below), not this narrow bar — here it just shows its short
+		// "read the trail sign" label like any other interactable.
+		const nearMain = near ? t('game.prompt.near', { verb, label: near.label }) : '';
 		const prompt = this.movingPlacementId
 			? t('game.prompt.moveTile', { verb: clickVerb }) + rotHint + (this.isTouch ? '' : t('game.prompt.escCancel'))
 			: this.placementObjectId
@@ -2153,9 +2577,7 @@ export class WorldScene extends Phaser.Scene {
 			: terraforming
 				? t(terraforming === 'dig' ? 'game.prompt.shovel' : 'game.prompt.wateringCan', { verb: lowVerb })
 					+ (near ? t('game.prompt.nearSuffix', { verb, label: near.label }) : '')
-				: near
-					? t('game.prompt.near', { verb, label: near.label })
-					: '';
+				: nearMain;
 		if (prompt !== this.lastPrompt) {
 			this.lastPrompt = prompt;
 			bridge.emit('prompt', prompt);

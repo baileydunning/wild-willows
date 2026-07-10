@@ -6,7 +6,7 @@ import { pokeMetricsUplink } from './solo/metricsUplink';
 import { bridge } from './game/bridge';
 import { unlockedRecipeIds } from './recipes';
 import { narrativeBeats, nextFeedFact, healthMilestoneLine, HEALTH_THRESHOLDS } from './ui/narrative';
-import { weatherForArea, weatherFeedLine, seasonFeedLine } from './weather';
+import { weatherForArea, weatherFeedLine, seasonFeedLine, liveCalendar } from './weather';
 import type { Appearance, GameData, GameState, PanelId, WorldSummary, PendingRequest } from './types';
 
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
@@ -64,6 +64,7 @@ interface Ctx {
 	discard: (kind: 'material' | 'crafted', id: string, qty: number, name?: string) => Promise<void>;
 	place: (objectId: string, area: string, x: number, y: number, rotation?: number) => Promise<void>;
 	removePlacement: (placementId: string) => Promise<void>;
+	harvest: (placementId: string) => Promise<void>;
 	movePlacement: (placementId: string, x: number, y: number, rotation?: number) => Promise<void>;
 	rotatePlacement: (placementId: string) => Promise<void>;
 	upgradeTool: (toolId: string) => Promise<void>;
@@ -76,6 +77,8 @@ interface Ctx {
 	paintPlacement: (placementId: string, color: string) => Promise<void>;
 	observe: (animalId: string) => Promise<void>;
 	claimTask: (taskId: string) => Promise<void>;
+	setGoals: (goals: any[]) => Promise<void>;
+	addGoal: (goal: any) => Promise<void>;
 	changeArea: (area: string) => Promise<void>;
 	recalcArea: (area: string) => Promise<void>;
 	// multiplayer: the world this save belongs to (solo, or one co-op world)
@@ -146,6 +149,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	const prevWeatherByArea = useRef<Record<string, string>>({});
 	const prevSeason = useRef<string | null>(null);
 	const prevTasksDone = useRef<Set<string> | null>(null);
+	// Whether the three fixed starters were on the board last snapshot — so we can
+	// announce (once) when the last of them clears and the player unlocks the builder.
+	const prevStartersPresent = useRef<boolean | null>(null);
 	// Last-seen home config signature, so upgrading/restyling while inside redraws the room.
 	const prevHomeSig = useRef<string | null>(null);
 	// Feed persistence: buffer new lines and flush them to Harper (capped per player),
@@ -179,6 +185,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			feedBuffer.current.push({ icon, text, at }); // persisted to Harper (pruned to 100)
 		}
 	}, []);
+
+	// Walking up to a locked gate posts what's still needed to the corner feed
+	// (Phaser figures out the details; it only fires when the remaining list
+	// changes, so it doesn't spam). Kept out of the persistent Feed menu.
+	useEffect(() => bridge.on('gate-info', (p: any) => {
+		if (p?.text) pushLog('map', p.text, false);
+	}), [pushLog]);
 
 	// Push any buffered feed lines to Harper. Best-effort: on failure we just keep
 	// them buffered for the next flush.
@@ -264,6 +277,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			.filter(Boolean) as typeof data.achievements;
 		defs.slice(0, 3).forEach((a) => toast(t('app.toast.achievementUnlocked', { name: content('achievement', a.id, 'name', a.name) }), 'achievement'));
 		for (const a of defs) pushLog('star', t('app.feed.achievementUnlocked', { name: content('achievement', a.id, 'name', a.name), flavor: content('achievement', a.id, 'flavor', a.flavor) }), true);
+		// The grand finale — every animal in every biome home — rains confetti.
+		if (added.includes('caretaker-of-the-whole')) bridge.emit('confetti');
 	}, [data, state, toast, pushLog]);
 
 	// Weave narrative beats into the feed as combinations of animals return — e.g.
@@ -320,6 +335,22 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			}
 		}
 	}, [state, toast, pushLog]);
+
+	// Starters graduation: when the last of the three fixed starters clears off the
+	// board, cheer the player on to design their own goals — once, as a toast and a
+	// feed line. We only fire on the present→absent transition we actually witnessed
+	// this session, so returning saves that finished long ago stay quiet.
+	useEffect(() => {
+		const tasks = state?.dailyTasks?.tasks;
+		if (!tasks) return;
+		const present = tasks.some((tk) => tk.id.startsWith('start-'));
+		const before = prevStartersPresent.current;
+		prevStartersPresent.current = present;
+		if (before && !present) {
+			toast(t('app.toast.startersDone'), 'unlock');
+			pushLog('target', t('app.feed.startersDone'), true);
+		}
+	}, [state, toast, pushLog, t]);
 
 	// Weather beats (retention): when the weather in the player's current biome
 	// changes — or the season turns — weave a flavor line into the feed. Same
@@ -548,6 +579,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		prevHealth.current = null; // and the health-milestone baseline
 		prevHomeSig.current = null;
 		prevTasksDone.current = null; // and the daily-task baseline
+		prevStartersPresent.current = null; // and the starters-graduation baseline
 		shownFacts.current = new Set(); // fresh fact pool next session
 	}, [flushFeed]);
 
@@ -594,6 +626,28 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			document.removeEventListener('visibilitychange', onVisible);
 		};
 	}, [sessionPlayerId, pushLog, toast, refresh]);
+
+	// Day-rollover refresh: the in-game day (~24 real min) turns over on its own,
+	// bringing new weather. Solo play has no world poll, so without this the
+	// snapshot would sit stale while idle and only catch up (jumping the day +
+	// weather) on your next action. Watch the live clock and pull a fresh snapshot
+	// the moment the day index changes, so weather turns over smoothly on time.
+	const lastDayIndex = useRef<number | null>(null);
+	useEffect(() => {
+		if (!sessionPlayerId) return;
+		const check = () => {
+			const snap = bridge.shared.state?.weather;
+			if (!snap) return;
+			const idx = liveCalendar(snap).dayIndex;
+			if (lastDayIndex.current === null) { lastDayIndex.current = idx; return; }
+			if (idx !== lastDayIndex.current) {
+				lastDayIndex.current = idx;
+				if (document.visibilityState !== 'hidden' && !actionInFlight.current) refresh().catch(() => undefined);
+			}
+		};
+		const id = window.setInterval(check, 4000);
+		return () => window.clearInterval(id);
+	}, [sessionPlayerId, refresh]);
 
 	// The daily-task board is server-derived text (tr('server.task.*')), so it's
 	// rendered in whatever language was active when the state was built. The es
@@ -773,6 +827,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 						const bName = b?.id ? content('biome', b.id, 'name', b.name) : b.name;
 						toast(t('app.toast.biomeUnlocked', { name: bName }), 'unlock');
 						pushLog('sparkle', t('app.feed.biomeUnlocked', { name: bName }), true);
+						// Reinforce the core loop each time a new area opens (playtest #12).
+						pushLog('leaf', t('app.feed.loopReminder', { name: bName }), true);
 					}
 				}
 				onResult?.(result);
@@ -848,6 +904,27 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				}
 			),
 		[act, data, pushLog]
+	);
+
+	// Gather a mature plant's yield without uprooting it — it regrows for next time.
+	const harvest = useCallback(
+		(placementId: string) =>
+			act(
+				() => api.harvest(placementId),
+				(r) => {
+					const gained = Object.entries(r?.gained || {})
+						.map(([id, q]) => {
+							const def = data?.resources.find((x) => x.id === id);
+							return t('app.format.qtyName', { qty: q as number, name: def ? content('resource', def.id, 'name', def.name) : id });
+						})
+						.join(', ');
+					if (gained) {
+						toast(t('app.toast.harvested', { items: gained }), 'unlock');
+						pushLog('leaf', t('app.feed.harvested', { items: gained }), true);
+					}
+				}
+			),
+		[act, data, toast, pushLog]
 	);
 
 	const setSelectedTool = useCallback((toolId: string) => {
@@ -1023,6 +1100,12 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			act(
 				() => api.claimTask(taskId),
 				(r) => {
+					// Announce the finished goal itself in BOTH feeds (corner log + Feed
+					// menu, via notable=true), then the reward it granted.
+					if (r?.text) {
+						toast(t('app.toast.goalComplete', { goal: r.text }), 'achievement');
+						pushLog('check', t('app.feed.goalComplete', { goal: r.text }), true);
+					}
 					const gainedTxt = Object.entries(r?.gained || {})
 						.map(([id, q]) => {
 							const def = data?.resources.find((x) => x.id === id);
@@ -1036,6 +1119,55 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				}
 			),
 		[act, data, toast, pushLog]
+	);
+
+	// Save the player's custom goal list (add/remove/reorder are edits to it).
+	const setGoals = useCallback(
+		(goals: any[]) => act(() => api.setGoals(goals)),
+		[act]
+	);
+
+	// Whether the player already holds enough materials (basket + chests) to craft
+	// `count` of an item right now — used to reject pointless "craft X" goals.
+	const canAffordCraft = useCallback((itemId: string | undefined, count: number) => {
+		const d = bridge.shared.data; const st = bridge.shared.state;
+		if (!d || !st || !itemId) return false;
+		const recipe = (d.recipes || []).find((r: any) => r.output?.itemId === itemId);
+		if (!recipe) return false;
+		const held = (id: string) => (st.player.inventory?.[id] || 0) + (st.chests || []).reduce((s: number, c: any) => s + (c.contents?.[id] || 0), 0);
+		return Object.entries(recipe.materials || {}).every(([mid, need]) => held(mid) >= (need as number) * count);
+	}, []);
+
+	// Add a single goal from a menu (journal / crafting / biomes), skipping exact
+	// duplicates and respecting the list cap. Announces the add with a toast.
+	const addGoal = useCallback(
+		async (goal: any) => {
+			const live = (bridge.shared.state as any) || state;
+			const cur = live?.customGoals || [];
+			const limit = live?.goalLimit ?? 3;
+			// Gate custom goals behind the three fixed starters (same rule as the goals
+			// builder) — the field-journal "attract" button reaches here too.
+			const startersDone = !((live?.dailyTasks?.tasks || []).some((tk: any) => typeof tk.id === 'string' && tk.id.startsWith('start-')));
+			if (!startersDone) { toast(t('app.toast.goalStartersFirst'), 'info'); return; }
+			const same = (g: any) =>
+				g.kind === goal.kind && g.itemId === goal.itemId && g.resourceId === goal.resourceId &&
+				g.animalId === goal.animalId && g.track === goal.track && g.biomeId === goal.biomeId;
+			if (cur.some(same)) { toast(t('app.toast.goalAlready'), 'info'); return; }
+			if (cur.length >= limit) { toast(t('app.toast.goalLimit', { max: limit }), 'info'); return; }
+			// No busywork goals: if you already have the materials to make it right now,
+			// there's nothing to work toward — just craft it.
+			if ((goal.kind === 'craft' || goal.kind === 'build') && canAffordCraft(goal.itemId, goal.target || 1)) {
+				toast(t('app.toast.goalAffordable'), 'info'); return;
+			}
+			// Biome-unlock kits are already tracked by the pinned "unlock next biome" goal.
+			if ((goal.kind === 'craft' || goal.kind === 'build') &&
+				(bridge.shared.data?.biomes || []).some((b: any) => b.unlock?.requiresItem === goal.itemId)) {
+				toast(t('app.toast.goalUnlockKit'), 'info'); return;
+			}
+			await act(() => api.setGoals([...cur, goal]));
+			toast(t('app.toast.goalAdded'), 'unlock');
+		},
+		[act, state, toast, canAffordCraft]
 	);
 
 	const changeArea = useCallback(
@@ -1083,17 +1215,17 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			placementObjectId, startPlacement, cancelPlacement, toasts, notify: toast, dismissToast,
 			log, feedLog, selectedTool, setSelectedTool, terraform, plant, setTutorialStep,
 			startNew, startLogin, continueLast, startNewSolo, loadSoloSlot, logout,
-			refresh, collect, transfer, craft, discard, place, removePlacement, movePlacement, rotatePlacement,
+			refresh, collect, transfer, craft, discard, place, removePlacement, harvest, movePlacement, rotatePlacement,
 			upgradeTool, upgradeHome, setHomeStyle, rest, paintColor, setPaintColor, paintHome, paintPlacement,
-			observe, claimTask, changeArea, recalcArea,
+			observe, claimTask, setGoals, addGoal, changeArea, recalcArea,
 			worlds, activeWorldId, startNewCoop, refreshWorlds,
 			pendingJoin, checkJoinApproval, playSoloInstead, pendingRequests, approveJoin, denyJoin,
 		}),
 		[data, state, dataError, saveStatus, panel, helpOpen, activeChestId, animalCardId,
 			placementObjectId, toasts, toast, dismissToast, log, feedLog, selectedTool, setSelectedTool, terraform, plant,
 			setTutorialStep, startNew, startLogin, continueLast, startNewSolo, loadSoloSlot, logout,
-			refresh, collect, transfer, craft, discard, place, removePlacement, movePlacement, rotatePlacement, upgradeTool,
-			observe, claimTask, changeArea, recalcArea, openChest, startPlacement, cancelPlacement, upgradeHome, setHomeStyle, rest,
+			refresh, collect, transfer, craft, discard, place, removePlacement, harvest, movePlacement, rotatePlacement, upgradeTool,
+			observe, claimTask, setGoals, addGoal, changeArea, recalcArea, openChest, startPlacement, cancelPlacement, upgradeHome, setHomeStyle, rest,
 			paintColor, setPaintColor, paintHome, paintPlacement,
 			worlds, activeWorldId, startNewCoop, refreshWorlds,
 			pendingJoin, checkJoinApproval, playSoloInstead, pendingRequests, approveJoin, denyJoin]

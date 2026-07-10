@@ -1,19 +1,22 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { api } from './api';
 import { bridge } from './game/bridge';
 import { PhaserGame } from './game/PhaserGame';
 import { GameProvider, useGame } from './state';
 import { useI18n } from './i18n/react';
+import { harvestReadyAt } from './types';
 import { isTypingTarget } from './typing';
 import { HelpModal } from './ui/Help';
 import { HUD, Toasts } from './ui/HUD';
+import { Confetti } from './ui/Confetti';
 import { AnimalCard, JournalPanel } from './ui/Journal';
 import { AchievementsPanel } from './ui/Achievements';
 import { MobileControls } from './ui/MobileControls';
-import { BiomesPanel, ChestPanel, CraftingPanel, HomePanel, InventoryPanel, ToolsPanel, WeatherPanel } from './ui/Panels';
+import { BiomesPanel, ChestPanel, CraftingPanel, HomePanel, InventoryPanel, MaterialsPanel, ToolsPanel, WeatherPanel } from './ui/Panels';
 import { SettingsPanel } from './ui/Settings';
 import { ActivityLog, FeedPanel, Toolbelt } from './ui/Toolbelt';
 import { Tutorial } from './ui/Tutorial';
+import { GoalsPanel } from './ui/GoalsPanel';
 import { DevPanel } from './ui/DevPanel';
 import { KeyboardGate } from './ui/KeyboardGate';
 import { WelcomeScreen } from './ui/Welcome';
@@ -27,6 +30,7 @@ interface ClickedPlacement {
 	objectId: string;
 	name: string;
 	plantedAt?: number;
+	lastHarvestAt?: number;
 	x?: number;
 	y?: number;
 	rotation?: number;
@@ -98,13 +102,27 @@ function PlantMenu({ bed, onClose }: { bed: ClickedBed; onClose: () => void }) {
 
 /** Small action menu when you click one of your placed items. */
 function PlacementMenu({ item, onClose }: { item: ClickedPlacement; onClose: () => void }) {
-	const { removePlacement, rotatePlacement, data } = useGame();
+	const { removePlacement, rotatePlacement, harvest, data } = useGame();
 	const { t, content } = useI18n();
 	const def = data?.habitatObjects.find((o) => o.id === item.objectId);
 	const planted = !!(def?.plantable && item.plantedAt);
+	const readyAt = harvestReadyAt(def, { plantedAt: item.plantedAt, lastHarvestAt: item.lastHarvestAt });
+	const canHarvest = readyAt != null && Date.now() >= readyAt;
+	const yieldName = def?.yield ? content('resource', def.yield.resourceId, 'name', data?.resources.find((r) => r.id === def.yield!.resourceId)?.name || def.yield.resourceId) : '';
 	return (
 		<div className="placement-menu">
 			<b>{content('habitatObject', item.objectId, 'name', item.name)}</b>
+			{canHarvest && (
+				<button
+					className="harvest-btn"
+					onClick={() => {
+						harvest(item.placementId);
+						onClose();
+					}}
+				>
+					<Icon name="basket" size={15} /> {t('app.placementMenu.harvest', { name: yieldName })}
+				</button>
+			)}
 			<button
 				onClick={() => {
 					bridge.emit('enter-move', { placementId: item.placementId });
@@ -203,6 +221,7 @@ function GameScreen() {
 				game.terraform(p.area, p.x, p.y, p.action);
 			}),
 			bridge.on('placement-clicked', (p: any) => setClickedPlacement(p)),
+			bridge.on('harvest-placement', (p: any) => game.harvest(p.placementId)),
 			bridge.on('bed-clicked', (p: any) => setClickedBed(p)),
 			bridge.on('dig-up', (p: any) => {
 				if (window.confirm(t('app.confirm.digUpPlacement', { name: p.name }))) {
@@ -233,18 +252,25 @@ function GameScreen() {
 			}
 			const k = e.key.toLowerCase();
 			if (k === 'escape') {
+				// One consistent close chain: Escape always dismisses the topmost
+				// thing — dev panel, help, the plant/placement popups, then panels,
+				// then placement mode. (Playtest: Esc "sometimes worked" because the
+				// popups weren't in this chain.)
 				if (devOpen) { setDevOpen(false); return; }
 				if (game.helpOpen) { game.setHelpOpen(false); return; }
+				if (clickedBed) { setClickedBed(null); return; }
+				if (clickedPlacement) { setClickedPlacement(null); return; }
 				if (panel) setPanel(null);
 				else if (placementObjectId) cancelPlacement();
 				return;
 			}
 			// H toggles the How-to-Play help modal (it isn't a panel).
 			if (k === 'h') { game.setHelpOpen(!game.helpOpen); return; }
-			// B = basket, J = journal, K = achievements, F = feed, T = tools, P = preserve,
-			// G = settings (gear), C = crafting (I = basket alias). O (the daily task
-			// board's collapse toggle) is handled inside TasksWidget itself.
-			const map: Record<string, any> = { b: 'inventory', i: 'inventory', j: 'journal', k: 'achievements', f: 'feed', t: 'tools', p: 'biomes', g: 'settings', c: 'crafting', u: 'people', m: 'weather' };
+			// B = basket, J = journal, K = achievements, F = feed, T = tools,
+			// M = map/preserve (P kept as a legacy alias), N = weather & seasons,
+			// G = goals, C = crafting (I = basket alias), O = options/settings (gear).
+			// The daily task board's collapse toggle is Tab, handled in TasksWidget.
+			const map: Record<string, any> = { b: 'inventory', i: 'inventory', j: 'journal', k: 'achievements', f: 'feed', t: 'tools', m: 'biomes', p: 'biomes', g: 'goals', c: 'crafting', u: 'people', n: 'weather', o: 'settings' };
 			if (map[k]) setPanel(panel === map[k] ? null : map[k]);
 			// number keys select toolbelt tools
 			const toolByKey: Record<string, string> = { '1': 'basket', '2': 'shovel', '3': 'watering-can', '4': 'paint' };
@@ -252,7 +278,7 @@ function GameScreen() {
 		};
 		window.addEventListener('keydown', onKey);
 		return () => window.removeEventListener('keydown', onKey);
-	}, [panel, setPanel, placementObjectId, cancelPlacement, game, devOpen]);
+	}, [panel, setPanel, placementObjectId, cancelPlacement, game, devOpen, clickedBed, clickedPlacement]);
 
 	return (
 		<div className="game-screen">
@@ -264,6 +290,7 @@ function GameScreen() {
 			<MobileControls />
 			<JoinApprovalPopup />
 			<Toasts />
+			<Confetti />
 			{clickedPlacement && <PlacementMenu item={clickedPlacement} onClose={() => setClickedPlacement(null)} />}
 			{clickedBed && <PlantMenu bed={clickedBed} onClose={() => setClickedBed(null)} />}
 			{panel === 'inventory' && <InventoryPanel />}
@@ -279,6 +306,8 @@ function GameScreen() {
 			{panel === 'settings' && <SettingsPanel />}
 			{panel === 'people' && <PeoplePanel />}
 			{panel === 'weather' && <WeatherPanel />}
+			{panel === 'materials' && <MaterialsPanel />}
+			{panel === 'goals' && <GoalsPanel />}
 			{devOpen && <DevPanel onClose={() => setDevOpen(false)} />}
 		</div>
 	);

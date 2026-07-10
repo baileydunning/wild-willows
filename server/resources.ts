@@ -25,7 +25,7 @@ import resourcesData from '../data/resources.json';
 import animals1Data from '../data/animals-1.json';
 import animals2Data from '../data/animals-2.json';
 import achievementsData from '../data/achievements.json';
-import { weatherSnapshot, weatherTypeAt, gatherResourceIdFor, isWeatherGatheredResource, seasonAt, dayPhaseAt, WEATHER_TYPES, SEASONS } from './weather';
+import { weatherSnapshot, weatherTypeAt, gatherResourceIdFor, isWeatherGatheredResource, seasonAt, dayPhaseAt, WEATHER_TYPES, SEASONS, DAY_MS as WEATHER_DAY_MS } from './weather';
 // Player-facing text goes through tr() (i18n `t`, aliased because most handlers
 // shadow the bare name with `const t = db()`).
 import { t as tr } from '../src/i18n/server';
@@ -44,7 +44,9 @@ const WEATHER_BIOME_IDS: string[] = biomesData.records.map((b: any) => b.id);
  *  starts at Day 1 and reaches Day 2 after ~one day's worth of real play. Pure
  *  function of stored data. */
 function weatherTimeFromPlay(player: any): number {
-	return Math.max(0, Math.round((player?.metrics?.playSeconds || 0) * 1000));
+	// `clockOffsetMs` lets in-game actions nudge the calendar forward (e.g. sleeping
+	// skips to the start of the next day) on top of accrued play time.
+	return Math.max(0, Math.round((player?.metrics?.playSeconds || 0) * 1000) + (player?.clockOffsetMs || 0));
 }
 
 // `databases.wildwillows` is undefined right after the database is dropped (until
@@ -561,7 +563,10 @@ const CAPACITY_BY_BASKET: Record<number, number> = { 1: 200, 2: 350, 3: 550, 4: 
 
 // New caretakers start empty-handed — the first task is to gather seeds and
 // fiber for a Grass Patch, so the tutorial's opening loop has real stakes.
-const START_INVENTORY: Record<string, number> = { water: 6, seeds: 2, wildflowers: 1 };
+// No starting seeds — the very first goal is "gather 12 seeds", so a fresh
+// basket should read 0/12, not 2/12. (A little water lets you tend a bed right
+// away for the tutorial.)
+const START_INVENTORY: Record<string, number> = { water: 6, wildflowers: 1 };
 const START_TOOLS: Record<string, number> = { basket: 1, shovel: 1, 'watering-can': 1, 'field-journal': 1 };
 
 // Character appearance options (validated server-side; the frontend renders these)
@@ -1030,6 +1035,9 @@ async function createPlayerRecords(playerId: string, name: string, passcode: str
 		tutorialStep: 0,
 		home: { ...DEFAULT_HOME }, // your camp tent — upgrade it along four tracks, in two styles
 		metrics: freshMetrics(now),
+		// The board always shows a live "Unlock the next biome" guidance goal, so a
+		// new player starts with no custom goals of their own yet.
+		customGoals: [],
 	};
 	await t.Player.put(player);
 
@@ -1085,7 +1093,9 @@ async function freshSnapshot(created: any) {
 		feed: [],
 		serverTime: now,
 		weather: weatherSnapshot(worldId, wxTime, WEATHER_BIOME_IDS),
-		dailyTasks: dailyTasksBlock({ wid: worldId, player: created.player, d, discoveries: [], biomeStates: created.seeded.biomeStates, now }),
+		dailyTasks: dailyTasksBlock({ wid: worldId, player: created.player, d, discoveries: [], biomeStates: created.seeded.biomeStates, placements: created.seeded.placements, chests: created.seeded.chests, now }),
+		customGoals: created.player.customGoals || [],
+		goalLimit: goalLimitFor(created.player, d),
 		nodeRegenSeconds: NODE_REGEN_SECONDS,
 		inventoryCapacity: inventoryCapacity(created.player),
 	};
@@ -1402,8 +1412,14 @@ async function recalcBiome(
 		terrain = terrain.filter((tt) => tt.id !== at.id);
 		terrain.push(at);
 	}
-	const wateredTiles = Math.min(10, terrain.filter((tt) => tt.type === 'watered').length);
-	const openWaterTiles = terrain.filter((tt) => tt.type === 'water').length;
+	// Watered beds nudge health only a LITTLE — a few beds, half a point each — so
+	// you can't spam dig+water your way to enough health to pull animals back. Real
+	// recovery comes from placed/planted habitat; a bare bed is just a step toward
+	// planting. (Capped low on purpose.)
+	const wateredTiles = Math.min(3, terrain.filter((tt) => tt.type === 'watered').length) * 0.5;
+	// Pre-seeded starting water (the wetland's channels) doesn't count toward
+	// health — only water the player shapes does — so a biome begins damaged.
+	const openWaterTiles = terrain.filter((tt) => tt.type === 'water' && !tt.seeded).length;
 	// rivers and lakes shaped with the watering can feed water-dwelling animals
 	const water = analyzeWater(terrain);
 
@@ -1523,7 +1539,10 @@ async function seedStartingTerrain(wid: string, playerId: string, biomeId: strin
 	for (const cell of layout) {
 		const id = `${wid}:${biomeId}:${cell.x}:${cell.y}`;
 		if (await t.TerrainTile.get(id)) continue; // never overwrite the world's own work
-		await t.TerrainTile.put({ id, worldId: wid, playerId, area: biomeId, x: cell.x, y: cell.y, type: cell.type, updatedAt: Date.now() });
+		// `seeded` marks pre-shaped starting terrain so it doesn't count toward
+		// biome health — the wetland begins damaged (≈5%), not half-restored just
+		// because it ships with channels. It still feeds water-dwelling animals.
+		await t.TerrainTile.put({ id, worldId: wid, playerId, area: biomeId, x: cell.x, y: cell.y, type: cell.type, seeded: true, updatedAt: Date.now() });
 	}
 }
 
@@ -1544,6 +1563,10 @@ async function checkUnlocks(
 	const player = fresh.player || (await t.Player.get(playerId));
 	const unlockedNow: any[] = [];
 	const unlockedSet = new Set(player.unlockedBiomes || []);
+	// Newly-unlocked biomes each drop a one-time, claimable "welcome bundle" onto
+	// the task board (see dailyTasksBlock). Existing saves start with no pending
+	// rewards, so they aren't retroactively gifted for biomes opened long ago.
+	const pendingRewards = new Set<string>(player.pendingUnlockRewards || []);
 	// the world's own unlock state is authoritative for prerequisites
 	const worldUnlocked = new Set((await byWorld(t.BiomeState, wid)).filter((b) => b.unlocked).map((b) => b.biomeId));
 
@@ -1569,7 +1592,8 @@ async function checkUnlocks(
 
 		worldUnlocked.add(biome.id);
 		unlockedSet.add(biome.id);
-		await t.Player.patch(playerId, { unlockedBiomes: [...unlockedSet] });
+		pendingRewards.add(biome.id);
+		await t.Player.patch(playerId, { unlockedBiomes: [...unlockedSet], pendingUnlockRewards: [...pendingRewards] });
 		const bsRow = await findBiomeState(t.BiomeState, wid, biome.id);
 		await t.BiomeState.patch(bsRow?.id ?? `${wid}:${biome.id}`, { unlocked: true });
 		await seedStartingTerrain(wid, playerId, biome.id);
@@ -1740,6 +1764,10 @@ interface DailyTask {
 	hint?: string;
 	/** live progress for welcome/goal tasks, read from world state instead of daily counters */
 	live?: number;
+	/** Sub-requirements shown as checkboxes (the always-on "unlock next biome" goal). */
+	steps?: { text: string; done: boolean }[];
+	/** Guidance goal — always on the board, not claimable for a reward. */
+	pinned?: boolean;
 }
 
 interface TaskCtx {
@@ -1750,6 +1778,10 @@ interface TaskCtx {
 	discoveries: any[];
 	/** every BiomeState row in this world */
 	biomeStates: any[];
+	/** every Placement row in this world (for "plant N" goal progress) */
+	placements?: any[];
+	/** every Chest row in this world (for "collect N" goal progress) */
+	chests?: any[];
 	now: number;
 	/** The biomes the PLAYER personally unlocked — the reward/gather pool draws
 	 *  only from these, never the wider co-op roam set, so tasks stay specific to
@@ -1800,9 +1832,12 @@ function milestonePin(
 		if (u.minHealth) {
 			const remaining = Math.max(0, u.minHealth - (prereq.health || 0));
 			const target = Math.max(1, Math.min(3, Math.ceil(remaining)));
+			// "from X% to Y%" instead of "by N" — playtest: at 89% health, "raise
+			// health by 3" read as ambiguous (3 what? out of what?).
+			const current = Math.round(prereq.health || 0);
 			steps.push({
 				step: 'health', icon: 'leaf', unmet: remaining > 0,
-				text: tr('server.task.raiseHealth', { biome: prereqName, count: target }),
+				text: tr('server.task.raiseHealth', { biome: prereqName, count: target, current, goal: Math.min(100, current + target) }),
 				target, counter: `health:${u.biome}`,
 			});
 		}
@@ -1954,22 +1989,375 @@ function dailyTasksFor(ctx: TaskCtx, claims: Record<string, boolean>, daily: Rec
 	return { dayKey, endsAt, tasks };
 }
 
-/** The day's tasks with this player's live progress + claim state folded in. */
+// ---- player-authored goals (the custom task list) -------------------------
+// The board is the player's OWN list now: three fixed starters that teach the
+// core loop, then whatever goals the player builds. Progress is read from
+// durable world state (not the day counters, which reset), claims are permanent
+// (player.goalClaims), and each finished goal grants one small fixed bundle.
+
+type GoalKind = 'craft' | 'build' | 'grow' | 'plant' | 'collect' | 'observe' | 'welcome' | 'attract' | 'welcomeTotal' | 'home' | 'unlock' | 'health' | 'biomeAnimals';
+interface CustomGoal {
+	id: string;
+	kind: GoalKind;
+	target: number;
+	itemId?: string;
+	resourceId?: string;
+	animalId?: string;
+	track?: string;
+	styleId?: string;
+	biomeId?: string;
+	/** The metric value at the moment the goal was created. Progress for the
+	 *  cumulative kinds (craft/build/plant/collect/observe) is measured as NEW work
+	 *  done SINCE this baseline, so a fresh goal starts at 0 instead of instantly
+	 *  completing off past progress. */
+	base?: number;
+	/** Second baseline for 'build' goals — the placed count at creation (base
+	 *  tracks crafting, basePlace tracks placing). */
+	basePlace?: number;
+}
+
+const GOAL_ICON: Record<GoalKind, string> = {
+	craft: 'hammer', build: 'hammer', grow: 'leaf', plant: 'leaf', collect: 'basket', observe: 'journal', welcome: 'paw', attract: 'paw', welcomeTotal: 'paw', home: 'home', unlock: 'map', health: 'leaf', biomeAnimals: 'paw',
+};
+const GOAL_HOME_TRACKS = ['space', 'comfort', 'decor', 'light'];
+const MAX_CUSTOM_GOALS = 6; // hard ceiling; the live cap is 3 (or 6 fully unlocked)
+
+/** How many custom goals a player may hold at once: 3 while biomes remain to
+ *  unlock, 6 once the whole preserve is open. */
+function goalLimitFor(player: any, d: any): number {
+	const unlocked = new Set(player?.unlockedBiomes || ['meadow']);
+	const allOpen = d.biomes.filter((b: any) => b.explorable).every((b: any) => unlocked.has(b.id));
+	return allOpen ? 6 : 3;
+}
+
+/** The always-on "unlock the next biome" guidance goal: the frontier locked
+ *  biome (its prerequisite is open) with each unlock requirement as a checkbox.
+ *  Pinned + non-claimable; disappears once every biome is unlocked. */
+function nextBiomeGoal(ctx: TaskCtx): any | null {
+	const { d, biomeStates, discoveries, player } = ctx;
+	const bs = new Map(biomeStates.map((b: any) => [b.biomeId, b]));
+	for (const biome of d.biomes) {
+		const u: any = biome.unlock;
+		if (!u || bs.get(biome.id)?.unlocked) continue;
+		const prereq = bs.get(u.biome);
+		if (!prereq?.unlocked) continue; // not the frontier yet
+		// You only get "unlock the next area" guidance once you've actually walked
+		// through the gate into its prerequisite biome — arriving there is what
+		// surfaces what's next, not merely unlocking it (the meadow counts as
+		// visited from the start, so the very first goal still shows immediately).
+		if (!(player?.visitedBiomes || ['meadow']).includes(u.biome)) continue;
+		const prereqName = d.biome.get(u.biome)?.name || u.biome;
+		const name = d.biome.get(biome.id)?.name || biome.id;
+		const steps: { text: string; done: boolean }[] = [];
+		if (u.minHealth) steps.push({ text: tr('server.nextbiome.health', { biome: prereqName, goal: u.minHealth, cur: Math.round(prereq.health || 0) }), done: (prereq.health || 0) >= u.minHealth });
+		if (u.minAnimals) steps.push({ text: tr('server.nextbiome.animals', { biome: prereqName, goal: u.minAnimals, cur: prereq.returnedCount || 0 }), done: (prereq.returnedCount || 0) >= u.minAnimals });
+		if (u.minTotalAnimals) steps.push({ text: tr('server.nextbiome.total', { goal: u.minTotalAnimals, cur: discoveries.length }), done: discoveries.length >= u.minTotalAnimals });
+		if (u.requiresItem) {
+			const item = d.object.get(u.requiresItem)?.name || u.requiresItem;
+			const have = (player?.craftedItems?.[u.requiresItem] || 0) + (player?.craftedEver?.[u.requiresItem] || 0);
+			steps.push({ text: tr('server.nextbiome.craft', { item }), done: have > 0 });
+		}
+		if (!steps.length) return null;
+		const done = steps.filter((s) => s.done).length;
+		return {
+			id: 'next-biome', kind: 'unlock', icon: 'map', pinned: true,
+			text: tr('server.nextbiome.title', { biome: name }),
+			hint: tr('server.nextbiome.hint', { biome: name }),
+			target: steps.length, progress: done, counter: '', reward: {}, steps, claimed: false,
+		};
+	}
+	return null;
+}
+
+/** Habitat checklist for an "attract {animal}" goal: each required object with
+ *  how many are placed vs needed, plus a health step if the animal needs it. */
+function attractSteps(animalId: string, ctx: TaskCtx): { text: string; done: boolean }[] {
+	const a = ctx.d.animal.get(animalId);
+	if (!a) return [];
+	// Gated by the field guide: the exact habitat an animal needs is only revealed
+	// once the player has upgraded their field journal to this biome's guide tier
+	// (same rule as the journal). Until then, nudge them to upgrade instead of
+	// spoiling the checklist.
+	const needTier = (ctx.d.biome.get(a.biome)?.order || 1) + 1;
+	const guideTier = ctx.player?.tools?.['field-journal'] || 1;
+	if (guideTier < needTier) {
+		return [{ text: tr('server.goal.upgradeGuide'), done: false }];
+	}
+	const steps: { text: string; done: boolean }[] = [];
+	for (const [oid, need] of Object.entries(a.requirements?.objects || {})) {
+		const have = (ctx.placements || []).filter((p: any) => p.objectId === oid && p.area === a.biome).length;
+		steps.push({ text: tr('server.goal.habitatStep', { have: Math.min(have, need as number), need: need as number, name: ctx.d.object.get(oid)?.name || oid }), done: have >= (need as number) });
+	}
+	if (a.requirements?.minHealth) {
+		const b = ctx.biomeStates.find((x: any) => x.biomeId === a.biome);
+		const cur = Math.round(b?.health || 0);
+		steps.push({ text: tr('server.goal.healthStep', { cur, need: a.requirements.minHealth }), done: cur >= a.requirements.minHealth });
+	}
+	return steps;
+}
+
+/** Materials-you-have vs materials-needed for a craft/build goal's recipe,
+ *  shown in the goal's hover info box. */
+function craftMaterialSteps(itemId: string, ctx: TaskCtx): { text: string; done: boolean }[] {
+	const recipe = (ctx.d.recipes || []).find((r: any) => r.output?.itemId === itemId);
+	return matSteps(recipe?.materials || {}, ctx);
+}
+
+/** Materials have/need for building a specific house style. */
+function homeBuildSteps(styleId: string, ctx: TaskCtx): { text: string; done: boolean }[] {
+	return matSteps(HOME_STYLES[styleId]?.materials || {}, ctx);
+}
+
+/** Shared "have/need material" checklist. */
+function matSteps(mats: Record<string, number>, ctx: TaskCtx): { text: string; done: boolean }[] {
+	return Object.entries(mats).map(([mid, need]) => {
+		const have = heldAmount(ctx, mid);
+		return { text: tr('server.goal.matStep', { have: Math.min(have, need), need, name: ctx.d.resource.get(mid)?.name || mid }), done: have >= need };
+	});
+}
+
+/** Staple materials from the player's unlocked biomes (no water / weather specials). */
+function goalRewardPool(ctx: TaskCtx): string[] {
+	const unlocked: string[] = ctx.unlockedBiomes?.length ? ctx.unlockedBiomes
+		: (ctx.player?.unlockedBiomes?.length ? ctx.player.unlockedBiomes : ['meadow']);
+	const all = unlocked.flatMap((id: string) => (ctx.d.biome.get(id)?.resources || []) as string[]);
+	return [...new Set<string>(all)]
+		.filter((r) => r !== 'water' && !isWeatherGatheredResource(r) && ctx.d.resource.get(r));
+}
+/** A small, deterministic-per-key reward bundle for a finished goal. */
+function goalReward(ctx: TaskCtx, key: string): Record<string, number> {
+	const pool = goalRewardPool(ctx);
+	const out: Record<string, number> = {};
+	if (!pool.length) return out;
+	const rng = seededRng(hash32(`goalreward:${key}`));
+	const p = [...pool];
+	for (let i = 0; i < 2 && p.length; i++) {
+		const r = p.splice(Math.floor(rng() * p.length), 1)[0];
+		out[r] = 3 + Math.floor(rng() * 3); // 3–5 each — deliberately small
+	}
+	return out;
+}
+
+/** One-time "welcome bundle" for freshly unlocking a biome: a couple of THAT
+ *  biome's own resources (the next area), deterministic per biome so the reward
+ *  shown on the board equals the reward granted on claim. */
+function unlockBundle(ctx: TaskCtx, biomeId: string): Record<string, number> {
+	const pool = ((ctx.d.biome.get(biomeId)?.resources || []) as string[])
+		.filter((r) => r !== 'water' && !isWeatherGatheredResource(r) && ctx.d.resource.get(r));
+	const out: Record<string, number> = {};
+	if (!pool.length) return out;
+	const rng = seededRng(hash32(`unlockreward:${biomeId}`));
+	const p = [...pool];
+	for (let i = 0; i < 2 && p.length; i++) {
+		const r = p.splice(Math.floor(rng() * p.length), 1)[0];
+		out[r] = 4 + Math.floor(rng() * 3); // 4–6 each — a small welcome to the new area
+	}
+	return out;
+}
+
+/** How much of a resource the player is holding, basket + all chests. */
+function heldAmount(ctx: TaskCtx, resId: string): number {
+	const inv = ctx.player?.inventory?.[resId] || 0;
+	const inChests = (ctx.chests || []).reduce((s: number, c: any) => s + (c.contents?.[resId] || 0), 0);
+	return inv + inChests;
+}
+
+/** How many of a given object are placed in the world right now. */
+function placedCountFor(ctx: TaskCtx, objectId: string): number {
+	return (ctx.placements || []).filter((p: any) => p.objectId === objectId).length;
+}
+
+/** How many of a given plantable object have been planted (placement + plantedAt). */
+function plantedCountFor(ctx: TaskCtx, objectId: string): number {
+	return (ctx.placements || []).filter((p: any) => p.objectId === objectId && typeof p.plantedAt === 'number').length;
+}
+
+/** The raw, absolute metric a goal tracks (before the baseline is subtracted). */
+function goalMetric(goal: CustomGoal, ctx: TaskCtx): number {
+	switch (goal.kind) {
+		case 'craft':
+		case 'build': return ctx.player?.craftedEver?.[goal.itemId || ''] || 0;
+		case 'grow': return plantedCountFor(ctx, goal.itemId || '');
+		case 'plant': return (ctx.placements || []).filter((p: any) => typeof p.plantedAt === 'number').length;
+		case 'collect': return heldAmount(ctx, goal.resourceId || '');
+		case 'observe': return ctx.discoveries.filter((x: any) => (x.timesObserved || 0) > 0).length;
+		case 'welcomeTotal': return ctx.discoveries.length;
+		default: return 0;
+	}
+}
+
+/** Live progress for one player-set goal, read from durable world state.
+ *  Cumulative kinds count only NEW work since the goal's baseline, so a freshly
+ *  added goal never starts already-complete. */
+function goalProgress(goal: CustomGoal, ctx: TaskCtx): number {
+	switch (goal.kind) {
+		case 'craft':
+		case 'grow':
+		case 'plant':
+		case 'collect':
+		case 'observe':
+		case 'welcomeTotal':
+			return Math.max(0, Math.min(goal.target, goalMetric(goal, ctx) - (goal.base || 0)));
+		case 'build': {
+			// Two steps per object: crafting it counts halfway, placing it completes.
+			// Progress is out of target*2 (see the board's target below).
+			const crafted = Math.max(0, Math.min(goal.target, (ctx.player?.craftedEver?.[goal.itemId || ''] || 0) - (goal.base || 0)));
+			const placed = Math.max(0, Math.min(goal.target, placedCountFor(ctx, goal.itemId || '') - (goal.basePlace || 0)));
+			return crafted + placed;
+		}
+		case 'welcome':
+		case 'attract': return ctx.discoveries.some((x: any) => x.animalId === goal.animalId) ? 1 : 0;
+		case 'home':
+			if (goal.track === 'build') {
+				const h = ctx.player?.home;
+				if (!h?.styleLocked) return 0;
+				return !goal.styleId || h.style === goal.styleId ? 1 : 0; // that house (or any, if unspecified)
+			}
+			return (ctx.player?.home?.[goal.track || ''] as number) >= goal.target ? goal.target : Math.min(goal.target, (ctx.player?.home?.[goal.track || ''] as number) || 1);
+		case 'unlock': return ctx.biomeStates.some((b: any) => b.biomeId === goal.biomeId && b.unlocked) ? 1 : 0;
+		case 'health': {
+			const b = ctx.biomeStates.find((x: any) => x.biomeId === goal.biomeId);
+			return Math.min(goal.target, Math.round(b?.health || 0));
+		}
+		case 'biomeAnimals': {
+			const ret = ctx.discoveries.filter((d: any) => d.biomeId === goal.biomeId).length;
+			return Math.min(goal.target, ret);
+		}
+		default: return 0;
+	}
+}
+
+/** Localized board label for a goal. */
+function goalText(goal: CustomGoal, ctx: TaskCtx): string {
+	const d = ctx.d;
+	switch (goal.kind) {
+		case 'craft': return tr('server.goal.craft', { count: goal.target, item: d.object.get(goal.itemId)?.name || goal.itemId });
+		case 'build': return tr('server.goal.build', { count: goal.target, item: d.object.get(goal.itemId)?.name || goal.itemId });
+		case 'grow': return tr('server.goal.grow', { count: goal.target, item: d.object.get(goal.itemId)?.name || goal.itemId });
+		case 'plant': return tr('server.goal.plant', { count: goal.target });
+		case 'collect': return tr('server.goal.collect', { count: goal.target, resource: d.resource.get(goal.resourceId)?.name || goal.resourceId });
+		case 'observe': return tr('server.goal.observe', { count: goal.target });
+		case 'welcome': return tr('server.goal.welcome', { animal: d.animal.get(goal.animalId)?.name || goal.animalId });
+		case 'attract': return tr('server.goal.attract', { kind: d.animal.get(goal.animalId)?.kind || tr('server.goal.creature') });
+		case 'welcomeTotal': return tr('server.goal.welcomeTotal', { count: goal.target });
+		case 'home': return goal.track === 'build'
+			? tr('server.goal.buildHome', { style: HOME_STYLES[goal.styleId || '']?.name || tr('server.goal.aHouse') })
+			: tr('server.goal.home', { track: tr(`server.goal.track.${goal.track}`), level: goal.target });
+		case 'unlock': return tr('server.goal.unlock', { biome: d.biome.get(goal.biomeId)?.name || goal.biomeId });
+		case 'health': return tr('server.goal.restore', { biome: d.biome.get(goal.biomeId)?.name || goal.biomeId, pct: goal.target });
+		case 'biomeAnimals': return tr('server.goal.biomeAnimals', { count: goal.target, biome: d.biome.get(goal.biomeId)?.name || goal.biomeId });
+		default: return '';
+	}
+}
+
+/** The three fixed starter tasks that always begin the game (until claimed). */
+function starterTasks(ctx: TaskCtx): any[] {
+	const grasshopper = ctx.discoveries.some((x: any) => x.animalId === FIRST_ANIMAL_ID);
+	const craftedAny = Object.keys(ctx.player?.craftedEver || {}).length > 0;
+	return [
+		{ id: 'start-gather', kind: 'gather', icon: 'basket', text: tr('server.task.collectSeeds'), hint: tr('server.task.gatherHint'), target: 12, progress: Math.min(12, heldAmount(ctx, 'seeds')) },
+		{ id: 'start-craft', kind: 'craft', icon: 'hammer', text: tr('server.task.craftFirst'), hint: tr('server.task.craftFirstHint'), target: 1, progress: craftedAny ? 1 : 0 },
+		{ id: 'start-welcome', kind: 'welcome', icon: 'sparkle', text: tr('server.task.welcomeGrasshopper'), hint: tr('server.task.welcomeGrasshopperHint'), target: 1, progress: grasshopper ? 1 : 0 },
+	];
+}
+
+/** Validate + normalize a player-submitted goal list (rewards + baselines are
+ *  never client-supplied — they're derived server-side). Existing ids are kept so
+ *  SetGoals can preserve each goal's baseline across edits. */
+function sanitizeGoals(goals: any[], d: any): CustomGoal[] {
+	const out: CustomGoal[] = [];
+	const kinds: GoalKind[] = ['craft', 'build', 'grow', 'plant', 'collect', 'observe', 'welcome', 'attract', 'welcomeTotal', 'home', 'unlock', 'health', 'biomeAnimals'];
+	let hasHome = false; // only one home goal (build or upgrade) at a time
+	for (const g of Array.isArray(goals) ? goals : []) {
+		if (out.length >= MAX_CUSTOM_GOALS) break;
+		const kind = g?.kind as GoalKind;
+		if (!kinds.includes(kind)) continue;
+		if (kind === 'home') { if (hasHome) continue; hasHome = true; }
+		const id = typeof g?.id === 'string' && g.id ? g.id.slice(0, 40) : `cg_${Math.random().toString(36).slice(2, 10)}`;
+		const target = Math.max(1, Math.min(99, Math.floor(Number(g?.target) || 1)));
+		const goal: CustomGoal = { id, kind, target };
+		if (kind === 'craft' || kind === 'build' || kind === 'grow') { if (!d.object.get(g?.itemId)) continue; goal.itemId = g.itemId; }
+		else if (kind === 'collect') { if (!d.resource.get(g?.resourceId)) continue; goal.resourceId = g.resourceId; }
+		else if (kind === 'welcome' || kind === 'attract') { if (!d.animal.get(g?.animalId)) continue; goal.animalId = g.animalId; goal.target = 1; }
+		else if (kind === 'home') {
+			if (g?.track === 'build') {
+				if (!HOME_STYLES[g?.styleId]) continue; // must name a real house style
+				goal.track = 'build'; goal.styleId = g.styleId; goal.target = 1;
+			} else {
+				if (!GOAL_HOME_TRACKS.includes(g?.track)) continue;
+				goal.track = g.track;
+			}
+		}
+		else if (kind === 'unlock') { if (!d.biome.get(g?.biomeId)) continue; goal.biomeId = g.biomeId; goal.target = 1; }
+		else if (kind === 'health') {
+			if (!d.biome.get(g?.biomeId)) continue; // real biome only
+			goal.biomeId = g.biomeId; goal.target = Math.max(1, Math.min(100, Math.floor(Number(g?.target) || 100)));
+		}
+		else if (kind === 'biomeAnimals') {
+			if (!d.biome.get(g?.biomeId)) continue;
+			// Target is authoritative: every animal that can live in that biome.
+			const n = d.animals.filter((a: any) => a.biome === g.biomeId).length;
+			if (n <= 0) continue;
+			goal.biomeId = g.biomeId; goal.target = n;
+		}
+		out.push(goal);
+	}
+	return out;
+}
+
+/** The on-screen board: three fixed starters, then the player's own goal list. */
 function dailyTasksBlock(ctx: TaskCtx) {
-	const { player } = ctx;
-	const dayKey = playerDayKey(player, ctx.now);
-	const claims = player?.taskClaims?.dayKey === dayKey ? player.taskClaims.claimed || {} : {};
-	const daily = player?.daily?.dayKey === dayKey ? player.daily.counts || {} : {};
-	const gen = dailyTasksFor(ctx, claims, daily);
-	return {
-		dayKey: gen.dayKey,
-		endsAt: gen.endsAt,
-		tasks: gen.tasks.map(({ live, ...task }) => ({
-			...task,
-			progress: live != null ? live : Math.min(task.target, daily[task.counter] || 0),
-			claimed: !!claims[task.id],
-		})),
-	};
+	const { player, now, d } = ctx;
+	const dayKey = playerDayKey(player, now);
+	const goalClaims: Record<string, boolean> = player?.goalClaims || {};
+	const tasks: any[] = [];
+	const pendingUnlock = (player?.pendingUnlockRewards || []) as string[];
+	// The always-on "unlock the next biome" guidance (with its checklist) leads
+	// the board — but NOT while a welcome bundle is still waiting to be claimed.
+	// Freshly unlocking a biome should feel like an arrival, so we hold back any
+	// mention of the *next* biome until the player claims their bundle.
+	if (!pendingUnlock.length) {
+		const nb = nextBiomeGoal(ctx);
+		if (nb) tasks.push(nb);
+	}
+	// A just-unlocked biome shows a one-time, CLAIMABLE welcome bundle (a couple
+	// of that new area's resources) — it flags the unlock in the task bar and the
+	// player has to claim it. Cleared from player.pendingUnlockRewards on claim.
+	for (const bid of pendingUnlock) {
+		const bname = d.biome.get(bid)?.name || bid;
+		tasks.push({
+			id: `unlock-reward:${bid}`, kind: 'unlock', icon: 'sparkle',
+			text: tr('server.unlockreward.title', { biome: bname }),
+			hint: tr('server.unlockreward.hint', { biome: bname }),
+			target: 1, progress: 1, counter: '', reward: unlockBundle(ctx, bid), claimed: false,
+		});
+	}
+	// Then the three fixed starters, while any remain unclaimed.
+	for (const s of starterTasks(ctx)) {
+		if (goalClaims[s.id]) continue;
+		tasks.push({ ...s, counter: '', reward: goalReward(ctx, s.id), claimed: false });
+	}
+	// Finally, the player's own goals.
+	for (const g of (player?.customGoals || []) as CustomGoal[]) {
+		if (goalClaims[g.id]) continue;
+		// build goals have two steps per object (craft + place), so the bar runs to
+		// twice the object count.
+		const target = g.kind === 'build' ? g.target * 2 : g.target;
+		// Hover-box checklists: attract → the animal's habitat pieces; craft/build →
+		// the recipe's materials (have vs needed).
+		const steps = g.kind === 'attract' ? attractSteps(g.animalId || '', ctx)
+			: (g.kind === 'craft' || g.kind === 'build') ? craftMaterialSteps(g.itemId || '', ctx)
+			: (g.kind === 'home' && g.track === 'build') ? homeBuildSteps(g.styleId || '', ctx)
+			: undefined;
+		tasks.push({
+			id: g.id, kind: g.kind, icon: GOAL_ICON[g.kind] || 'check',
+			text: goalText(g, ctx), target, counter: '',
+			reward: goalReward(ctx, g.id), progress: goalProgress(g, ctx), claimed: false,
+			hint: tr(`server.goal.hint.${g.kind}`),
+			...(steps ? { steps } : {}),
+		});
+	}
+	return { dayKey, endsAt: 0, tasks };
 }
 
 async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
@@ -2022,7 +2410,9 @@ async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 			.map((r: any) => ({ id: r.id, at: r.at, icon: r.icon, text: r.text })),
 		serverTime: now,
 		weather: weatherSnapshot(wid, wxTime, WEATHER_BIOME_IDS, player?.devWeather || null),
-		dailyTasks: dailyTasksBlock({ wid, player, d, discoveries, biomeStates, now, unlockedBiomes: personalUnlocked }),
+		dailyTasks: dailyTasksBlock({ wid, player, d, discoveries, biomeStates, placements, chests, now, unlockedBiomes: personalUnlocked }),
+		customGoals: player?.customGoals || [],
+		goalLimit: goalLimitFor(player, d),
 		nodeRegenSeconds: NODE_REGEN_SECONDS,
 		inventoryCapacity: inventoryCapacity(player),
 	};
@@ -3172,6 +3562,57 @@ export class Plant extends PublicEndpoint {
 	}
 }
 
+/**
+ * When a planted, yield-bearing plant is ready to harvest — mature the first
+ * time, then `regrowSeconds` after each harvest. Returns the ms timestamp it
+ * becomes ready, or null if it never yields.
+ */
+function harvestReadyAt(def: any, placement: any): number | null {
+	const y = def?.yield;
+	if (!y || !def?.plantable || !placement?.plantedAt) return null;
+	const growMs = (def.growSeconds || 0) * 1000;
+	const regrowMs = (y.regrowSeconds || 60) * 1000;
+	return placement.lastHarvestAt ? placement.lastHarvestAt + regrowMs : placement.plantedAt + growMs;
+}
+
+/**
+ * POST /HarvestPlacement/ {playerId, placementId} — gather a mature plant's
+ * yield (berries, flowers, acorns…) without uprooting it. The plant stays and
+ * regrows its yield after `regrowSeconds`, turning planting into a renewable
+ * source instead of dig-up-and-replant.
+ */
+export class HarvestPlacement extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId, placementId } = await bodyOf(data);
+		const t = db();
+		const d = await defs();
+		const { player } = await requirePlayer(playerId);
+		const wid = worldOf(player);
+		const now = Date.now();
+
+		const placement = (await byWorld(t.Placement, wid)).find((p) => p.id === placementId);
+		if (!placement) throw new GameError(tr('server.err.placementNotFound'), 404);
+		const def = d.object.get(placement.objectId);
+		const y = def?.yield;
+		if (!y) throw new GameError(tr('server.err.notHarvestable'));
+		const readyAt = harvestReadyAt(def, placement);
+		if (readyAt == null || now < readyAt) throw new GameError(tr('server.err.notReadyYet'));
+
+		// grant the yield, respecting carrying capacity
+		const capacity = inventoryCapacity(player);
+		const inventory = { ...(player.inventory || {}) };
+		const room = Math.max(0, capacity - sumValues(inventory));
+		const take = Math.min(y.qty || 1, room);
+		if (take <= 0) throw new GameError(tr('server.err.basketFullHarvest'), 409);
+		inventory[y.resourceId] = (inventory[y.resourceId] || 0) + take;
+
+		await t.Player.patch(playerId, { inventory });
+		await t.Placement.patch(placementId, { lastHarvestAt: now });
+		await bumpMetrics(player, { resourcesCollected: take });
+		return { ok: true, placementId, gained: { [y.resourceId]: take }, inventory, placement: { ...placement, lastHarvestAt: now } };
+	}
+}
+
 /** POST /UpdateAppearance/ {playerId, appearance} — restyle your caretaker anytime. */
 export class UpdateAppearance extends PublicEndpoint {
 	async post(data: any) {
@@ -3404,6 +3845,11 @@ export class Rest extends PublicEndpoint {
 		// refresh all resources: clear node cooldowns so every gathering spot is ready
 		const nodes = await byWorld(t.NodeState, wid);
 		for (const n of nodes) await t.NodeState.delete(n.id);
+		// Sleep through to sunrise: advance the in-game clock to the start of the next day.
+		const nowT = weatherTimeFromPlay(player);
+		const intoDay = ((nowT % WEATHER_DAY_MS) + WEATHER_DAY_MS) % WEATHER_DAY_MS;
+		const skip = intoDay === 0 ? 0 : WEATHER_DAY_MS - intoDay;
+		await t.Player.patch(playerId, { clockOffsetMs: (player.clockOffsetMs || 0) + skip });
 		await bumpMetrics(player, { restsTaken: 1 });
 		return { ok: true, rested: true, refreshed: nodes.length };
 	}
@@ -3519,10 +3965,13 @@ export class ClaimTask extends PublicEndpoint {
 		const wid = worldOf(player);
 		const now = Date.now();
 
-		const [discoveries, biomeStates] = await Promise.all([byWorld(t.Discovery, wid), byWorld(t.BiomeState, wid)]);
-		const block = dailyTasksBlock({ wid, player, d, discoveries, biomeStates, now, unlockedBiomes: player.unlockedBiomes });
+		const [discoveries, biomeStates, placements, chests] = await Promise.all([
+			byWorld(t.Discovery, wid), byWorld(t.BiomeState, wid), byWorld(t.Placement, wid), byWorld(t.Chest, wid),
+		]);
+		const block = dailyTasksBlock({ wid, player, d, discoveries, biomeStates, placements, chests, now, unlockedBiomes: player.unlockedBiomes });
 		const task = block.tasks.find((x: any) => x.id === String(taskId || ''));
 		if (!task) throw new GameError(tr('server.err.taskNotOnBoard'), 404);
+		if (task.pinned) throw new GameError(tr('server.err.taskNotClaimable'), 409); // guidance goals aren't claimed
 		if (task.claimed) throw new GameError(tr('server.err.taskAlreadyClaimed'), 409);
 		if (task.progress < task.target) throw new GameError(tr('server.err.taskNotFinished'), 409);
 
@@ -3540,11 +3989,23 @@ export class ClaimTask extends PublicEndpoint {
 		}
 		if (!Object.keys(gained).length) throw new GameError(tr('server.err.basketFullReward'), 409);
 
-		const claims = player.taskClaims?.dayKey === block.dayKey
-			? { dayKey: block.dayKey, claimed: { ...(player.taskClaims.claimed || {}) } }
-			: { dayKey: block.dayKey, claimed: {} as Record<string, boolean> };
-		claims.claimed[task.id] = true;
-		await t.Player.patch(playerId, { inventory, taskClaims: claims });
+		// Clear the finished goal out for good. Starters (start-*) aren't stored in
+		// the goal list, so they're remembered via goalClaims; a player-set goal is
+		// removed from customGoals entirely, so it leaves the board, the goals menu,
+		// and frees its slot (no lingering "done" entries piling up).
+		const isStarter = String(task.id).startsWith('start-');
+		const isUnlockReward = String(task.id).startsWith('unlock-reward:');
+		const patch: any = { inventory };
+		if (isUnlockReward) {
+			// one-time welcome bundle — drop it from the pending list so it doesn't reappear
+			const bid = String(task.id).slice('unlock-reward:'.length);
+			patch.pendingUnlockRewards = (player.pendingUnlockRewards || []).filter((id: string) => id !== bid);
+		} else if (isStarter) {
+			patch.goalClaims = { ...(player.goalClaims || {}), [task.id]: true };
+		} else {
+			patch.customGoals = (player.customGoals || []).filter((g: CustomGoal) => g.id !== task.id);
+		}
+		await t.Player.patch(playerId, patch);
 		await bumpMetrics(player, { tasksCompleted: 1 });
 		await awardAchievements(playerId);
 
@@ -3552,7 +4013,52 @@ export class ClaimTask extends PublicEndpoint {
 			...block,
 			tasks: block.tasks.map((x: any) => (x.id === task.id ? { ...x, claimed: true } : x)),
 		};
-		return { ok: true, taskId: task.id, gained, inventory, dailyTasks };
+		return { ok: true, taskId: task.id, text: task.text, gained, inventory, dailyTasks };
+	}
+}
+
+/**
+ * POST /SetGoals/ {playerId, goals:[…]} — replace the player's custom goal list.
+ * The client sends the full ordered list (add/remove/reorder are just edits to
+ * it); the server validates every entry and stores it. Rewards are NEVER taken
+ * from the client — they're derived on claim — so a crafted request can't grant
+ * itself materials.
+ */
+export class SetGoals extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId, goals } = await bodyOf(data);
+		const { player } = await requirePlayer(playerId);
+		const t = db();
+		const d = await defs();
+		const wid = worldOf(player);
+		const now = Date.now();
+		const [discoveries, biomeStates, placements, chests] = await Promise.all([
+			byWorld(t.Discovery, wid), byWorld(t.BiomeState, wid), byWorld(t.Placement, wid), byWorld(t.Chest, wid),
+		]);
+		const ctx: TaskCtx = { wid, player, d, discoveries, biomeStates, placements, chests, now, unlockedBiomes: player.unlockedBiomes };
+		// Preserve each existing goal's baseline across edits (reorder/remove); a
+		// brand-new goal gets its baseline captured NOW, so progress counts only the
+		// work done from here on (fixes goals that showed complete the instant added).
+		const prev = new Map<string, CustomGoal>((player.customGoals || []).map((g: CustomGoal) => [g.id, g]));
+		// Hold at most `limit` custom goals at once (3 until every biome is open,
+		// then 6). Existing goals are kept first; brand-new ones only fill remaining
+		// slots, so a submission over the cap is trimmed rather than rejected.
+		const limit = goalLimitFor(player, d);
+		const cleaned = sanitizeGoals(goals, d);
+		const keep: CustomGoal[] = [];
+		for (const g of cleaned) {
+			const existing = prev.get(g.id);
+			if (!existing && keep.length >= limit) continue;      // no room for another new one
+			if (keep.length >= MAX_CUSTOM_GOALS) break;           // hard safety ceiling
+			const base = existing && typeof existing.base === 'number' ? existing.base : goalMetric(g, ctx);
+			const out: CustomGoal = { ...g, base };
+			if (g.kind === 'build') {
+				out.basePlace = existing && typeof existing.basePlace === 'number' ? existing.basePlace : placedCountFor(ctx, g.itemId || '');
+			}
+			keep.push(out);
+		}
+		await t.Player.patch(playerId, { customGoals: keep });
+		return { ok: true, customGoals: keep, goalLimit: limit };
 	}
 }
 
@@ -3685,6 +4191,13 @@ export class SyncPlayer extends PublicEndpoint {
 		if (Number.isFinite(Number(y))) patch.y = Number(y);
 		if (Number.isInteger(tutorialStep) && tutorialStep >= 0 && tutorialStep <= 99) {
 			patch.tutorialStep = tutorialStep;
+			// High-water mark: the furthest tutorial step this save ever reached.
+			// Progressive UI (HUD nav buttons) keys off THIS, not the live step, so
+			// replaying the tutorial from Help — which rewinds tutorialStep back to
+			// 0 — never re-hides menu items the player already unlocked. Seed from
+			// the current persisted step so pre-existing finished saves keep their
+			// reveal on the very first sync after upgrading.
+			patch.tutorialMaxStep = Math.max(player.tutorialMaxStep ?? 0, player.tutorialStep ?? 0, tutorialStep);
 		}
 		if (area === 'home') {
 			// the home interior is always reachable from your camp — no gates
@@ -3865,6 +4378,14 @@ export class Heartbeat extends PublicEndpoint {
 	}
 }
 
+// Small in-memory cache for the global dashboard rollup. The dashboard branch
+// full-scans SoloMetrics and JSON.parses every row's snapshot; that's the only
+// expensive part, so we cache the scanned+parsed rows for a short TTL and let
+// each request apply its ?exclude filter + aggregation cheaply on top. Reset on
+// every new uplink (SyncMetrics) so a player's own report shows up immediately.
+let dashboardCache: { at: number; all: any[] } | null = null;
+const DASHBOARD_CACHE_MS = 30_000;
+
 /**
  * GET /Metrics/        — global summary plus a per-player leaderboard.
  * GET /Metrics/<id>    — one player's metrics.
@@ -3901,14 +4422,24 @@ export class Metrics extends PublicEndpoint {
 		// whatever snapshots have landed. Hosted web/co-op players are intentionally
 		// out of scope here.
 		const now = Date.now();
+		let all: any[];
+		if (dashboardCache && now - dashboardCache.at < DASHBOARD_CACHE_MS) {
+			all = dashboardCache.all; // fresh enough — skip the full scan + JSON.parse
+		} else {
 		let soloRows: any[] = [];
 		try {
 			soloRows = await allOf(t.SoloMetrics);
 		} catch { /* SoloMetrics table not created yet — empty dashboard */ }
 
-		let all = soloRows
+		all = soloRows
 			.map((r: any) => {
-				const s = r.snapshot || {};
+				// snapshot is stored as a JSON string (see SyncMetrics); tolerate any
+				// legacy object rows too.
+				let s: any = {};
+				if (r.snapshot) {
+					try { s = typeof r.snapshot === 'string' ? JSON.parse(r.snapshot) : r.snapshot; }
+					catch { s = {}; }
+				}
 				const lastSeenAt = s.lastSeenAt || r.updatedAt || null;
 				const createdAt = s.createdAt || r.createdAt || now;
 				const hoursSinceActive = lastSeenAt ? round1((now - lastSeenAt) / 3_600_000) : null;
@@ -3947,6 +4478,8 @@ export class Metrics extends PublicEndpoint {
 				};
 			})
 			.sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
+			dashboardCache = { at: now, all }; // cache the scanned + parsed rollup
+		}
 
 		// Optional `?exclude=<name>` filter (repeatable and/or comma-separated) so you
 		// can drop your own test saves and not skew the numbers. Case-insensitive match
@@ -4237,6 +4770,39 @@ export class DevTools extends PublicEndpoint {
 			case 'reset-tools': {
 				await t.Player.patch(playerId, { tools: { ...START_TOOLS } });
 				log.push('Tools reset to tier 1');
+				break;
+			}
+			case 'restart-game': {
+				// Wipe the solo save back to a brand-new game — same as making a fresh
+				// character, but the identity (name, passcode, look) is kept. Solo only.
+				const wid = playerId; // solo world id === player id
+				for (const pl of await byPlayer(t.Placement, playerId)) await t.Placement.delete(pl.id);
+				for (const ch of await byPlayer(t.Chest, playerId)) await t.Chest.delete(ch.id);
+				for (const tt of await byPlayer(t.TerrainTile, playerId)) await t.TerrainTile.delete(tt.id);
+				for (const disc of await byPlayer(t.Discovery, playerId)) await t.Discovery.delete(disc.id);
+				for (const ns of await byPlayer(t.NodeState, playerId)) await t.NodeState.delete(ns.id);
+				for (const fe of await byPlayer(t.FeedEntry, playerId)) await t.FeedEntry.delete(fe.id);
+				for (const pa of await byPlayer(t.PlayerAchievement, playerId)) await t.PlayerAchievement.delete(pa.id);
+				// Reset every biome to its damaged, locked state (meadow stays open).
+				for (const b of d.biomes) {
+					await t.BiomeState.put({
+						id: `${wid}:${b.id}`, worldId: wid, playerId, biomeId: b.id,
+						health: BASE_HEALTH, balance: 0, returnedCount: 0, unlocked: b.id === 'meadow',
+					});
+				}
+				// Recreate the empty starter chest by the camp.
+				const chestId = `pl_${playerId}_starter-chest`;
+				await t.Placement.put({ id: chestId, worldId: wid, playerId, objectId: 'small-chest', area: 'meadow', x: STARTER_CHEST.x, y: STARTER_CHEST.y, placedAt: Date.now() });
+				await t.Chest.put({ id: chestId, worldId: wid, playerId, area: 'meadow', x: STARTER_CHEST.x, y: STARTER_CHEST.y, size: 'small-chest', capacity: STARTER_CHEST.capacity, contents: {} });
+				// Reset the player fields to fresh-start values, keeping identity.
+				await t.Player.patch(playerId, {
+					area: 'meadow', x: 24.5, y: 6.5,
+					inventory: { ...START_INVENTORY }, craftedItems: {}, craftedEver: {},
+					tools: { ...START_TOOLS }, unlockedBiomes: ['meadow'], visitedBiomes: ['meadow'],
+					tutorialStep: 0, home: { ...DEFAULT_HOME }, customGoals: [], goalClaims: {},
+					devUnlockAll: false,
+				});
+				log.push('Restarted the game — fresh save (name, passcode & look kept)');
 				break;
 			}
 			case 'build-home': {
@@ -4635,7 +5201,12 @@ export class SyncMetrics extends PublicEndpoint {
 		if (!clientId) throw new GameError(tr('server.err.clientIdRequired'));
 		const snapshot = body.snapshot && typeof body.snapshot === 'object' && !Array.isArray(body.snapshot) ? body.snapshot : null;
 		if (!snapshot) throw new GameError(tr('server.err.snapshotRequired'));
-		if (JSON.stringify(snapshot).length > METRICS_SNAPSHOT_MAX_BYTES) throw new GameError(tr('server.err.snapshotTooLarge'));
+		// Store the metrics view as a JSON STRING, not a nested map: this table is
+		// typed (positional structon encoding), which cannot safely hold a nested
+		// object — a scalar string round-trips cleanly. Read back with JSON.parse
+		// in the /Metrics/ dashboard.
+		const snapshotJson = JSON.stringify(snapshot);
+		if (snapshotJson.length > METRICS_SNAPSHOT_MAX_BYTES) throw new GameError(tr('server.err.snapshotTooLarge'));
 
 		const t = db();
 		const id = `solo:${clientId}`;
@@ -4649,10 +5220,11 @@ export class SyncMetrics extends PublicEndpoint {
 			version: String(body.version || '').slice(0, 24) || null,   // wild-willows release
 			build: String(body.build || '').slice(0, 40) || null,       // build timestamp
 			language: String(body.language || snapshot.language || '').trim().toLowerCase().slice(0, 12) || null, // interface language
-			snapshot,
+			snapshot: snapshotJson,
 			createdAt: existing?.createdAt || Date.now(),
 			updatedAt: Date.now(),
 		});
+		dashboardCache = null; // new data landed — force the next dashboard read to rebuild
 		return { ok: true };
 	}
 }

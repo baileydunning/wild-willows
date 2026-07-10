@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import type { ChestState, RecipeDef } from '../types';
@@ -6,14 +6,15 @@ import { homePerkStrength } from '../types';
 import { recipeUnlocked, recipeMatchesSearch } from '../recipes';
 import {
 	weatherType, seasonStyle, liveSeason, liveWeatherType, forecastType, gatherResourceFor, weatherEffect, seasonEffect,
+	WEATHER_TYPES, gatherResourceIdFor,
 } from '../weather';
 import { content } from '../i18n';
 import { useI18n } from '../i18n/react';
 import { Meter } from './HUD';
-import { Icon } from './icons';
+import { Icon, ResourceIcon } from './icons';
 import { BIOME_LORE, loreStage } from './lore';
 
-function Panel({ title, icon, children, onClose, wide }: { title: string; icon?: string; children: React.ReactNode; onClose: () => void; wide?: boolean }) {
+function Panel({ title, icon, children, onClose, wide, bodyRef }: { title: string; icon?: string; children: React.ReactNode; onClose: () => void; wide?: boolean; bodyRef?: React.Ref<HTMLDivElement> }) {
 	const { t } = useI18n();
 	return (
 		<div className="panel-backdrop" onClick={onClose}>
@@ -22,7 +23,7 @@ function Panel({ title, icon, children, onClose, wide }: { title: string; icon?:
 					<h2>{icon && <Icon name={icon} size={20} />} {title}</h2>
 					<button className="icon-btn" onClick={onClose} aria-label={t('panels.common.close')}><Icon name="close" /></button>
 				</div>
-				<div className="panel-body">{children}</div>
+				<div className="panel-body" ref={bodyRef}>{children}</div>
 			</div>
 		</div>
 	);
@@ -71,6 +72,15 @@ function AreaTags({ data, def }: { data: any; def: any }) {
 	);
 }
 
+// The crafting menu's filters, search text, and scroll position survive
+// close/reopen within a session — you come back to the recipe you were on.
+const craftingMemory: { placeFilter: string | null; typeFilter: string; query: string; scrollTop: number } = {
+	placeFilter: null,
+	typeFilter: 'all',
+	query: '',
+	scrollTop: 0,
+};
+
 // All of your chests feed crafting — no station or proximity required.
 export function useLinkedChests(): ChestState[] {
 	const { state } = useGame();
@@ -92,13 +102,16 @@ export function InventoryPanel() {
 
 	return (
 		<Panel title={t('panels.inventory.title', { carried, capacity: state.inventoryCapacity })} icon="basket" onClose={() => setPanel(null)}>
+			<button className="link materials-link" onClick={() => setPanel('materials')}>
+				<Icon name="help" size={13} /> {t('panels.inventory.materialsGuide')}
+			</button>
 			{inv.length === 0 && <p className="muted">{t('panels.inventory.empty')}</p>}
 			<div className="grid">
 				{inv.map(([id, qty]) => {
 					const name = resName(data, id);
 					return (
 						<div className="cell row" key={id}>
-							<span className="swatch" style={{ background: resColor(data, id) }} />
+							<ResourceIcon id={id} color={resColor(data, id)} />
 							<span className="grow">{name}</span>
 							<b>×{qty}</b>
 							<button className="subtle" title={t('panels.inventory.tossOne', { name })} onClick={() => toss('material', id, 1, name)}>
@@ -182,7 +195,7 @@ export function ChestPanel() {
 		);
 		return (
 			<div className="cell row" key={id}>
-				<span className="swatch" style={{ background: resColor(data, id) }} />
+				<ResourceIcon id={id} color={resColor(data, id)} />
 				<span className="grow">{resName(data, id)}</span>
 				<b>×{qty}</b>
 				{btn('1', Math.min(1, max))}
@@ -232,14 +245,30 @@ export function ChestPanel() {
 }
 
 export function CraftingPanel() {
-	const { data, state, setPanel, craft, startPlacement, notify } = useGame();
+	const { data, state, setPanel, craft, startPlacement, notify, addGoal } = useGame();
 	const { t, content } = useI18n();
 	const linked = useLinkedChests();
 	// default the Place filter to where you're standing — indoors, a dedicated "home"
-	// filter shows only the camp comforts & furniture you can place inside
-	const [placeFilter, setPlaceFilter] = useState(state?.player.area || 'all');
-	const [typeFilter, setTypeFilter] = useState('all');
-	const [query, setQuery] = useState('');
+	// filter shows only the camp comforts & furniture you can place inside.
+	// Reopening the menu restores your last filters, search, and scroll position
+	// (playtest: it reset to the top every time, losing the recipe you were on).
+	const [placeFilter, setPlaceFilter] = useState(craftingMemory.placeFilter ?? (state?.player.area || 'all'));
+	const [typeFilter, setTypeFilter] = useState(craftingMemory.typeFilter);
+	const [query, setQuery] = useState(craftingMemory.query);
+	const bodyRef = useRef<HTMLDivElement | null>(null);
+	useEffect(() => {
+		craftingMemory.placeFilter = placeFilter;
+		craftingMemory.typeFilter = typeFilter;
+		craftingMemory.query = query;
+	}, [placeFilter, typeFilter, query]);
+	useEffect(() => {
+		const el = bodyRef.current;
+		if (!el) return;
+		el.scrollTop = craftingMemory.scrollTop;
+		const save = () => { craftingMemory.scrollTop = el.scrollTop; };
+		el.addEventListener('scroll', save, { passive: true });
+		return () => el.removeEventListener('scroll', save);
+	}, []);
 	if (!data || !state) return null;
 	const player = state.player;
 	const areaBiome = data.biomes.find((b) => b.id === player.area);
@@ -289,14 +318,33 @@ export function CraftingPanel() {
 		.filter((b) => player.unlockedBiomes.includes(b.id));
 	const filterTypes = [...new Set(unlocked.map((r) => r.category))].sort((a, b) => (catLabel[a] || a).localeCompare(catLabel[b] || b));
 	const alreadyMade = (r: RecipeDef) => !!r.once && (player.craftedEver?.[r.output.itemId] || 0) > 0;
+	// Biome-unlock kits are tracked by the "unlock next biome" goal, so they don't
+	// get their own craft-goal button.
+	const unlockKitIds = new Set(data.biomes.map((b) => b.unlock?.requiresItem).filter(Boolean) as string[]);
 
 	const placeable = Object.entries(player.craftedItems || {}).filter(([id]) => {
 		const def = data.habitatObjects.find((o) => o.id === id);
 		return def && def.placement !== 'none';
 	});
 
+	// Plantables (wildflowers, grasses, trees…) are hidden from crafting by
+	// design (recipes.ts) — you PLANT them. Searching for one used to come up
+	// silently empty (playtest: "wildflower" stalled the whole session), so
+	// cross-reference them instead of leaving the player stranded.
+	const q = query.trim().toLowerCase();
+	const plantableMatches = q
+		? data.habitatObjects
+			.filter((o) =>
+				o.plantable &&
+				(o.biomes || []).some((b) => player.unlockedBiomes.includes(b)) &&
+				(o.name.toLowerCase().includes(q) ||
+					content('habitatObject', o.id, 'name', o.name).toLowerCase().includes(q) ||
+					(o.description || '').toLowerCase().includes(q)))
+			.slice(0, 4)
+		: [];
+
 	return (
-		<Panel title={t('panels.crafting.title')} icon="hammer" onClose={() => setPanel(null)} wide>
+		<Panel title={t('panels.crafting.title')} icon="hammer" onClose={() => setPanel(null)} wide bodyRef={bodyRef}>
 			<p className="muted">
 				{t('panels.crafting.intro', { count: linked.length })}
 			</p>
@@ -369,7 +417,20 @@ export function CraftingPanel() {
 					})}
 				</div>
 			)}
-			{visible.length === 0 && (
+			{plantableMatches.length > 0 && (
+				<div>
+					{plantableMatches.map((o) => (
+						<div className="recipe" key={o.id}>
+							<div className="grow">
+								<b><Icon name="leaf" size={14} /> {content('habitatObject', o.id, 'name', o.name)}</b>
+								<div className="muted small">{t('panels.crafting.plantedNotCrafted')}</div>
+								<AreaTags data={data} def={o} />
+							</div>
+						</div>
+					))}
+				</div>
+			)}
+			{visible.length === 0 && plantableMatches.length === 0 && (
 				query.trim()
 					? <p className="muted small">{t((placeFilter !== 'all' || typeFilter !== 'all') ? 'panels.crafting.noMatchWiden' : 'panels.crafting.noMatch', { query: query.trim() })}</p>
 					: <p className="muted small">{t('panels.crafting.nothingToCraft')}</p>
@@ -395,7 +456,7 @@ export function CraftingPanel() {
 											const enough = av.total >= q;
 											return (
 												<span key={id} className={`mat ${enough ? 'mat-ok' : 'mat-no'}`} title={t('panels.crafting.matTitle', { inBasket: av.inInv, inChests: av.inChests })}>
-													<span className="swatch" style={{ background: resColor(data, id) }} />
+													<ResourceIcon id={id} color={resColor(data, id)} />
 													{resName(data, id)} {Math.min(av.total, q)}/{q}
 													<em className="mat-src">
 														<Icon name="basket" size={11} /> {av.inInv}
@@ -409,7 +470,21 @@ export function CraftingPanel() {
 										<div className="muted small">{t('panels.crafting.requiresTool')}</div>
 									)}
 								</div>
-								<button disabled={!ok} onClick={() => craft(r.id)}>{made ? t('panels.crafting.crafted') : t('panels.crafting.craft')}</button>
+								<div className="recipe-actions">
+									{/* Hide the "set as goal" button when it'd be busywork: a once-only
+									    recipe already made, or one you can already afford to craft now. */}
+									{!(r.once && made) && !canCraft(r) && !unlockKitIds.has(r.output.itemId) && (
+										<button
+											className="icon-btn subtle add-goal-btn"
+											title={t('panels.crafting.addGoal')}
+											aria-label={t('panels.crafting.addGoal')}
+											onClick={() => addGoal({ kind: 'craft', itemId: r.output.itemId, target: 1 })}
+										>
+											<Icon name="target" size={13} />
+										</button>
+									)}
+									<button disabled={!ok} onClick={() => craft(r.id)}>{made ? t('panels.crafting.crafted') : t('panels.crafting.craft')}</button>
+								</div>
 							</div>
 						);
 					})}
@@ -458,7 +533,7 @@ export function ToolsPanel() {
 									<div className="mats">
 										{Object.entries(next.materials || {}).map(([id, q]) => (
 											<span key={id} className={`mat ${availability(id) >= q ? 'mat-ok' : 'mat-no'}`}>
-												<span className="swatch" style={{ background: resColor(data, id) }} />
+												<ResourceIcon id={id} color={resColor(data, id)} />
 												{resName(data, id)} {Math.min(availability(id), q)}/{q}
 											</span>
 										))}
@@ -485,9 +560,50 @@ export function BiomesPanel() {
 	const { t, content } = useI18n();
 	if (!data || !state) return null;
 	const here = state.player.area;
+	const ordered = [...data.biomes].sort((a, b) => a.order - b.order);
+	const openCount = ordered.filter((b) => state.player.unlockedBiomes.includes(b.id)).length;
 	return (
 		<Panel title={t('panels.biomes.title')} icon="map" onClose={() => setPanel(null)} wide>
-			{[...data.biomes].sort((a, b) => a.order - b.order).map((biome) => {
+			{/* Illustrated trail map: the six biomes as waypoints along a path, each a
+			    health-ring badge (filled by restoration), linked by trail segments that
+			    light up as you open the next area. Tap an open, non-current one to travel. */}
+			<div className="preserve-map" role="img" aria-label={t('panels.biomes.mapAria', { open: openCount, total: ordered.length })}>
+				{ordered.map((biome, i) => {
+					const bs = state.biomeStates.find((x) => x.biomeId === biome.id);
+					const unlocked = state.player.unlockedBiomes.includes(biome.id);
+					const isHere = biome.id === here;
+					const total = data.animals.filter((a) => a.biome === biome.id).length;
+					const color = biome.palette?.healthy || '#8fbf6f';
+					const health = unlocked && bs ? Math.round(bs.health) : 0;
+					const canTravel = unlocked && biome.explorable && !isHere;
+					const biomeName = content('biome', biome.id, 'name', biome.name);
+					const glyph = isHere ? 'pin' : !unlocked ? 'lock' : 'leaf';
+					const sub = unlocked
+						? t('panels.biomes.animalsShort', { returned: bs?.returnedCount || 0, total })
+						: biome.explorable ? t('panels.biomes.locked') : t('panels.biomes.comingSoon');
+					const title = isHere ? t('panels.biomes.youAreHere') : canTravel ? t('panels.biomes.travelTo', { biome: biomeName }) : t('panels.biomes.lockedTitle', { biome: biomeName });
+					return (
+						<React.Fragment key={biome.id}>
+							{i > 0 && <span className={`pm-link ${unlocked ? 'pm-link-open' : ''}`} />}
+							<button
+								className={`pm-stop ${unlocked ? '' : 'pm-locked'} ${isHere ? 'pm-here' : ''}`}
+								disabled={!canTravel}
+								title={title}
+								aria-label={title}
+								onClick={async () => { setPanel(null); await changeArea(biome.id); }}
+								style={{ ['--c' as any]: color, ['--h' as any]: health }}
+							>
+								<span className="pm-ring"><span className="pm-disc"><Icon name={glyph} size={18} /></span></span>
+								<span className="pm-name">{biomeName}</span>
+								<span className="pm-sub">{sub}</span>
+							</button>
+						</React.Fragment>
+					);
+				})}
+			</div>
+			<p className="muted small preserve-map-cap">{t('panels.biomes.mapSummary', { open: openCount, total: ordered.length })}</p>
+
+			{ordered.map((biome) => {
 				const bs = state.biomeStates.find((x) => x.biomeId === biome.id);
 				const unlocked = state.player.unlockedBiomes.includes(biome.id);
 				const total = data.animals.filter((a) => a.biome === biome.id).length;
@@ -544,12 +660,15 @@ export function BiomesPanel() {
 }
 
 export function HomePanel() {
-	const { data, state, setPanel, upgradeHome, setHomeStyle } = useGame();
+	const { data, state, setPanel, upgradeHome, setHomeStyle, addGoal } = useGame();
 	const { t, content } = useI18n();
 	const linked = useLinkedChests();
 	if (!data || !state) return null;
 	const home = state.player.home || { style: 'cabin', space: 1, comfort: 1, decor: 1, light: 1, styleLocked: false };
 	const styleLocked = !!home.styleLocked;
+	// Only one home goal at a time (matching the goals builder + server rule), so
+	// the "add as goal" buttons hide once a home goal is already on the board.
+	const hasHomeGoal = (state.customGoals || []).some((g) => g.kind === 'home');
 	const styles = data.homeStyles || {};
 	const tracks = data.homeTracks || {};
 	const avail = (id: string) => (state.player.inventory?.[id] || 0) + linked.reduce((s, c) => s + (c.contents?.[id] || 0), 0);
@@ -587,7 +706,7 @@ export function HomePanel() {
 									<div className="mats">
 										{Object.entries(mats).map(([rid, q]) => (
 											<span key={rid} className={`mat ${avail(rid) >= (q as number) ? 'mat-ok' : 'mat-no'}`}>
-												<span className="swatch" style={{ background: resColor(data, rid) }} />
+												<ResourceIcon id={rid} color={resColor(data, rid)} />
 												{resName(data, rid)} {Math.min(avail(rid), q as number)}/{q as number}
 											</span>
 										))}
@@ -598,7 +717,14 @@ export function HomePanel() {
 										</div>
 									)}
 								</div>
-								<button disabled={!gateMet || !afford} onClick={() => setHomeStyle(id)}>{t('panels.home.build')}</button>
+								<div className="recipe-actions">
+									{!hasHomeGoal && (
+										<button className="icon-btn subtle add-goal-btn" title={t('panels.home.addGoal')} aria-label={t('panels.home.addGoal')} onClick={() => addGoal({ kind: 'home', track: 'build', styleId: id, target: 1 })}>
+											<Icon name="target" size={13} />
+										</button>
+									)}
+									<button disabled={!gateMet || !afford} onClick={() => setHomeStyle(id)}>{t('panels.home.build')}</button>
+								</div>
 							</div>
 						);
 					})}
@@ -644,7 +770,7 @@ export function HomePanel() {
 									<div className="mats">
 										{Object.entries(next.materials || {}).map(([id, q]) => (
 											<span key={id} className={`mat ${avail(id) >= q ? 'mat-ok' : 'mat-no'}`}>
-												<span className="swatch" style={{ background: resColor(data, id) }} />
+												<ResourceIcon id={id} color={resColor(data, id)} />
 												{resName(data, id)} {Math.min(avail(id), q)}/{q}
 											</span>
 										))}
@@ -659,7 +785,16 @@ export function HomePanel() {
 								<div className="muted small">{t('panels.home.maxedOut')}</div>
 							)}
 						</div>
-						{next && <button disabled={!gateMet || !canAfford} onClick={() => upgradeHome(key)}>{t('panels.home.upgrade')}</button>}
+						{next && (
+							<div className="recipe-actions">
+								{!hasHomeGoal && (
+									<button className="icon-btn subtle add-goal-btn" title={t('panels.home.addGoal')} aria-label={t('panels.home.addGoal')} onClick={() => addGoal({ kind: 'home', track: key, target: level + 1 })}>
+										<Icon name="target" size={13} />
+									</button>
+								)}
+								<button disabled={!gateMet || !canAfford} onClick={() => upgradeHome(key)}>{t('panels.home.upgrade')}</button>
+							</div>
+						)}
 					</div>
 				);
 			})}
@@ -755,6 +890,84 @@ export function WeatherPanel() {
 			</table>
 
 			<p className="muted small">{t('panels.weather.seasonsNote')}</p>
+		</Panel>
+	);
+}
+
+/**
+ * Materials guide — a picture book of everything you can gather where you're
+ * standing: the sprite you'll spot in the world, its name, and how to collect
+ * it (which tool, and whether it only shows up in certain weather). Kills the
+ * "blindly pressing E hoping it's plant fiber" problem the playtest surfaced.
+ */
+export function MaterialsPanel() {
+	const { data, state, setPanel } = useGame();
+	const { t, content } = useI18n();
+	if (!data || !state) return null;
+	const area = state.player.area;
+	const biome = data.biomes.find((b) => b.id === area);
+	const resById = (id: string) => data.resources.find((r) => r.id === id);
+
+	// Always-gatherable materials for this biome, then the weather-gated extras
+	// that only appear while a particular weather is active.
+	const baseIds = biome?.resources || [];
+	// Diggable materials (shovel). Some, like stones, are BOTH surface-gatherable and
+	// diggable — those get a combined note rather than a duplicate row.
+	const surfaceSet = new Set(baseIds);
+	const digSet = new Set(biome?.digResources || []);
+	// One row per material: surface ones first (data order), then dig-only ones.
+	const allIds = [...baseIds, ...[...digSet].filter((id) => !surfaceSet.has(id))];
+	const gatherNote = (id: string) => {
+		const r = resById(id);
+		const canDig = digSet.has(id), canSurface = surfaceSet.has(id);
+		if (canSurface && canDig) return t('panels.materials.findOrDig');
+		if (canDig) return t('panels.materials.gatherWith.shovel');
+		return t(`panels.materials.gatherWith.${r?.tool}`);
+	};
+	const weatherGated: { id: string; weatherId: string }[] = [];
+	for (const wx of WEATHER_TYPES) {
+		const rid = gatherResourceIdFor(area, wx);
+		if (rid && !baseIds.includes(rid) && !weatherGated.some((w) => w.id === rid)) {
+			weatherGated.push({ id: rid, weatherId: wx });
+		}
+	}
+
+	const row = (id: string, note?: string) => {
+		const r = resById(id);
+		if (!r) return null;
+		return (
+			<div className="recipe material-row" key={id + (note || '')}>
+				<ResourceIcon id={id} size={30} color={r.color} />
+				<div className="grow">
+					<b>{content('resource', id, 'name', r.name)}</b>
+					<div className="muted small">{note || t(`panels.materials.gatherWith.${r.tool}`)}</div>
+				</div>
+			</div>
+		);
+	};
+
+	return (
+		<Panel title={t('panels.materials.title')} icon="basket" onClose={() => setPanel(null)} wide>
+			{area === 'home' ? (
+				<p className="muted">{t('panels.materials.homeNote')}</p>
+			) : (
+				<>
+					<p className="muted">{t('panels.materials.intro', { biome: biome ? content('biome', biome.id, 'name', biome.name) : t('panels.crafting.thisArea') })}</p>
+					{allIds.length === 0 && weatherGated.length === 0 && <p className="muted small">{t('panels.materials.empty')}</p>}
+					{allIds.map((id) => row(id, gatherNote(id)))}
+					{weatherGated.length > 0 && (
+						<>
+							<h3>{t('panels.materials.weatherTitle')}</h3>
+							{weatherGated.map(({ id, weatherId }) => {
+								const wt = weatherType(weatherId);
+								const wname = content('weather', weatherId, 'name', wt.name);
+								return row(id, t('panels.materials.weatherNote', { weather: wname }));
+							})}
+						</>
+					)}
+					<p className="muted small">{t('panels.materials.note')}</p>
+				</>
+			)}
 		</Panel>
 	);
 }

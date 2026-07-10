@@ -3,6 +3,7 @@
 
 import React from 'react';
 import { hatPalette, flowerPalette } from '../color';
+import { bridge } from '../game/bridge';
 import type { Appearance } from '../types';
 
 const PATHS: Record<string, React.ReactNode> = {
@@ -83,6 +84,13 @@ const PATHS: Record<string, React.ReactNode> = {
 		<>
 			<path d="M12 3.5 13.8 9 19 11l-5.2 2L12 18.5 10.2 13 5 11l5.2-2L12 3.5Z" />
 			<path d="M19 16.5l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2Z" />
+		</>
+	),
+	target: (
+		<>
+			<circle cx="12" cy="12" r="8.5" />
+			<circle cx="12" cy="12" r="4.6" />
+			<circle cx="12" cy="12" r="1.2" fill="currentColor" />
 		</>
 	),
 	leaf: (
@@ -617,6 +625,30 @@ export function Icon({ name, size = 20, className }: { name: string; size?: numb
 			{PATHS[name] || <circle cx="12" cy="12" r="8" />}
 		</svg>
 	);
+}
+
+/**
+ * The hand-drawn picture for a gathered material — the same sprite the world
+ * draws, snapshotted to a data URL at boot (`snapshotResourceIcons`). Falls
+ * back to the old flat colour swatch when the picture isn't ready yet (before
+ * the world has booted) or for a resource with no sprite.
+ */
+export function ResourceIcon({ id, size = 18, color, className }: { id: string; size?: number; color?: string; className?: string }) {
+	const uri = bridge.shared.resourceIcons[id];
+	if (uri) {
+		return (
+			<img
+				src={uri}
+				width={size}
+				height={size}
+				className={`res-icon ${className || ''}`}
+				style={{ objectFit: 'contain', verticalAlign: 'middle' }}
+				alt=""
+				aria-hidden="true"
+			/>
+		);
+	}
+	return <span className={`swatch ${className || ''}`} style={{ background: color || '#888', width: size, height: size }} aria-hidden="true" />;
 }
 
 /** Cute SVG portrait that mirrors the in-game procedural sprite. */

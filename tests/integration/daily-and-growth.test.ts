@@ -1,5 +1,10 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import { readFileSync } from 'node:fs';
 import { freshWorld, appearance, meadowResource, type World } from './harness';
+
+const forestResources = new Set<string>(
+	JSON.parse(readFileSync('data/biomes.json', 'utf8')).records.find((b: any) => b.id === 'forest').resources,
+);
 
 // Retention systems, driven through the real server bundle:
 //  • the daily task board (fresh each player-local morning; day one is a fixed
@@ -18,67 +23,52 @@ beforeEach(async () => {
 });
 
 describe('daily task board', () => {
-	it('serves three deterministic tasks with rewards in every snapshot', async () => {
+	it('serves the onboarding board: a pinned next-biome goal plus rewarded starter tasks', async () => {
 		const s = await w.get('GameState', pid);
 		const dt = s.dailyTasks;
-		expect(dt.tasks).toHaveLength(3);
-		for (const t of dt.tasks) {
+		expect(dt.tasks).toHaveLength(4);
+		// task #1 is the always-pinned next-biome guidance goal: tracked, not claimed, no reward
+		expect(dt.tasks[0].id).toBe('next-biome');
+		expect(dt.tasks[0].pinned).toBe(true);
+		expect(Object.keys(dt.tasks[0].reward || {})).toHaveLength(0);
+		// the three starter tasks each have a target, start at zero, and pay a reward
+		for (const t of dt.tasks.filter((x: any) => !x.pinned)) {
 			expect(t.target).toBeGreaterThan(0);
 			expect(t.progress).toBe(0);
 			expect(t.claimed).toBe(false);
 			expect(Object.keys(t.reward).length).toBeGreaterThan(0);
 		}
-		expect(dt.endsAt).toBeGreaterThan(Date.now());
 		// same day + same world -> the identical board
 		const s2 = await w.get('GameState', pid);
 		expect(s2.dailyTasks.tasks).toEqual(dt.tasks);
 	});
 
-	it("day one is the fixed starter trio, grasshopper first", async () => {
+	it('leads with the next-biome pin, then the fixed starter tasks', async () => {
 		const dt = (await w.get('GameState', pid)).dailyTasks;
 		expect(dt.tasks.map((t: any) => t.text)).toEqual([
+			'Unlock Old Hollow Forest',
+			'Gather 12 seeds',
+			'Craft your first habitat',
 			'Welcome the grasshopper home',
-			'Collect 10 seeds',
-			'Plant 3 seedlings',
 		]);
-		expect(dt.tasks[0].kind).toBe('welcome');
-		expect(dt.tasks[0].progress).toBe(0);
-		// the pinned starter task carries a "how do I do this?" hover hint
-		expect(dt.tasks[0].hint).toContain('grass patch');
+		expect(dt.tasks[0].kind).toBe('unlock');
+		expect(dt.tasks[0].pinned).toBe(true);
+		// the welcome starter carries a "how do I do this?" hover hint
+		const welcome = dt.tasks.find((t: any) => t.id === 'start-welcome');
+		expect(welcome.hint).toContain('grass patch');
 	});
 
-	it('after day one the board pins the real next milestone', async () => {
-		const DAY = 86_400_000;
-		// age the save two days so the fixed starter board no longer applies
-		await w.db.Player.patch(pid, { createdAt: Date.now() - 2 * DAY });
-		// no grasshopper yet -> welcoming it stays pinned as task #1
-		let dt = (await w.get('GameState', pid)).dailyTasks;
-		expect(dt.tasks[0].kind).toBe('welcome');
-		expect(dt.tasks).toHaveLength(3);
-		// the grasshopper comes home -> the pin completes (claimable today)…
-		await w.db.Discovery.put({
-			id: `${pid}:grasshopper`, worldId: pid, playerId: pid, animalId: 'grasshopper', biomeId: 'meadow',
-			comfort: 60, timesObserved: 0, firstObservedAt: Date.now(), whyReturned: 'test',
-		});
-		dt = (await w.get('GameState', pid)).dailyTasks;
-		expect(dt.tasks[0].kind).toBe('welcome');
-		expect(dt.tasks[0].progress).toBe(1);
-		// …and once claimed, the next milestone surfaces as a SMALL daily step:
-		// a few points of meadow health, never the whole 80-point mountain
-		await w.post('ClaimTask', { playerId: pid, taskId: dt.tasks[0].id });
-		dt = (await w.get('GameState', pid)).dailyTasks;
-		expect(dt.tasks[0].kind).toBe('goal');
-		expect(dt.tasks[0].text).toContain("Willow Meadow's health by 3");
-		expect(dt.tasks[0].target).toBe(3);
-		expect(dt.tasks[0].counter).toBe('health:meadow');
-		// finish + claim today's step -> the next bite-size step appears at once
-		const p = await w.db.Player.get(pid);
-		await w.db.Player.patch(pid, { daily: { dayKey: dt.dayKey, counts: { ...(p.daily?.counts || {}), 'health:meadow': 3 } } });
-		await w.post('ClaimTask', { playerId: pid, taskId: dt.tasks[0].id });
-		dt = (await w.get('GameState', pid)).dailyTasks;
-		expect(dt.tasks[0].kind).toBe('goal');
-		expect(dt.tasks[0].text).toContain('Welcome a new animal back to Willow Meadow');
-		expect(dt.tasks[0].target).toBe(1);
+	it('pins the next-biome guidance goal with a live checklist that cannot be claimed', async () => {
+		const pin = (await w.get('GameState', pid)).dailyTasks.tasks[0];
+		expect(pin.id).toBe('next-biome');
+		expect(pin.pinned).toBe(true);
+		expect(pin.kind).toBe('unlock');
+		// it shows a sub-requirement checklist, not a single claimable counter
+		expect(Array.isArray(pin.steps)).toBe(true);
+		expect(pin.steps.length).toBeGreaterThan(0);
+		expect(Object.keys(pin.reward || {})).toHaveLength(0);
+		// a pinned guidance goal tracks progress but is never claimed
+		await expect(w.post('ClaimTask', { playerId: pid, taskId: 'next-biome' })).rejects.toThrow();
 	});
 
 	it('advances progress from normal play (gathering bumps daily counters)', async () => {
@@ -88,13 +78,15 @@ describe('daily task board', () => {
 		expect(p.daily.counts[`res:${res}`]).toBeGreaterThanOrEqual(1);
 	});
 
-	it('pays out a finished task exactly once and rejects early claims', async () => {
-		const dt = (await w.get('GameState', pid)).dailyTasks;
-		const task = dt.tasks.find((t: any) => t.counter); // a counter-driven task (not the pinned milestone)
+	it('pays out a finished starter task exactly once and rejects early claims', async () => {
+		// start-gather completes from held seeds (progress = min(12, held seeds))
+		const task = (await w.get('GameState', pid)).dailyTasks.tasks.find((t: any) => t.id === 'start-gather');
+		expect(task.progress).toBe(0);
 		// an unfinished task cannot be claimed
 		await expect(w.post('ClaimTask', { playerId: pid, taskId: task.id })).rejects.toThrow();
-		// finish it (simulate the day's play), then claim
-		await w.db.Player.patch(pid, { daily: { dayKey: dt.dayKey, counts: { [task.counter]: task.target } } });
+		// finish it (hold enough seeds), then claim
+		const p = await w.db.Player.get(pid);
+		await w.db.Player.patch(pid, { inventory: { ...(p.inventory || {}), seeds: task.target } });
 		const before = await w.db.Player.get(pid);
 		const claim = await w.post('ClaimTask', { playerId: pid, taskId: task.id });
 		expect(claim.ok).toBe(true);
@@ -102,7 +94,11 @@ describe('daily task board', () => {
 		const sum = (inv: Record<string, number>) => Object.values(inv || {}).reduce((a, b) => a + b, 0);
 		const after = await w.db.Player.get(pid);
 		expect(sum(after.inventory)).toBeGreaterThan(sum(before.inventory));
-		expect(claim.dailyTasks.tasks.find((t: any) => t.id === task.id).claimed).toBe(true);
+		// the claimed starter is marked claimed in the response…
+		expect(claim.dailyTasks.tasks.find((t: any) => t.id === task.id)?.claimed).toBe(true);
+		// …and drops off the board on the next fetch
+		const next = (await w.get('GameState', pid)).dailyTasks;
+		expect(next.tasks.some((t: any) => t.id === task.id)).toBe(false);
 		// double-claim is refused
 		await expect(w.post('ClaimTask', { playerId: pid, taskId: task.id })).rejects.toThrow();
 	});
@@ -203,5 +199,52 @@ describe('condition-gated rare sightings', () => {
 	it('waits through the wrong day-phase and returns in the right one', async () => {
 		expect(await owlMeadow(60)).toBe(false); // dawn — owls are asleep
 		expect(await owlMeadow(480)).toBe(true); // night — the owl hunts
+	});
+});
+
+describe('biome unlock reward', () => {
+	it('a freshly unlocked biome drops a claimable welcome bundle of that area’s resources', async () => {
+		const w2 = await freshWorld();
+		const pid = (await w2.post('CreatePlayer', { name: 'Unlocker', passcode: '1234', appearance })).playerId;
+		// Meet the forest's unlock bar on the meadow (60% health, 10 animals back),
+		// then craft the kit that opens it — that's what triggers checkUnlocks.
+		let meadow: any;
+		for await (const b of w2.db.BiomeState.search()) if (b.biomeId === 'meadow') meadow = b;
+		await w2.db.BiomeState.patch(meadow.id, { health: 60, returnedCount: 10 });
+		const p = await w2.db.Player.get(pid);
+		await w2.db.Player.patch(pid, { inventory: { ...(p.inventory || {}), fiber: 8, branches: 8, stones: 6, water: 4 } });
+		expect((await w2.post('CraftItem', { playerId: pid, recipeId: 'forest-restoration-kit' })).ok).toBe(true);
+
+		// Forest is now open, and a pending welcome bundle is recorded.
+		const player = await w2.db.Player.get(pid);
+		expect(player.unlockedBiomes).toContain('forest');
+		expect(player.pendingUnlockRewards).toContain('forest');
+
+		// The board shows it as a claimable (not pinned) task with a reward drawn
+		// from the NEW area's resources.
+		const dt = (await w2.get('GameState', pid)).dailyTasks;
+		const reward = dt.tasks.find((t: any) => t.id === 'unlock-reward:forest');
+		expect(reward).toBeTruthy();
+		expect(reward.pinned).toBeFalsy();
+		expect(reward.progress).toBe(reward.target); // complete → claimable
+		expect(Object.keys(reward.reward).length).toBeGreaterThan(0);
+		for (const rid of Object.keys(reward.reward)) expect(forestResources.has(rid)).toBe(true);
+		// Nothing about the NEXT biome shows until this bundle is claimed.
+		expect(dt.tasks.some((t: any) => t.id === 'next-biome')).toBe(false);
+
+		// Claiming grants the shown bundle exactly once, then it clears.
+		const claim = await w2.post('ClaimTask', { playerId: pid, taskId: 'unlock-reward:forest' });
+		expect(claim.ok).toBe(true);
+		expect(claim.gained).toEqual(reward.reward);
+		expect((await w2.db.Player.get(pid)).pendingUnlockRewards).not.toContain('forest');
+		const dt2 = (await w2.get('GameState', pid)).dailyTasks;
+		expect(dt2.tasks.some((t: any) => t.id === 'unlock-reward:forest')).toBe(false);
+		// The next-area guidance stays hidden until you've walked through the gate
+		// into the new biome — claiming the bundle alone isn't enough.
+		expect(dt2.tasks.some((t: any) => t.id === 'next-biome')).toBe(false);
+		await w2.db.Player.patch(pid, { visitedBiomes: ['meadow', 'forest'] });
+		const dt3 = (await w2.get('GameState', pid)).dailyTasks;
+		expect(dt3.tasks.some((t: any) => t.id === 'next-biome')).toBe(true);
+		await expect(w2.post('ClaimTask', { playerId: pid, taskId: 'unlock-reward:forest' })).rejects.toThrow();
 	});
 });

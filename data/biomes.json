@@ -43,10 +43,10 @@
 			"restorationGoal": "Rebuild the understory, raise nesting trees and deadwood, and welcome the forest animals back.",
 			"unlock": {
 				"biome": "meadow",
-				"minHealth": 80,
+				"minHealth": 60,
 				"minAnimals": 10,
 				"requiresItem": "forest-restoration-kit",
-				"label": "Restore Willow Meadow to 80% health, welcome 10 meadow animals, and craft a Forest Restoration Kit."
+				"label": "Restore Willow Meadow to 60% health, welcome 10 meadow animals, and craft a Forest Restoration Kit."
 			},
 			"resources": [
 				"branches",

@@ -71,6 +71,9 @@
 		"wouldNotTakeRoot": "{name} no echaría raíces en {biome}",
 		"plantIntoWatered": "Planta en un bancal regado — cava con la pala y luego riégalo",
 		"placementNotFound": "Colocación no encontrada",
+		"notHarvestable": "No hay nada que cosechar de eso",
+		"notReadyYet": "Aún no está listo para cosechar — dale tiempo para volver a crecer",
+		"basketFullHarvest": "Tu cesta está llena — haz espacio antes de cosechar",
 		"workbenchStays": "Tu estación de fabricación se queda en su lugar — la reserva la necesita",
 		"openWaterBridgeOnly": "Eso es agua abierta — solo un puente puede ir ahí",
 		"bedForPlantingShort": "Ese bancal es para plantar",
@@ -93,6 +96,7 @@
 		"animalNotReturned": "Ese animal aún no ha regresado",
 		"taskNotOnBoard": "Esa tarea no está en el tablero de hoy",
 		"taskAlreadyClaimed": "Ya la reclamaste — mañana llegan tareas nuevas",
+		"taskNotClaimable": "Es un objetivo guía — muestra el progreso pero no se reclama",
 		"taskNotFinished": "Aún no está terminada — revisa el tablero para ver lo que falta",
 		"basketFullReward": "Tu cesta está llena — haz lugar para la recompensa primero",
 		"terraformOutdoors": "Solo puedes moldear el terreno afuera en la reserva",
@@ -125,19 +129,83 @@
 	},
 	"task": {
 		"welcomeGrasshopper": "Dale la bienvenida al saltamontes que vuelve a casa",
-		"welcomeGrasshopperHint": "Fabrica y coloca un parche de pasto, luego lleva la pradera al 15% de salud — el saltamontes vuelve a casa por su cuenta.",
-		"raiseHealth": "Sube la salud de {biome} en {count}",
+		"welcomeGrasshopperHint": "Fabrica y coloca un parche de pasto, luego lleva la pradera al 10% de salud — el saltamontes vuelve a casa por su cuenta.",
+		"raiseHealth": "Sube la salud de {biome} de {current}% a {goal}%",
 		"welcomeNewAnimal": "Dale la bienvenida a un nuevo animal en {biome}",
 		"welcomeAnyAnimal": "Dale la bienvenida a un nuevo animal, en cualquier parte de la reserva",
 		"craftKit": "Fabrica un {item}",
 		"gather": "Recolecta {count}× {resource}",
-		"craft": { "one": "Fabrica {count} objeto", "other": "Fabrica {count} objetos" },
-		"place": { "one": "Coloca {count} objeto fabricado", "other": "Coloca {count} objetos fabricados" },
+		"craft": {
+			"one": "Fabrica {count} objeto",
+			"other": "Fabrica {count} objetos"
+		},
+		"place": {
+			"one": "Coloca {count} objeto fabricado",
+			"other": "Coloca {count} objetos fabricados"
+		},
 		"water": "Riega {count} bancales",
 		"plantBeds": "Planta 2 plántulas en bancales regados",
 		"observe": "Lee sobre 3 animales en tu diario de campo",
-		"collectSeeds": "Recolecta 10 semillas",
-		"plantThree": "Planta 3 plántulas"
+		"collectSeeds": "Recolecta 12 semillas",
+		"gatherHint": "Selecciona tu cesta (1), camina sobre un punto brillante del suelo y pulsa E o Espacio.",
+		"plantThree": "Planta 3 plántulas",
+		"craftFirst": "Fabrica tu primer hábitat",
+		"craftFirstHint": "Abre la fabricación (C), elige algo que puedas permitirte y pulsa Fabricar."
+	},
+	"goal": {
+		"craft": "Fabrica {count}× {item}",
+		"build": "Fabrica y coloca {count}× {item}",
+		"grow": "Planta {count}× {item}",
+		"plant": "Planta {count} cosas",
+		"collect": "Recolecta {count}× {resource}",
+		"observe": "Lee sobre {count} animales",
+		"welcome": "Trae de vuelta al {animal}",
+		"attract": "Atrae a un {kind} misterioso",
+		"welcomeTotal": "Da la bienvenida a {count} animales a la reserva",
+		"creature": "animal",
+		"habitatStep": "{have}/{need} {name}",
+		"healthStep": "Salud del bioma {cur}/{need}%",
+		"matStep": "{have}/{need} {name}",
+		"home": "Mejora {track} de tu hogar al nivel {level}",
+		"buildHome": "Construye tu hogar: {style}",
+		"aHouse": "una casa",
+		"unlock": "Desbloquea {biome}",
+		"track": {
+			"space": "el espacio",
+			"comfort": "la comodidad",
+			"decor": "la decoración",
+			"light": "la luz"
+		},
+		"hint": {
+			"craft": "Abre la fabricación (C) y créalo — la caja emergente indica los materiales que necesita.",
+			"build": "Fabrícalo (C) y luego colócalo en el bioma desde la barra 'listo para colocar'.",
+			"grow": "Cava un bancal (2), riégalo (3) y luego plántalo desde el menú del bancal.",
+			"plant": "Cava un bancal con la pala, riégalo y planta algo vivo.",
+			"collect": "Reúne este material en los puntos brillantes de la reserva.",
+			"observe": "Abre la entrada de un animal en tu diario de campo (J) para leer sobre él.",
+			"welcome": "Construye el hábitat que necesita — regresa por su cuenta.",
+			"attract": "Construye el hábitat de la caja de información; el animal vuelve por su cuenta.",
+			"welcomeTotal": "Restaura hábitat por tus biomas — los animales regresan por su cuenta.",
+			"home": "Usa el letrero junto a tu tienda para mejorar tu hogar.",
+			"unlock": "Cumple los requisitos mostrados para abrir este bioma.",
+			"health": "Sana la tierra — planta, riega y coloca hábitat hasta que el bioma se recupere.",
+			"biomeAnimals": "Construye el hábitat de cada animal aquí hasta que todo el bioma esté en casa."
+		},
+		"restore": "Restaura {biome} al {pct}% de salud",
+		"biomeAnimals": "Da la bienvenida a los {count} animales de {biome}",
+		"upgradeGuide": "Mejora tu guía de campo (Herramientas) para revelar exactamente lo que necesita."
+	},
+	"nextbiome": {
+		"title": "Desbloquea {biome}",
+		"hint": "Marca cada requisito de abajo para abrir {biome}.",
+		"health": "{biome} al {goal}% de salud ({cur}% ahora)",
+		"animals": "{goal} animales de regreso en {biome} ({cur} ahora)",
+		"total": "{goal} animales en toda la reserva ({cur} ahora)",
+		"craft": "Fabrica un {item}"
+	},
+	"unlockreward": {
+		"title": "¡{biome} desbloqueada!\nReclama tu paquete de bienvenida",
+		"hint": "Un puñado de materiales de {biome} para empezar allí."
 	},
 	"feed": {
 		"joinedWorld": "¡{name} se unió a la reserva!"

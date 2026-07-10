@@ -97,11 +97,26 @@ type NodeState @table(database: "wildwillows") { id: ID @primaryKey }    # world
 type TerrainTile @table(database: "wildwillows") { id: ID @primaryKey }  # worldId, playerId, area, x, y, type, updatedAt
 type FeedEntry @table(database: "wildwillows") { id: ID @primaryKey }    # worldId, playerId, at, icon, text
 type Feedback @table(database: "wildwillows") { id: ID @primaryKey }     # message, replyTo, metrics, queuedAt, createdAt (player feedback via SubmitFeedback; read with admin-only ListFeedback)
-type SoloMetrics @table(database: "wildwillows") { 
+# Uplinked solo metrics (`solo:${slotId}`), via SyncMetrics. Kept as a flat,
+# ALL-SCALAR record so the structon encoding stays stable (see top-of-file note):
+# the metrics view is stored as a JSON STRING in `snapshot`, never a nested map,
+# and every other field is a declared scalar. name/os/platform/version/language
+# are @indexed so they're searchable on Harper. NOTE: because this is a typed
+# (positional) table, don't add/remove columns casually — recreate the table if
+# the column set changes, or old rows become undecodable.
+type SoloMetrics @table(database: "wildwillows") {
 	id: ID @primaryKey
-	name: String @indexed
-	os: String @indexed
-}  # `solo:${slotId}` · clientId, name, platform (desktop|web), os (mac|windows|linux|…), version, build, language (interface language, e.g. en|es), snapshot (metrics view), createdAt, updatedAt (solo saves' uplinked metrics via SyncMetrics)
+	clientId: String
+	name: String @indexed        # save's display name
+	platform: String @indexed    # desktop | web
+	os: String @indexed          # mac | windows | linux | …
+	version: String @indexed     # wild-willows release
+	build: String                # build timestamp
+	language: String @indexed    # interface language (e.g. en | es)
+	snapshot: String             # JSON.stringify(metrics view) — scalar, not a map
+	createdAt: Float
+	updatedAt: Float
+}
 
 # ---------- co-op tables (dynamic) ----------
 type World @table(database: "wildwillows") { id: ID @primaryKey }         # name, solo, ownerId, joinCode, createdAt, maxMembers

@@ -44,10 +44,10 @@ var biomes_default = {
       restorationGoal: "Rebuild the understory, raise nesting trees and deadwood, and welcome the forest animals back.",
       unlock: {
         biome: "meadow",
-        minHealth: 80,
+        minHealth: 60,
         minAnimals: 10,
         requiresItem: "forest-restoration-kit",
-        label: "Restore Willow Meadow to 80% health, welcome 10 meadow animals, and craft a Forest Restoration Kit."
+        label: "Restore Willow Meadow to 60% health, welcome 10 meadow animals, and craft a Forest Restoration Kit."
       },
       resources: [
         "branches",
@@ -2812,7 +2812,12 @@ var habitat_objects_default = {
       growSeconds: 45,
       description: "Mixed native wildflowers. Pollinators can spot it from far away.",
       matureHours: 2,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "wildflowers",
+        qty: 2,
+        regrowSeconds: 45
+      }
     },
     {
       id: "poppy-patch",
@@ -2837,7 +2842,12 @@ var habitat_objects_default = {
       growSeconds: 45,
       description: "Bright field poppies, grown from seed in a watered bed.",
       matureHours: 2,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "wildflowers",
+        qty: 1,
+        regrowSeconds: 45
+      }
     },
     {
       id: "sunflower-patch",
@@ -2860,7 +2870,12 @@ var habitat_objects_default = {
       growSeconds: 60,
       description: "Tall sunflowers that feed seed-eating birds all season.",
       matureHours: 2,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "seeds",
+        qty: 2,
+        regrowSeconds: 60
+      }
     },
     {
       id: "lupine-patch",
@@ -2885,7 +2900,12 @@ var habitat_objects_default = {
       growSeconds: 50,
       description: "Spires of blue lupine that fix the soil as they bloom.",
       matureHours: 2,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "wildflowers",
+        qty: 1,
+        regrowSeconds: 50
+      }
     },
     {
       id: "willow-tree",
@@ -2936,7 +2956,12 @@ var habitat_objects_default = {
       growSeconds: 90,
       description: "An acorn-grown oak. Squirrels and jays will thank you for decades.",
       matureHours: 8,
-      matureBonus: 2
+      matureBonus: 2,
+      yield: {
+        resourceId: "acorns",
+        qty: 2,
+        regrowSeconds: 90
+      }
     },
     {
       id: "pine-tree",
@@ -2961,7 +2986,12 @@ var habitat_objects_default = {
       growSeconds: 90,
       description: "A young pine grown from a cone \u2014 evergreen shelter in any season.",
       matureHours: 8,
-      matureBonus: 2
+      matureBonus: 2,
+      yield: {
+        resourceId: "pinecones",
+        qty: 2,
+        regrowSeconds: 90
+      }
     },
     {
       id: "butterfly-flowers",
@@ -3041,7 +3071,12 @@ var habitat_objects_default = {
       growSeconds: 70,
       description: "A thornless native berry bush. Songbirds, rabbits, deer, and bears all visit. Sow it in a watered bed from seeds and a few berries.",
       matureHours: 4,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "berries",
+        qty: 2,
+        regrowSeconds: 60
+      }
     },
     {
       id: "small-pond",
@@ -3403,7 +3438,12 @@ var habitat_objects_default = {
       },
       growSeconds: 45,
       matureHours: 4,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "reeds",
+        qty: 2,
+        regrowSeconds: 45
+      }
     },
     {
       id: "mud-bank",
@@ -3461,7 +3501,12 @@ var habitat_objects_default = {
       },
       growSeconds: 45,
       matureHours: 4,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "reeds",
+        qty: 1,
+        regrowSeconds: 45
+      }
     },
     {
       id: "marsh-log",
@@ -3534,7 +3579,12 @@ var habitat_objects_default = {
       },
       growSeconds: 70,
       matureHours: 4,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "cactus-fruit",
+        qty: 2,
+        regrowSeconds: 70
+      }
     },
     {
       id: "desert-brush",
@@ -3595,7 +3645,12 @@ var habitat_objects_default = {
       },
       growSeconds: 45,
       matureHours: 2,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "alpine-flowers",
+        qty: 2,
+        regrowSeconds: 45
+      }
     },
     {
       id: "snowmelt-pool",
@@ -4161,7 +4216,12 @@ var habitat_objects_default = {
       },
       growSeconds: 60,
       matureHours: 4,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "agave-nectar",
+        qty: 1,
+        regrowSeconds: 60
+      }
     },
     {
       id: "ocotillo",
@@ -4208,7 +4268,12 @@ var habitat_objects_default = {
       },
       growSeconds: 50,
       matureHours: 4,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "alpine-flowers",
+        qty: 1,
+        regrowSeconds: 50
+      }
     },
     {
       id: "krummholz-pine",
@@ -4288,7 +4353,12 @@ var habitat_objects_default = {
       growSeconds: 45,
       description: "Cheerful oxeye daisies that open with the morning sun.",
       matureHours: 2,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "wildflowers",
+        qty: 1,
+        regrowSeconds: 45
+      }
     },
     {
       id: "foxglove",
@@ -4312,7 +4382,12 @@ var habitat_objects_default = {
       growSeconds: 50,
       description: "Tall pink foxglove spires \u2014 a bumblebee favourite.",
       matureHours: 2,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "wildflowers",
+        qty: 1,
+        regrowSeconds: 50
+      }
     },
     {
       id: "mushroom-ring",
@@ -4335,7 +4410,12 @@ var habitat_objects_default = {
       growSeconds: 45,
       description: "A fairy ring of woodland mushrooms in the leaf litter.",
       matureHours: 2,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "mushrooms",
+        qty: 2,
+        regrowSeconds: 45
+      }
     },
     {
       id: "birch-tree",
@@ -4359,7 +4439,12 @@ var habitat_objects_default = {
       growSeconds: 90,
       description: "A slender white-barked birch grown from a watered bed.",
       matureHours: 8,
-      matureBonus: 2
+      matureBonus: 2,
+      yield: {
+        resourceId: "bark",
+        qty: 1,
+        regrowSeconds: 90
+      }
     },
     {
       id: "marsh-marigold",
@@ -4383,7 +4468,12 @@ var habitat_objects_default = {
       growSeconds: 45,
       description: "Golden marsh marigolds that ring the shallows in spring.",
       matureHours: 2,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "wildflowers",
+        qty: 1,
+        regrowSeconds: 45
+      }
     },
     {
       id: "bulrush",
@@ -4406,7 +4496,12 @@ var habitat_objects_default = {
       growSeconds: 45,
       description: "Stately bulrushes with brown velvet heads along the bank.",
       matureHours: 4,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "reeds",
+        qty: 1,
+        regrowSeconds: 45
+      }
     },
     {
       id: "prickly-pear",
@@ -4429,7 +4524,12 @@ var habitat_objects_default = {
       growSeconds: 70,
       description: "Pad cactus with sweet fruit and bright blooms.",
       matureHours: 4,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "cactus-fruit",
+        qty: 2,
+        regrowSeconds: 70
+      }
     },
     {
       id: "desert-marigold",
@@ -4453,7 +4553,12 @@ var habitat_objects_default = {
       growSeconds: 50,
       description: "Drought-tough marigolds that glow against the sand.",
       matureHours: 2,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "wildflowers",
+        qty: 1,
+        regrowSeconds: 50
+      }
     },
     {
       id: "gentian-patch",
@@ -4476,7 +4581,12 @@ var habitat_objects_default = {
       growSeconds: 45,
       description: "Vivid blue alpine gentians, low against the wind.",
       matureHours: 2,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "alpine-flowers",
+        qty: 1,
+        regrowSeconds: 45
+      }
     },
     {
       id: "moss-cushion",
@@ -4523,7 +4633,12 @@ var habitat_objects_default = {
       growSeconds: 45,
       description: "Pink sea-thrift pompoms that thrive in salt spray.",
       matureHours: 2,
-      matureBonus: 1
+      matureBonus: 1,
+      yield: {
+        resourceId: "wildflowers",
+        qty: 1,
+        regrowSeconds: 45
+      }
     },
     {
       id: "beach-shrub",
@@ -6728,7 +6843,7 @@ var animals_1_default = {
       preferredHabitat: "Sunny grasslands and meadows rich in grasses and forbs",
       fact: "Grasshoppers hear through tympana \u2014 eardrum-like membranes on the first segment of the abdomen, not their heads.",
       requirements: {
-        minHealth: 15,
+        minHealth: 10,
         objects: {
           "grass-patch": 1
         },
@@ -12969,56 +13084,866 @@ var achievements_default = {
   database: "wildwillows",
   table: "Achievement",
   records: [
-    { id: "welcome-grasshopper", name: "First Friend", biome: "preserve", category: "getting-started", order: 1, points: 10, hidden: false, icon: "ach-grasshopper", flavor: "You saw it through \u2014 gathered, built, shaped the land, and welcomed your first neighbor. A single hop in the grass, and you already know how to bring back a whole meadow.", hint: "Every caretaker's journey begins with one small arrival." },
-    { id: "forager", name: "Forager", biome: "preserve", category: "getting-started", order: 2, points: 10, hidden: false, icon: "ach-gather-hand", flavor: "A hundred fallen things picked up and put to use. You've stopped scrounging and started stockpiling.", hint: "Gather, and keep gathering \u2014 build a real stockpile." },
-    { id: "makers-hands", name: "Maker's Hands", biome: "preserve", category: "getting-started", order: 3, points: 10, hidden: false, icon: "ach-mallet", flavor: "Ten things built by hand. Habitat isn't found \u2014 it's made, one piece at a time.", hint: "Keep crafting; one item won't restore a meadow." },
-    { id: "green-thumb", name: "Green Thumb", biome: "preserve", category: "getting-started", order: 4, points: 10, hidden: false, icon: "ach-sprout-thumb", flavor: "Ten living things in soil you readied yourself. Half of restoration is just patience with a watering can.", hint: "Put down roots \u2014 plant, and plant again." },
-    { id: "waterworks", name: "Waterworks", biome: "preserve", category: "getting-started", order: 5, points: 10, hidden: false, icon: "ach-droplet-ripple", flavor: "Beds dug, ground watered, the first pools shaped. Wet ground is the difference between bare dirt and a place that holds life.", hint: "Work the soil and bring it water, again and again." },
-    { id: "meadow-first-bloom", name: "First Bloom", biome: "meadow", category: "biome", order: 6, points: 15, hidden: false, icon: "ach-wildflower", flavor: "Grasshopper, then a bee, then a sparrow that eats both, then a fox that eats the sparrow. A food web is just neighbors who need each other.", hint: "Coax the meadow well past its first lonely visitor." },
-    { id: "meadow-pollinators", name: "Pollinator Highway", biome: "meadow", category: "biome", order: 7, points: 20, hidden: false, icon: "ach-butterfly", flavor: "Monarch, bumblebee, leafcutter, lady beetle, painted lady \u2014 the unpaid workforce that turns flowers into seeds and seeds into more meadow.", hint: "Bring back the meadow's little winged workforce." },
-    { id: "meadow-apex", name: "Apex of the Grass", biome: "meadow", category: "biome", order: 8, points: 25, hidden: false, icon: "ach-fox-head", flavor: "A fox only settles where there are voles and rabbits to hunt \u2014 so its arrival means the whole chain beneath it is finally fed.", hint: "A meadow is whole when its top hunter trusts it." },
-    { id: "meadow-mender", name: "Meadow Mender", biome: "meadow", category: "biome", order: 9, points: 25, hidden: false, icon: "ach-grass-tuft", flavor: "The dust is gone. Where you started there was bare ground; now there's a meadow that hums.", hint: "Heal Willow Meadow most of the way back." },
-    { id: "meadow-reborn", name: "Willow Meadow Reborn", biome: "meadow", category: "biome", order: 10, points: 50, hidden: false, icon: "ach-meadow-sun", flavor: "Every animal that belongs here is home. The meadow doesn't need you to hum anymore \u2014 but it remembers who started it.", hint: "Leave no meadow animal behind." },
-    { id: "forest-understory", name: "Understory Returns", biome: "forest", category: "biome", order: 11, points: 15, hidden: false, icon: "ach-fern", flavor: "Ferns, shrubs, a squirrel arguing with a woodpecker, newts under the deadwood. A forest is built from the ground up, not the canopy down.", hint: "Rebuild the forest floor, layer by layer." },
-    { id: "forest-cavities", name: "Hollow Dwellers", biome: "forest", category: "biome", order: 12, points: 25, hidden: false, icon: "ach-tree-hollow", flavor: "The big woodpecker carves a hole, uses it once, and leaves it for everyone else. One bird's old home is another's new one.", hint: "Some birds carve homes that others move into \u2014 gather that crowd." },
-    { id: "forest-night-shift", name: "Night Shift", biome: "forest", category: "biome", order: 13, points: 25, hidden: false, icon: "ach-owl-moon", flavor: "After dark a second forest wakes up. The owls hunt what the day birds never see, and the bats take the night's insects.", hint: "Wake the forest that only stirs after dark." },
-    { id: "forest-canopy", name: "Canopy Restored", biome: "forest", category: "biome", order: 14, points: 25, hidden: false, icon: "ach-conifer", flavor: "Shade on the forest floor again. The big trees you raised will outlive everyone reading their rings.", hint: "Raise Old Hollow Forest most of the way back." },
-    { id: "forest-reborn", name: "Old Hollow Forest Reborn", biome: "forest", category: "biome", order: 15, points: 50, hidden: false, icon: "ach-three-trees", flavor: "From a logged-over silence to a full, layered wood \u2014 floor, understory, canopy, and every wing in between.", hint: "Leave no forest animal behind." },
-    { id: "wetland-first-water", name: "Water Returns", biome: "wetland", category: "biome", order: 16, points: 15, hidden: false, icon: "ach-cattail", flavor: "Shape the water and the water brings its own crowd \u2014 frogs, striders, dragonflies skating the surface, a heron stalking the shallows.", hint: "Shape water, and life will find it." },
-    { id: "wetland-engineer", name: "The Engineer", biome: "wetland", category: "biome", order: 17, points: 25, hidden: false, icon: "ach-beaver-dam", flavor: "The beaver doesn't move into habitat \u2014 it builds it. One dam, and otters, herons, and frogs all get a home they couldn't have made themselves.", hint: "Welcome the one who builds habitat for everyone else." },
-    { id: "wetland-lakemaker", name: "Lakemaker", biome: "wetland", category: "biome", order: 18, points: 20, hidden: false, icon: "ach-lake", flavor: "Enough open water to hold a sky. Turtles bask, mergansers dive, and the whole marsh has a center again.", hint: "Open enough connected water to hold a sky." },
-    { id: "wetland-restored", name: "Marsh Restored", biome: "wetland", category: "biome", order: 19, points: 25, hidden: false, icon: "ach-heron", flavor: "Reeds where there was cracked mud, channels that actually flow. A wetland filters everything downstream of it \u2014 quiet, unpaid work.", hint: "Heal Rushwater Wetland most of the way back." },
-    { id: "wetland-reborn", name: "Rushwater Wetland Reborn", biome: "wetland", category: "biome", order: 20, points: 50, hidden: false, icon: "ach-marsh-sun", flavor: "Crane to minnow, the whole drained marsh is wet and loud and alive.", hint: "Leave no wetland animal behind." },
-    { id: "desert-first-life", name: "Life in the Heat", biome: "desert", category: "biome", order: 21, points: 15, hidden: false, icon: "ach-cactus", flavor: "Out here life hides from the sun, not in it. The brush and burrows you've built are the first shade anything's had in years.", hint: "Give the heat something to hide in." },
-    { id: "desert-burrows", name: "Burrow Network", biome: "desert", category: "biome", order: 22, points: 25, hidden: false, icon: "ach-burrow", flavor: "In the desert, real estate is underground. A tortoise digs a burrow and an owl moves into the spare room \u2014 nobody wastes a hole here.", hint: "In the desert, the right neighbors share their holes." },
-    { id: "desert-hunter", name: "Dryland Hunter", biome: "desert", category: "biome", order: 23, points: 25, hidden: false, icon: "ach-rattlesnake", flavor: "A predator that can wait out the heat means there's finally enough prey to be patient for.", hint: "A hunter that waits out the heat needs prey worth waiting for." },
-    { id: "desert-restored", name: "Scrubland Restored", biome: "desert", category: "biome", order: 24, points: 25, hidden: false, icon: "ach-agave", flavor: "Brush and cactus where there was overgrazed flat. You can't flood a desert back \u2014 you have to shade it back, and you did.", hint: "Bring Redstone Scrubland most of the way back." },
-    { id: "desert-reborn", name: "Redstone Scrubland Reborn", biome: "desert", category: "biome", order: 25, points: 50, hidden: false, icon: "ach-desert-sun", flavor: "The hardest country in the preserve, fully alive \u2014 from the elf owl in the cactus to the tarantula under the stone.", hint: "Leave no desert animal behind." },
-    { id: "alpine-treeline", name: "Above the Treeline", biome: "alpine", category: "biome", order: 26, points: 15, hidden: false, icon: "ach-peak", flavor: "Nothing up here is here by accident. Every one of these has chosen the thin air on purpose.", hint: "Coax the first hardy few above the trees." },
-    { id: "alpine-haypile", name: "The Haymaker", biome: "alpine", category: "biome", order: 27, points: 20, hidden: false, icon: "ach-pika", flavor: "The pika spends all summer stacking little hay piles for a winter it refuses to sleep through. Tiny animal, enormous work ethic.", hint: "Welcome the tireless little hay-stacker of the rocks." },
-    { id: "alpine-crown", name: "Crown of the Range", biome: "alpine", category: "biome", order: 28, points: 25, hidden: false, icon: "ach-eagle", flavor: "When the eagle circles the ridge, the marmots whistle and the whole slope listens. The top of the food web has come home.", hint: "Crown the range with its highest hunter." },
-    { id: "alpine-restored", name: "Heights Restored", biome: "alpine", category: "biome", order: 29, points: 25, hidden: false, icon: "ach-alpine-flower", flavor: "Wildflower turf knitted back over the talus. Up here things grow by the inch and recover by the decade \u2014 you sped it up.", hint: "Bring Graywind Heights most of the way back." },
-    { id: "alpine-reborn", name: "Graywind Heights Reborn", biome: "alpine", category: "biome", order: 30, points: 50, hidden: false, icon: "ach-range", flavor: "Goat to ptarmigan to trout in the snowmelt \u2014 the whole high country, restored against the wind.", hint: "Leave no alpine animal behind." },
-    { id: "coastal-tide", name: "The Tide Returns", biome: "coastal", category: "biome", order: 31, points: 15, hidden: false, icon: "ach-wave", flavor: "Crabs in the wrack line, anemones in the pools, gulls working the surf. The tide was always coming in \u2014 now there's a whole shore to meet it.", hint: "Give the tide a shore worth returning to." },
-    { id: "coastal-keystone", name: "Keystone", biome: "coastal", category: "biome", order: 32, points: 25, hidden: false, icon: "ach-seastar", flavor: "The textbook keystone species: pull the sea star out and the mussels take everything. Put it back and the whole tidepool shares the rock again.", hint: "Restore the one animal that holds the whole tidepool together." },
-    { id: "coastal-otter", name: "Otter's Garden", biome: "coastal", category: "biome", order: 33, points: 25, hidden: false, icon: "ach-otter", flavor: "Otters eat the urchins that eat the kelp \u2014 so an otter on the water means a forest under it. Few animals do more with a full belly.", hint: "Welcome the swimmer that keeps the kelp standing." },
-    { id: "coastal-restored", name: "Shore Restored", biome: "coastal", category: "biome", order: 34, points: 25, hidden: false, icon: "ach-shell", flavor: "Anchored dunes, full tidepools, kelp in the wrack. The edge of the whole preserve, holding the line against the sea.", hint: "Bring Pelican Shore most of the way back." },
-    { id: "coastal-reborn", name: "Pelican Shore Reborn", biome: "coastal", category: "biome", order: 35, points: 50, hidden: false, icon: "ach-pelican", flavor: "Whale-spout to clam-siphon. The last and wildest stretch of the preserve, complete.", hint: "Leave no coastal animal behind." },
-    { id: "well-stocked", name: "Well Stocked", biome: "preserve", category: "mastery", order: 36, points: 25, hidden: false, icon: "ach-full-basket", flavor: "A thousand fallen things gathered. You stopped scrounging long ago \u2014 this is provisioning.", hint: "Gather far past what any one project needs." },
-    { id: "master-builder", name: "Master Builder", biome: "preserve", category: "mastery", order: 37, points: 25, hidden: false, icon: "ach-blueprint", flavor: "A hundred and fifty pieces of habitat, placed by hand. The whole preserve has your fingerprints on it.", hint: "Place habitat until the whole preserve bears your hand." },
-    { id: "master-gardener", name: "Master Gardener", biome: "preserve", category: "mastery", order: 38, points: 25, hidden: false, icon: "ach-watering-can", flavor: "Seventy-five living things put in the ground, sprout by patient sprout. Restoration is mostly just showing up with a watering can.", hint: "Plant on a scale that changes the land." },
-    { id: "landscaper", name: "Landscaper", biome: "preserve", category: "mastery", order: 39, points: 25, hidden: false, icon: "ach-spade-water", flavor: "You don't find the right land \u2014 you shape it. Beds, banks, ponds, lakes, and rivers, all on purpose.", hint: "Shape soil and water across the preserve, tirelessly." },
-    { id: "fully-equipped", name: "Fully Equipped", biome: "preserve", category: "mastery", order: 40, points: 30, hidden: false, icon: "ach-toolbelt", flavor: "Top-tier gear for top-tier work. There's nothing left in the preserve you can't carry, dig, or water.", hint: "Carry your basket, shovel, and watering can to their peak." },
-    { id: "naturalist", name: "Naturalist", biome: "preserve", category: "mastery", order: 41, points: 30, hidden: false, icon: "ach-open-book", flavor: "Every guide filled in, every animal's secrets unlocked. You don't just host wildlife now \u2014 you understand it.", hint: "Complete every area's field guide." },
-    { id: "recipe-collector", name: "Recipe Collector", biome: "preserve", category: "mastery", order: 42, points: 30, hidden: false, icon: "ach-recipe-stack", flavor: "Seventy-five different things, each built at least once. You've used nearly every tool on the bench.", hint: "Build a little of almost everything on the bench." },
-    { id: "open-road", name: "Open Road", biome: "preserve", category: "preserve", order: 43, points: 20, hidden: false, icon: "ach-trail-gate", flavor: "The first trail gate swings open. One healed meadow, and the whole preserve starts to feel reachable.", hint: "Heal one biome enough to open the next trail." },
-    { id: "welcoming-committee", name: "Welcoming Committee", biome: "preserve", category: "preserve", order: 44, points: 30, hidden: false, icon: "ach-paws-fifty", flavor: "Fifty species have decided this place is safe again. Word travels fast in the wild.", hint: "Draw a real crowd back to the preserve." },
-    { id: "full-house", name: "Full House", biome: "preserve", category: "preserve", order: 45, points: 50, hidden: false, icon: "ach-preserve-map", flavor: "A hundred kinds of neighbor. The preserve isn't recovering anymore \u2014 it's thriving.", hint: "Fill the preserve with neighbors." },
-    { id: "field-notes", name: "Field Notes", biome: "preserve", category: "preserve", order: 46, points: 25, hidden: false, icon: "ach-binoculars", flavor: "Page after page of observations. You don't just bring animals back \u2014 you sit with them long enough to learn who they are.", hint: "Observe your wild neighbors, again and again, all over the preserve." },
-    { id: "steady-hand", name: "Steady Hand", biome: "preserve", category: "preserve", order: 47, points: 30, hidden: false, icon: "ach-balance-leaf", flavor: "No biome left to languish while you favored another. Every place you've opened is in good health at once.", hint: "Keep every area you've opened in good health at the same time." },
-    { id: "three-restored", name: "Halfway Wild", biome: "preserve", category: "preserve", order: 48, points: 35, hidden: false, icon: "ach-triple-leaf", flavor: "Three damaged places, brought most of the way home. The preserve is tipping from recovering to recovered.", hint: "Bring several different biomes most of the way back." },
-    { id: "trailblazer", name: "Trailblazer", biome: "preserve", category: "preserve", order: 49, points: 40, hidden: false, icon: "ach-signpost", flavor: "Every gate open, every trail walked. From your tent to the sea, it's all connected now.", hint: "Open every trail in the preserve." },
-    { id: "caretaker-of-the-whole", name: "Caretaker of the Whole", biome: "preserve", category: "preserve", order: 50, points: 100, hidden: false, icon: "ach-laurel", flavor: "Every animal in every biome, home. The damaged preserve you inherited is now, simply, wild. The rarest achievement there is.", hint: "Welcome home every animal in every biome." }
+    {
+      id: "welcome-grasshopper",
+      name: "First Friend",
+      biome: "preserve",
+      category: "getting-started",
+      order: 1,
+      points: 10,
+      hidden: false,
+      icon: "ach-grasshopper",
+      flavor: "You saw it through \u2014 gathered, built, shaped the land, and welcomed your first neighbor. A single hop in the grass, and you already know how to bring back a whole meadow.",
+      hint: "Every caretaker's journey begins with one small arrival.",
+      req: {
+        t: "animal",
+        ids: [
+          "grasshopper"
+        ]
+      }
+    },
+    {
+      id: "forager",
+      name: "Forager",
+      biome: "preserve",
+      category: "getting-started",
+      order: 2,
+      points: 10,
+      hidden: false,
+      icon: "ach-gather-hand",
+      flavor: "A hundred fallen things picked up and put to use. You've stopped scrounging and started stockpiling.",
+      hint: "Gather, and keep gathering \u2014 build a real stockpile.",
+      req: {
+        t: "collect",
+        n: 100
+      }
+    },
+    {
+      id: "makers-hands",
+      name: "Maker's Hands",
+      biome: "preserve",
+      category: "getting-started",
+      order: 3,
+      points: 10,
+      hidden: false,
+      icon: "ach-mallet",
+      flavor: "Ten things built by hand. Habitat isn't found \u2014 it's made, one piece at a time.",
+      hint: "Keep crafting; one item won't restore a meadow.",
+      req: {
+        t: "craft",
+        n: 10
+      }
+    },
+    {
+      id: "green-thumb",
+      name: "Green Thumb",
+      biome: "preserve",
+      category: "getting-started",
+      order: 4,
+      points: 10,
+      hidden: false,
+      icon: "ach-sprout-thumb",
+      flavor: "Ten living things in soil you readied yourself. Half of restoration is just patience with a watering can.",
+      hint: "Put down roots \u2014 plant, and plant again.",
+      req: {
+        t: "plant",
+        n: 10
+      }
+    },
+    {
+      id: "waterworks",
+      name: "Waterworks",
+      biome: "preserve",
+      category: "getting-started",
+      order: 5,
+      points: 10,
+      hidden: false,
+      icon: "ach-droplet-ripple",
+      flavor: "Beds dug, ground watered, the first pools shaped. Wet ground is the difference between bare dirt and a place that holds life.",
+      hint: "Work the soil and bring it water, again and again.",
+      req: {
+        t: "terraform",
+        n: 15
+      }
+    },
+    {
+      id: "meadow-first-bloom",
+      name: "First Bloom",
+      biome: "meadow",
+      category: "biome",
+      order: 6,
+      points: 15,
+      hidden: false,
+      icon: "ach-wildflower",
+      flavor: "Grasshopper, then a bee, then a sparrow that eats both, then a fox that eats the sparrow. A food web is just neighbors who need each other.",
+      hint: "Coax the meadow well past its first lonely visitor.",
+      req: {
+        t: "returned",
+        biome: "meadow",
+        n: 8
+      }
+    },
+    {
+      id: "meadow-pollinators",
+      name: "Pollinator Highway",
+      biome: "meadow",
+      category: "biome",
+      order: 7,
+      points: 20,
+      hidden: false,
+      icon: "ach-butterfly",
+      flavor: "Monarch, bumblebee, leafcutter, lady beetle, painted lady \u2014 the unpaid workforce that turns flowers into seeds and seeds into more meadow.",
+      hint: "Bring back the meadow's little winged workforce.",
+      req: {
+        t: "kindReturned",
+        biome: "meadow",
+        kind: "insect",
+        n: 5
+      }
+    },
+    {
+      id: "meadow-apex",
+      name: "Apex of the Grass",
+      biome: "meadow",
+      category: "biome",
+      order: 8,
+      points: 25,
+      hidden: false,
+      icon: "ach-fox-head",
+      flavor: "A fox only settles where there are voles and rabbits to hunt \u2014 so its arrival means the whole chain beneath it is finally fed.",
+      hint: "A meadow is whole when its top hunter trusts it.",
+      req: {
+        t: "animal",
+        ids: [
+          "red-fox-meadow"
+        ]
+      }
+    },
+    {
+      id: "meadow-mender",
+      name: "Meadow Mender",
+      biome: "meadow",
+      category: "biome",
+      order: 9,
+      points: 25,
+      hidden: false,
+      icon: "ach-grass-tuft",
+      flavor: "The dust is gone. Where you started there was bare ground; now there's a meadow that hums.",
+      hint: "Heal Willow Meadow most of the way back.",
+      req: {
+        t: "health",
+        biome: "meadow",
+        n: 80
+      }
+    },
+    {
+      id: "meadow-reborn",
+      name: "Willow Meadow Reborn",
+      biome: "meadow",
+      category: "biome",
+      order: 10,
+      points: 50,
+      hidden: false,
+      icon: "ach-meadow-sun",
+      flavor: "Every animal that belongs here is home. The meadow doesn't need you to hum anymore \u2014 but it remembers who started it.",
+      hint: "Leave no meadow animal behind.",
+      req: {
+        t: "returned",
+        biome: "meadow",
+        n: 25
+      }
+    },
+    {
+      id: "forest-understory",
+      name: "Understory Returns",
+      biome: "forest",
+      category: "biome",
+      order: 11,
+      points: 15,
+      hidden: false,
+      icon: "ach-fern",
+      flavor: "Ferns, shrubs, a squirrel arguing with a woodpecker, newts under the deadwood. A forest is built from the ground up, not the canopy down.",
+      hint: "Rebuild the forest floor, layer by layer.",
+      req: {
+        t: "returned",
+        biome: "forest",
+        n: 10
+      }
+    },
+    {
+      id: "forest-cavities",
+      name: "Hollow Dwellers",
+      biome: "forest",
+      category: "biome",
+      order: 12,
+      points: 25,
+      hidden: false,
+      icon: "ach-tree-hollow",
+      flavor: "The big woodpecker carves a hole, uses it once, and leaves it for everyone else. One bird's old home is another's new one.",
+      hint: "Some birds carve homes that others move into \u2014 gather that crowd.",
+      req: {
+        t: "animalChain",
+        all: [
+          "pileated-woodpecker"
+        ],
+        any: [
+          "wood-duck",
+          "northern-flying-squirrel",
+          "great-horned-owl",
+          "barred-owl"
+        ]
+      }
+    },
+    {
+      id: "forest-night-shift",
+      name: "Night Shift",
+      biome: "forest",
+      category: "biome",
+      order: 13,
+      points: 25,
+      hidden: false,
+      icon: "ach-owl-moon",
+      flavor: "After dark a second forest wakes up. The owls hunt what the day birds never see, and the bats take the night's insects.",
+      hint: "Wake the forest that only stirs after dark.",
+      req: {
+        t: "animal",
+        ids: [
+          "great-horned-owl",
+          "barred-owl",
+          "little-brown-bat"
+        ],
+        mode: "all"
+      }
+    },
+    {
+      id: "forest-canopy",
+      name: "Canopy Restored",
+      biome: "forest",
+      category: "biome",
+      order: 14,
+      points: 25,
+      hidden: false,
+      icon: "ach-conifer",
+      flavor: "Shade on the forest floor again. The big trees you raised will outlive everyone reading their rings.",
+      hint: "Raise Old Hollow Forest most of the way back.",
+      req: {
+        t: "health",
+        biome: "forest",
+        n: 80
+      }
+    },
+    {
+      id: "forest-reborn",
+      name: "Old Hollow Forest Reborn",
+      biome: "forest",
+      category: "biome",
+      order: 15,
+      points: 50,
+      hidden: false,
+      icon: "ach-three-trees",
+      flavor: "From a logged-over silence to a full, layered wood \u2014 floor, understory, canopy, and every wing in between.",
+      hint: "Leave no forest animal behind.",
+      req: {
+        t: "returned",
+        biome: "forest",
+        n: 25
+      }
+    },
+    {
+      id: "wetland-first-water",
+      name: "Water Returns",
+      biome: "wetland",
+      category: "biome",
+      order: 16,
+      points: 15,
+      hidden: false,
+      icon: "ach-cattail",
+      flavor: "Shape the water and the water brings its own crowd \u2014 frogs, striders, dragonflies skating the surface, a heron stalking the shallows.",
+      hint: "Shape water, and life will find it.",
+      req: {
+        t: "returned",
+        biome: "wetland",
+        n: 8
+      }
+    },
+    {
+      id: "wetland-engineer",
+      name: "The Engineer",
+      biome: "wetland",
+      category: "biome",
+      order: 17,
+      points: 25,
+      hidden: false,
+      icon: "ach-beaver-dam",
+      flavor: "The beaver doesn't move into habitat \u2014 it builds it. One dam, and otters, herons, and frogs all get a home they couldn't have made themselves.",
+      hint: "Welcome the one who builds habitat for everyone else.",
+      req: {
+        t: "animal",
+        ids: [
+          "beaver"
+        ]
+      }
+    },
+    {
+      id: "wetland-lakemaker",
+      name: "Lakemaker",
+      biome: "wetland",
+      category: "biome",
+      order: 18,
+      points: 20,
+      hidden: false,
+      icon: "ach-lake",
+      flavor: "Enough open water to hold a sky. Turtles bask, mergansers dive, and the whole marsh has a center again.",
+      hint: "Open enough connected water to hold a sky.",
+      req: {
+        t: "lake",
+        biome: "wetland",
+        n: 6
+      }
+    },
+    {
+      id: "wetland-restored",
+      name: "Marsh Restored",
+      biome: "wetland",
+      category: "biome",
+      order: 19,
+      points: 25,
+      hidden: false,
+      icon: "ach-heron",
+      flavor: "Reeds where there was cracked mud, channels that actually flow. A wetland filters everything downstream of it \u2014 quiet, unpaid work.",
+      hint: "Heal Rushwater Wetland most of the way back.",
+      req: {
+        t: "health",
+        biome: "wetland",
+        n: 80
+      }
+    },
+    {
+      id: "wetland-reborn",
+      name: "Rushwater Wetland Reborn",
+      biome: "wetland",
+      category: "biome",
+      order: 20,
+      points: 50,
+      hidden: false,
+      icon: "ach-marsh-sun",
+      flavor: "Crane to minnow, the whole drained marsh is wet and loud and alive.",
+      hint: "Leave no wetland animal behind.",
+      req: {
+        t: "returned",
+        biome: "wetland",
+        n: 25
+      }
+    },
+    {
+      id: "desert-first-life",
+      name: "Life in the Heat",
+      biome: "desert",
+      category: "biome",
+      order: 21,
+      points: 15,
+      hidden: false,
+      icon: "ach-cactus",
+      flavor: "Out here life hides from the sun, not in it. The brush and burrows you've built are the first shade anything's had in years.",
+      hint: "Give the heat something to hide in.",
+      req: {
+        t: "returned",
+        biome: "desert",
+        n: 8
+      }
+    },
+    {
+      id: "desert-burrows",
+      name: "Burrow Network",
+      biome: "desert",
+      category: "biome",
+      order: 22,
+      points: 25,
+      hidden: false,
+      icon: "ach-burrow",
+      flavor: "In the desert, real estate is underground. A tortoise digs a burrow and an owl moves into the spare room \u2014 nobody wastes a hole here.",
+      hint: "In the desert, the right neighbors share their holes.",
+      req: {
+        t: "animal",
+        ids: [
+          "burrowing-owl",
+          "kangaroo-rat",
+          "desert-tortoise"
+        ],
+        mode: "all"
+      }
+    },
+    {
+      id: "desert-hunter",
+      name: "Dryland Hunter",
+      biome: "desert",
+      category: "biome",
+      order: 23,
+      points: 25,
+      hidden: false,
+      icon: "ach-rattlesnake",
+      flavor: "A predator that can wait out the heat means there's finally enough prey to be patient for.",
+      hint: "A hunter that waits out the heat needs prey worth waiting for.",
+      req: {
+        t: "animal",
+        ids: [
+          "rattlesnake",
+          "coyote"
+        ],
+        mode: "any"
+      }
+    },
+    {
+      id: "desert-restored",
+      name: "Scrubland Restored",
+      biome: "desert",
+      category: "biome",
+      order: 24,
+      points: 25,
+      hidden: false,
+      icon: "ach-agave",
+      flavor: "Brush and cactus where there was overgrazed flat. You can't flood a desert back \u2014 you have to shade it back, and you did.",
+      hint: "Bring Redstone Scrubland most of the way back.",
+      req: {
+        t: "health",
+        biome: "desert",
+        n: 80
+      }
+    },
+    {
+      id: "desert-reborn",
+      name: "Redstone Scrubland Reborn",
+      biome: "desert",
+      category: "biome",
+      order: 25,
+      points: 50,
+      hidden: false,
+      icon: "ach-desert-sun",
+      flavor: "The hardest country in the preserve, fully alive \u2014 from the elf owl in the cactus to the tarantula under the stone.",
+      hint: "Leave no desert animal behind.",
+      req: {
+        t: "returned",
+        biome: "desert",
+        n: 25
+      }
+    },
+    {
+      id: "alpine-treeline",
+      name: "Above the Treeline",
+      biome: "alpine",
+      category: "biome",
+      order: 26,
+      points: 15,
+      hidden: false,
+      icon: "ach-peak",
+      flavor: "Nothing up here is here by accident. Every one of these has chosen the thin air on purpose.",
+      hint: "Coax the first hardy few above the trees.",
+      req: {
+        t: "returned",
+        biome: "alpine",
+        n: 8
+      }
+    },
+    {
+      id: "alpine-haypile",
+      name: "The Haymaker",
+      biome: "alpine",
+      category: "biome",
+      order: 27,
+      points: 20,
+      hidden: false,
+      icon: "ach-pika",
+      flavor: "The pika spends all summer stacking little hay piles for a winter it refuses to sleep through. Tiny animal, enormous work ethic.",
+      hint: "Welcome the tireless little hay-stacker of the rocks.",
+      req: {
+        t: "animal",
+        ids: [
+          "pika"
+        ]
+      }
+    },
+    {
+      id: "alpine-crown",
+      name: "Crown of the Range",
+      biome: "alpine",
+      category: "biome",
+      order: 28,
+      points: 25,
+      hidden: false,
+      icon: "ach-eagle",
+      flavor: "When the eagle circles the ridge, the marmots whistle and the whole slope listens. The top of the food web has come home.",
+      hint: "Crown the range with its highest hunter.",
+      req: {
+        t: "animal",
+        ids: [
+          "golden-eagle"
+        ]
+      }
+    },
+    {
+      id: "alpine-restored",
+      name: "Heights Restored",
+      biome: "alpine",
+      category: "biome",
+      order: 29,
+      points: 25,
+      hidden: false,
+      icon: "ach-alpine-flower",
+      flavor: "Wildflower turf knitted back over the talus. Up here things grow by the inch and recover by the decade \u2014 you sped it up.",
+      hint: "Bring Graywind Heights most of the way back.",
+      req: {
+        t: "health",
+        biome: "alpine",
+        n: 80
+      }
+    },
+    {
+      id: "alpine-reborn",
+      name: "Graywind Heights Reborn",
+      biome: "alpine",
+      category: "biome",
+      order: 30,
+      points: 50,
+      hidden: false,
+      icon: "ach-range",
+      flavor: "Goat to ptarmigan to trout in the snowmelt \u2014 the whole high country, restored against the wind.",
+      hint: "Leave no alpine animal behind.",
+      req: {
+        t: "returned",
+        biome: "alpine",
+        n: 25
+      }
+    },
+    {
+      id: "coastal-tide",
+      name: "The Tide Returns",
+      biome: "coastal",
+      category: "biome",
+      order: 31,
+      points: 15,
+      hidden: false,
+      icon: "ach-wave",
+      flavor: "Crabs in the wrack line, anemones in the pools, gulls working the surf. The tide was always coming in \u2014 now there's a whole shore to meet it.",
+      hint: "Give the tide a shore worth returning to.",
+      req: {
+        t: "returned",
+        biome: "coastal",
+        n: 8
+      }
+    },
+    {
+      id: "coastal-keystone",
+      name: "Keystone",
+      biome: "coastal",
+      category: "biome",
+      order: 32,
+      points: 25,
+      hidden: false,
+      icon: "ach-seastar",
+      flavor: "The textbook keystone species: pull the sea star out and the mussels take everything. Put it back and the whole tidepool shares the rock again.",
+      hint: "Restore the one animal that holds the whole tidepool together.",
+      req: {
+        t: "animal",
+        ids: [
+          "sea-star"
+        ]
+      }
+    },
+    {
+      id: "coastal-otter",
+      name: "Otter's Garden",
+      biome: "coastal",
+      category: "biome",
+      order: 33,
+      points: 25,
+      hidden: false,
+      icon: "ach-otter",
+      flavor: "Otters eat the urchins that eat the kelp \u2014 so an otter on the water means a forest under it. Few animals do more with a full belly.",
+      hint: "Welcome the swimmer that keeps the kelp standing.",
+      req: {
+        t: "animal",
+        ids: [
+          "sea-otter"
+        ]
+      }
+    },
+    {
+      id: "coastal-restored",
+      name: "Shore Restored",
+      biome: "coastal",
+      category: "biome",
+      order: 34,
+      points: 25,
+      hidden: false,
+      icon: "ach-shell",
+      flavor: "Anchored dunes, full tidepools, kelp in the wrack. The edge of the whole preserve, holding the line against the sea.",
+      hint: "Bring Pelican Shore most of the way back.",
+      req: {
+        t: "health",
+        biome: "coastal",
+        n: 80
+      }
+    },
+    {
+      id: "coastal-reborn",
+      name: "Pelican Shore Reborn",
+      biome: "coastal",
+      category: "biome",
+      order: 35,
+      points: 50,
+      hidden: false,
+      icon: "ach-pelican",
+      flavor: "Whale-spout to clam-siphon. The last and wildest stretch of the preserve, complete.",
+      hint: "Leave no coastal animal behind.",
+      req: {
+        t: "returned",
+        biome: "coastal",
+        n: 25
+      }
+    },
+    {
+      id: "well-stocked",
+      name: "Well Stocked",
+      biome: "preserve",
+      category: "mastery",
+      order: 36,
+      points: 25,
+      hidden: false,
+      icon: "ach-full-basket",
+      flavor: "A thousand fallen things gathered. You stopped scrounging long ago \u2014 this is provisioning.",
+      hint: "Gather far past what any one project needs.",
+      req: {
+        t: "collect",
+        n: 1e3
+      }
+    },
+    {
+      id: "master-builder",
+      name: "Master Builder",
+      biome: "preserve",
+      category: "mastery",
+      order: 37,
+      points: 25,
+      hidden: false,
+      icon: "ach-blueprint",
+      flavor: "A hundred and fifty pieces of habitat, placed by hand. The whole preserve has your fingerprints on it.",
+      hint: "Place habitat until the whole preserve bears your hand.",
+      req: {
+        t: "place",
+        n: 150
+      }
+    },
+    {
+      id: "master-gardener",
+      name: "Master Gardener",
+      biome: "preserve",
+      category: "mastery",
+      order: 38,
+      points: 25,
+      hidden: false,
+      icon: "ach-watering-can",
+      flavor: "Seventy-five living things put in the ground, sprout by patient sprout. Restoration is mostly just showing up with a watering can.",
+      hint: "Plant on a scale that changes the land.",
+      req: {
+        t: "plant",
+        n: 75
+      }
+    },
+    {
+      id: "landscaper",
+      name: "Landscaper",
+      biome: "preserve",
+      category: "mastery",
+      order: 39,
+      points: 25,
+      hidden: false,
+      icon: "ach-spade-water",
+      flavor: "You don't find the right land \u2014 you shape it. Beds, banks, ponds, lakes, and rivers, all on purpose.",
+      hint: "Shape soil and water across the preserve, tirelessly.",
+      req: {
+        t: "terraform",
+        n: 150
+      }
+    },
+    {
+      id: "fully-equipped",
+      name: "Fully Equipped",
+      biome: "preserve",
+      category: "mastery",
+      order: 40,
+      points: 30,
+      hidden: false,
+      icon: "ach-toolbelt",
+      flavor: "Top-tier gear for top-tier work. There's nothing left in the preserve you can't carry, dig, or water.",
+      hint: "Carry your basket, shovel, and watering can to their peak.",
+      req: {
+        t: "tools",
+        n: 4
+      }
+    },
+    {
+      id: "naturalist",
+      name: "Naturalist",
+      biome: "preserve",
+      category: "mastery",
+      order: 41,
+      points: 30,
+      hidden: false,
+      icon: "ach-open-book",
+      flavor: "Every guide filled in, every animal's secrets unlocked. You don't just host wildlife now \u2014 you understand it.",
+      hint: "Complete every area's field guide.",
+      req: {
+        t: "tool",
+        id: "field-journal",
+        n: 7
+      }
+    },
+    {
+      id: "recipe-collector",
+      name: "Recipe Collector",
+      biome: "preserve",
+      category: "mastery",
+      order: 42,
+      points: 30,
+      hidden: false,
+      icon: "ach-recipe-stack",
+      flavor: "Seventy-five different things, each built at least once. You've used nearly every tool on the bench.",
+      hint: "Build a little of almost everything on the bench.",
+      req: {
+        t: "craftDistinct",
+        n: 75
+      }
+    },
+    {
+      id: "open-road",
+      name: "Open Road",
+      biome: "preserve",
+      category: "preserve",
+      order: 43,
+      points: 20,
+      hidden: false,
+      icon: "ach-trail-gate",
+      flavor: "The first trail gate swings open. One healed meadow, and the whole preserve starts to feel reachable.",
+      hint: "Heal one biome enough to open the next trail.",
+      req: {
+        t: "unlocked",
+        n: 2
+      }
+    },
+    {
+      id: "welcoming-committee",
+      name: "Welcoming Committee",
+      biome: "preserve",
+      category: "preserve",
+      order: 44,
+      points: 30,
+      hidden: false,
+      icon: "ach-paws-fifty",
+      flavor: "Fifty species have decided this place is safe again. Word travels fast in the wild.",
+      hint: "Draw a real crowd back to the preserve.",
+      req: {
+        t: "total",
+        n: 50
+      }
+    },
+    {
+      id: "full-house",
+      name: "Full House",
+      biome: "preserve",
+      category: "preserve",
+      order: 45,
+      points: 50,
+      hidden: false,
+      icon: "ach-preserve-map",
+      flavor: "A hundred kinds of neighbor. The preserve isn't recovering anymore \u2014 it's thriving.",
+      hint: "Fill the preserve with neighbors.",
+      req: {
+        t: "total",
+        n: 100
+      }
+    },
+    {
+      id: "field-notes",
+      name: "Field Notes",
+      biome: "preserve",
+      category: "preserve",
+      order: 46,
+      points: 25,
+      hidden: false,
+      icon: "ach-binoculars",
+      flavor: "Page after page of observations. You don't just bring animals back \u2014 you sit with them long enough to learn who they are.",
+      hint: "Observe your wild neighbors, again and again, all over the preserve.",
+      req: {
+        t: "observe",
+        n: 100
+      }
+    },
+    {
+      id: "steady-hand",
+      name: "Steady Hand",
+      biome: "preserve",
+      category: "preserve",
+      order: 47,
+      points: 30,
+      hidden: false,
+      icon: "ach-balance-leaf",
+      flavor: "No biome left to languish while you favored another. Every place you've opened is in good health at once.",
+      hint: "Keep every area you've opened in good health at the same time.",
+      req: {
+        t: "healthyOpen",
+        h: 50,
+        min: 3
+      }
+    },
+    {
+      id: "three-restored",
+      name: "Halfway Wild",
+      biome: "preserve",
+      category: "preserve",
+      order: 48,
+      points: 35,
+      hidden: false,
+      icon: "ach-triple-leaf",
+      flavor: "Three damaged places, brought most of the way home. The preserve is tipping from recovering to recovered.",
+      hint: "Bring several different biomes most of the way back.",
+      req: {
+        t: "biomesAtHealth",
+        h: 80,
+        n: 3
+      }
+    },
+    {
+      id: "trailblazer",
+      name: "Trailblazer",
+      biome: "preserve",
+      category: "preserve",
+      order: 49,
+      points: 40,
+      hidden: false,
+      icon: "ach-signpost",
+      flavor: "Every gate open, every trail walked. From your tent to the sea, it's all connected now.",
+      hint: "Open every trail in the preserve.",
+      req: {
+        t: "unlocked",
+        n: 6
+      }
+    },
+    {
+      id: "caretaker-of-the-whole",
+      name: "Caretaker of the Whole",
+      biome: "preserve",
+      category: "preserve",
+      order: 50,
+      points: 100,
+      hidden: false,
+      icon: "ach-laurel",
+      flavor: "Every animal in every biome, home. The damaged preserve you inherited is now, simply, wild. The rarest achievement there is.",
+      hint: "Welcome home every animal in every biome.",
+      req: {
+        t: "total",
+        n: 150
+      }
+    }
   ]
 };
 
@@ -13415,6 +14340,9 @@ var server_default = {
     wouldNotTakeRoot: "{name} would not take root in the {biome}",
     plantIntoWatered: "Plant into a watered soil bed \u2014 dig with the shovel, then water it",
     placementNotFound: "Placement not found",
+    notHarvestable: "There's nothing to harvest from that",
+    notReadyYet: "Not ready to harvest yet \u2014 give it time to grow back",
+    basketFullHarvest: "Your basket is full \u2014 make room before harvesting",
     workbenchStays: "Your crafting station stays put \u2014 the preserve needs it",
     openWaterBridgeOnly: "That is open water \u2014 only a bridge can sit there",
     bedForPlantingShort: "That soil bed is for planting",
@@ -13437,6 +14365,7 @@ var server_default = {
     animalNotReturned: "That animal has not returned yet",
     taskNotOnBoard: "That task is not on today's board",
     taskAlreadyClaimed: "Already claimed \u2014 fresh tasks arrive tomorrow",
+    taskNotClaimable: "That's a guidance goal \u2014 it tracks progress but isn't claimed",
     taskNotFinished: "Not finished yet \u2014 check the board for what remains",
     basketFullReward: "Your basket is full \u2014 make room for the reward first",
     terraformOutdoors: "You can only shape the ground out in the preserve",
@@ -13469,19 +14398,83 @@ var server_default = {
   },
   task: {
     welcomeGrasshopper: "Welcome the grasshopper home",
-    welcomeGrasshopperHint: "Craft and place a grass patch, then bring the meadow to 15% health \u2014 the grasshopper hops home on its own.",
-    raiseHealth: "Raise {biome}'s health by {count}",
+    welcomeGrasshopperHint: "Craft and place a grass patch, then bring the meadow to 10% health \u2014 the grasshopper hops home on its own.",
+    raiseHealth: "Raise {biome}'s health from {current}% to {goal}%",
     welcomeNewAnimal: "Welcome a new animal back to {biome}",
     welcomeAnyAnimal: "Welcome a new animal, anywhere in the preserve",
     craftKit: "Craft a {item}",
     gather: "Gather {count}\xD7 {resource}",
-    craft: { one: "Craft {count} item", other: "Craft {count} items" },
-    place: { one: "Place {count} crafted thing", other: "Place {count} crafted things" },
+    craft: {
+      one: "Craft {count} item",
+      other: "Craft {count} items"
+    },
+    place: {
+      one: "Place {count} crafted thing",
+      other: "Place {count} crafted things"
+    },
     water: "Water {count} soil beds",
     plantBeds: "Plant 2 seedlings in watered beds",
     observe: "Read about 3 animals in your journal",
-    collectSeeds: "Collect 10 seeds",
-    plantThree: "Plant 3 seedlings"
+    collectSeeds: "Gather 12 seeds",
+    gatherHint: "Select your basket (1), walk onto a glowing spot on the ground, and press E or Space.",
+    plantThree: "Plant 3 seedlings",
+    craftFirst: "Craft your first habitat",
+    craftFirstHint: "Open crafting (C), pick something you can afford, and press Craft."
+  },
+  goal: {
+    craft: "Craft {count}\xD7 {item}",
+    build: "Craft and place {count}\xD7 {item}",
+    grow: "Plant {count}\xD7 {item}",
+    plant: "Plant {count} things",
+    collect: "Collect {count}\xD7 {resource}",
+    observe: "Read about {count} animals",
+    welcome: "Bring back the {animal}",
+    attract: "Attract a mystery {kind}",
+    welcomeTotal: "Welcome {count} animals to the preserve",
+    creature: "creature",
+    habitatStep: "{have}/{need} {name}",
+    healthStep: "Biome health {cur}/{need}%",
+    matStep: "{have}/{need} {name}",
+    home: "Upgrade your home's {track} to level {level}",
+    buildHome: "Build your home: {style}",
+    aHouse: "a house",
+    unlock: "Unlock {biome}",
+    track: {
+      space: "space",
+      comfort: "comfort",
+      decor: "decor",
+      light: "light"
+    },
+    hint: {
+      craft: "Open crafting (C) and make it \u2014 the hover box lists the materials it needs.",
+      build: "Craft it (C), then place it out in the biome from the 'ready to place' bar.",
+      grow: "Dig a bed (2), water it (3), then plant it from the bed's menu.",
+      plant: "Dig a bed with the shovel, water it, then plant something living.",
+      collect: "Gather this material from glowing spots out in the preserve.",
+      observe: "Open an animal's entry in your field journal (J) to read about it.",
+      welcome: "Build the habitat it needs \u2014 it returns on its own.",
+      attract: "Build the habitat in the info box; the animal comes back on its own.",
+      welcomeTotal: "Restore habitat across your biomes \u2014 animals return on their own.",
+      home: "Use the sign by your camp tent to upgrade your home.",
+      unlock: "Meet the requirements shown to open this biome.",
+      health: "Heal the land \u2014 plant, water, and place habitat until this biome recovers.",
+      biomeAnimals: "Build every animal's habitat here until the whole biome is home."
+    },
+    restore: "Restore {biome} to {pct}% health",
+    biomeAnimals: "Welcome all {count} animals to {biome}",
+    upgradeGuide: "Upgrade your field guide (Tools) to reveal exactly what it needs."
+  },
+  nextbiome: {
+    title: "Unlock {biome}",
+    hint: "Tick off each requirement below to open {biome}.",
+    health: "{biome} at {goal}% health ({cur}% now)",
+    animals: "{goal} animals back in {biome} ({cur} now)",
+    total: "{goal} animals across the preserve ({cur} now)",
+    craft: "Craft a {item}"
+  },
+  unlockreward: {
+    title: "{biome} unlocked!\nClaim your welcome bundle",
+    hint: "A handful of {biome} materials to get you started there."
   },
   feed: {
     joinedWorld: "{name} joined the preserve!"
@@ -13898,12 +14891,13 @@ var supportHtml = `<!doctype html>
 </body>
 </html>
 `;
+var buildStamp = "0.1.10+2026-07-10T03:05:14.985Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 var WEATHER_BIOME_IDS = biomes_default.records.map((b) => b.id);
 function weatherTimeFromPlay(player) {
-  return Math.max(0, Math.round((player?.metrics?.playSeconds || 0) * 1e3));
+  return Math.max(0, Math.round((player?.metrics?.playSeconds || 0) * 1e3) + (player?.clockOffsetMs || 0));
 }
 var db = () => {
   const d = typeof databases !== "undefined" && databases ? databases.wildwillows : null;
@@ -14236,7 +15230,7 @@ function homeRoom(player) {
 }
 var DIG_FIND_CHANCE = 0.75;
 var CAPACITY_BY_BASKET = { 1: 200, 2: 350, 3: 550, 4: 800 };
-var START_INVENTORY = { water: 6, seeds: 2, wildflowers: 1 };
+var START_INVENTORY = { water: 6, wildflowers: 1 };
 var START_TOOLS = { basket: 1, shovel: 1, "watering-can": 1, "field-journal": 1 };
 var SKIN_TONES = ["#f6d7b8", "#eec39a", "#d9a06b", "#b97f50", "#8d5a3a", "#6b4226"];
 var HAIR_COLORS = ["#3b2e25", "#6e4a33", "#a3692f", "#c9913f", "#d9b380", "#8c8c8c"];
@@ -14564,7 +15558,10 @@ async function createPlayerRecords(playerId, name, passcode, appearance, tzOffse
     tutorialStep: 0,
     home: { ...DEFAULT_HOME },
     // your camp tent — upgrade it along four tracks, in two styles
-    metrics: freshMetrics(now)
+    metrics: freshMetrics(now),
+    // The board always shows a live "Unlock the next biome" guidance goal, so a
+    // new player starts with no custom goals of their own yet.
+    customGoals: []
   };
   await t2.Player.put(player);
   const wid = playerId;
@@ -14624,7 +15621,9 @@ async function freshSnapshot(created) {
     feed: [],
     serverTime: now,
     weather: weatherSnapshot(worldId, wxTime, WEATHER_BIOME_IDS),
-    dailyTasks: dailyTasksBlock({ wid: worldId, player: created.player, d, discoveries: [], biomeStates: created.seeded.biomeStates, now }),
+    dailyTasks: dailyTasksBlock({ wid: worldId, player: created.player, d, discoveries: [], biomeStates: created.seeded.biomeStates, placements: created.seeded.placements, chests: created.seeded.chests, now }),
+    customGoals: created.player.customGoals || [],
+    goalLimit: goalLimitFor(created.player, d),
     nodeRegenSeconds: NODE_REGEN_SECONDS,
     inventoryCapacity: inventoryCapacity(created.player)
   };
@@ -14819,8 +15818,8 @@ async function recalcBiome(wid, playerId, biomeId, opts = {}) {
     terrain = terrain.filter((tt) => tt.id !== at.id);
     terrain.push(at);
   }
-  const wateredTiles = Math.min(10, terrain.filter((tt) => tt.type === "watered").length);
-  const openWaterTiles = terrain.filter((tt) => tt.type === "water").length;
+  const wateredTiles = Math.min(3, terrain.filter((tt) => tt.type === "watered").length) * 0.5;
+  const openWaterTiles = terrain.filter((tt) => tt.type === "water" && !tt.seeded).length;
   const water = analyzeWater(terrain);
   const now = Date.now();
   const healthPoints = computeHealthPoints(d, placements, openWaterTiles, now) + wateredTiles;
@@ -14917,7 +15916,7 @@ async function seedStartingTerrain(wid, playerId, biomeId) {
   for (const cell of layout) {
     const id = `${wid}:${biomeId}:${cell.x}:${cell.y}`;
     if (await t2.TerrainTile.get(id)) continue;
-    await t2.TerrainTile.put({ id, worldId: wid, playerId, area: biomeId, x: cell.x, y: cell.y, type: cell.type, updatedAt: Date.now() });
+    await t2.TerrainTile.put({ id, worldId: wid, playerId, area: biomeId, x: cell.x, y: cell.y, type: cell.type, seeded: true, updatedAt: Date.now() });
   }
 }
 async function checkUnlocks(wid, playerId, fresh = {}) {
@@ -14926,6 +15925,7 @@ async function checkUnlocks(wid, playerId, fresh = {}) {
   const player = fresh.player || await t2.Player.get(playerId);
   const unlockedNow = [];
   const unlockedSet = new Set(player.unlockedBiomes || []);
+  const pendingRewards = new Set(player.pendingUnlockRewards || []);
   const worldUnlocked = new Set((await byWorld(t2.BiomeState, wid)).filter((b) => b.unlocked).map((b) => b.biomeId));
   for (const biome of d.biomes) {
     if (!biome.unlock || worldUnlocked.has(biome.id)) continue;
@@ -14946,7 +15946,8 @@ async function checkUnlocks(wid, playerId, fresh = {}) {
     if (u.requiresTool && (player.tools?.[u.requiresTool.id] || 1) < u.requiresTool.tier) continue;
     worldUnlocked.add(biome.id);
     unlockedSet.add(biome.id);
-    await t2.Player.patch(playerId, { unlockedBiomes: [...unlockedSet] });
+    pendingRewards.add(biome.id);
+    await t2.Player.patch(playerId, { unlockedBiomes: [...unlockedSet], pendingUnlockRewards: [...pendingRewards] });
     const bsRow = await findBiomeState(t2.BiomeState, wid, biome.id);
     await t2.BiomeState.patch(bsRow?.id ?? `${wid}:${biome.id}`, { unlocked: true });
     await seedStartingTerrain(wid, playerId, biome.id);
@@ -15045,239 +16046,341 @@ async function consumeMaterials(player, materials, wid = player.id) {
   }
   return { usedFrom, inventory };
 }
-function milestonePin(ctx, dayKey, claims, daily, bundle) {
-  const { player, d, discoveries, biomeStates } = ctx;
+var GOAL_ICON = {
+  craft: "hammer",
+  build: "hammer",
+  grow: "leaf",
+  plant: "leaf",
+  collect: "basket",
+  observe: "journal",
+  welcome: "paw",
+  attract: "paw",
+  welcomeTotal: "paw",
+  home: "home",
+  unlock: "map",
+  health: "leaf",
+  biomeAnimals: "paw"
+};
+var GOAL_HOME_TRACKS = ["space", "comfort", "decor", "light"];
+var MAX_CUSTOM_GOALS = 6;
+function goalLimitFor(player, d) {
+  const unlocked = new Set(player?.unlockedBiomes || ["meadow"]);
+  const allOpen = d.biomes.filter((b) => b.explorable).every((b) => unlocked.has(b.id));
+  return allOpen ? 6 : 3;
+}
+function nextBiomeGoal(ctx) {
+  const { d, biomeStates, discoveries, player } = ctx;
   const bs = new Map(biomeStates.map((b) => [b.biomeId, b]));
-  const gh = discoveries.find((x) => x.animalId === FIRST_ANIMAL_ID);
-  const welcomeId = `${dayKey}-welcome`;
-  const welcomedToday = gh && playerDayKey(player, gh.firstObservedAt || ctx.now) === dayKey;
-  if (!gh || welcomedToday && !claims[welcomeId]) {
-    return {
-      id: welcomeId,
-      kind: "welcome",
-      icon: "sparkle",
-      text: t("server.task.welcomeGrasshopper"),
-      target: 1,
-      counter: "",
-      reward: bundle(),
-      hint: t("server.task.welcomeGrasshopperHint"),
-      live: gh ? 1 : 0
-    };
-  }
   for (const biome of d.biomes) {
     const u = biome.unlock;
     if (!u || bs.get(biome.id)?.unlocked) continue;
     const prereq = bs.get(u.biome);
     if (!prereq?.unlocked) continue;
+    if (!(player?.visitedBiomes || ["meadow"]).includes(u.biome)) continue;
     const prereqName = d.biome.get(u.biome)?.name || u.biome;
+    const name = d.biome.get(biome.id)?.name || biome.id;
     const steps = [];
-    if (u.minHealth) {
-      const remaining = Math.max(0, u.minHealth - (prereq.health || 0));
-      const target = Math.max(1, Math.min(3, Math.ceil(remaining)));
-      steps.push({
-        step: "health",
-        icon: "leaf",
-        unmet: remaining > 0,
-        text: t("server.task.raiseHealth", { biome: prereqName, count: target }),
-        target,
-        counter: `health:${u.biome}`
-      });
-    }
-    if (u.minAnimals) {
-      steps.push({
-        step: "animals",
-        icon: "sparkle",
-        unmet: (prereq.returnedCount || 0) < u.minAnimals,
-        text: t("server.task.welcomeNewAnimal", { biome: prereqName }),
-        target: 1,
-        counter: `animal:${u.biome}`
-      });
-    }
-    if (u.minTotalAnimals) {
-      steps.push({
-        step: "total",
-        icon: "journal",
-        unmet: discoveries.length < u.minTotalAnimals,
-        text: t("server.task.welcomeAnyAnimal"),
-        target: 1,
-        counter: "animal"
-      });
-    }
+    if (u.minHealth) steps.push({ text: t("server.nextbiome.health", { biome: prereqName, goal: u.minHealth, cur: Math.round(prereq.health || 0) }), done: (prereq.health || 0) >= u.minHealth });
+    if (u.minAnimals) steps.push({ text: t("server.nextbiome.animals", { biome: prereqName, goal: u.minAnimals, cur: prereq.returnedCount || 0 }), done: (prereq.returnedCount || 0) >= u.minAnimals });
+    if (u.minTotalAnimals) steps.push({ text: t("server.nextbiome.total", { goal: u.minTotalAnimals, cur: discoveries.length }), done: discoveries.length >= u.minTotalAnimals });
     if (u.requiresItem) {
-      const itemName = d.object.get(u.requiresItem)?.name || u.requiresItem;
+      const item = d.object.get(u.requiresItem)?.name || u.requiresItem;
       const have = (player?.craftedItems?.[u.requiresItem] || 0) + (player?.craftedEver?.[u.requiresItem] || 0);
-      steps.push({ step: "kit", icon: "hammer", unmet: have <= 0, text: t("server.task.craftKit", { item: itemName }), target: 1, counter: "", live: Math.min(1, have) });
+      steps.push({ text: t("server.nextbiome.craft", { item }), done: have > 0 });
     }
-    for (const step of steps) {
-      const id = `${dayKey}-goal-${biome.id}-${step.step}`;
-      if (claims[id]) continue;
-      const progressedToday = step.counter ? (daily[step.counter] || 0) > 0 : (step.live || 0) > 0;
-      if (!step.unmet && !progressedToday) continue;
-      return {
-        id,
-        kind: "goal",
-        icon: step.icon,
-        text: step.text,
-        target: step.target,
-        counter: step.counter,
-        reward: bundle(),
-        ...step.counter ? {} : { live: step.live }
-      };
-    }
-    return null;
+    if (!steps.length) return null;
+    const done = steps.filter((s) => s.done).length;
+    return {
+      id: "next-biome",
+      kind: "unlock",
+      icon: "map",
+      pinned: true,
+      text: t("server.nextbiome.title", { biome: name }),
+      hint: t("server.nextbiome.hint", { biome: name }),
+      target: steps.length,
+      progress: done,
+      counter: "",
+      reward: {},
+      steps,
+      claimed: false
+    };
   }
   return null;
 }
-function dailyTasksFor(ctx, claims, daily) {
-  const { wid, player, d, discoveries, now } = ctx;
-  const discoveredCount = discoveries.length;
-  const dayKey = playerDayKey(player, now);
-  const endsAt = (dayKey + 1) * DAY_MS2 + TASK_RESET_HOUR * 36e5 - tzMs(player);
-  const rng = seededRng(hash32(`tasks:${wid}:${dayKey}`));
-  const unlocked = ctx.unlockedBiomes?.length ? ctx.unlockedBiomes : player?.unlockedBiomes?.length ? player.unlockedBiomes : ["meadow"];
-  const resPool = [...new Set(unlocked.flatMap((id) => d.biome.get(id)?.resources || []))].filter((r) => r !== "water" && !isWeatherGatheredResource(r) && d.resource.get(r));
-  const pickFrom = (arr) => arr[Math.floor(rng() * arr.length)];
-  const bundle = () => {
-    const out = {};
-    const pool = [...resPool];
-    for (let i = 0; i < 2 && pool.length; i++) {
-      const r = pool.splice(Math.floor(rng() * pool.length), 1)[0];
-      out[r] = 4 + Math.floor(rng() * 4);
-    }
-    return out;
-  };
-  const candidates = [];
-  if (resPool.length) {
-    const res = pickFrom(resPool);
-    const target = [8, 12, 16][Math.floor(rng() * 3)];
-    candidates.push({
-      id: `${dayKey}-gather`,
-      kind: "gather",
-      icon: "basket",
-      text: t("server.task.gather", { count: target, resource: d.resource.get(res)?.name || res }),
-      target,
-      counter: `res:${res}`,
-      reward: bundle()
-    });
+function attractSteps(animalId, ctx) {
+  const a = ctx.d.animal.get(animalId);
+  if (!a) return [];
+  const needTier = (ctx.d.biome.get(a.biome)?.order || 1) + 1;
+  const guideTier = ctx.player?.tools?.["field-journal"] || 1;
+  if (guideTier < needTier) {
+    return [{ text: t("server.goal.upgradeGuide"), done: false }];
   }
-  {
-    const target = 2 + Math.floor(rng() * 2);
-    candidates.push({
-      id: `${dayKey}-craft`,
-      kind: "craft",
-      icon: "hammer",
-      text: t("server.task.craft", { count: target }),
-      target,
-      counter: "craft",
-      reward: bundle()
-    });
+  const steps = [];
+  for (const [oid, need] of Object.entries(a.requirements?.objects || {})) {
+    const have = (ctx.placements || []).filter((p) => p.objectId === oid && p.area === a.biome).length;
+    steps.push({ text: t("server.goal.habitatStep", { have: Math.min(have, need), need, name: ctx.d.object.get(oid)?.name || oid }), done: have >= need });
   }
-  {
-    const target = 2 + Math.floor(rng() * 2);
-    candidates.push({
-      id: `${dayKey}-place`,
-      kind: "place",
-      icon: "pin",
-      text: t("server.task.place", { count: target }),
-      target,
-      counter: "place",
-      reward: bundle()
-    });
+  if (a.requirements?.minHealth) {
+    const b = ctx.biomeStates.find((x) => x.biomeId === a.biome);
+    const cur = Math.round(b?.health || 0);
+    steps.push({ text: t("server.goal.healthStep", { cur, need: a.requirements.minHealth }), done: cur >= a.requirements.minHealth });
   }
-  {
-    const target = 3 + Math.floor(rng() * 3);
-    candidates.push({
-      id: `${dayKey}-water`,
-      kind: "water",
-      icon: "drop",
-      text: t("server.task.water", { count: target }),
-      target,
-      counter: "water",
-      reward: bundle()
-    });
-  }
-  candidates.push({
-    id: `${dayKey}-plant`,
-    kind: "plant",
-    icon: "leaf",
-    text: t("server.task.plantBeds"),
-    target: 2,
-    counter: "plant",
-    reward: bundle()
+  return steps;
+}
+function craftMaterialSteps(itemId, ctx) {
+  const recipe = (ctx.d.recipes || []).find((r) => r.output?.itemId === itemId);
+  return matSteps(recipe?.materials || {}, ctx);
+}
+function homeBuildSteps(styleId, ctx) {
+  return matSteps(HOME_STYLES[styleId]?.materials || {}, ctx);
+}
+function matSteps(mats, ctx) {
+  return Object.entries(mats).map(([mid, need]) => {
+    const have = heldAmount(ctx, mid);
+    return { text: t("server.goal.matStep", { have: Math.min(have, need), need, name: ctx.d.resource.get(mid)?.name || mid }), done: have >= need };
   });
-  if (discoveredCount >= 3) {
-    candidates.push({
-      id: `${dayKey}-observe`,
-      kind: "observe",
-      icon: "journal",
-      text: t("server.task.observe"),
-      target: 3,
-      counter: "observe",
-      reward: bundle()
-    });
+}
+function goalRewardPool(ctx) {
+  const unlocked = ctx.unlockedBiomes?.length ? ctx.unlockedBiomes : ctx.player?.unlockedBiomes?.length ? ctx.player.unlockedBiomes : ["meadow"];
+  const all = unlocked.flatMap((id) => ctx.d.biome.get(id)?.resources || []);
+  return [...new Set(all)].filter((r) => r !== "water" && !isWeatherGatheredResource(r) && ctx.d.resource.get(r));
+}
+function goalReward(ctx, key) {
+  const pool = goalRewardPool(ctx);
+  const out = {};
+  if (!pool.length) return out;
+  const rng = seededRng(hash32(`goalreward:${key}`));
+  const p = [...pool];
+  for (let i = 0; i < 2 && p.length; i++) {
+    const r = p.splice(Math.floor(rng() * p.length), 1)[0];
+    out[r] = 3 + Math.floor(rng() * 3);
   }
-  for (let i = candidates.length - 1; i > 0; i--) {
-    const j = Math.floor(rng() * (i + 1));
-    [candidates[i], candidates[j]] = [candidates[j], candidates[i]];
+  return out;
+}
+function unlockBundle(ctx, biomeId) {
+  const pool = (ctx.d.biome.get(biomeId)?.resources || []).filter((r) => r !== "water" && !isWeatherGatheredResource(r) && ctx.d.resource.get(r));
+  const out = {};
+  if (!pool.length) return out;
+  const rng = seededRng(hash32(`unlockreward:${biomeId}`));
+  const p = [...pool];
+  for (let i = 0; i < 2 && p.length; i++) {
+    const r = p.splice(Math.floor(rng() * p.length), 1)[0];
+    out[r] = 4 + Math.floor(rng() * 3);
   }
-  const firstDay = playerDayKey(player, player?.createdAt || now) === dayKey;
-  if (firstDay) {
-    const grasshopperHome = discoveries.some((x) => x.animalId === FIRST_ANIMAL_ID);
-    return {
-      dayKey,
-      endsAt,
-      tasks: [
-        {
-          id: `${dayKey}-welcome`,
-          kind: "welcome",
-          icon: "sparkle",
-          text: t("server.task.welcomeGrasshopper"),
-          target: 1,
-          counter: "",
-          reward: bundle(),
-          hint: t("server.task.welcomeGrasshopperHint"),
-          live: grasshopperHome ? 1 : 0
-        },
-        {
-          id: `${dayKey}-gather`,
-          kind: "gather",
-          icon: "basket",
-          text: t("server.task.collectSeeds"),
-          target: 10,
-          counter: "res:seeds",
-          reward: bundle()
-        },
-        {
-          id: `${dayKey}-plant`,
-          kind: "plant",
-          icon: "leaf",
-          text: t("server.task.plantThree"),
-          target: 3,
-          counter: "plant",
-          reward: bundle()
-        }
-      ]
-    };
+  return out;
+}
+function heldAmount(ctx, resId) {
+  const inv = ctx.player?.inventory?.[resId] || 0;
+  const inChests = (ctx.chests || []).reduce((s, c) => s + (c.contents?.[resId] || 0), 0);
+  return inv + inChests;
+}
+function placedCountFor(ctx, objectId) {
+  return (ctx.placements || []).filter((p) => p.objectId === objectId).length;
+}
+function plantedCountFor(ctx, objectId) {
+  return (ctx.placements || []).filter((p) => p.objectId === objectId && typeof p.plantedAt === "number").length;
+}
+function goalMetric(goal, ctx) {
+  switch (goal.kind) {
+    case "craft":
+    case "build":
+      return ctx.player?.craftedEver?.[goal.itemId || ""] || 0;
+    case "grow":
+      return plantedCountFor(ctx, goal.itemId || "");
+    case "plant":
+      return (ctx.placements || []).filter((p) => typeof p.plantedAt === "number").length;
+    case "collect":
+      return heldAmount(ctx, goal.resourceId || "");
+    case "observe":
+      return ctx.discoveries.filter((x) => (x.timesObserved || 0) > 0).length;
+    case "welcomeTotal":
+      return ctx.discoveries.length;
+    default:
+      return 0;
   }
-  const pin = milestonePin(ctx, dayKey, claims, daily, bundle);
-  const tasks = pin ? [pin, ...candidates.slice(0, 2)] : candidates.slice(0, 3);
-  return { dayKey, endsAt, tasks };
+}
+function goalProgress(goal, ctx) {
+  switch (goal.kind) {
+    case "craft":
+    case "grow":
+    case "plant":
+    case "collect":
+    case "observe":
+    case "welcomeTotal":
+      return Math.max(0, Math.min(goal.target, goalMetric(goal, ctx) - (goal.base || 0)));
+    case "build": {
+      const crafted = Math.max(0, Math.min(goal.target, (ctx.player?.craftedEver?.[goal.itemId || ""] || 0) - (goal.base || 0)));
+      const placed = Math.max(0, Math.min(goal.target, placedCountFor(ctx, goal.itemId || "") - (goal.basePlace || 0)));
+      return crafted + placed;
+    }
+    case "welcome":
+    case "attract":
+      return ctx.discoveries.some((x) => x.animalId === goal.animalId) ? 1 : 0;
+    case "home":
+      if (goal.track === "build") {
+        const h = ctx.player?.home;
+        if (!h?.styleLocked) return 0;
+        return !goal.styleId || h.style === goal.styleId ? 1 : 0;
+      }
+      return ctx.player?.home?.[goal.track || ""] >= goal.target ? goal.target : Math.min(goal.target, ctx.player?.home?.[goal.track || ""] || 1);
+    case "unlock":
+      return ctx.biomeStates.some((b) => b.biomeId === goal.biomeId && b.unlocked) ? 1 : 0;
+    case "health": {
+      const b = ctx.biomeStates.find((x) => x.biomeId === goal.biomeId);
+      return Math.min(goal.target, Math.round(b?.health || 0));
+    }
+    case "biomeAnimals": {
+      const ret = ctx.discoveries.filter((d) => d.biomeId === goal.biomeId).length;
+      return Math.min(goal.target, ret);
+    }
+    default:
+      return 0;
+  }
+}
+function goalText(goal, ctx) {
+  const d = ctx.d;
+  switch (goal.kind) {
+    case "craft":
+      return t("server.goal.craft", { count: goal.target, item: d.object.get(goal.itemId)?.name || goal.itemId });
+    case "build":
+      return t("server.goal.build", { count: goal.target, item: d.object.get(goal.itemId)?.name || goal.itemId });
+    case "grow":
+      return t("server.goal.grow", { count: goal.target, item: d.object.get(goal.itemId)?.name || goal.itemId });
+    case "plant":
+      return t("server.goal.plant", { count: goal.target });
+    case "collect":
+      return t("server.goal.collect", { count: goal.target, resource: d.resource.get(goal.resourceId)?.name || goal.resourceId });
+    case "observe":
+      return t("server.goal.observe", { count: goal.target });
+    case "welcome":
+      return t("server.goal.welcome", { animal: d.animal.get(goal.animalId)?.name || goal.animalId });
+    case "attract":
+      return t("server.goal.attract", { kind: d.animal.get(goal.animalId)?.kind || t("server.goal.creature") });
+    case "welcomeTotal":
+      return t("server.goal.welcomeTotal", { count: goal.target });
+    case "home":
+      return goal.track === "build" ? t("server.goal.buildHome", { style: HOME_STYLES[goal.styleId || ""]?.name || t("server.goal.aHouse") }) : t("server.goal.home", { track: t(`server.goal.track.${goal.track}`), level: goal.target });
+    case "unlock":
+      return t("server.goal.unlock", { biome: d.biome.get(goal.biomeId)?.name || goal.biomeId });
+    case "health":
+      return t("server.goal.restore", { biome: d.biome.get(goal.biomeId)?.name || goal.biomeId, pct: goal.target });
+    case "biomeAnimals":
+      return t("server.goal.biomeAnimals", { count: goal.target, biome: d.biome.get(goal.biomeId)?.name || goal.biomeId });
+    default:
+      return "";
+  }
+}
+function starterTasks(ctx) {
+  const grasshopper = ctx.discoveries.some((x) => x.animalId === FIRST_ANIMAL_ID);
+  const craftedAny = Object.keys(ctx.player?.craftedEver || {}).length > 0;
+  return [
+    { id: "start-gather", kind: "gather", icon: "basket", text: t("server.task.collectSeeds"), hint: t("server.task.gatherHint"), target: 12, progress: Math.min(12, heldAmount(ctx, "seeds")) },
+    { id: "start-craft", kind: "craft", icon: "hammer", text: t("server.task.craftFirst"), hint: t("server.task.craftFirstHint"), target: 1, progress: craftedAny ? 1 : 0 },
+    { id: "start-welcome", kind: "welcome", icon: "sparkle", text: t("server.task.welcomeGrasshopper"), hint: t("server.task.welcomeGrasshopperHint"), target: 1, progress: grasshopper ? 1 : 0 }
+  ];
+}
+function sanitizeGoals(goals, d) {
+  const out = [];
+  const kinds = ["craft", "build", "grow", "plant", "collect", "observe", "welcome", "attract", "welcomeTotal", "home", "unlock", "health", "biomeAnimals"];
+  let hasHome = false;
+  for (const g of Array.isArray(goals) ? goals : []) {
+    if (out.length >= MAX_CUSTOM_GOALS) break;
+    const kind = g?.kind;
+    if (!kinds.includes(kind)) continue;
+    if (kind === "home") {
+      if (hasHome) continue;
+      hasHome = true;
+    }
+    const id = typeof g?.id === "string" && g.id ? g.id.slice(0, 40) : `cg_${Math.random().toString(36).slice(2, 10)}`;
+    const target = Math.max(1, Math.min(99, Math.floor(Number(g?.target) || 1)));
+    const goal = { id, kind, target };
+    if (kind === "craft" || kind === "build" || kind === "grow") {
+      if (!d.object.get(g?.itemId)) continue;
+      goal.itemId = g.itemId;
+    } else if (kind === "collect") {
+      if (!d.resource.get(g?.resourceId)) continue;
+      goal.resourceId = g.resourceId;
+    } else if (kind === "welcome" || kind === "attract") {
+      if (!d.animal.get(g?.animalId)) continue;
+      goal.animalId = g.animalId;
+      goal.target = 1;
+    } else if (kind === "home") {
+      if (g?.track === "build") {
+        if (!HOME_STYLES[g?.styleId]) continue;
+        goal.track = "build";
+        goal.styleId = g.styleId;
+        goal.target = 1;
+      } else {
+        if (!GOAL_HOME_TRACKS.includes(g?.track)) continue;
+        goal.track = g.track;
+      }
+    } else if (kind === "unlock") {
+      if (!d.biome.get(g?.biomeId)) continue;
+      goal.biomeId = g.biomeId;
+      goal.target = 1;
+    } else if (kind === "health") {
+      if (!d.biome.get(g?.biomeId)) continue;
+      goal.biomeId = g.biomeId;
+      goal.target = Math.max(1, Math.min(100, Math.floor(Number(g?.target) || 100)));
+    } else if (kind === "biomeAnimals") {
+      if (!d.biome.get(g?.biomeId)) continue;
+      const n = d.animals.filter((a) => a.biome === g.biomeId).length;
+      if (n <= 0) continue;
+      goal.biomeId = g.biomeId;
+      goal.target = n;
+    }
+    out.push(goal);
+  }
+  return out;
 }
 function dailyTasksBlock(ctx) {
-  const { player } = ctx;
-  const dayKey = playerDayKey(player, ctx.now);
-  const claims = player?.taskClaims?.dayKey === dayKey ? player.taskClaims.claimed || {} : {};
-  const daily = player?.daily?.dayKey === dayKey ? player.daily.counts || {} : {};
-  const gen = dailyTasksFor(ctx, claims, daily);
-  return {
-    dayKey: gen.dayKey,
-    endsAt: gen.endsAt,
-    tasks: gen.tasks.map(({ live, ...task }) => ({
-      ...task,
-      progress: live != null ? live : Math.min(task.target, daily[task.counter] || 0),
-      claimed: !!claims[task.id]
-    }))
-  };
+  const { player, now, d } = ctx;
+  const dayKey = playerDayKey(player, now);
+  const goalClaims = player?.goalClaims || {};
+  const tasks = [];
+  const pendingUnlock = player?.pendingUnlockRewards || [];
+  if (!pendingUnlock.length) {
+    const nb = nextBiomeGoal(ctx);
+    if (nb) tasks.push(nb);
+  }
+  for (const bid of pendingUnlock) {
+    const bname = d.biome.get(bid)?.name || bid;
+    tasks.push({
+      id: `unlock-reward:${bid}`,
+      kind: "unlock",
+      icon: "sparkle",
+      text: t("server.unlockreward.title", { biome: bname }),
+      hint: t("server.unlockreward.hint", { biome: bname }),
+      target: 1,
+      progress: 1,
+      counter: "",
+      reward: unlockBundle(ctx, bid),
+      claimed: false
+    });
+  }
+  for (const s of starterTasks(ctx)) {
+    if (goalClaims[s.id]) continue;
+    tasks.push({ ...s, counter: "", reward: goalReward(ctx, s.id), claimed: false });
+  }
+  for (const g of player?.customGoals || []) {
+    if (goalClaims[g.id]) continue;
+    const target = g.kind === "build" ? g.target * 2 : g.target;
+    const steps = g.kind === "attract" ? attractSteps(g.animalId || "", ctx) : g.kind === "craft" || g.kind === "build" ? craftMaterialSteps(g.itemId || "", ctx) : g.kind === "home" && g.track === "build" ? homeBuildSteps(g.styleId || "", ctx) : void 0;
+    tasks.push({
+      id: g.id,
+      kind: g.kind,
+      icon: GOAL_ICON[g.kind] || "check",
+      text: goalText(g, ctx),
+      target,
+      counter: "",
+      reward: goalReward(ctx, g.id),
+      progress: goalProgress(g, ctx),
+      claimed: false,
+      hint: t(`server.goal.hint.${g.kind}`),
+      ...steps ? { steps } : {}
+    });
+  }
+  return { dayKey, endsAt: 0, tasks };
 }
 async function snapshot(playerId, opts = {}) {
   const t2 = db();
@@ -15321,7 +16424,9 @@ async function snapshot(playerId, opts = {}) {
     feed: [...feedRows].sort((a, b) => (a.at || 0) - (b.at || 0)).slice(-FEED_CAP).map((r) => ({ id: r.id, at: r.at, icon: r.icon, text: r.text })),
     serverTime: now,
     weather: weatherSnapshot(wid, wxTime, WEATHER_BIOME_IDS, player?.devWeather || null),
-    dailyTasks: dailyTasksBlock({ wid, player, d, discoveries, biomeStates, now, unlockedBiomes: personalUnlocked }),
+    dailyTasks: dailyTasksBlock({ wid, player, d, discoveries, biomeStates, placements, chests, now, unlockedBiomes: personalUnlocked }),
+    customGoals: player?.customGoals || [],
+    goalLimit: goalLimitFor(player, d),
     nodeRegenSeconds: NODE_REGEN_SECONDS,
     inventoryCapacity: inventoryCapacity(player)
   };
@@ -15500,6 +16605,11 @@ var PublicEndpoint = class extends Resource {
   }
   allowDelete() {
     return false;
+  }
+};
+var Version = class extends PublicEndpoint {
+  async get() {
+    return { build: buildStamp };
   }
 };
 var GameData = class extends PublicEndpoint {
@@ -16234,6 +17344,40 @@ var Plant = class extends PublicEndpoint {
     return { ok: true, placement, inventory, usedFrom, perkGrowth: headStart || void 0, ...recalc };
   }
 };
+function harvestReadyAt(def, placement) {
+  const y = def?.yield;
+  if (!y || !def?.plantable || !placement?.plantedAt) return null;
+  const growMs = (def.growSeconds || 0) * 1e3;
+  const regrowMs = (y.regrowSeconds || 60) * 1e3;
+  return placement.lastHarvestAt ? placement.lastHarvestAt + regrowMs : placement.plantedAt + growMs;
+}
+var HarvestPlacement = class extends PublicEndpoint {
+  async post(data) {
+    const { playerId, placementId } = await bodyOf(data);
+    const t2 = db();
+    const d = await defs();
+    const { player } = await requirePlayer(playerId);
+    const wid = worldOf(player);
+    const now = Date.now();
+    const placement = (await byWorld(t2.Placement, wid)).find((p) => p.id === placementId);
+    if (!placement) throw new GameError(t("server.err.placementNotFound"), 404);
+    const def = d.object.get(placement.objectId);
+    const y = def?.yield;
+    if (!y) throw new GameError(t("server.err.notHarvestable"));
+    const readyAt = harvestReadyAt(def, placement);
+    if (readyAt == null || now < readyAt) throw new GameError(t("server.err.notReadyYet"));
+    const capacity = inventoryCapacity(player);
+    const inventory = { ...player.inventory || {} };
+    const room = Math.max(0, capacity - sumValues(inventory));
+    const take = Math.min(y.qty || 1, room);
+    if (take <= 0) throw new GameError(t("server.err.basketFullHarvest"), 409);
+    inventory[y.resourceId] = (inventory[y.resourceId] || 0) + take;
+    await t2.Player.patch(playerId, { inventory });
+    await t2.Placement.patch(placementId, { lastHarvestAt: now });
+    await bumpMetrics(player, { resourcesCollected: take });
+    return { ok: true, placementId, gained: { [y.resourceId]: take }, inventory, placement: { ...placement, lastHarvestAt: now } };
+  }
+};
 var UpdateAppearance = class extends PublicEndpoint {
   async post(data) {
     const { playerId, appearance } = await bodyOf(data);
@@ -16429,6 +17573,10 @@ var Rest = class extends PublicEndpoint {
     }
     const nodes = await byWorld(t2.NodeState, wid);
     for (const n of nodes) await t2.NodeState.delete(n.id);
+    const nowT = weatherTimeFromPlay(player);
+    const intoDay = (nowT % DAY_MS + DAY_MS) % DAY_MS;
+    const skip = intoDay === 0 ? 0 : DAY_MS - intoDay;
+    await t2.Player.patch(playerId, { clockOffsetMs: (player.clockOffsetMs || 0) + skip });
     await bumpMetrics(player, { restsTaken: 1 });
     return { ok: true, rested: true, refreshed: nodes.length };
   }
@@ -16517,10 +17665,16 @@ var ClaimTask = class extends PublicEndpoint {
     const { player } = await requirePlayer(playerId);
     const wid = worldOf(player);
     const now = Date.now();
-    const [discoveries, biomeStates] = await Promise.all([byWorld(t2.Discovery, wid), byWorld(t2.BiomeState, wid)]);
-    const block = dailyTasksBlock({ wid, player, d, discoveries, biomeStates, now, unlockedBiomes: player.unlockedBiomes });
+    const [discoveries, biomeStates, placements, chests] = await Promise.all([
+      byWorld(t2.Discovery, wid),
+      byWorld(t2.BiomeState, wid),
+      byWorld(t2.Placement, wid),
+      byWorld(t2.Chest, wid)
+    ]);
+    const block = dailyTasksBlock({ wid, player, d, discoveries, biomeStates, placements, chests, now, unlockedBiomes: player.unlockedBiomes });
     const task = block.tasks.find((x) => x.id === String(taskId || ""));
     if (!task) throw new GameError(t("server.err.taskNotOnBoard"), 404);
+    if (task.pinned) throw new GameError(t("server.err.taskNotClaimable"), 409);
     if (task.claimed) throw new GameError(t("server.err.taskAlreadyClaimed"), 409);
     if (task.progress < task.target) throw new GameError(t("server.err.taskNotFinished"), 409);
     const capacity = inventoryCapacity(player);
@@ -16535,16 +17689,59 @@ var ClaimTask = class extends PublicEndpoint {
       room -= take;
     }
     if (!Object.keys(gained).length) throw new GameError(t("server.err.basketFullReward"), 409);
-    const claims = player.taskClaims?.dayKey === block.dayKey ? { dayKey: block.dayKey, claimed: { ...player.taskClaims.claimed || {} } } : { dayKey: block.dayKey, claimed: {} };
-    claims.claimed[task.id] = true;
-    await t2.Player.patch(playerId, { inventory, taskClaims: claims });
+    const isStarter = String(task.id).startsWith("start-");
+    const isUnlockReward = String(task.id).startsWith("unlock-reward:");
+    const patch = { inventory };
+    if (isUnlockReward) {
+      const bid = String(task.id).slice("unlock-reward:".length);
+      patch.pendingUnlockRewards = (player.pendingUnlockRewards || []).filter((id) => id !== bid);
+    } else if (isStarter) {
+      patch.goalClaims = { ...player.goalClaims || {}, [task.id]: true };
+    } else {
+      patch.customGoals = (player.customGoals || []).filter((g) => g.id !== task.id);
+    }
+    await t2.Player.patch(playerId, patch);
     await bumpMetrics(player, { tasksCompleted: 1 });
     await awardAchievements(playerId);
     const dailyTasks = {
       ...block,
       tasks: block.tasks.map((x) => x.id === task.id ? { ...x, claimed: true } : x)
     };
-    return { ok: true, taskId: task.id, gained, inventory, dailyTasks };
+    return { ok: true, taskId: task.id, text: task.text, gained, inventory, dailyTasks };
+  }
+};
+var SetGoals = class extends PublicEndpoint {
+  async post(data) {
+    const { playerId, goals } = await bodyOf(data);
+    const { player } = await requirePlayer(playerId);
+    const t2 = db();
+    const d = await defs();
+    const wid = worldOf(player);
+    const now = Date.now();
+    const [discoveries, biomeStates, placements, chests] = await Promise.all([
+      byWorld(t2.Discovery, wid),
+      byWorld(t2.BiomeState, wid),
+      byWorld(t2.Placement, wid),
+      byWorld(t2.Chest, wid)
+    ]);
+    const ctx = { wid, player, d, discoveries, biomeStates, placements, chests, now, unlockedBiomes: player.unlockedBiomes };
+    const prev = new Map((player.customGoals || []).map((g) => [g.id, g]));
+    const limit = goalLimitFor(player, d);
+    const cleaned = sanitizeGoals(goals, d);
+    const keep = [];
+    for (const g of cleaned) {
+      const existing = prev.get(g.id);
+      if (!existing && keep.length >= limit) continue;
+      if (keep.length >= MAX_CUSTOM_GOALS) break;
+      const base = existing && typeof existing.base === "number" ? existing.base : goalMetric(g, ctx);
+      const out = { ...g, base };
+      if (g.kind === "build") {
+        out.basePlace = existing && typeof existing.basePlace === "number" ? existing.basePlace : placedCountFor(ctx, g.itemId || "");
+      }
+      keep.push(out);
+    }
+    await t2.Player.patch(playerId, { customGoals: keep });
+    return { ok: true, customGoals: keep, goalLimit: limit };
   }
 };
 var Terraform = class extends PublicEndpoint {
@@ -16650,6 +17847,7 @@ var SyncPlayer = class extends PublicEndpoint {
     if (Number.isFinite(Number(y))) patch.y = Number(y);
     if (Number.isInteger(tutorialStep) && tutorialStep >= 0 && tutorialStep <= 99) {
       patch.tutorialStep = tutorialStep;
+      patch.tutorialMaxStep = Math.max(player.tutorialMaxStep ?? 0, player.tutorialStep ?? 0, tutorialStep);
     }
     if (area === "home") {
       patch.area = "home";
@@ -16789,6 +17987,8 @@ var Heartbeat = class extends PublicEndpoint {
     };
   }
 };
+var dashboardCache = null;
+var DASHBOARD_CACHE_MS = 3e4;
 var Metrics = class extends PublicEndpoint {
   async get(target) {
     const t2 = db();
@@ -16809,51 +18009,64 @@ var Metrics = class extends PublicEndpoint {
       };
     }
     const now = Date.now();
-    let soloRows = [];
-    try {
-      soloRows = await allOf(t2.SoloMetrics);
-    } catch {
-    }
-    let all = soloRows.map((r) => {
-      const s = r.snapshot || {};
-      const lastSeenAt = s.lastSeenAt || r.updatedAt || null;
-      const createdAt = s.createdAt || r.createdAt || now;
-      const hoursSinceActive = lastSeenAt ? round1((now - lastSeenAt) / 36e5) : null;
-      let status = "dormant";
-      if (hoursSinceActive != null) {
-        if (hoursSinceActive <= 24) status = "active";
-        else if (hoursSinceActive <= 24 * 7) status = "recent";
+    let all;
+    if (dashboardCache && now - dashboardCache.at < DASHBOARD_CACHE_MS) {
+      all = dashboardCache.all;
+    } else {
+      let soloRows = [];
+      try {
+        soloRows = await allOf(t2.SoloMetrics);
+      } catch {
       }
-      return {
-        ...s,
-        playerId: r.id,
-        // slot-scoped id — solo name slugs can collide across machines
-        name: r.name || s.name || null,
-        solo: true,
-        platform: r.platform || null,
-        os: r.os || null,
-        language: r.language || s.language || null,
-        version: r.version || null,
-        build: r.build || null,
-        lastSyncedAt: r.updatedAt || null,
-        counts: s.counts || {},
-        playSeconds: s.playSeconds || 0,
-        sessions: s.sessions || 0,
-        totalActions: s.totalActions || 0,
-        currentArea: s.currentArea || null,
-        unlockedBiomes: s.unlockedBiomes || 0,
-        tutorialStep: s.tutorialStep || 0,
-        activation: s.activation || {},
-        achievements: s.achievements || null,
-        biomeSummary: s.biomeSummary || { biomesUnlocked: 0, avgHealth: 0, biomesFullyRestored: 0, totalAnimalsReturned: 0 },
-        createdAt,
-        lastSeenAt,
-        hoursSinceActive,
-        status,
-        daysSinceJoined: Math.floor((now - createdAt) / DAY_MS2),
-        isNewToday: now - createdAt <= DAY_MS2
-      };
-    }).sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
+      all = soloRows.map((r) => {
+        let s = {};
+        if (r.snapshot) {
+          try {
+            s = typeof r.snapshot === "string" ? JSON.parse(r.snapshot) : r.snapshot;
+          } catch {
+            s = {};
+          }
+        }
+        const lastSeenAt = s.lastSeenAt || r.updatedAt || null;
+        const createdAt = s.createdAt || r.createdAt || now;
+        const hoursSinceActive = lastSeenAt ? round1((now - lastSeenAt) / 36e5) : null;
+        let status = "dormant";
+        if (hoursSinceActive != null) {
+          if (hoursSinceActive <= 24) status = "active";
+          else if (hoursSinceActive <= 24 * 7) status = "recent";
+        }
+        return {
+          ...s,
+          playerId: r.id,
+          // slot-scoped id — solo name slugs can collide across machines
+          name: r.name || s.name || null,
+          solo: true,
+          platform: r.platform || null,
+          os: r.os || null,
+          language: r.language || s.language || null,
+          version: r.version || null,
+          build: r.build || null,
+          lastSyncedAt: r.updatedAt || null,
+          counts: s.counts || {},
+          playSeconds: s.playSeconds || 0,
+          sessions: s.sessions || 0,
+          totalActions: s.totalActions || 0,
+          currentArea: s.currentArea || null,
+          unlockedBiomes: s.unlockedBiomes || 0,
+          tutorialStep: s.tutorialStep || 0,
+          activation: s.activation || {},
+          achievements: s.achievements || null,
+          biomeSummary: s.biomeSummary || { biomesUnlocked: 0, avgHealth: 0, biomesFullyRestored: 0, totalAnimalsReturned: 0 },
+          createdAt,
+          lastSeenAt,
+          hoursSinceActive,
+          status,
+          daysSinceJoined: Math.floor((now - createdAt) / DAY_MS2),
+          isNewToday: now - createdAt <= DAY_MS2
+        };
+      }).sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
+      dashboardCache = { at: now, all };
+    }
     const excludedNames = /* @__PURE__ */ new Set();
     try {
       const raw = typeof target?.getAll === "function" ? [...target.getAll("exclude"), ...target.getAll("excludeName")] : [];
@@ -17100,6 +18313,49 @@ var DevTools = class extends PublicEndpoint {
       case "reset-tools": {
         await t2.Player.patch(playerId, { tools: { ...START_TOOLS } });
         log.push("Tools reset to tier 1");
+        break;
+      }
+      case "restart-game": {
+        const wid = playerId;
+        for (const pl of await byPlayer(t2.Placement, playerId)) await t2.Placement.delete(pl.id);
+        for (const ch of await byPlayer(t2.Chest, playerId)) await t2.Chest.delete(ch.id);
+        for (const tt of await byPlayer(t2.TerrainTile, playerId)) await t2.TerrainTile.delete(tt.id);
+        for (const disc of await byPlayer(t2.Discovery, playerId)) await t2.Discovery.delete(disc.id);
+        for (const ns of await byPlayer(t2.NodeState, playerId)) await t2.NodeState.delete(ns.id);
+        for (const fe of await byPlayer(t2.FeedEntry, playerId)) await t2.FeedEntry.delete(fe.id);
+        for (const pa of await byPlayer(t2.PlayerAchievement, playerId)) await t2.PlayerAchievement.delete(pa.id);
+        for (const b of d.biomes) {
+          await t2.BiomeState.put({
+            id: `${wid}:${b.id}`,
+            worldId: wid,
+            playerId,
+            biomeId: b.id,
+            health: BASE_HEALTH,
+            balance: 0,
+            returnedCount: 0,
+            unlocked: b.id === "meadow"
+          });
+        }
+        const chestId = `pl_${playerId}_starter-chest`;
+        await t2.Placement.put({ id: chestId, worldId: wid, playerId, objectId: "small-chest", area: "meadow", x: STARTER_CHEST.x, y: STARTER_CHEST.y, placedAt: Date.now() });
+        await t2.Chest.put({ id: chestId, worldId: wid, playerId, area: "meadow", x: STARTER_CHEST.x, y: STARTER_CHEST.y, size: "small-chest", capacity: STARTER_CHEST.capacity, contents: {} });
+        await t2.Player.patch(playerId, {
+          area: "meadow",
+          x: 24.5,
+          y: 6.5,
+          inventory: { ...START_INVENTORY },
+          craftedItems: {},
+          craftedEver: {},
+          tools: { ...START_TOOLS },
+          unlockedBiomes: ["meadow"],
+          visitedBiomes: ["meadow"],
+          tutorialStep: 0,
+          home: { ...DEFAULT_HOME },
+          customGoals: [],
+          goalClaims: {},
+          devUnlockAll: false
+        });
+        log.push("Restarted the game \u2014 fresh save (name, passcode & look kept)");
         break;
       }
       case "build-home": {
@@ -17420,7 +18676,8 @@ var SyncMetrics = class extends PublicEndpoint {
     if (!clientId) throw new GameError(t("server.err.clientIdRequired"));
     const snapshot2 = body.snapshot && typeof body.snapshot === "object" && !Array.isArray(body.snapshot) ? body.snapshot : null;
     if (!snapshot2) throw new GameError(t("server.err.snapshotRequired"));
-    if (JSON.stringify(snapshot2).length > METRICS_SNAPSHOT_MAX_BYTES) throw new GameError(t("server.err.snapshotTooLarge"));
+    const snapshotJson = JSON.stringify(snapshot2);
+    if (snapshotJson.length > METRICS_SNAPSHOT_MAX_BYTES) throw new GameError(t("server.err.snapshotTooLarge"));
     const t2 = db();
     const id = `solo:${clientId}`;
     const existing = await safeGet(t2.SoloMetrics, id);
@@ -17438,10 +18695,11 @@ var SyncMetrics = class extends PublicEndpoint {
       // build timestamp
       language: String(body.language || snapshot2.language || "").trim().toLowerCase().slice(0, 12) || null,
       // interface language
-      snapshot: snapshot2,
+      snapshot: snapshotJson,
       createdAt: existing?.createdAt || Date.now(),
       updatedAt: Date.now()
     });
+    dashboardCache = null;
     return { ok: true };
   }
 };
@@ -17484,6 +18742,7 @@ export {
   DiscardItem,
   GameData,
   GameState,
+  HarvestPlacement,
   Heartbeat,
   JoinRequestStatus,
   JoinWorld,
@@ -17503,6 +18762,7 @@ export {
   RequestJoin,
   ResolveJoin,
   Rest,
+  SetGoals,
   SetHomeColors,
   SetHomeStyle,
   SetPlacementColor,
@@ -17514,6 +18774,7 @@ export {
   UpdateAppearance,
   UpgradeHome,
   UpgradeTool,
+  Version,
   WorldRoster,
   AgeRatingPage as "age-rating",
   PrivacyPage as privacy,
