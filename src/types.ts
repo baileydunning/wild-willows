@@ -473,7 +473,7 @@ export interface DailyTasksBlock {
 }
 
 /** A player-authored goal — the building block of the custom task list. */
-export type CustomGoalKind = 'craft' | 'build' | 'grow' | 'plant' | 'collect' | 'observe' | 'welcome' | 'attract' | 'welcomeTotal' | 'home' | 'unlock' | 'health' | 'biomeAnimals';
+export type CustomGoalKind = 'craft' | 'build' | 'grow' | 'plant' | 'collect' | 'observe' | 'welcome' | 'attract' | 'welcomeTotal' | 'home' | 'tool' | 'unlock' | 'health' | 'biomeAnimals';
 export interface CustomGoal {
 	id: string;
 	kind: CustomGoalKind;
@@ -485,6 +485,8 @@ export interface CustomGoal {
 	track?: string;
 	/** which house style to build (home goals with track 'build'). */
 	styleId?: string;
+	/** which tool to upgrade (tool goals); target holds the goal tier. */
+	toolId?: string;
 	biomeId?: string;
 	/** metric value(s) captured when the goal was created (server-managed). */
 	base?: number;

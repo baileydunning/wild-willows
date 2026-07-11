@@ -549,6 +549,7 @@
 			"observe": "Leer sobre animales",
 			"welcomeTotal": "Recibir animales",
 			"home": "Mejorar tu hogar",
+			"tool": "Mejorar una herramienta",
 			"unlock": "Desbloquear un bioma",
 			"health": "Restaurar un bioma",
 			"biomeAnimals": "Completar un bioma"
@@ -561,6 +562,7 @@
 			"welcomeTotal": "Recibe cierta cantidad de animales nuevos en toda la reserva.",
 			"home": "Mejora una de las vías de tu hogar (Espacio, Comodidad, Decoración, Luz) hacia un nivel más alto.",
 			"homeBuild": "Tu hogar aún es una tienda — elige un estilo de casa abajo para fijarlo como objetivo. Su ⓘ muestra los materiales que necesita cada estilo.",
+			"tool": "Mejora una de tus herramientas al siguiente nivel. Solo aparecen las que aún no puedes costear — su ⓘ enumera los materiales que necesita.",
 			"unlock": "Abre un bioma concreto. Cada uno tiene sus propios requisitos — mira la lista en el tablero.",
 			"health": "Sana un bioma desbloqueado hasta una salud objetivo — el broche final para un lugar que amas.",
 			"biomeAnimals": "Da la bienvenida a todos los animales de un bioma desbloqueado — una red trófica completa, de arriba a abajo."
@@ -574,6 +576,7 @@
 		"trackLabel": "Mejora del hogar",
 		"biomeLabel": "Bioma a desbloquear",
 		"styleLabel": "Estilo de casa",
+		"toolLabel": "Herramienta a mejorar",
 		"matsTitle": "Materiales para construir:",
 		"matLine": "{have}/{need} {name}",
 		"pickItem": "Elige un objeto…",
@@ -581,6 +584,7 @@
 		"pickAnimal": "Elige un animal…",
 		"pickBiome": "Elige un bioma…",
 		"pickStyle": "Elige un estilo…",
+		"pickTool": "Elige una herramienta…",
 		"track": {
 			"space": "Espacio",
 			"comfort": "Comodidad",
@@ -599,6 +603,7 @@
 			"attract": "Atrae a un {kind} misterioso",
 			"home": "Mejora {track} al nivel {level}",
 			"homeBuild": "Construye tu hogar: {style}",
+			"tool": "Mejora a {tool}",
 			"unlock": "Desbloquea {biome}",
 			"health": "Restaura {biome} al {pct}% de salud",
 			"biomeAnimals": "Da la bienvenida a todos los animales de {biome}"

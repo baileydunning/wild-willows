@@ -152,9 +152,6 @@ export function liveTime(snap: WeatherSnapshot | null | undefined): number {
 export function liveDayPhase(snap: WeatherSnapshot | null | undefined): string {
 	return snap ? dayPhaseAt(liveTime(snap)) : 'day';
 }
-export function liveDayProgress(snap: WeatherSnapshot | null | undefined): number {
-	return snap ? dayProgressAt(liveTime(snap)) : 0;
-}
 export function liveSeason(snap: WeatherSnapshot | null | undefined): string {
 	if (snap?.override?.season) return snap.override.season; // dev override wins
 	return snap ? seasonAt(liveTime(snap)) : 'spring';
@@ -217,35 +214,10 @@ export function gatherResourceFor(resources: ResourceDef[] | undefined, biome: s
 export { gatherResourceIdFor, weatherGatherMap, SEASONS, WEATHER_TYPES };
 
 // --- continuous day/night lighting -----------------------------------------
-// dayPhaseStyle gives a colour+alpha per discrete phase; for a smooth rotating
-// cycle we place each phase's value at the MIDPOINT of its slice of the day and
-// linearly interpolate (wrapping past midnight). Result: lighting that eases
-// dawn → day → dusk → night → dawn instead of snapping.
-
-interface LightKey { at: number; color: Phaser_ColorLike; alpha: number; }
-type Phaser_ColorLike = { r: number; g: number; b: number };
-
-function hexToRgb(hex: string): Phaser_ColorLike {
-	const h = hex.replace('#', '');
-	return { r: parseInt(h.slice(0, 2), 16), g: parseInt(h.slice(2, 4), 16), b: parseInt(h.slice(4, 6), 16) };
-}
-
 const DAY_PHASE_BANDS: { id: string; until: number }[] =
 	(weatherConfig.config?.dayPhases as any[]) || [
 		{ id: 'dawn', until: 0.15 }, { id: 'day', until: 0.6 }, { id: 'dusk', until: 0.72 }, { id: 'night', until: 1 },
 	];
-
-const LIGHT_KEYS: LightKey[] = (() => {
-	const keys: LightKey[] = [];
-	let prev = 0;
-	for (const band of DAY_PHASE_BANDS) {
-		const mid = (prev + band.until) / 2;
-		const st = dayPhaseStyle(band.id);
-		keys.push({ at: mid, color: hexToRgb(st.color), alpha: st.alpha });
-		prev = band.until;
-	}
-	return keys.sort((a, b) => a.at - b.at);
-})();
 
 /** Map a 0..1 day progress to its phase id (dawn/day/dusk/night), using the same
  *  bands as the server clock — lets callers derive the phase from their own
@@ -254,28 +226,4 @@ export function phaseAtProgress(progress: number): string {
 	const p = ((progress % 1) + 1) % 1;
 	for (const b of DAY_PHASE_BANDS) if (p < b.until) return b.id;
 	return DAY_PHASE_BANDS[DAY_PHASE_BANDS.length - 1].id;
-}
-
-/** Interpolated full-screen lighting (rgb 0-255 + alpha) for a 0..1 day progress. */
-export function lightingAt(progress: number): { r: number; g: number; b: number; alpha: number } {
-	const p = ((progress % 1) + 1) % 1;
-	const n = LIGHT_KEYS.length;
-	// find the keyframe pair straddling p (wrapping around the day)
-	let aIdx = n - 1;
-	for (let i = 0; i < n; i++) { if (LIGHT_KEYS[i].at <= p) aIdx = i; else break; }
-	const a = LIGHT_KEYS[aIdx];
-	const b = LIGHT_KEYS[(aIdx + 1) % n];
-	const span = (b.at - a.at + 1) % 1 || 1;
-	const local = (((p - a.at) + 1) % 1) / span;
-	const f = Phaser_clamp(local, 0, 1);
-	return {
-		r: a.color.r + (b.color.r - a.color.r) * f,
-		g: a.color.g + (b.color.g - a.color.g) * f,
-		b: a.color.b + (b.color.b - a.color.b) * f,
-		alpha: a.alpha + (b.alpha - a.alpha) * f,
-	};
-}
-
-function Phaser_clamp(v: number, lo: number, hi: number): number {
-	return v < lo ? lo : v > hi ? hi : v;
 }

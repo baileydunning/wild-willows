@@ -1120,7 +1120,7 @@ export class WorldScene extends Phaser.Scene {
 		// (and the abrupt luminance swing a snap would cause); colorblind mode keeps
 		// the palette true instead of shifting every colour under a tint.
 		const prefs = getPrefs();
-		if (prefs.reduceMotion || prefs.colorblind) {
+		if (prefs.reduceMotion || prefs.colorblindMode !== 'off') {
 			this.lightTween?.stop();
 			this.skyTween?.stop();
 			this.lightPhase = 'off'; // so it re-applies the real phase if turned back on

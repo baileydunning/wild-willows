@@ -10,9 +10,9 @@ import { Icon } from './icons';
 // entries, so the picker never lists animals you've already welcomed home.
 // "Unlock a biome" isn't here — the board already shows an always-on next-biome
 // goal, so it'd be redundant. Bring-back-animal comes from the field journal.
-const KINDS: CustomGoalKind[] = ['craft', 'plant', 'collect', 'observe', 'welcomeTotal', 'health', 'home'];
+const KINDS: CustomGoalKind[] = ['craft', 'plant', 'collect', 'observe', 'welcomeTotal', 'health', 'home', 'tool'];
 const KIND_ICON: Record<CustomGoalKind, string> = {
-	craft: 'hammer', build: 'hammer', grow: 'leaf', plant: 'leaf', collect: 'basket', observe: 'journal', welcome: 'paw', attract: 'paw', welcomeTotal: 'paw', home: 'home', unlock: 'map', health: 'leaf', biomeAnimals: 'paw',
+	craft: 'hammer', build: 'hammer', grow: 'leaf', plant: 'leaf', collect: 'basket', observe: 'journal', welcome: 'paw', attract: 'paw', welcomeTotal: 'paw', home: 'home', tool: 'hammer', unlock: 'map', health: 'leaf', biomeAnimals: 'paw',
 };
 const HEALTH_TARGETS = [50, 60, 70, 80, 90, 100];
 const HOME_TRACKS = ['space', 'comfort', 'decor', 'light'];
@@ -32,6 +32,7 @@ export function GoalsPanel() {
 	const [resourceId, setResourceId] = useState('');
 	const [track, setTrack] = useState('space');
 	const [styleId, setStyleId] = useState(''); // which house to build (home 'build' goal)
+	const [toolId, setToolId] = useState(''); // which tool to upgrade (tool goal)
 	const [biomeId, setBiomeId] = useState('');
 	const [count, setCount] = useState(3);
 	const [level, setLevel] = useState(2); // target level for a home-upgrade goal
@@ -82,6 +83,31 @@ export function GoalsPanel() {
 		() => Object.entries(data?.homeStyles || {}).map(([id, s]) => ({ id, name: s.name, materials: s.materials || {} })),
 		[data]
 	);
+	// Tools with a next tier you can work toward NOW: the required biome is open and
+	// healthy enough, but you don't already have the materials (that'd be busywork,
+	// matching the craft picker). Each entry carries the tier to reach.
+	const upgradableTools = useMemo(() => {
+		if (!data || !state) return [] as { id: string; name: string; tier: number }[];
+		const heldOf = (id: string) =>
+			(state.player.inventory?.[id] || 0) + (state.chests || []).reduce((s, c) => s + (c.contents?.[id] || 0), 0);
+		const unlocked = new Set(state.player.unlockedBiomes || ['meadow']);
+		const healthOf = (bid: string) => state.biomeStates.find((b) => b.biomeId === bid)?.health || 0;
+		const out: { id: string; name: string; tier: number }[] = [];
+		for (const td of data.tools || []) {
+			const cur = state.player.tools?.[td.id] || 1;
+			const next = (td.tiers || []).find((tt: any) => tt.tier === cur + 1);
+			if (!next) continue; // already at the top tier
+			const req = (next as any).requires;
+			if (req?.biome) {
+				if (!unlocked.has(req.biome)) continue; // biome not open yet
+				if (typeof req.minHealth === 'number' && healthOf(req.biome) < req.minHealth) continue; // not healthy enough yet
+			}
+			const affordable = Object.entries((next as any).materials || {}).every(([mid, need]) => heldOf(mid) >= (need as number));
+			if (affordable) continue; // you could do it right now — not a goal
+			out.push({ id: td.id, name: content('tool', td.id, `tiers.${next.tier}.name`, (next as any).name), tier: next.tier });
+		}
+		return out.sort((a, b) => a.name.localeCompare(b.name));
+	}, [data, state, content]);
 
 	if (!data || !state) return null;
 	const limit = state.goalLimit ?? 3; // 3 until all biomes are open, then 6
@@ -129,6 +155,7 @@ export function GoalsPanel() {
 		if (k === 'welcomeTotal') return welcomeLeft > 0;
 		if (k === 'health') return healthBiomes.length > 0;
 		if (k === 'biomeAnimals') return animalBiomes.length > 0;
+		if (k === 'tool') return upgradableTools.length > 0;
 		return true;
 	});
 	const resName = (id: string) => {
@@ -160,6 +187,11 @@ export function GoalsPanel() {
 			case 'home': return g.track === 'build'
 				? t('panels.goals.label.homeBuild', { style: styles.find((s) => s.id === g.styleId)?.name || t('panels.goals.styleLabel') })
 				: t('panels.goals.label.home', { track: t(`panels.goals.track.${g.track}`), level: g.target });
+			case 'tool': {
+				const td = data.tools?.find((x) => x.id === g.toolId);
+				const tier = td?.tiers?.find((tt) => tt.tier === g.target);
+				return t('panels.goals.label.tool', { tool: td && tier ? content('tool', td.id, `tiers.${g.target}.name`, tier.name) : (g.toolId || '') });
+			}
 			case 'unlock': {
 				const b = data.biomes.find((bb) => bb.id === g.biomeId);
 				return t('panels.goals.label.unlock', { biome: b ? content('biome', b.id, 'name', b.name) : g.biomeId || '' });
@@ -194,8 +226,14 @@ export function GoalsPanel() {
 			const b = biomeId || animalBiomes[0]?.id; if (!b) return;
 			g.biomeId = b; g.target = animalTotal(b); // server confirms the authoritative count
 		}
+		else if (kind === 'tool') {
+			const sel = upgradableTools.find((x) => x.id === toolId);
+			if (!sel) return;
+			g.toolId = toolId; g.target = sel.tier; // aim for the next tier
+		}
 		else if (kind === 'home') {
 			if (hasHomeGoal) return; // only one home goal at a time
+			if (homeGoalAffordable) return; // already have the materials — busywork, not a goal
 			if (!homeBuilt) { if (!styleId) return; g.track = 'build'; g.styleId = styleId; g.target = 1; } // build the tent into a chosen house
 			else {
 				const cur = homeCur(track), max = homeMax(track);
@@ -220,6 +258,22 @@ export function GoalsPanel() {
 	// so it's blocked with a note. Uses basket + linked chests, like the server.
 	const chosenRecipe = kind === 'craft' && itemId ? data.recipes.find((r) => r.output.itemId === itemId) : null;
 	const craftAffordable = !!chosenRecipe && Object.entries(chosenRecipe.materials || {}).every(([mid, need]) => held(mid) >= (need as number) * Math.max(1, Math.floor(count) || 1));
+
+	// A home goal (build a house, or level one track by one step) you can already
+	// afford right now is busywork — block it like the craft picker does. Multi-step
+	// upgrades (target above the next level) are never "instantly doable".
+	const homeGoalAffordable = (() => {
+		if (kind !== 'home') return false;
+		if (!homeBuilt) {
+			const mats = styles.find((s) => s.id === styleId)?.materials;
+			return !!mats && Object.keys(mats).length > 0 && Object.entries(mats).every(([mid, need]) => held(mid) >= (need as number));
+		}
+		const cur = homeCur(track);
+		const chosenLevel = Math.min(homeMax(track), Math.max(cur + 1, Math.floor(level) || cur + 1));
+		if (chosenLevel !== cur + 1) return false; // reaching a higher level takes more than one upgrade
+		const mats = data.homeTracks?.[track]?.levels?.[cur]?.materials as Record<string, number> | undefined;
+		return !!mats && Object.entries(mats).every(([mid, need]) => held(mid) >= (need as number));
+	})();
 
 	// Count field is for the tally-style goals; home uses its own level select.
 	const showCount = ['craft', 'plant', 'collect', 'observe', 'welcomeTotal'].includes(kind);
@@ -309,6 +363,38 @@ export function GoalsPanel() {
 										{collectables.map((r) => <option key={r.id} value={r.id}>{content('resource', r.id, 'name', r.name)}</option>)}
 									</select>
 								)}
+								{kind === 'tool' && (
+									<span className="goals-style-pick">
+										<select aria-label={t('panels.goals.toolLabel')} value={toolId} onChange={(e) => setToolId(e.target.value)}>
+											<option value="">{t('panels.goals.pickTool')}</option>
+											{upgradableTools.map((tl) => <option key={tl.id} value={tl.id}>{tl.name}</option>)}
+										</select>
+										{(() => {
+											const sel = upgradableTools.find((x) => x.id === toolId);
+											if (!sel) return null;
+											const td = data.tools?.find((x) => x.id === sel.id);
+											const tier = td?.tiers?.find((tt) => tt.tier === sel.tier);
+											const mats = (tier as any)?.materials || {};
+											return (
+												<span className="tasks-hint" tabIndex={0} role="note" aria-label={t('panels.goals.matsTitle')}>
+													<Icon name="help" size={13} />
+													<span className="tasks-hint-tip" role="tooltip">
+														<span className="tasks-hint-line">{t('panels.goals.matsTitle')}</span>
+														{Object.entries(mats).map(([mid, need]) => {
+															const have = held(mid);
+															return (
+																<span key={mid} className={`tasks-step ${have >= (need as number) ? 'done' : ''}`}>
+																	<span className="tasks-step-box">{have >= (need as number) && <Icon name="check" size={10} />}</span>{' '}
+																	{t('panels.goals.matLine', { have: Math.min(have, need as number), need: need as number, name: resName(mid) })}
+																</span>
+															);
+														})}
+													</span>
+												</span>
+											);
+										})()}
+									</span>
+								)}
 								{kind === 'unlock' && (
 									<select aria-label={t('panels.goals.biomeLabel')} value={biomeId} onChange={(e) => setBiomeId(e.target.value)}>
 										<option value="">{t('panels.goals.pickBiome')}</option>
@@ -387,8 +473,8 @@ export function GoalsPanel() {
 							</div>
 							<p className="goals-desc"><Icon name={KIND_ICON[kind]} size={13} /> {t(homeDescKey)}</p>
 							{homeMaxed && <p className="muted small">{t('panels.goals.homeMaxed', { track: t(`panels.goals.track.${track}`) })}</p>}
-							{craftAffordable && <p className="muted small">{t('panels.goals.affordableNote')}</p>}
-							<button className="big-btn primary" style={{ width: 'auto', marginTop: 0 }} onClick={addGoal} disabled={homeMaxed || craftAffordable}>
+							{(craftAffordable || homeGoalAffordable) && <p className="muted small">{t('panels.goals.affordableNote')}</p>}
+							<button className="big-btn primary" style={{ width: 'auto', marginTop: 0 }} onClick={addGoal} disabled={homeMaxed || craftAffordable || homeGoalAffordable}>
 								<Icon name="check" size={15} /> <span>{t('panels.goals.add')}</span>
 							</button>
 						</div>

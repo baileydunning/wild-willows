@@ -14453,6 +14453,7 @@ var server_default = {
     home: "Upgrade your home's {track} to level {level}",
     buildHome: "Build your home: {style}",
     aHouse: "a house",
+    tool: "Upgrade to {tool}",
     unlock: "Unlock {biome}",
     track: {
       space: "space",
@@ -14471,6 +14472,7 @@ var server_default = {
       attract: "Build the habitat in the info box; the animal comes back on its own.",
       welcomeTotal: "Restore habitat across your biomes \u2014 animals return on their own.",
       home: "Use the sign by your camp tent to upgrade your home.",
+      tool: "Gather the materials, then upgrade it from your toolbelt (Tools).",
       unlock: "Meet the requirements shown to open this biome.",
       health: "Heal the land \u2014 plant, water, and place habitat until this biome recovers.",
       biomeAnimals: "Build every animal's habitat here until the whole biome is home."
@@ -14906,7 +14908,7 @@ var supportHtml = `<!doctype html>
 </body>
 </html>
 `;
-var buildStamp = "0.1.11+2026-07-10T22:09:59.845Z";
+var buildStamp = "0.1.11+2026-07-11T02:00:06.674Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
@@ -16072,6 +16074,7 @@ var GOAL_ICON = {
   attract: "paw",
   welcomeTotal: "paw",
   home: "home",
+  tool: "hammer",
   unlock: "map",
   health: "leaf",
   biomeAnimals: "paw"
@@ -16148,6 +16151,11 @@ function craftMaterialSteps(itemId, ctx) {
 }
 function homeBuildSteps(styleId, ctx) {
   return matSteps(HOME_STYLES[styleId]?.materials || {}, ctx);
+}
+function toolUpgradeSteps(toolId, tier, ctx) {
+  const td = ctx.d.tool.get(toolId);
+  const tierDef = (td?.tiers || []).find((tt) => tt.tier === tier);
+  return matSteps(tierDef?.materials || {}, ctx);
 }
 function matSteps(mats, ctx) {
   return Object.entries(mats).map(([mid, need]) => {
@@ -16238,6 +16246,10 @@ function goalProgress(goal, ctx) {
         return !goal.styleId || h.style === goal.styleId ? 1 : 0;
       }
       return ctx.player?.home?.[goal.track || ""] >= goal.target ? goal.target : Math.min(goal.target, ctx.player?.home?.[goal.track || ""] || 1);
+    case "tool": {
+      const cur = ctx.player?.tools?.[goal.toolId || ""] || 1;
+      return Math.min(goal.target, cur);
+    }
     case "unlock":
       return ctx.biomeStates.some((b) => b.biomeId === goal.biomeId && b.unlocked) ? 1 : 0;
     case "health": {
@@ -16275,6 +16287,11 @@ function goalText(goal, ctx) {
       return t("server.goal.welcomeTotal", { count: goal.target });
     case "home":
       return goal.track === "build" ? t("server.goal.buildHome", { style: HOME_STYLES[goal.styleId || ""]?.name || t("server.goal.aHouse") }) : t("server.goal.home", { track: t(`server.goal.track.${goal.track}`), level: goal.target });
+    case "tool": {
+      const td = d.tool.get(goal.toolId);
+      const tier = (td?.tiers || []).find((tt) => tt.tier === goal.target);
+      return t("server.goal.tool", { tool: tier?.name || td?.name || goal.toolId });
+    }
     case "unlock":
       return t("server.goal.unlock", { biome: d.biome.get(goal.biomeId)?.name || goal.biomeId });
     case "health":
@@ -16296,7 +16313,7 @@ function starterTasks(ctx) {
 }
 function sanitizeGoals(goals, d) {
   const out = [];
-  const kinds = ["craft", "build", "grow", "plant", "collect", "observe", "welcome", "attract", "welcomeTotal", "home", "unlock", "health", "biomeAnimals"];
+  const kinds = ["craft", "build", "grow", "plant", "collect", "observe", "welcome", "attract", "welcomeTotal", "home", "tool", "unlock", "health", "biomeAnimals"];
   let hasHome = false;
   for (const g of Array.isArray(goals) ? goals : []) {
     if (out.length >= MAX_CUSTOM_GOALS) break;
@@ -16329,6 +16346,12 @@ function sanitizeGoals(goals, d) {
         if (!GOAL_HOME_TRACKS.includes(g?.track)) continue;
         goal.track = g.track;
       }
+    } else if (kind === "tool") {
+      const td = d.tool.get(g?.toolId);
+      if (!td) continue;
+      const maxTier = Math.max(1, ...(td.tiers || []).map((tt) => tt.tier));
+      goal.toolId = g.toolId;
+      goal.target = Math.min(maxTier, Math.max(2, Math.floor(Number(g?.target) || 2)));
     } else if (kind === "unlock") {
       if (!d.biome.get(g?.biomeId)) continue;
       goal.biomeId = g.biomeId;
@@ -16380,7 +16403,7 @@ function dailyTasksBlock(ctx) {
   for (const g of player?.customGoals || []) {
     if (goalClaims[g.id]) continue;
     const target = g.kind === "build" ? g.target * 2 : g.target;
-    const steps = g.kind === "attract" ? attractSteps(g.animalId || "", ctx) : g.kind === "craft" || g.kind === "build" ? craftMaterialSteps(g.itemId || "", ctx) : g.kind === "home" && g.track === "build" ? homeBuildSteps(g.styleId || "", ctx) : void 0;
+    const steps = g.kind === "attract" ? attractSteps(g.animalId || "", ctx) : g.kind === "craft" || g.kind === "build" ? craftMaterialSteps(g.itemId || "", ctx) : g.kind === "home" && g.track === "build" ? homeBuildSteps(g.styleId || "", ctx) : g.kind === "tool" ? toolUpgradeSteps(g.toolId || "", g.target, ctx) : void 0;
     tasks.push({
       id: g.id,
       kind: g.kind,

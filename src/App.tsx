@@ -7,6 +7,7 @@ import { useI18n } from './i18n/react';
 import { harvestReadyAt } from './types';
 import { isTypingTarget } from './typing';
 import { HelpModal } from './ui/Help';
+import { ColorblindFilters } from './ui/ColorblindFilters';
 import { HUD, Toasts } from './ui/HUD';
 import { Confetti } from './ui/Confetti';
 import { AnimalCard, JournalPanel } from './ui/Journal';
@@ -283,32 +284,39 @@ function GameScreen() {
 	return (
 		<div className="game-screen">
 			<PhaserGame />
-			<HUD />
-			<Toolbelt />
-			<ActivityLog />
-			<Tutorial />
-			<MobileControls />
-			<JoinApprovalPopup />
-			<Toasts />
-			<Confetti />
-			{clickedPlacement && <PlacementMenu item={clickedPlacement} onClose={() => setClickedPlacement(null)} />}
-			{clickedBed && <PlantMenu bed={clickedBed} onClose={() => setClickedBed(null)} />}
-			{panel === 'inventory' && <InventoryPanel />}
-			{panel === 'chest' && <ChestPanel />}
-			{panel === 'crafting' && <CraftingPanel />}
-			{panel === 'tools' && <ToolsPanel />}
-			{panel === 'biomes' && <BiomesPanel />}
-			{panel === 'journal' && <JournalPanel />}
-			{panel === 'achievements' && <AchievementsPanel />}
-			{panel === 'feed' && <FeedPanel />}
-			{panel === 'home' && <HomePanel />}
-			{panel === 'animal' && <AnimalCard />}
-			{panel === 'settings' && <SettingsPanel />}
-			{panel === 'people' && <PeoplePanel />}
-			{panel === 'weather' && <WeatherPanel />}
-			{panel === 'materials' && <MaterialsPanel />}
-			{panel === 'goals' && <GoalsPanel />}
-			{devOpen && <DevPanel onClose={() => setDevOpen(false)} />}
+			{/* All DOM overlays live in one layer so the colorblind correction filter can
+			    apply to the (mostly static) UI independently of the per-frame game canvas
+			    — the UI's filtered result is cached and only re-rendered when it changes.
+			    `.ui-layer` is display:contents (a no-op) until a colorblind mode is on, so
+			    normal play is completely unaffected. */}
+			<div className="ui-layer">
+				<HUD />
+				<Toolbelt />
+				<ActivityLog />
+				<Tutorial />
+				<MobileControls />
+				<JoinApprovalPopup />
+				<Toasts />
+				<Confetti />
+				{clickedPlacement && <PlacementMenu item={clickedPlacement} onClose={() => setClickedPlacement(null)} />}
+				{clickedBed && <PlantMenu bed={clickedBed} onClose={() => setClickedBed(null)} />}
+				{panel === 'inventory' && <InventoryPanel />}
+				{panel === 'chest' && <ChestPanel />}
+				{panel === 'crafting' && <CraftingPanel />}
+				{panel === 'tools' && <ToolsPanel />}
+				{panel === 'biomes' && <BiomesPanel />}
+				{panel === 'journal' && <JournalPanel />}
+				{panel === 'achievements' && <AchievementsPanel />}
+				{panel === 'feed' && <FeedPanel />}
+				{panel === 'home' && <HomePanel />}
+				{panel === 'animal' && <AnimalCard />}
+				{panel === 'settings' && <SettingsPanel />}
+				{panel === 'people' && <PeoplePanel />}
+				{panel === 'weather' && <WeatherPanel />}
+				{panel === 'materials' && <MaterialsPanel />}
+				{panel === 'goals' && <GoalsPanel />}
+				{devOpen && <DevPanel onClose={() => setDevOpen(false)} />}
+			</div>
 		</div>
 	);
 }
@@ -328,6 +336,7 @@ function Root() {
 export default function App() {
 	return (
 		<KeyboardGate>
+			<ColorblindFilters />
 			<GameProvider>
 				<Root />
 			</GameProvider>
