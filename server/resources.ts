@@ -25,7 +25,7 @@ import resourcesData from '../data/resources.json';
 import animals1Data from '../data/animals-1.json';
 import animals2Data from '../data/animals-2.json';
 import achievementsData from '../data/achievements.json';
-import { weatherSnapshot, weatherTypeAt, gatherResourceIdFor, isWeatherGatheredResource, seasonAt, dayPhaseAt, WEATHER_TYPES, SEASONS, DAY_MS as WEATHER_DAY_MS } from './weather';
+import { weatherSnapshot, weatherTypeAt, gatherResourceIdFor, isWeatherGatheredResource, seasonAt, dayPhaseAt, nextDawnAt, nextPhaseAt, WEATHER_TYPES, SEASONS } from './weather';
 // Player-facing text goes through tr() (i18n `t`, aliased because most handlers
 // shadow the bare name with `const t = db()`).
 import { t as tr } from '../src/i18n/server';
@@ -1023,6 +1023,10 @@ async function createPlayerRecords(playerId: string, name: string, passcode: str
 		appearance,
 		tzOffsetMinutes, // local-morning task resets (see playerDayKey)
 		createdAt: now,
+		// Day-time is derived from accrued play time, and play-time 0 falls in the
+		// night band — so start a fresh save at the top of the DAY phase (morning),
+		// not in the dark. Sleeping later advances this offset the same way.
+		clockOffsetMs: nextPhaseAt(0, 'day'),
 		worldId: playerId, // start in your own private solo world (world of one)
 		area: 'meadow',
 		x: 24.5, // spawn right beside the camp crafting station
@@ -1995,7 +1999,7 @@ function dailyTasksFor(ctx: TaskCtx, claims: Record<string, boolean>, daily: Rec
 // durable world state (not the day counters, which reset), claims are permanent
 // (player.goalClaims), and each finished goal grants one small fixed bundle.
 
-type GoalKind = 'craft' | 'build' | 'grow' | 'plant' | 'collect' | 'observe' | 'welcome' | 'attract' | 'welcomeTotal' | 'home' | 'unlock' | 'health' | 'biomeAnimals';
+type GoalKind = 'craft' | 'build' | 'grow' | 'plant' | 'collect' | 'observe' | 'welcome' | 'attract' | 'welcomeTotal' | 'home' | 'tool' | 'unlock' | 'health' | 'biomeAnimals';
 interface CustomGoal {
 	id: string;
 	kind: GoalKind;
@@ -2005,6 +2009,7 @@ interface CustomGoal {
 	animalId?: string;
 	track?: string;
 	styleId?: string;
+	toolId?: string;
 	biomeId?: string;
 	/** The metric value at the moment the goal was created. Progress for the
 	 *  cumulative kinds (craft/build/plant/collect/observe) is measured as NEW work
@@ -2017,7 +2022,7 @@ interface CustomGoal {
 }
 
 const GOAL_ICON: Record<GoalKind, string> = {
-	craft: 'hammer', build: 'hammer', grow: 'leaf', plant: 'leaf', collect: 'basket', observe: 'journal', welcome: 'paw', attract: 'paw', welcomeTotal: 'paw', home: 'home', unlock: 'map', health: 'leaf', biomeAnimals: 'paw',
+	craft: 'hammer', build: 'hammer', grow: 'leaf', plant: 'leaf', collect: 'basket', observe: 'journal', welcome: 'paw', attract: 'paw', welcomeTotal: 'paw', home: 'home', tool: 'hammer', unlock: 'map', health: 'leaf', biomeAnimals: 'paw',
 };
 const GOAL_HOME_TRACKS = ['space', 'comfort', 'decor', 'light'];
 const MAX_CUSTOM_GOALS = 6; // hard ceiling; the live cap is 3 (or 6 fully unlocked)
@@ -2106,6 +2111,13 @@ function craftMaterialSteps(itemId: string, ctx: TaskCtx): { text: string; done:
 /** Materials have/need for building a specific house style. */
 function homeBuildSteps(styleId: string, ctx: TaskCtx): { text: string; done: boolean }[] {
 	return matSteps(HOME_STYLES[styleId]?.materials || {}, ctx);
+}
+
+/** Materials have/need for upgrading a tool to its goal tier. */
+function toolUpgradeSteps(toolId: string, tier: number, ctx: TaskCtx): { text: string; done: boolean }[] {
+	const td = ctx.d.tool.get(toolId);
+	const tierDef = (td?.tiers || []).find((tt: any) => tt.tier === tier);
+	return matSteps(tierDef?.materials || {}, ctx);
 }
 
 /** Shared "have/need material" checklist. */
@@ -2214,6 +2226,11 @@ function goalProgress(goal: CustomGoal, ctx: TaskCtx): number {
 				return !goal.styleId || h.style === goal.styleId ? 1 : 0; // that house (or any, if unspecified)
 			}
 			return (ctx.player?.home?.[goal.track || ''] as number) >= goal.target ? goal.target : Math.min(goal.target, (ctx.player?.home?.[goal.track || ''] as number) || 1);
+		case 'tool': {
+			// Target is the goal's tier; progress is the tool's current tier, capped.
+			const cur = (ctx.player?.tools?.[goal.toolId || ''] as number) || 1;
+			return Math.min(goal.target, cur);
+		}
 		case 'unlock': return ctx.biomeStates.some((b: any) => b.biomeId === goal.biomeId && b.unlocked) ? 1 : 0;
 		case 'health': {
 			const b = ctx.biomeStates.find((x: any) => x.biomeId === goal.biomeId);
@@ -2243,6 +2260,11 @@ function goalText(goal: CustomGoal, ctx: TaskCtx): string {
 		case 'home': return goal.track === 'build'
 			? tr('server.goal.buildHome', { style: HOME_STYLES[goal.styleId || '']?.name || tr('server.goal.aHouse') })
 			: tr('server.goal.home', { track: tr(`server.goal.track.${goal.track}`), level: goal.target });
+		case 'tool': {
+			const td = d.tool.get(goal.toolId);
+			const tier = (td?.tiers || []).find((tt: any) => tt.tier === goal.target);
+			return tr('server.goal.tool', { tool: tier?.name || td?.name || goal.toolId });
+		}
 		case 'unlock': return tr('server.goal.unlock', { biome: d.biome.get(goal.biomeId)?.name || goal.biomeId });
 		case 'health': return tr('server.goal.restore', { biome: d.biome.get(goal.biomeId)?.name || goal.biomeId, pct: goal.target });
 		case 'biomeAnimals': return tr('server.goal.biomeAnimals', { count: goal.target, biome: d.biome.get(goal.biomeId)?.name || goal.biomeId });
@@ -2266,7 +2288,7 @@ function starterTasks(ctx: TaskCtx): any[] {
  *  SetGoals can preserve each goal's baseline across edits. */
 function sanitizeGoals(goals: any[], d: any): CustomGoal[] {
 	const out: CustomGoal[] = [];
-	const kinds: GoalKind[] = ['craft', 'build', 'grow', 'plant', 'collect', 'observe', 'welcome', 'attract', 'welcomeTotal', 'home', 'unlock', 'health', 'biomeAnimals'];
+	const kinds: GoalKind[] = ['craft', 'build', 'grow', 'plant', 'collect', 'observe', 'welcome', 'attract', 'welcomeTotal', 'home', 'tool', 'unlock', 'health', 'biomeAnimals'];
 	let hasHome = false; // only one home goal (build or upgrade) at a time
 	for (const g of Array.isArray(goals) ? goals : []) {
 		if (out.length >= MAX_CUSTOM_GOALS) break;
@@ -2287,6 +2309,14 @@ function sanitizeGoals(goals: any[], d: any): CustomGoal[] {
 				if (!GOAL_HOME_TRACKS.includes(g?.track)) continue;
 				goal.track = g.track;
 			}
+		}
+		else if (kind === 'tool') {
+			const td = d.tool.get(g?.toolId);
+			if (!td) continue; // must name a real tool
+			const maxTier = Math.max(1, ...((td.tiers || []).map((tt: any) => tt.tier)));
+			// Target is the tier to reach: at least tier 2, never past the tool's max.
+			goal.toolId = g.toolId;
+			goal.target = Math.min(maxTier, Math.max(2, Math.floor(Number(g?.target) || 2)));
 		}
 		else if (kind === 'unlock') { if (!d.biome.get(g?.biomeId)) continue; goal.biomeId = g.biomeId; goal.target = 1; }
 		else if (kind === 'health') {
@@ -2348,6 +2378,7 @@ function dailyTasksBlock(ctx: TaskCtx) {
 		const steps = g.kind === 'attract' ? attractSteps(g.animalId || '', ctx)
 			: (g.kind === 'craft' || g.kind === 'build') ? craftMaterialSteps(g.itemId || '', ctx)
 			: (g.kind === 'home' && g.track === 'build') ? homeBuildSteps(g.styleId || '', ctx)
+			: g.kind === 'tool' ? toolUpgradeSteps(g.toolId || '', g.target, ctx)
 			: undefined;
 		tasks.push({
 			id: g.id, kind: g.kind, icon: GOAL_ICON[g.kind] || 'check',
@@ -3845,10 +3876,11 @@ export class Rest extends PublicEndpoint {
 		// refresh all resources: clear node cooldowns so every gathering spot is ready
 		const nodes = await byWorld(t.NodeState, wid);
 		for (const n of nodes) await t.NodeState.delete(n.id);
-		// Sleep through to sunrise: advance the in-game clock to the start of the next day.
+		// Sleep through to sunrise: advance the in-game clock to the next dawn (first
+		// light), not raw day-start — the day now begins mid-night, so day-start
+		// would wake you at 00:00 in the dark.
 		const nowT = weatherTimeFromPlay(player);
-		const intoDay = ((nowT % WEATHER_DAY_MS) + WEATHER_DAY_MS) % WEATHER_DAY_MS;
-		const skip = intoDay === 0 ? 0 : WEATHER_DAY_MS - intoDay;
+		const skip = nextDawnAt(nowT) - nowT;
 		await t.Player.patch(playerId, { clockOffsetMs: (player.clockOffsetMs || 0) + skip });
 		await bumpMetrics(player, { restsTaken: 1 });
 		return { ok: true, rested: true, refreshed: nodes.length };
@@ -4688,6 +4720,26 @@ export class DevTools extends PublicEndpoint {
 		const log: string[] = [];
 
 		switch (action) {
+			case 'set-time': {
+				// Jump the in-game clock forward to the start of a chosen phase, so the
+				// HUD clock, weather, and world lighting all reflect it. `value` is the
+				// phase id (dawn/day/dusk/night).
+				const phase = String(value || 'dawn');
+				const nowT = weatherTimeFromPlay(player);
+				const skip = nextPhaseAt(nowT, phase) - nowT;
+				await t.Player.patch(playerId, { clockOffsetMs: (player.clockOffsetMs || 0) + skip });
+				log.push(`Set time to ${phase}`);
+				break;
+			}
+			case 'reset-clock': {
+				// Restart the game clock at day one's morning — the same starting time a
+				// fresh save gets. Solve for the offset that lands the current play time
+				// back on the day-phase start (season resets to the first day too).
+				const playMs = Math.round((player?.metrics?.playSeconds || 0) * 1000);
+				await t.Player.patch(playerId, { clockOffsetMs: nextPhaseAt(0, 'day') - playMs });
+				log.push('Reset the game clock to the first morning');
+				break;
+			}
 			case 'seed-water': {
 				// reset the area's terrain and lay down its starting layout again
 				const ar = area || 'wetland';
@@ -4801,6 +4853,9 @@ export class DevTools extends PublicEndpoint {
 					tools: { ...START_TOOLS }, unlockedBiomes: ['meadow'], visitedBiomes: ['meadow'],
 					tutorialStep: 0, home: { ...DEFAULT_HOME }, customGoals: [], goalClaims: {},
 					devUnlockAll: false,
+					// Restart the game clock at day one's morning too (same as a fresh save),
+					// so a wiped game doesn't reopen at whatever time you left off.
+					clockOffsetMs: nextPhaseAt(0, 'day') - Math.round((player?.metrics?.playSeconds || 0) * 1000),
 				});
 				log.push('Restarted the game — fresh save (name, passcode & look kept)');
 				break;

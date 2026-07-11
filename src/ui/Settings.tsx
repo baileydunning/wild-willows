@@ -8,7 +8,7 @@ import { useGame } from '../state';
 import { visibleShortcuts } from '../shortcuts';
 import { hasKey, LOCALE_NAMES, chooseLocale } from '../i18n';
 import { useI18n } from '../i18n/react';
-import { usePrefs, setPrefs, type TextScale } from '../prefs';
+import { usePrefs, setPrefs, type TextScale, type ColorblindMode } from '../prefs';
 import type { Appearance, AppearanceOptions } from '../types';
 import { CharacterPreview, Icon } from './icons';
 
@@ -159,10 +159,28 @@ export function AccessibilityControls() {
 			<div className="a11y-row">
 				<span className="a11y-label">
 					<b>{t('app.settings.colorblind')}</b>
-					<span className="muted small">{t('app.settings.colorblindHint')}</span>
+					{/* The hint is per-mode so the menu teaches what each condition is and
+					    what the setting does — not just a label. */}
+					<span className="muted small">{t(`app.settings.colorblindHint.${prefs.colorblindMode}`)}</span>
+				</span>
+				<select
+					aria-label={t('app.settings.colorblind')}
+					value={prefs.colorblindMode}
+					onChange={(e) => setPrefs({ colorblindMode: e.target.value as ColorblindMode })}
+				>
+					<option value="off">{t('app.settings.colorblindOff')}</option>
+					<option value="redgreen">{t('app.settings.colorblindRedGreen')}</option>
+					<option value="blueyellow">{t('app.settings.colorblindBlueYellow')}</option>
+					<option value="mono">{t('app.settings.colorblindMono')}</option>
+				</select>
+			</div>
+			<div className="a11y-row">
+				<span className="a11y-label">
+					<b>{t('app.settings.dyslexiaFont')}</b>
+					<span className="muted small">{t('app.settings.dyslexiaFontHint')}</span>
 				</span>
 				<label className="switch">
-					<input type="checkbox" checked={prefs.colorblind} onChange={(e) => setPrefs({ colorblind: e.target.checked })} aria-label={t('app.settings.colorblind')} />
+					<input type="checkbox" checked={prefs.dyslexiaFont} onChange={(e) => setPrefs({ dyslexiaFont: e.target.checked })} aria-label={t('app.settings.dyslexiaFont')} />
 					<span className="track" /><span className="thumb" />
 				</label>
 			</div>
@@ -172,7 +190,8 @@ export function AccessibilityControls() {
 					<option value="sm">{t('app.settings.textSm')}</option>
 					<option value="md">{t('app.settings.textMd')}</option>
 					<option value="lg">{t('app.settings.textLg')}</option>
-					<option value="xl">{t('app.settings.textXl')}</option>
+					{/* OpenDyslexic already runs large, so extra-large overflows the UI. */}
+					<option value="xl" disabled={prefs.dyslexiaFont}>{t('app.settings.textXl')}</option>
 				</select>
 			</div>
 		</>

@@ -549,6 +549,7 @@
 			"observe": "Read about animals",
 			"welcomeTotal": "Welcome animals",
 			"home": "Upgrade your home",
+			"tool": "Upgrade a tool",
 			"unlock": "Unlock a biome",
 			"health": "Restore a biome",
 			"biomeAnimals": "Complete a biome"
@@ -561,6 +562,7 @@
 			"welcomeTotal": "Welcome a number of new animals back across the whole preserve.",
 			"home": "Upgrade one of your home's tracks (Space, Comfort, Decor, Light) toward a higher level.",
 			"homeBuild": "Your home is still a tent — pick a house style below to make it your goal. Its ⓘ shows the materials each style needs.",
+			"tool": "Upgrade one of your tools to its next tier. Only tools you can't already afford show up — its ⓘ lists the materials it needs.",
 			"unlock": "Open a specific biome. Each one has its own requirements — see the checklist on the board.",
 			"health": "Heal an unlocked biome up to a target health — the late-game capstone for a place you love.",
 			"biomeAnimals": "Welcome every animal that belongs in one unlocked biome — a full food web, top to bottom."
@@ -574,6 +576,7 @@
 		"trackLabel": "Home upgrade",
 		"biomeLabel": "Biome to unlock",
 		"styleLabel": "House style",
+		"toolLabel": "Tool to upgrade",
 		"matsTitle": "Materials to build:",
 		"matLine": "{have}/{need} {name}",
 		"pickItem": "Choose an item…",
@@ -581,6 +584,7 @@
 		"pickAnimal": "Choose an animal…",
 		"pickBiome": "Choose a biome…",
 		"pickStyle": "Choose a style…",
+		"pickTool": "Choose a tool…",
 		"track": {
 			"space": "Space",
 			"comfort": "Comfort",
@@ -599,6 +603,7 @@
 			"attract": "Attract a mystery {kind}",
 			"home": "Upgrade {track} to level {level}",
 			"homeBuild": "Build your home: {style}",
+			"tool": "Upgrade to {tool}",
 			"unlock": "Unlock {biome}",
 			"health": "Restore {biome} to {pct}% health",
 			"biomeAnimals": "Welcome every animal in {biome}"

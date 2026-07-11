@@ -169,6 +169,7 @@
 		"home": "Mejora {track} de tu hogar al nivel {level}",
 		"buildHome": "Construye tu hogar: {style}",
 		"aHouse": "una casa",
+		"tool": "Mejora a {tool}",
 		"unlock": "Desbloquea {biome}",
 		"track": {
 			"space": "el espacio",
@@ -187,6 +188,7 @@
 			"attract": "Construye el hábitat de la caja de información; el animal vuelve por su cuenta.",
 			"welcomeTotal": "Restaura hábitat por tus biomas — los animales regresan por su cuenta.",
 			"home": "Usa el letrero junto a tu tienda para mejorar tu hogar.",
+			"tool": "Reúne los materiales y luego mejórala desde tu cinturón de herramientas (Herramientas).",
 			"unlock": "Cumple los requisitos mostrados para abrir este bioma.",
 			"health": "Sana la tierra — planta, riega y coloca hábitat hasta que el bioma se recupere.",
 			"biomeAnimals": "Construye el hábitat de cada animal aquí hasta que todo el bioma esté en casa."

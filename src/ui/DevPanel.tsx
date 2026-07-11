@@ -142,6 +142,19 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 						);
 					})()}
 
+					<h3><Icon name="sun" size={15} /> Time of day</h3>
+					<p className="muted small">Jump the clock to a phase — updates the HUD clock, weather, and world lighting.</p>
+					<div className="dev-grid">
+						{(['dawn', 'day', 'dusk', 'night'] as const).map((ph) => (
+							<button key={ph} disabled={!!busy} onClick={() => run(`Time: ${ph}`, 'set-time', { value: ph })}>
+								{ph.charAt(0).toUpperCase() + ph.slice(1)}
+							</button>
+						))}
+					</div>
+					<button disabled={!!busy} onClick={() => run('Reset clock', 'reset-clock')}>
+						{busy === 'reset-clock' ? '…' : 'Reset clock to first morning'}
+					</button>
+
 					<h3><Icon name="paw" size={15} /> Spawn animal</h3>
 					<p className="muted small">Type an animal's name — click a match to bring it back to its biome right away.</p>
 					{(() => {

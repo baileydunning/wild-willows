@@ -4,7 +4,7 @@ import { useGame } from '../state';
 import { useI18n } from '../i18n/react';
 import { COOP_ENABLED } from '../features';
 import { homePerkStrength } from '../types';
-import { weatherType, seasonStyle, liveSeason, liveWeatherType, liveDayPhase, dayPhaseStyle } from '../weather';
+import { weatherType, seasonStyle, liveSeason, liveWeatherType, liveDayPhase, dayPhaseStyle, phaseAtProgress } from '../weather';
 import { Icon } from './icons';
 import { TasksWidget } from './TasksWidget';
 
@@ -57,7 +57,9 @@ function DayTimer() {
 	const now = anchor.current.base + (Date.now() - anchor.current.wall);
 	const progress = ((now % dayMs) + dayMs) % dayMs / dayMs;
 	const hour = Math.floor(progress * 24) % 24; // whole in-game hour, 0–23
-	const night = hour >= 20 || hour < 6;
+	// Star vs sun follows the real night band (data/weather.json), keyed off the
+	// displayed hour so the knob icon matches both the clock and the weather chip.
+	const night = phaseAtProgress(hour / 24) === 'night';
 	const clock = `${String(hour).padStart(2, '0')}:00`;
 	const pct = (hour / 24) * 100; // stepped — moves once per in-game hour
 	return (

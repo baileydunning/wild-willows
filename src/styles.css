@@ -1494,7 +1494,7 @@ kbd {
    outline, and boosts the game canvas so the in-world weather/biome colors
    separate — WITHOUT turning every hairline divider black (which looked bad in
    dense lists like the feed). */
-[data-colorblind="1"] {
+[data-colorblind]:not([data-colorblind="off"]) {
 	--ink: #000;
 	--ink-soft: #2b2b24;
 	--paper: #ffffff;
@@ -1503,54 +1503,150 @@ kbd {
 	--green: #0a5c2b;
 	--green-deep: #063d1c;
 }
-[data-colorblind="1"] .game-host canvas {
-	filter: contrast(1.35) saturate(1.45) brightness(1.02);
+/* ---- per-mode colour correction, applied per independent layer ----
+   For efficiency the correction is applied to THREE separate layers rather than the
+   whole app at once, so the constantly-redrawing game canvas doesn't drag the static
+   UI through a full-screen filter pass every frame:
+     • .game-host canvas — redraws every frame; carries its own correction + a
+       saturation/contrast boost so the landscape hues separate strongly;
+     • .ui-layer — all in-game DOM overlays; a cached filtered layer that only
+       re-renders when the UI actually changes (near-free while you play);
+     • .welcome — the title screen (art + menu), shown only pre-game.
+   Neutral colours (black text, white panels, greys) pass the matrices unchanged, so
+   the high-contrast theme below stays crisp; only real colours shift. Red-green /
+   blue-yellow use the feColorMatrix from ColorblindFilters; "no colour" goes grayscale.
+
+   .ui-layer is display:contents (a no-op) unless a mode is active, so normal play is
+   untouched. When active it becomes a positioned, click-through layer: it passes
+   pointer events to the world, its children re-enable them, and the two overlays that
+   are intentionally click-through (.activity-log, .confetti-canvas) stay that way. */
+.ui-layer { display: contents; }
+[data-colorblind]:not([data-colorblind="off"]) .ui-layer {
+	display: block; position: absolute; inset: 0; pointer-events: none;
 }
+[data-colorblind]:not([data-colorblind="off"]) .ui-layer > * { pointer-events: auto; }
+[data-colorblind]:not([data-colorblind="off"]) .ui-layer > .activity-log,
+[data-colorblind]:not([data-colorblind="off"]) .ui-layer > .confetti-canvas { pointer-events: none; }
+
+/* Canvas uses the single fused world filter (one pass/frame); UI + title use the
+   plain matrix (no boost needed on flat UI colour). */
+[data-colorblind="redgreen"] .game-host canvas { filter: url(#cb-redgreen-world); }
+[data-colorblind="redgreen"] .ui-layer,
+[data-colorblind="redgreen"] .welcome { filter: url(#cb-redgreen); }
+[data-colorblind="blueyellow"] .game-host canvas { filter: url(#cb-blueyellow-world); }
+[data-colorblind="blueyellow"] .ui-layer,
+[data-colorblind="blueyellow"] .welcome { filter: url(#cb-blueyellow); }
+[data-colorblind="mono"] .game-host canvas { filter: url(#cb-mono-world); }
+[data-colorblind="mono"] .ui-layer,
+[data-colorblind="mono"] .welcome { filter: grayscale(1); }
+/* Light per-type palette nudge: give red-green a teal-leaning green base so the
+   primary buttons don't start on a pure green before correction. */
+[data-colorblind="redgreen"] { --green: #0a6b63; --green-deep: #064a44; }
 /* One clean, solid outline on the main floating card containers (no heavy drop-bar). */
-[data-colorblind="1"] .hud-top-left,
-[data-colorblind="1"] .hud-top-right,
-[data-colorblind="1"] .tasks-widget,
-[data-colorblind="1"] .toolbelt,
-[data-colorblind="1"] .panel,
-[data-colorblind="1"] .placement-menu {
+[data-colorblind]:not([data-colorblind="off"]) .hud-top-left,
+[data-colorblind]:not([data-colorblind="off"]) .hud-top-right,
+[data-colorblind]:not([data-colorblind="off"]) .tasks-widget,
+[data-colorblind]:not([data-colorblind="off"]) .toolbelt,
+[data-colorblind]:not([data-colorblind="off"]) .panel,
+[data-colorblind]:not([data-colorblind="off"]) .placement-menu {
 	background: #fff !important;
 	border: 2px solid #000 !important;
 	color: #000 !important;
 }
-[data-colorblind="1"] .muted { color: #2b2b24 !important; }
+[data-colorblind]:not([data-colorblind="off"]) .muted { color: #2b2b24 !important; }
 /* The activity/dialogue feed is a stack of bubbles over the world, not a card —
    make each bubble white with black text + outline (no white backdrop box). */
-[data-colorblind="1"] .activity-log { background: transparent !important; border: none !important; }
-[data-colorblind="1"] .activity-entry,
-[data-colorblind="1"] .log-toggle {
+[data-colorblind]:not([data-colorblind="off"]) .activity-log { background: transparent !important; border: none !important; }
+[data-colorblind]:not([data-colorblind="off"]) .activity-entry,
+[data-colorblind]:not([data-colorblind="off"]) .log-toggle {
 	background: #fff !important; color: #000 !important; border: 2px solid #000 !important;
 }
-[data-colorblind="1"] .activity-entry svg,
-[data-colorblind="1"] .log-toggle svg { color: #000 !important; }
+[data-colorblind]:not([data-colorblind="off"]) .activity-entry svg,
+[data-colorblind]:not([data-colorblind="off"]) .log-toggle svg { color: #000 !important; }
 /* Buttons + selects: crisp dark outline; primary keeps a strong solid fill. */
-[data-colorblind="1"] .big-btn,
-[data-colorblind="1"] .mode-toggle-btn,
-[data-colorblind="1"] select {
+[data-colorblind]:not([data-colorblind="off"]) .big-btn,
+[data-colorblind]:not([data-colorblind="off"]) .mode-toggle-btn,
+[data-colorblind]:not([data-colorblind="off"]) select {
 	border: 2px solid #000 !important;
 	color: #000 !important;
 	font-weight: 700 !important;
 }
-[data-colorblind="1"] .big-btn.primary { background: #0a5c2b !important; color: #fff !important; }
-[data-colorblind="1"] .big-btn.subtle { color: #000 !important; }
+[data-colorblind]:not([data-colorblind="off"]) .big-btn.primary { background: #0a5c2b !important; color: #fff !important; }
+[data-colorblind]:not([data-colorblind="off"]) .big-btn.subtle { color: #000 !important; }
 /* Meters (health/balance) read by a defined outline + punchier fill, not pastel hue. */
-[data-colorblind="1"] .meter-track { border: 1.5px solid #000; }
-[data-colorblind="1"] .meter-fill { filter: saturate(1.6) brightness(0.85); }
-[data-colorblind="1"] .meter-value, [data-colorblind="1"] .meter-label { color: #000 !important; }
+[data-colorblind]:not([data-colorblind="off"]) .meter-track { border: 1.5px solid #000; }
+[data-colorblind]:not([data-colorblind="off"]) .meter-fill { filter: saturate(1.6) brightness(0.85); }
+[data-colorblind]:not([data-colorblind="off"]) .meter-value, [data-colorblind]:not([data-colorblind="off"]) .meter-label { color: #000 !important; }
 /* Weather: black text + outlined pills on the white card (legible by text/icon,
    not hue) — no heavy black fill. */
-[data-colorblind="1"] .hud-weather { color: #000; }
-[data-colorblind="1"] .hud-weather svg { color: #000; }
-[data-colorblind="1"] .hud-dayphase,
-[data-colorblind="1"] .hud-season { color: #000 !important; border-color: #000 !important; opacity: 1; }
+[data-colorblind]:not([data-colorblind="off"]) .hud-weather { color: #000; }
+[data-colorblind]:not([data-colorblind="off"]) .hud-weather svg { color: #000; }
+[data-colorblind]:not([data-colorblind="off"]) .hud-dayphase,
+[data-colorblind]:not([data-colorblind="off"]) .hud-season { color: #000 !important; border-color: #000 !important; opacity: 1; }
+/* Toggle switches: a solid outline + a clear dark/green split so on vs off reads
+   by shape and contrast, not a pale tint (the off state was near-invisible). */
+[data-colorblind]:not([data-colorblind="off"]) .switch .track { background: #fff !important; border: 2px solid #000; }
+[data-colorblind]:not([data-colorblind="off"]) .switch input:checked ~ .track { background: #0a5c2b !important; }
+[data-colorblind]:not([data-colorblind="off"]) .switch .thumb { background: #000; }
+[data-colorblind]:not([data-colorblind="off"]) .switch input:checked ~ .thumb { background: #fff; }
+/* Pop-up toasts are floating cards too — give them the same solid outline. */
+[data-colorblind]:not([data-colorblind="off"]) .toast { background: #fff !important; border: 2px solid #000 !important; color: #000 !important; }
+[data-colorblind]:not([data-colorblind="off"]) .toast svg { color: #000 !important; }
+/* Icons in the HUD, nav, and toolbar read by strong dark strokes rather than
+   their status colours, so the whole bar is legibly high-contrast. */
+[data-colorblind]:not([data-colorblind="off"]) .hud-top-left svg,
+[data-colorblind]:not([data-colorblind="off"]) .hud-top-right svg,
+[data-colorblind]:not([data-colorblind="off"]) .toolbelt svg { color: #000 !important; }
+/* Bottom toolbar: the SELECTED tool keeps a filled dark-green chip with a white
+   icon (so the active tool still stands out), while the rest are dark-on-white.
+   Without this the earlier blanket "black icons" rule erased the selected marker. */
+[data-colorblind]:not([data-colorblind="off"]) .tool-slot.on {
+	background: #0a5c2b !important; border: 2px solid #000 !important; box-shadow: none !important;
+}
+[data-colorblind]:not([data-colorblind="off"]) .tool-slot.on svg { color: #fff !important; }
+[data-colorblind]:not([data-colorblind="off"]) .tool-slot { border: 1.5px solid #000; }
+[data-colorblind]:not([data-colorblind="off"]) .tool-tier {
+	background: #000 !important; color: #fff !important; border-color: #fff !important;
+}
+[data-colorblind]:not([data-colorblind="off"]) .belt-divider { background: #000 !important; }
+
+/* ---- dyslexia-friendly typeface ----
+   Swaps the UI fonts for a dyslexia-friendly stack and opens up the spacing
+   (letter/word spacing + line-height are evidence-based reading aids). Uses
+   OpenDyslexic (weighted-bottom dyslexia-specific font) is bundled via @fontsource
+   (imported in main.tsx), so it's always available. We keep spacing TIGHT (normal
+   letter/word spacing, modest line-height) so it doesn't read like a spaced-out
+   kids' book — the earlier storybook feel was mostly the extra spacing, not the
+   font. Only affects the DOM UI (the Phaser canvas has its own fonts). */
+[data-dyslexia-font="1"] {
+	--font-display: 'OpenDyslexic', Verdana, Tahoma, sans-serif;
+	--font-body: 'OpenDyslexic', Verdana, Tahoma, sans-serif;
+}
+[data-dyslexia-font="1"] body {
+	line-height: 1.35;
+}
+/* OpenDyslexic's glyphs are noticeably wider than the default UI face, so
+   fixed-width label columns that fit the normal font overflow and get drawn
+   over by the meter bars. Widen the HUD stat label column while the font is
+   active so "Health"/"Balance" fit and the bars stay aligned. */
+[data-dyslexia-font="1"] .meter-label { width: calc(74px * var(--ui-scale)); }
 
 /* Settings toggle switch. */
 .a11y-row { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin: 0 0 12px; }
 .a11y-row .a11y-label { display: flex; flex-direction: column; gap: 1px; }
+/* Match the app's other dropdowns (text size / craft filters) so the colorblind
+   mode picker isn't a bare browser select. */
+.a11y-row select {
+	font-family: var(--font-body);
+	font-weight: 600;
+	color: var(--ink);
+	background: var(--cream);
+	border: 1.5px solid var(--line);
+	border-radius: 10px;
+	padding: 6px 10px;
+	cursor: pointer;
+	max-width: 55%;
+}
 .a11y-row .a11y-label b { font-size: calc(14px * var(--ui-scale)); }
 .switch { position: relative; width: 46px; height: 26px; flex-shrink: 0; }
 .switch input { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; opacity: 0; cursor: pointer; z-index: 2; }

@@ -43,6 +43,11 @@ describe('daily task board', () => {
 		expect(s2.dailyTasks.tasks).toEqual(dt.tasks);
 	});
 
+	it('starts a fresh save in daytime, not the night that play-time 0 falls in', async () => {
+		const s = await w.get('GameState', pid);
+		expect(s.weather.dayPhase).toBe('day');
+	});
+
 	it('leads with the next-biome pin, then the fixed starter tasks', async () => {
 		const dt = (await w.get('GameState', pid)).dailyTasks;
 		expect(dt.tasks.map((t: any) => t.text)).toEqual([
@@ -167,9 +172,9 @@ describe('welcome back (heartbeat time-passed pass)', () => {
 
 describe('condition-gated rare sightings', () => {
 	// The barn owl ships gated to dusk/night. Build a meadow that satisfies every
-	// OTHER requirement, then recalc at two different points of the (play-time)
-	// day: dawn -> it waits; night -> it returns. dayMs is 600000, so
-	// playSeconds 60 ≈ dawn (0.1) and 480 ≈ night (0.8).
+	// OTHER requirement, then recalc at two points of the (play-time) day: day ->
+	// it waits; night -> it returns. dayMs is 720000, so playSeconds 360 ≈ midday
+	// (0.5, day phase) and 648 ≈ late night (0.9).
 	const owlMeadow = async (playSeconds: number) => {
 		w = await freshWorld();
 		pid = (await w.post('CreatePlayer', { name: 'Owl', passcode: '1234', appearance })).playerId;
@@ -191,14 +196,16 @@ describe('condition-gated rare sightings', () => {
 			});
 		}
 		const p = await w.db.Player.get(pid);
-		await w.db.Player.patch(pid, { metrics: { ...(p.metrics || {}), playSeconds } });
+		// Drive the clock purely from playSeconds here (new saves start with a
+		// day-phase clock offset; zero it so these phase values are exact).
+		await w.db.Player.patch(pid, { metrics: { ...(p.metrics || {}), playSeconds }, clockOffsetMs: 0 });
 		const r = await w.post('RecalcBiome', { playerId: pid, biomeId: 'meadow' });
 		return (r.newAnimals || []).some((n: any) => n.animalId === 'barn-owl');
 	};
 
 	it('waits through the wrong day-phase and returns in the right one', async () => {
-		expect(await owlMeadow(60)).toBe(false); // dawn — owls are asleep
-		expect(await owlMeadow(480)).toBe(true); // night — the owl hunts
+		expect(await owlMeadow(360)).toBe(false); // midday — owls are asleep
+		expect(await owlMeadow(648)).toBe(true); // night — the owl hunts
 	});
 });
 

@@ -169,6 +169,7 @@
 		"home": "Upgrade your home's {track} to level {level}",
 		"buildHome": "Build your home: {style}",
 		"aHouse": "a house",
+		"tool": "Upgrade to {tool}",
 		"unlock": "Unlock {biome}",
 		"track": {
 			"space": "space",
@@ -187,6 +188,7 @@
 			"attract": "Build the habitat in the info box; the animal comes back on its own.",
 			"welcomeTotal": "Restore habitat across your biomes — animals return on their own.",
 			"home": "Use the sign by your camp tent to upgrade your home.",
+			"tool": "Gather the materials, then upgrade it from your toolbelt (Tools).",
 			"unlock": "Meet the requirements shown to open this biome.",
 			"health": "Heal the land — plant, water, and place habitat until this biome recovers.",
 			"biomeAnimals": "Build every animal's habitat here until the whole biome is home."

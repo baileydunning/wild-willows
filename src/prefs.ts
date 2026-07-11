@@ -8,11 +8,19 @@ import { useSyncExternalStore } from 'react';
 
 export type TextScale = 'sm' | 'md' | 'lg' | 'xl';
 
+/** Colorblind assistance modes. The keys name the axis each correction works on;
+ *  the UI shows the official condition names (deuteranopia/protanopia, tritanopia,
+ *  achromatopsia). 'off' disables it. */
+export type ColorblindMode = 'off' | 'redgreen' | 'blueyellow' | 'mono';
+
 export interface Prefs {
 	/** Turn off UI animations/transitions and in-world weather particles. */
 	reduceMotion: boolean;
-	/** Stronger, labeled weather cues that don't rely on color alone. */
-	colorblind: boolean;
+	/** Colorblind assistance: a per-type color-correction filter plus the
+	 *  high-contrast theme and labeled cues. 'off' when not needed. */
+	colorblindMode: ColorblindMode;
+	/** Switch the UI to a dyslexia-friendly typeface with roomier spacing. */
+	dyslexiaFont: boolean;
 	/** UI text/control scale. */
 	textScale: TextScale;
 }
@@ -20,9 +28,10 @@ export interface Prefs {
 /** The zoom factor applied to the UI overlays for each text-size step. */
 export const TEXT_SCALE_VALUES: Record<TextScale, number> = { sm: 0.85, md: 1, lg: 1.25, xl: 1.5 };
 const TEXT_SCALES: TextScale[] = ['sm', 'md', 'lg', 'xl'];
+export const COLORBLIND_MODES: ColorblindMode[] = ['off', 'redgreen', 'blueyellow', 'mono'];
 
 const STORAGE_KEY = 'ww:a11y';
-const DEFAULTS: Prefs = { reduceMotion: false, colorblind: false, textScale: 'md' };
+const DEFAULTS: Prefs = { reduceMotion: false, colorblindMode: 'off', dyslexiaFont: false, textScale: 'md' };
 
 function systemReduceMotion(): boolean {
 	try {
@@ -37,10 +46,21 @@ function systemReduceMotion(): boolean {
  *  fresh install so motion-sensitive players get sensible defaults). */
 export function normalizePrefs(raw: any, fallbackReduce = false): Prefs {
 	const o = raw && typeof raw === 'object' ? raw : {};
+	const dyslexiaFont = typeof o.dyslexiaFont === 'boolean' ? o.dyslexiaFont : DEFAULTS.dyslexiaFont;
+	let textScale: TextScale = TEXT_SCALES.includes(o.textScale) ? o.textScale : DEFAULTS.textScale;
+	// OpenDyslexic already renders larger than the default face, so the extra-large
+	// step on top of it overflows the UI. Cap at large whenever the font is on.
+	if (dyslexiaFont && textScale === 'xl') textScale = 'lg';
+	// Colorblind: prefer the new mode enum; migrate the legacy on/off boolean to
+	// the most common (red-green) mode so existing saves keep their assistance.
+	const colorblindMode: ColorblindMode = COLORBLIND_MODES.includes(o.colorblindMode)
+		? o.colorblindMode
+		: (typeof o.colorblind === 'boolean' ? (o.colorblind ? 'redgreen' : 'off') : DEFAULTS.colorblindMode);
 	return {
 		reduceMotion: typeof o.reduceMotion === 'boolean' ? o.reduceMotion : fallbackReduce,
-		colorblind: typeof o.colorblind === 'boolean' ? o.colorblind : DEFAULTS.colorblind,
-		textScale: TEXT_SCALES.includes(o.textScale) ? o.textScale : DEFAULTS.textScale,
+		colorblindMode,
+		dyslexiaFont,
+		textScale,
 	};
 }
 
@@ -55,7 +75,8 @@ function applyToDom(p: Prefs): void {
 	if (typeof document === 'undefined' || !document.documentElement) return;
 	const root = document.documentElement;
 	root.dataset.reduceMotion = p.reduceMotion ? '1' : '0';
-	root.dataset.colorblind = p.colorblind ? '1' : '0';
+	root.dataset.colorblind = p.colorblindMode; // off | redgreen | blueyellow | mono
+	root.dataset.dyslexiaFont = p.dyslexiaFont ? '1' : '0';
 	root.dataset.textScale = p.textScale;
 	root.style.setProperty('--ui-scale', String(TEXT_SCALE_VALUES[p.textScale]));
 }

@@ -1,12 +1,13 @@
 {
   "_comment": "Weather is DERIVED, not stored. This file is static config consumed by server/weather.ts — it is NOT a seeded Harper table, so it needs no schema entry and never goes through reconcileDefinitions. `config` sets the time scale; `seasons` lists the cycle order; `types` defines each weather kind (visuals + Phase 3 effect params); `climate` is per-biome × per-season weighted odds used to draw each game-day's weather deterministically.",
   "config": {
-    "dayMs": 600000,
+    "dayMs": 720000,
     "daysPerSeason": 3,
     "dayPhases": [
-      { "id": "dawn", "until": 0.08 },
-      { "id": "day", "until": 0.74 },
-      { "id": "dusk", "until": 0.84 },
+      { "id": "night", "until": 0.2083 },
+      { "id": "dawn", "until": 0.2917 },
+      { "id": "day", "until": 0.75 },
+      { "id": "dusk", "until": 0.8333 },
       { "id": "night", "until": 1 }
     ]
   },
@@ -107,10 +108,10 @@
     "winter": { "label": "Winter", "tint": "#cdd6e0", "tintAmount": 0.28, "accent": "#9fb4c9" }
   },
   "dayPhaseStyle": {
-    "_comment": "A full-screen lighting overlay: color + max alpha. day is clear; dawn/dusk warm; night dim & cool.",
-    "dawn": { "label": "Dawn", "color": "#ffb37a", "alpha": 0.16 },
+    "_comment": "Lighting overlay: `color`/`alpha` = uniform full-screen tint (used for the night dim + a light warm ground wash at dawn/dusk). `sky` = optional warm gradient concentrated at the TOP of the view (dawn/dusk sunset glow) so a strong sunset doesn't brown the whole ground. day is clear; night dim & cool.",
+    "dawn": { "label": "Dawn", "color": "#ffcaa0", "alpha": 0.07, "sky": { "color": "#ffb478", "alpha": 0.3 } },
     "day": { "label": "Day", "color": "#ffffff", "alpha": 0 },
-    "dusk": { "label": "Dusk", "color": "#ff8a55", "alpha": 0.24 },
+    "dusk": { "label": "Dusk", "color": "#f0b09a", "alpha": 0.07, "sky": { "color": "#ff9152", "alpha": 0.42 } },
     "night": { "label": "Night", "color": "#070b1c", "alpha": 0.66 }
   },
   "types": {

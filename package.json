@@ -1,7 +1,7 @@
 {
 	"name": "wild-willows",
 	"author": "Bailey Dunning",
-	"version": "0.1.10",
+	"version": "0.1.11",
 	"private": true,
 	"description": "Wild Willows — a cozy nature-restoration life sim, backed by Harper",
 	"type": "module",
@@ -38,6 +38,7 @@
 		"steamworks.js": "^0.4.0"
 	},
 	"devDependencies": {
+		"@fontsource/opendyslexic": "^5.2.5",
 		"@playwright/test": "^1.49.1",
 		"@types/react": "^18.3.12",
 		"@types/react-dom": "^18.3.1",
