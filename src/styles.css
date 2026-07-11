@@ -1528,13 +1528,15 @@ kbd {
 [data-colorblind]:not([data-colorblind="off"]) .ui-layer > .activity-log,
 [data-colorblind]:not([data-colorblind="off"]) .ui-layer > .confetti-canvas { pointer-events: none; }
 
-[data-colorblind="redgreen"] .game-host canvas { filter: url(#cb-redgreen) saturate(1.6) contrast(1.25) brightness(1.02); }
+/* Canvas uses the single fused world filter (one pass/frame); UI + title use the
+   plain matrix (no boost needed on flat UI colour). */
+[data-colorblind="redgreen"] .game-host canvas { filter: url(#cb-redgreen-world); }
 [data-colorblind="redgreen"] .ui-layer,
 [data-colorblind="redgreen"] .welcome { filter: url(#cb-redgreen); }
-[data-colorblind="blueyellow"] .game-host canvas { filter: url(#cb-blueyellow) saturate(1.6) contrast(1.25) brightness(1.02); }
+[data-colorblind="blueyellow"] .game-host canvas { filter: url(#cb-blueyellow-world); }
 [data-colorblind="blueyellow"] .ui-layer,
 [data-colorblind="blueyellow"] .welcome { filter: url(#cb-blueyellow); }
-[data-colorblind="mono"] .game-host canvas { filter: grayscale(1) contrast(1.25) brightness(1.02); }
+[data-colorblind="mono"] .game-host canvas { filter: url(#cb-mono-world); }
 [data-colorblind="mono"] .ui-layer,
 [data-colorblind="mono"] .welcome { filter: grayscale(1); }
 /* Light per-type palette nudge: give red-green a teal-leaning green base so the

@@ -151,6 +151,9 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 							</button>
 						))}
 					</div>
+					<button disabled={!!busy} onClick={() => run('Reset clock', 'reset-clock')}>
+						{busy === 'reset-clock' ? '…' : 'Reset clock to first morning'}
+					</button>
 
 					<h3><Icon name="paw" size={15} /> Spawn animal</h3>
 					<p className="muted small">Type an animal's name — click a match to bring it back to its biome right away.</p>

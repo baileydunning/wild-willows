@@ -88,6 +88,24 @@ describe('DevTools populate-biome (showcase)', () => {
 		expect(second).toBe(first);
 	});
 
+	it('reset-clock returns the game clock to the first morning', async () => {
+		const pid = (await w.post('CreatePlayer', { name: 'Clock', passcode: '1234', appearance })).playerId;
+		// jump to night, confirm it took, then reset and confirm it's daytime again
+		await w.post('DevTools', { playerId: pid, action: 'set-time', value: 'night' });
+		expect((await w.get('GameState', pid)).weather.dayPhase).toBe('night');
+		const r = await w.post('DevTools', { playerId: pid, action: 'reset-clock' });
+		expect(r.ok).toBe(true);
+		expect((await w.get('GameState', pid)).weather.dayPhase).toBe('day');
+	});
+
+	it('restart from scratch also resets the clock to the first morning', async () => {
+		const pid = (await w.post('CreatePlayer', { name: 'Redo', passcode: '1234', appearance })).playerId;
+		await w.post('DevTools', { playerId: pid, action: 'set-time', value: 'night' });
+		expect((await w.get('GameState', pid)).weather.dayPhase).toBe('night');
+		await w.post('DevTools', { playerId: pid, action: 'restart-game' });
+		expect((await w.get('GameState', pid)).weather.dayPhase).toBe('day');
+	});
+
 	it('dry biomes get no pond (desert cannot flood)', async () => {
 		const pid = (await w.post('CreatePlayer', { name: 'Dez', passcode: '1234', appearance })).playerId;
 		await w.post('DevTools', { playerId: pid, action: 'populate-biome', area: 'desert' });

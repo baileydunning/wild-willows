@@ -43,6 +43,11 @@ describe('daily task board', () => {
 		expect(s2.dailyTasks.tasks).toEqual(dt.tasks);
 	});
 
+	it('starts a fresh save in daytime, not the night that play-time 0 falls in', async () => {
+		const s = await w.get('GameState', pid);
+		expect(s.weather.dayPhase).toBe('day');
+	});
+
 	it('leads with the next-biome pin, then the fixed starter tasks', async () => {
 		const dt = (await w.get('GameState', pid)).dailyTasks;
 		expect(dt.tasks.map((t: any) => t.text)).toEqual([
@@ -191,7 +196,9 @@ describe('condition-gated rare sightings', () => {
 			});
 		}
 		const p = await w.db.Player.get(pid);
-		await w.db.Player.patch(pid, { metrics: { ...(p.metrics || {}), playSeconds } });
+		// Drive the clock purely from playSeconds here (new saves start with a
+		// day-phase clock offset; zero it so these phase values are exact).
+		await w.db.Player.patch(pid, { metrics: { ...(p.metrics || {}), playSeconds }, clockOffsetMs: 0 });
 		const r = await w.post('RecalcBiome', { playerId: pid, biomeId: 'meadow' });
 		return (r.newAnimals || []).some((n: any) => n.animalId === 'barn-owl');
 	};

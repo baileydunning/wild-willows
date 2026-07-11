@@ -1023,6 +1023,10 @@ async function createPlayerRecords(playerId: string, name: string, passcode: str
 		appearance,
 		tzOffsetMinutes, // local-morning task resets (see playerDayKey)
 		createdAt: now,
+		// Day-time is derived from accrued play time, and play-time 0 falls in the
+		// night band — so start a fresh save at the top of the DAY phase (morning),
+		// not in the dark. Sleeping later advances this offset the same way.
+		clockOffsetMs: nextPhaseAt(0, 'day'),
 		worldId: playerId, // start in your own private solo world (world of one)
 		area: 'meadow',
 		x: 24.5, // spawn right beside the camp crafting station
@@ -4727,6 +4731,15 @@ export class DevTools extends PublicEndpoint {
 				log.push(`Set time to ${phase}`);
 				break;
 			}
+			case 'reset-clock': {
+				// Restart the game clock at day one's morning — the same starting time a
+				// fresh save gets. Solve for the offset that lands the current play time
+				// back on the day-phase start (season resets to the first day too).
+				const playMs = Math.round((player?.metrics?.playSeconds || 0) * 1000);
+				await t.Player.patch(playerId, { clockOffsetMs: nextPhaseAt(0, 'day') - playMs });
+				log.push('Reset the game clock to the first morning');
+				break;
+			}
 			case 'seed-water': {
 				// reset the area's terrain and lay down its starting layout again
 				const ar = area || 'wetland';
@@ -4840,6 +4853,9 @@ export class DevTools extends PublicEndpoint {
 					tools: { ...START_TOOLS }, unlockedBiomes: ['meadow'], visitedBiomes: ['meadow'],
 					tutorialStep: 0, home: { ...DEFAULT_HOME }, customGoals: [], goalClaims: {},
 					devUnlockAll: false,
+					// Restart the game clock at day one's morning too (same as a fresh save),
+					// so a wiped game doesn't reopen at whatever time you left off.
+					clockOffsetMs: nextPhaseAt(0, 'day') - Math.round((player?.metrics?.playSeconds || 0) * 1000),
 				});
 				log.push('Restarted the game — fresh save (name, passcode & look kept)');
 				break;

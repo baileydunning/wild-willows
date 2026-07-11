@@ -14908,7 +14908,7 @@ var supportHtml = `<!doctype html>
 </body>
 </html>
 `;
-var buildStamp = "0.1.11+2026-07-11T02:00:06.674Z";
+var buildStamp = "0.1.11+2026-07-11T02:51:56.930Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
@@ -15560,6 +15560,10 @@ async function createPlayerRecords(playerId, name, passcode, appearance, tzOffse
     tzOffsetMinutes,
     // local-morning task resets (see playerDayKey)
     createdAt: now,
+    // Day-time is derived from accrued play time, and play-time 0 falls in the
+    // night band — so start a fresh save at the top of the DAY phase (morning),
+    // not in the dark. Sleeping later advances this offset the same way.
+    clockOffsetMs: nextPhaseAt(0, "day"),
     worldId: playerId,
     // start in your own private solo world (world of one)
     area: "meadow",
@@ -18275,6 +18279,12 @@ var DevTools = class extends PublicEndpoint {
         log.push(`Set time to ${phase}`);
         break;
       }
+      case "reset-clock": {
+        const playMs = Math.round((player?.metrics?.playSeconds || 0) * 1e3);
+        await t2.Player.patch(playerId, { clockOffsetMs: nextPhaseAt(0, "day") - playMs });
+        log.push("Reset the game clock to the first morning");
+        break;
+      }
       case "seed-water": {
         const ar = area || "wetland";
         for (const tt of (await byPlayer(t2.TerrainTile, playerId)).filter((x) => x.area === ar)) {
@@ -18398,7 +18408,10 @@ var DevTools = class extends PublicEndpoint {
           home: { ...DEFAULT_HOME },
           customGoals: [],
           goalClaims: {},
-          devUnlockAll: false
+          devUnlockAll: false,
+          // Restart the game clock at day one's morning too (same as a fresh save),
+          // so a wiped game doesn't reopen at whatever time you left off.
+          clockOffsetMs: nextPhaseAt(0, "day") - Math.round((player?.metrics?.playSeconds || 0) * 1e3)
         });
         log.push("Restarted the game \u2014 fresh save (name, passcode & look kept)");
         break;

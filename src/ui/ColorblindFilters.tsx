@@ -48,6 +48,27 @@ export function ColorblindFilters() {
 						        0     0    0   1 0"
 					/>
 				</filter>
+
+				{/* ---- world variants ----
+				    These bake the correction PLUS the world's saturation and contrast boost
+				    into one SVG filter (a chain of colour-matrix primitives the browser fuses),
+				    so the per-frame canvas filter is a single pass instead of a CSS chain of
+				    url()+saturate()+contrast()+brightness() (up to four passes). The UI/title
+				    use the plain filters above (no boost). */}
+				<filter id="cb-redgreen-world" colorInterpolationFilters="sRGB">
+					<feColorMatrix type="saturate" values="1.5" />
+					<feColorMatrix type="matrix" values="1 0 0 0 0  0 1 0 0 0  1 -1 1 0 0  0 0 0 1 0" />
+					<feColorMatrix type="matrix" values="1.2 0 0 0 -0.1  0 1.2 0 0 -0.1  0 0 1.2 0 -0.1  0 0 0 1 0" />
+				</filter>
+				<filter id="cb-blueyellow-world" colorInterpolationFilters="sRGB">
+					<feColorMatrix type="saturate" values="1.5" />
+					<feColorMatrix type="matrix" values="1 0 0 0 0  -0.35 0.65 0.7 0 0  0 0 1 0 0  0 0 0 1 0" />
+					<feColorMatrix type="matrix" values="1.2 0 0 0 -0.1  0 1.2 0 0 -0.1  0 0 1.2 0 -0.1  0 0 0 1 0" />
+				</filter>
+				<filter id="cb-mono-world" colorInterpolationFilters="sRGB">
+					<feColorMatrix type="saturate" values="0" />
+					<feColorMatrix type="matrix" values="1.2 0 0 0 -0.1  0 1.2 0 0 -0.1  0 0 1.2 0 -0.1  0 0 0 1 0" />
+				</filter>
 			</defs>
 		</svg>
 	);
