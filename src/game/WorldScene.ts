@@ -388,12 +388,17 @@ export class WorldScene extends Phaser.Scene {
 
 		// Re-apply motion-sensitive visuals when accessibility prefs change: toggling
 		// reduce-motion adds/removes rain/snow particles (force a rebuild by clearing
-		// the weather signature) and pauses/resumes the highlight-ring pulse live.
+		// the weather signature), pauses/resumes the highlight-ring pulse live, and
+		// rebuilds the animal layer so breathing/gait tweens (which check the pref
+		// at creation) are torn down or restored immediately.
 		const unsubPrefs = subscribePrefs(() => {
 			if (!this.alive) return;
 			this.weatherSig = '';
 			this.applyWeather();
 			applyRingMotion();
+			this.animalSig = '';
+			this.animals.clear(true, true);
+			this.drawAnimals();
 		});
 		this.events.once('shutdown', () => {
 			document.removeEventListener('focusin', onFocusIn);
@@ -2324,12 +2329,99 @@ export class WorldScene extends Phaser.Scene {
 			if (bridge.shared.uiBlocking) return; // a modal is open — clicks don't reach the world
 			bridge.emit('animal-clicked', { animalId: animal.id });
 		});
-		// gentle breathing — everything in the preserve feels alive (keeps its base size)
-		this.tweens.add({
-			targets: img, scaleY: { from: scale, to: scale * 0.94 },
-			duration: 650 + rng() * 450, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
-		});
-		this.wander(img, img.x, img.y, animal.kind, rng, ocean);
+		// gentle breathing — everything in the preserve feels alive (keeps its base size).
+		// Skipped under reduce-motion, like every other animal flourish; the prefs
+		// subscription in create() rebuilds the animal layer when the toggle flips,
+		// so all of these tweens honor the setting live.
+		if (!getPrefs().reduceMotion) {
+			this.tweens.add({
+				targets: img, scaleY: { from: scale, to: scale * 0.94 },
+				duration: 650 + rng() * 450, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+			});
+		}
+		// Each kind carries itself differently (see animalGait). Airborne and
+		// aquatic species get a constant ambient motion; everything else only
+		// animates while actually moving, so a resting meadow stays calm.
+		const gait = this.animalGait(animal);
+		(img as any).baseOriginY = img.displayOriginY; // resting pose, restored after every flourish
+		if (!getPrefs().reduceMotion) this.startAmbientGait(img, gait, rng);
+		this.wander(img, img.x, img.y, animal.kind, rng, ocean, gait);
+	}
+
+	/** How a species carries itself — picks the movement flourish in wander().
+	 *  hop: bouncy arcs (rabbits, squirrels, frogs…) · flit: quick wingbeats
+	 *  (birds) · flutter: constant airborne bobbing (insects, bats) · swim: a
+	 *  slow roll (fish + marine swimmers) · slither: side-to-side wriggle
+	 *  (snakes, salamanders) · amble: a gentle walking rock (other walkers). */
+	private animalGait(animal: any): 'hop' | 'flit' | 'flutter' | 'swim' | 'slither' | 'amble' {
+		const id = String(animal.id || '');
+		if (id.includes('bat') && !id.includes('bat-star')) return 'flutter';
+		if (animal.kind === 'insect') return 'flutter';
+		if (animal.kind === 'bird') return 'flit';
+		if (animal.kind === 'fish' || (animal as any).ocean === true) return 'swim';
+		if (/rabbit|hare|squirrel|chipmunk|mouse|vole|frog|toad/.test(id)) return 'hop';
+		if (/snake|salamander|ensatina/.test(id)) return 'slither';
+		return 'amble';
+	}
+
+	/** Vertical bounce amplitude in texture px, sized so every species hops
+	 *  roughly the same few screen pixels regardless of its scale. */
+	private hopAmp(img: Phaser.GameObjects.Image): number {
+		return Phaser.Math.Clamp(4 / Math.max(0.05, img.scaleX), 8, 26);
+	}
+
+	/** Always-on motion for creatures that are never still: insects and bats
+	 *  hover-bob, fish and marine swimmers roll lazily with the water. The
+	 *  bounce uses displayOriginY (not y), so depth sorting and the ground
+	 *  shadow stay put — a bob reads as height above the shadow. */
+	private startAmbientGait(img: Phaser.GameObjects.Image, gait: string, rng: () => number) {
+		const base = (img as any).baseOriginY ?? img.displayOriginY;
+		if (gait === 'flutter') {
+			this.tweens.add({
+				targets: img, displayOriginY: { from: base, to: base + this.hopAmp(img) * 0.7 },
+				duration: 240 + rng() * 90, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+			});
+			this.tweens.add({
+				targets: img, angle: { from: -5, to: 5 },
+				duration: 700 + rng() * 350, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+			});
+		} else if (gait === 'swim') {
+			this.tweens.add({
+				targets: img, angle: { from: -4, to: 4 },
+				duration: 1300 + rng() * 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+			});
+		}
+	}
+
+	/** Flourish tweens that run only while an animal travels a wander leg;
+	 *  wander() removes them and restores the pose when the leg ends. */
+	private startMoveGait(img: Phaser.GameObjects.Image, gait: string, rng: () => number): Phaser.Tweens.Tween[] {
+		if (getPrefs().reduceMotion) return [];
+		const base = (img as any).baseOriginY ?? img.displayOriginY;
+		switch (gait) {
+			case 'hop':
+				return [this.tweens.add({
+					targets: img, displayOriginY: { from: base, to: base + this.hopAmp(img) },
+					duration: 165 + rng() * 45, yoyo: true, repeat: -1, ease: 'Sine.easeOut',
+				})];
+			case 'flit':
+				return [this.tweens.add({
+					targets: img, displayOriginY: { from: base, to: base + this.hopAmp(img) * 0.45 },
+					duration: 135 + rng() * 40, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+				})];
+			case 'slither':
+				return [this.tweens.add({
+					targets: img, angle: { from: -5, to: 5 },
+					duration: 170 + rng() * 50, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+				})];
+			case 'amble':
+				return [this.tweens.add({
+					targets: img, angle: { from: -2.2, to: 2.2 },
+					duration: 250 + rng() * 60, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+				})];
+			default:
+				return []; // flutter/swim already carry their ambient motion
+		}
 	}
 
 	/** A point out in the open ocean band (east of the shore), for marine swimmers. */
@@ -2386,7 +2478,7 @@ export class WorldScene extends Phaser.Scene {
 		return { x: c.x + (rng() - 0.5) * TILE * 0.6, y: c.y + (rng() - 0.5) * TILE * 0.6 };
 	}
 
-	private wander(img: Phaser.GameObjects.Image, homeX: number, homeY: number, kind: string, rng: () => number, ocean = false) {
+	private wander(img: Phaser.GameObjects.Image, homeX: number, homeY: number, kind: string, rng: () => number, ocean = false, gait: string = 'amble') {
 		const roam = ocean ? 140 : kind === 'bird' || kind === 'insect' ? 130 : 80;
 		const speed = ocean ? 22 : kind === 'insect' ? 26 : kind === 'bird' ? 42 : 18;
 		const aquatic = kind === 'fish';
@@ -2415,13 +2507,32 @@ export class WorldScene extends Phaser.Scene {
 			}
 			const dist = Phaser.Math.Distance.Between(img.x, img.y, tx, ty);
 			img.setFlipX(tx < img.x);
+			// gait flourish (bounce/wiggle/rock) runs only for the duration of
+			// this leg, then the pose is restored so idle animals sit still
+			const flourish = this.startMoveGait(img, gait, rng);
 			this.tweens.add({
 				targets: img, x: tx, y: ty,
 				duration: Math.max(600, (dist / speed) * 1000),
 				ease: 'Sine.easeInOut',
 				onUpdate: () => img.setDepth(img.y),
 				onComplete: () => {
-					if (img.active) this.time.delayedCall(800 + rng() * 3500, hop);
+					for (const t of flourish) t.remove();
+					if (img.active) {
+						if (gait !== 'flutter' && gait !== 'swim') img.setAngle(0);
+						img.displayOriginY = (img as any).baseOriginY ?? img.displayOriginY;
+						// hoppers and birds sometimes give one happy bounce while resting
+						if ((gait === 'hop' || gait === 'flit') && rng() < 0.35 && !getPrefs().reduceMotion) {
+							const base = (img as any).baseOriginY ?? img.displayOriginY;
+							this.time.delayedCall(500 + rng() * 1200, () => {
+								if (!img.active) return;
+								this.tweens.add({
+									targets: img, displayOriginY: { from: base, to: base + this.hopAmp(img) * 0.6 },
+									duration: 150, yoyo: true, ease: 'Quad.easeOut',
+								});
+							});
+						}
+						this.time.delayedCall(800 + rng() * 3500, hop);
+					}
 				},
 			});
 		};
