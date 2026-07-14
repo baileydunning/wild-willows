@@ -1231,6 +1231,19 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 		g.fillStyle(C('#7a9aa8'), 1).fillTriangle(27, 8, 12, 25, 42, 25); // roof highlight
 		g.fillStyle(C('#c9a35c'), 1).fillCircle(27, 4, 3); // finial
 	});
+	o('trailtent', 48, 40, (g) => {
+		// the away-from-home base camp: blue canvas (vs the pink meadow camp
+		// tent), a stitched seam, a peg line, and a little pennant on the pole
+		g.fillStyle(C('#3a4a5c'), 0.5).fillEllipse(24, 36, 40, 8); // ground cloth
+		g.fillStyle(C('#5a86b8'), 1).fillTriangle(3, 35, 24, 6, 45, 35); // canvas
+		g.fillStyle(C('#476e9c'), 1).fillTriangle(24, 6, 45, 35, 34, 35); // shaded side
+		g.lineStyle(1.5, C('#3c5e88'), 0.8).lineBetween(24, 6, 24, 35); // seam
+		g.fillStyle(C('#3c3324'), 1).fillTriangle(24, 12, 17, 35, 31, 35); // opening
+		g.fillStyle(C('#2a2418'), 1).fillTriangle(24, 16, 20, 35, 28, 35);
+		g.lineStyle(2, C('#8c6a42'), 1).lineBetween(24, 6, 24, 1); // pole
+		g.lineStyle(1.5, C('#a89a78'), 1).lineBetween(3, 35, 0, 39).lineBetween(45, 35, 48, 39); // guy lines
+		g.fillStyle(C('#e3c75f'), 1).fillTriangle(24, 1, 24, 6, 31, 3.5); // pennant
+	});
 
 	// --- additional plantable vegetation (one distinct sprite each) ---
 	o('daisies', 34, 26, (g) => {

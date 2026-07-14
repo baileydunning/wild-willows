@@ -2744,6 +2744,24 @@ var recipes_default = {
       output: { itemId: "dragonfly-pond", qty: 1 },
       materials: { clay: 6, "clean-water": 5, reeds: 4 },
       unlock: { minHealth: 40, label: "Restore Rushwater Wetland to 40% health" }
+    },
+    {
+      id: "trail-tent",
+      name: "Trail Tent",
+      category: "structure",
+      unlockBiome: "forest",
+      output: { itemId: "trail-tent", qty: 1 },
+      materials: { branches: 6, fiber: 6, stones: 2 }
+    },
+    {
+      id: "headlamp",
+      name: "Headlamp",
+      category: "kit",
+      unlockBiome: "meadow",
+      output: { itemId: "headlamp", qty: 1 },
+      materials: { branches: 2, fiber: 4, stones: 2 },
+      once: true,
+      unlock: { requiresCrafted: "campfire", label: "Craft a Campfire first \u2014 carry a little of its light with you" }
     }
   ]
 };
@@ -5897,6 +5915,35 @@ var habitat_objects_default = {
       shape: "dragonflypond",
       color: "#5aa6cf",
       description: "A clear pool ringed with reeds \u2014 open water where dragonflies hunt and frogs and newts breed."
+    },
+    {
+      id: "trail-tent",
+      name: "Trail Tent",
+      placement: "outdoor",
+      biomes: [
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "trailtent",
+      color: "#5a86b8",
+      onePerArea: true,
+      description: "A snug canvas tent you can step inside and decorate \u2014 a little home base away from home. Pitch one in each wild biome beyond the meadow."
+    },
+    {
+      id: "headlamp",
+      name: "Headlamp",
+      placement: "none",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "kit",
+      color: "#e3c75f",
+      description: "A hand-wound lamp on a woven strap. Once crafted it's yours for good \u2014 after dusk, a warm beam lights the ground around you wherever you roam."
     }
   ]
 };
@@ -14348,6 +14395,10 @@ var server_default = {
     openOcean: "That is open ocean \u2014 build on the shore",
     placeRequiresTool: "Placing {name} requires an upgraded {tool}",
     spotTaken: "That spot is already taken",
+    onePerArea: "You already have a {name} in this biome \u2014 one per biome keeps camp light",
+    tentNotEmpty: "Pack up the furniture inside the tent first",
+    noTentHere: "There is no tent pitched in this biome",
+    tentTooSmall: "{name} will not fit in a tent \u2014 it needs a proper house",
     openWaterBridge: "That is open water \u2014 a wooden bridge can span it",
     bedForPlanting: "That soil bed is for planting \u2014 or clear it with the shovel",
     bridgeNeedsWater: "Bridges go over open water \u2014 flood a channel first",
@@ -14908,7 +14959,7 @@ var supportHtml = `<!doctype html>
 </body>
 </html>
 `;
-var buildStamp = "0.1.11+2026-07-14T16:18:37.006Z";
+var buildStamp = "0.1.11+2026-07-14T22:25:47.162Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
@@ -15244,6 +15295,16 @@ function homeRoom(player) {
   const x0 = Math.floor((GRID_W - inner.w) / 2);
   const y0 = Math.floor((GRID_H - inner.h) / 2);
   return { x0, y0, x1: x0 + inner.w - 1, y1: y0 + inner.h - 1 };
+}
+var TENT_INNER = { w: 6, h: 5 };
+function tentBiomeOf(area) {
+  const m = /^tent-([a-z][a-z-]*)$/.exec(String(area || ""));
+  return m ? m[1] : null;
+}
+function tentRoom() {
+  const x0 = Math.floor((GRID_W - TENT_INNER.w) / 2);
+  const y0 = Math.floor((GRID_H - TENT_INNER.h) / 2);
+  return { x0, y0, x1: x0 + TENT_INNER.w - 1, y1: y0 + TENT_INNER.h - 1 };
 }
 var DIG_FIND_CHANCE = 0.75;
 var CAPACITY_BY_BASKET = { 1: 200, 2: 350, 3: 550, 4: 800 };
@@ -16429,7 +16490,9 @@ async function snapshot(playerId, opts = {}) {
   const d = await defs();
   let player = await safeGet(t2.Player, playerId);
   const areaBiome = d.biome.get(player?.area);
-  if (player && player.area !== "home" && (!areaBiome || !areaBiome.explorable)) {
+  const tentB = tentBiomeOf(player?.area);
+  const validTent = tentB ? !!d.biome.get(tentB)?.explorable : false;
+  if (player && player.area !== "home" && !validTent && (!areaBiome || !areaBiome.explorable)) {
     player = { ...player, area: "meadow", x: 24.5, y: 6.5 };
   }
   const wid = opts.worldId || worldOf(player);
@@ -17273,12 +17336,21 @@ var PlaceObject = class extends PublicEndpoint {
     if (!Number.isFinite(tx) || !Number.isFinite(ty) || tx < 1 || ty < 1 || tx > grid.cols - 2 || ty > grid.rows - 2) {
       throw new GameError(t("server.err.outOfReach"));
     }
+    const tentBiome = tentBiomeOf(area);
     if (area === "home") {
       if (def.placement === "outdoor") throw new GameError(t("server.err.outdoorOnly", { name: def.name }));
       if (def.homeMin && (homeOf(player).space || 1) < def.homeMin) {
         throw new GameError(t("server.err.needsBiggerHome", { name: def.name }), 403);
       }
       const r = homeRoom(player);
+      if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1) throw new GameError(t("server.err.placeOnFloor"));
+    } else if (tentBiome) {
+      const biome = d.biome.get(tentBiome);
+      if (!biome) throw new GameError(t("server.err.unknownArea", { area }));
+      if (!(player.unlockedBiomes || []).includes(tentBiome)) throw new GameError(t("server.err.biomeLocked", { biome: biome.name }), 403);
+      if (def.placement === "outdoor") throw new GameError(t("server.err.outdoorOnly", { name: def.name }));
+      if (def.homeMin && def.homeMin > 1) throw new GameError(t("server.err.tentTooSmall", { name: def.name }), 403);
+      const r = tentRoom();
       if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1) throw new GameError(t("server.err.placeOnFloor"));
     } else {
       const biome = d.biome.get(area);
@@ -17295,14 +17367,18 @@ var PlaceObject = class extends PublicEndpoint {
     if (placements.some((p) => p.area === area && p.x === tx && p.y === ty)) {
       throw new GameError(t("server.err.spotTaken"), 409);
     }
-    const tileHere = area === "home" ? null : await findTerrainAt(t2.TerrainTile, wid, area, tx, ty);
+    if (def.onePerArea && placements.some((p) => p.area === area && p.objectId === objectId)) {
+      throw new GameError(t("server.err.onePerArea", { name: def.name }), 409);
+    }
+    const indoors = area === "home" || !!tentBiome;
+    const tileHere = indoors ? null : await findTerrainAt(t2.TerrainTile, wid, area, tx, ty);
     if (tileHere) {
       if (tileHere.type === "water") {
         if (!def.bridge) throw new GameError(t("server.err.openWaterBridge"), 409);
       } else {
         throw new GameError(t("server.err.bedForPlanting"), 409);
       }
-    } else if (def.bridge && area !== "home") {
+    } else if (def.bridge && !indoors) {
       throw new GameError(t("server.err.bridgeNeedsWater"), 409);
     }
     const craftedItems = { ...player.craftedItems || {} };
@@ -17325,7 +17401,7 @@ var PlaceObject = class extends PublicEndpoint {
         contents: {}
       });
     }
-    if (area === "home") {
+    if (indoors) {
       await bumpMetrics(player, { objectsPlaced: 1 }, { place: 1 });
       await awardAchievements(playerId);
       return { ok: true, placement, craftedItems };
@@ -17486,6 +17562,11 @@ var RemoveObject = class extends PublicEndpoint {
     if (chest && sumValues(chest.contents) > 0) {
       throw new GameError(t("server.err.emptyChestFirst"), 409);
     }
+    if (placement.objectId === "trail-tent") {
+      const interior = `tent-${placement.area}`;
+      const inside = (await byWorld(t2.Placement, wid)).some((p) => p.area === interior);
+      if (inside) throw new GameError(t("server.err.tentNotEmpty"), 409);
+    }
     const d = await defs();
     const def = d.object.get(placement.objectId);
     let refunded = null;
@@ -17531,7 +17612,7 @@ var RemoveObject = class extends PublicEndpoint {
     } else {
       await t2.Player.patch(playerId, { craftedItems });
     }
-    const recalc = placement.area !== "home" ? await recalcBiome(wid, playerId, placement.area, {
+    const recalc = placement.area !== "home" && !tentBiomeOf(placement.area) ? await recalcBiome(wid, playerId, placement.area, {
       removeIds: [placementId],
       player: { ...player, craftedItems, inventory }
     }) : null;
@@ -17892,6 +17973,17 @@ var SyncPlayer = class extends PublicEndpoint {
     }
     if (area === "home") {
       patch.area = "home";
+    } else if (tentBiomeOf(area)) {
+      const tb = tentBiomeOf(area);
+      const biome = d.biome.get(tb);
+      if (!biome) throw new GameError(t("server.err.unknownArea", { area }));
+      if (!(player.unlockedBiomes || []).includes(tb)) {
+        throw new GameError(t("server.err.biomeLocked", { biome: biome.name }), 403);
+      }
+      const wid = worldOf(player);
+      const hasTent = (await byWorld(t2.Placement, wid)).some((p) => p.area === tb && p.objectId === "trail-tent");
+      if (!hasTent) throw new GameError(t("server.err.noTentHere"), 404);
+      patch.area = area;
     } else if (area) {
       const biome = d.biome.get(area);
       if (!biome) throw new GameError(t("server.err.unknownArea", { area }));

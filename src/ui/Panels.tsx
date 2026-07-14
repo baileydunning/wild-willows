@@ -383,16 +383,21 @@ export function CraftingPanel() {
 						const def = data.habitatObjects.find((o) => o.id === id);
 						const defName = def ? content('habitatObject', def.id, 'name', def.name) : id;
 						const indoorOK = def?.placement === 'indoor' || def?.placement === 'both';
-						const homeSpace = player.home?.space || 1;
-						const homeBigEnough = !def?.homeMin || homeSpace >= def.homeMin;
-						const here = player.area === 'home'
+						// a trail-tent interior follows home rules at the starter size (space 1)
+						const inTent = player.area.startsWith('tent-');
+						const indoors = player.area === 'home' || inTent;
+						const space = inTent ? 1 : player.home?.space || 1;
+						const homeBigEnough = !def?.homeMin || space >= def.homeMin;
+						const here = indoors
 							? (indoorOK && homeBigEnough)
 							: ((def?.biomes || []).includes(player.area) && def?.placement !== 'indoor');
 						if (!here) {
-							const msg = player.area === 'home'
+							const msg = indoors
 								? (!indoorOK
 									? t('panels.crafting.notIndoor', { name: defName })
-									: t('panels.crafting.needsBiggerHome', { name: defName }))
+									: inTent
+										? t('panels.crafting.tentTooSmall', { name: defName })
+										: t('panels.crafting.needsBiggerHome', { name: defName }))
 								: def?.placement === 'indoor'
 									? t('panels.crafting.indoorOnly', { name: defName })
 									: t('panels.crafting.wrongArea', {

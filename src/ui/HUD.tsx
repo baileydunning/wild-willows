@@ -99,6 +99,9 @@ export function HUD() {
 
 	// indoors: show home info instead of biome health/animals
 	const isHome = area === 'home';
+	// inside a trail tent ('tent-<biome>'): a cozy header naming the biome it's pitched in
+	const tentBiome = area.startsWith('tent-') ? area.slice(5) : null;
+	const tentBiomeDef = tentBiome ? data.biomes.find((b) => b.id === tentBiome) : undefined;
 	const home = state.player.home;
 	const homeBuilt = !!home?.styleLocked;
 	const homeName = homeBuilt ? (data.homeStyles?.[home!.style]?.name || t('app.hud.yourHome')) : t('app.hud.canvasTent');
@@ -185,14 +188,17 @@ export function HUD() {
 				) : (
 					<>
 						<div className="hud-area-name">
-							<Icon name="leaf" size={17} /> {biome ? content('biome', biome.id, 'name', biome.name) : t('app.hud.thePreserve')}
+							<Icon name={tentBiome ? 'home' : 'leaf'} size={17} />{' '}
+							{tentBiome
+								? t('app.hud.trailTent', { biome: tentBiomeDef ? content('biome', tentBiomeDef.id, 'name', tentBiomeDef.name) : tentBiome })
+								: biome ? content('biome', biome.id, 'name', biome.name) : t('app.hud.thePreserve')}
 							{isCoop && (
 								<button className="coop-badge" onClick={() => setPanel('people')} title={t('app.hud.coopBadgeTitle')}>
 									<Icon name="user" size={12} /> {t('app.hud.coop')}{peersHere > 0 ? t('app.hud.hereCount', { count: peersHere + 1 }) : ''}
 								</button>
 							)}
 						</div>
-						{state.weather && (() => {
+						{state.weather && !tentBiome && (() => {
 							const snap = state.weather;
 							const worldId = (state as any).worldId || state.player.id;
 							const wtId = liveWeatherType(worldId, area, snap);
@@ -217,7 +223,7 @@ export function HUD() {
 								</div>
 							);
 						})()}
-						{state.weather && area !== 'home' && <DayTimer />}
+						{state.weather && area !== 'home' && !tentBiome && <DayTimer />}
 						{biome && bState && (
 							<>
 								<Meter label={t('app.hud.health')} icon="leaf" value={bState.health} color="#6aa253" hint={t('app.hud.healthHint')} />
