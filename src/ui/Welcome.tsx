@@ -806,6 +806,17 @@ export function WelcomeScreen() {
 						</form>
 					)}
 				</div>
+				<p className="welcome-credits-footer">
+					<span className="credit-entry">
+						<Icon name="code" size={12} /> {t('app.welcome.creditDev')} Bailey Dunning
+					</span>
+					<span className="credit-dot" aria-hidden="true">
+						·
+					</span>
+					<span className="credit-entry">
+						<Icon name="note" size={12} /> {t('app.welcome.creditAudio')} Jon Licht
+					</span>
+				</p>
 			</div>
 
 			{introOpen && (

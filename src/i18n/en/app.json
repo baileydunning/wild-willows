@@ -159,6 +159,8 @@
 		"newGame": "New Game",
 		"loadGame": "Load Game",
 		"howToPlay": "How to Play",
+		"creditDev": "Made by",
+		"creditAudio": "Music & sound by",
 		"intro": {
 			"title": "Welcome to Wild Willows",
 			"lede": "A cozy game about bringing a worn-out nature preserve back to life, at your own pace. No failing, no timers — just you and the land.",

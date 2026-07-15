@@ -159,6 +159,8 @@
 		"newGame": "Nueva partida",
 		"loadGame": "Cargar partida",
 		"howToPlay": "Cómo jugar",
+		"creditDev": "Creado por",
+		"creditAudio": "Música y sonido por",
 		"intro": {
 			"title": "Bienvenido a Wild Willows",
 			"lede": "Un juego acogedor sobre devolverle la vida a una reserva natural desgastada, a tu propio ritmo. Sin perder, sin cronómetros — solo tú y la tierra.",
