@@ -3708,7 +3708,7 @@ export class WorldScene extends Phaser.Scene {
 		this.player.setRotation(Math.sin(this.walkT) * 0.075); // cozy waddle
 		const len = Math.hypot(vx, vy);
 		// Hiking boots (when owned and switched on) give a gentle speed bump.
-		const speed = this.hasBoots() ? 160 * 1.35 : 160;
+		const speed = this.hasBoots() ? 160 * 1.2 : 160;
 		let nx = this.player.x + (vx / len) * speed * dt;
 		let ny = this.player.y + (vy / len) * speed * dt;
 

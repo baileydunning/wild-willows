@@ -148,6 +148,26 @@ describe('habitat growth over real time', () => {
 				placedAt: Date.now() - ageMs,
 			});
 		}
+		// Bring the meadow's animals home so its health isn't pinned by the
+		// animals-returned cap (60% until 5 are back, etc.). Without this a forest of
+		// 20 trees clamps to the cap in both the young and grown cases, hiding the
+		// maturity bonus this test is here to measure. With 15+ back the cap lifts to
+		// 100, so the (capped) growth points can actually move the health bar.
+		const animals: any[] = [];
+		for await (const a of w.db.Animal.search()) animals.push(a);
+		for (const a of animals.filter((x) => x.biome === 'meadow').slice(0, 15)) {
+			await w.db.Discovery.put({
+				id: `${pid}:${a.id}`,
+				worldId: pid,
+				playerId: pid,
+				animalId: a.id,
+				biomeId: 'meadow',
+				comfort: 80,
+				timesObserved: 1,
+				firstObservedAt: Date.now(),
+				whyReturned: 'test',
+			});
+		}
 		const r = await w.post('RecalcBiome', { playerId: pid, biomeId: 'meadow' });
 		return r.biomeState.health as number;
 	};
