@@ -2518,8 +2518,7 @@
 			"unlockBiome": "meadow",
 			"output": { "itemId": "headlamp", "qty": 1 },
 			"materials": { "branches": 2, "fiber": 4, "stones": 2 },
-			"once": true,
-			"unlock": { "requiresCrafted": "campfire", "label": "Craft a Campfire first — carry a little of its light with you" }
+			"once": true
 		},
 		{
 			"id": "binoculars",
@@ -2527,9 +2526,8 @@
 			"category": "gear",
 			"unlockBiome": "meadow",
 			"output": { "itemId": "binoculars", "qty": 1 },
-			"materials": { "branches": 2, "fiber": 2, "stones": 4 },
-			"once": true,
-			"unlock": { "animalsReturned": 10, "label": "Welcome 10 animals back to the meadow — learn to spot who's new" }
+			"materials": { "fiber": 2, "stones": 3, "bark": 3, "moss": 2 },
+			"once": true
 		},
 		{
 			"id": "hiking-boots",
@@ -2537,9 +2535,8 @@
 			"category": "gear",
 			"unlockBiome": "meadow",
 			"output": { "itemId": "hiking-boots", "qty": 1 },
-			"materials": { "fiber": 6, "branches": 3, "stones": 2 },
-			"once": true,
-			"unlock": { "minHealth": 30, "label": "Restore Sunny Meadow to 30% health — broken-in boots for the long trails" }
+			"materials": { "fiber": 8, "stones": 2, "bark": 5, "moss": 4, "reeds": 4 },
+			"once": true
 		}
 	]
 }

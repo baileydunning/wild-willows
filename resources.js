@@ -2760,8 +2760,7 @@ var recipes_default = {
       unlockBiome: "meadow",
       output: { itemId: "headlamp", qty: 1 },
       materials: { branches: 2, fiber: 4, stones: 2 },
-      once: true,
-      unlock: { requiresCrafted: "campfire", label: "Craft a Campfire first \u2014 carry a little of its light with you" }
+      once: true
     },
     {
       id: "binoculars",
@@ -2769,9 +2768,8 @@ var recipes_default = {
       category: "gear",
       unlockBiome: "meadow",
       output: { itemId: "binoculars", qty: 1 },
-      materials: { branches: 2, fiber: 2, stones: 4 },
-      once: true,
-      unlock: { animalsReturned: 10, label: "Welcome 10 animals back to the meadow \u2014 learn to spot who's new" }
+      materials: { fiber: 2, stones: 3, bark: 3, moss: 2 },
+      once: true
     },
     {
       id: "hiking-boots",
@@ -2779,9 +2777,8 @@ var recipes_default = {
       category: "gear",
       unlockBiome: "meadow",
       output: { itemId: "hiking-boots", qty: 1 },
-      materials: { fiber: 6, branches: 3, stones: 2 },
-      once: true,
-      unlock: { minHealth: 30, label: "Restore Sunny Meadow to 30% health \u2014 broken-in boots for the long trails" }
+      materials: { fiber: 8, stones: 2, bark: 5, moss: 4, reeds: 4 },
+      once: true
     }
   ]
 };
@@ -5985,7 +5982,7 @@ var habitat_objects_default = {
       needs: [],
       shape: "hikingboots",
       color: "#8a5a34",
-      description: "Sturdy, broken-in boots with a woven-fiber sole. Once crafted they're yours for good \u2014 lace them up in Tools & Upgrades to roam the preserve a little faster."
+      description: "Sturdy boots cobbled from tough forest bark, springy moss, and woven wetland reeds. Once crafted they're yours for good \u2014 wear them to roam the preserve a little faster."
     }
   ]
 };
@@ -15005,7 +15002,7 @@ var supportHtml = `<!doctype html>
 </body>
 </html>
 `;
-var buildStamp = "0.1.11+2026-07-15T15:31:47.282Z";
+var buildStamp = "0.1.11+2026-07-15T15:49:29.573Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
