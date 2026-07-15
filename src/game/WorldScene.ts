@@ -162,6 +162,17 @@ export class WorldScene extends Phaser.Scene {
 	// sunset colours the top of the view without washing the whole ground brown.
 	private skyOverlay?: Phaser.GameObjects.Image;
 	private skyTween?: Phaser.Tweens.Tween;
+	// Night lights: things that genuinely push back the dark. A screen-sized
+	// RenderTexture (off-list) is stamped each frame with one radial gradient
+	// per light source — the player's headlamp (if crafted) and every lit
+	// campfire — and drives ONE inverted bitmap mask on the night tint (WebGL
+	// only), carving a pool of true daylight color around each light.
+	// lampGlow is the headlamp's warm additive halo (works on any renderer);
+	// campfires already carry their own halo from drawPlacements.
+	private lampGlow?: Phaser.GameObjects.Image;
+	private lightMaskRT?: Phaser.GameObjects.RenderTexture;
+	private lightBrush?: Phaser.GameObjects.Image;
+	private lightBitmapMask?: Phaser.Display.Masks.BitmapMask;
 	private skyState = { r: 255, g: 200, b: 150, a: 0 };
 	// Free-running day clock (mirrors the HUD's DayTimer): advances on wall time so
 	// the cycle keeps moving even when idle, and re-syncs when the snapshot's day moves.
@@ -178,6 +189,41 @@ export class WorldScene extends Phaser.Scene {
 
 	private get isHome() {
 		return this.area === 'home';
+	}
+
+	/** The wild-biome id this trail-tent interior belongs to (null outside tents). */
+	private get tentBiome(): string | null {
+		const m = /^tent-([a-z][a-z-]*)$/.exec(this.area);
+		return m ? m[1] : null;
+	}
+
+	/** Inside any interior — the home or a trail tent. */
+	private get isIndoors() {
+		return this.isHome || !!this.tentBiome;
+	}
+
+	/** The interior room for wherever we are: the home's configured room, or the
+	 *  fixed tent-sized room of a trail tent. */
+	private roomSpec() {
+		return this.tentBiome ? this.tentRoom() : this.homeRoom();
+	}
+
+	/** Trail-tent interior: the starter-tent footprint with canvas-y colors —
+	 *  decor/light pinned to 1 so drawHomeRoom skips the house-only flourishes. */
+	private tentRoom() {
+		const inner = { w: 6, h: 5 };
+		const x0 = Math.floor((OUT_W - inner.w) / 2);
+		const y0 = Math.floor((OUT_H - inner.h) / 2);
+		const x1 = x0 + inner.w - 1, y1 = y0 + inner.h - 1;
+		return {
+			x0, y0, x1, y1,
+			floor: '#c8b088', // groundcloth
+			wall: '#8a7c5a',  // weathered canvas — warm tan, just a whisper of olive
+			accent: '#e3c75f',
+			rug: '#b5707a',
+			decor: 1, light: 1,
+			doorX: Math.round((x0 + x1) / 2), doorY: y1,
+		};
 	}
 
 	/** Interior floor rectangle (tile coords) + cosmetics for the current home config. */
@@ -284,6 +330,10 @@ export class WorldScene extends Phaser.Scene {
 		this.lightPhase = '';
 		this.skyOverlay = undefined;
 		this.skyTween = undefined;
+		this.lampGlow = undefined;
+		this.lightMaskRT = undefined;
+		this.lightBrush = undefined;
+		this.lightBitmapMask = undefined;
 		this.dayAnchor = undefined;
 		this.lastSnapDay = -1;
 		this.dynamicSig = ''; // force a full dynamic rebuild on (re)create
@@ -296,7 +346,7 @@ export class WorldScene extends Phaser.Scene {
 
 		// Indoors the camera stays clamped to the room; outdoors it's unbounded so
 		// the caretaker is always centered — never hidden under the fixed UI.
-		if (this.isHome) this.cameras.main.setBounds(0, 0, this.worldW, this.worldH);
+		if (this.isIndoors) this.cameras.main.setBounds(0, 0, this.worldW, this.worldH);
 		else this.cameras.main.removeBounds();
 		this.cameras.main.setBackgroundColor('#26301f');
 		this.applyZoom();
@@ -312,8 +362,8 @@ export class WorldScene extends Phaser.Scene {
 		this.playerShadow = this.img(0, 0, 'shadow').setDepth(2);
 		this.player = this.img(0, 0, playerKey).setDepth(1000);
 		let spawn = data?.spawn || this.savedSpawn();
-		// stepping into the home: stand just inside the door
-		if (this.isHome) { const r = this.homeRoom(); spawn = { x: r.doorX + 0.5, y: r.doorY + 0.2 }; }
+		// stepping into an interior (home or trail tent): stand just inside the door
+		if (this.isIndoors) { const r = this.roomSpec(); spawn = { x: r.doorX + 0.5, y: r.doorY + 0.2 }; }
 		this.player.setPosition(spawn.x * TILE, spawn.y * TILE);
 		this.cameras.main.startFollow(this.player, true, 0.12, 0.12);
 		this.startLeaves();
@@ -388,12 +438,17 @@ export class WorldScene extends Phaser.Scene {
 
 		// Re-apply motion-sensitive visuals when accessibility prefs change: toggling
 		// reduce-motion adds/removes rain/snow particles (force a rebuild by clearing
-		// the weather signature) and pauses/resumes the highlight-ring pulse live.
+		// the weather signature), pauses/resumes the highlight-ring pulse live, and
+		// rebuilds the animal layer so breathing/gait tweens (which check the pref
+		// at creation) are torn down or restored immediately.
 		const unsubPrefs = subscribePrefs(() => {
 			if (!this.alive) return;
 			this.weatherSig = '';
 			this.applyWeather();
 			applyRingMotion();
+			this.animalSig = '';
+			this.animals.clear(true, true);
+			this.drawAnimals();
 		});
 		this.events.once('shutdown', () => {
 			document.removeEventListener('focusin', onFocusIn);
@@ -528,7 +583,7 @@ export class WorldScene extends Phaser.Scene {
 		// Indoors the `fit` floor stops the camera showing past the room's world
 		// rect; outdoors the surround ring covers the widest view, so only the
 		// user-zoom range applies.
-		const fit = this.isHome ? Math.max(w / this.worldW, h / this.worldH) : 0;
+		const fit = this.isIndoors ? Math.max(w / this.worldW, h / this.worldH) : 0;
 		const zoom = Phaser.Math.Clamp(base * userZoom, Math.max(fit, base * USER_ZOOM_MIN), base * USER_ZOOM_MAX);
 		if (smooth) this.cameras.main.zoomTo(zoom, 150, 'Sine.easeInOut');
 		else this.cameras.main.setZoom(zoom);
@@ -593,6 +648,11 @@ export class WorldScene extends Phaser.Scene {
 	private spawnFor(area: string, from: string): { x: number; y: number } {
 		// stepping back out of the home → right in front of the camp tent door
 		if (area === 'meadow' && from === 'home') return { ...CAMP_TENT_FRONT };
+		// stepping out of a trail tent → right in front of where it's pitched
+		if (from === `tent-${area}`) {
+			const p = bridge.shared.state?.placements.find((pl) => pl.area === area && pl.objectId === 'trail-tent');
+			if (p) return { x: p.x + 0.5, y: p.y + 1.4 };
+		}
 		const ai = AREA_ORDER.indexOf(area);
 		const fi = AREA_ORDER.indexOf(from);
 		if (ai < 0 || fi < 0) return { ...SPAWN_DEFAULT };
@@ -616,7 +676,7 @@ export class WorldScene extends Phaser.Scene {
 	private drawGround() {
 		this.groundTiles = [];
 		this.healthDeco = [];
-		if (this.isHome) { this.drawHomeRoom(); return; }
+		if (this.isIndoors) { this.drawHomeRoom(); return; }
 		const rng = mulberry32(hashStr(this.area));
 		// Ground tiles fill only the playable region; in the alpine the top rows
 		// are the mountain range, drawn separately below.
@@ -809,9 +869,10 @@ export class WorldScene extends Phaser.Scene {
 		}
 	}
 
-	/** The home interior: a cozy room of floor + walls with a door, sized by tier. */
+	/** An interior: a cozy room of floor + walls with a door — the home (sized by
+	 *  tier) or a trail tent (fixed, canvas-walled; see tentRoom). */
 	private drawHomeRoom() {
-		const r = this.homeRoom();
+		const r = this.roomSpec();
 		// dark surround outside the room
 		this.addDyn(this.add.rectangle(0, 0, this.worldW, this.worldH, C('#1c2216')).setOrigin(0, 0).setDepth(0));
 		// wall ring (one tile thick around the floor)
@@ -862,20 +923,21 @@ export class WorldScene extends Phaser.Scene {
 		this.addDyn(this.add.rectangle(dpx, r.doorY * TILE + 16, TILE * 0.95, TILE * 0.55, C(r.accent)).setDepth(0.25).setAlpha(0.7));
 	}
 
-	/** Refresh the home interior: just your placed decor + the exit door. */
+	/** Refresh an interior (home or trail tent): placed decor + the exit door. */
 	private refreshHome() {
 		this.waterTiles = new Set();
 		this.waterTileCenters = [];
 		this.bridgeTiles = new Set();
 		this.drawHomeRoom(); // repaint floor/walls/rug so live recolors show immediately
 		this.drawPlacements();
-		const r = this.homeRoom();
-		// the door back out, bottom-center (the upgrade sign lives outside, by the tent)
+		const r = this.roomSpec();
+		// the door back out, bottom-center: home → meadow, tent → its biome
+		const outside = this.tentBiome || 'meadow';
 		this.registerInteractable({
 			x: r.doorX * TILE + 16,
 			y: r.doorY * TILE + 16,
 			label: t('game.label.stepOutside'),
-			action: () => bridge.emit('request-area', { area: 'meadow' }),
+			action: () => bridge.emit('request-area', { area: outside }),
 		});
 	}
 
@@ -962,7 +1024,7 @@ export class WorldScene extends Phaser.Scene {
 	}
 
 	private tintGround() {
-		if (this.isHome) return; // the home has its own floor, not a biome ground tint
+		if (this.isIndoors) return; // interiors have their own floor, not a biome ground tint
 		const biome = this.biomeDef();
 		const state = bridge.shared.state?.biomeStates.find((b) => b.biomeId === this.area);
 		const health = state?.health ?? 5;
@@ -1013,7 +1075,7 @@ export class WorldScene extends Phaser.Scene {
 
 	/** The current weather type for this area (rolls over every ~10 min). */
 	private currentWeatherType(): string {
-		if (this.isHome) return 'clear';
+		if (this.isIndoors) return 'clear';
 		return liveWeatherType(this.worldId, this.area, bridge.shared.state?.weather);
 	}
 
@@ -1024,13 +1086,13 @@ export class WorldScene extends Phaser.Scene {
 	private applyWeather(entering = false) {
 		if (!this.alive) return;
 		const typeId = this.currentWeatherType();
-		const sig = `${typeId}|${this.isHome ? 'in' : 'out'}`;
+		const sig = `${typeId}|${this.isIndoors ? 'in' : 'out'}`;
 		if (sig === this.weatherSig) return;
 		this.weatherSig = sig;
 
 		const wt = weatherType(typeId);
 		this.ensureWeatherOverlay();
-		if (!this.isHome && wt.overlay) {
+		if (!this.isIndoors && wt.overlay) {
 			this.weatherOverlay!.setFillStyle(C(wt.overlay.color)).setAlpha(wt.overlay.alpha).setVisible(true);
 		} else {
 			this.weatherOverlay!.setVisible(false);
@@ -1038,7 +1100,7 @@ export class WorldScene extends Phaser.Scene {
 		// Reduced-motion players get the weather color/overlay but not the animated
 		// rain/snow particles (the colorblind banner still names the weather).
 		const prewarm = entering && weatherShownThisSession;
-		const particle = this.isHome || getPrefs().reduceMotion ? null : wt.particle;
+		const particle = this.isIndoors || getPrefs().reduceMotion ? null : wt.particle;
 		this.setWeatherParticles(particle, prewarm);
 		weatherShownThisSession = true;
 		// Weather-gated gather nodes appear/vanish with the weather, so redraw the
@@ -1130,7 +1192,7 @@ export class WorldScene extends Phaser.Scene {
 			this.skyOverlay!.setVisible(false);
 			return;
 		}
-		if (this.isHome) { this.lightOverlay!.setVisible(false); this.skyOverlay!.setVisible(false); return; }
+		if (this.isIndoors) { this.lightOverlay!.setVisible(false); this.skyOverlay!.setVisible(false); return; }
 		const progress = this.currentDayProgress();
 		if (progress == null) return;
 		const phase = phaseAtProgress(progress);
@@ -1173,6 +1235,118 @@ export class WorldScene extends Phaser.Scene {
 			r: skyC.red, g: skyC.green, b: skyC.blue, a: skyA,
 			duration: 15000, ease: 'Sine.easeInOut', onUpdate: paint, onComplete: paint,
 		});
+	}
+
+	/** Does this player own the headlamp? Crafted once (`once: true` recipe) and
+	 *  kept forever — craftedEver survives even if the save's inventory shifts. */
+	private hasHeadlamp(): boolean {
+		const p = bridge.shared.state?.player;
+		if (!p) return false;
+		return ((p.craftedEver?.['headlamp'] || 0) + (p.craftedItems?.['headlamp'] || 0)) > 0;
+	}
+
+	/** Lazily build the night-light visuals: a shared radial-gradient texture,
+	 *  the lamp's warm additive halo, and (WebGL only) the screen-space
+	 *  RenderTexture whose stamped alpha carves holes in the night tint. */
+	private ensureHeadlamp() {
+		if (this.lampGlow) return;
+		if (!this.textures.exists('headlamp-light')) {
+			const D = 256;
+			const ct = this.textures.createCanvas('headlamp-light', D, D);
+			if (ct) {
+				const cx = ct.getContext();
+				const g = cx.createRadialGradient(D / 2, D / 2, 0, D / 2, D / 2, D / 2);
+				g.addColorStop(0, 'rgba(255,255,255,1)');
+				g.addColorStop(0.5, 'rgba(255,255,255,0.55)');
+				g.addColorStop(1, 'rgba(255,255,255,0)');
+				cx.fillStyle = g;
+				cx.fillRect(0, 0, D, D);
+				ct.refresh();
+			}
+		}
+		// halo: a tight personal pool, layered BENEATH the caretaker (depth is
+		// re-pinned to just under the player each frame) so light falls on the
+		// ground and the character stands in front of it.
+		this.lampGlow = this.add.image(0, 0, 'headlamp-light')
+			.setBlendMode(Phaser.BlendModes.ADD)
+			.setTint(0xffd98a).setDisplaySize(TILE * 4, TILE * 4)
+			.setVisible(false);
+		// mask: a screen-sized RenderTexture, stamped once per light source each
+		// frame and used as a single inverted bitmap mask — the tint is removed
+		// wherever ANY light shines (BitmapMask needs WebGL — on canvas the
+		// additive halos alone still read as light)
+		if (this.game.renderer.type === Phaser.WEBGL) {
+			this.lightMaskRT = this.make.renderTexture({ x: 0, y: 0, width: this.scale.width, height: this.scale.height }, false);
+			this.lightMaskRT.setOrigin(0, 0).setScrollFactor(0);
+			this.lightBrush = this.make.image({ key: 'headlamp-light', add: false });
+			this.lightBitmapMask = this.lightMaskRT.createBitmapMask() as Phaser.Display.Masks.BitmapMask;
+			this.lightBitmapMask.invertAlpha = true;
+		}
+	}
+
+	// mask hole sizes (display px): the lamp is a tight personal pool; a campfire
+	// throws a wider ring of light
+	private static readonly LAMP_MASK = TILE * 5;
+	private static readonly FIRE_MASK = TILE * 9;
+
+	/** Every burning fire in this area (world px): the meadow base-camp fire plus
+	 *  any placed campfires. These push back the night tint just like the lamp. */
+	private firesHere(): { x: number; y: number }[] {
+		const fires: { x: number; y: number }[] = [];
+		if (this.area === 'meadow') fires.push({ x: CAMP.fire.x * TILE, y: CAMP.fire.y * TILE });
+		for (const p of bridge.shared.state?.placements || []) {
+			if (p.area === this.area && p.objectId === 'campfire') fires.push({ x: p.x * TILE + 16, y: p.y * TILE + 16 });
+		}
+		return fires;
+	}
+
+	/** Per-frame night-light update. Only active when it's actually dark (night
+	 *  tint meaningfully opaque — dusk/dawn washes don't need it, and reduce-
+	 *  motion/colorblind modes hold daylight so it never runs there). The lamp
+	 *  follows the player; fires burn where they stand; every light's strength
+	 *  tracks the tint as night eases in and out. */
+	private updateNightLights() {
+		const dark = !this.isIndoors && !!this.lightOverlay?.visible && this.lightState.a > 0.15;
+		const hasLamp = this.hasHeadlamp();
+		const fires = dark ? this.firesHere() : [];
+		if (!dark || (!hasLamp && fires.length === 0)) {
+			if (this.lampGlow?.visible) this.lampGlow.setVisible(false);
+			if (this.lightOverlay?.mask) this.lightOverlay.clearMask();
+			return;
+		}
+		this.ensureHeadlamp();
+		// 0..1 as the night tint fades in (0.66 = full night, see weather.json)
+		const depth = Phaser.Math.Clamp(this.lightState.a / 0.66, 0, 1);
+		// a whisper of flicker (day/night is off under reduce-motion, so this never runs there)
+		const flicker = 1 + Math.sin(this.time.now / 143) * 0.02 + Math.sin(this.time.now / 47) * 0.012;
+		const x = this.player.x, y = this.player.y;
+		// halo pinned just beneath the caretaker so they stand in front of the light
+		this.lampGlow!.setPosition(x, y).setDepth(y - 4)
+			.setAlpha(hasLamp ? 0.3 * depth * flicker : 0).setVisible(hasLamp);
+		if (!this.lightMaskRT || !this.lightBrush || !this.lightBitmapMask) return; // canvas renderer: halos only
+		// The night tint is screen-space (scrollFactor 0), so the mask is too: a
+		// screen-sized RenderTexture, restamped each frame at each light's
+		// on-screen position (world → screen via the camera view + zoom).
+		const rt = this.lightMaskRT;
+		if (rt.width !== this.scale.width || rt.height !== this.scale.height) {
+			rt.resize(this.scale.width, this.scale.height);
+		}
+		const cam = this.cameras.main;
+		const stamp = (wx: number, wy: number, size: number, alpha: number) => {
+			const s = size * cam.zoom;
+			this.lightBrush!.setDisplaySize(s, s).setAlpha(alpha);
+			rt.draw(this.lightBrush!, (wx - cam.worldView.x) * cam.zoom, (wy - cam.worldView.y) * cam.zoom);
+		};
+		rt.clear();
+		// the lamp never fully clears the night (max ~0.8 mask alpha) — a modest
+		// personal glow, dimmer and tighter than a campfire's
+		if (hasLamp) stamp(x, y, WorldScene.LAMP_MASK, Math.min(0.8, depth * 0.9) * flicker);
+		fires.forEach((f, i) => {
+			// each fire flickers on its own rhythm so a row of fires doesn't pulse in sync
+			const ff = 1 + Math.sin(this.time.now / 96 + i * 1.7) * 0.045;
+			stamp(f.x, f.y - 6, WorldScene.FIRE_MASK * ff, Math.min(1, depth * 1.35));
+		});
+		if (!this.lightOverlay!.mask) this.lightOverlay!.setMask(this.lightBitmapMask);
 	}
 
 	/** Lazily build the 1-colour rain streak and snow dot textures.
@@ -1276,7 +1450,7 @@ export class WorldScene extends Phaser.Scene {
 		// Skip the rebuild when nothing the dynamic layer depends on has changed.
 		// Indoors always rebuilds — it's a single cheap room, and the paint tool
 		// repaints walls/rugs/placements live (colour changes aren't in the sig).
-		if (!force && !this.isHome) {
+		if (!force && !this.isIndoors) {
 			const sig = this.computeDynamicSig();
 			if (sig === this.dynamicSig) return;
 			this.dynamicSig = sig;
@@ -1285,7 +1459,7 @@ export class WorldScene extends Phaser.Scene {
 		this.nodeSprites.clear();
 		this.interactables = [];
 		this.hoveredIt = null; // its hit zone was just destroyed; a fresh pointerover will re-set it
-		if (this.isHome) { this.refreshHome(); return; }
+		if (this.isIndoors) { this.refreshHome(); return; }
 		// collision lookups: open water blocks walking unless bridged
 		const st = bridge.shared.state;
 		this.waterTiles = new Set(
@@ -2169,7 +2343,7 @@ export class WorldScene extends Phaser.Scene {
 			// Camp fixtures stay crisp and identical; everything the player crafts
 			// and places gets a little deterministic character seeded from its
 			// placement id, so no two crafted items look exactly alike.
-			const isFixture = def.isChest || ['workbench', 'field-journal-stand', 'bed', 'home-bed', 'home-sleeping-bag'].includes(p.objectId);
+			const isFixture = def.isChest || !!def.onePerArea || ['workbench', 'field-journal-stand', 'bed', 'home-bed', 'home-sleeping-bag'].includes(p.objectId);
 			const growScale = stillGrowing ? 1 + (age / growMs) * 0.6 : 1;
 			// Living habitat keeps growing for real hours after placement
 			// (matureHours): young plants render smaller and ease up to full size
@@ -2195,6 +2369,17 @@ export class WorldScene extends Phaser.Scene {
 			}
 			// paint-tool recolor: a per-item color override wins over the default tint
 			if (p.color) img.setTint(Phaser.Display.Color.HexStringToColor(p.color).color);
+
+			// placed campfires glow like the base-camp fire: a warm additive halo
+			// (wide wash + bright core) with a gentle flicker (indoors too — cozy
+			// in a tent). At night the light mask also carves the dark away here.
+			if (p.objectId === 'campfire') {
+				const glow = this.addDyn(this.img(x, y - 4, 'glow').setTint(0xffb84f).setDepth(y - 1).setScale(1.7 * INV_TEX_SCALE)) as Phaser.GameObjects.Image;
+				glow.setBlendMode(Phaser.BlendModes.ADD);
+				const core = this.addDyn(this.img(x, y - 4, 'glow').setTint(0xffd98a).setDepth(y - 1).setScale(0.9 * INV_TEX_SCALE)) as Phaser.GameObjects.Image;
+				core.setBlendMode(Phaser.BlendModes.ADD);
+				this.tweens.add({ targets: [img, glow, core], alpha: { from: 1, to: 0.72 }, duration: 420, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+			}
 
 			img.setInteractive({ useHandCursor: true });
 			const hasPrimaryAction = isFixture;
@@ -2222,7 +2407,11 @@ export class WorldScene extends Phaser.Scene {
 				}
 			});
 
-			if (def.isChest) {
+			if (p.objectId === 'trail-tent') {
+				// your away-base: step inside to decorate it (its own little interior)
+				const interior = `tent-${this.area}`;
+				this.registerInteractable({ x, y: y + 8, label: t('game.label.stepInTent'), action: () => bridge.emit('request-area', { area: interior }) }, img);
+			} else if (def.isChest) {
 				this.registerInteractable({ x, y, label: t('game.label.openChest', { name: defName }), action: () => bridge.emit('open-chest', { chestId: p.id }) }, img);
 			} else if (p.objectId === 'workbench') {
 				this.registerInteractable({ x, y, label: t('game.label.openCrafting'), action: () => bridge.emit('open-crafting') }, img);
@@ -2324,12 +2513,99 @@ export class WorldScene extends Phaser.Scene {
 			if (bridge.shared.uiBlocking) return; // a modal is open — clicks don't reach the world
 			bridge.emit('animal-clicked', { animalId: animal.id });
 		});
-		// gentle breathing — everything in the preserve feels alive (keeps its base size)
-		this.tweens.add({
-			targets: img, scaleY: { from: scale, to: scale * 0.94 },
-			duration: 650 + rng() * 450, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
-		});
-		this.wander(img, img.x, img.y, animal.kind, rng, ocean);
+		// gentle breathing — everything in the preserve feels alive (keeps its base size).
+		// Skipped under reduce-motion, like every other animal flourish; the prefs
+		// subscription in create() rebuilds the animal layer when the toggle flips,
+		// so all of these tweens honor the setting live.
+		if (!getPrefs().reduceMotion) {
+			this.tweens.add({
+				targets: img, scaleY: { from: scale, to: scale * 0.94 },
+				duration: 650 + rng() * 450, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+			});
+		}
+		// Each kind carries itself differently (see animalGait). Airborne and
+		// aquatic species get a constant ambient motion; everything else only
+		// animates while actually moving, so a resting meadow stays calm.
+		const gait = this.animalGait(animal);
+		(img as any).baseOriginY = img.displayOriginY; // resting pose, restored after every flourish
+		if (!getPrefs().reduceMotion) this.startAmbientGait(img, gait, rng);
+		this.wander(img, img.x, img.y, animal.kind, rng, ocean, gait);
+	}
+
+	/** How a species carries itself — picks the movement flourish in wander().
+	 *  hop: bouncy arcs (rabbits, squirrels, frogs…) · flit: quick wingbeats
+	 *  (birds) · flutter: constant airborne bobbing (insects, bats) · swim: a
+	 *  slow roll (fish + marine swimmers) · slither: side-to-side wriggle
+	 *  (snakes, salamanders) · amble: a gentle walking rock (other walkers). */
+	private animalGait(animal: any): 'hop' | 'flit' | 'flutter' | 'swim' | 'slither' | 'amble' {
+		const id = String(animal.id || '');
+		if (id.includes('bat') && !id.includes('bat-star')) return 'flutter';
+		if (animal.kind === 'insect') return 'flutter';
+		if (animal.kind === 'bird') return 'flit';
+		if (animal.kind === 'fish' || (animal as any).ocean === true) return 'swim';
+		if (/rabbit|hare|squirrel|chipmunk|mouse|vole|frog|toad/.test(id)) return 'hop';
+		if (/snake|salamander|ensatina/.test(id)) return 'slither';
+		return 'amble';
+	}
+
+	/** Vertical bounce amplitude in texture px, sized so every species hops
+	 *  roughly the same few screen pixels regardless of its scale. */
+	private hopAmp(img: Phaser.GameObjects.Image): number {
+		return Phaser.Math.Clamp(4 / Math.max(0.05, img.scaleX), 8, 26);
+	}
+
+	/** Always-on motion for creatures that are never still: insects and bats
+	 *  hover-bob, fish and marine swimmers roll lazily with the water. The
+	 *  bounce uses displayOriginY (not y), so depth sorting and the ground
+	 *  shadow stay put — a bob reads as height above the shadow. */
+	private startAmbientGait(img: Phaser.GameObjects.Image, gait: string, rng: () => number) {
+		const base = (img as any).baseOriginY ?? img.displayOriginY;
+		if (gait === 'flutter') {
+			this.tweens.add({
+				targets: img, displayOriginY: { from: base, to: base + this.hopAmp(img) * 0.7 },
+				duration: 240 + rng() * 90, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+			});
+			this.tweens.add({
+				targets: img, angle: { from: -5, to: 5 },
+				duration: 700 + rng() * 350, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+			});
+		} else if (gait === 'swim') {
+			this.tweens.add({
+				targets: img, angle: { from: -4, to: 4 },
+				duration: 1300 + rng() * 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+			});
+		}
+	}
+
+	/** Flourish tweens that run only while an animal travels a wander leg;
+	 *  wander() removes them and restores the pose when the leg ends. */
+	private startMoveGait(img: Phaser.GameObjects.Image, gait: string, rng: () => number): Phaser.Tweens.Tween[] {
+		if (getPrefs().reduceMotion) return [];
+		const base = (img as any).baseOriginY ?? img.displayOriginY;
+		switch (gait) {
+			case 'hop':
+				return [this.tweens.add({
+					targets: img, displayOriginY: { from: base, to: base + this.hopAmp(img) },
+					duration: 165 + rng() * 45, yoyo: true, repeat: -1, ease: 'Sine.easeOut',
+				})];
+			case 'flit':
+				return [this.tweens.add({
+					targets: img, displayOriginY: { from: base, to: base + this.hopAmp(img) * 0.45 },
+					duration: 135 + rng() * 40, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+				})];
+			case 'slither':
+				return [this.tweens.add({
+					targets: img, angle: { from: -5, to: 5 },
+					duration: 170 + rng() * 50, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+				})];
+			case 'amble':
+				return [this.tweens.add({
+					targets: img, angle: { from: -2.2, to: 2.2 },
+					duration: 250 + rng() * 60, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+				})];
+			default:
+				return []; // flutter/swim already carry their ambient motion
+		}
 	}
 
 	/** A point out in the open ocean band (east of the shore), for marine swimmers. */
@@ -2349,8 +2625,9 @@ export class WorldScene extends Phaser.Scene {
 	/** Drifting leaves for a little ambient life outdoors. */
 	private startLeaves() {
 		// No drifting leaves on the open coast — they read as odd flecks over the
-		// sand and surf. The shore gets its pelicans and foam instead.
-		if (this.area === 'coastal') return;
+		// sand and surf. The shore gets its pelicans and foam instead. None
+		// indoors either (the home or a trail tent).
+		if (this.area === 'coastal' || this.isIndoors) return;
 		this.time.addEvent({
 			delay: 2800,
 			loop: true,
@@ -2386,7 +2663,7 @@ export class WorldScene extends Phaser.Scene {
 		return { x: c.x + (rng() - 0.5) * TILE * 0.6, y: c.y + (rng() - 0.5) * TILE * 0.6 };
 	}
 
-	private wander(img: Phaser.GameObjects.Image, homeX: number, homeY: number, kind: string, rng: () => number, ocean = false) {
+	private wander(img: Phaser.GameObjects.Image, homeX: number, homeY: number, kind: string, rng: () => number, ocean = false, gait: string = 'amble') {
 		const roam = ocean ? 140 : kind === 'bird' || kind === 'insect' ? 130 : 80;
 		const speed = ocean ? 22 : kind === 'insect' ? 26 : kind === 'bird' ? 42 : 18;
 		const aquatic = kind === 'fish';
@@ -2415,13 +2692,32 @@ export class WorldScene extends Phaser.Scene {
 			}
 			const dist = Phaser.Math.Distance.Between(img.x, img.y, tx, ty);
 			img.setFlipX(tx < img.x);
+			// gait flourish (bounce/wiggle/rock) runs only for the duration of
+			// this leg, then the pose is restored so idle animals sit still
+			const flourish = this.startMoveGait(img, gait, rng);
 			this.tweens.add({
 				targets: img, x: tx, y: ty,
 				duration: Math.max(600, (dist / speed) * 1000),
 				ease: 'Sine.easeInOut',
 				onUpdate: () => img.setDepth(img.y),
 				onComplete: () => {
-					if (img.active) this.time.delayedCall(800 + rng() * 3500, hop);
+					for (const t of flourish) t.remove();
+					if (img.active) {
+						if (gait !== 'flutter' && gait !== 'swim') img.setAngle(0);
+						img.displayOriginY = (img as any).baseOriginY ?? img.displayOriginY;
+						// hoppers and birds sometimes give one happy bounce while resting
+						if ((gait === 'hop' || gait === 'flit') && rng() < 0.35 && !getPrefs().reduceMotion) {
+							const base = (img as any).baseOriginY ?? img.displayOriginY;
+							this.time.delayedCall(500 + rng() * 1200, () => {
+								if (!img.active) return;
+								this.tweens.add({
+									targets: img, displayOriginY: { from: base, to: base + this.hopAmp(img) * 0.6 },
+									duration: 150, yoyo: true, ease: 'Quad.easeOut',
+								});
+							});
+						}
+						this.time.delayedCall(800 + rng() * 3500, hop);
+					}
 				},
 			});
 		};
@@ -2484,17 +2780,18 @@ export class WorldScene extends Phaser.Scene {
 
 	private canPlaceAt(tx: number, ty: number, forTerraform = false, ignoreId?: string): boolean {
 		// Indoors: you can only decorate on the floor (inside the walls).
-		if (this.isHome) {
-			const r = this.homeRoom();
+		if (this.isIndoors) {
+			const r = this.roomSpec();
 			if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1) return false;
 			const sH = bridge.shared.state;
-			if (sH?.placements.some((p) => p.id !== ignoreId && p.area === 'home' && p.x === tx && p.y === ty)) return false;
+			if (sH?.placements.some((p) => p.id !== ignoreId && p.area === this.area && p.x === tx && p.y === ty)) return false;
 			// items that need a bigger home can't be placed in a small one yet
+			// (a trail tent always counts as the starter size — space 1)
 			const activeId = this.movingPlacementId
 				? sH?.placements.find((p) => p.id === this.movingPlacementId)?.objectId
 				: this.placementObjectId;
 			const homeMin = activeId ? this.objectDef(activeId)?.homeMin || 0 : 0;
-			const space = bridge.shared.state?.player?.home?.space || 1;
+			const space = this.tentBiome ? 1 : bridge.shared.state?.player?.home?.space || 1;
 			if (homeMin > space) return false;
 			return true;
 		}
@@ -2526,6 +2823,7 @@ export class WorldScene extends Phaser.Scene {
 		this.handleInteraction();
 		this.syncPosition(dt);
 		this.positionSkyOverlay(); // keep the sunset glow hugging the top of the view
+		this.updateNightLights(); // lamplight follows the player, fires burn bright after dark
 		// stream our exact live position (tile coords) for co-op presence
 		bridge.shared.self = { x: this.player.x / TILE, y: this.player.y / TILE, area: this.area };
 		this.updateRemotes(dt);
@@ -2634,8 +2932,8 @@ export class WorldScene extends Phaser.Scene {
 			// indoors: the walls (anything off the floor) block movement — but the
 			// door threshold (one tile below the floor, centred) is walkable so you
 			// can step right up to the door before leaving.
-			if (this.isHome) {
-				const r = this.homeRoom();
+			if (this.isIndoors) {
+				const r = this.roomSpec();
 				const tx = Math.floor(px / TILE), ty = Math.floor((py + 8) / TILE);
 				if (tx === r.doorX && ty === r.y1 + 1) return false;
 				return tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1;

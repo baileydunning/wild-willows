@@ -557,6 +557,24 @@ function homeRoom(player: any) {
 	const y0 = Math.floor((GRID_H - inner.h) / 2);
 	return { x0, y0, x1: x0 + inner.w - 1, y1: y0 + inner.h - 1 };
 }
+
+// -------------------------------------------------- trail-tent interiors
+// A pitched trail tent (one per wild biome) opens into its own little interior
+// — area id `tent-<biome>` — that's decorated exactly like the home, just
+// tent-sized (the starter home footprint, so only `homeMin` 1 furniture fits).
+// Interiors are world-shared, like the home, so co-op partners share the camp.
+const TENT_INNER = { w: 6, h: 5 };
+/** The wild-biome id a tent-interior area belongs to, or null if `area` isn't one. */
+function tentBiomeOf(area: any): string | null {
+	const m = /^tent-([a-z][a-z-]*)$/.exec(String(area || ''));
+	return m ? m[1] : null;
+}
+/** Interior floor rectangle for a trail tent (fixed size, centred like the home). */
+function tentRoom() {
+	const x0 = Math.floor((GRID_W - TENT_INNER.w) / 2);
+	const y0 = Math.floor((GRID_H - TENT_INNER.h) / 2);
+	return { x0, y0, x1: x0 + TENT_INNER.w - 1, y1: y0 + TENT_INNER.h - 1 };
+}
 // Chance that digging a fresh soil bed turns up a buried material (not every dig).
 const DIG_FIND_CHANCE = 0.75;
 const CAPACITY_BY_BASKET: Record<number, number> = { 1: 200, 2: 350, 3: 550, 4: 800 };
@@ -2396,9 +2414,12 @@ async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 	const d = await defs();
 	let player = await safeGet(t.Player, playerId);
 	// normalize saves whose last area no longer exists / isn't explorable — but the
-	// home interior ('home') is a valid non-biome area, so leave it be.
+	// home interior ('home') and trail-tent interiors ('tent-<biome>') are valid
+	// non-biome areas, so leave those be (as long as the tent's biome still is).
 	const areaBiome = d.biome.get(player?.area);
-	if (player && player.area !== 'home' && (!areaBiome || !areaBiome.explorable)) {
+	const tentB = tentBiomeOf(player?.area);
+	const validTent = tentB ? !!d.biome.get(tentB)?.explorable : false;
+	if (player && player.area !== 'home' && !validTent && (!areaBiome || !areaBiome.explorable)) {
 		player = { ...player, area: 'meadow', x: 24.5, y: 6.5 };
 	}
 	// World-owned state is read by the active world id; achievements stay personal.
@@ -3464,6 +3485,7 @@ export class PlaceObject extends PublicEndpoint {
 			throw new GameError(tr('server.err.outOfReach'));
 		}
 
+		const tentBiome = tentBiomeOf(area);
 		if (area === 'home') {
 			// decorating your home interior — indoor or 'both' items, on the floor only
 			if (def.placement === 'outdoor') throw new GameError(tr('server.err.outdoorOnly', { name: def.name }));
@@ -3472,6 +3494,16 @@ export class PlaceObject extends PublicEndpoint {
 				throw new GameError(tr('server.err.needsBiggerHome', { name: def.name }), 403);
 			}
 			const r = homeRoom(player);
+			if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1) throw new GameError(tr('server.err.placeOnFloor'));
+		} else if (tentBiome) {
+			// decorating a trail-tent interior — indoor rules, tent-sized floor,
+			// and only furniture that fits a tent (homeMin 1)
+			const biome = d.biome.get(tentBiome);
+			if (!biome) throw new GameError(tr('server.err.unknownArea', { area }));
+			if (!(player.unlockedBiomes || []).includes(tentBiome)) throw new GameError(tr('server.err.biomeLocked', { biome: biome.name }), 403);
+			if (def.placement === 'outdoor') throw new GameError(tr('server.err.outdoorOnly', { name: def.name }));
+			if (def.homeMin && def.homeMin > 1) throw new GameError(tr('server.err.tentTooSmall', { name: def.name }), 403);
+			const r = tentRoom();
 			if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1) throw new GameError(tr('server.err.placeOnFloor'));
 		} else {
 			const biome = d.biome.get(area);
@@ -3490,15 +3522,22 @@ export class PlaceObject extends PublicEndpoint {
 		if (placements.some((p) => p.area === area && p.x === tx && p.y === ty)) {
 			throw new GameError(tr('server.err.spotTaken'), 409);
 		}
-		// terrain/water rules only apply outdoors — the home has no terrain
-		const tileHere = area === 'home' ? null : await findTerrainAt(t.TerrainTile, wid, area, tx, ty);
+		// Some structures are one-per-biome (e.g. the trail tent — a single shared
+		// home base in each wild biome, not a tent city). World-scoped, because
+		// each tent opens into one shared interior per biome (like the home).
+		if (def.onePerArea && placements.some((p) => p.area === area && p.objectId === objectId)) {
+			throw new GameError(tr('server.err.onePerArea', { name: def.name }), 409);
+		}
+		// terrain/water rules only apply outdoors — interiors have no terrain
+		const indoors = area === 'home' || !!tentBiome;
+		const tileHere = indoors ? null : await findTerrainAt(t.TerrainTile, wid, area, tx, ty);
 		if (tileHere) {
 			if (tileHere.type === 'water') {
 				if (!def.bridge) throw new GameError(tr('server.err.openWaterBridge'), 409);
 			} else {
 				throw new GameError(tr('server.err.bedForPlanting'), 409);
 			}
-		} else if (def.bridge && area !== 'home') {
+		} else if (def.bridge && !indoors) {
 			throw new GameError(tr('server.err.bridgeNeedsWater'), 409);
 		}
 
@@ -3518,8 +3557,8 @@ export class PlaceObject extends PublicEndpoint {
 			});
 		}
 
-		// Home decor doesn't affect any biome — skip the recalc entirely.
-		if (area === 'home') {
+		// Indoor decor (home or a tent interior) doesn't affect any biome — skip the recalc.
+		if (indoors) {
 			await bumpMetrics(player, { objectsPlaced: 1 }, { place: 1 });
 			await awardAchievements(playerId);
 			return { ok: true, placement, craftedItems };
@@ -3722,6 +3761,14 @@ export class RemoveObject extends PublicEndpoint {
 			throw new GameError(tr('server.err.emptyChestFirst'), 409);
 		}
 
+		// A trail tent can't be packed up while furniture is still inside its
+		// interior — pack up in there first (mirrors the chest-must-be-empty rule).
+		if (placement.objectId === 'trail-tent') {
+			const interior = `tent-${placement.area}`;
+			const inside = (await byWorld(t.Placement, wid)).some((p) => p.area === interior);
+			if (inside) throw new GameError(tr('server.err.tentNotEmpty'), 409);
+		}
+
 		// Digging up something you planted returns its materials instead of an item.
 		// Refunds respect basket capacity and spill into chests — never silently
 		// overflowing the basket (which used to wedge every later withdraw/gather).
@@ -3773,8 +3820,8 @@ export class RemoveObject extends PublicEndpoint {
 			await t.Player.patch(playerId, { craftedItems });
 		}
 
-		// old saves may still hold retired 'home' placements — skip recalc for those
-		const recalc = placement.area !== 'home'
+		// interiors (home / tent) aren't biomes — skip recalc for their decor
+		const recalc = placement.area !== 'home' && !tentBiomeOf(placement.area)
 			? await recalcBiome(wid, playerId, placement.area, {
 				removeIds: [placementId],
 				player: { ...player, craftedItems, inventory },
@@ -4234,6 +4281,19 @@ export class SyncPlayer extends PublicEndpoint {
 		if (area === 'home') {
 			// the home interior is always reachable from your camp — no gates
 			patch.area = 'home';
+		} else if (tentBiomeOf(area)) {
+			// stepping inside a trail tent: its biome must be open and a tent
+			// actually pitched there (the interior belongs to the placement)
+			const tb = tentBiomeOf(area)!;
+			const biome = d.biome.get(tb);
+			if (!biome) throw new GameError(tr('server.err.unknownArea', { area }));
+			if (!(player.unlockedBiomes || []).includes(tb)) {
+				throw new GameError(tr('server.err.biomeLocked', { biome: biome.name }), 403);
+			}
+			const wid = worldOf(player);
+			const hasTent = (await byWorld(t.Placement, wid)).some((p) => p.area === tb && p.objectId === 'trail-tent');
+			if (!hasTent) throw new GameError(tr('server.err.noTentHere'), 404);
+			patch.area = area;
 		} else if (area) {
 			const biome = d.biome.get(area);
 			if (!biome) throw new GameError(tr('server.err.unknownArea', { area }));

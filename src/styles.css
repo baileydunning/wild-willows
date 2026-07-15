@@ -96,14 +96,140 @@ input {
 	background: radial-gradient(circle, #ffe9b8 0%, #ffd98a55 55%, transparent 70%);
 }
 .welcome-scenery {
-	position: absolute; left: 0; right: 0; bottom: 0; width: 100%; height: 38%;
+	position: absolute; inset: 0; width: 100%; height: 100%;
+	pointer-events: none;
 }
+/* All scenery motion is CSS-only, so the global [data-reduce-motion="1"]
+   rule freezes the whole scene for motion-sensitive players. */
+.welcome-scenery [class] { transform-box: fill-box; }
 .firefly { animation: drift 5s ease-in-out infinite; }
 .firefly.f1 { animation-duration: 6.4s; animation-delay: 1s; }
 .firefly.f2 { animation-duration: 7.6s; animation-delay: 2.2s; }
+.firefly.f3 { animation-duration: 8.8s; animation-delay: 3.1s; }
 @keyframes drift {
 	0%, 100% { opacity: 0.15; transform: translate(0, 0); }
 	50% { opacity: 0.95; transform: translate(8px, -12px); }
+}
+
+/* clouds drifting across the dusk sky */
+.cloud { animation: cloud-drift 90s linear infinite; }
+.cloud.c1 { animation-duration: 120s; animation-delay: -70s; }
+.cloud.c2 { animation-duration: 105s; animation-delay: -30s; }
+@keyframes cloud-drift {
+	from { transform: translateX(-160px); }
+	to { transform: translateX(1160px); }
+}
+
+/* evening flock crossing the sky */
+.flock { animation: flock-fly 44s linear infinite; animation-delay: -6s; }
+@keyframes flock-fly {
+	from { transform: translate(-140px, 150px); }
+	50% { transform: translate(500px, 110px); }
+	to { transform: translate(1140px, 150px); }
+}
+.bird-wings { animation: wing-flap 0.32s ease-in-out infinite alternate; transform-origin: center; }
+.bird-wings.w1 { animation-delay: 0.12s; }
+@keyframes wing-flap {
+	from { transform: scaleY(1); }
+	to { transform: scaleY(0.3); }
+}
+
+/* willow fronds swaying in the breeze */
+.willow-fronds { animation: willow-sway 7s ease-in-out infinite; transform-origin: 50% 0%; }
+@keyframes willow-sway {
+	0%, 100% { transform: rotate(0deg); }
+	50% { transform: rotate(2deg); }
+}
+
+/* owl blink */
+.owl-eyes { animation: owl-blink 5.5s infinite; transform-origin: center; }
+@keyframes owl-blink {
+	0%, 91%, 100% { transform: scaleY(1); }
+	94%, 96% { transform: scaleY(0.08); }
+}
+
+/* deer dipping down to graze */
+.deer-head { animation: deer-graze 9s ease-in-out infinite; transform-origin: 20% 95%; }
+@keyframes deer-graze {
+	0%, 42%, 100% { transform: rotate(0deg); }
+	52%, 82% { transform: rotate(34deg); }
+}
+
+/* campfire flicker + smoke */
+.campfire-flame { animation: flame-flicker 0.9s ease-in-out infinite; transform-origin: 50% 100%; }
+@keyframes flame-flicker {
+	0%, 100% { transform: scale(1); }
+	30% { transform: scale(0.94, 1.07); }
+	65% { transform: scale(1.05, 0.93); }
+}
+.smoke { animation: smoke-rise 4.2s ease-out infinite; opacity: 0; }
+.smoke.s1 { animation-delay: 1.4s; }
+.smoke.s2 { animation-delay: 2.8s; }
+@keyframes smoke-rise {
+	0% { transform: translateY(0) scale(0.8); opacity: 0; }
+	18% { opacity: 0.45; }
+	100% { transform: translateY(-52px) scale(1.7); opacity: 0; }
+}
+
+/* squirrel tail twitch */
+.squirrel-tail { animation: tail-twitch 3.4s infinite; transform-origin: 90% 90%; }
+@keyframes tail-twitch {
+	0%, 68%, 100% { transform: rotate(0deg); }
+	74% { transform: rotate(-14deg); }
+	80% { transform: rotate(5deg); }
+	86% { transform: rotate(-9deg); }
+}
+
+/* butterflies meandering between the flowers (positions baked into keyframes) */
+.butterfly-drift { animation: meander0 16s ease-in-out infinite; }
+.butterfly-drift.bd1 { animation-name: meander1; animation-duration: 19s; animation-delay: -7s; }
+@keyframes meander0 {
+	0%, 100% { transform: translate(470px, 498px) rotate(-6deg); }
+	30% { transform: translate(516px, 476px) rotate(8deg); }
+	55% { transform: translate(552px, 500px) rotate(-4deg); }
+	80% { transform: translate(500px, 508px) rotate(6deg); }
+}
+@keyframes meander1 {
+	0%, 100% { transform: translate(430px, 506px) rotate(5deg); }
+	28% { transform: translate(388px, 480px) rotate(-8deg); }
+	55% { transform: translate(452px, 470px) rotate(4deg); }
+	78% { transform: translate(486px, 496px) rotate(-5deg); }
+}
+.butterfly-wings { animation: wings-flap 0.36s ease-in-out infinite alternate; transform-origin: center; }
+@keyframes wings-flap {
+	from { transform: scaleX(1); }
+	to { transform: scaleX(0.35); }
+}
+
+/* critters crossing the meadow */
+.run-across.rabbit-run { animation: run-right 30s linear infinite; }
+.run-across.fox-run { animation: run-left 38s linear infinite; animation-delay: -14s; }
+@keyframes run-right {
+	from { transform: translateX(-90px); }
+	to { transform: translateX(1090px); }
+}
+@keyframes run-left {
+	from { transform: translateX(1120px); }
+	to { transform: translateX(-140px); }
+}
+.rabbit-hop { animation: hop 0.85s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+@keyframes hop {
+	0%, 100% { transform: translateY(0); }
+	45% { transform: translateY(-13px); }
+}
+.fox-trot { animation: trot 0.42s ease-in-out infinite alternate; }
+@keyframes trot {
+	from { transform: translateY(0); }
+	to { transform: translateY(-2.5px); }
+}
+
+/* grass in the evening breeze */
+.grass { animation: grass-sway 4.5s ease-in-out infinite; transform-origin: 50% 100%; }
+.grass.gr1 { animation-duration: 5.6s; animation-delay: -1.8s; }
+.grass.gr2 { animation-duration: 3.8s; animation-delay: -0.9s; }
+@keyframes grass-sway {
+	0%, 100% { transform: rotate(-4deg); }
+	50% { transform: rotate(4deg); }
 }
 
 /* Title screen: How to Play + Language sit side by side under the menu. */
@@ -121,13 +247,20 @@ input {
 .lang-filter select { border: none; }
 .lang-filter select:focus { outline: none; }
 
+/* Title floats above the card, over the open sky, so it has room to breathe
+   and the animated meadow shows around the (slimmer) menu card. */
+.welcome-stack {
+	position: relative; z-index: 2;
+	display: flex; flex-direction: column; align-items: center;
+	gap: 26px; max-height: 96vh; padding: 10px 0;
+}
 .welcome-card {
 	position: relative; z-index: 2;
-	width: 560px; max-width: 94vw; max-height: 92vh; overflow-y: auto;
+	width: 560px; max-width: 94vw; max-height: 92vh; min-height: 0; overflow-y: auto;
 	background: var(--paper);
 	border: 2.5px solid #d9c89a;
 	border-radius: 22px;
-	padding: 30px 38px 26px;
+	padding: 26px 38px 24px;
 	box-shadow: var(--shadow);
 	text-align: center;
 }
@@ -135,6 +268,20 @@ input {
 	font-size: calc(52px * var(--ui-scale)); margin: 0;
 	color: var(--green);
 	text-shadow: 0 2px 0 #fff, 0 4px 0 rgba(74, 124, 89, 0.18);
+}
+.welcome-title {
+	font-size: calc(68px * var(--ui-scale));
+	letter-spacing: 1.5px;
+	color: #faf3dd;
+	text-shadow:
+		0 2px 0 rgba(43, 51, 33, 0.4),
+		0 6px 26px rgba(31, 42, 58, 0.6),
+		0 0 44px rgba(255, 217, 138, 0.28);
+	animation: title-breathe 6.5s ease-in-out infinite;
+}
+@keyframes title-breathe {
+	0%, 100% { transform: translateY(0); }
+	50% { transform: translateY(-6px); }
 }
 .tagline { margin: 0 0 18px; font-style: italic; color: var(--ink-soft); }
 
@@ -1138,6 +1285,8 @@ kbd {
 	.creator-cols { flex-direction: column; align-items: center; }
 	.welcome-card { padding: 20px 18px 18px; }
 	.game-title { font-size: calc(40px * var(--ui-scale)); }
+	.welcome-stack { gap: 16px; }
+	.welcome-title { font-size: calc(46px * var(--ui-scale)); }
 
 	.panel-backdrop { align-items: flex-end; }
 	.panel, .panel-wide { width: 100%; max-width: 100%; max-height: 76vh; border-radius: 22px 22px 0 0; border-bottom: none; }

@@ -18,23 +18,85 @@ const genToken = () => {
 interface JoinCtx { code: string; token: string; worldId: string; worldName: string; hostName: string; }
 
 function Scenery() {
-	// decorative dusk-meadow backdrop
+	// Decorative dusk-meadow backdrop, now covering the whole screen so the
+	// sky can host clouds and birds while the meadow bustles with wildlife.
+	// Every creature borrows its palette + shapes from the in-game sprites
+	// (src/game/textures.ts) so the title screen previews the game's charm.
+	// All movement is pure CSS animation, so the global
+	// [data-reduce-motion="1"] rule stills the whole scene automatically.
 	return (
-		<svg className="welcome-scenery" viewBox="0 0 1000 240" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
-			<path d="M0 150 Q250 90 500 140 T1000 130 V240 H0 Z" fill="#3d5232" />
-			<path d="M0 185 Q300 140 600 180 T1000 175 V240 H0 Z" fill="#324528" />
+		<svg className="welcome-scenery" viewBox="0 0 1000 560" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+			{/* drifting clouds */}
+			<g className="cloud c0" fill="#f7e9c8" opacity="0.16">
+				<ellipse cx="0" cy="64" rx="72" ry="15" />
+				<ellipse cx="52" cy="52" rx="46" ry="12" />
+			</g>
+			<g className="cloud c1" fill="#f7e9c8" opacity="0.12">
+				<ellipse cx="0" cy="128" rx="54" ry="11" />
+				<ellipse cx="-40" cy="136" rx="36" ry="9" />
+			</g>
+			<g className="cloud c2" fill="#f7e9c8" opacity="0.1">
+				<ellipse cx="0" cy="188" rx="60" ry="12" />
+				<ellipse cx="44" cy="196" rx="38" ry="9" />
+			</g>
+
+			{/* a little flock heading home for the evening */}
+			<g className="flock">
+				{[[0, 0], [34, 14], [62, 4]].map(([x, y], i) => (
+					<g key={i} transform={`translate(${x} ${y})`}>
+						<path className={`bird-wings w${i % 2}`} d="M0 0 Q6 -7 12 0 Q18 -7 24 0" stroke="#2e2820" strokeWidth="2.4" fill="none" strokeLinecap="round" />
+					</g>
+				))}
+			</g>
+
+			{/* meadow hills */}
+			<path d="M0 470 Q250 410 500 460 T1000 450 V560 H0 Z" fill="#3d5232" />
+			<path d="M0 505 Q300 460 600 500 T1000 495 V560 H0 Z" fill="#324528" />
+
 			{/* willow tree */}
-			<g transform="translate(820 30)">
+			<g transform="translate(820 350)">
 				<path d="M0 150 Q8 80 4 40" stroke="#5a4632" strokeWidth="14" fill="none" strokeLinecap="round" />
+				<path d="M2 95 q-30 -8 -50 0" stroke="#5a4632" strokeWidth="7" fill="none" strokeLinecap="round" />
 				<ellipse cx="5" cy="30" rx="78" ry="42" fill="#4a6b3a" />
 				<ellipse cx="-30" cy="48" rx="40" ry="26" fill="#557a44" />
 				<ellipse cx="45" cy="50" rx="36" ry="24" fill="#557a44" />
-				{[-60, -35, -8, 20, 48, 70].map((x, i) => (
-					<path key={i} d={`M${x} ${52 + (i % 3) * 6} q4 36 -4 62`} stroke="#6b9152" strokeWidth="4" fill="none" strokeLinecap="round" />
-				))}
+				<g className="willow-fronds">
+					{[-60, -35, -8, 20, 48, 70].map((x, i) => (
+						<path key={i} d={`M${x} ${52 + (i % 3) * 6} q4 36 -4 62`} stroke="#6b9152" strokeWidth="4" fill="none" strokeLinecap="round" />
+					))}
+				</g>
+				{/* owl keeping watch from the low branch */}
+				<g transform="translate(-58 68) scale(0.95)">
+					<ellipse cx="13" cy="17" rx="10" ry="11" fill="#7c6248" />
+					<path d="M5 6 L9 12 L3 12 Z" fill="#7c6248" />
+					<path d="M21 6 L23 12 L17 12 Z" fill="#7c6248" />
+					<ellipse cx="13" cy="20" rx="6" ry="7" fill="#d8c8a8" />
+					<g className="owl-eyes">
+						<circle cx="9" cy="12" r="3.4" fill="#f4e3b1" />
+						<circle cx="17" cy="12" r="3.4" fill="#f4e3b1" />
+						<circle cx="9" cy="12" r="1.6" fill="#2e2018" />
+						<circle cx="17" cy="12" r="1.6" fill="#2e2018" />
+					</g>
+					<path d="M13 14 L11 17 L15 17 Z" fill="#e3c75f" />
+				</g>
 			</g>
+
+			{/* deer grazing by the willow (mirrored to face left) */}
+			<g transform="translate(712 468) scale(-1 1)">
+				<ellipse cx="15" cy="16" rx="11" ry="7" fill="#b08a5c" />
+				<rect x="7" y="22" width="3" height="9" fill="#b08a5c" />
+				<rect x="21" y="22" width="3" height="9" fill="#b08a5c" />
+				<ellipse cx="6" cy="14" rx="3" ry="3.5" fill="#f4ecd8" />
+				<g className="deer-head">
+					<circle cx="27" cy="9" r="6" fill="#b08a5c" />
+					<ellipse cx="24" cy="3" rx="1.5" ry="3.5" fill="#b08a5c" />
+					<ellipse cx="30" cy="3" rx="1.5" ry="3.5" fill="#b08a5c" />
+					<circle cx="29" cy="8" r="1.3" fill="#2e2018" />
+				</g>
+			</g>
+
 			{/* little campsite */}
-			<g transform="translate(120 130)">
+			<g transform="translate(120 450)">
 				<path d="M0 60 L38 0 L76 60 Z" fill="#9e5f69" />
 				<path d="M38 0 L76 60 L56 60 Z" fill="#8a4f59" />
 				<path d="M38 14 L26 60 L50 60 Z" fill="#5d4128" />
@@ -42,14 +104,107 @@ function Scenery() {
 					<circle cx="0" cy="22" r="4" fill="#8e8e8a" />
 					<circle cx="18" cy="24" r="4" fill="#8e8e8a" />
 					<rect x="-2" y="14" width="22" height="5" rx="2.5" fill="#7c5a3c" />
-					<path d="M9 -8 L1 14 L17 14 Z" fill="#e8954f" />
-					<path d="M9 -2 L4 13 L14 13 Z" fill="#f4c95f" />
-					<circle cx="9" cy="2" r="14" fill="#ffd98a" opacity="0.18" />
+					<circle className="smoke s0" cx="9" cy="-12" r="3.5" fill="#d8d3c8" />
+					<circle className="smoke s1" cx="7" cy="-12" r="3" fill="#d8d3c8" />
+					<circle className="smoke s2" cx="11" cy="-12" r="4" fill="#d8d3c8" />
+					<g className="campfire-flame">
+						<path d="M9 -8 L1 14 L17 14 Z" fill="#e8954f" />
+						<path d="M9 -2 L4 13 L14 13 Z" fill="#f4c95f" />
+						<circle cx="9" cy="2" r="14" fill="#ffd98a" opacity="0.18" />
+					</g>
 				</g>
 			</g>
+
+			{/* squirrel by the tent, tail twitching */}
+			<g transform="translate(226 498)">
+				<g className="squirrel-tail">
+					<ellipse cx="6" cy="12" rx="4.5" ry="8" fill="#7c5a3c" />
+				</g>
+				<rect x="11" y="22" width="3.4" height="4" fill="#9a7448" />
+				<rect x="17" y="22" width="3.4" height="4" fill="#9a7448" />
+				<ellipse cx="14" cy="18" rx="7" ry="5.5" fill="#9a7448" />
+				<circle cx="20" cy="12" r="5" fill="#9a7448" />
+				<circle cx="19" cy="7" r="2" fill="#7c5a3c" />
+				<circle cx="21" cy="11" r="1.2" fill="#2e2018" />
+			</g>
+
+			{/* meadow flowers for the butterflies */}
+			{[[470, 512, '#d98a9e'], [508, 520, '#e3c75f'], [548, 514, '#c9884f'], [432, 522, '#b8a3d6']].map(([x, y, c], i) => (
+				<g key={i} transform={`translate(${x} ${y})`}>
+					<path d="M0 0 q1 8 0 14" stroke="#557a44" strokeWidth="2" fill="none" />
+					<circle cx="0" cy="0" r="3.4" fill={c as string} />
+					<circle cx="0" cy="0" r="1.3" fill="#f4e3b1" />
+				</g>
+			))}
+
+			{/* butterflies wandering between the flowers */}
+			<g className="butterfly-drift bd0">
+				<g className="butterfly-wings">
+					<ellipse cx="-5" cy="-2" rx="5" ry="5" fill="#e8771f" />
+					<ellipse cx="5" cy="-2" rx="5" ry="5" fill="#e8771f" />
+					<ellipse cx="-4" cy="4" rx="3.4" ry="3" fill="#e8954f" />
+					<ellipse cx="4" cy="4" rx="3.4" ry="3" fill="#e8954f" />
+				</g>
+				<ellipse cx="0" cy="1" rx="1.4" ry="5.5" fill="#2e2018" />
+			</g>
+			<g className="butterfly-drift bd1">
+				<g className="butterfly-wings">
+					<ellipse cx="-5" cy="-2" rx="5" ry="5" fill="#2a2420" />
+					<ellipse cx="5" cy="-2" rx="5" ry="5" fill="#2a2420" />
+					<ellipse cx="-4" cy="2" rx="2.6" ry="2.2" fill="#d8472a" />
+					<ellipse cx="4" cy="2" rx="2.6" ry="2.2" fill="#d8472a" />
+				</g>
+				<ellipse cx="0" cy="1" rx="1.4" ry="5.5" fill="#2e2018" />
+			</g>
+
+			{/* rabbit hopping across the meadow */}
+			<g transform="translate(0 494)">
+				<g className="run-across rabbit-run">
+					<g className="rabbit-hop">
+						<rect x="9" y="23" width="3.5" height="3" fill="#b0987c" />
+						<rect x="16" y="23" width="3.5" height="3" fill="#b0987c" />
+						<ellipse cx="13" cy="18" rx="9" ry="6.5" fill="#b0987c" />
+						<circle cx="20" cy="13" r="6" fill="#b0987c" />
+						<ellipse cx="18" cy="5" rx="2" ry="5" fill="#b0987c" />
+						<ellipse cx="23" cy="6" rx="2" ry="5" fill="#b0987c" />
+						<circle cx="4" cy="19" r="4" fill="#fff" />
+						<circle cx="22" cy="12" r="1.4" fill="#2e2018" />
+					</g>
+				</g>
+			</g>
+
+			{/* fox trotting home along the near hill */}
+			<g transform="translate(0 524)">
+				<g className="run-across fox-run">
+					<g transform="scale(-1 1)">
+						<g className="fox-trot">
+							<rect x="9" y="19" width="3" height="6" fill="#46301f" />
+							<rect x="14" y="20" width="3" height="6" fill="#46301f" />
+							<rect x="20" y="19" width="3" height="6" fill="#46301f" />
+							<ellipse cx="15" cy="16" rx="10" ry="6" fill="#d3722e" />
+							<circle cx="25" cy="10" r="6" fill="#d3722e" />
+							<path d="M21 3 L24 9 L19 9 Z" fill="#d3722e" />
+							<path d="M27 3 L30 9 L25 9 Z" fill="#d3722e" />
+							<ellipse cx="6" cy="16" rx="6" ry="4" fill="#d3722e" />
+							<circle cx="3" cy="15" r="3" fill="#fff" />
+							<ellipse cx="24" cy="13" rx="3" ry="2" fill="#fff" />
+							<circle cx="27" cy="9" r="1.3" fill="#2e2018" />
+							<circle cx="30" cy="11" r="1.4" fill="#2e2018" />
+						</g>
+					</g>
+				</g>
+			</g>
+
+			{/* swaying grass tufts on the near hill */}
+			{[80, 320, 410, 600, 690, 930].map((x, i) => (
+				<g key={i} transform={`translate(${x} ${530 + (i % 2) * 10})`}>
+					<path className={`grass gr${i % 3}`} d="M0 0 q-3 -12 -6 -16 M0 0 q0 -14 1 -18 M0 0 q4 -11 7 -15" stroke="#4a6b3a" strokeWidth="2.4" fill="none" strokeLinecap="round" />
+				</g>
+			))}
+
 			{/* fireflies */}
-			{[210, 330, 450, 560, 660, 740].map((x, i) => (
-				<circle key={i} className={`firefly f${i % 3}`} cx={x} cy={120 + (i % 4) * 18} r="2.6" fill="#ffe9a8" />
+			{[160, 240, 330, 420, 500, 580, 650, 730, 780, 900].map((x, i) => (
+				<circle key={i} className={`firefly f${i % 4}`} cx={x} cy={430 + ((i * 37) % 90)} r="2.6" fill="#ffe9a8" />
 			))}
 		</svg>
 	);
@@ -158,9 +313,9 @@ export function WelcomeScreen() {
 		<div className="welcome">
 			<div className="welcome-sky" />
 			<Scenery />
+			<div className="welcome-stack">
+			<h1 className="game-title welcome-title">{t('app.title')}</h1>
 			<div className="welcome-card">
-				<h1 className="game-title">{t('app.title')}</h1>
-
 				{soloLocal && (
 					// Off-screen (not display:none) so the native picker reliably opens when
 					// clicked programmatically in Electron. No `accept` filter — the file is
@@ -453,6 +608,7 @@ export function WelcomeScreen() {
 					</form>
 				)}
 
+			</div>
 			</div>
 
 			{introOpen && (

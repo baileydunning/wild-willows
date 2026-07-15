@@ -2502,6 +2502,24 @@
 			"output": { "itemId": "dragonfly-pond", "qty": 1 },
 			"materials": { "clay": 6, "clean-water": 5, "reeds": 4 },
 			"unlock": { "minHealth": 40, "label": "Restore Rushwater Wetland to 40% health" }
+		},
+		{
+			"id": "trail-tent",
+			"name": "Trail Tent",
+			"category": "structure",
+			"unlockBiome": "forest",
+			"output": { "itemId": "trail-tent", "qty": 1 },
+			"materials": { "branches": 6, "fiber": 6, "stones": 2 }
+		},
+		{
+			"id": "headlamp",
+			"name": "Headlamp",
+			"category": "kit",
+			"unlockBiome": "meadow",
+			"output": { "itemId": "headlamp", "qty": 1 },
+			"materials": { "branches": 2, "fiber": 4, "stones": 2 },
+			"once": true,
+			"unlock": { "requiresCrafted": "campfire", "label": "Craft a Campfire first — carry a little of its light with you" }
 		}
 	]
 }

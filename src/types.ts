@@ -153,6 +153,9 @@ export interface HabitatObjectDef {
 	requiresTool?: { id: string; tier: number };
 	isChest?: boolean;
 	chestCapacity?: number;
+	/** Only one of these per biome (e.g. the trail tent — each opens into one
+	 * shared `tent-<biome>` interior, like the home). */
+	onePerArea?: boolean;
 	plantable?: boolean;
 	plantCost?: Record<string, number>;
 	growSeconds?: number;
