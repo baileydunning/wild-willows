@@ -15022,7 +15022,7 @@ var supportHtml = `<!doctype html>
 </body>
 </html>
 `;
-var buildStamp = "0.1.11+2026-07-15T16:22:25.635Z";
+var buildStamp = "0.1.11+2026-07-15T16:30:48.715Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
@@ -15965,8 +15965,10 @@ function computeBalance(d, biomeId, returnedIds) {
   const raw = BALANCE_RETURN_WEIGHT * returnFrac + BALANCE_WEB_WEIGHT * webFrac + BALANCE_BREADTH_WEIGHT * breadthFrac;
   return clamp(Math.round(raw * 100), 0, 99);
 }
-function analyzeWater(terrain) {
-  const cells = new Set(terrain.filter((t2) => t2.type === "water").map((t2) => `${t2.x},${t2.y}`));
+function analyzeWater(terrain, playerOnly = false) {
+  const cells = new Set(
+    terrain.filter((t2) => t2.type === "water" && (!playerOnly || !t2.seeded)).map((t2) => `${t2.x},${t2.y}`)
+  );
   const seen = /* @__PURE__ */ new Set();
   let lake = 0;
   let river = 0;
@@ -16966,7 +16968,14 @@ async function awardAchievements(playerId, opts = {}) {
       craftedDistinct: Object.keys(player.craftedEver || {}).length,
       tutorialStep: player.tutorialStep || 0,
       water: (b) => {
-        if (!waterCache.has(b)) waterCache.set(b, analyzeWater(terrain.filter((tt) => tt.area === b)));
+        if (!waterCache.has(b))
+          waterCache.set(
+            b,
+            analyzeWater(
+              terrain.filter((tt) => tt.area === b),
+              true
+            )
+          );
         return waterCache.get(b);
       },
       biomesAtHealth: (h) => biomeStates.filter((b) => (b.health || 0) >= h).length,

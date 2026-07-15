@@ -1502,8 +1502,14 @@ function computeBalance(d: any, biomeId: string, returnedIds: Set<string>): numb
  * longest connected span ("river") — long, thin channels score high on river,
  * big blobs score high on lake. 4-neighbour connectivity.
  */
-function analyzeWater(terrain: any[]) {
-	const cells = new Set(terrain.filter((t) => t.type === 'water').map((t) => `${t.x},${t.y}`));
+function analyzeWater(terrain: any[], playerOnly = false) {
+	// `playerOnly` drops the pre-seeded starting channels (the wetland ships with a
+	// river + pond) so achievements like Lakemaker only reward water the PLAYER
+	// actually shaped — otherwise unlocking the wetland auto-granted it. Animal
+	// water needs still count the natural channels (default: everything).
+	const cells = new Set(
+		terrain.filter((t) => t.type === 'water' && (!playerOnly || !t.seeded)).map((t) => `${t.x},${t.y}`),
+	);
 	const seen = new Set<string>();
 	let lake = 0;
 	let river = 0;
@@ -3253,7 +3259,15 @@ async function awardAchievements(
 			craftedDistinct: Object.keys(player.craftedEver || {}).length,
 			tutorialStep: player.tutorialStep || 0,
 			water: (b) => {
-				if (!waterCache.has(b)) waterCache.set(b, analyzeWater(terrain.filter((tt: any) => tt.area === b)));
+				// player-shaped water only — seeded starting channels don't earn Lakemaker
+				if (!waterCache.has(b))
+					waterCache.set(
+						b,
+						analyzeWater(
+							terrain.filter((tt: any) => tt.area === b),
+							true,
+						),
+					);
 				return waterCache.get(b)!;
 			},
 			biomesAtHealth: (h) => biomeStates.filter((b: any) => (b.health || 0) >= h).length,

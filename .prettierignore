@@ -3,6 +3,7 @@ web/
 build/
 dist/
 resources.js
+server/pages.ts
 node_modules/
 
 # Vendored / lockfiles
