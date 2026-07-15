@@ -2514,12 +2514,22 @@
 		{
 			"id": "headlamp",
 			"name": "Headlamp",
-			"category": "kit",
+			"category": "gear",
 			"unlockBiome": "meadow",
 			"output": { "itemId": "headlamp", "qty": 1 },
 			"materials": { "branches": 2, "fiber": 4, "stones": 2 },
 			"once": true,
 			"unlock": { "requiresCrafted": "campfire", "label": "Craft a Campfire first — carry a little of its light with you" }
+		},
+		{
+			"id": "binoculars",
+			"name": "Field Binoculars",
+			"category": "gear",
+			"unlockBiome": "meadow",
+			"output": { "itemId": "binoculars", "qty": 1 },
+			"materials": { "branches": 2, "fiber": 2, "stones": 4 },
+			"once": true,
+			"unlock": { "animalsReturned": 10, "label": "Welcome 10 animals back to the meadow — learn to spot who's new" }
 		}
 	]
 }

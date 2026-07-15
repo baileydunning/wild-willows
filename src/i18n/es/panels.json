@@ -64,6 +64,7 @@
 			"decoration": "Senderos",
 			"storage": "Almacenamiento",
 			"home": "Comodidades del campamento",
+			"gear": "Equipo del cuidador",
 			"kit": "Kits de restauración"
 		},
 		"placeLabel": "Colocar:",

@@ -2756,12 +2756,22 @@ var recipes_default = {
     {
       id: "headlamp",
       name: "Headlamp",
-      category: "kit",
+      category: "gear",
       unlockBiome: "meadow",
       output: { itemId: "headlamp", qty: 1 },
       materials: { branches: 2, fiber: 4, stones: 2 },
       once: true,
       unlock: { requiresCrafted: "campfire", label: "Craft a Campfire first \u2014 carry a little of its light with you" }
+    },
+    {
+      id: "binoculars",
+      name: "Field Binoculars",
+      category: "gear",
+      unlockBiome: "meadow",
+      output: { itemId: "binoculars", qty: 1 },
+      materials: { branches: 2, fiber: 2, stones: 4 },
+      once: true,
+      unlock: { animalsReturned: 10, label: "Welcome 10 animals back to the meadow \u2014 learn to spot who's new" }
     }
   ]
 };
@@ -5944,6 +5954,17 @@ var habitat_objects_default = {
       shape: "kit",
       color: "#e3c75f",
       description: "A hand-wound lamp on a woven strap. Once crafted it's yours for good \u2014 after dusk, a warm beam lights the ground around you wherever you roam."
+    },
+    {
+      id: "binoculars",
+      name: "Field Binoculars",
+      placement: "none",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "binoculars",
+      color: "#7a6a4f",
+      description: "Hand-ground lenses in a woven grip. Once crafted they're yours for good \u2014 animals you haven't recorded in your journal yet catch the light with a soft glint."
     }
   ]
 };
@@ -14959,7 +14980,7 @@ var supportHtml = `<!doctype html>
 </body>
 </html>
 `;
-var buildStamp = "0.1.11+2026-07-15T01:14:45.196Z";
+var buildStamp = "0.1.11+2026-07-15T12:59:36.425Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";

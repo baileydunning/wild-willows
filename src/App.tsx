@@ -24,7 +24,7 @@ import { WelcomeScreen } from './ui/Welcome';
 import { JoinWaitingScreen } from './ui/JoinWaiting';
 import { JoinApprovalPopup } from './ui/JoinApproval';
 import { PeoplePanel } from './ui/People';
-import { Icon } from './ui/icons';
+import { Icon, ObjectIcon, ResourceIcon } from './ui/icons';
 
 interface ClickedPlacement {
 	placementId: string;
@@ -58,15 +58,21 @@ function PlantMenu({ bed, onClose }: { bed: ClickedBed; onClose: () => void }) {
 		const canAfford = Object.entries(o.plantCost || {}).every(([id, q]) => avail(id) >= q);
 		return (
 			<div className="recipe" key={o.id}>
+				{/* the same sprite that will grow in the world */}
+				<ObjectIcon shape={o.shape} color={o.color} size={34} />
 				<div className="grow">
 					<b>{content('habitatObject', o.id, 'name', o.name)}</b>
 					<div className="muted small">{content('habitatObject', o.id, 'description', o.description || '')}</div>
 					<div className="mats">
-						{Object.entries(o.plantCost || {}).map(([id, q]) => (
-							<span key={id} className={`mat ${avail(id) >= q ? 'mat-ok' : 'mat-no'}`}>
-								{content('resource', id, 'name', data.resources.find((r) => r.id === id)?.name || id)} {Math.min(avail(id), q)}/{q}
-							</span>
-						))}
+						{Object.entries(o.plantCost || {}).map(([id, q]) => {
+							const r = data.resources.find((rr) => rr.id === id);
+							return (
+								<span key={id} className={`mat ${avail(id) >= q ? 'mat-ok' : 'mat-no'}`}>
+									<ResourceIcon id={id} color={r?.color} />
+									{content('resource', id, 'name', r?.name || id)} {Math.min(avail(id), q)}/{q}
+								</span>
+							);
+						})}
 					</div>
 				</div>
 				<button

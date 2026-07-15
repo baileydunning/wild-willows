@@ -11,7 +11,7 @@ import {
 import { content } from '../i18n';
 import { useI18n } from '../i18n/react';
 import { Meter } from './HUD';
-import { Icon, ResourceIcon } from './icons';
+import { Icon, ObjectIcon, ResourceIcon } from './icons';
 import { BIOME_LORE, loreStage } from './lore';
 
 function Panel({ title, icon, children, onClose, wide, bodyRef }: { title: string; icon?: string; children: React.ReactNode; onClose: () => void; wide?: boolean; bodyRef?: React.Ref<HTMLDivElement> }) {
@@ -74,7 +74,10 @@ function AreaTags({ data, def }: { data: any; def: any }) {
 
 // The crafting menu's filters, search text, and scroll position survive
 // close/reopen within a session — you come back to the recipe you were on.
-const craftingMemory: { placeFilter: string | null; typeFilter: string; query: string; scrollTop: number } = {
+// But only while you stay in the same area: walk somewhere new and the menu
+// starts fresh, scoped to where you're standing now.
+const craftingMemory: { area: string | null; placeFilter: string | null; typeFilter: string; query: string; scrollTop: number } = {
+	area: null,
 	placeFilter: null,
 	typeFilter: 'all',
 	query: '',
@@ -93,8 +96,9 @@ export function InventoryPanel() {
 	if (!data || !state) return null;
 	const inv = Object.entries(state.player.inventory || {}).filter(([, q]) => q > 0);
 	const carried = inv.reduce((a, [, q]) => a + q, 0);
-	// Restoration kits (and any kit-category craftable) are protected from discard.
-	const kitItemIds = new Set(data.recipes.filter((r) => r.category === 'kit').map((r) => r.output.itemId));
+	// Restoration kits and caretaker gear (headlamp…) are once-only milestone
+	// items — protected from discard so they can't be lost for good.
+	const kitItemIds = new Set(data.recipes.filter((r) => r.category === 'kit' || r.category === 'gear').map((r) => r.output.itemId));
 
 	const toss = (kind: 'material' | 'crafted', id: string, qty: number, name: string) => {
 		if (window.confirm(t('panels.inventory.confirmDiscard', { qty, name }))) discard(kind, id, qty, name);
@@ -136,6 +140,7 @@ export function InventoryPanel() {
 							const isKit = kitItemIds.has(id);
 							return (
 								<div className="cell row" key={id}>
+									<ObjectIcon shape={def?.shape} color={def?.color} size={18} />
 									<span className="grow">{name}</span>
 									<b>×{qty}</b>
 									{def && def.placement !== 'none' && (
@@ -251,8 +256,20 @@ export function CraftingPanel() {
 	// default the Place filter to where you're standing — indoors, a dedicated "home"
 	// filter shows only the camp comforts & furniture you can place inside.
 	// Reopening the menu restores your last filters, search, and scroll position
-	// (playtest: it reset to the top every time, losing the recipe you were on).
-	const [placeFilter, setPlaceFilter] = useState(craftingMemory.placeFilter ?? (state?.player.area || 'all'));
+	// (playtest: it reset to the top every time, losing the recipe you were on) —
+	// but only within the same area. Searching in the meadow and then walking
+	// home shouldn't carry the meadow's search into the home menu.
+	const currentArea = state?.player.area || 'all';
+	// tent interiors follow home rules, and 'tent-*' isn't a Place option anyway
+	const defaultPlace = currentArea.startsWith('tent-') ? 'home' : currentArea;
+	if (craftingMemory.area !== currentArea) {
+		craftingMemory.area = currentArea;
+		craftingMemory.placeFilter = null;
+		craftingMemory.typeFilter = 'all';
+		craftingMemory.query = '';
+		craftingMemory.scrollTop = 0;
+	}
+	const [placeFilter, setPlaceFilter] = useState(craftingMemory.placeFilter ?? defaultPlace);
 	const [typeFilter, setTypeFilter] = useState(craftingMemory.typeFilter);
 	const [query, setQuery] = useState(craftingMemory.query);
 	const bodyRef = useRef<HTMLDivElement | null>(null);
@@ -289,9 +306,11 @@ export function CraftingPanel() {
 	const catLabel: Record<string, string> = {
 		plant: t('panels.crafting.category.plant'), habitat: t('panels.crafting.category.habitat'), structure: t('panels.crafting.category.structure'),
 		decoration: t('panels.crafting.category.decoration'), storage: t('panels.crafting.category.storage'), home: t('panels.crafting.category.home'), kit: t('panels.crafting.category.kit'),
+		gear: t('panels.crafting.category.gear'),
 	};
-	// display order for the category sections — Paths (decoration) sit at the bottom
-	const CAT_ORDER = ['plant', 'habitat', 'structure', 'home', 'storage', 'kit', 'decoration'];
+	// display order for the category sections — crafted things first, plantables
+	// after them, Paths (decoration) at the bottom
+	const CAT_ORDER = ['habitat', 'structure', 'home', 'storage', 'gear', 'kit', 'plant', 'decoration'];
 	const catRank = (c: string) => { const i = CAT_ORDER.indexOf(c); return i === -1 ? 50 : i; };
 	const objOf = (r: RecipeDef) => data.habitatObjects.find((o) => o.id === r.output.itemId);
 	// Only show recipes the player has actually unlocked: their biome is open AND
@@ -410,29 +429,16 @@ export function CraftingPanel() {
 									});
 							return (
 								<button key={id} className="cant-place" title={msg} onClick={() => notify(msg, 'info')}>
-									{defName} ×{qty}
+									<ObjectIcon shape={def?.shape} color={def?.color} size={18} /> {defName} ×{qty}
 								</button>
 							);
 						}
 						return (
 							<button key={id} onClick={() => startPlacement(id)}>
-								{defName} ×{qty}
+								<ObjectIcon shape={def?.shape} color={def?.color} size={18} /> {defName} ×{qty}
 							</button>
 						);
 					})}
-				</div>
-			)}
-			{plantableMatches.length > 0 && (
-				<div>
-					{plantableMatches.map((o) => (
-						<div className="recipe" key={o.id}>
-							<div className="grow">
-								<b><Icon name="leaf" size={14} /> {content('habitatObject', o.id, 'name', o.name)}</b>
-								<div className="muted small">{t('panels.crafting.plantedNotCrafted')}</div>
-								<AreaTags data={data} def={o} />
-							</div>
-						</div>
-					))}
 				</div>
 			)}
 			{visible.length === 0 && plantableMatches.length === 0 && (
@@ -449,6 +455,8 @@ export function CraftingPanel() {
 						const ok = canCraft(r) && !made;
 						return (
 							<div className={`recipe ${ok || made ? '' : 'recipe-off'}`} key={r.id}>
+								{/* the same sprite the world will draw once it's placed */}
+								<ObjectIcon shape={def?.shape} color={def?.color} size={34} />
 								<div className="grow">
 									<b>{content('recipe', r.id, 'name', r.name)}</b>
 									{r.output.qty > 1 ? ` ×${r.output.qty}` : ''}
@@ -495,6 +503,22 @@ export function CraftingPanel() {
 					})}
 				</div>
 			))}
+			{/* plantable cross-references sit below the craftable results — recipes
+			    you can actually craft always come first */}
+			{plantableMatches.length > 0 && (
+				<div>
+					{plantableMatches.map((o) => (
+						<div className="recipe" key={o.id}>
+							<ObjectIcon shape={o.shape} color={o.color} size={34} />
+							<div className="grow">
+								<b><Icon name="leaf" size={14} /> {content('habitatObject', o.id, 'name', o.name)}</b>
+								<div className="muted small">{t('panels.crafting.plantedNotCrafted')}</div>
+								<AreaTags data={data} def={o} />
+							</div>
+						</div>
+					))}
+				</div>
+			)}
 		</Panel>
 	);
 }

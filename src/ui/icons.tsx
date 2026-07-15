@@ -651,6 +651,31 @@ export function ResourceIcon({ id, size = 18, color, className }: { id: string; 
 	return <span className={`swatch ${className || ''}`} style={{ background: color || '#888', width: size, height: size }} aria-hidden="true" />;
 }
 
+/**
+ * The picture of a craftable/plantable object — the very sprite the world will
+ * draw once it's placed, snapshotted at boot (`snapshotObjectIcons`) and keyed
+ * by the object's `shape`. Sprites come in all aspect ratios, so it renders in
+ * a square box with the image contained. Falls back to a colour swatch before
+ * the world has booted (or for a shape with no sprite).
+ */
+export function ObjectIcon({ shape, size = 30, color, className }: { shape?: string; size?: number; color?: string; className?: string }) {
+	const uri = shape ? bridge.shared.objectIcons[shape] : undefined;
+	if (uri) {
+		return (
+			<img
+				src={uri}
+				width={size}
+				height={size}
+				className={`obj-icon ${className || ''}`}
+				style={{ objectFit: 'contain', verticalAlign: 'middle', flex: 'none' }}
+				alt=""
+				aria-hidden="true"
+			/>
+		);
+	}
+	return <span className={`swatch ${className || ''}`} style={{ background: color || '#8a8', width: size, height: size, flex: 'none' }} aria-hidden="true" />;
+}
+
 /** Cute SVG portrait that mirrors the in-game procedural sprite. */
 export function CharacterPreview({ appearance, size = 150 }: { appearance: Appearance; size?: number }) {
 	const { skin, hair, outfit, hat, hatColor, hairstyle = 'short', beard = 'none', body = 'slim' } = appearance;

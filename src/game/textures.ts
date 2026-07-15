@@ -520,6 +520,24 @@ export function snapshotResourceIcons(scene: Phaser.Scene) {
 	bridge.shared.resourceIcons = icons;
 }
 
+/**
+ * The same bridge for object sprites: snapshot every `obj-*` texture to a PNG
+ * data URL on `bridge.shared.objectIcons`, keyed by shape, so the crafting and
+ * planting menus can show the exact sprite that will appear in the world.
+ * Must run after makeObjectTextures.
+ */
+export function snapshotObjectIcons(scene: Phaser.Scene) {
+	const icons: Record<string, string> = {};
+	for (const key of scene.textures.getTextureKeys()) {
+		if (!key.startsWith('obj-')) continue;
+		try {
+			const uri = scene.textures.getBase64(key);
+			if (uri) icons[key.slice('obj-'.length)] = uri;
+		} catch { /* a texture that can't be rasterized just gets no menu picture */ }
+	}
+	bridge.shared.objectIcons = icons;
+}
+
 /** Habitat / home object sprites, keyed `obj-<shape>`. */
 export function makeObjectTextures(scene: Phaser.Scene) {
 	const o = (shape: string, w: number, h: number, draw: (g: G) => void) => tex(scene, `obj-${shape}`, w, h, draw);
@@ -934,6 +952,14 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 	o('kit', 30, 26, (g) => {
 		g.fillStyle(C('#c9b98a'), 1).fillRoundedRect(2, 6, 26, 18, 3);
 		g.fillStyle(C('#4a7c59'), 1).fillRect(12, 9, 6, 12).fillRect(9, 12, 12, 6);
+	});
+	o('binoculars', 30, 24, (g) => {
+		// two barrels joined by a bridge, glass catching the light
+		g.fillStyle(C('#5d4a36'), 1).fillRoundedRect(2, 4, 11, 16, 4).fillRoundedRect(17, 4, 11, 16, 4);
+		g.fillStyle(C('#7a6a4f'), 1).fillRect(12, 8, 6, 5); // bridge
+		g.fillStyle(C('#a8c8d8'), 1).fillCircle(7.5, 17, 3.6).fillCircle(22.5, 17, 3.6); // lenses
+		g.fillStyle(0xffffff, 0.85).fillCircle(6.4, 15.8, 1.2).fillCircle(21.4, 15.8, 1.2); // glints
+		g.fillStyle(C('#e3c75f'), 1).fillRect(4, 2, 22, 2.5); // woven strap across the top
 	});
 
 	// --- decorative structures ---

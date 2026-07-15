@@ -64,6 +64,7 @@
 			"decoration": "Paths",
 			"storage": "Storage",
 			"home": "Camp comforts",
+			"gear": "Caretaker gear",
 			"kit": "Restoration kits"
 		},
 		"placeLabel": "Place:",

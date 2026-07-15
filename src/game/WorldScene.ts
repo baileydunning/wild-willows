@@ -3,7 +3,7 @@ import { bridge } from './bridge';
 import { canPaintClick } from './interactions';
 import {
 	animalScale, animalTexture, ensureAnimalTexture, makeAnimalTextures, makeBaseTextures, makeNodeTextures,
-	makeObjectTextures, makePlayerTexture, snapshotResourceIcons, INV_TEX_SCALE, TEX_SCALE,
+	makeObjectTextures, makePlayerTexture, snapshotResourceIcons, snapshotObjectIcons, INV_TEX_SCALE, TEX_SCALE,
 } from './textures';
 import { seasonStyle, weatherType, liveWeatherType, dayPhaseStyle, phaseAtProgress, gatherResourceFor } from '../weather';
 import { t, content } from '../i18n';
@@ -342,6 +342,7 @@ export class WorldScene extends Phaser.Scene {
 		makeAnimalTextures(this);
 		makeNodeTextures(this);
 		snapshotResourceIcons(this); // cache resource sprites as data URLs for the DOM UI
+		snapshotObjectIcons(this); // …and object sprites, for the crafting/planting menus
 		this.isTouch = this.sys.game.device.input.touch && !this.sys.game.device.os.desktop;
 
 		// Indoors the camera stays clamped to the room; outdoors it's unbounded so
@@ -1245,6 +1246,14 @@ export class WorldScene extends Phaser.Scene {
 		return ((p.craftedEver?.['headlamp'] || 0) + (p.craftedItems?.['headlamp'] || 0)) > 0;
 	}
 
+	/** Does this player own the field binoculars? Same once-only deal as the
+	 *  headlamp. With them, animals not yet recorded in the journal get a glint. */
+	private hasBinoculars(): boolean {
+		const p = bridge.shared.state?.player;
+		if (!p) return false;
+		return ((p.craftedEver?.['binoculars'] || 0) + (p.craftedItems?.['binoculars'] || 0)) > 0;
+	}
+
 	/** Lazily build the night-light visuals: a shared radial-gradient texture,
 	 *  the lamp's warm additive halo, and (WebGL only) the screen-space
 	 *  RenderTexture whose stamped alpha carves holes in the night tint. */
@@ -1317,12 +1326,10 @@ export class WorldScene extends Phaser.Scene {
 		this.ensureHeadlamp();
 		// 0..1 as the night tint fades in (0.66 = full night, see weather.json)
 		const depth = Phaser.Math.Clamp(this.lightState.a / 0.66, 0, 1);
-		// a whisper of flicker (day/night is off under reduce-motion, so this never runs there)
-		const flicker = 1 + Math.sin(this.time.now / 143) * 0.02 + Math.sin(this.time.now / 47) * 0.012;
 		const x = this.player.x, y = this.player.y;
 		// halo pinned just beneath the caretaker so they stand in front of the light
 		this.lampGlow!.setPosition(x, y).setDepth(y - 4)
-			.setAlpha(hasLamp ? 0.3 * depth * flicker : 0).setVisible(hasLamp);
+			.setAlpha(hasLamp ? 0.3 * depth : 0).setVisible(hasLamp);
 		if (!this.lightMaskRT || !this.lightBrush || !this.lightBitmapMask) return; // canvas renderer: halos only
 		// The night tint is screen-space (scrollFactor 0), so the mask is too: a
 		// screen-sized RenderTexture, restamped each frame at each light's
@@ -1340,11 +1347,10 @@ export class WorldScene extends Phaser.Scene {
 		rt.clear();
 		// the lamp never fully clears the night (max ~0.8 mask alpha) — a modest
 		// personal glow, dimmer and tighter than a campfire's
-		if (hasLamp) stamp(x, y, WorldScene.LAMP_MASK, Math.min(0.8, depth * 0.9) * flicker);
-		fires.forEach((f, i) => {
-			// each fire flickers on its own rhythm so a row of fires doesn't pulse in sync
-			const ff = 1 + Math.sin(this.time.now / 96 + i * 1.7) * 0.045;
-			stamp(f.x, f.y - 6, WorldScene.FIRE_MASK * ff, Math.min(1, depth * 1.35));
+		if (hasLamp) stamp(x, y, WorldScene.LAMP_MASK, Math.min(0.8, depth * 0.9));
+		// steady light — no flicker; the lit edge holds still so night reads calmly
+		fires.forEach((f) => {
+			stamp(f.x, f.y - 6, WorldScene.FIRE_MASK, Math.min(1, depth * 1.35));
 		});
 		if (!this.lightOverlay!.mask) this.lightOverlay!.setMask(this.lightBitmapMask);
 	}
@@ -1486,7 +1492,10 @@ export class WorldScene extends Phaser.Scene {
 		// comfort shift, or a different area) — not on every gather/place — so they
 		// keep wandering instead of snapping back to their spawn on each action.
 		const here = (st?.discoveries || []).filter((disc) => disc.biomeId === this.area);
-		const sig = this.area + '|' + here.map((d) => `${d.animalId}:${d.comfort ?? ''}`).sort().join(',');
+		// With binoculars, the sig also tracks which animals are still unrecorded, so
+		// the glint markers appear the moment they're crafted and clear on observing.
+		const binos = this.hasBinoculars();
+		const sig = this.area + '|' + (binos ? 'b|' : '') + here.map((d) => `${d.animalId}:${d.comfort ?? ''}${binos && !d.timesObserved ? ':new' : ''}`).sort().join(',');
 		if (sig !== this.animalSig) {
 			this.animalSig = sig;
 			this.animals.clear(true, true);
@@ -1621,6 +1630,21 @@ export class WorldScene extends Phaser.Scene {
 		return this.add.image(x, y, key).setScale(INV_TEX_SCALE);
 	}
 
+	/** The little four-point star used wherever the world says "something here
+	 *  for you" — harvest-ready plants and the binoculars' unrecorded-animal
+	 *  marker share it, so the cue reads the same across the preserve. */
+	private ensureMoteTexture() {
+		if (this.textures.exists('harvest-mote')) return;
+		const g = this.make.graphics({ x: 0, y: 0 }, false);
+		g.scaleCanvas(TEX_SCALE, TEX_SCALE);
+		g.fillStyle(0xffffff, 1).fillPoints([
+			{ x: 5, y: 0 }, { x: 6.2, y: 3.8 }, { x: 10, y: 5 }, { x: 6.2, y: 6.2 },
+			{ x: 5, y: 10 }, { x: 3.8, y: 6.2 }, { x: 0, y: 5 }, { x: 3.8, y: 3.8 },
+		], true);
+		g.generateTexture('harvest-mote', 10 * TEX_SCALE, 10 * TEX_SCALE);
+		g.destroy();
+	}
+
 	/**
 	 * A gentle golden shimmer over a trail gate that's been unlocked but not yet
 	 * walked through — so a freshly opened way onward is unmistakable. Stops once
@@ -1744,8 +1768,7 @@ export class WorldScene extends Phaser.Scene {
 			const fx = CAMP.fire.x * TILE, fy = CAMP.fire.y * TILE;
 			const fireGlow = this.addDyn(this.img(fx, fy - 4, 'glow').setTint(0xffb84f).setDepth(fy - 1).setScale(1.3 * INV_TEX_SCALE));
 			(fireGlow as Phaser.GameObjects.Image).setBlendMode(Phaser.BlendModes.ADD);
-			const fire = this.addDyn(this.img(fx, fy, 'campfire').setDepth(fy));
-			this.tweens.add({ targets: [fire, fireGlow], alpha: { from: 1, to: 0.75 }, duration: 420, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+			this.addDyn(this.img(fx, fy, 'campfire').setDepth(fy));
 
 			const gx = (this.cols - 1.2) * TILE;
 			const gy = this.dimsOf(this.area).gateY * TILE;
@@ -2305,16 +2328,7 @@ export class WorldScene extends Phaser.Scene {
 					// A single small, dim star that twinkles occasionally above the plant —
 					// staggered per-plant so a field of ready plants doesn't pulse in
 					// unison (the old full glow on every plant read as a wall of light).
-					if (!this.textures.exists('harvest-mote')) {
-						const g = this.make.graphics({ x: 0, y: 0 }, false);
-						g.scaleCanvas(TEX_SCALE, TEX_SCALE);
-						g.fillStyle(0xffffff, 1).fillPoints([
-							{ x: 5, y: 0 }, { x: 6.2, y: 3.8 }, { x: 10, y: 5 }, { x: 6.2, y: 6.2 },
-							{ x: 5, y: 10 }, { x: 3.8, y: 6.2 }, { x: 0, y: 5 }, { x: 3.8, y: 3.8 },
-						], true);
-						g.generateTexture('harvest-mote', 10 * TEX_SCALE, 10 * TEX_SCALE);
-						g.destroy();
-					}
+					this.ensureMoteTexture();
 					const stagger = hashStr(p.id) % 1400;
 					const mote = this.addDyn(this.img(x + (tall ? 7 : 5), y - (tall ? 22 : 10), 'harvest-mote').setDepth(y + 40).setTint(0xffe9a8).setAlpha(0).setScale(0.12));
 					mote.setBlendMode(Phaser.BlendModes.ADD);
@@ -2370,15 +2384,14 @@ export class WorldScene extends Phaser.Scene {
 			// paint-tool recolor: a per-item color override wins over the default tint
 			if (p.color) img.setTint(Phaser.Display.Color.HexStringToColor(p.color).color);
 
-			// placed campfires glow like the base-camp fire: a warm additive halo
-			// (wide wash + bright core) with a gentle flicker (indoors too — cozy
-			// in a tent). At night the light mask also carves the dark away here.
+			// placed campfires glow like the base-camp fire: a warm, steady additive
+			// halo (wide wash + bright core — indoors too, cozy in a tent). At night
+			// the light mask also carves the dark away here.
 			if (p.objectId === 'campfire') {
 				const glow = this.addDyn(this.img(x, y - 4, 'glow').setTint(0xffb84f).setDepth(y - 1).setScale(1.7 * INV_TEX_SCALE)) as Phaser.GameObjects.Image;
 				glow.setBlendMode(Phaser.BlendModes.ADD);
 				const core = this.addDyn(this.img(x, y - 4, 'glow').setTint(0xffd98a).setDepth(y - 1).setScale(0.9 * INV_TEX_SCALE)) as Phaser.GameObjects.Image;
 				core.setBlendMode(Phaser.BlendModes.ADD);
-				this.tweens.add({ targets: [img, glow, core], alpha: { from: 1, to: 0.72 }, duration: 420, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
 			}
 
 			img.setInteractive({ useHandCursor: true });
@@ -2493,24 +2506,59 @@ export class WorldScene extends Phaser.Scene {
 				const img = this.img(ax, ay, key).setDepth(ay);
 				this.animals.add(img);
 				(sh as any).animal = img;
-				this.decorateAnimal(img, animal, tint, rng, swimmer);
+				this.decorateAnimal(img, animal, tint, rng, swimmer, !disc.timesObserved);
 			} else {
 				const img = this.img(ax, ay, key).setDepth(ay);
 				this.animals.add(img);
-				this.decorateAnimal(img, animal, tint, rng, swimmer);
+				this.decorateAnimal(img, animal, tint, rng, swimmer, !disc.timesObserved);
 			}
 		}
 	}
 
-	private decorateAnimal(img: Phaser.GameObjects.Image, animal: any, tint: number | null, rng: () => number, ocean = false) {
+	private decorateAnimal(img: Phaser.GameObjects.Image, animal: any, tint: number | null, rng: () => number, ocean = false, unseen = false) {
 		if (tint) img.setTint(tint);
 		// proportional size per species (bear ≫ chipmunk ≫ salamander), with a
 		// touch of per-animal jitter so individuals still vary
 		const scale = animalScale(animal.id, animal.kind) * INV_TEX_SCALE;
 		img.setScale(scale);
 		img.setInteractive({ useHandCursor: true });
+		// Field binoculars: animals you haven't recorded in the journal yet get the
+		// same twinkling golden mote as harvest-ready plants — one cue, everywhere,
+		// staggered per animal so a crowd of newcomers doesn't pulse in unison.
+		let glint: Phaser.GameObjects.Image | null = null;
+		if (unseen && this.hasBinoculars()) {
+			this.ensureMoteTexture();
+			const stagger = hashStr(animal.id) % 1400;
+			glint = this.add.image(img.x, img.y, 'harvest-mote')
+				.setDepth(img.y + 400).setTint(0xffe9a8).setAlpha(0).setScale(0.12);
+			glint.setBlendMode(Phaser.BlendModes.ADD);
+			this.animals.add(glint);
+			this.tweens.add({
+				targets: glint,
+				alpha: { from: 0, to: 0.75 },
+				scale: { from: 0.08, to: 0.18 },
+				angle: { from: 0, to: 40 },
+				duration: 780, delay: stagger, hold: 120, yoyo: true,
+				repeat: -1, repeatDelay: 900 + (hashStr(animal.id + 'r') % 900),
+				ease: 'Sine.easeInOut',
+			});
+			// pinned above the animal as it wanders (same follow trick as the swimmer shadows)
+			const follow = this.time.addEvent({
+				delay: 60, loop: true,
+				callback: () => {
+					if (img.active && glint!.active) {
+						glint!.setPosition(img.x + 4, img.y - img.displayHeight * 0.8 - 5).setDepth(img.y + 400);
+					} else {
+						follow.remove();
+						if (glint?.active) glint.destroy();
+					}
+				},
+			});
+		}
 		img.on('pointerdown', () => {
 			if (bridge.shared.uiBlocking) return; // a modal is open — clicks don't reach the world
+			// observing records it — the "someone new" glint has done its job
+			if (glint?.active) glint.destroy();
 			bridge.emit('animal-clicked', { animalId: animal.id });
 		});
 		// gentle breathing — everything in the preserve feels alive (keeps its base size).
