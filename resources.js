@@ -5996,17 +5996,19 @@ var tools_default = {
       id: "basket",
       name: "Gathering Basket",
       description: "For gently collecting light, renewable materials: seeds, berries, flowers, fiber, shells.",
-      shape: "basket",
+      shape: "basket1",
       tiers: [
         {
           tier: 1,
           name: "Gathering Basket",
-          effect: "Carry up to 200 materials and gather 1 at a time."
+          effect: "Carry up to 200 materials and gather 1 at a time.",
+          shape: "basket1"
         },
         {
           tier: 2,
           name: "Reinforced Gathering Basket",
           effect: "Carry up to 350 materials and gather 2 light materials at a time.",
+          shape: "basket2",
           materials: {
             fiber: 8,
             branches: 4,
@@ -6021,6 +6023,7 @@ var tools_default = {
           tier: 3,
           name: "Woven Carryall",
           effect: "Carry up to 550 materials and gather 3 at a time.",
+          shape: "basket3",
           materials: {
             fiber: 10,
             bark: 4,
@@ -6035,6 +6038,7 @@ var tools_default = {
           tier: 4,
           name: "Naturalist's Pack",
           effect: "Carry up to 800 materials and gather 4 at a time.",
+          shape: "basket4",
           materials: {
             reeds: 8,
             fiber: 8,
@@ -6051,17 +6055,19 @@ var tools_default = {
       id: "shovel",
       name: "Basic Shovel",
       description: "For carefully digging stones, clay, and sand, and preparing restoration ground.",
-      shape: "shovel",
+      shape: "shovel1",
       tiers: [
         {
           tier: 1,
           name: "Basic Shovel",
-          effect: "Dig stones, clay, and sand; gather 1 at a time."
+          effect: "Dig stones, clay, and sand; gather 1 at a time.",
+          shape: "shovel1"
         },
         {
           tier: 2,
           name: "Restoration Shovel",
           effect: "Shape wetland mud banks and burrow mounds; gather 2 dug materials.",
+          shape: "shovel2",
           materials: {
             branches: 4,
             stones: 6,
@@ -6076,6 +6082,7 @@ var tools_default = {
           tier: 3,
           name: "Tempered Spade",
           effect: "Dig faster and gather 3 dug materials at a time.",
+          shape: "shovel3",
           materials: {
             stones: 8,
             bark: 3,
@@ -6090,6 +6097,7 @@ var tools_default = {
           tier: 4,
           name: "Earthshaper's Spade",
           effect: "Shape the toughest ground and gather 4 dug materials at a time.",
+          shape: "shovel4",
           materials: {
             stones: 10,
             clay: 6,
@@ -6106,21 +6114,23 @@ var tools_default = {
       id: "watering-can",
       name: "Tin Watering Can",
       description: "For carrying water to thirsty ground and new plantings.",
-      shape: "wateringcan",
+      shape: "wateringcan1",
       tiers: [
         {
           tier: 1,
           name: "Tin Watering Can",
-          effect: "Collect 1 water from springs and streams."
+          effect: "Collect 1 water from springs and streams.",
+          shape: "wateringcan1"
         },
         {
           tier: 2,
           name: "Rainwater Canteen",
           effect: "Collect 2 water at a time \u2014 restore dry ground more efficiently.",
+          shape: "wateringcan2",
           materials: {
             clay: 6,
             fiber: 3,
-            water: 4
+            rainwater: 4
           },
           requires: {
             biome: "meadow",
@@ -6131,10 +6141,12 @@ var tools_default = {
           tier: 3,
           name: "Spring-fed Ewer",
           effect: "Collect 3 water at a time for rivers, lakes, and lush beds.",
+          shape: "wateringcan3",
           materials: {
             clay: 8,
             bark: 4,
-            water: 6
+            water: 4,
+            rainwater: 3
           },
           requires: {
             biome: "forest",
@@ -6145,10 +6157,11 @@ var tools_default = {
           tier: 4,
           name: "Cloudcatcher Urn",
           effect: "Collect 4 water at a time \u2014 flood whole channels in a few trips.",
+          shape: "wateringcan4",
           materials: {
-            clay: 10,
+            clay: 8,
             "clean-water": 6,
-            stones: 4
+            rainwater: 4
           },
           requires: {
             biome: "wetland",
@@ -6161,17 +6174,19 @@ var tools_default = {
       id: "field-journal",
       name: "Field Journal",
       description: "For observing animals and recording who has returned. Each area has its own field guide \u2014 gather that area's materials to upgrade and unlock its full entries and return hints.",
-      shape: "journal",
+      shape: "journal1",
       tiers: [
         {
           tier: 1,
           name: "Field Journal",
-          effect: "Observe and log who has returned. Upgrade with each area's materials to read its full field entries and return hints."
+          effect: "Observe and log who has returned. Upgrade with each area's materials to read its full field entries and return hints.",
+          shape: "journal1"
         },
         {
           tier: 2,
           name: "Willow Meadow Field Guide",
           effect: "Read full entries and return hints for Willow Meadow animals.",
+          shape: "journal2",
           materials: {
             seeds: 4,
             fiber: 3,
@@ -6185,6 +6200,7 @@ var tools_default = {
           tier: 3,
           name: "Old Hollow Forest Field Guide",
           effect: "Read full entries and return hints for Old Hollow Forest animals.",
+          shape: "journal3",
           materials: {
             moss: 4,
             mushrooms: 2,
@@ -6198,6 +6214,7 @@ var tools_default = {
           tier: 4,
           name: "Rushwater Wetland Field Guide",
           effect: "Read full entries and return hints for Rushwater Wetland animals.",
+          shape: "journal4",
           materials: {
             reeds: 4,
             mud: 2,
@@ -6211,6 +6228,7 @@ var tools_default = {
           tier: 5,
           name: "Redstone Scrubland Field Guide",
           effect: "Read full entries and return hints for Redstone Scrubland animals.",
+          shape: "journal5",
           materials: {
             "cactus-fruit": 2,
             sand: 3,
@@ -6225,6 +6243,7 @@ var tools_default = {
           tier: 6,
           name: "Graywind Heights Field Guide",
           effect: "Read full entries and return hints for Graywind Heights animals.",
+          shape: "journal6",
           materials: {
             "alpine-flowers": 3,
             lichen: 2,
@@ -6238,6 +6257,7 @@ var tools_default = {
           tier: 7,
           name: "Master Naturalist's Guide",
           effect: "Read full entries and return hints for Pelican Shore animals \u2014 the complete field guide.",
+          shape: "journal7",
           materials: {
             shells: 3,
             driftwood: 2,
@@ -15002,7 +15022,7 @@ var supportHtml = `<!doctype html>
 </body>
 </html>
 `;
-var buildStamp = "0.1.11+2026-07-15T15:49:29.573Z";
+var buildStamp = "0.1.11+2026-07-15T16:13:34.337Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";

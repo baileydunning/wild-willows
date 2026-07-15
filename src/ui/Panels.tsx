@@ -718,8 +718,8 @@ export function ToolsPanel() {
 				const haveMats = next ? Object.entries(next.materials || {}).every(([id, q]) => availability(id) >= q) : false;
 				return (
 					<div className="recipe" key={tool.id}>
-						{/* the same sprite the world draws for this tool's gear */}
-						<ObjectIcon shape={tool.shape} color="#9a8156" size={34} />
+						{/* the sprite for the tool's CURRENT tier — it upgrades as you do */}
+						<ObjectIcon shape={current?.shape || tool.shape} color="#9a8156" size={34} />
 						<div className="grow">
 							<b>
 								{current
@@ -733,6 +733,7 @@ export function ToolsPanel() {
 							{next ? (
 								<>
 									<div className="small upgrade-next">
+										{next.shape && <ObjectIcon shape={next.shape} color="#9a8156" size={20} />}{' '}
 										{t('panels.tools.upgradeNext')}{' '}
 										<b>{content('tool', tool.id, `tiers.${next.tier}.name`, next.name)}</b>:{' '}
 										{content('tool', tool.id, `tiers.${next.tier}.effect`, next.effect)}

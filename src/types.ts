@@ -188,6 +188,9 @@ export interface ToolTier {
 	tier: number;
 	name: string;
 	effect: string;
+	/** Object-sprite key (obj-<shape>) for this specific tier, so the tool's
+	 *  picture in the Tools & Upgrades menu evolves as you upgrade it. */
+	shape?: string;
 	materials?: Record<string, number>;
 	requires?: { biome: string; minHealth: number };
 }
