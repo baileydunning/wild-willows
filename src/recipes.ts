@@ -8,9 +8,7 @@ import type { GameData, GameState, RecipeDef, HabitatObjectDef } from './types';
 function returnedInBiome(data: GameData, state: GameState, biomeId: string): Set<string> {
 	const animalBiome = new Map(data.animals.map((a) => [a.id, a.biome]));
 	return new Set(
-		(state.discoveries || [])
-			.filter((d) => animalBiome.get(d.animalId) === biomeId)
-			.map((d) => d.animalId),
+		(state.discoveries || []).filter((d) => animalBiome.get(d.animalId) === biomeId).map((d) => d.animalId),
 	);
 }
 

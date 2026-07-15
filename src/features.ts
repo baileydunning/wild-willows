@@ -14,5 +14,4 @@
 //
 // `typeof` keeps this safe in non-Vite contexts (e.g. Vitest), where the
 // injected constant doesn't exist — there it falls back to `false`.
-export const COOP_ENABLED: boolean =
-	typeof __COOP_ENABLED__ !== 'undefined' ? __COOP_ENABLED__ : false;
+export const COOP_ENABLED: boolean = typeof __COOP_ENABLED__ !== 'undefined' ? __COOP_ENABLED__ : false;

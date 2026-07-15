@@ -20,8 +20,8 @@ import { getLocale } from '../i18n';
 import { APP_VERSION, BUILD_TIME, detectOS } from '../platform';
 
 const REPORT_MS = 3 * 60 * 1000; // network-friendly cadence
-const STARTUP_RETRY_MS = 700;    // re-try the first report until the save slot exists
-const STARTUP_MAX_TRIES = 30;    // ~21s of retries, then give up (the interval covers it)
+const STARTUP_RETRY_MS = 700; // re-try the first report until the save slot exists
+const STARTUP_MAX_TRIES = 30; // ~21s of retries, then give up (the interval covers it)
 
 let timer: number | null = null;
 let inFlight = false;
@@ -43,7 +43,7 @@ async function reportOnce(): Promise<boolean> {
 	const pid = getPlayerId();
 	const slot = getSoloSlot();
 	if (!pid || !slot) return false; // session/slot not ready yet — caller retries
-	if (inFlight) return true;       // a report is already in flight; that counts
+	if (inFlight) return true; // a report is already in flight; that counts
 	inFlight = true;
 	try {
 		// The in-app backend derives the same metrics view the server would

@@ -2,12 +2,10 @@
 // feedback sender so both report the same machine/build facts.
 
 /** Wild Willows version from package.json, baked in at build time. */
-export const APP_VERSION: string =
-	typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'dev';
+export const APP_VERSION: string = typeof __APP_VERSION__ !== 'undefined' ? __APP_VERSION__ : 'dev';
 
 /** Build timestamp, baked in at build time. */
-export const BUILD_TIME: string =
-	typeof __BUILD_TIME__ !== 'undefined' ? __BUILD_TIME__ : 'dev';
+export const BUILD_TIME: string = typeof __BUILD_TIME__ !== 'undefined' ? __BUILD_TIME__ : 'dev';
 
 /**
  * Best-effort operating system from the user agent. Works in both the
@@ -34,9 +32,10 @@ export function getDeviceId(): string {
 	try {
 		let id = localStorage.getItem(DEVICE_ID_KEY);
 		if (!id) {
-			id = (typeof crypto !== 'undefined' && crypto.randomUUID)
-				? crypto.randomUUID()
-				: `d_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+			id =
+				typeof crypto !== 'undefined' && crypto.randomUUID
+					? crypto.randomUUID()
+					: `d_${Date.now()}_${Math.random().toString(36).slice(2)}`;
 			localStorage.setItem(DEVICE_ID_KEY, id);
 		}
 		return id;

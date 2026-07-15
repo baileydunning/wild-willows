@@ -53,15 +53,17 @@ beforeEach(async () => {
 
 describe('pitching a trail tent', () => {
 	it('cannot be pitched in the meadow (home turf)', async () => {
-		await expect(post('PlaceObject', { playerId: pid, objectId: 'trail-tent', area: 'meadow', x: 10, y: 10 }))
-			.rejects.toThrow(/suit/i);
+		await expect(
+			post('PlaceObject', { playerId: pid, objectId: 'trail-tent', area: 'meadow', x: 10, y: 10 }),
+		).rejects.toThrow(/suit/i);
 	});
 
 	it('pitches in a wild biome, but only one per biome', async () => {
 		const r = await post('PlaceObject', { playerId: pid, objectId: 'trail-tent', area: 'forest', x: 10, y: 10 });
 		expect(r.ok).toBe(true);
-		await expect(post('PlaceObject', { playerId: pid, objectId: 'trail-tent', area: 'forest', x: 12, y: 12 }))
-			.rejects.toThrow(/already/i);
+		await expect(
+			post('PlaceObject', { playerId: pid, objectId: 'trail-tent', area: 'forest', x: 12, y: 12 }),
+		).rejects.toThrow(/already/i);
 	});
 });
 
@@ -79,23 +81,38 @@ describe('the tent interior', () => {
 
 	it('accepts starter indoor furniture on the floor, following home rules', async () => {
 		// off the floor → rejected (before the rug is consumed by a real placement)
-		await expect(post('PlaceObject', { playerId: pid, objectId: 'home-rug', area: 'tent-forest', x: 2, y: 2 }))
-			.rejects.toThrow(/floor/i);
-		const r = await post('PlaceObject', { playerId: pid, objectId: 'home-rug', area: 'tent-forest', x: FLOOR.x, y: FLOOR.y });
+		await expect(
+			post('PlaceObject', { playerId: pid, objectId: 'home-rug', area: 'tent-forest', x: 2, y: 2 }),
+		).rejects.toThrow(/floor/i);
+		const r = await post('PlaceObject', {
+			playerId: pid,
+			objectId: 'home-rug',
+			area: 'tent-forest',
+			x: FLOOR.x,
+			y: FLOOR.y,
+		});
 		expect(r.ok).toBe(true);
 		expect(r.placement.area).toBe('tent-forest');
 	});
 
 	it('rejects outdoor items and house-sized furniture', async () => {
-		await expect(post('PlaceObject', { playerId: pid, objectId: 'grass-patch', area: 'tent-forest', x: FLOOR.x, y: FLOOR.y }))
-			.rejects.toThrow(/preserve/i); // outdoor-only
-		await expect(post('PlaceObject', { playerId: pid, objectId: 'home-bed', area: 'tent-forest', x: FLOOR.x, y: FLOOR.y }))
-			.rejects.toThrow(/house/i); // homeMin 2 won't fit a tent
+		await expect(
+			post('PlaceObject', { playerId: pid, objectId: 'grass-patch', area: 'tent-forest', x: FLOOR.x, y: FLOOR.y }),
+		).rejects.toThrow(/preserve/i); // outdoor-only
+		await expect(
+			post('PlaceObject', { playerId: pid, objectId: 'home-bed', area: 'tent-forest', x: FLOOR.x, y: FLOOR.y }),
+		).rejects.toThrow(/house/i); // homeMin 2 won't fit a tent
 	});
 
 	it('keeps the tent pinned while furnished, and frees it once packed up', async () => {
-		const placed = await post('PlaceObject', { playerId: pid, objectId: 'home-rug', area: 'tent-forest', x: FLOOR.x, y: FLOOR.y });
-		const tent = (await holder.db.Placement.search({}) as any);
+		const placed = await post('PlaceObject', {
+			playerId: pid,
+			objectId: 'home-rug',
+			area: 'tent-forest',
+			x: FLOOR.x,
+			y: FLOOR.y,
+		});
+		const tent = (await holder.db.Placement.search({})) as any;
 		const rows: any[] = [];
 		for await (const row of tent) rows.push(row);
 		const tentRow = rows.find((p) => p.objectId === 'trail-tent');

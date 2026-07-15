@@ -3,7 +3,7 @@ import { HEALTH_CAPS, healthCapForReturns, nextHealthMilestone } from '../../src
 
 // Mirrors server/resources.ts — if these change, change both places.
 describe('health-cap milestones', () => {
-	it('caps health until enough of the biome\'s animals have returned', () => {
+	it("caps health until enough of the biome's animals have returned", () => {
 		expect(healthCapForReturns(0)).toBe(60);
 		expect(healthCapForReturns(4)).toBe(60);
 		expect(healthCapForReturns(5)).toBe(75);

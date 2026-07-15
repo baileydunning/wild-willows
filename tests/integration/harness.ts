@@ -52,10 +52,29 @@ function makeTable(): Table {
 }
 
 const TABLES = [
-	'Biome', 'Animal', 'ResourceType', 'Recipe', 'HabitatObject', 'ToolDef', 'Achievement',
-	'World', 'WorldMember', 'Player', 'BiomeState', 'Chest', 'Placement', 'Discovery',
-	'NodeState', 'TerrainTile', 'PlayerAchievement', 'FeedEntry', 'WorldPresence', 'JoinRequest',
-	'Feedback', 'SoloMetrics', 'AppOpen',
+	'Biome',
+	'Animal',
+	'ResourceType',
+	'Recipe',
+	'HabitatObject',
+	'ToolDef',
+	'Achievement',
+	'World',
+	'WorldMember',
+	'Player',
+	'BiomeState',
+	'Chest',
+	'Placement',
+	'Discovery',
+	'NodeState',
+	'TerrainTile',
+	'PlayerAchievement',
+	'FeedEntry',
+	'WorldPresence',
+	'JoinRequest',
+	'Feedback',
+	'SoloMetrics',
+	'AppOpen',
 ];
 
 export type Db = Record<string, Table>;
@@ -139,7 +158,12 @@ export async function freshWorld(): Promise<World> {
 }
 
 export const appearance = {
-	skin: '#eec39a', hair: '#6e4a33', outfit: '#4a7c59', hat: 'straw', hairstyle: 'short', body: 'slim',
+	skin: '#eec39a',
+	hair: '#6e4a33',
+	outfit: '#4a7c59',
+	hat: 'straw',
+	hairstyle: 'short',
+	body: 'slim',
 };
 
 /** First gatherable resource in the meadow — handy for collect tests. */

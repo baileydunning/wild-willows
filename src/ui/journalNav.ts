@@ -7,9 +7,7 @@
  * crafting menu's memory.
  */
 
-export type JournalLoc =
-	| { kind: 'view'; tab: string; view: 'list' | 'web' }
-	| { kind: 'animal'; id: string };
+export type JournalLoc = { kind: 'view'; tab: string; view: 'list' | 'web' } | { kind: 'animal'; id: string };
 
 const same = (a: JournalLoc | undefined, b: JournalLoc): boolean => {
 	if (!a || a.kind !== b.kind) return false;
@@ -21,7 +19,9 @@ const same = (a: JournalLoc | undefined, b: JournalLoc): boolean => {
 const hist: JournalLoc[] = [];
 let idx = -1;
 const listeners = new Set<() => void>();
-const notify = () => { for (const l of listeners) l(); };
+const notify = () => {
+	for (const l of listeners) l();
+};
 
 export const journalNav = {
 	current(): JournalLoc | undefined {
@@ -59,6 +59,8 @@ export const journalNav = {
 	/** The journal panel listens so back/forward can retarget its tab/view. */
 	subscribe(fn: () => void): () => void {
 		listeners.add(fn);
-		return () => { listeners.delete(fn); };
+		return () => {
+			listeners.delete(fn);
+		};
 	},
 };

@@ -692,6 +692,14 @@ input {
 	border-radius: 14px; padding: 10px 14px; margin-bottom: 8px;
 }
 .recipe-off { opacity: 0.7; }
+.gear-section { margin-top: 14px; }
+.gear-section > h3 { display: inline-flex; align-items: center; gap: 5px; }
+.gear-toggle {
+	flex-shrink: 0; min-width: 62px; font-weight: 700;
+	border-radius: 11px; padding: 6px 14px;
+}
+.gear-toggle.gear-on { background: var(--green); border-color: var(--green-deep); color: #fff; }
+.gear-toggle.gear-off { background: var(--cream); border-color: var(--line); color: var(--ink-soft); }
 .mats { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 5px; }
 .mat {
 	font-size: calc(11.5px * var(--ui-scale)); font-weight: 600; padding: 3px 8px; border-radius: 10px;

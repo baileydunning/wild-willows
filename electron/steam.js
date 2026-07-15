@@ -18,10 +18,12 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-let client = null;     // steamworks.js client, or null when unavailable
+let client = null; // steamworks.js client, or null when unavailable
 let enabled = false;
 
-function logger() { return console; }
+function logger() {
+	return console;
+}
 
 /** Resolve the Steam App ID: env override, else steam_appid.txt, else dev fallback. */
 function resolveAppId(app) {
@@ -35,7 +37,9 @@ function resolveAppId(app) {
 		try {
 			const id = Number(fs.readFileSync(f, 'utf8').trim());
 			if (id) return id;
-		} catch { /* keep looking */ }
+		} catch {
+			/* keep looking */
+		}
 	}
 	return 480; // Spacewar — Valve's public test app, for development only
 }
@@ -53,7 +57,9 @@ function init(app) {
 	try {
 		// Lets the Steam overlay attach to Electron. Harmless if unsupported.
 		steamworks.electronEnableSteamOverlay?.();
-	} catch { /* ignore */ }
+	} catch {
+		/* ignore */
+	}
 
 	const appId = resolveAppId(app);
 	try {
@@ -71,8 +77,12 @@ function init(app) {
 }
 
 function safe(fn, label) {
-	try { return fn(); }
-	catch (err) { logger().log(`[steam] ${label || 'call'} failed: ${err && err.message}`); return undefined; }
+	try {
+		return fn();
+	} catch (err) {
+		logger().log(`[steam] ${label || 'call'} failed: ${err && err.message}`);
+		return undefined;
+	}
 }
 
 const isEnabled = () => enabled && !!client;

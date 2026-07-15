@@ -29,7 +29,8 @@ for (const t of d.tools) {
 		const biome = tier.requires?.biome || 'meadow';
 		const avail = gatherableAt[biome];
 		for (const mat of Object.keys(tier.materials || {})) {
-			if (!avail?.has(mat)) problems.push(`tool ${t.id} tier ${tier.tier} (req ${biome}) needs ${mat} — not gatherable yet`);
+			if (!avail?.has(mat))
+				problems.push(`tool ${t.id} tier ${tier.tier} (req ${biome}) needs ${mat} — not gatherable yet`);
 		}
 	}
 }
@@ -50,8 +51,12 @@ const bundleItems = new Set(d.habitatObjects.flatMap((o) => Object.keys(o.bundle
 for (const a of d.animals) {
 	for (const objId of Object.keys(a.requirements?.objects || {})) {
 		const def = d.habitatObjects.find((o) => o.id === objId);
-		if (!def) { problems.push(`animal ${a.id} requires unknown object ${objId}`); continue; }
-		if (!(def.biomes || []).includes(a.biome)) problems.push(`animal ${a.id} (${a.biome}) requires ${objId} not placeable there`);
+		if (!def) {
+			problems.push(`animal ${a.id} requires unknown object ${objId}`);
+			continue;
+		}
+		if (!(def.biomes || []).includes(a.biome))
+			problems.push(`animal ${a.id} (${a.biome}) requires ${objId} not placeable there`);
 		const recipe = recipeFor[objId];
 		const viaRecipe = recipe && (orderOf[recipe.unlockBiome] ?? 99) <= orderOf[a.biome];
 		const viaPlant = def.plantable && Math.min(...(def.biomes || []).map((b) => orderOf[b] ?? 99)) <= orderOf[a.biome];
@@ -65,7 +70,13 @@ for (const a of d.animals) {
 }
 
 const blocking = problems.filter((p) => !p.startsWith('note:'));
-console.log(`recipes: ${d.recipes.length} · tools: ${d.tools.length} · plants: ${d.habitatObjects.filter((o) => o.plantable).length} · animals: ${d.animals.length}`);
+console.log(
+	`recipes: ${d.recipes.length} · tools: ${d.tools.length} · plants: ${d.habitatObjects.filter((o) => o.plantable).length} · animals: ${d.animals.length}`,
+);
 problems.forEach((p) => console.log(' -', p));
-console.log(blocking.length === 0 ? 'AUDIT PASS — everything is obtainable in unlock order' : `AUDIT FAIL — ${blocking.length} blocking problems`);
+console.log(
+	blocking.length === 0
+		? 'AUDIT PASS — everything is obtainable in unlock order'
+		: `AUDIT FAIL — ${blocking.length} blocking problems`,
+);
 process.exit(blocking.length === 0 ? 0 : 1);

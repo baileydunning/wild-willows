@@ -26,7 +26,7 @@ export function randomizeAppearance(opts: AppearanceOptions | undefined, current
 		hair: pick(opts.hair) ?? current.hair,
 		outfit: pick(opts.outfits) ?? current.outfit,
 		hat,
-		hatColor: hat !== 'none' && Math.random() < 0.35 ? pick(opts.hatColors) ?? null : null,
+		hatColor: hat !== 'none' && Math.random() < 0.35 ? (pick(opts.hatColors) ?? null) : null,
 		hairstyle: pick(opts.hairstyles) ?? current.hairstyle,
 		beard: pick(opts.beards) ?? current.beard ?? 'none',
 		body: pick(opts.bodies) ?? current.body,
@@ -55,27 +55,56 @@ export function AppearanceRows({ value, onChange }: { value: Appearance; onChang
 			<div className="swatch-row">
 				<span className="swatch-label">{t('app.appearance.skin')}</span>
 				{(opts?.skins || []).map((c) => (
-					<button type="button" key={c} className={`swatch-btn ${value.skin === c ? 'sel' : ''}`} style={{ background: c }} onClick={() => set({ skin: c })} aria-label={t('app.appearance.skinAria', { color: c })} />
+					<button
+						type="button"
+						key={c}
+						className={`swatch-btn ${value.skin === c ? 'sel' : ''}`}
+						style={{ background: c }}
+						onClick={() => set({ skin: c })}
+						aria-label={t('app.appearance.skinAria', { color: c })}
+					/>
 				))}
 				<label className="swatch-pick" title={t('app.appearance.pickSkin')}>
 					<Icon name="eyedropper" size={14} />
-					<input type="color" value={value.skin} onChange={(e) => set({ skin: e.target.value })} aria-label={t('app.appearance.customSkin')} />
+					<input
+						type="color"
+						value={value.skin}
+						onChange={(e) => set({ skin: e.target.value })}
+						aria-label={t('app.appearance.customSkin')}
+					/>
 				</label>
 			</div>
 			<div className="swatch-row">
 				<span className="swatch-label">{t('app.appearance.hair')}</span>
 				{(opts?.hair || []).map((c) => (
-					<button type="button" key={c} className={`swatch-btn ${value.hair === c ? 'sel' : ''}`} style={{ background: c }} onClick={() => set({ hair: c })} aria-label={t('app.appearance.hairAria', { color: c })} />
+					<button
+						type="button"
+						key={c}
+						className={`swatch-btn ${value.hair === c ? 'sel' : ''}`}
+						style={{ background: c }}
+						onClick={() => set({ hair: c })}
+						aria-label={t('app.appearance.hairAria', { color: c })}
+					/>
 				))}
 				<label className="swatch-pick" title={t('app.appearance.pickHair')}>
 					<Icon name="eyedropper" size={14} />
-					<input type="color" value={value.hair} onChange={(e) => set({ hair: e.target.value })} aria-label={t('app.appearance.customHair')} />
+					<input
+						type="color"
+						value={value.hair}
+						onChange={(e) => set({ hair: e.target.value })}
+						aria-label={t('app.appearance.customHair')}
+					/>
 				</label>
 			</div>
 			<div className="swatch-row">
 				<span className="swatch-label">{t('app.appearance.style')}</span>
 				{(opts?.hairstyles || []).map((h) => (
-					<button type="button" key={h} className={`hat-btn ${value.hairstyle === h ? 'sel' : ''}`} onClick={() => set({ hairstyle: h })}>
+					<button
+						type="button"
+						key={h}
+						className={`hat-btn ${value.hairstyle === h ? 'sel' : ''}`}
+						onClick={() => set({ hairstyle: h })}
+					>
 						{optLabel('hairstyleLabel', h)}
 					</button>
 				))}
@@ -83,7 +112,12 @@ export function AppearanceRows({ value, onChange }: { value: Appearance; onChang
 			<div className="swatch-row">
 				<span className="swatch-label">{t('app.appearance.beard')}</span>
 				{(opts?.beards || []).map((b) => (
-					<button type="button" key={b} className={`hat-btn ${(value.beard || 'none') === b ? 'sel' : ''}`} onClick={() => set({ beard: b })}>
+					<button
+						type="button"
+						key={b}
+						className={`hat-btn ${(value.beard || 'none') === b ? 'sel' : ''}`}
+						onClick={() => set({ beard: b })}
+					>
 						{optLabel('beardLabel', b)}
 					</button>
 				))}
@@ -91,7 +125,12 @@ export function AppearanceRows({ value, onChange }: { value: Appearance; onChang
 			<div className="swatch-row">
 				<span className="swatch-label">{t('app.appearance.build')}</span>
 				{(opts?.bodies || []).map((b) => (
-					<button type="button" key={b} className={`hat-btn ${value.body === b ? 'sel' : ''}`} onClick={() => set({ body: b })}>
+					<button
+						type="button"
+						key={b}
+						className={`hat-btn ${value.body === b ? 'sel' : ''}`}
+						onClick={() => set({ body: b })}
+					>
 						{optLabel('bodyLabel', b)}
 					</button>
 				))}
@@ -99,25 +138,50 @@ export function AppearanceRows({ value, onChange }: { value: Appearance; onChang
 			<div className="swatch-row">
 				<span className="swatch-label">{t('app.appearance.outfit')}</span>
 				{(opts?.outfits || []).map((c) => (
-					<button type="button" key={c} className={`swatch-btn ${value.outfit === c ? 'sel' : ''}`} style={{ background: c }} onClick={() => set({ outfit: c })} aria-label={t('app.appearance.outfitAria', { color: c })} />
+					<button
+						type="button"
+						key={c}
+						className={`swatch-btn ${value.outfit === c ? 'sel' : ''}`}
+						style={{ background: c }}
+						onClick={() => set({ outfit: c })}
+						aria-label={t('app.appearance.outfitAria', { color: c })}
+					/>
 				))}
 				<label className="swatch-pick" title={t('app.appearance.pickOutfit')}>
 					<Icon name="eyedropper" size={14} />
-					<input type="color" value={value.outfit} onChange={(e) => set({ outfit: e.target.value })} aria-label={t('app.appearance.customOutfit')} />
+					<input
+						type="color"
+						value={value.outfit}
+						onChange={(e) => set({ outfit: e.target.value })}
+						aria-label={t('app.appearance.customOutfit')}
+					/>
 				</label>
 			</div>
 			<div className="swatch-row">
 				<span className="swatch-label">{t('app.appearance.hat')}</span>
 				{(opts?.hats || []).map((h) => (
 					// picking a hat starts from its classic colors; the eyedropper re-tints
-					<button type="button" key={h} className={`hat-btn ${value.hat === h ? 'sel' : ''}`} onClick={() => set({ hat: h, hatColor: null })}>
+					<button
+						type="button"
+						key={h}
+						className={`hat-btn ${value.hat === h ? 'sel' : ''}`}
+						onClick={() => set({ hat: h, hatColor: null })}
+					>
 						{optLabel('hatLabel', h)}
 					</button>
 				))}
 				{value.hat !== 'none' && (
-					<label className="swatch-pick" title={value.hat === 'flower' ? t('app.appearance.recolorCrown') : t('app.appearance.recolorHat')}>
+					<label
+						className="swatch-pick"
+						title={value.hat === 'flower' ? t('app.appearance.recolorCrown') : t('app.appearance.recolorHat')}
+					>
 						<Icon name="eyedropper" size={14} />
-						<input type="color" value={value.hatColor || hatPalette(value.hat).a} onChange={(e) => set({ hatColor: e.target.value })} aria-label={t('app.appearance.customHat')} />
+						<input
+							type="color"
+							value={value.hatColor || hatPalette(value.hat).a}
+							onChange={(e) => set({ hatColor: e.target.value })}
+							aria-label={t('app.appearance.customHat')}
+						/>
 					</label>
 				)}
 			</div>
@@ -152,8 +216,14 @@ export function AccessibilityControls() {
 					<span className="muted small">{t('app.settings.reduceMotionHint')}</span>
 				</span>
 				<label className="switch">
-					<input type="checkbox" checked={prefs.reduceMotion} onChange={(e) => setPrefs({ reduceMotion: e.target.checked })} aria-label={t('app.settings.reduceMotion')} />
-					<span className="track" /><span className="thumb" />
+					<input
+						type="checkbox"
+						checked={prefs.reduceMotion}
+						onChange={(e) => setPrefs({ reduceMotion: e.target.checked })}
+						aria-label={t('app.settings.reduceMotion')}
+					/>
+					<span className="track" />
+					<span className="thumb" />
 				</label>
 			</div>
 			<div className="a11y-row">
@@ -180,18 +250,30 @@ export function AccessibilityControls() {
 					<span className="muted small">{t('app.settings.dyslexiaFontHint')}</span>
 				</span>
 				<label className="switch">
-					<input type="checkbox" checked={prefs.dyslexiaFont} onChange={(e) => setPrefs({ dyslexiaFont: e.target.checked })} aria-label={t('app.settings.dyslexiaFont')} />
-					<span className="track" /><span className="thumb" />
+					<input
+						type="checkbox"
+						checked={prefs.dyslexiaFont}
+						onChange={(e) => setPrefs({ dyslexiaFont: e.target.checked })}
+						aria-label={t('app.settings.dyslexiaFont')}
+					/>
+					<span className="track" />
+					<span className="thumb" />
 				</label>
 			</div>
 			<div className="craft-filter lang-filter">
 				<label htmlFor="settings-textscale">{t('app.settings.textSize')}:</label>
-				<select id="settings-textscale" value={prefs.textScale} onChange={(e) => setPrefs({ textScale: e.target.value as TextScale })}>
+				<select
+					id="settings-textscale"
+					value={prefs.textScale}
+					onChange={(e) => setPrefs({ textScale: e.target.value as TextScale })}
+				>
 					<option value="sm">{t('app.settings.textSm')}</option>
 					<option value="md">{t('app.settings.textMd')}</option>
 					<option value="lg">{t('app.settings.textLg')}</option>
 					{/* OpenDyslexic already runs large, so extra-large overflows the UI. */}
-					<option value="xl" disabled={prefs.dyslexiaFont}>{t('app.settings.textXl')}</option>
+					<option value="xl" disabled={prefs.dyslexiaFont}>
+						{t('app.settings.textXl')}
+					</option>
 				</select>
 			</div>
 		</>
@@ -204,7 +286,13 @@ export function SettingsPanel() {
 	const activeWorld = worlds?.find((w) => w.worldId === activeWorldId);
 	const isCoop = COOP_ENABLED && !!activeWorld && !activeWorld.solo;
 	const defaults: Appearance = {
-		skin: '#eec39a', hair: '#6e4a33', outfit: '#4a7c59', hat: 'straw', hairstyle: 'short', beard: 'none', body: 'slim',
+		skin: '#eec39a',
+		hair: '#6e4a33',
+		outfit: '#4a7c59',
+		hat: 'straw',
+		hairstyle: 'short',
+		beard: 'none',
+		body: 'slim',
 	};
 	const [appearance, setAppearance] = useState<Appearance>({ ...defaults, ...(state?.player.appearance || {}) });
 	const [saving, setSaving] = useState(false);
@@ -222,7 +310,12 @@ export function SettingsPanel() {
 	// After a confirmed send, "Sent!" replaces the button for a little while.
 	const [fbSent, setFbSent] = useState(false);
 	const fbSentTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-	useEffect(() => () => { if (fbSentTimer.current) clearTimeout(fbSentTimer.current); }, []);
+	useEffect(
+		() => () => {
+			if (fbSentTimer.current) clearTimeout(fbSentTimer.current);
+		},
+		[],
+	);
 
 	if (!state) return null;
 	const player = state.player;
@@ -337,11 +430,17 @@ export function SettingsPanel() {
 		<div className="panel-backdrop" onClick={() => setPanel(null)}>
 			<div className="panel panel-wide" onClick={(e) => e.stopPropagation()}>
 				<div className="panel-head">
-					<h2><Icon name="gear" size={20} /> {t('app.settings.title')}</h2>
-					<button className="icon-btn" onClick={() => setPanel(null)} aria-label={t('app.common.close')}><Icon name="close" /></button>
+					<h2>
+						<Icon name="gear" size={20} /> {t('app.settings.title')}
+					</h2>
+					<button className="icon-btn" onClick={() => setPanel(null)} aria-label={t('app.common.close')}>
+						<Icon name="close" />
+					</button>
 				</div>
 				<div className="panel-body settings-body">
-					<h3><Icon name="user" size={15} /> {t('app.settings.yourCaretaker', { name: player.name })}</h3>
+					<h3>
+						<Icon name="user" size={15} /> {t('app.settings.yourCaretaker', { name: player.name })}
+					</h3>
 					<AppearanceEditor value={appearance} onChange={setAppearance} />
 					<div className="form-actions end">
 						<button className="big-btn primary" onClick={saveLook} disabled={saving}>
@@ -349,20 +448,28 @@ export function SettingsPanel() {
 						</button>
 					</div>
 
-					<h3><Icon name="globe" size={15} /> {t('app.settings.language')}</h3>
+					<h3>
+						<Icon name="globe" size={15} /> {t('app.settings.language')}
+					</h3>
 					<div className="craft-filter lang-filter">
 						<label htmlFor="settings-language">{t('app.settings.language')}:</label>
 						<select id="settings-language" value={locale} onChange={(e) => void chooseLocale(e.target.value)}>
 							{Object.entries(LOCALE_NAMES).map(([code, name]) => (
-								<option key={code} value={code}>{name}</option>
+								<option key={code} value={code}>
+									{name}
+								</option>
 							))}
 						</select>
 					</div>
 
-					<h3><Icon name="sliders" size={15} /> {t('app.settings.accessibility')}</h3>
+					<h3>
+						<Icon name="sliders" size={15} /> {t('app.settings.accessibility')}
+					</h3>
 					<AccessibilityControls />
 
-					<h3><Icon name="keyboard" size={15} /> {t('app.settings.controls')}</h3>
+					<h3>
+						<Icon name="keyboard" size={15} /> {t('app.settings.controls')}
+					</h3>
 					<div className="key-list">
 						{visibleShortcuts(isCoop).map((k) => (
 							<div className="key-row" key={k.does}>
@@ -376,60 +483,97 @@ export function SettingsPanel() {
 						))}
 					</div>
 
-					{isSolo && <>
-					<h3><Icon name="download" size={15} /> {t('app.settings.exportSaveTitle')}</h3>
-					<p className="muted small">
-						{t('app.settings.exportSaveHint')}
-					</p>
-					<div className="form-actions end">
-						<button className="big-btn primary" onClick={exportSave} disabled={exporting}>
-							<Icon name="download" size={15} /> <span>{exporting ? t('app.settings.exporting') : t('app.settings.exportSave')}</span>
-						</button>
-					</div>
-					</>}
+					{isSolo && (
+						<>
+							<h3>
+								<Icon name="download" size={15} /> {t('app.settings.exportSaveTitle')}
+							</h3>
+							<p className="muted small">{t('app.settings.exportSaveHint')}</p>
+							<div className="form-actions end">
+								<button className="big-btn primary" onClick={exportSave} disabled={exporting}>
+									<Icon name="download" size={15} />{' '}
+									<span>{exporting ? t('app.settings.exporting') : t('app.settings.exportSave')}</span>
+								</button>
+							</div>
+						</>
+					)}
 
-					{!isSolo && <>
-					<h3><Icon name="lock" size={15} /> {t('app.settings.changePasscode')}</h3>
-					<p className="muted small">
-						{t('app.settings.changePasscodeHint')}
-					</p>
-					<div className="pass-row">
-						<label className="field">
-							<Icon name="lock" size={16} />
-							<input type="password" placeholder={t('app.settings.currentPasscode')} value={curPass} onChange={(e) => setCurPass(e.target.value)} />
-						</label>
-						<label className="field">
-							<Icon name="lock" size={16} />
-							<input type="password" placeholder={t('app.settings.newPasscode')} value={newPass} onChange={(e) => setNewPass(e.target.value)} />
-						</label>
-						<label className="field">
-							<Icon name="lock" size={16} />
-							<input type="password" placeholder={t('app.settings.confirmNew')} value={confirmPass} onChange={(e) => setConfirmPass(e.target.value)} />
-						</label>
-						<button className="big-btn primary" style={{ width: 'auto', marginTop: 0 }} disabled={changing || !curPass || !newPass || !confirmPass} onClick={changePass}>
-							<Icon name="check" size={15} /> <span>{changing ? t('app.settings.updating') : t('app.settings.updatePasscode')}</span>
-						</button>
-					</div>
+					{!isSolo && (
+						<>
+							<h3>
+								<Icon name="lock" size={15} /> {t('app.settings.changePasscode')}
+							</h3>
+							<p className="muted small">{t('app.settings.changePasscodeHint')}</p>
+							<div className="pass-row">
+								<label className="field">
+									<Icon name="lock" size={16} />
+									<input
+										type="password"
+										placeholder={t('app.settings.currentPasscode')}
+										value={curPass}
+										onChange={(e) => setCurPass(e.target.value)}
+									/>
+								</label>
+								<label className="field">
+									<Icon name="lock" size={16} />
+									<input
+										type="password"
+										placeholder={t('app.settings.newPasscode')}
+										value={newPass}
+										onChange={(e) => setNewPass(e.target.value)}
+									/>
+								</label>
+								<label className="field">
+									<Icon name="lock" size={16} />
+									<input
+										type="password"
+										placeholder={t('app.settings.confirmNew')}
+										value={confirmPass}
+										onChange={(e) => setConfirmPass(e.target.value)}
+									/>
+								</label>
+								<button
+									className="big-btn primary"
+									style={{ width: 'auto', marginTop: 0 }}
+									disabled={changing || !curPass || !newPass || !confirmPass}
+									onClick={changePass}
+								>
+									<Icon name="check" size={15} />{' '}
+									<span>{changing ? t('app.settings.updating') : t('app.settings.updatePasscode')}</span>
+								</button>
+							</div>
 
-					<h3><Icon name="trash" size={15} /> {t('app.settings.deleteSaveTitle')}</h3>
-					<p className="muted small">
-						{t('app.settings.deleteSaveHint', { name: player.name })}
-					</p>
-					<div className="danger-row">
-						<label className="field">
-							<Icon name="lock" size={16} />
-							<input type="password" placeholder={t('app.settings.passcode')} value={passcode} onChange={(e) => setPasscode(e.target.value)} />
-						</label>
-						<button className="delete-save-btn" style={{ width: 'auto', marginTop: 0 }} disabled={deleting || !passcode} onClick={deleteSave}>
-							<Icon name="trash" size={15} /> <span>{deleting ? t('app.settings.deleting') : t('app.settings.deleteForever')}</span>
-						</button>
-					</div>
-					</>}
+							<h3>
+								<Icon name="trash" size={15} /> {t('app.settings.deleteSaveTitle')}
+							</h3>
+							<p className="muted small">{t('app.settings.deleteSaveHint', { name: player.name })}</p>
+							<div className="danger-row">
+								<label className="field">
+									<Icon name="lock" size={16} />
+									<input
+										type="password"
+										placeholder={t('app.settings.passcode')}
+										value={passcode}
+										onChange={(e) => setPasscode(e.target.value)}
+									/>
+								</label>
+								<button
+									className="delete-save-btn"
+									style={{ width: 'auto', marginTop: 0 }}
+									disabled={deleting || !passcode}
+									onClick={deleteSave}
+								>
+									<Icon name="trash" size={15} />{' '}
+									<span>{deleting ? t('app.settings.deleting') : t('app.settings.deleteForever')}</span>
+								</button>
+							</div>
+						</>
+					)}
 
-					<h3><Icon name="chat" size={15} /> {t('app.settings.sendFeedback')}</h3>
-					<p className="muted small">
-						{t('app.settings.feedbackHint')}
-					</p>
+					<h3>
+						<Icon name="chat" size={15} /> {t('app.settings.sendFeedback')}
+					</h3>
+					<p className="muted small">{t('app.settings.feedbackHint')}</p>
 					<div className="feedback-row">
 						<textarea
 							placeholder={t('app.settings.feedbackPlaceholder')}
@@ -441,15 +585,26 @@ export function SettingsPanel() {
 						<div className="feedback-actions">
 							<label className="field">
 								<Icon name="user" size={16} />
-								<input type="email" placeholder={t('app.settings.emailPlaceholder')} value={fbEmail} onChange={(e) => setFbEmail(e.target.value)} />
+								<input
+									type="email"
+									placeholder={t('app.settings.emailPlaceholder')}
+									value={fbEmail}
+									onChange={(e) => setFbEmail(e.target.value)}
+								/>
 							</label>
 							{fbSent ? (
 								<span className="feedback-sent" role="status">
 									<Icon name="check" size={15} /> <span>{t('app.settings.sent')}</span>
 								</span>
 							) : (
-								<button className="big-btn primary" style={{ width: 'auto', marginTop: 0 }} disabled={sendingFb || !fbMessage.trim()} onClick={submitFeedback}>
-									<Icon name="forward" size={15} /> <span>{sendingFb ? t('app.settings.sending') : t('app.settings.sendFeedback')}</span>
+								<button
+									className="big-btn primary"
+									style={{ width: 'auto', marginTop: 0 }}
+									disabled={sendingFb || !fbMessage.trim()}
+									onClick={submitFeedback}
+								>
+									<Icon name="forward" size={15} />{' '}
+									<span>{sendingFb ? t('app.settings.sending') : t('app.settings.sendFeedback')}</span>
 								</button>
 							)}
 						</div>

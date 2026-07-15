@@ -11,9 +11,20 @@ export const TOOL_META: Array<{ id: string; icon: string; key: string; how: stri
 ];
 
 const PAINT_PALETTE = [
-	'#c8a064', '#e6d3a6', '#b5895a', '#8a6a48', '#a9a499', '#6f6a62',
-	'#b5707a', '#7fae6a', '#7a9ac0', '#e3c75f', '#d98a4f', '#9e6f9e',
-	'#e6e0d2', '#3a3a2c',
+	'#c8a064',
+	'#e6d3a6',
+	'#b5895a',
+	'#8a6a48',
+	'#a9a499',
+	'#6f6a62',
+	'#b5707a',
+	'#7fae6a',
+	'#7a9ac0',
+	'#e3c75f',
+	'#d98a4f',
+	'#9e6f9e',
+	'#e6e0d2',
+	'#3a3a2c',
 ];
 
 export function Toolbelt() {
@@ -40,42 +51,49 @@ export function Toolbelt() {
 				</div>
 			)}
 			<div className="toolbelt">
-			{TOOL_META.map((meta) => {
-				const def = data.tools.find((tool) => tool.id === meta.id);
-				const tier = state.player.tools?.[meta.id] || 1;
-				const tierDef = def?.tiers.find((td) => td.tier === tier);
-				const selected = selectedTool === meta.id;
-				const toolName = content('tool', meta.id, 'name', tierDef?.name || def?.name || meta.id);
-				const how = t(meta.how);
-				return (
+				{TOOL_META.map((meta) => {
+					const def = data.tools.find((tool) => tool.id === meta.id);
+					const tier = state.player.tools?.[meta.id] || 1;
+					const tierDef = def?.tiers.find((td) => td.tier === tier);
+					const selected = selectedTool === meta.id;
+					const toolName = content('tool', meta.id, 'name', tierDef?.name || def?.name || meta.id);
+					const how = t(meta.how);
+					return (
+						<button
+							key={meta.id}
+							className={`tool-slot ${selected ? 'on' : ''}`}
+							title={t('app.toolbelt.titleFormat', { name: toolName, key: meta.key, how })}
+							aria-label={toolName}
+							onClick={() => {
+								setSelectedTool(meta.id);
+								notify(t('app.toolbelt.selected', { name: toolName, how }));
+							}}
+						>
+							<Icon name={meta.icon} size={22} />
+							<span className="tool-key">{meta.key}</span>
+							{tier > 1 && (
+								<span className="tool-tier">
+									<Icon name="sparkle" size={10} />
+								</span>
+							)}
+						</button>
+					);
+				})}
+				{canPaint && (
 					<button
-						key={meta.id}
-						className={`tool-slot ${selected ? 'on' : ''}`}
-						title={t('app.toolbelt.titleFormat', { name: toolName, key: meta.key, how })}
-						aria-label={toolName}
+						className={`tool-slot ${selectedTool === 'paint' ? 'on' : ''}`}
+						title={t('app.toolbelt.paintTitle')}
+						aria-label={t('app.toolbelt.paint')}
 						onClick={() => {
-							setSelectedTool(meta.id);
-							notify(t('app.toolbelt.selected', { name: toolName, how }));
+							setSelectedTool('paint');
+							notify(t('app.toolbelt.paintHow'));
 						}}
 					>
-						<Icon name={meta.icon} size={22} />
-						<span className="tool-key">{meta.key}</span>
-						{tier > 1 && <span className="tool-tier"><Icon name="sparkle" size={10} /></span>}
+						<Icon name="paint" size={22} />
+						<span className="tool-key">4</span>
+						<span className="tool-tier paint-dot" style={{ background: paintColor }} />
 					</button>
-				);
-			})}
-			{canPaint && (
-				<button
-					className={`tool-slot ${selectedTool === 'paint' ? 'on' : ''}`}
-					title={t('app.toolbelt.paintTitle')}
-					aria-label={t('app.toolbelt.paint')}
-					onClick={() => { setSelectedTool('paint'); notify(t('app.toolbelt.paintHow')); }}
-				>
-					<Icon name="paint" size={22} />
-					<span className="tool-key">4</span>
-					<span className="tool-tier paint-dot" style={{ background: paintColor }} />
-				</button>
-			)}
+				)}
 			</div>
 		</div>
 	);
@@ -98,8 +116,12 @@ export function FeedPanel() {
 		<div className="panel-backdrop" onClick={() => setPanel(null)}>
 			<div className="panel" onClick={(e) => e.stopPropagation()}>
 				<div className="panel-head">
-					<h2><Icon name="chat" size={20} /> {t('app.feedPanel.title')}</h2>
-					<button className="icon-btn" onClick={() => setPanel(null)} aria-label={t('app.common.close')}><Icon name="close" /></button>
+					<h2>
+						<Icon name="chat" size={20} /> {t('app.feedPanel.title')}
+					</h2>
+					<button className="icon-btn" onClick={() => setPanel(null)} aria-label={t('app.common.close')}>
+						<Icon name="close" />
+					</button>
 				</div>
 				<div className="panel-body">
 					{entries.length === 0 ? (
@@ -108,7 +130,9 @@ export function FeedPanel() {
 						<div className="feed-list">
 							{entries.map((entry) => (
 								<div className="feed-row" key={entry.id}>
-									<span className="feed-row-icon"><Icon name={entry.icon} size={15} /></span>
+									<span className="feed-row-icon">
+										<Icon name={entry.icon} size={15} />
+									</span>
 									<span className="feed-row-text">{entry.text}</span>
 									<span className="feed-row-time">{feedTime(entry.at)}</span>
 								</div>
@@ -138,7 +162,9 @@ export function ActivityLog() {
 		setOpen((o) => {
 			try {
 				localStorage.setItem(LOG_PREF_KEY, o ? '0' : '1');
-			} catch { /* ignore */ }
+			} catch {
+				/* ignore */
+			}
 			return !o;
 		});
 	};
@@ -163,7 +189,9 @@ export function ActivityLog() {
 				<div
 					className="activity-scroll"
 					ref={scrollRef}
-					onMouseEnter={() => { hovering.current = true; }}
+					onMouseEnter={() => {
+						hovering.current = true;
+					}}
 					onMouseLeave={() => {
 						hovering.current = false;
 						const el = scrollRef.current;

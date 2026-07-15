@@ -2530,6 +2530,16 @@
 			"materials": { "branches": 2, "fiber": 2, "stones": 4 },
 			"once": true,
 			"unlock": { "animalsReturned": 10, "label": "Welcome 10 animals back to the meadow — learn to spot who's new" }
+		},
+		{
+			"id": "hiking-boots",
+			"name": "Hiking Boots",
+			"category": "gear",
+			"unlockBiome": "meadow",
+			"output": { "itemId": "hiking-boots", "qty": 1 },
+			"materials": { "fiber": 6, "branches": 3, "stones": 2 },
+			"once": true,
+			"unlock": { "minHealth": 30, "label": "Restore Sunny Meadow to 30% health — broken-in boots for the long trails" }
 		}
 	]
 }

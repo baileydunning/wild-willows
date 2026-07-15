@@ -43,7 +43,10 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 
 	const grant = () => {
 		const resources = Object.fromEntries(Object.entries(amounts).filter(([, v]) => v > 0));
-		if (!Object.keys(resources).length) { notify('Set an amount for at least one resource', 'error'); return; }
+		if (!Object.keys(resources).length) {
+			notify('Set an amount for at least one resource', 'error');
+			return;
+		}
 		run('Granted resources', 'grant-resources', { resources });
 	};
 
@@ -57,20 +60,27 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 		<div className="panel-backdrop" onClick={onClose}>
 			<div className="panel panel-wide" onClick={(e) => e.stopPropagation()}>
 				<div className="panel-head">
-					<h2><Icon name="gear" size={20} /> Dev tools <span className="muted small">· {area}</span></h2>
-					<button className="icon-btn" onClick={onClose} aria-label="Close"><Icon name="close" /></button>
+					<h2>
+						<Icon name="gear" size={20} /> Dev tools <span className="muted small">· {area}</span>
+					</h2>
+					<button className="icon-btn" onClick={onClose} aria-label="Close">
+						<Icon name="close" />
+					</button>
 				</div>
 				<div className="panel-body">
 					<p className="muted small">Testing only — opened with Cmd/Ctrl + Shift + Delete.</p>
 
-					<h3><Icon name="leaf" size={15} /> This biome <span className="muted small">· {area}</span></h3>
+					<h3>
+						<Icon name="leaf" size={15} /> This biome <span className="muted small">· {area}</span>
+					</h3>
 					<div className="dev-grid">
 						<button
 							disabled={!!busy}
 							title={`Scatter habitat, mature plant clusters, path runs, a lake + river, every animal home, and 100% health — a showcase for screenshots/video. Replaces existing placements & terrain here (chests kept).`}
 							onClick={() => run(`Populate ${area}`, 'populate-biome', { area })}
 						>
-							<Icon name="sparkle" size={13} /> {busy === 'populate-biome' ? 'Populating…' : `Populate ${area} (showcase)`}
+							<Icon name="sparkle" size={13} />{' '}
+							{busy === 'populate-biome' ? 'Populating…' : `Populate ${area} (showcase)`}
 						</button>
 						<Btn label={`Reseed ${area}`} action="seed-water" args={{ area }} />
 						<Btn label={`Clear ${area} terrain`} action="clear-terrain" args={{ area }} />
@@ -78,7 +88,11 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 						<button
 							disabled={!!busy}
 							onClick={() => {
-								if (window.confirm(`Reset ${area} to its damaged state? This removes all placed habitat, terraforming, and returned animals here. Chests and their contents are kept.`)) {
+								if (
+									window.confirm(
+										`Reset ${area} to its damaged state? This removes all placed habitat, terraforming, and returned animals here. Chests and their contents are kept.`,
+									)
+								) {
 									run(`Reset ${area}`, 'reset-biome', { area });
 								}
 							}}
@@ -94,14 +108,25 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 						</button>
 					</div>
 					<div className="dev-fill">
-						<span className="muted small" style={{ flex: '0 0 auto' }}>Set {area} health</span>
-						<input type="number" min={0} max={100} value={health} onChange={(e) => setHealth(Number(e.target.value))} style={{ width: 70 }} />
+						<span className="muted small" style={{ flex: '0 0 auto' }}>
+							Set {area} health
+						</span>
+						<input
+							type="number"
+							min={0}
+							max={100}
+							value={health}
+							onChange={(e) => setHealth(Number(e.target.value))}
+							style={{ width: 70 }}
+						/>
 						<button disabled={!!busy} onClick={() => run(`Set ${area} health`, 'set-health', { area, value: health })}>
 							{busy === 'set-health' ? '…' : 'Apply'}
 						</button>
 					</div>
 
-					<h3><Icon name="cloud" size={15} /> Weather &amp; season</h3>
+					<h3>
+						<Icon name="cloud" size={15} /> Weather &amp; season
+					</h3>
 					{(() => {
 						const ov = state.weather?.override;
 						const curType = ov?.type || null;
@@ -109,7 +134,10 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 						return (
 							<>
 								<p className="muted small">
-									Force the sky for filming. {ov ? `Override: ${curType ? weatherType(curType).name : 'live'} · ${curSeason ? seasonStyle(curSeason).label : 'live'}.` : 'Currently following the live clock.'}
+									Force the sky for filming.{' '}
+									{ov
+										? `Override: ${curType ? weatherType(curType).name : 'live'} · ${curSeason ? seasonStyle(curSeason).label : 'live'}.`
+										: 'Currently following the live clock.'}
 								</p>
 								<div className="dev-grid">
 									{WEATHER_TYPES.map((id) => (
@@ -134,7 +162,10 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 											{seasonStyle(s).label}
 										</button>
 									))}
-									<button disabled={!!busy || !ov} onClick={() => run('Weather cleared', 'set-weather', { value: { clear: true } })}>
+									<button
+										disabled={!!busy || !ov}
+										onClick={() => run('Weather cleared', 'set-weather', { value: { clear: true } })}
+									>
 										Back to live
 									</button>
 								</div>
@@ -142,7 +173,9 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 						);
 					})()}
 
-					<h3><Icon name="sun" size={15} /> Time of day</h3>
+					<h3>
+						<Icon name="sun" size={15} /> Time of day
+					</h3>
 					<p className="muted small">Jump the clock to a phase — updates the HUD clock, weather, and world lighting.</p>
 					<div className="dev-grid">
 						{(['dawn', 'day', 'dusk', 'night'] as const).map((ph) => (
@@ -155,7 +188,9 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 						{busy === 'reset-clock' ? '…' : 'Reset clock to first morning'}
 					</button>
 
-					<h3><Icon name="paw" size={15} /> Spawn animal</h3>
+					<h3>
+						<Icon name="paw" size={15} /> Spawn animal
+					</h3>
 					<p className="muted small">Type an animal's name — click a match to bring it back to its biome right away.</p>
 					{(() => {
 						const q = spawnQuery.trim().toLowerCase();
@@ -163,9 +198,7 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 						const biomeName = (id: string) => data.biomes.find((b) => b.id === id)?.name || id;
 						const matches = q
 							? data.animals
-									.filter((an) =>
-										[an.name, an.id, an.biome, an.kind, an.rarity].join(' ').toLowerCase().includes(q)
-									)
+									.filter((an) => [an.name, an.id, an.biome, an.kind, an.rarity].join(' ').toLowerCase().includes(q))
 									.sort((a, b) => a.name.localeCompare(b.name))
 									.slice(0, 12)
 							: [];
@@ -194,8 +227,14 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 											>
 												<img className="ani-thumb" src={animalSpriteDataUri(an.id, an.kind)} alt="" />
 												<span className="grow">{an.name}</span>
-												<span className="muted small">{biomeName(an.biome)} · {an.rarity}</span>
-												{discovered.has(an.id) ? <span className="dev-spawn-here">✓ here</span> : <Icon name="plus" size={14} />}
+												<span className="muted small">
+													{biomeName(an.biome)} · {an.rarity}
+												</span>
+												{discovered.has(an.id) ? (
+													<span className="dev-spawn-here">✓ here</span>
+												) : (
+													<Icon name="plus" size={14} />
+												)}
 											</button>
 										))}
 									</div>
@@ -204,28 +243,42 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 						);
 					})()}
 
-					<h3><Icon name="gear" size={15} /> Travel</h3>
+					<h3>
+						<Icon name="gear" size={15} /> Travel
+					</h3>
 					<div className="dev-grid">
-						{data.biomes.filter((b) => b.explorable).map((b) => {
-							const unlocked = state.player.unlockedBiomes.includes(b.id);
-							return (
-								<button
-									key={b.id}
-									disabled={!!busy || !unlocked || b.id === area}
-									title={!unlocked ? 'Unlock it first (Unlock all biomes)' : ''}
-									onClick={async () => { await changeArea(b.id); onClose(); }}
-								>
-									{b.id === area ? `${b.name} (here)` : `Go to ${b.name}`}
-								</button>
-							);
-						})}
+						{data.biomes
+							.filter((b) => b.explorable)
+							.map((b) => {
+								const unlocked = state.player.unlockedBiomes.includes(b.id);
+								return (
+									<button
+										key={b.id}
+										disabled={!!busy || !unlocked || b.id === area}
+										title={!unlocked ? 'Unlock it first (Unlock all biomes)' : ''}
+										onClick={async () => {
+											await changeArea(b.id);
+											onClose();
+										}}
+									>
+										{b.id === area ? `${b.name} (here)` : `Go to ${b.name}`}
+									</button>
+								);
+							})}
 					</div>
 
-					<h3><Icon name="gear" size={15} /> Whole preserve</h3>
+					<h3>
+						<Icon name="gear" size={15} /> Whole preserve
+					</h3>
 					<div className="dev-grid">
 						<Btn label="Unlock next area" action="unlock-next" />
 						<Btn label="Unlock all biomes" action="unlock-all" />
-						<button disabled={!!busy} onClick={() => { if (window.confirm('Re-lock every biome except the meadow?')) run('Re-lock all', 'relock-all'); }}>
+						<button
+							disabled={!!busy}
+							onClick={() => {
+								if (window.confirm('Re-lock every biome except the meadow?')) run('Re-lock all', 'relock-all');
+							}}
+						>
 							{busy === 'relock-all' ? '…' : 'Re-lock all biomes'}
 						</button>
 						<button disabled={!!busy} onClick={() => run('Toggle recipes', 'unlock-recipes')}>
@@ -235,21 +288,36 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 						<Btn label="Reset tools to tier 1" action="reset-tools" />
 					</div>
 
-					<h3><Icon name="home" size={15} /> Home</h3>
+					<h3>
+						<Icon name="home" size={15} /> Home
+					</h3>
 					<div className="dev-grid">
 						{Object.entries(data.homeStyles || {}).map(([id, s]) => (
 							<Btn key={id} label={`Build: ${s.name}`} action="build-home" args={{ value: id }} />
 						))}
 						<Btn label="Max home (all tracks)" action="max-home" />
-						<button disabled={!!busy} onClick={() => { if (window.confirm('Reset your home to the starter tent?')) run('Reset home', 'reset-home'); }}>
+						<button
+							disabled={!!busy}
+							onClick={() => {
+								if (window.confirm('Reset your home to the starter tent?')) run('Reset home', 'reset-home');
+							}}
+						>
 							{busy === 'reset-home' ? '…' : 'Reset home to tent'}
 						</button>
 					</div>
 
-					<h3><Icon name="basket" size={15} /> Grant resources</h3>
+					<h3>
+						<Icon name="basket" size={15} /> Grant resources
+					</h3>
 					<div className="dev-fill">
 						<label className="field" style={{ flex: '0 0 auto' }}>
-							<input type="number" min={0} value={fill} onChange={(e) => setFill(Number(e.target.value))} style={{ width: 70 }} />
+							<input
+								type="number"
+								min={0}
+								value={fill}
+								onChange={(e) => setFill(Number(e.target.value))}
+								style={{ width: 70 }}
+							/>
 						</label>
 						<button onClick={() => setAll(fill)}>Fill all</button>
 						<button onClick={() => setAll(0)}>Clear</button>
@@ -274,23 +342,45 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 						</button>
 					</div>
 
-					<h3><Icon name="star" size={15} /> Celebrate</h3>
+					<h3>
+						<Icon name="star" size={15} /> Celebrate
+					</h3>
 					<div className="dev-grid">
 						<button disabled={!!busy} onClick={() => bridge.emit('confetti')}>
 							<Icon name="sparkle" size={13} /> Trigger confetti
 						</button>
 					</div>
 
-					<h3><Icon name="logout" size={15} /> Restart game</h3>
-					<p className="muted small">Wipes this save back to a brand-new game (fresh onboarding, no progress) — keeps your name, passcode, and character look.</p>
+					<h3>
+						<Icon name="logout" size={15} /> Restart game
+					</h3>
+					<p className="muted small">
+						Wipes this save back to a brand-new game (fresh onboarding, no progress) — keeps your name, passcode, and
+						character look.
+					</p>
 					<div className="dev-grid">
 						<button
 							disabled={!!busy}
 							onClick={() => {
-								if (!window.confirm('Restart the whole game? This erases ALL progress (biomes, animals, home, goals, inventory) and starts you over at the tutorial. Your character is kept.')) return;
+								if (
+									!window.confirm(
+										'Restart the whole game? This erases ALL progress (biomes, animals, home, goals, inventory) and starts you over at the tutorial. Your character is kept.',
+									)
+								)
+									return;
 								// Replay onboarding: clear the client-side tutorial / goals-intro flags.
-								for (const k of ['wild-willows:tutorial-pos', 'wild-willows:tutorial-min', 'wild-willows:tutorial-cardpos', 'ww-goals-intro', 'ww-tasks-collapsed']) {
-									try { localStorage.removeItem(k); } catch { /* ignore */ }
+								for (const k of [
+									'wild-willows:tutorial-pos',
+									'wild-willows:tutorial-min',
+									'wild-willows:tutorial-cardpos',
+									'ww-goals-intro',
+									'ww-tasks-collapsed',
+								]) {
+									try {
+										localStorage.removeItem(k);
+									} catch {
+										/* ignore */
+									}
 								}
 								void run('Restarted game', 'restart-game').then(onClose);
 							}}

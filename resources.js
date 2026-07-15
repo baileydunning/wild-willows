@@ -2772,6 +2772,16 @@ var recipes_default = {
       materials: { branches: 2, fiber: 2, stones: 4 },
       once: true,
       unlock: { animalsReturned: 10, label: "Welcome 10 animals back to the meadow \u2014 learn to spot who's new" }
+    },
+    {
+      id: "hiking-boots",
+      name: "Hiking Boots",
+      category: "gear",
+      unlockBiome: "meadow",
+      output: { itemId: "hiking-boots", qty: 1 },
+      materials: { fiber: 6, branches: 3, stones: 2 },
+      once: true,
+      unlock: { minHealth: 30, label: "Restore Sunny Meadow to 30% health \u2014 broken-in boots for the long trails" }
     }
   ]
 };
@@ -3520,8 +3530,8 @@ var habitat_objects_default = {
         "plant",
         "shelter"
       ],
-      shape: "reed",
-      color: "#8aa85a",
+      shape: "cattail",
+      color: "#7a4a22",
       description: "Tall cattails along the water's edge \u2014 cover for nesting marsh birds and shade for the shallows.",
       plantable: true,
       plantCost: {
@@ -5951,7 +5961,7 @@ var habitat_objects_default = {
       biomes: [],
       healthValue: 0,
       needs: [],
-      shape: "kit",
+      shape: "headlamp",
       color: "#e3c75f",
       description: "A hand-wound lamp on a woven strap. Once crafted it's yours for good \u2014 after dusk, a warm beam lights the ground around you wherever you roam."
     },
@@ -5965,6 +5975,17 @@ var habitat_objects_default = {
       shape: "binoculars",
       color: "#7a6a4f",
       description: "Hand-ground lenses in a woven grip. Once crafted they're yours for good \u2014 animals you haven't recorded in your journal yet catch the light with a soft glint."
+    },
+    {
+      id: "hiking-boots",
+      name: "Hiking Boots",
+      placement: "none",
+      biomes: [],
+      healthValue: 0,
+      needs: [],
+      shape: "hikingboots",
+      color: "#8a5a34",
+      description: "Sturdy, broken-in boots with a woven-fiber sole. Once crafted they're yours for good \u2014 lace them up in Tools & Upgrades to roam the preserve a little faster."
     }
   ]
 };
@@ -5978,6 +5999,7 @@ var tools_default = {
       id: "basket",
       name: "Gathering Basket",
       description: "For gently collecting light, renewable materials: seeds, berries, flowers, fiber, shells.",
+      shape: "basket",
       tiers: [
         {
           tier: 1,
@@ -6032,6 +6054,7 @@ var tools_default = {
       id: "shovel",
       name: "Basic Shovel",
       description: "For carefully digging stones, clay, and sand, and preparing restoration ground.",
+      shape: "shovel",
       tiers: [
         {
           tier: 1,
@@ -6086,6 +6109,7 @@ var tools_default = {
       id: "watering-can",
       name: "Tin Watering Can",
       description: "For carrying water to thirsty ground and new plantings.",
+      shape: "wateringcan",
       tiers: [
         {
           tier: 1,
@@ -6140,6 +6164,7 @@ var tools_default = {
       id: "field-journal",
       name: "Field Journal",
       description: "For observing animals and recording who has returned. Each area has its own field guide \u2014 gather that area's materials to upgrade and unlock its full entries and return hints.",
+      shape: "journal",
       tiers: [
         {
           tier: 1,
@@ -14246,7 +14271,9 @@ var DAY_PHASES = CFG?.dayPhases || [
 ];
 var CLIMATE = weather_default.climate;
 var GATHER = Object.fromEntries(
-  Object.entries(weather_default.gather || {}).filter(([k, v]) => k !== "_comment" && v !== null && typeof v === "object")
+  Object.entries(weather_default.gather || {}).filter(
+    ([k, v]) => k !== "_comment" && v !== null && typeof v === "object"
+  )
 );
 function gatherResourceIdFor(biome, type) {
   return GATHER[biome]?.[type];
@@ -14629,10 +14656,7 @@ function lookup(key) {
 }
 function interpolate(template, params) {
   if (!params) return template;
-  return template.replace(
-    /\{(\w+)\}/g,
-    (m, name) => name in params ? String(params[name]) : m
-  );
+  return template.replace(/\{(\w+)\}/g, (m, name) => name in params ? String(params[name]) : m);
 }
 function t(key, params) {
   const v = lookup(key);
@@ -14981,7 +15005,7 @@ var supportHtml = `<!doctype html>
 </body>
 </html>
 `;
-var buildStamp = "0.1.11+2026-07-15T14:41:50.083Z";
+var buildStamp = "0.1.11+2026-07-15T15:25:35.964Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
@@ -15245,11 +15269,35 @@ var FIRST_ANIMAL_ID = "grasshopper";
 var FEED_CAP = 100;
 var HOME_BUILD_GATE = { biome: "meadow", minHealth: 30 };
 var HOME_STYLES = {
-  cabin: { name: "Log Cabin", floor: "#c8a064", wall: "#5e3f29", accent: "#b5707a", materials: { branches: 16, fiber: 6 }, requires: HOME_BUILD_GATE, perk: { id: "forage", base: 0.1, perLevel: 0.05, cap: 0.6 } },
+  cabin: {
+    name: "Log Cabin",
+    floor: "#c8a064",
+    wall: "#5e3f29",
+    accent: "#b5707a",
+    materials: { branches: 16, fiber: 6 },
+    requires: HOME_BUILD_GATE,
+    perk: { id: "forage", base: 0.1, perLevel: 0.05, cap: 0.6 }
+  },
   // warm golden pine + dark logs
-  cottage: { name: "Meadow Cottage", floor: "#e6d3a6", wall: "#aab9c6", accent: "#7fae6a", materials: { wildflowers: 6, fiber: 10, clay: 4 }, requires: HOME_BUILD_GATE, perk: { id: "growth", base: 0.1, perLevel: 0.04, cap: 0.5 } },
+  cottage: {
+    name: "Meadow Cottage",
+    floor: "#e6d3a6",
+    wall: "#aab9c6",
+    accent: "#7fae6a",
+    materials: { wildflowers: 6, fiber: 10, clay: 4 },
+    requires: HOME_BUILD_GATE,
+    perk: { id: "growth", base: 0.1, perLevel: 0.04, cap: 0.5 }
+  },
   // pale wood + airy blue-grey + green
-  stone: { name: "Stone Hearth", floor: "#a9a499", wall: "#6f6a62", accent: "#d98a4f", materials: { stones: 14, clay: 6 }, requires: HOME_BUILD_GATE, perk: { id: "thrift", base: 0.1, perLevel: 0.05, cap: 0.6 } }
+  stone: {
+    name: "Stone Hearth",
+    floor: "#a9a499",
+    wall: "#6f6a62",
+    accent: "#d98a4f",
+    materials: { stones: 14, clay: 6 },
+    requires: HOME_BUILD_GATE,
+    perk: { id: "thrift", base: 0.1, perLevel: 0.05, cap: 0.6 }
+  }
   // slate floor + grey stone + hearth orange
 };
 var DEFAULT_HOME = { style: "cabin", space: 1, comfort: 1, decor: 1, light: 1, styleLocked: false };
@@ -15261,8 +15309,16 @@ var HOME_TRACKS = {
       { inner: { w: 6, h: 5 } },
       // tent
       { inner: { w: 8, h: 6 }, materials: { branches: 12, fiber: 8 }, requires: { biome: "meadow", minHealth: 30 } },
-      { inner: { w: 10, h: 7 }, materials: { branches: 18, stones: 6, clay: 6 }, requires: { biome: "forest", minHealth: 45 } },
-      { inner: { w: 12, h: 9 }, materials: { branches: 24, clay: 10, "clean-water": 6 }, requires: { biome: "wetland", minHealth: 55 } }
+      {
+        inner: { w: 10, h: 7 },
+        materials: { branches: 18, stones: 6, clay: 6 },
+        requires: { biome: "forest", minHealth: 45 }
+      },
+      {
+        inner: { w: 12, h: 9 },
+        materials: { branches: 24, clay: 10, "clean-water": 6 },
+        requires: { biome: "wetland", minHealth: 55 }
+      }
     ]
   },
   comfort: {
@@ -15335,9 +15391,36 @@ var START_TOOLS = { basket: 1, shovel: 1, "watering-can": 1, "field-journal": 1 
 var SKIN_TONES = ["#f6d7b8", "#eec39a", "#d9a06b", "#b97f50", "#8d5a3a", "#6b4226"];
 var HAIR_COLORS = ["#3b2e25", "#6e4a33", "#a3692f", "#c9913f", "#d9b380", "#8c8c8c"];
 var OUTFIT_COLORS = ["#4a7c59", "#7a9ac0", "#b5707a", "#c9913f", "#7d6b9e", "#5d8a8a"];
-var HAT_STYLES = ["straw", "leaf", "beanie", "cap", "bucket", "flower", "party", "ranger", "mushroom", "wizard", "crown", "bandana", "none"];
+var HAT_STYLES = [
+  "straw",
+  "leaf",
+  "beanie",
+  "cap",
+  "bucket",
+  "flower",
+  "party",
+  "ranger",
+  "mushroom",
+  "wizard",
+  "crown",
+  "bandana",
+  "none"
+];
 var HAT_COLORS = ["#c9a35c", "#b5707a", "#5f86b0", "#5d8a4a", "#7d6b9e", "#b05555"];
-var HAIRSTYLES = ["short", "bald", "long", "bob", "curly", "curly-long", "bun", "braid", "ponytail", "pigtails", "afro", "mohawk"];
+var HAIRSTYLES = [
+  "short",
+  "bald",
+  "long",
+  "bob",
+  "curly",
+  "curly-long",
+  "bun",
+  "braid",
+  "ponytail",
+  "pigtails",
+  "afro",
+  "mohawk"
+];
 var BEARD_STYLES = ["none", "beard"];
 var BODY_TYPES = ["slim", "round"];
 function cleanHex(c, fallback) {
@@ -15416,7 +15499,8 @@ async function migrateMeadowWest(wid) {
       }
     }
   }
-  if (world && (applied !== MEADOW_SHIFT || appliedY !== MEADOW_SHIFT_Y)) await t2.World.patch(wid, { meadowShift: MEADOW_SHIFT, meadowShiftY: MEADOW_SHIFT_Y });
+  if (world && (applied !== MEADOW_SHIFT || appliedY !== MEADOW_SHIFT_Y))
+    await t2.World.patch(wid, { meadowShift: MEADOW_SHIFT, meadowShiftY: MEADOW_SHIFT_Y });
   return delta !== 0 || deltaY !== 0;
 }
 async function requirePlayer(playerId) {
@@ -15606,7 +15690,9 @@ function renderBiomeSVG(d, biome, health, placements, terrain) {
   for (let gy = 0; gy < grid.rows; gy++) {
     for (let gx = 0; gx < grid.cols; gx++) {
       if ((gx + gy) % 2 === 0) {
-        parts.push(`<rect x="${px(gx)}" y="${py(gy)}" width="${cell}" height="${cell}" fill="${groundDark}" opacity="0.22"/>`);
+        parts.push(
+          `<rect x="${px(gx)}" y="${py(gy)}" width="${cell}" height="${cell}" fill="${groundDark}" opacity="0.22"/>`
+        );
       }
     }
   }
@@ -15767,7 +15853,16 @@ async function freshSnapshot(created) {
     feed: [],
     serverTime: now,
     weather: weatherSnapshot(worldId, wxTime, WEATHER_BIOME_IDS),
-    dailyTasks: dailyTasksBlock({ wid: worldId, player: created.player, d, discoveries: [], biomeStates: created.seeded.biomeStates, placements: created.seeded.placements, chests: created.seeded.chests, now }),
+    dailyTasks: dailyTasksBlock({
+      wid: worldId,
+      player: created.player,
+      d,
+      discoveries: [],
+      biomeStates: created.seeded.biomeStates,
+      placements: created.seeded.placements,
+      chests: created.seeded.chests,
+      now
+    }),
     customGoals: created.player.customGoals || [],
     goalLimit: goalLimitFor(created.player, d),
     nodeRegenSeconds: NODE_REGEN_SECONDS,
@@ -15871,7 +15966,12 @@ function analyzeWater(terrain) {
       maxx = Math.max(maxx, x);
       miny = Math.min(miny, y);
       maxy = Math.max(maxy, y);
-      for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) {
+      for (const [dx, dy] of [
+        [1, 0],
+        [-1, 0],
+        [0, 1],
+        [0, -1]
+      ]) {
         const nk = `${x + dx},${y + dy}`;
         if (cells.has(nk) && !seen.has(nk)) {
           seen.add(nk);
@@ -15935,7 +16035,9 @@ function computeComfort(animal, counts) {
 function whyReturnedText(animal, d) {
   const req = animal.requirements || {};
   const parts = [];
-  const objs = Object.entries(req.objects || {}).map(([id, q]) => t("server.whyReturned.objectQty", { qty: q, name: d.object.get(id)?.name || id }));
+  const objs = Object.entries(req.objects || {}).map(
+    ([id, q]) => t("server.whyReturned.objectQty", { qty: q, name: d.object.get(id)?.name || id })
+  );
   if (objs.length) parts.push(t("server.whyReturned.habitat", { objects: objs.join(t("server.list.comma")) }));
   if (req.water) {
     const w = req.water;
@@ -15945,13 +16047,20 @@ function whyReturnedText(animal, d) {
   }
   if (req.minHealth) parts.push(t("server.whyReturned.health", { health: req.minHealth }));
   if (req.minBalance) parts.push(t("server.whyReturned.balance", { balance: req.minBalance }));
-  if (req.animals?.length) parts.push(t("server.whyReturned.animals", { animals: req.animals.map((a) => d.animal.get(a)?.name || a).join(t("server.list.and")) }));
+  if (req.animals?.length)
+    parts.push(
+      t("server.whyReturned.animals", {
+        animals: req.animals.map((a) => d.animal.get(a)?.name || a).join(t("server.list.and"))
+      })
+    );
   const cond = req.conditions;
   if (cond) {
     const bits = [];
     if (cond.weather?.length) bits.push(cond.weather.join(t("server.list.or")));
-    if (cond.season?.length) bits.push(t("server.whyReturned.inSeason", { seasons: cond.season.join(t("server.list.or")) }));
-    if (cond.dayPhase?.length) bits.push(t("server.whyReturned.atPhase", { phases: cond.dayPhase.join(t("server.list.or")) }));
+    if (cond.season?.length)
+      bits.push(t("server.whyReturned.inSeason", { seasons: cond.season.join(t("server.list.or")) }));
+    if (cond.dayPhase?.length)
+      bits.push(t("server.whyReturned.atPhase", { phases: cond.dayPhase.join(t("server.list.or")) }));
     if (bits.length) parts.push(t("server.whyReturned.moment", { conditions: bits.join(t("server.list.comma")) }));
   }
   return t("server.whyReturned.sentence", { reasons: parts.join(t("server.list.comma")) });
@@ -16076,7 +16185,17 @@ async function seedStartingTerrain(wid, playerId, biomeId) {
   for (const cell of layout) {
     const id = `${wid}:${biomeId}:${cell.x}:${cell.y}`;
     if (await t2.TerrainTile.get(id)) continue;
-    await t2.TerrainTile.put({ id, worldId: wid, playerId, area: biomeId, x: cell.x, y: cell.y, type: cell.type, seeded: true, updatedAt: Date.now() });
+    await t2.TerrainTile.put({
+      id,
+      worldId: wid,
+      playerId,
+      area: biomeId,
+      x: cell.x,
+      y: cell.y,
+      type: cell.type,
+      seeded: true,
+      updatedAt: Date.now()
+    });
   }
 }
 async function checkUnlocks(wid, playerId, fresh = {}) {
@@ -16241,9 +16360,25 @@ function nextBiomeGoal(ctx) {
     const prereqName = d.biome.get(u.biome)?.name || u.biome;
     const name = d.biome.get(biome.id)?.name || biome.id;
     const steps = [];
-    if (u.minHealth) steps.push({ text: t("server.nextbiome.health", { biome: prereqName, goal: u.minHealth, cur: Math.round(prereq.health || 0) }), done: (prereq.health || 0) >= u.minHealth });
-    if (u.minAnimals) steps.push({ text: t("server.nextbiome.animals", { biome: prereqName, goal: u.minAnimals, cur: prereq.returnedCount || 0 }), done: (prereq.returnedCount || 0) >= u.minAnimals });
-    if (u.minTotalAnimals) steps.push({ text: t("server.nextbiome.total", { goal: u.minTotalAnimals, cur: discoveries.length }), done: discoveries.length >= u.minTotalAnimals });
+    if (u.minHealth)
+      steps.push({
+        text: t("server.nextbiome.health", {
+          biome: prereqName,
+          goal: u.minHealth,
+          cur: Math.round(prereq.health || 0)
+        }),
+        done: (prereq.health || 0) >= u.minHealth
+      });
+    if (u.minAnimals)
+      steps.push({
+        text: t("server.nextbiome.animals", { biome: prereqName, goal: u.minAnimals, cur: prereq.returnedCount || 0 }),
+        done: (prereq.returnedCount || 0) >= u.minAnimals
+      });
+    if (u.minTotalAnimals)
+      steps.push({
+        text: t("server.nextbiome.total", { goal: u.minTotalAnimals, cur: discoveries.length }),
+        done: discoveries.length >= u.minTotalAnimals
+      });
     if (u.requiresItem) {
       const item = d.object.get(u.requiresItem)?.name || u.requiresItem;
       const have = (player?.craftedItems?.[u.requiresItem] || 0) + (player?.craftedEver?.[u.requiresItem] || 0);
@@ -16279,12 +16414,22 @@ function attractSteps(animalId, ctx) {
   const steps = [];
   for (const [oid, need] of Object.entries(a.requirements?.objects || {})) {
     const have = (ctx.placements || []).filter((p) => p.objectId === oid && p.area === a.biome).length;
-    steps.push({ text: t("server.goal.habitatStep", { have: Math.min(have, need), need, name: ctx.d.object.get(oid)?.name || oid }), done: have >= need });
+    steps.push({
+      text: t("server.goal.habitatStep", {
+        have: Math.min(have, need),
+        need,
+        name: ctx.d.object.get(oid)?.name || oid
+      }),
+      done: have >= need
+    });
   }
   if (a.requirements?.minHealth) {
     const b = ctx.biomeStates.find((x) => x.biomeId === a.biome);
     const cur = Math.round(b?.health || 0);
-    steps.push({ text: t("server.goal.healthStep", { cur, need: a.requirements.minHealth }), done: cur >= a.requirements.minHealth });
+    steps.push({
+      text: t("server.goal.healthStep", { cur, need: a.requirements.minHealth }),
+      done: cur >= a.requirements.minHealth
+    });
   }
   return steps;
 }
@@ -16303,13 +16448,18 @@ function toolUpgradeSteps(toolId, tier, ctx) {
 function matSteps(mats, ctx) {
   return Object.entries(mats).map(([mid, need]) => {
     const have = heldAmount(ctx, mid);
-    return { text: t("server.goal.matStep", { have: Math.min(have, need), need, name: ctx.d.resource.get(mid)?.name || mid }), done: have >= need };
+    return {
+      text: t("server.goal.matStep", { have: Math.min(have, need), need, name: ctx.d.resource.get(mid)?.name || mid }),
+      done: have >= need
+    };
   });
 }
 function goalRewardPool(ctx) {
   const unlocked = ctx.unlockedBiomes?.length ? ctx.unlockedBiomes : ctx.player?.unlockedBiomes?.length ? ctx.player.unlockedBiomes : ["meadow"];
   const all = unlocked.flatMap((id) => ctx.d.biome.get(id)?.resources || []);
-  return [...new Set(all)].filter((r) => r !== "water" && !isWeatherGatheredResource(r) && ctx.d.resource.get(r));
+  return [...new Set(all)].filter(
+    (r) => r !== "water" && !isWeatherGatheredResource(r) && ctx.d.resource.get(r)
+  );
 }
 function goalReward(ctx, key) {
   const pool = goalRewardPool(ctx);
@@ -16324,7 +16474,9 @@ function goalReward(ctx, key) {
   return out;
 }
 function unlockBundle(ctx, biomeId) {
-  const pool = (ctx.d.biome.get(biomeId)?.resources || []).filter((r) => r !== "water" && !isWeatherGatheredResource(r) && ctx.d.resource.get(r));
+  const pool = (ctx.d.biome.get(biomeId)?.resources || []).filter(
+    (r) => r !== "water" && !isWeatherGatheredResource(r) && ctx.d.resource.get(r)
+  );
   const out = {};
   if (!pool.length) return out;
   const rng = seededRng(hash32(`unlockreward:${biomeId}`));
@@ -16375,7 +16527,10 @@ function goalProgress(goal, ctx) {
     case "welcomeTotal":
       return Math.max(0, Math.min(goal.target, goalMetric(goal, ctx) - (goal.base || 0)));
     case "build": {
-      const crafted = Math.max(0, Math.min(goal.target, (ctx.player?.craftedEver?.[goal.itemId || ""] || 0) - (goal.base || 0)));
+      const crafted = Math.max(
+        0,
+        Math.min(goal.target, (ctx.player?.craftedEver?.[goal.itemId || ""] || 0) - (goal.base || 0))
+      );
       const placed = Math.max(0, Math.min(goal.target, placedCountFor(ctx, goal.itemId || "") - (goal.basePlace || 0)));
       return crafted + placed;
     }
@@ -16419,7 +16574,10 @@ function goalText(goal, ctx) {
     case "plant":
       return t("server.goal.plant", { count: goal.target });
     case "collect":
-      return t("server.goal.collect", { count: goal.target, resource: d.resource.get(goal.resourceId)?.name || goal.resourceId });
+      return t("server.goal.collect", {
+        count: goal.target,
+        resource: d.resource.get(goal.resourceId)?.name || goal.resourceId
+      });
     case "observe":
       return t("server.goal.observe", { count: goal.target });
     case "welcome":
@@ -16440,7 +16598,10 @@ function goalText(goal, ctx) {
     case "health":
       return t("server.goal.restore", { biome: d.biome.get(goal.biomeId)?.name || goal.biomeId, pct: goal.target });
     case "biomeAnimals":
-      return t("server.goal.biomeAnimals", { count: goal.target, biome: d.biome.get(goal.biomeId)?.name || goal.biomeId });
+      return t("server.goal.biomeAnimals", {
+        count: goal.target,
+        biome: d.biome.get(goal.biomeId)?.name || goal.biomeId
+      });
     default:
       return "";
   }
@@ -16449,14 +16610,53 @@ function starterTasks(ctx) {
   const grasshopper = ctx.discoveries.some((x) => x.animalId === FIRST_ANIMAL_ID);
   const craftedAny = Object.keys(ctx.player?.craftedEver || {}).length > 0;
   return [
-    { id: "start-gather", kind: "gather", icon: "basket", text: t("server.task.collectSeeds"), hint: t("server.task.gatherHint"), target: 12, progress: Math.min(12, heldAmount(ctx, "seeds")) },
-    { id: "start-craft", kind: "craft", icon: "hammer", text: t("server.task.craftFirst"), hint: t("server.task.craftFirstHint"), target: 1, progress: craftedAny ? 1 : 0 },
-    { id: "start-welcome", kind: "welcome", icon: "sparkle", text: t("server.task.welcomeGrasshopper"), hint: t("server.task.welcomeGrasshopperHint"), target: 1, progress: grasshopper ? 1 : 0 }
+    {
+      id: "start-gather",
+      kind: "gather",
+      icon: "basket",
+      text: t("server.task.collectSeeds"),
+      hint: t("server.task.gatherHint"),
+      target: 12,
+      progress: Math.min(12, heldAmount(ctx, "seeds"))
+    },
+    {
+      id: "start-craft",
+      kind: "craft",
+      icon: "hammer",
+      text: t("server.task.craftFirst"),
+      hint: t("server.task.craftFirstHint"),
+      target: 1,
+      progress: craftedAny ? 1 : 0
+    },
+    {
+      id: "start-welcome",
+      kind: "welcome",
+      icon: "sparkle",
+      text: t("server.task.welcomeGrasshopper"),
+      hint: t("server.task.welcomeGrasshopperHint"),
+      target: 1,
+      progress: grasshopper ? 1 : 0
+    }
   ];
 }
 function sanitizeGoals(goals, d) {
   const out = [];
-  const kinds = ["craft", "build", "grow", "plant", "collect", "observe", "welcome", "attract", "welcomeTotal", "home", "tool", "unlock", "health", "biomeAnimals"];
+  const kinds = [
+    "craft",
+    "build",
+    "grow",
+    "plant",
+    "collect",
+    "observe",
+    "welcome",
+    "attract",
+    "welcomeTotal",
+    "home",
+    "tool",
+    "unlock",
+    "health",
+    "biomeAnimals"
+  ];
   let hasHome = false;
   for (const g of Array.isArray(goals) ? goals : []) {
     if (out.length >= MAX_CUSTOM_GOALS) break;
@@ -16607,7 +16807,17 @@ async function snapshot(playerId, opts = {}) {
     feed: [...feedRows].sort((a, b) => (a.at || 0) - (b.at || 0)).slice(-FEED_CAP).map((r) => ({ id: r.id, at: r.at, icon: r.icon, text: r.text })),
     serverTime: now,
     weather: weatherSnapshot(wid, wxTime, WEATHER_BIOME_IDS, player?.devWeather || null),
-    dailyTasks: dailyTasksBlock({ wid, player, d, discoveries, biomeStates, placements, chests, now, unlockedBiomes: personalUnlocked }),
+    dailyTasks: dailyTasksBlock({
+      wid,
+      player,
+      d,
+      discoveries,
+      biomeStates,
+      placements,
+      chests,
+      now,
+      unlockedBiomes: personalUnlocked
+    }),
     customGoals: player?.customGoals || [],
     goalLimit: goalLimitFor(player, d),
     nodeRegenSeconds: NODE_REGEN_SECONDS,
@@ -16685,7 +16895,11 @@ async function achievementMetrics(playerId) {
   const points = d.achievements.reduce((sum, a) => sum + (earnedById.has(a.id) ? a.points || 0 : 0), 0);
   const byCategory = {};
   for (const a of d.achievements) if (earnedById.has(a.id)) byCategory[a.category] = (byCategory[a.category] || 0) + 1;
-  const recent = [...rows].sort((a, b) => (b.earnedAt || 0) - (a.earnedAt || 0)).slice(0, 5).map((r) => ({ id: r.achievementId, name: d.achievement.get(r.achievementId)?.name || r.achievementId, earnedAt: r.earnedAt }));
+  const recent = [...rows].sort((a, b) => (b.earnedAt || 0) - (a.earnedAt || 0)).slice(0, 5).map((r) => ({
+    id: r.achievementId,
+    name: d.achievement.get(r.achievementId)?.name || r.achievementId,
+    earnedAt: r.earnedAt
+  }));
   return {
     earned: rows.length,
     total: d.achievements.length,
@@ -16834,7 +17048,14 @@ var CreatePlayer = class extends PublicEndpoint {
     const existing = await safeGet(db().Player, playerId);
     if (existing) throw new GameError(t("server.err.saveExists"), 409);
     const cms = clamp(Math.round(Number(creationMs) || 0), 0, 60 * 6e4);
-    const created = await createPlayerRecords(playerId, cleanName, code, sanitizeAppearance(appearance), sanitizeTzOffset(tzOffsetMinutes), cms);
+    const created = await createPlayerRecords(
+      playerId,
+      cleanName,
+      code,
+      sanitizeAppearance(appearance),
+      sanitizeTzOffset(tzOffsetMinutes),
+      cms
+    );
     let worlds = [];
     try {
       await ensureSoloWorld(created.player, { freshGrid: true });
@@ -16979,7 +17200,20 @@ var CreateWorld = class extends PublicEndpoint {
         unlocked: b.id === "meadow"
       });
     }
-    return { ok: true, world: { worldId, name: cleanName, joinCode, solo: false, role: "owner", isOwner: true, memberCount: 1, maxMembers: DEFAULT_MAX_MEMBERS }, worlds: await listMemberships(playerId) };
+    return {
+      ok: true,
+      world: {
+        worldId,
+        name: cleanName,
+        joinCode,
+        solo: false,
+        role: "owner",
+        isOwner: true,
+        memberCount: 1,
+        maxMembers: DEFAULT_MAX_MEMBERS
+      },
+      worlds: await listMemberships(playerId)
+    };
   }
 };
 async function worldByCode(t2, joinCode) {
@@ -17033,16 +17267,19 @@ var JoinWorld = class extends PublicEndpoint {
     if (!worldsList.some((w) => w.worldId === world.id)) {
       const members = await byWorld(t2.WorldMember, world.id);
       const here = members.some((m) => m.playerId === playerId) ? members.length : members.length + 1;
-      worldsList = [...worldsList, {
-        worldId: world.id,
-        name: world.name,
-        solo: false,
-        role: world.ownerId === playerId ? "owner" : "member",
-        joinCode: world.joinCode,
-        memberCount: here,
-        maxMembers: world.maxMembers || DEFAULT_MAX_MEMBERS,
-        isOwner: world.ownerId === playerId
-      }];
+      worldsList = [
+        ...worldsList,
+        {
+          worldId: world.id,
+          name: world.name,
+          solo: false,
+          role: world.ownerId === playerId ? "owner" : "member",
+          joinCode: world.joinCode,
+          memberCount: here,
+          maxMembers: world.maxMembers || DEFAULT_MAX_MEMBERS,
+          isOwner: world.ownerId === playerId
+        }
+      ];
     }
     return { ok: true, worldId: world.id, worlds: worldsList, state: await snapshot(playerId, { worldId: world.id }) };
   }
@@ -17059,7 +17296,14 @@ var CheckWorldCode = class extends PublicEndpoint {
     return {
       ok: true,
       exists: true,
-      world: { worldId: world.id, name: world.name, hostName: owner?.name || t("server.fallback.host"), memberCount, maxMembers: max, full: memberCount >= max }
+      world: {
+        worldId: world.id,
+        name: world.name,
+        hostName: owner?.name || t("server.fallback.host"),
+        memberCount,
+        maxMembers: max,
+        full: memberCount >= max
+      }
     };
   }
 };
@@ -17075,9 +17319,20 @@ var RequestJoin = class extends PublicEndpoint {
     const memberCount = (await byWorld(t2.WorldMember, world.id)).length;
     if (memberCount >= max) throw new GameError(t("server.err.worldFullClosed", { max }), 409);
     const cleanName = String(name || "").trim().slice(0, 24) || t("server.fallback.newCaretaker");
-    await t2.JoinRequest.put({ id: `${world.id}:${tok}`, worldId: world.id, token: tok, name: cleanName, status: "pending", createdAt: Date.now() });
+    await t2.JoinRequest.put({
+      id: `${world.id}:${tok}`,
+      worldId: world.id,
+      token: tok,
+      name: cleanName,
+      status: "pending",
+      createdAt: Date.now()
+    });
     const owner = await t2.Player.get(world.ownerId);
-    return { ok: true, worldId: world.id, world: { name: world.name, hostName: owner?.name || t("server.fallback.host") } };
+    return {
+      ok: true,
+      worldId: world.id,
+      world: { name: world.name, hostName: owner?.name || t("server.fallback.host") }
+    };
   }
 };
 var JoinRequestStatus = class extends PublicEndpoint {
@@ -17153,7 +17408,12 @@ var SwitchWorld = class extends PublicEndpoint {
     await t2.Player.patch(playerId, { worldId: target });
     await t2.WorldMember.patch(`${target}:${playerId}`, { lastSeenAt: Date.now() });
     await syncMemberUnlocks(playerId, target);
-    return { ok: true, worldId: target, worlds: await listMemberships(playerId), state: await snapshot(playerId, { worldId: target }) };
+    return {
+      ok: true,
+      worldId: target,
+      worlds: await listMemberships(playerId),
+      state: await snapshot(playerId, { worldId: target })
+    };
   }
 };
 var LeaveWorld = class extends PublicEndpoint {
@@ -17171,7 +17431,12 @@ var LeaveWorld = class extends PublicEndpoint {
       await syncMemberUnlocks(playerId, playerId);
     }
     const active = player.worldId === target ? playerId : player.worldId || playerId;
-    return { ok: true, worldId: active, worlds: await listMemberships(playerId), state: await snapshot(playerId, { worldId: active }) };
+    return {
+      ok: true,
+      worldId: active,
+      worlds: await listMemberships(playerId),
+      state: await snapshot(playerId, { worldId: active })
+    };
   }
 };
 var PRESENCE_WINDOW_MS = 15e3;
@@ -17189,7 +17454,15 @@ var Presence = class extends PublicEndpoint {
     if (world?.solo) return { ok: true, worldId: wid, peers: [] };
     const rec = await t2.WorldPresence.get(wid) || { id: wid, players: {} };
     const players = { ...rec.players || {} };
-    players[playerId] = { playerId, name: player.name, appearance: player.appearance, area: parea, x: px, y: py, t: now };
+    players[playerId] = {
+      playerId,
+      name: player.name,
+      appearance: player.appearance,
+      area: parea,
+      x: px,
+      y: py,
+      t: now
+    };
     for (const pid of Object.keys(players)) {
       if (now - (players[pid]?.t || 0) > PRESENCE_WINDOW_MS) delete players[pid];
     }
@@ -17207,7 +17480,8 @@ var CollectResource = class extends PublicEndpoint {
     const wid = worldOf(player);
     const biome = d.biome.get(biomeId);
     if (!biome) throw new GameError(t("server.err.unknownBiome", { biome: biomeId }));
-    if (!(player.unlockedBiomes || []).includes(biomeId)) throw new GameError(t("server.err.biomeLocked", { biome: biome.name }), 403);
+    if (!(player.unlockedBiomes || []).includes(biomeId))
+      throw new GameError(t("server.err.biomeLocked", { biome: biome.name }), 403);
     const resDef = d.resource.get(resourceId);
     if (!resDef) throw new GameError(t("server.err.unknownResource", { resource: resourceId }));
     if (isWeatherGatheredResource(resourceId)) {
@@ -17239,7 +17513,14 @@ var CollectResource = class extends PublicEndpoint {
     await t2.NodeState.put({ id: nodeKey, worldId: wid, playerId, harvestedAt: now });
     await bumpMetrics(player, { resourcesCollected: total }, { [`res:${resourceId}`]: total });
     await awardAchievements(playerId);
-    return { ok: true, gained: { [resourceId]: total }, perkBonus: perkBonus || void 0, inventory, nodeId, harvestedAt: now };
+    return {
+      ok: true,
+      gained: { [resourceId]: total },
+      perkBonus: perkBonus || void 0,
+      inventory,
+      nodeId,
+      harvestedAt: now
+    };
   }
 };
 var ChestTransfer = class extends PublicEndpoint {
@@ -17255,14 +17536,17 @@ var ChestTransfer = class extends PublicEndpoint {
     const inventory = { ...player.inventory || {} };
     const contents = { ...chest.contents || {} };
     if (direction === "deposit") {
-      if ((inventory[resourceId] || 0) < amount) throw new GameError(t("server.err.notEnoughInBasket", { resource: resourceId }));
+      if ((inventory[resourceId] || 0) < amount)
+        throw new GameError(t("server.err.notEnoughInBasket", { resource: resourceId }));
       if (sumValues(contents) + amount > chest.capacity) throw new GameError(t("server.err.chestFull"), 409);
       inventory[resourceId] -= amount;
       if (inventory[resourceId] <= 0) delete inventory[resourceId];
       contents[resourceId] = (contents[resourceId] || 0) + amount;
     } else if (direction === "withdraw") {
-      if ((contents[resourceId] || 0) < amount) throw new GameError(t("server.err.notEnoughInChest", { resource: resourceId }));
-      if (sumValues(inventory) + amount > inventoryCapacity(player)) throw new GameError(t("server.err.basketFull"), 409);
+      if ((contents[resourceId] || 0) < amount)
+        throw new GameError(t("server.err.notEnoughInChest", { resource: resourceId }));
+      if (sumValues(inventory) + amount > inventoryCapacity(player))
+        throw new GameError(t("server.err.basketFull"), 409);
       contents[resourceId] -= amount;
       if (contents[resourceId] <= 0) delete contents[resourceId];
       inventory[resourceId] = (inventory[resourceId] || 0) + amount;
@@ -17408,7 +17692,8 @@ var PlaceObject = class extends PublicEndpoint {
     const def = d.object.get(objectId);
     if (!def) throw new GameError(t("server.err.unknownObject", { object: objectId }));
     if (def.placement === "none") throw new GameError(t("server.err.kitNotPlaceable", { name: def.name }));
-    if ((player.craftedItems?.[objectId] || 0) <= 0) throw new GameError(t("server.err.noneCrafted", { name: def.name }));
+    if ((player.craftedItems?.[objectId] || 0) <= 0)
+      throw new GameError(t("server.err.noneCrafted", { name: def.name }));
     const tx = Math.round(Number(x));
     const ty = Math.round(Number(y));
     const grid = areaGrid(d, area);
@@ -17426,7 +17711,8 @@ var PlaceObject = class extends PublicEndpoint {
     } else if (tentBiome) {
       const biome = d.biome.get(tentBiome);
       if (!biome) throw new GameError(t("server.err.unknownArea", { area }));
-      if (!(player.unlockedBiomes || []).includes(tentBiome)) throw new GameError(t("server.err.biomeLocked", { biome: biome.name }), 403);
+      if (!(player.unlockedBiomes || []).includes(tentBiome))
+        throw new GameError(t("server.err.biomeLocked", { biome: biome.name }), 403);
       if (def.placement === "outdoor") throw new GameError(t("server.err.outdoorOnly", { name: def.name }));
       if (def.homeMin && def.homeMin > 1) throw new GameError(t("server.err.tentTooSmall", { name: def.name }), 403);
       const r = tentRoom();
@@ -17434,13 +17720,21 @@ var PlaceObject = class extends PublicEndpoint {
     } else {
       const biome = d.biome.get(area);
       if (!biome) throw new GameError(t("server.err.unknownArea", { area }));
-      if (!(player.unlockedBiomes || []).includes(area)) throw new GameError(t("server.err.biomeLocked", { biome: biome.name }), 403);
+      if (!(player.unlockedBiomes || []).includes(area))
+        throw new GameError(t("server.err.biomeLocked", { biome: biome.name }), 403);
       if (def.placement === "indoor") throw new GameError(t("server.err.indoorOnly", { name: def.name }));
-      if (!(def.biomes || []).includes(area)) throw new GameError(t("server.err.wrongHabitat", { name: def.name, biome: biome.name }));
+      if (!(def.biomes || []).includes(area))
+        throw new GameError(t("server.err.wrongHabitat", { name: def.name, biome: biome.name }));
       if (biome.oceanCols && tx >= grid.cols - biome.oceanCols) throw new GameError(t("server.err.openOcean"), 409);
     }
     if (def.requiresTool && (player.tools?.[def.requiresTool.id] || 1) < def.requiresTool.tier) {
-      throw new GameError(t("server.err.placeRequiresTool", { name: def.name, tool: d.tool.get(def.requiresTool.id)?.name || def.requiresTool.id }), 403);
+      throw new GameError(
+        t("server.err.placeRequiresTool", {
+          name: def.name,
+          tool: d.tool.get(def.requiresTool.id)?.name || def.requiresTool.id
+        }),
+        403
+      );
     }
     const placements = await byWorld(t2.Placement, wid);
     if (placements.some((p) => p.area === area && p.x === tx && p.y === ty)) {
@@ -17465,7 +17759,17 @@ var PlaceObject = class extends PublicEndpoint {
     if (craftedItems[objectId] <= 0) delete craftedItems[objectId];
     await t2.Player.patch(playerId, { craftedItems });
     const placementId = `pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-    const placement = { id: placementId, worldId: wid, playerId, objectId, area, x: tx, y: ty, placedAt: Date.now(), rotation: isRotatable(def) ? normRot(rotation) : 0 };
+    const placement = {
+      id: placementId,
+      worldId: wid,
+      playerId,
+      objectId,
+      area,
+      x: tx,
+      y: ty,
+      placedAt: Date.now(),
+      rotation: isRotatable(def) ? normRot(rotation) : 0
+    };
     await t2.Placement.put(placement);
     if (def.isChest) {
       await t2.Chest.put({
@@ -17490,7 +17794,10 @@ var PlaceObject = class extends PublicEndpoint {
       player: { ...player, craftedItems }
     });
     await bumpMetrics(player, { objectsPlaced: 1, animalsReturned: recalc.newAnimals?.length || 0 }, { place: 1 });
-    await awardWorldAchievements(wid, playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
+    await awardWorldAchievements(wid, playerId, {
+      addDiscoveries: recalc.newAnimals,
+      freshBiomeStates: [recalc.biomeState]
+    });
     return { ok: true, placement, craftedItems, ...recalc };
   }
 };
@@ -17503,10 +17810,12 @@ var Plant = class extends PublicEndpoint {
     const wid = worldOf(player);
     const biome = d.biome.get(area);
     if (!biome) throw new GameError(t("server.err.unknownArea", { area }));
-    if (!(player.unlockedBiomes || []).includes(area)) throw new GameError(t("server.err.biomeLocked", { biome: biome.name }), 403);
+    if (!(player.unlockedBiomes || []).includes(area))
+      throw new GameError(t("server.err.biomeLocked", { biome: biome.name }), 403);
     const def = d.object.get(plantId);
     if (!def || !def.plantable) throw new GameError(t("server.err.notPlantable"));
-    if (!(def.biomes || []).includes(area)) throw new GameError(t("server.err.wouldNotTakeRoot", { name: def.name, biome: biome.name }));
+    if (!(def.biomes || []).includes(area))
+      throw new GameError(t("server.err.wouldNotTakeRoot", { name: def.name, biome: biome.name }));
     const tx = Math.round(Number(x));
     const ty = Math.round(Number(y));
     const bed = await findTerrainAt(t2.TerrainTile, wid, area, tx, ty);
@@ -17537,7 +17846,10 @@ var Plant = class extends PublicEndpoint {
       player: { ...player, inventory }
     });
     await bumpMetrics(player, { plantsPlanted: 1, animalsReturned: recalc.newAnimals?.length || 0 }, { plant: 1 });
-    await awardWorldAchievements(wid, playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
+    await awardWorldAchievements(wid, playerId, {
+      addDiscoveries: recalc.newAnimals,
+      freshBiomeStates: [recalc.biomeState]
+    });
     return { ok: true, placement, inventory, usedFrom, perkGrowth: headStart || void 0, ...recalc };
   }
 };
@@ -17572,7 +17884,13 @@ var HarvestPlacement = class extends PublicEndpoint {
     await t2.Player.patch(playerId, { inventory });
     await t2.Placement.patch(placementId, { lastHarvestAt: now });
     await bumpMetrics(player, { resourcesCollected: take });
-    return { ok: true, placementId, gained: { [y.resourceId]: take }, inventory, placement: { ...placement, lastHarvestAt: now } };
+    return {
+      ok: true,
+      placementId,
+      gained: { [y.resourceId]: take },
+      inventory,
+      placement: { ...placement, lastHarvestAt: now }
+    };
   }
 };
 var UpdateAppearance = class extends PublicEndpoint {
@@ -17696,7 +18014,11 @@ var RemoveObject = class extends PublicEndpoint {
       player: { ...player, craftedItems, inventory }
     }) : null;
     await bumpMetrics(player, { objectsRemoved: 1, animalsReturned: recalc?.newAnimals?.length || 0 });
-    await awardWorldAchievements(wid, playerId, recalc ? { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] } : {});
+    await awardWorldAchievements(
+      wid,
+      playerId,
+      recalc ? { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] } : {}
+    );
     return { ok: true, removed: placementId, craftedItems, refunded, ...recalc || {} };
   }
 };
@@ -17717,7 +18039,10 @@ var UpgradeTool = class extends PublicEndpoint {
       if ((bs?.health || 0) < (nextTier.requires.minHealth || 0)) {
         const biome = d.biome.get(nextTier.requires.biome);
         throw new GameError(
-          t("server.err.restoreFirst", { biome: biome?.name || nextTier.requires.biome, health: nextTier.requires.minHealth }),
+          t("server.err.restoreFirst", {
+            biome: biome?.name || nextTier.requires.biome,
+            health: nextTier.requires.minHealth
+          }),
           403
         );
       }
@@ -17729,7 +18054,15 @@ var UpgradeTool = class extends PublicEndpoint {
     const chests = await byWorld(t2.Chest, wid);
     await bumpMetrics(player, { toolsUpgraded: 1 });
     await awardAchievements(playerId);
-    return { ok: true, tools, inventory, chests, usedFrom, unlockedBiomes, upgraded: { toolId, tier: nextTier.tier, name: nextTier.name } };
+    return {
+      ok: true,
+      tools,
+      inventory,
+      chests,
+      usedFrom,
+      unlockedBiomes,
+      upgraded: { toolId, tier: nextTier.tier, name: nextTier.name }
+    };
   }
 };
 var UpgradeHome = class extends PublicEndpoint {
@@ -17750,7 +18083,10 @@ var UpgradeHome = class extends PublicEndpoint {
       if ((bs?.health || 0) < (next.requires.minHealth || 0)) {
         const d = await defs();
         const biome = d.biome.get(next.requires.biome);
-        throw new GameError(t("server.err.restoreFirst", { biome: biome?.name || next.requires.biome, health: next.requires.minHealth }), 403);
+        throw new GameError(
+          t("server.err.restoreFirst", { biome: biome?.name || next.requires.biome, health: next.requires.minHealth }),
+          403
+        );
       }
     }
     const { usedFrom, inventory } = await consumeMaterials(player, next.materials || {}, wid);
@@ -17759,7 +18095,14 @@ var UpgradeHome = class extends PublicEndpoint {
     const chests = await byWorld(t2.Chest, wid);
     await awardAchievements(playerId);
     await bumpMetrics(player, { homeUpgrades: 1 });
-    return { ok: true, home: updated, inventory, chests, usedFrom, upgraded: { track, level: level + 1, name: def.name } };
+    return {
+      ok: true,
+      home: updated,
+      inventory,
+      chests,
+      usedFrom,
+      upgraded: { track, level: level + 1, name: def.name }
+    };
   }
 };
 var SLEEP_OBJECTS = ["home-sleeping-bag", "home-bed"];
@@ -17828,7 +18171,13 @@ var SetHomeStyle = class extends PublicEndpoint {
       if ((bs?.health || 0) < (styleDef.requires.minHealth || 0)) {
         const d = await defs();
         const biome = d.biome.get(styleDef.requires.biome);
-        throw new GameError(t("server.err.restoreFirst", { biome: biome?.name || styleDef.requires.biome, health: styleDef.requires.minHealth }), 403);
+        throw new GameError(
+          t("server.err.restoreFirst", {
+            biome: biome?.name || styleDef.requires.biome,
+            health: styleDef.requires.minHealth
+          }),
+          403
+        );
       }
     }
     const { usedFrom, inventory } = await consumeMaterials(player, styleDef.materials || {}, wid);
@@ -17872,7 +18221,17 @@ var ClaimTask = class extends PublicEndpoint {
       byWorld(t2.Placement, wid),
       byWorld(t2.Chest, wid)
     ]);
-    const block = dailyTasksBlock({ wid, player, d, discoveries, biomeStates, placements, chests, now, unlockedBiomes: player.unlockedBiomes });
+    const block = dailyTasksBlock({
+      wid,
+      player,
+      d,
+      discoveries,
+      biomeStates,
+      placements,
+      chests,
+      now,
+      unlockedBiomes: player.unlockedBiomes
+    });
     const task = block.tasks.find((x) => x.id === String(taskId || ""));
     if (!task) throw new GameError(t("server.err.taskNotOnBoard"), 404);
     if (task.pinned) throw new GameError(t("server.err.taskNotClaimable"), 409);
@@ -17925,7 +18284,17 @@ var SetGoals = class extends PublicEndpoint {
       byWorld(t2.Placement, wid),
       byWorld(t2.Chest, wid)
     ]);
-    const ctx = { wid, player, d, discoveries, biomeStates, placements, chests, now, unlockedBiomes: player.unlockedBiomes };
+    const ctx = {
+      wid,
+      player,
+      d,
+      discoveries,
+      biomeStates,
+      placements,
+      chests,
+      now,
+      unlockedBiomes: player.unlockedBiomes
+    };
     const prev = new Map((player.customGoals || []).map((g) => [g.id, g]));
     const limit = goalLimitFor(player, d);
     const cleaned = sanitizeGoals(goals, d);
@@ -17954,7 +18323,8 @@ var Terraform = class extends PublicEndpoint {
     const wid = worldOf(player);
     const biome = d.biome.get(area);
     if (!biome) throw new GameError(t("server.err.terraformOutdoors"));
-    if (!(player.unlockedBiomes || []).includes(area)) throw new GameError(t("server.err.biomeLocked", { biome: biome.name }), 403);
+    if (!(player.unlockedBiomes || []).includes(area))
+      throw new GameError(t("server.err.biomeLocked", { biome: biome.name }), 403);
     const tx = Math.round(Number(x));
     const ty = Math.round(Number(y));
     const grid = areaGrid(d, area);
@@ -18023,8 +18393,15 @@ var Terraform = class extends PublicEndpoint {
       removeTerrainIds: removedId ? [removedId] : [],
       player: { ...player, inventory }
     });
-    await bumpMetrics(player, { terraformActions: 1, animalsReturned: recalc.newAnimals?.length || 0 }, action === "water" ? { water: 1 } : {});
-    await awardWorldAchievements(wid, playerId, { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] });
+    await bumpMetrics(
+      player,
+      { terraformActions: 1, animalsReturned: recalc.newAnimals?.length || 0 },
+      action === "water" ? { water: 1 } : {}
+    );
+    await awardWorldAchievements(wid, playerId, {
+      addDiscoveries: recalc.newAnimals,
+      freshBiomeStates: [recalc.biomeState]
+    });
     return { ok: true, tile, removedId, dug, inventory, ...recalc };
   }
 };
@@ -18033,7 +18410,10 @@ var RecalcBiome = class extends PublicEndpoint {
     const { playerId, biomeId } = await bodyOf(data);
     const { player } = await requirePlayer(playerId);
     const recalcResult = await recalcBiome(worldOf(player), playerId, biomeId);
-    await awardWorldAchievements(worldOf(player), playerId, { addDiscoveries: recalcResult.newAnimals, freshBiomeStates: [recalcResult.biomeState] });
+    await awardWorldAchievements(worldOf(player), playerId, {
+      addDiscoveries: recalcResult.newAnimals,
+      freshBiomeStates: [recalcResult.biomeState]
+    });
     return { ok: true, ...recalcResult };
   }
 };
@@ -18283,7 +18663,12 @@ var Metrics = class extends PublicEndpoint {
           tutorialStep: s.tutorialStep || 0,
           activation: s.activation || {},
           achievements: s.achievements || null,
-          biomeSummary: s.biomeSummary || { biomesUnlocked: 0, avgHealth: 0, biomesFullyRestored: 0, totalAnimalsReturned: 0 },
+          biomeSummary: s.biomeSummary || {
+            biomesUnlocked: 0,
+            avgHealth: 0,
+            biomesFullyRestored: 0,
+            totalAnimalsReturned: 0
+          },
           // new metric fields (defaulted so aggregation is safe on legacy rows)
           areaSeconds: s.areaSeconds || {},
           sessionLengths: s.sessionLengths || {},
@@ -18311,7 +18696,12 @@ var Metrics = class extends PublicEndpoint {
       }
     } catch {
     }
-    if (excludedNames.size) all = all.filter((v) => !excludedNames.has(String(v.name || "").trim().toLowerCase()));
+    if (excludedNames.size)
+      all = all.filter(
+        (v) => !excludedNames.has(
+          String(v.name || "").trim().toLowerCase()
+        )
+      );
     const N = all.length || 1;
     const pct = (n) => Math.round(n / N * 100);
     const actionTotals = {};
@@ -18373,8 +18763,10 @@ var Metrics = class extends PublicEndpoint {
     const byCategory = {};
     const completionHistogram = {};
     for (const v of withAch) {
-      for (const rec of v.achievements.recent || []) if (rec?.id) recentDistribution[rec.id] = (recentDistribution[rec.id] || 0) + 1;
-      for (const [cat, n] of Object.entries(v.achievements.byCategory || {})) byCategory[cat] = (byCategory[cat] || 0) + n;
+      for (const rec of v.achievements.recent || [])
+        if (rec?.id) recentDistribution[rec.id] = (recentDistribution[rec.id] || 0) + 1;
+      for (const [cat, n] of Object.entries(v.achievements.byCategory || {}))
+        byCategory[cat] = (byCategory[cat] || 0) + n;
       const e = v.achievements.earned || 0;
       const bucket = e === 0 ? "0" : `${Math.floor((e - 1) / 10) * 10 + 1}-${(Math.floor((e - 1) / 10) + 1) * 10}`;
       completionHistogram[bucket] = (completionHistogram[bucket] || 0) + 1;
@@ -18391,7 +18783,8 @@ var Metrics = class extends PublicEndpoint {
     };
     const areaSecondsTotals = {};
     for (const v of all) {
-      for (const [a, sec] of Object.entries(v.areaSeconds || {})) areaSecondsTotals[a] = (areaSecondsTotals[a] || 0) + sec;
+      for (const [a, sec] of Object.entries(v.areaSeconds || {}))
+        areaSecondsTotals[a] = (areaSecondsTotals[a] || 0) + sec;
     }
     const totalAreaSeconds = Object.values(areaSecondsTotals).reduce((a, b) => a + b, 0);
     const areaMinutesTotals = {};
@@ -18404,13 +18797,16 @@ var Metrics = class extends PublicEndpoint {
     };
     const sessionLengthDistribution = { "<2m": 0, "2-10m": 0, "10-30m": 0, "30m+": 0 };
     for (const v of all) {
-      for (const [b, n] of Object.entries(v.sessionLengths || {})) sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + n;
+      for (const [b, n] of Object.entries(v.sessionLengths || {}))
+        sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + n;
     }
     const withCreation = all.filter((v) => (v.creationMs || 0) > 0);
     const creation = {
       savesWithTiming: withCreation.length,
       avgCreationSeconds: withCreation.length ? round1(withCreation.reduce((a, v) => a + v.creationMs, 0) / withCreation.length / 1e3) : 0,
-      medianCreationSeconds: withCreation.length ? round1([...withCreation].map((v) => v.creationMs).sort((a, b) => a - b)[Math.floor(withCreation.length / 2)] / 1e3) : 0
+      medianCreationSeconds: withCreation.length ? round1(
+        [...withCreation].map((v) => v.creationMs).sort((a, b) => a - b)[Math.floor(withCreation.length / 2)] / 1e3
+      ) : 0
     };
     const appTally = {};
     const bump = (field, val) => {
@@ -18667,8 +19063,27 @@ var DevTools = class extends PublicEndpoint {
           });
         }
         const chestId = `pl_${playerId}_starter-chest`;
-        await t2.Placement.put({ id: chestId, worldId: wid, playerId, objectId: "small-chest", area: "meadow", x: STARTER_CHEST.x, y: STARTER_CHEST.y, placedAt: Date.now() });
-        await t2.Chest.put({ id: chestId, worldId: wid, playerId, area: "meadow", x: STARTER_CHEST.x, y: STARTER_CHEST.y, size: "small-chest", capacity: STARTER_CHEST.capacity, contents: {} });
+        await t2.Placement.put({
+          id: chestId,
+          worldId: wid,
+          playerId,
+          objectId: "small-chest",
+          area: "meadow",
+          x: STARTER_CHEST.x,
+          y: STARTER_CHEST.y,
+          placedAt: Date.now()
+        });
+        await t2.Chest.put({
+          id: chestId,
+          worldId: wid,
+          playerId,
+          area: "meadow",
+          x: STARTER_CHEST.x,
+          y: STARTER_CHEST.y,
+          size: "small-chest",
+          capacity: STARTER_CHEST.capacity,
+          contents: {}
+        });
         await t2.Player.patch(playerId, {
           area: "meadow",
           x: 24.5,
@@ -18746,7 +19161,9 @@ var DevTools = class extends PublicEndpoint {
         await t2.BiomeState.patch(`${playerId}:${ar}`, { health: BASE_HEALTH, balance: 0, returnedCount: 0 });
         await seedStartingTerrain(playerId, playerId, ar);
         await recalcBiome(playerId, playerId, ar, { player });
-        log.push(`Reset ${ar} to its damaged state \u2014 removed ${placementsRemoved} object${placementsRemoved === 1 ? "" : "s"} and sent ${animalsRemoved} animal${animalsRemoved === 1 ? "" : "s"} away (chests kept)`);
+        log.push(
+          `Reset ${ar} to its damaged state \u2014 removed ${placementsRemoved} object${placementsRemoved === 1 ? "" : "s"} and sent ${animalsRemoved} animal${animalsRemoved === 1 ? "" : "s"} away (chests kept)`
+        );
         break;
       }
       case "lock-biome": {
@@ -18767,7 +19184,9 @@ var DevTools = class extends PublicEndpoint {
       case "welcome-animals": {
         const ar = area || player.area;
         const here = d.animals.filter((a) => a.biome === ar);
-        const already = new Set((await byPlayer(t2.Discovery, playerId)).filter((x) => x.biomeId === ar).map((x) => x.animalId));
+        const already = new Set(
+          (await byPlayer(t2.Discovery, playerId)).filter((x) => x.biomeId === ar).map((x) => x.animalId)
+        );
         let added = 0;
         for (const animal of here) {
           if (already.has(animal.id)) continue;
@@ -18853,27 +19272,46 @@ var DevTools = class extends PublicEndpoint {
         if (biome.canFlood !== false) {
           const lx = ri(xMin + 1, Math.max(xMin + 1, Math.min(xMax - 4, xMin + 8)));
           const ly = ri(yMin + 1, Math.max(yMin + 1, Math.min(yMax - 3, yMin + 6)));
-          for (let dy = 0; dy < 3; dy++) for (let dx = 0; dx < 4; dx++) {
-            if ((dx === 0 || dx === 3) && (dy === 0 || dy === 2)) continue;
-            carve(lx + dx, ly + dy);
-          }
+          for (let dy = 0; dy < 3; dy++)
+            for (let dx = 0; dx < 4; dx++) {
+              if ((dx === 0 || dx === 3) && (dy === 0 || dy === 2)) continue;
+              carve(lx + dx, ly + dy);
+            }
           carve(lx + 1, ly - 1);
           carve(lx + 2, ly + 3);
           let rx = ri(Math.floor((xMin + xMax) / 2), xMax - 2), ry = yMin;
           carve(rx, ry);
           for (let i = 0, steps = ri(13, 18); i < steps && ry < yMax; i++) {
-            if (rng() < 0.25 && rx > xMin + 1 && rx < xMax - 1) rx += rng() < 0.5 ? -1 : 1;
+            if (rng() < 0.25 && rx > xMin + 1 && rx < xMax - 1)
+              rx += rng() < 0.5 ? -1 : 1;
             else ry += 1;
             carve(rx, ry);
             if (rng() < 0.25) carve(Math.min(xMax, rx + 1), ry);
           }
         }
-        const usable = d.objects.filter((o) => (o.biomes || []).includes(ar) && o.placement !== "indoor" && o.placement !== "none" && !o.isChest && !o.bridge);
+        const usable = d.objects.filter(
+          (o) => (o.biomes || []).includes(ar) && o.placement !== "indoor" && o.placement !== "none" && !o.isChest && !o.bridge
+        );
         if (!usable.length) throw new GameError(t("server.err.noPlaceableObjects", { biome: biome.name }));
         const isPath = (o) => /-path$/.test(o.id) || o.id === "wooden-fence" || o.id === "dry-stone-wall";
         const trees = usable.filter((o) => o.plantable && (o.growSeconds || 0) >= 80);
         const flowers = usable.filter((o) => o.plantable && (o.growSeconds || 0) < 80);
-        const NATURE = /* @__PURE__ */ new Set(["shrub", "rock-pile", "hollow-log", "log-shelter", "brush-pile", "stone-cairn", "rock-cairn", "clover-patch", "butterfly-flowers", "pollinator-garden", "fallen-branch-shelter", "insect-hotel", "birdhouse", "bird-perch"]);
+        const NATURE = /* @__PURE__ */ new Set([
+          "shrub",
+          "rock-pile",
+          "hollow-log",
+          "log-shelter",
+          "brush-pile",
+          "stone-cairn",
+          "rock-cairn",
+          "clover-patch",
+          "butterfly-flowers",
+          "pollinator-garden",
+          "fallen-branch-shelter",
+          "insect-hotel",
+          "birdhouse",
+          "bird-perch"
+        ]);
         const nature = usable.filter((o) => !o.plantable && !isPath(o) && NATURE.has(o.id));
         const paths = usable.filter(isPath);
         const decor = usable.filter((o) => !o.plantable && !isPath(o) && !NATURE.has(o.id));
@@ -18882,7 +19320,16 @@ var DevTools = class extends PublicEndpoint {
         const place = (def, x, y) => {
           if (!def || !free(x, y)) return false;
           occupied.add(`${x},${y}`);
-          const row = { id: `pl_dev_${ar}_${x}_${y}`, worldId: wid, playerId, objectId: def.id, area: ar, x, y, placedAt: OLD };
+          const row = {
+            id: `pl_dev_${ar}_${x}_${y}`,
+            worldId: wid,
+            playerId,
+            objectId: def.id,
+            area: ar,
+            x,
+            y,
+            placedAt: OLD
+          };
           if (def.plantable) row.plantedAt = OLD;
           places.push(row);
           return true;
@@ -18921,13 +19368,24 @@ var DevTools = class extends PublicEndpoint {
           place(pick(usable), ri(xMin, xMax), ri(yMin, yMax));
         }
         for (const w of waterCells) {
-          await t2.TerrainTile.put({ id: `${wid}:${ar}:${w.x}:${w.y}`, worldId: wid, playerId, area: ar, x: w.x, y: w.y, type: "water", updatedAt: Date.now() });
+          await t2.TerrainTile.put({
+            id: `${wid}:${ar}:${w.x}:${w.y}`,
+            worldId: wid,
+            playerId,
+            area: ar,
+            x: w.x,
+            y: w.y,
+            type: "water",
+            updatedAt: Date.now()
+          });
         }
         for (const row of places) await t2.Placement.put(row);
         const waterTiles = waterCells.length;
         const placed = places.length;
         const here = d.animals.filter((a) => a.biome === ar);
-        const already = new Set((await byWorld(t2.Discovery, wid)).filter((x) => x.biomeId === ar).map((x) => x.animalId));
+        const already = new Set(
+          (await byWorld(t2.Discovery, wid)).filter((x) => x.biomeId === ar).map((x) => x.animalId)
+        );
         for (const animal of here) {
           if (already.has(animal.id)) continue;
           await t2.Discovery.put({
@@ -18948,7 +19406,9 @@ var DevTools = class extends PublicEndpoint {
         for (const disc of (await byWorld(t2.Discovery, wid)).filter((x) => x.biomeId === ar)) {
           await t2.Discovery.patch(disc.id, { comfort: 90 });
         }
-        log.push(`Populated ${biome.name}: ${placed} objects, ${waterTiles} water tiles, ${here.length} animals home, health 100`);
+        log.push(
+          `Populated ${biome.name}: ${placed} objects, ${waterTiles} water tiles, ${here.length} animals home, health 100`
+        );
         break;
       }
       case "set-weather": {
@@ -18961,11 +19421,13 @@ var DevTools = class extends PublicEndpoint {
         const cur = player.devWeather || {};
         const next = { type: cur.type ?? null, season: cur.season ?? null };
         if ("type" in v) {
-          if (v.type && !WEATHER_TYPES.includes(v.type)) throw new GameError(t("server.err.unknownWeatherType", { type: v.type }));
+          if (v.type && !WEATHER_TYPES.includes(v.type))
+            throw new GameError(t("server.err.unknownWeatherType", { type: v.type }));
           next.type = v.type || null;
         }
         if ("season" in v) {
-          if (v.season && !SEASONS.includes(v.season)) throw new GameError(t("server.err.unknownSeason", { season: v.season }));
+          if (v.season && !SEASONS.includes(v.season))
+            throw new GameError(t("server.err.unknownSeason", { season: v.season }));
           next.season = v.season || null;
         }
         await t2.Player.patch(playerId, { devWeather: next });
@@ -18984,7 +19446,8 @@ var SubmitFeedback = class extends PublicEndpoint {
     const body = await bodyOf(data);
     const message = String(body.message || "").trim();
     if (!message) throw new GameError(t("server.err.feedbackEmpty"));
-    if (message.length > FEEDBACK_MAX_CHARS) throw new GameError(t("server.err.feedbackTooLong", { max: FEEDBACK_MAX_CHARS }));
+    if (message.length > FEEDBACK_MAX_CHARS)
+      throw new GameError(t("server.err.feedbackTooLong", { max: FEEDBACK_MAX_CHARS }));
     const replyTo = String(body.replyTo || "").trim().slice(0, 200) || null;
     if (replyTo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(replyTo)) throw new GameError(t("server.err.feedbackBadEmail"));
     const metrics = body.metrics && typeof body.metrics === "object" && !Array.isArray(body.metrics) ? body.metrics : {};

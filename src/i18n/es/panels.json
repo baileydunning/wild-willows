@@ -101,7 +101,17 @@
 		"restoreFirst": "Restaura primero {biome} al {health}% de salud (ahora {current}%)",
 		"fullyUpgraded": "Mejora completa.",
 		"upgrade": "Mejorar",
-		"note": "Las mejoras usan materiales de tu cesta y tus cofres."
+		"note": "Las mejoras usan materiales de tu cesta y tus cofres.",
+		"gearTitle": "Equipo de cuidador",
+		"gearNote": "El equipo que has fabricado es tuyo para siempre — activa o desactiva cada pieza cuando quieras.",
+		"gearOn": "Activado",
+		"gearOff": "Apagado",
+		"gearToggleAria": "Activar o desactivar {name}",
+		"gearEffect": {
+			"boots": "Camina un poco más rápido por la reserva.",
+			"binoculars": "Los animales que aún no has registrado brillan con un suave destello.",
+			"headlamp": "Ilumina el suelo a tu alrededor al anochecer."
+		}
 	},
 	"biomes": {
 		"title": "La Reserva",

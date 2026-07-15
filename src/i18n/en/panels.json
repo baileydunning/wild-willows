@@ -101,7 +101,17 @@
 		"restoreFirst": "Restore {biome} to {health}% health first (now {current}%)",
 		"fullyUpgraded": "Fully upgraded.",
 		"upgrade": "Upgrade",
-		"note": "Upgrades use materials from your basket and chests."
+		"note": "Upgrades use materials from your basket and chests.",
+		"gearTitle": "Caretaker Gear",
+		"gearNote": "Gear you've crafted stays yours for good — switch each piece on or off any time.",
+		"gearOn": "On",
+		"gearOff": "Off",
+		"gearToggleAria": "Toggle {name}",
+		"gearEffect": {
+			"boots": "Walk a little faster across the preserve.",
+			"binoculars": "Animals you haven't recorded yet catch the light with a soft glint.",
+			"headlamp": "Lights the ground around you after dusk."
+		}
 	},
 	"biomes": {
 		"title": "The Preserve",

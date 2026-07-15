@@ -6,7 +6,9 @@ import { freshWorld, appearance, meadowResource, type World } from './harness';
 // the per-device acquisition funnel (opens → characters created / bounced).
 
 let w: World;
-beforeEach(async () => { w = await freshWorld(); });
+beforeEach(async () => {
+	w = await freshWorld();
+});
 
 const RES = meadowResource();
 
@@ -59,7 +61,15 @@ describe('per-player metrics', () => {
 		const { playerId } = await w.post('CreatePlayer', { name: 'Eve', passcode: '1234', appearance });
 		// simulate an old save whose metrics blob predates the new fields
 		const p = await w.db.Player.get(playerId);
-		await w.db.Player.patch(playerId, { metrics: { firstSeenAt: Date.now(), lastSeenAt: Date.now(), playSeconds: 60, sessions: 1, counts: { resourcesCollected: 3 } } });
+		await w.db.Player.patch(playerId, {
+			metrics: {
+				firstSeenAt: Date.now(),
+				lastSeenAt: Date.now(),
+				playSeconds: 60,
+				sessions: 1,
+				counts: { resourcesCollected: 3 },
+			},
+		});
 		const one = await w.get('Metrics', playerId);
 		expect(one.player.areaSeconds).toEqual({});
 		expect(one.player.sessionLengths).toEqual({});
@@ -71,12 +81,26 @@ describe('per-player metrics', () => {
 
 describe('dashboard rollups from solo snapshots', () => {
 	const snap = (over: Record<string, any> = {}) => ({
-		playerId: 'x', name: 'X', playSeconds: 600, sessions: 3, lastSeenAt: Date.now(),
+		playerId: 'x',
+		name: 'X',
+		playSeconds: 600,
+		sessions: 3,
+		lastSeenAt: Date.now(),
 		areaSeconds: { meadow: 600, wetland: 300 },
 		sessionLengths: { '<2m': 1, '2-10m': 2 },
-		creationMs: 8000, creationSeconds: 8,
+		creationMs: 8000,
+		creationSeconds: 8,
 		timeToFirstActionSeconds: 42,
-		appearance: { skin: '#111', hair: '#222', outfit: '#333', hat: 'straw', hatColor: null, hairstyle: 'short', beard: 'none', body: 'slim' },
+		appearance: {
+			skin: '#111',
+			hair: '#222',
+			outfit: '#333',
+			hat: 'straw',
+			hatColor: null,
+			hairstyle: 'short',
+			beard: 'none',
+			body: 'slim',
+		},
 		...over,
 	});
 

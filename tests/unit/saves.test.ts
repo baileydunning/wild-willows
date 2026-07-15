@@ -4,10 +4,16 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 const store = new Map<string, string>();
 (globalThis as any).localStorage = {
 	getItem: (k: string) => store.get(k) ?? null,
-	setItem: (k: string, v: string) => { store.set(k, v); },
-	removeItem: (k: string) => { store.delete(k); },
+	setItem: (k: string, v: string) => {
+		store.set(k, v);
+	},
+	removeItem: (k: string) => {
+		store.delete(k);
+	},
 	key: (i: number) => [...store.keys()][i] ?? null,
-	get length() { return store.size; },
+	get length() {
+		return store.size;
+	},
 };
 
 // Control what the "active save" serializes to, so we can simulate an in-game restyle.
@@ -17,7 +23,9 @@ vi.mock('../../src/solo/backend', () => ({ serializeActiveSave: () => h.data }))
 import { createSlot, persist, listSaves, loadSaveData, exportSlot, importSave } from '../../src/solo/saves';
 
 describe('solo save meta stays in sync with the live player', () => {
-	beforeEach(() => { store.clear(); });
+	beforeEach(() => {
+		store.clear();
+	});
 
 	it('persist refreshes appearance + name from the saved player row (restyle bug)', async () => {
 		h.data = { Player: [{ id: 'ivy', name: 'Ivy', appearance: { hat: 'straw', hair: '#6e4a33' } }] };
@@ -29,7 +37,7 @@ describe('solo save meta stays in sync with the live player', () => {
 		await persist(slot);
 
 		const m = (await listSaves()).find((x) => x.slotId === slot.slotId)!;
-		expect(m.appearance.hat).toBe('crown');   // load screen now shows the new look
+		expect(m.appearance.hat).toBe('crown'); // load screen now shows the new look
 		expect(m.appearance.hair).toBe('#ffffff');
 		expect(m.name).toBe('Ivy Bloom');
 	});
@@ -44,10 +52,15 @@ describe('solo save meta stays in sync with the live player', () => {
 });
 
 describe('export / import round-trip (offline save backups)', () => {
-	beforeEach(() => { store.clear(); });
+	beforeEach(() => {
+		store.clear();
+	});
 
 	it('exports the full save (world data + name + appearance) and re-imports it as a new slot', async () => {
-		h.data = { Player: [{ id: 'ivy', name: 'Ivy', appearance: { hat: 'crown', hair: '#fff' } }], Plot: [{ id: 'p1', crop: 'fern' }] };
+		h.data = {
+			Player: [{ id: 'ivy', name: 'Ivy', appearance: { hat: 'crown', hair: '#fff' } }],
+			Plot: [{ id: 'p1', crop: 'fern' }],
+		};
 		const slot = await createSlot({ playerId: 'ivy', name: 'Ivy', appearance: { hat: 'crown', hair: '#fff' } });
 		await persist(slot);
 
@@ -84,7 +97,9 @@ describe('export / import round-trip (offline save backups)', () => {
 		// a bare {meta,data} with no encrypted envelope is refused
 		await expect(importSave(JSON.stringify({ meta: { playerId: 'a' }, data: {} }))).rejects.toThrow('invalid-save');
 		// right envelope shape, but the ciphertext is bogus
-		await expect(importSave(JSON.stringify({ app: 'wild-willows', v: 1, nonce: 'n', sig: 'x', enc: 'AAAA' }))).rejects.toThrow('invalid-save');
+		await expect(
+			importSave(JSON.stringify({ app: 'wild-willows', v: 1, nonce: 'n', sig: 'x', enc: 'AAAA' })),
+		).rejects.toThrow('invalid-save');
 	});
 
 	it('rejects an edited save (ciphertext changed or tag no longer matches)', async () => {
@@ -98,7 +113,9 @@ describe('export / import round-trip (offline save backups)', () => {
 		await expect(importSave(JSON.stringify(tampered))).rejects.toThrow('invalid-save');
 
 		// forging a new sig also fails (the secret isn't just "trust the file")
-		await expect(importSave(JSON.stringify({ ...env, sig: 'deadbeefdeadbeefdeadbeefdeadbeef' }))).rejects.toThrow('invalid-save');
+		await expect(importSave(JSON.stringify({ ...env, sig: 'deadbeefdeadbeefdeadbeefdeadbeef' }))).rejects.toThrow(
+			'invalid-save',
+		);
 
 		// the untouched original still imports cleanly
 		await expect(importSave(JSON.stringify(env))).resolves.toMatchObject({ playerId: 'ivy' });

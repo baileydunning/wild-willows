@@ -112,8 +112,12 @@ describe('recipeUnlocked', () => {
 	it('indoor furniture needs the home Space track to be high enough', () => {
 		const r = recipe({ id: 'fireplace', output: { itemId: 'fireplace', qty: 1 } });
 		const data = makeData({ habitatObjects: [obj({ id: 'fireplace', placement: 'indoor', homeMin: 3 })] });
-		expect(recipeUnlocked(r, data, makeState({}, { home: { style: 'cabin', space: 1, comfort: 1, decor: 1, light: 1 } }))).toBe(false);
-		expect(recipeUnlocked(r, data, makeState({}, { home: { style: 'cabin', space: 3, comfort: 1, decor: 1, light: 1 } }))).toBe(true);
+		expect(
+			recipeUnlocked(r, data, makeState({}, { home: { style: 'cabin', space: 1, comfort: 1, decor: 1, light: 1 } })),
+		).toBe(false);
+		expect(
+			recipeUnlocked(r, data, makeState({}, { home: { style: 'cabin', space: 3, comfort: 1, decor: 1, light: 1 } })),
+		).toBe(true);
 	});
 
 	it('a recipe whose biome is still locked is not craftable', () => {
@@ -126,8 +130,12 @@ describe('recipeUnlocked', () => {
 	it('enforces a minHealth gate against the biome state', () => {
 		const r = recipe({ id: 'pond', output: { itemId: 'pond', qty: 1 }, unlock: { minHealth: 25, label: 'x' } });
 		const data = makeData({ habitatObjects: [obj({ id: 'pond' })] });
-		const low = makeState({ biomeStates: [{ id: 'b', biomeId: 'meadow', health: 10, balance: 0, returnedCount: 0, unlocked: true }] });
-		const high = makeState({ biomeStates: [{ id: 'b', biomeId: 'meadow', health: 30, balance: 0, returnedCount: 0, unlocked: true }] });
+		const low = makeState({
+			biomeStates: [{ id: 'b', biomeId: 'meadow', health: 10, balance: 0, returnedCount: 0, unlocked: true }],
+		});
+		const high = makeState({
+			biomeStates: [{ id: 'b', biomeId: 'meadow', health: 30, balance: 0, returnedCount: 0, unlocked: true }],
+		});
 		expect(recipeUnlocked(r, data, low)).toBe(false);
 		expect(recipeUnlocked(r, data, high)).toBe(true);
 	});
@@ -137,22 +145,64 @@ describe('recipeUnlocked', () => {
 			habitatObjects: [obj({ id: 'feeder' })],
 			animals: [animal('grasshopper', 'meadow'), animal('rabbit', 'meadow')],
 		});
-		const countGate = recipe({ id: 'feeder', output: { itemId: 'feeder', qty: 1 }, unlock: { animalsReturned: 2, label: 'x' } });
-		const oneAnimal = makeState({ discoveries: [{ id: 'd1', animalId: 'grasshopper', biomeId: 'meadow', comfort: 1, timesObserved: 1, firstObservedAt: 0, whyReturned: '' }] });
+		const countGate = recipe({
+			id: 'feeder',
+			output: { itemId: 'feeder', qty: 1 },
+			unlock: { animalsReturned: 2, label: 'x' },
+		});
+		const oneAnimal = makeState({
+			discoveries: [
+				{
+					id: 'd1',
+					animalId: 'grasshopper',
+					biomeId: 'meadow',
+					comfort: 1,
+					timesObserved: 1,
+					firstObservedAt: 0,
+					whyReturned: '',
+				},
+			],
+		});
 		expect(recipeUnlocked(countGate, data, oneAnimal)).toBe(false);
-		const twoAnimals = makeState({ discoveries: [
-			{ id: 'd1', animalId: 'grasshopper', biomeId: 'meadow', comfort: 1, timesObserved: 1, firstObservedAt: 0, whyReturned: '' },
-			{ id: 'd2', animalId: 'rabbit', biomeId: 'meadow', comfort: 1, timesObserved: 1, firstObservedAt: 0, whyReturned: '' },
-		] });
+		const twoAnimals = makeState({
+			discoveries: [
+				{
+					id: 'd1',
+					animalId: 'grasshopper',
+					biomeId: 'meadow',
+					comfort: 1,
+					timesObserved: 1,
+					firstObservedAt: 0,
+					whyReturned: '',
+				},
+				{
+					id: 'd2',
+					animalId: 'rabbit',
+					biomeId: 'meadow',
+					comfort: 1,
+					timesObserved: 1,
+					firstObservedAt: 0,
+					whyReturned: '',
+				},
+			],
+		});
 		expect(recipeUnlocked(countGate, data, twoAnimals)).toBe(true);
 
-		const needRabbit = recipe({ id: 'feeder', output: { itemId: 'feeder', qty: 1 }, unlock: { requiresAnimal: 'rabbit', label: 'x' } });
+		const needRabbit = recipe({
+			id: 'feeder',
+			output: { itemId: 'feeder', qty: 1 },
+			unlock: { requiresAnimal: 'rabbit', label: 'x' },
+		});
 		expect(recipeUnlocked(needRabbit, data, oneAnimal)).toBe(false);
 		expect(recipeUnlocked(needRabbit, data, twoAnimals)).toBe(true);
 	});
 
 	it('enforces a requiresCrafted prerequisite', () => {
-		const r = recipe({ id: 'deluxe', output: { itemId: 'deluxe', qty: 1 }, unlock: { requiresCrafted: 'basic', label: 'x' } });
+		const r = recipe({
+			id: 'deluxe',
+			output: { itemId: 'deluxe', qty: 1 },
+			unlock: { requiresCrafted: 'basic', label: 'x' },
+		});
 		const data = makeData({ habitatObjects: [obj({ id: 'deluxe' })] });
 		expect(recipeUnlocked(r, data, makeState())).toBe(false);
 		expect(recipeUnlocked(r, data, makeState({}, { craftedEver: { basic: 1 } }))).toBe(true);
@@ -182,7 +232,12 @@ describe('unlockedRecipeIds', () => {
 });
 
 describe('recipeMatchesSearch', () => {
-	const r = recipe({ id: 'bird-perch', name: 'Bird Perch', category: 'habitat', output: { itemId: 'bird-perch', qty: 1 } });
+	const r = recipe({
+		id: 'bird-perch',
+		name: 'Bird Perch',
+		category: 'habitat',
+		output: { itemId: 'bird-perch', qty: 1 },
+	});
 	const o = obj({ id: 'bird-perch', name: 'Bird Perch', description: 'A cozy spot where songbirds love to rest.' });
 
 	it('matches everything when the query is empty or whitespace', () => {
@@ -215,7 +270,12 @@ describe('recipeMatchesSearch', () => {
 });
 
 describe('recipeSearchScore', () => {
-	const grass = recipe({ id: 'grass-patch', name: 'Grass Patch', category: 'plant', output: { itemId: 'grass-patch', qty: 1 } });
+	const grass = recipe({
+		id: 'grass-patch',
+		name: 'Grass Patch',
+		category: 'plant',
+		output: { itemId: 'grass-patch', qty: 1 },
+	});
 	const grassObj = obj({ id: 'grass-patch', name: 'Grass Patch', description: 'A soft patch of native grasses.' });
 	const oak = recipe({ id: 'oak-tree', name: 'Oak Tree', category: 'plant', output: { itemId: 'oak-tree', qty: 1 } });
 	const oakObj = obj({ id: 'oak-tree', name: 'Oak Tree', description: 'Grows tall; grasshoppers shelter beneath it.' });

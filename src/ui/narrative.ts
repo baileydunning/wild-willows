@@ -83,7 +83,8 @@ const COMBO_BEATS: Beat[] = [
 	{
 		id: 'forest-cavity-reuse',
 		icon: 'paw',
-		test: (c) => c.has('pileated-woodpecker') && (c.has('wood-duck') || c.has('northern-flying-squirrel') || c.has('barred-owl')),
+		test: (c) =>
+			c.has('pileated-woodpecker') && (c.has('wood-duck') || c.has('northern-flying-squirrel') || c.has('barred-owl')),
 	},
 	{
 		id: 'wetland-beaver',
@@ -98,7 +99,8 @@ const COMBO_BEATS: Beat[] = [
 	{
 		id: 'wetland-heron-hunt',
 		icon: 'drop',
-		test: (c) => c.has('great-blue-heron') && (c.has('freshwater-fish') || c.has('painted-turtle') || c.has('mallard-duck')),
+		test: (c) =>
+			c.has('great-blue-heron') && (c.has('freshwater-fish') || c.has('painted-turtle') || c.has('mallard-duck')),
 	},
 	{
 		id: 'desert-snake-rodent',
@@ -655,7 +657,11 @@ let cache: { data: GameData; beats: ResolvedBeat[] } | null = null;
  * before and after this batch of returns. A beat fires only when the new
  * returns flip it from false to true — so each fires exactly once, ever.
  */
-export function narrativeBeats(before: Set<string>, after: Set<string>, data: GameData): { icon: string; text: string }[] {
+export function narrativeBeats(
+	before: Set<string>,
+	after: Set<string>,
+	data: GameData,
+): { icon: string; text: string }[] {
 	if (!cache || cache.data !== data) cache = { data, beats: allBeats(data) };
 	const cb = buildCtx(before, data);
 	const ca = buildCtx(after, data);

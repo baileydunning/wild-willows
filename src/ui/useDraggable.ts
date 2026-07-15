@@ -1,5 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
-import type { CSSProperties, KeyboardEvent as ReactKeyboardEvent, PointerEvent as ReactPointerEvent, RefObject } from 'react';
+import type {
+	CSSProperties,
+	KeyboardEvent as ReactKeyboardEvent,
+	PointerEvent as ReactPointerEvent,
+	RefObject,
+} from 'react';
 
 interface Pos {
 	x: number;
@@ -67,7 +72,11 @@ export function useDraggable(storageKey?: string): Draggable {
 	// Remember where the player left it.
 	useEffect(() => {
 		if (storageKey && pos) {
-			try { localStorage.setItem(storageKey, JSON.stringify(pos)); } catch { /* ignore */ }
+			try {
+				localStorage.setItem(storageKey, JSON.stringify(pos));
+			} catch {
+				/* ignore */
+			}
 		}
 	}, [pos, storageKey]);
 
@@ -81,7 +90,9 @@ export function useDraggable(storageKey?: string): Draggable {
 	// Safety net: any pointerup anywhere ends the drag, even if the handle
 	// never receives it (capture lost, element re-rendered under the cursor…).
 	useEffect(() => {
-		const end = () => { drag.current = null; };
+		const end = () => {
+			drag.current = null;
+		};
 		window.addEventListener('pointerup', end);
 		window.addEventListener('blur', end);
 		return () => {
@@ -92,7 +103,11 @@ export function useDraggable(storageKey?: string): Draggable {
 
 	const endDrag = (e: ReactPointerEvent) => {
 		drag.current = null;
-		try { (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId); } catch { /* ignore */ }
+		try {
+			(e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+		} catch {
+			/* ignore */
+		}
 	};
 
 	const handleProps = {
@@ -104,7 +119,11 @@ export function useDraggable(storageKey?: string): Draggable {
 			if (!el) return;
 			const r = el.getBoundingClientRect();
 			drag.current = { dx: e.clientX - r.left, dy: e.clientY - r.top };
-			try { (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId); } catch { /* ignore */ }
+			try {
+				(e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+			} catch {
+				/* ignore */
+			}
 		},
 		onPointerMove: (e: ReactPointerEvent) => {
 			if (!drag.current) return;
@@ -120,7 +139,8 @@ export function useDraggable(storageKey?: string): Draggable {
 		onLostPointerCapture: endDrag,
 		onKeyDown: (e: ReactKeyboardEvent) => {
 			const step = e.shiftKey ? 2 : KEY_STEP;
-			let dx = 0, dy = 0;
+			let dx = 0,
+				dy = 0;
 			if (e.key === 'ArrowLeft') dx = -step;
 			else if (e.key === 'ArrowRight') dx = step;
 			else if (e.key === 'ArrowUp') dy = -step;

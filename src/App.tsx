@@ -13,7 +13,16 @@ import { Confetti } from './ui/Confetti';
 import { AnimalCard, JournalPanel } from './ui/Journal';
 import { AchievementsPanel } from './ui/Achievements';
 import { MobileControls } from './ui/MobileControls';
-import { BiomesPanel, ChestPanel, CraftingPanel, HomePanel, InventoryPanel, MaterialsPanel, ToolsPanel, WeatherPanel } from './ui/Panels';
+import {
+	BiomesPanel,
+	ChestPanel,
+	CraftingPanel,
+	HomePanel,
+	InventoryPanel,
+	MaterialsPanel,
+	ToolsPanel,
+	WeatherPanel,
+} from './ui/Panels';
 import { SettingsPanel } from './ui/Settings';
 import { ActivityLog, FeedPanel, Toolbelt } from './ui/Toolbelt';
 import { Tutorial } from './ui/Tutorial';
@@ -92,8 +101,12 @@ function PlantMenu({ bed, onClose }: { bed: ClickedBed; onClose: () => void }) {
 		<div className="panel-backdrop" onClick={onClose}>
 			<div className="panel" onClick={(e) => e.stopPropagation()}>
 				<div className="panel-head">
-					<h2><Icon name="leaf" size={20} /> {t('app.plantMenu.title')}</h2>
-					<button className="icon-btn" onClick={onClose} aria-label={t('app.common.close')}><Icon name="close" /></button>
+					<h2>
+						<Icon name="leaf" size={20} /> {t('app.plantMenu.title')}
+					</h2>
+					<button className="icon-btn" onClick={onClose} aria-label={t('app.common.close')}>
+						<Icon name="close" />
+					</button>
 				</div>
 				<div className="panel-body">
 					<h3>{t('app.plantMenu.flowers')}</h3>
@@ -115,7 +128,14 @@ function PlacementMenu({ item, onClose }: { item: ClickedPlacement; onClose: () 
 	const planted = !!(def?.plantable && item.plantedAt);
 	const readyAt = harvestReadyAt(def, { plantedAt: item.plantedAt, lastHarvestAt: item.lastHarvestAt });
 	const canHarvest = readyAt != null && Date.now() >= readyAt;
-	const yieldName = def?.yield ? content('resource', def.yield.resourceId, 'name', data?.resources.find((r) => r.id === def.yield!.resourceId)?.name || def.yield.resourceId) : '';
+	const yieldName = def?.yield
+		? content(
+				'resource',
+				def.yield.resourceId,
+				'name',
+				data?.resources.find((r) => r.id === def.yield!.resourceId)?.name || def.yield.resourceId,
+			)
+		: '';
 	return (
 		<div className="placement-menu">
 			<b>{content('habitatObject', item.objectId, 'name', item.name)}</b>
@@ -154,9 +174,15 @@ function PlacementMenu({ item, onClose }: { item: ClickedPlacement; onClose: () 
 					onClose();
 				}}
 			>
-				<Icon name={planted ? 'spade' : 'basket'} size={15} /> {planted ? t('app.placementMenu.digUp') : t('app.placementMenu.pickUp')}
+				<Icon name={planted ? 'spade' : 'basket'} size={15} />{' '}
+				{planted ? t('app.placementMenu.digUp') : t('app.placementMenu.pickUp')}
 			</button>
-			<button className="icon-btn subtle" onClick={onClose} aria-label={t('app.common.close')} style={{ width: 30, height: 30 }}>
+			<button
+				className="icon-btn subtle"
+				onClick={onClose}
+				aria-label={t('app.common.close')}
+				style={{ width: 30, height: 30 }}
+			>
 				<Icon name="close" size={14} />
 			</button>
 		</div>
@@ -222,7 +248,10 @@ function GameScreen() {
 			}),
 			bridge.on('terraform-at', (p: any) => {
 				// flooding the tile you're standing on is blocked outright
-				if (p.block) { notify(p.block, 'info'); return; }
+				if (p.block) {
+					notify(p.block, 'info');
+					return;
+				}
 				// destructive actions on a watered bed (clear / flood) confirm first
 				if (p.confirm && !window.confirm(p.confirm)) return;
 				game.terraform(p.area, p.x, p.y, p.action);
@@ -263,21 +292,50 @@ function GameScreen() {
 				// thing — dev panel, help, the plant/placement popups, then panels,
 				// then placement mode. (Playtest: Esc "sometimes worked" because the
 				// popups weren't in this chain.)
-				if (devOpen) { setDevOpen(false); return; }
-				if (game.helpOpen) { game.setHelpOpen(false); return; }
-				if (clickedBed) { setClickedBed(null); return; }
-				if (clickedPlacement) { setClickedPlacement(null); return; }
+				if (devOpen) {
+					setDevOpen(false);
+					return;
+				}
+				if (game.helpOpen) {
+					game.setHelpOpen(false);
+					return;
+				}
+				if (clickedBed) {
+					setClickedBed(null);
+					return;
+				}
+				if (clickedPlacement) {
+					setClickedPlacement(null);
+					return;
+				}
 				if (panel) setPanel(null);
 				else if (placementObjectId) cancelPlacement();
 				return;
 			}
 			// H toggles the How-to-Play help modal (it isn't a panel).
-			if (k === 'h') { game.setHelpOpen(!game.helpOpen); return; }
+			if (k === 'h') {
+				game.setHelpOpen(!game.helpOpen);
+				return;
+			}
 			// B = basket, J = journal, K = achievements, F = feed, T = tools,
 			// M = map/preserve (P kept as a legacy alias), N = weather & seasons,
 			// G = goals, C = crafting (I = basket alias), O = options/settings (gear).
 			// The daily task board's collapse toggle is Tab, handled in TasksWidget.
-			const map: Record<string, any> = { b: 'inventory', i: 'inventory', j: 'journal', k: 'achievements', f: 'feed', t: 'tools', m: 'biomes', p: 'biomes', g: 'goals', c: 'crafting', u: 'people', n: 'weather', o: 'settings' };
+			const map: Record<string, any> = {
+				b: 'inventory',
+				i: 'inventory',
+				j: 'journal',
+				k: 'achievements',
+				f: 'feed',
+				t: 'tools',
+				m: 'biomes',
+				p: 'biomes',
+				g: 'goals',
+				c: 'crafting',
+				u: 'people',
+				n: 'weather',
+				o: 'settings',
+			};
 			if (map[k]) setPanel(panel === map[k] ? null : map[k]);
 			// number keys select toolbelt tools
 			const toolByKey: Record<string, string> = { '1': 'basket', '2': 'shovel', '3': 'watering-can', '4': 'paint' };

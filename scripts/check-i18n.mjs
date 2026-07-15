@@ -61,7 +61,8 @@ for (const top of ['src', 'server']) {
 				key = lit[2];
 			} else if (rest.startsWith('`')) {
 				const tpl = rest.match(/^`([^`]*)`/);
-				if (tpl && !tpl[1].includes('${')) key = tpl[1]; // constant template
+				if (tpl && !tpl[1].includes('${'))
+					key = tpl[1]; // constant template
 				else {
 					dynamicSkipped++;
 					continue;
@@ -101,7 +102,9 @@ const parseErrors = []; // "file: message" — malformed catalog JSON fails the 
 /** Flatten every *.json in a locale dir into one key set. */
 function loadLocale(dir) {
 	const flat = {};
-	const files = readdirSync(dir).filter((f) => f.endsWith('.json')).sort();
+	const files = readdirSync(dir)
+		.filter((f) => f.endsWith('.json'))
+		.sort();
 	for (const f of files) {
 		let json;
 		try {

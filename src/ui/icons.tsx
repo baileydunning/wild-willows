@@ -23,7 +23,10 @@ const PATHS: Record<string, React.ReactNode> = {
 	),
 	tools: (
 		<>
-			<path d="M14.5 6.5a4 4 0 0 1 5-5l-2.8 2.8 1 2.5 2.5 1L23 5a4 4 0 0 1-5 5L8.5 19.5a2.1 2.1 0 0 1-3-3L14.5 6.5Z" transform="scale(0.92) translate(0.5 0.8)" />
+			<path
+				d="M14.5 6.5a4 4 0 0 1 5-5l-2.8 2.8 1 2.5 2.5 1L23 5a4 4 0 0 1-5 5L8.5 19.5a2.1 2.1 0 0 1-3-3L14.5 6.5Z"
+				transform="scale(0.92) translate(0.5 0.8)"
+			/>
 			<circle cx="6.5" cy="18" r="0.4" />
 		</>
 	),
@@ -229,7 +232,10 @@ const PATHS: Record<string, React.ReactNode> = {
 			{/* wooden handle */}
 			<path d="M19.4 3.2 L20.8 4.6 L13.9 11.5 L12.5 10.1 Z" fill="currentColor" />
 			{/* metal ferrule + filled bristle head dipping to a paint tip */}
-			<path d="M12.5 10.1 L13.9 11.5 L10.1 15.3 a3.4 3.4 0 0 1 -2.3 1 L5.6 16.4 L5.7 14.5 a3.4 3.4 0 0 1 1 -2.3 Z" fill="currentColor" />
+			<path
+				d="M12.5 10.1 L13.9 11.5 L10.1 15.3 a3.4 3.4 0 0 1 -2.3 1 L5.6 16.4 L5.7 14.5 a3.4 3.4 0 0 1 1 -2.3 Z"
+				fill="currentColor"
+			/>
 			{/* a little painted swoosh under the brush */}
 			<path d="M4.4 18.8 c1.5 1.1 3.2 1.1 4.6 -0.1" />
 		</>
@@ -282,8 +288,11 @@ const PATHS: Record<string, React.ReactNode> = {
 	'ach-wildflower': (
 		<>
 			<circle cx="12" cy="8" r="2.2" />
-			<circle cx="12" cy="4" r="1.6" /><circle cx="8" cy="8" r="1.6" /><circle cx="16" cy="8" r="1.6" />
-			<circle cx="9.4" cy="11.5" r="1.6" /><circle cx="14.6" cy="11.5" r="1.6" />
+			<circle cx="12" cy="4" r="1.6" />
+			<circle cx="8" cy="8" r="1.6" />
+			<circle cx="16" cy="8" r="1.6" />
+			<circle cx="9.4" cy="11.5" r="1.6" />
+			<circle cx="14.6" cy="11.5" r="1.6" />
 			<path d="M12 13v8" />
 			<path d="M12 17c-2.5 0-3.5-1.5-3.5-3 2 0 3.5 1 3.5 3Z" />
 		</>
@@ -301,7 +310,8 @@ const PATHS: Record<string, React.ReactNode> = {
 			<path d="M5 6.5 7.5 11M19 6.5 16.5 11" />
 			<path d="M7.5 8.5C7.5 15 10 18 12 18s4.5-3 4.5-9.5" />
 			<path d="M7.5 8.5 12 6l4.5 2.5" />
-			<circle cx="10" cy="11" r="0.7" fill="currentColor" /><circle cx="14" cy="11" r="0.7" fill="currentColor" />
+			<circle cx="10" cy="11" r="0.7" fill="currentColor" />
+			<circle cx="14" cy="11" r="0.7" fill="currentColor" />
 		</>
 	),
 	'ach-grass-tuft': (
@@ -334,7 +344,8 @@ const PATHS: Record<string, React.ReactNode> = {
 	'ach-owl-moon': (
 		<>
 			<circle cx="10" cy="12.5" r="6" />
-			<circle cx="8" cy="11.5" r="1.3" /><circle cx="12" cy="11.5" r="1.3" />
+			<circle cx="8" cy="11.5" r="1.3" />
+			<circle cx="12" cy="11.5" r="1.3" />
 			<path d="M10 14l1 1.3" />
 			<path d="M18.5 4.5a3.6 3.6 0 1 0 1.2 6.4 4.4 4.4 0 0 1-1.2-6.4Z" />
 		</>
@@ -430,7 +441,8 @@ const PATHS: Record<string, React.ReactNode> = {
 	'ach-pika': (
 		<>
 			<circle cx="11" cy="13" r="5" />
-			<circle cx="8" cy="9" r="1.6" /><circle cx="14" cy="9" r="1.6" />
+			<circle cx="8" cy="9" r="1.6" />
+			<circle cx="14" cy="9" r="1.6" />
 			<path d="M14 13.5 19.5 11" />
 			<circle cx="10.4" cy="13" r="0.6" fill="currentColor" />
 		</>
@@ -445,8 +457,11 @@ const PATHS: Record<string, React.ReactNode> = {
 	'ach-alpine-flower': (
 		<>
 			<circle cx="12" cy="9" r="1.9" />
-			<circle cx="12" cy="5.3" r="1.3" /><circle cx="8.7" cy="8" r="1.3" /><circle cx="15.3" cy="8" r="1.3" />
-			<circle cx="9.7" cy="11.4" r="1.3" /><circle cx="14.3" cy="11.4" r="1.3" />
+			<circle cx="12" cy="5.3" r="1.3" />
+			<circle cx="8.7" cy="8" r="1.3" />
+			<circle cx="15.3" cy="8" r="1.3" />
+			<circle cx="9.7" cy="11.4" r="1.3" />
+			<circle cx="14.3" cy="11.4" r="1.3" />
 			<path d="M12 11v9" />
 		</>
 	),
@@ -494,7 +509,9 @@ const PATHS: Record<string, React.ReactNode> = {
 		<>
 			<path d="M5 11h14l-1.6 8.5H6.6Z" />
 			<path d="M8 11c0-4 1.8-6.5 4-6.5s4 2.5 4 6.5" />
-			<circle cx="9.5" cy="8.5" r="1" fill="currentColor" /><circle cx="13" cy="7.8" r="1" fill="currentColor" /><circle cx="11.2" cy="9.5" r="1" fill="currentColor" />
+			<circle cx="9.5" cy="8.5" r="1" fill="currentColor" />
+			<circle cx="13" cy="7.8" r="1" fill="currentColor" />
+			<circle cx="11.2" cy="9.5" r="1" fill="currentColor" />
 		</>
 	),
 	'ach-blueprint': (
@@ -549,8 +566,12 @@ const PATHS: Record<string, React.ReactNode> = {
 	),
 	'ach-paws-fifty': (
 		<>
-			<circle cx="7" cy="8" r="1.7" /><circle cx="6" cy="11" r="1.1" /><circle cx="8.6" cy="11" r="1.1" />
-			<circle cx="16" cy="9" r="1.7" /><circle cx="15" cy="12" r="1.1" /><circle cx="17.6" cy="12" r="1.1" />
+			<circle cx="7" cy="8" r="1.7" />
+			<circle cx="6" cy="11" r="1.1" />
+			<circle cx="8.6" cy="11" r="1.1" />
+			<circle cx="16" cy="9" r="1.7" />
+			<circle cx="15" cy="12" r="1.1" />
+			<circle cx="17.6" cy="12" r="1.1" />
 			<circle cx="11" cy="16" r="1.7" />
 		</>
 	),
@@ -563,7 +584,8 @@ const PATHS: Record<string, React.ReactNode> = {
 	),
 	'ach-binoculars': (
 		<>
-			<circle cx="7.5" cy="13" r="3.6" /><circle cx="16.5" cy="13" r="3.6" />
+			<circle cx="7.5" cy="13" r="3.6" />
+			<circle cx="16.5" cy="13" r="3.6" />
 			<path d="M9 6.5h1.6l.6 4M15 6.5h-1.6l-.6 4" />
 			<path d="M11 13h2" />
 		</>
@@ -633,7 +655,17 @@ export function Icon({ name, size = 20, className }: { name: string; size?: numb
  * back to the old flat colour swatch when the picture isn't ready yet (before
  * the world has booted) or for a resource with no sprite.
  */
-export function ResourceIcon({ id, size = 18, color, className }: { id: string; size?: number; color?: string; className?: string }) {
+export function ResourceIcon({
+	id,
+	size = 18,
+	color,
+	className,
+}: {
+	id: string;
+	size?: number;
+	color?: string;
+	className?: string;
+}) {
 	const uri = bridge.shared.resourceIcons[id];
 	if (uri) {
 		return (
@@ -648,7 +680,13 @@ export function ResourceIcon({ id, size = 18, color, className }: { id: string; 
 			/>
 		);
 	}
-	return <span className={`swatch ${className || ''}`} style={{ background: color || '#888', width: size, height: size }} aria-hidden="true" />;
+	return (
+		<span
+			className={`swatch ${className || ''}`}
+			style={{ background: color || '#888', width: size, height: size }}
+			aria-hidden="true"
+		/>
+	);
 }
 
 /**
@@ -658,7 +696,17 @@ export function ResourceIcon({ id, size = 18, color, className }: { id: string; 
  * a square box with the image contained. Falls back to a colour swatch before
  * the world has booted (or for a shape with no sprite).
  */
-export function ObjectIcon({ shape, size = 30, color, className }: { shape?: string; size?: number; color?: string; className?: string }) {
+export function ObjectIcon({
+	shape,
+	size = 30,
+	color,
+	className,
+}: {
+	shape?: string;
+	size?: number;
+	color?: string;
+	className?: string;
+}) {
 	const uri = shape ? bridge.shared.objectIcons[shape] : undefined;
 	if (uri) {
 		return (
@@ -673,7 +721,13 @@ export function ObjectIcon({ shape, size = 30, color, className }: { shape?: str
 			/>
 		);
 	}
-	return <span className={`swatch ${className || ''}`} style={{ background: color || '#8a8', width: size, height: size, flex: 'none' }} aria-hidden="true" />;
+	return (
+		<span
+			className={`swatch ${className || ''}`}
+			style={{ background: color || '#8a8', width: size, height: size, flex: 'none' }}
+			aria-hidden="true"
+		/>
+	);
 }
 
 /** Cute SVG portrait that mirrors the in-game procedural sprite. */
@@ -686,9 +740,7 @@ export function CharacterPreview({ appearance, size = 150 }: { appearance: Appea
 		<svg width={size} height={size * 1.13} viewBox="0 0 100 113" aria-label="Your character">
 			<ellipse cx="50" cy="104" rx={26 + bw / 2} ry="7" fill="#000" opacity="0.12" />
 			{/* long styles fall behind the body */}
-			{hairstyle === 'long' && (
-				<path d="M29 30 Q26 78 34 86 L66 86 Q74 78 71 30 Z" fill={hair} />
-			)}
+			{hairstyle === 'long' && <path d="M29 30 Q26 78 34 86 L66 86 Q74 78 71 30 Z" fill={hair} />}
 			{hairstyle === 'curly-long' && (
 				<g fill={hair}>
 					<path d="M29 30 Q26 76 34 84 L66 84 Q74 76 71 30 Z" />
@@ -777,9 +829,7 @@ export function CharacterPreview({ appearance, size = 150 }: { appearance: Appea
 					<circle cx="72" cy="39" r="9" />
 				</g>
 			)}
-			{hairstyle === 'mohawk' && (
-				<path d="M43 24 L46 5 L49 21 L52 3 L55 21 L58 6 L60 24 Q52 19 43 24 Z" fill={hair} />
-			)}
+			{hairstyle === 'mohawk' && <path d="M43 24 L46 5 L49 21 L52 3 L55 21 L58 6 L60 24 Q52 19 43 24 Z" fill={hair} />}
 			{/* 'bald' draws no hair at all */}
 			{!['curly', 'curly-long', 'afro', 'mohawk', 'bald'].includes(hairstyle) && (
 				<path d="M30 34 Q31 18 50 17 Q69 18 70 34 Q66 26 50 25.5 Q34 26 30 34 Z" fill={hair} />
@@ -801,7 +851,10 @@ export function CharacterPreview({ appearance, size = 150 }: { appearance: Appea
 			{/* beard (always the hair color): a soft, short jaw wrap with the smile kept visible */}
 			{beard === 'beard' && (
 				<g>
-					<path d="M32 43 Q34.5 58.5 50 59 Q65.5 58.5 68 43 Q63.5 50.5 56.5 50.8 Q53 50.8 50 49.8 Q47 50.8 43.5 50.8 Q36.5 50.5 32 43 Z" fill={hair} />
+					<path
+						d="M32 43 Q34.5 58.5 50 59 Q65.5 58.5 68 43 Q63.5 50.5 56.5 50.8 Q53 50.8 50 49.8 Q47 50.8 43.5 50.8 Q36.5 50.5 32 43 Z"
+						fill={hair}
+					/>
 					<path d="M42.5 45.3 Q46 43.6 50 45.1 Q54 43.6 57.5 45.3 Q54 46.9 50 46.2 Q46 46.9 42.5 45.3 Z" fill={hair} />
 					<path d="M46.5 47.2 Q50 50 53.5 47.2" stroke="#3b2e25" strokeWidth="1.7" fill="none" strokeLinecap="round" />
 				</g>
@@ -884,7 +937,10 @@ export function CharacterPreview({ appearance, size = 150 }: { appearance: Appea
 					<ellipse cx="50" cy="22" rx="26" ry="7" fill={hp.a} />
 					<path d="M53 -6 Q50 6 61 22 L38 22 Q50 9 53 -6 Z" fill={hp.b} />
 					<path d="M39 21 Q50 17.5 60 21" stroke={hp.line} strokeWidth="3" fill="none" />
-					<path d="M55 6 L56.2 9 L59.4 9.2 L56.9 11.1 L57.8 14.2 L55 12.4 L52.2 14.2 L53.1 11.1 L50.6 9.2 L53.8 9 Z" fill="#f4e08a" />
+					<path
+						d="M55 6 L56.2 9 L59.4 9.2 L56.9 11.1 L57.8 14.2 L55 12.4 L52.2 14.2 L53.1 11.1 L50.6 9.2 L53.8 9 Z"
+						fill="#f4e08a"
+					/>
 				</g>
 			)}
 			{hat === 'crown' && (

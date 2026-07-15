@@ -15,23 +15,52 @@ const load = (p) => JSON.parse(readFileSync(join(root, p), 'utf8')).records;
 function makeTable() {
 	const rows = new Map();
 	return {
-		async get(id) { return rows.has(id) ? structuredClone(rows.get(id)) : undefined; },
-		async put(row) { rows.set(row.id, structuredClone(row)); },
+		async get(id) {
+			return rows.has(id) ? structuredClone(rows.get(id)) : undefined;
+		},
+		async put(row) {
+			rows.set(row.id, structuredClone(row));
+		},
 		async patch(id, partial) {
 			const cur = rows.get(id) || { id };
 			rows.set(id, { ...cur, ...structuredClone(partial) });
 		},
-		async delete(id) { rows.delete(id); },
-		search() { // async-iterable of all rows
+		async delete(id) {
+			rows.delete(id);
+		},
+		search() {
+			// async-iterable of all rows
 			const snap = [...rows.values()].map((r) => structuredClone(r));
-			return (async function* () { for (const r of snap) yield r; })();
+			return (async function* () {
+				for (const r of snap) yield r;
+			})();
 		},
 		_rows: rows,
 	};
 }
 
-const TABLES = ['Biome','Animal','ResourceType','Recipe','HabitatObject','ToolDef','Achievement',
-	'World','WorldMember','Player','BiomeState','Chest','Placement','Discovery','NodeState','TerrainTile','PlayerAchievement','FeedEntry','WorldPresence','JoinRequest'];
+const TABLES = [
+	'Biome',
+	'Animal',
+	'ResourceType',
+	'Recipe',
+	'HabitatObject',
+	'ToolDef',
+	'Achievement',
+	'World',
+	'WorldMember',
+	'Player',
+	'BiomeState',
+	'Chest',
+	'Placement',
+	'Discovery',
+	'NodeState',
+	'TerrainTile',
+	'PlayerAchievement',
+	'FeedEntry',
+	'WorldPresence',
+	'JoinRequest',
+];
 const wildwillows = {};
 for (const t of TABLES) wildwillows[t] = makeTable();
 
@@ -46,23 +75,51 @@ seed('ToolDef', load('data/tools.json'));
 seed('Achievement', load('data/achievements.json'));
 
 globalThis.databases = { wildwillows };
-globalThis.Resource = class { constructor(id) { this._id = id; } getId() { return this._id; } };
+globalThis.Resource = class {
+	constructor(id) {
+		this._id = id;
+	}
+	getId() {
+		return this._id;
+	}
+};
 
 // ---- run ----
 const R = await import(join(root, 'resources.js'));
-const call = (Cls, body, id) => new R[Cls](id).post ? new R[Cls](id).post(body) : null;
+const call = (Cls, body, id) => (new R[Cls](id).post ? new R[Cls](id).post(body) : null);
 const post = (Cls, body) => new R[Cls]().post(body);
 
-let pass = 0, fail = 0;
-const ok = (cond, msg) => { if (cond) { pass++; console.log('  ✓', msg); } else { fail++; console.log('  ✗ FAIL:', msg); } };
-const appearance = { skin:'#eec39a', hair:'#6e4a33', outfit:'#4a7c59', hat:'straw', hairstyle:'short', body:'slim' };
+let pass = 0,
+	fail = 0;
+const ok = (cond, msg) => {
+	if (cond) {
+		pass++;
+		console.log('  ✓', msg);
+	} else {
+		fail++;
+		console.log('  ✗ FAIL:', msg);
+	}
+};
+const appearance = {
+	skin: '#eec39a',
+	hair: '#6e4a33',
+	outfit: '#4a7c59',
+	hat: 'straw',
+	hairstyle: 'short',
+	body: 'slim',
+};
 const meadowRes = load('data/biomes.json').find((b) => b.id === 'meadow').resources[0];
 
 try {
 	console.log('\n[1] Solo: create + gather + reload');
 	const a = await post('CreatePlayer', { name: 'Solo Sam', passcode: 'pass1', appearance });
 	ok(a.ok && a.worldId === a.playerId, 'solo player created, world = self');
-	const g = await post('CollectResource', { playerId: a.playerId, biomeId: 'meadow', nodeId: 'n1', resourceId: meadowRes });
+	const g = await post('CollectResource', {
+		playerId: a.playerId,
+		biomeId: 'meadow',
+		nodeId: 'n1',
+		resourceId: meadowRes,
+	});
 	ok(g.ok && g.gained[meadowRes] >= 1, `gathered ${meadowRes} (×${g.gained[meadowRes]})`);
 	const reload = await post('LoginPlayer', { name: 'Solo Sam', passcode: 'pass1' });
 	ok(reload.ok && (reload.state.player.inventory[meadowRes] || 0) >= 1, 'gathered material persists after re-login');
@@ -84,11 +141,17 @@ try {
 	const tok = 'tok_fin';
 	await post('RequestJoin', { joinCode: code, token: tok, name: 'Friend Fin' });
 	let blockedJoin = false;
-	try { await post('JoinWorld', { playerId: f.playerId, joinCode: code, token: tok }); }
-	catch (e) { blockedJoin = /approve/i.test(e.message); }
+	try {
+		await post('JoinWorld', { playerId: f.playerId, joinCode: code, token: tok });
+	} catch (e) {
+		blockedJoin = /approve/i.test(e.message);
+	}
 	ok(blockedJoin, 'join is blocked until the host approves');
 	const pend = await post('PendingJoinRequests', { playerId: h.playerId });
-	ok(pend.requests.some((r) => r.token === tok && r.name === 'Friend Fin'), 'host sees the pending request');
+	ok(
+		pend.requests.some((r) => r.token === tok && r.name === 'Friend Fin'),
+		'host sees the pending request',
+	);
 	await post('ResolveJoin', { playerId: h.playerId, worldId: cw.world.worldId, token: tok, approve: true });
 	const jn = await post('JoinWorld', { playerId: f.playerId, joinCode: code, token: tok });
 	ok(jn.ok && jn.worldId === cw.world.worldId, 'friend joins after approval');
@@ -101,11 +164,19 @@ try {
 
 	console.log('\n[5] Co-op: shared node cooldown (no double-harvest)');
 	const node = 'shared-node-x';
-	const h1 = await post('CollectResource', { playerId: h.playerId, biomeId: 'meadow', nodeId: node, resourceId: meadowRes });
+	const h1 = await post('CollectResource', {
+		playerId: h.playerId,
+		biomeId: 'meadow',
+		nodeId: node,
+		resourceId: meadowRes,
+	});
 	ok(h1.ok, 'host harvested the shared node');
 	let blocked = false;
-	try { await post('CollectResource', { playerId: f.playerId, biomeId: 'meadow', nodeId: node, resourceId: meadowRes }); }
-	catch (e) { blocked = /regrow/i.test(e.message); }
+	try {
+		await post('CollectResource', { playerId: f.playerId, biomeId: 'meadow', nodeId: node, resourceId: meadowRes });
+	} catch (e) {
+		blocked = /regrow/i.test(e.message);
+	}
 	ok(blocked, 'friend is blocked from instantly re-harvesting the SAME node (shared cooldown)');
 
 	console.log('\n[6] Personal state stays personal');
@@ -119,11 +190,15 @@ try {
 	console.log('\n[8] Realtime presence: positions merge into the shared WorldPresence record');
 	await post('Presence', { playerId: h.playerId, x: 5, y: 6, area: 'meadow' });
 	const fp = await post('Presence', { playerId: f.playerId, x: 12, y: 9, area: 'meadow' });
-	ok(fp.peers.some((p) => p.playerId === h.playerId && p.x === 5 && p.y === 6),
-		'friend sees host position via presence (the map a WebSocket sub would receive)');
+	ok(
+		fp.peers.some((p) => p.playerId === h.playerId && p.x === 5 && p.y === 6),
+		'friend sees host position via presence (the map a WebSocket sub would receive)',
+	);
 	const wp = await wildwillows.WorldPresence.get(cw.world.worldId);
-	ok(wp && wp.players[h.playerId] && wp.players[f.playerId],
-		'WorldPresence record holds both players (subscribers get pushed this map)');
+	ok(
+		wp && wp.players[h.playerId] && wp.players[f.playerId],
+		'WorldPresence record holds both players (subscribers get pushed this map)',
+	);
 	const soloP = await post('Presence', { playerId: a.playerId, x: 1, y: 1, area: 'meadow' });
 	ok(soloP.peers.length === 0, 'solo presence returns no peers (and broadcasts nothing)');
 
@@ -138,13 +213,19 @@ try {
 		await post('JoinWorld', { playerId: fp.playerId, joinCode: code, token: ftok });
 	}
 	const roster = await post('WorldRoster', { playerId: h.playerId });
-	ok(roster.roster.length === 6 && roster.closed, `roster shows all 6 caretakers and is closed (history of who joined)`);
+	ok(
+		roster.roster.length === 6 && roster.closed,
+		`roster shows all 6 caretakers and is closed (history of who joined)`,
+	);
 	// a 7th NEW person is blocked at the code check
 	const chkFull = await post('CheckWorldCode', { joinCode: code });
 	ok(chkFull.exists && chkFull.world.full, 'a new player sees the world as full/closed');
 	let seventhBlocked = false;
-	try { await post('RequestJoin', { joinCode: code, token: 'tok_7', name: 'Too Late' }); }
-	catch (e) { seventhBlocked = /full|closed/i.test(e.message); }
+	try {
+		await post('RequestJoin', { joinCode: code, token: 'tok_7', name: 'Too Late' });
+	} catch (e) {
+		seventhBlocked = /full|closed/i.test(e.message);
+	}
 	ok(seventhBlocked, 'a 7th new player cannot even request to join');
 	// but an existing member can still re-enter the closed world
 	const reenter = await post('JoinWorld', { playerId: f.playerId, joinCode: code, token: 'whatever' });
@@ -155,7 +236,7 @@ try {
 	ok(solo2.worldId === solo2.playerId && !solo2.worlds.some((w) => !w.solo), 'solo save still solo, no co-op worlds');
 } catch (e) {
 	fail++;
-	console.log('\n✗ THREW:', e && e.stack || e);
+	console.log('\n✗ THREW:', (e && e.stack) || e);
 }
 
 console.log(`\n${fail === 0 ? '✅ ALL PASSED' : '❌ FAILURES'} — ${pass} passed, ${fail} failed\n`);

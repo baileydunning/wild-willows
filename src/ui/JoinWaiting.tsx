@@ -20,11 +20,16 @@ export function JoinWaitingScreen() {
 			try {
 				const s = await checkJoinApproval();
 				if (alive && s !== 'approved') setStatus(s);
-			} catch { /* keep waiting */ }
+			} catch {
+				/* keep waiting */
+			}
 		};
 		tick();
 		const id = window.setInterval(tick, 1500);
-		return () => { alive = false; window.clearInterval(id); };
+		return () => {
+			alive = false;
+			window.clearInterval(id);
+		};
 	}, [pendingJoin, checkJoinApproval]);
 
 	if (!pendingJoin) return null;
@@ -37,25 +42,37 @@ export function JoinWaitingScreen() {
 				<h1 className="game-title">Wild Willows</h1>
 				{denied ? (
 					<>
-						<div className="tutorial-icon" style={{ margin: '0 auto 10px' }}><Icon name="close" size={22} /></div>
+						<div className="tutorial-icon" style={{ margin: '0 auto 10px' }}>
+							<Icon name="close" size={22} />
+						</div>
 						<p className="muted">
 							{t('panels.joinWaiting.denied', { host: pendingJoin.hostName, world: pendingJoin.worldName })}
 						</p>
 						<div className="form-actions">
-							<button className="big-btn subtle" onClick={logout}><Icon name="back" /> <span>{t('panels.joinWaiting.backToMenu')}</span></button>
-							<button className="big-btn primary" onClick={playSoloInstead}><Icon name="leaf" /> <span>{t('panels.joinWaiting.playSolo')}</span></button>
+							<button className="big-btn subtle" onClick={logout}>
+								<Icon name="back" /> <span>{t('panels.joinWaiting.backToMenu')}</span>
+							</button>
+							<button className="big-btn primary" onClick={playSoloInstead}>
+								<Icon name="leaf" /> <span>{t('panels.joinWaiting.playSolo')}</span>
+							</button>
 						</div>
 					</>
 				) : (
 					<>
-						<div className="tutorial-icon spin-slow" style={{ margin: '0 auto 10px' }}><Icon name="leaf" size={22} /></div>
+						<div className="tutorial-icon spin-slow" style={{ margin: '0 auto 10px' }}>
+							<Icon name="leaf" size={22} />
+						</div>
 						<h2 style={{ margin: '0 0 4px' }}>{t('panels.joinWaiting.waiting')}</h2>
 						<p className="muted">
 							{t('panels.joinWaiting.ready', { host: pendingJoin.hostName, world: pendingJoin.worldName })}
 						</p>
 						<div className="form-actions">
-							<button className="big-btn subtle" onClick={logout}><Icon name="close" size={14} /> <span>{t('panels.joinWaiting.cancel')}</span></button>
-							<button className="big-btn" onClick={playSoloInstead}><Icon name="leaf" /> <span>{t('panels.joinWaiting.playSoloWait')}</span></button>
+							<button className="big-btn subtle" onClick={logout}>
+								<Icon name="close" size={14} /> <span>{t('panels.joinWaiting.cancel')}</span>
+							</button>
+							<button className="big-btn" onClick={playSoloInstead}>
+								<Icon name="leaf" /> <span>{t('panels.joinWaiting.playSoloWait')}</span>
+							</button>
 						</div>
 					</>
 				)}
