@@ -647,6 +647,12 @@ input {
 	display: flex; align-items: center; justify-content: space-between;
 	padding: 14px 20px 10px; border-bottom: 1.5px solid var(--line);
 }
+/* health has plateaued at an animal-return milestone — the note under the meter */
+.health-gate-note { display: flex; align-items: center; gap: 5px; margin-top: 2px; font-style: italic; }
+
+/* groups prev/next + close on the animal card so they sit together on the right */
+.panel-head-actions { display: flex; align-items: center; gap: 4px; }
+.panel-head-actions .icon-btn:disabled { opacity: 0.35; cursor: default; }
 .panel-head h2 { margin: 0; font-size: calc(21px * var(--ui-scale)); color: var(--green-deep); }
 .panel-head .icon-btn { width: 34px; height: 34px; border-radius: 11px; }
 .panel-body { padding: 14px 20px 20px; overflow-y: auto; }

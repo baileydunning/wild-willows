@@ -254,8 +254,8 @@
 				"food",
 				"plant"
 			],
-			"shape": "flowers",
-			"color": "#e8954f",
+			"shape": "butterflyflowers",
+			"color": "#e8813a",
 			"description": "Milkweed and nectar flowers, planted especially for butterflies.",
 			"matureHours": 2,
 			"matureBonus": 1
@@ -272,8 +272,8 @@
 				"food",
 				"plant"
 			],
-			"shape": "flowers",
-			"color": "#c45ad0",
+			"shape": "pollinatorgarden",
+			"color": "#5a7bd8",
 			"description": "A dense, season-long banquet for bees and butterflies.",
 			"matureHours": 2,
 			"matureBonus": 1

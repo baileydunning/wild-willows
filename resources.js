@@ -3033,8 +3033,8 @@ var habitat_objects_default = {
         "food",
         "plant"
       ],
-      shape: "flowers",
-      color: "#e8954f",
+      shape: "butterflyflowers",
+      color: "#e8813a",
       description: "Milkweed and nectar flowers, planted especially for butterflies.",
       matureHours: 2,
       matureBonus: 1
@@ -3051,8 +3051,8 @@ var habitat_objects_default = {
         "food",
         "plant"
       ],
-      shape: "flowers",
-      color: "#c45ad0",
+      shape: "pollinatorgarden",
+      color: "#5a7bd8",
       description: "A dense, season-long banquet for bees and butterflies.",
       matureHours: 2,
       matureBonus: 1
@@ -14980,7 +14980,7 @@ var supportHtml = `<!doctype html>
 </body>
 </html>
 `;
-var buildStamp = "0.1.11+2026-07-15T12:59:36.425Z";
+var buildStamp = "0.1.11+2026-07-15T13:48:52.075Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";

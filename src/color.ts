@@ -64,6 +64,15 @@ const HAT_BASE: Record<string, { a: string; b?: string; line?: string }> = {
 	bandana: { a: '#b05555', b: '#c96a5f', line: '#8d3f3f' },
 };
 
+/**
+ * Does this hat fully cover the top of the head? Big hairstyles (afro, curls,
+ * mohawk) tuck flat beneath covering hats instead of poking through them;
+ * open ones (flower crown, crown) leave the hair's volume alone.
+ */
+export function hatCoversHair(hat: string | undefined): boolean {
+	return !!hat && hat !== 'none' && hat !== 'flower' && hat !== 'crown';
+}
+
 export function hatPalette(hat: string, custom?: string | null): { a: string; b: string; line: string } {
 	const base = HAT_BASE[hat] || HAT_BASE.straw;
 	if (!custom) return { a: base.a, b: base.b ?? shade(base.a, 8), line: base.line ?? shade(base.a, -14) };

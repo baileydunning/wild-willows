@@ -3,7 +3,7 @@
 
 import Phaser from 'phaser';
 import { bridge } from './bridge';
-import { hatPalette, flowerPalette } from '../color';
+import { hatPalette, flowerPalette, hatCoversHair } from '../color';
 
 const C = (hex: string) => Phaser.Display.Color.HexStringToColor(hex).color;
 
@@ -677,6 +677,36 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 			g.fillStyle(C(c), 1).fillCircle(x, y, 3.4);
 			g.fillStyle(0xfff3c4, 1).fillCircle(x, y, 1.2);
 		});
+	});
+	// Butterfly flowers: tall milkweed stems with monarch-orange bloom clusters
+	// and a resting butterfly — deliberately nothing like the pink multicolor
+	// wildflower patch (playtest: the two read as the same plant).
+	o('butterflyflowers', 36, 34, (g) => {
+		g.fillStyle(C('#6da84e'), 1).fillEllipse(18, 27, 30, 11);
+		g.lineStyle(1.5, C('#4f8a38'), 1).lineBetween(10, 27, 10, 12).lineBetween(18, 27, 18, 8).lineBetween(26, 27, 26, 13);
+		g.fillStyle(C('#e8813a'), 1).fillCircle(10, 11, 3.6).fillCircle(18, 7, 4.2).fillCircle(26, 12, 3.6);
+		g.fillStyle(C('#c95f1e'), 1).fillCircle(9, 9.6, 1.4).fillCircle(17, 5.6, 1.6).fillCircle(25, 10.6, 1.4);
+		g.fillStyle(C('#f4b04a'), 1).fillCircle(11.2, 11.8, 1.3).fillCircle(19.2, 8.2, 1.5).fillCircle(27.2, 12.8, 1.3);
+		// monarch: two orange wings around a dark body
+		g.fillStyle(C('#3b2e25'), 1).fillEllipse(31, 6, 1.6, 4);
+		g.fillStyle(C('#e8813a'), 1).fillEllipse(29.2, 5, 3, 2.4).fillEllipse(32.8, 5, 3, 2.4);
+	});
+	// Pollinator garden: a tended soil bed packed with blue/violet blooms and a
+	// bee — reads as a planted garden, not a wild patch.
+	o('pollinatorgarden', 40, 32, (g) => {
+		g.fillStyle(C('#7a5a3a'), 1).fillRoundedRect(2, 18, 36, 10, 4); // bed edge
+		g.fillStyle(C('#5d4128'), 1).fillRoundedRect(4, 20, 32, 6, 3); // dark soil
+		const blues = ['#5a7bd8', '#7d6bd8', '#4a9ad0', '#5a7bd8', '#8a5ad0', '#4a6ad8'];
+		blues.forEach((c, i) => {
+			const x = 6 + i * 5.6, y = 14 - (i % 2) * 4;
+			g.lineStyle(1, C('#4f8a38'), 1).lineBetween(x, y + 3, x, 21);
+			g.fillStyle(C(c), 1).fillCircle(x, y, 3);
+			g.fillStyle(0xfff3c4, 1).fillCircle(x, y, 1);
+		});
+		// a busy bee
+		g.fillStyle(C('#e3c75f'), 1).fillEllipse(34, 7, 3.4, 2.4);
+		g.fillStyle(C('#3b2e25'), 1).fillRect(33.4, 5.8, 1.1, 2.4);
+		g.fillStyle(0xffffff, 0.7).fillEllipse(35.6, 5.4, 2, 1.2);
 	});
 	o('bush', 36, 32, (g) => {
 		g.fillStyle(C('#4f7d3a'), 1).fillCircle(12, 20, 11).fillCircle(24, 18, 12).fillCircle(18, 12, 10);
@@ -2773,6 +2803,9 @@ export function makePlayerTexture(
 	tex(scene, key, 32, 36, (g) => {
 		const skin = C(a.skin), hair = C(a.hair), outfit = C(a.outfit);
 		const hp = hatPalette(a.hat, a.hatColor); // classic or custom-tinted hat tones
+		// full hats tuck big hairstyles flat so the hat sits ON the hair, not in it
+		// (playtest: caps looked sunken inside afros/curls)
+		const covered = hatCoversHair(a.hat);
 		const bw = a.body === 'round' ? 21 : 17; // body width by build
 		// long styles fall behind the body
 		if (a.hairstyle === 'long') {
@@ -2789,7 +2822,10 @@ export function makePlayerTexture(
 			g.fillStyle(hair, 1).fillEllipse(8, 11, 6, 7).fillEllipse(6, 19, 6, 12).fillEllipse(24, 11, 6, 7).fillEllipse(26, 19, 6, 12);
 		}
 		if (a.hairstyle === 'afro') {
-			g.fillStyle(hair, 1).fillCircle(16, 11, 11.5);
+			// under a full hat the afro sits lower and smaller, puffing out around
+			// the brim instead of towering above it
+			if (covered) g.fillStyle(hair, 1).fillCircle(16, 13, 9.4);
+			else g.fillStyle(hair, 1).fillCircle(16, 11, 11.5);
 		}
 		if (a.hairstyle === 'bob') {
 			g.fillStyle(hair, 1).fillEllipse(9.5, 14, 6.5, 11).fillEllipse(22.5, 14, 6.5, 11);
@@ -2808,7 +2844,12 @@ export function makePlayerTexture(
 		g.fillStyle(skin, 1).fillCircle(16, 12, 8.4);
 		// hairstyle fringe / volume
 		g.fillStyle(hair, 1);
-		if (a.hairstyle === 'curly' || a.hairstyle === 'curly-long') {
+		if (a.hairstyle === 'bald') {
+			// no hair at all
+		} else if (covered && ['curly', 'curly-long', 'afro', 'mohawk'].includes(a.hairstyle)) {
+			// volume styles flatten to the standard fringe under a covering hat
+			g.fillEllipse(16, 7.4, 15, 7);
+		} else if (a.hairstyle === 'curly' || a.hairstyle === 'curly-long') {
 			g.fillCircle(10, 8, 4).fillCircle(15, 6, 4.4).fillCircle(21, 8, 4).fillCircle(8, 12, 3).fillCircle(24, 12, 3);
 		} else if (a.hairstyle === 'afro') {
 			g.fillCircle(10, 7, 4.4).fillCircle(15, 5, 4.8).fillCircle(21, 7, 4.4).fillCircle(7, 12, 3.4).fillCircle(25, 12, 3.4);
@@ -2816,8 +2857,6 @@ export function makePlayerTexture(
 			g.fillTriangle(12.5, 9, 14, 1.5, 15.5, 9);
 			g.fillTriangle(15, 9, 16, 0, 17, 9);
 			g.fillTriangle(16.5, 9, 18, 1.5, 19.5, 9);
-		} else if (a.hairstyle === 'bald') {
-			// no hair at all
 		} else {
 			g.fillEllipse(16, 7.4, 15, 7);
 		}

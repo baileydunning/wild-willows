@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { recipeUnlocked, unlockedRecipeIds, recipeMatchesSearch } from '../../src/recipes';
+import { recipeUnlocked, unlockedRecipeIds, recipeMatchesSearch, recipeSearchScore } from '../../src/recipes';
 import type { GameData, GameState, RecipeDef, HabitatObjectDef, AnimalDef } from '../../src/types';
 
 // --- tiny fixture builders -------------------------------------------------
@@ -211,5 +211,35 @@ describe('recipeMatchesSearch', () => {
 	it('tolerates a missing object (searches name + type only)', () => {
 		expect(recipeMatchesSearch(r, undefined, 'Habitat objects', 'bird')).toBe(true);
 		expect(recipeMatchesSearch(r, undefined, 'Habitat objects', 'songbirds')).toBe(false);
+	});
+});
+
+describe('recipeSearchScore', () => {
+	const grass = recipe({ id: 'grass-patch', name: 'Grass Patch', category: 'plant', output: { itemId: 'grass-patch', qty: 1 } });
+	const grassObj = obj({ id: 'grass-patch', name: 'Grass Patch', description: 'A soft patch of native grasses.' });
+	const oak = recipe({ id: 'oak-tree', name: 'Oak Tree', category: 'plant', output: { itemId: 'oak-tree', qty: 1 } });
+	const oakObj = obj({ id: 'oak-tree', name: 'Oak Tree', description: 'Grows tall; grasshoppers shelter beneath it.' });
+
+	it('ranks a name (word-prefix) hit above a description-only hit', () => {
+		// playtest: searching "gr" put trees above Grass Patch
+		const g = recipeSearchScore(grass, grassObj, 'Plants', 'gr');
+		const o = recipeSearchScore(oak, oakObj, 'Plants', 'gr');
+		expect(g).toBe(0);
+		expect(o).toBeGreaterThan(g);
+	});
+
+	it('ranks name substring above type, materials, and description', () => {
+		const sub = recipeSearchScore(grass, grassObj, 'Plants', 'rass'); // name substring
+		const typ = recipeSearchScore(oak, oakObj, 'Plants', 'plant'); // type label
+		const mat = recipeSearchScore(oak, oakObj, 'Plants', 'clay', ['Clay']); // ingredient
+		const desc = recipeSearchScore(oak, oakObj, 'Plants', 'shelter'); // description only
+		expect(sub).toBeLessThan(typ);
+		expect(typ).toBeLessThan(mat);
+		expect(mat).toBeLessThan(desc);
+	});
+
+	it('scores 0 for empty queries and -1 for no match', () => {
+		expect(recipeSearchScore(grass, grassObj, 'Plants', '  ')).toBe(0);
+		expect(recipeSearchScore(grass, grassObj, 'Plants', 'pond')).toBe(-1);
 	});
 });

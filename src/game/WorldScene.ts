@@ -412,6 +412,15 @@ export class WorldScene extends Phaser.Scene {
 		};
 		document.addEventListener('focusin', onFocusIn);
 		document.addEventListener('focusout', onFocusOut);
+		// If the window loses focus while a movement key is held (alt-tab, a click
+		// outside the game, an OS overlay…) the keyup never reaches us and Phaser
+		// keeps the key "down" forever. A stuck RIGHT then cancels every LEFT
+		// press (vx sums to 0), which reads as "movement stopped working in one
+		// direction" (playtest). Drop all held keys whenever focus goes away.
+		const onWindowBlur = () => this.input.keyboard?.resetKeys();
+		const onHidden = () => { if (document.visibilityState === 'hidden') this.input.keyboard?.resetKeys(); };
+		window.addEventListener('blur', onWindowBlur);
+		document.addEventListener('visibilitychange', onHidden);
 		// A text box may already hold focus when this scene (re)starts — e.g.
 		// changing areas or reloading while a panel's field is active.
 		if (isTypingTarget(document.activeElement)) {
@@ -454,6 +463,8 @@ export class WorldScene extends Phaser.Scene {
 		this.events.once('shutdown', () => {
 			document.removeEventListener('focusin', onFocusIn);
 			document.removeEventListener('focusout', onFocusOut);
+			window.removeEventListener('blur', onWindowBlur);
+			document.removeEventListener('visibilitychange', onHidden);
 			unsubPrefs();
 		});
 
@@ -1383,39 +1394,56 @@ export class WorldScene extends Phaser.Scene {
 		if (this.weatherEmitter) { this.weatherEmitter.destroy(); this.weatherEmitter = undefined; }
 		if (!kind) return;
 		this.ensureWeatherTextures();
-		const w = this.worldW + SURROUND_X * TILE; // fall covers the surround too
+		// Emit only in a band around the camera instead of across the whole map —
+		// the emitter follows the camera in update(). Off-screen particles were
+		// still simulated every frame, and on big maps (Graywind under 13s-lifespan
+		// snow) that meant hundreds of invisible particles; playtest reported
+		// slowdowns there on integrated graphics. Already-fallen particles are
+		// world-locked, so panning the camera doesn't drag the weather along.
+		const worldSpan = this.worldW + 2 * (SURROUND_X * TILE + 40);
+		const span = Math.min(worldSpan, this.scale.width * 2.4);
 		const lifespan = kind === 'rain' ? 1700 : 13000;
 		if (kind === 'rain') {
 			this.weatherEmitter = this.add.particles(0, 0, 'wx-rain', {
-				x: { min: -SURROUND_X * TILE - 40, max: w + 40 },
-				y: -20,
+				x: { min: -span / 2, max: span / 2 },
+				y: 0,
 				lifespan,
 				speedY: { min: 520, max: 700 },
 				speedX: { min: -60, max: -20 },
 				scaleX: INV_TEX_SCALE,
 				scaleY: { min: 0.8 * INV_TEX_SCALE, max: 1.5 * INV_TEX_SCALE },
 				alpha: { min: 0.25, max: 0.5 },
-				quantity: 4,
-				frequency: 28,
+				quantity: 2,
+				frequency: 26,
+				maxAliveParticles: 220,
 			}).setDepth(5020);
 		} else {
 			this.weatherEmitter = this.add.particles(0, 0, 'wx-snow', {
-				x: { min: -SURROUND_X * TILE - 40, max: w + 40 },
-				y: -20,
+				x: { min: -span / 2, max: span / 2 },
+				y: 0,
 				lifespan,
-				speedY: { min: 45, max: 85 },
+				speedY: { min: 55, max: 85 },
 				speedX: { min: -25, max: 25 },
 				scale: { min: 0.45 * INV_TEX_SCALE, max: 1 * INV_TEX_SCALE },
 				alpha: { min: 0.5, max: 0.9 },
-				quantity: 2,
-				frequency: 80,
+				quantity: 1,
+				frequency: 55,
+				maxAliveParticles: 240,
 			}).setDepth(5020);
 		}
+		this.positionWeatherEmitter();
 		// Pre-fill so the screen is already full of falling weather on biome entry
 		// (Phaser advances the emitter as if `lifespan` ms had already elapsed).
 		// Coarser step (500ms) keeps snow's 13s prewarm from simulating in one
 		// frame — the screen still fills, but the spike on biome entry is gone.
 		if (prewarm) this.weatherEmitter.fastForward(lifespan, 500);
+	}
+
+	/** Keep the emit band parked just above the camera's view. */
+	private positionWeatherEmitter() {
+		if (!this.weatherEmitter) return;
+		const v = this.cameras.main.worldView;
+		this.weatherEmitter.setPosition(v.centerX, v.y - 30);
 	}
 
 	// ------------------------------------------------- dynamic world objects
@@ -1817,13 +1845,6 @@ export class WorldScene extends Phaser.Scene {
 					bridge.emit('toast', { text, kind: 'info' });
 				},
 			});
-			// a few standing dead snags for atmosphere
-			const rng = mulberry32(hashStr('forest-snags'));
-			for (let i = 0; i < 5; i++) {
-				const x = (4 + rng() * (this.cols - 8)) * TILE;
-				const y = (2 + rng() * 4) * TILE;
-				this.addDyn(this.img(x, y, 'obj-deadwood').setDepth(y).setAlpha(0.85).setTint(0xb9aa8e));
-			}
 		} else if (this.area === 'wetland') {
 			// gate back to the forest on the west edge
 			const gx = 1.2 * TILE;
@@ -2865,6 +2886,7 @@ export class WorldScene extends Phaser.Scene {
 
 	update(_time: number, delta: number) {
 		const dt = delta / 1000;
+		this.positionWeatherEmitter();
 		this.handleMovement(dt);
 		this.playerShadow.setPosition(this.player.x, this.player.y + 15);
 		this.handleGhost();

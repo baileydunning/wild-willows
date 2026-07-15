@@ -91,7 +91,8 @@
 		"crafted": "Fabricado ✓",
 		"craft": "Fabricar",
 		"addGoal": "Añadir fabricar esto a tus objetivos",
-		"plantedNotCrafted": "Se planta, no se fabrica — cava un bancal con la pala (2), riégalo con la regadera (3) y luego haz clic en el bancal regado para elegirlo en el menú de plantado."
+		"plantedNotCrafted": "Se planta, no se fabrica — cava un bancal con la pala (2), riégalo con la regadera (3) y luego haz clic en el bancal regado para elegirlo en el menú de plantado.",
+		"plantedSection": "Se plantan, no se fabrican"
 	},
 	"tools": {
 		"title": "Herramientas y mejoras",
@@ -115,6 +116,7 @@
 		"health": "Salud",
 		"balance": "Equilibrio",
 		"animalsReturned": "{returned}/{total} animales han regresado",
+		"healthGated": "La tierra se mantiene en {cap}% — solo podrá seguir sanando cuando regresen {animals} animales más de este bioma.",
 		"addGoal": "Añadir desbloquear {biome} a tus objetivos",
 		"mapAria": "Mapa de la reserva — {open} de {total} biomas abiertos",
 		"animalsShort": "{returned}/{total} en casa",
@@ -268,6 +270,8 @@
 		"preferredLabel": "Hábitat preferido:",
 		"fieldNote": "Nota de campo:",
 		"backToJournal": "← Volver al diario de campo",
+		"historyBack": "Volver a tu parada anterior del diario",
+		"historyForward": "Avanzar por tu recorrido del diario",
 		"addGoal": "Añadir 'atraer a este animal' a tus objetivos",
 		"animalReqUnknown": "Primero debe regresar otro {kind}",
 		"lockedCard": "Mejora tu guía de campo al nivel {tier} para leer la entrada completa de este animal — su rol ecológico, su dieta y sus vínculos en la red trófica."

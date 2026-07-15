@@ -91,7 +91,8 @@
 		"crafted": "Crafted ✓",
 		"craft": "Craft",
 		"addGoal": "Add crafting this to your goals",
-		"plantedNotCrafted": "Planted, not crafted — dig a soil bed with the shovel (2), water it with the can (3), then click the watered bed and pick it from the planting menu."
+		"plantedNotCrafted": "Planted, not crafted — dig a soil bed with the shovel (2), water it with the can (3), then click the watered bed and pick it from the planting menu.",
+		"plantedSection": "Planted, not crafted"
 	},
 	"tools": {
 		"title": "Tools & Upgrades",
@@ -115,6 +116,7 @@
 		"health": "Health",
 		"balance": "Balance",
 		"animalsReturned": "{returned}/{total} animals returned",
+		"healthGated": "The land is holding at {cap}% — it can only heal further once {animals} more of this biome's animals return.",
 		"addGoal": "Add unlocking {biome} to your goals",
 		"mapAria": "Preserve map — {open} of {total} biomes open",
 		"animalsShort": "{returned}/{total} home",
@@ -268,6 +270,8 @@
 		"preferredLabel": "Preferred habitat:",
 		"fieldNote": "Field note:",
 		"backToJournal": "← Back to field journal",
+		"historyBack": "Back to your previous journal stop",
+		"historyForward": "Forward along your journal trail",
 		"addGoal": "Add 'attract this animal' to your goals",
 		"animalReqUnknown": "Another {kind} needs to return first",
 		"lockedCard": "Upgrade your field guide to Tier {tier} to read this animal's full entry — its ecological role, diet, and food-web links."

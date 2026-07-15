@@ -1,10 +1,38 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useGame } from '../state';
 import type { AnimalDef, Discovery, GameData } from '../types';
 import { animalSpriteDataUri } from '../game/textures';
 import { t, content } from '../i18n';
 import { useI18n } from '../i18n/react';
 import { Icon } from './icons';
+import { journalNav, type JournalLoc } from './journalNav';
+
+/** Shared back/forward pair for the journal panel and animal cards. */
+function HistoryNav({ go }: { go: (loc: JournalLoc | undefined) => void }) {
+	const { t } = useI18n();
+	return (
+		<>
+			<button
+				className="icon-btn"
+				disabled={!journalNav.canBack()}
+				onClick={() => go(journalNav.back())}
+				title={t('panels.journal.historyBack')}
+				aria-label={t('panels.journal.historyBack')}
+			>
+				<Icon name="back" />
+			</button>
+			<button
+				className="icon-btn"
+				disabled={!journalNav.canForward()}
+				onClick={() => go(journalNav.forward())}
+				title={t('panels.journal.historyForward')}
+				aria-label={t('panels.journal.historyForward')}
+			>
+				<Icon name="forward" />
+			</button>
+		</>
+	);
+}
 
 /** Stable comfort band id — used for the CSS class; the label comes from t(). */
 function comfortLabel(c: number) {
@@ -342,13 +370,26 @@ function OverviewGrid({ query }: { query: string }) {
 }
 
 export function JournalPanel() {
-	const { data, state, setPanel } = useGame();
+	const { data, state, setPanel, setAnimalCardId } = useGame();
 	const { t, content } = useI18n();
 	// 'overview' shows every returned animal; otherwise a biome id is selected.
-	const [tab, setTab] = useState<string>(state?.player.area || 'meadow');
-	const [view, setView] = useState<'list' | 'web'>('list');
+	// Reopening picks up wherever the history trail currently points.
+	const cur = journalNav.current();
+	const [tab, setTab] = useState<string>(cur?.kind === 'view' ? cur.tab : state?.player.area || 'meadow');
+	const [view, setView] = useState<'list' | 'web'>(cur?.kind === 'view' ? cur.view : 'list');
 	const [unknownFirst, setUnknownFirst] = useState(false);
 	const [query, setQuery] = useState('');
+	// Every tab/view you land on becomes a stop on the history trail. Visits
+	// triggered BY back/forward match the current stop and are no-ops.
+	useEffect(() => {
+		journalNav.visit({ kind: 'view', tab, view });
+	}, [tab, view]);
+	// When back/forward (here or on an animal card) retargets a list/web stop,
+	// steer the open panel there.
+	useEffect(() => journalNav.subscribe(() => {
+		const loc = journalNav.current();
+		if (loc?.kind === 'view') { setTab(loc.tab); setView(loc.view); }
+	}), []);
 	if (!data || !state) return null;
 	const biomes = [...data.biomes].sort((a, b) => a.order - b.order);
 	const discs = new Map(state.discoveries.map((d) => [d.animalId, d]));
@@ -390,7 +431,11 @@ export function JournalPanel() {
 			<div className="panel panel-wide journal-panel" onClick={(e) => e.stopPropagation()}>
 				<div className="panel-head">
 					<h2><Icon name="journal" size={20} /> {tabGuideName}</h2>
-					<button className="icon-btn" onClick={() => setPanel(null)} aria-label={t('panels.common.close')}><Icon name="close" /></button>
+					<div className="panel-head-actions">
+						{/* view stops are applied by the subscription above; an animal stop opens its card over the journal */}
+						<HistoryNav go={(loc) => { if (loc?.kind === 'animal') setAnimalCardId(loc.id); }} />
+						<button className="icon-btn" onClick={() => setPanel(null)} aria-label={t('panels.common.close')}><Icon name="close" /></button>
+					</div>
 				</div>
 
 				{/* Places sit in one horizontal, scrollable row so no tab gets cut off. */}
@@ -552,6 +597,10 @@ function whyReturnedLine(animal: AnimalDef, data: GameData): string {
 export function AnimalCard() {
 	const { data, state, animalCardId, setAnimalCardId, setPanel } = useGame();
 	const { t, content } = useI18n();
+	// every card you open becomes a stop on the journal's history trail
+	useEffect(() => {
+		if (animalCardId) journalNav.visit({ kind: 'animal', id: animalCardId });
+	}, [animalCardId]);
 	if (!data || !state || !animalCardId) return null;
 	const animal = data.animals.find((a) => a.id === animalCardId);
 	const disc = state.discoveries.find((d) => d.animalId === animalCardId);
@@ -572,12 +621,28 @@ export function AnimalCard() {
 		setAnimalCardId(null);
 		setPanel('journal');
 	};
+	// Back/forward retrace your actual trail through the journal — earlier
+	// cards, biome lists, food webs, the overview — like browser history.
+	const go = (loc: JournalLoc | undefined) => {
+		if (!loc) return;
+		if (loc.kind === 'animal') {
+			setAnimalCardId(loc.id);
+		} else {
+			// a list/web stop: close the card and surface the journal; the panel
+			// (mounted or fresh) picks the tab/view up from the history trail
+			setAnimalCardId(null);
+			setPanel('journal');
+		}
+	};
 	return (
 		<div className="panel-backdrop" onClick={close}>
 			<div className="panel animal-card" onClick={(e) => e.stopPropagation()}>
 				<div className="panel-head">
 					<h2><Icon name="paw" size={20} /> {animalName}</h2>
-					<button className="icon-btn" onClick={close} aria-label={t('panels.common.close')}><Icon name="close" /></button>
+					<div className="panel-head-actions">
+						<HistoryNav go={go} />
+						<button className="icon-btn" onClick={close} aria-label={t('panels.common.close')}><Icon name="close" /></button>
+					</div>
 				</div>
 				<div className="panel-body">
 					{/* Header block: portrait, scientific name, and the key tags. */}

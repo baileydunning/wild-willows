@@ -2,7 +2,7 @@
 // All icons inherit currentColor so they re-tint with the UI.
 
 import React from 'react';
-import { hatPalette, flowerPalette } from '../color';
+import { hatPalette, flowerPalette, hatCoversHair } from '../color';
 import { bridge } from '../game/bridge';
 import type { Appearance } from '../types';
 
@@ -682,6 +682,9 @@ export function CharacterPreview({ appearance, size = 150 }: { appearance: Appea
 	const bw = body === 'round' ? 8 : 0; // extra body width
 	const hp = hatPalette(hat, hatColor); // a/b/line — classic or custom-tinted
 	const flowers = flowerPalette(hatColor); // crown blooms hue-rotate together
+	// full hats tuck big hairstyles flat — mirrors makePlayerTexture so the
+	// preview shows exactly what the in-game sprite will look like
+	const covered = hatCoversHair(hat);
 	return (
 		<svg width={size} height={size * 1.13} viewBox="0 0 100 113" aria-label="Your character">
 			<ellipse cx="50" cy="104" rx={26 + bw / 2} ry="7" fill="#000" opacity="0.12" />
@@ -723,7 +726,9 @@ export function CharacterPreview({ appearance, size = 150 }: { appearance: Appea
 					<ellipse cx="76" cy="42" rx="4.2" ry="3" fill="#c9913f" />
 				</>
 			)}
-			{hairstyle === 'afro' && <circle cx="50" cy="33" r="28" fill={hair} />}
+			{hairstyle === 'afro' && (covered
+				? <circle cx="50" cy="40" r="23.5" fill={hair} />
+				: <circle cx="50" cy="33" r="28" fill={hair} />)}
 			{hairstyle === 'bob' && (
 				<g fill={hair}>
 					<ellipse cx="30" cy="42" rx="8" ry="14" />
@@ -757,7 +762,7 @@ export function CharacterPreview({ appearance, size = 150 }: { appearance: Appea
 			{/* head */}
 			<circle cx="50" cy="38" r="21" fill={skin} />
 			{/* hair on the head */}
-			{(hairstyle === 'curly' || hairstyle === 'curly-long') && (
+			{!covered && (hairstyle === 'curly' || hairstyle === 'curly-long') && (
 				<g fill={hair}>
 					<circle cx="34" cy="27" r="9" />
 					<circle cx="44" cy="21" r="10" />
@@ -767,7 +772,7 @@ export function CharacterPreview({ appearance, size = 150 }: { appearance: Appea
 					<circle cx="71" cy="38" r="7" />
 				</g>
 			)}
-			{hairstyle === 'afro' && (
+			{!covered && hairstyle === 'afro' && (
 				<g fill={hair}>
 					<circle cx="33" cy="26" r="11" />
 					<circle cx="45" cy="18" r="12" />
@@ -777,11 +782,11 @@ export function CharacterPreview({ appearance, size = 150 }: { appearance: Appea
 					<circle cx="72" cy="39" r="9" />
 				</g>
 			)}
-			{hairstyle === 'mohawk' && (
+			{!covered && hairstyle === 'mohawk' && (
 				<path d="M43 24 L46 5 L49 21 L52 3 L55 21 L58 6 L60 24 Q52 19 43 24 Z" fill={hair} />
 			)}
 			{/* 'bald' draws no hair at all */}
-			{!['curly', 'curly-long', 'afro', 'mohawk', 'bald'].includes(hairstyle) && (
+			{hairstyle !== 'bald' && (covered || !['curly', 'curly-long', 'afro', 'mohawk'].includes(hairstyle)) && (
 				<path d="M30 34 Q31 18 50 17 Q69 18 70 34 Q66 26 50 25.5 Q34 26 30 34 Z" fill={hair} />
 			)}
 			{hairstyle === 'bun' && hat === 'none' && (

@@ -3,7 +3,8 @@ import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import type { ChestState, RecipeDef } from '../types';
 import { homePerkStrength } from '../types';
-import { recipeUnlocked, recipeMatchesSearch } from '../recipes';
+import { recipeUnlocked, recipeSearchScore } from '../recipes';
+import { nextHealthMilestone } from '../health';
 import {
 	weatherType, seasonStyle, liveSeason, liveWeatherType, forecastType, gatherResourceFor, weatherEffect, seasonEffect,
 	WEATHER_TYPES, gatherResourceIdFor,
@@ -317,6 +318,8 @@ export function CraftingPanel() {
 	// the biome is restored far enough (health / animals returned). Locked recipes
 	// stay hidden until earned, then announce themselves with a toast.
 	const unlocked = data.recipes.filter((r) => recipeUnlocked(r, data, state));
+	const searching = query.trim().length > 0;
+	const searchScores = new Map<string, number>();
 	const visible = unlocked
 		// "home" shows only indoor-placeable decor; a biome shows what fits there plus
 		// the area-less kits; "all" shows everything.
@@ -327,10 +330,23 @@ export function CraftingPanel() {
 			return o?.placement === 'none' || (o?.biomes || []).includes(placeFilter);
 		})
 		.filter((r) => typeFilter === 'all' || r.category === typeFilter)
-		// free-text search across the recipe name, what it makes, and its type
-		.filter((r) => recipeMatchesSearch(r, objOf(r), catLabel[r.category] || r.category, query, Object.keys(r.materials).map((m) => resName(data, m))))
-		.sort((a, b) => catRank(a.category) - catRank(b.category) || a.name.localeCompare(b.name));
-	const categories = [...new Set(visible.map((r) => r.category))].sort((a, b) => catRank(a) - catRank(b));
+		// free-text search across the recipe name, what it makes, and its type —
+		// ranked, so a name hit ("gr" → Grass Patch) sorts above recipes that only
+		// mention the query in their description or ingredients
+		.filter((r) => {
+			const s = recipeSearchScore(r, objOf(r), catLabel[r.category] || r.category, query, Object.keys(r.materials).map((m) => resName(data, m)));
+			if (s < 0) return false;
+			searchScores.set(r.id, s);
+			return true;
+		})
+		.sort((a, b) =>
+			(searching ? searchScores.get(a.id)! - searchScores.get(b.id)! : 0) ||
+			catRank(a.category) - catRank(b.category) ||
+			a.name.localeCompare(b.name));
+	// while searching, the category holding the best match floats to the top
+	const bestInCat = (c: string) => Math.min(...visible.filter((r) => r.category === c).map((r) => searchScores.get(r.id)!));
+	const categories = [...new Set(visible.map((r) => r.category))].sort((a, b) =>
+		(searching ? bestInCat(a) - bestInCat(b) : 0) || catRank(a) - catRank(b));
 	// areas + types available to the player, for the filter dropdowns
 	const filterAreas = [...data.biomes]
 		.sort((a, b) => a.order - b.order)
@@ -503,10 +519,11 @@ export function CraftingPanel() {
 					})}
 				</div>
 			))}
-			{/* plantable cross-references sit below the craftable results — recipes
-			    you can actually craft always come first */}
+			{/* plantable cross-references get their own labelled section below the
+			    craftable results — recipes you can actually craft always come first */}
 			{plantableMatches.length > 0 && (
 				<div>
+					<h3><Icon name="leaf" size={14} /> {t('panels.crafting.plantedSection')}</h3>
 					{plantableMatches.map((o) => (
 						<div className="recipe" key={o.id}>
 							<ObjectIcon shape={o.shape} color={o.color} size={34} />
@@ -663,6 +680,16 @@ export function BiomesPanel() {
 									<Meter label={t('panels.biomes.health')} icon="leaf" value={bs.health} color="#6aa253" />
 									<Meter label={t('panels.biomes.balance')} icon="drop" value={bs.balance} color="#5b9cab" />
 									<div className="muted small">{t('panels.biomes.animalsReturned', { returned: bs.returnedCount, total })}</div>
+									{/* health has hit its animal-return cap: explain the plateau
+									    instead of leaving the bar mysteriously stuck */}
+									{(() => {
+										const m = nextHealthMilestone(bs.returnedCount);
+										return m && Math.round(bs.health) >= m.cap ? (
+											<div className="muted small health-gate-note">
+												<Icon name="paw" size={11} /> {t('panels.biomes.healthGated', { cap: m.cap, animals: m.animals - bs.returnedCount })}
+											</div>
+										) : null;
+									})()}
 									{BIOME_LORE[biome.id] && (
 										<div className="biome-lore small">
 											<p>{BIOME_LORE[biome.id][loreStage(bs.health)]}</p>

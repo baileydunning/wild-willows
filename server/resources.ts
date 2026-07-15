@@ -1163,6 +1163,29 @@ function healthFromPoints(points: number): number {
 	return clamp(Math.round(BASE_HEALTH + recovered), 0, 100);
 }
 
+// Health is also capped by how much LIFE has actually returned. Playtest:
+// placements alone could push a biome to 40-50% health with only 1-2 of its 25
+// animals back, so the health bar raced far ahead of the animal count. The
+// land can't truly heal without its animals: health plateaus at each cap until
+// enough of the biome's own animals have come home. (Milestones sit safely
+// above every animal minHealth requirement and recipe health gate that could
+// be needed to reach the next milestone, so progress can never deadlock —
+// e.g. the highest recipe gate is 78, unlockable at the 15-animal cap of 88.
+// Don't lower the first cap below ~45 without re-checking data/animals-* and
+// recipes: under 40 the forest has exactly 5 reachable animals and no slack.)
+const HEALTH_CAPS: { animals: number; cap: number }[] = [
+	{ animals: 5, cap: 60 },
+	{ animals: 10, cap: 75 },
+	{ animals: 15, cap: 88 },
+];
+
+export function healthCapForReturns(returnedInBiome: number): number {
+	for (const step of HEALTH_CAPS) {
+		if (returnedInBiome < step.animals) return step.cap;
+	}
+	return 100;
+}
+
 // ---- habitat growth over real time -----------------------------------------
 // Living habitat (trees, shrubs, flower patches…) keeps growing after it's
 // placed — in real wall-clock hours, whether or not the game is open. A mature
@@ -1448,7 +1471,7 @@ async function recalcBiome(
 	// tended soil beds are worth 1 restoration point each, on the same slow curve
 	const now = Date.now();
 	const healthPoints = computeHealthPoints(d, placements, openWaterTiles, now) + wateredTiles;
-	const health = healthFromPoints(healthPoints);
+	const uncappedHealth = healthFromPoints(healthPoints);
 
 	// Live sky for condition-gated rare animals: derived from the acting player's
 	// play-time clock, same as the weather snapshot and weather-gated gathering.
@@ -1462,6 +1485,10 @@ async function recalcBiome(
 
 	const discoveries = await byWorld(t.Discovery, wid);
 	const returnedIds = new Set(discoveries.map((x) => x.animalId));
+	// The land only heals as far as its returned life allows: health plateaus at
+	// each HEALTH_CAPS milestone until enough of this biome's animals are home.
+	const returnedHere = () => [...returnedIds].filter((id) => d.animal.get(id)?.biome === biomeId).length;
+	let health = Math.min(uncappedHealth, healthCapForReturns(returnedHere()));
 
 	// Balance tracks food-web completeness, recomputed as each animal comes back so
 	// food-web chains can keep unlocking the rest.
@@ -1499,6 +1526,9 @@ async function recalcBiome(
 			break;
 		}
 	}
+	// a fresh return can lift the health cap — re-clamp with the new count so
+	// the stored health reflects the milestone the moment it's crossed
+	health = Math.min(uncappedHealth, healthCapForReturns(returnedHere()));
 
 	// Comfort drifts with habitat quality. Removing key habitat lowers comfort
 	// (animals become "rarely seen") but they are never owned or lost like pets.
@@ -1510,7 +1540,7 @@ async function recalcBiome(
 		if (comfort !== disc.comfort) await t.Discovery.patch(disc.id, { comfort });
 	}
 
-	const returnedCount = [...returnedIds].filter((id) => d.animal.get(id)?.biome === biomeId).length;
+	const returnedCount = returnedHere();
 	const prior = await findBiomeState(t.BiomeState, wid, biomeId);
 	const bsId = prior?.id ?? `${wid}:${biomeId}`;
 	await t.BiomeState.patch(bsId, { health, balance, returnedCount });
