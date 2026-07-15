@@ -748,7 +748,9 @@ export class WorldScene extends Phaser.Scene {
 	private tileReachable(tx: number, ty: number): boolean {
 		const px = this.player.x / TILE - 0.5;
 		const py = this.player.y / TILE - 0.5;
-		return Math.abs(tx - px) <= 2.4 && Math.abs(ty - py) <= 2.4 && this.canPlaceAt(tx, ty, true);
+		// A roomy reach so digging/watering/placing doesn't need you right on top of
+		// the tile (was 2.4 — bumped so you can act from a step or so further back).
+		return Math.abs(tx - px) <= 3.2 && Math.abs(ty - py) <= 3.2 && this.canPlaceAt(tx, ty, true);
 	}
 
 	/**
@@ -1841,7 +1843,7 @@ export class WorldScene extends Phaser.Scene {
 		this.interactables.push(it);
 		const target =
 			hitObject ||
-			this.addDyn(this.add.zone(it.x, it.y, 52, 52).setOrigin(0.5).setInteractive({ useHandCursor: true }));
+			this.addDyn(this.add.zone(it.x, it.y, 64, 64).setOrigin(0.5).setInteractive({ useHandCursor: true }));
 		// Hover feedback: light up the interactable under the pointer even before you
 		// reach it, so it's clear what a click will act on (visuals are unchanged).
 		target.on('pointerover', () => {
@@ -1868,7 +1870,7 @@ export class WorldScene extends Phaser.Scene {
 			}
 			if (pointer.event && (pointer.event as MouseEvent).shiftKey) return; // shift = pick up
 			const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, it.x, it.y);
-			if (dist <= 120) it.action();
+			if (dist <= 155) it.action();
 			else bridge.emit('toast', { text: t('game.toast.walkCloser'), kind: 'info' });
 		});
 	}
@@ -2980,7 +2982,7 @@ export class WorldScene extends Phaser.Scene {
 				// shovel digs planted things back up — materials are refunded
 				if (this.terraformAction() === 'dig' && def.plantable && p.plantedAt) {
 					const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, x, y);
-					if (dist <= 120) bridge.emit('dig-up', { placementId: p.id, name: defName });
+					if (dist <= 155) bridge.emit('dig-up', { placementId: p.id, name: defName });
 					else bridge.emit('toast', { text: t('game.toast.walkCloser'), kind: 'info' });
 					return;
 				}
@@ -2991,7 +2993,7 @@ export class WorldScene extends Phaser.Scene {
 				}
 				if (!hasPrimaryAction) {
 					const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, x, y);
-					if (dist <= 120)
+					if (dist <= 155)
 						bridge.emit('placement-clicked', {
 							placementId: p.id,
 							objectId: p.objectId,
@@ -3775,7 +3777,7 @@ export class WorldScene extends Phaser.Scene {
 
 	private nearestInteractable(): Interactable | null {
 		let best: Interactable | null = null;
-		let bestDist = 68; // generous reach so E grabs what you're clearly standing beside
+		let bestDist = 90; // generous reach so E grabs what you're clearly standing near (was 68)
 		for (const it of this.interactables) {
 			const d = Phaser.Math.Distance.Between(this.player.x, this.player.y, it.x, it.y);
 			if (d < bestDist) {
