@@ -16,11 +16,19 @@ export function TasksWidget() {
 	const { data, state, claimTask, setPanel } = useGame();
 	const { t, content } = useI18n();
 	const [collapsed, setCollapsed] = useState<boolean>(() => {
-		try { return localStorage.getItem(COLLAPSE_KEY) === '1'; } catch { return false; }
+		try {
+			return localStorage.getItem(COLLAPSE_KEY) === '1';
+		} catch {
+			return false;
+		}
 	});
 	const toggle = () => {
 		setCollapsed((c) => {
-			try { localStorage.setItem(COLLAPSE_KEY, c ? '0' : '1'); } catch { /* private mode */ }
+			try {
+				localStorage.setItem(COLLAPSE_KEY, c ? '0' : '1');
+			} catch {
+				/* private mode */
+			}
 			return !c;
 		});
 	};
@@ -31,7 +39,11 @@ export function TasksWidget() {
 		const onKey = (e: KeyboardEvent) => {
 			if (isTypingTarget(e.target)) return;
 			if (e.metaKey || e.ctrlKey || e.altKey) return;
-			if (e.key === 'Tab') { e.preventDefault(); toggle(); return; }
+			if (e.key === 'Tab') {
+				e.preventDefault();
+				toggle();
+				return;
+			}
 		};
 		window.addEventListener('keydown', onKey);
 		return () => window.removeEventListener('keydown', onKey);
@@ -65,11 +77,23 @@ export function TasksWidget() {
 	return (
 		<div className="tasks-widget tasks-board">
 			<div className="tasks-head">
-				<span className="tasks-title"><Icon name="target" size={14} /> {t('panels.tasks.title')}</span>
-				<button className="tasks-collapse" onClick={() => setPanel('goals')} title={t('panels.tasks.editTitle')} aria-label={t('panels.tasks.editTitle')}>
+				<span className="tasks-title">
+					<Icon name="target" size={14} /> {t('panels.tasks.title')}
+				</span>
+				<button
+					className="tasks-collapse"
+					onClick={() => setPanel('goals')}
+					title={t('panels.tasks.editTitle')}
+					aria-label={t('panels.tasks.editTitle')}
+				>
 					<Icon name="gear" size={13} />
 				</button>
-				<button className="tasks-collapse" onClick={toggle} title={t('panels.tasks.collapseTitle')} aria-label={t('panels.tasks.collapseAria')}>
+				<button
+					className="tasks-collapse"
+					onClick={toggle}
+					title={t('panels.tasks.collapseTitle')}
+					aria-label={t('panels.tasks.collapseAria')}
+				>
 					<Icon name="forward" size={13} />
 				</button>
 			</div>
@@ -83,25 +107,32 @@ export function TasksWidget() {
 				const showInfo = !!task.hint || hoverSteps.length > 0;
 				return (
 					<div key={task.id} className={`tasks-row ${task.pinned ? 'tasks-row-pinned' : ''}`}>
-						<span className="tasks-row-icon"><Icon name={task.icon} size={14} /></span>
+						<span className="tasks-row-icon">
+							<Icon name={task.icon} size={14} />
+						</span>
 						<div className="tasks-row-main">
 							<span className="tasks-row-text">
-							{task.text}
-							{/* One info tooltip per task: how-to hint on top, then any checklist. */}
-							{showInfo && (
-								<span className="tasks-hint" tabIndex={0} role="note" aria-label={task.hint || hoverSteps.map((s) => s.text).join(', ')}>
-									<Icon name="help" size={12} />
-									<span className="tasks-hint-tip" role="tooltip">
-										{task.hint && <span className="tasks-hint-line">{task.hint}</span>}
-										{hoverSteps.map((s, i) => (
-											<span key={i} className={`tasks-step ${s.done ? 'done' : ''}`}>
-												<span className="tasks-step-box">{s.done && <Icon name="check" size={10} />}</span> {s.text}
-											</span>
-										))}
+								{task.text}
+								{/* One info tooltip per task: how-to hint on top, then any checklist. */}
+								{showInfo && (
+									<span
+										className="tasks-hint"
+										tabIndex={0}
+										role="note"
+										aria-label={task.hint || hoverSteps.map((s) => s.text).join(', ')}
+									>
+										<Icon name="help" size={12} />
+										<span className="tasks-hint-tip" role="tooltip">
+											{task.hint && <span className="tasks-hint-line">{task.hint}</span>}
+											{hoverSteps.map((s, i) => (
+												<span key={i} className={`tasks-step ${s.done ? 'done' : ''}`}>
+													<span className="tasks-step-box">{s.done && <Icon name="check" size={10} />}</span> {s.text}
+												</span>
+											))}
+										</span>
 									</span>
-								</span>
-							)}
-						</span>
+								)}
+							</span>
 							{inlineSteps ? (
 								<div className="tasks-steps">
 									{steps.map((s, i) => (
@@ -115,10 +146,15 @@ export function TasksWidget() {
 									<div className="meter-track">
 										<div
 											className="meter-fill"
-											style={{ width: `${Math.min(100, (task.progress / task.target) * 100)}%`, background: done ? 'var(--green-2, #6aa253)' : '#b89b5e' }}
+											style={{
+												width: `${Math.min(100, (task.progress / task.target) * 100)}%`,
+												background: done ? 'var(--green-2, #6aa253)' : '#b89b5e',
+											}}
 										/>
 									</div>
-									<span className="tasks-row-count">{task.progress}/{task.target}</span>
+									<span className="tasks-row-count">
+										{task.progress}/{task.target}
+									</span>
 								</div>
 							)}
 						</div>

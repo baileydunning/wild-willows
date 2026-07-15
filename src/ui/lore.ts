@@ -11,10 +11,10 @@
 import { t } from '../i18n';
 
 export interface BiomeLore {
-	damaged: string;   // 0–25%
+	damaged: string; // 0–25%
 	recovering: string; // 26–60%
-	thriving: string;  // 61–99%
-	restored: string;  // 100%
+	thriving: string; // 61–99%
+	restored: string; // 100%
 	coexistence: string;
 }
 
@@ -33,9 +33,7 @@ function loreFor(biome: string): BiomeLore {
 	return out;
 }
 
-export const BIOME_LORE: Record<string, BiomeLore> = Object.fromEntries(
-	BIOME_IDS.map((id) => [id, loreFor(id)]),
-);
+export const BIOME_LORE: Record<string, BiomeLore> = Object.fromEntries(BIOME_IDS.map((id) => [id, loreFor(id)]));
 
 export function loreStage(health: number): keyof Omit<BiomeLore, 'coexistence'> {
 	if (health >= 100) return 'restored';

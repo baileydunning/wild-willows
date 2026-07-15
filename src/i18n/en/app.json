@@ -221,6 +221,7 @@
 		},
 		"trackLevel": "Lv{level}",
 		"thePreserve": "The Preserve",
+		"trailTent": "Trail Tent — {biome}",
 		"coop": "Co-op",
 		"hereCount": " · {count} here",
 		"coopBadgeTitle": "Co-op preserve — invite & see who's here (U)",

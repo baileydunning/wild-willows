@@ -109,7 +109,11 @@ async function postFeedback(item: FeedbackItem): Promise<'sent' | 'invalid' | 'r
  * Returns { sent: true } on confirmed delivery, { sent: false } when queued.
  * Throws only when the server explicitly rejected the content (e.g. bad email).
  */
-export async function sendFeedback(message: string, replyTo: string, state: GameState | null): Promise<{ sent: boolean }> {
+export async function sendFeedback(
+	message: string,
+	replyTo: string,
+	state: GameState | null,
+): Promise<{ sent: boolean }> {
 	const item: FeedbackItem = {
 		message: message.trim(),
 		replyTo: replyTo.trim() || null,

@@ -27,6 +27,10 @@ class Bridge {
 		// boot, so the DOM UI can show the same picture the world uses instead of a
 		// flat colour swatch. Keyed by resource id.
 		resourceIcons: Record<string, string>;
+		// Same trick for the habitat/home object sprites (`obj-*`), so the crafting
+		// and planting menus can show a picture of what you're making. Keyed by the
+		// object's `shape` (several items can share one sprite).
+		objectIcons: Record<string, string>;
 	} = {
 		data: null,
 		state: null,
@@ -35,6 +39,7 @@ class Bridge {
 		self: null,
 		uiBlocking: false,
 		resourceIcons: {},
+		objectIcons: {},
 	};
 
 	on(event: string, fn: Handler) {

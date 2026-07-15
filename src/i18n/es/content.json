@@ -2303,6 +2303,14 @@
 				"description": "Una hamaca tejida colgada entre dos postes para las tardes perezosas.",
 				"name": "Hamaca"
 			},
+			"binoculars": {
+				"description": "Lentes pulidas a mano con agarre tejido. Una vez creados son tuyos para siempre: los animales que aún no has anotado en tu diario reflejan la luz con un suave destello.",
+				"name": "Binoculares de Campo"
+			},
+			"headlamp": {
+				"description": "Una lámpara de cuerda con correa tejida. Una vez creada es tuya para siempre: después del anochecer, un cálido haz ilumina el suelo a tu alrededor allá donde vayas.",
+				"name": "Linterna Frontal"
+			},
 			"heather-mat": {
 				"description": "Una alfombra alpina baja de flores de brezo sobre el talud.",
 				"name": "Alfombra de Brezo"
@@ -2715,6 +2723,10 @@
 				"description": "Un poste indicador pintado a mano para guiar a los visitantes por la reserva.",
 				"name": "Poste Indicador del Sendero"
 			},
+			"trail-tent": {
+				"description": "Una acogedora tienda de lona en la que puedes entrar y decorar: una pequeña base lejos de casa. Monta una en cada bioma silvestre más allá de la pradera.",
+				"name": "Tienda de Campaña"
+			},
 			"tree-stump": {
 				"description": "Un viejo tocón musgoso lleno de cavidades para guaridas y larvas.",
 				"name": "Tocón de Árbol"
@@ -2913,6 +2925,12 @@
 			},
 			"hammock": {
 				"name": "Hamaca"
+			},
+			"binoculars": {
+				"name": "Binoculares de Campo"
+			},
+			"headlamp": {
+				"name": "Linterna Frontal"
 			},
 			"heather-mat": {
 				"name": "Alfombra de Brezo"
@@ -3174,6 +3192,9 @@
 			},
 			"trail-signpost": {
 				"name": "Poste Indicador del Sendero"
+			},
+			"trail-tent": {
+				"name": "Tienda de Campaña"
 			},
 			"tree-stump": {
 				"name": "Tocón de Árbol"

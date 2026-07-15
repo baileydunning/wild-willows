@@ -12,15 +12,28 @@ beforeEach(async () => {
 });
 
 const snapshot = (over: Record<string, any> = {}) => ({
-	playerId: 'sam', name: 'Sam', playSeconds: 1200, playMinutes: 20, sessions: 3,
-	counts: { resourcesCollected: 40 }, tutorialStep: 9, unlockedBiomes: 2,
+	playerId: 'sam',
+	name: 'Sam',
+	playSeconds: 1200,
+	playMinutes: 20,
+	sessions: 3,
+	counts: { resourcesCollected: 40 },
+	tutorialStep: 9,
+	unlockedBiomes: 2,
 	...over,
 });
 
 describe('SyncMetrics', () => {
 	it('upserts one row per save slot, preserving createdAt across updates', async () => {
 		const slot = 'a3f0c1d2-0000-4000-8000-123456789abc';
-		let r = await w.post('SyncMetrics', { clientId: slot, name: 'Sam', platform: 'desktop', os: 'mac', version: '0.1.0', snapshot: snapshot() });
+		let r = await w.post('SyncMetrics', {
+			clientId: slot,
+			name: 'Sam',
+			platform: 'desktop',
+			os: 'mac',
+			version: '0.1.0',
+			snapshot: snapshot(),
+		});
 		expect(r.ok).toBe(true);
 
 		const first = await w.db.SoloMetrics.get(`solo:${slot}`);
@@ -30,7 +43,12 @@ describe('SyncMetrics', () => {
 		expect(first.version).toBe('0.1.0');
 
 		await new Promise((res) => setTimeout(res, 5));
-		r = await w.post('SyncMetrics', { clientId: slot, name: 'Sam', platform: 'desktop', snapshot: snapshot({ playMinutes: 25, sessions: 4 }) });
+		r = await w.post('SyncMetrics', {
+			clientId: slot,
+			name: 'Sam',
+			platform: 'desktop',
+			snapshot: snapshot({ playMinutes: 25, sessions: 4 }),
+		});
 		expect(r.ok).toBe(true);
 
 		const rows = [];
@@ -44,14 +62,20 @@ describe('SyncMetrics', () => {
 	it('rejects a missing clientId or snapshot, and oversized snapshots', async () => {
 		await expect(w.post('SyncMetrics', { snapshot: snapshot() })).rejects.toThrow();
 		await expect(w.post('SyncMetrics', { clientId: 'slot-1' })).rejects.toThrow();
-		await expect(w.post('SyncMetrics', { clientId: 'slot-1', snapshot: { blob: 'x'.repeat(30_000) } })).rejects.toThrow();
+		await expect(
+			w.post('SyncMetrics', { clientId: 'slot-1', snapshot: { blob: 'x'.repeat(30_000) } }),
+		).rejects.toThrow();
 	});
 
 	it('builds the dashboard purely from SoloMetrics, excluding hosted players', async () => {
 		// A hosted player exists but must NOT appear — the dashboard is solo-only.
 		await w.post('CreatePlayer', { name: 'Hosted Holly', passcode: '1234', appearance });
 		await w.post('SyncMetrics', {
-			clientId: 'slot-9', name: 'Solo Sam', platform: 'desktop', os: 'linux', version: '0.1.0',
+			clientId: 'slot-9',
+			name: 'Solo Sam',
+			platform: 'desktop',
+			os: 'linux',
+			version: '0.1.0',
 			snapshot: snapshot({ name: 'Solo Sam', lastSeenAt: Date.now(), activation: { collected: true } }),
 		});
 
@@ -86,7 +110,9 @@ describe('SyncMetrics', () => {
 
 		// solo uplink carries it too
 		await w.post('SyncMetrics', {
-			clientId: 'slot-lang', name: 'Solo Sam', language: 'en',
+			clientId: 'slot-lang',
+			name: 'Solo Sam',
+			language: 'en',
 			snapshot: snapshot({ name: 'Solo Sam', lastSeenAt: Date.now() }),
 		});
 
@@ -100,11 +126,15 @@ describe('SyncMetrics', () => {
 
 	it('omits saves by name via ?exclude= so you can drop your own test data', async () => {
 		await w.post('SyncMetrics', {
-			clientId: 'slot-me', name: 'Bailey', os: 'mac',
+			clientId: 'slot-me',
+			name: 'Bailey',
+			os: 'mac',
 			snapshot: snapshot({ name: 'Bailey', lastSeenAt: Date.now(), playSeconds: 9999 }),
 		});
 		await w.post('SyncMetrics', {
-			clientId: 'slot-real', name: 'Real Player', os: 'windows',
+			clientId: 'slot-real',
+			name: 'Real Player',
+			os: 'windows',
 			snapshot: snapshot({ name: 'Real Player', lastSeenAt: Date.now(), playSeconds: 600 }),
 		});
 

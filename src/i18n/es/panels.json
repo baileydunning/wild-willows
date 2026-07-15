@@ -64,6 +64,7 @@
 			"decoration": "Senderos",
 			"storage": "Almacenamiento",
 			"home": "Comodidades del campamento",
+			"gear": "Equipo del cuidador",
 			"kit": "Kits de restauración"
 		},
 		"placeLabel": "Colocar:",
@@ -76,7 +77,8 @@
 		"readyToPlace": "Listo para colocar:",
 		"notIndoor": "{name} va afuera, en la reserva, no dentro de tu hogar.",
 		"needsBiggerHome": "{name} necesita un hogar más grande — mejora primero el Espacio de tu hogar.",
-		"indoorOnly": "{name} es para el interior de tu hogar — entra en tu tienda del campamento para colocarlo.",
+		"indoorOnly": "{name} es para interiores — entra en tu hogar o en una tienda de campaña para colocarlo.",
+		"tentTooSmall": "{name} no cabe en una tienda — necesita una casa de verdad.",
 		"wrongArea": "{name} no se puede colocar en {area} — prueba en: {areas}",
 		"anotherArea": "otra área",
 		"noMatch": "Ninguna receta coincide con “{query}” — prueba otra búsqueda.",
@@ -89,7 +91,8 @@
 		"crafted": "Fabricado ✓",
 		"craft": "Fabricar",
 		"addGoal": "Añadir fabricar esto a tus objetivos",
-		"plantedNotCrafted": "Se planta, no se fabrica — cava un bancal con la pala (2), riégalo con la regadera (3) y luego haz clic en el bancal regado para elegirlo en el menú de plantado."
+		"plantedNotCrafted": "Se planta, no se fabrica — cava un bancal con la pala (2), riégalo con la regadera (3) y luego haz clic en el bancal regado para elegirlo en el menú de plantado.",
+		"plantedSection": "Se plantan, no se fabrican"
 	},
 	"tools": {
 		"title": "Herramientas y mejoras",
@@ -98,7 +101,17 @@
 		"restoreFirst": "Restaura primero {biome} al {health}% de salud (ahora {current}%)",
 		"fullyUpgraded": "Mejora completa.",
 		"upgrade": "Mejorar",
-		"note": "Las mejoras usan materiales de tu cesta y tus cofres."
+		"note": "Las mejoras usan materiales de tu cesta y tus cofres.",
+		"gearTitle": "Equipo de cuidador",
+		"gearNote": "El equipo que has fabricado es tuyo para siempre — activa o desactiva cada pieza cuando quieras.",
+		"gearOn": "Activado",
+		"gearOff": "Apagado",
+		"gearToggleAria": "Activar o desactivar {name}",
+		"gearEffect": {
+			"boots": "Camina un poco más rápido por la reserva.",
+			"binoculars": "Los animales que aún no has registrado brillan con un suave destello.",
+			"headlamp": "Ilumina el suelo a tu alrededor al anochecer."
+		}
 	},
 	"biomes": {
 		"title": "La Reserva",
@@ -113,6 +126,7 @@
 		"health": "Salud",
 		"balance": "Equilibrio",
 		"animalsReturned": "{returned}/{total} animales han regresado",
+		"healthGated": "La tierra se mantiene en {cap}% — solo podrá seguir sanando cuando regresen {animals} animales más de este bioma.",
 		"addGoal": "Añadir desbloquear {biome} a tus objetivos",
 		"mapAria": "Mapa de la reserva — {open} de {total} biomas abiertos",
 		"animalsShort": "{returned}/{total} en casa",
@@ -266,6 +280,8 @@
 		"preferredLabel": "Hábitat preferido:",
 		"fieldNote": "Nota de campo:",
 		"backToJournal": "← Volver al diario de campo",
+		"historyBack": "Volver a tu parada anterior del diario",
+		"historyForward": "Avanzar por tu recorrido del diario",
 		"addGoal": "Añadir 'atraer a este animal' a tus objetivos",
 		"animalReqUnknown": "Primero debe regresar otro {kind}",
 		"lockedCard": "Mejora tu guía de campo al nivel {tier} para leer la entrada completa de este animal — su rol ecológico, su dieta y sus vínculos en la red trófica."

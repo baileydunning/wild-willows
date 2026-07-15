@@ -46,14 +46,10 @@ interface Flags {
 // Did the player craft a Grass Patch specifically? (the tutorial's first goal)
 const hasGrassPatch = (state: any) =>
 	(state?.player?.craftedEver?.['grass-patch'] || state?.player?.craftedItems?.['grass-patch'] || 0) > 0;
-const grassPlaced = (state: any) =>
-	state?.placements?.some((p: any) => p.objectId === 'grass-patch');
-const hasWateredBed = (state: any) =>
-	state?.terrain?.some((t: any) => t.type === 'watered' || t.type === 'water');
-const hasPlanted = (state: any) =>
-	state?.placements?.some((p: any) => typeof p.plantedAt === 'number');
-const openWaterTiles = (state: any) =>
-	state?.terrain?.filter((t: any) => t.type === 'water').length || 0;
+const grassPlaced = (state: any) => state?.placements?.some((p: any) => p.objectId === 'grass-patch');
+const hasWateredBed = (state: any) => state?.terrain?.some((t: any) => t.type === 'watered' || t.type === 'water');
+const hasPlanted = (state: any) => state?.placements?.some((p: any) => typeof p.plantedAt === 'number');
+const openWaterTiles = (state: any) => state?.terrain?.filter((t: any) => t.type === 'water').length || 0;
 const upgradedAnyTool = (state: any) =>
 	Object.values(state?.player?.tools || {}).some((tier: any) => (tier as number) > 1);
 
@@ -252,10 +248,18 @@ const DONE_STEP = 99;
 // Finishing the whole tutorial clears this (a replay then starts fresh at 0).
 const TUT_POS_KEY = 'wild-willows:tutorial-pos';
 function saveTutorialPos(step: number) {
-	try { localStorage.setItem(TUT_POS_KEY, String(step)); } catch { /* ignore */ }
+	try {
+		localStorage.setItem(TUT_POS_KEY, String(step));
+	} catch {
+		/* ignore */
+	}
 }
 function clearTutorialPos() {
-	try { localStorage.removeItem(TUT_POS_KEY); } catch { /* ignore */ }
+	try {
+		localStorage.removeItem(TUT_POS_KEY);
+	} catch {
+		/* ignore */
+	}
 }
 /** The step a Help-menu replay should resume from (0 if none saved). */
 export function savedTutorialPos(): number {
@@ -290,7 +294,19 @@ const readMs = (text: string, step: number) => {
 export function Tutorial() {
 	const { state, setTutorialStep, panel, worlds, activeWorldId } = useGame();
 	const { t } = useI18n();
-	const [flags, setFlags] = useState<Flags>({ moved: false, gathered: false, openedBasket: false, openedCrafting: false, crafted: false, openedJournal: false, openedChest: false, openedPreserve: false, openedTools: false, openedPeople: false, openedWeather: false });
+	const [flags, setFlags] = useState<Flags>({
+		moved: false,
+		gathered: false,
+		openedBasket: false,
+		openedCrafting: false,
+		crafted: false,
+		openedJournal: false,
+		openedChest: false,
+		openedPreserve: false,
+		openedTools: false,
+		openedPeople: false,
+		openedWeather: false,
+	});
 	const advanceTimer = useRef<number | null>(null);
 	const stepShownAt = useRef<number>(Date.now());
 	const [celebrating, setCelebrating] = useState(false);
@@ -299,13 +315,22 @@ export function Tutorial() {
 	const { ref: dragRef, handleProps, style: dragStyle } = useDraggable('wild-willows:tutorial-cardpos');
 	// Collapse to just the header bar to get it out of the way; state is remembered.
 	const [minimized, setMinimized] = useState(() => {
-		try { return localStorage.getItem('wild-willows:tutorial-min') === '1'; } catch { return false; }
+		try {
+			return localStorage.getItem('wild-willows:tutorial-min') === '1';
+		} catch {
+			return false;
+		}
 	});
-	const toggleMinimized = () => setMinimized((m) => {
-		const next = !m;
-		try { localStorage.setItem('wild-willows:tutorial-min', next ? '1' : '0'); } catch { /* ignore */ }
-		return next;
-	});
+	const toggleMinimized = () =>
+		setMinimized((m) => {
+			const next = !m;
+			try {
+				localStorage.setItem('wild-willows:tutorial-min', next ? '1' : '0');
+			} catch {
+				/* ignore */
+			}
+			return next;
+		});
 
 	// Co-op saves get an intro ahead of the normal arc: the host learns to invite
 	// people; a joiner just gets a welcome (no invite step — it isn't their world).
@@ -446,13 +471,23 @@ export function Tutorial() {
 	// Show only the current chapter's dots, so the first screen reads
 	// "Chapter 1 of 4" instead of an intimidating "step 1 of 18".
 	const curChapter = def.chapter;
-	const chapterStepIdxs = STEPS.map((s, i) => ({ s, i })).filter((x) => x.s.chapter === curChapter).map((x) => x.i);
+	const chapterStepIdxs = STEPS.map((s, i) => ({ s, i }))
+		.filter((x) => x.s.chapter === curChapter)
+		.map((x) => x.i);
 
 	return (
-		<div ref={dragRef} className={`tutorial-card ${celebrating ? 'celebrate' : ''} ${minimized ? 'minimized' : ''}`} style={dragStyle}>
+		<div
+			ref={dragRef}
+			className={`tutorial-card ${celebrating ? 'celebrate' : ''} ${minimized ? 'minimized' : ''}`}
+			style={dragStyle}
+		>
 			<div className="tutorial-head tutorial-head-drag" {...handleProps}>
-				<span className="tutorial-eyebrow"><Icon name="sparkle" size={13} /> {t(CHAPTERS[curChapter - 1])}</span>
-				<span className="tutorial-count">{t('panels.tutorial.chapterCount', { chapter: curChapter, total: CHAPTERS.length })}</span>
+				<span className="tutorial-eyebrow">
+					<Icon name="sparkle" size={13} /> {t(CHAPTERS[curChapter - 1])}
+				</span>
+				<span className="tutorial-count">
+					{t('panels.tutorial.chapterCount', { chapter: curChapter, total: CHAPTERS.length })}
+				</span>
 				<button
 					className="tutorial-close"
 					title={minimized ? t('panels.tutorial.expand') : t('panels.tutorial.minimize')}
@@ -466,56 +501,76 @@ export function Tutorial() {
 					className="tutorial-close"
 					title={replaying ? t('panels.tutorial.closeTutorial') : t('panels.tutorial.skipTutorial')}
 					aria-label={replaying ? t('panels.tutorial.closeTutorial') : t('panels.tutorial.skipTutorial')}
-					onClick={() => { saveTutorialPos(step); goTo(DONE_STEP); }}
+					onClick={() => {
+						saveTutorialPos(step);
+						goTo(DONE_STEP);
+					}}
 				>
 					<Icon name="close" size={14} />
 				</button>
 			</div>
-			{!minimized && <>
-			<div className="tutorial-main">
-				<div className="tutorial-icon">
-					<Icon name={celebrating ? 'check' : def.icon} size={22} />
-				</div>
-				<div className="grow">
-					<div className="tutorial-title">{celebrating ? t('panels.tutorial.niceWork') : t(`${def.key}.title`)}</div>
-					<div className="tutorial-text">{touch && def.hasTouch ? t(`${def.key}.touch`) : t(`${def.key}.text`)}</div>
-				</div>
-			</div>
-			<div className="tutorial-footer">
-				<div className="tutorial-dots">
-					{chapterStepIdxs.map((i) => (
-						<button
-							key={i}
-							type="button"
-							className={`dot ${i < step ? 'done' : i === step ? 'now' : ''}`}
-							onClick={() => goTo(i)}
-							aria-label={t('panels.tutorial.goToStep', { step: i + 1 })}
-							aria-current={i === step ? 'step' : undefined}
-						/>
-					))}
-				</div>
-				<div className="tutorial-nav">
-					<button
-						className="tutorial-skip"
-						onClick={() => goTo(step - 1)}
-						disabled={step === 0}
-						title={t('panels.tutorial.prevStep')}
-						aria-label={t('panels.tutorial.prevStep')}
-					>
-						<Icon name="back" size={14} /> {t('panels.tutorial.back')}
-					</button>
-					{isLast ? (
-						<button className="tutorial-btn" onClick={() => { clearTutorialPos(); goTo(DONE_STEP); }}>
-							<Icon name="check" size={15} /> {t('panels.tutorial.finish')}
-						</button>
-					) : (
-						<button className="tutorial-btn" onClick={() => goTo(step + 1)} title={t('panels.tutorial.nextStep')} aria-label={t('panels.tutorial.nextStep')}>
-							{t('panels.tutorial.next')} <Icon name="forward" size={15} />
-						</button>
-					)}
-				</div>
-			</div>
-			</>}
+			{!minimized && (
+				<>
+					<div className="tutorial-main">
+						<div className="tutorial-icon">
+							<Icon name={celebrating ? 'check' : def.icon} size={22} />
+						</div>
+						<div className="grow">
+							<div className="tutorial-title">
+								{celebrating ? t('panels.tutorial.niceWork') : t(`${def.key}.title`)}
+							</div>
+							<div className="tutorial-text">
+								{touch && def.hasTouch ? t(`${def.key}.touch`) : t(`${def.key}.text`)}
+							</div>
+						</div>
+					</div>
+					<div className="tutorial-footer">
+						<div className="tutorial-dots">
+							{chapterStepIdxs.map((i) => (
+								<button
+									key={i}
+									type="button"
+									className={`dot ${i < step ? 'done' : i === step ? 'now' : ''}`}
+									onClick={() => goTo(i)}
+									aria-label={t('panels.tutorial.goToStep', { step: i + 1 })}
+									aria-current={i === step ? 'step' : undefined}
+								/>
+							))}
+						</div>
+						<div className="tutorial-nav">
+							<button
+								className="tutorial-skip"
+								onClick={() => goTo(step - 1)}
+								disabled={step === 0}
+								title={t('panels.tutorial.prevStep')}
+								aria-label={t('panels.tutorial.prevStep')}
+							>
+								<Icon name="back" size={14} /> {t('panels.tutorial.back')}
+							</button>
+							{isLast ? (
+								<button
+									className="tutorial-btn"
+									onClick={() => {
+										clearTutorialPos();
+										goTo(DONE_STEP);
+									}}
+								>
+									<Icon name="check" size={15} /> {t('panels.tutorial.finish')}
+								</button>
+							) : (
+								<button
+									className="tutorial-btn"
+									onClick={() => goTo(step + 1)}
+									title={t('panels.tutorial.nextStep')}
+									aria-label={t('panels.tutorial.nextStep')}
+								>
+									{t('panels.tutorial.next')} <Icon name="forward" size={15} />
+								</button>
+							)}
+						</div>
+					</div>
+				</>
+			)}
 		</div>
 	);
 }

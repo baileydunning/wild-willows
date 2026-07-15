@@ -118,6 +118,13 @@ type SoloMetrics @table(database: "wildwillows") {
 	updatedAt: Float
 }
 
+# App-open / acquisition funnel, keyed per install/device (`dev:${deviceId}`).
+# The client pings on every app launch (phase "open") and once per character
+# created (phase "created"), so /Metrics/ can report how many people opened the
+# app, how many went on to create a character (vs bounced), and how many
+# characters each person creates. Dynamic (id only) so the field set can evolve.
+type AppOpen @table(database: "wildwillows") { id: ID @primaryKey } # deviceId, platform, os, version, language, firstOpenAt, lastOpenAt, opens, converted, firstConvertedAt, savesCreated, creationMs, updatedAt
+
 # ---------- co-op tables (dynamic) ----------
 type World @table(database: "wildwillows") { id: ID @primaryKey }         # name, solo, ownerId, joinCode, createdAt, maxMembers
 type WorldMember @table(database: "wildwillows") { id: ID @primaryKey }   # `${worldId}:${playerId}` · worldId, playerId, role, joinedAt, lastSeenAt

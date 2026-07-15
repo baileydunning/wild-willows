@@ -2502,6 +2502,41 @@
 			"output": { "itemId": "dragonfly-pond", "qty": 1 },
 			"materials": { "clay": 6, "clean-water": 5, "reeds": 4 },
 			"unlock": { "minHealth": 40, "label": "Restore Rushwater Wetland to 40% health" }
+		},
+		{
+			"id": "trail-tent",
+			"name": "Trail Tent",
+			"category": "structure",
+			"unlockBiome": "forest",
+			"output": { "itemId": "trail-tent", "qty": 1 },
+			"materials": { "branches": 6, "fiber": 6, "stones": 2 }
+		},
+		{
+			"id": "headlamp",
+			"name": "Headlamp",
+			"category": "gear",
+			"unlockBiome": "meadow",
+			"output": { "itemId": "headlamp", "qty": 1 },
+			"materials": { "branches": 2, "fiber": 4, "stones": 2 },
+			"once": true
+		},
+		{
+			"id": "binoculars",
+			"name": "Field Binoculars",
+			"category": "gear",
+			"unlockBiome": "meadow",
+			"output": { "itemId": "binoculars", "qty": 1 },
+			"materials": { "fiber": 2, "stones": 3, "bark": 3, "moss": 2 },
+			"once": true
+		},
+		{
+			"id": "hiking-boots",
+			"name": "Hiking Boots",
+			"category": "gear",
+			"unlockBiome": "meadow",
+			"output": { "itemId": "hiking-boots", "qty": 1 },
+			"materials": { "fiber": 8, "stones": 2, "bark": 5, "moss": 4, "reeds": 4 },
+			"once": true
 		}
 	]
 }

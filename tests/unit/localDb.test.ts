@@ -1,10 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-	makeLocalDatabase,
-	serializeSave,
-	hydrateSave,
-	DYNAMIC_TABLES,
-} from '../../src/solo/localDb';
+import { makeLocalDatabase, serializeSave, hydrateSave, DYNAMIC_TABLES } from '../../src/solo/localDb';
 
 describe('makeLocalDatabase', () => {
 	it('seeds the static definition tables from data/*.json', () => {

@@ -39,7 +39,11 @@ const RES = meadowResource();
 let pid: string;
 
 /** Build the player's house in `style` with the given track levels, and stock the basket. */
-async function givenHouse(style: string, levels: Partial<Record<'space' | 'comfort' | 'decor' | 'light', number>> = {}, inventory: Record<string, number> = {}) {
+async function givenHouse(
+	style: string,
+	levels: Partial<Record<'space' | 'comfort' | 'decor' | 'light', number>> = {},
+	inventory: Record<string, number> = {},
+) {
 	await holder.db.Player.patch(pid, {
 		home: { style, space: 2, comfort: 1, decor: 1, light: 1, styleLocked: true, ...levels },
 		inventory,

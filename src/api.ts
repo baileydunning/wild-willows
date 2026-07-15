@@ -99,7 +99,9 @@ export function rememberSave(playerId: string, name: string, mode: SaveMode = 's
 		const rec = JSON.stringify({ playerId, name, mode });
 		localStorage.setItem(modeKey(mode), rec);
 		localStorage.setItem(STORAGE_KEY, rec); // overall most-recent (legacy/fallback)
-	} catch { /* private mode etc. */ }
+	} catch {
+		/* private mode etc. */
+	}
 }
 export function lastSave(mode?: SaveMode): { playerId: string; name: string; mode?: SaveMode } | null {
 	try {
@@ -129,13 +131,14 @@ export function forgetSave(mode?: SaveMode) {
 			localStorage.removeItem(modeKey('solo'));
 			localStorage.removeItem(modeKey('coop'));
 		}
-	} catch { /* ignore */ }
+	} catch {
+		/* ignore */
+	}
 }
 
 // GameData is static definitions bundled with the app, so on desktop it's always
 // served locally — the title screen then works offline regardless of mode.
-const isLocalCall = (path: string) =>
-	transport === 'solo' || (isDesktop && path.startsWith('/GameData'));
+const isLocalCall = (path: string) => transport === 'solo' || (isDesktop && path.startsWith('/GameData'));
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
 	const method = (options?.method || 'GET').toUpperCase();
@@ -189,35 +192,75 @@ const pid = () => {
 export const api = {
 	gameData: () => request<GameData>('/GameData/'),
 	gameState: (playerId?: string) => request<GameState>(`/GameState/${playerId ?? pid()}`),
-	createPlayer: (name: string, passcode: string, appearance: Appearance) =>
-		post<{ ok: boolean; playerId: string; worldId: string; worlds: WorldSummary[]; state: GameState }>('/CreatePlayer/', { name, passcode, appearance, tzOffsetMinutes: -new Date().getTimezoneOffset() }),
+	createPlayer: (name: string, passcode: string, appearance: Appearance, creationMs = 0) =>
+		post<{ ok: boolean; playerId: string; worldId: string; worlds: WorldSummary[]; state: GameState }>(
+			'/CreatePlayer/',
+			{ name, passcode, appearance, tzOffsetMinutes: -new Date().getTimezoneOffset(), creationMs },
+		),
 	login: (name: string, passcode: string) =>
-		post<{ ok: boolean; playerId: string; worldId: string; worlds: WorldSummary[]; state: GameState }>('/LoginPlayer/', { name, passcode, tzOffsetMinutes: -new Date().getTimezoneOffset() }),
+		post<{ ok: boolean; playerId: string; worldId: string; worlds: WorldSummary[]; state: GameState }>(
+			'/LoginPlayer/',
+			{ name, passcode, tzOffsetMinutes: -new Date().getTimezoneOffset() },
+		),
 
 	// --- multiplayer: shared co-op worlds (personal progress stays per-player) ---
-	myWorlds: () => post<{ ok: boolean; activeWorldId: string; worlds: WorldSummary[] }>('/MyWorlds/', { playerId: pid() }),
+	myWorlds: () =>
+		post<{ ok: boolean; activeWorldId: string; worlds: WorldSummary[] }>('/MyWorlds/', { playerId: pid() }),
 	createWorld: (name: string) =>
 		post<{ ok: boolean; world: WorldSummary; worlds: WorldSummary[] }>('/CreateWorld/', { playerId: pid(), name }),
 	joinWorld: (joinCode: string, token?: string) =>
-		post<{ ok: boolean; worldId: string; worlds: WorldSummary[]; state: GameState }>('/JoinWorld/', { playerId: pid(), joinCode, token }),
+		post<{ ok: boolean; worldId: string; worlds: WorldSummary[]; state: GameState }>('/JoinWorld/', {
+			playerId: pid(),
+			joinCode,
+			token,
+		}),
 
 	// --- co-op join: verify code, request approval, host resolves ---
 	checkWorldCode: (joinCode: string) =>
-		post<{ ok: boolean; exists: boolean; world?: { worldId: string; name: string; hostName: string; memberCount: number; maxMembers: number; full: boolean } }>('/CheckWorldCode/', { joinCode }),
+		post<{
+			ok: boolean;
+			exists: boolean;
+			world?: {
+				worldId: string;
+				name: string;
+				hostName: string;
+				memberCount: number;
+				maxMembers: number;
+				full: boolean;
+			};
+		}>('/CheckWorldCode/', { joinCode }),
 	requestJoin: (joinCode: string, token: string, name: string) =>
-		post<{ ok: boolean; worldId: string; world: { name: string; hostName: string } }>('/RequestJoin/', { joinCode, token, name }),
+		post<{ ok: boolean; worldId: string; world: { name: string; hostName: string } }>('/RequestJoin/', {
+			joinCode,
+			token,
+			name,
+		}),
 	joinStatus: (worldId: string, token: string) =>
-		post<{ ok: boolean; status: 'pending' | 'approved' | 'denied' | 'none' }>('/JoinRequestStatus/', { worldId, token }),
+		post<{ ok: boolean; status: 'pending' | 'approved' | 'denied' | 'none' }>('/JoinRequestStatus/', {
+			worldId,
+			token,
+		}),
 	pendingRequests: () =>
-		post<{ ok: boolean; requests: { token: string; name: string; createdAt: number }[] }>('/PendingJoinRequests/', { playerId: pid() }),
+		post<{ ok: boolean; requests: { token: string; name: string; createdAt: number }[] }>('/PendingJoinRequests/', {
+			playerId: pid(),
+		}),
 	resolveJoin: (worldId: string, token: string, approve: boolean) =>
 		post<{ ok: boolean }>('/ResolveJoin/', { playerId: pid(), worldId, token, approve }),
 	worldRoster: () =>
-		post<{ ok: boolean; roster: RosterEntry[]; closed: boolean; maxMembers: number; joinCode: string | null }>('/WorldRoster/', { playerId: pid() }),
+		post<{ ok: boolean; roster: RosterEntry[]; closed: boolean; maxMembers: number; joinCode: string | null }>(
+			'/WorldRoster/',
+			{ playerId: pid() },
+		),
 	switchWorld: (worldId: string) =>
-		post<{ ok: boolean; worldId: string; worlds: WorldSummary[]; state: GameState }>('/SwitchWorld/', { playerId: pid(), worldId }),
+		post<{ ok: boolean; worldId: string; worlds: WorldSummary[]; state: GameState }>('/SwitchWorld/', {
+			playerId: pid(),
+			worldId,
+		}),
 	leaveWorld: (worldId: string) =>
-		post<{ ok: boolean; worldId: string; worlds: WorldSummary[]; state: GameState }>('/LeaveWorld/', { playerId: pid(), worldId }),
+		post<{ ok: boolean; worldId: string; worlds: WorldSummary[]; state: GameState }>('/LeaveWorld/', {
+			playerId: pid(),
+			worldId,
+		}),
 	presence: (x: number, y: number, area: string) =>
 		post<{ ok: boolean; worldId: string; peers: Peer[] }>('/Presence/', { playerId: pid(), x, y, area }),
 	deletePlayer: (name: string, passcode: string) =>
@@ -272,7 +315,14 @@ export const api = {
 // local slot, and load it back. These wrap the in-app backend + slot storage.
 
 import { newSoloGame as backendNew, loadSoloGame as backendLoad, endSolo } from './solo/backend';
-import { createSlot, listSaves as listSoloSaves, loadSaveData, deleteSave as deleteSoloSave, exportSlot, importSave } from './solo/saves';
+import {
+	createSlot,
+	listSaves as listSoloSaves,
+	loadSaveData,
+	deleteSave as deleteSoloSave,
+	exportSlot,
+	importSave,
+} from './solo/saves';
 
 export type { SaveMeta } from './solo/saves';
 export { listSoloSaves, deleteSoloSave };
@@ -286,7 +336,11 @@ export async function exportActiveSolo(): Promise<{ filename: string; contents: 
 	if (!slot) return null;
 	const contents = await exportSlot(slot.slotId);
 	if (!contents) return null;
-	const safe = (slot.name || 'save').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '') || 'save';
+	const safe =
+		(slot.name || 'save')
+			.toLowerCase()
+			.replace(/[^a-z0-9]+/g, '-')
+			.replace(/^-+|-+$/g, '') || 'save';
 	const stamp = new Date().toISOString().slice(0, 10);
 	return { filename: `wild-willows-${safe}-${stamp}.json`, contents };
 }
@@ -297,9 +351,13 @@ export async function importSoloSave(contents: string): Promise<SaveMeta> {
 }
 
 /** Start a fresh solo game (no passcode) and create its save slot. */
-export async function startSoloGame(name: string, appearance: Appearance): Promise<{ playerId: string; state: GameState; slot: SaveMeta }> {
+export async function startSoloGame(
+	name: string,
+	appearance: Appearance,
+	creationMs = 0,
+): Promise<{ playerId: string; state: GameState; slot: SaveMeta }> {
 	setTransport('solo');
-	const created = await backendNew(name, appearance);
+	const created = await backendNew(name, appearance, creationMs);
 	const slot = await createSlot({ playerId: created.playerId, name, appearance });
 	setSoloSlot(slot);
 	setPlayerId(created.playerId);

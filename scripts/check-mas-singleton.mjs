@@ -44,7 +44,9 @@ if (callLines.length === 0) {
 let failed = false;
 for (const { line, n } of callLines) {
 	if (!line.includes('process.mas')) {
-		console.error(`✖ check-mas-singleton: electron/main.js:${n} calls requestSingleInstanceLock() without a \`process.mas\` guard.`);
+		console.error(
+			`✖ check-mas-singleton: electron/main.js:${n} calls requestSingleInstanceLock() without a \`process.mas\` guard.`,
+		);
 		console.error(`    ${line.trim()}`);
 		console.error('  In the sandboxed Mac App Store build this silently quits the app on launch.');
 		console.error('  Guard it, e.g.:  if (!process.mas && !app.requestSingleInstanceLock()) { ... }');

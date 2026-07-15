@@ -55,7 +55,11 @@ export function normalizePrefs(raw: any, fallbackReduce = false): Prefs {
 	// the most common (red-green) mode so existing saves keep their assistance.
 	const colorblindMode: ColorblindMode = COLORBLIND_MODES.includes(o.colorblindMode)
 		? o.colorblindMode
-		: (typeof o.colorblind === 'boolean' ? (o.colorblind ? 'redgreen' : 'off') : DEFAULTS.colorblindMode);
+		: typeof o.colorblind === 'boolean'
+			? o.colorblind
+				? 'redgreen'
+				: 'off'
+			: DEFAULTS.colorblindMode;
 	return {
 		reduceMotion: typeof o.reduceMotion === 'boolean' ? o.reduceMotion : fallbackReduce,
 		colorblindMode,
@@ -84,7 +88,9 @@ function applyToDom(p: Prefs): void {
 /** Subscribe to preference changes; returns an unsubscribe fn. */
 export function subscribe(fn: (p: Prefs) => void): () => void {
 	listeners.add(fn);
-	return () => { listeners.delete(fn); };
+	return () => {
+		listeners.delete(fn);
+	};
 }
 
 /** Merge a patch into the current prefs, persist, apply to the DOM, and notify. */
@@ -97,7 +103,11 @@ export function setPrefs(patch: Partial<Prefs>): Prefs {
 	}
 	applyToDom(current);
 	listeners.forEach((fn) => {
-		try { fn(current); } catch { /* one bad listener shouldn't break the rest */ }
+		try {
+			fn(current);
+		} catch {
+			/* one bad listener shouldn't break the rest */
+		}
 	});
 	return current;
 }

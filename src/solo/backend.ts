@@ -75,7 +75,7 @@ export function soloRequest(path: string, method: string, body?: any): Promise<S
 	// be defensive).
 	queue = result.then(
 		() => undefined,
-		() => undefined
+		() => undefined,
 	);
 	return result;
 }
@@ -94,10 +94,7 @@ async function dispatch(path: string, method: string, body?: any): Promise<SoloR
 	const id = rest.length ? decodeURIComponent(rest.join('/')) : undefined;
 	try {
 		const inst = new Cls(id);
-		const out =
-			method.toUpperCase() === 'GET'
-				? await inst.get()
-				: await inst.post(body ?? {});
+		const out = method.toUpperCase() === 'GET' ? await inst.get() : await inst.post(body ?? {});
 		return { status: 200, body: out };
 	} catch (e: any) {
 		// Mirror the server's GameError → HTTP status mapping.
@@ -107,12 +104,13 @@ async function dispatch(path: string, method: string, body?: any): Promise<SoloR
 }
 
 /** Start a brand-new solo save in a fresh world. Returns the create payload. */
-export async function newSoloGame(name: string, appearance: any): Promise<any> {
+export async function newSoloGame(name: string, appearance: any, creationMs = 0): Promise<any> {
 	freshDb();
 	// Solo has no passcode; createPlayer still requires one server-side, so we
 	// pass a fixed local token that is never shown or verified.
-	const res = await soloRequest('/CreatePlayer/', 'POST', { name, passcode: SOLO_PASSCODE, appearance });
-	if (res.status !== 200) throw Object.assign(new Error(res.body?.title || 'Could not start game'), { status: res.status });
+	const res = await soloRequest('/CreatePlayer/', 'POST', { name, passcode: SOLO_PASSCODE, appearance, creationMs });
+	if (res.status !== 200)
+		throw Object.assign(new Error(res.body?.title || 'Could not start game'), { status: res.status });
 	return res.body;
 }
 
@@ -121,7 +119,8 @@ export async function loadSoloGame(playerId: string, saveData: Record<string, an
 	freshDb();
 	hydrateSave(activeDb!, saveData);
 	const res = await soloRequest(`/GameState/${encodeURIComponent(playerId)}`, 'GET');
-	if (res.status !== 200) throw Object.assign(new Error(res.body?.title || 'Could not load save'), { status: res.status });
+	if (res.status !== 200)
+		throw Object.assign(new Error(res.body?.title || 'Could not load save'), { status: res.status });
 	return res.body;
 }
 

@@ -41,8 +41,9 @@ const CLIMATE: Climate = weatherData.climate as Climate;
 // Strip the `_comment` doc key (and any non-object entries) so consumers can
 // safely iterate this as biome → {weather: resource} without hitting the string.
 const GATHER: Record<string, Record<string, string>> = Object.fromEntries(
-	Object.entries(((weatherData as any).gather as Record<string, unknown>) || {})
-		.filter(([k, v]) => k !== '_comment' && v !== null && typeof v === 'object'),
+	Object.entries(((weatherData as any).gather as Record<string, unknown>) || {}).filter(
+		([k, v]) => k !== '_comment' && v !== null && typeof v === 'object',
+	),
 ) as Record<string, Record<string, string>>;
 
 /** The resource id gatherable in `biome` while `type` weather is active, if any. */
@@ -129,7 +130,10 @@ export function dayPhaseAt(t: number): string {
 export function nextPhaseAt(t: number, phaseId: string): number {
 	let start = 0; // day-progress where the phase begins (the band boundary before it)
 	for (let i = 0; i < DAY_PHASES.length; i++) {
-		if (DAY_PHASES[i].id === phaseId) { start = i === 0 ? 0 : DAY_PHASES[i - 1].until; break; }
+		if (DAY_PHASES[i].id === phaseId) {
+			start = i === 0 ? 0 : DAY_PHASES[i - 1].until;
+			break;
+		}
 	}
 	const target = dayStartAt(t) + start * DAY_MS;
 	return target > t ? target : target + DAY_MS;
@@ -182,7 +186,12 @@ export interface WeatherSnapshot {
  * passed in (from the biome defs) so this module stays free of Harper deps.
  * `override` (dev tools) pins the season and/or every biome's weather type.
  */
-export function weatherSnapshot(worldId: string, t: number, biomeIds: string[], override?: WeatherOverride | null): WeatherSnapshot {
+export function weatherSnapshot(
+	worldId: string,
+	t: number,
+	biomeIds: string[],
+	override?: WeatherOverride | null,
+): WeatherSnapshot {
 	const since = dayStartAt(t);
 	const forcedType = override?.type || null;
 	const forcedSeason = override?.season || null;

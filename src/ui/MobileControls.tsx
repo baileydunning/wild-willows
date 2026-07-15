@@ -64,10 +64,7 @@ export function MobileControls() {
 				onPointerUp={release}
 				onPointerCancel={release}
 			>
-				<div
-					className="joystick-knob"
-					style={{ transform: `translate(${knob.x * 26}px, ${knob.y * 26}px)` }}
-				/>
+				<div className="joystick-knob" style={{ transform: `translate(${knob.x * 26}px, ${knob.y * 26}px)` }} />
 			</div>
 			<button
 				className="interact-btn"

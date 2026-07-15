@@ -7,6 +7,7 @@
 		"stepOutside": "Volver afuera (E)",
 		"plantBed": "Plantar en este bancal regado",
 		"stepInside": "Entrar a tu hogar (E)",
+		"stepInTent": "Entrar en la tienda (E)",
 		"upgradeHome": "Mejorar tu hogar (E)",
 		"walkTo": "Caminar hasta {name}",
 		"walkBackTo": "Volver caminando a {name}",

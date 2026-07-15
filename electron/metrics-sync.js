@@ -61,7 +61,11 @@ function syncFromPlayer(p) {
 		if (Number.isFinite(v)) steam.setStat(name, v);
 	}
 	for (const a of ACHIEVEMENTS) {
-		try { if (a.when(p)) steam.unlockAchievement(a.id); } catch { /* ignore mapping gaps */ }
+		try {
+			if (a.when(p)) steam.unlockAchievement(a.id);
+		} catch {
+			/* ignore mapping gaps */
+		}
 	}
 	steam.store();
 }
@@ -81,7 +85,10 @@ function start() {
 }
 
 function stop() {
-	if (timer) { clearInterval(timer); timer = null; }
+	if (timer) {
+		clearInterval(timer);
+		timer = null;
+	}
 	syncFromPlayer(latest); // final flush on quit
 }
 

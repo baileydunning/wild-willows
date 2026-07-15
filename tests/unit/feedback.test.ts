@@ -34,7 +34,12 @@ describe('sendFeedback', () => {
 	});
 
 	it('queues the item locally when the network is down', async () => {
-		vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('Failed to fetch'); }));
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => {
+				throw new TypeError('Failed to fetch');
+			}),
+		);
 		const r = await sendFeedback('offline thoughts', '', null);
 		expect(r.sent).toBe(false);
 		expect(pendingFeedbackCount()).toBe(1);
@@ -45,7 +50,10 @@ describe('sendFeedback', () => {
 	});
 
 	it('surfaces a server rejection instead of queueing it forever', async () => {
-		vi.stubGlobal('fetch', vi.fn(async () => badRequest()));
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => badRequest()),
+		);
 		await expect(sendFeedback('hi', 'bad-email', null)).rejects.toThrow();
 		expect(pendingFeedbackCount()).toBe(0);
 	});
@@ -53,7 +61,12 @@ describe('sendFeedback', () => {
 
 describe('flushFeedbackQueue', () => {
 	it('sends queued items and deletes them only after confirmation', async () => {
-		vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('Failed to fetch'); }));
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => {
+				throw new TypeError('Failed to fetch');
+			}),
+		);
 		await sendFeedback('first', '', null);
 		await sendFeedback('second', '', null);
 		expect(pendingFeedbackCount()).toBe(2);
@@ -66,16 +79,29 @@ describe('flushFeedbackQueue', () => {
 	});
 
 	it('keeps the queue intact when still offline', async () => {
-		vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('Failed to fetch'); }));
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => {
+				throw new TypeError('Failed to fetch');
+			}),
+		);
 		await sendFeedback('still here', '', null);
 		await flushFeedbackQueue();
 		expect(pendingFeedbackCount()).toBe(1);
 	});
 
 	it('drops items the server permanently rejects', async () => {
-		vi.stubGlobal('fetch', vi.fn(async () => { throw new TypeError('Failed to fetch'); }));
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => {
+				throw new TypeError('Failed to fetch');
+			}),
+		);
 		await sendFeedback('will 400 later', '', null);
-		vi.stubGlobal('fetch', vi.fn(async () => badRequest()));
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => badRequest()),
+		);
 		await flushFeedbackQueue();
 		expect(pendingFeedbackCount()).toBe(0); // never sendable — don't retry forever
 	});
@@ -85,7 +111,12 @@ describe('gatherFeedbackMetrics', () => {
 	it('reports platform/mode and player progress when a session is open', () => {
 		setTransport('solo');
 		const m = gatherFeedbackMetrics({
-			player: { name: 'Sam', tutorialStep: 7, unlockedBiomes: ['meadow', 'wetland'], metrics: { playSeconds: 3600, sessions: 5 } },
+			player: {
+				name: 'Sam',
+				tutorialStep: 7,
+				unlockedBiomes: ['meadow', 'wetland'],
+				metrics: { playSeconds: 3600, sessions: 5 },
+			},
 			achievements: ['a', 'b'],
 		} as any);
 		expect(m.mode).toBe('solo');

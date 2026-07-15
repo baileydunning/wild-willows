@@ -5,10 +5,16 @@ import { describe, it, expect, beforeEach } from 'vitest';
 const store = new Map<string, string>();
 (globalThis as any).localStorage = {
 	getItem: (k: string) => store.get(k) ?? null,
-	setItem: (k: string, v: string) => { store.set(k, v); },
-	removeItem: (k: string) => { store.delete(k); },
+	setItem: (k: string, v: string) => {
+		store.set(k, v);
+	},
+	removeItem: (k: string) => {
+		store.delete(k);
+	},
 	key: (i: number) => [...store.keys()][i] ?? null,
-	get length() { return store.size; },
+	get length() {
+		return store.size;
+	},
 };
 
 import { normalizePrefs, getPrefs, setPrefs, subscribe, TEXT_SCALE_VALUES } from '../../src/prefs';
@@ -20,10 +26,25 @@ describe('accessibility prefs', () => {
 	});
 
 	it('normalizes unknown/missing fields to safe defaults', () => {
-		expect(normalizePrefs(null)).toEqual({ reduceMotion: false, colorblindMode: 'off', dyslexiaFont: false, textScale: 'md' });
-		expect(normalizePrefs('nonsense')).toEqual({ reduceMotion: false, colorblindMode: 'off', dyslexiaFont: false, textScale: 'md' });
+		expect(normalizePrefs(null)).toEqual({
+			reduceMotion: false,
+			colorblindMode: 'off',
+			dyslexiaFont: false,
+			textScale: 'md',
+		});
+		expect(normalizePrefs('nonsense')).toEqual({
+			reduceMotion: false,
+			colorblindMode: 'off',
+			dyslexiaFont: false,
+			textScale: 'md',
+		});
 		// bad textScale falls back; a valid colorblind mode is preserved
-		expect(normalizePrefs({ textScale: 'huge', colorblindMode: 'blueyellow' })).toEqual({ reduceMotion: false, colorblindMode: 'blueyellow', dyslexiaFont: false, textScale: 'md' });
+		expect(normalizePrefs({ textScale: 'huge', colorblindMode: 'blueyellow' })).toEqual({
+			reduceMotion: false,
+			colorblindMode: 'blueyellow',
+			dyslexiaFont: false,
+			textScale: 'md',
+		});
 		// unknown mode falls back to off
 		expect(normalizePrefs({ colorblindMode: 'nope' }).colorblindMode).toBe('off');
 		// reduceMotion default can be seeded from the OS setting
@@ -69,7 +90,9 @@ describe('accessibility prefs', () => {
 
 	it('notifies subscribers on change and stops after unsubscribe', () => {
 		let seen = 0;
-		const unsub = subscribe(() => { seen++; });
+		const unsub = subscribe(() => {
+			seen++;
+		});
 		setPrefs({ colorblindMode: 'redgreen' });
 		expect(seen).toBe(1);
 		unsub();

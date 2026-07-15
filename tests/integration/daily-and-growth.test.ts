@@ -114,8 +114,14 @@ describe('habitat growth over real time', () => {
 		w = await freshWorld();
 		pid = (await w.post('CreatePlayer', { name: 'Grow', passcode: '1234', appearance })).playerId;
 		await w.db.Placement.put({
-			id: 'pl_tree', worldId: pid, playerId: pid, objectId: 'willow-tree',
-			area: 'meadow', x: 5, y: 5, placedAt: Date.now() - ageMs,
+			id: 'pl_tree',
+			worldId: pid,
+			playerId: pid,
+			objectId: 'willow-tree',
+			area: 'meadow',
+			x: 5,
+			y: 5,
+			placedAt: Date.now() - ageMs,
 		});
 		const r = await w.post('RecalcBiome', { playerId: pid, biomeId: 'meadow' });
 		return r.biomeState.health as number;
@@ -132,8 +138,34 @@ describe('habitat growth over real time', () => {
 		pid = (await w.post('CreatePlayer', { name: 'Cap', passcode: '1234', appearance })).playerId;
 		for (let i = 0; i < 20; i++) {
 			await w.db.Placement.put({
-				id: `pl_${i}`, worldId: pid, playerId: pid, objectId: 'willow-tree',
-				area: 'meadow', x: 2 + (i % 26), y: 3 + Math.floor(i / 26), placedAt: Date.now() - ageMs,
+				id: `pl_${i}`,
+				worldId: pid,
+				playerId: pid,
+				objectId: 'willow-tree',
+				area: 'meadow',
+				x: 2 + (i % 26),
+				y: 3 + Math.floor(i / 26),
+				placedAt: Date.now() - ageMs,
+			});
+		}
+		// Bring the meadow's animals home so its health isn't pinned by the
+		// animals-returned cap (60% until 5 are back, etc.). Without this a forest of
+		// 20 trees clamps to the cap in both the young and grown cases, hiding the
+		// maturity bonus this test is here to measure. With 15+ back the cap lifts to
+		// 100, so the (capped) growth points can actually move the health bar.
+		const animals: any[] = [];
+		for await (const a of w.db.Animal.search()) animals.push(a);
+		for (const a of animals.filter((x) => x.biome === 'meadow').slice(0, 15)) {
+			await w.db.Discovery.put({
+				id: `${pid}:${a.id}`,
+				worldId: pid,
+				playerId: pid,
+				animalId: a.id,
+				biomeId: 'meadow',
+				comfort: 80,
+				timesObserved: 1,
+				firstObservedAt: Date.now(),
+				whyReturned: 'test',
 			});
 		}
 		const r = await w.post('RecalcBiome', { playerId: pid, biomeId: 'meadow' });
@@ -153,12 +185,25 @@ describe('welcome back (heartbeat time-passed pass)', () => {
 		const now = Date.now();
 		// a willow placed 9h ago crossed its 8h maturity during a 12h absence
 		await w.db.Placement.put({
-			id: 'pl_tree', worldId: pid, playerId: pid, objectId: 'willow-tree',
-			area: 'meadow', x: 5, y: 5, placedAt: now - 9 * H,
+			id: 'pl_tree',
+			worldId: pid,
+			playerId: pid,
+			objectId: 'willow-tree',
+			area: 'meadow',
+			x: 5,
+			y: 5,
+			placedAt: now - 9 * H,
 		});
 		const p = await w.db.Player.get(pid);
 		await w.db.Player.patch(pid, {
-			metrics: { ...(p.metrics || {}), firstSeenAt: now - 20 * H, lastSeenAt: now - 12 * H, lastHeartbeatAt: now - 12 * H, playSeconds: 100, sessions: 1 },
+			metrics: {
+				...(p.metrics || {}),
+				firstSeenAt: now - 20 * H,
+				lastSeenAt: now - 12 * H,
+				lastHeartbeatAt: now - 12 * H,
+				playSeconds: 100,
+				sessions: 1,
+			},
 		});
 		const hb = await w.post('Heartbeat', { playerId: pid });
 		expect(hb.welcomeBack).toBeTruthy();
@@ -180,19 +225,36 @@ describe('condition-gated rare sightings', () => {
 		pid = (await w.post('CreatePlayer', { name: 'Owl', passcode: '1234', appearance })).playerId;
 		const now = Date.now();
 		let i = 0;
-		const put = (objectId: string) => w.db.Placement.put({
-			id: `pl_${i}`, worldId: pid, playerId: pid, objectId,
-			area: 'meadow', x: 2 + (i % 26), y: 3 + Math.floor(i++ / 26), placedAt: now - 10 * H,
-		});
+		const put = (objectId: string) =>
+			w.db.Placement.put({
+				id: `pl_${i}`,
+				worldId: pid,
+				playerId: pid,
+				objectId,
+				area: 'meadow',
+				x: 2 + (i % 26),
+				y: 3 + Math.floor(i++ / 26),
+				placedAt: now - 10 * H,
+			});
 		for (let k = 0; k < 20; k++) await put('willow-tree'); // health well past 75
-		await put('log-shelter'); await put('shrub'); await put('grass-patch'); await put('native-grass-patch');
+		await put('log-shelter');
+		await put('shrub');
+		await put('grass-patch');
+		await put('native-grass-patch');
 		// every other meadow animal is already home (balance + the vole prerequisite)
 		const animals: any[] = [];
 		for await (const a of w.db.Animal.search()) animals.push(a);
 		for (const a of animals.filter((x) => x.biome === 'meadow' && x.id !== 'barn-owl')) {
 			await w.db.Discovery.put({
-				id: `${pid}:${a.id}`, worldId: pid, playerId: pid, animalId: a.id, biomeId: 'meadow',
-				comfort: 80, timesObserved: 0, firstObservedAt: now, whyReturned: 'test',
+				id: `${pid}:${a.id}`,
+				worldId: pid,
+				playerId: pid,
+				animalId: a.id,
+				biomeId: 'meadow',
+				comfort: 80,
+				timesObserved: 0,
+				firstObservedAt: now,
+				whyReturned: 'test',
 			});
 		}
 		const p = await w.db.Player.get(pid);
@@ -219,7 +281,9 @@ describe('biome unlock reward', () => {
 		for await (const b of w2.db.BiomeState.search()) if (b.biomeId === 'meadow') meadow = b;
 		await w2.db.BiomeState.patch(meadow.id, { health: 60, returnedCount: 10 });
 		const p = await w2.db.Player.get(pid);
-		await w2.db.Player.patch(pid, { inventory: { ...(p.inventory || {}), fiber: 8, branches: 8, stones: 6, water: 4 } });
+		await w2.db.Player.patch(pid, {
+			inventory: { ...(p.inventory || {}), fiber: 8, branches: 8, stones: 6, water: 4 },
+		});
 		expect((await w2.post('CraftItem', { playerId: pid, recipeId: 'forest-restoration-kit' })).ok).toBe(true);
 
 		// Forest is now open, and a pending welcome bundle is recorded.

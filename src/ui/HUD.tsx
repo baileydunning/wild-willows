@@ -4,14 +4,36 @@ import { useGame } from '../state';
 import { useI18n } from '../i18n/react';
 import { COOP_ENABLED } from '../features';
 import { homePerkStrength } from '../types';
-import { weatherType, seasonStyle, liveSeason, liveWeatherType, liveDayPhase, dayPhaseStyle, phaseAtProgress } from '../weather';
+import {
+	weatherType,
+	seasonStyle,
+	liveSeason,
+	liveWeatherType,
+	liveDayPhase,
+	dayPhaseStyle,
+	phaseAtProgress,
+} from '../weather';
 import { Icon } from './icons';
 import { TasksWidget } from './TasksWidget';
 
-export function Meter({ label, icon, value, color, hint }: { label: string; icon: string; value: number; color: string; hint?: string }) {
+export function Meter({
+	label,
+	icon,
+	value,
+	color,
+	hint,
+}: {
+	label: string;
+	icon: string;
+	value: number;
+	color: string;
+	hint?: string;
+}) {
 	return (
 		<div className="meter">
-			<span className="meter-icon" style={{ color }}><Icon name={icon} size={15} /></span>
+			<span className="meter-icon" style={{ color }}>
+				<Icon name={icon} size={15} />
+			</span>
 			<span className="meter-label">{label}</span>
 			<div className="meter-track">
 				<div className="meter-fill" style={{ width: `${Math.min(100, value)}%`, background: color }} />
@@ -20,7 +42,9 @@ export function Meter({ label, icon, value, color, hint }: { label: string; icon
 			{hint && (
 				<span className="meter-hint" tabIndex={0} role="note" aria-label={hint}>
 					<Icon name="help" size={12} />
-					<span className="meter-hint-tip" role="tooltip">{hint}</span>
+					<span className="meter-hint-tip" role="tooltip">
+						{hint}
+					</span>
 				</span>
 			)}
 		</div>
@@ -48,14 +72,15 @@ function DayTimer() {
 	// refreshes) leaves the clock stuck — so we keep our own anchor here and
 	// re-sync it only when the server's day actually moves.
 	const anchor = useRef<{ base: number; wall: number } | null>(null);
-	const dayIndex = snap?.dayIndex, dayProgress = snap?.dayProgress;
+	const dayIndex = snap?.dayIndex,
+		dayProgress = snap?.dayProgress;
 	useEffect(() => {
 		if (dayIndex == null || dayProgress == null) return;
 		anchor.current = { base: (dayIndex + dayProgress) * dayMs, wall: Date.now() };
 	}, [dayIndex, dayProgress, dayMs]);
 	if (!snap || !anchor.current) return null;
 	const now = anchor.current.base + (Date.now() - anchor.current.wall);
-	const progress = ((now % dayMs) + dayMs) % dayMs / dayMs;
+	const progress = (((now % dayMs) + dayMs) % dayMs) / dayMs;
 	const hour = Math.floor(progress * 24) % 24; // whole in-game hour, 0–23
 	// Star vs sun follows the real night band (data/weather.json), keyed off the
 	// displayed hour so the knob icon matches both the clock and the weather chip.
@@ -66,7 +91,9 @@ function DayTimer() {
 		<div className="hud-daytimer" title={t('app.hud.dayTimerTitle')}>
 			<div className={`daytimer-track ${night ? 'night' : ''}`}>
 				<div className="daytimer-fill" style={{ width: `${pct}%` }} />
-				<span className="daytimer-knob" style={{ left: `${pct}%` }}><Icon name={night ? 'star' : 'sun'} size={10} /></span>
+				<span className="daytimer-knob" style={{ left: `${pct}%` }}>
+					<Icon name={night ? 'star' : 'sun'} size={10} />
+				</span>
 			</div>
 			<span className="daytimer-label">{clock}</span>
 		</div>
@@ -74,7 +101,20 @@ function DayTimer() {
 }
 
 export function HUD() {
-	const { data, state, saveStatus, panel, setPanel, helpOpen, setHelpOpen, logout, placementObjectId, cancelPlacement, worlds, activeWorldId } = useGame();
+	const {
+		data,
+		state,
+		saveStatus,
+		panel,
+		setPanel,
+		helpOpen,
+		setHelpOpen,
+		logout,
+		placementObjectId,
+		cancelPlacement,
+		worlds,
+		activeWorldId,
+	} = useGame();
 	const { t, content } = useI18n();
 	const [prompt, setPrompt] = useState('');
 	// The top-right menu can be tucked away so it's out of the scene.
@@ -99,10 +139,13 @@ export function HUD() {
 
 	// indoors: show home info instead of biome health/animals
 	const isHome = area === 'home';
+	// inside a trail tent ('tent-<biome>'): a cozy header naming the biome it's pitched in
+	const tentBiome = area.startsWith('tent-') ? area.slice(5) : null;
+	const tentBiomeDef = tentBiome ? data.biomes.find((b) => b.id === tentBiome) : undefined;
 	const home = state.player.home;
 	const homeBuilt = !!home?.styleLocked;
-	const homeName = homeBuilt ? (data.homeStyles?.[home!.style]?.name || t('app.hud.yourHome')) : t('app.hud.canvasTent');
-	const homeCarry = data.homeTracks?.comfort?.levels?.[((home?.comfort) || 1) - 1]?.carry || 0;
+	const homeName = homeBuilt ? data.homeStyles?.[home!.style]?.name || t('app.hud.yourHome') : t('app.hud.canvasTent');
+	const homeCarry = data.homeTracks?.comfort?.levels?.[(home?.comfort || 1) - 1]?.carry || 0;
 	const homeDecor = state.placements.filter((p) => p.area === 'home').length;
 	// The house perk (and its current strength) + every upgrade track level, so
 	// the Your Home card shows all the buffs and upgrades you've earned.
@@ -161,80 +204,124 @@ export function HUD() {
 	return (
 		<>
 			<div className="hud-left-col">
-			<div className="hud-top-left">
-				{isHome ? (
-					<>
-						<div className="hud-area-name"><Icon name="home" size={17} /> {t('app.hud.yourHome')}</div>
-						<div className="hud-returned"><Icon name="sparkle" size={13} /> {homeName}{homeCarry > 0 ? t('app.hud.carrySuffix', { count: homeCarry }) : ''}</div>
-						<div className="hud-returned hud-returned-total"><Icon name="leaf" size={12} /> {t('app.hud.thingsPlaced', { count: homeDecor })}</div>
-						{homeBuilt && homePerk && (
-							<div className="hud-home-perk" title={t(`panels.home.perkBlurb.${homePerk.id}`, { pct: Math.round(homePerkStr * 100) })}>
-								<Icon name="sparkle" size={12} /> {t(`panels.home.perkName.${homePerk.id}`)} · {Math.round(homePerkStr * 100)}%
+				<div className="hud-top-left">
+					{isHome ? (
+						<>
+							<div className="hud-area-name">
+								<Icon name="home" size={17} /> {t('app.hud.yourHome')}
 							</div>
-						)}
-						{homeBuilt && (
-							<div className="hud-home-tracks">
-								{HOME_TRACK_ORDER.filter((k) => homeTrackDefs[k]).map((k) => (
-									<span key={k} className="hud-home-track" title={homeTrackDefs[k].name}>
-										{homeTrackDefs[k].name} {t('app.hud.trackLevel', { level: (home as any)?.[k] || 1 })}
-									</span>
-								))}
+							<div className="hud-returned">
+								<Icon name="sparkle" size={13} /> {homeName}
+								{homeCarry > 0 ? t('app.hud.carrySuffix', { count: homeCarry }) : ''}
 							</div>
-						)}
-					</>
-				) : (
-					<>
-						<div className="hud-area-name">
-							<Icon name="leaf" size={17} /> {biome ? content('biome', biome.id, 'name', biome.name) : t('app.hud.thePreserve')}
-							{isCoop && (
-								<button className="coop-badge" onClick={() => setPanel('people')} title={t('app.hud.coopBadgeTitle')}>
-									<Icon name="user" size={12} /> {t('app.hud.coop')}{peersHere > 0 ? t('app.hud.hereCount', { count: peersHere + 1 }) : ''}
-								</button>
+							<div className="hud-returned hud-returned-total">
+								<Icon name="leaf" size={12} /> {t('app.hud.thingsPlaced', { count: homeDecor })}
+							</div>
+							{homeBuilt && homePerk && (
+								<div
+									className="hud-home-perk"
+									title={t(`panels.home.perkBlurb.${homePerk.id}`, { pct: Math.round(homePerkStr * 100) })}
+								>
+									<Icon name="sparkle" size={12} /> {t(`panels.home.perkName.${homePerk.id}`)} ·{' '}
+									{Math.round(homePerkStr * 100)}%
+								</div>
 							)}
-						</div>
-						{state.weather && (() => {
-							const snap = state.weather;
-							const worldId = (state as any).worldId || state.player.id;
-							const wtId = liveWeatherType(worldId, area, snap);
-							const wt = weatherType(wtId);
-							const wtName = content('weather', wtId, 'name', wt.name);
-							const seasonId = liveSeason(snap);
-							const ss = seasonStyle(seasonId);
-							// Season/day-phase labels are data content (data/weather.json); overlay
-							// keys nest under weather.season.* / weather.dayPhase.* per the template.
-							const ssLabel = content('weather', `season.${seasonId}`, 'label', ss.label);
-							const phase = liveDayPhase(snap);
-							const ps = dayPhaseStyle(phase);
-							const psLabel = content('weather', `dayPhase.${phase}`, 'label', ps.label);
-							const phaseAccent: Record<string, string> = { dawn: '#e0913f', day: '#d9a13a', dusk: '#c96a3a', night: '#6274b4' };
-							const pAccent = phaseAccent[phase] || '#d9a13a';
-							const pIcon = phase === 'night' ? 'star' : 'sun';
-							return (
-								<div className="hud-weather" title={`${wtName} · ${ssLabel} · ${psLabel}`}>
-									<Icon name={wt.icon} size={13} /> {wtName}
-									<span className="hud-dayphase" style={{ color: pAccent, borderColor: pAccent }}><Icon name={pIcon} size={11} /> {psLabel}</span>
-									<span className="hud-season" style={{ color: ss.accent, borderColor: ss.accent }}>{ssLabel}</span>
+							{homeBuilt && (
+								<div className="hud-home-tracks">
+									{HOME_TRACK_ORDER.filter((k) => homeTrackDefs[k]).map((k) => (
+										<span key={k} className="hud-home-track" title={homeTrackDefs[k].name}>
+											{homeTrackDefs[k].name} {t('app.hud.trackLevel', { level: (home as any)?.[k] || 1 })}
+										</span>
+									))}
 								</div>
-							);
-						})()}
-						{state.weather && area !== 'home' && <DayTimer />}
-						{biome && bState && (
-							<>
-								<Meter label={t('app.hud.health')} icon="leaf" value={bState.health} color="#6aa253" hint={t('app.hud.healthHint')} />
-								<Meter label={t('app.hud.balance')} icon="scales" value={bState.balance} color="#5b9cab" hint={t('app.hud.balanceHint')} />
-								<div className="hud-returned">
-									<Icon name="paw" size={14} /> {t('app.hud.animalsReturned', { returned: bState.returnedCount, total: totalAnimals })}
-								</div>
-								<div className="hud-returned hud-returned-total">
-									<Icon name="paw" size={12} /> {t('app.hud.acrossPreserve', { returned: returnedAll, total: allAnimals })}
-								</div>
-							</>
-						)}
-					</>
-				)}
-			</div>
-			{/* Today's tasks sit right under the biome card, out of the toasts' way. */}
-			<TasksWidget />
+							)}
+						</>
+					) : (
+						<>
+							<div className="hud-area-name">
+								<Icon name={tentBiome ? 'home' : 'leaf'} size={17} />{' '}
+								{tentBiome
+									? t('app.hud.trailTent', {
+											biome: tentBiomeDef ? content('biome', tentBiomeDef.id, 'name', tentBiomeDef.name) : tentBiome,
+										})
+									: biome
+										? content('biome', biome.id, 'name', biome.name)
+										: t('app.hud.thePreserve')}
+								{isCoop && (
+									<button className="coop-badge" onClick={() => setPanel('people')} title={t('app.hud.coopBadgeTitle')}>
+										<Icon name="user" size={12} /> {t('app.hud.coop')}
+										{peersHere > 0 ? t('app.hud.hereCount', { count: peersHere + 1 }) : ''}
+									</button>
+								)}
+							</div>
+							{state.weather &&
+								!tentBiome &&
+								(() => {
+									const snap = state.weather;
+									const worldId = (state as any).worldId || state.player.id;
+									const wtId = liveWeatherType(worldId, area, snap);
+									const wt = weatherType(wtId);
+									const wtName = content('weather', wtId, 'name', wt.name);
+									const seasonId = liveSeason(snap);
+									const ss = seasonStyle(seasonId);
+									// Season/day-phase labels are data content (data/weather.json); overlay
+									// keys nest under weather.season.* / weather.dayPhase.* per the template.
+									const ssLabel = content('weather', `season.${seasonId}`, 'label', ss.label);
+									const phase = liveDayPhase(snap);
+									const ps = dayPhaseStyle(phase);
+									const psLabel = content('weather', `dayPhase.${phase}`, 'label', ps.label);
+									const phaseAccent: Record<string, string> = {
+										dawn: '#e0913f',
+										day: '#d9a13a',
+										dusk: '#c96a3a',
+										night: '#6274b4',
+									};
+									const pAccent = phaseAccent[phase] || '#d9a13a';
+									const pIcon = phase === 'night' ? 'star' : 'sun';
+									return (
+										<div className="hud-weather" title={`${wtName} · ${ssLabel} · ${psLabel}`}>
+											<Icon name={wt.icon} size={13} /> {wtName}
+											<span className="hud-dayphase" style={{ color: pAccent, borderColor: pAccent }}>
+												<Icon name={pIcon} size={11} /> {psLabel}
+											</span>
+											<span className="hud-season" style={{ color: ss.accent, borderColor: ss.accent }}>
+												{ssLabel}
+											</span>
+										</div>
+									);
+								})()}
+							{state.weather && area !== 'home' && !tentBiome && <DayTimer />}
+							{biome && bState && (
+								<>
+									<Meter
+										label={t('app.hud.health')}
+										icon="leaf"
+										value={bState.health}
+										color="#6aa253"
+										hint={t('app.hud.healthHint')}
+									/>
+									<Meter
+										label={t('app.hud.balance')}
+										icon="scales"
+										value={bState.balance}
+										color="#5b9cab"
+										hint={t('app.hud.balanceHint')}
+									/>
+									<div className="hud-returned">
+										<Icon name="paw" size={14} />{' '}
+										{t('app.hud.animalsReturned', { returned: bState.returnedCount, total: totalAnimals })}
+									</div>
+									<div className="hud-returned hud-returned-total">
+										<Icon name="paw" size={12} />{' '}
+										{t('app.hud.acrossPreserve', { returned: returnedAll, total: allAnimals })}
+									</div>
+								</>
+							)}
+						</>
+					)}
+				</div>
+				{/* Today's tasks sit right under the biome card, out of the toasts' way. */}
+				<TasksWidget />
 			</div>
 
 			<div className={`hud-top-right ${navOpen ? '' : 'nav-collapsed'}`}>
@@ -255,52 +342,69 @@ export function HUD() {
 						<span>{t('app.hud.retry')}</span>
 					</span>
 				)}
-				{navOpen && (<>
-				{/* Buttons are grouped by purpose so the toolbar reads as a few small
+				{navOpen && (
+					<>
+						{/* Buttons are grouped by purpose so the toolbar reads as a few small
 				    clusters rather than one long row: Learn (what you've discovered),
 				    Build (your stuff & upgrades), World (places & people), System. */}
-				<div className="nav-group" role="group" aria-label={t('app.hud.groupLearn')}>
-					<span className="nav-group-label">{t('app.hud.groupLearn')}</span>
-					<div className="nav-group-btns">
-						{show.journal && navBtn('journal', 'journal', t('app.hud.navJournal'), 'J')}
-						{show.achievements && navBtn('achievements', 'star', t('app.hud.navAchievements'), 'K')}
-						{show.feed && navBtn('feed', 'chat', t('app.hud.navFeed'), 'F')}
-					</div>
-				</div>
-				<div className="nav-group" role="group" aria-label={t('app.hud.groupBuild')}>
-					<span className="nav-group-label">{t('app.hud.groupBuild')}</span>
-					<div className="nav-group-btns">
-						{show.inventory && navBtn('inventory', 'basket', t('app.hud.navInventory'), 'B')}
-						{show.crafting && navBtn('crafting', 'hammer', t('app.hud.navCrafting'), 'C')}
-						{show.tools && navBtn('tools', 'tools', t('app.hud.navTools'), 'T')}
-						{navBtn('goals', 'target', t('app.hud.navGoals'), 'G')}
-					</div>
-				</div>
-				<div className="nav-group" role="group" aria-label={t('app.hud.groupWorld')}>
-					<span className="nav-group-label">{t('app.hud.groupWorld')}</span>
-					<div className="nav-group-btns">
-						{show.biomes && navBtn('biomes', 'map', t('app.hud.navBiomes'), 'M')}
-						{show.weather && navBtn('weather', 'cloud', t('app.hud.navWeather'), 'N')}
-						{isCoop && navBtn('people', 'user', t('app.hud.navPeople'), 'U')}
-					</div>
-				</div>
-				<div className="nav-group nav-group-system" role="group" aria-label={t('app.hud.groupSystem')}>
-					<span className="nav-group-label">{t('app.hud.groupSystem')}</span>
-					<div className="nav-group-btns">
-						<button className={`icon-btn ${panel === 'settings' ? 'on' : ''}`} onClick={() => toggle('settings')} title={t('app.hud.settingsTitle')} aria-label={t('app.hud.settings')}>
-							<Icon name="gear" />
-							<span className="nav-key">O</span>
-						</button>
-						<button className={`icon-btn ${helpOpen ? 'on' : ''}`} onClick={() => setHelpOpen(!helpOpen)} title={t('app.hud.howToPlayTitle')} aria-label={t('app.hud.howToPlay')}>
-							<Icon name="help" />
-							<span className="nav-key">H</span>
-						</button>
-						<button className="icon-btn subtle" onClick={logout} title={t('app.hud.saveQuitTitle', { name: state.player.name })} aria-label={t('app.hud.saveQuit')}>
-							<Icon name="logout" />
-						</button>
-					</div>
-				</div>
-				</>)}
+						<div className="nav-group" role="group" aria-label={t('app.hud.groupLearn')}>
+							<span className="nav-group-label">{t('app.hud.groupLearn')}</span>
+							<div className="nav-group-btns">
+								{show.journal && navBtn('journal', 'journal', t('app.hud.navJournal'), 'J')}
+								{show.achievements && navBtn('achievements', 'star', t('app.hud.navAchievements'), 'K')}
+								{show.feed && navBtn('feed', 'chat', t('app.hud.navFeed'), 'F')}
+							</div>
+						</div>
+						<div className="nav-group" role="group" aria-label={t('app.hud.groupBuild')}>
+							<span className="nav-group-label">{t('app.hud.groupBuild')}</span>
+							<div className="nav-group-btns">
+								{show.inventory && navBtn('inventory', 'basket', t('app.hud.navInventory'), 'B')}
+								{show.crafting && navBtn('crafting', 'hammer', t('app.hud.navCrafting'), 'C')}
+								{show.tools && navBtn('tools', 'tools', t('app.hud.navTools'), 'T')}
+								{navBtn('goals', 'target', t('app.hud.navGoals'), 'G')}
+							</div>
+						</div>
+						<div className="nav-group" role="group" aria-label={t('app.hud.groupWorld')}>
+							<span className="nav-group-label">{t('app.hud.groupWorld')}</span>
+							<div className="nav-group-btns">
+								{show.biomes && navBtn('biomes', 'map', t('app.hud.navBiomes'), 'M')}
+								{show.weather && navBtn('weather', 'cloud', t('app.hud.navWeather'), 'N')}
+								{isCoop && navBtn('people', 'user', t('app.hud.navPeople'), 'U')}
+							</div>
+						</div>
+						<div className="nav-group nav-group-system" role="group" aria-label={t('app.hud.groupSystem')}>
+							<span className="nav-group-label">{t('app.hud.groupSystem')}</span>
+							<div className="nav-group-btns">
+								<button
+									className={`icon-btn ${panel === 'settings' ? 'on' : ''}`}
+									onClick={() => toggle('settings')}
+									title={t('app.hud.settingsTitle')}
+									aria-label={t('app.hud.settings')}
+								>
+									<Icon name="gear" />
+									<span className="nav-key">O</span>
+								</button>
+								<button
+									className={`icon-btn ${helpOpen ? 'on' : ''}`}
+									onClick={() => setHelpOpen(!helpOpen)}
+									title={t('app.hud.howToPlayTitle')}
+									aria-label={t('app.hud.howToPlay')}
+								>
+									<Icon name="help" />
+									<span className="nav-key">H</span>
+								</button>
+								<button
+									className="icon-btn subtle"
+									onClick={logout}
+									title={t('app.hud.saveQuitTitle', { name: state.player.name })}
+									aria-label={t('app.hud.saveQuit')}
+								>
+									<Icon name="logout" />
+								</button>
+							</div>
+						</div>
+					</>
+				)}
 			</div>
 
 			{(placementObjectId || prompt) && (
@@ -308,11 +412,24 @@ export function HUD() {
 					{placementObjectId ? (
 						<span className="prompt-line">
 							<Icon name="pin" size={15} />
-							{t('app.hud.placing')} <b>{content('habitatObject', placementObjectId, 'name', data.habitatObjects.find((o) => o.id === placementObjectId)?.name || '')}</b> {t('app.hud.placingHint')}
-							<button className="link" onClick={cancelPlacement}>{t('app.hud.stopPlacing')}</button>
+							{t('app.hud.placing')}{' '}
+							<b>
+								{content(
+									'habitatObject',
+									placementObjectId,
+									'name',
+									data.habitatObjects.find((o) => o.id === placementObjectId)?.name || '',
+								)}
+							</b>{' '}
+							{t('app.hud.placingHint')}
+							<button className="link" onClick={cancelPlacement}>
+								{t('app.hud.stopPlacing')}
+							</button>
 						</span>
 					) : (
-						<span className="prompt-line"><Icon name="sparkle" size={15} /> {prompt}</span>
+						<span className="prompt-line">
+							<Icon name="sparkle" size={15} /> {prompt}
+						</span>
 					)}
 				</div>
 			)}

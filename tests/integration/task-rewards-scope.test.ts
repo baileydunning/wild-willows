@@ -18,7 +18,9 @@ const resByBiome: Record<string, Set<string>> = Object.fromEntries(
 );
 
 let w: World;
-beforeEach(async () => { w = await freshWorld(); });
+beforeEach(async () => {
+	w = await freshWorld();
+});
 
 describe('daily tasks stay scoped to personally-unlocked biomes', () => {
 	it('a diverged-world save with extra world-unlocked biomes still only rewards personal biomes', async () => {
@@ -28,11 +30,22 @@ describe('daily tasks stay scoped to personally-unlocked biomes', () => {
 		// wetland unlocked, but the PLAYER personally unlocked only the meadow.
 		const NEWW = 'shared-world';
 		const p = w.db.Player._rows.get(pid);
-		w.db.Player._rows.set(pid, { ...p, worldId: NEWW, unlockedBiomes: ['meadow'], createdAt: Date.now() - 5 * 86400000 });
+		w.db.Player._rows.set(pid, {
+			...p,
+			worldId: NEWW,
+			unlockedBiomes: ['meadow'],
+			createdAt: Date.now() - 5 * 86400000,
+		});
 		for (const b of ['meadow', 'forest', 'wetland']) {
 			w.db.BiomeState._rows.set(`${NEWW}:${b}`, {
-				id: `${NEWW}:${b}`, worldId: NEWW, playerId: pid, biomeId: b,
-				unlocked: true, health: 40, balance: 10, returnedCount: 3,
+				id: `${NEWW}:${b}`,
+				worldId: NEWW,
+				playerId: pid,
+				biomeId: b,
+				unlocked: true,
+				health: 40,
+				balance: 10,
+				returnedCount: 3,
 			});
 		}
 
@@ -55,8 +68,14 @@ describe('daily tasks stay scoped to personally-unlocked biomes', () => {
 		w.db.Player._rows.set(pid, { ...p, worldId: NEWW, unlockedBiomes: ['meadow'] });
 		for (const b of ['meadow', 'forest', 'wetland']) {
 			w.db.BiomeState._rows.set(`${NEWW}:${b}`, {
-				id: `${NEWW}:${b}`, worldId: NEWW, playerId: pid, biomeId: b,
-				unlocked: true, health: 40, balance: 10, returnedCount: 3,
+				id: `${NEWW}:${b}`,
+				worldId: NEWW,
+				playerId: pid,
+				biomeId: b,
+				unlocked: true,
+				health: 40,
+				balance: 10,
+				returnedCount: 3,
 			});
 		}
 

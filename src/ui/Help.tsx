@@ -35,25 +35,32 @@ export function HelpModal() {
 		<div className="panel-backdrop help-backdrop" onClick={() => setHelpOpen(false)}>
 			<div className="panel panel-wide" onClick={(e) => e.stopPropagation()}>
 				<div className="panel-head">
-					<h2><Icon name="help" size={20} /> {t('panels.help.title')}</h2>
+					<h2>
+						<Icon name="help" size={20} /> {t('panels.help.title')}
+					</h2>
 					<div className="help-head-actions">
 						{state && (
 							<button className="help-replay-btn" onClick={replay} title={t('panels.help.replayTitle')}>
 								<Icon name="play" size={14} /> {t('panels.help.replay')}
 							</button>
 						)}
-						<button className="icon-btn" onClick={() => setHelpOpen(false)} aria-label={t('panels.common.close')}><Icon name="close" /></button>
+						<button className="icon-btn" onClick={() => setHelpOpen(false)} aria-label={t('panels.common.close')}>
+							<Icon name="close" />
+						</button>
 					</div>
 				</div>
 				<div className="panel-body">
-					<p className="help-intro">
-						{t('panels.help.intro')}
-					</p>
-					<div className="help-section-label"><Icon name="leaf" size={15} /> {t('panels.help.loopLabel')}</div>
+					<p className="help-intro">{t('panels.help.intro')}</p>
+					<div className="help-section-label">
+						<Icon name="leaf" size={15} /> {t('panels.help.loopLabel')}
+					</div>
 					<div className="help-steps">
 						{STEPS.map((s, i) => (
 							<div className="help-step" key={s.key}>
-								<div className="help-step-icon"><Icon name={s.icon} size={22} /><span className="step-num">{i + 1}</span></div>
+								<div className="help-step-icon">
+									<Icon name={s.icon} size={22} />
+									<span className="step-num">{i + 1}</span>
+								</div>
 								<div>
 									<b>{t(`panels.help.loop.${s.key}.title`)}</b>
 									<p>{t(`panels.help.loop.${s.key}.text`)}</p>
@@ -61,7 +68,9 @@ export function HelpModal() {
 							</div>
 						))}
 					</div>
-					<div className="help-section-label"><Icon name="keyboard" size={15} /> {t('panels.help.keysLabel')}</div>
+					<div className="help-section-label">
+						<Icon name="keyboard" size={15} /> {t('panels.help.keysLabel')}
+					</div>
 					<div className="key-list">
 						{keys.map((k) => (
 							<div className="key-row" key={k.does}>
