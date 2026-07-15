@@ -754,7 +754,33 @@ function freshMetrics(now: number) {
 		playSeconds: 0,
 		sessions: 0,
 		counts: {} as Record<string, number>,
+		// Dwell time per area (seconds), accrued from the heartbeat gap and
+		// attributed to whichever area the player is standing in.
+		areaSeconds: {} as Record<string, number>,
+		// Length of the in-progress session (seconds); rolled into sessionLengths
+		// when a new session begins, so we keep a distribution of session lengths.
+		curSessionSeconds: 0,
+		sessionLengths: {} as Record<string, number>,
+		// When the player first performed a real gameplay action (time-to-first-action).
+		firstActionAt: 0,
+		// How long character creation took, in ms (reported by the client at create).
+		creationMs: 0,
 	};
+}
+
+// Cosmetic / UI-fiddling counters — recorded in `counts` for engagement insight
+// but kept OUT of totalActions (and actionsPerMinute) so those stay a
+// gameplay-intensity signal. (Declared here so bumpMetrics can tell a real
+// gameplay action from cosmetic fiddling when stamping firstActionAt.)
+const META_COUNTERS = new Set(['recolors', 'appearanceChanges']);
+
+/** Session-length histogram bucket for a finished session. */
+function sessionBucket(seconds: number): string {
+	const m = seconds / 60;
+	if (m < 2) return '<2m';
+	if (m < 10) return '2-10m';
+	if (m < 30) return '10-30m';
+	return '30m+';
 }
 
 /**
@@ -780,6 +806,11 @@ async function bumpMetrics(player: any, deltas: Record<string, number> = {}, dai
 	const counts = { ...(prev.counts || {}) };
 	for (const [k, v] of entries) counts[k] = (counts[k] || 0) + v;
 	const metrics = { ...prev, counts, lastSeenAt: now };
+	// Stamp the first real gameplay action (cosmetic fiddling doesn't count), so
+	// the dashboard can measure onboarding friction (create → first action).
+	if (!prev.firstActionAt && entries.some(([k, v]) => v && !META_COUNTERS.has(k))) {
+		metrics.firstActionAt = now;
+	}
 	const patch: any = { metrics };
 	if (dailyEntries.length) {
 		const dayKey = playerDayKey(live, now);
@@ -812,11 +843,6 @@ function playerDayKey(player: any, at: number): number {
 }
 const round1 = (n: number) => Math.round(n * 10) / 10;
 
-// Cosmetic / UI-fiddling counters — recorded in `counts` for engagement insight
-// but kept OUT of totalActions (and actionsPerMinute) so those stay a
-// gameplay-intensity signal.
-const META_COUNTERS = new Set(['recolors', 'appearanceChanges']);
-
 function metricsView(player: any) {
 	const now = Date.now();
 	const m = player.metrics || freshMetrics(player.createdAt || now);
@@ -826,6 +852,16 @@ function metricsView(player: any) {
 	const totalActions = Object.entries(counts).reduce((a, [k, b]) => a + (META_COUNTERS.has(k) ? 0 : b || 0), 0);
 	const createdAt = player.createdAt || m.firstSeenAt || now;
 	const lastSeenAt = m.lastSeenAt || null;
+
+	// Dwell time per area, plus the area they've spent the most time in.
+	const areaSeconds: Record<string, number> = m.areaSeconds || {};
+	const areaMinutes: Record<string, number> = {};
+	for (const [a, s] of Object.entries(areaSeconds)) areaMinutes[a] = Math.round((s || 0) / 60);
+	const mostTimeArea = Object.entries(areaSeconds).sort((a, b) => (b[1] || 0) - (a[1] || 0))[0]?.[0] || null;
+	// Onboarding friction: how long from creating the save to the first action.
+	const firstActionAt = m.firstActionAt || 0;
+	const timeToFirstActionSeconds = firstActionAt ? round1((firstActionAt - createdAt) / 1000) : null;
+	const creationMs = m.creationMs || 0;
 
 	// Recency drives the engagement picture: how long ago did they last play,
 	// and how should we bucket them (active / recent / dormant).
@@ -861,6 +897,18 @@ function metricsView(player: any) {
 		tutorialStep: player.tutorialStep || 0,
 		currentArea: player.area || null,
 		unlockedBiomes: (player.unlockedBiomes || []).length,
+		// time-per-area
+		areaSeconds,
+		areaMinutes,
+		mostTimeArea,
+		// session-length distribution (finished sessions bucketed)
+		sessionLengths: m.sessionLengths || {},
+		// onboarding
+		timeToFirstActionSeconds,
+		// character creation: how long it took + the customization they chose
+		creationMs,
+		creationSeconds: creationMs ? round1(creationMs / 1000) : null,
+		appearance: player.appearance || null,
 		counts,
 	};
 }
@@ -1028,7 +1076,7 @@ function summarizeBiomes(rows: any[]) {
  * Returns the records just written, because conditional searches within the
  * same transaction will not see them yet.
  */
-async function createPlayerRecords(playerId: string, name: string, passcode: string, appearance: any, tzOffsetMinutes = 0): Promise<any> {
+async function createPlayerRecords(playerId: string, name: string, passcode: string, appearance: any, tzOffsetMinutes = 0, creationMs = 0): Promise<any> {
 	const t = db();
 	const d = await defs();
 	const now = Date.now();
@@ -1056,7 +1104,9 @@ async function createPlayerRecords(playerId: string, name: string, passcode: str
 		visitedBiomes: ['meadow'], // areas walked into at least once (enables fast-travel)
 		tutorialStep: 0,
 		home: { ...DEFAULT_HOME }, // your camp tent — upgrade it along four tracks, in two styles
-		metrics: freshMetrics(now),
+		// Stamp how long character creation took (reported by the client), so the
+		// dashboard can report average time-in-creator alongside the choices made.
+		metrics: { ...freshMetrics(now), creationMs: creationMs > 0 ? Math.round(creationMs) : 0 },
 		// The board always shows a live "Unlock the next biome" guidance goal, so a
 		// new player starts with no custom goals of their own yet.
 		customGoals: [],
@@ -2804,7 +2854,7 @@ export class GameData extends PublicEndpoint {
 /** POST /CreatePlayer/ {name, passcode, appearance} — start a brand-new save. */
 export class CreatePlayer extends PublicEndpoint {
 	async post(data: any) {
-		const { name, passcode, appearance, tzOffsetMinutes } = await bodyOf(data);
+		const { name, passcode, appearance, tzOffsetMinutes, creationMs } = await bodyOf(data);
 		const cleanName = String(name || '').trim();
 		if (cleanName.length < 2 || cleanName.length > 24) throw new GameError(tr('server.err.nameLength'));
 		const code = String(passcode || '');
@@ -2815,7 +2865,10 @@ export class CreatePlayer extends PublicEndpoint {
 		const existing = await safeGet(db().Player, playerId);
 		if (existing) throw new GameError(tr('server.err.saveExists'), 409);
 
-		const created = await createPlayerRecords(playerId, cleanName, code, sanitizeAppearance(appearance), sanitizeTzOffset(tzOffsetMinutes));
+		// Client reports how long the player spent in the character creator (ms),
+		// clamped to a sane range so a bad clock can't skew the average.
+		const cms = clamp(Math.round(Number(creationMs) || 0), 0, 60 * 60_000);
+		const created = await createPlayerRecords(playerId, cleanName, code, sanitizeAppearance(appearance), sanitizeTzOffset(tzOffsetMinutes), cms);
 		// World plumbing must never block starting a save: if the World/WorldMember
 		// tables aren't ready yet (instance not restarted after the schema change),
 		// fall back to a plain solo session so core play still works.
@@ -4414,11 +4467,26 @@ export class Heartbeat extends PublicEndpoint {
 
 		let playSeconds = prev.playSeconds || 0;
 		let sessions = prev.sessions || 0;
+		let curSessionSeconds = prev.curSessionSeconds || 0;
+		const areaSeconds: Record<string, number> = { ...(prev.areaSeconds || {}) };
+		const sessionLengths: Record<string, number> = { ...(prev.sessionLengths || {}) };
 		const newSession = last === 0 || gap > SESSION_GAP_MS;
 		if (newSession) {
+			// The previous session just ended — bucket its length into the histogram
+			// before starting the new one (nothing to bucket on the very first beat).
+			if (curSessionSeconds > 0) {
+				const b = sessionBucket(curSessionSeconds);
+				sessionLengths[b] = (sessionLengths[b] || 0) + 1;
+			}
+			curSessionSeconds = 0;
 			sessions += 1; // first beat of a new play session
 		} else {
-			playSeconds += Math.min(gap, MAX_BEAT_MS) / 1000;
+			const credit = Math.min(gap, MAX_BEAT_MS) / 1000;
+			playSeconds += credit;
+			curSessionSeconds += credit;
+			// Attribute the elapsed time to the area the player is currently in.
+			const area = player.area || 'unknown';
+			areaSeconds[area] = round1((areaSeconds[area] || 0) + credit);
 		}
 
 		const metrics = {
@@ -4428,6 +4496,9 @@ export class Heartbeat extends PublicEndpoint {
 			lastHeartbeatAt: now,
 			playSeconds: Math.round(playSeconds),
 			sessions,
+			curSessionSeconds: Math.round(curSessionSeconds),
+			areaSeconds,
+			sessionLengths,
 			...(lang ? { language: lang } : {}),
 		};
 		await t.Player.patch(playerId, { metrics });
@@ -4591,9 +4662,17 @@ export class Metrics extends PublicEndpoint {
 					activation: s.activation || {},
 					achievements: s.achievements || null,
 					biomeSummary: s.biomeSummary || { biomesUnlocked: 0, avgHealth: 0, biomesFullyRestored: 0, totalAnimalsReturned: 0 },
+					// new metric fields (defaulted so aggregation is safe on legacy rows)
+					areaSeconds: s.areaSeconds || {},
+					sessionLengths: s.sessionLengths || {},
+					creationMs: s.creationMs || 0,
+					creationSeconds: s.creationSeconds ?? (s.creationMs ? round1(s.creationMs / 1000) : null),
+					timeToFirstActionSeconds: s.timeToFirstActionSeconds ?? null,
+					appearance: s.appearance || null,
 					createdAt,
 					lastSeenAt,
 					hoursSinceActive,
+					minutesSinceActive: lastSeenAt ? round1((now - lastSeenAt) / 60_000) : null,
 					status,
 					daysSinceJoined: Math.floor((now - createdAt) / DAY_MS),
 					isNewToday: now - createdAt <= DAY_MS,
@@ -4629,8 +4708,11 @@ export class Metrics extends PublicEndpoint {
 		const totalSessions = all.reduce((acc, v) => acc + v.sessions, 0);
 		const totalActions = all.reduce((acc, v) => acc + v.totalActions, 0);
 
-		// Audience buckets by recency.
+		// Audience buckets by recency. `activeNow` counts saves seen in the last 5
+		// minutes — note solo saves uplink every ~3 min, so that's the practical
+		// freshness floor for "playing right now".
 		const audience = {
+			activeNow: all.filter((v) => v.minutesSinceActive != null && v.minutesSinceActive <= 5).length,
 			activeLast24h: all.filter((v) => v.status === 'active').length,
 			activeLast7d: all.filter((v) => v.status === 'active' || v.status === 'recent').length,
 			dormant: all.filter((v) => v.status === 'dormant').length,
@@ -4709,6 +4791,86 @@ export class Metrics extends PublicEndpoint {
 			completionHistogram,
 		};
 
+		// Time-per-area: sum every save's dwell time, so you can see where players
+		// actually spend their sessions (and the single most-lived-in area).
+		const areaSecondsTotals: Record<string, number> = {};
+		for (const v of all) {
+			for (const [a, sec] of Object.entries(v.areaSeconds || {})) areaSecondsTotals[a] = (areaSecondsTotals[a] || 0) + (sec as number);
+		}
+		const totalAreaSeconds = Object.values(areaSecondsTotals).reduce((a, b) => a + b, 0);
+		const areaMinutesTotals: Record<string, number> = {};
+		for (const [a, sec] of Object.entries(areaSecondsTotals)) areaMinutesTotals[a] = Math.round(sec / 60);
+		const areaDwell = {
+			totalSeconds: Math.round(totalAreaSeconds),
+			byAreaSeconds: areaSecondsTotals,
+			byAreaMinutes: areaMinutesTotals,
+			mostTimeArea: Object.entries(areaSecondsTotals).sort((a, b) => b[1] - a[1])[0]?.[0] || null,
+		};
+
+		// Session-length distribution: sum each save's finished-session histogram.
+		const sessionLengthDistribution: Record<string, number> = { '<2m': 0, '2-10m': 0, '10-30m': 0, '30m+': 0 };
+		for (const v of all) {
+			for (const [b, n] of Object.entries(v.sessionLengths || {})) sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + (n as number);
+		}
+
+		// Character creation: how long people spend in the creator (across saves).
+		const withCreation = all.filter((v) => (v.creationMs || 0) > 0);
+		const creation = {
+			savesWithTiming: withCreation.length,
+			avgCreationSeconds: withCreation.length ? round1(withCreation.reduce((a, v) => a + v.creationMs, 0) / withCreation.length / 1000) : 0,
+			medianCreationSeconds: withCreation.length
+				? round1([...withCreation].map((v) => v.creationMs).sort((a, b) => a - b)[Math.floor(withCreation.length / 2)] / 1000)
+				: 0,
+		};
+
+		// Customization popularity: which appearance options players actually pick.
+		const appTally: Record<string, Record<string, number>> = {};
+		const bump = (field: string, val: any) => {
+			if (val == null || val === '') return;
+			const key = String(val);
+			(appTally[field] ||= {})[key] = (appTally[field][key] || 0) + 1;
+		};
+		for (const v of all) {
+			const a = v.appearance;
+			if (!a) continue;
+			bump('skin', a.skin); bump('hair', a.hair); bump('outfit', a.outfit);
+			bump('hat', a.hat); bump('hatColor', a.hatColor); bump('hairstyle', a.hairstyle);
+			bump('beard', a.beard); bump('body', a.body);
+		}
+		const appearancePopularity = { savesWithAppearance: all.filter((v) => v.appearance).length, choices: appTally };
+
+		// Onboarding friction: how long from creating a save to the first action.
+		const withTTFA = all.filter((v) => v.timeToFirstActionSeconds != null);
+		const timeToFirstAction = {
+			playersMeasured: withTTFA.length,
+			avgSeconds: withTTFA.length ? round1(withTTFA.reduce((a, v) => a + v.timeToFirstActionSeconds, 0) / withTTFA.length) : 0,
+		};
+
+		// Acquisition funnel — from the per-device AppOpen table, so it counts
+		// people who opened the app but never made a character (bounced), and how
+		// many characters each person creates. Independent of ?exclude (device-scoped).
+		let openRows: any[] = [];
+		try { openRows = await allOf(t.AppOpen); } catch { /* AppOpen table not created yet */ }
+		const devices = openRows.length;
+		const convertedDevices = openRows.filter((o) => o.converted).length;
+		const withCreatorTime = openRows.filter((o) => (o.creationMs || 0) > 0);
+		const totalCharacters = openRows.reduce((a, o) => a + (o.savesCreated || 0), 0);
+		const savesPerPersonHistogram: Record<string, number> = {};
+		for (const o of openRows) { const k = String(o.savesCreated || 0); savesPerPersonHistogram[k] = (savesPerPersonHistogram[k] || 0) + 1; }
+		const acquisition = {
+			devices,
+			totalOpens: openRows.reduce((a, o) => a + (o.opens || 0), 0),
+			converted: convertedDevices,
+			bounced: devices - convertedDevices,
+			conversionPct: devices ? Math.round((convertedDevices / devices) * 100) : 0,
+			bounceRatePct: devices ? Math.round(((devices - convertedDevices) / devices) * 100) : 0,
+			avgCreatorSeconds: withCreatorTime.length ? round1(withCreatorTime.reduce((a, o) => a + o.creationMs, 0) / withCreatorTime.length / 1000) : 0,
+			totalCharactersCreated: totalCharacters,
+			avgCharactersPerPerson: devices ? round1(totalCharacters / devices) : 0,
+			avgCharactersPerConverted: convertedDevices ? round1(totalCharacters / convertedDevices) : 0,
+			charactersPerPersonHistogram: savesPerPersonHistogram,
+		};
+
 		return {
 			generatedAt: now,
 			source: 'solo-metrics',
@@ -4742,6 +4904,12 @@ export class Metrics extends PublicEndpoint {
 					mostPopularArea,
 					tutorialStepHistogram: tutorialTally,
 				},
+				areaDwell,
+				sessionLengthDistribution,
+				creation,
+				appearancePopularity,
+				timeToFirstAction,
+				acquisition,
 				funnel,
 				funnelPct,
 				actionTotals,
@@ -5370,6 +5538,55 @@ export class SyncMetrics extends PublicEndpoint {
 			updatedAt: Date.now(),
 		});
 		dashboardCache = null; // new data landed — force the next dashboard read to rebuild
+		return { ok: true };
+	}
+}
+
+// ---------------------------------------------------------------- app-open funnel
+// Acquisition tracking that does NOT need a save to exist: the client pings this
+// the moment the app opens (phase "open") and again once a character is created
+// (phase "created"). Rows are keyed per install/device, so /Metrics/ can report
+// how many people opened the app, how many created a character (vs bounced), the
+// average time spent in the creator, and how many characters each person makes.
+
+/**
+ * POST /AppOpen/ {deviceId, phase?, platform?, os?, version?, language?, creationMs?}
+ *   phase "open"    — app launched (counted toward opens)
+ *   phase "created" — a character was just created (marks the device converted,
+ *                     bumps savesCreated, and records the creator time)
+ * Upserts one row per device. Best-effort; safe to point analytics at.
+ */
+export class AppOpen extends PublicEndpoint {
+	async post(data: any) {
+		const body = await bodyOf(data);
+		const deviceId = String(body.deviceId || '').trim().slice(0, 64);
+		if (!deviceId) throw new GameError(tr('server.err.deviceIdRequired'));
+		const phase = body.phase === 'created' ? 'created' : 'open';
+		const now = Date.now();
+		const t = db();
+		const id = `dev:${deviceId}`;
+		const existing = await safeGet(t.AppOpen, id);
+		const cms = clamp(Math.round(Number(body.creationMs) || 0), 0, 60 * 60_000);
+		await t.AppOpen.put({
+			id,
+			deviceId,
+			platform: String(body.platform || '').slice(0, 20) || existing?.platform || null,
+			os: String(body.os || '').slice(0, 20) || existing?.os || null,
+			version: String(body.version || '').slice(0, 24) || existing?.version || null,
+			language: String(body.language || '').trim().toLowerCase().slice(0, 12) || existing?.language || null,
+			firstOpenAt: existing?.firstOpenAt || now,
+			lastOpenAt: now,
+			// Count real app launches; a "created" ping shouldn't inflate opens.
+			opens: (existing?.opens || 0) + (phase === 'open' ? 1 : 0),
+			converted: existing?.converted || phase === 'created',
+			firstConvertedAt: existing?.firstConvertedAt || (phase === 'created' ? now : 0),
+			// How many characters this person has created.
+			savesCreated: (existing?.savesCreated || 0) + (phase === 'created' ? 1 : 0),
+			// Keep the most recent creator time we've seen for this device.
+			creationMs: phase === 'created' && cms > 0 ? cms : (existing?.creationMs || 0),
+			updatedAt: now,
+		});
+		dashboardCache = null; // acquisition numbers changed — rebuild the dashboard
 		return { ok: true };
 	}
 }

@@ -3,7 +3,7 @@
 
 import Phaser from 'phaser';
 import { bridge } from './bridge';
-import { hatPalette, flowerPalette, hatCoversHair } from '../color';
+import { hatPalette, flowerPalette } from '../color';
 
 const C = (hex: string) => Phaser.Display.Color.HexStringToColor(hex).color;
 
@@ -2803,9 +2803,6 @@ export function makePlayerTexture(
 	tex(scene, key, 32, 36, (g) => {
 		const skin = C(a.skin), hair = C(a.hair), outfit = C(a.outfit);
 		const hp = hatPalette(a.hat, a.hatColor); // classic or custom-tinted hat tones
-		// full hats tuck big hairstyles flat so the hat sits ON the hair, not in it
-		// (playtest: caps looked sunken inside afros/curls)
-		const covered = hatCoversHair(a.hat);
 		const bw = a.body === 'round' ? 21 : 17; // body width by build
 		// long styles fall behind the body
 		if (a.hairstyle === 'long') {
@@ -2822,10 +2819,7 @@ export function makePlayerTexture(
 			g.fillStyle(hair, 1).fillEllipse(8, 11, 6, 7).fillEllipse(6, 19, 6, 12).fillEllipse(24, 11, 6, 7).fillEllipse(26, 19, 6, 12);
 		}
 		if (a.hairstyle === 'afro') {
-			// under a full hat the afro sits lower and smaller, puffing out around
-			// the brim instead of towering above it
-			if (covered) g.fillStyle(hair, 1).fillCircle(16, 13, 9.4);
-			else g.fillStyle(hair, 1).fillCircle(16, 11, 11.5);
+			g.fillStyle(hair, 1).fillCircle(16, 11, 11.5);
 		}
 		if (a.hairstyle === 'bob') {
 			g.fillStyle(hair, 1).fillEllipse(9.5, 14, 6.5, 11).fillEllipse(22.5, 14, 6.5, 11);
@@ -2844,12 +2838,7 @@ export function makePlayerTexture(
 		g.fillStyle(skin, 1).fillCircle(16, 12, 8.4);
 		// hairstyle fringe / volume
 		g.fillStyle(hair, 1);
-		if (a.hairstyle === 'bald') {
-			// no hair at all
-		} else if (covered && ['curly', 'curly-long', 'afro', 'mohawk'].includes(a.hairstyle)) {
-			// volume styles flatten to the standard fringe under a covering hat
-			g.fillEllipse(16, 7.4, 15, 7);
-		} else if (a.hairstyle === 'curly' || a.hairstyle === 'curly-long') {
+		if (a.hairstyle === 'curly' || a.hairstyle === 'curly-long') {
 			g.fillCircle(10, 8, 4).fillCircle(15, 6, 4.4).fillCircle(21, 8, 4).fillCircle(8, 12, 3).fillCircle(24, 12, 3);
 		} else if (a.hairstyle === 'afro') {
 			g.fillCircle(10, 7, 4.4).fillCircle(15, 5, 4.8).fillCircle(21, 7, 4.4).fillCircle(7, 12, 3.4).fillCircle(25, 12, 3.4);
@@ -2857,6 +2846,8 @@ export function makePlayerTexture(
 			g.fillTriangle(12.5, 9, 14, 1.5, 15.5, 9);
 			g.fillTriangle(15, 9, 16, 0, 17, 9);
 			g.fillTriangle(16.5, 9, 18, 1.5, 19.5, 9);
+		} else if (a.hairstyle === 'bald') {
+			// no hair at all
 		} else {
 			g.fillEllipse(16, 7.4, 15, 7);
 		}

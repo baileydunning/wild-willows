@@ -3,6 +3,7 @@ import { api, forgetSave, getPlayerId, lastSave, rememberSave, setPlayerId, star
 import { flushFeedbackQueue } from './feedback';
 import { t, content, onLocaleChange } from './i18n';
 import { pokeMetricsUplink } from './solo/metricsUplink';
+import { reportCharacterCreated } from './solo/appOpen';
 import { bridge } from './game/bridge';
 import { unlockedRecipeIds } from './recipes';
 import { narrativeBeats, nextFeedFact, healthMilestoneLine, HEALTH_THRESHOLDS } from './ui/narrative';
@@ -50,11 +51,11 @@ interface Ctx {
 	terraform: (area: string, x: number, y: number, action: 'dig' | 'water' | 'clear') => Promise<void>;
 	plant: (area: string, x: number, y: number, plantId: string) => Promise<void>;
 	setTutorialStep: (step: number) => void;
-	startNew: (name: string, passcode: string, appearance: Appearance) => Promise<void>;
+	startNew: (name: string, passcode: string, appearance: Appearance, creationMs?: number) => Promise<void>;
 	startLogin: (name: string, passcode: string) => Promise<void>;
 	continueLast: (mode?: 'solo' | 'coop') => Promise<void>;
 	// Desktop solo: no passcode, local save slots.
-	startNewSolo: (name: string, appearance: Appearance) => Promise<void>;
+	startNewSolo: (name: string, appearance: Appearance, creationMs?: number) => Promise<void>;
 	loadSoloSlot: (slotId: string) => Promise<void>;
 	logout: () => void;
 	refresh: () => Promise<void>;
@@ -88,7 +89,7 @@ interface Ctx {
 	// Join carries the request token (sent at the code step) + the world it's for.
 	startNewCoop: (
 		name: string, passcode: string, appearance: Appearance,
-		opts: { mode: 'host' | 'join'; worldName?: string; code?: string; token?: string; joinWorldId?: string; hostName?: string },
+		opts: { mode: 'host' | 'join'; worldName?: string; code?: string; token?: string; joinWorldId?: string; hostName?: string; creationMs?: number },
 	) => Promise<void>;
 	refreshWorlds: () => Promise<void>;
 	// join waiting room (joiner side)
@@ -419,18 +420,20 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
 	// ---- session starters (welcome screens) ----
 	// Solo: your own private preserve.
-	const startNew = useCallback(async (name: string, passcode: string, appearance: Appearance) => {
-		const r = await api.createPlayer(name, passcode, appearance);
+	const startNew = useCallback(async (name: string, passcode: string, appearance: Appearance, creationMs = 0) => {
+		const r = await api.createPlayer(name, passcode, appearance, creationMs);
 		setPlayerId(r.playerId);
 		rememberSave(r.playerId, r.state.player.name, 'solo');
 		applyWorlds(r.worlds || [], r.worldId || r.playerId);
 		adoptState(r.state);
+		reportCharacterCreated(creationMs); // acquisition funnel: opens → character created
 	}, [adoptState, applyWorlds]);
 
 	// Desktop solo: no passcode, no server. Start a fresh save in the in-app
 	// backend (writes a local slot), or load an existing slot back into play.
-	const startNewSolo = useCallback(async (name: string, appearance: Appearance) => {
-		const { playerId, state } = await startSoloGame(name, appearance);
+	const startNewSolo = useCallback(async (name: string, appearance: Appearance, creationMs = 0) => {
+		const { playerId, state } = await startSoloGame(name, appearance, creationMs);
+		reportCharacterCreated(creationMs); // acquisition funnel: opens → character created
 		try {
 			const w = await api.myWorlds();
 			applyWorlds(w.worlds || [], w.activeWorldId || playerId);
@@ -458,11 +461,12 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	// exactly one world, chosen here at New Game; there's no spinning up more later.
 	const startNewCoop = useCallback(async (
 		name: string, passcode: string, appearance: Appearance,
-		opts: { mode: 'host' | 'join'; worldName?: string; code?: string; token?: string; joinWorldId?: string; hostName?: string },
+		opts: { mode: 'host' | 'join'; worldName?: string; code?: string; token?: string; joinWorldId?: string; hostName?: string; creationMs?: number },
 	) => {
-		const r = await api.createPlayer(name, passcode, appearance);
+		const r = await api.createPlayer(name, passcode, appearance, opts.creationMs || 0);
 		setPlayerId(r.playerId);
 		rememberSave(r.playerId, r.state.player.name, 'coop');
+		reportCharacterCreated(opts.creationMs || 0); // acquisition funnel: opens → character created
 		if (opts.mode === 'join') {
 			// The request was already sent at the code step. Try to enter now; if the
 			// host hasn't approved yet, drop into the waiting room until they do.

@@ -278,6 +278,13 @@ export function WelcomeScreen() {
 		body: 'slim',
 	});
 
+	// How long the player spends in the character creator — measured from when the
+	// creator opens to when they submit, and reported with the new save so the
+	// metrics dashboard can show average time-in-creation and the choices made.
+	const creationStartRef = useRef<number>(0);
+	useEffect(() => { if (mode === 'new') creationStartRef.current = Date.now(); }, [mode]);
+	const creatorMs = () => (creationStartRef.current ? Date.now() - creationStartRef.current : 0);
+
 	// The New Game creator opens with an empty name field — naming yourself is
 	// part of the fun. The dice button is the only thing that rolls a random
 	// caretaker name (see randomizeAppearance's onClick below).
@@ -450,10 +457,11 @@ export function WelcomeScreen() {
 						className="creator"
 						onSubmit={(e) => {
 							e.preventDefault();
-							if (soloLocal) run(() => startNewSolo(name, appearance));
-							else if (!coop) run(() => startNew(name, passcode, appearance));
-							else if (coopKind === 'host') run(() => startNewCoop(name, passcode, appearance, { mode: 'host' }));
-							else if (joinCtx) run(() => startNewCoop(name, passcode, appearance, { mode: 'join', code: joinCtx.code, token: joinCtx.token, joinWorldId: joinCtx.worldId, worldName: joinCtx.worldName, hostName: joinCtx.hostName }));
+							const creationMs = creatorMs();
+							if (soloLocal) run(() => startNewSolo(name, appearance, creationMs));
+							else if (!coop) run(() => startNew(name, passcode, appearance, creationMs));
+							else if (coopKind === 'host') run(() => startNewCoop(name, passcode, appearance, { mode: 'host', creationMs }));
+							else if (joinCtx) run(() => startNewCoop(name, passcode, appearance, { mode: 'join', code: joinCtx.code, token: joinCtx.token, joinWorldId: joinCtx.worldId, worldName: joinCtx.worldName, hostName: joinCtx.hostName, creationMs }));
 						}}
 					>
 						{COOP_ENABLED && (

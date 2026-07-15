@@ -107,11 +107,11 @@ async function dispatch(path: string, method: string, body?: any): Promise<SoloR
 }
 
 /** Start a brand-new solo save in a fresh world. Returns the create payload. */
-export async function newSoloGame(name: string, appearance: any): Promise<any> {
+export async function newSoloGame(name: string, appearance: any, creationMs = 0): Promise<any> {
 	freshDb();
 	// Solo has no passcode; createPlayer still requires one server-side, so we
 	// pass a fixed local token that is never shown or verified.
-	const res = await soloRequest('/CreatePlayer/', 'POST', { name, passcode: SOLO_PASSCODE, appearance });
+	const res = await soloRequest('/CreatePlayer/', 'POST', { name, passcode: SOLO_PASSCODE, appearance, creationMs });
 	if (res.status !== 200) throw Object.assign(new Error(res.body?.title || 'Could not start game'), { status: res.status });
 	return res.body;
 }

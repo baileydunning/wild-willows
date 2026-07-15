@@ -24,3 +24,25 @@ export function detectOS(): string {
 	if (/Linux|X11/i.test(ua)) return 'linux';
 	return 'unknown';
 }
+
+// A stable, anonymous per-install id, persisted in localStorage. Used only to
+// group app-open / character-creation events per person for the acquisition
+// funnel (opens → characters created). Not tied to any save or account.
+const DEVICE_ID_KEY = 'wild-willows:device-id';
+
+export function getDeviceId(): string {
+	try {
+		let id = localStorage.getItem(DEVICE_ID_KEY);
+		if (!id) {
+			id = (typeof crypto !== 'undefined' && crypto.randomUUID)
+				? crypto.randomUUID()
+				: `d_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+			localStorage.setItem(DEVICE_ID_KEY, id);
+		}
+		return id;
+	} catch {
+		// Private mode / no storage — fall back to an ephemeral id (won't dedupe
+		// across launches, but the ping still lands).
+		return `d_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+	}
+}

@@ -129,7 +129,8 @@
 		"feedbackBadEmail": "Ese correo de respuesta no parece válido — déjalo en blanco si no quieres respuesta",
 		"clientIdRequired": "se requiere clientId",
 		"snapshotRequired": "se requiere snapshot",
-		"snapshotTooLarge": "snapshot demasiado grande"
+		"snapshotTooLarge": "snapshot demasiado grande",
+		"deviceIdRequired": "se requiere deviceId"
 	},
 	"task": {
 		"welcomeGrasshopper": "Dale la bienvenida al saltamontes que vuelve a casa",

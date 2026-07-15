@@ -14481,7 +14481,8 @@ var server_default = {
     feedbackBadEmail: "That reply email doesn\u2019t look right \u2014 leave it blank if you don\u2019t want a response",
     clientIdRequired: "clientId required",
     snapshotRequired: "snapshot required",
-    snapshotTooLarge: "snapshot too large"
+    snapshotTooLarge: "snapshot too large",
+    deviceIdRequired: "deviceId required"
   },
   task: {
     welcomeGrasshopper: "Welcome the grasshopper home",
@@ -14980,7 +14981,7 @@ var supportHtml = `<!doctype html>
 </body>
 </html>
 `;
-var buildStamp = "0.1.11+2026-07-15T13:48:52.075Z";
+var buildStamp = "0.1.11+2026-07-15T14:41:50.083Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
@@ -15431,8 +15432,27 @@ function freshMetrics(now) {
     lastHeartbeatAt: 0,
     playSeconds: 0,
     sessions: 0,
-    counts: {}
+    counts: {},
+    // Dwell time per area (seconds), accrued from the heartbeat gap and
+    // attributed to whichever area the player is standing in.
+    areaSeconds: {},
+    // Length of the in-progress session (seconds); rolled into sessionLengths
+    // when a new session begins, so we keep a distribution of session lengths.
+    curSessionSeconds: 0,
+    sessionLengths: {},
+    // When the player first performed a real gameplay action (time-to-first-action).
+    firstActionAt: 0,
+    // How long character creation took, in ms (reported by the client at create).
+    creationMs: 0
   };
+}
+var META_COUNTERS = /* @__PURE__ */ new Set(["recolors", "appearanceChanges"]);
+function sessionBucket(seconds) {
+  const m = seconds / 60;
+  if (m < 2) return "<2m";
+  if (m < 10) return "2-10m";
+  if (m < 30) return "10-30m";
+  return "30m+";
 }
 async function bumpMetrics(player, deltas = {}, dailyDeltas = {}) {
   if (!player?.id) return null;
@@ -15445,6 +15465,9 @@ async function bumpMetrics(player, deltas = {}, dailyDeltas = {}) {
   const counts = { ...prev.counts || {} };
   for (const [k, v] of entries) counts[k] = (counts[k] || 0) + v;
   const metrics = { ...prev, counts, lastSeenAt: now };
+  if (!prev.firstActionAt && entries.some(([k, v]) => v && !META_COUNTERS.has(k))) {
+    metrics.firstActionAt = now;
+  }
   const patch = { metrics };
   if (dailyEntries.length) {
     const dayKey = playerDayKey(live, now);
@@ -15467,7 +15490,6 @@ function playerDayKey(player, at) {
   return Math.floor((at + tzMs(player) - TASK_RESET_HOUR * 36e5) / DAY_MS2);
 }
 var round1 = (n) => Math.round(n * 10) / 10;
-var META_COUNTERS = /* @__PURE__ */ new Set(["recolors", "appearanceChanges"]);
 function metricsView(player) {
   const now = Date.now();
   const m = player.metrics || freshMetrics(player.createdAt || now);
@@ -15477,6 +15499,13 @@ function metricsView(player) {
   const totalActions = Object.entries(counts).reduce((a, [k, b]) => a + (META_COUNTERS.has(k) ? 0 : b || 0), 0);
   const createdAt = player.createdAt || m.firstSeenAt || now;
   const lastSeenAt = m.lastSeenAt || null;
+  const areaSeconds = m.areaSeconds || {};
+  const areaMinutes = {};
+  for (const [a, s] of Object.entries(areaSeconds)) areaMinutes[a] = Math.round((s || 0) / 60);
+  const mostTimeArea = Object.entries(areaSeconds).sort((a, b) => (b[1] || 0) - (a[1] || 0))[0]?.[0] || null;
+  const firstActionAt = m.firstActionAt || 0;
+  const timeToFirstActionSeconds = firstActionAt ? round1((firstActionAt - createdAt) / 1e3) : null;
+  const creationMs = m.creationMs || 0;
   const hoursSinceActive = lastSeenAt ? round1((now - lastSeenAt) / 36e5) : null;
   const daysSinceJoined = Math.floor((now - createdAt) / DAY_MS2);
   let status = "dormant";
@@ -15509,6 +15538,18 @@ function metricsView(player) {
     tutorialStep: player.tutorialStep || 0,
     currentArea: player.area || null,
     unlockedBiomes: (player.unlockedBiomes || []).length,
+    // time-per-area
+    areaSeconds,
+    areaMinutes,
+    mostTimeArea,
+    // session-length distribution (finished sessions bucketed)
+    sessionLengths: m.sessionLengths || {},
+    // onboarding
+    timeToFirstActionSeconds,
+    // character creation: how long it took + the customization they chose
+    creationMs,
+    creationSeconds: creationMs ? round1(creationMs / 1e3) : null,
+    appearance: player.appearance || null,
     counts
   };
 }
@@ -15628,7 +15669,7 @@ function summarizeBiomes(rows) {
     totalAnimalsReturned: rows.reduce((a, r) => a + (r.returnedCount || 0), 0)
   };
 }
-async function createPlayerRecords(playerId, name, passcode, appearance, tzOffsetMinutes = 0) {
+async function createPlayerRecords(playerId, name, passcode, appearance, tzOffsetMinutes = 0, creationMs = 0) {
   const t2 = db();
   const d = await defs();
   const now = Date.now();
@@ -15661,7 +15702,9 @@ async function createPlayerRecords(playerId, name, passcode, appearance, tzOffse
     tutorialStep: 0,
     home: { ...DEFAULT_HOME },
     // your camp tent — upgrade it along four tracks, in two styles
-    metrics: freshMetrics(now),
+    // Stamp how long character creation took (reported by the client), so the
+    // dashboard can report average time-in-creator alongside the choices made.
+    metrics: { ...freshMetrics(now), creationMs: creationMs > 0 ? Math.round(creationMs) : 0 },
     // The board always shows a live "Unlock the next biome" guidance goal, so a
     // new player starts with no custom goals of their own yet.
     customGoals: []
@@ -15752,6 +15795,17 @@ var HEALTH_SCALE = 90;
 function healthFromPoints(points) {
   const recovered = (100 - BASE_HEALTH) * (1 - Math.exp(-Math.max(0, points) / HEALTH_SCALE));
   return clamp(Math.round(BASE_HEALTH + recovered), 0, 100);
+}
+var HEALTH_CAPS = [
+  { animals: 5, cap: 60 },
+  { animals: 10, cap: 75 },
+  { animals: 15, cap: 88 }
+];
+function healthCapForReturns(returnedInBiome) {
+  for (const step of HEALTH_CAPS) {
+    if (returnedInBiome < step.animals) return step.cap;
+  }
+  return 100;
 }
 function matureMs(def) {
   return (def?.matureHours || 0) * 36e5;
@@ -15926,7 +15980,7 @@ async function recalcBiome(wid, playerId, biomeId, opts = {}) {
   const water = analyzeWater(terrain);
   const now = Date.now();
   const healthPoints = computeHealthPoints(d, placements, openWaterTiles, now) + wateredTiles;
-  const health = healthFromPoints(healthPoints);
+  const uncappedHealth = healthFromPoints(healthPoints);
   const actor = opts.player || await safeGet(t2.Player, playerId);
   const wxTime = actor ? weatherTimeFromPlay(actor) : null;
   const wx = wxTime === null ? null : {
@@ -15936,6 +15990,8 @@ async function recalcBiome(wid, playerId, biomeId, opts = {}) {
   };
   const discoveries = await byWorld(t2.Discovery, wid);
   const returnedIds = new Set(discoveries.map((x) => x.animalId));
+  const returnedHere = () => [...returnedIds].filter((id) => d.animal.get(id)?.biome === biomeId).length;
+  let health = Math.min(uncappedHealth, healthCapForReturns(returnedHere()));
   let balance = computeBalance(d, biomeId, returnedIds);
   const newAnimals = [];
   const biomeAnimals = d.animals.filter((a) => a.biome === biomeId);
@@ -15962,6 +16018,7 @@ async function recalcBiome(wid, playerId, biomeId, opts = {}) {
       break;
     }
   }
+  health = Math.min(uncappedHealth, healthCapForReturns(returnedHere()));
   for (const disc of discoveries) {
     if (disc.biomeId !== biomeId) continue;
     const animal = d.animal.get(disc.animalId);
@@ -15969,7 +16026,7 @@ async function recalcBiome(wid, playerId, biomeId, opts = {}) {
     const comfort = computeComfort(animal, counts);
     if (comfort !== disc.comfort) await t2.Discovery.patch(disc.id, { comfort });
   }
-  const returnedCount = [...returnedIds].filter((id) => d.animal.get(id)?.biome === biomeId).length;
+  const returnedCount = returnedHere();
   const prior = await findBiomeState(t2.BiomeState, wid, biomeId);
   const bsId = prior?.id ?? `${wid}:${biomeId}`;
   await t2.BiomeState.patch(bsId, { health, balance, returnedCount });
@@ -16767,7 +16824,7 @@ var GameData = class extends PublicEndpoint {
 };
 var CreatePlayer = class extends PublicEndpoint {
   async post(data) {
-    const { name, passcode, appearance, tzOffsetMinutes } = await bodyOf(data);
+    const { name, passcode, appearance, tzOffsetMinutes, creationMs } = await bodyOf(data);
     const cleanName = String(name || "").trim();
     if (cleanName.length < 2 || cleanName.length > 24) throw new GameError(t("server.err.nameLength"));
     const code = String(passcode || "");
@@ -16776,7 +16833,8 @@ var CreatePlayer = class extends PublicEndpoint {
     if (!playerId) throw new GameError(t("server.err.nameNeedsAlnum"));
     const existing = await safeGet(db().Player, playerId);
     if (existing) throw new GameError(t("server.err.saveExists"), 409);
-    const created = await createPlayerRecords(playerId, cleanName, code, sanitizeAppearance(appearance), sanitizeTzOffset(tzOffsetMinutes));
+    const cms = clamp(Math.round(Number(creationMs) || 0), 0, 60 * 6e4);
+    const created = await createPlayerRecords(playerId, cleanName, code, sanitizeAppearance(appearance), sanitizeTzOffset(tzOffsetMinutes), cms);
     let worlds = [];
     try {
       await ensureSoloWorld(created.player, { freshGrid: true });
@@ -18070,11 +18128,23 @@ var Heartbeat = class extends PublicEndpoint {
     const gap = now - last;
     let playSeconds = prev.playSeconds || 0;
     let sessions = prev.sessions || 0;
+    let curSessionSeconds = prev.curSessionSeconds || 0;
+    const areaSeconds = { ...prev.areaSeconds || {} };
+    const sessionLengths = { ...prev.sessionLengths || {} };
     const newSession = last === 0 || gap > SESSION_GAP_MS;
     if (newSession) {
+      if (curSessionSeconds > 0) {
+        const b = sessionBucket(curSessionSeconds);
+        sessionLengths[b] = (sessionLengths[b] || 0) + 1;
+      }
+      curSessionSeconds = 0;
       sessions += 1;
     } else {
-      playSeconds += Math.min(gap, MAX_BEAT_MS) / 1e3;
+      const credit = Math.min(gap, MAX_BEAT_MS) / 1e3;
+      playSeconds += credit;
+      curSessionSeconds += credit;
+      const area = player.area || "unknown";
+      areaSeconds[area] = round1((areaSeconds[area] || 0) + credit);
     }
     const metrics = {
       ...prev,
@@ -18083,6 +18153,9 @@ var Heartbeat = class extends PublicEndpoint {
       lastHeartbeatAt: now,
       playSeconds: Math.round(playSeconds),
       sessions,
+      curSessionSeconds: Math.round(curSessionSeconds),
+      areaSeconds,
+      sessionLengths,
       ...lang ? { language: lang } : {}
     };
     await t2.Player.patch(playerId, { metrics });
@@ -18211,9 +18284,17 @@ var Metrics = class extends PublicEndpoint {
           activation: s.activation || {},
           achievements: s.achievements || null,
           biomeSummary: s.biomeSummary || { biomesUnlocked: 0, avgHealth: 0, biomesFullyRestored: 0, totalAnimalsReturned: 0 },
+          // new metric fields (defaulted so aggregation is safe on legacy rows)
+          areaSeconds: s.areaSeconds || {},
+          sessionLengths: s.sessionLengths || {},
+          creationMs: s.creationMs || 0,
+          creationSeconds: s.creationSeconds ?? (s.creationMs ? round1(s.creationMs / 1e3) : null),
+          timeToFirstActionSeconds: s.timeToFirstActionSeconds ?? null,
+          appearance: s.appearance || null,
           createdAt,
           lastSeenAt,
           hoursSinceActive,
+          minutesSinceActive: lastSeenAt ? round1((now - lastSeenAt) / 6e4) : null,
           status,
           daysSinceJoined: Math.floor((now - createdAt) / DAY_MS2),
           isNewToday: now - createdAt <= DAY_MS2
@@ -18241,6 +18322,7 @@ var Metrics = class extends PublicEndpoint {
     const totalSessions = all.reduce((acc, v) => acc + v.sessions, 0);
     const totalActions = all.reduce((acc, v) => acc + v.totalActions, 0);
     const audience = {
+      activeNow: all.filter((v) => v.minutesSinceActive != null && v.minutesSinceActive <= 5).length,
       activeLast24h: all.filter((v) => v.status === "active").length,
       activeLast7d: all.filter((v) => v.status === "active" || v.status === "recent").length,
       dormant: all.filter((v) => v.status === "dormant").length,
@@ -18307,6 +18389,80 @@ var Metrics = class extends PublicEndpoint {
       recentDistribution,
       completionHistogram
     };
+    const areaSecondsTotals = {};
+    for (const v of all) {
+      for (const [a, sec] of Object.entries(v.areaSeconds || {})) areaSecondsTotals[a] = (areaSecondsTotals[a] || 0) + sec;
+    }
+    const totalAreaSeconds = Object.values(areaSecondsTotals).reduce((a, b) => a + b, 0);
+    const areaMinutesTotals = {};
+    for (const [a, sec] of Object.entries(areaSecondsTotals)) areaMinutesTotals[a] = Math.round(sec / 60);
+    const areaDwell = {
+      totalSeconds: Math.round(totalAreaSeconds),
+      byAreaSeconds: areaSecondsTotals,
+      byAreaMinutes: areaMinutesTotals,
+      mostTimeArea: Object.entries(areaSecondsTotals).sort((a, b) => b[1] - a[1])[0]?.[0] || null
+    };
+    const sessionLengthDistribution = { "<2m": 0, "2-10m": 0, "10-30m": 0, "30m+": 0 };
+    for (const v of all) {
+      for (const [b, n] of Object.entries(v.sessionLengths || {})) sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + n;
+    }
+    const withCreation = all.filter((v) => (v.creationMs || 0) > 0);
+    const creation = {
+      savesWithTiming: withCreation.length,
+      avgCreationSeconds: withCreation.length ? round1(withCreation.reduce((a, v) => a + v.creationMs, 0) / withCreation.length / 1e3) : 0,
+      medianCreationSeconds: withCreation.length ? round1([...withCreation].map((v) => v.creationMs).sort((a, b) => a - b)[Math.floor(withCreation.length / 2)] / 1e3) : 0
+    };
+    const appTally = {};
+    const bump = (field, val) => {
+      if (val == null || val === "") return;
+      const key = String(val);
+      (appTally[field] ||= {})[key] = (appTally[field][key] || 0) + 1;
+    };
+    for (const v of all) {
+      const a = v.appearance;
+      if (!a) continue;
+      bump("skin", a.skin);
+      bump("hair", a.hair);
+      bump("outfit", a.outfit);
+      bump("hat", a.hat);
+      bump("hatColor", a.hatColor);
+      bump("hairstyle", a.hairstyle);
+      bump("beard", a.beard);
+      bump("body", a.body);
+    }
+    const appearancePopularity = { savesWithAppearance: all.filter((v) => v.appearance).length, choices: appTally };
+    const withTTFA = all.filter((v) => v.timeToFirstActionSeconds != null);
+    const timeToFirstAction = {
+      playersMeasured: withTTFA.length,
+      avgSeconds: withTTFA.length ? round1(withTTFA.reduce((a, v) => a + v.timeToFirstActionSeconds, 0) / withTTFA.length) : 0
+    };
+    let openRows = [];
+    try {
+      openRows = await allOf(t2.AppOpen);
+    } catch {
+    }
+    const devices = openRows.length;
+    const convertedDevices = openRows.filter((o) => o.converted).length;
+    const withCreatorTime = openRows.filter((o) => (o.creationMs || 0) > 0);
+    const totalCharacters = openRows.reduce((a, o) => a + (o.savesCreated || 0), 0);
+    const savesPerPersonHistogram = {};
+    for (const o of openRows) {
+      const k = String(o.savesCreated || 0);
+      savesPerPersonHistogram[k] = (savesPerPersonHistogram[k] || 0) + 1;
+    }
+    const acquisition = {
+      devices,
+      totalOpens: openRows.reduce((a, o) => a + (o.opens || 0), 0),
+      converted: convertedDevices,
+      bounced: devices - convertedDevices,
+      conversionPct: devices ? Math.round(convertedDevices / devices * 100) : 0,
+      bounceRatePct: devices ? Math.round((devices - convertedDevices) / devices * 100) : 0,
+      avgCreatorSeconds: withCreatorTime.length ? round1(withCreatorTime.reduce((a, o) => a + o.creationMs, 0) / withCreatorTime.length / 1e3) : 0,
+      totalCharactersCreated: totalCharacters,
+      avgCharactersPerPerson: devices ? round1(totalCharacters / devices) : 0,
+      avgCharactersPerConverted: convertedDevices ? round1(totalCharacters / convertedDevices) : 0,
+      charactersPerPersonHistogram: savesPerPersonHistogram
+    };
     return {
       generatedAt: now,
       source: "solo-metrics",
@@ -18340,6 +18496,12 @@ var Metrics = class extends PublicEndpoint {
           mostPopularArea,
           tutorialStepHistogram: tutorialTally
         },
+        areaDwell,
+        sessionLengthDistribution,
+        creation,
+        appearancePopularity,
+        timeToFirstAction,
+        acquisition,
         funnel,
         funnelPct,
         actionTotals,
@@ -18874,6 +19036,40 @@ var SyncMetrics = class extends PublicEndpoint {
     return { ok: true };
   }
 };
+var AppOpen = class extends PublicEndpoint {
+  async post(data) {
+    const body = await bodyOf(data);
+    const deviceId = String(body.deviceId || "").trim().slice(0, 64);
+    if (!deviceId) throw new GameError(t("server.err.deviceIdRequired"));
+    const phase = body.phase === "created" ? "created" : "open";
+    const now = Date.now();
+    const t2 = db();
+    const id = `dev:${deviceId}`;
+    const existing = await safeGet(t2.AppOpen, id);
+    const cms = clamp(Math.round(Number(body.creationMs) || 0), 0, 60 * 6e4);
+    await t2.AppOpen.put({
+      id,
+      deviceId,
+      platform: String(body.platform || "").slice(0, 20) || existing?.platform || null,
+      os: String(body.os || "").slice(0, 20) || existing?.os || null,
+      version: String(body.version || "").slice(0, 24) || existing?.version || null,
+      language: String(body.language || "").trim().toLowerCase().slice(0, 12) || existing?.language || null,
+      firstOpenAt: existing?.firstOpenAt || now,
+      lastOpenAt: now,
+      // Count real app launches; a "created" ping shouldn't inflate opens.
+      opens: (existing?.opens || 0) + (phase === "open" ? 1 : 0),
+      converted: existing?.converted || phase === "created",
+      firstConvertedAt: existing?.firstConvertedAt || (phase === "created" ? now : 0),
+      // How many characters this person has created.
+      savesCreated: (existing?.savesCreated || 0) + (phase === "created" ? 1 : 0),
+      // Keep the most recent creator time we've seen for this device.
+      creationMs: phase === "created" && cms > 0 ? cms : existing?.creationMs || 0,
+      updatedAt: now
+    });
+    dashboardCache = null;
+    return { ok: true };
+  }
+};
 var htmlPage = (html) => ({
   status: 200,
   headers: {
@@ -18898,6 +19094,7 @@ var SupportPage = class extends PublicEndpoint {
   }
 };
 export {
+  AppOpen,
   AppendFeed,
   BiomeSnapshot,
   ChangePasscode,
@@ -18948,6 +19145,7 @@ export {
   Version,
   WorldRoster,
   AgeRatingPage as "age-rating",
+  healthCapForReturns,
   PrivacyPage as privacy,
   SupportPage as support
 };

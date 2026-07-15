@@ -189,8 +189,8 @@ const pid = () => {
 export const api = {
 	gameData: () => request<GameData>('/GameData/'),
 	gameState: (playerId?: string) => request<GameState>(`/GameState/${playerId ?? pid()}`),
-	createPlayer: (name: string, passcode: string, appearance: Appearance) =>
-		post<{ ok: boolean; playerId: string; worldId: string; worlds: WorldSummary[]; state: GameState }>('/CreatePlayer/', { name, passcode, appearance, tzOffsetMinutes: -new Date().getTimezoneOffset() }),
+	createPlayer: (name: string, passcode: string, appearance: Appearance, creationMs = 0) =>
+		post<{ ok: boolean; playerId: string; worldId: string; worlds: WorldSummary[]; state: GameState }>('/CreatePlayer/', { name, passcode, appearance, tzOffsetMinutes: -new Date().getTimezoneOffset(), creationMs }),
 	login: (name: string, passcode: string) =>
 		post<{ ok: boolean; playerId: string; worldId: string; worlds: WorldSummary[]; state: GameState }>('/LoginPlayer/', { name, passcode, tzOffsetMinutes: -new Date().getTimezoneOffset() }),
 
@@ -297,9 +297,9 @@ export async function importSoloSave(contents: string): Promise<SaveMeta> {
 }
 
 /** Start a fresh solo game (no passcode) and create its save slot. */
-export async function startSoloGame(name: string, appearance: Appearance): Promise<{ playerId: string; state: GameState; slot: SaveMeta }> {
+export async function startSoloGame(name: string, appearance: Appearance, creationMs = 0): Promise<{ playerId: string; state: GameState; slot: SaveMeta }> {
 	setTransport('solo');
-	const created = await backendNew(name, appearance);
+	const created = await backendNew(name, appearance, creationMs);
 	const slot = await createSlot({ playerId: created.playerId, name, appearance });
 	setSoloSlot(slot);
 	setPlayerId(created.playerId);
