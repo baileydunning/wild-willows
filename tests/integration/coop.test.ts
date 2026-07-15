@@ -48,9 +48,7 @@ describe('host-approval join flow', () => {
 		const token = 'tok_fin';
 		await w.post('RequestJoin', { joinCode: code, token, name: 'Fin' });
 
-		await expect(
-			w.post('JoinWorld', { playerId: friend.playerId, joinCode: code, token }),
-		).rejects.toThrow(/approve/i);
+		await expect(w.post('JoinWorld', { playerId: friend.playerId, joinCode: code, token })).rejects.toThrow(/approve/i);
 
 		const pend = await w.post('PendingJoinRequests', { playerId: hostId });
 		expect(pend.requests.some((r: any) => r.token === token)).toBe(true);
@@ -85,7 +83,7 @@ describe('shared world semantics', () => {
 		await w.post('CollectResource', { playerId: hostId, biomeId: 'meadow', nodeId: 'h-only', resourceId: RES });
 		const host = await w.post('LoginPlayer', { name: 'Host Hana', passcode: 'pwpw' });
 		const friend = await w.post('LoginPlayer', { name: 'Fin', passcode: 'pwpw' });
-		expect((host.state.player.inventory[RES] || 0)).toBeGreaterThan(friend.state.player.inventory[RES] || 0);
+		expect(host.state.player.inventory[RES] || 0).toBeGreaterThan(friend.state.player.inventory[RES] || 0);
 	});
 
 	it('merges player positions into a shared presence map', async () => {
@@ -116,7 +114,9 @@ describe('roster + 6-caretaker cap', () => {
 		expect(roster.closed).toBe(true);
 
 		expect((await w.post('CheckWorldCode', { joinCode: code })).world.full).toBe(true);
-		await expect(w.post('RequestJoin', { joinCode: code, token: 'tok_7', name: 'Too Late' })).rejects.toThrow(/full|closed/i);
+		await expect(w.post('RequestJoin', { joinCode: code, token: 'tok_7', name: 'Too Late' })).rejects.toThrow(
+			/full|closed/i,
+		);
 
 		// An existing member can still re-enter the closed world.
 		const reenter = await w.post('JoinWorld', { playerId: first.friendId, joinCode: code, token: 'whatever' });

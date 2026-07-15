@@ -2,12 +2,30 @@ import Phaser from 'phaser';
 import { bridge } from './bridge';
 import { canPaintClick } from './interactions';
 import {
-	animalScale, animalTexture, ensureAnimalTexture, makeAnimalTextures, makeBaseTextures, makeNodeTextures,
-	makeObjectTextures, makePlayerTexture, snapshotResourceIcons, INV_TEX_SCALE, TEX_SCALE,
+	animalScale,
+	animalTexture,
+	ensureAnimalTexture,
+	makeAnimalTextures,
+	makeBaseTextures,
+	makeNodeTextures,
+	makeObjectTextures,
+	makePlayerTexture,
+	snapshotResourceIcons,
+	snapshotObjectIcons,
+	INV_TEX_SCALE,
+	TEX_SCALE,
 } from './textures';
-import { seasonStyle, weatherType, liveWeatherType, dayPhaseStyle, phaseAtProgress, gatherResourceFor } from '../weather';
+import {
+	seasonStyle,
+	weatherType,
+	liveWeatherType,
+	dayPhaseStyle,
+	phaseAtProgress,
+	gatherResourceFor,
+} from '../weather';
 import { t, content } from '../i18n';
 import { getPrefs, subscribe as subscribePrefs } from '../prefs';
+import { gearOn, subscribe as subscribeGear } from '../gear';
 import { isTypingTarget } from '../typing';
 import { harvestReadyAt } from '../types';
 import type { BiomeDef, HabitatObjectDef } from '../types';
@@ -80,7 +98,8 @@ function hashStr(s: string): number {
 function mulberry32(seed: number) {
 	let a = seed >>> 0;
 	return () => {
-		a |= 0; a = (a + 0x6d2b79f5) | 0;
+		a |= 0;
+		a = (a + 0x6d2b79f5) | 0;
 		let t = Math.imul(a ^ (a >>> 15), 1 | a);
 		t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
 		return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
@@ -117,7 +136,7 @@ export class WorldScene extends Phaser.Scene {
 	private healthDeco: Phaser.GameObjects.Image[] = [];
 	private dynamic!: Phaser.GameObjects.Group;
 	private animals!: Phaser.GameObjects.Group; // animals live in their own layer so a
-	private animalSig = '';                      // routine refresh doesn't reset their wandering
+	private animalSig = ''; // routine refresh doesn't reset their wandering
 	private interactables: Interactable[] = [];
 	private nodes: NodeDef[] = [];
 	private nodeSprites = new Map<string, Phaser.GameObjects.Container>();
@@ -146,7 +165,19 @@ export class WorldScene extends Phaser.Scene {
 	private bridgeTiles = new Set<string>();
 	// Live co-op: other players in this same area, drawn as their own avatars and
 	// smoothly eased toward the positions reported by the presence loop.
-	private remotes = new Map<string, { sprite: Phaser.GameObjects.Image; shadow: Phaser.GameObjects.Image; label: Phaser.GameObjects.Text; sig: string; walkT: number; lastX: number; lastY: number; moveUntil: number }>();
+	private remotes = new Map<
+		string,
+		{
+			sprite: Phaser.GameObjects.Image;
+			shadow: Phaser.GameObjects.Image;
+			label: Phaser.GameObjects.Text;
+			sig: string;
+			walkT: number;
+			lastX: number;
+			lastY: number;
+			moveUntil: number;
+		}
+	>();
 	// Weather visuals: a camera-locked full-screen weather-colour tint and a
 	// world-locked rain/snow particle emitter, swapped when the weather changes.
 	private weatherOverlay?: Phaser.GameObjects.Rectangle;
@@ -214,21 +245,28 @@ export class WorldScene extends Phaser.Scene {
 		const inner = { w: 6, h: 5 };
 		const x0 = Math.floor((OUT_W - inner.w) / 2);
 		const y0 = Math.floor((OUT_H - inner.h) / 2);
-		const x1 = x0 + inner.w - 1, y1 = y0 + inner.h - 1;
+		const x1 = x0 + inner.w - 1,
+			y1 = y0 + inner.h - 1;
 		return {
-			x0, y0, x1, y1,
+			x0,
+			y0,
+			x1,
+			y1,
 			floor: '#c8b088', // groundcloth
-			wall: '#8a7c5a',  // weathered canvas — warm tan, just a whisper of olive
+			wall: '#8a7c5a', // weathered canvas — warm tan, just a whisper of olive
 			accent: '#e3c75f',
 			rug: '#b5707a',
-			decor: 1, light: 1,
-			doorX: Math.round((x0 + x1) / 2), doorY: y1,
+			decor: 1,
+			light: 1,
+			doorX: Math.round((x0 + x1) / 2),
+			doorY: y1,
 		};
 	}
 
 	/** Interior floor rectangle (tile coords) + cosmetics for the current home config. */
 	private homeRoom() {
-		const home = bridge.shared.state?.player?.home || ({ style: 'cabin', space: 1, comfort: 1, decor: 1, light: 1 } as any);
+		const home =
+			bridge.shared.state?.player?.home || ({ style: 'cabin', space: 1, comfort: 1, decor: 1, light: 1 } as any);
 		const data = bridge.shared.data;
 		const styles = data?.homeStyles || {};
 		const style = styles[home.style] || styles.cabin || { floor: '#c9a373', wall: '#9c7a52', accent: '#b5707a' };
@@ -236,16 +274,22 @@ export class WorldScene extends Phaser.Scene {
 		const inner = spaceLevels[(home.space || 1) - 1]?.inner || { w: 8, h: 6 };
 		const x0 = Math.floor((OUT_W - inner.w) / 2);
 		const y0 = Math.floor((OUT_H - inner.h) / 2);
-		const x1 = x0 + inner.w - 1, y1 = y0 + inner.h - 1;
+		const x1 = x0 + inner.w - 1,
+			y1 = y0 + inner.h - 1;
 		const colors = home.colors || {};
 		return {
-			x0, y0, x1, y1,
+			x0,
+			y0,
+			x1,
+			y1,
 			floor: colors.floor || style.floor,
 			wall: colors.wall || style.wall,
 			accent: colors.accent || style.accent,
 			rug: colors.rug || colors.accent || style.accent,
-			decor: home.decor || 1, light: home.light || 1,
-			doorX: Math.round((x0 + x1) / 2), doorY: y1,
+			decor: home.decor || 1,
+			light: home.light || 1,
+			doorX: Math.round((x0 + x1) / 2),
+			doorY: y1,
 		};
 	}
 
@@ -342,6 +386,7 @@ export class WorldScene extends Phaser.Scene {
 		makeAnimalTextures(this);
 		makeNodeTextures(this);
 		snapshotResourceIcons(this); // cache resource sprites as data URLs for the DOM UI
+		snapshotObjectIcons(this); // …and object sprites, for the crafting/planting menus
 		this.isTouch = this.sys.game.device.input.touch && !this.sys.game.device.os.desktop;
 
 		// Indoors the camera stays clamped to the room; outdoors it's unbounded so
@@ -363,7 +408,10 @@ export class WorldScene extends Phaser.Scene {
 		this.player = this.img(0, 0, playerKey).setDepth(1000);
 		let spawn = data?.spawn || this.savedSpawn();
 		// stepping into an interior (home or trail tent): stand just inside the door
-		if (this.isIndoors) { const r = this.roomSpec(); spawn = { x: r.doorX + 0.5, y: r.doorY + 0.2 }; }
+		if (this.isIndoors) {
+			const r = this.roomSpec();
+			spawn = { x: r.doorX + 0.5, y: r.doorY + 0.2 };
+		}
 		this.player.setPosition(spawn.x * TILE, spawn.y * TILE);
 		this.cameras.main.startFollow(this.player, true, 0.12, 0.12);
 		this.startLeaves();
@@ -381,11 +429,17 @@ export class WorldScene extends Phaser.Scene {
 			// quarter-turn; the ghost preview rotates so you can line it up first.
 			// "/" is accepted too. Only paths/fences/bridges/furniture rotate — trees,
 			// flowers, rocks and radial decor always sit upright.
-			else if ((e.key === '\\' || e.code === 'Backslash' || e.key === '/' || e.code === 'Slash') && (this.placementObjectId || this.movingPlacementId)) {
+			else if (
+				(e.key === '\\' || e.code === 'Backslash' || e.key === '/' || e.code === 'Slash') &&
+				(this.placementObjectId || this.movingPlacementId)
+			) {
 				e.preventDefault();
-				if (!this.activeRotatable()) { bridge.emit('toast', { text: t('game.toast.noRotate'), kind: 'info' }); return; }
+				if (!this.activeRotatable()) {
+					bridge.emit('toast', { text: t('game.toast.noRotate'), kind: 'info' });
+					return;
+				}
 				this.placeRotation = (this.placeRotation + 90) % 360;
-				const preview = this.ghost && (this.ghost as any).preview as Phaser.GameObjects.Image | undefined;
+				const preview = this.ghost && ((this.ghost as any).preview as Phaser.GameObjects.Image | undefined);
 				preview?.setRotation(Phaser.Math.DegToRad(this.placeRotation));
 			}
 		});
@@ -411,6 +465,17 @@ export class WorldScene extends Phaser.Scene {
 		};
 		document.addEventListener('focusin', onFocusIn);
 		document.addEventListener('focusout', onFocusOut);
+		// If the window loses focus while a movement key is held (alt-tab, a click
+		// outside the game, an OS overlay…) the keyup never reaches us and Phaser
+		// keeps the key "down" forever. A stuck RIGHT then cancels every LEFT
+		// press (vx sums to 0), which reads as "movement stopped working in one
+		// direction" (playtest). Drop all held keys whenever focus goes away.
+		const onWindowBlur = () => this.input.keyboard?.resetKeys();
+		const onHidden = () => {
+			if (document.visibilityState === 'hidden') this.input.keyboard?.resetKeys();
+		};
+		window.addEventListener('blur', onWindowBlur);
+		document.addEventListener('visibilitychange', onHidden);
 		// A text box may already hold focus when this scene (re)starts — e.g.
 		// changing areas or reloading while a panel's field is active.
 		if (isTypingTarget(document.activeElement)) {
@@ -421,10 +486,22 @@ export class WorldScene extends Phaser.Scene {
 		const ring = this.img(0, 0, 'ring').setTint(0xffe9a8);
 		const badgeBg = this.add.circle(0, -30, 9.5, 0x2b3321, 0.92).setStrokeStyle(1.5, 0xffe9a8, 1);
 		const badgeText = this.add
-			.text(0, -30, this.isTouch ? '·' : 'E', { fontFamily: 'Quicksand, sans-serif', fontSize: '11px', color: '#f0e8d4', fontStyle: 'bold' })
+			.text(0, -30, this.isTouch ? '·' : 'E', {
+				fontFamily: 'Quicksand, sans-serif',
+				fontSize: '11px',
+				color: '#f0e8d4',
+				fontStyle: 'bold',
+			})
 			.setOrigin(0.5);
 		this.highlight = this.add.container(0, 0, [ring, badgeBg, badgeText]).setDepth(6000).setVisible(false);
-		const ringPulse = this.tweens.add({ targets: ring, scale: { from: 0.92 * INV_TEX_SCALE, to: 1.08 * INV_TEX_SCALE }, alpha: { from: 0.95, to: 0.6 }, duration: 700, yoyo: true, repeat: -1 });
+		const ringPulse = this.tweens.add({
+			targets: ring,
+			scale: { from: 0.92 * INV_TEX_SCALE, to: 1.08 * INV_TEX_SCALE },
+			alpha: { from: 0.95, to: 0.6 },
+			duration: 700,
+			yoyo: true,
+			repeat: -1,
+		});
 		// Honor reduce-motion: hold the ring steady instead of pulsing.
 		const applyRingMotion = () => {
 			if (getPrefs().reduceMotion) {
@@ -450,10 +527,22 @@ export class WorldScene extends Phaser.Scene {
 			this.animals.clear(true, true);
 			this.drawAnimals();
 		});
+		// Flipping a gear toggle takes effect immediately: the headlamp halo and
+		// boots speed are read live each frame, and the binoculars' glint markers
+		// are baked into the animal layer, so rebuild it here.
+		const unsubGear = subscribeGear(() => {
+			if (!this.alive) return;
+			this.animalSig = '';
+			this.animals.clear(true, true);
+			this.drawAnimals();
+		});
 		this.events.once('shutdown', () => {
 			document.removeEventListener('focusin', onFocusIn);
 			document.removeEventListener('focusout', onFocusOut);
+			window.removeEventListener('blur', onWindowBlur);
+			document.removeEventListener('visibilitychange', onHidden);
 			unsubPrefs();
+			unsubGear();
 		});
 
 		this.tileCursor = this.img(0, 0, 'ghost-ok').setDepth(5900).setVisible(false).setAlpha(0.8);
@@ -476,14 +565,20 @@ export class WorldScene extends Phaser.Scene {
 		// biome unlock (opens a gate) or a home upgrade (changes the camp building)
 		// changes the sig and refreshDynamic rebuilds the static features in place —
 		// no scene restart, no flash.
-		this.unsubs.push(bridge.on('world-dirty', () => { this.refreshDynamic(); this.updateNodeVisuals(); this.applyWeather(); }));
+		this.unsubs.push(
+			bridge.on('world-dirty', () => {
+				this.refreshDynamic();
+				this.updateNodeVisuals();
+				this.applyWeather();
+			}),
+		);
 		this.unsubs.push(bridge.on('enter-placement', (p: any) => this.enterPlacement(p.objectId)));
 		this.unsubs.push(bridge.on('cancel-placement', () => this.exitPlacement()));
 		this.unsubs.push(bridge.on('enter-move', (p: any) => this.enterMove(p.placementId)));
 		this.unsubs.push(
 			bridge.on('appearance-changed', (appearance: any) => {
 				if (this.alive) this.player.setTexture(makePlayerTexture(this, appearance));
-			})
+			}),
 		);
 		// The build animation plays on the camp building; its reveal fires world-dirty,
 		// and since home config is now in the dynamic signature, refreshDynamic redraws
@@ -498,7 +593,7 @@ export class WorldScene extends Phaser.Scene {
 			bridge.on('area-changed', (area: string) => {
 				this.exitPlacement();
 				this.scene.restart({ area, spawn: this.spawnFor(area, this.area) });
-			})
+			}),
 		);
 		this.events.once('shutdown', () => {
 			this.alive = false;
@@ -525,22 +620,38 @@ export class WorldScene extends Phaser.Scene {
 			// paint tool (indoors): recolor whatever you click — an item, the rug,
 			// the walls, or the floor underneath. While placing or moving an object,
 			// a click means "drop it here", so placement/move (below) take priority.
-			if (canPaintClick({ tool: this.activeTool, isHome: this.isHome, placing: !!this.placementObjectId, moving: !!this.movingPlacementId })) {
+			if (
+				canPaintClick({
+					tool: this.activeTool,
+					isHome: this.isHome,
+					placing: !!this.placementObjectId,
+					moving: !!this.movingPlacementId,
+				})
+			) {
 				const hit = (bridge.shared.state?.placements || []).find((p) => p.area === 'home' && p.x === tx && p.y === ty);
-				if (hit) { bridge.emit('paint-click', { placementId: hit.id }); return; }
+				if (hit) {
+					bridge.emit('paint-click', { placementId: hit.id });
+					return;
+				}
 				const r = this.homeRoom();
 				const inFloor = tx >= r.x0 && tx <= r.x1 && ty >= r.y0 && ty <= r.y1;
 				const inRing = tx >= r.x0 - 1 && tx <= r.x1 + 1 && ty >= r.y0 - 1 && ty <= r.y1 + 1;
-				if (!inFloor && inRing) { bridge.emit('paint-click', { target: 'wall' }); return; }
+				if (!inFloor && inRing) {
+					bridge.emit('paint-click', { target: 'wall' });
+					return;
+				}
 				if (inFloor) {
 					// rug hit-test mirrors how drawHomeRoom lays the centre rug out
-					const fx = r.x0 * TILE, fy = r.y0 * TILE;
-					const fw = (r.x1 - r.x0 + 1) * TILE, fh = (r.y1 - r.y0 + 1) * TILE;
+					const fx = r.x0 * TILE,
+						fy = r.y0 * TILE;
+					const fw = (r.x1 - r.x0 + 1) * TILE,
+						fh = (r.y1 - r.y0 + 1) * TILE;
 					const rugW = Math.min(fw - TILE * 2, TILE * (3 + r.decor));
 					const rugH = Math.min(fh - TILE * 2, TILE * (2 + r.decor * 0.5));
-					const cx = fx + fw / 2, cy = fy + fh / 2;
-					const onRug = r.decor >= 2 &&
-						Math.abs(pointer.worldX - cx) <= rugW / 2 && Math.abs(pointer.worldY - cy) <= rugH / 2;
+					const cx = fx + fw / 2,
+						cy = fy + fh / 2;
+					const onRug =
+						r.decor >= 2 && Math.abs(pointer.worldX - cx) <= rugW / 2 && Math.abs(pointer.worldY - cy) <= rugH / 2;
 					bridge.emit('paint-click', onRug ? { target: 'rug' } : { target: 'floor' });
 				}
 				return;
@@ -553,7 +664,8 @@ export class WorldScene extends Phaser.Scene {
 				return;
 			}
 			if (this.placementObjectId) {
-				if (this.canPlaceAt(tx, ty)) bridge.emit('place-at', { objectId: this.placementObjectId, x: tx, y: ty, rotation: this.placeRotation });
+				if (this.canPlaceAt(tx, ty))
+					bridge.emit('place-at', { objectId: this.placementObjectId, x: tx, y: ty, rotation: this.placeRotation });
 				return;
 			}
 			// terraform with shovel / watering can on an empty reachable tile
@@ -625,8 +737,7 @@ export class WorldScene extends Phaser.Scene {
 				// Flooding the tile you're standing on would strand you in open
 				// water, so block it outright instead of asking — same tile key the
 				// movement collision uses.
-				const onTile = Math.floor(this.player.x / TILE) === tx
-					&& Math.floor((this.player.y + 8) / TILE) === ty;
+				const onTile = Math.floor(this.player.x / TILE) === tx && Math.floor((this.player.y + 8) / TILE) === ty;
 				if (onTile) block = t('game.block.standingHere');
 				// otherwise flooding happens immediately — no confirmation prompt
 			}
@@ -637,7 +748,9 @@ export class WorldScene extends Phaser.Scene {
 	private tileReachable(tx: number, ty: number): boolean {
 		const px = this.player.x / TILE - 0.5;
 		const py = this.player.y / TILE - 0.5;
-		return Math.abs(tx - px) <= 2.4 && Math.abs(ty - py) <= 2.4 && this.canPlaceAt(tx, ty, true);
+		// A roomy reach so digging/watering/placing doesn't need you right on top of
+		// the tile (was 2.4 — bumped so you can act from a step or so further back).
+		return Math.abs(tx - px) <= 3.2 && Math.abs(ty - py) <= 3.2 && this.canPlaceAt(tx, ty, true);
 	}
 
 	/**
@@ -676,7 +789,10 @@ export class WorldScene extends Phaser.Scene {
 	private drawGround() {
 		this.groundTiles = [];
 		this.healthDeco = [];
-		if (this.isIndoors) { this.drawHomeRoom(); return; }
+		if (this.isIndoors) {
+			this.drawHomeRoom();
+			return;
+		}
 		const rng = mulberry32(hashStr(this.area));
 		// Ground tiles fill only the playable region; in the alpine the top rows
 		// are the mountain range, drawn separately below.
@@ -711,23 +827,39 @@ export class WorldScene extends Phaser.Scene {
 		// each biome's edge line is drawn in its own vegetation so the boundary
 		// looks like it belongs: green grass (forest mixes in trees), desert
 		// straw + sandstone, alpine sage + scree, dune grass + beach rock
-		const grassPrefix = this.area === 'desert' ? 'drygrass'
-			: this.area === 'alpine' ? 'palegrass'
-			: this.area === 'coastal' ? 'dunegrass' : 'tallgrass';
+		const grassPrefix =
+			this.area === 'desert'
+				? 'drygrass'
+				: this.area === 'alpine'
+					? 'palegrass'
+					: this.area === 'coastal'
+						? 'dunegrass'
+						: 'tallgrass';
 		const clump = (px: number, py: number) => {
 			const r = rng();
-			const key = rocky ? (r < 0.45 ? 'boulder' : r < 0.75 ? grassPrefix : `${grassPrefix}3`)
-				: this.area === 'forest' && r < 0.25 ? 'wildtree'
-				: r < 0.3 ? 'tuft' : grassPrefix;
+			const key = rocky
+				? r < 0.45
+					? 'boulder'
+					: r < 0.75
+						? grassPrefix
+						: `${grassPrefix}3`
+				: this.area === 'forest' && r < 0.25
+					? 'wildtree'
+					: r < 0.3
+						? 'tuft'
+						: grassPrefix;
 			const s = (key === 'tuft' ? 1.1 : key === 'wildtree' ? 0.9 : key === 'boulder' ? 0.65 : 0.55) + rng() * 0.4;
 			const jx = (rng() - 0.5) * 18;
 			const jy = (rng() - 0.5) * 12;
 			// depth clamps ≥1 so the top edge sorts ABOVE the ground tiles (a
 			// negative-y clump would otherwise vanish beneath them)
 			const img = this.img(px + jx, py + jy, key)
-				.setDepth(Math.max(py + jy, 1)).setScale(s * INV_TEX_SCALE).setAlpha(0.96);
-			if (key === 'boulder') { if (rockTint !== undefined) img.setTint(rockTint); }
-			else {
+				.setDepth(Math.max(py + jy, 1))
+				.setScale(s * INV_TEX_SCALE)
+				.setAlpha(0.96);
+			if (key === 'boulder') {
+				if (rockTint !== undefined) img.setTint(rockTint);
+			} else {
 				if (key !== 'wildtree') img.setAngle(rng() * 20 - 10);
 				this.healthDeco.push(img); // grass/trees along the edge recover with health
 			}
@@ -830,8 +962,11 @@ export class WorldScene extends Phaser.Scene {
 		const sprite = (key: string, scale: number, tint?: number, alpha = 0.97, living = false) => {
 			const py = jy();
 			const img = this.img(jx(), py, key)
-				.setDepth(Math.max(py, 1)).setScale(scale * INV_TEX_SCALE)
-				.setAngle(rng() * 10 - 5).setAlpha(alpha).setFlipX(rng() < 0.5);
+				.setDepth(Math.max(py, 1))
+				.setScale(scale * INV_TEX_SCALE)
+				.setAngle(rng() * 10 - 5)
+				.setAlpha(alpha)
+				.setFlipX(rng() < 0.5);
 			if (tint !== undefined) img.setTint(tint);
 			else if (living) this.healthDeco.push(img); // recovers with biome health
 			return img;
@@ -857,7 +992,8 @@ export class WorldScene extends Phaser.Scene {
 			case 'alpine': // hardy pale turf, scree, the odd snow patch
 				if (roll < 0.38) grass('palegrass', 0.65 + rng() * 0.35);
 				else if (roll < 0.52) sprite('boulder', 0.55 + rng() * 0.5).setAngle(0);
-				else if (roll < 0.58) this.add.ellipse(jx(), jy(), 18 + rng() * 18, 10 + rng() * 10, 0xffffff, 0.55).setDepth(1);
+				else if (roll < 0.58)
+					this.add.ellipse(jx(), jy(), 18 + rng() * 18, 10 + rng() * 10, 0xffffff, 0.55).setDepth(1);
 				break;
 			case 'coastal': // wind-blown dune grass and the odd rock
 				if (roll < 0.62) grass('dunegrass', 0.7 + rng() * 0.35);
@@ -876,26 +1012,48 @@ export class WorldScene extends Phaser.Scene {
 		// dark surround outside the room
 		this.addDyn(this.add.rectangle(0, 0, this.worldW, this.worldH, C('#1c2216')).setOrigin(0, 0).setDepth(0));
 		// wall ring (one tile thick around the floor)
-		const wx = (r.x0 - 1) * TILE, wy = (r.y0 - 1) * TILE;
-		const ww = (r.x1 - r.x0 + 3) * TILE, wh = (r.y1 - r.y0 + 3) * TILE;
+		const wx = (r.x0 - 1) * TILE,
+			wy = (r.y0 - 1) * TILE;
+		const ww = (r.x1 - r.x0 + 3) * TILE,
+			wh = (r.y1 - r.y0 + 3) * TILE;
 		this.addDyn(this.add.rectangle(wx, wy, ww, wh, C(r.wall)).setOrigin(0, 0).setDepth(0.1));
 		this.addDyn(this.add.rectangle(wx, wy, ww, TILE, 0x000000, 0.18).setOrigin(0, 0).setDepth(0.12)); // back-wall shadow
 		// floor
-		const fx = r.x0 * TILE, fy = r.y0 * TILE;
-		const fw = (r.x1 - r.x0 + 1) * TILE, fh = (r.y1 - r.y0 + 1) * TILE;
+		const fx = r.x0 * TILE,
+			fy = r.y0 * TILE;
+		const fw = (r.x1 - r.x0 + 1) * TILE,
+			fh = (r.y1 - r.y0 + 1) * TILE;
 		this.addDyn(this.add.rectangle(fx, fy, fw, fh, C(r.floor)).setOrigin(0, 0).setDepth(0.2));
 		// faint plank grid
-		for (let gx = r.x0; gx <= r.x1 + 1; gx++) this.addDyn(this.add.rectangle(gx * TILE, fy, 1, fh, 0x000000, 0.06).setOrigin(0, 0).setDepth(0.21));
-		for (let gy = r.y0; gy <= r.y1 + 1; gy++) this.addDyn(this.add.rectangle(fx, gy * TILE, fw, 1, 0x000000, 0.06).setOrigin(0, 0).setDepth(0.21));
+		for (let gx = r.x0; gx <= r.x1 + 1; gx++)
+			this.addDyn(
+				this.add
+					.rectangle(gx * TILE, fy, 1, fh, 0x000000, 0.06)
+					.setOrigin(0, 0)
+					.setDepth(0.21),
+			);
+		for (let gy = r.y0; gy <= r.y1 + 1; gy++)
+			this.addDyn(
+				this.add
+					.rectangle(fx, gy * TILE, fw, 1, 0x000000, 0.06)
+					.setOrigin(0, 0)
+					.setDepth(0.21),
+			);
 
 		// Furnishings track: a wall trim line + a centre rug that gets finer per level
 		if (r.decor >= 1) {
-			this.addDyn(this.add.rectangle(wx, wy + TILE - 2, ww, 3, C(r.accent), 0.5).setOrigin(0, 0).setDepth(0.13));
+			this.addDyn(
+				this.add
+					.rectangle(wx, wy + TILE - 2, ww, 3, C(r.accent), 0.5)
+					.setOrigin(0, 0)
+					.setDepth(0.13),
+			);
 		}
 		if (r.decor >= 2) {
 			const rugW = Math.min(fw - TILE * 2, TILE * (3 + r.decor));
 			const rugH = Math.min(fh - TILE * 2, TILE * (2 + r.decor * 0.5));
-			const cx = fx + fw / 2, cy = fy + fh / 2;
+			const cx = fx + fw / 2,
+				cy = fy + fh / 2;
 			this.addDyn(this.add.rectangle(cx, cy, rugW, rugH, C(r.rug), 0.8).setDepth(0.22));
 			this.addDyn(this.add.rectangle(cx, cy, rugW - 10, rugH - 10, C(r.floor), 0.35).setDepth(0.221));
 			if (r.decor >= 3) this.addDyn(this.add.rectangle(cx, cy, rugW - 22, rugH - 22, C(r.rug), 0.6).setDepth(0.222));
@@ -907,20 +1065,43 @@ export class WorldScene extends Phaser.Scene {
 			for (let i = 0; i < windows; i++) {
 				const wxp = fx + fw * ((i + 1) / (windows + 1));
 				this.addDyn(this.add.rectangle(wxp, wy + TILE / 2, TILE * 0.7, TILE * 0.6, C('#cfe6f2'), 0.85).setDepth(0.14));
-				this.addDyn(this.add.rectangle(wxp, wy + TILE / 2, TILE * 0.7, TILE * 0.6).setStrokeStyle(2, C('#000000'), 0.25).setDepth(0.141));
+				this.addDyn(
+					this.add
+						.rectangle(wxp, wy + TILE / 2, TILE * 0.7, TILE * 0.6)
+						.setStrokeStyle(2, C('#000000'), 0.25)
+						.setDepth(0.141),
+				);
 			}
 		}
 		if (r.light >= 3) {
-			const glow = this.addDyn(this.img(fx + TILE, fy + fh - TILE, 'glow').setTint(0xffcf80).setDepth(0.23).setScale(1.6 * INV_TEX_SCALE).setAlpha(0.5));
+			const glow = this.addDyn(
+				this.img(fx + TILE, fy + fh - TILE, 'glow')
+					.setTint(0xffcf80)
+					.setDepth(0.23)
+					.setScale(1.6 * INV_TEX_SCALE)
+					.setAlpha(0.5),
+			);
 			glow.setBlendMode(Phaser.BlendModes.ADD);
-			this.tweens.add({ targets: glow, alpha: { from: 0.5, to: 0.32 }, duration: 1400, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+			this.tweens.add({
+				targets: glow,
+				alpha: { from: 0.5, to: 0.32 },
+				duration: 1400,
+				yoyo: true,
+				repeat: -1,
+				ease: 'Sine.easeInOut',
+			});
 		}
 
 		// door on the bottom wall, with a welcome mat just inside it
 		const dpx = r.doorX * TILE + 16;
 		this.addDyn(this.add.rectangle(dpx, (r.y1 + 1) * TILE + 16, TILE * 0.82, TILE * 1.1, C('#33251a')).setDepth(0.3));
 		this.addDyn(this.add.rectangle(dpx, (r.y1 + 1) * TILE + 14, TILE * 0.6, TILE * 0.92, C('#5a3f28')).setDepth(0.31));
-		this.addDyn(this.add.rectangle(dpx, r.doorY * TILE + 16, TILE * 0.95, TILE * 0.55, C(r.accent)).setDepth(0.25).setAlpha(0.7));
+		this.addDyn(
+			this.add
+				.rectangle(dpx, r.doorY * TILE + 16, TILE * 0.95, TILE * 0.55, C(r.accent))
+				.setDepth(0.25)
+				.setAlpha(0.7),
+		);
 	}
 
 	/** Refresh an interior (home or trail tent): placed decor + the exit door. */
@@ -948,23 +1129,48 @@ export class WorldScene extends Phaser.Scene {
 		const y0 = -SURROUND_Y * TILE;
 		const h = this.worldH + SURROUND_Y * TILE * 2;
 		// deep sea fills the reserved columns out past the world edge
-		this.add.rectangle(edgeX, y0, this.worldW + SURROUND_X * TILE - edgeX, h, C('#2f6f9e')).setOrigin(0, 0).setDepth(0.1);
+		this.add
+			.rectangle(edgeX, y0, this.worldW + SURROUND_X * TILE - edgeX, h, C('#2f6f9e'))
+			.setOrigin(0, 0)
+			.setDepth(0.1);
 		// banded water: a lighter shallow strip near shore, deeper blue beyond
-		this.add.rectangle(edgeX, y0, TILE * 1.6, h, C('#5aa6cf')).setOrigin(0, 0).setDepth(0.12);
-		this.add.rectangle(edgeX + TILE * 1.6, y0, TILE * 1.3, h, C('#3f8cbb')).setOrigin(0, 0).setDepth(0.12);
+		this.add
+			.rectangle(edgeX, y0, TILE * 1.6, h, C('#5aa6cf'))
+			.setOrigin(0, 0)
+			.setDepth(0.12);
+		this.add
+			.rectangle(edgeX + TILE * 1.6, y0, TILE * 1.3, h, C('#3f8cbb'))
+			.setOrigin(0, 0)
+			.setDepth(0.12);
 		// a damp-sand tideline where the beach gives way to water
-		this.add.rectangle(edgeX - 6, y0, 12, h, C('#bda572')).setOrigin(0, 0).setDepth(0.13).setAlpha(0.7);
+		this.add
+			.rectangle(edgeX - 6, y0, 12, h, C('#bda572'))
+			.setOrigin(0, 0)
+			.setDepth(0.13)
+			.setAlpha(0.7);
 		// rolling foam lines that breathe in and out along the shore
 		for (let i = 0; i < 7; i++) {
 			const y = (i + 0.5) * (h / 7);
 			const foam = this.add.ellipse(edgeX + 4, y, TILE * 1.5, 10, 0xffffff, 0.5).setDepth(0.14);
 			this.tweens.add({
-				targets: foam, x: edgeX + 4 + TILE * 0.6, alpha: { from: 0.5, to: 0.15 },
-				duration: 1800 + i * 160, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+				targets: foam,
+				x: edgeX + 4 + TILE * 0.6,
+				alpha: { from: 0.5, to: 0.15 },
+				duration: 1800 + i * 160,
+				yoyo: true,
+				repeat: -1,
+				ease: 'Sine.easeInOut',
 			});
 			// sun-glints further out
 			const glint = this.add.ellipse(edgeX + TILE * (2 + (i % 2)), y - 14, 9, 4, 0xffffff, 0.4).setDepth(0.14);
-			this.tweens.add({ targets: glint, alpha: { from: 0.4, to: 0.05 }, duration: 1300 + i * 130, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+			this.tweens.add({
+				targets: glint,
+				alpha: { from: 0.4, to: 0.05 },
+				duration: 1300 + i * 130,
+				yoyo: true,
+				repeat: -1,
+				ease: 'Sine.easeInOut',
+			});
 		}
 		// a couple of half-buried rocks at the waterline for texture
 		const rng = mulberry32(hashStr('coast-rocks'));
@@ -993,10 +1199,10 @@ export class WorldScene extends Phaser.Scene {
 			const peaks: { x: number; y: number }[] = [];
 			let x = -PAD - step * 0.5;
 			while (x < W + PAD + step) {
-				const ph = lo + rng() * (hi - lo);      // this peak's height above the base
+				const ph = lo + rng() * (hi - lo); // this peak's height above the base
 				const px = x + rng() * step * 0.5;
 				peaks.push({ x: px, y: base - ph });
-				pts.push(new Phaser.Geom.Point(px, base - ph));            // peak
+				pts.push(new Phaser.Geom.Point(px, base - ph)); // peak
 				// saddle sits partway down the peak so ridges connect, not spikes
 				pts.push(new Phaser.Geom.Point(px + step * 0.5, base - ph * (0.42 + rng() * 0.18)));
 				x += step;
@@ -1035,7 +1241,9 @@ export class WorldScene extends Phaser.Scene {
 		// Lerp the health colour toward the season's tint so spring greens, autumn
 		// ambers and winter pales read at a glance. Amount is per-season (winter
 		// shifts most). seasonStyle falls back safely if the snapshot is absent.
-		let baseR = mix.r, baseG = mix.g, baseB = mix.b;
+		let baseR = mix.r,
+			baseG = mix.g,
+			baseB = mix.b;
 		const season = bridge.shared.state?.weather?.season;
 		if (season) {
 			const ss = seasonStyle(season);
@@ -1054,7 +1262,12 @@ export class WorldScene extends Phaser.Scene {
 		// greens back up as it heals — a multiplicative tint from "dead" toward white
 		// (white = the sprite's own colour) by health.
 		const dead = Phaser.Display.Color.HexStringToColor('#9c8a5a');
-		const dmix = Phaser.Display.Color.Interpolate.ColorWithColor(dead, { r: 255, g: 255, b: 255, a: 255 } as any, 100, Math.round(t * 100));
+		const dmix = Phaser.Display.Color.Interpolate.ColorWithColor(
+			dead,
+			{ r: 255, g: 255, b: 255, a: 255 } as any,
+			100,
+			Math.round(t * 100),
+		);
 		const decoTint = Phaser.Display.Color.GetColor(dmix.r, dmix.g, dmix.b);
 		for (const img of this.healthDeco) img.setTint(decoTint);
 	}
@@ -1110,8 +1323,12 @@ export class WorldScene extends Phaser.Scene {
 
 	private ensureWeatherOverlay() {
 		if (this.weatherOverlay) return;
-		this.weatherOverlay = this.add.rectangle(-3000, -3000, 9000, 9000, 0xffffff, 0)
-			.setOrigin(0, 0).setScrollFactor(0).setDepth(5005).setVisible(false);
+		this.weatherOverlay = this.add
+			.rectangle(-3000, -3000, 9000, 9000, 0xffffff, 0)
+			.setOrigin(0, 0)
+			.setScrollFactor(0)
+			.setDepth(5005)
+			.setVisible(false);
 	}
 
 	/** Free-running 0..1 day progress. Mirrors the HUD's DayTimer: anchor to the
@@ -1133,8 +1350,12 @@ export class WorldScene extends Phaser.Scene {
 	private ensureLightOverlay() {
 		if (this.lightOverlay) return;
 		// Sits just above the weather tint, camera-locked, below any UI/sleep dim.
-		this.lightOverlay = this.add.rectangle(-3000, -3000, 9000, 9000, 0xffffff, 0)
-			.setOrigin(0, 0).setScrollFactor(0).setDepth(5006).setVisible(false);
+		this.lightOverlay = this.add
+			.rectangle(-3000, -3000, 9000, 9000, 0xffffff, 0)
+			.setOrigin(0, 0)
+			.setScrollFactor(0)
+			.setDepth(5006)
+			.setVisible(false);
 	}
 
 	private ensureSkyOverlay() {
@@ -1192,7 +1413,11 @@ export class WorldScene extends Phaser.Scene {
 			this.skyOverlay!.setVisible(false);
 			return;
 		}
-		if (this.isIndoors) { this.lightOverlay!.setVisible(false); this.skyOverlay!.setVisible(false); return; }
+		if (this.isIndoors) {
+			this.lightOverlay!.setVisible(false);
+			this.skyOverlay!.setVisible(false);
+			return;
+		}
 		const progress = this.currentDayProgress();
 		if (progress == null) return;
 		const phase = phaseAtProgress(progress);
@@ -1203,15 +1428,17 @@ export class WorldScene extends Phaser.Scene {
 		const skyC = Phaser.Display.Color.IntegerToColor(C(st.sky?.color || '#ffffff'));
 		const skyA = st.sky?.alpha || 0;
 		const paint = () => {
-			this.lightOverlay!
-				.setFillStyle(Phaser.Display.Color.GetColor(
-					Math.round(this.lightState.r), Math.round(this.lightState.g), Math.round(this.lightState.b),
-				))
+			this.lightOverlay!.setFillStyle(
+				Phaser.Display.Color.GetColor(
+					Math.round(this.lightState.r),
+					Math.round(this.lightState.g),
+					Math.round(this.lightState.b),
+				),
+			)
 				.setAlpha(this.lightState.a)
 				.setVisible(this.lightState.a > 0.001);
 			const s = this.skyState;
-			this.skyOverlay!
-				.setTint(Phaser.Display.Color.GetColor(Math.round(s.r), Math.round(s.g), Math.round(s.b)))
+			this.skyOverlay!.setTint(Phaser.Display.Color.GetColor(Math.round(s.r), Math.round(s.g), Math.round(s.b)))
 				.setAlpha(s.a)
 				.setVisible(s.a > 0.001);
 			this.positionSkyOverlay();
@@ -1227,22 +1454,52 @@ export class WorldScene extends Phaser.Scene {
 		// ~15s ease from the old phase's lighting to the new one (flat + sky glow).
 		this.lightTween = this.tweens.add({
 			targets: this.lightState,
-			r: flat.red, g: flat.green, b: flat.blue, a: st.alpha,
-			duration: 15000, ease: 'Sine.easeInOut', onUpdate: paint, onComplete: paint,
+			r: flat.red,
+			g: flat.green,
+			b: flat.blue,
+			a: st.alpha,
+			duration: 15000,
+			ease: 'Sine.easeInOut',
+			onUpdate: paint,
+			onComplete: paint,
 		});
 		this.skyTween = this.tweens.add({
 			targets: this.skyState,
-			r: skyC.red, g: skyC.green, b: skyC.blue, a: skyA,
-			duration: 15000, ease: 'Sine.easeInOut', onUpdate: paint, onComplete: paint,
+			r: skyC.red,
+			g: skyC.green,
+			b: skyC.blue,
+			a: skyA,
+			duration: 15000,
+			ease: 'Sine.easeInOut',
+			onUpdate: paint,
+			onComplete: paint,
 		});
 	}
 
-	/** Does this player own the headlamp? Crafted once (`once: true` recipe) and
+	/** Has this player ever crafted a piece of gear? Gear is a `once: true` recipe
 	 *  kept forever — craftedEver survives even if the save's inventory shifts. */
-	private hasHeadlamp(): boolean {
+	private ownsGear(itemId: string): boolean {
 		const p = bridge.shared.state?.player;
 		if (!p) return false;
-		return ((p.craftedEver?.['headlamp'] || 0) + (p.craftedItems?.['headlamp'] || 0)) > 0;
+		return (p.craftedEver?.[itemId] || 0) + (p.craftedItems?.[itemId] || 0) > 0;
+	}
+
+	/** Headlamp active = owned AND switched on in Tools & Upgrades. When on, it
+	 *  lights the ground around you after dusk. */
+	private hasHeadlamp(): boolean {
+		return this.ownsGear('headlamp') && gearOn('headlamp');
+	}
+
+	/** Field binoculars active = owned AND switched on. When on, animals not yet
+	 *  recorded in the journal get a soft glint. */
+	private hasBinoculars(): boolean {
+		return this.ownsGear('binoculars') && gearOn('binoculars');
+	}
+
+	/** Hiking boots active = owned AND switched on. When on, you walk a little
+	 *  faster across the preserve. */
+	private hasBoots(): boolean {
+		return this.ownsGear('hiking-boots') && gearOn('boots');
 	}
 
 	/** Lazily build the night-light visuals: a shared radial-gradient texture,
@@ -1267,16 +1524,21 @@ export class WorldScene extends Phaser.Scene {
 		// halo: a tight personal pool, layered BENEATH the caretaker (depth is
 		// re-pinned to just under the player each frame) so light falls on the
 		// ground and the character stands in front of it.
-		this.lampGlow = this.add.image(0, 0, 'headlamp-light')
+		this.lampGlow = this.add
+			.image(0, 0, 'headlamp-light')
 			.setBlendMode(Phaser.BlendModes.ADD)
-			.setTint(0xffd98a).setDisplaySize(TILE * 4, TILE * 4)
+			.setTint(0xffd98a)
+			.setDisplaySize(TILE * 4, TILE * 4)
 			.setVisible(false);
 		// mask: a screen-sized RenderTexture, stamped once per light source each
 		// frame and used as a single inverted bitmap mask — the tint is removed
 		// wherever ANY light shines (BitmapMask needs WebGL — on canvas the
 		// additive halos alone still read as light)
 		if (this.game.renderer.type === Phaser.WEBGL) {
-			this.lightMaskRT = this.make.renderTexture({ x: 0, y: 0, width: this.scale.width, height: this.scale.height }, false);
+			this.lightMaskRT = this.make.renderTexture(
+				{ x: 0, y: 0, width: this.scale.width, height: this.scale.height },
+				false,
+			);
 			this.lightMaskRT.setOrigin(0, 0).setScrollFactor(0);
 			this.lightBrush = this.make.image({ key: 'headlamp-light', add: false });
 			this.lightBitmapMask = this.lightMaskRT.createBitmapMask() as Phaser.Display.Masks.BitmapMask;
@@ -1317,12 +1579,13 @@ export class WorldScene extends Phaser.Scene {
 		this.ensureHeadlamp();
 		// 0..1 as the night tint fades in (0.66 = full night, see weather.json)
 		const depth = Phaser.Math.Clamp(this.lightState.a / 0.66, 0, 1);
-		// a whisper of flicker (day/night is off under reduce-motion, so this never runs there)
-		const flicker = 1 + Math.sin(this.time.now / 143) * 0.02 + Math.sin(this.time.now / 47) * 0.012;
-		const x = this.player.x, y = this.player.y;
+		const x = this.player.x,
+			y = this.player.y;
 		// halo pinned just beneath the caretaker so they stand in front of the light
-		this.lampGlow!.setPosition(x, y).setDepth(y - 4)
-			.setAlpha(hasLamp ? 0.3 * depth * flicker : 0).setVisible(hasLamp);
+		this.lampGlow!.setPosition(x, y)
+			.setDepth(y - 4)
+			.setAlpha(hasLamp ? 0.3 * depth : 0)
+			.setVisible(hasLamp);
 		if (!this.lightMaskRT || !this.lightBrush || !this.lightBitmapMask) return; // canvas renderer: halos only
 		// The night tint is screen-space (scrollFactor 0), so the mask is too: a
 		// screen-sized RenderTexture, restamped each frame at each light's
@@ -1340,11 +1603,10 @@ export class WorldScene extends Phaser.Scene {
 		rt.clear();
 		// the lamp never fully clears the night (max ~0.8 mask alpha) — a modest
 		// personal glow, dimmer and tighter than a campfire's
-		if (hasLamp) stamp(x, y, WorldScene.LAMP_MASK, Math.min(0.8, depth * 0.9) * flicker);
-		fires.forEach((f, i) => {
-			// each fire flickers on its own rhythm so a row of fires doesn't pulse in sync
-			const ff = 1 + Math.sin(this.time.now / 96 + i * 1.7) * 0.045;
-			stamp(f.x, f.y - 6, WorldScene.FIRE_MASK * ff, Math.min(1, depth * 1.35));
+		if (hasLamp) stamp(x, y, WorldScene.LAMP_MASK, Math.min(0.8, depth * 0.9));
+		// steady light — no flicker; the lit edge holds still so night reads calmly
+		fires.forEach((f) => {
+			stamp(f.x, f.y - 6, WorldScene.FIRE_MASK, Math.min(1, depth * 1.35));
 		});
 		if (!this.lightOverlay!.mask) this.lightOverlay!.setMask(this.lightBitmapMask);
 	}
@@ -1374,42 +1636,66 @@ export class WorldScene extends Phaser.Scene {
 	 * camera is; they sit above the colour tints so they stay crisp.
 	 */
 	private setWeatherParticles(kind: 'rain' | 'snow' | null, prewarm = false) {
-		if (this.weatherEmitter) { this.weatherEmitter.destroy(); this.weatherEmitter = undefined; }
+		if (this.weatherEmitter) {
+			this.weatherEmitter.destroy();
+			this.weatherEmitter = undefined;
+		}
 		if (!kind) return;
 		this.ensureWeatherTextures();
-		const w = this.worldW + SURROUND_X * TILE; // fall covers the surround too
+		// Emit only in a band around the camera instead of across the whole map —
+		// the emitter follows the camera in update(). Off-screen particles were
+		// still simulated every frame, and on big maps (Graywind under 13s-lifespan
+		// snow) that meant hundreds of invisible particles; playtest reported
+		// slowdowns there on integrated graphics. Already-fallen particles are
+		// world-locked, so panning the camera doesn't drag the weather along.
+		const worldSpan = this.worldW + 2 * (SURROUND_X * TILE + 40);
+		const span = Math.min(worldSpan, this.scale.width * 2.4);
 		const lifespan = kind === 'rain' ? 1700 : 13000;
 		if (kind === 'rain') {
-			this.weatherEmitter = this.add.particles(0, 0, 'wx-rain', {
-				x: { min: -SURROUND_X * TILE - 40, max: w + 40 },
-				y: -20,
-				lifespan,
-				speedY: { min: 520, max: 700 },
-				speedX: { min: -60, max: -20 },
-				scaleX: INV_TEX_SCALE,
-				scaleY: { min: 0.8 * INV_TEX_SCALE, max: 1.5 * INV_TEX_SCALE },
-				alpha: { min: 0.25, max: 0.5 },
-				quantity: 4,
-				frequency: 28,
-			}).setDepth(5020);
+			this.weatherEmitter = this.add
+				.particles(0, 0, 'wx-rain', {
+					x: { min: -span / 2, max: span / 2 },
+					y: 0,
+					lifespan,
+					speedY: { min: 520, max: 700 },
+					speedX: { min: -60, max: -20 },
+					scaleX: INV_TEX_SCALE,
+					scaleY: { min: 0.8 * INV_TEX_SCALE, max: 1.5 * INV_TEX_SCALE },
+					alpha: { min: 0.25, max: 0.5 },
+					quantity: 2,
+					frequency: 26,
+					maxAliveParticles: 220,
+				})
+				.setDepth(5020);
 		} else {
-			this.weatherEmitter = this.add.particles(0, 0, 'wx-snow', {
-				x: { min: -SURROUND_X * TILE - 40, max: w + 40 },
-				y: -20,
-				lifespan,
-				speedY: { min: 45, max: 85 },
-				speedX: { min: -25, max: 25 },
-				scale: { min: 0.45 * INV_TEX_SCALE, max: 1 * INV_TEX_SCALE },
-				alpha: { min: 0.5, max: 0.9 },
-				quantity: 2,
-				frequency: 80,
-			}).setDepth(5020);
+			this.weatherEmitter = this.add
+				.particles(0, 0, 'wx-snow', {
+					x: { min: -span / 2, max: span / 2 },
+					y: 0,
+					lifespan,
+					speedY: { min: 55, max: 85 },
+					speedX: { min: -25, max: 25 },
+					scale: { min: 0.45 * INV_TEX_SCALE, max: 1 * INV_TEX_SCALE },
+					alpha: { min: 0.5, max: 0.9 },
+					quantity: 1,
+					frequency: 55,
+					maxAliveParticles: 240,
+				})
+				.setDepth(5020);
 		}
+		this.positionWeatherEmitter();
 		// Pre-fill so the screen is already full of falling weather on biome entry
 		// (Phaser advances the emitter as if `lifespan` ms had already elapsed).
 		// Coarser step (500ms) keeps snow's 13s prewarm from simulating in one
 		// frame — the screen still fills, but the spike on biome entry is gone.
 		if (prewarm) this.weatherEmitter.fastForward(lifespan, 500);
+	}
+
+	/** Keep the emit band parked just above the camera's view. */
+	private positionWeatherEmitter() {
+		if (!this.weatherEmitter) return;
+		const v = this.cameras.main.worldView;
+		this.weatherEmitter.setPosition(v.centerX, v.y - 30);
 	}
 
 	// ------------------------------------------------- dynamic world objects
@@ -1431,7 +1717,10 @@ export class WorldScene extends Phaser.Scene {
 			.join('|');
 		const placements = (st.placements || [])
 			.filter((pl) => pl.area === this.area)
-			.map((pl) => `${pl.id}:${pl.objectId}:${pl.x},${pl.y}:${pl.rotation || 0}:${pl.plantedAt || 0}:${(pl as any).lastHarvestAt || 0}`)
+			.map(
+				(pl) =>
+					`${pl.id}:${pl.objectId}:${pl.x},${pl.y}:${pl.rotation || 0}:${pl.plantedAt || 0}:${(pl as any).lastHarvestAt || 0}`,
+			)
 			.sort()
 			.join('|');
 		const wx = liveWeatherType(this.worldId, this.area, st.weather);
@@ -1459,11 +1748,14 @@ export class WorldScene extends Phaser.Scene {
 		this.nodeSprites.clear();
 		this.interactables = [];
 		this.hoveredIt = null; // its hit zone was just destroyed; a fresh pointerover will re-set it
-		if (this.isIndoors) { this.refreshHome(); return; }
+		if (this.isIndoors) {
+			this.refreshHome();
+			return;
+		}
 		// collision lookups: open water blocks walking unless bridged
 		const st = bridge.shared.state;
 		this.waterTiles = new Set(
-			(st?.terrain || []).filter((tt) => tt.area === this.area && tt.type === 'water').map((tt) => `${tt.x},${tt.y}`)
+			(st?.terrain || []).filter((tt) => tt.area === this.area && tt.type === 'water').map((tt) => `${tt.x},${tt.y}`),
 		);
 		// pixel centers of every open-water tile — fish live here, walkers avoid it
 		this.waterTileCenters = [...this.waterTiles].map((k) => {
@@ -1473,7 +1765,7 @@ export class WorldScene extends Phaser.Scene {
 		this.bridgeTiles = new Set(
 			(st?.placements || [])
 				.filter((pl) => pl.area === this.area && this.objectDef(pl.objectId)?.bridge)
-				.map((pl) => `${pl.x},${pl.y}`)
+				.map((pl) => `${pl.x},${pl.y}`),
 		);
 		this.tintGround();
 		this.drawTerrain();
@@ -1486,7 +1778,17 @@ export class WorldScene extends Phaser.Scene {
 		// comfort shift, or a different area) — not on every gather/place — so they
 		// keep wandering instead of snapping back to their spawn on each action.
 		const here = (st?.discoveries || []).filter((disc) => disc.biomeId === this.area);
-		const sig = this.area + '|' + here.map((d) => `${d.animalId}:${d.comfort ?? ''}`).sort().join(',');
+		// With binoculars, the sig also tracks which animals are still unrecorded, so
+		// the glint markers appear the moment they're crafted and clear on observing.
+		const binos = this.hasBinoculars();
+		const sig =
+			this.area +
+			'|' +
+			(binos ? 'b|' : '') +
+			here
+				.map((d) => `${d.animalId}:${d.comfort ?? ''}${binos && !d.timesObserved ? ':new' : ''}`)
+				.sort()
+				.join(',');
 		if (sig !== this.animalSig) {
 			this.animalSig = sig;
 			this.animals.clear(true, true);
@@ -1504,17 +1806,30 @@ export class WorldScene extends Phaser.Scene {
 			const y = tile.y * TILE + 16;
 			if (tile.type === 'water') {
 				const img = this.addDyn(this.img(x, y, 'terrain-water').setDepth(1.6));
-				this.tweens.add({ targets: img, alpha: { from: 1, to: 0.86 }, duration: 1300 + ((tile.x + tile.y) % 4) * 180, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+				this.tweens.add({
+					targets: img,
+					alpha: { from: 1, to: 0.86 },
+					duration: 1300 + ((tile.x + tile.y) % 4) * 180,
+					yoyo: true,
+					repeat: -1,
+					ease: 'Sine.easeInOut',
+				});
 				continue;
 			}
 			this.addDyn(this.img(x, y, tile.type === 'watered' ? 'watered' : 'tilled').setDepth(1.5));
 			if (tile.type === 'watered') {
 				// watered beds are ready for planting; terraform clicks still reach the
 				// soil here so the can/shovel can flood or clear it (with confirmation)
-				this.registerInteractable({
-					x, y, label: t('game.label.plantBed'),
-					action: () => bridge.emit('bed-clicked', { area: this.area, x: tile.x, y: tile.y }),
-				}, undefined, { terraformPassthrough: true });
+				this.registerInteractable(
+					{
+						x,
+						y,
+						label: t('game.label.plantBed'),
+						action: () => bridge.emit('bed-clicked', { area: this.area, x: tile.x, y: tile.y }),
+					},
+					undefined,
+					{ terraformPassthrough: true },
+				);
 			}
 		}
 	}
@@ -1523,16 +1838,20 @@ export class WorldScene extends Phaser.Scene {
 	private registerInteractable(
 		it: Interactable,
 		hitObject?: Phaser.GameObjects.GameObject,
-		opts: { terraformPassthrough?: boolean } = {}
+		opts: { terraformPassthrough?: boolean } = {},
 	) {
 		this.interactables.push(it);
 		const target =
 			hitObject ||
-			this.addDyn(this.add.zone(it.x, it.y, 52, 52).setOrigin(0.5).setInteractive({ useHandCursor: true }));
+			this.addDyn(this.add.zone(it.x, it.y, 64, 64).setOrigin(0.5).setInteractive({ useHandCursor: true }));
 		// Hover feedback: light up the interactable under the pointer even before you
 		// reach it, so it's clear what a click will act on (visuals are unchanged).
-		target.on('pointerover', () => { if (!bridge.shared.uiBlocking) this.hoveredIt = it; });
-		target.on('pointerout', () => { if (this.hoveredIt === it) this.hoveredIt = null; });
+		target.on('pointerover', () => {
+			if (!bridge.shared.uiBlocking) this.hoveredIt = it;
+		});
+		target.on('pointerout', () => {
+			if (this.hoveredIt === it) this.hoveredIt = null;
+		});
 		target.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
 			if (bridge.shared.uiBlocking) return; // a modal is open — clicks don't reach the world
 			if (this.placementObjectId || this.movingPlacementId) return;
@@ -1551,7 +1870,7 @@ export class WorldScene extends Phaser.Scene {
 			}
 			if (pointer.event && (pointer.event as MouseEvent).shiftKey) return; // shift = pick up
 			const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, it.x, it.y);
-			if (dist <= 120) it.action();
+			if (dist <= 155) it.action();
 			else bridge.emit('toast', { text: t('game.toast.walkCloser'), kind: 'info' });
 		});
 	}
@@ -1564,14 +1883,26 @@ export class WorldScene extends Phaser.Scene {
 		const spot = (): { x: number; y: number } | null => {
 			const x = (1 + rng() * (this.landRight - 2)) * TILE;
 			const y = (this.playTop + 1.4 + rng() * (this.rows - this.playTop - 2.4)) * TILE;
-			if (this.area === 'meadow' && x > (CAMP_BLOCK.x0 - 0.4) * TILE && x < (CAMP_BLOCK.x1 + 0.4) * TILE && y > (CAMP_BLOCK.y0 - 0.4) * TILE && y < (CAMP_BLOCK.y1 + 0.4) * TILE) return null;
+			if (
+				this.area === 'meadow' &&
+				x > (CAMP_BLOCK.x0 - 0.4) * TILE &&
+				x < (CAMP_BLOCK.x1 + 0.4) * TILE &&
+				y > (CAMP_BLOCK.y0 - 0.4) * TILE &&
+				y < (CAMP_BLOCK.y1 + 0.4) * TILE
+			)
+				return null;
 			return { x, y };
 		};
 		const scatter = (key: string, count: number, alpha = 1) => {
 			for (let i = 0; i < count; i++) {
 				const p = spot();
 				if (!p) continue;
-				this.addDyn(this.img(p.x, p.y, key).setDepth(1).setAlpha(alpha).setAngle(rng() * 20 - 10));
+				this.addDyn(
+					this.img(p.x, p.y, key)
+						.setDepth(1)
+						.setAlpha(alpha)
+						.setAngle(rng() * 20 - 10),
+				);
 			}
 		};
 		// density scales with the biome's playable area so big maps aren't barren
@@ -1585,14 +1916,21 @@ export class WorldScene extends Phaser.Scene {
 			scatter('pebble', Math.round(30 * dScale), 0.85); // heavy scree
 			// scattered boulders (bigger grey rocks)
 			for (let i = 0; i < Math.round(16 * dScale); i++) {
-				const p = spot(); if (!p) continue;
+				const p = spot();
+				if (!p) continue;
 				const w = 16 + rng() * 16;
 				this.addDyn(this.add.ellipse(p.x, p.y, w, w * 0.72, C('#8f8e88')).setDepth(1));
-				this.addDyn(this.add.ellipse(p.x - w * 0.15, p.y - w * 0.18, w * 0.5, w * 0.32, C('#a7a69f')).setDepth(1.01).setAlpha(0.8));
+				this.addDyn(
+					this.add
+						.ellipse(p.x - w * 0.15, p.y - w * 0.18, w * 0.5, w * 0.32, C('#a7a69f'))
+						.setDepth(1.01)
+						.setAlpha(0.8),
+				);
 			}
 			// snow patches — more as the slope recovers and holds snowmelt
 			for (let i = 0; i < Math.round((6 + (health / 100) * 16) * dScale); i++) {
-				const p = spot(); if (!p) continue;
+				const p = spot();
+				if (!p) continue;
 				this.addDyn(this.add.ellipse(p.x, p.y, 20 + rng() * 22, 12 + rng() * 12, 0xffffff, 0.7).setDepth(0.9));
 			}
 			// only sparse alpine turf + a few hardy blooms, never a full green carpet
@@ -1621,6 +1959,30 @@ export class WorldScene extends Phaser.Scene {
 		return this.add.image(x, y, key).setScale(INV_TEX_SCALE);
 	}
 
+	/** The little four-point star used wherever the world says "something here
+	 *  for you" — harvest-ready plants and the binoculars' unrecorded-animal
+	 *  marker share it, so the cue reads the same across the preserve. */
+	private ensureMoteTexture() {
+		if (this.textures.exists('harvest-mote')) return;
+		const g = this.make.graphics({ x: 0, y: 0 }, false);
+		g.scaleCanvas(TEX_SCALE, TEX_SCALE);
+		g.fillStyle(0xffffff, 1).fillPoints(
+			[
+				{ x: 5, y: 0 },
+				{ x: 6.2, y: 3.8 },
+				{ x: 10, y: 5 },
+				{ x: 6.2, y: 6.2 },
+				{ x: 5, y: 10 },
+				{ x: 3.8, y: 6.2 },
+				{ x: 0, y: 5 },
+				{ x: 3.8, y: 3.8 },
+			],
+			true,
+		);
+		g.generateTexture('harvest-mote', 10 * TEX_SCALE, 10 * TEX_SCALE);
+		g.destroy();
+	}
+
 	/**
 	 * A gentle golden shimmer over a trail gate that's been unlocked but not yet
 	 * walked through — so a freshly opened way onward is unmistakable. Stops once
@@ -1635,10 +1997,19 @@ export class WorldScene extends Phaser.Scene {
 			g.scaleCanvas(TEX_SCALE, TEX_SCALE);
 			g.fillStyle(0xffffff, 1);
 			// a small 4-point star
-			g.fillPoints([
-				{ x: 6, y: 0 }, { x: 7.4, y: 4.6 }, { x: 12, y: 6 }, { x: 7.4, y: 7.4 },
-				{ x: 6, y: 12 }, { x: 4.6, y: 7.4 }, { x: 0, y: 6 }, { x: 4.6, y: 4.6 },
-			], true);
+			g.fillPoints(
+				[
+					{ x: 6, y: 0 },
+					{ x: 7.4, y: 4.6 },
+					{ x: 12, y: 6 },
+					{ x: 7.4, y: 7.4 },
+					{ x: 6, y: 12 },
+					{ x: 4.6, y: 7.4 },
+					{ x: 0, y: 6 },
+					{ x: 4.6, y: 4.6 },
+				],
+				true,
+			);
 			g.generateTexture('gate-sparkle', 12 * TEX_SCALE, 12 * TEX_SCALE);
 			g.destroy();
 		}
@@ -1651,7 +2022,10 @@ export class WorldScene extends Phaser.Scene {
 			const ox = (rng() - 0.5) * 46;
 			const oy = (rng() - 0.5) * 50 - 6;
 			const star = this.addDyn(this.img(x + ox, y + oy, 'gate-sparkle'))
-				.setDepth(y + 60).setAlpha(0).setScale(0).setTint(tints[i % tints.length]);
+				.setDepth(y + 60)
+				.setAlpha(0)
+				.setScale(0)
+				.setTint(tints[i % tints.length]);
 			star.setBlendMode(Phaser.BlendModes.ADD);
 			const peak = 0.12 + rng() * 0.09;
 			this.tweens.add({
@@ -1698,10 +2072,13 @@ export class WorldScene extends Phaser.Scene {
 			if (cur < u.minTotalAnimals) needs.push(t('game.gate.needTotalAnimals', { goal: u.minTotalAnimals, cur }));
 		}
 		if (u.requiresItem) {
-			const have = (st.player.craftedItems?.[u.requiresItem] || 0) + ((st.player as any).craftedEver?.[u.requiresItem] || 0);
+			const have =
+				(st.player.craftedItems?.[u.requiresItem] || 0) + ((st.player as any).craftedEver?.[u.requiresItem] || 0);
 			if (have <= 0) {
 				const obj = d?.habitatObjects.find((o) => o.id === u.requiresItem);
-				needs.push(t('game.gate.needKit', { item: obj ? content('habitatObject', obj.id, 'name', obj.name) : u.requiresItem }));
+				needs.push(
+					t('game.gate.needKit', { item: obj ? content('habitatObject', obj.id, 'name', obj.name) : u.requiresItem }),
+				);
 			}
 		}
 		if (!needs.length) return t('game.gate.almost', { name });
@@ -1712,7 +2089,8 @@ export class WorldScene extends Phaser.Scene {
 		const state = bridge.shared.state;
 		if (this.area === 'meadow') {
 			// base camp: tent + flickering campfire (the crafting station/chest are placements)
-			const tx2 = CAMP.tent.x * TILE, ty2 = CAMP.tent.y * TILE;
+			const tx2 = CAMP.tent.x * TILE,
+				ty2 = CAMP.tent.y * TILE;
 			// the camp building reflects your home: a tent until you build it, then your
 			// chosen style, growing a little as Space is upgraded
 			const homeC: any = state?.player?.home;
@@ -1721,31 +2099,55 @@ export class WorldScene extends Phaser.Scene {
 			const homeKey = this.textures.exists(wantKey) ? wantKey : 'tent';
 			// the camp building grows gradually: a small tent, then each Space level a bit bigger
 			const homeScale = built ? 1 + Math.max(0, (homeC.space || 2) - 2) * 0.1 : 0.85;
-			this.addDyn(this.img(tx2, ty2 + 22, 'shadow').setDepth(3).setScale(2.0 * homeScale * INV_TEX_SCALE, 1.1 * INV_TEX_SCALE));
-			this.addDyn(this.img(tx2, ty2, homeKey).setDepth(ty2).setScale(homeScale * INV_TEX_SCALE));
+			this.addDyn(
+				this.img(tx2, ty2 + 22, 'shadow')
+					.setDepth(3)
+					.setScale(2.0 * homeScale * INV_TEX_SCALE, 1.1 * INV_TEX_SCALE),
+			);
+			this.addDyn(
+				this.img(tx2, ty2, homeKey)
+					.setDepth(ty2)
+					.setScale(homeScale * INV_TEX_SCALE),
+			);
 			// step inside your home to decorate it
 			this.registerInteractable({
-				x: tx2, y: ty2 + 8, label: t('game.label.stepInside'),
+				x: tx2,
+				y: ty2 + 8,
+				label: t('game.label.stepInside'),
 				action: () => bridge.emit('request-area', { area: 'home' }),
 			});
 			// the upgrade signpost — shown only while something's left to upgrade
 			const tracks = bridge.shared.data?.homeTracks as any;
-			const fullyUpgraded = built && tracks &&
+			const fullyUpgraded =
+				built &&
+				tracks &&
 				['space', 'comfort', 'decor', 'light'].every((k) => (homeC[k] || 1) >= (tracks[k]?.levels.length || 1));
 			if (!fullyUpgraded) {
-				const sgx = (CAMP.tent.x - 1.2) * TILE, sgy = (CAMP.tent.y + 1.1) * TILE;
-				this.addDyn(this.img(sgx, sgy + 16, 'shadow').setDepth(3).setScale(0.9 * INV_TEX_SCALE, 0.7 * INV_TEX_SCALE));
+				const sgx = (CAMP.tent.x - 1.2) * TILE,
+					sgy = (CAMP.tent.y + 1.1) * TILE;
+				this.addDyn(
+					this.img(sgx, sgy + 16, 'shadow')
+						.setDepth(3)
+						.setScale(0.9 * INV_TEX_SCALE, 0.7 * INV_TEX_SCALE),
+				);
 				this.addDyn(this.img(sgx, sgy, 'sign').setDepth(sgy));
 				this.registerInteractable({
-					x: sgx, y: sgy, label: t('game.label.upgradeHome'),
+					x: sgx,
+					y: sgy,
+					label: t('game.label.upgradeHome'),
 					action: () => bridge.emit('open-home'),
 				});
 			}
-			const fx = CAMP.fire.x * TILE, fy = CAMP.fire.y * TILE;
-			const fireGlow = this.addDyn(this.img(fx, fy - 4, 'glow').setTint(0xffb84f).setDepth(fy - 1).setScale(1.3 * INV_TEX_SCALE));
+			const fx = CAMP.fire.x * TILE,
+				fy = CAMP.fire.y * TILE;
+			const fireGlow = this.addDyn(
+				this.img(fx, fy - 4, 'glow')
+					.setTint(0xffb84f)
+					.setDepth(fy - 1)
+					.setScale(1.3 * INV_TEX_SCALE),
+			);
 			(fireGlow as Phaser.GameObjects.Image).setBlendMode(Phaser.BlendModes.ADD);
-			const fire = this.addDyn(this.img(fx, fy, 'campfire').setDepth(fy));
-			this.tweens.add({ targets: [fire, fireGlow], alpha: { from: 1, to: 0.75 }, duration: 420, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
+			this.addDyn(this.img(fx, fy, 'campfire').setDepth(fy));
 
 			const gx = (this.cols - 1.2) * TILE;
 			const gy = this.dimsOf(this.area).gateY * TILE;
@@ -1755,7 +2157,11 @@ export class WorldScene extends Phaser.Scene {
 			if (forestOpen) this.gateSparkle(gx, gy, 'forest');
 			const forestName = this.biomeName('forest', 'Old Hollow Forest');
 			this.registerInteractable({
-				x: gx, y: gy, label: forestOpen ? t('game.label.walkTo', { name: forestName }) : t('game.label.readTrailSign', { name: forestName }),
+				x: gx,
+				y: gy,
+				label: forestOpen
+					? t('game.label.walkTo', { name: forestName })
+					: t('game.label.readTrailSign', { name: forestName }),
 				liveLabel: forestOpen ? undefined : () => this.gateRequirementText('forest'),
 				action: () => {
 					if (forestOpen) bridge.emit('request-area', { area: 'forest' });
@@ -1769,7 +2175,12 @@ export class WorldScene extends Phaser.Scene {
 			const gx = 1.2 * TILE;
 			const gy = this.dimsOf(this.area).gateY * TILE;
 			this.addDyn(this.img(gx, gy, 'gate').setDepth(gy));
-			this.registerInteractable({ x: gx, y: gy, label: t('game.label.walkBackTo', { name: this.biomeName('meadow', 'Willow Meadow') }), action: () => bridge.emit('request-area', { area: 'meadow' }) });
+			this.registerInteractable({
+				x: gx,
+				y: gy,
+				label: t('game.label.walkBackTo', { name: this.biomeName('meadow', 'Willow Meadow') }),
+				action: () => bridge.emit('request-area', { area: 'meadow' }),
+			});
 
 			const sx = (this.cols - 1.2) * TILE;
 			const sy = gy;
@@ -1780,7 +2191,11 @@ export class WorldScene extends Phaser.Scene {
 			if (wetlandOpen) this.gateSparkle(sx, sy, 'wetland');
 			const wetlandName = this.biomeName('wetland', 'Rushwater Wetland');
 			this.registerInteractable({
-				x: sx, y: sy, label: wetlandOpen ? t('game.label.walkTo', { name: wetlandName }) : t('game.label.readTrailSign', { name: wetlandName }),
+				x: sx,
+				y: sy,
+				label: wetlandOpen
+					? t('game.label.walkTo', { name: wetlandName })
+					: t('game.label.readTrailSign', { name: wetlandName }),
 				liveLabel: wetlandOpen ? undefined : () => this.gateRequirementText('wetland'),
 				action: () => {
 					if (wetlandOpen) {
@@ -1794,19 +2209,17 @@ export class WorldScene extends Phaser.Scene {
 					bridge.emit('toast', { text, kind: 'info' });
 				},
 			});
-			// a few standing dead snags for atmosphere
-			const rng = mulberry32(hashStr('forest-snags'));
-			for (let i = 0; i < 5; i++) {
-				const x = (4 + rng() * (this.cols - 8)) * TILE;
-				const y = (2 + rng() * 4) * TILE;
-				this.addDyn(this.img(x, y, 'obj-deadwood').setDepth(y).setAlpha(0.85).setTint(0xb9aa8e));
-			}
 		} else if (this.area === 'wetland') {
 			// gate back to the forest on the west edge
 			const gx = 1.2 * TILE;
 			const gy = this.dimsOf(this.area).gateY * TILE;
 			this.addDyn(this.img(gx, gy, 'gate').setDepth(gy));
-			this.registerInteractable({ x: gx, y: gy, label: t('game.label.walkBackTo', { name: this.biomeName('forest', 'Old Hollow Forest') }), action: () => bridge.emit('request-area', { area: 'forest' }) });
+			this.registerInteractable({
+				x: gx,
+				y: gy,
+				label: t('game.label.walkBackTo', { name: this.biomeName('forest', 'Old Hollow Forest') }),
+				action: () => bridge.emit('request-area', { area: 'forest' }),
+			});
 
 			// trail east toward the desert (Redstone Scrubland)
 			const sx = (this.cols - 1.2) * TILE;
@@ -1818,7 +2231,11 @@ export class WorldScene extends Phaser.Scene {
 			if (desertOpen) this.gateSparkle(sx, sy, 'desert');
 			const desertName = this.biomeName('desert', 'Redstone Scrubland');
 			this.registerInteractable({
-				x: sx, y: sy, label: desertOpen ? t('game.label.walkTo', { name: desertName }) : t('game.label.readTrailSign', { name: desertName }),
+				x: sx,
+				y: sy,
+				label: desertOpen
+					? t('game.label.walkTo', { name: desertName })
+					: t('game.label.readTrailSign', { name: desertName }),
 				liveLabel: desertOpen ? undefined : () => this.gateRequirementText('desert'),
 				action: () => {
 					if (desertOpen) {
@@ -1837,7 +2254,12 @@ export class WorldScene extends Phaser.Scene {
 			const gx = 1.2 * TILE;
 			const gy = this.dimsOf(this.area).gateY * TILE;
 			this.addDyn(this.img(gx, gy, 'gate').setDepth(gy));
-			this.registerInteractable({ x: gx, y: gy, label: t('game.label.walkBackTo', { name: this.biomeName('wetland', 'Rushwater Wetland') }), action: () => bridge.emit('request-area', { area: 'wetland' }) });
+			this.registerInteractable({
+				x: gx,
+				y: gy,
+				label: t('game.label.walkBackTo', { name: this.biomeName('wetland', 'Rushwater Wetland') }),
+				action: () => bridge.emit('request-area', { area: 'wetland' }),
+			});
 
 			// trail east toward the alpine heights (Graywind Heights)
 			const sx = (this.cols - 1.2) * TILE;
@@ -1849,7 +2271,11 @@ export class WorldScene extends Phaser.Scene {
 			if (alpineOpen) this.gateSparkle(sx, sy, 'alpine');
 			const alpineName = this.biomeName('alpine', 'Graywind Heights');
 			this.registerInteractable({
-				x: sx, y: sy, label: alpineOpen ? t('game.label.walkTo', { name: alpineName }) : t('game.label.readTrailSign', { name: alpineName }),
+				x: sx,
+				y: sy,
+				label: alpineOpen
+					? t('game.label.walkTo', { name: alpineName })
+					: t('game.label.readTrailSign', { name: alpineName }),
 				liveLabel: alpineOpen ? undefined : () => this.gateRequirementText('alpine'),
 				action: () => {
 					if (alpineOpen) {
@@ -1871,7 +2297,12 @@ export class WorldScene extends Phaser.Scene {
 			// gate back to the desert on the west edge
 			const gx = 1.2 * TILE;
 			this.addDyn(this.img(gx, gy, 'gate').setDepth(gy));
-			this.registerInteractable({ x: gx, y: gy, label: t('game.label.walkBackTo', { name: this.biomeName('desert', 'Redstone Scrubland') }), action: () => bridge.emit('request-area', { area: 'desert' }) });
+			this.registerInteractable({
+				x: gx,
+				y: gy,
+				label: t('game.label.walkBackTo', { name: this.biomeName('desert', 'Redstone Scrubland') }),
+				action: () => bridge.emit('request-area', { area: 'desert' }),
+			});
 
 			// trail east toward the coast (Pelican Shore)
 			const sx = (this.cols - 1.2) * TILE;
@@ -1882,7 +2313,11 @@ export class WorldScene extends Phaser.Scene {
 			if (coastalOpen) this.gateSparkle(sx, gy, 'coastal');
 			const coastalName = this.biomeName('coastal', 'Pelican Shore');
 			this.registerInteractable({
-				x: sx, y: gy, label: coastalOpen ? t('game.label.walkTo', { name: coastalName }) : t('game.label.readTrailSign', { name: coastalName }),
+				x: sx,
+				y: gy,
+				label: coastalOpen
+					? t('game.label.walkTo', { name: coastalName })
+					: t('game.label.readTrailSign', { name: coastalName }),
 				liveLabel: coastalOpen ? undefined : () => this.gateRequirementText('coastal'),
 				action: () => {
 					if (coastalOpen) {
@@ -1903,14 +2338,21 @@ export class WorldScene extends Phaser.Scene {
 			const gx = 1.2 * TILE;
 			const gy = this.dimsOf(this.area).gateY * TILE;
 			this.addDyn(this.img(gx, gy, 'gate').setDepth(gy));
-			this.registerInteractable({ x: gx, y: gy, label: t('game.label.walkBackUpTo', { name: this.biomeName('alpine', 'Graywind Heights') }), action: () => bridge.emit('request-area', { area: 'alpine' }) });
+			this.registerInteractable({
+				x: gx,
+				y: gy,
+				label: t('game.label.walkBackUpTo', { name: this.biomeName('alpine', 'Graywind Heights') }),
+				action: () => bridge.emit('request-area', { area: 'alpine' }),
+			});
 
 			// a weathered marker at the end of the shore trail, looking out to sea
 			const sx = (this.landRight - 0.6) * TILE;
 			const sy = 13 * TILE;
 			this.addDyn(this.img(sx, sy, 'obj-driftpile').setDepth(sy));
 			this.registerInteractable({
-				x: sx, y: sy, label: t('game.label.lookOcean'),
+				x: sx,
+				y: sy,
+				label: t('game.label.lookOcean'),
 				action: () => bridge.emit('toast', { text: t('game.toast.oceanView'), kind: 'info' }),
 			});
 		}
@@ -1994,7 +2436,12 @@ export class WorldScene extends Phaser.Scene {
 		for (const n of nodes) perResource.set(n.resourceId, (perResource.get(n.resourceId) || 0) + 1);
 		for (const r of res) {
 			while ((perResource.get(r) || 0) < minFor(r)) {
-				const spot = this.findFreeTile(Math.floor(this.cols / 2), this.playTop + Math.floor(this.baseRows / 2), occupied, taken);
+				const spot = this.findFreeTile(
+					Math.floor(this.cols / 2),
+					this.playTop + Math.floor(this.baseRows / 2),
+					occupied,
+					taken,
+				);
 				if (!spot) break;
 				nodes.push({ id: `n${nodes.length}`, resourceId: r, tx: spot.tx, ty: spot.ty });
 				taken.add(`${spot.tx},${spot.ty}`);
@@ -2009,13 +2456,21 @@ export class WorldScene extends Phaser.Scene {
 		if (waterRes) {
 			const anchor = this.area === 'meadow' ? { tx: 26, ty: 8 } : { tx: 4, ty: 11 };
 			const hasNearby = nodes.some(
-				(n) => (n.resourceId === 'water' || n.resourceId === 'clean-water') &&
-					Math.abs(n.tx - anchor.tx) <= 5 && Math.abs(n.ty - anchor.ty) <= 5,
+				(n) =>
+					(n.resourceId === 'water' || n.resourceId === 'clean-water') &&
+					Math.abs(n.tx - anchor.tx) <= 5 &&
+					Math.abs(n.ty - anchor.ty) <= 5,
 			);
 			if (!hasNearby) {
 				const aKey = `${anchor.tx},${anchor.ty}`;
-				const anchorFree = anchor.tx >= 1 && anchor.ty >= this.playTop && anchor.tx <= this.landRight - 2 && anchor.ty <= this.rows - 2 &&
-					!occupied.has(aKey) && !taken.has(aKey) && !this.inCamp(anchor.tx, anchor.ty);
+				const anchorFree =
+					anchor.tx >= 1 &&
+					anchor.ty >= this.playTop &&
+					anchor.tx <= this.landRight - 2 &&
+					anchor.ty <= this.rows - 2 &&
+					!occupied.has(aKey) &&
+					!taken.has(aKey) &&
+					!this.inCamp(anchor.tx, anchor.ty);
 				const spot = anchorFree ? anchor : this.findFreeTile(anchor.tx, anchor.ty, occupied, taken);
 				if (spot) {
 					nodes.push({ id: 'nw', resourceId: waterRes, tx: spot.tx, ty: spot.ty });
@@ -2046,11 +2501,22 @@ export class WorldScene extends Phaser.Scene {
 	}
 
 	private inCamp(tx: number, ty: number): boolean {
-		return this.area === 'meadow' && tx > CAMP_BLOCK.x0 - 1 && tx < CAMP_BLOCK.x1 + 1 && ty > CAMP_BLOCK.y0 - 1 && ty < CAMP_BLOCK.y1 + 1;
+		return (
+			this.area === 'meadow' &&
+			tx > CAMP_BLOCK.x0 - 1 &&
+			tx < CAMP_BLOCK.x1 + 1 &&
+			ty > CAMP_BLOCK.y0 - 1 &&
+			ty < CAMP_BLOCK.y1 + 1
+		);
 	}
 
 	/** Nearest in-bounds tile (ring search) that isn't built on or used by another node. */
-	private findFreeTile(cx: number, cy: number, occupied: Set<string>, taken: Set<string>): { tx: number; ty: number } | null {
+	private findFreeTile(
+		cx: number,
+		cy: number,
+		occupied: Set<string>,
+		taken: Set<string>,
+	): { tx: number; ty: number } | null {
 		for (let r = 1; r <= 10; r++) {
 			for (let dx = -r; dx <= r; dx++) {
 				for (let dy = -r; dy <= r; dy++) {
@@ -2098,13 +2564,22 @@ export class WorldScene extends Phaser.Scene {
 			this.addDyn(container);
 			this.nodeSprites.set(node.id, container);
 			this.tweens.add({
-				targets: container, scale: { from: 1, to: 1.07 },
-				duration: 1100 + (node.tx % 5) * 130, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+				targets: container,
+				scale: { from: 1, to: 1.07 },
+				duration: 1100 + (node.tx % 5) * 130,
+				yoyo: true,
+				repeat: -1,
+				ease: 'Sine.easeInOut',
 			});
 			const it: Interactable = {
-				x, y, label: t('game.label.gather', { name: content('resource', node.resourceId, 'name', res?.name || node.resourceId) }),
+				x,
+				y,
+				label: t('game.label.gather', {
+					name: content('resource', node.resourceId, 'name', res?.name || node.resourceId),
+				}),
 				action: () => {
-					if (this.nodeAvailable(node)) bridge.emit('collect-node', { biomeId: this.area, nodeId: node.id, resourceId: node.resourceId });
+					if (this.nodeAvailable(node))
+						bridge.emit('collect-node', { biomeId: this.area, nodeId: node.id, resourceId: node.resourceId });
 					else bridge.emit('toast', { text: t('game.toast.stillRegrowing'), kind: 'info' });
 				},
 			};
@@ -2137,17 +2612,31 @@ export class WorldScene extends Phaser.Scene {
 		// tool swing beside the player
 		const toolKey = `tool-${p.tool}`;
 		if (this.textures.exists(toolKey)) {
-			const toolImg = this.img(this.player.x + 14, this.player.y - 4, toolKey).setDepth(6500).setAngle(-30);
+			const toolImg = this.img(this.player.x + 14, this.player.y - 4, toolKey)
+				.setDepth(6500)
+				.setAngle(-30);
 			this.tweens.add({
-				targets: toolImg, angle: 28, duration: 220, yoyo: true,
-				onComplete: () => this.tweens.add({ targets: toolImg, alpha: 0, duration: 160, onComplete: () => toolImg.destroy() }),
+				targets: toolImg,
+				angle: 28,
+				duration: 220,
+				yoyo: true,
+				onComplete: () =>
+					this.tweens.add({ targets: toolImg, alpha: 0, duration: 160, onComplete: () => toolImg.destroy() }),
 			});
 		}
 		// little squash on the player — you can see yourself grab it
-		this.tweens.add({ targets: this.player, scaleX: 1.12 * INV_TEX_SCALE, scaleY: 0.9 * INV_TEX_SCALE, duration: 110, yoyo: true });
+		this.tweens.add({
+			targets: this.player,
+			scaleX: 1.12 * INV_TEX_SCALE,
+			scaleY: 0.9 * INV_TEX_SCALE,
+			duration: 110,
+			yoyo: true,
+		});
 
 		for (let i = 0; i < Math.min(p.qty, 3); i++) {
-			const item = this.img(sx, sy, texKey).setDepth(6400).setScale(0.55 * INV_TEX_SCALE);
+			const item = this.img(sx, sy, texKey)
+				.setDepth(6400)
+				.setScale(0.55 * INV_TEX_SCALE);
 			this.tweens.add({
 				targets: item,
 				x: { value: () => this.player.x, duration: 430 + i * 90, ease: 'Sine.easeIn' },
@@ -2159,7 +2648,15 @@ export class WorldScene extends Phaser.Scene {
 			});
 		}
 		const res = bridge.shared.data?.resources.find((r) => r.id === p.resourceId);
-		this.floatText(sx, sy - 18, t('game.float.pickup', { qty: p.qty, name: content('resource', p.resourceId, 'name', res?.name || p.resourceId) }), '#fff7dd');
+		this.floatText(
+			sx,
+			sy - 18,
+			t('game.float.pickup', {
+				qty: p.qty,
+				name: content('resource', p.resourceId, 'name', res?.name || p.resourceId),
+			}),
+			'#fff7dd',
+		);
 	}
 
 	private playTerraformFx(p: { x: number; y: number; action: string }) {
@@ -2167,9 +2664,14 @@ export class WorldScene extends Phaser.Scene {
 		const x = p.x * TILE + 16;
 		const y = p.y * TILE + 16;
 		const toolKey = p.action === 'water' ? 'tool-watering-can' : 'tool-shovel';
-		const toolImg = this.img(x + 10, y - 12, toolKey).setDepth(6500).setAngle(-25);
+		const toolImg = this.img(x + 10, y - 12, toolKey)
+			.setDepth(6500)
+			.setAngle(-25);
 		this.tweens.add({
-			targets: toolImg, angle: 30, duration: 240, yoyo: true,
+			targets: toolImg,
+			angle: 30,
+			duration: 240,
+			yoyo: true,
 			onComplete: () => toolImg.destroy(),
 		});
 		const color = p.action === 'water' ? 0x8fd0e8 : 0x8a6a48;
@@ -2185,33 +2687,73 @@ export class WorldScene extends Phaser.Scene {
 				onComplete: () => speck.destroy(),
 			});
 		}
-		this.floatText(x, y - 16, p.action === 'water' ? t('game.float.watered') : p.action === 'dig' ? t('game.float.bedReady') : t('game.float.cleared'), '#fff7dd');
+		this.floatText(
+			x,
+			y - 16,
+			p.action === 'water'
+				? t('game.float.watered')
+				: p.action === 'dig'
+					? t('game.float.bedReady')
+					: t('game.float.cleared'),
+			'#fff7dd',
+		);
 	}
 
 	/** A ~3s construction flourish on the camp building when the home is built/upgraded. */
 	private playBuild() {
 		if (!this.alive || this.area !== 'meadow') return; // the camp building lives in the meadow
-		const bx = CAMP.tent.x * TILE, by = CAMP.tent.y * TILE;
+		const bx = CAMP.tent.x * TILE,
+			by = CAMP.tent.y * TILE;
 		// a tarp drops over the building while "construction" happens, then lifts
 		const tarp = this.add.rectangle(bx, by - 4, 86, 74, C('#cdbb94'), 0.9).setDepth(by + 60);
 		this.tweens.add({ targets: tarp, alpha: { from: 0, to: 0.9 }, duration: 250 });
 		// sawdust puffs + sparkles kicking up around the base
 		const puffs = this.time.addEvent({
-			delay: 150, loop: true, callback: () => {
+			delay: 150,
+			loop: true,
+			callback: () => {
 				if (!this.alive) return;
 				const d = this.img(bx + (Math.random() - 0.5) * 64, by + 22 + (Math.random() - 0.5) * 16, 'glow')
-					.setTint(0xe6d2a4).setDepth(by + 70).setScale(0.45 * INV_TEX_SCALE).setAlpha(0.75).setBlendMode(Phaser.BlendModes.ADD);
-				this.tweens.add({ targets: d, y: d.y - 20, alpha: 0, scale: 0.8 * INV_TEX_SCALE, duration: 620, ease: 'Sine.easeOut', onComplete: () => d.destroy() });
+					.setTint(0xe6d2a4)
+					.setDepth(by + 70)
+					.setScale(0.45 * INV_TEX_SCALE)
+					.setAlpha(0.75)
+					.setBlendMode(Phaser.BlendModes.ADD);
+				this.tweens.add({
+					targets: d,
+					y: d.y - 20,
+					alpha: 0,
+					scale: 0.8 * INV_TEX_SCALE,
+					duration: 620,
+					ease: 'Sine.easeOut',
+					onComplete: () => d.destroy(),
+				});
 			},
 		});
-		const hammer = this.time.addEvent({ delay: 800, loop: true, callback: () => { if (this.alive) this.floatText(bx + (Math.random() - 0.5) * 30, by - 26, t('game.float.tapTap'), '#fff7dd'); } });
+		const hammer = this.time.addEvent({
+			delay: 800,
+			loop: true,
+			callback: () => {
+				if (this.alive) this.floatText(bx + (Math.random() - 0.5) * 30, by - 26, t('game.float.tapTap'), '#fff7dd');
+			},
+		});
 		this.floatText(bx, by - 34, t('game.float.building'), '#fff7dd');
 		this.time.delayedCall(3000, () => {
 			puffs.remove();
 			hammer.remove();
-			if (!this.alive) { tarp.destroy(); return; }
+			if (!this.alive) {
+				tarp.destroy();
+				return;
+			}
 			// lift the tarp to reveal the finished building, and give it a happy little pop
-			this.tweens.add({ targets: tarp, alpha: 0, y: by - 40, duration: 500, ease: 'Sine.easeIn', onComplete: () => tarp.destroy() });
+			this.tweens.add({
+				targets: tarp,
+				alpha: 0,
+				y: by - 40,
+				duration: 500,
+				ease: 'Sine.easeIn',
+				onComplete: () => tarp.destroy(),
+			});
 			this.floatText(bx, by - 34, t('game.float.done'), '#d8eec2');
 			bridge.emit('world-dirty'); // ensure the finished building is drawn
 		});
@@ -2227,17 +2769,37 @@ export class WorldScene extends Phaser.Scene {
 		this.player.setAngle(-78);
 		bridge.emit('toast', { text: t('game.toast.goodnight'), kind: 'info' });
 		// a soft dim over the whole view (oversized + screen-fixed so zoom never matters)
-		const dim = this.add.rectangle(-2000, -2000, 6000, 6000, 0x0a1026, 0).setOrigin(0, 0).setScrollFactor(0).setDepth(9000);
+		const dim = this.add
+			.rectangle(-2000, -2000, 6000, 6000, 0x0a1026, 0)
+			.setOrigin(0, 0)
+			.setScrollFactor(0)
+			.setDepth(9000);
 		this.tweens.add({ targets: dim, alpha: 0.6, duration: 600, ease: 'Sine.easeIn' });
 		// drifting "z"s above the sleeper
 		const zzz = this.time.addEvent({
-			delay: 620, loop: true, callback: () => {
+			delay: 620,
+			loop: true,
+			callback: () => {
 				if (!this.alive) return;
-				const z = this.add.text(this.player.x + 12, this.player.y - 14, 'z', {
-					fontFamily: 'Quicksand, sans-serif', fontSize: '16px', color: '#dfe9ff', fontStyle: 'bold',
-					resolution: 4, // stays crisp under camera zoom
-				}).setOrigin(0.5).setDepth(9500);
-				this.tweens.add({ targets: z, y: z.y - 30, x: z.x + 14, alpha: 0, duration: 1300, ease: 'Sine.easeOut', onComplete: () => z.destroy() });
+				const z = this.add
+					.text(this.player.x + 12, this.player.y - 14, 'z', {
+						fontFamily: 'Quicksand, sans-serif',
+						fontSize: '16px',
+						color: '#dfe9ff',
+						fontStyle: 'bold',
+						resolution: 4, // stays crisp under camera zoom
+					})
+					.setOrigin(0.5)
+					.setDepth(9500);
+				this.tweens.add({
+					targets: z,
+					y: z.y - 30,
+					x: z.x + 14,
+					alpha: 0,
+					duration: 1300,
+					ease: 'Sine.easeOut',
+					onComplete: () => z.destroy(),
+				});
 			},
 		});
 		this.time.delayedCall(3000, () => {
@@ -2247,19 +2809,32 @@ export class WorldScene extends Phaser.Scene {
 			this.player.setAngle(0);
 			this.player.setDepth(this.player.y + 16);
 			this.tweens.add({ targets: dim, alpha: 0, duration: 700, ease: 'Sine.easeOut', onComplete: () => dim.destroy() });
-			this.time.delayedCall(700, () => { this.sleeping = false; });
+			this.time.delayedCall(700, () => {
+				this.sleeping = false;
+			});
 		});
 	}
 
 	private floatText(x: number, y: number, text: string, color: string) {
 		const t = this.add
 			.text(x, y, text, {
-				fontFamily: 'Quicksand, sans-serif', fontSize: '13px', color, fontStyle: 'bold',
-				stroke: '#2b3321', strokeThickness: 3,
+				fontFamily: 'Quicksand, sans-serif',
+				fontSize: '13px',
+				color,
+				fontStyle: 'bold',
+				stroke: '#2b3321',
+				strokeThickness: 3,
 			})
 			.setOrigin(0.5)
 			.setDepth(7000);
-		this.tweens.add({ targets: t, y: y - 26, alpha: 0, duration: 1100, ease: 'Sine.easeOut', onComplete: () => t.destroy() });
+		this.tweens.add({
+			targets: t,
+			y: y - 26,
+			alpha: 0,
+			duration: 1100,
+			ease: 'Sine.easeOut',
+			onComplete: () => t.destroy(),
+		});
 	}
 
 	private drawPlacements() {
@@ -2272,7 +2847,11 @@ export class WorldScene extends Phaser.Scene {
 			const x = p.x * TILE + 16;
 			const y = p.y * TILE + 16;
 			const tall = ['tree', 'deadwood', 'perch', 'platform', 'willow', 'oak', 'pine'].includes(def.shape || '');
-			this.addDyn(this.img(x, y + (tall ? 22 : 10), 'shadow').setDepth(3).setScale((tall ? 1.0 : 1.2) * INV_TEX_SCALE, 0.9 * INV_TEX_SCALE));
+			this.addDyn(
+				this.img(x, y + (tall ? 22 : 10), 'shadow')
+					.setDepth(3)
+					.setScale((tall ? 1.0 : 1.2) * INV_TEX_SCALE, 0.9 * INV_TEX_SCALE),
+			);
 
 			// freshly planted things start as a sprout and grow in
 			const growMs = (def.growSeconds || 0) * 1000;
@@ -2283,9 +2862,7 @@ export class WorldScene extends Phaser.Scene {
 			// placed item never renders as a blank/black missing-texture square
 			const shapeKey = `obj-${def.shape || 'kit'}`;
 			const objKey = this.textures.exists(shapeKey) ? shapeKey : 'obj-kit';
-			const img = this.addDyn(
-				this.img(x, y, stillGrowing ? 'sprout' : objKey).setDepth(y)
-			);
+			const img = this.addDyn(this.img(x, y, stillGrowing ? 'sprout' : objKey).setDepth(y));
 			if (stillGrowing) {
 				this.time.delayedCall(growMs - age + 300, () => {
 					if (!this.alive) return;
@@ -2305,54 +2882,59 @@ export class WorldScene extends Phaser.Scene {
 					// A single small, dim star that twinkles occasionally above the plant —
 					// staggered per-plant so a field of ready plants doesn't pulse in
 					// unison (the old full glow on every plant read as a wall of light).
-					if (!this.textures.exists('harvest-mote')) {
-						const g = this.make.graphics({ x: 0, y: 0 }, false);
-						g.scaleCanvas(TEX_SCALE, TEX_SCALE);
-						g.fillStyle(0xffffff, 1).fillPoints([
-							{ x: 5, y: 0 }, { x: 6.2, y: 3.8 }, { x: 10, y: 5 }, { x: 6.2, y: 6.2 },
-							{ x: 5, y: 10 }, { x: 3.8, y: 6.2 }, { x: 0, y: 5 }, { x: 3.8, y: 3.8 },
-						], true);
-						g.generateTexture('harvest-mote', 10 * TEX_SCALE, 10 * TEX_SCALE);
-						g.destroy();
-					}
+					this.ensureMoteTexture();
 					const stagger = hashStr(p.id) % 1400;
-					const mote = this.addDyn(this.img(x + (tall ? 7 : 5), y - (tall ? 22 : 10), 'harvest-mote').setDepth(y + 40).setTint(0xffe9a8).setAlpha(0).setScale(0.12));
+					const mote = this.addDyn(
+						this.img(x + (tall ? 7 : 5), y - (tall ? 22 : 10), 'harvest-mote')
+							.setDepth(y + 40)
+							.setTint(0xffe9a8)
+							.setAlpha(0)
+							.setScale(0.12),
+					);
 					mote.setBlendMode(Phaser.BlendModes.ADD);
 					this.tweens.add({
 						targets: mote,
 						alpha: { from: 0, to: 0.7 },
 						scale: { from: 0.08, to: 0.17 },
 						angle: { from: 0, to: 40 },
-						duration: 780, delay: stagger, hold: 120, yoyo: true,
-						repeat: -1, repeatDelay: 900 + (hashStr(p.id + 'r') % 900),
+						duration: 780,
+						delay: stagger,
+						hold: 120,
+						yoyo: true,
+						repeat: -1,
+						repeatDelay: 900 + (hashStr(p.id + 'r') % 900),
 						ease: 'Sine.easeInOut',
 					});
 					// Register it so E / Space (and the mobile interact button) harvest the
 					// nearest ready plant, just like gathering a node. Clicking still opens
 					// the placement menu (which also has a Harvest button).
 					this.interactables.push({
-						x, y,
+						x,
+						y,
 						label: t('game.label.harvest', { name: content('habitatObject', p.objectId, 'name', def.name) }),
 						action: () => bridge.emit('harvest-placement', { placementId: p.id }),
 					});
 				} else if (readyAt != null) {
-					this.time.delayedCall(readyAt - now + 200, () => { if (this.alive) this.refreshDynamic(true); });
+					this.time.delayedCall(readyAt - now + 200, () => {
+						if (this.alive) this.refreshDynamic(true);
+					});
 				}
 			}
 
 			// Camp fixtures stay crisp and identical; everything the player crafts
 			// and places gets a little deterministic character seeded from its
 			// placement id, so no two crafted items look exactly alike.
-			const isFixture = def.isChest || !!def.onePerArea || ['workbench', 'field-journal-stand', 'bed', 'home-bed', 'home-sleeping-bag'].includes(p.objectId);
+			const isFixture =
+				def.isChest ||
+				!!def.onePerArea ||
+				['workbench', 'field-journal-stand', 'bed', 'home-bed', 'home-sleeping-bag'].includes(p.objectId);
 			const growScale = stillGrowing ? 1 + (age / growMs) * 0.6 : 1;
 			// Living habitat keeps growing for real hours after placement
 			// (matureHours): young plants render smaller and ease up to full size
 			// as they mature — so the preserve visibly grows between sessions.
 			const matMs = (def.matureHours || 0) * 3_600_000;
 			const placedAge = Date.now() - (p.placedAt || 0);
-			const matureScale = matMs > 0 && !stillGrowing && p.placedAt
-				? 0.72 + 0.28 * Math.min(1, placedAge / matMs)
-				: 1;
+			const matureScale = matMs > 0 && !stillGrowing && p.placedAt ? 0.72 + 0.28 * Math.min(1, placedAge / matMs) : 1;
 			// player-chosen quarter-turn (see PlaceObject/MoveObject), radians
 			const rot = Phaser.Math.DegToRad((p as any).rotation || 0);
 			if (isFixture) {
@@ -2370,15 +2952,24 @@ export class WorldScene extends Phaser.Scene {
 			// paint-tool recolor: a per-item color override wins over the default tint
 			if (p.color) img.setTint(Phaser.Display.Color.HexStringToColor(p.color).color);
 
-			// placed campfires glow like the base-camp fire: a warm additive halo
-			// (wide wash + bright core) with a gentle flicker (indoors too — cozy
-			// in a tent). At night the light mask also carves the dark away here.
+			// placed campfires glow like the base-camp fire: a warm, steady additive
+			// halo (wide wash + bright core — indoors too, cozy in a tent). At night
+			// the light mask also carves the dark away here.
 			if (p.objectId === 'campfire') {
-				const glow = this.addDyn(this.img(x, y - 4, 'glow').setTint(0xffb84f).setDepth(y - 1).setScale(1.7 * INV_TEX_SCALE)) as Phaser.GameObjects.Image;
+				const glow = this.addDyn(
+					this.img(x, y - 4, 'glow')
+						.setTint(0xffb84f)
+						.setDepth(y - 1)
+						.setScale(1.7 * INV_TEX_SCALE),
+				) as Phaser.GameObjects.Image;
 				glow.setBlendMode(Phaser.BlendModes.ADD);
-				const core = this.addDyn(this.img(x, y - 4, 'glow').setTint(0xffd98a).setDepth(y - 1).setScale(0.9 * INV_TEX_SCALE)) as Phaser.GameObjects.Image;
+				const core = this.addDyn(
+					this.img(x, y - 4, 'glow')
+						.setTint(0xffd98a)
+						.setDepth(y - 1)
+						.setScale(0.9 * INV_TEX_SCALE),
+				) as Phaser.GameObjects.Image;
 				core.setBlendMode(Phaser.BlendModes.ADD);
-				this.tweens.add({ targets: [img, glow, core], alpha: { from: 1, to: 0.72 }, duration: 420, yoyo: true, repeat: -1, ease: 'Sine.easeInOut' });
 			}
 
 			img.setInteractive({ useHandCursor: true });
@@ -2391,7 +2982,7 @@ export class WorldScene extends Phaser.Scene {
 				// shovel digs planted things back up — materials are refunded
 				if (this.terraformAction() === 'dig' && def.plantable && p.plantedAt) {
 					const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, x, y);
-					if (dist <= 120) bridge.emit('dig-up', { placementId: p.id, name: defName });
+					if (dist <= 155) bridge.emit('dig-up', { placementId: p.id, name: defName });
 					else bridge.emit('toast', { text: t('game.toast.walkCloser'), kind: 'info' });
 					return;
 				}
@@ -2402,7 +2993,17 @@ export class WorldScene extends Phaser.Scene {
 				}
 				if (!hasPrimaryAction) {
 					const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, x, y);
-					if (dist <= 120) bridge.emit('placement-clicked', { placementId: p.id, objectId: p.objectId, name: defName, plantedAt: p.plantedAt, lastHarvestAt: (p as any).lastHarvestAt, x: p.x, y: p.y, rotation: p.rotation || 0 });
+					if (dist <= 155)
+						bridge.emit('placement-clicked', {
+							placementId: p.id,
+							objectId: p.objectId,
+							name: defName,
+							plantedAt: p.plantedAt,
+							lastHarvestAt: (p as any).lastHarvestAt,
+							x: p.x,
+							y: p.y,
+							rotation: p.rotation || 0,
+						});
 					else bridge.emit('toast', { text: t('game.toast.walkCloser'), kind: 'info' });
 				}
 			});
@@ -2410,17 +3011,47 @@ export class WorldScene extends Phaser.Scene {
 			if (p.objectId === 'trail-tent') {
 				// your away-base: step inside to decorate it (its own little interior)
 				const interior = `tent-${this.area}`;
-				this.registerInteractable({ x, y: y + 8, label: t('game.label.stepInTent'), action: () => bridge.emit('request-area', { area: interior }) }, img);
+				this.registerInteractable(
+					{
+						x,
+						y: y + 8,
+						label: t('game.label.stepInTent'),
+						action: () => bridge.emit('request-area', { area: interior }),
+					},
+					img,
+				);
 			} else if (def.isChest) {
-				this.registerInteractable({ x, y, label: t('game.label.openChest', { name: defName }), action: () => bridge.emit('open-chest', { chestId: p.id }) }, img);
+				this.registerInteractable(
+					{
+						x,
+						y,
+						label: t('game.label.openChest', { name: defName }),
+						action: () => bridge.emit('open-chest', { chestId: p.id }),
+					},
+					img,
+				);
 			} else if (p.objectId === 'workbench') {
-				this.registerInteractable({ x, y, label: t('game.label.openCrafting'), action: () => bridge.emit('open-crafting') }, img);
+				this.registerInteractable(
+					{ x, y, label: t('game.label.openCrafting'), action: () => bridge.emit('open-crafting') },
+					img,
+				);
 			} else if (p.objectId === 'field-journal-stand') {
-				this.registerInteractable({ x, y, label: t('game.label.readJournal'), action: () => bridge.emit('open-journal') }, img);
+				this.registerInteractable(
+					{ x, y, label: t('game.label.readJournal'), action: () => bridge.emit('open-journal') },
+					img,
+				);
 			} else if (p.objectId === 'home-bed' || p.objectId === 'home-sleeping-bag') {
 				this.registerInteractable({ x, y, label: t('game.label.sleep'), action: () => this.sleepAt(x, y) }, img);
 			} else if (p.objectId === 'bed') {
-				this.registerInteractable({ x, y, label: t('game.label.restMoment'), action: () => bridge.emit('toast', { text: t('game.toast.quietBreath'), kind: 'info' }) }, img);
+				this.registerInteractable(
+					{
+						x,
+						y,
+						label: t('game.label.restMoment'),
+						action: () => bridge.emit('toast', { text: t('game.toast.quietBreath'), kind: 'info' }),
+					},
+					img,
+				);
 			}
 		}
 	}
@@ -2464,26 +3095,41 @@ export class WorldScene extends Phaser.Scene {
 			const flying = animal.kind === 'bird' || animal.kind === 'insect';
 			if (animal.kind === 'fish') {
 				const w = this.fishTarget(ax, ay, Infinity, rng);
-				if (w) { ax = w.x; ay = w.y; }
+				if (w) {
+					ax = w.x;
+					ay = w.y;
+				}
 			} else if (!flying && this.isWaterPx(ax, ay)) {
 				for (let i = 0; i < 14 && this.isWaterPx(ax, ay); i++) {
 					ax = Phaser.Math.Clamp((2 + rng() * (this.landRight - 4)) * TILE, TILE, eastEdge);
-					ay = Phaser.Math.Clamp((this.playTop + 2 + rng() * (this.baseRows - 4)) * TILE, (this.playTop + 1) * TILE, this.worldH - TILE);
+					ay = Phaser.Math.Clamp(
+						(this.playTop + 2 + rng() * (this.baseRows - 4)) * TILE,
+						(this.playTop + 1) * TILE,
+						this.worldH - TILE,
+					);
 				}
 			}
 
 			// marine swimmers (dolphin/whale/seal/otter/turtle) ride the open ocean
 			// band, overriding the land placement above and skipping the ground shadow.
 			const swimmer = this.area === 'coastal' && (animal as any).ocean === true;
-			if (swimmer) { const o = this.oceanTarget(rng); ax = o.x; ay = o.y; }
+			if (swimmer) {
+				const o = this.oceanTarget(rng);
+				ax = o.x;
+				ay = o.y;
+			}
 
 			ensureAnimalTexture(this, animal.id, animal.kind);
 			const { key, tint } = animalTexture(animal.id, animal.kind);
 			if (animal.kind !== 'insect' && !swimmer) {
-				const sh = this.img(ax, ay + 9, 'shadow').setDepth(3).setScale(0.75 * INV_TEX_SCALE, 0.7 * INV_TEX_SCALE).setAlpha(0.8);
+				const sh = this.img(ax, ay + 9, 'shadow')
+					.setDepth(3)
+					.setScale(0.75 * INV_TEX_SCALE, 0.7 * INV_TEX_SCALE)
+					.setAlpha(0.8);
 				this.animals.add(sh);
 				const shadowTimer = this.time.addEvent({
-					delay: 90, loop: true,
+					delay: 90,
+					loop: true,
 					callback: () => {
 						const target = (sh as any).animal as Phaser.GameObjects.Image | undefined;
 						if (target?.active && sh.active) sh.setPosition(target.x, target.y + 9);
@@ -2493,24 +3139,75 @@ export class WorldScene extends Phaser.Scene {
 				const img = this.img(ax, ay, key).setDepth(ay);
 				this.animals.add(img);
 				(sh as any).animal = img;
-				this.decorateAnimal(img, animal, tint, rng, swimmer);
+				this.decorateAnimal(img, animal, tint, rng, swimmer, !disc.timesObserved);
 			} else {
 				const img = this.img(ax, ay, key).setDepth(ay);
 				this.animals.add(img);
-				this.decorateAnimal(img, animal, tint, rng, swimmer);
+				this.decorateAnimal(img, animal, tint, rng, swimmer, !disc.timesObserved);
 			}
 		}
 	}
 
-	private decorateAnimal(img: Phaser.GameObjects.Image, animal: any, tint: number | null, rng: () => number, ocean = false) {
+	private decorateAnimal(
+		img: Phaser.GameObjects.Image,
+		animal: any,
+		tint: number | null,
+		rng: () => number,
+		ocean = false,
+		unseen = false,
+	) {
 		if (tint) img.setTint(tint);
 		// proportional size per species (bear ≫ chipmunk ≫ salamander), with a
 		// touch of per-animal jitter so individuals still vary
 		const scale = animalScale(animal.id, animal.kind) * INV_TEX_SCALE;
 		img.setScale(scale);
 		img.setInteractive({ useHandCursor: true });
+		// Field binoculars: animals you haven't recorded in the journal yet get the
+		// same twinkling golden mote as harvest-ready plants — one cue, everywhere,
+		// staggered per animal so a crowd of newcomers doesn't pulse in unison.
+		let glint: Phaser.GameObjects.Image | null = null;
+		if (unseen && this.hasBinoculars()) {
+			this.ensureMoteTexture();
+			const stagger = hashStr(animal.id) % 1400;
+			glint = this.add
+				.image(img.x, img.y, 'harvest-mote')
+				.setDepth(img.y + 400)
+				.setTint(0xffe9a8)
+				.setAlpha(0)
+				.setScale(0.12);
+			glint.setBlendMode(Phaser.BlendModes.ADD);
+			this.animals.add(glint);
+			this.tweens.add({
+				targets: glint,
+				alpha: { from: 0, to: 0.75 },
+				scale: { from: 0.08, to: 0.18 },
+				angle: { from: 0, to: 40 },
+				duration: 780,
+				delay: stagger,
+				hold: 120,
+				yoyo: true,
+				repeat: -1,
+				repeatDelay: 900 + (hashStr(animal.id + 'r') % 900),
+				ease: 'Sine.easeInOut',
+			});
+			// pinned above the animal as it wanders (same follow trick as the swimmer shadows)
+			const follow = this.time.addEvent({
+				delay: 60,
+				loop: true,
+				callback: () => {
+					if (img.active && glint!.active) {
+						glint!.setPosition(img.x + 4, img.y - img.displayHeight * 0.8 - 5).setDepth(img.y + 400);
+					} else {
+						follow.remove();
+						if (glint?.active) glint.destroy();
+					}
+				},
+			});
+		}
 		img.on('pointerdown', () => {
 			if (bridge.shared.uiBlocking) return; // a modal is open — clicks don't reach the world
+			// observing records it — the "someone new" glint has done its job
+			if (glint?.active) glint.destroy();
 			bridge.emit('animal-clicked', { animalId: animal.id });
 		});
 		// gentle breathing — everything in the preserve feels alive (keeps its base size).
@@ -2519,8 +3216,12 @@ export class WorldScene extends Phaser.Scene {
 		// so all of these tweens honor the setting live.
 		if (!getPrefs().reduceMotion) {
 			this.tweens.add({
-				targets: img, scaleY: { from: scale, to: scale * 0.94 },
-				duration: 650 + rng() * 450, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+				targets: img,
+				scaleY: { from: scale, to: scale * 0.94 },
+				duration: 650 + rng() * 450,
+				yoyo: true,
+				repeat: -1,
+				ease: 'Sine.easeInOut',
 			});
 		}
 		// Each kind carries itself differently (see animalGait). Airborne and
@@ -2562,17 +3263,29 @@ export class WorldScene extends Phaser.Scene {
 		const base = (img as any).baseOriginY ?? img.displayOriginY;
 		if (gait === 'flutter') {
 			this.tweens.add({
-				targets: img, displayOriginY: { from: base, to: base + this.hopAmp(img) * 0.7 },
-				duration: 240 + rng() * 90, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+				targets: img,
+				displayOriginY: { from: base, to: base + this.hopAmp(img) * 0.7 },
+				duration: 240 + rng() * 90,
+				yoyo: true,
+				repeat: -1,
+				ease: 'Sine.easeInOut',
 			});
 			this.tweens.add({
-				targets: img, angle: { from: -5, to: 5 },
-				duration: 700 + rng() * 350, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+				targets: img,
+				angle: { from: -5, to: 5 },
+				duration: 700 + rng() * 350,
+				yoyo: true,
+				repeat: -1,
+				ease: 'Sine.easeInOut',
 			});
 		} else if (gait === 'swim') {
 			this.tweens.add({
-				targets: img, angle: { from: -4, to: 4 },
-				duration: 1300 + rng() * 600, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
+				targets: img,
+				angle: { from: -4, to: 4 },
+				duration: 1300 + rng() * 600,
+				yoyo: true,
+				repeat: -1,
+				ease: 'Sine.easeInOut',
 			});
 		}
 	}
@@ -2584,25 +3297,49 @@ export class WorldScene extends Phaser.Scene {
 		const base = (img as any).baseOriginY ?? img.displayOriginY;
 		switch (gait) {
 			case 'hop':
-				return [this.tweens.add({
-					targets: img, displayOriginY: { from: base, to: base + this.hopAmp(img) },
-					duration: 165 + rng() * 45, yoyo: true, repeat: -1, ease: 'Sine.easeOut',
-				})];
+				return [
+					this.tweens.add({
+						targets: img,
+						displayOriginY: { from: base, to: base + this.hopAmp(img) },
+						duration: 165 + rng() * 45,
+						yoyo: true,
+						repeat: -1,
+						ease: 'Sine.easeOut',
+					}),
+				];
 			case 'flit':
-				return [this.tweens.add({
-					targets: img, displayOriginY: { from: base, to: base + this.hopAmp(img) * 0.45 },
-					duration: 135 + rng() * 40, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
-				})];
+				return [
+					this.tweens.add({
+						targets: img,
+						displayOriginY: { from: base, to: base + this.hopAmp(img) * 0.45 },
+						duration: 135 + rng() * 40,
+						yoyo: true,
+						repeat: -1,
+						ease: 'Sine.easeInOut',
+					}),
+				];
 			case 'slither':
-				return [this.tweens.add({
-					targets: img, angle: { from: -5, to: 5 },
-					duration: 170 + rng() * 50, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
-				})];
+				return [
+					this.tweens.add({
+						targets: img,
+						angle: { from: -5, to: 5 },
+						duration: 170 + rng() * 50,
+						yoyo: true,
+						repeat: -1,
+						ease: 'Sine.easeInOut',
+					}),
+				];
 			case 'amble':
-				return [this.tweens.add({
-					targets: img, angle: { from: -2.2, to: 2.2 },
-					duration: 250 + rng() * 60, yoyo: true, repeat: -1, ease: 'Sine.easeInOut',
-				})];
+				return [
+					this.tweens.add({
+						targets: img,
+						angle: { from: -2.2, to: 2.2 },
+						duration: 250 + rng() * 60,
+						yoyo: true,
+						repeat: -1,
+						ease: 'Sine.easeInOut',
+					}),
+				];
 			default:
 				return []; // flutter/swim already carry their ambient motion
 		}
@@ -2656,14 +3393,24 @@ export class WorldScene extends Phaser.Scene {
 	/** Pick a point over open water, preferring tiles within `roam` of home. */
 	private fishTarget(homeX: number, homeY: number, roam: number, rng: () => number): { x: number; y: number } | null {
 		if (!this.waterTileCenters.length) return null;
-		const near = this.waterTileCenters.filter((c) => Phaser.Math.Distance.Between(homeX, homeY, c.x, c.y) <= roam * 1.5);
+		const near = this.waterTileCenters.filter(
+			(c) => Phaser.Math.Distance.Between(homeX, homeY, c.x, c.y) <= roam * 1.5,
+		);
 		const pool = near.length ? near : this.waterTileCenters;
 		const c = pool[Math.floor(rng() * pool.length)];
 		// jitter within the tile so a fish doesn't snap dead-center
 		return { x: c.x + (rng() - 0.5) * TILE * 0.6, y: c.y + (rng() - 0.5) * TILE * 0.6 };
 	}
 
-	private wander(img: Phaser.GameObjects.Image, homeX: number, homeY: number, kind: string, rng: () => number, ocean = false, gait: string = 'amble') {
+	private wander(
+		img: Phaser.GameObjects.Image,
+		homeX: number,
+		homeY: number,
+		kind: string,
+		rng: () => number,
+		ocean = false,
+		gait: string = 'amble',
+	) {
 		const roam = ocean ? 140 : kind === 'bird' || kind === 'insect' ? 130 : 80;
 		const speed = ocean ? 22 : kind === 'insect' ? 26 : kind === 'bird' ? 42 : 18;
 		const aquatic = kind === 'fish';
@@ -2675,12 +3422,17 @@ export class WorldScene extends Phaser.Scene {
 			if (ocean) {
 				// marine swimmers drift around the open ocean band, near their spot
 				const w = this.oceanTarget(rng, homeX, homeY, roam);
-				tx = w.x; ty = w.y;
+				tx = w.x;
+				ty = w.y;
 			} else if (aquatic) {
 				// fish drift only between open-water tiles near them
 				const w = this.fishTarget(homeX, homeY, roam, rng);
-				if (!w) { this.time.delayedCall(1200 + rng() * 2000, hop); return; }
-				tx = w.x; ty = w.y;
+				if (!w) {
+					this.time.delayedCall(1200 + rng() * 2000, hop);
+					return;
+				}
+				tx = w.x;
+				ty = w.y;
 			} else {
 				// walkers re-roll any target that lands on open water; fliers go anywhere
 				let attempts = 0;
@@ -2688,7 +3440,10 @@ export class WorldScene extends Phaser.Scene {
 					tx = Phaser.Math.Clamp(homeX + (rng() - 0.5) * roam * 2, TILE, eastEdge);
 					ty = Phaser.Math.Clamp(homeY + (rng() - 0.5) * roam * 1.4, (this.playTop + 1) * TILE, this.worldH - TILE);
 				} while (!flying && this.isWaterPx(tx, ty) && ++attempts < 12);
-				if (!flying && this.isWaterPx(tx, ty)) { tx = img.x; ty = img.y; } // stay put rather than step onto water
+				if (!flying && this.isWaterPx(tx, ty)) {
+					tx = img.x;
+					ty = img.y;
+				} // stay put rather than step onto water
 			}
 			const dist = Phaser.Math.Distance.Between(img.x, img.y, tx, ty);
 			img.setFlipX(tx < img.x);
@@ -2696,7 +3451,9 @@ export class WorldScene extends Phaser.Scene {
 			// this leg, then the pose is restored so idle animals sit still
 			const flourish = this.startMoveGait(img, gait, rng);
 			this.tweens.add({
-				targets: img, x: tx, y: ty,
+				targets: img,
+				x: tx,
+				y: ty,
 				duration: Math.max(600, (dist / speed) * 1000),
 				ease: 'Sine.easeInOut',
 				onUpdate: () => img.setDepth(img.y),
@@ -2711,8 +3468,11 @@ export class WorldScene extends Phaser.Scene {
 							this.time.delayedCall(500 + rng() * 1200, () => {
 								if (!img.active) return;
 								this.tweens.add({
-									targets: img, displayOriginY: { from: base, to: base + this.hopAmp(img) * 0.6 },
-									duration: 150, yoyo: true, ease: 'Quad.easeOut',
+									targets: img,
+									displayOriginY: { from: base, to: base + this.hopAmp(img) * 0.6 },
+									duration: 150,
+									yoyo: true,
+									ease: 'Quad.easeOut',
 								});
 							});
 						}
@@ -2769,7 +3529,8 @@ export class WorldScene extends Phaser.Scene {
 
 	/** The object id currently being placed or moved, if any. */
 	private activeObjectId(): string | null {
-		if (this.movingPlacementId) return bridge.shared.state?.placements.find((p) => p.id === this.movingPlacementId)?.objectId ?? null;
+		if (this.movingPlacementId)
+			return bridge.shared.state?.placements.find((p) => p.id === this.movingPlacementId)?.objectId ?? null;
 		return this.placementObjectId;
 	}
 	/** Whether the active place/move object can be rotated (paths, bridges, furniture…). */
@@ -2784,7 +3545,8 @@ export class WorldScene extends Phaser.Scene {
 			const r = this.roomSpec();
 			if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1) return false;
 			const sH = bridge.shared.state;
-			if (sH?.placements.some((p) => p.id !== ignoreId && p.area === this.area && p.x === tx && p.y === ty)) return false;
+			if (sH?.placements.some((p) => p.id !== ignoreId && p.area === this.area && p.x === tx && p.y === ty))
+				return false;
 			// items that need a bigger home can't be placed in a small one yet
 			// (a trail tent always counts as the starter size — space 1)
 			const activeId = this.movingPlacementId
@@ -2798,7 +3560,14 @@ export class WorldScene extends Phaser.Scene {
 		// Pelican Shore: nothing builds on the open ocean; land ends at landRight.
 		const right = this.area === 'coastal' ? this.landRight : this.cols - 1;
 		if (tx < 1 || ty < (this.playTop || 1) || tx >= right || ty >= this.rows - 1) return false;
-		if (this.area === 'meadow' && tx >= CAMP.tent.x - 0.5 && tx <= CAMP.tent.x + 1.5 && ty >= Math.floor(CAMP.tent.y) && ty <= Math.floor(CAMP.fire.y)) return false; // tent + campfire tiles (rows derived from the camp so they track it)
+		if (
+			this.area === 'meadow' &&
+			tx >= CAMP.tent.x - 0.5 &&
+			tx <= CAMP.tent.x + 1.5 &&
+			ty >= Math.floor(CAMP.tent.y) &&
+			ty <= Math.floor(CAMP.fire.y)
+		)
+			return false; // tent + campfire tiles (rows derived from the camp so they track it)
 		const s = bridge.shared.state;
 		if (s?.placements.some((p) => p.id !== ignoreId && p.area === this.area && p.x === tx && p.y === ty)) return false;
 		// note: resource nodes never block building — if you build on a regen spot,
@@ -2817,6 +3586,7 @@ export class WorldScene extends Phaser.Scene {
 
 	update(_time: number, delta: number) {
 		const dt = delta / 1000;
+		this.positionWeatherEmitter();
 		this.handleMovement(dt);
 		this.playerShadow.setPosition(this.player.x, this.player.y + 15);
 		this.handleGhost();
@@ -2846,26 +3616,41 @@ export class WorldScene extends Phaser.Scene {
 			let r = this.remotes.get(peer.playerId);
 			if (!r) {
 				const key = makePlayerTexture(this, peer.appearance);
-				const shadow = this.img(peer.x * TILE, peer.y * TILE + 15, 'shadow').setDepth(2).setAlpha(0.5);
-				const sprite = this.img(peer.x * TILE, peer.y * TILE, key).setDepth(999).setAlpha(0.96);
-				const label = this.add.text(peer.x * TILE, peer.y * TILE - 26, peer.name || t('game.label.caretaker'), {
-					fontFamily: 'system-ui, sans-serif', fontSize: '11px', color: '#3a2f25',
-					backgroundColor: 'rgba(255,255,255,0.7)', padding: { x: 4, y: 1 },
-					resolution: 4, // stays crisp under camera zoom
-				}).setOrigin(0.5).setDepth(10000);
+				const shadow = this.img(peer.x * TILE, peer.y * TILE + 15, 'shadow')
+					.setDepth(2)
+					.setAlpha(0.5);
+				const sprite = this.img(peer.x * TILE, peer.y * TILE, key)
+					.setDepth(999)
+					.setAlpha(0.96);
+				const label = this.add
+					.text(peer.x * TILE, peer.y * TILE - 26, peer.name || t('game.label.caretaker'), {
+						fontFamily: 'system-ui, sans-serif',
+						fontSize: '11px',
+						color: '#3a2f25',
+						backgroundColor: 'rgba(255,255,255,0.7)',
+						padding: { x: 4, y: 1 },
+						resolution: 4, // stays crisp under camera zoom
+					})
+					.setOrigin(0.5)
+					.setDepth(10000);
 				r = { sprite, shadow, label, sig, walkT: 0, lastX: peer.x, lastY: peer.y, moveUntil: 0 };
 				this.remotes.set(peer.playerId, r);
 			}
-			if (r.sig !== sig) { r.sprite.setTexture(makePlayerTexture(this, peer.appearance)); r.sig = sig; }
+			if (r.sig !== sig) {
+				r.sprite.setTexture(makePlayerTexture(this, peer.appearance));
+				r.sig = sig;
+			}
 			// "Walking" is driven by the reported position actually changing — not by
 			// the easing — so a standing player never waddles. A short window keeps the
 			// animation alive smoothly between position updates.
 			if (peer.x !== r.lastX || peer.y !== r.lastY) {
 				r.moveUntil = this.time.now + 220;
-				r.lastX = peer.x; r.lastY = peer.y;
+				r.lastX = peer.x;
+				r.lastY = peer.y;
 			}
 			const moving = this.time.now < r.moveUntil;
-			const targetX = peer.x * TILE, targetY = peer.y * TILE;
+			const targetX = peer.x * TILE,
+				targetY = peer.y * TILE;
 			const k = Math.min(1, dt * 12);
 			const nx = r.sprite.x + (targetX - r.sprite.x) * k;
 			const ny = r.sprite.y + (targetY - r.sprite.y) * k;
@@ -2885,20 +3670,27 @@ export class WorldScene extends Phaser.Scene {
 		// drop avatars for anyone who left this area / went quiet
 		for (const [id, r] of this.remotes) {
 			if (seen.has(id)) continue;
-			r.sprite.destroy(); r.shadow.destroy(); r.label.destroy();
+			r.sprite.destroy();
+			r.shadow.destroy();
+			r.label.destroy();
 			this.remotes.delete(id);
 		}
 	}
 
 	private clearRemotes() {
-		for (const r of this.remotes.values()) { r.sprite.destroy(); r.shadow.destroy(); r.label.destroy(); }
+		for (const r of this.remotes.values()) {
+			r.sprite.destroy();
+			r.shadow.destroy();
+			r.label.destroy();
+		}
 		this.remotes.clear();
 	}
 
 	private handleMovement(dt: number) {
 		if (this.sleeping) return; // can't roam while asleep
 		const k = this.keys;
-		let vx = 0, vy = 0;
+		let vx = 0,
+			vy = 0;
 		if (k.A.isDown || k.LEFT.isDown) vx -= 1;
 		if (k.D.isDown || k.RIGHT.isDown) vx += 1;
 		if (k.W.isDown || k.UP.isDown) vy -= 1;
@@ -2917,7 +3709,8 @@ export class WorldScene extends Phaser.Scene {
 		this.walkT += dt * 11;
 		this.player.setRotation(Math.sin(this.walkT) * 0.075); // cozy waddle
 		const len = Math.hypot(vx, vy);
-		const speed = 160;
+		// Hiking boots (when owned and switched on) give a gentle speed bump.
+		const speed = this.hasBoots() ? 160 * 1.2 : 160;
 		let nx = this.player.x + (vx / len) * speed * dt;
 		let ny = this.player.y + (vy / len) * speed * dt;
 
@@ -2934,15 +3727,23 @@ export class WorldScene extends Phaser.Scene {
 			// can step right up to the door before leaving.
 			if (this.isIndoors) {
 				const r = this.roomSpec();
-				const tx = Math.floor(px / TILE), ty = Math.floor((py + 8) / TILE);
+				const tx = Math.floor(px / TILE),
+					ty = Math.floor((py + 8) / TILE);
 				if (tx === r.doorX && ty === r.y1 + 1) return false;
 				return tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1;
 			}
 			if (this.area === 'coastal' && Math.floor(px / TILE) >= this.landRight) return true;
 			// the camp building (tent/house) is solid — walk around it, not through it
 			if (this.area === 'meadow') {
-				const hx = Math.floor(px / TILE), hy = Math.floor((py + 8) / TILE);
-				if (hx >= CAMP.tent.x - 1.5 && hx <= CAMP.tent.x + 1.5 && hy >= Math.floor(CAMP.tent.y) - 1 && hy <= Math.floor(CAMP.tent.y) + 1) return true;
+				const hx = Math.floor(px / TILE),
+					hy = Math.floor((py + 8) / TILE);
+				if (
+					hx >= CAMP.tent.x - 1.5 &&
+					hx <= CAMP.tent.x + 1.5 &&
+					hy >= Math.floor(CAMP.tent.y) - 1 &&
+					hy <= Math.floor(CAMP.tent.y) + 1
+				)
+					return true;
 			}
 			const key = `${Math.floor(px / TILE)},${Math.floor((py + 8) / TILE)}`;
 			return this.waterTiles.has(key) && !this.bridgeTiles.has(key);
@@ -2951,7 +3752,8 @@ export class WorldScene extends Phaser.Scene {
 		// underfoot), don't trap the player — let them walk straight back out.
 		const alreadyInWater = blocked(this.player.x, this.player.y);
 		if (!alreadyInWater && blocked(nx, ny)) {
-			if (!blocked(nx, this.player.y)) ny = this.player.y; // slide along the bank
+			if (!blocked(nx, this.player.y))
+				ny = this.player.y; // slide along the bank
 			else if (!blocked(this.player.x, ny)) nx = this.player.x;
 			else {
 				nx = this.player.x;
@@ -2975,7 +3777,7 @@ export class WorldScene extends Phaser.Scene {
 
 	private nearestInteractable(): Interactable | null {
 		let best: Interactable | null = null;
-		let bestDist = 68; // generous reach so E grabs what you're clearly standing beside
+		let bestDist = 90; // generous reach so E grabs what you're clearly standing near (was 68)
 		for (const it of this.interactables) {
 			const d = Phaser.Math.Distance.Between(this.player.x, this.player.y, it.x, it.y);
 			if (d < bestDist) {
@@ -3020,7 +3822,10 @@ export class WorldScene extends Phaser.Scene {
 			const tx = Math.floor(pointer.worldX / TILE);
 			const ty = Math.floor(pointer.worldY / TILE);
 			const ok = this.tileReachable(tx, ty);
-			this.tileCursor.setVisible(true).setPosition(tx * TILE + 16, ty * TILE + 16).setTexture(ok ? 'ghost-ok' : 'ghost-bad');
+			this.tileCursor
+				.setVisible(true)
+				.setPosition(tx * TILE + 16, ty * TILE + 16)
+				.setTexture(ok ? 'ghost-ok' : 'ghost-bad');
 		} else {
 			this.tileCursor.setVisible(false);
 		}
@@ -3036,11 +3841,13 @@ export class WorldScene extends Phaser.Scene {
 		const prompt = this.movingPlacementId
 			? t('game.prompt.moveTile', { verb: clickVerb }) + rotHint + (this.isTouch ? '' : t('game.prompt.escCancel'))
 			: this.placementObjectId
-			? t('game.prompt.placeTile', { verb: clickVerb }) + rotHint + (this.isTouch ? '' : t('game.prompt.escStopPlacing'))
-			: terraforming
-				? t(terraforming === 'dig' ? 'game.prompt.shovel' : 'game.prompt.wateringCan', { verb: lowVerb })
-					+ (near ? t('game.prompt.nearSuffix', { verb, label: near.label }) : '')
-				: nearMain;
+				? t('game.prompt.placeTile', { verb: clickVerb }) +
+					rotHint +
+					(this.isTouch ? '' : t('game.prompt.escStopPlacing'))
+				: terraforming
+					? t(terraforming === 'dig' ? 'game.prompt.shovel' : 'game.prompt.wateringCan', { verb: lowVerb }) +
+						(near ? t('game.prompt.nearSuffix', { verb, label: near.label }) : '')
+					: nearMain;
 		if (prompt !== this.lastPrompt) {
 			this.lastPrompt = prompt;
 			bridge.emit('prompt', prompt);

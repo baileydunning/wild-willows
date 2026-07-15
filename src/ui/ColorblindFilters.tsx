@@ -17,11 +17,7 @@
  */
 export function ColorblindFilters() {
 	return (
-		<svg
-			aria-hidden="true"
-			focusable="false"
-			style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }}
-		>
+		<svg aria-hidden="true" focusable="false" style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }}>
 			<defs>
 				{/* Red-green: encode the full red↔green difference into blue (B' = R − G + B).
 				    In a mostly-green landscape this spreads the greens across the blue axis —

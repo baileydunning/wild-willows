@@ -129,7 +129,8 @@
 		"feedbackBadEmail": "That reply email doesn’t look right — leave it blank if you don’t want a response",
 		"clientIdRequired": "clientId required",
 		"snapshotRequired": "snapshot required",
-		"snapshotTooLarge": "snapshot too large"
+		"snapshotTooLarge": "snapshot too large",
+		"deviceIdRequired": "deviceId required"
 	},
 	"task": {
 		"welcomeGrasshopper": "Welcome the grasshopper home",

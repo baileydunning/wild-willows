@@ -49,10 +49,13 @@ describe('tool-upgrade goals', () => {
 	});
 
 	it('rejects a tool goal for an unknown tool but keeps valid ones', async () => {
-		await w.post('SetGoals', { playerId: pid, goals: [
-			{ kind: 'tool', toolId: 'not-a-tool', target: 2 },
-			{ kind: 'tool', toolId: 'shovel', target: 2 },
-		] });
+		await w.post('SetGoals', {
+			playerId: pid,
+			goals: [
+				{ kind: 'tool', toolId: 'not-a-tool', target: 2 },
+				{ kind: 'tool', toolId: 'shovel', target: 2 },
+			],
+		});
 		const p = await w.db.Player.get(pid);
 		const tools = (p.customGoals || []).filter((g: any) => g.kind === 'tool');
 		expect(tools).toHaveLength(1);

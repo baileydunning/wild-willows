@@ -12,7 +12,20 @@ import { Icon } from './icons';
 // goal, so it'd be redundant. Bring-back-animal comes from the field journal.
 const KINDS: CustomGoalKind[] = ['craft', 'plant', 'collect', 'observe', 'welcomeTotal', 'health', 'home', 'tool'];
 const KIND_ICON: Record<CustomGoalKind, string> = {
-	craft: 'hammer', build: 'hammer', grow: 'leaf', plant: 'leaf', collect: 'basket', observe: 'journal', welcome: 'paw', attract: 'paw', welcomeTotal: 'paw', home: 'home', tool: 'hammer', unlock: 'map', health: 'leaf', biomeAnimals: 'paw',
+	craft: 'hammer',
+	build: 'hammer',
+	grow: 'leaf',
+	plant: 'leaf',
+	collect: 'basket',
+	observe: 'journal',
+	welcome: 'paw',
+	attract: 'paw',
+	welcomeTotal: 'paw',
+	home: 'home',
+	tool: 'hammer',
+	unlock: 'map',
+	health: 'leaf',
+	biomeAnimals: 'paw',
 };
 const HEALTH_TARGETS = [50, 60, 70, 80, 90, 100];
 const HOME_TRACKS = ['space', 'comfort', 'decor', 'light'];
@@ -44,7 +57,7 @@ export function GoalsPanel() {
 	// pinned "unlock the next biome" goal, so they never appear as their own craft goal.
 	const unlockKitIds = useMemo(
 		() => new Set((data?.biomes || []).map((b) => b.unlock?.requiresItem).filter(Boolean) as string[]),
-		[data]
+		[data],
 	);
 	const craftables = useMemo(() => {
 		if (!data || !state) return [] as { id: string; name: string }[];
@@ -74,14 +87,17 @@ export function GoalsPanel() {
 		return out.sort((a, b) => a.name.localeCompare(b.name));
 	}, [data, state, content, unlockKitIds]);
 	const animals = useMemo(
-		() => (data?.animals || []).map((a) => ({ id: a.id, name: content('animal', a.id, 'name', a.name) })).sort((a, b) => a.name.localeCompare(b.name)),
-		[data, content]
+		() =>
+			(data?.animals || [])
+				.map((a) => ({ id: a.id, name: content('animal', a.id, 'name', a.name) }))
+				.sort((a, b) => a.name.localeCompare(b.name)),
+		[data, content],
 	);
 	const homeMax = (tk: string) => data?.homeTracks?.[tk]?.levels?.length || 5;
 	// The three buildable house styles, with their material costs.
 	const styles = useMemo(
 		() => Object.entries(data?.homeStyles || {}).map(([id, s]) => ({ id, name: s.name, materials: s.materials || {} })),
-		[data]
+		[data],
 	);
 	// Tools with a next tier you can work toward NOW: the required biome is open and
 	// healthy enough, but you don't already have the materials (that'd be busywork,
@@ -102,9 +118,15 @@ export function GoalsPanel() {
 				if (!unlocked.has(req.biome)) continue; // biome not open yet
 				if (typeof req.minHealth === 'number' && healthOf(req.biome) < req.minHealth) continue; // not healthy enough yet
 			}
-			const affordable = Object.entries((next as any).materials || {}).every(([mid, need]) => heldOf(mid) >= (need as number));
+			const affordable = Object.entries((next as any).materials || {}).every(
+				([mid, need]) => heldOf(mid) >= (need as number),
+			);
 			if (affordable) continue; // you could do it right now — not a goal
-			out.push({ id: td.id, name: content('tool', td.id, `tiers.${next.tier}.name`, (next as any).name), tier: next.tier });
+			out.push({
+				id: td.id,
+				name: content('tool', td.id, `tiers.${next.tier}.name`, (next as any).name),
+				tier: next.tier,
+			});
 		}
 		return out.sort((a, b) => a.name.localeCompare(b.name));
 	}, [data, state, content]);
@@ -123,7 +145,9 @@ export function GoalsPanel() {
 	const startersDone = !(state.dailyTasks?.tasks || []).some((tk) => tk.id.startsWith('start-'));
 	// System goals to surface read-only at the top of the menu: the pinned
 	// next-biome guidance, and the three starters until they're claimed.
-	const fixedTasks = (state.dailyTasks?.tasks || []).filter((tk: any) => tk.pinned || (typeof tk.id === 'string' && tk.id.startsWith('start-')));
+	const fixedTasks = (state.dailyTasks?.tasks || []).filter(
+		(tk: any) => tk.pinned || (typeof tk.id === 'string' && tk.id.startsWith('start-')),
+	);
 	const hasHomeGoal = active.some((g) => g.kind === 'home');
 	// A built house with every track at its top level has nothing left to aim for,
 	// so "Upgrade your home" drops out of the picker entirely.
@@ -145,9 +169,7 @@ export function GoalsPanel() {
 	// Resources you can ACTUALLY gather right now — only those found in biomes
 	// you've unlocked. A collect goal for a locked biome's material is impossible,
 	// and the server scopes rewards/targets to your personal biomes anyway.
-	const gatherableResIds = new Set(
-		data.biomes.filter((b) => unlockedSet.has(b.id)).flatMap((b) => b.resources || []),
-	);
+	const gatherableResIds = new Set(data.biomes.filter((b) => unlockedSet.has(b.id)).flatMap((b) => b.resources || []));
 	const collectables = data.resources.filter((r) => gatherableResIds.has(r.id));
 	// The picker only offers goals you can actually make progress on right now.
 	const kindOptions = KINDS.filter((k) => {
@@ -169,28 +191,53 @@ export function GoalsPanel() {
 	// A readable label for a goal, matching the board wording.
 	const label = (g: CustomGoal): string => {
 		switch (g.kind) {
-			case 'craft': return t('panels.goals.label.craft', { count: g.target, item: craftables.find((c) => c.id === g.itemId)?.name || g.itemId || '' });
-			case 'build': return t('panels.goals.label.build', { count: g.target, item: craftables.find((c) => c.id === g.itemId)?.name || g.itemId || '' });
+			case 'craft':
+				return t('panels.goals.label.craft', {
+					count: g.target,
+					item: craftables.find((c) => c.id === g.itemId)?.name || g.itemId || '',
+				});
+			case 'build':
+				return t('panels.goals.label.build', {
+					count: g.target,
+					item: craftables.find((c) => c.id === g.itemId)?.name || g.itemId || '',
+				});
 			case 'grow': {
 				const o = data.habitatObjects.find((h) => h.id === g.itemId);
-				return t('panels.goals.label.grow', { count: g.target, item: o ? content('habitatObject', o.id, 'name', o.name) : g.itemId || '' });
+				return t('panels.goals.label.grow', {
+					count: g.target,
+					item: o ? content('habitatObject', o.id, 'name', o.name) : g.itemId || '',
+				});
 			}
-			case 'plant': return t('panels.goals.label.plant', { count: g.target });
-			case 'collect': return t('panels.goals.label.collect', { count: g.target, resource: resName(g.resourceId || '') });
-			case 'observe': return t('panels.goals.label.observe', { count: g.target });
-			case 'welcomeTotal': return t('panels.goals.label.welcomeTotal', { count: g.target });
-			case 'welcome': return t('panels.goals.label.welcome', { animal: animals.find((a) => a.id === g.animalId)?.name || g.animalId || '' });
+			case 'plant':
+				return t('panels.goals.label.plant', { count: g.target });
+			case 'collect':
+				return t('panels.goals.label.collect', { count: g.target, resource: resName(g.resourceId || '') });
+			case 'observe':
+				return t('panels.goals.label.observe', { count: g.target });
+			case 'welcomeTotal':
+				return t('panels.goals.label.welcomeTotal', { count: g.target });
+			case 'welcome':
+				return t('panels.goals.label.welcome', {
+					animal: animals.find((a) => a.id === g.animalId)?.name || g.animalId || '',
+				});
 			case 'attract': {
 				const a = data.animals.find((x) => x.id === g.animalId);
-				return t('panels.goals.label.attract', { kind: a ? content('animal', a.id, 'kind', a.kind) : t('panels.goals.creature') });
+				return t('panels.goals.label.attract', {
+					kind: a ? content('animal', a.id, 'kind', a.kind) : t('panels.goals.creature'),
+				});
 			}
-			case 'home': return g.track === 'build'
-				? t('panels.goals.label.homeBuild', { style: styles.find((s) => s.id === g.styleId)?.name || t('panels.goals.styleLabel') })
-				: t('panels.goals.label.home', { track: t(`panels.goals.track.${g.track}`), level: g.target });
+			case 'home':
+				return g.track === 'build'
+					? t('panels.goals.label.homeBuild', {
+							style: styles.find((s) => s.id === g.styleId)?.name || t('panels.goals.styleLabel'),
+						})
+					: t('panels.goals.label.home', { track: t(`panels.goals.track.${g.track}`), level: g.target });
 			case 'tool': {
 				const td = data.tools?.find((x) => x.id === g.toolId);
 				const tier = td?.tiers?.find((tt) => tt.tier === g.target);
-				return t('panels.goals.label.tool', { tool: td && tier ? content('tool', td.id, `tiers.${g.target}.name`, tier.name) : (g.toolId || '') });
+				return t('panels.goals.label.tool', {
+					tool: td && tier ? content('tool', td.id, `tiers.${g.target}.name`, tier.name) : g.toolId || '',
+				});
 			}
 			case 'unlock': {
 				const b = data.biomes.find((bb) => bb.id === g.biomeId);
@@ -198,13 +245,19 @@ export function GoalsPanel() {
 			}
 			case 'health': {
 				const b = data.biomes.find((bb) => bb.id === g.biomeId);
-				return t('panels.goals.label.health', { biome: b ? content('biome', b.id, 'name', b.name) : g.biomeId || '', pct: g.target });
+				return t('panels.goals.label.health', {
+					biome: b ? content('biome', b.id, 'name', b.name) : g.biomeId || '',
+					pct: g.target,
+				});
 			}
 			case 'biomeAnimals': {
 				const b = data.biomes.find((bb) => bb.id === g.biomeId);
-				return t('panels.goals.label.biomeAnimals', { biome: b ? content('biome', b.id, 'name', b.name) : g.biomeId || '' });
+				return t('panels.goals.label.biomeAnimals', {
+					biome: b ? content('biome', b.id, 'name', b.name) : g.biomeId || '',
+				});
 			}
-			default: return '';
+			default:
+				return '';
 		}
 	};
 
@@ -214,29 +267,47 @@ export function GoalsPanel() {
 		if (!startersDone) return; // finish the three starters first
 		if (active.length >= limit) return;
 		const g: CustomGoal = { id: '', kind, target: Math.max(1, Math.min(99, Math.floor(count) || 1)) };
-		if (kind === 'craft') { if (!itemId || craftAffordable) return; g.itemId = itemId; }
-		else if (kind === 'collect') { if (!resourceId) return; g.resourceId = resourceId; }
-		else if (kind === 'welcomeTotal') { if (welcomeLeft <= 0) return; g.target = Math.min(g.target, welcomeLeft); } // can't aim past what's reachable
-		else if (kind === 'unlock') { if (!biomeId) return; g.biomeId = biomeId; g.target = 1; }
-		else if (kind === 'health') {
-			const b = biomeId || healthBiomes[0]?.id; if (!b) return;
-			g.biomeId = b; g.target = Math.max(bHealth(b) + 1, Math.min(100, healthPct)); // must beat the biome's current health
-		}
-		else if (kind === 'biomeAnimals') {
-			const b = biomeId || animalBiomes[0]?.id; if (!b) return;
-			g.biomeId = b; g.target = animalTotal(b); // server confirms the authoritative count
-		}
-		else if (kind === 'tool') {
+		if (kind === 'craft') {
+			if (!itemId || craftAffordable) return;
+			g.itemId = itemId;
+		} else if (kind === 'collect') {
+			if (!resourceId) return;
+			g.resourceId = resourceId;
+		} else if (kind === 'welcomeTotal') {
+			if (welcomeLeft <= 0) return;
+			g.target = Math.min(g.target, welcomeLeft);
+		} // can't aim past what's reachable
+		else if (kind === 'unlock') {
+			if (!biomeId) return;
+			g.biomeId = biomeId;
+			g.target = 1;
+		} else if (kind === 'health') {
+			const b = biomeId || healthBiomes[0]?.id;
+			if (!b) return;
+			g.biomeId = b;
+			g.target = Math.max(bHealth(b) + 1, Math.min(100, healthPct)); // must beat the biome's current health
+		} else if (kind === 'biomeAnimals') {
+			const b = biomeId || animalBiomes[0]?.id;
+			if (!b) return;
+			g.biomeId = b;
+			g.target = animalTotal(b); // server confirms the authoritative count
+		} else if (kind === 'tool') {
 			const sel = upgradableTools.find((x) => x.id === toolId);
 			if (!sel) return;
-			g.toolId = toolId; g.target = sel.tier; // aim for the next tier
-		}
-		else if (kind === 'home') {
+			g.toolId = toolId;
+			g.target = sel.tier; // aim for the next tier
+		} else if (kind === 'home') {
 			if (hasHomeGoal) return; // only one home goal at a time
 			if (homeGoalAffordable) return; // already have the materials — busywork, not a goal
-			if (!homeBuilt) { if (!styleId) return; g.track = 'build'; g.styleId = styleId; g.target = 1; } // build the tent into a chosen house
+			if (!homeBuilt) {
+				if (!styleId) return;
+				g.track = 'build';
+				g.styleId = styleId;
+				g.target = 1;
+			} // build the tent into a chosen house
 			else {
-				const cur = homeCur(track), max = homeMax(track);
+				const cur = homeCur(track),
+					max = homeMax(track);
 				if (cur >= max) return; // already at the top of this track — nothing to aim for
 				g.track = track;
 				g.target = Math.min(max, Math.max(cur + 1, Math.floor(level) || cur + 1)); // must be above current
@@ -257,7 +328,11 @@ export function GoalsPanel() {
 	// A craft goal you can already fully afford (for the chosen count) is busywork,
 	// so it's blocked with a note. Uses basket + linked chests, like the server.
 	const chosenRecipe = kind === 'craft' && itemId ? data.recipes.find((r) => r.output.itemId === itemId) : null;
-	const craftAffordable = !!chosenRecipe && Object.entries(chosenRecipe.materials || {}).every(([mid, need]) => held(mid) >= (need as number) * Math.max(1, Math.floor(count) || 1));
+	const craftAffordable =
+		!!chosenRecipe &&
+		Object.entries(chosenRecipe.materials || {}).every(
+			([mid, need]) => held(mid) >= (need as number) * Math.max(1, Math.floor(count) || 1),
+		);
 
 	// A home goal (build a house, or level one track by one step) you can already
 	// afford right now is busywork — block it like the craft picker does. Multi-step
@@ -266,7 +341,11 @@ export function GoalsPanel() {
 		if (kind !== 'home') return false;
 		if (!homeBuilt) {
 			const mats = styles.find((s) => s.id === styleId)?.materials;
-			return !!mats && Object.keys(mats).length > 0 && Object.entries(mats).every(([mid, need]) => held(mid) >= (need as number));
+			return (
+				!!mats &&
+				Object.keys(mats).length > 0 &&
+				Object.entries(mats).every(([mid, need]) => held(mid) >= (need as number))
+			);
 		}
 		const cur = homeCur(track);
 		const chosenLevel = Math.min(homeMax(track), Math.max(cur + 1, Math.floor(level) || cur + 1));
@@ -288,8 +367,12 @@ export function GoalsPanel() {
 		<div className="panel-backdrop" onClick={() => setPanel(null)}>
 			<div className="panel panel-wide" onClick={(e) => e.stopPropagation()}>
 				<div className="panel-head">
-					<h2><Icon name="target" size={20} /> {t('panels.goals.title')}</h2>
-					<button className="icon-btn" onClick={() => setPanel(null)} aria-label={t('panels.common.close')}><Icon name="close" /></button>
+					<h2>
+						<Icon name="target" size={20} /> {t('panels.goals.title')}
+					</h2>
+					<button className="icon-btn" onClick={() => setPanel(null)} aria-label={t('panels.common.close')}>
+						<Icon name="close" />
+					</button>
 				</div>
 				<div className="panel-body">
 					<p className="muted">{t('panels.goals.intro')}</p>
@@ -301,10 +384,16 @@ export function GoalsPanel() {
 						<div className="goals-list goals-fixed">
 							{fixedTasks.map((tk) => (
 								<div className={`goals-row goals-row-readonly ${tk.pinned ? 'goals-row-pinned' : ''}`} key={tk.id}>
-									<span className="goals-row-icon"><Icon name={tk.icon} size={15} /></span>
+									<span className="goals-row-icon">
+										<Icon name={tk.icon} size={15} />
+									</span>
 									<div className="grow">
 										<span className="goals-row-text">{tk.text}</span>
-										<div className="goals-row-meta"><span className="muted small">{tk.progress}/{tk.target}</span></div>
+										<div className="goals-row-meta">
+											<span className="muted small">
+												{tk.progress}/{tk.target}
+											</span>
+										</div>
 									</div>
 								</div>
 							))}
@@ -321,17 +410,44 @@ export function GoalsPanel() {
 							const progress = bt ? bt.progress : target;
 							return (
 								<div className="goals-row" key={g.id || i}>
-									<span className="goals-row-icon"><Icon name={KIND_ICON[g.kind]} size={15} /></span>
+									<span className="goals-row-icon">
+										<Icon name={KIND_ICON[g.kind]} size={15} />
+									</span>
 									<div className="grow">
 										<span className="goals-row-text">{label(g)}</span>
 										<div className="goals-row-meta">
-											<span className="muted small">{progress}/{target}</span>
+											<span className="muted small">
+												{progress}/{target}
+											</span>
 										</div>
 									</div>
 									<div className="goals-row-actions">
-										<button className="icon-btn subtle" disabled={i === 0} onClick={() => move(i, -1)} title={t('panels.goals.moveUp')} aria-label={t('panels.goals.moveUp')}><Icon name="forward" size={13} className="chev-up" /></button>
-										<button className="icon-btn subtle" disabled={i === active.length - 1} onClick={() => move(i, 1)} title={t('panels.goals.moveDown')} aria-label={t('panels.goals.moveDown')}><Icon name="forward" size={13} className="chev-down" /></button>
-										<button className="icon-btn subtle" onClick={() => remove(i)} title={t('panels.goals.remove')} aria-label={t('panels.goals.remove')}><Icon name="trash" size={13} /></button>
+										<button
+											className="icon-btn subtle"
+											disabled={i === 0}
+											onClick={() => move(i, -1)}
+											title={t('panels.goals.moveUp')}
+											aria-label={t('panels.goals.moveUp')}
+										>
+											<Icon name="forward" size={13} className="chev-up" />
+										</button>
+										<button
+											className="icon-btn subtle"
+											disabled={i === active.length - 1}
+											onClick={() => move(i, 1)}
+											title={t('panels.goals.moveDown')}
+											aria-label={t('panels.goals.moveDown')}
+										>
+											<Icon name="forward" size={13} className="chev-down" />
+										</button>
+										<button
+											className="icon-btn subtle"
+											onClick={() => remove(i)}
+											title={t('panels.goals.remove')}
+											aria-label={t('panels.goals.remove')}
+										>
+											<Icon name="trash" size={13} />
+										</button>
 									</div>
 								</div>
 							);
@@ -348,26 +464,54 @@ export function GoalsPanel() {
 							<div className="craft-filter">
 								<label htmlFor="goal-kind">{t('panels.goals.typeLabel')}</label>
 								<select id="goal-kind" value={kind} onChange={(e) => setKind(e.target.value as CustomGoalKind)}>
-									{kindOptions.map((k) => <option key={k} value={k}>{t(`panels.goals.type.${k}`)}</option>)}
+									{kindOptions.map((k) => (
+										<option key={k} value={k}>
+											{t(`panels.goals.type.${k}`)}
+										</option>
+									))}
 								</select>
 
 								{kind === 'craft' && (
-									<select aria-label={t('panels.goals.itemLabel')} value={itemId} onChange={(e) => setItemId(e.target.value)}>
+									<select
+										aria-label={t('panels.goals.itemLabel')}
+										value={itemId}
+										onChange={(e) => setItemId(e.target.value)}
+									>
 										<option value="">{t('panels.goals.pickItem')}</option>
-										{craftables.map((c) => <option key={c.id} value={c.id}>{c.name}</option>)}
+										{craftables.map((c) => (
+											<option key={c.id} value={c.id}>
+												{c.name}
+											</option>
+										))}
 									</select>
 								)}
 								{kind === 'collect' && (
-									<select aria-label={t('panels.goals.resourceLabel')} value={resourceId} onChange={(e) => setResourceId(e.target.value)}>
+									<select
+										aria-label={t('panels.goals.resourceLabel')}
+										value={resourceId}
+										onChange={(e) => setResourceId(e.target.value)}
+									>
 										<option value="">{t('panels.goals.pickResource')}</option>
-										{collectables.map((r) => <option key={r.id} value={r.id}>{content('resource', r.id, 'name', r.name)}</option>)}
+										{collectables.map((r) => (
+											<option key={r.id} value={r.id}>
+												{content('resource', r.id, 'name', r.name)}
+											</option>
+										))}
 									</select>
 								)}
 								{kind === 'tool' && (
 									<span className="goals-style-pick">
-										<select aria-label={t('panels.goals.toolLabel')} value={toolId} onChange={(e) => setToolId(e.target.value)}>
+										<select
+											aria-label={t('panels.goals.toolLabel')}
+											value={toolId}
+											onChange={(e) => setToolId(e.target.value)}
+										>
 											<option value="">{t('panels.goals.pickTool')}</option>
-											{upgradableTools.map((tl) => <option key={tl.id} value={tl.id}>{tl.name}</option>)}
+											{upgradableTools.map((tl) => (
+												<option key={tl.id} value={tl.id}>
+													{tl.name}
+												</option>
+											))}
 										</select>
 										{(() => {
 											const sel = upgradableTools.find((x) => x.id === toolId);
@@ -384,8 +528,14 @@ export function GoalsPanel() {
 															const have = held(mid);
 															return (
 																<span key={mid} className={`tasks-step ${have >= (need as number) ? 'done' : ''}`}>
-																	<span className="tasks-step-box">{have >= (need as number) && <Icon name="check" size={10} />}</span>{' '}
-																	{t('panels.goals.matLine', { have: Math.min(have, need as number), need: need as number, name: resName(mid) })}
+																	<span className="tasks-step-box">
+																		{have >= (need as number) && <Icon name="check" size={10} />}
+																	</span>{' '}
+																	{t('panels.goals.matLine', {
+																		have: Math.min(have, need as number),
+																		need: need as number,
+																		name: resName(mid),
+																	})}
 																</span>
 															);
 														})}
@@ -396,36 +546,72 @@ export function GoalsPanel() {
 									</span>
 								)}
 								{kind === 'unlock' && (
-									<select aria-label={t('panels.goals.biomeLabel')} value={biomeId} onChange={(e) => setBiomeId(e.target.value)}>
+									<select
+										aria-label={t('panels.goals.biomeLabel')}
+										value={biomeId}
+										onChange={(e) => setBiomeId(e.target.value)}
+									>
 										<option value="">{t('panels.goals.pickBiome')}</option>
-										{data.biomes.filter((b) => b.explorable && !state.player.unlockedBiomes.includes(b.id)).map((b) => (
-											<option key={b.id} value={b.id}>{content('biome', b.id, 'name', b.name)}</option>
-										))}
+										{data.biomes
+											.filter((b) => b.explorable && !state.player.unlockedBiomes.includes(b.id))
+											.map((b) => (
+												<option key={b.id} value={b.id}>
+													{content('biome', b.id, 'name', b.name)}
+												</option>
+											))}
 									</select>
 								)}
 								{kind === 'health' && (
 									<>
-										<select aria-label={t('panels.goals.biomeLabel')} value={biomeId || healthBiomes[0]?.id || ''} onChange={(e) => setBiomeId(e.target.value)}>
-											{healthBiomes.map((b) => <option key={b.id} value={b.id}>{content('biome', b.id, 'name', b.name)} ({bHealth(b.id)}%)</option>)}
+										<select
+											aria-label={t('panels.goals.biomeLabel')}
+											value={biomeId || healthBiomes[0]?.id || ''}
+											onChange={(e) => setBiomeId(e.target.value)}
+										>
+											{healthBiomes.map((b) => (
+												<option key={b.id} value={b.id}>
+													{content('biome', b.id, 'name', b.name)} ({bHealth(b.id)}%)
+												</option>
+											))}
 										</select>
 										<label className="goals-count">
 											{t('panels.goals.healthLabel')}
 											<select value={healthPct} onChange={(e) => setHealthPct(Number(e.target.value))}>
-												{HEALTH_TARGETS.filter((p) => p > bHealth(biomeId || healthBiomes[0]?.id || '')).map((p) => <option key={p} value={p}>{p}%</option>)}
+												{HEALTH_TARGETS.filter((p) => p > bHealth(biomeId || healthBiomes[0]?.id || '')).map((p) => (
+													<option key={p} value={p}>
+														{p}%
+													</option>
+												))}
 											</select>
 										</label>
 									</>
 								)}
 								{kind === 'biomeAnimals' && (
-									<select aria-label={t('panels.goals.biomeLabel')} value={biomeId || animalBiomes[0]?.id || ''} onChange={(e) => setBiomeId(e.target.value)}>
-										{animalBiomes.map((b) => <option key={b.id} value={b.id}>{content('biome', b.id, 'name', b.name)} ({returnedIn(b.id)}/{animalTotal(b.id)})</option>)}
+									<select
+										aria-label={t('panels.goals.biomeLabel')}
+										value={biomeId || animalBiomes[0]?.id || ''}
+										onChange={(e) => setBiomeId(e.target.value)}
+									>
+										{animalBiomes.map((b) => (
+											<option key={b.id} value={b.id}>
+												{content('biome', b.id, 'name', b.name)} ({returnedIn(b.id)}/{animalTotal(b.id)})
+											</option>
+										))}
 									</select>
 								)}
 								{kind === 'home' && !homeBuilt && (
 									<span className="goals-style-pick">
-										<select aria-label={t('panels.goals.styleLabel')} value={styleId} onChange={(e) => setStyleId(e.target.value)}>
+										<select
+											aria-label={t('panels.goals.styleLabel')}
+											value={styleId}
+											onChange={(e) => setStyleId(e.target.value)}
+										>
 											<option value="">{t('panels.goals.pickStyle')}</option>
-											{styles.map((s) => <option key={s.id} value={s.id}>{s.name}</option>)}
+											{styles.map((s) => (
+												<option key={s.id} value={s.id}>
+													{s.name}
+												</option>
+											))}
 										</select>
 										{(() => {
 											const chosen = styles.find((s) => s.id === styleId);
@@ -439,7 +625,9 @@ export function GoalsPanel() {
 															const have = held(mid);
 															return (
 																<span key={mid} className={`tasks-step ${have >= need ? 'done' : ''}`}>
-																	<span className="tasks-step-box">{have >= need && <Icon name="check" size={10} />}</span>{' '}
+																	<span className="tasks-step-box">
+																		{have >= need && <Icon name="check" size={10} />}
+																	</span>{' '}
 																	{t('panels.goals.matLine', { have: Math.min(have, need), need, name: resName(mid) })}
 																</span>
 															);
@@ -451,15 +639,30 @@ export function GoalsPanel() {
 									</span>
 								)}
 								{kind === 'home' && homeBuilt && (
-									<select aria-label={t('panels.goals.trackLabel')} value={track} onChange={(e) => setTrack(e.target.value)}>
-										{HOME_TRACKS.map((tk) => <option key={tk} value={tk}>{t(`panels.goals.track.${tk}`)}</option>)}
+									<select
+										aria-label={t('panels.goals.trackLabel')}
+										value={track}
+										onChange={(e) => setTrack(e.target.value)}
+									>
+										{HOME_TRACKS.map((tk) => (
+											<option key={tk} value={tk}>
+												{t(`panels.goals.track.${tk}`)}
+											</option>
+										))}
 									</select>
 								)}
 								{kind === 'home' && homeBuilt && !homeMaxed && (
 									<label className="goals-count">
 										{t('panels.goals.levelLabel')}
-										<select value={Math.min(homeLvlMax, Math.max(homeLvlMin, level))} onChange={(e) => setLevel(Number(e.target.value))}>
-											{homeLevels.map((l) => <option key={l} value={l}>{l}</option>)}
+										<select
+											value={Math.min(homeLvlMax, Math.max(homeLvlMin, level))}
+											onChange={(e) => setLevel(Number(e.target.value))}
+										>
+											{homeLevels.map((l) => (
+												<option key={l} value={l}>
+													{l}
+												</option>
+											))}
 										</select>
 									</label>
 								)}
@@ -467,14 +670,33 @@ export function GoalsPanel() {
 								{showCount && (
 									<label className="goals-count">
 										{t('panels.goals.countLabel')}
-										<input type="number" min={1} max={99} value={count} onChange={(e) => setCount(Number(e.target.value))} />
+										<input
+											type="number"
+											min={1}
+											max={99}
+											value={count}
+											onChange={(e) => setCount(Number(e.target.value))}
+										/>
 									</label>
 								)}
 							</div>
-							<p className="goals-desc"><Icon name={KIND_ICON[kind]} size={13} /> {t(homeDescKey)}</p>
-							{homeMaxed && <p className="muted small">{t('panels.goals.homeMaxed', { track: t(`panels.goals.track.${track}`) })}</p>}
-							{(craftAffordable || homeGoalAffordable) && <p className="muted small">{t('panels.goals.affordableNote')}</p>}
-							<button className="big-btn primary" style={{ width: 'auto', marginTop: 0 }} onClick={addGoal} disabled={homeMaxed || craftAffordable || homeGoalAffordable}>
+							<p className="goals-desc">
+								<Icon name={KIND_ICON[kind]} size={13} /> {t(homeDescKey)}
+							</p>
+							{homeMaxed && (
+								<p className="muted small">
+									{t('panels.goals.homeMaxed', { track: t(`panels.goals.track.${track}`) })}
+								</p>
+							)}
+							{(craftAffordable || homeGoalAffordable) && (
+								<p className="muted small">{t('panels.goals.affordableNote')}</p>
+							)}
+							<button
+								className="big-btn primary"
+								style={{ width: 'auto', marginTop: 0 }}
+								onClick={addGoal}
+								disabled={homeMaxed || craftAffordable || homeGoalAffordable}
+							>
 								<Icon name="check" size={15} /> <span>{t('panels.goals.add')}</span>
 							</button>
 						</div>

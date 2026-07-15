@@ -11,7 +11,19 @@ import weatherConfig from '../data/weather.json';
 // header in server/weather.ts), so the client reuses the SAME functions the
 // server stamped the snapshot with. This keeps the live day/night clock and the
 // forecast perfectly in step with the server — no second implementation to drift.
-import { dayPhaseAt, dayProgressAt, seasonAt, weatherTypeAt, dayStartAt, DAY_MS, DAYS_PER_SEASON, SEASONS, WEATHER_TYPES, gatherResourceIdFor, weatherGatherMap } from '../server/weather';
+import {
+	dayPhaseAt,
+	dayProgressAt,
+	seasonAt,
+	weatherTypeAt,
+	dayStartAt,
+	DAY_MS,
+	DAYS_PER_SEASON,
+	SEASONS,
+	WEATHER_TYPES,
+	gatherResourceIdFor,
+	weatherGatherMap,
+} from '../server/weather';
 import type { GameState, ResourceDef, WeatherSnapshot } from './types';
 
 export type { WeatherSnapshot };
@@ -66,7 +78,12 @@ export function seasonEffect(biome: string, season: string): string {
 }
 
 const FALLBACK_TYPE: WeatherTypeStyle = {
-	name: 'Clear', icon: 'sun', flavor: '', tags: [], particle: null, overlay: null,
+	name: 'Clear',
+	icon: 'sun',
+	flavor: '',
+	tags: [],
+	particle: null,
+	overlay: null,
 };
 const FALLBACK_SEASON: SeasonStyle = { label: 'Spring', tint: '#a9d77a', tintAmount: 0.1, accent: '#8fc46a' };
 const FALLBACK_PHASE: DayPhaseStyle = { label: 'Day', color: '#ffffff', alpha: 0 };
@@ -96,7 +113,11 @@ function pickFrom(lines: string[] | undefined, seed: number): string | null {
  * or 'overnight' (login summary). `seed` rotates the variant so repeat events
  * stay fresh. Returns null if no line is configured.
  */
-export function weatherFeedLine(type: string, kind: 'onArrive' | 'overnight', seed = Date.now()): { icon: string; text: string } | null {
+export function weatherFeedLine(
+	type: string,
+	kind: 'onArrive' | 'overnight',
+	seed = Date.now(),
+): { icon: string; text: string } | null {
 	const block = FEED[type];
 	if (!block) return null;
 	const text = pickFrom(block[kind], seed);
@@ -158,11 +179,11 @@ export function liveSeason(snap: WeatherSnapshot | null | undefined): string {
 }
 
 export interface Calendar {
-	year: number;        // 1-based: you start in Year 1
-	season: string;      // current season id
+	year: number; // 1-based: you start in Year 1
+	season: string; // current season id
 	dayOfSeason: number; // 1-based day within the season
 	daysPerSeason: number;
-	dayIndex: number;    // absolute play-day index (0-based)
+	dayIndex: number; // absolute play-day index (0-based)
 }
 
 /** The in-game calendar derived from play time: Year N · Season · Day d.
@@ -184,14 +205,23 @@ export function liveCalendar(snap: WeatherSnapshot | null | undefined): Calendar
 /** Live weather type id for a biome — recomputed from the clock so it turns over
  *  on time even without a state refresh. Falls back to the snapshot if we have
  *  no worldId to seed the deterministic roll. */
-export function liveWeatherType(worldId: string | null | undefined, biome: string, snap: WeatherSnapshot | null | undefined): string {
+export function liveWeatherType(
+	worldId: string | null | undefined,
+	biome: string,
+	snap: WeatherSnapshot | null | undefined,
+): string {
 	if (snap?.override?.type) return snap.override.type; // dev override wins
 	if (worldId) return weatherTypeAt(worldId, biome, liveTime(snap));
 	return snap?.byBiome?.[biome]?.type || 'clear';
 }
 
 /** Forecast: the weather type for `biome` `daysAhead` in-game days from now. */
-export function forecastType(worldId: string, biome: string, snap: WeatherSnapshot | null | undefined, daysAhead: number): string {
+export function forecastType(
+	worldId: string,
+	biome: string,
+	snap: WeatherSnapshot | null | undefined,
+	daysAhead: number,
+): string {
 	if (snap?.override?.type) return snap.override.type; // dev override pins the sky
 	const t = dayStartAt(liveTime(snap)) + daysAhead * DAY_MS;
 	return weatherTypeAt(worldId, biome, t);
@@ -206,7 +236,11 @@ export function msUntilNextDay(snap: WeatherSnapshot | null | undefined): number
 
 /** The weather-gated resource gatherable in `biome` while `type` weather is
  *  active, if any. Pairings live in weather.json's `gather` map (biome-specific). */
-export function gatherResourceFor(resources: ResourceDef[] | undefined, biome: string, type: string): ResourceDef | undefined {
+export function gatherResourceFor(
+	resources: ResourceDef[] | undefined,
+	biome: string,
+	type: string,
+): ResourceDef | undefined {
 	const id = gatherResourceIdFor(biome, type);
 	return id ? (resources || []).find((r) => r.id === id) : undefined;
 }
@@ -214,10 +248,12 @@ export function gatherResourceFor(resources: ResourceDef[] | undefined, biome: s
 export { gatherResourceIdFor, weatherGatherMap, SEASONS, WEATHER_TYPES };
 
 // --- continuous day/night lighting -----------------------------------------
-const DAY_PHASE_BANDS: { id: string; until: number }[] =
-	(weatherConfig.config?.dayPhases as any[]) || [
-		{ id: 'dawn', until: 0.15 }, { id: 'day', until: 0.6 }, { id: 'dusk', until: 0.72 }, { id: 'night', until: 1 },
-	];
+const DAY_PHASE_BANDS: { id: string; until: number }[] = (weatherConfig.config?.dayPhases as any[]) || [
+	{ id: 'dawn', until: 0.15 },
+	{ id: 'day', until: 0.6 },
+	{ id: 'dusk', until: 0.72 },
+	{ id: 'night', until: 1 },
+];
 
 /** Map a 0..1 day progress to its phase id (dawn/day/dusk/night), using the same
  *  bands as the server clock — lets callers derive the phase from their own

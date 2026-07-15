@@ -10,11 +10,16 @@ export interface Hsl {
 
 export function hexToHsl(hex: string): Hsl {
 	let c = hex.replace('#', '');
-	if (c.length === 3) c = c.split('').map((ch) => ch + ch).join('');
+	if (c.length === 3)
+		c = c
+			.split('')
+			.map((ch) => ch + ch)
+			.join('');
 	const r = parseInt(c.slice(0, 2), 16) / 255;
 	const g = parseInt(c.slice(2, 4), 16) / 255;
 	const b = parseInt(c.slice(4, 6), 16) / 255;
-	const max = Math.max(r, g, b), min = Math.min(r, g, b);
+	const max = Math.max(r, g, b),
+		min = Math.min(r, g, b);
 	const l = (max + min) / 2;
 	if (max === min) return { h: 0, s: 0, l: l * 100 };
 	const d = max - min;
@@ -33,7 +38,10 @@ export function hslToHex(h: number, s: number, l: number): string {
 	const k = (n: number) => (n + h / 30) % 12;
 	const a = s * Math.min(l, 1 - l);
 	const f = (n: number) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
-	const to = (v: number) => Math.round(v * 255).toString(16).padStart(2, '0');
+	const to = (v: number) =>
+		Math.round(v * 255)
+			.toString(16)
+			.padStart(2, '0');
 	return `#${to(f(0))}${to(f(8))}${to(f(4))}`;
 }
 

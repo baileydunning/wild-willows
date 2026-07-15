@@ -82,9 +82,7 @@ function lookup(key: string): CatalogValue | undefined {
 
 function interpolate(template: string, params?: Params): string {
 	if (!params) return template;
-	return template.replace(/\{(\w+)\}/g, (m, name: string) =>
-		name in params ? String(params[name]) : m,
-	);
+	return template.replace(/\{(\w+)\}/g, (m, name: string) => (name in params ? String(params[name]) : m));
 }
 
 /**

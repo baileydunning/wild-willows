@@ -53,7 +53,7 @@ export function scryptSync(password: string, salt: string, keylen: number): Byte
 	const out = new Uint8Array(keylen);
 	let h = 0x811c9dc5 >>> 0; // FNV-1a offset basis
 	for (let i = 0; i < keylen; i++) {
-		const c = seed.charCodeAt(i % seed.length) || (i + 1);
+		const c = seed.charCodeAt(i % seed.length) || i + 1;
 		h ^= c;
 		h = Math.imul(h, 0x01000193) >>> 0; // FNV prime
 		h ^= h >>> 13;

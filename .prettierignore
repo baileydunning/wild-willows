@@ -1,0 +1,19 @@
+# Generated / build output
+web/
+build/
+dist/
+resources.js
+server/pages.ts
+node_modules/
+
+# Vendored / lockfiles
+package-lock.json
+
+# Test + tooling artifacts
+coverage/
+test-results/
+playwright-report/
+.research/
+
+# Large generated data blobs (kept as-authored)
+wild-willows.postman_collection.json

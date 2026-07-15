@@ -8,9 +8,7 @@ import type { GameData, GameState, RecipeDef, HabitatObjectDef } from './types';
 function returnedInBiome(data: GameData, state: GameState, biomeId: string): Set<string> {
 	const animalBiome = new Map(data.animals.map((a) => [a.id, a.biome]));
 	return new Set(
-		(state.discoveries || [])
-			.filter((d) => animalBiome.get(d.animalId) === biomeId)
-			.map((d) => d.animalId),
+		(state.discoveries || []).filter((d) => animalBiome.get(d.animalId) === biomeId).map((d) => d.animalId),
 	);
 }
 
@@ -43,10 +41,42 @@ export function recipeUnlocked(recipe: RecipeDef, data: GameData, state: GameSta
 }
 
 /**
- * Does a recipe match the crafting-menu search box? Case-insensitive match
- * against the recipe name, what it produces (object name + description), its
- * type label, and its ingredient names (so you can search by what you have, e.g.
- * "reeds" or "clay"). An empty/whitespace query matches everything.
+ * How well does a recipe match the crafting-menu search box? Lower is better:
+ *   0 — the recipe/output NAME starts with the query (or a word of it does)
+ *   1 — the name contains the query somewhere
+ *   2 — the type label matches
+ *   3 — an ingredient name matches (search by what you have, e.g. "clay")
+ *   4 — only the flavour description matches
+ *  -1 — no match at all
+ * The menu sorts by this so typing "gr" surfaces Grass Patch itself, not every
+ * recipe whose description happens to mention "grows" (playtest: Grass Patch
+ * was buried under trees when searching "grass").
+ * An empty/whitespace query scores 0 for everything.
+ */
+export function recipeSearchScore(
+	recipe: RecipeDef,
+	obj: HabitatObjectDef | undefined,
+	typeLabel: string,
+	query: string,
+	materialNames: string[] = [],
+): number {
+	const q = query.trim().toLowerCase();
+	if (!q) return 0;
+	const name = recipe.name.toLowerCase();
+	const objName = (obj?.name || '').toLowerCase();
+	const wordStarts = (s: string) => !!s && s.split(/\s+/).some((w) => w.startsWith(q));
+	if (wordStarts(name) || wordStarts(objName)) return 0;
+	if (name.includes(q) || objName.includes(q)) return 1;
+	if ((typeLabel || '').toLowerCase().includes(q)) return 2;
+	if (materialNames.some((m) => m.toLowerCase().includes(q))) return 3;
+	if ((obj?.description || '').toLowerCase().includes(q)) return 4;
+	return -1;
+}
+
+/**
+ * Does a recipe match the crafting-menu search box at all? Case-insensitive
+ * match against the recipe name, what it produces (object name + description),
+ * its type label, and its ingredient names. An empty query matches everything.
  */
 export function recipeMatchesSearch(
 	recipe: RecipeDef,
@@ -55,15 +85,7 @@ export function recipeMatchesSearch(
 	query: string,
 	materialNames: string[] = [],
 ): boolean {
-	const q = query.trim().toLowerCase();
-	if (!q) return true;
-	return (
-		recipe.name.toLowerCase().includes(q) ||
-		(obj?.name || '').toLowerCase().includes(q) ||
-		(obj?.description || '').toLowerCase().includes(q) ||
-		(typeLabel || '').toLowerCase().includes(q) ||
-		materialNames.some((m) => m.toLowerCase().includes(q))
-	);
+	return recipeSearchScore(recipe, obj, typeLabel, query, materialNames) >= 0;
 }
 
 /** The set of recipe ids the player can currently craft. */

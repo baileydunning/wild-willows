@@ -136,6 +136,9 @@ app.on('activate', () => {
 	if (BrowserWindow.getAllWindows().length === 0) boot();
 });
 
-app.on('before-quit', () => { metricsSync.stop(); steam.shutdown(); });
+app.on('before-quit', () => {
+	metricsSync.stop();
+	steam.shutdown();
+});
 process.on('SIGINT', () => process.exit(0));
 process.on('SIGTERM', () => process.exit(0));

@@ -91,7 +91,16 @@ export interface AnimalDef {
 	/** 2–3 sentence ecosystem-role write-up (keystone, pollinator, engineer, …). */
 	role?: string;
 	/** Coarse trophic position for the food-web view and a badge. */
-	trophic?: 'producer' | 'herbivore' | 'omnivore' | 'insectivore' | 'mesopredator' | 'apex-predator' | 'scavenger' | 'filter-feeder' | 'decomposer';
+	trophic?:
+		| 'producer'
+		| 'herbivore'
+		| 'omnivore'
+		| 'insectivore'
+		| 'mesopredator'
+		| 'apex-predator'
+		| 'scavenger'
+		| 'filter-feeder'
+		| 'decomposer';
 	/** Animal ids (in this game) this species eats. Cross-biome links allowed. */
 	eats?: string[];
 	/** Animal ids (in this game) that eat this species. */
@@ -179,6 +188,9 @@ export interface ToolTier {
 	tier: number;
 	name: string;
 	effect: string;
+	/** Object-sprite key (obj-<shape>) for this specific tier, so the tool's
+	 *  picture in the Tools & Upgrades menu evolves as you upgrade it. */
+	shape?: string;
 	materials?: Record<string, number>;
 	requires?: { biome: string; minHealth: number };
 }
@@ -187,6 +199,9 @@ export interface ToolDef {
 	id: string;
 	name: string;
 	description: string;
+	/** Object-sprite key (obj-<shape>) shown beside the tool in the Tools &
+	 *  Upgrades menu, mirroring how crafting shows the thing you're making. */
+	shape?: string;
 	tiers: ToolTier[];
 }
 
@@ -208,7 +223,10 @@ export interface AchievementDef {
 
 /** Machine-readable achievement criteria (kept in sync with server triggers). */
 export type AchievementReq =
-	| { t: 'collect' | 'craft' | 'craftDistinct' | 'plant' | 'terraform' | 'place' | 'observe' | 'unlocked' | 'total'; n: number }
+	| {
+			t: 'collect' | 'craft' | 'craftDistinct' | 'plant' | 'terraform' | 'place' | 'observe' | 'unlocked' | 'total';
+			n: number;
+	  }
 	| { t: 'returned' | 'health' | 'lake'; biome: string; n: number }
 	| { t: 'kindReturned'; biome: string; kind: string; n: number }
 	| { t: 'tools'; n: number }
@@ -250,7 +268,10 @@ export function homePerkStrength(perk: HomePerkDef, home: HomeConfig): number {
 /** When a yield-bearing plant is ready to harvest — its maturity the first time,
  *  then `regrowSeconds` after each harvest. null if it never yields / isn't
  *  planted. Shared by the client UI and the world glint. */
-export function harvestReadyAt(def: HabitatObjectDef | undefined, p: { plantedAt?: number; lastHarvestAt?: number } | undefined): number | null {
+export function harvestReadyAt(
+	def: HabitatObjectDef | undefined,
+	p: { plantedAt?: number; lastHarvestAt?: number } | undefined,
+): number | null {
 	const y = def?.yield;
 	if (!y || !def?.plantable || !p?.plantedAt) return null;
 	const growMs = (def.growSeconds || 0) * 1000;
@@ -476,7 +497,21 @@ export interface DailyTasksBlock {
 }
 
 /** A player-authored goal — the building block of the custom task list. */
-export type CustomGoalKind = 'craft' | 'build' | 'grow' | 'plant' | 'collect' | 'observe' | 'welcome' | 'attract' | 'welcomeTotal' | 'home' | 'tool' | 'unlock' | 'health' | 'biomeAnimals';
+export type CustomGoalKind =
+	| 'craft'
+	| 'build'
+	| 'grow'
+	| 'plant'
+	| 'collect'
+	| 'observe'
+	| 'welcome'
+	| 'attract'
+	| 'welcomeTotal'
+	| 'home'
+	| 'tool'
+	| 'unlock'
+	| 'health'
+	| 'biomeAnimals';
 export interface CustomGoal {
 	id: string;
 	kind: CustomGoalKind;

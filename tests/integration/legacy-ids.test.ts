@@ -44,8 +44,14 @@ describe('legacy playerId-keyed world rows are still recognized', () => {
 		// A legacy watered bed: worldId points at the new world, but the id is the
 		// old `${playerId}:meadow:x:y` form the reconstructed lookup would miss.
 		w.db.TerrainTile._rows.set(`${pid}:meadow:6:6`, {
-			id: `${pid}:meadow:6:6`, worldId: NEWW, playerId: pid,
-			area: 'meadow', x: 6, y: 6, type: 'watered', updatedAt: Date.now(),
+			id: `${pid}:meadow:6:6`,
+			worldId: NEWW,
+			playerId: pid,
+			area: 'meadow',
+			x: 6,
+			y: 6,
+			type: 'watered',
+			updatedAt: Date.now(),
 		});
 
 		// Clearing needs the bed to be *found* — pre-fix this threw "Nothing to clear".
@@ -57,9 +63,7 @@ describe('legacy playerId-keyed world rows are still recognized', () => {
 		expect(state.terrain.some((t: any) => t.x === 6 && t.y === 6)).toBe(false); // actually removed
 
 		// control: clearing bare ground still fails
-		await expect(
-			w.post('Terraform', { playerId: pid, area: 'meadow', x: 7, y: 7, action: 'clear' }),
-		).rejects.toThrow();
+		await expect(w.post('Terraform', { playerId: pid, area: 'meadow', x: 7, y: 7, action: 'clear' })).rejects.toThrow();
 	});
 
 	it('recalc reuses a legacy BiomeState row instead of resetting/duplicating it', async () => {
@@ -86,9 +90,14 @@ describe('legacy playerId-keyed world rows are still recognized', () => {
 		divergeWorld(w.db, pid);
 
 		w.db.Discovery._rows.set(`${pid}:grasshopper`, {
-			id: `${pid}:grasshopper`, worldId: NEWW, playerId: pid,
-			animalId: 'grasshopper', biomeId: 'meadow', comfort: 60,
-			timesObserved: 0, firstObservedAt: Date.now(),
+			id: `${pid}:grasshopper`,
+			worldId: NEWW,
+			playerId: pid,
+			animalId: 'grasshopper',
+			biomeId: 'meadow',
+			comfort: 60,
+			timesObserved: 0,
+			firstObservedAt: Date.now(),
 		});
 
 		const res = await w.post('ObserveAnimal', { playerId: pid, animalId: 'grasshopper' });

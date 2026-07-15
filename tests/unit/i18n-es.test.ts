@@ -57,7 +57,8 @@ describe('es locale', () => {
 			const esv = es[k];
 			if (typeof envRaw === 'string') {
 				if (typeof esv !== 'string') problems.push(`${k}: type mismatch`);
-				else if ([...tokens(envRaw)].sort().join() !== [...tokens(esv)].sort().join()) problems.push(`${k}: tokens differ`);
+				else if ([...tokens(envRaw)].sort().join() !== [...tokens(esv)].sort().join())
+					problems.push(`${k}: tokens differ`);
 			} else if (Array.isArray(envRaw)) {
 				if (!Array.isArray(esv)) problems.push(`${k}: expected pool`);
 				else if (esv.length !== envRaw.length) problems.push(`${k}: pool length ${esv.length} != ${envRaw.length}`);

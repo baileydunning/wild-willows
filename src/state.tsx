@@ -1,8 +1,19 @@
 import React, { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState } from 'react';
-import { api, forgetSave, getPlayerId, lastSave, rememberSave, setPlayerId, startSoloGame, resumeSoloGame, exitSolo } from './api';
+import {
+	api,
+	forgetSave,
+	getPlayerId,
+	lastSave,
+	rememberSave,
+	setPlayerId,
+	startSoloGame,
+	resumeSoloGame,
+	exitSolo,
+} from './api';
 import { flushFeedbackQueue } from './feedback';
 import { t, content, onLocaleChange } from './i18n';
 import { pokeMetricsUplink } from './solo/metricsUplink';
+import { reportCharacterCreated } from './solo/appOpen';
 import { bridge } from './game/bridge';
 import { unlockedRecipeIds } from './recipes';
 import { narrativeBeats, nextFeedFact, healthMilestoneLine, HEALTH_THRESHOLDS } from './ui/narrative';
@@ -50,11 +61,11 @@ interface Ctx {
 	terraform: (area: string, x: number, y: number, action: 'dig' | 'water' | 'clear') => Promise<void>;
 	plant: (area: string, x: number, y: number, plantId: string) => Promise<void>;
 	setTutorialStep: (step: number) => void;
-	startNew: (name: string, passcode: string, appearance: Appearance) => Promise<void>;
+	startNew: (name: string, passcode: string, appearance: Appearance, creationMs?: number) => Promise<void>;
 	startLogin: (name: string, passcode: string) => Promise<void>;
 	continueLast: (mode?: 'solo' | 'coop') => Promise<void>;
 	// Desktop solo: no passcode, local save slots.
-	startNewSolo: (name: string, appearance: Appearance) => Promise<void>;
+	startNewSolo: (name: string, appearance: Appearance, creationMs?: number) => Promise<void>;
 	loadSoloSlot: (slotId: string) => Promise<void>;
 	logout: () => void;
 	refresh: () => Promise<void>;
@@ -87,8 +98,18 @@ interface Ctx {
 	// New-game co-op: host a fresh shared world (get a code) or join one with a code.
 	// Join carries the request token (sent at the code step) + the world it's for.
 	startNewCoop: (
-		name: string, passcode: string, appearance: Appearance,
-		opts: { mode: 'host' | 'join'; worldName?: string; code?: string; token?: string; joinWorldId?: string; hostName?: string },
+		name: string,
+		passcode: string,
+		appearance: Appearance,
+		opts: {
+			mode: 'host' | 'join';
+			worldName?: string;
+			code?: string;
+			token?: string;
+			joinWorldId?: string;
+			hostName?: string;
+			creationMs?: number;
+		},
 	) => Promise<void>;
 	refreshWorlds: () => Promise<void>;
 	// join waiting room (joiner side)
@@ -127,7 +148,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	const [worlds, setWorlds] = useState<WorldSummary[]>([]);
 	const [activeWorldId, setActiveWorldId] = useState<string | null>(null);
 	// joiner is waiting for the host to approve their request
-	const [pendingJoin, setPendingJoin] = useState<{ worldId: string; worldName: string; hostName: string; code: string; token: string } | null>(null);
+	const [pendingJoin, setPendingJoin] = useState<{
+		worldId: string;
+		worldName: string;
+		hostName: string;
+		code: string;
+		token: string;
+	} | null>(null);
 	// host's inbox of people asking to join the active world
 	const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
 	const seenRequestTokens = useRef<Set<string>>(new Set());
@@ -189,9 +216,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	// Walking up to a locked gate posts what's still needed to the corner feed
 	// (Phaser figures out the details; it only fires when the remaining list
 	// changes, so it doesn't spam). Kept out of the persistent Feed menu.
-	useEffect(() => bridge.on('gate-info', (p: any) => {
-		if (p?.text) pushLog('map', p.text, false);
-	}), [pushLog]);
+	useEffect(
+		() =>
+			bridge.on('gate-info', (p: any) => {
+				if (p?.text) pushLog('map', p.text, false);
+			}),
+		[pushLog],
+	);
 
 	// Push any buffered feed lines to Harper. Best-effort: on failure we just keep
 	// them buffered for the next flush.
@@ -205,7 +236,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
 	// Definitions load once, before login (the character creator needs them).
 	useEffect(() => {
-		api.gameData()
+		api
+			.gameData()
 			.then((d) => {
 				setData(d);
 				bridge.shared.data = d;
@@ -226,7 +258,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		const prev = prevHomeSig.current;
 		prevHomeSig.current = sig;
 		if (prev !== null && sig !== prev) {
-			if (state.player.area === 'home') bridge.emit('area-changed', 'home'); // redraw the room
+			if (state.player.area === 'home')
+				bridge.emit('area-changed', 'home'); // redraw the room
 			else bridge.emit('home-upgraded'); // play the build animation on the camp building
 		}
 	}, [state]);
@@ -237,7 +270,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		if (!state || feedSeeded.current) return;
 		feedSeeded.current = true;
 		const seed = (state.feed || []).map((f) => ({ id: logSeq.current++, icon: f.icon, text: f.text, at: f.at }));
-		if (seed.length) { setLog(seed); setFeedLog(seed); }
+		if (seed.length) {
+			setLog(seed);
+			setFeedLog(seed);
+		}
 	}, [state]);
 
 	// Announce newly unlocked recipes. When progress in a biome crosses a gate,
@@ -252,13 +288,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		if (!prev) return; // baseline seeded, nothing to announce yet
 		const added = [...now].filter((id) => !prev.has(id));
 		if (!added.length) return;
-		const defs = added
-			.map((id) => data.recipes.find((r) => r.id === id))
-			.filter(Boolean) as typeof data.recipes;
+		const defs = added.map((id) => data.recipes.find((r) => r.id === id)).filter(Boolean) as typeof data.recipes;
 		// Recipes are tuned to unlock roughly one at a time; announce each by name.
 		// (Cap the toasts if several ever land together so we don't flood the HUD.)
-		defs.slice(0, 3).forEach((r) => toast(t('app.toast.recipeUnlocked', { name: content('recipe', r.id, 'name', r.name) }), 'unlock'));
-		for (const r of defs) pushLog('sparkle', t('app.feed.recipeUnlocked', { name: content('recipe', r.id, 'name', r.name) }), true);
+		defs
+			.slice(0, 3)
+			.forEach((r) =>
+				toast(t('app.toast.recipeUnlocked', { name: content('recipe', r.id, 'name', r.name) }), 'unlock'),
+			);
+		for (const r of defs)
+			pushLog('sparkle', t('app.feed.recipeUnlocked', { name: content('recipe', r.id, 'name', r.name) }), true);
 	}, [data, state, toast, pushLog]);
 
 	// Announce freshly earned achievements by diffing the snapshot (the server
@@ -275,8 +314,23 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		const defs = added
 			.map((id) => data.achievements.find((a) => a.id === id))
 			.filter(Boolean) as typeof data.achievements;
-		defs.slice(0, 3).forEach((a) => toast(t('app.toast.achievementUnlocked', { name: content('achievement', a.id, 'name', a.name) }), 'achievement'));
-		for (const a of defs) pushLog('star', t('app.feed.achievementUnlocked', { name: content('achievement', a.id, 'name', a.name), flavor: content('achievement', a.id, 'flavor', a.flavor) }), true);
+		defs
+			.slice(0, 3)
+			.forEach((a) =>
+				toast(
+					t('app.toast.achievementUnlocked', { name: content('achievement', a.id, 'name', a.name) }),
+					'achievement',
+				),
+			);
+		for (const a of defs)
+			pushLog(
+				'star',
+				t('app.feed.achievementUnlocked', {
+					name: content('achievement', a.id, 'name', a.name),
+					flavor: content('achievement', a.id, 'flavor', a.flavor),
+				}),
+				true,
+			);
 		// The grand finale — every animal in every biome home — rains confetti.
 		if (added.includes('caretaker-of-the-whole')) bridge.emit('confetti');
 	}, [data, state, toast, pushLog]);
@@ -292,7 +346,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		prevDiscoveries.current = after;
 		if (!before) return; // seed baseline silently on first load
 		let grew = false;
-		for (const id of after) if (!before.has(id)) { grew = true; break; }
+		for (const id of after)
+			if (!before.has(id)) {
+				grew = true;
+				break;
+			}
 		if (!grew) return;
 		for (const beat of narrativeBeats(before, after, data)) pushLog(beat.icon, beat.text, true);
 	}, [data, state, pushLog]);
@@ -405,91 +463,129 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
 	// One-time welcome to the activity feed when you start (or join) a co-op preserve,
 	// spelling out the join code and exactly how to invite friends.
-	const coopWelcome = useCallback((joinCode: string | null, hosting: boolean) => {
-		if (hosting && joinCode) {
-			// auto-copy the code so the host can paste it to friends right away
-			try { navigator.clipboard?.writeText(joinCode).catch(() => undefined); } catch { /* clipboard unavailable */ }
-			pushLog('leaf', t('app.coop.hostWelcomeFeed', { code: joinCode }), true);
-			toast(t('app.coop.hostWelcomeToast', { code: joinCode }), 'unlock');
-		} else {
-			pushLog('leaf', t('app.coop.joinWelcomeFeed'), true);
-			toast(t('app.coop.joinWelcomeToast'), 'unlock');
-		}
-	}, [pushLog, toast]);
+	const coopWelcome = useCallback(
+		(joinCode: string | null, hosting: boolean) => {
+			if (hosting && joinCode) {
+				// auto-copy the code so the host can paste it to friends right away
+				try {
+					navigator.clipboard?.writeText(joinCode).catch(() => undefined);
+				} catch {
+					/* clipboard unavailable */
+				}
+				pushLog('leaf', t('app.coop.hostWelcomeFeed', { code: joinCode }), true);
+				toast(t('app.coop.hostWelcomeToast', { code: joinCode }), 'unlock');
+			} else {
+				pushLog('leaf', t('app.coop.joinWelcomeFeed'), true);
+				toast(t('app.coop.joinWelcomeToast'), 'unlock');
+			}
+		},
+		[pushLog, toast],
+	);
 
 	// ---- session starters (welcome screens) ----
 	// Solo: your own private preserve.
-	const startNew = useCallback(async (name: string, passcode: string, appearance: Appearance) => {
-		const r = await api.createPlayer(name, passcode, appearance);
-		setPlayerId(r.playerId);
-		rememberSave(r.playerId, r.state.player.name, 'solo');
-		applyWorlds(r.worlds || [], r.worldId || r.playerId);
-		adoptState(r.state);
-	}, [adoptState, applyWorlds]);
+	const startNew = useCallback(
+		async (name: string, passcode: string, appearance: Appearance, creationMs = 0) => {
+			const r = await api.createPlayer(name, passcode, appearance, creationMs);
+			setPlayerId(r.playerId);
+			rememberSave(r.playerId, r.state.player.name, 'solo');
+			applyWorlds(r.worlds || [], r.worldId || r.playerId);
+			adoptState(r.state);
+			reportCharacterCreated(creationMs); // acquisition funnel: opens → character created
+		},
+		[adoptState, applyWorlds],
+	);
 
 	// Desktop solo: no passcode, no server. Start a fresh save in the in-app
 	// backend (writes a local slot), or load an existing slot back into play.
-	const startNewSolo = useCallback(async (name: string, appearance: Appearance) => {
-		const { playerId, state } = await startSoloGame(name, appearance);
-		try {
-			const w = await api.myWorlds();
-			applyWorlds(w.worlds || [], w.activeWorldId || playerId);
-		} catch {
-			applyWorlds([], playerId);
-		}
-		feedSeeded.current = false;
-		adoptState(state);
-	}, [adoptState, applyWorlds]);
+	const startNewSolo = useCallback(
+		async (name: string, appearance: Appearance, creationMs = 0) => {
+			const { playerId, state } = await startSoloGame(name, appearance, creationMs);
+			reportCharacterCreated(creationMs); // acquisition funnel: opens → character created
+			try {
+				const w = await api.myWorlds();
+				applyWorlds(w.worlds || [], w.activeWorldId || playerId);
+			} catch {
+				applyWorlds([], playerId);
+			}
+			feedSeeded.current = false;
+			adoptState(state);
+		},
+		[adoptState, applyWorlds],
+	);
 
-	const loadSoloSlot = useCallback(async (slotId: string) => {
-		const { playerId, state } = await resumeSoloGame(slotId);
-		try {
-			const w = await api.myWorlds();
-			applyWorlds(w.worlds || [], w.activeWorldId || playerId);
-		} catch {
-			applyWorlds([], playerId);
-		}
-		feedSeeded.current = false;
-		adoptState(state);
-	}, [adoptState, applyWorlds]);
+	const loadSoloSlot = useCallback(
+		async (slotId: string) => {
+			const { playerId, state } = await resumeSoloGame(slotId);
+			try {
+				const w = await api.myWorlds();
+				applyWorlds(w.worlds || [], w.activeWorldId || playerId);
+			} catch {
+				applyWorlds([], playerId);
+			}
+			feedSeeded.current = false;
+			adoptState(state);
+		},
+		[adoptState, applyWorlds],
+	);
 
 	// Co-op: a new game that lives in a shared world — either you HOST a fresh one
 	// (and get a code to share) or JOIN a friend's with their code. A save belongs to
 	// exactly one world, chosen here at New Game; there's no spinning up more later.
-	const startNewCoop = useCallback(async (
-		name: string, passcode: string, appearance: Appearance,
-		opts: { mode: 'host' | 'join'; worldName?: string; code?: string; token?: string; joinWorldId?: string; hostName?: string },
-	) => {
-		const r = await api.createPlayer(name, passcode, appearance);
-		setPlayerId(r.playerId);
-		rememberSave(r.playerId, r.state.player.name, 'coop');
-		if (opts.mode === 'join') {
-			// The request was already sent at the code step. Try to enter now; if the
-			// host hasn't approved yet, drop into the waiting room until they do.
-			try {
-				const j = await api.joinWorld((opts.code || '').trim(), opts.token);
-				applyWorlds(j.worlds || [], j.worldId);
-				feedSeeded.current = false;
-				bridge.shared.presence = [];
-				adoptState(j.state);
-				coopWelcome(null, false);
-			} catch (e: any) {
-				if (e?.status === 403 && opts.joinWorldId && opts.token) {
-					adoptState(r.state); // hold in the (solo) session behind the waiting room
-					setPendingJoin({ worldId: opts.joinWorldId, worldName: opts.worldName || t('app.coop.fallbackWorldName'), hostName: opts.hostName || t('app.coop.fallbackHostName'), code: (opts.code || '').trim(), token: opts.token });
-				} else {
-					throw e;
+	const startNewCoop = useCallback(
+		async (
+			name: string,
+			passcode: string,
+			appearance: Appearance,
+			opts: {
+				mode: 'host' | 'join';
+				worldName?: string;
+				code?: string;
+				token?: string;
+				joinWorldId?: string;
+				hostName?: string;
+				creationMs?: number;
+			},
+		) => {
+			const r = await api.createPlayer(name, passcode, appearance, opts.creationMs || 0);
+			setPlayerId(r.playerId);
+			rememberSave(r.playerId, r.state.player.name, 'coop');
+			reportCharacterCreated(opts.creationMs || 0); // acquisition funnel: opens → character created
+			if (opts.mode === 'join') {
+				// The request was already sent at the code step. Try to enter now; if the
+				// host hasn't approved yet, drop into the waiting room until they do.
+				try {
+					const j = await api.joinWorld((opts.code || '').trim(), opts.token);
+					applyWorlds(j.worlds || [], j.worldId);
+					feedSeeded.current = false;
+					bridge.shared.presence = [];
+					adoptState(j.state);
+					coopWelcome(null, false);
+				} catch (e: any) {
+					if (e?.status === 403 && opts.joinWorldId && opts.token) {
+						adoptState(r.state); // hold in the (solo) session behind the waiting room
+						setPendingJoin({
+							worldId: opts.joinWorldId,
+							worldName: opts.worldName || t('app.coop.fallbackWorldName'),
+							hostName: opts.hostName || t('app.coop.fallbackHostName'),
+							code: (opts.code || '').trim(),
+							token: opts.token,
+						});
+					} else {
+						throw e;
+					}
 				}
+			} else {
+				const c = await api.createWorld(opts.worldName || t('app.coop.defaultWorldName', { name }));
+				const s = await api.switchWorld(c.world.worldId);
+				applyWorlds(s.worlds || [], s.worldId);
+				feedSeeded.current = false;
+				adoptState(s.state);
+				coopWelcome(c.world.joinCode, true);
 			}
-		} else {
-			const c = await api.createWorld(opts.worldName || t('app.coop.defaultWorldName', { name }));
-			const s = await api.switchWorld(c.world.worldId);
-			applyWorlds(s.worlds || [], s.worldId);
-			feedSeeded.current = false;
-			adoptState(s.state);
-			coopWelcome(c.world.joinCode, true);
-		}
-	}, [adoptState, applyWorlds, coopWelcome]);
+		},
+		[adoptState, applyWorlds, coopWelcome],
+	);
 
 	// Joiner waiting room: poll for approval; on approval, redeem and enter the world.
 	const checkJoinApproval = useCallback(async (): Promise<'pending' | 'approved' | 'denied' | 'none'> => {
@@ -508,46 +604,60 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		return s.status;
 	}, [pendingJoin, adoptState, applyWorlds, coopWelcome]);
 
-	const playSoloInstead = useCallback(() => { setPendingJoin(null); }, []);
+	const playSoloInstead = useCallback(() => {
+		setPendingJoin(null);
+	}, []);
 
 	// Host approval actions.
-	const approveJoin = useCallback(async (token: string) => {
-		if (!activeWorldId) return;
-		await api.resolveJoin(activeWorldId, token, true);
-		setPendingRequests((rs) => rs.filter((r) => r.token !== token));
-	}, [activeWorldId]);
-	const denyJoin = useCallback(async (token: string) => {
-		if (!activeWorldId) return;
-		await api.resolveJoin(activeWorldId, token, false);
-		setPendingRequests((rs) => rs.filter((r) => r.token !== token));
-	}, [activeWorldId]);
+	const approveJoin = useCallback(
+		async (token: string) => {
+			if (!activeWorldId) return;
+			await api.resolveJoin(activeWorldId, token, true);
+			setPendingRequests((rs) => rs.filter((r) => r.token !== token));
+		},
+		[activeWorldId],
+	);
+	const denyJoin = useCallback(
+		async (token: string) => {
+			if (!activeWorldId) return;
+			await api.resolveJoin(activeWorldId, token, false);
+			setPendingRequests((rs) => rs.filter((r) => r.token !== token));
+		},
+		[activeWorldId],
+	);
 
-	const startLogin = useCallback(async (name: string, passcode: string) => {
-		const r = await api.login(name, passcode);
-		setPlayerId(r.playerId);
-		const active = r.worldId || r.playerId;
-		rememberSave(r.playerId, r.state.player.name, active === r.playerId ? 'solo' : 'coop');
-		applyWorlds(r.worlds || [], active);
-		adoptState(r.state);
-	}, [adoptState, applyWorlds]);
+	const startLogin = useCallback(
+		async (name: string, passcode: string) => {
+			const r = await api.login(name, passcode);
+			setPlayerId(r.playerId);
+			const active = r.worldId || r.playerId;
+			rememberSave(r.playerId, r.state.player.name, active === r.playerId ? 'solo' : 'coop');
+			applyWorlds(r.worlds || [], active);
+			adoptState(r.state);
+		},
+		[adoptState, applyWorlds],
+	);
 
-	const continueLast = useCallback(async (mode?: 'solo' | 'coop') => {
-		const last = lastSave(mode);
-		if (!last) throw new Error(t('app.error.noPreviousSave'));
-		setPlayerId(last.playerId);
-		try {
-			adoptState(await api.gameState());
-			// resume whichever world this save belongs to (solo or its co-op world)
-			const w = await api.myWorlds();
-			const active = w.activeWorldId || last.playerId;
-			applyWorlds(w.worlds || [], active);
-			rememberSave(last.playerId, last.name, active === last.playerId ? 'solo' : 'coop');
-		} catch (e) {
-			setPlayerId(null);
-			forgetSave(mode);
-			throw e;
-		}
-	}, [adoptState, applyWorlds]);
+	const continueLast = useCallback(
+		async (mode?: 'solo' | 'coop') => {
+			const last = lastSave(mode);
+			if (!last) throw new Error(t('app.error.noPreviousSave'));
+			setPlayerId(last.playerId);
+			try {
+				adoptState(await api.gameState());
+				// resume whichever world this save belongs to (solo or its co-op world)
+				const w = await api.myWorlds();
+				const active = w.activeWorldId || last.playerId;
+				applyWorlds(w.worlds || [], active);
+				rememberSave(last.playerId, last.name, active === last.playerId ? 'solo' : 'coop');
+			} catch (e) {
+				setPlayerId(null);
+				forgetSave(mode);
+				throw e;
+			}
+		},
+		[adoptState, applyWorlds],
+	);
 
 	// ---- multiplayer helpers (read-only from the in-game People menu) ----
 	const refreshWorlds = useCallback(async () => {
@@ -591,35 +701,51 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		if (!sessionPlayerId) return;
 		const beat = () => {
 			if (document.visibilityState === 'hidden') return;
-			api.heartbeat().then((r: any) => {
-				if (!r) return;
-				// The preserve kept living while the game was closed: the heartbeat is
-				// where "time passed" lands (matured plants, health gains, arrivals).
-				const wb = r.welcomeBack;
-				if (wb) {
-					const bits: string[] = [];
-					if (wb.matured) bits.push(t('app.welcomeBack.matured', { count: wb.matured }));
-					if (wb.healthGain) bits.push(t('app.welcomeBack.healthGain', { count: wb.healthGain }));
-					if (bits.length) {
-						pushLog('leaf', t('app.welcomeBack.summary', { bits: bits.join(t('app.list.and')) }), true);
-						toast(t('app.toast.preserveGrew'), 'unlock');
+			api
+				.heartbeat()
+				.then((r: any) => {
+					if (!r) return;
+					// The preserve kept living while the game was closed: the heartbeat is
+					// where "time passed" lands (matured plants, health gains, arrivals).
+					const wb = r.welcomeBack;
+					if (wb) {
+						const bits: string[] = [];
+						if (wb.matured) bits.push(t('app.welcomeBack.matured', { count: wb.matured }));
+						if (wb.healthGain) bits.push(t('app.welcomeBack.healthGain', { count: wb.healthGain }));
+						if (bits.length) {
+							pushLog('leaf', t('app.welcomeBack.summary', { bits: bits.join(t('app.list.and')) }), true);
+							toast(t('app.toast.preserveGrew'), 'unlock');
+						}
 					}
-				}
-				if (r.newAnimals?.length) {
-					for (const na of r.newAnimals) {
-						const name = na.animal ? content('animal', na.animal.id, 'name', na.animal.name || t('app.fallback.animal')) : t('app.fallback.animal');
-						toast(t('app.toast.animalReturned', { name }), 'animal');
-						pushLog('paw', wb ? t('app.feed.animalReturnedWhileAway', { name }) : t('app.feed.animalReturned', { name }), true);
-						if (na.animal?.fact) pushLog('paw', t('app.feed.animalFact', { name, fact: content('animal', na.animal.id, 'fact', na.animal.fact) }), true);
+					if (r.newAnimals?.length) {
+						for (const na of r.newAnimals) {
+							const name = na.animal
+								? content('animal', na.animal.id, 'name', na.animal.name || t('app.fallback.animal'))
+								: t('app.fallback.animal');
+							toast(t('app.toast.animalReturned', { name }), 'animal');
+							pushLog(
+								'paw',
+								wb ? t('app.feed.animalReturnedWhileAway', { name }) : t('app.feed.animalReturned', { name }),
+								true,
+							);
+							if (na.animal?.fact)
+								pushLog(
+									'paw',
+									t('app.feed.animalFact', { name, fact: content('animal', na.animal.id, 'fact', na.animal.fact) }),
+									true,
+								);
+						}
 					}
-				}
-				// pull the recalculated world (health, discoveries) into view
-				if (r.newAnimals?.length || r.biomeStates?.length) refresh().catch(() => undefined);
-			}).catch(() => undefined);
+					// pull the recalculated world (health, discoveries) into view
+					if (r.newAnimals?.length || r.biomeStates?.length) refresh().catch(() => undefined);
+				})
+				.catch(() => undefined);
 		};
 		beat(); // open the session right away
 		const id = window.setInterval(beat, 30_000);
-		const onVisible = () => { if (document.visibilityState === 'visible') beat(); };
+		const onVisible = () => {
+			if (document.visibilityState === 'visible') beat();
+		};
 		document.addEventListener('visibilitychange', onVisible);
 		return () => {
 			window.clearInterval(id);
@@ -639,7 +765,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			const snap = bridge.shared.state?.weather;
 			if (!snap) return;
 			const idx = liveCalendar(snap).dayIndex;
-			if (lastDayIndex.current === null) { lastDayIndex.current = idx; return; }
+			if (lastDayIndex.current === null) {
+				lastDayIndex.current = idx;
+				return;
+			}
 			if (idx !== lastDayIndex.current) {
 				lastDayIndex.current = idx;
 				if (document.visibilityState !== 'hidden' && !actionInFlight.current) refresh().catch(() => undefined);
@@ -691,7 +820,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			const now = Date.now();
 			bridge.shared.presence = (peers || [])
 				.filter((p: any) => p && p.playerId !== myId && (!p.t || now - p.t < 8000))
-				.map((p: any) => ({ playerId: p.playerId, name: p.name, appearance: p.appearance, area: p.area, x: p.x, y: p.y }));
+				.map((p: any) => ({
+					playerId: p.playerId,
+					name: p.name,
+					appearance: p.appearance,
+					area: p.area,
+					x: p.x,
+					y: p.y,
+				}));
 			bridge.emit('presence-updated');
 		};
 
@@ -727,7 +863,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		const stateId = window.setInterval(async () => {
 			if (document.visibilityState === 'hidden') return;
 			if (!actionInFlight.current) {
-				try { adoptState(await api.gameState()); } catch { /* ignore */ }
+				try {
+					adoptState(await api.gameState());
+				} catch {
+					/* ignore */
+				}
 			}
 			try {
 				const pr = await api.pendingRequests();
@@ -739,7 +879,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 						toast(t('app.toast.joinRequest', { name: rq.name }), 'unlock');
 					}
 				}
-			} catch { /* not a host, or offline */ }
+			} catch {
+				/* not a host, or offline */
+			}
 		}, 1500);
 
 		return () => {
@@ -785,7 +927,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	useEffect(() => {
 		if (!sessionPlayerId) return;
 		const id = window.setInterval(flushFeed, 6000);
-		const onHide = () => { if (document.visibilityState === 'hidden') flushFeed(); };
+		const onHide = () => {
+			if (document.visibilityState === 'hidden') flushFeed();
+		};
 		document.addEventListener('visibilitychange', onHide);
 		window.addEventListener('beforeunload', flushFeed);
 		return () => {
@@ -805,7 +949,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				const result = await fn();
 				if (result?.newAnimals?.length) {
 					for (const na of result.newAnimals) {
-						const name = na.animal ? content('animal', na.animal.id, 'name', na.animal.name || t('app.fallback.animal')) : t('app.fallback.animal');
+						const name = na.animal
+							? content('animal', na.animal.id, 'name', na.animal.name || t('app.fallback.animal'))
+							: t('app.fallback.animal');
 						toast(t('app.toast.animalReturned', { name }), 'animal');
 						pushLog('paw', t('app.feed.animalReturned', { name }), true);
 						// coexistence beat: if it arrived after animals it depends on, say so
@@ -819,7 +965,12 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 							pushLog('leaf', t('app.feed.animalPrereqs', { name, others: prereqs.join(t('app.list.and')) }), true);
 						}
 						// a fun fact about the animal that just arrived (shows in both feeds)
-						if (na.animal?.fact) pushLog('paw', t('app.feed.animalFact', { name, fact: content('animal', na.animal.id, 'fact', na.animal.fact) }), true);
+						if (na.animal?.fact)
+							pushLog(
+								'paw',
+								t('app.feed.animalFact', { name, fact: content('animal', na.animal.id, 'fact', na.animal.fact) }),
+								true,
+							);
 					}
 				}
 				if (result?.unlockedBiomes?.length) {
@@ -842,7 +993,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				actionInFlight.current = false;
 			}
 		},
-		[refresh, markSaved, toast, pushLog, data]
+		[refresh, markSaved, toast, pushLog, data],
 	);
 
 	const collect = useCallback(
@@ -858,9 +1009,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					if (r?.perkBonus) toast(t('app.toast.perkForage', { name }), 'unlock');
 					// the basket is the gathering tool — other tools are for shaping the land
 					bridge.emit('collected', { nodeId, resourceId, qty, tool: 'basket', color: res?.color });
-				}
+				},
 			),
-		[act, data, pushLog, toast]
+		[act, data, pushLog, toast],
 	);
 
 	const terraform = useCallback(
@@ -886,9 +1037,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 						}
 					} else pushLog('shovel', t('app.log.clearedBed'));
 					bridge.emit('terraformed', { x, y, action });
-				}
+				},
 			),
-		[act, pushLog, toast, data]
+		[act, pushLog, toast, data],
 	);
 
 	const plant = useCallback(
@@ -899,11 +1050,12 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					const def = data?.habitatObjects.find((o) => o.id === plantId);
 					const name = def ? content('habitatObject', def.id, 'name', def.name) : t('app.fallback.plant');
 					// house perk (Meadow Cottage): green thumb — planted with a head start
-					if (r?.perkGrowth) pushLog('leaf', t('app.log.plantedHeadStart', { name, pct: Math.round(r.perkGrowth * 100) }));
+					if (r?.perkGrowth)
+						pushLog('leaf', t('app.log.plantedHeadStart', { name, pct: Math.round(r.perkGrowth * 100) }));
 					else pushLog('leaf', t('app.log.planted', { name }));
-				}
+				},
 			),
-		[act, data, pushLog]
+		[act, data, pushLog],
 	);
 
 	// Gather a mature plant's yield without uprooting it — it regrows for next time.
@@ -915,16 +1067,19 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					const gained = Object.entries(r?.gained || {})
 						.map(([id, q]) => {
 							const def = data?.resources.find((x) => x.id === id);
-							return t('app.format.qtyName', { qty: q as number, name: def ? content('resource', def.id, 'name', def.name) : id });
+							return t('app.format.qtyName', {
+								qty: q as number,
+								name: def ? content('resource', def.id, 'name', def.name) : id,
+							});
 						})
 						.join(', ');
 					if (gained) {
 						toast(t('app.toast.harvested', { items: gained }), 'unlock');
 						pushLog('leaf', t('app.feed.harvested', { items: gained }), true);
 					}
-				}
+				},
 			),
-		[act, data, toast, pushLog]
+		[act, data, toast, pushLog],
 	);
 
 	const setSelectedTool = useCallback((toolId: string) => {
@@ -932,20 +1087,17 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		bridge.emit('tool-selected', toolId);
 	}, []);
 
-	const setTutorialStep = useCallback(
-		(step: number) => {
-			setState((s) => (s ? { ...s, player: { ...s.player, tutorialStep: step } } : s));
-			if (bridge.shared.state) bridge.shared.state.player.tutorialStep = step;
-			const p = bridge.shared.state?.player;
-			api.syncPlayer(p?.x ?? 0, p?.y ?? 0, undefined, step).catch(() => undefined);
-		},
-		[]
-	);
+	const setTutorialStep = useCallback((step: number) => {
+		setState((s) => (s ? { ...s, player: { ...s.player, tutorialStep: step } } : s));
+		if (bridge.shared.state) bridge.shared.state.player.tutorialStep = step;
+		const p = bridge.shared.state?.player;
+		api.syncPlayer(p?.x ?? 0, p?.y ?? 0, undefined, step).catch(() => undefined);
+	}, []);
 
 	const transfer = useCallback(
 		(chestId: string, resourceId: string, qty: number, dir: 'deposit' | 'withdraw') =>
 			act(() => api.chestTransfer(chestId, resourceId, qty, dir)),
-		[act]
+		[act],
 	);
 
 	const craft = useCallback(
@@ -968,9 +1120,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 							.join(', ');
 						toast(t('app.toast.perkThrift', { items }), 'unlock');
 					}
-				}
+				},
 			),
-		[act, data, toast]
+		[act, data, toast],
 	);
 
 	const discard = useCallback(
@@ -978,16 +1130,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			act(
 				() => api.discard(kind, id, qty),
 				() => {
-					const def = kind === 'crafted'
-						? data?.habitatObjects.find((o) => o.id === id)
-						: data?.resources.find((r) => r.id === id);
-					const label = name
-						|| (def && content(kind === 'crafted' ? 'habitatObject' : 'resource', def.id, 'name', def.name))
-						|| id;
+					const def =
+						kind === 'crafted'
+							? data?.habitatObjects.find((o) => o.id === id)
+							: data?.resources.find((r) => r.id === id);
+					const label =
+						name || (def && content(kind === 'crafted' ? 'habitatObject' : 'resource', def.id, 'name', def.name)) || id;
 					pushLog('basket', t('app.log.discarded', { qty, name: label }));
-				}
+				},
 			),
-		[act, data, pushLog]
+		[act, data, pushLog],
 	);
 
 	const place = useCallback(
@@ -998,10 +1150,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					const def = data?.habitatObjects.find((o) => o.id === objectId);
 					const name = def ? content('habitatObject', def.id, 'name', def.name) : objectId;
 					const h = r?.biomeState?.health;
-					pushLog('pin', typeof h === 'number' ? t('app.log.placedWithHealth', { name, health: h }) : t('app.log.placed', { name }));
-				}
+					pushLog(
+						'pin',
+						typeof h === 'number' ? t('app.log.placedWithHealth', { name, health: h }) : t('app.log.placed', { name }),
+					);
+				},
 			),
-		[act, data, pushLog]
+		[act, data, pushLog],
 	);
 
 	const removePlacement = useCallback(
@@ -1013,25 +1168,28 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 						const back = Object.entries(r.refunded)
 							.map(([id, q]) => {
 								const def = data?.resources.find((x) => x.id === id);
-								return t('app.format.qtyName', { qty: q as number, name: def ? content('resource', def.id, 'name', def.name) : id });
+								return t('app.format.qtyName', {
+									qty: q as number,
+									name: def ? content('resource', def.id, 'name', def.name) : id,
+								});
 							})
 							.join(', ');
 						pushLog('spade', t('app.log.dugUpRefund', { items: back }));
 					} else {
 						pushLog('basket', t('app.log.pickedUp'));
 					}
-				}
+				},
 			),
-		[act, data, pushLog]
+		[act, data, pushLog],
 	);
 
 	const movePlacement = useCallback(
 		(placementId: string, x: number, y: number, rotation?: number) =>
 			act(
 				() => api.move(placementId, x, y, rotation),
-				() => pushLog('pin', t('app.log.moved'))
+				() => pushLog('pin', t('app.log.moved')),
 			),
-		[act, pushLog]
+		[act, pushLog],
 	);
 
 	// Rotate a placed object a quarter-turn in place (Move popup button).
@@ -1040,38 +1198,63 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			const p = bridge.shared.state?.placements.find((pl: any) => pl.id === placementId);
 			if (!p) return Promise.resolve();
 			return act(
-				() => api.move(placementId, p.x, p.y, (((p.rotation || 0) + 90) % 360)),
-				() => pushLog('pin', t('app.log.rotated'))
+				() => api.move(placementId, p.x, p.y, ((p.rotation || 0) + 90) % 360),
+				() => pushLog('pin', t('app.log.rotated')),
 			);
 		},
-		[act, pushLog]
+		[act, pushLog],
 	);
 
 	const upgradeTool = useCallback(
 		(toolId: string) =>
 			act(
 				() => api.upgradeTool(toolId),
-				(r) => toast(t('app.toast.toolUpgraded', { name: r?.upgraded?.name || toolId }))
+				(r) => toast(t('app.toast.toolUpgraded', { name: r?.upgraded?.name || toolId })),
 			),
-		[act, toast]
+		[act, toast],
 	);
 
 	const upgradeHome = useCallback(
-		(track: string) => act(() => api.upgradeHome(track), (r) => toast(t('app.toast.homeUpgraded', { name: r?.upgraded?.name || t('app.fallback.home'), level: r?.upgraded?.level || '' }), 'unlock')),
-		[act, toast]
+		(track: string) =>
+			act(
+				() => api.upgradeHome(track),
+				(r) =>
+					toast(
+						t('app.toast.homeUpgraded', {
+							name: r?.upgraded?.name || t('app.fallback.home'),
+							level: r?.upgraded?.level || '',
+						}),
+						'unlock',
+					),
+			),
+		[act, toast],
 	);
 	const setHomeStyle = useCallback(
-		(style: string) => act(() => api.setHomeStyle(style), (r) => toast(t('app.toast.homeBuilt', { name: r?.built || t('app.fallback.homeBuilt') }), 'unlock')),
-		[act, toast]
+		(style: string) =>
+			act(
+				() => api.setHomeStyle(style),
+				(r) => toast(t('app.toast.homeBuilt', { name: r?.built || t('app.fallback.homeBuilt') }), 'unlock'),
+			),
+		[act, toast],
 	);
-	const paintHome = useCallback((part: 'floor' | 'wall' | 'rug', color: string) => act(() => api.setHomeColors({ [part]: color })), [act]);
-	const paintPlacement = useCallback((placementId: string, color: string) => act(() => api.setPlacementColor(placementId, color)), [act]);
+	const paintHome = useCallback(
+		(part: 'floor' | 'wall' | 'rug', color: string) => act(() => api.setHomeColors({ [part]: color })),
+		[act],
+	);
+	const paintPlacement = useCallback(
+		(placementId: string, color: string) => act(() => api.setPlacementColor(placementId, color)),
+		[act],
+	);
 	const rest = useCallback(
-		() => act(() => api.rest(), () => {
-			toast(t('app.toast.rested'), 'unlock');
-			pushLog('drop', t('app.log.rested'), true);
-		}),
-		[act, toast, pushLog]
+		() =>
+			act(
+				() => api.rest(),
+				() => {
+					toast(t('app.toast.rested'), 'unlock');
+					pushLog('drop', t('app.log.rested'), true);
+				},
+			),
+		[act, toast, pushLog],
 	);
 
 	// Opening an animal's card IS the observation — reading about the animal in
@@ -1092,7 +1275,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				setSaveStatus('idle');
 			}
 		},
-		[refresh, markSaved]
+		[refresh, markSaved],
 	);
 
 	const claimTask = useCallback(
@@ -1109,32 +1292,35 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					const gainedTxt = Object.entries(r?.gained || {})
 						.map(([id, q]) => {
 							const def = data?.resources.find((x) => x.id === id);
-							return t('app.format.qtyName', { qty: q as number, name: def ? content('resource', def.id, 'name', def.name) : id });
+							return t('app.format.qtyName', {
+								qty: q as number,
+								name: def ? content('resource', def.id, 'name', def.name) : id,
+							});
 						})
 						.join(', ');
 					if (gainedTxt) {
 						toast(t('app.toast.taskReward', { items: gainedTxt }), 'unlock');
 						pushLog('sparkle', t('app.feed.taskReward', { items: gainedTxt }), true);
 					}
-				}
+				},
 			),
-		[act, data, toast, pushLog]
+		[act, data, toast, pushLog],
 	);
 
 	// Save the player's custom goal list (add/remove/reorder are edits to it).
-	const setGoals = useCallback(
-		(goals: any[]) => act(() => api.setGoals(goals)),
-		[act]
-	);
+	const setGoals = useCallback((goals: any[]) => act(() => api.setGoals(goals)), [act]);
 
 	// Whether the player already holds enough materials (basket + chests) to craft
 	// `count` of an item right now — used to reject pointless "craft X" goals.
 	const canAffordCraft = useCallback((itemId: string | undefined, count: number) => {
-		const d = bridge.shared.data; const st = bridge.shared.state;
+		const d = bridge.shared.data;
+		const st = bridge.shared.state;
 		if (!d || !st || !itemId) return false;
 		const recipe = (d.recipes || []).find((r: any) => r.output?.itemId === itemId);
 		if (!recipe) return false;
-		const held = (id: string) => (st.player.inventory?.[id] || 0) + (st.chests || []).reduce((s: number, c: any) => s + (c.contents?.[id] || 0), 0);
+		const held = (id: string) =>
+			(st.player.inventory?.[id] || 0) +
+			(st.chests || []).reduce((s: number, c: any) => s + (c.contents?.[id] || 0), 0);
 		return Object.entries(recipe.materials || {}).every(([mid, need]) => held(mid) >= (need as number) * count);
 	}, []);
 
@@ -1147,27 +1333,46 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			const limit = live?.goalLimit ?? 3;
 			// Gate custom goals behind the three fixed starters (same rule as the goals
 			// builder) — the field-journal "attract" button reaches here too.
-			const startersDone = !((live?.dailyTasks?.tasks || []).some((tk: any) => typeof tk.id === 'string' && tk.id.startsWith('start-')));
-			if (!startersDone) { toast(t('app.toast.goalStartersFirst'), 'info'); return; }
+			const startersDone = !(live?.dailyTasks?.tasks || []).some(
+				(tk: any) => typeof tk.id === 'string' && tk.id.startsWith('start-'),
+			);
+			if (!startersDone) {
+				toast(t('app.toast.goalStartersFirst'), 'info');
+				return;
+			}
 			const same = (g: any) =>
-				g.kind === goal.kind && g.itemId === goal.itemId && g.resourceId === goal.resourceId &&
-				g.animalId === goal.animalId && g.track === goal.track && g.biomeId === goal.biomeId;
-			if (cur.some(same)) { toast(t('app.toast.goalAlready'), 'info'); return; }
-			if (cur.length >= limit) { toast(t('app.toast.goalLimit', { max: limit }), 'info'); return; }
+				g.kind === goal.kind &&
+				g.itemId === goal.itemId &&
+				g.resourceId === goal.resourceId &&
+				g.animalId === goal.animalId &&
+				g.track === goal.track &&
+				g.biomeId === goal.biomeId;
+			if (cur.some(same)) {
+				toast(t('app.toast.goalAlready'), 'info');
+				return;
+			}
+			if (cur.length >= limit) {
+				toast(t('app.toast.goalLimit', { max: limit }), 'info');
+				return;
+			}
 			// No busywork goals: if you already have the materials to make it right now,
 			// there's nothing to work toward — just craft it.
 			if ((goal.kind === 'craft' || goal.kind === 'build') && canAffordCraft(goal.itemId, goal.target || 1)) {
-				toast(t('app.toast.goalAffordable'), 'info'); return;
+				toast(t('app.toast.goalAffordable'), 'info');
+				return;
 			}
 			// Biome-unlock kits are already tracked by the pinned "unlock next biome" goal.
-			if ((goal.kind === 'craft' || goal.kind === 'build') &&
-				(bridge.shared.data?.biomes || []).some((b: any) => b.unlock?.requiresItem === goal.itemId)) {
-				toast(t('app.toast.goalUnlockKit'), 'info'); return;
+			if (
+				(goal.kind === 'craft' || goal.kind === 'build') &&
+				(bridge.shared.data?.biomes || []).some((b: any) => b.unlock?.requiresItem === goal.itemId)
+			) {
+				toast(t('app.toast.goalUnlockKit'), 'info');
+				return;
 			}
 			await act(() => api.setGoals([...cur, goal]));
 			toast(t('app.toast.goalAdded'), 'unlock');
 		},
-		[act, state, toast, canAffordCraft]
+		[act, state, toast, canAffordCraft],
 	);
 
 	const changeArea = useCallback(
@@ -1185,7 +1390,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				toast(e.message || t('app.error.cannotGoThere'), 'error');
 			}
 		},
-		[state, markSaved, toast, adoptState]
+		[state, markSaved, toast, adoptState],
 	);
 
 	// Re-evaluate a biome's animals (e.g. after a planted habitat finishes growing
@@ -1210,25 +1415,136 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
 	const value = useMemo<Ctx>(
 		() => ({
-			data, state, dataError, saveStatus, panel, setPanel, helpOpen, setHelpOpen,
-			activeChestId, openChest, animalCardId, setAnimalCardId,
-			placementObjectId, startPlacement, cancelPlacement, toasts, notify: toast, dismissToast,
-			log, feedLog, selectedTool, setSelectedTool, terraform, plant, setTutorialStep,
-			startNew, startLogin, continueLast, startNewSolo, loadSoloSlot, logout,
-			refresh, collect, transfer, craft, discard, place, removePlacement, harvest, movePlacement, rotatePlacement,
-			upgradeTool, upgradeHome, setHomeStyle, rest, paintColor, setPaintColor, paintHome, paintPlacement,
-			observe, claimTask, setGoals, addGoal, changeArea, recalcArea,
-			worlds, activeWorldId, startNewCoop, refreshWorlds,
-			pendingJoin, checkJoinApproval, playSoloInstead, pendingRequests, approveJoin, denyJoin,
+			data,
+			state,
+			dataError,
+			saveStatus,
+			panel,
+			setPanel,
+			helpOpen,
+			setHelpOpen,
+			activeChestId,
+			openChest,
+			animalCardId,
+			setAnimalCardId,
+			placementObjectId,
+			startPlacement,
+			cancelPlacement,
+			toasts,
+			notify: toast,
+			dismissToast,
+			log,
+			feedLog,
+			selectedTool,
+			setSelectedTool,
+			terraform,
+			plant,
+			setTutorialStep,
+			startNew,
+			startLogin,
+			continueLast,
+			startNewSolo,
+			loadSoloSlot,
+			logout,
+			refresh,
+			collect,
+			transfer,
+			craft,
+			discard,
+			place,
+			removePlacement,
+			harvest,
+			movePlacement,
+			rotatePlacement,
+			upgradeTool,
+			upgradeHome,
+			setHomeStyle,
+			rest,
+			paintColor,
+			setPaintColor,
+			paintHome,
+			paintPlacement,
+			observe,
+			claimTask,
+			setGoals,
+			addGoal,
+			changeArea,
+			recalcArea,
+			worlds,
+			activeWorldId,
+			startNewCoop,
+			refreshWorlds,
+			pendingJoin,
+			checkJoinApproval,
+			playSoloInstead,
+			pendingRequests,
+			approveJoin,
+			denyJoin,
 		}),
-		[data, state, dataError, saveStatus, panel, helpOpen, activeChestId, animalCardId,
-			placementObjectId, toasts, toast, dismissToast, log, feedLog, selectedTool, setSelectedTool, terraform, plant,
-			setTutorialStep, startNew, startLogin, continueLast, startNewSolo, loadSoloSlot, logout,
-			refresh, collect, transfer, craft, discard, place, removePlacement, harvest, movePlacement, rotatePlacement, upgradeTool,
-			observe, claimTask, setGoals, addGoal, changeArea, recalcArea, openChest, startPlacement, cancelPlacement, upgradeHome, setHomeStyle, rest,
-			paintColor, setPaintColor, paintHome, paintPlacement,
-			worlds, activeWorldId, startNewCoop, refreshWorlds,
-			pendingJoin, checkJoinApproval, playSoloInstead, pendingRequests, approveJoin, denyJoin]
+		[
+			data,
+			state,
+			dataError,
+			saveStatus,
+			panel,
+			helpOpen,
+			activeChestId,
+			animalCardId,
+			placementObjectId,
+			toasts,
+			toast,
+			dismissToast,
+			log,
+			feedLog,
+			selectedTool,
+			setSelectedTool,
+			terraform,
+			plant,
+			setTutorialStep,
+			startNew,
+			startLogin,
+			continueLast,
+			startNewSolo,
+			loadSoloSlot,
+			logout,
+			refresh,
+			collect,
+			transfer,
+			craft,
+			discard,
+			place,
+			removePlacement,
+			harvest,
+			movePlacement,
+			rotatePlacement,
+			upgradeTool,
+			observe,
+			claimTask,
+			setGoals,
+			addGoal,
+			changeArea,
+			recalcArea,
+			openChest,
+			startPlacement,
+			cancelPlacement,
+			upgradeHome,
+			setHomeStyle,
+			rest,
+			paintColor,
+			setPaintColor,
+			paintHome,
+			paintPlacement,
+			worlds,
+			activeWorldId,
+			startNewCoop,
+			refreshWorlds,
+			pendingJoin,
+			checkJoinApproval,
+			playSoloInstead,
+			pendingRequests,
+			approveJoin,
+			denyJoin,
+		],
 	);
 
 	return <GameCtx.Provider value={value}>{children}</GameCtx.Provider>;

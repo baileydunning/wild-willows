@@ -247,22 +247,32 @@ export async function exportSlot(slotId: string): Promise<string | null> {
 	const payload = JSON.stringify(save);
 	const nonce = newSlotId(); // per-file, so identical saves export differently
 	const cipher = xorKeystream(new TextEncoder().encode(payload), nonce);
-	return JSON.stringify({
-		app: SAVE_APP_TAG,
-		v: SAVE_FORMAT_VERSION,
-		nonce,
-		sig: signPayload(payload), // MAC over the plaintext, checked after decrypt
-		enc: bytesToB64(cipher),
-	}, null, 2);
+	return JSON.stringify(
+		{
+			app: SAVE_APP_TAG,
+			v: SAVE_FORMAT_VERSION,
+			nonce,
+			sig: signPayload(payload), // MAC over the plaintext, checked after decrypt
+			enc: bytesToB64(cipher),
+		},
+		null,
+		2,
+	);
 }
 
 /** True when a parsed object looks like a Wild Willows save payload. */
 function looksLikeSave(parsed: any): parsed is SaveFile {
-	return !!parsed
-		&& typeof parsed === 'object'
-		&& parsed.meta && typeof parsed.meta === 'object'
-		&& typeof parsed.meta.playerId === 'string' && parsed.meta.playerId
-		&& parsed.data && typeof parsed.data === 'object' && !Array.isArray(parsed.data);
+	return (
+		!!parsed &&
+		typeof parsed === 'object' &&
+		parsed.meta &&
+		typeof parsed.meta === 'object' &&
+		typeof parsed.meta.playerId === 'string' &&
+		parsed.meta.playerId &&
+		parsed.data &&
+		typeof parsed.data === 'object' &&
+		!Array.isArray(parsed.data)
+	);
 }
 
 /** Bring an exported save file back in as a NEW slot: decrypt, verify the
@@ -277,8 +287,14 @@ export async function importSave(contents: string): Promise<SaveMeta> {
 		throw new Error('invalid-save');
 	}
 	// Must be our encrypted envelope — bare JSON or a foreign file is refused.
-	if (!env || typeof env !== 'object' || env.app !== SAVE_APP_TAG
-		|| typeof env.nonce !== 'string' || typeof env.sig !== 'string' || typeof env.enc !== 'string') {
+	if (
+		!env ||
+		typeof env !== 'object' ||
+		env.app !== SAVE_APP_TAG ||
+		typeof env.nonce !== 'string' ||
+		typeof env.sig !== 'string' ||
+		typeof env.enc !== 'string'
+	) {
 		throw new Error('invalid-save');
 	}
 

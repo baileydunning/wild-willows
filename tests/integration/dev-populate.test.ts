@@ -10,7 +10,9 @@ const objects = JSON.parse(readFileSync('data/habitat-objects.json', 'utf8')).re
 const meadowAnimals = animals.filter((a: any) => a.biome === 'meadow');
 
 let w: World;
-beforeEach(async () => { w = await freshWorld(); });
+beforeEach(async () => {
+	w = await freshWorld();
+});
 
 describe('DevTools populate-biome (showcase)', () => {
 	it('builds a fully-restored, well-formed meadow', async () => {
@@ -34,7 +36,8 @@ describe('DevTools populate-biome (showcase)', () => {
 		expect(pls.length).toBeGreaterThanOrEqual(20);
 
 		// scattered, not lined up at the top: objects spread across a wide band both ways
-		const xs = pls.map((p: any) => p.x), ys = pls.map((p: any) => p.y);
+		const xs = pls.map((p: any) => p.x),
+			ys = pls.map((p: any) => p.y);
 		expect(Math.max(...xs) - Math.min(...xs)).toBeGreaterThanOrEqual(14);
 		expect(Math.max(...ys) - Math.min(...ys)).toBeGreaterThanOrEqual(10);
 
@@ -43,23 +46,34 @@ describe('DevTools populate-biome (showcase)', () => {
 		expect(wc.length).toBeGreaterThan(0);
 		const cells = new Set(wc.map((t: any) => `${t.x},${t.y}`));
 		const wSeen = new Set<string>();
-		let lake = 0, river = 0;
+		let lake = 0,
+			river = 0;
 		for (const t of wc) {
 			const key = `${t.x},${t.y}`;
 			if (wSeen.has(key)) continue;
-			const stack = [[t.x, t.y]]; let size = 0, minx = t.x, maxx = t.x, miny = t.y, maxy = t.y;
+			const stack = [[t.x, t.y]];
+			let size = 0,
+				minx = t.x,
+				maxx = t.x,
+				miny = t.y,
+				maxy = t.y;
 			while (stack.length) {
-				const [x, y] = stack.pop()!; const k = `${x},${y}`;
+				const [x, y] = stack.pop()!;
+				const k = `${x},${y}`;
 				if (wSeen.has(k) || !cells.has(k)) continue;
-				wSeen.add(k); size++;
-				minx = Math.min(minx, x); maxx = Math.max(maxx, x); miny = Math.min(miny, y); maxy = Math.max(maxy, y);
-				stack.push([x+1,y],[x-1,y],[x,y+1],[x,y-1]);
+				wSeen.add(k);
+				size++;
+				minx = Math.min(minx, x);
+				maxx = Math.max(maxx, x);
+				miny = Math.min(miny, y);
+				maxy = Math.max(maxy, y);
+				stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
 			}
 			lake = Math.max(lake, size);
 			river = Math.max(river, Math.max(maxx - minx + 1, maxy - miny + 1));
 		}
-		expect(lake).toBeGreaterThanOrEqual(6);   // lake blob
-		expect(river).toBeGreaterThanOrEqual(8);  // river span
+		expect(lake).toBeGreaterThanOrEqual(6); // lake blob
+		expect(river).toBeGreaterThanOrEqual(8); // river span
 
 		// well-formed: no two objects share a cell, none sit on water, none in camp.
 		// Chests are pre-existing camp fixtures the showcase keeps — exclude them.

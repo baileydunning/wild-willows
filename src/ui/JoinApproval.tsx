@@ -19,8 +19,10 @@ export function JoinApprovalPopup() {
 	const act = async (token: string, name: string, approve: boolean) => {
 		setBusy(token);
 		try {
-			if (approve) { await approveJoin(token); notify(t('panels.people.canNowJoin', { name }), 'unlock'); }
-			else await denyJoin(token);
+			if (approve) {
+				await approveJoin(token);
+				notify(t('panels.people.canNowJoin', { name }), 'unlock');
+			} else await denyJoin(token);
 		} catch (e: any) {
 			notify(e?.message || t('panels.joinApproval.error'), 'error');
 		} finally {
@@ -37,7 +39,9 @@ export function JoinApprovalPopup() {
 			<div className="approval-list">
 				{pendingRequests.map((rq) => (
 					<div className="approval-row" key={rq.token}>
-						<span className="grow"><b>{rq.name}</b></span>
+						<span className="grow">
+							<b>{rq.name}</b>
+						</span>
 						<button className="approve-btn" disabled={busy === rq.token} onClick={() => act(rq.token, rq.name, true)}>
 							<Icon name="check" size={14} /> {t('panels.joinApproval.letIn')}
 						</button>

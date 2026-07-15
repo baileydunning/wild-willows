@@ -7,7 +7,9 @@ import { freshWorld, appearance, type World } from './harness';
 //  • the dev weather/season override is honored in the state snapshot
 
 let w: World;
-beforeEach(async () => { w = await freshWorld(); });
+beforeEach(async () => {
+	w = await freshWorld();
+});
 
 async function stocked(): Promise<string> {
 	const pid = (await w.post('CreatePlayer', { name: 'Sam', passcode: '1234', appearance })).playerId;
@@ -20,7 +22,14 @@ describe('object rotation is gated to sensible objects', () => {
 	it('a path rotates and snaps odd angles to a quarter-turn', async () => {
 		const pid = await stocked();
 		await w.post('CraftItem', { playerId: pid, recipeId: 'simple-path' });
-		const r = await w.post('PlaceObject', { playerId: pid, objectId: 'simple-path', area: 'meadow', x: 10, y: 10, rotation: 100 });
+		const r = await w.post('PlaceObject', {
+			playerId: pid,
+			objectId: 'simple-path',
+			area: 'meadow',
+			x: 10,
+			y: 10,
+			rotation: 100,
+		});
 		expect(r.ok).toBe(true);
 		const pl = (await w.get('GameState', pid)).placements.find((p: any) => p.objectId === 'simple-path');
 		expect(pl.rotation).toBe(90);
@@ -37,7 +46,14 @@ describe('object rotation is gated to sensible objects', () => {
 	it('MoveObject rotates a rotatable object in place', async () => {
 		const pid = await stocked();
 		await w.post('CraftItem', { playerId: pid, recipeId: 'plank-path' });
-		const placed = await w.post('PlaceObject', { playerId: pid, objectId: 'plank-path', area: 'meadow', x: 14, y: 14, rotation: 0 });
+		const placed = await w.post('PlaceObject', {
+			playerId: pid,
+			objectId: 'plank-path',
+			area: 'meadow',
+			x: 14,
+			y: 14,
+			rotation: 0,
+		});
 		const id = placed.placement.id;
 		await w.post('MoveObject', { playerId: pid, placementId: id, x: 14, y: 14, rotation: 270 });
 		expect((await w.get('GameState', pid)).placements.find((p: any) => p.id === id).rotation).toBe(270);
@@ -64,7 +80,9 @@ describe('dev weather/season override', () => {
 		s = await w.get('GameState', pid);
 		expect(s.weather.season).toBe('winter');
 		expect(s.weather.override.type).toBe('storm');
-		await expect(w.post('DevTools', { playerId: pid, action: 'set-weather', value: { type: 'bananas' } })).rejects.toThrow();
+		await expect(
+			w.post('DevTools', { playerId: pid, action: 'set-weather', value: { type: 'bananas' } }),
+		).rejects.toThrow();
 		await w.post('DevTools', { playerId: pid, action: 'set-weather', value: { clear: true } });
 		s = await w.get('GameState', pid);
 		expect(s.weather.override).toBeUndefined();

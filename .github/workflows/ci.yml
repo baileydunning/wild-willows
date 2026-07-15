@@ -12,6 +12,41 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  # 0) Formatting (Prettier) — auto-fixes and commits style issues when it can,
+  #    instead of just failing the build.
+  lint:
+    name: Lint (Prettier)
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # allow committing the auto-fixes back
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Check out the PR's own branch (not the detached merge ref) so we can
+          # push fixes back to it; falls back to the pushed branch otherwise.
+          ref: ${{ github.head_ref || github.ref_name }}
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Auto-fix formatting
+        run: npm run format
+      - name: Commit fixes (if any)
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -am "style: apply prettier [skip ci]"
+            # Best-effort push: fork PRs can't push with the default token, so
+            # don't fail the run — the fixes are still applied for the check below.
+            git push || echo "Could not push formatting fixes (likely a fork PR); applied locally only."
+          else
+            echo "Already formatted — nothing to fix."
+          fi
+      - name: Verify formatting
+        run: npm run format:check
+
   # 1) Typecheck + build the shippable artifacts (server bundle + web build).
   build:
     name: Typecheck & build

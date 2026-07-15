@@ -49,11 +49,13 @@ export function KeyboardGate({ children }: { children: ReactNode }) {
 					<kbd>D</kbd>
 				</div>
 				<p>
-					{t('app.kbGate.body1')}<b>{t('app.kbGate.wasd')}</b>{t('app.kbGate.body2')}<b>{t('app.kbGate.arrowKeys')}</b>{t('app.kbGate.body3')}
+					{t('app.kbGate.body1')}
+					<b>{t('app.kbGate.wasd')}</b>
+					{t('app.kbGate.body2')}
+					<b>{t('app.kbGate.arrowKeys')}</b>
+					{t('app.kbGate.body3')}
 				</p>
-				<p className="kb-gate-hint">
-					{t('app.kbGate.hint')}
-				</p>
+				<p className="kb-gate-hint">{t('app.kbGate.hint')}</p>
 			</div>
 		</div>
 	);

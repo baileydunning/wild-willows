@@ -254,8 +254,8 @@
 				"food",
 				"plant"
 			],
-			"shape": "flowers",
-			"color": "#e8954f",
+			"shape": "butterflyflowers",
+			"color": "#e8813a",
 			"description": "Milkweed and nectar flowers, planted especially for butterflies.",
 			"matureHours": 2,
 			"matureBonus": 1
@@ -272,8 +272,8 @@
 				"food",
 				"plant"
 			],
-			"shape": "flowers",
-			"color": "#c45ad0",
+			"shape": "pollinatorgarden",
+			"color": "#5a7bd8",
 			"description": "A dense, season-long banquet for bees and butterflies.",
 			"matureHours": 2,
 			"matureBonus": 1
@@ -741,8 +741,8 @@
 				"plant",
 				"shelter"
 			],
-			"shape": "reed",
-			"color": "#8aa85a",
+			"shape": "cattail",
+			"color": "#7a4a22",
 			"description": "Tall cattails along the water's edge — cover for nesting marsh birds and shade for the shallows.",
 			"plantable": true,
 			"plantCost": {
@@ -3172,9 +3172,31 @@
 			"biomes": [],
 			"healthValue": 0,
 			"needs": [],
-			"shape": "kit",
+			"shape": "headlamp",
 			"color": "#e3c75f",
 			"description": "A hand-wound lamp on a woven strap. Once crafted it's yours for good — after dusk, a warm beam lights the ground around you wherever you roam."
+		},
+		{
+			"id": "binoculars",
+			"name": "Field Binoculars",
+			"placement": "none",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "binoculars",
+			"color": "#7a6a4f",
+			"description": "Hand-ground lenses in a woven grip. Once crafted they're yours for good — animals you haven't recorded in your journal yet catch the light with a soft glint."
+		},
+		{
+			"id": "hiking-boots",
+			"name": "Hiking Boots",
+			"placement": "none",
+			"biomes": [],
+			"healthValue": 0,
+			"needs": [],
+			"shape": "hikingboots",
+			"color": "#8a5a34",
+			"description": "Sturdy boots cobbled from tough forest bark, springy moss, and woven wetland reeds. Once crafted they're yours for good — wear them to roam the preserve a little faster."
 		}
 	]
 }

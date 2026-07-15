@@ -21,7 +21,7 @@ describe('hex ↔ hsl', () => {
 });
 
 describe('hatPalette', () => {
-	it('returns each hat\'s classic tones when no custom color is set', () => {
+	it("returns each hat's classic tones when no custom color is set", () => {
 		expect(hatPalette('straw').a).toBe('#c9a35c');
 		expect(hatPalette('straw').b).toBe('#d8b56e');
 		expect(hatPalette('wizard', null).a).toBe('#7d6b9e');

@@ -38,9 +38,7 @@ const str = (v) => (typeof v === 'string' && v.trim() !== '' ? v : undefined);
 
 /** Array of non-empty strings (a line pool) or undefined. */
 const pool = (v) =>
-	Array.isArray(v) && v.length > 0 && v.every((s) => typeof s === 'string' && s.trim() !== '')
-		? v
-		: undefined;
+	Array.isArray(v) && v.length > 0 && v.every((s) => typeof s === 'string' && s.trim() !== '') ? v : undefined;
 
 /** Copy the given fields off a record, keeping only non-empty strings. */
 function pick(rec, fields) {
