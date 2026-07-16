@@ -15023,7 +15023,7 @@ var supportHtml = `<!doctype html>
 </body>
 </html>
 `;
-var buildStamp = "0.1.12+2026-07-16T17:01:05.737Z";
+var buildStamp = "0.1.14+2026-07-16T18:31:00.355Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
@@ -17071,10 +17071,19 @@ var CreatePlayer = class extends PublicEndpoint {
     if (cleanName.length < 2 || cleanName.length > 24) throw new GameError(t("server.err.nameLength"));
     const code = String(passcode || "");
     if (code.length < 4 || code.length > 32) throw new GameError(t("server.err.passcodeLength"));
-    const playerId = slugId(cleanName);
-    if (!playerId) throw new GameError(t("server.err.nameNeedsAlnum"));
-    const existing = await safeGet(db().Player, playerId);
-    if (existing) throw new GameError(t("server.err.saveExists"), 409);
+    let playerId;
+    if (ed === "demo") {
+      const base = slugId(cleanName) || "caretaker";
+      const t2 = db();
+      do {
+        playerId = `${base}-${Math.random().toString(36).slice(2, 8)}`;
+      } while (await safeGet(t2.Player, playerId));
+    } else {
+      playerId = slugId(cleanName);
+      if (!playerId) throw new GameError(t("server.err.nameNeedsAlnum"));
+      const existing = await safeGet(db().Player, playerId);
+      if (existing) throw new GameError(t("server.err.saveExists"), 409);
+    }
     const cms = clamp(Math.round(Number(creationMs) || 0), 0, 60 * 6e4);
     const created = await createPlayerRecords(
       playerId,
@@ -17155,6 +17164,45 @@ var DeleteDemoSave = class extends PublicEndpoint {
     }
     await t2.Player.delete(id);
     return { ok: true, deleted: id, recordsRemoved: removed + 1 };
+  }
+};
+var ExportDemoSave = class extends PublicEndpoint {
+  async post(data) {
+    const { playerId } = await bodyOf(data);
+    const id = slugId(String(playerId || ""));
+    const t2 = db();
+    const player = id ? await safeGet(t2.Player, id) : null;
+    if (!player) throw new GameError(t("server.err.noSaveWithName"), 404);
+    if (player.metrics?.edition !== "demo") throw new GameError(t("server.err.notDemoSave"), 403);
+    const wid = worldOf(player);
+    const exportedPlayer = { ...player, metrics: { ...player.metrics || {}, edition: "full" } };
+    const save = {
+      meta: {
+        playerId: id,
+        name: player.name || "Caretaker",
+        appearance: player.appearance || {},
+        createdAt: player.createdAt || Date.now(),
+        updatedAt: Date.now()
+      },
+      // Keys mirror src/solo/localDb.ts DYNAMIC_TABLES so loadSoloGame hydrates
+      // cleanly. WorldPresence / JoinRequest are transient — exported empty.
+      data: {
+        Player: [exportedPlayer],
+        PlayerAchievement: await byPlayer(t2.PlayerAchievement, id),
+        BiomeState: await byWorld(t2.BiomeState, wid),
+        Chest: await byWorld(t2.Chest, wid),
+        Placement: await byWorld(t2.Placement, wid),
+        Discovery: await byWorld(t2.Discovery, wid),
+        NodeState: await byWorld(t2.NodeState, wid),
+        TerrainTile: await byWorld(t2.TerrainTile, wid),
+        FeedEntry: await byWorld(t2.FeedEntry, wid),
+        World: await safeGet(t2.World, wid) ? [await safeGet(t2.World, wid)] : [],
+        WorldMember: await byPlayer(t2.WorldMember, id),
+        WorldPresence: [],
+        JoinRequest: []
+      }
+    };
+    return { ok: true, ...save };
   }
 };
 var ChangePasscode = class extends PublicEndpoint {
@@ -19645,6 +19693,7 @@ export {
   DeletePlayer,
   DevTools,
   DiscardItem,
+  ExportDemoSave,
   GameData,
   GameState,
   HarvestPlacement,

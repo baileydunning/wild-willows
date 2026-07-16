@@ -238,12 +238,9 @@ function b64ToBytes(b64: string): Uint8Array {
 	return out;
 }
 
-/** The active save as an encrypted, pretty-printed envelope for download/backup. */
-export async function exportSlot(slotId: string): Promise<string | null> {
-	const file = await readRaw(slotId);
-	if (!file?.meta) return null;
-	// Normalize the embedded slotId to match how it was stored/listed.
-	const save: SaveFile = { meta: { ...file.meta, slotId }, data: file.data || {} };
+/** Encrypt a { meta, data } save into the standard pretty-printed envelope that
+ *  importSave (and the desktop game's Import) accepts. */
+function encryptSaveEnvelope(save: SaveFile): string {
 	const payload = JSON.stringify(save);
 	const nonce = newSlotId(); // per-file, so identical saves export differently
 	const cipher = xorKeystream(new TextEncoder().encode(payload), nonce);
@@ -258,6 +255,33 @@ export async function exportSlot(slotId: string): Promise<string | null> {
 		null,
 		2,
 	);
+}
+
+/** The active save as an encrypted, pretty-printed envelope for download/backup. */
+export async function exportSlot(slotId: string): Promise<string | null> {
+	const file = await readRaw(slotId);
+	if (!file?.meta) return null;
+	// Normalize the embedded slotId to match how it was stored/listed.
+	return encryptSaveEnvelope({ meta: { ...file.meta, slotId }, data: file.data || {} });
+}
+
+/** Encrypt an arbitrary meta + dynamic-table data into an importable save file.
+ *  Used to export a Harper-backed demo save (server-dumped rows) so it imports
+ *  into the offline/desktop game exactly like a local solo save. */
+export function packSaveFile(
+	meta: { playerId: string; name?: string; appearance?: any; createdAt?: number; updatedAt?: number },
+	data: Record<string, any[]>,
+): string {
+	const now = Date.now();
+	const full: SaveMeta = {
+		slotId: newSlotId(),
+		playerId: meta.playerId,
+		name: meta.name || 'Caretaker',
+		appearance: meta.appearance || {},
+		createdAt: meta.createdAt || now,
+		updatedAt: meta.updatedAt || now,
+	};
+	return encryptSaveEnvelope({ meta: full, data: data || {} });
 }
 
 /** True when a parsed object looks like a Wild Willows save payload. */

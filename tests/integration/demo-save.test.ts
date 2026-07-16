@@ -23,6 +23,25 @@ describe('CreatePlayer edition tag', () => {
 	});
 });
 
+describe('CreatePlayer demo ids are unique (no name collisions)', () => {
+	it('mints distinct ids for two demo players with the same name', async () => {
+		const a = await w.post('CreatePlayer', { name: 'Ranger', passcode: 'aaaa', appearance, edition: 'demo' });
+		const b = await w.post('CreatePlayer', { name: 'Ranger', passcode: 'bbbb', appearance, edition: 'demo' });
+		expect(a.playerId).not.toBe(b.playerId);
+		// display name is preserved; the id just carries a suffix
+		expect((await w.db.Player.get(a.playerId)).name).toBe('Ranger');
+		expect(a.playerId.startsWith('ranger-')).toBe(true);
+		// both saves really exist independently
+		expect(await w.db.Player.get(a.playerId)).toBeTruthy();
+		expect(await w.db.Player.get(b.playerId)).toBeTruthy();
+	});
+
+	it('still rejects a duplicate name for a full (paid) save', async () => {
+		await w.post('CreatePlayer', { name: 'Solo', passcode: '1234', appearance });
+		await expect(w.post('CreatePlayer', { name: 'Solo', passcode: '1234', appearance })).rejects.toThrow();
+	});
+});
+
 describe('DeleteDemoSave (guarded, passcode-free)', () => {
 	it('deletes a demo save without a passcode and clears its records', async () => {
 		const { playerId } = await w.post('CreatePlayer', { name: 'Demo', passcode: '1234', appearance, edition: 'demo' });
@@ -44,5 +63,32 @@ describe('DeleteDemoSave (guarded, passcode-free)', () => {
 		const r = await w.post('DeleteDemoSave', { playerId: 'nobody-here' });
 		expect(r.ok).toBe(true);
 		expect(r.deleted).toBeNull();
+	});
+});
+
+describe('ExportDemoSave (carry a demo save into the full game)', () => {
+	it('dumps the world in solo-save shape with edition reset to full', async () => {
+		const { playerId } = await w.post('CreatePlayer', {
+			name: 'Willow',
+			passcode: 'aaaa',
+			appearance,
+			edition: 'demo',
+		});
+		const out = await w.post('ExportDemoSave', { playerId });
+		expect(out.ok).toBe(true);
+		expect(out.meta.playerId).toBe(playerId);
+		expect(out.meta.name).toBe('Willow');
+		// dynamic tables present, in the shape src/solo/localDb.ts hydrates
+		expect(Array.isArray(out.data.Player)).toBe(true);
+		expect(out.data.Player).toHaveLength(1);
+		expect(out.data.BiomeState.some((b: any) => b.biomeId === 'meadow')).toBe(true);
+		expect(Array.isArray(out.data.Placement)).toBe(true);
+		// carried into the paid game → must NOT stay tagged demo
+		expect(out.data.Player[0].metrics.edition).toBe('full');
+	});
+
+	it('refuses to export a full (paid) save', async () => {
+		const { playerId } = await w.post('CreatePlayer', { name: 'Paidy', passcode: '1234', appearance });
+		await expect(w.post('ExportDemoSave', { playerId })).rejects.toThrow();
 	});
 });

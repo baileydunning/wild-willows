@@ -24,35 +24,15 @@ export const DEMO_BIOME = 'meadow';
  *  Build-time only — a dev preview toggle (below) never tags real metrics. */
 export const EDITION: 'demo' | 'full' = DEMO ? 'demo' : 'full';
 
-// ---------------------------------------------------------------- dev preview
-// Devs can flip demo mode ON from the Dev panel to exercise the player-facing
-// demo gating (the 5-animal hard-stop popup + the tutorial "demo" note) against
-// a normal `npm run dev`, without a separate DEMO build. It is a pure UX preview:
-// it does NOT change the backend/probe, metrics edition, or actually delete a
-// save — those stay keyed on the build-time DEMO flag. Persisted in localStorage
-// so it survives reloads.
-const DEV_DEMO_KEY = 'wild-willows:dev-demo';
-
-export function readDevDemoOverride(): boolean {
-	try {
-		return localStorage.getItem(DEV_DEMO_KEY) === '1';
-	} catch {
-		return false;
-	}
-}
-
-export function writeDevDemoOverride(on: boolean): void {
-	try {
-		if (on) localStorage.setItem(DEV_DEMO_KEY, '1');
-		else localStorage.removeItem(DEV_DEMO_KEY);
-	} catch {
-		/* private mode etc. — the override just won't persist */
-	}
-}
-
-/** True in a real demo build, OR when a dev has toggled the preview on. Use this
- *  for the demo's player-facing gating; use the raw `DEMO` const for anything
- *  that must only happen in an actual shipped demo (backend, metrics, deletion). */
-export function isDemoActive(): boolean {
-	return DEMO || readDevDemoOverride();
-}
+// Which backend the browser demo plays against:
+//   'harper' — the hosted Harper is the source of truth (server-validated
+//              gameplay), same as the full game. Still PASSWORDLESS: the demo
+//              hides the passcode field, auto-generates one, and the server mints
+//              a unique player id per demo save so anonymous players never collide
+//              (see CreatePlayer's edition:'demo' path). Needs CORS for itch's
+//              origin; if the hosted Harper can't be reached, it falls back to the
+//              offline solo backend so the demo still runs.
+//   'solo'   — fully-offline in-app backend (localStorage saves, no network to
+//              play). Metrics still upload best-effort.
+// Metrics are tagged edition:'demo' either way.
+export const DEMO_WEB_BACKEND: 'solo' | 'harper' = 'harper';

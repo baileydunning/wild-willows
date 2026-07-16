@@ -11,8 +11,9 @@ import {
 	exitSolo,
 	resolveDemoBackend,
 	deleteDemoSave,
+	exportDemoSave,
 } from './api';
-import { DEMO, DEMO_ANIMAL_GOAL, DEMO_BIOME, isDemoActive, writeDevDemoOverride } from './demo';
+import { DEMO, DEMO_ANIMAL_GOAL, DEMO_BIOME } from './demo';
 import { flushFeedbackQueue } from './feedback';
 import { t, content, onLocaleChange } from './i18n';
 import { pokeMetricsUplink } from './solo/metricsUplink';
@@ -47,10 +48,9 @@ interface Ctx {
 	demoBackend: 'pending' | 'harper' | 'solo';
 	demoComplete: boolean;
 	dismissDemo: () => void;
-	// Demo gating active (real demo build or dev preview); setter toggles the dev
-	// preview override (no effect on a real demo build, which is always on).
-	demoActive: boolean;
-	setDemoMode: (on: boolean) => void;
+	/** Download the finished demo save for import into the full game; resolves to
+	 *  the filename on success, null on failure. */
+	exportDemo: () => Promise<string | null>;
 	saveStatus: SaveStatus;
 	panel: PanelId;
 	setPanel: (p: PanelId) => void;
@@ -146,13 +146,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	// itch demo: resolved backend (Harper vs offline solo) + the 5-animal gate.
 	const [demoBackend, setDemoBackend] = useState<'pending' | 'harper' | 'solo'>(DEMO ? 'pending' : 'harper');
 	const [demoComplete, setDemoComplete] = useState(false);
-	// Demo gating is active in a real demo build OR when a dev toggles the preview
-	// (see Dev panel). Held in state so flipping it re-renders the gate + tutorial.
-	const [demoActive, setDemoActiveState] = useState<boolean>(() => isDemoActive());
-	const setDemoMode = useCallback((on: boolean) => {
-		writeDevDemoOverride(on);
-		setDemoActiveState(isDemoActive());
-	}, []);
 	const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
 	const [panel, setPanel] = useState<PanelId>(null);
 	const [helpOpen, setHelpOpen] = useState(false);
@@ -278,21 +271,18 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	}, []);
 
 	// Demo hard-stop: the moment the meadow has welcomed back DEMO_ANIMAL_GOAL
-	// animals, freeze play with the thank-you popup AND permanently delete the save
-	// (so they can't just log back in). Dismissing the popup returns to the title.
+	// animals, freeze play with the thank-you popup. The save is NOT wiped yet —
+	// the popup offers a "download my save" export first, so deletion is deferred
+	// to dismiss (see dismissDemo). We do flush the feed now so an export captures
+	// the latest activity.
 	useEffect(() => {
-		if (!demoActive || demoComplete || !state) return;
+		if (!DEMO || demoComplete || !state) return;
 		const meadow = state.biomeStates.find((b) => b.biomeId === DEMO_BIOME);
 		if ((meadow?.returnedCount || 0) >= DEMO_ANIMAL_GOAL) {
 			setDemoComplete(true);
-			// Only a real demo build actually wipes the save; the dev preview just
-			// shows the popup so you don't lose your test save.
-			if (DEMO) {
-				flushFeed(); // land any buffered feed lines before the save is wiped
-				void deleteDemoSave(); // fire-and-forget: gone even if they close the tab now
-			}
+			flushFeed(); // persist buffered feed so an export captures it
 		}
-	}, [state, demoComplete, demoActive, flushFeed]);
+	}, [state, demoComplete, flushFeed]);
 
 	useEffect(() => {
 		bridge.shared.state = state;
@@ -742,12 +732,36 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		shownFacts.current = new Set(); // fresh fact pool next session
 	}, [flushFeed]);
 
-	// Demo hard-stop: closing the thank-you popup ends the run and returns to the
-	// title screen (a fresh caretaker can start over, but that meadow is finished).
+	// Demo hard-stop: closing the thank-you popup wipes the save (so they can't log
+	// back in and keep going) and returns to the title. Deletion happens HERE, not
+	// at completion, so the "download my save" export still has something to read.
+	// Only reachable in a real DEMO build (that's the only place the popup shows).
 	const dismissDemo = useCallback(() => {
 		setDemoComplete(false);
+		void deleteDemoSave();
 		logout();
 	}, [logout]);
+
+	// Export the finished demo save as a file the full downloadable game can
+	// import (Import Save on its title screen). Returns the filename on success.
+	const exportDemo = useCallback(async (): Promise<string | null> => {
+		try {
+			const out = await exportDemoSave();
+			if (!out) return null;
+			const blob = new Blob([out.contents], { type: 'application/json' });
+			const url = URL.createObjectURL(blob);
+			const a = document.createElement('a');
+			a.href = url;
+			a.download = out.filename;
+			document.body.appendChild(a);
+			a.click();
+			a.remove();
+			setTimeout(() => URL.revokeObjectURL(url), 1000);
+			return out.filename;
+		} catch {
+			return null;
+		}
+	}, []);
 
 	// Heartbeat: while a save is open, ping the server on a timer so it can
 	// accrue play time and session counts. Best-effort and paused when the tab
@@ -1477,8 +1491,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			demoBackend,
 			demoComplete,
 			dismissDemo,
-			demoActive,
-			setDemoMode,
+			exportDemo,
 			saveStatus,
 			panel,
 			setPanel,
@@ -1549,8 +1562,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			demoBackend,
 			demoComplete,
 			dismissDemo,
-			demoActive,
-			setDemoMode,
+			exportDemo,
 			saveStatus,
 			panel,
 			helpOpen,
