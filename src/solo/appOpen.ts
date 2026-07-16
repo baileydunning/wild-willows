@@ -10,10 +10,13 @@
 
 import { COOP_BASE_URL, IS_DESKTOP } from '../api';
 import { getLocale } from '../i18n';
+import { DEMO, EDITION } from '../demo';
 import { APP_VERSION, detectOS, getDeviceId } from '../platform';
 
 function endpoint(): string {
-	return `${IS_DESKTOP ? COOP_BASE_URL : ''}/AppOpen/`;
+	// Desktop and the browser demo both post cross-origin to the hosted Harper;
+	// the deployed web build posts to its own origin.
+	return `${IS_DESKTOP || DEMO ? COOP_BASE_URL : ''}/AppOpen/`;
 }
 
 async function send(phase: 'open' | 'created', extra: Record<string, any> = {}): Promise<void> {
@@ -29,6 +32,7 @@ async function send(phase: 'open' | 'created', extra: Record<string, any> = {}):
 				platform: IS_DESKTOP ? 'desktop' : 'web',
 				os: detectOS(),
 				version: APP_VERSION,
+				edition: EDITION,
 				language: getLocale(),
 				...extra,
 			}),

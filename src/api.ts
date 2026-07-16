@@ -9,6 +9,7 @@ import type { Appearance, GameData, GameState, WorldSummary, Peer, RosterEntry }
 import { t, getLocale } from './i18n';
 import { soloRequest } from './solo/backend';
 import { persist as persistSolo, type SaveMeta } from './solo/saves';
+import { DEMO, EDITION } from './demo';
 
 const STORAGE_KEY = 'wild-willows:last-save';
 
@@ -23,6 +24,42 @@ export type Transport = 'web' | 'solo' | 'coop';
 // the web build always uses its own origin.
 let transport: Transport = isDesktop ? 'solo' : 'web';
 let soloSlot: SaveMeta | null = null;
+
+// ------------------------------------------------------------- demo backend
+// The itch DEMO is a WEB build served as static files, so it has no same-origin
+// Harper. It talks to the hosted Harper cross-origin (Harper-first). If that
+// probe fails (offline, or CORS not allowed for the itch origin), the demo falls
+// back to the fully-offline in-app solo backend so it still plays.
+const DEMO_WEB = DEMO && !isDesktop;
+let demoBackend: 'pending' | 'harper' | 'solo' = DEMO_WEB ? 'pending' : 'harper';
+
+/** The resolved demo backend: 'harper' once the hosted server answered, 'solo'
+ *  once we've committed to the offline fallback, 'pending' before the probe. */
+export function getDemoBackend(): 'pending' | 'harper' | 'solo' {
+	return demoBackend;
+}
+
+/** Probe the hosted Harper once at startup (DEMO web only). On success we keep
+ *  the 'web' transport pointed at the hosted Harper; on any failure we commit to
+ *  the in-app solo backend for the whole session. A no-op for every other build. */
+export async function resolveDemoBackend(): Promise<'harper' | 'solo'> {
+	if (!DEMO_WEB) return 'harper';
+	if (demoBackend !== 'pending') return demoBackend;
+	try {
+		const res = await fetch(COOP_BASE_URL + '/GameData/', {
+			headers: { Accept: 'application/json' },
+			signal: AbortSignal.timeout(8000),
+		});
+		if (!res.ok) throw new Error(`status ${res.status}`);
+		demoBackend = 'harper';
+		setTransport('web');
+	} catch {
+		// Hosted Harper unreachable or blocked by CORS — play fully offline.
+		demoBackend = 'solo';
+		setTransport('solo');
+	}
+	return demoBackend;
+}
 
 export function setTransport(t: Transport) {
 	transport = t;
@@ -159,8 +196,11 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 		return res.body as T;
 	}
 
-	// --- web (same origin) or desktop co-op (hosted Harper) ---
-	const base = transport === 'coop' && isDesktop ? COOP_BASE_URL : '';
+	// --- web (same origin) or desktop co-op / demo (hosted Harper) ---
+	// The itch demo is served cross-origin from the hosted Harper, so its web
+	// calls target COOP_BASE_URL too (only reached in Harper mode; the solo
+	// fallback routes through the local branch above).
+	const base = (transport === 'coop' && isDesktop) || DEMO_WEB ? COOP_BASE_URL : '';
 	const res = await fetch(base + path, {
 		headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
 		...options,
@@ -195,7 +235,7 @@ export const api = {
 	createPlayer: (name: string, passcode: string, appearance: Appearance, creationMs = 0) =>
 		post<{ ok: boolean; playerId: string; worldId: string; worlds: WorldSummary[]; state: GameState }>(
 			'/CreatePlayer/',
-			{ name, passcode, appearance, tzOffsetMinutes: -new Date().getTimezoneOffset(), creationMs },
+			{ name, passcode, appearance, tzOffsetMinutes: -new Date().getTimezoneOffset(), creationMs, edition: EDITION },
 		),
 	login: (name: string, passcode: string) =>
 		post<{ ok: boolean; playerId: string; worldId: string; worlds: WorldSummary[]; state: GameState }>(
@@ -299,8 +339,9 @@ export const api = {
 	harvest: (placementId: string) => post<any>('/HarvestPlacement/', { playerId: pid(), placementId }),
 	syncPlayer: (x: number, y: number, area?: string, tutorialStep?: number) =>
 		post<any>('/SyncPlayer/', { playerId: pid(), x, y, area, tutorialStep }),
-	// language rides on the heartbeat so metrics can report interface language
-	heartbeat: () => post<any>('/Heartbeat/', { playerId: pid(), language: getLocale() }),
+	// language + edition ride on the heartbeat so metrics can report interface
+	// language and split demo vs paid players
+	heartbeat: () => post<any>('/Heartbeat/', { playerId: pid(), language: getLocale(), edition: EDITION }),
 	appendFeed: (entries: { icon: string; text: string; at: number }[]) =>
 		post<any>('/AppendFeed/', { playerId: pid(), entries }),
 	recalc: (biomeId: string) => post<any>('/RecalcBiome/', { playerId: pid(), biomeId }),
@@ -326,6 +367,28 @@ import {
 
 export type { SaveMeta } from './solo/saves';
 export { listSoloSaves, deleteSoloSave };
+
+/** DEMO hard-stop cleanup: permanently delete the just-finished demo save so the
+ *  player can't log back in and keep going. Handles either backend — the local
+ *  slot (solo fallback) or the hosted Harper record (via the guarded, passcode-
+ *  free DeleteDemoSave endpoint) — and clears the remembered "Continue" pointer.
+ *  Best-effort: a failure here must never block returning to the title. */
+export async function deleteDemoSave(): Promise<void> {
+	try {
+		if (transport === 'solo') {
+			const slot = getSoloSlot();
+			setSoloSlot(null); // stop the throttled autosave from resurrecting the slot
+			endSolo();
+			if (slot) await deleteSoloSave(slot.slotId);
+		} else {
+			const id = currentPlayerId;
+			if (id) await request('/DeleteDemoSave/', { method: 'POST', body: JSON.stringify({ playerId: id }) });
+		}
+	} catch {
+		/* best-effort — the popup still returns to the title */
+	}
+	forgetSave('solo');
+}
 
 /** Export the active solo save as a downloadable file. Flushes any pending
  *  autosave first so the backup captures the very latest state — the whole
@@ -380,7 +443,9 @@ export function exitSolo() {
 	void flushSoloSave(); // persist any pending throttled write before we drop it
 	setSoloSlot(null);
 	endSolo();
-	setTransport(isDesktop ? 'solo' : 'web');
+	// Back to this build's title-screen backend: solo for desktop and for a demo
+	// that fell back to offline; web (hosted Harper) otherwise.
+	setTransport(isDesktop || demoBackend === 'solo' ? 'solo' : 'web');
 }
 
 /** True on the desktop (Electron) build. The web build always uses its origin. */

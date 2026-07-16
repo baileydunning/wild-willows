@@ -1226,6 +1226,7 @@ async function createPlayerRecords(
 	appearance: any,
 	tzOffsetMinutes = 0,
 	creationMs = 0,
+	edition: 'demo' | 'full' = 'full',
 ): Promise<any> {
 	const t = db();
 	const d = await defs();
@@ -1256,7 +1257,7 @@ async function createPlayerRecords(
 		home: { ...DEFAULT_HOME }, // your camp tent — upgrade it along four tracks, in two styles
 		// Stamp how long character creation took (reported by the client), so the
 		// dashboard can report average time-in-creator alongside the choices made.
-		metrics: { ...freshMetrics(now), creationMs: creationMs > 0 ? Math.round(creationMs) : 0 },
+		metrics: { ...freshMetrics(now), creationMs: creationMs > 0 ? Math.round(creationMs) : 0, edition },
 		// The board always shows a live "Unlock the next biome" guidance goal, so a
 		// new player starts with no custom goals of their own yet.
 		customGoals: [],
@@ -3393,7 +3394,8 @@ export class GameData extends PublicEndpoint {
 /** POST /CreatePlayer/ {name, passcode, appearance} — start a brand-new save. */
 export class CreatePlayer extends PublicEndpoint {
 	async post(data: any) {
-		const { name, passcode, appearance, tzOffsetMinutes, creationMs } = await bodyOf(data);
+		const { name, passcode, appearance, tzOffsetMinutes, creationMs, edition } = await bodyOf(data);
+		const ed: 'demo' | 'full' = edition === 'demo' ? 'demo' : 'full';
 		const cleanName = String(name || '').trim();
 		if (cleanName.length < 2 || cleanName.length > 24) throw new GameError(tr('server.err.nameLength'));
 		const code = String(passcode || '');
@@ -3414,6 +3416,7 @@ export class CreatePlayer extends PublicEndpoint {
 			sanitizeAppearance(appearance),
 			sanitizeTzOffset(tzOffsetMinutes),
 			cms,
+			ed,
 		);
 		// World plumbing must never block starting a save: if the World/WorldMember
 		// tables aren't ready yet (instance not restarted after the schema change),
@@ -3466,6 +3469,46 @@ export class DeletePlayer extends PublicEndpoint {
 		}
 		await t.Player.delete(playerId);
 		return { ok: true, deleted: playerId, recordsRemoved: removed + 1 };
+	}
+}
+
+/**
+ * POST /DeleteDemoSave/ {playerId} — passcode-free deletion, used ONLY by the
+ * browser demo's hard-stop so a finished demo caretaker can't just log back in.
+ * Guarded: it refuses unless the save is tagged edition:'demo' in its metrics,
+ * so it can never wipe a real (paid) save even if the id is known. Idempotent —
+ * an already-gone save returns ok.
+ */
+export class DeleteDemoSave extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId } = await bodyOf(data);
+		const id = slugId(String(playerId || ''));
+		const t = db();
+		const player = id ? await safeGet(t.Player, id) : null;
+		if (!player) return { ok: true, deleted: null }; // already gone / never existed
+		if (player.metrics?.edition !== 'demo') throw new GameError(tr('server.err.notDemoSave'), 403);
+
+		let removed = 0;
+		for (const table of [t.Placement, t.Chest, t.BiomeState, t.Discovery, t.NodeState, t.TerrainTile, t.FeedEntry]) {
+			for (const rec of await byWorld(table, id)) {
+				await table.delete(rec.id);
+				removed++;
+			}
+		}
+		for (const rec of await byPlayer(t.PlayerAchievement, id)) {
+			await t.PlayerAchievement.delete(rec.id);
+			removed++;
+		}
+		for (const m of await byPlayer(t.WorldMember, id)) {
+			await t.WorldMember.delete(m.id);
+			removed++;
+		}
+		if (await safeGet(t.World, id)) {
+			await t.World.delete(id);
+			removed++;
+		}
+		await t.Player.delete(id);
+		return { ok: true, deleted: id, recordsRemoved: removed + 1 };
 	}
 }
 
@@ -5243,7 +5286,7 @@ const MAX_BEAT_MS = 90 * 1000; // credit at most this much play time per beat (g
  */
 export class Heartbeat extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, language } = await bodyOf(data);
+		const { playerId, language, edition } = await bodyOf(data);
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
@@ -5252,6 +5295,9 @@ export class Heartbeat extends PublicEndpoint {
 		// Interface language, reported by the client on every beat (BCP-47-ish
 		// short code, e.g. "en"/"es"). Kept on the metrics blob for dashboards.
 		const lang = typeof language === 'string' && language.trim() ? language.trim().toLowerCase().slice(0, 12) : null;
+		// Which product this session belongs to (demo | full), so dashboards can
+		// split demo players from paid. Sticky once set to 'demo'.
+		const ed: 'demo' | 'full' | null = edition === 'demo' ? 'demo' : edition === 'full' ? 'full' : null;
 		const last = prev.lastHeartbeatAt || 0;
 		const gap = now - last;
 
@@ -5290,6 +5336,8 @@ export class Heartbeat extends PublicEndpoint {
 			areaSeconds,
 			sessionLengths,
 			...(lang ? { language: lang } : {}),
+			// Keep 'demo' sticky: a demo player is never re-tagged 'full'.
+			...(ed ? { edition: prev.edition === 'demo' ? 'demo' : ed } : {}),
 		};
 		await t.Player.patch(playerId, { metrics });
 
@@ -5544,6 +5592,8 @@ export class Metrics extends PublicEndpoint {
 		const platforms = tally((v) => v.platform);
 		const operatingSystems = tally((v) => v.os);
 		const versions = tally((v) => v.version);
+		// demo vs paid split (rides inside each solo snapshot; defaults to full).
+		const editions = tally((v) => v.edition || 'full');
 
 		// Retention: did they come back for more than one session?
 		const returningPlayers = all.filter((v) => v.sessions >= 2).length;
@@ -5692,6 +5742,12 @@ export class Metrics extends PublicEndpoint {
 		}
 		const devices = openRows.length;
 		const convertedDevices = openRows.filter((o) => o.converted).length;
+		// demo vs paid split of installs (edition is stamped on each AppOpen row).
+		const editionSplit: Record<string, number> = {};
+		for (const o of openRows) {
+			const k = o.edition === 'demo' ? 'demo' : 'full';
+			editionSplit[k] = (editionSplit[k] || 0) + 1;
+		}
 		const withCreatorTime = openRows.filter((o) => (o.creationMs || 0) > 0);
 		const totalCharacters = openRows.reduce((a, o) => a + (o.savesCreated || 0), 0);
 		const savesPerPersonHistogram: Record<string, number> = {};
@@ -5713,6 +5769,7 @@ export class Metrics extends PublicEndpoint {
 			avgCharactersPerPerson: devices ? round1(totalCharacters / devices) : 0,
 			avgCharactersPerConverted: convertedDevices ? round1(totalCharacters / convertedDevices) : 0,
 			charactersPerPersonHistogram: savesPerPersonHistogram,
+			editions: editionSplit,
 		};
 
 		return {
@@ -5727,6 +5784,7 @@ export class Metrics extends PublicEndpoint {
 				platforms,
 				operatingSystems,
 				versions,
+				editions,
 				engagement: {
 					totalPlayHours: round1(totalPlaySeconds / 3600),
 					totalPlaySeconds,
@@ -6551,6 +6609,13 @@ export class AppOpen extends PublicEndpoint {
 			platform: String(body.platform || '').slice(0, 20) || existing?.platform || null,
 			os: String(body.os || '').slice(0, 20) || existing?.os || null,
 			version: String(body.version || '').slice(0, 24) || existing?.version || null,
+			// demo | full — which product this install opened; 'demo' is sticky.
+			edition:
+				body.edition === 'demo' || existing?.edition === 'demo'
+					? 'demo'
+					: body.edition === 'full'
+						? 'full'
+						: existing?.edition || null,
 			language:
 				String(body.language || '')
 					.trim()

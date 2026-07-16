@@ -14,6 +14,7 @@ import { useGame } from '../state';
 import { LOCALE_NAMES, chooseLocale } from '../i18n';
 import { useI18n } from '../i18n/react';
 import { COOP_ENABLED } from '../features';
+import { DEMO } from '../demo';
 import type { Appearance } from '../types';
 import { CharacterPreview, Icon } from './icons';
 import { AppearanceRows, AccessibilityControls, randomizeAppearance } from './Settings';
@@ -261,7 +262,8 @@ function Scenery() {
 }
 
 export function WelcomeScreen() {
-	const { data, dataError, startNew, startNewCoop, startLogin, continueLast, startNewSolo, loadSoloSlot } = useGame();
+	const { data, dataError, demoBackend, startNew, startNewCoop, startLogin, continueLast, startNewSolo, loadSoloSlot } =
+		useGame();
 	const { t, locale } = useI18n();
 	const [mode, setMode] = useState<Mode>('menu');
 	const [settingsOpen, setSettingsOpen] = useState(false);
@@ -285,8 +287,10 @@ export function WelcomeScreen() {
 	const [lastBump, setLastBump] = useState(0);
 	const last = useMemo(() => lastSave(coop ? 'coop' : 'solo'), [coop, lastBump]);
 
-	// Desktop solo: no passcode, local save slots (each with the saved avatar).
-	const soloLocal = IS_DESKTOP && !coop;
+	// Local (no-passcode, save-slot) title flow: the desktop build always, and the
+	// itch demo when its Harper probe failed and it fell back to the offline solo
+	// backend. In demo Harper mode we use the normal web passcode flow instead.
+	const soloLocal = (IS_DESKTOP || (DEMO && demoBackend === 'solo')) && !coop;
 	const [slots, setSlots] = useState<SaveMeta[] | null>(null);
 	const refreshSlots = () => {
 		if (soloLocal)

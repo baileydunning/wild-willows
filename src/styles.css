@@ -1860,3 +1860,33 @@ kbd {
 .add-goal-btn { color: var(--green-deep); border: 1.5px solid var(--line); border-radius: 9px; }
 .add-goal-btn:hover { background: rgba(122, 168, 90, 0.16); border-color: #cfe0b6; }
 .entry-unknown .add-goal-btn { align-self: center; }
+
+/* ---- itch demo: tutorial banner + hard-stop popup ---- */
+.tutorial-demo-note {
+	display: flex; align-items: center; gap: 6px;
+	margin-top: 8px; padding: 6px 9px;
+	font-size: 0.82em; font-weight: 600; color: var(--green-deep);
+	background: rgba(122, 168, 90, 0.16); border: 1.5px solid #cfe0b6; border-radius: 9px;
+}
+.tutorial-demo-note svg { color: var(--gold); flex-shrink: 0; }
+.demo-done-backdrop { position: fixed; z-index: 90; }
+.demo-done-card {
+	width: 440px; max-width: 92vw; padding: 26px 26px 24px;
+	align-items: center; text-align: center; gap: 4px;
+}
+.demo-done-card h2 { justify-content: center; margin: 6px 0 2px; }
+.demo-done-card p { color: var(--ink); line-height: 1.5; margin: 4px 0; }
+.demo-done-cta { font-weight: 700; color: var(--green-deep); }
+.demo-done-card .big-btn { width: auto; margin-top: 14px; }
+.demo-done-icon {
+	display: flex; align-items: center; justify-content: center;
+	width: 58px; height: 58px; border-radius: 50%;
+	background: rgba(122, 168, 90, 0.18); color: var(--green);
+}
+.dev-demo-toggle {
+	display: flex; align-items: flex-start; gap: 8px;
+	padding: 8px 10px; margin-bottom: 4px;
+	background: rgba(122, 168, 90, 0.1); border: 1.5px solid var(--line); border-radius: 10px;
+	cursor: pointer; line-height: 1.4;
+}
+.dev-demo-toggle input { margin-top: 2px; flex-shrink: 0; }

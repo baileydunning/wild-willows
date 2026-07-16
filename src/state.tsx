@@ -9,7 +9,10 @@ import {
 	startSoloGame,
 	resumeSoloGame,
 	exitSolo,
+	resolveDemoBackend,
+	deleteDemoSave,
 } from './api';
+import { DEMO, DEMO_ANIMAL_GOAL, DEMO_BIOME, isDemoActive, writeDevDemoOverride } from './demo';
 import { flushFeedbackQueue } from './feedback';
 import { t, content, onLocaleChange } from './i18n';
 import { pokeMetricsUplink } from './solo/metricsUplink';
@@ -39,6 +42,15 @@ interface Ctx {
 	data: GameData | null;
 	state: GameState | null;
 	dataError: string | null;
+	// itch demo only: which backend the demo resolved to (drives the title-screen
+	// flow), and whether the 5-animal hard-stop has been reached.
+	demoBackend: 'pending' | 'harper' | 'solo';
+	demoComplete: boolean;
+	dismissDemo: () => void;
+	// Demo gating active (real demo build or dev preview); setter toggles the dev
+	// preview override (no effect on a real demo build, which is always on).
+	demoActive: boolean;
+	setDemoMode: (on: boolean) => void;
 	saveStatus: SaveStatus;
 	panel: PanelId;
 	setPanel: (p: PanelId) => void;
@@ -131,6 +143,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	const [data, setData] = useState<GameData | null>(null);
 	const [state, setState] = useState<GameState | null>(null);
 	const [dataError, setDataError] = useState<string | null>(null);
+	// itch demo: resolved backend (Harper vs offline solo) + the 5-animal gate.
+	const [demoBackend, setDemoBackend] = useState<'pending' | 'harper' | 'solo'>(DEMO ? 'pending' : 'harper');
+	const [demoComplete, setDemoComplete] = useState(false);
+	// Demo gating is active in a real demo build OR when a dev toggles the preview
+	// (see Dev panel). Held in state so flipping it re-renders the gate + tutorial.
+	const [demoActive, setDemoActiveState] = useState<boolean>(() => isDemoActive());
+	const setDemoMode = useCallback((on: boolean) => {
+		writeDevDemoOverride(on);
+		setDemoActiveState(isDemoActive());
+	}, []);
 	const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
 	const [panel, setPanel] = useState<PanelId>(null);
 	const [helpOpen, setHelpOpen] = useState(false);
@@ -234,16 +256,43 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		api.appendFeed(batch).catch(() => undefined);
 	}, []);
 
-	// Definitions load once, before login (the character creator needs them).
+	// Definitions load once, before login (the character creator needs them). In
+	// the itch demo we first probe the hosted Harper: on success we play against
+	// it, otherwise we commit to the offline solo backend before the first call.
 	useEffect(() => {
-		api
-			.gameData()
-			.then((d) => {
+		let cancelled = false;
+		(async () => {
+			if (DEMO) setDemoBackend(await resolveDemoBackend());
+			try {
+				const d = await api.gameData();
+				if (cancelled) return;
 				setData(d);
 				bridge.shared.data = d;
-			})
-			.catch(() => setDataError(t('app.error.backendUnreachable')));
+			} catch {
+				if (!cancelled) setDataError(t('app.error.backendUnreachable'));
+			}
+		})();
+		return () => {
+			cancelled = true;
+		};
 	}, []);
+
+	// Demo hard-stop: the moment the meadow has welcomed back DEMO_ANIMAL_GOAL
+	// animals, freeze play with the thank-you popup AND permanently delete the save
+	// (so they can't just log back in). Dismissing the popup returns to the title.
+	useEffect(() => {
+		if (!demoActive || demoComplete || !state) return;
+		const meadow = state.biomeStates.find((b) => b.biomeId === DEMO_BIOME);
+		if ((meadow?.returnedCount || 0) >= DEMO_ANIMAL_GOAL) {
+			setDemoComplete(true);
+			// Only a real demo build actually wipes the save; the dev preview just
+			// shows the popup so you don't lose your test save.
+			if (DEMO) {
+				flushFeed(); // land any buffered feed lines before the save is wiped
+				void deleteDemoSave(); // fire-and-forget: gone even if they close the tab now
+			}
+		}
+	}, [state, demoComplete, demoActive, flushFeed]);
 
 	useEffect(() => {
 		bridge.shared.state = state;
@@ -692,6 +741,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		prevStartersPresent.current = null; // and the starters-graduation baseline
 		shownFacts.current = new Set(); // fresh fact pool next session
 	}, [flushFeed]);
+
+	// Demo hard-stop: closing the thank-you popup ends the run and returns to the
+	// title screen (a fresh caretaker can start over, but that meadow is finished).
+	const dismissDemo = useCallback(() => {
+		setDemoComplete(false);
+		logout();
+	}, [logout]);
 
 	// Heartbeat: while a save is open, ping the server on a timer so it can
 	// accrue play time and session counts. Best-effort and paused when the tab
@@ -1418,6 +1474,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			data,
 			state,
 			dataError,
+			demoBackend,
+			demoComplete,
+			dismissDemo,
+			demoActive,
+			setDemoMode,
 			saveStatus,
 			panel,
 			setPanel,
@@ -1485,6 +1546,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			data,
 			state,
 			dataError,
+			demoBackend,
+			demoComplete,
+			dismissDemo,
+			demoActive,
+			setDemoMode,
 			saveStatus,
 			panel,
 			helpOpen,

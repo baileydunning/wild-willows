@@ -23,6 +23,7 @@ const harperEndpoints = [
 	'CreatePlayer',
 	'LoginPlayer',
 	'DeletePlayer',
+	'DeleteDemoSave',
 	'ChangePasscode',
 	'UpdateAppearance',
 	// core loop
@@ -99,6 +100,11 @@ export default defineConfig({
 		// v1. Build with COOP_ENABLED=true to bake it back in (e.g. the co-op
 		// E2E job does this). See src/features.ts.
 		__COOP_ENABLED__: JSON.stringify(process.env.COOP_ENABLED === 'true'),
+		// Browser-playable itch DEMO build. Build with DEMO=true npm run build:web:
+		// the client talks to the hosted Harper (falling back to the in-app solo
+		// backend if it's unreachable) and hard-stops after 5 animals return to the
+		// meadow. See src/demo.ts.
+		__DEMO__: JSON.stringify(process.env.DEMO === 'true'),
 	},
 	build: {
 		outDir: 'web',
