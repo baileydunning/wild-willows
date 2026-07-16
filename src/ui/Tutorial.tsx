@@ -6,6 +6,7 @@ import { useI18n } from '../i18n/react';
 import { useDraggable } from './useDraggable';
 import { Icon } from './icons';
 import { isTouchDevice } from './MobileControls';
+import { DEMO } from '../demo';
 
 interface StepDef {
 	icon: string;
@@ -292,7 +293,7 @@ const readMs = (text: string, step: number) => {
 };
 
 export function Tutorial() {
-	const { state, setTutorialStep, panel, worlds, activeWorldId, demoActive } = useGame();
+	const { state, setTutorialStep, panel, worlds, activeWorldId } = useGame();
 	const { t } = useI18n();
 	const [flags, setFlags] = useState<Flags>({
 		moved: false,
@@ -522,7 +523,7 @@ export function Tutorial() {
 							<div className="tutorial-text">
 								{touch && def.hasTouch ? t(`${def.key}.touch`) : t(`${def.key}.text`)}
 							</div>
-							{demoActive && def.key === 'panels.tutorial.welcome' && !celebrating && (
+							{DEMO && def.key === 'panels.tutorial.welcome' && !celebrating && (
 								<div className="tutorial-demo-note">
 									<Icon name="sparkle" size={13} /> {t('panels.tutorial.demoNote', { count: 5 })}
 								</div>

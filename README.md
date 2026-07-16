@@ -138,7 +138,7 @@ What the demo build changes (all behind the `DEMO` flag — see `src/demo.ts`):
 
 One-time itch page setup (persists across butler pushes to `html5`): open the uploaded `html5` build → tick **"This file will be played in the browser"**, set an embed viewport (e.g. 1280×720, click-to-launch, fullscreen on). For the Harper-backed path, enable **CORS** on the hosted Harper for itch's game origin; without it the demo simply runs offline.
 
-**Testing the demo without a DEMO build.** The Dev panel (**Cmd/Ctrl + Shift + Delete**) has a **Demo mode** toggle that turns on the player-facing demo gating — the tutorial's demo note and the 5-animal hard-stop popup — against a normal `npm run dev`. It's a preview only: it's persisted in `localStorage` (`isDemoActive()` in `src/demo.ts`) but does **not** run the Harper probe/fallback, tag metrics as `demo`, or delete your save. Those stay keyed to the real `DEMO=true` build flag, so a dev preview can never pollute demo metrics or wipe your dev save. To trigger the popup, toggle it on and use the panel's "Welcome all animals to meadow".
+The demo gating (tutorial note + 5-animal hard-stop) is driven **purely** by the build-time `DEMO` flag — there is deliberately no runtime toggle, so a player can't open dev tools and switch it off to unlock the full game. To exercise it during development, build the demo for real: `DEMO=true npm run build:web && npx vite preview`.
 
 > Keyboard-only still applies: itch's browser player is desktop-friendly, and the keyboard gate lets any device with a keyboard through.
 
@@ -383,7 +383,7 @@ A client **heartbeat** accrues play time and counts sessions while the game is o
 
 ## Saves & developer tools
 
-Each save is a name + passcode pair. Passcodes are **never stored in plaintext** — each save keeps a random salt and a scrypt hash, verified in constant time; legacy plaintext saves are transparently re-hashed on their next login. No secret fields (passcode, hash, or salt) are ever returned to the client. **Settings → Lock this save** logs out and clears the remembered session so reopening requires the passcode. A hidden **developer panel** (opened with **Cmd/Ctrl + Shift + Delete** so players won't stumble onto it; no username gate) offers testing helpers: reseed/clear an area's terrain, grant chosen amounts of each resource, max all tools, unlock all biomes, set biome health, and a **Demo mode** toggle that previews the demo gating (tutorial note + 5-animal hard-stop) on a normal `npm run dev` — see the browser-demo section for how it relates to the `DEMO` build flag.
+Each save is a name + passcode pair. Passcodes are **never stored in plaintext** — each save keeps a random salt and a scrypt hash, verified in constant time; legacy plaintext saves are transparently re-hashed on their next login. No secret fields (passcode, hash, or salt) are ever returned to the client. **Settings → Lock this save** logs out and clears the remembered session so reopening requires the passcode. A hidden **developer panel** (opened with **Cmd/Ctrl + Shift + Delete** so players won't stumble onto it; no username gate) offers testing helpers: reseed/clear an area's terrain, grant chosen amounts of each resource, max all tools, unlock all biomes, and set biome health.
 
 ## Controls
 

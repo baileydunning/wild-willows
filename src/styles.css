@@ -1891,10 +1891,3 @@ kbd {
 	width: 58px; height: 58px; border-radius: 50%;
 	background: rgba(122, 168, 90, 0.18); color: var(--green);
 }
-.dev-demo-toggle {
-	display: flex; align-items: flex-start; gap: 8px;
-	padding: 8px 10px; margin-bottom: 4px;
-	background: rgba(122, 168, 90, 0.1); border: 1.5px solid var(--line); border-radius: 10px;
-	cursor: pointer; line-height: 1.4;
-}
-.dev-demo-toggle input { margin-top: 2px; flex-shrink: 0; }

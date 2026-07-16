@@ -5,7 +5,6 @@ import { animalSpriteDataUri } from '../game/textures';
 import { bridge } from '../game/bridge';
 import { Icon } from './icons';
 import { WEATHER_TYPES, SEASONS, weatherType, seasonStyle } from '../weather';
-import { DEMO } from '../demo';
 
 /**
  * Hidden developer panel for testing — opened with Cmd/Ctrl + Shift + Delete,
@@ -13,7 +12,7 @@ import { DEMO } from '../demo';
  * state. Never surfaced in normal play.
  */
 export function DevPanel({ onClose }: { onClose: () => void }) {
-	const { data, state, refresh, notify, changeArea, demoActive, setDemoMode } = useGame();
+	const { data, state, refresh, notify, changeArea } = useGame();
 	const [busy, setBusy] = useState<string | null>(null);
 	const [amounts, setAmounts] = useState<Record<string, number>>({});
 	const [fill, setFill] = useState(100);
@@ -70,23 +69,6 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 				</div>
 				<div className="panel-body">
 					<p className="muted small">Testing only — opened with Cmd/Ctrl + Shift + Delete.</p>
-
-					<h3>
-						<Icon name="sparkle" size={15} /> Demo mode
-					</h3>
-					<label className="dev-demo-toggle">
-						<input type="checkbox" checked={demoActive} onChange={(e) => setDemoMode(e.target.checked)} />
-						<span>
-							Demo gating {demoActive ? 'on' : 'off'}
-							<span className="muted small">
-								{' '}
-								· the tutorial demo note + the 5-animal hard-stop.{' '}
-								{DEMO
-									? 'Uncheck to disable it in this DEMO build (e.g. to play past the gate).'
-									: "Check to preview it here — your save isn't deleted in a non-demo build."}
-							</span>
-						</span>
-					</label>
 
 					<h3>
 						<Icon name="leaf" size={15} /> This biome <span className="muted small">· {area}</span>
