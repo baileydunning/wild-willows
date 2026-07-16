@@ -420,6 +420,11 @@
 		"doneTitle": "¡Gracias por jugar la demo de Wild Willows!",
 		"doneBody": "Diste la bienvenida a {count} animales en el prado, y aquí termina la demo. El juego completo abre cinco biomas más para restaurar, fabricación más profunda, estaciones y clima, un diario de campo por completar y muchos más vecinos a los que traer de vuelta.",
 		"doneCta": "Consigue el juego completo para seguir restaurando la reserva.",
-		"doneButton": "Volver al inicio"
+		"doneButton": "Volver al inicio",
+		"exportHint": "¿Descargaste el juego completo? Guarda tu prado aquí y luego usa Importar partida en su pantalla de inicio para continuar justo donde lo dejaste.",
+		"exportButton": "Descargar mi partida",
+		"exporting": "Preparando…",
+		"exportDone": "Guardado: revisa tus descargas",
+		"exportFail": "No se pudo exportar la partida. ¿Intentar de nuevo?"
 	}
 }

@@ -25,17 +25,17 @@ export const DEMO_BIOME = 'meadow';
 export const EDITION: 'demo' | 'full' = DEMO ? 'demo' : 'full';
 
 // Which backend the browser demo plays against:
-//   'solo'   — the fully-offline in-app backend. No passcode, no accounts, no
-//              name collisions, and no CORS needed to PLAY (localStorage saves).
-//              Metrics still upload to the hosted Harper best-effort. This is the
-//              right default for a public, throwaway demo (saves are wiped at the
-//              5-animal hard-stop anyway).
-//   'harper' — real server accounts on the hosted Harper (name + passcode,
-//              server-side saves). Needs CORS for itch's origin, and because the
-//              player id is the name-slug, names must be globally unique on the
-//              shared instance. Falls back to solo if Harper is unreachable.
-// Flip this to 'harper' only if you specifically want server accounts.
-export const DEMO_WEB_BACKEND: 'solo' | 'harper' = 'solo';
+//   'harper' — the hosted Harper is the source of truth (server-validated
+//              gameplay), same as the full game. Still PASSWORDLESS: the demo
+//              hides the passcode field, auto-generates one, and the server mints
+//              a unique player id per demo save so anonymous players never collide
+//              (see CreatePlayer's edition:'demo' path). Needs CORS for itch's
+//              origin; if the hosted Harper can't be reached, it falls back to the
+//              offline solo backend so the demo still runs.
+//   'solo'   — fully-offline in-app backend (localStorage saves, no network to
+//              play). Metrics still upload best-effort.
+// Metrics are tagged edition:'demo' either way.
+export const DEMO_WEB_BACKEND: 'solo' | 'harper' = 'harper';
 
 // ---------------------------------------------------------------- dev preview
 // Devs can flip demo mode ON from the Dev panel to exercise the player-facing
@@ -46,26 +46,33 @@ export const DEMO_WEB_BACKEND: 'solo' | 'harper' = 'solo';
 // so it survives reloads.
 const DEV_DEMO_KEY = 'wild-willows:dev-demo';
 
-export function readDevDemoOverride(): boolean {
+/** The dev override is THREE-STATE so it can force demo gating either way:
+ *  true = force on, false = force off, null = no override (use the build's DEMO).
+ *  This lets dev tools turn the demo OFF inside a real demo build (e.g. to play
+ *  past the 5-animal stop), not just turn it on in a normal dev build. */
+export function readDevDemoOverride(): boolean | null {
 	try {
-		return localStorage.getItem(DEV_DEMO_KEY) === '1';
+		const v = localStorage.getItem(DEV_DEMO_KEY);
+		return v === '1' ? true : v === '0' ? false : null;
 	} catch {
-		return false;
+		return null;
 	}
 }
 
-export function writeDevDemoOverride(on: boolean): void {
+export function writeDevDemoOverride(on: boolean | null): void {
 	try {
-		if (on) localStorage.setItem(DEV_DEMO_KEY, '1');
-		else localStorage.removeItem(DEV_DEMO_KEY);
+		if (on === null) localStorage.removeItem(DEV_DEMO_KEY);
+		else localStorage.setItem(DEV_DEMO_KEY, on ? '1' : '0');
 	} catch {
 		/* private mode etc. — the override just won't persist */
 	}
 }
 
-/** True in a real demo build, OR when a dev has toggled the preview on. Use this
- *  for the demo's player-facing gating; use the raw `DEMO` const for anything
- *  that must only happen in an actual shipped demo (backend, metrics, deletion). */
+/** Whether the demo's player-facing gating is active: a dev override wins if set,
+ *  otherwise it's the build's DEMO flag. Use this for the gate + tutorial note;
+ *  use the raw `DEMO` const for anything that must only happen in an actual
+ *  shipped demo (backend, metrics, deletion). */
 export function isDemoActive(): boolean {
-	return DEMO || readDevDemoOverride();
+	const override = readDevDemoOverride();
+	return override === null ? DEMO : override;
 }

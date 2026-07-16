@@ -75,23 +75,16 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 						<Icon name="sparkle" size={15} /> Demo mode
 					</h3>
 					<label className="dev-demo-toggle">
-						<input
-							type="checkbox"
-							checked={demoActive}
-							disabled={DEMO}
-							onChange={(e) => setDemoMode(e.target.checked)}
-						/>
+						<input type="checkbox" checked={demoActive} onChange={(e) => setDemoMode(e.target.checked)} />
 						<span>
-							Preview demo gating
-							{DEMO ? (
-								<span className="muted small"> · forced on (this is a DEMO build)</span>
-							) : (
-								<span className="muted small">
-									{' '}
-									· shows the tutorial demo note + the 5-animal hard-stop. Welcome 5 animals to the meadow (below) to
-									trigger it. Preview only — your save isn't deleted.
-								</span>
-							)}
+							Demo gating {demoActive ? 'on' : 'off'}
+							<span className="muted small">
+								{' '}
+								· the tutorial demo note + the 5-animal hard-stop.{' '}
+								{DEMO
+									? 'Uncheck to disable it in this DEMO build (e.g. to play past the gate).'
+									: "Check to preview it here — your save isn't deleted in a non-demo build."}
+							</span>
 						</span>
 					</label>
 

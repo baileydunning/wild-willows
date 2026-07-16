@@ -24,6 +24,7 @@ const harperEndpoints = [
 	'LoginPlayer',
 	'DeletePlayer',
 	'DeleteDemoSave',
+	'ExportDemoSave',
 	'ChangePasscode',
 	'UpdateAppearance',
 	// core loop

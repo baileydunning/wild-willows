@@ -54,8 +54,12 @@ export async function resolveDemoBackend(): Promise<'harper' | 'solo'> {
 	// Solo-default demo: already committed to the offline backend, no probe.
 	if (demoBackend !== 'pending') return demoBackend;
 	try {
+		// Probe with the SAME headers real API calls use (Content-Type triggers a
+		// CORS preflight). A bare GET could pass while real calls fail the
+		// preflight — this way the probe fails exactly when gameplay would, so we
+		// fall back to solo instead of dead-ending on the first real request.
 		const res = await fetch(COOP_BASE_URL + '/GameData/', {
-			headers: { Accept: 'application/json' },
+			headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
 			signal: AbortSignal.timeout(8000),
 		});
 		if (!res.ok) throw new Error(`status ${res.status}`);
@@ -371,6 +375,7 @@ import {
 	deleteSave as deleteSoloSave,
 	exportSlot,
 	importSave,
+	packSaveFile,
 } from './solo/saves';
 
 export type { SaveMeta } from './solo/saves';
@@ -419,6 +424,27 @@ export async function exportActiveSolo(): Promise<{ filename: string; contents: 
 /** Import an exported save file as a new local slot; returns the new slot meta. */
 export async function importSoloSave(contents: string): Promise<SaveMeta> {
 	return importSave(contents);
+}
+
+/** Export the active DEMO save as an importable file, whichever backend it's on:
+ *  the local solo slot (offline fallback), or the hosted Harper record (dumped by
+ *  the guarded ExportDemoSave endpoint, then encrypted client-side into the same
+ *  envelope). Lets a demo player carry their meadow into the full downloadable
+ *  game via its Import Save. */
+export async function exportDemoSave(): Promise<{ filename: string; contents: string } | null> {
+	if (transport === 'solo') return exportActiveSolo();
+	const id = currentPlayerId;
+	if (!id) return null;
+	const res: any = await request('/ExportDemoSave/', { method: 'POST', body: JSON.stringify({ playerId: id }) });
+	if (!res?.meta || !res?.data) return null;
+	const contents = packSaveFile(res.meta, res.data);
+	const safe =
+		String(res.meta.name || 'save')
+			.toLowerCase()
+			.replace(/[^a-z0-9]+/g, '-')
+			.replace(/^-+|-+$/g, '') || 'save';
+	const stamp = new Date().toISOString().slice(0, 10);
+	return { filename: `wild-willows-${safe}-${stamp}.json`, contents };
 }
 
 /** Start a fresh solo game (no passcode) and create its save slot. */

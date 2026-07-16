@@ -30,6 +30,11 @@ const genToken = () => {
 	}
 };
 
+// The itch demo plays against Harper without asking the player for a passcode:
+// we mint a throwaway one they never see. The server pairs it with a unique id
+// (edition:'demo'), and the save is wiped at the 5-animal hard-stop anyway.
+const genDemoPasscode = () => genToken().replace(/-/g, '').slice(0, 16);
+
 interface JoinCtx {
 	code: string;
 	token: string;
@@ -289,8 +294,13 @@ export function WelcomeScreen() {
 
 	// Local (no-passcode, save-slot) title flow: the desktop build always, and the
 	// itch demo when its Harper probe failed and it fell back to the offline solo
-	// backend. In demo Harper mode we use the normal web passcode flow instead.
+	// backend.
 	const soloLocal = (IS_DESKTOP || (DEMO && demoBackend === 'solo')) && !coop;
+	// Demo playing against Harper: passwordless too (the passcode is auto-minted),
+	// but saves live on the server. New Game only asks for a name + look.
+	const demoHarper = DEMO && demoBackend === 'harper' && !coop;
+	// Whether the passcode field/gate applies at all for this title flow.
+	const needsPasscode = !soloLocal && !demoHarper;
 	const [slots, setSlots] = useState<SaveMeta[] | null>(null);
 	const refreshSlots = () => {
 		if (soloLocal)
@@ -503,17 +513,21 @@ export function WelcomeScreen() {
 									>
 										<Icon name="plus" /> <span>{t('app.welcome.newGame')}</span>
 									</button>
-									<button
-										className="big-btn"
-										disabled={busy || !data}
-										onClick={() => {
-											setError(null);
-											refreshSlots();
-											setMode('load');
-										}}
-									>
-										<Icon name="folder" /> <span>{t('app.welcome.loadGame')}</span>
-									</button>
+									{/* No manual Load in the demo: saves are passwordless + throwaway,
+									    so "Continue" (remembered on this device) is all that's needed. */}
+									{!DEMO && (
+										<button
+											className="big-btn"
+											disabled={busy || !data}
+											onClick={() => {
+												setError(null);
+												refreshSlots();
+												setMode('load');
+											}}
+										>
+											<Icon name="folder" /> <span>{t('app.welcome.loadGame')}</span>
+										</button>
+									)}
 								</>
 							)}
 							<div className="menu-links">
@@ -597,6 +611,7 @@ export function WelcomeScreen() {
 								e.preventDefault();
 								const creationMs = creatorMs();
 								if (soloLocal) run(() => startNewSolo(name, appearance, creationMs));
+								else if (demoHarper) run(() => startNew(name, genDemoPasscode(), appearance, creationMs));
 								else if (!coop) run(() => startNew(name, passcode, appearance, creationMs));
 								else if (coopKind === 'host')
 									run(() => startNewCoop(name, passcode, appearance, { mode: 'host', creationMs }));
@@ -666,7 +681,7 @@ export function WelcomeScreen() {
 											<Icon name="dice" size={16} />
 										</button>
 									</label>
-									{!soloLocal && (
+									{needsPasscode && (
 										<label className="field">
 											<Icon name="lock" size={17} />
 											<input
@@ -689,7 +704,7 @@ export function WelcomeScreen() {
 								<button
 									type="submit"
 									className="big-btn primary"
-									disabled={busy || name.trim().length < 2 || (!soloLocal && passcode.length < 4)}
+									disabled={busy || name.trim().length < 2 || (needsPasscode && passcode.length < 4)}
 								>
 									<Icon name="sparkle" />{' '}
 									<span>

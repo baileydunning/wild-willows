@@ -3400,11 +3400,25 @@ export class CreatePlayer extends PublicEndpoint {
 		if (cleanName.length < 2 || cleanName.length > 24) throw new GameError(tr('server.err.nameLength'));
 		const code = String(passcode || '');
 		if (code.length < 4 || code.length > 32) throw new GameError(tr('server.err.passcodeLength'));
-		const playerId = slugId(cleanName);
-		if (!playerId) throw new GameError(tr('server.err.nameNeedsAlnum'));
 
-		const existing = await safeGet(db().Player, playerId);
-		if (existing) throw new GameError(tr('server.err.saveExists'), 409);
+		let playerId: string;
+		if (ed === 'demo') {
+			// Demo saves are anonymous and throwaway, and many players share the
+			// hosted instance — so mint a UNIQUE id (name-slug + random suffix)
+			// instead of the bare name-slug, which would collide the moment two
+			// visitors pick the same caretaker name. The display name still shows
+			// what they typed; only the internal id carries the suffix.
+			const base = slugId(cleanName) || 'caretaker';
+			const t = db();
+			do {
+				playerId = `${base}-${Math.random().toString(36).slice(2, 8)}`;
+			} while (await safeGet(t.Player, playerId));
+		} else {
+			playerId = slugId(cleanName);
+			if (!playerId) throw new GameError(tr('server.err.nameNeedsAlnum'));
+			const existing = await safeGet(db().Player, playerId);
+			if (existing) throw new GameError(tr('server.err.saveExists'), 409);
+		}
 
 		// Client reports how long the player spent in the character creator (ms),
 		// clamped to a sane range so a bad clock can't skew the average.
@@ -3509,6 +3523,58 @@ export class DeleteDemoSave extends PublicEndpoint {
 		}
 		await t.Player.delete(id);
 		return { ok: true, deleted: id, recordsRemoved: removed + 1 };
+	}
+}
+
+/**
+ * POST /ExportDemoSave/ {playerId} — dump a demo save's world in the exact shape
+ * the offline solo backend serializes ({ meta, data } where data is the dynamic
+ * tables), so a demo player can download it and import it into the full
+ * downloadable game. Guarded like DeleteDemoSave: only edition:'demo' saves,
+ * passcode-free. The client encrypts the result into the standard save envelope.
+ */
+export class ExportDemoSave extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId } = await bodyOf(data);
+		const id = slugId(String(playerId || ''));
+		const t = db();
+		const player = id ? await safeGet(t.Player, id) : null;
+		if (!player) throw new GameError(tr('server.err.noSaveWithName'), 404);
+		if (player.metrics?.edition !== 'demo') throw new GameError(tr('server.err.notDemoSave'), 403);
+
+		const wid = worldOf(player);
+		// Reset edition to 'full' on the exported copy: the player is carrying this
+		// into the paid game, so it should report as a full-game save (Heartbeat
+		// keeps 'demo' sticky otherwise).
+		const exportedPlayer = { ...player, metrics: { ...(player.metrics || {}), edition: 'full' } };
+
+		const save = {
+			meta: {
+				playerId: id,
+				name: player.name || 'Caretaker',
+				appearance: player.appearance || {},
+				createdAt: player.createdAt || Date.now(),
+				updatedAt: Date.now(),
+			},
+			// Keys mirror src/solo/localDb.ts DYNAMIC_TABLES so loadSoloGame hydrates
+			// cleanly. WorldPresence / JoinRequest are transient — exported empty.
+			data: {
+				Player: [exportedPlayer],
+				PlayerAchievement: await byPlayer(t.PlayerAchievement, id),
+				BiomeState: await byWorld(t.BiomeState, wid),
+				Chest: await byWorld(t.Chest, wid),
+				Placement: await byWorld(t.Placement, wid),
+				Discovery: await byWorld(t.Discovery, wid),
+				NodeState: await byWorld(t.NodeState, wid),
+				TerrainTile: await byWorld(t.TerrainTile, wid),
+				FeedEntry: await byWorld(t.FeedEntry, wid),
+				World: (await safeGet(t.World, wid)) ? [await safeGet(t.World, wid)] : [],
+				WorldMember: await byPlayer(t.WorldMember, id),
+				WorldPresence: [],
+				JoinRequest: [],
+			},
+		};
+		return { ok: true, ...save };
 	}
 }
 
