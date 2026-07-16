@@ -5513,11 +5513,14 @@ export class Metrics extends PublicEndpoint {
 			};
 		}
 
-		// Dashboard view — sourced ENTIRELY from the SoloMetrics table. Every solo
-		// save periodically uplinks a full metrics snapshot (see SyncMetrics), so this
-		// endpoint never touches the live Player/BiomeState tables; it just rolls up
-		// whatever snapshots have landed. Hosted web/co-op players are intentionally
-		// out of scope here.
+		// Dashboard view — sourced ENTIRELY from the SoloMetrics table, which is now
+		// the single client-metrics stream: desktop solo play, the browser demo (both
+		// Harper mode and its offline fallback), and any offline solo all uplink a
+		// full snapshot here (see SyncMetrics + src/solo/metricsUplink.ts). So this
+		// endpoint rolls up every reporting player — split by `edition` (demo/full)
+		// and `platform` (web/desktop) below — without touching the live
+		// Player/BiomeState tables. (Full hosted web/co-op, if ever added, report
+		// server-side and would stay out of this rollup.)
 		const now = Date.now();
 		let all: any[];
 		if (dashboardCache && now - dashboardCache.at < DASHBOARD_CACHE_MS) {
