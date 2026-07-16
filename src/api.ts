@@ -9,7 +9,7 @@ import type { Appearance, GameData, GameState, WorldSummary, Peer, RosterEntry }
 import { t, getLocale } from './i18n';
 import { soloRequest } from './solo/backend';
 import { persist as persistSolo, type SaveMeta } from './solo/saves';
-import { DEMO, EDITION } from './demo';
+import { DEMO, EDITION, DEMO_WEB_BACKEND } from './demo';
 
 const STORAGE_KEY = 'wild-willows:last-save';
 
@@ -21,8 +21,11 @@ const isDesktop = !!(globalThis as any).wildWillowsDesktop?.isDesktop;
 
 export type Transport = 'web' | 'solo' | 'coop';
 // Desktop defaults to solo so the title screen + solo play work with no network;
-// the web build always uses its own origin.
-let transport: Transport = isDesktop ? 'solo' : 'web';
+// the web build normally uses its own origin. The itch demo defaults to the
+// offline solo backend too (passwordless, no accounts) unless it's explicitly
+// configured for Harper accounts.
+const DEMO_SOLO_DEFAULT = DEMO && !isDesktop && DEMO_WEB_BACKEND === 'solo';
+let transport: Transport = isDesktop || DEMO_SOLO_DEFAULT ? 'solo' : 'web';
 let soloSlot: SaveMeta | null = null;
 
 // ------------------------------------------------------------- demo backend
@@ -31,7 +34,11 @@ let soloSlot: SaveMeta | null = null;
 // probe fails (offline, or CORS not allowed for the itch origin), the demo falls
 // back to the fully-offline in-app solo backend so it still plays.
 const DEMO_WEB = DEMO && !isDesktop;
-let demoBackend: 'pending' | 'harper' | 'solo' = DEMO_WEB ? 'pending' : 'harper';
+let demoBackend: 'pending' | 'harper' | 'solo' = !DEMO_WEB
+	? 'harper'
+	: DEMO_WEB_BACKEND === 'solo'
+		? 'solo' // passwordless offline demo — no probe needed
+		: 'pending';
 
 /** The resolved demo backend: 'harper' once the hosted server answered, 'solo'
  *  once we've committed to the offline fallback, 'pending' before the probe. */
@@ -44,6 +51,7 @@ export function getDemoBackend(): 'pending' | 'harper' | 'solo' {
  *  the in-app solo backend for the whole session. A no-op for every other build. */
 export async function resolveDemoBackend(): Promise<'harper' | 'solo'> {
 	if (!DEMO_WEB) return 'harper';
+	// Solo-default demo: already committed to the offline backend, no probe.
 	if (demoBackend !== 'pending') return demoBackend;
 	try {
 		const res = await fetch(COOP_BASE_URL + '/GameData/', {

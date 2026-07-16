@@ -24,6 +24,19 @@ export const DEMO_BIOME = 'meadow';
  *  Build-time only — a dev preview toggle (below) never tags real metrics. */
 export const EDITION: 'demo' | 'full' = DEMO ? 'demo' : 'full';
 
+// Which backend the browser demo plays against:
+//   'solo'   — the fully-offline in-app backend. No passcode, no accounts, no
+//              name collisions, and no CORS needed to PLAY (localStorage saves).
+//              Metrics still upload to the hosted Harper best-effort. This is the
+//              right default for a public, throwaway demo (saves are wiped at the
+//              5-animal hard-stop anyway).
+//   'harper' — real server accounts on the hosted Harper (name + passcode,
+//              server-side saves). Needs CORS for itch's origin, and because the
+//              player id is the name-slug, names must be globally unique on the
+//              shared instance. Falls back to solo if Harper is unreachable.
+// Flip this to 'harper' only if you specifically want server accounts.
+export const DEMO_WEB_BACKEND: 'solo' | 'harper' = 'solo';
+
 // ---------------------------------------------------------------- dev preview
 // Devs can flip demo mode ON from the Dev panel to exercise the player-facing
 // demo gating (the 5-animal hard-stop popup + the tutorial "demo" note) against
