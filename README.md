@@ -125,6 +125,23 @@ On the itch page itself, set it up once as a downloadable **Game** ("played on y
 
 > Windows builds are unsigned, so SmartScreen shows a "Windows protected your PC" prompt the first time (More info → Run anyway) — normal for itch games; note it on the store page.
 
+### Browser-playable demo on itch
+
+The same page also hosts a **play-in-browser demo** — a static web build (`DEMO=true npm run build:web`) served in an iframe on itch, so anyone can try the game with no download. `.github/workflows/itch-demo.yml` builds it and `butler push`es the `web/` folder to the **`html5`** channel of `bai13y/wild-willows` on the itch release tags (`itch-v*` / `v*`) or a manual **Actions → Run workflow** (both build *and* publish; needs `BUTLER_API_KEY`).
+
+What the demo build changes (all behind the `DEMO` flag — see `src/demo.ts`):
+
+- **Backend: Harper-first, solo fallback.** At boot it probes the hosted Harper (`wild.willows.harperfabric.com`). If it answers, the demo plays the real game against it (character + passcode, server-side saves). If it's unreachable — offline, or **CORS not allowing itch's game origin** — it falls back to the fully-offline in-app solo backend (localStorage saves) so the demo always runs. `resolveDemoBackend()` in `src/api.ts` picks this before the first call; the title screen shows the passcode flow (Harper) or the local save-slot flow (solo) accordingly.
+- **Hard-stop at 5 animals.** The moment the meadow has welcomed back 5 animals, a "thanks for playing the demo" popup blocks play and returns to the title. The finished save is **deleted automatically** (local slot, or the hosted record via the guarded, passcode-free `DeleteDemoSave` endpoint — which refuses any save not tagged `edition:'demo'`), so they can't just log back in and continue.
+- **Demo signposting.** The tutorial's first slide notes it's the free demo and what completes it.
+- **Metrics tagged `edition`.** Every heartbeat, app-open ping, and solo metrics uplink carries `edition: 'demo' | 'full'`, persisted server-side (Player metrics, `AppOpen`, and the `SoloMetrics` snapshot) and split out in the `/Metrics/` dashboard (`editions`, and `acquisition.editions`), so demo and paid players never blur together.
+
+One-time itch page setup (persists across butler pushes to `html5`): open the uploaded `html5` build → tick **"This file will be played in the browser"**, set an embed viewport (e.g. 1280×720, click-to-launch, fullscreen on). For the Harper-backed path, enable **CORS** on the hosted Harper for itch's game origin; without it the demo simply runs offline.
+
+**Testing the demo without a DEMO build.** The Dev panel (**Cmd/Ctrl + Shift + Delete**) has a **Demo mode** toggle that turns on the player-facing demo gating — the tutorial's demo note and the 5-animal hard-stop popup — against a normal `npm run dev`. It's a preview only: it's persisted in `localStorage` (`isDemoActive()` in `src/demo.ts`) but does **not** run the Harper probe/fallback, tag metrics as `demo`, or delete your save. Those stay keyed to the real `DEMO=true` build flag, so a dev preview can never pollute demo metrics or wipe your dev save. To trigger the popup, toggle it on and use the panel's "Welcome all animals to meadow".
+
+> Keyboard-only still applies: itch's browser player is desktop-friendly, and the keyboard gate lets any device with a keyboard through.
+
 ### Signing & notarizing the macOS build
 
 The macOS build is configured to **code-sign + notarize** so it opens with no Gatekeeper "damaged"/unidentified-developer warning. Config lives in `package.json` → `build.mac` (`hardenedRuntime`, `entitlements: build/entitlements.mac.plist`, `notarize.teamId: JB4CT3MZ6L`) and the entitlements plist grants the JIT / library-validation exceptions Electron + `steamworks.js` need.
@@ -366,7 +383,7 @@ A client **heartbeat** accrues play time and counts sessions while the game is o
 
 ## Saves & developer tools
 
-Each save is a name + passcode pair. Passcodes are **never stored in plaintext** — each save keeps a random salt and a scrypt hash, verified in constant time; legacy plaintext saves are transparently re-hashed on their next login. No secret fields (passcode, hash, or salt) are ever returned to the client. **Settings → Lock this save** logs out and clears the remembered session so reopening requires the passcode. A hidden **developer panel** (opened with **Cmd/Ctrl + Shift + Delete** so players won't stumble onto it; no username gate) offers testing helpers: reseed/clear an area's terrain, grant chosen amounts of each resource, max all tools, unlock all biomes, and set biome health.
+Each save is a name + passcode pair. Passcodes are **never stored in plaintext** — each save keeps a random salt and a scrypt hash, verified in constant time; legacy plaintext saves are transparently re-hashed on their next login. No secret fields (passcode, hash, or salt) are ever returned to the client. **Settings → Lock this save** logs out and clears the remembered session so reopening requires the passcode. A hidden **developer panel** (opened with **Cmd/Ctrl + Shift + Delete** so players won't stumble onto it; no username gate) offers testing helpers: reseed/clear an area's terrain, grant chosen amounts of each resource, max all tools, unlock all biomes, set biome health, and a **Demo mode** toggle that previews the demo gating (tutorial note + 5-animal hard-stop) on a normal `npm run dev` — see the browser-demo section for how it relates to the `DEMO` build flag.
 
 ## Controls
 

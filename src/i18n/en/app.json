@@ -415,5 +415,11 @@
 	},
 	"mobile": {
 		"interact": "Interact"
+	},
+	"demo": {
+		"doneTitle": "Thanks for playing the Wild Willows demo!",
+		"doneBody": "You welcomed {count} animals back to the meadow — and that's where the demo ends. The full game opens five more biomes to restore, deeper crafting, seasons and weather, a field journal to fill, and many more neighbors to bring home.",
+		"doneCta": "Grab the full game to keep restoring the preserve.",
+		"doneButton": "Back to title"
 	}
 }

@@ -17,6 +17,7 @@
 
 import { api, getPlayerId, getSoloSlot, getTransport, COOP_BASE_URL, IS_DESKTOP } from '../api';
 import { getLocale } from '../i18n';
+import { DEMO, EDITION } from '../demo';
 import { APP_VERSION, BUILD_TIME, detectOS } from '../platform';
 
 const REPORT_MS = 3 * 60 * 1000; // network-friendly cadence
@@ -32,7 +33,9 @@ let startupTries = 0;
 let lastPayload: string | null = null;
 
 function endpoint(): string {
-	return `${IS_DESKTOP ? COOP_BASE_URL : ''}/SyncMetrics/`;
+	// Desktop and the browser demo's offline fallback both uplink cross-origin to
+	// the hosted Harper; the deployed web build would post to its own origin.
+	return `${IS_DESKTOP || DEMO ? COOP_BASE_URL : ''}/SyncMetrics/`;
 }
 
 /** Build + send the current metrics snapshot. Returns true once a send has been
@@ -61,7 +64,9 @@ async function reportOnce(): Promise<boolean> {
 			version: APP_VERSION,
 			build: BUILD_TIME,
 			language: getLocale(),
-			snapshot,
+			// edition rides inside the snapshot JSON (SoloMetrics is a fixed-column
+			// table), so the dashboard can split demo vs paid solo players.
+			snapshot: { ...snapshot, edition: EDITION },
 		});
 		lastPayload = body; // cache for the closing beacon
 		await fetch(endpoint(), {

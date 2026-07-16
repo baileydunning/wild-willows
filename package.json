@@ -1,7 +1,7 @@
 {
 	"name": "wild-willows",
 	"author": "Bailey Dunning",
-	"version": "0.1.12",
+	"version": "0.1.13",
 	"private": true,
 	"description": "Wild Willows — a cozy nature-restoration life sim, backed by Harper",
 	"type": "module",
@@ -36,7 +36,7 @@
 		"desktop:mas": "npm run build && electron-builder --mac mas --universal"
 	},
 	"masComment": "Mac App Store variant (`npm run desktop:mas`). Inherits `mac` config, so everything notarized-DMG-specific is overridden here: MAS uses the App Sandbox instead of the hardened runtime + notarization, its own entitlements pair, and a provisioning profile from developer.apple.com (put it at build/embedded.provisionprofile — gitignored; CI decodes it from a secret). steamworks.js is excluded: Steam can't run inside the MAS sandbox and electron/steam.js already no-ops when the module is missing. ITSAppUsesNonExemptEncryption=false answers App Store Connect's export-compliance question (HTTPS only).",
-	"comment": "v1 ships SOLO-ONLY on itch.io: solo runs the game logic in-app against local save files (fully offline), so the desktop app needs no server and no network. `steamworks.js` is the only runtime dependency electron-builder must package (native, desktop-only, asarUnpacked). `harper` is a DEV-ONLY tool now (local web dev via `harper dev .`, and the co-op E2E harness) — it is intentionally NOT a production dependency so electron-builder doesn't bundle its heavy/native tree into every platform's app (which also de-risks the cross-platform CI builds). Co-op (hosted Harper) is hidden behind COOP_ENABLED in src/features.ts; flip it on and move `harper` back to `dependencies` if you ship co-op.",
+	"comment": "v1 ships SOLO-ONLY on itch.io: solo runs the game logic in-app against local save files (fully offline), so the desktop app needs no server and no network. The same itch page ALSO hosts a browser-playable demo — a separate static web build (`DEMO=true npm run build:web`, published to the html5 channel by .github/workflows/itch-demo.yml) that plays against the hosted Harper with an offline solo fallback and hard-stops after 5 animals; see src/demo.ts and the README. `steamworks.js` is the only runtime dependency electron-builder must package (native, desktop-only, asarUnpacked). `harper` is a DEV-ONLY tool now (local web dev via `harper dev .`, and the co-op E2E harness) — it is intentionally NOT a production dependency so electron-builder doesn't bundle its heavy/native tree into every platform's app (which also de-risks the cross-platform CI builds). Co-op (hosted Harper) is hidden behind COOP_ENABLED in src/features.ts; flip it on and move `harper` back to `dependencies` if you ship co-op.",
 	"dependencies": {
 		"steamworks.js": "^0.4.0"
 	},

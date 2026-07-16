@@ -14526,7 +14526,8 @@ var server_default = {
     clientIdRequired: "clientId required",
     snapshotRequired: "snapshot required",
     snapshotTooLarge: "snapshot too large",
-    deviceIdRequired: "deviceId required"
+    deviceIdRequired: "deviceId required",
+    notDemoSave: "This save can't be deleted this way."
   },
   task: {
     welcomeGrasshopper: "Welcome the grasshopper home",
@@ -15022,7 +15023,7 @@ var supportHtml = `<!doctype html>
 </body>
 </html>
 `;
-var buildStamp = "0.1.11+2026-07-15T16:30:48.715Z";
+var buildStamp = "0.1.12+2026-07-16T17:01:05.737Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
@@ -15772,7 +15773,7 @@ function summarizeBiomes(rows) {
     totalAnimalsReturned: rows.reduce((a, r) => a + (r.returnedCount || 0), 0)
   };
 }
-async function createPlayerRecords(playerId, name, passcode, appearance, tzOffsetMinutes = 0, creationMs = 0) {
+async function createPlayerRecords(playerId, name, passcode, appearance, tzOffsetMinutes = 0, creationMs = 0, edition = "full") {
   const t2 = db();
   const d = await defs();
   const now = Date.now();
@@ -15807,7 +15808,7 @@ async function createPlayerRecords(playerId, name, passcode, appearance, tzOffse
     // your camp tent — upgrade it along four tracks, in two styles
     // Stamp how long character creation took (reported by the client), so the
     // dashboard can report average time-in-creator alongside the choices made.
-    metrics: { ...freshMetrics(now), creationMs: creationMs > 0 ? Math.round(creationMs) : 0 },
+    metrics: { ...freshMetrics(now), creationMs: creationMs > 0 ? Math.round(creationMs) : 0, edition },
     // The board always shows a live "Unlock the next biome" guidance goal, so a
     // new player starts with no custom goals of their own yet.
     customGoals: []
@@ -17064,7 +17065,8 @@ var GameData = class extends PublicEndpoint {
 };
 var CreatePlayer = class extends PublicEndpoint {
   async post(data) {
-    const { name, passcode, appearance, tzOffsetMinutes, creationMs } = await bodyOf(data);
+    const { name, passcode, appearance, tzOffsetMinutes, creationMs, edition } = await bodyOf(data);
+    const ed = edition === "demo" ? "demo" : "full";
     const cleanName = String(name || "").trim();
     if (cleanName.length < 2 || cleanName.length > 24) throw new GameError(t("server.err.nameLength"));
     const code = String(passcode || "");
@@ -17080,7 +17082,8 @@ var CreatePlayer = class extends PublicEndpoint {
       code,
       sanitizeAppearance(appearance),
       sanitizeTzOffset(tzOffsetMinutes),
-      cms
+      cms,
+      ed
     );
     let worlds = [];
     try {
@@ -17121,6 +17124,37 @@ var DeletePlayer = class extends PublicEndpoint {
     }
     await t2.Player.delete(playerId);
     return { ok: true, deleted: playerId, recordsRemoved: removed + 1 };
+  }
+};
+var DeleteDemoSave = class extends PublicEndpoint {
+  async post(data) {
+    const { playerId } = await bodyOf(data);
+    const id = slugId(String(playerId || ""));
+    const t2 = db();
+    const player = id ? await safeGet(t2.Player, id) : null;
+    if (!player) return { ok: true, deleted: null };
+    if (player.metrics?.edition !== "demo") throw new GameError(t("server.err.notDemoSave"), 403);
+    let removed = 0;
+    for (const table of [t2.Placement, t2.Chest, t2.BiomeState, t2.Discovery, t2.NodeState, t2.TerrainTile, t2.FeedEntry]) {
+      for (const rec of await byWorld(table, id)) {
+        await table.delete(rec.id);
+        removed++;
+      }
+    }
+    for (const rec of await byPlayer(t2.PlayerAchievement, id)) {
+      await t2.PlayerAchievement.delete(rec.id);
+      removed++;
+    }
+    for (const m of await byPlayer(t2.WorldMember, id)) {
+      await t2.WorldMember.delete(m.id);
+      removed++;
+    }
+    if (await safeGet(t2.World, id)) {
+      await t2.World.delete(id);
+      removed++;
+    }
+    await t2.Player.delete(id);
+    return { ok: true, deleted: id, recordsRemoved: removed + 1 };
   }
 };
 var ChangePasscode = class extends PublicEndpoint {
@@ -18523,13 +18557,14 @@ var SESSION_GAP_MS = 30 * 60 * 1e3;
 var MAX_BEAT_MS = 90 * 1e3;
 var Heartbeat = class extends PublicEndpoint {
   async post(data) {
-    const { playerId, language } = await bodyOf(data);
+    const { playerId, language, edition } = await bodyOf(data);
     const t2 = db();
     const d = await defs();
     const { player } = await requirePlayer(playerId);
     const now = Date.now();
     const prev = player.metrics || freshMetrics(player.createdAt || now);
     const lang = typeof language === "string" && language.trim() ? language.trim().toLowerCase().slice(0, 12) : null;
+    const ed = edition === "demo" ? "demo" : edition === "full" ? "full" : null;
     const last = prev.lastHeartbeatAt || 0;
     const gap = now - last;
     let playSeconds = prev.playSeconds || 0;
@@ -18562,7 +18597,9 @@ var Heartbeat = class extends PublicEndpoint {
       curSessionSeconds: Math.round(curSessionSeconds),
       areaSeconds,
       sessionLengths,
-      ...lang ? { language: lang } : {}
+      ...lang ? { language: lang } : {},
+      // Keep 'demo' sticky: a demo player is never re-tagged 'full'.
+      ...ed ? { edition: prev.edition === "demo" ? "demo" : ed } : {}
     };
     await t2.Player.patch(playerId, { metrics });
     const wid = worldOf(player);
@@ -18757,6 +18794,7 @@ var Metrics = class extends PublicEndpoint {
     const platforms = tally((v) => v.platform);
     const operatingSystems = tally((v) => v.os);
     const versions = tally((v) => v.version);
+    const editions = tally((v) => v.edition || "full");
     const returningPlayers = all.filter((v) => v.sessions >= 2).length;
     const funnel = {
       created: all.length,
@@ -18865,6 +18903,11 @@ var Metrics = class extends PublicEndpoint {
     }
     const devices = openRows.length;
     const convertedDevices = openRows.filter((o) => o.converted).length;
+    const editionSplit = {};
+    for (const o of openRows) {
+      const k = o.edition === "demo" ? "demo" : "full";
+      editionSplit[k] = (editionSplit[k] || 0) + 1;
+    }
     const withCreatorTime = openRows.filter((o) => (o.creationMs || 0) > 0);
     const totalCharacters = openRows.reduce((a, o) => a + (o.savesCreated || 0), 0);
     const savesPerPersonHistogram = {};
@@ -18883,7 +18926,8 @@ var Metrics = class extends PublicEndpoint {
       totalCharactersCreated: totalCharacters,
       avgCharactersPerPerson: devices ? round1(totalCharacters / devices) : 0,
       avgCharactersPerConverted: convertedDevices ? round1(totalCharacters / convertedDevices) : 0,
-      charactersPerPersonHistogram: savesPerPersonHistogram
+      charactersPerPersonHistogram: savesPerPersonHistogram,
+      editions: editionSplit
     };
     return {
       generatedAt: now,
@@ -18897,6 +18941,7 @@ var Metrics = class extends PublicEndpoint {
         platforms,
         operatingSystems,
         versions,
+        editions,
         engagement: {
           totalPlayHours: round1(totalPlaySeconds / 3600),
           totalPlaySeconds,
@@ -19542,6 +19587,8 @@ var AppOpen = class extends PublicEndpoint {
       platform: String(body.platform || "").slice(0, 20) || existing?.platform || null,
       os: String(body.os || "").slice(0, 20) || existing?.os || null,
       version: String(body.version || "").slice(0, 24) || existing?.version || null,
+      // demo | full — which product this install opened; 'demo' is sticky.
+      edition: body.edition === "demo" || existing?.edition === "demo" ? "demo" : body.edition === "full" ? "full" : existing?.edition || null,
       language: String(body.language || "").trim().toLowerCase().slice(0, 12) || existing?.language || null,
       firstOpenAt: existing?.firstOpenAt || now,
       lastOpenAt: now,
@@ -19594,6 +19641,7 @@ export {
   CraftItem,
   CreatePlayer,
   CreateWorld,
+  DeleteDemoSave,
   DeletePlayer,
   DevTools,
   DiscardItem,

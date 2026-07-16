@@ -461,7 +461,8 @@
 			"title": "Make yourself at home",
 			"text": "Last thing — walk back to your camp tent and press E to step inside. The sign by the tent first builds your tent into a real house (each style has its own perk), then upgrades it along four tracks: Space (a bigger home that lets you carry more), Comfort (strengthens your house perk), Decor, and Light. Higher upgrades open as your biomes get healthier, and inside you can place crafted camp comforts. Step in now — the preserve is all yours. Happy restoring!",
 			"touch": "Last thing — walk back to your camp tent and tap it to step inside. The sign by the tent first builds your tent into a real house (each style has its own perk), then upgrades it along four tracks: Space (a bigger home that lets you carry more), Comfort (strengthens your house perk), Decor, and Light. Higher upgrades open as your biomes get healthier, and inside you can place crafted camp comforts. Step in now — the preserve is all yours. Happy restoring!"
-		}
+		},
+		"demoNote": "This is the free demo — welcome {count} animals back to the meadow to complete it."
 	},
 	"help": {
 		"title": "How to Play",
