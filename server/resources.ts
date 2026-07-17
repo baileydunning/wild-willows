@@ -42,7 +42,7 @@ import {
 import { t as tr } from '../src/i18n/server';
 // Policy pages (privacy / age suitability), inlined from public/*.html by
 // scripts/build-pages.mjs — served as endpoints, see the bottom of this file.
-import { privacyHtml, ageRatingHtml, supportHtml, buildStamp } from './pages';
+import { privacyHtml, ageRatingHtml, supportHtml, dashboardHtml, buildStamp } from './pages';
 
 // Biome ids for the weather block (weather is per-biome; climate differs by
 // biome). Derived once from the static seed data so the weather snapshot stays
@@ -6752,5 +6752,19 @@ class SupportPage extends PublicEndpoint {
 	}
 }
 
+/**
+ * GET /dashboard — the anonymous gameplay-metrics dashboard. A static,
+ * self-contained page (inline CSS/JS, no external deps) that fetches the
+ * public GET /Metrics/ rollup at runtime and renders it: audience, engagement,
+ * funnels, progression, action totals, achievements, and the caretakers'
+ * customized characters (drawn from appearance data — no player names shown).
+ * Cached briefly like the other pages; the live numbers come from /Metrics/.
+ */
+class DashboardPage extends PublicEndpoint {
+	async get() {
+		return htmlPage(dashboardHtml);
+	}
+}
+
 // Export under the exact URL paths (string export names keep the hyphen).
-export { PrivacyPage as privacy, AgeRatingPage as 'age-rating', SupportPage as support };
+export { PrivacyPage as privacy, AgeRatingPage as 'age-rating', SupportPage as support, DashboardPage as dashboard };

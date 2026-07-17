@@ -1,0 +1,657 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wild Willows — Metrics Dashboard</title>
+<meta name="description" content="Anonymous gameplay metrics for Wild Willows, a cozy nature-restoration life sim.">
+<meta name="robots" content="noindex">
+<style>
+	:root {
+		--bg: #eef2e3;
+		--bg2: #e5ecd6;
+		--card: #fffdf7;
+		--ink: #2f3a27;
+		--muted: #6b7263;
+		--faint: #9aa189;
+		--accent: #4a7c46;
+		--accent-dark: #35602f;
+		--accent-soft: #dceccf;
+		--gold: #d9a441;
+		--sky: #6ea8c8;
+		--rose: #d77b8f;
+		--rule: #dfe0cf;
+		--shadow: 0 1px 2px rgba(47,58,39,.06), 0 6px 20px rgba(47,58,39,.07);
+		--radius: 18px;
+	}
+	* { box-sizing: border-box; }
+	html { -webkit-text-size-adjust: 100%; }
+	body {
+		margin: 0;
+		background:
+			radial-gradient(1200px 480px at 80% -10%, #f4f8ec 0%, transparent 60%),
+			linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+		background-attachment: fixed;
+		color: var(--ink);
+		font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+		min-height: 100vh;
+	}
+	.wrap { max-width: 1180px; margin: 0 auto; padding: clamp(1rem, 3vw, 2.5rem) clamp(.9rem, 3vw, 2rem) 5rem; }
+
+	/* ---- header ---- */
+	header.top { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem 1.4rem; margin-bottom: 1.6rem; }
+	.brand { display: flex; align-items: center; gap: .8rem; }
+	.brand .leaf {
+		width: 46px; height: 46px; flex: none;
+		border-radius: 14px;
+		background: linear-gradient(140deg, var(--accent) 0%, var(--accent-dark) 100%);
+		display: grid; place-items: center; box-shadow: var(--shadow);
+	}
+	.brand h1 { font-size: clamp(1.35rem, 3.5vw, 1.9rem); margin: 0; letter-spacing: -.02em; }
+	.brand p { margin: .1rem 0 0; color: var(--muted); font-size: .92rem; }
+	.meta { margin-left: auto; text-align: right; color: var(--muted); font-size: .82rem; }
+	.meta .live { display: inline-flex; align-items: center; gap: .4rem; font-weight: 600; color: var(--accent-dark); }
+	.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 rgba(74,124,70,.5); animation: pulse 2s infinite; }
+	@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(74,124,70,.45);} 70% { box-shadow: 0 0 0 8px rgba(74,124,70,0);} 100% { box-shadow: 0 0 0 0 rgba(74,124,70,0);} }
+	button.refresh {
+		margin-top: .4rem; font: inherit; font-size: .82rem; cursor: pointer;
+		border: 1px solid var(--rule); background: var(--card); color: var(--accent-dark);
+		padding: .35rem .8rem; border-radius: 999px; box-shadow: var(--shadow); transition: transform .1s;
+	}
+	button.refresh:hover { transform: translateY(-1px); }
+	button.refresh:active { transform: translateY(0); }
+
+	/* ---- section ---- */
+	section { margin: 2.2rem 0 0; }
+	.sec-head { display: flex; align-items: baseline; gap: .6rem; margin: 0 .2rem .85rem; }
+	.sec-head h2 { font-size: 1.04rem; margin: 0; letter-spacing: -.01em; }
+	.sec-head .sub { color: var(--faint); font-size: .82rem; }
+
+	/* ---- kpi cards ---- */
+	.grid { display: grid; gap: .8rem; }
+	.kpis { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+	.card {
+		background: var(--card); border: 1px solid var(--rule);
+		border-radius: var(--radius); padding: 1rem 1.1rem; box-shadow: var(--shadow);
+	}
+	.kpi .v { font-size: clamp(1.5rem, 4.5vw, 2rem); font-weight: 700; letter-spacing: -.02em; line-height: 1.05; }
+	.kpi .k { color: var(--muted); font-size: .8rem; margin-top: .25rem; }
+	.kpi .hint { color: var(--faint); font-size: .72rem; margin-top: .35rem; }
+	.kpi .v small { font-size: .55em; font-weight: 600; color: var(--faint); margin-left: .15em; }
+	.accent { color: var(--accent-dark); }
+
+	.two { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+	.three { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
+
+	.card h3 { margin: 0 0 .9rem; font-size: .96rem; }
+	.card h3 .tag { float: right; font-size: .74rem; font-weight: 600; color: var(--faint); }
+
+	/* ---- horizontal bar rows ---- */
+	.bars { display: flex; flex-direction: column; gap: .55rem; }
+	.bar { display: grid; grid-template-columns: minmax(64px, 34%) 1fr auto; align-items: center; gap: .6rem; }
+	.bar .lab { color: var(--muted); font-size: .82rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-transform: capitalize; }
+	.bar .track { background: var(--accent-soft); border-radius: 999px; height: 12px; overflow: hidden; }
+	.bar .fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dark) 100%); min-width: 3px; transition: width .8s cubic-bezier(.2,.7,.2,1); }
+	.bar .num { font-size: .8rem; color: var(--ink); font-variant-numeric: tabular-nums; min-width: 2.4ch; text-align: right; }
+	.fill.sky { background: linear-gradient(90deg, #8cc0da, var(--sky)); }
+	.fill.gold { background: linear-gradient(90deg, #e6bd62, var(--gold)); }
+	.fill.rose { background: linear-gradient(90deg, #e5a0af, var(--rose)); }
+
+	/* ---- funnel ---- */
+	.funnel { display: flex; flex-direction: column; gap: .5rem; }
+	.step { position: relative; background: var(--accent-soft); border-radius: 12px; overflow: hidden; }
+	.step .sfill { background: linear-gradient(90deg, var(--accent), var(--accent-dark)); height: 100%; position: absolute; inset: 0; width: 0; border-radius: 12px; transition: width .9s cubic-bezier(.2,.7,.2,1); }
+	.step .srow { position: relative; display: flex; justify-content: space-between; align-items: center; padding: .6rem .85rem; gap: 1rem; }
+	.step .sname { font-weight: 600; font-size: .86rem; }
+	.step .sval { font-variant-numeric: tabular-nums; font-size: .84rem; display: flex; gap: .55rem; align-items: baseline; }
+	.step .spct { color: var(--accent-dark); font-weight: 700; }
+	.step.lite .sname, .step.lite .sval { color: var(--ink); }
+	.step .drop { color: var(--rose); font-size: .72rem; }
+
+	/* ---- donut / distribution ---- */
+	.legend { display: flex; flex-wrap: wrap; gap: .5rem .9rem; margin-top: .8rem; }
+	.legend .li { display: flex; align-items: center; gap: .4rem; font-size: .8rem; color: var(--muted); }
+	.legend .sw { width: 11px; height: 11px; border-radius: 3px; flex: none; }
+	.donutwrap { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+	.donutwrap svg { flex: none; }
+
+	/* ---- characters ---- */
+	.charwrap { }
+	.chargrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: .7rem; }
+	.charcard {
+		background: linear-gradient(180deg, #fffdf7, #f6f3e8);
+		border: 1px solid var(--rule); border-radius: 16px;
+		padding: .7rem .5rem .6rem; text-align: center; box-shadow: var(--shadow);
+		transition: transform .12s ease;
+	}
+	.charcard:hover { transform: translateY(-3px); }
+	.charcard svg { width: 100%; height: auto; max-width: 92px; }
+	.charcard .cmeta { margin-top: .3rem; font-size: .72rem; color: var(--muted); line-height: 1.35; }
+	.charcard .cmeta b { color: var(--accent-dark); font-weight: 700; }
+	.charcard .badge { display: inline-block; margin-top: .25rem; font-size: .66rem; color: var(--gold); font-weight: 700; letter-spacing: .02em; }
+
+	/* ---- swatches ---- */
+	.swatches { display: flex; flex-wrap: wrap; gap: .5rem; }
+	.swatch { display: flex; flex-direction: column; align-items: center; gap: .25rem; }
+	.swatch .chip { width: 30px; height: 30px; border-radius: 9px; border: 1px solid rgba(0,0,0,.12); box-shadow: inset 0 0 0 2px rgba(255,255,255,.35); }
+	.swatch .cnt { font-size: .72rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+
+	/* ---- histogram (mini columns) ---- */
+	.cols { display: flex; align-items: flex-end; gap: .5rem; height: 108px; padding-top: .3rem; }
+	.col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: .3rem; height: 100%; justify-content: flex-end; }
+	.col .cbar { width: 100%; max-width: 42px; border-radius: 7px 7px 3px 3px; background: linear-gradient(180deg, var(--accent), var(--accent-dark)); min-height: 3px; transition: height .8s cubic-bezier(.2,.7,.2,1); }
+	.col .cn { font-size: .72rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+	.col .cl { font-size: .68rem; color: var(--faint); text-align: center; }
+
+	/* ---- editions: demo vs full ---- */
+	.vs { display: flex; flex-direction: column; gap: .7rem; }
+	.vslegend { display: flex; gap: 1rem; margin: 0 0 .2rem; font-size: .8rem; }
+	.vslegend .li { display: flex; align-items: center; gap: .4rem; font-weight: 600; }
+	.vslegend .sw { width: 12px; height: 12px; border-radius: 4px; }
+	.vsrow { display: grid; grid-template-columns: 1fr auto; gap: .3rem .8rem; }
+	.vsrow .vlab { color: var(--muted); font-size: .82rem; }
+	.vsrow .vnums { font-variant-numeric: tabular-nums; font-size: .84rem; display: flex; gap: .8rem; align-items: baseline; }
+	.vsrow .vd { color: #a9781c; font-weight: 700; }
+	.vsrow .vf { color: var(--accent-dark); font-weight: 700; }
+	.vsrow .vbar { grid-column: 1 / -1; height: 9px; border-radius: 999px; overflow: hidden; background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dark) 100%); }
+	.vsrow .vbar i { display: block; height: 100%; background: linear-gradient(90deg, #e6bd62, var(--gold)); border-radius: 999px; transition: width .8s cubic-bezier(.2,.7,.2,1); }
+	.emptynote { color: var(--faint); font-size: .82rem; padding: .4rem 0; }
+	footer { margin-top: 3rem; text-align: center; color: var(--faint); font-size: .76rem; }
+	footer a { color: var(--accent-dark); }
+
+	.skeleton { color: var(--faint); text-align: center; padding: 4rem 1rem; font-size: .95rem; }
+	.err { background: #fdeaea; border: 1px solid #f3c9c9; color: #9c3b3b; border-radius: var(--radius); padding: 1rem 1.2rem; }
+
+	@media (max-width: 560px) {
+		.meta { margin-left: 0; text-align: left; width: 100%; }
+		.bar { grid-template-columns: minmax(56px, 40%) 1fr auto; }
+		.chargrid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+	}
+</style>
+</head>
+<body>
+<div class="wrap">
+	<header class="top">
+		<div class="brand">
+			<div class="leaf" aria-hidden="true">
+				<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 21C6 21 3 16 3 11 3 6 7 3 12 3c-1 4 2 6 5 7 3 1 4 4 4 5 0 3-3 6-9 6Z" fill="#eaf6df"/><path d="M12 21C9 17 9 11 12 3" stroke="#4a7c46" stroke-width="1.4" stroke-linecap="round"/></svg>
+			</div>
+			<div>
+				<h1>Wild Willows Metrics</h1>
+				<p>Anonymous gameplay analytics</p>
+			</div>
+		</div>
+		<div class="meta">
+			<div class="live"><span class="dot"></span> Live dashboard</div>
+			<div id="generated">Loading…</div>
+			<button class="refresh" id="refresh" type="button">↻ Refresh</button>
+		</div>
+	</header>
+
+	<div id="root">
+		<div class="skeleton skeleton-loading skeleton">
+			<div class="skeleton" id="loading">Gathering the meadow’s numbers…</div>
+		</div>
+	</div>
+
+	<footer>
+		Wild Willows · a cozy nature-restoration life sim, backed by Harper ·
+		metrics are aggregated and anonymous.
+	</footer>
+</div>
+
+<script>
+"use strict";
+
+/* ------------------------------------------------------------------ *
+ * Color helpers — ported 1:1 from src/color.ts so avatars match the
+ * exact palette the game renders in-app.
+ * ------------------------------------------------------------------ */
+function hexToHsl(hex) {
+	let c = String(hex || "#000000").replace("#", "");
+	if (c.length === 3) c = c.split("").map((ch) => ch + ch).join("");
+	const r = parseInt(c.slice(0, 2), 16) / 255;
+	const g = parseInt(c.slice(2, 4), 16) / 255;
+	const b = parseInt(c.slice(4, 6), 16) / 255;
+	const max = Math.max(r, g, b), min = Math.min(r, g, b);
+	const l = (max + min) / 2;
+	if (max === min) return { h: 0, s: 0, l: l * 100 };
+	const d = max - min;
+	const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+	let h;
+	if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) * 60;
+	else if (max === g) h = ((b - r) / d + 2) * 60;
+	else h = ((r - g) / d + 4) * 60;
+	return { h, s: s * 100, l: l * 100 };
+}
+function hslToHex(h, s, l) {
+	h = ((h % 360) + 360) % 360;
+	s = Math.max(0, Math.min(100, s)) / 100;
+	l = Math.max(0, Math.min(100, l)) / 100;
+	const k = (n) => (n + h / 30) % 12;
+	const a = s * Math.min(l, 1 - l);
+	const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+	const to = (v) => Math.round(v * 255).toString(16).padStart(2, "0");
+	return `#${to(f(0))}${to(f(8))}${to(f(4))}`;
+}
+function shade(hex, dl) { const { h, s, l } = hexToHsl(hex); return hslToHex(h, s, l + dl); }
+const HAT_BASE = {
+	straw: { a: "#c9a35c", b: "#d8b56e", line: "#a3814f" },
+	leaf: { a: "#5d8a4a", line: "#436b35" },
+	beanie: { a: "#b5707a", b: "#9e5f69" },
+	cap: { a: "#5f86b0", b: "#4f739a", line: "#3f5f80" },
+	bucket: { a: "#9aa86a", b: "#86945a" },
+	party: { a: "#d77bb1", b: "#e89ac0", line: "#b45f95" },
+	flower: { a: "#e87a9e" },
+	wizard: { a: "#7d6b9e", b: "#8f7bb5", line: "#645380" },
+	crown: { a: "#e0b23e", b: "#f0c95e", line: "#b8902e" },
+	mushroom: { a: "#c9584c", b: "#d4685c", line: "#a84237" },
+	ranger: { a: "#8a734f", b: "#9c845c", line: "#5d4a36" },
+	bandana: { a: "#b05555", b: "#c96a5f", line: "#8d3f3f" },
+};
+function hatPalette(hat, custom) {
+	const base = HAT_BASE[hat] || HAT_BASE.straw;
+	if (!custom) return { a: base.a, b: base.b ?? shade(base.a, 8), line: base.line ?? shade(base.a, -14) };
+	return { a: custom, b: shade(custom, 8), line: shade(custom, -14) };
+}
+function flowerPalette(custom) {
+	const base = ["#e87a9e", "#f4c95f", "#c45ad0", "#e8954f"];
+	if (!custom) return base;
+	const c = hexToHsl(custom), b0 = hexToHsl(base[0]);
+	return base.map((hex) => { const b = hexToHsl(hex); return hslToHex(c.h + (b.h - b0.h), c.s + (b.s - b0.s), c.l + (b.l - b0.l)); });
+}
+
+/* small helpers */
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const n = (x) => (x == null || isNaN(x) ? 0 : x);
+const fmt = (x) => n(x).toLocaleString("en-US");
+const pct = (x) => `${Math.round(n(x))}%`;
+
+/* ------------------------------------------------------------------ *
+ * Avatar — ported from CharacterPreview (src/ui/icons.tsx). Returns an
+ * SVG string. Names are never rendered.
+ * ------------------------------------------------------------------ */
+function avatarSVG(app) {
+	const a = app || {};
+	const skin = a.skin || "#eec39a", hair = a.hair || "#6e4a33", outfit = a.outfit || "#4a7c59";
+	const hat = a.hat || "none", hatColor = a.hatColor || null;
+	const hairstyle = a.hairstyle || "short", beard = a.beard || "none", body = a.body || "slim";
+	const bw = body === "round" ? 8 : 0;
+	const hp = hatPalette(hat, hatColor);
+	const fl = flowerPalette(hatColor);
+	let s = "";
+	s += `<ellipse cx="50" cy="104" rx="${26 + bw / 2}" ry="7" fill="#000" opacity="0.12"/>`;
+	if (hairstyle === "long") s += `<path d="M29 30 Q26 78 34 86 L66 86 Q74 78 71 30 Z" fill="${hair}"/>`;
+	if (hairstyle === "curly-long") s += `<g fill="${hair}"><path d="M29 30 Q26 76 34 84 L66 84 Q74 76 71 30 Z"/><circle cx="31" cy="62" r="8"/><circle cx="69" cy="62" r="8"/><circle cx="33" cy="78" r="8"/><circle cx="67" cy="78" r="8"/><circle cx="50" cy="84" r="9"/><circle cx="41" cy="83" r="8"/><circle cx="59" cy="83" r="8"/></g>`;
+	if (hairstyle === "ponytail") s += `<g fill="${hair}"><ellipse cx="67" cy="32" rx="9" ry="10"/><ellipse cx="75" cy="47" rx="8" ry="13"/><ellipse cx="75" cy="61" rx="6.5" ry="11"/></g><ellipse cx="73" cy="41" rx="4.5" ry="3.2" fill="#c9913f"/>`;
+	if (hairstyle === "pigtails") s += `<g fill="${hair}"><ellipse cx="27" cy="33" rx="8.5" ry="10"/><ellipse cx="21" cy="49" rx="7.5" ry="12"/><ellipse cx="73" cy="33" rx="8.5" ry="10"/><ellipse cx="79" cy="49" rx="7.5" ry="12"/></g><ellipse cx="24" cy="42" rx="4.2" ry="3" fill="#c9913f"/><ellipse cx="76" cy="42" rx="4.2" ry="3" fill="#c9913f"/>`;
+	if (hairstyle === "afro") s += `<circle cx="50" cy="33" r="28" fill="${hair}"/>`;
+	if (hairstyle === "bob") s += `<g fill="${hair}"><ellipse cx="30" cy="42" rx="8" ry="14"/><ellipse cx="70" cy="42" rx="8" ry="14"/></g>`;
+	if (hairstyle === "braid") s += `<g fill="${hair}"><ellipse cx="68" cy="34" rx="8" ry="9"/><circle cx="71" cy="49" r="6.2"/><circle cx="73" cy="58" r="5.5"/><circle cx="74.5" cy="66" r="4.8"/><circle cx="75" cy="73" r="4"/></g><ellipse cx="75" cy="78.5" rx="3.2" ry="2.4" fill="#c9913f"/>`;
+	// body
+	s += `<path d="M${30 - bw} 70 Q${30 - bw} 56 50 56 Q${70 + bw} 56 ${70 + bw} 70 L${68 + bw} 96 Q${68 + bw} 102 60 102 L40 102 Q${32 - bw} 102 ${32 - bw} 96 Z" fill="${outfit}"/>`;
+	s += `<path d="M36 70 Q36 62 50 62 Q64 62 64 70 L63 84 L37 84 Z" fill="#ffffff" opacity="0.14"/>`;
+	s += `<ellipse cx="${28 - bw}" cy="76" rx="6" ry="11" fill="${outfit}" transform="rotate(8 ${28 - bw} 76)"/>`;
+	s += `<ellipse cx="${72 + bw}" cy="76" rx="6" ry="11" fill="${outfit}" transform="rotate(-8 ${72 + bw} 76)"/>`;
+	s += `<ellipse cx="42" cy="103" rx="6.5" ry="4.5" fill="#5d4a36"/><ellipse cx="58" cy="103" rx="6.5" ry="4.5" fill="#5d4a36"/>`;
+	// head
+	s += `<circle cx="50" cy="38" r="21" fill="${skin}"/>`;
+	if (hairstyle === "curly" || hairstyle === "curly-long") s += `<g fill="${hair}"><circle cx="34" cy="27" r="9"/><circle cx="44" cy="21" r="10"/><circle cx="56" cy="21" r="10"/><circle cx="66" cy="27" r="9"/><circle cx="29" cy="38" r="7"/><circle cx="71" cy="38" r="7"/></g>`;
+	if (hairstyle === "afro") s += `<g fill="${hair}"><circle cx="33" cy="26" r="11"/><circle cx="45" cy="18" r="12"/><circle cx="57" cy="18" r="12"/><circle cx="68" cy="26" r="11"/><circle cx="28" cy="39" r="9"/><circle cx="72" cy="39" r="9"/></g>`;
+	if (hairstyle === "mohawk") s += `<path d="M43 24 L46 5 L49 21 L52 3 L55 21 L58 6 L60 24 Q52 19 43 24 Z" fill="${hair}"/>`;
+	if (!["curly", "curly-long", "afro", "mohawk", "bald"].includes(hairstyle))
+		s += `<path d="M30 34 Q31 18 50 17 Q69 18 70 34 Q66 26 50 25.5 Q34 26 30 34 Z" fill="${hair}"/>`;
+	if (hairstyle === "bun" && hat === "none") s += `<g><circle cx="50" cy="11" r="9" fill="${hair}"/><rect x="42" y="16" width="16" height="4" rx="2" fill="#c9913f"/></g>`;
+	// face
+	s += `<circle cx="42.5" cy="40" r="2.6" fill="#3b2e25"/><circle cx="57.5" cy="40" r="2.6" fill="#3b2e25"/>`;
+	s += `<circle cx="43.3" cy="39.2" r="0.9" fill="#fff"/><circle cx="58.3" cy="39.2" r="0.9" fill="#fff"/>`;
+	s += `<path d="M46.5 47 Q50 50 53.5 47" stroke="#3b2e25" stroke-width="1.7" fill="none" stroke-linecap="round"/>`;
+	s += `<circle cx="37" cy="45" r="3.4" fill="#e88" opacity="0.35"/><circle cx="63" cy="45" r="3.4" fill="#e88" opacity="0.35"/>`;
+	if (beard === "beard") s += `<g><path d="M32 43 Q34.5 58.5 50 59 Q65.5 58.5 68 43 Q63.5 50.5 56.5 50.8 Q53 50.8 50 49.8 Q47 50.8 43.5 50.8 Q36.5 50.5 32 43 Z" fill="${hair}"/><path d="M42.5 45.3 Q46 43.6 50 45.1 Q54 43.6 57.5 45.3 Q54 46.9 50 46.2 Q46 46.9 42.5 45.3 Z" fill="${hair}"/><path d="M46.5 47.2 Q50 50 53.5 47.2" stroke="#3b2e25" stroke-width="1.7" fill="none" stroke-linecap="round"/></g>`;
+	// hats
+	if (hat === "straw") s += `<g><ellipse cx="50" cy="23" rx="27" ry="8" fill="${hp.a}"/><path d="M36 22 Q36 8 50 8 Q64 8 64 22 Q57 19 50 19 Q43 19 36 22 Z" fill="${hp.b}"/><path d="M36 20.5 Q50 24.5 64 20.5" stroke="${hp.line}" stroke-width="3" fill="none"/></g>`;
+	if (hat === "leaf") s += `<g transform="rotate(-8 50 16)"><path d="M28 20 Q42 2 72 9 Q67 26 40 25 Q32 24 28 20 Z" fill="${hp.a}"/><path d="M30 19.5 Q50 17 68 11" stroke="${hp.line}" stroke-width="1.8" fill="none"/></g>`;
+	if (hat === "beanie") s += `<g><path d="M31 26 Q31 9 50 9 Q69 9 69 26 L69 28 Q59 24 50 24 Q41 24 31 28 Z" fill="${hp.a}"/><path d="M31 27.5 Q50 22.5 69 27.5 L69 31 Q50 26.5 31 31 Z" fill="${hp.b}"/><circle cx="50" cy="8" r="4.5" fill="#e8d8c8"/></g>`;
+	if (hat === "cap") s += `<g><path d="M30 25 Q30 9 50 9 Q70 9 70 25 Z" fill="${hp.a}"/><path d="M51 24 Q70 22 82 27 Q70 31 51 28 Z" fill="${hp.b}"/><circle cx="50" cy="10" r="2.4" fill="${hp.line}"/></g>`;
+	if (hat === "bucket") s += `<g><path d="M35 23 Q35 10 50 10 Q65 10 65 23 Z" fill="${hp.a}"/><path d="M27 22 L73 22 Q70 30 50 31 Q30 30 27 22 Z" fill="${hp.b}"/><path d="M35 23 L65 23 L65 25 Q50 27 35 25 Z" fill="${hp.b}"/></g>`;
+	if (hat === "flower") {
+		let g = `<g><path d="M29 25 Q50 31 71 25" stroke="#5d8a4a" stroke-width="4.5" fill="none" stroke-linecap="round"/>`;
+		[32, 43, 54, 65].forEach((x, i) => {
+			g += `<g>`;
+			[0, 1.26, 2.51, 3.77, 5.03].forEach((ang) => { g += `<circle cx="${x + Math.cos(ang) * 3.4}" cy="${24 + Math.sin(ang) * 3.4}" r="2.4" fill="${fl[i]}"/>`; });
+			g += `<circle cx="${x}" cy="24" r="1.7" fill="#fff3c4"/></g>`;
+		});
+		s += g + `</g>`;
+	}
+	if (hat === "party") s += `<g><path d="M50 1 L39 26 L61 26 Z" fill="${hp.a}"/><path d="M50 1 L45.5 12 L54.5 12 Z" fill="${hp.b}"/><path d="M43.5 19 L56.5 19 L58 26 L42 26 Z" fill="${hp.line}"/><circle cx="50" cy="2" r="3.4" fill="#f4e08a"/></g>`;
+	if (hat === "ranger") s += `<g><ellipse cx="50" cy="23" rx="29" ry="7" fill="${hp.a}"/><path d="M37 22 Q37 8 50 8 Q63 8 63 22 Q57 18.5 50 18.5 Q43 18.5 37 22 Z" fill="${hp.b}"/><path d="M37 21 Q50 25 63 21" stroke="${hp.line}" stroke-width="3" fill="none"/></g>`;
+	if (hat === "mushroom") s += `<g><path d="M29 22 Q29 3 50 3 Q71 3 71 22 Q71 25 67 25 L33 25 Q29 25 29 22 Z" fill="${hp.a}"/><path d="M33 25 L67 25 Q60 28.5 50 28.5 Q40 28.5 33 25 Z" fill="${hp.line}"/><circle cx="40" cy="11" r="3.4" fill="#f6efe3"/><circle cx="56" cy="8.5" r="4" fill="#f6efe3"/><circle cx="63" cy="17" r="2.6" fill="#f6efe3"/><circle cx="45" cy="18" r="2" fill="#f6efe3"/></g>`;
+	if (hat === "wizard") s += `<g><ellipse cx="50" cy="22" rx="26" ry="7" fill="${hp.a}"/><path d="M53 -6 Q50 6 61 22 L38 22 Q50 9 53 -6 Z" fill="${hp.b}"/><path d="M39 21 Q50 17.5 60 21" stroke="${hp.line}" stroke-width="3" fill="none"/><path d="M55 6 L56.2 9 L59.4 9.2 L56.9 11.1 L57.8 14.2 L55 12.4 L52.2 14.2 L53.1 11.1 L50.6 9.2 L53.8 9 Z" fill="#f4e08a"/></g>`;
+	if (hat === "crown") s += `<g><path d="M36 24 L36 11 L42.5 17.5 L50 7 L57.5 17.5 L64 11 L64 24 Q50 20 36 24 Z" fill="${hp.a}"/><path d="M36 24 L64 24 L64 27 Q50 23 36 27 Z" fill="${hp.line}"/><circle cx="50" cy="20" r="2.1" fill="#c0503f"/><circle cx="42" cy="21.4" r="1.5" fill="#3f6fa8"/><circle cx="58" cy="21.4" r="1.5" fill="#3f6fa8"/></g>`;
+	if (hat === "bandana") s += `<g><path d="M30 32 Q30 12 50 11 Q70 12 70 32 Q60 24 50 24 Q40 24 30 32 Z" fill="${hp.a}"/><path d="M33 26 Q50 20 67 26" stroke="${hp.line}" stroke-width="2" fill="none" opacity="0.6"/><path d="M68 25 L79 29 L71 33 Z" fill="${hp.a}"/><path d="M70 30 L77.5 39 L68.5 35.5 Z" fill="${hp.b}"/><circle cx="44" cy="17.5" r="1.2" fill="#fff" opacity="0.55"/><circle cx="56" cy="17.5" r="1.2" fill="#fff" opacity="0.55"/><circle cx="50" cy="14" r="1.2" fill="#fff" opacity="0.55"/></g>`;
+	if (hat === "none" && !["curly", "curly-long", "afro", "mohawk", "bun", "bald"].includes(hairstyle))
+		s += `<path d="M31 32 Q31 14 50 14 Q69 14 69 32 Q66 22 50 21 Q34 22 31 32 Z" fill="${hair}"/>`;
+	return `<svg viewBox="0 0 100 113" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Anonymous caretaker">${s}</svg>`;
+}
+
+/* ------------------------------------------------------------------ *
+ * Render building blocks
+ * ------------------------------------------------------------------ */
+function kpi(v, k, hint) {
+	return `<div class="card kpi"><div class="v">${v}</div><div class="k">${k}</div>${hint ? `<div class="hint">${hint}</div>` : ""}</div>`;
+}
+function barRows(entries, opts) {
+	opts = opts || {};
+	const cls = opts.cls || "";
+	const rows = entries.filter((e) => e).map((e) => [e[0], n(e[1])]);
+	if (!rows.length) return `<div class="emptynote">No data yet.</div>`;
+	const max = opts.max || Math.max(...rows.map((r) => r[1]), 1);
+	return `<div class="bars">${rows.map(([lab, val]) =>
+		`<div class="bar"><span class="lab" title="${esc(lab)}">${esc(opts.labelMap ? (opts.labelMap[lab] || lab) : lab)}</span>` +
+		`<span class="track"><span class="fill ${cls}" style="width:${Math.max(2, (val / max) * 100)}%"></span></span>` +
+		`<span class="num">${opts.fmtNum ? opts.fmtNum(val) : fmt(val)}</span></div>`
+	).join("")}</div>`;
+}
+function objToEntries(obj) { return Object.entries(obj || {}).sort((a, b) => n(b[1]) - n(a[1])); }
+
+function donut(segments, size) {
+	size = size || 128;
+	const total = segments.reduce((a, s) => a + n(s.value), 0) || 1;
+	const r = size / 2 - 10, cx = size / 2, cy = size / 2, C = 2 * Math.PI * r;
+	let off = 0;
+	const rings = segments.map((s) => {
+		const frac = n(s.value) / total;
+		const dash = `${frac * C} ${C - frac * C}`;
+		const el = `<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.color}" stroke-width="16" stroke-dasharray="${dash}" stroke-dashoffset="${-off * C}" transform="rotate(-90 ${cx} ${cy})"/>`;
+		off += frac;
+		return el;
+	}).join("");
+	const svg = `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">${rings}<text x="${cx}" y="${cy - 2}" text-anchor="middle" font-size="20" font-weight="700" fill="#2f3a27">${fmt(total)}</text><text x="${cx}" y="${cy + 16}" text-anchor="middle" font-size="10" fill="#9aa189">total</text></svg>`;
+	const legend = `<div class="legend">${segments.map((s) => `<span class="li"><span class="sw" style="background:${s.color}"></span>${esc(s.label)} · <b>${fmt(s.value)}</b></span>`).join("")}</div>`;
+	return `<div class="donutwrap">${svg}<div>${legend}</div></div>`;
+}
+
+function funnel(steps) {
+	const top = n(steps[0] && steps[0].value) || 1;
+	return `<div class="funnel">${steps.map((st, i) => {
+		const w = Math.max(3, (n(st.value) / top) * 100);
+		const drop = i > 0 && steps[i - 1].value ? Math.round((1 - n(st.value) / n(steps[i - 1].value)) * 100) : 0;
+		return `<div class="step"><span class="sfill" style="width:${w}%"></span><div class="srow">` +
+			`<span class="sname">${esc(st.label)}</span>` +
+			`<span class="sval"><span class="spct">${pct((st.value / top) * 100)}</span><span>${fmt(st.value)}</span>` +
+			`${i > 0 && drop > 0 ? `<span class="drop">−${drop}%</span>` : ""}</span></div></div>`;
+	}).join("")}</div>`;
+}
+
+function histCols(obj, opts) {
+	opts = opts || {};
+	const entries = opts.order ? opts.order.filter((k) => k in (obj || {})).map((k) => [k, obj[k]]) : Object.entries(obj || {});
+	if (!entries.length) return `<div class="emptynote">No data yet.</div>`;
+	const max = Math.max(...entries.map((e) => n(e[1])), 1);
+	return `<div class="cols">${entries.map(([k, v]) => {
+		const h = Math.max(3, (n(v) / max) * 82);
+		return `<div class="col"><span class="cn">${fmt(v)}</span><span class="cbar" style="height:${h}px"></span><span class="cl">${esc(opts.labelMap ? (opts.labelMap[k] || k) : k)}</span></div>`;
+	}).join("")}</div>`;
+}
+
+const r1 = (x) => Math.round(n(x) * 10) / 10;
+/* Per-edition rollup computed from the players array. A player is "demo" only
+ * when explicitly stamped edition:"demo"; everything else is the full game. */
+function editionStats(arr) {
+	const c = arr.length;
+	const sum = (f) => arr.reduce((a, p) => a + n(f(p)), 0);
+	const rate = (k) => (c ? Math.round((arr.filter((p) => p.activation && p.activation[k]).length / c) * 100) : 0);
+	const playSec = sum((p) => p.playSeconds);
+	const returning = arr.filter((p) => n(p.sessions) > 1).length;
+	return {
+		count: c,
+		playHours: r1(playSec / 3600),
+		avgMin: c ? Math.round(playSec / 60 / c) : 0,
+		avgSessions: c ? r1(sum((p) => p.sessions) / c) : 0,
+		totalActions: sum((p) => p.totalActions),
+		avgActions: c ? Math.round(sum((p) => p.totalActions) / c) : 0,
+		avgAch: c ? r1(sum((p) => p.achievements && p.achievements.earned) / c) : 0,
+		avgHealth: c ? Math.round(sum((p) => p.biomeSummary && p.biomeSummary.avgHealth) / c) : 0,
+		avgBiomes: c ? r1(sum((p) => p.unlockedBiomes) / c) : 0,
+		collected: rate("collected"), crafted: rate("crafted"), placed: rate("placed"),
+		attractedAnimal: rate("attractedAnimal"), unlockedSecondBiome: rate("unlockedSecondBiome"),
+		returningPct: c ? Math.round((returning / c) * 100) : 0,
+	};
+}
+function vsTable(rows, demo, full) {
+	const legend = `<div class="vslegend"><span class="li"><span class="sw" style="background:#d9a441"></span>Demo</span><span class="li"><span class="sw" style="background:var(--accent)"></span>Full</span></div>`;
+	const body = rows.map((row) => {
+		const dv = demo[row.key], fv = full[row.key];
+		const suf = row.suf || "";
+		const share = n(dv) + n(fv) > 0 ? (n(dv) / (n(dv) + n(fv))) * 100 : 50;
+		return `<div class="vsrow"><span class="vlab">${row.label}</span>` +
+			`<span class="vnums"><span class="vd">${fmt(dv)}${suf}</span><span class="vf">${fmt(fv)}${suf}</span></span>` +
+			`<span class="vbar"><i style="width:${share}%"></i></span></div>`;
+	}).join("");
+	return `${legend}<div class="vs">${body}</div>`;
+}
+
+function sec(title, sub, body) {
+	return `<section><div class="sec-head"><h2>${title}</h2>${sub ? `<span class="sub">${sub}</span>` : ""}</div>${body}</section>`;
+}
+function card(inner) { return `<div class="card">${inner}</div>`; }
+function cardTitled(title, tag, inner) { return `<div class="card"><h3>${title}${tag ? `<span class="tag">${tag}</span>` : ""}</h3>${inner}</div>`; }
+
+/* ------------------------------------------------------------------ *
+ * Main render
+ * ------------------------------------------------------------------ */
+function render(data) {
+	const s = (data && data.summary) || {};
+	const players = (data && data.players) || [];
+	const A = s.audience || {}, E = s.engagement || {}, R = s.retention || {}, P = s.progression || {};
+	const out = [];
+
+	/* ---- Overview KPIs ---- */
+	out.push(sec("Overview", "who is out there right now", `<div class="grid kpis">${[
+		kpi(fmt(s.players), "Total caretakers", "unique anonymous saves"),
+		kpi(`<span class="accent">${fmt(A.activeNow)}</span>`, "Active now", "seen in the last 5 minutes"),
+		kpi(fmt(A.activeLast24h), "Active · 24h"),
+		kpi(fmt(A.activeLast7d), "Active · 7d"),
+		kpi(fmt(A.newLast24h), "New · 24h", `${fmt(A.newLast7d)} in the last 7 days`),
+		kpi(fmt(A.dormant), "Dormant", "quiet for over a week"),
+	].join("")}</div>`));
+
+	/* ---- Engagement KPIs ---- */
+	out.push(sec("Engagement", "time spent tending the wild", `<div class="grid kpis">${[
+		kpi(`${fmt(E.totalPlayHours)}<small>hrs</small>`, "Total play time"),
+		kpi(`${fmt(E.avgPlayMinutesPerPlayer)}<small>min</small>`, "Avg per caretaker"),
+		kpi(fmt(E.totalSessions), "Sessions", `${n(E.avgSessionsPerPlayer)} avg per caretaker`),
+		kpi(`${fmt(E.avgSessionMinutes)}<small>min</small>`, "Avg session length"),
+		kpi(fmt(E.totalActions), "Total actions", `${fmt(E.avgActionsPerPlayer)} avg per caretaker`),
+		kpi(`<span class="accent">${pct(R.returningRatePct)}</span>`, "Return rate", `${fmt(R.returningPlayers)} came back`),
+	].join("")}</div>`));
+
+	/* ---- Editions: demo vs full ---- */
+	const edOf = (p) => (p.edition === "demo" ? "demo" : "full");
+	const demoPlayers = players.filter((p) => edOf(p) === "demo");
+	const fullPlayers = players.filter((p) => edOf(p) === "full");
+	const dStat = editionStats(demoPlayers), fStat = editionStats(fullPlayers);
+	const edSum = s.editions || {};
+	const acqEd = (s.acquisition || {}).editions || {};
+	const playersDonut = donut([
+		{ label: "Full", value: edSum.full != null ? edSum.full : fStat.count, color: "#4a7c46" },
+		{ label: "Demo", value: edSum.demo != null ? edSum.demo : dStat.count, color: "#d9a441" },
+	].filter((x) => x.value));
+	const installDonut = donut([
+		{ label: "Full", value: acqEd.full, color: "#4a7c46" },
+		{ label: "Demo", value: acqEd.demo, color: "#d9a441" },
+	].filter((x) => x.value));
+	const vsRows = [
+		{ key: "count", label: "Caretakers" },
+		{ key: "playHours", label: "Total play time", suf: "h" },
+		{ key: "avgMin", label: "Avg play / caretaker", suf: "m" },
+		{ key: "avgSessions", label: "Avg sessions / caretaker" },
+		{ key: "totalActions", label: "Total actions" },
+		{ key: "avgActions", label: "Avg actions / caretaker" },
+		{ key: "avgAch", label: "Avg achievements earned" },
+		{ key: "avgHealth", label: "Avg biome health", suf: "%" },
+		{ key: "avgBiomes", label: "Avg biomes unlocked" },
+		{ key: "returningPct", label: "Returned (2+ sessions)", suf: "%" },
+		{ key: "collected", label: "Collected a resource", suf: "%" },
+		{ key: "crafted", label: "Crafted an item", suf: "%" },
+		{ key: "placed", label: "Placed an object", suf: "%" },
+		{ key: "attractedAnimal", label: "Attracted an animal", suf: "%" },
+		{ key: "unlockedSecondBiome", label: "Unlocked 2nd biome", suf: "%" },
+	];
+	out.push(sec("Editions · demo vs full", "how the free demo compares to the full game", `<div class="grid two">` +
+		cardTitled("Caretakers by edition", "who is playing", playersDonut) +
+		(installDonut.includes("donutwrap") ? cardTitled("Installs by edition", "per device", installDonut) : "") +
+		`</div><div class="card" style="margin-top:.8rem"><h3>Every metric, side by side<span class="tag">demo vs full</span></h3>` +
+		vsTable(vsRows, dStat, fStat) + `</div>`));
+
+	/* ---- Characters gallery (rendered here, appended at the bottom) ---- */
+	let charSection = "";
+	const withApp = players.filter((p) => p && p.appearance);
+	if (withApp.length) {
+		// sort by achievement points / playtime so the most-developed caretakers lead
+		const sorted = [...withApp].sort((a, b) =>
+			n(b.achievements && b.achievements.points) - n(a.achievements && a.achievements.points) ||
+			n(b.playSeconds) - n(a.playSeconds));
+		const cards = sorted.map((p) => {
+			const mins = Math.round(n(p.playSeconds) / 60);
+			const ach = n(p.achievements && p.achievements.earned);
+			const biomes = n(p.unlockedBiomes || (p.biomeSummary && p.biomeSummary.biomesUnlocked));
+			const restored = n(p.biomeSummary && p.biomeSummary.biomesFullyRestored);
+            const meta = mins > 0
+                ? `<b>${mins}m</b> played · <b>${ach}</b>★`
+                : `just created`;
+			return `<div class="charcard">${avatarSVG(p.appearance)}<div class="cmeta">${meta}<br>${biomes} biome${biomes === 1 ? "" : "s"} unlocked</div>${restored > 0 ? `<span class="badge">✦ ${restored} restored</span>` : ""}</div>`;
+		}).join("");
+		charSection = sec("Caretakers they created", `${withApp.length} characters with saved looks · names hidden`,
+			`<div class="card charwrap"><div class="chargrid">${cards}</div></div>`);
+	}
+
+	/* ---- Acquisition + Activation funnels ---- */
+	const acq = s.acquisition || {};
+	const fun = s.funnel || {};
+	const acqCards = cardTitled("Acquisition funnel", "per device", funnel([
+		{ label: "Opened the app", value: acq.devices },
+		{ label: "Created a character", value: acq.converted },
+	]) + `<div class="grid three" style="margin-top:1rem">${[
+		kpi(fmt(acq.totalOpens), "App opens"),
+		kpi(`<span class="accent">${pct(acq.conversionPct)}</span>`, "Conversion"),
+		kpi(pct(acq.bounceRatePct), "Bounced"),
+	].join("")}</div>`);
+	const funSteps = funnel([
+		{ label: "Created character", value: fun.created },
+		{ label: "Collected a resource", value: fun.collected },
+		{ label: "Crafted an item", value: fun.crafted },
+		{ label: "Placed an object", value: fun.placed },
+		{ label: "Attracted an animal", value: fun.attractedAnimal },
+		{ label: "Unlocked 2nd biome", value: fun.unlockedSecondBiome },
+	]);
+	out.push(sec("Funnels", "from install to a thriving meadow",
+		`<div class="grid two">${acqCards}${cardTitled("Activation funnel", "all caretakers", funSteps)}</div>`));
+
+	/* ---- Progression ---- */
+	const tut = P.tutorialStepHistogram || {};
+	const tutDone = n(tut["99"]);
+	const tutTotal = Object.values(tut).reduce((a, v) => a + n(v), 0) || 1;
+	out.push(sec("Progression", "restoring the biomes", `<div class="grid two">` +
+		cardTitled("Restoration", null, `<div class="grid three">${[
+			kpi(`${fmt(P.avgBiomeHealth)}<small>%</small>`, "Avg biome health"),
+			kpi(fmt(P.biomesFullyRestored), "Biomes fully restored"),
+			kpi(n(P.avgUnlockedBiomes), "Avg biomes unlocked"),
+		].join("")}</div><div style="margin-top:.4rem" class="bars"><div class="bar"><span class="lab">Most loved</span><span class="track"><span class="fill gold" style="width:100%"></span></span><span class="num" style="text-transform:capitalize">${esc(P.mostPopularArea || "—")}</span></div></div>`) +
+		cardTitled("Tutorial completion", `${pct((tutDone / tutTotal) * 100)} finished`, histCols(tut, {
+			labelMap: { "0": "Step 0", "99": "Done" },
+		}) + `<div class="hint" style="color:var(--faint);font-size:.76rem;margin-top:.5rem">Step 99 = tutorial complete. Early drop-off shows where new caretakers pause.</div>`) +
+		`</div>`));
+
+	/* ---- Platforms / OS / versions ---- */
+	const plat = s.platforms || {}, oss = s.operatingSystems || {}, vers = s.versions || {};
+	const platSeg = [
+		{ label: "Desktop", value: plat.desktop, color: "#4a7c46" },
+		{ label: "Web", value: plat.web, color: "#6ea8c8" },
+	].filter((x) => x.value);
+	out.push(sec("Platforms & builds", "where the game is being played", `<div class="grid two">` +
+		cardTitled("Platform", null, donut(platSeg)) +
+		cardTitled("Operating system", null, barRows(objToEntries(oss), { labelMap: { mac: "macOS", windows: "Windows", linux: "Linux" }, cls: "sky" })) +
+		`</div><div class="card" style="margin-top:.8rem"><h3>Game version</h3>` +
+		barRows(objToEntries(vers), { cls: "gold" }) + `</div>`));
+
+	/* ---- Action totals ---- */
+	const acts = s.actionTotals || {};
+	const actLabels = {
+		resourcesCollected: "Resources collected", terraformActions: "Terraform actions", plantsPlanted: "Plants planted",
+		itemsCrafted: "Items crafted", objectsPlaced: "Objects placed", animalsReturned: "Animals returned",
+		itemsDiscarded: "Items discarded", animalsObserved: "Animals observed", chestDeposits: "Chest deposits",
+		tasksCompleted: "Tasks completed", toolsUpgraded: "Tools upgraded", homeUpgrades: "Home upgrades",
+		recolors: "Recolors", chestWithdrawals: "Chest withdrawals", objectsMoved: "Objects moved",
+		objectsRemoved: "Objects removed", homesBuilt: "Homes built",
+	};
+	out.push(sec("What caretakers do", "every tracked action, all-time", card(
+		barRows(objToEntries(acts).slice(0, 17), { labelMap: actLabels }))));
+
+	/* ---- Onboarding timing ---- */
+	const cr = s.creation || {}, ttfa = s.timeToFirstAction || {};
+	out.push(sec("Onboarding", "first impressions", `<div class="grid kpis">${[
+		kpi(`${n(cr.avgCreationSeconds)}<small>s</small>`, "Avg creation time", `${fmt(cr.savesWithTiming)} timed`),
+		kpi(`${n(cr.medianCreationSeconds)}<small>s</small>`, "Median creation time"),
+		kpi(`${n(ttfa.avgSeconds)}<small>s</small>`, "Time to first action", `${fmt(ttfa.playersMeasured)} measured`),
+		kpi(`${n(acq.avgCharactersPerPerson)}`, "Characters per person", `${fmt(acq.totalCharactersCreated)} created total`),
+	].join("")}</div>`));
+
+	/* ---- Achievements ---- */
+	const ach = s.achievements || {};
+	const byCat = ach.byCategory || {};
+	const catLabels = { "getting-started": "Getting started", biome: "Biome", preserve: "Preserve", mastery: "Mastery" };
+	out.push(sec("Achievements", "milestones earned across the meadow", `<div class="grid two">` +
+		cardTitled("Totals", null, `<div class="grid three">${[
+			kpi(fmt(ach.totalEarned), "Earned", `of ${fmt(ach.totalDefined)} defined`),
+			kpi(n(ach.avgPerPlayer), "Avg per caretaker"),
+			kpi(`${fmt(ach.avgPoints)}<small>pts</small>`, "Avg points"),
+		].join("")}</div><div style="margin-top:1rem">${barRows(objToEntries(byCat), { labelMap: catLabels, cls: "gold" })}</div>`) +
+		cardTitled("Completion spread", "% of achievements earned", histCols(ach.completionHistogram, {
+			order: ["0", "1-10", "11-20", "21-30", "31-40", "41-50"],
+			labelMap: { "0": "0%", "1-10": "1–10", "11-20": "11–20", "21-30": "21–30", "31-40": "31–40", "41-50": "41–50" },
+		}) + `<div class="hint" style="color:var(--faint);font-size:.76rem;margin-top:.5rem">Most caretakers are early on; a few have restored nearly everything.</div>`) +
+		`</div>`));
+
+	/* ---- Most-earned achievements ---- */
+	const rec = s.achievements && s.achievements.recentDistribution;
+	if (rec && Object.keys(rec).length) {
+		out.push(sec("Popular achievements", "most frequently earned", card(
+			barRows(objToEntries(rec).slice(0, 12), { cls: "" }))));
+	}
+
+	/* ---- Character gallery — kept at the bottom ---- */
+	if (charSection) out.push(charSection);
+
+	document.getElementById("root").innerHTML = out.join("");
+}
+
+/* ------------------------------------------------------------------ *
+ * Fetch + wire-up
+ * ------------------------------------------------------------------ */
+async function load() {
+	const root = document.getElementById("root");
+	const gen = document.getElementById("generated");
+	root.innerHTML = `<div class="skeleton">Gathering the meadow’s numbers…</div>`;
+	try {
+		const res = await fetch("../Metrics/", { headers: { accept: "application/json" } });
+		if (!res.ok) throw new Error(`Metrics endpoint returned ${res.status}`);
+		const data = await res.json();
+		render(data);
+		if (data.generatedAt) {
+			const d = new Date(data.generatedAt);
+			gen.textContent = `Updated ${d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}`;
+		}
+	} catch (err) {
+		root.innerHTML = `<div class="err"><b>Couldn’t load metrics.</b><br>${esc(err.message || err)}<br><span style="font-size:.8rem;opacity:.8">The dashboard reads from the <code>/Metrics/</code> endpoint on this host.</span></div>`;
+		gen.textContent = "";
+	}
+}
+
+document.getElementById("refresh").addEventListener("click", load);
+// expose for offline/unit rendering (jsdom smoke test)
+window.__renderDashboard = render;
+if (!window.__NO_AUTOLOAD) load();
+</script>
+</body>
+</html>
