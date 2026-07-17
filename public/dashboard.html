@@ -472,14 +472,9 @@ function render(data) {
 	const fullPlayers = players.filter((p) => edOf(p) === "full");
 	const dStat = editionStats(demoPlayers), fStat = editionStats(fullPlayers);
 	const edSum = s.editions || {};
-	const acqEd = (s.acquisition || {}).editions || {};
 	const playersDonut = donut([
 		{ label: "Full", value: edSum.full != null ? edSum.full : fStat.count, color: "#4a7c46" },
 		{ label: "Demo", value: edSum.demo != null ? edSum.demo : dStat.count, color: "#d9a441" },
-	].filter((x) => x.value));
-	const installDonut = donut([
-		{ label: "Full", value: acqEd.full, color: "#4a7c46" },
-		{ label: "Demo", value: acqEd.demo, color: "#d9a441" },
 	].filter((x) => x.value));
 	const vsRows = [
 		{ key: "count", label: "Caretakers" },
@@ -498,10 +493,9 @@ function render(data) {
 		{ key: "attractedAnimal", label: "Attracted an animal", suf: "%" },
 		{ key: "unlockedSecondBiome", label: "Unlocked 2nd biome", suf: "%" },
 	];
-	out.push(sec("Editions · demo vs full", "how the free demo compares to the full game", `<div class="grid two">` +
+	out.push(sec("Editions · demo vs full", "how the free demo compares to the full game",
 		cardTitled("Caretakers by edition", "who is playing", playersDonut) +
-		(installDonut.includes("donutwrap") ? cardTitled("Installs by edition", "per device", installDonut) : "") +
-		`</div><div class="card" style="margin-top:.8rem"><h3>Every metric, side by side<span class="tag">demo vs full</span></h3>` +
+		`<div class="card" style="margin-top:.8rem"><h3>Every metric, side by side<span class="tag">demo vs full</span></h3>` +
 		vsTable(vsRows, dStat, fStat) + `</div>`));
 
 	/* ---- Characters gallery (rendered here, appended at the bottom) ---- */
@@ -562,6 +556,18 @@ function render(data) {
 			labelMap: { "0": "Step 0", "99": "Done" },
 		}) + `<div class="hint" style="color:var(--faint);font-size:.76rem;margin-top:.5rem">Step 99 = tutorial complete. Early drop-off shows where new caretakers pause.</div>`) +
 		`</div>`));
+
+	/* ---- Time by area ---- */
+	const ad = s.areaDwell || {};
+	const byAreaMin = ad.byAreaMinutes && Object.keys(ad.byAreaMinutes).length
+		? ad.byAreaMinutes
+		: Object.fromEntries(Object.entries(ad.byAreaSeconds || {}).map(([k, v]) => [k, Math.round(n(v) / 60)]));
+	if (Object.keys(byAreaMin).length) {
+		const totalMin = ad.totalSeconds != null ? Math.round(n(ad.totalSeconds) / 60) : Object.values(byAreaMin).reduce((a, v) => a + n(v), 0);
+		out.push(sec("Time by area", "where caretakers spend their minutes", cardTitled(
+			"Minutes per area", `${fmt(totalMin)}m total · most time in ${esc(ad.mostTimeArea || objToEntries(byAreaMin)[0][0])}`,
+			barRows(objToEntries(byAreaMin), { cls: "sky", fmtNum: (v) => `${fmt(v)}m` }))));
+	}
 
 	/* ---- Platforms / OS / versions ---- */
 	const plat = s.platforms || {}, oss = s.operatingSystems || {}, vers = s.versions || {};
@@ -634,7 +640,9 @@ async function load() {
 	const gen = document.getElementById("generated");
 	root.innerHTML = `<div class="skeleton">Gathering the meadow’s numbers…</div>`;
 	try {
-		const res = await fetch("../Metrics/", { headers: { accept: "application/json" } });
+		// Exclude dev/test saves so they don't skew the numbers (matches the
+		// server's ?exclude filter — case-insensitive, exact display-name match).
+		const res = await fetch("../Metrics/?exclude=bailey_test", { headers: { accept: "application/json" } });
 		if (!res.ok) throw new Error(`Metrics endpoint returned ${res.status}`);
 		const data = await res.json();
 		render(data);
