@@ -2,6 +2,7 @@ import { useGame } from '../state';
 import { COOP_ENABLED } from '../features';
 import { useI18n } from '../i18n/react';
 import { visibleShortcuts } from '../shortcuts';
+import { isTouchDevice } from './MobileControls';
 import { savedTutorialPos } from './Tutorial';
 import { Icon } from './icons';
 
@@ -68,21 +69,41 @@ export function HelpModal() {
 							</div>
 						))}
 					</div>
-					<div className="help-section-label">
-						<Icon name="keyboard" size={15} /> {t('panels.help.keysLabel')}
-					</div>
-					<div className="key-list">
-						{keys.map((k) => (
-							<div className="key-row" key={k.does}>
-								<span className="kbds">
-									{k.keys.map((key) => (
-										<kbd key={key}>{key}</kbd>
-									))}
-								</span>
-								<span>{t(k.does)}</span>
+					{/* Touch plays by joystick + taps, so it gets its own short list of
+					    gestures instead of the keyboard wall. */}
+					{isTouchDevice() && (
+						<>
+							<div className="help-section-label">
+								<Icon name="sparkle" size={15} /> {t('panels.help.touchLabel')}
 							</div>
-						))}
-					</div>
+							<div className="key-list">
+								{(['move', 'interact', 'zoom', 'place'] as const).map((k) => (
+									<div className="key-row" key={k}>
+										<span>{t(`panels.help.touch.${k}`)}</span>
+									</div>
+								))}
+							</div>
+						</>
+					)}
+					{!isTouchDevice() && (
+						<>
+							<div className="help-section-label">
+								<Icon name="keyboard" size={15} /> {t('panels.help.keysLabel')}
+							</div>
+							<div className="key-list">
+								{keys.map((k) => (
+									<div className="key-row" key={k.does}>
+										<span className="kbds">
+											{k.keys.map((key) => (
+												<kbd key={key}>{key}</kbd>
+											))}
+										</span>
+										<span>{t(k.does)}</span>
+									</div>
+								))}
+							</div>
+						</>
+					)}
 				</div>
 			</div>
 		</div>

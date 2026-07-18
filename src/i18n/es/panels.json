@@ -471,6 +471,13 @@
 		"intro": "Wild Willows es un ciclo apacible: recolecta lo que la naturaleza ha soltado, fabrícalo para convertirlo en hábitat, colócalo en el bioma y dale la bienvenida a la fauna que vuelve a casa. Se desbloquean recetas nuevas a medida que cada bioma se recupera.",
 		"loopLabel": "El ciclo",
 		"keysLabel": "Teclado y ratón",
+		"touchLabel": "Controles táctiles",
+		"touch": {
+			"move": "Caminar — arrastra el joystick o toca el suelo libre para ir allí",
+			"interact": "Toca algo que brille para recolectar, abrir o hablar — de lejos, primero caminarás hasta allí",
+			"zoom": "Pellizca con dos dedos para acercar o alejar la vista",
+			"place": "Al colocar: toca una casilla para soltar el objeto"
+		},
 		"loop": {
 			"gather": {
 				"title": "Recolectar",

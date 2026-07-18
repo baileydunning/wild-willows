@@ -1,15 +1,16 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { bridge } from '../game/bridge';
-import { useI18n } from '../i18n/react';
-import { Icon } from './icons';
 
 export function isTouchDevice() {
 	return typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
 }
 
-/** Virtual joystick + interact button for phones and tablets. */
+/** Virtual joystick (bottom-right) for phones and tablets. There is no
+ *  separate interact button — tapping a thing in the world interacts with it
+ *  (walking you over first if it's out of reach; see WorldScene). App.tsx
+ *  unmounts this while any panel/card overlay is open so the joystick never
+ *  floats on top of a modal. */
 export function MobileControls() {
-	const { t } = useI18n();
 	const [active, setActive] = useState(false);
 	const baseRef = useRef<HTMLDivElement>(null);
 	const [knob, setKnob] = useState({ x: 0, y: 0 });
@@ -48,34 +49,22 @@ export function MobileControls() {
 	};
 
 	return (
-		<>
-			<div
-				ref={baseRef}
-				className={`joystick ${active ? 'active' : ''}`}
-				onPointerDown={(e) => {
-					pointerId.current = e.pointerId;
-					(e.target as HTMLElement).setPointerCapture(e.pointerId);
-					setActive(true);
-					updateFromEvent(e);
-				}}
-				onPointerMove={(e) => {
-					if (pointerId.current === e.pointerId) updateFromEvent(e);
-				}}
-				onPointerUp={release}
-				onPointerCancel={release}
-			>
-				<div className="joystick-knob" style={{ transform: `translate(${knob.x * 26}px, ${knob.y * 26}px)` }} />
-			</div>
-			<button
-				className="interact-btn"
-				aria-label={t('app.mobile.interact')}
-				onPointerDown={(e) => {
-					e.preventDefault();
-					bridge.emit('mobile-interact');
-				}}
-			>
-				<Icon name="sparkle" size={26} />
-			</button>
-		</>
+		<div
+			ref={baseRef}
+			className={`joystick ${active ? 'active' : ''}`}
+			onPointerDown={(e) => {
+				pointerId.current = e.pointerId;
+				(e.target as HTMLElement).setPointerCapture(e.pointerId);
+				setActive(true);
+				updateFromEvent(e);
+			}}
+			onPointerMove={(e) => {
+				if (pointerId.current === e.pointerId) updateFromEvent(e);
+			}}
+			onPointerUp={release}
+			onPointerCancel={release}
+		>
+			<div className="joystick-knob" style={{ transform: `translate(${knob.x * 26}px, ${knob.y * 26}px)` }} />
+		</div>
 	);
 }

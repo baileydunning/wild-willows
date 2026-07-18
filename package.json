@@ -33,15 +33,25 @@
 		"desktop:run": "electron .",
 		"desktop:pack": "npm run build && electron-builder --dir",
 		"desktop:dist": "npm run build && electron-builder",
-		"desktop:mas": "npm run build && electron-builder --mac mas --universal"
+		"desktop:mas": "npm run build && electron-builder --mac mas --universal",
+		"ios:add": "cap add ios",
+		"ios:sync": "npm run build:web && cap sync ios",
+		"ios:open": "cap open ios"
 	},
+	"iosComment": "iOS App Store build via Capacitor (see docs/ios-runbook.md). One-time: `npm run ios:add` creates ios/ from the template. Every build: `npm run ios:sync` rebuilds web/ and copies it into the Xcode project, then archive/upload from Xcode (`npm run ios:open`). The webview app is the same offline solo build as desktop; src/solo/iosSaves.ts swaps localStorage saves for durable files via @capacitor/filesystem.",
 	"masComment": "Mac App Store variant (`npm run desktop:mas`). Inherits `mac` config, so everything notarized-DMG-specific is overridden here: MAS uses the App Sandbox instead of the hardened runtime + notarization, its own entitlements pair, and a provisioning profile from developer.apple.com (put it at build/embedded.provisionprofile — gitignored; CI decodes it from a secret). steamworks.js is excluded: Steam can't run inside the MAS sandbox and electron/steam.js already no-ops when the module is missing. ITSAppUsesNonExemptEncryption=false answers App Store Connect's export-compliance question (HTTPS only).",
 	"comment": "v1 ships SOLO-ONLY on itch.io: solo runs the game logic in-app against local save files (fully offline), so the desktop app needs no server and no network. The same itch page ALSO hosts a browser-playable demo — a separate static web build (`DEMO=true npm run build:web`, published to the html5 channel by .github/workflows/itch-demo.yml) that plays against the hosted Harper with an offline solo fallback and hard-stops after 5 animals; see src/demo.ts and the README. `steamworks.js` is the only runtime dependency electron-builder must package (native, desktop-only, asarUnpacked). `harper` is a DEV-ONLY tool now (local web dev via `harper dev .`, and the co-op E2E harness) — it is intentionally NOT a production dependency so electron-builder doesn't bundle its heavy/native tree into every platform's app (which also de-risks the cross-platform CI builds). Co-op (hosted Harper) is hidden behind COOP_ENABLED in src/features.ts; flip it on and move `harper` back to `dependencies` if you ship co-op.",
 	"dependencies": {
 		"steamworks.js": "^0.4.0"
 	},
 	"devDependencies": {
+		"@capacitor/cli": "^8.4.2",
+		"@capacitor/core": "^8.4.2",
+		"@capacitor/filesystem": "^8.1.2",
+		"@capacitor/ios": "^8.4.2",
+		"@fontsource/fredoka": "^5.2.10",
 		"@fontsource/opendyslexic": "^5.2.5",
+		"@fontsource/quicksand": "^5.2.10",
 		"@playwright/test": "^1.49.1",
 		"@types/react": "^18.3.12",
 		"@types/react-dom": "^18.3.1",

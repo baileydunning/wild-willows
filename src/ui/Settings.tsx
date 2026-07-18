@@ -6,6 +6,7 @@ import { bridge } from '../game/bridge';
 import { COOP_ENABLED } from '../features';
 import { useGame } from '../state';
 import { visibleShortcuts } from '../shortcuts';
+import { isTouchDevice } from './MobileControls';
 import { hasKey, LOCALE_NAMES, chooseLocale } from '../i18n';
 import { useI18n } from '../i18n/react';
 import { usePrefs, setPrefs, type TextScale, type ColorblindMode } from '../prefs';
@@ -338,8 +339,11 @@ export function SettingsPanel() {
 		}
 	};
 
-	// Export the active solo save to a downloadable JSON file — the whole world
-	// plus the caretaker's name and look — so the player has an offline backup.
+	// Export the active solo save to a JSON file — the whole world plus the
+	// caretaker's name and look — so the player has an offline backup. On iOS
+	// (and other touch devices) the anchor-download trick is a silent no-op in
+	// WKWebView, so the file goes through the native share sheet instead
+	// (AirDrop / Files / Mail); desktop and normal browsers keep the download.
 	const exportSave = async () => {
 		setExporting(true);
 		setError(null);
@@ -349,8 +353,18 @@ export function SettingsPanel() {
 				setError(t('app.settings.errExport'));
 				return;
 			}
-			const blob = new Blob([out.contents], { type: 'application/json' });
-			const url = URL.createObjectURL(blob);
+			const file = new File([out.contents], out.filename, { type: 'application/json' });
+			if (isTouchDevice() && navigator.canShare?.({ files: [file] })) {
+				try {
+					await navigator.share({ files: [file] });
+					notify(t('app.settings.saveExported'));
+					return;
+				} catch (e: any) {
+					if (e?.name === 'AbortError') return; // player closed the share sheet — not an error
+					// share failed for a real reason — fall through to the download path
+				}
+			}
+			const url = URL.createObjectURL(file);
 			const a = document.createElement('a');
 			a.href = url;
 			a.download = out.filename;
@@ -467,21 +481,26 @@ export function SettingsPanel() {
 					</h3>
 					<AccessibilityControls />
 
-					<h3>
-						<Icon name="keyboard" size={15} /> {t('app.settings.controls')}
-					</h3>
-					<div className="key-list">
-						{visibleShortcuts(isCoop).map((k) => (
-							<div className="key-row" key={k.does}>
-								<span className="kbds">
-									{k.keys.map((key) => (
-										<kbd key={key}>{key}</kbd>
-									))}
-								</span>
-								<span>{t(k.does)}</span>
+					{/* Keyboard shortcut list is desktop-only; touch plays by joystick + taps. */}
+					{!isTouchDevice() && (
+						<>
+							<h3>
+								<Icon name="keyboard" size={15} /> {t('app.settings.controls')}
+							</h3>
+							<div className="key-list">
+								{visibleShortcuts(isCoop).map((k) => (
+									<div className="key-row" key={k.does}>
+										<span className="kbds">
+											{k.keys.map((key) => (
+												<kbd key={key}>{key}</kbd>
+											))}
+										</span>
+										<span>{t(k.does)}</span>
+									</div>
+								))}
 							</div>
-						))}
-					</div>
+						</>
+					)}
 
 					{isSolo && (
 						<>

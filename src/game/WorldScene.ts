@@ -159,6 +159,12 @@ export class WorldScene extends Phaser.Scene {
 	private lastGateInfo: string | null = null;
 	private dynamicSig = '';
 	private isTouch = false;
+	// Tap-to-move (touch): world point the caretaker is walking toward. Set by
+	// tapping open ground, cleared on arrival or by any joystick/key input.
+	private moveTarget: { x: number; y: number } | null = null;
+	// Touch: the interactable a distant tap targeted — walk over, then run its
+	// action the moment it comes within reach (no separate interact button).
+	private tapInteract: Interactable | null = null;
 	private alive = false; // true between create() and shutdown (scene.isActive() is false DURING create)
 	private waterTiles = new Set<string>();
 	private waterTileCenters: { x: number; y: number }[] = []; // pixel centers of open-water tiles
@@ -485,8 +491,10 @@ export class WorldScene extends Phaser.Scene {
 		// nearest-interactable highlight (pulsing ring + key hint)
 		const ring = this.img(0, 0, 'ring').setTint(0xffe9a8);
 		const badgeBg = this.add.circle(0, -30, 9.5, 0x2b3321, 0.92).setStrokeStyle(1.5, 0xffe9a8, 1);
+		// Touch shows a little sparkle icon (there's no interact key to name);
+		// desktop keeps the E key hint.
 		const badgeText = this.add
-			.text(0, -30, this.isTouch ? '·' : 'E', {
+			.text(0, -30, this.isTouch ? '✦' : 'E', {
 				fontFamily: 'Quicksand, sans-serif',
 				fontSize: '11px',
 				color: '#f0e8d4',
@@ -586,7 +594,6 @@ export class WorldScene extends Phaser.Scene {
 		// restart. (Indoors always rebuilds, so the decorated room updates too.)
 		this.unsubs.push(bridge.on('home-upgraded', () => this.playBuild()));
 		this.unsubs.push(bridge.on('tool-selected', (toolId: string) => (this.activeTool = toolId)));
-		this.unsubs.push(bridge.on('mobile-interact', () => this.nearestInteractable()?.action()));
 		this.unsubs.push(bridge.on('collected', (p: any) => this.playPickup(p)));
 		this.unsubs.push(bridge.on('terraformed', (p: any) => this.playTerraformFx(p)));
 		this.unsubs.push(
@@ -615,6 +622,9 @@ export class WorldScene extends Phaser.Scene {
 			// A panel/card/help overlay is open — swallow the click so it doesn't
 			// move the player or place items on the world behind the modal.
 			if (bridge.shared.uiBlocking) return;
+			// A second finger landing means pinch-to-zoom — a camera gesture, so
+			// it must never paint, place, terraform, or order a walk.
+			if (this.isTouch && this.input.pointer1?.isDown && this.input.pointer2?.isDown) return;
 			const tx = Math.floor(pointer.worldX / TILE);
 			const ty = Math.floor(pointer.worldY / TILE);
 			// paint tool (indoors): recolor whatever you click — an item, the rug,
@@ -671,8 +681,48 @@ export class WorldScene extends Phaser.Scene {
 			// terraform with shovel / watering can on an empty reachable tile
 			if (this.terraformAction() && (!over || over.length === 0) && this.tileReachable(tx, ty)) {
 				bridge.emit('terraform-at', this.terraformPayload(tx, ty));
+				return;
+			}
+			// (pinch-to-zoom lives on pointermove below)
+			// tap-to-move (touch only): tapping open ground walks the caretaker
+			// there. Taps on interactables (`over` non-empty) keep their own
+			// handlers; the target is clamped to the same walkable bounds as
+			// handleMovement so a tap past the world edge can't wedge the
+			// caretaker against the boundary forever.
+			if (this.isTouch && (!over || over.length === 0)) {
+				this.tapInteract = null; // a fresh ground tap supersedes a walk-to-interact
+				this.moveTarget = {
+					x: Phaser.Math.Clamp(pointer.worldX, 18, this.worldW - 18),
+					y: Phaser.Math.Clamp(pointer.worldY, this.playTop * TILE + 20, this.worldH - 18),
+				};
 			}
 		});
+
+		// Pinch-to-zoom (touch): two fingers stretch or squeeze the camera window
+		// between the same limits as the +/− keys on desktop. The first frame with
+		// both fingers down only records their span; each move after that scales
+		// userZoom by how much the span changed, applied instantly (no easing) so
+		// the world tracks the fingers.
+		if (this.isTouch) {
+			let pinchSpan = 0;
+			this.input.on('pointermove', () => {
+				const p1 = this.input.pointer1;
+				const p2 = this.input.pointer2;
+				if (p1?.isDown && p2?.isDown) {
+					const span = Phaser.Math.Distance.Between(p1.x, p1.y, p2.x, p2.y);
+					if (pinchSpan > 0 && span > 0) {
+						userZoom = Phaser.Math.Clamp((userZoom * span) / pinchSpan, USER_ZOOM_MIN, USER_ZOOM_MAX);
+						this.applyZoom();
+					}
+					pinchSpan = span;
+					// a pinch is a camera gesture — cancel any pending walk order
+					this.moveTarget = null;
+					this.tapInteract = null;
+				} else {
+					pinchSpan = 0;
+				}
+			});
+		}
 	}
 
 	/**
@@ -1870,8 +1920,19 @@ export class WorldScene extends Phaser.Scene {
 			}
 			if (pointer.event && (pointer.event as MouseEvent).shiftKey) return; // shift = pick up
 			const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, it.x, it.y);
-			if (dist <= 155) it.action();
-			else bridge.emit('toast', { text: t('game.toast.walkCloser'), kind: 'info' });
+			if (dist <= 155) {
+				it.action();
+			} else if (this.isTouch) {
+				// Touch: tapping something out of reach walks you over and interacts
+				// on arrival — one tap does the whole thing, no interact button.
+				this.tapInteract = it;
+				this.moveTarget = {
+					x: Phaser.Math.Clamp(it.x, 18, this.worldW - 18),
+					y: Phaser.Math.Clamp(it.y, this.playTop * TILE + 20, this.worldH - 18),
+				};
+			} else {
+				bridge.emit('toast', { text: t('game.toast.walkCloser'), kind: 'info' });
+			}
 		});
 	}
 
@@ -3700,6 +3761,34 @@ export class WorldScene extends Phaser.Scene {
 		if (vx === 0 && vy === 0 && (Math.abs(joy.x) > 0.15 || Math.abs(joy.y) > 0.15)) {
 			vx = joy.x;
 			vy = joy.y;
+		}
+		// tap-to-move: deliberate stick/key input always overrides a pending tap;
+		// otherwise steer toward the tapped point until we're close enough.
+		if (vx !== 0 || vy !== 0) {
+			this.moveTarget = null;
+			this.tapInteract = null;
+		} else if (this.moveTarget) {
+			// Walking to a tapped interactable: run its action the moment it comes
+			// within the same reach a direct tap uses, rather than walking onto it.
+			if (this.tapInteract) {
+				const d = Phaser.Math.Distance.Between(this.player.x, this.player.y, this.tapInteract.x, this.tapInteract.y);
+				if (d <= 150) {
+					const it = this.tapInteract;
+					this.tapInteract = null;
+					this.moveTarget = null;
+					it.action();
+					return;
+				}
+			}
+			const dx = this.moveTarget.x - this.player.x;
+			const dy = this.moveTarget.y - this.player.y;
+			if (Math.hypot(dx, dy) < 6) {
+				this.moveTarget = null;
+				this.tapInteract = null;
+			} else {
+				vx = dx;
+				vy = dy; // normalized by `len` below like any other input
+			}
 		}
 		if (vx === 0 && vy === 0) {
 			// settle back upright when standing still

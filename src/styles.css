@@ -25,7 +25,13 @@ html, body, #root {
 	font-weight: 500;
 	background: #26301f;
 	color: var(--ink);
+	/* iOS: a long-press must not pop the text-selection magnifier / share
+	   callout over the game. Real text entry opts back in below. */
+	-webkit-user-select: none;
+	user-select: none;
+	-webkit-touch-callout: none;
 }
+input, textarea { -webkit-user-select: text; user-select: text; }
 
 h1, h2, h3, .game-title, .hud-area-name {
 	font-family: var(--font-display);
@@ -506,7 +512,7 @@ input {
 @keyframes pulse { 50% { opacity: 0.45; } }
 
 .hud-bottom {
-	position: absolute; bottom: 12px; left: 50%; transform: translateX(-50%); z-index: 10;
+	position: absolute; bottom: calc(12px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); z-index: 10;
 	background: rgba(43, 51, 33, 0.9); color: #f0e8d4;
 	padding: 8px 20px; border-radius: 22px; font-size: calc(13.5px * var(--ui-scale)); font-weight: 600;
 	max-width: 92%; text-align: center;
@@ -1078,13 +1084,13 @@ kbd {
 
 /* ================= toolbelt ================= */
 .toolbelt {
-	position: absolute; left: 50%; transform: translateX(-50%); bottom: 56px; z-index: 11;
+	position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(56px + env(safe-area-inset-bottom, 0px)); z-index: 11;
 	display: flex; gap: 7px; padding: 8px 10px;
 	background: rgba(250, 245, 232, 0.94); border: 1.5px solid var(--line);
 	border-radius: 18px; box-shadow: 0 4px 16px rgba(33, 41, 25, 0.25);
 }
 .paint-palette {
-	position: absolute; left: 50%; transform: translateX(-50%); bottom: 132px; z-index: 12;
+	position: absolute; left: 50%; transform: translateX(-50%); bottom: calc(132px + env(safe-area-inset-bottom, 0px)); z-index: 12;
 	display: flex; flex-wrap: wrap; justify-content: center; gap: 5px; padding: 7px 9px; max-width: 86vw;
 	background: rgba(250, 245, 232, 0.97); border: 1.5px solid var(--line);
 	border-radius: 14px; box-shadow: 0 4px 16px rgba(33, 41, 25, 0.25);
@@ -1112,11 +1118,20 @@ kbd {
 .belt-divider { width: 1.5px; align-self: stretch; background: var(--line); margin: 2px 3px; }
 .tool-slot.craft { color: var(--gold); }
 .tool-slot.craft.on { color: #fff; }
-@media (pointer: coarse) { .tool-key { display: none; } }
+@media (pointer: coarse) {
+	/* no keyboard on touch: hide the number-key hints on the tool slots and
+	   the letter badges on the top-bar panel buttons */
+	.tool-key, .nav-key { display: none; }
+	/* keep the centered pop-up bars (paint palette, placement menu) from
+	   reaching under the joystick parked in the bottom-right corner */
+	.paint-palette, .placement-menu { max-width: calc(100vw - 320px); }
+}
 
 /* ================= activity log (dialogue feed) ================= */
 .activity-log {
-	position: absolute; left: 12px; bottom: 56px; z-index: 9;
+	position: absolute; z-index: 9;
+	left: calc(12px + env(safe-area-inset-left, 0px));
+	bottom: calc(56px + env(safe-area-inset-bottom, 0px));
 	display: flex; flex-direction: column; gap: 3px;
 	max-width: 320px; pointer-events: none;
 }
@@ -1235,8 +1250,8 @@ kbd {
 
 /* ================= placement menu & chest actions ================= */
 .placement-menu {
-	position: absolute; bottom: 118px; left: 50%; transform: translateX(-50%); z-index: 26;
-	display: flex; align-items: center; gap: 8px;
+	position: absolute; bottom: calc(118px + env(safe-area-inset-bottom, 0px)); left: 50%; transform: translateX(-50%); z-index: 26;
+	display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: center;
 	background: var(--paper); border: 2px solid #d9c89a; border-radius: 16px;
 	padding: 9px 14px; box-shadow: var(--shadow);
 	animation: slidein 0.18s ease;
@@ -1268,9 +1283,16 @@ kbd {
 .feedback-actions .field { flex: 1 1 220px; min-width: 0; }
 .feedback-actions .field input { width: 100%; min-width: 0; }
 
-/* ================= mobile controls ================= */
+/* ================= mobile controls =================
+   Joystick lives bottom-RIGHT (thumb of the hand cradling the phone in
+   landscape). Interactions are direct taps on things in the world — there is
+   no separate interact button. Safe-area insets keep the stick clear of the
+   iPhone home indicator and rounded corners (viewport-fit=cover draws
+   edge-to-edge, so without these it would hug the screen's lip). */
 .joystick {
-	position: absolute; left: 18px; bottom: 116px; z-index: 40;
+	position: absolute; z-index: 40;
+	right: calc(18px + env(safe-area-inset-right, 0px));
+	bottom: calc(116px + env(safe-area-inset-bottom, 0px));
 	width: 112px; height: 112px; border-radius: 50%;
 	background: rgba(250, 245, 232, 0.28); border: 2px solid rgba(250, 245, 232, 0.55);
 	touch-action: none; backdrop-filter: blur(2px);
@@ -1283,51 +1305,75 @@ kbd {
 	box-shadow: 0 3px 10px rgba(33, 41, 25, 0.4);
 	pointer-events: none;
 }
-.interact-btn {
-	position: absolute; right: 20px; bottom: 128px; z-index: 40;
-	width: 72px; height: 72px; border-radius: 50%;
-	background: var(--green); color: #fff; border: 3px solid #fff;
-	box-shadow: 0 5px 18px rgba(33, 41, 25, 0.45);
-	display: flex; align-items: center; justify-content: center;
-	touch-action: manipulation;
-}
-.interact-btn:active { transform: scale(0.94); }
 
 /* ================= responsive / mobile ================= */
-@media (max-width: 720px) {
-	.help-steps, .key-list, .grid, .columns { grid-template-columns: 1fr; }
-	.creator-cols { flex-direction: column; align-items: center; }
-	.welcome-card { padding: 20px 18px 18px; }
-	.game-title { font-size: calc(40px * var(--ui-scale)); }
-	.welcome-stack { gap: 16px; }
-	.welcome-title { font-size: calc(46px * var(--ui-scale)); }
+/* ================= compact layout =================
+   Applied via body.compact-ui (set in main.tsx): ALWAYS on touch devices —
+   a landscape iPhone is 844+ CSS px wide, so a max-width media query never
+   fired on the device that needed this most — and on desktop only when the
+   window is ≤720px wide (the same trigger the old media query used). */
+body.compact-ui .help-steps, body.compact-ui .key-list, body.compact-ui .grid, body.compact-ui .columns { grid-template-columns: 1fr; }
+body.compact-ui .creator-cols { flex-direction: column; align-items: center; }
+body.compact-ui .welcome-card { padding: 20px 18px 18px; }
+body.compact-ui .game-title { font-size: calc(40px * var(--ui-scale)); }
+body.compact-ui .welcome-stack { gap: 16px; }
+body.compact-ui .welcome-title { font-size: calc(46px * var(--ui-scale)); }
 
-	.panel-backdrop { align-items: flex-end; }
-	.panel, .panel-wide { width: 100%; max-width: 100%; max-height: 76vh; border-radius: 22px 22px 0 0; border-bottom: none; }
-
-	.hud-top-left { min-width: 0; max-width: 46vw; padding: 7px 10px; }
-	.hud-area-name { font-size: calc(14px * var(--ui-scale)); }
-	.meter-label { display: none; }
-	.hud-top-right { padding: 6px 7px; gap: 4px; flex-wrap: wrap; max-width: 62vw; justify-content: flex-end; }
-	.hud-top-right .icon-btn { width: 38px; height: 38px; }
-	/* on small screens hide the tiny group labels and dividers to save room */
-	.nav-group-label { display: none; }
-	.nav-group + .nav-group { border-left: none; padding-left: 0; }
-	.nav-group-system .nav-group-btns { margin-top: 0; }
-	.save-text, .save-pill span { display: none; }
-	.save-pill { padding: 5px 7px; }
-
-	.toolbelt { bottom: 46px; padding: 6px 8px; gap: 5px; }
-	.tool-slot { width: 42px; height: 42px; }
-	.hud-bottom { bottom: 6px; font-size: calc(12px * var(--ui-scale)); padding: 6px 14px; max-width: 96%; }
-	.activity-log { display: none; } /* the toasts + tutorial carry mobile feedback */
-	.tutorial-card { top: auto; bottom: 104px; left: 8px; right: 8px; width: auto; }
-	.tutorial-main { padding: 10px 12px 0; }
-	.tutorial-footer { padding: 8px 12px 10px; }
-	.tutorial-text { font-size: calc(12px * var(--ui-scale)); }
-	.toasts { top: 76px; right: 8px; }
-	.toast { max-width: 70vw; font-size: calc(12.5px * var(--ui-scale)); }
+body.compact-ui .panel-backdrop { align-items: flex-end; }
+body.compact-ui .panel, body.compact-ui .panel-wide {
+	width: 100%; max-width: 100%; max-height: 76vh; border-radius: 22px 22px 0 0; border-bottom: none;
+	padding-bottom: env(safe-area-inset-bottom, 0px); /* sheet content clears the home indicator */
 }
+
+body.compact-ui .hud-top-left { min-width: 0; max-width: 46vw; padding: 7px 10px; }
+body.compact-ui .hud-area-name { font-size: calc(14px * var(--ui-scale)); }
+body.compact-ui .meter-label { display: none; }
+body.compact-ui .hud-top-right { padding: 6px 7px; gap: 4px; flex-wrap: wrap; max-width: 62vw; justify-content: flex-end; }
+body.compact-ui .hud-top-right .icon-btn { width: 38px; height: 38px; }
+/* in the compact HUD hide the tiny group labels and dividers to save room */
+body.compact-ui .nav-group-label { display: none; }
+body.compact-ui .nav-group + .nav-group { border-left: none; padding-left: 0; }
+body.compact-ui .nav-group-system .nav-group-btns { margin-top: 0; }
+body.compact-ui .save-text, body.compact-ui .save-pill span { display: none; }
+body.compact-ui .save-pill { padding: 5px 7px; }
+
+body.compact-ui .toolbelt { bottom: calc(46px + env(safe-area-inset-bottom, 0px)); padding: 6px 8px; gap: 5px; }
+body.compact-ui .tool-slot { width: 42px; height: 42px; }
+body.compact-ui .hud-bottom { bottom: calc(6px + env(safe-area-inset-bottom, 0px)); font-size: calc(12px * var(--ui-scale)); padding: 6px 14px; max-width: 96%; }
+body.compact-ui .activity-log { display: none; } /* the toasts + tutorial carry mobile feedback */
+/* right edge stops short of the joystick's corner so the guide never sits
+   under the stick (the header is a drag handle if it's still in the way) */
+body.compact-ui .tutorial-card { top: auto; bottom: calc(104px + env(safe-area-inset-bottom, 0px)); left: 8px; right: calc(150px + env(safe-area-inset-right, 0px)); width: auto; }
+body.compact-ui .tutorial-main { padding: 10px 12px 0; }
+body.compact-ui .tutorial-footer { padding: 8px 12px 10px; }
+body.compact-ui .tutorial-text { font-size: calc(12px * var(--ui-scale)); }
+body.compact-ui .toasts { top: 76px; right: 8px; }
+body.compact-ui .toast { max-width: 70vw; font-size: calc(12.5px * var(--ui-scale)); }
+
+/* --- compact panel simplification: same content, less of it at once ---
+   Secondary description lines (recipe effects, journal blurbs) clamp to two
+   lines instead of running long, list rows breathe a little more, and the
+   controls you actually tap (close, actions, toggles) grow to comfortable
+   thumb size. Nothing is removed — long text just stops dominating a small
+   sheet, and the full line still shows on the item's own card/detail view. */
+body.compact-ui .panel .muted.small,
+body.compact-ui .panel-wide .muted.small {
+	display: -webkit-box;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+}
+body.compact-ui .recipe { padding: 12px 14px; gap: 12px; }
+body.compact-ui .panel-head { padding: 12px 16px 10px; }
+body.compact-ui .panel-head .icon-btn { width: 42px; height: 42px; }
+body.compact-ui .recipe-actions button,
+body.compact-ui .gear-toggle,
+body.compact-ui .chest-actions button {
+	min-height: 40px;
+}
+/* the weather table is the one true table in the UI — let it scroll sideways
+   in a sheet rather than squeezing its columns to unreadable widths */
+body.compact-ui .wx-table { display: block; overflow-x: auto; }
 
 /* ================= crafting area tags ================= */
 .area-tags {

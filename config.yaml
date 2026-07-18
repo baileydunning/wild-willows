@@ -1,9 +1,5 @@
 # Wild Willows — Harper application config
-#
-# ENDPOINTS ONLY: the hosted Harper serves no static files. The game UI ships
-# inside the desktop app (locally, `npm run dev:web` serves it and proxies API
-# calls here). The privacy / age-suitability pages are served by endpoints in
-# resources.js (GET /privacy.html, GET /age-rating.html), not static hosting.
+
 rest: true
 
 graphqlSchema:
@@ -12,9 +8,5 @@ graphqlSchema:
 jsResource:
   files: 'resources.js'
 
-# Seed-table files only — enumerated (brace glob) rather than data/*.json
-# because data/weather.json is NOT a seed file: it's build-time config imported
-# by server/weather.ts + src/weather.ts, with no database/table/records shape,
-# and the data loader throws "missing required table property" if it sweeps it up.
 dataLoader:
   files: 'data/{achievements,animals-1,animals-2,biomes,habitat-objects,recipes,resources,tools}.json'

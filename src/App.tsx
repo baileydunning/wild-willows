@@ -358,7 +358,9 @@ function GameScreen() {
 				<Toolbelt />
 				<ActivityLog />
 				<Tutorial />
-				<MobileControls />
+				{/* Same condition as uiBlocking above: the joystick unmounts while a
+				    panel/card/help overlay is open so it never floats over a modal. */}
+				{!panel && !game.helpOpen && !clickedBed && !devOpen && <MobileControls />}
 				<JoinApprovalPopup />
 				<Toasts />
 				<Confetti />

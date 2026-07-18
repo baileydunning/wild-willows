@@ -2,15 +2,13 @@
 <html lang="en">
 	<head>
 		<meta charset="UTF-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<!-- viewport-fit=cover: draw edge-to-edge on notched iPhones (the CSS
+		     safe-area insets keep controls clear); no pinch zoom in a game. -->
+		<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
 		<meta name="theme-color" content="#324528" />
 		<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E" />
-		<link rel="preconnect" href="https://fonts.googleapis.com" />
-		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-		<link
-			href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600&family=Quicksand:wght@400;500;600;700&display=swap"
-			rel="stylesheet"
-		/>
+		<!-- Fredoka + Quicksand are bundled (@fontsource imports in main.tsx) so the
+		     app renders identically offline — required for the iOS/desktop builds. -->
 		<title>Wild Willows</title>
 	</head>
 	<body>

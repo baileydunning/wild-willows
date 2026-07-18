@@ -471,6 +471,13 @@
 		"intro": "Wild Willows is a gentle loop: gather what nature has let go, craft it into habitat, place it in the biome, and welcome wildlife home. New recipes unlock as each biome recovers.",
 		"loopLabel": "The loop",
 		"keysLabel": "Keyboard & mouse",
+		"touchLabel": "Touch controls",
+		"touch": {
+			"move": "Walk — drag the joystick, or tap open ground to walk there",
+			"interact": "Tap a glowing thing to gather, open, or talk — from afar, you'll walk over first",
+			"zoom": "Pinch with two fingers to zoom the view in or out",
+			"place": "While placing: tap a tile to put the item down"
+		},
 		"loop": {
 			"gather": {
 				"title": "Gather",

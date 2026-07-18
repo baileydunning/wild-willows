@@ -1,12 +1,13 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { useI18n } from '../i18n/react';
+import { isTouchDevice } from './MobileControls';
 
 /**
- * Wild Willows is a keyboard game (WASD / arrows to roam, letter keys for
- * panels, number keys for tools), so it only runs where a keyboard is
- * available. We treat any device with a fine pointer (mouse, trackpad, or
- * stylus) as a computer, and otherwise block until a real key is pressed —
- * which also lets tablets with an attached keyboard through.
+ * Wild Willows plays two ways: keyboard (WASD / arrows, letter keys for
+ * panels) or touch (virtual joystick + tap-to-move/tap-to-interact — the iOS
+ * build). Touch devices pass straight through. What's left is the odd
+ * pointer-less device (e.g. a TV browser): those we block until a real key
+ * is pressed, which also lets keyboard-only setups through.
  */
 
 function hasFinePointer(): boolean {
@@ -36,7 +37,7 @@ export function KeyboardGate({ children }: { children: ReactNode }) {
 		};
 	}, []);
 
-	if (finePointer || keyboardSeen) return <>{children}</>;
+	if (finePointer || keyboardSeen || isTouchDevice()) return <>{children}</>;
 
 	return (
 		<div className="kb-gate">
