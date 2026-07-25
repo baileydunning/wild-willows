@@ -1023,6 +1023,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					for (const b of result.unlockedBiomes) {
 						const bName = b?.id ? content('biome', b.id, 'name', b.name) : b.name;
 						toast(t('app.toast.biomeUnlocked', { name: bName }), 'unlock');
+						bridge.emit('audio-sfx', { id: 'areaUnlocked' });
 						pushLog('sparkle', t('app.feed.biomeUnlocked', { name: bName }), true);
 						// Reinforce the core loop each time a new area opens (playtest #12).
 						pushLog('leaf', t('app.feed.loopReminder', { name: bName }), true);
@@ -1051,7 +1052,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					const qty = r?.gained?.[resourceId] || 1;
 					const name = res ? content('resource', res.id, 'name', res.name) : resourceId;
 					pushLog('basket', t('app.log.gathered', { qty, name }));
-					if (qty > 0) bridge.emit('audio-sfx', { id: 'pickup' });
+					if (qty > 0) {
+						const pickupSfx = /water/i.test(resourceId) ? 'water' : 'pickup';
+						bridge.emit('audio-sfx', { id: pickupSfx });
+					}
 					// house perk (Log Cabin): the forager's instinct found one extra
 					if (r?.perkBonus) toast(t('app.toast.perkForage', { name }), 'unlock');
 					// the basket is the gathering tool — other tools are for shaping the land
@@ -1081,12 +1085,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 						} else {
 							pushLog('shovel', t('app.log.preparedBed'));
 						}
+						bridge.emit('audio-sfx', { id: 'dig' });
 					} else if (action === 'water') {
 						if (r?.tile?.type === 'water') {
 							pushLog('drop', t('app.log.flooded'));
+							bridge.emit('audio-sfx', { id: 'water' });
 						} else {
 							pushLog('drop', t('app.log.watered'));
 							toast(t('app.toast.bedReady'));
+							bridge.emit('audio-sfx', { id: 'waterground' });
 						}
 					} else pushLog('shovel', t('app.log.clearedBed'));
 					bridge.emit('terraformed', { x, y, action });
@@ -1112,6 +1119,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 							}),
 						);
 					else pushLog('leaf', t('app.log.planted', { name }));
+					bridge.emit('audio-sfx', { id: 'plant' });
 				},
 			),
 		[act, data, pushLog],

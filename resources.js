@@ -14688,341 +14688,341 @@ function t(key, params) {
 registerCatalog("en", { server: server_default });
 
 // server/pages.ts
-var privacyHtml = `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Privacy Policy \u2014 Wild Willows</title>
-<meta name="description" content="Privacy policy for Wild Willows, a cozy nature-restoration game.">
-<style>
-	:root {
-		--bg: #f4f1e8;
-		--card: #fffdf7;
-		--ink: #33402e;
-		--muted: #6b7263;
-		--accent: #4a7c46;
-		--rule: #dcd6c4;
-	}
-	* { box-sizing: border-box; }
-	body {
-		margin: 0;
-		background: var(--bg);
-		color: var(--ink);
-		font: 17px/1.65 Georgia, 'Times New Roman', serif;
-	}
-	main {
-		max-width: 46rem;
-		margin: 0 auto;
-		padding: 3rem 1.5rem 5rem;
-	}
-	.card {
-		background: var(--card);
-		border: 1px solid var(--rule);
-		border-radius: 14px;
-		padding: 2.5rem 2.75rem;
-	}
-	h1 {
-		font-size: 1.9rem;
-		line-height: 1.25;
-		margin: 0 0 0.25rem;
-		color: var(--accent);
-	}
-	.meta { color: var(--muted); font-size: 0.95rem; margin: 0 0 1.75rem; }
-	h2 {
-		font-size: 1.2rem;
-		margin: 2.25rem 0 0.6rem;
-		color: var(--accent);
-		border-bottom: 1px solid var(--rule);
-		padding-bottom: 0.35rem;
-	}
-	ul { padding-left: 1.3rem; }
-	li { margin: 0.4rem 0; }
-	a { color: var(--accent); }
-	strong { color: var(--ink); }
-	.footer { color: var(--muted); font-size: 0.9rem; margin-top: 2.5rem; text-align: center; }
-	@media (max-width: 540px) { .card { padding: 1.5rem 1.25rem; } }
-</style>
-</head>
-<body>
-<main>
-	<div class="card">
-		<h1>Wild Willows \u2014 Privacy Policy</h1>
-		<p class="meta">Effective July 3, 2026 \xB7 Developer: Bailey Dunning \xB7 <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a></p>
-
-		<p>Wild Willows is a cozy nature-restoration game. It is designed to work fully offline, requires no account, and collects as little as possible. This page explains exactly what data the game handles, what (if anything) leaves your device, and how to reach me about it.</p>
-
-		<h2>The short version</h2>
-		<ul>
-			<li>No account, no sign-in, no ads, no tracking, no third-party analytics.</li>
-			<li>Your world lives in save files on your own device.</li>
-			<li>When you're online, the game periodically sends me an <strong>anonymous gameplay-statistics snapshot</strong> (play time, things crafted, animals returned, and so on) identified only by a random ID, so I can see how the game is being played and improve it.</li>
-			<li>The only personal information I ever receive is what <strong>you choose to type into the feedback form</strong> \u2014 including an optional email address if you'd like a reply.</li>
-		</ul>
-
-		<h2>Data stored on your device</h2>
-		<p>Your saves are local files in the app's data folder. Each save holds your caretaker's name and appearance, your world (terrain, placements, plants, animals, chests), and gameplay counters. The game also uses local browser-style storage for small preferences and to queue unsent feedback while offline. None of this local data is readable by me; deleting the app (or the save files) removes it.</p>
-		<p>The Mac App Store build is solo-only: there is no multiplayer, no account, and no passcode. The game is fully playable with no internet connection.</p>
-
-		<h2>Gameplay statistics I collect (automatic, anonymous)</h2>
-		<p>While the game is open and a network connection exists, it sends a snapshot of your save's gameplay statistics to my server roughly every five minutes, plus once when the window is hidden or closed. Each snapshot contains:</p>
-		<ul>
-			<li>a <strong>random identifier</strong> for the save slot (a UUID generated on your device \u2014 it is not derived from you, your device, or your Apple&nbsp;ID, and I cannot use it to identify you);</li>
-			<li>the <strong>name you gave the save</strong> (I suggest a caretaker name rather than your real name);</li>
-			<li>basic <strong>app and platform information</strong>: app version, build timestamp, platform ("desktop" or "web"), operating system family (mac / windows / linux), and the interface language you play in (e.g. English or Spanish);</li>
-			<li><strong>gameplay counters</strong>: play time, number of sessions, resources collected, items crafted, objects placed, plants planted, animals observed and returned, biomes unlocked, achievements earned, and similar progression numbers.</li>
-		</ul>
-		<p>That's the whole list. Snapshots contain no location data, no contact information, no device identifiers, and no advertising identifiers. I use them solely to understand how Wild Willows is played and to improve it. Sending is best-effort: if you're offline, reports are simply skipped \u2014 they are not queued, and the game does not nag you to connect.</p>
-
-		<h2>Feedback you choose to send</h2>
-		<p>The in-game feedback form (in Settings) sends me whatever message you type, plus light diagnostic context so a report like "the game feels slow" makes sense: app version and build, platform and operating system, browser user-agent string, your save's name, tutorial progress, unlocked biomes, achievement count, and play time.</p>
-		<p>You may optionally include an <strong>email address</strong> if you'd like a reply. It is used only to respond to your feedback \u2014 never for marketing, and never shared. If you're offline when you submit, the feedback is stored on your device and sent automatically once a connection returns. On my server, feedback (including any reply email) is readable only by me, the developer.</p>
-
-		<h2>What I don't do</h2>
-		<p>I do not sell, rent, or share your data with anyone. The game contains no advertising, no tracking SDKs, no third-party analytics, and no social integrations. I do not profile you, and I do not combine game data with data from other sources. The app makes outgoing HTTPS connections only, and only to my own server. (Builds distributed through the Mac App Store contain no Steam integration; builds launched through Steam sync gameplay stats and achievements to your Steam profile, which is governed by Valve's privacy policy.)</p>
-
-		<h2>Where data is stored</h2>
-		<p>Gameplay snapshots and feedback are stored in my database on my hosting provider's infrastructure, which processes the data only on my behalf. Data is transmitted over HTTPS.</p>
-
-		<h2>Retention and deletion</h2>
-		<p>Gameplay snapshots are kept so long-term trends stay visible; each save slot has exactly one row that is overwritten by its latest snapshot. Feedback is kept until it has been read and acted on. To have either deleted, email <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a> \u2014 include your save's name for snapshots, or the approximate date and message for feedback, and I'll remove it. Deleting the app from your device stops all collection immediately.</p>
-
-		<h2>Children</h2>
-		<p>Wild Willows is suitable for all ages. I do not knowingly collect personal information from children; the game never asks for a real name, and the only free-text personal data anywhere is the optional feedback email. If you believe a child has submitted personal information through the feedback form, contact me and I will delete it.</p>
-
-		<h2>The web and co-op versions</h2>
-		<p>If you play the browser version (or a future co-op build), your save lives on my server instead of your device: the save name, a passcode (stored only as a salted hash, never in plaintext), your caretaker's appearance, and your world state. Co-op worlds additionally share world state and live player positions with the other members of that world. Everything else in this policy \u2014 no ads, no tracking, no sharing \u2014 applies identically.</p>
-
-		<h2>Changes to this policy</h2>
-		<p>If the game's data practices ever change, I will update this policy, revise the effective date above, and note the change in the game's release notes. Material changes will be called out in-game.</p>
-
-		<h2>Contact</h2>
-		<p>Questions, concerns, or deletion requests: <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a>.</p>
-	</div>
-	<p class="footer">Wild Willows \u{1F33F} \xB7 <a href="/age-rating.html">Age Suitability</a></p>
-</main>
-</body>
-</html>
+var privacyHtml = `<!doctype html>\r
+<html lang="en">\r
+<head>\r
+<meta charset="utf-8">\r
+<meta name="viewport" content="width=device-width, initial-scale=1">\r
+<title>Privacy Policy \u2014 Wild Willows</title>\r
+<meta name="description" content="Privacy policy for Wild Willows, a cozy nature-restoration game.">\r
+<style>\r
+	:root {\r
+		--bg: #f4f1e8;\r
+		--card: #fffdf7;\r
+		--ink: #33402e;\r
+		--muted: #6b7263;\r
+		--accent: #4a7c46;\r
+		--rule: #dcd6c4;\r
+	}\r
+	* { box-sizing: border-box; }\r
+	body {\r
+		margin: 0;\r
+		background: var(--bg);\r
+		color: var(--ink);\r
+		font: 17px/1.65 Georgia, 'Times New Roman', serif;\r
+	}\r
+	main {\r
+		max-width: 46rem;\r
+		margin: 0 auto;\r
+		padding: 3rem 1.5rem 5rem;\r
+	}\r
+	.card {\r
+		background: var(--card);\r
+		border: 1px solid var(--rule);\r
+		border-radius: 14px;\r
+		padding: 2.5rem 2.75rem;\r
+	}\r
+	h1 {\r
+		font-size: 1.9rem;\r
+		line-height: 1.25;\r
+		margin: 0 0 0.25rem;\r
+		color: var(--accent);\r
+	}\r
+	.meta { color: var(--muted); font-size: 0.95rem; margin: 0 0 1.75rem; }\r
+	h2 {\r
+		font-size: 1.2rem;\r
+		margin: 2.25rem 0 0.6rem;\r
+		color: var(--accent);\r
+		border-bottom: 1px solid var(--rule);\r
+		padding-bottom: 0.35rem;\r
+	}\r
+	ul { padding-left: 1.3rem; }\r
+	li { margin: 0.4rem 0; }\r
+	a { color: var(--accent); }\r
+	strong { color: var(--ink); }\r
+	.footer { color: var(--muted); font-size: 0.9rem; margin-top: 2.5rem; text-align: center; }\r
+	@media (max-width: 540px) { .card { padding: 1.5rem 1.25rem; } }\r
+</style>\r
+</head>\r
+<body>\r
+<main>\r
+	<div class="card">\r
+		<h1>Wild Willows \u2014 Privacy Policy</h1>\r
+		<p class="meta">Effective July 3, 2026 \xB7 Developer: Bailey Dunning \xB7 <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a></p>\r
+\r
+		<p>Wild Willows is a cozy nature-restoration game. It is designed to work fully offline, requires no account, and collects as little as possible. This page explains exactly what data the game handles, what (if anything) leaves your device, and how to reach me about it.</p>\r
+\r
+		<h2>The short version</h2>\r
+		<ul>\r
+			<li>No account, no sign-in, no ads, no tracking, no third-party analytics.</li>\r
+			<li>Your world lives in save files on your own device.</li>\r
+			<li>When you're online, the game periodically sends me an <strong>anonymous gameplay-statistics snapshot</strong> (play time, things crafted, animals returned, and so on) identified only by a random ID, so I can see how the game is being played and improve it.</li>\r
+			<li>The only personal information I ever receive is what <strong>you choose to type into the feedback form</strong> \u2014 including an optional email address if you'd like a reply.</li>\r
+		</ul>\r
+\r
+		<h2>Data stored on your device</h2>\r
+		<p>Your saves are local files in the app's data folder. Each save holds your caretaker's name and appearance, your world (terrain, placements, plants, animals, chests), and gameplay counters. The game also uses local browser-style storage for small preferences and to queue unsent feedback while offline. None of this local data is readable by me; deleting the app (or the save files) removes it.</p>\r
+		<p>The Mac App Store build is solo-only: there is no multiplayer, no account, and no passcode. The game is fully playable with no internet connection.</p>\r
+\r
+		<h2>Gameplay statistics I collect (automatic, anonymous)</h2>\r
+		<p>While the game is open and a network connection exists, it sends a snapshot of your save's gameplay statistics to my server roughly every five minutes, plus once when the window is hidden or closed. Each snapshot contains:</p>\r
+		<ul>\r
+			<li>a <strong>random identifier</strong> for the save slot (a UUID generated on your device \u2014 it is not derived from you, your device, or your Apple&nbsp;ID, and I cannot use it to identify you);</li>\r
+			<li>the <strong>name you gave the save</strong> (I suggest a caretaker name rather than your real name);</li>\r
+			<li>basic <strong>app and platform information</strong>: app version, build timestamp, platform ("desktop" or "web"), operating system family (mac / windows / linux), and the interface language you play in (e.g. English or Spanish);</li>\r
+			<li><strong>gameplay counters</strong>: play time, number of sessions, resources collected, items crafted, objects placed, plants planted, animals observed and returned, biomes unlocked, achievements earned, and similar progression numbers.</li>\r
+		</ul>\r
+		<p>That's the whole list. Snapshots contain no location data, no contact information, no device identifiers, and no advertising identifiers. I use them solely to understand how Wild Willows is played and to improve it. Sending is best-effort: if you're offline, reports are simply skipped \u2014 they are not queued, and the game does not nag you to connect.</p>\r
+\r
+		<h2>Feedback you choose to send</h2>\r
+		<p>The in-game feedback form (in Settings) sends me whatever message you type, plus light diagnostic context so a report like "the game feels slow" makes sense: app version and build, platform and operating system, browser user-agent string, your save's name, tutorial progress, unlocked biomes, achievement count, and play time.</p>\r
+		<p>You may optionally include an <strong>email address</strong> if you'd like a reply. It is used only to respond to your feedback \u2014 never for marketing, and never shared. If you're offline when you submit, the feedback is stored on your device and sent automatically once a connection returns. On my server, feedback (including any reply email) is readable only by me, the developer.</p>\r
+\r
+		<h2>What I don't do</h2>\r
+		<p>I do not sell, rent, or share your data with anyone. The game contains no advertising, no tracking SDKs, no third-party analytics, and no social integrations. I do not profile you, and I do not combine game data with data from other sources. The app makes outgoing HTTPS connections only, and only to my own server. (Builds distributed through the Mac App Store contain no Steam integration; builds launched through Steam sync gameplay stats and achievements to your Steam profile, which is governed by Valve's privacy policy.)</p>\r
+\r
+		<h2>Where data is stored</h2>\r
+		<p>Gameplay snapshots and feedback are stored in my database on my hosting provider's infrastructure, which processes the data only on my behalf. Data is transmitted over HTTPS.</p>\r
+\r
+		<h2>Retention and deletion</h2>\r
+		<p>Gameplay snapshots are kept so long-term trends stay visible; each save slot has exactly one row that is overwritten by its latest snapshot. Feedback is kept until it has been read and acted on. To have either deleted, email <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a> \u2014 include your save's name for snapshots, or the approximate date and message for feedback, and I'll remove it. Deleting the app from your device stops all collection immediately.</p>\r
+\r
+		<h2>Children</h2>\r
+		<p>Wild Willows is suitable for all ages. I do not knowingly collect personal information from children; the game never asks for a real name, and the only free-text personal data anywhere is the optional feedback email. If you believe a child has submitted personal information through the feedback form, contact me and I will delete it.</p>\r
+\r
+		<h2>The web and co-op versions</h2>\r
+		<p>If you play the browser version (or a future co-op build), your save lives on my server instead of your device: the save name, a passcode (stored only as a salted hash, never in plaintext), your caretaker's appearance, and your world state. Co-op worlds additionally share world state and live player positions with the other members of that world. Everything else in this policy \u2014 no ads, no tracking, no sharing \u2014 applies identically.</p>\r
+\r
+		<h2>Changes to this policy</h2>\r
+		<p>If the game's data practices ever change, I will update this policy, revise the effective date above, and note the change in the game's release notes. Material changes will be called out in-game.</p>\r
+\r
+		<h2>Contact</h2>\r
+		<p>Questions, concerns, or deletion requests: <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a>.</p>\r
+	</div>\r
+	<p class="footer">Wild Willows \u{1F33F} \xB7 <a href="/age-rating.html">Age Suitability</a></p>\r
+</main>\r
+</body>\r
+</html>\r
 `;
-var ageRatingHtml = `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Age Suitability \u2014 Wild Willows</title>
-<meta name="description" content="Age suitability and content information for Wild Willows, a cozy nature-restoration game.">
-<style>
-	:root {
-		--bg: #f4f1e8;
-		--card: #fffdf7;
-		--ink: #33402e;
-		--muted: #6b7263;
-		--accent: #4a7c46;
-		--rule: #dcd6c4;
-	}
-	* { box-sizing: border-box; }
-	body {
-		margin: 0;
-		background: var(--bg);
-		color: var(--ink);
-		font: 17px/1.65 Georgia, 'Times New Roman', serif;
-	}
-	main {
-		max-width: 46rem;
-		margin: 0 auto;
-		padding: 3rem 1.5rem 5rem;
-	}
-	.card {
-		background: var(--card);
-		border: 1px solid var(--rule);
-		border-radius: 14px;
-		padding: 2.5rem 2.75rem;
-	}
-	h1 {
-		font-size: 1.9rem;
-		line-height: 1.25;
-		margin: 0 0 0.25rem;
-		color: var(--accent);
-	}
-	.meta { color: var(--muted); font-size: 0.95rem; margin: 0 0 1.75rem; }
-	h2 {
-		font-size: 1.2rem;
-		margin: 2.25rem 0 0.6rem;
-		color: var(--accent);
-		border-bottom: 1px solid var(--rule);
-		padding-bottom: 0.35rem;
-	}
-	ul { padding-left: 1.3rem; }
-	li { margin: 0.4rem 0; }
-	a { color: var(--accent); }
-	strong { color: var(--ink); }
-	.badge {
-		display: inline-block;
-		background: var(--accent);
-		color: #fffdf7;
-		border-radius: 999px;
-		padding: 0.15rem 0.9rem;
-		font-size: 0.95rem;
-		margin: 0 0.4rem 0.4rem 0;
-	}
-	.footer { color: var(--muted); font-size: 0.9rem; margin-top: 2.5rem; text-align: center; }
-	@media (max-width: 540px) { .card { padding: 1.5rem 1.25rem; } }
-</style>
-</head>
-<body>
-<main>
-	<div class="card">
-		<h1>Wild Willows \u2014 Age Suitability</h1>
-		<p class="meta">Effective July 3, 2026 \xB7 Developer: Bailey Dunning \xB7 <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a></p>
-
-		<p>Wild Willows is a cozy nature-restoration game: you gather fallen materials, craft and plant habitat, and watch real animals return as the land recovers. It is designed to be <strong>suitable for all ages</strong>.</p>
-
-		<p>
-			<span class="badge">Apple App Store: 4+</span>
-			<span class="badge">ESRB: Everyone</span>
-			<span class="badge">PEGI: 3</span>
-		</p>
-
-		<h2>What the game contains</h2>
-		<ul>
-			<li><strong>Gentle, non-violent play.</strong> There is no combat, no enemies, and no way to fail. Animals are observed and welcomed home \u2014 never hunted, harmed, captured, or lost. Nothing dies.</li>
-			<li><strong>Educational nature content.</strong> Every animal comes with a real-world fact, and an in-game weather &amp; seasons guide explains real ecology in plain language, grounded in credible sources (USGS, NOAA, NPS, Audubon, and similar).</li>
-			<li><strong>Mild ambient weather only.</strong> Rain, storms, fog, snow, and heat are visual atmosphere \u2014 they never threaten the player or the animals.</li>
-			<li><strong>Simple friendly art.</strong> All visuals are soft, procedurally generated shapes; there is no realistic, frightening, or graphic imagery.</li>
-		</ul>
-
-		<h2>What the game does not contain</h2>
-		<ul>
-			<li>No violence, blood, or scary content</li>
-			<li>No profanity, crude humor, or mature themes</li>
-			<li>No alcohol, tobacco, or drug references</li>
-			<li>No gambling, simulated or otherwise</li>
-			<li>No advertising of any kind</li>
-			<li>No in-app purchases, loot boxes, or microtransactions</li>
-			<li>No chat, social features, or user-generated content from other players (the Mac App Store build is solo-only)</li>
-			<li>No account, sign-in, or personal information required to play</li>
-		</ul>
-
-		<h2>Online features</h2>
-		<p>The game is fully playable offline. When online, it sends only anonymous gameplay statistics (play time, items crafted, animals returned) so I can improve the game \u2014 nothing personal, and nothing is shown to or shared with other players. An optional feedback form in Settings sends a message privately to the developer; it is the only free-text input that leaves the device, and including an email address is optional. Full details are in the <a href="/privacy.html">privacy policy</a>.</p>
-
-		<p>If a future update enables the optional co-op mode (web version), players join a shared world only by invite code with the host's explicit approval, and other players see just a chosen caretaker name and character \u2014 there is no chat system.</p>
-
-		<h2>For parents</h2>
-		<p>Wild Willows has no mechanisms that pressure play: no timers that punish absence (a world you leave is exactly where you left it), no daily-login streaks to lose, no purchases to make, and no strangers to encounter. If you have any questions, email <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a>.</p>
-	</div>
-	<p class="footer">Wild Willows \u{1F33F} \xB7 <a href="/privacy.html">Privacy Policy</a></p>
-</main>
-</body>
-</html>
+var ageRatingHtml = `<!doctype html>\r
+<html lang="en">\r
+<head>\r
+<meta charset="utf-8">\r
+<meta name="viewport" content="width=device-width, initial-scale=1">\r
+<title>Age Suitability \u2014 Wild Willows</title>\r
+<meta name="description" content="Age suitability and content information for Wild Willows, a cozy nature-restoration game.">\r
+<style>\r
+	:root {\r
+		--bg: #f4f1e8;\r
+		--card: #fffdf7;\r
+		--ink: #33402e;\r
+		--muted: #6b7263;\r
+		--accent: #4a7c46;\r
+		--rule: #dcd6c4;\r
+	}\r
+	* { box-sizing: border-box; }\r
+	body {\r
+		margin: 0;\r
+		background: var(--bg);\r
+		color: var(--ink);\r
+		font: 17px/1.65 Georgia, 'Times New Roman', serif;\r
+	}\r
+	main {\r
+		max-width: 46rem;\r
+		margin: 0 auto;\r
+		padding: 3rem 1.5rem 5rem;\r
+	}\r
+	.card {\r
+		background: var(--card);\r
+		border: 1px solid var(--rule);\r
+		border-radius: 14px;\r
+		padding: 2.5rem 2.75rem;\r
+	}\r
+	h1 {\r
+		font-size: 1.9rem;\r
+		line-height: 1.25;\r
+		margin: 0 0 0.25rem;\r
+		color: var(--accent);\r
+	}\r
+	.meta { color: var(--muted); font-size: 0.95rem; margin: 0 0 1.75rem; }\r
+	h2 {\r
+		font-size: 1.2rem;\r
+		margin: 2.25rem 0 0.6rem;\r
+		color: var(--accent);\r
+		border-bottom: 1px solid var(--rule);\r
+		padding-bottom: 0.35rem;\r
+	}\r
+	ul { padding-left: 1.3rem; }\r
+	li { margin: 0.4rem 0; }\r
+	a { color: var(--accent); }\r
+	strong { color: var(--ink); }\r
+	.badge {\r
+		display: inline-block;\r
+		background: var(--accent);\r
+		color: #fffdf7;\r
+		border-radius: 999px;\r
+		padding: 0.15rem 0.9rem;\r
+		font-size: 0.95rem;\r
+		margin: 0 0.4rem 0.4rem 0;\r
+	}\r
+	.footer { color: var(--muted); font-size: 0.9rem; margin-top: 2.5rem; text-align: center; }\r
+	@media (max-width: 540px) { .card { padding: 1.5rem 1.25rem; } }\r
+</style>\r
+</head>\r
+<body>\r
+<main>\r
+	<div class="card">\r
+		<h1>Wild Willows \u2014 Age Suitability</h1>\r
+		<p class="meta">Effective July 3, 2026 \xB7 Developer: Bailey Dunning \xB7 <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a></p>\r
+\r
+		<p>Wild Willows is a cozy nature-restoration game: you gather fallen materials, craft and plant habitat, and watch real animals return as the land recovers. It is designed to be <strong>suitable for all ages</strong>.</p>\r
+\r
+		<p>\r
+			<span class="badge">Apple App Store: 4+</span>\r
+			<span class="badge">ESRB: Everyone</span>\r
+			<span class="badge">PEGI: 3</span>\r
+		</p>\r
+\r
+		<h2>What the game contains</h2>\r
+		<ul>\r
+			<li><strong>Gentle, non-violent play.</strong> There is no combat, no enemies, and no way to fail. Animals are observed and welcomed home \u2014 never hunted, harmed, captured, or lost. Nothing dies.</li>\r
+			<li><strong>Educational nature content.</strong> Every animal comes with a real-world fact, and an in-game weather &amp; seasons guide explains real ecology in plain language, grounded in credible sources (USGS, NOAA, NPS, Audubon, and similar).</li>\r
+			<li><strong>Mild ambient weather only.</strong> Rain, storms, fog, snow, and heat are visual atmosphere \u2014 they never threaten the player or the animals.</li>\r
+			<li><strong>Simple friendly art.</strong> All visuals are soft, procedurally generated shapes; there is no realistic, frightening, or graphic imagery.</li>\r
+		</ul>\r
+\r
+		<h2>What the game does not contain</h2>\r
+		<ul>\r
+			<li>No violence, blood, or scary content</li>\r
+			<li>No profanity, crude humor, or mature themes</li>\r
+			<li>No alcohol, tobacco, or drug references</li>\r
+			<li>No gambling, simulated or otherwise</li>\r
+			<li>No advertising of any kind</li>\r
+			<li>No in-app purchases, loot boxes, or microtransactions</li>\r
+			<li>No chat, social features, or user-generated content from other players (the Mac App Store build is solo-only)</li>\r
+			<li>No account, sign-in, or personal information required to play</li>\r
+		</ul>\r
+\r
+		<h2>Online features</h2>\r
+		<p>The game is fully playable offline. When online, it sends only anonymous gameplay statistics (play time, items crafted, animals returned) so I can improve the game \u2014 nothing personal, and nothing is shown to or shared with other players. An optional feedback form in Settings sends a message privately to the developer; it is the only free-text input that leaves the device, and including an email address is optional. Full details are in the <a href="/privacy.html">privacy policy</a>.</p>\r
+\r
+		<p>If a future update enables the optional co-op mode (web version), players join a shared world only by invite code with the host's explicit approval, and other players see just a chosen caretaker name and character \u2014 there is no chat system.</p>\r
+\r
+		<h2>For parents</h2>\r
+		<p>Wild Willows has no mechanisms that pressure play: no timers that punish absence (a world you leave is exactly where you left it), no daily-login streaks to lose, no purchases to make, and no strangers to encounter. If you have any questions, email <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a>.</p>\r
+	</div>\r
+	<p class="footer">Wild Willows \u{1F33F} \xB7 <a href="/privacy.html">Privacy Policy</a></p>\r
+</main>\r
+</body>\r
+</html>\r
 `;
-var supportHtml = `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Support \u2014 Wild Willows</title>
-<meta name="description" content="Support, help, and frequently asked questions for Wild Willows, a cozy nature-restoration game.">
-<style>
-	:root {
-		--bg: #f4f1e8;
-		--card: #fffdf7;
-		--ink: #33402e;
-		--muted: #6b7263;
-		--accent: #4a7c46;
-		--rule: #dcd6c4;
-	}
-	* { box-sizing: border-box; }
-	body {
-		margin: 0;
-		background: var(--bg);
-		color: var(--ink);
-		font: 17px/1.65 Georgia, 'Times New Roman', serif;
-	}
-	main {
-		max-width: 46rem;
-		margin: 0 auto;
-		padding: 3rem 1.5rem 5rem;
-	}
-	.card {
-		background: var(--card);
-		border: 1px solid var(--rule);
-		border-radius: 14px;
-		padding: 2.5rem 2.75rem;
-	}
-	h1 {
-		font-size: 1.9rem;
-		line-height: 1.25;
-		margin: 0 0 0.25rem;
-		color: var(--accent);
-	}
-	.meta { color: var(--muted); font-size: 0.95rem; margin: 0 0 1.75rem; }
-	h2 {
-		font-size: 1.2rem;
-		margin: 2.25rem 0 0.6rem;
-		color: var(--accent);
-		border-bottom: 1px solid var(--rule);
-		padding-bottom: 0.35rem;
-	}
-	ul { padding-left: 1.3rem; }
-	li { margin: 0.4rem 0; }
-	a { color: var(--accent); }
-	strong { color: var(--ink); }
-	kbd {
-		font: 0.85em ui-monospace, SFMono-Regular, Menlo, monospace;
-		background: var(--bg);
-		border: 1px solid var(--rule);
-		border-bottom-width: 2px;
-		border-radius: 5px;
-		padding: 0.05rem 0.4rem;
-	}
-	.contact {
-		background: var(--bg);
-		border: 1px solid var(--rule);
-		border-radius: 10px;
-		padding: 1rem 1.25rem;
-		margin: 1rem 0;
-	}
-	.footer { color: var(--muted); font-size: 0.9rem; margin-top: 2.5rem; text-align: center; }
-	@media (max-width: 540px) { .card { padding: 1.5rem 1.25rem; } }
-</style>
-</head>
-<body>
-<main>
-	<div class="card">
-		<h1>Wild Willows \u2014 Support</h1>
-		<p class="meta">Developer: Bailey Dunning \xB7 <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a></p>
-
-		<p>Wild Willows is a cozy nature-restoration game: gather fallen materials, craft and plant habitat, and welcome real animals back as the land recovers. If something isn't working \u2014 or you just have a question \u2014 here's how to get help.</p>
-
-		<h2>Contact</h2>
-		<div class="contact">
-			<p style="margin:0"><strong>Email:</strong> <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a> \u2014 I read everything and reply as quickly as I can.</p>
-		</div>
-		<p>You can also send feedback <strong>from inside the game</strong>: open <strong>Settings</strong> (press <kbd>G</kbd>) and use the feedback form. Include your email if you'd like a reply. It works offline too \u2014 the message is kept on your device and sent automatically once you're connected.</p>
-
-		<h2>Common questions</h2>
-		<ul>
-			<li><strong>Do I need an internet connection?</strong> No. The game is fully playable offline, with no account and no sign-in.</li>
-			<li><strong>A keyboard is required.</strong> Move with <kbd>WASD</kbd> or the arrow keys; press <kbd>H</kbd> (or the <strong>?</strong> button) any time for the full How to Play reference.</li>
-			<li><strong>Where are my saves?</strong> Save files live on your device, inside the app's data folder. Deleting the app removes them, so keep a backup if you're reinstalling and want to keep your preserve.</li>
-			<li><strong>How do I start over?</strong> Create a new save from the title screen, or delete a save from the Load Game menu.</li>
-			<li><strong>Something looks stuck or broken.</strong> Quit and reopen the app first \u2014 your world is saved after every action, so nothing is lost. If it persists, email me or use the in-game feedback form and describe what you were doing; the report arrives with the version info I need.</li>
-			<li><strong>The window opened but the game says "connect a keyboard."</strong> Wild Willows is keyboard-driven by design; pressing any key on a connected keyboard dismisses the gate.</li>
-		</ul>
-
-		<h2>Feature requests</h2>
-		<p>Ideas are as welcome as bug reports \u2014 the feedback form and email both come straight to me, the developer.</p>
-
-		<h2>Privacy &amp; age suitability</h2>
-		<p>Wild Willows collects almost nothing \u2014 see the <a href="/privacy.html">privacy policy</a> for exactly what and why, and the <a href="/age-rating.html">age-suitability page</a> for content information (suitable for all ages).</p>
-	</div>
-	<p class="footer">Wild Willows \u{1F33F} \xB7 <a href="/privacy.html">Privacy Policy</a> \xB7 <a href="/age-rating.html">Age Suitability</a></p>
-</main>
-</body>
-</html>
+var supportHtml = `<!doctype html>\r
+<html lang="en">\r
+<head>\r
+<meta charset="utf-8">\r
+<meta name="viewport" content="width=device-width, initial-scale=1">\r
+<title>Support \u2014 Wild Willows</title>\r
+<meta name="description" content="Support, help, and frequently asked questions for Wild Willows, a cozy nature-restoration game.">\r
+<style>\r
+	:root {\r
+		--bg: #f4f1e8;\r
+		--card: #fffdf7;\r
+		--ink: #33402e;\r
+		--muted: #6b7263;\r
+		--accent: #4a7c46;\r
+		--rule: #dcd6c4;\r
+	}\r
+	* { box-sizing: border-box; }\r
+	body {\r
+		margin: 0;\r
+		background: var(--bg);\r
+		color: var(--ink);\r
+		font: 17px/1.65 Georgia, 'Times New Roman', serif;\r
+	}\r
+	main {\r
+		max-width: 46rem;\r
+		margin: 0 auto;\r
+		padding: 3rem 1.5rem 5rem;\r
+	}\r
+	.card {\r
+		background: var(--card);\r
+		border: 1px solid var(--rule);\r
+		border-radius: 14px;\r
+		padding: 2.5rem 2.75rem;\r
+	}\r
+	h1 {\r
+		font-size: 1.9rem;\r
+		line-height: 1.25;\r
+		margin: 0 0 0.25rem;\r
+		color: var(--accent);\r
+	}\r
+	.meta { color: var(--muted); font-size: 0.95rem; margin: 0 0 1.75rem; }\r
+	h2 {\r
+		font-size: 1.2rem;\r
+		margin: 2.25rem 0 0.6rem;\r
+		color: var(--accent);\r
+		border-bottom: 1px solid var(--rule);\r
+		padding-bottom: 0.35rem;\r
+	}\r
+	ul { padding-left: 1.3rem; }\r
+	li { margin: 0.4rem 0; }\r
+	a { color: var(--accent); }\r
+	strong { color: var(--ink); }\r
+	kbd {\r
+		font: 0.85em ui-monospace, SFMono-Regular, Menlo, monospace;\r
+		background: var(--bg);\r
+		border: 1px solid var(--rule);\r
+		border-bottom-width: 2px;\r
+		border-radius: 5px;\r
+		padding: 0.05rem 0.4rem;\r
+	}\r
+	.contact {\r
+		background: var(--bg);\r
+		border: 1px solid var(--rule);\r
+		border-radius: 10px;\r
+		padding: 1rem 1.25rem;\r
+		margin: 1rem 0;\r
+	}\r
+	.footer { color: var(--muted); font-size: 0.9rem; margin-top: 2.5rem; text-align: center; }\r
+	@media (max-width: 540px) { .card { padding: 1.5rem 1.25rem; } }\r
+</style>\r
+</head>\r
+<body>\r
+<main>\r
+	<div class="card">\r
+		<h1>Wild Willows \u2014 Support</h1>\r
+		<p class="meta">Developer: Bailey Dunning \xB7 <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a></p>\r
+\r
+		<p>Wild Willows is a cozy nature-restoration game: gather fallen materials, craft and plant habitat, and welcome real animals back as the land recovers. If something isn't working \u2014 or you just have a question \u2014 here's how to get help.</p>\r
+\r
+		<h2>Contact</h2>\r
+		<div class="contact">\r
+			<p style="margin:0"><strong>Email:</strong> <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a> \u2014 I read everything and reply as quickly as I can.</p>\r
+		</div>\r
+		<p>You can also send feedback <strong>from inside the game</strong>: open <strong>Settings</strong> (press <kbd>G</kbd>) and use the feedback form. Include your email if you'd like a reply. It works offline too \u2014 the message is kept on your device and sent automatically once you're connected.</p>\r
+\r
+		<h2>Common questions</h2>\r
+		<ul>\r
+			<li><strong>Do I need an internet connection?</strong> No. The game is fully playable offline, with no account and no sign-in.</li>\r
+			<li><strong>A keyboard is required.</strong> Move with <kbd>WASD</kbd> or the arrow keys; press <kbd>H</kbd> (or the <strong>?</strong> button) any time for the full How to Play reference.</li>\r
+			<li><strong>Where are my saves?</strong> Save files live on your device, inside the app's data folder. Deleting the app removes them, so keep a backup if you're reinstalling and want to keep your preserve.</li>\r
+			<li><strong>How do I start over?</strong> Create a new save from the title screen, or delete a save from the Load Game menu.</li>\r
+			<li><strong>Something looks stuck or broken.</strong> Quit and reopen the app first \u2014 your world is saved after every action, so nothing is lost. If it persists, email me or use the in-game feedback form and describe what you were doing; the report arrives with the version info I need.</li>\r
+			<li><strong>The window opened but the game says "connect a keyboard."</strong> Wild Willows is keyboard-driven by design; pressing any key on a connected keyboard dismisses the gate.</li>\r
+		</ul>\r
+\r
+		<h2>Feature requests</h2>\r
+		<p>Ideas are as welcome as bug reports \u2014 the feedback form and email both come straight to me, the developer.</p>\r
+\r
+		<h2>Privacy &amp; age suitability</h2>\r
+		<p>Wild Willows collects almost nothing \u2014 see the <a href="/privacy.html">privacy policy</a> for exactly what and why, and the <a href="/age-rating.html">age-suitability page</a> for content information (suitable for all ages).</p>\r
+	</div>\r
+	<p class="footer">Wild Willows \u{1F33F} \xB7 <a href="/privacy.html">Privacy Policy</a> \xB7 <a href="/age-rating.html">Age Suitability</a></p>\r
+</main>\r
+</body>\r
+</html>\r
 `;
-var buildStamp = "0.1.12+2026-07-15T17:22:13.210Z";
+var buildStamp = "0.1.12+2026-07-25T19:07:09.711Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
