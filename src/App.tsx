@@ -1,18 +1,25 @@
 import { useEffect, useRef, useState } from 'react';
 import { api } from './api';
-import { applyAudioPrefs, bindGameAudio, primeAudio, setAmbienceActive, setMusicActive } from './audio';
+import {
+	applyAudioPrefs,
+	bindGameAudio,
+	primeAudio,
+	setAmbienceActive,
+	setAmbienceLayerActive,
+	setMusicActive,
+} from './audio';
 import { bridge } from './game/bridge';
 import { PhaserGame } from './game/PhaserGame';
 import { usePrefs } from './prefs';
 import { GameProvider, useGame } from './state';
 import { useI18n } from './i18n/react';
+import { liveDayPhase, liveWeatherType } from './weather';
 import { harvestReadyAt } from './types';
 import { isTypingTarget } from './typing';
 import { HelpModal } from './ui/Help';
 import { ColorblindFilters } from './ui/ColorblindFilters';
 import { HUD, Toasts } from './ui/HUD';
 import { Confetti } from './ui/Confetti';
-import { AnimalCard, JournalPanel } from './ui/Journal';
 import { AchievementsPanel } from './ui/Achievements';
 import { MobileControls } from './ui/MobileControls';
 import {
@@ -32,8 +39,9 @@ import { GoalsPanel } from './ui/GoalsPanel';
 import { DevPanel } from './ui/DevPanel';
 import { KeyboardGate } from './ui/KeyboardGate';
 import { WelcomeScreen } from './ui/Welcome';
-import { JoinWaitingScreen } from './ui/JoinWaiting';
+import { AnimalCard, JournalPanel } from './ui/Journal';
 import { JoinApprovalPopup } from './ui/JoinApproval';
+import { JoinWaitingScreen } from './ui/JoinWaiting';
 import { PeoplePanel } from './ui/People';
 import { Icon, ObjectIcon, ResourceIcon } from './ui/icons';
 
@@ -398,17 +406,19 @@ function GameScreen() {
 function Root() {
 	const { state, data, pendingJoin } = useGame();
 	const prefs = usePrefs();
+	const [audioClock, setAudioClock] = useState(0);
 	const wasOpeningFlowRef = useRef(true);
 	const meadowCueTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const prevAreaRef = useRef<string | null>(null);
 	const audioEnabled = (prefs as any).audioEnabled ?? true;
 	const masterVolume = typeof (prefs as any).masterVolume === 'number' ? (prefs as any).masterVolume : 0.8;
 	const sfxVolume = typeof (prefs as any).sfxVolume === 'number' ? (prefs as any).sfxVolume : 0.75;
 	const musicVolume = typeof (prefs as any).musicVolume === 'number' ? (prefs as any).musicVolume : 0.6;
 
-	// Keep audio listeners and browser-gesture unlock in one place.
 	useEffect(() => {
 		const unbind = bindGameAudio();
 		const unlock = () => primeAudio();
+		unlock();
 		window.addEventListener('pointerdown', unlock, { passive: true });
 		window.addEventListener('keydown', unlock);
 		return () => {
@@ -418,7 +428,6 @@ function Root() {
 		};
 	}, []);
 
-	// Apply the latest settings panel audio values immediately.
 	useEffect(() => {
 		applyAudioPrefs({
 			audioEnabled,
@@ -438,41 +447,104 @@ function Root() {
 		[],
 	);
 
-	// Play the opening theme only on pre-game screens (menu / character creator).
+	useEffect(() => {
+		const id = window.setInterval(() => {
+			setAudioClock((n) => n + 1);
+		}, 15000);
+		return () => {
+			window.clearInterval(id);
+		};
+	}, []);
+
 	useEffect(() => {
 		const inOpeningFlow = !state || !data;
-		const inMeadow = !!state && !!data && state.player.area === 'meadow';
+		const isHome = !!state && !!data && state.player.area === 'home';
+		const outdoors = !!state && !!data && !isHome;
+		const worldId = state?.worldId || state?.player?.id || null;
+		const area = state?.player.area;
+		const areaChanged = !!area && prevAreaRef.current !== area;
+		const dayPhase = liveDayPhase(state?.weather);
+		const weatherType = outdoors && area ? liveWeatherType(worldId, area, state?.weather) : 'clear';
+		const outdoorAmbienceTrack: 'meadow' | 'night' | 'rain' | 'storm' =
+			weatherType === 'storm' ? 'storm' : weatherType === 'rain' ? 'rain' : dayPhase === 'night' ? 'night' : 'meadow';
+		const stormLayer = weatherType === 'storm';
+		const meadowHealth = state?.biomeStates.find((b) => b.biomeId === 'meadow')?.health ?? 0;
+		const forestHealth = state?.biomeStates.find((b) => b.biomeId === 'forest')?.health ?? 0;
+		const wetlandsHealth = state?.biomeStates.find((b) => b.biomeId === 'wetland')?.health ?? 0;
+		const scrublandHealth = state?.biomeStates.find((b) => b.biomeId === 'desert')?.health ?? 0;
+		const alpineHealth = state?.biomeStates.find((b) => b.biomeId === 'alpine')?.health ?? 0;
+		const coastalHealth = state?.biomeStates.find((b) => b.biomeId === 'coastal')?.health ?? 0;
+		const gameplayTrack =
+			state?.player.area === 'forest'
+				? forestHealth < 50
+					? 'hollowforest_level1'
+					: forestHealth < 80
+						? 'hollowforest_level2'
+						: 'hollowforest_level3'
+				: state?.player.area === 'wetland'
+					? wetlandsHealth < 50
+						? 'wetlands_level1'
+						: wetlandsHealth < 80
+							? 'wetlands_level2'
+							: 'wetlands_level3'
+					: state?.player.area === 'desert'
+						? scrublandHealth < 50
+							? 'scrubland_level1'
+							: scrublandHealth < 80
+								? 'scrubland_level2'
+								: 'scrubland_level3'
+						: state?.player.area === 'alpine'
+							? alpineHealth < 50
+								? 'graywind_level1'
+								: alpineHealth < 80
+									? 'graywind_level2'
+									: 'graywind_level3'
+							: state?.player.area === 'coastal'
+								? coastalHealth < 50
+									? 'pelicanbay_level1'
+									: coastalHealth < 80
+										? 'pelicanbay_level2'
+										: 'pelicanbay_level3'
+								: meadowHealth < 50
+									? 'meadowambient'
+									: meadowHealth < 80
+										? 'meadowambient_level2'
+										: 'meadowambient_level3';
 
 		if (inOpeningFlow) {
 			if (meadowCueTimeoutRef.current) {
 				clearTimeout(meadowCueTimeoutRef.current);
 				meadowCueTimeoutRef.current = null;
 			}
+			prevAreaRef.current = null;
 			wasOpeningFlowRef.current = true;
 			setMusicActive(true, 'wildwillowstheme');
-			setAmbienceActive(false);
+			setAmbienceActive(true, 'meadow');
+			setAmbienceLayerActive(false);
 			return;
 		}
 
-		setAmbienceActive(inMeadow, 'meadow');
+		const instantAmbienceSwitch = wasOpeningFlowRef.current || areaChanged;
+		setAmbienceActive(outdoors, outdoorAmbienceTrack, { instant: instantAmbienceSwitch });
+		setAmbienceLayerActive(outdoors && stormLayer, 'rain', { instant: instantAmbienceSwitch });
+		prevAreaRef.current = area || null;
 
-		// Transitioning from opening flow into gameplay: stop menu theme now, then
-		// start meadowambient after a short lead-in.
 		if (wasOpeningFlowRef.current) {
 			wasOpeningFlowRef.current = false;
-			setMusicActive(false, 'wildwillowstheme');
-			setMusicActive(false, 'meadowambient');
-			if (meadowCueTimeoutRef.current) clearTimeout(meadowCueTimeoutRef.current);
-			meadowCueTimeoutRef.current = setTimeout(() => {
-				setMusicActive(true, 'meadowambient');
+			if (meadowCueTimeoutRef.current) {
+				clearTimeout(meadowCueTimeoutRef.current);
 				meadowCueTimeoutRef.current = null;
-			}, 5000);
+			}
+			setMusicActive(false, 'wildwillowstheme');
+			meadowCueTimeoutRef.current = setTimeout(() => {
+				setMusicActive(true, gameplayTrack);
+				meadowCueTimeoutRef.current = null;
+			}, 3000);
 			return;
 		}
 
-		// Once the transition has happened, keep the gameplay cue active.
-		setMusicActive(true, 'meadowambient');
-	}, [state, data]);
+		setMusicActive(true, gameplayTrack);
+	}, [state, data, audioClock]);
 
 	// the game needs both definitions and a logged-in save before it can render.
 	// A joiner awaiting host approval sits in the waiting room until let in.

@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { primeAudio } from '../audio';
 import { useGame } from '../state';
 import { useI18n } from '../i18n/react';
 import { Icon } from './icons';
@@ -36,7 +37,7 @@ export function JoinWaitingScreen() {
 	const denied = status === 'denied';
 
 	return (
-		<div className="welcome">
+		<div className="welcome" onPointerDown={primeAudio}>
 			<div className="welcome-sky" />
 			<div className="welcome-card">
 				<h1 className="game-title">Wild Willows</h1>

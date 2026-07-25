@@ -161,6 +161,7 @@ export class WorldScene extends Phaser.Scene {
 	private lastGateInfo: string | null = null;
 	private dynamicSig = '';
 	private isTouch = false;
+	private suppressSpawnHoverSfx = false;
 	private alive = false; // true between create() and shutdown (scene.isActive() is false DURING create)
 	private waterTiles = new Set<string>();
 	private waterTileCenters: { x: number; y: number }[] = []; // pixel centers of open-water tiles
@@ -371,6 +372,7 @@ export class WorldScene extends Phaser.Scene {
 
 	create(data: any) {
 		this.alive = true;
+		this.suppressSpawnHoverSfx = true;
 		// scene.restart() reuses this instance, so stale (now-destroyed) weather
 		// overlay/emitter references must be cleared before they're recreated.
 		this.weatherOverlay = undefined;
@@ -2686,11 +2688,13 @@ export class WorldScene extends Phaser.Scene {
 							nodeId: node.id,
 							resourceId: node.resourceId,
 						});
-					else
+					else {
+						bridge.emit('audio-sfx', { id: 'cant' });
 						bridge.emit('toast', {
 							text: t('game.toast.stillRegrowing'),
 							kind: 'info',
 						});
+					}
 				},
 			};
 			this.registerInteractable(it, container);
@@ -3964,6 +3968,7 @@ export class WorldScene extends Phaser.Scene {
 		this.player.setPosition(nx, ny);
 		this.player.setDepth(ny + 16);
 		this.setWalkAudio(moved);
+		if (moved) this.suppressSpawnHoverSfx = false;
 	}
 
 	private handleGhost() {
@@ -4013,7 +4018,7 @@ export class WorldScene extends Phaser.Scene {
 					label: focus.label,
 					source: focusSource,
 				});
-				if (focusSource === 'near') bridge.emit('audio-sfx', { id: 'hover' });
+				if (focusSource === 'near' && !this.suppressSpawnHoverSfx) bridge.emit('audio-sfx', { id: 'hover' });
 			} else {
 				bridge.emit('interactable-hover-clear');
 			}

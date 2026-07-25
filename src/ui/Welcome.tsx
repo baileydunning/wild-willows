@@ -10,6 +10,7 @@ import {
 	setTransport,
 	type SaveMeta,
 } from '../api';
+import { primeAudio } from '../audio';
 import { useGame } from '../state';
 import { LOCALE_NAMES, chooseLocale } from '../i18n';
 import { useI18n } from '../i18n/react';
@@ -378,7 +379,7 @@ export function WelcomeScreen() {
 		});
 
 	return (
-		<div className="welcome">
+		<div className="welcome" onPointerDown={primeAudio}>
 			<div className="welcome-sky" />
 			<Scenery />
 			<div className="welcome-stack">

@@ -20,6 +20,17 @@ import { narrativeBeats, nextFeedFact, healthMilestoneLine, HEALTH_THRESHOLDS } 
 import { weatherForArea, weatherFeedLine, seasonFeedLine, liveCalendar } from './weather';
 import type { Appearance, GameData, GameState, PanelId, WorldSummary, PendingRequest } from './types';
 
+const WATER_PICKUP_IDS = new Set(['water', 'clean-water', 'rainwater']);
+
+function playCantSfx() {
+	bridge.emit('audio-sfx', { id: 'cant' });
+}
+
+function isRegrowBlockedHarvestError(error: any): boolean {
+	const message = String(error?.message || '').toLowerCase();
+	return /regrow|not ready to harvest|grow back/.test(message);
+}
+
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
 interface Toast {
@@ -169,6 +180,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	// Tracks which recipes were unlocked last time we looked, so we can announce
 	// newly unlocked ones. null = not seeded yet (first load announces nothing).
 	const prevUnlocked = useRef<Set<string> | null>(null);
+	// Mirror the biome unlock snapshot so dev unlocks and normal progression both
+	// surface the same audio cue on the next state refresh.
+	const prevUnlockedBiomes = useRef<Set<string> | null>(null);
 	// Same idea for achievements: diff the snapshot to surface freshly earned ones.
 	const prevAchievements = useRef<Set<string> | null>(null);
 	// Returned-animal set last seen, for weaving narrative beats as combinations land.
@@ -320,6 +334,17 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				true,
 			);
 	}, [data, state, toast, pushLog]);
+
+	useEffect(() => {
+		if (!state) return;
+		const now = new Set(state.player.unlockedBiomes || ['meadow']);
+		const prev = prevUnlockedBiomes.current;
+		prevUnlockedBiomes.current = now;
+		if (!prev) return;
+		const added = [...now].filter((id) => !prev.has(id));
+		if (!added.length) return;
+		bridge.emit('audio-sfx', { id: 'areaUnlocked' });
+	}, [state]);
 
 	// Announce freshly earned achievements by diffing the snapshot (the server
 	// awards them; we surface the gold toast + a feed line carrying the flavor).
@@ -1032,6 +1057,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				await refresh();
 				markSaved();
 			} catch (e: any) {
+				if (e?.status === 403 || e?.status === 409 || isRegrowBlockedHarvestError(e)) playCantSfx();
 				setSaveStatus('error');
 				toast(e.message || t('app.error.generic'), 'error');
 				window.setTimeout(() => setSaveStatus('idle'), 1500);
@@ -1051,7 +1077,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					const qty = r?.gained?.[resourceId] || 1;
 					const name = res ? content('resource', res.id, 'name', res.name) : resourceId;
 					pushLog('basket', t('app.log.gathered', { qty, name }));
-					if (qty > 0) bridge.emit('audio-sfx', { id: 'pickup' });
+					if (qty > 0) bridge.emit('audio-sfx', { id: WATER_PICKUP_IDS.has(resourceId) ? 'water' : 'pickup' });
 					// house perk (Log Cabin): the forager's instinct found one extra
 					if (r?.perkBonus) toast(t('app.toast.perkForage', { name }), 'unlock');
 					// the basket is the gathering tool — other tools are for shaping the land
@@ -1073,6 +1099,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				() => api.terraform(area, x, y, action),
 				(r) => {
 					if (action === 'dig') {
+						bridge.emit('audio-sfx', { id: 'dig' });
 						if (r?.dug) {
 							const resDef = data?.resources.find((x: any) => x.id === r.dug.resourceId);
 							const name = resDef ? content('resource', resDef.id, 'name', resDef.name) : r.dug.resourceId;
@@ -1082,13 +1109,17 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 							pushLog('shovel', t('app.log.preparedBed'));
 						}
 					} else if (action === 'water') {
+						bridge.emit('audio-sfx', { id: 'water' });
 						if (r?.tile?.type === 'water') {
 							pushLog('drop', t('app.log.flooded'));
 						} else {
 							pushLog('drop', t('app.log.watered'));
 							toast(t('app.toast.bedReady'));
 						}
-					} else pushLog('shovel', t('app.log.clearedBed'));
+					} else {
+						bridge.emit('audio-sfx', { id: 'dig' });
+						pushLog('shovel', t('app.log.clearedBed'));
+					}
 					bridge.emit('terraformed', { x, y, action });
 				},
 			),
@@ -1112,6 +1143,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 							}),
 						);
 					else pushLog('leaf', t('app.log.planted', { name }));
+					bridge.emit('audio-sfx', { id: 'plant' });
 				},
 			),
 		[act, data, pushLog],
@@ -1475,6 +1507,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				markSaved();
 			} catch (e: any) {
 				setSaveStatus('idle');
+				if (e?.status === 403 || e?.status === 409) playCantSfx();
 				toast(e.message || t('app.error.cannotGoThere'), 'error');
 			}
 		},
