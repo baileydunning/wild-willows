@@ -404,8 +404,10 @@ function Root() {
 	const meadowCueTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 	const audioEnabled = (prefs as any).audioEnabled ?? true;
 	const masterVolume = typeof (prefs as any).masterVolume === 'number' ? (prefs as any).masterVolume : 0.8;
-	const sfxVolume = typeof (prefs as any).sfxVolume === 'number' ? (prefs as any).sfxVolume : 0.75;
-	const musicVolume = typeof (prefs as any).musicVolume === 'number' ? (prefs as any).musicVolume : 0.6;
+	const musicEnabled = prefs.musicEnabled;
+	const sfxEnabled = prefs.sfxEnabled;
+	const sfxVolume = prefs.sfxVolume;
+	const musicVolume = prefs.musicVolume;
 
 	// Keep audio listeners and browser-gesture unlock in one place.
 	useEffect(() => {
@@ -424,11 +426,13 @@ function Root() {
 	useEffect(() => {
 		applyAudioPrefs({
 			audioEnabled,
+			musicEnabled,
+			sfxEnabled,
 			masterVolume,
 			sfxVolume,
 			musicVolume,
 		});
-	}, [audioEnabled, masterVolume, sfxVolume, musicVolume]);
+	}, [audioEnabled, musicEnabled, sfxEnabled, masterVolume, sfxVolume, musicVolume]);
 
 	useEffect(
 		() => () => {

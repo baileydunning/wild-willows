@@ -3096,6 +3096,15 @@ kbd {
 .tool-slot.subtle {
 	color: var(--ink-soft);
 }
+/* No focus ring when clicking with a mouse/touch; keep a themed (green, not the
+   browser's default orange) ring for keyboard users. Mirrors .icon-btn. */
+.tool-slot:focus {
+	outline: none;
+}
+.tool-slot:focus-visible {
+	outline: 2px solid var(--green);
+	outline-offset: 2px;
+}
 .tool-tier {
 	position: absolute;
 	top: -5px;
@@ -4639,6 +4648,45 @@ kbd {
 .switch input:focus-visible ~ .track {
 	outline: 2px solid var(--green-deep);
 	outline-offset: 2px;
+}
+
+/* Volume sliders in the Sound settings section. */
+.volume-row {
+	display: flex;
+	align-items: center;
+	gap: 12px;
+	margin: 0 0 12px;
+}
+.volume-row label {
+	flex-shrink: 0;
+	min-width: 108px;
+	font-weight: 600;
+	color: var(--ink);
+	font-size: calc(13px * var(--ui-scale));
+}
+.volume-row input[type='range'] {
+	flex: 1;
+	accent-color: var(--green);
+	cursor: pointer;
+	height: 22px;
+}
+.volume-row input[type='range']:disabled {
+	cursor: default;
+	opacity: 0.45;
+}
+.volume-row input[type='range']:focus-visible {
+	outline: 2px solid var(--green-deep);
+	outline-offset: 2px;
+	border-radius: 4px;
+}
+.volume-value {
+	flex-shrink: 0;
+	min-width: 42px;
+	text-align: right;
+	font-variant-numeric: tabular-nums;
+	font-weight: 600;
+	color: var(--ink-soft, var(--ink));
+	font-size: calc(13px * var(--ui-scale));
 }
 
 /* ===== goals builder (the custom task list menu) ===== */

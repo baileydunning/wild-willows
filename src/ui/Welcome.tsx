@@ -16,7 +16,7 @@ import { useI18n } from '../i18n/react';
 import { COOP_ENABLED } from '../features';
 import type { Appearance } from '../types';
 import { CharacterPreview, Icon } from './icons';
-import { AppearanceRows, AccessibilityControls, randomizeAppearance } from './Settings';
+import { AppearanceRows, AccessibilityControls, SoundControls, randomizeAppearance } from './Settings';
 import { randomName } from './names';
 
 type Mode = 'menu' | 'new' | 'load' | 'join-code';
@@ -924,6 +924,10 @@ export function WelcomeScreen() {
 									))}
 								</select>
 							</div>
+							<h3>
+								<Icon name="note" size={15} /> {t('app.settings.sound')}
+							</h3>
+							<SoundControls />
 							<h3>
 								<Icon name="sliders" size={15} /> {t('app.settings.accessibility')}
 							</h3>
