@@ -1,0 +1,13 @@
+{
+	"appId": "io.harper.wildwillows",
+	"appName": "Wild Willows",
+	"webDir": "web",
+	"backgroundColor": "#324528",
+	"ios": {
+		"contentInset": "never",
+		"preferredContentMode": "mobile"
+	},
+	"packageClassList": [
+		"FilesystemPlugin"
+	]
+}
