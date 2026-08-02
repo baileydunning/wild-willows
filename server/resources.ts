@@ -1063,9 +1063,14 @@ function activationFlags(view: any, biomeSummary: any, player: any) {
 	const c = view.counts || {};
 	return {
 		collected: (c.resourcesCollected || 0) > 0,
+		terraformed: (c.terraformActions || 0) > 0,
+		planted: (c.plantsPlanted || 0) > 0,
 		crafted: (c.itemsCrafted || 0) > 0 || Object.keys(player.craftedEver || {}).length > 0,
 		placed: (c.objectsPlaced || 0) > 0,
 		attractedAnimal: (biomeSummary?.totalAnimalsReturned || 0) > 0,
+		upgradedTool: (c.toolsUpgraded || 0) > 0,
+		builtHome: (c.homesBuilt || 0) > 0,
+		upgradedHome: (c.homeUpgrades || 0) > 0,
 		unlockedSecondBiome: (view.unlockedBiomes || 0) >= 2,
 	};
 }
@@ -5611,6 +5616,21 @@ export class Metrics extends PublicEndpoint {
 			dashboardCache = { at: now, all }; // cache the scanned + parsed rollup
 		}
 
+		// Full list of versions seen (before any filtering), so the dashboard's
+		// version dropdown always has every option regardless of the active filter.
+		const versionCounts: Record<string, number> = {};
+		for (const v of all) {
+			const ver = v.version || 'unknown';
+			versionCounts[ver] = (versionCounts[ver] || 0) + 1;
+		}
+		const availableVersions = Object.keys(versionCounts).sort((a, b) =>
+			b.localeCompare(a, undefined, { numeric: true }),
+		);
+		// Same idea for edition (demo/full) and platform (web/desktop): full option
+		// lists computed before filtering, so the dropdowns are always complete.
+		const availableEditions = [...new Set(all.map((v) => (v.edition === 'demo' ? 'demo' : 'full')))].sort();
+		const availablePlatforms = [...new Set(all.map((v) => v.platform || 'unknown'))].sort();
+
 		// Optional `?exclude=<name>` filter (repeatable and/or comma-separated) so you
 		// can drop your own test saves and not skew the numbers. Case-insensitive match
 		// on the save's display name.
@@ -5634,6 +5654,34 @@ export class Metrics extends PublicEndpoint {
 							.toLowerCase(),
 					),
 			);
+
+		// Optional `?version=<build>` filter — scopes the whole report (including the
+		// acquisition funnel below) to a single game version. 'all'/empty = no filter.
+		let versionFilter = '';
+		try {
+			const raw = typeof target?.getAll === 'function' ? target.getAll('version') : [];
+			versionFilter = String((raw && raw[0]) || '').trim();
+		} catch {
+			/* no query params on this target */
+		}
+		if (versionFilter && versionFilter.toLowerCase() !== 'all')
+			all = all.filter((v) => (v.version || 'unknown') === versionFilter);
+
+		// Optional `?edition=demo|full` and `?platform=web|desktop` filters.
+		const oneParam = (key: string): string => {
+			try {
+				const raw = typeof target?.getAll === 'function' ? target.getAll(key) : [];
+				return String((raw && raw[0]) || '').trim();
+			} catch {
+				return '';
+			}
+		};
+		const editionFilter = oneParam('edition');
+		const platformFilter = oneParam('platform');
+		if (editionFilter && editionFilter.toLowerCase() !== 'all')
+			all = all.filter((v) => (v.edition === 'demo' ? 'demo' : 'full') === editionFilter);
+		if (platformFilter && platformFilter.toLowerCase() !== 'all')
+			all = all.filter((v) => (v.platform || 'unknown') === platformFilter);
 
 		const N = all.length || 1;
 		const pct = (n: number) => Math.round((n / N) * 100);
@@ -5679,20 +5727,39 @@ export class Metrics extends PublicEndpoint {
 		// Retention: did they come back for more than one session?
 		const returningPlayers = all.filter((v) => v.sessions >= 2).length;
 
-		// Activation funnel — how far players get from first launch.
+		// Activation funnel — how far players get from first launch. Each flag is
+		// read from the snapshot's activation block when present, falling back to the
+		// raw counts / durable biome state so legacy snapshots (uplinked before a flag
+		// existed) still register. NOTE: these are independent booleans, not ordered
+		// prerequisites — `attractedAnimal` comes from durable animal-return state,
+		// while `crafted`/`placed` come from action counters that only tally actions
+		// taken after counting shipped. So a player can show "attracted" without
+		// "crafted": it's a data-source difference, not an impossible sequence. The
+		// dashboard sorts the steps by count, so it always reads as a clean funnel.
+		const did = (v: any, key: string) => (v.counts && (v.counts[key] || 0) > 0);
 		const funnel = {
 			created: all.length,
-			collected: all.filter((v) => v.activation?.collected).length,
-			crafted: all.filter((v) => v.activation?.crafted).length,
-			placed: all.filter((v) => v.activation?.placed).length,
-			attractedAnimal: all.filter((v) => v.activation?.attractedAnimal).length,
-			unlockedSecondBiome: all.filter((v) => v.activation?.unlockedSecondBiome).length,
+			collected: all.filter((v) => v.activation?.collected || did(v, 'resourcesCollected')).length,
+			terraformed: all.filter((v) => v.activation?.terraformed || did(v, 'terraformActions')).length,
+			planted: all.filter((v) => v.activation?.planted || did(v, 'plantsPlanted')).length,
+			crafted: all.filter((v) => v.activation?.crafted || did(v, 'itemsCrafted')).length,
+			placed: all.filter((v) => v.activation?.placed || did(v, 'objectsPlaced')).length,
+			attractedAnimal: all.filter((v) => v.activation?.attractedAnimal || (v.biomeSummary?.totalAnimalsReturned || 0) > 0).length,
+			upgradedTool: all.filter((v) => v.activation?.upgradedTool || did(v, 'toolsUpgraded')).length,
+			builtHome: all.filter((v) => v.activation?.builtHome || did(v, 'homesBuilt')).length,
+			upgradedHome: all.filter((v) => v.activation?.upgradedHome || did(v, 'homeUpgrades')).length,
+			unlockedSecondBiome: all.filter((v) => v.activation?.unlockedSecondBiome || (v.unlockedBiomes || 0) >= 2).length,
 		};
 		const funnelPct = {
 			collected: pct(funnel.collected),
+			terraformed: pct(funnel.terraformed),
+			planted: pct(funnel.planted),
 			crafted: pct(funnel.crafted),
 			placed: pct(funnel.placed),
 			attractedAnimal: pct(funnel.attractedAnimal),
+			upgradedTool: pct(funnel.upgradedTool),
+			builtHome: pct(funnel.builtHome),
+			upgradedHome: pct(funnel.upgradedHome),
 			unlockedSecondBiome: pct(funnel.unlockedSecondBiome),
 		};
 
@@ -5862,6 +5929,13 @@ export class Metrics extends PublicEndpoint {
 		} catch {
 			/* AppOpen table not created yet */
 		}
+		// Keep acquisition consistent with the active filters.
+		if (versionFilter && versionFilter.toLowerCase() !== 'all')
+			openRows = openRows.filter((o) => (o.version || 'unknown') === versionFilter);
+		if (editionFilter && editionFilter.toLowerCase() !== 'all')
+			openRows = openRows.filter((o) => (o.edition === 'demo' ? 'demo' : 'full') === editionFilter);
+		if (platformFilter && platformFilter.toLowerCase() !== 'all')
+			openRows = openRows.filter((o) => (o.platform || 'unknown') === platformFilter);
 		const devices = openRows.length;
 		const convertedDevices = openRows.filter((o) => o.converted).length;
 		// Demo completion: of the demo installs that made a character, how many
@@ -5909,6 +5983,14 @@ export class Metrics extends PublicEndpoint {
 		return {
 			generatedAt: now,
 			source: 'solo-metrics',
+			filters: {
+				availableVersions,
+				availableEditions,
+				availablePlatforms,
+				version: versionFilter && versionFilter.toLowerCase() !== 'all' ? versionFilter : null,
+				edition: editionFilter && editionFilter.toLowerCase() !== 'all' ? editionFilter : null,
+				platform: platformFilter && platformFilter.toLowerCase() !== 'all' ? platformFilter : null,
+			},
 			summary: {
 				players: all.length,
 				soloPlayers: all.length,
