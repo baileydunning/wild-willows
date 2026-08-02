@@ -628,6 +628,20 @@ const PATHS: Record<string, React.ReactNode> = {
 			<circle cx="15.4" cy="15.4" r="0.9" fill="currentColor" />
 		</>
 	),
+	note: (
+		<>
+			<path d="M9 18V5.5l9-2v11" />
+			<ellipse cx="6.5" cy="18" rx="2.5" ry="2" />
+			<ellipse cx="15.5" cy="16.5" rx="2.5" ry="2" />
+		</>
+	),
+	code: (
+		<>
+			<path d="M8.5 8 4 12l4.5 4" />
+			<path d="M15.5 8 20 12l-4.5 4" />
+			<path d="M13.2 6.5 10.8 17.5" />
+		</>
+	),
 };
 
 export function Icon({ name, size = 20, className }: { name: string; size?: number; className?: string }) {

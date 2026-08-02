@@ -15,6 +15,9 @@ const fs = require('node:fs');
 const steam = require('./steam');
 const metricsSync = require('./metrics-sync');
 
+// Desktop app can allow autoplay so opening music starts without a click.
+app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
+
 // Single instance only — two copies would fight over the same save files.
 // NOT in the Mac App Store build: the App Sandbox blocks Electron's singleton
 // from bind()ing its Unix socket in $TMPDIR ("Operation not permitted"), so

@@ -1,9 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
 import { api } from './api';
+import { applyAudioPrefs, bindGameAudio, primeAudio, setAmbienceActive, setMusicActive } from './audio';
 import { bridge } from './game/bridge';
 import { PhaserGame } from './game/PhaserGame';
+import { usePrefs } from './prefs';
 import { GameProvider, useGame } from './state';
 import { useI18n } from './i18n/react';
+import { liveDayPhase, liveWeatherType } from './weather';
 import { harvestReadyAt } from './types';
 import { isTypingTarget } from './typing';
 import { HelpModal } from './ui/Help';
@@ -126,7 +129,10 @@ function PlacementMenu({ item, onClose }: { item: ClickedPlacement; onClose: () 
 	const { t, content } = useI18n();
 	const def = data?.habitatObjects.find((o) => o.id === item.objectId);
 	const planted = !!(def?.plantable && item.plantedAt);
-	const readyAt = harvestReadyAt(def, { plantedAt: item.plantedAt, lastHarvestAt: item.lastHarvestAt });
+	const readyAt = harvestReadyAt(def, {
+		plantedAt: item.plantedAt,
+		lastHarvestAt: item.lastHarvestAt,
+	});
 	const canHarvest = readyAt != null && Date.now() >= readyAt;
 	const yieldName = def?.yield
 		? content(
@@ -338,7 +344,12 @@ function GameScreen() {
 			};
 			if (map[k]) setPanel(panel === map[k] ? null : map[k]);
 			// number keys select toolbelt tools
-			const toolByKey: Record<string, string> = { '1': 'basket', '2': 'shovel', '3': 'watering-can', '4': 'paint' };
+			const toolByKey: Record<string, string> = {
+				'1': 'basket',
+				'2': 'shovel',
+				'3': 'watering-can',
+				'4': 'paint',
+			};
 			if (toolByKey[k]) game.setSelectedTool(toolByKey[k]);
 		};
 		window.addEventListener('keydown', onKey);
@@ -434,6 +445,147 @@ function DemoCompleteModal() {
 
 function Root() {
 	const { state, data, pendingJoin } = useGame();
+	const prefs = usePrefs();
+	const [audioClock, setAudioClock] = useState(0);
+	const wasOpeningFlowRef = useRef(true);
+	const meadowCueTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	const audioEnabled = (prefs as any).audioEnabled ?? true;
+	const masterVolume = typeof (prefs as any).masterVolume === 'number' ? (prefs as any).masterVolume : 0.8;
+	const musicEnabled = prefs.musicEnabled;
+	const sfxEnabled = prefs.sfxEnabled;
+	const sfxVolume = prefs.sfxVolume;
+	const musicVolume = prefs.musicVolume;
+
+	// Keep audio listeners and browser-gesture unlock in one place.
+	useEffect(() => {
+		const unbind = bindGameAudio();
+		const unlock = () => primeAudio();
+		window.addEventListener('pointerdown', unlock, { passive: true });
+		window.addEventListener('keydown', unlock);
+		return () => {
+			unbind();
+			window.removeEventListener('pointerdown', unlock);
+			window.removeEventListener('keydown', unlock);
+		};
+	}, []);
+
+	// Apply the latest settings panel audio values immediately.
+	useEffect(() => {
+		applyAudioPrefs({
+			audioEnabled,
+			musicEnabled,
+			sfxEnabled,
+			masterVolume,
+			sfxVolume,
+			musicVolume,
+		});
+	}, [audioEnabled, musicEnabled, sfxEnabled, masterVolume, sfxVolume, musicVolume]);
+
+	useEffect(
+		() => () => {
+			if (meadowCueTimeoutRef.current) {
+				clearTimeout(meadowCueTimeoutRef.current);
+				meadowCueTimeoutRef.current = null;
+			}
+		},
+		[],
+	);
+
+	// Keep ambience in sync with live weather/day-phase between state refreshes.
+	useEffect(() => {
+		const id = window.setInterval(() => {
+			setAudioClock((n) => n + 1);
+		}, 15000);
+		return () => {
+			window.clearInterval(id);
+		};
+	}, []);
+
+	// Play the opening theme only on pre-game screens (menu / character creator).
+	useEffect(() => {
+		const inOpeningFlow = !state || !data;
+		const isHome = !!state && !!data && state.player.area === 'home';
+		const outdoors = !!state && !!data && !isHome;
+		const worldId = state?.worldId || state?.player?.id || null;
+		const area = state?.player.area;
+		const dayPhase = liveDayPhase(state?.weather);
+		const weatherType = outdoors && area ? liveWeatherType(worldId, area, state?.weather) : 'clear';
+		const outdoorAmbienceTrack: 'meadow' | 'night' | 'rain' =
+			weatherType === 'rain' ? 'rain' : dayPhase === 'night' ? 'night' : 'meadow';
+		const meadowHealth = state?.biomeStates.find((b) => b.biomeId === 'meadow')?.health ?? 0;
+		const forestHealth = state?.biomeStates.find((b) => b.biomeId === 'forest')?.health ?? 0;
+		const wetlandsHealth = state?.biomeStates.find((b) => b.biomeId === 'wetland')?.health ?? 0;
+		const scrublandHealth = state?.biomeStates.find((b) => b.biomeId === 'desert')?.health ?? 0;
+		const alpineHealth = state?.biomeStates.find((b) => b.biomeId === 'alpine')?.health ?? 0;
+		const coastalHealth = state?.biomeStates.find((b) => b.biomeId === 'coastal')?.health ?? 0;
+		const gameplayTrack =
+			state?.player.area === 'forest'
+				? forestHealth < 50
+					? 'hollowforest_level1'
+					: forestHealth < 80
+						? 'hollowforest_level2'
+						: 'hollowforest_level3'
+				: state?.player.area === 'wetland'
+					? wetlandsHealth < 50
+						? 'wetlands_level1'
+						: wetlandsHealth < 80
+							? 'wetlands_level2'
+							: 'wetlands_level3'
+					: state?.player.area === 'desert'
+						? scrublandHealth < 50
+							? 'scrubland_level1'
+							: scrublandHealth < 80
+								? 'scrubland_level2'
+								: 'scrubland_level3'
+						: state?.player.area === 'alpine'
+							? alpineHealth < 50
+								? 'graywind_level1'
+								: alpineHealth < 80
+									? 'graywind_level2'
+									: 'graywind_level3'
+							: state?.player.area === 'coastal'
+								? coastalHealth < 50
+									? 'pelicanbay_level1'
+									: coastalHealth < 80
+										? 'pelicanbay_level2'
+										: 'pelicanbay_level3'
+								: meadowHealth < 50
+									? 'meadowambient'
+									: meadowHealth < 80
+										? 'meadowambient_level2'
+										: 'meadowambient_level3';
+
+		if (inOpeningFlow) {
+			if (meadowCueTimeoutRef.current) {
+				clearTimeout(meadowCueTimeoutRef.current);
+				meadowCueTimeoutRef.current = null;
+			}
+			wasOpeningFlowRef.current = true;
+			setMusicActive(true, 'wildwillowstheme');
+			setAmbienceActive(false);
+			return;
+		}
+
+		setAmbienceActive(outdoors, outdoorAmbienceTrack);
+
+		// Transitioning from opening flow into gameplay: stop menu theme now, then
+		// start meadowambient after a short lead-in.
+		if (wasOpeningFlowRef.current) {
+			wasOpeningFlowRef.current = false;
+			setMusicActive(false, 'wildwillowstheme');
+			setMusicActive(false, gameplayTrack);
+			if (meadowCueTimeoutRef.current) clearTimeout(meadowCueTimeoutRef.current);
+			meadowCueTimeoutRef.current = setTimeout(() => {
+				setMusicActive(true, gameplayTrack);
+				meadowCueTimeoutRef.current = null;
+			}, 5000);
+			return;
+		}
+
+		// Once the transition has happened, keep the gameplay cue active.
+		setMusicActive(true, gameplayTrack);
+	}, [state, data, audioClock]);
+
 	// the game needs both definitions and a logged-in save before it can render.
 	// A joiner awaiting host approval sits in the waiting room until let in.
 	return (

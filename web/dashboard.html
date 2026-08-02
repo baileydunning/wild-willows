@@ -58,6 +58,13 @@
 		border: 1px solid var(--rule); background: var(--card); color: var(--accent-dark);
 		padding: .35rem .8rem; border-radius: 999px; box-shadow: var(--shadow); transition: transform .1s;
 	}
+	.vfilter { display: inline-flex; align-items: center; gap: .4rem; margin-top: .5rem; font-size: .78rem; color: var(--muted); }
+	.vfilter select {
+		font: inherit; font-size: .8rem; cursor: pointer; color: var(--accent-dark);
+		border: 1px solid var(--rule); background: var(--card); border-radius: 999px;
+		padding: .3rem .7rem; box-shadow: var(--shadow);
+	}
+	.filter-note { display: inline-block; margin-left: .5rem; font-size: .74rem; font-weight: 700; color: var(--accent-dark); background: var(--accent-soft); border-radius: 999px; padding: .1rem .55rem; }
 	button.refresh:hover { transform: translateY(-1px); }
 	button.refresh:active { transform: translateY(0); }
 
@@ -130,6 +137,46 @@
 	.charcard .cmeta b { color: var(--accent-dark); font-weight: 700; }
 	.charcard .badge { display: inline-block; margin-top: .25rem; font-size: .66rem; color: var(--gold); font-weight: 700; letter-spacing: .02em; }
 
+	/* ---- player highlights ---- */
+	.hlgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(248px, 1fr)); gap: .8rem; }
+	.hlcard { display: flex; gap: .75rem; align-items: center; background: linear-gradient(180deg,#fffdf7,#f6f3e8); border:1px solid var(--rule); border-radius: 16px; padding: .75rem .85rem; box-shadow: var(--shadow); transition: transform .12s ease; }
+	.hlcard:hover { transform: translateY(-3px); }
+	.hlav { flex: none; width: 66px; }
+	.hlav svg { width: 100%; height: auto; }
+	.hlbody { flex: 1; min-width: 0; }
+	.hlname { display: flex; align-items: center; gap: .45rem; font-weight: 700; color: var(--ink); font-size: .96rem; margin-bottom: .35rem; overflow: hidden; text-overflow: ellipsis; }
+	.hltop { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; margin-bottom: .5rem; }
+	.hltag { font-size: .66rem; font-weight: 700; letter-spacing: .02em; color: var(--accent-dark); background: var(--accent-soft); border-radius: 999px; padding: .12rem .55rem; }
+	.hledi { font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; border-radius: 999px; padding: .1rem .45rem; }
+	.hledi.demo { color: #a9781c; background: #f6e8c9; }
+	.hledi.full { color: var(--accent-dark); background: var(--accent-soft); }
+	.hlstats { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem .35rem; }
+	.hlstat { display: flex; flex-direction: column; }
+	.hlstat b { font-size: .96rem; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1.1; }
+	.hlstat span { font-size: .64rem; color: var(--faint); }
+	.hlcard { cursor: pointer; }
+	.hlcard:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+	/* ---- player modal ---- */
+	.modal-overlay { position: fixed; inset: 0; background: rgba(30,38,24,.55); display: flex; align-items: flex-start; justify-content: center; padding: 4vh 1rem; z-index: 100; overflow-y: auto; }
+	.modal { background: var(--bg); border-radius: 20px; max-width: 880px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,.3); padding: 1.4rem 1.4rem 1.8rem; position: relative; }
+	.modal-close { position: absolute; top: .9rem; right: 1rem; border: none; background: var(--card); border-radius: 999px; width: 34px; height: 34px; font-size: 1.2rem; line-height: 1; cursor: pointer; color: var(--muted); box-shadow: var(--shadow); }
+	.modal-close:hover { color: var(--ink); }
+	.modal-head { display: flex; gap: 1rem; align-items: center; margin-bottom: 1.1rem; padding-right: 2.4rem; }
+	.modal-head .mav { flex: none; width: 84px; }
+	.modal-head .mav svg { width: 100%; height: auto; }
+	.modal-head h2 { margin: 0 0 .3rem; font-size: 1.3rem; }
+	.modal-head .msub { color: var(--muted); font-size: .82rem; display: flex; gap: .5rem .7rem; flex-wrap: wrap; align-items: center; }
+	.checklist { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: .45rem .8rem; }
+	.checkitem { display: flex; align-items: center; gap: .45rem; font-size: .84rem; color: var(--muted); }
+	.checkitem .ck { width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 700; flex: none; }
+	.checkitem .ck.on { background: var(--accent-soft); color: var(--accent-dark); }
+	.checkitem .ck.off { background: #f0e4e4; color: #b06a6a; }
+	.reclist { display: flex; flex-direction: column; gap: .3rem; }
+	.recrow { display: flex; justify-content: space-between; gap: 1rem; font-size: .82rem; color: var(--faint); border-bottom: 1px dashed var(--rule); padding-bottom: .3rem; }
+	.recrow b { color: var(--ink); font-weight: 600; }
+	body.modal-open { overflow: hidden; }
+
 	/* ---- swatches ---- */
 	.swatches { display: flex; flex-wrap: wrap; gap: .5rem; }
 	.swatch { display: flex; flex-direction: column; align-items: center; gap: .25rem; }
@@ -184,6 +231,15 @@
 		<div class="meta">
 			<div class="live"><span class="dot"></span> Live dashboard</div>
 			<div id="generated">Loading…</div>
+			<label class="vfilter"><span>Version</span>
+				<select id="version-filter"><option value="all">All versions</option></select>
+			</label>
+			<label class="vfilter"><span>Edition</span>
+				<select id="edition-filter"><option value="all">All editions</option></select>
+			</label>
+			<label class="vfilter"><span>Platform</span>
+				<select id="platform-filter"><option value="all">All platforms</option></select>
+			</label>
 			<button class="refresh" id="refresh" type="button">↻ Refresh</button>
 		</div>
 	</header>
@@ -437,6 +493,120 @@ function sec(title, sub, body) {
 function card(inner) { return `<div class="card">${inner}</div>`; }
 function cardTitled(title, tag, inner) { return `<div class="card"><h3>${title}${tag ? `<span class="tag">${tag}</span>` : ""}</h3>${inner}</div>`; }
 
+/* Shared action labels (used by the all-time totals and the per-player modal). */
+const ACTION_LABELS = {
+	resourcesCollected: "Resources collected", terraformActions: "Terraform actions", plantsPlanted: "Plants planted",
+	itemsCrafted: "Items crafted", objectsPlaced: "Objects placed", animalsReturned: "Animals returned",
+	itemsDiscarded: "Items discarded", animalsObserved: "Animals observed", chestDeposits: "Chest deposits",
+	tasksCompleted: "Tasks completed", toolsUpgraded: "Tools upgraded", homeUpgrades: "Home upgrades",
+	recolors: "Recolors", chestWithdrawals: "Chest withdrawals", objectsMoved: "Objects moved",
+	objectsRemoved: "Objects removed", homesBuilt: "Homes built",
+};
+
+/* Compact duration: minutes under an hour, else "Xh Ym". */
+function fmtDur(sec) { const m = Math.round(n(sec) / 60); if (m < 60) return m + "m"; const h = Math.floor(m / 60), r = m % 60; return r ? `${h}h ${r}m` : `${h}h`; }
+
+/* ------------------------------------------------------------------ *
+ * Per-player modal — a full picture of one caretaker's playthrough
+ * ------------------------------------------------------------------ */
+let PLAYERS_BY_ID = {};
+let modalEl = null;
+
+/** Build the modal body for one player: header, headline stats, progress,
+ *  milestones, a full action breakdown, time-by-area, and recent achievements. */
+function playerModalHTML(p) {
+	const bs = p.biomeSummary || {}, ach = p.achievements || {}, act = p.activation || {}, counts = p.counts || {};
+	const edi = p.edition === "demo" ? "demo" : "full";
+	const areaMin = (p.areaMinutes && Object.keys(p.areaMinutes).length)
+		? p.areaMinutes
+		: Object.fromEntries(Object.entries(p.areaSeconds || {}).map(([k, v]) => [k, Math.round(n(v) / 60)]));
+	const joined = p.daysSinceJoined != null ? `joined ${p.daysSinceJoined}d ago` : "";
+	const last = p.hoursSinceActive != null ? `last seen ${p.hoursSinceActive}h ago` : "";
+	const tut = n(p.tutorialStep) >= 99 ? "Done" : `Step ${n(p.tutorialStep)}`;
+
+	const kpis = `<div class="grid kpis">${[
+		kpi(fmtDur(p.playSeconds), "Played", `${fmt(n(p.playMinutes))}m total`),
+		kpi(fmt(n(p.sessions)), n(p.sessions) === 1 ? "Session" : "Sessions", `${n(p.avgSessionMinutes)}m avg`),
+		kpi(fmt(n(p.totalActions)), "Actions", `${n(p.actionsPerMinute)}/min`),
+		kpi(`${n(ach.earned)}<small>/${n(ach.total)}</small>`, "Achievements", `${fmt(n(ach.points))} pts`),
+	].join("")}</div>`;
+
+	const progress = cardTitled("Progress", null, `<div class="grid kpis">${[
+		kpi(fmt(n(p.unlockedBiomes || bs.biomesUnlocked)), "Biomes unlocked"),
+		kpi(fmt(n(bs.biomesFullyRestored)), "Biomes restored"),
+		kpi(`${n(bs.avgHealth)}<small>%</small>`, "Avg biome health"),
+		kpi(fmt(n(bs.totalAnimalsReturned)), "Animals returned"),
+	].join("")}</div>`);
+
+	const cdid = (k) => n(counts[k]) > 0;
+	const flags = [
+		["Collected a resource", act.collected || cdid("resourcesCollected")],
+		["Terraformed the land", act.terraformed || cdid("terraformActions")],
+		["Planted something", act.planted || cdid("plantsPlanted")],
+		["Crafted an item", act.crafted || cdid("itemsCrafted")],
+		["Placed an object", act.placed || cdid("objectsPlaced")],
+		["Attracted an animal", act.attractedAnimal || n(bs.totalAnimalsReturned) > 0],
+		["Upgraded a tool", act.upgradedTool || cdid("toolsUpgraded")],
+		["Built a home", act.builtHome || cdid("homesBuilt")],
+		["Upgraded a home", act.upgradedHome || cdid("homeUpgrades")],
+		["Unlocked 2nd biome", act.unlockedSecondBiome || n(p.unlockedBiomes || bs.biomesUnlocked) >= 2],
+	];
+	const checklist = cardTitled("Milestones", null, `<div class="checklist">${flags.map(([l, on]) =>
+		`<span class="checkitem"><span class="ck ${on ? "on" : "off"}">${on ? "✓" : "·"}</span>${l}</span>`).join("")}</div>`);
+
+	const totalActs = Object.values(counts).reduce((a, b) => a + n(b), 0);
+	const actionsCard = cardTitled("Everything they did", `${fmt(totalActs)} actions`,
+		barRows(objToEntries(counts), { labelMap: ACTION_LABELS }));
+	const areaCard = Object.keys(areaMin).length
+		? cardTitled("Time by area", null, barRows(objToEntries(areaMin), { cls: "sky", fmtNum: (v) => `${fmt(v)}m` }))
+		: "";
+
+	const recent = (ach.recent || []).slice(0, 8);
+	const recCard = recent.length
+		? cardTitled("Recent achievements", `${n(ach.earned)} earned`, `<div class="reclist">${recent.map((r) =>
+			`<div class="recrow"><b>${esc(r.name || r.id || "")}</b><span>${r.earnedAt ? new Date(r.earnedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : ""}</span></div>`).join("")}</div>`)
+		: "";
+
+	const onboard = cardTitled("Onboarding", null, `<div class="grid kpis">${[
+		kpi(p.creationSeconds != null ? `${n(p.creationSeconds)}<small>s</small>` : "—", "Creation time"),
+		kpi(p.timeToFirstActionSeconds != null ? `${n(p.timeToFirstActionSeconds)}<small>s</small>` : "—", "Time to 1st action"),
+		kpi(tut, "Tutorial"),
+	].join("")}</div>`);
+
+	const meta = esc([p.platform, p.os, p.version].filter(Boolean).join(" · "));
+	const when = [joined, last].filter(Boolean).join(" · ");
+	return `<button class="modal-close" data-close aria-label="Close">×</button>` +
+		`<div class="modal-head"><div class="mav">${avatarSVG(p.appearance)}</div><div><h2>${esc(p.name || "Unnamed")}</h2>` +
+		`<div class="msub"><span class="hledi ${edi}">${edi}</span>${meta ? `<span>${meta}</span>` : ""}${when ? `<span>${when}</span>` : ""}</div></div></div>` +
+		kpis +
+		`<div class="grid two" style="margin-top:.8rem">${progress}${checklist}</div>` +
+		`<div style="margin-top:.8rem">${actionsCard}</div>` +
+		(areaCard ? `<div class="grid two" style="margin-top:.8rem">${areaCard}${recCard}</div>` : (recCard ? `<div style="margin-top:.8rem">${recCard}</div>` : "")) +
+		`<div style="margin-top:.8rem">${onboard}</div>`;
+}
+
+/** Open the modal for a player id (looked up from the last render). */
+function openPlayerModal(pid) {
+	const p = PLAYERS_BY_ID[pid];
+	if (!p) return;
+	if (!modalEl) {
+		modalEl = document.createElement("div");
+		modalEl.className = "modal-overlay";
+		modalEl.innerHTML = `<div class="modal" role="dialog" aria-modal="true"></div>`;
+		document.body.appendChild(modalEl);
+		modalEl.addEventListener("click", (e) => {
+			if (e.target === modalEl || (e.target.closest && e.target.closest("[data-close]"))) closePlayerModal();
+		});
+	}
+	modalEl.querySelector(".modal").innerHTML = playerModalHTML(p);
+	modalEl.style.display = "flex";
+	document.body.classList.add("modal-open");
+}
+function closePlayerModal() {
+	if (modalEl) modalEl.style.display = "none";
+	document.body.classList.remove("modal-open");
+}
+
 /* ------------------------------------------------------------------ *
  * Main render
  * ------------------------------------------------------------------ */
@@ -444,16 +614,99 @@ function render(data) {
 	const s = (data && data.summary) || {};
 	const players = (data && data.players) || [];
 	const A = s.audience || {}, E = s.engagement || {}, R = s.retention || {}, P = s.progression || {};
+	const flt = (data && data.filters) || {};
 	const out = [];
 
+	/* ---- Headline insights (auto-generated, most actionable first) ---- */
+	const fN = s.funnel || {}, acqN = s.acquisition || {};
+	const insights = [];
+	const addInsight = (tone, title, detail) => insights.push({ tone, title, detail });
+
+	// 1. Install → character bounce.
+	if (acqN.bounceRatePct != null && n(acqN.devices) > 0) {
+		const b = n(acqN.bounceRatePct);
+		addInsight(b >= 40 ? "bad" : b >= 20 ? "warn" : "good",
+			`${b}% bounce before creating a character`,
+			`${fmt(n(acqN.devices) - n(acqN.converted))} of ${fmt(acqN.devices)} devices opened the game but never made a caretaker. The title/first screen is where they leave.`);
+	}
+
+	// 2. Created a character but never took a single action.
+	const created = n(fN.created), collected = n(fN.collected);
+	if (created > 0) {
+		const idle = created - collected, idlePct = Math.round((idle / created) * 100);
+		if (idle > 0) addInsight(idlePct >= 30 ? "bad" : idlePct >= 15 ? "warn" : "good",
+			`${idlePct}% never collected a single resource`,
+			`${fmt(idle)} caretakers made a character then did nothing. Gathering is the first real action — the jump from creator to first gather needs a clearer nudge.`);
+	}
+
+	// 3. Biggest step-to-step drop in the activation funnel.
+	const funOrder = [
+		["created a character", created],
+		["collected a resource", collected],
+		["crafted an item", n(fN.crafted)],
+		["placed an object", n(fN.placed)],
+		["attracted an animal", n(fN.attractedAnimal)],
+		["unlocked the 2nd biome", n(fN.unlockedSecondBiome)],
+	];
+	let cliff = null;
+	for (let i = 1; i < funOrder.length; i++) {
+		const prev = funOrder[i - 1][1], cur = funOrder[i][1];
+		if (prev > 0) {
+			const dropPct = Math.round(((prev - cur) / prev) * 100);
+			if (!cliff || dropPct > cliff.dropPct) cliff = { from: funOrder[i - 1][0], to: funOrder[i][0], dropPct, lost: prev - cur };
+		}
+	}
+	if (cliff && cliff.dropPct > 0) addInsight(cliff.dropPct >= 50 ? "bad" : cliff.dropPct >= 30 ? "warn" : "good",
+		`Biggest drop-off: ${cliff.to}`,
+		`${cliff.dropPct}% of caretakers who ${cliff.from} never went on to ${cliff.to.replace(/^(the )?/, "")} — ${fmt(cliff.lost)} lost at this step.`);
+
+	// 4. Stuck in the starter meadow.
+	const withBiome = players.filter((p) => p && (p.unlockedBiomes != null || (p.biomeSummary && p.biomeSummary.biomesUnlocked != null)));
+	if (withBiome.length) {
+		const meadowOnly = withBiome.filter((p) => n(p.unlockedBiomes || (p.biomeSummary && p.biomeSummary.biomesUnlocked)) <= 1).length;
+		const mPct = Math.round((meadowOnly / withBiome.length) * 100);
+		if (mPct >= 15) addInsight(mPct >= 60 ? "bad" : mPct >= 35 ? "warn" : "good",
+			`${mPct}% never leave the starter meadow`,
+			`${fmt(meadowOnly)} of ${fmt(withBiome.length)} caretakers only ever unlocked one biome. The pull toward the second area may be too weak or too far away.`);
+	}
+
+	// 5. Demo completion — how many demo players reach the hard-stop.
+	const dcI = s.demoCompletion || {};
+	if (n(dcI.createdCharacter) > 0) {
+		const cp = n(dcI.completionPct);
+		addInsight(cp < 25 ? "bad" : cp < 50 ? "warn" : "good",
+			`${cp}% of demo players finish the demo`,
+			`${fmt(dcI.reachedGoal)} of ${fmt(dcI.createdCharacter)} demo players who made a character reached the 5-animal hard-stop. This is the clearest read on whether the demo lands.`);
+	}
+
+	// 6. Return rate.
+	if (R.returningRatePct != null) {
+		const rr = n(R.returningRatePct);
+		addInsight(rr < 20 ? "bad" : rr < 40 ? "warn" : "good",
+			`${rr}% come back for a 2nd session`,
+			`${fmt(R.returningPlayers)} caretakers returned after their first sitting. A gentle reason to return (a task waiting, an animal about to arrive) could lift this.`);
+	}
+
+	if (insights.length) {
+		const rank = { bad: 0, warn: 1, good: 2 };
+		insights.sort((a, b) => rank[a.tone] - rank[b.tone]);
+		const toneColor = { bad: "#c0553f", warn: "#d9a441", good: "#4a7c46" };
+		const toneLabel = { bad: "needs attention", warn: "watch", good: "healthy" };
+		const cards = insights.map((i) =>
+			`<div class="card" style="border-left:4px solid ${toneColor[i.tone]}"><h3 style="margin:0 0 .35rem">${i.title}<span class="tag" style="background:${toneColor[i.tone]}22;color:${toneColor[i.tone]}">${toneLabel[i.tone]}</span></h3><div style="color:var(--faint);font-size:.85rem;line-height:1.5">${i.detail}</div></div>`
+		).join("");
+		out.push(sec("What to focus on", "the biggest opportunities from the latest data", `<div class="grid two">${cards}</div>`));
+	}
+
 	/* ---- Overview KPIs ---- */
-	out.push(sec("Overview", "who is out there right now", `<div class="grid kpis">${[
+	const activeFilters = [flt.version && `v${flt.version}`, flt.edition, flt.platform].filter(Boolean).map(esc);
+	const overviewSub = activeFilters.length ? `filtered to ${activeFilters.join(" · ")}` : "who is out there right now";
+	out.push(sec("Overview", overviewSub, `<div class="grid kpis">${[
 		kpi(fmt(s.players), "Total caretakers", "unique anonymous saves"),
 		kpi(`<span class="accent">${fmt(A.activeNow)}</span>`, "Active now", "seen in the last 5 minutes"),
 		kpi(fmt(A.activeLast24h), "Active · 24h"),
 		kpi(fmt(A.activeLast7d), "Active · 7d"),
 		kpi(fmt(A.newLast24h), "New · 24h", `${fmt(A.newLast7d)} in the last 7 days`),
-		kpi(fmt(A.dormant), "Dormant", "quiet for over a week"),
 	].join("")}</div>`));
 
 	/* ---- Engagement KPIs ---- */
@@ -498,31 +751,55 @@ function render(data) {
 		`<div class="card" style="margin-top:.8rem"><h3>Every metric, side by side<span class="tag">demo vs full</span></h3>` +
 		vsTable(vsRows, dStat, fStat) + `</div>`));
 
-	/* ---- Characters gallery (rendered here, appended at the bottom) ---- */
+	/* ---- Player highlights (rendered here, appended at the bottom) ---- */
 	let charSection = "";
-	const withApp = players.filter((p) => p && p.appearance);
-	if (withApp.length) {
-		// sort by achievement points / playtime so the most-developed caretakers lead
-		const sorted = [...withApp].sort((a, b) =>
-			n(b.achievements && b.achievements.points) - n(a.achievements && a.achievements.points) ||
-			n(b.playSeconds) - n(a.playSeconds));
-		const cards = sorted.map((p) => {
-			const mins = Math.round(n(p.playSeconds) / 60);
-			const ach = n(p.achievements && p.achievements.earned);
-			const biomes = n(p.unlockedBiomes || (p.biomeSummary && p.biomeSummary.biomesUnlocked));
-			const restored = n(p.biomeSummary && p.biomeSummary.biomesFullyRestored);
-            const meta = mins > 0
-                ? `<b>${mins}m</b> played · <b>${ach}</b>★`
-                : `just created`;
-			return `<div class="charcard">${avatarSVG(p.appearance)}<div class="cmeta">${meta}<br>${biomes} biome${biomes === 1 ? "" : "s"} unlocked</div>${restored > 0 ? `<span class="badge">✦ ${restored} restored</span>` : ""}</div>`;
+	// Everyone who played more than 5 minutes — most engaged first. Each card is
+	// clickable and opens a full breakdown modal (looked up by playerId).
+	PLAYERS_BY_ID = {};
+	for (const p of players) if (p && p.playerId) PLAYERS_BY_ID[p.playerId] = p;
+	const engaged = players.filter((p) => p && n(p.playSeconds) > 300);
+	if (engaged.length) {
+		const top = [...engaged].sort((a, b) =>
+			n(b.playSeconds) - n(a.playSeconds) ||
+			n(b.totalActions) - n(a.totalActions) ||
+			n(b.achievements && b.achievements.points) - n(a.achievements && a.achievements.points)
+		);
+
+		// Superlative badges: each dimension's true leader (within the shown set)
+		// earns its tag; a standout who leads several shows up to two of them.
+		const supTags = {};
+		const assignSup = (key, label) => {
+			let best = 0, idx = -1;
+			top.forEach((p, i) => { const v = n(key(p)); if (v > best) { best = v; idx = i; } });
+			if (idx >= 0) (supTags[idx] = supTags[idx] || []).push(label);
+		};
+		assignSup((p) => p.playSeconds, "Most playtime");
+		assignSup((p) => p.totalActions, "Most active");
+		assignSup((p) => p.achievements && p.achievements.earned, "Most achievements");
+		assignSup((p) => p.biomeSummary && p.biomeSummary.biomesFullyRestored, "Most restored");
+
+		const stat = (v, l) => `<div class="hlstat"><b>${v}</b><span>${l}</span></div>`;
+		const cards = top.map((p, i) => {
+			const bs = p.biomeSummary || {};
+			const edi = p.edition === "demo" ? "demo" : "full";
+			const tags = (supTags[i] || []).slice(0, 2).map((t) => `<span class="hltag">${t}</span>`).join("");
+			return `<div class="hlcard" data-pid="${esc(p.playerId || "")}" role="button" tabindex="0" title="Click for full breakdown"><div class="hlav">${avatarSVG(p.appearance)}</div><div class="hlbody"><div class="hltop">${tags}<span class="hledi ${edi}">${edi}</span></div><div class="hlstats">${[
+				stat(fmtDur(p.playSeconds), "played"),
+				stat(fmt(n(p.sessions)), n(p.sessions) === 1 ? "session" : "sessions"),
+				stat(fmt(n(p.totalActions)), "actions"),
+				stat(`${n(p.achievements && p.achievements.earned)}★`, "achievements"),
+				stat(fmt(n(bs.totalAnimalsReturned)), "animals"),
+				stat(fmt(n(p.unlockedBiomes || bs.biomesUnlocked)), "biomes"),
+			].join("")}</div></div></div>`;
 		}).join("");
-		charSection = sec("Caretakers they created", `${withApp.length} characters with saved looks · names hidden`,
-			`<div class="card charwrap"><div class="chargrid">${cards}</div></div>`);
+		charSection = sec("Player highlights", `everyone who played more than 5 min · ${top.length} caretakers · click a card for the full breakdown`,
+			`<div class="card"><div class="hlgrid">${cards}</div></div>`);
 	}
 
 	/* ---- Acquisition + Activation funnels ---- */
 	const acq = s.acquisition || {};
 	const fun = s.funnel || {};
+	const dc = s.demoCompletion || {};
 	const acqCards = cardTitled("Acquisition funnel", "per device", funnel([
 		{ label: "Opened the app", value: acq.devices },
 		{ label: "Created a character", value: acq.converted },
@@ -531,16 +808,36 @@ function render(data) {
 		kpi(`<span class="accent">${pct(acq.conversionPct)}</span>`, "Conversion"),
 		kpi(pct(acq.bounceRatePct), "Bounced"),
 	].join("")}</div>`);
-	const funSteps = funnel([
-		{ label: "Created character", value: fun.created },
+	const demoCard = dc.demoInstalls
+		? cardTitled("Demo completion", "reached the 5-animal hard-stop", funnel([
+			{ label: "Made a character", value: dc.createdCharacter },
+			{ label: "Finished the demo", value: dc.reachedGoal },
+		]) + `<div class="grid three" style="margin-top:1rem">${[
+			kpi(fmt(dc.demoInstalls), "Demo installs"),
+			kpi(`<span class="accent">${pct(dc.completionPct)}</span>`, "Completion", "of demo players who started"),
+			kpi(fmt(dc.reachedGoal), "Finished"),
+		].join("")}</div>`)
+		: "";
+	// Every activation signal we have. "Created" is the entry point (always first
+	// and largest); the rest are sorted by count so the funnel always reads
+	// top-down. They're independent booleans, not strict prerequisites, so sorting
+	// by count — not by an assumed sequence — is the honest way to show them.
+	const funRest = [
 		{ label: "Collected a resource", value: fun.collected },
+		{ label: "Terraformed the land", value: fun.terraformed },
+		{ label: "Planted something", value: fun.planted },
 		{ label: "Crafted an item", value: fun.crafted },
 		{ label: "Placed an object", value: fun.placed },
 		{ label: "Attracted an animal", value: fun.attractedAnimal },
+		{ label: "Upgraded a tool", value: fun.upgradedTool },
+		{ label: "Built a home", value: fun.builtHome },
+		{ label: "Upgraded a home", value: fun.upgradedHome },
 		{ label: "Unlocked 2nd biome", value: fun.unlockedSecondBiome },
-	]);
+	].filter((st) => st.value != null).sort((a, b) => n(b.value) - n(a.value));
+	const funSteps = funnel([{ label: "Created character", value: fun.created }, ...funRest]);
 	out.push(sec("Funnels", "from install to a thriving meadow",
-		`<div class="grid two">${acqCards}${cardTitled("Activation funnel", "all caretakers", funSteps)}</div>`));
+		`<div class="grid two">${acqCards}${cardTitled("Activation funnel", "all caretakers", funSteps)}</div>` +
+		(demoCard ? `<div style="margin-top:.8rem">${demoCard}</div>` : "")));
 
 	/* ---- Progression ---- */
 	const tut = P.tutorialStepHistogram || {};
@@ -583,16 +880,8 @@ function render(data) {
 
 	/* ---- Action totals ---- */
 	const acts = s.actionTotals || {};
-	const actLabels = {
-		resourcesCollected: "Resources collected", terraformActions: "Terraform actions", plantsPlanted: "Plants planted",
-		itemsCrafted: "Items crafted", objectsPlaced: "Objects placed", animalsReturned: "Animals returned",
-		itemsDiscarded: "Items discarded", animalsObserved: "Animals observed", chestDeposits: "Chest deposits",
-		tasksCompleted: "Tasks completed", toolsUpgraded: "Tools upgraded", homeUpgrades: "Home upgrades",
-		recolors: "Recolors", chestWithdrawals: "Chest withdrawals", objectsMoved: "Objects moved",
-		objectsRemoved: "Objects removed", homesBuilt: "Homes built",
-	};
 	out.push(sec("What caretakers do", "every tracked action, all-time", card(
-		barRows(objToEntries(acts).slice(0, 17), { labelMap: actLabels }))));
+		barRows(objToEntries(acts).slice(0, 17), { labelMap: ACTION_LABELS }))));
 
 	/* ---- Onboarding timing ---- */
 	const cr = s.creation || {}, ttfa = s.timeToFirstAction || {};
@@ -602,6 +891,27 @@ function render(data) {
 		kpi(`${n(ttfa.avgSeconds)}<small>s</small>`, "Time to first action", `${fmt(ttfa.playersMeasured)} measured`),
 		kpi(`${n(acq.avgCharactersPerPerson)}`, "Characters per person", `${fmt(acq.totalCharactersCreated)} created total`),
 	].join("")}</div>`));
+
+	/* ---- Settings & accessibility ---- */
+	const set = s.settings || {};
+	if (set.savesReporting) {
+		const au = set.audio || {}, a11y = set.accessibility || {};
+		const cbLabels = { off: "Off", redgreen: "Red–green", blueyellow: "Blue–yellow", mono: "Monochrome" };
+		const tsLabels = { sm: "Small", md: "Medium", lg: "Large", xl: "Extra large" };
+		out.push(sec("Settings & accessibility", `what ${fmt(set.savesReporting)} caretakers have turned on`, `<div class="grid two">` +
+			cardTitled("Audio", "since the sound update", `<div class="grid three">${[
+				kpi(`<span class="accent">${pct(au.musicOffPct)}</span>`, "Music off", `${fmt(au.musicOff)} caretakers`),
+				kpi(pct(au.sfxOffPct), "SFX off", `${fmt(au.sfxOff)} caretakers`),
+				kpi(fmt(au.fullyMuted), "Fully muted"),
+			].join("")}</div>`) +
+			cardTitled("Accessibility options", "how many have each on", `<div class="grid three">${[
+				kpi(fmt(a11y.reduceMotion), "Reduce motion"),
+				kpi(fmt(a11y.colorblindOn), "Colorblind aid"),
+				kpi(fmt(a11y.dyslexiaFont), "Dyslexia font"),
+			].join("")}</div><div style="margin-top:1rem">${barRows(objToEntries(a11y.textScales || {}), { labelMap: tsLabels, cls: "sky" })}</div>`) +
+			`</div>` +
+			(a11y.colorblindOn ? `<div class="card" style="margin-top:.8rem"><h3>Colorblind modes<span class="tag">among users of the aid</span></h3>${barRows(objToEntries(a11y.colorblindModes || {}).filter(([k]) => k !== "off"), { labelMap: cbLabels, cls: "gold" })}</div>` : "")));
+	}
 
 	/* ---- Achievements ---- */
 	const ach = s.achievements || {};
@@ -626,7 +936,7 @@ function render(data) {
 			barRows(objToEntries(rec).slice(0, 12), { cls: "" }))));
 	}
 
-	/* ---- Character gallery — kept at the bottom ---- */
+	/* ---- Player highlights — kept at the bottom ---- */
 	if (charSection) out.push(charSection);
 
 	document.getElementById("root").innerHTML = out.join("");
@@ -635,16 +945,44 @@ function render(data) {
 /* ------------------------------------------------------------------ *
  * Fetch + wire-up
  * ------------------------------------------------------------------ */
+// Active dashboard filters (all server-side, applied to the whole report).
+const FILTERS = { version: "all", edition: "all", platform: "all" };
+const FILTER_CFG = [
+	{ key: "version", el: "version-filter", list: "availableVersions", allLabel: "All versions", cap: (v) => v },
+	{ key: "edition", el: "edition-filter", list: "availableEditions", allLabel: "All editions", cap: (v) => v.charAt(0).toUpperCase() + v.slice(1) },
+	{ key: "platform", el: "platform-filter", list: "availablePlatforms", allLabel: "All platforms", cap: (v) => v.charAt(0).toUpperCase() + v.slice(1) },
+];
+
+/** Fill each filter dropdown from the response, preserving the active choices. */
+function populateFilterOptions(filters) {
+	if (!filters) return;
+	for (const cfg of FILTER_CFG) {
+		const sel = document.getElementById(cfg.el);
+		const opts = filters[cfg.list];
+		if (!sel || !Array.isArray(opts)) continue;
+		sel.innerHTML = `<option value="all">${cfg.allLabel}</option>` +
+			opts.map((v) => `<option value="${esc(v)}">${esc(cfg.cap(String(v)))}</option>`).join("");
+		sel.value = FILTERS[cfg.key] === "all" || opts.includes(FILTERS[cfg.key]) ? FILTERS[cfg.key] : "all";
+		FILTERS[cfg.key] = sel.value;
+	}
+}
+
 async function load() {
 	const root = document.getElementById("root");
 	const gen = document.getElementById("generated");
 	root.innerHTML = `<div class="skeleton">Gathering the meadow’s numbers…</div>`;
 	try {
 		// Exclude dev/test saves so they don't skew the numbers (matches the
-		// server's ?exclude filter — case-insensitive, exact display-name match).
-		const res = await fetch("../Metrics/?exclude=bailey_test", { headers: { accept: "application/json" } });
+		// server's ?exclude filter). Optional version/edition/platform each scope
+		// the whole report server-side.
+		let url = "../Metrics/?exclude=bailey_test";
+		for (const cfg of FILTER_CFG) {
+			if (FILTERS[cfg.key] && FILTERS[cfg.key] !== "all") url += `&${cfg.key}=` + encodeURIComponent(FILTERS[cfg.key]);
+		}
+		const res = await fetch(url, { headers: { accept: "application/json" } });
 		if (!res.ok) throw new Error(`Metrics endpoint returned ${res.status}`);
 		const data = await res.json();
+		populateFilterOptions(data.filters);
 		render(data);
 		if (data.generatedAt) {
 			const d = new Date(data.generatedAt);
@@ -657,8 +995,28 @@ async function load() {
 }
 
 document.getElementById("refresh").addEventListener("click", load);
+for (const cfg of FILTER_CFG) {
+	const sel = document.getElementById(cfg.el);
+	if (sel) sel.addEventListener("change", (e) => { FILTERS[cfg.key] = e.target.value; load(); });
+}
+
+// Open a player's breakdown modal when their highlight card is clicked or
+// activated by keyboard. Delegated on #root, which persists across re-renders.
+const rootEl = document.getElementById("root");
+rootEl.addEventListener("click", (e) => {
+	const card = e.target.closest && e.target.closest(".hlcard[data-pid]");
+	if (card) openPlayerModal(card.getAttribute("data-pid"));
+});
+rootEl.addEventListener("keydown", (e) => {
+	if (e.key !== "Enter" && e.key !== " ") return;
+	const card = e.target.closest && e.target.closest(".hlcard[data-pid]");
+	if (card) { e.preventDefault(); openPlayerModal(card.getAttribute("data-pid")); }
+});
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closePlayerModal(); });
+
 // expose for offline/unit rendering (jsdom smoke test)
 window.__renderDashboard = render;
+window.__openPlayerModal = openPlayerModal;
 if (!window.__NO_AUTOLOAD) load();
 </script>
 </body>

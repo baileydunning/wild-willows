@@ -31,12 +31,20 @@ describe('accessibility prefs', () => {
 			colorblindMode: 'off',
 			dyslexiaFont: false,
 			textScale: 'md',
+			musicEnabled: true,
+			sfxEnabled: true,
+			musicVolume: 0.6,
+			sfxVolume: 0.75,
 		});
 		expect(normalizePrefs('nonsense')).toEqual({
 			reduceMotion: false,
 			colorblindMode: 'off',
 			dyslexiaFont: false,
 			textScale: 'md',
+			musicEnabled: true,
+			sfxEnabled: true,
+			musicVolume: 0.6,
+			sfxVolume: 0.75,
 		});
 		// bad textScale falls back; a valid colorblind mode is preserved
 		expect(normalizePrefs({ textScale: 'huge', colorblindMode: 'blueyellow' })).toEqual({
@@ -44,6 +52,10 @@ describe('accessibility prefs', () => {
 			colorblindMode: 'blueyellow',
 			dyslexiaFont: false,
 			textScale: 'md',
+			musicEnabled: true,
+			sfxEnabled: true,
+			musicVolume: 0.6,
+			sfxVolume: 0.75,
 		});
 		// unknown mode falls back to off
 		expect(normalizePrefs({ colorblindMode: 'nope' }).colorblindMode).toBe('off');
@@ -85,7 +97,16 @@ describe('accessibility prefs', () => {
 	it('merges patches without dropping other fields', () => {
 		setPrefs({ reduceMotion: true });
 		setPrefs({ textScale: 'xl' });
-		expect(getPrefs()).toEqual({ reduceMotion: true, colorblindMode: 'off', dyslexiaFont: false, textScale: 'xl' });
+		expect(getPrefs()).toEqual({
+			reduceMotion: true,
+			colorblindMode: 'off',
+			dyslexiaFont: false,
+			textScale: 'xl',
+			musicEnabled: true,
+			sfxEnabled: true,
+			musicVolume: 0.6,
+			sfxVolume: 0.75,
+		});
 	});
 
 	it('notifies subscribers on change and stops after unsubscribe', () => {

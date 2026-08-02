@@ -3,9 +3,7 @@ import { api, forgetSave, getTransport, exportActiveSolo } from '../api';
 import { hatPalette } from '../color';
 import { sendFeedback } from '../feedback';
 import { bridge } from '../game/bridge';
-import { COOP_ENABLED } from '../features';
 import { useGame } from '../state';
-import { visibleShortcuts } from '../shortcuts';
 import { hasKey, LOCALE_NAMES, chooseLocale } from '../i18n';
 import { useI18n } from '../i18n/react';
 import { usePrefs, setPrefs, type TextScale, type ColorblindMode } from '../prefs';
@@ -280,11 +278,84 @@ export function AccessibilityControls() {
 	);
 }
 
+/** Sound controls: independent on/off toggles and volume sliders for music
+ *  (plus ambience/weather) and sound effects. Shared like AccessibilityControls
+ *  so the title screen could surface it too. */
+export function SoundControls() {
+	const { t } = useI18n();
+	const prefs = usePrefs();
+	const pct = (v: number) => `${Math.round(v * 100)}%`;
+	return (
+		<>
+			<div className="a11y-row">
+				<span className="a11y-label">
+					<b>{t('app.settings.music')}</b>
+					<span className="muted small">{t('app.settings.musicHint')}</span>
+				</span>
+				<label className="switch">
+					<input
+						type="checkbox"
+						checked={prefs.musicEnabled}
+						onChange={(e) => setPrefs({ musicEnabled: e.target.checked })}
+						aria-label={t('app.settings.music')}
+					/>
+					<span className="track" />
+					<span className="thumb" />
+				</label>
+			</div>
+			<div className="volume-row">
+				<label htmlFor="settings-music-volume">{t('app.settings.musicVolume')}</label>
+				<input
+					id="settings-music-volume"
+					type="range"
+					min={0}
+					max={100}
+					step={1}
+					value={Math.round(prefs.musicVolume * 100)}
+					disabled={!prefs.musicEnabled}
+					onChange={(e) => setPrefs({ musicVolume: Number(e.target.value) / 100 })}
+					aria-label={t('app.settings.musicVolume')}
+				/>
+				<span className="volume-value">{pct(prefs.musicVolume)}</span>
+			</div>
+			<div className="a11y-row">
+				<span className="a11y-label">
+					<b>{t('app.settings.soundEffects')}</b>
+					<span className="muted small">{t('app.settings.soundEffectsHint')}</span>
+				</span>
+				<label className="switch">
+					<input
+						type="checkbox"
+						checked={prefs.sfxEnabled}
+						onChange={(e) => setPrefs({ sfxEnabled: e.target.checked })}
+						aria-label={t('app.settings.soundEffects')}
+					/>
+					<span className="track" />
+					<span className="thumb" />
+				</label>
+			</div>
+			<div className="volume-row">
+				<label htmlFor="settings-sfx-volume">{t('app.settings.sfxVolume')}</label>
+				<input
+					id="settings-sfx-volume"
+					type="range"
+					min={0}
+					max={100}
+					step={1}
+					value={Math.round(prefs.sfxVolume * 100)}
+					disabled={!prefs.sfxEnabled}
+					onChange={(e) => setPrefs({ sfxVolume: Number(e.target.value) / 100 })}
+					aria-label={t('app.settings.sfxVolume')}
+				/>
+				<span className="volume-value">{pct(prefs.sfxVolume)}</span>
+			</div>
+		</>
+	);
+}
+
 export function SettingsPanel() {
-	const { state, setPanel, notify, refresh, logout, worlds, activeWorldId } = useGame();
+	const { state, setPanel, notify, refresh, logout } = useGame();
 	const { t, locale } = useI18n();
-	const activeWorld = worlds?.find((w) => w.worldId === activeWorldId);
-	const isCoop = COOP_ENABLED && !!activeWorld && !activeWorld.solo;
 	const defaults: Appearance = {
 		skin: '#eec39a',
 		hair: '#6e4a33',
@@ -463,25 +534,14 @@ export function SettingsPanel() {
 					</div>
 
 					<h3>
+						<Icon name="note" size={15} /> {t('app.settings.sound')}
+					</h3>
+					<SoundControls />
+
+					<h3>
 						<Icon name="sliders" size={15} /> {t('app.settings.accessibility')}
 					</h3>
 					<AccessibilityControls />
-
-					<h3>
-						<Icon name="keyboard" size={15} /> {t('app.settings.controls')}
-					</h3>
-					<div className="key-list">
-						{visibleShortcuts(isCoop).map((k) => (
-							<div className="key-row" key={k.does}>
-								<span className="kbds">
-									{k.keys.map((key) => (
-										<kbd key={key}>{key}</kbd>
-									))}
-								</span>
-								<span>{t(k.does)}</span>
-							</div>
-						))}
-					</div>
 
 					{isSolo && (
 						<>

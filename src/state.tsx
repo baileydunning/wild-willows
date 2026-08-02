@@ -17,7 +17,7 @@ import { DEMO, DEMO_ANIMAL_GOAL, DEMO_BIOME } from './demo';
 import { flushFeedbackQueue } from './feedback';
 import { t, content, onLocaleChange } from './i18n';
 import { pokeMetricsUplink } from './solo/metricsUplink';
-import { reportCharacterCreated } from './solo/appOpen';
+import { reportCharacterCreated, reportDemoComplete } from './solo/appOpen';
 import { bridge } from './game/bridge';
 import { unlockedRecipeIds } from './recipes';
 import { narrativeBeats, nextFeedFact, healthMilestoneLine, HEALTH_THRESHOLDS } from './ui/narrative';
@@ -125,7 +125,13 @@ interface Ctx {
 	) => Promise<void>;
 	refreshWorlds: () => Promise<void>;
 	// join waiting room (joiner side)
-	pendingJoin: { worldId: string; worldName: string; hostName: string; code: string; token: string } | null;
+	pendingJoin: {
+		worldId: string;
+		worldName: string;
+		hostName: string;
+		code: string;
+		token: string;
+	} | null;
 	checkJoinApproval: () => Promise<'pending' | 'approved' | 'denied' | 'none'>;
 	playSoloInstead: () => void;
 	// host approval side
@@ -211,6 +217,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	const toast = useCallback((text: string, kind: Toast['kind'] = 'info') => {
 		const id = toastSeq++;
 		setToasts((ts) => [...ts.slice(-3), { id, text, kind }]);
+		bridge.emit('audio-toast', { kind });
 		window.setTimeout(() => setToasts((ts) => ts.filter((t) => t.id !== id)), kind === 'error' ? 4000 : 6000);
 	}, []);
 
@@ -280,6 +287,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		const meadow = state.biomeStates.find((b) => b.biomeId === DEMO_BIOME);
 		if ((meadow?.returnedCount || 0) >= DEMO_ANIMAL_GOAL) {
 			setDemoComplete(true);
+			reportDemoComplete(); // metrics: demo completion (device-scoped + sticky)
 			flushFeed(); // persist buffered feed so an export captures it
 		}
 	}, [state, demoComplete, flushFeed]);
@@ -308,7 +316,12 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	useEffect(() => {
 		if (!state || feedSeeded.current) return;
 		feedSeeded.current = true;
-		const seed = (state.feed || []).map((f) => ({ id: logSeq.current++, icon: f.icon, text: f.text, at: f.at }));
+		const seed = (state.feed || []).map((f) => ({
+			id: logSeq.current++,
+			icon: f.icon,
+			text: f.text,
+			at: f.at,
+		}));
 		if (seed.length) {
 			setLog(seed);
 			setFeedLog(seed);
@@ -330,13 +343,22 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		const defs = added.map((id) => data.recipes.find((r) => r.id === id)).filter(Boolean) as typeof data.recipes;
 		// Recipes are tuned to unlock roughly one at a time; announce each by name.
 		// (Cap the toasts if several ever land together so we don't flood the HUD.)
-		defs
-			.slice(0, 3)
-			.forEach((r) =>
-				toast(t('app.toast.recipeUnlocked', { name: content('recipe', r.id, 'name', r.name) }), 'unlock'),
-			);
+		defs.slice(0, 3).forEach((r) =>
+			toast(
+				t('app.toast.recipeUnlocked', {
+					name: content('recipe', r.id, 'name', r.name),
+				}),
+				'unlock',
+			),
+		);
 		for (const r of defs)
-			pushLog('sparkle', t('app.feed.recipeUnlocked', { name: content('recipe', r.id, 'name', r.name) }), true);
+			pushLog(
+				'sparkle',
+				t('app.feed.recipeUnlocked', {
+					name: content('recipe', r.id, 'name', r.name),
+				}),
+				true,
+			);
 	}, [data, state, toast, pushLog]);
 
 	// Announce freshly earned achievements by diffing the snapshot (the server
@@ -353,14 +375,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		const defs = added
 			.map((id) => data.achievements.find((a) => a.id === id))
 			.filter(Boolean) as typeof data.achievements;
-		defs
-			.slice(0, 3)
-			.forEach((a) =>
-				toast(
-					t('app.toast.achievementUnlocked', { name: content('achievement', a.id, 'name', a.name) }),
-					'achievement',
-				),
-			);
+		defs.slice(0, 3).forEach((a) =>
+			toast(
+				t('app.toast.achievementUnlocked', {
+					name: content('achievement', a.id, 'name', a.name),
+				}),
+				'achievement',
+			),
+		);
 		for (const a of defs)
 			pushLog(
 				'star',
@@ -783,7 +805,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 						if (wb.matured) bits.push(t('app.welcomeBack.matured', { count: wb.matured }));
 						if (wb.healthGain) bits.push(t('app.welcomeBack.healthGain', { count: wb.healthGain }));
 						if (bits.length) {
-							pushLog('leaf', t('app.welcomeBack.summary', { bits: bits.join(t('app.list.and')) }), true);
+							pushLog(
+								'leaf',
+								t('app.welcomeBack.summary', {
+									bits: bits.join(t('app.list.and')),
+								}),
+								true,
+							);
 							toast(t('app.toast.preserveGrew'), 'unlock');
 						}
 					}
@@ -801,7 +829,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 							if (na.animal?.fact)
 								pushLog(
 									'paw',
-									t('app.feed.animalFact', { name, fact: content('animal', na.animal.id, 'fact', na.animal.fact) }),
+									t('app.feed.animalFact', {
+										name,
+										fact: content('animal', na.animal.id, 'fact', na.animal.fact),
+									}),
 									true,
 								);
 						}
@@ -983,7 +1014,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				...Object.keys(s?.player?.craftedEver || {}),
 				...(s?.placements || []).filter((p: any) => p.area === area).map((p: any) => p.objectId),
 			]);
-			const pick = nextFeedFact({ area, health, returnedIds, crafted, shown: shownFacts.current });
+			const pick = nextFeedFact({
+				area,
+				health,
+				returnedIds,
+				crafted,
+				shown: shownFacts.current,
+			});
 			if (!pick) return;
 			shownFacts.current.add(pick.key);
 			pushLog(pick.icon, pick.text, true);
@@ -1032,13 +1069,23 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 							})
 							.filter(Boolean);
 						if (prereqs.length) {
-							pushLog('leaf', t('app.feed.animalPrereqs', { name, others: prereqs.join(t('app.list.and')) }), true);
+							pushLog(
+								'leaf',
+								t('app.feed.animalPrereqs', {
+									name,
+									others: prereqs.join(t('app.list.and')),
+								}),
+								true,
+							);
 						}
 						// a fun fact about the animal that just arrived (shows in both feeds)
 						if (na.animal?.fact)
 							pushLog(
 								'paw',
-								t('app.feed.animalFact', { name, fact: content('animal', na.animal.id, 'fact', na.animal.fact) }),
+								t('app.feed.animalFact', {
+									name,
+									fact: content('animal', na.animal.id, 'fact', na.animal.fact),
+								}),
 								true,
 							);
 					}
@@ -1047,6 +1094,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					for (const b of result.unlockedBiomes) {
 						const bName = b?.id ? content('biome', b.id, 'name', b.name) : b.name;
 						toast(t('app.toast.biomeUnlocked', { name: bName }), 'unlock');
+						bridge.emit('audio-sfx', { id: 'areaUnlocked' });
 						pushLog('sparkle', t('app.feed.biomeUnlocked', { name: bName }), true);
 						// Reinforce the core loop each time a new area opens (playtest #12).
 						pushLog('leaf', t('app.feed.loopReminder', { name: bName }), true);
@@ -1075,10 +1123,20 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					const qty = r?.gained?.[resourceId] || 1;
 					const name = res ? content('resource', res.id, 'name', res.name) : resourceId;
 					pushLog('basket', t('app.log.gathered', { qty, name }));
+					if (qty > 0) {
+						const pickupSfx = /water/i.test(resourceId) ? 'water' : 'pickup';
+						bridge.emit('audio-sfx', { id: pickupSfx });
+					}
 					// house perk (Log Cabin): the forager's instinct found one extra
 					if (r?.perkBonus) toast(t('app.toast.perkForage', { name }), 'unlock');
 					// the basket is the gathering tool — other tools are for shaping the land
-					bridge.emit('collected', { nodeId, resourceId, qty, tool: 'basket', color: res?.color });
+					bridge.emit('collected', {
+						nodeId,
+						resourceId,
+						qty,
+						tool: 'basket',
+						color: res?.color,
+					});
 				},
 			),
 		[act, data, pushLog, toast],
@@ -1098,12 +1156,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 						} else {
 							pushLog('shovel', t('app.log.preparedBed'));
 						}
+						bridge.emit('audio-sfx', { id: 'dig' });
 					} else if (action === 'water') {
 						if (r?.tile?.type === 'water') {
 							pushLog('drop', t('app.log.flooded'));
+							bridge.emit('audio-sfx', { id: 'water' });
 						} else {
 							pushLog('drop', t('app.log.watered'));
 							toast(t('app.toast.bedReady'));
+							bridge.emit('audio-sfx', { id: 'waterground' });
 						}
 					} else pushLog('shovel', t('app.log.clearedBed'));
 					bridge.emit('terraformed', { x, y, action });
@@ -1121,8 +1182,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					const name = def ? content('habitatObject', def.id, 'name', def.name) : t('app.fallback.plant');
 					// house perk (Meadow Cottage): green thumb — planted with a head start
 					if (r?.perkGrowth)
-						pushLog('leaf', t('app.log.plantedHeadStart', { name, pct: Math.round(r.perkGrowth * 100) }));
+						pushLog(
+							'leaf',
+							t('app.log.plantedHeadStart', {
+								name,
+								pct: Math.round(r.perkGrowth * 100),
+							}),
+						);
 					else pushLog('leaf', t('app.log.planted', { name }));
+					bridge.emit('audio-sfx', { id: 'plant' });
 				},
 			),
 		[act, data, pushLog],
@@ -1146,6 +1214,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					if (gained) {
 						toast(t('app.toast.harvested', { items: gained }), 'unlock');
 						pushLog('leaf', t('app.feed.harvested', { items: gained }), true);
+						bridge.emit('audio-sfx', { id: 'harvest' });
 					}
 				},
 			),
@@ -1179,7 +1248,12 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					const name = def ? content('habitatObject', def.id, 'name', def.name) : t('app.fallback.item');
 					const fromChests = Object.keys(r?.usedFrom?.chests || {}).length > 0;
 					toast(t(fromChests ? 'app.toast.craftedFromChests' : 'app.toast.crafted', { name }));
-					pushLog('hammer', t(fromChests ? 'app.log.craftedFromChests' : 'app.log.crafted', { name }));
+					pushLog(
+						'hammer',
+						t(fromChests ? 'app.log.craftedFromChests' : 'app.log.crafted', {
+							name,
+						}),
+					);
 					// house perk (Stone Hearth): thrift returned part of the materials
 					if (r?.refund && Object.keys(r.refund).length) {
 						const items = Object.entries(r.refund as Record<string, number>)
@@ -1190,6 +1264,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 							.join(', ');
 						toast(t('app.toast.perkThrift', { items }), 'unlock');
 					}
+					bridge.emit('audio-sfx', { id: 'craft' });
 				},
 			),
 		[act, data, toast],
@@ -1224,6 +1299,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 						'pin',
 						typeof h === 'number' ? t('app.log.placedWithHealth', { name, health: h }) : t('app.log.placed', { name }),
 					);
+					bridge.emit('audio-sfx', { id: 'place' });
 				},
 			),
 		[act, data, pushLog],
@@ -1248,6 +1324,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					} else {
 						pushLog('basket', t('app.log.pickedUp'));
 					}
+					bridge.emit('audio-sfx', { id: 'pickup' });
 				},
 			),
 		[act, data, pushLog],
@@ -1257,7 +1334,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		(placementId: string, x: number, y: number, rotation?: number) =>
 			act(
 				() => api.move(placementId, x, y, rotation),
-				() => pushLog('pin', t('app.log.moved')),
+				() => {
+					pushLog('pin', t('app.log.moved'));
+					bridge.emit('audio-sfx', { id: 'move' });
+				},
 			),
 		[act, pushLog],
 	);
@@ -1269,7 +1349,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			if (!p) return Promise.resolve();
 			return act(
 				() => api.move(placementId, p.x, p.y, ((p.rotation || 0) + 90) % 360),
-				() => pushLog('pin', t('app.log.rotated')),
+				() => {
+					pushLog('pin', t('app.log.rotated'));
+					bridge.emit('audio-sfx', { id: 'move' });
+				},
 			);
 		},
 		[act, pushLog],
@@ -1279,7 +1362,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		(toolId: string) =>
 			act(
 				() => api.upgradeTool(toolId),
-				(r) => toast(t('app.toast.toolUpgraded', { name: r?.upgraded?.name || toolId })),
+				(r) => {
+					toast(t('app.toast.toolUpgraded', { name: r?.upgraded?.name || toolId }));
+					bridge.emit('audio-sfx', { id: 'upgrade' });
+				},
 			),
 		[act, toast],
 	);
@@ -1288,14 +1374,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		(track: string) =>
 			act(
 				() => api.upgradeHome(track),
-				(r) =>
+				(r) => {
 					toast(
 						t('app.toast.homeUpgraded', {
 							name: r?.upgraded?.name || t('app.fallback.home'),
 							level: r?.upgraded?.level || '',
 						}),
 						'unlock',
-					),
+					);
+					bridge.emit('audio-sfx', { id: 'upgrade' });
+				},
 			),
 		[act, toast],
 	);
@@ -1303,7 +1391,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		(style: string) =>
 			act(
 				() => api.setHomeStyle(style),
-				(r) => toast(t('app.toast.homeBuilt', { name: r?.built || t('app.fallback.homeBuilt') }), 'unlock'),
+				(r) => {
+					toast(
+						t('app.toast.homeBuilt', {
+							name: r?.built || t('app.fallback.homeBuilt'),
+						}),
+						'unlock',
+					);
+					bridge.emit('audio-sfx', { id: 'upgrade' });
+				},
 			),
 		[act, toast],
 	);
@@ -1322,6 +1418,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				() => {
 					toast(t('app.toast.rested'), 'unlock');
 					pushLog('drop', t('app.log.rested'), true);
+					bridge.emit('audio-sfx', { id: 'rest' });
 				},
 			),
 		[act, toast, pushLog],

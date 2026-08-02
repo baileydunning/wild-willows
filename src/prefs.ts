@@ -23,6 +23,14 @@ export interface Prefs {
 	dyslexiaFont: boolean;
 	/** UI text/control scale. */
 	textScale: TextScale;
+	/** Play background music and ambience. */
+	musicEnabled: boolean;
+	/** Play sound effects (footsteps, toasts, pickups, weather). */
+	sfxEnabled: boolean;
+	/** Background music/ambience level, 0–1. */
+	musicVolume: number;
+	/** Sound-effects level, 0–1. */
+	sfxVolume: number;
 }
 
 /** The zoom factor applied to the UI overlays for each text-size step. */
@@ -31,7 +39,22 @@ const TEXT_SCALES: TextScale[] = ['sm', 'md', 'lg', 'xl'];
 export const COLORBLIND_MODES: ColorblindMode[] = ['off', 'redgreen', 'blueyellow', 'mono'];
 
 const STORAGE_KEY = 'ww:a11y';
-const DEFAULTS: Prefs = { reduceMotion: false, colorblindMode: 'off', dyslexiaFont: false, textScale: 'md' };
+const DEFAULTS: Prefs = {
+	reduceMotion: false,
+	colorblindMode: 'off',
+	dyslexiaFont: false,
+	textScale: 'md',
+	musicEnabled: true,
+	sfxEnabled: true,
+	musicVolume: 0.6,
+	sfxVolume: 0.75,
+};
+
+/** Clamp an arbitrary value to a 0–1 volume, falling back when it isn't a number. */
+function normalizeVolume(v: unknown, fallback: number): number {
+	if (typeof v !== 'number' || !Number.isFinite(v)) return fallback;
+	return v < 0 ? 0 : v > 1 ? 1 : v;
+}
 
 function systemReduceMotion(): boolean {
 	try {
@@ -65,6 +88,10 @@ export function normalizePrefs(raw: any, fallbackReduce = false): Prefs {
 		colorblindMode,
 		dyslexiaFont,
 		textScale,
+		musicEnabled: typeof o.musicEnabled === 'boolean' ? o.musicEnabled : DEFAULTS.musicEnabled,
+		sfxEnabled: typeof o.sfxEnabled === 'boolean' ? o.sfxEnabled : DEFAULTS.sfxEnabled,
+		musicVolume: normalizeVolume(o.musicVolume, DEFAULTS.musicVolume),
+		sfxVolume: normalizeVolume(o.sfxVolume, DEFAULTS.sfxVolume),
 	};
 }
 

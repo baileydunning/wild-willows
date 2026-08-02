@@ -128,6 +128,7 @@ export class WorldScene extends Phaser.Scene {
 	private player!: Phaser.GameObjects.Image;
 	private playerShadow!: Phaser.GameObjects.Image;
 	private walkT = 0;
+	private walkAudioActive = false;
 	private keys!: any;
 	private groundTiles: Phaser.GameObjects.Image[] = [];
 	// Living vegetation out in the unwalkable surround/edge — tinted from dead
@@ -156,6 +157,7 @@ export class WorldScene extends Phaser.Scene {
 	// a signature of the last dynamic-layer build so redundant world-dirty events
 	// (boot nudges, unrelated saves) don't tear down and rebuild every sprite/tween.
 	private hoveredIt: Interactable | null = null;
+	private lastFocusSig: string | null = null;
 	private lastGateInfo: string | null = null;
 	private dynamicSig = '';
 	private isTouch = false;
@@ -352,7 +354,12 @@ export class WorldScene extends Phaser.Scene {
 	}
 	private objectDef(id: string): HabitatObjectDef | undefined {
 		if (id === 'workbench') {
-			return { id, name: t('game.object.craftingStation'), shape: 'workbench', placement: 'outdoor' } as any;
+			return {
+				id,
+				name: t('game.object.craftingStation'),
+				shape: 'workbench',
+				placement: 'outdoor',
+			} as any;
 		}
 		return bridge.shared.data?.habitatObjects.find((o) => o.id === id);
 	}
@@ -435,7 +442,10 @@ export class WorldScene extends Phaser.Scene {
 			) {
 				e.preventDefault();
 				if (!this.activeRotatable()) {
-					bridge.emit('toast', { text: t('game.toast.noRotate'), kind: 'info' });
+					bridge.emit('toast', {
+						text: t('game.toast.noRotate'),
+						kind: 'info',
+					});
 					return;
 				}
 				this.placeRotation = (this.placeRotation + 90) % 360;
@@ -597,20 +607,33 @@ export class WorldScene extends Phaser.Scene {
 		);
 		this.events.once('shutdown', () => {
 			this.alive = false;
+			this.setWalkAudio(false);
 			this.clearRemotes();
 			this.unsubs.forEach((u) => u());
 			this.unsubs = [];
 		});
 
-		this.time.addEvent({ delay: 4000, loop: true, callback: () => this.updateNodeVisuals() });
+		this.time.addEvent({
+			delay: 4000,
+			loop: true,
+			callback: () => this.updateNodeVisuals(),
+		});
 		// Paint weather now (entering = pre-fill so a storm you walk into is already
 		// going), then keep it fresh as the weather rolls over every ~10 min.
 		this.applyWeather(true);
-		this.time.addEvent({ delay: 5000, loop: true, callback: () => this.applyWeather() });
+		this.time.addEvent({
+			delay: 5000,
+			loop: true,
+			callback: () => this.applyWeather(),
+		});
 		// Day/night lighting: snap to the current phase on entry, then hold steady
 		// through each phase and ease over 15s to the next one at the boundary.
 		this.applyDayNight(true);
-		this.time.addEvent({ delay: 2000, loop: true, callback: () => this.applyDayNight() });
+		this.time.addEvent({
+			delay: 2000,
+			loop: true,
+			callback: () => this.applyDayNight(),
+		});
 		this.input.on('pointerdown', (pointer: Phaser.Input.Pointer, over: any[]) => {
 			// A panel/card/help overlay is open — swallow the click so it doesn't
 			// move the player or place items on the world behind the modal.
@@ -658,14 +681,24 @@ export class WorldScene extends Phaser.Scene {
 			}
 			if (this.movingPlacementId) {
 				if (this.canPlaceAt(tx, ty, false, this.movingPlacementId)) {
-					bridge.emit('move-to', { placementId: this.movingPlacementId, x: tx, y: ty, rotation: this.placeRotation });
+					bridge.emit('move-to', {
+						placementId: this.movingPlacementId,
+						x: tx,
+						y: ty,
+						rotation: this.placeRotation,
+					});
 					this.exitPlacement();
 				}
 				return;
 			}
 			if (this.placementObjectId) {
 				if (this.canPlaceAt(tx, ty))
-					bridge.emit('place-at', { objectId: this.placementObjectId, x: tx, y: ty, rotation: this.placeRotation });
+					bridge.emit('place-at', {
+						objectId: this.placementObjectId,
+						x: tx,
+						y: ty,
+						rotation: this.placeRotation,
+					});
 				return;
 			}
 			// terraform with shovel / watering can on an empty reachable tile
@@ -1446,7 +1479,12 @@ export class WorldScene extends Phaser.Scene {
 		this.lightTween?.stop();
 		this.skyTween?.stop();
 		if (snap) {
-			this.lightState = { r: flat.red, g: flat.green, b: flat.blue, a: st.alpha };
+			this.lightState = {
+				r: flat.red,
+				g: flat.green,
+				b: flat.blue,
+				a: st.alpha,
+			};
 			this.skyState = { r: skyC.red, g: skyC.green, b: skyC.blue, a: skyA };
 			paint();
 			return;
@@ -1595,10 +1633,21 @@ export class WorldScene extends Phaser.Scene {
 			rt.resize(this.scale.width, this.scale.height);
 		}
 		const cam = this.cameras.main;
+		// worldView reflects LAST frame's scroll: the smooth camera-follow (lerp)
+		// for THIS frame isn't applied until the camera's preRender, so a fixed
+		// light (a fire) would trail behind as you walk. Predict this frame's
+		// scroll using Phaser's own follow math (no-deadzone case) so lights land
+		// where the world actually renders this frame, not a frame late.
+		let viewX = cam.worldView.x;
+		let viewY = cam.worldView.y;
+		if (!cam.deadzone) {
+			viewX += (this.player.x - cam.followOffset.x - cam.width * cam.originX - cam.scrollX) * cam.lerp.x;
+			viewY += (this.player.y - cam.followOffset.y - cam.height * cam.originY - cam.scrollY) * cam.lerp.y;
+		}
 		const stamp = (wx: number, wy: number, size: number, alpha: number) => {
 			const s = size * cam.zoom;
 			this.lightBrush!.setDisplaySize(s, s).setAlpha(alpha);
-			rt.draw(this.lightBrush!, (wx - cam.worldView.x) * cam.zoom, (wy - cam.worldView.y) * cam.zoom);
+			rt.draw(this.lightBrush!, (wx - viewX) * cam.zoom, (wy - viewY) * cam.zoom);
 		};
 		rt.clear();
 		// the lamp never fully clears the night (max ~0.8 mask alpha) — a modest
@@ -1825,7 +1874,12 @@ export class WorldScene extends Phaser.Scene {
 						x,
 						y,
 						label: t('game.label.plantBed'),
-						action: () => bridge.emit('bed-clicked', { area: this.area, x: tile.x, y: tile.y }),
+						action: () =>
+							bridge.emit('bed-clicked', {
+								area: this.area,
+								x: tile.x,
+								y: tile.y,
+							}),
 					},
 					undefined,
 					{ terraformPassthrough: true },
@@ -2061,11 +2115,25 @@ export class WorldScene extends Phaser.Scene {
 		const needs: string[] = [];
 		if (u.minHealth) {
 			const cur = Math.round(prereq?.health || 0);
-			if (cur < u.minHealth) needs.push(t('game.gate.needHealth', { biome: prereqName, goal: u.minHealth, cur }));
+			if (cur < u.minHealth)
+				needs.push(
+					t('game.gate.needHealth', {
+						biome: prereqName,
+						goal: u.minHealth,
+						cur,
+					}),
+				);
 		}
 		if (u.minAnimals) {
 			const cur = prereq?.returnedCount || 0;
-			if (cur < u.minAnimals) needs.push(t('game.gate.needAnimals', { biome: prereqName, goal: u.minAnimals, cur }));
+			if (cur < u.minAnimals)
+				needs.push(
+					t('game.gate.needAnimals', {
+						biome: prereqName,
+						goal: u.minAnimals,
+						cur,
+					}),
+				);
 		}
 		if (u.minTotalAnimals) {
 			const cur = st.discoveries?.length || 0;
@@ -2077,12 +2145,17 @@ export class WorldScene extends Phaser.Scene {
 			if (have <= 0) {
 				const obj = d?.habitatObjects.find((o) => o.id === u.requiresItem);
 				needs.push(
-					t('game.gate.needKit', { item: obj ? content('habitatObject', obj.id, 'name', obj.name) : u.requiresItem }),
+					t('game.gate.needKit', {
+						item: obj ? content('habitatObject', obj.id, 'name', obj.name) : u.requiresItem,
+					}),
 				);
 			}
 		}
 		if (!needs.length) return t('game.gate.almost', { name });
-		return t('game.gate.stillNeeds', { name, needs: needs.join(t('game.gate.sep')) });
+		return t('game.gate.stillNeeds', {
+			name,
+			needs: needs.join(t('game.gate.sep')),
+		});
 	}
 
 	private drawStaticFeatures() {
@@ -2167,7 +2240,10 @@ export class WorldScene extends Phaser.Scene {
 					if (forestOpen) bridge.emit('request-area', { area: 'forest' });
 					else {
 						const label = this.biomeDef('forest')?.unlock?.label || t('game.toast.restoreMeadowFirst');
-						bridge.emit('toast', { text: t('game.toast.forestOvergrown', { label }), kind: 'info' });
+						bridge.emit('toast', {
+							text: t('game.toast.forestOvergrown', { label }),
+							kind: 'info',
+						});
 					}
 				},
 			});
@@ -2178,7 +2254,9 @@ export class WorldScene extends Phaser.Scene {
 			this.registerInteractable({
 				x: gx,
 				y: gy,
-				label: t('game.label.walkBackTo', { name: this.biomeName('meadow', 'Willow Meadow') }),
+				label: t('game.label.walkBackTo', {
+					name: this.biomeName('meadow', 'Willow Meadow'),
+				}),
 				action: () => bridge.emit('request-area', { area: 'meadow' }),
 			});
 
@@ -2205,7 +2283,9 @@ export class WorldScene extends Phaser.Scene {
 					const wetland = this.biomeDef('wetland');
 					const text = wetlandUnlocked
 						? t('game.toast.wetlandUnlocked')
-						: t('game.toast.wetlandWashedOut', { label: wetland?.unlock?.label || '' });
+						: t('game.toast.wetlandWashedOut', {
+								label: wetland?.unlock?.label || '',
+							});
 					bridge.emit('toast', { text, kind: 'info' });
 				},
 			});
@@ -2217,7 +2297,9 @@ export class WorldScene extends Phaser.Scene {
 			this.registerInteractable({
 				x: gx,
 				y: gy,
-				label: t('game.label.walkBackTo', { name: this.biomeName('forest', 'Old Hollow Forest') }),
+				label: t('game.label.walkBackTo', {
+					name: this.biomeName('forest', 'Old Hollow Forest'),
+				}),
 				action: () => bridge.emit('request-area', { area: 'forest' }),
 			});
 
@@ -2245,7 +2327,9 @@ export class WorldScene extends Phaser.Scene {
 					const desert = this.biomeDef('desert');
 					const text = desertUnlocked
 						? t('game.toast.desertUnlocked')
-						: t('game.toast.desertBlocked', { label: desert?.unlock?.label || '' });
+						: t('game.toast.desertBlocked', {
+								label: desert?.unlock?.label || '',
+							});
 					bridge.emit('toast', { text, kind: 'info' });
 				},
 			});
@@ -2257,7 +2341,9 @@ export class WorldScene extends Phaser.Scene {
 			this.registerInteractable({
 				x: gx,
 				y: gy,
-				label: t('game.label.walkBackTo', { name: this.biomeName('wetland', 'Rushwater Wetland') }),
+				label: t('game.label.walkBackTo', {
+					name: this.biomeName('wetland', 'Rushwater Wetland'),
+				}),
 				action: () => bridge.emit('request-area', { area: 'wetland' }),
 			});
 
@@ -2285,7 +2371,9 @@ export class WorldScene extends Phaser.Scene {
 					const alpine = this.biomeDef('alpine');
 					const text = alpineUnlocked
 						? t('game.toast.alpineUnlocked')
-						: t('game.toast.alpineBlocked', { label: alpine?.unlock?.label || '' });
+						: t('game.toast.alpineBlocked', {
+								label: alpine?.unlock?.label || '',
+							});
 					bridge.emit('toast', { text, kind: 'info' });
 				},
 			});
@@ -2300,7 +2388,9 @@ export class WorldScene extends Phaser.Scene {
 			this.registerInteractable({
 				x: gx,
 				y: gy,
-				label: t('game.label.walkBackTo', { name: this.biomeName('desert', 'Redstone Scrubland') }),
+				label: t('game.label.walkBackTo', {
+					name: this.biomeName('desert', 'Redstone Scrubland'),
+				}),
 				action: () => bridge.emit('request-area', { area: 'desert' }),
 			});
 
@@ -2327,7 +2417,9 @@ export class WorldScene extends Phaser.Scene {
 					const coastal = this.biomeDef('coastal');
 					const text = coastalUnlocked
 						? t('game.toast.coastalUnlocked')
-						: t('game.toast.coastalSnowedIn', { label: coastal?.unlock?.label || '' });
+						: t('game.toast.coastalSnowedIn', {
+								label: coastal?.unlock?.label || '',
+							});
 					bridge.emit('toast', { text, kind: 'info' });
 				},
 			});
@@ -2341,7 +2433,9 @@ export class WorldScene extends Phaser.Scene {
 			this.registerInteractable({
 				x: gx,
 				y: gy,
-				label: t('game.label.walkBackUpTo', { name: this.biomeName('alpine', 'Graywind Heights') }),
+				label: t('game.label.walkBackUpTo', {
+					name: this.biomeName('alpine', 'Graywind Heights'),
+				}),
 				action: () => bridge.emit('request-area', { area: 'alpine' }),
 			});
 
@@ -2353,7 +2447,11 @@ export class WorldScene extends Phaser.Scene {
 				x: sx,
 				y: sy,
 				label: t('game.label.lookOcean'),
-				action: () => bridge.emit('toast', { text: t('game.toast.oceanView'), kind: 'info' }),
+				action: () =>
+					bridge.emit('toast', {
+						text: t('game.toast.oceanView'),
+						kind: 'info',
+					}),
 			});
 		}
 	}
@@ -2443,7 +2541,12 @@ export class WorldScene extends Phaser.Scene {
 					taken,
 				);
 				if (!spot) break;
-				nodes.push({ id: `n${nodes.length}`, resourceId: r, tx: spot.tx, ty: spot.ty });
+				nodes.push({
+					id: `n${nodes.length}`,
+					resourceId: r,
+					tx: spot.tx,
+					ty: spot.ty,
+				});
 				taken.add(`${spot.tx},${spot.ty}`);
 				perResource.set(r, (perResource.get(r) || 0) + 1);
 			}
@@ -2473,7 +2576,12 @@ export class WorldScene extends Phaser.Scene {
 					!this.inCamp(anchor.tx, anchor.ty);
 				const spot = anchorFree ? anchor : this.findFreeTile(anchor.tx, anchor.ty, occupied, taken);
 				if (spot) {
-					nodes.push({ id: 'nw', resourceId: waterRes, tx: spot.tx, ty: spot.ty });
+					nodes.push({
+						id: 'nw',
+						resourceId: waterRes,
+						tx: spot.tx,
+						ty: spot.ty,
+					});
 					taken.add(`${spot.tx},${spot.ty}`);
 				}
 			}
@@ -2492,7 +2600,12 @@ export class WorldScene extends Phaser.Scene {
 				const ay = this.playTop + 1 + Math.floor(wrng() * Math.max(1, this.rows - this.playTop - 3));
 				const spot = this.findFreeTile(ax, ay, occupied, taken);
 				if (spot) {
-					nodes.push({ id: `wx-${wxRes.id}-${i}`, resourceId: wxRes.id, tx: spot.tx, ty: spot.ty });
+					nodes.push({
+						id: `wx-${wxRes.id}-${i}`,
+						resourceId: wxRes.id,
+						tx: spot.tx,
+						ty: spot.ty,
+					});
 					taken.add(`${spot.tx},${spot.ty}`);
 				}
 			}
@@ -2579,8 +2692,16 @@ export class WorldScene extends Phaser.Scene {
 				}),
 				action: () => {
 					if (this.nodeAvailable(node))
-						bridge.emit('collect-node', { biomeId: this.area, nodeId: node.id, resourceId: node.resourceId });
-					else bridge.emit('toast', { text: t('game.toast.stillRegrowing'), kind: 'info' });
+						bridge.emit('collect-node', {
+							biomeId: this.area,
+							nodeId: node.id,
+							resourceId: node.resourceId,
+						});
+					else
+						bridge.emit('toast', {
+							text: t('game.toast.stillRegrowing'),
+							kind: 'info',
+						});
 				},
 			};
 			this.registerInteractable(it, container);
@@ -2621,7 +2742,12 @@ export class WorldScene extends Phaser.Scene {
 				duration: 220,
 				yoyo: true,
 				onComplete: () =>
-					this.tweens.add({ targets: toolImg, alpha: 0, duration: 160, onComplete: () => toolImg.destroy() }),
+					this.tweens.add({
+						targets: toolImg,
+						alpha: 0,
+						duration: 160,
+						onComplete: () => toolImg.destroy(),
+					}),
 			});
 		}
 		// little squash on the player — you can see yourself grab it
@@ -2639,8 +2765,16 @@ export class WorldScene extends Phaser.Scene {
 				.setScale(0.55 * INV_TEX_SCALE);
 			this.tweens.add({
 				targets: item,
-				x: { value: () => this.player.x, duration: 430 + i * 90, ease: 'Sine.easeIn' },
-				y: { value: () => this.player.y - 6, duration: 430 + i * 90, ease: 'Back.easeIn' },
+				x: {
+					value: () => this.player.x,
+					duration: 430 + i * 90,
+					ease: 'Sine.easeIn',
+				},
+				y: {
+					value: () => this.player.y - 6,
+					duration: 430 + i * 90,
+					ease: 'Back.easeIn',
+				},
 				scale: 0.2 * INV_TEX_SCALE,
 				alpha: { from: 1, to: 0.7 },
 				delay: i * 70,
@@ -2706,7 +2840,11 @@ export class WorldScene extends Phaser.Scene {
 			by = CAMP.tent.y * TILE;
 		// a tarp drops over the building while "construction" happens, then lifts
 		const tarp = this.add.rectangle(bx, by - 4, 86, 74, C('#cdbb94'), 0.9).setDepth(by + 60);
-		this.tweens.add({ targets: tarp, alpha: { from: 0, to: 0.9 }, duration: 250 });
+		this.tweens.add({
+			targets: tarp,
+			alpha: { from: 0, to: 0.9 },
+			duration: 250,
+		});
 		// sawdust puffs + sparkles kicking up around the base
 		const puffs = this.time.addEvent({
 			delay: 150,
@@ -2774,7 +2912,12 @@ export class WorldScene extends Phaser.Scene {
 			.setOrigin(0, 0)
 			.setScrollFactor(0)
 			.setDepth(9000);
-		this.tweens.add({ targets: dim, alpha: 0.6, duration: 600, ease: 'Sine.easeIn' });
+		this.tweens.add({
+			targets: dim,
+			alpha: 0.6,
+			duration: 600,
+			ease: 'Sine.easeIn',
+		});
 		// drifting "z"s above the sleeper
 		const zzz = this.time.addEvent({
 			delay: 620,
@@ -2808,7 +2951,13 @@ export class WorldScene extends Phaser.Scene {
 			bridge.emit('rest'); // server-side: refresh all gathering spots
 			this.player.setAngle(0);
 			this.player.setDepth(this.player.y + 16);
-			this.tweens.add({ targets: dim, alpha: 0, duration: 700, ease: 'Sine.easeOut', onComplete: () => dim.destroy() });
+			this.tweens.add({
+				targets: dim,
+				alpha: 0,
+				duration: 700,
+				ease: 'Sine.easeOut',
+				onComplete: () => dim.destroy(),
+			});
 			this.time.delayedCall(700, () => {
 				this.sleeping = false;
 			});
@@ -2876,7 +3025,10 @@ export class WorldScene extends Phaser.Scene {
 			// become ready later (regrowing after a harvest), nudge a repaint then so
 			// the glint appears on its own.
 			if (def.yield && p.plantedAt && !stillGrowing) {
-				const readyAt = harvestReadyAt(def, { plantedAt: p.plantedAt, lastHarvestAt: (p as any).lastHarvestAt });
+				const readyAt = harvestReadyAt(def, {
+					plantedAt: p.plantedAt,
+					lastHarvestAt: (p as any).lastHarvestAt,
+				});
 				const now = Date.now();
 				if (readyAt != null && now >= readyAt) {
 					// A single small, dim star that twinkles occasionally above the plant —
@@ -2911,7 +3063,9 @@ export class WorldScene extends Phaser.Scene {
 					this.interactables.push({
 						x,
 						y,
-						label: t('game.label.harvest', { name: content('habitatObject', p.objectId, 'name', def.name) }),
+						label: t('game.label.harvest', {
+							name: content('habitatObject', p.objectId, 'name', def.name),
+						}),
 						action: () => bridge.emit('harvest-placement', { placementId: p.id }),
 					});
 				} else if (readyAt != null) {
@@ -2988,7 +3142,11 @@ export class WorldScene extends Phaser.Scene {
 				}
 				if (this.terraformAction()) return;
 				if (pointer.event && (pointer.event as MouseEvent).shiftKey) {
-					bridge.emit('remove-placement', { placementId: p.id, objectId: p.objectId, name: defName });
+					bridge.emit('remove-placement', {
+						placementId: p.id,
+						objectId: p.objectId,
+						name: defName,
+					});
 					return;
 				}
 				if (!hasPrimaryAction) {
@@ -3004,7 +3162,11 @@ export class WorldScene extends Phaser.Scene {
 							y: p.y,
 							rotation: p.rotation || 0,
 						});
-					else bridge.emit('toast', { text: t('game.toast.walkCloser'), kind: 'info' });
+					else
+						bridge.emit('toast', {
+							text: t('game.toast.walkCloser'),
+							kind: 'info',
+						});
 				}
 			});
 
@@ -3032,23 +3194,45 @@ export class WorldScene extends Phaser.Scene {
 				);
 			} else if (p.objectId === 'workbench') {
 				this.registerInteractable(
-					{ x, y, label: t('game.label.openCrafting'), action: () => bridge.emit('open-crafting') },
+					{
+						x,
+						y,
+						label: t('game.label.openCrafting'),
+						action: () => bridge.emit('open-crafting'),
+					},
 					img,
 				);
 			} else if (p.objectId === 'field-journal-stand') {
 				this.registerInteractable(
-					{ x, y, label: t('game.label.readJournal'), action: () => bridge.emit('open-journal') },
+					{
+						x,
+						y,
+						label: t('game.label.readJournal'),
+						action: () => bridge.emit('open-journal'),
+					},
 					img,
 				);
 			} else if (p.objectId === 'home-bed' || p.objectId === 'home-sleeping-bag') {
-				this.registerInteractable({ x, y, label: t('game.label.sleep'), action: () => this.sleepAt(x, y) }, img);
+				this.registerInteractable(
+					{
+						x,
+						y,
+						label: t('game.label.sleep'),
+						action: () => this.sleepAt(x, y),
+					},
+					img,
+				);
 			} else if (p.objectId === 'bed') {
 				this.registerInteractable(
 					{
 						x,
 						y,
 						label: t('game.label.restMoment'),
-						action: () => bridge.emit('toast', { text: t('game.toast.quietBreath'), kind: 'info' }),
+						action: () =>
+							bridge.emit('toast', {
+								text: t('game.toast.quietBreath'),
+								kind: 'info',
+							}),
 					},
 					img,
 				);
@@ -3399,7 +3583,10 @@ export class WorldScene extends Phaser.Scene {
 		const pool = near.length ? near : this.waterTileCenters;
 		const c = pool[Math.floor(rng() * pool.length)];
 		// jitter within the tile so a fish doesn't snap dead-center
-		return { x: c.x + (rng() - 0.5) * TILE * 0.6, y: c.y + (rng() - 0.5) * TILE * 0.6 };
+		return {
+			x: c.x + (rng() - 0.5) * TILE * 0.6,
+			y: c.y + (rng() - 0.5) * TILE * 0.6,
+		};
 	}
 
 	private wander(
@@ -3595,7 +3782,11 @@ export class WorldScene extends Phaser.Scene {
 		this.positionSkyOverlay(); // keep the sunset glow hugging the top of the view
 		this.updateNightLights(); // lamplight follows the player, fires burn bright after dark
 		// stream our exact live position (tile coords) for co-op presence
-		bridge.shared.self = { x: this.player.x / TILE, y: this.player.y / TILE, area: this.area };
+		bridge.shared.self = {
+			x: this.player.x / TILE,
+			y: this.player.y / TILE,
+			area: this.area,
+		};
 		this.updateRemotes(dt);
 	}
 
@@ -3633,7 +3824,16 @@ export class WorldScene extends Phaser.Scene {
 					})
 					.setOrigin(0.5)
 					.setDepth(10000);
-				r = { sprite, shadow, label, sig, walkT: 0, lastX: peer.x, lastY: peer.y, moveUntil: 0 };
+				r = {
+					sprite,
+					shadow,
+					label,
+					sig,
+					walkT: 0,
+					lastX: peer.x,
+					lastY: peer.y,
+					moveUntil: 0,
+				};
 				this.remotes.set(peer.playerId, r);
 			}
 			if (r.sig !== sig) {
@@ -3686,8 +3886,17 @@ export class WorldScene extends Phaser.Scene {
 		this.remotes.clear();
 	}
 
+	private setWalkAudio(active: boolean) {
+		if (this.walkAudioActive === active) return;
+		this.walkAudioActive = active;
+		bridge.emit('audio-walk', { active });
+	}
+
 	private handleMovement(dt: number) {
-		if (this.sleeping) return; // can't roam while asleep
+		if (this.sleeping) {
+			this.setWalkAudio(false);
+			return;
+		} // can't roam while asleep
 		const k = this.keys;
 		let vx = 0,
 			vy = 0;
@@ -3702,6 +3911,7 @@ export class WorldScene extends Phaser.Scene {
 			vy = joy.y;
 		}
 		if (vx === 0 && vy === 0) {
+			this.setWalkAudio(false);
 			// settle back upright when standing still
 			this.player.setRotation(this.player.rotation * 0.8);
 			return;
@@ -3761,8 +3971,10 @@ export class WorldScene extends Phaser.Scene {
 			}
 		}
 
+		const moved = Phaser.Math.Distance.Between(this.player.x, this.player.y, nx, ny) > 0.1;
 		this.player.setPosition(nx, ny);
 		this.player.setDepth(ny + 16);
+		this.setWalkAudio(moved);
 	}
 
 	private handleGhost() {
@@ -3797,6 +4009,26 @@ export class WorldScene extends Phaser.Scene {
 		// Prefer the thing you're standing beside; otherwise light up whatever the
 		// pointer is hovering, so it's clear what a click would act on.
 		const focus = near || (busy || terraforming ? null : this.hoveredIt);
+		const focusSource: 'near' | 'hover' | null = near ? 'near' : focus ? 'hover' : null;
+
+		// Fire exactly once when the ring lands on a new target (or clears), so
+		// callers can react (for example: contextual UI) without getting spammed
+		// every frame. The hover SFX is reserved for true "in range" focus only.
+		const focusSig = focus ? `${focus.x}:${focus.y}:${focus.label}:${focusSource}` : null;
+		if (focusSig !== this.lastFocusSig) {
+			this.lastFocusSig = focusSig;
+			if (focus && focusSource) {
+				bridge.emit('interactable-hover', {
+					x: focus.x,
+					y: focus.y,
+					label: focus.label,
+					source: focusSource,
+				});
+				if (focusSource === 'near') bridge.emit('audio-sfx', { id: 'hover' });
+			} else {
+				bridge.emit('interactable-hover-clear');
+			}
+		}
 
 		// Walked up to a locked gate → post what's still needed to the corner feed,
 		// but only when the remaining list actually CHANGES (not on every approach),

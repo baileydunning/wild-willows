@@ -21,6 +21,23 @@ import { api, getPlayerId, getSoloSlot, getTransport, COOP_BASE_URL, IS_DESKTOP 
 import { getLocale } from '../i18n';
 import { DEMO, EDITION } from '../demo';
 import { APP_VERSION, BUILD_TIME, detectOS } from '../platform';
+import { getPrefs } from '../prefs';
+
+/** Compact audio + accessibility settings snapshot for the metrics dashboard
+ *  (mute rate, colorblind/text-size/reduce-motion/dyslexia-font usage). */
+function snapshotPrefs() {
+	const p = getPrefs();
+	return {
+		musicEnabled: p.musicEnabled,
+		sfxEnabled: p.sfxEnabled,
+		musicVolume: p.musicVolume,
+		sfxVolume: p.sfxVolume,
+		reduceMotion: p.reduceMotion,
+		colorblindMode: p.colorblindMode,
+		dyslexiaFont: p.dyslexiaFont,
+		textScale: p.textScale,
+	};
+}
 
 const REPORT_MS = 3 * 60 * 1000; // network-friendly cadence
 const STARTUP_RETRY_MS = 700; // re-try the first report until the save slot exists
@@ -80,8 +97,10 @@ async function reportOnce(): Promise<boolean> {
 			build: BUILD_TIME,
 			language: getLocale(),
 			// edition rides inside the snapshot JSON (SoloMetrics is a fixed-column
-			// table), so the dashboard can split demo vs paid players.
-			snapshot: { ...snapshot, edition: EDITION },
+			// table), so the dashboard can split demo vs paid players. `prefs` carries
+			// the player's audio + accessibility settings (localStorage-only, so they
+			// have to be attached here) for mute-rate and a11y-usage reporting.
+			snapshot: { ...snapshot, edition: EDITION, prefs: snapshotPrefs() },
 		});
 		lastPayload = body; // cache for the closing beacon
 		await fetch(endpoint(), {

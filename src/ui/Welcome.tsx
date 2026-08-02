@@ -17,7 +17,7 @@ import { COOP_ENABLED } from '../features';
 import { DEMO } from '../demo';
 import type { Appearance } from '../types';
 import { CharacterPreview, Icon } from './icons';
-import { AppearanceRows, AccessibilityControls, randomizeAppearance } from './Settings';
+import { AppearanceRows, AccessibilityControls, SoundControls, randomizeAppearance } from './Settings';
 import { randomName } from './names';
 
 type Mode = 'menu' | 'new' | 'load' | 'join-code';
@@ -159,8 +159,8 @@ function Scenery() {
 				</g>
 			</g>
 
-			{/* squirrel by the tent, tail twitching */}
-			<g transform="translate(226 498)">
+			{/* squirrel in the foreground, a little clear of the campfire, tail twitching */}
+			<g transform="translate(285 498)">
 				<g className="squirrel-tail">
 					<ellipse cx="6" cy="12" rx="4.5" ry="8" fill="#7c5a3c" />
 				</g>
@@ -825,6 +825,17 @@ export function WelcomeScreen() {
 						</form>
 					)}
 				</div>
+				<p className="welcome-credits-footer">
+					<span className="credit-entry">
+						<Icon name="code" size={12} /> {t('app.welcome.creditDev')} Bailey Dunning
+					</span>
+					<span className="credit-dot" aria-hidden="true">
+						·
+					</span>
+					<span className="credit-entry">
+						<Icon name="note" size={12} /> {t('app.welcome.creditAudio')} Jon Licht
+					</span>
+				</p>
 			</div>
 
 			{introOpen && (
@@ -932,6 +943,10 @@ export function WelcomeScreen() {
 									))}
 								</select>
 							</div>
+							<h3>
+								<Icon name="note" size={15} /> {t('app.settings.sound')}
+							</h3>
+							<SoundControls />
 							<h3>
 								<Icon name="sliders" size={15} /> {t('app.settings.accessibility')}
 							</h3>
