@@ -601,17 +601,39 @@ export function bindGameAudio(): () => void {
 	const offIdle = bridge.on('audio-idle', (payload: any) => {
 		setHummingActive(!!payload?.active);
 	});
-	const offToast = bridge.on('audio-toast', () => {
-		playSfx('toast');
+	const offToast = bridge.on('audio-toast', (payload: any) => {
+		// error toasts = a blocked/invalid action ("can't"); achievement/goal
+		// toasts = a win moment ("yay"). Everything else uses the neutral toast.
+		const kind = String(payload?.kind || '');
+		if (kind === 'error') playSfx('cant');
+		else if (kind === 'achievement') playSfx('yay');
+		else playSfx('toast');
 	});
 	const offRain = bridge.on('audio-rain', (payload: any) => {
 		setRainActive(!!payload?.active);
 	});
+	// Global menu-hover: one soft tick whenever the pointer enters any UI button,
+	// so every menu (top nav, character creation, home, panels…) is covered
+	// without wiring each button. Dedup by the button element so moving across a
+	// button's inner icon/label doesn't re-fire, and skip disabled buttons.
+	let lastHoverBtn: Element | null = null;
+	const onPointerOver = (e: Event) => {
+		const btn = (e.target as Element | null)?.closest?.('button') ?? null;
+		if (!btn) {
+			lastHoverBtn = null;
+			return;
+		}
+		if (btn === lastHoverBtn || (btn as HTMLButtonElement).disabled) return;
+		lastHoverBtn = btn;
+		playSfx('menuhover');
+	};
+	if (typeof document !== 'undefined') document.addEventListener('pointerover', onPointerOver);
 	return () => {
 		offSfx();
 		offWalk();
 		offIdle();
 		offToast();
 		offRain();
+		if (typeof document !== 'undefined') document.removeEventListener('pointerover', onPointerOver);
 	};
 }
