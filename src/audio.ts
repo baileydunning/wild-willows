@@ -602,11 +602,10 @@ export function bindGameAudio(): () => void {
 		setHummingActive(!!payload?.active);
 	});
 	const offToast = bridge.on('audio-toast', (payload: any) => {
-		// error toasts = a blocked/invalid action ("can't"); achievement/goal
-		// toasts = a win moment ("yay"). Everything else uses the neutral toast.
+		// error toasts = a blocked/invalid action ("can't"); everything else
+		// (info, unlock, achievement, animal) uses the neutral toast tick.
 		const kind = String(payload?.kind || '');
 		if (kind === 'error') playSfx('cant');
-		else if (kind === 'achievement') playSfx('yay');
 		else playSfx('toast');
 	});
 	const offRain = bridge.on('audio-rain', (payload: any) => {

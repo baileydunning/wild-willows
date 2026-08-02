@@ -29,7 +29,6 @@
   "sfx": {
     "toast": "/audio/sfx/toast.mp3",
     "areaUnlocked": "/audio/sfx/AreaUnlocked.ogg",
-    "yay": "/audio/sfx/yay.mp3",
     "cant": "/audio/sfx/cant.ogg",
     "hover": [
       "/audio/sfx/hover1.ogg",
@@ -54,8 +53,7 @@
     "cant": 0.45,
     "craft": 0.85,
     "dig": 0.595,
-    "harvest": 0.476,
-    "yay": 0.595
+    "harvest": 0.476
   },
   "musicGain": {
     "hollowforest_level1": 0.5,
