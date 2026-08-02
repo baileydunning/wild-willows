@@ -19,7 +19,7 @@ function endpoint(): string {
 	return `${IS_DESKTOP || DEMO ? COOP_BASE_URL : ''}/AppOpen/`;
 }
 
-async function send(phase: 'open' | 'created', extra: Record<string, any> = {}): Promise<void> {
+async function send(phase: 'open' | 'created' | 'demo_done', extra: Record<string, any> = {}): Promise<void> {
 	try {
 		await fetch(endpoint(), {
 			method: 'POST',
@@ -50,4 +50,11 @@ export function reportAppOpen(): void {
 /** Fire once when a character is created, with how long the creator took (ms). */
 export function reportCharacterCreated(creationMs: number): void {
 	void send('created', { creationMs: Math.max(0, Math.round(creationMs || 0)) });
+}
+
+/** Fire once when the demo hard-stop is reached (the goal animals have returned).
+ *  Device-scoped and sticky on the server, so it survives the save being reset
+ *  when the player dismisses the thank-you popup. */
+export function reportDemoComplete(): void {
+	void send('demo_done');
 }

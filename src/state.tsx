@@ -17,7 +17,7 @@ import { DEMO, DEMO_ANIMAL_GOAL, DEMO_BIOME } from './demo';
 import { flushFeedbackQueue } from './feedback';
 import { t, content, onLocaleChange } from './i18n';
 import { pokeMetricsUplink } from './solo/metricsUplink';
-import { reportCharacterCreated } from './solo/appOpen';
+import { reportCharacterCreated, reportDemoComplete } from './solo/appOpen';
 import { bridge } from './game/bridge';
 import { unlockedRecipeIds } from './recipes';
 import { narrativeBeats, nextFeedFact, healthMilestoneLine, HEALTH_THRESHOLDS } from './ui/narrative';
@@ -287,6 +287,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		const meadow = state.biomeStates.find((b) => b.biomeId === DEMO_BIOME);
 		if ((meadow?.returnedCount || 0) >= DEMO_ANIMAL_GOAL) {
 			setDemoComplete(true);
+			reportDemoComplete(); // metrics: demo completion (device-scoped + sticky)
 			flushFeed(); // persist buffered feed so an export captures it
 		}
 	}, [state, demoComplete, flushFeed]);

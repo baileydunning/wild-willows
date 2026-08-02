@@ -5812,6 +5812,47 @@ export class Metrics extends PublicEndpoint {
 				: 0,
 		};
 
+		// Settings & accessibility usage — audio mute rate plus which accessibility
+		// options players actually turn on. Sourced from the `prefs` block each solo
+		// snapshot uplinks (see metricsUplink.ts); only saves that report it count.
+		const withPrefs = all.filter((v) => v.prefs && typeof v.prefs === 'object');
+		const prefN = withPrefs.length || 1;
+		const countPref = (test: (p: any) => boolean) => withPrefs.filter((v) => test(v.prefs)).length;
+		const tallyPref = (pick: (p: any) => string) => {
+			const out: Record<string, number> = {};
+			for (const v of withPrefs) {
+				const k = pick(v.prefs) || 'unknown';
+				out[k] = (out[k] || 0) + 1;
+			}
+			return out;
+		};
+		const musicOff = countPref((p) => p.musicEnabled === false);
+		const sfxOff = countPref((p) => p.sfxEnabled === false);
+		const settings = {
+			savesReporting: withPrefs.length,
+			audio: {
+				musicOff,
+				sfxOff,
+				fullyMuted: countPref((p) => p.musicEnabled === false && p.sfxEnabled === false),
+				musicOffPct: Math.round((musicOff / prefN) * 100),
+				sfxOffPct: Math.round((sfxOff / prefN) * 100),
+			},
+			accessibility: {
+				reduceMotion: countPref((p) => p.reduceMotion === true),
+				dyslexiaFont: countPref((p) => p.dyslexiaFont === true),
+				colorblindOn: countPref((p) => p.colorblindMode && p.colorblindMode !== 'off'),
+				anyEnabled: countPref(
+					(p) =>
+						p.reduceMotion === true ||
+						p.dyslexiaFont === true ||
+						(p.colorblindMode && p.colorblindMode !== 'off') ||
+						(p.textScale && p.textScale !== 'md'),
+				),
+				colorblindModes: tallyPref((p) => p.colorblindMode || 'off'),
+				textScales: tallyPref((p) => p.textScale || 'md'),
+			},
+		};
+
 		// Acquisition funnel — from the per-device AppOpen table, so it counts
 		// people who opened the app but never made a character (bounced), and how
 		// many characters each person creates. Independent of ?exclude (device-scoped).
@@ -5823,6 +5864,18 @@ export class Metrics extends PublicEndpoint {
 		}
 		const devices = openRows.length;
 		const convertedDevices = openRows.filter((o) => o.converted).length;
+		// Demo completion: of the demo installs that made a character, how many
+		// reached the hard-stop (goal animals returned). Device-scoped + sticky.
+		const demoDevices = openRows.filter((o) => o.edition === 'demo');
+		const demoConverted = demoDevices.filter((o) => o.converted).length;
+		const demoFinished = demoDevices.filter((o) => o.reachedDemoGoal).length;
+		const demoCompletion = {
+			demoInstalls: demoDevices.length,
+			createdCharacter: demoConverted,
+			reachedGoal: demoFinished,
+			// completion rate among demo players who actually made a character
+			completionPct: demoConverted ? Math.round((demoFinished / demoConverted) * 100) : 0,
+		};
 		// demo vs paid split of installs (edition is stamped on each AppOpen row).
 		const editionSplit: Record<string, number> = {};
 		for (const o of openRows) {
@@ -5893,6 +5946,8 @@ export class Metrics extends PublicEndpoint {
 				appearancePopularity,
 				timeToFirstAction,
 				acquisition,
+				demoCompletion,
+				settings,
 				funnel,
 				funnelPct,
 				actionTotals,
@@ -6678,7 +6733,7 @@ export class AppOpen extends PublicEndpoint {
 			.trim()
 			.slice(0, 64);
 		if (!deviceId) throw new GameError(tr('server.err.deviceIdRequired'));
-		const phase = body.phase === 'created' ? 'created' : 'open';
+		const phase = body.phase === 'created' ? 'created' : body.phase === 'demo_done' ? 'demo_done' : 'open';
 		const now = Date.now();
 		const t = db();
 		const id = `dev:${deviceId}`;
@@ -6714,6 +6769,10 @@ export class AppOpen extends PublicEndpoint {
 			savesCreated: (existing?.savesCreated || 0) + (phase === 'created' ? 1 : 0),
 			// Keep the most recent creator time we've seen for this device.
 			creationMs: phase === 'created' && cms > 0 ? cms : existing?.creationMs || 0,
+			// Demo completion: reached the hard-stop (goal animals returned). Sticky,
+			// so it survives the save being reset when the thank-you popup is dismissed.
+			reachedDemoGoal: existing?.reachedDemoGoal || phase === 'demo_done',
+			demoGoalAt: existing?.demoGoalAt || (phase === 'demo_done' ? now : 0),
 			updatedAt: now,
 		});
 		dashboardCache = null; // acquisition numbers changed — rebuild the dashboard
