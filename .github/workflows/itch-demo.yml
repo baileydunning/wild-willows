@@ -1,0 +1,101 @@
+name: itch web demo
+
+# Builds the browser-playable DEMO (a static web build, DEMO=true) and publishes
+# it to the HTML5 channel of bai13y/wild-willows with butler, so it runs right on
+# the itch page — no download. The demo plays the real game against the hosted
+# Harper (falling back to the offline in-app backend if Harper is unreachable),
+# hard-stops after 5 animals return to the meadow, and deletes its save on finish.
+#
+# Triggers (mirrors the itch release tags used by desktop-build.yml, plus manual):
+#   git tag itch-v0.1.0 && git push origin itch-v0.1.0  → build AND publish the demo
+#   git tag v0.1.0      && git push origin v0.1.0        → build AND publish the demo
+#   Actions tab → Run workflow                           → build AND publish the demo
+#
+# Version: from the tag on a tag push (itch-v0.1.0 → 0.1.0), else package.json's
+# version + "-demo" on a manual run.
+#
+# One-time itch setup (persists across butler pushes to the html5 channel):
+#   • On the bai13y/wild-willows page, open the uploaded "html5" build and tick
+#     "This file will be played in the browser"; set an embed viewport (e.g.
+#     1280×720, click-to-launch, fullscreen button on).
+#   • For the Harper-backed path to work in the itch iframe, the hosted Harper
+#     (wild.willows.harperfabric.com) must send CORS headers allowing itch's game
+#     origin. Without it the demo still runs — it just falls back to offline solo.
+#
+# Required repo secret: BUTLER_API_KEY  (https://itch.io/user/settings/api-keys)
+
+on:
+  push:
+    tags: ['itch-v*', 'v*']
+  workflow_dispatch:
+
+concurrency:
+  group: itch-demo-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-publish:
+    name: Build & publish web demo
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # DEMO=true bakes in the browser-demo behaviour (Harper-first backend, the
+      # 5-animal hard-stop, the tutorial demo note, edition:'demo' metrics).
+      - name: Build browser demo
+        run: DEMO=true npm run build:web
+
+      - name: Sanity-check the build has an entry point
+        run: test -f web/index.html
+
+      # Keep a copy of exactly what shipped (handy for local testing / rollback).
+      - name: Upload web build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: wild-willows-demo-web
+          if-no-files-found: error
+          retention-days: 14
+          path: web/**
+
+      - name: Install butler
+        run: |
+          set -euo pipefail
+          # broth.itch.zone is the current automation endpoint (broth.itch.ovh is dead).
+          for i in 1 2 3 4 5; do
+            if curl -fL --connect-timeout 20 --retry 5 --retry-delay 5 --retry-all-errors \
+                 -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default; then
+              break
+            fi
+            echo "butler download attempt $i failed; retrying in 10s…"
+            sleep 10
+            [ "$i" = 5 ] && { echo "Could not download butler after 5 attempts"; exit 1; }
+          done
+          unzip -q butler.zip -d "$HOME/butler"
+          chmod +x "$HOME/butler/butler"
+          "$HOME/butler/butler" -V
+
+      - name: Push web demo to itch (html5 channel)
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+        run: |
+          set -euo pipefail
+          BUTLER="$HOME/butler/butler"
+          GAME="bai13y/wild-willows"
+          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            VERSION="${GITHUB_REF_NAME#itch-}"; VERSION="${VERSION#v}"   # itch-v0.1.0 / v0.1.0 -> 0.1.0
+          else
+            VERSION="$(node -p "require('./package.json').version")-demo"  # manual run
+          fi
+          echo "Pushing web/ -> $GAME:html5 (v$VERSION)"
+          # HTML5 games are pushed as the folder that holds index.html; itch serves
+          # it in an iframe once the upload is flagged "played in the browser".
+          "$BUTLER" push web "$GAME:html5" --userversion "$VERSION"
+          "$BUTLER" status "$GAME"

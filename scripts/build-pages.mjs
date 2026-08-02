@@ -19,6 +19,7 @@ const pages = {
 	privacyHtml: 'public/privacy.html',
 	ageRatingHtml: 'public/age-rating.html',
 	supportHtml: 'public/support.html',
+	dashboardHtml: 'public/dashboard.html',
 };
 
 let out =

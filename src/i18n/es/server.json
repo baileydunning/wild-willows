@@ -130,7 +130,8 @@
 		"clientIdRequired": "se requiere clientId",
 		"snapshotRequired": "se requiere snapshot",
 		"snapshotTooLarge": "snapshot demasiado grande",
-		"deviceIdRequired": "se requiere deviceId"
+		"deviceIdRequired": "se requiere deviceId",
+		"notDemoSave": "Este guardado no se puede eliminar de esta forma."
 	},
 	"task": {
 		"welcomeGrasshopper": "Dale la bienvenida al saltamontes que vuelve a casa",

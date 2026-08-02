@@ -6,6 +6,7 @@ import { useI18n } from '../i18n/react';
 import { useDraggable } from './useDraggable';
 import { Icon } from './icons';
 import { isTouchDevice } from './MobileControls';
+import { DEMO } from '../demo';
 
 interface StepDef {
 	icon: string;
@@ -522,6 +523,11 @@ export function Tutorial() {
 							<div className="tutorial-text">
 								{touch && def.hasTouch ? t(`${def.key}.touch`) : t(`${def.key}.text`)}
 							</div>
+							{DEMO && def.key === 'panels.tutorial.welcome' && !celebrating && (
+								<div className="tutorial-demo-note">
+									<Icon name="sparkle" size={13} /> {t('panels.tutorial.demoNote', { count: 5 })}
+								</div>
+							)}
 						</div>
 					</div>
 					<div className="tutorial-footer">

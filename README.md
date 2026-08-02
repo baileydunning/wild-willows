@@ -125,6 +125,23 @@ On the itch page itself, set it up once as a downloadable **Game** ("played on y
 
 > Windows builds are unsigned, so SmartScreen shows a "Windows protected your PC" prompt the first time (More info → Run anyway) — normal for itch games; note it on the store page.
 
+### Browser-playable demo on itch
+
+The same page also hosts a **play-in-browser demo** — a static web build (`DEMO=true npm run build:web`) served in an iframe on itch, so anyone can try the game with no download. `.github/workflows/itch-demo.yml` builds it and `butler push`es the `web/` folder to the **`html5`** channel of `bai13y/wild-willows` on the itch release tags (`itch-v*` / `v*`) or a manual **Actions → Run workflow** (both build *and* publish; needs `BUTLER_API_KEY`).
+
+What the demo build changes (all behind the `DEMO` flag — see `src/demo.ts`):
+
+- **Backend: Harper-first, passwordless (`DEMO_WEB_BACKEND` in `src/demo.ts`, default `'harper'`).** The demo plays against the hosted Harper (`wild.willows.harperfabric.com`) so gameplay is server-validated, same as the full game — but **passwordless**: the title screen hides the passcode field, auto-mints a throwaway one, and the server assigns a **unique player id** per demo save (`CreatePlayer`'s `edition:'demo'` path), so anonymous players who pick the same caretaker name never collide. `resolveDemoBackend()` in `src/api.ts` probes Harper at boot with the *same headers real calls use* (so a CORS preflight failure is caught, not hit mid-game); if Harper can't be reached it **falls back to the offline solo backend** so the demo always runs. Requires **CORS for itch's origin** on the hosted Harper. Set `DEMO_WEB_BACKEND` to `'solo'` for a fully-offline demo with no server/CORS dependency.
+- **Hard-stop at 5 animals, with save carry-over.** The moment the meadow has welcomed back 5 animals, a "thanks for playing the demo" popup blocks play. It offers a **"Download my save"** button so the player can carry their meadow into the full downloadable game (its title-screen Import Save): `ExportDemoSave` dumps the world in the offline solo-save shape (`edition` reset to `full`) and the client encrypts it into the standard save envelope — the solo fallback reuses the existing `exportActiveSolo`. Closing the popup returns to the title and **deletes the save** (local slot, or the hosted record via the guarded, passcode-free `DeleteDemoSave` — which refuses anything not tagged `edition:'demo'`), so deletion is deferred until dismiss and can't strand the export.
+- **Demo signposting.** The tutorial's first slide notes it's the free demo and what completes it.
+- **Metrics tagged `edition`.** Every heartbeat, app-open ping, and metrics uplink carries `edition: 'demo' | 'full'`. The browser demo uplinks to `SoloMetrics` **even in Harper mode** (see `shouldUplink()` in `src/solo/metricsUplink.ts`), so `SoloMetrics` is the single client-metrics stream — desktop solo, browser demo, and offline solo all land there. The `/Metrics/` dashboard rolls them all up split by `editions` (demo/full) and `platforms` (web/desktop); `acquisition.editions` (from `AppOpen`) additionally counts installs that never created a character.
+
+One-time itch page setup (persists across butler pushes to `html5`): open the uploaded `html5` build → tick **"This file will be played in the browser"**, set an embed viewport (e.g. 1280×720, click-to-launch, fullscreen on). For the Harper-backed path, enable **CORS** on the hosted Harper for itch's game origin; without it the demo simply runs offline.
+
+The demo gating (tutorial note + 5-animal hard-stop) is driven **purely** by the build-time `DEMO` flag — there is deliberately no runtime toggle, so a player can't open dev tools and switch it off to unlock the full game. To exercise it during development, build the demo for real: `DEMO=true npm run build:web && npx vite preview`.
+
+> Keyboard-only still applies: itch's browser player is desktop-friendly, and the keyboard gate lets any device with a keyboard through.
+
 ### Signing & notarizing the macOS build
 
 The macOS build is configured to **code-sign + notarize** so it opens with no Gatekeeper "damaged"/unidentified-developer warning. Config lives in `package.json` → `build.mac` (`hardenedRuntime`, `entitlements: build/entitlements.mac.plist`, `notarize.teamId: JB4CT3MZ6L`) and the entitlements plist grants the JIT / library-validation exceptions Electron + `steamworks.js` need.

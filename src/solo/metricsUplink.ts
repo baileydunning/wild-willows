@@ -1,11 +1,13 @@
-// Solo only: push the local save's metrics view to the hosted Harper (POST
-// /SyncMetrics/ → SoloMetrics table) so solo players show up on the same
-// /Metrics/ dashboards as web/co-op players. The mirror image of steamSync.ts,
-// but over the network.
+// Push the active session's metrics view to the hosted Harper (POST
+// /SyncMetrics/ → SoloMetrics table) so it shows up on the /Metrics/ dashboard.
+// Runs for SOLO play (desktop + the demo's offline fallback), which has no
+// server-side metrics otherwise, AND for the browser DEMO in Harper mode, so
+// demo players land in the same dashboard as everyone else (see shouldUplink()).
+// Full web/co-op are already recorded server-side and don't uplink. The mirror
+// image of steamSync.ts, but over the network.
 //
-// Strictly best-effort: solo works fully offline, so a failed send is dropped —
-// each report is a full snapshot keyed by the save slot's UUID, so a missed
-// report loses nothing once a connection returns.
+// Strictly best-effort: a failed send is dropped — each report is a full snapshot
+// keyed by a stable client id, so a missed report loses nothing once online.
 //
 // Reliability (esp. first sessions): reports fire (1) immediately once a session
 // has a save slot — retried until the slot is ready, since it's registered a
@@ -17,6 +19,7 @@
 
 import { api, getPlayerId, getSoloSlot, getTransport, COOP_BASE_URL, IS_DESKTOP } from '../api';
 import { getLocale } from '../i18n';
+import { DEMO, EDITION } from '../demo';
 import { APP_VERSION, BUILD_TIME, detectOS } from '../platform';
 
 const REPORT_MS = 3 * 60 * 1000; // network-friendly cadence
@@ -32,36 +35,53 @@ let startupTries = 0;
 let lastPayload: string | null = null;
 
 function endpoint(): string {
-	return `${IS_DESKTOP ? COOP_BASE_URL : ''}/SyncMetrics/`;
+	// Desktop and the browser demo's offline fallback both uplink cross-origin to
+	// the hosted Harper; the deployed web build would post to its own origin.
+	return `${IS_DESKTOP || DEMO ? COOP_BASE_URL : ''}/SyncMetrics/`;
+}
+
+/** Should the active session uplink to SoloMetrics? Solo (desktop + demo's
+ *  offline fallback) always does — it has no server-side metrics otherwise. The
+ *  browser DEMO also does even in Harper mode, so demo players land in the same
+ *  dashboard as everyone else. Full web/co-op are already recorded server-side. */
+function shouldUplink(): boolean {
+	const t = getTransport();
+	return t === 'solo' || (DEMO && t === 'web');
 }
 
 /** Build + send the current metrics snapshot. Returns true once a send has been
- *  attempted for a real solo session (pid + slot present), false if there's
- *  nothing to send yet (so the startup poke knows to retry). */
+ *  attempted for a real session (pid present; solo also needs its slot), false if
+ *  there's nothing to send yet (so the startup poke knows to retry). */
 async function reportOnce(): Promise<boolean> {
-	if (getTransport() !== 'solo') return false; // web/co-op already report on the server
+	if (!shouldUplink()) return false; // full web/co-op already report on the server
 	const pid = getPlayerId();
+	if (!pid) return false; // no session yet — caller retries
 	const slot = getSoloSlot();
-	if (!pid || !slot) return false; // session/slot not ready yet — caller retries
+	if (getTransport() === 'solo' && !slot) return false; // solo slot not ready yet — retry
+	// One stable row per player: the solo slot's UUID offline, the (unique) player
+	// id in Harper mode where there is no local slot.
+	const clientId = slot?.slotId || pid;
 	if (inFlight) return true; // a report is already in flight; that counts
 	inFlight = true;
 	try {
-		// The in-app backend derives the same metrics view the server would
-		// (playtime, sessions, action counts, activation, achievements).
+		// The in-app backend (solo) / hosted Harper both derive the same metrics
+		// view (playtime, sessions, action counts, activation, achievements).
 		const res = await api.metrics(pid);
 		const player = res?.player;
 		if (!player) return true;
 		// Drop the bulky per-biome block — biome health is already in biomeSummary.
 		const { biomes: _biomes, ...snapshot } = player as any;
 		const body = JSON.stringify({
-			clientId: slot.slotId,
-			name: slot.name,
+			clientId,
+			name: slot?.name, // falls back to snapshot.name (the caretaker's name) server-side
 			platform: IS_DESKTOP ? 'desktop' : 'web',
 			os: detectOS(),
 			version: APP_VERSION,
 			build: BUILD_TIME,
 			language: getLocale(),
-			snapshot,
+			// edition rides inside the snapshot JSON (SoloMetrics is a fixed-column
+			// table), so the dashboard can split demo vs paid players.
+			snapshot: { ...snapshot, edition: EDITION },
 		});
 		lastPayload = body; // cache for the closing beacon
 		await fetch(endpoint(), {
@@ -83,7 +103,7 @@ async function reportOnce(): Promise<boolean> {
  *  snapshot (the hidden-flush above refreshes it just before this runs), which
  *  survives the window being torn down where a normal fetch would not. */
 function beaconFlush(): void {
-	if (getTransport() !== 'solo' || !lastPayload) return;
+	if (!shouldUplink() || !lastPayload) return;
 	try {
 		navigator.sendBeacon?.(endpoint(), new Blob([lastPayload], { type: 'application/json' }));
 	} catch {

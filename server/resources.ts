@@ -42,7 +42,7 @@ import {
 import { t as tr } from '../src/i18n/server';
 // Policy pages (privacy / age suitability), inlined from public/*.html by
 // scripts/build-pages.mjs — served as endpoints, see the bottom of this file.
-import { privacyHtml, ageRatingHtml, supportHtml, buildStamp } from './pages';
+import { privacyHtml, ageRatingHtml, supportHtml, dashboardHtml, buildStamp } from './pages';
 
 // Biome ids for the weather block (weather is per-biome; climate differs by
 // biome). Derived once from the static seed data so the weather snapshot stays
@@ -1226,6 +1226,7 @@ async function createPlayerRecords(
 	appearance: any,
 	tzOffsetMinutes = 0,
 	creationMs = 0,
+	edition: 'demo' | 'full' = 'full',
 ): Promise<any> {
 	const t = db();
 	const d = await defs();
@@ -1256,7 +1257,7 @@ async function createPlayerRecords(
 		home: { ...DEFAULT_HOME }, // your camp tent — upgrade it along four tracks, in two styles
 		// Stamp how long character creation took (reported by the client), so the
 		// dashboard can report average time-in-creator alongside the choices made.
-		metrics: { ...freshMetrics(now), creationMs: creationMs > 0 ? Math.round(creationMs) : 0 },
+		metrics: { ...freshMetrics(now), creationMs: creationMs > 0 ? Math.round(creationMs) : 0, edition },
 		// The board always shows a live "Unlock the next biome" guidance goal, so a
 		// new player starts with no custom goals of their own yet.
 		customGoals: [],
@@ -3393,16 +3394,31 @@ export class GameData extends PublicEndpoint {
 /** POST /CreatePlayer/ {name, passcode, appearance} — start a brand-new save. */
 export class CreatePlayer extends PublicEndpoint {
 	async post(data: any) {
-		const { name, passcode, appearance, tzOffsetMinutes, creationMs } = await bodyOf(data);
+		const { name, passcode, appearance, tzOffsetMinutes, creationMs, edition } = await bodyOf(data);
+		const ed: 'demo' | 'full' = edition === 'demo' ? 'demo' : 'full';
 		const cleanName = String(name || '').trim();
 		if (cleanName.length < 2 || cleanName.length > 24) throw new GameError(tr('server.err.nameLength'));
 		const code = String(passcode || '');
 		if (code.length < 4 || code.length > 32) throw new GameError(tr('server.err.passcodeLength'));
-		const playerId = slugId(cleanName);
-		if (!playerId) throw new GameError(tr('server.err.nameNeedsAlnum'));
 
-		const existing = await safeGet(db().Player, playerId);
-		if (existing) throw new GameError(tr('server.err.saveExists'), 409);
+		let playerId: string;
+		if (ed === 'demo') {
+			// Demo saves are anonymous and throwaway, and many players share the
+			// hosted instance — so mint a UNIQUE id (name-slug + random suffix)
+			// instead of the bare name-slug, which would collide the moment two
+			// visitors pick the same caretaker name. The display name still shows
+			// what they typed; only the internal id carries the suffix.
+			const base = slugId(cleanName) || 'caretaker';
+			const t = db();
+			do {
+				playerId = `${base}-${Math.random().toString(36).slice(2, 8)}`;
+			} while (await safeGet(t.Player, playerId));
+		} else {
+			playerId = slugId(cleanName);
+			if (!playerId) throw new GameError(tr('server.err.nameNeedsAlnum'));
+			const existing = await safeGet(db().Player, playerId);
+			if (existing) throw new GameError(tr('server.err.saveExists'), 409);
+		}
 
 		// Client reports how long the player spent in the character creator (ms),
 		// clamped to a sane range so a bad clock can't skew the average.
@@ -3414,6 +3430,7 @@ export class CreatePlayer extends PublicEndpoint {
 			sanitizeAppearance(appearance),
 			sanitizeTzOffset(tzOffsetMinutes),
 			cms,
+			ed,
 		);
 		// World plumbing must never block starting a save: if the World/WorldMember
 		// tables aren't ready yet (instance not restarted after the schema change),
@@ -3466,6 +3483,98 @@ export class DeletePlayer extends PublicEndpoint {
 		}
 		await t.Player.delete(playerId);
 		return { ok: true, deleted: playerId, recordsRemoved: removed + 1 };
+	}
+}
+
+/**
+ * POST /DeleteDemoSave/ {playerId} — passcode-free deletion, used ONLY by the
+ * browser demo's hard-stop so a finished demo caretaker can't just log back in.
+ * Guarded: it refuses unless the save is tagged edition:'demo' in its metrics,
+ * so it can never wipe a real (paid) save even if the id is known. Idempotent —
+ * an already-gone save returns ok.
+ */
+export class DeleteDemoSave extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId } = await bodyOf(data);
+		const id = slugId(String(playerId || ''));
+		const t = db();
+		const player = id ? await safeGet(t.Player, id) : null;
+		if (!player) return { ok: true, deleted: null }; // already gone / never existed
+		if (player.metrics?.edition !== 'demo') throw new GameError(tr('server.err.notDemoSave'), 403);
+
+		let removed = 0;
+		for (const table of [t.Placement, t.Chest, t.BiomeState, t.Discovery, t.NodeState, t.TerrainTile, t.FeedEntry]) {
+			for (const rec of await byWorld(table, id)) {
+				await table.delete(rec.id);
+				removed++;
+			}
+		}
+		for (const rec of await byPlayer(t.PlayerAchievement, id)) {
+			await t.PlayerAchievement.delete(rec.id);
+			removed++;
+		}
+		for (const m of await byPlayer(t.WorldMember, id)) {
+			await t.WorldMember.delete(m.id);
+			removed++;
+		}
+		if (await safeGet(t.World, id)) {
+			await t.World.delete(id);
+			removed++;
+		}
+		await t.Player.delete(id);
+		return { ok: true, deleted: id, recordsRemoved: removed + 1 };
+	}
+}
+
+/**
+ * POST /ExportDemoSave/ {playerId} — dump a demo save's world in the exact shape
+ * the offline solo backend serializes ({ meta, data } where data is the dynamic
+ * tables), so a demo player can download it and import it into the full
+ * downloadable game. Guarded like DeleteDemoSave: only edition:'demo' saves,
+ * passcode-free. The client encrypts the result into the standard save envelope.
+ */
+export class ExportDemoSave extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId } = await bodyOf(data);
+		const id = slugId(String(playerId || ''));
+		const t = db();
+		const player = id ? await safeGet(t.Player, id) : null;
+		if (!player) throw new GameError(tr('server.err.noSaveWithName'), 404);
+		if (player.metrics?.edition !== 'demo') throw new GameError(tr('server.err.notDemoSave'), 403);
+
+		const wid = worldOf(player);
+		// Reset edition to 'full' on the exported copy: the player is carrying this
+		// into the paid game, so it should report as a full-game save (Heartbeat
+		// keeps 'demo' sticky otherwise).
+		const exportedPlayer = { ...player, metrics: { ...(player.metrics || {}), edition: 'full' } };
+
+		const save = {
+			meta: {
+				playerId: id,
+				name: player.name || 'Caretaker',
+				appearance: player.appearance || {},
+				createdAt: player.createdAt || Date.now(),
+				updatedAt: Date.now(),
+			},
+			// Keys mirror src/solo/localDb.ts DYNAMIC_TABLES so loadSoloGame hydrates
+			// cleanly. WorldPresence / JoinRequest are transient — exported empty.
+			data: {
+				Player: [exportedPlayer],
+				PlayerAchievement: await byPlayer(t.PlayerAchievement, id),
+				BiomeState: await byWorld(t.BiomeState, wid),
+				Chest: await byWorld(t.Chest, wid),
+				Placement: await byWorld(t.Placement, wid),
+				Discovery: await byWorld(t.Discovery, wid),
+				NodeState: await byWorld(t.NodeState, wid),
+				TerrainTile: await byWorld(t.TerrainTile, wid),
+				FeedEntry: await byWorld(t.FeedEntry, wid),
+				World: (await safeGet(t.World, wid)) ? [await safeGet(t.World, wid)] : [],
+				WorldMember: await byPlayer(t.WorldMember, id),
+				WorldPresence: [],
+				JoinRequest: [],
+			},
+		};
+		return { ok: true, ...save };
 	}
 }
 
@@ -5243,7 +5352,7 @@ const MAX_BEAT_MS = 90 * 1000; // credit at most this much play time per beat (g
  */
 export class Heartbeat extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, language } = await bodyOf(data);
+		const { playerId, language, edition } = await bodyOf(data);
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
@@ -5252,6 +5361,9 @@ export class Heartbeat extends PublicEndpoint {
 		// Interface language, reported by the client on every beat (BCP-47-ish
 		// short code, e.g. "en"/"es"). Kept on the metrics blob for dashboards.
 		const lang = typeof language === 'string' && language.trim() ? language.trim().toLowerCase().slice(0, 12) : null;
+		// Which product this session belongs to (demo | full), so dashboards can
+		// split demo players from paid. Sticky once set to 'demo'.
+		const ed: 'demo' | 'full' | null = edition === 'demo' ? 'demo' : edition === 'full' ? 'full' : null;
 		const last = prev.lastHeartbeatAt || 0;
 		const gap = now - last;
 
@@ -5290,6 +5402,8 @@ export class Heartbeat extends PublicEndpoint {
 			areaSeconds,
 			sessionLengths,
 			...(lang ? { language: lang } : {}),
+			// Keep 'demo' sticky: a demo player is never re-tagged 'full'.
+			...(ed ? { edition: prev.edition === 'demo' ? 'demo' : ed } : {}),
 		};
 		await t.Player.patch(playerId, { metrics });
 
@@ -5399,11 +5513,14 @@ export class Metrics extends PublicEndpoint {
 			};
 		}
 
-		// Dashboard view — sourced ENTIRELY from the SoloMetrics table. Every solo
-		// save periodically uplinks a full metrics snapshot (see SyncMetrics), so this
-		// endpoint never touches the live Player/BiomeState tables; it just rolls up
-		// whatever snapshots have landed. Hosted web/co-op players are intentionally
-		// out of scope here.
+		// Dashboard view — sourced ENTIRELY from the SoloMetrics table, which is now
+		// the single client-metrics stream: desktop solo play, the browser demo (both
+		// Harper mode and its offline fallback), and any offline solo all uplink a
+		// full snapshot here (see SyncMetrics + src/solo/metricsUplink.ts). So this
+		// endpoint rolls up every reporting player — split by `edition` (demo/full)
+		// and `platform` (web/desktop) below — without touching the live
+		// Player/BiomeState tables. (Full hosted web/co-op, if ever added, report
+		// server-side and would stay out of this rollup.)
 		const now = Date.now();
 		let all: any[];
 		if (dashboardCache && now - dashboardCache.at < DASHBOARD_CACHE_MS) {
@@ -5544,6 +5661,8 @@ export class Metrics extends PublicEndpoint {
 		const platforms = tally((v) => v.platform);
 		const operatingSystems = tally((v) => v.os);
 		const versions = tally((v) => v.version);
+		// demo vs paid split (rides inside each solo snapshot; defaults to full).
+		const editions = tally((v) => v.edition || 'full');
 
 		// Retention: did they come back for more than one session?
 		const returningPlayers = all.filter((v) => v.sessions >= 2).length;
@@ -5692,6 +5811,12 @@ export class Metrics extends PublicEndpoint {
 		}
 		const devices = openRows.length;
 		const convertedDevices = openRows.filter((o) => o.converted).length;
+		// demo vs paid split of installs (edition is stamped on each AppOpen row).
+		const editionSplit: Record<string, number> = {};
+		for (const o of openRows) {
+			const k = o.edition === 'demo' ? 'demo' : 'full';
+			editionSplit[k] = (editionSplit[k] || 0) + 1;
+		}
 		const withCreatorTime = openRows.filter((o) => (o.creationMs || 0) > 0);
 		const totalCharacters = openRows.reduce((a, o) => a + (o.savesCreated || 0), 0);
 		const savesPerPersonHistogram: Record<string, number> = {};
@@ -5713,6 +5838,7 @@ export class Metrics extends PublicEndpoint {
 			avgCharactersPerPerson: devices ? round1(totalCharacters / devices) : 0,
 			avgCharactersPerConverted: convertedDevices ? round1(totalCharacters / convertedDevices) : 0,
 			charactersPerPersonHistogram: savesPerPersonHistogram,
+			editions: editionSplit,
 		};
 
 		return {
@@ -5727,6 +5853,7 @@ export class Metrics extends PublicEndpoint {
 				platforms,
 				operatingSystems,
 				versions,
+				editions,
 				engagement: {
 					totalPlayHours: round1(totalPlaySeconds / 3600),
 					totalPlaySeconds,
@@ -6551,6 +6678,13 @@ export class AppOpen extends PublicEndpoint {
 			platform: String(body.platform || '').slice(0, 20) || existing?.platform || null,
 			os: String(body.os || '').slice(0, 20) || existing?.os || null,
 			version: String(body.version || '').slice(0, 24) || existing?.version || null,
+			// demo | full — which product this install opened; 'demo' is sticky.
+			edition:
+				body.edition === 'demo' || existing?.edition === 'demo'
+					? 'demo'
+					: body.edition === 'full'
+						? 'full'
+						: existing?.edition || null,
 			language:
 				String(body.language || '')
 					.trim()
@@ -6618,5 +6752,19 @@ class SupportPage extends PublicEndpoint {
 	}
 }
 
+/**
+ * GET /dashboard — the anonymous gameplay-metrics dashboard. A static,
+ * self-contained page (inline CSS/JS, no external deps) that fetches the
+ * public GET /Metrics/ rollup at runtime and renders it: audience, engagement,
+ * funnels, progression, action totals, achievements, and the caretakers'
+ * customized characters (drawn from appearance data — no player names shown).
+ * Cached briefly like the other pages; the live numbers come from /Metrics/.
+ */
+class DashboardPage extends PublicEndpoint {
+	async get() {
+		return htmlPage(dashboardHtml);
+	}
+}
+
 // Export under the exact URL paths (string export names keep the hyphen).
-export { PrivacyPage as privacy, AgeRatingPage as 'age-rating', SupportPage as support };
+export { PrivacyPage as privacy, AgeRatingPage as 'age-rating', SupportPage as support, DashboardPage as dashboard };

@@ -396,6 +396,53 @@ function GameScreen() {
 	);
 }
 
+/** DEMO only: the hard-stop popup shown once 5 animals return to the meadow.
+ *  It blocks all play; the save has already been deleted, so closing it drops
+ *  the player back at the title screen with nothing to continue. */
+function DemoCompleteModal() {
+	const { demoComplete, dismissDemo, exportDemo } = useGame();
+	const { t } = useI18n();
+	const [exporting, setExporting] = useState(false);
+	const [exported, setExported] = useState(false);
+	const [exportError, setExportError] = useState(false);
+	if (!demoComplete) return null;
+	const onExport = async () => {
+		setExporting(true);
+		setExportError(false);
+		const name = await exportDemo();
+		setExporting(false);
+		if (name) setExported(true);
+		else setExportError(true);
+	};
+	return (
+		<div className="panel-backdrop demo-done-backdrop" role="dialog" aria-modal="true">
+			<div className="panel demo-done-card">
+				<div className="demo-done-icon">
+					<Icon name="paw" size={30} />
+				</div>
+				<h2>{t('app.demo.doneTitle')}</h2>
+				<p>{t('app.demo.doneBody', { count: 5 })}</p>
+
+				<div className="demo-done-export">
+					<p className="demo-done-export-hint">{t('app.demo.exportHint')}</p>
+					<button className="big-btn" onClick={onExport} disabled={exporting}>
+						<Icon name={exported ? 'check' : 'download'} size={15} />{' '}
+						<span>
+							{exporting ? t('app.demo.exporting') : exported ? t('app.demo.exportDone') : t('app.demo.exportButton')}
+						</span>
+					</button>
+					{exportError && <p className="form-error">{t('app.demo.exportFail')}</p>}
+				</div>
+
+				<p className="demo-done-cta">{t('app.demo.doneCta')}</p>
+				<button className="big-btn primary" onClick={dismissDemo}>
+					<Icon name="check" size={15} /> <span>{t('app.demo.doneButton')}</span>
+				</button>
+			</div>
+		</div>
+	);
+}
+
 function Root() {
 	const { state, data, pendingJoin } = useGame();
 	const prefs = usePrefs();
@@ -545,6 +592,7 @@ function Root() {
 		<>
 			{pendingJoin ? <JoinWaitingScreen /> : state && data ? <GameScreen /> : <WelcomeScreen />}
 			<HelpModal />
+			<DemoCompleteModal />
 		</>
 	);
 }

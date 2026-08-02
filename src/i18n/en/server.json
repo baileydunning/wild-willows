@@ -130,7 +130,8 @@
 		"clientIdRequired": "clientId required",
 		"snapshotRequired": "snapshot required",
 		"snapshotTooLarge": "snapshot too large",
-		"deviceIdRequired": "deviceId required"
+		"deviceIdRequired": "deviceId required",
+		"notDemoSave": "This save can't be deleted this way."
 	},
 	"task": {
 		"welcomeGrasshopper": "Welcome the grasshopper home",
