@@ -328,7 +328,7 @@ function ensureFootstepLoopElement(): HTMLAudioElement | null {
 
 function ensureHummingLoopElement(): HTMLAudioElement {
 	if (!hummingLoopEl) {
-		hummingLoopEl = createAudio('/audio/sfx/humming.m4a', true);
+		hummingLoopEl = createAudio('/audio/sfx/humming.ogg', true);
 	}
 	hummingLoopEl.volume = effectiveHummingVolume();
 	return hummingLoopEl;
