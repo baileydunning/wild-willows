@@ -106,6 +106,7 @@
 					"arch": "universal"
 				}
 			],
+			"x64ArchFiles": "**/steamworksjs.darwin-*.node",
 			"hardenedRuntime": true,
 			"gatekeeperAssess": false,
 			"entitlements": "build/entitlements.mac.plist",
