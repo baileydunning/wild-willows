@@ -158,6 +158,17 @@ describe('audio — one-shot sfx', () => {
 		expect(FakeAudio.instances).toHaveLength(1);
 		expect(FakeAudio.instances[0].src).toMatch(/hover[123]\.ogg/);
 	});
+
+	it('reuses one cached element per sound across replays (no per-play leak)', () => {
+		bind();
+		primeAndClear();
+		bridge.emit('audio-sfx', { id: 'dig' });
+		bridge.emit('audio-sfx', { id: 'dig' });
+		bridge.emit('audio-sfx', { id: 'dig' });
+		const els = bySrc('dig.ogg');
+		expect(els).toHaveLength(1); // not 3 fresh elements
+		expect(els[0].play).toHaveBeenCalledTimes(3);
+	});
 });
 
 describe('audio — toast kind routing', () => {
@@ -176,7 +187,10 @@ describe('audio — toast kind routing', () => {
 		bridge.emit('audio-toast', { kind: 'animal' });
 		bridge.emit('audio-toast', { kind: 'achievement' });
 		bridge.emit('audio-toast', {}); // no kind
-		expect(bySrc('toast.mp3')).toHaveLength(4);
+		// one cached element per sound, replayed each time
+		const toastEls = bySrc('toast.mp3');
+		expect(toastEls).toHaveLength(1);
+		expect(toastEls[0].play).toHaveBeenCalledTimes(4);
 		expect(bySrc('cant.ogg')).toHaveLength(0);
 	});
 });

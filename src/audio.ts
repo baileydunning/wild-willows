@@ -67,6 +67,10 @@ let stormLoopEl: HTMLAudioElement | null = null;
 let duckMultiplier = 1;
 let duckRaf: number | null = null;
 const lastSfxPick = new Map<SfxId, number>();
+// One reusable element per sfx file. Avoids leaking a fresh HTMLAudioElement on
+// every play (which, with menuhover firing on every hover, accumulates over a
+// session until audio — then the whole app — gets glitchy and slow).
+const sfxEls = new Map<string, HTMLAudioElement>();
 const alternatingSfx = new Set<SfxId>(['pickup']);
 const sfxGain = audioConfig.sfxGain as Partial<Record<SfxId, number>>;
 const musicGain = audioConfig.musicGain as Partial<Record<MusicId, number>>;
@@ -359,7 +363,10 @@ function tryPlayMusic() {
 	}
 	musicEl = next;
 	loadedMusicId = currentMusicId;
-	musicEl.volume = effectiveMusicTrackVolume(currentMusicId);
+	// Don't clobber an in-progress crossfade's volume ramp — this runs on a 15s
+	// timer and on every state change, so without the guard the new track jumps
+	// to full mid-fade (an audible lurch on area transitions).
+	if (musicFadeRaf === null) musicEl.volume = effectiveMusicTrackVolume(currentMusicId);
 	if (musicEl.paused) {
 		void musicEl.play().catch(() => {
 			// Browser autoplay policies can still block until another user gesture.
@@ -405,7 +412,8 @@ function syncAmbiencePlayback() {
 
 	ambienceEl = next;
 	loadedAmbienceId = currentAmbienceId;
-	ambienceEl.volume = effectiveAmbienceVolume();
+	// Same crossfade guard as music: don't reset volume while a fade is ramping.
+	if (ambienceFadeRaf === null) ambienceEl.volume = effectiveAmbienceVolume();
 	if (!unlockedByGesture) return;
 	if (ambienceEl.paused) {
 		void ambienceEl.play().catch(() => {
@@ -531,10 +539,19 @@ function playSfx(id: SfxId) {
 	} else {
 		path = source;
 	}
-	const oneShot = createAudio(path, false);
+	let el = sfxEls.get(path);
+	if (!el) {
+		el = createAudio(path, false);
+		sfxEls.set(path, el);
+	}
 	const gain = sfxGain[id] ?? 1;
-	oneShot.volume = clamp01(effectiveSfxVolume() * gain);
-	void oneShot.play().catch(() => {
+	el.volume = clamp01(effectiveSfxVolume() * gain);
+	try {
+		el.currentTime = 0; // restart if it's re-triggered mid-play
+	} catch {
+		/* not seekable yet — fine */
+	}
+	void el.play().catch(() => {
 		// Silent failure is fine; most often blocked until user interacts.
 	});
 	if (id === 'areaUnlocked') duckForUnlock();
