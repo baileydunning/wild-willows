@@ -1633,10 +1633,21 @@ export class WorldScene extends Phaser.Scene {
 			rt.resize(this.scale.width, this.scale.height);
 		}
 		const cam = this.cameras.main;
+		// worldView reflects LAST frame's scroll: the smooth camera-follow (lerp)
+		// for THIS frame isn't applied until the camera's preRender, so a fixed
+		// light (a fire) would trail behind as you walk. Predict this frame's
+		// scroll using Phaser's own follow math (no-deadzone case) so lights land
+		// where the world actually renders this frame, not a frame late.
+		let viewX = cam.worldView.x;
+		let viewY = cam.worldView.y;
+		if (!cam.deadzone) {
+			viewX += (this.player.x - cam.followOffset.x - cam.width * cam.originX - cam.scrollX) * cam.lerp.x;
+			viewY += (this.player.y - cam.followOffset.y - cam.height * cam.originY - cam.scrollY) * cam.lerp.y;
+		}
 		const stamp = (wx: number, wy: number, size: number, alpha: number) => {
 			const s = size * cam.zoom;
 			this.lightBrush!.setDisplaySize(s, s).setAlpha(alpha);
-			rt.draw(this.lightBrush!, (wx - cam.worldView.x) * cam.zoom, (wy - cam.worldView.y) * cam.zoom);
+			rt.draw(this.lightBrush!, (wx - viewX) * cam.zoom, (wy - viewY) * cam.zoom);
 		};
 		rt.clear();
 		// the lamp never fully clears the night (max ~0.8 mask alpha) — a modest
