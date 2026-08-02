@@ -5553,6 +5553,16 @@ export class Metrics extends PublicEndpoint {
 						if (hoursSinceActive <= 24) status = 'active';
 						else if (hoursSinceActive <= 24 * 7) status = 'recent';
 					}
+					// Count character-creation time as part of the session. The raw
+					// `playSeconds` metric only starts accruing AFTER the creator, so a
+					// player who spent 30–80s (sometimes minutes) customizing and then left
+					// logged 0 play time and a 0-length session — noise that swamped the
+					// report. Fold the creator time in here (report-only: the gameplay clock
+					// still reads raw playSeconds elsewhere) and credit one session to anyone
+					// who got as far as creating a character.
+					const rawPlaySeconds = s.playSeconds || 0;
+					const sessionSeconds = Math.round(rawPlaySeconds + (s.creationMs || 0) / 1000);
+					const sessionCount = Math.max(s.sessions || 0, (s.creationMs || 0) > 0 ? 1 : 0);
 					return {
 						...s,
 						playerId: r.id, // slot-scoped id — solo name slugs can collide across machines
@@ -5565,8 +5575,10 @@ export class Metrics extends PublicEndpoint {
 						build: r.build || null,
 						lastSyncedAt: r.updatedAt || null,
 						counts: s.counts || {},
-						playSeconds: s.playSeconds || 0,
-						sessions: s.sessions || 0,
+						playSeconds: sessionSeconds,
+						playMinutes: Math.round(sessionSeconds / 60),
+						avgSessionMinutes: sessionCount ? Math.round(sessionSeconds / 60 / sessionCount) : 0,
+						sessions: sessionCount,
 						totalActions: s.totalActions || 0,
 						currentArea: s.currentArea || null,
 						unlockedBiomes: s.unlockedBiomes || 0,
