@@ -1116,7 +1116,13 @@ export function HomePanel() {
 										<Icon name="target" size={13} />
 									</button>
 								)}
-								<button disabled={!gateMet || !canAfford} onClick={() => upgradeHome(key)}>
+								<button
+									disabled={!gateMet || !canAfford}
+									onClick={async () => {
+										setPanel(null);
+										await upgradeHome(key);
+									}}
+								>
 									{t('panels.home.upgrade')}
 								</button>
 							</div>

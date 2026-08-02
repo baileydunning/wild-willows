@@ -153,8 +153,8 @@ function Scenery() {
 				</g>
 			</g>
 
-			{/* squirrel by the tent, tail twitching */}
-			<g transform="translate(226 498)">
+			{/* squirrel in the foreground, a little clear of the campfire, tail twitching */}
+			<g transform="translate(285 498)">
 				<g className="squirrel-tail">
 					<ellipse cx="6" cy="12" rx="4.5" ry="8" fill="#7c5a3c" />
 				</g>

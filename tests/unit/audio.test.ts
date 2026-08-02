@@ -171,11 +171,12 @@ describe('audio — toast kind routing', () => {
 		expect(bySrc('cant.ogg')).toHaveLength(1);
 	});
 
-	it('plays the neutral "toast" for non-error kinds (incl. achievement)', () => {
+	it('plays the neutral "toast" for non-error kinds (incl. animal & achievement)', () => {
 		bridge.emit('audio-toast', { kind: 'info' });
+		bridge.emit('audio-toast', { kind: 'animal' });
 		bridge.emit('audio-toast', { kind: 'achievement' });
 		bridge.emit('audio-toast', {}); // no kind
-		expect(bySrc('toast.mp3')).toHaveLength(3);
+		expect(bySrc('toast.mp3')).toHaveLength(4);
 		expect(bySrc('cant.ogg')).toHaveLength(0);
 	});
 });
