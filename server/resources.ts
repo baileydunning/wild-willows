@@ -5736,7 +5736,7 @@ export class Metrics extends PublicEndpoint {
 		// taken after counting shipped. So a player can show "attracted" without
 		// "crafted": it's a data-source difference, not an impossible sequence. The
 		// dashboard sorts the steps by count, so it always reads as a clean funnel.
-		const did = (v: any, key: string) => (v.counts && (v.counts[key] || 0) > 0);
+		const did = (v: any, key: string) => v.counts && (v.counts[key] || 0) > 0;
 		const funnel = {
 			created: all.length,
 			collected: all.filter((v) => v.activation?.collected || did(v, 'resourcesCollected')).length,
@@ -5744,7 +5744,9 @@ export class Metrics extends PublicEndpoint {
 			planted: all.filter((v) => v.activation?.planted || did(v, 'plantsPlanted')).length,
 			crafted: all.filter((v) => v.activation?.crafted || did(v, 'itemsCrafted')).length,
 			placed: all.filter((v) => v.activation?.placed || did(v, 'objectsPlaced')).length,
-			attractedAnimal: all.filter((v) => v.activation?.attractedAnimal || (v.biomeSummary?.totalAnimalsReturned || 0) > 0).length,
+			attractedAnimal: all.filter(
+				(v) => v.activation?.attractedAnimal || (v.biomeSummary?.totalAnimalsReturned || 0) > 0,
+			).length,
 			upgradedTool: all.filter((v) => v.activation?.upgradedTool || did(v, 'toolsUpgraded')).length,
 			builtHome: all.filter((v) => v.activation?.builtHome || did(v, 'homesBuilt')).length,
 			upgradedHome: all.filter((v) => v.activation?.upgradedHome || did(v, 'homeUpgrades')).length,
