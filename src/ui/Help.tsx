@@ -1,5 +1,6 @@
 import { useGame } from '../state';
 import { COOP_ENABLED } from '../features';
+import { DEMO, DEMO_ANIMAL_GOAL } from '../demo';
 import { useI18n } from '../i18n/react';
 import { visibleShortcuts } from '../shortcuts';
 import { savedTutorialPos } from './Tutorial';
@@ -15,6 +16,15 @@ const STEPS: Array<{ icon: string; key: string }> = [
 	{ icon: 'journal', key: 'record' },
 	{ icon: 'cloud', key: 'weather' },
 	{ icon: 'check', key: 'board' },
+];
+
+// The things players kept missing in playtests, gathered in one place. Copy lives
+// in panels.help.more.* — the same lessons the contextual tips deliver in-game.
+const MORE: Array<{ icon: string; key: string }> = [
+	{ icon: 'paw', key: 'animals' },
+	{ icon: 'home', key: 'home' },
+	{ icon: 'tools', key: 'tools' },
+	{ icon: 'spade', key: 'land' },
 ];
 
 export function HelpModal() {
@@ -51,6 +61,11 @@ export function HelpModal() {
 				</div>
 				<div className="panel-body">
 					<p className="help-intro">{t('panels.help.intro')}</p>
+					{DEMO && (
+						<div className="help-demo-note">
+							<Icon name="sparkle" size={15} /> {t('panels.help.demoNote', { count: DEMO_ANIMAL_GOAL })}
+						</div>
+					)}
 					<div className="help-section-label">
 						<Icon name="leaf" size={15} /> {t('panels.help.loopLabel')}
 					</div>
@@ -64,6 +79,22 @@ export function HelpModal() {
 								<div>
 									<b>{t(`panels.help.loop.${s.key}.title`)}</b>
 									<p>{t(`panels.help.loop.${s.key}.text`)}</p>
+								</div>
+							</div>
+						))}
+					</div>
+					<div className="help-section-label">
+						<Icon name="star" size={15} /> {t('panels.help.moreLabel')}
+					</div>
+					<div className="help-steps">
+						{MORE.map((s) => (
+							<div className="help-step" key={s.key}>
+								<div className="help-step-icon">
+									<Icon name={s.icon} size={22} />
+								</div>
+								<div>
+									<b>{t(`panels.help.more.${s.key}.title`)}</b>
+									<p>{t(`panels.help.more.${s.key}.text`)}</p>
 								</div>
 							</div>
 						))}

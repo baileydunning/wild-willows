@@ -3,6 +3,7 @@ import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import { useI18n } from '../i18n/react';
 import { COOP_ENABLED } from '../features';
+import { DEMO, DEMO_ANIMAL_GOAL, DEMO_BIOME } from '../demo';
 import { homePerkStrength } from '../types';
 import {
 	weatherType,
@@ -320,6 +321,26 @@ export function HUD() {
 						</>
 					)}
 				</div>
+				{/* Demo: an always-visible, unmissable reminder of the 5-animal goal so
+				    nobody wonders what they're working toward or when the demo ends. */}
+				{DEMO &&
+					(() => {
+						const meadowReturned = state.biomeStates.find((b) => b.biomeId === DEMO_BIOME)?.returnedCount || 0;
+						const done = meadowReturned >= DEMO_ANIMAL_GOAL;
+						return (
+							<div className={`hud-demo-goal ${done ? 'done' : ''}`} title={t('app.hud.demoGoalTitle')}>
+								<Icon name={done ? 'check' : 'paw'} size={14} />
+								<span className="hud-demo-goal-text">
+									{t('app.hud.demoGoal', { returned: Math.min(meadowReturned, DEMO_ANIMAL_GOAL), total: DEMO_ANIMAL_GOAL })}
+								</span>
+								<span className="hud-demo-goal-track" aria-hidden="true">
+									{Array.from({ length: DEMO_ANIMAL_GOAL }).map((_, i) => (
+										<span key={i} className={`pip ${i < meadowReturned ? 'on' : ''}`} />
+									))}
+								</span>
+							</div>
+						);
+					})()}
 				{/* Today's tasks sit right under the biome card, out of the toasts' way. */}
 				<TasksWidget />
 			</div>

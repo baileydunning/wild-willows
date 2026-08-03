@@ -1,10 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import type {
-	CSSProperties,
-	KeyboardEvent as ReactKeyboardEvent,
-	PointerEvent as ReactPointerEvent,
-	RefObject,
-} from 'react';
+import type { CSSProperties, PointerEvent as ReactPointerEvent, RefObject } from 'react';
 
 interface Pos {
 	x: number;
@@ -12,20 +7,17 @@ interface Pos {
 }
 
 const MARGIN = 8; // keep at least this many px of the window on every side
-const KEY_STEP = 16; // arrow-key nudge distance (px); Shift = fine 2px steps
 
 export interface Draggable {
 	/** Attach to the element that should move. */
 	ref: RefObject<HTMLDivElement>;
 	/** Spread onto the drag handle (e.g. a panel/card header). */
 	handleProps: {
-		tabIndex: number;
 		onPointerDown: (e: ReactPointerEvent) => void;
 		onPointerMove: (e: ReactPointerEvent) => void;
 		onPointerUp: (e: ReactPointerEvent) => void;
 		onPointerCancel: (e: ReactPointerEvent) => void;
 		onLostPointerCapture: (e: ReactPointerEvent) => void;
-		onKeyDown: (e: ReactKeyboardEvent) => void;
 	};
 	/** Inline style to spread onto the ref element (empty until first moved). */
 	style: CSSProperties;
@@ -38,8 +30,10 @@ export interface Draggable {
  * sessions in localStorage. Dragging never starts from a <button> inside the
  * handle, so header controls keep working.
  *
- * The handle is also focusable, and arrow keys nudge the element (Shift for
- * fine steps) — a keyboard alternative to mouse dragging (playtest request).
+ * Note: there is deliberately NO arrow-key repositioning. Arrow keys are the
+ * player's movement controls, so a focusable handle that captured them would
+ * stop the caretaker from walking while a card (e.g. the tutorial) is on screen.
+ * Repositioning is pointer/touch only.
  *
  * Drags end on pointerup, pointercancel, OR lost pointer capture, and a mouse
  * move with no button held also ends them. Playtest: when capture was lost
@@ -111,7 +105,6 @@ export function useDraggable(storageKey?: string): Draggable {
 	};
 
 	const handleProps = {
-		tabIndex: 0,
 		onPointerDown: (e: ReactPointerEvent) => {
 			// let clicks on header controls (close, etc.) behave normally
 			if ((e.target as HTMLElement).closest('button')) return;
@@ -137,23 +130,6 @@ export function useDraggable(storageKey?: string): Draggable {
 		onPointerUp: endDrag,
 		onPointerCancel: endDrag,
 		onLostPointerCapture: endDrag,
-		onKeyDown: (e: ReactKeyboardEvent) => {
-			const step = e.shiftKey ? 2 : KEY_STEP;
-			let dx = 0,
-				dy = 0;
-			if (e.key === 'ArrowLeft') dx = -step;
-			else if (e.key === 'ArrowRight') dx = step;
-			else if (e.key === 'ArrowUp') dy = -step;
-			else if (e.key === 'ArrowDown') dy = step;
-			if (!dx && !dy) return;
-			// swallow the key so the arrow doesn't also walk the player
-			e.preventDefault();
-			e.stopPropagation();
-			const el = ref.current;
-			if (!el) return;
-			const r = el.getBoundingClientRect();
-			setPos((p) => clamp((p?.x ?? r.left) + dx, (p?.y ?? r.top) + dy));
-		},
 	};
 
 	// Once moved, drive position from left/top and neutralize any CSS edge anchoring.

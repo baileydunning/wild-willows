@@ -68,6 +68,9 @@ interface Ctx {
 	dismissToast: (id: number) => void;
 	log: LogEntry[];
 	feedLog: LogEntry[];
+	/** Append a line to the activity feed. `notable` also saves it to the Feed
+	 *  menu (F) and persists it, so players can scroll back to it later. */
+	pushLog: (icon: string, text: string, notable?: boolean) => void;
 	selectedTool: string;
 	setSelectedTool: (toolId: string) => void;
 	terraform: (area: string, x: number, y: number, action: 'dig' | 'water' | 'clear') => Promise<void>;
@@ -1606,6 +1609,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			dismissToast,
 			log,
 			feedLog,
+			pushLog,
 			selectedTool,
 			setSelectedTool,
 			terraform,
@@ -1671,6 +1675,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			dismissToast,
 			log,
 			feedLog,
+			pushLog,
 			selectedTool,
 			setSelectedTool,
 			terraform,

@@ -261,7 +261,9 @@
 		"placing": "Placing",
 		"placingHint": "— click a tile",
 		"stopPlacing": "stop placing",
-		"dayTimerTitle": "The preserve clock — a full day passes in about 24 minutes."
+		"dayTimerTitle": "The preserve clock — a full day passes in about 24 minutes.",
+		"demoGoal": "Demo · {returned}/{total} animals home",
+		"demoGoalTitle": "Welcome animals back to the meadow to complete the free demo."
 	},
 	"toolbelt": {
 		"how": {
