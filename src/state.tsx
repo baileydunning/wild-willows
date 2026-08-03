@@ -13,7 +13,7 @@ import {
 	deleteDemoSave,
 	exportDemoSave,
 } from './api';
-import { DEMO, DEMO_ANIMAL_GOAL, DEMO_BIOME } from './demo';
+import { DEMO, DEMO_FOREST_BIOME, DEMO_FOREST_MS } from './demo';
 import { flushFeedbackQueue } from './feedback';
 import { t, content, onLocaleChange } from './i18n';
 import { pokeMetricsUplink } from './solo/metricsUplink';
@@ -280,20 +280,41 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		};
 	}, []);
 
-	// Demo hard-stop: the moment the meadow has welcomed back DEMO_ANIMAL_GOAL
-	// animals, freeze play with the thank-you popup. The save is NOT wiped yet —
-	// the popup offers a "download my save" export first, so deletion is deferred
-	// to dismiss (see dismissDemo). We do flush the feed now so an export captures
-	// the latest activity.
+	// Demo hard-stop: the caretaker restores the meadow to unlock the forest, then
+	// gets up to DEMO_FOREST_MS of time exploring it before play freezes with the
+	// thank-you popup. (No meadow cap — nothing ends the demo before they reach the
+	// forest, which is the whole point of the taste.) The save is NOT wiped yet —
+	// the popup offers a "download my save" export first, so deletion is deferred to
+	// dismiss (see dismissDemo). We flush the feed so an export captures the latest.
+	const finishDemo = useCallback(() => {
+		setDemoComplete(true);
+		reportDemoComplete(); // metrics: demo completion (device-scoped + sticky)
+		flushFeed(); // persist buffered feed so an export captures it
+	}, [flushFeed]);
+
+	// Forest time cap — accumulate wall-clock only while the caretaker is actually
+	// standing in the forest and the tab is visible, so it measures time spent
+	// there rather than total play time. Ticks once a second; stops itself when it
+	// trips the limit so it can't re-fire.
+	const demoForestMsRef = useRef(0);
 	useEffect(() => {
-		if (!DEMO || demoComplete || !state) return;
-		const meadow = state.biomeStates.find((b) => b.biomeId === DEMO_BIOME);
-		if ((meadow?.returnedCount || 0) >= DEMO_ANIMAL_GOAL) {
-			setDemoComplete(true);
-			reportDemoComplete(); // metrics: demo completion (device-scoped + sticky)
-			flushFeed(); // persist buffered feed so an export captures it
-		}
-	}, [state, demoComplete, flushFeed]);
+		if (!DEMO) return;
+		let last = Date.now();
+		const id = setInterval(() => {
+			const now = Date.now();
+			const dt = now - last;
+			last = now;
+			const inForest = bridge.shared.state?.player?.area === DEMO_FOREST_BIOME;
+			const visible = typeof document === 'undefined' || document.visibilityState === 'visible';
+			if (!inForest || !visible) return;
+			demoForestMsRef.current += dt;
+			if (demoForestMsRef.current >= DEMO_FOREST_MS) {
+				clearInterval(id);
+				finishDemo();
+			}
+		}, 1000);
+		return () => clearInterval(id);
+	}, [finishDemo]);
 
 	useEffect(() => {
 		bridge.shared.state = state;

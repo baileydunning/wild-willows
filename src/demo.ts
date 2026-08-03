@@ -5,19 +5,24 @@
 // if Harper can't be reached (offline / CORS) it falls back to the in-app solo
 // backend so the demo still runs — see resolveDemoBackend() in src/api.ts.
 //
-// Scope of the demo: a caretaker restores the meadow until DEMO_ANIMAL_GOAL
-// animals have returned, then the game hard-stops with a thank-you popup that
-// returns to the title screen (see the demo gate in src/state.tsx + App.tsx).
+// Scope of the demo: a caretaker restores the starter meadow to unlock the forest,
+// then gets a taste of it. The demo hard-stops — with a thank-you popup that
+// returns to the title screen — once the player has spent DEMO_FOREST_MINUTES in
+// the forest. There's deliberately NO meadow cap, so nothing ends the demo before
+// they reach the forest. See the demo gate in src/state.tsx + App.tsx.
 //
 // `typeof` keeps this safe in non-Vite contexts (e.g. Vitest), where the
 // injected constant doesn't exist — there it falls back to `false`.
 export const DEMO: boolean = typeof __DEMO__ !== 'undefined' ? __DEMO__ : false;
 
-/** How many animals must return to the meadow before the demo hard-stops. */
-export const DEMO_ANIMAL_GOAL = 5;
+/** The second biome the demo lets you reach; time spent here is what's capped. */
+export const DEMO_FOREST_BIOME = 'forest';
 
-/** The single biome the demo lets you work on (the starter meadow). */
-export const DEMO_BIOME = 'meadow';
+/** Minutes of time in the forest before the demo hard-stops. */
+export const DEMO_FOREST_MINUTES = 10;
+
+/** Same limit in milliseconds (accumulated wall-clock while in the forest). */
+export const DEMO_FOREST_MS = DEMO_FOREST_MINUTES * 60 * 1000;
 
 /** Which product a metrics report belongs to, so dashboards can split demo vs
  *  paid players. Rides on heartbeats, app-open pings, and solo metric uplinks.

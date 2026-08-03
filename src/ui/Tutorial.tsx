@@ -466,7 +466,7 @@ export function Tutorial() {
 							</div>
 							{DEMO && def.key === 'panels.tutorial.welcome' && !celebrating && (
 								<div className="tutorial-demo-note">
-									<Icon name="sparkle" size={13} /> {t('panels.tutorial.demoNote', { count: 5 })}
+									<Icon name="sparkle" size={13} /> {t('panels.tutorial.demoNote')}
 								</div>
 							)}
 						</div>

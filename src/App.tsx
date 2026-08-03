@@ -398,7 +398,8 @@ function GameScreen() {
 	);
 }
 
-/** DEMO only: the hard-stop popup shown once 5 animals return to the meadow.
+/** DEMO only: the hard-stop popup shown when the demo limit is reached (10 minutes
+ *  in the forest, which the player unlocks by restoring the meadow first).
  *  It blocks all play; the save has already been deleted, so closing it drops
  *  the player back at the title screen with nothing to continue. */
 function DemoCompleteModal() {
@@ -423,7 +424,7 @@ function DemoCompleteModal() {
 					<Icon name="paw" size={30} />
 				</div>
 				<h2>{t('app.demo.doneTitle')}</h2>
-				<p>{t('app.demo.doneBody', { count: 5 })}</p>
+				<p>{t('app.demo.doneBody')}</p>
 
 				<div className="demo-done-export">
 					<p className="demo-done-export-hint">{t('app.demo.exportHint')}</p>

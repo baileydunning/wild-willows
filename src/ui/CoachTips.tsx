@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { useGame } from '../state';
 import { useI18n } from '../i18n/react';
 import { Icon } from './icons';
-import { DEMO, DEMO_ANIMAL_GOAL, DEMO_BIOME } from '../demo';
 
 // ── Contextual hints ──────────────────────────────────────────────────────────
 // The first time a player opens each menu (or steps into their home), a short
@@ -88,14 +87,6 @@ export function CoachTips() {
 	useEffect(() => {
 		if (area === 'home') fireRef.current({ id: 'home', icon: 'home', key: 'home', panelTie: null });
 	}, [area]);
-
-	// Demo: one animal away from finishing.
-	const returned = state?.biomeStates?.find((b: any) => b.biomeId === DEMO_BIOME)?.returnedCount ?? 0;
-	useEffect(() => {
-		if (DEMO && returned >= DEMO_ANIMAL_GOAL - 1 && returned < DEMO_ANIMAL_GOAL) {
-			fireRef.current({ id: 'demoNear', icon: 'sparkle', key: 'demoNear', panelTie: null });
-		}
-	}, [returned]);
 
 	// Esc dismisses the banner.
 	useEffect(() => {
