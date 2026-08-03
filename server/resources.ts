@@ -5540,6 +5540,34 @@ export class Heartbeat extends PublicEndpoint {
 let dashboardCache: { at: number; all: any[] } | null = null;
 const DASHBOARD_CACHE_MS = 30_000;
 
+/** Numeric segments of a version string, e.g. "0.2.10+build" → [0, 2, 10]. */
+function versionSegments(s: string): number[] {
+	return String(s)
+		.split(/[^0-9]+/)
+		.filter(Boolean)
+		.map((n) => parseInt(n, 10));
+}
+/**
+ * Semver-ish comparison: -1 if a<b, 0 if equal, 1 if a>b. Versions are compared
+ * segment-by-segment numerically ("0.2.10" > "0.2.9"); a version with no numeric
+ * segments ('unknown', '') sorts BELOW any real release, so it never counts as
+ * "newer than" a selected version in the dashboard's min-mode filter.
+ */
+function compareVersions(a: string, b: string): number {
+	const A = versionSegments(a);
+	const B = versionSegments(b);
+	if (!A.length && !B.length) return a < b ? -1 : a > b ? 1 : 0;
+	if (!A.length) return -1;
+	if (!B.length) return 1;
+	const len = Math.max(A.length, B.length);
+	for (let i = 0; i < len; i++) {
+		const x = A[i] ?? 0;
+		const y = B[i] ?? 0;
+		if (x !== y) return x < y ? -1 : 1;
+	}
+	return 0;
+}
+
 /**
  * GET /Metrics/        — global summary plus a per-player leaderboard.
  * GET /Metrics/<id>    — one player's metrics.
@@ -5708,7 +5736,9 @@ export class Metrics extends PublicEndpoint {
 			);
 
 		// Optional `?version=<build>` filter — scopes the whole report (including the
-		// acquisition funnel below) to a single game version. 'all'/empty = no filter.
+		// acquisition funnel below) to a game version. `?versionMode=min` widens it to
+		// "this version AND anything newer" (semver-ish compare); anything else (the
+		// default) isolates the single selected version. 'all'/empty = no filter.
 		let versionFilter = '';
 		try {
 			const raw = typeof target?.getAll === 'function' ? target.getAll('version') : [];
@@ -5716,8 +5746,23 @@ export class Metrics extends PublicEndpoint {
 		} catch {
 			/* no query params on this target */
 		}
-		if (versionFilter && versionFilter.toLowerCase() !== 'all')
-			all = all.filter((v) => (v.version || 'unknown') === versionFilter);
+		let versionMode: 'exact' | 'min' = 'exact';
+		try {
+			const raw = typeof target?.getAll === 'function' ? target.getAll('versionMode') : [];
+			if (String((raw && raw[0]) || '').trim().toLowerCase() === 'min') versionMode = 'min';
+		} catch {
+			/* no query params on this target */
+		}
+		const versionActive = !!versionFilter && versionFilter.toLowerCase() !== 'all';
+		// Match a save's version against the active filter. In 'min' mode an
+		// unparseable/'unknown' version sorts lowest, so it's only ever included when
+		// no filter is active — never as "newer than" a real release.
+		const matchesVersion = (ver: string): boolean => {
+			if (!versionActive) return true;
+			const vv = ver || 'unknown';
+			return versionMode === 'min' ? compareVersions(vv, versionFilter) >= 0 : vv === versionFilter;
+		};
+		if (versionActive) all = all.filter((v) => matchesVersion(v.version || 'unknown'));
 
 		// Optional `?edition=demo|full` and `?platform=web|desktop` filters.
 		const oneParam = (key: string): string => {
@@ -5984,8 +6029,7 @@ export class Metrics extends PublicEndpoint {
 			/* AppOpen table not created yet */
 		}
 		// Keep acquisition consistent with the active filters.
-		if (versionFilter && versionFilter.toLowerCase() !== 'all')
-			openRows = openRows.filter((o) => (o.version || 'unknown') === versionFilter);
+		if (versionActive) openRows = openRows.filter((o) => matchesVersion(o.version || 'unknown'));
 		if (editionFilter && editionFilter.toLowerCase() !== 'all')
 			openRows = openRows.filter((o) => (o.edition === 'demo' ? 'demo' : 'full') === editionFilter);
 		if (platformFilter && platformFilter.toLowerCase() !== 'all')
@@ -6041,7 +6085,8 @@ export class Metrics extends PublicEndpoint {
 				availableVersions,
 				availableEditions,
 				availablePlatforms,
-				version: versionFilter && versionFilter.toLowerCase() !== 'all' ? versionFilter : null,
+				version: versionActive ? versionFilter : null,
+				versionMode: versionActive ? versionMode : null,
 				edition: editionFilter && editionFilter.toLowerCase() !== 'all' ? editionFilter : null,
 				platform: platformFilter && platformFilter.toLowerCase() !== 'all' ? platformFilter : null,
 			},
