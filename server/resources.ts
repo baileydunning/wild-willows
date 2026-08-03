@@ -21,6 +21,8 @@ declare const Resource: any;
 // src/solo/zlibShim.ts). The server's esbuild build keeps the real node:zlib.
 // The shim's functions are never actually invoked in the renderer: GameData.get()
 // returns the plain object before touching compression when there's no HTTP context.
+// @ts-ignore — node:zlib resolves via Vite's alias (web build) and the Harper Node
+// runtime (server build); there are deliberately no @types/node in this project.
 import { gzipSync, brotliCompressSync, constants as zlibConstants } from 'node:zlib';
 
 // Definition JSON is the source of truth for the seed tables. Harper's data
@@ -3486,20 +3488,27 @@ async function gameDataCached() {
 	return gameDataCache;
 }
 
+// Buffer is a Node global in the Harper runtime; reach it via globalThis so this
+// module still type-checks with no @types/node (same trick as the node:crypto use).
+const nodeBuffer: any = (globalThis as any).Buffer;
+
 // Compressed representations, built once per build and cached (server-only path).
-let gameDataCompressed: { stamp: string; gzip?: Buffer; br?: Buffer } | null = null;
-function compressedGameData(json: string, enc: 'br' | 'gzip'): Buffer {
-	if (!gameDataCompressed || gameDataCompressed.stamp !== buildStamp) gameDataCompressed = { stamp: buildStamp };
-	const buf = Buffer.from(json, 'utf8');
+let gameDataCompressed: { stamp: string; gzip?: Uint8Array; br?: Uint8Array } | null = null;
+function compressedGameData(json: string, enc: 'br' | 'gzip'): Uint8Array {
+	const cache =
+		gameDataCompressed && gameDataCompressed.stamp === buildStamp
+			? gameDataCompressed
+			: (gameDataCompressed = { stamp: buildStamp });
+	const buf = nodeBuffer.from(json, 'utf8');
 	if (enc === 'br') {
-		if (!gameDataCompressed.br)
-			gameDataCompressed.br = brotliCompressSync(buf, {
+		if (!cache.br)
+			cache.br = brotliCompressSync(buf, {
 				params: { [zlibConstants.BROTLI_PARAM_QUALITY]: 5, [zlibConstants.BROTLI_PARAM_SIZE_HINT]: buf.length },
 			});
-		return gameDataCompressed.br;
+		return cache.br as Uint8Array;
 	}
-	if (!gameDataCompressed.gzip) gameDataCompressed.gzip = gzipSync(buf, { level: 6 });
-	return gameDataCompressed.gzip;
+	if (!cache.gzip) cache.gzip = gzipSync(buf, { level: 6 });
+	return cache.gzip as Uint8Array;
 }
 
 export class GameData extends PublicEndpoint {
@@ -3527,7 +3536,7 @@ export class GameData extends PublicEndpoint {
 			vary: 'Accept-Encoding',
 		};
 		const accept = String(reqHeaders.get('accept-encoding') || '');
-		let body: string | Buffer = json;
+		let body: string | Uint8Array = json;
 		if (/\bbr\b/.test(accept)) {
 			headers['content-encoding'] = 'br';
 			body = compressedGameData(json, 'br');
@@ -7150,7 +7159,7 @@ class OgImage extends PublicEndpoint {
 		return {
 			status: 200,
 			headers: { 'content-type': 'image/jpeg', 'cache-control': 'public, max-age=604800' },
-			body: Buffer.from(ogImageB64, 'base64'),
+			body: nodeBuffer.from(ogImageB64, 'base64'),
 		};
 	}
 }
@@ -7168,7 +7177,7 @@ class Theme extends PublicEndpoint {
 				'cache-control': 'public, max-age=604800',
 				'accept-ranges': 'none',
 			},
-			body: Buffer.from(themeMp3B64, 'base64'),
+			body: nodeBuffer.from(themeMp3B64, 'base64'),
 		};
 	}
 }
