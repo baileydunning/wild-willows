@@ -58,7 +58,12 @@ export async function resolveDemoBackend(): Promise<'harper' | 'solo'> {
 		// CORS preflight). A bare GET could pass while real calls fail the
 		// preflight — this way the probe fails exactly when gameplay would, so we
 		// fall back to solo instead of dead-ending on the first real request.
-		const res = await fetch(COOP_BASE_URL + '/GameData/', {
+		//
+		// Probe /Version/ (a few bytes), NOT /GameData/ (~300 KB): same CORS
+		// preflight and reachability check, but the old probe downloaded the whole
+		// catalog and threw it away, then state.tsx fetched /GameData/ again —
+		// two full transfers of the largest payload on every open.
+		const res = await fetch(COOP_BASE_URL + '/Version/', {
 			headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
 			signal: AbortSignal.timeout(8000),
 		});
@@ -187,7 +192,14 @@ export function forgetSave(mode?: SaveMode) {
 
 // GameData is static definitions bundled with the app, so on desktop it's always
 // served locally — the title screen then works offline regardless of mode.
-const isLocalCall = (path: string) => transport === 'solo' || (isDesktop && path.startsWith('/GameData'));
+//
+// Authoritative solo guard: desktop solo play is fully offline, so if a solo save
+// is the active session (soloSlot set), EVERY call is served in-app — gameplay must
+// never leak to the hosted Harper even if `transport` was somehow left stale. Co-op
+// clears soloSlot (exitSolo/logout run before any co-op flow), so this only ever
+// fires for genuine solo play; co-op still routes to the server as intended.
+const isLocalCall = (path: string) =>
+	transport === 'solo' || (isDesktop && (soloSlot != null || path.startsWith('/GameData')));
 
 async function request<T>(path: string, options?: RequestInit): Promise<T> {
 	const method = (options?.method || 'GET').toUpperCase();

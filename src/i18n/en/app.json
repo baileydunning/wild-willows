@@ -25,7 +25,7 @@
 	},
 	"error": {
 		"generic": "Something went wrong",
-		"backendUnreachable": "Could not reach the Harper backend. Is it running? (see README)",
+		"backendUnreachable": "Couldn't reach the server. Check your connection and try again.",
 		"noPreviousSave": "No previous save on this device",
 		"requestFailed": "Request failed ({status})",
 		"notLoggedIn": "Not logged in",

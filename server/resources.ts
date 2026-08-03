@@ -14,6 +14,15 @@
 declare const databases: any;
 declare const Resource: any;
 
+// node:zlib is used ONLY on the hosted Harper (Node), to compress the big
+// GameData response. This module is also bundled into the renderer for the
+// in-app solo backend, so — exactly like node:crypto above — Vite aliases
+// 'node:zlib' to a browser shim for the web build (see vite.config.ts +
+// src/solo/zlibShim.ts). The server's esbuild build keeps the real node:zlib.
+// The shim's functions are never actually invoked in the renderer: GameData.get()
+// returns the plain object before touching compression when there's no HTTP context.
+import { gzipSync, brotliCompressSync, constants as zlibConstants } from 'node:zlib';
+
 // Definition JSON is the source of truth for the seed tables. Harper's data
 // loader only upserts records — it never deletes ones removed/renamed in the
 // JSON — so we reconcile against these on boot to prune orphans.
@@ -3273,7 +3282,11 @@ async function awardAchievements(
 	try {
 		const t = db();
 		const d = await defs();
-		const player = await t.Player.get(playerId);
+		// safeGet (not raw .get): achievement fan-out reads every member of a co-op
+		// world, so one member left with an undecodable record must not throw a
+		// storage-layer decode error on every action. safeGet force-decodes, purges
+		// the corrupt row, and returns null → this player is simply skipped.
+		const player = await safeGet(t.Player, playerId);
 		if (!player) return [];
 		const earned = await earnedAchievementIds(playerId);
 		// achievement context comes from the world the player is acting in
@@ -3419,32 +3432,110 @@ export class Version extends PublicEndpoint {
 	}
 }
 
-/** GET /GameData/ — all static definitions (biomes, animals, recipes, …). */
+/** GET /GameData/ — all static definitions (biomes, animals, recipes, …).
+ *
+ * This is by far the largest response the game sends (~300 KB of JSON) and web /
+ * demo / co-op clients fetch it once at open, before login. On the HOSTED Harper
+ * we make it cheap two ways:
+ *
+ *  1. Revalidation. The payload is fully determined by the build (buildStamp),
+ *     so we tag it with a build-stamped ETag and honour If-None-Match: repeat
+ *     opens get an empty 304 instead of re-downloading the whole catalog.
+ *  2. Compression. Harper's REST path does NOT compress resource responses, and
+ *     this JSON is highly repetitive, so we brotli/gzip it per the client's
+ *     Accept-Encoding — ~300 KB → ~65 KB on the wire.
+ *
+ * IMPORTANT — this module is bundled BOTH for the hosted Harper (Node) AND into
+ * the renderer for the in-app solo backend (src/solo/backend.ts). That backend
+ * calls get() with no HTTP request context and uses the return value AS the data,
+ * and it runs in a browser where node:zlib does not exist. So get() must return
+ * the PLAIN OBJECT whenever there's no request context, and it must never import
+ * or touch zlib except on the real HTTP path (which the renderer never takes).
+ * Desktop serves GameData locally through exactly that solo path.
+ */
+let gameDataCache: { stamp: string; obj: any; json: string; etag: string } | null = null;
+
+async function gameDataCached() {
+	if (gameDataCache && gameDataCache.stamp === buildStamp) return gameDataCache;
+	const d = await defs();
+	const obj = {
+		biomes: d.biomes,
+		animals: d.animals,
+		resources: d.resources,
+		recipes: d.recipes,
+		habitatObjects: d.objects.map((o: any) => ({ ...o, rotatable: isRotatable(o) })),
+		tools: d.tools,
+		achievements: d.achievements,
+		homeStyles: HOME_STYLES,
+		homeTracks: HOME_TRACKS,
+		nodeRegenSeconds: NODE_REGEN_SECONDS,
+		appearanceOptions: {
+			skins: SKIN_TONES,
+			hair: HAIR_COLORS,
+			outfits: OUTFIT_COLORS,
+			hats: HAT_STYLES,
+			hatColors: HAT_COLORS,
+			hairstyles: HAIRSTYLES,
+			beards: BEARD_STYLES,
+			bodies: BODY_TYPES,
+		},
+	};
+	// Weak validator: body is identical for a given build (though exact bytes differ
+	// across br/gzip/identity). `"gd-<build>"` changes whenever the catalog does.
+	gameDataCache = { stamp: buildStamp, obj, json: JSON.stringify(obj), etag: `W/"gd-${buildStamp}"` };
+	return gameDataCache;
+}
+
+// Compressed representations, built once per build and cached (server-only path).
+let gameDataCompressed: { stamp: string; gzip?: Buffer; br?: Buffer } | null = null;
+function compressedGameData(json: string, enc: 'br' | 'gzip'): Buffer {
+	if (!gameDataCompressed || gameDataCompressed.stamp !== buildStamp) gameDataCompressed = { stamp: buildStamp };
+	const buf = Buffer.from(json, 'utf8');
+	if (enc === 'br') {
+		if (!gameDataCompressed.br)
+			gameDataCompressed.br = brotliCompressSync(buf, {
+				params: { [zlibConstants.BROTLI_PARAM_QUALITY]: 5, [zlibConstants.BROTLI_PARAM_SIZE_HINT]: buf.length },
+			});
+		return gameDataCompressed.br;
+	}
+	if (!gameDataCompressed.gzip) gameDataCompressed.gzip = gzipSync(buf, { level: 6 });
+	return gameDataCompressed.gzip;
+}
+
 export class GameData extends PublicEndpoint {
 	async get() {
-		const d = await defs();
-		return {
-			biomes: d.biomes,
-			animals: d.animals,
-			resources: d.resources,
-			recipes: d.recipes,
-			habitatObjects: d.objects.map((o: any) => ({ ...o, rotatable: isRotatable(o) })),
-			tools: d.tools,
-			achievements: d.achievements,
-			homeStyles: HOME_STYLES,
-			homeTracks: HOME_TRACKS,
-			nodeRegenSeconds: NODE_REGEN_SECONDS,
-			appearanceOptions: {
-				skins: SKIN_TONES,
-				hair: HAIR_COLORS,
-				outfits: OUTFIT_COLORS,
-				hats: HAT_STYLES,
-				hatColors: HAT_COLORS,
-				hairstyles: HAIRSTYLES,
-				beards: BEARD_STYLES,
-				bodies: BODY_TYPES,
-			},
+		const { obj, json, etag } = await gameDataCached();
+		// No HTTP request context → the in-app solo backend (or any internal JS
+		// caller). Return the plain data object; do NOT build an envelope or touch
+		// zlib (unavailable in the renderer).
+		const reqHeaders: any = (this.getContext?.() as any)?.headers;
+		if (!reqHeaders || typeof reqHeaders.get !== 'function') return obj;
+
+		const cacheControl = 'public, max-age=300, stale-while-revalidate=604800';
+		// Revalidation hit: same build the client already has → send nothing.
+		// Compare loosely so a weak/strong prefix or quoting mismatch still matches.
+		const norm = (s: string) => s.replace(/^W\//, '').trim();
+		const ifNoneMatch = String(reqHeaders.get('if-none-match') || '');
+		if (ifNoneMatch && norm(ifNoneMatch) === norm(etag)) {
+			return { status: 304, headers: { etag, 'cache-control': cacheControl } };
+		}
+
+		const headers: Record<string, string> = {
+			'content-type': 'application/json; charset=utf-8',
+			'cache-control': cacheControl,
+			etag,
+			vary: 'Accept-Encoding',
 		};
+		const accept = String(reqHeaders.get('accept-encoding') || '');
+		let body: string | Buffer = json;
+		if (/\bbr\b/.test(accept)) {
+			headers['content-encoding'] = 'br';
+			body = compressedGameData(json, 'br');
+		} else if (/\bgzip\b/.test(accept)) {
+			headers['content-encoding'] = 'gzip';
+			body = compressedGameData(json, 'gzip');
+		}
+		return { status: 200, headers, body };
 	}
 }
 

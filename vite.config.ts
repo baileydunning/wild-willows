@@ -84,13 +84,14 @@ export default defineConfig({
 	// Relative asset paths so the same build works BOTH served at Harper's root
 	// (web/co-op) and loaded straight from disk (file://) in the desktop app.
 	base: './',
-	// The solo backend reuses the server logic, which imports `node:crypto`. In
-	// the browser bundle we swap in a tiny local stand-in (see src/solo/cryptoShim).
-	// The server's own esbuild build keeps the real node:crypto, so Harper is
-	// unaffected.
+	// The solo backend reuses the server logic, which imports `node:crypto` and
+	// `node:zlib`. In the browser bundle we swap in tiny local stand-ins (see
+	// src/solo/cryptoShim, src/solo/zlibShim). The server's own esbuild build keeps
+	// the real node modules external, so the deployed Harper backend is unaffected.
 	resolve: {
 		alias: {
 			'node:crypto': fileURLToPath(new URL('./src/solo/cryptoShim.ts', import.meta.url)),
+			'node:zlib': fileURLToPath(new URL('./src/solo/zlibShim.ts', import.meta.url)),
 		},
 	},
 	// build stamp shown in the UI so you can always tell which build you're running

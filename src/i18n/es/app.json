@@ -25,7 +25,7 @@
 	},
 	"error": {
 		"generic": "Algo salió mal",
-		"backendUnreachable": "No se pudo conectar con el backend de Harper. ¿Está en ejecución? (mira el README)",
+		"backendUnreachable": "No se pudo conectar con el servidor. Comprueba tu conexión e inténtalo de nuevo.",
 		"noPreviousSave": "No hay una partida anterior en este dispositivo",
 		"requestFailed": "La solicitud falló ({status})",
 		"notLoggedIn": "No has iniciado sesión",
