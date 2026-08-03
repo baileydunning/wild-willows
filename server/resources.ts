@@ -57,7 +57,7 @@ const WEATHER_BIOME_IDS: string[] = biomesData.records.map((b: any) => b.id);
 function weatherTimeFromPlay(player: any): number {
 	// `clockOffsetMs` lets in-game actions nudge the calendar forward (e.g. sleeping
 	// skips to the start of the next day) on top of accrued play time.
-	return Math.max(0, Math.round((player?.metrics?.playSeconds || 0) * 1000) + (player?.clockOffsetMs || 0));
+	return Math.max(0, Math.round((readMetrics(player)?.playSeconds || 0) * 1000) + (player?.clockOffsetMs || 0));
 }
 
 // `databases.wildwillows` is undefined right after the database is dropped (until
@@ -760,6 +760,10 @@ function sanitizeAppearance(a: any) {
 function sanitizePlayer(player: any) {
 	if (!player) return player;
 	const { passcode, passcodeHash, passcodeSalt, ...rest } = player;
+	// metrics/daily are persisted as JSON strings; the client and the offline solo
+	// backend expect them as objects, so decode them on the way out.
+	if (rest.metrics !== undefined) rest.metrics = readMetrics(player);
+	if (rest.daily !== undefined) rest.daily = readDaily(player);
 	return rest;
 }
 
@@ -905,6 +909,47 @@ function freshMetrics(now: number) {
 	};
 }
 
+// Metrics & daily are persisted as JSON STRINGS on the Player row, never as
+// nested maps. Harper encodes nested, open-ended maps (counts / areaSeconds /
+// sessionLengths / daily.counts) with msgpackr record structures that drift as
+// new keys appear and eventually become undecodable ("Data read, but end of
+// buffer not reached"). Stringifying keeps the stored value a single stable
+// scalar — the same rule SoloMetrics.snapshot already follows. Internal reads go
+// through readMetrics/readDaily (which also tolerate legacy object rows written
+// before this change, and a corrupt string by falling back to null → fresh);
+// writes go through encodeMetrics/encodeDaily; sanitizePlayer decodes on the way
+// out so the client and offline backend keep seeing objects.
+function readMetrics(player: any): any | null {
+	const m = player?.metrics;
+	if (m == null) return null;
+	if (typeof m === 'string') {
+		try {
+			return JSON.parse(m);
+		} catch {
+			return null; // unreadable — caller falls back to freshMetrics()
+		}
+	}
+	return m; // legacy row: metrics still stored as an object
+}
+function encodeMetrics(metrics: any): string {
+	return JSON.stringify(metrics ?? {});
+}
+function readDaily(player: any): any | null {
+	const dld = player?.daily;
+	if (dld == null) return null;
+	if (typeof dld === 'string') {
+		try {
+			return JSON.parse(dld);
+		} catch {
+			return null;
+		}
+	}
+	return dld; // legacy row: daily still stored as an object
+}
+function encodeDaily(daily: any): string {
+	return JSON.stringify(daily ?? {});
+}
+
 // Cosmetic / UI-fiddling counters — recorded in `counts` for engagement insight
 // but kept OUT of totalActions (and actionsPerMinute) so those stay a
 // gameplay-intensity signal. (Declared here so bumpMetrics can tell a real
@@ -938,12 +983,12 @@ async function bumpMetrics(
 	if (!player?.id) return null;
 	const entries = Object.entries(deltas).filter(([, v]) => v);
 	const dailyEntries = Object.entries(dailyDeltas).filter(([, v]) => v);
-	if (!entries.length && !dailyEntries.length) return player.metrics || null;
+	if (!entries.length && !dailyEntries.length) return readMetrics(player);
 	const now = Date.now();
 	// merge onto the freshest row — a single request can bump twice (e.g. a
 	// placement bump plus recalcBiome's health/animal bump) from stale copies
 	const live = (await db().Player.get(player.id)) || player;
-	const prev = live.metrics || freshMetrics(live.createdAt || now);
+	const prev = readMetrics(live) || freshMetrics(live.createdAt || now);
 	const counts = { ...(prev.counts || {}) };
 	for (const [k, v] of entries) counts[k] = (counts[k] || 0) + v;
 	const metrics = { ...prev, counts, lastSeenAt: now };
@@ -952,13 +997,14 @@ async function bumpMetrics(
 	if (!prev.firstActionAt && entries.some(([k, v]) => v && !META_COUNTERS.has(k))) {
 		metrics.firstActionAt = now;
 	}
-	const patch: any = { metrics };
+	const patch: any = { metrics: encodeMetrics(metrics) };
 	if (dailyEntries.length) {
 		const dayKey = playerDayKey(live, now);
-		const prevDaily = live.daily?.dayKey === dayKey ? live.daily : { dayKey, counts: {} };
-		const dcounts = { ...(prevDaily.counts || {}) };
+		const prevDaily = readDaily(live);
+		const base = prevDaily?.dayKey === dayKey ? prevDaily : { dayKey, counts: {} };
+		const dcounts = { ...(base.counts || {}) };
 		for (const [k, v] of dailyEntries) dcounts[k] = (dcounts[k] || 0) + v;
-		patch.daily = { dayKey, counts: dcounts };
+		patch.daily = encodeDaily({ dayKey, counts: dcounts });
 	}
 	await db().Player.patch(player.id, patch);
 	return metrics;
@@ -986,7 +1032,7 @@ const round1 = (n: number) => Math.round(n * 10) / 10;
 
 function metricsView(player: any) {
 	const now = Date.now();
-	const m = player.metrics || freshMetrics(player.createdAt || now);
+	const m = readMetrics(player) || freshMetrics(player.createdAt || now);
 	const playSeconds = m.playSeconds || 0;
 	const sessions = m.sessions || 0;
 	const counts: Record<string, number> = m.counts || {};
@@ -1262,7 +1308,7 @@ async function createPlayerRecords(
 		home: { ...DEFAULT_HOME }, // your camp tent — upgrade it along four tracks, in two styles
 		// Stamp how long character creation took (reported by the client), so the
 		// dashboard can report average time-in-creator alongside the choices made.
-		metrics: { ...freshMetrics(now), creationMs: creationMs > 0 ? Math.round(creationMs) : 0, edition },
+		metrics: encodeMetrics({ ...freshMetrics(now), creationMs: creationMs > 0 ? Math.round(creationMs) : 0, edition }),
 		// The board always shows a live "Unlock the next biome" guidance goal, so a
 		// new player starts with no custom goals of their own yet.
 		customGoals: [],
@@ -3250,7 +3296,7 @@ async function awardAchievements(
 		const unlockedSet = new Set(player.unlockedBiomes || []);
 
 		const ctx: AchCtx = {
-			counts: (player.metrics?.counts || {}) as Record<string, number>,
+			counts: (readMetrics(player)?.counts || {}) as Record<string, number>,
 			health: (b) => (stateByBiome.get(b) as any)?.health || 0,
 			returned: (b) => (stateByBiome.get(b) as any)?.returnedCount || 0,
 			disc: (animalId) => discById.get(animalId),
@@ -3505,7 +3551,7 @@ export class DeleteDemoSave extends PublicEndpoint {
 		const t = db();
 		const player = id ? await safeGet(t.Player, id) : null;
 		if (!player) return { ok: true, deleted: null }; // already gone / never existed
-		if (player.metrics?.edition !== 'demo') throw new GameError(tr('server.err.notDemoSave'), 403);
+		if (readMetrics(player)?.edition !== 'demo') throw new GameError(tr('server.err.notDemoSave'), 403);
 
 		let removed = 0;
 		for (const table of [t.Placement, t.Chest, t.BiomeState, t.Discovery, t.NodeState, t.TerrainTile, t.FeedEntry]) {
@@ -3545,13 +3591,13 @@ export class ExportDemoSave extends PublicEndpoint {
 		const t = db();
 		const player = id ? await safeGet(t.Player, id) : null;
 		if (!player) throw new GameError(tr('server.err.noSaveWithName'), 404);
-		if (player.metrics?.edition !== 'demo') throw new GameError(tr('server.err.notDemoSave'), 403);
+		if (readMetrics(player)?.edition !== 'demo') throw new GameError(tr('server.err.notDemoSave'), 403);
 
 		const wid = worldOf(player);
 		// Reset edition to 'full' on the exported copy: the player is carrying this
 		// into the paid game, so it should report as a full-game save (Heartbeat
 		// keeps 'demo' sticky otherwise).
-		const exportedPlayer = { ...player, metrics: { ...(player.metrics || {}), edition: 'full' } };
+		const exportedPlayer = { ...player, metrics: encodeMetrics({ ...(readMetrics(player) || {}), edition: 'full' }) };
 
 		const save = {
 			meta: {
@@ -3615,9 +3661,9 @@ export class LoginPlayer extends PublicEndpoint {
 		// lastSeenAt is deliberately NOT bumped here — the first heartbeat reads it
 		// to measure the absence for the welcome-back growth summary, then updates it.
 		const now = Date.now();
-		const prev = player.metrics || freshMetrics(player.createdAt || now);
+		const prev = readMetrics(player) || freshMetrics(player.createdAt || now);
 		await db().Player.patch(playerId, {
-			metrics: { ...prev, lastHeartbeatAt: 0 },
+			metrics: encodeMetrics({ ...prev, lastHeartbeatAt: 0 }),
 			...(tzOffsetMinutes != null ? { tzOffsetMinutes: sanitizeTzOffset(tzOffsetMinutes) } : {}),
 		});
 		// Back-fill the solo "world of one" for saves made before multiplayer (this
@@ -5362,7 +5408,7 @@ export class Heartbeat extends PublicEndpoint {
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
 		const now = Date.now();
-		const prev = player.metrics || freshMetrics(player.createdAt || now);
+		const prev = readMetrics(player) || freshMetrics(player.createdAt || now);
 		// Interface language, reported by the client on every beat (BCP-47-ish
 		// short code, e.g. "en"/"es"). Kept on the metrics blob for dashboards.
 		const lang = typeof language === 'string' && language.trim() ? language.trim().toLowerCase().slice(0, 12) : null;
@@ -5410,7 +5456,7 @@ export class Heartbeat extends PublicEndpoint {
 			// Keep 'demo' sticky: a demo player is never re-tagged 'full'.
 			...(ed ? { edition: prev.edition === 'demo' ? 'demo' : ed } : {}),
 		};
-		await t.Player.patch(playerId, { metrics });
+		await t.Player.patch(playerId, { metrics: encodeMetrics(metrics) });
 
 		// ---- habitat growth: the preserve keeps living while the game is closed ----
 		// Placements mature on wall-clock time (see matureMs), but biome health is
@@ -6115,7 +6161,7 @@ export class DevTools extends PublicEndpoint {
 				// Restart the game clock at day one's morning — the same starting time a
 				// fresh save gets. Solve for the offset that lands the current play time
 				// back on the day-phase start (season resets to the first day too).
-				const playMs = Math.round((player?.metrics?.playSeconds || 0) * 1000);
+				const playMs = Math.round((readMetrics(player)?.playSeconds || 0) * 1000);
 				await t.Player.patch(playerId, { clockOffsetMs: nextPhaseAt(0, 'day') - playMs });
 				log.push('Reset the game clock to the first morning');
 				break;
@@ -6275,7 +6321,7 @@ export class DevTools extends PublicEndpoint {
 					devUnlockAll: false,
 					// Restart the game clock at day one's morning too (same as a fresh save),
 					// so a wiped game doesn't reopen at whatever time you left off.
-					clockOffsetMs: nextPhaseAt(0, 'day') - Math.round((player?.metrics?.playSeconds || 0) * 1000),
+					clockOffsetMs: nextPhaseAt(0, 'day') - Math.round((readMetrics(player)?.playSeconds || 0) * 1000),
 				});
 				log.push('Restarted the game — fresh save (name, passcode & look kept)');
 				break;
