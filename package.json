@@ -96,6 +96,10 @@
 		"buildDependenciesFromSource": false,
 		"mac": {
 			"category": "public.app-category.games",
+			"electronLanguages": [
+				"en",
+				"es"
+			],
 			"target": [
 				{
 					"target": "dmg",
@@ -120,7 +124,12 @@
 			"entitlementsInherit": "build/entitlements.mas.inherit.plist",
 			"provisioningProfile": "build/embedded.provisionprofile",
 			"extendInfo": {
-				"ITSAppUsesNonExemptEncryption": false
+				"ITSAppUsesNonExemptEncryption": false,
+				"CFBundleDevelopmentRegion": "en",
+				"CFBundleLocalizations": [
+					"en",
+					"es"
+				]
 			},
 			"files": [
 				"!**/node_modules/steamworks.js/**"

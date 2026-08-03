@@ -846,6 +846,12 @@ const MEADOW_SHIFT_Y = 0;
 async function migrateMeadowWest(wid: string): Promise<boolean> {
 	const t = db();
 	const world = await safeGet(t.World, wid);
+	// Never shift without a World row to record the new offset on: if we shifted
+	// from an assumed applied=0 here, we couldn't persist meadowShift and would
+	// shift the meadow east AGAIN on the next call — an ever-drifting camp. The
+	// caller (ensureSoloWorld) creates the World before calling us, so this only
+	// guards a transiently unreadable/purged row.
+	if (!world) return false;
 	const applied = typeof world?.meadowShift === 'number' ? world.meadowShift : 0;
 	const appliedY = typeof world?.meadowShiftY === 'number' ? world.meadowShiftY : 0;
 	const delta = MEADOW_SHIFT - applied;
