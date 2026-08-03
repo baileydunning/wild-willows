@@ -110,7 +110,21 @@ function createWindow() {
 	});
 }
 
+// Native "About Wild Willows" panel (macOS app menu → About): credit
+// contributors here so the acknowledgement ships in the built/App Store app,
+// not only on the in-game title screen. Sandbox-safe; no entitlement needed.
+function configureAboutPanel() {
+	if (process.platform !== 'darwin') return;
+	app.setAboutPanelOptions({
+		applicationName: 'Wild Willows',
+		applicationVersion: app.getVersion(),
+		copyright: '© 2026 Bailey Dunning',
+		credits: 'Made by Bailey Dunning\nMusic & sound by Jon Licht',
+	});
+}
+
 async function boot() {
+	configureAboutPanel();
 	steam.init(app); // no-op when not launched through Steam
 	metricsSync.start(); // listens for renderer metrics → Steam (no-op without Steam)
 	registerSaveIpc();

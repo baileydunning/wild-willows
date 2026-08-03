@@ -63,6 +63,7 @@
 	"build": {
 		"appId": "io.harper.wildwillows",
 		"productName": "Wild Willows",
+		"copyright": "© 2026 Bailey Dunning · Music & sound by Jon Licht",
 		"files": [
 			"electron/**/*",
 			"package.json"
