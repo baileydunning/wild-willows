@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { freshWorld, appearance, type World } from './harness';
+import { freshWorld, appearance, metricsOf, type World } from './harness';
 
 describe('rest / sleep', () => {
 	it('sleeping wakes you at dawn, not midnight', async () => {
@@ -17,7 +17,7 @@ describe('rest / sleep', () => {
 			placedAt: Date.now(),
 		});
 		const p = await w.db.Player.get(pid);
-		await w.db.Player.patch(pid, { metrics: { ...(p.metrics || {}), playSeconds: 648 } }); // 648/720 = 0.9 → night
+		await w.db.Player.patch(pid, { metrics: { ...metricsOf(p), playSeconds: 648 } }); // 648/720 = 0.9 → night
 		const before = (await w.get('GameState', pid)).weather.dayPhase;
 		expect(before).toBe('night');
 

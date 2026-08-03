@@ -388,6 +388,36 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 							{busy === 'restart-game' ? 'Restarting…' : 'Restart from scratch'}
 						</button>
 					</div>
+
+					<h3>
+						<Icon name="gear" size={15} /> Local storage
+					</h3>
+					<p className="muted small">
+						Clears ALL of this game's browser storage — UI preferences, the tutorial position, and every one-time
+						contextual hint (so the tutorial and all menu/home hints show again from scratch) — then reloads. Does not
+						touch your server save. (Any browser-stored solo saves would be cleared too.)
+					</p>
+					<div className="dev-grid">
+						<button
+							disabled={!!busy}
+							onClick={() => {
+								if (
+									!window.confirm(
+										'Clear all local storage and reload? This resets UI preferences, the tutorial, and every contextual hint (they will all show again). Browser-stored saves are also cleared.',
+									)
+								)
+									return;
+								try {
+									localStorage.clear();
+								} catch {
+									/* ignore */
+								}
+								location.reload();
+							}}
+						>
+							<Icon name="close" size={13} /> Reset local storage
+						</button>
+					</div>
 				</div>
 			</div>
 		</div>

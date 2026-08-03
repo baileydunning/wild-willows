@@ -261,7 +261,9 @@
 		"placing": "Colocando",
 		"placingHint": "— haz clic en una casilla",
 		"stopPlacing": "dejar de colocar",
-		"dayTimerTitle": "El reloj de la reserva — un día completo pasa en unos 24 minutos."
+		"dayTimerTitle": "El reloj de la reserva — un día completo pasa en unos 24 minutos.",
+		"demoGoal": "Demo · {returned}/{total} animales en casa",
+		"demoGoalTitle": "Da la bienvenida a los animales a la pradera para completar la demo gratuita."
 	},
 	"toolbelt": {
 		"how": {

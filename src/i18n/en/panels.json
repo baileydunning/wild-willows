@@ -360,13 +360,13 @@
 		},
 		"welcome": {
 			"title": "Welcome, caretaker",
-			"text": "This worn-out meadow is yours to restore. Let’s start simple — walk around with WASD or the arrow keys. (Press H anytime for the full How to Play.)",
-			"touch": "This worn-out meadow is yours to restore. Let’s start simple — walk with the joystick in the corner."
+			"text": "Welcome, caretaker — it's good to have you. This meadow was stripped bare and its wildlife drifted away, but with a gentle hand it can come back to life. Let's begin with a walk — move with WASD or the arrow keys.",
+			"touch": "Welcome, caretaker — it's good to have you. This meadow was stripped bare and its wildlife drifted away, but with a gentle hand it can come back to life. Let's begin with a walk — move with the joystick in the corner."
 		},
 		"coreLoop": {
-			"title": "Your job here",
-			"text": "Restore each biome until its animals come home. Every animal that returns brings the land back to life — and fully restoring a biome opens the trail to the next one. That’s the whole loop: gather materials, build habitat, welcome wildlife. First up, a little grasshopper.",
-			"touch": "Restore each biome until its animals come home. Every animal that returns brings the land back to life — and fully restoring a biome opens the trail to the next one. That’s the whole loop: gather, build habitat, welcome wildlife. First up, a little grasshopper."
+			"title": "How you heal the land",
+			"text": "The loop: gather materials, craft them into habitat, place it — and wildlife returns on its own. First up, a grasshopper.",
+			"touch": "The loop: gather materials, craft them into habitat, place it — and wildlife returns on its own. First up, a grasshopper."
 		},
 		"basket": {
 			"title": "Check your basket",
@@ -375,8 +375,8 @@
 		},
 		"gather": {
 			"title": "Gather materials",
-			"text": "Now fill that basket. See the little glowing spots on the ground? Walk up to one with the basket selected and press E or the Space bar to gather — E and Space interact with anything you walk up to. Collect some seeds and fiber — you’ll need them for the grasshopper’s home later.",
-			"touch": "Now fill that basket. See the little glowing spots on the ground? Walk up to one with the basket selected and tap it to gather. Collect some seeds and fiber — you’ll need them for the grasshopper’s home later."
+			"text": "With your basket selected (press 1), walk up to a glowing spot and press E to gather. Grab some seeds and plant fiber.",
+			"touch": "With your basket selected, walk up to a glowing spot and tap to gather. Grab some seeds and plant fiber."
 		},
 		"chest": {
 			"title": "Use your camp chest",
@@ -384,19 +384,19 @@
 			"touch": "Walk to the chest beside your tent and tap it to open it. Deposit spare materials here whenever your basket gets full — anything in a chest still counts toward crafting from anywhere, so you never have to carry it all."
 		},
 		"land": {
-			"title": "Work the land",
-			"text": "The land itself needs healing. Press 2 for the shovel and dig a soil bed on bare ground, then press 3 for the watering can and water it. Watering recovers the land (+health) and readies the bed for planting.",
-			"touch": "The land itself needs healing. Tap the shovel and dig a soil bed on bare ground, then tap the watering can and water it. Watering recovers the land (+health) and readies the bed for planting."
+			"title": "Heal the soil",
+			"text": "Now the land. Press 2 for the shovel and dig a bare tile, then 3 for the watering can and water it.",
+			"touch": "Now the land. Tap the shovel and dig a bare tile, then tap the watering can and water it."
 		},
 		"plant": {
 			"title": "Plant something living",
-			"text": "Walk up to your watered bed and press E or Space to plant a flower, grass, or tree. Plants sprout small and grow in over time — once mature they count as real habitat, and the biome rechecks for new arrivals on its own.",
-			"touch": "Walk up to your watered bed and tap it to plant a flower, grass, or tree. Plants sprout small and grow in over time — once mature they count as real habitat, and the biome rechecks for new arrivals on its own."
+			"text": "Walk up to your watered bed and press E to plant a flower, grass, or tree. It grows into real habitat.",
+			"touch": "Walk up to your watered bed and tap to plant a flower, grass, or tree. It grows into real habitat."
 		},
 		"water": {
-			"title": "Shape some water",
-			"text": "Many animals need water. Water a bed once to plant it — water it again to flood it into open water. Flood a few tiles next to each other to shape a pond (a long line makes a river, a wide patch a lake). Try flooding a few connected tiles now.",
-			"touch": "Many animals need water. Water a bed once to plant it — water it again to flood it into open water. Flood a few tiles next to each other to shape a pond, river, or lake. Try flooding a few connected tiles now."
+			"title": "Shape water",
+			"text": "Water a bed again to flood it. Flood a few tiles together to make a pond, river, or lake — many animals need water.",
+			"touch": "Water a bed again to flood it. Flood a few tiles together to make a pond, river, or lake — many animals need water."
 		},
 		"journal": {
 			"title": "Open your field journal",
@@ -425,17 +425,17 @@
 		},
 		"crafting": {
 			"title": "Open crafting",
-			"text": "Time to build the grasshopper’s home. Press C (or the hammer button) to open crafting — it draws from your basket plus every chest, anywhere you are. Only a few things can be made now; more unlock as the meadow recovers.",
-			"touch": "Time to build the grasshopper’s home. Tap the hammer button to open crafting — it draws from your basket plus every chest, anywhere you are. Only a few things can be made now; more unlock as the meadow recovers."
+			"text": "Press C to open crafting — it uses your basket from anywhere. Let's build the grasshopper's home.",
+			"touch": "Tap the hammer button to open crafting — it uses your basket from anywhere. Let's build the grasshopper's home."
 		},
 		"craftGrass": {
 			"title": "Craft a Grass Patch",
-			"text": "Find Grass Patch in the list and press Craft. Once you’re carrying enough seeds and fiber it lights up — this is the simple home a grasshopper is waiting for."
+			"text": "Find Grass Patch in the list and press Craft. It lights up once you're carrying enough seeds and fiber."
 		},
 		"placeGrass": {
-			"title": "Place the Grass Patch",
-			"text": "Press the green “Ready to place” button at the top of the crafting menu, then click a patch of open ground in the meadow. Watch the biome health meter tick up the moment it’s down.",
-			"touch": "Tap the green “Ready to place” button at the top of the crafting menu, then tap a patch of open ground in the meadow. Watch the biome health meter tick up the moment it’s down."
+			"title": "Place it on the land",
+			"text": "Press “Ready to place,” then click open ground. Watch the meadow's health tick up.",
+			"touch": "Tap “Ready to place,” then tap open ground. Watch the meadow's health tick up."
 		},
 		"proximity": {
 			"title": "Build little neighborhoods",
@@ -443,9 +443,9 @@
 			"touch": "Here’s a secret: animals return to neighborhoods, not scattered pieces. Place food, water, and shelter near each other — a patch by a pond by a shrub — and far more wildlife will settle in than if everything’s spread out."
 		},
 		"grasshopper": {
-			"title": "Welcome the grasshopper",
-			"text": "Here’s the moment. A grasshopper returns at 10% meadow health with a Grass Patch down — between watering the land, planting, and your patches you’re already there. If it hasn’t hopped in yet, place another patch or water a bit more. When it arrives, click it to observe it and record it in your journal — then click Next for one last thing.",
-			"touch": "Here’s the moment. A grasshopper returns at 10% meadow health with a Grass Patch down — between watering the land, planting, and your patches you’re already there. If it hasn’t hopped in yet, place another patch or water a bit more. When it arrives, tap it to observe it and record it in your journal — then tap Next for one last thing."
+			"title": "Welcome your first neighbor",
+			"text": "A grasshopper returns at 8% health with a patch down. Click it to record it in your journal — that's the whole loop!",
+			"touch": "A grasshopper returns at 8% health with a patch down. Tap it to record it in your journal — that's the whole loop!"
 		},
 		"star": {
 			"title": "Your first star",
@@ -462,47 +462,57 @@
 			"text": "Last thing — walk back to your camp tent and press E to step inside. The sign by the tent first builds your tent into a real house (each style has its own perk), then upgrades it along four tracks: Space (a bigger home that lets you carry more), Comfort (strengthens your house perk), Decor, and Light. Higher upgrades open as your biomes get healthier, and inside you can place crafted camp comforts. Step in now — the preserve is all yours. Happy restoring!",
 			"touch": "Last thing — walk back to your camp tent and tap it to step inside. The sign by the tent first builds your tent into a real house (each style has its own perk), then upgrades it along four tracks: Space (a bigger home that lets you carry more), Comfort (strengthens your house perk), Decor, and Light. Higher upgrades open as your biomes get healthier, and inside you can place crafted camp comforts. Step in now — the preserve is all yours. Happy restoring!"
 		},
-		"demoNote": "This is the free demo — welcome {count} animals back to the meadow to complete it."
+		"demoNote": "This is the free demo — welcome {count} animals back to the meadow to complete it.",
+		"navigate": {
+			"title": "Find your way around",
+			"text": "Get your bearings. Top-left tracks this meadow — health, balance, animals home, plus the current weather and season. Below it is your goal board: starter tasks now, and goals you set yourself later (press G). Your toolbelt (1 basket · 2 shovel · 3 watering can) sits at the bottom. Up top are your menus, grouped as Learn (field journal, achievements), Build (crafting, tools, goals), and World (the Preserve map, weather). Press H anytime for help — and each menu explains itself the first time you open it.",
+			"touch": "Get your bearings. Top-left tracks this meadow — health, balance, animals home, plus the current weather and season. Below it is your goal board: starter tasks now, and goals you set yourself later. Your toolbelt (basket · shovel · watering can) sits at the bottom. Up top are your menus, grouped as Learn (journal, achievements), Build (crafting, tools, goals), and World (map, weather). Tap the ? button anytime for help — and each menu explains itself the first time you open it."
+		},
+		"moreAnimals": {
+			"title": "Bring the meadow home",
+			"text": "Food, water, and shelter placed close together bring more animals back. Check your journal (J) for what each one needs. The meadow's in good hands!",
+			"touch": "Food, water, and shelter placed close together bring more animals back. Check your journal for what each one needs. The meadow's in good hands!"
+		}
 	},
 	"help": {
 		"title": "How to Play",
 		"replayTitle": "Restart the interactive tutorial",
 		"replay": "Replay tutorial",
-		"intro": "Wild Willows is a gentle loop: gather what nature has let go, craft it into habitat, place it in the biome, and welcome wildlife home. New recipes unlock as each biome recovers.",
+		"intro": "A gentle loop: gather materials, craft them into habitat, place it on the land, and welcome wildlife home.",
 		"loopLabel": "The loop",
 		"keysLabel": "Keyboard & mouse",
 		"loop": {
 			"gather": {
 				"title": "Gather",
-				"text": "Wander the preserve and collect fallen branches, seeds, stones, and flowers from gathering spots. They regrow on their own — you only ever take what nature has already let go."
+				"text": "Collect branches, seeds, stones, and flowers from glowing spots. They regrow on their own."
 			},
 			"store": {
 				"title": "Store",
-				"text": "Drop materials into chests so your basket stays light — crafting can use everything in storage, wherever the chest sits."
+				"text": "Stash spare materials in chests — crafting can still use them from anywhere."
 			},
 			"craft": {
-				"title": "Craft & unlock",
-				"text": "Press C or the hammer button anytime, anywhere to turn materials into habitat. You begin with just a few recipes — a Grass Patch and a handful of basics. As a biome’s health rises and animals return, new recipes unlock one at a time (watch for the “New Crafting Recipe Unlocked” message). Fully restoring a biome also opens the next area, with its own set of recipes to discover."
+				"title": "Craft",
+				"text": "Press C to turn materials into habitat. New recipes unlock as a biome recovers."
 			},
 			"rebuild": {
 				"title": "Rebuild",
-				"text": "Place habitat out in the biome. Every piece raises biome health, and variety — food, water, shelter, plants, open space — raises ecological balance. Terraform with the shovel and watering can: dig a bed, water it, then interact with it to plant flowers and trees — or flood it again to shape ponds, rivers, and lakes."
+				"text": "Place habitat to raise biome health; variety raises balance. Dig, water, and plant with the shovel and can."
 			},
 			"welcome": {
 				"title": "Welcome them back",
-				"text": "When the habitat truly supports an animal, it returns on its own. Click any animal to observe it and read about its real-world life."
+				"text": "When the habitat fits, the animal returns on its own. Click it to observe it."
 			},
 			"record": {
 				"title": "Record & grow",
-				"text": "Your field journal fills in with every return. Upgrade tools to gather more, restore harder habitats, and unlock the next biome. In the journal you can flip to “Unknown first” or search to see who you’re still missing in an area."
+				"text": "Your field journal fills in with every return. Upgrade tools to reach harder habitats."
 			},
 			"weather": {
-				"title": "Read the weather",
-				"text": "Each biome has its own weather that shifts on its own and slowly drifts through the seasons. Open the Weather & Seasons guide (press N) to see what’s happening across the preserve and learn how each condition shapes the biome you’re standing in. Keep an eye out — unusual weather can leave rare materials to gather while it lasts, and a few elusive animals only show themselves in the right weather, season, or time of day (their journal hint says when)."
+				"title": "Weather",
+				"text": "Each biome's weather drifts through the seasons — a few materials and animals only appear in the right conditions."
 			},
 			"board": {
 				"title": "Set your own goals",
-				"text": "The board at the left always points to your next milestone — opening the next biome — with a checklist of what it needs. Below it, add goals of your own (press G): craft an item, plant, gather a material, read about animals, restore a biome, or upgrade your home — plus animals to attract from the field journal. Hold three at a time (six once the whole preserve is open); finishing one earns a small bundle of materials. Press Tab to tuck the board away."
+				"text": "The board points to your next milestone. Add goals of your own with G."
 			}
 		},
 		"keys": {
@@ -528,6 +538,26 @@
 			"help": "Open this How to Play guide",
 			"zoom": "Zoom the camera in / out",
 			"esc": "Close menus · cancel placing"
+		},
+		"demoNote": "Free demo: welcome {count} animals back to the meadow to finish it — then carry your save into the full game.",
+		"moreLabel": "Going further",
+		"more": {
+			"animals": {
+				"title": "Bringing more animals",
+				"text": "Each needs food, water, and shelter placed close together. The journal (J) lists what each animal needs."
+			},
+			"home": {
+				"title": "Your home",
+				"text": "Decorate your tent with crafted comforts, and build or upgrade it from the sign nearby."
+			},
+			"tools": {
+				"title": "Tools & upgrades",
+				"text": "Press T to spend materials on a bigger basket, stronger tools, and new field guides."
+			},
+			"land": {
+				"title": "Heal the land",
+				"text": "Dig a bed (2), water it (3), then plant — or water it again to flood a pond, river, or lake."
+			}
 		}
 	},
 	"tasks": {
@@ -673,5 +703,21 @@
 		"ready": "Your character’s ready! {host} just needs to let you in to {world}. This page will open the world the moment they approve.",
 		"cancel": "Cancel",
 		"playSoloWait": "Play solo while you wait"
+	},
+	"coach": {
+		"label": "Tip",
+		"home": "Welcome home — your own cozy space to make yours. Decorate it with comforts you craft, and use the sign by your tent to build and upgrade it (a bigger home even lets you carry more). New upgrades open as your biomes recover.",
+		"journal": "Field journal — every animal that can live in an area and what each needs to return. Your checklist for what to build.",
+		"achievements": "Achievements — 50 stars to earn for restoring biomes, mastering tools, and welcoming wildlife across the preserve.",
+		"feed": "Activity feed — a running log of everything that happens, including these tips. Scroll back anytime.",
+		"inventory": "Basket — what you're carrying right now. It has a limit, so stash spare materials in a chest.",
+		"crafting": "Crafting — turn gathered materials into habitat to place on the land. New recipes unlock as a biome recovers.",
+		"tools": "Tools & upgrades — spend materials on a bigger basket, stronger shovel and watering can, and new field guides.",
+		"goals": "Goals — set your own tasks (craft, plant, attract an animal, restore a biome) and track them on the board.",
+		"biomes": "The Preserve — each area's progress, what's needed to open the next, and fast-travel to places you've visited.",
+		"weather": "Weather & seasons — how conditions shift across the preserve and shape the land; some materials and animals only appear in the right weather.",
+		"people": "People — invite friends with your join code and see who's exploring the preserve alongside you.",
+		"settings": "Settings — sound, accessibility, your character, and save options.",
+		"demoNear": "One more animal and you'll complete the demo — you're nearly there!"
 	}
 }

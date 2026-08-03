@@ -1,6 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { readFileSync } from 'node:fs';
-import { freshWorld, appearance, meadowResource, type World } from './harness';
+import { freshWorld, appearance, meadowResource, metricsOf, dailyOf, type World } from './harness';
 
 const forestResources = new Set<string>(
 	JSON.parse(readFileSync('data/biomes.json', 'utf8')).records.find((b: any) => b.id === 'forest').resources,
@@ -80,7 +80,7 @@ describe('daily task board', () => {
 		const res = meadowResource();
 		await w.post('CollectResource', { playerId: pid, biomeId: 'meadow', nodeId: 'n0', resourceId: res });
 		const p = await w.db.Player.get(pid);
-		expect(p.daily.counts[`res:${res}`]).toBeGreaterThanOrEqual(1);
+		expect(dailyOf(p).counts[`res:${res}`]).toBeGreaterThanOrEqual(1);
 	});
 
 	it('pays out a finished starter task exactly once and rejects early claims', async () => {
@@ -197,7 +197,7 @@ describe('welcome back (heartbeat time-passed pass)', () => {
 		const p = await w.db.Player.get(pid);
 		await w.db.Player.patch(pid, {
 			metrics: {
-				...(p.metrics || {}),
+				...metricsOf(p),
 				firstSeenAt: now - 20 * H,
 				lastSeenAt: now - 12 * H,
 				lastHeartbeatAt: now - 12 * H,
@@ -260,7 +260,7 @@ describe('condition-gated rare sightings', () => {
 		const p = await w.db.Player.get(pid);
 		// Drive the clock purely from playSeconds here (new saves start with a
 		// day-phase clock offset; zero it so these phase values are exact).
-		await w.db.Player.patch(pid, { metrics: { ...(p.metrics || {}), playSeconds }, clockOffsetMs: 0 });
+		await w.db.Player.patch(pid, { metrics: { ...metricsOf(p), playSeconds }, clockOffsetMs: 0 });
 		const r = await w.post('RecalcBiome', { playerId: pid, biomeId: 'meadow' });
 		return (r.newAnimals || []).some((n: any) => n.animalId === 'barn-owl');
 	};

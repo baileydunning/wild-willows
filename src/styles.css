@@ -4882,3 +4882,67 @@ kbd {
 	width: 58px; height: 58px; border-radius: 50%;
 	background: rgba(122, 168, 90, 0.18); color: var(--green);
 }
+
+/* ── Contextual hint banner (first time a menu opens / you enter home) ───── */
+/* Sits above the open panel so the explanation is visible while the player is
+   looking at the menu; the same line is also written to the activity feed. */
+.coach-banner {
+	position: fixed;
+	top: 14px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 80;
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	max-width: min(560px, calc(100vw - 24px));
+	padding: 9px 10px 9px 11px;
+	background: rgba(250, 245, 232, 0.98);
+	border: 2px solid var(--green-deep);
+	border-radius: 14px;
+	box-shadow: var(--shadow);
+	backdrop-filter: blur(3px);
+	animation: coach-banner-in 0.28s ease-out;
+}
+@keyframes coach-banner-in {
+	from { opacity: 0; transform: translate(-50%, -8px); }
+	to   { opacity: 1; transform: translate(-50%, 0); }
+}
+.coach-banner-icon {
+	flex: none;
+	display: flex; align-items: center; justify-content: center;
+	width: 30px; height: 30px; border-radius: 50%;
+	background: rgba(122, 168, 90, 0.18); color: var(--green-deep);
+}
+.coach-banner-text { font-size: 0.85rem; line-height: 1.35; color: var(--ink); }
+.coach-banner-text b { color: var(--green-deep); font-family: var(--font-display); margin-right: 4px; }
+.coach-banner-close {
+	flex: none; display: flex; align-items: center; justify-content: center;
+	width: 24px; height: 24px; border-radius: 50%;
+	border: none; background: transparent; color: var(--ink-soft); cursor: pointer;
+}
+.coach-banner-close:hover { background: var(--paper-2); color: var(--ink); }
+[data-reduce-motion="1"] .coach-banner { animation: none; }
+
+/* ── Demo goal pill (always-visible 5-animal target) ────────────────────── */
+.hud-demo-goal {
+	display: inline-flex; align-items: center; gap: 8px;
+	margin-top: 8px; padding: 6px 12px;
+	background: rgba(201, 145, 63, 0.16);
+	border: 1.5px solid var(--gold);
+	border-radius: 999px;
+	color: var(--ink); font-size: 0.82rem; font-weight: 600;
+	box-shadow: var(--shadow);
+}
+.hud-demo-goal.done {
+	background: rgba(122, 168, 90, 0.2);
+	border-color: var(--green);
+	color: var(--green-deep);
+}
+.hud-demo-goal-track { display: inline-flex; gap: 3px; margin-left: 2px; }
+.hud-demo-goal-track .pip {
+	width: 8px; height: 8px; border-radius: 50%;
+	background: rgba(58, 58, 44, 0.18);
+}
+.hud-demo-goal-track .pip.on { background: var(--gold); }
+.hud-demo-goal.done .pip.on { background: var(--green); }

@@ -64,6 +64,8 @@
 		border: 1px solid var(--rule); background: var(--card); border-radius: 999px;
 		padding: .3rem .7rem; box-shadow: var(--shadow);
 	}
+	.vfilter.is-off { opacity: .4; } /* range selector is moot while "All versions" is picked */
+	.vfilter.is-off select { cursor: not-allowed; }
 	.filter-note { display: inline-block; margin-left: .5rem; font-size: .74rem; font-weight: 700; color: var(--accent-dark); background: var(--accent-soft); border-radius: 999px; padding: .1rem .55rem; }
 	button.refresh:hover { transform: translateY(-1px); }
 	button.refresh:active { transform: translateY(0); }
@@ -233,6 +235,12 @@
 			<div id="generated">Loading…</div>
 			<label class="vfilter"><span>Version</span>
 				<select id="version-filter"><option value="all">All versions</option></select>
+			</label>
+			<label class="vfilter" id="version-mode-wrap"><span>Range</span>
+				<select id="version-mode">
+					<option value="exact">Only this</option>
+					<option value="min">This &amp; newer</option>
+				</select>
 			</label>
 			<label class="vfilter"><span>Edition</span>
 				<select id="edition-filter"><option value="all">All editions</option></select>
@@ -618,7 +626,8 @@ function render(data) {
 	const out = [];
 
 	/* ---- Overview KPIs ---- */
-	const activeFilters = [flt.version && `v${flt.version}`, flt.edition, flt.platform].filter(Boolean).map(esc);
+	const versionLabel = flt.version ? `v${flt.version}${flt.versionMode === "min" ? " & newer" : ""}` : "";
+	const activeFilters = [versionLabel, flt.edition, flt.platform].filter(Boolean).map(esc);
 	const overviewSub = activeFilters.length ? `filtered to ${activeFilters.join(" · ")}` : "who is out there right now";
 	out.push(sec("Overview", overviewSub, `<div class="grid kpis">${[
 		kpi(fmt(s.players), "Total caretakers", "unique anonymous saves"),
@@ -865,7 +874,18 @@ function render(data) {
  * Fetch + wire-up
  * ------------------------------------------------------------------ */
 // Active dashboard filters (all server-side, applied to the whole report).
-const FILTERS = { version: "all", edition: "all", platform: "all" };
+const FILTERS = { version: "all", edition: "all", platform: "all", versionMode: "exact" };
+
+/** Grey out the "Range" selector unless a specific version is chosen. */
+function syncVersionMode() {
+	const wrap = document.getElementById("version-mode-wrap");
+	const sel = document.getElementById("version-mode");
+	if (!wrap || !sel) return;
+	const off = FILTERS.version === "all";
+	wrap.classList.toggle("is-off", off);
+	sel.disabled = off;
+	sel.value = FILTERS.versionMode;
+}
 const FILTER_CFG = [
 	{ key: "version", el: "version-filter", list: "availableVersions", allLabel: "All versions", cap: (v) => v },
 	{ key: "edition", el: "edition-filter", list: "availableEditions", allLabel: "All editions", cap: (v) => v.charAt(0).toUpperCase() + v.slice(1) },
@@ -884,6 +904,9 @@ function populateFilterOptions(filters) {
 		sel.value = FILTERS[cfg.key] === "all" || opts.includes(FILTERS[cfg.key]) ? FILTERS[cfg.key] : "all";
 		FILTERS[cfg.key] = sel.value;
 	}
+	// Restore the version range mode from the server echo, then sync the control.
+	FILTERS.versionMode = filters.versionMode === "min" ? "min" : "exact";
+	syncVersionMode();
 }
 
 async function load() {
@@ -898,6 +921,9 @@ async function load() {
 		for (const cfg of FILTER_CFG) {
 			if (FILTERS[cfg.key] && FILTERS[cfg.key] !== "all") url += `&${cfg.key}=` + encodeURIComponent(FILTERS[cfg.key]);
 		}
+		// A specific version can be widened to "this version & newer" (min mode);
+		// otherwise the report isolates the single selected version.
+		if (FILTERS.version !== "all" && FILTERS.versionMode === "min") url += "&versionMode=min";
 		const res = await fetch(url, { headers: { accept: "application/json" } });
 		if (!res.ok) throw new Error(`Metrics endpoint returned ${res.status}`);
 		const data = await res.json();
@@ -916,8 +942,17 @@ async function load() {
 document.getElementById("refresh").addEventListener("click", load);
 for (const cfg of FILTER_CFG) {
 	const sel = document.getElementById(cfg.el);
-	if (sel) sel.addEventListener("change", (e) => { FILTERS[cfg.key] = e.target.value; load(); });
+	if (sel) sel.addEventListener("change", (e) => {
+		FILTERS[cfg.key] = e.target.value;
+		if (cfg.key === "version") syncVersionMode(); // enable/disable the range control
+		load();
+	});
 }
+const versionModeSel = document.getElementById("version-mode");
+if (versionModeSel) versionModeSel.addEventListener("change", (e) => {
+	FILTERS.versionMode = e.target.value === "min" ? "min" : "exact";
+	if (FILTERS.version !== "all") load(); // moot while "All versions" is selected
+});
 
 // Open a player's breakdown modal when their highlight card is clicked or
 // activated by keyboard. Delegated on #root, which persists across re-renders.

@@ -89,14 +89,26 @@ const COOP_JOIN_INTRO: StepDef[] = [
 	},
 ];
 
+// The linear tutorial is now ONE short guided loop — move, gather, craft, place,
+// welcome your first animal — and nothing more. Everything else (home, journal,
+// tools, bringing back more animals, terraforming) is taught just-in-time by the
+// contextual tips in CoachTips.tsx, which pop up the first time you actually do
+// each thing. Keeps the opening from being a wall of text. Copy is reused from
+// the panels.tutorial.* catalog; the unused keys there now feed CoachTips + Help.
 const BASE_STEPS: StepDef[] = [
-	// ── Chapter 1 · Move & Gather ──────────────────────────────────────────
 	{
 		icon: 'walk',
 		key: 'panels.tutorial.welcome',
 		hasTouch: true,
 		chapter: 1,
 		done: ({ flags }) => flags.moved,
+	},
+	{
+		icon: 'help',
+		key: 'panels.tutorial.navigate',
+		hasTouch: true,
+		chapter: 1,
+		done: () => false,
 	},
 	{
 		icon: 'sparkle',
@@ -106,139 +118,68 @@ const BASE_STEPS: StepDef[] = [
 		done: () => false,
 	},
 	{
-		icon: 'target',
-		key: 'panels.tutorial.goals',
-		hasTouch: true,
-		chapter: 1,
-		done: () => false,
-	},
-	{
 		icon: 'basket',
-		key: 'panels.tutorial.basket',
-		hasTouch: true,
-		chapter: 1,
-		done: ({ flags }) => flags.openedBasket,
-	},
-	{
-		icon: 'sparkle',
 		key: 'panels.tutorial.gather',
 		hasTouch: true,
 		chapter: 1,
 		done: ({ flags }) => flags.gathered,
 	},
 	{
-		icon: 'chest',
-		key: 'panels.tutorial.chest',
-		hasTouch: true,
-		chapter: 1,
-		done: ({ flags }) => flags.openedChest,
-	},
-	// ── Chapter 2 · Heal the Land ──────────────────────────────────────────
-	{
-		icon: 'spade',
-		key: 'panels.tutorial.land',
-		hasTouch: true,
-		chapter: 2,
-		done: ({ state }) => hasWateredBed(state),
-	},
-	{
-		icon: 'leaf',
-		key: 'panels.tutorial.plant',
-		hasTouch: true,
-		chapter: 2,
-		done: ({ state }) => hasPlanted(state),
-	},
-	{
-		icon: 'drop',
-		key: 'panels.tutorial.water',
-		hasTouch: true,
-		chapter: 2,
-		done: ({ state }) => openWaterTiles(state) >= 3,
-	},
-	// ── Chapter 3 · Build & Welcome ─────────────────────────────────────────
-	{
 		icon: 'hammer',
 		key: 'panels.tutorial.crafting',
 		hasTouch: true,
-		chapter: 3,
+		chapter: 1,
 		done: ({ flags }) => flags.openedCrafting,
 	},
 	{
 		icon: 'sparkle',
 		key: 'panels.tutorial.craftGrass',
-		chapter: 3,
+		chapter: 1,
 		done: ({ state }) => hasGrassPatch(state),
 	},
 	{
 		icon: 'pin',
 		key: 'panels.tutorial.placeGrass',
 		hasTouch: true,
-		chapter: 3,
+		chapter: 1,
 		done: ({ state }) => grassPlaced(state),
-	},
-	{
-		icon: 'pin',
-		key: 'panels.tutorial.proximity',
-		hasTouch: true,
-		chapter: 3,
-		done: () => false,
 	},
 	{
 		icon: 'paw',
 		key: 'panels.tutorial.grasshopper',
 		hasTouch: true,
-		chapter: 3,
+		chapter: 1,
 		done: ({ state }) => state?.discoveries?.some((d: any) => (d.timesObserved || 0) > 0),
 	},
+	// After the first animal, keep the loop going: terraform, plant, shape water,
+	// then bring more of the meadow home.
 	{
-		icon: 'star',
-		key: 'panels.tutorial.star',
+		icon: 'spade',
+		key: 'panels.tutorial.land',
 		hasTouch: true,
-		chapter: 3,
+		chapter: 1,
+		done: ({ state }) => hasWateredBed(state),
+	},
+	{
+		icon: 'leaf',
+		key: 'panels.tutorial.plant',
+		hasTouch: true,
+		chapter: 1,
+		done: ({ state }) => hasPlanted(state),
+	},
+	{
+		icon: 'drop',
+		key: 'panels.tutorial.water',
+		hasTouch: true,
+		chapter: 1,
+		done: ({ state }) => openWaterTiles(state) >= 3,
+	},
+	{
+		icon: 'paw',
+		key: 'panels.tutorial.moreAnimals',
+		hasTouch: true,
+		chapter: 1,
 		done: () => false,
-	},
-	// ── Chapter 4 · Explore & Settle In ─────────────────────────────────────
-	{
-		icon: 'journal',
-		key: 'panels.tutorial.journal',
-		hasTouch: true,
-		chapter: 4,
-		done: ({ flags }) => flags.openedJournal,
-	},
-	{
-		icon: 'tools',
-		key: 'panels.tutorial.tools',
-		hasTouch: true,
-		chapter: 4,
-		done: ({ flags }) => flags.openedTools,
-	},
-	{
-		icon: 'map',
-		key: 'panels.tutorial.map',
-		hasTouch: true,
-		chapter: 4,
-		done: ({ flags }) => flags.openedPreserve,
-	},
-	{
-		icon: 'cloud',
-		key: 'panels.tutorial.weather',
-		hasTouch: true,
-		chapter: 4,
-		done: ({ flags }) => flags.openedWeather,
-	},
-	{
-		icon: 'pin',
-		key: 'panels.tutorial.tips',
-		hasTouch: true,
-		chapter: 4,
-		done: () => false,
-	},
-	{
-		icon: 'home',
-		key: 'panels.tutorial.home',
-		hasTouch: true,
-		chapter: 4,
-		done: ({ state }) => state?.player?.area === 'home',
 	},
 ];
 
@@ -487,7 +428,7 @@ export function Tutorial() {
 					<Icon name="sparkle" size={13} /> {t(CHAPTERS[curChapter - 1])}
 				</span>
 				<span className="tutorial-count">
-					{t('panels.tutorial.chapterCount', { chapter: curChapter, total: CHAPTERS.length })}
+					{t('panels.tutorial.stepCount', { step: step + 1, total: STEPS.length })}
 				</span>
 				<button
 					className="tutorial-close"

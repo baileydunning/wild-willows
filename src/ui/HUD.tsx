@@ -3,6 +3,7 @@ import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import { useI18n } from '../i18n/react';
 import { COOP_ENABLED } from '../features';
+import { DEMO, DEMO_ANIMAL_GOAL, DEMO_BIOME } from '../demo';
 import { homePerkStrength } from '../types';
 import {
 	weatherType,
@@ -159,33 +160,17 @@ export function HUD() {
 	const isCoop = COOP_ENABLED && !!activeWorld && !activeWorld.solo;
 	const peersHere = bridge.shared.presence?.length || 0;
 
-	// Progressive disclosure: keep the first-run screen calm by revealing toolbar
-	// buttons as they become relevant, instead of dumping every cluster at once.
-	// A button shows once EITHER the tutorial has reached the step that teaches it
-	// OR the player has organically done the thing — so nothing ever stays stuck
-	// hidden if someone ignores, skips, or closes the tutorial (skipping/closing
-	// jumps tutorialStep to DONE, and free-play trips the organic signals anyway).
-	// Old/finished saves (no tutorialStep) default to "done" → everything shows.
-	// Use the FURTHEST step ever reached (tutorialMaxStep), never the live step:
-	// replaying the tutorial from Help rewinds tutorialStep to 0, and keying off
-	// the live value would re-hide menu buttons the player already unlocked.
-	const tutStep = Math.max(state.player.tutorialMaxStep ?? 0, state.player.tutorialStep ?? 99);
-	// Co-op prepends 1–2 intro steps, so the base-arc thresholds shift accordingly.
-	const stepOffset = isCoop ? (activeWorld?.isOwner ? 2 : 1) : 0;
-	const taught = (baseStep: number) => tutStep >= baseStep + stepOffset;
-	const gathered = (state.nodeStates?.length || 0) > 0 || Object.keys(state.player.inventory || {}).length > 0;
-	const crafted = Object.keys(state.player.craftedEver || state.player.craftedItems || {}).length > 0;
-	const discovered = (state.discoveries?.length || 0) > 0;
-	const moreBiomes = (state.player.unlockedBiomes?.length || 0) > 1 || (state.player.visitedBiomes?.length || 0) > 1;
+	// Every top-menu button is visible from the very start — the contextual hints
+	// explain each one the first time it's opened, so nothing needs to be hidden.
 	const show = {
-		feed: taught(1) || (state.feed?.length || 0) > 0,
-		journal: taught(7) || discovered,
-		achievements: taught(16) || state.achievements.length > 0,
-		inventory: taught(1) || gathered || crafted,
-		crafting: taught(12) || gathered || crafted,
-		tools: taught(8) || crafted || moreBiomes,
-		biomes: taught(9) || moreBiomes,
-		weather: taught(10) || moreBiomes,
+		feed: true,
+		journal: true,
+		achievements: true,
+		inventory: true,
+		crafting: true,
+		tools: true,
+		biomes: true,
+		weather: true,
 	};
 
 	const toggle = (id: any) => setPanel(panel === id ? null : id);
@@ -320,6 +305,29 @@ export function HUD() {
 						</>
 					)}
 				</div>
+				{/* Demo: an always-visible, unmissable reminder of the 5-animal goal so
+				    nobody wonders what they're working toward or when the demo ends. */}
+				{DEMO &&
+					(() => {
+						const meadowReturned = state.biomeStates.find((b) => b.biomeId === DEMO_BIOME)?.returnedCount || 0;
+						const done = meadowReturned >= DEMO_ANIMAL_GOAL;
+						return (
+							<div className={`hud-demo-goal ${done ? 'done' : ''}`} title={t('app.hud.demoGoalTitle')}>
+								<Icon name={done ? 'check' : 'paw'} size={14} />
+								<span className="hud-demo-goal-text">
+									{t('app.hud.demoGoal', {
+										returned: Math.min(meadowReturned, DEMO_ANIMAL_GOAL),
+										total: DEMO_ANIMAL_GOAL,
+									})}
+								</span>
+								<span className="hud-demo-goal-track" aria-hidden="true">
+									{Array.from({ length: DEMO_ANIMAL_GOAL }).map((_, i) => (
+										<span key={i} className={`pip ${i < meadowReturned ? 'on' : ''}`} />
+									))}
+								</span>
+							</div>
+						);
+					})()}
 				{/* Today's tasks sit right under the biome card, out of the toasts' way. */}
 				<TasksWidget />
 			</div>

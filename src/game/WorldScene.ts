@@ -577,6 +577,7 @@ export class WorldScene extends Phaser.Scene {
 		// no scene restart, no flash.
 		this.unsubs.push(
 			bridge.on('world-dirty', () => {
+				if (!this.alive || !(this.dynamic as any)?.scene) return; // ignore events landing mid-restart
 				this.refreshDynamic();
 				this.updateNodeVisuals();
 				this.applyWeather();
@@ -1784,7 +1785,11 @@ export class WorldScene extends Phaser.Scene {
 	}
 
 	private refreshDynamic(force = false) {
-		if (!this.alive) return;
+		// Bail if the dynamic layer isn't live. A bridge event (world-dirty) can land
+		// mid scene.restart() teardown when this.alive hasn't flipped to false yet;
+		// a destroyed Group has its `.scene` nulled, and clearing it throws
+		// "Cannot read properties of undefined (reading 'size')".
+		if (!this.alive || !this.dynamic || !(this.dynamic as any).scene) return;
 		// Skip the rebuild when nothing the dynamic layer depends on has changed.
 		// Indoors always rebuilds — it's a single cheap room, and the paint tool
 		// repaints walls/rugs/placements live (colour changes aren't in the sig).
@@ -3674,6 +3679,10 @@ export class WorldScene extends Phaser.Scene {
 	// ------------------------------------------------------ placement mode
 
 	private enterPlacement(objectId: string) {
+		// A queued enter-placement can arrive while the scene is torn down for a
+		// restart (its display list is gone then) — building the ghost via this.add
+		// would throw "Cannot read properties of null (reading 'add')".
+		if (!this.alive || !this.scene.isActive()) return;
 		this.exitPlacement();
 		this.placementObjectId = objectId;
 		this.placeRotation = 0;
@@ -3690,6 +3699,7 @@ export class WorldScene extends Phaser.Scene {
 
 	/** Pick an existing placement up onto the cursor and drop it somewhere new. */
 	private enterMove(placementId: string) {
+		if (!this.alive || !this.scene.isActive()) return; // same guard as enterPlacement (mid-restart safety)
 		this.exitPlacement();
 		const placement = bridge.shared.state?.placements.find((p) => p.id === placementId);
 		if (!placement) return;

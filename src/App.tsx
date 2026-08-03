@@ -29,6 +29,7 @@ import {
 import { SettingsPanel } from './ui/Settings';
 import { ActivityLog, FeedPanel, Toolbelt } from './ui/Toolbelt';
 import { Tutorial } from './ui/Tutorial';
+import { CoachTips } from './ui/CoachTips';
 import { GoalsPanel } from './ui/GoalsPanel';
 import { DevPanel } from './ui/DevPanel';
 import { KeyboardGate } from './ui/KeyboardGate';
@@ -369,6 +370,7 @@ function GameScreen() {
 				<Toolbelt />
 				<ActivityLog />
 				<Tutorial />
+				<CoachTips />
 				<MobileControls />
 				<JoinApprovalPopup />
 				<Toasts />

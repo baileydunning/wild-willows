@@ -1,7 +1,7 @@
 {
 	"name": "wild-willows",
 	"author": "Bailey Dunning",
-	"version": "0.2.0",
+	"version": "0.2.1",
 	"private": true,
 	"description": "Wild Willows — a cozy nature-restoration life sim, backed by Harper",
 	"type": "module",
@@ -63,6 +63,7 @@
 	"build": {
 		"appId": "io.harper.wildwillows",
 		"productName": "Wild Willows",
+		"copyright": "© 2026 Bailey Dunning · Music & sound by Jon Licht",
 		"files": [
 			"electron/**/*",
 			"package.json"
@@ -96,6 +97,10 @@
 		"buildDependenciesFromSource": false,
 		"mac": {
 			"category": "public.app-category.games",
+			"electronLanguages": [
+				"en",
+				"es"
+			],
 			"target": [
 				{
 					"target": "dmg",
@@ -120,7 +125,12 @@
 			"entitlementsInherit": "build/entitlements.mas.inherit.plist",
 			"provisioningProfile": "build/embedded.provisionprofile",
 			"extendInfo": {
-				"ITSAppUsesNonExemptEncryption": false
+				"ITSAppUsesNonExemptEncryption": false,
+				"CFBundleDevelopmentRegion": "en",
+				"CFBundleLocalizations": [
+					"en",
+					"es"
+				]
 			},
 			"files": [
 				"!**/node_modules/steamworks.js/**"
