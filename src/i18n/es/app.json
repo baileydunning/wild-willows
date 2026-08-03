@@ -25,7 +25,7 @@
 	},
 	"error": {
 		"generic": "Algo salió mal",
-		"backendUnreachable": "No se pudo conectar con el backend de Harper. ¿Está en ejecución? (mira el README)",
+		"backendUnreachable": "No se pudo conectar con el servidor. Comprueba tu conexión e inténtalo de nuevo.",
 		"noPreviousSave": "No hay una partida anterior en este dispositivo",
 		"requestFailed": "La solicitud falló ({status})",
 		"notLoggedIn": "No has iniciado sesión",
@@ -429,7 +429,7 @@
 	},
 	"demo": {
 		"doneTitle": "¡Gracias por jugar la demo de Wild Willows!",
-		"doneBody": "Diste la bienvenida a {count} animales en el prado, y aquí termina la demo. El juego completo abre cinco biomas más para restaurar, fabricación más profunda, estaciones y clima, un diario de campo por completar y muchos más vecinos a los que traer de vuelta.",
+		"doneBody": "Aquí termina la demo gratuita: gracias por restaurar un rincón de la reserva. El juego completo abre cinco biomas más para restaurar, fabricación más profunda, estaciones y clima, un diario de campo por completar y muchos más vecinos a los que traer de vuelta.",
 		"doneCta": "Consigue el juego completo para seguir restaurando la reserva.",
 		"doneButton": "Volver al inicio",
 		"exportHint": "¿Descargaste el juego completo? Guarda tu prado aquí y luego usa Importar partida en su pantalla de inicio para continuar justo donde lo dejaste.",

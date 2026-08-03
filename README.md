@@ -57,7 +57,7 @@ COOP_E2E=1 npm run test:e2e:coop
 npm run test:all            # typecheck + all Vitest suites + solo E2E
 ```
 
-The **integration harness** (`tests/integration/harness.ts`) installs lightweight stand-ins for Harper's `databases` / `Resource` globals, then imports the committed `resources.js` — the exact artifact `harper deploy` ships — giving each test a fresh in-memory world seeded from `data/*.json`. It's the same technique as the `scripts/coop-harness.mjs` smoke harness, refactored for Vitest. The **solo E2E** reaches offline mode by setting `window.wildWillowsDesktop = { isDesktop: true }` before the app boots, which flips the API transport to the in-app solo backend (no network). The **co-op E2E** CI job boots Harper with `harper run .` (endpoints only) and waits for `/GameData/`; Playwright's own webServer then builds the app with `COOP_ENABLED=true` and serves it via `vite preview`, whose proxy carries API calls to that Harper. For a quick manual end-to-end API check there's also `scripts/smoke-test.sh`.
+The **integration harness** (`tests/integration/harness.ts`) installs lightweight stand-ins for Harper's `databases` / `Resource` globals, then imports the committed `resources.js` — the exact artifact `harper deploy` ships — giving each test a fresh in-memory world seeded from `data/*.json`. It's the same technique as the `scripts/coop-harness.mjs` smoke harness, refactored for Vitest. The **solo E2E** reaches offline mode by setting `window.wildWillowsDesktop = { isDesktop: true }` before the app boots, which flips the API transport to the in-app solo backend (no network). The **co-op E2E** CI job boots Harper with `harper run .` (endpoints only) and waits for `/GameData/`; Playwright's own webServer then builds the app with `COOP_ENABLED=true` and serves it via `vite preview`, whose proxy carries API calls to that Harper. For a quick manual end-to-end API check there's also `scripts/smoke-test.sh`, and `scripts/audit-content.mjs` proves every recipe, tool upgrade, plant, and animal requirement is actually obtainable in unlock order (run against a live Harper).
 
 ## Deploy to Harper / Fabric
 
@@ -80,7 +80,7 @@ The desktop app (Steam, itch, etc.) wraps the web build in [Electron](https://ww
 
 Two play modes, two backends:
 
-- **Solo** (the v1 build) runs **entirely in-app and offline.** The same server logic (`server/resources.ts`) executes in the renderer against an in-memory `LocalDb` (`src/solo/`) seeded from `data/*.json`; after each action the world is serialized to a save slot. No passcode — solo saves are local JSON files in `userData/saves/<slotId>.json`, read/written over IPC (`electron/main.js`).
+- **Solo** (the v1 build) runs **entirely in-app and offline.** The same server logic (`server/resources.ts`) executes in the renderer against an in-memory `LocalDb` (`src/solo/`) seeded from `data/*.json`; after each action the world is serialized to a save slot. No passcode — solo saves are local JSON files in `userData/saves/<slotId>.json`, read/written over IPC (`electron/main.js`). Because that server module also imports Node built-ins (`node:crypto`, `node:zlib`), Vite aliases both to tiny browser stand-ins for the renderer build (`src/solo/cryptoShim.ts`, `src/solo/zlibShim.ts`) while the server's own esbuild build keeps the real modules — so the deployed Harper is unaffected. Solo routing is authoritative on the active save: whenever a solo slot is loaded, `isLocalCall` (`src/api.ts`) serves **every** request in-app, so solo gameplay never reaches the network even if the transport flag is stale.
 - **Co-op** (hidden in v1) talks to the **hosted Harper** over HTTPS (`COOP_BASE_URL` in `src/api.ts`) — a shared world needs a shared server.
 
 There is no hosted web version of the game UI — the hosted Harper is endpoints only (metrics uplink, feedback, dashboards, and the co-op API if re-enabled).
@@ -131,14 +131,14 @@ The same page also hosts a **play-in-browser demo** — a static web build (`DEM
 
 What the demo build changes (all behind the `DEMO` flag — see `src/demo.ts`):
 
-- **Backend: Harper-first, passwordless (`DEMO_WEB_BACKEND` in `src/demo.ts`, default `'harper'`).** The demo plays against the hosted Harper (`wild.willows.harperfabric.com`) so gameplay is server-validated, same as the full game — but **passwordless**: the title screen hides the passcode field, auto-mints a throwaway one, and the server assigns a **unique player id** per demo save (`CreatePlayer`'s `edition:'demo'` path), so anonymous players who pick the same caretaker name never collide. `resolveDemoBackend()` in `src/api.ts` probes Harper at boot with the *same headers real calls use* (so a CORS preflight failure is caught, not hit mid-game); if Harper can't be reached it **falls back to the offline solo backend** so the demo always runs. Requires **CORS for itch's origin** on the hosted Harper. Set `DEMO_WEB_BACKEND` to `'solo'` for a fully-offline demo with no server/CORS dependency.
-- **Hard-stop at 5 animals, with save carry-over.** The moment the meadow has welcomed back 5 animals, a "thanks for playing the demo" popup blocks play. It offers a **"Download my save"** button so the player can carry their meadow into the full downloadable game (its title-screen Import Save): `ExportDemoSave` dumps the world in the offline solo-save shape (`edition` reset to `full`) and the client encrypts it into the standard save envelope — the solo fallback reuses the existing `exportActiveSolo`. Closing the popup returns to the title and **deletes the save** (local slot, or the hosted record via the guarded, passcode-free `DeleteDemoSave` — which refuses anything not tagged `edition:'demo'`), so deletion is deferred until dismiss and can't strand the export.
+- **Backend: Harper-first, passwordless (`DEMO_WEB_BACKEND` in `src/demo.ts`, default `'harper'`).** The demo plays against the hosted Harper (`wild.willows.harperfabric.com`) so gameplay is server-validated, same as the full game — but **passwordless**: the title screen hides the passcode field, auto-mints a throwaway one, and the server assigns a **unique player id** per demo save (`CreatePlayer`'s `edition:'demo'` path), so anonymous players who pick the same caretaker name never collide. `resolveDemoBackend()` in `src/api.ts` probes the tiny `GET /Version/` endpoint at boot with the *same headers real calls use* (a few bytes — enough to catch a CORS preflight failure without re-downloading the ~300 KB catalog); if Harper can't be reached it **falls back to the offline solo backend** so the demo always runs. Requires **CORS for itch's origin** on the hosted Harper. Set `DEMO_WEB_BACKEND` to `'solo'` for a fully-offline demo with no server/CORS dependency.
+- **Hard-stop after 10 minutes in the forest, with save carry-over.** The demo spans the starter meadow *and* the forest: there's deliberately **no meadow cap**, so the caretaker restores the meadow to unlock the forest, then gets a taste of it. Play freezes with a "thanks for playing the demo" popup once they've spent **`DEMO_FOREST_MINUTES` (10) in the forest** — accumulated wall-clock while actually in the forest area and the tab is visible (see the gate in `src/state.tsx`, `DEMO_FOREST_MS`). It offers a **"Download my save"** button so the player can carry their meadow into the full downloadable game (its title-screen Import Save): `ExportDemoSave` dumps the world in the offline solo-save shape (`edition` reset to `full`) and the client encrypts it into the standard save envelope — the solo fallback reuses the existing `exportActiveSolo`. Closing the popup returns to the title and **deletes the save** (local slot, or the hosted record via the guarded, passcode-free `DeleteDemoSave` — which refuses anything not tagged `edition:'demo'`), so deletion is deferred until dismiss and can't strand the export.
 - **Demo signposting.** The tutorial's first slide notes it's the free demo and what completes it.
 - **Metrics tagged `edition`.** Every heartbeat, app-open ping, and metrics uplink carries `edition: 'demo' | 'full'`. The browser demo uplinks to `SoloMetrics` **even in Harper mode** (see `shouldUplink()` in `src/solo/metricsUplink.ts`), so `SoloMetrics` is the single client-metrics stream — desktop solo, browser demo, and offline solo all land there. The `/Metrics/` dashboard rolls them all up split by `editions` (demo/full) and `platforms` (web/desktop); `acquisition.editions` (from `AppOpen`) additionally counts installs that never created a character.
 
 One-time itch page setup (persists across butler pushes to `html5`): open the uploaded `html5` build → tick **"This file will be played in the browser"**, set an embed viewport (e.g. 1280×720, click-to-launch, fullscreen on). For the Harper-backed path, enable **CORS** on the hosted Harper for itch's game origin; without it the demo simply runs offline.
 
-The demo gating (tutorial note + 5-animal hard-stop) is driven **purely** by the build-time `DEMO` flag — there is deliberately no runtime toggle, so a player can't open dev tools and switch it off to unlock the full game. To exercise it during development, build the demo for real: `DEMO=true npm run build:web && npx vite preview`.
+The demo gating (tutorial note + the meadow-animals / forest-time hard-stop) is driven **purely** by the build-time `DEMO` flag — there is deliberately no runtime toggle, so a player can't open dev tools and switch it off to unlock the full game. To exercise it during development, build the demo for real: `DEMO=true npm run build:web && npx vite preview`.
 
 > Keyboard-only still applies: itch's browser player is desktop-friendly, and the keyboard gate lets any device with a keyboard through.
 
@@ -238,7 +238,7 @@ itch.io is the v1 home. Steam is the natural next step — most of the plumbing 
 
 - **6 biomes** — Willow Meadow, Old Hollow Forest, Rushwater Wetland, Redstone Scrubland (desert), Graywind Heights (alpine), Pelican Shore (coastal). All six are explorable on foot and fully restorable.
 - **150 animals** — **25 per biome**, each with diet, shelter, a real-world fact, and habitat return requirements. Every animal has a **unique, procedurally-built sprite** composed from its species traits (quills for a porcupine, antlers for a deer, long legs for a heron, a domed shell for a turtle, claws for a crab…), so no two read alike.
-- **175 habitat objects** and **146 recipes** across habitat, structures & decor, paths, storage, camp comforts, and restoration kits. Plantable flowers/grasses/trees are **planted, not crafted** (see below), so 132 of the recipes are craftable items and the remaining 14 are the plant set.
+- **179 habitat objects** and **150 recipes** across habitat, structures & decor, paths, storage, camp comforts, and restoration kits. Plantable flowers/grasses/trees are **planted, not crafted** (see below), so 136 of the recipes are craftable items and the remaining 14 are the plant set.
 - **Unlockable crafting** — most recipes start locked and unlock one at a time as a biome recovers (health crossed, a keystone animal welcomed), with a clear "New Crafting Recipe Unlocked" callout. New caretakers begin with a handful of starter recipes (Grass Patch + a few) and **almost no materials** (just a little water, seeds, and wildflowers) — the first job is to gather.
 - **Three chest sizes** — Small (**120**), Medium (**250**), and a Large Chest (**500**) that unlocks later, once Redstone Scrubland is restored to 60% and you've crafted a Medium Chest first.
 - **38 gatherable resources**, including biome-exclusive ones (e.g. geode and agave nectar in the desert; quartz crystal, obsidian, pine nuts, lichen, juniper berries, and packed snow in the alpine) and **5 weather-gated rarities** that only surface during the right weather (see **Weather & seasons**). Node generation **guarantees every resource appears** in its biome, and early staples like fallen branches keep at least three spots in the meadow and forest.
@@ -259,16 +259,18 @@ World-owned tables (keyed by `worldId`; solo world id === player id): `BiomeStat
 
 Co-op tables: `World` (id, name, solo, ownerId, joinCode, maxMembers) · `WorldMember` (membership: worldId, playerId, role) · `WorldPresence` (`@export`-ed; one record per world holding the live positions map, subscribed over WebSocket) · `JoinRequest` (pending/approved/denied join requests by token).
 
-Standalone tables: `Feedback` (player-submitted feedback: message, optional reply email, diagnostic context; written via `POST /SubmitFeedback/`, readable only by an authenticated super user via `GET /ListFeedback/`) · `SoloMetrics` (one row per solo save slot, upserted by the desktop metrics uplink via `POST /SyncMetrics/`).
+Standalone tables: `Feedback` (player-submitted feedback: message, optional reply email, diagnostic context; written via `POST /SubmitFeedback/`, readable only by an authenticated super user via `GET /ListFeedback/`) · `SoloMetrics` (one row per solo save slot, upserted by the desktop metrics uplink via `POST /SyncMetrics/`) · `AppOpen` (acquisition funnel: one row per install/device, upserted by `POST /AppOpen/` — opens vs. characters created).
 
-Tables are deliberately **not** exported over REST — everything flows through the custom resources below. On boot the server **reconciles** the seed tables against the definition JSON, deleting any orphaned records left by a rename/removal (Harper's loader only upserts, so this prevents stale duplicates like an old "Water Restoration Kit").
+Tables are deliberately **not** exported over REST — everything flows through the custom resources below. On boot the server **reconciles** the seed tables against the definition JSON, deleting any orphaned records left by a rename/removal (Harper's loader only upserts, so this prevents stale duplicates like an old "Water Restoration Kit"). Reads are also **self-healing**: `safeGet` force-decodes a record on read and, if a schema change ever left it un-decodable, **purges** the bad row and returns null rather than throwing — so one corrupt record can't break a scan or the co-op achievement fan-out.
 
 ## API resources (`server/resources.ts` → `resources.js`)
 
 | Endpoint | Does |
 |---|---|
-| `GET /GameData/` | All static definitions + character appearance options |
+| `GET /Version/` | Build stamp (app version + build time) baked into the bundle; `deploy-coop.sh` polls it after a deploy to catch a stale node, and the demo backend probe pings it |
+| `GET /GameData/` | All static definitions + character appearance options. On the hosted Harper the ~300 KB JSON is served **brotli/gzip-compressed (~65 KB)** with a build-stamped ETag + `Cache-Control`, so repeat opens revalidate to an empty 304; the in-app solo backend receives the same data as a plain object |
 | `POST /CreatePlayer/` · `POST /LoginPlayer/` · `POST /DeletePlayer/` | Create / load / delete a save (name + passcode) |
+| `POST /DeleteDemoSave/` · `POST /ExportDemoSave/` | Demo-only, passcode-free: delete or export a demo save — both refuse anything not tagged `edition:'demo'`, so a real save can't be touched |
 | `POST /ChangePasscode/` · `POST /UpdateAppearance/` | Change a save's passcode (current one must match) / restyle your caretaker anytime |
 | `GET /GameState/<playerId>` | Full state snapshot |
 | `POST /CollectResource/` | Gather from a node (cooldown, basket capacity, tool-tier yield 1–4) |
@@ -277,6 +279,7 @@ Tables are deliberately **not** exported over REST — everything flows through 
 | `POST /PlaceObject/` · `POST /RemoveObject/` · `POST /MoveObject/` | Place / pick up / relocate objects → recalculates the biome |
 | `POST /DiscardItem/` | Throw away basket materials or crafted items (server-validated; kits can't be discarded) |
 | `POST /Plant/` | Plant into a watered bed; the plant grows in over time |
+| `POST /HarvestPlacement/` | Gather a mature plant's yield; it regrows after `regrowSeconds`, so a planted bed is a renewable source rather than dig-up-and-replant |
 | `POST /Terraform/` | Shovel digs beds, watering can waters (1 water) or floods into open water; dry biomes can't be flooded |
 | `POST /UpgradeTool/` | Tool upgrades (materials + biome-progress gates) |
 | `POST /UpgradeHome/` | Level up one of the home's upgrade tracks (materials + biome-progress gate) |
@@ -284,6 +287,7 @@ Tables are deliberately **not** exported over REST — everything flows through 
 | `POST /SetHomeColors/` · `POST /SetPlacementColor/` | Paint tool: recolor the home interior (floor/wall/accent, built homes only) / recolor one placed item |
 | `POST /Rest/` | Sleep in your bed or sleeping bag to refresh every gathering spot |
 | `POST /ClaimTask/` | Claim a finished daily task's reward (the board itself is derived per world + UTC day; only claims are stored) |
+| `POST /SetGoals/` | Replace the player's pinned goal list (goals are derived server-side, so a crafted request can't grant itself rewards) |
 | `POST /ObserveAnimal/` | Record a field-journal observation |
 | `POST /RecalcBiome/` | Re-evaluate health / balance / animal returns (also fires when a plant matures) |
 | `POST /SyncPlayer/` | Persist position / area changes (seeds an area's starting terrain on first entry) |
@@ -294,8 +298,10 @@ Tables are deliberately **not** exported over REST — everything flows through 
 | `POST /Presence/` | Co-op live presence (positions merged into `WorldPresence`, pushed over WebSocket) |
 | `GET /Metrics/` · `GET /Metrics/<playerId>` | Analytics dashboard (see below) |
 | `POST /SyncMetrics/` | Solo metrics uplink: upserts one solo save's metrics snapshot into `SoloMetrics`, keyed by the save slot's UUID (see Metrics & analytics) |
+| `POST /AppOpen/` | Acquisition-funnel ping, one row per install/device: app opens vs. characters created (bounce), time spent in the creator; carries `edition` |
 | `POST /SubmitFeedback/` · `GET /ListFeedback/` | Player feedback (message + optional reply email + diagnostic context) → `Feedback` table; reading it back is super-user-only |
 | `GET /BiomeSnapshot/<playerId>` | Generated SVG "postcards" of each area |
+| `GET /dashboard` | Anonymous gameplay-metrics dashboard page — renders the public `/Metrics/` rollup (audience, funnels, progression, achievements, customized caretakers); no player names |
 | `POST /DevTools/` | Developer-only testing helpers (restricted to one save) |
 | `GET /privacy.html` · `GET /age-rating.html` · `GET /support.html` | Store-listing pages (privacy policy, age suitability, support/FAQ) served as endpoints — HTML inlined from `public/*.html` by `scripts/build-pages.mjs` |
 

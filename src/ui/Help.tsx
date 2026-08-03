@@ -1,6 +1,6 @@
 import { useGame } from '../state';
 import { COOP_ENABLED } from '../features';
-import { DEMO, DEMO_ANIMAL_GOAL } from '../demo';
+import { DEMO } from '../demo';
 import { useI18n } from '../i18n/react';
 import { visibleShortcuts } from '../shortcuts';
 import { savedTutorialPos } from './Tutorial';
@@ -63,7 +63,7 @@ export function HelpModal() {
 					<p className="help-intro">{t('panels.help.intro')}</p>
 					{DEMO && (
 						<div className="help-demo-note">
-							<Icon name="sparkle" size={15} /> {t('panels.help.demoNote', { count: DEMO_ANIMAL_GOAL })}
+							<Icon name="sparkle" size={15} /> {t('panels.help.demoNote')}
 						</div>
 					)}
 					<div className="help-section-label">

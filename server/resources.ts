@@ -14,6 +14,17 @@
 declare const databases: any;
 declare const Resource: any;
 
+// node:zlib is used ONLY on the hosted Harper (Node), to compress the big
+// GameData response. This module is also bundled into the renderer for the
+// in-app solo backend, so — exactly like node:crypto above — Vite aliases
+// 'node:zlib' to a browser shim for the web build (see vite.config.ts +
+// src/solo/zlibShim.ts). The server's esbuild build keeps the real node:zlib.
+// The shim's functions are never actually invoked in the renderer: GameData.get()
+// returns the plain object before touching compression when there's no HTTP context.
+// @ts-ignore — node:zlib resolves via Vite's alias (web build) and the Harper Node
+// runtime (server build); there are deliberately no @types/node in this project.
+import { gzipSync, brotliCompressSync, constants as zlibConstants } from 'node:zlib';
+
 // Definition JSON is the source of truth for the seed tables. Harper's data
 // loader only upserts records — it never deletes ones removed/renamed in the
 // JSON — so we reconcile against these on boot to prune orphans.
@@ -42,7 +53,7 @@ import {
 import { t as tr } from '../src/i18n/server';
 // Policy pages (privacy / age suitability), inlined from public/*.html by
 // scripts/build-pages.mjs — served as endpoints, see the bottom of this file.
-import { privacyHtml, ageRatingHtml, supportHtml, dashboardHtml, buildStamp } from './pages';
+import { privacyHtml, ageRatingHtml, supportHtml, dashboardHtml, landingHtml, ogImageB64, buildStamp } from './pages';
 
 // Biome ids for the weather block (weather is per-biome; climate differs by
 // biome). Derived once from the static seed data so the weather snapshot stays
@@ -3273,7 +3284,11 @@ async function awardAchievements(
 	try {
 		const t = db();
 		const d = await defs();
-		const player = await t.Player.get(playerId);
+		// safeGet (not raw .get): achievement fan-out reads every member of a co-op
+		// world, so one member left with an undecodable record must not throw a
+		// storage-layer decode error on every action. safeGet force-decodes, purges
+		// the corrupt row, and returns null → this player is simply skipped.
+		const player = await safeGet(t.Player, playerId);
 		if (!player) return [];
 		const earned = await earnedAchievementIds(playerId);
 		// achievement context comes from the world the player is acting in
@@ -3419,32 +3434,117 @@ export class Version extends PublicEndpoint {
 	}
 }
 
-/** GET /GameData/ — all static definitions (biomes, animals, recipes, …). */
+/** GET /GameData/ — all static definitions (biomes, animals, recipes, …).
+ *
+ * This is by far the largest response the game sends (~300 KB of JSON) and web /
+ * demo / co-op clients fetch it once at open, before login. On the HOSTED Harper
+ * we make it cheap two ways:
+ *
+ *  1. Revalidation. The payload is fully determined by the build (buildStamp),
+ *     so we tag it with a build-stamped ETag and honour If-None-Match: repeat
+ *     opens get an empty 304 instead of re-downloading the whole catalog.
+ *  2. Compression. Harper's REST path does NOT compress resource responses, and
+ *     this JSON is highly repetitive, so we brotli/gzip it per the client's
+ *     Accept-Encoding — ~300 KB → ~65 KB on the wire.
+ *
+ * IMPORTANT — this module is bundled BOTH for the hosted Harper (Node) AND into
+ * the renderer for the in-app solo backend (src/solo/backend.ts). That backend
+ * calls get() with no HTTP request context and uses the return value AS the data,
+ * and it runs in a browser where node:zlib does not exist. So get() must return
+ * the PLAIN OBJECT whenever there's no request context, and it must never import
+ * or touch zlib except on the real HTTP path (which the renderer never takes).
+ * Desktop serves GameData locally through exactly that solo path.
+ */
+let gameDataCache: { stamp: string; obj: any; json: string; etag: string } | null = null;
+
+async function gameDataCached() {
+	if (gameDataCache && gameDataCache.stamp === buildStamp) return gameDataCache;
+	const d = await defs();
+	const obj = {
+		biomes: d.biomes,
+		animals: d.animals,
+		resources: d.resources,
+		recipes: d.recipes,
+		habitatObjects: d.objects.map((o: any) => ({ ...o, rotatable: isRotatable(o) })),
+		tools: d.tools,
+		achievements: d.achievements,
+		homeStyles: HOME_STYLES,
+		homeTracks: HOME_TRACKS,
+		nodeRegenSeconds: NODE_REGEN_SECONDS,
+		appearanceOptions: {
+			skins: SKIN_TONES,
+			hair: HAIR_COLORS,
+			outfits: OUTFIT_COLORS,
+			hats: HAT_STYLES,
+			hatColors: HAT_COLORS,
+			hairstyles: HAIRSTYLES,
+			beards: BEARD_STYLES,
+			bodies: BODY_TYPES,
+		},
+	};
+	// Weak validator: body is identical for a given build (though exact bytes differ
+	// across br/gzip/identity). `"gd-<build>"` changes whenever the catalog does.
+	gameDataCache = { stamp: buildStamp, obj, json: JSON.stringify(obj), etag: `W/"gd-${buildStamp}"` };
+	return gameDataCache;
+}
+
+// Buffer is a Node global in the Harper runtime; reach it via globalThis so this
+// module still type-checks with no @types/node (same trick as the node:crypto use).
+const nodeBuffer: any = (globalThis as any).Buffer;
+
+// Compressed representations, built once per build and cached (server-only path).
+let gameDataCompressed: { stamp: string; gzip?: Uint8Array; br?: Uint8Array } | null = null;
+function compressedGameData(json: string, enc: 'br' | 'gzip'): Uint8Array {
+	const cache =
+		gameDataCompressed && gameDataCompressed.stamp === buildStamp
+			? gameDataCompressed
+			: (gameDataCompressed = { stamp: buildStamp });
+	const buf = nodeBuffer.from(json, 'utf8');
+	if (enc === 'br') {
+		if (!cache.br)
+			cache.br = brotliCompressSync(buf, {
+				params: { [zlibConstants.BROTLI_PARAM_QUALITY]: 5, [zlibConstants.BROTLI_PARAM_SIZE_HINT]: buf.length },
+			});
+		return cache.br as Uint8Array;
+	}
+	if (!cache.gzip) cache.gzip = gzipSync(buf, { level: 6 });
+	return cache.gzip as Uint8Array;
+}
+
 export class GameData extends PublicEndpoint {
 	async get() {
-		const d = await defs();
-		return {
-			biomes: d.biomes,
-			animals: d.animals,
-			resources: d.resources,
-			recipes: d.recipes,
-			habitatObjects: d.objects.map((o: any) => ({ ...o, rotatable: isRotatable(o) })),
-			tools: d.tools,
-			achievements: d.achievements,
-			homeStyles: HOME_STYLES,
-			homeTracks: HOME_TRACKS,
-			nodeRegenSeconds: NODE_REGEN_SECONDS,
-			appearanceOptions: {
-				skins: SKIN_TONES,
-				hair: HAIR_COLORS,
-				outfits: OUTFIT_COLORS,
-				hats: HAT_STYLES,
-				hatColors: HAT_COLORS,
-				hairstyles: HAIRSTYLES,
-				beards: BEARD_STYLES,
-				bodies: BODY_TYPES,
-			},
+		const { obj, json, etag } = await gameDataCached();
+		// No HTTP request context → the in-app solo backend (or any internal JS
+		// caller). Return the plain data object; do NOT build an envelope or touch
+		// zlib (unavailable in the renderer).
+		const reqHeaders: any = (this.getContext?.() as any)?.headers;
+		if (!reqHeaders || typeof reqHeaders.get !== 'function') return obj;
+
+		const cacheControl = 'public, max-age=300, stale-while-revalidate=604800';
+		// Revalidation hit: same build the client already has → send nothing.
+		// Compare loosely so a weak/strong prefix or quoting mismatch still matches.
+		const norm = (s: string) => s.replace(/^W\//, '').trim();
+		const ifNoneMatch = String(reqHeaders.get('if-none-match') || '');
+		if (ifNoneMatch && norm(ifNoneMatch) === norm(etag)) {
+			return { status: 304, headers: { etag, 'cache-control': cacheControl } };
+		}
+
+		const headers: Record<string, string> = {
+			'content-type': 'application/json; charset=utf-8',
+			'cache-control': cacheControl,
+			etag,
+			vary: 'Accept-Encoding',
 		};
+		const accept = String(reqHeaders.get('accept-encoding') || '');
+		let body: string | Uint8Array = json;
+		if (/\bbr\b/.test(accept)) {
+			headers['content-encoding'] = 'br';
+			body = compressedGameData(json, 'br');
+		} else if (/\bgzip\b/.test(accept)) {
+			headers['content-encoding'] = 'gzip';
+			body = compressedGameData(json, 'gzip');
+		}
+		return { status: 200, headers, body };
 	}
 }
 
@@ -7023,5 +7123,74 @@ class DashboardPage extends PublicEndpoint {
 	}
 }
 
-// Export under the exact URL paths (string export names keep the hyphen).
-export { PrivacyPage as privacy, AgeRatingPage as 'age-rating', SupportPage as support, DashboardPage as dashboard };
+/**
+ * GET / — the public marketing landing page (the face of wild.willows.harperfabric.com).
+ * Self-contained, SEO-optimized static HTML with inlined screenshots, served at the
+ * site root. Registered under the empty-string export name below, which Harper's
+ * router resolves as the explicit root path.
+ */
+class LandingPage extends PublicEndpoint {
+	async get() {
+		return htmlPage(landingHtml);
+	}
+}
+
+// The game's leaf mark, served as a real favicon so it shows in browser tabs and
+// (crawled from /favicon.ico) in Google's search results. SVG scales to any size.
+const FAVICON_SVG =
+	'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">' +
+	'<circle cx="12" cy="12" r="11" fill="#4a7c59"/>' +
+	'<path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg>';
+
+/** GET /favicon.ico · /favicon.svg — the site favicon (Harper strips the extension). */
+class Favicon extends PublicEndpoint {
+	async get() {
+		return {
+			status: 200,
+			headers: { 'content-type': 'image/svg+xml', 'cache-control': 'public, max-age=604800' },
+			body: FAVICON_SVG,
+		};
+	}
+}
+
+/** GET /og-image.jpg — the social/OpenGraph preview image for the landing page. */
+class OgImage extends PublicEndpoint {
+	async get() {
+		return {
+			status: 200,
+			headers: { 'content-type': 'image/jpeg', 'cache-control': 'public, max-age=604800' },
+			body: nodeBuffer.from(ogImageB64, 'base64'),
+		};
+	}
+}
+
+/** GET /theme.mp3 — the game's main theme (Jon Licht), for the landing-page player.
+ * The ~2 MB audio lives in its own module and is dynamic-imported so it never lands
+ * in the web/desktop bundle (this endpoint only ever runs on the hosted Harper). */
+class Theme extends PublicEndpoint {
+	async get() {
+		const { themeMp3B64 } = await import('./theme-audio');
+		return {
+			status: 200,
+			headers: {
+				'content-type': 'audio/mpeg',
+				'cache-control': 'public, max-age=604800',
+				'accept-ranges': 'none',
+			},
+			body: nodeBuffer.from(themeMp3B64, 'base64'),
+		};
+	}
+}
+
+// Export under the exact URL paths (string export names keep the hyphen; the empty
+// name serves the site root, and Harper strips a trailing .ico/.jpg/.svg extension).
+export {
+	LandingPage as '',
+	PrivacyPage as privacy,
+	AgeRatingPage as 'age-rating',
+	SupportPage as support,
+	DashboardPage as dashboard,
+	Favicon as favicon,
+	OgImage as 'og-image',
+	Theme as theme,
+};

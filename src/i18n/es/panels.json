@@ -462,7 +462,7 @@
 			"text": "Lo último — vuelve a tu tienda del campamento y presiona E para entrar. El letrero junto a la tienda primero convierte tu tienda en una casa de verdad (cada estilo tiene su propia ventaja), y luego la mejora por cuatro vías: Espacio (un hogar más grande que te deja cargar más), Comodidad (fortalece la ventaja de tu casa), Decoración y Luz. Las mejoras más altas se abren a medida que tus biomas mejoran de salud, y dentro puedes colocar comodidades del campamento que fabriques. Entra ahora — la reserva es toda tuya. ¡Feliz restauración!",
 			"touch": "Lo último — vuelve a tu tienda del campamento y tócala para entrar. El letrero junto a la tienda primero convierte tu tienda en una casa de verdad (cada estilo tiene su propia ventaja), y luego la mejora por cuatro vías: Espacio (un hogar más grande que te deja cargar más), Comodidad (fortalece la ventaja de tu casa), Decoración y Luz. Las mejoras más altas se abren a medida que tus biomas mejoran de salud, y dentro puedes colocar comodidades del campamento que fabriques. Entra ahora — la reserva es toda tuya. ¡Feliz restauración!"
 		},
-		"demoNote": "Esta es la demo gratuita: da la bienvenida a {count} animales en el prado para completarla.",
+		"demoNote": "Esta es la demo gratuita: restaura el prado para desbloquear el bosque y luego explóralo. La demo termina tras tus primeros 10 minutos en el bosque.",
 		"navigate": {
 			"title": "Orientarte en la pantalla",
 			"text": "Ubícate. Arriba a la izquierda ves la salud, el equilibrio y los animales de la pradera, además del clima y la estación actuales. Debajo está tu tablero de objetivos: tareas sencillas al principio y metas que tú fijas después (pulsa G). El cinturón (1 cesta · 2 pala · 3 regadera) está abajo. Arriba están tus menús, agrupados en Aprender (diario de campo, logros), Construir (fabricación, herramientas, objetivos) y Mundo (el mapa de la Reserva, clima). Pulsa H para ayuda, y cada menú se explica solo la primera vez que lo abres.",
@@ -539,7 +539,7 @@
 			"zoom": "Acercar / alejar la cámara",
 			"esc": "Cerrar menús · cancelar la colocación"
 		},
-		"demoNote": "Demo gratuita: da la bienvenida a {count} animales de vuelta a la pradera para terminarla; luego lleva tu partida al juego completo.",
+		"demoNote": "Estás jugando la demo gratuita: restaura el prado para abrir el bosque y luego explóralo. La demo termina tras tus primeros 10 minutos en el bosque, y tu partida se puede llevar al juego completo.",
 		"moreLabel": "Ir más allá",
 		"more": {
 			"animals": {
