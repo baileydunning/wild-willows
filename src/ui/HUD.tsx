@@ -315,7 +315,10 @@ export function HUD() {
 							<div className={`hud-demo-goal ${done ? 'done' : ''}`} title={t('app.hud.demoGoalTitle')}>
 								<Icon name={done ? 'check' : 'paw'} size={14} />
 								<span className="hud-demo-goal-text">
-									{t('app.hud.demoGoal', { returned: Math.min(meadowReturned, DEMO_ANIMAL_GOAL), total: DEMO_ANIMAL_GOAL })}
+									{t('app.hud.demoGoal', {
+										returned: Math.min(meadowReturned, DEMO_ANIMAL_GOAL),
+										total: DEMO_ANIMAL_GOAL,
+									})}
 								</span>
 								<span className="hud-demo-goal-track" aria-hidden="true">
 									{Array.from({ length: DEMO_ANIMAL_GOAL }).map((_, i) => (

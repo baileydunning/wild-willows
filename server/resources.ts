@@ -5749,7 +5749,12 @@ export class Metrics extends PublicEndpoint {
 		let versionMode: 'exact' | 'min' = 'exact';
 		try {
 			const raw = typeof target?.getAll === 'function' ? target.getAll('versionMode') : [];
-			if (String((raw && raw[0]) || '').trim().toLowerCase() === 'min') versionMode = 'min';
+			if (
+				String((raw && raw[0]) || '')
+					.trim()
+					.toLowerCase() === 'min'
+			)
+				versionMode = 'min';
 		} catch {
 			/* no query params on this target */
 		}

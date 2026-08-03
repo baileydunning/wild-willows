@@ -394,8 +394,8 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 					</h3>
 					<p className="muted small">
 						Clears ALL of this game's browser storage — UI preferences, the tutorial position, and every one-time
-						contextual hint (so the tutorial and all menu/home hints show again from scratch) — then reloads. Does
-						not touch your server save. (Any browser-stored solo saves would be cleared too.)
+						contextual hint (so the tutorial and all menu/home hints show again from scratch) — then reloads. Does not
+						touch your server save. (Any browser-stored solo saves would be cleared too.)
 					</p>
 					<div className="dev-grid">
 						<button
