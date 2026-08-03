@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
-import { freshWorld, appearance, type World } from './harness';
+import { freshWorld, appearance, metricsOf, type World } from './harness';
 
 // The browser itch demo tags its saves edition:'demo' (via CreatePlayer) and, on
 // the 5-animal hard-stop, wipes them with the passcode-free DeleteDemoSave. That
@@ -18,8 +18,8 @@ describe('CreatePlayer edition tag', () => {
 		const demo = await w.post('CreatePlayer', { name: 'Demo', passcode: '1234', appearance, edition: 'demo' });
 		const p = await w.db.Player.get(paid.playerId);
 		const d = await w.db.Player.get(demo.playerId);
-		expect(p.metrics.edition).toBe('full');
-		expect(d.metrics.edition).toBe('demo');
+		expect(metricsOf(p).edition).toBe('full');
+		expect(metricsOf(d).edition).toBe('demo');
 	});
 });
 
@@ -84,7 +84,7 @@ describe('ExportDemoSave (carry a demo save into the full game)', () => {
 		expect(out.data.BiomeState.some((b: any) => b.biomeId === 'meadow')).toBe(true);
 		expect(Array.isArray(out.data.Placement)).toBe(true);
 		// carried into the paid game → must NOT stay tagged demo
-		expect(out.data.Player[0].metrics.edition).toBe('full');
+		expect(metricsOf(out.data.Player[0]).edition).toBe('full');
 	});
 
 	it('refuses to export a full (paid) save', async () => {

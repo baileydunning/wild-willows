@@ -166,6 +166,15 @@ export const appearance = {
 	body: 'slim',
 };
 
+/**
+ * Player.metrics and Player.daily are persisted as JSON STRINGS by the server
+ * (so the msgpackr/structon record encoding stays stable — see the note in
+ * server/resources.ts). These decode a stored row's field back to an object for
+ * assertions, tolerating a legacy object row too.
+ */
+export const metricsOf = (p: any): any => (typeof p?.metrics === 'string' ? JSON.parse(p.metrics) : p?.metrics || {});
+export const dailyOf = (p: any): any => (typeof p?.daily === 'string' ? JSON.parse(p.daily) : p?.daily || {});
+
 /** First gatherable resource in the meadow — handy for collect tests. */
 export function meadowResource(): string {
 	return load('data/biomes.json').find((b) => b.id === 'meadow').resources[0];

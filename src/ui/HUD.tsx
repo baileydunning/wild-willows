@@ -160,33 +160,17 @@ export function HUD() {
 	const isCoop = COOP_ENABLED && !!activeWorld && !activeWorld.solo;
 	const peersHere = bridge.shared.presence?.length || 0;
 
-	// Progressive disclosure: keep the first-run screen calm by revealing toolbar
-	// buttons as they become relevant, instead of dumping every cluster at once.
-	// A button shows once EITHER the tutorial has reached the step that teaches it
-	// OR the player has organically done the thing — so nothing ever stays stuck
-	// hidden if someone ignores, skips, or closes the tutorial (skipping/closing
-	// jumps tutorialStep to DONE, and free-play trips the organic signals anyway).
-	// Old/finished saves (no tutorialStep) default to "done" → everything shows.
-	// Use the FURTHEST step ever reached (tutorialMaxStep), never the live step:
-	// replaying the tutorial from Help rewinds tutorialStep to 0, and keying off
-	// the live value would re-hide menu buttons the player already unlocked.
-	const tutStep = Math.max(state.player.tutorialMaxStep ?? 0, state.player.tutorialStep ?? 99);
-	// Co-op prepends 1–2 intro steps, so the base-arc thresholds shift accordingly.
-	const stepOffset = isCoop ? (activeWorld?.isOwner ? 2 : 1) : 0;
-	const taught = (baseStep: number) => tutStep >= baseStep + stepOffset;
-	const gathered = (state.nodeStates?.length || 0) > 0 || Object.keys(state.player.inventory || {}).length > 0;
-	const crafted = Object.keys(state.player.craftedEver || state.player.craftedItems || {}).length > 0;
-	const discovered = (state.discoveries?.length || 0) > 0;
-	const moreBiomes = (state.player.unlockedBiomes?.length || 0) > 1 || (state.player.visitedBiomes?.length || 0) > 1;
+	// Every top-menu button is visible from the very start — the contextual hints
+	// explain each one the first time it's opened, so nothing needs to be hidden.
 	const show = {
-		feed: taught(1) || (state.feed?.length || 0) > 0,
-		journal: taught(7) || discovered,
-		achievements: taught(16) || state.achievements.length > 0,
-		inventory: taught(1) || gathered || crafted,
-		crafting: taught(12) || gathered || crafted,
-		tools: taught(8) || crafted || moreBiomes,
-		biomes: taught(9) || moreBiomes,
-		weather: taught(10) || moreBiomes,
+		feed: true,
+		journal: true,
+		achievements: true,
+		inventory: true,
+		crafting: true,
+		tools: true,
+		biomes: true,
+		weather: true,
 	};
 
 	const toggle = (id: any) => setPanel(panel === id ? null : id);
