@@ -51,7 +51,7 @@ import {
 import { t as tr } from '../src/i18n/server';
 // Policy pages (privacy / age suitability), inlined from public/*.html by
 // scripts/build-pages.mjs — served as endpoints, see the bottom of this file.
-import { privacyHtml, ageRatingHtml, supportHtml, dashboardHtml, buildStamp } from './pages';
+import { privacyHtml, ageRatingHtml, supportHtml, dashboardHtml, landingHtml, ogImageB64, buildStamp } from './pages';
 
 // Biome ids for the weather block (weather is per-biome; climate differs by
 // biome). Derived once from the static seed data so the weather snapshot stays
@@ -7114,5 +7114,74 @@ class DashboardPage extends PublicEndpoint {
 	}
 }
 
-// Export under the exact URL paths (string export names keep the hyphen).
-export { PrivacyPage as privacy, AgeRatingPage as 'age-rating', SupportPage as support, DashboardPage as dashboard };
+/**
+ * GET / — the public marketing landing page (the face of wild.willows.harperfabric.com).
+ * Self-contained, SEO-optimized static HTML with inlined screenshots, served at the
+ * site root. Registered under the empty-string export name below, which Harper's
+ * router resolves as the explicit root path.
+ */
+class LandingPage extends PublicEndpoint {
+	async get() {
+		return htmlPage(landingHtml);
+	}
+}
+
+// The game's leaf mark, served as a real favicon so it shows in browser tabs and
+// (crawled from /favicon.ico) in Google's search results. SVG scales to any size.
+const FAVICON_SVG =
+	'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">' +
+	'<circle cx="12" cy="12" r="11" fill="#4a7c59"/>' +
+	'<path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg>';
+
+/** GET /favicon.ico · /favicon.svg — the site favicon (Harper strips the extension). */
+class Favicon extends PublicEndpoint {
+	async get() {
+		return {
+			status: 200,
+			headers: { 'content-type': 'image/svg+xml', 'cache-control': 'public, max-age=604800' },
+			body: FAVICON_SVG,
+		};
+	}
+}
+
+/** GET /og-image.jpg — the social/OpenGraph preview image for the landing page. */
+class OgImage extends PublicEndpoint {
+	async get() {
+		return {
+			status: 200,
+			headers: { 'content-type': 'image/jpeg', 'cache-control': 'public, max-age=604800' },
+			body: Buffer.from(ogImageB64, 'base64'),
+		};
+	}
+}
+
+/** GET /theme.mp3 — the game's main theme (Jon Licht), for the landing-page player.
+ * The ~2 MB audio lives in its own module and is dynamic-imported so it never lands
+ * in the web/desktop bundle (this endpoint only ever runs on the hosted Harper). */
+class Theme extends PublicEndpoint {
+	async get() {
+		const { themeMp3B64 } = await import('./theme-audio');
+		return {
+			status: 200,
+			headers: {
+				'content-type': 'audio/mpeg',
+				'cache-control': 'public, max-age=604800',
+				'accept-ranges': 'none',
+			},
+			body: Buffer.from(themeMp3B64, 'base64'),
+		};
+	}
+}
+
+// Export under the exact URL paths (string export names keep the hyphen; the empty
+// name serves the site root, and Harper strips a trailing .ico/.jpg/.svg extension).
+export {
+	LandingPage as '',
+	PrivacyPage as privacy,
+	AgeRatingPage as 'age-rating',
+	SupportPage as support,
+	DashboardPage as dashboard,
+	Favicon as favicon,
+	OgImage as 'og-image',
+	Theme as theme,
+};
