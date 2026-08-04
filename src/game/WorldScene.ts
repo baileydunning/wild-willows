@@ -2533,8 +2533,13 @@ export class WorldScene extends Phaser.Scene {
 		// statistic. Fallen branches are an early staple, so the meadow and forest
 		// keep at least three.
 		const MIN_PER_RESOURCE = 2;
-		const minFor = (r: string) =>
-			r === 'branches' && (this.area === 'meadow' || this.area === 'forest') ? 3 : MIN_PER_RESOURCE;
+		// The meadow is the opening biome: guarantee a comfortable supply of the two
+		// starter staples new caretakers reach for first — plant fiber and water.
+		const minFor = (r: string) => {
+			if (this.area === 'meadow' && (r === 'fiber' || r === 'water')) return 4;
+			if (r === 'branches' && (this.area === 'meadow' || this.area === 'forest')) return 3;
+			return MIN_PER_RESOURCE;
+		};
 		const perResource = new Map<string, number>();
 		for (const n of nodes) perResource.set(n.resourceId, (perResource.get(n.resourceId) || 0) + 1);
 		for (const r of res) {
@@ -2644,6 +2649,16 @@ export class WorldScene extends Phaser.Scene {
 					if (tx < 1 || ty < this.playTop || tx > this.landRight - 2 || ty > this.rows - 2) continue;
 					const key = `${tx},${ty}`;
 					if (occupied.has(key) || taken.has(key) || this.inCamp(tx, ty)) continue;
+					// Don't let gather nodes clump: skip any tile touching an existing node
+					// (Chebyshev-adjacent), matching the spacing the main scatter enforces.
+					let adjacent = false;
+					for (let ax = -1; ax <= 1 && !adjacent; ax++)
+						for (let ay = -1; ay <= 1; ay++)
+							if ((ax || ay) && taken.has(`${tx + ax},${ty + ay}`)) {
+								adjacent = true;
+								break;
+							}
+					if (adjacent) continue;
 					return { tx, ty };
 				}
 			}

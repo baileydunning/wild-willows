@@ -140,6 +140,12 @@ export function GoalsPanel() {
 	// Only the goals still in play — claimed/finished ones drop off the list (and
 	// get pruned from the stored list on the next edit).
 	const active = goals.filter((g) => boardTask(g.id));
+	// Which targets are already active goals — flag them as "added" in the picker
+	// instead of letting you queue an exact duplicate.
+	const pickedItems = new Set(active.filter((g) => g.kind === 'craft').map((g) => g.itemId));
+	const pickedResources = new Set(active.filter((g) => g.kind === 'collect').map((g) => g.resourceId));
+	const pickedTools = new Set(active.filter((g) => g.kind === 'tool').map((g) => g.toolId));
+	const pickedKinds = new Set(active.map((g) => g.kind));
 	// You design your own goals only after finishing the three starters, and can
 	// hold just one home goal (build or upgrade) at a time.
 	const startersDone = !(state.dailyTasks?.tasks || []).some((tk) => tk.id.startsWith('start-'));
@@ -375,8 +381,10 @@ export function GoalsPanel() {
 					</button>
 				</div>
 				<div className="panel-body">
-					<p className="muted">{t('panels.goals.intro')}</p>
-					<div className="goals-slots">{t('panels.goals.slots', { used: active.length, max: limit })}</div>
+					<p className="muted">{startersDone ? t('panels.goals.intro') : t('panels.goals.startersIntro')}</p>
+					{startersDone && (
+						<div className="goals-slots">{t('panels.goals.slots', { used: active.length, max: limit })}</div>
+					)}
 
 					{/* System goals shown read-only: the always-on "unlock the next biome"
 					    (subtly highlighted) and the three starters until they're claimed. */}
@@ -400,8 +408,8 @@ export function GoalsPanel() {
 						</div>
 					)}
 
-					<h3 className="goals-own-head">{t('panels.goals.ownHead')}</h3>
-					{active.length === 0 && <p className="muted small">{t('panels.goals.empty')}</p>}
+					{startersDone && <h3 className="goals-own-head">{t('panels.goals.ownHead')}</h3>}
+					{startersDone && active.length === 0 && <p className="muted small">{t('panels.goals.empty')}</p>}
 					<div className="goals-list">
 						{active.map((g, i) => {
 							const bt = boardTask(g.id);
@@ -454,9 +462,11 @@ export function GoalsPanel() {
 						})}
 					</div>
 
-					<h3>{t('panels.goals.addTitle')}</h3>
+					{startersDone && <h3>{t('panels.goals.addTitle')}</h3>}
 					{!startersDone ? (
-						<p className="muted small">{t('panels.goals.startersFirst')}</p>
+						<p className="muted small goals-unlock-hint">
+							<Icon name="lock" size={13} /> {t('panels.goals.unlockHint')}
+						</p>
 					) : active.length >= limit ? (
 						<p className="muted small">{t('panels.goals.limitReached', { max: limit })}</p>
 					) : (
@@ -464,11 +474,15 @@ export function GoalsPanel() {
 							<div className="craft-filter">
 								<label htmlFor="goal-kind">{t('panels.goals.typeLabel')}</label>
 								<select id="goal-kind" value={kind} onChange={(e) => setKind(e.target.value as CustomGoalKind)}>
-									{kindOptions.map((k) => (
-										<option key={k} value={k}>
-											{t(`panels.goals.type.${k}`)}
-										</option>
-									))}
+									{kindOptions.map((k) => {
+										const taken = (k === 'plant' || k === 'observe' || k === 'welcomeTotal') && pickedKinds.has(k);
+										return (
+											<option key={k} value={k} disabled={taken}>
+												{t(`panels.goals.type.${k}`)}
+												{taken ? ` · ${t('panels.goals.added')}` : ''}
+											</option>
+										);
+									})}
 								</select>
 
 								{kind === 'craft' && (
@@ -478,11 +492,15 @@ export function GoalsPanel() {
 										onChange={(e) => setItemId(e.target.value)}
 									>
 										<option value="">{t('panels.goals.pickItem')}</option>
-										{craftables.map((c) => (
-											<option key={c.id} value={c.id}>
-												{c.name}
-											</option>
-										))}
+										{craftables.map((c) => {
+											const taken = pickedItems.has(c.id);
+											return (
+												<option key={c.id} value={c.id} disabled={taken}>
+													{c.name}
+													{taken ? ` · ${t('panels.goals.added')}` : ''}
+												</option>
+											);
+										})}
 									</select>
 								)}
 								{kind === 'collect' && (
@@ -492,11 +510,15 @@ export function GoalsPanel() {
 										onChange={(e) => setResourceId(e.target.value)}
 									>
 										<option value="">{t('panels.goals.pickResource')}</option>
-										{collectables.map((r) => (
-											<option key={r.id} value={r.id}>
-												{content('resource', r.id, 'name', r.name)}
-											</option>
-										))}
+										{collectables.map((r) => {
+											const taken = pickedResources.has(r.id);
+											return (
+												<option key={r.id} value={r.id} disabled={taken}>
+													{content('resource', r.id, 'name', r.name)}
+													{taken ? ` · ${t('panels.goals.added')}` : ''}
+												</option>
+											);
+										})}
 									</select>
 								)}
 								{kind === 'tool' && (
@@ -507,11 +529,15 @@ export function GoalsPanel() {
 											onChange={(e) => setToolId(e.target.value)}
 										>
 											<option value="">{t('panels.goals.pickTool')}</option>
-											{upgradableTools.map((tl) => (
-												<option key={tl.id} value={tl.id}>
-													{tl.name}
-												</option>
-											))}
+											{upgradableTools.map((tl) => {
+												const taken = pickedTools.has(tl.id);
+												return (
+													<option key={tl.id} value={tl.id} disabled={taken}>
+														{tl.name}
+														{taken ? ` · ${t('panels.goals.added')}` : ''}
+													</option>
+												);
+											})}
 										</select>
 										{(() => {
 											const sel = upgradableTools.find((x) => x.id === toolId);
@@ -701,8 +727,8 @@ export function GoalsPanel() {
 							</button>
 						</div>
 					)}
-					<p className="muted small">{t('panels.goals.rewardNote')}</p>
-					<p className="muted small">{t('panels.goals.moreNote')}</p>
+					{startersDone && <p className="muted small">{t('panels.goals.rewardNote')}</p>}
+					{startersDone && <p className="muted small">{t('panels.goals.moreNote')}</p>}
 				</div>
 			</div>
 		</div>

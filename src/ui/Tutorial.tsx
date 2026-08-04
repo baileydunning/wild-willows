@@ -111,6 +111,20 @@ const BASE_STEPS: StepDef[] = [
 		done: () => false,
 	},
 	{
+		icon: 'tools',
+		key: 'panels.tutorial.toolbelt',
+		hasTouch: true,
+		chapter: 1,
+		done: ({ flags }) => flags.openedTools,
+	},
+	{
+		icon: 'sparkle',
+		key: 'panels.tutorial.menus',
+		hasTouch: true,
+		chapter: 1,
+		done: () => false,
+	},
+	{
 		icon: 'sparkle',
 		key: 'panels.tutorial.coreLoop',
 		hasTouch: true,

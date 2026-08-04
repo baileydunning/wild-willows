@@ -474,10 +474,20 @@
 			"touch": "Last thing — walk back to your camp tent and tap it to step inside. The sign by the tent first builds your tent into a real house (each style has its own perk), then upgrades it along four tracks: Space (a bigger home that lets you carry more), Comfort (strengthens your house perk), Decor, and Light. Higher upgrades open as your biomes get healthier, and inside you can place crafted camp comforts. Step in now — the preserve is all yours. Happy restoring!"
 		},
 		"demoNote": "This is the free demo — restore the meadow to unlock the forest, then explore. The demo wraps up after your first 10 minutes in the forest.",
+		"menus": {
+			"title": "Your menus, up top",
+			"text": "Up top on the right are your menus, grouped by purpose: Learn (field journal, achievements), Build (basket, crafting, tools, goals), and World (the Preserve map, weather). Each one explains itself the first time you open it.",
+			"touch": "Up top on the right are your menus, grouped by purpose: Learn (journal, achievements), Build (basket, crafting, tools, goals), and World (map, weather). Each one explains itself the first time you open it."
+		},
+		"toolbelt": {
+			"title": "Your toolbelt",
+			"text": "Your toolbelt sits at the bottom: 1 basket to gather, 2 shovel to shape soil, 3 watering can for water. Press T to open Tools & Upgrades — spend materials to level each one up, and higher tiers gather more, shape more, and reveal the next area's field guide. Some upgrades open up as a biome gets healthier, so check back as you go.",
+			"touch": "Your toolbelt sits at the bottom: basket to gather, shovel to shape soil, watering can for water. Tap the tools button to open Tools & Upgrades — spend materials to level each one up, and higher tiers gather more, shape more, and reveal the next area's field guide. Some upgrades open up as a biome gets healthier, so check back as you go."
+		},
 		"navigate": {
 			"title": "Find your way around",
-			"text": "Get your bearings. Top-left tracks this meadow — health, balance, animals home, plus the current weather and season. Below it is your goal board: starter tasks now, and goals you set yourself later (press G). Your toolbelt (1 basket · 2 shovel · 3 watering can) sits at the bottom. Up top are your menus, grouped as Learn (field journal, achievements), Build (crafting, tools, goals), and World (the Preserve map, weather). Press H anytime for help — and each menu explains itself the first time you open it.",
-			"touch": "Get your bearings. Top-left tracks this meadow — health, balance, animals home, plus the current weather and season. Below it is your goal board: starter tasks now, and goals you set yourself later. Your toolbelt (basket · shovel · watering can) sits at the bottom. Up top are your menus, grouped as Learn (journal, achievements), Build (crafting, tools, goals), and World (map, weather). Tap the ? button anytime for help — and each menu explains itself the first time you open it."
+			"text": "Get your bearings. Top-left tracks this meadow — health, balance, animals home, plus the current weather and season. Below it is your goal board: starter tasks now, and goals you set yourself later (press G). Press H anytime for help.",
+			"touch": "Get your bearings. Top-left tracks this meadow — health, balance, animals home, plus the current weather and season. Below it is your goal board: starter tasks now, and goals you set yourself later. Tap the ? button anytime for help."
 		},
 		"moreAnimals": {
 			"title": "Bring the meadow home",
@@ -597,7 +607,9 @@
 		"creature": "creature",
 		"rewardNote": "Finishing any goal grants a small bundle of materials — claim it on the board.",
 		"moreNote": "You can hold 3 goals at a time — 6 once the whole preserve is unlocked. Tip: you can also add a goal for a specific animal from its field-journal entry, or a specific item to craft from the crafting menu — look for the target button.",
-		"startersFirst": "Finish your first three goals (seeds, craft, grasshopper) to start designing your own.",
+		"startersIntro": "Your goals live here. Right now these are your first tasks — finish them to earn their rewards.",
+		"unlockHint": "Once you finish these, you'll be able to set goals of your own.",
+		"added": "added",
 		"limitReached": "You're holding all {max} goals at once. Finish or remove one to add another.",
 		"typeLabel": "Goal type:",
 		"type": {
