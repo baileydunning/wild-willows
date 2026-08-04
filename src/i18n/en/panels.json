@@ -130,7 +130,18 @@
 		"addGoal": "Add unlocking {biome} to your goals",
 		"mapAria": "Preserve map — {open} of {total} biomes open",
 		"animalsShort": "{returned}/{total} home",
-		"mapSummary": "{open} of {total} biomes open — restore each to open the next trail."
+		"mapSummary": "{open} of {total} biomes open — restore each to open the next trail.",
+		"viewDetail": "View {biome}",
+		"openTag": "Open",
+		"travelBtn": "Travel",
+		"hereBtn": "Here",
+		"lockedBtn": "Locked",
+		"stage": {
+			"damaged": "Damaged",
+			"recovering": "Recovering",
+			"thriving": "Thriving",
+			"restored": "Restored"
+		}
 	},
 	"home": {
 		"buildTitle": "Build Your Home",
@@ -434,8 +445,8 @@
 		},
 		"placeGrass": {
 			"title": "Place it on the land",
-			"text": "Press “Ready to place,” then click open ground. Watch the meadow's health tick up.",
-			"touch": "Tap “Ready to place,” then tap open ground. Watch the meadow's health tick up."
+			"text": "Press “Ready to place” at the top of the crafting menu, then click open ground. Watch the meadow's health tick up.",
+			"touch": "Tap “Ready to place” at the top of the crafting menu, then tap open ground. Watch the meadow's health tick up."
 		},
 		"proximity": {
 			"title": "Build little neighborhoods",

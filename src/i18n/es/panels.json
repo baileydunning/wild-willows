@@ -130,7 +130,18 @@
 		"addGoal": "Añadir desbloquear {biome} a tus objetivos",
 		"mapAria": "Mapa de la reserva — {open} de {total} biomas abiertos",
 		"animalsShort": "{returned}/{total} en casa",
-		"mapSummary": "{open} de {total} biomas abiertos — restaura cada uno para abrir el siguiente sendero."
+		"mapSummary": "{open} de {total} biomas abiertos — restaura cada uno para abrir el siguiente sendero.",
+		"viewDetail": "Ver {biome}",
+		"openTag": "Abierto",
+		"travelBtn": "Viajar",
+		"hereBtn": "Aquí",
+		"lockedBtn": "Bloqueado",
+		"stage": {
+			"damaged": "Dañado",
+			"recovering": "En recuperación",
+			"thriving": "Próspero",
+			"restored": "Restaurado"
+		}
 	},
 	"home": {
 		"buildTitle": "Construye tu hogar",
@@ -434,8 +445,8 @@
 		},
 		"placeGrass": {
 			"title": "Colócala en la tierra",
-			"text": "Pulsa «Listo para colocar» y haz clic en suelo despejado. Mira subir la salud de la pradera.",
-			"touch": "Toca «Listo para colocar» y toca suelo despejado. Mira subir la salud de la pradera."
+			"text": "Pulsa «Listo para colocar», en la parte superior del menú de Fabricación, y haz clic en suelo despejado. Mira subir la salud de la pradera.",
+			"touch": "Toca «Listo para colocar», en la parte superior del menú de Fabricación, y toca suelo despejado. Mira subir la salud de la pradera."
 		},
 		"proximity": {
 			"title": "Crea pequeños vecindarios",
