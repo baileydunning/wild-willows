@@ -422,6 +422,8 @@
 		"controls": "Controles",
 		"reduceMotion": "Reducir movimiento",
 		"reduceMotionHint": "Detiene las animaciones de la interfaz, las partículas del clima como la lluvia y la nieve, los desplazamientos de cámara al viajar y el ciclo de luz de día y noche — la vista se mantiene quieta y con luz uniforme.",
+		"interactHint": "Resaltado de interacción",
+		"interactHintHint": "Muestra el aro y la tecla sobre los objetos con los que puedes interactuar.",
 		"colorblind": "Modo daltónico",
 		"colorblindOff": "Desactivado",
 		"colorblindRedGreen": "Rojo–verde",

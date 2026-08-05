@@ -51,8 +51,8 @@ const VIEW_H = 20;
 // drawSurround) sized to cover the widest possible camera view, so the space
 // past the edge reads as more preserve — you just can't walk there
 // (handleMovement clamps at the true edge).
-const SURROUND_X = 20; // tiles of surround left/right (≥ half the widest view)
-const SURROUND_Y = 14; // tiles of surround above/below (≥ half the tallest view)
+const SURROUND_X = 26; // tiles of surround left/right (≥ half the widest view)
+const SURROUND_Y = 18; // tiles of surround above/below (≥ half the tallest view)
 const MTN_ROWS = 8; // rows reserved for the alpine mountain range (impassable) — a tall, close range
 const COAST_COLS = 4; // columns reserved for the ocean along Pelican Shore's east edge (impassable)
 
@@ -82,12 +82,12 @@ let weatherShownThisSession = false;
 
 // Player-chosen zoom (+/− keys), multiplied onto the normal window zoom.
 // Module-scoped so it survives area changes; every session starts back at
-// normal (1). Exactly one step out and one step in from "perfect" — a nudge,
-// not a telescope. ZOOM_STEP is both the per-press factor and the range bound,
-// so one press reaches the limit either way.
+// normal (1). Up to two steps out and two steps in from "perfect" — a nudge,
+// not a telescope. ZOOM_STEP is the per-press factor; the range spans two presses
+// each way (SURROUND_X/Y are sized to cover the widest of those views).
 const ZOOM_STEP = 1.25;
-const USER_ZOOM_MIN = 1 / ZOOM_STEP;
-const USER_ZOOM_MAX = ZOOM_STEP;
+const USER_ZOOM_MIN = 1 / (ZOOM_STEP * ZOOM_STEP);
+const USER_ZOOM_MAX = ZOOM_STEP * ZOOM_STEP;
 let userZoom = 1;
 
 function hashStr(s: string): number {
@@ -516,6 +516,8 @@ export class WorldScene extends Phaser.Scene {
 				color: '#f0e8d4',
 				fontStyle: 'bold',
 			})
+			// render the key at the texture supersample density so it stays crisp when zoomed in
+			.setResolution(TEX_SCALE)
 			.setOrigin(0.5);
 		this.highlight = this.add.container(0, 0, [ring, badgeBg, badgeText]).setDepth(6000).setVisible(false);
 		this.interactBadge = badgeText;
@@ -1671,7 +1673,7 @@ export class WorldScene extends Phaser.Scene {
 		if (hasLamp) stamp(x, y, WorldScene.LAMP_MASK, Math.min(0.8, depth * 0.9));
 		// steady light — no flicker; the lit edge holds still so night reads calmly
 		fires.forEach((f) => {
-			stamp(f.x, f.y - 6, WorldScene.FIRE_MASK, Math.min(1, depth * 1.35));
+			stamp(f.x, f.y, WorldScene.FIRE_MASK, Math.min(1, depth * 1.35));
 		});
 		if (!this.lightOverlay!.mask) this.lightOverlay!.setMask(this.lightBitmapMask);
 	}
@@ -2234,13 +2236,22 @@ export class WorldScene extends Phaser.Scene {
 			const fx = CAMP.fire.x * TILE,
 				fy = CAMP.fire.y * TILE;
 			const fireGlow = this.addDyn(
-				this.img(fx, fy - 4, 'glow')
+				this.img(fx, fy, 'glow')
 					.setTint(0xffb84f)
 					.setDepth(fy - 1)
 					.setScale(1.3 * INV_TEX_SCALE),
 			);
 			(fireGlow as Phaser.GameObjects.Image).setBlendMode(Phaser.BlendModes.ADD);
 			this.addDyn(this.img(fx, fy, 'campfire').setDepth(fy));
+			// bright core layered ABOVE the fire so the peak brightness sits on the flame
+			const fireCore = this.addDyn(
+				this.img(fx, fy, 'glow')
+					.setTint(0xffd98a)
+					.setDepth(fy + 2)
+					.setAlpha(0.4)
+					.setScale(0.55 * INV_TEX_SCALE),
+			);
+			(fireCore as Phaser.GameObjects.Image).setBlendMode(Phaser.BlendModes.ADD);
 
 			const gx = (this.cols - 1.2) * TILE;
 			const gy = this.dimsOf(this.area).gateY * TILE;
@@ -2515,7 +2526,7 @@ export class WorldScene extends Phaser.Scene {
 			attempts++;
 			const tx = 1 + Math.floor(rng() * (this.landRight - 3));
 			const ty = this.playTop + 1 + Math.floor(rng() * (this.rows - this.playTop - 3));
-			if (this.inCamp(tx, ty)) continue;
+			if (this.inCamp(tx, ty) || this.nearGate(tx, ty)) continue;
 			if (nodes.some((n) => Math.abs(n.tx - tx) < 2 && Math.abs(n.ty - ty) < 2)) continue;
 			const resourceId = pool[nodes.length] || res[nodes.length % res.length];
 			nodes.push({ id: `n${nodes.length}`, resourceId, tx, ty });
@@ -2648,6 +2659,14 @@ export class WorldScene extends Phaser.Scene {
 		);
 	}
 
+	/** Keep gather nodes clear of the gate openings (both edges, at the gate row)
+	 *  so nothing spawns blocking the way into the next/previous biome. */
+	private nearGate(tx: number, ty: number): boolean {
+		const gy = this.dimsOf(this.area).gateY;
+		if (Math.abs(ty - gy) > 2) return false;
+		return tx < 4 || tx > this.landRight - 4;
+	}
+
 	/** Nearest in-bounds tile (ring search) that isn't built on or used by another node. */
 	private findFreeTile(
 		cx: number,
@@ -2663,7 +2682,7 @@ export class WorldScene extends Phaser.Scene {
 					const ty = cy + dy;
 					if (tx < 1 || ty < this.playTop || tx > this.landRight - 2 || ty > this.rows - 2) continue;
 					const key = `${tx},${ty}`;
-					if (occupied.has(key) || taken.has(key) || this.inCamp(tx, ty)) continue;
+					if (occupied.has(key) || taken.has(key) || this.inCamp(tx, ty) || this.nearGate(tx, ty)) continue;
 					// Don't let gather nodes clump: skip any tile touching an existing node
 					// (Chebyshev-adjacent), matching the spacing the main scatter enforces.
 					let adjacent = false;
@@ -2735,7 +2754,7 @@ export class WorldScene extends Phaser.Scene {
 					else
 						bridge.emit('toast', {
 							text: t('game.toast.stillRegrowing'),
-							kind: 'info',
+							kind: 'error',
 						});
 				},
 			};
@@ -3146,17 +3165,18 @@ export class WorldScene extends Phaser.Scene {
 			// the light mask also carves the dark away here.
 			if (p.objectId === 'campfire') {
 				const glow = this.addDyn(
-					this.img(x, y - 4, 'glow')
+					this.img(x, y, 'glow')
 						.setTint(0xffb84f)
 						.setDepth(y - 1)
 						.setScale(1.7 * INV_TEX_SCALE),
 				) as Phaser.GameObjects.Image;
 				glow.setBlendMode(Phaser.BlendModes.ADD);
 				const core = this.addDyn(
-					this.img(x, y - 4, 'glow')
+					this.img(x, y, 'glow')
 						.setTint(0xffd98a)
-						.setDepth(y - 1)
-						.setScale(0.9 * INV_TEX_SCALE),
+						.setDepth(y + 2)
+						.setAlpha(0.4)
+						.setScale(0.55 * INV_TEX_SCALE),
 				) as Phaser.GameObjects.Image;
 				core.setBlendMode(Phaser.BlendModes.ADD);
 			}
@@ -4114,7 +4134,7 @@ export class WorldScene extends Phaser.Scene {
 		}
 
 		// pulsing highlight on whatever you can interact with right now
-		if (focus) {
+		if (focus && getPrefs().interactHint !== false) {
 			this.highlight.setVisible(true).setPosition(focus.x, focus.y + 2);
 		} else {
 			this.highlight.setVisible(false);

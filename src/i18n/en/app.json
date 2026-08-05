@@ -422,6 +422,8 @@
 		"controls": "Controls",
 		"reduceMotion": "Reduce motion",
 		"reduceMotionHint": "Stops UI animations, weather particles like rain and snow, camera pans when you travel, and the day-and-night lighting cycle — the view stays still and evenly lit.",
+		"interactHint": "Interaction highlight",
+		"interactHintHint": "Show the pulsing ring and key badge over things you can interact with.",
 		"colorblind": "Colorblind mode",
 		"colorblindOff": "Off",
 		"colorblindRedGreen": "Red–green",

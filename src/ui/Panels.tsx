@@ -587,6 +587,9 @@ export function CraftingPanel() {
 							const def = data.habitatObjects.find((o) => o.id === r.output.itemId);
 							const made = alreadyMade(r);
 							const ok = canCraft(r) && !made;
+							const goalAdded = (state.customGoals || []).some(
+								(g) => g.kind === 'craft' && g.itemId === r.output.itemId,
+							);
 							return (
 								<div className={`recipe ${ok || made ? '' : 'recipe-off'}`} key={r.id}>
 									{/* the same sprite the world will draw once it's placed */}
@@ -638,8 +641,9 @@ export function CraftingPanel() {
 										{!(r.once && made) && !canCraft(r) && !unlockKitIds.has(r.output.itemId) && (
 											<button
 												className="icon-btn subtle add-goal-btn"
-												title={t('panels.crafting.addGoal')}
-												aria-label={t('panels.crafting.addGoal')}
+												disabled={goalAdded}
+												title={goalAdded ? t('panels.goals.alreadyAdded') : t('panels.crafting.addGoal')}
+												aria-label={goalAdded ? t('panels.goals.alreadyAdded') : t('panels.crafting.addGoal')}
 												onClick={() => addGoal({ kind: 'craft', itemId: r.output.itemId, target: 1 })}
 											>
 												<Icon name="target" size={13} />
@@ -924,6 +928,7 @@ export function BiomesPanel() {
 								<p>{content('biome', biome.id, 'unlock.label', biome.unlock.label)}</p>
 								<button
 									className="bd-addgoal"
+									disabled={(state.customGoals || []).some((g) => g.kind === 'unlock' && g.biomeId === biome.id)}
 									onClick={() => addGoal({ kind: 'unlock', target: 1, biomeId: biome.id })}
 								>
 									<Icon name="plus" size={12} /> {t('panels.biomes.addGoal', { biome: biomeName })}
@@ -1089,7 +1094,13 @@ export function HomePanel() {
 											<Icon name="target" size={13} />
 										</button>
 									)}
-									<button disabled={!gateMet || !afford} onClick={() => setHomeStyle(id)}>
+									<button
+										disabled={!gateMet || !afford}
+										onClick={async () => {
+											await setHomeStyle(id);
+											setPanel(null); // building your house closes the upgrade menu
+										}}
+									>
 										{t('panels.home.build')}
 									</button>
 								</div>

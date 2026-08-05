@@ -406,8 +406,8 @@
 		},
 		"water": {
 			"title": "Shape water",
-			"text": "Water a bed again to flood it. Flood a few tiles together to make a pond, river, or lake — many animals need water.",
-			"touch": "Water a bed again to flood it. Flood a few tiles together to make a pond, river, or lake — many animals need water."
+			"text": "Water a bed again to flood it. Flood a few tiles together to make a pond, river, or lake — many animals need water. Keep in mind some ponds for habitats are crafted.",
+			"touch": "Water a bed again to flood it. Flood a few tiles together to make a pond, river, or lake — many animals need water. Keep in mind some ponds for habitats are crafted."
 		},
 		"journal": {
 			"title": "Open your field journal",
@@ -465,7 +465,7 @@
 		},
 		"goals": {
 			"title": "Set your own goals",
-			"text": "The board at the left is your task list. Start with these first goals — gather seeds, craft something, welcome the grasshopper home. Once they're done, you set your own goals (press G) to play the preserve your way.",
+			"text": "The board at the left is your task list. Start with these first goals — gather seeds, craft something, welcome the grasshopper home. Once they're done, you set your own goals to play the preserve your way.",
 			"touch": "The board at the left is your task list. Start with these first goals — gather seeds, craft something, welcome the grasshopper home. Once they're done, you set your own goals to play the preserve your way."
 		},
 		"home": {
@@ -486,7 +486,7 @@
 		},
 		"navigate": {
 			"title": "Find your way around",
-			"text": "Get your bearings. Top-left tracks this meadow — health, balance, animals home, plus the current weather and season. Below it is your goal board: starter tasks now, and goals you set yourself later (press G). Press H anytime for help.",
+			"text": "Get your bearings. Top-left tracks this meadow — health, balance, animals home, plus the current weather and season. Below it is your goal board: starter tasks now, and goals you set yourself later. Press H anytime for help.",
 			"touch": "Get your bearings. Top-left tracks this meadow — health, balance, animals home, plus the current weather and season. Below it is your goal board: starter tasks now, and goals you set yourself later. Tap the ? button anytime for help."
 		},
 		"moreAnimals": {
@@ -610,6 +610,7 @@
 		"startersIntro": "Your goals live here. Right now these are your first tasks — finish them to earn their rewards.",
 		"unlockHint": "Once you finish these, you'll be able to set goals of your own.",
 		"added": "added",
+		"alreadyAdded": "Already a goal",
 		"limitReached": "You're holding all {max} goals at once. Finish or remove one to add another.",
 		"typeLabel": "Goal type:",
 		"type": {

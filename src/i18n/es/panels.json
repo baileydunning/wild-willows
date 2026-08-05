@@ -406,8 +406,8 @@
 		},
 		"water": {
 			"title": "Da forma al agua",
-			"text": "Riega un lecho otra vez para inundarlo. Une varias casillas para hacer un estanque, río o lago: muchos animales necesitan agua.",
-			"touch": "Riega un lecho otra vez para inundarlo. Une varias casillas para hacer un estanque, río o lago: muchos animales necesitan agua."
+			"text": "Riega un lecho otra vez para inundarlo. Une varias casillas para hacer un estanque, río o lago: muchos animales necesitan agua. Ten en cuenta que algunos estanques para hábitats se fabrican.",
+			"touch": "Riega un lecho otra vez para inundarlo. Une varias casillas para hacer un estanque, río o lago: muchos animales necesitan agua. Ten en cuenta que algunos estanques para hábitats se fabrican."
 		},
 		"journal": {
 			"title": "Abre tu diario de campo",
@@ -465,7 +465,7 @@
 		},
 		"goals": {
 			"title": "Fija tus propios objetivos",
-			"text": "El tablero de la izquierda es tu lista de tareas. Empieza con estos primeros objetivos — recolecta semillas, fabrica algo, dale la bienvenida al saltamontes. Cuando los completes, fijas tus propios objetivos (presiona G) para jugar la reserva a tu manera.",
+			"text": "El tablero de la izquierda es tu lista de tareas. Empieza con estos primeros objetivos — recolecta semillas, fabrica algo, dale la bienvenida al saltamontes. Cuando los completes, fijas tus propios objetivos para jugar la reserva a tu manera.",
 			"touch": "El tablero de la izquierda es tu lista de tareas. Empieza con estos primeros objetivos — recolecta semillas, fabrica algo, dale la bienvenida al saltamontes. Cuando los completes, fijas tus propios objetivos para jugar la reserva a tu manera."
 		},
 		"home": {
@@ -486,7 +486,7 @@
 		},
 		"navigate": {
 			"title": "Orientarte en la pantalla",
-			"text": "Ubícate. Arriba a la izquierda ves la salud, el equilibrio y los animales de la pradera, además del clima y la estación actuales. Debajo está tu tablero de objetivos: tareas sencillas al principio y metas que tú fijas después (pulsa G). Pulsa H para ayuda.",
+			"text": "Ubícate. Arriba a la izquierda ves la salud, el equilibrio y los animales de la pradera, además del clima y la estación actuales. Debajo está tu tablero de objetivos: tareas sencillas al principio y metas que tú fijas después. Pulsa H para ayuda.",
 			"touch": "Ubícate. Arriba a la izquierda ves la salud, el equilibrio y los animales de la pradera, además del clima y la estación actuales. Debajo está tu tablero de objetivos: tareas sencillas al principio y metas que tú fijas después. Toca el botón ? para ayuda."
 		},
 		"moreAnimals": {
@@ -610,6 +610,7 @@
 		"startersIntro": "Tus objetivos están aquí. Por ahora, estas son tus primeras tareas: complétalas para ganar sus recompensas.",
 		"unlockHint": "Cuando completes estas, podrás fijar tus propios objetivos.",
 		"added": "añadido",
+		"alreadyAdded": "Ya es un objetivo",
 		"limitReached": "Ya tienes los {max} objetivos a la vez. Termina o quita uno para añadir otro.",
 		"typeLabel": "Tipo de objetivo:",
 		"type": {

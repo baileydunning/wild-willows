@@ -33,6 +33,8 @@ export interface Prefs {
 	sfxVolume: number;
 	/** Custom key bindings: action id -> key token. Empty = built-in defaults. */
 	keybinds: Record<string, string[]>;
+	/** Show the pulsing ring + key badge over the nearest interactable. */
+	interactHint: boolean;
 }
 
 /** The zoom factor applied to the UI overlays for each text-size step. */
@@ -51,6 +53,7 @@ const DEFAULTS: Prefs = {
 	musicVolume: 0.6,
 	sfxVolume: 0.75,
 	keybinds: {},
+	interactHint: true,
 };
 
 /** Clamp an arbitrary value to a 0–1 volume, falling back when it isn't a number. */
@@ -108,6 +111,7 @@ export function normalizePrefs(raw: any, fallbackReduce = false): Prefs {
 		musicVolume: normalizeVolume(o.musicVolume, DEFAULTS.musicVolume),
 		sfxVolume: normalizeVolume(o.sfxVolume, DEFAULTS.sfxVolume),
 		keybinds: normalizeKeybinds(o.keybinds),
+		interactHint: typeof o.interactHint === 'boolean' ? o.interactHint : DEFAULTS.interactHint,
 	};
 }
 

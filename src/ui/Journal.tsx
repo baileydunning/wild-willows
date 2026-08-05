@@ -294,13 +294,14 @@ function FoodWebLinks({ animal }: { animal: AnimalDef }) {
  * ecology (role, diet, food web, field note) lives on the card, not here.
  */
 function JournalEntry({ animal, disc, full }: { animal: AnimalDef; disc?: Discovery; full: boolean }) {
-	const { observe, addGoal } = useGame();
+	const { observe, addGoal, state } = useGame();
 	// Adding an undiscovered animal makes a single "Attract a mystery {kind}" goal
 	// whose hover box shows the habitat checklist (0/1 rock pile, …). addGoal
 	// handles the concurrent cap + dedupe + toast.
 	const addAttractGoal = () => {
 		void addGoal({ kind: 'attract', animalId: animal.id, target: 1 });
 	};
+	const alreadyGoal = (state?.customGoals || []).some((g) => g.kind === 'attract' && g.animalId === animal.id);
 	if (!disc) {
 		return (
 			<div className="journal-entry entry-unknown">
@@ -314,8 +315,9 @@ function JournalEntry({ animal, disc, full }: { animal: AnimalDef; disc?: Discov
 				</div>
 				<button
 					className="icon-btn subtle add-goal-btn"
-					title={t('panels.journal.addGoal')}
-					aria-label={t('panels.journal.addGoal')}
+					disabled={alreadyGoal}
+					title={alreadyGoal ? t('panels.goals.alreadyAdded') : t('panels.journal.addGoal')}
+					aria-label={alreadyGoal ? t('panels.goals.alreadyAdded') : t('panels.journal.addGoal')}
 					onClick={addAttractGoal}
 				>
 					<Icon name="target" size={14} />
@@ -498,7 +500,13 @@ export function JournalPanel() {
 	const cur = journalNav.current();
 	const [tab, setTab] = useState<string>(cur?.kind === 'view' ? cur.tab : state?.player.area || 'meadow');
 	const [view, setView] = useState<'list' | 'web'>(cur?.kind === 'view' ? cur.view : 'list');
-	const [unknownFirst, setUnknownFirst] = useState(false);
+	const [unknownFirst, setUnknownFirst] = useState(() => {
+		try {
+			return localStorage.getItem('wild-willows:journal-unknown-first') === '1';
+		} catch {
+			return false;
+		}
+	});
 	const [query, setQuery] = useState('');
 	// Every tab/view you land on becomes a stop on the history trail. Visits
 	// triggered BY back/forward match the current stop and are no-ops.
@@ -642,7 +650,17 @@ export function JournalPanel() {
 							{!isOverview && view === 'list' && (
 								<button
 									className={`chip-toggle ${unknownFirst ? 'on' : ''}`}
-									onClick={() => setUnknownFirst((v) => !v)}
+									onClick={() =>
+										setUnknownFirst((v) => {
+											const nv = !v;
+											try {
+												localStorage.setItem('wild-willows:journal-unknown-first', nv ? '1' : '0');
+											} catch {
+												/* ignore */
+											}
+											return nv;
+										})
+									}
 									title={t('panels.journal.unknownFirstTitle')}
 								>
 									<Icon name="paw" size={12} /> {t('panels.journal.unknownFirst')}
