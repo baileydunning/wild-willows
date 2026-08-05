@@ -14,6 +14,8 @@ import {
 	phaseAtProgress,
 } from '../weather';
 import { Icon } from './icons';
+import { BIND_ACTIONS, getBindings, keyLabel } from '../keybindings';
+import { usePrefs } from '../prefs';
 import { TasksWidget } from './TasksWidget';
 
 export function Meter({
@@ -116,6 +118,7 @@ export function HUD() {
 		activeWorldId,
 	} = useGame();
 	const { t, content } = useI18n();
+	usePrefs(); // re-render nav key caps when bindings change
 	const [prompt, setPrompt] = useState('');
 	// The top-right menu can be tucked away so it's out of the scene.
 	const [navOpen, setNavOpen] = useState(true);
@@ -173,17 +176,25 @@ export function HUD() {
 	};
 
 	const toggle = (id: any) => setPanel(panel === id ? null : id);
-	const navBtn = (id: any, icon: string, label: string, keyHint?: string) => (
-		<button
-			className={`icon-btn ${panel === id ? 'on' : ''}`}
-			onClick={() => toggle(id)}
-			title={label}
-			aria-label={label}
-		>
-			<Icon name={icon} />
-			{keyHint && <span className="nav-key">{keyHint}</span>}
-		</button>
-	);
+	// Show each menu's CURRENT key (custom bindings included), matched by panel id.
+	const keyForPanel = (panelId: string): string | undefined => {
+		const a = BIND_ACTIONS.find((x) => x.panel === panelId);
+		return a ? keyLabel(getBindings()[a.id][0]) : undefined;
+	};
+	const navBtn = (id: any, icon: string, label: string, keyHint?: string) => {
+		const shownKey = keyForPanel(id) ?? keyHint;
+		return (
+			<button
+				className={`icon-btn ${panel === id ? 'on' : ''}`}
+				onClick={() => toggle(id)}
+				title={label}
+				aria-label={label}
+			>
+				<Icon name={icon} />
+				{shownKey && <span className="nav-key">{shownKey}</span>}
+			</button>
+		);
+	};
 
 	return (
 		<>

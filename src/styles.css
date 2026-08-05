@@ -5153,3 +5153,78 @@ kbd {
 }
 .hud-demo-goal-track .pip.on { background: var(--green-2); }
 .hud-demo-goal.done .pip.on { background: var(--green); }
+
+/* ---- Keybinding editor (Settings → Controls) ---- */
+.keybinds {
+	display: flex;
+	flex-direction: column;
+	gap: 10px;
+}
+.keybind-group {
+	display: flex;
+	flex-direction: column;
+	gap: 2px;
+}
+.keybind-cat {
+	font-family: var(--font-display);
+	font-size: calc(11px * var(--ui-scale));
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--ink-soft);
+	margin-top: 6px;
+}
+.keybind-row {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	padding: 5px 2px;
+	border-bottom: 1px solid var(--line);
+}
+.keybind-label {
+	font-size: calc(13.5px * var(--ui-scale));
+	color: var(--ink);
+}
+.keybind-keys {
+	display: flex;
+	gap: 6px;
+	align-items: center;
+}
+.keybind-key {
+	min-width: 54px;
+	padding: 5px 12px;
+	border: 1.5px solid var(--line);
+	border-radius: 9px;
+	background: var(--cream);
+	font-weight: 800;
+	font-size: calc(13px * var(--ui-scale));
+	color: var(--ink);
+	cursor: pointer;
+	text-align: center;
+}
+.keybind-key:hover {
+	border-color: var(--green-deep);
+}
+.keybind-key.listening {
+	border-color: var(--gold);
+	background: rgba(201, 145, 63, 0.14);
+	color: var(--gold);
+	animation: keybind-pulse 1s ease-in-out infinite;
+}
+@keyframes keybind-pulse {
+	0%,
+	100% {
+		opacity: 1;
+	}
+	50% {
+		opacity: 0.55;
+	}
+}
+.keybind-warn {
+	color: var(--gold);
+}
+.keybind-actions {
+	display: flex;
+	justify-content: flex-end;
+	margin-top: 2px;
+}

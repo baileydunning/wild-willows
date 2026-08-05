@@ -25,6 +25,7 @@ import {
 } from '../weather';
 import { t, content } from '../i18n';
 import { getPrefs, subscribe as subscribePrefs } from '../prefs';
+import { getBindings, keyCodeFor, keyLabel } from '../keybindings';
 import { gearOn, subscribe as subscribeGear } from '../gear';
 import { isTypingTarget } from '../typing';
 import { harvestReadyAt } from '../types';
@@ -130,6 +131,14 @@ export class WorldScene extends Phaser.Scene {
 	private walkT = 0;
 	private walkAudioActive = false;
 	private keys!: any;
+	private moveKeys: {
+		up: Phaser.Input.Keyboard.Key[];
+		down: Phaser.Input.Keyboard.Key[];
+		left: Phaser.Input.Keyboard.Key[];
+		right: Phaser.Input.Keyboard.Key[];
+		interact: Phaser.Input.Keyboard.Key[];
+	} = { up: [], down: [], left: [], right: [], interact: [] };
+	private interactBadge?: Phaser.GameObjects.Text;
 	private groundTiles: Phaser.GameObjects.Image[] = [];
 	// Living vegetation out in the unwalkable surround/edge — tinted from dead
 	// (brown) to alive as the biome's health rises, so the whole world beyond the
@@ -423,7 +432,12 @@ export class WorldScene extends Phaser.Scene {
 		this.cameras.main.startFollow(this.player, true, 0.12, 0.12);
 		this.startLeaves();
 
-		this.keys = this.input.keyboard!.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,E,SPACE,ESC,SHIFT');
+		// Arrows, Space, Esc, Shift are fixed. Movement (WASD by default) and the
+		// interact key are player-rebindable (see keybindings.ts); the arrows always
+		// move too, so a rebind can never strand the player. Rebuilt on any prefs change.
+		this.keys = this.input.keyboard!.addKeys('UP,DOWN,LEFT,RIGHT,SPACE,ESC,SHIFT');
+		this.rebindMoveKeys();
+		this.unsubs.push(subscribePrefs(() => this.rebindMoveKeys()));
 		this.input.keyboard!.on('keydown-ESC', () => {
 			if (this.placementObjectId || this.movingPlacementId) bridge.emit('placement-exited');
 		});
@@ -496,7 +510,7 @@ export class WorldScene extends Phaser.Scene {
 		const ring = this.img(0, 0, 'ring').setTint(0xffe9a8);
 		const badgeBg = this.add.circle(0, -30, 9.5, 0x2b3321, 0.92).setStrokeStyle(1.5, 0xffe9a8, 1);
 		const badgeText = this.add
-			.text(0, -30, this.isTouch ? '·' : 'E', {
+			.text(0, -30, this.isTouch ? '·' : this.interactHintKey(), {
 				fontFamily: 'Quicksand, sans-serif',
 				fontSize: '11px',
 				color: '#f0e8d4',
@@ -504,6 +518,7 @@ export class WorldScene extends Phaser.Scene {
 			})
 			.setOrigin(0.5);
 		this.highlight = this.add.container(0, 0, [ring, badgeBg, badgeText]).setDepth(6000).setVisible(false);
+		this.interactBadge = badgeText;
 		const ringPulse = this.tweens.add({
 			targets: ring,
 			scale: { from: 0.92 * INV_TEX_SCALE, to: 1.08 * INV_TEX_SCALE },
@@ -3917,18 +3932,50 @@ export class WorldScene extends Phaser.Scene {
 		bridge.emit('audio-walk', { active });
 	}
 
+	/** The compact interact key to show in-world — prefer a real key over the wide
+	 *  word "Space", so the little hover badge never overflows. */
+	private interactHintKey(): string {
+		const toks = getBindings().interact;
+		return keyLabel(toks.find((tk) => tk !== 'space') || toks[0] || 'e');
+	}
+
+	private rebindMoveKeys() {
+		const kb = this.input.keyboard;
+		if (!kb) return;
+		// Never remove/destroy the fixed keys (arrows/Space/Esc/Shift) — Phaser keeps
+		// one Key per code, so a rebind onto an arrow shares the scene's arrow key.
+		const FIXED = new Set([16, 27, 32, 37, 38, 39, 40]);
+		for (const arr of Object.values(this.moveKeys))
+			for (const key of arr) if (!FIXED.has(key.keyCode)) kb.removeKey(key, true);
+		const b = getBindings();
+		const build = (tokens: string[]): Phaser.Input.Keyboard.Key[] =>
+			tokens
+				.map((tok) => keyCodeFor(tok))
+				.filter((c): c is number => c != null)
+				.map((c) => kb.addKey(c));
+		this.moveKeys = {
+			up: build(b.moveUp),
+			down: build(b.moveDown),
+			left: build(b.moveLeft),
+			right: build(b.moveRight),
+			interact: build(b.interact),
+		};
+		if (this.interactBadge && !this.isTouch) this.interactBadge.setText(this.interactHintKey());
+	}
+
 	private handleMovement(dt: number) {
 		if (this.sleeping) {
 			this.setWalkAudio(false);
 			return;
 		} // can't roam while asleep
-		const k = this.keys;
 		let vx = 0,
 			vy = 0;
-		if (k.A.isDown || k.LEFT.isDown) vx -= 1;
-		if (k.D.isDown || k.RIGHT.isDown) vx += 1;
-		if (k.W.isDown || k.UP.isDown) vy -= 1;
-		if (k.S.isDown || k.DOWN.isDown) vy += 1;
+		const mk = this.moveKeys;
+		const held = (arr: Phaser.Input.Keyboard.Key[]) => arr.some((key) => key.isDown);
+		if (held(mk.left)) vx -= 1;
+		if (held(mk.right)) vx += 1;
+		if (held(mk.up)) vy -= 1;
+		if (held(mk.down)) vy += 1;
 		// virtual joystick (mobile)
 		const joy = bridge.shared.joy;
 		if (vx === 0 && vy === 0 && (Math.abs(joy.x) > 0.15 || Math.abs(joy.y) > 0.15)) {
@@ -4087,7 +4134,7 @@ export class WorldScene extends Phaser.Scene {
 			this.tileCursor.setVisible(false);
 		}
 
-		const verb = this.isTouch ? t('game.prompt.tap') : 'E';
+		const verb = this.isTouch ? t('game.prompt.tap') : this.interactHintKey();
 		const clickVerb = this.isTouch ? t('game.prompt.tap') : t('game.prompt.click');
 		const lowVerb = this.isTouch ? t('game.prompt.tapLower') : t('game.prompt.clickLower');
 		const rotHint = !this.isTouch && this.activeRotatable() ? t('game.prompt.rotateHint') : '';
@@ -4109,7 +4156,8 @@ export class WorldScene extends Phaser.Scene {
 			this.lastPrompt = prompt;
 			bridge.emit('prompt', prompt);
 		}
-		if (near && (Phaser.Input.Keyboard.JustDown(this.keys.E) || Phaser.Input.Keyboard.JustDown(this.keys.SPACE))) {
+		const interactPressed = this.moveKeys.interact.some((key) => Phaser.Input.Keyboard.JustDown(key));
+		if (near && interactPressed) {
 			near.action();
 		}
 	}

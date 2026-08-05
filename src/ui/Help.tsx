@@ -2,7 +2,8 @@ import { useGame } from '../state';
 import { COOP_ENABLED } from '../features';
 import { DEMO } from '../demo';
 import { useI18n } from '../i18n/react';
-import { visibleShortcuts } from '../shortcuts';
+import { visibleShortcuts, shortcutKeys } from '../shortcuts';
+import { usePrefs } from '../prefs';
 import { savedTutorialPos } from './Tutorial';
 import { Icon } from './icons';
 
@@ -30,6 +31,7 @@ const MORE: Array<{ icon: string; key: string }> = [
 export function HelpModal() {
 	const { helpOpen, setHelpOpen, setTutorialStep, state, worlds, activeWorldId } = useGame();
 	const { t } = useI18n();
+	usePrefs(); // reflect live key bindings
 	if (!helpOpen) return null;
 	// In solo play there's no People/invite system, so drop those keys entirely.
 	const activeWorld = worlds?.find((w) => w.worldId === activeWorldId);
@@ -106,7 +108,7 @@ export function HelpModal() {
 						{keys.map((k) => (
 							<div className="key-row" key={k.does}>
 								<span className="kbds">
-									{k.keys.map((key) => (
+									{shortcutKeys(k).map((key) => (
 										<kbd key={key}>{key}</kbd>
 									))}
 								</span>

@@ -2,6 +2,8 @@
 // Play modal (Help.tsx) and the Settings "Controls" section render this table,
 // so the two can never drift apart. `does` is an i18n key (panels.help.keys.*);
 // the literal key caps stay as-is and aren't translated.
+import { getBindings, keyLabel } from './keybindings';
+
 export interface Shortcut {
 	keys: string[];
 	does: string;
@@ -10,7 +12,6 @@ export interface Shortcut {
 export const SHORTCUTS: Shortcut[] = [
 	{ keys: ['W', 'A', 'S', 'D'], does: 'panels.help.keys.move' },
 	{ keys: ['E'], does: 'panels.help.keys.interact' },
-	{ keys: ['Space'], does: 'panels.help.keys.space' },
 	{ keys: ['Click'], does: 'panels.help.keys.click' },
 	{ keys: ['Shift', 'Click'], does: 'panels.help.keys.shiftClick' },
 	{ keys: ['\\'], does: 'panels.help.keys.rotate' },
@@ -36,4 +37,36 @@ export const SHORTCUTS: Shortcut[] = [
  *  applies to co-op worlds, so it's dropped in solo play. */
 export function visibleShortcuts(isCoop: boolean): Shortcut[] {
 	return SHORTCUTS.filter((s) => isCoop || !s.keys.includes('U'));
+}
+
+// Which bindable action(s) each controls-row maps to, so the How to Play table
+// shows the player's CURRENT keys, not the built-in defaults. Rows not listed
+// here (Space, Click, rotate, zoom, Esc, Tab) are fixed and shown as authored.
+const DOES_ACTIONS: Record<string, string[]> = {
+	'panels.help.keys.move': ['moveUp', 'moveLeft', 'moveDown', 'moveRight'],
+	'panels.help.keys.interact': ['interact'],
+	'panels.help.keys.toolSelect': ['tool1', 'tool2', 'tool3', 'tool4'],
+	'panels.help.keys.crafting': ['crafting'],
+	'panels.help.keys.basket': ['basket'],
+	'panels.help.keys.journal': ['journal'],
+	'panels.help.keys.achievements': ['achievements'],
+	'panels.help.keys.goals': ['goals'],
+	'panels.help.keys.feed': ['feed'],
+	'panels.help.keys.tools': ['tools'],
+	'panels.help.keys.preserve': ['preserve'],
+	'panels.help.keys.weather': ['weather'],
+	'panels.help.keys.people': ['people'],
+	'panels.help.keys.settings': ['settings'],
+	'panels.help.keys.help': ['help'],
+};
+
+/** The key caps to show for a controls row — live bindings when it maps to
+ *  rebindable actions, otherwise the fixed caps it was authored with. */
+export function shortcutKeys(s: Shortcut): string[] {
+	const ids = DOES_ACTIONS[s.does];
+	if (!ids) return s.keys;
+	const b = getBindings();
+	const out: string[] = [];
+	for (const id of ids) for (const tok of b[id] || []) out.push(keyLabel(tok));
+	return out;
 }

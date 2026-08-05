@@ -7,6 +7,15 @@ import { useGame } from '../state';
 import { hasKey, LOCALE_NAMES, chooseLocale } from '../i18n';
 import { useI18n } from '../i18n/react';
 import { usePrefs, setPrefs, type TextScale, type ColorblindMode } from '../prefs';
+import {
+	BIND_ACTIONS,
+	getBindings,
+	setBinding,
+	resetBindings,
+	tokenFromEvent,
+	keyLabel,
+	type BindCategory,
+} from '../keybindings';
 import type { Appearance, AppearanceOptions } from '../types';
 import { CharacterPreview, Icon } from './icons';
 
@@ -353,6 +362,86 @@ export function SoundControls() {
 	);
 }
 
+/** Keybinding editor: rebind any movement / tool / panel key. Rebinds swap on
+ *  conflict; the arrow keys always move as a fixed fallback (see keybindings.ts). */
+export function KeybindingControls() {
+	const { t } = useI18n();
+	usePrefs(); // re-render when a binding changes
+	const { worlds, activeWorldId } = useGame();
+	const isCoop = !!worlds.find((w) => w.worldId === activeWorldId && !w.solo);
+	const [listening, setListening] = useState<string | null>(null);
+	const [warn, setWarn] = useState(false);
+
+	// While listening, capture the next key in the capture phase and stop it before
+	// the global panel/tool shortcut handler in App can act on it.
+	useEffect(() => {
+		if (!listening) return;
+		const onKey = (e: KeyboardEvent) => {
+			e.preventDefault();
+			e.stopImmediatePropagation();
+			if (e.key === 'Escape') {
+				setListening(null);
+				setWarn(false);
+				return;
+			}
+			const token = tokenFromEvent(e);
+			if (!token) {
+				setWarn(true);
+				return;
+			}
+			const [bindId, slotStr] = listening.split('#');
+			setBinding(bindId, Number(slotStr), token);
+			setListening(null);
+			setWarn(false);
+		};
+		window.addEventListener('keydown', onKey, true);
+		return () => window.removeEventListener('keydown', onKey, true);
+	}, [listening]);
+
+	const binds = getBindings();
+	const cats: BindCategory[] = ['movement', 'action', 'tools', 'panels'];
+	return (
+		<div className="keybinds">
+			{cats.map((cat) => (
+				<div className="keybind-group" key={cat}>
+					<div className="keybind-cat">{t(`app.settings.keybinds.cat.${cat}`)}</div>
+					{BIND_ACTIONS.filter((a) => a.category === cat && !(a.coopOnly && !isCoop)).map((a) => (
+						<div className="keybind-row" key={a.id}>
+							<span className="keybind-label">{t(a.label)}</span>
+							<span className="keybind-keys">
+								{binds[a.id].map((tok, slot) => {
+									const sel = `${a.id}#${slot}`;
+									return (
+										<button
+											key={slot}
+											type="button"
+											className={`keybind-key ${listening === sel ? 'listening' : ''}`}
+											onClick={() => {
+												setWarn(false);
+												setListening((cur) => (cur === sel ? null : sel));
+											}}
+											aria-label={t('app.settings.keybinds.rebindAria', { action: t(a.label) })}
+										>
+											{listening === sel ? t('app.settings.keybinds.press') : keyLabel(tok)}
+										</button>
+									);
+								})}
+							</span>
+						</div>
+					))}
+				</div>
+			))}
+			{warn && <p className="muted small keybind-warn">{t('app.settings.keybinds.unsupported')}</p>}
+			<div className="keybind-actions">
+				<button type="button" className="link" onClick={() => resetBindings()}>
+					{t('app.settings.keybinds.reset')}
+				</button>
+			</div>
+			<p className="muted small">{t('app.settings.keybinds.note')}</p>
+		</div>
+	);
+}
+
 export function SettingsPanel() {
 	const { state, setPanel, notify, refresh, logout } = useGame();
 	const { t, locale } = useI18n();
@@ -542,6 +631,11 @@ export function SettingsPanel() {
 						<Icon name="sliders" size={15} /> {t('app.settings.accessibility')}
 					</h3>
 					<AccessibilityControls />
+
+					<h3>
+						<Icon name="sliders" size={15} /> {t('app.settings.keybinds.title')}
+					</h3>
+					<KeybindingControls />
 
 					{isSolo && (
 						<>

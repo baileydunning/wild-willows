@@ -31,6 +31,8 @@ export interface Prefs {
 	musicVolume: number;
 	/** Sound-effects level, 0–1. */
 	sfxVolume: number;
+	/** Custom key bindings: action id -> key token. Empty = built-in defaults. */
+	keybinds: Record<string, string[]>;
 }
 
 /** The zoom factor applied to the UI overlays for each text-size step. */
@@ -48,6 +50,7 @@ const DEFAULTS: Prefs = {
 	sfxEnabled: true,
 	musicVolume: 0.6,
 	sfxVolume: 0.75,
+	keybinds: {},
 };
 
 /** Clamp an arbitrary value to a 0–1 volume, falling back when it isn't a number. */
@@ -67,6 +70,18 @@ function systemReduceMotion(): boolean {
 /** Coerce an arbitrary stored/patched blob into a valid Prefs. Unknown or
  *  missing fields fall back (reduceMotion falls back to the OS setting on a
  *  fresh install so motion-sensitive players get sensible defaults). */
+function normalizeKeybinds(raw: any): Record<string, string[]> {
+	const out: Record<string, string[]> = {};
+	if (raw && typeof raw === 'object')
+		for (const [k, v] of Object.entries(raw)) {
+			if (Array.isArray(v)) {
+				const toks = v.filter((x): x is string => typeof x === 'string');
+				if (toks.length) out[k] = toks;
+			} else if (typeof v === 'string') out[k] = [v];
+		}
+	return out;
+}
+
 export function normalizePrefs(raw: any, fallbackReduce = false): Prefs {
 	const o = raw && typeof raw === 'object' ? raw : {};
 	const dyslexiaFont = typeof o.dyslexiaFont === 'boolean' ? o.dyslexiaFont : DEFAULTS.dyslexiaFont;
@@ -92,6 +107,7 @@ export function normalizePrefs(raw: any, fallbackReduce = false): Prefs {
 		sfxEnabled: typeof o.sfxEnabled === 'boolean' ? o.sfxEnabled : DEFAULTS.sfxEnabled,
 		musicVolume: normalizeVolume(o.musicVolume, DEFAULTS.musicVolume),
 		sfxVolume: normalizeVolume(o.sfxVolume, DEFAULTS.sfxVolume),
+		keybinds: normalizeKeybinds(o.keybinds),
 	};
 }
 
