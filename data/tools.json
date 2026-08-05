@@ -140,7 +140,7 @@
 					"materials": {
 						"clay": 6,
 						"fiber": 3,
-						"rainwater": 4
+						"water": 4
 					},
 					"requires": {
 						"biome": "meadow",

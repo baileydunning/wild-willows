@@ -248,7 +248,7 @@ export function gatherResourceFor(
 export { gatherResourceIdFor, weatherGatherMap, SEASONS, WEATHER_TYPES };
 
 // --- continuous day/night lighting -----------------------------------------
-const DAY_PHASE_BANDS: { id: string; until: number }[] = (weatherConfig.config?.dayPhases as any[]) || [
+export const DAY_PHASE_BANDS: { id: string; until: number }[] = (weatherConfig.config?.dayPhases as any[]) || [
 	{ id: 'dawn', until: 0.15 },
 	{ id: 'day', until: 0.6 },
 	{ id: 'dusk', until: 0.72 },

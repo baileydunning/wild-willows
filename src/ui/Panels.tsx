@@ -587,6 +587,9 @@ export function CraftingPanel() {
 							const def = data.habitatObjects.find((o) => o.id === r.output.itemId);
 							const made = alreadyMade(r);
 							const ok = canCraft(r) && !made;
+							const goalAdded = (state.customGoals || []).some(
+								(g) => g.kind === 'craft' && g.itemId === r.output.itemId,
+							);
 							return (
 								<div className={`recipe ${ok || made ? '' : 'recipe-off'}`} key={r.id}>
 									{/* the same sprite the world will draw once it's placed */}
@@ -638,8 +641,9 @@ export function CraftingPanel() {
 										{!(r.once && made) && !canCraft(r) && !unlockKitIds.has(r.output.itemId) && (
 											<button
 												className="icon-btn subtle add-goal-btn"
-												title={t('panels.crafting.addGoal')}
-												aria-label={t('panels.crafting.addGoal')}
+												disabled={goalAdded}
+												title={goalAdded ? t('panels.goals.alreadyAdded') : t('panels.crafting.addGoal')}
+												aria-label={goalAdded ? t('panels.goals.alreadyAdded') : t('panels.crafting.addGoal')}
 												onClick={() => addGoal({ kind: 'craft', itemId: r.output.itemId, target: 1 })}
 											>
 												<Icon name="target" size={13} />
@@ -797,20 +801,160 @@ export function ToolsPanel() {
 }
 
 export function BiomesPanel() {
-	const { data, state, setPanel, changeArea } = useGame();
+	const { data, state, setPanel, changeArea, addGoal } = useGame();
 	const { t, content } = useI18n();
+	// Which biome's detail is shown below the map. `null` means "use the default"
+	// (the biome you're standing in, else the first open one, else the first).
+	const [sel, setSel] = useState<string | null>(null);
 	if (!data || !state) return null;
 	const here = state.player.area;
 	const ordered = [...data.biomes].sort((a, b) => a.order - b.order);
 	const openCount = ordered.filter((b) => state.player.unlockedBiomes.includes(b.id)).length;
+	const defaultSel =
+		ordered.find((b) => b.id === here)?.id ||
+		ordered.find((b) => state.player.unlockedBiomes.includes(b.id))?.id ||
+		ordered[0]?.id ||
+		null;
+	const activeSel = sel && ordered.some((b) => b.id === sel) ? sel : defaultSel;
+	const selected = ordered.find((b) => b.id === activeSel) || ordered[0];
+
+	// --- detail for the one selected biome (master–detail: the map is the picker,
+	//     this card is the only prose on screen at a time) ---
+	const renderDetail = () => {
+		if (!selected) return null;
+		const biome = selected;
+		const bs = state.biomeStates.find((x) => x.biomeId === biome.id);
+		const unlocked = state.player.unlockedBiomes.includes(biome.id);
+		const isHere = biome.id === here;
+		const total = data.animals.filter((a) => a.biome === biome.id).length;
+		const canTravel = unlocked && biome.explorable && !isHere;
+		const biomeName = content('biome', biome.id, 'name', biome.name);
+		const travelTitle = isHere
+			? t('panels.biomes.youAreHere')
+			: !unlocked
+				? t('panels.biomes.lockedTitle', { biome: biomeName })
+				: t('panels.biomes.travelTo', { biome: biomeName });
+		const tag = isHere ? (
+			<span className="bd-tag bd-tag-here">
+				<Icon name="pin" size={12} /> {t('panels.biomes.hereTag')}
+			</span>
+		) : !biome.explorable ? (
+			<span className="bd-tag bd-tag-soon">
+				<Icon name="sparkle" size={12} /> {t('panels.biomes.comingSoon')}
+			</span>
+		) : !unlocked ? (
+			<span className="bd-tag bd-tag-locked">
+				<Icon name="lock" size={12} /> {t('panels.biomes.locked')}
+			</span>
+		) : (
+			<span className="bd-tag bd-tag-open">
+				<Icon name="leaf" size={12} /> {t('panels.biomes.openTag')}
+			</span>
+		);
+		return (
+			<div className="biome-detail" key={biome.id}>
+				<div className="bd-head">
+					<div className="grow">
+						<h3 className="bd-title">
+							<span className="bd-badge" style={{ background: biome.palette?.healthy || '#8fbf6f' }}>
+								<Icon name={`biome-${biome.id}`} size={17} />
+							</span>
+							{biomeName} {tag}
+						</h3>
+						<p className="muted small bd-desc">{content('biome', biome.id, 'description', biome.description)}</p>
+					</div>
+					<button
+						className="bd-travel"
+						disabled={!canTravel}
+						title={travelTitle}
+						aria-label={travelTitle}
+						onClick={async () => {
+							setPanel(null);
+							await changeArea(biome.id);
+						}}
+					>
+						<Icon name={isHere ? 'pin' : unlocked ? 'walk' : 'lock'} size={16} />
+						<span>
+							{isHere
+								? t('panels.biomes.hereBtn')
+								: canTravel
+									? t('panels.biomes.travelBtn')
+									: t('panels.biomes.lockedBtn')}
+						</span>
+					</button>
+				</div>
+
+				{unlocked && bs ? (
+					<>
+						<div className="bd-animals">
+							<Icon name="paw" size={13} /> {t('panels.biomes.animalsReturned', { returned: bs.returnedCount, total })}
+						</div>
+						<Meter label={t('panels.biomes.health')} icon="leaf" value={bs.health} color="#6aa253" />
+						<Meter label={t('panels.biomes.balance')} icon="drop" value={bs.balance} color="#5b9cab" />
+						{/* health has hit its animal-return cap: explain the plateau
+						    instead of leaving the bar mysteriously stuck */}
+						{(() => {
+							const m = nextHealthMilestone(bs.returnedCount);
+							return m && Math.round(bs.health) >= m.cap ? (
+								<div className="muted small health-gate-note">
+									<Icon name="paw" size={11} />{' '}
+									{t('panels.biomes.healthGated', { cap: m.cap, animals: m.animals - bs.returnedCount })}
+								</div>
+							) : null;
+						})()}
+						<div className="bd-goal">
+							<div className="bd-goal-label">
+								<Icon name="target" size={12} /> {t('panels.biomes.goal')}
+							</div>
+							<p>{content('biome', biome.id, 'restorationGoal', biome.restorationGoal)}</p>
+						</div>
+						{BIOME_LORE[biome.id] && (
+							<div className="biome-lore small">
+								<div className="bd-stage">{t(`panels.biomes.stage.${loreStage(bs.health)}`)}</div>
+								<p>{BIOME_LORE[biome.id][loreStage(bs.health)]}</p>
+								<p className="biome-coexist">
+									<Icon name="paw" size={12} /> {BIOME_LORE[biome.id].coexistence}
+								</p>
+							</div>
+						)}
+					</>
+				) : (
+					<>
+						{biome.explorable && !unlocked && biome.unlock && (
+							<div className="bd-goal bd-unlock">
+								<div className="bd-goal-label">
+									<Icon name="lock" size={12} /> {t('panels.biomes.toUnlock')}
+								</div>
+								<p>{content('biome', biome.id, 'unlock.label', biome.unlock.label)}</p>
+								<button
+									className="bd-addgoal"
+									disabled={(state.customGoals || []).some((g) => g.kind === 'unlock' && g.biomeId === biome.id)}
+									onClick={() => addGoal({ kind: 'unlock', target: 1, biomeId: biome.id })}
+								>
+									<Icon name="plus" size={12} /> {t('panels.biomes.addGoal', { biome: biomeName })}
+								</button>
+							</div>
+						)}
+						<div className="bd-goal">
+							<div className="bd-goal-label">
+								<Icon name="target" size={12} /> {t('panels.biomes.goal')}
+							</div>
+							<p>{content('biome', biome.id, 'restorationGoal', biome.restorationGoal)}</p>
+						</div>
+					</>
+				)}
+			</div>
+		);
+	};
+
 	return (
 		<Panel title={t('panels.biomes.title')} icon="map" onClose={() => setPanel(null)} wide>
 			{/* Illustrated trail map: the six biomes as waypoints along a path, each a
 			    health-ring badge (filled by restoration), linked by trail segments that
-			    light up as you open the next area. Tap an open, non-current one to travel. */}
+			    light up as you open the next area. Tap any stop to read its detail below. */}
 			<div
 				className="preserve-map"
-				role="img"
+				role="tablist"
 				aria-label={t('panels.biomes.mapAria', { open: openCount, total: ordered.length })}
 			>
 				{ordered.map((biome, i) => {
@@ -820,36 +964,35 @@ export function BiomesPanel() {
 					const total = data.animals.filter((a) => a.biome === biome.id).length;
 					const color = biome.palette?.healthy || '#8fbf6f';
 					const health = unlocked && bs ? Math.round(bs.health) : 0;
-					const canTravel = unlocked && biome.explorable && !isHere;
+					const isSel = biome.id === activeSel;
 					const biomeName = content('biome', biome.id, 'name', biome.name);
-					const glyph = isHere ? 'pin' : !unlocked ? 'lock' : 'leaf';
+					const glyph = unlocked ? `biome-${biome.id}` : 'lock';
 					const sub = unlocked
 						? t('panels.biomes.animalsShort', { returned: bs?.returnedCount || 0, total })
 						: biome.explorable
 							? t('panels.biomes.locked')
 							: t('panels.biomes.comingSoon');
-					const title = isHere
-						? t('panels.biomes.youAreHere')
-						: canTravel
-							? t('panels.biomes.travelTo', { biome: biomeName })
-							: t('panels.biomes.lockedTitle', { biome: biomeName });
+					const title = isHere ? t('panels.biomes.youAreHere') : t('panels.biomes.viewDetail', { biome: biomeName });
 					return (
 						<React.Fragment key={biome.id}>
 							{i > 0 && <span className={`pm-link ${unlocked ? 'pm-link-open' : ''}`} />}
 							<button
-								className={`pm-stop ${unlocked ? '' : 'pm-locked'} ${isHere ? 'pm-here' : ''}`}
-								disabled={!canTravel}
+								className={`pm-stop ${unlocked ? '' : 'pm-locked'} ${isHere ? 'pm-here' : ''} ${isSel ? 'pm-selected' : ''}`}
+								role="tab"
+								aria-selected={isSel}
 								title={title}
 								aria-label={title}
-								onClick={async () => {
-									setPanel(null);
-									await changeArea(biome.id);
-								}}
+								onClick={() => setSel(biome.id)}
 								style={{ ['--c' as any]: color, ['--h' as any]: health }}
 							>
 								<span className="pm-ring">
 									<span className="pm-disc">
-										<Icon name={glyph} size={18} />
+										<Icon name={glyph} size={22} />
+										{isHere && (
+											<span className="pm-here-badge">
+												<Icon name="pin" size={11} />
+											</span>
+										)}
 									</span>
 								</span>
 								<span className="pm-name">{biomeName}</span>
@@ -863,88 +1006,7 @@ export function BiomesPanel() {
 				{t('panels.biomes.mapSummary', { open: openCount, total: ordered.length })}
 			</p>
 
-			{ordered.map((biome) => {
-				const bs = state.biomeStates.find((x) => x.biomeId === biome.id);
-				const unlocked = state.player.unlockedBiomes.includes(biome.id);
-				const total = data.animals.filter((a) => a.biome === biome.id).length;
-				const isHere = biome.id === here;
-				const canTravel = unlocked && biome.explorable && !isHere;
-				const biomeName = content('biome', biome.id, 'name', biome.name);
-				const travelTitle = isHere
-					? t('panels.biomes.youAreHere')
-					: !unlocked
-						? t('panels.biomes.lockedTitle', { biome: biomeName })
-						: t('panels.biomes.travelTo', { biome: biomeName });
-				return (
-					<div className={`biome-row ${unlocked && biome.explorable ? '' : 'biome-locked'}`} key={biome.id}>
-						<div className="grow">
-							<b>{biomeName}</b>{' '}
-							{!biome.explorable ? (
-								<span className="lock soon">
-									<Icon name="sparkle" size={12} /> {t('panels.biomes.comingSoon')}
-								</span>
-							) : !unlocked ? (
-								<span className="lock">
-									<Icon name="lock" size={12} /> {t('panels.biomes.locked')}
-								</span>
-							) : isHere ? (
-								<span className="lock soon">
-									<Icon name="pin" size={12} /> {t('panels.biomes.hereTag')}
-								</span>
-							) : null}
-							<div className="muted small">{content('biome', biome.id, 'description', biome.description)}</div>
-							<div className="muted small">
-								<b>{t('panels.biomes.goal')}</b> {content('biome', biome.id, 'restorationGoal', biome.restorationGoal)}
-							</div>
-							{biome.explorable && !unlocked && biome.unlock && (
-								<div className="small unlock-req">
-									<b>{t('panels.biomes.toUnlock')}</b> {content('biome', biome.id, 'unlock.label', biome.unlock.label)}
-								</div>
-							)}
-							{unlocked && bs && (
-								<>
-									<Meter label={t('panels.biomes.health')} icon="leaf" value={bs.health} color="#6aa253" />
-									<Meter label={t('panels.biomes.balance')} icon="drop" value={bs.balance} color="#5b9cab" />
-									<div className="muted small">
-										{t('panels.biomes.animalsReturned', { returned: bs.returnedCount, total })}
-									</div>
-									{/* health has hit its animal-return cap: explain the plateau
-									    instead of leaving the bar mysteriously stuck */}
-									{(() => {
-										const m = nextHealthMilestone(bs.returnedCount);
-										return m && Math.round(bs.health) >= m.cap ? (
-											<div className="muted small health-gate-note">
-												<Icon name="paw" size={11} />{' '}
-												{t('panels.biomes.healthGated', { cap: m.cap, animals: m.animals - bs.returnedCount })}
-											</div>
-										) : null;
-									})()}
-									{BIOME_LORE[biome.id] && (
-										<div className="biome-lore small">
-											<p>{BIOME_LORE[biome.id][loreStage(bs.health)]}</p>
-											<p className="biome-coexist">
-												<Icon name="paw" size={12} /> {BIOME_LORE[biome.id].coexistence}
-											</p>
-										</div>
-									)}
-								</>
-							)}
-						</div>
-						<button
-							className="travel-icon"
-							disabled={!canTravel}
-							aria-label={travelTitle}
-							title={travelTitle}
-							onClick={async () => {
-								setPanel(null);
-								await changeArea(biome.id);
-							}}
-						>
-							<Icon name={isHere ? 'pin' : 'walk'} size={18} />
-						</button>
-					</div>
-				);
-			})}
+			{renderDetail()}
 		</Panel>
 	);
 }
@@ -1032,7 +1094,13 @@ export function HomePanel() {
 											<Icon name="target" size={13} />
 										</button>
 									)}
-									<button disabled={!gateMet || !afford} onClick={() => setHomeStyle(id)}>
+									<button
+										disabled={!gateMet || !afford}
+										onClick={async () => {
+											await setHomeStyle(id);
+											setPanel(null); // building your house closes the upgrade menu
+										}}
+									>
 										{t('panels.home.build')}
 									</button>
 								</div>

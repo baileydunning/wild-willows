@@ -7,6 +7,55 @@ import { bridge } from '../game/bridge';
 import type { Appearance } from '../types';
 
 const PATHS: Record<string, React.ReactNode> = {
+	'biome-meadow': (
+		<>
+			<g transform="rotate(0 12 12)">
+				<ellipse cx="12" cy="6.4" rx="2" ry="3.1" />
+			</g>
+			<g transform="rotate(72 12 12)">
+				<ellipse cx="12" cy="6.4" rx="2" ry="3.1" />
+			</g>
+			<g transform="rotate(144 12 12)">
+				<ellipse cx="12" cy="6.4" rx="2" ry="3.1" />
+			</g>
+			<g transform="rotate(216 12 12)">
+				<ellipse cx="12" cy="6.4" rx="2" ry="3.1" />
+			</g>
+			<g transform="rotate(288 12 12)">
+				<ellipse cx="12" cy="6.4" rx="2" ry="3.1" />
+			</g>
+			<circle cx="12" cy="12" r="2.1" />
+		</>
+	),
+	'biome-forest': <path d="M12 2.5 7 10h2.6l-3.2 5.2H10V20h4v-4.8h3.6L14.4 10H17z" />,
+	'biome-wetland': (
+		<>
+			<rect x="7.7" y="3.4" width="3" height="5.4" rx="1.5" />
+			<path d="M9.2 21V9" />
+			<rect x="13.3" y="2" width="3" height="5.4" rx="1.5" />
+			<path d="M14.8 21V7.4" />
+			<path d="M9.2 13.5c-1.7-.2-3-1.6-3.2-3.4 1.7.2 3 1.5 3.2 3.4z" />
+		</>
+	),
+	'biome-desert': (
+		<>
+			<path d="M12 21V4" />
+			<path d="M12 12.5H8.6V8.3" />
+			<path d="M12 10H15.6V5.6" />
+		</>
+	),
+	'biome-alpine': (
+		<>
+			<path d="M2.5 20 9 8l3.6 6 2.3-3.4L21.5 20z" />
+			<path d="M6.6 13.6 9 9.6l2.2 3.6" />
+		</>
+	),
+	'biome-coastal': (
+		<>
+			<path d="M2.5 11.5c2.2 0 2.8-2.1 4.9-2.1s2.8 2.1 4.9 2.1 2.8-2.1 4.9-2.1 2.8 2.1 4.4 2.1" />
+			<path d="M2.5 16.5c2.2 0 2.8-1.9 4.9-1.9s2.8 1.9 4.9 1.9 2.8-1.9 4.9-1.9 2.8 1.9 4.4 1.9" />
+		</>
+	),
 	basket: (
 		<>
 			<path d="M4 10h16l-1.6 9a2 2 0 0 1-2 1.7H7.6a2 2 0 0 1-2-1.7L4 10Z" />

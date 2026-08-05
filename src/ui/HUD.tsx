@@ -12,8 +12,11 @@ import {
 	liveDayPhase,
 	dayPhaseStyle,
 	phaseAtProgress,
+	DAY_PHASE_BANDS,
 } from '../weather';
 import { Icon } from './icons';
+import { BIND_ACTIONS, getBindings, keyLabel } from '../keybindings';
+import { usePrefs } from '../prefs';
 import { TasksWidget } from './TasksWidget';
 
 export function Meter({
@@ -57,6 +60,32 @@ export function Meter({
  * the whole-hour time (e.g. 14:00) and step the bar by the hour — so it advances
  * calmly once a minute and never jitters as the underlying clock is re-estimated.
  */
+// Bar colors approximating the sky's light at each phase, so the day-timer track
+// reads as a real day — dark at night, bright at midday, warm at dawn/dusk.
+const PHASE_LIGHT: Record<string, string> = {
+	night: '#3c4677',
+	dawn: '#f3b57e',
+	day: '#f7e6a8',
+	dusk: '#e79a5c',
+};
+// A left→right gradient across the whole day cycle, built from the SAME phase
+// bands the clock uses: each phase holds its color across its span and blends at
+// the edges, so the lit stretch of the bar lines up with when it's actually light.
+function dayLightGradient(): string {
+	const stops: string[] = [];
+	let prev = 0;
+	for (const b of DAY_PHASE_BANDS) {
+		const color = PHASE_LIGHT[b.id] || PHASE_LIGHT.night;
+		const inset = Math.min(0.03, (b.until - prev) * 0.4);
+		stops.push(`${color} ${((prev + inset) * 100).toFixed(2)}%`);
+		stops.push(`${color} ${((b.until - inset) * 100).toFixed(2)}%`);
+		prev = b.until;
+	}
+	return `linear-gradient(90deg, ${stops.join(', ')})`;
+}
+// bands are static config — compute the gradient once
+const DAY_LIGHT_GRADIENT = dayLightGradient();
+
 function DayTimer() {
 	const { state } = useGame();
 	const { t } = useI18n();
@@ -89,7 +118,7 @@ function DayTimer() {
 	const pct = (hour / 24) * 100; // stepped — moves once per in-game hour
 	return (
 		<div className="hud-daytimer" title={t('app.hud.dayTimerTitle')}>
-			<div className={`daytimer-track ${night ? 'night' : ''}`}>
+			<div className={`daytimer-track ${night ? 'night' : ''}`} style={{ background: DAY_LIGHT_GRADIENT }}>
 				<div className="daytimer-fill" style={{ width: `${pct}%` }} />
 				<span className="daytimer-knob" style={{ left: `${pct}%` }}>
 					<Icon name={night ? 'star' : 'sun'} size={10} />
@@ -116,6 +145,7 @@ export function HUD() {
 		activeWorldId,
 	} = useGame();
 	const { t, content } = useI18n();
+	usePrefs(); // re-render nav key caps when bindings change
 	const [prompt, setPrompt] = useState('');
 	// The top-right menu can be tucked away so it's out of the scene.
 	const [navOpen, setNavOpen] = useState(true);
@@ -173,17 +203,25 @@ export function HUD() {
 	};
 
 	const toggle = (id: any) => setPanel(panel === id ? null : id);
-	const navBtn = (id: any, icon: string, label: string, keyHint?: string) => (
-		<button
-			className={`icon-btn ${panel === id ? 'on' : ''}`}
-			onClick={() => toggle(id)}
-			title={label}
-			aria-label={label}
-		>
-			<Icon name={icon} />
-			{keyHint && <span className="nav-key">{keyHint}</span>}
-		</button>
-	);
+	// Show each menu's CURRENT key (custom bindings included), matched by panel id.
+	const keyForPanel = (panelId: string): string | undefined => {
+		const a = BIND_ACTIONS.find((x) => x.panel === panelId);
+		return a ? keyLabel(getBindings()[a.id][0]) : undefined;
+	};
+	const navBtn = (id: any, icon: string, label: string, keyHint?: string) => {
+		const shownKey = keyForPanel(id) ?? keyHint;
+		return (
+			<button
+				className={`icon-btn ${panel === id ? 'on' : ''}`}
+				onClick={() => toggle(id)}
+				title={label}
+				aria-label={label}
+			>
+				<Icon name={icon} />
+				{shownKey && <span className="nav-key">{shownKey}</span>}
+			</button>
+		);
+	};
 
 	return (
 		<>

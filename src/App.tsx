@@ -4,6 +4,7 @@ import { applyAudioPrefs, bindGameAudio, primeAudio, setAmbienceActive, setMusic
 import { bridge } from './game/bridge';
 import { PhaserGame } from './game/PhaserGame';
 import { usePrefs } from './prefs';
+import { actionForToken, BIND_ACTIONS, tokenFromEvent } from './keybindings';
 import { GameProvider, useGame } from './state';
 import { useI18n } from './i18n/react';
 import { liveDayPhase, liveWeatherType } from './weather';
@@ -319,39 +320,17 @@ function GameScreen() {
 				else if (placementObjectId) cancelPlacement();
 				return;
 			}
-			// H toggles the How-to-Play help modal (it isn't a panel).
-			if (k === 'h') {
+			// Resolve the pressed key against the player's (customizable) bindings:
+			// help is a modal, panels toggle, tools select. Movement/interact live in the
+			// game scene. See src/keybindings.ts.
+			const boundAction = actionForToken(tokenFromEvent(e));
+			if (boundAction === 'help') {
 				game.setHelpOpen(!game.helpOpen);
 				return;
 			}
-			// B = basket, J = journal, K = achievements, F = feed, T = tools,
-			// M = map/preserve (P kept as a legacy alias), N = weather & seasons,
-			// G = goals, C = crafting (I = basket alias), O = options/settings (gear).
-			// The daily task board's collapse toggle is Tab, handled in TasksWidget.
-			const map: Record<string, any> = {
-				b: 'inventory',
-				i: 'inventory',
-				j: 'journal',
-				k: 'achievements',
-				f: 'feed',
-				t: 'tools',
-				m: 'biomes',
-				p: 'biomes',
-				g: 'goals',
-				c: 'crafting',
-				u: 'people',
-				n: 'weather',
-				o: 'settings',
-			};
-			if (map[k]) setPanel(panel === map[k] ? null : map[k]);
-			// number keys select toolbelt tools
-			const toolByKey: Record<string, string> = {
-				'1': 'basket',
-				'2': 'shovel',
-				'3': 'watering-can',
-				'4': 'paint',
-			};
-			if (toolByKey[k]) game.setSelectedTool(toolByKey[k]);
+			const boundDef = boundAction ? BIND_ACTIONS.find((a) => a.id === boundAction) : null;
+			if (boundDef?.panel) setPanel(panel === boundDef.panel ? null : (boundDef.panel as typeof panel));
+			if (boundDef?.tool) game.setSelectedTool(boundDef.tool);
 		};
 		window.addEventListener('keydown', onKey);
 		return () => window.removeEventListener('keydown', onKey);

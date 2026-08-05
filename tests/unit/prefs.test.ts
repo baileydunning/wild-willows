@@ -35,6 +35,8 @@ describe('accessibility prefs', () => {
 			sfxEnabled: true,
 			musicVolume: 0.6,
 			sfxVolume: 0.75,
+			keybinds: {},
+			interactHint: true,
 		});
 		expect(normalizePrefs('nonsense')).toEqual({
 			reduceMotion: false,
@@ -45,6 +47,8 @@ describe('accessibility prefs', () => {
 			sfxEnabled: true,
 			musicVolume: 0.6,
 			sfxVolume: 0.75,
+			keybinds: {},
+			interactHint: true,
 		});
 		// bad textScale falls back; a valid colorblind mode is preserved
 		expect(normalizePrefs({ textScale: 'huge', colorblindMode: 'blueyellow' })).toEqual({
@@ -56,6 +60,8 @@ describe('accessibility prefs', () => {
 			sfxEnabled: true,
 			musicVolume: 0.6,
 			sfxVolume: 0.75,
+			keybinds: {},
+			interactHint: true,
 		});
 		// unknown mode falls back to off
 		expect(normalizePrefs({ colorblindMode: 'nope' }).colorblindMode).toBe('off');
@@ -106,6 +112,8 @@ describe('accessibility prefs', () => {
 			sfxEnabled: true,
 			musicVolume: 0.6,
 			sfxVolume: 0.75,
+			keybinds: {},
+			interactHint: true,
 		});
 	});
 

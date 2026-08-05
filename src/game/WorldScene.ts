@@ -25,6 +25,7 @@ import {
 } from '../weather';
 import { t, content } from '../i18n';
 import { getPrefs, subscribe as subscribePrefs } from '../prefs';
+import { getBindings, keyCodeFor, keyLabel } from '../keybindings';
 import { gearOn, subscribe as subscribeGear } from '../gear';
 import { isTypingTarget } from '../typing';
 import { harvestReadyAt } from '../types';
@@ -50,8 +51,8 @@ const VIEW_H = 20;
 // drawSurround) sized to cover the widest possible camera view, so the space
 // past the edge reads as more preserve — you just can't walk there
 // (handleMovement clamps at the true edge).
-const SURROUND_X = 20; // tiles of surround left/right (≥ half the widest view)
-const SURROUND_Y = 14; // tiles of surround above/below (≥ half the tallest view)
+const SURROUND_X = 26; // tiles of surround left/right (≥ half the widest view)
+const SURROUND_Y = 18; // tiles of surround above/below (≥ half the tallest view)
 const MTN_ROWS = 8; // rows reserved for the alpine mountain range (impassable) — a tall, close range
 const COAST_COLS = 4; // columns reserved for the ocean along Pelican Shore's east edge (impassable)
 
@@ -81,12 +82,12 @@ let weatherShownThisSession = false;
 
 // Player-chosen zoom (+/− keys), multiplied onto the normal window zoom.
 // Module-scoped so it survives area changes; every session starts back at
-// normal (1). Exactly one step out and one step in from "perfect" — a nudge,
-// not a telescope. ZOOM_STEP is both the per-press factor and the range bound,
-// so one press reaches the limit either way.
+// normal (1). Up to two steps out and two steps in from "perfect" — a nudge,
+// not a telescope. ZOOM_STEP is the per-press factor; the range spans two presses
+// each way (SURROUND_X/Y are sized to cover the widest of those views).
 const ZOOM_STEP = 1.25;
-const USER_ZOOM_MIN = 1 / ZOOM_STEP;
-const USER_ZOOM_MAX = ZOOM_STEP;
+const USER_ZOOM_MIN = 1 / (ZOOM_STEP * ZOOM_STEP);
+const USER_ZOOM_MAX = ZOOM_STEP * ZOOM_STEP;
 let userZoom = 1;
 
 function hashStr(s: string): number {
@@ -130,6 +131,14 @@ export class WorldScene extends Phaser.Scene {
 	private walkT = 0;
 	private walkAudioActive = false;
 	private keys!: any;
+	private moveKeys: {
+		up: Phaser.Input.Keyboard.Key[];
+		down: Phaser.Input.Keyboard.Key[];
+		left: Phaser.Input.Keyboard.Key[];
+		right: Phaser.Input.Keyboard.Key[];
+		interact: Phaser.Input.Keyboard.Key[];
+	} = { up: [], down: [], left: [], right: [], interact: [] };
+	private interactBadge?: Phaser.GameObjects.Text;
 	private groundTiles: Phaser.GameObjects.Image[] = [];
 	// Living vegetation out in the unwalkable surround/edge — tinted from dead
 	// (brown) to alive as the biome's health rises, so the whole world beyond the
@@ -423,7 +432,12 @@ export class WorldScene extends Phaser.Scene {
 		this.cameras.main.startFollow(this.player, true, 0.12, 0.12);
 		this.startLeaves();
 
-		this.keys = this.input.keyboard!.addKeys('W,A,S,D,UP,DOWN,LEFT,RIGHT,E,SPACE,ESC,SHIFT');
+		// Arrows, Space, Esc, Shift are fixed. Movement (WASD by default) and the
+		// interact key are player-rebindable (see keybindings.ts); the arrows always
+		// move too, so a rebind can never strand the player. Rebuilt on any prefs change.
+		this.keys = this.input.keyboard!.addKeys('UP,DOWN,LEFT,RIGHT,SPACE,ESC,SHIFT');
+		this.rebindMoveKeys();
+		this.unsubs.push(subscribePrefs(() => this.rebindMoveKeys()));
 		this.input.keyboard!.on('keydown-ESC', () => {
 			if (this.placementObjectId || this.movingPlacementId) bridge.emit('placement-exited');
 		});
@@ -496,14 +510,17 @@ export class WorldScene extends Phaser.Scene {
 		const ring = this.img(0, 0, 'ring').setTint(0xffe9a8);
 		const badgeBg = this.add.circle(0, -30, 9.5, 0x2b3321, 0.92).setStrokeStyle(1.5, 0xffe9a8, 1);
 		const badgeText = this.add
-			.text(0, -30, this.isTouch ? '·' : 'E', {
+			.text(0, -30, this.isTouch ? '·' : this.interactHintKey(), {
 				fontFamily: 'Quicksand, sans-serif',
 				fontSize: '11px',
 				color: '#f0e8d4',
 				fontStyle: 'bold',
 			})
+			// render the key at the texture supersample density so it stays crisp when zoomed in
+			.setResolution(TEX_SCALE)
 			.setOrigin(0.5);
 		this.highlight = this.add.container(0, 0, [ring, badgeBg, badgeText]).setDepth(6000).setVisible(false);
+		this.interactBadge = badgeText;
 		const ringPulse = this.tweens.add({
 			targets: ring,
 			scale: { from: 0.92 * INV_TEX_SCALE, to: 1.08 * INV_TEX_SCALE },
@@ -1656,7 +1673,7 @@ export class WorldScene extends Phaser.Scene {
 		if (hasLamp) stamp(x, y, WorldScene.LAMP_MASK, Math.min(0.8, depth * 0.9));
 		// steady light — no flicker; the lit edge holds still so night reads calmly
 		fires.forEach((f) => {
-			stamp(f.x, f.y - 6, WorldScene.FIRE_MASK, Math.min(1, depth * 1.35));
+			stamp(f.x, f.y, WorldScene.FIRE_MASK, Math.min(1, depth * 1.35));
 		});
 		if (!this.lightOverlay!.mask) this.lightOverlay!.setMask(this.lightBitmapMask);
 	}
@@ -2219,13 +2236,22 @@ export class WorldScene extends Phaser.Scene {
 			const fx = CAMP.fire.x * TILE,
 				fy = CAMP.fire.y * TILE;
 			const fireGlow = this.addDyn(
-				this.img(fx, fy - 4, 'glow')
+				this.img(fx, fy, 'glow')
 					.setTint(0xffb84f)
 					.setDepth(fy - 1)
 					.setScale(1.3 * INV_TEX_SCALE),
 			);
 			(fireGlow as Phaser.GameObjects.Image).setBlendMode(Phaser.BlendModes.ADD);
 			this.addDyn(this.img(fx, fy, 'campfire').setDepth(fy));
+			// bright core layered ABOVE the fire so the peak brightness sits on the flame
+			const fireCore = this.addDyn(
+				this.img(fx, fy, 'glow')
+					.setTint(0xffd98a)
+					.setDepth(fy + 2)
+					.setAlpha(0.4)
+					.setScale(0.55 * INV_TEX_SCALE),
+			);
+			(fireCore as Phaser.GameObjects.Image).setBlendMode(Phaser.BlendModes.ADD);
 
 			const gx = (this.cols - 1.2) * TILE;
 			const gy = this.dimsOf(this.area).gateY * TILE;
@@ -2500,7 +2526,7 @@ export class WorldScene extends Phaser.Scene {
 			attempts++;
 			const tx = 1 + Math.floor(rng() * (this.landRight - 3));
 			const ty = this.playTop + 1 + Math.floor(rng() * (this.rows - this.playTop - 3));
-			if (this.inCamp(tx, ty)) continue;
+			if (this.inCamp(tx, ty) || this.nearGate(tx, ty)) continue;
 			if (nodes.some((n) => Math.abs(n.tx - tx) < 2 && Math.abs(n.ty - ty) < 2)) continue;
 			const resourceId = pool[nodes.length] || res[nodes.length % res.length];
 			nodes.push({ id: `n${nodes.length}`, resourceId, tx, ty });
@@ -2533,8 +2559,13 @@ export class WorldScene extends Phaser.Scene {
 		// statistic. Fallen branches are an early staple, so the meadow and forest
 		// keep at least three.
 		const MIN_PER_RESOURCE = 2;
-		const minFor = (r: string) =>
-			r === 'branches' && (this.area === 'meadow' || this.area === 'forest') ? 3 : MIN_PER_RESOURCE;
+		// The meadow is the opening biome: guarantee a comfortable supply of the two
+		// starter staples new caretakers reach for first — plant fiber and water.
+		const minFor = (r: string) => {
+			if (this.area === 'meadow' && (r === 'fiber' || r === 'water')) return 4;
+			if (r === 'branches' && (this.area === 'meadow' || this.area === 'forest')) return 3;
+			return MIN_PER_RESOURCE;
+		};
 		const perResource = new Map<string, number>();
 		for (const n of nodes) perResource.set(n.resourceId, (perResource.get(n.resourceId) || 0) + 1);
 		for (const r of res) {
@@ -2628,6 +2659,14 @@ export class WorldScene extends Phaser.Scene {
 		);
 	}
 
+	/** Keep gather nodes clear of the gate openings (both edges, at the gate row)
+	 *  so nothing spawns blocking the way into the next/previous biome. */
+	private nearGate(tx: number, ty: number): boolean {
+		const gy = this.dimsOf(this.area).gateY;
+		if (Math.abs(ty - gy) > 2) return false;
+		return tx < 4 || tx > this.landRight - 4;
+	}
+
 	/** Nearest in-bounds tile (ring search) that isn't built on or used by another node. */
 	private findFreeTile(
 		cx: number,
@@ -2643,7 +2682,17 @@ export class WorldScene extends Phaser.Scene {
 					const ty = cy + dy;
 					if (tx < 1 || ty < this.playTop || tx > this.landRight - 2 || ty > this.rows - 2) continue;
 					const key = `${tx},${ty}`;
-					if (occupied.has(key) || taken.has(key) || this.inCamp(tx, ty)) continue;
+					if (occupied.has(key) || taken.has(key) || this.inCamp(tx, ty) || this.nearGate(tx, ty)) continue;
+					// Don't let gather nodes clump: skip any tile touching an existing node
+					// (Chebyshev-adjacent), matching the spacing the main scatter enforces.
+					let adjacent = false;
+					for (let ax = -1; ax <= 1 && !adjacent; ax++)
+						for (let ay = -1; ay <= 1; ay++)
+							if ((ax || ay) && taken.has(`${tx + ax},${ty + ay}`)) {
+								adjacent = true;
+								break;
+							}
+					if (adjacent) continue;
 					return { tx, ty };
 				}
 			}
@@ -2705,7 +2754,7 @@ export class WorldScene extends Phaser.Scene {
 					else
 						bridge.emit('toast', {
 							text: t('game.toast.stillRegrowing'),
-							kind: 'info',
+							kind: 'error',
 						});
 				},
 			};
@@ -3116,17 +3165,18 @@ export class WorldScene extends Phaser.Scene {
 			// the light mask also carves the dark away here.
 			if (p.objectId === 'campfire') {
 				const glow = this.addDyn(
-					this.img(x, y - 4, 'glow')
+					this.img(x, y, 'glow')
 						.setTint(0xffb84f)
 						.setDepth(y - 1)
 						.setScale(1.7 * INV_TEX_SCALE),
 				) as Phaser.GameObjects.Image;
 				glow.setBlendMode(Phaser.BlendModes.ADD);
 				const core = this.addDyn(
-					this.img(x, y - 4, 'glow')
+					this.img(x, y, 'glow')
 						.setTint(0xffd98a)
-						.setDepth(y - 1)
-						.setScale(0.9 * INV_TEX_SCALE),
+						.setDepth(y + 2)
+						.setAlpha(0.4)
+						.setScale(0.55 * INV_TEX_SCALE),
 				) as Phaser.GameObjects.Image;
 				core.setBlendMode(Phaser.BlendModes.ADD);
 			}
@@ -3902,18 +3952,50 @@ export class WorldScene extends Phaser.Scene {
 		bridge.emit('audio-walk', { active });
 	}
 
+	/** The compact interact key to show in-world — prefer a real key over the wide
+	 *  word "Space", so the little hover badge never overflows. */
+	private interactHintKey(): string {
+		const toks = getBindings().interact;
+		return keyLabel(toks.find((tk) => tk !== 'space') || toks[0] || 'e');
+	}
+
+	private rebindMoveKeys() {
+		const kb = this.input.keyboard;
+		if (!kb) return;
+		// Never remove/destroy the fixed keys (arrows/Space/Esc/Shift) — Phaser keeps
+		// one Key per code, so a rebind onto an arrow shares the scene's arrow key.
+		const FIXED = new Set([16, 27, 32, 37, 38, 39, 40]);
+		for (const arr of Object.values(this.moveKeys))
+			for (const key of arr) if (!FIXED.has(key.keyCode)) kb.removeKey(key, true);
+		const b = getBindings();
+		const build = (tokens: string[]): Phaser.Input.Keyboard.Key[] =>
+			tokens
+				.map((tok) => keyCodeFor(tok))
+				.filter((c): c is number => c != null)
+				.map((c) => kb.addKey(c));
+		this.moveKeys = {
+			up: build(b.moveUp),
+			down: build(b.moveDown),
+			left: build(b.moveLeft),
+			right: build(b.moveRight),
+			interact: build(b.interact),
+		};
+		if (this.interactBadge && !this.isTouch) this.interactBadge.setText(this.interactHintKey());
+	}
+
 	private handleMovement(dt: number) {
 		if (this.sleeping) {
 			this.setWalkAudio(false);
 			return;
 		} // can't roam while asleep
-		const k = this.keys;
 		let vx = 0,
 			vy = 0;
-		if (k.A.isDown || k.LEFT.isDown) vx -= 1;
-		if (k.D.isDown || k.RIGHT.isDown) vx += 1;
-		if (k.W.isDown || k.UP.isDown) vy -= 1;
-		if (k.S.isDown || k.DOWN.isDown) vy += 1;
+		const mk = this.moveKeys;
+		const held = (arr: Phaser.Input.Keyboard.Key[]) => arr.some((key) => key.isDown);
+		if (held(mk.left)) vx -= 1;
+		if (held(mk.right)) vx += 1;
+		if (held(mk.up)) vy -= 1;
+		if (held(mk.down)) vy += 1;
 		// virtual joystick (mobile)
 		const joy = bridge.shared.joy;
 		if (vx === 0 && vy === 0 && (Math.abs(joy.x) > 0.15 || Math.abs(joy.y) > 0.15)) {
@@ -4052,7 +4134,7 @@ export class WorldScene extends Phaser.Scene {
 		}
 
 		// pulsing highlight on whatever you can interact with right now
-		if (focus) {
+		if (focus && getPrefs().interactHint !== false) {
 			this.highlight.setVisible(true).setPosition(focus.x, focus.y + 2);
 		} else {
 			this.highlight.setVisible(false);
@@ -4072,7 +4154,7 @@ export class WorldScene extends Phaser.Scene {
 			this.tileCursor.setVisible(false);
 		}
 
-		const verb = this.isTouch ? t('game.prompt.tap') : 'E';
+		const verb = this.isTouch ? t('game.prompt.tap') : this.interactHintKey();
 		const clickVerb = this.isTouch ? t('game.prompt.tap') : t('game.prompt.click');
 		const lowVerb = this.isTouch ? t('game.prompt.tapLower') : t('game.prompt.clickLower');
 		const rotHint = !this.isTouch && this.activeRotatable() ? t('game.prompt.rotateHint') : '';
@@ -4094,7 +4176,8 @@ export class WorldScene extends Phaser.Scene {
 			this.lastPrompt = prompt;
 			bridge.emit('prompt', prompt);
 		}
-		if (near && (Phaser.Input.Keyboard.JustDown(this.keys.E) || Phaser.Input.Keyboard.JustDown(this.keys.SPACE))) {
+		const interactPressed = this.moveKeys.interact.some((key) => Phaser.Input.Keyboard.JustDown(key));
+		if (near && interactPressed) {
 			near.action();
 		}
 	}
