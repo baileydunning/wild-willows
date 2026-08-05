@@ -3263,6 +3263,11 @@ async function achievementMetrics(playerId: string) {
 		completion: round1(rows.length / total),
 		byCategory,
 		recent,
+		// Every earned achievement id, so the desktop Steam bridge can unlock the
+		// matching Steam achievement 1:1 (electron/metrics-sync.js maps each id to
+		// its Steamworks API name). Kept as the full list — not just `recent` — so
+		// nothing is missed if several land between two metric pushes.
+		earnedIds: rows.map((r: any) => r.achievementId),
 	};
 }
 
