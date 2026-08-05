@@ -397,7 +397,7 @@ export function WelcomeScreen() {
 			<Scenery />
 			<div className="welcome-stack">
 				<h1 className="game-title welcome-title">{t('app.title')}</h1>
-				<div className="welcome-card">
+				<div className={`welcome-card${mode === 'new' ? ' welcome-card-wide' : ''}`}>
 					{soloLocal && (
 						// Off-screen (not display:none) so the native picker reliably opens when
 						// clicked programmatically in Electron. No `accept` filter — the file is
@@ -706,7 +706,7 @@ export function WelcomeScreen() {
 									className="big-btn primary"
 									disabled={busy || name.trim().length < 2 || (needsPasscode && passcode.length < 4)}
 								>
-									<Icon name="sparkle" />{' '}
+									<Icon name="leaf" />{' '}
 									<span>
 										{busy
 											? t('app.welcome.settlingIn')
