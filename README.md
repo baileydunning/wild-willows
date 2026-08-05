@@ -205,12 +205,14 @@ npx electron-rebuild -f -w steamworks.js
 
 ### Steam Stats & Achievements
 
-The renderer owns the live metrics (solo in-app, co-op via the hosted Harper), so `src/solo/steamSync.ts` pushes the active player's `/Metrics/` view to the main process every ~60s (and again on hide/quit); `electron/metrics-sync.js` maps the numbers onto Steam Stats and milestone achievements via `electron/steam.js`. Everything no-ops unless the app is launched through Steam, so `npm run desktop` still works.
+The renderer owns the live metrics (solo in-app, co-op via the hosted Harper), so `src/solo/steamSync.ts` pushes the active player's `/Metrics/` view to the main process every ~60s (and again on hide/quit); `electron/metrics-sync.js` maps the numbers onto Steam Stats and achievements via `electron/steam.js`. Everything no-ops unless the app is launched through Steam, so `npm run desktop` still works.
+
+**Achievements mirror the in-game set 1:1.** All 50 achievements are defined in `data/achievements.json` and awarded server-side (`ACHIEVEMENT_TRIGGERS` in `server/resources.ts`); the `/Metrics/` view carries the player's full earned list (`achievements.earnedIds`), and `metrics-sync.js` unlocks the matching Steam achievement for each. There is no separate hand-picked milestone list — if it's earned in-game, it unlocks on Steam. Each Steam **API name is derived from the achievement id**: uppercased, with hyphens turned into underscores (`welcome-grasshopper` → `WELCOME_GRASSHOPPER`). The complete id → API-name table is in [`docs/steam-achievements.md`](docs/steam-achievements.md); every one of those 50 API names must exist in the Steamworks dashboard exactly as listed.
 
 Define these in the Steamworks dashboard with matching API names:
 
 - **Stats (INT):** `play_minutes`, `sessions`, `resources_collected`, `items_crafted`, `objects_placed`, `plants_planted`, `animals_observed`, `animals_returned`, `biomes_unlocked`.
-- **Achievements:** `ACH_FIRST_ANIMAL`, `ACH_FIRST_CRAFT`, `ACH_SECOND_BIOME`, `ACH_NATURALIST`, `ACH_GREEN_THUMB`, `ACH_DEDICATED` — unlock thresholds live in `ACHIEVEMENTS` in `metrics-sync.js`.
+- **Achievements:** all 50 from [`docs/steam-achievements.md`](docs/steam-achievements.md) (`WELCOME_GRASSHOPPER` … `CARETAKER_OF_THE_WHOLE`). The pre-1.0 placeholder set (`ACH_FIRST_ANIMAL`, `ACH_FIRST_CRAFT`, `ACH_SECOND_BIOME`, `ACH_NATURALIST`, `ACH_GREEN_THUMB`, `ACH_DEDICATED`) is **superseded** — remove those from the dashboard so they don't sit permanently locked on the store page.
 
 For development, `steam_appid.txt` holds `480` (Valve's public test app) so the Steam API initializes with the Steam client running. Set `WW_STEAM_APPID` or replace the file with your real App ID once you have one; in packaged Steam builds Steam injects the App ID.
 
@@ -225,7 +227,7 @@ For development, `steam_appid.txt` holds `480` (Valve's public test app) so the 
 itch.io is the v1 home. Steam is the natural next step — most of the plumbing is already here (`electron/steam.js` + `metrics-sync.js` wire stats/achievements through `steamworks.js`, and they no-op safely until launched through Steam). What's left before flipping that on:
 
 - **App ID & depots** — register the app in Steamworks, replace `steam_appid.txt` (`480` dev placeholder) with the real ID, and upload the **unpacked** per-OS folders as depots via `steamcmd` (Steam runs the app directly, unlike itch's installers).
-- **Stats & achievements config** — define the Stats/Achievements listed above in the Steamworks dashboard with matching API names so the existing push (`metrics-sync.js`) lights them up.
+- **Stats & achievements config** — define the 9 Stats and all 50 Achievements (see [`docs/steam-achievements.md`](docs/steam-achievements.md)) in the Steamworks dashboard with matching API names so the existing push (`metrics-sync.js`) lights them up. Achievements now mirror the in-game set 1:1 (no separate milestone list).
 - **Code signing** — macOS signing + notarization is wired up (see above); Windows signing still needs a code-signing cert to clear SmartScreen.
 - **Controller support** — the game is keyboard-only today; add gamepad input for Steam Deck Verified and couch play.
 - **Steam Cloud** — sync `userData/saves/` so solo progress follows players across machines.
