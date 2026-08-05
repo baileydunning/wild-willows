@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { api, forgetSave, getTransport, exportActiveSolo } from '../api';
 import { hatPalette } from '../color';
 import { sendFeedback } from '../feedback';
+import { DEMO } from '../demo';
 import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import { hasKey, LOCALE_NAMES, chooseLocale } from '../i18n';
@@ -668,7 +669,7 @@ export function SettingsPanel() {
 						</>
 					)}
 
-					{!isSolo && (
+					{!isSolo && !DEMO && (
 						<>
 							<h3>
 								<Icon name="lock" size={15} /> {t('app.settings.changePasscode')}

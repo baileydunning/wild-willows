@@ -132,10 +132,26 @@ const PATHS: Record<string, React.ReactNode> = {
 		</>
 	),
 	play: <path d="M8 5.5v13l10-6.5-10-6.5Z" />,
+	// A small bloom. Formerly the two-star sparkle glyph, which read as
+	// AI-generated; the "sparkle" key is kept so existing references still resolve.
 	sparkle: (
 		<>
-			<path d="M12 3.5 13.8 9 19 11l-5.2 2L12 18.5 10.2 13 5 11l5.2-2L12 3.5Z" />
-			<path d="M19 16.5l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7.7-2Z" />
+			<g transform="rotate(0 12 12)">
+				<ellipse cx="12" cy="7" rx="1.9" ry="2.9" />
+			</g>
+			<g transform="rotate(72 12 12)">
+				<ellipse cx="12" cy="7" rx="1.9" ry="2.9" />
+			</g>
+			<g transform="rotate(144 12 12)">
+				<ellipse cx="12" cy="7" rx="1.9" ry="2.9" />
+			</g>
+			<g transform="rotate(216 12 12)">
+				<ellipse cx="12" cy="7" rx="1.9" ry="2.9" />
+			</g>
+			<g transform="rotate(288 12 12)">
+				<ellipse cx="12" cy="7" rx="1.9" ry="2.9" />
+			</g>
+			<circle cx="12" cy="12" r="1.7" fill="currentColor" />
 		</>
 	),
 	target: (

@@ -620,6 +620,9 @@ input {
 }
 
 /* character creator + login */
+.welcome-card-wide {
+	width: 680px;
+}
 .creator {
 	text-align: left;
 }
@@ -3108,7 +3111,8 @@ input {
 
 /* ===== title-screen intro (a gentle, un-intimidating How to Play) ===== */
 .welcome-intro {
-	max-width: 460px;
+	width: 600px;
+	max-width: 92vw;
 }
 .welcome-intro-lede {
 	margin: 0 0 14px;
