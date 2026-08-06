@@ -464,9 +464,6 @@
 		"body3": ", y sacas tu cesta, tus herramientas y tu diario con teclas de acceso rápido — así que no funciona por sí solo en un teléfono o una tableta.",
 		"hint": "Abre Wild Willows en una computadora, o conecta un teclado y presiona cualquier tecla para comenzar."
 	},
-	"mobile": {
-		"interact": "Interactuar"
-	},
 	"demo": {
 		"doneTitle": "¡Gracias por jugar la demo de Wild Willows!",
 		"doneBody": "Aquí termina la demo gratuita: gracias por restaurar un rincón de la reserva. El juego completo abre cinco biomas más para restaurar, fabricación más profunda, estaciones y clima, un diario de campo por completar y muchos más vecinos a los que traer de vuelta.",

@@ -69,16 +69,11 @@
 	"prompt": {
 		"tap": "Toca",
 		"click": "Haz clic",
-		"tapLower": "toca",
-		"clickLower": "haz clic",
 		"rotateHint": " · \\ para girar",
 		"escCancel": " · Esc para cancelar",
 		"escStopPlacing": " · Esc para dejar de colocar",
 		"moveTile": "{verb} en una casilla para moverlo allí",
 		"placeTile": "{verb} en una casilla para colocarlo",
-		"shovel": "Pala — {verb} en el suelo para cavar un bancal (puede desenterrar materiales)",
-		"wateringCan": "Regadera — {verb} en un bancal para regarlo, y de nuevo para inundarlo",
-		"near": "{verb} — {label}",
-		"nearSuffix": " · {verb} — {label}"
+		"near": "{verb} — {label}"
 	}
 }

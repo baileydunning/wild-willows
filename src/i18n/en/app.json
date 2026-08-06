@@ -464,9 +464,6 @@
 		"body3": ", and reach for your basket, tools, and journal with shortcut keys — so it doesn’t work on a phone or tablet on its own.",
 		"hint": "Open Wild Willows on a computer, or connect a keyboard and press any key to begin."
 	},
-	"mobile": {
-		"interact": "Interact"
-	},
 	"demo": {
 		"doneTitle": "Thanks for playing the Wild Willows demo!",
 		"doneBody": "That's the end of the free demo — thank you for restoring a corner of the preserve. The full game opens five more biomes to restore, deeper crafting, seasons and weather, a field journal to fill, and many more neighbors to bring home.",

@@ -676,7 +676,6 @@ export class WorldScene extends Phaser.Scene {
 		// restart. (Indoors always rebuilds, so the decorated room updates too.)
 		this.unsubs.push(bridge.on('home-upgraded', () => this.playBuild()));
 		this.unsubs.push(bridge.on('tool-selected', (toolId: string) => (this.activeTool = toolId)));
-		this.unsubs.push(bridge.on('mobile-interact', () => this.nearestInteractable()?.action()));
 		this.unsubs.push(bridge.on('collected', (p: any) => this.playPickup(p)));
 		this.unsubs.push(bridge.on('terraformed', (p: any) => this.playTerraformFx(p)));
 		this.unsubs.push(
@@ -4409,22 +4408,23 @@ export class WorldScene extends Phaser.Scene {
 
 		const verb = this.isTouch ? t('game.prompt.tap') : this.interactHintKey();
 		const clickVerb = this.isTouch ? t('game.prompt.tap') : t('game.prompt.click');
-		const lowVerb = this.isTouch ? t('game.prompt.tapLower') : t('game.prompt.clickLower');
 		const rotHint = !this.isTouch && this.activeRotatable() ? t('game.prompt.rotateHint') : '';
 		// A locked gate's detailed "what's still needed" text goes to the corner feed
 		// (see gate-info below), not this narrow bar — here it just shows its short
 		// "read the trail sign" label like any other interactable.
 		const nearMain = near ? t('game.prompt.near', { verb, label: near.label }) : '';
+		// Selecting the shovel or watering can used to prepend an explanation of the
+		// tool ("Shovel — click ground to dig a bed…"). The toolbelt already names the
+		// selected tool and its tooltip explains it, so the bar restated it on every
+		// frame the tool was held — and pushed the actual interaction prompt to the far
+		// end of a long line. This bar is only for what the interact key will do.
 		const prompt = this.movingPlacementId
 			? t('game.prompt.moveTile', { verb: clickVerb }) + rotHint + (this.isTouch ? '' : t('game.prompt.escCancel'))
 			: this.placementObjectId
 				? t('game.prompt.placeTile', { verb: clickVerb }) +
 					rotHint +
 					(this.isTouch ? '' : t('game.prompt.escStopPlacing'))
-				: terraforming
-					? t(terraforming === 'dig' ? 'game.prompt.shovel' : 'game.prompt.wateringCan', { verb: lowVerb }) +
-						(near ? t('game.prompt.nearSuffix', { verb, label: near.label }) : '')
-					: nearMain;
+				: nearMain;
 		if (prompt !== this.lastPrompt) {
 			this.lastPrompt = prompt;
 			bridge.emit('prompt', prompt);

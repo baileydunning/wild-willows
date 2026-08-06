@@ -3822,10 +3822,13 @@ kbd {
 	min-width: 0;
 }
 
-/* ================= mobile controls ================= */
+/* ================= mobile controls =================
+   The joystick lives on the RIGHT. On the left it sat on top of the activity
+   feed (.activity-log, anchored bottom-left, up to 168px tall) — invisible on
+   phones, which hide the feed under 720px, but squarely over it on a tablet. */
 .joystick {
 	position: absolute;
-	left: 18px;
+	right: 18px;
 	bottom: 116px;
 	z-index: 40;
 	width: 112px;
@@ -3849,26 +3852,6 @@ kbd {
 	background: rgba(250, 245, 232, 0.92);
 	box-shadow: 0 3px 10px rgba(33, 41, 25, 0.4);
 	pointer-events: none;
-}
-.interact-btn {
-	position: absolute;
-	right: 20px;
-	bottom: 128px;
-	z-index: 40;
-	width: 72px;
-	height: 72px;
-	border-radius: 50%;
-	background: var(--green);
-	color: #fff;
-	border: 3px solid #fff;
-	box-shadow: 0 5px 18px rgba(33, 41, 25, 0.45);
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	touch-action: manipulation;
-}
-.interact-btn:active {
-	transform: scale(0.94);
 }
 
 /* ================= responsive / mobile ================= */
