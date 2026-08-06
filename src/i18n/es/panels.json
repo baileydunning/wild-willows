@@ -141,7 +141,8 @@
 			"recovering": "En recuperación",
 			"thriving": "Próspero",
 			"restored": "Restaurado"
-		}
+		},
+		"youAreHereNamed": "{biome}: estás aquí"
 	},
 	"home": {
 		"buildTitle": "Construye tu hogar",

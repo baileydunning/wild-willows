@@ -207,6 +207,12 @@ export function HUD() {
 		const a = BIND_ACTIONS.find((x) => x.panel === panelId);
 		return a ? keyLabel(getBindings()[a.id][0]) : undefined;
 	};
+	// The little key badge (J, K, M…) is decorative: it repeats a shortcut the
+	// button already advertises via aria-keyshortcuts. Left in the accessibility
+	// tree it becomes a text object of its own, and a screen reader tracking the
+	// mouse announces "J" — the thing under the pointer — instead of the button's
+	// name. aria-hidden takes it out of the tree without hiding it from sight.
+	// (Reported by an NVDA player: hovering the menu read only the letter.)
 	const navBtn = (id: any, icon: string, label: string, keyHint?: string) => {
 		const shownKey = keyForPanel(id) ?? keyHint;
 		return (
@@ -215,9 +221,17 @@ export function HUD() {
 				onClick={() => toggle(id)}
 				title={label}
 				aria-label={label}
+				// These toggle a panel open and shut, so the state has to be spoken too —
+				// otherwise there's no way to tell what's already open.
+				aria-pressed={panel === id}
+				aria-keyshortcuts={shownKey}
 			>
 				<Icon name={icon} />
-				{shownKey && <span className="nav-key">{shownKey}</span>}
+				{shownKey && (
+					<span className="nav-key" aria-hidden="true">
+						{shownKey}
+					</span>
+				)}
 			</button>
 		);
 	};
@@ -399,18 +413,26 @@ export function HUD() {
 									onClick={() => toggle('settings')}
 									title={t('app.hud.settingsTitle')}
 									aria-label={t('app.hud.settings')}
+									aria-pressed={panel === 'settings'}
+									aria-keyshortcuts="O"
 								>
 									<Icon name="gear" />
-									<span className="nav-key">O</span>
+									<span className="nav-key" aria-hidden="true">
+										O
+									</span>
 								</button>
 								<button
 									className={`icon-btn ${helpOpen ? 'on' : ''}`}
 									onClick={() => setHelpOpen(!helpOpen)}
 									title={t('app.hud.howToPlayTitle')}
 									aria-label={t('app.hud.howToPlay')}
+									aria-pressed={helpOpen}
+									aria-keyshortcuts="H"
 								>
 									<Icon name="help" />
-									<span className="nav-key">H</span>
+									<span className="nav-key" aria-hidden="true">
+										H
+									</span>
 								</button>
 								<button
 									className="icon-btn subtle"
@@ -460,8 +482,14 @@ export function Toasts() {
 	const { toasts, dismissToast } = useGame();
 	const { t } = useI18n();
 	const iconFor = { animal: 'paw', unlock: 'sparkle', error: 'help', info: 'leaf', achievement: 'star' } as const;
+	// Toasts carry the things you most need to hear — an animal returned, an area
+	// unlocked, a refused action — and were reaching a screen reader only if the
+	// user happened to go looking for them. As a live region they announce as they
+	// arrive. Polite (not assertive) so they queue behind whatever is being read
+	// rather than cutting it off; `additions` keeps a dismissal from re-reading the
+	// ones that are left.
 	return (
-		<div className="toasts">
+		<div className="toasts" aria-live="polite" aria-relevant="additions">
 			{toasts.map((toast) => (
 				<div key={toast.id} className={`toast toast-${toast.kind}`}>
 					<Icon name={iconFor[toast.kind] || 'leaf'} size={17} />

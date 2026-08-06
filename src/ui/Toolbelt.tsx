@@ -70,17 +70,26 @@ export function Toolbelt() {
 						<button
 							key={meta.id}
 							className={`tool-slot ${selected ? 'on' : ''}`}
+							// `title` doubles as the screen-reader description (what the tool does),
+							// so the name stays short for navigation and the explanation follows.
 							title={t('app.toolbelt.titleFormat', { name: toolName, key: keyForTool(meta.id), how })}
 							aria-label={toolName}
+							aria-pressed={selected}
+							aria-keyshortcuts={keyForTool(meta.id)}
 							onClick={() => {
 								setSelectedTool(meta.id);
 								notify(t('app.toolbelt.selected', { name: toolName, how }));
 							}}
 						>
 							<Icon name={meta.icon} size={22} />
-							<span className="tool-key">{keyForTool(meta.id)}</span>
+							{/* Decorative: the number repeats aria-keyshortcuts, and left in the
+							    tree it's what a mouse-tracking screen reader reads instead of the
+							    tool name. The tier pip is pure decoration. */}
+							<span className="tool-key" aria-hidden="true">
+								{keyForTool(meta.id)}
+							</span>
 							{tier > 1 && (
-								<span className="tool-tier">
+								<span className="tool-tier" aria-hidden="true">
 									<Icon name="sparkle" size={10} />
 								</span>
 							)}
@@ -92,14 +101,18 @@ export function Toolbelt() {
 						className={`tool-slot ${selectedTool === 'paint' ? 'on' : ''}`}
 						title={t('app.toolbelt.paintTitle')}
 						aria-label={t('app.toolbelt.paint')}
+						aria-pressed={selectedTool === 'paint'}
+						aria-keyshortcuts={keyForTool('paint')}
 						onClick={() => {
 							setSelectedTool('paint');
 							notify(t('app.toolbelt.paintHow'));
 						}}
 					>
 						<Icon name="paint" size={22} />
-						<span className="tool-key">{keyForTool('paint')}</span>
-						<span className="tool-tier paint-dot" style={{ background: paintColor }} />
+						<span className="tool-key" aria-hidden="true">
+							{keyForTool('paint')}
+						</span>
+						<span className="tool-tier paint-dot" style={{ background: paintColor }} aria-hidden="true" />
 					</button>
 				)}
 			</div>

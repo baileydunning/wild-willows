@@ -972,7 +972,14 @@ export function BiomesPanel() {
 						: biome.explorable
 							? t('panels.biomes.locked')
 							: t('panels.biomes.comingSoon');
+					// The tooltip can say just "You are here" — the pin is right there next to
+					// the name. The accessible NAME can't: aria-label replaces the button's
+					// text, so in a row of six biome tabs the one you're standing in
+					// announced "You are here" and nothing else, with no way to tell which.
 					const title = isHere ? t('panels.biomes.youAreHere') : t('panels.biomes.viewDetail', { biome: biomeName });
+					const ariaTitle = isHere
+						? t('panels.biomes.youAreHereNamed', { biome: biomeName })
+						: t('panels.biomes.viewDetail', { biome: biomeName });
 					return (
 						<React.Fragment key={biome.id}>
 							{i > 0 && <span className={`pm-link ${unlocked ? 'pm-link-open' : ''}`} />}
@@ -981,7 +988,7 @@ export function BiomesPanel() {
 								role="tab"
 								aria-selected={isSel}
 								title={title}
-								aria-label={title}
+								aria-label={ariaTitle}
 								onClick={() => setSel(biome.id)}
 								style={{ ['--c' as any]: color, ['--h' as any]: health }}
 							>
