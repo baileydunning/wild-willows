@@ -169,7 +169,14 @@ describe('scans surface dropped rows instead of hiding them', () => {
 		const a = await make('Kayla', 'pw1234');
 		const tiles = w.db.TerrainTile;
 		for (let x = 0; x < 5; x++) {
-			await tiles.put({ id: `${a.playerId}:meadow:${x}:0`, worldId: a.playerId, area: 'meadow', x, y: 0, type: 'grass' });
+			await tiles.put({
+				id: `${a.playerId}:meadow:${x}:0`,
+				worldId: a.playerId,
+				area: 'meadow',
+				x,
+				y: 0,
+				type: 'grass',
+			});
 		}
 		tiles._corrupt(`${a.playerId}:meadow:1:0`); // bad row in the middle
 

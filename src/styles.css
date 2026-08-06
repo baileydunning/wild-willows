@@ -59,6 +59,8 @@ button {
 	padding: 6px 13px;
 	cursor: pointer;
 	color: var(--ink);
+	/* containing block for the hover pad below — no visual effect on its own */
+	position: relative;
 	transition:
 		transform 0.08s ease,
 		background 0.15s ease,
@@ -67,6 +69,30 @@ button {
 button:hover:not(:disabled) {
 	background: var(--paper-2);
 	transform: translateY(-1px);
+}
+/*
+ * Keeps the hover lift from fighting the pointer.
+ *
+ * The lift above moves the button 1px UP. With the pointer resting inside that
+ * last 1px of the button's BOTTOM edge, the button slides out from under it —
+ * so it un-hovers, the transform is dropped, it drops back onto the pointer, and
+ * it hovers again. That loop runs at frame rate: a 60fps capture shows the
+ * button's bottom border and the cursor icon both alternating on every single
+ * frame, which reads as the cursor "freaking out" on the edge of a button.
+ *
+ * This pad holds the hit area still across the lift, giving :hover the
+ * hysteresis it needs to stay latched. Two things keep it safe:
+ *   • it exists only WHILE hovered, so resting click targets are unchanged;
+ *   • it extends only DOWNWARD, since the lift is upward and the top edge
+ *     therefore never runs away from the pointer.
+ * -4px is measured from the padding box, so it clears the 1.5px border and the
+ * 1px of travel with a little slack for subpixel rounding and --ui-scale.
+ */
+button:hover:not(:disabled)::after {
+	content: '';
+	position: absolute;
+	inset: 0 0 -4px;
+	border-radius: inherit;
 }
 button:active:not(:disabled) {
 	transform: translateY(0);
