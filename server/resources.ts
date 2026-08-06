@@ -860,6 +860,36 @@ function tentRoom() {
 	const y0 = Math.floor((GRID_H - TENT_INNER.h) / 2);
 	return { x0, y0, x1: x0 + TENT_INNER.w - 1, y1: y0 + TENT_INNER.h - 1 };
 }
+
+// ------------------------------------------------------- sleeping furniture
+// The two things you can sleep on. Sleeping skips the clock to the next dawn, so
+// a bed parked in the doorway is a trap: every attempt to leave lands on it.
+// Keep them clear of the exit. The client mirrors this rule so the placement
+// ghost turns red (see canPlaceAt in src/game/WorldScene.ts), but this is the
+// copy that counts — the frontend is never trusted.
+const SLEEPABLE_OBJECTS = new Set(['home-bed', 'home-sleeping-bag']);
+
+/** The door tile of an interior: bottom wall, horizontally centred. Must match
+ *  `roomSpec()` in the client, which derives it from the same rectangle. */
+function doorTileOf(room: { x0: number; y0: number; x1: number; y1: number }): { x: number; y: number } {
+	return { x: Math.round((room.x0 + room.x1) / 2), y: room.y1 };
+}
+
+/**
+ * True if a bed at (tx, ty) would sit on, or in the ring immediately around, the
+ * doorway. Chebyshev distance ≤ 1, so the door tile and its eight neighbours are
+ * all refused — enough to always leave a clear step in and out.
+ */
+function blocksDoorway(
+	objectId: string,
+	room: { x0: number; y0: number; x1: number; y1: number },
+	tx: number,
+	ty: number,
+): boolean {
+	if (!SLEEPABLE_OBJECTS.has(objectId)) return false;
+	const door = doorTileOf(room);
+	return Math.abs(tx - door.x) <= 1 && Math.abs(ty - door.y) <= 1;
+}
 // Chance that digging a fresh soil bed turns up a buried material (not every dig).
 const DIG_FIND_CHANCE = 0.75;
 const CAPACITY_BY_BASKET: Record<number, number> = { 1: 200, 2: 350, 3: 550, 4: 800 };
@@ -4691,6 +4721,7 @@ export class PlaceObject extends PublicEndpoint {
 			}
 			const r = homeRoom(player);
 			if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1) throw new GameError(tr('server.err.placeOnFloor'));
+			if (blocksDoorway(objectId, r, tx, ty)) throw new GameError(tr('server.err.bedBlocksDoor', { name: def.name }));
 		} else if (tentBiome) {
 			// decorating a trail-tent interior — indoor rules, tent-sized floor,
 			// and only furniture that fits a tent (homeMin 1)
@@ -4702,6 +4733,7 @@ export class PlaceObject extends PublicEndpoint {
 			if (def.homeMin && def.homeMin > 1) throw new GameError(tr('server.err.tentTooSmall', { name: def.name }), 403);
 			const r = tentRoom();
 			if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1) throw new GameError(tr('server.err.placeOnFloor'));
+			if (blocksDoorway(objectId, r, tx, ty)) throw new GameError(tr('server.err.bedBlocksDoor', { name: def.name }));
 		} else {
 			const biome = d.biome.get(area);
 			if (!biome) throw new GameError(tr('server.err.unknownArea', { area }));
@@ -4962,6 +4994,15 @@ export class MoveObject extends PublicEndpoint {
 		}
 		const d = await defs();
 		const movingDef = d.object.get(placement.objectId);
+		// Same doorway rule as PlaceObject — otherwise a bed could simply be MOVED
+		// into the spot it isn't allowed to be placed in.
+		if (SLEEPABLE_OBJECTS.has(placement.objectId)) {
+			const tentBiome = tentBiomeOf(placement.area);
+			const room = placement.area === 'home' ? homeRoom(player) : tentBiome ? tentRoom() : null;
+			if (room && blocksDoorway(placement.objectId, room, tx, ty)) {
+				throw new GameError(tr('server.err.bedBlocksDoor', { name: movingDef?.name || placement.objectId }));
+			}
+		}
 		const tileHere = await findTerrainAt(t.TerrainTile, wid, placement.area, tx, ty);
 		if (tileHere) {
 			if (tileHere.type === 'water') {

@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { bridge } from './bridge';
-import { canPaintClick } from './interactions';
+import { canPaintClick, isSleepable, blocksDoorway } from './interactions';
 import {
 	animalScale,
 	animalTexture,
@@ -1960,7 +1960,7 @@ export class WorldScene extends Phaser.Scene {
 	private registerInteractable(
 		it: Interactable,
 		hitObject?: Phaser.GameObjects.GameObject,
-		opts: { terraformPassthrough?: boolean } = {},
+		opts: { terraformPassthrough?: boolean; keyOnly?: boolean } = {},
 	) {
 		this.interactables.push(it);
 		const target =
@@ -1974,6 +1974,12 @@ export class WorldScene extends Phaser.Scene {
 		target.on('pointerout', () => {
 			if (this.hoveredIt === it) this.hoveredIt = null;
 		});
+		// keyOnly: the interactable still shows its hover highlight and prompt, and
+		// the interact key still runs it, but a CLICK is left alone for whatever else
+		// owns it. Beds use this so tapping one opens the move/pick-up menu instead of
+		// putting you to sleep — an action that skips the clock to dawn is far too
+		// destructive to fire from a stray click on a thing you walked past.
+		if (opts.keyOnly) return;
 		target.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
 			if (bridge.shared.uiBlocking) return; // a modal is open — clicks don't reach the world
 			if (this.placementObjectId || this.movingPlacementId) return;
@@ -3228,7 +3234,10 @@ export class WorldScene extends Phaser.Scene {
 			}
 
 			img.setInteractive({ useHandCursor: true });
-			const hasPrimaryAction = isFixture;
+			// Beds render as fixtures (crisp, no random lean or tint) but do NOT claim
+			// the click: sleeping is key-only, so a tap falls through to the normal
+			// placement menu and you can move a bed like any other piece of furniture.
+			const hasPrimaryAction = isFixture && !isSleepable(p.objectId);
 			const defName = content('habitatObject', p.objectId, 'name', def.name);
 			img.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
 				if (bridge.shared.uiBlocking) return; // a modal is open — clicks don't reach the world
@@ -3313,7 +3322,10 @@ export class WorldScene extends Phaser.Scene {
 					},
 					img,
 				);
-			} else if (p.objectId === 'home-bed' || p.objectId === 'home-sleeping-bag') {
+			} else if (isSleepable(p.objectId)) {
+				// Sleep is deliberately KEY-ONLY. Clicking a bed falls through to the
+				// placement menu below (move / rotate / pick up), which is what you
+				// almost always mean when you click furniture.
 				this.registerInteractable(
 					{
 						x,
@@ -3322,6 +3334,7 @@ export class WorldScene extends Phaser.Scene {
 						action: () => this.sleepAt(x, y),
 					},
 					img,
+					{ keyOnly: true },
 				);
 			} else if (p.objectId === 'bed') {
 				this.registerInteractable(
@@ -3848,6 +3861,11 @@ export class WorldScene extends Phaser.Scene {
 			const homeMin = activeId ? this.objectDef(activeId)?.homeMin || 0 : 0;
 			const space = this.tentBiome ? 1 : bridge.shared.state?.player?.home?.space || 1;
 			if (homeMin > space) return false;
+			// Beds stay clear of the doorway. Sleeping jumps the clock to dawn, so a
+			// bed parked in the exit is a trap you have to walk over to leave. Mirrors
+			// the authoritative check in server/resources.ts (blocksDoorway) so the
+			// ghost reads red instead of the server rejecting the click.
+			if (blocksDoorway(activeId, r, tx, ty)) return false;
 			return true;
 		}
 		// Pelican Shore: nothing builds on the open ocean; land ends at landRight.

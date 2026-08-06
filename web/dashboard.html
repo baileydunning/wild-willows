@@ -159,6 +159,9 @@
 	.hlstat span { font-size: .64rem; color: var(--faint); }
 	.hlcard { cursor: pointer; }
 	.hlcard:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+	/* Caretakers seen in the last 5 minutes — the same window as the "Active now" KPI. */
+	.hlcard.active-now { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), var(--shadow); }
+	.hltag.hllive { color: #fff; background: var(--accent); }
 
 	/* ---- player modal ---- */
 	.modal-overlay { position: fixed; inset: 0; background: rgba(30,38,24,.55); display: flex; align-items: flex-start; justify-content: center; padding: 4vh 1rem; z-index: 100; overflow-y: auto; }
@@ -647,7 +650,12 @@ function render(data) {
 	 * mailing-list emails stay behind the admin-only ListMailingList). Loaded
 	 * best-effort alongside /Metrics/; the section simply doesn't render if the
 	 * endpoint isn't deployed yet. Unaffected by the version/edition filters —
-	 * these are site numbers, not game numbers. */
+	 * these are site numbers, not game numbers.
+	 *
+	 * Built here (it needs `LANDING`), but pushed LAST — see the bottom of this
+	 * function. These are site numbers rather than game numbers, so they sit below
+	 * everything about the game itself. */
+	let landingSection = "";
 	if (LANDING && LANDING.totals) {
 		const lt = LANDING.totals;
 		const CLICK_LABELS = {
@@ -658,7 +666,7 @@ function render(data) {
 		const todayRow = ldays.find((d) => d.day === LANDING.today) || {};
 		const dayCols = {};
 		for (const d of ldays.slice(-14)) dayCols[String(d.day).slice(5)] = n(d.visits);
-		out.push(sec("Landing page", "wild.willows.harperfabric.com — visits, link clicks & mailing list", `<div class="grid kpis">${[
+		landingSection = sec("Landing page", "wild.willows.harperfabric.com — visits, link clicks & mailing list", `<div class="grid kpis">${[
 			kpi(fmt(lt.visits), "Visits", `${fmt(lt.uniques)} first-time visitors`),
 			kpi(`<span class="accent">${fmt(todayRow.visits)}</span>`, "Visits today", `${fmt(todayRow.totalClicks)} clicks · ${fmt(todayRow.signups)} signups today`),
 			kpi(fmt(lt.totalClicks), "Link clicks", "store, demo & theme buttons"),
@@ -666,7 +674,7 @@ function render(data) {
 		].join("")}</div><div class="grid two" style="margin-top:.8rem">` +
 			cardTitled("Clicks by link", "all-time", barRows(objToEntries(lt.clicks), { labelMap: CLICK_LABELS, cls: "gold" })) +
 			cardTitled("Daily visits", `last ${Object.keys(dayCols).length || 0} days`, histCols(dayCols)) +
-			`</div>`));
+			`</div>`);
 	}
 
 	/* ---- Engagement KPIs ---- */
@@ -739,11 +747,18 @@ function render(data) {
 		assignSup((p) => p.biomeSummary && p.biomeSummary.biomesFullyRestored, "Most restored");
 
 		const stat = (v, l) => `<div class="hlstat"><b>${v}</b><span>${l}</span></div>`;
+		// "Active now" uses the same 5-minute window as the Overview KPI, so the two
+		// always agree about who is currently playing.
+		const isActiveNow = (p) => p.minutesSinceActive != null && n(p.minutesSinceActive) <= 5;
 		const cards = top.map((p, i) => {
 			const bs = p.biomeSummary || {};
 			const edi = p.edition === "demo" ? "demo" : "full";
+			const live = isActiveNow(p);
 			const tags = (supTags[i] || []).slice(0, 2).map((t) => `<span class="hltag">${t}</span>`).join("");
-			return `<div class="hlcard" data-pid="${esc(p.playerId || "")}" role="button" tabindex="0" title="Click for full breakdown"><div class="hlav">${avatarSVG(p.appearance)}</div><div class="hlbody"><div class="hltop">${tags}<span class="hledi ${edi}">${edi}</span></div><div class="hlstats">${[
+			// The green border is the ask, but colour alone isn't a reliable cue, so the
+			// card also carries it in its tooltip and an aria-label for screen readers.
+			const liveTag = live ? `<span class="hltag hllive">Active now</span>` : "";
+			return `<div class="hlcard${live ? " active-now" : ""}" data-pid="${esc(p.playerId || "")}" role="button" tabindex="0" title="${live ? "Active now · c" : "C"}lick for full breakdown"${live ? ' aria-label="Active now"' : ""}><div class="hlav">${avatarSVG(p.appearance)}</div><div class="hlbody"><div class="hltop">${liveTag}${tags}<span class="hledi ${edi}">${edi}</span></div><div class="hlstats">${[
 				stat(fmtDur(p.playSeconds), "played"),
 				stat(fmt(n(p.sessions)), n(p.sessions) === 1 ? "session" : "sessions"),
 				stat(fmt(n(p.totalActions)), "actions"),
@@ -899,6 +914,9 @@ function render(data) {
 
 	/* ---- Player highlights — kept at the bottom ---- */
 	if (charSection) out.push(charSection);
+
+	/* ---- Landing page — the very bottom (site traffic, not game numbers) ---- */
+	if (landingSection) out.push(landingSection);
 
 	document.getElementById("root").innerHTML = out.join("");
 }
