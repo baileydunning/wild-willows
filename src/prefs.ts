@@ -6,6 +6,7 @@
 
 import { useSyncExternalStore } from 'react';
 import { scheduleFlush, flushNow } from './perf';
+import { setSimpleText } from './i18n/core';
 
 export type TextScale = 'sm' | 'md' | 'lg' | 'xl';
 
@@ -36,6 +37,10 @@ export interface Prefs {
 	keybinds: Record<string, string[]>;
 	/** Show the pulsing ring + key badge over the nearest interactable. */
 	interactHint: boolean;
+	/** Swap the game's wording for plainer phrasing (~5th-grade reading level):
+	 *  shorter sentences, everyday words, jargon dropped or explained in place.
+	 *  Applies to the interface AND the nature writing. */
+	simpleText: boolean;
 }
 
 /** The zoom factor applied to the UI overlays for each text-size step. */
@@ -55,6 +60,7 @@ const DEFAULTS: Prefs = {
 	sfxVolume: 0.75,
 	keybinds: {},
 	interactHint: true,
+	simpleText: false,
 };
 
 /** Clamp an arbitrary value to a 0–1 volume, falling back when it isn't a number. */
@@ -113,6 +119,7 @@ export function normalizePrefs(raw: any, fallbackReduce = false): Prefs {
 		sfxVolume: normalizeVolume(o.sfxVolume, DEFAULTS.sfxVolume),
 		keybinds: normalizeKeybinds(o.keybinds),
 		interactHint: typeof o.interactHint === 'boolean' ? o.interactHint : DEFAULTS.interactHint,
+		simpleText: typeof o.simpleText === 'boolean' ? o.simpleText : DEFAULTS.simpleText,
 	};
 }
 
@@ -121,6 +128,11 @@ const listeners = new Set<(p: Prefs) => void>();
 
 export function getPrefs(): Prefs {
 	return current;
+}
+
+/** Push the plain-language choice into the i18n layer, which owns the overlay. */
+function applyToI18n(p: Prefs): void {
+	setSimpleText(p.simpleText);
 }
 
 function applyToDom(p: Prefs): void {
@@ -183,6 +195,7 @@ export function setPrefs(patch: Partial<Prefs>): Prefs {
 	current = normalizePrefs({ ...current, ...patch });
 	queuePrefsWrite();
 	applyToDom(current);
+	applyToI18n(current);
 	listeners.forEach((fn) => {
 		try {
 			fn(current);
@@ -206,3 +219,4 @@ try {
 	current = normalizePrefs(null, systemReduceMotion());
 }
 applyToDom(current);
+applyToI18n(current); // the saved choice must apply before the first render

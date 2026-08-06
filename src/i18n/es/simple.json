@@ -1,0 +1,787 @@
+{
+	"_readme": "Plain-language overlay for the \"simpler wording\" accessibility option (~5th-grade reading level). Mirrors the normal catalog key-for-key, but ONLY where a simpler wording exists — anything absent falls back to the normal text, so partial coverage is safe. Data content (animal diets, habitats, ecology) goes under \"content\", exactly like the translation overlay.",
+	"panels": {
+		"tutorial": {
+			"coreLoop": {
+				"text": "Este es el ciclo. Recoge cosas. Conviértelas en hogares para animales. Ponlas en el suelo. Los animales vuelven solos. Primero, un saltamontes.",
+				"touch": "Este es el ciclo. Recoge cosas. Conviértelas en hogares para animales. Ponlas en el suelo. Los animales vuelven solos. Primero, un saltamontes."
+			},
+			"basket": {
+				"text": "Pulsa B para ver lo que llevas. Tu cesta tiene un límite. Cuando se llene, guarda lo demás en un cofre. La barra de abajo cambia de herramienta. También puedes pulsar 1, 2 o 3.",
+				"touch": "Toca el botón de la cesta para ver lo que llevas. Tu cesta tiene un límite. Cuando se llene, guarda lo demás en un cofre. La barra de abajo cambia de herramienta."
+			},
+			"chest": {
+				"text": "Ve al cofre junto a tu tienda. Pulsa E o Espacio para abrirlo. Guarda ahí lo que te sobre. Puedes usarlo para crear desde cualquier lugar, así que no hace falta cargarlo.",
+				"touch": "Ve al cofre junto a tu tienda y tócalo. Guarda ahí lo que te sobre. Puedes usarlo para crear desde cualquier lugar, así que no hace falta cargarlo."
+			},
+			"crafting": {
+				"touch": "Toca el botón del martillo para crear. Usa tu cesta desde cualquier lugar. Vamos a construir la casa del saltamontes."
+			},
+			"toolbelt": {
+				"text": "Tus herramientas están abajo. La 1 es la cesta para recoger. La 2 es la pala para cavar. La 3 es la regadera. Pulsa T para abrir Herramientas. Ahí gastas materiales para mejorarlas. Las mejores recogen y cavan más. También abren la guía de la siguiente zona.",
+				"touch": "Tus herramientas están abajo. La cesta recoge. La pala cava. La regadera riega. Toca el botón de herramientas para mejorarlas. Las mejores recogen y cavan más."
+			},
+			"tools": {
+				"text": "Pulsa T para abrir Herramientas. Gasta materiales para mejorar tu cesta, tu pala, tu regadera o tu diario. Las mejores recogen y cavan más. Algunas mejoras se abren cuando la tierra sana.",
+				"touch": "Toca el botón de herramientas. Gasta materiales para mejorar tu cesta, tu pala, tu regadera o tu diario. Algunas mejoras se abren cuando la tierra sana."
+			},
+			"journal": {
+				"text": "Pulsa J para abrir tu diario. Muestra cada animal que puede volver a cada zona. También muestra quién ya volvió. Cada zona tiene su guía. La ficha básica siempre se ve. La comida, el refugio y las pistas se abren cuando recoges cosas de esa zona y mejoras su guía.",
+				"touch": "Toca el botón del diario. Muestra cada animal que puede volver a cada zona y quién ya volvió. La comida, el refugio y las pistas se abren cuando recoges cosas de esa zona y mejoras su guía."
+			},
+			"map": {
+				"text": "Pulsa M para abrir la Reserva. Muestra la salud de cada zona y sus animales. Muestra qué necesitas para abrir la siguiente. También puedes viajar a zonas que ya visitaste. Toca el icono de caminar en su fila.",
+				"touch": "Toca el botón del mapa para abrir la Reserva. Muestra la salud de cada zona y sus animales. Muestra qué necesitas para abrir la siguiente. También puedes viajar a zonas que ya visitaste."
+			},
+			"menus": {
+				"text": "Tus menús están arriba a la derecha. Aprender tiene el diario y las estrellas. Construir tiene la cesta, la creación, las herramientas y las metas. Mundo tiene el mapa y el clima. Cada uno se explica la primera vez que lo abres.",
+				"touch": "Tus menús están arriba a la derecha. Aprender tiene el diario y las estrellas. Construir tiene la cesta, la creación, las herramientas y las metas. Mundo tiene el mapa y el clima."
+			},
+			"proximity": {
+				"text": "Un secreto. Los animales vuelven a barrios, no a piezas sueltas. Pon comida, agua y refugio cerca. Un parche junto a un charco junto a un arbusto funciona muy bien. Así vuelven muchos más.",
+				"touch": "Un secreto. Los animales vuelven a barrios, no a piezas sueltas. Pon comida, agua y refugio cerca. Un parche junto a un charco junto a un arbusto funciona muy bien. Así vuelven muchos más."
+			},
+			"star": {
+				"text": "Ese es todo el ciclo. El saltamontes te dio tu primera estrella, Primer Amigo. Hay 50 estrellas. Se ganan al sanar la tierra, traer animales grandes y dominar las herramientas. No son fáciles. Pulsa K para verlas. Ahora, un paseo por tus otros menús.",
+				"touch": "Ese es todo el ciclo. El saltamontes te dio tu primera estrella, Primer Amigo. Hay 50 estrellas. Se ganan al sanar la tierra, traer animales grandes y dominar las herramientas. Toca el botón de la estrella para verlas."
+			},
+			"home": {
+				"text": "Una última cosa. Vuelve a tu tienda y pulsa E para entrar. El cartel junto a la tienda la convierte en una casa de verdad. Cada estilo da su propio bono. Después puedes mejorar cuatro cosas: Espacio te deja cargar más, Confort hace tu bono más fuerte, más Decoración y Luz. Se abren más mejoras cuando tu tierra sana. Entra ya. La reserva es tuya. ¡Que la disfrutes!",
+				"touch": "Una última cosa. Vuelve a tu tienda y tócala para entrar. El cartel la convierte en una casa de verdad. Cada estilo da su propio bono. Después puedes mejorar cuatro cosas: Espacio te deja cargar más, Confort hace tu bono más fuerte, más Decoración y Luz. Entra ya. La reserva es tuya."
+			},
+			"weather": {
+				"text": "Pulsa N para abrir la guía del Clima. Cada zona tiene su clima. Cambia solo y se mueve con las estaciones. La guía muestra qué pasa en todas partes. También explica cómo el clima y la estación cambian tu zona. Mira el cielo. El clima raro puede dejar cosas raras para recoger.",
+				"touch": "Toca el botón de la nube para abrir la guía del Clima. Cada zona tiene su clima. Cambia solo y se mueve con las estaciones. Mira el cielo. El clima raro puede dejar cosas raras para recoger."
+			},
+			"demoNote": "Esta es la demo gratis. Sana el prado para abrir el bosque y luego explóralo. La demo termina tras tus primeros 10 minutos en el bosque.",
+			"coopHostTogether": {
+				"text": "Cuando entren tus amigos, los verás en la misma reserva. La tierra, los edificios, las plantas y los animales se comparten. Así el trabajo se suma. Tu cesta, tus herramientas, tu diario y tus estrellas siguen siendo tuyos. Ahora, lo básico.",
+				"touch": "Cuando entren tus amigos, los verás en la misma reserva. La tierra, los edificios, las plantas y los animales se comparten. Así el trabajo se suma. Tu cesta, tus herramientas, tu diario y tus estrellas siguen siendo tuyos."
+			},
+			"coopJoinWelcome": {
+				"text": "Entraste en una reserva compartida. Verás al anfitrión y a otros jugadores en el mismo mundo. La tierra, los edificios, las plantas y los animales se comparten. Así el trabajo se suma. Tu cesta, tus herramientas, tu diario y tus estrellas siguen siendo tuyos.",
+				"touch": "Entraste en una reserva compartida. Verás al anfitrión y a otros jugadores en el mismo mundo. La tierra, las plantas y los animales se comparten. Tu cesta, tus herramientas, tu diario y tus estrellas siguen siendo tuyos."
+			}
+		},
+		"help": {
+			"intro": "Un ciclo tranquilo. Recoge cosas. Hazlas hogares para animales. Ponlas en el suelo. Los animales vuelven a casa.",
+			"demoNote": "Estás en la demo gratis. Sana el prado para abrir el bosque y luego explóralo. La demo termina tras tus primeros 10 minutos en el bosque. Tu partida sirve en el juego completo.",
+			"keys": {
+				"click": "Mira un animal. O abre el menú de algo que pusiste para moverlo, girarlo o recogerlo.",
+				"rotate": "Gira un cuarto de vuelta lo que estás poniendo.",
+				"toolSelect": "Elige una herramienta: cesta, pala, regadera o pintura. La pintura sirve en tu casa."
+			},
+			"loop": {
+				"craft": {
+					"text": "Pulsa C para hacer hogares con tus materiales. Se abren recetas nuevas cuando la tierra sana."
+				},
+				"record": {
+					"text": "Tu diario se llena cada vez que vuelve un animal. Mejores herramientas llegan a sitios más difíciles."
+				},
+				"store": {
+					"text": "Guarda lo que te sobre en cofres. Puedes crear con ello desde cualquier lugar."
+				},
+				"weather": {
+					"text": "El clima de cada zona cambia con las estaciones. Algunas cosas y algunos animales solo salen con el clima justo."
+				}
+			},
+			"more": {
+				"home": {
+					"text": "Llena tu tienda con cosas que creas. Constrúyela o mejórala en el cartel de al lado."
+				},
+				"land": {
+					"text": "Cava con la 2. Riega con la 3. Luego planta. O riega otra vez para hacer un charco, un río o un lago."
+				},
+				"tools": {
+					"text": "Pulsa T. Gasta materiales en una cesta más grande, mejores herramientas y guías nuevas."
+				}
+			}
+		},
+		"coach": {
+			"achievements": "Estrellas. Hay 50 para ganar. Se dan por sanar tierra, usar bien las herramientas y recibir animales.",
+			"biomes": "La Reserva. Mira cómo va cada zona, qué abre la siguiente y viaja a sitios que ya visitaste.",
+			"crafting": "Creación. Convierte lo que recoges en hogares para animales. Se abren recetas nuevas cuando la tierra sana.",
+			"demoNear": "Un animal más y terminas la demo. ¡Ya casi!",
+			"feed": "Lista de actividad. Un registro de lo que pasa, con estos consejos. Puedes subir cuando quieras.",
+			"goals": "Metas. Ponte tus propias tareas y míralas en el tablero. Crea, planta, trae un animal o sana una zona.",
+			"home": "Tu casa. Un espacio para hacerlo tuyo. Llénalo con cosas que creas. Usa el cartel junto a tu tienda para construir y mejorar. Una casa más grande te deja cargar más.",
+			"people": "Gente. Invita a amigos con tu código y mira quién está aquí contigo.",
+			"settings": "Ajustes. Sonido, opciones de ayuda, tu aspecto y guardado.",
+			"tools": "Herramientas. Gasta materiales en una cesta más grande, mejor pala y regadera, y guías nuevas.",
+			"weather": "Clima y estaciones. Mira cómo cambia el clima en la reserva. Algunas cosas y animales solo salen con el clima justo."
+		},
+		"goals": {
+			"intro": "Juega a tu manera. Elige algo que quieras lograr. Puede ser construir algo, plantar, recoger material, leer sobre animales o sanar tu casa o una zona. Aparece en el tablero y se cuenta solo. Al terminar recibes un pequeño lote de materiales.",
+			"moreNote": "Puedes tener 3 metas a la vez. Puedes tener 6 cuando toda la reserva esté abierta. También puedes añadir una meta para un animal desde su ficha, o para un objeto desde el menú de creación. Busca el botón de diana.",
+			"rewardNote": "Al terminar una meta recibes un pequeño lote de materiales. Recógelo en el tablero.",
+			"homeMaxed": "Tu mejora de {track} ya está al máximo. Elige otra.",
+			"desc": {
+				"biomeAnimals": "Trae de vuelta a todos los animales de una zona abierta. Toda la red alimentaria.",
+				"health": "Sana una zona abierta hasta una meta de salud. Un trabajo grande para un sitio que quieres.",
+				"home": "Mejora una parte de tu casa: Espacio, Confort, Decoración o Luz.",
+				"observe": "Lee sobre algunos animales en tu diario.",
+				"plant": "Planta varios seres vivos en la reserva. Flores, hierbas o árboles.",
+				"welcomeTotal": "Trae algunos animales nuevos a la reserva."
+			}
+		},
+		"crafting": {
+			"intro": {
+				"one": "Crea desde cualquier lugar. Los materiales salen de tu cesta y luego de tus cofres. Tienes {count} cofre.",
+				"other": "Crea desde cualquier lugar. Los materiales salen de tu cesta y luego de tus cofres. Tienes {count} cofres."
+			},
+			"noMatchWiden": "Ninguna receta coincide con “{query}”. Prueba otra palabra o muestra más.",
+			"nothingToCraft": "Aquí no hay nada que crear todavía. Sana más este sitio o elige otro.",
+			"plantedNotCrafted": "Esto se planta, no se crea. Cava un bancal con la pala (2). Riégalo con la regadera (3). Luego toca el bancal mojado y elígelo de la lista."
+		},
+		"materials": {
+			"intro": "Esto es todo lo que puedes recoger en {biome} ahora. Búscalo en el suelo. Acércate y pulsa E o Espacio.",
+			"note": "Los sitios de recogida crecen solos. Solo tomas lo que la naturaleza ya soltó.",
+			"homeNote": "No hay nada que recoger dentro de tu casa. Sal fuera para juntar materiales.",
+			"weatherNote": "Sale durante {weather}. Recógelo mientras dure."
+		},
+		"journal": {
+			"comfortGrows": "La comodidad sube con buenos hogares. Pon más de lo que le gusta, como {items}, y se quedará.",
+			"foodWebIntro": "Las filas de arriba comen a las de abajo. Encontraste {returned} de {total}. Construye más hogares para ver el resto.",
+			"lockedCard": "Mejora tu guía al nivel {tier} para leer la ficha completa. Muestra su papel, su comida y a quién come.",
+			"overviewEmpty": "Todavía no volvió ningún animal. Construye hogares y empezarán a llegar. Vuelve aquí para verlos.",
+			"summaryAll": "Volvieron {returned} de {total} animales a la reserva."
+		},
+		"home": {
+			"buildIntro": "Tu casa aún es una tienda. Elige un estilo para volverla una casa. Cada estilo usa sus materiales y fija tu aspecto para siempre. Cada uno da un bono que crece con cada mejora.",
+			"perkBlurb": {
+				"forage": "Al recoger tienes un {pct}% de suerte de sacar uno más."
+			}
+		},
+		"inventory": {
+			"kitsNote": "Los kits no se ponen en el suelo y no se pueden tirar. Lo que cuenta es hacerlos."
+		},
+		"tools": {
+			"note": "Las mejoras usan materiales de tu cesta y de tus cofres."
+		},
+		"chest": {
+			"basketFull": "Tu cesta está llena. Guarda algo o tíralo primero."
+		},
+		"biomes": {
+			"healthGated": "La tierra se quedó en {cap}%. Solo sana más cuando vuelvan {animals} animales más de esta zona."
+		},
+		"achievements": {
+			"req": {
+				"tools": "Sube tu cesta, tu pala y tu regadera al nivel {n}."
+			}
+		},
+		"people": {
+			"membersNote": "Hasta {max} jugadores por reserva. Todos los de la lista ya entraron. Pueden volver cuando quieran."
+		},
+		"weather": {
+			"seasonsNote": "Las estaciones van de primavera a verano, luego otoño y luego invierno. Cada una cambia el clima que suele tocar a cada zona.",
+			"tease": "Un clima raro así puede dejar algo bueno. Explora {biome} mientras dure."
+		}
+	},
+	"app": {
+		"settings": {
+			"simpleTextHint": "Usa frases cortas y palabras de todos los días en todo el juego. Eso incluye las notas de animales. No se oculta nada. Solo se dice de forma más simple.",
+			"reduceMotionHint": "Quita las animaciones del menú, la lluvia y la nieve, los movimientos de cámara y el cambio de luz del día. La vista queda quieta y con luz pareja.",
+			"dyslexiaFontHint": "Usa la letra OpenDyslexic. Sus letras pesan más abajo. Así cada una se distingue mejor.",
+			"colorblindHint": {
+				"off": "El daltonismo afecta hasta a 1 de cada 12 personas. Elige el tipo que te toca. El juego cambia sus colores, sube el contraste, pone etiquetas al clima y a la hora, y mantiene luz de día. Así nada depende solo del color.",
+				"redgreen": "Rojo y verde es el tipo más común. Los rojos y los verdes se parecen. Esto separa esos colores, sube el contraste, añade etiquetas y mantiene la luz estable.",
+				"blueyellow": "Azul y amarillo es más raro. Los azules y verdes se parecen, y también los amarillos y rosas. Esto separa esos colores, sube el contraste, añade etiquetas y mantiene la luz estable.",
+				"mono": "Este tipo significa ver poco color o ninguno. El juego se ve en blanco y negro. Usa contraste, bordes y etiquetas en vez de color."
+			},
+			"musicHint": "Música suave y sonidos de la naturaleza de fondo.",
+			"soundEffectsHint": "Sonidos pequeños al jugar. Pasos, recoger cosas, plantar y avisos.",
+			"exportSaveHint": "Guarda una copia de esta reserva en un archivo. Lleva tu mundo, tu diario, tu avance, tu nombre y tu aspecto. Úsalo como copia de seguridad o llévalo a otro ordenador.",
+			"deleteSaveHint": "Esto borra \"{name}\" para siempre. La tierra, el diario, los cofres y todo el avance se van. Escribe tu clave para decir que sí.",
+			"keybinds": {
+				"note": "Moverte e interactuar tienen una tecla principal y otra de repuesto. Las dos sirven y puedes cambiar cualquiera. Si eliges una tecla ya usada, las dos se intercambian."
+			},
+			"errPasscodeLength": "Tu clave nueva debe tener de 4 a 32 caracteres.",
+			"emailPlaceholder": "Tu correo. Solo si quieres respuesta.",
+			"feedbackQueued": "No pudimos enviarlo ahora. Tu nota está guardada. Se enviará la próxima vez que abras el juego."
+		},
+		"hud": {
+			"healthHint": "Sube la salud regando la tierra y poniendo hogares. Cava un bancal y riégalo. Planta flores y árboles. Pon cosas que creas. Todo suma.",
+			"balanceHint": "El equilibrio muestra si el grupo de animales está completo. No es solo cuántos volvieron. Es la mezcla. Trae muchos tipos: insectos, aves y mamíferos. Los grandes cazadores importan más. Solo vuelven cuando ya están los animales que comen. Llega al 100% solo cuando vuelven todos.",
+			"demoGoalTitle": "Trae animales al prado para terminar la demo."
+		},
+		"welcome": {
+			"intro": {
+				"craftText": "Convierte lo que recoges en plantas, charcos y refugios. Luego ponlos en la tierra.",
+				"unlockText": "Sana una zona del todo y se abre el camino a la siguiente. Un sitio nuevo para recuperar."
+			},
+			"codeFormHint": "Escribe el código de un amigo para sanar su reserva con él.",
+			"errImport": "Ese archivo falta, está cambiado o está roto. No se pudo cargar.",
+			"joinFormHint": "Entrando en {world}. {host} está viendo tu petición mientras eliges tu aspecto. Entrarás en cuanto diga que sí."
+		},
+		"toast": {
+			"rested": "Duermes bien y despiertas al amanecer. Todos los sitios de recogida crecieron de nuevo.",
+			"preserveGrew": "Tu tierra siguió creciendo mientras no estabas.",
+			"perkForage": "¡Tu cabaña te ayudó a encontrar un {name} extra!"
+		},
+		"log": {
+			"rested": "Dormiste hasta el amanecer. Empieza un día nuevo y todos los sitios de recogida crecieron."
+		},
+		"feed": {
+			"loopReminder": "El mismo ciclo en {name}. Construye hogares hasta que vuelvan sus animales. Luego se abre el camino."
+		},
+		"feedPanel": {
+			"empty": "Todavía no pasó nada grande. Recoge, construye y recibe animales. Los mejores momentos saldrán aquí."
+		},
+		"coop": {
+			"joinWelcomeFeed": "Entraste en una reserva compartida. ¡Sánenla juntos! Abre el menú Gente arriba a la derecha para ver quién está y copiar el código."
+		},
+		"error": {
+			"feedbackRejected": "El servidor no pudo recibir esa nota. Inténtalo más tarde."
+		},
+		"demo": {
+			"doneBody": "Aquí termina la demo gratis. Gracias por sanar un rincón de la reserva. El juego completo abre cinco zonas más. También añade más creación, estaciones y clima, un diario para llenar y muchos más animales."
+		},
+		"kbGate": {
+			"body3": ", y llegar a tu cesta, tus herramientas y tu diario con teclas. Por eso no funciona solo en un móvil o una tableta.",
+			"hint": "Abre Wild Willows en un ordenador. O conecta un teclado y pulsa cualquier tecla."
+		},
+		"toolbelt": {
+			"how": {
+				"basket": "Tu herramienta para recoger. Ve a un sitio de recogida y pulsa la tecla para meterlo en tu cesta.",
+				"shovel": "Cava bancales en el suelo cerca de ti. Cava otra vez un bancal para quitarlo.",
+				"watering-can": "Riega un bancal para poder plantar. Riégalo otra vez para volverlo agua. Une casillas de agua para hacer charcos, ríos y lagos."
+			},
+			"paintHow": "Pintura. Elige un color y toca el suelo, las paredes, la alfombra o un objeto para cambiarlo."
+		}
+	},
+	"game": {
+		"block": {
+			"standingHere": "Estás encima. Muévete antes de inundar este bancal."
+		},
+		"toast": {
+			"stillRegrowing": "Todavía está creciendo. Dale un poco más de tiempo.",
+			"wetlandUnlocked": "¡El Humedal Aguaviva está abierto! Sigue la pasarela al este para llegar."
+		}
+	},
+	"server": {
+		"err": {
+			"alreadyPrepared": "Este suelo ya está listo. Riégalo o quítalo.",
+			"basketFullHarvest": "Tu cesta está llena. Haz sitio antes de recoger.",
+			"dbStarting": "La reserva está arrancando. Reinicia Harper si sigue así.",
+			"noRoomRefund": "No hay sitio para los materiales que vuelven. Haz espacio en tu cesta o en un cofre.",
+			"snapshotPathId": "Añade un id de jugador a la ruta, así: /BiomeSnapshot/<playerId>",
+			"worldFullClosed": "Esta reserva está llena. Ya tiene sus {max} jugadores y está cerrada.",
+			"worldFullJoined": "Esta reserva está llena. Entraron {max} jugadores y está cerrada."
+		},
+		"task": {
+			"welcomeGrasshopperHint": "Crea un parche de hierba y ponlo. Luego lleva el prado al 10% de salud. El saltamontes vuelve solo.",
+			"welcomeAnyAnimal": "Trae un animal nuevo a cualquier parte de la reserva.",
+			"gatherHint": "Elige tu cesta (1). Camina hasta un punto brillante. Pulsa E o Espacio.",
+			"craftFirstHint": "Abre la creación con C. Elige algo que puedas pagar. Pulsa Crear."
+		},
+		"goal": {
+			"hint": {
+				"craft": "Abre la creación con C y hazlo. La caja te dice qué necesitas.",
+				"plant": "Cava un bancal con la pala. Riégalo. Luego planta algo vivo.",
+				"collect": "Recoge esto de los puntos brillantes de la reserva.",
+				"observe": "Abre la ficha de un animal en tu diario (J) y léela.",
+				"attract": "Construye el hogar que aparece en la caja. El animal vuelve solo.",
+				"welcomeTotal": "Construye hogares en tus zonas. Los animales vuelven solos.",
+				"tool": "Junta los materiales. Luego mejóralo en Herramientas.",
+				"unlock": "Haz lo que aparece en la lista para abrir esta zona.",
+				"health": "Sana la tierra. Planta, riega y pon hogares hasta que la zona mejore.",
+				"biomeAnimals": "Construye un hogar para cada animal de aquí hasta que estén todos."
+			}
+		},
+		"nextbiome": {
+			"hint": "Marca cada cosa de abajo para abrir {biome}."
+		}
+	},
+	"content": {
+		"animal": {
+			"red-fox-meadow": {
+				"hint": "Los zorros vuelven cuando ya hay animales pequeños. Necesitan cobijo para su madriguera y un prado sano.",
+				"diet": "Ratones de campo, conejos, ardillas, aves y bichos. También bayas",
+				"preferredHabitat": "Prados, bordes de campo y setos en terreno abierto"
+			},
+			"lady-beetle": {
+				"hint": "Las flores traen pulgones. Los pulgones traen mariquitas.",
+				"diet": "Caza pulgones y otros bichos pequeños y blandos",
+				"shelter": "Pasa el invierno en las hojas caídas, en grupos. Descansa en las hojas"
+			},
+			"western-meadowlark": {
+				"hint": "Necesitan mucha hierba nativa para anidar. También agua para beber y bañarse.",
+				"diet": "Sobre todo bichos en verano. Semillas y grano en invierno"
+			},
+			"red-tailed-hawk": {
+				"hint": "Los halcones buscan un prado que ya esté lleno de animales pequeños.",
+				"diet": "Sobre todo mamíferos pequeños: ratones, ardillas y conejos. También aves y serpientes",
+				"preferredHabitat": "Terreno abierto: pastizal, campos y prados vistos desde arriba"
+			},
+			"barn-owl": {
+				"hint": "Un prado tranquilo y sano con muchos ratones de campo y un sitio oscuro para dormir.",
+				"diet": "Casi solo mamíferos pequeños: ratones de campo, ratones y musarañas, de noche",
+				"shelter": "Anida en huecos de árbol, grietas de acantilado y edificios tranquilos"
+			},
+			"woodpecker": {
+				"hint": "Los pájaros carpinteros necesitan árboles secos en pie. Deja algunos.",
+				"diet": "Sobre todo bichos: larvas de escarabajo, hormigas y orugas. Algo de bayas y savia",
+				"shelter": "Huecos que él mismo cava en árboles secos. Duerme ahí todo el año",
+				"preferredHabitat": "Bosque abierto de hoja y mixto con árboles secos llenos de bichos"
+			},
+			"great-horned-owl": {
+				"hint": "Árboles altos, refugio tranquilo y presas que ya hayan vuelto.",
+				"diet": "Mamíferos y aves: conejos, ratones, ardillas, zorrillos. También ranas",
+				"preferredHabitat": "Bosque viejo con claros, en casi todas las zonas"
+			},
+			"black-bear": {
+				"hint": "Los osos solo vuelven a un bosque rico. Necesitan bayas, agua, refugio y espacio.",
+				"shelter": "Guaridas en árboles huecos, raíces, grietas o huecos cavados. Duerme el invierno",
+				"preferredHabitat": "Bosque espeso con mucha maleza y muchas bayas y nueces"
+			},
+			"elk-forest": {
+				"hint": "Claros con hierba y agua en un bosque sano.",
+				"shelter": "Sin guarida. Las crías se esconden entre plantas. La manada vigila junta",
+				"preferredHabitat": "Claros con hierba y bordes abiertos dentro de un bosque mayor"
+			},
+			"bobcat": {
+				"hint": "Los linces siguen a sus presas. Necesitan rocas y matorral para esconderse.",
+				"diet": "Solo come carne: conejos, ratones y ardillas. Algunas aves y lagartos",
+				"preferredHabitat": "Bosque con maleza espesa, matorral y terreno rocoso"
+			},
+			"garter-snake-forest": {
+				"hint": "Un montón de piedras al sol junto a un terreno con hierba.",
+				"diet": "Lombrices, ranas y babosas. También sanguijuelas, peces y ratones",
+				"shelter": "Guaridas de invierno compartidas en madrigueras y piedras. Se esconde bajo troncos"
+			},
+			"beaver": {
+				"hint": "Canales de agua arreglados, orillas de barro y plantas leñosas.",
+				"diet": "Corteza y madera blanda de sauce y álamo, más plantas de agua"
+			},
+			"freshwater-fish": {
+				"hint": "Charcas limpias y unidas con juncos traen peces. Luego llega quien come peces."
+			},
+			"burrowing-owl": {
+				"hint": "Madrigueras ya cavadas y terreno abierto para cazar."
+			},
+			"ptarmigan": {
+				"hint": "Arbustos alpinos y cobijo tranquilo para anidar, con flores de escarcha.",
+				"preferredHabitat": "Terreno alto sobre los árboles todo el año. Inverna en hondonadas de sauce"
+			},
+			"golden-eagle": {
+				"hint": "Las águilas llegan al final. Vienen cuando la montaña vuelve a estar viva.",
+				"diet": "Marmotas, liebres, ardillas de tierra y aves. También animales muertos",
+				"preferredHabitat": "Montaña alta y abierta con acantilados y presas medianas"
+			},
+			"sea-otter": {
+				"hint": "Primero el kelp y los bancos de mariscos. Luego llegan las nutrias.",
+				"diet": "Erizos de mar, cangrejos, mejillones, almejas y otros mariscos",
+				"preferredHabitat": "Bosque de kelp y costa rocosa con muchos mariscos"
+			},
+			"dolphin": {
+				"hint": "Una costa limpia y viva trae delfines cerca."
+			},
+			"migrating-whale": {
+				"hint": "Solo una costa muy sana trae una ballena. Mira al horizonte.",
+				"diet": "Animalitos parecidos a gambas, colados del barro del fondo"
+			},
+			"northern-leopard-frog": {
+				"hint": "Una charca con nenúfares y unas casillas de agua."
+			},
+			"boreal-toad": {
+				"hint": "Una charca de deshielo y unas casillas de agua.",
+				"diet": "Escarabajos, hormigas, moscas y otros bichos. Los renacuajos comen algas",
+				"preferredHabitat": "Prados altos y húmedos con charcas abiertas para criar"
+			},
+			"green-heron": {
+				"hint": "Planta un tupelo junto a una charca con nenúfares y agua abierta.",
+				"diet": "Sobre todo peces pequeños. También bichos, cangrejos y ranas",
+				"shelter": "Nidos de palos en árboles y arbustos que cuelgan sobre el agua"
+			},
+			"elf-owl": {
+				"hint": "Planta un mezquite y un palo fierro junto a un grupo de cactus."
+			},
+			"mountain-chickadee": {
+				"hint": "Planta un abeto subalpino y krummholz con flores alpinas.",
+				"diet": "Bichos y arañas en verano. Piñones y nueces en otoño e invierno",
+				"shelter": "Huecos viejos de carpintero y huecos de árbol en pinos y álamos"
+			},
+			"killdeer": {
+				"hint": "Hierba nativa abierta con un montón de piedras y un muro para anidar al lado."
+			},
+			"red-admiral": {
+				"hint": "Flores para mariposas y flores silvestres junto a un hotel de insectos.",
+				"diet": "Los adultos prefieren savia, fruta pasada y néctar. Las crías comen ortigas",
+				"shelter": "Las crías doblan hojas de ortiga como tiendas. Los adultos descansan en árboles",
+				"preferredHabitat": "Claros con flores y bordes de bosque cerca de ortigas"
+			},
+			"chuckwalla": {
+				"hint": "Una grieta para meterse, cactus y matorral para comer, y piedras al sol para calentarse."
+			},
+			"alpine-chipmunk": {
+				"hint": "Un pedregal y un montón de piedras entre flores alpinas.",
+				"preferredHabitat": "Laderas de piedra altas y prados rocosos de Sierra Nevada"
+			},
+			"cascades-frog": {
+				"hint": "Una charca de deshielo junto a un pedregal, con agua abierta cerca.",
+				"diet": "Come bichos y arañas dentro y cerca del agua",
+				"shelter": "Charcas y lagos de deshielo. Pasa el invierno en el barro del fondo",
+				"preferredHabitat": "Charcas y arroyos fríos de montaña cerca del bosque de pinos"
+			},
+			"black-turnstone": {
+				"hint": "Charcas de marea y algas con un montón de madera para esconderse."
+			},
+			"pigeon-guillemot": {
+				"hint": "Un acantilado para anidar sobre agua abierta, cerca de un banco de ostras."
+			},
+			"bat-star": {
+				"hint": "Un par de charcas de marea con un banco de zostera."
+			},
+			"cottontail-rabbit": {
+				"preferredHabitat": "Prados y bordes de campo con arbustos donde meterse"
+			},
+			"monarch-butterfly": {
+				"diet": "Las crías solo comen algodoncillo. Los adultos beben néctar",
+				"preferredHabitat": "Prados abiertos y cunetas con algodoncillo y flores"
+			},
+			"song-sparrow": {
+				"diet": "Bichos en verano. Semillas y fruta todo el año"
+			},
+			"mule-deer": {
+				"shelter": "Duerme entre arbustos, hierba alta o bordes del bosque. Sin madriguera",
+				"preferredHabitat": "Prados abiertos y matorral con comida y agua cerca"
+			},
+			"ground-squirrel": {
+				"diet": "Sobre todo semillas, hierba y flores, más bichos como saltamontes",
+				"shelter": "Madrigueras grandes con muchas puertas, cavadas en terreno abierto",
+				"preferredHabitat": "Prados con hierba y laderas cerca de rocas para vigilar"
+			},
+			"garter-snake-meadow": {
+				"diet": "Lombrices, ranas, babosas, peces pequeños, bichos y ratones",
+				"shelter": "Se esconde bajo rocas y troncos. Pasa el invierno en guaridas compartidas"
+			},
+			"bumblebee": {
+				"diet": "Néctar para energía y polen para proteína, de muchas flores",
+				"shelter": "Anida en madrigueras viejas de ratón, matas de hierba o huecos del suelo"
+			},
+			"grasshopper": {
+				"diet": "Come plantas: hierbas, juncias y hierbas de hoja ancha"
+			},
+			"barn-swallow": {
+				"preferredHabitat": "Terreno abierto cerca de agua, flores y edificios"
+			},
+			"tree-squirrel": {
+				"diet": "Bellotas, nueces, semillas, brotes y hongos. A veces bichos y huevos",
+				"shelter": "Guaridas en huecos de árbol y nidos de hojas allá arriba",
+				"preferredHabitat": "Bosque viejo de hoja o mixto lleno de robles y nogales"
+			},
+			"forest-salamander": {
+				"diet": "Bichos pequeños: ácaros, colémbolos, arañas, escarabajos, hormigas y lombrices",
+				"shelter": "Bajo troncos, rocas y hojas húmedas. Se mete en huecos del suelo",
+				"preferredHabitat": "Suelo de bosque fresco y húmedo con mucha madera caída"
+			},
+			"red-fox-forest": {
+				"diet": "Ratones, conejos, aves y lagartos. También bichos y fruta",
+				"shelter": "Guaridas cavadas en laderas, o tomadas de otros animales. Se usan años",
+				"preferredHabitat": "Bordes de bosque y matorral mixto. Evita el bosque muy cerrado"
+			},
+			"mule-deer-forest": {
+				"diet": "Come hojas, ramitas y hierbas en verano. Bellotas y bayas en invierno",
+				"shelter": "Sin guarida. Duerme entre arbustos espesos para estar caliente y a salvo",
+				"preferredHabitat": "Bordes de bosque y bosque abierto con arbustos para comer y agua"
+			},
+			"raccoon": {
+				"diet": "Come lo que encuentra: cangrejos de río, bichos, ranas, peces, huevos y fruta",
+				"shelter": "Prefiere árboles huecos. También grietas, madrigueras y edificios",
+				"preferredHabitat": "Bosque húmedo cerca del agua para buscar comida"
+			},
+			"porcupine": {
+				"diet": "Solo come plantas. Corteza por dentro en invierno. Brotes, ramitas y hojas en verano",
+				"shelter": "Guaridas de roca, troncos huecos y copas. Usa las mismas cada temporada",
+				"preferredHabitat": "Bosque de pinos y mixto con árboles cuya corteza puede comer"
+			},
+			"chipmunk": {
+				"shelter": "Madrigueras de hasta 10 m con cuartos para dormir y guardar comida",
+				"preferredHabitat": "Bosque viejo de hoja con troncos, tocones y rocas donde esconderse"
+			},
+			"nuthatch": {
+				"diet": "Bichos y arañas en verano. Semillas, bellotas y nueces guardadas en invierno",
+				"shelter": "Huecos de árbol y huecos viejos de carpintero en árboles grandes. También cajas",
+				"preferredHabitat": "Bosque viejo de hoja y mixto con robles y nogales grandes"
+			},
+			"banana-slug": {
+				"diet": "Hojas muertas, hongos, cosas podridas y excrementos. A veces plantas jóvenes",
+				"shelter": "Bajo troncos y corteza. Se sella en baba cuando hay sequía"
+			},
+			"great-blue-heron": {
+				"diet": "Peces, ranas y animales pequeños de agua. También ratones y otras aves"
+			},
+			"wetland-salamander": {
+				"diet": "Lombrices, bichos, criaturas pequeñas e incluso animales pequeños con huesos"
+			},
+			"dragonfly": {
+				"diet": "Bichos voladores de adulta. Sus crías comen crías de mosquito y renacuajos",
+				"shelter": "Tallos de junco sobre el agua. Las crías viven en el agua"
+			},
+			"damselfly": {
+				"diet": "Bichos voladores pequeños de adulta. Las crías comen animales de agua"
+			},
+			"water-strider": {
+				"diet": "Bichos atrapados en la superficie del agua. También come los muertos"
+			},
+			"desert-cottontail": {
+				"diet": "Hierbas, mezquite, palas de cactus y otras plantas del desierto"
+			},
+			"mountain-goat": {
+				"shelter": "Camas poco hondas raspadas en repisas de acantilado y roca",
+				"preferredHabitat": "Acantilados altos y empinados con salidas por encima de la hierba"
+			},
+			"bighorn-sheep": {
+				"preferredHabitat": "Laderas de montaña con hierba junto a acantilados rocosos"
+			},
+			"pika": {
+				"diet": "Hierba, plantas y flores, secadas en montones de heno para el invierno",
+				"preferredHabitat": "Laderas de piedra y pedregales junto a prados de flores altos"
+			},
+			"marmot": {
+				"preferredHabitat": "Trozos de prado abierto con rocas y suelo donde cavar"
+			},
+			"snowshoe-hare": {
+				"diet": "Plantas verdes en verano. Brotes, ramitas, corteza y agujas de pino en invierno",
+				"shelter": "Huecos poco hondos bajo arbustos espesos y pinos",
+				"preferredHabitat": "Matorral espeso y maleza densa cerca de hierba abierta"
+			},
+			"elk-alpine": {
+				"preferredHabitat": "Prados altos de verano cerca del bosque y del agua de deshielo"
+			},
+			"mule-deer-alpine": {
+				"preferredHabitat": "Prados altos de verano y matorral con agua limpia"
+			},
+			"fox-alpine": {
+				"shelter": "Guaridas cavadas en la tierra, muchas veces tomadas de otros animales",
+				"preferredHabitat": "Montaña alta con rocas donde cobijarse y muchas presas pequeñas"
+			},
+			"pine-marten": {
+				"diet": "Ratones, ardillas rojas, picas, liebres, aves, huevos, bichos y bayas"
+			},
+			"clarks-nutcracker": {
+				"preferredHabitat": "Bosque alto de pinos y límite del bosque cerca de piñones"
+			},
+			"alpine-butterfly": {
+				"diet": "Las crías comen uña de gato. Los adultos beben néctar de esa planta y de margaritas",
+				"shelter": "Sin nido. Las crías se esconden entre hojas y rocas. Los huevos pasan el invierno",
+				"preferredHabitat": "Laderas altas, rocosas y abiertas donde crece la uña de gato"
+			},
+			"bumblebee-alpine": {
+				"shelter": "Nidos en grupo en huecos del suelo y madrigueras viejas de ratón",
+				"preferredHabitat": "Prados de flores altos, muchas veces sobre el límite del bosque"
+			},
+			"snowmelt-trout": {
+				"diet": "Bichos del agua y de la tierra. Las truchas grandes también comen peces",
+				"shelter": "Pozas frías y claras y orillas socavadas. Grava poco honda para los huevos"
+			},
+			"tidepool-crab": {
+				"diet": "Sobre todo algas, más restos, lombrices, caracoles y animales muertos"
+			},
+			"sea-turtle": {
+				"diet": "Sobre todo hierba de mar y algas de adulta. De joven come de todo",
+				"preferredHabitat": "Agua limpia y poco honda con hierba de mar y una playa tranquila"
+			},
+			"american-goldfinch": {
+				"diet": "Casi solo semillas: cardo, girasol, aster y hierba",
+				"preferredHabitat": "Campos con hierbajos y terreno abierto con cardo, girasol y asteres"
+			},
+			"eastern-bluebird": {
+				"diet": "Sobre todo bichos del suelo como orugas, escarabajos y saltamontes. Fruta en invierno",
+				"shelter": "Un nido de hierba en huecos de árbol, huecos de carpintero o cajas"
+			},
+			"leafcutter-bee": {
+				"diet": "Los adultos comen néctar y polen de muchas flores",
+				"preferredHabitat": "Prados y jardines con muchas flores y huecos donde anidar"
+			},
+			"painted-lady": {
+				"diet": "Los adultos beben de flores tipo margarita. Las crías comen cardos y malvas",
+				"shelter": "Descansa en las plantas. Las crías hacen nidos de seda en su planta",
+				"preferredHabitat": "Prados abiertos y terreno removido con cardos y flores"
+			},
+			"american-badger": {
+				"diet": "Desentierra ardillas, tuzas y ratones. También come bichos",
+				"shelter": "Cava sus propias madrigueras grandes. Es muy buen cavador",
+				"preferredHabitat": "Prados y pastizal abierto con tierra blanda y ratones que cazar"
+			},
+			"pileated-woodpecker": {
+				"diet": "Hormigas carpinteras y larvas de escarabajo. También termitas, bayas y nueces",
+				"shelter": "Cava un hueco nuevo y cuadrado cada año en árboles secos grandes"
+			},
+			"pacific-wren": {
+				"diet": "Escarabajos, orugas, hormigas, moscas y arañas. Algunas bayas en invierno",
+				"preferredHabitat": "Bosque de pinos muy viejo con maleza espesa cerca de arroyos"
+			},
+			"rough-skinned-newt": {
+				"shelter": "Bajo troncos podridos, rocas y hojas. En charcas cuando cría",
+				"preferredHabitat": "Bosque de pinos de costa cerca de agua quieta o lenta"
+			},
+			"northern-flying-squirrel": {
+				"diet": "Sobre todo hongos bajo tierra. También líquenes, semillas, nueces, fruta y bichos",
+				"shelter": "Huecos de árbol, huecos viejos de carpintero y nidos de rama. Se juntan en invierno",
+				"preferredHabitat": "Bosque viejo de pinos con techo cerrado de hojas y muchos hongos"
+			},
+			"wood-duck": {
+				"diet": "Bellotas, semillas y plantas de agua. Los patitos también comen bichos y caracoles",
+				"shelter": "Solo anida en huecos de árbol y cajas cerca del agua",
+				"preferredHabitat": "Bosque bajo de hoja y pantanos con agua lenta y árboles huecos"
+			},
+			"belted-kingfisher": {
+				"diet": "Peces pequeños y cangrejos de río, más otros seres del agua"
+			},
+			"snapping-turtle": {
+				"diet": "Peces, plantas de agua, animales muertos y casi todo lo que atrapa"
+			},
+			"rosy-finch": {
+				"diet": "Semillas diminutas de montaña y bichos, muchas veces cogidos de la nieve",
+				"preferredHabitat": "Terreno alto sobre los árboles: roca, pedregal, acantilados y hielo"
+			},
+			"american-pipit": {
+				"preferredHabitat": "Prados altos abiertos y terreno pelado en época de cría"
+			},
+			"ermine": {
+				"diet": "Ratones pequeños, sobre todo de campo. También picas, aves, huevos y bichos"
+			},
+			"mountain-bluebird": {
+				"shelter": "Huecos viejos de carpintero, huecos naturales y cajas nido"
+			},
+			"purple-shore-crab": {
+				"diet": "Lechuga de mar y otras algas verdes, más algún animal muerto"
+			},
+			"coopers-hawk": {
+				"diet": "Sobre todo aves pequeñas y medianas. También ardillas y ratones",
+				"preferredHabitat": "Bordes de bosque y terreno abierto con árboles sueltos cerca de prados"
+			},
+			"western-screech-owl": {
+				"shelter": "Duerme y anida en huecos de árbol, huecos de carpintero y cajas",
+				"preferredHabitat": "Bordes con árboles y zonas de matorral junto a prados abiertos"
+			},
+			"barred-owl": {
+				"diet": "Mamíferos pequeños, aves, ranas, lagartos, peces y bichos",
+				"shelter": "Huecos grandes en bosque viejo. También nidos viejos de halcón o ardilla",
+				"preferredHabitat": "Bosque viejo mixto o de pinos cerca del agua con árboles huecos grandes"
+			},
+			"fisher": {
+				"diet": "Mamíferos pequeños y medianos: puercoespines, liebres, ardillas. También aves y fruta",
+				"shelter": "Guaridas en árboles huecos, troncos, tocones y madrigueras. Las crías van alto",
+				"preferredHabitat": "Bosque espeso de pinos y mixto con techo cerrado y árboles huecos"
+			},
+			"prothonotary-warbler": {
+				"shelter": "Huecos de árbol y cajas nido sobre el agua"
+			},
+			"pine-grosbeak": {
+				"preferredHabitat": "Bosque alto y abierto de abetos y pinos cerca del límite del bosque"
+			},
+			"praying-mantis": {
+				"diet": "Espera y atrapa bichos vivos, como abejas y saltamontes",
+				"preferredHabitat": "Prados y bordes con matorral y plantas espesas donde esconderse"
+			},
+			"little-brown-bat": {
+				"diet": "Solo come bichos: mosquitas, frigáneas, efímeras, polillas y mosquitos",
+				"shelter": "Duerme en huecos de árbol, bajo corteza y en edificios. Inverna en cuevas",
+				"preferredHabitat": "Bosque cerca de arroyos, charcas y claros para cazar en el aire"
+			},
+			"ensatina": {
+				"diet": "Bichos pequeños: lombrices, hormigas, escarabajos, arañas, ciempiés y caracoles",
+				"shelter": "Bajo rocas, corteza y troncos del suelo. Baja a la tierra cuando hay sequía"
+			},
+			"spotted-towhee": {
+				"diet": "Bichos y criaturas pequeñas en verano. Semillas, bellotas y bayas en invierno",
+				"preferredHabitat": "Bordes de bosque con matorral y hojas caídas espesas"
+			},
+			"spotted-turtle": {
+				"diet": "Plantas de agua, bichos, lombrices, caracoles y otras criaturas pequeñas"
+			},
+			"white-crowned-sparrow": {
+				"diet": "Sobre todo semillas de hierba, más orugas, escarabajos y otros bichos"
+			}
+		},
+		"biome": {
+			"forest": {
+				"unlock": {
+					"label": "Lleva el Prado Sauce al 60% de salud. Recibe 10 animales del prado. Crea un Kit de Bosque."
+				}
+			},
+			"wetland": {
+				"unlock": {
+					"label": "Lleva el Bosque Viejo al 80% de salud con 10 animales de bosque. Recibe 25 animales en total. Crea un Kit de Humedal."
+				}
+			},
+			"desert": {
+				"unlock": {
+					"label": "Lleva el Humedal Aguaviva al 80% de salud con 13 animales de humedal. Recibe 45 animales en total. Crea un Kit de Matorral."
+				}
+			},
+			"alpine": {
+				"unlock": {
+					"label": "Lleva el Matorral Piedraroja al 80% de salud con 15 animales del desierto. Recibe 65 animales en total. Crea un Kit Alpino."
+				}
+			},
+			"coastal": {
+				"unlock": {
+					"label": "Lleva las Alturas Vientogris al 80% de salud con 17 animales alpinos. Recibe 85 animales en total. Crea un Marcador de Ruta."
+				}
+			}
+		}
+	},
+	"narrative": {
+		"kind": {
+			"amphibian": "Las ranas y las salamandras volvieron a {biome}. Es una señal clara de que el agua y el suelo húmedo están sanos."
+		},
+		"allkinds": "Ahora vive cada tipo de animal en {biome}. Desde el insecto más pequeño hasta el gran cazador. Una comunidad completa.",
+		"combo": {
+			"meadow-fox-prey": "Los zorros y sus presas volvieron al Prado Sauce. Los zorros evitan que haya demasiados ratones y conejos. Así la hierba no se acaba y el prado es más rico.",
+			"forest-bobcat-prey": "Un lince caza otra vez en el Bosque Viejo. Se acerca en silencio, así que necesita cobijo espeso. Eso es justo lo que construiste.",
+			"forest-cavity-reuse": "Un pájaro carpintero hizo un hueco, lo usó una vez y se fue. Otro animal entró enseguida. En el bosque, la casa vieja de un ave es la casa nueva de otro.",
+			"wetland-beaver": "El castor volvió. Construye el sitio que los demás necesitan. Sus presas suben el agua y hacen charcas nuevas. Peces, ranas y aves las usan.",
+			"wetland-beaver-wake": "Las nutrias y las garzas siguieron al castor. Cazan en el agua honda y quieta que hacen sus presas. Esa agua no existiría sin él.",
+			"wetland-heron-hunt": "Una garza azul trabaja la orilla. Se queda quieta varios minutos. Luego ataca más rápido de lo que puedes ver.",
+			"desert-snake-rodent": "La serpiente de cascabel volvió y hace su trabajo. Espera y encuentra a su presa por el calor con hoyos en la cara. Así controla a los ratones del desierto.",
+			"desert-coyote-prey": "Un coyote recorre el matorral otra vez. Caza ratones y conejos. Así mantiene en equilibrio toda la red del desierto.",
+			"desert-shared-burrow": "En el desierto nadie desperdicia un hoyo. La tortuga cava una madriguera y un búho llanero ocupa el cuarto libre. Un poco más abajo está fresco mientras arriba quema.",
+			"alpine-eagle-prey": "Un águila real vigila la cresta. Puede ver una marmota a más de un kilómetro y medio. Luego baja en picado muy rápido. Es la gran cazadora de la montaña.",
+			"coastal-keystone": "La estrella de mar ocre volvió. Fue el primer animal llamado clave. Si no está, los mejillones cubren cada roca. Si vuelve, toda la charca comparte el sitio.",
+			"coastal-otter-kelp": "Una nutria flotando mar adentro quiere decir que abajo hay un bosque. Las nutrias comen erizos, que si no se comerían el kelp hasta dejar la roca pelada."
+		},
+		"total": {
+			"total-25": "Ahora viven aquí veinticinco tipos de animal. El silencio que encontraste ya se rompió del todo."
+		},
+		"health": {
+			"25": "{biome} está sanado un cuarto. La tierra pelada se vuelve hogar de verdad. Los primeros animales duros ya pueden venir.",
+			"80": "{biome} va bien, al 80%. Ya puede dar de comer a sus grandes cazadores y a toda la red alimentaria."
+		},
+		"lore": {
+			"meadow": {
+				"damaged": "Tierra pelada y con polvo donde había un prado con flores. Se fueron las hierbas nativas y con ellas los insectos. Luego se fue todo lo que los comía.",
+				"restored": "Una red alimentaria de pradera completa, de arriba abajo. Prados sanos como este guardan carbono en sus raíces hondas. Además alimentan a un tercio de los insectos de aquí.",
+				"coexistence": "El zorro y los halcones solo llegan cuando ya hay ratones y conejos. Los cazadores vienen al final, cuando hay bastante que comer."
+			},
+			"forest": {
+				"damaged": "Un bosque talado. Ya no hay árboles grandes ni troncos secos en pie. Los carpinteros no tienen dónde cavar. Y los animales que usan sus huecos nunca llegan.",
+				"thriving": "Ahora hay tres capas de bosque: suelo, medio y copa. Cada una tiene sus animales. Las ardillas voladoras planean entre los árboles que criaste.",
+				"coexistence": "Un carpintero grande hace un hueco, lo usa una vez y lo deja. Luego entra un pato, una ardilla voladora o un búho."
+			},
+			"wetland": {
+				"recovering": "El agua volvió a los canales y los juncos crecen. Primero llegan ranas, libélulas y zapateros. Las garzas siguen a las ranas hasta la orilla.",
+				"restored": "Un humedal completo, de la grulla al pececillo. Limpia toda el agua que sale de él. Ese trabajo callado mantiene sano todo el río.",
+				"coexistence": "El castor construye lo que los demás necesitan. Su presa hace el agua honda y quieta donde cazan las nutrias y esperan las garzas."
+			},
+			"desert": {
+				"damaged": "Un llano sin matorral ni madrigueras, comido hasta el suelo. Sin forma de huir del calor, hasta los animales más duros se van.",
+				"restored": "La tierra más dura de aquí, llena de vida. Un búho elfo en el cactus y una tarántula bajo una piedra. Un desierto no se salva con agua. Se salva con sombra.",
+				"coexistence": "En el desierto nadie desperdicia un hoyo. Una tortuga cava una madriguera y un búho llanero ocupa el cuarto libre bajo el matorral."
+			},
+			"alpine": {
+				"damaged": "Una ladera alpina gastada. La capa de flores está pelada hasta la roca. Aquí arriba sanar toma decenas de años, no estaciones.",
+				"recovering": "La hierba vuelve a cubrir la roca. Las picas llevan heno a las piedras. Las marmotas toman el sol. Los pinzones buscan comida junto a la nieve que se derrite.",
+				"coexistence": "Cuando el águila rodea la cresta, las marmotas silban y toda la ladera se queda quieta. Esa alarma une a toda la montaña."
+			},
+			"coastal": {
+				"damaged": "Una costa gastada con dunas deshechas y charcas vacías. Sin hierba que sujete la arena ni algas que den comida, la marea no trae nada.",
+				"recovering": "Las dunas aguantan y las charcas se llenan de cangrejos, anémonas y mejillones. Gaviotas y chorlitos vuelven a la línea de la marea.",
+				"restored": "El tramo más salvaje de aquí, entero otra vez. Desde ballenas hasta almejas. Dos animales clave hacen el trabajo callado que lo mantiene en equilibrio.",
+				"coexistence": "Dos animales mandan en esta costa. La estrella de mar evita que los mejillones tomen cada roca. La nutria come los erizos que arrasarían el kelp."
+			}
+		}
+	}
+}

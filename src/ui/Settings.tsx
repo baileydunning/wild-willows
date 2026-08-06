@@ -252,6 +252,22 @@ export function AccessibilityControls() {
 			</div>
 			<div className="a11y-row">
 				<span className="a11y-label">
+					<b>{t('app.settings.simpleText')}</b>
+					<span className="muted small">{t('app.settings.simpleTextHint')}</span>
+				</span>
+				<label className="switch">
+					<input
+						type="checkbox"
+						checked={prefs.simpleText}
+						onChange={(e) => setPrefs({ simpleText: e.target.checked })}
+						aria-label={t('app.settings.simpleText')}
+					/>
+					<span className="track" />
+					<span className="thumb" />
+				</label>
+			</div>
+			<div className="a11y-row">
+				<span className="a11y-label">
 					<b>{t('app.settings.colorblind')}</b>
 					{/* The hint is per-mode so the menu teaches what each condition is and
 					    what the setting does — not just a label. */}

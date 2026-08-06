@@ -1,0 +1,787 @@
+{
+	"_readme": "Plain-language overlay for the \"simpler wording\" accessibility option (~5th-grade reading level). Mirrors the normal catalog key-for-key, but ONLY where a simpler wording exists — anything absent falls back to the normal text, so partial coverage is safe. Data content (animal diets, habitats, ecology) goes under \"content\", exactly like the translation overlay.",
+	"panels": {
+		"tutorial": {
+			"coreLoop": {
+				"text": "Here is the loop. Gather stuff. Craft it into homes for animals. Place it. Then animals come back on their own. First, a grasshopper.",
+				"touch": "Here is the loop. Gather stuff. Craft it into homes for animals. Place it. Then animals come back on their own. First, a grasshopper."
+			},
+			"basket": {
+				"text": "Press B to see what you are carrying. Your basket only holds so much. When it is full, put extra in a chest. The bar at the bottom switches tools. You can also press 1, 2, or 3.",
+				"touch": "Tap the basket button to see what you are carrying. Your basket only holds so much. When it is full, put extra in a chest. The bar at the bottom switches tools."
+			},
+			"chest": {
+				"text": "Walk to the chest by your tent. Press E or Space to open it. Put spare stuff in when your basket is full. You can still craft with it from anywhere, so you do not need to carry it.",
+				"touch": "Walk to the chest by your tent and tap it. Put spare stuff in when your basket is full. You can still craft with it from anywhere, so you do not need to carry it."
+			},
+			"crafting": {
+				"touch": "Tap the hammer button to open crafting. It uses your basket from anywhere. Now let us build the grasshopper a home."
+			},
+			"toolbelt": {
+				"text": "Your tools are at the bottom. 1 is the basket for gathering. 2 is the shovel for digging. 3 is the watering can. Press T to open Tools. There you spend stuff to make each tool better. Better tools gather more and dig more. They also unlock the next area guide. Some upgrades open up as land gets healthier.",
+				"touch": "Your tools are at the bottom. The basket gathers. The shovel digs. The watering can waters. Tap the tools button to make each one better. Better tools gather more and dig more. Some upgrades open up as land gets healthier."
+			},
+			"tools": {
+				"text": "Press T to open Tools. Spend stuff to make your basket, shovel, watering can, or journal better. Better tools gather more and dig more. They also unlock the next area guide. Some upgrades open up as land gets healthier.",
+				"touch": "Tap the tools button to open Tools. Spend stuff to make your basket, shovel, watering can, or journal better. Better tools gather more and dig more. Some upgrades open up as land gets healthier."
+			},
+			"journal": {
+				"text": "Press J to open your journal. It lists every animal that can come back to each area. It also shows who is back. Each area has its own guide. You always see the basic entry. Food, shelter, and tips unlock when you gather that area’s stuff and upgrade its guide in Tools.",
+				"touch": "Tap the journal button to open your journal. It lists every animal that can come back to each area. It also shows who is back. Food, shelter, and tips unlock when you gather that area’s stuff and upgrade its guide in Tools."
+			},
+			"map": {
+				"text": "Press M to open the Preserve. It tracks how healthy each area is and who lives there. It shows what you need to open the next one. You can also travel back to any area you have been. Tap the walk icon on its row.",
+				"touch": "Tap the map button to open the Preserve. It tracks how healthy each area is and who lives there. It shows what you need to open the next one. You can also travel back to any area you have been."
+			},
+			"menus": {
+				"text": "Your menus are at the top right. Learn holds your journal and stars. Build holds your basket, crafting, tools, and goals. World holds the map and weather. Each one explains itself the first time you open it.",
+				"touch": "Your menus are at the top right. Learn holds your journal and stars. Build holds your basket, crafting, tools, and goals. World holds the map and weather. Each one explains itself the first time you open it."
+			},
+			"proximity": {
+				"text": "Here is a secret. Animals come back to neighborhoods, not to single pieces. Put food, water, and shelter close together. A patch by a pond by a shrub works well. Far more animals will move in that way.",
+				"touch": "Here is a secret. Animals come back to neighborhoods, not to single pieces. Put food, water, and shelter close together. A patch by a pond by a shrub works well. Far more animals will move in that way."
+			},
+			"star": {
+				"text": "That is the whole loop. The grasshopper just earned your first star, First Friend. There are 50 stars to find. You earn them for healing land, bringing back big animals, and mastering tools. They are not easy. Press K to see them all. New ones go to the top. Next, a quick look at your other menus.",
+				"touch": "That is the whole loop. The grasshopper just earned your first star, First Friend. There are 50 stars to find. You earn them for healing land, bringing back big animals, and mastering tools. They are not easy. Tap the star button to see them all. Next, a quick look at your other menus."
+			},
+			"home": {
+				"text": "One last thing. Walk back to your tent and press E to go inside. The sign by the tent turns your tent into a real house. Each style gives its own bonus. After that you can upgrade four things: Space lets you carry more, Comfort makes your bonus stronger, plus Decor and Light. More upgrades open as your land gets healthier. Inside you can place things you craft. Go in now. The preserve is yours. Have fun!",
+				"touch": "One last thing. Walk back to your tent and tap it to go inside. The sign by the tent turns your tent into a real house. Each style gives its own bonus. After that you can upgrade four things: Space lets you carry more, Comfort makes your bonus stronger, plus Decor and Light. More upgrades open as your land gets healthier. Go in now. The preserve is yours. Have fun!"
+			},
+			"weather": {
+				"text": "Press N to open the Weather guide. Each area has its own weather. It changes on its own and drifts with the seasons. The guide shows what is happening everywhere. It also explains how weather and season shape the area you are in. Watch the sky. Odd weather can leave rare stuff to gather while it lasts.",
+				"touch": "Tap the cloud button to open the Weather guide. Each area has its own weather. It changes on its own and drifts with the seasons. Watch the sky. Odd weather can leave rare stuff to gather while it lasts."
+			},
+			"demoNote": "This is the free demo. Heal the meadow to open the forest, then look around. The demo ends after your first 10 minutes in the forest.",
+			"coopHostTogether": {
+				"text": "When friends join, you will see them in the same preserve. The land, buildings, plants, and animals are shared. So your work adds up together. Your own basket, tools, journal, and stars stay yours. Now let us learn the basics.",
+				"touch": "When friends join, you will see them in the same preserve. The land, buildings, plants, and animals are shared. So your work adds up together. Your own basket, tools, journal, and stars stay yours. Now let us learn the basics."
+			},
+			"coopJoinWelcome": {
+				"text": "You joined a shared preserve. You will see the host and other players in the same world. The land, buildings, plants, and animals are shared. So your work adds up together. Your own basket, tools, journal, and stars stay yours. Now let us learn the basics.",
+				"touch": "You joined a shared preserve. You will see the host and other players in the same world. The land, buildings, plants, and animals are shared. So your work adds up together. Your own basket, tools, journal, and stars stay yours. Now let us learn the basics."
+			}
+		},
+		"help": {
+			"intro": "A calm loop. Gather stuff. Craft it into homes for animals. Place it on the land. Then animals come home.",
+			"demoNote": "You are playing the free demo. Heal the meadow to open the forest, then look around. The demo ends after your first 10 minutes in the forest. Your save works in the full game.",
+			"keys": {
+				"click": "Look at an animal. Or open a placed item’s menu to move, turn, or pick it up.",
+				"rotate": "Turn the thing you are placing a quarter turn.",
+				"toolSelect": "Pick a tool: basket, shovel, watering can, or paint. Paint works in your home."
+			},
+			"loop": {
+				"craft": {
+					"text": "Press C to turn stuff into homes for animals. New recipes open as land gets healthier."
+				},
+				"record": {
+					"text": "Your journal fills in each time an animal comes back. Better tools reach harder places."
+				},
+				"store": {
+					"text": "Keep spare stuff in chests. You can still craft with it from anywhere."
+				},
+				"weather": {
+					"text": "Each area’s weather drifts with the seasons. A few kinds of stuff and a few animals only show up in the right weather."
+				}
+			},
+			"more": {
+				"home": {
+					"text": "Fill your tent with things you craft. Build it or upgrade it at the sign nearby."
+				},
+				"land": {
+					"text": "Dig a bed with 2. Water it with 3. Then plant. Or water it again to make a pond, river, or lake."
+				},
+				"tools": {
+					"text": "Press T. Spend materials on a bigger basket, better tools, and new guides."
+				}
+			}
+		},
+		"coach": {
+			"achievements": "Stars. There are 50 to earn. You get them for healing land, using tools well, and welcoming animals.",
+			"biomes": "The Preserve. See how each area is doing, what opens the next one, and travel to places you have been.",
+			"crafting": "Crafting. Turn the stuff you gather into homes for animals. New recipes open as land gets healthier.",
+			"demoNear": "One more animal and you finish the demo. You are almost there!",
+			"feed": "Activity list. A running log of what happens, including these tips. You can scroll back any time.",
+			"goals": "Goals. Set your own tasks and track them on the board. Craft, plant, bring back an animal, or heal an area.",
+			"home": "Your home. A cozy space to make your own. Fill it with things you craft. Use the sign by your tent to build and upgrade it. A bigger home lets you carry more. New upgrades open as your land gets healthier.",
+			"people": "People. Invite friends with your code and see who is here with you.",
+			"settings": "Settings. Sound, help options, your look, and saving.",
+			"tools": "Tools. Spend stuff on a bigger basket, a better shovel and watering can, and new area guides.",
+			"weather": "Weather and seasons. See how the weather changes across the preserve. Some stuff and some animals only show up in the right weather."
+		},
+		"goals": {
+			"intro": "Play your way. Pick something to work toward. It could be a thing to build, plants to grow, stuff to gather, animals to read about, or healing your home or a whole area. It shows on the board and tracks itself. Finish one and you get a small pile of materials.",
+			"moreNote": "You can hold 3 goals at a time. You can hold 6 once the whole preserve is open. You can also add a goal for one animal from its journal page, or for one item from the crafting menu. Look for the target button.",
+			"rewardNote": "Finish any goal and you get a small pile of materials. Claim it on the board.",
+			"homeMaxed": "Your {track} upgrade is already at the top. Pick a different one.",
+			"desc": {
+				"biomeAnimals": "Bring back every animal from one open area. The whole food web.",
+				"health": "Heal one open area up to a health goal. A big job for a place you love.",
+				"home": "Upgrade one part of your home: Space, Comfort, Decor, or Light.",
+				"observe": "Read about some animals in your journal.",
+				"plant": "Plant a number of living things anywhere in the preserve. Flowers, grasses, or trees.",
+				"welcomeTotal": "Bring back some new animals across the preserve."
+			}
+		},
+		"crafting": {
+			"intro": {
+				"one": "Craft anywhere. Materials come from your basket first, then your chests. You have {count} chest.",
+				"other": "Craft anywhere. Materials come from your basket first, then your chests. You have {count} chests."
+			},
+			"noMatchWiden": "No recipes match “{query}”. Try a different word, or show more.",
+			"nothingToCraft": "Nothing to craft here yet. Heal this place more, or pick a different one.",
+			"plantedNotCrafted": "This one is planted, not crafted. Dig a soil bed with the shovel (2). Water it with the can (3). Then click the wet bed and pick it from the list."
+		},
+		"materials": {
+			"intro": "Here is everything you can gather in {biome} right now. Look for these on the ground. Walk up and press E or Space.",
+			"note": "Gathering spots grow back on their own. You only take what nature has already dropped.",
+			"homeNote": "There is nothing to gather inside your home. Step outside to collect stuff.",
+			"weatherNote": "Shows up during {weather}. Gather it while it lasts."
+		},
+		"journal": {
+			"comfortGrows": "Comfort grows with good homes. Place more of what it likes, like {items}, and it will settle in.",
+			"foodWebIntro": "Higher rows eat the rows below. You have found {returned} of {total}. Build more homes to see the rest.",
+			"lockedCard": "Upgrade your area guide to Tier {tier} to read this animal’s full page. It shows its job, its food, and who it eats.",
+			"overviewEmpty": "No animals have come back yet. Build homes and they will start to arrive. Check back here to see everyone.",
+			"summaryAll": "{returned} of {total} animals have come back to the preserve."
+		},
+		"home": {
+			"buildIntro": "Your home is still a tent. Pick a style to turn it into a house. Each style uses its own materials and sets your look for good. Each one also gives a bonus that grows with every upgrade.",
+			"perkBlurb": {
+				"forage": "When you gather, you have a {pct}% chance to get one more."
+			}
+		},
+		"inventory": {
+			"kitsNote": "Kits are not placed and cannot be thrown away. Making them is what counts."
+		},
+		"tools": {
+			"note": "Upgrades use materials from your basket and your chests."
+		},
+		"chest": {
+			"basketFull": "Your basket is full. Put something away or drop it first."
+		},
+		"biomes": {
+			"healthGated": "The land is stuck at {cap}%. It can only heal more once {animals} more of this area’s animals come back."
+		},
+		"achievements": {
+			"req": {
+				"tools": "Make your basket, shovel, and can level {n}."
+			}
+		},
+		"people": {
+			"membersNote": "Up to {max} players per preserve. Everyone listed has joined. They can come back any time from Continue or Load Game."
+		},
+		"weather": {
+			"seasonsNote": "Seasons move from spring to summer, then autumn, then winter. Each one changes the weather each area is likely to get.",
+			"tease": "Odd weather like this can leave something worth finding. Explore {biome} while it lasts."
+		}
+	},
+	"app": {
+		"settings": {
+			"simpleTextHint": "Uses short sentences and everyday words all through the game. That includes the animal notes. Nothing is hidden. It is just said in a simpler way.",
+			"reduceMotionHint": "Stops menu animations, rain and snow, camera moves, and the day and night light change. The view stays still and evenly lit.",
+			"dyslexiaFontHint": "Uses the OpenDyslexic font. Its letters are heavy at the bottom. That makes each one easier to tell apart.",
+			"colorblindHint": {
+				"off": "Color blindness affects up to 1 in 12 people. Pick the type that fits you. The game will change its colors, raise contrast, label the weather and time of day, and hold steady daylight. Then nothing depends on color alone.",
+				"redgreen": "Red and green is the most common type. Reds and greens look alike. This moves those colors apart, raises contrast, adds text labels, and holds the light steady.",
+				"blueyellow": "Blue and yellow is more rare. Blues and greens look alike, and so do yellows and pinks. This moves those colors apart, raises contrast, adds text labels, and holds the light steady.",
+				"mono": "This type means seeing little or no color. The game turns black and white. It uses contrast, outlines, and text labels instead of color."
+			},
+			"musicHint": "Soft music and nature sounds in the background.",
+			"soundEffectsHint": "Small sounds as you play. Footsteps, picking things up, planting, and chimes.",
+			"exportSaveHint": "Save a copy of this preserve as one file. It holds your world, journal, progress, name, and look. Keep it as a backup, or move it to another computer.",
+			"deleteSaveHint": "This removes \"{name}\" for good. The land, journal, chests, and all progress go away. Type your passcode to say yes.",
+			"keybinds": {
+				"note": "Moving and interacting each have a main key and a spare key. Both work, and you can change either one. If you pick a key that is already used, the two swap."
+			},
+			"errPasscodeLength": "Your new passcode must be 4 to 32 characters long.",
+			"emailPlaceholder": "Your email. Only if you want a reply.",
+			"feedbackQueued": "We could not send that right now. Your note is saved. It will send next time you start the game."
+		},
+		"hud": {
+			"healthHint": "Raise health by watering the land and adding homes for animals. Dig a bed and water it. Plant flowers and trees. Place things you craft. Every bit helps.",
+			"balanceHint": "Balance shows how complete the animal group is. It is not just how many are back. It is the mix. Bring back many kinds: bugs, birds, and mammals. Big hunters matter most. They only come back once the animals they eat are here. It hits 100% only when every animal is back.",
+			"demoGoalTitle": "Bring animals back to the meadow to finish the demo."
+		},
+		"welcome": {
+			"intro": {
+				"craftText": "Turn what you gather into plants, ponds, and shelter. Then place them on the land.",
+				"unlockText": "Heal an area fully and the path to the next one opens. A whole new place to bring back."
+			},
+			"codeFormHint": "Type a friend’s code to heal their preserve with them.",
+			"errImport": "That save file is missing, changed, or broken. It could not be loaded.",
+			"joinFormHint": "Joining {world}. {host} is looking at your request while you pick your look. You will go in as soon as they say yes."
+		},
+		"toast": {
+			"rested": "You sleep well and wake at dawn. Every gathering spot has grown back.",
+			"preserveGrew": "Your land kept growing while you were gone.",
+			"perkForage": "Your cabin helped you find an extra {name}!"
+		},
+		"log": {
+			"rested": "You slept until dawn. A new day starts, and every gathering spot has grown back."
+		},
+		"feed": {
+			"loopReminder": "Same loop in {name}. Build homes until its animals come back. Then the next path opens."
+		},
+		"feedPanel": {
+			"empty": "Nothing big has happened yet. Gather, build, and welcome animals home. The best moments will show up here."
+		},
+		"coop": {
+			"joinWelcomeFeed": "You joined a shared preserve. Heal it together! Open the People menu at the top right to see who is here and copy the code."
+		},
+		"error": {
+			"feedbackRejected": "The server could not take that note. Please try again later."
+		},
+		"demo": {
+			"doneBody": "That is the end of the free demo. Thank you for healing a corner of the preserve. The full game opens five more areas to heal. It also adds deeper crafting, seasons and weather, a journal to fill, and many more animals to bring home."
+		},
+		"kbGate": {
+			"body3": ", and reach your basket, tools, and journal with keys. So it does not work on a phone or tablet by itself.",
+			"hint": "Open Wild Willows on a computer. Or plug in a keyboard and press any key to start."
+		},
+		"toolbelt": {
+			"how": {
+				"basket": "Your gathering tool. Walk to any gathering spot and press the key to put it in your basket.",
+				"shovel": "Digs soil beds in the ground near you. Dig a shaped tile again to clear it.",
+				"watering-can": "Water a soil bed so you can plant in it. Water it again to turn it into open water. Link water tiles to make ponds, rivers, and lakes."
+			},
+			"paintHow": "Paint. Pick a color, then click the floor, walls, rug, or an item to change its color."
+		}
+	},
+	"game": {
+		"block": {
+			"standingHere": "You are standing here. Step off before you flood this bed."
+		},
+		"toast": {
+			"stillRegrowing": "Still growing back. Give it a little longer.",
+			"wetlandUnlocked": "Rushwater Wetland is open! Follow the boardwalk east to reach the marsh."
+		}
+	},
+	"server": {
+		"err": {
+			"alreadyPrepared": "This ground is ready already. Water it, or clear it instead.",
+			"basketFullHarvest": "Your basket is full. Make room before you pick this.",
+			"dbStarting": "The preserve is starting up. Restart Harper if this keeps happening.",
+			"noRoomRefund": "No room for the materials you get back. Make space in your basket or a chest first.",
+			"snapshotPathId": "Add a player id to the path, like this: /BiomeSnapshot/<playerId>",
+			"worldFullClosed": "This preserve is full. It already has its {max} players and is closed.",
+			"worldFullJoined": "This preserve is full. {max} players have joined and it is closed."
+		},
+		"task": {
+			"welcomeGrasshopperHint": "Craft a grass patch and place it. Then bring the meadow to 10% health. The grasshopper hops home on its own.",
+			"welcomeAnyAnimal": "Bring back a new animal anywhere in the preserve.",
+			"gatherHint": "Pick your basket (1). Walk onto a glowing spot. Then press E or Space.",
+			"craftFirstHint": "Open crafting with C. Pick something you can afford. Then press Craft."
+		},
+		"goal": {
+			"hint": {
+				"craft": "Open crafting with C and make it. The hover box lists what you need.",
+				"plant": "Dig a bed with the shovel. Water it. Then plant something living.",
+				"collect": "Gather this from glowing spots out in the preserve.",
+				"observe": "Open an animal’s page in your journal (J) and read about it.",
+				"attract": "Build the home shown in the box. The animal comes back on its own.",
+				"welcomeTotal": "Build homes across your areas. Animals come back on their own.",
+				"tool": "Gather the materials. Then upgrade it in Tools.",
+				"unlock": "Do the things listed to open this area.",
+				"health": "Heal the land. Plant, water, and place homes until this area gets better.",
+				"biomeAnimals": "Build a home for every animal here until they all move in."
+			}
+		},
+		"nextbiome": {
+			"hint": "Check off each thing below to open {biome}."
+		}
+	},
+	"content": {
+		"animal": {
+			"red-fox-meadow": {
+				"hint": "Foxes come back once smaller animals are here. They need cover for a den and a healthy meadow.",
+				"diet": "Voles, rabbits, squirrels, birds, and bugs. Also berries",
+				"preferredHabitat": "Meadows, farm edges, and hedges across open land"
+			},
+			"lady-beetle": {
+				"hint": "Flowers bring aphids. Aphids bring lady beetles.",
+				"diet": "Hunts aphids and other small, soft bugs",
+				"shelter": "Winters in leaf litter in big groups. Rests on leaves"
+			},
+			"western-meadowlark": {
+				"hint": "Meadowlarks need wide native grass to nest. They also need water to drink and bathe.",
+				"diet": "Mostly bugs in summer. Seeds and grain in winter"
+			},
+			"red-tailed-hawk": {
+				"hint": "Hawks look for a meadow that is already full of small animals.",
+				"diet": "Mostly small mammals like voles, squirrels, and rabbits. Also birds and snakes",
+				"preferredHabitat": "Open land: grassland, fields, and meadows seen from above"
+			},
+			"barn-owl": {
+				"hint": "A quiet, healthy meadow with lots of voles and a dark place to rest.",
+				"diet": "Almost all small mammals: voles, mice, and shrews, hunted at night",
+				"shelter": "Nests in tree holes, cliff cracks, and quiet buildings"
+			},
+			"woodpecker": {
+				"hint": "Woodpeckers need dead standing trees. Leave some up.",
+				"diet": "Mostly bugs: beetle grubs, ants, and caterpillars. Some berries and sap",
+				"shelter": "Holes it cuts itself in dead standing trees. Sleeps in them all year",
+				"preferredHabitat": "Open leafy and mixed woods with dead trees full of bugs"
+			},
+			"great-horned-owl": {
+				"hint": "Tall trees, quiet shelter, and prey animals that are already back.",
+				"diet": "Mammals and birds: rabbits, voles, squirrels, skunks. Also frogs",
+				"preferredHabitat": "Old forest broken by open ground, in almost every area"
+			},
+			"black-bear": {
+				"hint": "Bears only come back to a rich forest. They need berries, water, shelter, and space.",
+				"shelter": "Dens in hollow trees, roots, rock cracks, or dug holes. Sleeps all winter",
+				"preferredHabitat": "Thick forest with dense brush and lots of berries and nuts"
+			},
+			"elk-forest": {
+				"hint": "Grassy clearings and water in a healthy forest.",
+				"shelter": "No den. Calves hide in thick plants. The herd watches out together",
+				"preferredHabitat": "Grassy clearings and open wood edges inside a bigger forest"
+			},
+			"bobcat": {
+				"hint": "Bobcats follow lots of prey. They need rocks and brush to hide in.",
+				"diet": "Eats only meat: rabbits, mice, and squirrels. Some birds and lizards",
+				"preferredHabitat": "Forest with thick brush, scrub, and rocky ground"
+			},
+			"garter-snake-forest": {
+				"hint": "A sunny rock pile next to grassy hunting ground.",
+				"diet": "Worms, frogs, and slugs. Also leeches, fish, and small mice",
+				"shelter": "Shared winter dens in burrows and rock piles. Hides under logs"
+			},
+			"beaver": {
+				"hint": "Water channels you have fixed, mud banks, and woody plants.",
+				"diet": "Bark and soft wood from willow and aspen, plus water plants"
+			},
+			"freshwater-fish": {
+				"hint": "Clean pools joined together with reeds bring fish back. Then everyone who eats fish follows."
+			},
+			"burrowing-owl": {
+				"hint": "Burrows that are already dug, and open ground to hunt over."
+			},
+			"ptarmigan": {
+				"hint": "Alpine shrubs and quiet cover to nest in, with frostflowers in bloom.",
+				"preferredHabitat": "High open ground above the trees all year. Winters in willow hollows"
+			},
+			"golden-eagle": {
+				"hint": "Eagles come last. They arrive when the high country is truly alive again.",
+				"diet": "Marmots, hares, ground squirrels, and birds. Also dead animals",
+				"preferredHabitat": "Open high country with cliffs and plenty of mid-sized prey"
+			},
+			"sea-otter": {
+				"hint": "Kelp and shellfish beds come first. Otters follow.",
+				"diet": "Sea urchins, crabs, mussels, clams, and other shellfish",
+				"preferredHabitat": "Kelp forest and rocky shore with lots of shellfish"
+			},
+			"dolphin": {
+				"hint": "A clean, busy shore brings dolphins in close."
+			},
+			"migrating-whale": {
+				"hint": "Only a truly healthy shore brings a whale. Watch the horizon.",
+				"diet": "Tiny shrimp-like animals, strained out of the sea floor mud"
+			},
+			"northern-leopard-frog": {
+				"hint": "A lily pool and a few open water tiles."
+			},
+			"boreal-toad": {
+				"hint": "A snowmelt pool and a few open water tiles.",
+				"diet": "Beetles, ants, flies, and other small crawlers. Tadpoles eat algae",
+				"preferredHabitat": "High wet meadows with open pools to breed in"
+			},
+			"green-heron": {
+				"hint": "Plant a water tupelo next to a lily pool and open water.",
+				"diet": "Mostly small fish. Also bugs, crabs, and frogs",
+				"shelter": "Stick nests in trees and shrubs that hang over water"
+			},
+			"elf-owl": {
+				"hint": "Plant a mesquite and an ironwood next to a cactus patch."
+			},
+			"mountain-chickadee": {
+				"hint": "Plant a subalpine fir and krummholz with alpine wildflowers.",
+				"diet": "Bugs and spiders in summer. Pine seeds and nuts in fall and winter",
+				"shelter": "Old woodpecker holes and tree holes in pines and aspens"
+			},
+			"killdeer": {
+				"hint": "Open native grass with a rock pile and a stone wall to nest by."
+			},
+			"red-admiral": {
+				"hint": "Butterfly flowers and wildflowers next to an insect hotel.",
+				"diet": "Adults like tree sap, old fruit, and nectar. Young eat nettles",
+				"shelter": "Young fold nettle leaves into little tents. Adults rest on trees",
+				"preferredHabitat": "Flowery clearings and wood edges near nettle patches"
+			},
+			"chuckwalla": {
+				"hint": "A rock crack to squeeze into, cactus and brush to eat, and a warm stone pile to sit on."
+			},
+			"alpine-chipmunk": {
+				"hint": "A talus pile and a rock pile among alpine wildflowers.",
+				"preferredHabitat": "High rock slopes and rocky meadows of the Sierra Nevada"
+			},
+			"cascades-frog": {
+				"hint": "A snowmelt pool next to a talus pile, with open water close by.",
+				"diet": "Eats bugs and spiders in and near the water",
+				"shelter": "Snowmelt ponds and lakes. Sleeps the winter in soil under the lake bed",
+				"preferredHabitat": "Cold high ponds and streams near pine forest"
+			},
+			"black-turnstone": {
+				"hint": "Tidepools and kelp wrack with a driftwood pile to hide in."
+			},
+			"pigeon-guillemot": {
+				"hint": "A nesting cliff above open water, near an oyster bed."
+			},
+			"bat-star": {
+				"hint": "A couple of tidepools with an eelgrass bed."
+			},
+			"cottontail-rabbit": {
+				"preferredHabitat": "Meadows and field edges with bushes to dash into"
+			},
+			"monarch-butterfly": {
+				"diet": "Young ones eat only milkweed. Adults drink flower nectar",
+				"preferredHabitat": "Open meadows and roadsides with milkweed and flowers"
+			},
+			"song-sparrow": {
+				"diet": "Bugs in summer. Seeds and fruit all year"
+			},
+			"mule-deer": {
+				"shelter": "Sleeps in bushes, tall grass, or forest edges. No den",
+				"preferredHabitat": "Open meadows and shrubland with food and water close by"
+			},
+			"ground-squirrel": {
+				"diet": "Mostly seeds, grass, and flowers, plus bugs like grasshoppers",
+				"shelter": "Big burrows with many doors, dug in open ground",
+				"preferredHabitat": "Open grassy meadows and slopes near rocks to watch from"
+			},
+			"garter-snake-meadow": {
+				"diet": "Worms, frogs, slugs, small fish, bugs, and small mice",
+				"shelter": "Hides under rocks and logs. Winters in shared dens"
+			},
+			"bumblebee": {
+				"diet": "Nectar for energy and pollen for protein, from many flowers",
+				"shelter": "Nests in old mouse burrows, grass clumps, or holes in the ground"
+			},
+			"grasshopper": {
+				"diet": "Eats plants: grasses, sedges, and broad-leaved weeds"
+			},
+			"barn-swallow": {
+				"preferredHabitat": "Open land near water, flowers, and buildings"
+			},
+			"tree-squirrel": {
+				"diet": "Acorns, nuts, seeds, tree buds, and fungi. Sometimes bugs and eggs",
+				"shelter": "Dens in tree holes and leaf nests built high up",
+				"preferredHabitat": "Old leafy or mixed forest full of oaks and hickories"
+			},
+			"forest-salamander": {
+				"diet": "Small crawlers: mites, springtails, spiders, beetles, ants, and worms",
+				"shelter": "Under logs, rocks, and damp leaves. Hides in soil holes",
+				"preferredHabitat": "Cool, damp forest floor with lots of fallen wood"
+			},
+			"red-fox-forest": {
+				"diet": "Mice, rabbits, birds, and lizards. Also bugs and fruit",
+				"shelter": "Dens dug into slopes, or taken from other animals. Used for years",
+				"preferredHabitat": "Forest edges and mixed scrub. Avoids thick unbroken forest"
+			},
+			"mule-deer-forest": {
+				"diet": "Eats leaves, twigs, and weeds in summer. Acorns and berries in winter",
+				"shelter": "No den. Sleeps in thick shrubs and forest cover to stay warm and safe",
+				"preferredHabitat": "Forest edges and open woods with shrubs to eat and water"
+			},
+			"raccoon": {
+				"diet": "Eats what it finds: crayfish, bugs, frogs, fish, small mammals, eggs, and fruit",
+				"shelter": "Likes hollow tree dens. Also rock cracks, burrows, and buildings",
+				"preferredHabitat": "Damp forest near water for finding food"
+			},
+			"porcupine": {
+				"diet": "Eats only plants. Inner bark in winter. Buds, twigs, and leaves in summer",
+				"shelter": "Rock dens, hollow logs, and treetops. Uses the same dens each season",
+				"preferredHabitat": "Pine and mixed forest with trees whose bark it can eat"
+			},
+			"chipmunk": {
+				"shelter": "Burrows up to 10 m long with rooms for sleeping and food",
+				"preferredHabitat": "Old leafy forest with logs, stumps, and rocks to hide in"
+			},
+			"nuthatch": {
+				"diet": "Bugs and spiders in summer. Seeds, acorns, and stored nuts in winter",
+				"shelter": "Tree holes and old woodpecker holes in big trees. Also nest boxes",
+				"preferredHabitat": "Old leafy and mixed forest with big oaks and hickories"
+			},
+			"banana-slug": {
+				"diet": "Dead leaves, fungi, rotting stuff, and animal droppings. Sometimes young plants",
+				"shelter": "Under logs and bark. Seals itself in slime when it gets dry"
+			},
+			"great-blue-heron": {
+				"diet": "Fish, frogs, and small water animals. Also voles and other birds"
+			},
+			"wetland-salamander": {
+				"diet": "Worms, bugs, small crawlers, and even small animals with backbones"
+			},
+			"dragonfly": {
+				"diet": "Flying bugs as an adult. Young ones in the water eat mosquito young and tadpoles",
+				"shelter": "Reed stems above water. The young live in the water"
+			},
+			"damselfly": {
+				"diet": "Small flying bugs as an adult. Young ones eat small water animals"
+			},
+			"water-strider": {
+				"diet": "Bugs caught on the water surface. Also eats dead ones"
+			},
+			"desert-cottontail": {
+				"diet": "Grasses, mesquite, cactus pads, and other desert plants"
+			},
+			"mountain-goat": {
+				"shelter": "Shallow beds scraped into cliff ledges and rocky ground",
+				"preferredHabitat": "Steep high cliffs with escape routes above the grass"
+			},
+			"bighorn-sheep": {
+				"preferredHabitat": "Open grassy mountain slopes next to rough, rocky cliffs"
+			},
+			"pika": {
+				"diet": "Grass, weeds, and wildflowers, gathered and dried into hay piles for winter",
+				"preferredHabitat": "Rock slopes and stone piles next to high flower meadows"
+			},
+			"marmot": {
+				"preferredHabitat": "Open meadow patches with boulders and ground to burrow in"
+			},
+			"snowshoe-hare": {
+				"diet": "Green plants in summer. Buds, twigs, bark, and pine needles in winter",
+				"shelter": "Shallow hollows under thick shrubs and pine cover",
+				"preferredHabitat": "Brushy thickets and thick undergrowth near open grass"
+			},
+			"elk-alpine": {
+				"preferredHabitat": "High summer meadows near forest cover and snowmelt water"
+			},
+			"mule-deer-alpine": {
+				"preferredHabitat": "High summer meadows and shrubland with clean water"
+			},
+			"fox-alpine": {
+				"shelter": "Dens dug in soil, often taken over from other animals",
+				"preferredHabitat": "High country with rocky cover and lots of small prey"
+			},
+			"pine-marten": {
+				"diet": "Voles, red squirrels, pikas, hares, birds, eggs, bugs, and berries"
+			},
+			"clarks-nutcracker": {
+				"preferredHabitat": "High pine forest and treeline near pine seeds"
+			},
+			"alpine-butterfly": {
+				"diet": "Young ones eat stonecrop. Adults drink nectar from stonecrop and daisies",
+				"shelter": "No nest. Young hide in leaves and rocks. Eggs wait out the winter",
+				"preferredHabitat": "Rocky open high slopes where stonecrop grows"
+			},
+			"bumblebee-alpine": {
+				"shelter": "Group nests in holes in the ground and old mouse burrows",
+				"preferredHabitat": "High flower meadows, often above the tree line"
+			},
+			"snowmelt-trout": {
+				"diet": "Bugs from the water and the land. Bigger ones also eat small fish",
+				"shelter": "Cold, clear pools and cut-away banks. Gravel shallows for eggs"
+			},
+			"tidepool-crab": {
+				"diet": "Mostly algae, plus bits of waste, worms, snails, and dead animals"
+			},
+			"sea-turtle": {
+				"diet": "Mostly sea grass and algae as an adult. Eats more kinds when young",
+				"preferredHabitat": "Clean shallow water with sea grass and a quiet beach"
+			},
+			"american-goldfinch": {
+				"diet": "Almost all seeds: thistle, sunflower, aster, and grass",
+				"preferredHabitat": "Weedy fields and open land with thistle, sunflower, and asters"
+			},
+			"eastern-bluebird": {
+				"diet": "Mostly ground bugs like caterpillars, beetles, and grasshoppers. Fruit in winter",
+				"shelter": "A grass-lined nest in tree holes, old woodpecker holes, or boxes"
+			},
+			"leafcutter-bee": {
+				"diet": "Adults eat nectar and pollen from many kinds of flowers",
+				"preferredHabitat": "Meadows and gardens with many flowers and holes to nest in"
+			},
+			"painted-lady": {
+				"diet": "Adults drink from daisy-like flowers. Young eat thistles and mallows",
+				"shelter": "Rests on plants. Young build silk nests on the plants they eat",
+				"preferredHabitat": "Open meadows and rough ground with thistles and flowers"
+			},
+			"american-badger": {
+				"diet": "Digs out squirrels, gophers, voles, and mice. Also eats bugs",
+				"shelter": "Digs its own big burrows. A very strong digger",
+				"preferredHabitat": "Open meadows and grassland with soft soil and mice to hunt"
+			},
+			"pileated-woodpecker": {
+				"diet": "Carpenter ants and wood beetle grubs. Also termites, berries, and nuts",
+				"shelter": "Cuts a new square nest hole each year in big dead trees"
+			},
+			"pacific-wren": {
+				"diet": "Beetles, caterpillars, ants, flies, and spiders. Some berries in winter",
+				"preferredHabitat": "Very old pine forest with thick undergrowth near streams"
+			},
+			"rough-skinned-newt": {
+				"shelter": "Under rotting logs, rocks, and leaves. In ponds when breeding",
+				"preferredHabitat": "Coastal pine forest near still or slow water"
+			},
+			"northern-flying-squirrel": {
+				"diet": "Mostly underground fungi. Also lichen, seeds, nuts, fruit, and bugs",
+				"shelter": "Tree holes, old woodpecker holes, and branch nests. Huddles in winter",
+				"preferredHabitat": "Old pine forest with a closed roof of leaves and lots of fungi"
+			},
+			"wood-duck": {
+				"diet": "Acorns, seeds, and water plants. Ducklings also eat bugs and snails",
+				"shelter": "Only nests in tree holes and nest boxes near water",
+				"preferredHabitat": "Low leafy woods and wooded swamps with slow water and hollow trees"
+			},
+			"belted-kingfisher": {
+				"diet": "Small fish and crayfish, plus other water life"
+			},
+			"snapping-turtle": {
+				"diet": "Fish, water plants, dead animals, and almost anything it can catch"
+			},
+			"rosy-finch": {
+				"diet": "Tiny mountain plant seeds and bugs, often picked off the snow",
+				"preferredHabitat": "High ground above the trees: rock, scree, cliffs, and ice"
+			},
+			"american-pipit": {
+				"preferredHabitat": "Open high meadows and bare ground during nesting season"
+			},
+			"ermine": {
+				"diet": "Small mice, mostly voles. Also pikas, birds, eggs, and bugs"
+			},
+			"mountain-bluebird": {
+				"shelter": "Old woodpecker holes, natural tree holes, and nest boxes"
+			},
+			"purple-shore-crab": {
+				"diet": "Sea lettuce and other green algae, plus the odd dead animal"
+			},
+			"coopers-hawk": {
+				"diet": "Mostly small and mid-sized birds. Also chipmunks, mice, and squirrels",
+				"preferredHabitat": "Wood edges and open land with scattered trees near meadows"
+			},
+			"western-screech-owl": {
+				"shelter": "Sleeps and nests in tree holes, old woodpecker holes, and boxes",
+				"preferredHabitat": "Wooded edges and brushy spots next to open meadows"
+			},
+			"barred-owl": {
+				"diet": "Small mammals, birds, frogs, lizards, fish, and bugs",
+				"shelter": "Big tree holes in old forest. Also old hawk, crow, or squirrel nests",
+				"preferredHabitat": "Old mixed or pine forest near water with big hollow trees"
+			},
+			"fisher": {
+				"diet": "Small and mid-sized mammals: porcupines, hares, squirrels. Also birds and fruit",
+				"shelter": "Dens in hollow trees, logs, stumps, and ground burrows. Young go high up",
+				"preferredHabitat": "Thick pine and mixed forest with a closed leaf roof and hollow trees"
+			},
+			"prothonotary-warbler": {
+				"shelter": "Tree holes and nest boxes standing over water"
+			},
+			"pine-grosbeak": {
+				"preferredHabitat": "Open high spruce, fir, and pine forest near the tree line"
+			},
+			"praying-mantis": {
+				"diet": "Waits and grabs live bugs, like bees and grasshoppers",
+				"preferredHabitat": "Meadows and brushy edges with thick plants to hide in"
+			},
+			"little-brown-bat": {
+				"diet": "Eats only bugs: midges, caddisflies, mayflies, moths, and mosquitoes",
+				"shelter": "Sleeps in tree hollows, under bark, and in buildings. Winters in caves",
+				"preferredHabitat": "Forest near streams, ponds, and clearings for catching bugs in the air"
+			},
+			"ensatina": {
+				"diet": "Small crawlers: worms, ants, beetles, spiders, centipedes, and snails",
+				"shelter": "Under rocks, bark, and logs on the forest floor. Goes underground when dry"
+			},
+			"spotted-towhee": {
+				"diet": "Bugs and small crawlers in summer. Seeds, acorns, and berries in winter",
+				"preferredHabitat": "Brushy forest edges and scrub with deep leaf litter"
+			},
+			"spotted-turtle": {
+				"diet": "Water plants, bugs, worms, snails, and other small crawlers"
+			},
+			"white-crowned-sparrow": {
+				"diet": "Mostly weed and grass seeds, plus caterpillars, beetles, and other bugs"
+			}
+		},
+		"biome": {
+			"forest": {
+				"unlock": {
+					"label": "Bring Willow Meadow to 60% health. Welcome 10 meadow animals. Craft a Forest Restoration Kit."
+				}
+			},
+			"wetland": {
+				"unlock": {
+					"label": "Bring Old Hollow Forest to 80% health with 10 forest animals back. Welcome 25 animals in all. Craft a Wetland Restoration Kit."
+				}
+			},
+			"desert": {
+				"unlock": {
+					"label": "Bring Rushwater Wetland to 80% health with 13 wetland animals back. Welcome 45 animals in all. Craft a Scrubland Restoration Kit."
+				}
+			},
+			"alpine": {
+				"unlock": {
+					"label": "Bring Redstone Scrubland to 80% health with 15 desert animals back. Welcome 65 animals in all. Craft an Alpine Restoration Kit."
+				}
+			},
+			"coastal": {
+				"unlock": {
+					"label": "Bring Graywind Heights to 80% health with 17 alpine animals back. Welcome 85 animals in all. Craft a Migration Path Marker."
+				}
+			}
+		}
+	},
+	"narrative": {
+		"kind": {
+			"amphibian": "Frogs and salamanders are back in {biome}. That is a sure sign the water and damp ground are healthy."
+		},
+		"allkinds": "Every kind of animal now lives in {biome}. From the smallest bug to the top hunter. A whole community.",
+		"combo": {
+			"meadow-fox-prey": "Foxes and their prey are both back in Willow Meadow. Foxes keep mice and rabbits from getting too many. That stops the grass from being eaten down, so the meadow stays richer.",
+			"forest-bobcat-prey": "A bobcat hunts Old Hollow Forest again. It sneaks up close, so it needs thick cover. That is just what you built.",
+			"forest-cavity-reuse": "A woodpecker cut a hole, used it once, and left. Another animal moved right in. In a forest, one bird’s old home is another’s new one.",
+			"wetland-beaver": "The beaver is back. It builds the place everyone else needs. Its dams raise the water and make new ponds. Fish, frogs, and birds all use them.",
+			"wetland-beaver-wake": "Otters and herons followed the beaver in. They hunt in the deep, still water its dams make. That water would not be here without it.",
+			"wetland-heron-hunt": "A great blue heron works the shallows. It stands still for minutes. Then it strikes faster than you can see.",
+			"desert-snake-rodent": "The rattlesnake is back, and it earns its keep. It waits and finds prey by body heat with pits on its face. It keeps desert mice in check.",
+			"desert-coyote-prey": "A coyote roams the scrubland again. It hunts mice and rabbits. That keeps the whole desert food web in balance.",
+			"desert-shared-burrow": "Nobody wastes a hole in the desert. The tortoise digs a burrow, and a burrowing owl takes the spare room. A few feet down it stays cool while the top bakes.",
+			"alpine-eagle-prey": "A golden eagle watches the ridge. It can see a marmot from over a mile away. Then it dives faster than a car on the highway. It is the top hunter up here.",
+			"coastal-keystone": "The ochre sea star is back. It was the first animal ever called a keystone. Take it away and mussels cover every rock. Bring it back and the whole tidepool shares the space.",
+			"coastal-otter-kelp": "An otter floating offshore means a forest below. Otters eat the urchins that would chew the kelp down to bare rock."
+		},
+		"total": {
+			"total-25": "Twenty-five kinds of animal live here now. The quiet you found is well and truly gone."
+		},
+		"health": {
+			"25": "{biome} is a quarter healed. Bare ground is turning into real habitat. The first tough animals can risk it now.",
+			"80": "{biome} is doing well at 80%. It can now feed its top hunters and a whole food web."
+		},
+		"lore": {
+			"meadow": {
+				"damaged": "Bare, dusty ground where a flowering meadow used to be. The native grasses went, so the bugs went. Then everything that ate them went too.",
+				"restored": "A whole grassland food web, top to bottom. Healthy meadows like this hold carbon in their deep roots. They also feed a third of the bugs here.",
+				"coexistence": "The fox and the hawks only move in once the mice and rabbits are back. Hunters come last, when there is enough to eat."
+			},
+			"forest": {
+				"damaged": "A logged woodland. The big trees and dead standing trees are gone. So woodpeckers have nowhere to carve. And the animals that reuse their holes never come.",
+				"thriving": "Three layers of forest now: floor, middle, and top. Each one has its own animals. Flying squirrels glide between the trees you grew.",
+				"coexistence": "A big woodpecker cuts a hole, uses it once, and leaves it. Then a wood duck, a flying squirrel, or an owl moves in."
+			},
+			"wetland": {
+				"recovering": "Water is back in the channels and the reeds are growing. Frogs, dragonflies, and water striders come first. Herons follow the frogs into the shallows.",
+				"restored": "A whole wetland, from crane to minnow. It cleans all the water that flows out of it. That quiet work keeps the whole river healthy.",
+				"coexistence": "The beaver builds what everyone else needs. Its dam makes the deep, still water where otters hunt and herons wait."
+			},
+			"desert": {
+				"damaged": "A flat with no brush and no burrows, eaten bare. With no way to escape the heat, even the toughest animals stay away.",
+				"restored": "The hardest land here, fully alive. An elf owl in the cactus and a tarantula under a stone. You cannot flood a desert back. You have to shade it back.",
+				"coexistence": "In the desert nobody wastes a hole. A tortoise digs a burrow, and a burrowing owl takes the spare room under the brush."
+			},
+			"alpine": {
+				"damaged": "A worn alpine slope. The wildflower turf is rubbed down to bare rock. Up here healing takes tens of years, not seasons.",
+				"recovering": "Turf is growing back over the rock. Pikas carry hay into the rocks. Marmots sun on the boulders. Rosy-finches work the melting snow.",
+				"coexistence": "When the eagle circles the ridge, the marmots whistle and the whole slope goes still. That alarm ties the high country together."
+			},
+			"coastal": {
+				"damaged": "A worn shore with washed-out dunes and empty tidepools. Without dune grass to hold the sand and kelp to feed on, the tide has nothing to give.",
+				"recovering": "The dunes are holding and the tidepools are filling with crabs, anemones, and mussels. Gulls and plovers work the tide line again.",
+				"restored": "The wildest stretch here, whole again. From whale spouts to clams. Two key animals do the quiet work that keeps it in balance.",
+				"coexistence": "Two animals run this shore. The sea star keeps mussels off every rock. The otter eats the urchins that would mow down the kelp."
+			}
+		}
+	}
+}

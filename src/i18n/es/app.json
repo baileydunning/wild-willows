@@ -421,6 +421,8 @@
 		"controls": "Controles",
 		"reduceMotion": "Reducir movimiento",
 		"reduceMotionHint": "Detiene las animaciones de la interfaz, las partículas del clima como la lluvia y la nieve, los desplazamientos de cámara al viajar y el ciclo de luz de día y noche — la vista se mantiene quieta y con luz uniforme.",
+		"simpleText": "Palabras más sencillas",
+		"simpleTextHint": "Usa frases más cortas y palabras de todos los días en todo el juego, incluidas las notas sobre animales. No se oculta nada — solo se dice de forma más sencilla.",
 		"interactHint": "Resaltado de interacción",
 		"interactHintHint": "Muestra el aro y la tecla sobre los objetos con los que puedes interactuar.",
 		"colorblind": "Modo daltónico",
