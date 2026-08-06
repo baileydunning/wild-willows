@@ -881,8 +881,9 @@ function render(data) {
 				kpi(pct(au.sfxOffPct), "SFX off", `${fmt(au.sfxOff)} caretakers`),
 				kpi(fmt(au.fullyMuted), "Fully muted"),
 			].join("")}</div>`) +
-			cardTitled("Accessibility options", "how many have each on", `<div class="grid two">${[
+			cardTitled("Accessibility options", "how many have each on", `<div class="grid three">${[
 				kpi(fmt(a11y.reduceMotion), "Reduce motion"),
+				kpi(fmt(a11y.highContrast), "High contrast"),
 				kpi(fmt(a11y.colorblindOn), "Colorblind aid"),
 			].join("")}</div><div style="margin-top:1rem">${barRows(objToEntries(a11y.textScales || {}), { labelMap: tsLabels, cls: "sky" })}</div>`) +
 			`</div>` +

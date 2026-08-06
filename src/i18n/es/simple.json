@@ -196,7 +196,8 @@
 			},
 			"errPasscodeLength": "Tu clave nueva debe tener de 4 a 32 caracteres.",
 			"emailPlaceholder": "Tu correo. Solo si quieres respuesta.",
-			"feedbackQueued": "No pudimos enviarlo ahora. Tu nota está guardada. Se enviará la próxima vez que abras el juego."
+			"feedbackQueued": "No pudimos enviarlo ahora. Tu nota está guardada. Se enviará la próxima vez que abras el juego.",
+			"highContrastHint": "Hace las palabras y los bordes más oscuros para verlos mejor. Los colores cálidos se quedan."
 		},
 		"hud": {
 			"healthHint": "Sube la salud regando la tierra y poniendo hogares. Cava un bancal y riégalo. Planta flores y árboles. Pon cosas que creas. Todo suma.",

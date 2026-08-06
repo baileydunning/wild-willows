@@ -457,7 +457,9 @@
 		"fontRounded": "Rounded",
 		"fontClassic": "Classic",
 		"fontPlain": "Plain",
-		"fontTypewriter": "Typewriter"
+		"fontTypewriter": "Typewriter",
+		"highContrast": "High contrast",
+		"highContrastHint": "Deepens the text, borders, and accent colors until everything meets the WCAG AA readability standard — while keeping the warm cream-and-green look."
 	},
 	"kbGate": {
 		"title": "Wild Willows needs a keyboard",

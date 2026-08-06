@@ -30,6 +30,10 @@ export interface Prefs {
 	colorblindMode: ColorblindMode;
 	/** Which typeface the interface is set in. */
 	fontChoice: FontChoice;
+	/** Deepen the palette until text and edges clear WCAG AA, without leaving the
+	 *  warm cream-and-green look behind. Distinct from colorblindMode, which
+	 *  additionally colour-corrects and goes stark black-on-white. */
+	highContrast: boolean;
 	/** UI text/control scale. */
 	textScale: TextScale;
 	/** Play background music and ambience. */
@@ -60,6 +64,7 @@ const DEFAULTS: Prefs = {
 	reduceMotion: false,
 	colorblindMode: 'off',
 	fontChoice: 'storybook',
+	highContrast: false,
 	textScale: 'md',
 	musicEnabled: true,
 	sfxEnabled: true,
@@ -125,6 +130,7 @@ export function normalizePrefs(raw: any, fallbackReduce = false): Prefs {
 		reduceMotion: typeof o.reduceMotion === 'boolean' ? o.reduceMotion : fallbackReduce,
 		colorblindMode,
 		fontChoice,
+		highContrast: typeof o.highContrast === 'boolean' ? o.highContrast : DEFAULTS.highContrast,
 		textScale,
 		musicEnabled: typeof o.musicEnabled === 'boolean' ? o.musicEnabled : DEFAULTS.musicEnabled,
 		sfxEnabled: typeof o.sfxEnabled === 'boolean' ? o.sfxEnabled : DEFAULTS.sfxEnabled,
@@ -154,6 +160,7 @@ function applyToDom(p: Prefs): void {
 	root.dataset.reduceMotion = p.reduceMotion ? '1' : '0';
 	root.dataset.colorblind = p.colorblindMode; // off | redgreen | blueyellow | mono
 	root.dataset.font = p.fontChoice;
+	root.dataset.highContrast = p.highContrast ? '1' : '0';
 	root.dataset.textScale = p.textScale;
 	root.style.setProperty('--ui-scale', String(TEXT_SCALE_VALUES[p.textScale]));
 }

@@ -22,7 +22,13 @@ import { normalizePrefs, getPrefs, setPrefs, subscribe, FONT_CHOICES, TEXT_SCALE
 describe('accessibility prefs', () => {
 	beforeEach(() => {
 		store.clear();
-		setPrefs({ reduceMotion: false, colorblindMode: 'off', fontChoice: 'storybook', textScale: 'md' });
+		setPrefs({
+			reduceMotion: false,
+			colorblindMode: 'off',
+			fontChoice: 'storybook',
+			highContrast: false,
+			textScale: 'md',
+		});
 	});
 
 	it('normalizes unknown/missing fields to safe defaults', () => {
@@ -30,6 +36,7 @@ describe('accessibility prefs', () => {
 			reduceMotion: false,
 			colorblindMode: 'off',
 			fontChoice: 'storybook',
+			highContrast: false,
 			textScale: 'md',
 			musicEnabled: true,
 			sfxEnabled: true,
@@ -43,6 +50,7 @@ describe('accessibility prefs', () => {
 			reduceMotion: false,
 			colorblindMode: 'off',
 			fontChoice: 'storybook',
+			highContrast: false,
 			textScale: 'md',
 			musicEnabled: true,
 			sfxEnabled: true,
@@ -57,6 +65,7 @@ describe('accessibility prefs', () => {
 			reduceMotion: false,
 			colorblindMode: 'blueyellow',
 			fontChoice: 'storybook',
+			highContrast: false,
 			textScale: 'md',
 			musicEnabled: true,
 			sfxEnabled: true,
@@ -110,6 +119,18 @@ describe('accessibility prefs', () => {
 		expect(getPrefs().textScale).toBe('xl');
 	});
 
+	it('exposes high contrast on <html> so the CSS can theme off it', () => {
+		expect(document.documentElement.dataset.highContrast).toBe('0');
+		setPrefs({ highContrast: true });
+		expect(document.documentElement.dataset.highContrast).toBe('1');
+		// It's independent of the colorblind modes, which carry their own (much
+		// starker) theme — turning one on must not imply or clear the other.
+		setPrefs({ colorblindMode: 'mono' });
+		expect(document.documentElement.dataset.highContrast).toBe('1');
+		setPrefs({ highContrast: false, colorblindMode: 'off' });
+		expect(document.documentElement.dataset.highContrast).toBe('0');
+	});
+
 	it('exposes the font on <html> so the CSS can theme off it', () => {
 		setPrefs({ fontChoice: 'typewriter' });
 		expect(document.documentElement.dataset.font).toBe('typewriter');
@@ -139,6 +160,7 @@ describe('accessibility prefs', () => {
 			reduceMotion: true,
 			colorblindMode: 'off',
 			fontChoice: 'storybook',
+			highContrast: false,
 			textScale: 'xl',
 			musicEnabled: true,
 			sfxEnabled: true,

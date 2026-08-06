@@ -457,7 +457,9 @@
 		"fontRounded": "Redondeada",
 		"fontClassic": "Clásica",
 		"fontPlain": "Sencilla",
-		"fontTypewriter": "Máquina de escribir"
+		"fontTypewriter": "Máquina de escribir",
+		"highContrast": "Alto contraste",
+		"highContrastHint": "Oscurece el texto, los bordes y los colores de acento hasta cumplir el estándar de lectura WCAG AA, sin perder el aire cálido de crema y verde."
 	},
 	"kbGate": {
 		"title": "Wild Willows necesita un teclado",

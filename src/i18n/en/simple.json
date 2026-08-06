@@ -196,7 +196,8 @@
 			},
 			"errPasscodeLength": "Your new passcode must be 4 to 32 characters long.",
 			"emailPlaceholder": "Your email. Only if you want a reply.",
-			"feedbackQueued": "We could not send that right now. Your note is saved. It will send next time you start the game."
+			"feedbackQueued": "We could not send that right now. Your note is saved. It will send next time you start the game.",
+			"highContrastHint": "Makes words and edges darker so they are easier to see. The cozy colors stay."
 		},
 		"hud": {
 			"healthHint": "Raise health by watering the land and adding homes for animals. Dig a bed and water it. Plant flowers and trees. Place things you craft. Every bit helps.",

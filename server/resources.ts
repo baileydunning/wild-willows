@@ -6327,6 +6327,7 @@ export class Metrics extends PublicEndpoint {
 			},
 			accessibility: {
 				reduceMotion: countPref((p) => p.reduceMotion === true),
+				highContrast: countPref((p) => p.highContrast === true),
 				colorblindOn: countPref((p) => p.colorblindMode && p.colorblindMode !== 'off'),
 				// The font picker replaced a dyslexia-font toggle. It's a taste setting
 				// now, not an assistive one, so it no longer counts toward anyEnabled —
@@ -6335,6 +6336,7 @@ export class Metrics extends PublicEndpoint {
 				anyEnabled: countPref(
 					(p) =>
 						p.reduceMotion === true ||
+						p.highContrast === true ||
 						(p.colorblindMode && p.colorblindMode !== 'off') ||
 						(p.textScale && p.textScale !== 'md'),
 				),

@@ -236,15 +236,15 @@ export function AccessibilityControls() {
 			</div>
 			<div className="a11y-row">
 				<span className="a11y-label">
-					<b>{t('app.settings.interactHint')}</b>
-					<span className="muted small">{t('app.settings.interactHintHint')}</span>
+					<b>{t('app.settings.highContrast')}</b>
+					<span className="muted small">{t('app.settings.highContrastHint')}</span>
 				</span>
 				<label className="switch">
 					<input
 						type="checkbox"
-						checked={prefs.interactHint}
-						onChange={(e) => setPrefs({ interactHint: e.target.checked })}
-						aria-label={t('app.settings.interactHint')}
+						checked={prefs.highContrast}
+						onChange={(e) => setPrefs({ highContrast: e.target.checked })}
+						aria-label={t('app.settings.highContrast')}
 					/>
 					<span className="track" />
 					<span className="thumb" />
@@ -261,6 +261,22 @@ export function AccessibilityControls() {
 						checked={prefs.simpleText}
 						onChange={(e) => setPrefs({ simpleText: e.target.checked })}
 						aria-label={t('app.settings.simpleText')}
+					/>
+					<span className="track" />
+					<span className="thumb" />
+				</label>
+			</div>
+			<div className="a11y-row">
+				<span className="a11y-label">
+					<b>{t('app.settings.interactHint')}</b>
+					<span className="muted small">{t('app.settings.interactHintHint')}</span>
+				</span>
+				<label className="switch">
+					<input
+						type="checkbox"
+						checked={prefs.interactHint}
+						onChange={(e) => setPrefs({ interactHint: e.target.checked })}
+						aria-label={t('app.settings.interactHint')}
 					/>
 					<span className="track" />
 					<span className="thumb" />

@@ -4603,6 +4603,70 @@ kbd {
 	scroll-behavior: auto !important;
 }
 
+/* ---- high contrast (cozy) ----
+   A readability pass that stays in the game's own warm palette instead of going
+   black-on-white. Every colour below is the SAME hue as the default, pushed
+   darker until it clears WCAG AA against both paper surfaces — measured, not
+   eyeballed (ratios in the comments, body text needs 4.5, edges and large text
+   3.0). The cream paper, the green, the rose and the gold all survive; what goes
+   is the low-contrast haze.
+
+   What was actually failing before, on --paper #faf5e8:
+     --ink-soft  3.57   muted text — used for every hint and caption
+     --line      1.30   borders, essentially invisible
+     --gold      2.54   --rose 3.47   --green-2 2.23
+     --green     4.47   marginal for body text
+
+   Deliberately NOT a canvas filter. The colorblind modes filter the game canvas
+   every frame because colour correction has no other way in; here the win is in
+   the DOM text, and a full-screen per-frame filter is exactly the kind of cost
+   that made the game unplayable before. */
+[data-high-contrast='1'] {
+	--ink: #22221a; /* 14.20 on paper */
+	--ink-soft: #54523f; /*  7.01 — was 3.57, the big one */
+	--paper: #f7f1e1; /* a shade deeper so panels separate from cream */
+	--paper-2: #ece2c8;
+	--cream: #fffdf6;
+	--green: #2f5a3c; /*  7.03, and 7.93 for white text on it */
+	--green-deep: #24462e; /*  9.36 */
+	--green-2: #3f6f2c; /*  5.29 — was 2.23 */
+	--rose: #8a3f4c; /*  6.43 — was 3.47 */
+	--gold: #7a5410; /*  6.00 — was 2.54 */
+	--line: #94855c; /*  3.23 — was 1.30 */
+}
+/* Hairlines are drawn at 1.5px throughout; at that width even a passing colour
+   reads as a smudge, so thicken the edges that separate one surface from another. */
+[data-high-contrast='1'] .panel,
+[data-high-contrast='1'] .placement-menu,
+[data-high-contrast='1'] .toolbelt,
+[data-high-contrast='1'] .tasks-widget,
+[data-high-contrast='1'] .hud-top-left,
+[data-high-contrast='1'] .hud-top-right {
+	border-width: 2px;
+}
+/* `.muted` sets its own colour, so the variable alone doesn't reach it. */
+[data-high-contrast='1'] .muted,
+[data-high-contrast='1'] .muted-line {
+	color: var(--ink-soft);
+	opacity: 1;
+}
+/* The prompt bar and feed bubbles are light-on-dark, so they get the opposite
+   treatment: deepen the backing rather than the text. */
+[data-high-contrast='1'] .hud-bottom {
+	background: rgba(26, 32, 19, 0.96);
+	color: #fffdf6;
+}
+[data-high-contrast='1'] .activity-entry {
+	background: rgba(26, 32, 19, 0.94);
+	color: #fffdf6;
+}
+/* Keyboard focus has to be findable at a glance when contrast is the reason
+   you're here — one ring, in ink, wide enough to see against any surface. */
+[data-high-contrast='1'] :focus-visible {
+	outline: 3px solid var(--ink);
+	outline-offset: 2px;
+}
+
 /* ---- colorblind / high-contrast mode ----
    Darkens text and accents for contrast, gives the floating panels a clean solid
    outline, and boosts the game canvas so the in-world weather/biome colors
