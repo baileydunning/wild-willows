@@ -1,5 +1,12 @@
 import { describe, it, expect } from 'vitest';
-import { canPaintClick, blocksDoorway, isSleepable, isOrphanedTween } from '../../src/game/interactions';
+import {
+	canPaintClick,
+	blocksDoorway,
+	isSleepable,
+	isOrphanedTween,
+	screenSpaceOverlayTransform,
+	worldToScreen,
+} from '../../src/game/interactions';
 
 describe('canPaintClick', () => {
 	it('paints when the paint tool is selected indoors and nothing is being placed/moved', () => {
@@ -117,5 +124,89 @@ describe('isOrphanedTween — the session-long slowdown', () => {
 
 	it('treats undefined scene as destroyed too', () => {
 		expect(isOrphanedTween([{ scene: undefined }], () => true)).toBe(true);
+	});
+});
+
+describe('screenSpaceOverlayTransform — the campfire halo drift', () => {
+	// Phaser's camera matrix is translate(x+origin) · scale(zoom) · translate(-origin),
+	// so a scrollFactor-0 object at p renders at  p·zoom + origin·(1 − zoom) + camX.
+	// The night-light mask is rendered THROUGH that camera (BitmapMask does) and
+	// then sampled in screen space — so left at scale 1 / position 0 it came out
+	// zoom× too large, putting each stamped light at zoom² of its intended screen
+	// position. The halo slid off its fire as the camera scrolled.
+	const cam = (zoom: number, width = 2550, height = 1532) => ({
+		width,
+		height,
+		originX: 0.5,
+		originY: 0.5,
+		zoom,
+	});
+	/** Phaser's transform for a scrollFactor-0 object. */
+	const render = (p: number, size: number, scale: number, zoom: number, origin: number) => ({
+		start: p * zoom + origin * (1 - zoom),
+		size: size * scale * zoom,
+	});
+
+	it('is the identity at zoom 1 — which is why the bug hid for so long', () => {
+		const t = screenSpaceOverlayTransform(cam(1));
+		expect(t).toEqual({ scale: 1, x: 0, y: 0 });
+	});
+
+	it('puts the overlay exactly over the viewport at every zoom', () => {
+		for (const zoom of [0.85, 1, 1.7, 2.5, 4, 5.2]) {
+			const c = cam(zoom);
+			const t = screenSpaceOverlayTransform(c);
+			const r = render(t.x, c.width, t.scale, zoom, c.width * c.originX);
+			expect(r.start).toBeCloseTo(0, 6); // flush to the left edge
+			expect(r.size).toBeCloseTo(c.width, 6); // and exactly one screen wide
+		}
+	});
+
+	it('does the same vertically', () => {
+		for (const zoom of [1.3, 2.5, 4]) {
+			const c = cam(zoom);
+			const t = screenSpaceOverlayTransform(c);
+			const r = render(t.y, c.height, t.scale, zoom, c.height * c.originY);
+			expect(r.start).toBeCloseTo(0, 6);
+			expect(r.size).toBeCloseTo(c.height, 6);
+		}
+	});
+
+	it('honours a camera that is not at the window origin', () => {
+		const c = { ...cam(2), x: 120, y: 40 };
+		const t = screenSpaceOverlayTransform(c);
+		expect(t.x * c.zoom + c.width * c.originX * (1 - c.zoom) + c.x).toBeCloseTo(0, 6);
+		expect(t.y * c.zoom + c.height * c.originY * (1 - c.zoom) + c.y).toBeCloseTo(0, 6);
+	});
+
+	it('THE BUG: a light stays put on its fire while the camera scrolls', () => {
+		const c = cam(2.5);
+		const origin = c.width * c.originX;
+		const t = screenSpaceOverlayTransform(c);
+		const FIRE = 4000; // fixed world x
+
+		// Walk the camera past the fire and check the halo tracks it exactly.
+		const errors = [3200, 3500, 3800, 4100, 4400].map((viewEdge) => {
+			const want = worldToScreen(FIRE, viewEdge, c.zoom);
+			// stamped at texture coord = intended screen coord, then rendered:
+			const got = render(t.x + want * t.scale, 0, t.scale, c.zoom, origin).start;
+			return Math.abs(got - want);
+		});
+		for (const e of errors) expect(e).toBeLessThan(1e-6);
+	});
+
+	it('and the old transform did NOT — the error changes as you walk', () => {
+		const c = cam(2.5);
+		const origin = c.width * c.originX;
+		const FIRE = 4000;
+		// Old behaviour: RT at scale 1, position 0.
+		const errs = [3200, 3800, 4400].map((viewEdge) => {
+			const want = worldToScreen(FIRE, viewEdge, c.zoom);
+			const got = render(0 + want, 0, 1, c.zoom, origin).start;
+			return got - want;
+		});
+		// Not merely wrong — wrong by a DIFFERENT amount each step, i.e. drift.
+		expect(new Set(errs.map((e) => Math.round(e))).size).toBe(errs.length);
+		expect(Math.abs(errs[2] - errs[0])).toBeGreaterThan(100);
 	});
 });

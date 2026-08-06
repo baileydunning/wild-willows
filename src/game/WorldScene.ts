@@ -1,6 +1,12 @@
 import Phaser from 'phaser';
 import { bridge } from './bridge';
-import { canPaintClick, isSleepable, blocksDoorway, isOrphanedTween } from './interactions';
+import {
+	canPaintClick,
+	isSleepable,
+	blocksDoorway,
+	isOrphanedTween,
+	screenSpaceOverlayTransform,
+} from './interactions';
 import {
 	animalScale,
 	animalTexture,
@@ -1763,6 +1769,26 @@ export class WorldScene extends Phaser.Scene {
 			rt.resize(this.scale.width, this.scale.height);
 		}
 		const cam = this.cameras.main;
+		// Cancel the camera transform on the mask itself.
+		//
+		// A BitmapMask is rendered THROUGH the main camera (WebGLRenderer
+		// .drawBitmapMask → mask.renderWebGL(…, camera)) even though this
+		// RenderTexture was never added to the display list, and the shader then
+		// samples it in screen space. So the camera's zoom and origin apply to the
+		// mask: Phaser's matrix works out to
+		//     screen = p * zoom + origin * (1 - zoom)
+		// Left at scale 1 and position 0, the mask rendered `zoom`× too large and
+		// offset, which made every stamped light land at zoom² of its intended
+		// screen position. The halo therefore slid off its fire as the camera
+		// scrolled — the further you walked, the further it lagged — and the error
+		// vanishes only at zoom 1, which is why it survived this long.
+		//
+		// Scaling by 1/zoom and offsetting by origin·(1 − 1/zoom) makes the mask sit
+		// exactly over the screen at 1:1, so texture coords ARE screen coords and
+		// the stamping below is finally what it always read as.
+		const fit = screenSpaceOverlayTransform(cam);
+		rt.setScale(fit.scale);
+		rt.setPosition(fit.x, fit.y);
 		// worldView reflects LAST frame's scroll: the smooth camera-follow (lerp)
 		// for THIS frame isn't applied until the camera's preRender, so a fixed
 		// light (a fire) would trail behind as you walk. Predict this frame's

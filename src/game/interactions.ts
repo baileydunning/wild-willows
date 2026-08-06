@@ -89,3 +89,39 @@ export function isOrphanedTween(targets: unknown[] | undefined, isGameObject: (t
 	if (!judged.length) return false; // plain-object targets: not ours to judge
 	return judged.every((t) => !t.scene);
 }
+
+// -------------------------------------------------------- night-light mask
+
+/**
+ * Where a screen-space overlay must sit, and at what scale, to render 1:1 over
+ * the viewport despite the camera's zoom.
+ *
+ * Phaser's camera matrix is `translate(x + origin) · scale(zoom) · translate(-origin)`,
+ * so an object with `scrollFactor: 0` at position `p` lands at
+ * `screen = p·zoom + origin·(1 − zoom) + camX`. A BitmapMask is rendered through
+ * that same camera and then sampled in screen space, so a mask left at scale 1
+ * and position 0 comes out `zoom`× too big and offset — which put every stamped
+ * light at zoom² of its intended position, sliding the campfire halo off the
+ * fire as the camera scrolled.
+ *
+ * Solving `screen = 0` for `p` and cancelling the scale gives the values below.
+ */
+export function screenSpaceOverlayTransform(cam: {
+	width: number;
+	height: number;
+	originX: number;
+	originY: number;
+	zoom: number;
+	x?: number;
+	y?: number;
+}): { scale: number; x: number; y: number } {
+	const invZoom = 1 / cam.zoom;
+	return {
+		scale: invZoom,
+		x: cam.width * cam.originX * (1 - invZoom) - (cam.x ?? 0) * invZoom,
+		y: cam.height * cam.originY * (1 - invZoom) - (cam.y ?? 0) * invZoom,
+	};
+}
+
+/** Where a world point renders on screen, given the camera's visible world rect. */
+export const worldToScreen = (world: number, viewEdge: number, zoom: number): number => (world - viewEdge) * zoom;
