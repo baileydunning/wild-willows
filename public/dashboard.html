@@ -99,8 +99,9 @@
 	.bars { display: flex; flex-direction: column; gap: .55rem; }
 	.bar { display: grid; grid-template-columns: minmax(64px, 34%) 1fr auto; align-items: center; gap: .6rem; }
 	.bar .lab { color: var(--muted); font-size: .82rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-transform: capitalize; }
-	.bar .track { background: var(--accent-soft); border-radius: 999px; height: 12px; overflow: hidden; }
-	.bar .fill { height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dark) 100%); min-width: 3px; transition: width .8s cubic-bezier(.2,.7,.2,1); }
+	.bar .track { display: block; background: var(--accent-soft); border-radius: 999px; height: 12px; overflow: hidden; }
+	/* display:block — these are <span>s, and inline elements silently ignore width/height */
+	.bar .fill { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dark) 100%); min-width: 3px; transition: width .8s cubic-bezier(.2,.7,.2,1); }
 	.bar .num { font-size: .8rem; color: var(--ink); font-variant-numeric: tabular-nums; min-width: 2.4ch; text-align: right; }
 	.fill.sky { background: linear-gradient(90deg, #8cc0da, var(--sky)); }
 	.fill.gold { background: linear-gradient(90deg, #e6bd62, var(--gold)); }
@@ -522,6 +523,7 @@ function fmtDur(sec) { const m = Math.round(n(sec) / 60); if (m < 60) return m +
  * ------------------------------------------------------------------ */
 let PLAYERS_BY_ID = {};
 let modalEl = null;
+let LANDING = null; // latest GET /LandingStats/ payload (null until loaded / if unavailable)
 
 /** Build the modal body for one player: header, headline stats, progress,
  *  milestones, a full action breakdown, time-by-area, and recent achievements. */
@@ -639,6 +641,33 @@ function render(data) {
 		kpi(fmt(A.activeLast7d), "Active · 7d"),
 		kpi(fmt(A.newLast24h), "New · 24h", `${fmt(A.newLast7d)} in the last 7 days`),
 	].join("")}</div>`));
+
+	/* ---- Landing page (site traffic + mailing list) ----
+	 * Fed by the public GET /LandingStats/ rollup (aggregate counters only —
+	 * mailing-list emails stay behind the admin-only ListMailingList). Loaded
+	 * best-effort alongside /Metrics/; the section simply doesn't render if the
+	 * endpoint isn't deployed yet. Unaffected by the version/edition filters —
+	 * these are site numbers, not game numbers. */
+	if (LANDING && LANDING.totals) {
+		const lt = LANDING.totals;
+		const CLICK_LABELS = {
+			appstore: "Mac App Store", itch: "itch.io", demo: "Free demo", theme: "Theme played",
+			privacy: "Privacy page", support: "Support page", "get-nav": "Get the game (nav)", other: "Other",
+		};
+		const ldays = LANDING.days || [];
+		const todayRow = ldays.find((d) => d.day === LANDING.today) || {};
+		const dayCols = {};
+		for (const d of ldays.slice(-14)) dayCols[String(d.day).slice(5)] = n(d.visits);
+		out.push(sec("Landing page", "wild.willows.harperfabric.com — visits, link clicks & mailing list", `<div class="grid kpis">${[
+			kpi(fmt(lt.visits), "Visits", `${fmt(lt.uniques)} first-time visitors`),
+			kpi(`<span class="accent">${fmt(todayRow.visits)}</span>`, "Visits today", `${fmt(todayRow.totalClicks)} clicks · ${fmt(todayRow.signups)} signups today`),
+			kpi(fmt(lt.totalClicks), "Link clicks", "store, demo & theme buttons"),
+			kpi(`<span class="accent">${fmt(lt.signups)}</span>`, "Mailing list", "signups all-time · emails visible only to admin"),
+		].join("")}</div><div class="grid two" style="margin-top:.8rem">` +
+			cardTitled("Clicks by link", "all-time", barRows(objToEntries(lt.clicks), { labelMap: CLICK_LABELS, cls: "gold" })) +
+			cardTitled("Daily visits", `last ${Object.keys(dayCols).length || 0} days`, histCols(dayCols)) +
+			`</div>`));
+	}
 
 	/* ---- Engagement KPIs ---- */
 	out.push(sec("Engagement", "time spent tending the wild", `<div class="grid kpis">${[
@@ -928,9 +957,15 @@ async function load() {
 		// A specific version can be widened to "this version & newer" (min mode);
 		// otherwise the report isolates the single selected version.
 		if (FILTERS.version !== "all" && FILTERS.versionMode === "min") url += "&versionMode=min";
+		// Landing-page stats load in parallel, best-effort: a missing/failed
+		// /LandingStats/ just hides that section instead of breaking the page.
+		const landingReq = fetch("../LandingStats/", { headers: { accept: "application/json" } })
+			.then((r) => (r.ok ? r.json() : null))
+			.catch(() => null);
 		const res = await fetch(url, { headers: { accept: "application/json" } });
 		if (!res.ok) throw new Error(`Metrics endpoint returned ${res.status}`);
 		const data = await res.json();
+		LANDING = await landingReq;
 		populateFilterOptions(data.filters);
 		render(data);
 		if (data.generatedAt) {

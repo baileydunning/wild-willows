@@ -75,6 +75,8 @@ const TABLES = [
 	'Feedback',
 	'SoloMetrics',
 	'AppOpen',
+	'MailingListSignup',
+	'LandingStat',
 ];
 
 export type Db = Record<string, Table>;

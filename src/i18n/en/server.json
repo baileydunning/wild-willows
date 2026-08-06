@@ -127,6 +127,7 @@
 		"feedbackEmpty": "Please write a little something first",
 		"feedbackTooLong": "Feedback is limited to {max} characters",
 		"feedbackBadEmail": "That reply email doesn’t look right — leave it blank if you don’t want a response",
+		"mailBadEmail": "That email doesn’t look quite right — double-check it and try again",
 		"clientIdRequired": "clientId required",
 		"snapshotRequired": "snapshot required",
 		"snapshotTooLarge": "snapshot too large",
