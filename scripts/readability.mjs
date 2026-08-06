@@ -139,20 +139,43 @@ const DATA_KIND = {
 	resources: 'resource',
 };
 const idIndex = {};
+const recIndex = {};
 for (const f of readdirSync(join(ROOT, 'data'))) {
 	if (!f.endsWith('.json')) continue;
 	const base = f.replace('.json', '');
 	const recs = JSON.parse(readFileSync(join(ROOT, 'data', f), 'utf8')).records || [];
-	recs.forEach((r, i) => (idIndex[`${base}.records[${i}]`] = r.id));
+	recs.forEach((r, i) => {
+		idIndex[`${base}.records[${i}]`] = r.id;
+		recIndex[`${base}.records[${i}]`] = r;
+	});
 }
+
+// Not every translatable string sits directly on the record. `content()` is called
+// with a dotted field path for the nested ones, and the path it uses is NOT the
+// data path — an animal's `requirements.hint` is read as plain `hint`, and a tool
+// tier is addressed by its `tier` NUMBER rather than its array index. Getting this
+// wrong doesn't warn, it just reports covered strings as still-to-do (and hides
+// real gaps), so the mapping is spelled out rather than guessed.
+function overlayField(rec, path) {
+	if (path === 'requirements.hint') return 'hint'; // Journal.tsx: content('animal', id, 'hint', req.hint)
+	const tier = path.match(/^tiers\[(\d+)\]\.(\w+)$/); // Panels.tsx: content('tool', id, `tiers.${tier}.effect`)
+	if (tier) {
+		const n = rec?.tiers?.[Number(tier[1])]?.tier;
+		return n == null ? null : `tiers.${n}.${tier[2]}`;
+	}
+	return /^[\w.]+$/.test(path) ? path : null; // plain and dotted-plain (unlock.label)
+}
+
 function overlayKey(entry) {
 	if (entry.src !== 'data') return entry.key;
-	const m = entry.key.match(/^(.*\.records\[\d+\])\.(\w+)$/);
+	const m = entry.key.match(/^(.*\.records\[\d+\])\.(.+)$/);
 	if (!m) return entry.key;
 	const base = m[1].split('.records')[0];
 	const id = idIndex[m[1]];
 	const kind = DATA_KIND[base];
-	return id && kind ? `content.${kind}.${id}.${m[2]}` : entry.key;
+	if (!id || !kind) return entry.key;
+	const field = overlayField(recIndex[m[1]], m[2]);
+	return field ? `content.${kind}.${id}.${field}` : entry.key;
 }
 
 // ---------------------------------------------------------------- report
@@ -163,11 +186,17 @@ for (const entry of strings) {
 	if (before == null) continue;
 	const ok = overlayKey(entry);
 	const plain = simple[ok];
-	rows.push({ ...entry, overlayKey: ok, before, plain: plain ?? null, after: plain ? gradeLevel(plain) : before });
+	// A plain version can score `null` — the rewrite came in under MIN_WORDS. By the
+	// script's own rule that's below the noise floor, i.e. as good as it gets, NOT
+	// unknown. Falling back to `before` here (which is what `plain ? … : before`
+	// did) reported those at the ORIGINAL grade and left dozens of finished strings
+	// sitting in the still-to-do list forever. Treat unscorably-short as at target.
+	const after = plain ? (gradeLevel(plain) ?? 0) : before;
+	rows.push({ ...entry, overlayKey: ok, before, plain: plain ?? null, after });
 }
 
 const hardBefore = rows.filter((r) => r.before > TARGET_GRADE);
-const hardAfter = rows.filter((r) => (r.after ?? r.before) > TARGET_GRADE);
+const hardAfter = rows.filter((r) => r.after > TARGET_GRADE);
 const covered = rows.filter((r) => r.plain);
 const mean = (xs) => (xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : 0);
 
@@ -181,7 +210,17 @@ if (asJson) {
 				hardBefore: hardBefore.length,
 				hardAfter: hardAfter.length,
 				covered: covered.length,
-				remaining: hardAfter.map((r) => ({ key: r.overlayKey, grade: +r.before.toFixed(1), text: r.text })),
+				// `grade` is the ORIGINAL score and `after` what a player with the option
+				// on actually reads. They differ once a plain version exists but still
+				// lands above target, which is most of the tail — reporting only the
+				// original made covered strings look untouched.
+				remaining: hardAfter.map((r) => ({
+					key: r.overlayKey,
+					grade: +r.before.toFixed(1),
+					after: +r.after.toFixed(1),
+					text: r.text,
+					plain: r.plain,
+				})),
 			},
 			null,
 			2,
@@ -204,19 +243,75 @@ console.log(`  above target (normal) ${hardBefore.length}`);
 console.log(`  plain versions written ${covered.length}`);
 console.log(`  above target WITH the option on   ${hardAfter.length}`);
 console.log(
-	`  mean grade  normal ${mean(rows.map((r) => r.before)).toFixed(1)}  →  simple ${mean(rows.map((r) => r.after ?? r.before)).toFixed(1)}`,
+	`  mean grade  normal ${mean(rows.map((r) => r.before)).toFixed(1)}  →  simple ${mean(rows.map((r) => r.after)).toFixed(1)}`,
 );
 
 const bySrc = {};
 for (const r of hardAfter) bySrc[r.src] = (bySrc[r.src] || 0) + 1;
 console.log(`  still to do by source ${JSON.stringify(bySrc)}`);
 
-const show = listAll ? hardAfter : hardAfter.slice(0, 15);
+// Two very different things end up in that count, and conflating them makes the
+// work look unfinished when it isn't:
+//
+//   • strings with NO plain version — real, actionable work;
+//   • strings already rewritten in plain words that still score above target.
+//
+// The second group is mostly the formula's floor. A one-sentence line like "Tiger
+// salamanders are among the biggest land salamanders in North America" scores 13th
+// grade purely because "salamander" has four syllables and appears twice. It's a
+// species name; there is no plainer word, and splitting the sentence to game the
+// score would make it read worse. Report the two separately so the actionable
+// number is the one that stands out.
+// For a non-English locale the "above target" set is not a real work list — the
+// formula flags 1900 of 1938 Spanish strings, including ones already rewritten as
+// plainly as Spanish allows. Deriving "not yet rewritten" from it would invent
+// hundreds of phantom tasks. The meaningful question for another language is key
+// PARITY: which strings has English simplified that this locale hasn't? That's
+// also what tests/unit/simple-text.test.ts enforces, so the two agree.
+const unwritten =
+	locale === 'en'
+		? hardAfter.filter((r) => !r.plain)
+		: (() => {
+				const enSimple = {};
+				const enPath = join(ROOT, 'src/i18n/en/simple.json');
+				if (existsSync(enPath)) {
+					const flat = (o, prefix) => {
+						for (const [k, v] of Object.entries(o)) {
+							const key = prefix ? `${prefix}.${k}` : k;
+							if (typeof v === 'string') enSimple[key] = v;
+							else if (Array.isArray(v)) v.forEach((s, i) => (enSimple[`${key}[${i}]`] = s));
+							else if (v && typeof v === 'object') flat(v, key);
+						}
+					};
+					flat(JSON.parse(readFileSync(enPath, 'utf8')), '');
+				}
+				delete enSimple._readme;
+				return Object.keys(enSimple)
+					.filter((k) => simple[k] === undefined)
+					.map((k) => ({ overlayKey: k, after: 0, plain: null, text: enSimple[k] }));
+			})();
+console.log(
+	locale === 'en'
+		? `  of those, with no plain version yet ${unwritten.length}`
+		: `  keys English has simplified but ${locale} has not ${unwritten.length}`,
+);
+if (unwritten.length === 0 && hardAfter.length) {
+	if (locale === 'en') {
+		console.log(`  (every string above target has a plain version; the rest is the formula's floor —`);
+		console.log(`   short single sentences whose score is driven by unavoidable names)`);
+	} else {
+		console.log(`  (nothing to port from English — the count above is the English-tuned`);
+		console.log(`   formula misreading Spanish, not untranslated work)`);
+	}
+}
+
+const show = listAll ? hardAfter : (unwritten.length ? unwritten : hardAfter).slice(0, 15);
 if (show.length) {
-	console.log(`\nstill above grade ${TARGET_GRADE}${listAll ? '' : ' (hardest 15 — pass --list for all)'}:`);
-	for (const r of [...show].sort((a, b) => b.before - a.before)) {
+	const label = unwritten.length && !listAll ? 'not yet rewritten' : `still above grade ${TARGET_GRADE}`;
+	console.log(`\n${label}${listAll ? '' : ' (hardest 15 — pass --list for all)'}:`);
+	for (const r of [...show].sort((a, b) => b.after - a.after)) {
 		console.log(
-			`  ${r.before.toFixed(1).padStart(5)}  ${r.overlayKey.slice(0, 52).padEnd(52)} ${JSON.stringify(r.text).slice(0, 70)}`,
+			`  ${r.after.toFixed(1).padStart(5)}  ${r.overlayKey.slice(0, 52).padEnd(52)} ${JSON.stringify(r.plain ?? r.text).slice(0, 70)}`,
 		);
 	}
 }

@@ -16,6 +16,7 @@ import enApp from '../../src/i18n/en/app.json';
 import enServer from '../../src/i18n/en/server.json';
 import enGame from '../../src/i18n/en/game.json';
 import enNarrative from '../../src/i18n/en/narrative.json';
+import esNarrative from '../../src/i18n/es/narrative.json';
 import animals1 from '../../data/animals-1.json';
 import animals2 from '../../data/animals-2.json';
 import biomes from '../../data/biomes.json';
@@ -173,6 +174,27 @@ describe('the shipped catalogs', () => {
 		]);
 		const overlaid = flatKeys(enSimple).filter((k) => !k.startsWith('content.') && k !== '_readme');
 		expect(overlaid.filter((k) => !normal.has(k))).toEqual([]);
+	});
+
+	// narrative.ts pairs `tList('narrative.lines.<biome>')[i]` with a SEPARATE table
+	// of gating rules indexed the same way. The overlay replaces the whole array, so
+	// a plain pool that is short, long, or shifted by one silently attaches the wrong
+	// text to a gate — or renders `undefined` into the feed. Neither throws.
+	it('keeps every plain line pool the same length as the normal one', () => {
+		for (const [locale, simple, normal] of [
+			['en', enSimple, enNarrative],
+			['es', esSimple, esNarrative],
+		] as const) {
+			const pools = (simple as any).narrative?.lines ?? {};
+			for (const [biome, lines] of Object.entries(pools)) {
+				const expected = (normal as any).lines[biome];
+				expect(expected, `${locale}: narrative.lines.${biome} is not a real pool`).toBeDefined();
+				expect(Array.isArray(lines), `${locale}: narrative.lines.${biome} must stay an array`).toBe(true);
+				expect((lines as string[]).length, `${locale}: narrative.lines.${biome} length`).toBe(expected.length);
+				// A hole would render as an empty feed entry rather than falling back.
+				expect((lines as string[]).every((s) => typeof s === 'string' && s.length > 0)).toBe(true);
+			}
+		}
 	});
 
 	it('every animal/biome override names a real record id', () => {
