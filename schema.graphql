@@ -125,6 +125,18 @@ type SoloMetrics @table(database: "wildwillows") {
 # characters each person creates. Dynamic (id only) so the field set can evolve.
 type AppOpen @table(database: "wildwillows") { id: ID @primaryKey } # deviceId, platform, os, version, language, firstOpenAt, lastOpenAt, opens, converted, firstConvertedAt, savesCreated, creationMs, updatedAt
 
+# ---------- landing page: mailing list + analytics (dynamic) ----------
+# MailingListSignup : `ml:${email}` · email, source, language, createdAt.
+#                     Emails are PII — the table is never exported and reads go
+#                     through the admin-only ListMailingList endpoint (raw
+#                     Resource, like ListFeedback).
+type MailingListSignup @table(database: "wildwillows") { id: ID @primaryKey }
+# LandingStat : ONE row per UTC day (`day:YYYY-MM-DD`) · day, visits, uniques,
+#               clicks { target: n }, signups, updatedAt. Aggregate counters
+#               only (no PII) — the public LandingStats rollup serves these to
+#               the /dashboard landing section.
+type LandingStat @table(database: "wildwillows") { id: ID @primaryKey }
+
 # ---------- co-op tables (dynamic) ----------
 type World @table(database: "wildwillows") { id: ID @primaryKey }         # name, solo, ownerId, joinCode, createdAt, maxMembers
 type WorldMember @table(database: "wildwillows") { id: ID @primaryKey }   # `${worldId}:${playerId}` · worldId, playerId, role, joinedAt, lastSeenAt

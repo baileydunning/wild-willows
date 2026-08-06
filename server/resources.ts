@@ -7066,6 +7066,207 @@ export class AppOpen extends PublicEndpoint {
 	}
 }
 
+// ---------------------------------------------------------------- landing page: mailing list + analytics
+// The marketing landing page (GET /) hosts a mailing-list signup form and
+// sends anonymous, aggregate-only usage pings. Same shape as the rest of this
+// file:
+//  • MailingListSignup rows carry emails (PII), so — exactly like Feedback —
+//    the table is never exported and reads go through the admin-only
+//    ListMailingList (raw Resource → Harper default super-user permissions).
+//  • LandingStat keeps ONE row per UTC day (`day:YYYY-MM-DD`) of plain
+//    counters; the public LandingStats rollup only ever returns those counts,
+//    never emails. Increments are read-modify-write like AppOpen — fine at
+//    landing-page traffic, and analytics losing the odd count to a rare race
+//    is acceptable by design.
+
+const MAIL_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+// Click targets the landing page reports (data-track attributes). Anything
+// else collapses into "other" so junk can't mint unbounded counter keys.
+const LANDING_CLICK_TARGETS = new Set([
+	'appstore',
+	'itch',
+	'demo',
+	'theme',
+	'privacy',
+	'support',
+	'get-nav',
+	'gallery',
+]);
+const landingDay = (t: number) => new Date(t).toISOString().slice(0, 10); // UTC day
+
+let landingStatsCache: { at: number; out: any } | null = null;
+const LANDING_STATS_CACHE_MS = 15_000;
+
+/** Apply one mutation to today's LandingStat row. Never throws — a metrics
+ *  hiccup (table not deployed yet, decode error, …) must not break the caller. */
+async function bumpLandingStat(mutate: (row: any) => void): Promise<void> {
+	try {
+		const table = (db() as any).LandingStat;
+		if (!table) return; // schema table not created yet — drop the count, not the request
+		const now = Date.now();
+		const day = landingDay(now);
+		const id = `day:${day}`;
+		const row = (await safeGet(table, id)) || { id, day, visits: 0, uniques: 0, clicks: {}, signups: 0 };
+		mutate(row);
+		row.updatedAt = now;
+		await table.put(row);
+		landingStatsCache = null; // new numbers — next LandingStats read rebuilds
+	} catch (e: any) {
+		console.error('landing stat bump failed —', e?.message || e);
+	}
+}
+
+/**
+ * POST /JoinMailingList/ {email, source?, website?} — add one address to the
+ * update list, deduped by normalized email (id `ml:${email}`), so double
+ * submits and re-signups never create duplicate rows. `website` is the form's
+ * honeypot field: it's visually hidden, so a non-empty value means a bot —
+ * we answer ok:true and store nothing. The response is {ok:true} whether the
+ * address was new or already present, so the endpoint can't be used to probe
+ * who is subscribed.
+ */
+export class JoinMailingList extends PublicEndpoint {
+	async post(data: any) {
+		const body = await bodyOf(data);
+		if (String(body.website || '').trim()) return { ok: true }; // honeypot — bot, drop silently
+		const email = String(body.email || '')
+			.trim()
+			.toLowerCase()
+			.slice(0, 254);
+		if (!email || !MAIL_EMAIL_RE.test(email)) throw new GameError(tr('server.err.mailBadEmail'));
+		const source =
+			String(body.source || 'landing')
+				.toLowerCase()
+				.replace(/[^a-z0-9-]/g, '')
+				.slice(0, 24) || 'landing';
+		const table = (db() as any).MailingListSignup;
+		if (!table) throw new GameError(tr('server.err.dbStarting'), 503);
+		const id = `ml:${email}`;
+		const existing = await safeGet(table, id);
+		if (!existing) {
+			await table.put({
+				id,
+				email,
+				source,
+				language:
+					String(body.lang || body.language || '')
+						.trim()
+						.toLowerCase()
+						.slice(0, 12) || null,
+				createdAt: Date.now(),
+			});
+			await bumpLandingStat((r) => {
+				r.signups = (r.signups || 0) + 1;
+			});
+		}
+		return { ok: true };
+	}
+}
+
+/**
+ * GET /ListMailingList/ — every mailing-list signup, newest first.
+ *
+ * Deliberately extends the raw Resource (NOT PublicEndpoint), so Harper's
+ * default permissions apply: only an authenticated super user can read it.
+ * These rows are email addresses, which must never be public (same rule as
+ * ListFeedback).
+ */
+export class ListMailingList extends Resource {
+	async get() {
+		const table = (db() as any).MailingListSignup;
+		const rows: any[] = table ? await allOf(table) : [];
+		rows.sort((a: any, b: any) => (b.createdAt || 0) - (a.createdAt || 0));
+		return { count: rows.length, signups: rows };
+	}
+}
+
+/**
+ * POST /LandingEvent/ {type: "visit"|"click", target?, first?} — anonymous
+ * landing-page beacon, aggregated straight into today's LandingStat row.
+ *   visit — one per browser session (sessionStorage-guarded client-side);
+ *           first:true additionally counts a first-ever visitor (localStorage).
+ *   click — an outbound link tap; `target` must be a known data-track name or
+ *           it lands in "other".
+ * Always answers ok:true — analytics never gets to break the page.
+ */
+export class LandingEvent extends PublicEndpoint {
+	async post(data: any) {
+		const body = await bodyOf(data);
+		const type = body.type === 'click' ? 'click' : body.type === 'visit' ? 'visit' : null;
+		if (!type) return { ok: true }; // unknown ping — accept and drop
+		if (type === 'visit') {
+			await bumpLandingStat((r) => {
+				r.visits = (r.visits || 0) + 1;
+				if (body.first === true) r.uniques = (r.uniques || 0) + 1;
+			});
+		} else {
+			const raw = String(body.target || '')
+				.toLowerCase()
+				.replace(/[^a-z0-9-]/g, '')
+				.slice(0, 24);
+			const target = LANDING_CLICK_TARGETS.has(raw) ? raw : 'other';
+			await bumpLandingStat((r) => {
+				r.clicks = r.clicks && typeof r.clicks === 'object' && !Array.isArray(r.clicks) ? r.clicks : {};
+				r.clicks[target] = (r.clicks[target] || 0) + 1;
+			});
+		}
+		return { ok: true };
+	}
+}
+
+/**
+ * GET /LandingStats/ — public, aggregate-only rollup of the landing page's
+ * daily counters, consumed by the /dashboard "Landing page" section. Returns
+ * per-day rows (last 60 days) plus lifetime totals. The signup total is the
+ * REAL deduped row count from MailingListSignup (the per-day counter is also
+ * summed, but the table is the source of truth if they ever drift). No emails
+ * or any other PII ever leave through this endpoint.
+ */
+export class LandingStats extends PublicEndpoint {
+	async get() {
+		const now = Date.now();
+		if (landingStatsCache && now - landingStatsCache.at < LANDING_STATS_CACHE_MS) return landingStatsCache.out;
+		const t = db() as any;
+		let rows: any[] = [];
+		try {
+			rows = t.LandingStat ? await allOf(t.LandingStat) : [];
+		} catch {
+			rows = [];
+		}
+		rows = rows.filter((r: any) => r && r.day).sort((a: any, b: any) => String(a.day).localeCompare(String(b.day)));
+		const totals = { visits: 0, uniques: 0, signups: 0, clicks: {} as Record<string, number> };
+		for (const r of rows) {
+			totals.visits += r.visits || 0;
+			totals.uniques += r.uniques || 0;
+			totals.signups += r.signups || 0;
+			for (const [k, v] of Object.entries(r.clicks || {}))
+				totals.clicks[k] = (totals.clicks[k] || 0) + (Number(v) || 0);
+		}
+		let signupCount = totals.signups;
+		try {
+			if (t.MailingListSignup) signupCount = (await allOf(t.MailingListSignup)).length;
+		} catch {
+			/* keep the counter sum */
+		}
+		const days = rows.slice(-60).map((r: any) => ({
+			day: r.day,
+			visits: r.visits || 0,
+			uniques: r.uniques || 0,
+			signups: r.signups || 0,
+			clicks: r.clicks || {},
+			totalClicks: sumValues(r.clicks),
+		}));
+		const out = {
+			generatedAt: now,
+			today: landingDay(now),
+			totals: { ...totals, signups: signupCount, totalClicks: sumValues(totals.clicks) },
+			days,
+		};
+		landingStatsCache = { at: now, out };
+		return out;
+	}
+}
+
 // ---------------------------------------------------------------- policy pages
 // The hosted Harper serves NO static files — it is endpoints only (the game UI
 // ships inside the desktop app). But store listings still need public URLs for
