@@ -14,6 +14,7 @@
 		"dev": "npm run build:server && harper dev .",
 		"build": "npm run build:server && npm run build:web",
 		"build:web": "vite build",
+		"icons": "node scripts/build-icons.mjs",
 		"build:server": "node scripts/build-pages.mjs && esbuild server/resources.ts --bundle --format=esm --platform=node --packages=external --outfile=resources.js",
 		"check": "tsc --noEmit && npm run i18n:check",
 		"format": "prettier --write \"src/**/*.{ts,tsx}\" \"server/**/*.ts\" \"scripts/**/*.mjs\" \"electron/**/*.js\" \"tests/**/*.ts\"",
@@ -41,6 +42,7 @@
 		"steamworks.js": "^0.4.0"
 	},
 	"devDependencies": {
+		"sharp": "^0.34.5",
 		"@fontsource/opendyslexic": "^5.2.5",
 		"@playwright/test": "^1.49.1",
 		"@types/react": "^18.3.12",
