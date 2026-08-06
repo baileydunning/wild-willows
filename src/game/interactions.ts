@@ -51,3 +51,41 @@ export function blocksDoorway(
 	if (!isSleepable(objectId)) return false;
 	return Math.abs(tx - door.doorX) <= 1 && Math.abs(ty - door.doorY) <= 1;
 }
+
+// ------------------------------------------------------------ tween hygiene
+
+/**
+ * Phaser tweens are fire-and-forget: the manager drops one when it COMPLETES.
+ * A `repeat: -1` tween never completes, and destroying the sprite it drives does
+ * NOT remove it — so it keeps ticking against a dead object for the rest of the
+ * session, costing frame time and holding the object in memory.
+ *
+ * That was the session-long slowdown only a re-login cleared: the world layers
+ * are rebuilt constantly, every rebuild destroyed sprites carrying looping
+ * tweens (swaying grass, bobbing water, pulsing nodes, breathing animals), and
+ * the orphans piled up. Logging out "fixed" it because scene shutdown destroys
+ * the whole TweenManager.
+ *
+ * Split out here so the rule can be tested without booting Phaser.
+ */
+
+/** Minimal shape of the bits we judge. A live Phaser GameObject has a `scene`;
+ *  `destroy()` nulls it. Plain objects never had one. */
+export interface TweenTargetLike {
+	scene?: unknown;
+}
+
+/**
+ * Should this tween be swept?
+ *
+ * Only game objects are judged: a tween may legitimately drive a plain value
+ * holder (the weather cross-fade animates a `{ t: 0 }` counter), which has no
+ * lifecycle and must never be swept. A tween goes only when EVERY game-object
+ * target it has is destroyed — one live target means it's still doing work.
+ */
+export function isOrphanedTween(targets: unknown[] | undefined, isGameObject: (t: unknown) => boolean): boolean {
+	if (!targets?.length) return false;
+	const judged = targets.filter(isGameObject) as TweenTargetLike[];
+	if (!judged.length) return false; // plain-object targets: not ours to judge
+	return judged.every((t) => !t.scene);
+}

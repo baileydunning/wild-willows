@@ -1,6 +1,6 @@
 import Phaser from 'phaser';
 import { bridge } from './bridge';
-import { canPaintClick, isSleepable, blocksDoorway } from './interactions';
+import { canPaintClick, isSleepable, blocksDoorway, isOrphanedTween } from './interactions';
 import {
 	animalScale,
 	animalTexture,
@@ -84,6 +84,8 @@ let weatherShownThisSession = false;
  *  into clear sky reads as weather doing what weather does, rather than a
  *  lighting cue snapping over — which is what a hard swap looked like. */
 const WEATHER_FADE_MS = 3200;
+/** How often to sweep up tweens left pointing at destroyed sprites. */
+const TWEEN_SWEEP_MS = 5000;
 
 // Player-chosen zoom (+/− keys), multiplied onto the normal window zoom.
 // Module-scoped so it survives area changes; every session starts back at
@@ -603,6 +605,19 @@ export class WorldScene extends Phaser.Scene {
 			// Drop queued rebuilds so a torn-down scene can't be repainted next frame.
 			for (const k of ['world', 'prefs', 'gear']) cancelFlush(this.flushKey(k));
 		});
+
+		// Safety net for orphaned tweens (see clearLayer for the full story).
+		//
+		// clearLayer handles the two layers that churn, but a tween is orphaned by
+		// ANY destroy that doesn't kill it first — a peer avatar leaving, a future
+		// sprite someone adds — and one missed site silently re-creates a leak that
+		// only a re-login clears. That's the part players actually felt: it never
+		// got better on its own.
+		//
+		// So sweep periodically and drop tweens whose targets are all dead. Cheap
+		// (a walk over the active list every few seconds) and it makes the whole
+		// class of bug self-correcting rather than something to rediscover.
+		this.time.addEvent({ delay: TWEEN_SWEEP_MS, loop: true, callback: () => this.sweepOrphanedTweens() });
 
 		this.tileCursor = this.img(0, 0, 'ghost-ok').setDepth(5900).setVisible(false).setAlpha(0.8);
 
@@ -1919,12 +1934,64 @@ export class WorldScene extends Phaser.Scene {
 		return `scene:${this.sceneUid}:${name}`;
 	}
 
+	/**
+	 * Empty a layer, taking its TWEENS with it.
+	 *
+	 * This is the fix for the session-long slowdown that only a re-login cleared.
+	 * Phaser tweens are fire-and-forget: the manager drops one when it COMPLETES,
+	 * and destroying the object it drives does not remove it. Every looping tween
+	 * in these layers is `repeat: -1` — the swaying grass, bobbing water, pulsing
+	 * gather nodes, breathing animals — so it never completes and was never
+	 * dropped. `group.clear(true, true)` destroyed the sprites and left their
+	 * tweens behind, still ticking every frame against dead objects.
+	 *
+	 * The dynamic layer is rebuilt on essentially every world change, so the
+	 * orphans accumulated for as long as you played: a few dozen after a minute,
+	 * thousands after an hour, each one costing frame time forever. Logging out
+	 * "fixed" it only because scene shutdown destroys the whole TweenManager.
+	 */
+	private clearLayer(group?: Phaser.GameObjects.Group) {
+		if (!group || !(group as any).scene) return;
+		for (const child of group.getChildren()) {
+			this.tweens.killTweensOf(child);
+			// Per-object timers (the shadow follower) hang off the sprite too.
+			const timer = (child as any).getData?.('wxTimer') as Phaser.Time.TimerEvent | undefined;
+			timer?.remove();
+		}
+		group.clear(true, true);
+	}
+
+	/**
+	 * Remove tweens whose targets have all been destroyed.
+	 *
+	 * A Phaser tween holds a hard reference to its targets and keeps updating them
+	 * forever when it can't complete (`repeat: -1`). A destroyed sprite doesn't
+	 * remove it, so each orphan costs frame time and leaks memory for the rest of
+	 * the session. clearLayer prevents the two known sources; this catches the rest
+	 * so the game recovers on its own instead of needing a re-login.
+	 *
+	 * Only Phaser GameObjects are judged — plain-object targets (the weather fade
+	 * drives a `{ t: 0 }` counter) have no lifecycle to be dead.
+	 */
+	private sweepOrphanedTweens() {
+		if (!this.alive) return;
+		let removed = 0;
+		const isGameObject = (t: unknown) => t instanceof Phaser.GameObjects.GameObject;
+		for (const tween of this.tweens.getTweens()) {
+			if (isOrphanedTween((tween as any).targets, isGameObject)) {
+				tween.remove();
+				removed++;
+			}
+		}
+		if (removed) console.warn(`world: swept ${removed} orphaned tween(s)`);
+	}
+
 	/** Tear down and repaint the animal layer. Shared by the prefs and gear
 	 *  subscriptions, both of which need the tweens rebuilt from scratch. */
 	private rebuildAnimals() {
 		if (!this.alive || !(this.animals as any)?.scene) return;
 		this.animalSig = '';
-		this.animals.clear(true, true);
+		this.clearLayer(this.animals);
 		this.drawAnimals();
 	}
 
@@ -1942,7 +2009,7 @@ export class WorldScene extends Phaser.Scene {
 			if (sig === this.dynamicSig) return;
 			this.dynamicSig = sig;
 		}
-		this.dynamic.clear(true, true);
+		this.clearLayer(this.dynamic);
 		this.nodeSprites.clear();
 		this.interactables = [];
 		this.hoveredIt = null; // its hit zone was just destroyed; a fresh pointerover will re-set it
@@ -1989,7 +2056,7 @@ export class WorldScene extends Phaser.Scene {
 				.join(',');
 		if (sig !== this.animalSig) {
 			this.animalSig = sig;
-			this.animals.clear(true, true);
+			this.clearLayer(this.animals);
 			this.drawAnimals();
 		}
 	}
@@ -3521,6 +3588,10 @@ export class WorldScene extends Phaser.Scene {
 						else if (!sh.active) shadowTimer.remove(); // stop following once the animal layer is cleared
 					},
 				});
+				// Hand the timer to the sprite so clearLayer can cancel it immediately.
+				// The self-removal above only fires on the NEXT tick, so a rapid rebuild
+				// could stack a fresh timer per animal before the old ones noticed.
+				sh.setData('wxTimer', shadowTimer);
 				const img = this.img(ax, ay, key).setDepth(ay);
 				this.animals.add(img);
 				(sh as any).animal = img;

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { canPaintClick, blocksDoorway, isSleepable } from '../../src/game/interactions';
+import { canPaintClick, blocksDoorway, isSleepable, isOrphanedTween } from '../../src/game/interactions';
 
 describe('canPaintClick', () => {
 	it('paints when the paint tool is selected indoors and nothing is being placed/moved', () => {
@@ -69,5 +69,53 @@ describe('isSleepable', () => {
 		for (const id of ['reed-bed', 'eelgrass-bed', 'oyster-bed', 'hammock', 'workbench', '', null, undefined]) {
 			expect(isSleepable(id as any)).toBe(false);
 		}
+	});
+});
+
+describe('isOrphanedTween — the session-long slowdown', () => {
+	// Phaser drops a tween when it COMPLETES. A `repeat: -1` tween never does, and
+	// destroying its sprite doesn't remove it, so every world rebuild left looping
+	// tweens ticking against dead objects. They accumulated for the whole session,
+	// which is why only logging out (scene shutdown → TweenManager destroyed)
+	// cleared it.
+	const live = { scene: {} }; // a live Phaser GameObject
+	const dead = { scene: null }; // destroy() nulls `scene`
+	const plain = { t: 0.5 }; // the weather cross-fade's value holder
+	const isGO = (t: unknown) => t === live || t === dead;
+
+	it('sweeps a tween whose only target was destroyed', () => {
+		expect(isOrphanedTween([dead], isGO)).toBe(true);
+	});
+
+	it('keeps a tween whose target is alive', () => {
+		expect(isOrphanedTween([live], isGO)).toBe(false);
+	});
+
+	it('keeps a multi-target tween while ANY target is alive', () => {
+		expect(isOrphanedTween([dead, live], isGO)).toBe(false);
+		expect(isOrphanedTween([live, dead, dead], isGO)).toBe(false);
+	});
+
+	it('sweeps only when every game-object target is dead', () => {
+		expect(isOrphanedTween([dead, dead], isGO)).toBe(true);
+	});
+
+	it('never touches a tween driving a plain value holder', () => {
+		// The weather cross-fade animates `{ t: 0 }` — no lifecycle, must survive.
+		expect(isOrphanedTween([plain], isGO)).toBe(false);
+	});
+
+	it('ignores plain targets when judging a mixed tween', () => {
+		expect(isOrphanedTween([plain, dead], isGO)).toBe(true);
+		expect(isOrphanedTween([plain, live], isGO)).toBe(false);
+	});
+
+	it('is safe with no targets at all', () => {
+		expect(isOrphanedTween(undefined, isGO)).toBe(false);
+		expect(isOrphanedTween([], isGO)).toBe(false);
+	});
+
+	it('treats undefined scene as destroyed too', () => {
+		expect(isOrphanedTween([{ scene: undefined }], () => true)).toBe(true);
 	});
 });
