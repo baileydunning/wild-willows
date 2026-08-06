@@ -436,8 +436,6 @@
 			"blueyellow": "Blue–yellow (tritanopia) is rarer — blues and greens, and yellows and pinks, are hard to tell apart. This separates those hues in the world, adds high contrast and text labels, and steadies the lighting.",
 			"mono": "Achromatopsia is seeing little or no color at all. This renders the game in black and white and leans fully on contrast, outlines, and text labels instead of color."
 		},
-		"dyslexiaFont": "Dyslexia-friendly font",
-		"dyslexiaFontHint": "Switches to OpenDyslexic — its letters have heavier, weighted bottoms that anchor each shape, making them harder to flip or rotate so similar letters are easier to tell apart.",
 		"textSize": "Text size",
 		"textSm": "Small",
 		"textMd": "Normal",
@@ -453,7 +451,13 @@
 		"sending": "Sending…",
 		"errFeedback": "Could not send feedback",
 		"feedbackQueued": "We couldn't send that just now — your feedback is saved and will go out automatically next time you start the game.",
-		"build": "build {time}"
+		"build": "build {time}",
+		"font": "Font",
+		"fontStorybook": "Storybook",
+		"fontRounded": "Rounded",
+		"fontClassic": "Classic",
+		"fontPlain": "Plain",
+		"fontTypewriter": "Typewriter"
 	},
 	"kbGate": {
 		"title": "Wild Willows needs a keyboard",

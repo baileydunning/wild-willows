@@ -15,14 +15,21 @@ export type TextScale = 'sm' | 'md' | 'lg' | 'xl';
  *  achromatopsia). 'off' disables it. */
 export type ColorblindMode = 'off' | 'redgreen' | 'blueyellow' | 'mono';
 
+/** UI typeface. Every one of these resolves to fonts already on the machine (or,
+ *  for 'storybook', the two the app already loads), so switching costs no
+ *  download and works with no network — which matters for the desktop and iOS
+ *  builds that can run entirely offline. */
+export type FontChoice = 'storybook' | 'rounded' | 'classic' | 'plain' | 'typewriter';
+export const FONT_CHOICES: FontChoice[] = ['storybook', 'rounded', 'classic', 'plain', 'typewriter'];
+
 export interface Prefs {
 	/** Turn off UI animations/transitions and in-world weather particles. */
 	reduceMotion: boolean;
 	/** Colorblind assistance: a per-type color-correction filter plus the
 	 *  high-contrast theme and labeled cues. 'off' when not needed. */
 	colorblindMode: ColorblindMode;
-	/** Switch the UI to a dyslexia-friendly typeface with roomier spacing. */
-	dyslexiaFont: boolean;
+	/** Which typeface the interface is set in. */
+	fontChoice: FontChoice;
 	/** UI text/control scale. */
 	textScale: TextScale;
 	/** Play background music and ambience. */
@@ -52,7 +59,7 @@ const STORAGE_KEY = 'ww:a11y';
 const DEFAULTS: Prefs = {
 	reduceMotion: false,
 	colorblindMode: 'off',
-	dyslexiaFont: false,
+	fontChoice: 'storybook',
 	textScale: 'md',
 	musicEnabled: true,
 	sfxEnabled: true,
@@ -94,11 +101,17 @@ function normalizeKeybinds(raw: any): Record<string, string[]> {
 
 export function normalizePrefs(raw: any, fallbackReduce = false): Prefs {
 	const o = raw && typeof raw === 'object' ? raw : {};
-	const dyslexiaFont = typeof o.dyslexiaFont === 'boolean' ? o.dyslexiaFont : DEFAULTS.dyslexiaFont;
-	let textScale: TextScale = TEXT_SCALES.includes(o.textScale) ? o.textScale : DEFAULTS.textScale;
-	// OpenDyslexic already renders larger than the default face, so the extra-large
-	// step on top of it overflows the UI. Cap at large whenever the font is on.
-	if (dyslexiaFont && textScale === 'xl') textScale = 'lg';
+	const textScale: TextScale = TEXT_SCALES.includes(o.textScale) ? o.textScale : DEFAULTS.textScale;
+	// Font: the picker replaced a `dyslexiaFont` on/off switch that swapped in
+	// OpenDyslexic. That face is gone, so a save that had it on can't be honoured
+	// literally — but silently dropping such a player back to the decorative
+	// default would undo a deliberate readability choice. 'plain' (the plainest
+	// system sans) is the closest thing still on offer.
+	const fontChoice: FontChoice = FONT_CHOICES.includes(o.fontChoice)
+		? o.fontChoice
+		: o.dyslexiaFont === true
+			? 'plain'
+			: DEFAULTS.fontChoice;
 	// Colorblind: prefer the new mode enum; migrate the legacy on/off boolean to
 	// the most common (red-green) mode so existing saves keep their assistance.
 	const colorblindMode: ColorblindMode = COLORBLIND_MODES.includes(o.colorblindMode)
@@ -111,7 +124,7 @@ export function normalizePrefs(raw: any, fallbackReduce = false): Prefs {
 	return {
 		reduceMotion: typeof o.reduceMotion === 'boolean' ? o.reduceMotion : fallbackReduce,
 		colorblindMode,
-		dyslexiaFont,
+		fontChoice,
 		textScale,
 		musicEnabled: typeof o.musicEnabled === 'boolean' ? o.musicEnabled : DEFAULTS.musicEnabled,
 		sfxEnabled: typeof o.sfxEnabled === 'boolean' ? o.sfxEnabled : DEFAULTS.sfxEnabled,
@@ -140,7 +153,7 @@ function applyToDom(p: Prefs): void {
 	const root = document.documentElement;
 	root.dataset.reduceMotion = p.reduceMotion ? '1' : '0';
 	root.dataset.colorblind = p.colorblindMode; // off | redgreen | blueyellow | mono
-	root.dataset.dyslexiaFont = p.dyslexiaFont ? '1' : '0';
+	root.dataset.font = p.fontChoice;
 	root.dataset.textScale = p.textScale;
 	root.style.setProperty('--ui-scale', String(TEXT_SCALE_VALUES[p.textScale]));
 }

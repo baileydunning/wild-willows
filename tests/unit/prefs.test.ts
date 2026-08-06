@@ -17,19 +17,19 @@ const store = new Map<string, string>();
 	},
 };
 
-import { normalizePrefs, getPrefs, setPrefs, subscribe, TEXT_SCALE_VALUES } from '../../src/prefs';
+import { normalizePrefs, getPrefs, setPrefs, subscribe, FONT_CHOICES, TEXT_SCALE_VALUES } from '../../src/prefs';
 
 describe('accessibility prefs', () => {
 	beforeEach(() => {
 		store.clear();
-		setPrefs({ reduceMotion: false, colorblindMode: 'off', dyslexiaFont: false, textScale: 'md' });
+		setPrefs({ reduceMotion: false, colorblindMode: 'off', fontChoice: 'storybook', textScale: 'md' });
 	});
 
 	it('normalizes unknown/missing fields to safe defaults', () => {
 		expect(normalizePrefs(null)).toEqual({
 			reduceMotion: false,
 			colorblindMode: 'off',
-			dyslexiaFont: false,
+			fontChoice: 'storybook',
 			textScale: 'md',
 			musicEnabled: true,
 			sfxEnabled: true,
@@ -42,7 +42,7 @@ describe('accessibility prefs', () => {
 		expect(normalizePrefs('nonsense')).toEqual({
 			reduceMotion: false,
 			colorblindMode: 'off',
-			dyslexiaFont: false,
+			fontChoice: 'storybook',
 			textScale: 'md',
 			musicEnabled: true,
 			sfxEnabled: true,
@@ -56,7 +56,7 @@ describe('accessibility prefs', () => {
 		expect(normalizePrefs({ textScale: 'huge', colorblindMode: 'blueyellow' })).toEqual({
 			reduceMotion: false,
 			colorblindMode: 'blueyellow',
-			dyslexiaFont: false,
+			fontChoice: 'storybook',
 			textScale: 'md',
 			musicEnabled: true,
 			sfxEnabled: true,
@@ -80,17 +80,41 @@ describe('accessibility prefs', () => {
 		expect(normalizePrefs({ colorblind: true, colorblindMode: 'mono' }).colorblindMode).toBe('mono');
 	});
 
-	it('caps text scale at lg when the dyslexia font is on (xl overflows it)', () => {
-		expect(normalizePrefs({ dyslexiaFont: true, textScale: 'xl' }).textScale).toBe('lg');
-		// smaller scales are left alone
-		expect(normalizePrefs({ dyslexiaFont: true, textScale: 'md' }).textScale).toBe('md');
-		// xl is fine without the font
-		expect(normalizePrefs({ dyslexiaFont: false, textScale: 'xl' }).textScale).toBe('xl');
-		// turning the font on while already at xl clamps down
+	it('accepts every offered font and rejects anything else', () => {
+		for (const f of FONT_CHOICES) expect(normalizePrefs({ fontChoice: f }).fontChoice).toBe(f);
+		// An unknown value (a hand-edited save, or a font retired in a later build)
+		// must land on the default rather than reach the DOM as a bogus data-font.
+		expect(normalizePrefs({ fontChoice: 'comic-sans' }).fontChoice).toBe('storybook');
+		expect(normalizePrefs({ fontChoice: 42 }).fontChoice).toBe('storybook');
+		expect(normalizePrefs({}).fontChoice).toBe('storybook');
+	});
+
+	it('migrates the retired dyslexia-font toggle to the plainest face', () => {
+		// The picker replaced a `dyslexiaFont` switch that swapped in OpenDyslexic.
+		// That font is gone, so someone who had it on can't get it back — but they
+		// chose it for readability, and dropping them onto the decorative default
+		// would quietly undo that. 'plain' is the closest survivor.
+		expect(normalizePrefs({ dyslexiaFont: true }).fontChoice).toBe('plain');
+		expect(normalizePrefs({ dyslexiaFont: false }).fontChoice).toBe('storybook');
+		// Anyone who has since used the picker keeps their pick — the dead flag
+		// lingers in old saved blobs and must not override it.
+		expect(normalizePrefs({ dyslexiaFont: true, fontChoice: 'classic' }).fontChoice).toBe('classic');
+	});
+
+	it('allows extra-large text with every font', () => {
+		// xl used to be clamped to lg because OpenDyslexic already ran large. With
+		// that font gone the cap goes too, so the biggest text is available again.
+		for (const f of FONT_CHOICES) expect(normalizePrefs({ fontChoice: f, textScale: 'xl' }).textScale).toBe('xl');
 		setPrefs({ textScale: 'xl' });
+		setPrefs({ fontChoice: 'classic' });
 		expect(getPrefs().textScale).toBe('xl');
-		setPrefs({ dyslexiaFont: true });
-		expect(getPrefs().textScale).toBe('lg');
+	});
+
+	it('exposes the font on <html> so the CSS can theme off it', () => {
+		setPrefs({ fontChoice: 'typewriter' });
+		expect(document.documentElement.dataset.font).toBe('typewriter');
+		setPrefs({ fontChoice: 'storybook' });
+		expect(document.documentElement.dataset.font).toBe('storybook');
 	});
 
 	it('persists changes and reflects them in getPrefs', () => {
@@ -114,7 +138,7 @@ describe('accessibility prefs', () => {
 		expect(getPrefs()).toEqual({
 			reduceMotion: true,
 			colorblindMode: 'off',
-			dyslexiaFont: false,
+			fontChoice: 'storybook',
 			textScale: 'xl',
 			musicEnabled: true,
 			sfxEnabled: true,

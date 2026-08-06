@@ -436,8 +436,6 @@
 			"blueyellow": "El azul–amarillo (tritanopía) es más raro: cuesta distinguir azules de verdes, y amarillos de rosas. Esto separa esos tonos en el mundo, añade alto contraste y etiquetas de texto, y estabiliza la iluminación.",
 			"mono": "La acromatopsia es ver poco o ningún color. Esto muestra el juego en blanco y negro y se apoya por completo en el contraste, los contornos y las etiquetas de texto en lugar del color."
 		},
-		"dyslexiaFont": "Fuente para dislexia",
-		"dyslexiaFontHint": "Cambia a OpenDyslexic: sus letras tienen bases más gruesas y pesadas que anclan cada forma, dificultando que se giren o inviertan, de modo que las letras parecidas se distinguen mejor.",
 		"textSize": "Tamaño del texto",
 		"textSm": "Pequeño",
 		"textMd": "Normal",
@@ -453,7 +451,13 @@
 		"sending": "Enviando…",
 		"errFeedback": "No se pudieron enviar los comentarios",
 		"feedbackQueued": "No pudimos enviarlo ahora mismo — tus comentarios quedaron guardados y se enviarán automáticamente la próxima vez que inicies el juego.",
-		"build": "compilación {time}"
+		"build": "compilación {time}",
+		"font": "Fuente",
+		"fontStorybook": "Cuento",
+		"fontRounded": "Redondeada",
+		"fontClassic": "Clásica",
+		"fontPlain": "Sencilla",
+		"fontTypewriter": "Máquina de escribir"
 	},
 	"kbGate": {
 		"title": "Wild Willows necesita un teclado",

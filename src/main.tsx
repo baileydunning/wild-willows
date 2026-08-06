@@ -1,10 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
-// Bundled dyslexia-specific font (guaranteed regardless of the OS's installed
-// fonts) — activated by the data-dyslexia-font accessibility toggle via CSS.
-import '@fontsource/opendyslexic/400.css';
-import '@fontsource/opendyslexic/700.css';
 import './styles.css';
 import { localeReady } from './i18n';
 import { startSteamReporting } from './solo/steamSync';

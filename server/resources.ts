@@ -6327,17 +6327,23 @@ export class Metrics extends PublicEndpoint {
 			},
 			accessibility: {
 				reduceMotion: countPref((p) => p.reduceMotion === true),
-				dyslexiaFont: countPref((p) => p.dyslexiaFont === true),
 				colorblindOn: countPref((p) => p.colorblindMode && p.colorblindMode !== 'off'),
+				// The font picker replaced a dyslexia-font toggle. It's a taste setting
+				// now, not an assistive one, so it no longer counts toward anyEnabled —
+				// otherwise every player who just liked the serif would inflate the
+				// accessibility-adoption number.
 				anyEnabled: countPref(
 					(p) =>
 						p.reduceMotion === true ||
-						p.dyslexiaFont === true ||
 						(p.colorblindMode && p.colorblindMode !== 'off') ||
 						(p.textScale && p.textScale !== 'md'),
 				),
 				colorblindModes: tallyPref((p) => p.colorblindMode || 'off'),
 				textScales: tallyPref((p) => p.textScale || 'md'),
+				// Saves that predate the picker still carry `dyslexiaFont: true`; the
+				// client migrates those to 'plain' on load, so mirror that here rather
+				// than tallying them as an absent field.
+				fonts: tallyPref((p) => p.fontChoice || (p.dyslexiaFont === true ? 'plain' : 'storybook')),
 			},
 		};
 

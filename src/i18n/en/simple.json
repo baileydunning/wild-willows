@@ -181,7 +181,6 @@
 		"settings": {
 			"simpleTextHint": "Uses short sentences and everyday words all through the game. That includes the animal notes. Nothing is hidden. It is just said in a simpler way.",
 			"reduceMotionHint": "Stops menu animations, rain and snow, camera moves, and the day and night light change. The view stays still and evenly lit.",
-			"dyslexiaFontHint": "Uses the OpenDyslexic font. Its letters are heavy at the bottom. That makes each one easier to tell apart.",
 			"colorblindHint": {
 				"off": "Color blindness affects up to 1 in 12 people. Pick the type that fits you. The game will change its colors, raise contrast, label the weather and time of day, and hold steady daylight. Then nothing depends on color alone.",
 				"redgreen": "Red and green is the most common type. Reds and greens look alike. This moves those colors apart, raises contrast, adds text labels, and holds the light steady.",

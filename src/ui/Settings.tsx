@@ -7,7 +7,7 @@ import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import { hasKey, LOCALE_NAMES, chooseLocale } from '../i18n';
 import { useI18n } from '../i18n/react';
-import { usePrefs, setPrefs, type TextScale, type ColorblindMode } from '../prefs';
+import { usePrefs, setPrefs, FONT_CHOICES, type TextScale, type ColorblindMode, type FontChoice } from '../prefs';
 import {
 	BIND_ACTIONS,
 	getBindings,
@@ -284,37 +284,44 @@ export function AccessibilityControls() {
 					<option value="mono">{t('app.settings.colorblindMono')}</option>
 				</select>
 			</div>
-			<div className="a11y-row">
-				<span className="a11y-label">
-					<b>{t('app.settings.dyslexiaFont')}</b>
-					<span className="muted small">{t('app.settings.dyslexiaFontHint')}</span>
-				</span>
-				<label className="switch">
-					<input
-						type="checkbox"
-						checked={prefs.dyslexiaFont}
-						onChange={(e) => setPrefs({ dyslexiaFont: e.target.checked })}
-						aria-label={t('app.settings.dyslexiaFont')}
-					/>
-					<span className="track" />
-					<span className="thumb" />
-				</label>
-			</div>
-			<div className="craft-filter lang-filter">
-				<label htmlFor="settings-textscale">{t('app.settings.textSize')}:</label>
-				<select
-					id="settings-textscale"
-					value={prefs.textScale}
-					onChange={(e) => setPrefs({ textScale: e.target.value as TextScale })}
-				>
-					<option value="sm">{t('app.settings.textSm')}</option>
-					<option value="md">{t('app.settings.textMd')}</option>
-					<option value="lg">{t('app.settings.textLg')}</option>
-					{/* OpenDyslexic already runs large, so extra-large overflows the UI. */}
-					<option value="xl" disabled={prefs.dyslexiaFont}>
-						{t('app.settings.textXl')}
-					</option>
-				</select>
+			{/* Font and text size are both "how the words look", so they share a row.
+			    They wrap back to stacked when there isn't width for two — which the
+			    largest text scale and the widest fonts will do on a narrow panel. */}
+			<div className="settings-pair">
+				<div className="craft-filter lang-filter">
+					<label htmlFor="settings-font">{t('app.settings.font')}:</label>
+					{/* Each option carries the class that sets its own typeface, so where the
+					    browser honours font-family on <option> the list previews itself.
+					    Several don't, which is fine — picking one restyles the whole UI
+					    immediately, and that's the preview that always works. */}
+					<select
+						id="settings-font"
+						value={prefs.fontChoice}
+						onChange={(e) => setPrefs({ fontChoice: e.target.value as FontChoice })}
+					>
+						{FONT_CHOICES.map((f) => (
+							<option key={f} value={f} className={`font-opt-${f}`}>
+								{/* Sibling keys (fontStorybook, fontRounded…) rather than font.storybook:
+								    `settings.font` is already the row label, and the catalog flattener
+								    can't hold a string and a nested object under one key. */}
+								{t(`app.settings.font${f[0].toUpperCase()}${f.slice(1)}`)}
+							</option>
+						))}
+					</select>
+				</div>
+				<div className="craft-filter lang-filter">
+					<label htmlFor="settings-textscale">{t('app.settings.textSize')}:</label>
+					<select
+						id="settings-textscale"
+						value={prefs.textScale}
+						onChange={(e) => setPrefs({ textScale: e.target.value as TextScale })}
+					>
+						<option value="sm">{t('app.settings.textSm')}</option>
+						<option value="md">{t('app.settings.textMd')}</option>
+						<option value="lg">{t('app.settings.textLg')}</option>
+						<option value="xl">{t('app.settings.textXl')}</option>
+					</select>
+				</div>
 			</div>
 		</>
 	);

@@ -181,7 +181,6 @@
 		"settings": {
 			"simpleTextHint": "Usa frases cortas y palabras de todos los días en todo el juego. Eso incluye las notas de animales. No se oculta nada. Solo se dice de forma más simple.",
 			"reduceMotionHint": "Quita las animaciones del menú, la lluvia y la nieve, los movimientos de cámara y el cambio de luz del día. La vista queda quieta y con luz pareja.",
-			"dyslexiaFontHint": "Usa la letra OpenDyslexic. Sus letras pesan más abajo. Así cada una se distingue mejor.",
 			"colorblindHint": {
 				"off": "El daltonismo afecta hasta a 1 de cada 12 personas. Elige el tipo que te toca. El juego cambia sus colores, sube el contraste, pone etiquetas al clima y a la hora, y mantiene luz de día. Así nada depende solo del color.",
 				"redgreen": "Rojo y verde es el tipo más común. Los rojos y los verdes se parecen. Esto separa esos colores, sube el contraste, añade etiquetas y mantiene la luz estable.",
