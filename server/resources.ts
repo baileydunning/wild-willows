@@ -7082,7 +7082,16 @@ export class AppOpen extends PublicEndpoint {
 const MAIL_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Click targets the landing page reports (data-track attributes). Anything
 // else collapses into "other" so junk can't mint unbounded counter keys.
-const LANDING_CLICK_TARGETS = new Set(['appstore', 'itch', 'demo', 'theme', 'privacy', 'support', 'get-nav']);
+const LANDING_CLICK_TARGETS = new Set([
+	'appstore',
+	'itch',
+	'demo',
+	'theme',
+	'privacy',
+	'support',
+	'get-nav',
+	'gallery',
+]);
 const landingDay = (t: number) => new Date(t).toISOString().slice(0, 10); // UTC day
 
 let landingStatsCache: { at: number; out: any } | null = null;
