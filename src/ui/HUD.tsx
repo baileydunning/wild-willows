@@ -133,7 +133,6 @@ export function HUD() {
 	const {
 		data,
 		state,
-		saveStatus,
 		panel,
 		setPanel,
 		helpOpen,
@@ -357,13 +356,11 @@ export function HUD() {
 				>
 					<Icon name={navOpen ? 'forward' : 'back'} />
 				</button>
-				{/* A save only surfaces if it FAILS — no persistent "Synced" chip. */}
-				{saveStatus === 'error' && (
-					<span className="save-pill save-error" title={t('app.hud.saveRetryTitle')}>
-						<Icon name="cloud" size={15} />
-						<span>{t('app.hud.retry')}</span>
-					</span>
-				)}
+				{/* Save failures are NOT surfaced here. The top bar is navigation, and a
+				    transient chip appearing and disappearing in the middle of it was
+				    noise — the failing action already raises an error toast with the
+				    real message (see the catch in state.tsx's action runner), and the
+				    autosave keeps retrying on its own regardless. */}
 				{navOpen && (
 					<>
 						{/* Buttons are grouped by purpose so the toolbar reads as a few small

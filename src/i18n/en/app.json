@@ -236,8 +236,6 @@
 		"weatherLabel": "Weather",
 		"hideMenu": "Hide menu",
 		"showMenu": "Show menu",
-		"saveRetryTitle": "A save didn't go through — it'll keep retrying",
-		"retry": "Retry",
 		"groupLearn": "Learn",
 		"groupBuild": "Build",
 		"groupWorld": "World",
