@@ -128,3 +128,113 @@ describe('gatherFeedbackMetrics', () => {
 		expect(m.sessions).toBe(5);
 	});
 });
+
+// ---------------------------------------------------------------------------
+// Regression: players couldn't submit feedback at all.
+//
+// Two independent faults, both in postFeedback:
+//   1. The base URL was `IS_DESKTOP ? COOP_BASE_URL : ''`, which had never
+//      learned about the itch DEMO — a WEB build served cross-origin. Demo
+//      feedback POSTed to the itch origin, which serves static files, so it
+//      404'd every time.
+//   2. Every 4xx except 429 was classified 'invalid', so that 404 was treated as
+//      "the player's message is unacceptable": sendFeedback threw an error at
+//      them AND the message was discarded rather than queued.
+// ---------------------------------------------------------------------------
+
+const notFound = () => ({ ok: false, status: 404, json: async () => ({ title: 'not found' }) });
+const serverErr = () => ({ ok: false, status: 500, json: async () => ({ title: 'boom' }) });
+const forbidden = () => ({ ok: false, status: 403, json: async () => ({ title: 'nope' }) });
+const tooLarge = () => ({ ok: false, status: 413, json: async () => ({ title: 'too big' }) });
+
+describe('a 404 is a routing problem, not a verdict on the message', () => {
+	it('does not throw at the player', async () => {
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => notFound()),
+		);
+		await expect(sendFeedback('the frog is great', '', null)).resolves.toEqual({ sent: false });
+	});
+
+	it('keeps the message instead of discarding it', async () => {
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => notFound()),
+		);
+		await sendFeedback('please keep this', '', null);
+		expect(pendingFeedbackCount()).toBe(1);
+		expect(JSON.parse(localStorage.getItem(QUEUE_KEY)!)[0].message).toBe('please keep this');
+	});
+
+	it('delivers it once the endpoint is reachable again', async () => {
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => notFound()),
+		);
+		await sendFeedback('deferred', '', null);
+		const fetchMock = vi.fn(async () => okResponse());
+		vi.stubGlobal('fetch', fetchMock);
+		await flushFeedbackQueue();
+		expect(pendingFeedbackCount()).toBe(0);
+		expect(fetchMock).toHaveBeenCalledTimes(1);
+	});
+});
+
+describe('only genuine content rejections are permanent', () => {
+	it.each([
+		['400 bad request', badRequest],
+		['413 too large', tooLarge],
+	])('drops the item on %s', async (_label, mk) => {
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => mk()),
+		);
+		await expect(sendFeedback('x', '', null)).rejects.toThrow();
+		expect(pendingFeedbackCount()).toBe(0);
+	});
+
+	it.each([
+		['403 forbidden', forbidden],
+		['404 not found', notFound],
+		['500 server error', serverErr],
+	])('queues the item on %s', async (_label, mk) => {
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => mk()),
+		);
+		await expect(sendFeedback('x', '', null)).resolves.toEqual({ sent: false });
+		expect(pendingFeedbackCount()).toBe(1);
+	});
+});
+
+describe('the offline queue stays bounded', () => {
+	it('keeps only the newest items when the endpoint is never reachable', async () => {
+		vi.stubGlobal(
+			'fetch',
+			vi.fn(async () => notFound()),
+		);
+		for (let i = 0; i < 40; i++) await sendFeedback(`msg ${i}`, '', null);
+		expect(pendingFeedbackCount()).toBe(25);
+		const q = JSON.parse(localStorage.getItem(QUEUE_KEY)!);
+		expect(q[q.length - 1].message).toBe('msg 39'); // newest kept
+		expect(q[0].message).toBe('msg 15'); // oldest dropped
+	});
+});
+
+describe('feedback always targets the hosted Harper', () => {
+	it('posts to a same-origin path on the plain web build', async () => {
+		const fetchMock = vi.fn(async () => okResponse());
+		vi.stubGlobal('fetch', fetchMock);
+		await sendFeedback('hello', '', null);
+		// The web build is itself served by Harper, so same-origin is correct.
+		expect(fetchMock.mock.calls[0][0]).toBe('/SubmitFeedback/');
+	});
+
+	it('always uses the SubmitFeedback endpoint regardless of game transport', async () => {
+		const fetchMock = vi.fn(async () => okResponse());
+		vi.stubGlobal('fetch', fetchMock);
+		setTransport('solo'); // offline gameplay — feedback still goes to the server
+		await sendFeedback('from solo', '', null);
+		expect(String(fetchMock.mock.calls[0][0])).toMatch(/\/SubmitFeedback\/$/);
+	});
+});

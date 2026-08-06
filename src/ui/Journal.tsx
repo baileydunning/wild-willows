@@ -347,15 +347,24 @@ function JournalEntry({ animal, disc, full }: { animal: AnimalDef; disc?: Discov
 					{animal.scientificName && <em>{animal.scientificName}</em>}
 					<span className={`comfort comfort-${c}`}>{comfortText(disc.comfort)}</span>
 				</div>
+				{/* The text gets its own element rather than sitting as a bare node in the
+				    flex row: an anonymous flex item can't be given wrapping or shrinking
+				    rules, which is how the Great Horned Owl's diet line ended up pushing
+				    straight out of the card. */}
 				{animal.diet && (
 					<div className="muted small entry-meta">
-						<Icon name="leaf" size={11} />{' '}
-						{t('panels.journal.eatsDiet', { diet: diet.charAt(0).toLowerCase() + diet.slice(1) })}
+						<Icon name="leaf" size={11} />
+						<span className="entry-meta-text">
+							{t('panels.journal.eatsDiet', { diet: diet.charAt(0).toLowerCase() + diet.slice(1) })}
+						</span>
 					</div>
 				)}
 				{animal.preferredHabitat && (
 					<div className="muted small entry-meta">
-						<Icon name="home" size={11} /> {content('animal', animal.id, 'preferredHabitat', animal.preferredHabitat)}
+						<Icon name="home" size={11} />
+						<span className="entry-meta-text">
+							{content('animal', animal.id, 'preferredHabitat', animal.preferredHabitat)}
+						</span>
 					</div>
 				)}
 			</div>
@@ -726,8 +735,13 @@ function neighborsNote(animal: AnimalDef, animals: AnimalDef[], returned: Set<st
 			? names[0]
 			: names.slice(0, -1).join(', ') + ` ${t('panels.journal.cond.and')} ` + names[names.length - 1];
 	};
-	if (prereqs.length) return t('panels.journal.neighborsAfter', { list: list(prereqs) });
-	if (dependents.length) return t('panels.journal.neighborsFollowed', { list: list(dependents) });
+	// `count` picks the singular/plural form: one neighbour reads "the Tree Squirrel
+	// WAS already here", several read "were". English only needs it on the first
+	// line ("followed" is invariant), but Spanish conjugates both, so both keys are
+	// plural pairs.
+	if (prereqs.length) return t('panels.journal.neighborsAfter', { list: list(prereqs), count: prereqs.length });
+	if (dependents.length)
+		return t('panels.journal.neighborsFollowed', { list: list(dependents), count: dependents.length });
 	return null;
 }
 

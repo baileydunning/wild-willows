@@ -176,6 +176,7 @@
 			"gotIt": "Got it"
 		},
 		"language": "Language",
+		"demoSaveUnreachable": "We couldn't reach the server, so your saved preserve isn't available right now. It's safe — try again in a moment.",
 		"reaching": "Reaching the preserve…",
 		"errName": "Enter the name you’ll play as",
 		"errCode": "Enter the join code your friend shared",
@@ -449,7 +450,7 @@
 		"sent": "Sent!",
 		"sending": "Sending…",
 		"errFeedback": "Could not send feedback",
-		"feedbackQueued": "You look offline — your feedback is saved and will send when you next start the game.",
+		"feedbackQueued": "We couldn't send that just now — your feedback is saved and will go out automatically next time you start the game.",
 		"build": "build {time}"
 	},
 	"kbGate": {

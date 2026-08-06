@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import {
 	api,
 	forgetSave,
+	isMissingSaveError,
+	isDemoSaveUnreachable,
 	lastSave,
 	IS_DESKTOP,
 	listSoloSaves,
@@ -384,9 +386,15 @@ export function WelcomeScreen() {
 				await continueLast(coop ? 'coop' : 'solo');
 			} catch (e: any) {
 				if (last) setName(last.name);
-				forgetSave(coop ? 'coop' : 'solo');
-				setLastBump((n) => n + 1);
-				setMode('load');
+				// Same rule as continueLast: only forget the save when the server said
+				// it doesn't exist. A transient failure used to wipe the Continue button,
+				// which read to players as "my save was deleted" — they had no way back
+				// to a save that was still sitting there perfectly intact.
+				if (isMissingSaveError(e)) {
+					forgetSave(coop ? 'coop' : 'solo');
+					setLastBump((n) => n + 1);
+					setMode('load');
+				}
 				throw new Error(t('app.welcome.continueFailed', { message: e.message || t('app.error.loadSave') }));
 			}
 		});
@@ -419,6 +427,16 @@ export function WelcomeScreen() {
 					{dataError && (
 						<p className="form-error">
 							<Icon name="help" size={16} /> {dataError}
+						</p>
+					)}
+
+					{/* This device HAS a demo save, on the hosted server, and we couldn't
+					    reach it this session. Say so plainly. Silently showing an empty
+					    title here is what made players think their save was deleted —
+					    they'd start a new one and lose the old for good. */}
+					{isDemoSaveUnreachable() && (
+						<p className="form-error">
+							<Icon name="cloud" size={16} /> {t('app.welcome.demoSaveUnreachable')}
 						</p>
 					)}
 

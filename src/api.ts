@@ -41,10 +41,97 @@ let demoBackend: 'pending' | 'harper' | 'solo' = !DEMO_WEB
 		? 'solo' // passwordless offline demo — no probe needed
 		: 'pending';
 
+// Which backend this device's demo save actually lives in.
+//
+// The demo has two DISJOINT save stores — server-side players on the hosted
+// Harper, and local slot files — and the title screen shows one or the other.
+// Resolving that per session from a network probe meant a single slow or blocked
+// probe swapped the store out from under the player: their save was still there,
+// but on the side the title wasn't looking at, so it read as "my save was
+// deleted" and they'd start over. Pinning it to wherever the save was actually
+// created makes the store a property of the save, not of tonight's wifi.
+const DEMO_HOME_KEY = 'wild-willows:demo-home';
+
+export function getDemoSaveHome(): 'harper' | 'solo' | null {
+	try {
+		const v = localStorage.getItem(DEMO_HOME_KEY);
+		return v === 'harper' || v === 'solo' ? v : null;
+	} catch {
+		return null;
+	}
+}
+
+/** Record where a demo save was created, so later sessions look in the right place. */
+export function setDemoSaveHome(home: 'harper' | 'solo'): void {
+	try {
+		localStorage.setItem(DEMO_HOME_KEY, home);
+	} catch {
+		/* private mode — falls back to per-session probing, as before */
+	}
+}
+
+/** Forget the pin (the demo save is gone, so the next one starts fresh). */
+export function clearDemoSaveHome(): void {
+	try {
+		localStorage.removeItem(DEMO_HOME_KEY);
+	} catch {
+		/* ignore */
+	}
+}
+
+/**
+ * True when the player has a demo save on the hosted Harper but this session
+ * couldn't reach it. The title screen uses this to say so plainly instead of
+ * showing an empty New Game screen over a save that still exists.
+ *
+ * Requires a remembered save as well as the pin, so a first-time player who is
+ * simply offline never sees it — there's nothing of theirs to be unreachable.
+ * The two are cleared in different places (the pin when a demo ends, the pointer
+ * when the server 404s), so a stale pin must not be enough on its own to accuse
+ * the server of hiding a save that isn't there.
+ */
+let demoHomeUnreachable = false;
+export const isDemoSaveUnreachable = () => demoHomeUnreachable && lastSave('solo') != null;
+
 /** The resolved demo backend: 'harper' once the hosted server answered, 'solo'
  *  once we've committed to the offline fallback, 'pending' before the probe. */
 export function getDemoBackend(): 'pending' | 'harper' | 'solo' {
 	return demoBackend;
+}
+
+/**
+ * Can we reach the hosted Harper? Throws if not.
+ *
+ * Probed with the SAME headers real API calls use — Content-Type triggers a CORS
+ * preflight, and a bare GET could pass where real calls fail it. This way the
+ * probe fails exactly when gameplay would. It asks /Version/ (a few bytes) rather
+ * than /GameData/ (~300 KB), which the original probe downloaded and threw away.
+ *
+ * RETRIED, because a demo player is never really offline: the demo IS a web page
+ * they just loaded, so if it rendered at all they have a working connection. A
+ * failed probe therefore means the SERVER hiccuped — a cold start, a transient
+ * 5xx, a CORS blip — not that the player has no network. Committing to the
+ * offline save store on the first stumble stranded people in a different save
+ * store over a problem that a second attempt usually clears. The first attempt is
+ * generous (cold starts are slow); the retry is short.
+ */
+async function probeHostedHarper(): Promise<void> {
+	const attempts = [8000, 4000];
+	let lastErr: unknown;
+	for (let i = 0; i < attempts.length; i++) {
+		try {
+			const res = await fetch(COOP_BASE_URL + '/Version/', {
+				headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+				signal: AbortSignal.timeout(attempts[i]),
+			});
+			if (!res.ok) throw new Error(`status ${res.status}`);
+			return;
+		} catch (e) {
+			lastErr = e;
+			if (i < attempts.length - 1) await new Promise((r) => setTimeout(r, 500));
+		}
+	}
+	throw lastErr instanceof Error ? lastErr : new Error('hosted Harper unreachable');
 }
 
 /** Probe the hosted Harper once at startup (DEMO web only). On success we keep
@@ -54,25 +141,40 @@ export async function resolveDemoBackend(): Promise<'harper' | 'solo'> {
 	if (!DEMO_WEB) return 'harper';
 	// Solo-default demo: already committed to the offline backend, no probe.
 	if (demoBackend !== 'pending') return demoBackend;
+
+	demoHomeUnreachable = false;
+	const home = getDemoSaveHome();
+
+	// This device already has a demo save in the offline store. Never probe past
+	// it into Harper mode — that would hide a save that's sitting right here.
+	if (home === 'solo') {
+		demoBackend = 'solo';
+		setTransport('solo');
+		return demoBackend;
+	}
+
 	try {
-		// Probe with the SAME headers real API calls use (Content-Type triggers a
-		// CORS preflight). A bare GET could pass while real calls fail the
-		// preflight — this way the probe fails exactly when gameplay would, so we
-		// fall back to solo instead of dead-ending on the first real request.
-		//
-		// Probe /Version/ (a few bytes), NOT /GameData/ (~300 KB): same CORS
-		// preflight and reachability check, but the old probe downloaded the whole
-		// catalog and threw it away, then state.tsx fetched /GameData/ again —
-		// two full transfers of the largest payload on every open.
-		const res = await fetch(COOP_BASE_URL + '/Version/', {
-			headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-			signal: AbortSignal.timeout(8000),
-		});
-		if (!res.ok) throw new Error(`status ${res.status}`);
+		await probeHostedHarper();
 		demoBackend = 'harper';
 		setTransport('web');
 	} catch {
-		// Hosted Harper unreachable or blocked by CORS — play fully offline.
+		// Both attempts failed. The player almost certainly HAS a connection (they
+		// just loaded this page), so this is the server being unhappy, not them
+		// being offline.
+		if (home === 'harper') {
+			// This device's demo save lives on Harper. Falling back to the offline
+			// store here is what made saves look deleted: the title would show an
+			// empty slot list, the player would start over, and the real save became
+			// unreachable for good. Stay in Harper mode and let the title say the
+			// server can't be reached, so the save is still there next time.
+			demoBackend = 'harper';
+			demoHomeUnreachable = true;
+			setTransport('web');
+			return demoBackend;
+		}
+		// Nothing of theirs to lose yet, so let them play rather than dead-ending on
+		// a title screen. This save is pinned to the offline store on creation, so a
+		// later session that CAN reach Harper won't swap it out from under them.
 		demoBackend = 'solo';
 		setTransport('solo');
 	}
@@ -212,10 +314,50 @@ export function lastSave(mode?: SaveMode): { playerId: string; name: string; mod
 		return null;
 	}
 }
+/**
+ * Where the hosted Harper lives, as seen from this build — for calls that must
+ * ALWAYS reach the shared server no matter what the game transport is doing
+ * (feedback, mailing list). Same-origin only for the plain web build, which is
+ * itself served by Harper; desktop and the itch DEMO are both cross-origin.
+ *
+ * Exported because src/feedback.ts used to keep its own copy of this rule that
+ * had never learned about the demo: `IS_DESKTOP ? COOP_BASE_URL : ''` sent demo
+ * players' feedback to the itch origin, where it 404'd and was thrown away.
+ * Deliberately NOT the same as the base `request()` picks — that one is about
+ * gameplay transport and has the local/solo short-circuit ahead of it.
+ */
+export function hostedBase(): string {
+	return isDesktop || DEMO_WEB ? COOP_BASE_URL : '';
+}
+
+/**
+ * True only when the server authoritatively said this save does not exist (404).
+ *
+ * The distinction matters a lot: a failure to LOAD a save is not evidence the
+ * save is GONE. Network drops, CORS hiccups, a 503 while Harper is still
+ * starting, or a demo session that fell back to the offline backend all make a
+ * perfectly good save momentarily unreadable. Treating those as deletion is how
+ * players lost demo saves they could never get back — see continueLast.
+ */
+export function isMissingSaveError(e: any): boolean {
+	return e?.status === 404;
+}
+
 export function forgetSave(mode?: SaveMode) {
 	try {
-		if (mode) localStorage.removeItem(modeKey(mode));
-		else {
+		if (mode) {
+			localStorage.removeItem(modeKey(mode));
+			// rememberSave writes the SAME record to both the per-mode key and the
+			// legacy most-recent key, and lastSave(mode) falls back to the legacy one
+			// whenever its mode tag matches. Clearing only the per-mode key therefore
+			// did nothing at all — lastSave immediately resurrected the save from the
+			// copy left behind. Drop that copy too when it refers to this mode.
+			const legacy = localStorage.getItem(STORAGE_KEY);
+			if (legacy) {
+				const rec = JSON.parse(legacy);
+				if (rec?.mode === mode || (!rec?.mode && mode === 'solo')) localStorage.removeItem(STORAGE_KEY);
+			}
+		} else {
 			localStorage.removeItem(STORAGE_KEY);
 			localStorage.removeItem(modeKey('solo'));
 			localStorage.removeItem(modeKey('coop'));
@@ -448,6 +590,7 @@ export async function deleteDemoSave(): Promise<void> {
 		/* best-effort — the popup still returns to the title */
 	}
 	forgetSave('solo');
+	clearDemoSaveHome(); // the demo save is gone; the next one picks its own store
 }
 
 /** Export the active solo save as a downloadable file. Flushes any pending
@@ -505,6 +648,9 @@ export async function startSoloGame(
 	const slot = await createSlot({ playerId: created.playerId, name, appearance });
 	setSoloSlot(slot);
 	setPlayerId(created.playerId);
+	// Pin the demo to the offline store, so a later session that CAN reach Harper
+	// doesn't switch stores and hide this save.
+	if (DEMO_WEB) setDemoSaveHome('solo');
 	return { playerId: created.playerId, state: created.state, slot };
 }
 

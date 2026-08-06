@@ -80,6 +80,10 @@ const C = (hex: string) => Phaser.Display.Color.HexStringToColor(hex).color;
 // transfer into afterwards should already be mid-storm, so we pre-warm the
 // emitter on entry. Module-scoped so it survives scene.restart().
 let weatherShownThisSession = false;
+/** How long one weather blends into the next. Long enough that clouds thinning
+ *  into clear sky reads as weather doing what weather does, rather than a
+ *  lighting cue snapping over — which is what a hard swap looked like. */
+const WEATHER_FADE_MS = 3200;
 
 // Player-chosen zoom (+/− keys), multiplied onto the normal window zoom.
 // Module-scoped so it survives area changes; every session starts back at
@@ -198,6 +202,10 @@ export class WorldScene extends Phaser.Scene {
 	// world-locked rain/snow particle emitter, swapped when the weather changes.
 	private weatherOverlay?: Phaser.GameObjects.Rectangle;
 	private weatherEmitter?: Phaser.GameObjects.Particles.ParticleEmitter;
+	/** Runs the colour/alpha cross-fade between two weathers. */
+	private weatherFade?: Phaser.Tweens.Tween;
+	/** Overlay colour we're currently showing, so a fade can start from it. */
+	private weatherOverlayColor = 0xffffff;
 	private weatherSig = '';
 	// Day/night: a second full-screen tint that eases through dawn → day → dusk →
 	// night → dawn over the play-time day. lightState is the value being tweened.
@@ -389,6 +397,8 @@ export class WorldScene extends Phaser.Scene {
 		// overlay/emitter references must be cleared before they're recreated.
 		this.weatherOverlay = undefined;
 		this.weatherEmitter = undefined;
+		this.weatherFade = undefined; // the scene owns the tween; it dies with it
+		this.weatherOverlayColor = 0xffffff;
 		this.weatherSig = '';
 		this.lightOverlay = undefined;
 		this.lightTween = undefined;
@@ -1387,20 +1397,76 @@ export class WorldScene extends Phaser.Scene {
 
 		const wt = weatherType(typeId);
 		this.ensureWeatherOverlay();
-		if (!this.isIndoors && wt.overlay) {
-			this.weatherOverlay!.setFillStyle(C(wt.overlay.color)).setAlpha(wt.overlay.alpha).setVisible(true);
-		} else {
-			this.weatherOverlay!.setVisible(false);
-		}
+		const showOverlay = !this.isIndoors && !!wt.overlay;
+		// Walking into a biome shows its weather already established, so that's an
+		// instant set. Weather TURNING OVER while you stand there is the case that
+		// used to snap — fade it.
+		const fadeMs = entering ? 0 : WEATHER_FADE_MS;
+		this.fadeWeatherOverlay(
+			showOverlay ? C(wt.overlay!.color) : this.weatherOverlayColor,
+			showOverlay ? wt.overlay!.alpha : 0,
+			fadeMs,
+		);
 		// Reduced-motion players get the weather color/overlay but not the animated
 		// rain/snow particles (the colorblind banner still names the weather).
 		const prewarm = entering && weatherShownThisSession;
 		const particle = this.isIndoors || getPrefs().reduceMotion ? null : wt.particle;
-		this.setWeatherParticles(particle, prewarm);
+		this.setWeatherParticles(particle, prewarm, fadeMs > 0);
 		weatherShownThisSession = true;
 		// Weather-gated gather nodes appear/vanish with the weather, so redraw the
 		// dynamic layer whenever the type turns over.
 		this.refreshDynamic();
+	}
+
+	/**
+	 * Blend the weather overlay from what it's showing now to a new colour/alpha.
+	 *
+	 * Both ends matter. Cloudy→clear is mostly an ALPHA change (the wash lifts),
+	 * while rain→cloudy is mostly a COLOUR change at similar alpha — setting either
+	 * directly is the jump. Phaser can't tween a Rectangle's fillColor, so this
+	 * drives a 0→1 progress value and interpolates the colour itself, which also
+	 * keeps colour and alpha exactly in step.
+	 *
+	 * `ms <= 0` sets immediately (walking into a biome, where the weather should
+	 * already be established rather than fading up in front of you).
+	 */
+	private fadeWeatherOverlay(toColor: number, toAlpha: number, ms: number) {
+		const ov = this.weatherOverlay!;
+		this.weatherFade?.remove(); // a second turnover mid-fade continues from here
+		this.weatherFade = undefined;
+
+		const fromColor = this.weatherOverlayColor;
+		const fromAlpha = ov.visible ? ov.alpha : 0;
+		const settle = (color: number, alpha: number) => {
+			this.weatherOverlayColor = color;
+			ov.setFillStyle(color).setAlpha(alpha);
+			// Fully transparent still costs a full-screen draw, so drop it out.
+			ov.setVisible(alpha > 0.002);
+		};
+
+		if (ms <= 0 || (fromColor === toColor && Math.abs(fromAlpha - toAlpha) < 0.002)) {
+			settle(toColor, toAlpha);
+			return;
+		}
+
+		const from = Phaser.Display.Color.IntegerToColor(fromColor);
+		const to = Phaser.Display.Color.IntegerToColor(toColor);
+		const progress = { t: 0 };
+		this.weatherFade = this.tweens.add({
+			targets: progress,
+			t: 1,
+			duration: ms,
+			ease: 'Sine.easeInOut', // no hard start/stop — weather eases in and out
+			onUpdate: () => {
+				if (!this.alive || !ov.scene) return;
+				const c = Phaser.Display.Color.Interpolate.ColorWithColor(from, to, 100, progress.t * 100);
+				settle(Phaser.Display.Color.GetColor(c.r, c.g, c.b), fromAlpha + (toAlpha - fromAlpha) * progress.t);
+			},
+			onComplete: () => {
+				this.weatherFade = undefined;
+				if (this.alive && ov.scene) settle(toColor, toAlpha);
+			},
+		});
 	}
 
 	private ensureWeatherOverlay() {
@@ -1733,10 +1799,23 @@ export class WorldScene extends Phaser.Scene {
 	 * and emitted across the full map width so the fall looks uniform wherever the
 	 * camera is; they sit above the colour tints so they stay crisp.
 	 */
-	private setWeatherParticles(kind: 'rain' | 'snow' | null, prewarm = false) {
+	private setWeatherParticles(kind: 'rain' | 'snow' | null, prewarm = false, easeOut = false) {
 		if (this.weatherEmitter) {
-			this.weatherEmitter.destroy();
+			const old = this.weatherEmitter;
 			this.weatherEmitter = undefined;
+			if (easeOut) {
+				// Rain doesn't stop mid-air. Stop EMITTING but leave what's already
+				// falling to land, then clean up once the last particle has expired.
+				// Destroying outright was half the visible jump — a full screen of
+				// rain vanishing between one frame and the next.
+				old.stop();
+				const lifespan = old.getData('wxLifespan') || 2000;
+				this.time.delayedCall(lifespan + 200, () => {
+					if (old.scene) old.destroy();
+				});
+			} else {
+				old.destroy();
+			}
 		}
 		if (!kind) return;
 		this.ensureWeatherTextures();
@@ -1781,6 +1860,8 @@ export class WorldScene extends Phaser.Scene {
 				})
 				.setDepth(5020);
 		}
+		// Remembered so a later stop() knows how long to wait for the sky to clear.
+		this.weatherEmitter.setData('wxLifespan', lifespan);
 		this.positionWeatherEmitter();
 		// Pre-fill so the screen is already full of falling weather on biome entry
 		// (Phaser advances the emitter as if `lifespan` ms had already elapsed).
@@ -3318,7 +3399,13 @@ export class WorldScene extends Phaser.Scene {
 						x,
 						y,
 						label: t('game.label.readJournal'),
-						action: () => bridge.emit('open-journal'),
+						// A stand out in the world opens the journal AT the biome you're
+						// standing in. Reopening from the menu still resumes wherever you
+						// last were, but walking up to a lectern in the wetland and being
+						// shown the forest page is wrong — the stand is a thing in a place.
+						// tentBiome covers a stand pitched inside a trail tent, whose area
+						// id is `tent-<biome>` rather than a biome id.
+						action: () => bridge.emit('open-journal', { area: this.tentBiome || this.area }),
 					},
 					img,
 				);
@@ -3861,6 +3948,11 @@ export class WorldScene extends Phaser.Scene {
 			const homeMin = activeId ? this.objectDef(activeId)?.homeMin || 0 : 0;
 			const space = this.tentBiome ? 1 : bridge.shared.state?.player?.home?.space || 1;
 			if (homeMin > space) return false;
+			// Outdoor-only things (the campfire) belong in neither the house nor a
+			// trail tent. The indoor branch never checked `placement` at all, so the
+			// ghost would read green over a tile the server was always going to
+			// refuse. Mirrors the authoritative check in PlaceObject.
+			if (activeId && this.objectDef(activeId)?.placement === 'outdoor') return false;
 			// Beds stay clear of the doorway. Sleeping jumps the clock to dawn, so a
 			// bed parked in the exit is a trap you have to walk over to leave. Mirrors
 			// the authoritative check in server/resources.ts (blocksDoorway) so the

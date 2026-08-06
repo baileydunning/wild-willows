@@ -2194,7 +2194,7 @@
 		{
 			"id": "campfire",
 			"name": "Campfire",
-			"placement": "both",
+			"placement": "outdoor",
 			"biomes": [
 				"meadow",
 				"forest",

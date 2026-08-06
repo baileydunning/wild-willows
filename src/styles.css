@@ -1281,7 +1281,6 @@ input {
 	transform: translateY(0);
 }
 
-
 .hud-bottom {
 	position: absolute;
 	bottom: 12px;
@@ -2553,6 +2552,18 @@ input {
 	padding: 11px 14px;
 	margin-bottom: 9px;
 }
+/*
+ * A flex item defaults to `min-width: auto`, which refuses to shrink below the
+ * intrinsic width of its content. So this column grew to fit the LONGEST diet
+ * line and pushed straight out of the card — the ellipsis rules on .entry-meta
+ * never got a chance to fire, because nothing was ever narrower than the text.
+ * (The Great Horned Owl's diet ran past the border; every shorter entry looked
+ * fine, which is why it read as a one-off.) Allowing the column to shrink is
+ * what makes the existing overflow handling work.
+ */
+.journal-entry .grow {
+	min-width: 0;
+}
 .entry-unknown {
 	opacity: 0.85;
 }
@@ -2571,7 +2582,14 @@ input {
 	box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.15);
 }
 .silhouette.known {
-	background: var(--green);
+	/* Light grey rather than green: the sprites carry their own colours (a brown
+	   squirrel, a black-and-white woodpecker, a tawny owl) and a saturated green
+	   disc competed with them. A neutral ground lets each animal read as itself.
+	   The inner ring keeps the disc's edge visible against the cream card. */
+	background: #dedbd2;
+	box-shadow:
+		inset 0 0 0 1px rgba(58, 58, 44, 0.08),
+		inset 0 -3px 0 rgba(0, 0, 0, 0.07);
 }
 .silhouette .ani-thumb {
 	width: 80%;
@@ -2873,9 +2891,21 @@ input {
 	align-items: center;
 	gap: 4px;
 	margin-top: 3px;
-	white-space: nowrap;
-	overflow: hidden;
-	text-overflow: ellipsis;
+	min-width: 0; /* let the row shrink instead of pushing out of the card */
+}
+/*
+ * No truncation. The diet and habitat lines are written to fit on one line (see
+ * the length note in data/animals-*.json), so nothing should ever need cutting
+ * short — a clipped or "…"-ed sentence in a field guide reads like a bug.
+ *
+ * The wrap rules are a floor, not the plan: at the largest text scale, or in a
+ * language whose sentences run longer than English, a line that no longer fits
+ * drops to a second row rather than escaping the card. Losing the tidy single
+ * line beats losing the words.
+ */
+.entry-meta-text {
+	min-width: 0;
+	overflow-wrap: anywhere;
 }
 .entry-meta svg {
 	flex: none;
@@ -5045,41 +5075,110 @@ kbd {
 .entry-unknown .add-goal-btn {
 	align-self: center;
 }
-.recipe-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-.biome-row-actions { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
-.add-goal-btn { color: var(--green-deep); border: 1.5px solid var(--line); border-radius: 9px; }
-.add-goal-btn:hover { background: rgba(122, 168, 90, 0.16); border-color: #cfe0b6; }
-.entry-unknown .add-goal-btn { align-self: center; }
+.recipe-actions {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-shrink: 0;
+}
+.biome-row-actions {
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	flex-shrink: 0;
+}
+.add-goal-btn {
+	color: var(--green-deep);
+	border: 1.5px solid var(--line);
+	border-radius: 9px;
+}
+.add-goal-btn:hover {
+	background: rgba(122, 168, 90, 0.16);
+	border-color: #cfe0b6;
+}
+.entry-unknown .add-goal-btn {
+	align-self: center;
+}
 
 /* ---- itch demo: tutorial banner + hard-stop popup ---- */
 .tutorial-demo-note {
-	display: flex; align-items: center; gap: 6px;
-	margin-top: 8px; padding: 6px 9px;
-	font-size: 0.82em; font-weight: 600; color: var(--green-deep);
-	background: rgba(122, 168, 90, 0.16); border: 1.5px solid #cfe0b6; border-radius: 9px;
+	display: flex;
+	align-items: center;
+	gap: 6px;
+	margin-top: 8px;
+	padding: 6px 9px;
+	font-size: 0.82em;
+	font-weight: 600;
+	color: var(--green-deep);
+	background: rgba(122, 168, 90, 0.16);
+	border: 1.5px solid #cfe0b6;
+	border-radius: 9px;
 }
-.tutorial-demo-note svg { color: var(--gold); flex-shrink: 0; }
-.demo-done-backdrop { position: fixed; z-index: 90; }
+.tutorial-demo-note svg {
+	color: var(--gold);
+	flex-shrink: 0;
+}
+.demo-done-backdrop {
+	position: fixed;
+	z-index: 90;
+}
 .demo-done-card {
-	width: 440px; max-width: 92vw; padding: 26px 26px 24px;
-	align-items: center; text-align: center; gap: 4px;
+	width: 440px;
+	max-width: 92vw;
+	padding: 26px 26px 24px;
+	align-items: center;
+	text-align: center;
+	gap: 4px;
 }
-.demo-done-card h2 { justify-content: center; margin: 6px 0 2px; }
-.demo-done-card p { color: var(--ink); line-height: 1.5; margin: 4px 0; }
-.demo-done-cta { font-weight: 700; color: var(--green-deep); }
-.demo-done-card .big-btn { width: auto; margin-top: 14px; }
+.demo-done-card h2 {
+	justify-content: center;
+	margin: 6px 0 2px;
+}
+.demo-done-card p {
+	color: var(--ink);
+	line-height: 1.5;
+	margin: 4px 0;
+}
+.demo-done-cta {
+	font-weight: 700;
+	color: var(--green-deep);
+}
+.demo-done-card .big-btn {
+	width: auto;
+	margin-top: 14px;
+}
 .demo-done-export {
-	width: 100%; margin: 6px 0 2px; padding: 12px 14px;
-	background: rgba(122, 168, 90, 0.1); border: 1.5px solid var(--line); border-radius: 12px;
-	display: flex; flex-direction: column; align-items: center; gap: 4px;
+	width: 100%;
+	margin: 6px 0 2px;
+	padding: 12px 14px;
+	background: rgba(122, 168, 90, 0.1);
+	border: 1.5px solid var(--line);
+	border-radius: 12px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
 }
-.demo-done-export-hint { font-size: 0.9em; color: var(--ink-soft); margin: 0 0 4px; }
-.demo-done-export .big-btn { margin-top: 4px; }
-.demo-done-export .form-error { margin: 4px 0 0; }
+.demo-done-export-hint {
+	font-size: 0.9em;
+	color: var(--ink-soft);
+	margin: 0 0 4px;
+}
+.demo-done-export .big-btn {
+	margin-top: 4px;
+}
+.demo-done-export .form-error {
+	margin: 4px 0 0;
+}
 .demo-done-icon {
-	display: flex; align-items: center; justify-content: center;
-	width: 58px; height: 58px; border-radius: 50%;
-	background: rgba(122, 168, 90, 0.18); color: var(--green);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 58px;
+	height: 58px;
+	border-radius: 50%;
+	background: rgba(122, 168, 90, 0.18);
+	color: var(--green);
 }
 
 /* ── Contextual hint banner (first time a menu opens / you enter home) ───── */
@@ -5104,51 +5203,105 @@ kbd {
 	animation: coach-banner-in 0.28s ease-out;
 }
 @keyframes coach-banner-in {
-	from { opacity: 0; transform: translate(-50%, -8px); }
-	to   { opacity: 1; transform: translate(-50%, 0); }
+	from {
+		opacity: 0;
+		transform: translate(-50%, -8px);
+	}
+	to {
+		opacity: 1;
+		transform: translate(-50%, 0);
+	}
 }
 .coach-banner-icon {
 	flex: none;
-	display: flex; align-items: center; justify-content: center;
-	width: 30px; height: 30px; border-radius: 50%;
-	background: rgba(122, 168, 90, 0.18); color: var(--green-deep);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 30px;
+	height: 30px;
+	border-radius: 50%;
+	background: rgba(122, 168, 90, 0.18);
+	color: var(--green-deep);
 }
-.coach-banner-text { font-size: 0.85rem; line-height: 1.35; color: var(--ink); }
-.coach-banner-text b { color: var(--green-deep); font-family: var(--font-display); margin-right: 4px; }
+.coach-banner-text {
+	font-size: 0.85rem;
+	line-height: 1.35;
+	color: var(--ink);
+}
+.coach-banner-text b {
+	color: var(--green-deep);
+	font-family: var(--font-display);
+	margin-right: 4px;
+}
 .coach-banner-close {
-	flex: none; display: flex; align-items: center; justify-content: center;
-	width: 24px; height: 24px; border-radius: 50%;
-	border: none; background: transparent; color: var(--ink-soft); cursor: pointer;
+	flex: none;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 24px;
+	height: 24px;
+	border-radius: 50%;
+	border: none;
+	background: transparent;
+	color: var(--ink-soft);
+	cursor: pointer;
 }
-.coach-banner-close:hover { background: var(--paper-2); color: var(--ink); }
-[data-reduce-motion="1"] .coach-banner { animation: none; }
+.coach-banner-close:hover {
+	background: var(--paper-2);
+	color: var(--ink);
+}
+[data-reduce-motion='1'] .coach-banner {
+	animation: none;
+}
 
 /* ── Demo goal pill (always-visible 5-animal target) ────────────────────── */
 .hud-demo-goal {
-	display: inline-flex; align-items: center; gap: 8px;
-	margin-top: 8px; padding: 6px 12px;
+	display: inline-flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 8px;
+	padding: 6px 12px;
 	/* Match the HUD cards (same near-opaque fill + soft border) so it blends in
 	   with the rest of the panel while staying readable over the world. */
 	background: rgba(250, 245, 232, 0.94);
 	border: 1.5px solid var(--line);
 	border-radius: 999px;
-	color: var(--ink); font-size: 0.82rem; font-weight: 600;
+	color: var(--ink);
+	font-size: 0.82rem;
+	font-weight: 600;
 	box-shadow: var(--shadow);
 }
-.hud-demo-goal > svg { color: var(--ink-soft); flex: none; }
-.hud-demo-goal-text { white-space: nowrap; }
+.hud-demo-goal > svg {
+	color: var(--ink-soft);
+	flex: none;
+}
+.hud-demo-goal-text {
+	white-space: nowrap;
+}
 .hud-demo-goal.done {
 	border-color: var(--green);
 	color: var(--green-deep);
 }
-.hud-demo-goal.done > svg { color: var(--green); }
-.hud-demo-goal-track { display: inline-flex; gap: 3px; margin-left: 3px; }
+.hud-demo-goal.done > svg {
+	color: var(--green);
+}
+.hud-demo-goal-track {
+	display: inline-flex;
+	gap: 3px;
+	margin-left: 3px;
+}
 .hud-demo-goal-track .pip {
-	width: 8px; height: 8px; border-radius: 50%;
+	width: 8px;
+	height: 8px;
+	border-radius: 50%;
 	background: rgba(58, 58, 44, 0.18);
 }
-.hud-demo-goal-track .pip.on { background: var(--green-2); }
-.hud-demo-goal.done .pip.on { background: var(--green); }
+.hud-demo-goal-track .pip.on {
+	background: var(--green-2);
+}
+.hud-demo-goal.done .pip.on {
+	background: var(--green);
+}
 
 /* ---- Keybinding editor (Settings → Controls) ---- */
 .keybinds {

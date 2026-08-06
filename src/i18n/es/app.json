@@ -176,6 +176,7 @@
 			"gotIt": "Entendido"
 		},
 		"language": "Idioma",
+		"demoSaveUnreachable": "No pudimos conectar con el servidor, así que tu reserva guardada no está disponible ahora. Está a salvo — inténtalo de nuevo en un momento.",
 		"reaching": "Llegando a la reserva…",
 		"errName": "Ingresa el nombre con el que jugarás",
 		"errCode": "Ingresa el código de invitación que compartió tu amigo",
@@ -449,7 +450,7 @@
 		"sent": "¡Enviado!",
 		"sending": "Enviando…",
 		"errFeedback": "No se pudieron enviar los comentarios",
-		"feedbackQueued": "Parece que estás sin conexión — tus comentarios quedaron guardados y se enviarán la próxima vez que inicies el juego.",
+		"feedbackQueued": "No pudimos enviarlo ahora mismo — tus comentarios quedaron guardados y se enviarán automáticamente la próxima vez que inicies el juego.",
 		"build": "compilación {time}"
 	},
 	"kbGate": {

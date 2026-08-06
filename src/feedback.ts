@@ -8,7 +8,7 @@
 // retried at the start of every session until the server confirms it stored
 // the feedback; only then is it deleted from the queue.
 
-import { COOP_BASE_URL, IS_DESKTOP, getTransport } from './api';
+import { hostedBase, IS_DESKTOP, getTransport } from './api';
 import { t } from './i18n';
 import { APP_VERSION, BUILD_TIME, detectOS } from './platform';
 import type { GameState } from './types';
@@ -34,9 +34,15 @@ function readQueue(): FeedbackItem[] {
 	}
 }
 
+/** Now that a 404 queues instead of dropping, a permanently unreachable endpoint
+ *  could otherwise grow this without limit. Keep the newest few — old feedback
+ *  about a build nobody is running any more has little value anyway. */
+const QUEUE_MAX = 25;
+
 function writeQueue(items: FeedbackItem[]): void {
 	try {
-		if (items.length) localStorage.setItem(QUEUE_KEY, JSON.stringify(items));
+		const capped = items.length > QUEUE_MAX ? items.slice(-QUEUE_MAX) : items;
+		if (capped.length) localStorage.setItem(QUEUE_KEY, JSON.stringify(capped));
 		else localStorage.removeItem(QUEUE_KEY);
 	} catch {
 		/* private mode etc. — queueing is best-effort */
@@ -78,15 +84,28 @@ export function gatherFeedbackMetrics(state: GameState | null): Record<string, a
 // ------------------------------------------------------------ sending
 
 /**
+ * Statuses that mean the SERVER READ THE MESSAGE AND REFUSED ITS CONTENT. Only
+ * these are permanent — retrying genuinely can't help, so the item is dropped.
+ *
+ * Everything else is queued and retried, including 404. That matters: a 404 says
+ * "no endpoint here", which is a routing or deployment problem, not a verdict on
+ * what the player wrote. Treating every 4xx as permanent is what silently binned
+ * demo players' feedback instead of holding it until it could be delivered.
+ */
+const PERMANENT_REJECTIONS = new Set([400, 413, 422]);
+
+/**
  * POST one item to the hosted Harper. Returns 'sent' when the server stored it
- * (safe to delete locally), 'invalid' when the server rejected it as malformed
- * (retrying will never help — drop it), or 'retry' for network/server trouble.
+ * (safe to delete locally), 'invalid' when the server rejected the content
+ * (retrying will never help — drop it), or 'retry' for anything else.
  */
 async function postFeedback(item: FeedbackItem): Promise<'sent' | 'invalid' | 'retry'> {
-	// Desktop talks to the hosted Harper; the web build talks to its own origin.
-	const base = IS_DESKTOP ? COOP_BASE_URL : '';
+	// Feedback must always land in the SHARED table, so it goes to the hosted
+	// Harper regardless of the game transport — including from the itch demo,
+	// which is a web build served cross-origin (hostedBase covers that; the old
+	// desktop-only check did not, so demo feedback went to the itch origin).
 	try {
-		const res = await fetch(`${base}/SubmitFeedback/`, {
+		const res = await fetch(`${hostedBase()}/SubmitFeedback/`, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
 			body: JSON.stringify(item),
@@ -98,9 +117,9 @@ async function postFeedback(item: FeedbackItem): Promise<'sent' | 'invalid' | 'r
 			const body = await res.json().catch(() => null);
 			return body?.ok ? 'sent' : 'retry';
 		}
-		return res.status >= 400 && res.status < 500 && res.status !== 429 ? 'invalid' : 'retry';
+		return PERMANENT_REJECTIONS.has(res.status) ? 'invalid' : 'retry';
 	} catch {
-		return 'retry'; // offline / DNS / timeout — keep it queued
+		return 'retry'; // offline / DNS / timeout / CORS — keep it queued
 	}
 }
 
