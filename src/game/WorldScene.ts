@@ -28,6 +28,7 @@ import { getPrefs, subscribe as subscribePrefs } from '../prefs';
 import { getBindings, keyCodeFor, keyLabel } from '../keybindings';
 import { gearOn, subscribe as subscribeGear } from '../gear';
 import { isTypingTarget } from '../typing';
+import { scheduleFlush, cancelFlush } from '../perf';
 import { harvestReadyAt } from '../types';
 import type { BiomeDef, HabitatObjectDef } from '../types';
 
@@ -171,6 +172,10 @@ export class WorldScene extends Phaser.Scene {
 	private dynamicSig = '';
 	private isTouch = false;
 	private alive = false; // true between create() and shutdown (scene.isActive() is false DURING create)
+	/** Unique per scene instance, so queued flushes are namespaced to the scene
+	 *  that queued them and can't fire against a restarted one. */
+	private readonly sceneUid = ++WorldScene.instances;
+	private static instances = 0;
 	private waterTiles = new Set<string>();
 	private waterTileCenters: { x: number; y: number }[] = []; // pixel centers of open-water tiles
 	private bridgeTiles = new Set<string>();
@@ -545,23 +550,38 @@ export class WorldScene extends Phaser.Scene {
 		// the weather signature), pauses/resumes the highlight-ring pulse live, and
 		// rebuilds the animal layer so breathing/gait tweens (which check the pref
 		// at creation) are torn down or restored immediately.
-		const unsubPrefs = subscribePrefs(() => {
+		//
+		// Gated on the two prefs this actually draws from. `subscribePrefs` fires for
+		// EVERY preference, and the volume sliders emit a change per pixel of drag —
+		// which used to tear down and rebuild every animal and weather particle ~60
+		// times a second for a setting the world doesn't render. Comparing the values
+		// we care about turns those drags into no-ops.
+		let lastMotion = getPrefs().reduceMotion;
+		let lastHint = getPrefs().interactHint;
+		const unsubPrefs = subscribePrefs((p) => {
 			if (!this.alive) return;
-			this.weatherSig = '';
-			this.applyWeather();
-			applyRingMotion();
-			this.animalSig = '';
-			this.animals.clear(true, true);
-			this.drawAnimals();
+			if (p.reduceMotion === lastMotion && p.interactHint === lastHint) return;
+			lastMotion = p.reduceMotion;
+			lastHint = p.interactHint;
+			// Coalesced to one rebuild per frame, and backed off automatically if it
+			// turns out to be expensive on this save (see src/perf.ts).
+			scheduleFlush(this.flushKey('prefs'), () => {
+				if (!this.alive) return;
+				this.weatherSig = '';
+				this.applyWeather();
+				applyRingMotion();
+				this.rebuildAnimals();
+			});
 		});
 		// Flipping a gear toggle takes effect immediately: the headlamp halo and
 		// boots speed are read live each frame, and the binoculars' glint markers
 		// are baked into the animal layer, so rebuild it here.
 		const unsubGear = subscribeGear(() => {
 			if (!this.alive) return;
-			this.animalSig = '';
-			this.animals.clear(true, true);
-			this.drawAnimals();
+			scheduleFlush(this.flushKey('gear'), () => {
+				if (!this.alive) return;
+				this.rebuildAnimals();
+			});
 		});
 		this.events.once('shutdown', () => {
 			document.removeEventListener('focusin', onFocusIn);
@@ -570,6 +590,8 @@ export class WorldScene extends Phaser.Scene {
 			document.removeEventListener('visibilitychange', onHidden);
 			unsubPrefs();
 			unsubGear();
+			// Drop queued rebuilds so a torn-down scene can't be repainted next frame.
+			for (const k of ['world', 'prefs', 'gear']) cancelFlush(this.flushKey(k));
 		});
 
 		this.tileCursor = this.img(0, 0, 'ghost-ok').setDepth(5900).setVisible(false).setAlpha(0.8);
@@ -595,9 +617,18 @@ export class WorldScene extends Phaser.Scene {
 		this.unsubs.push(
 			bridge.on('world-dirty', () => {
 				if (!this.alive || !(this.dynamic as any)?.scene) return; // ignore events landing mid-restart
-				this.refreshDynamic();
-				this.updateNodeVisuals();
-				this.applyWeather();
+				// Coalesced to one repaint per frame. This fires on every gather, place
+				// and dig, plus the five boot nudges from App.tsx and each weather tick,
+				// so a burst used to run the whole refresh (which sorts and joins every
+				// terrain tile and placement to build its signature) many times over
+				// inside a single frame. One flush per frame is indistinguishable to the
+				// player and drops that to once.
+				scheduleFlush(this.flushKey('world'), () => {
+					if (!this.alive || !(this.dynamic as any)?.scene) return; // re-check: a frame passed
+					this.refreshDynamic();
+					this.updateNodeVisuals();
+					this.applyWeather();
+				});
 			}),
 		);
 		this.unsubs.push(bridge.on('enter-placement', (p: any) => this.enterPlacement(p.objectId)));
@@ -1799,6 +1830,21 @@ export class WorldScene extends Phaser.Scene {
 		const h: any = st.player?.home || {};
 		const home = `${h.style || ''}:${h.styleLocked ? 1 : 0}:${h.space || 0}:${h.comfort || 0}:${h.decor || 0}:${h.light || 0}`;
 		return `${this.area}#h${health}#wx${wx}#t${terrain}#p${placements}#u${unlocked}#hm${home}`;
+	}
+
+	/** Flush keys are per-scene-instance so a restarted scene never inherits the
+	 *  pending work (or the learned cost) of the one it replaced. */
+	private flushKey(name: string): string {
+		return `scene:${this.sceneUid}:${name}`;
+	}
+
+	/** Tear down and repaint the animal layer. Shared by the prefs and gear
+	 *  subscriptions, both of which need the tweens rebuilt from scratch. */
+	private rebuildAnimals() {
+		if (!this.alive || !(this.animals as any)?.scene) return;
+		this.animalSig = '';
+		this.animals.clear(true, true);
+		this.drawAnimals();
 	}
 
 	private refreshDynamic(force = false) {

@@ -5,6 +5,7 @@
 // safe to import in non-DOM environments (guards document / matchMedia).
 
 import { useSyncExternalStore } from 'react';
+import { scheduleFlush, flushNow } from './perf';
 
 export type TextScale = 'sm' | 'md' | 'lg' | 'xl';
 
@@ -140,14 +141,47 @@ export function subscribe(fn: (p: Prefs) => void): () => void {
 	};
 }
 
-/** Merge a patch into the current prefs, persist, apply to the DOM, and notify. */
-export function setPrefs(patch: Partial<Prefs>): Prefs {
-	current = normalizePrefs({ ...current, ...patch });
+// localStorage.setItem is synchronous, main-thread work. The volume sliders call
+// setPrefs on every change event — dozens per second while dragging — so writing
+// inline meant a blocking serialize+store per pixel of travel. Coalesce instead:
+// the in-memory value and the DOM update stay immediate (so the UI is still exact
+// to the frame), and only the write is deferred to the next frame. A drag
+// therefore ends in one write instead of a hundred.
+let writeQueued = false;
+
+function writePrefsNow(): void {
+	writeQueued = false;
 	try {
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
 	} catch {
 		/* storage unavailable (private mode etc.) — still applies for the session */
 	}
+}
+
+function queuePrefsWrite(): void {
+	if (writeQueued) return;
+	writeQueued = true;
+	scheduleFlush('prefs:write', writePrefsNow);
+}
+
+// A deferred write must never be the reason a preference is lost, so force it out
+// on the way down. This matters more than it looks: once a tab is hidden the
+// browser stops firing requestAnimationFrame entirely, so a queued write would
+// otherwise sit there indefinitely. pagehide covers the mobile/bfcache path that
+// beforeunload misses.
+if (typeof window !== 'undefined') {
+	const flushPrefs = () => flushNow('prefs:write');
+	window.addEventListener('beforeunload', flushPrefs);
+	window.addEventListener('pagehide', flushPrefs);
+	document.addEventListener('visibilitychange', () => {
+		if (document.visibilityState === 'hidden') flushPrefs();
+	});
+}
+
+/** Merge a patch into the current prefs, persist, apply to the DOM, and notify. */
+export function setPrefs(patch: Partial<Prefs>): Prefs {
+	current = normalizePrefs({ ...current, ...patch });
+	queuePrefsWrite();
 	applyToDom(current);
 	listeners.forEach((fn) => {
 		try {

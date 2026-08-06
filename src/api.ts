@@ -10,6 +10,7 @@ import { t, getLocale } from './i18n';
 import { soloRequest } from './solo/backend';
 import { persist as persistSolo, type SaveMeta } from './solo/saves';
 import { DEMO, EDITION, DEMO_WEB_BACKEND } from './demo';
+import { adaptiveInterval, ewma } from './perf';
 
 const STORAGE_KEY = 'wild-willows:last-save';
 
@@ -95,9 +96,43 @@ export function getSoloSlot(): SaveMeta | null {
 // Throttled autosave: at most one write per window, always capturing the latest
 // state at fire time. Bounds data loss to the window length and avoids writing
 // the whole save on every single action.
-const SAVE_THROTTLE_MS = 1500;
+//
+// The window ADAPTS to what a save actually costs. Persisting serializes every
+// dynamic table and stringifies the result, so it gets steadily more expensive
+// as a preserve grows — a long save is megabytes of JSON. A fixed window means
+// that growing cost eats an ever-larger share of the frame budget, which is a
+// big part of why long sessions ended up unplayable. Instead we measure each
+// write and stretch the interval so saving stays a small duty cycle of wall
+// time, then tighten back up if it gets cheap again.
+//
+// SAVE_MAX_MS is the safety rail: backing off is bounded, so an unexpected quit
+// can never cost more than that much progress. Quit / tab-hide / leaving play
+// still force an immediate flush, so normal exits lose nothing at all.
+const SAVE_THROTTLE_MS = 1500; // floor — never save more often than this
+const SAVE_MAX_MS = 12_000; // ceiling — never risk more progress than this
+const SAVE_DUTY = 0.03; // spend at most ~3% of wall time writing saves
 let saveTimer: ReturnType<typeof setTimeout> | null = null;
 let savePending = false;
+let saveCostMs = 0; // EWMA of one full serialize+write
+
+/** Current autosave window, derived from what the last few saves actually cost. */
+export function soloSaveIntervalMs(): number {
+	return adaptiveInterval(saveCostMs, SAVE_THROTTLE_MS, SAVE_MAX_MS, SAVE_DUTY);
+}
+
+/** Diagnostics: measured cost of a save on this device/save size. */
+export const soloSaveCostMs = (): number => saveCostMs;
+
+/** Persist and fold the measured duration into the adaptive interval. */
+async function runSoloSave(slot: SaveMeta): Promise<void> {
+	const started = typeof performance !== 'undefined' ? performance.now() : Date.now();
+	try {
+		await persistSolo(slot);
+	} finally {
+		const elapsed = (typeof performance !== 'undefined' ? performance.now() : Date.now()) - started;
+		saveCostMs = ewma(saveCostMs, elapsed);
+	}
+}
 
 function scheduleSoloSave() {
 	savePending = true;
@@ -106,9 +141,9 @@ function scheduleSoloSave() {
 		saveTimer = null;
 		if (savePending && soloSlot) {
 			savePending = false;
-			persistSolo(soloSlot).catch(() => {});
+			runSoloSave(soloSlot).catch(() => {});
 		}
-	}, SAVE_THROTTLE_MS);
+	}, soloSaveIntervalMs());
 }
 
 /** Force any pending solo save to disk now (on quit / tab hide / leaving play). */
@@ -120,7 +155,7 @@ export async function flushSoloSave(): Promise<void> {
 	if (savePending && soloSlot) {
 		savePending = false;
 		try {
-			await persistSolo(soloSlot);
+			await runSoloSave(soloSlot);
 		} catch {
 			/* best effort */
 		}

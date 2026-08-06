@@ -92,9 +92,14 @@ describe('accessibility prefs', () => {
 
 	it('persists changes and reflects them in getPrefs', () => {
 		setPrefs({ colorblindMode: 'blueyellow', textScale: 'lg' });
+		// In memory the change is immediate, so the UI always reads the exact value.
 		expect(getPrefs().colorblindMode).toBe('blueyellow');
 		expect(getPrefs().textScale).toBe('lg');
-		// written through to storage as JSON
+		// The storage write is coalesced to the next frame (a volume-slider drag
+		// fires dozens of changes per second and used to write on every one — see
+		// tests/unit/prefs-flush.test.ts). Leaving the page forces it out, which is
+		// the guarantee that actually matters: nothing is lost.
+		window.dispatchEvent(new Event('pagehide'));
 		const saved = JSON.parse(store.get('ww:a11y')!);
 		expect(saved.colorblindMode).toBe('blueyellow');
 		expect(saved.textScale).toBe('lg');
