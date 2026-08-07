@@ -20,9 +20,11 @@ import { DEMO, DEMO_FOREST_BIOME, DEMO_FOREST_MS } from './demo';
 import { flushFeedbackQueue } from './feedback';
 import { t, content, onLocaleChange } from './i18n';
 import { pokeMetricsUplink } from './solo/metricsUplink';
+import { reportSaveIncident } from './solo/saveIncident';
 import { reportCharacterCreated, reportDemoComplete } from './solo/appOpen';
 import { bridge } from './game/bridge';
 import { unlockedRecipeIds } from './recipes';
+import { applyTerraformResult } from './terraformPatch';
 import { narrativeBeats, nextFeedFact, healthMilestoneLine, HEALTH_THRESHOLDS } from './ui/narrative';
 import { weatherForArea, weatherFeedLine, seasonFeedLine, liveCalendar } from './weather';
 import type { Appearance, GameData, GameState, PanelId, WorldSummary, PendingRequest } from './types';
@@ -150,6 +152,9 @@ const GameCtx = createContext<Ctx>(null as any);
 export const useGame = () => useContext(GameCtx);
 
 let toastSeq = 1;
+
+/** Quiet period after the last optimistic action before the trailing full sync. */
+const RECONCILE_MS = 1500;
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
 	const [data, setData] = useState<GameData | null>(null);
@@ -544,6 +549,27 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		adoptState(await api.gameState());
 	}, [adoptState]);
 
+	/**
+	 * Trailing, coalesced full sync for actions that applied their result locally.
+	 *
+	 * An optimistic action paints immediately from the response it already has, so
+	 * it skips the blocking `await refresh()`. A few things the server decides on
+	 * its own — achievements, in particular — aren't in that response, so one sync
+	 * still runs after the burst settles. Digging ten beds costs one refetch here
+	 * instead of ten, and none of them are on the critical path to seeing the soil.
+	 */
+	const reconcileTimer = useRef<number | null>(null);
+	const scheduleReconcile = useCallback(() => {
+		if (reconcileTimer.current) window.clearTimeout(reconcileTimer.current);
+		reconcileTimer.current = window.setTimeout(() => {
+			reconcileTimer.current = null;
+			// Don't race a request that's mid-flight; it will reschedule us on landing.
+			if (actionInFlight.current) return scheduleReconcile();
+			refresh().catch(() => undefined);
+		}, RECONCILE_MS);
+	}, [refresh]);
+	useEffect(() => () => void (reconcileTimer.current && window.clearTimeout(reconcileTimer.current)), []);
+
 	const applyWorlds = useCallback((list: WorldSummary[], active: string | null) => {
 		setWorlds(list || []);
 		if (active) setActiveWorldId(active);
@@ -608,7 +634,25 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
 	const loadSoloSlot = useCallback(
 		async (slotId: string) => {
-			const { playerId, state } = await resumeSoloGame(slotId);
+			// Report a save that will not open BEFORE rethrowing. Desktop solo runs the
+			// backend in-app, so this failure is otherwise invisible to us — the player
+			// just sees an error and starts over, and we never learn it happened.
+			let resumed: Awaited<ReturnType<typeof resumeSoloGame>>;
+			try {
+				resumed = await resumeSoloGame(slotId);
+			} catch (e: any) {
+				// A slot that simply is not on this device is not a corrupt save — pass
+				// it through untouched rather than reporting it or alarming the player.
+				if (e?.saveMissing) throw e;
+				// The file is here and would not load. Report before rethrowing (desktop
+				// solo is invisible to the server otherwise), and replace whatever the
+				// storage layer threw with wording that tells the player it is the save,
+				// not the app, and what to do next.
+				reportSaveIncident(`solo:${slotId}`);
+				console.error('solo save would not open —', e?.message || e);
+				throw new Error(t('server.err.saveUnreadable'));
+			}
+			const { playerId, state } = resumed;
 			try {
 				const w = await api.myWorlds();
 				applyWorlds(w.worlds || [], w.activeWorldId || playerId);
@@ -1090,9 +1134,21 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		};
 	}, [sessionPlayerId, flushFeed]);
 
-	/** Run a persisted action against Harper, then re-sync state. */
+	/**
+	 * Run a persisted action against Harper, then re-sync state.
+	 *
+	 * `opts.apply` lets an action fold its own response into the local snapshot
+	 * instead of waiting on a second, full-state round trip. Return the next state
+	 * to take that path, or null to fall back to the blocking refetch — so an
+	 * action can opt out on the spot when the response says something happened that
+	 * it can't reconstruct locally.
+	 */
 	const act = useCallback(
-		async (fn: () => Promise<any>, onResult?: (r: any) => void) => {
+		async (
+			fn: () => Promise<any>,
+			onResult?: (r: any) => void,
+			opts?: { apply?: (r: any, prev: GameState) => GameState | null },
+		) => {
 			setSaveStatus('saving');
 			actionInFlight.current = true;
 			try {
@@ -1144,7 +1200,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					}
 				}
 				onResult?.(result);
-				await refresh();
+				const prev = bridge.shared.state;
+				const patched = opts?.apply && prev ? opts.apply(result, prev) : null;
+				if (patched) {
+					adoptState(patched);
+					scheduleReconcile();
+				} else {
+					await refresh();
+				}
 				markSaved();
 			} catch (e: any) {
 				setSaveStatus('error');
@@ -1154,7 +1217,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				actionInFlight.current = false;
 			}
 		},
-		[refresh, markSaved, toast, pushLog, data],
+		[refresh, adoptState, scheduleReconcile, markSaved, toast, pushLog, data],
 	);
 
 	const collect = useCallback(
@@ -1211,6 +1274,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 						}
 					} else pushLog('shovel', t('app.log.clearedBed'));
 					bridge.emit('terraformed', { x, y, action });
+				},
+				{
+					// Terraform already returns the finished tile, the new inventory and the
+					// recalculated biome state, so the soil can appear on the first round trip
+					// instead of the second. Skipping the refetch also stops re-downloading the
+					// whole terrain array — which grows by a row on every dig — each time you
+					// dig. The trailing reconcile picks up anything not in the response.
+					apply: (r, prev) => applyTerraformResult(r, prev, area, x, y),
 				},
 			),
 		[act, pushLog, toast, data],

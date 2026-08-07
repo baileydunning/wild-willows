@@ -36,9 +36,10 @@ describe('CreatePlayer demo ids are unique (no name collisions)', () => {
 		expect(await w.db.Player.get(b.playerId)).toBeTruthy();
 	});
 
-	it('still rejects a duplicate name for a full (paid) save', async () => {
-		await w.post('CreatePlayer', { name: 'Solo', passcode: '1234', appearance });
-		await expect(w.post('CreatePlayer', { name: 'Solo', passcode: '1234', appearance })).rejects.toThrow();
+	it('gives full (paid) saves unique ids too, so a name is never taken', async () => {
+		const a = await w.post('CreatePlayer', { name: 'Solo', passcode: '1234', appearance });
+		const b = await w.post('CreatePlayer', { name: 'Solo', passcode: '1234', appearance });
+		expect(a.playerId).not.toBe(b.playerId);
 	});
 });
 

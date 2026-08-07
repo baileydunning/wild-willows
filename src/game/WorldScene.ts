@@ -157,7 +157,20 @@ export class WorldScene extends Phaser.Scene {
 	// (brown) to alive as the biome's health rises, so the whole world beyond the
 	// fence recovers alongside it.
 	private healthDeco: Phaser.GameObjects.Image[] = [];
+	// Ground tinting touches every static sprite in the world (~10k in the meadow),
+	// so it is memoised against the only inputs that can change the colour. Reset
+	// in drawGround(), because a fresh sprite set starts untinted.
+	private tintSig = '';
 	private dynamic!: Phaser.GameObjects.Group;
+	// Terraformed tiles get their own layer and are diffed rather than rebuilt.
+	// They are the one dynamic thing that accumulates without bound over a
+	// session, so tearing them all down on every dig made each dig cost more than
+	// the last. Keyed "tx,ty"; `it` is the plant-bed interactable for watered soil.
+	private terrain!: Phaser.GameObjects.Group;
+	private terrainSprites = new Map<
+		string,
+		{ type: string; img: Phaser.GameObjects.Image; zone?: Phaser.GameObjects.GameObject; it?: Interactable }
+	>();
 	private animals!: Phaser.GameObjects.Group; // animals live in their own layer so a
 	private animalSig = ''; // routine refresh doesn't reset their wandering
 	private interactables: Interactable[] = [];
@@ -440,6 +453,10 @@ export class WorldScene extends Phaser.Scene {
 		// dynamic group so it can be repainted live when you use the paint tool.
 		this.dynamic = this.add.group();
 		this.animals = this.add.group();
+		// Fresh group per create() — the old sprites went with the previous scene,
+		// so the diff map has to start empty or it would track destroyed objects.
+		this.terrain = this.add.group();
+		this.terrainSprites.clear();
 
 		this.drawGround();
 		const playerKey = makePlayerTexture(this, bridge.shared.state?.player.appearance);
@@ -901,6 +918,7 @@ export class WorldScene extends Phaser.Scene {
 	private drawGround() {
 		this.groundTiles = [];
 		this.healthDeco = [];
+		this.tintSig = ''; // brand-new sprites: force the next tintGround() through
 		if (this.isIndoors) {
 			this.drawHomeRoom();
 			return;
@@ -1346,6 +1364,12 @@ export class WorldScene extends Phaser.Scene {
 		const biome = this.biomeDef();
 		const state = bridge.shared.state?.biomeStates.find((b) => b.biomeId === this.area);
 		const health = state?.health ?? 5;
+		// The tint is a pure function of (area, health, season). refreshDynamic runs
+		// on every world change — including terraforming, which moves none of those —
+		// so bail before touching ~10k sprites when the result would be identical.
+		const sig = `${this.area}|${health}|${bridge.shared.state?.weather?.season ?? ''}`;
+		if (sig === this.tintSig) return;
+		this.tintSig = sig;
 		const from = Phaser.Display.Color.HexStringToColor(biome?.palette.damaged || '#b9a37c');
 		const to = Phaser.Display.Color.HexStringToColor(biome?.palette.healthy || '#8fbf6f');
 		const t = Phaser.Math.Clamp(health / 100, 0, 1);
@@ -2086,47 +2110,77 @@ export class WorldScene extends Phaser.Scene {
 		}
 	}
 
-	/** Terraformed ground: tilled beds and watered, recovering soil. */
+	/**
+	 * Terraformed ground: tilled beds and watered, recovering soil.
+	 *
+	 * Diffed, not rebuilt. Terrain is the only dynamic set that grows for the whole
+	 * session, and a dig is by definition a terrain change — so rebuilding it meant
+	 * each dig destroyed and recreated every tile dug so far (each destroy costing
+	 * two scans of the scene display list, plus an infinite tween and a hit zone per
+	 * tile). Tile #200 cost ~200× tile #1. Here only tiles that appeared, vanished,
+	 * or changed type are touched, so a dig costs the same at tile 200 as at tile 1.
+	 */
 	private drawTerrain() {
 		const s = bridge.shared.state;
-		if (!s?.terrain) return;
-		for (const tile of s.terrain) {
+		const want = new Map<string, { x: number; y: number; type: string }>();
+		for (const tile of s?.terrain || []) {
 			if (tile.area !== this.area) continue;
-			const x = tile.x * TILE + 16;
-			const y = tile.y * TILE + 16;
-			if (tile.type === 'water') {
-				const img = this.addDyn(this.img(x, y, 'terrain-water').setDepth(1.6));
-				this.tweens.add({
-					targets: img,
-					alpha: { from: 1, to: 0.86 },
-					duration: 1300 + ((tile.x + tile.y) % 4) * 180,
-					yoyo: true,
-					repeat: -1,
-					ease: 'Sine.easeInOut',
-				});
-				continue;
-			}
-			this.addDyn(this.img(x, y, tile.type === 'watered' ? 'watered' : 'tilled').setDepth(1.5));
-			if (tile.type === 'watered') {
-				// watered beds are ready for planting; terraform clicks still reach the
-				// soil here so the can/shovel can flood or clear it (with confirmation)
-				this.registerInteractable(
-					{
-						x,
-						y,
-						label: t('game.label.plantBed'),
-						action: () =>
-							bridge.emit('bed-clicked', {
-								area: this.area,
-								x: tile.x,
-								y: tile.y,
-							}),
-					},
-					undefined,
-					{ terraformPassthrough: true },
-				);
-			}
+			want.set(`${tile.x},${tile.y}`, tile);
 		}
+		// Gone, or retyped (tilled → watered → water): drop the old sprite.
+		for (const [key, cur] of [...this.terrainSprites]) {
+			const next = want.get(key);
+			if (next && next.type === cur.type) continue;
+			this.tweens.killTweensOf(cur.img);
+			cur.img.destroy();
+			cur.zone?.destroy();
+			this.terrainSprites.delete(key);
+		}
+		// New, or retyped: build it.
+		for (const [key, tile] of want) {
+			if (this.terrainSprites.has(key)) continue;
+			this.terrainSprites.set(key, this.buildTerrainTile(tile));
+		}
+		// refreshDynamic resets this.interactables before calling us, so every
+		// surviving bed has to re-announce itself even when its sprite didn't change.
+		for (const entry of this.terrainSprites.values()) if (entry.it) this.interactables.push(entry.it);
+	}
+
+	/** Build the sprite (and, for watered soil, the plant-bed hit zone) for one tile. */
+	private buildTerrainTile(tile: { x: number; y: number; type: string }) {
+		const x = tile.x * TILE + 16;
+		const y = tile.y * TILE + 16;
+		if (tile.type === 'water') {
+			const img = this.img(x, y, 'terrain-water').setDepth(1.6);
+			this.terrain.add(img);
+			this.tweens.add({
+				targets: img,
+				alpha: { from: 1, to: 0.86 },
+				duration: 1300 + ((tile.x + tile.y) % 4) * 180,
+				yoyo: true,
+				repeat: -1,
+				ease: 'Sine.easeInOut',
+			});
+			return { type: tile.type, img };
+		}
+		const img = this.img(x, y, tile.type === 'watered' ? 'watered' : 'tilled').setDepth(1.5);
+		this.terrain.add(img);
+		if (tile.type !== 'watered') return { type: tile.type, img };
+		// watered beds are ready for planting; terraform clicks still reach the
+		// soil here so the can/shovel can flood or clear it (with confirmation)
+		const it: Interactable = {
+			x,
+			y,
+			label: t('game.label.plantBed'),
+			action: () => bridge.emit('bed-clicked', { area: this.area, x: tile.x, y: tile.y }),
+		};
+		// The zone lives in the terrain group, not the dynamic one, so it survives a
+		// dynamic rebuild alongside its sprite. registerInteractable pushes `it` onto
+		// this.interactables; drawTerrain re-pushes it on subsequent rebuilds.
+		const zone = this.add.zone(x, y, 64, 64).setOrigin(0.5).setInteractive({ useHandCursor: true });
+		this.terrain.add(zone);
+		this.registerInteractable(it, zone, { terraformPassthrough: true });
+		return { type: tile.type, img, zone, it };
 	}
 
 	/** Wire an interactable so it can also be tapped/clicked directly (mobile-first). */
