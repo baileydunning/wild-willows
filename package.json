@@ -1,7 +1,7 @@
 {
 	"name": "wild-willows",
 	"author": "Bailey Dunning",
-	"version": "0.2.9",
+	"version": "0.2.10",
 	"private": true,
 	"description": "Wild Willows — a cozy nature-restoration life sim",
 	"type": "module",

@@ -22,6 +22,7 @@ import { CharacterPreview, Icon } from './icons';
 import {
 	AppearanceRows,
 	AccessibilityControls,
+	GraphicsQualityControl,
 	SoundControls,
 	randomizeAppearance,
 	randomStartingAppearance,
@@ -986,6 +987,13 @@ export function WelcomeScreen() {
 								<Icon name="note" size={15} /> {t('app.settings.sound')}
 							</h3>
 							<SoundControls />
+							{/* Offered before the game starts as well as inside it: a player on a slow
+							    machine can pick Low up front, so the world boots into it rather than
+							    being switched over mid-session. */}
+							<h3>
+								<Icon name="monitor" size={15} /> {t('app.settings.graphics')}
+							</h3>
+							<GraphicsQualityControl />
 							<h3>
 								<Icon name="sliders" size={15} /> {t('app.settings.accessibility')}
 							</h3>

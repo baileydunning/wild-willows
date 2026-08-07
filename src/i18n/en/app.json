@@ -499,7 +499,15 @@
 			}
 		},
 		"highContrast": "High contrast",
-		"highContrastHint": "Strengthens the text, borders, and accent colors so everything is easier to read."
+		"highContrastHint": "Strengthens the text, borders, and accent colors so everything is easier to read.",
+		"graphics": "Graphics",
+		"graphicsQuality": "Graphics quality",
+		"graphicsQualityHigh": "High",
+		"graphicsQualityLow": "Low",
+		"graphicsQualityHint": {
+			"high": "Full resolution, particles, and weather effects. Best on a capable computer.",
+			"low": "Lighter rendering for older or slower computers — fewer particles, a thinner weather effect, and a lower-resolution canvas. Try this if the game feels slow."
+		}
 	},
 	"kbGate": {
 		"title": "Wild Willows needs a keyboard",

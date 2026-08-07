@@ -28,6 +28,14 @@ export const FONT_CHOICES: FontChoice[] = ['storybook', 'rounded', 'classic', 'p
 export type ThemeChoice = 'system' | 'light' | 'dark';
 export const THEME_CHOICES: ThemeChoice[] = ['system', 'light', 'dark'];
 
+/** Overall rendering fidelity. 'high' renders at full device-pixel density with
+ *  the full particle/weather load; 'low' caps rendering at 1 CSS pixel per
+ *  canvas pixel and thins out particles and weather effects, for machines that
+ *  can't hold a smooth frame rate at full fidelity (old laptops, integrated
+ *  graphics, a showcase machine you don't control). */
+export type GraphicsQuality = 'high' | 'low';
+export const GRAPHICS_QUALITIES: GraphicsQuality[] = ['high', 'low'];
+
 export interface Prefs {
 	/** Turn off UI animations/transitions and in-world weather particles. */
 	reduceMotion: boolean;
@@ -61,6 +69,11 @@ export interface Prefs {
 	 *  shorter sentences, everyday words, jargon dropped or explained in place.
 	 *  Applies to the interface AND the nature writing. */
 	simpleText: boolean;
+	/** Rendering fidelity: full device-pixel density, particles, and weather vs. a
+	 *  lighter-weight render for weaker hardware. Defaults to an autodetected guess
+	 *  on first launch (see detectDefaultGraphicsQuality), then stays whatever the
+	 *  player last chose. */
+	graphicsQuality: GraphicsQuality;
 }
 
 /** The zoom factor applied to the UI overlays for each text-size step. */
@@ -83,7 +96,34 @@ const DEFAULTS: Prefs = {
 	keybinds: {},
 	interactHint: true,
 	simpleText: false,
+	graphicsQuality: 'high',
 };
+
+/**
+ * A best-effort guess at whether this device can comfortably handle full
+ * rendering fidelity. Only ever used as the STARTING value on a fresh
+ * install (see the fallbackQuality param below) — once a player has an
+ * opinion, saved or not, this never overrides it.
+ *
+ * Conservative on purpose: it only downgrades to 'low' on signals that are
+ * fairly reliable indicators of weak hardware (few logical cores, or the
+ * browser explicitly reporting little memory). Anything unknown or
+ * unavailable (most desktop Safari, some privacy-hardened browsers) is
+ * treated as capable rather than guessed against.
+ */
+export function detectDefaultGraphicsQuality(): GraphicsQuality {
+	try {
+		const cores = typeof navigator !== 'undefined' ? navigator.hardwareConcurrency : undefined;
+		if (typeof cores === 'number' && cores > 0 && cores <= 2) return 'low';
+		// Chrome/Edge/Android only; undefined elsewhere (Safari, Firefox) — treated
+		// as "no signal" rather than "definitely fine", per the comment above.
+		const mem = typeof navigator !== 'undefined' ? (navigator as any).deviceMemory : undefined;
+		if (typeof mem === 'number' && mem > 0 && mem <= 2) return 'low';
+	} catch {
+		/* navigator unavailable (SSR, tests) — fall through to the safe default */
+	}
+	return 'high';
+}
 
 /** Clamp an arbitrary value to a 0–1 volume, falling back when it isn't a number. */
 function normalizeVolume(v: unknown, fallback: number): number {
@@ -137,7 +177,7 @@ function normalizeKeybinds(raw: any): Record<string, string[]> {
 	return out;
 }
 
-export function normalizePrefs(raw: any, fallbackReduce = false): Prefs {
+export function normalizePrefs(raw: any, fallbackReduce = false, fallbackQuality: GraphicsQuality = 'high'): Prefs {
 	const o = raw && typeof raw === 'object' ? raw : {};
 	const textScale: TextScale = TEXT_SCALES.includes(o.textScale) ? o.textScale : DEFAULTS.textScale;
 	// Font: the picker replaced a `dyslexiaFont` on/off switch that swapped in
@@ -177,6 +217,7 @@ export function normalizePrefs(raw: any, fallbackReduce = false): Prefs {
 		keybinds: normalizeKeybinds(o.keybinds),
 		interactHint: typeof o.interactHint === 'boolean' ? o.interactHint : DEFAULTS.interactHint,
 		simpleText: typeof o.simpleText === 'boolean' ? o.simpleText : DEFAULTS.simpleText,
+		graphicsQuality: GRAPHICS_QUALITIES.includes(o.graphicsQuality) ? o.graphicsQuality : fallbackQuality,
 	};
 }
 
@@ -185,6 +226,32 @@ const listeners = new Set<(p: Prefs) => void>();
 
 export function getPrefs(): Prefs {
 	return current;
+}
+
+/**
+ * The device-pixel ratio the game canvas actually renders at — one canvas pixel
+ * per this many CSS pixels. High quality renders at native device pixels (capped
+ * at 2× for perf); Low pins it to 1×, which is the single biggest frame-rate
+ * lever on weak hardware.
+ *
+ * This is the SINGLE SOURCE OF TRUTH for that ratio, and both halves of the
+ * render path must read it from here: PhaserGame sizes and zooms the canvas by
+ * it, and WorldScene's camera scales its zoom clamp by it so framing stays
+ * identical across ratios.
+ *
+ * In particular the camera must NOT read the ratio back off Phaser's
+ * `scale.displayScale`. That value is derived from the canvas's *measured* CSS
+ * bounds and is recomputed before those bounds are re-read, so it lags one
+ * refresh behind. While the ratio was fixed at startup that lag was invisible —
+ * it converged after the first couple of refreshes. Once the ratio can change at
+ * runtime (switching Graphics Quality), the resize handler fires while
+ * displayScale still describes the PREVIOUS mode, so the camera would clamp its
+ * zoom against the wrong ratio and jump — badly enough to lose the character
+ * off-screen. Deriving it from the pref instead is exact on the first frame.
+ */
+export function renderScale(): number {
+	if (current.graphicsQuality === 'low') return 1;
+	return Math.min(typeof window !== 'undefined' ? window.devicePixelRatio || 1 : 1, 2);
 }
 
 /** Push the plain-language choice into the i18n layer, which owns the overlay. */
@@ -201,6 +268,7 @@ function applyToDom(p: Prefs): void {
 	root.dataset.theme = resolveTheme(p); // always 'light' | 'dark', never 'system'
 	root.dataset.highContrast = p.highContrast ? '1' : '0';
 	root.dataset.textScale = p.textScale;
+	root.dataset.graphicsQuality = p.graphicsQuality;
 	root.style.setProperty('--ui-scale', String(TEXT_SCALE_VALUES[p.textScale]));
 }
 
@@ -299,12 +367,13 @@ export function useResolvedTheme(): 'light' | 'dark' {
 	);
 }
 
-// Restore saved prefs at import time (defaulting reduceMotion to the OS setting).
+// Restore saved prefs at import time (defaulting reduceMotion to the OS setting,
+// and graphics quality to an autodetected guess — see detectDefaultGraphicsQuality).
 try {
 	const saved = typeof localStorage !== 'undefined' ? localStorage.getItem(STORAGE_KEY) : null;
-	current = normalizePrefs(saved ? JSON.parse(saved) : null, systemReduceMotion());
+	current = normalizePrefs(saved ? JSON.parse(saved) : null, systemReduceMotion(), detectDefaultGraphicsQuality());
 } catch {
-	current = normalizePrefs(null, systemReduceMotion());
+	current = normalizePrefs(null, systemReduceMotion(), detectDefaultGraphicsQuality());
 }
 applyToDom(current);
 applyToI18n(current); // the saved choice must apply before the first render

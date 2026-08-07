@@ -57,7 +57,14 @@ const A11Y_FIELDS = [
 	'theme',
 ];
 const AUDIO_FIELDS = ['musicEnabled', 'sfxEnabled', 'musicVolume', 'sfxVolume'];
-const NOT_AGGREGATED = ['keybinds'];
+// Deliberately not aggregated. `keybinds` is a bindings map — not something you
+// meaningfully count. `graphicsQuality` is a hardware/performance setting rather
+// than an assistive or audio one: it IS worth reporting (it answers "how many
+// players had to drop to Low?", i.e. how widespread the perf problem is), but it
+// belongs in a hardware section of the dashboard rather than inflating the
+// accessibility numbers — the same line the font picker and dark mode sit on. It
+// stays out of the a11y chain until that section exists.
+const NOT_AGGREGATED = ['keybinds', 'graphicsQuality'];
 
 describe('accessibility metrics reach the dashboard', () => {
 	const prefsFields = topLevelKeys(blockAfter(PREFS, 'export interface Prefs'));
