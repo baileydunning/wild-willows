@@ -225,8 +225,21 @@ function lenientDecode(table: any, bytes: any): any | null {
  * are rewritten whenever they decode.
  */
 const SALVAGE_REQUIRED: Record<string, string[]> = {
-	Player: ['passcodeHash', 'passcodeSalt'],
+	// A salvage that drops any of these has lost something the player cannot get
+	// back, so we refuse to make it permanent: the row stays broken on disk and is
+	// recoverable by hand, rather than silently rewritten as a worse save. A reset
+	// home / emptied chest / re-damaged biome is the outcome we are buying our way
+	// out of here — it reads to the player as "my game restarted itself".
+	//
+	// The check below is `rec[k] == null`, so legitimately falsy values survive:
+	// an empty `contents` ({}), a fully damaged `health` (0) and an empty
+	// `inventory` are all valid and pass. Don't tighten it to a truthiness test.
+	Player: ['passcodeHash', 'passcodeSalt', 'inventory', 'tools', 'unlockedBiomes', 'home'],
 	World: ['ownerId'],
+	Chest: ['contents'],
+	BiomeState: ['biomeId', 'health'],
+	Discovery: ['animalId'],
+	Placement: ['objectId', 'area', 'x', 'y'],
 };
 
 function tableName(table: any): string {
@@ -239,6 +252,25 @@ function tableName(table: any): string {
  * only partially. Safe to call on any miss: for an absent id it is a single point
  * read that finds nothing and returns immediately.
  */
+/**
+ * Record that a row could not be read. Salvage failures used to exist only as a
+ * console.error on the server, so nobody knew how many saves were affected until
+ * a player wrote in. One row per record, counted, so /dashboard can show it.
+ * Never throws and never blocks the caller — this is bookkeeping, not the job.
+ */
+async function noteSaveIncident(table: string, recordId: string, kind: 'unreadable' | 'refused'): Promise<void> {
+	try {
+		const t = (db() as any).SaveIncident;
+		if (!t) return;
+		const id = `${table}:${recordId}`;
+		const now = Date.now();
+		const row = (await safeGet(t, id)) || { id, table, recordId, kind, firstSeenAt: now, count: 0 };
+		await t.put({ ...row, kind, lastSeenAt: now, count: (row.count || 0) + 1 });
+	} catch (e: any) {
+		console.error('save incident note failed —', e?.message || e);
+	}
+}
+
 async function salvageRecord(table: any, id: string): Promise<any | null> {
 	const bytes = rawBytesOf(table, id);
 	if (!bytes) return null; // genuinely absent — nothing to heal
@@ -246,6 +278,7 @@ async function salvageRecord(table: any, id: string): Promise<any | null> {
 	const rec = lenientDecode(table, bytes);
 	if (!rec) {
 		console.error(`undecodable record left intact (no salvage): ${name}/${id}`);
+		await noteSaveIncident(name, id, 'unreadable');
 		return null;
 	}
 	// The payload must identify itself as the row we asked for. This is the gate that
@@ -263,6 +296,7 @@ async function salvageRecord(table: any, id: string): Promise<any | null> {
 	const missing = (SALVAGE_REQUIRED[name] || []).filter((k) => rec[k] == null);
 	if (missing.length) {
 		console.error(`partial salvage refused, row left intact: ${name}/${id} — missing ${missing.join(', ')}`);
+		await noteSaveIncident(name, id, 'refused');
 		return null;
 	}
 	try {
@@ -337,7 +371,7 @@ async function safeGet(table: any, id: string): Promise<any | null> {
 	return await salvageRecord(table, id);
 }
 
-async function toArray(iterable: any): Promise<any[]> {
+async function toArray(iterable: any, label = '?'): Promise<any[]> {
 	const out: any[] = [];
 	let dropped = 0;
 	try {
@@ -356,15 +390,15 @@ async function toArray(iterable: any): Promise<any[]> {
 	} catch (e: any) {
 		// An outright throw ends iteration — an async iterator can't resume past a bad
 		// element — so keep what we read rather than failing the whole request.
-		console.error('scan: aborted at an undecodable record —', e?.message || e);
+		console.error(`scan of ${label}: aborted at an undecodable record —`, e?.message || e);
 	}
-	if (dropped) console.error(`scan: ${dropped} undecodable record(s) omitted from results`);
+	if (dropped) console.error(`scan of ${label}: ${dropped} undecodable record(s) omitted from results`);
 	return out;
 }
 
 async function allOf(table: any): Promise<any[]> {
 	if (!table || typeof table.search !== 'function') return [];
-	return toArray(table.search({}));
+	return toArray(table.search({}), tableName(table));
 }
 
 /**
@@ -384,7 +418,7 @@ async function allOf(table: any): Promise<any[]> {
  */
 async function findCounterRow(table: any, id: string): Promise<any | null> {
 	if (!table || typeof table.search !== 'function') return null;
-	const rows = await toArray(table.search({}));
+	const rows = await toArray(table.search({}), tableName(table));
 	return rows.find((r: any) => r?.id === id) || (await safeGet(table, id));
 }
 
@@ -405,7 +439,7 @@ async function byPlayer(table: any, playerId: string): Promise<any[]> {
 	// the world (placements, chests, terrain) load empty until the first action
 	// "warmed" things up. A plain scan never depends on the index being ready,
 	// and these per-player tables are tiny, so this is both correct and cheap.
-	const rows = await toArray(table.search({}));
+	const rows = await toArray(table.search({}), tableName(table));
 	return rows.filter((r: any) => r?.playerId === playerId);
 }
 
@@ -436,7 +470,7 @@ function worldOf(player: any): string {
 /** All rows belonging to one world (worldId, falling back to legacy playerId). */
 async function byWorld(table: any, worldId: string): Promise<any[]> {
 	if (!table || typeof table.search !== 'function') return [];
-	const rows = await toArray(table.search({}));
+	const rows = await toArray(table.search({}), tableName(table));
 	return rows.filter((r: any) => (r?.worldId ?? r?.playerId) === worldId);
 }
 
@@ -590,7 +624,7 @@ async function reconcileDefinitions() {
 	];
 	for (const [table, records] of sources) {
 		const valid = new Set(records.map((r: any) => r.id));
-		for (const row of await toArray(table.search({}))) {
+		for (const row of await toArray(table.search({}), tableName(table))) {
 			if (!valid.has(row.id)) await table.delete(row.id);
 		}
 		// Force each stored record to exactly match the JSON. Harper's data loader
@@ -3830,24 +3864,27 @@ export class CreatePlayer extends PublicEndpoint {
 		const code = String(passcode || '');
 		if (code.length < 4 || code.length > 32) throw new GameError(tr('server.err.passcodeLength'));
 
+		// EVERY save gets a unique id (name-slug + random suffix), demo or not. The
+		// caretaker name is a label, not an identity: two people — or one person
+		// with two saves — may both be "Willow", and neither should be told the
+		// name is taken.
+		//
+		// This also closes a data-loss path. Ids used to be the bare name slug, so
+		// a returning player whose row had gone undecodable was told "no save, try
+		// New Game" (safeGet reports absent and corrupt identically), typed the
+		// same name, landed on the SAME id, and the collision check — also a
+		// safeGet — saw nothing and let the fresh save overwrite them. House back
+		// to a tent, inventory empty, world untouched in the other tables. A random
+		// id cannot land on an existing row, so that sequence is impossible now.
+		//
+		// existsRaw backs up safeGet here for the same reason: a row that is on
+		// disk but unreadable still occupies its id.
+		const base = slugId(cleanName) || 'caretaker';
+		const t = db();
 		let playerId: string;
-		if (ed === 'demo') {
-			// Demo saves are anonymous and throwaway, and many players share the
-			// hosted instance — so mint a UNIQUE id (name-slug + random suffix)
-			// instead of the bare name-slug, which would collide the moment two
-			// visitors pick the same caretaker name. The display name still shows
-			// what they typed; only the internal id carries the suffix.
-			const base = slugId(cleanName) || 'caretaker';
-			const t = db();
-			do {
-				playerId = `${base}-${Math.random().toString(36).slice(2, 8)}`;
-			} while (await safeGet(t.Player, playerId));
-		} else {
-			playerId = slugId(cleanName);
-			if (!playerId) throw new GameError(tr('server.err.nameNeedsAlnum'));
-			const existing = await safeGet(db().Player, playerId);
-			if (existing) throw new GameError(tr('server.err.saveExists'), 409);
-		}
+		do {
+			playerId = `${base}-${Math.random().toString(36).slice(2, 8)}`;
+		} while ((await safeGet(t.Player, playerId)) || existsRaw(t.Player, playerId));
 
 		// Client reports how long the player spent in the character creator (ms),
 		// clamped to a sane range so a bad clock can't skew the average.
@@ -3861,6 +3898,7 @@ export class CreatePlayer extends PublicEndpoint {
 			cms,
 			ed,
 		);
+		await indexPlayerName(cleanName, playerId);
 		// World plumbing must never block starting a save: if the World/WorldMember
 		// tables aren't ready yet (instance not restarted after the schema change),
 		// fall back to a plain solo session so core play still works.
@@ -3879,13 +3917,122 @@ export class CreatePlayer extends PublicEndpoint {
  * POST /DeletePlayer/ {name, passcode} — permanently delete a save and every
  * record that belongs to it. Passcode required so nobody can wipe your preserve.
  */
+/**
+ * Name-slug -> save ids. Exists for one reason: salvageRecord only runs on a
+ * POINT READ by id (safeGet), and since ids stopped being the bare name slug a
+ * login had no id to point at. A scan can't stand in — toArray drops rows it
+ * cannot decode, and a dropped row carries no id — so an undecodable save became
+ * unreachable and unhealable. This keeps the ids reachable.
+ *
+ * Best-effort throughout: a missing or unreadable index must never block a login
+ * or a save creation, because the name scan below still finds healthy rows.
+ */
+async function indexPlayerName(name: string, playerId: string): Promise<void> {
+	try {
+		const t = db() as any;
+		if (!t.PlayerNameIndex) return;
+		const id = slugId(String(name || ''));
+		if (!id) return;
+		const row = (await safeGet(t.PlayerNameIndex, id)) || { id, playerIds: [] };
+		const ids: string[] = Array.isArray(row.playerIds) ? row.playerIds : [];
+		if (!ids.includes(playerId)) await t.PlayerNameIndex.put({ ...row, id, playerIds: [...ids, playerId] });
+	} catch (e: any) {
+		console.error('player name index write failed —', e?.message || e);
+	}
+}
+
+async function unindexPlayerName(name: string, playerId: string): Promise<void> {
+	try {
+		const t = db() as any;
+		if (!t.PlayerNameIndex) return;
+		const id = slugId(String(name || ''));
+		if (!id) return;
+		const row = await safeGet(t.PlayerNameIndex, id);
+		if (!row || !Array.isArray(row.playerIds)) return;
+		await t.PlayerNameIndex.put({ ...row, playerIds: row.playerIds.filter((p: string) => p !== playerId) });
+	} catch (e: any) {
+		console.error('player name index cleanup failed —', e?.message || e);
+	}
+}
+
+/** Ids recorded under a name slug. Empty when the index is absent/unreadable. */
+async function indexedIdsFor(name: string): Promise<string[]> {
+	try {
+		const t = db() as any;
+		if (!t.PlayerNameIndex) return [];
+		const id = slugId(String(name || ''));
+		if (!id) return [];
+		const row = await safeGet(t.PlayerNameIndex, id);
+		return Array.isArray(row?.playerIds) ? row.playerIds : [];
+	} catch {
+		return [];
+	}
+}
+
+/**
+ * Resolve the save behind a typed caretaker name + passcode.
+ *
+ * Player ids used to BE the name slug, so every "log me in / delete my save"
+ * endpoint just rebuilt the id from the name. Ids are unique per save now (names
+ * are a label, and two saves may share one), so the id can no longer be derived
+ * — we try the legacy slug first for saves created before the change, then fall
+ * back to every player carrying that name and let the passcode pick.
+ *
+ * `nameSeen` keeps the old 404-vs-403 split: no save by that name at all, versus
+ * a save whose passcode did not match.
+ */
+async function resolveByNameAndPasscode(
+	name: any,
+	passcode: any,
+): Promise<{ player: any | null; nameSeen: boolean; unreadable?: boolean }> {
+	const wanted = String(name || '')
+		.trim()
+		.toLowerCase();
+	if (!wanted) return { player: null, nameSeen: false, unreadable: false };
+	const slug = slugId(String(name || ''));
+	const legacy = slug ? await safeGet(db().Player, slug) : null;
+	if (legacy && (await verifyPasscode(legacy, passcode))) return { player: legacy, nameSeen: true };
+	// Point-read each indexed id BEFORE falling back to a scan. safeGet salvages
+	// an undecodable row here; the scan below never can, so this ordering is what
+	// keeps a corrupt save recoverable.
+	let indexSeen = false;
+	let unreadable = false;
+	for (const pid of await indexedIdsFor(name)) {
+		const p = await safeGet(db().Player, pid);
+		if (!p) {
+			// Nothing decoded, but the bytes are on disk: this save exists and we
+			// could not open it. Telling the player "no save — try New Game" here is
+			// both false and the worst possible advice.
+			if (existsRaw(db().Player, pid)) unreadable = true;
+			continue;
+		}
+		indexSeen = true;
+		if (await verifyPasscode(p, passcode)) return { player: p, nameSeen: true };
+	}
+	const candidates = (await allOf(db().Player)).filter(
+		(p: any) =>
+			String(p?.name || '')
+				.trim()
+				.toLowerCase() === wanted,
+	);
+	for (const c of candidates) {
+		if (await verifyPasscode(c, passcode)) return { player: c, nameSeen: true };
+	}
+	if (slug && !legacy && existsRaw(db().Player, slug)) unreadable = true;
+	return { player: null, nameSeen: !!legacy || indexSeen || candidates.length > 0, unreadable };
+}
+
 export class DeletePlayer extends PublicEndpoint {
 	async post(data: any) {
 		const { name, passcode } = await bodyOf(data);
-		const playerId = slugId(String(name || ''));
-		const player = playerId ? await safeGet(db().Player, playerId) : null;
-		if (!player) throw new GameError(tr('server.err.noSaveWithName'), 404);
-		if (!(await verifyPasscode(player, passcode))) throw new GameError(tr('server.err.passcodeMismatch'), 403);
+		const found = await resolveByNameAndPasscode(name, passcode);
+		if (!found.player) {
+			if (found.unreadable) throw new GameError(tr('server.err.saveUnreadable'), 409);
+			if (found.nameSeen) throw new GameError(tr('server.err.passcodeMismatch'), 403);
+			throw new GameError(tr('server.err.noSaveWithName'), 404);
+		}
+		const player = found.player;
+		const playerId = player.id;
 
 		const t = db();
 		let removed = 0;
@@ -3913,6 +4060,7 @@ export class DeletePlayer extends PublicEndpoint {
 			if (await forceRemove(t.World, playerId)) removed++;
 		}
 		await t.Player.delete(playerId);
+		await unindexPlayerName(player.name, playerId);
 		return { ok: true, deleted: playerId, recordsRemoved: removed + 1 };
 	}
 }
@@ -3953,6 +4101,7 @@ export class DeleteDemoSave extends PublicEndpoint {
 			removed++;
 		}
 		await t.Player.delete(id);
+		await unindexPlayerName(player?.name, id);
 		return { ok: true, deleted: id, recordsRemoved: removed + 1 };
 	}
 }
@@ -4031,16 +4180,22 @@ export class ChangePasscode extends PublicEndpoint {
 export class LoginPlayer extends PublicEndpoint {
 	async post(data: any) {
 		const { name, passcode, tzOffsetMinutes } = await bodyOf(data);
-		const playerId = slugId(String(name || ''));
-		const player = playerId ? await safeGet(db().Player, playerId) : null;
-		if (!player) throw new GameError(tr('server.err.noSaveTryNew'), 404);
-		if (!(await verifyPasscode(player, passcode))) throw new GameError(tr('server.err.passcodeMismatch'), 403);
+		const found = await resolveByNameAndPasscode(name, passcode);
+		if (!found.player) {
+			// 409, not 404: the save is on disk and unreadable. A 404 sends the player
+			// to New Game, which is exactly what must not happen here.
+			if (found.unreadable) throw new GameError(tr('server.err.saveUnreadable'), 409);
+			if (found.nameSeen) throw new GameError(tr('server.err.passcodeMismatch'), 403);
+			throw new GameError(tr('server.err.noSaveTryNew'), 404);
+		}
+		const player = found.player;
 		const d = await defs();
 		// Reset the heartbeat clock so the first beat after login is counted as a
 		// fresh play session (and back-fill metrics for saves made before tracking).
 		// lastSeenAt is deliberately NOT bumped here — the first heartbeat reads it
 		// to measure the absence for the welcome-back growth summary, then updates it.
 		const now = Date.now();
+		const playerId = player.id;
 		const prev = readMetrics(player) || freshMetrics(player.createdAt || now);
 		await db().Player.patch(playerId, {
 			metrics: encodeMetrics({ ...prev, lastHeartbeatAt: 0 }),
@@ -7508,6 +7663,98 @@ export class LandingEvent extends PublicEndpoint {
 			});
 		}
 		return { ok: true };
+	}
+}
+
+/**
+ * POST /ReportSaveIncident/ {table, recordId, kind?, platform?, version?, build?}
+ *
+ * Desktop solo runs the whole backend in-app, so noteSaveIncident writes to the
+ * PLAYER'S local database and never reaches this instance — the saves we most
+ * need to hear about are the ones we cannot see. This is the uplink: the client
+ * posts here when a save will not open, so an unreadable desktop save shows up on
+ * /dashboard alongside the hosted ones. Same shape as the metrics uplink.
+ *
+ * Aggregate bookkeeping only — ids and counts, never save contents. Always
+ * answers ok:true; a telemetry hiccup must never add a second failure on top of
+ * the one the player already hit.
+ */
+export class ReportSaveIncident extends PublicEndpoint {
+	async post(data: any) {
+		const body = await bodyOf(data);
+		const table = String(body.table || 'Player').slice(0, 40);
+		const recordId = String(body.recordId || '').slice(0, 120);
+		if (!recordId) return { ok: true };
+		const kind = body.kind === 'refused' ? 'refused' : 'unreadable';
+		try {
+			const t = (db() as any).SaveIncident;
+			if (!t) return { ok: true };
+			const id = `${table}:${recordId}`;
+			const now = Date.now();
+			const row = (await safeGet(t, id)) || { id, table, recordId, kind, firstSeenAt: now, count: 0 };
+			await t.put({
+				...row,
+				kind,
+				lastSeenAt: now,
+				count: (row.count || 0) + 1,
+				reportedByClient: true,
+				platform: String(body.platform || '').slice(0, 16) || row.platform || null,
+				version: String(body.version || '').slice(0, 32) || row.version || null,
+				build: String(body.build || '').slice(0, 64) || row.build || null,
+			});
+		} catch (e: any) {
+			console.error('save incident report failed —', e?.message || e);
+		}
+		return { ok: true };
+	}
+}
+
+/**
+ * GET /SaveHealth/ — how many stored records could not be read, from the
+ * SaveIncident table. Salvage failures used to live only in server logs, so a
+ * save that would not open was invisible until the player wrote in; this is the
+ * same information on /dashboard. Ids and counts only — never save contents.
+ */
+export class SaveHealth extends PublicEndpoint {
+	async get() {
+		const t = db() as any;
+		let rows: any[] = [];
+		try {
+			rows = t.SaveIncident ? await allOf(t.SaveIncident) : [];
+		} catch {
+			rows = [];
+		}
+		const byTable: Record<string, number> = {};
+		const byKind: Record<string, number> = {};
+		let events = 0;
+		for (const r of rows) {
+			const tbl = String(r?.table || '?');
+			byTable[tbl] = (byTable[tbl] || 0) + 1;
+			const k = String(r?.kind || 'unreadable');
+			byKind[k] = (byKind[k] || 0) + 1;
+			events += Number(r?.count) || 0;
+		}
+		const recent = rows
+			.slice()
+			.sort((a: any, b: any) => (b?.lastSeenAt || 0) - (a?.lastSeenAt || 0))
+			.slice(0, 25)
+			.map((r: any) => ({
+				table: r.table,
+				recordId: r.recordId,
+				kind: r.kind,
+				count: Number(r.count) || 0,
+				firstSeenAt: r.firstSeenAt || 0,
+				lastSeenAt: r.lastSeenAt || 0,
+			}));
+		return {
+			generatedAt: Date.now(),
+			affected: rows.length,
+			events,
+			savesAffected: byTable.Player || 0,
+			byTable,
+			byKind,
+			recent,
+		};
 	}
 }
 
