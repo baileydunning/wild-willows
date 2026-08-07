@@ -131,6 +131,8 @@ type AppOpen @table(database: "wildwillows") { id: ID @primaryKey } # deviceId, 
 # these were invisible unless someone happened to be tailing stderr. Aggregate
 # counters and record ids only; no save contents. Dynamic (id only).
 type SaveIncident @table(database: "wildwillows") { id: ID @primaryKey }
+type Refusal @table(database: "wildwillows") { id: ID @primaryKey }
+type ClientError @table(database: "wildwillows") { id: ID @primaryKey }
 
 # Name slug -> the save ids using that name. A login has to reach a player's row
 # BY ID, because salvageRecord only runs on a point read; a full scan can't do it

@@ -35,6 +35,11 @@
 		"cannotGoThere": "You cannot go there yet",
 		"loadSave": "Could not load that save"
 	},
+	"crash": {
+		"title": "Something went wrong on screen",
+		"body": "Your preserve is safe — it's saved on this device and nothing was lost. Reloading picks up where you left off.",
+		"reload": "Reload the game"
+	},
 	"toast": {
 		"recipeUnlocked": "New Crafting Recipe Unlocked — {name}",
 		"achievementUnlocked": "Achievement unlocked — {name}",

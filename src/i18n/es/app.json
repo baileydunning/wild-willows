@@ -35,6 +35,11 @@
 		"cannotGoThere": "Todavía no puedes ir allí",
 		"loadSave": "No se pudo cargar esa partida"
 	},
+	"crash": {
+		"title": "Algo falló en pantalla",
+		"body": "Tu reserva está a salvo: está guardada en este dispositivo y no se ha perdido nada. Al recargar seguirás donde lo dejaste.",
+		"reload": "Recargar el juego"
+	},
 	"toast": {
 		"recipeUnlocked": "Nueva receta de fabricación desbloqueada — {name}",
 		"achievementUnlocked": "Logro desbloqueado — {name}",

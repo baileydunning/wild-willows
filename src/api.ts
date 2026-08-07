@@ -12,6 +12,7 @@ import { persist as persistSolo, type SaveMeta } from './solo/saves';
 import { DEMO, EDITION, DEMO_WEB_BACKEND } from './demo';
 import { adaptiveInterval, ewma } from './perf';
 import { bridge } from './game/bridge';
+import { reportClientError } from './clientErrors';
 
 const STORAGE_KEY = 'wild-willows:last-save';
 
@@ -246,8 +247,9 @@ function scheduleSoloSave() {
 			savePending = false;
 			runSoloSave(soloSlot).catch((e) => {
 				// Silently swallowing this meant a player whose disk was full kept
-				// playing a session that was never being written down.
-				console.error('solo save failed —', e?.message || e);
+				// playing a session that was never being written down. SaveIncident
+				// only covers saves that won't READ, so this is reported too.
+				reportClientError(e, 'solo save write');
 				bridge.emit('save-error', { message: t('app.error.saveWriteFailed') });
 			});
 		}
@@ -421,6 +423,11 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 			...options,
 		});
 	} catch (e: any) {
+		// Reported as well as shown: a spike here is the difference between "one
+		// player's wifi" and "the server is down", and the toast only tells the
+		// player. Deduplicated per session inside reportClientError, so a client
+		// that is properly offline sends this at most once (and fails to, quietly).
+		reportClientError(e, `fetch ${method} ${path.split('?')[0]}`);
 		const err: any = new Error(t('app.error.backendUnreachable'));
 		err.offline = true;
 		err.cause = e; // the raw reason is kept for the console, not for the player

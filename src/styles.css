@@ -4942,6 +4942,31 @@ kbd {
 	background: #000 !important;
 }
 
+/* The last-resort screen when a render throws. Styled like a panel rather than a
+   browser error page: the message is that the preserve is fine, and a page that
+   looks like the game says that better than one that looks like a stack trace. */
+.crash {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+	text-align: center;
+	padding: 24px;
+	background: var(--paper);
+	color: var(--ink);
+}
+.crash h2 {
+	margin: 0;
+}
+.crash p {
+	max-width: 34rem;
+	color: var(--ink-soft);
+	margin: 0 0 6px;
+}
+
 /* ---- dark mode (Settings → Appearance) ----
    Quiet near-neutral greys, with the colour left to the accents. The daylight
    theme carries the game's character in its surfaces; spread that same cast
