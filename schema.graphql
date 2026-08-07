@@ -125,6 +125,13 @@ type SoloMetrics @table(database: "wildwillows") {
 # characters each person creates. Dynamic (id only) so the field set can evolve.
 type AppOpen @table(database: "wildwillows") { id: ID @primaryKey } # deviceId, platform, os, version, language, firstOpenAt, lastOpenAt, opens, converted, firstConvertedAt, savesCreated, creationMs, updatedAt
 
+# One row per record that failed to decode (`${table}:${recordId}`) · table,
+# recordId, kind, firstSeenAt, lastSeenAt, count. Written whenever salvage gives
+# up, so unreadable saves show up on /dashboard instead of only in server logs —
+# these were invisible unless someone happened to be tailing stderr. Aggregate
+# counters and record ids only; no save contents. Dynamic (id only).
+type SaveIncident @table(database: "wildwillows") { id: ID @primaryKey }
+
 # Name slug -> the save ids using that name. A login has to reach a player's row
 # BY ID, because salvageRecord only runs on a point read; a full scan can't do it
 # (toArray drops rows it cannot decode, and a dropped row carries no id). Since

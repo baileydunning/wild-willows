@@ -252,6 +252,25 @@ function tableName(table: any): string {
  * only partially. Safe to call on any miss: for an absent id it is a single point
  * read that finds nothing and returns immediately.
  */
+/**
+ * Record that a row could not be read. Salvage failures used to exist only as a
+ * console.error on the server, so nobody knew how many saves were affected until
+ * a player wrote in. One row per record, counted, so /dashboard can show it.
+ * Never throws and never blocks the caller — this is bookkeeping, not the job.
+ */
+async function noteSaveIncident(table: string, recordId: string, kind: 'unreadable' | 'refused'): Promise<void> {
+	try {
+		const t = (db() as any).SaveIncident;
+		if (!t) return;
+		const id = `${table}:${recordId}`;
+		const now = Date.now();
+		const row = (await safeGet(t, id)) || { id, table, recordId, kind, firstSeenAt: now, count: 0 };
+		await t.put({ ...row, kind, lastSeenAt: now, count: (row.count || 0) + 1 });
+	} catch (e: any) {
+		console.error('save incident note failed —', e?.message || e);
+	}
+}
+
 async function salvageRecord(table: any, id: string): Promise<any | null> {
 	const bytes = rawBytesOf(table, id);
 	if (!bytes) return null; // genuinely absent — nothing to heal
@@ -259,6 +278,7 @@ async function salvageRecord(table: any, id: string): Promise<any | null> {
 	const rec = lenientDecode(table, bytes);
 	if (!rec) {
 		console.error(`undecodable record left intact (no salvage): ${name}/${id}`);
+		await noteSaveIncident(name, id, 'unreadable');
 		return null;
 	}
 	// The payload must identify itself as the row we asked for. This is the gate that
@@ -276,6 +296,7 @@ async function salvageRecord(table: any, id: string): Promise<any | null> {
 	const missing = (SALVAGE_REQUIRED[name] || []).filter((k) => rec[k] == null);
 	if (missing.length) {
 		console.error(`partial salvage refused, row left intact: ${name}/${id} — missing ${missing.join(', ')}`);
+		await noteSaveIncident(name, id, 'refused');
 		return null;
 	}
 	try {
@@ -3960,11 +3981,14 @@ async function indexedIdsFor(name: string): Promise<string[]> {
  * `nameSeen` keeps the old 404-vs-403 split: no save by that name at all, versus
  * a save whose passcode did not match.
  */
-async function resolveByNameAndPasscode(name: any, passcode: any): Promise<{ player: any | null; nameSeen: boolean }> {
+async function resolveByNameAndPasscode(
+	name: any,
+	passcode: any,
+): Promise<{ player: any | null; nameSeen: boolean; unreadable?: boolean }> {
 	const wanted = String(name || '')
 		.trim()
 		.toLowerCase();
-	if (!wanted) return { player: null, nameSeen: false };
+	if (!wanted) return { player: null, nameSeen: false, unreadable: false };
 	const slug = slugId(String(name || ''));
 	const legacy = slug ? await safeGet(db().Player, slug) : null;
 	if (legacy && (await verifyPasscode(legacy, passcode))) return { player: legacy, nameSeen: true };
@@ -3972,9 +3996,16 @@ async function resolveByNameAndPasscode(name: any, passcode: any): Promise<{ pla
 	// an undecodable row here; the scan below never can, so this ordering is what
 	// keeps a corrupt save recoverable.
 	let indexSeen = false;
+	let unreadable = false;
 	for (const pid of await indexedIdsFor(name)) {
 		const p = await safeGet(db().Player, pid);
-		if (!p) continue;
+		if (!p) {
+			// Nothing decoded, but the bytes are on disk: this save exists and we
+			// could not open it. Telling the player "no save — try New Game" here is
+			// both false and the worst possible advice.
+			if (existsRaw(db().Player, pid)) unreadable = true;
+			continue;
+		}
 		indexSeen = true;
 		if (await verifyPasscode(p, passcode)) return { player: p, nameSeen: true };
 	}
@@ -3987,7 +4018,8 @@ async function resolveByNameAndPasscode(name: any, passcode: any): Promise<{ pla
 	for (const c of candidates) {
 		if (await verifyPasscode(c, passcode)) return { player: c, nameSeen: true };
 	}
-	return { player: null, nameSeen: !!legacy || indexSeen || candidates.length > 0 };
+	if (slug && !legacy && existsRaw(db().Player, slug)) unreadable = true;
+	return { player: null, nameSeen: !!legacy || indexSeen || candidates.length > 0, unreadable };
 }
 
 export class DeletePlayer extends PublicEndpoint {
@@ -3995,6 +4027,7 @@ export class DeletePlayer extends PublicEndpoint {
 		const { name, passcode } = await bodyOf(data);
 		const found = await resolveByNameAndPasscode(name, passcode);
 		if (!found.player) {
+			if (found.unreadable) throw new GameError(tr('server.err.saveUnreadable'), 409);
 			if (found.nameSeen) throw new GameError(tr('server.err.passcodeMismatch'), 403);
 			throw new GameError(tr('server.err.noSaveWithName'), 404);
 		}
@@ -4149,6 +4182,9 @@ export class LoginPlayer extends PublicEndpoint {
 		const { name, passcode, tzOffsetMinutes } = await bodyOf(data);
 		const found = await resolveByNameAndPasscode(name, passcode);
 		if (!found.player) {
+			// 409, not 404: the save is on disk and unreadable. A 404 sends the player
+			// to New Game, which is exactly what must not happen here.
+			if (found.unreadable) throw new GameError(tr('server.err.saveUnreadable'), 409);
 			if (found.nameSeen) throw new GameError(tr('server.err.passcodeMismatch'), 403);
 			throw new GameError(tr('server.err.noSaveTryNew'), 404);
 		}
@@ -7627,6 +7663,98 @@ export class LandingEvent extends PublicEndpoint {
 			});
 		}
 		return { ok: true };
+	}
+}
+
+/**
+ * POST /ReportSaveIncident/ {table, recordId, kind?, platform?, version?, build?}
+ *
+ * Desktop solo runs the whole backend in-app, so noteSaveIncident writes to the
+ * PLAYER'S local database and never reaches this instance — the saves we most
+ * need to hear about are the ones we cannot see. This is the uplink: the client
+ * posts here when a save will not open, so an unreadable desktop save shows up on
+ * /dashboard alongside the hosted ones. Same shape as the metrics uplink.
+ *
+ * Aggregate bookkeeping only — ids and counts, never save contents. Always
+ * answers ok:true; a telemetry hiccup must never add a second failure on top of
+ * the one the player already hit.
+ */
+export class ReportSaveIncident extends PublicEndpoint {
+	async post(data: any) {
+		const body = await bodyOf(data);
+		const table = String(body.table || 'Player').slice(0, 40);
+		const recordId = String(body.recordId || '').slice(0, 120);
+		if (!recordId) return { ok: true };
+		const kind = body.kind === 'refused' ? 'refused' : 'unreadable';
+		try {
+			const t = (db() as any).SaveIncident;
+			if (!t) return { ok: true };
+			const id = `${table}:${recordId}`;
+			const now = Date.now();
+			const row = (await safeGet(t, id)) || { id, table, recordId, kind, firstSeenAt: now, count: 0 };
+			await t.put({
+				...row,
+				kind,
+				lastSeenAt: now,
+				count: (row.count || 0) + 1,
+				reportedByClient: true,
+				platform: String(body.platform || '').slice(0, 16) || row.platform || null,
+				version: String(body.version || '').slice(0, 32) || row.version || null,
+				build: String(body.build || '').slice(0, 64) || row.build || null,
+			});
+		} catch (e: any) {
+			console.error('save incident report failed —', e?.message || e);
+		}
+		return { ok: true };
+	}
+}
+
+/**
+ * GET /SaveHealth/ — how many stored records could not be read, from the
+ * SaveIncident table. Salvage failures used to live only in server logs, so a
+ * save that would not open was invisible until the player wrote in; this is the
+ * same information on /dashboard. Ids and counts only — never save contents.
+ */
+export class SaveHealth extends PublicEndpoint {
+	async get() {
+		const t = db() as any;
+		let rows: any[] = [];
+		try {
+			rows = t.SaveIncident ? await allOf(t.SaveIncident) : [];
+		} catch {
+			rows = [];
+		}
+		const byTable: Record<string, number> = {};
+		const byKind: Record<string, number> = {};
+		let events = 0;
+		for (const r of rows) {
+			const tbl = String(r?.table || '?');
+			byTable[tbl] = (byTable[tbl] || 0) + 1;
+			const k = String(r?.kind || 'unreadable');
+			byKind[k] = (byKind[k] || 0) + 1;
+			events += Number(r?.count) || 0;
+		}
+		const recent = rows
+			.slice()
+			.sort((a: any, b: any) => (b?.lastSeenAt || 0) - (a?.lastSeenAt || 0))
+			.slice(0, 25)
+			.map((r: any) => ({
+				table: r.table,
+				recordId: r.recordId,
+				kind: r.kind,
+				count: Number(r.count) || 0,
+				firstSeenAt: r.firstSeenAt || 0,
+				lastSeenAt: r.lastSeenAt || 0,
+			}));
+		return {
+			generatedAt: Date.now(),
+			affected: rows.length,
+			events,
+			savesAffected: byTable.Player || 0,
+			byTable,
+			byKind,
+			recent,
+		};
 	}
 }
 
