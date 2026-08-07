@@ -4799,10 +4799,38 @@ export class CollectResource extends PublicEndpoint {
 			// weather must actually be active in this biome right now (recomputed from the
 			// same deterministic function the client used to spawn the node).
 			if (isWeatherGatheredResource(resourceId)) {
-				// Weather-gated: the resource must be the one this biome's CURRENT weather
-				// yields (recomputed from the same play-time base the snapshot used).
-				const active = weatherTypeAt(wid, biomeId, weatherTimeFromPlay(player));
-				if (gatherResourceIdFor(biomeId, active) !== resourceId) {
+				// Weather-gated: the resource must be the one this biome's weather yields,
+				// recomputed here rather than trusted from the client.
+				//
+				// The catch is that the two sides SAMPLE the same deterministic function from
+				// clocks that tick differently. The client's advances smoothly on wall time, so
+				// it crosses a weather boundary the moment it happens and immediately draws the
+				// node. This one runs off accrued play time, which only moves in 30s heartbeat
+				// steps (and trails further after a hidden tab, capped at MAX_BEAT_MS). So for
+				// up to a beat after rain starts, the player is standing in visible rain beside
+				// a rainwater node and getting told it "only appears in certain weather".
+				//
+				// Being strict here protects nothing: weather is deterministic and public, a
+				// block is 12 minutes wide, and the grace can only ever admit a resource the
+				// player is about to be — or just was — legitimately able to gather. So accept
+				// the gather if it matches anywhere in the window the clocks can disagree over.
+				// Sampling the two edges as well as the middle is enough because the grace is
+				// far smaller than a block, so any boundary inside it falls between two samples.
+				//
+				// A dev weather override has to gate the same way, for the same reason. It is
+				// stored on the player and forces the type for EVERY biome in the snapshot
+				// (see weatherSnapshot), which is what the client draws its sky and its gather
+				// nodes from. Recomputing the live sky here instead meant "set weather: rain"
+				// produced falling rain and rainwater nodes that then refused to be picked up —
+				// the override was honoured everywhere except the one check that mattered.
+				const forced = player?.devWeather?.type || null;
+				const base = weatherTimeFromPlay(player);
+				const matches = forced
+					? gatherResourceIdFor(biomeId, forced) === resourceId
+					: [base - MAX_BEAT_MS, base, base + MAX_BEAT_MS].some(
+							(at) => gatherResourceIdFor(biomeId, weatherTypeAt(wid, biomeId, Math.max(0, at))) === resourceId,
+						);
+				if (!matches) {
 					throw new GameError(tr('server.err.weatherOnly', { resource: resDef.name }), 409, 'server.err.weatherOnly');
 				}
 			} else if (!(biome.resources || []).includes(resourceId)) {
