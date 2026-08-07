@@ -294,6 +294,19 @@ body.lb-open{overflow:hidden}
   .lb button{width:40px;height:40px}
   .lb-prev{left:.3rem}.lb-next{right:.3rem}
 }
+
+/* ---- reviews ---- */
+.revs{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;align-items:start;max-width:66rem;margin:0 auto}
+.rev{background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);box-shadow:var(--shadow);
+  padding:1.25rem 1.35rem;margin:0;display:flex;flex-direction:column;gap:.75rem}
+.rev p{margin:0;font-size:.95rem;line-height:1.55}
+.rev cite{font-style:normal;font-size:.78rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-faint)}
+.stars{display:flex;gap:.1rem;color:var(--gold)}
+.stars svg{width:15px;height:15px;flex:none}
+/* Screen-reader-only: the stars are decorative, so the rating is spelled out. */
+.vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
+@media(max-width:900px){.revs{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:620px){.revs{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -302,6 +315,7 @@ body.lb-open{overflow:hidden}
   <a class="brand" href="#top"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
   <div class="links">
     <a class="hide-sm" href="#look">Screenshots</a>
+    <a class="hide-sm" href="#reviews">Reviews</a>
     <a class="hide-sm" href="#everyone">Accessibility</a>
     <a class="hide-sm" href="#updates">Updates</a>
     <a class="hide-sm" href="#faq">FAQ</a>
@@ -418,6 +432,48 @@ body.lb-open{overflow:hidden}
     <span class="toast"><b>50</b> achievements</span>
     <span class="toast"><b>2</b> languages</span>
     <span class="toast"><b>0</b> combat</span>
+  </div>
+</div></section>
+
+<!-- Ordered deliberately, not chronologically. The arc answers the questions a
+     visitor asks in the order they ask them: what is this and why would I like it
+     → I'm sceptical → is there enough here → who is it good for → quick second
+     opinion → how do I try it. The last one points straight at the demo, which is
+     where the section hands off. Quotes are verbatim, typos and all — tidying a
+     testimonial makes it someone else's words. -->
+<section id="reviews"><div class="wrap">
+  <div class="head"><h2>What players are saying</h2></div>
+  <div class="revs">
+    <blockquote class="rev">
+      <span class="stars" role="img" aria-label="Rated 5 out of 5"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg></span>
+      <p>I really enjoyed it! It&#39;s a cozy game and it&#39;s so good! I really like the art and the gameplay is relaxing, there is no pressure or timers. Watching an empty landscape slowly becoming more lively and colorful is pretty rewarding. Thank you for posting this game &lt;3</p>
+      <cite>itch.io review</cite>
+    </blockquote>
+    <blockquote class="rev">
+      <span class="stars" role="img" aria-label="Rated 5 out of 5"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg></span>
+      <p>Simple game, yet a very fun one! honestly i didn&#39;t expect much! but it surprised me with some unique/simple/cozy vibes! it offers simple yet/very entertaining. art style is pretty cute! game is such a nice vibe! absolutely loved it! and i love that the full game has different biomes and stuff, it feels like a game well made! definitely a game you should try!</p>
+      <cite>itch.io review</cite>
+    </blockquote>
+    <blockquote class="rev">
+      <span class="stars" role="img" aria-label="Rated 5 out of 5"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg></span>
+      <p>This game has so much content that it&#39;s overwhelming (in a good way). Also, I was surprised by the number of settings and accessibility options it has. Pretty cool on your part. The art looks really nice, simple yet charming. I really like the environmental theme of preserving nature</p>
+      <cite>itch.io review</cite>
+    </blockquote>
+    <blockquote class="rev">
+      <span class="stars" role="img" aria-label="Rated 5 out of 5"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg></span>
+      <p>I hope this game continues with great success as it would do wonders for kids/students that are interested in preserving the habitat of different critters. The coziness and its BGM really does help me keep my levels of cortisol low :D. I hope more games like these are created to spread awareness for our environment.</p>
+      <cite>itch.io review</cite>
+    </blockquote>
+    <blockquote class="rev">
+      <span class="stars" role="img" aria-label="Rated 5 out of 5"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg></span>
+      <p>very cute game, im loving the art style , its quite fun to play , recommending this as a family friendly game, good job with the progress to the developer. cant wait to see the full game!</p>
+      <cite>itch.io review</cite>
+    </blockquote>
+    <blockquote class="rev">
+      <span class="stars" role="img" aria-label="Rated 5 out of 5"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.6l2.9 6 6.6.9-4.8 4.6 1.2 6.5-5.9-3.1-5.9 3.1 1.2-6.5L2.5 9.5l6.6-.9z" fill="currentColor"/></svg></span>
+      <p>The browser demo is a generous 2-hour test, but it only scratches the surface. To actually complete the reserve, you need the full game to unlock all 6 biomes and discover all 150 animals. It&#39;s a low-pressure, cozy experience that expands significantly if you decide to buy the full version.</p>
+      <cite>itch.io review</cite>
+    </blockquote>
   </div>
 </div></section>
 
