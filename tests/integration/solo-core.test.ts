@@ -22,9 +22,14 @@ describe('player lifecycle', () => {
 		expect(JSON.stringify(a.state)).not.toContain('1234');
 	});
 
-	it('rejects a duplicate name', async () => {
-		await w.post('CreatePlayer', { name: 'Sam', passcode: '1234', appearance });
-		await expect(w.post('CreatePlayer', { name: 'Sam', passcode: '9999', appearance })).rejects.toThrow();
+	// Names are a label, not an identity: ids carry a random suffix, so two saves
+	// may share a name and neither is told the name is taken.
+	it('allows a duplicate name, giving each save its own id', async () => {
+		const a = await w.post('CreatePlayer', { name: 'Sam', passcode: '1234', appearance });
+		const b = await w.post('CreatePlayer', { name: 'Sam', passcode: '9999', appearance });
+		expect(a.playerId).not.toBe(b.playerId);
+		expect(w.db.Player._rows.get(a.playerId)).toBeTruthy();
+		expect(w.db.Player._rows.get(b.playerId)).toBeTruthy();
 	});
 
 	it('logs in with the right passcode and rejects the wrong one', async () => {
