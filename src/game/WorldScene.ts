@@ -30,7 +30,7 @@ import {
 	gatherResourceFor,
 } from '../weather';
 import { t, content } from '../i18n';
-import { getPrefs, subscribe as subscribePrefs } from '../prefs';
+import { getPrefs, renderScale, subscribe as subscribePrefs } from '../prefs';
 import { getBindings, keyCodeFor, keyLabel } from '../keybindings';
 import { gearOn, subscribe as subscribeGear } from '../gear';
 import { isTypingTarget } from '../typing';
@@ -593,8 +593,42 @@ export class WorldScene extends Phaser.Scene {
 		// we care about turns those drags into no-ops.
 		let lastMotion = getPrefs().reduceMotion;
 		let lastHint = getPrefs().interactHint;
+		let lastQuality = getPrefs().graphicsQuality;
 		const unsubPrefs = subscribePrefs((p) => {
 			if (!this.alive) return;
+			// Graphics Quality is not a repaint — it changes the canvas's PIXEL
+			// DIMENSIONS, and much of what create() builds is sized in game pixels and
+			// never rebuilt afterwards. The clearest casualty is lightMaskRT, the
+			// screen-sized RenderTexture behind the night-light mask: it keeps its old
+			// dimensions, so after a switch the firelight holes stop lining up with the
+			// fires. The camera framing has the same shape of problem, and anything
+			// screen-sized added later would inherit it silently.
+			//
+			// So don't chase each one — rebuild the scene, exactly as walking into a
+			// biome does. Booting already in a mode has always rendered correctly, and
+			// this makes switching INTO a mode land in that same state by construction,
+			// rather than approximating it with a list of patches that has to be kept in
+			// sync with every future screen-sized resource.
+			if (p.graphicsQuality !== lastQuality) {
+				lastQuality = p.graphicsQuality;
+				lastMotion = p.reduceMotion;
+				lastHint = p.interactHint;
+				// Deferred a frame so PhaserGame has already resized the canvas — create()
+				// must observe the NEW scale.width/height, and listener order between the
+				// two subscribers isn't something to depend on.
+				scheduleFlush(this.flushKey('quality'), () => {
+					if (!this.alive) return;
+					this.exitPlacement();
+					// Restart in place: hand back the tile the caretaker is standing on, so
+					// changing a display setting doesn't teleport them to the area's spawn
+					// point (savedSpawn() would use the last SYNCED position, not the live one).
+					this.scene.restart({
+						area: this.area,
+						spawn: { x: this.player.x / TILE, y: this.player.y / TILE },
+					});
+				});
+				return;
+			}
 			if (p.reduceMotion === lastMotion && p.interactHint === lastHint) return;
 			lastMotion = p.reduceMotion;
 			lastHint = p.interactHint;
@@ -626,7 +660,7 @@ export class WorldScene extends Phaser.Scene {
 			unsubPrefs();
 			unsubGear();
 			// Drop queued rebuilds so a torn-down scene can't be repainted next frame.
-			for (const k of ['world', 'prefs', 'gear']) cancelFlush(this.flushKey(k));
+			for (const k of ['world', 'prefs', 'gear', 'quality']) cancelFlush(this.flushKey(k));
 		});
 
 		// Safety net for orphaned tweens (see clearLayer for the full story).
@@ -819,7 +853,13 @@ export class WorldScene extends Phaser.Scene {
 		const h = this.scale.height;
 		// Game pixels are device pixels (see PhaserGame.tsx), so the clamp — tuned in
 		// CSS pixels — scales by the display ratio to keep framing identical on HiDPI.
-		const dpr = this.scale.displayScale.x || 1;
+		// Read from renderScale(), the same source PhaserGame sizes the canvas from —
+		// NOT from this.scale.displayScale, which is derived from the canvas's measured
+		// CSS bounds and lags a refresh behind. That lag was invisible while the ratio
+		// was fixed at startup, but Graphics Quality can change it mid-session, and the
+		// resize this fires arrives while displayScale still describes the old mode —
+		// clamping against it snapped the camera to the wrong framing.
+		const dpr = renderScale();
 		const base = Phaser.Math.Clamp(Math.max(w / (VIEW_W * TILE), h / (VIEW_H * TILE)), 0.85 * dpr, 2.6 * dpr);
 		// Indoors the `fit` floor stops the camera showing past the room's world
 		// rect; outdoors the surround ring covers the widest view, so only the
@@ -1446,11 +1486,12 @@ export class WorldScene extends Phaser.Scene {
 		// instant set. Weather TURNING OVER while you stand there is the case that
 		// used to snap — fade it.
 		const fadeMs = entering ? 0 : WEATHER_FADE_MS;
-		this.fadeWeatherOverlay(
-			showOverlay ? C(wt.overlay!.color) : this.weatherOverlayColor,
-			showOverlay ? wt.overlay!.alpha : 0,
-			fadeMs,
-		);
+		// Graphics Quality: Low also lightens the full-screen colour wash itself —
+		// it's a cheap alpha-blended rect, not a perf cost, but a thinner particle
+		// field reads oddly under the same heavy tint the full effect was built for,
+		// so scale it down to match.
+		const overlayAlpha = showOverlay ? wt.overlay!.alpha * (getPrefs().graphicsQuality === 'low' ? 0.6 : 1) : 0;
+		this.fadeWeatherOverlay(showOverlay ? C(wt.overlay!.color) : this.weatherOverlayColor, overlayAlpha, fadeMs);
 		// Reduced-motion players get the weather color/overlay but not the animated
 		// rain/snow particles (the colorblind banner still names the weather).
 		const prewarm = entering && weatherShownThisSession;
@@ -1892,6 +1933,11 @@ export class WorldScene extends Phaser.Scene {
 		const worldSpan = this.worldW + 2 * (SURROUND_X * TILE + 40);
 		const span = Math.min(worldSpan, this.scale.width * 2.4);
 		const lifespan = kind === 'rain' ? 1700 : 13000;
+		// Graphics Quality: Low keeps the same weather TYPE (rain still reads as
+		// rain) but halves the particle budget and thins the spawn rate — the
+		// scene stays legible with a fraction of the sprites alive at once, which
+		// is where weather's per-frame cost actually comes from.
+		const lite = getPrefs().graphicsQuality === 'low';
 		if (kind === 'rain') {
 			this.weatherEmitter = this.add
 				.particles(0, 0, 'wx-rain', {
@@ -1903,9 +1949,9 @@ export class WorldScene extends Phaser.Scene {
 					scaleX: INV_TEX_SCALE,
 					scaleY: { min: 0.8 * INV_TEX_SCALE, max: 1.5 * INV_TEX_SCALE },
 					alpha: { min: 0.25, max: 0.5 },
-					quantity: 2,
-					frequency: 26,
-					maxAliveParticles: 220,
+					quantity: lite ? 1 : 2,
+					frequency: lite ? 60 : 26,
+					maxAliveParticles: lite ? 90 : 220,
 				})
 				.setDepth(5020);
 		} else {
@@ -1919,8 +1965,8 @@ export class WorldScene extends Phaser.Scene {
 					scale: { min: 0.45 * INV_TEX_SCALE, max: 1 * INV_TEX_SCALE },
 					alpha: { min: 0.5, max: 0.9 },
 					quantity: 1,
-					frequency: 55,
-					maxAliveParticles: 240,
+					frequency: lite ? 110 : 55,
+					maxAliveParticles: lite ? 100 : 240,
 				})
 				.setDepth(5020);
 		}

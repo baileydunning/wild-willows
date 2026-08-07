@@ -56,6 +56,7 @@ describe('accessibility prefs', () => {
 			interactHint: true,
 			simpleText: false,
 			theme: 'light',
+			graphicsQuality: 'high',
 		});
 		expect(normalizePrefs('nonsense')).toEqual({
 			reduceMotion: false,
@@ -71,6 +72,7 @@ describe('accessibility prefs', () => {
 			interactHint: true,
 			simpleText: false,
 			theme: 'light',
+			graphicsQuality: 'high',
 		});
 		// bad textScale falls back; a valid colorblind mode is preserved
 		expect(normalizePrefs({ textScale: 'huge', colorblindMode: 'blueyellow' })).toEqual({
@@ -87,6 +89,7 @@ describe('accessibility prefs', () => {
 			interactHint: true,
 			simpleText: false,
 			theme: 'light',
+			graphicsQuality: 'high',
 		});
 		// unknown mode falls back to off
 		expect(normalizePrefs({ colorblindMode: 'nope' }).colorblindMode).toBe('off');
@@ -183,6 +186,7 @@ describe('accessibility prefs', () => {
 			interactHint: true,
 			simpleText: false,
 			theme: 'light',
+			graphicsQuality: 'high',
 		});
 	});
 

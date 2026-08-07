@@ -12,10 +12,12 @@ import {
 	setPrefs,
 	useResolvedTheme,
 	FONT_CHOICES,
+	GRAPHICS_QUALITIES,
 	type TextScale,
 	type ColorblindMode,
 	type FontChoice,
 	type ThemeChoice,
+	type GraphicsQuality,
 } from '../prefs';
 import {
 	BIND_ACTIONS,
@@ -333,6 +335,40 @@ export function ThemeControl() {
 					>
 						<Icon name={icon} size={15} />
 						<span>{t(`app.settings.theme${id[0].toUpperCase()}${id.slice(1)}`)}</span>
+					</button>
+				))}
+			</div>
+		</div>
+	);
+}
+
+/**
+ * Rendering fidelity: High (native device pixels, full particle/weather load) or
+ * Low (1× pixel density, thinner weather) — for machines that can't hold a
+ * smooth frame rate at full quality. Takes effect immediately, no restart.
+ * Shares the theme-picker's chip styling since it's the same shape of choice.
+ */
+export function GraphicsQualityControl() {
+	const { t } = useI18n();
+	const prefs = usePrefs();
+	return (
+		<div className="a11y-row theme-row">
+			<span className="a11y-label">
+				<b>{t('app.settings.graphicsQuality')}</b>
+				<span className="muted small">{t(`app.settings.graphicsQualityHint.${prefs.graphicsQuality}`)}</span>
+			</span>
+			<div className="theme-picker" role="radiogroup" aria-label={t('app.settings.graphicsQuality')}>
+				{GRAPHICS_QUALITIES.map((id: GraphicsQuality) => (
+					<button
+						key={id}
+						type="button"
+						role="radio"
+						aria-checked={prefs.graphicsQuality === id}
+						className={`theme-chip ${prefs.graphicsQuality === id ? 'on' : ''}`}
+						onClick={() => setPrefs({ graphicsQuality: id })}
+					>
+						<Icon name={id === 'high' ? 'sparkle' : 'leaf'} size={15} />
+						<span>{t(`app.settings.graphicsQuality${id[0].toUpperCase()}${id.slice(1)}`)}</span>
 					</button>
 				))}
 			</div>
@@ -812,6 +848,11 @@ export function SettingsPanel() {
 						<Icon name="note" size={15} /> {t('app.settings.sound')}
 					</h3>
 					<SoundControls />
+
+					<h3>
+						<Icon name="monitor" size={15} /> {t('app.settings.graphics')}
+					</h3>
+					<GraphicsQualityControl />
 
 					<h3>
 						<Icon name="sliders" size={15} /> {t('app.settings.accessibility')}
