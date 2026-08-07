@@ -176,6 +176,7 @@
 			"gotIt": "Entendido"
 		},
 		"language": "Idioma",
+		"demoSaveUnreachable": "No pudimos conectar con el servidor, así que tu reserva guardada no está disponible ahora. Está a salvo — inténtalo de nuevo en un momento.",
 		"reaching": "Llegando a la reserva…",
 		"errName": "Ingresa el nombre con el que jugarás",
 		"errCode": "Ingresa el código de invitación que compartió tu amigo",
@@ -236,8 +237,6 @@
 		"weatherLabel": "Clima",
 		"hideMenu": "Ocultar menú",
 		"showMenu": "Mostrar menú",
-		"saveRetryTitle": "Un guardado no se completó — seguirá reintentándose",
-		"retry": "Reintentar",
 		"groupLearn": "Aprender",
 		"groupBuild": "Construir",
 		"groupWorld": "Mundo",
@@ -299,14 +298,26 @@
 			"leaf": "Sombrero de hoja",
 			"beanie": "Gorro tejido",
 			"cap": "Gorra",
+			"visor": "Visera",
 			"bucket": "Sombrero de pescador",
 			"flower": "Corona de flores",
 			"party": "Gorro de fiesta",
 			"ranger": "Sombrero de guardabosques",
+			"beret": "Boina",
+			"acorn": "Gorro de bellota",
 			"mushroom": "Sombrero de hongo",
 			"wizard": "Sombrero de mago",
+			"witch": "Sombrero de bruja",
 			"crown": "Corona",
 			"bandana": "Pañuelo",
+			"tophat": "Sombrero de copa",
+			"newspaper": "Gorro de papel",
+			"chef": "Gorro de chef",
+			"pirate": "Sombrero pirata",
+			"cat-ears": "Orejas de gato",
+			"frog": "Gorro de rana",
+			"headphones": "Audífonos",
+			"halo": "Aureola",
 			"none": "Sin sombrero"
 		},
 		"hairstyleLabel": {
@@ -321,7 +332,17 @@
 			"ponytail": "Cola de caballo",
 			"pigtails": "Coletas",
 			"afro": "Afro",
-			"mohawk": "Mohicano"
+			"mohawk": "Mohicano",
+			"wavy": "Ondulado",
+			"spiky": "En punta",
+			"dreads": "Rastas",
+			"space-buns": "Moños dobles",
+			"bowl": "Corte tazón",
+			"double-braid": "Trenzas dobles",
+			"half-up": "Semirrecogido",
+			"pixie": "Corte pixie",
+			"cornrows": "Trenzas pegadas",
+			"shag": "Shag"
 		},
 		"beardLabel": {
 			"none": "Sin barba",
@@ -422,6 +443,8 @@
 		"controls": "Controles",
 		"reduceMotion": "Reducir movimiento",
 		"reduceMotionHint": "Detiene las animaciones de la interfaz, las partículas del clima como la lluvia y la nieve, los desplazamientos de cámara al viajar y el ciclo de luz de día y noche — la vista se mantiene quieta y con luz uniforme.",
+		"simpleText": "Palabras más sencillas",
+		"simpleTextHint": "Usa frases más cortas y palabras de todos los días en todo el juego, incluidas las notas sobre animales. No se oculta nada — solo se dice de forma más sencilla.",
 		"interactHint": "Resaltado de interacción",
 		"interactHintHint": "Muestra el aro y la tecla sobre los objetos con los que puedes interactuar.",
 		"colorblind": "Modo daltónico",
@@ -435,8 +458,6 @@
 			"blueyellow": "El azul–amarillo (tritanopía) es más raro: cuesta distinguir azules de verdes, y amarillos de rosas. Esto separa esos tonos en el mundo, añade alto contraste y etiquetas de texto, y estabiliza la iluminación.",
 			"mono": "La acromatopsia es ver poco o ningún color. Esto muestra el juego en blanco y negro y se apoya por completo en el contraste, los contornos y las etiquetas de texto en lugar del color."
 		},
-		"dyslexiaFont": "Fuente para dislexia",
-		"dyslexiaFontHint": "Cambia a OpenDyslexic: sus letras tienen bases más gruesas y pesadas que anclan cada forma, dificultando que se giren o inviertan, de modo que las letras parecidas se distinguen mejor.",
 		"textSize": "Tamaño del texto",
 		"textSm": "Pequeño",
 		"textMd": "Normal",
@@ -451,8 +472,16 @@
 		"sent": "¡Enviado!",
 		"sending": "Enviando…",
 		"errFeedback": "No se pudieron enviar los comentarios",
-		"feedbackQueued": "Parece que estás sin conexión — tus comentarios quedaron guardados y se enviarán la próxima vez que inicies el juego.",
-		"build": "compilación {time}"
+		"feedbackQueued": "No pudimos enviarlo ahora mismo — tus comentarios quedaron guardados y se enviarán automáticamente la próxima vez que inicies el juego.",
+		"build": "compilación {time}",
+		"font": "Fuente",
+		"fontStorybook": "Cuento",
+		"fontRounded": "Redondeada",
+		"fontClassic": "Clásica",
+		"fontPlain": "Sencilla",
+		"fontTypewriter": "Máquina de escribir",
+		"highContrast": "Alto contraste",
+		"highContrastHint": "Oscurece el texto, los bordes y los colores de acento hasta cumplir el estándar de lectura WCAG AA, sin perder el aire cálido de crema y verde."
 	},
 	"kbGate": {
 		"title": "Wild Willows necesita un teclado",
@@ -462,9 +491,6 @@
 		"arrowKeys": "teclas de flecha",
 		"body3": ", y sacas tu cesta, tus herramientas y tu diario con teclas de acceso rápido — así que no funciona por sí solo en un teléfono o una tableta.",
 		"hint": "Abre Wild Willows en una computadora, o conecta un teclado y presiona cualquier tecla para comenzar."
-	},
-	"mobile": {
-		"interact": "Interactuar"
 	},
 	"demo": {
 		"doneTitle": "¡Gracias por jugar la demo de Wild Willows!",

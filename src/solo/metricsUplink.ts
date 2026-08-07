@@ -24,7 +24,7 @@ import { APP_VERSION, BUILD_TIME, detectOS } from '../platform';
 import { getPrefs } from '../prefs';
 
 /** Compact audio + accessibility settings snapshot for the metrics dashboard
- *  (mute rate, colorblind/text-size/reduce-motion/dyslexia-font usage). */
+ *  (mute rate, colorblind/contrast/text-size/reduce-motion/font usage). */
 function snapshotPrefs() {
 	const p = getPrefs();
 	return {
@@ -34,7 +34,8 @@ function snapshotPrefs() {
 		sfxVolume: p.sfxVolume,
 		reduceMotion: p.reduceMotion,
 		colorblindMode: p.colorblindMode,
-		dyslexiaFont: p.dyslexiaFont,
+		fontChoice: p.fontChoice,
+		highContrast: p.highContrast,
 		textScale: p.textScale,
 	};
 }

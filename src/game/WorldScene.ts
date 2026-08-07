@@ -1,6 +1,12 @@
 import Phaser from 'phaser';
 import { bridge } from './bridge';
-import { canPaintClick } from './interactions';
+import {
+	canPaintClick,
+	isSleepable,
+	blocksDoorway,
+	isOrphanedTween,
+	screenSpaceOverlayTransform,
+} from './interactions';
 import {
 	animalScale,
 	animalTexture,
@@ -28,6 +34,7 @@ import { getPrefs, subscribe as subscribePrefs } from '../prefs';
 import { getBindings, keyCodeFor, keyLabel } from '../keybindings';
 import { gearOn, subscribe as subscribeGear } from '../gear';
 import { isTypingTarget } from '../typing';
+import { scheduleFlush, cancelFlush } from '../perf';
 import { harvestReadyAt } from '../types';
 import type { BiomeDef, HabitatObjectDef } from '../types';
 
@@ -79,6 +86,12 @@ const C = (hex: string) => Phaser.Display.Color.HexStringToColor(hex).color;
 // transfer into afterwards should already be mid-storm, so we pre-warm the
 // emitter on entry. Module-scoped so it survives scene.restart().
 let weatherShownThisSession = false;
+/** How long one weather blends into the next. Long enough that clouds thinning
+ *  into clear sky reads as weather doing what weather does, rather than a
+ *  lighting cue snapping over — which is what a hard swap looked like. */
+const WEATHER_FADE_MS = 3200;
+/** How often to sweep up tweens left pointing at destroyed sprites. */
+const TWEEN_SWEEP_MS = 5000;
 
 // Player-chosen zoom (+/− keys), multiplied onto the normal window zoom.
 // Module-scoped so it survives area changes; every session starts back at
@@ -171,6 +184,10 @@ export class WorldScene extends Phaser.Scene {
 	private dynamicSig = '';
 	private isTouch = false;
 	private alive = false; // true between create() and shutdown (scene.isActive() is false DURING create)
+	/** Unique per scene instance, so queued flushes are namespaced to the scene
+	 *  that queued them and can't fire against a restarted one. */
+	private readonly sceneUid = ++WorldScene.instances;
+	private static instances = 0;
 	private waterTiles = new Set<string>();
 	private waterTileCenters: { x: number; y: number }[] = []; // pixel centers of open-water tiles
 	private bridgeTiles = new Set<string>();
@@ -193,6 +210,10 @@ export class WorldScene extends Phaser.Scene {
 	// world-locked rain/snow particle emitter, swapped when the weather changes.
 	private weatherOverlay?: Phaser.GameObjects.Rectangle;
 	private weatherEmitter?: Phaser.GameObjects.Particles.ParticleEmitter;
+	/** Runs the colour/alpha cross-fade between two weathers. */
+	private weatherFade?: Phaser.Tweens.Tween;
+	/** Overlay colour we're currently showing, so a fade can start from it. */
+	private weatherOverlayColor = 0xffffff;
 	private weatherSig = '';
 	// Day/night: a second full-screen tint that eases through dawn → day → dusk →
 	// night → dawn over the play-time day. lightState is the value being tweened.
@@ -384,6 +405,8 @@ export class WorldScene extends Phaser.Scene {
 		// overlay/emitter references must be cleared before they're recreated.
 		this.weatherOverlay = undefined;
 		this.weatherEmitter = undefined;
+		this.weatherFade = undefined; // the scene owns the tween; it dies with it
+		this.weatherOverlayColor = 0xffffff;
 		this.weatherSig = '';
 		this.lightOverlay = undefined;
 		this.lightTween = undefined;
@@ -545,23 +568,38 @@ export class WorldScene extends Phaser.Scene {
 		// the weather signature), pauses/resumes the highlight-ring pulse live, and
 		// rebuilds the animal layer so breathing/gait tweens (which check the pref
 		// at creation) are torn down or restored immediately.
-		const unsubPrefs = subscribePrefs(() => {
+		//
+		// Gated on the two prefs this actually draws from. `subscribePrefs` fires for
+		// EVERY preference, and the volume sliders emit a change per pixel of drag —
+		// which used to tear down and rebuild every animal and weather particle ~60
+		// times a second for a setting the world doesn't render. Comparing the values
+		// we care about turns those drags into no-ops.
+		let lastMotion = getPrefs().reduceMotion;
+		let lastHint = getPrefs().interactHint;
+		const unsubPrefs = subscribePrefs((p) => {
 			if (!this.alive) return;
-			this.weatherSig = '';
-			this.applyWeather();
-			applyRingMotion();
-			this.animalSig = '';
-			this.animals.clear(true, true);
-			this.drawAnimals();
+			if (p.reduceMotion === lastMotion && p.interactHint === lastHint) return;
+			lastMotion = p.reduceMotion;
+			lastHint = p.interactHint;
+			// Coalesced to one rebuild per frame, and backed off automatically if it
+			// turns out to be expensive on this save (see src/perf.ts).
+			scheduleFlush(this.flushKey('prefs'), () => {
+				if (!this.alive) return;
+				this.weatherSig = '';
+				this.applyWeather();
+				applyRingMotion();
+				this.rebuildAnimals();
+			});
 		});
 		// Flipping a gear toggle takes effect immediately: the headlamp halo and
 		// boots speed are read live each frame, and the binoculars' glint markers
 		// are baked into the animal layer, so rebuild it here.
 		const unsubGear = subscribeGear(() => {
 			if (!this.alive) return;
-			this.animalSig = '';
-			this.animals.clear(true, true);
-			this.drawAnimals();
+			scheduleFlush(this.flushKey('gear'), () => {
+				if (!this.alive) return;
+				this.rebuildAnimals();
+			});
 		});
 		this.events.once('shutdown', () => {
 			document.removeEventListener('focusin', onFocusIn);
@@ -570,7 +608,22 @@ export class WorldScene extends Phaser.Scene {
 			document.removeEventListener('visibilitychange', onHidden);
 			unsubPrefs();
 			unsubGear();
+			// Drop queued rebuilds so a torn-down scene can't be repainted next frame.
+			for (const k of ['world', 'prefs', 'gear']) cancelFlush(this.flushKey(k));
 		});
+
+		// Safety net for orphaned tweens (see clearLayer for the full story).
+		//
+		// clearLayer handles the two layers that churn, but a tween is orphaned by
+		// ANY destroy that doesn't kill it first — a peer avatar leaving, a future
+		// sprite someone adds — and one missed site silently re-creates a leak that
+		// only a re-login clears. That's the part players actually felt: it never
+		// got better on its own.
+		//
+		// So sweep periodically and drop tweens whose targets are all dead. Cheap
+		// (a walk over the active list every few seconds) and it makes the whole
+		// class of bug self-correcting rather than something to rediscover.
+		this.time.addEvent({ delay: TWEEN_SWEEP_MS, loop: true, callback: () => this.sweepOrphanedTweens() });
 
 		this.tileCursor = this.img(0, 0, 'ghost-ok').setDepth(5900).setVisible(false).setAlpha(0.8);
 
@@ -595,9 +648,18 @@ export class WorldScene extends Phaser.Scene {
 		this.unsubs.push(
 			bridge.on('world-dirty', () => {
 				if (!this.alive || !(this.dynamic as any)?.scene) return; // ignore events landing mid-restart
-				this.refreshDynamic();
-				this.updateNodeVisuals();
-				this.applyWeather();
+				// Coalesced to one repaint per frame. This fires on every gather, place
+				// and dig, plus the five boot nudges from App.tsx and each weather tick,
+				// so a burst used to run the whole refresh (which sorts and joins every
+				// terrain tile and placement to build its signature) many times over
+				// inside a single frame. One flush per frame is indistinguishable to the
+				// player and drops that to once.
+				scheduleFlush(this.flushKey('world'), () => {
+					if (!this.alive || !(this.dynamic as any)?.scene) return; // re-check: a frame passed
+					this.refreshDynamic();
+					this.updateNodeVisuals();
+					this.applyWeather();
+				});
 			}),
 		);
 		this.unsubs.push(bridge.on('enter-placement', (p: any) => this.enterPlacement(p.objectId)));
@@ -614,7 +676,6 @@ export class WorldScene extends Phaser.Scene {
 		// restart. (Indoors always rebuilds, so the decorated room updates too.)
 		this.unsubs.push(bridge.on('home-upgraded', () => this.playBuild()));
 		this.unsubs.push(bridge.on('tool-selected', (toolId: string) => (this.activeTool = toolId)));
-		this.unsubs.push(bridge.on('mobile-interact', () => this.nearestInteractable()?.action()));
 		this.unsubs.push(bridge.on('collected', (p: any) => this.playPickup(p)));
 		this.unsubs.push(bridge.on('terraformed', (p: any) => this.playTerraformFx(p)));
 		this.unsubs.push(
@@ -1356,20 +1417,76 @@ export class WorldScene extends Phaser.Scene {
 
 		const wt = weatherType(typeId);
 		this.ensureWeatherOverlay();
-		if (!this.isIndoors && wt.overlay) {
-			this.weatherOverlay!.setFillStyle(C(wt.overlay.color)).setAlpha(wt.overlay.alpha).setVisible(true);
-		} else {
-			this.weatherOverlay!.setVisible(false);
-		}
+		const showOverlay = !this.isIndoors && !!wt.overlay;
+		// Walking into a biome shows its weather already established, so that's an
+		// instant set. Weather TURNING OVER while you stand there is the case that
+		// used to snap — fade it.
+		const fadeMs = entering ? 0 : WEATHER_FADE_MS;
+		this.fadeWeatherOverlay(
+			showOverlay ? C(wt.overlay!.color) : this.weatherOverlayColor,
+			showOverlay ? wt.overlay!.alpha : 0,
+			fadeMs,
+		);
 		// Reduced-motion players get the weather color/overlay but not the animated
 		// rain/snow particles (the colorblind banner still names the weather).
 		const prewarm = entering && weatherShownThisSession;
 		const particle = this.isIndoors || getPrefs().reduceMotion ? null : wt.particle;
-		this.setWeatherParticles(particle, prewarm);
+		this.setWeatherParticles(particle, prewarm, fadeMs > 0);
 		weatherShownThisSession = true;
 		// Weather-gated gather nodes appear/vanish with the weather, so redraw the
 		// dynamic layer whenever the type turns over.
 		this.refreshDynamic();
+	}
+
+	/**
+	 * Blend the weather overlay from what it's showing now to a new colour/alpha.
+	 *
+	 * Both ends matter. Cloudy→clear is mostly an ALPHA change (the wash lifts),
+	 * while rain→cloudy is mostly a COLOUR change at similar alpha — setting either
+	 * directly is the jump. Phaser can't tween a Rectangle's fillColor, so this
+	 * drives a 0→1 progress value and interpolates the colour itself, which also
+	 * keeps colour and alpha exactly in step.
+	 *
+	 * `ms <= 0` sets immediately (walking into a biome, where the weather should
+	 * already be established rather than fading up in front of you).
+	 */
+	private fadeWeatherOverlay(toColor: number, toAlpha: number, ms: number) {
+		const ov = this.weatherOverlay!;
+		this.weatherFade?.remove(); // a second turnover mid-fade continues from here
+		this.weatherFade = undefined;
+
+		const fromColor = this.weatherOverlayColor;
+		const fromAlpha = ov.visible ? ov.alpha : 0;
+		const settle = (color: number, alpha: number) => {
+			this.weatherOverlayColor = color;
+			ov.setFillStyle(color).setAlpha(alpha);
+			// Fully transparent still costs a full-screen draw, so drop it out.
+			ov.setVisible(alpha > 0.002);
+		};
+
+		if (ms <= 0 || (fromColor === toColor && Math.abs(fromAlpha - toAlpha) < 0.002)) {
+			settle(toColor, toAlpha);
+			return;
+		}
+
+		const from = Phaser.Display.Color.IntegerToColor(fromColor);
+		const to = Phaser.Display.Color.IntegerToColor(toColor);
+		const progress = { t: 0 };
+		this.weatherFade = this.tweens.add({
+			targets: progress,
+			t: 1,
+			duration: ms,
+			ease: 'Sine.easeInOut', // no hard start/stop — weather eases in and out
+			onUpdate: () => {
+				if (!this.alive || !ov.scene) return;
+				const c = Phaser.Display.Color.Interpolate.ColorWithColor(from, to, 100, progress.t * 100);
+				settle(Phaser.Display.Color.GetColor(c.r, c.g, c.b), fromAlpha + (toAlpha - fromAlpha) * progress.t);
+			},
+			onComplete: () => {
+				this.weatherFade = undefined;
+				if (this.alive && ov.scene) settle(toColor, toAlpha);
+			},
+		});
 	}
 
 	private ensureWeatherOverlay() {
@@ -1651,6 +1768,26 @@ export class WorldScene extends Phaser.Scene {
 			rt.resize(this.scale.width, this.scale.height);
 		}
 		const cam = this.cameras.main;
+		// Cancel the camera transform on the mask itself.
+		//
+		// A BitmapMask is rendered THROUGH the main camera (WebGLRenderer
+		// .drawBitmapMask → mask.renderWebGL(…, camera)) even though this
+		// RenderTexture was never added to the display list, and the shader then
+		// samples it in screen space. So the camera's zoom and origin apply to the
+		// mask: Phaser's matrix works out to
+		//     screen = p * zoom + origin * (1 - zoom)
+		// Left at scale 1 and position 0, the mask rendered `zoom`× too large and
+		// offset, which made every stamped light land at zoom² of its intended
+		// screen position. The halo therefore slid off its fire as the camera
+		// scrolled — the further you walked, the further it lagged — and the error
+		// vanishes only at zoom 1, which is why it survived this long.
+		//
+		// Scaling by 1/zoom and offsetting by origin·(1 − 1/zoom) makes the mask sit
+		// exactly over the screen at 1:1, so texture coords ARE screen coords and
+		// the stamping below is finally what it always read as.
+		const fit = screenSpaceOverlayTransform(cam);
+		rt.setScale(fit.scale);
+		rt.setPosition(fit.x, fit.y);
 		// worldView reflects LAST frame's scroll: the smooth camera-follow (lerp)
 		// for THIS frame isn't applied until the camera's preRender, so a fixed
 		// light (a fire) would trail behind as you walk. Predict this frame's
@@ -1702,10 +1839,23 @@ export class WorldScene extends Phaser.Scene {
 	 * and emitted across the full map width so the fall looks uniform wherever the
 	 * camera is; they sit above the colour tints so they stay crisp.
 	 */
-	private setWeatherParticles(kind: 'rain' | 'snow' | null, prewarm = false) {
+	private setWeatherParticles(kind: 'rain' | 'snow' | null, prewarm = false, easeOut = false) {
 		if (this.weatherEmitter) {
-			this.weatherEmitter.destroy();
+			const old = this.weatherEmitter;
 			this.weatherEmitter = undefined;
+			if (easeOut) {
+				// Rain doesn't stop mid-air. Stop EMITTING but leave what's already
+				// falling to land, then clean up once the last particle has expired.
+				// Destroying outright was half the visible jump — a full screen of
+				// rain vanishing between one frame and the next.
+				old.stop();
+				const lifespan = old.getData('wxLifespan') || 2000;
+				this.time.delayedCall(lifespan + 200, () => {
+					if (old.scene) old.destroy();
+				});
+			} else {
+				old.destroy();
+			}
 		}
 		if (!kind) return;
 		this.ensureWeatherTextures();
@@ -1750,6 +1900,8 @@ export class WorldScene extends Phaser.Scene {
 				})
 				.setDepth(5020);
 		}
+		// Remembered so a later stop() knows how long to wait for the sky to clear.
+		this.weatherEmitter.setData('wxLifespan', lifespan);
 		this.positionWeatherEmitter();
 		// Pre-fill so the screen is already full of falling weather on biome entry
 		// (Phaser advances the emitter as if `lifespan` ms had already elapsed).
@@ -1801,6 +1953,73 @@ export class WorldScene extends Phaser.Scene {
 		return `${this.area}#h${health}#wx${wx}#t${terrain}#p${placements}#u${unlocked}#hm${home}`;
 	}
 
+	/** Flush keys are per-scene-instance so a restarted scene never inherits the
+	 *  pending work (or the learned cost) of the one it replaced. */
+	private flushKey(name: string): string {
+		return `scene:${this.sceneUid}:${name}`;
+	}
+
+	/**
+	 * Empty a layer, taking its TWEENS with it.
+	 *
+	 * This is the fix for the session-long slowdown that only a re-login cleared.
+	 * Phaser tweens are fire-and-forget: the manager drops one when it COMPLETES,
+	 * and destroying the object it drives does not remove it. Every looping tween
+	 * in these layers is `repeat: -1` — the swaying grass, bobbing water, pulsing
+	 * gather nodes, breathing animals — so it never completes and was never
+	 * dropped. `group.clear(true, true)` destroyed the sprites and left their
+	 * tweens behind, still ticking every frame against dead objects.
+	 *
+	 * The dynamic layer is rebuilt on essentially every world change, so the
+	 * orphans accumulated for as long as you played: a few dozen after a minute,
+	 * thousands after an hour, each one costing frame time forever. Logging out
+	 * "fixed" it only because scene shutdown destroys the whole TweenManager.
+	 */
+	private clearLayer(group?: Phaser.GameObjects.Group) {
+		if (!group || !(group as any).scene) return;
+		for (const child of group.getChildren()) {
+			this.tweens.killTweensOf(child);
+			// Per-object timers (the shadow follower) hang off the sprite too.
+			const timer = (child as any).getData?.('wxTimer') as Phaser.Time.TimerEvent | undefined;
+			timer?.remove();
+		}
+		group.clear(true, true);
+	}
+
+	/**
+	 * Remove tweens whose targets have all been destroyed.
+	 *
+	 * A Phaser tween holds a hard reference to its targets and keeps updating them
+	 * forever when it can't complete (`repeat: -1`). A destroyed sprite doesn't
+	 * remove it, so each orphan costs frame time and leaks memory for the rest of
+	 * the session. clearLayer prevents the two known sources; this catches the rest
+	 * so the game recovers on its own instead of needing a re-login.
+	 *
+	 * Only Phaser GameObjects are judged — plain-object targets (the weather fade
+	 * drives a `{ t: 0 }` counter) have no lifecycle to be dead.
+	 */
+	private sweepOrphanedTweens() {
+		if (!this.alive) return;
+		let removed = 0;
+		const isGameObject = (t: unknown) => t instanceof Phaser.GameObjects.GameObject;
+		for (const tween of this.tweens.getTweens()) {
+			if (isOrphanedTween((tween as any).targets, isGameObject)) {
+				tween.remove();
+				removed++;
+			}
+		}
+		if (removed) console.warn(`world: swept ${removed} orphaned tween(s)`);
+	}
+
+	/** Tear down and repaint the animal layer. Shared by the prefs and gear
+	 *  subscriptions, both of which need the tweens rebuilt from scratch. */
+	private rebuildAnimals() {
+		if (!this.alive || !(this.animals as any)?.scene) return;
+		this.animalSig = '';
+		this.clearLayer(this.animals);
+		this.drawAnimals();
+	}
+
 	private refreshDynamic(force = false) {
 		// Bail if the dynamic layer isn't live. A bridge event (world-dirty) can land
 		// mid scene.restart() teardown when this.alive hasn't flipped to false yet;
@@ -1815,7 +2034,7 @@ export class WorldScene extends Phaser.Scene {
 			if (sig === this.dynamicSig) return;
 			this.dynamicSig = sig;
 		}
-		this.dynamic.clear(true, true);
+		this.clearLayer(this.dynamic);
 		this.nodeSprites.clear();
 		this.interactables = [];
 		this.hoveredIt = null; // its hit zone was just destroyed; a fresh pointerover will re-set it
@@ -1862,7 +2081,7 @@ export class WorldScene extends Phaser.Scene {
 				.join(',');
 		if (sig !== this.animalSig) {
 			this.animalSig = sig;
-			this.animals.clear(true, true);
+			this.clearLayer(this.animals);
 			this.drawAnimals();
 		}
 	}
@@ -1914,7 +2133,7 @@ export class WorldScene extends Phaser.Scene {
 	private registerInteractable(
 		it: Interactable,
 		hitObject?: Phaser.GameObjects.GameObject,
-		opts: { terraformPassthrough?: boolean } = {},
+		opts: { terraformPassthrough?: boolean; keyOnly?: boolean } = {},
 	) {
 		this.interactables.push(it);
 		const target =
@@ -1928,6 +2147,12 @@ export class WorldScene extends Phaser.Scene {
 		target.on('pointerout', () => {
 			if (this.hoveredIt === it) this.hoveredIt = null;
 		});
+		// keyOnly: the interactable still shows its hover highlight and prompt, and
+		// the interact key still runs it, but a CLICK is left alone for whatever else
+		// owns it. Beds use this so tapping one opens the move/pick-up menu instead of
+		// putting you to sleep — an action that skips the clock to dawn is far too
+		// destructive to fire from a stray click on a thing you walked past.
+		if (opts.keyOnly) return;
 		target.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
 			if (bridge.shared.uiBlocking) return; // a modal is open — clicks don't reach the world
 			if (this.placementObjectId || this.movingPlacementId) return;
@@ -3182,7 +3407,10 @@ export class WorldScene extends Phaser.Scene {
 			}
 
 			img.setInteractive({ useHandCursor: true });
-			const hasPrimaryAction = isFixture;
+			// Beds render as fixtures (crisp, no random lean or tint) but do NOT claim
+			// the click: sleeping is key-only, so a tap falls through to the normal
+			// placement menu and you can move a bed like any other piece of furniture.
+			const hasPrimaryAction = isFixture && !isSleepable(p.objectId);
 			const defName = content('habitatObject', p.objectId, 'name', def.name);
 			img.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
 				if (bridge.shared.uiBlocking) return; // a modal is open — clicks don't reach the world
@@ -3263,11 +3491,20 @@ export class WorldScene extends Phaser.Scene {
 						x,
 						y,
 						label: t('game.label.readJournal'),
-						action: () => bridge.emit('open-journal'),
+						// A stand out in the world opens the journal AT the biome you're
+						// standing in. Reopening from the menu still resumes wherever you
+						// last were, but walking up to a lectern in the wetland and being
+						// shown the forest page is wrong — the stand is a thing in a place.
+						// tentBiome covers a stand pitched inside a trail tent, whose area
+						// id is `tent-<biome>` rather than a biome id.
+						action: () => bridge.emit('open-journal', { area: this.tentBiome || this.area }),
 					},
 					img,
 				);
-			} else if (p.objectId === 'home-bed' || p.objectId === 'home-sleeping-bag') {
+			} else if (isSleepable(p.objectId)) {
+				// Sleep is deliberately KEY-ONLY. Clicking a bed falls through to the
+				// placement menu below (move / rotate / pick up), which is what you
+				// almost always mean when you click furniture.
 				this.registerInteractable(
 					{
 						x,
@@ -3276,6 +3513,7 @@ export class WorldScene extends Phaser.Scene {
 						action: () => this.sleepAt(x, y),
 					},
 					img,
+					{ keyOnly: true },
 				);
 			} else if (p.objectId === 'bed') {
 				this.registerInteractable(
@@ -3375,6 +3613,10 @@ export class WorldScene extends Phaser.Scene {
 						else if (!sh.active) shadowTimer.remove(); // stop following once the animal layer is cleared
 					},
 				});
+				// Hand the timer to the sprite so clearLayer can cancel it immediately.
+				// The self-removal above only fires on the NEXT tick, so a rapid rebuild
+				// could stack a fresh timer per animal before the old ones noticed.
+				sh.setData('wxTimer', shadowTimer);
 				const img = this.img(ax, ay, key).setDepth(ay);
 				this.animals.add(img);
 				(sh as any).animal = img;
@@ -3802,6 +4044,16 @@ export class WorldScene extends Phaser.Scene {
 			const homeMin = activeId ? this.objectDef(activeId)?.homeMin || 0 : 0;
 			const space = this.tentBiome ? 1 : bridge.shared.state?.player?.home?.space || 1;
 			if (homeMin > space) return false;
+			// Outdoor-only things (the campfire) belong in neither the house nor a
+			// trail tent. The indoor branch never checked `placement` at all, so the
+			// ghost would read green over a tile the server was always going to
+			// refuse. Mirrors the authoritative check in PlaceObject.
+			if (activeId && this.objectDef(activeId)?.placement === 'outdoor') return false;
+			// Beds stay clear of the doorway. Sleeping jumps the clock to dawn, so a
+			// bed parked in the exit is a trap you have to walk over to leave. Mirrors
+			// the authoritative check in server/resources.ts (blocksDoorway) so the
+			// ghost reads red instead of the server rejecting the click.
+			if (blocksDoorway(activeId, r, tx, ty)) return false;
 			return true;
 		}
 		// Pelican Shore: nothing builds on the open ocean; land ends at landRight.
@@ -4156,22 +4408,23 @@ export class WorldScene extends Phaser.Scene {
 
 		const verb = this.isTouch ? t('game.prompt.tap') : this.interactHintKey();
 		const clickVerb = this.isTouch ? t('game.prompt.tap') : t('game.prompt.click');
-		const lowVerb = this.isTouch ? t('game.prompt.tapLower') : t('game.prompt.clickLower');
 		const rotHint = !this.isTouch && this.activeRotatable() ? t('game.prompt.rotateHint') : '';
 		// A locked gate's detailed "what's still needed" text goes to the corner feed
 		// (see gate-info below), not this narrow bar — here it just shows its short
 		// "read the trail sign" label like any other interactable.
 		const nearMain = near ? t('game.prompt.near', { verb, label: near.label }) : '';
+		// Selecting the shovel or watering can used to prepend an explanation of the
+		// tool ("Shovel — click ground to dig a bed…"). The toolbelt already names the
+		// selected tool and its tooltip explains it, so the bar restated it on every
+		// frame the tool was held — and pushed the actual interaction prompt to the far
+		// end of a long line. This bar is only for what the interact key will do.
 		const prompt = this.movingPlacementId
 			? t('game.prompt.moveTile', { verb: clickVerb }) + rotHint + (this.isTouch ? '' : t('game.prompt.escCancel'))
 			: this.placementObjectId
 				? t('game.prompt.placeTile', { verb: clickVerb }) +
 					rotHint +
 					(this.isTouch ? '' : t('game.prompt.escStopPlacing'))
-				: terraforming
-					? t(terraforming === 'dig' ? 'game.prompt.shovel' : 'game.prompt.wateringCan', { verb: lowVerb }) +
-						(near ? t('game.prompt.nearSuffix', { verb, label: near.label }) : '')
-					: nearMain;
+				: nearMain;
 		if (prompt !== this.lastPrompt) {
 			this.lastPrompt = prompt;
 			bridge.emit('prompt', prompt);

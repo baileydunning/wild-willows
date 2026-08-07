@@ -13,7 +13,8 @@ import panelsEn from './en/panels.json';
 import narrativeEn from './en/narrative.json';
 import serverEn from './en/server.json';
 import gameEn from './en/game.json';
-import { registerCatalog, setLocale, getLocale } from './core';
+import simpleEn from './en/simple.json';
+import { registerCatalog, setLocale, getLocale, simpleLocale } from './core';
 
 registerCatalog('en', {
 	app: appEn,
@@ -22,6 +23,10 @@ registerCatalog('en', {
 	server: serverEn,
 	game: gameEn,
 });
+// Plain-language overlay (the "simpler wording" accessibility option). Ships with
+// English because it's the default language; it only takes effect when the pref
+// is on, and any key it doesn't cover falls through to the normal text.
+registerCatalog(simpleLocale('en'), simpleEn);
 
 /** Languages offered in Settings, in display order. */
 export const LOCALE_NAMES: Record<string, string> = {
@@ -34,13 +39,14 @@ export const LOCALE_NAMES: Record<string, string> = {
 // every catalog for its locale, including the data-content overlay.
 const LOCALE_LOADERS: Record<string, () => Promise<void>> = {
 	es: async () => {
-		const [app, panels, narrative, server, game, content] = await Promise.all([
+		const [app, panels, narrative, server, game, content, simple] = await Promise.all([
 			import('./es/app.json'),
 			import('./es/panels.json'),
 			import('./es/narrative.json'),
 			import('./es/server.json'),
 			import('./es/game.json'),
 			import('./es/content.json'),
+			import('./es/simple.json'),
 		]);
 		registerCatalog('es', {
 			app: app.default,
@@ -50,6 +56,7 @@ const LOCALE_LOADERS: Record<string, () => Promise<void>> = {
 			game: game.default,
 		});
 		registerCatalog('es', content.default); // already wrapped in { content: … }
+		registerCatalog(simpleLocale('es'), simple.default);
 	},
 };
 const loadedLocales = new Set(['en']);
@@ -84,5 +91,17 @@ export const localeReady: Promise<void> = (async () => {
 	}
 })();
 
-export { t, tList, content, hasKey, getLocale, setLocale, onLocaleChange, availableLocales } from './core';
+export {
+	t,
+	tList,
+	content,
+	hasKey,
+	getLocale,
+	setLocale,
+	onLocaleChange,
+	availableLocales,
+	setSimpleText,
+	isSimpleText,
+	simpleLocale,
+} from './core';
 export type { Params } from './core';

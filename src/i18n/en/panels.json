@@ -141,7 +141,8 @@
 			"recovering": "Recovering",
 			"thriving": "Thriving",
 			"restored": "Restored"
-		}
+		},
+		"youAreHereNamed": "{biome} — you are here"
 	},
 	"home": {
 		"buildTitle": "Build Your Home",
@@ -275,8 +276,14 @@
 		},
 		"foodWebIntro": "Higher rows hunt the rows below. {returned}/{total} discovered — restore more habitat to reveal the rest of the web.",
 		"undiscovered": "Undiscovered {kind}",
-		"neighborsAfter": "Settled in after the {list} were already here.",
-		"neighborsFollowed": "The {list} followed once this one was back.",
+		"neighborsAfter": {
+			"one": "Settled in after the {list} was already here.",
+			"other": "Settled in after the {list} were already here."
+		},
+		"neighborsFollowed": {
+			"one": "The {list} followed once this one was back.",
+			"other": "The {list} followed once this one was back."
+		},
 		"comfortBadge": "{label} · {comfort}%",
 		"observed": {
 			"one": "Observed {count} time · first seen {date}",

@@ -2,9 +2,12 @@ import React, { createContext, useCallback, useContext, useEffect, useMemo, useR
 import {
 	api,
 	forgetSave,
+	isMissingSaveError,
 	getPlayerId,
 	lastSave,
 	rememberSave,
+	setDemoSaveHome,
+	clearDemoSaveHome,
 	setPlayerId,
 	startSoloGame,
 	resumeSoloGame,
@@ -574,6 +577,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			const r = await api.createPlayer(name, passcode, appearance, creationMs);
 			setPlayerId(r.playerId);
 			rememberSave(r.playerId, r.state.player.name, 'solo');
+			// This demo save lives on the hosted Harper. Remember that, so a later
+			// session whose probe times out doesn't quietly show the (empty) offline
+			// store instead and make the save look deleted.
+			if (DEMO) setDemoSaveHome('harper');
 			applyWorlds(r.worlds || [], r.worldId || r.playerId);
 			adoptState(r.state);
 			reportCharacterCreated(creationMs); // acquisition funnel: opens → character created
@@ -737,7 +744,19 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				rememberSave(last.playerId, last.name, active === last.playerId ? 'solo' : 'coop');
 			} catch (e) {
 				setPlayerId(null);
-				forgetSave(mode);
+				// Only drop the remembered save when the server actually said it's gone
+				// (404). Anything else — offline, CORS, a 503 while Harper boots, or a
+				// demo session that fell back to the offline backend and can't see a
+				// Harper save — is temporary, and erasing the pointer on those turned a
+				// one-off blip into a permanently lost save with no way back to it.
+				if (isMissingSaveError(e)) {
+					forgetSave(mode);
+					// The save is confirmed gone, so drop the demo store pin with it.
+					// Leaving it pinned to 'harper' would keep locking this device out
+					// of offline play whenever the server is down, guarding a save that
+					// no longer exists.
+					if (DEMO) clearDemoSaveHome();
+				}
 				throw e;
 			}
 		},

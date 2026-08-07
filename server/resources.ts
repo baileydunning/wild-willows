@@ -126,10 +126,154 @@ function sumValues(obj: Record<string, number> | undefined): number {
 	return Object.values(obj).reduce((a, b) => a + (b || 0), 0);
 }
 
-/** True for the Harper structured-encoder error raised on a record written under an
- *  incompatible (older) schema layout. */
+/** True for the Harper structured-encoder error raised on a record whose stored
+ *  bytes can't be decoded under the current layout. */
 function isDecodeError(e: any): boolean {
 	return /end of buffer|buffer not reached|decod/i.test(String(e?.message || e));
+}
+
+// ------------------------------------------------ undecodable-record salvage
+//
+// Two facts about Harper drive everything below, both worth stating plainly
+// because they are the opposite of what the call sites here used to assume.
+//
+// 1. Harper does NOT throw when a record fails to decode. RecordEncoder.decode
+//    catches the error, logs `Error decoding record … data: <hex>`, and returns
+//    **null** (harper/resources/RecordEncoder.ts). So from up here an unreadable
+//    row is indistinguishable from an absent one. That is the damaging part: a
+//    null read on a Player or World reads as "no such save", and callers respond
+//    by re-creating or overwriting live state (see ensureSoloWorld).
+//
+// 2. The error we actually see —
+//       "Data read, but end of buffer not reached"
+//    — is thrown by msgpackr AFTER the value has decoded *completely*. It only
+//    reports that unread bytes remain in the buffer (msgpackr/unpack.js: the
+//    `position < srcEnd` branch, which even embeds a JSON preview of the fully
+//    decoded result in the message). Nothing is lost; Harper just discards a
+//    good value because of trailing framing bytes.
+//
+// So these records are recoverable. msgpackr's sequential decoder
+// (`unpackMultiple`) is the same code path with that trailing-bytes assertion
+// disabled, so we re-read the raw stored bytes, decode them leniently, and write
+// the value back. The rewrite re-encodes from scratch, after which Harper's
+// normal read path works again and the log noise stops. Healing happens lazily,
+// on the first read that touches a bad row.
+
+/** The underlying store behind a Harper table (`static primaryStore` on the
+ *  generated table class). Absent in the in-renderer solo backend, where every
+ *  function below degrades to a no-op and reads behave exactly as before. */
+function storeOf(table: any): any {
+	return table?.primaryStore ?? null;
+}
+
+/** Raw stored bytes for one record — metadata header already stripped — or null
+ *  if the row genuinely does not exist. `valueAsBuffer` makes RecordEncoder
+ *  return the payload slice instead of trying (and failing) to unpack it. */
+function rawBytesOf(table: any, id: string): any {
+	const store = storeOf(table);
+	if (!store || typeof store.getSync !== 'function') return null;
+	try {
+		const buf = store.getSync(id, { valueAsBuffer: true });
+		return buf && (buf.byteLength ?? buf.length ?? 0) > 0 ? buf : null;
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * Does this row physically exist, whether or not Harper can decode it? Use this
+ * wherever a missing record would otherwise trigger a create/overwrite: it is
+ * the only way to tell "absent" from "unreadable", since Harper reports both as
+ * null. Returns false on the solo backend (no store), which is correct there —
+ * that path has no replicated records and so no undecodable ones.
+ */
+function existsRaw(table: any, id: string): boolean {
+	return rawBytesOf(table, id) != null;
+}
+
+/** Decode stored bytes while tolerating trailing bytes. Returns a detached plain
+ *  object, or null if the bytes are unreadable for some other reason. */
+function lenientDecode(table: any, bytes: any): any | null {
+	const enc = storeOf(table)?.encoder;
+	if (!enc || typeof enc.unpackMultiple !== 'function') return null;
+	const first = (vals: any) => {
+		const v = Array.isArray(vals) ? vals[0] : undefined;
+		// Reject arrays/primitives: a record is always an object, and accepting
+		// anything else would let us overwrite a row with junk.
+		return v && typeof v === 'object' && !Array.isArray(v) ? { ...v } : null;
+	};
+	try {
+		// unpackMultiple runs msgpackr in sequential mode, which is exactly the mode
+		// that skips the "end of buffer not reached" assertion. The first value is our
+		// record; anything after it is the trailing framing we want to drop.
+		return first(enc.unpackMultiple(bytes));
+	} catch (e: any) {
+		// Trailing bytes usually aren't a whole extra msgpack value, so the sequential
+		// reader normally decodes our record and THEN throws on the leftovers. It
+		// hands back everything it managed to read on `error.values` — which includes
+		// the fully intact record. Verified against msgpackr's unpack.js. Without
+		// this branch the common case would salvage nothing.
+		return first(e?.values);
+	}
+}
+
+/**
+ * Fields that must survive a salvage before we are willing to make it permanent.
+ * A salvage that dropped `passcodeHash` would lock a player out of their own save
+ * for good, so a suspicious result is left on disk unrewritten — still broken, but
+ * still recoverable by hand. Tables absent from this map have no such field and
+ * are rewritten whenever they decode.
+ */
+const SALVAGE_REQUIRED: Record<string, string[]> = {
+	Player: ['passcodeHash', 'passcodeSalt'],
+	World: ['ownerId'],
+};
+
+function tableName(table: any): string {
+	return table?.name || table?.tableName || '';
+}
+
+/**
+ * Recover an undecodable record and write it back cleanly. Returns the recovered
+ * value, or null when the row is genuinely absent, truly unreadable, or salvaged
+ * only partially. Safe to call on any miss: for an absent id it is a single point
+ * read that finds nothing and returns immediately.
+ */
+async function salvageRecord(table: any, id: string): Promise<any | null> {
+	const bytes = rawBytesOf(table, id);
+	if (!bytes) return null; // genuinely absent — nothing to heal
+	const name = tableName(table) || '?';
+	const rec = lenientDecode(table, bytes);
+	if (!rec) {
+		console.error(`undecodable record left intact (no salvage): ${name}/${id}`);
+		return null;
+	}
+	// The payload must identify itself as the row we asked for. This is the gate that
+	// separates a real salvage from garbage: msgpackr decodes unreadable bytes into
+	// plausible-looking objects rather than failing (0xc1 becomes
+	// `{ name: 'MessagePack 0xC1' }`, for instance), and writing one of those back
+	// would destroy the record we were trying to rescue. Every table here stores `id`
+	// in the value, so a mismatch means we did not recover this record — refuse.
+	if (rec.id !== id) {
+		console.error(`salvage refused, decoded payload is not record ${name}/${id} — left intact`);
+		return null;
+	}
+	// Second gate, for rows where a lossy salvage would be unrecoverable: dropping
+	// passcodeHash locks a player out of their own save permanently.
+	const missing = (SALVAGE_REQUIRED[name] || []).filter((k) => rec[k] == null);
+	if (missing.length) {
+		console.error(`partial salvage refused, row left intact: ${name}/${id} — missing ${missing.join(', ')}`);
+		return null;
+	}
+	try {
+		await table.put(rec); // re-encode from scratch → subsequent reads decode normally
+		console.error(`salvaged undecodable record: ${name}/${id}`);
+	} catch (e: any) {
+		// Return the value anyway: the caller gets correct data for this request
+		// even if the row stays broken on disk and heals on a later attempt.
+		console.error(`salvage rewrite failed for ${name}/${id} —`, e?.message || e);
+	}
+	return rec;
 }
 
 /**
@@ -137,6 +281,12 @@ function isDecodeError(e: any): boolean {
  * because Harper decodes the record (for index cleanup) on the way out, so we first
  * OVERWRITE the slot with a valid minimal record (a full put writes fresh bytes and
  * doesn't read the old corrupt value), then delete that now-decodable record.
+ *
+ * NOT wired into any read path. On a Player row this destroys the save outright —
+ * credentials included — and the errors we see in production are trailing-byte
+ * framing on otherwise intact records, where deleting would throw away recoverable
+ * data. Reads salvage instead (see salvageRecord); this stays for deliberate,
+ * operator-initiated cleanup of a row that salvage has already declined.
  */
 async function forceRemove(table: any, id: string): Promise<boolean> {
 	try {
@@ -155,48 +305,87 @@ async function forceRemove(table: any, id: string): Promise<boolean> {
 }
 
 /**
- * Read one record by id; if it can't be decoded (a leftover from an earlier schema
- * layout during rapid dev), DELETE the corrupt record and return null instead of
- * throwing forever. Self-healing — the bad row is removed the moment it's touched.
+ * Read one record by id, healing it if its stored bytes don't decode. Returns
+ * null only when the row is really absent (or is damaged past recovery).
+ *
+ * Harper turns an undecodable record into a silent null, so a null from get() is
+ * ambiguous and we have to check the raw bytes to disambiguate. When bytes are
+ * there, salvageRecord decodes them leniently and rewrites the row, so the very
+ * next read of that id goes through Harper's normal path — self-healing on touch.
  */
 async function safeGet(table: any, id: string): Promise<any | null> {
+	let rec: any = null;
 	try {
-		const rec = await table.get(id);
-		// Harper decodes lazily (on property access), so force a full read NOW to surface
-		// a corrupt record here where we can delete it — not later in some merge/patch.
+		rec = await table.get(id);
+		// Harper decodes lazily (on property access), so force a full read NOW to
+		// surface a bad record here where we can heal it — not later mid-patch.
 		if (rec) {
 			try {
 				JSON.stringify({ ...rec });
 			} catch (e) {
-				if (isDecodeError(e)) throw e;
+				if (!isDecodeError(e)) throw e;
+				rec = null;
 			}
 		}
-		return rec;
 	} catch (e) {
-		if (isDecodeError(e)) {
-			await forceRemove(table, id);
-			console.error(`purged undecodable record: ${id}`);
-			return null;
-		}
-		throw e;
+		if (!isDecodeError(e)) throw e;
+		rec = null;
 	}
+	if (rec) return rec;
+	// Null means EITHER absent OR undecodable — Harper reports both identically.
+	// Only the latter has bytes on disk.
+	return await salvageRecord(table, id);
 }
 
 async function toArray(iterable: any): Promise<any[]> {
 	const out: any[] = [];
+	let dropped = 0;
 	try {
-		for await (const item of iterable) out.push(item);
+		for await (const item of iterable) {
+			// Harper yields null in place of a record it couldn't decode (it logs and
+			// swallows the error rather than throwing). Those rows can't be healed from
+			// here — a null carries no id — but they must be counted, because otherwise
+			// a scan silently returns fewer rows than exist and the caller reads that as
+			// "this world has no placements/chests/tiles". Reads by id do heal (safeGet).
+			if (item == null) {
+				dropped++;
+				continue;
+			}
+			out.push(item);
+		}
 	} catch (e: any) {
-		// A record left undecodable by a prior schema version (rapid-dev schema drift)
-		// must not break a whole scan. Keep what we read; skip the rest.
-		console.error('scan: skipping undecodable record(s) —', e?.message || e);
+		// An outright throw ends iteration — an async iterator can't resume past a bad
+		// element — so keep what we read rather than failing the whole request.
+		console.error('scan: aborted at an undecodable record —', e?.message || e);
 	}
+	if (dropped) console.error(`scan: ${dropped} undecodable record(s) omitted from results`);
 	return out;
 }
 
 async function allOf(table: any): Promise<any[]> {
 	if (!table || typeof table.search !== 'function') return [];
 	return toArray(table.search({}));
+}
+
+/**
+ * Reliable single-row lookup by id, for the tiny analytics tables that
+ * read-modify-write a shared counter row (LandingStat, AppOpen).
+ *
+ * A primary-key `.get()` can return null for a row that genuinely exists on a
+ * cold Harper instance — the same failure findOwned/byPlayer were rewritten to
+ * dodge. For a per-player read that's a retryable miss; here it is destructive,
+ * because the caller reads the null as "no row for today yet", starts from zero
+ * and `put`s over the whole day's accumulated counts. A full scan never depends
+ * on the primary-key path being warm, and these tables hold at most one row per
+ * day / per device.
+ *
+ * Falls back to safeGet when the scan comes up empty: toArray drops rows Harper
+ * couldn't decode, and safeGet's salvage path can still recover (and heal) one.
+ */
+async function findCounterRow(table: any, id: string): Promise<any | null> {
+	if (!table || typeof table.search !== 'function') return null;
+	const rows = await toArray(table.search({}));
+	return rows.find((r: any) => r?.id === id) || (await safeGet(table, id));
 }
 
 /**
@@ -305,7 +494,11 @@ const DEFAULT_MAX_MEMBERS = 6;
 async function ensureSoloWorld(player: any, opts: { freshGrid?: boolean } = {}): Promise<void> {
 	const t = db();
 	const soloId = player.id;
-	if (!(await t.World.get(soloId))) {
+	// safeGet (not get) so an undecodable World is salvaged rather than read as
+	// absent. existsRaw is the backstop: if the row is on disk but salvage
+	// declined it, creating a replacement would overwrite a real world with a
+	// blank one, so we leave it alone and let the rest of the call proceed.
+	if (!(await safeGet(t.World, soloId)) && !existsRaw(t.World, soloId)) {
 		await t.World.put({
 			id: soloId,
 			name: player.name ? tr('server.world.soloName', { name: player.name }) : tr('server.world.mySoloName'),
@@ -322,7 +515,7 @@ async function ensureSoloWorld(player: any, opts: { freshGrid?: boolean } = {}):
 		});
 	}
 	const memberId = `${soloId}:${player.id}`;
-	if (!(await t.WorldMember.get(memberId))) {
+	if (!(await safeGet(t.WorldMember, memberId)) && !existsRaw(t.WorldMember, memberId)) {
 		await t.WorldMember.put({
 			id: memberId,
 			worldId: soloId,
@@ -344,7 +537,7 @@ async function listMemberships(playerId: string): Promise<any[]> {
 	const members = await byPlayer(t.WorldMember, playerId);
 	const out: any[] = [];
 	for (const m of members) {
-		const world = await t.World.get(m.worldId);
+		const world = await safeGet(t.World, m.worldId);
 		if (!world) continue;
 		const memberCount = (await byWorld(t.WorldMember, world.id)).length;
 		out.push({
@@ -370,7 +563,7 @@ async function listMemberships(playerId: string): Promise<any[]> {
  */
 async function syncMemberUnlocks(playerId: string, worldId: string): Promise<string[]> {
 	const t = db();
-	const player = await t.Player.get(playerId);
+	const player = await safeGet(t.Player, playerId);
 	if (!player) return [];
 	const current: string[] = player.unlockedBiomes || ['meadow'];
 	if (worldId === player.id) return current; // solo world — already authoritative
@@ -688,6 +881,36 @@ function tentRoom() {
 	const y0 = Math.floor((GRID_H - TENT_INNER.h) / 2);
 	return { x0, y0, x1: x0 + TENT_INNER.w - 1, y1: y0 + TENT_INNER.h - 1 };
 }
+
+// ------------------------------------------------------- sleeping furniture
+// The two things you can sleep on. Sleeping skips the clock to the next dawn, so
+// a bed parked in the doorway is a trap: every attempt to leave lands on it.
+// Keep them clear of the exit. The client mirrors this rule so the placement
+// ghost turns red (see canPlaceAt in src/game/WorldScene.ts), but this is the
+// copy that counts — the frontend is never trusted.
+const SLEEPABLE_OBJECTS = new Set(['home-bed', 'home-sleeping-bag']);
+
+/** The door tile of an interior: bottom wall, horizontally centred. Must match
+ *  `roomSpec()` in the client, which derives it from the same rectangle. */
+function doorTileOf(room: { x0: number; y0: number; x1: number; y1: number }): { x: number; y: number } {
+	return { x: Math.round((room.x0 + room.x1) / 2), y: room.y1 };
+}
+
+/**
+ * True if a bed at (tx, ty) would sit on, or in the ring immediately around, the
+ * doorway. Chebyshev distance ≤ 1, so the door tile and its eight neighbours are
+ * all refused — enough to always leave a clear step in and out.
+ */
+function blocksDoorway(
+	objectId: string,
+	room: { x0: number; y0: number; x1: number; y1: number },
+	tx: number,
+	ty: number,
+): boolean {
+	if (!SLEEPABLE_OBJECTS.has(objectId)) return false;
+	const door = doorTileOf(room);
+	return Math.abs(tx - door.x) <= 1 && Math.abs(ty - door.y) <= 1;
+}
 // Chance that digging a fresh soil bed turns up a buried material (not every dig).
 const DIG_FIND_CHANCE = 0.75;
 const CAPACITY_BY_BASKET: Record<number, number> = { 1: 200, 2: 350, 3: 550, 4: 800 };
@@ -704,26 +927,116 @@ const START_TOOLS: Record<string, number> = { basket: 1, shovel: 1, 'watering-ca
 // Preset swatches the creator offers as quick-picks. Colors are no longer
 // restricted to this list — players can pick any color — so these are just
 // suggestions surfaced in the UI.
-const SKIN_TONES = ['#f6d7b8', '#eec39a', '#d9a06b', '#b97f50', '#8d5a3a', '#6b4226'];
-const HAIR_COLORS = ['#3b2e25', '#6e4a33', '#a3692f', '#c9913f', '#d9b380', '#8c8c8c'];
-const OUTFIT_COLORS = ['#4a7c59', '#7a9ac0', '#b5707a', '#c9913f', '#7d6b9e', '#5d8a8a'];
+// The creator falls back to these when a saved value is missing or malformed.
+// Named rather than indexed so the swatch lists below can be reordered freely.
+const DEFAULT_SKIN = '#eec39a';
+const DEFAULT_HAIR = '#6e4a33';
+const DEFAULT_OUTFIT = '#4a7c59';
+const SKIN_TONES = [
+	'#fbe8d5',
+	'#f6d7b8',
+	'#f0cba6',
+	'#eec39a',
+	'#dcae7f',
+	'#d9a06b',
+	'#cf9662',
+	'#c98f5e',
+	'#b97f50',
+	'#ad7248',
+	'#a66b45',
+	'#96603d',
+	'#8d5a3a',
+	'#7a4a30',
+	'#6b4226',
+	'#5a3720',
+	'#4e2f1e',
+];
+const HAIR_COLORS = [
+	'#1c1614',
+	'#2b2320',
+	'#3b2e25',
+	'#4a3b30',
+	'#5c4636',
+	'#6e4a33',
+	'#7d5439',
+	'#8a5f3d',
+	'#a3692f',
+	'#b5502e',
+	'#c2632f',
+	'#c9913f',
+	'#d4a44f',
+	'#d9b380',
+	'#e8dcc0',
+	'#8c8c8c',
+	'#c9c9c9',
+];
+const OUTFIT_COLORS = [
+	'#3f6b4c',
+	'#4a7c59',
+	'#5f9166',
+	'#8a9a5b',
+	'#4f9a94',
+	'#7a9ac0',
+	'#5a6b8c',
+	'#3f5f80',
+	'#7d6b9e',
+	'#9b6bb0',
+	'#a8586b',
+	'#b5707a',
+	'#c4653f',
+	'#d4783f',
+	'#c9913f',
+	'#d4a373',
+	'#6b7280',
+];
 const HAT_STYLES = [
+	// 'none' leads the list because it's the default a new character starts with
+	'none',
 	'straw',
 	'leaf',
 	'beanie',
 	'cap',
+	'visor',
 	'bucket',
 	'flower',
 	'party',
+	'acorn',
+	'beret',
 	'ranger',
 	'mushroom',
 	'wizard',
+	'witch',
 	'crown',
 	'bandana',
-	'none',
+	'tophat',
+	'newspaper',
+	'chef',
+	'pirate',
+	'frog',
+	'cat-ears',
+	'headphones',
+	'halo',
 ];
 // Suggested hat tints (any hex is accepted); null/absent hatColor = the hat's classic colors.
-const HAT_COLORS = ['#c9a35c', '#b5707a', '#5f86b0', '#5d8a4a', '#7d6b9e', '#b05555'];
+const HAT_COLORS = [
+	'#c9a35c',
+	'#8a734f',
+	'#5d4a36',
+	'#b05555',
+	'#e8734f',
+	'#b5707a',
+	'#d77bb1',
+	'#a8586b',
+	'#7d6b9e',
+	'#5f86b0',
+	'#4f9a94',
+	'#5d8a4a',
+	'#6aa84f',
+	'#e0b23e',
+	'#f2efe6',
+	'#8c8c8c',
+	'#3f3b47',
+];
 const HAIRSTYLES = [
 	'short',
 	'bald',
@@ -737,6 +1050,16 @@ const HAIRSTYLES = [
 	'pigtails',
 	'afro',
 	'mohawk',
+	'wavy',
+	'spiky',
+	'dreads',
+	'space-buns',
+	'bowl',
+	'double-braid',
+	'half-up',
+	'pixie',
+	'cornrows',
+	'shag',
 ];
 const BEARD_STYLES = ['none', 'beard'];
 const BODY_TYPES = ['slim', 'round'];
@@ -752,10 +1075,10 @@ function cleanHex(c: any, fallback: string): string {
 function sanitizeAppearance(a: any) {
 	a = a || {};
 	return {
-		skin: cleanHex(a.skin, SKIN_TONES[1]),
-		hair: cleanHex(a.hair, HAIR_COLORS[1]),
-		outfit: cleanHex(a.outfit, OUTFIT_COLORS[0]),
-		hat: HAT_STYLES.includes(a.hat) ? a.hat : 'straw',
+		skin: cleanHex(a.skin, DEFAULT_SKIN),
+		hair: cleanHex(a.hair, DEFAULT_HAIR),
+		outfit: cleanHex(a.outfit, DEFAULT_OUTFIT),
+		hat: HAT_STYLES.includes(a.hat) ? a.hat : 'none',
 		// null means "the hat's classic colors" — only a valid hex overrides it
 		hatColor:
 			typeof a.hatColor === 'string' && /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(a.hatColor.trim())
@@ -1003,8 +1326,10 @@ async function bumpMetrics(
 	if (!entries.length && !dailyEntries.length) return readMetrics(player);
 	const now = Date.now();
 	// merge onto the freshest row — a single request can bump twice (e.g. a
-	// placement bump plus recalcBiome's health/animal bump) from stale copies
-	const live = (await db().Player.get(player.id)) || player;
+	// placement bump plus recalcBiome's health/animal bump) from stale copies.
+	// safeGet so an undecodable row heals here instead of silently falling back
+	// to the stale in-memory copy and writing its older counters back over the top.
+	const live = (await safeGet(db().Player, player.id)) || player;
 	const prev = readMetrics(live) || freshMetrics(live.createdAt || now);
 	const counts = { ...(prev.counts || {}) };
 	for (const [k, v] of entries) counts[k] = (counts[k] || 0) + v;
@@ -1888,7 +2213,7 @@ async function recalcBiome(
 		dailyDeltas.animal = newAnimals.length;
 	}
 	if (Object.keys(dailyDeltas).length) {
-		const actor = opts.player || (await t.Player.get(playerId));
+		const actor = opts.player || (await safeGet(t.Player, playerId));
 		if (actor) await bumpMetrics(actor, {}, dailyDeltas);
 	}
 
@@ -1958,7 +2283,7 @@ async function checkUnlocks(
 ): Promise<any[]> {
 	const t = db();
 	const d = await defs();
-	const player = fresh.player || (await t.Player.get(playerId));
+	const player = fresh.player || (await safeGet(t.Player, playerId));
 	const unlockedNow: any[] = [];
 	const unlockedSet = new Set(player.unlockedBiomes || []);
 	// Newly-unlocked biomes each drop a one-time, claimable "welcome bundle" onto
@@ -3385,7 +3710,7 @@ async function awardWorldAchievements(
 	const newlyForActor = await awardAchievements(actorId, opts);
 	try {
 		const t = db();
-		const world = await t.World.get(wid);
+		const world = await safeGet(t.World, wid);
 		if (world && !world.solo) {
 			for (const m of await byWorld(t.WorldMember, wid)) {
 				if (m.playerId === actorId) continue;
@@ -3611,7 +3936,7 @@ export class DeletePlayer extends PublicEndpoint {
 	async post(data: any) {
 		const { name, passcode } = await bodyOf(data);
 		const playerId = slugId(String(name || ''));
-		const player = playerId ? await db().Player.get(playerId) : null;
+		const player = playerId ? await safeGet(db().Player, playerId) : null;
 		if (!player) throw new GameError(tr('server.err.noSaveWithName'), 404);
 		if (!(await verifyPasscode(player, passcode))) throw new GameError(tr('server.err.passcodeMismatch'), 403);
 
@@ -3634,9 +3959,11 @@ export class DeletePlayer extends PublicEndpoint {
 			await t.WorldMember.delete(m.id);
 			removed++;
 		}
-		if (await t.World.get(playerId)) {
-			await t.World.delete(playerId);
-			removed++;
+		// Deleting the save is the one place a still-undecodable row must not be
+		// left behind, so fall back to forceRemove (stub-then-delete) when the row
+		// exists on disk but neither salvage nor a plain delete can touch it.
+		if ((await safeGet(t.World, playerId)) || existsRaw(t.World, playerId)) {
+			if (await forceRemove(t.World, playerId)) removed++;
 		}
 		await t.Player.delete(playerId);
 		return { ok: true, deleted: playerId, recordsRemoved: removed + 1 };
@@ -3781,7 +4108,7 @@ export class LoginPlayer extends PublicEndpoint {
 		let worlds: any[] = [];
 		try {
 			await ensureSoloWorld(player);
-			active = (await db().Player.get(playerId)).worldId || playerId;
+			active = (await safeGet(db().Player, playerId))?.worldId || playerId;
 			await syncMemberUnlocks(playerId, active);
 			worlds = await listMemberships(playerId);
 		} catch (e) {
@@ -3987,7 +4314,7 @@ export class CheckWorldCode extends PublicEndpoint {
 		const world = await worldByCode(t, joinCode);
 		if (!world) return { ok: true, exists: false };
 		const memberCount = (await byWorld(t.WorldMember, world.id)).length;
-		const owner = await t.Player.get(world.ownerId);
+		const owner = await safeGet(t.Player, world.ownerId);
 		const max = world.maxMembers || DEFAULT_MAX_MEMBERS;
 		return {
 			ok: true,
@@ -4028,7 +4355,7 @@ export class RequestJoin extends PublicEndpoint {
 			status: 'pending',
 			createdAt: Date.now(),
 		});
-		const owner = await t.Player.get(world.ownerId);
+		const owner = await safeGet(t.Player, world.ownerId);
 		return {
 			ok: true,
 			worldId: world.id,
@@ -4054,7 +4381,7 @@ export class PendingJoinRequests extends PublicEndpoint {
 		const { player } = await requirePlayer(playerId);
 		const t = db();
 		const wid = worldOf(player);
-		const world = await t.World.get(wid);
+		const world = await safeGet(t.World, wid);
 		if (!world || world.solo || world.ownerId !== playerId) return { ok: true, requests: [] };
 		const reqs = (await byWorld(t.JoinRequest, wid)).filter((r: any) => r.status === 'pending');
 		reqs.sort((a: any, b: any) => (a.createdAt || 0) - (b.createdAt || 0));
@@ -4068,7 +4395,7 @@ export class ResolveJoin extends PublicEndpoint {
 		const { playerId, worldId, token, approve } = await bodyOf(data);
 		await requirePlayer(playerId);
 		const t = db();
-		const world = await t.World.get(worldId);
+		const world = await safeGet(t.World, worldId);
 		if (!world || world.solo) throw new GameError(tr('server.err.noCoopWorld'), 404);
 		if (world.ownerId !== playerId) throw new GameError(tr('server.err.onlyHostApproves'), 403);
 		const id = `${worldId}:${String(token || '').trim()}`;
@@ -4090,7 +4417,7 @@ export class WorldRoster extends PublicEndpoint {
 		const { player } = await requirePlayer(playerId);
 		const t = db();
 		const wid = worldOf(player);
-		const world = await t.World.get(wid);
+		const world = await safeGet(t.World, wid);
 		const max = world?.maxMembers || DEFAULT_MAX_MEMBERS;
 		if (!world || world.solo) return { ok: true, roster: [], closed: false, maxMembers: max, joinCode: null };
 		const members = await byWorld(t.WorldMember, wid);
@@ -4185,7 +4512,7 @@ export class Presence extends PublicEndpoint {
 		const parea = typeof area === 'string' ? area : player.area;
 
 		// solo worlds have no one else — nothing to broadcast
-		const world = await t.World.get(wid);
+		const world = await safeGet(t.World, wid);
 		if (world?.solo) return { ok: true, worldId: wid, peers: [] };
 
 		// Merge my live position into the shared WorldPresence record. Writing it
@@ -4515,6 +4842,7 @@ export class PlaceObject extends PublicEndpoint {
 			}
 			const r = homeRoom(player);
 			if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1) throw new GameError(tr('server.err.placeOnFloor'));
+			if (blocksDoorway(objectId, r, tx, ty)) throw new GameError(tr('server.err.bedBlocksDoor', { name: def.name }));
 		} else if (tentBiome) {
 			// decorating a trail-tent interior — indoor rules, tent-sized floor,
 			// and only furniture that fits a tent (homeMin 1)
@@ -4526,6 +4854,7 @@ export class PlaceObject extends PublicEndpoint {
 			if (def.homeMin && def.homeMin > 1) throw new GameError(tr('server.err.tentTooSmall', { name: def.name }), 403);
 			const r = tentRoom();
 			if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1) throw new GameError(tr('server.err.placeOnFloor'));
+			if (blocksDoorway(objectId, r, tx, ty)) throw new GameError(tr('server.err.bedBlocksDoor', { name: def.name }));
 		} else {
 			const biome = d.biome.get(area);
 			if (!biome) throw new GameError(tr('server.err.unknownArea', { area }));
@@ -4786,6 +5115,15 @@ export class MoveObject extends PublicEndpoint {
 		}
 		const d = await defs();
 		const movingDef = d.object.get(placement.objectId);
+		// Same doorway rule as PlaceObject — otherwise a bed could simply be MOVED
+		// into the spot it isn't allowed to be placed in.
+		if (SLEEPABLE_OBJECTS.has(placement.objectId)) {
+			const tentBiome = tentBiomeOf(placement.area);
+			const room = placement.area === 'home' ? homeRoom(player) : tentBiome ? tentRoom() : null;
+			if (room && blocksDoorway(placement.objectId, room, tx, ty)) {
+				throw new GameError(tr('server.err.bedBlocksDoor', { name: movingDef?.name || placement.objectId }));
+			}
+		}
 		const tileHere = await findTerrainAt(t.TerrainTile, wid, placement.area, tx, ty);
 		if (tileHere) {
 			if (tileHere.type === 'water') {
@@ -5461,7 +5799,7 @@ export class SyncPlayer extends PublicEndpoint {
 		await t.Player.patch(playerId, patch);
 		// the tutorial finishing (and reaching the grasshopper step) can earn First Friend
 		if (patch.tutorialStep !== undefined) await awardAchievements(playerId);
-		return { ok: true, player: sanitizePlayer(await t.Player.get(playerId)) };
+		return { ok: true, player: sanitizePlayer(await safeGet(t.Player, playerId)) };
 	}
 }
 
@@ -5681,7 +6019,7 @@ export class Metrics extends PublicEndpoint {
 		const id = String((this as any).getId?.() || target?.id || '').trim();
 
 		if (id) {
-			const player = await t.Player.get(id);
+			const player = await safeGet(t.Player, id);
 			if (!player) throw new GameError(tr('server.err.noSaveWithId'), 404);
 			// Per-player lookup includes full biome health numbers (no rendered
 			// area snapshots — those were removed).
@@ -6110,17 +6448,25 @@ export class Metrics extends PublicEndpoint {
 			},
 			accessibility: {
 				reduceMotion: countPref((p) => p.reduceMotion === true),
-				dyslexiaFont: countPref((p) => p.dyslexiaFont === true),
+				highContrast: countPref((p) => p.highContrast === true),
 				colorblindOn: countPref((p) => p.colorblindMode && p.colorblindMode !== 'off'),
+				// The font picker replaced a dyslexia-font toggle. It's a taste setting
+				// now, not an assistive one, so it no longer counts toward anyEnabled —
+				// otherwise every player who just liked the serif would inflate the
+				// accessibility-adoption number.
 				anyEnabled: countPref(
 					(p) =>
 						p.reduceMotion === true ||
-						p.dyslexiaFont === true ||
+						p.highContrast === true ||
 						(p.colorblindMode && p.colorblindMode !== 'off') ||
 						(p.textScale && p.textScale !== 'md'),
 				),
 				colorblindModes: tallyPref((p) => p.colorblindMode || 'off'),
 				textScales: tallyPref((p) => p.textScale || 'md'),
+				// Saves that predate the picker still carry `dyslexiaFont: true`; the
+				// client migrates those to 'plain' on load, so mirror that here rather
+				// than tallying them as an absent field.
+				fonts: tallyPref((p) => p.fontChoice || (p.dyslexiaFont === true ? 'plain' : 'storybook')),
 			},
 		};
 
@@ -7023,7 +7369,9 @@ export class AppOpen extends PublicEndpoint {
 		const now = Date.now();
 		const t = db();
 		const id = `dev:${deviceId}`;
-		const existing = await safeGet(t.AppOpen, id);
+		// Same cold-start hazard as LandingStat: a spurious null here would reset
+		// this device's open count and its converted/firstConvertedAt funnel flags.
+		const existing = await findCounterRow(t.AppOpen, id);
 		const cms = clamp(Math.round(Number(body.creationMs) || 0), 0, 60 * 60_000);
 		await t.AppOpen.put({
 			id,
@@ -7106,7 +7454,9 @@ async function bumpLandingStat(mutate: (row: any) => void): Promise<void> {
 		const now = Date.now();
 		const day = landingDay(now);
 		const id = `day:${day}`;
-		const row = (await safeGet(table, id)) || { id, day, visits: 0, uniques: 0, clicks: {}, signups: 0 };
+		// findCounterRow, NOT safeGet: a cold-start null from a primary-key .get()
+		// would look like "first event of the day" and reset the row to zero.
+		const row = (await findCounterRow(table, id)) || { id, day, visits: 0, uniques: 0, clicks: {}, signups: 0 };
 		mutate(row);
 		row.updatedAt = now;
 		await table.put(row);

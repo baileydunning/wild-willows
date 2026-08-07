@@ -2,6 +2,8 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import {
 	api,
 	forgetSave,
+	isMissingSaveError,
+	isDemoSaveUnreachable,
 	lastSave,
 	IS_DESKTOP,
 	listSoloSaves,
@@ -17,7 +19,13 @@ import { COOP_ENABLED } from '../features';
 import { DEMO } from '../demo';
 import type { Appearance } from '../types';
 import { CharacterPreview, Icon } from './icons';
-import { AppearanceRows, AccessibilityControls, SoundControls, randomizeAppearance } from './Settings';
+import {
+	AppearanceRows,
+	AccessibilityControls,
+	SoundControls,
+	randomizeAppearance,
+	randomStartingAppearance,
+} from './Settings';
 import { randomName } from './names';
 
 type Mode = 'menu' | 'new' | 'load' | 'join-code';
@@ -345,7 +353,7 @@ export function WelcomeScreen() {
 		skin: '#eec39a',
 		hair: '#6e4a33',
 		outfit: '#4a7c59',
-		hat: 'straw',
+		hat: 'none',
 		hairstyle: 'short',
 		beard: 'none',
 		body: 'slim',
@@ -358,6 +366,21 @@ export function WelcomeScreen() {
 	useEffect(() => {
 		if (mode === 'new') creationStartRef.current = Date.now();
 	}, [mode]);
+
+	// Roll a fresh starting look each time the creator opens, so New Game doesn't
+	// always present the same character. Guarded by a ref because appearanceOptions
+	// arrives asynchronously — we want exactly one roll per visit, not one per
+	// render, and re-rolling after the player has started tweaking would be rude.
+	const rolledRef = useRef(false);
+	useEffect(() => {
+		if (mode !== 'new') {
+			rolledRef.current = false;
+			return;
+		}
+		if (rolledRef.current || !data?.appearanceOptions) return;
+		rolledRef.current = true;
+		setAppearance((a) => randomStartingAppearance(data.appearanceOptions, a));
+	}, [mode, data?.appearanceOptions]);
 	const creatorMs = () => (creationStartRef.current ? Date.now() - creationStartRef.current : 0);
 
 	// The New Game creator opens with an empty name field — naming yourself is
@@ -384,9 +407,15 @@ export function WelcomeScreen() {
 				await continueLast(coop ? 'coop' : 'solo');
 			} catch (e: any) {
 				if (last) setName(last.name);
-				forgetSave(coop ? 'coop' : 'solo');
-				setLastBump((n) => n + 1);
-				setMode('load');
+				// Same rule as continueLast: only forget the save when the server said
+				// it doesn't exist. A transient failure used to wipe the Continue button,
+				// which read to players as "my save was deleted" — they had no way back
+				// to a save that was still sitting there perfectly intact.
+				if (isMissingSaveError(e)) {
+					forgetSave(coop ? 'coop' : 'solo');
+					setLastBump((n) => n + 1);
+					setMode('load');
+				}
 				throw new Error(t('app.welcome.continueFailed', { message: e.message || t('app.error.loadSave') }));
 			}
 		});
@@ -419,6 +448,16 @@ export function WelcomeScreen() {
 					{dataError && (
 						<p className="form-error">
 							<Icon name="help" size={16} /> {dataError}
+						</p>
+					)}
+
+					{/* This device HAS a demo save, on the hosted server, and we couldn't
+					    reach it this session. Say so plainly. Silently showing an empty
+					    title here is what made players think their save was deleted —
+					    they'd start a new one and lose the old for good. */}
+					{isDemoSaveUnreachable() && (
+						<p className="form-error">
+							<Icon name="cloud" size={16} /> {t('app.welcome.demoSaveUnreachable')}
 						</p>
 					)}
 

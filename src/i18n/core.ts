@@ -76,7 +76,51 @@ export function onLocaleChange(fn: () => void): () => void {
 	return () => listeners.delete(fn);
 }
 
+// ------------------------------------------------------- plain-language mode
+//
+// An accessibility option that swaps the game's wording for plainer phrasing at
+// roughly a 5th-grade reading level — shorter sentences, everyday words, the
+// jargon either dropped or explained in place.
+//
+// It's an OVERLAY, not a separate locale. Simplified strings live in
+// `<locale>/simple.json` and register under the pseudo-locale "<locale>:simple";
+// `lookup` consults them first and falls back per key. Three things fall out of
+// that which matter:
+//
+//   • Coverage can grow string by string. A key with no plain version simply
+//     shows its normal text — never a missing-key placeholder, never English
+//     leaking into a Spanish session.
+//   • It works for data content too (animal diets, habitats, ecology notes),
+//     because `content()` goes through the same lookup.
+//   • Turning it off is free: the normal catalogs are untouched.
+const SIMPLE_SUFFIX = ':simple';
+let simpleText = false;
+
+/** The pseudo-locale a plain-language catalog registers under. */
+export const simpleLocale = (locale: string): string => locale + SIMPLE_SUFFIX;
+
+export function setSimpleText(on: boolean): void {
+	if (on === simpleText) return;
+	simpleText = on;
+	for (const fn of [...listeners]) fn(); // same notify path as a locale switch
+}
+
+export function isSimpleText(): boolean {
+	return simpleText;
+}
+
+/**
+ * Resolution order. Plain-language entries win when the option is on, in the
+ * active language first so a Spanish player gets Spanish plain text rather than
+ * English; then the ordinary catalogs, which is what makes partial coverage
+ * safe.
+ */
 function lookup(key: string): CatalogValue | undefined {
+	if (simpleText) {
+		const simple =
+			catalogs.get(simpleLocale(activeLocale))?.[key] ?? catalogs.get(simpleLocale(FALLBACK_LOCALE))?.[key];
+		if (simple !== undefined) return simple;
+	}
 	return catalogs.get(activeLocale)?.[key] ?? catalogs.get(FALLBACK_LOCALE)?.[key];
 }
 

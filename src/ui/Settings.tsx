@@ -7,7 +7,7 @@ import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import { hasKey, LOCALE_NAMES, chooseLocale } from '../i18n';
 import { useI18n } from '../i18n/react';
-import { usePrefs, setPrefs, type TextScale, type ColorblindMode } from '../prefs';
+import { usePrefs, setPrefs, FONT_CHOICES, type TextScale, type ColorblindMode, type FontChoice } from '../prefs';
 import {
 	BIND_ACTIONS,
 	getBindings,
@@ -42,11 +42,81 @@ export function randomizeAppearance(opts: AppearanceOptions | undefined, current
 }
 
 /**
+ * The look the New Game creator opens on. Nobody should meet the same default
+ * character every time, so skin, hair color, hairstyle, build, outfit — and a
+ * beard roughly a third of the time — are all rolled fresh. Only the hat is
+ * held at its default ('none'), so the first preview reads clearly and picking
+ * a hat still feels like a deliberate choice.
+ */
+export function randomStartingAppearance(opts: AppearanceOptions | undefined, current: Appearance): Appearance {
+	if (!opts) return current;
+	const pick = <T,>(arr: T[] | undefined): T | undefined =>
+		arr && arr.length ? arr[Math.floor(Math.random() * arr.length)] : undefined;
+	return {
+		...current,
+		skin: pick(opts.skins) ?? current.skin,
+		hair: pick(opts.hair) ?? current.hair,
+		outfit: pick(opts.outfits) ?? current.outfit,
+		hairstyle: pick(opts.hairstyles) ?? current.hairstyle,
+		body: pick(opts.bodies) ?? current.body,
+		beard: Math.random() < 0.3 ? 'beard' : 'none',
+	};
+}
+
+/**
+ * How many colour swatches the SETTINGS editor shows per row.
+ *
+ * Settings renders these rows beside the character preview (see
+ * AppearanceEditor), which spends ~100px of width the New Game creator doesn't.
+ * At the catalog's 17 colours that pushed three swatches AND the eyedropper onto
+ * a second line, leaving a ragged orphan row under Skin, Hair and Outfit. 13
+ * plus the eyedropper fits on one line. The creator is unconstrained and still
+ * shows all 17.
+ */
+const SETTINGS_SWATCHES = 13;
+
+/**
+ * Evenly spaced subset of `list`, endpoints included — NOT the first `max`.
+ * Truncating would have cut the tail off every palette, which on SKIN_TONES
+ * means deleting the four deepest tones; sampling keeps each palette's full
+ * range and just coarsens it. Nothing is lost outright either way: every colour
+ * in the catalog is still reachable through the row's eyedropper.
+ */
+function thinSwatches(list: string[], max: number | undefined, current: string): string[] {
+	if (!max || list.length <= max || max < 2) return list;
+	const kept = Array.from({ length: max }, (_, i) => list[Math.round((i * (list.length - 1)) / (max - 1))]);
+	// The player's saved colour may be one of the ones just dropped. Swap it back
+	// in over its nearest kept neighbour rather than render a row with nothing
+	// selected, which reads as "my colour is gone".
+	if (current && list.includes(current) && !kept.includes(current)) {
+		const at = list.indexOf(current);
+		let nearest = 0;
+		for (let i = 1; i < kept.length; i++) {
+			if (Math.abs(list.indexOf(kept[i]) - at) < Math.abs(list.indexOf(kept[nearest]) - at)) nearest = i;
+		}
+		kept[nearest] = current;
+	}
+	return kept;
+}
+
+/**
  * The appearance option rows (Skin/Hair/Style/Beard/Build/Outfit/Hat/Hat
  * color). Shared by the Settings editor below AND the New Game creator in
  * Welcome.tsx, so new looks only need adding once.
+ *
+ * `maxSwatches` caps the COLOUR rows only (skin/hair/outfit) — the style, hat
+ * and build rows are labelled chips that already wrap tidily. Omit it for the
+ * full palette.
  */
-export function AppearanceRows({ value, onChange }: { value: Appearance; onChange: (a: Appearance) => void }) {
+export function AppearanceRows({
+	value,
+	onChange,
+	maxSwatches,
+}: {
+	value: Appearance;
+	onChange: (a: Appearance) => void;
+	maxSwatches?: number;
+}) {
 	const { data } = useGame();
 	const { t } = useI18n();
 	const opts = data?.appearanceOptions;
@@ -62,7 +132,7 @@ export function AppearanceRows({ value, onChange }: { value: Appearance; onChang
 		<>
 			<div className="swatch-row">
 				<span className="swatch-label">{t('app.appearance.skin')}</span>
-				{(opts?.skins || []).map((c) => (
+				{thinSwatches(opts?.skins || [], maxSwatches, value.skin).map((c) => (
 					<button
 						type="button"
 						key={c}
@@ -84,7 +154,7 @@ export function AppearanceRows({ value, onChange }: { value: Appearance; onChang
 			</div>
 			<div className="swatch-row">
 				<span className="swatch-label">{t('app.appearance.hair')}</span>
-				{(opts?.hair || []).map((c) => (
+				{thinSwatches(opts?.hair || [], maxSwatches, value.hair).map((c) => (
 					<button
 						type="button"
 						key={c}
@@ -117,19 +187,8 @@ export function AppearanceRows({ value, onChange }: { value: Appearance; onChang
 					</button>
 				))}
 			</div>
-			<div className="swatch-row">
-				<span className="swatch-label">{t('app.appearance.beard')}</span>
-				{(opts?.beards || []).map((b) => (
-					<button
-						type="button"
-						key={b}
-						className={`hat-btn ${(value.beard || 'none') === b ? 'sel' : ''}`}
-						onClick={() => set({ beard: b })}
-					>
-						{optLabel('beardLabel', b)}
-					</button>
-				))}
-			</div>
+			{/* Build and Beard are two chips each — they share one row rather than
+			    burning two nearly-empty lines. */}
 			<div className="swatch-row">
 				<span className="swatch-label">{t('app.appearance.build')}</span>
 				{(opts?.bodies || []).map((b) => (
@@ -142,10 +201,21 @@ export function AppearanceRows({ value, onChange }: { value: Appearance; onChang
 						{optLabel('bodyLabel', b)}
 					</button>
 				))}
+				<span className="swatch-label swatch-label-next">{t('app.appearance.beard')}</span>
+				{(opts?.beards || []).map((b) => (
+					<button
+						type="button"
+						key={b}
+						className={`hat-btn ${(value.beard || 'none') === b ? 'sel' : ''}`}
+						onClick={() => set({ beard: b })}
+					>
+						{optLabel('beardLabel', b)}
+					</button>
+				))}
 			</div>
 			<div className="swatch-row">
 				<span className="swatch-label">{t('app.appearance.outfit')}</span>
-				{(opts?.outfits || []).map((c) => (
+				{thinSwatches(opts?.outfits || [], maxSwatches, value.outfit).map((c) => (
 					<button
 						type="button"
 						key={c}
@@ -205,7 +275,7 @@ export function AppearanceEditor({ value, onChange }: { value: Appearance; onCha
 				<CharacterPreview appearance={value} size={120} />
 			</div>
 			<div className="creator-options">
-				<AppearanceRows value={value} onChange={onChange} />
+				<AppearanceRows value={value} onChange={onChange} maxSwatches={SETTINGS_SWATCHES} />
 			</div>
 		</div>
 	);
@@ -229,6 +299,38 @@ export function AccessibilityControls() {
 						checked={prefs.reduceMotion}
 						onChange={(e) => setPrefs({ reduceMotion: e.target.checked })}
 						aria-label={t('app.settings.reduceMotion')}
+					/>
+					<span className="track" />
+					<span className="thumb" />
+				</label>
+			</div>
+			<div className="a11y-row">
+				<span className="a11y-label">
+					<b>{t('app.settings.highContrast')}</b>
+					<span className="muted small">{t('app.settings.highContrastHint')}</span>
+				</span>
+				<label className="switch">
+					<input
+						type="checkbox"
+						checked={prefs.highContrast}
+						onChange={(e) => setPrefs({ highContrast: e.target.checked })}
+						aria-label={t('app.settings.highContrast')}
+					/>
+					<span className="track" />
+					<span className="thumb" />
+				</label>
+			</div>
+			<div className="a11y-row">
+				<span className="a11y-label">
+					<b>{t('app.settings.simpleText')}</b>
+					<span className="muted small">{t('app.settings.simpleTextHint')}</span>
+				</span>
+				<label className="switch">
+					<input
+						type="checkbox"
+						checked={prefs.simpleText}
+						onChange={(e) => setPrefs({ simpleText: e.target.checked })}
+						aria-label={t('app.settings.simpleText')}
 					/>
 					<span className="track" />
 					<span className="thumb" />
@@ -268,37 +370,44 @@ export function AccessibilityControls() {
 					<option value="mono">{t('app.settings.colorblindMono')}</option>
 				</select>
 			</div>
-			<div className="a11y-row">
-				<span className="a11y-label">
-					<b>{t('app.settings.dyslexiaFont')}</b>
-					<span className="muted small">{t('app.settings.dyslexiaFontHint')}</span>
-				</span>
-				<label className="switch">
-					<input
-						type="checkbox"
-						checked={prefs.dyslexiaFont}
-						onChange={(e) => setPrefs({ dyslexiaFont: e.target.checked })}
-						aria-label={t('app.settings.dyslexiaFont')}
-					/>
-					<span className="track" />
-					<span className="thumb" />
-				</label>
-			</div>
-			<div className="craft-filter lang-filter">
-				<label htmlFor="settings-textscale">{t('app.settings.textSize')}:</label>
-				<select
-					id="settings-textscale"
-					value={prefs.textScale}
-					onChange={(e) => setPrefs({ textScale: e.target.value as TextScale })}
-				>
-					<option value="sm">{t('app.settings.textSm')}</option>
-					<option value="md">{t('app.settings.textMd')}</option>
-					<option value="lg">{t('app.settings.textLg')}</option>
-					{/* OpenDyslexic already runs large, so extra-large overflows the UI. */}
-					<option value="xl" disabled={prefs.dyslexiaFont}>
-						{t('app.settings.textXl')}
-					</option>
-				</select>
+			{/* Font and text size are both "how the words look", so they share a row.
+			    They wrap back to stacked when there isn't width for two — which the
+			    largest text scale and the widest fonts will do on a narrow panel. */}
+			<div className="settings-pair">
+				<div className="craft-filter lang-filter">
+					<label htmlFor="settings-font">{t('app.settings.font')}:</label>
+					{/* Each option carries the class that sets its own typeface, so where the
+					    browser honours font-family on <option> the list previews itself.
+					    Several don't, which is fine — picking one restyles the whole UI
+					    immediately, and that's the preview that always works. */}
+					<select
+						id="settings-font"
+						value={prefs.fontChoice}
+						onChange={(e) => setPrefs({ fontChoice: e.target.value as FontChoice })}
+					>
+						{FONT_CHOICES.map((f) => (
+							<option key={f} value={f} className={`font-opt-${f}`}>
+								{/* Sibling keys (fontStorybook, fontRounded…) rather than font.storybook:
+								    `settings.font` is already the row label, and the catalog flattener
+								    can't hold a string and a nested object under one key. */}
+								{t(`app.settings.font${f[0].toUpperCase()}${f.slice(1)}`)}
+							</option>
+						))}
+					</select>
+				</div>
+				<div className="craft-filter lang-filter">
+					<label htmlFor="settings-textscale">{t('app.settings.textSize')}:</label>
+					<select
+						id="settings-textscale"
+						value={prefs.textScale}
+						onChange={(e) => setPrefs({ textScale: e.target.value as TextScale })}
+					>
+						<option value="sm">{t('app.settings.textSm')}</option>
+						<option value="md">{t('app.settings.textMd')}</option>
+						<option value="lg">{t('app.settings.textLg')}</option>
+						<option value="xl">{t('app.settings.textXl')}</option>
+					</select>
+				</div>
 			</div>
 		</>
 	);
@@ -466,7 +575,7 @@ export function SettingsPanel() {
 		skin: '#eec39a',
 		hair: '#6e4a33',
 		outfit: '#4a7c59',
-		hat: 'straw',
+		hat: 'none',
 		hairstyle: 'short',
 		beard: 'none',
 		body: 'slim',

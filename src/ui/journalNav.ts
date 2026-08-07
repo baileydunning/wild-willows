@@ -38,6 +38,19 @@ export const journalNav = {
 		idx = hist.length - 1;
 		notify();
 	},
+	/**
+	 * Jump straight to a biome's entry list — what a field journal stand does when
+	 * you read it, so the journal always opens on the biome you're standing in.
+	 *
+	 * Recorded as an ordinary visit so Back still returns to wherever you were,
+	 * and it notifies, so a journal panel that's ALREADY open retargets instead of
+	 * quietly staying on its old tab.
+	 */
+	openAt(tab: string) {
+		const cur = hist[idx];
+		// Keep whichever view you were last reading (list or food web).
+		this.visit({ kind: 'view', tab, view: cur?.kind === 'view' ? cur.view : 'list' });
+	},
 	canBack(): boolean {
 		return idx > 0;
 	},

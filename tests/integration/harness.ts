@@ -9,6 +9,7 @@
 import { readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
+import { Packr } from '../../node_modules/harper/node_modules/msgpackr/index.js';
 
 const __dir = dirname(fileURLToPath(import.meta.url));
 const root = join(__dir, '..', '..');
@@ -23,15 +24,46 @@ interface Table {
 	delete(id: string): Promise<void>;
 	search(): AsyncIterable<any>;
 	_rows: Map<string, any>;
+	/** Table class name — the server reads it to pick per-table salvage rules. */
+	name: string;
+	/** Harper's `static primaryStore`: the raw byte store under the table. */
+	primaryStore: any;
+	/**
+	 * Simulate an undecodable row, the way real Harper behaves: the record's bytes
+	 * stay on disk intact but carry trailing framing bytes, so RecordEncoder.decode
+	 * throws "Data read, but end of buffer not reached", logs it, and hands the
+	 * caller **null** — indistinguishable from an absent row. See the salvage notes
+	 * in server/resources.ts.
+	 */
+	_corrupt(id: string): void;
+	/** True once the row decodes normally again (i.e. it healed). */
+	_isCorrupt(id: string): boolean;
 }
 
-function makeTable(): Table {
+function makeTable(name = 'Table'): Table {
 	const rows = new Map<string, any>();
-	return {
+	const corrupt = new Set<string>();
+	// The real encoder, so tests exercise genuine msgpackr behaviour rather than a
+	// hand-rolled imitation of it.
+	const encoder = new Packr({ structures: [], structuredClone: false });
+	// Trailing bytes matching the shape seen in the production hex dumps. Kept as a
+	// plain Uint8Array rather than a Buffer because this project ships no @types/node.
+	const TRAILER = new Uint8Array([0xd5, 0x72, 0x60, 0x00]);
+	const withTrailer = (packed: Uint8Array): Uint8Array => {
+		const out = new Uint8Array(packed.length + TRAILER.length);
+		out.set(packed, 0);
+		out.set(TRAILER, packed.length);
+		return out;
+	};
+
+	const table: Table = {
 		async get(id) {
+			// Harper returns null for a record it cannot decode — it does NOT throw.
+			if (corrupt.has(id)) return undefined;
 			return rows.has(id) ? structuredClone(rows.get(id)) : undefined;
 		},
 		async put(row) {
+			corrupt.delete(row.id); // a full put rewrites the bytes → row is healed
 			rows.set(row.id, structuredClone(row));
 		},
 		async patch(id, partial) {
@@ -39,16 +71,37 @@ function makeTable(): Table {
 			rows.set(id, { ...cur, ...structuredClone(partial) });
 		},
 		async delete(id) {
+			corrupt.delete(id);
 			rows.delete(id);
 		},
 		search() {
-			const snap = [...rows.values()].map((r) => structuredClone(r));
+			// Undecodable rows surface as nulls in a scan, exactly as Harper yields them.
+			const snap = [...rows.values()].map((r) => (corrupt.has(r.id) ? null : structuredClone(r)));
 			return (async function* () {
 				for (const r of snap) yield r;
 			})();
 		},
 		_rows: rows,
+		name,
+		primaryStore: {
+			encoder,
+			// `valueAsBuffer` short-circuits decoding and returns the stored payload.
+			getSync(id: string, options?: any) {
+				if (!rows.has(id)) return undefined;
+				if (!options?.valueAsBuffer) return structuredClone(rows.get(id));
+				const packed = encoder.pack(rows.get(id));
+				return corrupt.has(id) ? withTrailer(packed) : packed;
+			},
+		},
+		_corrupt(id) {
+			if (!rows.has(id)) throw new Error(`cannot corrupt missing row ${name}/${id}`);
+			corrupt.add(id);
+		},
+		_isCorrupt(id) {
+			return corrupt.has(id);
+		},
 	};
+	return table;
 }
 
 const TABLES = [
@@ -84,7 +137,7 @@ export type Db = Record<string, Table>;
 /** Build a fresh world: definition tables seeded from data/*.json, the rest empty. */
 export function makeWorld(): Db {
 	const db: Db = {};
-	for (const t of TABLES) db[t] = makeTable();
+	for (const t of TABLES) db[t] = makeTable(t);
 	const seed = (table: string, recs: any[]) => recs.forEach((r) => db[table]._rows.set(r.id, structuredClone(r)));
 	seed('Biome', load('data/biomes.json'));
 	seed('Animal', [...load('data/animals-1.json'), ...load('data/animals-2.json')]);

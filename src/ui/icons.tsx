@@ -815,6 +815,10 @@ export function CharacterPreview({ appearance, size = 150 }: { appearance: Appea
 	const bw = body === 'round' ? 8 : 0; // extra body width
 	const hp = hatPalette(hat, hatColor); // a/b/line — classic or custom-tinted
 	const flowers = flowerPalette(hatColor); // crown blooms hue-rotate together
+	// Halos, headphones and the visor sit above/beside the hair rather than
+	// covering it, so
+	// the bare-head hair volume (and a top bun) still draws underneath them.
+	const bareHead = hat === 'none' || hat === 'halo' || hat === 'headphones' || hat === 'visor' || hat === 'cat-ears';
 	return (
 		<svg width={size} height={size * 1.13} viewBox="0 0 100 113" aria-label="Your character">
 			<ellipse cx="50" cy="104" rx={26 + bw / 2} ry="7" fill="#000" opacity="0.12" />
@@ -873,6 +877,52 @@ export function CharacterPreview({ appearance, size = 150 }: { appearance: Appea
 					<ellipse cx="75" cy="78.5" rx="3.2" ry="2.4" fill="#c9913f" />
 				</>
 			)}
+			{/* wavy: the silhouette has to carry the waves — the original outline curved
+			    by ~5 units on a 100-unit canvas and read as plain long hair. Three lobes
+			    per side swinging ~10, plus a scalloped hem, so it still reads as "wavy"
+			    down at swatch size. */}
+			{hairstyle === 'wavy' && (
+				<path
+					d="M30 27 C20 36 34 42 24 50 C15 58 32 64 25 71 C19 77 33 78 28 83 Q34 90 40.5 83 Q47 90 53.5 83 Q60 90 66.5 83 Q71 88 72 83 C67 78 81 77 75 71 C68 64 85 58 76 50 C66 42 80 36 70 27 Z"
+					fill={hair}
+				/>
+			)}
+			{hairstyle === 'dreads' && (
+				<g fill={hair}>
+					<ellipse cx="30" cy="36" rx="7.5" ry="9" />
+					<ellipse cx="70" cy="36" rx="7.5" ry="9" />
+					<rect x="21" y="36" width="6" height="40" rx="3" />
+					<rect x="28" y="40" width="6" height="34" rx="3" />
+					<rect x="66" y="40" width="6" height="34" rx="3" />
+					<rect x="73" y="36" width="6" height="40" rx="3" />
+				</g>
+			)}
+			{hairstyle === 'double-braid' && (
+				<>
+					<g fill={hair}>
+						<ellipse cx="32" cy="34" rx="8" ry="9" />
+						<circle cx="29" cy="49" r="6.2" />
+						<circle cx="27" cy="58" r="5.5" />
+						<circle cx="25.5" cy="66" r="4.8" />
+						<circle cx="25" cy="73" r="4" />
+						<ellipse cx="68" cy="34" rx="8" ry="9" />
+						<circle cx="71" cy="49" r="6.2" />
+						<circle cx="73" cy="58" r="5.5" />
+						<circle cx="74.5" cy="66" r="4.8" />
+						<circle cx="75" cy="73" r="4" />
+					</g>
+					<ellipse cx="25" cy="78.5" rx="3.2" ry="2.4" fill="#c9913f" />
+					<ellipse cx="75" cy="78.5" rx="3.2" ry="2.4" fill="#c9913f" />
+				</>
+			)}
+			{hairstyle === 'half-up' && <path d="M29 30 Q26 76 34 85 L66 85 Q74 76 71 30 Z" fill={hair} />}
+			{hairstyle === 'shag' && (
+				<g fill={hair}>
+					<path d="M28 30 Q25 50 30 63 L70 63 Q75 50 72 30 Z" />
+					<path d="M28.5 50 L23 67 L33 61 Z" />
+					<path d="M71.5 50 L77 67 L67 61 Z" />
+				</g>
+			)}
 			{/* body */}
 			<path
 				d={`M${30 - bw} 70 Q${30 - bw} 56 50 56 Q${70 + bw} 56 ${70 + bw} 70 L${68 + bw} 96 Q${68 + bw} 102 60 102 L40 102 Q${32 - bw} 102 ${32 - bw} 96 Z`}
@@ -909,14 +959,112 @@ export function CharacterPreview({ appearance, size = 150 }: { appearance: Appea
 				</g>
 			)}
 			{hairstyle === 'mohawk' && <path d="M43 24 L46 5 L49 21 L52 3 L55 21 L58 6 L60 24 Q52 19 43 24 Z" fill={hair} />}
-			{/* 'bald' draws no hair at all */}
-			{!['curly', 'curly-long', 'afro', 'mohawk', 'bald'].includes(hairstyle) && (
-				<path d="M30 34 Q31 18 50 17 Q69 18 70 34 Q66 26 50 25.5 Q34 26 30 34 Z" fill={hair} />
+			{hairstyle === 'spiky' && (
+				<path
+					d="M30 33 L33 15 L38 19 L41 10 L46 16 L50 8 L54 16 L59 10 L62 19 L67 15 L70 33 Q60 25 50 24.5 Q40 25 30 33 Z"
+					fill={hair}
+				/>
 			)}
-			{hairstyle === 'bun' && hat === 'none' && (
+			{/* pixie: cropped, with the fringe swept across the brow */}
+			{hairstyle === 'pixie' && (
+				<path
+					d="M29 35 Q29 16 50 15.5 Q70.5 16 71 33.5 Q67.5 27 62 26.5 Q53 32.5 42 31.2 Q33.5 30.5 29 35 Z"
+					fill={hair}
+				/>
+			)}
+			{/* cornrows are stroked rows with scalp showing between them */}
+			{hairstyle === 'cornrows' && (
+				<g stroke={hair} strokeWidth="3.4" strokeLinecap="round" fill="none">
+					<path d="M31 34 Q32 20 42 17" />
+					<path d="M38 32.5 Q39 19 46.5 16.4" />
+					<path d="M45.5 31.5 Q45.5 18.5 49.5 16.2" />
+					<path d="M54.5 31.5 Q54.5 18.5 50.5 16.2" />
+					<path d="M62 32.5 Q61 19 53.5 16.4" />
+					<path d="M69 34 Q68 20 58 17" />
+				</g>
+			)}
+			{hairstyle === 'shag' && (
+				<path d="M29 36 Q29 16 50 15.5 Q71 16 71 36 Q66.5 28.5 58 31.5 Q50 27 42 31.5 Q33.5 28.5 29 36 Z" fill={hair} />
+			)}
+			{/* bowl cut: a rounded cap with a blunt, flat fringe */}
+			{hairstyle === 'bowl' && <path d="M29 33 Q29 15 50 15 Q71 15 71 33 Z" fill={hair} />}
+			{hairstyle === 'dreads' && (
+				<g fill={hair}>
+					<path d="M30 34 Q31 18 50 17 Q69 18 70 34 Q66 26 50 25.5 Q34 26 30 34 Z" />
+					<rect x="31.5" y="17" width="4.8" height="11" rx="2.4" />
+					<rect x="38" y="13" width="4.8" height="14" rx="2.4" />
+					<rect x="44.5" y="11" width="4.8" height="15" rx="2.4" />
+					<rect x="51" y="12" width="4.8" height="14" rx="2.4" />
+					<rect x="57.5" y="14.5" width="4.8" height="13" rx="2.4" />
+					<rect x="63.8" y="18" width="4.8" height="10" rx="2.4" />
+				</g>
+			)}
+			{/* 'bald' draws no hair at all */}
+			{![
+				'curly',
+				'curly-long',
+				'afro',
+				'mohawk',
+				'bald',
+				'spiky',
+				'bowl',
+				'dreads',
+				'pixie',
+				'cornrows',
+				'shag',
+			].includes(hairstyle) && <path d="M30 34 Q31 18 50 17 Q69 18 70 34 Q66 26 50 25.5 Q34 26 30 34 Z" fill={hair} />}
+			{/* Long styles drop a lock over each shoulder. These draw AFTER the body and
+			    arms (the bulk of the hair is still the back mass up top, behind them),
+			    which is what puts the hair in front of the shoulders instead of
+			    disappearing behind them at the neckline. */}
+			{/* The strand's OUTER edge stays outside the head circle the whole way down.
+			    Waving it inward past x=30 at the cheekbone uncovered a thin crescent of
+			    skin between the strand and the back mass on each side, so the waviness
+			    lives on the outer silhouette and the hem, where it can't punch a hole in
+			    the face. */}
+			{hairstyle === 'wavy' && (
+				<g fill={hair}>
+					<path d="M31 25 C26 38 25 52 27.5 79 Q32.5 84 37.5 79 C34.5 68 42 60 37 50 C33 41 41 33 39.5 26 Z" />
+					<path d="M69 25 C74 38 75 52 72.5 79 Q67.5 84 62.5 79 C65.5 68 58 60 63 50 C67 41 59 33 60.5 26 Z" />
+				</g>
+			)}
+			{/* The inner edge bows in to x~40/60 around the cheekbone (y 40-50) so the
+			    hair covers a little of each cheek and frames the face, then tapers back
+			    out below the jaw. */}
+			{hairstyle === 'long' && (
+				<g fill={hair}>
+					<path d="M31 27 Q24 52 27.5 84 Q32 89.5 38 85 Q39.5 64 40.5 46 Q41 35 39.5 28 Z" />
+					<path d="M69 27 Q76 52 72.5 84 Q68 89.5 62 85 Q60.5 64 59.5 46 Q59 35 60.5 28 Z" />
+				</g>
+			)}
+			{hairstyle === 'curly-long' && (
+				<g fill={hair}>
+					<path d="M33 29 Q27 52 29 80 Q33 85 37.5 81 Q36 56 37.5 29 Z" />
+					<circle cx="30" cy="62" r="5.6" />
+					<circle cx="31" cy="73" r="5.4" />
+					<circle cx="33" cy="83" r="5.2" />
+					<path d="M67 29 Q73 52 71 80 Q67 85 62.5 81 Q64 56 62.5 29 Z" />
+					<circle cx="70" cy="62" r="5.6" />
+					<circle cx="69" cy="73" r="5.4" />
+					<circle cx="67" cy="83" r="5.2" />
+				</g>
+			)}
+			{hairstyle === 'bun' && bareHead && (
 				<g>
 					<circle cx="50" cy="11" r="9" fill={hair} />
 					<rect x="42" y="16" width="16" height="4" rx="2" fill="#c9913f" />
+				</g>
+			)}
+			{hairstyle === 'half-up' && bareHead && (
+				<g>
+					<ellipse cx="50" cy="13" rx="6.8" ry="5.6" fill={hair} />
+					<rect x="44" y="16.6" width="12" height="3.2" rx="1.6" fill="#c9913f" />
+				</g>
+			)}
+			{hairstyle === 'space-buns' && bareHead && (
+				<g fill={hair}>
+					<circle cx="33" cy="19.5" r="8" />
+					<circle cx="67" cy="19.5" r="8" />
 				</g>
 			)}
 			{/* face */}
@@ -1001,6 +1149,27 @@ export function CharacterPreview({ appearance, size = 150 }: { appearance: Appea
 					<path d="M37 21 Q50 25 63 21" stroke={hp.line} strokeWidth="3" fill="none" />
 				</g>
 			)}
+			{hat === 'acorn' && (
+				<g>
+					<path d="M29 27 Q29 8 50 8 Q71 8 71 27 Q60 23 50 23 Q40 23 29 27 Z" fill={hp.a} />
+					<g stroke={hp.line} strokeWidth="1.2" fill="none" opacity="0.55">
+						<path d="M36 11 L33.5 25.5" />
+						<path d="M43 8.8 L41.5 24" />
+						<path d="M50 8.2 L50 23.2" />
+						<path d="M57 8.8 L58.5 24" />
+						<path d="M64 11 L66.5 25.5" />
+					</g>
+					<path d="M50 8 L50 2.5" stroke={hp.line} strokeWidth="3.2" strokeLinecap="round" />
+					<circle cx="50" cy="2.5" r="2.2" fill={hp.b} />
+				</g>
+			)}
+			{hat === 'beret' && (
+				<g>
+					<path d="M28 26 Q25.5 12 47 9.5 Q70 7.5 74.5 19 Q76.5 25.5 66 27.5 Q47 30.5 28 26 Z" fill={hp.a} />
+					<path d="M28 26 Q47 30.5 66 27.5 Q49 33 30 29.5 Z" fill={hp.line} />
+					<circle cx="47.5" cy="9" r="2.8" fill={hp.b} />
+				</g>
+			)}
 			{hat === 'mushroom' && (
 				<g>
 					<path d="M29 22 Q29 3 50 3 Q71 3 71 22 Q71 25 67 25 L33 25 Q29 25 29 22 Z" fill={hp.a} />
@@ -1020,6 +1189,14 @@ export function CharacterPreview({ appearance, size = 150 }: { appearance: Appea
 						d="M55 6 L56.2 9 L59.4 9.2 L56.9 11.1 L57.8 14.2 L55 12.4 L52.2 14.2 L53.1 11.1 L50.6 9.2 L53.8 9 Z"
 						fill="#f4e08a"
 					/>
+				</g>
+			)}
+			{hat === 'witch' && (
+				<g>
+					<ellipse cx="50" cy="25" rx="31" ry="7.5" fill={hp.a} />
+					<path d="M64 -8 Q54 4 61 25 L39 25 Q50 8 64 -8 Z" fill={hp.b} />
+					<rect x="40" y="19.5" width="21" height="5.5" fill={hp.line} />
+					<rect x="47.5" y="20.4" width="5" height="3.7" fill="#e0b23e" />
 				</g>
 			)}
 			{hat === 'crown' && (
@@ -1042,8 +1219,115 @@ export function CharacterPreview({ appearance, size = 150 }: { appearance: Appea
 					<circle cx="50" cy="14" r="1.2" fill="#fff" opacity="0.55" />
 				</g>
 			)}
-			{hat === 'none' && !['curly', 'curly-long', 'afro', 'mohawk', 'bun', 'bald'].includes(hairstyle) && (
-				<path d="M31 32 Q31 14 50 14 Q69 14 69 32 Q66 22 50 21 Q34 22 31 32 Z" fill={hair} />
+			{hat === 'tophat' && (
+				<g>
+					<ellipse cx="50" cy="24" rx="30" ry="6.5" fill={hp.b} />
+					<path d="M37.5 24 L37.5 0 Q50 -2 62.5 0 L62.5 24 Z" fill={hp.a} />
+					<rect x="37.5" y="16.5" width="25" height="5" fill={hp.line} />
+					<circle cx="58.5" cy="19" r="1.6" fill="#f4e08a" />
+				</g>
+			)}
+			{/* Folded-newspaper hat: the flat trapezoid it used to be read as a plain
+			    paper cap. The giveaway shapes are the two upswept corners with a dipped
+			    crown between them, the deep folded brim, and the centre crease with the
+			    newsprint running either side of it. */}
+			{hat === 'newspaper' && (
+				<g>
+					<path d="M20 29 L26.5 11 Q50 20 73.5 11 L80 29 Z" fill={hp.a} />
+					<path d="M50 17.6 L50 29" stroke={hp.line} strokeWidth="1" opacity="0.55" />
+					<g stroke={hp.line} strokeWidth="1.05" strokeLinecap="round" opacity="0.6">
+						<path d="M31 22 L46 22" />
+						<path d="M54 22 L69 22" />
+						<path d="M29.5 26 L46 26" />
+						<path d="M54 26 L70.5 26" />
+					</g>
+					<path d="M18 27.5 L82 27.5 Q80 33.5 50 35 Q20 33.5 18 27.5 Z" fill={hp.b} />
+					<path d="M18 27.5 L82 27.5" stroke={hp.line} strokeWidth="1" opacity="0.5" />
+				</g>
+			)}
+			{hat === 'chef' && (
+				<g>
+					<g fill={hp.b}>
+						<circle cx="38" cy="10" r="9" />
+						<circle cx="50" cy="5.5" r="10.5" />
+						<circle cx="62" cy="10" r="9" />
+					</g>
+					<path d="M36 12 L64 12 L64 23.5 Q50 26 36 23.5 Z" fill={hp.a} />
+					<path d="M36 20 Q50 22.5 64 20" stroke={hp.line} strokeWidth="2" fill="none" />
+				</g>
+			)}
+			{hat === 'pirate' && (
+				<g>
+					{/* tricorn: brim swept up into a point either side, dipping in the middle */}
+					<path
+						d="M16 29 Q19 12 33 7 Q41 15 50 15 Q59 15 67 7 Q81 12 84 29 Q67 27.5 50 27.5 Q33 27.5 16 29 Z"
+						fill={hp.a}
+					/>
+					<path d="M16 29 Q33 34.5 50 34.5 Q67 34.5 84 29 Q67 26.5 50 26.5 Q33 26.5 16 29 Z" fill={hp.b} />
+					<path d="M21 27 Q35 22.5 50 22 Q65 22.5 79 27" stroke={hp.line} strokeWidth="1.5" fill="none" opacity="0.5" />
+					<circle cx="50" cy="19" r="4.2" fill="#f6efe3" />
+					<circle cx="48.4" cy="18.4" r="1.1" fill={hp.a} />
+					<circle cx="51.6" cy="18.4" r="1.1" fill={hp.a} />
+					<path d="M46.8 22.2 L53.2 22.2 L52 24.4 L48 24.4 Z" fill="#f6efe3" />
+				</g>
+			)}
+			{hat === 'frog' && (
+				<g>
+					<path d="M29 30 Q29 11 50 11 Q71 11 71 30 Q60 25.5 50 25.5 Q40 25.5 29 30 Z" fill={hp.a} />
+					<circle cx="37" cy="12" r="7.5" fill={hp.a} />
+					<circle cx="63" cy="12" r="7.5" fill={hp.a} />
+					<circle cx="37" cy="11" r="4.6" fill="#fdf6e8" />
+					<circle cx="63" cy="11" r="4.6" fill="#fdf6e8" />
+					<circle cx="37" cy="11.6" r="2.3" fill="#2b2b2b" />
+					<circle cx="63" cy="11.6" r="2.3" fill="#2b2b2b" />
+				</g>
+			)}
+			{bareHead &&
+				![
+					'curly',
+					'curly-long',
+					'afro',
+					'mohawk',
+					'bun',
+					'bald',
+					'spiky',
+					'bowl',
+					'dreads',
+					'pixie',
+					'cornrows',
+					'shag',
+				].includes(hairstyle) && <path d="M31 32 Q31 14 50 14 Q69 14 69 32 Q66 22 50 21 Q34 22 31 32 Z" fill={hair} />}
+			{/* visor, halo, headphones + cat ears layer over the hair, not instead of it */}
+			{hat === 'cat-ears' && (
+				<g>
+					<path d="M33 25 L36.5 6 L49.5 20.5 Z" fill={hp.a} />
+					<path d="M67 25 L63.5 6 L50.5 20.5 Z" fill={hp.a} />
+					<path d="M36.8 21.5 L38.6 12 L45 19 Z" fill="#e8a0b0" />
+					<path d="M63.2 21.5 L61.4 12 L55 19 Z" fill="#e8a0b0" />
+				</g>
+			)}
+			{hat === 'visor' && (
+				<g>
+					<path d="M23 30 Q23 22 50 22 Q77 22 77 30 Q64 26.5 50 26.5 Q36 26.5 23 30 Z" fill={hp.b} />
+					<path d="M30 27.5 Q30 19.5 50 19.5 Q70 19.5 70 27.5 Q60 24.5 50 24.5 Q40 24.5 30 27.5 Z" fill={hp.a} />
+					<path d="M32.5 24.5 Q50 21.4 67.5 24.5" stroke={hp.line} strokeWidth="1.6" fill="none" opacity="0.7" />
+				</g>
+			)}
+			{hat === 'halo' && (
+				<g>
+					<ellipse cx="50" cy="9" rx="16" ry="4.6" fill="none" stroke={hp.a} strokeWidth="3.6" />
+					<ellipse cx="50" cy="9" rx="16" ry="4.6" fill="none" stroke={hp.b} strokeWidth="1.3" />
+					<circle cx="63" cy="6.5" r="1.5" fill="#fff3c4" />
+				</g>
+			)}
+			{hat === 'headphones' && (
+				<g>
+					<path d="M28 40 Q28 12 50 12 Q72 12 72 40" stroke={hp.a} strokeWidth="5" fill="none" strokeLinecap="round" />
+					<rect x="22.5" y="32" width="11" height="17" rx="5" fill={hp.b} />
+					<rect x="66.5" y="32" width="11" height="17" rx="5" fill={hp.b} />
+					<rect x="25.5" y="35.5" width="5" height="10" rx="2.5" fill={hp.line} />
+					<rect x="69.5" y="35.5" width="5" height="10" rx="2.5" fill={hp.line} />
+				</g>
 			)}
 		</svg>
 	);

@@ -20,3 +20,108 @@ export interface ClickContext {
 export function canPaintClick(ctx: ClickContext): boolean {
 	return ctx.tool === 'paint' && ctx.isHome && !ctx.placing && !ctx.moving;
 }
+
+// ------------------------------------------------------- sleeping furniture
+
+/** The two things you can sleep on. Mirrors SLEEPABLE_OBJECTS in
+ *  server/resources.ts, which is the authoritative copy. */
+export const SLEEPABLE_OBJECTS: ReadonlySet<string> = new Set(['home-bed', 'home-sleeping-bag']);
+
+export const isSleepable = (objectId: string | null | undefined): boolean =>
+	!!objectId && SLEEPABLE_OBJECTS.has(objectId);
+
+/**
+ * Whether a bed at (tx, ty) would block the way in and out of an interior.
+ *
+ * Sleeping skips the clock forward to the next dawn, so a bed left sitting in
+ * the doorway is a trap: you cross it every time you try to leave. Refuse the
+ * door tile and the eight around it (Chebyshev distance ≤ 1) so there's always a
+ * clear step through. Non-sleepable furniture is unaffected — an ornament by the
+ * door is harmless.
+ *
+ * The server enforces the same rule in PlaceObject and MoveObject; this copy
+ * exists so the placement ghost reads red instead of the click being rejected.
+ */
+export function blocksDoorway(
+	objectId: string | null | undefined,
+	door: { doorX: number; doorY: number },
+	tx: number,
+	ty: number,
+): boolean {
+	if (!isSleepable(objectId)) return false;
+	return Math.abs(tx - door.doorX) <= 1 && Math.abs(ty - door.doorY) <= 1;
+}
+
+// ------------------------------------------------------------ tween hygiene
+
+/**
+ * Phaser tweens are fire-and-forget: the manager drops one when it COMPLETES.
+ * A `repeat: -1` tween never completes, and destroying the sprite it drives does
+ * NOT remove it — so it keeps ticking against a dead object for the rest of the
+ * session, costing frame time and holding the object in memory.
+ *
+ * That was the session-long slowdown only a re-login cleared: the world layers
+ * are rebuilt constantly, every rebuild destroyed sprites carrying looping
+ * tweens (swaying grass, bobbing water, pulsing nodes, breathing animals), and
+ * the orphans piled up. Logging out "fixed" it because scene shutdown destroys
+ * the whole TweenManager.
+ *
+ * Split out here so the rule can be tested without booting Phaser.
+ */
+
+/** Minimal shape of the bits we judge. A live Phaser GameObject has a `scene`;
+ *  `destroy()` nulls it. Plain objects never had one. */
+export interface TweenTargetLike {
+	scene?: unknown;
+}
+
+/**
+ * Should this tween be swept?
+ *
+ * Only game objects are judged: a tween may legitimately drive a plain value
+ * holder (the weather cross-fade animates a `{ t: 0 }` counter), which has no
+ * lifecycle and must never be swept. A tween goes only when EVERY game-object
+ * target it has is destroyed — one live target means it's still doing work.
+ */
+export function isOrphanedTween(targets: unknown[] | undefined, isGameObject: (t: unknown) => boolean): boolean {
+	if (!targets?.length) return false;
+	const judged = targets.filter(isGameObject) as TweenTargetLike[];
+	if (!judged.length) return false; // plain-object targets: not ours to judge
+	return judged.every((t) => !t.scene);
+}
+
+// -------------------------------------------------------- night-light mask
+
+/**
+ * Where a screen-space overlay must sit, and at what scale, to render 1:1 over
+ * the viewport despite the camera's zoom.
+ *
+ * Phaser's camera matrix is `translate(x + origin) · scale(zoom) · translate(-origin)`,
+ * so an object with `scrollFactor: 0` at position `p` lands at
+ * `screen = p·zoom + origin·(1 − zoom) + camX`. A BitmapMask is rendered through
+ * that same camera and then sampled in screen space, so a mask left at scale 1
+ * and position 0 comes out `zoom`× too big and offset — which put every stamped
+ * light at zoom² of its intended position, sliding the campfire halo off the
+ * fire as the camera scrolled.
+ *
+ * Solving `screen = 0` for `p` and cancelling the scale gives the values below.
+ */
+export function screenSpaceOverlayTransform(cam: {
+	width: number;
+	height: number;
+	originX: number;
+	originY: number;
+	zoom: number;
+	x?: number;
+	y?: number;
+}): { scale: number; x: number; y: number } {
+	const invZoom = 1 / cam.zoom;
+	return {
+		scale: invZoom,
+		x: cam.width * cam.originX * (1 - invZoom) - (cam.x ?? 0) * invZoom,
+		y: cam.height * cam.originY * (1 - invZoom) - (cam.y ?? 0) * invZoom,
+	};
+}
+
+/** Where a world point renders on screen, given the camera's visible world rect. */
+export const worldToScreen = (world: number, viewEdge: number, zoom: number): number => (world - viewEdge) * zoom;

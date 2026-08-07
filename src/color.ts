@@ -70,6 +70,18 @@ const HAT_BASE: Record<string, { a: string; b?: string; line?: string }> = {
 	mushroom: { a: '#c9584c', b: '#d4685c', line: '#a84237' },
 	ranger: { a: '#8a734f', b: '#9c845c', line: '#5d4a36' },
 	bandana: { a: '#b05555', b: '#c96a5f', line: '#8d3f3f' },
+	visor: { a: '#4f9a94', b: '#5fada6', line: '#3a7a74' },
+	acorn: { a: '#a0763f', b: '#b0854b', line: '#7a5730' },
+	beret: { a: '#a8455a', b: '#bc5a6e', line: '#843546' },
+	witch: { a: '#2f2a3a', b: '#3c3550', line: '#211d2b' },
+	newspaper: { a: '#e8e4d8', b: '#d8d3c4', line: '#a29a8a' },
+	frog: { a: '#6aa84f', b: '#7cb95f', line: '#4f8038' },
+	'cat-ears': { a: '#4a444f', b: '#5a5461', line: '#332f3a' },
+	tophat: { a: '#3f3b47', b: '#4d4857', line: '#2b2833' },
+	chef: { a: '#f2efe6', b: '#fbf9f3', line: '#d5d0c2' },
+	pirate: { a: '#3a3340', b: '#4a4252', line: '#272231' },
+	headphones: { a: '#5c6470', b: '#6f7885', line: '#3f4650' },
+	halo: { a: '#f4d97a', b: '#fbeaa8', line: '#d0ae45' },
 };
 
 export function hatPalette(hat: string, custom?: string | null): { a: string; b: string; line: string } {

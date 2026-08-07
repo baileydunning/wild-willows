@@ -39,6 +39,7 @@ import { JoinWaitingScreen } from './ui/JoinWaiting';
 import { JoinApprovalPopup } from './ui/JoinApproval';
 import { PeoplePanel } from './ui/People';
 import { Icon, ObjectIcon, ResourceIcon } from './ui/icons';
+import { journalNav } from './ui/journalNav';
 
 interface ClickedPlacement {
 	placementId: string;
@@ -226,7 +227,13 @@ function GameScreen() {
 			bridge.on('collect-node', (p: any) => game.collect(p.biomeId, p.nodeId, p.resourceId)),
 			bridge.on('open-chest', (p: any) => game.openChest(p.chestId)),
 			bridge.on('open-crafting', () => setPanel('crafting')),
-			bridge.on('open-journal', () => setPanel('journal')),
+			bridge.on('open-journal', (p: any) => {
+				// A field journal stand sends the biome it stands in; point the journal
+				// there before opening so it never shows a different biome's page. The
+				// menu/J-key path sends nothing and keeps resuming where you left off.
+				if (p?.area) journalNav.openAt(p.area);
+				setPanel('journal');
+			}),
 			bridge.on('open-home', () => setPanel('home')),
 			bridge.on('rest', () => game.rest()),
 			bridge.on('paint-click', (p: any) => {

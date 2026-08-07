@@ -69,16 +69,11 @@
 	"prompt": {
 		"tap": "Tap",
 		"click": "Click",
-		"tapLower": "tap",
-		"clickLower": "click",
 		"rotateHint": " · \\ to rotate",
 		"escCancel": " · Esc to cancel",
 		"escStopPlacing": " · Esc to stop placing",
 		"moveTile": "{verb} a tile to move it there",
 		"placeTile": "{verb} a tile to place",
-		"shovel": "Shovel — {verb} ground to dig a bed (may turn up materials)",
-		"wateringCan": "Watering can — {verb} a bed to water it, again to flood it",
-		"near": "{verb} — {label}",
-		"nearSuffix": " · {verb} — {label}"
+		"near": "{verb} — {label}"
 	}
 }

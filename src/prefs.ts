@@ -5,6 +5,8 @@
 // safe to import in non-DOM environments (guards document / matchMedia).
 
 import { useSyncExternalStore } from 'react';
+import { scheduleFlush, flushNow } from './perf';
+import { setSimpleText } from './i18n/core';
 
 export type TextScale = 'sm' | 'md' | 'lg' | 'xl';
 
@@ -13,14 +15,25 @@ export type TextScale = 'sm' | 'md' | 'lg' | 'xl';
  *  achromatopsia). 'off' disables it. */
 export type ColorblindMode = 'off' | 'redgreen' | 'blueyellow' | 'mono';
 
+/** UI typeface. Every one of these resolves to fonts already on the machine (or,
+ *  for 'storybook', the two the app already loads), so switching costs no
+ *  download and works with no network — which matters for the desktop and iOS
+ *  builds that can run entirely offline. */
+export type FontChoice = 'storybook' | 'rounded' | 'classic' | 'plain' | 'typewriter';
+export const FONT_CHOICES: FontChoice[] = ['storybook', 'rounded', 'classic', 'plain', 'typewriter'];
+
 export interface Prefs {
 	/** Turn off UI animations/transitions and in-world weather particles. */
 	reduceMotion: boolean;
 	/** Colorblind assistance: a per-type color-correction filter plus the
 	 *  high-contrast theme and labeled cues. 'off' when not needed. */
 	colorblindMode: ColorblindMode;
-	/** Switch the UI to a dyslexia-friendly typeface with roomier spacing. */
-	dyslexiaFont: boolean;
+	/** Which typeface the interface is set in. */
+	fontChoice: FontChoice;
+	/** Deepen the palette until text and edges clear WCAG AA, without leaving the
+	 *  warm cream-and-green look behind. Distinct from colorblindMode, which
+	 *  additionally colour-corrects and goes stark black-on-white. */
+	highContrast: boolean;
 	/** UI text/control scale. */
 	textScale: TextScale;
 	/** Play background music and ambience. */
@@ -35,6 +48,10 @@ export interface Prefs {
 	keybinds: Record<string, string[]>;
 	/** Show the pulsing ring + key badge over the nearest interactable. */
 	interactHint: boolean;
+	/** Swap the game's wording for plainer phrasing (~5th-grade reading level):
+	 *  shorter sentences, everyday words, jargon dropped or explained in place.
+	 *  Applies to the interface AND the nature writing. */
+	simpleText: boolean;
 }
 
 /** The zoom factor applied to the UI overlays for each text-size step. */
@@ -46,7 +63,8 @@ const STORAGE_KEY = 'ww:a11y';
 const DEFAULTS: Prefs = {
 	reduceMotion: false,
 	colorblindMode: 'off',
-	dyslexiaFont: false,
+	fontChoice: 'storybook',
+	highContrast: false,
 	textScale: 'md',
 	musicEnabled: true,
 	sfxEnabled: true,
@@ -54,6 +72,7 @@ const DEFAULTS: Prefs = {
 	sfxVolume: 0.75,
 	keybinds: {},
 	interactHint: true,
+	simpleText: false,
 };
 
 /** Clamp an arbitrary value to a 0–1 volume, falling back when it isn't a number. */
@@ -87,11 +106,17 @@ function normalizeKeybinds(raw: any): Record<string, string[]> {
 
 export function normalizePrefs(raw: any, fallbackReduce = false): Prefs {
 	const o = raw && typeof raw === 'object' ? raw : {};
-	const dyslexiaFont = typeof o.dyslexiaFont === 'boolean' ? o.dyslexiaFont : DEFAULTS.dyslexiaFont;
-	let textScale: TextScale = TEXT_SCALES.includes(o.textScale) ? o.textScale : DEFAULTS.textScale;
-	// OpenDyslexic already renders larger than the default face, so the extra-large
-	// step on top of it overflows the UI. Cap at large whenever the font is on.
-	if (dyslexiaFont && textScale === 'xl') textScale = 'lg';
+	const textScale: TextScale = TEXT_SCALES.includes(o.textScale) ? o.textScale : DEFAULTS.textScale;
+	// Font: the picker replaced a `dyslexiaFont` on/off switch that swapped in
+	// OpenDyslexic. That face is gone, so a save that had it on can't be honoured
+	// literally — but silently dropping such a player back to the decorative
+	// default would undo a deliberate readability choice. 'plain' (the plainest
+	// system sans) is the closest thing still on offer.
+	const fontChoice: FontChoice = FONT_CHOICES.includes(o.fontChoice)
+		? o.fontChoice
+		: o.dyslexiaFont === true
+			? 'plain'
+			: DEFAULTS.fontChoice;
 	// Colorblind: prefer the new mode enum; migrate the legacy on/off boolean to
 	// the most common (red-green) mode so existing saves keep their assistance.
 	const colorblindMode: ColorblindMode = COLORBLIND_MODES.includes(o.colorblindMode)
@@ -104,7 +129,8 @@ export function normalizePrefs(raw: any, fallbackReduce = false): Prefs {
 	return {
 		reduceMotion: typeof o.reduceMotion === 'boolean' ? o.reduceMotion : fallbackReduce,
 		colorblindMode,
-		dyslexiaFont,
+		fontChoice,
+		highContrast: typeof o.highContrast === 'boolean' ? o.highContrast : DEFAULTS.highContrast,
 		textScale,
 		musicEnabled: typeof o.musicEnabled === 'boolean' ? o.musicEnabled : DEFAULTS.musicEnabled,
 		sfxEnabled: typeof o.sfxEnabled === 'boolean' ? o.sfxEnabled : DEFAULTS.sfxEnabled,
@@ -112,6 +138,7 @@ export function normalizePrefs(raw: any, fallbackReduce = false): Prefs {
 		sfxVolume: normalizeVolume(o.sfxVolume, DEFAULTS.sfxVolume),
 		keybinds: normalizeKeybinds(o.keybinds),
 		interactHint: typeof o.interactHint === 'boolean' ? o.interactHint : DEFAULTS.interactHint,
+		simpleText: typeof o.simpleText === 'boolean' ? o.simpleText : DEFAULTS.simpleText,
 	};
 }
 
@@ -122,12 +149,18 @@ export function getPrefs(): Prefs {
 	return current;
 }
 
+/** Push the plain-language choice into the i18n layer, which owns the overlay. */
+function applyToI18n(p: Prefs): void {
+	setSimpleText(p.simpleText);
+}
+
 function applyToDom(p: Prefs): void {
 	if (typeof document === 'undefined' || !document.documentElement) return;
 	const root = document.documentElement;
 	root.dataset.reduceMotion = p.reduceMotion ? '1' : '0';
 	root.dataset.colorblind = p.colorblindMode; // off | redgreen | blueyellow | mono
-	root.dataset.dyslexiaFont = p.dyslexiaFont ? '1' : '0';
+	root.dataset.font = p.fontChoice;
+	root.dataset.highContrast = p.highContrast ? '1' : '0';
 	root.dataset.textScale = p.textScale;
 	root.style.setProperty('--ui-scale', String(TEXT_SCALE_VALUES[p.textScale]));
 }
@@ -140,15 +173,49 @@ export function subscribe(fn: (p: Prefs) => void): () => void {
 	};
 }
 
-/** Merge a patch into the current prefs, persist, apply to the DOM, and notify. */
-export function setPrefs(patch: Partial<Prefs>): Prefs {
-	current = normalizePrefs({ ...current, ...patch });
+// localStorage.setItem is synchronous, main-thread work. The volume sliders call
+// setPrefs on every change event — dozens per second while dragging — so writing
+// inline meant a blocking serialize+store per pixel of travel. Coalesce instead:
+// the in-memory value and the DOM update stay immediate (so the UI is still exact
+// to the frame), and only the write is deferred to the next frame. A drag
+// therefore ends in one write instead of a hundred.
+let writeQueued = false;
+
+function writePrefsNow(): void {
+	writeQueued = false;
 	try {
 		localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
 	} catch {
 		/* storage unavailable (private mode etc.) — still applies for the session */
 	}
+}
+
+function queuePrefsWrite(): void {
+	if (writeQueued) return;
+	writeQueued = true;
+	scheduleFlush('prefs:write', writePrefsNow);
+}
+
+// A deferred write must never be the reason a preference is lost, so force it out
+// on the way down. This matters more than it looks: once a tab is hidden the
+// browser stops firing requestAnimationFrame entirely, so a queued write would
+// otherwise sit there indefinitely. pagehide covers the mobile/bfcache path that
+// beforeunload misses.
+if (typeof window !== 'undefined') {
+	const flushPrefs = () => flushNow('prefs:write');
+	window.addEventListener('beforeunload', flushPrefs);
+	window.addEventListener('pagehide', flushPrefs);
+	document.addEventListener('visibilitychange', () => {
+		if (document.visibilityState === 'hidden') flushPrefs();
+	});
+}
+
+/** Merge a patch into the current prefs, persist, apply to the DOM, and notify. */
+export function setPrefs(patch: Partial<Prefs>): Prefs {
+	current = normalizePrefs({ ...current, ...patch });
+	queuePrefsWrite();
 	applyToDom(current);
+	applyToI18n(current);
 	listeners.forEach((fn) => {
 		try {
 			fn(current);
@@ -172,3 +239,4 @@ try {
 	current = normalizePrefs(null, systemReduceMotion());
 }
 applyToDom(current);
+applyToI18n(current); // the saved choice must apply before the first render

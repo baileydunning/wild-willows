@@ -176,6 +176,7 @@
 			"gotIt": "Got it"
 		},
 		"language": "Language",
+		"demoSaveUnreachable": "We couldn't reach the server, so your saved preserve isn't available right now. It's safe — try again in a moment.",
 		"reaching": "Reaching the preserve…",
 		"errName": "Enter the name you’ll play as",
 		"errCode": "Enter the join code your friend shared",
@@ -236,8 +237,6 @@
 		"weatherLabel": "Weather",
 		"hideMenu": "Hide menu",
 		"showMenu": "Show menu",
-		"saveRetryTitle": "A save didn't go through — it'll keep retrying",
-		"retry": "Retry",
 		"groupLearn": "Learn",
 		"groupBuild": "Build",
 		"groupWorld": "World",
@@ -299,14 +298,26 @@
 			"leaf": "Leaf hat",
 			"beanie": "Beanie",
 			"cap": "Cap",
+			"visor": "Visor",
 			"bucket": "Bucket hat",
 			"flower": "Flower crown",
 			"party": "Party hat",
 			"ranger": "Ranger hat",
+			"beret": "Beret",
+			"acorn": "Acorn cap",
 			"mushroom": "Mushroom cap",
 			"wizard": "Wizard hat",
+			"witch": "Witch hat",
 			"crown": "Crown",
 			"bandana": "Bandana",
+			"tophat": "Top hat",
+			"newspaper": "Newspaper hat",
+			"chef": "Chef's hat",
+			"pirate": "Pirate hat",
+			"cat-ears": "Cat ears",
+			"frog": "Frog hat",
+			"headphones": "Headphones",
+			"halo": "Halo",
 			"none": "No hat"
 		},
 		"hairstyleLabel": {
@@ -321,7 +332,17 @@
 			"ponytail": "Ponytail",
 			"pigtails": "Pigtails",
 			"afro": "Afro",
-			"mohawk": "Mohawk"
+			"mohawk": "Mohawk",
+			"wavy": "Wavy",
+			"spiky": "Spiky",
+			"dreads": "Locs",
+			"space-buns": "Space buns",
+			"bowl": "Bowl cut",
+			"double-braid": "Double braids",
+			"half-up": "Half up",
+			"pixie": "Pixie cut",
+			"cornrows": "Cornrows",
+			"shag": "Shag"
 		},
 		"beardLabel": {
 			"none": "No beard",
@@ -422,6 +443,8 @@
 		"controls": "Controls",
 		"reduceMotion": "Reduce motion",
 		"reduceMotionHint": "Stops UI animations, weather particles like rain and snow, camera pans when you travel, and the day-and-night lighting cycle — the view stays still and evenly lit.",
+		"simpleText": "Simpler wording",
+		"simpleTextHint": "Uses shorter sentences and everyday words across the whole game, including the animal notes. Nothing is hidden — it is just said more plainly.",
 		"interactHint": "Interaction highlight",
 		"interactHintHint": "Show the pulsing ring and key badge over things you can interact with.",
 		"colorblind": "Colorblind mode",
@@ -435,8 +458,6 @@
 			"blueyellow": "Blue–yellow (tritanopia) is rarer — blues and greens, and yellows and pinks, are hard to tell apart. This separates those hues in the world, adds high contrast and text labels, and steadies the lighting.",
 			"mono": "Achromatopsia is seeing little or no color at all. This renders the game in black and white and leans fully on contrast, outlines, and text labels instead of color."
 		},
-		"dyslexiaFont": "Dyslexia-friendly font",
-		"dyslexiaFontHint": "Switches to OpenDyslexic — its letters have heavier, weighted bottoms that anchor each shape, making them harder to flip or rotate so similar letters are easier to tell apart.",
 		"textSize": "Text size",
 		"textSm": "Small",
 		"textMd": "Normal",
@@ -451,8 +472,16 @@
 		"sent": "Sent!",
 		"sending": "Sending…",
 		"errFeedback": "Could not send feedback",
-		"feedbackQueued": "You look offline — your feedback is saved and will send when you next start the game.",
-		"build": "build {time}"
+		"feedbackQueued": "We couldn't send that just now — your feedback is saved and will go out automatically next time you start the game.",
+		"build": "build {time}",
+		"font": "Font",
+		"fontStorybook": "Storybook",
+		"fontRounded": "Rounded",
+		"fontClassic": "Classic",
+		"fontPlain": "Plain",
+		"fontTypewriter": "Typewriter",
+		"highContrast": "High contrast",
+		"highContrastHint": "Deepens the text, borders, and accent colors until everything meets the WCAG AA readability standard — while keeping the warm cream-and-green look."
 	},
 	"kbGate": {
 		"title": "Wild Willows needs a keyboard",
@@ -462,9 +491,6 @@
 		"arrowKeys": "arrow keys",
 		"body3": ", and reach for your basket, tools, and journal with shortcut keys — so it doesn’t work on a phone or tablet on its own.",
 		"hint": "Open Wild Willows on a computer, or connect a keyboard and press any key to begin."
-	},
-	"mobile": {
-		"interact": "Interact"
 	},
 	"demo": {
 		"doneTitle": "Thanks for playing the Wild Willows demo!",

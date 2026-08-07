@@ -141,7 +141,8 @@
 			"recovering": "En recuperación",
 			"thriving": "Próspero",
 			"restored": "Restaurado"
-		}
+		},
+		"youAreHereNamed": "{biome}: estás aquí"
 	},
 	"home": {
 		"buildTitle": "Construye tu hogar",
@@ -275,8 +276,14 @@
 		},
 		"foodWebIntro": "Las filas superiores cazan a las de abajo. {returned}/{total} descubiertos — restaura más hábitat para revelar el resto de la red.",
 		"undiscovered": "{kind} sin descubrir",
-		"neighborsAfter": "Se instaló cuando {list} ya estaban aquí.",
-		"neighborsFollowed": "Una vez que este volvió, le siguieron {list}.",
+		"neighborsAfter": {
+			"one": "Se instaló cuando {list} ya estaba aquí.",
+			"other": "Se instaló cuando {list} ya estaban aquí."
+		},
+		"neighborsFollowed": {
+			"one": "Una vez que este volvió, le siguió {list}.",
+			"other": "Una vez que este volvió, le siguieron {list}."
+		},
 		"comfortBadge": "{label} · {comfort}%",
 		"observed": {
 			"one": "Observado {count} vez · primer avistamiento: {date}",
