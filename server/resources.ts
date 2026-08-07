@@ -3895,13 +3895,48 @@ export class CreatePlayer extends PublicEndpoint {
  * POST /DeletePlayer/ {name, passcode} — permanently delete a save and every
  * record that belongs to it. Passcode required so nobody can wipe your preserve.
  */
+/**
+ * Resolve the save behind a typed caretaker name + passcode.
+ *
+ * Player ids used to BE the name slug, so every "log me in / delete my save"
+ * endpoint just rebuilt the id from the name. Ids are unique per save now (names
+ * are a label, and two saves may share one), so the id can no longer be derived
+ * — we try the legacy slug first for saves created before the change, then fall
+ * back to every player carrying that name and let the passcode pick.
+ *
+ * `nameSeen` keeps the old 404-vs-403 split: no save by that name at all, versus
+ * a save whose passcode did not match.
+ */
+async function resolveByNameAndPasscode(name: any, passcode: any): Promise<{ player: any | null; nameSeen: boolean }> {
+	const wanted = String(name || '')
+		.trim()
+		.toLowerCase();
+	if (!wanted) return { player: null, nameSeen: false };
+	const slug = slugId(String(name || ''));
+	const legacy = slug ? await safeGet(db().Player, slug) : null;
+	if (legacy && (await verifyPasscode(legacy, passcode))) return { player: legacy, nameSeen: true };
+	const candidates = (await allOf(db().Player)).filter(
+		(p: any) =>
+			String(p?.name || '')
+				.trim()
+				.toLowerCase() === wanted,
+	);
+	for (const c of candidates) {
+		if (await verifyPasscode(c, passcode)) return { player: c, nameSeen: true };
+	}
+	return { player: null, nameSeen: !!legacy || candidates.length > 0 };
+}
+
 export class DeletePlayer extends PublicEndpoint {
 	async post(data: any) {
 		const { name, passcode } = await bodyOf(data);
-		const playerId = slugId(String(name || ''));
-		const player = playerId ? await safeGet(db().Player, playerId) : null;
-		if (!player) throw new GameError(tr('server.err.noSaveWithName'), 404);
-		if (!(await verifyPasscode(player, passcode))) throw new GameError(tr('server.err.passcodeMismatch'), 403);
+		const found = await resolveByNameAndPasscode(name, passcode);
+		if (!found.player) {
+			if (found.nameSeen) throw new GameError(tr('server.err.passcodeMismatch'), 403);
+			throw new GameError(tr('server.err.noSaveWithName'), 404);
+		}
+		const player = found.player;
+		const playerId = player.id;
 
 		const t = db();
 		let removed = 0;
@@ -4047,33 +4082,12 @@ export class ChangePasscode extends PublicEndpoint {
 export class LoginPlayer extends PublicEndpoint {
 	async post(data: any) {
 		const { name, passcode, tzOffsetMinutes } = await bodyOf(data);
-		// Saves created before ids became unique still live at the bare name slug, so
-		// try that first. Newer saves carry a random suffix and can share a name, so
-		// fall back to every player whose stored name matches and let the passcode
-		// pick which one — the passcode is the identity, the name is a label.
-		const slug = slugId(String(name || ''));
-		let player = slug ? await safeGet(db().Player, slug) : null;
-		if (player && !(await verifyPasscode(player, passcode))) player = null;
-		if (!player) {
-			const wanted = String(name || '')
-				.trim()
-				.toLowerCase();
-			const candidates = wanted
-				? (await allOf(db().Player)).filter(
-						(p: any) =>
-							String(p?.name || '')
-								.trim()
-								.toLowerCase() === wanted,
-					)
-				: [];
-			for (const c of candidates) {
-				if (await verifyPasscode(c, passcode)) {
-					player = c;
-					break;
-				}
-			}
+		const found = await resolveByNameAndPasscode(name, passcode);
+		if (!found.player) {
+			if (found.nameSeen) throw new GameError(tr('server.err.passcodeMismatch'), 403);
+			throw new GameError(tr('server.err.noSaveTryNew'), 404);
 		}
-		if (!player) throw new GameError(tr('server.err.noSaveTryNew'), 404);
+		const player = found.player;
 		const d = await defs();
 		// Reset the heartbeat clock so the first beat after login is counted as a
 		// fresh play session (and back-fill metrics for saves made before tracking).
