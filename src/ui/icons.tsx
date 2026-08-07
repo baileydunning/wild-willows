@@ -877,8 +877,15 @@ export function CharacterPreview({ appearance, size = 150 }: { appearance: Appea
 					<ellipse cx="75" cy="78.5" rx="3.2" ry="2.4" fill="#c9913f" />
 				</>
 			)}
+			{/* wavy: the silhouette has to carry the waves — the original outline curved
+			    by ~5 units on a 100-unit canvas and read as plain long hair. Three lobes
+			    per side swinging ~10, plus a scalloped hem, so it still reads as "wavy"
+			    down at swatch size. */}
 			{hairstyle === 'wavy' && (
-				<path d="M29 30 Q24 50 30 60 Q23 71 31 85 L69 85 Q77 71 70 60 Q76 50 71 30 Z" fill={hair} />
+				<path
+					d="M30 27 C20 36 34 42 24 50 C15 58 32 64 25 71 C19 77 33 78 28 83 Q34 90 40.5 83 Q47 90 53.5 83 Q60 90 66.5 83 Q71 88 72 83 C67 78 81 77 75 71 C68 64 85 58 76 50 C66 42 80 36 70 27 Z"
+					fill={hair}
+				/>
 			)}
 			{hairstyle === 'dreads' && (
 				<g fill={hair}>
@@ -1006,11 +1013,40 @@ export function CharacterPreview({ appearance, size = 150 }: { appearance: Appea
 				'cornrows',
 				'shag',
 			].includes(hairstyle) && <path d="M30 34 Q31 18 50 17 Q69 18 70 34 Q66 26 50 25.5 Q34 26 30 34 Z" fill={hair} />}
-			{/* wavy drapes two strands over the temples so it frames the face */}
+			{/* Long styles drop a lock over each shoulder. These draw AFTER the body and
+			    arms (the bulk of the hair is still the back mass up top, behind them),
+			    which is what puts the hair in front of the shoulders instead of
+			    disappearing behind them at the neckline. */}
+			{/* The strand's OUTER edge stays outside the head circle the whole way down.
+			    Waving it inward past x=30 at the cheekbone uncovered a thin crescent of
+			    skin between the strand and the back mass on each side, so the waviness
+			    lives on the outer silhouette and the hem, where it can't punch a hole in
+			    the face. */}
 			{hairstyle === 'wavy' && (
 				<g fill={hair}>
-					<path d="M29.5 27 Q23 46 28 73 Q35.5 66 35.5 44 Q35.8 34 34.5 30 Z" />
-					<path d="M70.5 27 Q77 46 72 73 Q64.5 66 64.5 44 Q64.2 34 65.5 30 Z" />
+					<path d="M31 25 C26 38 25 52 27.5 79 Q32.5 84 37.5 79 C34.5 68 42 60 37 50 C33 41 41 33 39.5 26 Z" />
+					<path d="M69 25 C74 38 75 52 72.5 79 Q67.5 84 62.5 79 C65.5 68 58 60 63 50 C67 41 59 33 60.5 26 Z" />
+				</g>
+			)}
+			{/* The inner edge bows in to x~40/60 around the cheekbone (y 40-50) so the
+			    hair covers a little of each cheek and frames the face, then tapers back
+			    out below the jaw. */}
+			{hairstyle === 'long' && (
+				<g fill={hair}>
+					<path d="M31 27 Q24 52 27.5 84 Q32 89.5 38 85 Q39.5 64 40.5 46 Q41 35 39.5 28 Z" />
+					<path d="M69 27 Q76 52 72.5 84 Q68 89.5 62 85 Q60.5 64 59.5 46 Q59 35 60.5 28 Z" />
+				</g>
+			)}
+			{hairstyle === 'curly-long' && (
+				<g fill={hair}>
+					<path d="M33 29 Q27 52 29 80 Q33 85 37.5 81 Q36 56 37.5 29 Z" />
+					<circle cx="30" cy="62" r="5.6" />
+					<circle cx="31" cy="73" r="5.4" />
+					<circle cx="33" cy="83" r="5.2" />
+					<path d="M67 29 Q73 52 71 80 Q67 85 62.5 81 Q64 56 62.5 29 Z" />
+					<circle cx="70" cy="62" r="5.6" />
+					<circle cx="69" cy="73" r="5.4" />
+					<circle cx="67" cy="83" r="5.2" />
 				</g>
 			)}
 			{hairstyle === 'bun' && bareHead && (
@@ -1191,15 +1227,22 @@ export function CharacterPreview({ appearance, size = 150 }: { appearance: Appea
 					<circle cx="58.5" cy="19" r="1.6" fill="#f4e08a" />
 				</g>
 			)}
+			{/* Folded-newspaper hat: the flat trapezoid it used to be read as a plain
+			    paper cap. The giveaway shapes are the two upswept corners with a dipped
+			    crown between them, the deep folded brim, and the centre crease with the
+			    newsprint running either side of it. */}
 			{hat === 'newspaper' && (
 				<g>
-					<path d="M25 29 L25 16 L50 6 L75 16 L75 29 Z" fill={hp.a} />
-					<path d="M23 27.5 L77 27.5 Q75 32.5 50 34 Q25 32.5 23 27.5 Z" fill={hp.b} />
-					<g stroke={hp.line} strokeWidth="1.1" strokeLinecap="round" opacity="0.75">
-						<path d="M33 17.5 L67 17.5" />
-						<path d="M31 21.5 L69 21.5" />
-						<path d="M31 25.5 L69 25.5" />
+					<path d="M20 29 L26.5 11 Q50 20 73.5 11 L80 29 Z" fill={hp.a} />
+					<path d="M50 17.6 L50 29" stroke={hp.line} strokeWidth="1" opacity="0.55" />
+					<g stroke={hp.line} strokeWidth="1.05" strokeLinecap="round" opacity="0.6">
+						<path d="M31 22 L46 22" />
+						<path d="M54 22 L69 22" />
+						<path d="M29.5 26 L46 26" />
+						<path d="M54 26 L70.5 26" />
 					</g>
+					<path d="M18 27.5 L82 27.5 Q80 33.5 50 35 Q20 33.5 18 27.5 Z" fill={hp.b} />
+					<path d="M18 27.5 L82 27.5" stroke={hp.line} strokeWidth="1" opacity="0.5" />
 				</g>
 			)}
 			{hat === 'chef' && (

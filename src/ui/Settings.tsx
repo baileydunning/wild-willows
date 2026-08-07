@@ -64,11 +64,59 @@ export function randomStartingAppearance(opts: AppearanceOptions | undefined, cu
 }
 
 /**
+ * How many colour swatches the SETTINGS editor shows per row.
+ *
+ * Settings renders these rows beside the character preview (see
+ * AppearanceEditor), which spends ~100px of width the New Game creator doesn't.
+ * At the catalog's 17 colours that pushed three swatches AND the eyedropper onto
+ * a second line, leaving a ragged orphan row under Skin, Hair and Outfit. 13
+ * plus the eyedropper fits on one line. The creator is unconstrained and still
+ * shows all 17.
+ */
+const SETTINGS_SWATCHES = 13;
+
+/**
+ * Evenly spaced subset of `list`, endpoints included — NOT the first `max`.
+ * Truncating would have cut the tail off every palette, which on SKIN_TONES
+ * means deleting the four deepest tones; sampling keeps each palette's full
+ * range and just coarsens it. Nothing is lost outright either way: every colour
+ * in the catalog is still reachable through the row's eyedropper.
+ */
+function thinSwatches(list: string[], max: number | undefined, current: string): string[] {
+	if (!max || list.length <= max || max < 2) return list;
+	const kept = Array.from({ length: max }, (_, i) => list[Math.round((i * (list.length - 1)) / (max - 1))]);
+	// The player's saved colour may be one of the ones just dropped. Swap it back
+	// in over its nearest kept neighbour rather than render a row with nothing
+	// selected, which reads as "my colour is gone".
+	if (current && list.includes(current) && !kept.includes(current)) {
+		const at = list.indexOf(current);
+		let nearest = 0;
+		for (let i = 1; i < kept.length; i++) {
+			if (Math.abs(list.indexOf(kept[i]) - at) < Math.abs(list.indexOf(kept[nearest]) - at)) nearest = i;
+		}
+		kept[nearest] = current;
+	}
+	return kept;
+}
+
+/**
  * The appearance option rows (Skin/Hair/Style/Beard/Build/Outfit/Hat/Hat
  * color). Shared by the Settings editor below AND the New Game creator in
  * Welcome.tsx, so new looks only need adding once.
+ *
+ * `maxSwatches` caps the COLOUR rows only (skin/hair/outfit) — the style, hat
+ * and build rows are labelled chips that already wrap tidily. Omit it for the
+ * full palette.
  */
-export function AppearanceRows({ value, onChange }: { value: Appearance; onChange: (a: Appearance) => void }) {
+export function AppearanceRows({
+	value,
+	onChange,
+	maxSwatches,
+}: {
+	value: Appearance;
+	onChange: (a: Appearance) => void;
+	maxSwatches?: number;
+}) {
 	const { data } = useGame();
 	const { t } = useI18n();
 	const opts = data?.appearanceOptions;
@@ -84,7 +132,7 @@ export function AppearanceRows({ value, onChange }: { value: Appearance; onChang
 		<>
 			<div className="swatch-row">
 				<span className="swatch-label">{t('app.appearance.skin')}</span>
-				{(opts?.skins || []).map((c) => (
+				{thinSwatches(opts?.skins || [], maxSwatches, value.skin).map((c) => (
 					<button
 						type="button"
 						key={c}
@@ -106,7 +154,7 @@ export function AppearanceRows({ value, onChange }: { value: Appearance; onChang
 			</div>
 			<div className="swatch-row">
 				<span className="swatch-label">{t('app.appearance.hair')}</span>
-				{(opts?.hair || []).map((c) => (
+				{thinSwatches(opts?.hair || [], maxSwatches, value.hair).map((c) => (
 					<button
 						type="button"
 						key={c}
@@ -167,7 +215,7 @@ export function AppearanceRows({ value, onChange }: { value: Appearance; onChang
 			</div>
 			<div className="swatch-row">
 				<span className="swatch-label">{t('app.appearance.outfit')}</span>
-				{(opts?.outfits || []).map((c) => (
+				{thinSwatches(opts?.outfits || [], maxSwatches, value.outfit).map((c) => (
 					<button
 						type="button"
 						key={c}
@@ -227,7 +275,7 @@ export function AppearanceEditor({ value, onChange }: { value: Appearance; onCha
 				<CharacterPreview appearance={value} size={120} />
 			</div>
 			<div className="creator-options">
-				<AppearanceRows value={value} onChange={onChange} />
+				<AppearanceRows value={value} onChange={onChange} maxSwatches={SETTINGS_SWATCHES} />
 			</div>
 		</div>
 	);
