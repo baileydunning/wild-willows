@@ -178,6 +178,11 @@
 				"seeds": 2
 			},
 			"growSeconds": 90,
+			"yield": {
+				"resourceId": "branches",
+				"qty": 2,
+				"regrowSeconds": 90
+			},
 			"description": "The preserve's namesake — a graceful willow grown from a watered bed.",
 			"matureHours": 8,
 			"matureBonus": 2
