@@ -2830,6 +2830,33 @@ export class WorldScene extends Phaser.Scene {
 			}
 		}
 
+		// ---- fallen branches come off the willows ----
+		// The preserve is named for its willows, so the branches you gather should
+		// fall from them rather than appear on bare ground. Every willow standing in
+		// this area drops branches on a tile beside it: a grove you planted turns
+		// into a supply that keeps renewing, and gathering starts sending you back to
+		// the trees you put in rather than to arbitrary spots.
+		//
+		// Deliberately ADDITIVE — these sit on top of the scatter above, and the
+		// coverage floor below still runs and still counts them. Branches feed the
+		// early recipes, so a preserve where nobody has planted a willow yet must
+		// never be short of them; this makes willows the better source, not the only
+		// one.
+		//
+		// The id is derived from the tree's tile rather than the loop index so a
+		// node keeps its identity — and therefore its regrowth cooldown — across
+		// redraws, and so planting a second willow can't renumber the first's.
+		if (res.includes('branches')) {
+			const MAX_WILLOW_NODES = 6; // a big grove shouldn't carpet the map
+			const willows = (s?.placements || []).filter((p) => p.area === this.area && p.objectId === 'willow-tree');
+			for (const w of willows.slice(0, MAX_WILLOW_NODES)) {
+				const spot = this.findFreeTile(w.x, w.y, occupied, taken);
+				if (!spot) continue;
+				nodes.push({ id: `nwb-${w.x}-${w.y}`, resourceId: 'branches', tx: spot.tx, ty: spot.ty });
+				taken.add(`${spot.tx},${spot.ty}`);
+			}
+		}
+
 		// Coverage safety net — every gatherable resource MUST have at least a
 		// minimum number of spawn spots the moment the world spawns. The placement
 		// loop above covers this normally, but if anything slipped through (an

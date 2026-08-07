@@ -1187,6 +1187,41 @@ const STARTER_CHEST = { x: 23, y: 5, size: 'small-chest', capacity: 120 };
 // ------------------------------------------------------------ player setup
 
 /** Load an existing player or fail — creation only happens via /CreatePlayer/. */
+/**
+ * Serialise everything that touches one player's row.
+ *
+ * Every mutating endpoint here is read-modify-write: read the player, compute the
+ * new inventory / craftedItems / tools, patch it back. Two requests for the same
+ * player interleave freely, so both read the same baseline and the second patch
+ * lands on top of the first. On a craft that costs the player either the item or
+ * the materials, depending which write wins — and with materials for one craft, a
+ * double-click passed BOTH availability checks and made two.
+ *
+ * The window is exactly as wide as one round trip, which is why an impatient
+ * double-click on a slow connection was enough to hit it.
+ *
+ * A queue per player, not a global one: unrelated players never wait on each
+ * other. The promise stored in the map always resolves (the release runs in a
+ * finally), so one failed request can't wedge the queue behind it.
+ */
+const playerLocks = new Map<string, Promise<void>>();
+
+async function withPlayerLock<T>(playerId: string, fn: () => Promise<T>): Promise<T> {
+	const ahead = playerLocks.get(playerId);
+	let release!: () => void;
+	const mine = new Promise<void>((r) => (release = r));
+	playerLocks.set(playerId, mine);
+	if (ahead) await ahead;
+	try {
+		return await fn();
+	} finally {
+		release();
+		// Only the last one out clears the slot, or a queued request would be
+		// dropped from the chain and start racing again.
+		if (playerLocks.get(playerId) === mine) playerLocks.delete(playerId);
+	}
+}
+
 async function requirePlayer(playerId: string): Promise<any> {
 	if (!playerId || typeof playerId !== 'string') throw new GameError(tr('server.err.playerIdRequired'));
 	const player = await safeGet(db().Player, playerId);
@@ -4648,71 +4683,74 @@ export class Presence extends PublicEndpoint {
 export class CollectResource extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId, biomeId, nodeId, resourceId } = await bodyOf(data);
-		const t = db();
-		const d = await defs();
-		const { player } = await requirePlayer(playerId);
-		const wid = worldOf(player);
+		return withPlayerLock(playerId, async () => {
+			const t = db();
+			const d = await defs();
+			const { player } = await requirePlayer(playerId);
+			const wid = worldOf(player);
 
-		const biome = d.biome.get(biomeId);
-		if (!biome) throw new GameError(tr('server.err.unknownBiome', { biome: biomeId }));
-		if (!(player.unlockedBiomes || []).includes(biomeId))
-			throw new GameError(tr('server.err.biomeLocked', { biome: biome.name }), 403);
-		const resDef = d.resource.get(resourceId);
-		if (!resDef) throw new GameError(tr('server.err.unknownResource', { resource: resourceId }));
-		// Weather-gated resources sidestep the biome resource list, but the matching
-		// weather must actually be active in this biome right now (recomputed from the
-		// same deterministic function the client used to spawn the node).
-		if (isWeatherGatheredResource(resourceId)) {
-			// Weather-gated: the resource must be the one this biome's CURRENT weather
-			// yields (recomputed from the same play-time base the snapshot used).
-			const active = weatherTypeAt(wid, biomeId, weatherTimeFromPlay(player));
-			if (gatherResourceIdFor(biomeId, active) !== resourceId) {
-				throw new GameError(tr('server.err.weatherOnly', { resource: resDef.name }), 409);
+			const biome = d.biome.get(biomeId);
+			if (!biome) throw new GameError(tr('server.err.unknownBiome', { biome: biomeId }));
+			if (!(player.unlockedBiomes || []).includes(biomeId))
+				throw new GameError(tr('server.err.biomeLocked', { biome: biome.name }), 403);
+			const resDef = d.resource.get(resourceId);
+			if (!resDef) throw new GameError(tr('server.err.unknownResource', { resource: resourceId }));
+			// Weather-gated resources sidestep the biome resource list, but the matching
+			// weather must actually be active in this biome right now (recomputed from the
+			// same deterministic function the client used to spawn the node).
+			if (isWeatherGatheredResource(resourceId)) {
+				// Weather-gated: the resource must be the one this biome's CURRENT weather
+				// yields (recomputed from the same play-time base the snapshot used).
+				const active = weatherTypeAt(wid, biomeId, weatherTimeFromPlay(player));
+				if (gatherResourceIdFor(biomeId, active) !== resourceId) {
+					throw new GameError(tr('server.err.weatherOnly', { resource: resDef.name }), 409);
+				}
+			} else if (!(biome.resources || []).includes(resourceId)) {
+				throw new GameError(tr('server.err.resourceNotInBiome', { resource: resourceId, biome: biome.name }));
 			}
-		} else if (!(biome.resources || []).includes(resourceId)) {
-			throw new GameError(tr('server.err.resourceNotInBiome', { resource: resourceId, biome: biome.name }));
-		}
-		if (!nodeId || typeof nodeId !== 'string') throw new GameError(tr('server.err.nodeIdRequired'));
+			if (!nodeId || typeof nodeId !== 'string') throw new GameError(tr('server.err.nodeIdRequired'));
 
-		// node regeneration cooldown — shared across the world so two players can't
-		// both drain the same spot
-		const nodeKey = `${wid}:${biomeId}:${nodeId}`;
-		const nodeState = await t.NodeState.get(nodeKey);
-		const now = Date.now();
-		if (nodeState && now - nodeState.harvestedAt < NODE_REGEN_SECONDS * 1000) {
-			throw new GameError(tr('server.err.regrowing'), 409);
-		}
+			// node regeneration cooldown — shared across the world so two players can't
+			// both drain the same spot
+			const nodeKey = `${wid}:${biomeId}:${nodeId}`;
+			const nodeState = await t.NodeState.get(nodeKey);
+			const now = Date.now();
+			if (nodeState && now - nodeState.harvestedAt < NODE_REGEN_SECONDS * 1000) {
+				throw new GameError(tr('server.err.regrowing'), 409);
+			}
 
-		// carrying capacity (gathering basket)
-		const capacity = inventoryCapacity(player);
-		const carried = sumValues(player.inventory);
-		if (carried >= capacity) throw new GameError(tr('server.err.basketFullStore'), 409);
+			// carrying capacity (gathering basket)
+			const capacity = inventoryCapacity(player);
+			const carried = sumValues(player.inventory);
+			if (carried >= capacity) throw new GameError(tr('server.err.basketFullStore'), 409);
 
-		// a higher-tier tool gathers more at once (tier 1→1 … tier 4→4)
-		const toolTier = player.tools?.[resDef.tool] || 1;
-		const amount = Math.min(Math.max(1, toolTier), capacity - carried);
+			// a higher-tier tool gathers more at once (tier 1→1 … tier 4→4)
+			const toolTier = player.tools?.[resDef.tool] || 1;
+			const amount = Math.min(Math.max(1, toolTier), capacity - carried);
 
-		// House perk (Log Cabin — forager's instinct): a chance to spot one extra
-		// material on every gather. The chance grows with every home upgrade.
-		const perk = homePerk(player);
-		const perkBonus = perk?.id === 'forage' && capacity - carried - amount > 0 && Math.random() < perk.strength ? 1 : 0;
-		const total = amount + perkBonus;
+			// House perk (Log Cabin — forager's instinct): a chance to spot one extra
+			// material on every gather. The chance grows with every home upgrade.
+			const perk = homePerk(player);
+			const perkBonus =
+				perk?.id === 'forage' && capacity - carried - amount > 0 && Math.random() < perk.strength ? 1 : 0;
+			const total = amount + perkBonus;
 
-		const inventory = { ...(player.inventory || {}) };
-		inventory[resourceId] = (inventory[resourceId] || 0) + total;
-		await t.Player.patch(playerId, { inventory });
-		await t.NodeState.put({ id: nodeKey, worldId: wid, playerId, harvestedAt: now });
+			const inventory = { ...(player.inventory || {}) };
+			inventory[resourceId] = (inventory[resourceId] || 0) + total;
+			await t.Player.patch(playerId, { inventory });
+			await t.NodeState.put({ id: nodeKey, worldId: wid, playerId, harvestedAt: now });
 
-		await bumpMetrics(player, { resourcesCollected: total }, { [`res:${resourceId}`]: total });
-		await awardAchievements(playerId);
-		return {
-			ok: true,
-			gained: { [resourceId]: total },
-			perkBonus: perkBonus || undefined,
-			inventory,
-			nodeId,
-			harvestedAt: now,
-		};
+			await bumpMetrics(player, { resourcesCollected: total }, { [`res:${resourceId}`]: total });
+			await awardAchievements(playerId);
+			return {
+				ok: true,
+				gained: { [resourceId]: total },
+				perkBonus: perkBonus || undefined,
+				inventory,
+				nodeId,
+				harvestedAt: now,
+			};
+		});
 	}
 }
 
@@ -4720,40 +4758,42 @@ export class CollectResource extends PublicEndpoint {
 export class ChestTransfer extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId, chestId, resourceId, qty, direction } = await bodyOf(data);
-		const t = db();
-		const d = await defs();
-		const { player } = await requirePlayer(playerId);
-		const wid = worldOf(player);
-		const amount = posInt(qty, 'qty');
-		const chest = await getOwnedChest(t, d, chestId, wid);
-		if (!chest) throw new GameError(tr('server.err.chestNotFound'), 404);
+		return withPlayerLock(playerId, async () => {
+			const t = db();
+			const d = await defs();
+			const { player } = await requirePlayer(playerId);
+			const wid = worldOf(player);
+			const amount = posInt(qty, 'qty');
+			const chest = await getOwnedChest(t, d, chestId, wid);
+			if (!chest) throw new GameError(tr('server.err.chestNotFound'), 404);
 
-		const inventory = { ...(player.inventory || {}) };
-		const contents = { ...(chest.contents || {}) };
+			const inventory = { ...(player.inventory || {}) };
+			const contents = { ...(chest.contents || {}) };
 
-		if (direction === 'deposit') {
-			if ((inventory[resourceId] || 0) < amount)
-				throw new GameError(tr('server.err.notEnoughInBasket', { resource: resourceId }));
-			if (sumValues(contents) + amount > chest.capacity) throw new GameError(tr('server.err.chestFull'), 409);
-			inventory[resourceId] -= amount;
-			if (inventory[resourceId] <= 0) delete inventory[resourceId];
-			contents[resourceId] = (contents[resourceId] || 0) + amount;
-		} else if (direction === 'withdraw') {
-			if ((contents[resourceId] || 0) < amount)
-				throw new GameError(tr('server.err.notEnoughInChest', { resource: resourceId }));
-			if (sumValues(inventory) + amount > inventoryCapacity(player))
-				throw new GameError(tr('server.err.basketFull'), 409);
-			contents[resourceId] -= amount;
-			if (contents[resourceId] <= 0) delete contents[resourceId];
-			inventory[resourceId] = (inventory[resourceId] || 0) + amount;
-		} else {
-			throw new GameError(tr('server.err.badDirection'));
-		}
+			if (direction === 'deposit') {
+				if ((inventory[resourceId] || 0) < amount)
+					throw new GameError(tr('server.err.notEnoughInBasket', { resource: resourceId }));
+				if (sumValues(contents) + amount > chest.capacity) throw new GameError(tr('server.err.chestFull'), 409);
+				inventory[resourceId] -= amount;
+				if (inventory[resourceId] <= 0) delete inventory[resourceId];
+				contents[resourceId] = (contents[resourceId] || 0) + amount;
+			} else if (direction === 'withdraw') {
+				if ((contents[resourceId] || 0) < amount)
+					throw new GameError(tr('server.err.notEnoughInChest', { resource: resourceId }));
+				if (sumValues(inventory) + amount > inventoryCapacity(player))
+					throw new GameError(tr('server.err.basketFull'), 409);
+				contents[resourceId] -= amount;
+				if (contents[resourceId] <= 0) delete contents[resourceId];
+				inventory[resourceId] = (inventory[resourceId] || 0) + amount;
+			} else {
+				throw new GameError(tr('server.err.badDirection'));
+			}
 
-		await t.Player.patch(playerId, { inventory });
-		await t.Chest.patch(chestId, { contents });
-		await bumpMetrics(player, direction === 'deposit' ? { chestDeposits: 1 } : { chestWithdrawals: 1 });
-		return { ok: true, inventory, chest: { ...chest, contents } };
+			await t.Player.patch(playerId, { inventory });
+			await t.Chest.patch(chestId, { contents });
+			await bumpMetrics(player, direction === 'deposit' ? { chestDeposits: 1 } : { chestWithdrawals: 1 });
+			return { ok: true, inventory, chest: { ...chest, contents } };
+		});
 	}
 }
 
@@ -4765,28 +4805,30 @@ export class ChestTransfer extends PublicEndpoint {
 export class DiscardItem extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId, kind, id, qty } = await bodyOf(data);
-		const t = db();
-		const { player } = await requirePlayer(playerId);
-		const amount = posInt(qty, 'qty');
-		if (!id || typeof id !== 'string') throw new GameError(tr('server.err.idRequired'));
+		return withPlayerLock(playerId, async () => {
+			const t = db();
+			const { player } = await requirePlayer(playerId);
+			const amount = posInt(qty, 'qty');
+			if (!id || typeof id !== 'string') throw new GameError(tr('server.err.idRequired'));
 
-		if (kind === 'crafted') {
-			const craftedItems = { ...(player.craftedItems || {}) };
-			if ((craftedItems[id] || 0) < amount) throw new GameError(tr('server.err.discardTooMany'));
-			craftedItems[id] -= amount;
-			if (craftedItems[id] <= 0) delete craftedItems[id];
-			await t.Player.patch(playerId, { craftedItems });
+			if (kind === 'crafted') {
+				const craftedItems = { ...(player.craftedItems || {}) };
+				if ((craftedItems[id] || 0) < amount) throw new GameError(tr('server.err.discardTooMany'));
+				craftedItems[id] -= amount;
+				if (craftedItems[id] <= 0) delete craftedItems[id];
+				await t.Player.patch(playerId, { craftedItems });
+				await bumpMetrics(player, { itemsDiscarded: amount });
+				return { ok: true, craftedItems };
+			}
+
+			const inventory = { ...(player.inventory || {}) };
+			if ((inventory[id] || 0) < amount) throw new GameError(tr('server.err.discardTooMany'));
+			inventory[id] -= amount;
+			if (inventory[id] <= 0) delete inventory[id];
+			await t.Player.patch(playerId, { inventory });
 			await bumpMetrics(player, { itemsDiscarded: amount });
-			return { ok: true, craftedItems };
-		}
-
-		const inventory = { ...(player.inventory || {}) };
-		if ((inventory[id] || 0) < amount) throw new GameError(tr('server.err.discardTooMany'));
-		inventory[id] -= amount;
-		if (inventory[id] <= 0) delete inventory[id];
-		await t.Player.patch(playerId, { inventory });
-		await bumpMetrics(player, { itemsDiscarded: amount });
-		return { ok: true, inventory };
+			return { ok: true, inventory };
+		});
 	}
 }
 
@@ -4794,6 +4836,12 @@ export class DiscardItem extends PublicEndpoint {
 export class CraftItem extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId, recipeId } = await bodyOf(data);
+		// Read-modify-write on the player row — see withPlayerLock. Without this a
+		// double-click either loses one craft's output or pays for one and makes two.
+		return withPlayerLock(playerId, () => this.craft(playerId, recipeId));
+	}
+
+	private async craft(playerId: string, recipeId: string) {
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
@@ -4916,141 +4964,150 @@ function isRotatable(def: any): boolean {
 export class PlaceObject extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId, objectId, area, x, y, rotation } = await bodyOf(data);
-		const t = db();
-		const d = await defs();
-		const { player } = await requirePlayer(playerId);
-		const wid = worldOf(player);
+		return withPlayerLock(playerId, async () => {
+			const t = db();
+			const d = await defs();
+			const { player } = await requirePlayer(playerId);
+			const wid = worldOf(player);
 
-		const def = d.object.get(objectId);
-		if (!def) throw new GameError(tr('server.err.unknownObject', { object: objectId }));
-		if (def.placement === 'none') throw new GameError(tr('server.err.kitNotPlaceable', { name: def.name }));
-		if ((player.craftedItems?.[objectId] || 0) <= 0)
-			throw new GameError(tr('server.err.noneCrafted', { name: def.name }));
+			const def = d.object.get(objectId);
+			if (!def) throw new GameError(tr('server.err.unknownObject', { object: objectId }));
+			if (def.placement === 'none') throw new GameError(tr('server.err.kitNotPlaceable', { name: def.name }));
+			if ((player.craftedItems?.[objectId] || 0) <= 0)
+				throw new GameError(tr('server.err.noneCrafted', { name: def.name }));
 
-		const tx = Math.round(Number(x));
-		const ty = Math.round(Number(y));
-		const grid = areaGrid(d, area);
-		if (!Number.isFinite(tx) || !Number.isFinite(ty) || tx < 1 || ty < 1 || tx > grid.cols - 2 || ty > grid.rows - 2) {
-			throw new GameError(tr('server.err.outOfReach'));
-		}
-
-		const tentBiome = tentBiomeOf(area);
-		if (area === 'home') {
-			// decorating your home interior — indoor or 'both' items, on the floor only
-			if (def.placement === 'outdoor') throw new GameError(tr('server.err.outdoorOnly', { name: def.name }));
-			// some furniture needs a real house, not the starter tent
-			if (def.homeMin && (homeOf(player).space || 1) < def.homeMin) {
-				throw new GameError(tr('server.err.needsBiggerHome', { name: def.name }), 403);
+			const tx = Math.round(Number(x));
+			const ty = Math.round(Number(y));
+			const grid = areaGrid(d, area);
+			if (
+				!Number.isFinite(tx) ||
+				!Number.isFinite(ty) ||
+				tx < 1 ||
+				ty < 1 ||
+				tx > grid.cols - 2 ||
+				ty > grid.rows - 2
+			) {
+				throw new GameError(tr('server.err.outOfReach'));
 			}
-			const r = homeRoom(player);
-			if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1) throw new GameError(tr('server.err.placeOnFloor'));
-			if (blocksDoorway(objectId, r, tx, ty)) throw new GameError(tr('server.err.bedBlocksDoor', { name: def.name }));
-		} else if (tentBiome) {
-			// decorating a trail-tent interior — indoor rules, tent-sized floor,
-			// and only furniture that fits a tent (homeMin 1)
-			const biome = d.biome.get(tentBiome);
-			if (!biome) throw new GameError(tr('server.err.unknownArea', { area }));
-			if (!(player.unlockedBiomes || []).includes(tentBiome))
-				throw new GameError(tr('server.err.biomeLocked', { biome: biome.name }), 403);
-			if (def.placement === 'outdoor') throw new GameError(tr('server.err.outdoorOnly', { name: def.name }));
-			if (def.homeMin && def.homeMin > 1) throw new GameError(tr('server.err.tentTooSmall', { name: def.name }), 403);
-			const r = tentRoom();
-			if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1) throw new GameError(tr('server.err.placeOnFloor'));
-			if (blocksDoorway(objectId, r, tx, ty)) throw new GameError(tr('server.err.bedBlocksDoor', { name: def.name }));
-		} else {
-			const biome = d.biome.get(area);
-			if (!biome) throw new GameError(tr('server.err.unknownArea', { area }));
-			if (!(player.unlockedBiomes || []).includes(area))
-				throw new GameError(tr('server.err.biomeLocked', { biome: biome.name }), 403);
-			if (def.placement === 'indoor') throw new GameError(tr('server.err.indoorOnly', { name: def.name }));
-			if (!(def.biomes || []).includes(area))
-				throw new GameError(tr('server.err.wrongHabitat', { name: def.name, biome: biome.name }));
-			// nothing builds on the open ocean — coastal land ends before the reserved ocean columns
-			if (biome.oceanCols && tx >= grid.cols - biome.oceanCols) throw new GameError(tr('server.err.openOcean'), 409);
-		}
-		if (def.requiresTool && (player.tools?.[def.requiresTool.id] || 1) < def.requiresTool.tier) {
-			throw new GameError(
-				tr('server.err.placeRequiresTool', {
-					name: def.name,
-					tool: d.tool.get(def.requiresTool.id)?.name || def.requiresTool.id,
-				}),
-				403,
-			);
-		}
 
-		const placements = await byWorld(t.Placement, wid);
-		if (placements.some((p) => p.area === area && p.x === tx && p.y === ty)) {
-			throw new GameError(tr('server.err.spotTaken'), 409);
-		}
-		// Some structures are one-per-biome (e.g. the trail tent — a single shared
-		// home base in each wild biome, not a tent city). World-scoped, because
-		// each tent opens into one shared interior per biome (like the home).
-		if (def.onePerArea && placements.some((p) => p.area === area && p.objectId === objectId)) {
-			throw new GameError(tr('server.err.onePerArea', { name: def.name }), 409);
-		}
-		// terrain/water rules only apply outdoors — interiors have no terrain
-		const indoors = area === 'home' || !!tentBiome;
-		const tileHere = indoors ? null : await findTerrainAt(t.TerrainTile, wid, area, tx, ty);
-		if (tileHere) {
-			if (tileHere.type === 'water') {
-				if (!def.bridge) throw new GameError(tr('server.err.openWaterBridge'), 409);
+			const tentBiome = tentBiomeOf(area);
+			if (area === 'home') {
+				// decorating your home interior — indoor or 'both' items, on the floor only
+				if (def.placement === 'outdoor') throw new GameError(tr('server.err.outdoorOnly', { name: def.name }));
+				// some furniture needs a real house, not the starter tent
+				if (def.homeMin && (homeOf(player).space || 1) < def.homeMin) {
+					throw new GameError(tr('server.err.needsBiggerHome', { name: def.name }), 403);
+				}
+				const r = homeRoom(player);
+				if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1) throw new GameError(tr('server.err.placeOnFloor'));
+				if (blocksDoorway(objectId, r, tx, ty)) throw new GameError(tr('server.err.bedBlocksDoor', { name: def.name }));
+			} else if (tentBiome) {
+				// decorating a trail-tent interior — indoor rules, tent-sized floor,
+				// and only furniture that fits a tent (homeMin 1)
+				const biome = d.biome.get(tentBiome);
+				if (!biome) throw new GameError(tr('server.err.unknownArea', { area }));
+				if (!(player.unlockedBiomes || []).includes(tentBiome))
+					throw new GameError(tr('server.err.biomeLocked', { biome: biome.name }), 403);
+				if (def.placement === 'outdoor') throw new GameError(tr('server.err.outdoorOnly', { name: def.name }));
+				if (def.homeMin && def.homeMin > 1) throw new GameError(tr('server.err.tentTooSmall', { name: def.name }), 403);
+				const r = tentRoom();
+				if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1) throw new GameError(tr('server.err.placeOnFloor'));
+				if (blocksDoorway(objectId, r, tx, ty)) throw new GameError(tr('server.err.bedBlocksDoor', { name: def.name }));
 			} else {
-				throw new GameError(tr('server.err.bedForPlanting'), 409);
+				const biome = d.biome.get(area);
+				if (!biome) throw new GameError(tr('server.err.unknownArea', { area }));
+				if (!(player.unlockedBiomes || []).includes(area))
+					throw new GameError(tr('server.err.biomeLocked', { biome: biome.name }), 403);
+				if (def.placement === 'indoor') throw new GameError(tr('server.err.indoorOnly', { name: def.name }));
+				if (!(def.biomes || []).includes(area))
+					throw new GameError(tr('server.err.wrongHabitat', { name: def.name, biome: biome.name }));
+				// nothing builds on the open ocean — coastal land ends before the reserved ocean columns
+				if (biome.oceanCols && tx >= grid.cols - biome.oceanCols) throw new GameError(tr('server.err.openOcean'), 409);
 			}
-		} else if (def.bridge && !indoors) {
-			throw new GameError(tr('server.err.bridgeNeedsWater'), 409);
-		}
+			if (def.requiresTool && (player.tools?.[def.requiresTool.id] || 1) < def.requiresTool.tier) {
+				throw new GameError(
+					tr('server.err.placeRequiresTool', {
+						name: def.name,
+						tool: d.tool.get(def.requiresTool.id)?.name || def.requiresTool.id,
+					}),
+					403,
+				);
+			}
 
-		const craftedItems = { ...(player.craftedItems || {}) };
-		craftedItems[objectId] -= 1;
-		if (craftedItems[objectId] <= 0) delete craftedItems[objectId];
-		await t.Player.patch(playerId, { craftedItems });
+			const placements = await byWorld(t.Placement, wid);
+			if (placements.some((p) => p.area === area && p.x === tx && p.y === ty)) {
+				throw new GameError(tr('server.err.spotTaken'), 409);
+			}
+			// Some structures are one-per-biome (e.g. the trail tent — a single shared
+			// home base in each wild biome, not a tent city). World-scoped, because
+			// each tent opens into one shared interior per biome (like the home).
+			if (def.onePerArea && placements.some((p) => p.area === area && p.objectId === objectId)) {
+				throw new GameError(tr('server.err.onePerArea', { name: def.name }), 409);
+			}
+			// terrain/water rules only apply outdoors — interiors have no terrain
+			const indoors = area === 'home' || !!tentBiome;
+			const tileHere = indoors ? null : await findTerrainAt(t.TerrainTile, wid, area, tx, ty);
+			if (tileHere) {
+				if (tileHere.type === 'water') {
+					if (!def.bridge) throw new GameError(tr('server.err.openWaterBridge'), 409);
+				} else {
+					throw new GameError(tr('server.err.bedForPlanting'), 409);
+				}
+			} else if (def.bridge && !indoors) {
+				throw new GameError(tr('server.err.bridgeNeedsWater'), 409);
+			}
 
-		const placementId = `pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
-		const placement = {
-			id: placementId,
-			worldId: wid,
-			playerId,
-			objectId,
-			area,
-			x: tx,
-			y: ty,
-			placedAt: Date.now(),
-			rotation: isRotatable(def) ? normRot(rotation) : 0,
-		};
-		await t.Placement.put(placement);
+			const craftedItems = { ...(player.craftedItems || {}) };
+			craftedItems[objectId] -= 1;
+			if (craftedItems[objectId] <= 0) delete craftedItems[objectId];
+			await t.Player.patch(playerId, { craftedItems });
 
-		if (def.isChest) {
-			await t.Chest.put({
+			const placementId = `pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+			const placement = {
 				id: placementId,
 				worldId: wid,
 				playerId,
+				objectId,
 				area,
 				x: tx,
 				y: ty,
-				size: objectId,
-				capacity: def.chestCapacity || 60,
-				contents: {},
+				placedAt: Date.now(),
+				rotation: isRotatable(def) ? normRot(rotation) : 0,
+			};
+			await t.Placement.put(placement);
+
+			if (def.isChest) {
+				await t.Chest.put({
+					id: placementId,
+					worldId: wid,
+					playerId,
+					area,
+					x: tx,
+					y: ty,
+					size: objectId,
+					capacity: def.chestCapacity || 60,
+					contents: {},
+				});
+			}
+
+			// Indoor decor (home or a tent interior) doesn't affect any biome — skip the recalc.
+			if (indoors) {
+				await bumpMetrics(player, { objectsPlaced: 1 }, { place: 1 });
+				await awardAchievements(playerId);
+				return { ok: true, placement, craftedItems };
+			}
+
+			const recalc = await recalcBiome(wid, playerId, area, {
+				addPlacements: [placement],
+				player: { ...player, craftedItems },
 			});
-		}
-
-		// Indoor decor (home or a tent interior) doesn't affect any biome — skip the recalc.
-		if (indoors) {
-			await bumpMetrics(player, { objectsPlaced: 1 }, { place: 1 });
-			await awardAchievements(playerId);
-			return { ok: true, placement, craftedItems };
-		}
-
-		const recalc = await recalcBiome(wid, playerId, area, {
-			addPlacements: [placement],
-			player: { ...player, craftedItems },
+			await bumpMetrics(player, { objectsPlaced: 1, animalsReturned: recalc.newAnimals?.length || 0 }, { place: 1 });
+			await awardWorldAchievements(wid, playerId, {
+				addDiscoveries: recalc.newAnimals,
+				freshBiomeStates: [recalc.biomeState],
+			});
+			return { ok: true, placement, craftedItems, ...recalc };
 		});
-		await bumpMetrics(player, { objectsPlaced: 1, animalsReturned: recalc.newAnimals?.length || 0 }, { place: 1 });
-		await awardWorldAchievements(wid, playerId, {
-			addDiscoveries: recalc.newAnimals,
-			freshBiomeStates: [recalc.biomeState],
-		});
-		return { ok: true, placement, craftedItems, ...recalc };
 	}
 }
 
@@ -5145,38 +5202,40 @@ function harvestReadyAt(def: any, placement: any): number | null {
 export class HarvestPlacement extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId, placementId } = await bodyOf(data);
-		const t = db();
-		const d = await defs();
-		const { player } = await requirePlayer(playerId);
-		const wid = worldOf(player);
-		const now = Date.now();
+		return withPlayerLock(playerId, async () => {
+			const t = db();
+			const d = await defs();
+			const { player } = await requirePlayer(playerId);
+			const wid = worldOf(player);
+			const now = Date.now();
 
-		const placement = (await byWorld(t.Placement, wid)).find((p) => p.id === placementId);
-		if (!placement) throw new GameError(tr('server.err.placementNotFound'), 404);
-		const def = d.object.get(placement.objectId);
-		const y = def?.yield;
-		if (!y) throw new GameError(tr('server.err.notHarvestable'));
-		const readyAt = harvestReadyAt(def, placement);
-		if (readyAt == null || now < readyAt) throw new GameError(tr('server.err.notReadyYet'));
+			const placement = (await byWorld(t.Placement, wid)).find((p) => p.id === placementId);
+			if (!placement) throw new GameError(tr('server.err.placementNotFound'), 404);
+			const def = d.object.get(placement.objectId);
+			const y = def?.yield;
+			if (!y) throw new GameError(tr('server.err.notHarvestable'));
+			const readyAt = harvestReadyAt(def, placement);
+			if (readyAt == null || now < readyAt) throw new GameError(tr('server.err.notReadyYet'));
 
-		// grant the yield, respecting carrying capacity
-		const capacity = inventoryCapacity(player);
-		const inventory = { ...(player.inventory || {}) };
-		const room = Math.max(0, capacity - sumValues(inventory));
-		const take = Math.min(y.qty || 1, room);
-		if (take <= 0) throw new GameError(tr('server.err.basketFullHarvest'), 409);
-		inventory[y.resourceId] = (inventory[y.resourceId] || 0) + take;
+			// grant the yield, respecting carrying capacity
+			const capacity = inventoryCapacity(player);
+			const inventory = { ...(player.inventory || {}) };
+			const room = Math.max(0, capacity - sumValues(inventory));
+			const take = Math.min(y.qty || 1, room);
+			if (take <= 0) throw new GameError(tr('server.err.basketFullHarvest'), 409);
+			inventory[y.resourceId] = (inventory[y.resourceId] || 0) + take;
 
-		await t.Player.patch(playerId, { inventory });
-		await t.Placement.patch(placementId, { lastHarvestAt: now });
-		await bumpMetrics(player, { resourcesCollected: take });
-		return {
-			ok: true,
-			placementId,
-			gained: { [y.resourceId]: take },
-			inventory,
-			placement: { ...placement, lastHarvestAt: now },
-		};
+			await t.Player.patch(playerId, { inventory });
+			await t.Placement.patch(placementId, { lastHarvestAt: now });
+			await bumpMetrics(player, { resourcesCollected: take });
+			return {
+				ok: true,
+				placementId,
+				gained: { [y.resourceId]: take },
+				inventory,
+				placement: { ...placement, lastHarvestAt: now },
+			};
+		});
 	}
 }
 
@@ -5252,95 +5311,97 @@ export class MoveObject extends PublicEndpoint {
 export class RemoveObject extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId, placementId } = await bodyOf(data);
-		const t = db();
-		const { player } = await requirePlayer(playerId);
-		const wid = worldOf(player);
+		return withPlayerLock(playerId, async () => {
+			const t = db();
+			const { player } = await requirePlayer(playerId);
+			const wid = worldOf(player);
 
-		const placement = await findInWorld(t.Placement, wid, placementId);
-		if (!placement) throw new GameError(tr('server.err.placementNotFound'), 404);
-		if (placement.objectId === 'workbench') {
-			throw new GameError(tr('server.err.workbenchStays'));
-		}
+			const placement = await findInWorld(t.Placement, wid, placementId);
+			if (!placement) throw new GameError(tr('server.err.placementNotFound'), 404);
+			if (placement.objectId === 'workbench') {
+				throw new GameError(tr('server.err.workbenchStays'));
+			}
 
-		const chest = await findInWorld(t.Chest, wid, placementId);
-		if (chest && sumValues(chest.contents) > 0) {
-			throw new GameError(tr('server.err.emptyChestFirst'), 409);
-		}
+			const chest = await findInWorld(t.Chest, wid, placementId);
+			if (chest && sumValues(chest.contents) > 0) {
+				throw new GameError(tr('server.err.emptyChestFirst'), 409);
+			}
 
-		// A trail tent can't be packed up while furniture is still inside its
-		// interior — pack up in there first (mirrors the chest-must-be-empty rule).
-		if (placement.objectId === 'trail-tent') {
-			const interior = `tent-${placement.area}`;
-			const inside = (await byWorld(t.Placement, wid)).some((p) => p.area === interior);
-			if (inside) throw new GameError(tr('server.err.tentNotEmpty'), 409);
-		}
+			// A trail tent can't be packed up while furniture is still inside its
+			// interior — pack up in there first (mirrors the chest-must-be-empty rule).
+			if (placement.objectId === 'trail-tent') {
+				const interior = `tent-${placement.area}`;
+				const inside = (await byWorld(t.Placement, wid)).some((p) => p.area === interior);
+				if (inside) throw new GameError(tr('server.err.tentNotEmpty'), 409);
+			}
 
-		// Digging up something you planted returns its materials instead of an item.
-		// Refunds respect basket capacity and spill into chests — never silently
-		// overflowing the basket (which used to wedge every later withdraw/gather).
-		const d = await defs();
-		const def = d.object.get(placement.objectId);
-		let refunded: Record<string, number> | null = null;
-		const craftedItems = { ...(player.craftedItems || {}) };
-		const inventory = { ...(player.inventory || {}) };
-		const chestUpdates = new Map<string, Record<string, number>>();
-		if (def?.plantable && placement.plantedAt && Object.keys(def.plantCost || {}).length) {
-			refunded = { ...def.plantCost };
-			const capacity = inventoryCapacity(player);
-			let carried = sumValues(inventory);
-			const chests = (await byWorld(t.Chest, wid)).filter((c) => c.id !== placementId);
-			for (const [resId, qty] of Object.entries(refunded!)) {
-				let remaining = qty as number;
-				const toBasket = Math.min(remaining, Math.max(0, capacity - carried));
-				if (toBasket > 0) {
-					inventory[resId] = (inventory[resId] || 0) + toBasket;
-					carried += toBasket;
-					remaining -= toBasket;
-				}
-				for (const c of chests) {
-					if (remaining <= 0) break;
-					const contents = chestUpdates.get(c.id) || { ...(c.contents || {}) };
-					const room = c.capacity - sumValues(contents);
-					const toChest = Math.min(room, remaining);
-					if (toChest > 0) {
-						contents[resId] = (contents[resId] || 0) + toChest;
-						chestUpdates.set(c.id, contents);
-						remaining -= toChest;
+			// Digging up something you planted returns its materials instead of an item.
+			// Refunds respect basket capacity and spill into chests — never silently
+			// overflowing the basket (which used to wedge every later withdraw/gather).
+			const d = await defs();
+			const def = d.object.get(placement.objectId);
+			let refunded: Record<string, number> | null = null;
+			const craftedItems = { ...(player.craftedItems || {}) };
+			const inventory = { ...(player.inventory || {}) };
+			const chestUpdates = new Map<string, Record<string, number>>();
+			if (def?.plantable && placement.plantedAt && Object.keys(def.plantCost || {}).length) {
+				refunded = { ...def.plantCost };
+				const capacity = inventoryCapacity(player);
+				let carried = sumValues(inventory);
+				const chests = (await byWorld(t.Chest, wid)).filter((c) => c.id !== placementId);
+				for (const [resId, qty] of Object.entries(refunded!)) {
+					let remaining = qty as number;
+					const toBasket = Math.min(remaining, Math.max(0, capacity - carried));
+					if (toBasket > 0) {
+						inventory[resId] = (inventory[resId] || 0) + toBasket;
+						carried += toBasket;
+						remaining -= toBasket;
+					}
+					for (const c of chests) {
+						if (remaining <= 0) break;
+						const contents = chestUpdates.get(c.id) || { ...(c.contents || {}) };
+						const room = c.capacity - sumValues(contents);
+						const toChest = Math.min(room, remaining);
+						if (toChest > 0) {
+							contents[resId] = (contents[resId] || 0) + toChest;
+							chestUpdates.set(c.id, contents);
+							remaining -= toChest;
+						}
+					}
+					if (remaining > 0) {
+						throw new GameError(tr('server.err.noRoomRefund'), 409);
 					}
 				}
-				if (remaining > 0) {
-					throw new GameError(tr('server.err.noRoomRefund'), 409);
-				}
+			} else {
+				craftedItems[placement.objectId] = (craftedItems[placement.objectId] || 0) + 1;
 			}
-		} else {
-			craftedItems[placement.objectId] = (craftedItems[placement.objectId] || 0) + 1;
-		}
 
-		// all checks passed — now write
-		if (chest) await t.Chest.delete(placementId);
-		await t.Placement.delete(placementId);
-		if (refunded) {
-			await t.Player.patch(playerId, { inventory });
-			for (const [cid, contents] of chestUpdates) await t.Chest.patch(cid, { contents });
-		} else {
-			await t.Player.patch(playerId, { craftedItems });
-		}
+			// all checks passed — now write
+			if (chest) await t.Chest.delete(placementId);
+			await t.Placement.delete(placementId);
+			if (refunded) {
+				await t.Player.patch(playerId, { inventory });
+				for (const [cid, contents] of chestUpdates) await t.Chest.patch(cid, { contents });
+			} else {
+				await t.Player.patch(playerId, { craftedItems });
+			}
 
-		// interiors (home / tent) aren't biomes — skip recalc for their decor
-		const recalc =
-			placement.area !== 'home' && !tentBiomeOf(placement.area)
-				? await recalcBiome(wid, playerId, placement.area, {
-						removeIds: [placementId],
-						player: { ...player, craftedItems, inventory },
-					})
-				: null;
-		await bumpMetrics(player, { objectsRemoved: 1, animalsReturned: recalc?.newAnimals?.length || 0 });
-		await awardWorldAchievements(
-			wid,
-			playerId,
-			recalc ? { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] } : {},
-		);
-		return { ok: true, removed: placementId, craftedItems, refunded, ...(recalc || {}) };
+			// interiors (home / tent) aren't biomes — skip recalc for their decor
+			const recalc =
+				placement.area !== 'home' && !tentBiomeOf(placement.area)
+					? await recalcBiome(wid, playerId, placement.area, {
+							removeIds: [placementId],
+							player: { ...player, craftedItems, inventory },
+						})
+					: null;
+			await bumpMetrics(player, { objectsRemoved: 1, animalsReturned: recalc?.newAnimals?.length || 0 });
+			await awardWorldAchievements(
+				wid,
+				playerId,
+				recalc ? { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] } : {},
+			);
+			return { ok: true, removed: placementId, craftedItems, refunded, ...(recalc || {}) };
+		});
 	}
 }
 
@@ -5348,49 +5409,51 @@ export class RemoveObject extends PublicEndpoint {
 export class UpgradeTool extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId, toolId } = await bodyOf(data);
-		const t = db();
-		const d = await defs();
-		const { player } = await requirePlayer(playerId);
+		return withPlayerLock(playerId, async () => {
+			const t = db();
+			const d = await defs();
+			const { player } = await requirePlayer(playerId);
 
-		const toolDef = d.tool.get(toolId);
-		if (!toolDef) throw new GameError(tr('server.err.unknownTool', { tool: toolId }));
-		const wid = worldOf(player);
-		const currentTier = player.tools?.[toolId] || 1;
-		const nextTier = (toolDef.tiers || []).find((tt: any) => tt.tier === currentTier + 1);
-		if (!nextTier) throw new GameError(tr('server.err.toolMaxed', { tool: toolDef.name }));
+			const toolDef = d.tool.get(toolId);
+			if (!toolDef) throw new GameError(tr('server.err.unknownTool', { tool: toolId }));
+			const wid = worldOf(player);
+			const currentTier = player.tools?.[toolId] || 1;
+			const nextTier = (toolDef.tiers || []).find((tt: any) => tt.tier === currentTier + 1);
+			if (!nextTier) throw new GameError(tr('server.err.toolMaxed', { tool: toolDef.name }));
 
-		if (nextTier.requires?.biome) {
-			const bs = await findBiomeState(t.BiomeState, wid, nextTier.requires.biome);
-			if ((bs?.health || 0) < (nextTier.requires.minHealth || 0)) {
-				const biome = d.biome.get(nextTier.requires.biome);
-				throw new GameError(
-					tr('server.err.restoreFirst', {
-						biome: biome?.name || nextTier.requires.biome,
-						health: nextTier.requires.minHealth,
-					}),
-					403,
-				);
+			if (nextTier.requires?.biome) {
+				const bs = await findBiomeState(t.BiomeState, wid, nextTier.requires.biome);
+				if ((bs?.health || 0) < (nextTier.requires.minHealth || 0)) {
+					const biome = d.biome.get(nextTier.requires.biome);
+					throw new GameError(
+						tr('server.err.restoreFirst', {
+							biome: biome?.name || nextTier.requires.biome,
+							health: nextTier.requires.minHealth,
+						}),
+						403,
+					);
+				}
 			}
-		}
 
-		const { usedFrom, inventory } = await consumeMaterials(player, nextTier.materials || {}, wid);
-		const tools = { ...(player.tools || {}), [toolId]: nextTier.tier };
-		await t.Player.patch(playerId, { tools });
+			const { usedFrom, inventory } = await consumeMaterials(player, nextTier.materials || {}, wid);
+			const tools = { ...(player.tools || {}), [toolId]: nextTier.tier };
+			await t.Player.patch(playerId, { tools });
 
-		// tool upgrades can satisfy biome unlock requirements
-		const unlockedBiomes = await checkUnlocks(wid, playerId, { player: { ...player, tools } });
-		const chests = await byWorld(t.Chest, wid);
-		await bumpMetrics(player, { toolsUpgraded: 1 });
-		await awardAchievements(playerId);
-		return {
-			ok: true,
-			tools,
-			inventory,
-			chests,
-			usedFrom,
-			unlockedBiomes,
-			upgraded: { toolId, tier: nextTier.tier, name: nextTier.name },
-		};
+			// tool upgrades can satisfy biome unlock requirements
+			const unlockedBiomes = await checkUnlocks(wid, playerId, { player: { ...player, tools } });
+			const chests = await byWorld(t.Chest, wid);
+			await bumpMetrics(player, { toolsUpgraded: 1 });
+			await awardAchievements(playerId);
+			return {
+				ok: true,
+				tools,
+				inventory,
+				chests,
+				usedFrom,
+				unlockedBiomes,
+				upgraded: { toolId, tier: nextTier.tier, name: nextTier.name },
+			};
+		});
 	}
 }
 
@@ -5398,44 +5461,49 @@ export class UpgradeTool extends PublicEndpoint {
 export class UpgradeHome extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId, track } = await bodyOf(data);
-		const t = db();
-		const { player } = await requirePlayer(playerId);
-		const wid = worldOf(player);
+		return withPlayerLock(playerId, async () => {
+			const t = db();
+			const { player } = await requirePlayer(playerId);
+			const wid = worldOf(player);
 
-		const def = HOME_TRACKS[track];
-		if (!def) throw new GameError(tr('server.err.unknownHomeUpgrade'));
-		const home = homeOf(player);
-		if (!home.styleLocked) throw new GameError(tr('server.err.buildStyleFirst'), 403);
-		const level = home[track] || 1;
-		const next = def.levels[level]; // levels[level] is the (level+1)th entry
-		if (!next) throw new GameError(tr('server.err.trackMaxed', { track: def.name.toLowerCase() }));
+			const def = HOME_TRACKS[track];
+			if (!def) throw new GameError(tr('server.err.unknownHomeUpgrade'));
+			const home = homeOf(player);
+			if (!home.styleLocked) throw new GameError(tr('server.err.buildStyleFirst'), 403);
+			const level = home[track] || 1;
+			const next = def.levels[level]; // levels[level] is the (level+1)th entry
+			if (!next) throw new GameError(tr('server.err.trackMaxed', { track: def.name.toLowerCase() }));
 
-		if (next.requires?.biome) {
-			const bs = await findBiomeState(t.BiomeState, wid, next.requires.biome);
-			if ((bs?.health || 0) < (next.requires.minHealth || 0)) {
-				const d = await defs();
-				const biome = d.biome.get(next.requires.biome);
-				throw new GameError(
-					tr('server.err.restoreFirst', { biome: biome?.name || next.requires.biome, health: next.requires.minHealth }),
-					403,
-				);
+			if (next.requires?.biome) {
+				const bs = await findBiomeState(t.BiomeState, wid, next.requires.biome);
+				if ((bs?.health || 0) < (next.requires.minHealth || 0)) {
+					const d = await defs();
+					const biome = d.biome.get(next.requires.biome);
+					throw new GameError(
+						tr('server.err.restoreFirst', {
+							biome: biome?.name || next.requires.biome,
+							health: next.requires.minHealth,
+						}),
+						403,
+					);
+				}
 			}
-		}
 
-		const { usedFrom, inventory } = await consumeMaterials(player, next.materials || {}, wid);
-		const updated = { ...home, [track]: level + 1 };
-		await t.Player.patch(playerId, { home: updated });
-		const chests = await byWorld(t.Chest, wid);
-		await awardAchievements(playerId);
-		await bumpMetrics(player, { homeUpgrades: 1 });
-		return {
-			ok: true,
-			home: updated,
-			inventory,
-			chests,
-			usedFrom,
-			upgraded: { track, level: level + 1, name: def.name },
-		};
+			const { usedFrom, inventory } = await consumeMaterials(player, next.materials || {}, wid);
+			const updated = { ...home, [track]: level + 1 };
+			await t.Player.patch(playerId, { home: updated });
+			const chests = await byWorld(t.Chest, wid);
+			await awardAchievements(playerId);
+			await bumpMetrics(player, { homeUpgrades: 1 });
+			return {
+				ok: true,
+				home: updated,
+				inventory,
+				chests,
+				usedFrom,
+				upgraded: { track, level: level + 1, name: def.name },
+			};
+		});
 	}
 }
 
@@ -5577,74 +5645,76 @@ export class ObserveAnimal extends PublicEndpoint {
 export class ClaimTask extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId, taskId } = await bodyOf(data);
-		const t = db();
-		const d = await defs();
-		const { player } = await requirePlayer(playerId);
-		const wid = worldOf(player);
-		const now = Date.now();
+		return withPlayerLock(playerId, async () => {
+			const t = db();
+			const d = await defs();
+			const { player } = await requirePlayer(playerId);
+			const wid = worldOf(player);
+			const now = Date.now();
 
-		const [discoveries, biomeStates, placements, chests] = await Promise.all([
-			byWorld(t.Discovery, wid),
-			byWorld(t.BiomeState, wid),
-			byWorld(t.Placement, wid),
-			byWorld(t.Chest, wid),
-		]);
-		const block = dailyTasksBlock({
-			wid,
-			player,
-			d,
-			discoveries,
-			biomeStates,
-			placements,
-			chests,
-			now,
-			unlockedBiomes: player.unlockedBiomes,
+			const [discoveries, biomeStates, placements, chests] = await Promise.all([
+				byWorld(t.Discovery, wid),
+				byWorld(t.BiomeState, wid),
+				byWorld(t.Placement, wid),
+				byWorld(t.Chest, wid),
+			]);
+			const block = dailyTasksBlock({
+				wid,
+				player,
+				d,
+				discoveries,
+				biomeStates,
+				placements,
+				chests,
+				now,
+				unlockedBiomes: player.unlockedBiomes,
+			});
+			const task = block.tasks.find((x: any) => x.id === String(taskId || ''));
+			if (!task) throw new GameError(tr('server.err.taskNotOnBoard'), 404);
+			if (task.pinned) throw new GameError(tr('server.err.taskNotClaimable'), 409); // guidance goals aren't claimed
+			if (task.claimed) throw new GameError(tr('server.err.taskAlreadyClaimed'), 409);
+			if (task.progress < task.target) throw new GameError(tr('server.err.taskNotFinished'), 409);
+
+			// grant the material bundle, respecting carrying capacity
+			const capacity = inventoryCapacity(player);
+			const inventory = { ...(player.inventory || {}) };
+			let room = Math.max(0, capacity - sumValues(inventory));
+			const gained: Record<string, number> = {};
+			for (const [resId, qty] of Object.entries(task.reward || {})) {
+				const take = Math.min(qty as number, room);
+				if (take <= 0) continue;
+				inventory[resId] = (inventory[resId] || 0) + take;
+				gained[resId] = take;
+				room -= take;
+			}
+			if (!Object.keys(gained).length) throw new GameError(tr('server.err.basketFullReward'), 409);
+
+			// Clear the finished goal out for good. Starters (start-*) aren't stored in
+			// the goal list, so they're remembered via goalClaims; a player-set goal is
+			// removed from customGoals entirely, so it leaves the board, the goals menu,
+			// and frees its slot (no lingering "done" entries piling up).
+			const isStarter = String(task.id).startsWith('start-');
+			const isUnlockReward = String(task.id).startsWith('unlock-reward:');
+			const patch: any = { inventory };
+			if (isUnlockReward) {
+				// one-time welcome bundle — drop it from the pending list so it doesn't reappear
+				const bid = String(task.id).slice('unlock-reward:'.length);
+				patch.pendingUnlockRewards = (player.pendingUnlockRewards || []).filter((id: string) => id !== bid);
+			} else if (isStarter) {
+				patch.goalClaims = { ...(player.goalClaims || {}), [task.id]: true };
+			} else {
+				patch.customGoals = (player.customGoals || []).filter((g: CustomGoal) => g.id !== task.id);
+			}
+			await t.Player.patch(playerId, patch);
+			await bumpMetrics(player, { tasksCompleted: 1 });
+			await awardAchievements(playerId);
+
+			const dailyTasks = {
+				...block,
+				tasks: block.tasks.map((x: any) => (x.id === task.id ? { ...x, claimed: true } : x)),
+			};
+			return { ok: true, taskId: task.id, text: task.text, gained, inventory, dailyTasks };
 		});
-		const task = block.tasks.find((x: any) => x.id === String(taskId || ''));
-		if (!task) throw new GameError(tr('server.err.taskNotOnBoard'), 404);
-		if (task.pinned) throw new GameError(tr('server.err.taskNotClaimable'), 409); // guidance goals aren't claimed
-		if (task.claimed) throw new GameError(tr('server.err.taskAlreadyClaimed'), 409);
-		if (task.progress < task.target) throw new GameError(tr('server.err.taskNotFinished'), 409);
-
-		// grant the material bundle, respecting carrying capacity
-		const capacity = inventoryCapacity(player);
-		const inventory = { ...(player.inventory || {}) };
-		let room = Math.max(0, capacity - sumValues(inventory));
-		const gained: Record<string, number> = {};
-		for (const [resId, qty] of Object.entries(task.reward || {})) {
-			const take = Math.min(qty as number, room);
-			if (take <= 0) continue;
-			inventory[resId] = (inventory[resId] || 0) + take;
-			gained[resId] = take;
-			room -= take;
-		}
-		if (!Object.keys(gained).length) throw new GameError(tr('server.err.basketFullReward'), 409);
-
-		// Clear the finished goal out for good. Starters (start-*) aren't stored in
-		// the goal list, so they're remembered via goalClaims; a player-set goal is
-		// removed from customGoals entirely, so it leaves the board, the goals menu,
-		// and frees its slot (no lingering "done" entries piling up).
-		const isStarter = String(task.id).startsWith('start-');
-		const isUnlockReward = String(task.id).startsWith('unlock-reward:');
-		const patch: any = { inventory };
-		if (isUnlockReward) {
-			// one-time welcome bundle — drop it from the pending list so it doesn't reappear
-			const bid = String(task.id).slice('unlock-reward:'.length);
-			patch.pendingUnlockRewards = (player.pendingUnlockRewards || []).filter((id: string) => id !== bid);
-		} else if (isStarter) {
-			patch.goalClaims = { ...(player.goalClaims || {}), [task.id]: true };
-		} else {
-			patch.customGoals = (player.customGoals || []).filter((g: CustomGoal) => g.id !== task.id);
-		}
-		await t.Player.patch(playerId, patch);
-		await bumpMetrics(player, { tasksCompleted: 1 });
-		await awardAchievements(playerId);
-
-		const dailyTasks = {
-			...block,
-			tasks: block.tasks.map((x: any) => (x.id === task.id ? { ...x, claimed: true } : x)),
-		};
-		return { ok: true, taskId: task.id, text: task.text, gained, inventory, dailyTasks };
 	}
 }
 
@@ -5716,107 +5786,116 @@ export class SetGoals extends PublicEndpoint {
 export class Terraform extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId, area, x, y, action } = await bodyOf(data);
-		const t = db();
-		const d = await defs();
-		const { player } = await requirePlayer(playerId);
-		const wid = worldOf(player);
+		return withPlayerLock(playerId, async () => {
+			const t = db();
+			const d = await defs();
+			const { player } = await requirePlayer(playerId);
+			const wid = worldOf(player);
 
-		const biome = d.biome.get(area);
-		if (!biome) throw new GameError(tr('server.err.terraformOutdoors'));
-		if (!(player.unlockedBiomes || []).includes(area))
-			throw new GameError(tr('server.err.biomeLocked', { biome: biome.name }), 403);
+			const biome = d.biome.get(area);
+			if (!biome) throw new GameError(tr('server.err.terraformOutdoors'));
+			if (!(player.unlockedBiomes || []).includes(area))
+				throw new GameError(tr('server.err.biomeLocked', { biome: biome.name }), 403);
 
-		const tx = Math.round(Number(x));
-		const ty = Math.round(Number(y));
-		const grid = areaGrid(d, area);
-		if (!Number.isFinite(tx) || !Number.isFinite(ty) || tx < 1 || ty < 1 || tx > grid.cols - 2 || ty > grid.rows - 2) {
-			throw new GameError(tr('server.err.outOfReach'));
-		}
-		const placements = await byWorld(t.Placement, wid);
-		if (placements.some((p) => p.area === area && p.x === tx && p.y === ty)) {
-			throw new GameError(tr('server.err.somethingPlaced'));
-		}
+			const tx = Math.round(Number(x));
+			const ty = Math.round(Number(y));
+			const grid = areaGrid(d, area);
+			if (
+				!Number.isFinite(tx) ||
+				!Number.isFinite(ty) ||
+				tx < 1 ||
+				ty < 1 ||
+				tx > grid.cols - 2 ||
+				ty > grid.rows - 2
+			) {
+				throw new GameError(tr('server.err.outOfReach'));
+			}
+			const placements = await byWorld(t.Placement, wid);
+			if (placements.some((p) => p.area === area && p.x === tx && p.y === ty)) {
+				throw new GameError(tr('server.err.somethingPlaced'));
+			}
 
-		const tileId = `${wid}:${area}:${tx}:${ty}`;
-		// Match by position, not id: legacy beds carry an old id but must still be
-		// recognized here (see findTerrainAt). A freshly dug bed uses `tileId`.
-		const existing = await findTerrainAt(t.TerrainTile, wid, area, tx, ty);
-		let inventory = player.inventory || {};
-		let tile: any = null;
-		let removedId: string | undefined;
-		let dug: { resourceId: string; amount: number } | null = null;
+			const tileId = `${wid}:${area}:${tx}:${ty}`;
+			// Match by position, not id: legacy beds carry an old id but must still be
+			// recognized here (see findTerrainAt). A freshly dug bed uses `tileId`.
+			const existing = await findTerrainAt(t.TerrainTile, wid, area, tx, ty);
+			let inventory = player.inventory || {};
+			let tile: any = null;
+			let removedId: string | undefined;
+			let dug: { resourceId: string; amount: number } | null = null;
 
-		if (action === 'dig') {
-			if ((player.tools?.shovel || 0) < 1) throw new GameError(tr('server.err.needShovel'));
-			if (existing) throw new GameError(tr('server.err.alreadyPrepared'));
-			tile = { id: tileId, worldId: wid, playerId, area, x: tx, y: ty, type: 'tilled', updatedAt: Date.now() };
-			await t.TerrainTile.put(tile);
+			if (action === 'dig') {
+				if ((player.tools?.shovel || 0) < 1) throw new GameError(tr('server.err.needShovel'));
+				if (existing) throw new GameError(tr('server.err.alreadyPrepared'));
+				tile = { id: tileId, worldId: wid, playerId, area, x: tx, y: ty, type: 'tilled', updatedAt: Date.now() };
+				await t.TerrainTile.put(tile);
 
-			// Breaking new ground may turn up a buried material. This only happens
-			// when DIGGING a fresh bed — never when clearing/draining one back over.
-			// The shovel's tier sets how much you pull up at once (tier 1→1 … 4→4),
-			// so upgrading it actually pays off.
-			const pool = biome.digResources || [];
-			if (pool.length && Math.random() < DIG_FIND_CHANCE) {
-				const resId = pool[Math.floor(Math.random() * pool.length)];
-				const room = Math.max(0, inventoryCapacity(player) - sumValues(inventory));
-				const amount = Math.min(player.tools?.shovel || 1, room);
-				if (amount > 0) {
-					inventory = { ...inventory, [resId]: (inventory[resId] || 0) + amount };
-					await t.Player.patch(playerId, { inventory });
-					dug = { resourceId: resId, amount };
+				// Breaking new ground may turn up a buried material. This only happens
+				// when DIGGING a fresh bed — never when clearing/draining one back over.
+				// The shovel's tier sets how much you pull up at once (tier 1→1 … 4→4),
+				// so upgrading it actually pays off.
+				const pool = biome.digResources || [];
+				if (pool.length && Math.random() < DIG_FIND_CHANCE) {
+					const resId = pool[Math.floor(Math.random() * pool.length)];
+					const room = Math.max(0, inventoryCapacity(player) - sumValues(inventory));
+					const amount = Math.min(player.tools?.shovel || 1, room);
+					if (amount > 0) {
+						inventory = { ...inventory, [resId]: (inventory[resId] || 0) + amount };
+						await t.Player.patch(playerId, { inventory });
+						dug = { resourceId: resId, amount };
+					}
 				}
-			}
-		} else if (action === 'water') {
-			if ((player.tools?.['watering-can'] || 0) < 1) throw new GameError(tr('server.err.needWateringCan'));
-			if (!existing) throw new GameError(tr('server.err.prepareBedFirst'));
-			if (existing.type === 'water') throw new GameError(tr('server.err.alreadyOpenWater'));
-			// tilled -> watered bed, watered -> flooded open water: 1 water either way.
-			// Chain open-water tiles to shape ponds, lakes, and rivers.
-			const cost = 1;
-			const newType = existing.type === 'tilled' ? 'watered' : 'water';
-			// dry biomes (e.g. the desert) can ready soil beds but cannot be flooded
-			if (newType === 'water' && biome.canFlood === false) {
-				throw new GameError(tr('server.err.tooDryToFlood', { biome: biome.name }));
-			}
-			const have = (inventory.water || 0) + (inventory['clean-water'] || 0);
-			if (have < cost) throw new GameError(tr('server.err.needWater', { count: cost }));
-			inventory = { ...inventory };
-			let remaining = cost;
-			for (const key of ['water', 'clean-water']) {
-				const take = Math.min(inventory[key] || 0, remaining);
-				if (take > 0) {
-					inventory[key] -= take;
-					if (inventory[key] <= 0) delete inventory[key];
-					remaining -= take;
+			} else if (action === 'water') {
+				if ((player.tools?.['watering-can'] || 0) < 1) throw new GameError(tr('server.err.needWateringCan'));
+				if (!existing) throw new GameError(tr('server.err.prepareBedFirst'));
+				if (existing.type === 'water') throw new GameError(tr('server.err.alreadyOpenWater'));
+				// tilled -> watered bed, watered -> flooded open water: 1 water either way.
+				// Chain open-water tiles to shape ponds, lakes, and rivers.
+				const cost = 1;
+				const newType = existing.type === 'tilled' ? 'watered' : 'water';
+				// dry biomes (e.g. the desert) can ready soil beds but cannot be flooded
+				if (newType === 'water' && biome.canFlood === false) {
+					throw new GameError(tr('server.err.tooDryToFlood', { biome: biome.name }));
 				}
+				const have = (inventory.water || 0) + (inventory['clean-water'] || 0);
+				if (have < cost) throw new GameError(tr('server.err.needWater', { count: cost }));
+				inventory = { ...inventory };
+				let remaining = cost;
+				for (const key of ['water', 'clean-water']) {
+					const take = Math.min(inventory[key] || 0, remaining);
+					if (take > 0) {
+						inventory[key] -= take;
+						if (inventory[key] <= 0) delete inventory[key];
+						remaining -= take;
+					}
+				}
+				await t.Player.patch(playerId, { inventory });
+				tile = { ...existing, type: newType, updatedAt: Date.now() };
+				await t.TerrainTile.patch(existing.id, { type: newType, updatedAt: Date.now() });
+			} else if (action === 'clear') {
+				if (!existing) throw new GameError(tr('server.err.nothingToClear'));
+				await t.TerrainTile.delete(existing.id);
+				removedId = existing.id;
+			} else {
+				throw new GameError(tr('server.err.badTerraformAction'));
 			}
-			await t.Player.patch(playerId, { inventory });
-			tile = { ...existing, type: newType, updatedAt: Date.now() };
-			await t.TerrainTile.patch(existing.id, { type: newType, updatedAt: Date.now() });
-		} else if (action === 'clear') {
-			if (!existing) throw new GameError(tr('server.err.nothingToClear'));
-			await t.TerrainTile.delete(existing.id);
-			removedId = existing.id;
-		} else {
-			throw new GameError(tr('server.err.badTerraformAction'));
-		}
 
-		const recalc = await recalcBiome(wid, playerId, area, {
-			addTerrain: tile ? [tile] : [],
-			removeTerrainIds: removedId ? [removedId] : [],
-			player: { ...player, inventory },
+			const recalc = await recalcBiome(wid, playerId, area, {
+				addTerrain: tile ? [tile] : [],
+				removeTerrainIds: removedId ? [removedId] : [],
+				player: { ...player, inventory },
+			});
+			await bumpMetrics(
+				player,
+				{ terraformActions: 1, animalsReturned: recalc.newAnimals?.length || 0 },
+				action === 'water' ? { water: 1 } : {},
+			);
+			await awardWorldAchievements(wid, playerId, {
+				addDiscoveries: recalc.newAnimals,
+				freshBiomeStates: [recalc.biomeState],
+			});
+			return { ok: true, tile, removedId, dug, inventory, ...recalc };
 		});
-		await bumpMetrics(
-			player,
-			{ terraformActions: 1, animalsReturned: recalc.newAnimals?.length || 0 },
-			action === 'water' ? { water: 1 } : {},
-		);
-		await awardWorldAchievements(wid, playerId, {
-			addDiscoveries: recalc.newAnimals,
-			freshBiomeStates: [recalc.biomeState],
-		});
-		return { ok: true, tile, removedId, dug, inventory, ...recalc };
 	}
 }
 

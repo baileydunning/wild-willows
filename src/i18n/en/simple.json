@@ -18,11 +18,11 @@
 				"touch": "Tap the hammer button to open crafting. It uses your basket from anywhere. Now let us build the grasshopper a home."
 			},
 			"toolbelt": {
-				"text": "Your tools are at the bottom. 1 is the basket for gathering. 2 is the shovel for digging. 3 is the watering can. Press T to open Tools. There you spend stuff to make each tool better. Better tools gather more and dig more. They also unlock the next area guide. Some upgrades open up as land gets healthier.",
+				"text": "Your tools are at the bottom. 1 is the basket for gathering. 2 is the shovel for digging. 3 is the watering can. Press T to open Tools. There you spend stuff to make each tool better. Better tools gather more and dig more. They also unlock the next field journal tier. Some upgrades open up as land gets healthier.",
 				"touch": "Your tools are at the bottom. The basket gathers. The shovel digs. The watering can waters. Tap the tools button to make each one better. Better tools gather more and dig more. Some upgrades open up as land gets healthier."
 			},
 			"tools": {
-				"text": "Press T to open Tools. Spend stuff to make your basket, shovel, watering can, or journal better. Better tools gather more and dig more. They also unlock the next area guide. Some upgrades open up as land gets healthier.",
+				"text": "Press T to open Tools. Spend stuff to make your basket, shovel, watering can, or journal better. Better tools gather more and dig more. They also unlock the next field journal tier. Some upgrades open up as land gets healthier.",
 				"touch": "Tap the tools button to open Tools. Spend stuff to make your basket, shovel, watering can, or journal better. Better tools gather more and dig more. Some upgrades open up as land gets healthier."
 			},
 			"journal": {
@@ -107,7 +107,7 @@
 			"home": "Your home. A cozy space to make your own. Fill it with things you craft. Use the sign by your tent to build and upgrade it. A bigger home lets you carry more. New upgrades open as your land gets healthier.",
 			"people": "People. Invite friends with your code and see who is here with you.",
 			"settings": "Settings. Sound, help options, your look, and saving.",
-			"tools": "Tools. Spend stuff on a bigger basket, a better shovel and watering can, and new area guides.",
+			"tools": "Tools. Spend stuff on a bigger basket, a better shovel and watering can, and a better field journal.",
 			"weather": "Weather and seasons. See how the weather changes across the preserve. Some stuff and some animals only show up in the right weather."
 		},
 		"goals": {
@@ -142,7 +142,7 @@
 		"journal": {
 			"comfortGrows": "Comfort grows with good homes. Place more of what it likes, like {items}, and it will settle in.",
 			"foodWebIntro": "Higher rows eat the rows below. You have found {returned} of {total}. Build more homes to see the rest.",
-			"lockedCard": "Upgrade your area guide to Tier {tier} to read this animal’s full page. It shows its job, its food, and who it eats.",
+			"lockedCard": "Upgrade your field journal to Tier {tier} to read this animal’s full page. It shows its job, its food, and who it eats.",
 			"overviewEmpty": "No animals have come back yet. Build homes and they will start to arrive. Check back here to see everyone.",
 			"summaryAll": "{returned} of {total} animals have come back to the preserve."
 		},
