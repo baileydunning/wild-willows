@@ -1546,10 +1546,16 @@
 				 * it produces no events at all, and the player just closes the game.
 				 *
 				 * Refusals are keyed by message key rather than message text, so one problem
-				 * doesn't split across languages. Renders nothing when both are empty, so a
-				 * healthy instance stays quiet. */
+				 * doesn't split across languages. */
 				let healthSection = '';
-				if (GAMEPLAYHEALTH && (GAMEPLAYHEALTH.refusals?.total || GAMEPLAYHEALTH.clientErrors?.total)) {
+				// Renders whenever the endpoint answers, including at zero — unlike Save
+				// health below, which stays quiet because an unreadable save is genuinely
+				// exceptional. Refusals are not: any player who runs short of materials
+				// makes one, so a count of zero here almost certainly means the panel
+				// isn't wired up rather than that nothing has gone wrong. Hiding it made
+				// those two states look identical, and left no way to tell a healthy
+				// instance from an endpoint that never deployed.
+				if (GAMEPLAYHEALTH) {
 					const gh = GAMEPLAYHEALTH;
 					const ref = gh.refusals || {};
 					const cli = gh.clientErrors || {};
@@ -1591,6 +1597,12 @@
 							(crashRows
 								? `<div class="card" style="margin-top:.8rem"><h3>Crashes<span class="tag">top 25 by count</span></h3>` +
 									`<table class="vs"><thead><tr><th>Message</th><th>Where</th><th class="num">Hits</th><th class="num">Last seen</th></tr></thead><tbody>${crashRows}</tbody></table></div>`
+								: '') +
+							(!refusalRows && !crashRows
+								? `<div class="card" style="margin-top:.8rem"><h3>Nothing recorded yet<span class="tag">the panel is live</span></h3>` +
+									`<p class="emptynote">No refusals or crashes have been reported since this instance started collecting. ` +
+									`Refusals are ordinary — a player short on materials makes one — so if this stays empty during real play, ` +
+									`check that the <code>Refusal</code> and <code>ClientError</code> tables exist.</p></div>`
 								: ''),
 					);
 				}
