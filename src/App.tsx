@@ -30,7 +30,7 @@ import {
 import { SettingsPanel } from './ui/Settings';
 import { ActivityLog, FeedPanel, Toolbelt } from './ui/Toolbelt';
 import { Tutorial } from './ui/Tutorial';
-import { CoachTips } from './ui/CoachTips';
+import { CoachTips, dismissCoachTip } from './ui/CoachTips';
 import { GoalsPanel } from './ui/GoalsPanel';
 import { DevPanel } from './ui/DevPanel';
 import { KeyboardGate } from './ui/KeyboardGate';
@@ -201,7 +201,7 @@ function PlacementMenu({ item, onClose }: { item: ClickedPlacement; onClose: () 
 function GameScreen() {
 	const game = useGame();
 	const { t } = useI18n();
-	const { panel, setPanel, placementObjectId, cancelPlacement, notify } = game;
+	const { panel, setPanel, placementObjectId, cancelPlacement, notify, toasts, dismissToast } = game;
 	const [clickedPlacement, setClickedPlacement] = useState<ClickedPlacement | null>(null);
 	const [clickedBed, setClickedBed] = useState<ClickedBed | null>(null);
 	const [devOpen, setDevOpen] = useState(false);
@@ -304,9 +304,14 @@ function GameScreen() {
 			const k = e.key.toLowerCase();
 			if (k === 'escape') {
 				// One consistent close chain: Escape always dismisses the topmost
-				// thing — dev panel, help, the plant/placement popups, then panels,
-				// then placement mode. (Playtest: Esc "sometimes worked" because the
-				// popups weren't in this chain.)
+				// thing — dev panel, help, the plant/placement popups, the floating
+				// messages, then panels, then placement mode. (Playtest: Esc
+				// "sometimes worked" because the popups weren't in this chain.)
+				//
+				// The messages sit ahead of panels deliberately. A menu's own coach
+				// hint appears OVER that menu, so if Esc closed both at once there was
+				// no way to dismiss the hint and keep reading the menu it describes.
+				// One press, one thing.
 				if (devOpen) {
 					setDevOpen(false);
 					return;
@@ -321,6 +326,12 @@ function GameScreen() {
 				}
 				if (clickedPlacement) {
 					setClickedPlacement(null);
+					return;
+				}
+				if (dismissCoachTip()) return;
+				if (toasts.length) {
+					// Newest first — that's the one that just appeared over everything else.
+					dismissToast(toasts[toasts.length - 1].id);
 					return;
 				}
 				if (panel) setPanel(null);
@@ -341,7 +352,18 @@ function GameScreen() {
 		};
 		window.addEventListener('keydown', onKey);
 		return () => window.removeEventListener('keydown', onKey);
-	}, [panel, setPanel, placementObjectId, cancelPlacement, game, devOpen, clickedBed, clickedPlacement]);
+	}, [
+		panel,
+		setPanel,
+		placementObjectId,
+		cancelPlacement,
+		game,
+		devOpen,
+		clickedBed,
+		clickedPlacement,
+		toasts,
+		dismissToast,
+	]);
 
 	return (
 		<div className="game-screen">

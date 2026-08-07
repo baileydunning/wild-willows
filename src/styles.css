@@ -12,6 +12,59 @@
 	--line: #e2d8bd;
 	--shadow: 0 10px 36px rgba(43, 51, 33, 0.28);
 	--radius: 16px;
+	/* ---- semantic surfaces & accents ----
+	   Named for the JOB rather than the colour, so the dark theme at the bottom of
+	   this file is a repoint of these seventeen values instead of a second copy of
+	   every rule. Each one below is the exact literal it replaced, so light mode is
+	   byte-for-byte what it always was. */
+	--world-void: #26301f; /* what shows behind/around the game canvas */
+	--backdrop: rgba(26, 31, 18, 0.5); /* the dimmer behind a modal panel */
+	--panel-edge: #d9c89a; /* the thick storybook border on panels + menus */
+	--surface-float: rgba(250, 245, 232, 0.94); /* cards floating over the world */
+	--surface-float-solid: rgba(250, 245, 232, 0.98);
+	--surface-float-97: rgba(250, 245, 232, 0.97); /* .paint-palette, a hair lighter */
+	--field: #fff; /* input-ish surfaces: material tiles, kbd keys, switch thumb */
+	--cream-lift: #fffdf6; /* a half-step above --cream, for top-lit card gradients */
+	--track: #e4dcc2; /* meter + day-bar troughs, step dots */
+	--kbd-line: #cfc4a4;
+	--stamp-ink: #b0a98c; /* the deliberately-faint build stamp */
+	/* Text/icons sitting ON a green or gold fill. White in light mode; in dark the
+	   accent brightens, so this flips to near-black rather than letting every
+	   primary button drop to a 2:1 label. */
+	--on-accent: #fff;
+	/* The dark speech/log bubbles that sit over the world (not over a panel). */
+	--bubble: rgba(43, 51, 33, 0.82);
+	--bubble-strong: rgba(43, 51, 33, 0.9);
+	--bubble-ink: #f0e8d4;
+	--bubble-accent: #c2dba8;
+	/* Soft washes for pinned/selected/tagged rows. */
+	--tint-leaf: rgba(122, 168, 90, 0.14);
+	--tint-leaf-strong: rgba(122, 168, 90, 0.18);
+	--tint-gold: rgba(201, 145, 63, 0.14);
+	/* Inline "this is fine" / "this is not" notices. */
+	--good-bg: #eff6e9;
+	--good-line: #aecf9f;
+	--good-ink: #3d6749;
+	--bad-bg: #f8e9e4;
+	--bad-line: #e0b5a8;
+	--bad-ink: #a33c2e;
+	--danger-solid: #b04030;
+	--danger-deep: #8a3022;
+	--violet: #7a5aa0; /* locked / not-yet-unlocked */
+	--disc-1: #eef6e3; /* the little illustrated icon discs */
+	--disc-2: #dcebca;
+	--disc-line: #cfe0b6;
+	--preview-1: #dcebc8; /* character-preview backdrop */
+	--preview-2: #c2dba8;
+	--sil-bg: #6a6856; /* undiscovered-species silhouette */
+	--sil-known-bg: #dedbd2;
+	--sil-ink: #f0e8d4;
+
+	/* Tells the browser which way to render the controls it draws itself: select
+	   popups, scrollbars, range tracks, the native colour picker. Without it those
+	   stay stubbornly white in dark mode. */
+	color-scheme: light;
+
 	/* The five pickable typefaces (Settings → Font), defined once here and used
 	   both to theme the UI and to preview each option in the dropdown. Only
 	   Storybook loads webfonts; the rest are system stacks, so switching costs no
@@ -38,7 +91,7 @@ body,
 	height: 100%;
 	font-family: var(--font-body);
 	font-weight: 500;
-	background: #26301f;
+	background: var(--world-void);
 	color: var(--ink);
 }
 
@@ -114,7 +167,7 @@ button:disabled {
 }
 button.on {
 	background: var(--green);
-	color: #fff;
+	color: var(--on-accent);
 	border-color: var(--green);
 }
 button.link {
@@ -145,7 +198,7 @@ button.link {
 	box-shadow: 0 2px 0 rgba(43, 51, 33, 0.08);
 }
 .icon-btn.on {
-	color: #fff;
+	color: var(--on-accent);
 }
 .icon-btn.subtle {
 	color: var(--ink-soft);
@@ -611,7 +664,7 @@ input {
 	min-height: 0;
 	overflow-y: auto;
 	background: var(--paper);
-	border: 2.5px solid #d9c89a;
+	border: 2.5px solid var(--panel-edge);
 	border-radius: 22px;
 	padding: 26px 38px 24px;
 	box-shadow: var(--shadow);
@@ -670,7 +723,7 @@ input {
 }
 .big-btn.primary {
 	background: var(--green);
-	color: #fff;
+	color: var(--on-accent);
 	border-color: var(--green-deep);
 	box-shadow: 0 3px 0 var(--green-deep);
 }
@@ -715,7 +768,7 @@ input {
 }
 .creator-preview {
 	flex-shrink: 0;
-	background: linear-gradient(180deg, #dcebc8, #c2dba8);
+	background: linear-gradient(180deg, var(--preview-1), var(--preview-2));
 	border: 1.5px solid var(--line);
 	border-radius: 18px;
 	padding: 12px 10px 2px;
@@ -835,7 +888,7 @@ input {
 .swatch-btn.sel {
 	border: 2.5px solid var(--ink);
 	transform: scale(1.18);
-	box-shadow: 0 0 0 2px #fff inset;
+	box-shadow: 0 0 0 2px var(--field) inset;
 }
 .swatch-pick {
 	display: inline-flex;
@@ -871,7 +924,7 @@ input {
 }
 .hat-btn.sel {
 	background: var(--green);
-	color: #fff;
+	color: var(--on-accent);
 	border-color: var(--green);
 }
 .form-actions {
@@ -889,9 +942,9 @@ input {
 	align-items: center;
 	justify-content: center;
 	gap: 6px;
-	color: #a33c2e;
-	background: #f8e9e4;
-	border: 1.5px solid #e0b5a8;
+	color: var(--bad-ink);
+	background: var(--bad-bg);
+	border: 1.5px solid var(--bad-line);
 	border-radius: 10px;
 	padding: 7px 12px;
 	font-size: calc(13.5px * var(--ui-scale));
@@ -902,9 +955,9 @@ input {
 	align-items: center;
 	justify-content: center;
 	gap: 6px;
-	color: #3d6749;
-	background: #eff6e9;
-	border: 1.5px solid #aecf9f;
+	color: var(--good-ink);
+	background: var(--good-bg);
+	border: 1.5px solid var(--good-line);
 	border-radius: 10px;
 	padding: 7px 12px;
 	font-size: calc(13.5px * var(--ui-scale));
@@ -917,23 +970,23 @@ input {
 	gap: 6px;
 	width: 100%;
 	margin-top: 14px;
-	color: #a33c2e;
+	color: var(--bad-ink);
 	background: transparent;
 	border: 1.5px dashed #d8a89e;
 	font-size: calc(13px * var(--ui-scale));
 	padding: 8px;
 }
 .delete-save-btn:hover:not(:disabled) {
-	background: #f8e9e4;
+	background: var(--bad-bg);
 }
 .big-btn.danger {
-	color: #a33c2e;
+	color: var(--bad-ink);
 }
 .big-btn.danger-solid {
-	background: #b04030;
+	background: var(--danger-solid);
 	color: #fff;
-	border-color: #8a3022;
-	box-shadow: 0 3px 0 #8a3022;
+	border-color: var(--danger-deep);
+	box-shadow: 0 3px 0 var(--danger-deep);
 }
 .big-btn.danger-solid:hover:not(:disabled) {
 	background: #9a3628;
@@ -941,7 +994,7 @@ input {
 .build-stamp {
 	margin: 14px 0 0;
 	font-size: calc(11px * var(--ui-scale));
-	color: #b0a98c;
+	color: var(--stamp-ink);
 	text-align: center;
 }
 
@@ -966,7 +1019,7 @@ input {
 	position: absolute;
 	top: 12px;
 	z-index: 10;
-	background: rgba(250, 245, 232, 0.94);
+	background: var(--surface-float);
 	border: 1.5px solid var(--line);
 	border-radius: 18px;
 	padding: 10px 14px;
@@ -1070,7 +1123,7 @@ input {
 .hud-home-track {
 	font-size: calc(10.5px * var(--ui-scale));
 	color: var(--ink-soft);
-	background: rgba(122, 168, 90, 0.14);
+	background: var(--tint-leaf);
 	border: 1px solid rgba(122, 168, 90, 0.3);
 	border-radius: 999px;
 	padding: 1px 7px;
@@ -1146,7 +1199,7 @@ input {
 .chip-toggle.on {
 	background: #6aa253;
 	border-color: #6aa253;
-	color: #fff;
+	color: var(--on-accent);
 }
 
 /* Weather & Seasons panel */
@@ -1167,7 +1220,7 @@ input {
 }
 .wx-daybar {
 	height: 8px;
-	background: #e4dcc2;
+	background: var(--track);
 	border-radius: 6px;
 	overflow: hidden;
 	box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
@@ -1275,7 +1328,7 @@ input {
 	flex: 1;
 	min-width: 40px;
 	height: 10px;
-	background: #e4dcc2;
+	background: var(--track);
 	border-radius: 6px;
 	overflow: hidden;
 	box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.08);
@@ -1347,8 +1400,8 @@ input {
 	left: 50%;
 	transform: translateX(-50%);
 	z-index: 10;
-	background: rgba(43, 51, 33, 0.9);
-	color: #f0e8d4;
+	background: var(--bubble-strong);
+	color: var(--bubble-ink);
 	padding: 8px 20px;
 	border-radius: 22px;
 	font-size: calc(13.5px * var(--ui-scale));
@@ -1365,14 +1418,14 @@ input {
 	justify-content: center;
 }
 .prompt-line svg {
-	color: #c2dba8;
+	color: var(--bubble-accent);
 	flex-shrink: 0;
 }
 .muted-line {
 	opacity: 0.85;
 }
 .hud-bottom .link {
-	color: #c2dba8;
+	color: var(--bubble-accent);
 	margin-left: 4px;
 }
 /* While something is ready to place, the prompt bar reads as an active call to
@@ -1471,7 +1524,7 @@ input {
 	border-left-color: #c05040;
 }
 .toast-error svg {
-	color: #b04030;
+	color: var(--danger-solid);
 }
 .toast-achievement {
 	border-left-color: var(--gold);
@@ -1672,7 +1725,7 @@ input {
 	flex: 1;
 }
 .home-perk {
-	color: #7a5aa0;
+	color: var(--violet);
 	margin-top: 3px;
 }
 .home-perk-card {
@@ -1761,7 +1814,7 @@ input {
 	position: absolute;
 	inset: 0;
 	z-index: 20;
-	background: rgba(26, 31, 18, 0.5);
+	background: var(--backdrop);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -1773,7 +1826,7 @@ input {
 .panel {
 	background: var(--paper);
 	border-radius: 20px;
-	border: 2.5px solid #d9c89a;
+	border: 2.5px solid var(--panel-edge);
 	width: 470px;
 	max-width: 94vw;
 	max-height: 88vh;
@@ -1930,7 +1983,7 @@ input {
 .gear-toggle.gear-on {
 	background: var(--green);
 	border-color: var(--green-deep);
-	color: #fff;
+	color: var(--on-accent);
 }
 .gear-toggle.gear-off {
 	background: var(--cream);
@@ -1951,7 +2004,7 @@ input {
 	display: inline-flex;
 	align-items: center;
 	gap: 4px;
-	background: #fff;
+	background: var(--field);
 	border: 1.5px solid var(--line);
 }
 .mat-src {
@@ -1967,16 +2020,16 @@ input {
 	background: #f9eeec;
 }
 .mat-ok {
-	border-color: #aecf9f;
-	background: #eff6e9;
+	border-color: var(--good-line);
+	background: var(--good-bg);
 }
 .placeable-bar {
 	display: flex;
 	flex-wrap: wrap;
 	gap: 7px;
 	align-items: center;
-	background: #eff6e9;
-	border: 1.5px solid #aecf9f;
+	background: var(--good-bg);
+	border: 1.5px solid var(--good-line);
 	border-radius: 13px;
 	padding: 9px 13px;
 	margin-bottom: 9px;
@@ -2137,7 +2190,7 @@ input {
 	height: 18px;
 	border-radius: 50%;
 	background: var(--gold);
-	color: #fff;
+	color: var(--on-accent);
 	display: grid;
 	place-items: center;
 	border: 2px solid var(--cream);
@@ -2209,12 +2262,12 @@ input {
 	background: rgba(124, 181, 100, 0.22);
 }
 .bd-tag-locked {
-	color: #7a5aa0;
+	color: var(--violet);
 	background: rgba(122, 90, 160, 0.14);
 }
 .bd-tag-soon {
 	color: var(--gold);
-	background: rgba(201, 145, 63, 0.14);
+	background: var(--tint-gold);
 }
 .bd-travel {
 	flex: 0 0 auto;
@@ -2223,7 +2276,7 @@ input {
 	gap: 6px;
 	border: 1.5px solid var(--green-deep);
 	background: var(--green-deep);
-	color: #fff;
+	color: var(--on-accent);
 	font-weight: 700;
 	font-size: calc(13px * var(--ui-scale));
 	padding: 8px 14px;
@@ -2290,7 +2343,7 @@ input {
 	border-style: dashed;
 }
 .bd-unlock .bd-goal-label {
-	color: #7a5aa0;
+	color: var(--violet);
 }
 .bd-addgoal {
 	margin-top: 9px;
@@ -2387,12 +2440,12 @@ input {
 .lock.soon {
 	color: var(--gold);
 	font-weight: 700;
-	background: rgba(201, 145, 63, 0.14);
+	background: var(--tint-gold);
 	border-radius: 999px;
 	padding: 1px 9px;
 }
 .unlock-req {
-	color: #7a5aa0;
+	color: var(--violet);
 	margin-top: 3px;
 }
 .travel-icon {
@@ -2632,8 +2685,8 @@ input {
 	height: 46px;
 	border-radius: 50%;
 	flex-shrink: 0;
-	background: #6a6856;
-	color: #f0e8d4;
+	background: var(--sil-bg);
+	color: var(--sil-ink);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -2646,7 +2699,7 @@ input {
 	   squirrel, a black-and-white woodpecker, a tawny owl) and a saturated green
 	   disc competed with them. A neutral ground lets each animal read as itself.
 	   The inner ring keeps the disc's edge visible against the cream card. */
-	background: #dedbd2;
+	background: var(--sil-known-bg);
 	box-shadow:
 		inset 0 0 0 1px rgba(58, 58, 44, 0.08),
 		inset 0 -3px 0 rgba(0, 0, 0, 0.07);
@@ -2787,7 +2840,7 @@ input {
 }
 .web-chip:hover:not(:disabled) {
 	background: var(--green);
-	color: #fff;
+	color: var(--on-accent);
 }
 .web-chip-unknown {
 	border-color: var(--line);
@@ -2843,7 +2896,7 @@ input {
 }
 .view-switch button.on {
 	background: var(--green);
-	color: #fff;
+	color: var(--on-accent);
 }
 
 /* food-web layered diagram */
@@ -3144,7 +3197,7 @@ input {
 	display: flex;
 	gap: 12px;
 	align-items: flex-start;
-	background: linear-gradient(180deg, #fffdf6, var(--cream));
+	background: linear-gradient(180deg, var(--cream-lift), var(--cream));
 	border: 1.5px solid var(--line);
 	border-radius: 16px;
 	padding: 13px 15px;
@@ -3174,9 +3227,9 @@ input {
 	width: 44px;
 	height: 44px;
 	border-radius: 14px;
-	background: radial-gradient(circle at 30% 25%, #eef6e3, #dcebca);
+	background: radial-gradient(circle at 30% 25%, var(--disc-1), var(--disc-2));
 	color: var(--green-deep);
-	border: 1.5px solid #cfe0b6;
+	border: 1.5px solid var(--disc-line);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -3189,7 +3242,7 @@ input {
 	height: 19px;
 	border-radius: 50%;
 	background: var(--green);
-	color: #fff;
+	color: var(--on-accent);
 	border: 2px solid var(--paper);
 	font-size: calc(11px * var(--ui-scale));
 	font-weight: 700;
@@ -3218,7 +3271,7 @@ input {
 	display: flex;
 	gap: 13px;
 	align-items: center;
-	background: linear-gradient(180deg, #fffdf6, var(--cream));
+	background: linear-gradient(180deg, var(--cream-lift), var(--cream));
 	border: 1.5px solid var(--line);
 	border-radius: 16px;
 	padding: 12px 15px;
@@ -3238,9 +3291,9 @@ input {
 	width: 44px;
 	height: 44px;
 	border-radius: 14px;
-	background: radial-gradient(circle at 30% 25%, #eef6e3, #dcebca);
+	background: radial-gradient(circle at 30% 25%, var(--disc-1), var(--disc-2));
 	color: var(--green-deep);
-	border: 1.5px solid #cfe0b6;
+	border: 1.5px solid var(--disc-line);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -3313,8 +3366,8 @@ kbd {
 	font-family: var(--font-body);
 	font-size: calc(11px * var(--ui-scale));
 	font-weight: 700;
-	background: #fff;
-	border: 1.5px solid #cfc4a4;
+	background: var(--field);
+	border: 1.5px solid var(--kbd-line);
 	border-bottom-width: 3px;
 	border-radius: 6px;
 	padding: 2px 7px;
@@ -3331,7 +3384,7 @@ kbd {
 	display: flex;
 	gap: 7px;
 	padding: 8px 10px;
-	background: rgba(250, 245, 232, 0.94);
+	background: var(--surface-float);
 	border: 1.5px solid var(--line);
 	border-radius: 18px;
 	box-shadow: 0 4px 16px rgba(33, 41, 25, 0.25);
@@ -3348,7 +3401,7 @@ kbd {
 	gap: 5px;
 	padding: 7px 9px;
 	max-width: 86vw;
-	background: rgba(250, 245, 232, 0.97);
+	background: var(--surface-float-97);
 	border: 1.5px solid var(--line);
 	border-radius: 14px;
 	box-shadow: 0 4px 16px rgba(33, 41, 25, 0.25);
@@ -3385,7 +3438,7 @@ kbd {
 .tool-slot.on {
 	background: var(--green);
 	border-color: var(--green-deep);
-	color: #fff;
+	color: var(--on-accent);
 	box-shadow: 0 2px 0 var(--green-deep);
 }
 .tool-slot.subtle {
@@ -3408,7 +3461,7 @@ kbd {
 	height: 16px;
 	border-radius: 50%;
 	background: var(--gold);
-	color: #fff;
+	color: var(--on-accent);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -3416,7 +3469,7 @@ kbd {
 }
 .tool-slot.on .tool-key {
 	background: var(--green-deep);
-	color: #fff;
+	color: var(--on-accent);
 	border-color: var(--green-deep);
 }
 .belt-divider {
@@ -3429,7 +3482,7 @@ kbd {
 	color: var(--gold);
 }
 .tool-slot.craft.on {
-	color: #fff;
+	color: var(--on-accent);
 }
 @media (pointer: coarse) {
 	.tool-key {
@@ -3475,8 +3528,8 @@ kbd {
 	display: flex;
 	align-items: flex-start;
 	gap: 7px;
-	background: rgba(43, 51, 33, 0.82);
-	color: #f0e8d4;
+	background: var(--bubble);
+	color: var(--bubble-ink);
 	border-radius: 11px;
 	padding: 5px 11px;
 	font-size: calc(12.5px * var(--ui-scale));
@@ -3485,7 +3538,7 @@ kbd {
 	flex-shrink: 0;
 }
 .activity-entry svg {
-	color: #c2dba8;
+	color: var(--bubble-accent);
 	flex-shrink: 0;
 	margin-top: 2px;
 }
@@ -3495,8 +3548,8 @@ kbd {
 	display: inline-flex;
 	align-items: center;
 	gap: 4px;
-	background: rgba(43, 51, 33, 0.82);
-	color: #c2dba8;
+	background: var(--bubble);
+	color: var(--bubble-accent);
 	border: none;
 	border-radius: 11px;
 	padding: 6px 10px;
@@ -3519,7 +3572,7 @@ kbd {
 	flex-direction: column;
 	width: 400px;
 	max-width: calc(100vw - 24px);
-	background: rgba(250, 245, 232, 0.98);
+	background: var(--surface-float-solid);
 	border: 2.5px solid var(--green-deep);
 	border-radius: 20px;
 	padding: 0;
@@ -3571,7 +3624,7 @@ kbd {
 	align-items: center;
 	gap: 9px;
 	background: var(--green);
-	color: #fff;
+	color: var(--on-accent);
 	padding: 11px 16px;
 }
 /* The header doubles as a drag handle — grab it to move the guide anywhere.
@@ -3640,7 +3693,7 @@ kbd {
 }
 .tutorial-card.celebrate .tutorial-icon {
 	background: var(--green-2);
-	color: #fff;
+	color: var(--on-accent);
 }
 .tutorial-title {
 	font-family: var(--font-display);
@@ -3711,7 +3764,7 @@ kbd {
 .tutorial-skip {
 	color: var(--ink-soft);
 	background: transparent;
-	border: 1px solid #d9c89a;
+	border: 1px solid var(--panel-edge);
 }
 .tutorial-skip:disabled {
 	opacity: 0.4;
@@ -3719,7 +3772,7 @@ kbd {
 }
 .tutorial-btn {
 	background: var(--green);
-	color: #fff;
+	color: var(--on-accent);
 	border-color: var(--green-deep);
 }
 .tutorial-footer {
@@ -3744,7 +3797,7 @@ kbd {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	color: #fff;
+	color: var(--on-accent);
 	background: rgba(255, 255, 255, 0.18);
 	border-color: transparent;
 }
@@ -3764,7 +3817,7 @@ kbd {
 	padding: 5px 11px;
 	border-radius: 10px;
 	background: var(--green);
-	color: #fff;
+	color: var(--on-accent);
 	border: 1px solid var(--green-deep);
 }
 .help-replay-btn:hover {
@@ -3782,7 +3835,7 @@ kbd {
 	align-items: center;
 	gap: 8px;
 	background: var(--paper);
-	border: 2px solid #d9c89a;
+	border: 2px solid var(--panel-edge);
 	border-radius: 16px;
 	padding: 9px 14px;
 	box-shadow: var(--shadow);
@@ -4072,7 +4125,7 @@ kbd {
 	text-transform: uppercase;
 	letter-spacing: 0.3px;
 	color: var(--gold);
-	background: rgba(201, 145, 63, 0.14);
+	background: var(--tint-gold);
 	border-radius: 999px;
 	padding: 1px 7px;
 	vertical-align: middle;
@@ -4217,7 +4270,7 @@ kbd {
 }
 .mode-toggle-btn.on {
 	background: var(--green);
-	color: #fff;
+	color: var(--on-accent);
 	box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
 }
 .mode-banner {
@@ -4280,7 +4333,7 @@ kbd {
 }
 .approve-btn {
 	background: var(--green);
-	color: #fff;
+	color: var(--on-accent);
 }
 .approve-btn:hover {
 	background: var(--green-deep);
@@ -4423,7 +4476,7 @@ kbd {
 	position: static;
 }
 .tasks-widget {
-	background: rgba(250, 245, 232, 0.94);
+	background: var(--surface-float);
 	border: 1.5px solid var(--line);
 	border-radius: 14px;
 	box-shadow: 0 4px 16px rgba(33, 41, 25, 0.25);
@@ -4529,7 +4582,7 @@ kbd {
 	display: inline-flex;
 	align-items: center;
 	justify-content: center;
-	color: #fff;
+	color: var(--on-accent);
 }
 .tasks-step.done .tasks-step-box {
 	background: var(--green-2, #6aa253);
@@ -4547,7 +4600,7 @@ kbd {
 	margin-bottom: 5px;
 }
 .tasks-row-pinned {
-	background: rgba(122, 168, 90, 0.14);
+	background: var(--tint-leaf);
 	border-radius: 10px;
 	padding: 4px 6px;
 	margin: 0 -2px;
@@ -4889,6 +4942,365 @@ kbd {
 	background: #000 !important;
 }
 
+/* The last-resort screen when a render throws. Styled like a panel rather than a
+   browser error page: the message is that the preserve is fine, and a page that
+   looks like the game says that better than one that looks like a stack trace. */
+.crash {
+	position: absolute;
+	inset: 0;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 4px;
+	text-align: center;
+	padding: 24px;
+	background: var(--paper);
+	color: var(--ink);
+}
+.crash h2 {
+	margin: 0;
+}
+.crash p {
+	max-width: 34rem;
+	color: var(--ink-soft);
+	margin: 0 0 6px;
+}
+
+/* ---- dark mode (Settings → Appearance) ----
+   Quiet near-neutral greys, with the colour left to the accents. The daylight
+   theme carries the game's character in its surfaces; spread that same cast
+   across a dark panel and it stops reading as an absence of light and starts
+   reading as a colour wash, which is the opposite of restful. So the greys get
+   out of the way here and the greens, golds and roses do the work.
+
+   The whole thing is a repoint of the variables at the top of this file — no rule
+   is duplicated — plus the handful of fixes further down for things a variable
+   can't reach (gradients, and the bubbles that were already dark).
+
+   Contrast measured against --paper #1e2022 (body text needs 4.5, icons and
+   large text 3.0). Ratios are in the comments; none of them are eyeballed.
+
+   Applied from `theme` in prefs.ts, which resolves 'system' through
+   prefers-color-scheme and writes data-theme="light" | "dark" — always one of the
+   two literals, never 'system', so this selector never has to know about it. */
+[data-theme='dark'] {
+	color-scheme: dark;
+
+	--ink: #e9e9e7; /* 13.44 */
+	--ink-soft: #a2a4a3; /*  6.52 — muted text, still comfortably readable */
+	--paper: #1e2022; /* panel body */
+	--paper-2: #282a2d; /* hover / secondary fill */
+	--cream: #232527; /* raised: buttons, selects, fields */
+	--cream-lift: #292c2e;
+	--green: #7dac83; /*  6.30 as text; 7.18 for --on-accent on it */
+	--green-deep: #6d9c74; /*  5.18 — the pressed/base edge under primary buttons */
+	--green-2: #99c89e; /*  8.65 — the bright accent */
+	--rose: #d894a1; /*  6.75 */
+	--gold: #d8ae66; /*  7.91 */
+	--line: #3b3e41; /* hairline dividers and control borders */
+	/* Nothing casts a soft warm shadow at night — depth here comes from an almost
+	   black drop plus the lighter --panel-edge catching the top of the card. */
+	--shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+
+	--world-void: #121316;
+	--backdrop: rgba(6, 7, 9, 0.68);
+	--panel-edge: #474b4e;
+	--surface-float: rgba(30, 32, 34, 0.94);
+	--surface-float-solid: rgba(30, 32, 34, 0.985);
+	--surface-float-97: rgba(30, 32, 34, 0.975);
+	--field: #252729;
+	--track: #2d2f32;
+	--kbd-line: #474b4e;
+	--stamp-ink: #6c6e6d; /*  3.18 — as quiet as it is in daylight, no quieter */
+	--on-accent: #121314; /* near-black; see the token's note up top */
+
+	/* The bubbles were ALREADY dark over a lit world, so they can't simply go
+	   darker — at night they'd dissolve into the background. They go a touch
+	   deeper and pick up a rim below instead. */
+	--bubble: rgba(14, 15, 17, 0.88);
+	--bubble-strong: rgba(14, 15, 17, 0.94);
+	--bubble-ink: #e4e4e2;
+	--bubble-accent: #a8cbab;
+
+	--tint-leaf: rgba(153, 200, 158, 0.12);
+	--tint-leaf-strong: rgba(153, 200, 158, 0.18);
+	--tint-gold: rgba(216, 174, 102, 0.14);
+
+	--good-bg: #1e2a20;
+	--good-line: #3d5f42;
+	--good-ink: #9ccb9f; /*  8.92 */
+	--bad-bg: #2f2220;
+	--bad-line: #6f403a;
+	--bad-ink: #e79383; /*  6.93 */
+	--danger-solid: #a0443a;
+	--danger-deep: #78302a;
+	--violet: #b3a3d6; /*  7.10 */
+
+	--disc-1: #2c3032;
+	--disc-2: #24282a;
+	--disc-line: #444a4c;
+	--preview-1: #2b3130;
+	--preview-2: #1f2423;
+	--sil-bg: #3a3e3d;
+	--sil-known-bg: #4b504e;
+	--sil-ink: #cbccc9;
+}
+
+/* --- fixes a variable can't reach --- */
+
+/* The floating bubbles over the world need an edge now that the world behind
+   them can be as dark as they are. */
+[data-theme='dark'] .hud-bottom,
+[data-theme='dark'] .activity-entry,
+[data-theme='dark'] .log-toggle {
+	border: 1px solid rgba(233, 233, 231, 0.14);
+}
+/* Placing mode keeps its green wash, deepened so white type still sits on it. */
+[data-theme='dark'] .hud-bottom.placing {
+	background: rgba(56, 84, 62, 0.95);
+}
+
+/* Baked-in light gradients: same shapes, dusk values. */
+[data-theme='dark'] .preserve-map {
+	background: radial-gradient(120% 140% at 15% 0%, #292c2e 0%, #222528 55%, #1c1f21 100%);
+	border-color: #3d4144;
+	box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+[data-theme='dark'] .biome-detail {
+	background: linear-gradient(180deg, #24272a, #1e2123);
+}
+[data-theme='dark'] .goals-row-readonly {
+	background: linear-gradient(180deg, #232629, #1d2022);
+}
+[data-theme='dark'] .goals-row-pinned {
+	background: linear-gradient(180deg, #23302a, #1e2724);
+	border-color: #3f5a48;
+}
+[data-theme='dark'] .kb-gate {
+	background: radial-gradient(circle at 50% 28%, #1e2124, #101214 72%);
+}
+
+/* Species comfort chips: pale-tint-with-dark-text inverts to dark-tint-with-pale
+   text. Ratios are against each chip's own background, not the panel. */
+[data-theme='dark'] .comfort {
+	background: #2b2e31;
+}
+[data-theme='dark'] .comfort-thriving {
+	background: #1f3324;
+	color: #a3d5a8; /*  8.12 */
+}
+[data-theme='dark'] .comfort-settled {
+	background: #262d26;
+	color: #bccdbb; /*  8.47 */
+}
+[data-theme='dark'] .comfort-cautious {
+	background: #35301c;
+	color: #dfc189; /*  7.62 */
+}
+[data-theme='dark'] .comfort-rarely-seen {
+	background: #33231f;
+	color: #dea597; /*  7.09 */
+}
+[data-theme='dark'] .fact {
+	color: #92b899; /*  7.42 */
+}
+[data-theme='dark'] .web-chip-forage {
+	border-color: #635a3c;
+	background: #2c2820;
+	color: #d6bb85; /*  7.90 */
+}
+[data-theme='dark'] .home-perk,
+[data-theme='dark'] .unlock-req,
+[data-theme='dark'] .bd-unlock .bd-goal-label {
+	color: var(--violet);
+}
+
+/* The washes that kept their own literal strength above, so that light mode was
+   left exactly as it was. Each needs its dark counterpart stated outright. */
+[data-theme='dark'] .ach-pts,
+[data-theme='dark'] .bd-tag-here {
+	background: rgba(216, 174, 102, 0.17);
+}
+[data-theme='dark'] .pm-selected {
+	background: rgba(153, 200, 158, 0.12);
+}
+[data-theme='dark'] .bd-tag-open {
+	background: rgba(153, 200, 158, 0.22);
+}
+[data-theme='dark'] .coop-badge {
+	background: rgba(153, 200, 158, 0.17);
+}
+[data-theme='dark'] .add-goal-btn:hover,
+[data-theme='dark'] .tutorial-demo-note {
+	background: rgba(153, 200, 158, 0.15);
+}
+[data-theme='dark'] .log-toggle:hover {
+	background: rgba(14, 15, 17, 0.96);
+}
+[data-theme='dark'] .tutorial-icon {
+	background: #24282a;
+}
+[data-theme='dark'] .dot {
+	background: #2d2f32;
+}
+
+/* The two reds that kept their own literals above (see .mat-no / .delete-save-btn)
+   have to be themed by hand rather than riding --bad-*. */
+[data-theme='dark'] .mat-no {
+	border-color: #6f403a;
+	background: #2f2220;
+}
+[data-theme='dark'] .delete-save-btn {
+	border-color: #6f403a;
+}
+
+[data-theme='dark'] .help-step:hover {
+	border-color: #4f5457;
+	box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+}
+
+/* The title screen's menu card follows the theme (it reads --paper and --ink);
+   only these few spots inside it still assume a light ground. The sky and the
+   scenery behind the card are hand-painted literals and stay exactly as they are —
+   that art is the same at any hour. */
+[data-theme='dark'] .save-slot-main {
+	background: rgba(255, 255, 255, 0.05);
+}
+[data-theme='dark'] .save-slot-main:hover:not(:disabled) {
+	background: rgba(255, 255, 255, 0.1);
+}
+[data-theme='dark'] .save-slot-del {
+	background: rgba(255, 255, 255, 0.05);
+	border-color: rgba(180, 120, 120, 0.45);
+	color: #d99a9a;
+}
+[data-theme='dark'] .save-slot-del:hover:not(:disabled) {
+	background: rgba(200, 120, 120, 0.22);
+}
+[data-theme='dark'] .welcome-intro-reassure {
+	background: rgba(153, 200, 158, 0.12);
+}
+
+/* Hovering ought to move toward the light at night, not away from it. */
+[data-theme='dark'] .big-btn.primary:hover:not(:disabled) {
+	background: var(--green-2);
+}
+
+/* .swatch-btn / .paint-swatch outline themselves with a black scrim so pale
+   colours have an edge; on a dark panel the DARK swatches are the ones that
+   vanish, so the scrim flips. */
+[data-theme='dark'] .swatch-btn,
+[data-theme='dark'] .paint-swatch {
+	border-color: rgba(255, 255, 255, 0.28);
+}
+
+/* Inset "pressed" shading reads as a dent because it's darker than its
+   surroundings — which stops being true once the surroundings are this dark. */
+[data-theme='dark'] .wx-daybar,
+[data-theme='dark'] .meter-track,
+[data-theme='dark'] .daytimer-track {
+	box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+}
+
+/* Both assistive themes are written against a light ground, so on their own they
+   would hand a player who asked for dark mode a white panel. Keep the assistance
+   and flip the ground. High contrast first: same hues, pushed light instead of
+   dark, past AA on the darker paper. */
+[data-theme='dark'][data-high-contrast='1'] {
+	--ink: #f6f6f4; /* 16.45 */
+	--ink-soft: #c9cac8; /* 10.82 — was 6.52 */
+	--paper: #16181a;
+	--paper-2: #212427;
+	--cream: #1c1e20;
+	--cream-lift: #232628;
+	--green: #9ed3a4; /* 10.43 */
+	--green-deep: #b5e0b9; /* 12.15 */
+	--green-2: #b2ddb6; /* 11.79 */
+	--rose: #efb2bd; /*  9.98 */
+	--gold: #eec98a; /* 11.32 */
+	--line: #6d7274; /*  3.65 — was 1.52 */
+	--panel-edge: #878c8e;
+	--stamp-ink: #9fa1a0; /*  6.85 */
+}
+[data-theme='dark'][data-high-contrast='1'] .hud-bottom,
+[data-theme='dark'][data-high-contrast='1'] .activity-entry {
+	background: rgba(8, 9, 11, 0.97);
+	color: #f6f6f4;
+}
+/* Colorblind mode goes stark: at its most extreme it is white-on-black rather
+   than the black-on-white it uses by day. The colour-correction filters are
+   untouched — they work on hue and don't care which way the ground runs. */
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) {
+	--ink: #fff;
+	--ink-soft: #ddd;
+	--paper: #000;
+	--paper-2: #14170f;
+	--cream: #000;
+	--green: #6ee08f;
+	--green-deep: #8ceaa8;
+}
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .hud-top-left,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .hud-top-right,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .tasks-widget,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .toolbelt,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .panel,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .placement-menu,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .activity-entry,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .log-toggle,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .toast {
+	background: #000 !important;
+	border-color: #fff !important;
+	color: #fff !important;
+}
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .activity-entry svg,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .log-toggle svg,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .toast svg,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .hud-top-left svg,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .hud-top-right svg,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .toolbelt svg,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .muted,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .big-btn,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .mode-toggle-btn,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) select,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .meter-value,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .meter-label,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .hud-weather,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .hud-weather svg,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .hud-dayphase,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .hud-season {
+	color: #fff !important;
+	border-color: #fff !important;
+}
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .big-btn.primary,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .tool-slot.on,
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .switch input:checked ~ .track {
+	background: #6ee08f !important;
+	color: #000 !important;
+}
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .tool-slot.on svg {
+	color: #000 !important;
+}
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .switch .track {
+	background: #000 !important;
+	border-color: #fff;
+}
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .switch .thumb {
+	background: #fff;
+}
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .switch input:checked ~ .thumb {
+	background: #000;
+}
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) .tool-tier {
+	background: #fff !important;
+	color: #000 !important;
+	border-color: #000 !important;
+}
+[data-theme='dark'][data-colorblind]:not([data-colorblind='off']) :focus-visible {
+	outline: 3px solid #fff;
+	outline-offset: 2px;
+}
+
 /* ---- UI typeface (Settings → Font) ----
    Everything in the interface draws from --font-display / --font-body, so a whole
    theme is those two variables repointed. The stacks themselves live in :root.
@@ -4965,6 +5377,78 @@ kbd {
 .a11y-row .a11y-label b {
 	font-size: calc(14px * var(--ui-scale));
 }
+
+/* Light / Dark / Match system. A segmented group rather than a dropdown: this is
+   the one setting whose effect is visible the moment you touch it, so all three
+   options stay on screen instead of hiding behind a menu that would cover the
+   panel it's restyling. */
+/* Keeping the picker beside its label, the way every other row in this panel
+   does, without letting it get squeezed into a column of one-word lines.
+   The hint is a sentence rather than the couple of words the switches above
+   carry, so its natural width is what pushed the picker onto its own line.
+   min-width:0 lets it reflow instead; the 200px basis is the point below which
+   reflowing stops helping and the label starts stacking one word per line —
+   past there the row wraps on purpose. In the settings panel that never
+   happens; in the narrower title-screen modal it happens at the largest text
+   sizes, which is exactly when it should. */
+.theme-row {
+	flex-wrap: wrap;
+}
+.theme-row .a11y-label {
+	flex: 1 1 150px;
+	min-width: 0;
+}
+.theme-picker {
+	display: inline-flex;
+	gap: 3px;
+	padding: 3px;
+	border-radius: 13px;
+	background: var(--paper-2);
+	border: 1.5px solid var(--line);
+	flex-shrink: 0;
+}
+.theme-chip {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	padding: 5px 11px;
+	border: none;
+	background: transparent;
+	border-radius: 10px;
+	color: var(--ink-soft);
+	font-size: calc(12.5px * var(--ui-scale));
+	font-weight: 600;
+	white-space: nowrap;
+}
+/* The group already has a border; a second one per chip on hover reads as noise. */
+.theme-chip:hover:not(.on) {
+	background: var(--cream);
+	color: var(--ink);
+	transform: none;
+}
+.theme-chip.on {
+	background: var(--green);
+	color: var(--on-accent);
+	box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+}
+.theme-chip:focus-visible {
+	outline: 2px solid var(--green-deep);
+	outline-offset: 1px;
+}
+/* On a phone-width window there isn't room for a sentence and three chips side by
+   side at any text size, so there the row does drop the picker to its own line —
+   and once it's there it may as well span the width rather than sit in a third of
+   it. */
+@media (max-width: 560px) {
+	.theme-picker {
+		width: 100%;
+		justify-content: space-between;
+	}
+	.theme-chip {
+		flex: 1;
+		justify-content: center;
+	}
+}
 .switch {
 	position: relative;
 	width: 46px;
@@ -4994,7 +5478,7 @@ kbd {
 	left: 3px;
 	width: 20px;
 	height: 20px;
-	background: #fff;
+	background: var(--field);
 	border-radius: 50%;
 	box-shadow: 0 1px 2px rgba(0, 0, 0, 0.25);
 	transition: transform 0.15s ease;
@@ -5092,7 +5576,7 @@ kbd {
 	letter-spacing: 0.03em;
 	text-transform: uppercase;
 	color: var(--green-deep);
-	background: rgba(122, 168, 90, 0.18);
+	background: var(--tint-leaf-strong);
 	border-radius: 999px;
 	padding: 2px 8px;
 }
@@ -5104,9 +5588,9 @@ kbd {
 	width: 34px;
 	height: 34px;
 	border-radius: 10px;
-	background: radial-gradient(circle at 30% 25%, #eef6e3, #dcebca);
+	background: radial-gradient(circle at 30% 25%, var(--disc-1), var(--disc-2));
 	color: var(--green-deep);
-	border: 1.5px solid #cfe0b6;
+	border: 1.5px solid var(--disc-line);
 	display: flex;
 	align-items: center;
 	justify-content: center;
@@ -5201,7 +5685,7 @@ kbd {
 }
 .add-goal-btn:hover {
 	background: rgba(122, 168, 90, 0.16);
-	border-color: #cfe0b6;
+	border-color: var(--disc-line);
 }
 .entry-unknown .add-goal-btn {
 	align-self: center;
@@ -5225,7 +5709,7 @@ kbd {
 }
 .add-goal-btn:hover {
 	background: rgba(122, 168, 90, 0.16);
-	border-color: #cfe0b6;
+	border-color: var(--disc-line);
 }
 .entry-unknown .add-goal-btn {
 	align-self: center;
@@ -5242,7 +5726,7 @@ kbd {
 	font-weight: 600;
 	color: var(--green-deep);
 	background: rgba(122, 168, 90, 0.16);
-	border: 1.5px solid #cfe0b6;
+	border: 1.5px solid var(--disc-line);
 	border-radius: 9px;
 }
 .tutorial-demo-note svg {
@@ -5308,7 +5792,7 @@ kbd {
 	width: 58px;
 	height: 58px;
 	border-radius: 50%;
-	background: rgba(122, 168, 90, 0.18);
+	background: var(--tint-leaf-strong);
 	color: var(--green);
 }
 
@@ -5326,7 +5810,7 @@ kbd {
 	gap: 10px;
 	max-width: min(560px, calc(100vw - 24px));
 	padding: 9px 10px 9px 11px;
-	background: rgba(250, 245, 232, 0.98);
+	background: var(--surface-float-solid);
 	border: 2px solid var(--green-deep);
 	border-radius: 14px;
 	box-shadow: var(--shadow);
@@ -5351,7 +5835,7 @@ kbd {
 	width: 30px;
 	height: 30px;
 	border-radius: 50%;
-	background: rgba(122, 168, 90, 0.18);
+	background: var(--tint-leaf-strong);
 	color: var(--green-deep);
 }
 .coach-banner-text {
@@ -5371,6 +5855,11 @@ kbd {
 	justify-content: center;
 	width: 24px;
 	height: 24px;
+	/* The global `button` rule pads 6px 13px. With box-sizing:border-box that
+	   leaves this 24px button no content width at all, and a flex child shrinks to
+	   fit — so the X was laid out, focusable and clickable, and drawn 0px wide.
+	   Every other close button here resets this; this one was the exception. */
+	padding: 0;
 	border-radius: 50%;
 	border: none;
 	background: transparent;
@@ -5394,7 +5883,7 @@ kbd {
 	padding: 6px 12px;
 	/* Match the HUD cards (same near-opaque fill + soft border) so it blends in
 	   with the rest of the panel while staying readable over the world. */
-	background: rgba(250, 245, 232, 0.94);
+	background: var(--surface-float);
 	border: 1.5px solid var(--line);
 	border-radius: 999px;
 	color: var(--ink);
@@ -5487,7 +5976,7 @@ kbd {
 }
 .keybind-key.listening {
 	border-color: var(--gold);
-	background: rgba(201, 145, 63, 0.14);
+	background: var(--tint-gold);
 	color: var(--gold);
 	animation: keybind-pulse 1s ease-in-out infinite;
 }

@@ -1362,6 +1362,7 @@
 			let modalEl = null;
 			let LANDING = null; // latest GET /LandingStats/ payload (null until loaded / if unavailable)
 			let SAVEHEALTH = null; // latest GET /SaveHealth/ payload — records that would not decode
+			let GAMEPLAYHEALTH = null; // latest GET /GameplayHealth/ payload — refusals + interface crashes
 
 			/** Build the modal body for one player: header, headline stats, progress,
 			 *  milestones, a full action breakdown, time-by-area, and recent achievements. */
@@ -1536,6 +1537,75 @@
 						].join('')}</div>`,
 					),
 				);
+
+				/* ---- What is going wrong ----
+				 * Everything else on this page counts what players DID. That leaves a whole
+				 * class of problem invisible: a recipe gated on the wrong biome refuses
+				 * everyone who finds it and every activity counter still looks healthy,
+				 * because a refusal isn't an activity. A crash in the interface is worse —
+				 * it produces no events at all, and the player just closes the game.
+				 *
+				 * Refusals are keyed by message key rather than message text, so one problem
+				 * doesn't split across languages. */
+				let healthSection = '';
+				// Renders whenever the endpoint answers, including at zero — unlike Save
+				// health below, which stays quiet because an unreadable save is genuinely
+				// exceptional. Refusals are not: any player who runs short of materials
+				// makes one, so a count of zero here almost certainly means the panel
+				// isn't wired up rather than that nothing has gone wrong. Hiding it made
+				// those two states look identical, and left no way to tell a healthy
+				// instance from an endpoint that never deployed.
+				if (GAMEPLAYHEALTH) {
+					const gh = GAMEPLAYHEALTH;
+					const ref = gh.refusals || {};
+					const cli = gh.clientErrors || {};
+					// The key's last segment reads well enough on its own ("notEnough",
+					// "recipeLocked") and the full path is noise in a bar chart.
+					const shortCode = (c) => String(c).split('.').pop();
+					const refusalRows = (ref.top || [])
+						.map(
+							(r) =>
+								`<tr><td><code>${esc(shortCode(r.code))}</code></td><td class="num">${fmt(r.count)}</td>` +
+								`<td class="num">${r.status || '—'}</td>` +
+								`<td class="num">${r.lastSeenAt ? new Date(r.lastSeenAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}</td></tr>`,
+						)
+						.join('');
+					const crashRows = (cli.top || [])
+						.map(
+							(e) =>
+								`<tr><td>${esc(e.message)}</td><td><code>${esc(e.where || '?')}</code></td>` +
+								`<td class="num">${fmt(e.count)}</td>` +
+								`<td class="num">${e.lastSeenAt ? new Date(e.lastSeenAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}</td></tr>`,
+						)
+						.join('');
+					healthSection = sec(
+						'What is going wrong',
+						'refusals and interface crashes — counts and message keys only',
+						`<div class="grid kpis">${[
+							kpi(
+								`<span class="accent">${fmt(cli.total)}</span>`,
+								'Interface crashes',
+								`${fmt(cli.distinct)} distinct`,
+							),
+							kpi(fmt(ref.total), 'Refusals', `${fmt(ref.distinct)} distinct reasons`),
+							kpi(fmt(ref.serverFaults), 'Server faults', '5xx — the game falling over, not saying no'),
+						].join('')}</div>` +
+							(refusalRows
+								? `<div class="card" style="margin-top:.8rem"><h3>Most refused<span class="tag">what players are being turned away from</span></h3>` +
+									`<table class="vs"><thead><tr><th>Reason</th><th class="num">Hits</th><th class="num">Status</th><th class="num">Last seen</th></tr></thead><tbody>${refusalRows}</tbody></table></div>`
+								: '') +
+							(crashRows
+								? `<div class="card" style="margin-top:.8rem"><h3>Crashes<span class="tag">top 25 by count</span></h3>` +
+									`<table class="vs"><thead><tr><th>Message</th><th>Where</th><th class="num">Hits</th><th class="num">Last seen</th></tr></thead><tbody>${crashRows}</tbody></table></div>`
+								: '') +
+							(!refusalRows && !crashRows
+								? `<div class="card" style="margin-top:.8rem"><h3>Nothing recorded yet<span class="tag">the panel is live</span></h3>` +
+									`<p class="emptynote">No refusals or crashes have been reported since this instance started collecting. ` +
+									`Refusals are ordinary — a player short on materials makes one — so if this stays empty during real play, ` +
+									`check that the <code>Refusal</code> and <code>ClientError</code> tables exist.</p></div>`
+								: ''),
+					);
+				}
 
 				/* ---- Save health ----
 				 * Records that would not decode, from GET /SaveHealth/. Sits directly above
@@ -1959,6 +2029,7 @@
 						a11y = set.accessibility || {};
 					const cbLabels = { off: 'Off', redgreen: 'Red–green', blueyellow: 'Blue–yellow', mono: 'Monochrome' };
 					const tsLabels = { sm: 'Small', md: 'Medium', lg: 'Large', xl: 'Extra large' };
+					const themeLabels = { light: 'Light', dark: 'Dark', system: 'Match system' };
 					const fontLabels = {
 						storybook: 'Storybook',
 						rounded: 'Rounded',
@@ -1988,14 +2059,34 @@
 									'Accessibility options',
 									'how many have each on',
 									`<div class="grid three">${[
+										kpi(
+											`<span class="accent">${fmt(a11y.anyEnabled)}</span>`,
+											'Using any option',
+											`of ${fmt(set.savesReporting)} caretakers`,
+										),
 										kpi(fmt(a11y.reduceMotion), 'Reduce motion'),
 										kpi(fmt(a11y.highContrast), 'High contrast'),
 										kpi(fmt(a11y.colorblindOn), 'Colorblind aid'),
+										kpi(fmt(a11y.simpleText), 'Simpler wording'),
+										kpi(fmt(a11y.interactHintOff), 'Interact hint off', 'on by default'),
 									].join(
 										'',
 									)}</div><div style="margin-top:1rem">${barRows(objToEntries(a11y.textScales || {}), { labelMap: tsLabels, cls: 'sky' })}</div>`,
 								) +
 								`</div>` +
+								(a11y.themes
+									? `<div class="card" style="margin-top:.8rem"><h3>Appearance<span class="tag">light, dark or following the device</span></h3>${barRows(
+											objToEntries(a11y.themes),
+											{ labelMap: themeLabels, cls: 'gold' },
+										)}${
+											a11y.themesResolved
+												? `<div style="margin-top:1rem"><h3 style="margin:0 0 .4rem">On screen<span class="tag">what "Match system" actually resolved to</span></h3>${barRows(
+														objToEntries(a11y.themesResolved),
+														{ labelMap: themeLabels, cls: 'sky' },
+													)}</div>`
+												: ''
+										}</div>`
+									: '') +
 								(a11y.fonts
 									? `<div class="card" style="margin-top:.8rem"><h3>Font<span class="tag">which typeface caretakers pick</span></h3>${barRows(objToEntries(a11y.fonts), { labelMap: fontLabels, cls: 'sky' })}</div>`
 									: '') +
@@ -2067,6 +2158,7 @@
 				}
 
 				/* ---- Save health, directly above the player highlights ---- */
+				if (healthSection) out.push(healthSection);
 				if (saveSection) out.push(saveSection);
 
 				/* ---- Player highlights — kept at the bottom ---- */
@@ -2156,11 +2248,17 @@
 					const saveReq = fetch('../SaveHealth/', { headers: { accept: 'application/json' } })
 						.then((r) => (r.ok ? r.json() : null))
 						.catch(() => null);
+					// Refusals + interface crashes. Same contract again: an instance that
+					// predates the endpoint hides the panel rather than breaking the page.
+					const healthReq = fetch('../GameplayHealth/', { headers: { accept: 'application/json' } })
+						.then((r) => (r.ok ? r.json() : null))
+						.catch(() => null);
 					const res = await fetch(url, { headers: { accept: 'application/json' } });
 					if (!res.ok) throw new Error(`Metrics endpoint returned ${res.status}`);
 					const data = await res.json();
 					LANDING = await landingReq;
 					SAVEHEALTH = await saveReq;
+					GAMEPLAYHEALTH = await healthReq;
 					populateFilterOptions(data.filters);
 					render(data);
 					if (data.generatedAt) {

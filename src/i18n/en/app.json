@@ -30,9 +30,15 @@
 		"requestFailed": "Request failed ({status})",
 		"notLoggedIn": "Not logged in",
 		"saveNotFound": "That save could not be found",
+		"saveWriteFailed": "Couldn't save your progress to this device. Recent changes may be lost — check that there's free space on the disk.",
 		"feedbackRejected": "The server couldn’t accept that feedback — try again later",
 		"cannotGoThere": "You cannot go there yet",
 		"loadSave": "Could not load that save"
+	},
+	"crash": {
+		"title": "Something went wrong on screen",
+		"body": "Your preserve is safe — it's saved on this device and nothing was lost. Reloading picks up where you left off.",
+		"reload": "Reload the game"
 	},
 	"toast": {
 		"recipeUnlocked": "New Crafting Recipe Unlocked — {name}",
@@ -453,7 +459,7 @@
 		"colorblindBlueYellow": "Blue–yellow",
 		"colorblindMono": "Black & white",
 		"colorblindHint": {
-			"off": "Colorblindness affects up to 1 in 12 people. Pick the type that fits you and the game recolors itself, raises contrast, labels weather and time of day, and holds steady daytime light so nothing depends on color alone.",
+			"off": "Pick the type that fits you. The game recolors itself, raises contrast, labels weather and time of day, and steadies the light so nothing depends on color alone.",
 			"redgreen": "Red–green (deuteranopia and protanopia) is the most common type — reds and greens look alike. This shifts those hues apart in the world, adds high contrast and text labels, and steadies the lighting.",
 			"blueyellow": "Blue–yellow (tritanopia) is rarer — blues and greens, and yellows and pinks, are hard to tell apart. This separates those hues in the world, adds high contrast and text labels, and steadies the lighting.",
 			"mono": "Achromatopsia is seeing little or no color at all. This renders the game in black and white and leans fully on contrast, outlines, and text labels instead of color."
@@ -480,8 +486,20 @@
 		"fontClassic": "Classic",
 		"fontPlain": "Plain",
 		"fontTypewriter": "Typewriter",
+		"theme": "Appearance",
+		"themeLight": "Light",
+		"themeDark": "Dark",
+		"themeSystem": "System",
+		"themeHint": {
+			"light": "Bright panels and menus.",
+			"dark": "Dimmed panels and menus.",
+			"system": {
+				"light": "Following your device, which is light right now.",
+				"dark": "Following your device, which is dark right now."
+			}
+		},
 		"highContrast": "High contrast",
-		"highContrastHint": "Deepens the text, borders, and accent colors until everything meets the WCAG AA readability standard — while keeping the warm cream-and-green look."
+		"highContrastHint": "Strengthens the text, borders, and accent colors so everything is easier to read."
 	},
 	"kbGate": {
 		"title": "Wild Willows needs a keyboard",

@@ -22,6 +22,12 @@ export type ColorblindMode = 'off' | 'redgreen' | 'blueyellow' | 'mono';
 export type FontChoice = 'storybook' | 'rounded' | 'classic' | 'plain' | 'typewriter';
 export const FONT_CHOICES: FontChoice[] = ['storybook', 'rounded', 'classic', 'plain', 'typewriter'];
 
+/** Light or dark interface, or 'system' to follow the OS. 'system' is what gets
+ *  STORED; it is resolved to one of the two literals on the way to the DOM (see
+ *  resolveTheme), so the stylesheet only ever matches data-theme="light|dark". */
+export type ThemeChoice = 'system' | 'light' | 'dark';
+export const THEME_CHOICES: ThemeChoice[] = ['system', 'light', 'dark'];
+
 export interface Prefs {
 	/** Turn off UI animations/transitions and in-world weather particles. */
 	reduceMotion: boolean;
@@ -30,6 +36,9 @@ export interface Prefs {
 	colorblindMode: ColorblindMode;
 	/** Which typeface the interface is set in. */
 	fontChoice: FontChoice;
+	/** Light or dark interface. Starts on 'light'; 'system' follows the OS and keeps
+	 *  following it, but is a choice the player makes rather than the starting state. */
+	theme: ThemeChoice;
 	/** Deepen the palette until text and edges clear WCAG AA, without leaving the
 	 *  warm cream-and-green look behind. Distinct from colorblindMode, which
 	 *  additionally colour-corrects and goes stark black-on-white. */
@@ -64,6 +73,7 @@ const DEFAULTS: Prefs = {
 	reduceMotion: false,
 	colorblindMode: 'off',
 	fontChoice: 'storybook',
+	theme: 'light',
 	highContrast: false,
 	textScale: 'md',
 	musicEnabled: true,
@@ -87,6 +97,29 @@ function systemReduceMotion(): boolean {
 	} catch {
 		return false;
 	}
+}
+
+/** The OS-level dark-mode media query, or null where there's no matchMedia (SSR,
+ *  the metrics tests, older embedded webviews). Held once rather than re-queried,
+ *  because the change listener below has to attach to the same object. */
+const darkQuery: MediaQueryList | null = (() => {
+	try {
+		return typeof matchMedia !== 'undefined' ? matchMedia('(prefers-color-scheme: dark)') : null;
+	} catch {
+		return null;
+	}
+})();
+
+function systemPrefersDark(): boolean {
+	return !!darkQuery?.matches;
+}
+
+/** Turn the stored choice into the literal the stylesheet matches on. Anything
+ *  that isn't an explicit light/dark asks the OS, so 'system' is resolved fresh
+ *  on every apply — including the one the media listener triggers. */
+export function resolveTheme(p: Prefs = current): 'light' | 'dark' {
+	if (p.theme === 'light' || p.theme === 'dark') return p.theme;
+	return systemPrefersDark() ? 'dark' : 'light';
 }
 
 /** Coerce an arbitrary stored/patched blob into a valid Prefs. Unknown or
@@ -130,6 +163,11 @@ export function normalizePrefs(raw: any, fallbackReduce = false): Prefs {
 		reduceMotion: typeof o.reduceMotion === 'boolean' ? o.reduceMotion : fallbackReduce,
 		colorblindMode,
 		fontChoice,
+		// Neither a save written before dark mode existed nor a brand-new one carries a
+		// `theme` key, and both land on light: the game looks the way it always has
+		// until somebody goes and changes it. Following the OS is a choice a player
+		// makes, not something that happens to them the first time they launch.
+		theme: THEME_CHOICES.includes(o.theme) ? o.theme : DEFAULTS.theme,
 		highContrast: typeof o.highContrast === 'boolean' ? o.highContrast : DEFAULTS.highContrast,
 		textScale,
 		musicEnabled: typeof o.musicEnabled === 'boolean' ? o.musicEnabled : DEFAULTS.musicEnabled,
@@ -160,6 +198,7 @@ function applyToDom(p: Prefs): void {
 	root.dataset.reduceMotion = p.reduceMotion ? '1' : '0';
 	root.dataset.colorblind = p.colorblindMode; // off | redgreen | blueyellow | mono
 	root.dataset.font = p.fontChoice;
+	root.dataset.theme = resolveTheme(p); // always 'light' | 'dark', never 'system'
 	root.dataset.highContrast = p.highContrast ? '1' : '0';
 	root.dataset.textScale = p.textScale;
 	root.style.setProperty('--ui-scale', String(TEXT_SCALE_VALUES[p.textScale]));
@@ -210,12 +249,7 @@ if (typeof window !== 'undefined') {
 	});
 }
 
-/** Merge a patch into the current prefs, persist, apply to the DOM, and notify. */
-export function setPrefs(patch: Partial<Prefs>): Prefs {
-	current = normalizePrefs({ ...current, ...patch });
-	queuePrefsWrite();
-	applyToDom(current);
-	applyToI18n(current);
+function notifyAll(): void {
 	listeners.forEach((fn) => {
 		try {
 			fn(current);
@@ -223,12 +257,46 @@ export function setPrefs(patch: Partial<Prefs>): Prefs {
 			/* one bad listener shouldn't break the rest */
 		}
 	});
+}
+
+/** Merge a patch into the current prefs, persist, apply to the DOM, and notify. */
+export function setPrefs(patch: Partial<Prefs>): Prefs {
+	current = normalizePrefs({ ...current, ...patch });
+	queuePrefsWrite();
+	applyToDom(current);
+	applyToI18n(current);
+	notifyAll();
 	return current;
+}
+
+// Follow the OS while the choice is 'system' — "match system" that only matches
+// at startup isn't matching system. Nothing is persisted here: the stored value
+// stays 'system', only the resolved data-theme moves. addEventListener('change')
+// is the modern form; Safari <14 only has addListener, hence the fallback.
+if (darkQuery) {
+	const onSystemThemeChange = () => {
+		if (current.theme !== 'system') return;
+		applyToDom(current);
+		notifyAll();
+	};
+	if (typeof darkQuery.addEventListener === 'function') darkQuery.addEventListener('change', onSystemThemeChange);
+	else darkQuery.addListener?.(onSystemThemeChange);
 }
 
 /** React hook: re-renders when any preference changes. */
 export function usePrefs(): Prefs {
 	return useSyncExternalStore(subscribe, getPrefs, getPrefs);
+}
+
+/** React hook for the theme actually on screen — 'light' or 'dark', never
+ *  'system'. Unlike usePrefs this also re-renders when the OS flips underneath a
+ *  'system' choice, since the Prefs object itself is unchanged in that case. */
+export function useResolvedTheme(): 'light' | 'dark' {
+	return useSyncExternalStore(
+		subscribe,
+		() => resolveTheme(current),
+		() => 'light' as const,
+	);
 }
 
 // Restore saved prefs at import time (defaulting reduceMotion to the OS setting).

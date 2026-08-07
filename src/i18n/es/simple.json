@@ -182,7 +182,7 @@
 			"simpleTextHint": "Usa frases cortas y palabras de todos los días en todo el juego. Eso incluye las notas de animales. No se oculta nada. Solo se dice de forma más simple.",
 			"reduceMotionHint": "Quita las animaciones del menú, la lluvia y la nieve, los movimientos de cámara y el cambio de luz del día. La vista queda quieta y con luz pareja.",
 			"colorblindHint": {
-				"off": "El daltonismo afecta hasta a 1 de cada 12 personas. Elige el tipo que te toca. El juego cambia sus colores, sube el contraste, pone etiquetas al clima y a la hora, y mantiene luz de día. Así nada depende solo del color.",
+				"off": "Elige el tipo que te toca. El juego cambia sus colores, sube el contraste y pone etiquetas al clima y a la hora. Así nada depende solo del color.",
 				"redgreen": "Rojo y verde es el tipo más común. Los rojos y los verdes se parecen. Esto separa esos colores, sube el contraste, añade etiquetas y mantiene la luz estable.",
 				"blueyellow": "Azul y amarillo es más raro. Los azules y verdes se parecen, y también los amarillos y rosas. Esto separa esos colores, sube el contraste, añade etiquetas y mantiene la luz estable.",
 				"mono": "Este tipo significa ver poco color o ninguno. El juego se ve en blanco y negro. Usa contraste, bordes y etiquetas en vez de color."
@@ -197,7 +197,15 @@
 			"errPasscodeLength": "Tu clave nueva debe tener de 4 a 32 caracteres.",
 			"emailPlaceholder": "Tu correo. Solo si quieres respuesta.",
 			"feedbackQueued": "No pudimos enviarlo ahora. Tu nota está guardada. Se enviará la próxima vez que abras el juego.",
-			"highContrastHint": "Hace las palabras y los bordes más oscuros para verlos mejor. Los colores cálidos se quedan."
+			"themeHint": {
+				"light": "Pantallas y menús claros.",
+				"dark": "Pantallas y menús oscuros.",
+				"system": {
+					"light": "Igual que tu dispositivo. Ahora está en claro.",
+					"dark": "Igual que tu dispositivo. Ahora está en oscuro."
+				}
+			},
+			"highContrastHint": "Hace que las palabras y los bordes resalten más para verlos mejor."
 		},
 		"hud": {
 			"healthHint": "Sube la salud regando la tierra y poniendo hogares. Cava un bancal y riégalo. Planta flores y árboles. Pon cosas que creas. Todo suma.",

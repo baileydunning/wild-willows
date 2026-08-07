@@ -132,6 +132,8 @@ const TABLES = [
 	'LandingStat',
 	'PlayerNameIndex',
 	'SaveIncident',
+	'Refusal',
+	'ClientError',
 ];
 
 export type Db = Record<string, Table>;

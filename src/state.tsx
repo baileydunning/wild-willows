@@ -220,16 +220,42 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	// true while a local mutation is running, so the co-op poll won't refresh over it
 	const actionInFlight = useRef(false);
 
+	// The message currently on screen, so an identical one doesn't stack behind it.
+	const lastToast = useRef<{ text: string; kind: Toast['kind']; id: number; timer: number } | null>(null);
+
 	const dismissToast = useCallback((id: number) => {
 		setToasts((ts) => ts.filter((t) => t.id !== id));
+		// Dismissing by hand has to release the coalescing slot too, or the next
+		// identical message would "extend" a card that is no longer on screen and
+		// the player would see nothing at all.
+		if (lastToast.current?.id === id) {
+			window.clearTimeout(lastToast.current.timer);
+			lastToast.current = null;
+		}
 	}, []);
 
 	// Prominent, ephemeral notifications (top-right) — the same place errors appear.
+	//
+	// Repeats of the message already showing extend that one instead of stacking a
+	// second copy. Losing the connection mid-session used to raise a fresh toast —
+	// and a fresh sound — for EVERY action the player took, so a walk across the
+	// preserve produced a hundred identical cards. One problem should say so once.
 	const toast = useCallback((text: string, kind: Toast['kind'] = 'info') => {
+		const ttl = kind === 'error' ? 4000 : 6000;
+		const expire = (id: number) => () => {
+			setToasts((ts) => ts.filter((t) => t.id !== id));
+			if (lastToast.current?.id === id) lastToast.current = null;
+		};
+		const showing = lastToast.current;
+		if (showing && showing.text === text && showing.kind === kind) {
+			window.clearTimeout(showing.timer);
+			showing.timer = window.setTimeout(expire(showing.id), ttl);
+			return;
+		}
 		const id = toastSeq++;
 		setToasts((ts) => [...ts.slice(-3), { id, text, kind }]);
 		bridge.emit('audio-toast', { kind });
-		window.setTimeout(() => setToasts((ts) => ts.filter((t) => t.id !== id)), kind === 'error' ? 4000 : 6000);
+		lastToast.current = { text, kind, id, timer: window.setTimeout(expire(id), ttl) };
 	}, []);
 
 	// Every line shows in the live corner feed (`log`). "Notable" beats also go to
@@ -255,6 +281,17 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				if (p?.text) pushLog('map', p.text, false);
 			}),
 		[pushLog],
+	);
+
+	// A solo save that would not write. api.ts can't raise a toast itself, so it
+	// says so on the bridge. Coalescing above means a disk that stays full reports
+	// once rather than on every autosave tick.
+	useEffect(
+		() =>
+			bridge.on('save-error', (p: any) => {
+				if (p?.message) toast(p.message, 'error');
+			}),
+		[toast],
 	);
 
 	// Push any buffered feed lines to Harper. Best-effort: on failure we just keep

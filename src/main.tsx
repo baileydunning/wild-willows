@@ -6,11 +6,21 @@ import { localeReady } from './i18n';
 import { startSteamReporting } from './solo/steamSync';
 import { startMetricsUplink } from './solo/metricsUplink';
 import { reportAppOpen } from './solo/appOpen';
+import { ErrorBoundary } from './ui/ErrorBoundary';
+import { installGlobalErrorReporting } from './clientErrors';
+
+// Before anything renders, so a crash during boot is reported too.
+installGlobalErrorReporting();
 
 function mount() {
 	ReactDOM.createRoot(document.getElementById('root')!).render(
 		<React.StrictMode>
-			<App />
+			{/* Outside StrictMode's double-render there is nothing between a thrown
+			    render and a blank page. The boundary is the whole tree because a
+			    crash anywhere in it takes the whole tree down anyway. */}
+			<ErrorBoundary where="app">
+				<App />
+			</ErrorBoundary>
 		</React.StrictMode>,
 	);
 }
