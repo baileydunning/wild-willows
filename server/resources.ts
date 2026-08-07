@@ -3877,6 +3877,7 @@ export class CreatePlayer extends PublicEndpoint {
 			cms,
 			ed,
 		);
+		await indexPlayerName(cleanName, playerId);
 		// World plumbing must never block starting a save: if the World/WorldMember
 		// tables aren't ready yet (instance not restarted after the schema change),
 		// fall back to a plain solo session so core play still works.
@@ -3895,6 +3896,58 @@ export class CreatePlayer extends PublicEndpoint {
  * POST /DeletePlayer/ {name, passcode} — permanently delete a save and every
  * record that belongs to it. Passcode required so nobody can wipe your preserve.
  */
+/**
+ * Name-slug -> save ids. Exists for one reason: salvageRecord only runs on a
+ * POINT READ by id (safeGet), and since ids stopped being the bare name slug a
+ * login had no id to point at. A scan can't stand in — toArray drops rows it
+ * cannot decode, and a dropped row carries no id — so an undecodable save became
+ * unreachable and unhealable. This keeps the ids reachable.
+ *
+ * Best-effort throughout: a missing or unreadable index must never block a login
+ * or a save creation, because the name scan below still finds healthy rows.
+ */
+async function indexPlayerName(name: string, playerId: string): Promise<void> {
+	try {
+		const t = db() as any;
+		if (!t.PlayerNameIndex) return;
+		const id = slugId(String(name || ''));
+		if (!id) return;
+		const row = (await safeGet(t.PlayerNameIndex, id)) || { id, playerIds: [] };
+		const ids: string[] = Array.isArray(row.playerIds) ? row.playerIds : [];
+		if (!ids.includes(playerId)) await t.PlayerNameIndex.put({ ...row, id, playerIds: [...ids, playerId] });
+	} catch (e: any) {
+		console.error('player name index write failed —', e?.message || e);
+	}
+}
+
+async function unindexPlayerName(name: string, playerId: string): Promise<void> {
+	try {
+		const t = db() as any;
+		if (!t.PlayerNameIndex) return;
+		const id = slugId(String(name || ''));
+		if (!id) return;
+		const row = await safeGet(t.PlayerNameIndex, id);
+		if (!row || !Array.isArray(row.playerIds)) return;
+		await t.PlayerNameIndex.put({ ...row, playerIds: row.playerIds.filter((p: string) => p !== playerId) });
+	} catch (e: any) {
+		console.error('player name index cleanup failed —', e?.message || e);
+	}
+}
+
+/** Ids recorded under a name slug. Empty when the index is absent/unreadable. */
+async function indexedIdsFor(name: string): Promise<string[]> {
+	try {
+		const t = db() as any;
+		if (!t.PlayerNameIndex) return [];
+		const id = slugId(String(name || ''));
+		if (!id) return [];
+		const row = await safeGet(t.PlayerNameIndex, id);
+		return Array.isArray(row?.playerIds) ? row.playerIds : [];
+	} catch {
+		return [];
+	}
+}
+
 /**
  * Resolve the save behind a typed caretaker name + passcode.
  *
@@ -3915,6 +3968,16 @@ async function resolveByNameAndPasscode(name: any, passcode: any): Promise<{ pla
 	const slug = slugId(String(name || ''));
 	const legacy = slug ? await safeGet(db().Player, slug) : null;
 	if (legacy && (await verifyPasscode(legacy, passcode))) return { player: legacy, nameSeen: true };
+	// Point-read each indexed id BEFORE falling back to a scan. safeGet salvages
+	// an undecodable row here; the scan below never can, so this ordering is what
+	// keeps a corrupt save recoverable.
+	let indexSeen = false;
+	for (const pid of await indexedIdsFor(name)) {
+		const p = await safeGet(db().Player, pid);
+		if (!p) continue;
+		indexSeen = true;
+		if (await verifyPasscode(p, passcode)) return { player: p, nameSeen: true };
+	}
 	const candidates = (await allOf(db().Player)).filter(
 		(p: any) =>
 			String(p?.name || '')
@@ -3924,7 +3987,7 @@ async function resolveByNameAndPasscode(name: any, passcode: any): Promise<{ pla
 	for (const c of candidates) {
 		if (await verifyPasscode(c, passcode)) return { player: c, nameSeen: true };
 	}
-	return { player: null, nameSeen: !!legacy || candidates.length > 0 };
+	return { player: null, nameSeen: !!legacy || indexSeen || candidates.length > 0 };
 }
 
 export class DeletePlayer extends PublicEndpoint {
@@ -3964,6 +4027,7 @@ export class DeletePlayer extends PublicEndpoint {
 			if (await forceRemove(t.World, playerId)) removed++;
 		}
 		await t.Player.delete(playerId);
+		await unindexPlayerName(player.name, playerId);
 		return { ok: true, deleted: playerId, recordsRemoved: removed + 1 };
 	}
 }
@@ -4004,6 +4068,7 @@ export class DeleteDemoSave extends PublicEndpoint {
 			removed++;
 		}
 		await t.Player.delete(id);
+		await unindexPlayerName(player?.name, id);
 		return { ok: true, deleted: id, recordsRemoved: removed + 1 };
 	}
 }

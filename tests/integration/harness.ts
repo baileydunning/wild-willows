@@ -130,6 +130,7 @@ const TABLES = [
 	'AppOpen',
 	'MailingListSignup',
 	'LandingStat',
+	'PlayerNameIndex',
 ];
 
 export type Db = Record<string, Table>;
