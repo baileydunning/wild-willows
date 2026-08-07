@@ -9,8 +9,9 @@ import { Icon } from './icons';
 // — visible right there over the open menu, so they understand it while they're
 // looking at it — and is ALSO dropped into the activity feed (notable), so it
 // stays there to scroll back to. Each hint fires once ever (localStorage), so the
-// guidance never repeats or nags. A menu hint clears when that menu closes; the
-// home/demo hints stay until dismissed.
+// guidance never repeats or nags. A hint is tied to whatever it describes and
+// goes when that does: a menu hint clears when its menu closes, an area hint when
+// you walk out of the area.
 
 // Which menus explain themselves on first open. Keys resolve to panels.coach.<key>
 // (a single short sentence); the icon matches the menu's own button.
@@ -44,13 +45,31 @@ function persistSeen(seen: Set<string>) {
 	}
 }
 
+/** Set while a banner is up; App's Escape chain calls it through
+ *  dismissCoachTip(). A module-level hook rather than game state because the
+ *  banner is entirely CoachTips' business — App only needs to know whether
+ *  there was one to close. */
+let dismissCurrent: (() => boolean) | null = null;
+
+/** Dismiss the coach banner if one is showing. Returns true if it did, so a
+ *  caller working down a close chain knows the keypress was spent. */
+export function dismissCoachTip(): boolean {
+	return dismissCurrent ? dismissCurrent() : false;
+}
+
 interface Active {
 	id: string;
 	icon: string;
 	key: string;
 	/** The panel this hint belongs to; the banner auto-clears when it closes.
-	 *  null for world hints (home, demo) that stay until dismissed. */
+	 *  null for hints that aren't about a menu. */
 	panelTie: string | null;
+	/** The area this hint belongs to; the banner auto-clears when you walk out of
+	 *  it. null for hints that aren't about a place. A hint explains whatever you
+	 *  are currently looking at, so it should outlive neither the menu nor the
+	 *  place it describes — it used to sit there until dismissed, which meant a
+	 *  note about your home followed you around the whole preserve. */
+	areaTie: string | null;
 }
 
 export function CoachTips() {
@@ -73,7 +92,7 @@ export function CoachTips() {
 	useEffect(() => {
 		if (panel && PANEL_HINTS[panel]) {
 			const h = PANEL_HINTS[panel];
-			fireRef.current({ id: `panel:${panel}`, icon: h.icon, key: h.key, panelTie: panel });
+			fireRef.current({ id: `panel:${panel}`, icon: h.icon, key: h.key, panelTie: panel, areaTie: null });
 		}
 	}, [panel]);
 
@@ -82,20 +101,33 @@ export function CoachTips() {
 		setActive((a) => (a && a.panelTie && a.panelTie !== panel ? null : a));
 	}, [panel]);
 
-	// First time you step into your home.
+	// First time you step into your home — and it goes when you step back out.
 	const area = state?.player?.area;
 	useEffect(() => {
-		if (area === 'home') fireRef.current({ id: 'home', icon: 'home', key: 'home', panelTie: null });
+		if (area === 'home') fireRef.current({ id: 'home', icon: 'home', key: 'home', panelTie: null, areaTie: 'home' });
 	}, [area]);
 
-	// Esc dismisses the banner.
+	// An area-tied banner clears when you leave that area, the same way a menu-tied
+	// one clears when its menu closes.
 	useEffect(() => {
-		if (!active) return;
-		const onKey = (e: KeyboardEvent) => {
-			if (e.key === 'Escape') setActive(null);
+		setActive((a) => (a && a.areaTie && a.areaTie !== area ? null : a));
+	}, [area]);
+
+	// Esc is handled by App's close chain rather than a listener of our own. It
+	// used to be one here, which meant a single press ran BOTH: the banner went
+	// away and the menu underneath closed with it — so there was no way to dismiss
+	// a menu's own hint and keep reading that menu. Registering with the chain
+	// makes one press do one thing, hint first, menu second.
+	useEffect(() => {
+		dismissCurrent = active
+			? () => {
+					setActive(null);
+					return true;
+				}
+			: null;
+		return () => {
+			dismissCurrent = null;
 		};
-		window.addEventListener('keydown', onKey);
-		return () => window.removeEventListener('keydown', onKey);
 	}, [active]);
 
 	if (!active) return null;

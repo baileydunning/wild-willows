@@ -5830,6 +5830,11 @@ kbd {
 	justify-content: center;
 	width: 24px;
 	height: 24px;
+	/* The global `button` rule pads 6px 13px. With box-sizing:border-box that
+	   leaves this 24px button no content width at all, and a flex child shrinks to
+	   fit — so the X was laid out, focusable and clickable, and drawn 0px wide.
+	   Every other close button here resets this; this one was the exception. */
+	padding: 0;
 	border-radius: 50%;
 	border: none;
 	background: transparent;
