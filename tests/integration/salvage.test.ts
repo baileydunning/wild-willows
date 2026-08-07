@@ -162,7 +162,7 @@ describe('scans surface dropped rows instead of hiding them', () => {
 
 		await w.post('LoginPlayer', { name: 'Kayla', passcode: 'pw1234' });
 
-		expect(errs.join('\n')).toMatch(/scan of \w+: \d+ undecodable record\(s\) omitted/);
+		expect(errs.join('\n')).toMatch(/scan: \d+ undecodable record\(s\) omitted/);
 	});
 
 	it('one bad row does not truncate the rest of a scan', async () => {

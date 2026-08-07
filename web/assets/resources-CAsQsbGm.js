@@ -1,4 +1,4 @@
-import{S as e,_ as t,a as n,b as r,c as i,d as a,f as o,g as s,h as c,i as l,l as u,m as d,n as f,o as p,p as m,r as h,s as g,t as _,u as v,v as y,x as b,y as x}from"./index-BIyFQxX8.js";var S={BROTLI_PARAM_QUALITY:1,BROTLI_PARAM_SIZE_HINT:2};function C(e){return e}function w(e){return e}r(`en`,{server:e});var T=`<!doctype html>
+import{S as e,_ as t,a as n,b as r,c as i,d as a,f as o,g as s,h as c,i as l,l as u,m as d,n as f,o as p,p as m,r as h,s as g,t as _,u as v,v as y,x as b,y as x}from"./index-D6qKNcDj.js";var S={BROTLI_PARAM_QUALITY:1,BROTLI_PARAM_SIZE_HINT:2};function C(e){return e}function w(e){return e}r(`en`,{server:e});var T=`<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
@@ -337,2221 +337,1079 @@ import{S as e,_ as t,a as n,b as r,c as i,d as a,f as o,g as s,h as c,i as l,l a
 </html>
 `,ne=`<!doctype html>
 <html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>Wild Willows — Metrics Dashboard</title>
-		<meta
-			name="description"
-			content="Anonymous gameplay metrics for Wild Willows, a cozy nature-restoration life sim."
-		/>
-		<meta name="robots" content="noindex" />
-		<style>
-			:root {
-				--bg: #eef2e3;
-				--bg2: #e5ecd6;
-				--card: #fffdf7;
-				--ink: #2f3a27;
-				--muted: #6b7263;
-				--faint: #9aa189;
-				--accent: #4a7c46;
-				--accent-dark: #35602f;
-				--accent-soft: #dceccf;
-				--gold: #d9a441;
-				--sky: #6ea8c8;
-				--rose: #d77b8f;
-				--rule: #dfe0cf;
-				--shadow: 0 1px 2px rgba(47, 58, 39, 0.06), 0 6px 20px rgba(47, 58, 39, 0.07);
-				--radius: 18px;
-			}
-			* {
-				box-sizing: border-box;
-			}
-			html {
-				-webkit-text-size-adjust: 100%;
-			}
-			body {
-				margin: 0;
-				background:
-					radial-gradient(1200px 480px at 80% -10%, #f4f8ec 0%, transparent 60%),
-					linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
-				background-attachment: fixed;
-				color: var(--ink);
-				font:
-					15px/1.55 -apple-system,
-					BlinkMacSystemFont,
-					'Segoe UI',
-					Roboto,
-					Helvetica,
-					Arial,
-					sans-serif;
-				min-height: 100vh;
-			}
-			.wrap {
-				max-width: 1180px;
-				margin: 0 auto;
-				padding: clamp(1rem, 3vw, 2.5rem) clamp(0.9rem, 3vw, 2rem) 5rem;
-			}
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wild Willows — Metrics Dashboard</title>
+<meta name="description" content="Anonymous gameplay metrics for Wild Willows, a cozy nature-restoration life sim.">
+<meta name="robots" content="noindex">
+<style>
+	:root {
+		--bg: #eef2e3;
+		--bg2: #e5ecd6;
+		--card: #fffdf7;
+		--ink: #2f3a27;
+		--muted: #6b7263;
+		--faint: #9aa189;
+		--accent: #4a7c46;
+		--accent-dark: #35602f;
+		--accent-soft: #dceccf;
+		--gold: #d9a441;
+		--sky: #6ea8c8;
+		--rose: #d77b8f;
+		--rule: #dfe0cf;
+		--shadow: 0 1px 2px rgba(47,58,39,.06), 0 6px 20px rgba(47,58,39,.07);
+		--radius: 18px;
+	}
+	* { box-sizing: border-box; }
+	html { -webkit-text-size-adjust: 100%; }
+	body {
+		margin: 0;
+		background:
+			radial-gradient(1200px 480px at 80% -10%, #f4f8ec 0%, transparent 60%),
+			linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
+		background-attachment: fixed;
+		color: var(--ink);
+		font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+		min-height: 100vh;
+	}
+	.wrap { max-width: 1180px; margin: 0 auto; padding: clamp(1rem, 3vw, 2.5rem) clamp(.9rem, 3vw, 2rem) 5rem; }
 
-			/* ---- header ---- */
-			header.top {
-				display: flex;
-				flex-wrap: wrap;
-				align-items: flex-end;
-				gap: 1rem 1.4rem;
-				margin-bottom: 1.6rem;
-			}
-			.brand {
-				display: flex;
-				align-items: center;
-				gap: 0.8rem;
-			}
-			.brand .leaf {
-				width: 46px;
-				height: 46px;
-				flex: none;
-				border-radius: 14px;
-				background: linear-gradient(140deg, var(--accent) 0%, var(--accent-dark) 100%);
-				display: grid;
-				place-items: center;
-				box-shadow: var(--shadow);
-			}
-			.brand h1 {
-				font-size: clamp(1.35rem, 3.5vw, 1.9rem);
-				margin: 0;
-				letter-spacing: -0.02em;
-			}
-			.brand p {
-				margin: 0.1rem 0 0;
-				color: var(--muted);
-				font-size: 0.92rem;
-			}
-			.meta {
-				margin-left: auto;
-				text-align: right;
-				color: var(--muted);
-				font-size: 0.82rem;
-			}
-			.meta .live {
-				display: inline-flex;
-				align-items: center;
-				gap: 0.4rem;
-				font-weight: 600;
-				color: var(--accent-dark);
-			}
-			.dot {
-				width: 9px;
-				height: 9px;
-				border-radius: 50%;
-				background: var(--accent);
-				box-shadow: 0 0 0 0 rgba(74, 124, 70, 0.5);
-				animation: pulse 2s infinite;
-			}
-			@keyframes pulse {
-				0% {
-					box-shadow: 0 0 0 0 rgba(74, 124, 70, 0.45);
-				}
-				70% {
-					box-shadow: 0 0 0 8px rgba(74, 124, 70, 0);
-				}
-				100% {
-					box-shadow: 0 0 0 0 rgba(74, 124, 70, 0);
-				}
-			}
-			button.refresh {
-				margin-top: 0.4rem;
-				font: inherit;
-				font-size: 0.82rem;
-				cursor: pointer;
-				border: 1px solid var(--rule);
-				background: var(--card);
-				color: var(--accent-dark);
-				padding: 0.35rem 0.8rem;
-				border-radius: 999px;
-				box-shadow: var(--shadow);
-				transition: transform 0.1s;
-			}
-			.vfilter {
-				display: inline-flex;
-				align-items: center;
-				gap: 0.4rem;
-				margin-top: 0.5rem;
-				font-size: 0.78rem;
-				color: var(--muted);
-			}
-			.vfilter select {
-				font: inherit;
-				font-size: 0.8rem;
-				cursor: pointer;
-				color: var(--accent-dark);
-				border: 1px solid var(--rule);
-				background: var(--card);
-				border-radius: 999px;
-				padding: 0.3rem 0.7rem;
-				box-shadow: var(--shadow);
-			}
-			.vfilter.is-off {
-				opacity: 0.4;
-			} /* range selector is moot while "All versions" is picked */
-			.vfilter.is-off select {
-				cursor: not-allowed;
-			}
-			.filter-note {
-				display: inline-block;
-				margin-left: 0.5rem;
-				font-size: 0.74rem;
-				font-weight: 700;
-				color: var(--accent-dark);
-				background: var(--accent-soft);
-				border-radius: 999px;
-				padding: 0.1rem 0.55rem;
-			}
-			button.refresh:hover {
-				transform: translateY(-1px);
-			}
-			button.refresh:active {
-				transform: translateY(0);
-			}
+	/* ---- header ---- */
+	header.top { display: flex; flex-wrap: wrap; align-items: flex-end; gap: 1rem 1.4rem; margin-bottom: 1.6rem; }
+	.brand { display: flex; align-items: center; gap: .8rem; }
+	.brand .leaf {
+		width: 46px; height: 46px; flex: none;
+		border-radius: 14px;
+		background: linear-gradient(140deg, var(--accent) 0%, var(--accent-dark) 100%);
+		display: grid; place-items: center; box-shadow: var(--shadow);
+	}
+	.brand h1 { font-size: clamp(1.35rem, 3.5vw, 1.9rem); margin: 0; letter-spacing: -.02em; }
+	.brand p { margin: .1rem 0 0; color: var(--muted); font-size: .92rem; }
+	.meta { margin-left: auto; text-align: right; color: var(--muted); font-size: .82rem; }
+	.meta .live { display: inline-flex; align-items: center; gap: .4rem; font-weight: 600; color: var(--accent-dark); }
+	.dot { width: 9px; height: 9px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 0 0 rgba(74,124,70,.5); animation: pulse 2s infinite; }
+	@keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(74,124,70,.45);} 70% { box-shadow: 0 0 0 8px rgba(74,124,70,0);} 100% { box-shadow: 0 0 0 0 rgba(74,124,70,0);} }
+	button.refresh {
+		margin-top: .4rem; font: inherit; font-size: .82rem; cursor: pointer;
+		border: 1px solid var(--rule); background: var(--card); color: var(--accent-dark);
+		padding: .35rem .8rem; border-radius: 999px; box-shadow: var(--shadow); transition: transform .1s;
+	}
+	.vfilter { display: inline-flex; align-items: center; gap: .4rem; margin-top: .5rem; font-size: .78rem; color: var(--muted); }
+	.vfilter select {
+		font: inherit; font-size: .8rem; cursor: pointer; color: var(--accent-dark);
+		border: 1px solid var(--rule); background: var(--card); border-radius: 999px;
+		padding: .3rem .7rem; box-shadow: var(--shadow);
+	}
+	.vfilter.is-off { opacity: .4; } /* range selector is moot while "All versions" is picked */
+	.vfilter.is-off select { cursor: not-allowed; }
+	.filter-note { display: inline-block; margin-left: .5rem; font-size: .74rem; font-weight: 700; color: var(--accent-dark); background: var(--accent-soft); border-radius: 999px; padding: .1rem .55rem; }
+	button.refresh:hover { transform: translateY(-1px); }
+	button.refresh:active { transform: translateY(0); }
 
-			/* ---- section ---- */
-			section {
-				margin: 2.2rem 0 0;
-			}
-			.sec-head {
-				display: flex;
-				align-items: baseline;
-				gap: 0.6rem;
-				margin: 0 0.2rem 0.85rem;
-			}
-			.sec-head h2 {
-				font-size: 1.04rem;
-				margin: 0;
-				letter-spacing: -0.01em;
-			}
-			.sec-head .sub {
-				color: var(--faint);
-				font-size: 0.82rem;
-			}
+	/* ---- section ---- */
+	section { margin: 2.2rem 0 0; }
+	.sec-head { display: flex; align-items: baseline; gap: .6rem; margin: 0 .2rem .85rem; }
+	.sec-head h2 { font-size: 1.04rem; margin: 0; letter-spacing: -.01em; }
+	.sec-head .sub { color: var(--faint); font-size: .82rem; }
 
-			/* ---- kpi cards ---- */
-			.grid {
-				display: grid;
-				gap: 0.8rem;
-			}
-			.kpis {
-				grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-			}
-			.card {
-				background: var(--card);
-				border: 1px solid var(--rule);
-				border-radius: var(--radius);
-				padding: 1rem 1.1rem;
-				box-shadow: var(--shadow);
-			}
-			.kpi .v {
-				font-size: clamp(1.5rem, 4.5vw, 2rem);
-				font-weight: 700;
-				letter-spacing: -0.02em;
-				line-height: 1.05;
-			}
-			.kpi .k {
-				color: var(--muted);
-				font-size: 0.8rem;
-				margin-top: 0.25rem;
-			}
-			.kpi .hint {
-				color: var(--faint);
-				font-size: 0.72rem;
-				margin-top: 0.35rem;
-			}
-			.kpi .v small {
-				font-size: 0.55em;
-				font-weight: 600;
-				color: var(--faint);
-				margin-left: 0.15em;
-			}
-			.accent {
-				color: var(--accent-dark);
-			}
+	/* ---- kpi cards ---- */
+	.grid { display: grid; gap: .8rem; }
+	.kpis { grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+	.card {
+		background: var(--card); border: 1px solid var(--rule);
+		border-radius: var(--radius); padding: 1rem 1.1rem; box-shadow: var(--shadow);
+	}
+	.kpi .v { font-size: clamp(1.5rem, 4.5vw, 2rem); font-weight: 700; letter-spacing: -.02em; line-height: 1.05; }
+	.kpi .k { color: var(--muted); font-size: .8rem; margin-top: .25rem; }
+	.kpi .hint { color: var(--faint); font-size: .72rem; margin-top: .35rem; }
+	.kpi .v small { font-size: .55em; font-weight: 600; color: var(--faint); margin-left: .15em; }
+	.accent { color: var(--accent-dark); }
 
-			.two {
-				grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-			}
-			.three {
-				grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
-			}
+	.two { grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); }
+	.three { grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); }
 
-			.card h3 {
-				margin: 0 0 0.9rem;
-				font-size: 0.96rem;
-			}
-			.card h3 .tag {
-				float: right;
-				font-size: 0.74rem;
-				font-weight: 600;
-				color: var(--faint);
-			}
+	.card h3 { margin: 0 0 .9rem; font-size: .96rem; }
+	.card h3 .tag { float: right; font-size: .74rem; font-weight: 600; color: var(--faint); }
 
-			/* ---- horizontal bar rows ---- */
-			.bars {
-				display: flex;
-				flex-direction: column;
-				gap: 0.55rem;
-			}
-			.bar {
-				display: grid;
-				grid-template-columns: minmax(64px, 34%) 1fr auto;
-				align-items: center;
-				gap: 0.6rem;
-			}
-			.bar .lab {
-				color: var(--muted);
-				font-size: 0.82rem;
-				overflow: hidden;
-				text-overflow: ellipsis;
-				white-space: nowrap;
-				text-transform: capitalize;
-			}
-			.bar .track {
-				display: block;
-				background: var(--accent-soft);
-				border-radius: 999px;
-				height: 12px;
-				overflow: hidden;
-			}
-			/* display:block — these are <span>s, and inline elements silently ignore width/height */
-			.bar .fill {
-				display: block;
-				height: 100%;
-				border-radius: 999px;
-				background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dark) 100%);
-				min-width: 3px;
-				transition: width 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
-			}
-			.bar .num {
-				font-size: 0.8rem;
-				color: var(--ink);
-				font-variant-numeric: tabular-nums;
-				min-width: 2.4ch;
-				text-align: right;
-			}
-			.fill.sky {
-				background: linear-gradient(90deg, #8cc0da, var(--sky));
-			}
-			.fill.gold {
-				background: linear-gradient(90deg, #e6bd62, var(--gold));
-			}
-			.fill.rose {
-				background: linear-gradient(90deg, #e5a0af, var(--rose));
-			}
+	/* ---- horizontal bar rows ---- */
+	.bars { display: flex; flex-direction: column; gap: .55rem; }
+	.bar { display: grid; grid-template-columns: minmax(64px, 34%) 1fr auto; align-items: center; gap: .6rem; }
+	.bar .lab { color: var(--muted); font-size: .82rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; text-transform: capitalize; }
+	.bar .track { display: block; background: var(--accent-soft); border-radius: 999px; height: 12px; overflow: hidden; }
+	/* display:block — these are <span>s, and inline elements silently ignore width/height */
+	.bar .fill { display: block; height: 100%; border-radius: 999px; background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dark) 100%); min-width: 3px; transition: width .8s cubic-bezier(.2,.7,.2,1); }
+	.bar .num { font-size: .8rem; color: var(--ink); font-variant-numeric: tabular-nums; min-width: 2.4ch; text-align: right; }
+	.fill.sky { background: linear-gradient(90deg, #8cc0da, var(--sky)); }
+	.fill.gold { background: linear-gradient(90deg, #e6bd62, var(--gold)); }
+	.fill.rose { background: linear-gradient(90deg, #e5a0af, var(--rose)); }
 
-			/* ---- funnel ---- */
-			.funnel {
-				display: flex;
-				flex-direction: column;
-				gap: 0.5rem;
-			}
-			.step {
-				position: relative;
-				background: var(--accent-soft);
-				border-radius: 12px;
-				overflow: hidden;
-			}
-			.step .sfill {
-				background: linear-gradient(90deg, var(--accent), var(--accent-dark));
-				height: 100%;
-				position: absolute;
-				inset: 0;
-				width: 0;
-				border-radius: 12px;
-				transition: width 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
-			}
-			.step .srow {
-				position: relative;
-				display: flex;
-				justify-content: space-between;
-				align-items: center;
-				padding: 0.6rem 0.85rem;
-				gap: 1rem;
-			}
-			.step .sname {
-				font-weight: 600;
-				font-size: 0.86rem;
-			}
-			.step .sval {
-				font-variant-numeric: tabular-nums;
-				font-size: 0.84rem;
-				display: flex;
-				gap: 0.55rem;
-				align-items: baseline;
-			}
-			.step .spct {
-				color: var(--accent-dark);
-				font-weight: 700;
-			}
-			.step.lite .sname,
-			.step.lite .sval {
-				color: var(--ink);
-			}
-			.step .drop {
-				color: var(--rose);
-				font-size: 0.72rem;
-			}
+	/* ---- funnel ---- */
+	.funnel { display: flex; flex-direction: column; gap: .5rem; }
+	.step { position: relative; background: var(--accent-soft); border-radius: 12px; overflow: hidden; }
+	.step .sfill { background: linear-gradient(90deg, var(--accent), var(--accent-dark)); height: 100%; position: absolute; inset: 0; width: 0; border-radius: 12px; transition: width .9s cubic-bezier(.2,.7,.2,1); }
+	.step .srow { position: relative; display: flex; justify-content: space-between; align-items: center; padding: .6rem .85rem; gap: 1rem; }
+	.step .sname { font-weight: 600; font-size: .86rem; }
+	.step .sval { font-variant-numeric: tabular-nums; font-size: .84rem; display: flex; gap: .55rem; align-items: baseline; }
+	.step .spct { color: var(--accent-dark); font-weight: 700; }
+	.step.lite .sname, .step.lite .sval { color: var(--ink); }
+	.step .drop { color: var(--rose); font-size: .72rem; }
 
-			/* ---- donut / distribution ---- */
-			.legend {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 0.5rem 0.9rem;
-				margin-top: 0.8rem;
-			}
-			.legend .li {
-				display: flex;
-				align-items: center;
-				gap: 0.4rem;
-				font-size: 0.8rem;
-				color: var(--muted);
-			}
-			.legend .sw {
-				width: 11px;
-				height: 11px;
-				border-radius: 3px;
-				flex: none;
-			}
-			.donutwrap {
-				display: flex;
-				align-items: center;
-				gap: 1rem;
-				flex-wrap: wrap;
-			}
-			.donutwrap svg {
-				flex: none;
-			}
+	/* ---- donut / distribution ---- */
+	.legend { display: flex; flex-wrap: wrap; gap: .5rem .9rem; margin-top: .8rem; }
+	.legend .li { display: flex; align-items: center; gap: .4rem; font-size: .8rem; color: var(--muted); }
+	.legend .sw { width: 11px; height: 11px; border-radius: 3px; flex: none; }
+	.donutwrap { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+	.donutwrap svg { flex: none; }
 
-			/* ---- characters ---- */
-			.charwrap {
-			}
-			.chargrid {
-				display: grid;
-				grid-template-columns: repeat(auto-fill, minmax(118px, 1fr));
-				gap: 0.7rem;
-			}
-			.charcard {
-				background: linear-gradient(180deg, #fffdf7, #f6f3e8);
-				border: 1px solid var(--rule);
-				border-radius: 16px;
-				padding: 0.7rem 0.5rem 0.6rem;
-				text-align: center;
-				box-shadow: var(--shadow);
-				transition: transform 0.12s ease;
-			}
-			.charcard:hover {
-				transform: translateY(-3px);
-			}
-			.charcard svg {
-				width: 100%;
-				height: auto;
-				max-width: 92px;
-			}
-			.charcard .cmeta {
-				margin-top: 0.3rem;
-				font-size: 0.72rem;
-				color: var(--muted);
-				line-height: 1.35;
-			}
-			.charcard .cmeta b {
-				color: var(--accent-dark);
-				font-weight: 700;
-			}
-			.charcard .badge {
-				display: inline-block;
-				margin-top: 0.25rem;
-				font-size: 0.66rem;
-				color: var(--gold);
-				font-weight: 700;
-				letter-spacing: 0.02em;
-			}
+	/* ---- characters ---- */
+	.charwrap { }
+	.chargrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: .7rem; }
+	.charcard {
+		background: linear-gradient(180deg, #fffdf7, #f6f3e8);
+		border: 1px solid var(--rule); border-radius: 16px;
+		padding: .7rem .5rem .6rem; text-align: center; box-shadow: var(--shadow);
+		transition: transform .12s ease;
+	}
+	.charcard:hover { transform: translateY(-3px); }
+	.charcard svg { width: 100%; height: auto; max-width: 92px; }
+	.charcard .cmeta { margin-top: .3rem; font-size: .72rem; color: var(--muted); line-height: 1.35; }
+	.charcard .cmeta b { color: var(--accent-dark); font-weight: 700; }
+	.charcard .badge { display: inline-block; margin-top: .25rem; font-size: .66rem; color: var(--gold); font-weight: 700; letter-spacing: .02em; }
 
-			/* ---- player highlights ---- */
-			.hlgrid {
-				display: grid;
-				grid-template-columns: repeat(auto-fill, minmax(248px, 1fr));
-				gap: 0.8rem;
-			}
-			.hlcard {
-				display: flex;
-				gap: 0.75rem;
-				align-items: center;
-				background: linear-gradient(180deg, #fffdf7, #f6f3e8);
-				border: 1px solid var(--rule);
-				border-radius: 16px;
-				padding: 0.75rem 0.85rem;
-				box-shadow: var(--shadow);
-				transition: transform 0.12s ease;
-			}
-			.hlcard:hover {
-				transform: translateY(-3px);
-			}
-			.hlav {
-				flex: none;
-				width: 66px;
-			}
-			.hlav svg {
-				width: 100%;
-				height: auto;
-			}
-			.hlbody {
-				flex: 1;
-				min-width: 0;
-			}
-			.hlname {
-				display: flex;
-				align-items: center;
-				gap: 0.45rem;
-				font-weight: 700;
-				color: var(--ink);
-				font-size: 0.96rem;
-				margin-bottom: 0.35rem;
-				overflow: hidden;
-				text-overflow: ellipsis;
-			}
-			.hltop {
-				display: flex;
-				align-items: center;
-				gap: 0.4rem;
-				flex-wrap: wrap;
-				margin-bottom: 0.5rem;
-			}
-			.hltag {
-				font-size: 0.66rem;
-				font-weight: 700;
-				letter-spacing: 0.02em;
-				color: var(--accent-dark);
-				background: var(--accent-soft);
-				border-radius: 999px;
-				padding: 0.12rem 0.55rem;
-			}
-			.hledi {
-				font-size: 0.6rem;
-				font-weight: 700;
-				text-transform: uppercase;
-				letter-spacing: 0.04em;
-				border-radius: 999px;
-				padding: 0.1rem 0.45rem;
-			}
-			.hledi.demo {
-				color: #a9781c;
-				background: #f6e8c9;
-			}
-			.hledi.full {
-				color: var(--accent-dark);
-				background: var(--accent-soft);
-			}
-			.hlstats {
-				display: grid;
-				grid-template-columns: repeat(3, 1fr);
-				gap: 0.5rem 0.35rem;
-			}
-			.hlstat {
-				display: flex;
-				flex-direction: column;
-			}
-			.hlstat b {
-				font-size: 0.96rem;
-				color: var(--ink);
-				font-variant-numeric: tabular-nums;
-				line-height: 1.1;
-			}
-			.hlstat span {
-				font-size: 0.64rem;
-				color: var(--faint);
-			}
-			.hlcard {
-				cursor: pointer;
-			}
-			.hlcard:focus-visible {
-				outline: 2px solid var(--accent);
-				outline-offset: 2px;
-			}
-			/* Caretakers seen in the last 5 minutes — the same window as the "Active now" KPI. */
-			.hlcard.active-now {
-				border-color: var(--accent);
-				box-shadow:
-					0 0 0 1px var(--accent),
-					var(--shadow);
-			}
-			.hltag.hllive {
-				color: #fff;
-				background: var(--accent);
-			}
+	/* ---- player highlights ---- */
+	.hlgrid { display: grid; grid-template-columns: repeat(auto-fill, minmax(248px, 1fr)); gap: .8rem; }
+	.hlcard { display: flex; gap: .75rem; align-items: center; background: linear-gradient(180deg,#fffdf7,#f6f3e8); border:1px solid var(--rule); border-radius: 16px; padding: .75rem .85rem; box-shadow: var(--shadow); transition: transform .12s ease; }
+	.hlcard:hover { transform: translateY(-3px); }
+	.hlav { flex: none; width: 66px; }
+	.hlav svg { width: 100%; height: auto; }
+	.hlbody { flex: 1; min-width: 0; }
+	.hlname { display: flex; align-items: center; gap: .45rem; font-weight: 700; color: var(--ink); font-size: .96rem; margin-bottom: .35rem; overflow: hidden; text-overflow: ellipsis; }
+	.hltop { display: flex; align-items: center; gap: .4rem; flex-wrap: wrap; margin-bottom: .5rem; }
+	.hltag { font-size: .66rem; font-weight: 700; letter-spacing: .02em; color: var(--accent-dark); background: var(--accent-soft); border-radius: 999px; padding: .12rem .55rem; }
+	.hledi { font-size: .6rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em; border-radius: 999px; padding: .1rem .45rem; }
+	.hledi.demo { color: #a9781c; background: #f6e8c9; }
+	.hledi.full { color: var(--accent-dark); background: var(--accent-soft); }
+	.hlstats { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem .35rem; }
+	.hlstat { display: flex; flex-direction: column; }
+	.hlstat b { font-size: .96rem; color: var(--ink); font-variant-numeric: tabular-nums; line-height: 1.1; }
+	.hlstat span { font-size: .64rem; color: var(--faint); }
+	.hlcard { cursor: pointer; }
+	.hlcard:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+	/* Caretakers seen in the last 5 minutes — the same window as the "Active now" KPI. */
+	.hlcard.active-now { border-color: var(--accent); box-shadow: 0 0 0 1px var(--accent), var(--shadow); }
+	.hltag.hllive { color: #fff; background: var(--accent); }
 
-			/* ---- player modal ---- */
-			.modal-overlay {
-				position: fixed;
-				inset: 0;
-				background: rgba(30, 38, 24, 0.55);
-				display: flex;
-				align-items: flex-start;
-				justify-content: center;
-				padding: 4vh 1rem;
-				z-index: 100;
-				overflow-y: auto;
-			}
-			.modal {
-				background: var(--bg);
-				border-radius: 20px;
-				max-width: 880px;
-				width: 100%;
-				box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-				padding: 1.4rem 1.4rem 1.8rem;
-				position: relative;
-			}
-			.modal-close {
-				position: absolute;
-				top: 0.9rem;
-				right: 1rem;
-				border: none;
-				background: var(--card);
-				border-radius: 999px;
-				width: 34px;
-				height: 34px;
-				font-size: 1.2rem;
-				line-height: 1;
-				cursor: pointer;
-				color: var(--muted);
-				box-shadow: var(--shadow);
-			}
-			.modal-close:hover {
-				color: var(--ink);
-			}
-			.modal-head {
-				display: flex;
-				gap: 1rem;
-				align-items: center;
-				margin-bottom: 1.1rem;
-				padding-right: 2.4rem;
-			}
-			.modal-head .mav {
-				flex: none;
-				width: 84px;
-			}
-			.modal-head .mav svg {
-				width: 100%;
-				height: auto;
-			}
-			.modal-head h2 {
-				margin: 0 0 0.3rem;
-				font-size: 1.3rem;
-			}
-			.modal-head .msub {
-				color: var(--muted);
-				font-size: 0.82rem;
-				display: flex;
-				gap: 0.5rem 0.7rem;
-				flex-wrap: wrap;
-				align-items: center;
-			}
-			.checklist {
-				display: grid;
-				grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-				gap: 0.45rem 0.8rem;
-			}
-			.checkitem {
-				display: flex;
-				align-items: center;
-				gap: 0.45rem;
-				font-size: 0.84rem;
-				color: var(--muted);
-			}
-			.checkitem .ck {
-				width: 18px;
-				height: 18px;
-				border-radius: 50%;
-				display: inline-flex;
-				align-items: center;
-				justify-content: center;
-				font-size: 0.72rem;
-				font-weight: 700;
-				flex: none;
-			}
-			.checkitem .ck.on {
-				background: var(--accent-soft);
-				color: var(--accent-dark);
-			}
-			.checkitem .ck.off {
-				background: #f0e4e4;
-				color: #b06a6a;
-			}
-			.reclist {
-				display: flex;
-				flex-direction: column;
-				gap: 0.3rem;
-			}
-			.recrow {
-				display: flex;
-				justify-content: space-between;
-				gap: 1rem;
-				font-size: 0.82rem;
-				color: var(--faint);
-				border-bottom: 1px dashed var(--rule);
-				padding-bottom: 0.3rem;
-			}
-			.recrow b {
-				color: var(--ink);
-				font-weight: 600;
-			}
-			body.modal-open {
-				overflow: hidden;
-			}
+	/* ---- player modal ---- */
+	.modal-overlay { position: fixed; inset: 0; background: rgba(30,38,24,.55); display: flex; align-items: flex-start; justify-content: center; padding: 4vh 1rem; z-index: 100; overflow-y: auto; }
+	.modal { background: var(--bg); border-radius: 20px; max-width: 880px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,.3); padding: 1.4rem 1.4rem 1.8rem; position: relative; }
+	.modal-close { position: absolute; top: .9rem; right: 1rem; border: none; background: var(--card); border-radius: 999px; width: 34px; height: 34px; font-size: 1.2rem; line-height: 1; cursor: pointer; color: var(--muted); box-shadow: var(--shadow); }
+	.modal-close:hover { color: var(--ink); }
+	.modal-head { display: flex; gap: 1rem; align-items: center; margin-bottom: 1.1rem; padding-right: 2.4rem; }
+	.modal-head .mav { flex: none; width: 84px; }
+	.modal-head .mav svg { width: 100%; height: auto; }
+	.modal-head h2 { margin: 0 0 .3rem; font-size: 1.3rem; }
+	.modal-head .msub { color: var(--muted); font-size: .82rem; display: flex; gap: .5rem .7rem; flex-wrap: wrap; align-items: center; }
+	.checklist { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px,1fr)); gap: .45rem .8rem; }
+	.checkitem { display: flex; align-items: center; gap: .45rem; font-size: .84rem; color: var(--muted); }
+	.checkitem .ck { width: 18px; height: 18px; border-radius: 50%; display: inline-flex; align-items: center; justify-content: center; font-size: .72rem; font-weight: 700; flex: none; }
+	.checkitem .ck.on { background: var(--accent-soft); color: var(--accent-dark); }
+	.checkitem .ck.off { background: #f0e4e4; color: #b06a6a; }
+	.reclist { display: flex; flex-direction: column; gap: .3rem; }
+	.recrow { display: flex; justify-content: space-between; gap: 1rem; font-size: .82rem; color: var(--faint); border-bottom: 1px dashed var(--rule); padding-bottom: .3rem; }
+	.recrow b { color: var(--ink); font-weight: 600; }
+	body.modal-open { overflow: hidden; }
 
-			/* ---- swatches ---- */
-			.swatches {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 0.5rem;
-			}
-			.swatch {
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				gap: 0.25rem;
-			}
-			.swatch .chip {
-				width: 30px;
-				height: 30px;
-				border-radius: 9px;
-				border: 1px solid rgba(0, 0, 0, 0.12);
-				box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.35);
-			}
-			.swatch .cnt {
-				font-size: 0.72rem;
-				color: var(--muted);
-				font-variant-numeric: tabular-nums;
-			}
+	/* ---- swatches ---- */
+	.swatches { display: flex; flex-wrap: wrap; gap: .5rem; }
+	.swatch { display: flex; flex-direction: column; align-items: center; gap: .25rem; }
+	.swatch .chip { width: 30px; height: 30px; border-radius: 9px; border: 1px solid rgba(0,0,0,.12); box-shadow: inset 0 0 0 2px rgba(255,255,255,.35); }
+	.swatch .cnt { font-size: .72rem; color: var(--muted); font-variant-numeric: tabular-nums; }
 
-			/* ---- histogram (mini columns) ---- */
-			.cols {
-				display: flex;
-				align-items: flex-end;
-				gap: 0.5rem;
-				height: 108px;
-				padding-top: 0.3rem;
-			}
-			.col {
-				flex: 1;
-				display: flex;
-				flex-direction: column;
-				align-items: center;
-				gap: 0.3rem;
-				height: 100%;
-				justify-content: flex-end;
-			}
-			.col .cbar {
-				width: 100%;
-				max-width: 42px;
-				border-radius: 7px 7px 3px 3px;
-				background: linear-gradient(180deg, var(--accent), var(--accent-dark));
-				min-height: 3px;
-				transition: height 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
-			}
-			.col .cn {
-				font-size: 0.72rem;
-				color: var(--ink);
-				font-variant-numeric: tabular-nums;
-			}
-			.col .cl {
-				font-size: 0.68rem;
-				color: var(--faint);
-				text-align: center;
-			}
+	/* ---- histogram (mini columns) ---- */
+	.cols { display: flex; align-items: flex-end; gap: .5rem; height: 108px; padding-top: .3rem; }
+	.col { flex: 1; display: flex; flex-direction: column; align-items: center; gap: .3rem; height: 100%; justify-content: flex-end; }
+	.col .cbar { width: 100%; max-width: 42px; border-radius: 7px 7px 3px 3px; background: linear-gradient(180deg, var(--accent), var(--accent-dark)); min-height: 3px; transition: height .8s cubic-bezier(.2,.7,.2,1); }
+	.col .cn { font-size: .72rem; color: var(--ink); font-variant-numeric: tabular-nums; }
+	.col .cl { font-size: .68rem; color: var(--faint); text-align: center; }
 
-			/* ---- editions: demo vs full ---- */
-			.vs {
-				display: flex;
-				flex-direction: column;
-				gap: 0.7rem;
-			}
-			.vslegend {
-				display: flex;
-				gap: 1rem;
-				margin: 0 0 0.2rem;
-				font-size: 0.8rem;
-			}
-			.vslegend .li {
-				display: flex;
-				align-items: center;
-				gap: 0.4rem;
-				font-weight: 600;
-			}
-			.vslegend .sw {
-				width: 12px;
-				height: 12px;
-				border-radius: 4px;
-			}
-			.vsrow {
-				display: grid;
-				grid-template-columns: 1fr auto;
-				gap: 0.3rem 0.8rem;
-			}
-			.vsrow .vlab {
-				color: var(--muted);
-				font-size: 0.82rem;
-			}
-			.vsrow .vnums {
-				font-variant-numeric: tabular-nums;
-				font-size: 0.84rem;
-				display: flex;
-				gap: 0.8rem;
-				align-items: baseline;
-			}
-			.vsrow .vd {
-				color: #a9781c;
-				font-weight: 700;
-			}
-			.vsrow .vf {
-				color: var(--accent-dark);
-				font-weight: 700;
-			}
-			.vsrow .vbar {
-				grid-column: 1 / -1;
-				height: 9px;
-				border-radius: 999px;
-				overflow: hidden;
-				background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dark) 100%);
-			}
-			.vsrow .vbar i {
-				display: block;
-				height: 100%;
-				background: linear-gradient(90deg, #e6bd62, var(--gold));
-				border-radius: 999px;
-				transition: width 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
-			}
-			.emptynote {
-				color: var(--faint);
-				font-size: 0.82rem;
-				padding: 0.4rem 0;
-			}
-			footer {
-				margin-top: 3rem;
-				text-align: center;
-				color: var(--faint);
-				font-size: 0.76rem;
-			}
-			footer a {
-				color: var(--accent-dark);
-			}
+	/* ---- editions: demo vs full ---- */
+	.vs { display: flex; flex-direction: column; gap: .7rem; }
+	.vslegend { display: flex; gap: 1rem; margin: 0 0 .2rem; font-size: .8rem; }
+	.vslegend .li { display: flex; align-items: center; gap: .4rem; font-weight: 600; }
+	.vslegend .sw { width: 12px; height: 12px; border-radius: 4px; }
+	.vsrow { display: grid; grid-template-columns: 1fr auto; gap: .3rem .8rem; }
+	.vsrow .vlab { color: var(--muted); font-size: .82rem; }
+	.vsrow .vnums { font-variant-numeric: tabular-nums; font-size: .84rem; display: flex; gap: .8rem; align-items: baseline; }
+	.vsrow .vd { color: #a9781c; font-weight: 700; }
+	.vsrow .vf { color: var(--accent-dark); font-weight: 700; }
+	.vsrow .vbar { grid-column: 1 / -1; height: 9px; border-radius: 999px; overflow: hidden; background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dark) 100%); }
+	.vsrow .vbar i { display: block; height: 100%; background: linear-gradient(90deg, #e6bd62, var(--gold)); border-radius: 999px; transition: width .8s cubic-bezier(.2,.7,.2,1); }
+	.emptynote { color: var(--faint); font-size: .82rem; padding: .4rem 0; }
+	footer { margin-top: 3rem; text-align: center; color: var(--faint); font-size: .76rem; }
+	footer a { color: var(--accent-dark); }
 
-			.skeleton {
-				color: var(--faint);
-				text-align: center;
-				padding: 4rem 1rem;
-				font-size: 0.95rem;
-			}
-			.err {
-				background: #fdeaea;
-				border: 1px solid #f3c9c9;
-				color: #9c3b3b;
-				border-radius: var(--radius);
-				padding: 1rem 1.2rem;
-			}
+	.skeleton { color: var(--faint); text-align: center; padding: 4rem 1rem; font-size: .95rem; }
+	.err { background: #fdeaea; border: 1px solid #f3c9c9; color: #9c3b3b; border-radius: var(--radius); padding: 1rem 1.2rem; }
 
-			@media (max-width: 560px) {
-				.meta {
-					margin-left: 0;
-					text-align: left;
-					width: 100%;
-				}
-				.bar {
-					grid-template-columns: minmax(56px, 40%) 1fr auto;
-				}
-				.chargrid {
-					grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
-				}
-			}
-		</style>
-		<link
-			rel="icon"
-			type="image/svg+xml"
-			href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E"
-		/>
-		<link
-			rel="apple-touch-icon"
-			href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E"
-		/>
-	</head>
-	<body>
-		<div class="wrap">
-			<header class="top">
-				<div class="brand">
-					<div class="leaf" aria-hidden="true">
-						<svg width="26" height="26" viewBox="0 0 24 24" fill="none">
-							<path d="M12 21C6 21 3 16 3 11 3 6 7 3 12 3c-1 4 2 6 5 7 3 1 4 4 4 5 0 3-3 6-9 6Z" fill="#eaf6df" />
-							<path d="M12 21C9 17 9 11 12 3" stroke="#4a7c46" stroke-width="1.4" stroke-linecap="round" />
-						</svg>
-					</div>
-					<div>
-						<h1>Wild Willows Metrics</h1>
-						<p>Anonymous gameplay analytics</p>
-					</div>
-				</div>
-				<div class="meta">
-					<div class="live"><span class="dot"></span> Live dashboard</div>
-					<div id="generated">Loading…</div>
-					<label class="vfilter"
-						><span>Version</span>
-						<select id="version-filter">
-							<option value="all">All versions</option>
-						</select>
-					</label>
-					<label class="vfilter" id="version-mode-wrap"
-						><span>Range</span>
-						<select id="version-mode">
-							<option value="exact">Only this</option>
-							<option value="min">This &amp; newer</option>
-						</select>
-					</label>
-					<label class="vfilter"
-						><span>Edition</span>
-						<select id="edition-filter">
-							<option value="all">All editions</option>
-						</select>
-					</label>
-					<label class="vfilter"
-						><span>Platform</span>
-						<select id="platform-filter">
-							<option value="all">All platforms</option>
-						</select>
-					</label>
-					<button class="refresh" id="refresh" type="button">↻ Refresh</button>
-				</div>
-			</header>
-
-			<div id="root">
-				<div class="skeleton skeleton-loading skeleton">
-					<div class="skeleton" id="loading">Gathering the meadow’s numbers…</div>
-				</div>
+	@media (max-width: 560px) {
+		.meta { margin-left: 0; text-align: left; width: 100%; }
+		.bar { grid-template-columns: minmax(56px, 40%) 1fr auto; }
+		.chargrid { grid-template-columns: repeat(auto-fill, minmax(96px, 1fr)); }
+	}
+</style>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+</head>
+<body>
+<div class="wrap">
+	<header class="top">
+		<div class="brand">
+			<div class="leaf" aria-hidden="true">
+				<svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M12 21C6 21 3 16 3 11 3 6 7 3 12 3c-1 4 2 6 5 7 3 1 4 4 4 5 0 3-3 6-9 6Z" fill="#eaf6df"/><path d="M12 21C9 17 9 11 12 3" stroke="#4a7c46" stroke-width="1.4" stroke-linecap="round"/></svg>
 			</div>
-
-			<footer>
-				Wild Willows · a cozy nature-restoration life sim, backed by Harper · metrics are aggregated and anonymous.
-			</footer>
+			<div>
+				<h1>Wild Willows Metrics</h1>
+				<p>Anonymous gameplay analytics</p>
+			</div>
 		</div>
+		<div class="meta">
+			<div class="live"><span class="dot"></span> Live dashboard</div>
+			<div id="generated">Loading…</div>
+			<label class="vfilter"><span>Version</span>
+				<select id="version-filter"><option value="all">All versions</option></select>
+			</label>
+			<label class="vfilter" id="version-mode-wrap"><span>Range</span>
+				<select id="version-mode">
+					<option value="exact">Only this</option>
+					<option value="min">This &amp; newer</option>
+				</select>
+			</label>
+			<label class="vfilter"><span>Edition</span>
+				<select id="edition-filter"><option value="all">All editions</option></select>
+			</label>
+			<label class="vfilter"><span>Platform</span>
+				<select id="platform-filter"><option value="all">All platforms</option></select>
+			</label>
+			<button class="refresh" id="refresh" type="button">↻ Refresh</button>
+		</div>
+	</header>
 
-		<script>
-			'use strict';
+	<div id="root">
+		<div class="skeleton skeleton-loading skeleton">
+			<div class="skeleton" id="loading">Gathering the meadow’s numbers…</div>
+		</div>
+	</div>
 
-			/* ------------------------------------------------------------------ *
-			 * Color helpers — ported 1:1 from src/color.ts so avatars match the
-			 * exact palette the game renders in-app.
-			 * ------------------------------------------------------------------ */
-			function hexToHsl(hex) {
-				let c = String(hex || '#000000').replace('#', '');
-				if (c.length === 3)
-					c = c
-						.split('')
-						.map((ch) => ch + ch)
-						.join('');
-				const r = parseInt(c.slice(0, 2), 16) / 255;
-				const g = parseInt(c.slice(2, 4), 16) / 255;
-				const b = parseInt(c.slice(4, 6), 16) / 255;
-				const max = Math.max(r, g, b),
-					min = Math.min(r, g, b);
-				const l = (max + min) / 2;
-				if (max === min) return { h: 0, s: 0, l: l * 100 };
-				const d = max - min;
-				const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
-				let h;
-				if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) * 60;
-				else if (max === g) h = ((b - r) / d + 2) * 60;
-				else h = ((r - g) / d + 4) * 60;
-				return { h, s: s * 100, l: l * 100 };
-			}
-			function hslToHex(h, s, l) {
-				h = ((h % 360) + 360) % 360;
-				s = Math.max(0, Math.min(100, s)) / 100;
-				l = Math.max(0, Math.min(100, l)) / 100;
-				const k = (n) => (n + h / 30) % 12;
-				const a = s * Math.min(l, 1 - l);
-				const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
-				const to = (v) =>
-					Math.round(v * 255)
-						.toString(16)
-						.padStart(2, '0');
-				return \`#\${to(f(0))}\${to(f(8))}\${to(f(4))}\`;
-			}
-			function shade(hex, dl) {
-				const { h, s, l } = hexToHsl(hex);
-				return hslToHex(h, s, l + dl);
-			}
-			const HAT_BASE = {
-				straw: { a: '#c9a35c', b: '#d8b56e', line: '#a3814f' },
-				leaf: { a: '#5d8a4a', line: '#436b35' },
-				beanie: { a: '#b5707a', b: '#9e5f69' },
-				cap: { a: '#5f86b0', b: '#4f739a', line: '#3f5f80' },
-				bucket: { a: '#9aa86a', b: '#86945a' },
-				party: { a: '#d77bb1', b: '#e89ac0', line: '#b45f95' },
-				flower: { a: '#e87a9e' },
-				wizard: { a: '#7d6b9e', b: '#8f7bb5', line: '#645380' },
-				crown: { a: '#e0b23e', b: '#f0c95e', line: '#b8902e' },
-				mushroom: { a: '#c9584c', b: '#d4685c', line: '#a84237' },
-				ranger: { a: '#8a734f', b: '#9c845c', line: '#5d4a36' },
-				bandana: { a: '#b05555', b: '#c96a5f', line: '#8d3f3f' },
-				visor: { a: '#4f9a94', b: '#5fada6', line: '#3a7a74' },
-				acorn: { a: '#a0763f', b: '#b0854b', line: '#7a5730' },
-				beret: { a: '#a8455a', b: '#bc5a6e', line: '#843546' },
-				witch: { a: '#2f2a3a', b: '#3c3550', line: '#211d2b' },
-				newspaper: { a: '#e8e4d8', b: '#d8d3c4', line: '#a29a8a' },
-				frog: { a: '#6aa84f', b: '#7cb95f', line: '#4f8038' },
-				'cat-ears': { a: '#4a444f', b: '#5a5461', line: '#332f3a' },
-				tophat: { a: '#3f3b47', b: '#4d4857', line: '#2b2833' },
-				chef: { a: '#f2efe6', b: '#fbf9f3', line: '#d5d0c2' },
-				pirate: { a: '#3a3340', b: '#4a4252', line: '#272231' },
-				headphones: { a: '#5c6470', b: '#6f7885', line: '#3f4650' },
-				halo: { a: '#f4d97a', b: '#fbeaa8', line: '#d0ae45' },
-			};
-			function hatPalette(hat, custom) {
-				const base = HAT_BASE[hat] || HAT_BASE.straw;
-				if (!custom) return { a: base.a, b: base.b ?? shade(base.a, 8), line: base.line ?? shade(base.a, -14) };
-				return { a: custom, b: shade(custom, 8), line: shade(custom, -14) };
-			}
-			function flowerPalette(custom) {
-				const base = ['#e87a9e', '#f4c95f', '#c45ad0', '#e8954f'];
-				if (!custom) return base;
-				const c = hexToHsl(custom),
-					b0 = hexToHsl(base[0]);
-				return base.map((hex) => {
-					const b = hexToHsl(hex);
-					return hslToHex(c.h + (b.h - b0.h), c.s + (b.s - b0.s), c.l + (b.l - b0.l));
-				});
-			}
+	<footer>
+		Wild Willows · a cozy nature-restoration life sim, backed by Harper ·
+		metrics are aggregated and anonymous.
+	</footer>
+</div>
 
-			/* small helpers */
-			const esc = (s) =>
-				String(s).replace(
-					/[&<>"']/g,
-					(c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c],
-				);
-			const n = (x) => (x == null || isNaN(x) ? 0 : x);
-			const fmt = (x) => n(x).toLocaleString('en-US');
-			const pct = (x) => \`\${Math.round(n(x))}%\`;
+<script>
+"use strict";
 
-			/* ------------------------------------------------------------------ *
-			 * Avatar — ported from CharacterPreview (src/ui/icons.tsx). Returns an
-			 * SVG string. Names are never rendered.
-			 * ------------------------------------------------------------------ */
-			function avatarSVG(app) {
-				const a = app || {};
-				const skin = a.skin || '#eec39a',
-					hair = a.hair || '#6e4a33',
-					outfit = a.outfit || '#4a7c59';
-				const hat = a.hat || 'none',
-					hatColor = a.hatColor || null;
-				const hairstyle = a.hairstyle || 'short',
-					beard = a.beard || 'none',
-					body = a.body || 'slim';
-				const bw = body === 'round' ? 8 : 0;
-				const hp = hatPalette(hat, hatColor);
-				const fl = flowerPalette(hatColor);
-				// visor, halo and headphones layer over the hair rather than covering it
-				const bareHead =
-					hat === 'none' || hat === 'halo' || hat === 'headphones' || hat === 'visor' || hat === 'cat-ears';
-				let s = '';
-				s += \`<ellipse cx="50" cy="104" rx="\${26 + bw / 2}" ry="7" fill="#000" opacity="0.12"/>\`;
-				if (hairstyle === 'long') s += \`<path d="M29 30 Q26 78 34 86 L66 86 Q74 78 71 30 Z" fill="\${hair}"/>\`;
-				if (hairstyle === 'curly-long')
-					s += \`<g fill="\${hair}"><path d="M29 30 Q26 76 34 84 L66 84 Q74 76 71 30 Z"/><circle cx="31" cy="62" r="8"/><circle cx="69" cy="62" r="8"/><circle cx="33" cy="78" r="8"/><circle cx="67" cy="78" r="8"/><circle cx="50" cy="84" r="9"/><circle cx="41" cy="83" r="8"/><circle cx="59" cy="83" r="8"/></g>\`;
-				if (hairstyle === 'ponytail')
-					s += \`<g fill="\${hair}"><ellipse cx="67" cy="32" rx="9" ry="10"/><ellipse cx="75" cy="47" rx="8" ry="13"/><ellipse cx="75" cy="61" rx="6.5" ry="11"/></g><ellipse cx="73" cy="41" rx="4.5" ry="3.2" fill="#c9913f"/>\`;
-				if (hairstyle === 'pigtails')
-					s += \`<g fill="\${hair}"><ellipse cx="27" cy="33" rx="8.5" ry="10"/><ellipse cx="21" cy="49" rx="7.5" ry="12"/><ellipse cx="73" cy="33" rx="8.5" ry="10"/><ellipse cx="79" cy="49" rx="7.5" ry="12"/></g><ellipse cx="24" cy="42" rx="4.2" ry="3" fill="#c9913f"/><ellipse cx="76" cy="42" rx="4.2" ry="3" fill="#c9913f"/>\`;
-				if (hairstyle === 'afro') s += \`<circle cx="50" cy="33" r="28" fill="\${hair}"/>\`;
-				if (hairstyle === 'bob')
-					s += \`<g fill="\${hair}"><ellipse cx="30" cy="42" rx="8" ry="14"/><ellipse cx="70" cy="42" rx="8" ry="14"/></g>\`;
-				if (hairstyle === 'braid')
-					s += \`<g fill="\${hair}"><ellipse cx="68" cy="34" rx="8" ry="9"/><circle cx="71" cy="49" r="6.2"/><circle cx="73" cy="58" r="5.5"/><circle cx="74.5" cy="66" r="4.8"/><circle cx="75" cy="73" r="4"/></g><ellipse cx="75" cy="78.5" rx="3.2" ry="2.4" fill="#c9913f"/>\`;
-				if (hairstyle === 'wavy')
-					s += \`<path d="M29 30 Q24 50 30 60 Q23 71 31 85 L69 85 Q77 71 70 60 Q76 50 71 30 Z" fill="\${hair}"/>\`;
-				if (hairstyle === 'dreads')
-					s += \`<g fill="\${hair}"><ellipse cx="30" cy="36" rx="7.5" ry="9"/><ellipse cx="70" cy="36" rx="7.5" ry="9"/><rect x="21" y="36" width="6" height="40" rx="3"/><rect x="28" y="40" width="6" height="34" rx="3"/><rect x="66" y="40" width="6" height="34" rx="3"/><rect x="73" y="36" width="6" height="40" rx="3"/></g>\`;
-				if (hairstyle === 'double-braid')
-					s += \`<g fill="\${hair}"><ellipse cx="32" cy="34" rx="8" ry="9"/><circle cx="29" cy="49" r="6.2"/><circle cx="27" cy="58" r="5.5"/><circle cx="25.5" cy="66" r="4.8"/><circle cx="25" cy="73" r="4"/><ellipse cx="68" cy="34" rx="8" ry="9"/><circle cx="71" cy="49" r="6.2"/><circle cx="73" cy="58" r="5.5"/><circle cx="74.5" cy="66" r="4.8"/><circle cx="75" cy="73" r="4"/></g><ellipse cx="25" cy="78.5" rx="3.2" ry="2.4" fill="#c9913f"/><ellipse cx="75" cy="78.5" rx="3.2" ry="2.4" fill="#c9913f"/>\`;
-				if (hairstyle === 'half-up') s += \`<path d="M29 30 Q26 76 34 85 L66 85 Q74 76 71 30 Z" fill="\${hair}"/>\`;
-				if (hairstyle === 'shag')
-					s += \`<g fill="\${hair}"><path d="M28 30 Q25 50 30 63 L70 63 Q75 50 72 30 Z"/><path d="M28.5 50 L23 67 L33 61 Z"/><path d="M71.5 50 L77 67 L67 61 Z"/></g>\`;
-				// body
-				s += \`<path d="M\${30 - bw} 70 Q\${30 - bw} 56 50 56 Q\${70 + bw} 56 \${70 + bw} 70 L\${68 + bw} 96 Q\${68 + bw} 102 60 102 L40 102 Q\${32 - bw} 102 \${32 - bw} 96 Z" fill="\${outfit}"/>\`;
-				s += \`<path d="M36 70 Q36 62 50 62 Q64 62 64 70 L63 84 L37 84 Z" fill="#ffffff" opacity="0.14"/>\`;
-				s += \`<ellipse cx="\${28 - bw}" cy="76" rx="6" ry="11" fill="\${outfit}" transform="rotate(8 \${28 - bw} 76)"/>\`;
-				s += \`<ellipse cx="\${72 + bw}" cy="76" rx="6" ry="11" fill="\${outfit}" transform="rotate(-8 \${72 + bw} 76)"/>\`;
-				s += \`<ellipse cx="42" cy="103" rx="6.5" ry="4.5" fill="#5d4a36"/><ellipse cx="58" cy="103" rx="6.5" ry="4.5" fill="#5d4a36"/>\`;
-				// head
-				s += \`<circle cx="50" cy="38" r="21" fill="\${skin}"/>\`;
-				if (hairstyle === 'curly' || hairstyle === 'curly-long')
-					s += \`<g fill="\${hair}"><circle cx="34" cy="27" r="9"/><circle cx="44" cy="21" r="10"/><circle cx="56" cy="21" r="10"/><circle cx="66" cy="27" r="9"/><circle cx="29" cy="38" r="7"/><circle cx="71" cy="38" r="7"/></g>\`;
-				if (hairstyle === 'afro')
-					s += \`<g fill="\${hair}"><circle cx="33" cy="26" r="11"/><circle cx="45" cy="18" r="12"/><circle cx="57" cy="18" r="12"/><circle cx="68" cy="26" r="11"/><circle cx="28" cy="39" r="9"/><circle cx="72" cy="39" r="9"/></g>\`;
-				if (hairstyle === 'mohawk')
-					s += \`<path d="M43 24 L46 5 L49 21 L52 3 L55 21 L58 6 L60 24 Q52 19 43 24 Z" fill="\${hair}"/>\`;
-				if (hairstyle === 'spiky')
-					s += \`<path d="M30 33 L33 15 L38 19 L41 10 L46 16 L50 8 L54 16 L59 10 L62 19 L67 15 L70 33 Q60 25 50 24.5 Q40 25 30 33 Z" fill="\${hair}"/>\`;
-				if (hairstyle === 'pixie')
-					s += \`<path d="M29 35 Q29 16 50 15.5 Q70.5 16 71 33.5 Q67.5 27 62 26.5 Q53 32.5 42 31.2 Q33.5 30.5 29 35 Z" fill="\${hair}"/>\`;
-				if (hairstyle === 'cornrows')
-					s += \`<g stroke="\${hair}" stroke-width="3.4" stroke-linecap="round" fill="none"><path d="M31 34 Q32 20 42 17"/><path d="M38 32.5 Q39 19 46.5 16.4"/><path d="M45.5 31.5 Q45.5 18.5 49.5 16.2"/><path d="M54.5 31.5 Q54.5 18.5 50.5 16.2"/><path d="M62 32.5 Q61 19 53.5 16.4"/><path d="M69 34 Q68 20 58 17"/></g>\`;
-				if (hairstyle === 'shag')
-					s += \`<path d="M29 36 Q29 16 50 15.5 Q71 16 71 36 Q66.5 28.5 58 31.5 Q50 27 42 31.5 Q33.5 28.5 29 36 Z" fill="\${hair}"/>\`;
-				if (hairstyle === 'bowl') s += \`<path d="M29 33 Q29 15 50 15 Q71 15 71 33 Z" fill="\${hair}"/>\`;
-				if (hairstyle === 'dreads')
-					s += \`<g fill="\${hair}"><path d="M30 34 Q31 18 50 17 Q69 18 70 34 Q66 26 50 25.5 Q34 26 30 34 Z"/><rect x="31.5" y="17" width="4.8" height="11" rx="2.4"/><rect x="38" y="13" width="4.8" height="14" rx="2.4"/><rect x="44.5" y="11" width="4.8" height="15" rx="2.4"/><rect x="51" y="12" width="4.8" height="14" rx="2.4"/><rect x="57.5" y="14.5" width="4.8" height="13" rx="2.4"/><rect x="63.8" y="18" width="4.8" height="10" rx="2.4"/></g>\`;
-				if (
-					![
-						'curly',
-						'curly-long',
-						'afro',
-						'mohawk',
-						'bald',
-						'spiky',
-						'bowl',
-						'dreads',
-						'pixie',
-						'cornrows',
-						'shag',
-					].includes(hairstyle)
-				)
-					s += \`<path d="M30 34 Q31 18 50 17 Q69 18 70 34 Q66 26 50 25.5 Q34 26 30 34 Z" fill="\${hair}"/>\`;
-				if (hairstyle === 'wavy')
-					s += \`<g fill="\${hair}"><path d="M29.5 27 Q23 46 28 73 Q35.5 66 35.5 44 Q35.8 34 34.5 30 Z"/><path d="M70.5 27 Q77 46 72 73 Q64.5 66 64.5 44 Q64.2 34 65.5 30 Z"/></g>\`;
-				if (hairstyle === 'bun' && bareHead)
-					s += \`<g><circle cx="50" cy="11" r="9" fill="\${hair}"/><rect x="42" y="16" width="16" height="4" rx="2" fill="#c9913f"/></g>\`;
-				if (hairstyle === 'half-up' && bareHead)
-					s += \`<g><ellipse cx="50" cy="13" rx="6.8" ry="5.6" fill="\${hair}"/><rect x="44" y="16.6" width="12" height="3.2" rx="1.6" fill="#c9913f"/></g>\`;
-				if (hairstyle === 'space-buns' && bareHead)
-					s += \`<g fill="\${hair}"><circle cx="33" cy="19.5" r="8"/><circle cx="67" cy="19.5" r="8"/></g>\`;
-				// face
-				s += \`<circle cx="42.5" cy="40" r="2.6" fill="#3b2e25"/><circle cx="57.5" cy="40" r="2.6" fill="#3b2e25"/>\`;
-				s += \`<circle cx="43.3" cy="39.2" r="0.9" fill="#fff"/><circle cx="58.3" cy="39.2" r="0.9" fill="#fff"/>\`;
-				s += \`<path d="M46.5 47 Q50 50 53.5 47" stroke="#3b2e25" stroke-width="1.7" fill="none" stroke-linecap="round"/>\`;
-				s += \`<circle cx="37" cy="45" r="3.4" fill="#e88" opacity="0.35"/><circle cx="63" cy="45" r="3.4" fill="#e88" opacity="0.35"/>\`;
-				if (beard === 'beard')
-					s += \`<g><path d="M32 43 Q34.5 58.5 50 59 Q65.5 58.5 68 43 Q63.5 50.5 56.5 50.8 Q53 50.8 50 49.8 Q47 50.8 43.5 50.8 Q36.5 50.5 32 43 Z" fill="\${hair}"/><path d="M42.5 45.3 Q46 43.6 50 45.1 Q54 43.6 57.5 45.3 Q54 46.9 50 46.2 Q46 46.9 42.5 45.3 Z" fill="\${hair}"/><path d="M46.5 47.2 Q50 50 53.5 47.2" stroke="#3b2e25" stroke-width="1.7" fill="none" stroke-linecap="round"/></g>\`;
-				// hats
-				if (hat === 'straw')
-					s += \`<g><ellipse cx="50" cy="23" rx="27" ry="8" fill="\${hp.a}"/><path d="M36 22 Q36 8 50 8 Q64 8 64 22 Q57 19 50 19 Q43 19 36 22 Z" fill="\${hp.b}"/><path d="M36 20.5 Q50 24.5 64 20.5" stroke="\${hp.line}" stroke-width="3" fill="none"/></g>\`;
-				if (hat === 'leaf')
-					s += \`<g transform="rotate(-8 50 16)"><path d="M28 20 Q42 2 72 9 Q67 26 40 25 Q32 24 28 20 Z" fill="\${hp.a}"/><path d="M30 19.5 Q50 17 68 11" stroke="\${hp.line}" stroke-width="1.8" fill="none"/></g>\`;
-				if (hat === 'beanie')
-					s += \`<g><path d="M31 26 Q31 9 50 9 Q69 9 69 26 L69 28 Q59 24 50 24 Q41 24 31 28 Z" fill="\${hp.a}"/><path d="M31 27.5 Q50 22.5 69 27.5 L69 31 Q50 26.5 31 31 Z" fill="\${hp.b}"/><circle cx="50" cy="8" r="4.5" fill="#e8d8c8"/></g>\`;
-				if (hat === 'cap')
-					s += \`<g><path d="M30 25 Q30 9 50 9 Q70 9 70 25 Z" fill="\${hp.a}"/><path d="M51 24 Q70 22 82 27 Q70 31 51 28 Z" fill="\${hp.b}"/><circle cx="50" cy="10" r="2.4" fill="\${hp.line}"/></g>\`;
-				if (hat === 'bucket')
-					s += \`<g><path d="M35 23 Q35 10 50 10 Q65 10 65 23 Z" fill="\${hp.a}"/><path d="M27 22 L73 22 Q70 30 50 31 Q30 30 27 22 Z" fill="\${hp.b}"/><path d="M35 23 L65 23 L65 25 Q50 27 35 25 Z" fill="\${hp.b}"/></g>\`;
-				if (hat === 'flower') {
-					let g = \`<g><path d="M29 25 Q50 31 71 25" stroke="#5d8a4a" stroke-width="4.5" fill="none" stroke-linecap="round"/>\`;
-					[32, 43, 54, 65].forEach((x, i) => {
-						g += \`<g>\`;
-						[0, 1.26, 2.51, 3.77, 5.03].forEach((ang) => {
-							g += \`<circle cx="\${x + Math.cos(ang) * 3.4}" cy="\${24 + Math.sin(ang) * 3.4}" r="2.4" fill="\${fl[i]}"/>\`;
-						});
-						g += \`<circle cx="\${x}" cy="24" r="1.7" fill="#fff3c4"/></g>\`;
-					});
-					s += g + \`</g>\`;
-				}
-				if (hat === 'party')
-					s += \`<g><path d="M50 1 L39 26 L61 26 Z" fill="\${hp.a}"/><path d="M50 1 L45.5 12 L54.5 12 Z" fill="\${hp.b}"/><path d="M43.5 19 L56.5 19 L58 26 L42 26 Z" fill="\${hp.line}"/><circle cx="50" cy="2" r="3.4" fill="#f4e08a"/></g>\`;
-				if (hat === 'ranger')
-					s += \`<g><ellipse cx="50" cy="23" rx="29" ry="7" fill="\${hp.a}"/><path d="M37 22 Q37 8 50 8 Q63 8 63 22 Q57 18.5 50 18.5 Q43 18.5 37 22 Z" fill="\${hp.b}"/><path d="M37 21 Q50 25 63 21" stroke="\${hp.line}" stroke-width="3" fill="none"/></g>\`;
-				if (hat === 'acorn')
-					s += \`<g><path d="M29 27 Q29 8 50 8 Q71 8 71 27 Q60 23 50 23 Q40 23 29 27 Z" fill="\${hp.a}"/><g stroke="\${hp.line}" stroke-width="1.2" fill="none" opacity="0.55"><path d="M36 11 L33.5 25.5"/><path d="M43 8.8 L41.5 24"/><path d="M50 8.2 L50 23.2"/><path d="M57 8.8 L58.5 24"/><path d="M64 11 L66.5 25.5"/></g><path d="M50 8 L50 2.5" stroke="\${hp.line}" stroke-width="3.2" stroke-linecap="round"/><circle cx="50" cy="2.5" r="2.2" fill="\${hp.b}"/></g>\`;
-				if (hat === 'beret')
-					s += \`<g><path d="M28 26 Q25.5 12 47 9.5 Q70 7.5 74.5 19 Q76.5 25.5 66 27.5 Q47 30.5 28 26 Z" fill="\${hp.a}"/><path d="M28 26 Q47 30.5 66 27.5 Q49 33 30 29.5 Z" fill="\${hp.line}"/><circle cx="47.5" cy="9" r="2.8" fill="\${hp.b}"/></g>\`;
-				if (hat === 'mushroom')
-					s += \`<g><path d="M29 22 Q29 3 50 3 Q71 3 71 22 Q71 25 67 25 L33 25 Q29 25 29 22 Z" fill="\${hp.a}"/><path d="M33 25 L67 25 Q60 28.5 50 28.5 Q40 28.5 33 25 Z" fill="\${hp.line}"/><circle cx="40" cy="11" r="3.4" fill="#f6efe3"/><circle cx="56" cy="8.5" r="4" fill="#f6efe3"/><circle cx="63" cy="17" r="2.6" fill="#f6efe3"/><circle cx="45" cy="18" r="2" fill="#f6efe3"/></g>\`;
-				if (hat === 'wizard')
-					s += \`<g><ellipse cx="50" cy="22" rx="26" ry="7" fill="\${hp.a}"/><path d="M53 -6 Q50 6 61 22 L38 22 Q50 9 53 -6 Z" fill="\${hp.b}"/><path d="M39 21 Q50 17.5 60 21" stroke="\${hp.line}" stroke-width="3" fill="none"/><path d="M55 6 L56.2 9 L59.4 9.2 L56.9 11.1 L57.8 14.2 L55 12.4 L52.2 14.2 L53.1 11.1 L50.6 9.2 L53.8 9 Z" fill="#f4e08a"/></g>\`;
-				if (hat === 'crown')
-					s += \`<g><path d="M36 24 L36 11 L42.5 17.5 L50 7 L57.5 17.5 L64 11 L64 24 Q50 20 36 24 Z" fill="\${hp.a}"/><path d="M36 24 L64 24 L64 27 Q50 23 36 27 Z" fill="\${hp.line}"/><circle cx="50" cy="20" r="2.1" fill="#c0503f"/><circle cx="42" cy="21.4" r="1.5" fill="#3f6fa8"/><circle cx="58" cy="21.4" r="1.5" fill="#3f6fa8"/></g>\`;
-				if (hat === 'bandana')
-					s += \`<g><path d="M30 32 Q30 12 50 11 Q70 12 70 32 Q60 24 50 24 Q40 24 30 32 Z" fill="\${hp.a}"/><path d="M33 26 Q50 20 67 26" stroke="\${hp.line}" stroke-width="2" fill="none" opacity="0.6"/><path d="M68 25 L79 29 L71 33 Z" fill="\${hp.a}"/><path d="M70 30 L77.5 39 L68.5 35.5 Z" fill="\${hp.b}"/><circle cx="44" cy="17.5" r="1.2" fill="#fff" opacity="0.55"/><circle cx="56" cy="17.5" r="1.2" fill="#fff" opacity="0.55"/><circle cx="50" cy="14" r="1.2" fill="#fff" opacity="0.55"/></g>\`;
-				if (hat === 'tophat')
-					s += \`<g><ellipse cx="50" cy="24" rx="30" ry="6.5" fill="\${hp.b}"/><path d="M37.5 24 L37.5 0 Q50 -2 62.5 0 L62.5 24 Z" fill="\${hp.a}"/><rect x="37.5" y="16.5" width="25" height="5" fill="\${hp.line}"/><circle cx="58.5" cy="19" r="1.6" fill="#f4e08a"/></g>\`;
-				if (hat === 'chef')
-					s += \`<g><g fill="\${hp.b}"><circle cx="38" cy="10" r="9"/><circle cx="50" cy="5.5" r="10.5"/><circle cx="62" cy="10" r="9"/></g><path d="M36 12 L64 12 L64 23.5 Q50 26 36 23.5 Z" fill="\${hp.a}"/><path d="M36 20 Q50 22.5 64 20" stroke="\${hp.line}" stroke-width="2" fill="none"/></g>\`;
-				if (hat === 'pirate')
-					s += \`<g><path d="M16 29 Q19 12 33 7 Q41 15 50 15 Q59 15 67 7 Q81 12 84 29 Q67 27.5 50 27.5 Q33 27.5 16 29 Z" fill="\${hp.a}"/><path d="M16 29 Q33 34.5 50 34.5 Q67 34.5 84 29 Q67 26.5 50 26.5 Q33 26.5 16 29 Z" fill="\${hp.b}"/><path d="M21 27 Q35 22.5 50 22 Q65 22.5 79 27" stroke="\${hp.line}" stroke-width="1.5" fill="none" opacity="0.5"/><circle cx="50" cy="19" r="4.2" fill="#f6efe3"/><circle cx="48.4" cy="18.4" r="1.1" fill="\${hp.a}"/><circle cx="51.6" cy="18.4" r="1.1" fill="\${hp.a}"/><path d="M46.8 22.2 L53.2 22.2 L52 24.4 L48 24.4 Z" fill="#f6efe3"/></g>\`;
-				if (hat === 'witch')
-					s += \`<g><ellipse cx="50" cy="25" rx="31" ry="7.5" fill="\${hp.a}"/><path d="M64 -8 Q54 4 61 25 L39 25 Q50 8 64 -8 Z" fill="\${hp.b}"/><rect x="40" y="19.5" width="21" height="5.5" fill="\${hp.line}"/><rect x="47.5" y="20.4" width="5" height="3.7" fill="#e0b23e"/></g>\`;
-				if (hat === 'newspaper')
-					s += \`<g><path d="M25 29 L25 16 L50 6 L75 16 L75 29 Z" fill="\${hp.a}"/><path d="M23 27.5 L77 27.5 Q75 32.5 50 34 Q25 32.5 23 27.5 Z" fill="\${hp.b}"/><g stroke="\${hp.line}" stroke-width="1.1" stroke-linecap="round" opacity="0.75"><path d="M33 17.5 L67 17.5"/><path d="M31 21.5 L69 21.5"/><path d="M31 25.5 L69 25.5"/></g></g>\`;
-				if (hat === 'frog')
-					s += \`<g><path d="M29 30 Q29 11 50 11 Q71 11 71 30 Q60 25.5 50 25.5 Q40 25.5 29 30 Z" fill="\${hp.a}"/><circle cx="37" cy="12" r="7.5" fill="\${hp.a}"/><circle cx="63" cy="12" r="7.5" fill="\${hp.a}"/><circle cx="37" cy="11" r="4.6" fill="#fdf6e8"/><circle cx="63" cy="11" r="4.6" fill="#fdf6e8"/><circle cx="37" cy="11.6" r="2.3" fill="#2b2b2b"/><circle cx="63" cy="11.6" r="2.3" fill="#2b2b2b"/></g>\`;
-				if (
-					bareHead &&
-					![
-						'curly',
-						'curly-long',
-						'afro',
-						'mohawk',
-						'bun',
-						'bald',
-						'spiky',
-						'bowl',
-						'dreads',
-						'pixie',
-						'cornrows',
-						'shag',
-					].includes(hairstyle)
-				)
-					s += \`<path d="M31 32 Q31 14 50 14 Q69 14 69 32 Q66 22 50 21 Q34 22 31 32 Z" fill="\${hair}"/>\`;
-				if (hat === 'cat-ears')
-					s += \`<g><path d="M33 25 L36.5 6 L49.5 20.5 Z" fill="\${hp.a}"/><path d="M67 25 L63.5 6 L50.5 20.5 Z" fill="\${hp.a}"/><path d="M36.8 21.5 L38.6 12 L45 19 Z" fill="#e8a0b0"/><path d="M63.2 21.5 L61.4 12 L55 19 Z" fill="#e8a0b0"/></g>\`;
-				if (hat === 'visor')
-					s += \`<g><path d="M23 30 Q23 22 50 22 Q77 22 77 30 Q64 26.5 50 26.5 Q36 26.5 23 30 Z" fill="\${hp.b}"/><path d="M30 27.5 Q30 19.5 50 19.5 Q70 19.5 70 27.5 Q60 24.5 50 24.5 Q40 24.5 30 27.5 Z" fill="\${hp.a}"/><path d="M32.5 24.5 Q50 21.4 67.5 24.5" stroke="\${hp.line}" stroke-width="1.6" fill="none" opacity="0.7"/></g>\`;
-				if (hat === 'halo')
-					s += \`<g><ellipse cx="50" cy="9" rx="16" ry="4.6" fill="none" stroke="\${hp.a}" stroke-width="3.6"/><ellipse cx="50" cy="9" rx="16" ry="4.6" fill="none" stroke="\${hp.b}" stroke-width="1.3"/><circle cx="63" cy="6.5" r="1.5" fill="#fff3c4"/></g>\`;
-				if (hat === 'headphones')
-					s += \`<g><path d="M28 40 Q28 12 50 12 Q72 12 72 40" stroke="\${hp.a}" stroke-width="5" fill="none" stroke-linecap="round"/><rect x="22.5" y="32" width="11" height="17" rx="5" fill="\${hp.b}"/><rect x="66.5" y="32" width="11" height="17" rx="5" fill="\${hp.b}"/><rect x="25.5" y="35.5" width="5" height="10" rx="2.5" fill="\${hp.line}"/><rect x="69.5" y="35.5" width="5" height="10" rx="2.5" fill="\${hp.line}"/></g>\`;
-				return \`<svg viewBox="0 0 100 113" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Anonymous caretaker">\${s}</svg>\`;
-			}
+/* ------------------------------------------------------------------ *
+ * Color helpers — ported 1:1 from src/color.ts so avatars match the
+ * exact palette the game renders in-app.
+ * ------------------------------------------------------------------ */
+function hexToHsl(hex) {
+	let c = String(hex || "#000000").replace("#", "");
+	if (c.length === 3) c = c.split("").map((ch) => ch + ch).join("");
+	const r = parseInt(c.slice(0, 2), 16) / 255;
+	const g = parseInt(c.slice(2, 4), 16) / 255;
+	const b = parseInt(c.slice(4, 6), 16) / 255;
+	const max = Math.max(r, g, b), min = Math.min(r, g, b);
+	const l = (max + min) / 2;
+	if (max === min) return { h: 0, s: 0, l: l * 100 };
+	const d = max - min;
+	const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+	let h;
+	if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) * 60;
+	else if (max === g) h = ((b - r) / d + 2) * 60;
+	else h = ((r - g) / d + 4) * 60;
+	return { h, s: s * 100, l: l * 100 };
+}
+function hslToHex(h, s, l) {
+	h = ((h % 360) + 360) % 360;
+	s = Math.max(0, Math.min(100, s)) / 100;
+	l = Math.max(0, Math.min(100, l)) / 100;
+	const k = (n) => (n + h / 30) % 12;
+	const a = s * Math.min(l, 1 - l);
+	const f = (n) => l - a * Math.max(-1, Math.min(k(n) - 3, Math.min(9 - k(n), 1)));
+	const to = (v) => Math.round(v * 255).toString(16).padStart(2, "0");
+	return \`#\${to(f(0))}\${to(f(8))}\${to(f(4))}\`;
+}
+function shade(hex, dl) { const { h, s, l } = hexToHsl(hex); return hslToHex(h, s, l + dl); }
+const HAT_BASE = {
+	straw: { a: "#c9a35c", b: "#d8b56e", line: "#a3814f" },
+	leaf: { a: "#5d8a4a", line: "#436b35" },
+	beanie: { a: "#b5707a", b: "#9e5f69" },
+	cap: { a: "#5f86b0", b: "#4f739a", line: "#3f5f80" },
+	bucket: { a: "#9aa86a", b: "#86945a" },
+	party: { a: "#d77bb1", b: "#e89ac0", line: "#b45f95" },
+	flower: { a: "#e87a9e" },
+	wizard: { a: "#7d6b9e", b: "#8f7bb5", line: "#645380" },
+	crown: { a: "#e0b23e", b: "#f0c95e", line: "#b8902e" },
+	mushroom: { a: "#c9584c", b: "#d4685c", line: "#a84237" },
+	ranger: { a: "#8a734f", b: "#9c845c", line: "#5d4a36" },
+	bandana: { a: "#b05555", b: "#c96a5f", line: "#8d3f3f" },
+	visor: { a: "#4f9a94", b: "#5fada6", line: "#3a7a74" },
+	acorn: { a: "#a0763f", b: "#b0854b", line: "#7a5730" },
+	beret: { a: "#a8455a", b: "#bc5a6e", line: "#843546" },
+	witch: { a: "#2f2a3a", b: "#3c3550", line: "#211d2b" },
+	newspaper: { a: "#e8e4d8", b: "#d8d3c4", line: "#a29a8a" },
+	frog: { a: "#6aa84f", b: "#7cb95f", line: "#4f8038" },
+	"cat-ears": { a: "#4a444f", b: "#5a5461", line: "#332f3a" },
+	tophat: { a: "#3f3b47", b: "#4d4857", line: "#2b2833" },
+	chef: { a: "#f2efe6", b: "#fbf9f3", line: "#d5d0c2" },
+	pirate: { a: "#3a3340", b: "#4a4252", line: "#272231" },
+	headphones: { a: "#5c6470", b: "#6f7885", line: "#3f4650" },
+	halo: { a: "#f4d97a", b: "#fbeaa8", line: "#d0ae45" },
+};
+function hatPalette(hat, custom) {
+	const base = HAT_BASE[hat] || HAT_BASE.straw;
+	if (!custom) return { a: base.a, b: base.b ?? shade(base.a, 8), line: base.line ?? shade(base.a, -14) };
+	return { a: custom, b: shade(custom, 8), line: shade(custom, -14) };
+}
+function flowerPalette(custom) {
+	const base = ["#e87a9e", "#f4c95f", "#c45ad0", "#e8954f"];
+	if (!custom) return base;
+	const c = hexToHsl(custom), b0 = hexToHsl(base[0]);
+	return base.map((hex) => { const b = hexToHsl(hex); return hslToHex(c.h + (b.h - b0.h), c.s + (b.s - b0.s), c.l + (b.l - b0.l)); });
+}
 
-			/* ------------------------------------------------------------------ *
-			 * Render building blocks
-			 * ------------------------------------------------------------------ */
-			function kpi(v, k, hint) {
-				return \`<div class="card kpi"><div class="v">\${v}</div><div class="k">\${k}</div>\${hint ? \`<div class="hint">\${hint}</div>\` : ''}</div>\`;
-			}
-			function barRows(entries, opts) {
-				opts = opts || {};
-				const cls = opts.cls || '';
-				const rows = entries.filter((e) => e).map((e) => [e[0], n(e[1])]);
-				if (!rows.length) return \`<div class="emptynote">No data yet.</div>\`;
-				const max = opts.max || Math.max(...rows.map((r) => r[1]), 1);
-				return \`<div class="bars">\${rows
-					.map(
-						([lab, val]) =>
-							\`<div class="bar"><span class="lab" title="\${esc(lab)}">\${esc(opts.labelMap ? opts.labelMap[lab] || lab : lab)}</span>\` +
-							\`<span class="track"><span class="fill \${cls}" style="width:\${Math.max(2, (val / max) * 100)}%"></span></span>\` +
-							\`<span class="num">\${opts.fmtNum ? opts.fmtNum(val) : fmt(val)}</span></div>\`,
-					)
-					.join('')}</div>\`;
-			}
-			function objToEntries(obj) {
-				return Object.entries(obj || {}).sort((a, b) => n(b[1]) - n(a[1]));
-			}
+/* small helpers */
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const n = (x) => (x == null || isNaN(x) ? 0 : x);
+const fmt = (x) => n(x).toLocaleString("en-US");
+const pct = (x) => \`\${Math.round(n(x))}%\`;
 
-			function donut(segments, size) {
-				size = size || 128;
-				const total = segments.reduce((a, s) => a + n(s.value), 0) || 1;
-				const r = size / 2 - 10,
-					cx = size / 2,
-					cy = size / 2,
-					C = 2 * Math.PI * r;
-				let off = 0;
-				const rings = segments
-					.map((s) => {
-						const frac = n(s.value) / total;
-						const dash = \`\${frac * C} \${C - frac * C}\`;
-						const el = \`<circle cx="\${cx}" cy="\${cy}" r="\${r}" fill="none" stroke="\${s.color}" stroke-width="16" stroke-dasharray="\${dash}" stroke-dashoffset="\${-off * C}" transform="rotate(-90 \${cx} \${cy})"/>\`;
-						off += frac;
-						return el;
-					})
-					.join('');
-				const svg = \`<svg width="\${size}" height="\${size}" viewBox="0 0 \${size} \${size}">\${rings}<text x="\${cx}" y="\${cy - 2}" text-anchor="middle" font-size="20" font-weight="700" fill="#2f3a27">\${fmt(total)}</text><text x="\${cx}" y="\${cy + 16}" text-anchor="middle" font-size="10" fill="#9aa189">total</text></svg>\`;
-				const legend = \`<div class="legend">\${segments.map((s) => \`<span class="li"><span class="sw" style="background:\${s.color}"></span>\${esc(s.label)} · <b>\${fmt(s.value)}</b></span>\`).join('')}</div>\`;
-				return \`<div class="donutwrap">\${svg}<div>\${legend}</div></div>\`;
-			}
+/* ------------------------------------------------------------------ *
+ * Avatar — ported from CharacterPreview (src/ui/icons.tsx). Returns an
+ * SVG string. Names are never rendered.
+ * ------------------------------------------------------------------ */
+function avatarSVG(app) {
+	const a = app || {};
+	const skin = a.skin || "#eec39a", hair = a.hair || "#6e4a33", outfit = a.outfit || "#4a7c59";
+	const hat = a.hat || "none", hatColor = a.hatColor || null;
+	const hairstyle = a.hairstyle || "short", beard = a.beard || "none", body = a.body || "slim";
+	const bw = body === "round" ? 8 : 0;
+	const hp = hatPalette(hat, hatColor);
+	const fl = flowerPalette(hatColor);
+	// visor, halo and headphones layer over the hair rather than covering it
+	const bareHead = hat === "none" || hat === "halo" || hat === "headphones" || hat === "visor" || hat === "cat-ears";
+	let s = "";
+	s += \`<ellipse cx="50" cy="104" rx="\${26 + bw / 2}" ry="7" fill="#000" opacity="0.12"/>\`;
+	if (hairstyle === "long") s += \`<path d="M29 30 Q26 78 34 86 L66 86 Q74 78 71 30 Z" fill="\${hair}"/>\`;
+	if (hairstyle === "curly-long") s += \`<g fill="\${hair}"><path d="M29 30 Q26 76 34 84 L66 84 Q74 76 71 30 Z"/><circle cx="31" cy="62" r="8"/><circle cx="69" cy="62" r="8"/><circle cx="33" cy="78" r="8"/><circle cx="67" cy="78" r="8"/><circle cx="50" cy="84" r="9"/><circle cx="41" cy="83" r="8"/><circle cx="59" cy="83" r="8"/></g>\`;
+	if (hairstyle === "ponytail") s += \`<g fill="\${hair}"><ellipse cx="67" cy="32" rx="9" ry="10"/><ellipse cx="75" cy="47" rx="8" ry="13"/><ellipse cx="75" cy="61" rx="6.5" ry="11"/></g><ellipse cx="73" cy="41" rx="4.5" ry="3.2" fill="#c9913f"/>\`;
+	if (hairstyle === "pigtails") s += \`<g fill="\${hair}"><ellipse cx="27" cy="33" rx="8.5" ry="10"/><ellipse cx="21" cy="49" rx="7.5" ry="12"/><ellipse cx="73" cy="33" rx="8.5" ry="10"/><ellipse cx="79" cy="49" rx="7.5" ry="12"/></g><ellipse cx="24" cy="42" rx="4.2" ry="3" fill="#c9913f"/><ellipse cx="76" cy="42" rx="4.2" ry="3" fill="#c9913f"/>\`;
+	if (hairstyle === "afro") s += \`<circle cx="50" cy="33" r="28" fill="\${hair}"/>\`;
+	if (hairstyle === "bob") s += \`<g fill="\${hair}"><ellipse cx="30" cy="42" rx="8" ry="14"/><ellipse cx="70" cy="42" rx="8" ry="14"/></g>\`;
+	if (hairstyle === "braid") s += \`<g fill="\${hair}"><ellipse cx="68" cy="34" rx="8" ry="9"/><circle cx="71" cy="49" r="6.2"/><circle cx="73" cy="58" r="5.5"/><circle cx="74.5" cy="66" r="4.8"/><circle cx="75" cy="73" r="4"/></g><ellipse cx="75" cy="78.5" rx="3.2" ry="2.4" fill="#c9913f"/>\`;
+	if (hairstyle === "wavy") s += \`<path d="M29 30 Q24 50 30 60 Q23 71 31 85 L69 85 Q77 71 70 60 Q76 50 71 30 Z" fill="\${hair}"/>\`;
+	if (hairstyle === "dreads") s += \`<g fill="\${hair}"><ellipse cx="30" cy="36" rx="7.5" ry="9"/><ellipse cx="70" cy="36" rx="7.5" ry="9"/><rect x="21" y="36" width="6" height="40" rx="3"/><rect x="28" y="40" width="6" height="34" rx="3"/><rect x="66" y="40" width="6" height="34" rx="3"/><rect x="73" y="36" width="6" height="40" rx="3"/></g>\`;
+	if (hairstyle === "double-braid") s += \`<g fill="\${hair}"><ellipse cx="32" cy="34" rx="8" ry="9"/><circle cx="29" cy="49" r="6.2"/><circle cx="27" cy="58" r="5.5"/><circle cx="25.5" cy="66" r="4.8"/><circle cx="25" cy="73" r="4"/><ellipse cx="68" cy="34" rx="8" ry="9"/><circle cx="71" cy="49" r="6.2"/><circle cx="73" cy="58" r="5.5"/><circle cx="74.5" cy="66" r="4.8"/><circle cx="75" cy="73" r="4"/></g><ellipse cx="25" cy="78.5" rx="3.2" ry="2.4" fill="#c9913f"/><ellipse cx="75" cy="78.5" rx="3.2" ry="2.4" fill="#c9913f"/>\`;
+	if (hairstyle === "half-up") s += \`<path d="M29 30 Q26 76 34 85 L66 85 Q74 76 71 30 Z" fill="\${hair}"/>\`;
+	if (hairstyle === "shag") s += \`<g fill="\${hair}"><path d="M28 30 Q25 50 30 63 L70 63 Q75 50 72 30 Z"/><path d="M28.5 50 L23 67 L33 61 Z"/><path d="M71.5 50 L77 67 L67 61 Z"/></g>\`;
+	// body
+	s += \`<path d="M\${30 - bw} 70 Q\${30 - bw} 56 50 56 Q\${70 + bw} 56 \${70 + bw} 70 L\${68 + bw} 96 Q\${68 + bw} 102 60 102 L40 102 Q\${32 - bw} 102 \${32 - bw} 96 Z" fill="\${outfit}"/>\`;
+	s += \`<path d="M36 70 Q36 62 50 62 Q64 62 64 70 L63 84 L37 84 Z" fill="#ffffff" opacity="0.14"/>\`;
+	s += \`<ellipse cx="\${28 - bw}" cy="76" rx="6" ry="11" fill="\${outfit}" transform="rotate(8 \${28 - bw} 76)"/>\`;
+	s += \`<ellipse cx="\${72 + bw}" cy="76" rx="6" ry="11" fill="\${outfit}" transform="rotate(-8 \${72 + bw} 76)"/>\`;
+	s += \`<ellipse cx="42" cy="103" rx="6.5" ry="4.5" fill="#5d4a36"/><ellipse cx="58" cy="103" rx="6.5" ry="4.5" fill="#5d4a36"/>\`;
+	// head
+	s += \`<circle cx="50" cy="38" r="21" fill="\${skin}"/>\`;
+	if (hairstyle === "curly" || hairstyle === "curly-long") s += \`<g fill="\${hair}"><circle cx="34" cy="27" r="9"/><circle cx="44" cy="21" r="10"/><circle cx="56" cy="21" r="10"/><circle cx="66" cy="27" r="9"/><circle cx="29" cy="38" r="7"/><circle cx="71" cy="38" r="7"/></g>\`;
+	if (hairstyle === "afro") s += \`<g fill="\${hair}"><circle cx="33" cy="26" r="11"/><circle cx="45" cy="18" r="12"/><circle cx="57" cy="18" r="12"/><circle cx="68" cy="26" r="11"/><circle cx="28" cy="39" r="9"/><circle cx="72" cy="39" r="9"/></g>\`;
+	if (hairstyle === "mohawk") s += \`<path d="M43 24 L46 5 L49 21 L52 3 L55 21 L58 6 L60 24 Q52 19 43 24 Z" fill="\${hair}"/>\`;
+	if (hairstyle === "spiky") s += \`<path d="M30 33 L33 15 L38 19 L41 10 L46 16 L50 8 L54 16 L59 10 L62 19 L67 15 L70 33 Q60 25 50 24.5 Q40 25 30 33 Z" fill="\${hair}"/>\`;
+	if (hairstyle === "pixie") s += \`<path d="M29 35 Q29 16 50 15.5 Q70.5 16 71 33.5 Q67.5 27 62 26.5 Q53 32.5 42 31.2 Q33.5 30.5 29 35 Z" fill="\${hair}"/>\`;
+	if (hairstyle === "cornrows") s += \`<g stroke="\${hair}" stroke-width="3.4" stroke-linecap="round" fill="none"><path d="M31 34 Q32 20 42 17"/><path d="M38 32.5 Q39 19 46.5 16.4"/><path d="M45.5 31.5 Q45.5 18.5 49.5 16.2"/><path d="M54.5 31.5 Q54.5 18.5 50.5 16.2"/><path d="M62 32.5 Q61 19 53.5 16.4"/><path d="M69 34 Q68 20 58 17"/></g>\`;
+	if (hairstyle === "shag") s += \`<path d="M29 36 Q29 16 50 15.5 Q71 16 71 36 Q66.5 28.5 58 31.5 Q50 27 42 31.5 Q33.5 28.5 29 36 Z" fill="\${hair}"/>\`;
+	if (hairstyle === "bowl") s += \`<path d="M29 33 Q29 15 50 15 Q71 15 71 33 Z" fill="\${hair}"/>\`;
+	if (hairstyle === "dreads") s += \`<g fill="\${hair}"><path d="M30 34 Q31 18 50 17 Q69 18 70 34 Q66 26 50 25.5 Q34 26 30 34 Z"/><rect x="31.5" y="17" width="4.8" height="11" rx="2.4"/><rect x="38" y="13" width="4.8" height="14" rx="2.4"/><rect x="44.5" y="11" width="4.8" height="15" rx="2.4"/><rect x="51" y="12" width="4.8" height="14" rx="2.4"/><rect x="57.5" y="14.5" width="4.8" height="13" rx="2.4"/><rect x="63.8" y="18" width="4.8" height="10" rx="2.4"/></g>\`;
+	if (!["curly", "curly-long", "afro", "mohawk", "bald", "spiky", "bowl", "dreads", "pixie", "cornrows", "shag"].includes(hairstyle))
+		s += \`<path d="M30 34 Q31 18 50 17 Q69 18 70 34 Q66 26 50 25.5 Q34 26 30 34 Z" fill="\${hair}"/>\`;
+	if (hairstyle === "wavy") s += \`<g fill="\${hair}"><path d="M29.5 27 Q23 46 28 73 Q35.5 66 35.5 44 Q35.8 34 34.5 30 Z"/><path d="M70.5 27 Q77 46 72 73 Q64.5 66 64.5 44 Q64.2 34 65.5 30 Z"/></g>\`;
+	if (hairstyle === "bun" && bareHead) s += \`<g><circle cx="50" cy="11" r="9" fill="\${hair}"/><rect x="42" y="16" width="16" height="4" rx="2" fill="#c9913f"/></g>\`;
+	if (hairstyle === "half-up" && bareHead) s += \`<g><ellipse cx="50" cy="13" rx="6.8" ry="5.6" fill="\${hair}"/><rect x="44" y="16.6" width="12" height="3.2" rx="1.6" fill="#c9913f"/></g>\`;
+	if (hairstyle === "space-buns" && bareHead) s += \`<g fill="\${hair}"><circle cx="33" cy="19.5" r="8"/><circle cx="67" cy="19.5" r="8"/></g>\`;
+	// face
+	s += \`<circle cx="42.5" cy="40" r="2.6" fill="#3b2e25"/><circle cx="57.5" cy="40" r="2.6" fill="#3b2e25"/>\`;
+	s += \`<circle cx="43.3" cy="39.2" r="0.9" fill="#fff"/><circle cx="58.3" cy="39.2" r="0.9" fill="#fff"/>\`;
+	s += \`<path d="M46.5 47 Q50 50 53.5 47" stroke="#3b2e25" stroke-width="1.7" fill="none" stroke-linecap="round"/>\`;
+	s += \`<circle cx="37" cy="45" r="3.4" fill="#e88" opacity="0.35"/><circle cx="63" cy="45" r="3.4" fill="#e88" opacity="0.35"/>\`;
+	if (beard === "beard") s += \`<g><path d="M32 43 Q34.5 58.5 50 59 Q65.5 58.5 68 43 Q63.5 50.5 56.5 50.8 Q53 50.8 50 49.8 Q47 50.8 43.5 50.8 Q36.5 50.5 32 43 Z" fill="\${hair}"/><path d="M42.5 45.3 Q46 43.6 50 45.1 Q54 43.6 57.5 45.3 Q54 46.9 50 46.2 Q46 46.9 42.5 45.3 Z" fill="\${hair}"/><path d="M46.5 47.2 Q50 50 53.5 47.2" stroke="#3b2e25" stroke-width="1.7" fill="none" stroke-linecap="round"/></g>\`;
+	// hats
+	if (hat === "straw") s += \`<g><ellipse cx="50" cy="23" rx="27" ry="8" fill="\${hp.a}"/><path d="M36 22 Q36 8 50 8 Q64 8 64 22 Q57 19 50 19 Q43 19 36 22 Z" fill="\${hp.b}"/><path d="M36 20.5 Q50 24.5 64 20.5" stroke="\${hp.line}" stroke-width="3" fill="none"/></g>\`;
+	if (hat === "leaf") s += \`<g transform="rotate(-8 50 16)"><path d="M28 20 Q42 2 72 9 Q67 26 40 25 Q32 24 28 20 Z" fill="\${hp.a}"/><path d="M30 19.5 Q50 17 68 11" stroke="\${hp.line}" stroke-width="1.8" fill="none"/></g>\`;
+	if (hat === "beanie") s += \`<g><path d="M31 26 Q31 9 50 9 Q69 9 69 26 L69 28 Q59 24 50 24 Q41 24 31 28 Z" fill="\${hp.a}"/><path d="M31 27.5 Q50 22.5 69 27.5 L69 31 Q50 26.5 31 31 Z" fill="\${hp.b}"/><circle cx="50" cy="8" r="4.5" fill="#e8d8c8"/></g>\`;
+	if (hat === "cap") s += \`<g><path d="M30 25 Q30 9 50 9 Q70 9 70 25 Z" fill="\${hp.a}"/><path d="M51 24 Q70 22 82 27 Q70 31 51 28 Z" fill="\${hp.b}"/><circle cx="50" cy="10" r="2.4" fill="\${hp.line}"/></g>\`;
+	if (hat === "bucket") s += \`<g><path d="M35 23 Q35 10 50 10 Q65 10 65 23 Z" fill="\${hp.a}"/><path d="M27 22 L73 22 Q70 30 50 31 Q30 30 27 22 Z" fill="\${hp.b}"/><path d="M35 23 L65 23 L65 25 Q50 27 35 25 Z" fill="\${hp.b}"/></g>\`;
+	if (hat === "flower") {
+		let g = \`<g><path d="M29 25 Q50 31 71 25" stroke="#5d8a4a" stroke-width="4.5" fill="none" stroke-linecap="round"/>\`;
+		[32, 43, 54, 65].forEach((x, i) => {
+			g += \`<g>\`;
+			[0, 1.26, 2.51, 3.77, 5.03].forEach((ang) => { g += \`<circle cx="\${x + Math.cos(ang) * 3.4}" cy="\${24 + Math.sin(ang) * 3.4}" r="2.4" fill="\${fl[i]}"/>\`; });
+			g += \`<circle cx="\${x}" cy="24" r="1.7" fill="#fff3c4"/></g>\`;
+		});
+		s += g + \`</g>\`;
+	}
+	if (hat === "party") s += \`<g><path d="M50 1 L39 26 L61 26 Z" fill="\${hp.a}"/><path d="M50 1 L45.5 12 L54.5 12 Z" fill="\${hp.b}"/><path d="M43.5 19 L56.5 19 L58 26 L42 26 Z" fill="\${hp.line}"/><circle cx="50" cy="2" r="3.4" fill="#f4e08a"/></g>\`;
+	if (hat === "ranger") s += \`<g><ellipse cx="50" cy="23" rx="29" ry="7" fill="\${hp.a}"/><path d="M37 22 Q37 8 50 8 Q63 8 63 22 Q57 18.5 50 18.5 Q43 18.5 37 22 Z" fill="\${hp.b}"/><path d="M37 21 Q50 25 63 21" stroke="\${hp.line}" stroke-width="3" fill="none"/></g>\`;
+	if (hat === "acorn") s += \`<g><path d="M29 27 Q29 8 50 8 Q71 8 71 27 Q60 23 50 23 Q40 23 29 27 Z" fill="\${hp.a}"/><g stroke="\${hp.line}" stroke-width="1.2" fill="none" opacity="0.55"><path d="M36 11 L33.5 25.5"/><path d="M43 8.8 L41.5 24"/><path d="M50 8.2 L50 23.2"/><path d="M57 8.8 L58.5 24"/><path d="M64 11 L66.5 25.5"/></g><path d="M50 8 L50 2.5" stroke="\${hp.line}" stroke-width="3.2" stroke-linecap="round"/><circle cx="50" cy="2.5" r="2.2" fill="\${hp.b}"/></g>\`;
+	if (hat === "beret") s += \`<g><path d="M28 26 Q25.5 12 47 9.5 Q70 7.5 74.5 19 Q76.5 25.5 66 27.5 Q47 30.5 28 26 Z" fill="\${hp.a}"/><path d="M28 26 Q47 30.5 66 27.5 Q49 33 30 29.5 Z" fill="\${hp.line}"/><circle cx="47.5" cy="9" r="2.8" fill="\${hp.b}"/></g>\`;
+	if (hat === "mushroom") s += \`<g><path d="M29 22 Q29 3 50 3 Q71 3 71 22 Q71 25 67 25 L33 25 Q29 25 29 22 Z" fill="\${hp.a}"/><path d="M33 25 L67 25 Q60 28.5 50 28.5 Q40 28.5 33 25 Z" fill="\${hp.line}"/><circle cx="40" cy="11" r="3.4" fill="#f6efe3"/><circle cx="56" cy="8.5" r="4" fill="#f6efe3"/><circle cx="63" cy="17" r="2.6" fill="#f6efe3"/><circle cx="45" cy="18" r="2" fill="#f6efe3"/></g>\`;
+	if (hat === "wizard") s += \`<g><ellipse cx="50" cy="22" rx="26" ry="7" fill="\${hp.a}"/><path d="M53 -6 Q50 6 61 22 L38 22 Q50 9 53 -6 Z" fill="\${hp.b}"/><path d="M39 21 Q50 17.5 60 21" stroke="\${hp.line}" stroke-width="3" fill="none"/><path d="M55 6 L56.2 9 L59.4 9.2 L56.9 11.1 L57.8 14.2 L55 12.4 L52.2 14.2 L53.1 11.1 L50.6 9.2 L53.8 9 Z" fill="#f4e08a"/></g>\`;
+	if (hat === "crown") s += \`<g><path d="M36 24 L36 11 L42.5 17.5 L50 7 L57.5 17.5 L64 11 L64 24 Q50 20 36 24 Z" fill="\${hp.a}"/><path d="M36 24 L64 24 L64 27 Q50 23 36 27 Z" fill="\${hp.line}"/><circle cx="50" cy="20" r="2.1" fill="#c0503f"/><circle cx="42" cy="21.4" r="1.5" fill="#3f6fa8"/><circle cx="58" cy="21.4" r="1.5" fill="#3f6fa8"/></g>\`;
+	if (hat === "bandana") s += \`<g><path d="M30 32 Q30 12 50 11 Q70 12 70 32 Q60 24 50 24 Q40 24 30 32 Z" fill="\${hp.a}"/><path d="M33 26 Q50 20 67 26" stroke="\${hp.line}" stroke-width="2" fill="none" opacity="0.6"/><path d="M68 25 L79 29 L71 33 Z" fill="\${hp.a}"/><path d="M70 30 L77.5 39 L68.5 35.5 Z" fill="\${hp.b}"/><circle cx="44" cy="17.5" r="1.2" fill="#fff" opacity="0.55"/><circle cx="56" cy="17.5" r="1.2" fill="#fff" opacity="0.55"/><circle cx="50" cy="14" r="1.2" fill="#fff" opacity="0.55"/></g>\`;
+	if (hat === "tophat") s += \`<g><ellipse cx="50" cy="24" rx="30" ry="6.5" fill="\${hp.b}"/><path d="M37.5 24 L37.5 0 Q50 -2 62.5 0 L62.5 24 Z" fill="\${hp.a}"/><rect x="37.5" y="16.5" width="25" height="5" fill="\${hp.line}"/><circle cx="58.5" cy="19" r="1.6" fill="#f4e08a"/></g>\`;
+	if (hat === "chef") s += \`<g><g fill="\${hp.b}"><circle cx="38" cy="10" r="9"/><circle cx="50" cy="5.5" r="10.5"/><circle cx="62" cy="10" r="9"/></g><path d="M36 12 L64 12 L64 23.5 Q50 26 36 23.5 Z" fill="\${hp.a}"/><path d="M36 20 Q50 22.5 64 20" stroke="\${hp.line}" stroke-width="2" fill="none"/></g>\`;
+	if (hat === "pirate") s += \`<g><path d="M16 29 Q19 12 33 7 Q41 15 50 15 Q59 15 67 7 Q81 12 84 29 Q67 27.5 50 27.5 Q33 27.5 16 29 Z" fill="\${hp.a}"/><path d="M16 29 Q33 34.5 50 34.5 Q67 34.5 84 29 Q67 26.5 50 26.5 Q33 26.5 16 29 Z" fill="\${hp.b}"/><path d="M21 27 Q35 22.5 50 22 Q65 22.5 79 27" stroke="\${hp.line}" stroke-width="1.5" fill="none" opacity="0.5"/><circle cx="50" cy="19" r="4.2" fill="#f6efe3"/><circle cx="48.4" cy="18.4" r="1.1" fill="\${hp.a}"/><circle cx="51.6" cy="18.4" r="1.1" fill="\${hp.a}"/><path d="M46.8 22.2 L53.2 22.2 L52 24.4 L48 24.4 Z" fill="#f6efe3"/></g>\`;
+	if (hat === "witch") s += \`<g><ellipse cx="50" cy="25" rx="31" ry="7.5" fill="\${hp.a}"/><path d="M64 -8 Q54 4 61 25 L39 25 Q50 8 64 -8 Z" fill="\${hp.b}"/><rect x="40" y="19.5" width="21" height="5.5" fill="\${hp.line}"/><rect x="47.5" y="20.4" width="5" height="3.7" fill="#e0b23e"/></g>\`;
+	if (hat === "newspaper") s += \`<g><path d="M25 29 L25 16 L50 6 L75 16 L75 29 Z" fill="\${hp.a}"/><path d="M23 27.5 L77 27.5 Q75 32.5 50 34 Q25 32.5 23 27.5 Z" fill="\${hp.b}"/><g stroke="\${hp.line}" stroke-width="1.1" stroke-linecap="round" opacity="0.75"><path d="M33 17.5 L67 17.5"/><path d="M31 21.5 L69 21.5"/><path d="M31 25.5 L69 25.5"/></g></g>\`;
+	if (hat === "frog") s += \`<g><path d="M29 30 Q29 11 50 11 Q71 11 71 30 Q60 25.5 50 25.5 Q40 25.5 29 30 Z" fill="\${hp.a}"/><circle cx="37" cy="12" r="7.5" fill="\${hp.a}"/><circle cx="63" cy="12" r="7.5" fill="\${hp.a}"/><circle cx="37" cy="11" r="4.6" fill="#fdf6e8"/><circle cx="63" cy="11" r="4.6" fill="#fdf6e8"/><circle cx="37" cy="11.6" r="2.3" fill="#2b2b2b"/><circle cx="63" cy="11.6" r="2.3" fill="#2b2b2b"/></g>\`;
+	if (bareHead && !["curly", "curly-long", "afro", "mohawk", "bun", "bald", "spiky", "bowl", "dreads", "pixie", "cornrows", "shag"].includes(hairstyle))
+		s += \`<path d="M31 32 Q31 14 50 14 Q69 14 69 32 Q66 22 50 21 Q34 22 31 32 Z" fill="\${hair}"/>\`;
+	if (hat === "cat-ears") s += \`<g><path d="M33 25 L36.5 6 L49.5 20.5 Z" fill="\${hp.a}"/><path d="M67 25 L63.5 6 L50.5 20.5 Z" fill="\${hp.a}"/><path d="M36.8 21.5 L38.6 12 L45 19 Z" fill="#e8a0b0"/><path d="M63.2 21.5 L61.4 12 L55 19 Z" fill="#e8a0b0"/></g>\`;
+	if (hat === "visor") s += \`<g><path d="M23 30 Q23 22 50 22 Q77 22 77 30 Q64 26.5 50 26.5 Q36 26.5 23 30 Z" fill="\${hp.b}"/><path d="M30 27.5 Q30 19.5 50 19.5 Q70 19.5 70 27.5 Q60 24.5 50 24.5 Q40 24.5 30 27.5 Z" fill="\${hp.a}"/><path d="M32.5 24.5 Q50 21.4 67.5 24.5" stroke="\${hp.line}" stroke-width="1.6" fill="none" opacity="0.7"/></g>\`;
+	if (hat === "halo") s += \`<g><ellipse cx="50" cy="9" rx="16" ry="4.6" fill="none" stroke="\${hp.a}" stroke-width="3.6"/><ellipse cx="50" cy="9" rx="16" ry="4.6" fill="none" stroke="\${hp.b}" stroke-width="1.3"/><circle cx="63" cy="6.5" r="1.5" fill="#fff3c4"/></g>\`;
+	if (hat === "headphones") s += \`<g><path d="M28 40 Q28 12 50 12 Q72 12 72 40" stroke="\${hp.a}" stroke-width="5" fill="none" stroke-linecap="round"/><rect x="22.5" y="32" width="11" height="17" rx="5" fill="\${hp.b}"/><rect x="66.5" y="32" width="11" height="17" rx="5" fill="\${hp.b}"/><rect x="25.5" y="35.5" width="5" height="10" rx="2.5" fill="\${hp.line}"/><rect x="69.5" y="35.5" width="5" height="10" rx="2.5" fill="\${hp.line}"/></g>\`;
+	return \`<svg viewBox="0 0 100 113" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Anonymous caretaker">\${s}</svg>\`;
+}
 
-			function funnel(steps) {
-				const top = n(steps[0] && steps[0].value) || 1;
-				return \`<div class="funnel">\${steps
-					.map((st, i) => {
-						const w = Math.max(3, (n(st.value) / top) * 100);
-						const drop = i > 0 && steps[i - 1].value ? Math.round((1 - n(st.value) / n(steps[i - 1].value)) * 100) : 0;
-						return (
-							\`<div class="step"><span class="sfill" style="width:\${w}%"></span><div class="srow">\` +
-							\`<span class="sname">\${esc(st.label)}</span>\` +
-							\`<span class="sval"><span class="spct">\${pct((st.value / top) * 100)}</span><span>\${fmt(st.value)}</span>\` +
-							\`\${i > 0 && drop > 0 ? \`<span class="drop">−\${drop}%</span>\` : ''}</span></div></div>\`
-						);
-					})
-					.join('')}</div>\`;
-			}
+/* ------------------------------------------------------------------ *
+ * Render building blocks
+ * ------------------------------------------------------------------ */
+function kpi(v, k, hint) {
+	return \`<div class="card kpi"><div class="v">\${v}</div><div class="k">\${k}</div>\${hint ? \`<div class="hint">\${hint}</div>\` : ""}</div>\`;
+}
+function barRows(entries, opts) {
+	opts = opts || {};
+	const cls = opts.cls || "";
+	const rows = entries.filter((e) => e).map((e) => [e[0], n(e[1])]);
+	if (!rows.length) return \`<div class="emptynote">No data yet.</div>\`;
+	const max = opts.max || Math.max(...rows.map((r) => r[1]), 1);
+	return \`<div class="bars">\${rows.map(([lab, val]) =>
+		\`<div class="bar"><span class="lab" title="\${esc(lab)}">\${esc(opts.labelMap ? (opts.labelMap[lab] || lab) : lab)}</span>\` +
+		\`<span class="track"><span class="fill \${cls}" style="width:\${Math.max(2, (val / max) * 100)}%"></span></span>\` +
+		\`<span class="num">\${opts.fmtNum ? opts.fmtNum(val) : fmt(val)}</span></div>\`
+	).join("")}</div>\`;
+}
+function objToEntries(obj) { return Object.entries(obj || {}).sort((a, b) => n(b[1]) - n(a[1])); }
 
-			function histCols(obj, opts) {
-				opts = opts || {};
-				const entries = opts.order
-					? opts.order.filter((k) => k in (obj || {})).map((k) => [k, obj[k]])
-					: Object.entries(obj || {});
-				if (!entries.length) return \`<div class="emptynote">No data yet.</div>\`;
-				const max = Math.max(...entries.map((e) => n(e[1])), 1);
-				return \`<div class="cols">\${entries
-					.map(([k, v]) => {
-						const h = Math.max(3, (n(v) / max) * 82);
-						return \`<div class="col"><span class="cn">\${fmt(v)}</span><span class="cbar" style="height:\${h}px"></span><span class="cl">\${esc(opts.labelMap ? opts.labelMap[k] || k : k)}</span></div>\`;
-					})
-					.join('')}</div>\`;
-			}
+function donut(segments, size) {
+	size = size || 128;
+	const total = segments.reduce((a, s) => a + n(s.value), 0) || 1;
+	const r = size / 2 - 10, cx = size / 2, cy = size / 2, C = 2 * Math.PI * r;
+	let off = 0;
+	const rings = segments.map((s) => {
+		const frac = n(s.value) / total;
+		const dash = \`\${frac * C} \${C - frac * C}\`;
+		const el = \`<circle cx="\${cx}" cy="\${cy}" r="\${r}" fill="none" stroke="\${s.color}" stroke-width="16" stroke-dasharray="\${dash}" stroke-dashoffset="\${-off * C}" transform="rotate(-90 \${cx} \${cy})"/>\`;
+		off += frac;
+		return el;
+	}).join("");
+	const svg = \`<svg width="\${size}" height="\${size}" viewBox="0 0 \${size} \${size}">\${rings}<text x="\${cx}" y="\${cy - 2}" text-anchor="middle" font-size="20" font-weight="700" fill="#2f3a27">\${fmt(total)}</text><text x="\${cx}" y="\${cy + 16}" text-anchor="middle" font-size="10" fill="#9aa189">total</text></svg>\`;
+	const legend = \`<div class="legend">\${segments.map((s) => \`<span class="li"><span class="sw" style="background:\${s.color}"></span>\${esc(s.label)} · <b>\${fmt(s.value)}</b></span>\`).join("")}</div>\`;
+	return \`<div class="donutwrap">\${svg}<div>\${legend}</div></div>\`;
+}
 
-			const r1 = (x) => Math.round(n(x) * 10) / 10;
-			/* Per-edition rollup computed from the players array. A player is "demo" only
-			 * when explicitly stamped edition:"demo"; everything else is the full game. */
-			function editionStats(arr) {
-				const c = arr.length;
-				const sum = (f) => arr.reduce((a, p) => a + n(f(p)), 0);
-				const rate = (k) => (c ? Math.round((arr.filter((p) => p.activation && p.activation[k]).length / c) * 100) : 0);
-				const playSec = sum((p) => p.playSeconds);
-				const returning = arr.filter((p) => n(p.sessions) > 1).length;
-				return {
-					count: c,
-					playHours: r1(playSec / 3600),
-					avgMin: c ? Math.round(playSec / 60 / c) : 0,
-					avgSessions: c ? r1(sum((p) => p.sessions) / c) : 0,
-					totalActions: sum((p) => p.totalActions),
-					avgActions: c ? Math.round(sum((p) => p.totalActions) / c) : 0,
-					avgAch: c ? r1(sum((p) => p.achievements && p.achievements.earned) / c) : 0,
-					avgHealth: c ? Math.round(sum((p) => p.biomeSummary && p.biomeSummary.avgHealth) / c) : 0,
-					avgBiomes: c ? r1(sum((p) => p.unlockedBiomes) / c) : 0,
-					collected: rate('collected'),
-					crafted: rate('crafted'),
-					placed: rate('placed'),
-					attractedAnimal: rate('attractedAnimal'),
-					unlockedSecondBiome: rate('unlockedSecondBiome'),
-					returningPct: c ? Math.round((returning / c) * 100) : 0,
-				};
-			}
-			function vsTable(rows, demo, full) {
-				const legend = \`<div class="vslegend"><span class="li"><span class="sw" style="background:#d9a441"></span>Demo</span><span class="li"><span class="sw" style="background:var(--accent)"></span>Full</span></div>\`;
-				const body = rows
-					.map((row) => {
-						const dv = demo[row.key],
-							fv = full[row.key];
-						const suf = row.suf || '';
-						const share = n(dv) + n(fv) > 0 ? (n(dv) / (n(dv) + n(fv))) * 100 : 50;
-						return (
-							\`<div class="vsrow"><span class="vlab">\${row.label}</span>\` +
-							\`<span class="vnums"><span class="vd">\${fmt(dv)}\${suf}</span><span class="vf">\${fmt(fv)}\${suf}</span></span>\` +
-							\`<span class="vbar"><i style="width:\${share}%"></i></span></div>\`
-						);
-					})
-					.join('');
-				return \`\${legend}<div class="vs">\${body}</div>\`;
-			}
+function funnel(steps) {
+	const top = n(steps[0] && steps[0].value) || 1;
+	return \`<div class="funnel">\${steps.map((st, i) => {
+		const w = Math.max(3, (n(st.value) / top) * 100);
+		const drop = i > 0 && steps[i - 1].value ? Math.round((1 - n(st.value) / n(steps[i - 1].value)) * 100) : 0;
+		return \`<div class="step"><span class="sfill" style="width:\${w}%"></span><div class="srow">\` +
+			\`<span class="sname">\${esc(st.label)}</span>\` +
+			\`<span class="sval"><span class="spct">\${pct((st.value / top) * 100)}</span><span>\${fmt(st.value)}</span>\` +
+			\`\${i > 0 && drop > 0 ? \`<span class="drop">−\${drop}%</span>\` : ""}</span></div></div>\`;
+	}).join("")}</div>\`;
+}
 
-			function sec(title, sub, body) {
-				return \`<section><div class="sec-head"><h2>\${title}</h2>\${sub ? \`<span class="sub">\${sub}</span>\` : ''}</div>\${body}</section>\`;
-			}
-			function card(inner) {
-				return \`<div class="card">\${inner}</div>\`;
-			}
-			function cardTitled(title, tag, inner) {
-				return \`<div class="card"><h3>\${title}\${tag ? \`<span class="tag">\${tag}</span>\` : ''}</h3>\${inner}</div>\`;
-			}
+function histCols(obj, opts) {
+	opts = opts || {};
+	const entries = opts.order ? opts.order.filter((k) => k in (obj || {})).map((k) => [k, obj[k]]) : Object.entries(obj || {});
+	if (!entries.length) return \`<div class="emptynote">No data yet.</div>\`;
+	const max = Math.max(...entries.map((e) => n(e[1])), 1);
+	return \`<div class="cols">\${entries.map(([k, v]) => {
+		const h = Math.max(3, (n(v) / max) * 82);
+		return \`<div class="col"><span class="cn">\${fmt(v)}</span><span class="cbar" style="height:\${h}px"></span><span class="cl">\${esc(opts.labelMap ? (opts.labelMap[k] || k) : k)}</span></div>\`;
+	}).join("")}</div>\`;
+}
 
-			/* Shared action labels (used by the all-time totals and the per-player modal). */
-			const LANG_LABELS = {
-				en: 'English',
-				'en-kid': 'English (Kids)',
-				es: 'Spanish',
-				fr: 'French',
-				de: 'German',
-				pt: 'Portuguese',
-				'pt-br': 'Portuguese (BR)',
-				it: 'Italian',
-				nl: 'Dutch',
-				pl: 'Polish',
-				ru: 'Russian',
-				ja: 'Japanese',
-				ko: 'Korean',
-				zh: 'Chinese',
-			};
-			const ACTION_LABELS = {
-				resourcesCollected: 'Resources collected',
-				terraformActions: 'Terraform actions',
-				plantsPlanted: 'Plants planted',
-				itemsCrafted: 'Items crafted',
-				objectsPlaced: 'Objects placed',
-				animalsReturned: 'Animals returned',
-				itemsDiscarded: 'Items discarded',
-				animalsObserved: 'Animals observed',
-				chestDeposits: 'Chest deposits',
-				tasksCompleted: 'Tasks completed',
-				toolsUpgraded: 'Tools upgraded',
-				homeUpgrades: 'Home upgrades',
-				recolors: 'Recolors',
-				chestWithdrawals: 'Chest withdrawals',
-				objectsMoved: 'Objects moved',
-				objectsRemoved: 'Objects removed',
-				homesBuilt: 'Homes built',
-			};
+const r1 = (x) => Math.round(n(x) * 10) / 10;
+/* Per-edition rollup computed from the players array. A player is "demo" only
+ * when explicitly stamped edition:"demo"; everything else is the full game. */
+function editionStats(arr) {
+	const c = arr.length;
+	const sum = (f) => arr.reduce((a, p) => a + n(f(p)), 0);
+	const rate = (k) => (c ? Math.round((arr.filter((p) => p.activation && p.activation[k]).length / c) * 100) : 0);
+	const playSec = sum((p) => p.playSeconds);
+	const returning = arr.filter((p) => n(p.sessions) > 1).length;
+	return {
+		count: c,
+		playHours: r1(playSec / 3600),
+		avgMin: c ? Math.round(playSec / 60 / c) : 0,
+		avgSessions: c ? r1(sum((p) => p.sessions) / c) : 0,
+		totalActions: sum((p) => p.totalActions),
+		avgActions: c ? Math.round(sum((p) => p.totalActions) / c) : 0,
+		avgAch: c ? r1(sum((p) => p.achievements && p.achievements.earned) / c) : 0,
+		avgHealth: c ? Math.round(sum((p) => p.biomeSummary && p.biomeSummary.avgHealth) / c) : 0,
+		avgBiomes: c ? r1(sum((p) => p.unlockedBiomes) / c) : 0,
+		collected: rate("collected"), crafted: rate("crafted"), placed: rate("placed"),
+		attractedAnimal: rate("attractedAnimal"), unlockedSecondBiome: rate("unlockedSecondBiome"),
+		returningPct: c ? Math.round((returning / c) * 100) : 0,
+	};
+}
+function vsTable(rows, demo, full) {
+	const legend = \`<div class="vslegend"><span class="li"><span class="sw" style="background:#d9a441"></span>Demo</span><span class="li"><span class="sw" style="background:var(--accent)"></span>Full</span></div>\`;
+	const body = rows.map((row) => {
+		const dv = demo[row.key], fv = full[row.key];
+		const suf = row.suf || "";
+		const share = n(dv) + n(fv) > 0 ? (n(dv) / (n(dv) + n(fv))) * 100 : 50;
+		return \`<div class="vsrow"><span class="vlab">\${row.label}</span>\` +
+			\`<span class="vnums"><span class="vd">\${fmt(dv)}\${suf}</span><span class="vf">\${fmt(fv)}\${suf}</span></span>\` +
+			\`<span class="vbar"><i style="width:\${share}%"></i></span></div>\`;
+	}).join("");
+	return \`\${legend}<div class="vs">\${body}</div>\`;
+}
 
-			/* Compact duration: minutes under an hour, else "Xh Ym". */
-			function fmtDur(sec) {
-				const m = Math.round(n(sec) / 60);
-				if (m < 60) return m + 'm';
-				const h = Math.floor(m / 60),
-					r = m % 60;
-				return r ? \`\${h}h \${r}m\` : \`\${h}h\`;
-			}
+function sec(title, sub, body) {
+	return \`<section><div class="sec-head"><h2>\${title}</h2>\${sub ? \`<span class="sub">\${sub}</span>\` : ""}</div>\${body}</section>\`;
+}
+function card(inner) { return \`<div class="card">\${inner}</div>\`; }
+function cardTitled(title, tag, inner) { return \`<div class="card"><h3>\${title}\${tag ? \`<span class="tag">\${tag}</span>\` : ""}</h3>\${inner}</div>\`; }
 
-			/* ------------------------------------------------------------------ *
-			 * Per-player modal — a full picture of one caretaker's playthrough
-			 * ------------------------------------------------------------------ */
-			let PLAYERS_BY_ID = {};
-			let modalEl = null;
-			let LANDING = null; // latest GET /LandingStats/ payload (null until loaded / if unavailable)
-			let SAVEHEALTH = null; // latest GET /SaveHealth/ payload — records that would not decode
+/* Shared action labels (used by the all-time totals and the per-player modal). */
+const LANG_LABELS = { en: "English", "en-kid": "English (Kids)", es: "Spanish", fr: "French", de: "German", pt: "Portuguese", "pt-br": "Portuguese (BR)", it: "Italian", nl: "Dutch", pl: "Polish", ru: "Russian", ja: "Japanese", ko: "Korean", zh: "Chinese" };
+const ACTION_LABELS = {
+	resourcesCollected: "Resources collected", terraformActions: "Terraform actions", plantsPlanted: "Plants planted",
+	itemsCrafted: "Items crafted", objectsPlaced: "Objects placed", animalsReturned: "Animals returned",
+	itemsDiscarded: "Items discarded", animalsObserved: "Animals observed", chestDeposits: "Chest deposits",
+	tasksCompleted: "Tasks completed", toolsUpgraded: "Tools upgraded", homeUpgrades: "Home upgrades",
+	recolors: "Recolors", chestWithdrawals: "Chest withdrawals", objectsMoved: "Objects moved",
+	objectsRemoved: "Objects removed", homesBuilt: "Homes built",
+};
 
-			/** Build the modal body for one player: header, headline stats, progress,
-			 *  milestones, a full action breakdown, time-by-area, and recent achievements. */
-			function playerModalHTML(p) {
-				const bs = p.biomeSummary || {},
-					ach = p.achievements || {},
-					act = p.activation || {},
-					counts = p.counts || {};
-				const edi = p.edition === 'demo' ? 'demo' : 'full';
-				const areaMin =
-					p.areaMinutes && Object.keys(p.areaMinutes).length
-						? p.areaMinutes
-						: Object.fromEntries(Object.entries(p.areaSeconds || {}).map(([k, v]) => [k, Math.round(n(v) / 60)]));
-				const joined = p.daysSinceJoined != null ? \`joined \${p.daysSinceJoined}d ago\` : '';
-				const last = p.hoursSinceActive != null ? \`last seen \${p.hoursSinceActive}h ago\` : '';
-				const tut = n(p.tutorialStep) >= 99 ? 'Done' : \`Step \${n(p.tutorialStep)}\`;
+/* Compact duration: minutes under an hour, else "Xh Ym". */
+function fmtDur(sec) { const m = Math.round(n(sec) / 60); if (m < 60) return m + "m"; const h = Math.floor(m / 60), r = m % 60; return r ? \`\${h}h \${r}m\` : \`\${h}h\`; }
 
-				const kpis = \`<div class="grid kpis">\${[
-					kpi(fmtDur(p.playSeconds), 'Played', \`\${fmt(n(p.playMinutes))}m total\`),
-					kpi(fmt(n(p.sessions)), n(p.sessions) === 1 ? 'Session' : 'Sessions', \`\${n(p.avgSessionMinutes)}m avg\`),
-					kpi(fmt(n(p.totalActions)), 'Actions', \`\${n(p.actionsPerMinute)}/min\`),
-					kpi(\`\${n(ach.earned)}<small>/\${n(ach.total)}</small>\`, 'Achievements', \`\${fmt(n(ach.points))} pts\`),
-				].join('')}</div>\`;
+/* ------------------------------------------------------------------ *
+ * Per-player modal — a full picture of one caretaker's playthrough
+ * ------------------------------------------------------------------ */
+let PLAYERS_BY_ID = {};
+let modalEl = null;
+let LANDING = null; // latest GET /LandingStats/ payload (null until loaded / if unavailable)
 
-				const progress = cardTitled(
-					'Progress',
-					null,
-					\`<div class="grid kpis">\${[
-						kpi(fmt(n(p.unlockedBiomes || bs.biomesUnlocked)), 'Biomes unlocked'),
-						kpi(fmt(n(bs.biomesFullyRestored)), 'Biomes restored'),
-						kpi(\`\${n(bs.avgHealth)}<small>%</small>\`, 'Avg biome health'),
-						kpi(fmt(n(bs.totalAnimalsReturned)), 'Animals returned'),
-					].join('')}</div>\`,
-				);
+/** Build the modal body for one player: header, headline stats, progress,
+ *  milestones, a full action breakdown, time-by-area, and recent achievements. */
+function playerModalHTML(p) {
+	const bs = p.biomeSummary || {}, ach = p.achievements || {}, act = p.activation || {}, counts = p.counts || {};
+	const edi = p.edition === "demo" ? "demo" : "full";
+	const areaMin = (p.areaMinutes && Object.keys(p.areaMinutes).length)
+		? p.areaMinutes
+		: Object.fromEntries(Object.entries(p.areaSeconds || {}).map(([k, v]) => [k, Math.round(n(v) / 60)]));
+	const joined = p.daysSinceJoined != null ? \`joined \${p.daysSinceJoined}d ago\` : "";
+	const last = p.hoursSinceActive != null ? \`last seen \${p.hoursSinceActive}h ago\` : "";
+	const tut = n(p.tutorialStep) >= 99 ? "Done" : \`Step \${n(p.tutorialStep)}\`;
 
-				const cdid = (k) => n(counts[k]) > 0;
-				const flags = [
-					['Collected a resource', act.collected || cdid('resourcesCollected')],
-					['Terraformed the land', act.terraformed || cdid('terraformActions')],
-					['Planted something', act.planted || cdid('plantsPlanted')],
-					['Crafted an item', act.crafted || cdid('itemsCrafted')],
-					['Placed an object', act.placed || cdid('objectsPlaced')],
-					['Attracted an animal', act.attractedAnimal || n(bs.totalAnimalsReturned) > 0],
-					['Upgraded a tool', act.upgradedTool || cdid('toolsUpgraded')],
-					['Built a home', act.builtHome || cdid('homesBuilt')],
-					['Upgraded a home', act.upgradedHome || cdid('homeUpgrades')],
-					['Unlocked 2nd biome', act.unlockedSecondBiome || n(p.unlockedBiomes || bs.biomesUnlocked) >= 2],
-				];
-				const checklist = cardTitled(
-					'Milestones',
-					null,
-					\`<div class="checklist">\${flags
-						.map(
-							([l, on]) =>
-								\`<span class="checkitem"><span class="ck \${on ? 'on' : 'off'}">\${on ? '✓' : '·'}</span>\${l}</span>\`,
-						)
-						.join('')}</div>\`,
-				);
+	const kpis = \`<div class="grid kpis">\${[
+		kpi(fmtDur(p.playSeconds), "Played", \`\${fmt(n(p.playMinutes))}m total\`),
+		kpi(fmt(n(p.sessions)), n(p.sessions) === 1 ? "Session" : "Sessions", \`\${n(p.avgSessionMinutes)}m avg\`),
+		kpi(fmt(n(p.totalActions)), "Actions", \`\${n(p.actionsPerMinute)}/min\`),
+		kpi(\`\${n(ach.earned)}<small>/\${n(ach.total)}</small>\`, "Achievements", \`\${fmt(n(ach.points))} pts\`),
+	].join("")}</div>\`;
 
-				const totalActs = Object.values(counts).reduce((a, b) => a + n(b), 0);
-				const actionsCard = cardTitled(
-					'Everything they did',
-					\`\${fmt(totalActs)} actions\`,
-					barRows(objToEntries(counts), { labelMap: ACTION_LABELS }),
-				);
-				const areaCard = Object.keys(areaMin).length
-					? cardTitled(
-							'Time by area',
-							null,
-							barRows(objToEntries(areaMin), { cls: 'sky', fmtNum: (v) => \`\${fmt(v)}m\` }),
-						)
-					: '';
+	const progress = cardTitled("Progress", null, \`<div class="grid kpis">\${[
+		kpi(fmt(n(p.unlockedBiomes || bs.biomesUnlocked)), "Biomes unlocked"),
+		kpi(fmt(n(bs.biomesFullyRestored)), "Biomes restored"),
+		kpi(\`\${n(bs.avgHealth)}<small>%</small>\`, "Avg biome health"),
+		kpi(fmt(n(bs.totalAnimalsReturned)), "Animals returned"),
+	].join("")}</div>\`);
 
-				const recent = (ach.recent || []).slice(0, 8);
-				const recCard = recent.length
-					? cardTitled(
-							'Recent achievements',
-							\`\${n(ach.earned)} earned\`,
-							\`<div class="reclist">\${recent
-								.map(
-									(r) =>
-										\`<div class="recrow"><b>\${esc(r.name || r.id || '')}</b><span>\${r.earnedAt ? new Date(r.earnedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : ''}</span></div>\`,
-								)
-								.join('')}</div>\`,
-						)
-					: '';
+	const cdid = (k) => n(counts[k]) > 0;
+	const flags = [
+		["Collected a resource", act.collected || cdid("resourcesCollected")],
+		["Terraformed the land", act.terraformed || cdid("terraformActions")],
+		["Planted something", act.planted || cdid("plantsPlanted")],
+		["Crafted an item", act.crafted || cdid("itemsCrafted")],
+		["Placed an object", act.placed || cdid("objectsPlaced")],
+		["Attracted an animal", act.attractedAnimal || n(bs.totalAnimalsReturned) > 0],
+		["Upgraded a tool", act.upgradedTool || cdid("toolsUpgraded")],
+		["Built a home", act.builtHome || cdid("homesBuilt")],
+		["Upgraded a home", act.upgradedHome || cdid("homeUpgrades")],
+		["Unlocked 2nd biome", act.unlockedSecondBiome || n(p.unlockedBiomes || bs.biomesUnlocked) >= 2],
+	];
+	const checklist = cardTitled("Milestones", null, \`<div class="checklist">\${flags.map(([l, on]) =>
+		\`<span class="checkitem"><span class="ck \${on ? "on" : "off"}">\${on ? "✓" : "·"}</span>\${l}</span>\`).join("")}</div>\`);
 
-				const onboard = cardTitled(
-					'Onboarding',
-					null,
-					\`<div class="grid kpis">\${[
-						kpi(p.creationSeconds != null ? \`\${n(p.creationSeconds)}<small>s</small>\` : '—', 'Creation time'),
-						kpi(
-							p.timeToFirstActionSeconds != null ? \`\${n(p.timeToFirstActionSeconds)}<small>s</small>\` : '—',
-							'Time to 1st action',
-						),
-						kpi(tut, 'Tutorial'),
-					].join('')}</div>\`,
-				);
+	const totalActs = Object.values(counts).reduce((a, b) => a + n(b), 0);
+	const actionsCard = cardTitled("Everything they did", \`\${fmt(totalActs)} actions\`,
+		barRows(objToEntries(counts), { labelMap: ACTION_LABELS }));
+	const areaCard = Object.keys(areaMin).length
+		? cardTitled("Time by area", null, barRows(objToEntries(areaMin), { cls: "sky", fmtNum: (v) => \`\${fmt(v)}m\` }))
+		: "";
 
-				const meta = esc(
-					[p.platform, p.os, p.version, LANG_LABELS[p.language] || p.language].filter(Boolean).join(' · '),
-				);
-				const when = [joined, last].filter(Boolean).join(' · ');
-				return (
-					\`<button class="modal-close" data-close aria-label="Close">×</button>\` +
-					\`<div class="modal-head"><div class="mav">\${avatarSVG(p.appearance)}</div><div><h2>\${esc(p.name || 'Unnamed')}</h2>\` +
-					\`<div class="msub"><span class="hledi \${edi}">\${edi}</span>\${meta ? \`<span>\${meta}</span>\` : ''}\${when ? \`<span>\${when}</span>\` : ''}</div></div></div>\` +
-					kpis +
-					\`<div class="grid two" style="margin-top:.8rem">\${progress}\${checklist}</div>\` +
-					\`<div style="margin-top:.8rem">\${actionsCard}</div>\` +
-					(areaCard
-						? \`<div class="grid two" style="margin-top:.8rem">\${areaCard}\${recCard}</div>\`
-						: recCard
-							? \`<div style="margin-top:.8rem">\${recCard}</div>\`
-							: '') +
-					\`<div style="margin-top:.8rem">\${onboard}</div>\`
-				);
-			}
+	const recent = (ach.recent || []).slice(0, 8);
+	const recCard = recent.length
+		? cardTitled("Recent achievements", \`\${n(ach.earned)} earned\`, \`<div class="reclist">\${recent.map((r) =>
+			\`<div class="recrow"><b>\${esc(r.name || r.id || "")}</b><span>\${r.earnedAt ? new Date(r.earnedAt).toLocaleDateString("en-US", { month: "short", day: "numeric" }) : ""}</span></div>\`).join("")}</div>\`)
+		: "";
 
-			/** Open the modal for a player id (looked up from the last render). */
-			function openPlayerModal(pid) {
-				const p = PLAYERS_BY_ID[pid];
-				if (!p) return;
-				if (!modalEl) {
-					modalEl = document.createElement('div');
-					modalEl.className = 'modal-overlay';
-					modalEl.innerHTML = \`<div class="modal" role="dialog" aria-modal="true"></div>\`;
-					document.body.appendChild(modalEl);
-					modalEl.addEventListener('click', (e) => {
-						if (e.target === modalEl || (e.target.closest && e.target.closest('[data-close]'))) closePlayerModal();
-					});
-				}
-				modalEl.querySelector('.modal').innerHTML = playerModalHTML(p);
-				modalEl.style.display = 'flex';
-				document.body.classList.add('modal-open');
-			}
-			function closePlayerModal() {
-				if (modalEl) modalEl.style.display = 'none';
-				document.body.classList.remove('modal-open');
-			}
+	const onboard = cardTitled("Onboarding", null, \`<div class="grid kpis">\${[
+		kpi(p.creationSeconds != null ? \`\${n(p.creationSeconds)}<small>s</small>\` : "—", "Creation time"),
+		kpi(p.timeToFirstActionSeconds != null ? \`\${n(p.timeToFirstActionSeconds)}<small>s</small>\` : "—", "Time to 1st action"),
+		kpi(tut, "Tutorial"),
+	].join("")}</div>\`);
 
-			/* ------------------------------------------------------------------ *
-			 * Main render
-			 * ------------------------------------------------------------------ */
-			function render(data) {
-				const s = (data && data.summary) || {};
-				const players = (data && data.players) || [];
-				const A = s.audience || {},
-					E = s.engagement || {},
-					R = s.retention || {},
-					P = s.progression || {};
-				const flt = (data && data.filters) || {};
-				const out = [];
+	const meta = esc([p.platform, p.os, p.version, LANG_LABELS[p.language] || p.language].filter(Boolean).join(" · "));
+	const when = [joined, last].filter(Boolean).join(" · ");
+	return \`<button class="modal-close" data-close aria-label="Close">×</button>\` +
+		\`<div class="modal-head"><div class="mav">\${avatarSVG(p.appearance)}</div><div><h2>\${esc(p.name || "Unnamed")}</h2>\` +
+		\`<div class="msub"><span class="hledi \${edi}">\${edi}</span>\${meta ? \`<span>\${meta}</span>\` : ""}\${when ? \`<span>\${when}</span>\` : ""}</div></div></div>\` +
+		kpis +
+		\`<div class="grid two" style="margin-top:.8rem">\${progress}\${checklist}</div>\` +
+		\`<div style="margin-top:.8rem">\${actionsCard}</div>\` +
+		(areaCard ? \`<div class="grid two" style="margin-top:.8rem">\${areaCard}\${recCard}</div>\` : (recCard ? \`<div style="margin-top:.8rem">\${recCard}</div>\` : "")) +
+		\`<div style="margin-top:.8rem">\${onboard}</div>\`;
+}
 
-				/* ---- Overview KPIs ---- */
-				const versionLabel = flt.version ? \`v\${flt.version}\${flt.versionMode === 'min' ? ' & newer' : ''}\` : '';
-				const activeFilters = [versionLabel, flt.edition, flt.platform].filter(Boolean).map(esc);
-				const overviewSub = activeFilters.length
-					? \`filtered to \${activeFilters.join(' · ')}\`
-					: 'who is out there right now';
-				out.push(
-					sec(
-						'Overview',
-						overviewSub,
-						\`<div class="grid kpis">\${[
-							kpi(fmt(s.players), 'Total caretakers', 'unique anonymous saves'),
-							kpi(\`<span class="accent">\${fmt(A.activeNow)}</span>\`, 'Active now', 'seen in the last 5 minutes'),
-							kpi(fmt(A.activeLast24h), 'Active · 24h'),
-							kpi(fmt(A.activeLast7d), 'Active · 7d'),
-							kpi(fmt(A.newLast24h), 'New · 24h', \`\${fmt(A.newLast7d)} in the last 7 days\`),
-						].join('')}</div>\`,
-					),
-				);
+/** Open the modal for a player id (looked up from the last render). */
+function openPlayerModal(pid) {
+	const p = PLAYERS_BY_ID[pid];
+	if (!p) return;
+	if (!modalEl) {
+		modalEl = document.createElement("div");
+		modalEl.className = "modal-overlay";
+		modalEl.innerHTML = \`<div class="modal" role="dialog" aria-modal="true"></div>\`;
+		document.body.appendChild(modalEl);
+		modalEl.addEventListener("click", (e) => {
+			if (e.target === modalEl || (e.target.closest && e.target.closest("[data-close]"))) closePlayerModal();
+		});
+	}
+	modalEl.querySelector(".modal").innerHTML = playerModalHTML(p);
+	modalEl.style.display = "flex";
+	document.body.classList.add("modal-open");
+}
+function closePlayerModal() {
+	if (modalEl) modalEl.style.display = "none";
+	document.body.classList.remove("modal-open");
+}
 
-				/* ---- Save health ----
-				 * Records that would not decode, from GET /SaveHealth/. Sits directly above
-				 * the player highlights: an unreadable save is the only thing on this page a
-				 * player feels directly, and it used to be visible only to someone tailing
-				 * server logs. Renders nothing at zero, so a healthy instance stays quiet. */
-				let saveSection = '';
-				if (SAVEHEALTH && SAVEHEALTH.affected > 0) {
-					const sh = SAVEHEALTH;
-					const KIND_LABELS = { unreadable: 'Could not decode at all', refused: 'Partial — salvage refused' };
-					const rows = (sh.recent || [])
-						.map(
-							(r) =>
-								\`<tr><td><code>\${esc(r.table || '?')}</code></td><td><code>\${esc(r.recordId || '?')}</code></td>\` +
-								\`<td>\${esc(KIND_LABELS[r.kind] || r.kind || '?')}</td><td class="num">\${fmt(r.count)}</td>\` +
-								\`<td class="num">\${r.lastSeenAt ? new Date(r.lastSeenAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}</td></tr>\`,
-						)
-						.join('');
-					saveSection = sec(
-						'Save health',
-						'stored records that could not be read — ids and counts only',
-						\`<div class="grid kpis">\${[
-							kpi(
-								\`<span class="accent">\${fmt(sh.savesAffected)}</span>\`,
-								'Saves affected',
-								'player rows that would not open',
-							),
-							kpi(fmt(sh.affected), 'Records affected', 'across every table'),
-							kpi(fmt(sh.events), 'Read failures', 'total attempts that hit a bad record'),
-						].join('')}</div><div class="grid two" style="margin-top:.8rem">\` +
-							cardTitled('By table', 'which data is rotting', barRows(objToEntries(sh.byTable), { cls: 'gold' })) +
-							cardTitled(
-								'By kind',
-								'how it failed',
-								barRows(objToEntries(sh.byKind), { labelMap: KIND_LABELS, cls: 'gold' }),
-							) +
-							\`</div>\` +
-							(rows
-								? \`<div class="card" style="margin-top:.8rem"><h3>Most recent<span class="tag">last 25</span></h3>\` +
-									\`<table class="vs"><thead><tr><th>Table</th><th>Record</th><th>Failure</th><th class="num">Hits</th><th class="num">Last seen</th></tr></thead><tbody>\${rows}</tbody></table></div>\`
-								: ''),
-					);
-				}
+/* ------------------------------------------------------------------ *
+ * Main render
+ * ------------------------------------------------------------------ */
+function render(data) {
+	const s = (data && data.summary) || {};
+	const players = (data && data.players) || [];
+	const A = s.audience || {}, E = s.engagement || {}, R = s.retention || {}, P = s.progression || {};
+	const flt = (data && data.filters) || {};
+	const out = [];
 
-				/* ---- Landing page (site traffic + mailing list) ----
-				 * Fed by the public GET /LandingStats/ rollup (aggregate counters only —
-				 * mailing-list emails stay behind the admin-only ListMailingList). Loaded
-				 * best-effort alongside /Metrics/; the section simply doesn't render if the
-				 * endpoint isn't deployed yet. Unaffected by the version/edition filters —
-				 * these are site numbers, not game numbers.
-				 *
-				 * Built here (it needs \`LANDING\`), but pushed LAST — see the bottom of this
-				 * function. These are site numbers rather than game numbers, so they sit below
-				 * everything about the game itself. */
-				let landingSection = '';
-				if (LANDING && LANDING.totals) {
-					const lt = LANDING.totals;
-					const CLICK_LABELS = {
-						appstore: 'Mac App Store',
-						itch: 'itch.io',
-						demo: 'Free demo',
-						theme: 'Theme played',
-						gallery: 'Gallery opened',
-						privacy: 'Privacy page',
-						support: 'Support page',
-						'get-nav': 'Get the game (nav)',
-						other: 'Other',
-					};
-					const ldays = LANDING.days || [];
-					const todayRow = ldays.find((d) => d.day === LANDING.today) || {};
-					const dayCols = {};
-					for (const d of ldays.slice(-14)) dayCols[String(d.day).slice(5)] = n(d.visits);
-					landingSection = sec(
-						'Landing page',
-						'wild.willows.harperfabric.com — visits, link clicks & mailing list',
-						\`<div class="grid kpis">\${[
-							kpi(fmt(lt.visits), 'Visits', \`\${fmt(lt.uniques)} first-time visitors\`),
-							kpi(
-								\`<span class="accent">\${fmt(todayRow.visits)}</span>\`,
-								'Visits today',
-								\`\${fmt(todayRow.totalClicks)} clicks · \${fmt(todayRow.signups)} signups today\`,
-							),
-							kpi(fmt(lt.totalClicks), 'Link clicks', 'store, demo & theme buttons'),
-							kpi(
-								\`<span class="accent">\${fmt(lt.signups)}</span>\`,
-								'Mailing list',
-								'signups all-time · emails visible only to admin',
-							),
-						].join('')}</div><div class="grid two" style="margin-top:.8rem">\` +
-							cardTitled(
-								'Clicks by link',
-								'all-time',
-								barRows(objToEntries(lt.clicks), { labelMap: CLICK_LABELS, cls: 'gold' }),
-							) +
-							cardTitled('Daily visits', \`last \${Object.keys(dayCols).length || 0} days\`, histCols(dayCols)) +
-							\`</div>\`,
-					);
-				}
+	/* ---- Overview KPIs ---- */
+	const versionLabel = flt.version ? \`v\${flt.version}\${flt.versionMode === "min" ? " & newer" : ""}\` : "";
+	const activeFilters = [versionLabel, flt.edition, flt.platform].filter(Boolean).map(esc);
+	const overviewSub = activeFilters.length ? \`filtered to \${activeFilters.join(" · ")}\` : "who is out there right now";
+	out.push(sec("Overview", overviewSub, \`<div class="grid kpis">\${[
+		kpi(fmt(s.players), "Total caretakers", "unique anonymous saves"),
+		kpi(\`<span class="accent">\${fmt(A.activeNow)}</span>\`, "Active now", "seen in the last 5 minutes"),
+		kpi(fmt(A.activeLast24h), "Active · 24h"),
+		kpi(fmt(A.activeLast7d), "Active · 7d"),
+		kpi(fmt(A.newLast24h), "New · 24h", \`\${fmt(A.newLast7d)} in the last 7 days\`),
+	].join("")}</div>\`));
 
-				/* ---- Engagement KPIs ---- */
-				out.push(
-					sec(
-						'Engagement',
-						'time spent tending the wild',
-						\`<div class="grid kpis">\${[
-							kpi(\`\${fmt(E.totalPlayHours)}<small>hrs</small>\`, 'Total play time'),
-							kpi(\`\${fmt(E.avgPlayMinutesPerPlayer)}<small>min</small>\`, 'Avg per caretaker'),
-							kpi(fmt(E.totalSessions), 'Sessions', \`\${n(E.avgSessionsPerPlayer)} avg per caretaker\`),
-							kpi(\`\${fmt(E.avgSessionMinutes)}<small>min</small>\`, 'Avg session length'),
-							kpi(fmt(E.totalActions), 'Total actions', \`\${fmt(E.avgActionsPerPlayer)} avg per caretaker\`),
-							kpi(
-								\`<span class="accent">\${pct(R.returningRatePct)}</span>\`,
-								'Return rate',
-								\`\${fmt(R.returningPlayers)} came back\`,
-							),
-						].join('')}</div>\`,
-					),
-				);
+	/* ---- Landing page (site traffic + mailing list) ----
+	 * Fed by the public GET /LandingStats/ rollup (aggregate counters only —
+	 * mailing-list emails stay behind the admin-only ListMailingList). Loaded
+	 * best-effort alongside /Metrics/; the section simply doesn't render if the
+	 * endpoint isn't deployed yet. Unaffected by the version/edition filters —
+	 * these are site numbers, not game numbers.
+	 *
+	 * Built here (it needs \`LANDING\`), but pushed LAST — see the bottom of this
+	 * function. These are site numbers rather than game numbers, so they sit below
+	 * everything about the game itself. */
+	let landingSection = "";
+	if (LANDING && LANDING.totals) {
+		const lt = LANDING.totals;
+		const CLICK_LABELS = {
+			appstore: "Mac App Store", itch: "itch.io", demo: "Free demo", theme: "Theme played",
+			gallery: "Gallery opened", privacy: "Privacy page", support: "Support page", "get-nav": "Get the game (nav)", other: "Other",
+		};
+		const ldays = LANDING.days || [];
+		const todayRow = ldays.find((d) => d.day === LANDING.today) || {};
+		const dayCols = {};
+		for (const d of ldays.slice(-14)) dayCols[String(d.day).slice(5)] = n(d.visits);
+		landingSection = sec("Landing page", "wild.willows.harperfabric.com — visits, link clicks & mailing list", \`<div class="grid kpis">\${[
+			kpi(fmt(lt.visits), "Visits", \`\${fmt(lt.uniques)} first-time visitors\`),
+			kpi(\`<span class="accent">\${fmt(todayRow.visits)}</span>\`, "Visits today", \`\${fmt(todayRow.totalClicks)} clicks · \${fmt(todayRow.signups)} signups today\`),
+			kpi(fmt(lt.totalClicks), "Link clicks", "store, demo & theme buttons"),
+			kpi(\`<span class="accent">\${fmt(lt.signups)}</span>\`, "Mailing list", "signups all-time · emails visible only to admin"),
+		].join("")}</div><div class="grid two" style="margin-top:.8rem">\` +
+			cardTitled("Clicks by link", "all-time", barRows(objToEntries(lt.clicks), { labelMap: CLICK_LABELS, cls: "gold" })) +
+			cardTitled("Daily visits", \`last \${Object.keys(dayCols).length || 0} days\`, histCols(dayCols)) +
+			\`</div>\`);
+	}
 
-				/* ---- Editions: demo vs full ---- */
-				const edOf = (p) => (p.edition === 'demo' ? 'demo' : 'full');
-				const demoPlayers = players.filter((p) => edOf(p) === 'demo');
-				const fullPlayers = players.filter((p) => edOf(p) === 'full');
-				const dStat = editionStats(demoPlayers),
-					fStat = editionStats(fullPlayers);
-				const edSum = s.editions || {};
-				const playersDonut = donut(
-					[
-						{ label: 'Full', value: edSum.full != null ? edSum.full : fStat.count, color: '#4a7c46' },
-						{ label: 'Demo', value: edSum.demo != null ? edSum.demo : dStat.count, color: '#d9a441' },
-					].filter((x) => x.value),
-				);
-				const vsRows = [
-					{ key: 'count', label: 'Caretakers' },
-					{ key: 'playHours', label: 'Total play time', suf: 'h' },
-					{ key: 'avgMin', label: 'Avg play / caretaker', suf: 'm' },
-					{ key: 'avgSessions', label: 'Avg sessions / caretaker' },
-					{ key: 'totalActions', label: 'Total actions' },
-					{ key: 'avgActions', label: 'Avg actions / caretaker' },
-					{ key: 'avgAch', label: 'Avg achievements earned' },
-					{ key: 'avgHealth', label: 'Avg biome health', suf: '%' },
-					{ key: 'avgBiomes', label: 'Avg biomes unlocked' },
-					{ key: 'returningPct', label: 'Returned (2+ sessions)', suf: '%' },
-					{ key: 'collected', label: 'Collected a resource', suf: '%' },
-					{ key: 'crafted', label: 'Crafted an item', suf: '%' },
-					{ key: 'placed', label: 'Placed an object', suf: '%' },
-					{ key: 'attractedAnimal', label: 'Attracted an animal', suf: '%' },
-					{ key: 'unlockedSecondBiome', label: 'Unlocked 2nd biome', suf: '%' },
-				];
-				out.push(
-					sec(
-						'Editions · demo vs full',
-						'how the free demo compares to the full game',
-						cardTitled('Caretakers by edition', 'who is playing', playersDonut) +
-							\`<div class="card" style="margin-top:.8rem"><h3>Every metric, side by side<span class="tag">demo vs full</span></h3>\` +
-							vsTable(vsRows, dStat, fStat) +
-							\`</div>\`,
-					),
-				);
+	/* ---- Engagement KPIs ---- */
+	out.push(sec("Engagement", "time spent tending the wild", \`<div class="grid kpis">\${[
+		kpi(\`\${fmt(E.totalPlayHours)}<small>hrs</small>\`, "Total play time"),
+		kpi(\`\${fmt(E.avgPlayMinutesPerPlayer)}<small>min</small>\`, "Avg per caretaker"),
+		kpi(fmt(E.totalSessions), "Sessions", \`\${n(E.avgSessionsPerPlayer)} avg per caretaker\`),
+		kpi(\`\${fmt(E.avgSessionMinutes)}<small>min</small>\`, "Avg session length"),
+		kpi(fmt(E.totalActions), "Total actions", \`\${fmt(E.avgActionsPerPlayer)} avg per caretaker\`),
+		kpi(\`<span class="accent">\${pct(R.returningRatePct)}</span>\`, "Return rate", \`\${fmt(R.returningPlayers)} came back\`),
+	].join("")}</div>\`));
 
-				/* ---- Player highlights (rendered here, appended at the bottom) ---- */
-				let charSection = '';
-				// Everyone who played more than 5 minutes — most engaged first. Each card is
-				// clickable and opens a full breakdown modal (looked up by playerId).
-				PLAYERS_BY_ID = {};
-				for (const p of players) if (p && p.playerId) PLAYERS_BY_ID[p.playerId] = p;
-				const engaged = players.filter((p) => p && n(p.playSeconds) > 300);
-				if (engaged.length) {
-					const top = [...engaged].sort(
-						(a, b) =>
-							n(b.playSeconds) - n(a.playSeconds) ||
-							n(b.totalActions) - n(a.totalActions) ||
-							n(b.achievements && b.achievements.points) - n(a.achievements && a.achievements.points),
-					);
+	/* ---- Editions: demo vs full ---- */
+	const edOf = (p) => (p.edition === "demo" ? "demo" : "full");
+	const demoPlayers = players.filter((p) => edOf(p) === "demo");
+	const fullPlayers = players.filter((p) => edOf(p) === "full");
+	const dStat = editionStats(demoPlayers), fStat = editionStats(fullPlayers);
+	const edSum = s.editions || {};
+	const playersDonut = donut([
+		{ label: "Full", value: edSum.full != null ? edSum.full : fStat.count, color: "#4a7c46" },
+		{ label: "Demo", value: edSum.demo != null ? edSum.demo : dStat.count, color: "#d9a441" },
+	].filter((x) => x.value));
+	const vsRows = [
+		{ key: "count", label: "Caretakers" },
+		{ key: "playHours", label: "Total play time", suf: "h" },
+		{ key: "avgMin", label: "Avg play / caretaker", suf: "m" },
+		{ key: "avgSessions", label: "Avg sessions / caretaker" },
+		{ key: "totalActions", label: "Total actions" },
+		{ key: "avgActions", label: "Avg actions / caretaker" },
+		{ key: "avgAch", label: "Avg achievements earned" },
+		{ key: "avgHealth", label: "Avg biome health", suf: "%" },
+		{ key: "avgBiomes", label: "Avg biomes unlocked" },
+		{ key: "returningPct", label: "Returned (2+ sessions)", suf: "%" },
+		{ key: "collected", label: "Collected a resource", suf: "%" },
+		{ key: "crafted", label: "Crafted an item", suf: "%" },
+		{ key: "placed", label: "Placed an object", suf: "%" },
+		{ key: "attractedAnimal", label: "Attracted an animal", suf: "%" },
+		{ key: "unlockedSecondBiome", label: "Unlocked 2nd biome", suf: "%" },
+	];
+	out.push(sec("Editions · demo vs full", "how the free demo compares to the full game",
+		cardTitled("Caretakers by edition", "who is playing", playersDonut) +
+		\`<div class="card" style="margin-top:.8rem"><h3>Every metric, side by side<span class="tag">demo vs full</span></h3>\` +
+		vsTable(vsRows, dStat, fStat) + \`</div>\`));
 
-					// Superlative badges: each dimension's true leader (within the shown set)
-					// earns its tag; a standout who leads several shows up to two of them.
-					const supTags = {};
-					const assignSup = (key, label) => {
-						let best = 0,
-							idx = -1;
-						top.forEach((p, i) => {
-							const v = n(key(p));
-							if (v > best) {
-								best = v;
-								idx = i;
-							}
-						});
-						if (idx >= 0) (supTags[idx] = supTags[idx] || []).push(label);
-					};
-					assignSup((p) => p.playSeconds, 'Most playtime');
-					assignSup((p) => p.totalActions, 'Most active');
-					assignSup((p) => p.achievements && p.achievements.earned, 'Most achievements');
-					assignSup((p) => p.biomeSummary && p.biomeSummary.biomesFullyRestored, 'Most restored');
+	/* ---- Player highlights (rendered here, appended at the bottom) ---- */
+	let charSection = "";
+	// Everyone who played more than 5 minutes — most engaged first. Each card is
+	// clickable and opens a full breakdown modal (looked up by playerId).
+	PLAYERS_BY_ID = {};
+	for (const p of players) if (p && p.playerId) PLAYERS_BY_ID[p.playerId] = p;
+	const engaged = players.filter((p) => p && n(p.playSeconds) > 300);
+	if (engaged.length) {
+		const top = [...engaged].sort((a, b) =>
+			n(b.playSeconds) - n(a.playSeconds) ||
+			n(b.totalActions) - n(a.totalActions) ||
+			n(b.achievements && b.achievements.points) - n(a.achievements && a.achievements.points)
+		);
 
-					const stat = (v, l) => \`<div class="hlstat"><b>\${v}</b><span>\${l}</span></div>\`;
-					// "Active now" uses the same 5-minute window as the Overview KPI, so the two
-					// always agree about who is currently playing.
-					const isActiveNow = (p) => p.minutesSinceActive != null && n(p.minutesSinceActive) <= 5;
-					const cards = top
-						.map((p, i) => {
-							const bs = p.biomeSummary || {};
-							const edi = p.edition === 'demo' ? 'demo' : 'full';
-							const live = isActiveNow(p);
-							const tags = (supTags[i] || [])
-								.slice(0, 2)
-								.map((t) => \`<span class="hltag">\${t}</span>\`)
-								.join('');
-							// The green border is the ask, but colour alone isn't a reliable cue, so the
-							// card also carries it in its tooltip and an aria-label for screen readers.
-							const liveTag = live ? \`<span class="hltag hllive">Active now</span>\` : '';
-							return \`<div class="hlcard\${live ? ' active-now' : ''}" data-pid="\${esc(p.playerId || '')}" role="button" tabindex="0" title="\${live ? 'Active now · c' : 'C'}lick for full breakdown"\${live ? ' aria-label="Active now"' : ''}><div class="hlav">\${avatarSVG(p.appearance)}</div><div class="hlbody"><div class="hltop">\${liveTag}\${tags}<span class="hledi \${edi}">\${edi}</span></div><div class="hlstats">\${[
-								stat(fmtDur(p.playSeconds), 'played'),
-								stat(fmt(n(p.sessions)), n(p.sessions) === 1 ? 'session' : 'sessions'),
-								stat(fmt(n(p.totalActions)), 'actions'),
-								stat(\`\${n(p.achievements && p.achievements.earned)}★\`, 'achievements'),
-								stat(fmt(n(bs.totalAnimalsReturned)), 'animals'),
-								stat(fmt(n(p.unlockedBiomes || bs.biomesUnlocked)), 'biomes'),
-							].join('')}</div></div></div>\`;
-						})
-						.join('');
-					charSection = sec(
-						'Player highlights',
-						\`everyone who played more than 5 min · \${top.length} caretakers · click a card for the full breakdown\`,
-						\`<div class="card"><div class="hlgrid">\${cards}</div></div>\`,
-					);
-				}
+		// Superlative badges: each dimension's true leader (within the shown set)
+		// earns its tag; a standout who leads several shows up to two of them.
+		const supTags = {};
+		const assignSup = (key, label) => {
+			let best = 0, idx = -1;
+			top.forEach((p, i) => { const v = n(key(p)); if (v > best) { best = v; idx = i; } });
+			if (idx >= 0) (supTags[idx] = supTags[idx] || []).push(label);
+		};
+		assignSup((p) => p.playSeconds, "Most playtime");
+		assignSup((p) => p.totalActions, "Most active");
+		assignSup((p) => p.achievements && p.achievements.earned, "Most achievements");
+		assignSup((p) => p.biomeSummary && p.biomeSummary.biomesFullyRestored, "Most restored");
 
-				/* ---- Acquisition + Activation funnels ---- */
-				const acq = s.acquisition || {};
-				const fun = s.funnel || {};
-				const dc = s.demoCompletion || {};
-				const acqCards = cardTitled(
-					'Acquisition funnel',
-					'per device',
-					funnel([
-						{ label: 'Opened the app', value: acq.devices },
-						{ label: 'Created a character', value: acq.converted },
-					]) +
-						\`<div class="grid three" style="margin-top:1rem">\${[
-							kpi(fmt(acq.totalOpens), 'App opens'),
-							kpi(\`<span class="accent">\${pct(acq.conversionPct)}</span>\`, 'Conversion'),
-							kpi(pct(acq.bounceRatePct), 'Bounced'),
-						].join('')}</div>\`,
-				);
-				const demoCard = dc.demoInstalls
-					? cardTitled(
-							'Demo completion',
-							'reached the 5-animal hard-stop',
-							funnel([
-								{ label: 'Made a character', value: dc.createdCharacter },
-								{ label: 'Finished the demo', value: dc.reachedGoal },
-							]) +
-								\`<div class="grid three" style="margin-top:1rem">\${[
-									kpi(fmt(dc.demoInstalls), 'Demo installs'),
-									kpi(
-										\`<span class="accent">\${pct(dc.completionPct)}</span>\`,
-										'Completion',
-										'of demo players who started',
-									),
-									kpi(fmt(dc.reachedGoal), 'Finished'),
-								].join('')}</div>\`,
-						)
-					: '';
-				// Every activation signal we have. "Created" is the entry point (always first
-				// and largest); the rest are sorted by count so the funnel always reads
-				// top-down. They're independent booleans, not strict prerequisites, so sorting
-				// by count — not by an assumed sequence — is the honest way to show them.
-				const funRest = [
-					{ label: 'Collected a resource', value: fun.collected },
-					{ label: 'Terraformed the land', value: fun.terraformed },
-					{ label: 'Planted something', value: fun.planted },
-					{ label: 'Crafted an item', value: fun.crafted },
-					{ label: 'Placed an object', value: fun.placed },
-					{ label: 'Attracted an animal', value: fun.attractedAnimal },
-					{ label: 'Upgraded a tool', value: fun.upgradedTool },
-					{ label: 'Built a home', value: fun.builtHome },
-					{ label: 'Upgraded a home', value: fun.upgradedHome },
-					{ label: 'Unlocked 2nd biome', value: fun.unlockedSecondBiome },
-				]
-					.filter((st) => st.value != null)
-					.sort((a, b) => n(b.value) - n(a.value));
-				const funSteps = funnel([{ label: 'Created character', value: fun.created }, ...funRest]);
-				out.push(
-					sec(
-						'Funnels',
-						'from install to a thriving meadow',
-						\`<div class="grid two">\${acqCards}\${cardTitled('Activation funnel', 'all caretakers', funSteps)}</div>\` +
-							(demoCard ? \`<div style="margin-top:.8rem">\${demoCard}</div>\` : ''),
-					),
-				);
+		const stat = (v, l) => \`<div class="hlstat"><b>\${v}</b><span>\${l}</span></div>\`;
+		// "Active now" uses the same 5-minute window as the Overview KPI, so the two
+		// always agree about who is currently playing.
+		const isActiveNow = (p) => p.minutesSinceActive != null && n(p.minutesSinceActive) <= 5;
+		const cards = top.map((p, i) => {
+			const bs = p.biomeSummary || {};
+			const edi = p.edition === "demo" ? "demo" : "full";
+			const live = isActiveNow(p);
+			const tags = (supTags[i] || []).slice(0, 2).map((t) => \`<span class="hltag">\${t}</span>\`).join("");
+			// The green border is the ask, but colour alone isn't a reliable cue, so the
+			// card also carries it in its tooltip and an aria-label for screen readers.
+			const liveTag = live ? \`<span class="hltag hllive">Active now</span>\` : "";
+			return \`<div class="hlcard\${live ? " active-now" : ""}" data-pid="\${esc(p.playerId || "")}" role="button" tabindex="0" title="\${live ? "Active now · c" : "C"}lick for full breakdown"\${live ? ' aria-label="Active now"' : ""}><div class="hlav">\${avatarSVG(p.appearance)}</div><div class="hlbody"><div class="hltop">\${liveTag}\${tags}<span class="hledi \${edi}">\${edi}</span></div><div class="hlstats">\${[
+				stat(fmtDur(p.playSeconds), "played"),
+				stat(fmt(n(p.sessions)), n(p.sessions) === 1 ? "session" : "sessions"),
+				stat(fmt(n(p.totalActions)), "actions"),
+				stat(\`\${n(p.achievements && p.achievements.earned)}★\`, "achievements"),
+				stat(fmt(n(bs.totalAnimalsReturned)), "animals"),
+				stat(fmt(n(p.unlockedBiomes || bs.biomesUnlocked)), "biomes"),
+			].join("")}</div></div></div>\`;
+		}).join("");
+		charSection = sec("Player highlights", \`everyone who played more than 5 min · \${top.length} caretakers · click a card for the full breakdown\`,
+			\`<div class="card"><div class="hlgrid">\${cards}</div></div>\`);
+	}
 
-				/* ---- Progression ---- */
-				const tut = P.tutorialStepHistogram || {};
-				const tutDone = n(tut['99']);
-				const tutTotal = Object.values(tut).reduce((a, v) => a + n(v), 0) || 1;
-				out.push(
-					sec(
-						'Progression',
-						'restoring the biomes',
-						\`<div class="grid two">\` +
-							cardTitled(
-								'Restoration',
-								null,
-								\`<div class="grid three">\${[
-									kpi(\`\${fmt(P.avgBiomeHealth)}<small>%</small>\`, 'Avg biome health'),
-									kpi(fmt(P.biomesFullyRestored), 'Biomes fully restored'),
-									kpi(n(P.avgUnlockedBiomes), 'Avg biomes unlocked'),
-								].join(
-									'',
-								)}</div><div style="margin-top:.4rem" class="bars"><div class="bar"><span class="lab">Most loved</span><span class="track"><span class="fill gold" style="width:100%"></span></span><span class="num" style="text-transform:capitalize">\${esc(P.mostPopularArea || '—')}</span></div></div>\`,
-							) +
-							cardTitled(
-								'Tutorial completion',
-								\`\${pct((tutDone / tutTotal) * 100)} finished\`,
-								histCols(tut, {
-									labelMap: { 0: 'Step 0', 99: 'Done' },
-								}) +
-									\`<div class="hint" style="color:var(--faint);font-size:.76rem;margin-top:.5rem">Step 99 = tutorial complete. Early drop-off shows where new caretakers pause.</div>\`,
-							) +
-							\`</div>\`,
-					),
-				);
+	/* ---- Acquisition + Activation funnels ---- */
+	const acq = s.acquisition || {};
+	const fun = s.funnel || {};
+	const dc = s.demoCompletion || {};
+	const acqCards = cardTitled("Acquisition funnel", "per device", funnel([
+		{ label: "Opened the app", value: acq.devices },
+		{ label: "Created a character", value: acq.converted },
+	]) + \`<div class="grid three" style="margin-top:1rem">\${[
+		kpi(fmt(acq.totalOpens), "App opens"),
+		kpi(\`<span class="accent">\${pct(acq.conversionPct)}</span>\`, "Conversion"),
+		kpi(pct(acq.bounceRatePct), "Bounced"),
+	].join("")}</div>\`);
+	const demoCard = dc.demoInstalls
+		? cardTitled("Demo completion", "reached the 5-animal hard-stop", funnel([
+			{ label: "Made a character", value: dc.createdCharacter },
+			{ label: "Finished the demo", value: dc.reachedGoal },
+		]) + \`<div class="grid three" style="margin-top:1rem">\${[
+			kpi(fmt(dc.demoInstalls), "Demo installs"),
+			kpi(\`<span class="accent">\${pct(dc.completionPct)}</span>\`, "Completion", "of demo players who started"),
+			kpi(fmt(dc.reachedGoal), "Finished"),
+		].join("")}</div>\`)
+		: "";
+	// Every activation signal we have. "Created" is the entry point (always first
+	// and largest); the rest are sorted by count so the funnel always reads
+	// top-down. They're independent booleans, not strict prerequisites, so sorting
+	// by count — not by an assumed sequence — is the honest way to show them.
+	const funRest = [
+		{ label: "Collected a resource", value: fun.collected },
+		{ label: "Terraformed the land", value: fun.terraformed },
+		{ label: "Planted something", value: fun.planted },
+		{ label: "Crafted an item", value: fun.crafted },
+		{ label: "Placed an object", value: fun.placed },
+		{ label: "Attracted an animal", value: fun.attractedAnimal },
+		{ label: "Upgraded a tool", value: fun.upgradedTool },
+		{ label: "Built a home", value: fun.builtHome },
+		{ label: "Upgraded a home", value: fun.upgradedHome },
+		{ label: "Unlocked 2nd biome", value: fun.unlockedSecondBiome },
+	].filter((st) => st.value != null).sort((a, b) => n(b.value) - n(a.value));
+	const funSteps = funnel([{ label: "Created character", value: fun.created }, ...funRest]);
+	out.push(sec("Funnels", "from install to a thriving meadow",
+		\`<div class="grid two">\${acqCards}\${cardTitled("Activation funnel", "all caretakers", funSteps)}</div>\` +
+		(demoCard ? \`<div style="margin-top:.8rem">\${demoCard}</div>\` : "")));
 
-				/* ---- Time by area ---- */
-				const ad = s.areaDwell || {};
-				const byAreaMin =
-					ad.byAreaMinutes && Object.keys(ad.byAreaMinutes).length
-						? ad.byAreaMinutes
-						: Object.fromEntries(Object.entries(ad.byAreaSeconds || {}).map(([k, v]) => [k, Math.round(n(v) / 60)]));
-				if (Object.keys(byAreaMin).length) {
-					const totalMin =
-						ad.totalSeconds != null
-							? Math.round(n(ad.totalSeconds) / 60)
-							: Object.values(byAreaMin).reduce((a, v) => a + n(v), 0);
-					out.push(
-						sec(
-							'Time by area',
-							'where caretakers spend their minutes',
-							cardTitled(
-								'Minutes per area',
-								\`\${fmt(totalMin)}m total · most time in \${esc(ad.mostTimeArea || objToEntries(byAreaMin)[0][0])}\`,
-								barRows(objToEntries(byAreaMin), { cls: 'sky', fmtNum: (v) => \`\${fmt(v)}m\` }),
-							),
-						),
-					);
-				}
+	/* ---- Progression ---- */
+	const tut = P.tutorialStepHistogram || {};
+	const tutDone = n(tut["99"]);
+	const tutTotal = Object.values(tut).reduce((a, v) => a + n(v), 0) || 1;
+	out.push(sec("Progression", "restoring the biomes", \`<div class="grid two">\` +
+		cardTitled("Restoration", null, \`<div class="grid three">\${[
+			kpi(\`\${fmt(P.avgBiomeHealth)}<small>%</small>\`, "Avg biome health"),
+			kpi(fmt(P.biomesFullyRestored), "Biomes fully restored"),
+			kpi(n(P.avgUnlockedBiomes), "Avg biomes unlocked"),
+		].join("")}</div><div style="margin-top:.4rem" class="bars"><div class="bar"><span class="lab">Most loved</span><span class="track"><span class="fill gold" style="width:100%"></span></span><span class="num" style="text-transform:capitalize">\${esc(P.mostPopularArea || "—")}</span></div></div>\`) +
+		cardTitled("Tutorial completion", \`\${pct((tutDone / tutTotal) * 100)} finished\`, histCols(tut, {
+			labelMap: { "0": "Step 0", "99": "Done" },
+		}) + \`<div class="hint" style="color:var(--faint);font-size:.76rem;margin-top:.5rem">Step 99 = tutorial complete. Early drop-off shows where new caretakers pause.</div>\`) +
+		\`</div>\`));
 
-				/* ---- Platforms / OS / versions ---- */
-				const plat = s.platforms || {},
-					oss = s.operatingSystems || {},
-					vers = s.versions || {},
-					langs = s.languages || {};
-				const platSeg = [
-					{ label: 'Desktop', value: plat.desktop, color: '#4a7c46' },
-					{ label: 'Web', value: plat.web, color: '#6ea8c8' },
-				].filter((x) => x.value);
-				out.push(
-					sec(
-						'Platforms & builds',
-						'where the game is being played',
-						\`<div class="grid two">\` +
-							cardTitled('Platform', null, donut(platSeg)) +
-							cardTitled(
-								'Operating system',
-								null,
-								barRows(objToEntries(oss), {
-									labelMap: { mac: 'macOS', windows: 'Windows', linux: 'Linux' },
-									cls: 'sky',
-								}),
-							) +
-							cardTitled('Language', null, barRows(objToEntries(langs), { labelMap: LANG_LABELS, cls: 'rose' })) +
-							\`</div><div class="card" style="margin-top:.8rem"><h3>Game version</h3>\` +
-							barRows(objToEntries(vers), { cls: 'gold' }) +
-							\`</div>\`,
-					),
-				);
+	/* ---- Time by area ---- */
+	const ad = s.areaDwell || {};
+	const byAreaMin = ad.byAreaMinutes && Object.keys(ad.byAreaMinutes).length
+		? ad.byAreaMinutes
+		: Object.fromEntries(Object.entries(ad.byAreaSeconds || {}).map(([k, v]) => [k, Math.round(n(v) / 60)]));
+	if (Object.keys(byAreaMin).length) {
+		const totalMin = ad.totalSeconds != null ? Math.round(n(ad.totalSeconds) / 60) : Object.values(byAreaMin).reduce((a, v) => a + n(v), 0);
+		out.push(sec("Time by area", "where caretakers spend their minutes", cardTitled(
+			"Minutes per area", \`\${fmt(totalMin)}m total · most time in \${esc(ad.mostTimeArea || objToEntries(byAreaMin)[0][0])}\`,
+			barRows(objToEntries(byAreaMin), { cls: "sky", fmtNum: (v) => \`\${fmt(v)}m\` }))));
+	}
 
-				/* ---- Action totals ---- */
-				const acts = s.actionTotals || {};
-				out.push(
-					sec(
-						'What caretakers do',
-						'every tracked action, all-time',
-						card(barRows(objToEntries(acts).slice(0, 17), { labelMap: ACTION_LABELS })),
-					),
-				);
+	/* ---- Platforms / OS / versions ---- */
+	const plat = s.platforms || {}, oss = s.operatingSystems || {}, vers = s.versions || {}, langs = s.languages || {};
+	const platSeg = [
+		{ label: "Desktop", value: plat.desktop, color: "#4a7c46" },
+		{ label: "Web", value: plat.web, color: "#6ea8c8" },
+	].filter((x) => x.value);
+	out.push(sec("Platforms & builds", "where the game is being played", \`<div class="grid two">\` +
+		cardTitled("Platform", null, donut(platSeg)) +
+		cardTitled("Operating system", null, barRows(objToEntries(oss), { labelMap: { mac: "macOS", windows: "Windows", linux: "Linux" }, cls: "sky" })) +
+		cardTitled("Language", null, barRows(objToEntries(langs), { labelMap: LANG_LABELS, cls: "rose" })) +
+		\`</div><div class="card" style="margin-top:.8rem"><h3>Game version</h3>\` +
+		barRows(objToEntries(vers), { cls: "gold" }) + \`</div>\`));
 
-				/* ---- Onboarding timing ---- */
-				const cr = s.creation || {},
-					ttfa = s.timeToFirstAction || {};
-				out.push(
-					sec(
-						'Onboarding',
-						'first impressions',
-						\`<div class="grid kpis">\${[
-							kpi(
-								\`\${n(cr.avgCreationSeconds)}<small>s</small>\`,
-								'Avg creation time',
-								\`\${fmt(cr.savesWithTiming)} timed\`,
-							),
-							kpi(\`\${n(cr.medianCreationSeconds)}<small>s</small>\`, 'Median creation time'),
-							kpi(
-								\`\${n(ttfa.avgSeconds)}<small>s</small>\`,
-								'Time to first action',
-								\`\${fmt(ttfa.playersMeasured)} measured\`,
-							),
-							kpi(
-								\`\${n(acq.avgCharactersPerPerson)}\`,
-								'Characters per person',
-								\`\${fmt(acq.totalCharactersCreated)} created total\`,
-							),
-						].join('')}</div>\`,
-					),
-				);
+	/* ---- Action totals ---- */
+	const acts = s.actionTotals || {};
+	out.push(sec("What caretakers do", "every tracked action, all-time", card(
+		barRows(objToEntries(acts).slice(0, 17), { labelMap: ACTION_LABELS }))));
 
-				/* ---- Settings & accessibility ---- */
-				const set = s.settings || {};
-				if (set.savesReporting) {
-					const au = set.audio || {},
-						a11y = set.accessibility || {};
-					const cbLabels = { off: 'Off', redgreen: 'Red–green', blueyellow: 'Blue–yellow', mono: 'Monochrome' };
-					const tsLabels = { sm: 'Small', md: 'Medium', lg: 'Large', xl: 'Extra large' };
-					const fontLabels = {
-						storybook: 'Storybook',
-						rounded: 'Rounded',
-						classic: 'Classic',
-						plain: 'Plain',
-						typewriter: 'Typewriter',
-					};
-					out.push(
-						sec(
-							'Settings & accessibility',
-							\`what \${fmt(set.savesReporting)} caretakers have turned on\`,
-							\`<div class="grid two">\` +
-								cardTitled(
-									'Audio',
-									'since the sound update',
-									\`<div class="grid three">\${[
-										kpi(
-											\`<span class="accent">\${pct(au.musicOffPct)}</span>\`,
-											'Music off',
-											\`\${fmt(au.musicOff)} caretakers\`,
-										),
-										kpi(pct(au.sfxOffPct), 'SFX off', \`\${fmt(au.sfxOff)} caretakers\`),
-										kpi(fmt(au.fullyMuted), 'Fully muted'),
-									].join('')}</div>\`,
-								) +
-								cardTitled(
-									'Accessibility options',
-									'how many have each on',
-									\`<div class="grid three">\${[
-										kpi(fmt(a11y.reduceMotion), 'Reduce motion'),
-										kpi(fmt(a11y.highContrast), 'High contrast'),
-										kpi(fmt(a11y.colorblindOn), 'Colorblind aid'),
-									].join(
-										'',
-									)}</div><div style="margin-top:1rem">\${barRows(objToEntries(a11y.textScales || {}), { labelMap: tsLabels, cls: 'sky' })}</div>\`,
-								) +
-								\`</div>\` +
-								(a11y.fonts
-									? \`<div class="card" style="margin-top:.8rem"><h3>Font<span class="tag">which typeface caretakers pick</span></h3>\${barRows(objToEntries(a11y.fonts), { labelMap: fontLabels, cls: 'sky' })}</div>\`
-									: '') +
-								(a11y.colorblindOn
-									? \`<div class="card" style="margin-top:.8rem"><h3>Colorblind modes<span class="tag">among users of the aid</span></h3>\${barRows(
-											objToEntries(a11y.colorblindModes || {}).filter(([k]) => k !== 'off'),
-											{ labelMap: cbLabels, cls: 'gold' },
-										)}</div>\`
-									: ''),
-						),
-					);
-				}
+	/* ---- Onboarding timing ---- */
+	const cr = s.creation || {}, ttfa = s.timeToFirstAction || {};
+	out.push(sec("Onboarding", "first impressions", \`<div class="grid kpis">\${[
+		kpi(\`\${n(cr.avgCreationSeconds)}<small>s</small>\`, "Avg creation time", \`\${fmt(cr.savesWithTiming)} timed\`),
+		kpi(\`\${n(cr.medianCreationSeconds)}<small>s</small>\`, "Median creation time"),
+		kpi(\`\${n(ttfa.avgSeconds)}<small>s</small>\`, "Time to first action", \`\${fmt(ttfa.playersMeasured)} measured\`),
+		kpi(\`\${n(acq.avgCharactersPerPerson)}\`, "Characters per person", \`\${fmt(acq.totalCharactersCreated)} created total\`),
+	].join("")}</div>\`));
 
-				/* ---- Achievements ---- */
-				const ach = s.achievements || {};
-				const byCat = ach.byCategory || {};
-				const catLabels = {
-					'getting-started': 'Getting started',
-					biome: 'Biome',
-					preserve: 'Preserve',
-					mastery: 'Mastery',
-				};
-				out.push(
-					sec(
-						'Achievements',
-						'milestones earned across the meadow',
-						\`<div class="grid two">\` +
-							cardTitled(
-								'Totals',
-								null,
-								\`<div class="grid three">\${[
-									kpi(fmt(ach.totalEarned), 'Earned', \`of \${fmt(ach.totalDefined)} defined\`),
-									kpi(n(ach.avgPerPlayer), 'Avg per caretaker'),
-									kpi(\`\${fmt(ach.avgPoints)}<small>pts</small>\`, 'Avg points'),
-								].join(
-									'',
-								)}</div><div style="margin-top:1rem">\${barRows(objToEntries(byCat), { labelMap: catLabels, cls: 'gold' })}</div>\`,
-							) +
-							cardTitled(
-								'Completion spread',
-								'% of achievements earned',
-								histCols(ach.completionHistogram, {
-									order: ['0', '1-10', '11-20', '21-30', '31-40', '41-50'],
-									labelMap: {
-										0: '0%',
-										'1-10': '1–10',
-										'11-20': '11–20',
-										'21-30': '21–30',
-										'31-40': '31–40',
-										'41-50': '41–50',
-									},
-								}) +
-									\`<div class="hint" style="color:var(--faint);font-size:.76rem;margin-top:.5rem">Most caretakers are early on; a few have restored nearly everything.</div>\`,
-							) +
-							\`</div>\`,
-					),
-				);
+	/* ---- Settings & accessibility ---- */
+	const set = s.settings || {};
+	if (set.savesReporting) {
+		const au = set.audio || {}, a11y = set.accessibility || {};
+		const cbLabels = { off: "Off", redgreen: "Red–green", blueyellow: "Blue–yellow", mono: "Monochrome" };
+		const tsLabels = { sm: "Small", md: "Medium", lg: "Large", xl: "Extra large" };
+		const fontLabels = { storybook: "Storybook", rounded: "Rounded", classic: "Classic", plain: "Plain", typewriter: "Typewriter" };
+		out.push(sec("Settings & accessibility", \`what \${fmt(set.savesReporting)} caretakers have turned on\`, \`<div class="grid two">\` +
+			cardTitled("Audio", "since the sound update", \`<div class="grid three">\${[
+				kpi(\`<span class="accent">\${pct(au.musicOffPct)}</span>\`, "Music off", \`\${fmt(au.musicOff)} caretakers\`),
+				kpi(pct(au.sfxOffPct), "SFX off", \`\${fmt(au.sfxOff)} caretakers\`),
+				kpi(fmt(au.fullyMuted), "Fully muted"),
+			].join("")}</div>\`) +
+			cardTitled("Accessibility options", "how many have each on", \`<div class="grid three">\${[
+				kpi(fmt(a11y.reduceMotion), "Reduce motion"),
+				kpi(fmt(a11y.highContrast), "High contrast"),
+				kpi(fmt(a11y.colorblindOn), "Colorblind aid"),
+			].join("")}</div><div style="margin-top:1rem">\${barRows(objToEntries(a11y.textScales || {}), { labelMap: tsLabels, cls: "sky" })}</div>\`) +
+			\`</div>\` +
+			(a11y.fonts ? \`<div class="card" style="margin-top:.8rem"><h3>Font<span class="tag">which typeface caretakers pick</span></h3>\${barRows(objToEntries(a11y.fonts), { labelMap: fontLabels, cls: "sky" })}</div>\` : "") +
+			(a11y.colorblindOn ? \`<div class="card" style="margin-top:.8rem"><h3>Colorblind modes<span class="tag">among users of the aid</span></h3>\${barRows(objToEntries(a11y.colorblindModes || {}).filter(([k]) => k !== "off"), { labelMap: cbLabels, cls: "gold" })}</div>\` : "")));
+	}
 
-				/* ---- Most-earned achievements ---- */
-				const rec = s.achievements && s.achievements.recentDistribution;
-				if (rec && Object.keys(rec).length) {
-					out.push(
-						sec(
-							'Popular achievements',
-							'most frequently earned',
-							card(barRows(objToEntries(rec).slice(0, 12), { cls: '' })),
-						),
-					);
-				}
+	/* ---- Achievements ---- */
+	const ach = s.achievements || {};
+	const byCat = ach.byCategory || {};
+	const catLabels = { "getting-started": "Getting started", biome: "Biome", preserve: "Preserve", mastery: "Mastery" };
+	out.push(sec("Achievements", "milestones earned across the meadow", \`<div class="grid two">\` +
+		cardTitled("Totals", null, \`<div class="grid three">\${[
+			kpi(fmt(ach.totalEarned), "Earned", \`of \${fmt(ach.totalDefined)} defined\`),
+			kpi(n(ach.avgPerPlayer), "Avg per caretaker"),
+			kpi(\`\${fmt(ach.avgPoints)}<small>pts</small>\`, "Avg points"),
+		].join("")}</div><div style="margin-top:1rem">\${barRows(objToEntries(byCat), { labelMap: catLabels, cls: "gold" })}</div>\`) +
+		cardTitled("Completion spread", "% of achievements earned", histCols(ach.completionHistogram, {
+			order: ["0", "1-10", "11-20", "21-30", "31-40", "41-50"],
+			labelMap: { "0": "0%", "1-10": "1–10", "11-20": "11–20", "21-30": "21–30", "31-40": "31–40", "41-50": "41–50" },
+		}) + \`<div class="hint" style="color:var(--faint);font-size:.76rem;margin-top:.5rem">Most caretakers are early on; a few have restored nearly everything.</div>\`) +
+		\`</div>\`));
 
-				/* ---- Save health, directly above the player highlights ---- */
-				if (saveSection) out.push(saveSection);
+	/* ---- Most-earned achievements ---- */
+	const rec = s.achievements && s.achievements.recentDistribution;
+	if (rec && Object.keys(rec).length) {
+		out.push(sec("Popular achievements", "most frequently earned", card(
+			barRows(objToEntries(rec).slice(0, 12), { cls: "" }))));
+	}
 
-				/* ---- Player highlights — kept at the bottom ---- */
-				if (charSection) out.push(charSection);
+	/* ---- Player highlights — kept at the bottom ---- */
+	if (charSection) out.push(charSection);
 
-				/* ---- Landing page — the very bottom (site traffic, not game numbers) ---- */
-				if (landingSection) out.push(landingSection);
+	/* ---- Landing page — the very bottom (site traffic, not game numbers) ---- */
+	if (landingSection) out.push(landingSection);
 
-				document.getElementById('root').innerHTML = out.join('');
-			}
+	document.getElementById("root").innerHTML = out.join("");
+}
 
-			/* ------------------------------------------------------------------ *
-			 * Fetch + wire-up
-			 * ------------------------------------------------------------------ */
-			// Active dashboard filters (all server-side, applied to the whole report).
-			const FILTERS = { version: 'all', edition: 'all', platform: 'all', versionMode: 'exact' };
+/* ------------------------------------------------------------------ *
+ * Fetch + wire-up
+ * ------------------------------------------------------------------ */
+// Active dashboard filters (all server-side, applied to the whole report).
+const FILTERS = { version: "all", edition: "all", platform: "all", versionMode: "exact" };
 
-			/** Grey out the "Range" selector unless a specific version is chosen. */
-			function syncVersionMode() {
-				const wrap = document.getElementById('version-mode-wrap');
-				const sel = document.getElementById('version-mode');
-				if (!wrap || !sel) return;
-				const off = FILTERS.version === 'all';
-				wrap.classList.toggle('is-off', off);
-				sel.disabled = off;
-				sel.value = FILTERS.versionMode;
-			}
-			const FILTER_CFG = [
-				{ key: 'version', el: 'version-filter', list: 'availableVersions', allLabel: 'All versions', cap: (v) => v },
-				{
-					key: 'edition',
-					el: 'edition-filter',
-					list: 'availableEditions',
-					allLabel: 'All editions',
-					cap: (v) => v.charAt(0).toUpperCase() + v.slice(1),
-				},
-				{
-					key: 'platform',
-					el: 'platform-filter',
-					list: 'availablePlatforms',
-					allLabel: 'All platforms',
-					cap: (v) => v.charAt(0).toUpperCase() + v.slice(1),
-				},
-			];
+/** Grey out the "Range" selector unless a specific version is chosen. */
+function syncVersionMode() {
+	const wrap = document.getElementById("version-mode-wrap");
+	const sel = document.getElementById("version-mode");
+	if (!wrap || !sel) return;
+	const off = FILTERS.version === "all";
+	wrap.classList.toggle("is-off", off);
+	sel.disabled = off;
+	sel.value = FILTERS.versionMode;
+}
+const FILTER_CFG = [
+	{ key: "version", el: "version-filter", list: "availableVersions", allLabel: "All versions", cap: (v) => v },
+	{ key: "edition", el: "edition-filter", list: "availableEditions", allLabel: "All editions", cap: (v) => v.charAt(0).toUpperCase() + v.slice(1) },
+	{ key: "platform", el: "platform-filter", list: "availablePlatforms", allLabel: "All platforms", cap: (v) => v.charAt(0).toUpperCase() + v.slice(1) },
+];
 
-			/** Fill each filter dropdown from the response, preserving the active choices. */
-			function populateFilterOptions(filters) {
-				if (!filters) return;
-				for (const cfg of FILTER_CFG) {
-					const sel = document.getElementById(cfg.el);
-					const opts = filters[cfg.list];
-					if (!sel || !Array.isArray(opts)) continue;
-					sel.innerHTML =
-						\`<option value="all">\${cfg.allLabel}</option>\` +
-						opts.map((v) => \`<option value="\${esc(v)}">\${esc(cfg.cap(String(v)))}</option>\`).join('');
-					sel.value = FILTERS[cfg.key] === 'all' || opts.includes(FILTERS[cfg.key]) ? FILTERS[cfg.key] : 'all';
-					FILTERS[cfg.key] = sel.value;
-				}
-				// Restore the version range mode from the server echo, then sync the control.
-				FILTERS.versionMode = filters.versionMode === 'min' ? 'min' : 'exact';
-				syncVersionMode();
-			}
+/** Fill each filter dropdown from the response, preserving the active choices. */
+function populateFilterOptions(filters) {
+	if (!filters) return;
+	for (const cfg of FILTER_CFG) {
+		const sel = document.getElementById(cfg.el);
+		const opts = filters[cfg.list];
+		if (!sel || !Array.isArray(opts)) continue;
+		sel.innerHTML = \`<option value="all">\${cfg.allLabel}</option>\` +
+			opts.map((v) => \`<option value="\${esc(v)}">\${esc(cfg.cap(String(v)))}</option>\`).join("");
+		sel.value = FILTERS[cfg.key] === "all" || opts.includes(FILTERS[cfg.key]) ? FILTERS[cfg.key] : "all";
+		FILTERS[cfg.key] = sel.value;
+	}
+	// Restore the version range mode from the server echo, then sync the control.
+	FILTERS.versionMode = filters.versionMode === "min" ? "min" : "exact";
+	syncVersionMode();
+}
 
-			async function load() {
-				const root = document.getElementById('root');
-				const gen = document.getElementById('generated');
-				root.innerHTML = \`<div class="skeleton">Gathering the meadow’s numbers…</div>\`;
-				try {
-					// Exclude dev/test saves so they don't skew the numbers (matches the
-					// server's ?exclude filter). Optional version/edition/platform each scope
-					// the whole report server-side.
-					let url = '../Metrics/?exclude=bailey_test';
-					for (const cfg of FILTER_CFG) {
-						if (FILTERS[cfg.key] && FILTERS[cfg.key] !== 'all')
-							url += \`&\${cfg.key}=\` + encodeURIComponent(FILTERS[cfg.key]);
-					}
-					// A specific version can be widened to "this version & newer" (min mode);
-					// otherwise the report isolates the single selected version.
-					if (FILTERS.version !== 'all' && FILTERS.versionMode === 'min') url += '&versionMode=min';
-					// Landing-page stats load in parallel, best-effort: a missing/failed
-					// /LandingStats/ just hides that section instead of breaking the page.
-					const landingReq = fetch('../LandingStats/', { headers: { accept: 'application/json' } })
-						.then((r) => (r.ok ? r.json() : null))
-						.catch(() => null);
-					// Same best-effort contract: a missing /SaveHealth/ hides the panel rather
-					// than breaking the page.
-					const saveReq = fetch('../SaveHealth/', { headers: { accept: 'application/json' } })
-						.then((r) => (r.ok ? r.json() : null))
-						.catch(() => null);
-					const res = await fetch(url, { headers: { accept: 'application/json' } });
-					if (!res.ok) throw new Error(\`Metrics endpoint returned \${res.status}\`);
-					const data = await res.json();
-					LANDING = await landingReq;
-					SAVEHEALTH = await saveReq;
-					populateFilterOptions(data.filters);
-					render(data);
-					if (data.generatedAt) {
-						const d = new Date(data.generatedAt);
-						gen.textContent = \`Updated \${d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}\`;
-					}
-				} catch (err) {
-					root.innerHTML = \`<div class="err"><b>Couldn’t load metrics.</b><br>\${esc(err.message || err)}<br><span style="font-size:.8rem;opacity:.8">The dashboard reads from the <code>/Metrics/</code> endpoint on this host.</span></div>\`;
-					gen.textContent = '';
-				}
-			}
+async function load() {
+	const root = document.getElementById("root");
+	const gen = document.getElementById("generated");
+	root.innerHTML = \`<div class="skeleton">Gathering the meadow’s numbers…</div>\`;
+	try {
+		// Exclude dev/test saves so they don't skew the numbers (matches the
+		// server's ?exclude filter). Optional version/edition/platform each scope
+		// the whole report server-side.
+		let url = "../Metrics/?exclude=bailey_test";
+		for (const cfg of FILTER_CFG) {
+			if (FILTERS[cfg.key] && FILTERS[cfg.key] !== "all") url += \`&\${cfg.key}=\` + encodeURIComponent(FILTERS[cfg.key]);
+		}
+		// A specific version can be widened to "this version & newer" (min mode);
+		// otherwise the report isolates the single selected version.
+		if (FILTERS.version !== "all" && FILTERS.versionMode === "min") url += "&versionMode=min";
+		// Landing-page stats load in parallel, best-effort: a missing/failed
+		// /LandingStats/ just hides that section instead of breaking the page.
+		const landingReq = fetch("../LandingStats/", { headers: { accept: "application/json" } })
+			.then((r) => (r.ok ? r.json() : null))
+			.catch(() => null);
+		const res = await fetch(url, { headers: { accept: "application/json" } });
+		if (!res.ok) throw new Error(\`Metrics endpoint returned \${res.status}\`);
+		const data = await res.json();
+		LANDING = await landingReq;
+		populateFilterOptions(data.filters);
+		render(data);
+		if (data.generatedAt) {
+			const d = new Date(data.generatedAt);
+			gen.textContent = \`Updated \${d.toLocaleString("en-US", { month: "short", day: "numeric", hour: "numeric", minute: "2-digit" })}\`;
+		}
+	} catch (err) {
+		root.innerHTML = \`<div class="err"><b>Couldn’t load metrics.</b><br>\${esc(err.message || err)}<br><span style="font-size:.8rem;opacity:.8">The dashboard reads from the <code>/Metrics/</code> endpoint on this host.</span></div>\`;
+		gen.textContent = "";
+	}
+}
 
-			document.getElementById('refresh').addEventListener('click', load);
-			for (const cfg of FILTER_CFG) {
-				const sel = document.getElementById(cfg.el);
-				if (sel)
-					sel.addEventListener('change', (e) => {
-						FILTERS[cfg.key] = e.target.value;
-						if (cfg.key === 'version') syncVersionMode(); // enable/disable the range control
-						load();
-					});
-			}
-			const versionModeSel = document.getElementById('version-mode');
-			if (versionModeSel)
-				versionModeSel.addEventListener('change', (e) => {
-					FILTERS.versionMode = e.target.value === 'min' ? 'min' : 'exact';
-					if (FILTERS.version !== 'all') load(); // moot while "All versions" is selected
-				});
+document.getElementById("refresh").addEventListener("click", load);
+for (const cfg of FILTER_CFG) {
+	const sel = document.getElementById(cfg.el);
+	if (sel) sel.addEventListener("change", (e) => {
+		FILTERS[cfg.key] = e.target.value;
+		if (cfg.key === "version") syncVersionMode(); // enable/disable the range control
+		load();
+	});
+}
+const versionModeSel = document.getElementById("version-mode");
+if (versionModeSel) versionModeSel.addEventListener("change", (e) => {
+	FILTERS.versionMode = e.target.value === "min" ? "min" : "exact";
+	if (FILTERS.version !== "all") load(); // moot while "All versions" is selected
+});
 
-			// Open a player's breakdown modal when their highlight card is clicked or
-			// activated by keyboard. Delegated on #root, which persists across re-renders.
-			const rootEl = document.getElementById('root');
-			rootEl.addEventListener('click', (e) => {
-				const card = e.target.closest && e.target.closest('.hlcard[data-pid]');
-				if (card) openPlayerModal(card.getAttribute('data-pid'));
-			});
-			rootEl.addEventListener('keydown', (e) => {
-				if (e.key !== 'Enter' && e.key !== ' ') return;
-				const card = e.target.closest && e.target.closest('.hlcard[data-pid]');
-				if (card) {
-					e.preventDefault();
-					openPlayerModal(card.getAttribute('data-pid'));
-				}
-			});
-			document.addEventListener('keydown', (e) => {
-				if (e.key === 'Escape') closePlayerModal();
-			});
+// Open a player's breakdown modal when their highlight card is clicked or
+// activated by keyboard. Delegated on #root, which persists across re-renders.
+const rootEl = document.getElementById("root");
+rootEl.addEventListener("click", (e) => {
+	const card = e.target.closest && e.target.closest(".hlcard[data-pid]");
+	if (card) openPlayerModal(card.getAttribute("data-pid"));
+});
+rootEl.addEventListener("keydown", (e) => {
+	if (e.key !== "Enter" && e.key !== " ") return;
+	const card = e.target.closest && e.target.closest(".hlcard[data-pid]");
+	if (card) { e.preventDefault(); openPlayerModal(card.getAttribute("data-pid")); }
+});
+document.addEventListener("keydown", (e) => { if (e.key === "Escape") closePlayerModal(); });
 
-			// expose for offline/unit rendering (jsdom smoke test)
-			window.__renderDashboard = render;
-			window.__openPlayerModal = openPlayerModal;
-			if (!window.__NO_AUTOLOAD) load();
-		<\/script>
-	</body>
+// expose for offline/unit rendering (jsdom smoke test)
+window.__renderDashboard = render;
+window.__openPlayerModal = openPlayerModal;
+if (!window.__NO_AUTOLOAD) load();
+<\/script>
+</body>
 </html>
 `,re=`<!doctype html>
 <html lang="en">
@@ -3209,4 +2067,4 @@ body.lb-open{overflow:hidden}
 <\/script>
 </body>
 </html>
-`,ie=`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`,ae=`0.2.5+2026-08-07T05:08:23.879Z`,E=class{constructor(e){this.buf=e}get length(){return this.buf.length}toString(e=`hex`){if(e===`base64`){let e=``;for(let t of this.buf)e+=String.fromCharCode(t);return typeof btoa<`u`?btoa(e):e}if(e===`utf8`)return new TextDecoder().decode(this.buf);let t=``;for(let e of this.buf)t+=e.toString(16).padStart(2,`0`);return t}at(e){return this.buf[e]}};function D(e){let t=new Uint8Array(e),n=globalThis;if(n.crypto?.getRandomValues)n.crypto.getRandomValues(t);else for(let n=0;n<e;n++)t[n]=Math.floor(Math.random()*256);return t}function oe(e){return new E(D(e))}function se(e,t,n){let r=`${t}::${e}`,i=new Uint8Array(n),a=2166136261;for(let e=0;e<n;e++){let t=r.charCodeAt(e%r.length)||e+1;a^=t,a=Math.imul(a,16777619)>>>0,a^=a>>>13,i[e]=(a^e*2654435761)&255}return new E(i)}function ce(e,t){let n=e?.length??0;if(n!==(t?.length??-1))return!1;let r=0;for(let i=0;i<n;i++){let n=typeof e.at==`function`?e.at(i):e[i],a=typeof t.at==`function`?t.at(i):t[i];r|=n^a}return r===0}var le=y.records.map(e=>e.id);function O(e){return Math.max(0,Math.round((q(e)?.playSeconds||0)*1e3)+(e?.clockOffsetMs||0))}var k=()=>{let e=typeof databases<`u`&&databases?databases.wildwillows:null;if(!e||!e.Player)throw new A(b(`server.err.dbStarting`),503);return e},A=class extends Error{constructor(e,t=400){super(e),this.statusCode=t}},ue=(e,t,n)=>Math.max(t,Math.min(n,e));function j(e){let t=2166136261;for(let n=0;n<e.length;n++)t^=e.charCodeAt(n),t=Math.imul(t,16777619);return t>>>0}function de(e){let t=e>>>0;return()=>{t|=0,t=t+1831565813|0;let e=Math.imul(t^t>>>15,1|t);return e=e+Math.imul(e^e>>>7,61|e)^e,((e^e>>>14)>>>0)/4294967296}}function fe(e,t){let n=Number(e);if(!Number.isInteger(n)||n<=0)throw new A(b(`server.err.positiveWholeNumber`,{label:t}));return n}function M(e){return e?Object.values(e).reduce((e,t)=>e+(t||0),0):0}function pe(e){return/end of buffer|buffer not reached|decod/i.test(String(e?.message||e))}function me(e){return e?.primaryStore??null}function he(e,t){let n=me(e);if(!n||typeof n.getSync!=`function`)return null;try{let e=n.getSync(t,{valueAsBuffer:!0});return e&&(e.byteLength??e.length??0)>0?e:null}catch{return null}}function ge(e,t){return he(e,t)!=null}function _e(e,t){let n=me(e)?.encoder;if(!n||typeof n.unpackMultiple!=`function`)return null;let r=e=>{let t=Array.isArray(e)?e[0]:void 0;return t&&typeof t==`object`&&!Array.isArray(t)?{...t}:null};try{return r(n.unpackMultiple(t))}catch(e){return r(e?.values)}}var ve={Player:[`passcodeHash`,`passcodeSalt`,`inventory`,`tools`,`unlockedBiomes`,`home`],World:[`ownerId`],Chest:[`contents`],BiomeState:[`biomeId`,`health`],Discovery:[`animalId`],Placement:[`objectId`,`area`,`x`,`y`]};function ye(e){return e?.name||e?.tableName||``}async function be(e,t,n){try{let r=k().SaveIncident;if(!r)return;let i=`${e}:${t}`,a=Date.now(),o=await N(r,i)||{id:i,table:e,recordId:t,kind:n,firstSeenAt:a,count:0};await r.put({...o,kind:n,lastSeenAt:a,count:(o.count||0)+1})}catch(e){console.error(`save incident note failed —`,e?.message||e)}}async function xe(e,t){let n=he(e,t);if(!n)return null;let r=ye(e)||`?`,i=_e(e,n);if(!i)return console.error(`undecodable record left intact (no salvage): ${r}/${t}`),await be(r,t,`unreadable`),null;if(i.id!==t)return console.error(`salvage refused, decoded payload is not record ${r}/${t} — left intact`),null;let a=(ve[r]||[]).filter(e=>i[e]==null);if(a.length)return console.error(`partial salvage refused, row left intact: ${r}/${t} — missing ${a.join(`, `)}`),await be(r,t,`refused`),null;try{await e.put(i),console.error(`salvaged undecodable record: ${r}/${t}`)}catch(e){console.error(`salvage rewrite failed for ${r}/${t} —`,e?.message||e)}return i}async function Se(e,t){try{return await e.delete(t),!0}catch(e){if(!pe(e))throw e}try{return await e.put({id:t}),await e.delete(t),!0}catch{return!1}}async function N(e,t){let n=null;try{if(n=await e.get(t),n)try{JSON.stringify({...n})}catch(e){if(!pe(e))throw e;n=null}}catch(e){if(!pe(e))throw e;n=null}return n||await xe(e,t)}async function P(e,t=`?`){let n=[],r=0;try{for await(let t of e){if(t==null){r++;continue}n.push(t)}}catch(e){console.error(`scan of ${t}: aborted at an undecodable record —`,e?.message||e)}return r&&console.error(`scan of ${t}: ${r} undecodable record(s) omitted from results`),n}async function F(e){return!e||typeof e.search!=`function`?[]:P(e.search({}),ye(e))}async function Ce(e,t){return!e||typeof e.search!=`function`?null:(await P(e.search({}),ye(e))).find(e=>e?.id===t)||await N(e,t)}async function I(e,t){return!e||typeof e.search!=`function`?[]:(await P(e.search({}),ye(e))).filter(e=>e?.playerId===t)}function L(e){return e?.worldId||e?.id}async function R(e,t){return!e||typeof e.search!=`function`?[]:(await P(e.search({}),ye(e))).filter(e=>(e?.worldId??e?.playerId)===t)}async function we(e,t,n){return(await R(e,t)).find(e=>e.id===n)||null}async function z(e,t,n,r,i){return(await R(e,t)).find(e=>e.area===n&&e.x===r&&e.y===i)||null}async function B(e,t,n){return(await R(e,t)).find(e=>e.biomeId===n)||null}async function Te(e,t,n){return(await R(e,t)).find(e=>e.animalId===n)||null}function Ee(){let e=``;for(let t=0;t<6;t++)e+=`ABCDEFGHJKLMNPQRSTUVWXYZ23456789`[Math.floor(Math.random()*32)];return e}var De=6;async function V(e,t={}){let n=k(),r=e.id;!await N(n.World,r)&&!ge(n.World,r)&&await n.World.put({id:r,name:e.name?b(`server.world.soloName`,{name:e.name}):b(`server.world.mySoloName`),solo:!0,ownerId:e.id,joinCode:null,createdAt:e.createdAt||Date.now(),maxMembers:1});let i=`${r}:${e.id}`;!await N(n.WorldMember,i)&&!ge(n.WorldMember,i)&&await n.WorldMember.put({id:i,worldId:r,playerId:e.id,role:`owner`,joinedAt:e.createdAt||Date.now(),lastSeenAt:Date.now()}),e.worldId||await n.Player.patch(e.id,{worldId:r})}async function H(e){let t=k(),n=await I(t.WorldMember,e),r=[];for(let i of n){let n=await N(t.World,i.worldId);if(!n)continue;let a=(await R(t.WorldMember,n.id)).length;r.push({worldId:n.id,name:n.name,solo:!!n.solo,role:i.role,joinCode:n.solo?null:n.joinCode,memberCount:a,maxMembers:n.maxMembers||De,isOwner:n.ownerId===e})}return r.sort((e,t)=>e.solo===t.solo?0:e.solo?-1:1)}async function U(e,t){let n=k(),r=await N(n.Player,e);if(!r)return[];let i=r.unlockedBiomes||[`meadow`];if(t===r.id)return i;let a=await R(n.BiomeState,t),o=new Set(i);for(let e of a)e.unlocked&&o.add(e.biomeId);let s=[...o];return s.length!==i.length&&await n.Player.patch(e,{unlockedBiomes:s}),s}var Oe=!1;async function ke(){if(Oe)return;Oe=!0;let e=k(),n=[[e.Biome,y.records],[e.Recipe,t.records],[e.HabitatObject,s.records],[e.ToolDef,c.records],[e.ResourceType,d.records],[e.Animal,[...m.records,...o.records]],[e.Achievement,a.records]];for(let[e,t]of n){let n=new Set(t.map(e=>e.id));for(let t of await P(e.search({}),ye(e)))n.has(t.id)||await e.delete(t.id);for(let n of t)await e.put(n)}}var Ae=null;async function W(){if(await ke(),!Ae){let e=k(),[t,n,r,i,a,o,s]=await Promise.all([F(e.Biome),F(e.Animal),F(e.ResourceType),F(e.Recipe),F(e.HabitatObject),F(e.ToolDef),F(e.Achievement)]),c=e=>new Map(e.map(e=>[e.id,e]));s.sort((e,t)=>(e.order||0)-(t.order||0)),Ae={biomes:t,animals:n,resources:r,recipes:i,objects:a,tools:o,achievements:s,biome:c(t),animal:c(n),resource:c(r),recipe:c(i),object:c(a),tool:c(o),achievement:c(s)}}return Ae}var je=75,Me=5,Ne=`grasshopper`,Pe=100,Fe={biome:`meadow`,minHealth:30},Ie={cabin:{name:`Log Cabin`,floor:`#c8a064`,wall:`#5e3f29`,accent:`#b5707a`,materials:{branches:16,fiber:6},requires:Fe,perk:{id:`forage`,base:.1,perLevel:.05,cap:.6}},cottage:{name:`Meadow Cottage`,floor:`#e6d3a6`,wall:`#aab9c6`,accent:`#7fae6a`,materials:{wildflowers:6,fiber:10,clay:4},requires:Fe,perk:{id:`growth`,base:.1,perLevel:.04,cap:.5}},stone:{name:`Stone Hearth`,floor:`#a9a499`,wall:`#6f6a62`,accent:`#d98a4f`,materials:{stones:14,clay:6},requires:Fe,perk:{id:`thrift`,base:.1,perLevel:.05,cap:.6}}},Le={style:`cabin`,space:1,comfort:1,decor:1,light:1,styleLocked:!1},Re={space:{name:`Space`,blurb:`A bigger room with more floor to decorate.`,levels:[{inner:{w:6,h:5}},{inner:{w:8,h:6},materials:{branches:12,fiber:8},requires:{biome:`meadow`,minHealth:30}},{inner:{w:10,h:7},materials:{branches:18,stones:6,clay:6},requires:{biome:`forest`,minHealth:45}},{inner:{w:12,h:9},materials:{branches:24,clay:10,"clean-water":6},requires:{biome:`wetland`,minHealth:55}}]},comfort:{name:`Comfort`,blurb:`Carry more on every gathering trip (+capacity).`,levels:[{carry:0},{carry:45,materials:{fiber:10,branches:4},requires:{biome:`meadow`,minHealth:35}},{carry:95,materials:{fiber:14,moss:6},requires:{biome:`forest`,minHealth:50}},{carry:160,materials:{reeds:10,fiber:12},requires:{biome:`wetland`,minHealth:60}}]},decor:{name:`Furnishings`,blurb:`A finer rug and wall trim in your style.`,levels:[{},{materials:{fiber:8,wildflowers:4}},{materials:{fiber:12,berries:6},requires:{biome:`meadow`,minHealth:50}},{materials:{fiber:16,clay:6},requires:{biome:`forest`,minHealth:55}}]},light:{name:`Warmth`,blurb:`Windows and a warm hearth glow.`,levels:[{},{materials:{branches:6,stones:4}},{materials:{stones:8,clay:4},requires:{biome:`forest`,minHealth:45}},{materials:{clay:6,"clean-water":4},requires:{biome:`wetland`,minHealth:55}}]}};function G(e){if(e?.home)return{...Le,...e.home};let t=e?.homeTier||1;return{...Le,space:t,comfort:t,styleLocked:t>1}}var ze=e=>Re.comfort.levels[(G(e).comfort||1)-1]?.carry||0,Be=5;function Ve(e){let t=G(e);if(!t.styleLocked)return null;let n=Ie[t.style]?.perk;if(!n)return null;let r=(t.space||1)+(t.comfort||1)+(t.decor||1)+(t.light||1),i=Math.min(n.cap,n.base+n.perLevel*Math.max(0,r-Be));return{id:n.id,strength:i}}function He(e){let t=Re.space.levels[(G(e).space||1)-1]?.inner||{w:8,h:6},n=Math.floor((jt-t.w)/2),r=Math.floor((Mt-t.h)/2);return{x0:n,y0:r,x1:n+t.w-1,y1:r+t.h-1}}var Ue={w:6,h:5};function We(e){let t=/^tent-([a-z][a-z-]*)$/.exec(String(e||``));return t?t[1]:null}function Ge(){let e=Math.floor((jt-Ue.w)/2),t=Math.floor((Mt-Ue.h)/2);return{x0:e,y0:t,x1:e+Ue.w-1,y1:t+Ue.h-1}}var Ke=new Set([`home-bed`,`home-sleeping-bag`]);function qe(e){return{x:Math.round((e.x0+e.x1)/2),y:e.y1}}function Je(e,t,n,r){if(!Ke.has(e))return!1;let i=qe(t);return Math.abs(n-i.x)<=1&&Math.abs(r-i.y)<=1}var Ye=.75,Xe={1:200,2:350,3:550,4:800},Ze={water:6,wildflowers:1},Qe={basket:1,shovel:1,"watering-can":1,"field-journal":1},$e=`#eec39a`,et=`#6e4a33`,tt=`#4a7c59`,nt=[`#fbe8d5`,`#f6d7b8`,`#f0cba6`,`#eec39a`,`#dcae7f`,`#d9a06b`,`#cf9662`,`#c98f5e`,`#b97f50`,`#ad7248`,`#a66b45`,`#96603d`,`#8d5a3a`,`#7a4a30`,`#6b4226`,`#5a3720`,`#4e2f1e`],rt=[`#1c1614`,`#2b2320`,`#3b2e25`,`#4a3b30`,`#5c4636`,`#6e4a33`,`#7d5439`,`#8a5f3d`,`#a3692f`,`#b5502e`,`#c2632f`,`#c9913f`,`#d4a44f`,`#d9b380`,`#e8dcc0`,`#8c8c8c`,`#c9c9c9`],it=[`#3f6b4c`,`#4a7c59`,`#5f9166`,`#8a9a5b`,`#4f9a94`,`#7a9ac0`,`#5a6b8c`,`#3f5f80`,`#7d6b9e`,`#9b6bb0`,`#a8586b`,`#b5707a`,`#c4653f`,`#d4783f`,`#c9913f`,`#d4a373`,`#6b7280`],at=[`none`,`straw`,`leaf`,`beanie`,`cap`,`visor`,`bucket`,`flower`,`party`,`acorn`,`beret`,`ranger`,`mushroom`,`wizard`,`witch`,`crown`,`bandana`,`tophat`,`newspaper`,`chef`,`pirate`,`frog`,`cat-ears`,`headphones`,`halo`],ot=[`#c9a35c`,`#8a734f`,`#5d4a36`,`#b05555`,`#e8734f`,`#b5707a`,`#d77bb1`,`#a8586b`,`#7d6b9e`,`#5f86b0`,`#4f9a94`,`#5d8a4a`,`#6aa84f`,`#e0b23e`,`#f2efe6`,`#8c8c8c`,`#3f3b47`],st=[`short`,`bald`,`long`,`bob`,`curly`,`curly-long`,`bun`,`braid`,`ponytail`,`pigtails`,`afro`,`mohawk`,`wavy`,`spiky`,`dreads`,`space-buns`,`bowl`,`double-braid`,`half-up`,`pixie`,`cornrows`,`shag`],ct=[`none`,`beard`],lt=[`slim`,`round`];function ut(e,t){return typeof e==`string`&&/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(e.trim())?e.trim().toLowerCase():t}function dt(e){return e||={},{skin:ut(e.skin,$e),hair:ut(e.hair,et),outfit:ut(e.outfit,tt),hat:at.includes(e.hat)?e.hat:`none`,hatColor:typeof e.hatColor==`string`&&/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(e.hatColor.trim())?e.hatColor.trim().toLowerCase():null,hairstyle:st.includes(e.hairstyle)?e.hairstyle:`short`,beard:ct.includes(e.beard)?e.beard:`none`,body:lt.includes(e.body)?e.body:`slim`}}function ft(e){if(!e)return e;let{passcode:t,passcodeHash:n,passcodeSalt:r,...i}=e;return i.metrics!==void 0&&(i.metrics=q(e)),i.daily!==void 0&&(i.daily=bt(e)),i}function pt(e,t){let n=t||oe(16).toString(`hex`);return{salt:n,hash:se(String(e),n,32).toString(`hex`)}}function mt(e,t,n){try{let r=globalThis.Buffer,i=se(String(e),t,32),a=r.from(n,`hex`);return i.length===a.length&&ce(i,a)}catch{return!1}}async function ht(e,t){let n=String(t||``);if(e.passcodeHash&&e.passcodeSalt)return mt(n,e.passcodeSalt,e.passcodeHash);if(typeof e.passcode==`string`&&n.length>0&&n===e.passcode){let{salt:t,hash:r}=pt(n);return await k().Player.patch(e.id,{passcodeHash:r,passcodeSalt:t,passcode:null}),!0}return!1}function gt(e){return String(e).trim().toLowerCase().replace(/[^a-z0-9]+/g,`-`).replace(/^-+|-+$/g,``)}var _t={x:23,y:5,size:`small-chest`,capacity:120};async function K(e){if(!e||typeof e!=`string`)throw new A(b(`server.err.playerIdRequired`));let t=await N(k().Player,e);if(!t)throw new A(b(`server.err.noSaveLogin`),404);return{player:t}}function vt(e){return{firstSeenAt:e,lastSeenAt:e,lastHeartbeatAt:0,playSeconds:0,sessions:0,counts:{},areaSeconds:{},curSessionSeconds:0,sessionLengths:{},firstActionAt:0,creationMs:0}}function q(e){let t=e?.metrics;if(t==null)return null;if(typeof t==`string`)try{return JSON.parse(t)}catch{return null}return t}function yt(e){return JSON.stringify(e??{})}function bt(e){let t=e?.daily;if(t==null)return null;if(typeof t==`string`)try{return JSON.parse(t)}catch{return null}return t}function xt(e){return JSON.stringify(e??{})}var St=new Set([`recolors`,`appearanceChanges`]);function Ct(e){let t=e/60;return t<2?`<2m`:t<10?`2-10m`:t<30?`10-30m`:`30m+`}async function J(e,t={},n={}){if(!e?.id)return null;let r=Object.entries(t).filter(([,e])=>e),i=Object.entries(n).filter(([,e])=>e);if(!r.length&&!i.length)return q(e);let a=Date.now(),o=await N(k().Player,e.id)||e,s=q(o)||vt(o.createdAt||a),c={...s.counts||{}};for(let[e,t]of r)c[e]=(c[e]||0)+t;let l={...s,counts:c,lastSeenAt:a};!s.firstActionAt&&r.some(([e,t])=>t&&!St.has(e))&&(l.firstActionAt=a);let u={metrics:yt(l)};if(i.length){let e=Ot(o,a),t=bt(o),n={...(t?.dayKey===e?t:{dayKey:e,counts:{}}).counts||{}};for(let[e,t]of i)n[e]=(n[e]||0)+t;u.daily=xt({dayKey:e,counts:n})}return await k().Player.patch(e.id,u),l}var wt=864e5,Tt=4,Et=e=>(Number.isFinite(e?.tzOffsetMinutes)?e.tzOffsetMinutes:0)*6e4,Dt=e=>{let t=Math.round(Number(e));return Number.isFinite(t)?ue(t,-840,840):0};function Ot(e,t){return Math.floor((t+Et(e)-Tt*36e5)/wt)}var Y=e=>Math.round(e*10)/10;function kt(e){let t=Date.now(),n=q(e)||vt(e.createdAt||t),r=n.playSeconds||0,i=n.sessions||0,a=n.counts||{},o=Object.entries(a).reduce((e,[t,n])=>e+(St.has(t)?0:n||0),0),s=e.createdAt||n.firstSeenAt||t,c=n.lastSeenAt||null,l=n.areaSeconds||{},u={};for(let[e,t]of Object.entries(l))u[e]=Math.round((t||0)/60);let d=Object.entries(l).sort((e,t)=>(t[1]||0)-(e[1]||0))[0]?.[0]||null,f=n.firstActionAt||0,p=f?Y((f-s)/1e3):null,m=n.creationMs||0,h=c?Y((t-c)/36e5):null,g=Math.floor((t-s)/wt),_=`dormant`;return h!=null&&(h<=24?_=`active`:h<=168&&(_=`recent`)),{playerId:e.id,name:e.name,createdAt:s,firstSeenAt:n.firstSeenAt||s,lastSeenAt:c,daysSinceJoined:g,hoursSinceActive:h,status:_,isNewToday:t-s<=wt,language:n.language||null,sessions:i,playSeconds:r,playMinutes:Math.round(r/60),avgSessionMinutes:i?Math.round(r/60/i):0,totalActions:o,actionsPerSession:i?Y(o/i):0,actionsPerMinute:r>0?Y(o/(r/60)):0,tutorialStep:e.tutorialStep||0,currentArea:e.area||null,unlockedBiomes:(e.unlockedBiomes||[]).length,areaSeconds:l,areaMinutes:u,mostTimeArea:d,sessionLengths:n.sessionLengths||{},timeToFirstActionSeconds:p,creationMs:m,creationSeconds:m?Y(m/1e3):null,appearance:e.appearance||null,counts:a}}function At(e,t,n){let r=e.counts||{};return{collected:(r.resourcesCollected||0)>0,terraformed:(r.terraformActions||0)>0,planted:(r.plantsPlanted||0)>0,crafted:(r.itemsCrafted||0)>0||Object.keys(n.craftedEver||{}).length>0,placed:(r.objectsPlaced||0)>0,attractedAnimal:(t?.totalAnimalsReturned||0)>0,upgradedTool:(r.toolsUpgraded||0)>0,builtHome:(r.homesBuilt||0)>0,upgradedHome:(r.homeUpgrades||0)>0,unlockedSecondBiome:(e.unlockedBiomes||0)>=2}}var jt=30,Mt=20,Nt=8;function Pt(e,t){let n=t===`home`?null:e.biome.get(t)?.grid;return{cols:n?.cols||jt,rows:(n?.rows||Mt)+(t===`alpine`?Nt:0)}}var Ft={tilled:`#8a6a48`,watered:`#6b4f33`,water:`#5d96c8`};function It(e,t,n){let r=parseInt(e.slice(1),16),i=parseInt(t.slice(1),16),a=e=>{let t=r>>e&255,a=i>>e&255;return Math.round(t+(a-t)*ue(n,0,1))};return`#`+[a(16),a(8),a(0)].map(e=>e.toString(16).padStart(2,`0`)).join(``)}var Lt=e=>String(e).replace(/&/g,`&amp;`).replace(/</g,`&lt;`).replace(/>/g,`&gt;`).replace(/"/g,`&quot;`);function Rt(e,t,n,r,i){let a=Pt(e,t?.id||``),o=a.cols*16+16,s=a.rows*16+16+22,c=t?.palette?.damaged||`#b9a37c`,l=t?.palette?.healthy||`#8fbf6f`,u=It(c,l,n/100),d=It(c,l,n/100*.8),f=e=>8+e*16,p=e=>8+e*16,m=[];m.push(`<rect x="0" y="0" width="${o}" height="${s}" rx="10" fill="${u}"/>`);for(let e=0;e<a.rows;e++)for(let t=0;t<a.cols;t++)(t+e)%2==0&&m.push(`<rect x="${f(t)}" y="${p(e)}" width="16" height="16" fill="${d}" opacity="0.22"/>`);for(let e of i){let t=Ft[e.type];t&&m.push(`<rect x="${f(e.x)}" y="${p(e.y)}" width="16" height="16" rx="3" fill="${t}"/>`)}for(let t of r){let n=e.object.get(t.objectId)?.color||`#6b5a3a`;m.push(`<circle cx="${f(t.x)+16/2}" cy="${p(t.y)+16/2}" r="6.72" fill="${n}" stroke="#2b3321" stroke-opacity="0.35"/>`)}return m.push(`<rect x="0" y="${s-22}" width="${o}" height="22" fill="#2b3321" opacity="0.55"/>`),m.push(`<text x="8" y="${s-7}" font-family="sans-serif" font-size="12" fill="#fdfaf0">${Lt(t?.name||`Area`)} — ${n}% health · ${r.length} placed</text>`),`<svg xmlns="http://www.w3.org/2000/svg" width="${o}" height="${s}" viewBox="0 0 ${o} ${s}">${m.join(``)}</svg>`}function zt(e){return`data:image/svg+xml;base64,`+globalThis.Buffer.from(e,`utf8`).toString(`base64`)}async function Bt(e,t={}){let n=k(),r=await W(),i=await I(n.BiomeState,e),a=new Map(i.map(e=>[e.biomeId,e])),o=t.images?await I(n.Placement,e):[],s=t.images?await I(n.TerrainTile,e):[],c=r.biomes.map(e=>{let n=a.get(e.id)||{},i={biomeId:e.id,name:e.name,health:n.health||0,balance:n.balance||0,returnedCount:n.returnedCount||0,unlocked:!!n.unlocked,explorable:!!e.explorable};if(t.images&&n.unlocked){let t=o.filter(t=>t.area===e.id),n=s.filter(t=>t.area===e.id);i.placements=t.length,i.snapshot=zt(Rt(r,e,i.health,t,n))}return i});return{biomes:c,summary:Vt(c)}}function Vt(e){let t=e.filter(e=>e.unlocked);return{biomesUnlocked:t.length,biomesFullyRestored:t.filter(e=>(e.health||0)>=100).length,avgHealth:t.length?Math.round(t.reduce((e,t)=>e+(t.health||0),0)/t.length):0,totalAnimalsReturned:e.reduce((e,t)=>e+(t.returnedCount||0),0)}}async function Ht(e,t,n,r,i=0,a=0,o=`full`){let s=k(),c=await W(),l=Date.now(),{salt:u,hash:d}=pt(n),f={id:e,name:t,passcodeSalt:u,passcodeHash:d,appearance:r,tzOffsetMinutes:i,createdAt:l,clockOffsetMs:g(0,`day`),worldId:e,area:`meadow`,x:24.5,y:6.5,inventory:{...Ze},craftedItems:{},tools:{...Qe},unlockedBiomes:[`meadow`],visitedBiomes:[`meadow`],tutorialStep:0,home:{...Le},metrics:yt({...vt(l),creationMs:a>0?Math.round(a):0,edition:o}),customGoals:[]};await s.Player.put(f);let p=e,m=c.biomes.map(t=>({id:`${p}:${t.id}`,worldId:p,playerId:e,biomeId:t.id,health:Me,balance:0,returnedCount:0,unlocked:t.id===`meadow`}));for(let e of m)await s.BiomeState.put(e);let h=`pl_${e}_starter-chest`,_=[{id:h,worldId:p,playerId:e,objectId:`small-chest`,area:`meadow`,x:_t.x,y:_t.y,placedAt:l}];for(let e of _)await s.Placement.put(e);let v={id:h,worldId:p,playerId:e,area:`meadow`,x:_t.x,y:_t.y,size:`small-chest`,capacity:_t.capacity,contents:{}};return await s.Chest.put(v),{player:f,seeded:{biomeStates:m,placements:_,chests:[v]}}}async function Ut(e){let t=Date.now(),n=await W(),r=e.player?.worldId||e.player?.id,i=O(e.player);return{player:ft(e.player),biomeStates:e.seeded.biomeStates,placements:e.seeded.placements,chests:e.seeded.chests,discoveries:[],nodeStates:[],terrain:[],achievements:[],feed:[],serverTime:t,weather:u(r,i,le),dailyTasks:zn({wid:r,player:e.player,d:n,discoveries:[],biomeStates:e.seeded.biomeStates,placements:e.seeded.placements,chests:e.seeded.chests,now:t}),customGoals:e.player.customGoals||[],goalLimit:xn(e.player,n),nodeRegenSeconds:je,inventoryCapacity:Wt(e.player)}}function Wt(e){return(Xe[e.tools?.basket||1]||200)+ze(e)}function Gt(e,t){let n=Date.now(),r={};for(let i of e){if(t&&i.plantedAt){let e=(t.object.get(i.objectId)?.growSeconds||0)*1e3;if(e>0&&n-i.plantedAt<e)continue}r[i.objectId]=(r[i.objectId]||0)+1}return r}var Kt=90;function qt(e){let t=95*(1-Math.exp(-Math.max(0,e)/Kt));return ue(Math.round(Me+t),0,100)}var Jt=[{animals:5,cap:60},{animals:10,cap:75},{animals:15,cap:88}];function Yt(e){for(let t of Jt)if(e<t.animals)return t.cap;return 100}function Xt(e){return(e?.matureHours||0)*36e5}function Zt(e,t,n){let r=Xt(e);return r>0&&n-(t.placedAt||0)>=r}function Qt(e,t,n,r){let i=Xt(e);if(i<=0)return!1;let a=(t.placedAt||0)+i;return a>n&&a<=r}var $t=8;function en(e,t,n=0,r=Date.now()){let i=0,a=0;for(let n of t){let t=e.object.get(n.objectId);t&&(i+=t.healthValue||0,Zt(t,n,r)&&(a+=t.matureBonus||0))}return i+=Math.min(a,$t),n>0&&(i+=2*Math.min(n,7)),i}var tn=.45,nn=.35,rn=.2;function an(e,t,n){let r=e.animals.filter(e=>e.biome===t),i=r.length;if(i===0)return 0;let a=r.filter(e=>n.has(e.id));if(a.length>=i)return 100;let o=a.length/i,s=r.filter(e=>(e.requirements?.animals||[]).length>0),c=s.filter(e=>n.has(e.id)).length,l=s.length?c/s.length:1,u=new Set(r.map(e=>e.kind)),d=new Set(a.map(e=>e.kind)),f=u.size?d.size/u.size:0,p=tn*o+nn*l+rn*f;return ue(Math.round(p*100),0,99)}function on(e,t=!1){let n=new Set(e.filter(e=>e.type===`water`&&(!t||!e.seeded)).map(e=>`${e.x},${e.y}`)),r=new Set,i=0,a=0;for(let e of n){if(r.has(e))continue;let t=[e];r.add(e);let o=0,s=1/0,c=-1/0,l=1/0,u=-1/0;for(;t.length;){let[e,i]=t.pop().split(`,`).map(Number);o++,s=Math.min(s,e),c=Math.max(c,e),l=Math.min(l,i),u=Math.max(u,i);for(let[a,o]of[[1,0],[-1,0],[0,1],[0,-1]]){let s=`${e+a},${i+o}`;n.has(s)&&!r.has(s)&&(r.add(s),t.push(s))}}i=Math.max(i,o),a=Math.max(a,Math.max(c-s+1,u-l+1))}return{tiles:n.size,lake:i,river:a}}function sn(e,t){let n=e.requirements?.conditions;return!n||!(!t||Array.isArray(n.weather)&&n.weather.length&&!n.weather.includes(t.type)||Array.isArray(n.season)&&n.season.length&&!n.season.includes(t.season)||Array.isArray(n.dayPhase)&&n.dayPhase.length&&!n.dayPhase.includes(t.dayPhase))}function cn(e,t,n,r,i,a,o=null){let s=e.requirements||{};if(t<(s.minHealth||0)||n<(s.minBalance||0)||!sn(e,o))return!1;for(let[e,t]of Object.entries(s.objects||{}))if((r[e]||0)<t)return!1;for(let e of s.animals||[])if(!i.has(e))return!1;let c=s.water;return!(c&&((a.tiles||0)<(c.tiles||0)||(a.lake||0)<(c.lake||0)||(a.river||0)<(c.river||0)))}function ln(e,t){let n=e.requirements?.objects||{},r=Object.keys(n);if(!r.length)return 70;let i=30,a=0,o=0;for(let[e,s]of Object.entries(n)){let n=t[e]||0;n>=s?(i+=Math.round(30/r.length),o+=n-s):a++}return i+=Math.round(40*(1-Math.exp(-o/6))),i-=a*25,ue(i,5,100)}function un(e,t){let n=e.requirements||{},r=[],i=Object.entries(n.objects||{}).map(([e,n])=>b(`server.whyReturned.objectQty`,{qty:n,name:t.object.get(e)?.name||e}));if(i.length&&r.push(b(`server.whyReturned.habitat`,{objects:i.join(b(`server.list.comma`))})),n.water){let e=n.water;e.lake?r.push(b(`server.whyReturned.lake`,{tiles:e.lake})):e.river?r.push(b(`server.whyReturned.river`,{tiles:e.river})):e.tiles&&r.push(b(`server.whyReturned.tiles`,{tiles:e.tiles}))}n.minHealth&&r.push(b(`server.whyReturned.health`,{health:n.minHealth})),n.minBalance&&r.push(b(`server.whyReturned.balance`,{balance:n.minBalance})),n.animals?.length&&r.push(b(`server.whyReturned.animals`,{animals:n.animals.map(e=>t.animal.get(e)?.name||e).join(b(`server.list.and`))}));let a=n.conditions;if(a){let e=[];a.weather?.length&&e.push(a.weather.join(b(`server.list.or`))),a.season?.length&&e.push(b(`server.whyReturned.inSeason`,{seasons:a.season.join(b(`server.list.or`))})),a.dayPhase?.length&&e.push(b(`server.whyReturned.atPhase`,{phases:a.dayPhase.join(b(`server.list.or`))})),e.length&&r.push(b(`server.whyReturned.moment`,{conditions:e.join(b(`server.list.comma`))}))}return b(`server.whyReturned.sentence`,{reasons:r.join(b(`server.list.comma`))})}async function X(e,t,n,r={}){let a=k(),o=await W();if(!o.biome.get(n))throw new A(b(`server.err.unknownBiome`,{biome:n}));let s=(await R(a.Placement,e)).filter(e=>e.area===n);r.removeIds?.length&&(s=s.filter(e=>!r.removeIds.includes(e.id)));for(let e of r.addPlacements||[])e.area===n&&(s=s.filter(t=>t.id!==e.id),s.push(e));let c=Gt(s,o),l=(await R(a.TerrainTile,e)).filter(e=>e.area===n);r.removeTerrainIds?.length&&(l=l.filter(e=>!r.removeTerrainIds.includes(e.id)));for(let e of r.addTerrain||[])e.area===n&&(l=l.filter(t=>t.id!==e.id),l.push(e));let u=Math.min(3,l.filter(e=>e.type===`watered`).length)*.5,d=l.filter(e=>e.type===`water`&&!e.seeded).length,f=on(l),p=qt(en(o,s,d,Date.now())+u),m=r.player||await N(a.Player,t),g=m?O(m):null,_=g===null?null:{type:v(e,n,g),season:i(g),dayPhase:h(g)},y=await R(a.Discovery,e),x=new Set(y.map(e=>e.animalId)),S=()=>[...x].filter(e=>o.animal.get(e)?.biome===n).length,C=Math.min(p,Yt(S())),w=an(o,n,x),T=[],ee=o.animals.filter(e=>e.biome===n),te=x.has(Ne);for(let r of ee)if(!x.has(r.id)&&!(!te&&r.id!==Ne)&&cn(r,C,w,c,x,f,_)){let i={id:`${e}:${r.id}`,worldId:e,playerId:t,animalId:r.id,biomeId:n,comfort:ln(r,c),timesObserved:0,firstObservedAt:Date.now(),whyReturned:un(r,o)};await a.Discovery.put(i),x.add(r.id),w=an(o,n,x),T.push({...i,animal:r});break}C=Math.min(p,Yt(S()));for(let e of y){if(e.biomeId!==n)continue;let t=o.animal.get(e.animalId);if(!t)continue;let r=ln(t,c);r!==e.comfort&&await a.Discovery.patch(e.id,{comfort:r})}let ne=S(),re=await B(a.BiomeState,e,n),ie=re?.id??`${e}:${n}`;await a.BiomeState.patch(ie,{health:C,balance:w,returnedCount:ne});let ae={...re||{id:ie,worldId:e,playerId:t,biomeId:n,unlocked:n===`meadow`},health:C,balance:w,returnedCount:ne},E=C-(re?.health??Me),D={};if(E>0&&(D[`health:${n}`]=E),T.length&&(D[`animal:${n}`]=T.length,D.animal=T.length),Object.keys(D).length){let e=r.player||await N(a.Player,t);e&&await J(e,{},D)}return{biomeState:ae,newAnimals:T,unlockedBiomes:await pn(e,t,{player:r.player,freshState:ae})}}var dn={wetland:[...[6,7,8,9,10,11,12,13,14].map(e=>({x:e,y:4,type:`water`})),{x:14,y:5,type:`water`},{x:14,y:6,type:`water`},{x:15,y:6,type:`water`},{x:20,y:6,type:`water`},{x:21,y:6,type:`water`},{x:22,y:6,type:`water`},{x:20,y:7,type:`water`},{x:21,y:7,type:`water`},{x:22,y:7,type:`water`},{x:10,y:14,type:`watered`},{x:11,y:14,type:`watered`}]};async function fn(e,t,n){let r=dn[n];if(!r)return;let i=k();for(let a of r){let r=`${e}:${n}:${a.x}:${a.y}`;await i.TerrainTile.get(r)||await i.TerrainTile.put({id:r,worldId:e,playerId:t,area:n,x:a.x,y:a.y,type:a.type,seeded:!0,updatedAt:Date.now()})}}async function pn(e,t,n={}){let r=k(),i=await W(),a=n.player||await N(r.Player,t),o=[],s=new Set(a.unlockedBiomes||[]),c=new Set(a.pendingUnlockRewards||[]),l=new Set((await R(r.BiomeState,e)).filter(e=>e.unlocked).map(e=>e.biomeId));for(let u of i.biomes){if(!u.unlock||l.has(u.id))continue;let i=u.unlock,d=n.freshState?.biomeId===i.biome?n.freshState:await B(r.BiomeState,e,i.biome);if(!d||!l.has(i.biome)||(d.health||0)<(i.minHealth||0)||(d.returnedCount||0)<(i.minAnimals||0)||i.minTotalAnimals&&(await R(r.Discovery,e)).length<i.minTotalAnimals)continue;if(i.requiresItem){let e=a.craftedItems?.[i.requiresItem]||0,t=a.craftedEver?.[i.requiresItem]||0;if(e<=0&&t<=0)continue}if(i.requiresTool&&(a.tools?.[i.requiresTool.id]||1)<i.requiresTool.tier)continue;l.add(u.id),s.add(u.id),c.add(u.id),await r.Player.patch(t,{unlockedBiomes:[...s],pendingUnlockRewards:[...c]});let f=await B(r.BiomeState,e,u.id);await r.BiomeState.patch(f?.id??`${e}:${u.id}`,{unlocked:!0}),await fn(e,t,u.id),o.push({id:u.id,name:u.name})}return o}function mn(e,t){let n=e.unlock;return!n||!(typeof n.minHealth==`number`&&t.health<n.minHealth||typeof n.animalsReturned==`number`&&t.animalsReturned<n.animalsReturned||n.requiresAnimal&&!t.returnedAnimalIds.has(n.requiresAnimal)||n.requiresCrafted&&(t.craftedEver?.[n.requiresCrafted]||0)<=0)}async function hn(e,t,n,r){let i=k(),a=await B(i.BiomeState,e,t),o=await R(i.Discovery,e),s=new Set(o.filter(e=>r.animal.get(e.animalId)?.biome===t).map(e=>e.animalId));return{health:a?.health||0,animalsReturned:s.size,returnedAnimalIds:s,craftedEver:n.craftedEver||{}}}async function gn(e,t,n,r){let i=await we(e.Chest,r,n);if(i)return i;let a=await we(e.Placement,r,n);if(a){let i=t.object.get(a.objectId);if(i?.isChest){let t={id:n,worldId:r,playerId:a.playerId,area:a.area,x:a.x,y:a.y,size:a.objectId,capacity:i.chestCapacity||60,contents:{}};return await e.Chest.put(t),t}}return null}async function _n(e,t,n=e.id){let r=k(),i=await R(r.Chest,n);for(let[n,r]of Object.entries(t)){let t=e.inventory?.[n]||0,a=i.reduce((e,t)=>e+(t.contents?.[n]||0),0);if(t+a<r)throw new A(b(`server.err.notEnough`,{resource:n,need:r,have:t+a}))}let a={inventory:{},chests:{}},o={...e.inventory||{}},s=new Map(i.map(e=>[e.id,{...e.contents||{}}]));for(let[e,n]of Object.entries(t)){let t=n,r=Math.min(o[e]||0,t);r>0&&(o[e]-=r,o[e]<=0&&delete o[e],a.inventory[e]=r,t-=r);for(let n of i){if(t<=0)break;let r=s.get(n.id),i=Math.min(r[e]||0,t);i>0&&(r[e]-=i,r[e]<=0&&delete r[e],a.chests[n.id]=a.chests[n.id]||{},a.chests[n.id][e]=i,t-=i)}if(t>0)throw new A(b(`server.err.notEnoughShort`,{resource:e}))}await r.Player.patch(e.id,{inventory:o});for(let e of i)a.chests[e.id]&&await r.Chest.patch(e.id,{contents:s.get(e.id)});return{usedFrom:a,inventory:o}}var vn={craft:`hammer`,build:`hammer`,grow:`leaf`,plant:`leaf`,collect:`basket`,observe:`journal`,welcome:`paw`,attract:`paw`,welcomeTotal:`paw`,home:`home`,tool:`hammer`,unlock:`map`,health:`leaf`,biomeAnimals:`paw`},yn=[`space`,`comfort`,`decor`,`light`],bn=6;function xn(e,t){let n=new Set(e?.unlockedBiomes||[`meadow`]);return t.biomes.filter(e=>e.explorable).every(e=>n.has(e.id))?6:3}function Sn(e){let{d:t,biomeStates:n,discoveries:r,player:i}=e,a=new Map(n.map(e=>[e.biomeId,e]));for(let e of t.biomes){let n=e.unlock;if(!n||a.get(e.id)?.unlocked)continue;let o=a.get(n.biome);if(!o?.unlocked||!(i?.visitedBiomes||[`meadow`]).includes(n.biome))continue;let s=t.biome.get(n.biome)?.name||n.biome,c=t.biome.get(e.id)?.name||e.id,l=[];if(n.minHealth&&l.push({text:b(`server.nextbiome.health`,{biome:s,goal:n.minHealth,cur:Math.round(o.health||0)}),done:(o.health||0)>=n.minHealth}),n.minAnimals&&l.push({text:b(`server.nextbiome.animals`,{biome:s,goal:n.minAnimals,cur:o.returnedCount||0}),done:(o.returnedCount||0)>=n.minAnimals}),n.minTotalAnimals&&l.push({text:b(`server.nextbiome.total`,{goal:n.minTotalAnimals,cur:r.length}),done:r.length>=n.minTotalAnimals}),n.requiresItem){let e=t.object.get(n.requiresItem)?.name||n.requiresItem,r=(i?.craftedItems?.[n.requiresItem]||0)+(i?.craftedEver?.[n.requiresItem]||0);l.push({text:b(`server.nextbiome.craft`,{item:e}),done:r>0})}if(!l.length)return null;let u=l.filter(e=>e.done).length;return{id:`next-biome`,kind:`unlock`,icon:`map`,pinned:!0,text:b(`server.nextbiome.title`,{biome:c}),hint:b(`server.nextbiome.hint`,{biome:c}),target:l.length,progress:u,counter:``,reward:{},steps:l,claimed:!1}}return null}function Cn(e,t){let n=t.d.animal.get(e);if(!n)return[];let r=(t.d.biome.get(n.biome)?.order||1)+1;if((t.player?.tools?.[`field-journal`]||1)<r)return[{text:b(`server.goal.upgradeGuide`),done:!1}];let i=[];for(let[e,r]of Object.entries(n.requirements?.objects||{})){let a=(t.placements||[]).filter(t=>t.objectId===e&&t.area===n.biome).length;i.push({text:b(`server.goal.habitatStep`,{have:Math.min(a,r),need:r,name:t.d.object.get(e)?.name||e}),done:a>=r})}if(n.requirements?.minHealth){let e=t.biomeStates.find(e=>e.biomeId===n.biome),r=Math.round(e?.health||0);i.push({text:b(`server.goal.healthStep`,{cur:r,need:n.requirements.minHealth}),done:r>=n.requirements.minHealth})}return i}function wn(e,t){return Dn((t.d.recipes||[]).find(t=>t.output?.itemId===e)?.materials||{},t)}function Tn(e,t){return Dn(Ie[e]?.materials||{},t)}function En(e,t,n){return Dn((n.d.tool.get(e)?.tiers||[]).find(e=>e.tier===t)?.materials||{},n)}function Dn(e,t){return Object.entries(e).map(([e,n])=>{let r=jn(t,e);return{text:b(`server.goal.matStep`,{have:Math.min(r,n),need:n,name:t.d.resource.get(e)?.name||e}),done:r>=n}})}function On(e){let t=(e.unlockedBiomes?.length?e.unlockedBiomes:e.player?.unlockedBiomes?.length?e.player.unlockedBiomes:[`meadow`]).flatMap(t=>e.d.biome.get(t)?.resources||[]);return[...new Set(t)].filter(t=>t!==`water`&&!n(t)&&e.d.resource.get(t))}function kn(e,t){let n=On(e),r={};if(!n.length)return r;let i=de(j(`goalreward:${t}`)),a=[...n];for(let e=0;e<2&&a.length;e++){let e=a.splice(Math.floor(i()*a.length),1)[0];r[e]=3+Math.floor(i()*3)}return r}function An(e,t){let r=(e.d.biome.get(t)?.resources||[]).filter(t=>t!==`water`&&!n(t)&&e.d.resource.get(t)),i={};if(!r.length)return i;let a=de(j(`unlockreward:${t}`)),o=[...r];for(let e=0;e<2&&o.length;e++){let e=o.splice(Math.floor(a()*o.length),1)[0];i[e]=4+Math.floor(a()*3)}return i}function jn(e,t){return(e.player?.inventory?.[t]||0)+(e.chests||[]).reduce((e,n)=>e+(n.contents?.[t]||0),0)}function Mn(e,t){return(e.placements||[]).filter(e=>e.objectId===t).length}function Nn(e,t){return(e.placements||[]).filter(e=>e.objectId===t&&typeof e.plantedAt==`number`).length}function Pn(e,t){switch(e.kind){case`craft`:case`build`:return t.player?.craftedEver?.[e.itemId||``]||0;case`grow`:return Nn(t,e.itemId||``);case`plant`:return(t.placements||[]).filter(e=>typeof e.plantedAt==`number`).length;case`collect`:return jn(t,e.resourceId||``);case`observe`:return t.discoveries.filter(e=>(e.timesObserved||0)>0).length;case`welcomeTotal`:return t.discoveries.length;default:return 0}}function Fn(e,t){switch(e.kind){case`craft`:case`grow`:case`plant`:case`collect`:case`observe`:case`welcomeTotal`:return Math.max(0,Math.min(e.target,Pn(e,t)-(e.base||0)));case`build`:return Math.max(0,Math.min(e.target,(t.player?.craftedEver?.[e.itemId||``]||0)-(e.base||0)))+Math.max(0,Math.min(e.target,Mn(t,e.itemId||``)-(e.basePlace||0)));case`welcome`:case`attract`:return+!!t.discoveries.some(t=>t.animalId===e.animalId);case`home`:if(e.track===`build`){let n=t.player?.home;return n?.styleLocked?+(!e.styleId||n.style===e.styleId):0}return t.player?.home?.[e.track||``]>=e.target?e.target:Math.min(e.target,t.player?.home?.[e.track||``]||1);case`tool`:{let n=t.player?.tools?.[e.toolId||``]||1;return Math.min(e.target,n)}case`unlock`:return+!!t.biomeStates.some(t=>t.biomeId===e.biomeId&&t.unlocked);case`health`:{let n=t.biomeStates.find(t=>t.biomeId===e.biomeId);return Math.min(e.target,Math.round(n?.health||0))}case`biomeAnimals`:{let n=t.discoveries.filter(t=>t.biomeId===e.biomeId).length;return Math.min(e.target,n)}default:return 0}}function In(e,t){let n=t.d;switch(e.kind){case`craft`:return b(`server.goal.craft`,{count:e.target,item:n.object.get(e.itemId)?.name||e.itemId});case`build`:return b(`server.goal.build`,{count:e.target,item:n.object.get(e.itemId)?.name||e.itemId});case`grow`:return b(`server.goal.grow`,{count:e.target,item:n.object.get(e.itemId)?.name||e.itemId});case`plant`:return b(`server.goal.plant`,{count:e.target});case`collect`:return b(`server.goal.collect`,{count:e.target,resource:n.resource.get(e.resourceId)?.name||e.resourceId});case`observe`:return b(`server.goal.observe`,{count:e.target});case`welcome`:return b(`server.goal.welcome`,{animal:n.animal.get(e.animalId)?.name||e.animalId});case`attract`:return b(`server.goal.attract`,{kind:n.animal.get(e.animalId)?.kind||b(`server.goal.creature`)});case`welcomeTotal`:return b(`server.goal.welcomeTotal`,{count:e.target});case`home`:return e.track===`build`?b(`server.goal.buildHome`,{style:Ie[e.styleId||``]?.name||b(`server.goal.aHouse`)}):b(`server.goal.home`,{track:b(`server.goal.track.${e.track}`),level:e.target});case`tool`:{let t=n.tool.get(e.toolId),r=(t?.tiers||[]).find(t=>t.tier===e.target);return b(`server.goal.tool`,{tool:r?.name||t?.name||e.toolId})}case`unlock`:return b(`server.goal.unlock`,{biome:n.biome.get(e.biomeId)?.name||e.biomeId});case`health`:return b(`server.goal.restore`,{biome:n.biome.get(e.biomeId)?.name||e.biomeId,pct:e.target});case`biomeAnimals`:return b(`server.goal.biomeAnimals`,{count:e.target,biome:n.biome.get(e.biomeId)?.name||e.biomeId});default:return``}}function Ln(e){let t=e.discoveries.some(e=>e.animalId===Ne),n=Object.keys(e.player?.craftedEver||{}).length>0;return[{id:`start-gather`,kind:`gather`,icon:`basket`,text:b(`server.task.collectSeeds`),hint:b(`server.task.gatherHint`),target:12,progress:Math.min(12,jn(e,`seeds`))},{id:`start-craft`,kind:`craft`,icon:`hammer`,text:b(`server.task.craftFirst`),hint:b(`server.task.craftFirstHint`),target:1,progress:+!!n},{id:`start-welcome`,kind:`welcome`,icon:`sparkle`,text:b(`server.task.welcomeGrasshopper`),hint:b(`server.task.welcomeGrasshopperHint`),target:1,progress:+!!t}]}function Rn(e,t){let n=[],r=[`craft`,`build`,`grow`,`plant`,`collect`,`observe`,`welcome`,`attract`,`welcomeTotal`,`home`,`tool`,`unlock`,`health`,`biomeAnimals`],i=!1;for(let a of Array.isArray(e)?e:[]){if(n.length>=bn)break;let e=a?.kind;if(!r.includes(e))continue;if(e===`home`){if(i)continue;i=!0}let o={id:typeof a?.id==`string`&&a.id?a.id.slice(0,40):`cg_${Math.random().toString(36).slice(2,10)}`,kind:e,target:Math.max(1,Math.min(99,Math.floor(Number(a?.target)||1)))};if(e===`craft`||e===`build`||e===`grow`){if(!t.object.get(a?.itemId))continue;o.itemId=a.itemId}else if(e===`collect`){if(!t.resource.get(a?.resourceId))continue;o.resourceId=a.resourceId}else if(e===`welcome`||e===`attract`){if(!t.animal.get(a?.animalId))continue;o.animalId=a.animalId,o.target=1}else if(e===`home`)if(a?.track===`build`){if(!Ie[a?.styleId])continue;o.track=`build`,o.styleId=a.styleId,o.target=1}else{if(!yn.includes(a?.track))continue;o.track=a.track}else if(e===`tool`){let e=t.tool.get(a?.toolId);if(!e)continue;let n=Math.max(1,...(e.tiers||[]).map(e=>e.tier));o.toolId=a.toolId,o.target=Math.min(n,Math.max(2,Math.floor(Number(a?.target)||2)))}else if(e===`unlock`){if(!t.biome.get(a?.biomeId))continue;o.biomeId=a.biomeId,o.target=1}else if(e===`health`){if(!t.biome.get(a?.biomeId))continue;o.biomeId=a.biomeId,o.target=Math.max(1,Math.min(100,Math.floor(Number(a?.target)||100)))}else if(e===`biomeAnimals`){if(!t.biome.get(a?.biomeId))continue;let e=t.animals.filter(e=>e.biome===a.biomeId).length;if(e<=0)continue;o.biomeId=a.biomeId,o.target=e}n.push(o)}return n}function zn(e){let{player:t,now:n,d:r}=e,i=Ot(t,n),a=t?.goalClaims||{},o=[],s=t?.pendingUnlockRewards||[];if(!s.length){let t=Sn(e);t&&o.push(t)}for(let t of s){let n=r.biome.get(t)?.name||t;o.push({id:`unlock-reward:${t}`,kind:`unlock`,icon:`sparkle`,text:b(`server.unlockreward.title`,{biome:n}),hint:b(`server.unlockreward.hint`,{biome:n}),target:1,progress:1,counter:``,reward:An(e,t),claimed:!1})}for(let t of Ln(e))a[t.id]||o.push({...t,counter:``,reward:kn(e,t.id),claimed:!1});for(let n of t?.customGoals||[]){if(a[n.id])continue;let t=n.kind===`build`?n.target*2:n.target,r=n.kind===`attract`?Cn(n.animalId||``,e):n.kind===`craft`||n.kind===`build`?wn(n.itemId||``,e):n.kind===`home`&&n.track===`build`?Tn(n.styleId||``,e):n.kind===`tool`?En(n.toolId||``,n.target,e):void 0;o.push({id:n.id,kind:n.kind,icon:vn[n.kind]||`check`,text:In(n,e),target:t,counter:``,reward:kn(e,n.id),progress:Fn(n,e),claimed:!1,hint:b(`server.goal.hint.${n.kind}`),...r?{steps:r}:{}})}return{dayKey:i,endsAt:0,tasks:o}}async function Bn(e,t={}){let n=k(),r=await W(),i=await N(n.Player,e),a=r.biome.get(i?.area),o=We(i?.area),s=o?!!r.biome.get(o)?.explorable:!1;i&&i.area!==`home`&&!s&&(!a||!a.explorable)&&(i={...i,area:`meadow`,x:24.5,y:6.5});let c=t.worldId||L(i),[l,d,f,p,m,h,g,_]=await Promise.all([R(n.BiomeState,c),R(n.Placement,c),R(n.Chest,c),R(n.Discovery,c),R(n.NodeState,c),R(n.TerrainTile,c),I(n.PlayerAchievement,e),R(n.FeedEntry,c)]),v=[...i?.unlockedBiomes?.length?i.unlockedBiomes:[`meadow`]];if(i&&c!==i.id){let e=new Set(i.unlockedBiomes||[`meadow`]);for(let t of l)t.unlocked&&e.add(t.biomeId);i={...i,unlockedBiomes:[...e]}}let y=Date.now(),b=O(i);return{player:ft(i),worldId:c,biomeStates:l,placements:d,chests:f,discoveries:p,nodeStates:m,terrain:h,achievements:[...g].sort((e,t)=>(t.earnedAt||0)-(e.earnedAt||0)).map(e=>e.achievementId),feed:[..._].sort((e,t)=>(e.at||0)-(t.at||0)).slice(-100).map(e=>({id:e.id,at:e.at,icon:e.icon,text:e.text})),serverTime:y,weather:u(c,b,le,i?.devWeather||null),dailyTasks:zn({wid:c,player:i,d:r,discoveries:p,biomeStates:l,placements:d,chests:f,now:y,unlockedBiomes:v}),customGoals:i?.customGoals||[],goalLimit:xn(i,r),nodeRegenSeconds:je,inventoryCapacity:Wt(i)}}async function Z(e){let t=await e;if(!t||typeof t!=`object`)throw new A(b(`server.err.bodyRequired`));return t}var Vn={"welcome-grasshopper":e=>!!e.disc(`grasshopper`),forager:e=>(e.counts.resourcesCollected||0)>=100,"makers-hands":e=>(e.counts.itemsCrafted||0)>=10,"green-thumb":e=>(e.counts.plantsPlanted||0)>=10,waterworks:e=>(e.counts.terraformActions||0)>=15,"meadow-first-bloom":e=>e.returned(`meadow`)>=8,"meadow-pollinators":e=>e.kindReturned(`meadow`,`insect`)>=5,"meadow-apex":e=>!!e.disc(`red-fox-meadow`),"meadow-mender":e=>e.health(`meadow`)>=80,"meadow-reborn":e=>e.returned(`meadow`)>=25,"forest-understory":e=>e.returned(`forest`)>=10,"forest-cavities":e=>!!e.disc(`pileated-woodpecker`)&&(!!e.disc(`wood-duck`)||!!e.disc(`northern-flying-squirrel`)||!!e.disc(`great-horned-owl`)||!!e.disc(`barred-owl`)),"forest-night-shift":e=>!!e.disc(`great-horned-owl`)&&!!e.disc(`barred-owl`)&&!!e.disc(`little-brown-bat`),"forest-canopy":e=>e.health(`forest`)>=80,"forest-reborn":e=>e.returned(`forest`)>=25,"wetland-first-water":e=>e.returned(`wetland`)>=8,"wetland-engineer":e=>!!e.disc(`beaver`),"wetland-lakemaker":e=>e.water(`wetland`).lake>=6,"wetland-restored":e=>e.health(`wetland`)>=80,"wetland-reborn":e=>e.returned(`wetland`)>=25,"desert-first-life":e=>e.returned(`desert`)>=8,"desert-burrows":e=>!!e.disc(`burrowing-owl`)&&!!e.disc(`kangaroo-rat`)&&!!e.disc(`desert-tortoise`),"desert-hunter":e=>!!e.disc(`rattlesnake`)||!!e.disc(`coyote`),"desert-restored":e=>e.health(`desert`)>=80,"desert-reborn":e=>e.returned(`desert`)>=25,"alpine-treeline":e=>e.returned(`alpine`)>=8,"alpine-haypile":e=>!!e.disc(`pika`),"alpine-crown":e=>!!e.disc(`golden-eagle`),"alpine-restored":e=>e.health(`alpine`)>=80,"alpine-reborn":e=>e.returned(`alpine`)>=25,"coastal-tide":e=>e.returned(`coastal`)>=8,"coastal-keystone":e=>!!e.disc(`sea-star`),"coastal-otter":e=>!!e.disc(`sea-otter`),"coastal-restored":e=>e.health(`coastal`)>=80,"coastal-reborn":e=>e.returned(`coastal`)>=25,"well-stocked":e=>(e.counts.resourcesCollected||0)>=1e3,"master-builder":e=>(e.counts.objectsPlaced||0)>=150,"master-gardener":e=>(e.counts.plantsPlanted||0)>=75,landscaper:e=>(e.counts.terraformActions||0)>=150,"fully-equipped":e=>e.tool(`basket`)>=4&&e.tool(`shovel`)>=4&&e.tool(`watering-can`)>=4,naturalist:e=>e.tool(`field-journal`)>=7,"recipe-collector":e=>e.craftedDistinct>=75,"open-road":e=>e.unlockedCount>=2,"welcoming-committee":e=>e.totalReturned>=50,"full-house":e=>e.totalReturned>=100,"field-notes":e=>(e.counts.animalsObserved||0)>=100,"steady-hand":e=>e.unlockedCount>=3&&e.unlockedHealthy(50),"three-restored":e=>e.biomesAtHealth(80)>=3,trailblazer:e=>e.unlockedCount>=6,"caretaker-of-the-whole":e=>e.totalReturned>=150};async function Hn(e){let t=await I(k().PlayerAchievement,e);return new Set(t.map(e=>e.achievementId))}async function Un(e){let t=await W(),n=await I(k().PlayerAchievement,e),r=t.achievements.length||1,i=new Map(n.map(e=>[e.achievementId,e])),a=t.achievements.reduce((e,t)=>e+(i.has(t.id)&&t.points||0),0),o={};for(let e of t.achievements)i.has(e.id)&&(o[e.category]=(o[e.category]||0)+1);let s=[...n].sort((e,t)=>(t.earnedAt||0)-(e.earnedAt||0)).slice(0,5).map(e=>({id:e.achievementId,name:t.achievement.get(e.achievementId)?.name||e.achievementId,earnedAt:e.earnedAt}));return{earned:n.length,total:t.achievements.length,points:a,completion:Y(n.length/r),byCategory:o,recent:s}}async function Q(e,t={}){try{let n=k(),r=await W(),i=await N(n.Player,e);if(!i)return[];let a=await Hn(e),o=L(i),[s,c,l]=await Promise.all([R(n.BiomeState,o),R(n.Discovery,o),R(n.TerrainTile,o)]);for(let e of t.addDiscoveries||[])e?.animalId&&!c.some(t=>t.animalId===e.animalId)&&c.push(e);for(let e of t.freshBiomeStates||[])e?.biomeId&&(s=s.filter(t=>t.biomeId!==e.biomeId),s.push(e));let u=new Map(s.map(e=>[e.biomeId,e])),d=new Map(c.map(e=>[e.animalId,e])),f=new Map,p=new Set(i.unlockedBiomes||[]),m={counts:q(i)?.counts||{},health:e=>u.get(e)?.health||0,returned:e=>u.get(e)?.returnedCount||0,disc:e=>d.get(e),totalReturned:c.length,kindReturned:(e,t)=>c.filter(n=>{let i=r.animal.get(n.animalId);return i&&i.biome===e&&i.kind===t}).length,tool:e=>i.tools?.[e]||1,unlockedCount:(i.unlockedBiomes||[]).length,craftedDistinct:Object.keys(i.craftedEver||{}).length,tutorialStep:i.tutorialStep||0,water:e=>(f.has(e)||f.set(e,on(l.filter(t=>t.area===e),!0)),f.get(e)),biomesAtHealth:e=>s.filter(t=>(t.health||0)>=e).length,unlockedHealthy:e=>s.filter(e=>p.has(e.biomeId)).every(t=>(t.health||0)>=e)},h=Date.now(),g=[];for(let t of r.achievements){if(a.has(t.id))continue;let r=Vn[t.id];!r||!r(m)||(await n.PlayerAchievement.put({id:`${e}:${t.id}`,playerId:e,achievementId:t.id,biome:t.biome,earnedAt:h}),g.push(t))}return g}catch{return[]}}async function Wn(e,t,n={}){let r=await Q(t,n);try{let r=k(),i=await N(r.World,e);if(i&&!i.solo)for(let i of await R(r.WorldMember,e))i.playerId!==t&&await Q(i.playerId,n)}catch{}return r}var $=class extends Resource{allowRead(){return!0}allowCreate(){return!0}allowUpdate(){return!0}allowDelete(){return!1}},Gn=class extends ${async get(){return{build:ae}}},Kn=null;async function qn(){if(Kn&&Kn.stamp===`0.2.5+2026-08-07T05:08:23.879Z`)return Kn;let e=await W(),t={biomes:e.biomes,animals:e.animals,resources:e.resources,recipes:e.recipes,habitatObjects:e.objects.map(e=>({...e,rotatable:kr(e)})),tools:e.tools,achievements:e.achievements,homeStyles:Ie,homeTracks:Re,nodeRegenSeconds:je,appearanceOptions:{skins:nt,hair:rt,outfits:it,hats:at,hatColors:ot,hairstyles:st,beards:ct,bodies:lt}};return Kn={stamp:ae,obj:t,json:JSON.stringify(t),etag:`W/"gd-${ae}"`},Kn}var Jn=globalThis.Buffer,Yn=null;function Xn(e,t){let n=Yn&&Yn.stamp===`0.2.5+2026-08-07T05:08:23.879Z`?Yn:Yn={stamp:ae},r=Jn.from(e,`utf8`);return t===`br`?(n.br||=w(r,{params:{[S.BROTLI_PARAM_QUALITY]:5,[S.BROTLI_PARAM_SIZE_HINT]:r.length}}),n.br):(n.gzip||=C(r,{level:6}),n.gzip)}var Zn=class extends ${async get(){let{obj:e,json:t,etag:n}=await qn(),r=this.getContext?.()?.headers;if(!r||typeof r.get!=`function`)return e;let i=`no-cache`,a=e=>e.replace(/^W\//,``).trim(),o=String(r.get(`if-none-match`)||``);if(o&&a(o)===a(n))return{status:304,headers:{etag:n,"cache-control":i}};let s={"content-type":`application/json; charset=utf-8`,"cache-control":i,etag:n,vary:`Accept-Encoding`},c=String(r.get(`accept-encoding`)||``),l=t;return/\bbr\b/.test(c)?(s[`content-encoding`]=`br`,l=Xn(t,`br`)):/\bgzip\b/.test(c)&&(s[`content-encoding`]=`gzip`,l=Xn(t,`gzip`)),{status:200,headers:s,body:l}}},Qn=class extends ${async post(e){let{name:t,passcode:n,appearance:r,tzOffsetMinutes:i,creationMs:a,edition:o}=await Z(e),s=o===`demo`?`demo`:`full`,c=String(t||``).trim();if(c.length<2||c.length>24)throw new A(b(`server.err.nameLength`));let l=String(n||``);if(l.length<4||l.length>32)throw new A(b(`server.err.passcodeLength`));let u=gt(c)||`caretaker`,d=k(),f;do f=`${u}-${Math.random().toString(36).slice(2,8)}`;while(await N(d.Player,f)||ge(d.Player,f));let p=ue(Math.round(Number(a)||0),0,36e5),m=await Ht(f,c,l,dt(r),Dt(i),p,s);await $n(c,f);let h=[];try{await V(m.player,{freshGrid:!0}),h=await H(f)}catch(e){console.error(`world setup skipped (CreatePlayer):`,e)}return{ok:!0,playerId:f,worldId:f,worlds:h,state:await Ut(m)}}};async function $n(e,t){try{let n=k();if(!n.PlayerNameIndex)return;let r=gt(String(e||``));if(!r)return;let i=await N(n.PlayerNameIndex,r)||{id:r,playerIds:[]},a=Array.isArray(i.playerIds)?i.playerIds:[];a.includes(t)||await n.PlayerNameIndex.put({...i,id:r,playerIds:[...a,t]})}catch(e){console.error(`player name index write failed —`,e?.message||e)}}async function er(e,t){try{let n=k();if(!n.PlayerNameIndex)return;let r=gt(String(e||``));if(!r)return;let i=await N(n.PlayerNameIndex,r);if(!i||!Array.isArray(i.playerIds))return;await n.PlayerNameIndex.put({...i,playerIds:i.playerIds.filter(e=>e!==t)})}catch(e){console.error(`player name index cleanup failed —`,e?.message||e)}}async function tr(e){try{let t=k();if(!t.PlayerNameIndex)return[];let n=gt(String(e||``));if(!n)return[];let r=await N(t.PlayerNameIndex,n);return Array.isArray(r?.playerIds)?r.playerIds:[]}catch{return[]}}async function nr(e,t){let n=String(e||``).trim().toLowerCase();if(!n)return{player:null,nameSeen:!1,unreadable:!1};let r=gt(String(e||``)),i=r?await N(k().Player,r):null;if(i&&await ht(i,t))return{player:i,nameSeen:!0};let a=!1,o=!1;for(let n of await tr(e)){let e=await N(k().Player,n);if(!e){ge(k().Player,n)&&(o=!0);continue}if(a=!0,await ht(e,t))return{player:e,nameSeen:!0}}let s=(await F(k().Player)).filter(e=>String(e?.name||``).trim().toLowerCase()===n);for(let e of s)if(await ht(e,t))return{player:e,nameSeen:!0};return r&&!i&&ge(k().Player,r)&&(o=!0),{player:null,nameSeen:!!i||a||s.length>0,unreadable:o}}var rr=class extends ${async post(e){let{name:t,passcode:n}=await Z(e),r=await nr(t,n);if(!r.player)throw r.unreadable?new A(b(`server.err.saveUnreadable`),409):r.nameSeen?new A(b(`server.err.passcodeMismatch`),403):new A(b(`server.err.noSaveWithName`),404);let i=r.player,a=i.id,o=k(),s=0;for(let e of[o.Placement,o.Chest,o.BiomeState,o.Discovery,o.NodeState,o.TerrainTile,o.FeedEntry])for(let t of await R(e,a))await e.delete(t.id),s++;for(let e of await I(o.PlayerAchievement,a))await o.PlayerAchievement.delete(e.id),s++;for(let e of await I(o.WorldMember,a))await o.WorldMember.delete(e.id),s++;return(await N(o.World,a)||ge(o.World,a))&&await Se(o.World,a)&&s++,await o.Player.delete(a),await er(i.name,a),{ok:!0,deleted:a,recordsRemoved:s+1}}},ir=class extends ${async post(e){let{playerId:t}=await Z(e),n=gt(String(t||``)),r=k(),i=n?await N(r.Player,n):null;if(!i)return{ok:!0,deleted:null};if(q(i)?.edition!==`demo`)throw new A(b(`server.err.notDemoSave`),403);let a=0;for(let e of[r.Placement,r.Chest,r.BiomeState,r.Discovery,r.NodeState,r.TerrainTile,r.FeedEntry])for(let t of await R(e,n))await e.delete(t.id),a++;for(let e of await I(r.PlayerAchievement,n))await r.PlayerAchievement.delete(e.id),a++;for(let e of await I(r.WorldMember,n))await r.WorldMember.delete(e.id),a++;return await N(r.World,n)&&(await r.World.delete(n),a++),await r.Player.delete(n),await er(i?.name,n),{ok:!0,deleted:n,recordsRemoved:a+1}}},ar=class extends ${async post(e){let{playerId:t}=await Z(e),n=gt(String(t||``)),r=k(),i=n?await N(r.Player,n):null;if(!i)throw new A(b(`server.err.noSaveWithName`),404);if(q(i)?.edition!==`demo`)throw new A(b(`server.err.notDemoSave`),403);let a=L(i),o={...i,metrics:yt({...q(i)||{},edition:`full`})};return{ok:!0,meta:{playerId:n,name:i.name||`Caretaker`,appearance:i.appearance||{},createdAt:i.createdAt||Date.now(),updatedAt:Date.now()},data:{Player:[o],PlayerAchievement:await I(r.PlayerAchievement,n),BiomeState:await R(r.BiomeState,a),Chest:await R(r.Chest,a),Placement:await R(r.Placement,a),Discovery:await R(r.Discovery,a),NodeState:await R(r.NodeState,a),TerrainTile:await R(r.TerrainTile,a),FeedEntry:await R(r.FeedEntry,a),World:await N(r.World,a)?[await N(r.World,a)]:[],WorldMember:await I(r.WorldMember,n),WorldPresence:[],JoinRequest:[]}}}},or=class extends ${async post(e){let{playerId:t,currentPasscode:n,newPasscode:r}=await Z(e),{player:i}=await K(t);if(!await ht(i,n))throw new A(b(`server.err.passcodeMismatch`),403);let a=String(r||``);if(a.length<4||a.length>32)throw new A(b(`server.err.newPasscodeLength`));let{salt:o,hash:s}=pt(a);return await k().Player.patch(t,{passcodeHash:s,passcodeSalt:o,passcode:null}),{ok:!0}}},sr=class extends ${async post(e){let{name:t,passcode:n,tzOffsetMinutes:r}=await Z(e),i=await nr(t,n);if(!i.player)throw i.unreadable?new A(b(`server.err.saveUnreadable`),409):i.nameSeen?new A(b(`server.err.passcodeMismatch`),403):new A(b(`server.err.noSaveTryNew`),404);let a=i.player,o=await W(),s=Date.now(),c=a.id,l=q(a)||vt(a.createdAt||s);await k().Player.patch(c,{metrics:yt({...l,lastHeartbeatAt:0}),...r==null?{}:{tzOffsetMinutes:Dt(r)}});let u=a.worldId||c,d=[];try{await V(a),u=(await N(k().Player,c))?.worldId||c,await U(c,u),d=await H(c)}catch(e){console.error(`world setup skipped (LoginPlayer):`,e)}let f=o.biome.get(a.area);return(a.area===`home`||!f||!f.explorable)&&await k().Player.patch(c,{area:`meadow`,x:24.5,y:6.5}),{ok:!0,playerId:c,worldId:u,worlds:d,state:await Bn(c)}}},cr=class extends ${async get(){let e=String(this.getId()||``);return await K(e),Bn(e)}},lr=class extends ${async post(e){let{playerId:t}=await Z(e),{player:n}=await K(t);return await V(n),{ok:!0,activeWorldId:L(n),worlds:await H(t)}}},ur=class extends ${async post(e){let{playerId:t,name:n}=await Z(e),r=k(),{player:i}=await K(t);await V(i);let a=String(n||``).trim()||b(`server.world.coopName`,{name:i.name});if(a.length>40)throw new A(b(`server.err.worldNameLength`));let o=`w_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,7)}`,s=Ee(),c=await F(r.World),l=new Set(c.map(e=>e.joinCode).filter(Boolean)),u=0;for(;l.has(s)&&u++<20;)s=Ee();let d=Date.now();await r.World.put({id:o,name:a,solo:!1,ownerId:t,joinCode:s,createdAt:d,maxMembers:De}),await r.WorldMember.put({id:`${o}:${t}`,worldId:o,playerId:t,role:`owner`,joinedAt:d,lastSeenAt:d});let f=await W();for(let e of f.biomes)await r.BiomeState.put({id:`${o}:${e.id}`,worldId:o,playerId:t,biomeId:e.id,health:Me,balance:0,returnedCount:0,unlocked:e.id===`meadow`});return{ok:!0,world:{worldId:o,name:a,joinCode:s,solo:!1,role:`owner`,isOwner:!0,memberCount:1,maxMembers:De},worlds:await H(t)}}};async function dr(e,t){let n=String(t||``).trim().toUpperCase();return n&&(await F(e.World)).find(e=>!e.solo&&e.joinCode===n)||null}var fr=class extends ${async post(e){let{playerId:t,joinCode:n,token:r}=await Z(e),i=k(),{player:a}=await K(t);await V(a);let o=await dr(i,n);if(!o)throw new A(b(`server.err.noWorldWithCode`),404);let s=`${o.id}:${t}`;if(!await i.WorldMember.get(s)){let e=String(r||``).trim(),n=e?await i.JoinRequest.get(`${o.id}:${e}`):null;if(!n||n.status!==`approved`)throw new A(b(`server.err.hostNotApproved`),403);let c=o.maxMembers||De;if((await R(i.WorldMember,o.id)).length>=c)throw new A(b(`server.err.worldFullJoined`,{max:c}),409);await i.WorldMember.put({id:s,worldId:o.id,playerId:t,role:`member`,joinedAt:Date.now(),lastSeenAt:Date.now()}),await i.JoinRequest.delete(`${o.id}:${e}`);let l=Date.now();await i.FeedEntry.put({id:`f_${o.id}_${l}_${Math.random().toString(36).slice(2,7)}`,worldId:o.id,playerId:t,at:l,icon:`user`,text:b(`server.feed.joinedWorld`,{name:a.name})})}await i.Player.patch(t,{worldId:o.id}),await U(t,o.id);let c=await H(t);if(!c.some(e=>e.worldId===o.id)){let e=await R(i.WorldMember,o.id),n=e.some(e=>e.playerId===t)?e.length:e.length+1;c=[...c,{worldId:o.id,name:o.name,solo:!1,role:o.ownerId===t?`owner`:`member`,joinCode:o.joinCode,memberCount:n,maxMembers:o.maxMembers||De,isOwner:o.ownerId===t}]}return{ok:!0,worldId:o.id,worlds:c,state:await Bn(t,{worldId:o.id})}}},pr=class extends ${async post(e){let{joinCode:t}=await Z(e),n=k(),r=await dr(n,t);if(!r)return{ok:!0,exists:!1};let i=(await R(n.WorldMember,r.id)).length,a=await N(n.Player,r.ownerId),o=r.maxMembers||De;return{ok:!0,exists:!0,world:{worldId:r.id,name:r.name,hostName:a?.name||b(`server.fallback.host`),memberCount:i,maxMembers:o,full:i>=o}}}},mr=class extends ${async post(e){let{joinCode:t,token:n,name:r}=await Z(e),i=k(),a=await dr(i,t);if(!a)throw new A(b(`server.err.noWorldWithCode`),404);let o=String(n||``).trim();if(!o)throw new A(b(`server.err.missingToken`));let s=a.maxMembers||De;if((await R(i.WorldMember,a.id)).length>=s)throw new A(b(`server.err.worldFullClosed`,{max:s}),409);let c=String(r||``).trim().slice(0,24)||b(`server.fallback.newCaretaker`);await i.JoinRequest.put({id:`${a.id}:${o}`,worldId:a.id,token:o,name:c,status:`pending`,createdAt:Date.now()});let l=await N(i.Player,a.ownerId);return{ok:!0,worldId:a.id,world:{name:a.name,hostName:l?.name||b(`server.fallback.host`)}}}},hr=class extends ${async post(e){let{worldId:t,token:n}=await Z(e);return{ok:!0,status:(await k().JoinRequest.get(`${t}:${String(n||``).trim()}`))?.status||`none`}}},gr=class extends ${async post(e){let{playerId:t}=await Z(e),{player:n}=await K(t),r=k(),i=L(n),a=await N(r.World,i);if(!a||a.solo||a.ownerId!==t)return{ok:!0,requests:[]};let o=(await R(r.JoinRequest,i)).filter(e=>e.status===`pending`);return o.sort((e,t)=>(e.createdAt||0)-(t.createdAt||0)),{ok:!0,requests:o.map(e=>({token:e.token,name:e.name,createdAt:e.createdAt}))}}},_r=class extends ${async post(e){let{playerId:t,worldId:n,token:r,approve:i}=await Z(e);await K(t);let a=k(),o=await N(a.World,n);if(!o||o.solo)throw new A(b(`server.err.noCoopWorld`),404);if(o.ownerId!==t)throw new A(b(`server.err.onlyHostApproves`),403);let s=`${n}:${String(r||``).trim()}`;if(!await a.JoinRequest.get(s))throw new A(b(`server.err.requestNotPending`),404);return await a.JoinRequest.patch(s,{status:i?`approved`:`denied`,resolvedAt:Date.now()}),{ok:!0}}},vr=class extends ${async post(e){let{playerId:t}=await Z(e),{player:n}=await K(t),r=k(),i=L(n),a=await N(r.World,i),o=a?.maxMembers||De;if(!a||a.solo)return{ok:!0,roster:[],closed:!1,maxMembers:o,joinCode:null};let s=await R(r.WorldMember,i),c=[];for(let e of s){let t=await N(r.Player,e.playerId);c.push({playerId:e.playerId,name:t?.name||b(`server.fallback.caretaker`),isOwner:e.role===`owner`||a.ownerId===e.playerId,joinedAt:e.joinedAt||0})}return c.sort((e,t)=>(e.joinedAt||0)-(t.joinedAt||0)),{ok:!0,roster:c,closed:c.length>=o,maxMembers:o,joinCode:a.joinCode}}},yr=class extends ${async post(e){let{playerId:t,worldId:n}=await Z(e),r=k(),{player:i}=await K(t);await V(i);let a=String(n||``);if(!await r.WorldMember.get(`${a}:${t}`))throw new A(b(`server.err.notWorldMember`),403);return await r.Player.patch(t,{worldId:a}),await r.WorldMember.patch(`${a}:${t}`,{lastSeenAt:Date.now()}),await U(t,a),{ok:!0,worldId:a,worlds:await H(t),state:await Bn(t,{worldId:a})}}},br=class extends ${async post(e){let{playerId:t,worldId:n}=await Z(e),r=k(),{player:i}=await K(t),a=String(n||``);if(a===t)throw new A(b(`server.err.cannotLeaveSolo`));let o=`${a}:${t}`;if(!await r.WorldMember.get(o))throw new A(b(`server.err.notInWorld`),404);await r.WorldMember.delete(o),i.worldId===a&&(await r.Player.patch(t,{worldId:t,area:`meadow`,x:24.5,y:6.5}),await U(t,t));let s=i.worldId===a?t:i.worldId||t;return{ok:!0,worldId:s,worlds:await H(t),state:await Bn(t,{worldId:s})}}},xr=15e3,Sr=class extends ${async post(e){let{playerId:t,x:n,y:r,area:i}=await Z(e),a=k(),{player:o}=await K(t),s=L(o),c=Date.now(),l=Number.isFinite(Number(n))?Number(n):o.x,u=Number.isFinite(Number(r))?Number(r):o.y,d=typeof i==`string`?i:o.area;if((await N(a.World,s))?.solo)return{ok:!0,worldId:s,peers:[]};let f={...(await a.WorldPresence.get(s)||{id:s,players:{}}).players||{}};f[t]={playerId:t,name:o.name,appearance:o.appearance,area:d,x:l,y:u,t:c};for(let e of Object.keys(f))c-(f[e]?.t||0)>xr&&delete f[e];return await a.WorldPresence.put({id:s,players:f,updatedAt:c}),{ok:!0,worldId:s,peers:Object.values(f).filter(e=>e.playerId!==t)}}},Cr=class extends ${async post(e){let{playerId:t,biomeId:r,nodeId:i,resourceId:a}=await Z(e),o=k(),s=await W(),{player:c}=await K(t),u=L(c),d=s.biome.get(r);if(!d)throw new A(b(`server.err.unknownBiome`,{biome:r}));if(!(c.unlockedBiomes||[]).includes(r))throw new A(b(`server.err.biomeLocked`,{biome:d.name}),403);let f=s.resource.get(a);if(!f)throw new A(b(`server.err.unknownResource`,{resource:a}));if(n(a)){let e=v(u,r,O(c));if(l(r,e)!==a)throw new A(b(`server.err.weatherOnly`,{resource:f.name}),409)}else if(!(d.resources||[]).includes(a))throw new A(b(`server.err.resourceNotInBiome`,{resource:a,biome:d.name}));if(!i||typeof i!=`string`)throw new A(b(`server.err.nodeIdRequired`));let p=`${u}:${r}:${i}`,m=await o.NodeState.get(p),h=Date.now();if(m&&h-m.harvestedAt<je*1e3)throw new A(b(`server.err.regrowing`),409);let g=Wt(c),_=M(c.inventory);if(_>=g)throw new A(b(`server.err.basketFullStore`),409);let y=c.tools?.[f.tool]||1,x=Math.min(Math.max(1,y),g-_),S=Ve(c),C=+(S?.id===`forage`&&g-_-x>0&&Math.random()<S.strength),w=x+C,T={...c.inventory||{}};return T[a]=(T[a]||0)+w,await o.Player.patch(t,{inventory:T}),await o.NodeState.put({id:p,worldId:u,playerId:t,harvestedAt:h}),await J(c,{resourcesCollected:w},{[`res:${a}`]:w}),await Q(t),{ok:!0,gained:{[a]:w},perkBonus:C||void 0,inventory:T,nodeId:i,harvestedAt:h}}},wr=class extends ${async post(e){let{playerId:t,chestId:n,resourceId:r,qty:i,direction:a}=await Z(e),o=k(),s=await W(),{player:c}=await K(t),l=L(c),u=fe(i,`qty`),d=await gn(o,s,n,l);if(!d)throw new A(b(`server.err.chestNotFound`),404);let f={...c.inventory||{}},p={...d.contents||{}};if(a===`deposit`){if((f[r]||0)<u)throw new A(b(`server.err.notEnoughInBasket`,{resource:r}));if(M(p)+u>d.capacity)throw new A(b(`server.err.chestFull`),409);f[r]-=u,f[r]<=0&&delete f[r],p[r]=(p[r]||0)+u}else if(a===`withdraw`){if((p[r]||0)<u)throw new A(b(`server.err.notEnoughInChest`,{resource:r}));if(M(f)+u>Wt(c))throw new A(b(`server.err.basketFull`),409);p[r]-=u,p[r]<=0&&delete p[r],f[r]=(f[r]||0)+u}else throw new A(b(`server.err.badDirection`));return await o.Player.patch(t,{inventory:f}),await o.Chest.patch(n,{contents:p}),await J(c,a===`deposit`?{chestDeposits:1}:{chestWithdrawals:1}),{ok:!0,inventory:f,chest:{...d,contents:p}}}},Tr=class extends ${async post(e){let{playerId:t,kind:n,id:r,qty:i}=await Z(e),a=k(),{player:o}=await K(t),s=fe(i,`qty`);if(!r||typeof r!=`string`)throw new A(b(`server.err.idRequired`));if(n===`crafted`){let e={...o.craftedItems||{}};if((e[r]||0)<s)throw new A(b(`server.err.discardTooMany`));return e[r]-=s,e[r]<=0&&delete e[r],await a.Player.patch(t,{craftedItems:e}),await J(o,{itemsDiscarded:s}),{ok:!0,craftedItems:e}}let c={...o.inventory||{}};if((c[r]||0)<s)throw new A(b(`server.err.discardTooMany`));return c[r]-=s,c[r]<=0&&delete c[r],await a.Player.patch(t,{inventory:c}),await J(o,{itemsDiscarded:s}),{ok:!0,inventory:c}}},Er=class extends ${async post(e){let{playerId:t,recipeId:n}=await Z(e),r=k(),i=await W(),{player:a}=await K(t),o=L(a),s=i.recipe.get(n);if(!s)throw new A(b(`server.err.unknownRecipe`,{recipe:n}));let c=i.object.get(s.output.itemId);if(c?.plantable)throw new A(b(`server.err.plantedNotCrafted`,{name:s.name}),400);if(!a.devUnlockAll&&c?.homeMin&&(G(a).space||1)<c.homeMin)throw new A(b(`server.err.needsProperHouse`,{name:s.name}),403);let l=!!a.devUnlockAll;if(!l&&s.unlockBiome&&!(a.unlockedBiomes||[]).includes(s.unlockBiome))throw new A(b(`server.err.recipeBiomeLocked`),403);if(!l&&s.unlock&&s.unlockBiome&&!mn(s,await hn(o,s.unlockBiome,a,i)))throw new A(b(`server.err.recipeLocked`,{label:s.unlock.label}),403);if(s.requiresTool&&(a.tools?.[s.requiresTool.id]||1)<s.requiresTool.tier){let e=i.tool.get(s.requiresTool.id);throw new A(b(`server.err.requiresUpgradedTool`,{tool:e?.name||s.requiresTool.id}),403)}if(s.once&&(a.craftedEver?.[s.output.itemId]||0)>0)throw new A(b(`server.err.craftOnce`,{name:s.name}),409);let{usedFrom:u,inventory:d}=await _n(a,s.materials||{},o),f=Ve(a),p;if(f?.id===`thrift`&&Object.keys(s.materials||{}).length&&Math.random()<f.strength){let e=Wt(a)-M(d);for(let[t,n]of Object.entries(s.materials||{})){let r=Math.min(Math.max(1,Math.floor(n/2)),Math.max(0,e));r>0&&(p||={},p[t]=r,d[t]=(d[t]||0)+r,e-=r)}}let m={...a.craftedItems||{}},h={...a.craftedEver||{}};m[s.output.itemId]=(m[s.output.itemId]||0)+(s.output.qty||1),h[s.output.itemId]=(h[s.output.itemId]||0)+(s.output.qty||1),await r.Player.patch(t,p?{craftedItems:m,craftedEver:h,inventory:d}:{craftedItems:m,craftedEver:h});let g=await pn(o,t,{player:{...a,craftedItems:m,craftedEver:h}}),_=await R(r.Chest,o);return await J(a,{itemsCrafted:1},{craft:1}),await Q(t),{ok:!0,crafted:s.output,craftedItems:m,inventory:d,chests:_,usedFrom:u,refund:p,unlockedBiomes:g}}};function Dr(e){let t=Number(e);return Number.isFinite(t)?(Math.round(t/90)*90%360+360)%360:0}var Or=new Set([`wooden-fence`,`dry-stone-wall`,`wooden-bench`,`hammock`,`picnic-blanket`,`garden-arch`,`trail-signpost`,`flower-cart`,`home-bed`,`home-sleeping-bag`,`home-bookshelf`,`home-armchair`,`home-fireplace`,`home-table`,`home-dresser`,`home-driftwoodshelf`,`home-mushroomshelf`,`home-reedmat`,`home-peltrug`,`home-rug`,`home-cushions`,`home-stool`,`home-aquarium`,`home-telescope`]);function kr(e){return e?e.rotatable===!0||e.bridge||/-path$/.test(e.id)?!0:Or.has(e.id):!1}var Ar=class extends ${async post(e){let{playerId:t,objectId:n,area:r,x:i,y:a,rotation:o}=await Z(e),s=k(),c=await W(),{player:l}=await K(t),u=L(l),d=c.object.get(n);if(!d)throw new A(b(`server.err.unknownObject`,{object:n}));if(d.placement===`none`)throw new A(b(`server.err.kitNotPlaceable`,{name:d.name}));if((l.craftedItems?.[n]||0)<=0)throw new A(b(`server.err.noneCrafted`,{name:d.name}));let f=Math.round(Number(i)),p=Math.round(Number(a)),m=Pt(c,r);if(!Number.isFinite(f)||!Number.isFinite(p)||f<1||p<1||f>m.cols-2||p>m.rows-2)throw new A(b(`server.err.outOfReach`));let h=We(r);if(r===`home`){if(d.placement===`outdoor`)throw new A(b(`server.err.outdoorOnly`,{name:d.name}));if(d.homeMin&&(G(l).space||1)<d.homeMin)throw new A(b(`server.err.needsBiggerHome`,{name:d.name}),403);let e=He(l);if(f<e.x0||f>e.x1||p<e.y0||p>e.y1)throw new A(b(`server.err.placeOnFloor`));if(Je(n,e,f,p))throw new A(b(`server.err.bedBlocksDoor`,{name:d.name}))}else if(h){let e=c.biome.get(h);if(!e)throw new A(b(`server.err.unknownArea`,{area:r}));if(!(l.unlockedBiomes||[]).includes(h))throw new A(b(`server.err.biomeLocked`,{biome:e.name}),403);if(d.placement===`outdoor`)throw new A(b(`server.err.outdoorOnly`,{name:d.name}));if(d.homeMin&&d.homeMin>1)throw new A(b(`server.err.tentTooSmall`,{name:d.name}),403);let t=Ge();if(f<t.x0||f>t.x1||p<t.y0||p>t.y1)throw new A(b(`server.err.placeOnFloor`));if(Je(n,t,f,p))throw new A(b(`server.err.bedBlocksDoor`,{name:d.name}))}else{let e=c.biome.get(r);if(!e)throw new A(b(`server.err.unknownArea`,{area:r}));if(!(l.unlockedBiomes||[]).includes(r))throw new A(b(`server.err.biomeLocked`,{biome:e.name}),403);if(d.placement===`indoor`)throw new A(b(`server.err.indoorOnly`,{name:d.name}));if(!(d.biomes||[]).includes(r))throw new A(b(`server.err.wrongHabitat`,{name:d.name,biome:e.name}));if(e.oceanCols&&f>=m.cols-e.oceanCols)throw new A(b(`server.err.openOcean`),409)}if(d.requiresTool&&(l.tools?.[d.requiresTool.id]||1)<d.requiresTool.tier)throw new A(b(`server.err.placeRequiresTool`,{name:d.name,tool:c.tool.get(d.requiresTool.id)?.name||d.requiresTool.id}),403);let g=await R(s.Placement,u);if(g.some(e=>e.area===r&&e.x===f&&e.y===p))throw new A(b(`server.err.spotTaken`),409);if(d.onePerArea&&g.some(e=>e.area===r&&e.objectId===n))throw new A(b(`server.err.onePerArea`,{name:d.name}),409);let _=r===`home`||!!h,v=_?null:await z(s.TerrainTile,u,r,f,p);if(v)if(v.type===`water`){if(!d.bridge)throw new A(b(`server.err.openWaterBridge`),409)}else throw new A(b(`server.err.bedForPlanting`),409);else if(d.bridge&&!_)throw new A(b(`server.err.bridgeNeedsWater`),409);let y={...l.craftedItems||{}};--y[n],y[n]<=0&&delete y[n],await s.Player.patch(t,{craftedItems:y});let x=`pl_${Date.now()}_${Math.random().toString(36).slice(2,8)}`,S={id:x,worldId:u,playerId:t,objectId:n,area:r,x:f,y:p,placedAt:Date.now(),rotation:kr(d)?Dr(o):0};if(await s.Placement.put(S),d.isChest&&await s.Chest.put({id:x,worldId:u,playerId:t,area:r,x:f,y:p,size:n,capacity:d.chestCapacity||60,contents:{}}),_)return await J(l,{objectsPlaced:1},{place:1}),await Q(t),{ok:!0,placement:S,craftedItems:y};let C=await X(u,t,r,{addPlacements:[S],player:{...l,craftedItems:y}});return await J(l,{objectsPlaced:1,animalsReturned:C.newAnimals?.length||0},{place:1}),await Wn(u,t,{addDiscoveries:C.newAnimals,freshBiomeStates:[C.biomeState]}),{ok:!0,placement:S,craftedItems:y,...C}}},jr=class extends ${async post(e){let{playerId:t,area:n,x:r,y:i,plantId:a}=await Z(e),o=k(),s=await W(),{player:c}=await K(t),l=L(c),u=s.biome.get(n);if(!u)throw new A(b(`server.err.unknownArea`,{area:n}));if(!(c.unlockedBiomes||[]).includes(n))throw new A(b(`server.err.biomeLocked`,{biome:u.name}),403);let d=s.object.get(a);if(!d||!d.plantable)throw new A(b(`server.err.notPlantable`));if(!(d.biomes||[]).includes(n))throw new A(b(`server.err.wouldNotTakeRoot`,{name:d.name,biome:u.name}));let f=Math.round(Number(r)),p=Math.round(Number(i)),m=await z(o.TerrainTile,l,n,f,p);if(!m||m.type!==`watered`)throw new A(b(`server.err.plantIntoWatered`));let{usedFrom:h,inventory:g}=await _n(c,d.plantCost||{},l);await o.TerrainTile.delete(m.id);let _=Ve(c),v=_?.id===`growth`?_.strength:0,y=Date.now(),x={id:`pl_${y}_${Math.random().toString(36).slice(2,8)}`,worldId:l,playerId:t,objectId:a,area:n,x:f,y:p,placedAt:y-Math.round(Xt(d)*v),plantedAt:y-Math.round((d.growSeconds||0)*1e3*v)};await o.Placement.put(x);let S=await X(l,t,n,{addPlacements:[x],removeTerrainIds:[m.id],player:{...c,inventory:g}});return await J(c,{plantsPlanted:1,animalsReturned:S.newAnimals?.length||0},{plant:1}),await Wn(l,t,{addDiscoveries:S.newAnimals,freshBiomeStates:[S.biomeState]}),{ok:!0,placement:x,inventory:g,usedFrom:h,perkGrowth:v||void 0,...S}}};function Mr(e,t){let n=e?.yield;if(!n||!e?.plantable||!t?.plantedAt)return null;let r=(e.growSeconds||0)*1e3,i=(n.regrowSeconds||60)*1e3;return t.lastHarvestAt?t.lastHarvestAt+i:t.plantedAt+r}var Nr=class extends ${async post(e){let{playerId:t,placementId:n}=await Z(e),r=k(),i=await W(),{player:a}=await K(t),o=L(a),s=Date.now(),c=(await R(r.Placement,o)).find(e=>e.id===n);if(!c)throw new A(b(`server.err.placementNotFound`),404);let l=i.object.get(c.objectId),u=l?.yield;if(!u)throw new A(b(`server.err.notHarvestable`));let d=Mr(l,c);if(d==null||s<d)throw new A(b(`server.err.notReadyYet`));let f=Wt(a),p={...a.inventory||{}},m=Math.max(0,f-M(p)),h=Math.min(u.qty||1,m);if(h<=0)throw new A(b(`server.err.basketFullHarvest`),409);return p[u.resourceId]=(p[u.resourceId]||0)+h,await r.Player.patch(t,{inventory:p}),await r.Placement.patch(n,{lastHarvestAt:s}),await J(a,{resourcesCollected:h}),{ok:!0,placementId:n,gained:{[u.resourceId]:h},inventory:p,placement:{...c,lastHarvestAt:s}}}},Pr=class extends ${async post(e){let{playerId:t,appearance:n}=await Z(e),{player:r}=await K(t),i=dt(n);return await k().Player.patch(t,{appearance:i}),await J(r,{appearanceChanges:1}),{ok:!0,appearance:i}}},Fr=class extends ${async post(e){let{playerId:t,placementId:n,x:r,y:i,rotation:a}=await Z(e),o=k(),{player:s}=await K(t),c=L(s),l=await R(o.Placement,c),u=l.find(e=>e.id===n);if(!u)throw new A(b(`server.err.placementNotFound`),404);if(u.objectId===`workbench`)throw new A(b(`server.err.workbenchStays`));let d=Pt(await W(),u.area),f=Math.round(Number(r)),p=Math.round(Number(i));if(!Number.isFinite(f)||!Number.isFinite(p)||f<1||p<1||f>d.cols-2||p>d.rows-2)throw new A(b(`server.err.outOfReach`));if(l.some(e=>e.id!==n&&e.area===u.area&&e.x===f&&e.y===p))throw new A(b(`server.err.spotTaken`),409);let m=await W(),h=m.object.get(u.objectId);if(Ke.has(u.objectId)){let e=We(u.area),t=u.area===`home`?He(s):e?Ge():null;if(t&&Je(u.objectId,t,f,p))throw new A(b(`server.err.bedBlocksDoor`,{name:h?.name||u.objectId}))}let g=await z(o.TerrainTile,c,u.area,f,p);if(g)if(g.type===`water`){if(!h?.bridge)throw new A(b(`server.err.openWaterBridgeOnly`),409)}else throw new A(b(`server.err.bedForPlantingShort`),409);else if(h?.bridge)throw new A(b(`server.err.bridgesOverWater`),409);let _={x:f,y:p};return a!==void 0&&kr(h)&&(_.rotation=Dr(a)),await o.Placement.patch(n,_),await gn(o,m,n,c)&&await o.Chest.patch(n,{x:f,y:p}),await J(s,{objectsMoved:1}),{ok:!0,placement:{...u,..._}}}},Ir=class extends ${async post(e){let{playerId:t,placementId:n}=await Z(e),r=k(),{player:i}=await K(t),a=L(i),o=await we(r.Placement,a,n);if(!o)throw new A(b(`server.err.placementNotFound`),404);if(o.objectId===`workbench`)throw new A(b(`server.err.workbenchStays`));let s=await we(r.Chest,a,n);if(s&&M(s.contents)>0)throw new A(b(`server.err.emptyChestFirst`),409);if(o.objectId===`trail-tent`){let e=`tent-${o.area}`;if((await R(r.Placement,a)).some(t=>t.area===e))throw new A(b(`server.err.tentNotEmpty`),409)}let c=(await W()).object.get(o.objectId),l=null,u={...i.craftedItems||{}},d={...i.inventory||{}},f=new Map;if(c?.plantable&&o.plantedAt&&Object.keys(c.plantCost||{}).length){l={...c.plantCost};let e=Wt(i),t=M(d),o=(await R(r.Chest,a)).filter(e=>e.id!==n);for(let[n,r]of Object.entries(l)){let i=r,a=Math.min(i,Math.max(0,e-t));a>0&&(d[n]=(d[n]||0)+a,t+=a,i-=a);for(let e of o){if(i<=0)break;let t=f.get(e.id)||{...e.contents||{}},r=e.capacity-M(t),a=Math.min(r,i);a>0&&(t[n]=(t[n]||0)+a,f.set(e.id,t),i-=a)}if(i>0)throw new A(b(`server.err.noRoomRefund`),409)}}else u[o.objectId]=(u[o.objectId]||0)+1;if(s&&await r.Chest.delete(n),await r.Placement.delete(n),l){await r.Player.patch(t,{inventory:d});for(let[e,t]of f)await r.Chest.patch(e,{contents:t})}else await r.Player.patch(t,{craftedItems:u});let p=o.area!==`home`&&!We(o.area)?await X(a,t,o.area,{removeIds:[n],player:{...i,craftedItems:u,inventory:d}}):null;return await J(i,{objectsRemoved:1,animalsReturned:p?.newAnimals?.length||0}),await Wn(a,t,p?{addDiscoveries:p.newAnimals,freshBiomeStates:[p.biomeState]}:{}),{ok:!0,removed:n,craftedItems:u,refunded:l,...p||{}}}},Lr=class extends ${async post(e){let{playerId:t,toolId:n}=await Z(e),r=k(),i=await W(),{player:a}=await K(t),o=i.tool.get(n);if(!o)throw new A(b(`server.err.unknownTool`,{tool:n}));let s=L(a),c=a.tools?.[n]||1,l=(o.tiers||[]).find(e=>e.tier===c+1);if(!l)throw new A(b(`server.err.toolMaxed`,{tool:o.name}));if(l.requires?.biome&&((await B(r.BiomeState,s,l.requires.biome))?.health||0)<(l.requires.minHealth||0)){let e=i.biome.get(l.requires.biome);throw new A(b(`server.err.restoreFirst`,{biome:e?.name||l.requires.biome,health:l.requires.minHealth}),403)}let{usedFrom:u,inventory:d}=await _n(a,l.materials||{},s),f={...a.tools||{},[n]:l.tier};await r.Player.patch(t,{tools:f});let p=await pn(s,t,{player:{...a,tools:f}}),m=await R(r.Chest,s);return await J(a,{toolsUpgraded:1}),await Q(t),{ok:!0,tools:f,inventory:d,chests:m,usedFrom:u,unlockedBiomes:p,upgraded:{toolId:n,tier:l.tier,name:l.name}}}},Rr=class extends ${async post(e){let{playerId:t,track:n}=await Z(e),r=k(),{player:i}=await K(t),a=L(i),o=Re[n];if(!o)throw new A(b(`server.err.unknownHomeUpgrade`));let s=G(i);if(!s.styleLocked)throw new A(b(`server.err.buildStyleFirst`),403);let c=s[n]||1,l=o.levels[c];if(!l)throw new A(b(`server.err.trackMaxed`,{track:o.name.toLowerCase()}));if(l.requires?.biome&&((await B(r.BiomeState,a,l.requires.biome))?.health||0)<(l.requires.minHealth||0)){let e=(await W()).biome.get(l.requires.biome);throw new A(b(`server.err.restoreFirst`,{biome:e?.name||l.requires.biome,health:l.requires.minHealth}),403)}let{usedFrom:u,inventory:d}=await _n(i,l.materials||{},a),f={...s,[n]:c+1};await r.Player.patch(t,{home:f});let p=await R(r.Chest,a);return await Q(t),await J(i,{homeUpgrades:1}),{ok:!0,home:f,inventory:d,chests:p,usedFrom:u,upgraded:{track:n,level:c+1,name:o.name}}}},zr=[`home-sleeping-bag`,`home-bed`],Br=class extends ${async post(e){let{playerId:t}=await Z(e),n=k(),{player:r}=await K(t),i=L(r);if(!(await R(n.Placement,i)).some(e=>zr.includes(e.objectId)))throw new A(b(`server.err.needBedToRest`),403);let a=await R(n.NodeState,i);for(let e of a)await n.NodeState.delete(e.id);let o=O(r),s=p(o)-o;return await n.Player.patch(t,{clockOffsetMs:(r.clockOffsetMs||0)+s}),await J(r,{restsTaken:1}),{ok:!0,rested:!0,refreshed:a.length}}},Vr=e=>typeof e==`string`&&/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(e.trim()),Hr=class extends ${async post(e){let{playerId:t,colors:n}=await Z(e),r=k(),{player:i}=await K(t),a=G(i);if(!a.styleLocked)throw new A(b(`server.err.buildBeforeRepaint`),403);let o={...a.colors};for(let e of[`floor`,`wall`,`accent`,`rug`])n?.[e]&&Vr(n[e])&&(o[e]=String(n[e]).trim().toLowerCase());return await r.Player.patch(t,{home:{...a,colors:o}}),await J(i,{recolors:1}),{ok:!0}}},Ur=class extends ${async post(e){let{playerId:t,placementId:n,color:r}=await Z(e),i=k(),{player:a}=await K(t);if(!G(a).styleLocked)throw new A(b(`server.err.buildBeforeRepaintThings`),403);if(!Vr(r))throw new A(b(`server.err.invalidColor`));if(!await we(i.Placement,L(a),n))throw new A(b(`server.err.itemNotHere`),404);return await i.Placement.patch(n,{color:String(r).trim().toLowerCase()}),await J(a,{recolors:1}),{ok:!0}}},Wr=class extends ${async post(e){let{playerId:t,style:n}=await Z(e),r=k(),{player:i}=await K(t),a=Ie[n];if(!a)throw new A(b(`server.err.unknownHomeStyle`));let o=G(i);if(o.styleLocked)throw new A(b(`server.err.homeAlreadyBuilt`),403);let s=L(i);if(a.requires?.biome&&((await B(r.BiomeState,s,a.requires.biome))?.health||0)<(a.requires.minHealth||0)){let e=(await W()).biome.get(a.requires.biome);throw new A(b(`server.err.restoreFirst`,{biome:e?.name||a.requires.biome,health:a.requires.minHealth}),403)}let{usedFrom:c,inventory:l}=await _n(i,a.materials||{},s),u={...o,style:n,styleLocked:!0,space:2};await r.Player.patch(t,{home:u});let d=await R(r.Chest,s);return await Q(t),await J(i,{homesBuilt:1}),{ok:!0,home:u,inventory:l,chests:d,usedFrom:c,built:Ie[n].name}}},Gr=class extends ${async post(e){let{playerId:t,animalId:n}=await Z(e),r=k(),i=await W(),{player:a}=await K(t),o=L(a),s=await Te(r.Discovery,o,n);if(!s)throw new A(b(`server.err.animalNotReturned`),404);let c=Ot(a,Date.now()),l=s.lastObservedDayKey!==c,u=(s.timesObserved||0)+1;return await r.Discovery.patch(s.id,{timesObserved:u,lastObservedDayKey:c}),await J(a,{animalsObserved:1},l?{observe:1}:{}),await Q(t),{ok:!0,discovery:{...s,timesObserved:u},animal:i.animal.get(n)}}},Kr=class extends ${async post(e){let{playerId:t,taskId:n}=await Z(e),r=k(),i=await W(),{player:a}=await K(t),o=L(a),s=Date.now(),[c,l,u,d]=await Promise.all([R(r.Discovery,o),R(r.BiomeState,o),R(r.Placement,o),R(r.Chest,o)]),f=zn({wid:o,player:a,d:i,discoveries:c,biomeStates:l,placements:u,chests:d,now:s,unlockedBiomes:a.unlockedBiomes}),p=f.tasks.find(e=>e.id===String(n||``));if(!p)throw new A(b(`server.err.taskNotOnBoard`),404);if(p.pinned)throw new A(b(`server.err.taskNotClaimable`),409);if(p.claimed)throw new A(b(`server.err.taskAlreadyClaimed`),409);if(p.progress<p.target)throw new A(b(`server.err.taskNotFinished`),409);let m=Wt(a),h={...a.inventory||{}},g=Math.max(0,m-M(h)),_={};for(let[e,t]of Object.entries(p.reward||{})){let n=Math.min(t,g);n<=0||(h[e]=(h[e]||0)+n,_[e]=n,g-=n)}if(!Object.keys(_).length)throw new A(b(`server.err.basketFullReward`),409);let v=String(p.id).startsWith(`start-`),y=String(p.id).startsWith(`unlock-reward:`),x={inventory:h};if(y){let e=String(p.id).slice(14);x.pendingUnlockRewards=(a.pendingUnlockRewards||[]).filter(t=>t!==e)}else v?x.goalClaims={...a.goalClaims||{},[p.id]:!0}:x.customGoals=(a.customGoals||[]).filter(e=>e.id!==p.id);await r.Player.patch(t,x),await J(a,{tasksCompleted:1}),await Q(t);let S={...f,tasks:f.tasks.map(e=>e.id===p.id?{...e,claimed:!0}:e)};return{ok:!0,taskId:p.id,text:p.text,gained:_,inventory:h,dailyTasks:S}}},qr=class extends ${async post(e){let{playerId:t,goals:n}=await Z(e),{player:r}=await K(t),i=k(),a=await W(),o=L(r),s=Date.now(),[c,l,u,d]=await Promise.all([R(i.Discovery,o),R(i.BiomeState,o),R(i.Placement,o),R(i.Chest,o)]),f={wid:o,player:r,d:a,discoveries:c,biomeStates:l,placements:u,chests:d,now:s,unlockedBiomes:r.unlockedBiomes},p=new Map((r.customGoals||[]).map(e=>[e.id,e])),m=xn(r,a),h=Rn(n,a),g=[];for(let e of h){let t=p.get(e.id);if(!t&&g.length>=m)continue;if(g.length>=bn)break;let n=t&&typeof t.base==`number`?t.base:Pn(e,f),r={...e,base:n};e.kind===`build`&&(r.basePlace=t&&typeof t.basePlace==`number`?t.basePlace:Mn(f,e.itemId||``)),g.push(r)}return await i.Player.patch(t,{customGoals:g}),{ok:!0,customGoals:g,goalLimit:m}}},Jr=class extends ${async post(e){let{playerId:t,area:n,x:r,y:i,action:a}=await Z(e),o=k(),s=await W(),{player:c}=await K(t),l=L(c),u=s.biome.get(n);if(!u)throw new A(b(`server.err.terraformOutdoors`));if(!(c.unlockedBiomes||[]).includes(n))throw new A(b(`server.err.biomeLocked`,{biome:u.name}),403);let d=Math.round(Number(r)),f=Math.round(Number(i)),p=Pt(s,n);if(!Number.isFinite(d)||!Number.isFinite(f)||d<1||f<1||d>p.cols-2||f>p.rows-2)throw new A(b(`server.err.outOfReach`));if((await R(o.Placement,l)).some(e=>e.area===n&&e.x===d&&e.y===f))throw new A(b(`server.err.somethingPlaced`));let m=`${l}:${n}:${d}:${f}`,h=await z(o.TerrainTile,l,n,d,f),g=c.inventory||{},_=null,v,y=null;if(a===`dig`){if((c.tools?.shovel||0)<1)throw new A(b(`server.err.needShovel`));if(h)throw new A(b(`server.err.alreadyPrepared`));_={id:m,worldId:l,playerId:t,area:n,x:d,y:f,type:`tilled`,updatedAt:Date.now()},await o.TerrainTile.put(_);let e=u.digResources||[];if(e.length&&Math.random()<Ye){let n=e[Math.floor(Math.random()*e.length)],r=Math.max(0,Wt(c)-M(g)),i=Math.min(c.tools?.shovel||1,r);i>0&&(g={...g,[n]:(g[n]||0)+i},await o.Player.patch(t,{inventory:g}),y={resourceId:n,amount:i})}}else if(a===`water`){if((c.tools?.[`watering-can`]||0)<1)throw new A(b(`server.err.needWateringCan`));if(!h)throw new A(b(`server.err.prepareBedFirst`));if(h.type===`water`)throw new A(b(`server.err.alreadyOpenWater`));let e=h.type===`tilled`?`watered`:`water`;if(e===`water`&&u.canFlood===!1)throw new A(b(`server.err.tooDryToFlood`,{biome:u.name}));if((g.water||0)+(g[`clean-water`]||0)<1)throw new A(b(`server.err.needWater`,{count:1}));g={...g};let n=1;for(let e of[`water`,`clean-water`]){let t=Math.min(g[e]||0,n);t>0&&(g[e]-=t,g[e]<=0&&delete g[e],n-=t)}await o.Player.patch(t,{inventory:g}),_={...h,type:e,updatedAt:Date.now()},await o.TerrainTile.patch(h.id,{type:e,updatedAt:Date.now()})}else if(a===`clear`){if(!h)throw new A(b(`server.err.nothingToClear`));await o.TerrainTile.delete(h.id),v=h.id}else throw new A(b(`server.err.badTerraformAction`));let x=await X(l,t,n,{addTerrain:_?[_]:[],removeTerrainIds:v?[v]:[],player:{...c,inventory:g}});return await J(c,{terraformActions:1,animalsReturned:x.newAnimals?.length||0},a===`water`?{water:1}:{}),await Wn(l,t,{addDiscoveries:x.newAnimals,freshBiomeStates:[x.biomeState]}),{ok:!0,tile:_,removedId:v,dug:y,inventory:g,...x}}},Yr=class extends ${async post(e){let{playerId:t,biomeId:n}=await Z(e),{player:r}=await K(t),i=await X(L(r),t,n);return await Wn(L(r),t,{addDiscoveries:i.newAnimals,freshBiomeStates:[i.biomeState]}),{ok:!0,...i}}},Xr=class extends ${async post(e){let{playerId:t,x:n,y:r,area:i,tutorialStep:a}=await Z(e),o=k(),s=await W(),{player:c}=await K(t),l={};if(Number.isFinite(Number(n))&&(l.x=Number(n)),Number.isFinite(Number(r))&&(l.y=Number(r)),Number.isInteger(a)&&a>=0&&a<=99&&(l.tutorialStep=a,l.tutorialMaxStep=Math.max(c.tutorialMaxStep??0,c.tutorialStep??0,a)),i===`home`)l.area=`home`;else if(We(i)){let e=We(i),t=s.biome.get(e);if(!t)throw new A(b(`server.err.unknownArea`,{area:i}));if(!(c.unlockedBiomes||[]).includes(e))throw new A(b(`server.err.biomeLocked`,{biome:t.name}),403);let n=L(c);if(!(await R(o.Placement,n)).some(t=>t.area===e&&t.objectId===`trail-tent`))throw new A(b(`server.err.noTentHere`),404);l.area=i}else if(i){let e=s.biome.get(i);if(!e)throw new A(b(`server.err.unknownArea`,{area:i}));if(!(c.unlockedBiomes||[]).includes(i))throw new A(b(`server.err.biomeLocked`,{biome:e.name}),403);if(!e.explorable)throw new A(b(`server.err.notExplorable`,{biome:e.name}),403);l.area=i;let n=c.visitedBiomes||[`meadow`];if(n.includes(i)||(l.visitedBiomes=[...n,i]),dn[i]){let e=L(c);(await R(o.TerrainTile,e)).some(e=>e.area===i)||(await fn(e,t,i),await X(e,t,i,{player:c}))}}return await o.Player.patch(t,l),l.tutorialStep!==void 0&&await Q(t),{ok:!0,player:ft(await N(o.Player,t))}}},Zr=class extends ${async post(e){let{playerId:t,entries:n}=await Z(e),{player:r}=await K(t),i=L(r),a=k(),o=Array.isArray(n)?n.slice(0,Pe):[],s=0;for(let e of o){let n=String(e?.text||``).slice(0,500).trim();if(!n)continue;let r=Number(e?.at)||Date.now(),o=String(e?.icon||`leaf`).slice(0,40),c=`f_${i}_${r}_${Math.random().toString(36).slice(2,9)}`;await a.FeedEntry.put({id:c,worldId:i,playerId:t,at:r,icon:o,text:n}),s++}let c=(await R(a.FeedEntry,i)).sort((e,t)=>(e.at||0)-(t.at||0));if(c.length>Pe)for(let e of c.slice(0,c.length-Pe))await a.FeedEntry.delete(e.id);return{ok:!0,added:s}}},Qr=18e5,$r=9e4,ei=class extends ${async post(e){let{playerId:t,language:n,edition:r}=await Z(e),i=k(),a=await W(),{player:o}=await K(t),s=Date.now(),c=q(o)||vt(o.createdAt||s),l=typeof n==`string`&&n.trim()?n.trim().toLowerCase().slice(0,12):null,u=r===`demo`?`demo`:r===`full`?`full`:null,d=c.lastHeartbeatAt||0,f=s-d,p=c.playSeconds||0,m=c.sessions||0,h=c.curSessionSeconds||0,g={...c.areaSeconds||{}},_={...c.sessionLengths||{}},v=d===0||f>Qr;if(v){if(h>0){let e=Ct(h);_[e]=(_[e]||0)+1}h=0,m+=1}else{let e=Math.min(f,$r)/1e3;p+=e,h+=e;let t=o.area||`unknown`;g[t]=Y((g[t]||0)+e)}let y={...c,firstSeenAt:c.firstSeenAt||o.createdAt||s,lastSeenAt:s,lastHeartbeatAt:s,playSeconds:Math.round(p),sessions:m,curSessionSeconds:Math.round(h),areaSeconds:g,sessionLengths:_,...l?{language:l}:{},...u?{edition:c.edition===`demo`?`demo`:u}:{}};await i.Player.patch(t,{metrics:yt(y)});let b=L(o),x=null,S=[],C=[];try{let e=c.lastSeenAt||0,n=v&&e>0&&s-e>6e5,r=await R(i.Placement,b),l=d>0?d:s,u=new Set;for(let t of r)Qt(a.object.get(t.objectId),t,n?e:l,s)&&u.add(t.area);let f=await R(i.BiomeState,b),p=new Set(f.filter(e=>e.unlocked).map(e=>e.biomeId)),m=n?[...p]:[...u].filter(e=>p.has(e)),h=0;for(let e of m){let n=f.find(t=>t.biomeId===e)?.health||0,r=await X(b,t,e,{player:o});h+=Math.max(0,(r.biomeState?.health||0)-n),S.push(...r.newAnimals||[]),C.push(r.biomeState)}if((S.length||C.length)&&await Wn(b,t,{addDiscoveries:S,freshBiomeStates:C}),n){let t=r.filter(t=>{let n=a.object.get(t.objectId);return p.has(t.area)&&Qt(n,t,e,s)}).length;(t>0||S.length>0||h>0)&&(x={awayHours:Math.round((s-e)/36e5*10)/10,matured:t,healthGain:h,arrivals:S.map(e=>e.animal?.name).filter(Boolean)})}}catch(e){console.error(`heartbeat growth pass skipped:`,e)}return await Q(t),{ok:!0,metrics:kt({...o,metrics:y}),...S.length?{newAnimals:S}:{},...C.length?{biomeStates:C}:{},...x?{welcomeBack:x}:{}}}},ti=null,ni=3e4;function ri(e){return String(e).split(/[^0-9]+/).filter(Boolean).map(e=>parseInt(e,10))}function ii(e,t){let n=ri(e),r=ri(t);if(!n.length&&!r.length)return e<t?-1:+(e>t);if(!n.length)return-1;if(!r.length)return 1;let i=Math.max(n.length,r.length);for(let e=0;e<i;e++){let t=n[e]??0,i=r[e]??0;if(t!==i)return t<i?-1:1}return 0}var ai=class extends ${async get(e){let t=k(),n=String(this.getId?.()||e?.id||``).trim();if(n){let e=await N(t.Player,n);if(!e)throw new A(b(`server.err.noSaveWithId`),404);let r=await Bt(n),i=kt(e);return{player:{...i,biomeSummary:r.summary,activation:At(i,r.summary,e),achievements:await Un(n),biomes:r.biomes}}}let r=Date.now(),i;if(ti&&r-ti.at<ni)i=ti.all;else{let e=[];try{e=await F(t.SoloMetrics)}catch{}i=e.map(e=>{let t={};if(e.snapshot)try{t=typeof e.snapshot==`string`?JSON.parse(e.snapshot):e.snapshot}catch{t={}}let n=t.lastSeenAt||e.updatedAt||null,i=t.createdAt||e.createdAt||r,a=n?Y((r-n)/36e5):null,o=`dormant`;a!=null&&(a<=24?o=`active`:a<=168&&(o=`recent`));let s=t.playSeconds||0,c=Math.round(s+(t.creationMs||0)/1e3),l=Math.max(t.sessions||0,+((t.creationMs||0)>0));return{...t,playerId:e.id,name:e.name||t.name||null,solo:!0,platform:e.platform||null,os:e.os||null,language:e.language||t.language||null,version:e.version||null,build:e.build||null,lastSyncedAt:e.updatedAt||null,counts:t.counts||{},playSeconds:c,playMinutes:Math.round(c/60),avgSessionMinutes:l?Math.round(c/60/l):0,sessions:l,totalActions:t.totalActions||0,currentArea:t.currentArea||null,unlockedBiomes:t.unlockedBiomes||0,tutorialStep:t.tutorialStep||0,activation:t.activation||{},achievements:t.achievements||null,biomeSummary:t.biomeSummary||{biomesUnlocked:0,avgHealth:0,biomesFullyRestored:0,totalAnimalsReturned:0},areaSeconds:t.areaSeconds||{},sessionLengths:t.sessionLengths||{},creationMs:t.creationMs||0,creationSeconds:t.creationSeconds??(t.creationMs?Y(t.creationMs/1e3):null),timeToFirstActionSeconds:t.timeToFirstActionSeconds??null,appearance:t.appearance||null,createdAt:i,lastSeenAt:n,hoursSinceActive:a,minutesSinceActive:n?Y((r-n)/6e4):null,status:o,daysSinceJoined:Math.floor((r-i)/wt),isNewToday:r-i<=wt}}).sort((e,t)=>(t.lastSeenAt||0)-(e.lastSeenAt||0)||t.playSeconds-e.playSeconds),ti={at:r,all:i}}let a={};for(let e of i){let t=e.version||`unknown`;a[t]=(a[t]||0)+1}let o=Object.keys(a).sort((e,t)=>t.localeCompare(e,void 0,{numeric:!0})),s=[...new Set(i.map(e=>e.edition===`demo`?`demo`:`full`))].sort(),c=[...new Set(i.map(e=>e.platform||`unknown`))].sort(),l=new Set;try{let t=typeof e?.getAll==`function`?[...e.getAll(`exclude`),...e.getAll(`excludeName`)]:[];for(let e of t.flatMap(e=>String(e).split(`,`))){let t=e.trim().toLowerCase();t&&l.add(t)}}catch{}l.size&&(i=i.filter(e=>!l.has(String(e.name||``).trim().toLowerCase())));let u=``;try{let t=typeof e?.getAll==`function`?e.getAll(`version`):[];u=String(t&&t[0]||``).trim()}catch{}let d=`exact`;try{let t=typeof e?.getAll==`function`?e.getAll(`versionMode`):[];String(t&&t[0]||``).trim().toLowerCase()===`min`&&(d=`min`)}catch{}let f=!!u&&u.toLowerCase()!==`all`,p=e=>{if(!f)return!0;let t=e||`unknown`;return d===`min`?ii(t,u)>=0:t===u};f&&(i=i.filter(e=>p(e.version||`unknown`)));let m=t=>{try{let n=typeof e?.getAll==`function`?e.getAll(t):[];return String(n&&n[0]||``).trim()}catch{return``}},h=m(`edition`),g=m(`platform`);h&&h.toLowerCase()!==`all`&&(i=i.filter(e=>(e.edition===`demo`?`demo`:`full`)===h)),g&&g.toLowerCase()!==`all`&&(i=i.filter(e=>(e.platform||`unknown`)===g));let _=i.length||1,v=e=>Math.round(e/_*100),y={};for(let e of i)for(let[t,n]of Object.entries(e.counts))y[t]=(y[t]||0)+n;let x=i.reduce((e,t)=>e+t.playSeconds,0),S=i.reduce((e,t)=>e+t.sessions,0),C=i.reduce((e,t)=>e+t.totalActions,0),w={activeNow:i.filter(e=>e.minutesSinceActive!=null&&e.minutesSinceActive<=5).length,activeLast24h:i.filter(e=>e.status===`active`).length,activeLast7d:i.filter(e=>e.status===`active`||e.status===`recent`).length,dormant:i.filter(e=>e.status===`dormant`).length,newLast24h:i.filter(e=>r-e.createdAt<=wt).length,newLast7d:i.filter(e=>r-e.createdAt<=7*wt).length},T=e=>{let t={};for(let n of i){let r=e(n)||`unknown`;t[r]=(t[r]||0)+1}return t},ee=T(e=>e.language||`en`),te=T(e=>e.platform),ne=T(e=>e.os),re=T(e=>e.version),ie=T(e=>e.edition||`full`),ae=i.filter(e=>e.sessions>=2).length,E=(e,t)=>e.counts&&(e.counts[t]||0)>0,D={created:i.length,collected:i.filter(e=>e.activation?.collected||E(e,`resourcesCollected`)).length,terraformed:i.filter(e=>e.activation?.terraformed||E(e,`terraformActions`)).length,planted:i.filter(e=>e.activation?.planted||E(e,`plantsPlanted`)).length,crafted:i.filter(e=>e.activation?.crafted||E(e,`itemsCrafted`)).length,placed:i.filter(e=>e.activation?.placed||E(e,`objectsPlaced`)).length,attractedAnimal:i.filter(e=>e.activation?.attractedAnimal||(e.biomeSummary?.totalAnimalsReturned||0)>0).length,upgradedTool:i.filter(e=>e.activation?.upgradedTool||E(e,`toolsUpgraded`)).length,builtHome:i.filter(e=>e.activation?.builtHome||E(e,`homesBuilt`)).length,upgradedHome:i.filter(e=>e.activation?.upgradedHome||E(e,`homeUpgrades`)).length,unlockedSecondBiome:i.filter(e=>e.activation?.unlockedSecondBiome||(e.unlockedBiomes||0)>=2).length},oe={collected:v(D.collected),terraformed:v(D.terraformed),planted:v(D.planted),crafted:v(D.crafted),placed:v(D.placed),attractedAnimal:v(D.attractedAnimal),upgradedTool:v(D.upgradedTool),builtHome:v(D.builtHome),upgradedHome:v(D.upgradedHome),unlockedSecondBiome:v(D.unlockedSecondBiome)},se={};for(let e of i)e.currentArea&&(se[e.currentArea]=(se[e.currentArea]||0)+1);let ce=Object.entries(se).sort((e,t)=>t[1]-e[1])[0]?.[0]||null,le={};for(let e of i){let t=String(e.tutorialStep||0);le[t]=(le[t]||0)+1}let O=i.filter(e=>(e.biomeSummary?.biomesUnlocked||0)>0),ue=O.length?Math.round(O.reduce((e,t)=>e+(t.biomeSummary.avgHealth||0),0)/O.length):0,j=i.filter(e=>e.achievements),de=j.reduce((e,t)=>e+(t.achievements.earned||0),0),fe={},M={},pe={};for(let e of j){for(let t of e.achievements.recent||[])t?.id&&(fe[t.id]=(fe[t.id]||0)+1);for(let[t,n]of Object.entries(e.achievements.byCategory||{}))M[t]=(M[t]||0)+n;let t=e.achievements.earned||0,n=t===0?`0`:`${Math.floor((t-1)/10)*10+1}-${(Math.floor((t-1)/10)+1)*10}`;pe[n]=(pe[n]||0)+1}let me={totalDefined:j.reduce((e,t)=>Math.max(e,t.achievements.total||0),0),totalEarned:de,avgPerPlayer:Y(de/(j.length||1)),avgCompletionPct:j.length?Math.round(j.reduce((e,t)=>e+(t.achievements.completion||0),0)/j.length*100):0,avgPoints:Y(j.reduce((e,t)=>e+(t.achievements.points||0),0)/(j.length||1)),byCategory:M,recentDistribution:fe,completionHistogram:pe},he={};for(let e of i)for(let[t,n]of Object.entries(e.areaSeconds||{}))he[t]=(he[t]||0)+n;let ge=Object.values(he).reduce((e,t)=>e+t,0),_e={};for(let[e,t]of Object.entries(he))_e[e]=Math.round(t/60);let ve={totalSeconds:Math.round(ge),byAreaSeconds:he,byAreaMinutes:_e,mostTimeArea:Object.entries(he).sort((e,t)=>t[1]-e[1])[0]?.[0]||null},ye={"<2m":0,"2-10m":0,"10-30m":0,"30m+":0};for(let e of i)for(let[t,n]of Object.entries(e.sessionLengths||{}))ye[t]=(ye[t]||0)+n;let be=i.filter(e=>(e.creationMs||0)>0),xe={savesWithTiming:be.length,avgCreationSeconds:be.length?Y(be.reduce((e,t)=>e+t.creationMs,0)/be.length/1e3):0,medianCreationSeconds:be.length?Y([...be].map(e=>e.creationMs).sort((e,t)=>e-t)[Math.floor(be.length/2)]/1e3):0},Se={},P=(e,t)=>{if(t==null||t===``)return;let n=String(t);(Se[e]||={})[n]=(Se[e][n]||0)+1};for(let e of i){let t=e.appearance;t&&(P(`skin`,t.skin),P(`hair`,t.hair),P(`outfit`,t.outfit),P(`hat`,t.hat),P(`hatColor`,t.hatColor),P(`hairstyle`,t.hairstyle),P(`beard`,t.beard),P(`body`,t.body))}let Ce={savesWithAppearance:i.filter(e=>e.appearance).length,choices:Se},I=i.filter(e=>e.timeToFirstActionSeconds!=null),L={playersMeasured:I.length,avgSeconds:I.length?Y(I.reduce((e,t)=>e+t.timeToFirstActionSeconds,0)/I.length):0},R=i.filter(e=>e.prefs&&typeof e.prefs==`object`),we=R.length||1,z=e=>R.filter(t=>e(t.prefs)).length,B=e=>{let t={};for(let n of R){let r=e(n.prefs)||`unknown`;t[r]=(t[r]||0)+1}return t},Te=z(e=>e.musicEnabled===!1),Ee=z(e=>e.sfxEnabled===!1),De={savesReporting:R.length,audio:{musicOff:Te,sfxOff:Ee,fullyMuted:z(e=>e.musicEnabled===!1&&e.sfxEnabled===!1),musicOffPct:Math.round(Te/we*100),sfxOffPct:Math.round(Ee/we*100)},accessibility:{reduceMotion:z(e=>e.reduceMotion===!0),highContrast:z(e=>e.highContrast===!0),colorblindOn:z(e=>e.colorblindMode&&e.colorblindMode!==`off`),anyEnabled:z(e=>e.reduceMotion===!0||e.highContrast===!0||e.colorblindMode&&e.colorblindMode!==`off`||e.textScale&&e.textScale!==`md`),colorblindModes:B(e=>e.colorblindMode||`off`),textScales:B(e=>e.textScale||`md`),fonts:B(e=>e.fontChoice||(e.dyslexiaFont===!0?`plain`:`storybook`))}},V=[];try{V=await F(t.AppOpen)}catch{}f&&(V=V.filter(e=>p(e.version||`unknown`))),h&&h.toLowerCase()!==`all`&&(V=V.filter(e=>(e.edition===`demo`?`demo`:`full`)===h)),g&&g.toLowerCase()!==`all`&&(V=V.filter(e=>(e.platform||`unknown`)===g));let H=V.length,U=V.filter(e=>e.converted).length,Oe=V.filter(e=>e.edition===`demo`),ke=Oe.filter(e=>e.converted).length,Ae=Oe.filter(e=>e.reachedDemoGoal).length,W={demoInstalls:Oe.length,createdCharacter:ke,reachedGoal:Ae,completionPct:ke?Math.round(Ae/ke*100):0},je={};for(let e of V){let t=e.edition===`demo`?`demo`:`full`;je[t]=(je[t]||0)+1}let Me=V.filter(e=>(e.creationMs||0)>0),Ne=V.reduce((e,t)=>e+(t.savesCreated||0),0),Pe={};for(let e of V){let t=String(e.savesCreated||0);Pe[t]=(Pe[t]||0)+1}let Fe={devices:H,totalOpens:V.reduce((e,t)=>e+(t.opens||0),0),converted:U,bounced:H-U,conversionPct:H?Math.round(U/H*100):0,bounceRatePct:H?Math.round((H-U)/H*100):0,avgCreatorSeconds:Me.length?Y(Me.reduce((e,t)=>e+t.creationMs,0)/Me.length/1e3):0,totalCharactersCreated:Ne,avgCharactersPerPerson:H?Y(Ne/H):0,avgCharactersPerConverted:U?Y(Ne/U):0,charactersPerPersonHistogram:Pe,editions:je};return{generatedAt:r,source:`solo-metrics`,filters:{availableVersions:o,availableEditions:s,availablePlatforms:c,version:f?u:null,versionMode:f?d:null,edition:h&&h.toLowerCase()!==`all`?h:null,platform:g&&g.toLowerCase()!==`all`?g:null},summary:{players:i.length,soloPlayers:i.length,excludedNames:[...l],audience:w,languages:ee,platforms:te,operatingSystems:ne,versions:re,editions:ie,engagement:{totalPlayHours:Y(x/3600),totalPlaySeconds:x,avgPlayMinutesPerPlayer:Math.round(x/60/_),totalSessions:S,avgSessionsPerPlayer:Y(S/_),avgSessionMinutes:S?Math.round(x/60/S):0,totalActions:C,avgActionsPerPlayer:Y(C/_)},retention:{returningPlayers:ae,returningRatePct:v(ae)},progression:{avgBiomeHealth:ue,biomesFullyRestored:i.reduce((e,t)=>e+(t.biomeSummary?.biomesFullyRestored||0),0),avgUnlockedBiomes:Y(i.reduce((e,t)=>e+(t.unlockedBiomes||0),0)/_),mostPopularArea:ce,tutorialStepHistogram:le},areaDwell:ve,sessionLengthDistribution:ye,creation:xe,appearancePopularity:Ce,timeToFirstAction:L,acquisition:Fe,demoCompletion:W,settings:De,funnel:D,funnelPct:oe,actionTotals:y,achievements:me},players:i}}},oi=class extends ${async get(){let e=String(this.getId?.()||``).trim();if(!e)throw new A(b(`server.err.snapshotPathId`));await K(e);let t=k(),n=await W(),r=(await I(t.BiomeState,e)).filter(e=>e.unlocked),i=await I(t.Placement,e),a=await I(t.TerrainTile,e);return{ok:!0,playerId:e,areas:r.map(e=>{let t=n.biome.get(e.biomeId),r=i.filter(t=>t.area===e.biomeId),o=a.filter(t=>t.area===e.biomeId),s=Rt(n,t,e.health||0,r,o);return{area:e.biomeId,name:t?.name||e.biomeId,health:e.health||0,placements:r.length,image:zt(s),svg:s}})}}},si=class extends ${async post(e){let{playerId:t,action:n,area:r,amount:i,value:a,resources:o,animalId:s}=await Z(e),c=k(),l=await W(),{player:u}=await K(t),d=[];switch(n){case`set-time`:{let e=String(a||`dawn`),n=O(u),r=g(n,e)-n;await c.Player.patch(t,{clockOffsetMs:(u.clockOffsetMs||0)+r}),d.push(`Set time to ${e}`);break}case`reset-clock`:{let e=Math.round((q(u)?.playSeconds||0)*1e3);await c.Player.patch(t,{clockOffsetMs:g(0,`day`)-e}),d.push(`Reset the game clock to the first morning`);break}case`seed-water`:{let e=r||`wetland`;for(let n of(await I(c.TerrainTile,t)).filter(t=>t.area===e))await c.TerrainTile.delete(n.id);await fn(t,t,e),await X(t,t,e,{player:u}),d.push(`Reseeded starting terrain for ${e}`);break}case`clear-terrain`:{let e=r||u.area,n=0;for(let r of(await I(c.TerrainTile,t)).filter(t=>t.area===e))await c.TerrainTile.delete(r.id),n++;await X(t,t,e,{player:u}),d.push(`Cleared ${n} terrain tiles in ${e}`);break}case`grant-resources`:{let e={...u.inventory||{}},n=new Set(l.resources.map(e=>e.id)),r=0;if(o&&typeof o==`object`){for(let[t,i]of Object.entries(o)){let a=Math.floor(Number(i)||0);a>0&&n.has(t)&&(e[t]=(e[t]||0)+a,r++)}d.push(`Granted ${r} resource type${r===1?``:`s`}`)}else{let t=Math.max(1,Number(i)||200);for(let n of l.resources)e[n.id]=(e[n.id]||0)+t;d.push(`Granted ${t} of every resource`)}await c.Player.patch(t,{inventory:e});break}case`max-tools`:{let e={...u.tools||{}};for(let t of l.tools){let n=Math.max(...t.tiers.map(e=>e.tier));e[t.id]=n}await c.Player.patch(t,{tools:e}),d.push(`All tools set to max tier`);break}case`unlock-all`:{let e=l.biomes.map(e=>e.id);await c.Player.patch(t,{unlockedBiomes:e});for(let n of e)await c.BiomeState.patch(`${t}:${n}`,{unlocked:!0});d.push(`Unlocked all biomes (${e.length})`);break}case`unlock-next`:{let e=[...l.biomes].sort((e,t)=>(e.order||0)-(t.order||0)),n=new Set(u.unlockedBiomes||[`meadow`]),r=e.find(e=>!n.has(e.id));if(!r){d.push(`Every biome is already unlocked`);break}n.add(r.id),await c.Player.patch(t,{unlockedBiomes:[...n]}),await c.BiomeState.patch(`${t}:${r.id}`,{unlocked:!0}),await fn(t,t,r.id),d.push(`Unlocked the next area: ${r.name}`);break}case`relock-all`:await c.Player.patch(t,{unlockedBiomes:[`meadow`]});for(let e of l.biomes)await c.BiomeState.patch(`${t}:${e.id}`,{unlocked:e.id===`meadow`});d.push(`Re-locked every biome except the meadow`);break;case`reset-tools`:await c.Player.patch(t,{tools:{...Qe}}),d.push(`Tools reset to tier 1`);break;case`restart-game`:{let e=t;for(let e of await I(c.Placement,t))await c.Placement.delete(e.id);for(let e of await I(c.Chest,t))await c.Chest.delete(e.id);for(let e of await I(c.TerrainTile,t))await c.TerrainTile.delete(e.id);for(let e of await I(c.Discovery,t))await c.Discovery.delete(e.id);for(let e of await I(c.NodeState,t))await c.NodeState.delete(e.id);for(let e of await I(c.FeedEntry,t))await c.FeedEntry.delete(e.id);for(let e of await I(c.PlayerAchievement,t))await c.PlayerAchievement.delete(e.id);for(let n of l.biomes)await c.BiomeState.put({id:`${e}:${n.id}`,worldId:e,playerId:t,biomeId:n.id,health:Me,balance:0,returnedCount:0,unlocked:n.id===`meadow`});let n=`pl_${t}_starter-chest`;await c.Placement.put({id:n,worldId:e,playerId:t,objectId:`small-chest`,area:`meadow`,x:_t.x,y:_t.y,placedAt:Date.now()}),await c.Chest.put({id:n,worldId:e,playerId:t,area:`meadow`,x:_t.x,y:_t.y,size:`small-chest`,capacity:_t.capacity,contents:{}}),await c.Player.patch(t,{area:`meadow`,x:24.5,y:6.5,inventory:{...Ze},craftedItems:{},craftedEver:{},tools:{...Qe},unlockedBiomes:[`meadow`],visitedBiomes:[`meadow`],tutorialStep:0,home:{...Le},customGoals:[],goalClaims:{},devUnlockAll:!1,clockOffsetMs:g(0,`day`)-Math.round((q(u)?.playSeconds||0)*1e3)}),d.push(`Restarted the game — fresh save (name, passcode & look kept)`);break}case`build-home`:{let e=a&&Ie[a]?a:`cabin`,n={...G(u),style:e,space:Math.max(2,G(u).space||1),styleLocked:!0};await c.Player.patch(t,{home:n}),d.push(`Built home: ${Ie[e].name}`);break}case`max-home`:{let e={style:a&&Ie[a]?a:G(u).style||`cabin`,space:Re.space.levels.length,comfort:Re.comfort.levels.length,decor:Re.decor.levels.length,light:Re.light.levels.length,styleLocked:!0};await c.Player.patch(t,{home:e}),d.push(`Home maxed on every track`);break}case`reset-home`:await c.Player.patch(t,{home:{...Le}}),d.push(`Home reset to the starter tent`);break;case`set-health`:{let e=r||u.area,n=Math.max(0,Math.min(100,Number(a)||100));await c.BiomeState.patch(`${t}:${e}`,{health:n}),d.push(`Set ${e} health to ${n}% (recomputes on next change)`);break}case`reset-biome`:{let e=r||u.area,n=0;for(let r of(await I(c.Placement,t)).filter(t=>t.area===e))l.object.get(r.objectId)?.isChest||(await c.Placement.delete(r.id),n++);for(let n of(await I(c.TerrainTile,t)).filter(t=>t.area===e))await c.TerrainTile.delete(n.id);let i=0;for(let n of(await I(c.Discovery,t)).filter(t=>t.biomeId===e))await c.Discovery.delete(n.id),i++;let a=`${t}:${e}:`;for(let e of(await I(c.NodeState,t)).filter(e=>String(e.id).startsWith(a)))await c.NodeState.delete(e.id);await c.BiomeState.patch(`${t}:${e}`,{health:Me,balance:0,returnedCount:0}),await fn(t,t,e),await X(t,t,e,{player:u}),d.push(`Reset ${e} to its damaged state — removed ${n} object${n===1?``:`s`} and sent ${i} animal${i===1?``:`s`} away (chests kept)`);break}case`lock-biome`:{let e=r||u.area;if(e===`meadow`)throw new A(b(`server.err.meadowCannotLock`));let n=(u.unlockedBiomes||[]).filter(t=>t!==e);await c.Player.patch(t,{unlockedBiomes:n}),await c.BiomeState.patch(`${t}:${e}`,{unlocked:!1}),d.push(`Locked ${e} again (unlock requirements must be met to re-enter)`);break}case`unlock-recipes`:{let e=a===void 0?!u.devUnlockAll:!!a;await c.Player.patch(t,{devUnlockAll:e}),d.push(e?`All recipes unlocked (gates ignored)`:`Recipe progress gates restored`);break}case`welcome-animals`:{let e=r||u.area,n=l.animals.filter(t=>t.biome===e),i=new Set((await I(c.Discovery,t)).filter(t=>t.biomeId===e).map(e=>e.animalId)),a=0;for(let r of n)i.has(r.id)||(await c.Discovery.put({id:`${t}:${r.id}`,playerId:t,animalId:r.id,biomeId:e,comfort:3,timesObserved:0,firstObservedAt:Date.now(),whyReturned:un(r,l)}),a++);await X(t,t,e,{player:u}),d.push(`Welcomed ${a} animal${a===1?``:`s`} to ${e} (${n.length} total)`);break}case`spawn-animal`:{let e=l.animals.find(e=>e.id===s);if(!e)throw new A(b(`server.err.unknownAnimal`,{animal:s}));let n=`${t}:${e.id}`;await c.Discovery.get(n)||await c.Discovery.put({id:n,playerId:t,animalId:e.id,biomeId:e.biome,comfort:85,timesObserved:1,firstObservedAt:Date.now(),whyReturned:un(e,l)});let r=u.unlockedBiomes||[`meadow`];r.includes(e.biome)||await c.Player.patch(t,{unlockedBiomes:[...r,e.biome]}),await X(t,t,e.biome,{player:u}),await c.Discovery.patch(n,{comfort:85}),d.push(`Spawned ${e.name} in ${e.biome} — comfort 85, biome unlocked`);break}case`populate-biome`:{let e=r||u.area,n=l.biome.get(e);if(!n||e===`home`)throw new A(b(`server.err.cannotPopulate`,{area:e}));let i=L(u),a=new Set(u.unlockedBiomes||[`meadow`]);a.has(e)||(a.add(e),await c.Player.patch(t,{unlockedBiomes:[...a]}));for(let t of(await R(c.Placement,i)).filter(t=>t.area===e))l.object.get(t.objectId)?.isChest||await c.Placement.delete(t.id);for(let t of(await R(c.TerrainTile,i)).filter(t=>t.area===e))await c.TerrainTile.delete(t.id);let o=Pt(l,e),s=e===`alpine`?Nt:0,f=(e===`coastal`?o.cols-(n.oceanCols||0):o.cols)-2,p=s+2,m=o.rows-2,h=(t,n)=>e===`meadow`&&t>=19&&t<=24&&n>=3&&n<=6,g=Date.now()-3888e6,_=de(j(`populate:${i}:${e}`)),v=(e,t)=>e+Math.floor(_()*(t-e+1)),y=e=>e[Math.floor(_()*e.length)],x=new Set;(await R(c.Chest,i)).filter(t=>t.area===e).forEach(e=>x.add(`${e.x},${e.y}`));let S=(e,t)=>e>=2&&e<=f&&t>=p&&t<=m&&!h(e,t)&&!x.has(`${e},${t}`),C=[],w=(e,t)=>{S(e,t)&&(x.add(`${e},${t}`),C.push({x:e,y:t}))};if(n.canFlood!==!1){let e=v(3,Math.max(3,Math.min(f-4,10))),t=v(p+1,Math.max(p+1,Math.min(m-3,p+6)));for(let n=0;n<3;n++)for(let r=0;r<4;r++)(r!==0&&r!==3||n!==0&&n!==2)&&w(e+r,t+n);w(e+1,t-1),w(e+2,t+3);let n=v(Math.floor((2+f)/2),f-2),r=p;w(n,r);for(let e=0,t=v(13,18);e<t&&r<m;e++)_()<.25&&n>3&&n<f-1?n+=_()<.5?-1:1:r+=1,w(n,r),_()<.25&&w(Math.min(f,n+1),r)}let T=l.objects.filter(t=>(t.biomes||[]).includes(e)&&t.placement!==`indoor`&&t.placement!==`none`&&!t.isChest&&!t.bridge);if(!T.length)throw new A(b(`server.err.noPlaceableObjects`,{biome:n.name}));let ee=e=>/-path$/.test(e.id)||e.id===`wooden-fence`||e.id===`dry-stone-wall`,te=T.filter(e=>e.plantable&&(e.growSeconds||0)>=80),ne=T.filter(e=>e.plantable&&(e.growSeconds||0)<80),re=new Set([`shrub`,`rock-pile`,`hollow-log`,`log-shelter`,`brush-pile`,`stone-cairn`,`rock-cairn`,`clover-patch`,`butterfly-flowers`,`pollinator-garden`,`fallen-branch-shelter`,`insect-hotel`,`birdhouse`,`bird-perch`]),ie=T.filter(e=>!e.plantable&&!ee(e)&&re.has(e.id)),ae=T.filter(ee),E=T.filter(e=>!e.plantable&&!ee(e)&&!re.has(e.id)),D=ie.length?ie:ne,oe=[],se=(n,r,a)=>{if(!n||!S(r,a))return!1;x.add(`${r},${a}`);let o={id:`pl_dev_${e}_${r}_${a}`,worldId:i,playerId:t,objectId:n.id,area:e,x:r,y:a,placedAt:g};return n.plantable&&(o.plantedAt=g),oe.push(o),!0},ce=(e,t,n,r,i)=>{if(!e.length)return;let a=_()<.65?y(e):null;for(let o=0,s=0;o<r&&s<r*8;s++){let r=a&&_()<.7?a:y(e);se(r,t+v(-i,i),n+v(-i,i))&&o++}};for(let e=0,t=v(8,12);e<t;e++){let e=v(2,f),t=v(p,m),n=_();n<.4&&ne.length?ce(ne,e,t,v(4,8),2):n<.72&&te.length?(ce(te,e,t,v(2,4),2),ce(D,e,t,v(1,3),2)):ce(D,e,t,v(3,6),2)}if(ae.length)for(let e=0,t=v(1,2);e<t;e++){let e=y(ae),t=_()<.5,n=v(4,6),r=v(2,Math.max(2,f-(t?n:0))),i=v(p,Math.max(p,m-(t?0:n)));for(let a=0;a<n;a++)se(e,r+(t?a:0),i+(t?0:a))}for(let e=0,t=0,n=v(14,20);E.length&&e<n&&t<n*12;t++)se(y(E),v(2,f),v(p,m))&&e++;for(let e=0;oe.length<34&&e<500;e++)se(y(T),v(2,f),v(p,m));for(let n of C)await c.TerrainTile.put({id:`${i}:${e}:${n.x}:${n.y}`,worldId:i,playerId:t,area:e,x:n.x,y:n.y,type:`water`,updatedAt:Date.now()});for(let e of oe)await c.Placement.put(e);let le=C.length,O=oe.length,k=l.animals.filter(t=>t.biome===e),ue=new Set((await R(c.Discovery,i)).filter(t=>t.biomeId===e).map(e=>e.animalId));for(let n of k)ue.has(n.id)||await c.Discovery.put({id:`${i}:${n.id}`,worldId:i,playerId:t,animalId:n.id,biomeId:e,comfort:90,timesObserved:0,firstObservedAt:Date.now(),whyReturned:un(n,l)});await X(i,t,e,{player:u});let fe=await B(c.BiomeState,i,e);await c.BiomeState.patch(fe?.id??`${i}:${e}`,{health:100,balance:100,returnedCount:k.length});for(let t of(await R(c.Discovery,i)).filter(t=>t.biomeId===e))await c.Discovery.patch(t.id,{comfort:90});d.push(`Populated ${n.name}: ${O} objects, ${le} water tiles, ${k.length} animals home, health 100`);break}case`set-weather`:{let e=a&&typeof a==`object`?a:null;if(!e||e.clear){await c.Player.patch(t,{devWeather:null}),d.push(`Weather override cleared — back to the live sky`);break}let n=u.devWeather||{},r={type:n.type??null,season:n.season??null};if(`type`in e){if(e.type&&!f.includes(e.type))throw new A(b(`server.err.unknownWeatherType`,{type:e.type}));r.type=e.type||null}if(`season`in e){if(e.season&&!_.includes(e.season))throw new A(b(`server.err.unknownSeason`,{season:e.season}));r.season=e.season||null}await c.Player.patch(t,{devWeather:r}),d.push(`Weather override: ${r.type||`live`} · ${r.season||`live`}`);break}default:throw new A(b(`server.err.unknownDevAction`,{action:n}))}return{ok:!0,log:d,state:await Bn(t)}}},ci=4e3,li=class extends ${async post(e){let t=await Z(e),n=String(t.message||``).trim();if(!n)throw new A(b(`server.err.feedbackEmpty`));if(n.length>ci)throw new A(b(`server.err.feedbackTooLong`,{max:ci}));let r=String(t.replyTo||``).trim().slice(0,200)||null;if(r&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(r))throw new A(b(`server.err.feedbackBadEmail`));let i=t.metrics&&typeof t.metrics==`object`&&!Array.isArray(t.metrics)?t.metrics:{},a=Number(t.queuedAt)||null,o=`fb_${Date.now()}_${Math.random().toString(36).slice(2,10)}`;return await k().Feedback.put({id:o,message:n,replyTo:r,metrics:i,queuedAt:a,createdAt:Date.now()}),{ok:!0,id:o}}},ui=class extends Resource{async get(){let e=await F(k().Feedback);return e.sort((e,t)=>(t.createdAt||0)-(e.createdAt||0)),{count:e.length,feedback:e}}},di=24e3,fi=class extends ${async post(e){let t=await Z(e),n=String(t.clientId||``).trim().slice(0,64);if(!n)throw new A(b(`server.err.clientIdRequired`));let r=t.snapshot&&typeof t.snapshot==`object`&&!Array.isArray(t.snapshot)?t.snapshot:null;if(!r)throw new A(b(`server.err.snapshotRequired`));let i=JSON.stringify(r);if(i.length>di)throw new A(b(`server.err.snapshotTooLarge`));let a=k(),o=`solo:${n}`,s=await N(a.SoloMetrics,o);return await a.SoloMetrics.put({id:o,clientId:n,name:String(t.name||r.name||``).slice(0,40),platform:String(t.platform||``).slice(0,20)||null,os:String(t.os||``).slice(0,20)||null,version:String(t.version||``).slice(0,24)||null,build:String(t.build||``).slice(0,40)||null,language:String(t.language||r.language||``).trim().toLowerCase().slice(0,12)||null,snapshot:i,createdAt:s?.createdAt||Date.now(),updatedAt:Date.now()}),ti=null,{ok:!0}}},pi=class extends ${async post(e){let t=await Z(e),n=String(t.deviceId||``).trim().slice(0,64);if(!n)throw new A(b(`server.err.deviceIdRequired`));let r=t.phase===`created`?`created`:t.phase===`demo_done`?`demo_done`:`open`,i=Date.now(),a=k(),o=`dev:${n}`,s=await Ce(a.AppOpen,o),c=ue(Math.round(Number(t.creationMs)||0),0,36e5);return await a.AppOpen.put({id:o,deviceId:n,platform:String(t.platform||``).slice(0,20)||s?.platform||null,os:String(t.os||``).slice(0,20)||s?.os||null,version:String(t.version||``).slice(0,24)||s?.version||null,edition:t.edition===`demo`||s?.edition===`demo`?`demo`:t.edition===`full`?`full`:s?.edition||null,language:String(t.language||``).trim().toLowerCase().slice(0,12)||s?.language||null,firstOpenAt:s?.firstOpenAt||i,lastOpenAt:i,opens:(s?.opens||0)+ +(r===`open`),converted:s?.converted||r===`created`,firstConvertedAt:s?.firstConvertedAt||(r===`created`?i:0),savesCreated:(s?.savesCreated||0)+ +(r===`created`),creationMs:r===`created`&&c>0?c:s?.creationMs||0,reachedDemoGoal:s?.reachedDemoGoal||r===`demo_done`,demoGoalAt:s?.demoGoalAt||(r===`demo_done`?i:0),updatedAt:i}),ti=null,{ok:!0}}},mi=/^[^\s@]+@[^\s@]+\.[^\s@]+$/,hi=new Set([`appstore`,`itch`,`demo`,`theme`,`privacy`,`support`,`get-nav`,`gallery`]),gi=e=>new Date(e).toISOString().slice(0,10),_i=null,vi=15e3;async function yi(e){try{let t=k().LandingStat;if(!t)return;let n=Date.now(),r=gi(n),i=`day:${r}`,a=await Ce(t,i)||{id:i,day:r,visits:0,uniques:0,clicks:{},signups:0};e(a),a.updatedAt=n,await t.put(a),_i=null}catch(e){console.error(`landing stat bump failed —`,e?.message||e)}}var bi=class extends ${async post(e){let t=await Z(e);if(String(t.website||``).trim())return{ok:!0};let n=String(t.email||``).trim().toLowerCase().slice(0,254);if(!n||!mi.test(n))throw new A(b(`server.err.mailBadEmail`));let r=String(t.source||`landing`).toLowerCase().replace(/[^a-z0-9-]/g,``).slice(0,24)||`landing`,i=k().MailingListSignup;if(!i)throw new A(b(`server.err.dbStarting`),503);let a=`ml:${n}`;return await N(i,a)||(await i.put({id:a,email:n,source:r,language:String(t.lang||t.language||``).trim().toLowerCase().slice(0,12)||null,createdAt:Date.now()}),await yi(e=>{e.signups=(e.signups||0)+1})),{ok:!0}}},xi=class extends Resource{async get(){let e=k().MailingListSignup,t=e?await F(e):[];return t.sort((e,t)=>(t.createdAt||0)-(e.createdAt||0)),{count:t.length,signups:t}}},Si=class extends ${async post(e){let t=await Z(e),n=t.type===`click`?`click`:t.type===`visit`?`visit`:null;if(!n)return{ok:!0};if(n===`visit`)await yi(e=>{e.visits=(e.visits||0)+1,t.first===!0&&(e.uniques=(e.uniques||0)+1)});else{let e=String(t.target||``).toLowerCase().replace(/[^a-z0-9-]/g,``).slice(0,24),n=hi.has(e)?e:`other`;await yi(e=>{e.clicks=e.clicks&&typeof e.clicks==`object`&&!Array.isArray(e.clicks)?e.clicks:{},e.clicks[n]=(e.clicks[n]||0)+1})}return{ok:!0}}},Ci=class extends ${async post(e){let t=await Z(e),n=String(t.table||`Player`).slice(0,40),r=String(t.recordId||``).slice(0,120);if(!r)return{ok:!0};let i=t.kind===`refused`?`refused`:`unreadable`;try{let e=k().SaveIncident;if(!e)return{ok:!0};let a=`${n}:${r}`,o=Date.now(),s=await N(e,a)||{id:a,table:n,recordId:r,kind:i,firstSeenAt:o,count:0};await e.put({...s,kind:i,lastSeenAt:o,count:(s.count||0)+1,reportedByClient:!0,platform:String(t.platform||``).slice(0,16)||s.platform||null,version:String(t.version||``).slice(0,32)||s.version||null,build:String(t.build||``).slice(0,64)||s.build||null})}catch(e){console.error(`save incident report failed —`,e?.message||e)}return{ok:!0}}},wi=class extends ${async get(){let e=k(),t=[];try{t=e.SaveIncident?await F(e.SaveIncident):[]}catch{t=[]}let n={},r={},i=0;for(let e of t){let t=String(e?.table||`?`);n[t]=(n[t]||0)+1;let a=String(e?.kind||`unreadable`);r[a]=(r[a]||0)+1,i+=Number(e?.count)||0}let a=t.slice().sort((e,t)=>(t?.lastSeenAt||0)-(e?.lastSeenAt||0)).slice(0,25).map(e=>({table:e.table,recordId:e.recordId,kind:e.kind,count:Number(e.count)||0,firstSeenAt:e.firstSeenAt||0,lastSeenAt:e.lastSeenAt||0}));return{generatedAt:Date.now(),affected:t.length,events:i,savesAffected:n.Player||0,byTable:n,byKind:r,recent:a}}},Ti=class extends ${async get(){let e=Date.now();if(_i&&e-_i.at<vi)return _i.out;let t=k(),n=[];try{n=t.LandingStat?await F(t.LandingStat):[]}catch{n=[]}n=n.filter(e=>e&&e.day).sort((e,t)=>String(e.day).localeCompare(String(t.day)));let r={visits:0,uniques:0,signups:0,clicks:{}};for(let e of n){r.visits+=e.visits||0,r.uniques+=e.uniques||0,r.signups+=e.signups||0;for(let[t,n]of Object.entries(e.clicks||{}))r.clicks[t]=(r.clicks[t]||0)+(Number(n)||0)}let i=r.signups;try{t.MailingListSignup&&(i=(await F(t.MailingListSignup)).length)}catch{}let a=n.slice(-60).map(e=>({day:e.day,visits:e.visits||0,uniques:e.uniques||0,signups:e.signups||0,clicks:e.clicks||{},totalClicks:M(e.clicks)})),o={generatedAt:e,today:gi(e),totals:{...r,signups:i,totalClicks:M(r.clicks)},days:a};return _i={at:e,out:o},o}},Ei=e=>({status:200,headers:{"content-type":`text/html; charset=utf-8`,"cache-control":`public, max-age=3600`},body:e}),Di=class extends ${async get(){return Ei(T)}},Oi=class extends ${async get(){return Ei(ee)}},ki=class extends ${async get(){return Ei(te)}},Ai=class extends ${async get(){return Ei(ne)}},ji=class extends ${async get(){return Ei(re)}},Mi=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg>`,Ni=class extends ${async get(){return{status:200,headers:{"content-type":`image/svg+xml`,"cache-control":`public, max-age=604800`},body:Mi}}},Pi=class extends ${async get(){return{status:200,headers:{"content-type":`image/jpeg`,"cache-control":`public, max-age=604800`},body:Jn.from(ie,`base64`)}}},Fi=class extends ${async get(){let{themeMp3B64:e}=await x(async()=>{let{themeMp3B64:e}=await import(`./theme-audio-DBsdT9kk.js`);return{themeMp3B64:e}},[],import.meta.url);return{status:200,headers:{"content-type":`audio/mpeg`,"cache-control":`public, max-age=604800`,"accept-ranges":`none`},body:Jn.from(e,`base64`)}}};export{ji as"",pi as AppOpen,Zr as AppendFeed,oi as BiomeSnapshot,or as ChangePasscode,pr as CheckWorldCode,wr as ChestTransfer,Kr as ClaimTask,Cr as CollectResource,Er as CraftItem,Qn as CreatePlayer,ur as CreateWorld,ir as DeleteDemoSave,rr as DeletePlayer,si as DevTools,Tr as DiscardItem,ar as ExportDemoSave,Zn as GameData,cr as GameState,Nr as HarvestPlacement,ei as Heartbeat,bi as JoinMailingList,hr as JoinRequestStatus,fr as JoinWorld,Si as LandingEvent,Ti as LandingStats,br as LeaveWorld,ui as ListFeedback,xi as ListMailingList,sr as LoginPlayer,ai as Metrics,Fr as MoveObject,lr as MyWorlds,Gr as ObserveAnimal,gr as PendingJoinRequests,Ar as PlaceObject,jr as Plant,Sr as Presence,Yr as RecalcBiome,Ir as RemoveObject,Ci as ReportSaveIncident,mr as RequestJoin,_r as ResolveJoin,Br as Rest,wi as SaveHealth,qr as SetGoals,Hr as SetHomeColors,Wr as SetHomeStyle,Ur as SetPlacementColor,li as SubmitFeedback,yr as SwitchWorld,fi as SyncMetrics,Xr as SyncPlayer,Jr as Terraform,Pr as UpdateAppearance,Rr as UpgradeHome,Lr as UpgradeTool,Gn as Version,vr as WorldRoster,Oi as"age-rating",Ai as dashboard,Ni as favicon,Yt as healthCapForReturns,Pi as"og-image",Di as privacy,ki as support,Fi as theme};
+`,ie=`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`,E=`0.2.4+2026-08-07T02:49:44.434Z`,D=class{constructor(e){this.buf=e}get length(){return this.buf.length}toString(e=`hex`){if(e===`base64`){let e=``;for(let t of this.buf)e+=String.fromCharCode(t);return typeof btoa<`u`?btoa(e):e}if(e===`utf8`)return new TextDecoder().decode(this.buf);let t=``;for(let e of this.buf)t+=e.toString(16).padStart(2,`0`);return t}at(e){return this.buf[e]}};function O(e){let t=new Uint8Array(e),n=globalThis;if(n.crypto?.getRandomValues)n.crypto.getRandomValues(t);else for(let n=0;n<e;n++)t[n]=Math.floor(Math.random()*256);return t}function ae(e){return new D(O(e))}function oe(e,t,n){let r=`${t}::${e}`,i=new Uint8Array(n),a=2166136261;for(let e=0;e<n;e++){let t=r.charCodeAt(e%r.length)||e+1;a^=t,a=Math.imul(a,16777619)>>>0,a^=a>>>13,i[e]=(a^e*2654435761)&255}return new D(i)}function se(e,t){let n=e?.length??0;if(n!==(t?.length??-1))return!1;let r=0;for(let i=0;i<n;i++){let n=typeof e.at==`function`?e.at(i):e[i],a=typeof t.at==`function`?t.at(i):t[i];r|=n^a}return r===0}var ce=y.records.map(e=>e.id);function le(e){return Math.max(0,Math.round((q(e)?.playSeconds||0)*1e3)+(e?.clockOffsetMs||0))}var k=()=>{let e=typeof databases<`u`&&databases?databases.wildwillows:null;if(!e||!e.Player)throw new A(b(`server.err.dbStarting`),503);return e},A=class extends Error{constructor(e,t=400){super(e),this.statusCode=t}},ue=(e,t,n)=>Math.max(t,Math.min(n,e));function j(e){let t=2166136261;for(let n=0;n<e.length;n++)t^=e.charCodeAt(n),t=Math.imul(t,16777619);return t>>>0}function de(e){let t=e>>>0;return()=>{t|=0,t=t+1831565813|0;let e=Math.imul(t^t>>>15,1|t);return e=e+Math.imul(e^e>>>7,61|e)^e,((e^e>>>14)>>>0)/4294967296}}function fe(e,t){let n=Number(e);if(!Number.isInteger(n)||n<=0)throw new A(b(`server.err.positiveWholeNumber`,{label:t}));return n}function M(e){return e?Object.values(e).reduce((e,t)=>e+(t||0),0):0}function pe(e){return/end of buffer|buffer not reached|decod/i.test(String(e?.message||e))}function me(e){return e?.primaryStore??null}function he(e,t){let n=me(e);if(!n||typeof n.getSync!=`function`)return null;try{let e=n.getSync(t,{valueAsBuffer:!0});return e&&(e.byteLength??e.length??0)>0?e:null}catch{return null}}function ge(e,t){return he(e,t)!=null}function _e(e,t){let n=me(e)?.encoder;if(!n||typeof n.unpackMultiple!=`function`)return null;let r=e=>{let t=Array.isArray(e)?e[0]:void 0;return t&&typeof t==`object`&&!Array.isArray(t)?{...t}:null};try{return r(n.unpackMultiple(t))}catch(e){return r(e?.values)}}var ve={Player:[`passcodeHash`,`passcodeSalt`],World:[`ownerId`]};function ye(e){return e?.name||e?.tableName||``}async function be(e,t){let n=he(e,t);if(!n)return null;let r=ye(e)||`?`,i=_e(e,n);if(!i)return console.error(`undecodable record left intact (no salvage): ${r}/${t}`),null;if(i.id!==t)return console.error(`salvage refused, decoded payload is not record ${r}/${t} — left intact`),null;let a=(ve[r]||[]).filter(e=>i[e]==null);if(a.length)return console.error(`partial salvage refused, row left intact: ${r}/${t} — missing ${a.join(`, `)}`),null;try{await e.put(i),console.error(`salvaged undecodable record: ${r}/${t}`)}catch(e){console.error(`salvage rewrite failed for ${r}/${t} —`,e?.message||e)}return i}async function xe(e,t){try{return await e.delete(t),!0}catch(e){if(!pe(e))throw e}try{return await e.put({id:t}),await e.delete(t),!0}catch{return!1}}async function N(e,t){let n=null;try{if(n=await e.get(t),n)try{JSON.stringify({...n})}catch(e){if(!pe(e))throw e;n=null}}catch(e){if(!pe(e))throw e;n=null}return n||await be(e,t)}async function Se(e){let t=[],n=0;try{for await(let r of e){if(r==null){n++;continue}t.push(r)}}catch(e){console.error(`scan: aborted at an undecodable record —`,e?.message||e)}return n&&console.error(`scan: ${n} undecodable record(s) omitted from results`),t}async function P(e){return!e||typeof e.search!=`function`?[]:Se(e.search({}))}async function F(e,t){return!e||typeof e.search!=`function`?null:(await Se(e.search({}))).find(e=>e?.id===t)||await N(e,t)}async function I(e,t){return!e||typeof e.search!=`function`?[]:(await Se(e.search({}))).filter(e=>e?.playerId===t)}function L(e){return e?.worldId||e?.id}async function R(e,t){return!e||typeof e.search!=`function`?[]:(await Se(e.search({}))).filter(e=>(e?.worldId??e?.playerId)===t)}async function Ce(e,t,n){return(await R(e,t)).find(e=>e.id===n)||null}async function we(e,t,n,r,i){return(await R(e,t)).find(e=>e.area===n&&e.x===r&&e.y===i)||null}async function z(e,t,n){return(await R(e,t)).find(e=>e.biomeId===n)||null}async function Te(e,t,n){return(await R(e,t)).find(e=>e.animalId===n)||null}function Ee(){let e=``;for(let t=0;t<6;t++)e+=`ABCDEFGHJKLMNPQRSTUVWXYZ23456789`[Math.floor(Math.random()*32)];return e}var B=6;async function De(e,t={}){let n=k(),r=e.id;!await N(n.World,r)&&!ge(n.World,r)&&await n.World.put({id:r,name:e.name?b(`server.world.soloName`,{name:e.name}):b(`server.world.mySoloName`),solo:!0,ownerId:e.id,joinCode:null,createdAt:e.createdAt||Date.now(),maxMembers:1});let i=`${r}:${e.id}`;!await N(n.WorldMember,i)&&!ge(n.WorldMember,i)&&await n.WorldMember.put({id:i,worldId:r,playerId:e.id,role:`owner`,joinedAt:e.createdAt||Date.now(),lastSeenAt:Date.now()}),e.worldId||await n.Player.patch(e.id,{worldId:r})}async function V(e){let t=k(),n=await I(t.WorldMember,e),r=[];for(let i of n){let n=await N(t.World,i.worldId);if(!n)continue;let a=(await R(t.WorldMember,n.id)).length;r.push({worldId:n.id,name:n.name,solo:!!n.solo,role:i.role,joinCode:n.solo?null:n.joinCode,memberCount:a,maxMembers:n.maxMembers||B,isOwner:n.ownerId===e})}return r.sort((e,t)=>e.solo===t.solo?0:e.solo?-1:1)}async function H(e,t){let n=k(),r=await N(n.Player,e);if(!r)return[];let i=r.unlockedBiomes||[`meadow`];if(t===r.id)return i;let a=await R(n.BiomeState,t),o=new Set(i);for(let e of a)e.unlocked&&o.add(e.biomeId);let s=[...o];return s.length!==i.length&&await n.Player.patch(e,{unlockedBiomes:s}),s}var Oe=!1;async function ke(){if(Oe)return;Oe=!0;let e=k(),n=[[e.Biome,y.records],[e.Recipe,t.records],[e.HabitatObject,s.records],[e.ToolDef,c.records],[e.ResourceType,d.records],[e.Animal,[...m.records,...o.records]],[e.Achievement,a.records]];for(let[e,t]of n){let n=new Set(t.map(e=>e.id));for(let t of await Se(e.search({})))n.has(t.id)||await e.delete(t.id);for(let n of t)await e.put(n)}}var Ae=null;async function U(){if(await ke(),!Ae){let e=k(),[t,n,r,i,a,o,s]=await Promise.all([P(e.Biome),P(e.Animal),P(e.ResourceType),P(e.Recipe),P(e.HabitatObject),P(e.ToolDef),P(e.Achievement)]),c=e=>new Map(e.map(e=>[e.id,e]));s.sort((e,t)=>(e.order||0)-(t.order||0)),Ae={biomes:t,animals:n,resources:r,recipes:i,objects:a,tools:o,achievements:s,biome:c(t),animal:c(n),resource:c(r),recipe:c(i),object:c(a),tool:c(o),achievement:c(s)}}return Ae}var je=75,Me=5,Ne=`grasshopper`,Pe=100,Fe={biome:`meadow`,minHealth:30},W={cabin:{name:`Log Cabin`,floor:`#c8a064`,wall:`#5e3f29`,accent:`#b5707a`,materials:{branches:16,fiber:6},requires:Fe,perk:{id:`forage`,base:.1,perLevel:.05,cap:.6}},cottage:{name:`Meadow Cottage`,floor:`#e6d3a6`,wall:`#aab9c6`,accent:`#7fae6a`,materials:{wildflowers:6,fiber:10,clay:4},requires:Fe,perk:{id:`growth`,base:.1,perLevel:.04,cap:.5}},stone:{name:`Stone Hearth`,floor:`#a9a499`,wall:`#6f6a62`,accent:`#d98a4f`,materials:{stones:14,clay:6},requires:Fe,perk:{id:`thrift`,base:.1,perLevel:.05,cap:.6}}},Ie={style:`cabin`,space:1,comfort:1,decor:1,light:1,styleLocked:!1},Le={space:{name:`Space`,blurb:`A bigger room with more floor to decorate.`,levels:[{inner:{w:6,h:5}},{inner:{w:8,h:6},materials:{branches:12,fiber:8},requires:{biome:`meadow`,minHealth:30}},{inner:{w:10,h:7},materials:{branches:18,stones:6,clay:6},requires:{biome:`forest`,minHealth:45}},{inner:{w:12,h:9},materials:{branches:24,clay:10,"clean-water":6},requires:{biome:`wetland`,minHealth:55}}]},comfort:{name:`Comfort`,blurb:`Carry more on every gathering trip (+capacity).`,levels:[{carry:0},{carry:45,materials:{fiber:10,branches:4},requires:{biome:`meadow`,minHealth:35}},{carry:95,materials:{fiber:14,moss:6},requires:{biome:`forest`,minHealth:50}},{carry:160,materials:{reeds:10,fiber:12},requires:{biome:`wetland`,minHealth:60}}]},decor:{name:`Furnishings`,blurb:`A finer rug and wall trim in your style.`,levels:[{},{materials:{fiber:8,wildflowers:4}},{materials:{fiber:12,berries:6},requires:{biome:`meadow`,minHealth:50}},{materials:{fiber:16,clay:6},requires:{biome:`forest`,minHealth:55}}]},light:{name:`Warmth`,blurb:`Windows and a warm hearth glow.`,levels:[{},{materials:{branches:6,stones:4}},{materials:{stones:8,clay:4},requires:{biome:`forest`,minHealth:45}},{materials:{clay:6,"clean-water":4},requires:{biome:`wetland`,minHealth:55}}]}};function G(e){if(e?.home)return{...Ie,...e.home};let t=e?.homeTier||1;return{...Ie,space:t,comfort:t,styleLocked:t>1}}var Re=e=>Le.comfort.levels[(G(e).comfort||1)-1]?.carry||0,ze=5;function Be(e){let t=G(e);if(!t.styleLocked)return null;let n=W[t.style]?.perk;if(!n)return null;let r=(t.space||1)+(t.comfort||1)+(t.decor||1)+(t.light||1),i=Math.min(n.cap,n.base+n.perLevel*Math.max(0,r-ze));return{id:n.id,strength:i}}function Ve(e){let t=Le.space.levels[(G(e).space||1)-1]?.inner||{w:8,h:6},n=Math.floor((At-t.w)/2),r=Math.floor((jt-t.h)/2);return{x0:n,y0:r,x1:n+t.w-1,y1:r+t.h-1}}var He={w:6,h:5};function Ue(e){let t=/^tent-([a-z][a-z-]*)$/.exec(String(e||``));return t?t[1]:null}function We(){let e=Math.floor((At-He.w)/2),t=Math.floor((jt-He.h)/2);return{x0:e,y0:t,x1:e+He.w-1,y1:t+He.h-1}}var Ge=new Set([`home-bed`,`home-sleeping-bag`]);function Ke(e){return{x:Math.round((e.x0+e.x1)/2),y:e.y1}}function qe(e,t,n,r){if(!Ge.has(e))return!1;let i=Ke(t);return Math.abs(n-i.x)<=1&&Math.abs(r-i.y)<=1}var Je=.75,Ye={1:200,2:350,3:550,4:800},Xe={water:6,wildflowers:1},Ze={basket:1,shovel:1,"watering-can":1,"field-journal":1},Qe=`#eec39a`,$e=`#6e4a33`,et=`#4a7c59`,tt=[`#fbe8d5`,`#f6d7b8`,`#f0cba6`,`#eec39a`,`#dcae7f`,`#d9a06b`,`#cf9662`,`#c98f5e`,`#b97f50`,`#ad7248`,`#a66b45`,`#96603d`,`#8d5a3a`,`#7a4a30`,`#6b4226`,`#5a3720`,`#4e2f1e`],nt=[`#1c1614`,`#2b2320`,`#3b2e25`,`#4a3b30`,`#5c4636`,`#6e4a33`,`#7d5439`,`#8a5f3d`,`#a3692f`,`#b5502e`,`#c2632f`,`#c9913f`,`#d4a44f`,`#d9b380`,`#e8dcc0`,`#8c8c8c`,`#c9c9c9`],rt=[`#3f6b4c`,`#4a7c59`,`#5f9166`,`#8a9a5b`,`#4f9a94`,`#7a9ac0`,`#5a6b8c`,`#3f5f80`,`#7d6b9e`,`#9b6bb0`,`#a8586b`,`#b5707a`,`#c4653f`,`#d4783f`,`#c9913f`,`#d4a373`,`#6b7280`],it=[`none`,`straw`,`leaf`,`beanie`,`cap`,`visor`,`bucket`,`flower`,`party`,`acorn`,`beret`,`ranger`,`mushroom`,`wizard`,`witch`,`crown`,`bandana`,`tophat`,`newspaper`,`chef`,`pirate`,`frog`,`cat-ears`,`headphones`,`halo`],at=[`#c9a35c`,`#8a734f`,`#5d4a36`,`#b05555`,`#e8734f`,`#b5707a`,`#d77bb1`,`#a8586b`,`#7d6b9e`,`#5f86b0`,`#4f9a94`,`#5d8a4a`,`#6aa84f`,`#e0b23e`,`#f2efe6`,`#8c8c8c`,`#3f3b47`],ot=[`short`,`bald`,`long`,`bob`,`curly`,`curly-long`,`bun`,`braid`,`ponytail`,`pigtails`,`afro`,`mohawk`,`wavy`,`spiky`,`dreads`,`space-buns`,`bowl`,`double-braid`,`half-up`,`pixie`,`cornrows`,`shag`],st=[`none`,`beard`],ct=[`slim`,`round`];function lt(e,t){return typeof e==`string`&&/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(e.trim())?e.trim().toLowerCase():t}function ut(e){return e||={},{skin:lt(e.skin,Qe),hair:lt(e.hair,$e),outfit:lt(e.outfit,et),hat:it.includes(e.hat)?e.hat:`none`,hatColor:typeof e.hatColor==`string`&&/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(e.hatColor.trim())?e.hatColor.trim().toLowerCase():null,hairstyle:ot.includes(e.hairstyle)?e.hairstyle:`short`,beard:st.includes(e.beard)?e.beard:`none`,body:ct.includes(e.body)?e.body:`slim`}}function dt(e){if(!e)return e;let{passcode:t,passcodeHash:n,passcodeSalt:r,...i}=e;return i.metrics!==void 0&&(i.metrics=q(e)),i.daily!==void 0&&(i.daily=yt(e)),i}function ft(e,t){let n=t||ae(16).toString(`hex`);return{salt:n,hash:oe(String(e),n,32).toString(`hex`)}}function pt(e,t,n){try{let r=globalThis.Buffer,i=oe(String(e),t,32),a=r.from(n,`hex`);return i.length===a.length&&se(i,a)}catch{return!1}}async function mt(e,t){let n=String(t||``);if(e.passcodeHash&&e.passcodeSalt)return pt(n,e.passcodeSalt,e.passcodeHash);if(typeof e.passcode==`string`&&n.length>0&&n===e.passcode){let{salt:t,hash:r}=ft(n);return await k().Player.patch(e.id,{passcodeHash:r,passcodeSalt:t,passcode:null}),!0}return!1}function ht(e){return String(e).trim().toLowerCase().replace(/[^a-z0-9]+/g,`-`).replace(/^-+|-+$/g,``)}var gt={x:23,y:5,size:`small-chest`,capacity:120};async function K(e){if(!e||typeof e!=`string`)throw new A(b(`server.err.playerIdRequired`));let t=await N(k().Player,e);if(!t)throw new A(b(`server.err.noSaveLogin`),404);return{player:t}}function _t(e){return{firstSeenAt:e,lastSeenAt:e,lastHeartbeatAt:0,playSeconds:0,sessions:0,counts:{},areaSeconds:{},curSessionSeconds:0,sessionLengths:{},firstActionAt:0,creationMs:0}}function q(e){let t=e?.metrics;if(t==null)return null;if(typeof t==`string`)try{return JSON.parse(t)}catch{return null}return t}function vt(e){return JSON.stringify(e??{})}function yt(e){let t=e?.daily;if(t==null)return null;if(typeof t==`string`)try{return JSON.parse(t)}catch{return null}return t}function bt(e){return JSON.stringify(e??{})}var xt=new Set([`recolors`,`appearanceChanges`]);function St(e){let t=e/60;return t<2?`<2m`:t<10?`2-10m`:t<30?`10-30m`:`30m+`}async function J(e,t={},n={}){if(!e?.id)return null;let r=Object.entries(t).filter(([,e])=>e),i=Object.entries(n).filter(([,e])=>e);if(!r.length&&!i.length)return q(e);let a=Date.now(),o=await N(k().Player,e.id)||e,s=q(o)||_t(o.createdAt||a),c={...s.counts||{}};for(let[e,t]of r)c[e]=(c[e]||0)+t;let l={...s,counts:c,lastSeenAt:a};!s.firstActionAt&&r.some(([e,t])=>t&&!xt.has(e))&&(l.firstActionAt=a);let u={metrics:vt(l)};if(i.length){let e=Dt(o,a),t=yt(o),n={...(t?.dayKey===e?t:{dayKey:e,counts:{}}).counts||{}};for(let[e,t]of i)n[e]=(n[e]||0)+t;u.daily=bt({dayKey:e,counts:n})}return await k().Player.patch(e.id,u),l}var Ct=864e5,wt=4,Tt=e=>(Number.isFinite(e?.tzOffsetMinutes)?e.tzOffsetMinutes:0)*6e4,Et=e=>{let t=Math.round(Number(e));return Number.isFinite(t)?ue(t,-840,840):0};function Dt(e,t){return Math.floor((t+Tt(e)-wt*36e5)/Ct)}var Y=e=>Math.round(e*10)/10;function Ot(e){let t=Date.now(),n=q(e)||_t(e.createdAt||t),r=n.playSeconds||0,i=n.sessions||0,a=n.counts||{},o=Object.entries(a).reduce((e,[t,n])=>e+(xt.has(t)?0:n||0),0),s=e.createdAt||n.firstSeenAt||t,c=n.lastSeenAt||null,l=n.areaSeconds||{},u={};for(let[e,t]of Object.entries(l))u[e]=Math.round((t||0)/60);let d=Object.entries(l).sort((e,t)=>(t[1]||0)-(e[1]||0))[0]?.[0]||null,f=n.firstActionAt||0,p=f?Y((f-s)/1e3):null,m=n.creationMs||0,h=c?Y((t-c)/36e5):null,g=Math.floor((t-s)/Ct),_=`dormant`;return h!=null&&(h<=24?_=`active`:h<=168&&(_=`recent`)),{playerId:e.id,name:e.name,createdAt:s,firstSeenAt:n.firstSeenAt||s,lastSeenAt:c,daysSinceJoined:g,hoursSinceActive:h,status:_,isNewToday:t-s<=Ct,language:n.language||null,sessions:i,playSeconds:r,playMinutes:Math.round(r/60),avgSessionMinutes:i?Math.round(r/60/i):0,totalActions:o,actionsPerSession:i?Y(o/i):0,actionsPerMinute:r>0?Y(o/(r/60)):0,tutorialStep:e.tutorialStep||0,currentArea:e.area||null,unlockedBiomes:(e.unlockedBiomes||[]).length,areaSeconds:l,areaMinutes:u,mostTimeArea:d,sessionLengths:n.sessionLengths||{},timeToFirstActionSeconds:p,creationMs:m,creationSeconds:m?Y(m/1e3):null,appearance:e.appearance||null,counts:a}}function kt(e,t,n){let r=e.counts||{};return{collected:(r.resourcesCollected||0)>0,terraformed:(r.terraformActions||0)>0,planted:(r.plantsPlanted||0)>0,crafted:(r.itemsCrafted||0)>0||Object.keys(n.craftedEver||{}).length>0,placed:(r.objectsPlaced||0)>0,attractedAnimal:(t?.totalAnimalsReturned||0)>0,upgradedTool:(r.toolsUpgraded||0)>0,builtHome:(r.homesBuilt||0)>0,upgradedHome:(r.homeUpgrades||0)>0,unlockedSecondBiome:(e.unlockedBiomes||0)>=2}}var At=30,jt=20,Mt=8;function Nt(e,t){let n=t===`home`?null:e.biome.get(t)?.grid;return{cols:n?.cols||At,rows:(n?.rows||jt)+(t===`alpine`?Mt:0)}}var Pt={tilled:`#8a6a48`,watered:`#6b4f33`,water:`#5d96c8`};function Ft(e,t,n){let r=parseInt(e.slice(1),16),i=parseInt(t.slice(1),16),a=e=>{let t=r>>e&255,a=i>>e&255;return Math.round(t+(a-t)*ue(n,0,1))};return`#`+[a(16),a(8),a(0)].map(e=>e.toString(16).padStart(2,`0`)).join(``)}var It=e=>String(e).replace(/&/g,`&amp;`).replace(/</g,`&lt;`).replace(/>/g,`&gt;`).replace(/"/g,`&quot;`);function Lt(e,t,n,r,i){let a=Nt(e,t?.id||``),o=a.cols*16+16,s=a.rows*16+16+22,c=t?.palette?.damaged||`#b9a37c`,l=t?.palette?.healthy||`#8fbf6f`,u=Ft(c,l,n/100),d=Ft(c,l,n/100*.8),f=e=>8+e*16,p=e=>8+e*16,m=[];m.push(`<rect x="0" y="0" width="${o}" height="${s}" rx="10" fill="${u}"/>`);for(let e=0;e<a.rows;e++)for(let t=0;t<a.cols;t++)(t+e)%2==0&&m.push(`<rect x="${f(t)}" y="${p(e)}" width="16" height="16" fill="${d}" opacity="0.22"/>`);for(let e of i){let t=Pt[e.type];t&&m.push(`<rect x="${f(e.x)}" y="${p(e.y)}" width="16" height="16" rx="3" fill="${t}"/>`)}for(let t of r){let n=e.object.get(t.objectId)?.color||`#6b5a3a`;m.push(`<circle cx="${f(t.x)+16/2}" cy="${p(t.y)+16/2}" r="6.72" fill="${n}" stroke="#2b3321" stroke-opacity="0.35"/>`)}return m.push(`<rect x="0" y="${s-22}" width="${o}" height="22" fill="#2b3321" opacity="0.55"/>`),m.push(`<text x="8" y="${s-7}" font-family="sans-serif" font-size="12" fill="#fdfaf0">${It(t?.name||`Area`)} — ${n}% health · ${r.length} placed</text>`),`<svg xmlns="http://www.w3.org/2000/svg" width="${o}" height="${s}" viewBox="0 0 ${o} ${s}">${m.join(``)}</svg>`}function Rt(e){return`data:image/svg+xml;base64,`+globalThis.Buffer.from(e,`utf8`).toString(`base64`)}async function zt(e,t={}){let n=k(),r=await U(),i=await I(n.BiomeState,e),a=new Map(i.map(e=>[e.biomeId,e])),o=t.images?await I(n.Placement,e):[],s=t.images?await I(n.TerrainTile,e):[],c=r.biomes.map(e=>{let n=a.get(e.id)||{},i={biomeId:e.id,name:e.name,health:n.health||0,balance:n.balance||0,returnedCount:n.returnedCount||0,unlocked:!!n.unlocked,explorable:!!e.explorable};if(t.images&&n.unlocked){let t=o.filter(t=>t.area===e.id),n=s.filter(t=>t.area===e.id);i.placements=t.length,i.snapshot=Rt(Lt(r,e,i.health,t,n))}return i});return{biomes:c,summary:Bt(c)}}function Bt(e){let t=e.filter(e=>e.unlocked);return{biomesUnlocked:t.length,biomesFullyRestored:t.filter(e=>(e.health||0)>=100).length,avgHealth:t.length?Math.round(t.reduce((e,t)=>e+(t.health||0),0)/t.length):0,totalAnimalsReturned:e.reduce((e,t)=>e+(t.returnedCount||0),0)}}async function Vt(e,t,n,r,i=0,a=0,o=`full`){let s=k(),c=await U(),l=Date.now(),{salt:u,hash:d}=ft(n),f={id:e,name:t,passcodeSalt:u,passcodeHash:d,appearance:r,tzOffsetMinutes:i,createdAt:l,clockOffsetMs:g(0,`day`),worldId:e,area:`meadow`,x:24.5,y:6.5,inventory:{...Xe},craftedItems:{},tools:{...Ze},unlockedBiomes:[`meadow`],visitedBiomes:[`meadow`],tutorialStep:0,home:{...Ie},metrics:vt({..._t(l),creationMs:a>0?Math.round(a):0,edition:o}),customGoals:[]};await s.Player.put(f);let p=e,m=c.biomes.map(t=>({id:`${p}:${t.id}`,worldId:p,playerId:e,biomeId:t.id,health:Me,balance:0,returnedCount:0,unlocked:t.id===`meadow`}));for(let e of m)await s.BiomeState.put(e);let h=`pl_${e}_starter-chest`,_=[{id:h,worldId:p,playerId:e,objectId:`small-chest`,area:`meadow`,x:gt.x,y:gt.y,placedAt:l}];for(let e of _)await s.Placement.put(e);let v={id:h,worldId:p,playerId:e,area:`meadow`,x:gt.x,y:gt.y,size:`small-chest`,capacity:gt.capacity,contents:{}};return await s.Chest.put(v),{player:f,seeded:{biomeStates:m,placements:_,chests:[v]}}}async function Ht(e){let t=Date.now(),n=await U(),r=e.player?.worldId||e.player?.id,i=le(e.player);return{player:dt(e.player),biomeStates:e.seeded.biomeStates,placements:e.seeded.placements,chests:e.seeded.chests,discoveries:[],nodeStates:[],terrain:[],achievements:[],feed:[],serverTime:t,weather:u(r,i,ce),dailyTasks:Rn({wid:r,player:e.player,d:n,discoveries:[],biomeStates:e.seeded.biomeStates,placements:e.seeded.placements,chests:e.seeded.chests,now:t}),customGoals:e.player.customGoals||[],goalLimit:bn(e.player,n),nodeRegenSeconds:je,inventoryCapacity:Ut(e.player)}}function Ut(e){return(Ye[e.tools?.basket||1]||200)+Re(e)}function Wt(e,t){let n=Date.now(),r={};for(let i of e){if(t&&i.plantedAt){let e=(t.object.get(i.objectId)?.growSeconds||0)*1e3;if(e>0&&n-i.plantedAt<e)continue}r[i.objectId]=(r[i.objectId]||0)+1}return r}var Gt=90;function Kt(e){let t=95*(1-Math.exp(-Math.max(0,e)/Gt));return ue(Math.round(Me+t),0,100)}var qt=[{animals:5,cap:60},{animals:10,cap:75},{animals:15,cap:88}];function Jt(e){for(let t of qt)if(e<t.animals)return t.cap;return 100}function Yt(e){return(e?.matureHours||0)*36e5}function Xt(e,t,n){let r=Yt(e);return r>0&&n-(t.placedAt||0)>=r}function Zt(e,t,n,r){let i=Yt(e);if(i<=0)return!1;let a=(t.placedAt||0)+i;return a>n&&a<=r}var Qt=8;function $t(e,t,n=0,r=Date.now()){let i=0,a=0;for(let n of t){let t=e.object.get(n.objectId);t&&(i+=t.healthValue||0,Xt(t,n,r)&&(a+=t.matureBonus||0))}return i+=Math.min(a,Qt),n>0&&(i+=2*Math.min(n,7)),i}var en=.45,tn=.35,nn=.2;function rn(e,t,n){let r=e.animals.filter(e=>e.biome===t),i=r.length;if(i===0)return 0;let a=r.filter(e=>n.has(e.id));if(a.length>=i)return 100;let o=a.length/i,s=r.filter(e=>(e.requirements?.animals||[]).length>0),c=s.filter(e=>n.has(e.id)).length,l=s.length?c/s.length:1,u=new Set(r.map(e=>e.kind)),d=new Set(a.map(e=>e.kind)),f=u.size?d.size/u.size:0,p=en*o+tn*l+nn*f;return ue(Math.round(p*100),0,99)}function an(e,t=!1){let n=new Set(e.filter(e=>e.type===`water`&&(!t||!e.seeded)).map(e=>`${e.x},${e.y}`)),r=new Set,i=0,a=0;for(let e of n){if(r.has(e))continue;let t=[e];r.add(e);let o=0,s=1/0,c=-1/0,l=1/0,u=-1/0;for(;t.length;){let[e,i]=t.pop().split(`,`).map(Number);o++,s=Math.min(s,e),c=Math.max(c,e),l=Math.min(l,i),u=Math.max(u,i);for(let[a,o]of[[1,0],[-1,0],[0,1],[0,-1]]){let s=`${e+a},${i+o}`;n.has(s)&&!r.has(s)&&(r.add(s),t.push(s))}}i=Math.max(i,o),a=Math.max(a,Math.max(c-s+1,u-l+1))}return{tiles:n.size,lake:i,river:a}}function on(e,t){let n=e.requirements?.conditions;return!n||!(!t||Array.isArray(n.weather)&&n.weather.length&&!n.weather.includes(t.type)||Array.isArray(n.season)&&n.season.length&&!n.season.includes(t.season)||Array.isArray(n.dayPhase)&&n.dayPhase.length&&!n.dayPhase.includes(t.dayPhase))}function sn(e,t,n,r,i,a,o=null){let s=e.requirements||{};if(t<(s.minHealth||0)||n<(s.minBalance||0)||!on(e,o))return!1;for(let[e,t]of Object.entries(s.objects||{}))if((r[e]||0)<t)return!1;for(let e of s.animals||[])if(!i.has(e))return!1;let c=s.water;return!(c&&((a.tiles||0)<(c.tiles||0)||(a.lake||0)<(c.lake||0)||(a.river||0)<(c.river||0)))}function cn(e,t){let n=e.requirements?.objects||{},r=Object.keys(n);if(!r.length)return 70;let i=30,a=0,o=0;for(let[e,s]of Object.entries(n)){let n=t[e]||0;n>=s?(i+=Math.round(30/r.length),o+=n-s):a++}return i+=Math.round(40*(1-Math.exp(-o/6))),i-=a*25,ue(i,5,100)}function ln(e,t){let n=e.requirements||{},r=[],i=Object.entries(n.objects||{}).map(([e,n])=>b(`server.whyReturned.objectQty`,{qty:n,name:t.object.get(e)?.name||e}));if(i.length&&r.push(b(`server.whyReturned.habitat`,{objects:i.join(b(`server.list.comma`))})),n.water){let e=n.water;e.lake?r.push(b(`server.whyReturned.lake`,{tiles:e.lake})):e.river?r.push(b(`server.whyReturned.river`,{tiles:e.river})):e.tiles&&r.push(b(`server.whyReturned.tiles`,{tiles:e.tiles}))}n.minHealth&&r.push(b(`server.whyReturned.health`,{health:n.minHealth})),n.minBalance&&r.push(b(`server.whyReturned.balance`,{balance:n.minBalance})),n.animals?.length&&r.push(b(`server.whyReturned.animals`,{animals:n.animals.map(e=>t.animal.get(e)?.name||e).join(b(`server.list.and`))}));let a=n.conditions;if(a){let e=[];a.weather?.length&&e.push(a.weather.join(b(`server.list.or`))),a.season?.length&&e.push(b(`server.whyReturned.inSeason`,{seasons:a.season.join(b(`server.list.or`))})),a.dayPhase?.length&&e.push(b(`server.whyReturned.atPhase`,{phases:a.dayPhase.join(b(`server.list.or`))})),e.length&&r.push(b(`server.whyReturned.moment`,{conditions:e.join(b(`server.list.comma`))}))}return b(`server.whyReturned.sentence`,{reasons:r.join(b(`server.list.comma`))})}async function X(e,t,n,r={}){let a=k(),o=await U();if(!o.biome.get(n))throw new A(b(`server.err.unknownBiome`,{biome:n}));let s=(await R(a.Placement,e)).filter(e=>e.area===n);r.removeIds?.length&&(s=s.filter(e=>!r.removeIds.includes(e.id)));for(let e of r.addPlacements||[])e.area===n&&(s=s.filter(t=>t.id!==e.id),s.push(e));let c=Wt(s,o),l=(await R(a.TerrainTile,e)).filter(e=>e.area===n);r.removeTerrainIds?.length&&(l=l.filter(e=>!r.removeTerrainIds.includes(e.id)));for(let e of r.addTerrain||[])e.area===n&&(l=l.filter(t=>t.id!==e.id),l.push(e));let u=Math.min(3,l.filter(e=>e.type===`watered`).length)*.5,d=l.filter(e=>e.type===`water`&&!e.seeded).length,f=an(l),p=Kt($t(o,s,d,Date.now())+u),m=r.player||await N(a.Player,t),g=m?le(m):null,_=g===null?null:{type:v(e,n,g),season:i(g),dayPhase:h(g)},y=await R(a.Discovery,e),x=new Set(y.map(e=>e.animalId)),S=()=>[...x].filter(e=>o.animal.get(e)?.biome===n).length,C=Math.min(p,Jt(S())),w=rn(o,n,x),T=[],ee=o.animals.filter(e=>e.biome===n),te=x.has(Ne);for(let r of ee)if(!x.has(r.id)&&!(!te&&r.id!==Ne)&&sn(r,C,w,c,x,f,_)){let i={id:`${e}:${r.id}`,worldId:e,playerId:t,animalId:r.id,biomeId:n,comfort:cn(r,c),timesObserved:0,firstObservedAt:Date.now(),whyReturned:ln(r,o)};await a.Discovery.put(i),x.add(r.id),w=rn(o,n,x),T.push({...i,animal:r});break}C=Math.min(p,Jt(S()));for(let e of y){if(e.biomeId!==n)continue;let t=o.animal.get(e.animalId);if(!t)continue;let r=cn(t,c);r!==e.comfort&&await a.Discovery.patch(e.id,{comfort:r})}let ne=S(),re=await z(a.BiomeState,e,n),ie=re?.id??`${e}:${n}`;await a.BiomeState.patch(ie,{health:C,balance:w,returnedCount:ne});let E={...re||{id:ie,worldId:e,playerId:t,biomeId:n,unlocked:n===`meadow`},health:C,balance:w,returnedCount:ne},D=C-(re?.health??Me),O={};if(D>0&&(O[`health:${n}`]=D),T.length&&(O[`animal:${n}`]=T.length,O.animal=T.length),Object.keys(O).length){let e=r.player||await N(a.Player,t);e&&await J(e,{},O)}return{biomeState:E,newAnimals:T,unlockedBiomes:await fn(e,t,{player:r.player,freshState:E})}}var un={wetland:[...[6,7,8,9,10,11,12,13,14].map(e=>({x:e,y:4,type:`water`})),{x:14,y:5,type:`water`},{x:14,y:6,type:`water`},{x:15,y:6,type:`water`},{x:20,y:6,type:`water`},{x:21,y:6,type:`water`},{x:22,y:6,type:`water`},{x:20,y:7,type:`water`},{x:21,y:7,type:`water`},{x:22,y:7,type:`water`},{x:10,y:14,type:`watered`},{x:11,y:14,type:`watered`}]};async function dn(e,t,n){let r=un[n];if(!r)return;let i=k();for(let a of r){let r=`${e}:${n}:${a.x}:${a.y}`;await i.TerrainTile.get(r)||await i.TerrainTile.put({id:r,worldId:e,playerId:t,area:n,x:a.x,y:a.y,type:a.type,seeded:!0,updatedAt:Date.now()})}}async function fn(e,t,n={}){let r=k(),i=await U(),a=n.player||await N(r.Player,t),o=[],s=new Set(a.unlockedBiomes||[]),c=new Set(a.pendingUnlockRewards||[]),l=new Set((await R(r.BiomeState,e)).filter(e=>e.unlocked).map(e=>e.biomeId));for(let u of i.biomes){if(!u.unlock||l.has(u.id))continue;let i=u.unlock,d=n.freshState?.biomeId===i.biome?n.freshState:await z(r.BiomeState,e,i.biome);if(!d||!l.has(i.biome)||(d.health||0)<(i.minHealth||0)||(d.returnedCount||0)<(i.minAnimals||0)||i.minTotalAnimals&&(await R(r.Discovery,e)).length<i.minTotalAnimals)continue;if(i.requiresItem){let e=a.craftedItems?.[i.requiresItem]||0,t=a.craftedEver?.[i.requiresItem]||0;if(e<=0&&t<=0)continue}if(i.requiresTool&&(a.tools?.[i.requiresTool.id]||1)<i.requiresTool.tier)continue;l.add(u.id),s.add(u.id),c.add(u.id),await r.Player.patch(t,{unlockedBiomes:[...s],pendingUnlockRewards:[...c]});let f=await z(r.BiomeState,e,u.id);await r.BiomeState.patch(f?.id??`${e}:${u.id}`,{unlocked:!0}),await dn(e,t,u.id),o.push({id:u.id,name:u.name})}return o}function pn(e,t){let n=e.unlock;return!n||!(typeof n.minHealth==`number`&&t.health<n.minHealth||typeof n.animalsReturned==`number`&&t.animalsReturned<n.animalsReturned||n.requiresAnimal&&!t.returnedAnimalIds.has(n.requiresAnimal)||n.requiresCrafted&&(t.craftedEver?.[n.requiresCrafted]||0)<=0)}async function mn(e,t,n,r){let i=k(),a=await z(i.BiomeState,e,t),o=await R(i.Discovery,e),s=new Set(o.filter(e=>r.animal.get(e.animalId)?.biome===t).map(e=>e.animalId));return{health:a?.health||0,animalsReturned:s.size,returnedAnimalIds:s,craftedEver:n.craftedEver||{}}}async function hn(e,t,n,r){let i=await Ce(e.Chest,r,n);if(i)return i;let a=await Ce(e.Placement,r,n);if(a){let i=t.object.get(a.objectId);if(i?.isChest){let t={id:n,worldId:r,playerId:a.playerId,area:a.area,x:a.x,y:a.y,size:a.objectId,capacity:i.chestCapacity||60,contents:{}};return await e.Chest.put(t),t}}return null}async function gn(e,t,n=e.id){let r=k(),i=await R(r.Chest,n);for(let[n,r]of Object.entries(t)){let t=e.inventory?.[n]||0,a=i.reduce((e,t)=>e+(t.contents?.[n]||0),0);if(t+a<r)throw new A(b(`server.err.notEnough`,{resource:n,need:r,have:t+a}))}let a={inventory:{},chests:{}},o={...e.inventory||{}},s=new Map(i.map(e=>[e.id,{...e.contents||{}}]));for(let[e,n]of Object.entries(t)){let t=n,r=Math.min(o[e]||0,t);r>0&&(o[e]-=r,o[e]<=0&&delete o[e],a.inventory[e]=r,t-=r);for(let n of i){if(t<=0)break;let r=s.get(n.id),i=Math.min(r[e]||0,t);i>0&&(r[e]-=i,r[e]<=0&&delete r[e],a.chests[n.id]=a.chests[n.id]||{},a.chests[n.id][e]=i,t-=i)}if(t>0)throw new A(b(`server.err.notEnoughShort`,{resource:e}))}await r.Player.patch(e.id,{inventory:o});for(let e of i)a.chests[e.id]&&await r.Chest.patch(e.id,{contents:s.get(e.id)});return{usedFrom:a,inventory:o}}var _n={craft:`hammer`,build:`hammer`,grow:`leaf`,plant:`leaf`,collect:`basket`,observe:`journal`,welcome:`paw`,attract:`paw`,welcomeTotal:`paw`,home:`home`,tool:`hammer`,unlock:`map`,health:`leaf`,biomeAnimals:`paw`},vn=[`space`,`comfort`,`decor`,`light`],yn=6;function bn(e,t){let n=new Set(e?.unlockedBiomes||[`meadow`]);return t.biomes.filter(e=>e.explorable).every(e=>n.has(e.id))?6:3}function xn(e){let{d:t,biomeStates:n,discoveries:r,player:i}=e,a=new Map(n.map(e=>[e.biomeId,e]));for(let e of t.biomes){let n=e.unlock;if(!n||a.get(e.id)?.unlocked)continue;let o=a.get(n.biome);if(!o?.unlocked||!(i?.visitedBiomes||[`meadow`]).includes(n.biome))continue;let s=t.biome.get(n.biome)?.name||n.biome,c=t.biome.get(e.id)?.name||e.id,l=[];if(n.minHealth&&l.push({text:b(`server.nextbiome.health`,{biome:s,goal:n.minHealth,cur:Math.round(o.health||0)}),done:(o.health||0)>=n.minHealth}),n.minAnimals&&l.push({text:b(`server.nextbiome.animals`,{biome:s,goal:n.minAnimals,cur:o.returnedCount||0}),done:(o.returnedCount||0)>=n.minAnimals}),n.minTotalAnimals&&l.push({text:b(`server.nextbiome.total`,{goal:n.minTotalAnimals,cur:r.length}),done:r.length>=n.minTotalAnimals}),n.requiresItem){let e=t.object.get(n.requiresItem)?.name||n.requiresItem,r=(i?.craftedItems?.[n.requiresItem]||0)+(i?.craftedEver?.[n.requiresItem]||0);l.push({text:b(`server.nextbiome.craft`,{item:e}),done:r>0})}if(!l.length)return null;let u=l.filter(e=>e.done).length;return{id:`next-biome`,kind:`unlock`,icon:`map`,pinned:!0,text:b(`server.nextbiome.title`,{biome:c}),hint:b(`server.nextbiome.hint`,{biome:c}),target:l.length,progress:u,counter:``,reward:{},steps:l,claimed:!1}}return null}function Sn(e,t){let n=t.d.animal.get(e);if(!n)return[];let r=(t.d.biome.get(n.biome)?.order||1)+1;if((t.player?.tools?.[`field-journal`]||1)<r)return[{text:b(`server.goal.upgradeGuide`),done:!1}];let i=[];for(let[e,r]of Object.entries(n.requirements?.objects||{})){let a=(t.placements||[]).filter(t=>t.objectId===e&&t.area===n.biome).length;i.push({text:b(`server.goal.habitatStep`,{have:Math.min(a,r),need:r,name:t.d.object.get(e)?.name||e}),done:a>=r})}if(n.requirements?.minHealth){let e=t.biomeStates.find(e=>e.biomeId===n.biome),r=Math.round(e?.health||0);i.push({text:b(`server.goal.healthStep`,{cur:r,need:n.requirements.minHealth}),done:r>=n.requirements.minHealth})}return i}function Cn(e,t){return En((t.d.recipes||[]).find(t=>t.output?.itemId===e)?.materials||{},t)}function wn(e,t){return En(W[e]?.materials||{},t)}function Tn(e,t,n){return En((n.d.tool.get(e)?.tiers||[]).find(e=>e.tier===t)?.materials||{},n)}function En(e,t){return Object.entries(e).map(([e,n])=>{let r=An(t,e);return{text:b(`server.goal.matStep`,{have:Math.min(r,n),need:n,name:t.d.resource.get(e)?.name||e}),done:r>=n}})}function Dn(e){let t=(e.unlockedBiomes?.length?e.unlockedBiomes:e.player?.unlockedBiomes?.length?e.player.unlockedBiomes:[`meadow`]).flatMap(t=>e.d.biome.get(t)?.resources||[]);return[...new Set(t)].filter(t=>t!==`water`&&!n(t)&&e.d.resource.get(t))}function On(e,t){let n=Dn(e),r={};if(!n.length)return r;let i=de(j(`goalreward:${t}`)),a=[...n];for(let e=0;e<2&&a.length;e++){let e=a.splice(Math.floor(i()*a.length),1)[0];r[e]=3+Math.floor(i()*3)}return r}function kn(e,t){let r=(e.d.biome.get(t)?.resources||[]).filter(t=>t!==`water`&&!n(t)&&e.d.resource.get(t)),i={};if(!r.length)return i;let a=de(j(`unlockreward:${t}`)),o=[...r];for(let e=0;e<2&&o.length;e++){let e=o.splice(Math.floor(a()*o.length),1)[0];i[e]=4+Math.floor(a()*3)}return i}function An(e,t){return(e.player?.inventory?.[t]||0)+(e.chests||[]).reduce((e,n)=>e+(n.contents?.[t]||0),0)}function jn(e,t){return(e.placements||[]).filter(e=>e.objectId===t).length}function Mn(e,t){return(e.placements||[]).filter(e=>e.objectId===t&&typeof e.plantedAt==`number`).length}function Nn(e,t){switch(e.kind){case`craft`:case`build`:return t.player?.craftedEver?.[e.itemId||``]||0;case`grow`:return Mn(t,e.itemId||``);case`plant`:return(t.placements||[]).filter(e=>typeof e.plantedAt==`number`).length;case`collect`:return An(t,e.resourceId||``);case`observe`:return t.discoveries.filter(e=>(e.timesObserved||0)>0).length;case`welcomeTotal`:return t.discoveries.length;default:return 0}}function Pn(e,t){switch(e.kind){case`craft`:case`grow`:case`plant`:case`collect`:case`observe`:case`welcomeTotal`:return Math.max(0,Math.min(e.target,Nn(e,t)-(e.base||0)));case`build`:return Math.max(0,Math.min(e.target,(t.player?.craftedEver?.[e.itemId||``]||0)-(e.base||0)))+Math.max(0,Math.min(e.target,jn(t,e.itemId||``)-(e.basePlace||0)));case`welcome`:case`attract`:return+!!t.discoveries.some(t=>t.animalId===e.animalId);case`home`:if(e.track===`build`){let n=t.player?.home;return n?.styleLocked?+(!e.styleId||n.style===e.styleId):0}return t.player?.home?.[e.track||``]>=e.target?e.target:Math.min(e.target,t.player?.home?.[e.track||``]||1);case`tool`:{let n=t.player?.tools?.[e.toolId||``]||1;return Math.min(e.target,n)}case`unlock`:return+!!t.biomeStates.some(t=>t.biomeId===e.biomeId&&t.unlocked);case`health`:{let n=t.biomeStates.find(t=>t.biomeId===e.biomeId);return Math.min(e.target,Math.round(n?.health||0))}case`biomeAnimals`:{let n=t.discoveries.filter(t=>t.biomeId===e.biomeId).length;return Math.min(e.target,n)}default:return 0}}function Fn(e,t){let n=t.d;switch(e.kind){case`craft`:return b(`server.goal.craft`,{count:e.target,item:n.object.get(e.itemId)?.name||e.itemId});case`build`:return b(`server.goal.build`,{count:e.target,item:n.object.get(e.itemId)?.name||e.itemId});case`grow`:return b(`server.goal.grow`,{count:e.target,item:n.object.get(e.itemId)?.name||e.itemId});case`plant`:return b(`server.goal.plant`,{count:e.target});case`collect`:return b(`server.goal.collect`,{count:e.target,resource:n.resource.get(e.resourceId)?.name||e.resourceId});case`observe`:return b(`server.goal.observe`,{count:e.target});case`welcome`:return b(`server.goal.welcome`,{animal:n.animal.get(e.animalId)?.name||e.animalId});case`attract`:return b(`server.goal.attract`,{kind:n.animal.get(e.animalId)?.kind||b(`server.goal.creature`)});case`welcomeTotal`:return b(`server.goal.welcomeTotal`,{count:e.target});case`home`:return e.track===`build`?b(`server.goal.buildHome`,{style:W[e.styleId||``]?.name||b(`server.goal.aHouse`)}):b(`server.goal.home`,{track:b(`server.goal.track.${e.track}`),level:e.target});case`tool`:{let t=n.tool.get(e.toolId),r=(t?.tiers||[]).find(t=>t.tier===e.target);return b(`server.goal.tool`,{tool:r?.name||t?.name||e.toolId})}case`unlock`:return b(`server.goal.unlock`,{biome:n.biome.get(e.biomeId)?.name||e.biomeId});case`health`:return b(`server.goal.restore`,{biome:n.biome.get(e.biomeId)?.name||e.biomeId,pct:e.target});case`biomeAnimals`:return b(`server.goal.biomeAnimals`,{count:e.target,biome:n.biome.get(e.biomeId)?.name||e.biomeId});default:return``}}function In(e){let t=e.discoveries.some(e=>e.animalId===Ne),n=Object.keys(e.player?.craftedEver||{}).length>0;return[{id:`start-gather`,kind:`gather`,icon:`basket`,text:b(`server.task.collectSeeds`),hint:b(`server.task.gatherHint`),target:12,progress:Math.min(12,An(e,`seeds`))},{id:`start-craft`,kind:`craft`,icon:`hammer`,text:b(`server.task.craftFirst`),hint:b(`server.task.craftFirstHint`),target:1,progress:+!!n},{id:`start-welcome`,kind:`welcome`,icon:`sparkle`,text:b(`server.task.welcomeGrasshopper`),hint:b(`server.task.welcomeGrasshopperHint`),target:1,progress:+!!t}]}function Ln(e,t){let n=[],r=[`craft`,`build`,`grow`,`plant`,`collect`,`observe`,`welcome`,`attract`,`welcomeTotal`,`home`,`tool`,`unlock`,`health`,`biomeAnimals`],i=!1;for(let a of Array.isArray(e)?e:[]){if(n.length>=yn)break;let e=a?.kind;if(!r.includes(e))continue;if(e===`home`){if(i)continue;i=!0}let o={id:typeof a?.id==`string`&&a.id?a.id.slice(0,40):`cg_${Math.random().toString(36).slice(2,10)}`,kind:e,target:Math.max(1,Math.min(99,Math.floor(Number(a?.target)||1)))};if(e===`craft`||e===`build`||e===`grow`){if(!t.object.get(a?.itemId))continue;o.itemId=a.itemId}else if(e===`collect`){if(!t.resource.get(a?.resourceId))continue;o.resourceId=a.resourceId}else if(e===`welcome`||e===`attract`){if(!t.animal.get(a?.animalId))continue;o.animalId=a.animalId,o.target=1}else if(e===`home`)if(a?.track===`build`){if(!W[a?.styleId])continue;o.track=`build`,o.styleId=a.styleId,o.target=1}else{if(!vn.includes(a?.track))continue;o.track=a.track}else if(e===`tool`){let e=t.tool.get(a?.toolId);if(!e)continue;let n=Math.max(1,...(e.tiers||[]).map(e=>e.tier));o.toolId=a.toolId,o.target=Math.min(n,Math.max(2,Math.floor(Number(a?.target)||2)))}else if(e===`unlock`){if(!t.biome.get(a?.biomeId))continue;o.biomeId=a.biomeId,o.target=1}else if(e===`health`){if(!t.biome.get(a?.biomeId))continue;o.biomeId=a.biomeId,o.target=Math.max(1,Math.min(100,Math.floor(Number(a?.target)||100)))}else if(e===`biomeAnimals`){if(!t.biome.get(a?.biomeId))continue;let e=t.animals.filter(e=>e.biome===a.biomeId).length;if(e<=0)continue;o.biomeId=a.biomeId,o.target=e}n.push(o)}return n}function Rn(e){let{player:t,now:n,d:r}=e,i=Dt(t,n),a=t?.goalClaims||{},o=[],s=t?.pendingUnlockRewards||[];if(!s.length){let t=xn(e);t&&o.push(t)}for(let t of s){let n=r.biome.get(t)?.name||t;o.push({id:`unlock-reward:${t}`,kind:`unlock`,icon:`sparkle`,text:b(`server.unlockreward.title`,{biome:n}),hint:b(`server.unlockreward.hint`,{biome:n}),target:1,progress:1,counter:``,reward:kn(e,t),claimed:!1})}for(let t of In(e))a[t.id]||o.push({...t,counter:``,reward:On(e,t.id),claimed:!1});for(let n of t?.customGoals||[]){if(a[n.id])continue;let t=n.kind===`build`?n.target*2:n.target,r=n.kind===`attract`?Sn(n.animalId||``,e):n.kind===`craft`||n.kind===`build`?Cn(n.itemId||``,e):n.kind===`home`&&n.track===`build`?wn(n.styleId||``,e):n.kind===`tool`?Tn(n.toolId||``,n.target,e):void 0;o.push({id:n.id,kind:n.kind,icon:_n[n.kind]||`check`,text:Fn(n,e),target:t,counter:``,reward:On(e,n.id),progress:Pn(n,e),claimed:!1,hint:b(`server.goal.hint.${n.kind}`),...r?{steps:r}:{}})}return{dayKey:i,endsAt:0,tasks:o}}async function zn(e,t={}){let n=k(),r=await U(),i=await N(n.Player,e),a=r.biome.get(i?.area),o=Ue(i?.area),s=o?!!r.biome.get(o)?.explorable:!1;i&&i.area!==`home`&&!s&&(!a||!a.explorable)&&(i={...i,area:`meadow`,x:24.5,y:6.5});let c=t.worldId||L(i),[l,d,f,p,m,h,g,_]=await Promise.all([R(n.BiomeState,c),R(n.Placement,c),R(n.Chest,c),R(n.Discovery,c),R(n.NodeState,c),R(n.TerrainTile,c),I(n.PlayerAchievement,e),R(n.FeedEntry,c)]),v=[...i?.unlockedBiomes?.length?i.unlockedBiomes:[`meadow`]];if(i&&c!==i.id){let e=new Set(i.unlockedBiomes||[`meadow`]);for(let t of l)t.unlocked&&e.add(t.biomeId);i={...i,unlockedBiomes:[...e]}}let y=Date.now(),b=le(i);return{player:dt(i),worldId:c,biomeStates:l,placements:d,chests:f,discoveries:p,nodeStates:m,terrain:h,achievements:[...g].sort((e,t)=>(t.earnedAt||0)-(e.earnedAt||0)).map(e=>e.achievementId),feed:[..._].sort((e,t)=>(e.at||0)-(t.at||0)).slice(-100).map(e=>({id:e.id,at:e.at,icon:e.icon,text:e.text})),serverTime:y,weather:u(c,b,ce,i?.devWeather||null),dailyTasks:Rn({wid:c,player:i,d:r,discoveries:p,biomeStates:l,placements:d,chests:f,now:y,unlockedBiomes:v}),customGoals:i?.customGoals||[],goalLimit:bn(i,r),nodeRegenSeconds:je,inventoryCapacity:Ut(i)}}async function Z(e){let t=await e;if(!t||typeof t!=`object`)throw new A(b(`server.err.bodyRequired`));return t}var Bn={"welcome-grasshopper":e=>!!e.disc(`grasshopper`),forager:e=>(e.counts.resourcesCollected||0)>=100,"makers-hands":e=>(e.counts.itemsCrafted||0)>=10,"green-thumb":e=>(e.counts.plantsPlanted||0)>=10,waterworks:e=>(e.counts.terraformActions||0)>=15,"meadow-first-bloom":e=>e.returned(`meadow`)>=8,"meadow-pollinators":e=>e.kindReturned(`meadow`,`insect`)>=5,"meadow-apex":e=>!!e.disc(`red-fox-meadow`),"meadow-mender":e=>e.health(`meadow`)>=80,"meadow-reborn":e=>e.returned(`meadow`)>=25,"forest-understory":e=>e.returned(`forest`)>=10,"forest-cavities":e=>!!e.disc(`pileated-woodpecker`)&&(!!e.disc(`wood-duck`)||!!e.disc(`northern-flying-squirrel`)||!!e.disc(`great-horned-owl`)||!!e.disc(`barred-owl`)),"forest-night-shift":e=>!!e.disc(`great-horned-owl`)&&!!e.disc(`barred-owl`)&&!!e.disc(`little-brown-bat`),"forest-canopy":e=>e.health(`forest`)>=80,"forest-reborn":e=>e.returned(`forest`)>=25,"wetland-first-water":e=>e.returned(`wetland`)>=8,"wetland-engineer":e=>!!e.disc(`beaver`),"wetland-lakemaker":e=>e.water(`wetland`).lake>=6,"wetland-restored":e=>e.health(`wetland`)>=80,"wetland-reborn":e=>e.returned(`wetland`)>=25,"desert-first-life":e=>e.returned(`desert`)>=8,"desert-burrows":e=>!!e.disc(`burrowing-owl`)&&!!e.disc(`kangaroo-rat`)&&!!e.disc(`desert-tortoise`),"desert-hunter":e=>!!e.disc(`rattlesnake`)||!!e.disc(`coyote`),"desert-restored":e=>e.health(`desert`)>=80,"desert-reborn":e=>e.returned(`desert`)>=25,"alpine-treeline":e=>e.returned(`alpine`)>=8,"alpine-haypile":e=>!!e.disc(`pika`),"alpine-crown":e=>!!e.disc(`golden-eagle`),"alpine-restored":e=>e.health(`alpine`)>=80,"alpine-reborn":e=>e.returned(`alpine`)>=25,"coastal-tide":e=>e.returned(`coastal`)>=8,"coastal-keystone":e=>!!e.disc(`sea-star`),"coastal-otter":e=>!!e.disc(`sea-otter`),"coastal-restored":e=>e.health(`coastal`)>=80,"coastal-reborn":e=>e.returned(`coastal`)>=25,"well-stocked":e=>(e.counts.resourcesCollected||0)>=1e3,"master-builder":e=>(e.counts.objectsPlaced||0)>=150,"master-gardener":e=>(e.counts.plantsPlanted||0)>=75,landscaper:e=>(e.counts.terraformActions||0)>=150,"fully-equipped":e=>e.tool(`basket`)>=4&&e.tool(`shovel`)>=4&&e.tool(`watering-can`)>=4,naturalist:e=>e.tool(`field-journal`)>=7,"recipe-collector":e=>e.craftedDistinct>=75,"open-road":e=>e.unlockedCount>=2,"welcoming-committee":e=>e.totalReturned>=50,"full-house":e=>e.totalReturned>=100,"field-notes":e=>(e.counts.animalsObserved||0)>=100,"steady-hand":e=>e.unlockedCount>=3&&e.unlockedHealthy(50),"three-restored":e=>e.biomesAtHealth(80)>=3,trailblazer:e=>e.unlockedCount>=6,"caretaker-of-the-whole":e=>e.totalReturned>=150};async function Vn(e){let t=await I(k().PlayerAchievement,e);return new Set(t.map(e=>e.achievementId))}async function Hn(e){let t=await U(),n=await I(k().PlayerAchievement,e),r=t.achievements.length||1,i=new Map(n.map(e=>[e.achievementId,e])),a=t.achievements.reduce((e,t)=>e+(i.has(t.id)&&t.points||0),0),o={};for(let e of t.achievements)i.has(e.id)&&(o[e.category]=(o[e.category]||0)+1);let s=[...n].sort((e,t)=>(t.earnedAt||0)-(e.earnedAt||0)).slice(0,5).map(e=>({id:e.achievementId,name:t.achievement.get(e.achievementId)?.name||e.achievementId,earnedAt:e.earnedAt}));return{earned:n.length,total:t.achievements.length,points:a,completion:Y(n.length/r),byCategory:o,recent:s}}async function Q(e,t={}){try{let n=k(),r=await U(),i=await N(n.Player,e);if(!i)return[];let a=await Vn(e),o=L(i),[s,c,l]=await Promise.all([R(n.BiomeState,o),R(n.Discovery,o),R(n.TerrainTile,o)]);for(let e of t.addDiscoveries||[])e?.animalId&&!c.some(t=>t.animalId===e.animalId)&&c.push(e);for(let e of t.freshBiomeStates||[])e?.biomeId&&(s=s.filter(t=>t.biomeId!==e.biomeId),s.push(e));let u=new Map(s.map(e=>[e.biomeId,e])),d=new Map(c.map(e=>[e.animalId,e])),f=new Map,p=new Set(i.unlockedBiomes||[]),m={counts:q(i)?.counts||{},health:e=>u.get(e)?.health||0,returned:e=>u.get(e)?.returnedCount||0,disc:e=>d.get(e),totalReturned:c.length,kindReturned:(e,t)=>c.filter(n=>{let i=r.animal.get(n.animalId);return i&&i.biome===e&&i.kind===t}).length,tool:e=>i.tools?.[e]||1,unlockedCount:(i.unlockedBiomes||[]).length,craftedDistinct:Object.keys(i.craftedEver||{}).length,tutorialStep:i.tutorialStep||0,water:e=>(f.has(e)||f.set(e,an(l.filter(t=>t.area===e),!0)),f.get(e)),biomesAtHealth:e=>s.filter(t=>(t.health||0)>=e).length,unlockedHealthy:e=>s.filter(e=>p.has(e.biomeId)).every(t=>(t.health||0)>=e)},h=Date.now(),g=[];for(let t of r.achievements){if(a.has(t.id))continue;let r=Bn[t.id];!r||!r(m)||(await n.PlayerAchievement.put({id:`${e}:${t.id}`,playerId:e,achievementId:t.id,biome:t.biome,earnedAt:h}),g.push(t))}return g}catch{return[]}}async function Un(e,t,n={}){let r=await Q(t,n);try{let r=k(),i=await N(r.World,e);if(i&&!i.solo)for(let i of await R(r.WorldMember,e))i.playerId!==t&&await Q(i.playerId,n)}catch{}return r}var $=class extends Resource{allowRead(){return!0}allowCreate(){return!0}allowUpdate(){return!0}allowDelete(){return!1}},Wn=class extends ${async get(){return{build:E}}},Gn=null;async function Kn(){if(Gn&&Gn.stamp===`0.2.4+2026-08-07T02:49:44.434Z`)return Gn;let e=await U(),t={biomes:e.biomes,animals:e.animals,resources:e.resources,recipes:e.recipes,habitatObjects:e.objects.map(e=>({...e,rotatable:wr(e)})),tools:e.tools,achievements:e.achievements,homeStyles:W,homeTracks:Le,nodeRegenSeconds:je,appearanceOptions:{skins:tt,hair:nt,outfits:rt,hats:it,hatColors:at,hairstyles:ot,beards:st,bodies:ct}};return Gn={stamp:E,obj:t,json:JSON.stringify(t),etag:`W/"gd-${E}"`},Gn}var qn=globalThis.Buffer,Jn=null;function Yn(e,t){let n=Jn&&Jn.stamp===`0.2.4+2026-08-07T02:49:44.434Z`?Jn:Jn={stamp:E},r=qn.from(e,`utf8`);return t===`br`?(n.br||=w(r,{params:{[S.BROTLI_PARAM_QUALITY]:5,[S.BROTLI_PARAM_SIZE_HINT]:r.length}}),n.br):(n.gzip||=C(r,{level:6}),n.gzip)}var Xn=class extends ${async get(){let{obj:e,json:t,etag:n}=await Kn(),r=this.getContext?.()?.headers;if(!r||typeof r.get!=`function`)return e;let i=`no-cache`,a=e=>e.replace(/^W\//,``).trim(),o=String(r.get(`if-none-match`)||``);if(o&&a(o)===a(n))return{status:304,headers:{etag:n,"cache-control":i}};let s={"content-type":`application/json; charset=utf-8`,"cache-control":i,etag:n,vary:`Accept-Encoding`},c=String(r.get(`accept-encoding`)||``),l=t;return/\bbr\b/.test(c)?(s[`content-encoding`]=`br`,l=Yn(t,`br`)):/\bgzip\b/.test(c)&&(s[`content-encoding`]=`gzip`,l=Yn(t,`gzip`)),{status:200,headers:s,body:l}}},Zn=class extends ${async post(e){let{name:t,passcode:n,appearance:r,tzOffsetMinutes:i,creationMs:a,edition:o}=await Z(e),s=o===`demo`?`demo`:`full`,c=String(t||``).trim();if(c.length<2||c.length>24)throw new A(b(`server.err.nameLength`));let l=String(n||``);if(l.length<4||l.length>32)throw new A(b(`server.err.passcodeLength`));let u;if(s===`demo`){let e=ht(c)||`caretaker`,t=k();do u=`${e}-${Math.random().toString(36).slice(2,8)}`;while(await N(t.Player,u))}else{if(u=ht(c),!u)throw new A(b(`server.err.nameNeedsAlnum`));if(await N(k().Player,u))throw new A(b(`server.err.saveExists`),409)}let d=ue(Math.round(Number(a)||0),0,36e5),f=await Vt(u,c,l,ut(r),Et(i),d,s),p=[];try{await De(f.player,{freshGrid:!0}),p=await V(u)}catch(e){console.error(`world setup skipped (CreatePlayer):`,e)}return{ok:!0,playerId:u,worldId:u,worlds:p,state:await Ht(f)}}},Qn=class extends ${async post(e){let{name:t,passcode:n}=await Z(e),r=ht(String(t||``)),i=r?await N(k().Player,r):null;if(!i)throw new A(b(`server.err.noSaveWithName`),404);if(!await mt(i,n))throw new A(b(`server.err.passcodeMismatch`),403);let a=k(),o=0;for(let e of[a.Placement,a.Chest,a.BiomeState,a.Discovery,a.NodeState,a.TerrainTile,a.FeedEntry])for(let t of await R(e,r))await e.delete(t.id),o++;for(let e of await I(a.PlayerAchievement,r))await a.PlayerAchievement.delete(e.id),o++;for(let e of await I(a.WorldMember,r))await a.WorldMember.delete(e.id),o++;return(await N(a.World,r)||ge(a.World,r))&&await xe(a.World,r)&&o++,await a.Player.delete(r),{ok:!0,deleted:r,recordsRemoved:o+1}}},$n=class extends ${async post(e){let{playerId:t}=await Z(e),n=ht(String(t||``)),r=k(),i=n?await N(r.Player,n):null;if(!i)return{ok:!0,deleted:null};if(q(i)?.edition!==`demo`)throw new A(b(`server.err.notDemoSave`),403);let a=0;for(let e of[r.Placement,r.Chest,r.BiomeState,r.Discovery,r.NodeState,r.TerrainTile,r.FeedEntry])for(let t of await R(e,n))await e.delete(t.id),a++;for(let e of await I(r.PlayerAchievement,n))await r.PlayerAchievement.delete(e.id),a++;for(let e of await I(r.WorldMember,n))await r.WorldMember.delete(e.id),a++;return await N(r.World,n)&&(await r.World.delete(n),a++),await r.Player.delete(n),{ok:!0,deleted:n,recordsRemoved:a+1}}},er=class extends ${async post(e){let{playerId:t}=await Z(e),n=ht(String(t||``)),r=k(),i=n?await N(r.Player,n):null;if(!i)throw new A(b(`server.err.noSaveWithName`),404);if(q(i)?.edition!==`demo`)throw new A(b(`server.err.notDemoSave`),403);let a=L(i),o={...i,metrics:vt({...q(i)||{},edition:`full`})};return{ok:!0,meta:{playerId:n,name:i.name||`Caretaker`,appearance:i.appearance||{},createdAt:i.createdAt||Date.now(),updatedAt:Date.now()},data:{Player:[o],PlayerAchievement:await I(r.PlayerAchievement,n),BiomeState:await R(r.BiomeState,a),Chest:await R(r.Chest,a),Placement:await R(r.Placement,a),Discovery:await R(r.Discovery,a),NodeState:await R(r.NodeState,a),TerrainTile:await R(r.TerrainTile,a),FeedEntry:await R(r.FeedEntry,a),World:await N(r.World,a)?[await N(r.World,a)]:[],WorldMember:await I(r.WorldMember,n),WorldPresence:[],JoinRequest:[]}}}},tr=class extends ${async post(e){let{playerId:t,currentPasscode:n,newPasscode:r}=await Z(e),{player:i}=await K(t);if(!await mt(i,n))throw new A(b(`server.err.passcodeMismatch`),403);let a=String(r||``);if(a.length<4||a.length>32)throw new A(b(`server.err.newPasscodeLength`));let{salt:o,hash:s}=ft(a);return await k().Player.patch(t,{passcodeHash:s,passcodeSalt:o,passcode:null}),{ok:!0}}},nr=class extends ${async post(e){let{name:t,passcode:n,tzOffsetMinutes:r}=await Z(e),i=ht(String(t||``)),a=i?await N(k().Player,i):null;if(!a)throw new A(b(`server.err.noSaveTryNew`),404);if(!await mt(a,n))throw new A(b(`server.err.passcodeMismatch`),403);let o=await U(),s=Date.now(),c=q(a)||_t(a.createdAt||s);await k().Player.patch(i,{metrics:vt({...c,lastHeartbeatAt:0}),...r==null?{}:{tzOffsetMinutes:Et(r)}});let l=a.worldId||i,u=[];try{await De(a),l=(await N(k().Player,i))?.worldId||i,await H(i,l),u=await V(i)}catch(e){console.error(`world setup skipped (LoginPlayer):`,e)}let d=o.biome.get(a.area);return(a.area===`home`||!d||!d.explorable)&&await k().Player.patch(i,{area:`meadow`,x:24.5,y:6.5}),{ok:!0,playerId:i,worldId:l,worlds:u,state:await zn(i)}}},rr=class extends ${async get(){let e=String(this.getId()||``);return await K(e),zn(e)}},ir=class extends ${async post(e){let{playerId:t}=await Z(e),{player:n}=await K(t);return await De(n),{ok:!0,activeWorldId:L(n),worlds:await V(t)}}},ar=class extends ${async post(e){let{playerId:t,name:n}=await Z(e),r=k(),{player:i}=await K(t);await De(i);let a=String(n||``).trim()||b(`server.world.coopName`,{name:i.name});if(a.length>40)throw new A(b(`server.err.worldNameLength`));let o=`w_${Date.now().toString(36)}_${Math.random().toString(36).slice(2,7)}`,s=Ee(),c=await P(r.World),l=new Set(c.map(e=>e.joinCode).filter(Boolean)),u=0;for(;l.has(s)&&u++<20;)s=Ee();let d=Date.now();await r.World.put({id:o,name:a,solo:!1,ownerId:t,joinCode:s,createdAt:d,maxMembers:B}),await r.WorldMember.put({id:`${o}:${t}`,worldId:o,playerId:t,role:`owner`,joinedAt:d,lastSeenAt:d});let f=await U();for(let e of f.biomes)await r.BiomeState.put({id:`${o}:${e.id}`,worldId:o,playerId:t,biomeId:e.id,health:Me,balance:0,returnedCount:0,unlocked:e.id===`meadow`});return{ok:!0,world:{worldId:o,name:a,joinCode:s,solo:!1,role:`owner`,isOwner:!0,memberCount:1,maxMembers:B},worlds:await V(t)}}};async function or(e,t){let n=String(t||``).trim().toUpperCase();return n&&(await P(e.World)).find(e=>!e.solo&&e.joinCode===n)||null}var sr=class extends ${async post(e){let{playerId:t,joinCode:n,token:r}=await Z(e),i=k(),{player:a}=await K(t);await De(a);let o=await or(i,n);if(!o)throw new A(b(`server.err.noWorldWithCode`),404);let s=`${o.id}:${t}`;if(!await i.WorldMember.get(s)){let e=String(r||``).trim(),n=e?await i.JoinRequest.get(`${o.id}:${e}`):null;if(!n||n.status!==`approved`)throw new A(b(`server.err.hostNotApproved`),403);let c=o.maxMembers||B;if((await R(i.WorldMember,o.id)).length>=c)throw new A(b(`server.err.worldFullJoined`,{max:c}),409);await i.WorldMember.put({id:s,worldId:o.id,playerId:t,role:`member`,joinedAt:Date.now(),lastSeenAt:Date.now()}),await i.JoinRequest.delete(`${o.id}:${e}`);let l=Date.now();await i.FeedEntry.put({id:`f_${o.id}_${l}_${Math.random().toString(36).slice(2,7)}`,worldId:o.id,playerId:t,at:l,icon:`user`,text:b(`server.feed.joinedWorld`,{name:a.name})})}await i.Player.patch(t,{worldId:o.id}),await H(t,o.id);let c=await V(t);if(!c.some(e=>e.worldId===o.id)){let e=await R(i.WorldMember,o.id),n=e.some(e=>e.playerId===t)?e.length:e.length+1;c=[...c,{worldId:o.id,name:o.name,solo:!1,role:o.ownerId===t?`owner`:`member`,joinCode:o.joinCode,memberCount:n,maxMembers:o.maxMembers||B,isOwner:o.ownerId===t}]}return{ok:!0,worldId:o.id,worlds:c,state:await zn(t,{worldId:o.id})}}},cr=class extends ${async post(e){let{joinCode:t}=await Z(e),n=k(),r=await or(n,t);if(!r)return{ok:!0,exists:!1};let i=(await R(n.WorldMember,r.id)).length,a=await N(n.Player,r.ownerId),o=r.maxMembers||B;return{ok:!0,exists:!0,world:{worldId:r.id,name:r.name,hostName:a?.name||b(`server.fallback.host`),memberCount:i,maxMembers:o,full:i>=o}}}},lr=class extends ${async post(e){let{joinCode:t,token:n,name:r}=await Z(e),i=k(),a=await or(i,t);if(!a)throw new A(b(`server.err.noWorldWithCode`),404);let o=String(n||``).trim();if(!o)throw new A(b(`server.err.missingToken`));let s=a.maxMembers||B;if((await R(i.WorldMember,a.id)).length>=s)throw new A(b(`server.err.worldFullClosed`,{max:s}),409);let c=String(r||``).trim().slice(0,24)||b(`server.fallback.newCaretaker`);await i.JoinRequest.put({id:`${a.id}:${o}`,worldId:a.id,token:o,name:c,status:`pending`,createdAt:Date.now()});let l=await N(i.Player,a.ownerId);return{ok:!0,worldId:a.id,world:{name:a.name,hostName:l?.name||b(`server.fallback.host`)}}}},ur=class extends ${async post(e){let{worldId:t,token:n}=await Z(e);return{ok:!0,status:(await k().JoinRequest.get(`${t}:${String(n||``).trim()}`))?.status||`none`}}},dr=class extends ${async post(e){let{playerId:t}=await Z(e),{player:n}=await K(t),r=k(),i=L(n),a=await N(r.World,i);if(!a||a.solo||a.ownerId!==t)return{ok:!0,requests:[]};let o=(await R(r.JoinRequest,i)).filter(e=>e.status===`pending`);return o.sort((e,t)=>(e.createdAt||0)-(t.createdAt||0)),{ok:!0,requests:o.map(e=>({token:e.token,name:e.name,createdAt:e.createdAt}))}}},fr=class extends ${async post(e){let{playerId:t,worldId:n,token:r,approve:i}=await Z(e);await K(t);let a=k(),o=await N(a.World,n);if(!o||o.solo)throw new A(b(`server.err.noCoopWorld`),404);if(o.ownerId!==t)throw new A(b(`server.err.onlyHostApproves`),403);let s=`${n}:${String(r||``).trim()}`;if(!await a.JoinRequest.get(s))throw new A(b(`server.err.requestNotPending`),404);return await a.JoinRequest.patch(s,{status:i?`approved`:`denied`,resolvedAt:Date.now()}),{ok:!0}}},pr=class extends ${async post(e){let{playerId:t}=await Z(e),{player:n}=await K(t),r=k(),i=L(n),a=await N(r.World,i),o=a?.maxMembers||B;if(!a||a.solo)return{ok:!0,roster:[],closed:!1,maxMembers:o,joinCode:null};let s=await R(r.WorldMember,i),c=[];for(let e of s){let t=await N(r.Player,e.playerId);c.push({playerId:e.playerId,name:t?.name||b(`server.fallback.caretaker`),isOwner:e.role===`owner`||a.ownerId===e.playerId,joinedAt:e.joinedAt||0})}return c.sort((e,t)=>(e.joinedAt||0)-(t.joinedAt||0)),{ok:!0,roster:c,closed:c.length>=o,maxMembers:o,joinCode:a.joinCode}}},mr=class extends ${async post(e){let{playerId:t,worldId:n}=await Z(e),r=k(),{player:i}=await K(t);await De(i);let a=String(n||``);if(!await r.WorldMember.get(`${a}:${t}`))throw new A(b(`server.err.notWorldMember`),403);return await r.Player.patch(t,{worldId:a}),await r.WorldMember.patch(`${a}:${t}`,{lastSeenAt:Date.now()}),await H(t,a),{ok:!0,worldId:a,worlds:await V(t),state:await zn(t,{worldId:a})}}},hr=class extends ${async post(e){let{playerId:t,worldId:n}=await Z(e),r=k(),{player:i}=await K(t),a=String(n||``);if(a===t)throw new A(b(`server.err.cannotLeaveSolo`));let o=`${a}:${t}`;if(!await r.WorldMember.get(o))throw new A(b(`server.err.notInWorld`),404);await r.WorldMember.delete(o),i.worldId===a&&(await r.Player.patch(t,{worldId:t,area:`meadow`,x:24.5,y:6.5}),await H(t,t));let s=i.worldId===a?t:i.worldId||t;return{ok:!0,worldId:s,worlds:await V(t),state:await zn(t,{worldId:s})}}},gr=15e3,_r=class extends ${async post(e){let{playerId:t,x:n,y:r,area:i}=await Z(e),a=k(),{player:o}=await K(t),s=L(o),c=Date.now(),l=Number.isFinite(Number(n))?Number(n):o.x,u=Number.isFinite(Number(r))?Number(r):o.y,d=typeof i==`string`?i:o.area;if((await N(a.World,s))?.solo)return{ok:!0,worldId:s,peers:[]};let f={...(await a.WorldPresence.get(s)||{id:s,players:{}}).players||{}};f[t]={playerId:t,name:o.name,appearance:o.appearance,area:d,x:l,y:u,t:c};for(let e of Object.keys(f))c-(f[e]?.t||0)>gr&&delete f[e];return await a.WorldPresence.put({id:s,players:f,updatedAt:c}),{ok:!0,worldId:s,peers:Object.values(f).filter(e=>e.playerId!==t)}}},vr=class extends ${async post(e){let{playerId:t,biomeId:r,nodeId:i,resourceId:a}=await Z(e),o=k(),s=await U(),{player:c}=await K(t),u=L(c),d=s.biome.get(r);if(!d)throw new A(b(`server.err.unknownBiome`,{biome:r}));if(!(c.unlockedBiomes||[]).includes(r))throw new A(b(`server.err.biomeLocked`,{biome:d.name}),403);let f=s.resource.get(a);if(!f)throw new A(b(`server.err.unknownResource`,{resource:a}));if(n(a)){let e=v(u,r,le(c));if(l(r,e)!==a)throw new A(b(`server.err.weatherOnly`,{resource:f.name}),409)}else if(!(d.resources||[]).includes(a))throw new A(b(`server.err.resourceNotInBiome`,{resource:a,biome:d.name}));if(!i||typeof i!=`string`)throw new A(b(`server.err.nodeIdRequired`));let p=`${u}:${r}:${i}`,m=await o.NodeState.get(p),h=Date.now();if(m&&h-m.harvestedAt<je*1e3)throw new A(b(`server.err.regrowing`),409);let g=Ut(c),_=M(c.inventory);if(_>=g)throw new A(b(`server.err.basketFullStore`),409);let y=c.tools?.[f.tool]||1,x=Math.min(Math.max(1,y),g-_),S=Be(c),C=+(S?.id===`forage`&&g-_-x>0&&Math.random()<S.strength),w=x+C,T={...c.inventory||{}};return T[a]=(T[a]||0)+w,await o.Player.patch(t,{inventory:T}),await o.NodeState.put({id:p,worldId:u,playerId:t,harvestedAt:h}),await J(c,{resourcesCollected:w},{[`res:${a}`]:w}),await Q(t),{ok:!0,gained:{[a]:w},perkBonus:C||void 0,inventory:T,nodeId:i,harvestedAt:h}}},yr=class extends ${async post(e){let{playerId:t,chestId:n,resourceId:r,qty:i,direction:a}=await Z(e),o=k(),s=await U(),{player:c}=await K(t),l=L(c),u=fe(i,`qty`),d=await hn(o,s,n,l);if(!d)throw new A(b(`server.err.chestNotFound`),404);let f={...c.inventory||{}},p={...d.contents||{}};if(a===`deposit`){if((f[r]||0)<u)throw new A(b(`server.err.notEnoughInBasket`,{resource:r}));if(M(p)+u>d.capacity)throw new A(b(`server.err.chestFull`),409);f[r]-=u,f[r]<=0&&delete f[r],p[r]=(p[r]||0)+u}else if(a===`withdraw`){if((p[r]||0)<u)throw new A(b(`server.err.notEnoughInChest`,{resource:r}));if(M(f)+u>Ut(c))throw new A(b(`server.err.basketFull`),409);p[r]-=u,p[r]<=0&&delete p[r],f[r]=(f[r]||0)+u}else throw new A(b(`server.err.badDirection`));return await o.Player.patch(t,{inventory:f}),await o.Chest.patch(n,{contents:p}),await J(c,a===`deposit`?{chestDeposits:1}:{chestWithdrawals:1}),{ok:!0,inventory:f,chest:{...d,contents:p}}}},br=class extends ${async post(e){let{playerId:t,kind:n,id:r,qty:i}=await Z(e),a=k(),{player:o}=await K(t),s=fe(i,`qty`);if(!r||typeof r!=`string`)throw new A(b(`server.err.idRequired`));if(n===`crafted`){let e={...o.craftedItems||{}};if((e[r]||0)<s)throw new A(b(`server.err.discardTooMany`));return e[r]-=s,e[r]<=0&&delete e[r],await a.Player.patch(t,{craftedItems:e}),await J(o,{itemsDiscarded:s}),{ok:!0,craftedItems:e}}let c={...o.inventory||{}};if((c[r]||0)<s)throw new A(b(`server.err.discardTooMany`));return c[r]-=s,c[r]<=0&&delete c[r],await a.Player.patch(t,{inventory:c}),await J(o,{itemsDiscarded:s}),{ok:!0,inventory:c}}},xr=class extends ${async post(e){let{playerId:t,recipeId:n}=await Z(e),r=k(),i=await U(),{player:a}=await K(t),o=L(a),s=i.recipe.get(n);if(!s)throw new A(b(`server.err.unknownRecipe`,{recipe:n}));let c=i.object.get(s.output.itemId);if(c?.plantable)throw new A(b(`server.err.plantedNotCrafted`,{name:s.name}),400);if(!a.devUnlockAll&&c?.homeMin&&(G(a).space||1)<c.homeMin)throw new A(b(`server.err.needsProperHouse`,{name:s.name}),403);let l=!!a.devUnlockAll;if(!l&&s.unlockBiome&&!(a.unlockedBiomes||[]).includes(s.unlockBiome))throw new A(b(`server.err.recipeBiomeLocked`),403);if(!l&&s.unlock&&s.unlockBiome&&!pn(s,await mn(o,s.unlockBiome,a,i)))throw new A(b(`server.err.recipeLocked`,{label:s.unlock.label}),403);if(s.requiresTool&&(a.tools?.[s.requiresTool.id]||1)<s.requiresTool.tier){let e=i.tool.get(s.requiresTool.id);throw new A(b(`server.err.requiresUpgradedTool`,{tool:e?.name||s.requiresTool.id}),403)}if(s.once&&(a.craftedEver?.[s.output.itemId]||0)>0)throw new A(b(`server.err.craftOnce`,{name:s.name}),409);let{usedFrom:u,inventory:d}=await gn(a,s.materials||{},o),f=Be(a),p;if(f?.id===`thrift`&&Object.keys(s.materials||{}).length&&Math.random()<f.strength){let e=Ut(a)-M(d);for(let[t,n]of Object.entries(s.materials||{})){let r=Math.min(Math.max(1,Math.floor(n/2)),Math.max(0,e));r>0&&(p||={},p[t]=r,d[t]=(d[t]||0)+r,e-=r)}}let m={...a.craftedItems||{}},h={...a.craftedEver||{}};m[s.output.itemId]=(m[s.output.itemId]||0)+(s.output.qty||1),h[s.output.itemId]=(h[s.output.itemId]||0)+(s.output.qty||1),await r.Player.patch(t,p?{craftedItems:m,craftedEver:h,inventory:d}:{craftedItems:m,craftedEver:h});let g=await fn(o,t,{player:{...a,craftedItems:m,craftedEver:h}}),_=await R(r.Chest,o);return await J(a,{itemsCrafted:1},{craft:1}),await Q(t),{ok:!0,crafted:s.output,craftedItems:m,inventory:d,chests:_,usedFrom:u,refund:p,unlockedBiomes:g}}};function Sr(e){let t=Number(e);return Number.isFinite(t)?(Math.round(t/90)*90%360+360)%360:0}var Cr=new Set([`wooden-fence`,`dry-stone-wall`,`wooden-bench`,`hammock`,`picnic-blanket`,`garden-arch`,`trail-signpost`,`flower-cart`,`home-bed`,`home-sleeping-bag`,`home-bookshelf`,`home-armchair`,`home-fireplace`,`home-table`,`home-dresser`,`home-driftwoodshelf`,`home-mushroomshelf`,`home-reedmat`,`home-peltrug`,`home-rug`,`home-cushions`,`home-stool`,`home-aquarium`,`home-telescope`]);function wr(e){return e?e.rotatable===!0||e.bridge||/-path$/.test(e.id)?!0:Cr.has(e.id):!1}var Tr=class extends ${async post(e){let{playerId:t,objectId:n,area:r,x:i,y:a,rotation:o}=await Z(e),s=k(),c=await U(),{player:l}=await K(t),u=L(l),d=c.object.get(n);if(!d)throw new A(b(`server.err.unknownObject`,{object:n}));if(d.placement===`none`)throw new A(b(`server.err.kitNotPlaceable`,{name:d.name}));if((l.craftedItems?.[n]||0)<=0)throw new A(b(`server.err.noneCrafted`,{name:d.name}));let f=Math.round(Number(i)),p=Math.round(Number(a)),m=Nt(c,r);if(!Number.isFinite(f)||!Number.isFinite(p)||f<1||p<1||f>m.cols-2||p>m.rows-2)throw new A(b(`server.err.outOfReach`));let h=Ue(r);if(r===`home`){if(d.placement===`outdoor`)throw new A(b(`server.err.outdoorOnly`,{name:d.name}));if(d.homeMin&&(G(l).space||1)<d.homeMin)throw new A(b(`server.err.needsBiggerHome`,{name:d.name}),403);let e=Ve(l);if(f<e.x0||f>e.x1||p<e.y0||p>e.y1)throw new A(b(`server.err.placeOnFloor`));if(qe(n,e,f,p))throw new A(b(`server.err.bedBlocksDoor`,{name:d.name}))}else if(h){let e=c.biome.get(h);if(!e)throw new A(b(`server.err.unknownArea`,{area:r}));if(!(l.unlockedBiomes||[]).includes(h))throw new A(b(`server.err.biomeLocked`,{biome:e.name}),403);if(d.placement===`outdoor`)throw new A(b(`server.err.outdoorOnly`,{name:d.name}));if(d.homeMin&&d.homeMin>1)throw new A(b(`server.err.tentTooSmall`,{name:d.name}),403);let t=We();if(f<t.x0||f>t.x1||p<t.y0||p>t.y1)throw new A(b(`server.err.placeOnFloor`));if(qe(n,t,f,p))throw new A(b(`server.err.bedBlocksDoor`,{name:d.name}))}else{let e=c.biome.get(r);if(!e)throw new A(b(`server.err.unknownArea`,{area:r}));if(!(l.unlockedBiomes||[]).includes(r))throw new A(b(`server.err.biomeLocked`,{biome:e.name}),403);if(d.placement===`indoor`)throw new A(b(`server.err.indoorOnly`,{name:d.name}));if(!(d.biomes||[]).includes(r))throw new A(b(`server.err.wrongHabitat`,{name:d.name,biome:e.name}));if(e.oceanCols&&f>=m.cols-e.oceanCols)throw new A(b(`server.err.openOcean`),409)}if(d.requiresTool&&(l.tools?.[d.requiresTool.id]||1)<d.requiresTool.tier)throw new A(b(`server.err.placeRequiresTool`,{name:d.name,tool:c.tool.get(d.requiresTool.id)?.name||d.requiresTool.id}),403);let g=await R(s.Placement,u);if(g.some(e=>e.area===r&&e.x===f&&e.y===p))throw new A(b(`server.err.spotTaken`),409);if(d.onePerArea&&g.some(e=>e.area===r&&e.objectId===n))throw new A(b(`server.err.onePerArea`,{name:d.name}),409);let _=r===`home`||!!h,v=_?null:await we(s.TerrainTile,u,r,f,p);if(v)if(v.type===`water`){if(!d.bridge)throw new A(b(`server.err.openWaterBridge`),409)}else throw new A(b(`server.err.bedForPlanting`),409);else if(d.bridge&&!_)throw new A(b(`server.err.bridgeNeedsWater`),409);let y={...l.craftedItems||{}};--y[n],y[n]<=0&&delete y[n],await s.Player.patch(t,{craftedItems:y});let x=`pl_${Date.now()}_${Math.random().toString(36).slice(2,8)}`,S={id:x,worldId:u,playerId:t,objectId:n,area:r,x:f,y:p,placedAt:Date.now(),rotation:wr(d)?Sr(o):0};if(await s.Placement.put(S),d.isChest&&await s.Chest.put({id:x,worldId:u,playerId:t,area:r,x:f,y:p,size:n,capacity:d.chestCapacity||60,contents:{}}),_)return await J(l,{objectsPlaced:1},{place:1}),await Q(t),{ok:!0,placement:S,craftedItems:y};let C=await X(u,t,r,{addPlacements:[S],player:{...l,craftedItems:y}});return await J(l,{objectsPlaced:1,animalsReturned:C.newAnimals?.length||0},{place:1}),await Un(u,t,{addDiscoveries:C.newAnimals,freshBiomeStates:[C.biomeState]}),{ok:!0,placement:S,craftedItems:y,...C}}},Er=class extends ${async post(e){let{playerId:t,area:n,x:r,y:i,plantId:a}=await Z(e),o=k(),s=await U(),{player:c}=await K(t),l=L(c),u=s.biome.get(n);if(!u)throw new A(b(`server.err.unknownArea`,{area:n}));if(!(c.unlockedBiomes||[]).includes(n))throw new A(b(`server.err.biomeLocked`,{biome:u.name}),403);let d=s.object.get(a);if(!d||!d.plantable)throw new A(b(`server.err.notPlantable`));if(!(d.biomes||[]).includes(n))throw new A(b(`server.err.wouldNotTakeRoot`,{name:d.name,biome:u.name}));let f=Math.round(Number(r)),p=Math.round(Number(i)),m=await we(o.TerrainTile,l,n,f,p);if(!m||m.type!==`watered`)throw new A(b(`server.err.plantIntoWatered`));let{usedFrom:h,inventory:g}=await gn(c,d.plantCost||{},l);await o.TerrainTile.delete(m.id);let _=Be(c),v=_?.id===`growth`?_.strength:0,y=Date.now(),x={id:`pl_${y}_${Math.random().toString(36).slice(2,8)}`,worldId:l,playerId:t,objectId:a,area:n,x:f,y:p,placedAt:y-Math.round(Yt(d)*v),plantedAt:y-Math.round((d.growSeconds||0)*1e3*v)};await o.Placement.put(x);let S=await X(l,t,n,{addPlacements:[x],removeTerrainIds:[m.id],player:{...c,inventory:g}});return await J(c,{plantsPlanted:1,animalsReturned:S.newAnimals?.length||0},{plant:1}),await Un(l,t,{addDiscoveries:S.newAnimals,freshBiomeStates:[S.biomeState]}),{ok:!0,placement:x,inventory:g,usedFrom:h,perkGrowth:v||void 0,...S}}};function Dr(e,t){let n=e?.yield;if(!n||!e?.plantable||!t?.plantedAt)return null;let r=(e.growSeconds||0)*1e3,i=(n.regrowSeconds||60)*1e3;return t.lastHarvestAt?t.lastHarvestAt+i:t.plantedAt+r}var Or=class extends ${async post(e){let{playerId:t,placementId:n}=await Z(e),r=k(),i=await U(),{player:a}=await K(t),o=L(a),s=Date.now(),c=(await R(r.Placement,o)).find(e=>e.id===n);if(!c)throw new A(b(`server.err.placementNotFound`),404);let l=i.object.get(c.objectId),u=l?.yield;if(!u)throw new A(b(`server.err.notHarvestable`));let d=Dr(l,c);if(d==null||s<d)throw new A(b(`server.err.notReadyYet`));let f=Ut(a),p={...a.inventory||{}},m=Math.max(0,f-M(p)),h=Math.min(u.qty||1,m);if(h<=0)throw new A(b(`server.err.basketFullHarvest`),409);return p[u.resourceId]=(p[u.resourceId]||0)+h,await r.Player.patch(t,{inventory:p}),await r.Placement.patch(n,{lastHarvestAt:s}),await J(a,{resourcesCollected:h}),{ok:!0,placementId:n,gained:{[u.resourceId]:h},inventory:p,placement:{...c,lastHarvestAt:s}}}},kr=class extends ${async post(e){let{playerId:t,appearance:n}=await Z(e),{player:r}=await K(t),i=ut(n);return await k().Player.patch(t,{appearance:i}),await J(r,{appearanceChanges:1}),{ok:!0,appearance:i}}},Ar=class extends ${async post(e){let{playerId:t,placementId:n,x:r,y:i,rotation:a}=await Z(e),o=k(),{player:s}=await K(t),c=L(s),l=await R(o.Placement,c),u=l.find(e=>e.id===n);if(!u)throw new A(b(`server.err.placementNotFound`),404);if(u.objectId===`workbench`)throw new A(b(`server.err.workbenchStays`));let d=Nt(await U(),u.area),f=Math.round(Number(r)),p=Math.round(Number(i));if(!Number.isFinite(f)||!Number.isFinite(p)||f<1||p<1||f>d.cols-2||p>d.rows-2)throw new A(b(`server.err.outOfReach`));if(l.some(e=>e.id!==n&&e.area===u.area&&e.x===f&&e.y===p))throw new A(b(`server.err.spotTaken`),409);let m=await U(),h=m.object.get(u.objectId);if(Ge.has(u.objectId)){let e=Ue(u.area),t=u.area===`home`?Ve(s):e?We():null;if(t&&qe(u.objectId,t,f,p))throw new A(b(`server.err.bedBlocksDoor`,{name:h?.name||u.objectId}))}let g=await we(o.TerrainTile,c,u.area,f,p);if(g)if(g.type===`water`){if(!h?.bridge)throw new A(b(`server.err.openWaterBridgeOnly`),409)}else throw new A(b(`server.err.bedForPlantingShort`),409);else if(h?.bridge)throw new A(b(`server.err.bridgesOverWater`),409);let _={x:f,y:p};return a!==void 0&&wr(h)&&(_.rotation=Sr(a)),await o.Placement.patch(n,_),await hn(o,m,n,c)&&await o.Chest.patch(n,{x:f,y:p}),await J(s,{objectsMoved:1}),{ok:!0,placement:{...u,..._}}}},jr=class extends ${async post(e){let{playerId:t,placementId:n}=await Z(e),r=k(),{player:i}=await K(t),a=L(i),o=await Ce(r.Placement,a,n);if(!o)throw new A(b(`server.err.placementNotFound`),404);if(o.objectId===`workbench`)throw new A(b(`server.err.workbenchStays`));let s=await Ce(r.Chest,a,n);if(s&&M(s.contents)>0)throw new A(b(`server.err.emptyChestFirst`),409);if(o.objectId===`trail-tent`){let e=`tent-${o.area}`;if((await R(r.Placement,a)).some(t=>t.area===e))throw new A(b(`server.err.tentNotEmpty`),409)}let c=(await U()).object.get(o.objectId),l=null,u={...i.craftedItems||{}},d={...i.inventory||{}},f=new Map;if(c?.plantable&&o.plantedAt&&Object.keys(c.plantCost||{}).length){l={...c.plantCost};let e=Ut(i),t=M(d),o=(await R(r.Chest,a)).filter(e=>e.id!==n);for(let[n,r]of Object.entries(l)){let i=r,a=Math.min(i,Math.max(0,e-t));a>0&&(d[n]=(d[n]||0)+a,t+=a,i-=a);for(let e of o){if(i<=0)break;let t=f.get(e.id)||{...e.contents||{}},r=e.capacity-M(t),a=Math.min(r,i);a>0&&(t[n]=(t[n]||0)+a,f.set(e.id,t),i-=a)}if(i>0)throw new A(b(`server.err.noRoomRefund`),409)}}else u[o.objectId]=(u[o.objectId]||0)+1;if(s&&await r.Chest.delete(n),await r.Placement.delete(n),l){await r.Player.patch(t,{inventory:d});for(let[e,t]of f)await r.Chest.patch(e,{contents:t})}else await r.Player.patch(t,{craftedItems:u});let p=o.area!==`home`&&!Ue(o.area)?await X(a,t,o.area,{removeIds:[n],player:{...i,craftedItems:u,inventory:d}}):null;return await J(i,{objectsRemoved:1,animalsReturned:p?.newAnimals?.length||0}),await Un(a,t,p?{addDiscoveries:p.newAnimals,freshBiomeStates:[p.biomeState]}:{}),{ok:!0,removed:n,craftedItems:u,refunded:l,...p||{}}}},Mr=class extends ${async post(e){let{playerId:t,toolId:n}=await Z(e),r=k(),i=await U(),{player:a}=await K(t),o=i.tool.get(n);if(!o)throw new A(b(`server.err.unknownTool`,{tool:n}));let s=L(a),c=a.tools?.[n]||1,l=(o.tiers||[]).find(e=>e.tier===c+1);if(!l)throw new A(b(`server.err.toolMaxed`,{tool:o.name}));if(l.requires?.biome&&((await z(r.BiomeState,s,l.requires.biome))?.health||0)<(l.requires.minHealth||0)){let e=i.biome.get(l.requires.biome);throw new A(b(`server.err.restoreFirst`,{biome:e?.name||l.requires.biome,health:l.requires.minHealth}),403)}let{usedFrom:u,inventory:d}=await gn(a,l.materials||{},s),f={...a.tools||{},[n]:l.tier};await r.Player.patch(t,{tools:f});let p=await fn(s,t,{player:{...a,tools:f}}),m=await R(r.Chest,s);return await J(a,{toolsUpgraded:1}),await Q(t),{ok:!0,tools:f,inventory:d,chests:m,usedFrom:u,unlockedBiomes:p,upgraded:{toolId:n,tier:l.tier,name:l.name}}}},Nr=class extends ${async post(e){let{playerId:t,track:n}=await Z(e),r=k(),{player:i}=await K(t),a=L(i),o=Le[n];if(!o)throw new A(b(`server.err.unknownHomeUpgrade`));let s=G(i);if(!s.styleLocked)throw new A(b(`server.err.buildStyleFirst`),403);let c=s[n]||1,l=o.levels[c];if(!l)throw new A(b(`server.err.trackMaxed`,{track:o.name.toLowerCase()}));if(l.requires?.biome&&((await z(r.BiomeState,a,l.requires.biome))?.health||0)<(l.requires.minHealth||0)){let e=(await U()).biome.get(l.requires.biome);throw new A(b(`server.err.restoreFirst`,{biome:e?.name||l.requires.biome,health:l.requires.minHealth}),403)}let{usedFrom:u,inventory:d}=await gn(i,l.materials||{},a),f={...s,[n]:c+1};await r.Player.patch(t,{home:f});let p=await R(r.Chest,a);return await Q(t),await J(i,{homeUpgrades:1}),{ok:!0,home:f,inventory:d,chests:p,usedFrom:u,upgraded:{track:n,level:c+1,name:o.name}}}},Pr=[`home-sleeping-bag`,`home-bed`],Fr=class extends ${async post(e){let{playerId:t}=await Z(e),n=k(),{player:r}=await K(t),i=L(r);if(!(await R(n.Placement,i)).some(e=>Pr.includes(e.objectId)))throw new A(b(`server.err.needBedToRest`),403);let a=await R(n.NodeState,i);for(let e of a)await n.NodeState.delete(e.id);let o=le(r),s=p(o)-o;return await n.Player.patch(t,{clockOffsetMs:(r.clockOffsetMs||0)+s}),await J(r,{restsTaken:1}),{ok:!0,rested:!0,refreshed:a.length}}},Ir=e=>typeof e==`string`&&/^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(e.trim()),Lr=class extends ${async post(e){let{playerId:t,colors:n}=await Z(e),r=k(),{player:i}=await K(t),a=G(i);if(!a.styleLocked)throw new A(b(`server.err.buildBeforeRepaint`),403);let o={...a.colors};for(let e of[`floor`,`wall`,`accent`,`rug`])n?.[e]&&Ir(n[e])&&(o[e]=String(n[e]).trim().toLowerCase());return await r.Player.patch(t,{home:{...a,colors:o}}),await J(i,{recolors:1}),{ok:!0}}},Rr=class extends ${async post(e){let{playerId:t,placementId:n,color:r}=await Z(e),i=k(),{player:a}=await K(t);if(!G(a).styleLocked)throw new A(b(`server.err.buildBeforeRepaintThings`),403);if(!Ir(r))throw new A(b(`server.err.invalidColor`));if(!await Ce(i.Placement,L(a),n))throw new A(b(`server.err.itemNotHere`),404);return await i.Placement.patch(n,{color:String(r).trim().toLowerCase()}),await J(a,{recolors:1}),{ok:!0}}},zr=class extends ${async post(e){let{playerId:t,style:n}=await Z(e),r=k(),{player:i}=await K(t),a=W[n];if(!a)throw new A(b(`server.err.unknownHomeStyle`));let o=G(i);if(o.styleLocked)throw new A(b(`server.err.homeAlreadyBuilt`),403);let s=L(i);if(a.requires?.biome&&((await z(r.BiomeState,s,a.requires.biome))?.health||0)<(a.requires.minHealth||0)){let e=(await U()).biome.get(a.requires.biome);throw new A(b(`server.err.restoreFirst`,{biome:e?.name||a.requires.biome,health:a.requires.minHealth}),403)}let{usedFrom:c,inventory:l}=await gn(i,a.materials||{},s),u={...o,style:n,styleLocked:!0,space:2};await r.Player.patch(t,{home:u});let d=await R(r.Chest,s);return await Q(t),await J(i,{homesBuilt:1}),{ok:!0,home:u,inventory:l,chests:d,usedFrom:c,built:W[n].name}}},Br=class extends ${async post(e){let{playerId:t,animalId:n}=await Z(e),r=k(),i=await U(),{player:a}=await K(t),o=L(a),s=await Te(r.Discovery,o,n);if(!s)throw new A(b(`server.err.animalNotReturned`),404);let c=Dt(a,Date.now()),l=s.lastObservedDayKey!==c,u=(s.timesObserved||0)+1;return await r.Discovery.patch(s.id,{timesObserved:u,lastObservedDayKey:c}),await J(a,{animalsObserved:1},l?{observe:1}:{}),await Q(t),{ok:!0,discovery:{...s,timesObserved:u},animal:i.animal.get(n)}}},Vr=class extends ${async post(e){let{playerId:t,taskId:n}=await Z(e),r=k(),i=await U(),{player:a}=await K(t),o=L(a),s=Date.now(),[c,l,u,d]=await Promise.all([R(r.Discovery,o),R(r.BiomeState,o),R(r.Placement,o),R(r.Chest,o)]),f=Rn({wid:o,player:a,d:i,discoveries:c,biomeStates:l,placements:u,chests:d,now:s,unlockedBiomes:a.unlockedBiomes}),p=f.tasks.find(e=>e.id===String(n||``));if(!p)throw new A(b(`server.err.taskNotOnBoard`),404);if(p.pinned)throw new A(b(`server.err.taskNotClaimable`),409);if(p.claimed)throw new A(b(`server.err.taskAlreadyClaimed`),409);if(p.progress<p.target)throw new A(b(`server.err.taskNotFinished`),409);let m=Ut(a),h={...a.inventory||{}},g=Math.max(0,m-M(h)),_={};for(let[e,t]of Object.entries(p.reward||{})){let n=Math.min(t,g);n<=0||(h[e]=(h[e]||0)+n,_[e]=n,g-=n)}if(!Object.keys(_).length)throw new A(b(`server.err.basketFullReward`),409);let v=String(p.id).startsWith(`start-`),y=String(p.id).startsWith(`unlock-reward:`),x={inventory:h};if(y){let e=String(p.id).slice(14);x.pendingUnlockRewards=(a.pendingUnlockRewards||[]).filter(t=>t!==e)}else v?x.goalClaims={...a.goalClaims||{},[p.id]:!0}:x.customGoals=(a.customGoals||[]).filter(e=>e.id!==p.id);await r.Player.patch(t,x),await J(a,{tasksCompleted:1}),await Q(t);let S={...f,tasks:f.tasks.map(e=>e.id===p.id?{...e,claimed:!0}:e)};return{ok:!0,taskId:p.id,text:p.text,gained:_,inventory:h,dailyTasks:S}}},Hr=class extends ${async post(e){let{playerId:t,goals:n}=await Z(e),{player:r}=await K(t),i=k(),a=await U(),o=L(r),s=Date.now(),[c,l,u,d]=await Promise.all([R(i.Discovery,o),R(i.BiomeState,o),R(i.Placement,o),R(i.Chest,o)]),f={wid:o,player:r,d:a,discoveries:c,biomeStates:l,placements:u,chests:d,now:s,unlockedBiomes:r.unlockedBiomes},p=new Map((r.customGoals||[]).map(e=>[e.id,e])),m=bn(r,a),h=Ln(n,a),g=[];for(let e of h){let t=p.get(e.id);if(!t&&g.length>=m)continue;if(g.length>=yn)break;let n=t&&typeof t.base==`number`?t.base:Nn(e,f),r={...e,base:n};e.kind===`build`&&(r.basePlace=t&&typeof t.basePlace==`number`?t.basePlace:jn(f,e.itemId||``)),g.push(r)}return await i.Player.patch(t,{customGoals:g}),{ok:!0,customGoals:g,goalLimit:m}}},Ur=class extends ${async post(e){let{playerId:t,area:n,x:r,y:i,action:a}=await Z(e),o=k(),s=await U(),{player:c}=await K(t),l=L(c),u=s.biome.get(n);if(!u)throw new A(b(`server.err.terraformOutdoors`));if(!(c.unlockedBiomes||[]).includes(n))throw new A(b(`server.err.biomeLocked`,{biome:u.name}),403);let d=Math.round(Number(r)),f=Math.round(Number(i)),p=Nt(s,n);if(!Number.isFinite(d)||!Number.isFinite(f)||d<1||f<1||d>p.cols-2||f>p.rows-2)throw new A(b(`server.err.outOfReach`));if((await R(o.Placement,l)).some(e=>e.area===n&&e.x===d&&e.y===f))throw new A(b(`server.err.somethingPlaced`));let m=`${l}:${n}:${d}:${f}`,h=await we(o.TerrainTile,l,n,d,f),g=c.inventory||{},_=null,v,y=null;if(a===`dig`){if((c.tools?.shovel||0)<1)throw new A(b(`server.err.needShovel`));if(h)throw new A(b(`server.err.alreadyPrepared`));_={id:m,worldId:l,playerId:t,area:n,x:d,y:f,type:`tilled`,updatedAt:Date.now()},await o.TerrainTile.put(_);let e=u.digResources||[];if(e.length&&Math.random()<Je){let n=e[Math.floor(Math.random()*e.length)],r=Math.max(0,Ut(c)-M(g)),i=Math.min(c.tools?.shovel||1,r);i>0&&(g={...g,[n]:(g[n]||0)+i},await o.Player.patch(t,{inventory:g}),y={resourceId:n,amount:i})}}else if(a===`water`){if((c.tools?.[`watering-can`]||0)<1)throw new A(b(`server.err.needWateringCan`));if(!h)throw new A(b(`server.err.prepareBedFirst`));if(h.type===`water`)throw new A(b(`server.err.alreadyOpenWater`));let e=h.type===`tilled`?`watered`:`water`;if(e===`water`&&u.canFlood===!1)throw new A(b(`server.err.tooDryToFlood`,{biome:u.name}));if((g.water||0)+(g[`clean-water`]||0)<1)throw new A(b(`server.err.needWater`,{count:1}));g={...g};let n=1;for(let e of[`water`,`clean-water`]){let t=Math.min(g[e]||0,n);t>0&&(g[e]-=t,g[e]<=0&&delete g[e],n-=t)}await o.Player.patch(t,{inventory:g}),_={...h,type:e,updatedAt:Date.now()},await o.TerrainTile.patch(h.id,{type:e,updatedAt:Date.now()})}else if(a===`clear`){if(!h)throw new A(b(`server.err.nothingToClear`));await o.TerrainTile.delete(h.id),v=h.id}else throw new A(b(`server.err.badTerraformAction`));let x=await X(l,t,n,{addTerrain:_?[_]:[],removeTerrainIds:v?[v]:[],player:{...c,inventory:g}});return await J(c,{terraformActions:1,animalsReturned:x.newAnimals?.length||0},a===`water`?{water:1}:{}),await Un(l,t,{addDiscoveries:x.newAnimals,freshBiomeStates:[x.biomeState]}),{ok:!0,tile:_,removedId:v,dug:y,inventory:g,...x}}},Wr=class extends ${async post(e){let{playerId:t,biomeId:n}=await Z(e),{player:r}=await K(t),i=await X(L(r),t,n);return await Un(L(r),t,{addDiscoveries:i.newAnimals,freshBiomeStates:[i.biomeState]}),{ok:!0,...i}}},Gr=class extends ${async post(e){let{playerId:t,x:n,y:r,area:i,tutorialStep:a}=await Z(e),o=k(),s=await U(),{player:c}=await K(t),l={};if(Number.isFinite(Number(n))&&(l.x=Number(n)),Number.isFinite(Number(r))&&(l.y=Number(r)),Number.isInteger(a)&&a>=0&&a<=99&&(l.tutorialStep=a,l.tutorialMaxStep=Math.max(c.tutorialMaxStep??0,c.tutorialStep??0,a)),i===`home`)l.area=`home`;else if(Ue(i)){let e=Ue(i),t=s.biome.get(e);if(!t)throw new A(b(`server.err.unknownArea`,{area:i}));if(!(c.unlockedBiomes||[]).includes(e))throw new A(b(`server.err.biomeLocked`,{biome:t.name}),403);let n=L(c);if(!(await R(o.Placement,n)).some(t=>t.area===e&&t.objectId===`trail-tent`))throw new A(b(`server.err.noTentHere`),404);l.area=i}else if(i){let e=s.biome.get(i);if(!e)throw new A(b(`server.err.unknownArea`,{area:i}));if(!(c.unlockedBiomes||[]).includes(i))throw new A(b(`server.err.biomeLocked`,{biome:e.name}),403);if(!e.explorable)throw new A(b(`server.err.notExplorable`,{biome:e.name}),403);l.area=i;let n=c.visitedBiomes||[`meadow`];if(n.includes(i)||(l.visitedBiomes=[...n,i]),un[i]){let e=L(c);(await R(o.TerrainTile,e)).some(e=>e.area===i)||(await dn(e,t,i),await X(e,t,i,{player:c}))}}return await o.Player.patch(t,l),l.tutorialStep!==void 0&&await Q(t),{ok:!0,player:dt(await N(o.Player,t))}}},Kr=class extends ${async post(e){let{playerId:t,entries:n}=await Z(e),{player:r}=await K(t),i=L(r),a=k(),o=Array.isArray(n)?n.slice(0,Pe):[],s=0;for(let e of o){let n=String(e?.text||``).slice(0,500).trim();if(!n)continue;let r=Number(e?.at)||Date.now(),o=String(e?.icon||`leaf`).slice(0,40),c=`f_${i}_${r}_${Math.random().toString(36).slice(2,9)}`;await a.FeedEntry.put({id:c,worldId:i,playerId:t,at:r,icon:o,text:n}),s++}let c=(await R(a.FeedEntry,i)).sort((e,t)=>(e.at||0)-(t.at||0));if(c.length>Pe)for(let e of c.slice(0,c.length-Pe))await a.FeedEntry.delete(e.id);return{ok:!0,added:s}}},qr=18e5,Jr=9e4,Yr=class extends ${async post(e){let{playerId:t,language:n,edition:r}=await Z(e),i=k(),a=await U(),{player:o}=await K(t),s=Date.now(),c=q(o)||_t(o.createdAt||s),l=typeof n==`string`&&n.trim()?n.trim().toLowerCase().slice(0,12):null,u=r===`demo`?`demo`:r===`full`?`full`:null,d=c.lastHeartbeatAt||0,f=s-d,p=c.playSeconds||0,m=c.sessions||0,h=c.curSessionSeconds||0,g={...c.areaSeconds||{}},_={...c.sessionLengths||{}},v=d===0||f>qr;if(v){if(h>0){let e=St(h);_[e]=(_[e]||0)+1}h=0,m+=1}else{let e=Math.min(f,Jr)/1e3;p+=e,h+=e;let t=o.area||`unknown`;g[t]=Y((g[t]||0)+e)}let y={...c,firstSeenAt:c.firstSeenAt||o.createdAt||s,lastSeenAt:s,lastHeartbeatAt:s,playSeconds:Math.round(p),sessions:m,curSessionSeconds:Math.round(h),areaSeconds:g,sessionLengths:_,...l?{language:l}:{},...u?{edition:c.edition===`demo`?`demo`:u}:{}};await i.Player.patch(t,{metrics:vt(y)});let b=L(o),x=null,S=[],C=[];try{let e=c.lastSeenAt||0,n=v&&e>0&&s-e>6e5,r=await R(i.Placement,b),l=d>0?d:s,u=new Set;for(let t of r)Zt(a.object.get(t.objectId),t,n?e:l,s)&&u.add(t.area);let f=await R(i.BiomeState,b),p=new Set(f.filter(e=>e.unlocked).map(e=>e.biomeId)),m=n?[...p]:[...u].filter(e=>p.has(e)),h=0;for(let e of m){let n=f.find(t=>t.biomeId===e)?.health||0,r=await X(b,t,e,{player:o});h+=Math.max(0,(r.biomeState?.health||0)-n),S.push(...r.newAnimals||[]),C.push(r.biomeState)}if((S.length||C.length)&&await Un(b,t,{addDiscoveries:S,freshBiomeStates:C}),n){let t=r.filter(t=>{let n=a.object.get(t.objectId);return p.has(t.area)&&Zt(n,t,e,s)}).length;(t>0||S.length>0||h>0)&&(x={awayHours:Math.round((s-e)/36e5*10)/10,matured:t,healthGain:h,arrivals:S.map(e=>e.animal?.name).filter(Boolean)})}}catch(e){console.error(`heartbeat growth pass skipped:`,e)}return await Q(t),{ok:!0,metrics:Ot({...o,metrics:y}),...S.length?{newAnimals:S}:{},...C.length?{biomeStates:C}:{},...x?{welcomeBack:x}:{}}}},Xr=null,Zr=3e4;function Qr(e){return String(e).split(/[^0-9]+/).filter(Boolean).map(e=>parseInt(e,10))}function $r(e,t){let n=Qr(e),r=Qr(t);if(!n.length&&!r.length)return e<t?-1:+(e>t);if(!n.length)return-1;if(!r.length)return 1;let i=Math.max(n.length,r.length);for(let e=0;e<i;e++){let t=n[e]??0,i=r[e]??0;if(t!==i)return t<i?-1:1}return 0}var ei=class extends ${async get(e){let t=k(),n=String(this.getId?.()||e?.id||``).trim();if(n){let e=await N(t.Player,n);if(!e)throw new A(b(`server.err.noSaveWithId`),404);let r=await zt(n),i=Ot(e);return{player:{...i,biomeSummary:r.summary,activation:kt(i,r.summary,e),achievements:await Hn(n),biomes:r.biomes}}}let r=Date.now(),i;if(Xr&&r-Xr.at<Zr)i=Xr.all;else{let e=[];try{e=await P(t.SoloMetrics)}catch{}i=e.map(e=>{let t={};if(e.snapshot)try{t=typeof e.snapshot==`string`?JSON.parse(e.snapshot):e.snapshot}catch{t={}}let n=t.lastSeenAt||e.updatedAt||null,i=t.createdAt||e.createdAt||r,a=n?Y((r-n)/36e5):null,o=`dormant`;a!=null&&(a<=24?o=`active`:a<=168&&(o=`recent`));let s=t.playSeconds||0,c=Math.round(s+(t.creationMs||0)/1e3),l=Math.max(t.sessions||0,+((t.creationMs||0)>0));return{...t,playerId:e.id,name:e.name||t.name||null,solo:!0,platform:e.platform||null,os:e.os||null,language:e.language||t.language||null,version:e.version||null,build:e.build||null,lastSyncedAt:e.updatedAt||null,counts:t.counts||{},playSeconds:c,playMinutes:Math.round(c/60),avgSessionMinutes:l?Math.round(c/60/l):0,sessions:l,totalActions:t.totalActions||0,currentArea:t.currentArea||null,unlockedBiomes:t.unlockedBiomes||0,tutorialStep:t.tutorialStep||0,activation:t.activation||{},achievements:t.achievements||null,biomeSummary:t.biomeSummary||{biomesUnlocked:0,avgHealth:0,biomesFullyRestored:0,totalAnimalsReturned:0},areaSeconds:t.areaSeconds||{},sessionLengths:t.sessionLengths||{},creationMs:t.creationMs||0,creationSeconds:t.creationSeconds??(t.creationMs?Y(t.creationMs/1e3):null),timeToFirstActionSeconds:t.timeToFirstActionSeconds??null,appearance:t.appearance||null,createdAt:i,lastSeenAt:n,hoursSinceActive:a,minutesSinceActive:n?Y((r-n)/6e4):null,status:o,daysSinceJoined:Math.floor((r-i)/Ct),isNewToday:r-i<=Ct}}).sort((e,t)=>(t.lastSeenAt||0)-(e.lastSeenAt||0)||t.playSeconds-e.playSeconds),Xr={at:r,all:i}}let a={};for(let e of i){let t=e.version||`unknown`;a[t]=(a[t]||0)+1}let o=Object.keys(a).sort((e,t)=>t.localeCompare(e,void 0,{numeric:!0})),s=[...new Set(i.map(e=>e.edition===`demo`?`demo`:`full`))].sort(),c=[...new Set(i.map(e=>e.platform||`unknown`))].sort(),l=new Set;try{let t=typeof e?.getAll==`function`?[...e.getAll(`exclude`),...e.getAll(`excludeName`)]:[];for(let e of t.flatMap(e=>String(e).split(`,`))){let t=e.trim().toLowerCase();t&&l.add(t)}}catch{}l.size&&(i=i.filter(e=>!l.has(String(e.name||``).trim().toLowerCase())));let u=``;try{let t=typeof e?.getAll==`function`?e.getAll(`version`):[];u=String(t&&t[0]||``).trim()}catch{}let d=`exact`;try{let t=typeof e?.getAll==`function`?e.getAll(`versionMode`):[];String(t&&t[0]||``).trim().toLowerCase()===`min`&&(d=`min`)}catch{}let f=!!u&&u.toLowerCase()!==`all`,p=e=>{if(!f)return!0;let t=e||`unknown`;return d===`min`?$r(t,u)>=0:t===u};f&&(i=i.filter(e=>p(e.version||`unknown`)));let m=t=>{try{let n=typeof e?.getAll==`function`?e.getAll(t):[];return String(n&&n[0]||``).trim()}catch{return``}},h=m(`edition`),g=m(`platform`);h&&h.toLowerCase()!==`all`&&(i=i.filter(e=>(e.edition===`demo`?`demo`:`full`)===h)),g&&g.toLowerCase()!==`all`&&(i=i.filter(e=>(e.platform||`unknown`)===g));let _=i.length||1,v=e=>Math.round(e/_*100),y={};for(let e of i)for(let[t,n]of Object.entries(e.counts))y[t]=(y[t]||0)+n;let x=i.reduce((e,t)=>e+t.playSeconds,0),S=i.reduce((e,t)=>e+t.sessions,0),C=i.reduce((e,t)=>e+t.totalActions,0),w={activeNow:i.filter(e=>e.minutesSinceActive!=null&&e.minutesSinceActive<=5).length,activeLast24h:i.filter(e=>e.status===`active`).length,activeLast7d:i.filter(e=>e.status===`active`||e.status===`recent`).length,dormant:i.filter(e=>e.status===`dormant`).length,newLast24h:i.filter(e=>r-e.createdAt<=Ct).length,newLast7d:i.filter(e=>r-e.createdAt<=7*Ct).length},T=e=>{let t={};for(let n of i){let r=e(n)||`unknown`;t[r]=(t[r]||0)+1}return t},ee=T(e=>e.language||`en`),te=T(e=>e.platform),ne=T(e=>e.os),re=T(e=>e.version),ie=T(e=>e.edition||`full`),E=i.filter(e=>e.sessions>=2).length,D=(e,t)=>e.counts&&(e.counts[t]||0)>0,O={created:i.length,collected:i.filter(e=>e.activation?.collected||D(e,`resourcesCollected`)).length,terraformed:i.filter(e=>e.activation?.terraformed||D(e,`terraformActions`)).length,planted:i.filter(e=>e.activation?.planted||D(e,`plantsPlanted`)).length,crafted:i.filter(e=>e.activation?.crafted||D(e,`itemsCrafted`)).length,placed:i.filter(e=>e.activation?.placed||D(e,`objectsPlaced`)).length,attractedAnimal:i.filter(e=>e.activation?.attractedAnimal||(e.biomeSummary?.totalAnimalsReturned||0)>0).length,upgradedTool:i.filter(e=>e.activation?.upgradedTool||D(e,`toolsUpgraded`)).length,builtHome:i.filter(e=>e.activation?.builtHome||D(e,`homesBuilt`)).length,upgradedHome:i.filter(e=>e.activation?.upgradedHome||D(e,`homeUpgrades`)).length,unlockedSecondBiome:i.filter(e=>e.activation?.unlockedSecondBiome||(e.unlockedBiomes||0)>=2).length},ae={collected:v(O.collected),terraformed:v(O.terraformed),planted:v(O.planted),crafted:v(O.crafted),placed:v(O.placed),attractedAnimal:v(O.attractedAnimal),upgradedTool:v(O.upgradedTool),builtHome:v(O.builtHome),upgradedHome:v(O.upgradedHome),unlockedSecondBiome:v(O.unlockedSecondBiome)},oe={};for(let e of i)e.currentArea&&(oe[e.currentArea]=(oe[e.currentArea]||0)+1);let se=Object.entries(oe).sort((e,t)=>t[1]-e[1])[0]?.[0]||null,ce={};for(let e of i){let t=String(e.tutorialStep||0);ce[t]=(ce[t]||0)+1}let le=i.filter(e=>(e.biomeSummary?.biomesUnlocked||0)>0),ue=le.length?Math.round(le.reduce((e,t)=>e+(t.biomeSummary.avgHealth||0),0)/le.length):0,j=i.filter(e=>e.achievements),de=j.reduce((e,t)=>e+(t.achievements.earned||0),0),fe={},M={},pe={};for(let e of j){for(let t of e.achievements.recent||[])t?.id&&(fe[t.id]=(fe[t.id]||0)+1);for(let[t,n]of Object.entries(e.achievements.byCategory||{}))M[t]=(M[t]||0)+n;let t=e.achievements.earned||0,n=t===0?`0`:`${Math.floor((t-1)/10)*10+1}-${(Math.floor((t-1)/10)+1)*10}`;pe[n]=(pe[n]||0)+1}let me={totalDefined:j.reduce((e,t)=>Math.max(e,t.achievements.total||0),0),totalEarned:de,avgPerPlayer:Y(de/(j.length||1)),avgCompletionPct:j.length?Math.round(j.reduce((e,t)=>e+(t.achievements.completion||0),0)/j.length*100):0,avgPoints:Y(j.reduce((e,t)=>e+(t.achievements.points||0),0)/(j.length||1)),byCategory:M,recentDistribution:fe,completionHistogram:pe},he={};for(let e of i)for(let[t,n]of Object.entries(e.areaSeconds||{}))he[t]=(he[t]||0)+n;let ge=Object.values(he).reduce((e,t)=>e+t,0),_e={};for(let[e,t]of Object.entries(he))_e[e]=Math.round(t/60);let ve={totalSeconds:Math.round(ge),byAreaSeconds:he,byAreaMinutes:_e,mostTimeArea:Object.entries(he).sort((e,t)=>t[1]-e[1])[0]?.[0]||null},ye={"<2m":0,"2-10m":0,"10-30m":0,"30m+":0};for(let e of i)for(let[t,n]of Object.entries(e.sessionLengths||{}))ye[t]=(ye[t]||0)+n;let be=i.filter(e=>(e.creationMs||0)>0),xe={savesWithTiming:be.length,avgCreationSeconds:be.length?Y(be.reduce((e,t)=>e+t.creationMs,0)/be.length/1e3):0,medianCreationSeconds:be.length?Y([...be].map(e=>e.creationMs).sort((e,t)=>e-t)[Math.floor(be.length/2)]/1e3):0},Se={},F=(e,t)=>{if(t==null||t===``)return;let n=String(t);(Se[e]||={})[n]=(Se[e][n]||0)+1};for(let e of i){let t=e.appearance;t&&(F(`skin`,t.skin),F(`hair`,t.hair),F(`outfit`,t.outfit),F(`hat`,t.hat),F(`hatColor`,t.hatColor),F(`hairstyle`,t.hairstyle),F(`beard`,t.beard),F(`body`,t.body))}let I={savesWithAppearance:i.filter(e=>e.appearance).length,choices:Se},L=i.filter(e=>e.timeToFirstActionSeconds!=null),R={playersMeasured:L.length,avgSeconds:L.length?Y(L.reduce((e,t)=>e+t.timeToFirstActionSeconds,0)/L.length):0},Ce=i.filter(e=>e.prefs&&typeof e.prefs==`object`),we=Ce.length||1,z=e=>Ce.filter(t=>e(t.prefs)).length,Te=e=>{let t={};for(let n of Ce){let r=e(n.prefs)||`unknown`;t[r]=(t[r]||0)+1}return t},Ee=z(e=>e.musicEnabled===!1),B=z(e=>e.sfxEnabled===!1),De={savesReporting:Ce.length,audio:{musicOff:Ee,sfxOff:B,fullyMuted:z(e=>e.musicEnabled===!1&&e.sfxEnabled===!1),musicOffPct:Math.round(Ee/we*100),sfxOffPct:Math.round(B/we*100)},accessibility:{reduceMotion:z(e=>e.reduceMotion===!0),highContrast:z(e=>e.highContrast===!0),colorblindOn:z(e=>e.colorblindMode&&e.colorblindMode!==`off`),anyEnabled:z(e=>e.reduceMotion===!0||e.highContrast===!0||e.colorblindMode&&e.colorblindMode!==`off`||e.textScale&&e.textScale!==`md`),colorblindModes:Te(e=>e.colorblindMode||`off`),textScales:Te(e=>e.textScale||`md`),fonts:Te(e=>e.fontChoice||(e.dyslexiaFont===!0?`plain`:`storybook`))}},V=[];try{V=await P(t.AppOpen)}catch{}f&&(V=V.filter(e=>p(e.version||`unknown`))),h&&h.toLowerCase()!==`all`&&(V=V.filter(e=>(e.edition===`demo`?`demo`:`full`)===h)),g&&g.toLowerCase()!==`all`&&(V=V.filter(e=>(e.platform||`unknown`)===g));let H=V.length,Oe=V.filter(e=>e.converted).length,ke=V.filter(e=>e.edition===`demo`),Ae=ke.filter(e=>e.converted).length,U=ke.filter(e=>e.reachedDemoGoal).length,je={demoInstalls:ke.length,createdCharacter:Ae,reachedGoal:U,completionPct:Ae?Math.round(U/Ae*100):0},Me={};for(let e of V){let t=e.edition===`demo`?`demo`:`full`;Me[t]=(Me[t]||0)+1}let Ne=V.filter(e=>(e.creationMs||0)>0),Pe=V.reduce((e,t)=>e+(t.savesCreated||0),0),Fe={};for(let e of V){let t=String(e.savesCreated||0);Fe[t]=(Fe[t]||0)+1}let W={devices:H,totalOpens:V.reduce((e,t)=>e+(t.opens||0),0),converted:Oe,bounced:H-Oe,conversionPct:H?Math.round(Oe/H*100):0,bounceRatePct:H?Math.round((H-Oe)/H*100):0,avgCreatorSeconds:Ne.length?Y(Ne.reduce((e,t)=>e+t.creationMs,0)/Ne.length/1e3):0,totalCharactersCreated:Pe,avgCharactersPerPerson:H?Y(Pe/H):0,avgCharactersPerConverted:Oe?Y(Pe/Oe):0,charactersPerPersonHistogram:Fe,editions:Me};return{generatedAt:r,source:`solo-metrics`,filters:{availableVersions:o,availableEditions:s,availablePlatforms:c,version:f?u:null,versionMode:f?d:null,edition:h&&h.toLowerCase()!==`all`?h:null,platform:g&&g.toLowerCase()!==`all`?g:null},summary:{players:i.length,soloPlayers:i.length,excludedNames:[...l],audience:w,languages:ee,platforms:te,operatingSystems:ne,versions:re,editions:ie,engagement:{totalPlayHours:Y(x/3600),totalPlaySeconds:x,avgPlayMinutesPerPlayer:Math.round(x/60/_),totalSessions:S,avgSessionsPerPlayer:Y(S/_),avgSessionMinutes:S?Math.round(x/60/S):0,totalActions:C,avgActionsPerPlayer:Y(C/_)},retention:{returningPlayers:E,returningRatePct:v(E)},progression:{avgBiomeHealth:ue,biomesFullyRestored:i.reduce((e,t)=>e+(t.biomeSummary?.biomesFullyRestored||0),0),avgUnlockedBiomes:Y(i.reduce((e,t)=>e+(t.unlockedBiomes||0),0)/_),mostPopularArea:se,tutorialStepHistogram:ce},areaDwell:ve,sessionLengthDistribution:ye,creation:xe,appearancePopularity:I,timeToFirstAction:R,acquisition:W,demoCompletion:je,settings:De,funnel:O,funnelPct:ae,actionTotals:y,achievements:me},players:i}}},ti=class extends ${async get(){let e=String(this.getId?.()||``).trim();if(!e)throw new A(b(`server.err.snapshotPathId`));await K(e);let t=k(),n=await U(),r=(await I(t.BiomeState,e)).filter(e=>e.unlocked),i=await I(t.Placement,e),a=await I(t.TerrainTile,e);return{ok:!0,playerId:e,areas:r.map(e=>{let t=n.biome.get(e.biomeId),r=i.filter(t=>t.area===e.biomeId),o=a.filter(t=>t.area===e.biomeId),s=Lt(n,t,e.health||0,r,o);return{area:e.biomeId,name:t?.name||e.biomeId,health:e.health||0,placements:r.length,image:Rt(s),svg:s}})}}},ni=class extends ${async post(e){let{playerId:t,action:n,area:r,amount:i,value:a,resources:o,animalId:s}=await Z(e),c=k(),l=await U(),{player:u}=await K(t),d=[];switch(n){case`set-time`:{let e=String(a||`dawn`),n=le(u),r=g(n,e)-n;await c.Player.patch(t,{clockOffsetMs:(u.clockOffsetMs||0)+r}),d.push(`Set time to ${e}`);break}case`reset-clock`:{let e=Math.round((q(u)?.playSeconds||0)*1e3);await c.Player.patch(t,{clockOffsetMs:g(0,`day`)-e}),d.push(`Reset the game clock to the first morning`);break}case`seed-water`:{let e=r||`wetland`;for(let n of(await I(c.TerrainTile,t)).filter(t=>t.area===e))await c.TerrainTile.delete(n.id);await dn(t,t,e),await X(t,t,e,{player:u}),d.push(`Reseeded starting terrain for ${e}`);break}case`clear-terrain`:{let e=r||u.area,n=0;for(let r of(await I(c.TerrainTile,t)).filter(t=>t.area===e))await c.TerrainTile.delete(r.id),n++;await X(t,t,e,{player:u}),d.push(`Cleared ${n} terrain tiles in ${e}`);break}case`grant-resources`:{let e={...u.inventory||{}},n=new Set(l.resources.map(e=>e.id)),r=0;if(o&&typeof o==`object`){for(let[t,i]of Object.entries(o)){let a=Math.floor(Number(i)||0);a>0&&n.has(t)&&(e[t]=(e[t]||0)+a,r++)}d.push(`Granted ${r} resource type${r===1?``:`s`}`)}else{let t=Math.max(1,Number(i)||200);for(let n of l.resources)e[n.id]=(e[n.id]||0)+t;d.push(`Granted ${t} of every resource`)}await c.Player.patch(t,{inventory:e});break}case`max-tools`:{let e={...u.tools||{}};for(let t of l.tools){let n=Math.max(...t.tiers.map(e=>e.tier));e[t.id]=n}await c.Player.patch(t,{tools:e}),d.push(`All tools set to max tier`);break}case`unlock-all`:{let e=l.biomes.map(e=>e.id);await c.Player.patch(t,{unlockedBiomes:e});for(let n of e)await c.BiomeState.patch(`${t}:${n}`,{unlocked:!0});d.push(`Unlocked all biomes (${e.length})`);break}case`unlock-next`:{let e=[...l.biomes].sort((e,t)=>(e.order||0)-(t.order||0)),n=new Set(u.unlockedBiomes||[`meadow`]),r=e.find(e=>!n.has(e.id));if(!r){d.push(`Every biome is already unlocked`);break}n.add(r.id),await c.Player.patch(t,{unlockedBiomes:[...n]}),await c.BiomeState.patch(`${t}:${r.id}`,{unlocked:!0}),await dn(t,t,r.id),d.push(`Unlocked the next area: ${r.name}`);break}case`relock-all`:await c.Player.patch(t,{unlockedBiomes:[`meadow`]});for(let e of l.biomes)await c.BiomeState.patch(`${t}:${e.id}`,{unlocked:e.id===`meadow`});d.push(`Re-locked every biome except the meadow`);break;case`reset-tools`:await c.Player.patch(t,{tools:{...Ze}}),d.push(`Tools reset to tier 1`);break;case`restart-game`:{let e=t;for(let e of await I(c.Placement,t))await c.Placement.delete(e.id);for(let e of await I(c.Chest,t))await c.Chest.delete(e.id);for(let e of await I(c.TerrainTile,t))await c.TerrainTile.delete(e.id);for(let e of await I(c.Discovery,t))await c.Discovery.delete(e.id);for(let e of await I(c.NodeState,t))await c.NodeState.delete(e.id);for(let e of await I(c.FeedEntry,t))await c.FeedEntry.delete(e.id);for(let e of await I(c.PlayerAchievement,t))await c.PlayerAchievement.delete(e.id);for(let n of l.biomes)await c.BiomeState.put({id:`${e}:${n.id}`,worldId:e,playerId:t,biomeId:n.id,health:Me,balance:0,returnedCount:0,unlocked:n.id===`meadow`});let n=`pl_${t}_starter-chest`;await c.Placement.put({id:n,worldId:e,playerId:t,objectId:`small-chest`,area:`meadow`,x:gt.x,y:gt.y,placedAt:Date.now()}),await c.Chest.put({id:n,worldId:e,playerId:t,area:`meadow`,x:gt.x,y:gt.y,size:`small-chest`,capacity:gt.capacity,contents:{}}),await c.Player.patch(t,{area:`meadow`,x:24.5,y:6.5,inventory:{...Xe},craftedItems:{},craftedEver:{},tools:{...Ze},unlockedBiomes:[`meadow`],visitedBiomes:[`meadow`],tutorialStep:0,home:{...Ie},customGoals:[],goalClaims:{},devUnlockAll:!1,clockOffsetMs:g(0,`day`)-Math.round((q(u)?.playSeconds||0)*1e3)}),d.push(`Restarted the game — fresh save (name, passcode & look kept)`);break}case`build-home`:{let e=a&&W[a]?a:`cabin`,n={...G(u),style:e,space:Math.max(2,G(u).space||1),styleLocked:!0};await c.Player.patch(t,{home:n}),d.push(`Built home: ${W[e].name}`);break}case`max-home`:{let e={style:a&&W[a]?a:G(u).style||`cabin`,space:Le.space.levels.length,comfort:Le.comfort.levels.length,decor:Le.decor.levels.length,light:Le.light.levels.length,styleLocked:!0};await c.Player.patch(t,{home:e}),d.push(`Home maxed on every track`);break}case`reset-home`:await c.Player.patch(t,{home:{...Ie}}),d.push(`Home reset to the starter tent`);break;case`set-health`:{let e=r||u.area,n=Math.max(0,Math.min(100,Number(a)||100));await c.BiomeState.patch(`${t}:${e}`,{health:n}),d.push(`Set ${e} health to ${n}% (recomputes on next change)`);break}case`reset-biome`:{let e=r||u.area,n=0;for(let r of(await I(c.Placement,t)).filter(t=>t.area===e))l.object.get(r.objectId)?.isChest||(await c.Placement.delete(r.id),n++);for(let n of(await I(c.TerrainTile,t)).filter(t=>t.area===e))await c.TerrainTile.delete(n.id);let i=0;for(let n of(await I(c.Discovery,t)).filter(t=>t.biomeId===e))await c.Discovery.delete(n.id),i++;let a=`${t}:${e}:`;for(let e of(await I(c.NodeState,t)).filter(e=>String(e.id).startsWith(a)))await c.NodeState.delete(e.id);await c.BiomeState.patch(`${t}:${e}`,{health:Me,balance:0,returnedCount:0}),await dn(t,t,e),await X(t,t,e,{player:u}),d.push(`Reset ${e} to its damaged state — removed ${n} object${n===1?``:`s`} and sent ${i} animal${i===1?``:`s`} away (chests kept)`);break}case`lock-biome`:{let e=r||u.area;if(e===`meadow`)throw new A(b(`server.err.meadowCannotLock`));let n=(u.unlockedBiomes||[]).filter(t=>t!==e);await c.Player.patch(t,{unlockedBiomes:n}),await c.BiomeState.patch(`${t}:${e}`,{unlocked:!1}),d.push(`Locked ${e} again (unlock requirements must be met to re-enter)`);break}case`unlock-recipes`:{let e=a===void 0?!u.devUnlockAll:!!a;await c.Player.patch(t,{devUnlockAll:e}),d.push(e?`All recipes unlocked (gates ignored)`:`Recipe progress gates restored`);break}case`welcome-animals`:{let e=r||u.area,n=l.animals.filter(t=>t.biome===e),i=new Set((await I(c.Discovery,t)).filter(t=>t.biomeId===e).map(e=>e.animalId)),a=0;for(let r of n)i.has(r.id)||(await c.Discovery.put({id:`${t}:${r.id}`,playerId:t,animalId:r.id,biomeId:e,comfort:3,timesObserved:0,firstObservedAt:Date.now(),whyReturned:ln(r,l)}),a++);await X(t,t,e,{player:u}),d.push(`Welcomed ${a} animal${a===1?``:`s`} to ${e} (${n.length} total)`);break}case`spawn-animal`:{let e=l.animals.find(e=>e.id===s);if(!e)throw new A(b(`server.err.unknownAnimal`,{animal:s}));let n=`${t}:${e.id}`;await c.Discovery.get(n)||await c.Discovery.put({id:n,playerId:t,animalId:e.id,biomeId:e.biome,comfort:85,timesObserved:1,firstObservedAt:Date.now(),whyReturned:ln(e,l)});let r=u.unlockedBiomes||[`meadow`];r.includes(e.biome)||await c.Player.patch(t,{unlockedBiomes:[...r,e.biome]}),await X(t,t,e.biome,{player:u}),await c.Discovery.patch(n,{comfort:85}),d.push(`Spawned ${e.name} in ${e.biome} — comfort 85, biome unlocked`);break}case`populate-biome`:{let e=r||u.area,n=l.biome.get(e);if(!n||e===`home`)throw new A(b(`server.err.cannotPopulate`,{area:e}));let i=L(u),a=new Set(u.unlockedBiomes||[`meadow`]);a.has(e)||(a.add(e),await c.Player.patch(t,{unlockedBiomes:[...a]}));for(let t of(await R(c.Placement,i)).filter(t=>t.area===e))l.object.get(t.objectId)?.isChest||await c.Placement.delete(t.id);for(let t of(await R(c.TerrainTile,i)).filter(t=>t.area===e))await c.TerrainTile.delete(t.id);let o=Nt(l,e),s=e===`alpine`?Mt:0,f=(e===`coastal`?o.cols-(n.oceanCols||0):o.cols)-2,p=s+2,m=o.rows-2,h=(t,n)=>e===`meadow`&&t>=19&&t<=24&&n>=3&&n<=6,g=Date.now()-3888e6,_=de(j(`populate:${i}:${e}`)),v=(e,t)=>e+Math.floor(_()*(t-e+1)),y=e=>e[Math.floor(_()*e.length)],x=new Set;(await R(c.Chest,i)).filter(t=>t.area===e).forEach(e=>x.add(`${e.x},${e.y}`));let S=(e,t)=>e>=2&&e<=f&&t>=p&&t<=m&&!h(e,t)&&!x.has(`${e},${t}`),C=[],w=(e,t)=>{S(e,t)&&(x.add(`${e},${t}`),C.push({x:e,y:t}))};if(n.canFlood!==!1){let e=v(3,Math.max(3,Math.min(f-4,10))),t=v(p+1,Math.max(p+1,Math.min(m-3,p+6)));for(let n=0;n<3;n++)for(let r=0;r<4;r++)(r!==0&&r!==3||n!==0&&n!==2)&&w(e+r,t+n);w(e+1,t-1),w(e+2,t+3);let n=v(Math.floor((2+f)/2),f-2),r=p;w(n,r);for(let e=0,t=v(13,18);e<t&&r<m;e++)_()<.25&&n>3&&n<f-1?n+=_()<.5?-1:1:r+=1,w(n,r),_()<.25&&w(Math.min(f,n+1),r)}let T=l.objects.filter(t=>(t.biomes||[]).includes(e)&&t.placement!==`indoor`&&t.placement!==`none`&&!t.isChest&&!t.bridge);if(!T.length)throw new A(b(`server.err.noPlaceableObjects`,{biome:n.name}));let ee=e=>/-path$/.test(e.id)||e.id===`wooden-fence`||e.id===`dry-stone-wall`,te=T.filter(e=>e.plantable&&(e.growSeconds||0)>=80),ne=T.filter(e=>e.plantable&&(e.growSeconds||0)<80),re=new Set([`shrub`,`rock-pile`,`hollow-log`,`log-shelter`,`brush-pile`,`stone-cairn`,`rock-cairn`,`clover-patch`,`butterfly-flowers`,`pollinator-garden`,`fallen-branch-shelter`,`insect-hotel`,`birdhouse`,`bird-perch`]),ie=T.filter(e=>!e.plantable&&!ee(e)&&re.has(e.id)),E=T.filter(ee),D=T.filter(e=>!e.plantable&&!ee(e)&&!re.has(e.id)),O=ie.length?ie:ne,ae=[],oe=(n,r,a)=>{if(!n||!S(r,a))return!1;x.add(`${r},${a}`);let o={id:`pl_dev_${e}_${r}_${a}`,worldId:i,playerId:t,objectId:n.id,area:e,x:r,y:a,placedAt:g};return n.plantable&&(o.plantedAt=g),ae.push(o),!0},se=(e,t,n,r,i)=>{if(!e.length)return;let a=_()<.65?y(e):null;for(let o=0,s=0;o<r&&s<r*8;s++){let r=a&&_()<.7?a:y(e);oe(r,t+v(-i,i),n+v(-i,i))&&o++}};for(let e=0,t=v(8,12);e<t;e++){let e=v(2,f),t=v(p,m),n=_();n<.4&&ne.length?se(ne,e,t,v(4,8),2):n<.72&&te.length?(se(te,e,t,v(2,4),2),se(O,e,t,v(1,3),2)):se(O,e,t,v(3,6),2)}if(E.length)for(let e=0,t=v(1,2);e<t;e++){let e=y(E),t=_()<.5,n=v(4,6),r=v(2,Math.max(2,f-(t?n:0))),i=v(p,Math.max(p,m-(t?0:n)));for(let a=0;a<n;a++)oe(e,r+(t?a:0),i+(t?0:a))}for(let e=0,t=0,n=v(14,20);D.length&&e<n&&t<n*12;t++)oe(y(D),v(2,f),v(p,m))&&e++;for(let e=0;ae.length<34&&e<500;e++)oe(y(T),v(2,f),v(p,m));for(let n of C)await c.TerrainTile.put({id:`${i}:${e}:${n.x}:${n.y}`,worldId:i,playerId:t,area:e,x:n.x,y:n.y,type:`water`,updatedAt:Date.now()});for(let e of ae)await c.Placement.put(e);let ce=C.length,le=ae.length,k=l.animals.filter(t=>t.biome===e),ue=new Set((await R(c.Discovery,i)).filter(t=>t.biomeId===e).map(e=>e.animalId));for(let n of k)ue.has(n.id)||await c.Discovery.put({id:`${i}:${n.id}`,worldId:i,playerId:t,animalId:n.id,biomeId:e,comfort:90,timesObserved:0,firstObservedAt:Date.now(),whyReturned:ln(n,l)});await X(i,t,e,{player:u});let fe=await z(c.BiomeState,i,e);await c.BiomeState.patch(fe?.id??`${i}:${e}`,{health:100,balance:100,returnedCount:k.length});for(let t of(await R(c.Discovery,i)).filter(t=>t.biomeId===e))await c.Discovery.patch(t.id,{comfort:90});d.push(`Populated ${n.name}: ${le} objects, ${ce} water tiles, ${k.length} animals home, health 100`);break}case`set-weather`:{let e=a&&typeof a==`object`?a:null;if(!e||e.clear){await c.Player.patch(t,{devWeather:null}),d.push(`Weather override cleared — back to the live sky`);break}let n=u.devWeather||{},r={type:n.type??null,season:n.season??null};if(`type`in e){if(e.type&&!f.includes(e.type))throw new A(b(`server.err.unknownWeatherType`,{type:e.type}));r.type=e.type||null}if(`season`in e){if(e.season&&!_.includes(e.season))throw new A(b(`server.err.unknownSeason`,{season:e.season}));r.season=e.season||null}await c.Player.patch(t,{devWeather:r}),d.push(`Weather override: ${r.type||`live`} · ${r.season||`live`}`);break}default:throw new A(b(`server.err.unknownDevAction`,{action:n}))}return{ok:!0,log:d,state:await zn(t)}}},ri=4e3,ii=class extends ${async post(e){let t=await Z(e),n=String(t.message||``).trim();if(!n)throw new A(b(`server.err.feedbackEmpty`));if(n.length>ri)throw new A(b(`server.err.feedbackTooLong`,{max:ri}));let r=String(t.replyTo||``).trim().slice(0,200)||null;if(r&&!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(r))throw new A(b(`server.err.feedbackBadEmail`));let i=t.metrics&&typeof t.metrics==`object`&&!Array.isArray(t.metrics)?t.metrics:{},a=Number(t.queuedAt)||null,o=`fb_${Date.now()}_${Math.random().toString(36).slice(2,10)}`;return await k().Feedback.put({id:o,message:n,replyTo:r,metrics:i,queuedAt:a,createdAt:Date.now()}),{ok:!0,id:o}}},ai=class extends Resource{async get(){let e=await P(k().Feedback);return e.sort((e,t)=>(t.createdAt||0)-(e.createdAt||0)),{count:e.length,feedback:e}}},oi=24e3,si=class extends ${async post(e){let t=await Z(e),n=String(t.clientId||``).trim().slice(0,64);if(!n)throw new A(b(`server.err.clientIdRequired`));let r=t.snapshot&&typeof t.snapshot==`object`&&!Array.isArray(t.snapshot)?t.snapshot:null;if(!r)throw new A(b(`server.err.snapshotRequired`));let i=JSON.stringify(r);if(i.length>oi)throw new A(b(`server.err.snapshotTooLarge`));let a=k(),o=`solo:${n}`,s=await N(a.SoloMetrics,o);return await a.SoloMetrics.put({id:o,clientId:n,name:String(t.name||r.name||``).slice(0,40),platform:String(t.platform||``).slice(0,20)||null,os:String(t.os||``).slice(0,20)||null,version:String(t.version||``).slice(0,24)||null,build:String(t.build||``).slice(0,40)||null,language:String(t.language||r.language||``).trim().toLowerCase().slice(0,12)||null,snapshot:i,createdAt:s?.createdAt||Date.now(),updatedAt:Date.now()}),Xr=null,{ok:!0}}},ci=class extends ${async post(e){let t=await Z(e),n=String(t.deviceId||``).trim().slice(0,64);if(!n)throw new A(b(`server.err.deviceIdRequired`));let r=t.phase===`created`?`created`:t.phase===`demo_done`?`demo_done`:`open`,i=Date.now(),a=k(),o=`dev:${n}`,s=await F(a.AppOpen,o),c=ue(Math.round(Number(t.creationMs)||0),0,36e5);return await a.AppOpen.put({id:o,deviceId:n,platform:String(t.platform||``).slice(0,20)||s?.platform||null,os:String(t.os||``).slice(0,20)||s?.os||null,version:String(t.version||``).slice(0,24)||s?.version||null,edition:t.edition===`demo`||s?.edition===`demo`?`demo`:t.edition===`full`?`full`:s?.edition||null,language:String(t.language||``).trim().toLowerCase().slice(0,12)||s?.language||null,firstOpenAt:s?.firstOpenAt||i,lastOpenAt:i,opens:(s?.opens||0)+ +(r===`open`),converted:s?.converted||r===`created`,firstConvertedAt:s?.firstConvertedAt||(r===`created`?i:0),savesCreated:(s?.savesCreated||0)+ +(r===`created`),creationMs:r===`created`&&c>0?c:s?.creationMs||0,reachedDemoGoal:s?.reachedDemoGoal||r===`demo_done`,demoGoalAt:s?.demoGoalAt||(r===`demo_done`?i:0),updatedAt:i}),Xr=null,{ok:!0}}},li=/^[^\s@]+@[^\s@]+\.[^\s@]+$/,ui=new Set([`appstore`,`itch`,`demo`,`theme`,`privacy`,`support`,`get-nav`,`gallery`]),di=e=>new Date(e).toISOString().slice(0,10),fi=null,pi=15e3;async function mi(e){try{let t=k().LandingStat;if(!t)return;let n=Date.now(),r=di(n),i=`day:${r}`,a=await F(t,i)||{id:i,day:r,visits:0,uniques:0,clicks:{},signups:0};e(a),a.updatedAt=n,await t.put(a),fi=null}catch(e){console.error(`landing stat bump failed —`,e?.message||e)}}var hi=class extends ${async post(e){let t=await Z(e);if(String(t.website||``).trim())return{ok:!0};let n=String(t.email||``).trim().toLowerCase().slice(0,254);if(!n||!li.test(n))throw new A(b(`server.err.mailBadEmail`));let r=String(t.source||`landing`).toLowerCase().replace(/[^a-z0-9-]/g,``).slice(0,24)||`landing`,i=k().MailingListSignup;if(!i)throw new A(b(`server.err.dbStarting`),503);let a=`ml:${n}`;return await N(i,a)||(await i.put({id:a,email:n,source:r,language:String(t.lang||t.language||``).trim().toLowerCase().slice(0,12)||null,createdAt:Date.now()}),await mi(e=>{e.signups=(e.signups||0)+1})),{ok:!0}}},gi=class extends Resource{async get(){let e=k().MailingListSignup,t=e?await P(e):[];return t.sort((e,t)=>(t.createdAt||0)-(e.createdAt||0)),{count:t.length,signups:t}}},_i=class extends ${async post(e){let t=await Z(e),n=t.type===`click`?`click`:t.type===`visit`?`visit`:null;if(!n)return{ok:!0};if(n===`visit`)await mi(e=>{e.visits=(e.visits||0)+1,t.first===!0&&(e.uniques=(e.uniques||0)+1)});else{let e=String(t.target||``).toLowerCase().replace(/[^a-z0-9-]/g,``).slice(0,24),n=ui.has(e)?e:`other`;await mi(e=>{e.clicks=e.clicks&&typeof e.clicks==`object`&&!Array.isArray(e.clicks)?e.clicks:{},e.clicks[n]=(e.clicks[n]||0)+1})}return{ok:!0}}},vi=class extends ${async get(){let e=Date.now();if(fi&&e-fi.at<pi)return fi.out;let t=k(),n=[];try{n=t.LandingStat?await P(t.LandingStat):[]}catch{n=[]}n=n.filter(e=>e&&e.day).sort((e,t)=>String(e.day).localeCompare(String(t.day)));let r={visits:0,uniques:0,signups:0,clicks:{}};for(let e of n){r.visits+=e.visits||0,r.uniques+=e.uniques||0,r.signups+=e.signups||0;for(let[t,n]of Object.entries(e.clicks||{}))r.clicks[t]=(r.clicks[t]||0)+(Number(n)||0)}let i=r.signups;try{t.MailingListSignup&&(i=(await P(t.MailingListSignup)).length)}catch{}let a=n.slice(-60).map(e=>({day:e.day,visits:e.visits||0,uniques:e.uniques||0,signups:e.signups||0,clicks:e.clicks||{},totalClicks:M(e.clicks)})),o={generatedAt:e,today:di(e),totals:{...r,signups:i,totalClicks:M(r.clicks)},days:a};return fi={at:e,out:o},o}},yi=e=>({status:200,headers:{"content-type":`text/html; charset=utf-8`,"cache-control":`public, max-age=3600`},body:e}),bi=class extends ${async get(){return yi(T)}},xi=class extends ${async get(){return yi(ee)}},Si=class extends ${async get(){return yi(te)}},Ci=class extends ${async get(){return yi(ne)}},wi=class extends ${async get(){return yi(re)}},Ti=`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg>`,Ei=class extends ${async get(){return{status:200,headers:{"content-type":`image/svg+xml`,"cache-control":`public, max-age=604800`},body:Ti}}},Di=class extends ${async get(){return{status:200,headers:{"content-type":`image/jpeg`,"cache-control":`public, max-age=604800`},body:qn.from(ie,`base64`)}}},Oi=class extends ${async get(){let{themeMp3B64:e}=await x(async()=>{let{themeMp3B64:e}=await import(`./theme-audio-DBsdT9kk.js`);return{themeMp3B64:e}},[],import.meta.url);return{status:200,headers:{"content-type":`audio/mpeg`,"cache-control":`public, max-age=604800`,"accept-ranges":`none`},body:qn.from(e,`base64`)}}};export{wi as"",ci as AppOpen,Kr as AppendFeed,ti as BiomeSnapshot,tr as ChangePasscode,cr as CheckWorldCode,yr as ChestTransfer,Vr as ClaimTask,vr as CollectResource,xr as CraftItem,Zn as CreatePlayer,ar as CreateWorld,$n as DeleteDemoSave,Qn as DeletePlayer,ni as DevTools,br as DiscardItem,er as ExportDemoSave,Xn as GameData,rr as GameState,Or as HarvestPlacement,Yr as Heartbeat,hi as JoinMailingList,ur as JoinRequestStatus,sr as JoinWorld,_i as LandingEvent,vi as LandingStats,hr as LeaveWorld,ai as ListFeedback,gi as ListMailingList,nr as LoginPlayer,ei as Metrics,Ar as MoveObject,ir as MyWorlds,Br as ObserveAnimal,dr as PendingJoinRequests,Tr as PlaceObject,Er as Plant,_r as Presence,Wr as RecalcBiome,jr as RemoveObject,lr as RequestJoin,fr as ResolveJoin,Fr as Rest,Hr as SetGoals,Lr as SetHomeColors,zr as SetHomeStyle,Rr as SetPlacementColor,ii as SubmitFeedback,mr as SwitchWorld,si as SyncMetrics,Gr as SyncPlayer,Ur as Terraform,kr as UpdateAppearance,Nr as UpgradeHome,Mr as UpgradeTool,Wn as Version,pr as WorldRoster,xi as"age-rating",Ci as dashboard,Ei as favicon,Jt as healthCapForReturns,Di as"og-image",bi as privacy,Si as support,Oi as theme};

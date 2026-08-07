@@ -133,8 +133,7 @@
 		"snapshotRequired": "se requiere snapshot",
 		"snapshotTooLarge": "snapshot demasiado grande",
 		"deviceIdRequired": "se requiere deviceId",
-		"notDemoSave": "Este guardado no se puede eliminar de esta forma.",
-		"saveUnreadable": "Algo salió mal al abrir tu partida y no pudimos recuperarla. Lo sentimos: hemos registrado lo ocurrido para poder solucionarlo. Por favor, empieza una partida nueva."
+		"notDemoSave": "Este guardado no se puede eliminar de esta forma."
 	},
 	"task": {
 		"welcomeGrasshopper": "Dale la bienvenida al saltamontes que vuelve a casa",
