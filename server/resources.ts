@@ -3784,7 +3784,15 @@ export class GameData extends PublicEndpoint {
 		const reqHeaders: any = (this.getContext?.() as any)?.headers;
 		if (!reqHeaders || typeof reqHeaders.get !== 'function') return obj;
 
-		const cacheControl = 'public, max-age=300, stale-while-revalidate=604800';
+		// `no-cache` means "cache it, but revalidate every time" — NOT "don't cache".
+		// The catalog changes on deploy (new hats, hairstyles, skin tones), and the
+		// old value here — `public, max-age=300, stale-while-revalidate=604800` —
+		// meant a browser served the OLD catalog from cache for 5 minutes without
+		// asking, then served it stale for up to 7 more days while revalidating in
+		// the background. A deploy could take a week to show up in a browser, which
+		// looked exactly like "the new options didn't ship". Revalidation is cheap:
+		// the etag below is the build stamp, so an unchanged catalog costs a 304.
+		const cacheControl = 'no-cache';
 		// Revalidation hit: same build the client already has → send nothing.
 		// Compare loosely so a weak/strong prefix or quoting mismatch still matches.
 		const norm = (s: string) => s.replace(/^W\//, '').trim();
