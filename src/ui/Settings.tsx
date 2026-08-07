@@ -7,7 +7,16 @@ import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import { hasKey, LOCALE_NAMES, chooseLocale } from '../i18n';
 import { useI18n } from '../i18n/react';
-import { usePrefs, setPrefs, FONT_CHOICES, type TextScale, type ColorblindMode, type FontChoice } from '../prefs';
+import {
+	usePrefs,
+	setPrefs,
+	useResolvedTheme,
+	FONT_CHOICES,
+	type TextScale,
+	type ColorblindMode,
+	type FontChoice,
+	type ThemeChoice,
+} from '../prefs';
 import {
 	BIND_ACTIONS,
 	getBindings,
@@ -281,6 +290,56 @@ export function AppearanceEditor({ value, onChange }: { value: Appearance; onCha
 	);
 }
 
+/**
+ * Light / Dark / Match system, as a three-way segmented control.
+ *
+ * A <select> would have matched the other pickers here, but this is the one
+ * setting whose result you can see the instant you touch it — three always-
+ * visible chips let you flick between them and watch the panel change, instead
+ * of opening a menu that covers the thing it's restyling.
+ *
+ * The System chip names what it resolves to right now ("Match system — dark")
+ * rather than leaving you to guess, and follows along if you change it at the
+ * OS level with this panel open.
+ */
+export function ThemeControl() {
+	const { t } = useI18n();
+	const prefs = usePrefs();
+	const resolved = useResolvedTheme();
+	const choices: { id: ThemeChoice; icon: string }[] = [
+		{ id: 'light', icon: 'sun' },
+		{ id: 'dark', icon: 'moon' },
+		{ id: 'system', icon: 'monitor' },
+	];
+	return (
+		<div className="a11y-row theme-row">
+			<span className="a11y-label">
+				<b>{t('app.settings.theme')}</b>
+				<span className="muted small">
+					{prefs.theme === 'system'
+						? t(`app.settings.themeHint.system.${resolved}`)
+						: t(`app.settings.themeHint.${prefs.theme}`)}
+				</span>
+			</span>
+			<div className="theme-picker" role="radiogroup" aria-label={t('app.settings.theme')}>
+				{choices.map(({ id, icon }) => (
+					<button
+						key={id}
+						type="button"
+						role="radio"
+						aria-checked={prefs.theme === id}
+						className={`theme-chip ${prefs.theme === id ? 'on' : ''}`}
+						onClick={() => setPrefs({ theme: id })}
+					>
+						<Icon name={icon} size={15} />
+						<span>{t(`app.settings.theme${id[0].toUpperCase()}${id.slice(1)}`)}</span>
+					</button>
+				))}
+			</div>
+		</div>
+	);
+}
+
 /** Accessibility controls (reduce motion, colorblind/high-contrast, text size).
  *  Shared by the in-game Settings panel and the title-screen Accessibility modal. */
 export function AccessibilityControls() {
@@ -288,17 +347,18 @@ export function AccessibilityControls() {
 	const prefs = usePrefs();
 	return (
 		<>
+			<ThemeControl />
 			<div className="a11y-row">
 				<span className="a11y-label">
-					<b>{t('app.settings.reduceMotion')}</b>
-					<span className="muted small">{t('app.settings.reduceMotionHint')}</span>
+					<b>{t('app.settings.simpleText')}</b>
+					<span className="muted small">{t('app.settings.simpleTextHint')}</span>
 				</span>
 				<label className="switch">
 					<input
 						type="checkbox"
-						checked={prefs.reduceMotion}
-						onChange={(e) => setPrefs({ reduceMotion: e.target.checked })}
-						aria-label={t('app.settings.reduceMotion')}
+						checked={prefs.simpleText}
+						onChange={(e) => setPrefs({ simpleText: e.target.checked })}
+						aria-label={t('app.settings.simpleText')}
 					/>
 					<span className="track" />
 					<span className="thumb" />
@@ -322,15 +382,15 @@ export function AccessibilityControls() {
 			</div>
 			<div className="a11y-row">
 				<span className="a11y-label">
-					<b>{t('app.settings.simpleText')}</b>
-					<span className="muted small">{t('app.settings.simpleTextHint')}</span>
+					<b>{t('app.settings.reduceMotion')}</b>
+					<span className="muted small">{t('app.settings.reduceMotionHint')}</span>
 				</span>
 				<label className="switch">
 					<input
 						type="checkbox"
-						checked={prefs.simpleText}
-						onChange={(e) => setPrefs({ simpleText: e.target.checked })}
-						aria-label={t('app.settings.simpleText')}
+						checked={prefs.reduceMotion}
+						onChange={(e) => setPrefs({ reduceMotion: e.target.checked })}
+						aria-label={t('app.settings.reduceMotion')}
 					/>
 					<span className="track" />
 					<span className="thumb" />

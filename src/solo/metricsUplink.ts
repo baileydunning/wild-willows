@@ -21,10 +21,12 @@ import { api, getPlayerId, getSoloSlot, getTransport, COOP_BASE_URL, IS_DESKTOP 
 import { getLocale } from '../i18n';
 import { DEMO, EDITION } from '../demo';
 import { APP_VERSION, BUILD_TIME, detectOS } from '../platform';
-import { getPrefs } from '../prefs';
+import { getPrefs, resolveTheme } from '../prefs';
 
 /** Compact audio + accessibility settings snapshot for the metrics dashboard
- *  (mute rate, colorblind/contrast/text-size/reduce-motion/font usage). */
+ *  (mute rate, and every option in Settings → Accessibility). Anything a player
+ *  can turn on in that section belongs here; if you add a preference there, add
+ *  it here too, or the dashboard quietly under-reports adoption. */
 function snapshotPrefs() {
 	const p = getPrefs();
 	return {
@@ -37,6 +39,13 @@ function snapshotPrefs() {
 		fontChoice: p.fontChoice,
 		highContrast: p.highContrast,
 		textScale: p.textScale,
+		simpleText: p.simpleText,
+		interactHint: p.interactHint,
+		// Both halves of the theme: what the player CHOSE, and what they are
+		// actually looking at. They come apart on 'system', where the stored value
+		// alone can't tell you whether anyone is seeing a dark interface.
+		theme: p.theme,
+		themeResolved: resolveTheme(p),
 	};
 }
 

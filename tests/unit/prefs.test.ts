@@ -17,7 +17,16 @@ const store = new Map<string, string>();
 	},
 };
 
-import { normalizePrefs, getPrefs, setPrefs, subscribe, FONT_CHOICES, TEXT_SCALE_VALUES } from '../../src/prefs';
+import {
+	normalizePrefs,
+	getPrefs,
+	setPrefs,
+	subscribe,
+	resolveTheme,
+	FONT_CHOICES,
+	THEME_CHOICES,
+	TEXT_SCALE_VALUES,
+} from '../../src/prefs';
 
 describe('accessibility prefs', () => {
 	beforeEach(() => {
@@ -28,6 +37,7 @@ describe('accessibility prefs', () => {
 			fontChoice: 'storybook',
 			highContrast: false,
 			textScale: 'md',
+			theme: 'light',
 		});
 	});
 
@@ -45,6 +55,7 @@ describe('accessibility prefs', () => {
 			keybinds: {},
 			interactHint: true,
 			simpleText: false,
+			theme: 'light',
 		});
 		expect(normalizePrefs('nonsense')).toEqual({
 			reduceMotion: false,
@@ -59,6 +70,7 @@ describe('accessibility prefs', () => {
 			keybinds: {},
 			interactHint: true,
 			simpleText: false,
+			theme: 'light',
 		});
 		// bad textScale falls back; a valid colorblind mode is preserved
 		expect(normalizePrefs({ textScale: 'huge', colorblindMode: 'blueyellow' })).toEqual({
@@ -74,6 +86,7 @@ describe('accessibility prefs', () => {
 			keybinds: {},
 			interactHint: true,
 			simpleText: false,
+			theme: 'light',
 		});
 		// unknown mode falls back to off
 		expect(normalizePrefs({ colorblindMode: 'nope' }).colorblindMode).toBe('off');
@@ -169,6 +182,7 @@ describe('accessibility prefs', () => {
 			keybinds: {},
 			interactHint: true,
 			simpleText: false,
+			theme: 'light',
 		});
 	});
 
@@ -204,5 +218,63 @@ describe('accessibility prefs', () => {
 		expect(root.dataset.colorblind).toBe('off');
 		expect(root.dataset.reduceMotion).toBe('0');
 		expect(root.style.getPropertyValue('--ui-scale')).toBe('1');
+	});
+	it('starts on light and stays there until somebody chooses otherwise', () => {
+		// A brand-new save has no `theme` key, and neither does one written before
+		// dark mode shipped. Both land on light, so the game looks the way it always
+		// has until the player goes and changes it.
+		expect(normalizePrefs(null).theme).toBe('light');
+		expect(normalizePrefs({}).theme).toBe('light');
+		expect(normalizePrefs({ textScale: 'lg', fontChoice: 'classic' }).theme).toBe('light');
+		// Not even a dark OS reaches in and decides for them — 'system' has to be picked.
+		expect(resolveTheme(normalizePrefs({}))).toBe('light');
+		// A hand-edited or future-build value must not reach the DOM as a bogus attribute.
+		expect(normalizePrefs({ theme: 'sepia' }).theme).toBe('light');
+		expect(normalizePrefs({ theme: 7 }).theme).toBe('light');
+		// Every offered choice is still honoured once it IS set.
+		for (const c of THEME_CHOICES) expect(normalizePrefs({ theme: c }).theme).toBe(c);
+	});
+
+	it('resolves the theme to a literal light/dark before it reaches <html>', () => {
+		// The stylesheet matches [data-theme='dark'] / 'light' and knows nothing about
+		// 'system', so 'system' must never survive as far as the attribute.
+		const root = document.documentElement;
+
+		setPrefs({ theme: 'dark' });
+		expect(getPrefs().theme).toBe('dark');
+		expect(resolveTheme()).toBe('dark');
+		expect(root.dataset.theme).toBe('dark');
+
+		setPrefs({ theme: 'light' });
+		expect(root.dataset.theme).toBe('light');
+
+		// jsdom has no matchMedia, which is also the no-DOM / older-webview case:
+		// resolving must not throw, and must land on light.
+		setPrefs({ theme: 'system' });
+		expect(getPrefs().theme).toBe('system');
+		expect(root.dataset.theme).toBe('light');
+		expect(['light', 'dark']).toContain(root.dataset.theme);
+	});
+
+	it('keeps the theme independent of the other display prefs', () => {
+		// High contrast and the colorblind modes each carry a theme layered ON TOP of
+		// light/dark — turning one on must not disturb the other two.
+		setPrefs({ theme: 'dark', highContrast: true, colorblindMode: 'mono' });
+		const root = document.documentElement;
+		expect(root.dataset.theme).toBe('dark');
+		expect(root.dataset.highContrast).toBe('1');
+		expect(root.dataset.colorblind).toBe('mono');
+
+		setPrefs({ highContrast: false, colorblindMode: 'off' });
+		expect(root.dataset.theme).toBe('dark');
+		expect(getPrefs().theme).toBe('dark');
+	});
+
+	it('persists the theme like any other preference', () => {
+		setPrefs({ theme: 'dark' });
+		window.dispatchEvent(new Event('pagehide'));
+		expect(JSON.parse(store.get('ww:a11y')!).theme).toBe('dark');
+		// and a round-trip through storage brings it back intact
+		expect(normalizePrefs(JSON.parse(store.get('ww:a11y')!)).theme).toBe('dark');
 	});
 });

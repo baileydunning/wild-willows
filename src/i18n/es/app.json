@@ -453,7 +453,7 @@
 		"colorblindBlueYellow": "Azul–amarillo",
 		"colorblindMono": "Blanco y negro",
 		"colorblindHint": {
-			"off": "El daltonismo afecta hasta a 1 de cada 12 personas. Elige el tipo que se ajuste a ti y el juego se recolorea, aumenta el contraste, etiqueta el clima y la hora del día y mantiene una luz diurna estable para que nada dependa solo del color.",
+			"off": "Elige el tipo que se ajuste a ti. El juego se recolorea, aumenta el contraste, etiqueta el clima y la hora del día y estabiliza la luz para que nada dependa solo del color.",
 			"redgreen": "El rojo–verde (deuteranopía y protanopía) es el tipo más común: los rojos y los verdes se parecen. Esto separa esos tonos en el mundo, añade alto contraste y etiquetas de texto, y estabiliza la iluminación.",
 			"blueyellow": "El azul–amarillo (tritanopía) es más raro: cuesta distinguir azules de verdes, y amarillos de rosas. Esto separa esos tonos en el mundo, añade alto contraste y etiquetas de texto, y estabiliza la iluminación.",
 			"mono": "La acromatopsia es ver poco o ningún color. Esto muestra el juego en blanco y negro y se apoya por completo en el contraste, los contornos y las etiquetas de texto en lugar del color."
@@ -480,8 +480,20 @@
 		"fontClassic": "Clásica",
 		"fontPlain": "Sencilla",
 		"fontTypewriter": "Máquina de escribir",
+		"theme": "Apariencia",
+		"themeLight": "Claro",
+		"themeDark": "Oscuro",
+		"themeSystem": "Sistema",
+		"themeHint": {
+			"light": "Paneles y menús claros.",
+			"dark": "Paneles y menús atenuados.",
+			"system": {
+				"light": "Sigue a tu dispositivo, que ahora está en claro.",
+				"dark": "Sigue a tu dispositivo, que ahora está en oscuro."
+			}
+		},
 		"highContrast": "Alto contraste",
-		"highContrastHint": "Oscurece el texto, los bordes y los colores de acento hasta cumplir el estándar de lectura WCAG AA, sin perder el aire cálido de crema y verde."
+		"highContrastHint": "Refuerza el texto, los bordes y los colores de acento para que todo se lea mejor."
 	},
 	"kbGate": {
 		"title": "Wild Willows necesita un teclado",

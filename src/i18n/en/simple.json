@@ -182,7 +182,7 @@
 			"simpleTextHint": "Uses short sentences and everyday words all through the game. That includes the animal notes. Nothing is hidden. It is just said in a simpler way.",
 			"reduceMotionHint": "Stops menu animations, rain and snow, camera moves, and the day and night light change. The view stays still and evenly lit.",
 			"colorblindHint": {
-				"off": "Color blindness affects up to 1 in 12 people. Pick the type that fits you. The game will change its colors, raise contrast, label the weather and time of day, and hold steady daylight. Then nothing depends on color alone.",
+				"off": "Pick the type that fits you. The game changes its colors, raises contrast, and labels the weather and time of day. Then nothing depends on color alone.",
 				"redgreen": "Red and green is the most common type. Reds and greens look alike. This moves those colors apart, raises contrast, adds text labels, and holds the light steady.",
 				"blueyellow": "Blue and yellow is more rare. Blues and greens look alike, and so do yellows and pinks. This moves those colors apart, raises contrast, adds text labels, and holds the light steady.",
 				"mono": "This type means seeing little or no color. The game turns black and white. It uses contrast, outlines, and text labels instead of color."
@@ -197,7 +197,15 @@
 			"errPasscodeLength": "Your new passcode must be 4 to 32 characters long.",
 			"emailPlaceholder": "Your email. Only if you want a reply.",
 			"feedbackQueued": "We could not send that right now. Your note is saved. It will send next time you start the game.",
-			"highContrastHint": "Makes words and edges darker so they are easier to see. The cozy colors stay."
+			"themeHint": {
+				"light": "Bright screens and menus.",
+				"dark": "Dark screens and menus.",
+				"system": {
+					"light": "Matches your device. Right now that's light.",
+					"dark": "Matches your device. Right now that's dark."
+				}
+			},
+			"highContrastHint": "Makes words and edges stand out more so they are easier to see."
 		},
 		"hud": {
 			"healthHint": "Raise health by watering the land and adding homes for animals. Dig a bed and water it. Plant flowers and trees. Place things you craft. Every bit helps.",

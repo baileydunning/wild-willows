@@ -6555,20 +6555,33 @@ export class Metrics extends PublicEndpoint {
 				// The font picker replaced a dyslexia-font toggle. It's a taste setting
 				// now, not an assistive one, so it no longer counts toward anyEnabled —
 				// otherwise every player who just liked the serif would inflate the
-				// accessibility-adoption number.
+				// accessibility-adoption number. Dark mode is kept out for the same
+				// reason, and turning the interact hint OFF is the opposite of enabling
+				// an aid. Both are still reported below, just not counted here.
 				anyEnabled: countPref(
 					(p) =>
 						p.reduceMotion === true ||
 						p.highContrast === true ||
 						(p.colorblindMode && p.colorblindMode !== 'off') ||
-						(p.textScale && p.textScale !== 'md'),
+						(p.textScale && p.textScale !== 'md') ||
+						p.simpleText === true,
 				),
 				colorblindModes: tallyPref((p) => p.colorblindMode || 'off'),
 				textScales: tallyPref((p) => p.textScale || 'md'),
+				simpleText: countPref((p) => p.simpleText === true),
+				// interactHint ships ON, so the number worth watching is who turns it OFF.
+				interactHintOff: countPref((p) => p.interactHint === false),
 				// Saves that predate the picker still carry `dyslexiaFont: true`; the
 				// client migrates those to 'plain' on load, so mirror that here rather
 				// than tallying them as an absent field.
 				fonts: tallyPref((p) => p.fontChoice || (p.dyslexiaFont === true ? 'plain' : 'storybook')),
+				// Theme, both ways round. `themes` is what players picked, which is the
+				// actionable number; `themesResolved` is what they were actually looking
+				// at, which is the only way to see through 'system'. Snapshots that
+				// predate dark mode carry neither and count as light — that build had no
+				// other option, so it's what those players saw.
+				themes: tallyPref((p) => p.theme || 'light'),
+				themesResolved: tallyPref((p) => p.themeResolved || p.theme || 'light'),
 			},
 		};
 

@@ -232,6 +232,16 @@ const PATHS: Record<string, React.ReactNode> = {
 			<path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.2 5.2 7 7M17 17l1.8 1.8M18.8 5.2 17 7M7 17l-1.8 1.8" />
 		</>
 	),
+	/* Companions to `sun` for the Settings → Appearance picker. The crescent is one
+	   closed outline rather than a disc minus a disc, so it strokes cleanly at the
+	   15px the picker draws it at, like every other glyph here. */
+	moon: <path d="M20 14.2A8.4 8.4 0 0 1 9.6 3.9a8.5 8.5 0 1 0 10.4 10.3Z" />,
+	monitor: (
+		<>
+			<rect x="2.8" y="4.2" width="18.4" height="12.4" rx="2" />
+			<path d="M9 20.2h6M12 16.6v3.6" />
+		</>
+	),
 	pin: (
 		<>
 			<path d="M12 21s-6.5-5.4-6.5-10.2A6.3 6.5 0 0 1 12 4a6.3 6.5 0 0 1 6.5 6.8C18.5 15.6 12 21 12 21Z" />
