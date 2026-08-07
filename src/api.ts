@@ -658,15 +658,7 @@ export async function startSoloGame(
 export async function resumeSoloGame(slotId: string): Promise<{ playerId: string; state: GameState; slot: SaveMeta }> {
 	setTransport('solo');
 	const file = await loadSaveData(slotId);
-	if (!file) {
-		// Flagged so callers can tell "this slot is not here" from "this slot is
-		// here and will not open" — only the second is a corrupt save, and telling a
-		// player their save is unrecoverable when it merely isn't on this device
-		// would be worse than saying nothing.
-		const missing: any = new Error(t('app.error.saveNotFound'));
-		missing.saveMissing = true;
-		throw missing;
-	}
+	if (!file) throw new Error(t('app.error.saveNotFound'));
 	const state = await backendLoad(file.meta.playerId, file.data);
 	setSoloSlot(file.meta);
 	setPlayerId(file.meta.playerId);

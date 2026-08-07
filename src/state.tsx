@@ -20,7 +20,6 @@ import { DEMO, DEMO_FOREST_BIOME, DEMO_FOREST_MS } from './demo';
 import { flushFeedbackQueue } from './feedback';
 import { t, content, onLocaleChange } from './i18n';
 import { pokeMetricsUplink } from './solo/metricsUplink';
-import { reportSaveIncident } from './solo/saveIncident';
 import { reportCharacterCreated, reportDemoComplete } from './solo/appOpen';
 import { bridge } from './game/bridge';
 import { unlockedRecipeIds } from './recipes';
@@ -609,25 +608,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
 	const loadSoloSlot = useCallback(
 		async (slotId: string) => {
-			// Report a save that will not open BEFORE rethrowing. Desktop solo runs the
-			// backend in-app, so this failure is otherwise invisible to us — the player
-			// just sees an error and starts over, and we never learn it happened.
-			let resumed: Awaited<ReturnType<typeof resumeSoloGame>>;
-			try {
-				resumed = await resumeSoloGame(slotId);
-			} catch (e: any) {
-				// A slot that simply is not on this device is not a corrupt save — pass
-				// it through untouched rather than reporting it or alarming the player.
-				if (e?.saveMissing) throw e;
-				// The file is here and would not load. Report before rethrowing (desktop
-				// solo is invisible to the server otherwise), and replace whatever the
-				// storage layer threw with wording that tells the player it is the save,
-				// not the app, and what to do next.
-				reportSaveIncident(`solo:${slotId}`);
-				console.error('solo save would not open —', e?.message || e);
-				throw new Error(t('server.err.saveUnreadable'));
-			}
-			const { playerId, state } = resumed;
+			const { playerId, state } = await resumeSoloGame(slotId);
 			try {
 				const w = await api.myWorlds();
 				applyWorlds(w.worlds || [], w.activeWorldId || playerId);
