@@ -24,7 +24,8 @@ test.beforeEach(async ({ page }) => {
 	});
 });
 
-/** New save → dev panel → spawn an animal with a long diet line → open the journal. */
+/** New save → dev panel → spawn an animal with a long diet line → open the journal
+ *  on THAT animal's biome tab. */
 async function journalWithOwl(page: import('@playwright/test').Page) {
 	await page.goto('/');
 	await page.getByRole('button', { name: 'New Game' }).click();
@@ -43,6 +44,21 @@ async function journalWithOwl(page: import('@playwright/test').Page) {
 
 	await page.keyboard.press('j');
 	await expect(page.locator('.journal-entry').first()).toBeVisible();
+
+	// The journal opens on the tab for the biome you are STANDING IN (meadow, for
+	// a new save) and renders only that biome's animals — `allInTab` in Journal.tsx
+	// filters on `a.biome === tab`. The Great Horned Owl is a forest animal, so
+	// neither its entry nor the only `.silhouette.known` on screen is in the DOM
+	// until we switch tabs. Spawning it unlocked the forest, so the tab is enabled
+	// by the time click() finishes waiting for actionability.
+	await page.locator('.journal-panel .tabs button', { hasText: 'Old Hollow Forest' }).click();
+
+	// Assert the discovery landed HERE, in the shared setup. Without this the four
+	// geometry tests below still pass when the spawn silently fails: they measure
+	// whatever happens to be rendered, and a screen full of undiscovered meadow
+	// silhouettes overflows nothing. A green suite that never rendered the line it
+	// exists to guard is worse than a red one.
+	await expect(page.locator('.journal-entry', { hasText: 'Great Horned Owl' }).first()).toBeVisible();
 }
 
 test('no journal text escapes its card', async ({ page }) => {
