@@ -30,6 +30,7 @@
 		"requestFailed": "Request failed ({status})",
 		"notLoggedIn": "Not logged in",
 		"saveNotFound": "That save could not be found",
+		"saveWriteFailed": "Couldn't save your progress to this device. Recent changes may be lost — check that there's free space on the disk.",
 		"feedbackRejected": "The server couldn’t accept that feedback — try again later",
 		"cannotGoThere": "You cannot go there yet",
 		"loadSave": "Could not load that save"

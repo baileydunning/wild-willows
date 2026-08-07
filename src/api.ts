@@ -11,6 +11,7 @@ import { soloRequest } from './solo/backend';
 import { persist as persistSolo, type SaveMeta } from './solo/saves';
 import { DEMO, EDITION, DEMO_WEB_BACKEND } from './demo';
 import { adaptiveInterval, ewma } from './perf';
+import { bridge } from './game/bridge';
 
 const STORAGE_KEY = 'wild-willows:last-save';
 
@@ -243,7 +244,12 @@ function scheduleSoloSave() {
 		saveTimer = null;
 		if (savePending && soloSlot) {
 			savePending = false;
-			runSoloSave(soloSlot).catch(() => {});
+			runSoloSave(soloSlot).catch((e) => {
+				// Silently swallowing this meant a player whose disk was full kept
+				// playing a session that was never being written down.
+				console.error('solo save failed —', e?.message || e);
+				bridge.emit('save-error', { message: t('app.error.saveWriteFailed') });
+			});
 		}
 	}, soloSaveIntervalMs());
 }
@@ -402,10 +408,24 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 	// calls target COOP_BASE_URL too (only reached in Harper mode; the solo
 	// fallback routes through the local branch above).
 	const base = (transport === 'coop' && isDesktop) || DEMO_WEB ? COOP_BASE_URL : '';
-	const res = await fetch(base + path, {
-		headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
-		...options,
-	});
+	// fetch() REJECTS (rather than resolving with a status) only when the request
+	// never reached a server at all: no connection, DNS, CORS, or the machine going
+	// to sleep mid-request. The browser's wording for that is "Failed to fetch" —
+	// "Load failed" in Safari — which used to travel straight to a toast and told
+	// the player nothing about what was wrong or what to do. Name it here, once,
+	// where every web and co-op call passes through.
+	let res: Response;
+	try {
+		res = await fetch(base + path, {
+			headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+			...options,
+		});
+	} catch (e: any) {
+		const err: any = new Error(t('app.error.backendUnreachable'));
+		err.offline = true;
+		err.cause = e; // the raw reason is kept for the console, not for the player
+		throw err;
+	}
 	if (!res.ok) {
 		let message = t('app.error.requestFailed', { status: res.status });
 		try {

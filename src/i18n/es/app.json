@@ -30,6 +30,7 @@
 		"requestFailed": "La solicitud falló ({status})",
 		"notLoggedIn": "No has iniciado sesión",
 		"saveNotFound": "No se encontró esa partida",
+		"saveWriteFailed": "No se pudo guardar tu progreso en este dispositivo. Los cambios recientes podrían perderse; comprueba que haya espacio libre en el disco.",
 		"feedbackRejected": "El servidor no pudo aceptar ese comentario — inténtalo de nuevo más tarde",
 		"cannotGoThere": "Todavía no puedes ir allí",
 		"loadSave": "No se pudo cargar esa partida"
