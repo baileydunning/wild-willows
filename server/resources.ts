@@ -225,8 +225,21 @@ function lenientDecode(table: any, bytes: any): any | null {
  * are rewritten whenever they decode.
  */
 const SALVAGE_REQUIRED: Record<string, string[]> = {
-	Player: ['passcodeHash', 'passcodeSalt'],
+	// A salvage that drops any of these has lost something the player cannot get
+	// back, so we refuse to make it permanent: the row stays broken on disk and is
+	// recoverable by hand, rather than silently rewritten as a worse save. A reset
+	// home / emptied chest / re-damaged biome is the outcome we are buying our way
+	// out of here — it reads to the player as "my game restarted itself".
+	//
+	// The check below is `rec[k] == null`, so legitimately falsy values survive:
+	// an empty `contents` ({}), a fully damaged `health` (0) and an empty
+	// `inventory` are all valid and pass. Don't tighten it to a truthiness test.
+	Player: ['passcodeHash', 'passcodeSalt', 'inventory', 'tools', 'unlockedBiomes', 'home'],
 	World: ['ownerId'],
+	Chest: ['contents'],
+	BiomeState: ['biomeId', 'health'],
+	Discovery: ['animalId'],
+	Placement: ['objectId', 'area', 'x', 'y'],
 };
 
 function tableName(table: any): string {
@@ -337,7 +350,7 @@ async function safeGet(table: any, id: string): Promise<any | null> {
 	return await salvageRecord(table, id);
 }
 
-async function toArray(iterable: any): Promise<any[]> {
+async function toArray(iterable: any, label = '?'): Promise<any[]> {
 	const out: any[] = [];
 	let dropped = 0;
 	try {
@@ -356,15 +369,15 @@ async function toArray(iterable: any): Promise<any[]> {
 	} catch (e: any) {
 		// An outright throw ends iteration — an async iterator can't resume past a bad
 		// element — so keep what we read rather than failing the whole request.
-		console.error('scan: aborted at an undecodable record —', e?.message || e);
+		console.error(`scan of ${label}: aborted at an undecodable record —`, e?.message || e);
 	}
-	if (dropped) console.error(`scan: ${dropped} undecodable record(s) omitted from results`);
+	if (dropped) console.error(`scan of ${label}: ${dropped} undecodable record(s) omitted from results`);
 	return out;
 }
 
 async function allOf(table: any): Promise<any[]> {
 	if (!table || typeof table.search !== 'function') return [];
-	return toArray(table.search({}));
+	return toArray(table.search({}), tableName(table));
 }
 
 /**
@@ -384,7 +397,7 @@ async function allOf(table: any): Promise<any[]> {
  */
 async function findCounterRow(table: any, id: string): Promise<any | null> {
 	if (!table || typeof table.search !== 'function') return null;
-	const rows = await toArray(table.search({}));
+	const rows = await toArray(table.search({}), tableName(table));
 	return rows.find((r: any) => r?.id === id) || (await safeGet(table, id));
 }
 
@@ -405,7 +418,7 @@ async function byPlayer(table: any, playerId: string): Promise<any[]> {
 	// the world (placements, chests, terrain) load empty until the first action
 	// "warmed" things up. A plain scan never depends on the index being ready,
 	// and these per-player tables are tiny, so this is both correct and cheap.
-	const rows = await toArray(table.search({}));
+	const rows = await toArray(table.search({}), tableName(table));
 	return rows.filter((r: any) => r?.playerId === playerId);
 }
 
@@ -436,7 +449,7 @@ function worldOf(player: any): string {
 /** All rows belonging to one world (worldId, falling back to legacy playerId). */
 async function byWorld(table: any, worldId: string): Promise<any[]> {
 	if (!table || typeof table.search !== 'function') return [];
-	const rows = await toArray(table.search({}));
+	const rows = await toArray(table.search({}), tableName(table));
 	return rows.filter((r: any) => (r?.worldId ?? r?.playerId) === worldId);
 }
 
@@ -590,7 +603,7 @@ async function reconcileDefinitions() {
 	];
 	for (const [table, records] of sources) {
 		const valid = new Set(records.map((r: any) => r.id));
-		for (const row of await toArray(table.search({}))) {
+		for (const row of await toArray(table.search({}), tableName(table))) {
 			if (!valid.has(row.id)) await table.delete(row.id);
 		}
 		// Force each stored record to exactly match the JSON. Harper's data loader
@@ -3830,24 +3843,27 @@ export class CreatePlayer extends PublicEndpoint {
 		const code = String(passcode || '');
 		if (code.length < 4 || code.length > 32) throw new GameError(tr('server.err.passcodeLength'));
 
+		// EVERY save gets a unique id (name-slug + random suffix), demo or not. The
+		// caretaker name is a label, not an identity: two people — or one person
+		// with two saves — may both be "Willow", and neither should be told the
+		// name is taken.
+		//
+		// This also closes a data-loss path. Ids used to be the bare name slug, so
+		// a returning player whose row had gone undecodable was told "no save, try
+		// New Game" (safeGet reports absent and corrupt identically), typed the
+		// same name, landed on the SAME id, and the collision check — also a
+		// safeGet — saw nothing and let the fresh save overwrite them. House back
+		// to a tent, inventory empty, world untouched in the other tables. A random
+		// id cannot land on an existing row, so that sequence is impossible now.
+		//
+		// existsRaw backs up safeGet here for the same reason: a row that is on
+		// disk but unreadable still occupies its id.
+		const base = slugId(cleanName) || 'caretaker';
+		const t = db();
 		let playerId: string;
-		if (ed === 'demo') {
-			// Demo saves are anonymous and throwaway, and many players share the
-			// hosted instance — so mint a UNIQUE id (name-slug + random suffix)
-			// instead of the bare name-slug, which would collide the moment two
-			// visitors pick the same caretaker name. The display name still shows
-			// what they typed; only the internal id carries the suffix.
-			const base = slugId(cleanName) || 'caretaker';
-			const t = db();
-			do {
-				playerId = `${base}-${Math.random().toString(36).slice(2, 8)}`;
-			} while (await safeGet(t.Player, playerId));
-		} else {
-			playerId = slugId(cleanName);
-			if (!playerId) throw new GameError(tr('server.err.nameNeedsAlnum'));
-			const existing = await safeGet(db().Player, playerId);
-			if (existing) throw new GameError(tr('server.err.saveExists'), 409);
-		}
+		do {
+			playerId = `${base}-${Math.random().toString(36).slice(2, 8)}`;
+		} while ((await safeGet(t.Player, playerId)) || existsRaw(t.Player, playerId));
 
 		// Client reports how long the player spent in the character creator (ms),
 		// clamped to a sane range so a bad clock can't skew the average.
@@ -4031,16 +4047,40 @@ export class ChangePasscode extends PublicEndpoint {
 export class LoginPlayer extends PublicEndpoint {
 	async post(data: any) {
 		const { name, passcode, tzOffsetMinutes } = await bodyOf(data);
-		const playerId = slugId(String(name || ''));
-		const player = playerId ? await safeGet(db().Player, playerId) : null;
+		// Saves created before ids became unique still live at the bare name slug, so
+		// try that first. Newer saves carry a random suffix and can share a name, so
+		// fall back to every player whose stored name matches and let the passcode
+		// pick which one — the passcode is the identity, the name is a label.
+		const slug = slugId(String(name || ''));
+		let player = slug ? await safeGet(db().Player, slug) : null;
+		if (player && !(await verifyPasscode(player, passcode))) player = null;
+		if (!player) {
+			const wanted = String(name || '')
+				.trim()
+				.toLowerCase();
+			const candidates = wanted
+				? (await allOf(db().Player)).filter(
+						(p: any) =>
+							String(p?.name || '')
+								.trim()
+								.toLowerCase() === wanted,
+					)
+				: [];
+			for (const c of candidates) {
+				if (await verifyPasscode(c, passcode)) {
+					player = c;
+					break;
+				}
+			}
+		}
 		if (!player) throw new GameError(tr('server.err.noSaveTryNew'), 404);
-		if (!(await verifyPasscode(player, passcode))) throw new GameError(tr('server.err.passcodeMismatch'), 403);
 		const d = await defs();
 		// Reset the heartbeat clock so the first beat after login is counted as a
 		// fresh play session (and back-fill metrics for saves made before tracking).
 		// lastSeenAt is deliberately NOT bumped here — the first heartbeat reads it
 		// to measure the absence for the welcome-back growth summary, then updates it.
 		const now = Date.now();
+		const playerId = player.id;
 		const prev = readMetrics(player) || freshMetrics(player.createdAt || now);
 		await db().Player.patch(playerId, {
 			metrics: encodeMetrics({ ...prev, lastHeartbeatAt: 0 }),
