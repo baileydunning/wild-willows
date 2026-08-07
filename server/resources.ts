@@ -507,11 +507,6 @@ async function ensureSoloWorld(player: any, opts: { freshGrid?: boolean } = {}):
 			joinCode: null,
 			createdAt: player.createdAt || Date.now(),
 			maxMembers: 1,
-			// brand-new saves are seeded at the shifted meadow coordinates already,
-			// so the world starts aligned to the current camp offset; older worlds
-			// omit these and get realigned by migrateMeadowWest below.
-			meadowShift: opts.freshGrid ? MEADOW_SHIFT : 0,
-			meadowShiftY: opts.freshGrid ? MEADOW_SHIFT_Y : 0,
 		});
 	}
 	const memberId = `${soloId}:${player.id}`;
@@ -526,9 +521,6 @@ async function ensureSoloWorld(player: any, opts: { freshGrid?: boolean } = {}):
 		});
 	}
 	if (!player.worldId) await t.Player.patch(player.id, { worldId: soloId });
-	// realign an existing solo world's meadow to the current camp offset (no-op
-	// for a just-created, already-aligned world)
-	if (!opts.freshGrid) await migrateMeadowWest(soloId);
 }
 
 /** Every world a player belongs to, shaped for the client's world picker. */
@@ -1157,59 +1149,6 @@ function slugId(name: string): string {
 // Starter base camp: tent + campfire scenery with a storage chest. Crafting
 // needs no station — it works anywhere, from the basket plus any chests.
 const STARTER_CHEST = { x: 23, y: 5, size: 'small-chest', capacity: 120 };
-
-// The camp keeps its exact main-branch arrangement, shifted MEADOW_SHIFT tiles
-// east so a wide strip of wild land opens to its WEST — enough that the house
-// sits roughly centered on screen and you can walk out west of it. Nothing from
-// main moved relative to the rest of the meadow (the run east to the forest gate
-// is unchanged); the new land is purely added on the west. No vertical shift.
-const MEADOW_SHIFT = 14;
-const MEADOW_SHIFT_Y = 0;
-
-/**
- * Save migration that keeps a world's meadow aligned with the current camp
- * offset (MEADOW_SHIFT east, MEADOW_SHIFT_Y south). It stores how far a world's
- * meadow has already been shifted (`world.meadowShift` / `world.meadowShiftY`)
- * and moves every meadow row (placements, terrain, chests) and every member
- * standing in the meadow by the DIFFERENCE to reach the current offset — so it's
- * self-correcting if the offset is ever retuned, and a no-op once a world is
- * already aligned. Worlds without the numeric fields are treated as main-branch
- * baseline (0). Brand-new worlds are created already aligned (their camp is
- * seeded at the shifted coordinates).
- */
-async function migrateMeadowWest(wid: string): Promise<boolean> {
-	const t = db();
-	const world = await safeGet(t.World, wid);
-	// Never shift without a World row to record the new offset on: if we shifted
-	// from an assumed applied=0 here, we couldn't persist meadowShift and would
-	// shift the meadow east AGAIN on the next call — an ever-drifting camp. The
-	// caller (ensureSoloWorld) creates the World before calling us, so this only
-	// guards a transiently unreadable/purged row.
-	if (!world) return false;
-	const applied = typeof world?.meadowShift === 'number' ? world.meadowShift : 0;
-	const appliedY = typeof world?.meadowShiftY === 'number' ? world.meadowShiftY : 0;
-	const delta = MEADOW_SHIFT - applied;
-	const deltaY = MEADOW_SHIFT_Y - appliedY;
-	if (delta !== 0 || deltaY !== 0) {
-		for (const table of [t.Placement, t.TerrainTile, t.Chest]) {
-			for (const row of await byWorld(table, wid)) {
-				if (row.area !== 'meadow') continue;
-				await table.patch(row.id, { x: (Number(row.x) || 0) + delta, y: (Number(row.y) || 0) + deltaY });
-			}
-		}
-		// every member standing in the meadow moves with their camp (read fresh
-		// from the DB so we never shift a stale in-memory position)
-		for (const m of await byWorld(t.WorldMember, wid)) {
-			const p = await safeGet(t.Player, m.playerId);
-			if (p?.area === 'meadow' && worldOf(p) === wid) {
-				await t.Player.patch(p.id, { x: (Number(p.x) || 0) + delta, y: (Number(p.y) || 0) + deltaY });
-			}
-		}
-	}
-	if (world && (applied !== MEADOW_SHIFT || appliedY !== MEADOW_SHIFT_Y))
-		await t.World.patch(wid, { meadowShift: MEADOW_SHIFT, meadowShiftY: MEADOW_SHIFT_Y });
-	return delta !== 0 || deltaY !== 0;
-}
 
 // ------------------------------------------------------------ player setup
 
