@@ -88,16 +88,36 @@ test('the owl line fits on one line, whole, with no ellipsis', async ({ page }) 
 	await expect(owl).toBeVisible();
 
 	const diet = owl.locator('.entry-meta-text').first();
-	const m = await diet.evaluate((el) => ({
-		// scrollWidth > clientWidth would mean the text is being cut off.
-		overflowing: el.scrollWidth > el.clientWidth + 1,
-		// One line: the box is no taller than a single line of this text.
-		lines: Math.round(el.getBoundingClientRect().height / parseFloat(getComputedStyle(el).lineHeight || '0')),
-		text: el.textContent || '',
-	}));
+	const m = await diet.evaluate((el) => {
+		// Count real line boxes rather than dividing height by line-height.
+		// .entry-meta-text sets no line-height, so getComputedStyle returns the
+		// KEYWORD "normal" — parseFloat('normal') is NaN, and `|| '0'` never fires
+		// because 'normal' is truthy. The old expression evaluated to NaN, and
+		// `expect(NaN).toBeLessThanOrEqual(1)` is the only reason this ever looked
+		// like a passing single-line check. A Range yields one client rect per line
+		// box; deduping by top edge needs no computed line-height at all.
+		const range = document.createRange();
+		range.selectNodeContents(el);
+		const tops = new Set(
+			[...range.getClientRects()].filter((r) => r.width > 0 && r.height > 0).map((r) => Math.round(r.top)),
+		);
+		return {
+			// scrollWidth > clientWidth would mean the text is being cut off.
+			overflowing: el.scrollWidth > el.clientWidth + 1,
+			lines: tops.size,
+			width: Math.round(el.clientWidth),
+			text: el.textContent || '',
+		};
+	});
 
 	expect(m.overflowing).toBe(false);
-	expect(m.lines).toBeLessThanOrEqual(1);
+	// .entry-meta-text is allowed to wrap (see the note above it in styles.css —
+	// wrapping is the floor for big text scales and longer languages), so a wrapped
+	// line has no horizontal overflow and the check above cannot see it. This is
+	// the only assertion holding the English line to one row at default scale; if
+	// it reports 2, the diet string in data/animals-1.json has outgrown the card
+	// and wants trimming, exactly as this file's header describes.
+	expect(m.lines, `diet line used ${m.lines} rows in ${m.width}px: ${m.text}`).toBe(1);
 	// The sentence is intact — no "…" and no missing tail.
 	expect(m.text).not.toContain('…');
 	expect(m.text).not.toContain('...');
