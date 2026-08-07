@@ -368,6 +368,27 @@ async function allOf(table: any): Promise<any[]> {
 }
 
 /**
+ * Reliable single-row lookup by id, for the tiny analytics tables that
+ * read-modify-write a shared counter row (LandingStat, AppOpen).
+ *
+ * A primary-key `.get()` can return null for a row that genuinely exists on a
+ * cold Harper instance — the same failure findOwned/byPlayer were rewritten to
+ * dodge. For a per-player read that's a retryable miss; here it is destructive,
+ * because the caller reads the null as "no row for today yet", starts from zero
+ * and `put`s over the whole day's accumulated counts. A full scan never depends
+ * on the primary-key path being warm, and these tables hold at most one row per
+ * day / per device.
+ *
+ * Falls back to safeGet when the scan comes up empty: toArray drops rows Harper
+ * couldn't decode, and safeGet's salvage path can still recover (and heal) one.
+ */
+async function findCounterRow(table: any, id: string): Promise<any | null> {
+	if (!table || typeof table.search !== 'function') return null;
+	const rows = await toArray(table.search({}));
+	return rows.find((r: any) => r?.id === id) || (await safeGet(table, id));
+}
+
+/**
  * Every per-player query goes through here. The search condition narrows by
  * playerId, and the explicit filter guarantees strict save isolation even if
  * the underlying index ever returns extra rows — nothing from another save
@@ -7348,7 +7369,9 @@ export class AppOpen extends PublicEndpoint {
 		const now = Date.now();
 		const t = db();
 		const id = `dev:${deviceId}`;
-		const existing = await safeGet(t.AppOpen, id);
+		// Same cold-start hazard as LandingStat: a spurious null here would reset
+		// this device's open count and its converted/firstConvertedAt funnel flags.
+		const existing = await findCounterRow(t.AppOpen, id);
 		const cms = clamp(Math.round(Number(body.creationMs) || 0), 0, 60 * 60_000);
 		await t.AppOpen.put({
 			id,
@@ -7431,7 +7454,9 @@ async function bumpLandingStat(mutate: (row: any) => void): Promise<void> {
 		const now = Date.now();
 		const day = landingDay(now);
 		const id = `day:${day}`;
-		const row = (await safeGet(table, id)) || { id, day, visits: 0, uniques: 0, clicks: {}, signups: 0 };
+		// findCounterRow, NOT safeGet: a cold-start null from a primary-key .get()
+		// would look like "first event of the day" and reset the row to zero.
+		const row = (await findCounterRow(table, id)) || { id, day, visits: 0, uniques: 0, clicks: {}, signups: 0 };
 		mutate(row);
 		row.updatedAt = now;
 		await table.put(row);
