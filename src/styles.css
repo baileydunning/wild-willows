@@ -685,8 +685,25 @@ input {
 }
 
 /* character creator + login */
+/* The creator holds the widest content in the game — 19 hat chips, 17 hairstyle
+   chips and 12-swatch color rows. It gets extra width (and slimmer side padding)
+   so those wrap onto 2-3 lines instead of 5, which is what used to push the
+   Back / Begin buttons past the card's max-height and clip them. */
 .welcome-card-wide {
-	width: 680px;
+	width: 860px;
+	padding-left: 28px;
+	padding-right: 28px;
+}
+/* On a short window the card still scrolls internally. Pinning the actions to
+   its bottom edge keeps Back / Begin on screen instead of below the fold. */
+.welcome-card-wide .form-actions {
+	position: sticky;
+	bottom: -25px;
+	z-index: 1;
+	margin-top: 16px;
+	padding: 12px 0;
+	background: var(--paper);
+	box-shadow: 0 -12px 14px -8px var(--paper);
 }
 .creator {
 	text-align: left;
@@ -803,6 +820,10 @@ input {
 	font-size: calc(12.5px * var(--ui-scale));
 	color: var(--ink-soft);
 	font-weight: 700;
+}
+/* a second labelled group sharing one row (Build + Beard) needs a visible break */
+.swatch-label-next {
+	margin-left: 18px;
 }
 .swatch-btn {
 	width: 24px;

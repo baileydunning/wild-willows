@@ -42,6 +42,28 @@ export function randomizeAppearance(opts: AppearanceOptions | undefined, current
 }
 
 /**
+ * The look the New Game creator opens on. Nobody should meet the same default
+ * character every time, so skin, hair color, hairstyle, build, outfit — and a
+ * beard roughly a third of the time — are all rolled fresh. Only the hat is
+ * held at its default ('none'), so the first preview reads clearly and picking
+ * a hat still feels like a deliberate choice.
+ */
+export function randomStartingAppearance(opts: AppearanceOptions | undefined, current: Appearance): Appearance {
+	if (!opts) return current;
+	const pick = <T,>(arr: T[] | undefined): T | undefined =>
+		arr && arr.length ? arr[Math.floor(Math.random() * arr.length)] : undefined;
+	return {
+		...current,
+		skin: pick(opts.skins) ?? current.skin,
+		hair: pick(opts.hair) ?? current.hair,
+		outfit: pick(opts.outfits) ?? current.outfit,
+		hairstyle: pick(opts.hairstyles) ?? current.hairstyle,
+		body: pick(opts.bodies) ?? current.body,
+		beard: Math.random() < 0.3 ? 'beard' : 'none',
+	};
+}
+
+/**
  * The appearance option rows (Skin/Hair/Style/Beard/Build/Outfit/Hat/Hat
  * color). Shared by the Settings editor below AND the New Game creator in
  * Welcome.tsx, so new looks only need adding once.
@@ -117,19 +139,8 @@ export function AppearanceRows({ value, onChange }: { value: Appearance; onChang
 					</button>
 				))}
 			</div>
-			<div className="swatch-row">
-				<span className="swatch-label">{t('app.appearance.beard')}</span>
-				{(opts?.beards || []).map((b) => (
-					<button
-						type="button"
-						key={b}
-						className={`hat-btn ${(value.beard || 'none') === b ? 'sel' : ''}`}
-						onClick={() => set({ beard: b })}
-					>
-						{optLabel('beardLabel', b)}
-					</button>
-				))}
-			</div>
+			{/* Build and Beard are two chips each — they share one row rather than
+			    burning two nearly-empty lines. */}
 			<div className="swatch-row">
 				<span className="swatch-label">{t('app.appearance.build')}</span>
 				{(opts?.bodies || []).map((b) => (
@@ -140,6 +151,17 @@ export function AppearanceRows({ value, onChange }: { value: Appearance; onChang
 						onClick={() => set({ body: b })}
 					>
 						{optLabel('bodyLabel', b)}
+					</button>
+				))}
+				<span className="swatch-label swatch-label-next">{t('app.appearance.beard')}</span>
+				{(opts?.beards || []).map((b) => (
+					<button
+						type="button"
+						key={b}
+						className={`hat-btn ${(value.beard || 'none') === b ? 'sel' : ''}`}
+						onClick={() => set({ beard: b })}
+					>
+						{optLabel('beardLabel', b)}
 					</button>
 				))}
 			</div>
@@ -505,7 +527,7 @@ export function SettingsPanel() {
 		skin: '#eec39a',
 		hair: '#6e4a33',
 		outfit: '#4a7c59',
-		hat: 'straw',
+		hat: 'none',
 		hairstyle: 'short',
 		beard: 'none',
 		body: 'slim',

@@ -19,7 +19,13 @@ import { COOP_ENABLED } from '../features';
 import { DEMO } from '../demo';
 import type { Appearance } from '../types';
 import { CharacterPreview, Icon } from './icons';
-import { AppearanceRows, AccessibilityControls, SoundControls, randomizeAppearance } from './Settings';
+import {
+	AppearanceRows,
+	AccessibilityControls,
+	SoundControls,
+	randomizeAppearance,
+	randomStartingAppearance,
+} from './Settings';
 import { randomName } from './names';
 
 type Mode = 'menu' | 'new' | 'load' | 'join-code';
@@ -347,7 +353,7 @@ export function WelcomeScreen() {
 		skin: '#eec39a',
 		hair: '#6e4a33',
 		outfit: '#4a7c59',
-		hat: 'straw',
+		hat: 'none',
 		hairstyle: 'short',
 		beard: 'none',
 		body: 'slim',
@@ -360,6 +366,21 @@ export function WelcomeScreen() {
 	useEffect(() => {
 		if (mode === 'new') creationStartRef.current = Date.now();
 	}, [mode]);
+
+	// Roll a fresh starting look each time the creator opens, so New Game doesn't
+	// always present the same character. Guarded by a ref because appearanceOptions
+	// arrives asynchronously — we want exactly one roll per visit, not one per
+	// render, and re-rolling after the player has started tweaking would be rude.
+	const rolledRef = useRef(false);
+	useEffect(() => {
+		if (mode !== 'new') {
+			rolledRef.current = false;
+			return;
+		}
+		if (rolledRef.current || !data?.appearanceOptions) return;
+		rolledRef.current = true;
+		setAppearance((a) => randomStartingAppearance(data.appearanceOptions, a));
+	}, [mode, data?.appearanceOptions]);
 	const creatorMs = () => (creationStartRef.current ? Date.now() - creationStartRef.current : 0);
 
 	// The New Game creator opens with an empty name field — naming yourself is

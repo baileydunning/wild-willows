@@ -906,26 +906,116 @@ const START_TOOLS: Record<string, number> = { basket: 1, shovel: 1, 'watering-ca
 // Preset swatches the creator offers as quick-picks. Colors are no longer
 // restricted to this list — players can pick any color — so these are just
 // suggestions surfaced in the UI.
-const SKIN_TONES = ['#f6d7b8', '#eec39a', '#d9a06b', '#b97f50', '#8d5a3a', '#6b4226'];
-const HAIR_COLORS = ['#3b2e25', '#6e4a33', '#a3692f', '#c9913f', '#d9b380', '#8c8c8c'];
-const OUTFIT_COLORS = ['#4a7c59', '#7a9ac0', '#b5707a', '#c9913f', '#7d6b9e', '#5d8a8a'];
+// The creator falls back to these when a saved value is missing or malformed.
+// Named rather than indexed so the swatch lists below can be reordered freely.
+const DEFAULT_SKIN = '#eec39a';
+const DEFAULT_HAIR = '#6e4a33';
+const DEFAULT_OUTFIT = '#4a7c59';
+const SKIN_TONES = [
+	'#fbe8d5',
+	'#f6d7b8',
+	'#f0cba6',
+	'#eec39a',
+	'#dcae7f',
+	'#d9a06b',
+	'#cf9662',
+	'#c98f5e',
+	'#b97f50',
+	'#ad7248',
+	'#a66b45',
+	'#96603d',
+	'#8d5a3a',
+	'#7a4a30',
+	'#6b4226',
+	'#5a3720',
+	'#4e2f1e',
+];
+const HAIR_COLORS = [
+	'#1c1614',
+	'#2b2320',
+	'#3b2e25',
+	'#4a3b30',
+	'#5c4636',
+	'#6e4a33',
+	'#7d5439',
+	'#8a5f3d',
+	'#a3692f',
+	'#b5502e',
+	'#c2632f',
+	'#c9913f',
+	'#d4a44f',
+	'#d9b380',
+	'#e8dcc0',
+	'#8c8c8c',
+	'#c9c9c9',
+];
+const OUTFIT_COLORS = [
+	'#3f6b4c',
+	'#4a7c59',
+	'#5f9166',
+	'#8a9a5b',
+	'#4f9a94',
+	'#7a9ac0',
+	'#5a6b8c',
+	'#3f5f80',
+	'#7d6b9e',
+	'#9b6bb0',
+	'#a8586b',
+	'#b5707a',
+	'#c4653f',
+	'#d4783f',
+	'#c9913f',
+	'#d4a373',
+	'#6b7280',
+];
 const HAT_STYLES = [
+	// 'none' leads the list because it's the default a new character starts with
+	'none',
 	'straw',
 	'leaf',
 	'beanie',
 	'cap',
+	'visor',
 	'bucket',
 	'flower',
 	'party',
+	'acorn',
+	'beret',
 	'ranger',
 	'mushroom',
 	'wizard',
+	'witch',
 	'crown',
 	'bandana',
-	'none',
+	'tophat',
+	'newspaper',
+	'chef',
+	'pirate',
+	'frog',
+	'cat-ears',
+	'headphones',
+	'halo',
 ];
 // Suggested hat tints (any hex is accepted); null/absent hatColor = the hat's classic colors.
-const HAT_COLORS = ['#c9a35c', '#b5707a', '#5f86b0', '#5d8a4a', '#7d6b9e', '#b05555'];
+const HAT_COLORS = [
+	'#c9a35c',
+	'#8a734f',
+	'#5d4a36',
+	'#b05555',
+	'#e8734f',
+	'#b5707a',
+	'#d77bb1',
+	'#a8586b',
+	'#7d6b9e',
+	'#5f86b0',
+	'#4f9a94',
+	'#5d8a4a',
+	'#6aa84f',
+	'#e0b23e',
+	'#f2efe6',
+	'#8c8c8c',
+	'#3f3b47',
+];
 const HAIRSTYLES = [
 	'short',
 	'bald',
@@ -939,6 +1029,16 @@ const HAIRSTYLES = [
 	'pigtails',
 	'afro',
 	'mohawk',
+	'wavy',
+	'spiky',
+	'dreads',
+	'space-buns',
+	'bowl',
+	'double-braid',
+	'half-up',
+	'pixie',
+	'cornrows',
+	'shag',
 ];
 const BEARD_STYLES = ['none', 'beard'];
 const BODY_TYPES = ['slim', 'round'];
@@ -954,10 +1054,10 @@ function cleanHex(c: any, fallback: string): string {
 function sanitizeAppearance(a: any) {
 	a = a || {};
 	return {
-		skin: cleanHex(a.skin, SKIN_TONES[1]),
-		hair: cleanHex(a.hair, HAIR_COLORS[1]),
-		outfit: cleanHex(a.outfit, OUTFIT_COLORS[0]),
-		hat: HAT_STYLES.includes(a.hat) ? a.hat : 'straw',
+		skin: cleanHex(a.skin, DEFAULT_SKIN),
+		hair: cleanHex(a.hair, DEFAULT_HAIR),
+		outfit: cleanHex(a.outfit, DEFAULT_OUTFIT),
+		hat: HAT_STYLES.includes(a.hat) ? a.hat : 'none',
 		// null means "the hat's classic colors" — only a valid hex overrides it
 		hatColor:
 			typeof a.hatColor === 'string' && /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(a.hatColor.trim())
