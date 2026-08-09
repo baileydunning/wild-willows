@@ -1,0 +1,1625 @@
+[
+ {
+  "id": "berry-bush",
+  "intendedShape": "brambleberry",
+  "name": "Berry Bush",
+  "biomes": [
+   "meadow",
+   "forest"
+  ],
+  "description": "A native thimbleberry and wild rose thicket — prickly, as most native brambles are. Songbirds, rabbits and deer all visit. Sow it in a watered bed from seeds and a few berries.",
+  "spriteNote": null
+ },
+ {
+  "id": "small-pond",
+  "intendedShape": "claypond",
+  "name": "Small Pond",
+  "biomes": [
+   "meadow",
+   "forest"
+  ],
+  "description": "A clay-lined pond. Clean drinking water changes everything.",
+  "spriteNote": null
+ },
+ {
+  "id": "woodland-pool",
+  "intendedShape": "shadedpool",
+  "name": "Woodland Pool",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A shaded forest pool fed by a cold spring. Deer, raccoons, and salamanders all come to drink.",
+  "spriteNote": null
+ },
+ {
+  "id": "fern-spring",
+  "intendedShape": "seep",
+  "name": "Fern Spring",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A mossy seep ringed with ferns — damp ground that wakes the whole understory.",
+  "spriteNote": null
+ },
+ {
+  "id": "shallow-water-pool",
+  "intendedShape": "shallowpool",
+  "name": "Shallow Water Pool",
+  "biomes": [
+   "meadow",
+   "forest",
+   "wetland"
+  ],
+  "description": "A gently sloped pool, safe for small animals to wade, drink and dabble in. Shallow and sunlit rather than deep — good for minnows, ducks and cattails, but no substitute for a beaver's deep water.",
+  "spriteNote": null
+ },
+ {
+  "id": "log-shelter",
+  "intendedShape": "logstack",
+  "name": "Log Shelter",
+  "biomes": [
+   "meadow",
+   "forest"
+  ],
+  "description": "Stacked fallen logs. Small mammals, salamanders, and insects move in fast.",
+  "spriteNote": null
+ },
+ {
+  "id": "hollow-log",
+  "intendedShape": "hollowlog",
+  "name": "Hollow Log",
+  "biomes": [
+   "meadow",
+   "forest"
+  ],
+  "description": "A fallen log carefully opened into a den. Small mammals and foxes love it.",
+  "spriteNote": null
+ },
+ {
+  "id": "rock-pile",
+  "intendedShape": "rockscatter",
+  "name": "Rock Pile",
+  "biomes": [
+   "meadow",
+   "forest",
+   "desert",
+   "alpine"
+  ],
+  "description": "Sun-warmed stones with cool damp gaps beneath — ground beetles, pillbugs, spiders and garter snakes all use them.",
+  "spriteNote": null
+ },
+ {
+  "id": "nesting-tree",
+  "intendedShape": "youngtree",
+  "name": "Nesting Tree",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A fast-growing native tree planted for squirrels, owls, and nuthatches.",
+  "spriteNote": null
+ },
+ {
+  "id": "mushroom-log",
+  "intendedShape": "shroomlog",
+  "name": "Mushroom Log",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A damp, mossy log seeded with fungi. The fungus is doing the real work — it digests the wood, which is what turns a dead log into food, soil and shelter for everything else.",
+  "spriteNote": null
+ },
+ {
+  "id": "mud-bank",
+  "intendedShape": "mudbank",
+  "name": "Mud Bank",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "A shaped soft bank for burrowing and basking. Requires the restoration shovel.",
+  "spriteNote": null
+ },
+ {
+  "id": "marsh-log",
+  "intendedShape": "sunkenlog",
+  "name": "Marsh Log",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "A half-sunken log. Turtles haul out on top to bask, crayfish and young fish shelter in the dark gaps beneath, and an otter can slip under it out of sight.",
+  "spriteNote": null
+ },
+ {
+  "id": "lily-pool",
+  "intendedShape": "lilypads",
+  "name": "Lily Pool",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "Still, clean water blanketed with lily pads — a hatchery for dragonflies and frogs.",
+  "spriteNote": null
+ },
+ {
+  "id": "burrow-mound",
+  "intendedShape": "burrowmouth",
+  "name": "Burrow Mound",
+  "biomes": [
+   "desert",
+   "alpine"
+  ],
+  "description": "A starter burrow bank for diggers. Requires the restoration shovel.",
+  "spriteNote": null
+ },
+ {
+  "id": "shaded-rock-shelter",
+  "intendedShape": "rockoverhang",
+  "name": "Shaded Rock Shelter",
+  "biomes": [
+   "desert"
+  ],
+  "description": "Stacked slabs with a cool dark gap — shelter from the midday sun.",
+  "spriteNote": null
+ },
+ {
+  "id": "alpine-wildflower-patch",
+  "intendedShape": "alpineforbs",
+  "name": "Alpine Wildflower Patch",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "Tough little high-country forbs — the nectar, seed and grazing layer that pikas, marmots, bees and butterflies all live off. Forage, not shelter.",
+  "spriteNote": null
+ },
+ {
+  "id": "snowmelt-pool",
+  "intendedShape": "meltpool",
+  "name": "Snowmelt Pool",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "A stone-lined pool that catches cold, clean snowmelt. Keep it fishless — high alpine waters were naturally without fish, and stocked trout are the biggest single cause of alpine amphibian decline.",
+  "spriteNote": null
+ },
+ {
+  "id": "alder-snag",
+  "intendedShape": "drownedalder",
+  "name": "Alder Snag",
+  "biomes": [
+   "wetland",
+   "forest"
+  ],
+  "description": "A standing dead alder drowned by rising water, its trunk riddled with old cavities — a nest hole above the surface for cavity-nesting ducks and a fishing perch for everyone else.",
+  "spriteNote": null
+ },
+ {
+  "id": "rock-crevice",
+  "intendedShape": "slabcrack",
+  "name": "Rock Crevice",
+  "biomes": [
+   "desert"
+  ],
+  "description": "Stacked slabs leaving shady cracks where reptiles shelter from the heat.",
+  "spriteNote": null
+ },
+ {
+  "id": "sunstone-cairn",
+  "intendedShape": "cairnhollow",
+  "name": "Sunstone Cairn",
+  "biomes": [
+   "desert",
+   "meadow",
+   "forest"
+  ],
+  "description": "Decoration. A stack of sun-baked stones that hold the day's warmth long into the cool evening — pretty, and a lizard will bask on it, but no animal here actually needs one.",
+  "spriteNote": null
+ },
+ {
+  "id": "fellfield-gravel",
+  "intendedShape": "frostgravel",
+  "name": "Fellfield Gravel",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "Wind-scoured gravel that freezes, heaves and re-sorts itself every spring, held together by thin crusts of lichen. It looks like nothing, and it is the only ground a cushion plant will take.",
+  "spriteNote": null
+ },
+ {
+  "id": "alpine-turf-mat",
+  "intendedShape": "turfmat",
+  "name": "Alpine Turf Mat",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "A knitted mat of sedge, alpine avens and cushion plants over dark alpine soil. Turf like this takes decades to close over bare ground, and one summer of boot traffic to open it up again.",
+  "spriteNote": null
+ },
+ {
+  "id": "snowmelt-litter-mat",
+  "intendedShape": "littermat",
+  "name": "Snowmelt Litter Mat",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "A sodden mat of last year's stems and leaves, released as the snowpack pulls back. Almost all of the alpine's decomposition happens in these few damp weeks.",
+  "spriteNote": null
+ },
+ {
+  "id": "rotting-conifer-log",
+  "intendedShape": "rottedlog",
+  "name": "Rotting Conifer Log",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "A well-rotted subalpine fir log lying where the drifts pile deepest, soft enough to push a finger into. Dead wood is habitat, not mess.",
+  "spriteNote": null
+ },
+ {
+  "id": "escape-cliff",
+  "intendedShape": "cliff",
+  "name": "Escape Cliff",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "A near-vertical band of broken cliff where a bighorn can climb out of a predator's reach in seconds. Sheep will not graze a slope they cannot escape from.",
+  "spriteNote": null
+ },
+ {
+  "id": "willow-basin-thicket",
+  "intendedShape": "willowbasin",
+  "name": "Willow Basin Thicket",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "Planeleaf and snow willow filling a sheltered basin. Willow buds and twigs are almost the entire winter diet of a white-tailed ptarmigan, and the best browse a snowshoe hare or a mule deer will find this high.",
+  "spriteNote": null
+ },
+ {
+  "id": "boulder-burrow-den",
+  "intendedShape": "marmotden",
+  "name": "Boulder Burrow Den",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "A deep, many-chambered burrow tunnelled under a boulder, well below the frost line. A marmot spends about eight months of the year asleep down here.",
+  "spriteNote": null
+ },
+ {
+  "id": "inherited-earth-den",
+  "intendedShape": "earthden",
+  "name": "Inherited Earth Den",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "A hollow opened up under boulders and roots by whoever dug it first — usually a marmot — then widened and taken over. Lynx almost never dig their own den if somebody else has already done the work.",
+  "spriteNote": null
+ },
+ {
+  "id": "stonecrop-patch",
+  "intendedShape": "stonecrop",
+  "name": "Stonecrop Patch",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "Lance-leaved stonecrop wedged into gravel and rock cracks. It is the only plant the caterpillars of the alpine butterfly will eat.",
+  "spriteNote": null
+ },
+ {
+  "id": "bumblebee-nest-burrow",
+  "intendedShape": "beeburrow",
+  "name": "Bumble Bee Nest Burrow",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "An abandoned rodent tunnel packed with dry grass. An alpine bumble bee queen cannot dig — she has to find a hole somebody else left behind.",
+  "spriteNote": null
+ },
+ {
+  "id": "chipmunk-burrow-larder",
+  "intendedShape": "seedburrow",
+  "name": "Chipmunk Burrow Larder",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "A shallow tunnel under a slab, packed with seed heads — the larder of a chipmunk that wakes through the winter to eat from it. No species in the game requires it any more.",
+  "spriteNote": null
+ },
+ {
+  "id": "whitebark-pine",
+  "intendedShape": "whitebarkpine",
+  "name": "Whitebark Pine",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "A whitebark pine grown from a seed a nutcracker buried and never came back for. Its cones do not open on their own, so without the bird the tree cannot spread at all.",
+  "spriteNote": null
+ },
+ {
+  "id": "beetle-killed-snag",
+  "intendedShape": "beetlesnag",
+  "name": "Beetle-Killed Snag",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "A big standing dead fir, its wood loosened by bark beetles. The larvae feed the birds, and the softened trunk is where woodpeckers cut the holes everything else moves into.",
+  "spriteNote": null
+ },
+ {
+  "id": "old-woodpecker-cavity",
+  "intendedShape": "cavity",
+  "name": "Old Woodpecker Cavity",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "A nest hole chiselled out of a dead trunk seasons ago and left behind. Bluebirds cannot cut one and chickadees can only manage it where the wood is already rotten — every cavity they use was made by a woodpecker first.",
+  "spriteNote": null
+ },
+ {
+  "id": "snowfield-debris-line",
+  "intendedShape": "debrisline",
+  "name": "Snowfield Debris Line",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "The dark seam of wind-carried seeds, pollen and chilled insects stranded on a shrinking snowfield — a free meal delivered uphill by the wind, and one of the odd ways an alpine slope is fed from below.",
+  "spriteNote": null
+ },
+ {
+  "id": "toad-upland-burrow",
+  "intendedShape": "toadburrow",
+  "name": "Toad Upland Burrow",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "A borrowed rodent tunnel in damp ground above a breeding pool. A boreal toad spends September to May down one of these, below the frost and above the water table.",
+  "spriteNote": null
+ },
+ {
+  "id": "treeline-log-den",
+  "intendedShape": "hollowlogden",
+  "name": "Treeline Log Den",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "A hollow log at the edge of the last trees, buried by drifts all winter. A marten dens here and hunts the tunnels under the snowpack.",
+  "spriteNote": null
+ },
+ {
+  "id": "fur-lined-prey-den",
+  "intendedShape": "ermineden",
+  "name": "Fur-Lined Prey Den",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "A stolen rodent burrow, relined with the fur of the animal that dug it. Ermines take over their prey's homes rather than build their own.",
+  "spriteNote": null
+ },
+ {
+  "id": "cliff-eyrie",
+  "intendedShape": "stickeyrie",
+  "name": "Cliff Eyrie",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "A bulky stick eyrie on a sheer ledge, added to year after year until the same pair has used it for decades.",
+  "spriteNote": null
+ },
+ {
+  "id": "ledge-natal-den",
+  "intendedShape": "natalledge",
+  "name": "Ledge Natal Den",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "A dry overhang deep in broken cliff, screened by fallen rock, where a female mountain lion hides her kittens through their first two months.",
+  "spriteNote": null
+ },
+ {
+  "id": "krummholz-bed-hollow",
+  "intendedShape": "krummholzhollow",
+  "name": "Krummholz Bed Hollow",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "A shaded, wind-broken scrape under the krummholz. A snowshoe hare presses itself flat into a hollow like this and sits out the day without moving a muscle.",
+  "spriteNote": null
+ },
+ {
+  "id": "kelp-holdfast-reef",
+  "intendedShape": "reef",
+  "name": "Kelp Holdfast Reef",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "Clean rock on the shallow seafloor for kelp holdfasts to grip. Kelp is not rooted in sand — without hard bottom the whole forest washes away.",
+  "spriteNote": null
+ },
+ {
+  "id": "nutrient-upwelling-current",
+  "intendedShape": "flow",
+  "name": "Upwelling Current",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "Cold, nutrient-rich water rising from the deep along the shore. It is the fertiliser of this whole coast: kelp, plankton, anchovies and filter feeders all run on it.",
+  "spriteNote": null
+ },
+ {
+  "id": "coralline-algae-crust",
+  "intendedShape": "corallineturf",
+  "name": "Coralline Turf",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "Pink, branching coralline and red algae turf on low-zone rock. Surfgrass seeds carry bristly arms that hook onto these branches — no turf, no surfgrass.",
+  "spriteNote": null
+ },
+ {
+  "id": "low-tide-rock-bench",
+  "intendedShape": "rockshelf",
+  "name": "Low-Tide Rock Bench",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "A broad shelf of bedrock uncovered only at the lowest tides — the richest strip of the shore, and the one that is underwater most of the time.",
+  "spriteNote": null
+ },
+ {
+  "id": "urchin-crevice-pit",
+  "intendedShape": "urchinpit",
+  "name": "Urchin Pit",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "Rounded hollows ground into solid rock by urchins' teeth and spines. An urchin may sit in the same pit for years, catching drift kelp as it sweeps past.",
+  "spriteNote": null
+ },
+ {
+  "id": "kelp-forest",
+  "intendedShape": "canopy",
+  "name": "Kelp Forest",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "Living giant kelp rising from the seafloor to a golden canopy at the surface — food, nursery and shelter for the whole coast, and the thing otters wrap up in to sleep.",
+  "spriteNote": null
+ },
+ {
+  "id": "surfgrass-bed",
+  "intendedShape": "surfgrass",
+  "name": "Surfgrass Bed",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "A green meadow of surfgrass streaming in the surge on low-zone rock, packed with small invertebrates and young fish.",
+  "spriteNote": null
+ },
+ {
+  "id": "nearshore-spawning-shallows",
+  "intendedShape": "spawnshallows",
+  "name": "Nearshore Spawning Shallows",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "Quiet plankton-rich water just off the surf line where anchovy schools spawn and their eggs drift near the surface.",
+  "spriteNote": null
+ },
+ {
+  "id": "bare-sand-beach",
+  "intendedShape": "sandsweep",
+  "name": "Open Sand Beach",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "Wide, flat, unplanted sand above the tide. Bare open sand is habitat in its own right here — for hoppers below the surface and for the birds that need a clear line of sight.",
+  "spriteNote": null
+ },
+ {
+  "id": "empty-shell-drift",
+  "intendedShape": "shellhoard",
+  "name": "Empty Shell Drift",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "A pocket of empty snail shells caught in a rock hollow. Hermit crabs carry a borrowed shell their whole lives, and a shore with no spare shells holds no hermit crabs.",
+  "spriteNote": null
+ },
+ {
+  "id": "subtidal-rubble-flat",
+  "intendedShape": "rubblebottom",
+  "name": "Subtidal Rubble Flat",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "Loose cobble and broken rock just below the tide, where dead material collects and the shallow-water cleanup crew works.",
+  "spriteNote": null
+ },
+ {
+  "id": "surge-swept-rock-face",
+  "intendedShape": "surgeface",
+  "name": "Surge-Swept Rock Face",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "Open rock taking the full weight of the swell. Punishing to stand on, perfect to filter from — the water never stops moving past.",
+  "spriteNote": null
+ },
+ {
+  "id": "barnacle-crust-rock",
+  "intendedShape": "barnaclecrust",
+  "name": "Barnacle Crust",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "A white crust of acorn barnacles across the upper rock. It feeds turnstones and sea stars, and its rough shells are where mussel larvae prefer to settle.",
+  "spriteNote": null
+ },
+ {
+  "id": "protected-sand-gravel-flat",
+  "intendedShape": "gravelflat",
+  "name": "Sheltered Sand-Gravel Flat",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "Stable mixed sand and gravel in the lee of a headland — firm enough to burrow into and calm enough to stay put, which is what a buried clam needs.",
+  "spriteNote": null
+ },
+ {
+  "id": "benthic-amphipod-bed",
+  "intendedShape": "amphipodsilt",
+  "name": "Amphipod and Mysid Bed",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "Soft sediment and kelp-edge water thick with tube-building amphipods and swarming mysid shrimp — the small crustaceans a gray whale actually eats.",
+  "spriteNote": null
+ },
+ {
+  "id": "sheltered-cobble-field",
+  "intendedShape": "cobblefield",
+  "name": "Sheltered Cobble Field",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "Loose stones on a shore the surf does not reach hard. The habitat is the damp underside — lift one and the shore crabs run.",
+  "spriteNote": null
+ },
+ {
+  "id": "splash-zone-crevice",
+  "intendedShape": "splashcrack",
+  "name": "Splash-Zone Crevice",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "Dry-looking cracks in rock the waves only reach as spray. The highest tier of shore life lives here — animals that breathe air and only visit the sea.",
+  "spriteNote": null
+ },
+ {
+  "id": "shell-dropping-rock",
+  "intendedShape": "anvilrock",
+  "name": "Shell-Dropping Rock",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "A flat hard-topped boulder, scattered with cracked shells. Gulls carry clams and crabs up over it and let go — and come back to the same rock all season.",
+  "spriteNote": null
+ },
+ {
+  "id": "swash-zone-runnel",
+  "intendedShape": "swashrunnel",
+  "name": "Swash-Zone Runnel",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "The wet, sliding strip where each wave runs out and drains back, turning over mole crabs and amphipods with every surge.",
+  "spriteNote": null
+ },
+ {
+  "id": "plover-scrape-closure",
+  "intendedShape": "ropedscrape",
+  "name": "Plover Scrape Closure",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "A roped-off stretch of bare, open, unvegetated sand with symbolic fencing and signs. The nest is only a scrape — what protects it is that nobody walks through.",
+  "spriteNote": null
+ },
+ {
+  "id": "high-tide-roost-rock",
+  "intendedShape": "roostknob",
+  "name": "High-Tide Roost",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "A raised rock or islet that stays dry at high water. Shorebirds cannot feed while the tide is in, so somewhere safe to stand and wait is as necessary as food.",
+  "spriteNote": null
+ },
+ {
+  "id": "dune-manzanita",
+  "intendedShape": "manzanitamat",
+  "name": "Dune Manzanita",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "Low sandmat manzanita, a coastal dune shrub that flowers in midwinter and holds its berries hard into the cold months — food behind the beach exactly when there is nothing else going.",
+  "spriteNote": null
+ },
+ {
+  "id": "mussel-bed",
+  "intendedShape": "musselbed",
+  "name": "Mussel Bed",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "A dense band of mussels layered across mid-zone rock. It is food for half the shore and, in the gaps between the shells, home to hundreds of smaller animals.",
+  "spriteNote": null
+ },
+ {
+  "id": "mussel-bed-lower-margin",
+  "intendedShape": "musseledge",
+  "name": "Mussel Bed Lower Margin",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "The sharp lower edge of the mussel bed, with open rock below it. That edge is not drawn by the tide — it is drawn by sea stars eating upward, and it moves down the rock when they disappear.",
+  "spriteNote": null
+ },
+ {
+  "id": "sunlit-surge-pool",
+  "intendedShape": "surgepool",
+  "name": "Sunlit Surge Pool",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "A deep pool flushed by every wave and open to the sky — surge to deliver food from the rocks above, sunlight for the algae living inside its anemones.",
+  "spriteNote": null
+ },
+ {
+  "id": "shell-lined-rock-scrape",
+  "intendedShape": "shellscrape",
+  "name": "Shell-Lined Rock Scrape",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "A hand-sized hollow on bare rock just above the highest waves, lined with shell chips and pebbles the birds carry up themselves.",
+  "spriteNote": null
+ },
+ {
+  "id": "offshore-nesting-island",
+  "intendedShape": "island",
+  "name": "Offshore Nesting Island",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "A rock stack or islet offshore, out of reach of foxes, dogs and footpaths. Brown pelicans nest on offshore islands and nowhere else — no island, no colony.",
+  "spriteNote": null
+ },
+ {
+  "id": "sandbar-loafing-roost",
+  "intendedShape": "sandbar",
+  "name": "Sandbar Roost",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "A low sandbar that dries out between tides — somewhere for pelicans, gulls and geese to stand, preen and digest without being disturbed.",
+  "spriteNote": null
+ },
+ {
+  "id": "haul-out-rocks",
+  "intendedShape": "sealledge",
+  "name": "Seal Haul-Out Rocks",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "Low rocks and a sand spit with a wide buffer of quiet around them, where seals rest, moult and give birth. Approach one and the seals leave; leave it alone and they stay.",
+  "spriteNote": null
+ },
+ {
+  "id": "sheltered-rafting-cove",
+  "intendedShape": "raftingcove",
+  "name": "Sheltered Rafting Cove",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "Calm water in the lee of a point, inside the kelp. Sea otters have no blubber — they need still water to groom their fur in and kelp fronds to wrap around themselves while they sleep.",
+  "spriteNote": null
+ },
+ {
+  "id": "creosote-bush",
+  "intendedShape": "creosotebush",
+  "name": "Creosote Bush",
+  "biomes": [
+   "desert"
+  ],
+  "description": "The dominant shrub of the Sonoran flats, spaced wide apart because its roots take all the water for metres around. Its resinous leaves smell like rain and lose almost none of it.",
+  "spriteNote": null
+ },
+ {
+  "id": "saguaro",
+  "intendedShape": "saguarocolumn",
+  "name": "Saguaro",
+  "biomes": [
+   "desert"
+  ],
+  "description": "A columnar giant that stores months of rain in its pleated stem. Doves, bats and bees take its flowers, woodpeckers carve its trunk, and everything else eats the fruit.",
+  "spriteNote": null
+ },
+ {
+  "id": "cholla",
+  "intendedShape": "chollajoint",
+  "name": "Chain-fruit Cholla",
+  "biomes": [
+   "desert"
+  ],
+  "description": "A jointed cactus armoured in barbed spines. Cactus wrens build their football-shaped nests deep inside it, where almost nothing can follow.",
+  "spriteNote": null
+ },
+ {
+  "id": "desert-mistletoe",
+  "intendedShape": "mistletoeclump",
+  "name": "Desert Mistletoe",
+  "biomes": [
+   "desert"
+  ],
+  "description": "A leafless parasitic plant rooted inside mesquite and ironwood branches. Its winter berries are the phainopepla's staple — and the bird plants the next generation.",
+  "spriteNote": null
+ },
+ {
+  "id": "chuparosa",
+  "intendedShape": "chuparosabloom",
+  "name": "Chuparosa",
+  "biomes": [
+   "desert"
+  ],
+  "description": "A soft grey shrub carrying tubular scarlet flowers right through the desert winter — the Costa's Hummingbird's most important natural nectar source.",
+  "spriteNote": null
+ },
+ {
+  "id": "catclaw-acacia",
+  "intendedShape": "clawacacia",
+  "name": "Catclaw Acacia",
+  "biomes": [
+   "desert"
+  ],
+  "description": "A low thorny tree of desert washes, hooked all over with curved spines. Quail coveys roost up in it at night and eat the seed pods by day.",
+  "spriteNote": null
+ },
+ {
+  "id": "bush-muhly",
+  "intendedShape": "muhlytuft",
+  "name": "Bush Muhly",
+  "biomes": [
+   "desert"
+  ],
+  "description": "A fine-stemmed native perennial grass that grows up through shrubs for protection. It is the first thing livestock graze away, so its return is a sign the flat is healing.",
+  "spriteNote": null
+ },
+ {
+  "id": "cryptobiotic-crust",
+  "intendedShape": "soilcrust",
+  "name": "Cryptobiotic Soil Crust",
+  "biomes": [
+   "desert"
+  ],
+  "description": "A living skin of cyanobacteria, lichens and mosses knitting the bare soil together. It fixes nitrogen, holds water and blocks weed seedlings — and a single boot or hoof print undoes decades of it.",
+  "spriteNote": null
+ },
+ {
+  "id": "bare-ground-patch",
+  "intendedShape": "sandclearing",
+  "name": "Open Bare Ground",
+  "biomes": [
+   "desert"
+  ],
+  "description": "A patch of soft, uncompacted soil deliberately left open between the shrubs. Ground-nesting bees and harvester ants dig here — but only where nothing has packed it hard.",
+  "spriteNote": null
+ },
+ {
+  "id": "harvester-ant-mound",
+  "intendedShape": "antdisc",
+  "name": "Harvester Ant Mound",
+  "biomes": [
+   "desert"
+  ],
+  "description": "A gravel-capped Pogonomyrmex colony with a cleared disc around it and seed husks heaped at the edge. The ants harvest seeds, turn tonnes of soil, and are nearly the whole diet of the regal horned lizard.",
+  "spriteNote": null
+ },
+ {
+  "id": "buried-deadwood",
+  "intendedShape": "sunkenstems",
+  "name": "Buried Deadwood",
+  "biomes": [
+   "desert"
+  ],
+  "description": "Dead mesquite and creosote stems worked half into the soil. Subterranean termites tunnel up into them from below and never cross the dry open surface.",
+  "spriteNote": null
+ },
+ {
+  "id": "shrub-litter-mound",
+  "intendedShape": "litterdrift",
+  "name": "Shrub Litter Mound",
+  "biomes": [
+   "desert"
+  ],
+  "description": "Wind-drifted leaves, stems and seed husks caught under a shrub — the surface larder the desert millipede works through on damp nights, and the damp hiding place it curls up in by day.",
+  "spriteNote": null
+ },
+ {
+  "id": "termite-worked-litter",
+  "intendedShape": "termitesheet",
+  "name": "Termite-Worked Soil",
+  "biomes": [
+   "desert"
+  ],
+  "description": "Soil laced with old termite galleries and sheeted-over litter. This is where most of the desert's dead plants actually go back into the ground, and the tunnels let rain soak in instead of running off.",
+  "spriteNote": null
+ },
+ {
+  "id": "tortoise-burrow",
+  "intendedShape": "tortoisemouth",
+  "name": "Tortoise Burrow",
+  "biomes": [
+   "desert"
+  ],
+  "description": "A long cool den a desert tortoise has dug out and kept open. Burrowing owls, snakes, lizards, rodents and beetles all move in — most of them cannot dig anything like it themselves.",
+  "spriteNote": null
+ },
+ {
+  "id": "caliche-shelter-cave",
+  "intendedShape": "calichecave",
+  "name": "Caliche Den",
+  "biomes": [
+   "desert"
+  ],
+  "description": "A hollow eroded into a hard caliche bank on a rocky slope. Desert tortoises den in these and in boulder crevices far more often than they dig long burrows of their own.",
+  "spriteNote": null
+ },
+ {
+  "id": "creosote-mound",
+  "intendedShape": "coppicemound",
+  "name": "Creosote Coppice Mound",
+  "biomes": [
+   "desert"
+  ],
+  "description": "Wind-caught soil heaped around a creosote's base and riddled with kangaroo rat tunnels. The loose earth is easy to dig and the shrub above it hides the doorways.",
+  "spriteNote": null
+ },
+ {
+  "id": "seed-larder-burrow",
+  "intendedShape": "seedlarder",
+  "name": "Seed Larder Burrow",
+  "biomes": [
+   "desert"
+  ],
+  "description": "A shallow burrow under a shrub with side chambers packed full of seeds, its entrances plugged with sand every dawn. The plug traps humid air the kangaroo rat needs as much as the food.",
+  "spriteNote": null
+ },
+ {
+  "id": "deep-sand-burrow",
+  "intendedShape": "spiralshaft",
+  "name": "Deep Sand Burrow",
+  "biomes": [
+   "desert"
+  ],
+  "description": "A spiral shaft driven as much as two and a half metres into loose soil — the giant hairy scorpion's refuge from heat and dryness for most of the year.",
+  "spriteNote": null
+ },
+ {
+  "id": "kit-fox-den",
+  "intendedShape": "multidoorden",
+  "name": "Kit Fox Den",
+  "biomes": [
+   "desert"
+  ],
+  "description": "A cool den with several entrances — nearly always a rodent burrow a kit fox has widened rather than one it dug from scratch. The extra doors are escape routes from coyotes.",
+  "spriteNote": null
+ },
+ {
+  "id": "wash-bank-den",
+  "intendedShape": "washbankden",
+  "name": "Wash Bank Den",
+  "biomes": [
+   "desert"
+  ],
+  "description": "An earthen den dug into the cut bank of a dry wash, set above the flood line, where a coyote pair raises its pups.",
+  "spriteNote": null
+ },
+ {
+  "id": "snake-hibernaculum-desert",
+  "intendedShape": "snakefissure",
+  "name": "Snake Den",
+  "biomes": [
+   "desert"
+  ],
+  "description": "A deep rock fissure that stays above freezing all winter. Diamondbacks return to the same den year after year, sometimes for decades, and several may share it.",
+  "spriteNote": null
+ },
+ {
+  "id": "saguaro-boot",
+  "intendedShape": "saguaroboot",
+  "name": "Saguaro Boot",
+  "biomes": [
+   "desert"
+  ],
+  "description": "The hard waterproof scar a cactus grows around a woodpecker's hole. Months later the woodpecker moves out and an elf owl moves in — the boot outlasts them both.",
+  "spriteNote": null
+ },
+ {
+  "id": "thornscrub-stick-nest",
+  "intendedShape": "thornnest",
+  "name": "Thorn Thicket Nest",
+  "biomes": [
+   "desert"
+  ],
+  "description": "A bulky stick platform wedged a metre or two up inside a thorny shrub — high enough and prickly enough for a roadrunner pair to raise chicks out of a coyote's reach.",
+  "spriteNote": null
+ },
+ {
+  "id": "carrion-patch",
+  "intendedShape": "carrionbones",
+  "name": "Carrion Ground",
+  "biomes": [
+   "desert"
+  ],
+  "description": "An animal that has died, left where it fell instead of hauled away. Ravens find it within hours, beetles and ants follow, and in a few days its nutrients are back in the soil.",
+  "spriteNote": null
+ },
+ {
+  "id": "saguaro-fruit-fall",
+  "intendedShape": "splitfruit",
+  "name": "Saguaro Fruit Fall",
+  "biomes": [
+   "desert"
+  ],
+  "description": "Split crimson saguaro fruit at the height of the June heat, just before the rains. For a few weeks it is the richest food and the wettest drink in the whole desert.",
+  "spriteNote": null
+ },
+ {
+  "id": "pollinated-cactus-fruit",
+  "intendedShape": "fruitcrown",
+  "name": "Cactus Fruit Set",
+  "biomes": [
+   "desert"
+  ],
+  "description": "Prickly pear and cholla hanging heavy with ripe fruit. The crop only sets where cactus bees worked the flowers first — no bees, no fruit, no midsummer water for the animals that live on it.",
+  "spriteNote": null
+ },
+ {
+  "id": "shade-form-scrape",
+  "intendedShape": "shadeform",
+  "name": "Shade Form",
+  "biomes": [
+   "desert"
+  ],
+  "description": "A shallow scrape hollowed out in the shade under a shrub. A jackrabbit lies here through the midday heat with its huge ears up, pouring heat into the air.",
+  "spriteNote": null
+ },
+ {
+  "id": "browse-exclosure",
+  "intendedShape": "seedlingcage",
+  "name": "Browse Exclosure",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A low fence around a patch of oak seedlings. In a forest carrying plenty of elk, browsing kills more young oaks than anything else — inside the fence, acorns get to become trees.",
+  "spriteNote": null
+ },
+ {
+  "id": "nurse-log-seedbed",
+  "intendedShape": "nurselog",
+  "name": "Nurse Log Seedbed",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A rotting, moss-covered log lying on the forest floor. Hemlock seeds that land on bare leaf litter almost always fail; the ones that land on rotten wood become the next generation of trees.",
+  "spriteNote": null
+ },
+ {
+  "id": "deep-duff-soil",
+  "intendedShape": "duff",
+  "name": "Deep Duff Layer",
+  "biomes": [
+   "forest"
+  ],
+  "description": "Years of undisturbed leaf mould, never raked and never driven over, threaded through with tree roots and fungal strands. This is where the forest's fungi actually live.",
+  "spriteNote": null
+ },
+ {
+  "id": "truffle-patch",
+  "intendedShape": "dugtruffles",
+  "name": "Truffle Patch",
+  "biomes": [
+   "forest"
+  ],
+  "description": "Underground fungal tubers clustered on oak and hemlock roots. Nothing shows above ground — a flying squirrel has to smell them out and dig.",
+  "spriteNote": null
+ },
+ {
+  "id": "soft-rot-snag",
+  "intendedShape": "punkystub",
+  "name": "Soft-Rot Snag",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A small dead stub whose wood has gone soft with white rot. A downy woodpecker weighs 27 grams and cannot chisel sound timber — it needs wood the fungi reached first.",
+  "spriteNote": null
+ },
+ {
+  "id": "ant-riddled-log",
+  "intendedShape": "antgallerylog",
+  "name": "Ant-Riddled Log",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A fallen trunk gone punky with rot and tunnelled through by carpenter ant galleries — a pileated woodpecker's entire winter larder.",
+  "spriteNote": null
+ },
+ {
+  "id": "rotting-heartwood-log",
+  "intendedShape": "rottedcorelog",
+  "name": "Rotted-Out Log",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A log rotted hollow through the middle. A red-backed salamander lays her eggs in the cavity inside and coils around them until they hatch — as tiny salamanders, never as tadpoles.",
+  "spriteNote": null
+ },
+ {
+  "id": "downy-cavity",
+  "intendedShape": "thumbhole",
+  "name": "Downy Woodpecker Hole",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A round hole about the width of a thumb, cut by a downy woodpecker and abandoned after one season. Nuthatches and chickadees cannot cut their own and move straight in.",
+  "spriteNote": null
+ },
+ {
+  "id": "pileated-cavity-snag",
+  "intendedShape": "pileatedhole",
+  "name": "Pileated Cavity Snag",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A large snag carrying last spring's pileated woodpecker nest hole. The pileated cuts a fresh one every year, and flying squirrels, martens, fishers and bats move into the ones it leaves.",
+  "spriteNote": null
+ },
+ {
+  "id": "flooded-cavity-snag",
+  "intendedShape": "watersnag",
+  "name": "Flooded Cavity Snag",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A dead trunk standing in shallow water with an old woodpecker hole high in it. Wood duck ducklings jump from the entrance the day after they hatch and bounce off the water below.",
+  "spriteNote": null
+ },
+ {
+  "id": "bark-slab-snag",
+  "intendedShape": "barkslab",
+  "name": "Loose-Bark Snag",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A dying tree whose bark has pulled away from the trunk in loose slabs — porcupine gnawing starts many of them — leaving warm, dry gaps where bats spend the day.",
+  "spriteNote": null
+ },
+ {
+  "id": "leaf-drey",
+  "intendedShape": "leafdrey",
+  "name": "Leaf Drey",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A ball of leaves and twigs wedged into a high fork — a gray squirrel's summer nest, rebuilt every year and inherited by owls when it is done with it.",
+  "spriteNote": null
+ },
+ {
+  "id": "larder-burrow",
+  "intendedShape": "coinburrow",
+  "name": "Larder Burrow",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A burrow entrance no wider than a coin, with tunnels running metres underground to a nest chamber and a storage room holding more than a litre of seeds.",
+  "spriteNote": null
+ },
+ {
+  "id": "hemlock-stand",
+  "intendedShape": "hemlockgrove",
+  "name": "Hemlock Stand",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A close-grown group of hemlocks. The canopy holds the snow off the ground beneath it, the shade keeps the stream cold, and the inner bark carries porcupines and deer through the winter.",
+  "spriteNote": null
+ },
+ {
+  "id": "browse-thicket",
+  "intendedShape": "regrowththicket",
+  "name": "Browse Thicket",
+  "biomes": [
+   "forest"
+  ],
+  "description": "Dense young regrowth in a gap where a big tree came down — every twig within reach of an elk's muzzle, which is exactly why a herd too big for the forest leaves nothing here at all.",
+  "spriteNote": null
+ },
+ {
+  "id": "crayfish-shallows",
+  "intendedShape": "stonyshallows",
+  "name": "Crayfish Shallows",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A stony, ankle-deep margin where crayfish back under the rocks. A raccoon hunts it entirely by touch, its eyes looking somewhere else the whole time.",
+  "spriteNote": null
+ },
+ {
+  "id": "root-mass-den",
+  "intendedShape": "rootplate",
+  "name": "Root-Mass Den",
+  "biomes": [
+   "forest"
+  ],
+  "description": "The dry hollow under the tipped-up root plate of a fallen tree — where a black bear sleeps out the winter and gives birth without properly waking up.",
+  "spriteNote": null
+ },
+ {
+  "id": "earth-den-bank",
+  "intendedShape": "denbank",
+  "name": "Earth Den Bank",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A well-drained slope with a den dug into it and several entrances. Foxes enlarge and reuse the same bank for generations rather than digging fresh.",
+  "spriteNote": null
+ },
+ {
+  "id": "snake-hibernaculum-forest",
+  "intendedShape": "rubblecrack",
+  "name": "Snake Hibernaculum",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A deep, rubble-filled crack that stays below the frost line all winter. Gartersnakes travel a long way each autumn to reach one and spend the cold months coiled together by the dozen.",
+  "spriteNote": null
+ },
+ {
+  "id": "broken-top-chimney",
+  "intendedShape": "chimneysnag",
+  "name": "Broken-Top Chimney Tree",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A big living tree snapped off high and hollowed downward by heart rot, leaving a chimney a foot across. No woodpecker cuts a hole this size — a barred owl has to wait for a tree this old.",
+  "spriteNote": null
+ },
+ {
+  "id": "hollow-denning-tree",
+  "intendedShape": "denningtrunk",
+  "name": "Hollow Denning Tree",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A living tree with a rot-hollowed chamber high in the trunk. A female fisher carries her kits up into one within days of birth, out of reach of everything that hunts on the ground.",
+  "spriteNote": null
+ },
+ {
+  "id": "rocky-den-ledge",
+  "intendedShape": "ledgeden",
+  "name": "Rocky Den Ledge",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A dry gap under a leaning slab of rock, screened by brush. A bobcat raises kittens somewhere like this and will move them the moment anything comes close.",
+  "spriteNote": null
+ },
+ {
+  "id": "adopted-stick-nest",
+  "intendedShape": "stolennest",
+  "name": "Adopted Stick Nest",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A bulky old nest of sticks and leaves left behind by a hawk, a crow or a squirrel. A great horned owl never builds its own — it simply takes one over in the middle of winter.",
+  "spriteNote": null
+ },
+ {
+  "id": "sunlit-mudflat",
+  "intendedShape": "sunlitmudflat",
+  "name": "Sunlit Mudflat",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "A bare shelf of wet, sun-warmed mud at the water's edge. Cattail seed is tiny and needs light and open ground to germinate — it will not sprout in shade or under standing water.",
+  "spriteNote": null
+ },
+ {
+  "id": "clearwater-shallows",
+  "intendedShape": "clearshallows",
+  "name": "Clearwater Shallows",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "Slow water with the silt settled out of it, so sunlight reaches the bottom. Submerged plants live on that light — which is why clear water and underwater meadows always arrive together.",
+  "spriteNote": null
+ },
+ {
+  "id": "detritus-drift",
+  "intendedShape": "litterdrift",
+  "name": "Litter Drift",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "A submerged raft of dead cattail and sedge leaves, softening under a fur of fungi and bacteria. More energy moves through a marsh this way — as dead plants — than through anything eaten alive.",
+  "spriteNote": null
+ },
+ {
+  "id": "crayfish-burrow-bank",
+  "intendedShape": "crayfishbank",
+  "name": "Crayfish Burrow Bank",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "A saturated clay bank riddled with finger-wide tunnels. Crayfish back into them to moult in safety and to wait out low water when the marsh draws down in late summer.",
+  "spriteNote": null
+ },
+ {
+  "id": "submerged-spawning-slab",
+  "intendedShape": "slab",
+  "name": "Submerged Spawning Slab",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "A flat stone or plank lying just below the surface. Male fathead minnows scrub the underside clean, and the females stick their eggs to that ceiling for him to guard.",
+  "spriteNote": null
+ },
+ {
+  "id": "stable-silt-shoal",
+  "intendedShape": "shoal",
+  "name": "Stable Silt Shoal",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "A broad shelf of settled silt and fine sand in water slow enough that it stays put. A mussel buries itself here and may filter the same patch of water for thirty years.",
+  "spriteNote": null
+ },
+ {
+  "id": "cattail-root-shallows",
+  "intendedShape": "rootshallows",
+  "name": "Cattail Root Shallows",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "Shallow water over a dense mat of cattail rootstocks. This is a muskrat's winter larder — it dives under the ice and digs up the starchy roots when everything above is frozen.",
+  "spriteNote": null
+ },
+ {
+  "id": "flooded-reed-clump",
+  "intendedShape": "clump",
+  "name": "Flooded Reed Clump",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "A tight stand of cattail and reed stems standing in ankle-deep water. A blackbird winds its nest around several upright stems, and the water underneath is what keeps the mink out.",
+  "spriteNote": null
+ },
+ {
+  "id": "winter-litter-mound",
+  "intendedShape": "frogleafpile",
+  "name": "Winter Litter Mound",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "A deep pile of damp leaves, loose bark and old stems on dry ground beside the marsh. A chorus frog crawls in, freezes almost solid for the winter, and thaws out alive in spring.",
+  "spriteNote": null
+ },
+ {
+  "id": "vernal-pool",
+  "intendedShape": "vernalpool",
+  "name": "Fishless Vernal Pool",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "A shallow, separate pool that fills with snowmelt and dries out by late summer. Drying is the point: it keeps fish out, and salamander larvae can only survive where no fish can.",
+  "spriteNote": null
+ },
+ {
+  "id": "wet-meadow-margin",
+  "intendedShape": "wetmeadow",
+  "name": "Wet Meadow Margin",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "A band of damp, grassy meadow between the marsh and dry land. Leopard frogs spend the whole summer hunting out here, well away from open water — lose this band and you lose the frogs.",
+  "spriteNote": null
+ },
+ {
+  "id": "sandy-nest-bank",
+  "intendedShape": "sandnestbank",
+  "name": "Sandy Nest Bank",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "A warm, well-drained rise of sand and fine gravel above the waterline. Female snapping turtles walk overland to dig their nests here — and turtle populations are limited by nest banks, not by adults.",
+  "spriteNote": null
+ },
+ {
+  "id": "crane-nest-mound",
+  "intendedShape": "cranemound",
+  "name": "Crane Nest Mound",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "A broad heap of piled marsh plants standing in open shallow water. A crane pair builds it up above the waterline so the two eggs stay dry and anything approaching has to wade.",
+  "spriteNote": null
+ },
+ {
+  "id": "hidden-reed-platform",
+  "intendedShape": "reedplatform",
+  "name": "Hidden Reed Platform",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "A low platform of living reeds bent down and woven together deep inside a dense stand, barely a hand's width above the water. A bittern will not nest anywhere it can be seen.",
+  "spriteNote": null
+ },
+ {
+  "id": "cut-bank-burrow",
+  "intendedShape": "kingfishertunnel",
+  "name": "Cut Bank Burrow",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "A bare, vertical earth bank rising straight out of the water, soft enough to tunnel a metre back into. Kingfishers dig their own nest tunnels here and use no other kind of nest.",
+  "spriteNote": null
+ },
+ {
+  "id": "overwater-thicket",
+  "intendedShape": "overwaterwillow",
+  "name": "Overwater Thicket",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "Low willow and alder leaning right out over the water at the edge of a beaver pond. A green heron builds a loose stick nest on a branch above the surface and fishes from the shade below.",
+  "spriteNote": null
+ },
+ {
+  "id": "muskrat-bank-den",
+  "intendedShape": "muskratden",
+  "name": "Old Muskrat Bank Den",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "A muskrat's abandoned bank burrow, its entrance under water. Mink hardly ever dig their own — they move into one a muskrat made, so the muskrat has to come back first.",
+  "spriteNote": null
+ },
+ {
+  "id": "otter-bank-den",
+  "intendedShape": "otterden",
+  "name": "Otter Bank Den",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "A roomy den in the bank with an underwater entrance, almost always a beaver's old lodge or burrow taken over. Otters are excellent swimmers and poor diggers — they let the beaver do the excavating.",
+  "spriteNote": null
+ },
+ {
+  "id": "beaver-pond",
+  "intendedShape": "beaverdampond",
+  "name": "Beaver Pond",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "Deep, permanent water held back behind a stick-and-mud dam, with drowned trees standing in it. It is a different habitat from the open cattail marsh — deeper, more open, and only a beaver can make it.",
+  "spriteNote": null
+ },
+ {
+  "id": "beaver-canal",
+  "intendedShape": "channel",
+  "name": "Beaver Canal",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "A shallow channel a beaver digs to float branches back to its pond. It carries water far out into the marsh and keeps turtles and frogs connected to open water even in a dry summer.",
+  "spriteNote": null
+ },
+ {
+  "id": "goat-cliff-ledge",
+  "intendedShape": "goatledge",
+  "name": "Goat Cliff Ledge",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "A narrow shelf cut across a near-vertical face, scraped bare and dusty where a goat beds down. Goats use ground far steeper than sheep will touch, and a ledge the width of a doormat is a bedroom to them.",
+  "spriteNote": null
+ },
+ {
+  "id": "alpine-mineral-lick",
+  "intendedShape": "minerallick",
+  "name": "Mineral Lick",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "A damp bank of salty earth, gnawed and licked into a hollow. Goats and sheep travel a long way for the minerals their spring diet does not give them, and they queue and shove to get at it.",
+  "spriteNote": null
+ },
+ {
+  "id": "deep-snow-den",
+  "intendedShape": "snowden",
+  "name": "Deep Snow Den",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "A tunnel driven metres down into a drift that holds into late spring, around fallen boulders, with frozen food stashed in side chambers. It is a nursery and a freezer at once, and a wolverine can only raise kits where the snow lasts.",
+  "spriteNote": null
+ },
+ {
+  "id": "deep-canyon-edge",
+  "intendedShape": "canyondrop",
+  "name": "Deep Canyon Edge",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "The place where the seafloor stops and falls away into cold blue-black depth, close enough to shore that big hunters can slide in along it. Orcas travel this edge, listening.",
+  "spriteNote": null
+ },
+ {
+  "id": "breaking-surf-line",
+  "intendedShape": "surfbreak",
+  "name": "Breaking Surf Line",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "A clean line of waves standing up and toppling along an open beach. Dolphins herd fish schools against it and surf the same waves while they hunt.",
+  "spriteNote": null
+ },
+ {
+  "id": "eelgrass-grazing-lawn",
+  "intendedShape": "grazinglawn",
+  "name": "Turtle Grazing Lawn",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "A patch of eelgrass cropped short and kept that way by turtles coming back to the same spot. Re-grazed blades stay young and tender, which is exactly why they return.",
+  "spriteNote": null
+ },
+ {
+  "id": "saguaro-crown-nest",
+  "intendedShape": "saguaronest",
+  "name": "Cactus Crown Nest",
+  "biomes": [
+   "desert"
+  ],
+  "description": "A bulky stick platform wedged into the crook where a tall cactus splits into arms — wide enough for a whole hawk family to stand on, with a wall of spines below it that nothing can climb.",
+  "spriteNote": null
+ },
+ {
+  "id": "tarantula-silk-burrow",
+  "intendedShape": "silkburrow",
+  "name": "Silk-Lined Burrow",
+  "biomes": [
+   "desert"
+  ],
+  "description": "A thumb-wide hole in firm ground with its rim smoothed and bound with silk, and a few trip-lines fanned out across the sand. A female tarantula may keep the same one for twenty years.",
+  "spriteNote": null
+ },
+ {
+  "id": "elk-wallow",
+  "intendedShape": "wallow",
+  "name": "Elk Wallow",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A churned muddy hollow in a forest opening, kept wet and bare by elk rolling in it. A bull coats himself here before bugling, and the puddle left in the dish afterwards is where frogs and insects breed.",
+  "spriteNote": null
+ },
+ {
+  "id": "bramble-ground-nest",
+  "intendedShape": "groundcup",
+  "name": "Bramble Ground Nest",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A grass-lined cup sunk level with the leaf litter beneath an arching bramble. Towhees nest flat on the ground, so the thorny tangle overhead is the entire defence.",
+  "spriteNote": null
+ },
+ {
+  "id": "eagle-nest-crown",
+  "intendedShape": "eaglecrown",
+  "name": "Eagle Nest Crown",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "The crown of the tallest living tree on the marsh, holding a stick nest the size of a bathtub. A pair returns to the same nest year after year and adds to it until the branch underneath finally gives way.",
+  "spriteNote": null
+ },
+ {
+  "id": "still-water-cove",
+  "intendedShape": "stillcove",
+  "name": "Still Water Cove",
+  "biomes": [
+   "wetland"
+  ],
+  "description": "A pocket of open water tucked in behind the reeds where the wind never reaches, its surface as smooth as glass, with a few floating stems drifting on it. Water striders can only stand on water that stays perfectly still.",
+  "spriteNote": null
+ },
+ {
+  "id": "winter-sleep-burrow",
+  "intendedShape": "winterden",
+  "name": "Winter Sleep Burrow",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "A tunnel driven in under a tilted slab to a grass-lined chamber below the frost. A golden-mantled ground squirrel does not stockpile food the way a chipmunk does — it eats itself round and then sleeps the winter off in here, barely above freezing.",
+  "spriteNote": null
+ },
+ {
+  "id": "moth-scree-crack",
+  "intendedShape": "mothcrack",
+  "name": "Moth Scree Crack",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "A dark slot under a loose scree slab, cool and windless, where migrating moths pack in shoulder to shoulder by the thousand all summer day and pour out again at dusk.",
+  "spriteNote": null
+ },
+ {
+  "id": "swift-cliff-seam",
+  "intendedShape": "cliffseam",
+  "name": "Cliff Seam",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "A narrow vertical crack running up a sheer rock face, too tight for anything with proper feet. Swifts glue a feather cup inside it with their own saliva and fold themselves in tail-first.",
+  "spriteNote": null
+ },
+ {
+  "id": "wild-grape-tangle",
+  "intendedShape": "grapetangle",
+  "name": "Wild Grape Tangle",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A woody vine roped up a leaning trunk, heavy with fruit by late summer. It is a ladder and a larder at once — the gray fox climbs it for the grapes and then keeps going, up out of reach of everything on the ground.",
+  "spriteNote": null
+ },
+ {
+  "id": "snake-egg-mound",
+  "intendedShape": "eggmound",
+  "name": "Snake Egg Mound",
+  "biomes": [
+   "forest"
+  ],
+  "description": "A heap of rotting wood chips and bark banked against a cut stump. It runs warm inside as it rots, which is the whole point: a ratsnake buries her eggs in it and lets the heat do the incubating for her.",
+  "spriteNote": null
+ },
+ {
+  "id": "willow-thicket-swale",
+  "intendedShape": "willowswale",
+  "name": "Willow Thicket Swale",
+  "biomes": [
+   "coastal"
+  ],
+  "description": "A damp hollow behind the dunes filled with low willow and bramble, tangled to the ground. Small birds nest inside it because nothing bigger can get in.",
+  "spriteNote": null
+ },
+ {
+  "id": "canyon-ledge-den",
+  "intendedShape": "canyonledge",
+  "name": "Canyon Ledge Den",
+  "biomes": [
+   "desert"
+  ],
+  "description": "A dry overhang cut back into a canyon wall and screened by fallen slabs — shaded all day, invisible from below, and the one place a lioness will leave her kittens while she hunts.",
+  "spriteNote": null
+ },
+ {
+  "id": "puffball-turf-ring",
+  "intendedShape": "puffballring",
+  "name": "Puffball Ring",
+  "biomes": [
+   "alpine"
+  ],
+  "description": "A ring of pale domes pushing up through old turf. Step on a ripe one and it smokes.",
+  "spriteNote": null
+ }
+]

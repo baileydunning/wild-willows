@@ -221,7 +221,8 @@
 			"omnivore": "Omnívoro",
 			"mesopredator": "Depredador medio",
 			"apex-predator": "Superdepredador",
-			"wildlife": "Fauna"
+			"wildlife": "Fauna",
+			"detritivore": "Detritívoro"
 		},
 		"seasons": {
 			"spring": "primavera",
@@ -302,7 +303,12 @@
 		"historyForward": "Avanzar por tu recorrido del diario",
 		"addGoal": "Añadir 'atraer a este animal' a tus objetivos",
 		"animalReqUnknown": "Primero debe regresar otro {kind}",
-		"lockedCard": "Mejora tu guía de campo al nivel {tier} para leer la entrada completa de este animal — su rol ecológico, su dieta y sus vínculos en la red trófica."
+		"lockedCard": "Mejora tu guía de campo al nivel {tier} para leer la entrada completa de este animal — su rol ecológico, su dieta y sus vínculos en la red trófica.",
+		"stage": {
+			"eggs": "(huevos)",
+			"young": "(crías)",
+			"adult": "(adultos)"
+		}
 	},
 	"achievements": {
 		"title": "Logros",

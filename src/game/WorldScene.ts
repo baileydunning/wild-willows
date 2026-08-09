@@ -3811,7 +3811,10 @@ export class WorldScene extends Phaser.Scene {
 		const gait = this.animalGait(animal);
 		(img as any).baseOriginY = img.displayOriginY; // resting pose, restored after every flourish
 		if (!getPrefs().reduceMotion) this.startAmbientGait(img, gait, rng);
-		this.wander(img, img.x, img.y, animal.kind, rng, ocean, gait);
+		// Species flagged `aquatic` in the data stay over open water the way fish do,
+		// so otters, beavers and crayfish stop strolling across dry land.
+		const moveKind = (animal as any).aquatic === true ? 'aquatic' : animal.kind;
+		this.wander(img, img.x, img.y, moveKind, rng, ocean, gait);
 	}
 
 	/** How a species carries itself — picks the movement flourish in wander().
@@ -3824,7 +3827,7 @@ export class WorldScene extends Phaser.Scene {
 		if (id.includes('bat') && !id.includes('bat-star')) return 'flutter';
 		if (animal.kind === 'insect') return 'flutter';
 		if (animal.kind === 'bird') return 'flit';
-		if (animal.kind === 'fish' || (animal as any).ocean === true) return 'swim';
+		if (animal.kind === 'fish' || (animal as any).ocean === true || (animal as any).aquatic === true) return 'swim';
 		if (/rabbit|hare|squirrel|chipmunk|mouse|vole|frog|toad/.test(id)) return 'hop';
 		if (/snake|salamander|ensatina/.test(id)) return 'slither';
 		return 'amble';
@@ -3997,7 +4000,7 @@ export class WorldScene extends Phaser.Scene {
 	) {
 		const roam = ocean ? 140 : kind === 'bird' || kind === 'insect' ? 130 : 80;
 		const speed = ocean ? 22 : kind === 'insect' ? 26 : kind === 'bird' ? 42 : 18;
-		const aquatic = kind === 'fish';
+		const aquatic = kind === 'fish' || kind === 'aquatic';
 		const flying = kind === 'bird' || kind === 'insect';
 		const hop = () => {
 			if (!img.active) return;

@@ -75,6 +75,9 @@ export interface AnimalSource {
 	url: string;
 }
 
+/** A food-web edge: an animal id, optionally narrowed to a life stage. */
+export type FoodEdge = string | { id: string; stage?: 'eggs' | 'young' | 'adult' };
+
 export interface AnimalDef {
 	id: string;
 	name: string;
@@ -100,11 +103,14 @@ export interface AnimalDef {
 		| 'apex-predator'
 		| 'scavenger'
 		| 'filter-feeder'
-		| 'decomposer';
-	/** Animal ids (in this game) this species eats. Cross-biome links allowed. */
-	eats?: string[];
+		| 'decomposer'
+		| 'detritivore';
+	/** Animal ids (in this game) this species eats. Cross-biome links allowed.
+	 * An edge may be stage-qualified when the predation is only true of a life
+	 * stage — a bear takes deer fawns, not adult deer. */
+	eats?: FoodEdge[];
 	/** Animal ids (in this game) that eat this species. */
-	eatenBy?: string[];
+	eatenBy?: FoodEdge[];
 	/** Non-animal food/forage eaten (e.g. "grasses", "nectar", "carrion"). */
 	eatsOther?: string[];
 	/** Credible references backing this entry's ecology. */

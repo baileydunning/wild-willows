@@ -231,7 +231,7 @@ var biomes_default = {
       name: "Pelican Shore",
       order: 6,
       explorable: true,
-      description: "A scoured stretch of coast where the open ocean breaks along the eastern edge. The dunes have washed out and the tidepools are empty, but sea glass, kelp, coral, and the odd pearl still wash up on the tide.",
+      description: "A scoured stretch of coast where the open ocean breaks along the western edge. The dunes have washed out and the tidepools are empty, but sea glass, kelp, coral, and the odd pearl still wash up on the tide.",
       restorationGoal: "Anchor the dunes, restore tidepools and kelp wrack, and reopen the shore to coastal life.",
       unlock: {
         biome: "alpine",
@@ -248,14 +248,12 @@ var biomes_default = {
         "water",
         "kelp",
         "sea-glass",
-        "coral",
         "pearl"
       ],
       digResources: [
         "sand",
         "sand",
-        "shells",
-        "coral"
+        "shells"
       ],
       palette: {
         damaged: "#c2b9a0",
@@ -353,8 +351,8 @@ var recipes_default = {
         fiber: 1
       },
       unlock: {
-        minHealth: 22,
-        label: "Restore Willow Meadow to 22% health"
+        minHealth: 15,
+        label: "Restore Willow Meadow to 15% health"
       }
     },
     {
@@ -410,8 +408,8 @@ var recipes_default = {
         water: 4
       },
       unlock: {
-        minHealth: 35,
-        label: "Restore Willow Meadow to 35% health"
+        minHealth: 20,
+        label: "Restore Willow Meadow to 20% health"
       }
     },
     {
@@ -429,8 +427,8 @@ var recipes_default = {
         water: 3
       },
       unlock: {
-        minHealth: 38,
-        label: "Restore Willow Meadow to 38% health"
+        minHealth: 8,
+        label: "Restore Rushwater Wetland to 8% health"
       }
     },
     {
@@ -447,8 +445,8 @@ var recipes_default = {
         fiber: 2
       },
       unlock: {
-        minHealth: 40,
-        label: "Restore Willow Meadow to 40% health"
+        minHealth: 8,
+        label: "Restore Old Hollow Forest to 8% health"
       }
     },
     {
@@ -500,8 +498,8 @@ var recipes_default = {
         fiber: 2
       },
       unlock: {
-        minHealth: 44,
-        label: "Restore Willow Meadow to 44% health"
+        minHealth: 10,
+        label: "Restore Willow Meadow to 10% health"
       }
     },
     {
@@ -720,8 +718,8 @@ var recipes_default = {
         water: 5
       },
       unlock: {
-        minHealth: 57,
-        label: "Restore Old Hollow Forest to 57% health"
+        minHealth: 38,
+        label: "Restore the area to 38% health"
       }
     },
     {
@@ -739,8 +737,8 @@ var recipes_default = {
         water: 3
       },
       unlock: {
-        minHealth: 66,
-        label: "Restore Old Hollow Forest to 66% health"
+        minHealth: 20,
+        label: "Restore Old Hollow Forest to 20% health"
       }
     },
     {
@@ -776,8 +774,8 @@ var recipes_default = {
         moss: 2
       },
       unlock: {
-        minHealth: 22,
-        label: "Restore Old Hollow Forest to 22% health"
+        minHealth: 8,
+        label: "Restore Old Hollow Forest to 8% health"
       }
     },
     {
@@ -831,8 +829,8 @@ var recipes_default = {
         clay: 2
       },
       unlock: {
-        minHealth: 72,
-        label: "Restore Rushwater Wetland to 72% health"
+        minHealth: 8,
+        label: "Restore Rushwater Wetland to 8% health"
       }
     },
     {
@@ -904,8 +902,8 @@ var recipes_default = {
         "clean-water": 2
       },
       unlock: {
-        minHealth: 45,
-        label: "Restore Rushwater Wetland to 45% health"
+        minHealth: 25,
+        label: "Restore Rushwater Wetland to 25% health"
       }
     },
     {
@@ -1004,8 +1002,8 @@ var recipes_default = {
         "clean-water": 4
       },
       unlock: {
-        minHealth: 65,
-        label: "Restore Graywind Heights to 65% health"
+        minHealth: 45,
+        label: "Restore Graywind Heights to 45% health"
       }
     },
     {
@@ -1411,8 +1409,8 @@ var recipes_default = {
         fiber: 2
       },
       unlock: {
-        minHealth: 14,
-        label: "Restore Willow Meadow to 14% health"
+        minHealth: 8,
+        label: "Restore Willow Meadow to 8% health"
       }
     },
     {
@@ -1479,8 +1477,8 @@ var recipes_default = {
         mud: 1
       },
       unlock: {
-        minHealth: 65,
-        label: "Restore Rushwater Wetland to 65% health"
+        minHealth: 52,
+        label: "Restore Rushwater Wetland to 52% health"
       }
     },
     {
@@ -1516,8 +1514,8 @@ var recipes_default = {
         "cactus-fruit": 1
       },
       unlock: {
-        minHealth: 57,
-        label: "Restore Redstone Scrubland to 57% health"
+        minHealth: 40,
+        label: "Restore Redstone Scrubland to 40% health"
       }
     },
     {
@@ -1552,8 +1550,8 @@ var recipes_default = {
         moss: 2
       },
       unlock: {
-        minHealth: 45,
-        label: "Restore Graywind Heights to 45% health"
+        minHealth: 22,
+        label: "Restore Graywind Heights to 22% health"
       }
     },
     {
@@ -1571,8 +1569,8 @@ var recipes_default = {
         water: 2
       },
       unlock: {
-        minHealth: 78,
-        label: "Restore Pelican Shore to 78% health"
+        minHealth: 60,
+        label: "Restore Pelican Shore to 60% health"
       }
     },
     {
@@ -1894,8 +1892,8 @@ var recipes_default = {
         stones: 8
       },
       unlock: {
-        minHealth: 36,
-        label: "Restore Willow Meadow to 36% health"
+        minHealth: 14,
+        label: "Restore Willow Meadow to 14% health"
       }
     },
     {
@@ -1930,8 +1928,8 @@ var recipes_default = {
         branches: 2
       },
       unlock: {
-        minHealth: 40,
-        label: "Restore Old Hollow Forest to 40% health"
+        minHealth: 6,
+        label: "Restore Old Hollow Forest to 6% health"
       }
     },
     {
@@ -2003,8 +2001,8 @@ var recipes_default = {
         stones: 4
       },
       unlock: {
-        minHealth: 45,
-        label: "Restore Redstone Scrubland to 45% health"
+        minHealth: 35,
+        label: "Restore Redstone Scrubland to 35% health"
       }
     },
     {
@@ -2020,8 +2018,8 @@ var recipes_default = {
         stones: 7
       },
       unlock: {
-        minHealth: 12,
-        label: "Restore Graywind Heights to 12% health"
+        minHealth: 5,
+        label: "Restore Graywind Heights to 5% health"
       }
     },
     {
@@ -2111,8 +2109,8 @@ var recipes_default = {
         stones: 4
       },
       unlock: {
-        minHealth: 16,
-        label: "Restore Graywind Heights to 16% health"
+        minHealth: 5,
+        label: "Restore Graywind Heights to 5% health"
       }
     },
     {
@@ -2129,8 +2127,8 @@ var recipes_default = {
         lichen: 1
       },
       unlock: {
-        minHealth: 20,
-        label: "Restore Graywind Heights to 20% health"
+        minHealth: 5,
+        label: "Restore Graywind Heights to 5% health"
       }
     },
     {
@@ -2222,8 +2220,8 @@ var recipes_default = {
         stones: 3
       },
       unlock: {
-        minHealth: 60,
-        label: "Restore Graywind Heights to 60% health"
+        minHealth: 45,
+        label: "Restore Graywind Heights to 45% health"
       }
     },
     {
@@ -2699,98 +2697,181 @@ var recipes_default = {
       name: "Rain Basin",
       category: "structure",
       unlockBiome: "meadow",
-      output: { itemId: "rain-basin", qty: 1 },
-      materials: { rainwater: 3, stones: 2 }
+      output: {
+        itemId: "rain-basin",
+        qty: 1
+      },
+      materials: {
+        rainwater: 3,
+        stones: 2
+      }
     },
     {
       id: "dew-lantern",
       name: "Dewlit Lantern",
       category: "structure",
       unlockBiome: "forest",
-      output: { itemId: "dew-lantern", qty: 1 },
-      materials: { dewdrops: 3, branches: 2 }
+      output: {
+        itemId: "dew-lantern",
+        qty: 1
+      },
+      materials: {
+        dewdrops: 3,
+        branches: 2
+      }
     },
     {
       id: "sunstone-cairn",
       name: "Sunstone Cairn",
       category: "structure",
       unlockBiome: "desert",
-      output: { itemId: "sunstone-cairn", qty: 1 },
-      materials: { sunstone: 3, stones: 3 }
+      output: {
+        itemId: "sunstone-cairn",
+        qty: 1
+      },
+      materials: {
+        sunstone: 3,
+        stones: 3
+      }
     },
     {
       id: "frostflower-planter",
       name: "Frostflower Planter",
       category: "structure",
       unlockBiome: "alpine",
-      output: { itemId: "frostflower-planter", qty: 1 },
-      materials: { frostflower: 3, stones: 2 }
+      output: {
+        itemId: "frostflower-planter",
+        qty: 1
+      },
+      materials: {
+        frostflower: 3,
+        stones: 2
+      }
     },
     {
       id: "stormglass-lantern",
       name: "Stormglass Lantern",
       category: "structure",
       unlockBiome: "desert",
-      output: { itemId: "stormglass-lantern", qty: 1 },
-      materials: { stormglass: 2, stones: 2 }
+      output: {
+        itemId: "stormglass-lantern",
+        qty: 1
+      },
+      materials: {
+        stormglass: 2,
+        stones: 2
+      }
     },
     {
       id: "frostflower-vase",
       name: "Frostflower Vase",
       category: "home",
       unlockBiome: "alpine",
-      output: { itemId: "frostflower-vase", qty: 1 },
-      materials: { frostflower: 2, clay: 2 }
+      output: {
+        itemId: "frostflower-vase",
+        qty: 1
+      },
+      materials: {
+        frostflower: 2,
+        clay: 2
+      }
     },
     {
       id: "stormglass-chandelier",
       name: "Stormglass Chandelier",
       category: "home",
       unlockBiome: "desert",
-      output: { itemId: "stormglass-chandelier", qty: 1 },
-      materials: { stormglass: 3, branches: 3 }
+      output: {
+        itemId: "stormglass-chandelier",
+        qty: 1
+      },
+      materials: {
+        stormglass: 3,
+        branches: 3
+      }
     },
     {
       id: "boardwalk",
       name: "Marsh Boardwalk",
       category: "structure",
       unlockBiome: "wetland",
-      output: { itemId: "boardwalk", qty: 1 },
-      materials: { branches: 6, reeds: 4, clay: 2 }
+      output: {
+        itemId: "boardwalk",
+        qty: 1
+      },
+      materials: {
+        branches: 6,
+        reeds: 4,
+        clay: 2
+      }
     },
     {
       id: "heron-rookery",
       name: "Heron Rookery",
       category: "habitat",
       unlockBiome: "wetland",
-      output: { itemId: "heron-rookery", qty: 1 },
-      materials: { branches: 10, reeds: 5, mud: 3 },
-      unlock: { minHealth: 45, label: "Restore Rushwater Wetland to 45% health" }
+      output: {
+        itemId: "heron-rookery",
+        qty: 1
+      },
+      materials: {
+        branches: 10,
+        reeds: 5,
+        mud: 3
+      },
+      unlock: {
+        minHealth: 45,
+        label: "Restore Rushwater Wetland to 45% health"
+      }
     },
     {
       id: "dragonfly-pond",
       name: "Dragonfly Pond",
       category: "habitat",
       unlockBiome: "wetland",
-      output: { itemId: "dragonfly-pond", qty: 1 },
-      materials: { clay: 6, "clean-water": 5, reeds: 4 },
-      unlock: { minHealth: 40, label: "Restore Rushwater Wetland to 40% health" }
+      output: {
+        itemId: "dragonfly-pond",
+        qty: 1
+      },
+      materials: {
+        clay: 6,
+        "clean-water": 5,
+        reeds: 4
+      },
+      unlock: {
+        minHealth: 26,
+        label: "Restore Rushwater Wetland to 26% health"
+      }
     },
     {
       id: "trail-tent",
       name: "Trail Tent",
       category: "structure",
       unlockBiome: "forest",
-      output: { itemId: "trail-tent", qty: 1 },
-      materials: { branches: 6, fiber: 6, stones: 2 }
+      output: {
+        itemId: "trail-tent",
+        qty: 1
+      },
+      materials: {
+        branches: 6,
+        fiber: 6,
+        stones: 2
+      }
     },
     {
       id: "headlamp",
       name: "Headlamp",
       category: "gear",
       unlockBiome: "meadow",
-      output: { itemId: "headlamp", qty: 1 },
-      materials: { branches: 2, fiber: 4, stones: 2 },
+      output: {
+        itemId: "headlamp",
+        qty: 1
+      },
+      materials: {
+        branches: 2,
+        fiber: 4,
+        stones: 2
+      },
       once: true
     },
     {
@@ -2798,8 +2879,16 @@ var recipes_default = {
       name: "Field Binoculars",
       category: "gear",
       unlockBiome: "meadow",
-      output: { itemId: "binoculars", qty: 1 },
-      materials: { fiber: 2, stones: 3, bark: 3, moss: 2 },
+      output: {
+        itemId: "binoculars",
+        qty: 1
+      },
+      materials: {
+        fiber: 2,
+        stones: 3,
+        bark: 3,
+        moss: 2
+      },
       once: true
     },
     {
@@ -2807,9 +2896,3103 @@ var recipes_default = {
       name: "Hiking Boots",
       category: "gear",
       unlockBiome: "meadow",
-      output: { itemId: "hiking-boots", qty: 1 },
-      materials: { fiber: 8, stones: 2, bark: 5, moss: 4, reeds: 4 },
+      output: {
+        itemId: "hiking-boots",
+        qty: 1
+      },
+      materials: {
+        fiber: 8,
+        stones: 2,
+        bark: 5,
+        moss: 4,
+        reeds: 4
+      },
       once: true
+    },
+    {
+      id: "fellfield-gravel",
+      name: "Fellfield Gravel",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "fellfield-gravel",
+        qty: 1
+      },
+      materials: {
+        stones: 3,
+        lichen: 1
+      },
+      unlock: {
+        minHealth: 5,
+        label: "Restore Graywind Heights to 5% health"
+      }
+    },
+    {
+      id: "alpine-turf-mat",
+      name: "Alpine Turf Mat",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "alpine-turf-mat",
+        qty: 1
+      },
+      materials: {
+        moss: 4,
+        "alpine-flowers": 3,
+        clay: 2
+      },
+      unlock: {
+        minHealth: 12,
+        label: "Restore Graywind Heights to 12% health"
+      }
+    },
+    {
+      id: "snowmelt-litter-mat",
+      name: "Snowmelt Litter Mat",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "snowmelt-litter-mat",
+        qty: 1
+      },
+      materials: {
+        moss: 2,
+        "clean-water": 1,
+        lichen: 1
+      },
+      unlock: {
+        minHealth: 12,
+        label: "Restore Graywind Heights to 12% health"
+      }
+    },
+    {
+      id: "rotting-conifer-log",
+      name: "Rotting Conifer Log",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "rotting-conifer-log",
+        qty: 1
+      },
+      materials: {
+        moss: 3,
+        clay: 1
+      },
+      unlock: {
+        minHealth: 15,
+        label: "Restore Graywind Heights to 15% health"
+      }
+    },
+    {
+      id: "escape-cliff",
+      name: "Escape Cliff",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "escape-cliff",
+        qty: 1
+      },
+      materials: {
+        stones: 6,
+        clay: 2
+      },
+      unlock: {
+        minHealth: 60,
+        label: "Restore Graywind Heights to 60% health"
+      }
+    },
+    {
+      id: "willow-basin-thicket",
+      name: "Willow Basin Thicket",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "willow-basin-thicket",
+        qty: 1
+      },
+      materials: {
+        "clean-water": 3,
+        clay: 3,
+        moss: 2
+      },
+      unlock: {
+        minHealth: 30,
+        label: "Restore Graywind Heights to 30% health"
+      }
+    },
+    {
+      id: "boulder-burrow-den",
+      name: "Boulder Burrow Den",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "boulder-burrow-den",
+        qty: 1
+      },
+      materials: {
+        stones: 4,
+        clay: 3
+      },
+      unlock: {
+        minHealth: 28,
+        label: "Restore Graywind Heights to 28% health"
+      }
+    },
+    {
+      id: "inherited-earth-den",
+      name: "Inherited Earth Den",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "inherited-earth-den",
+        qty: 1
+      },
+      materials: {
+        clay: 4,
+        stones: 3
+      },
+      unlock: {
+        requiresAnimal: "marmot",
+        label: "Welcome the Yellow-bellied Marmot back to Graywind Heights"
+      }
+    },
+    {
+      id: "stonecrop-patch",
+      name: "Stonecrop Patch",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "stonecrop-patch",
+        qty: 1
+      },
+      materials: {
+        "alpine-flowers": 2,
+        stones: 2
+      },
+      unlock: {
+        minHealth: 18,
+        label: "Restore Graywind Heights to 18% health"
+      }
+    },
+    {
+      id: "bumblebee-nest-burrow",
+      name: "Bumble Bee Nest Burrow",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "bumblebee-nest-burrow",
+        qty: 1
+      },
+      materials: {
+        clay: 2,
+        moss: 2
+      },
+      unlock: {
+        requiresAnimal: "marmot",
+        label: "Welcome the Yellow-bellied Marmot back to Graywind Heights"
+      }
+    },
+    {
+      id: "chipmunk-burrow-larder",
+      name: "Chipmunk Burrow Larder",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "chipmunk-burrow-larder",
+        qty: 1
+      },
+      materials: {
+        clay: 2,
+        stones: 1,
+        "pine-nuts": 1
+      },
+      unlock: {
+        minHealth: 28,
+        label: "Restore Graywind Heights to 28% health"
+      }
+    },
+    {
+      id: "whitebark-pine",
+      name: "Whitebark Pine",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "whitebark-pine",
+        qty: 1
+      },
+      materials: {
+        "pine-nuts": 6,
+        clay: 4,
+        "clean-water": 3
+      },
+      unlock: {
+        requiresAnimal: "clarks-nutcracker",
+        label: "Welcome Clark's Nutcracker back to Graywind Heights"
+      }
+    },
+    {
+      id: "beetle-killed-snag",
+      name: "Beetle-Killed Snag",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "beetle-killed-snag",
+        qty: 1
+      },
+      materials: {
+        moss: 3,
+        stones: 2,
+        clay: 1
+      },
+      unlock: {
+        minHealth: 45,
+        label: "Restore Graywind Heights to 45% health"
+      }
+    },
+    {
+      id: "old-woodpecker-cavity",
+      name: "Old Woodpecker Cavity",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "old-woodpecker-cavity",
+        qty: 1
+      },
+      materials: {
+        moss: 3,
+        clay: 2,
+        stones: 1
+      },
+      unlock: {
+        minHealth: 50,
+        label: "Restore Graywind Heights to 50% health"
+      }
+    },
+    {
+      id: "snowfield-debris-line",
+      name: "Snowfield Debris Line",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "snowfield-debris-line",
+        qty: 1
+      },
+      materials: {
+        snow: 2,
+        "alpine-flowers": 1,
+        moss: 1
+      },
+      unlock: {
+        requiresAnimal: "alpine-springtail",
+        label: "Welcome the Snow Flea back to Graywind Heights"
+      }
+    },
+    {
+      id: "toad-upland-burrow",
+      name: "Toad Upland Burrow",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "toad-upland-burrow",
+        qty: 1
+      },
+      materials: {
+        clay: 3,
+        moss: 1
+      },
+      unlock: {
+        requiresAnimal: "marmot",
+        label: "Welcome the Yellow-bellied Marmot back to Graywind Heights"
+      }
+    },
+    {
+      id: "treeline-log-den",
+      name: "Treeline Log Den",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "treeline-log-den",
+        qty: 1
+      },
+      materials: {
+        moss: 3,
+        clay: 2,
+        stones: 2
+      },
+      unlock: {
+        minHealth: 55,
+        label: "Restore Graywind Heights to 55% health"
+      }
+    },
+    {
+      id: "fur-lined-prey-den",
+      name: "Fur-Lined Prey Den",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "fur-lined-prey-den",
+        qty: 1
+      },
+      materials: {
+        clay: 2,
+        moss: 2
+      },
+      unlock: {
+        requiresAnimal: "alpine-chipmunk",
+        label: "Welcome the Least Chipmunk back to Graywind Heights"
+      }
+    },
+    {
+      id: "cliff-eyrie",
+      name: "Cliff Eyrie",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "cliff-eyrie",
+        qty: 1
+      },
+      materials: {
+        stones: 5,
+        moss: 2,
+        clay: 2
+      },
+      unlock: {
+        minHealth: 70,
+        label: "Restore Graywind Heights to 70% health"
+      }
+    },
+    {
+      id: "ledge-natal-den",
+      name: "Ledge Natal Den",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "ledge-natal-den",
+        qty: 1
+      },
+      materials: {
+        stones: 5,
+        clay: 3
+      },
+      unlock: {
+        minHealth: 70,
+        label: "Restore Graywind Heights to 70% health"
+      }
+    },
+    {
+      id: "krummholz-bed-hollow",
+      name: "Krummholz Bed Hollow",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "krummholz-bed-hollow",
+        qty: 1
+      },
+      materials: {
+        moss: 2,
+        clay: 1,
+        stones: 1
+      },
+      unlock: {
+        minHealth: 40,
+        label: "Restore the area to 40% health"
+      }
+    },
+    {
+      id: "kelp-holdfast-reef",
+      name: "Kelp Holdfast Reef",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "kelp-holdfast-reef",
+        qty: 1
+      },
+      materials: {
+        sand: 3,
+        shells: 2,
+        water: 2
+      },
+      unlock: {
+        minHealth: 10,
+        label: "Restore Pelican Shore to 10% health"
+      }
+    },
+    {
+      id: "nutrient-upwelling-current",
+      name: "Upwelling Current",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "nutrient-upwelling-current",
+        qty: 1
+      },
+      materials: {
+        water: 4,
+        kelp: 2
+      },
+      unlock: {
+        minHealth: 10,
+        label: "Restore Pelican Shore to 10% health"
+      }
+    },
+    {
+      id: "coralline-algae-crust",
+      name: "Coralline Turf",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "coralline-algae-crust",
+        qty: 1
+      },
+      materials: {
+        shells: 2,
+        water: 1
+      },
+      unlock: {
+        minHealth: 6,
+        label: "Restore Pelican Shore to 6% health"
+      }
+    },
+    {
+      id: "low-tide-rock-bench",
+      name: "Low-Tide Rock Bench",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "low-tide-rock-bench",
+        qty: 1
+      },
+      materials: {
+        sand: 3,
+        shells: 2
+      },
+      unlock: {
+        minHealth: 6,
+        label: "Restore Pelican Shore to 6% health"
+      }
+    },
+    {
+      id: "urchin-crevice-pit",
+      name: "Urchin Pit",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "urchin-crevice-pit",
+        qty: 1
+      },
+      materials: {
+        shells: 2,
+        sand: 1
+      },
+      unlock: {
+        minHealth: 15,
+        label: "Restore Pelican Shore to 15% health"
+      }
+    },
+    {
+      id: "kelp-forest",
+      name: "Kelp Forest",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "kelp-forest",
+        qty: 1
+      },
+      materials: {
+        kelp: 8,
+        sand: 3,
+        water: 3
+      },
+      unlock: {
+        minHealth: 15,
+        label: "Restore Pelican Shore to 15% health"
+      }
+    },
+    {
+      id: "surfgrass-bed",
+      name: "Surfgrass Bed",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "surfgrass-bed",
+        qty: 1
+      },
+      materials: {
+        kelp: 3,
+        sand: 2,
+        water: 2
+      },
+      unlock: {
+        minHealth: 10,
+        label: "Restore Pelican Shore to 10% health"
+      }
+    },
+    {
+      id: "nearshore-spawning-shallows",
+      name: "Nearshore Spawning Shallows",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "nearshore-spawning-shallows",
+        qty: 1
+      },
+      materials: {
+        water: 4,
+        sand: 2
+      },
+      unlock: {
+        minHealth: 22,
+        label: "Restore Pelican Shore to 22% health"
+      }
+    },
+    {
+      id: "bare-sand-beach",
+      name: "Open Sand Beach",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "bare-sand-beach",
+        qty: 1
+      },
+      materials: {
+        sand: 3
+      },
+      unlock: {
+        minHealth: 6,
+        label: "Restore Pelican Shore to 6% health"
+      }
+    },
+    {
+      id: "empty-shell-drift",
+      name: "Empty Shell Drift",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "empty-shell-drift",
+        qty: 1
+      },
+      materials: {
+        shells: 3
+      },
+      unlock: {
+        minHealth: 25,
+        label: "Restore Pelican Shore to 25% health"
+      }
+    },
+    {
+      id: "subtidal-rubble-flat",
+      name: "Subtidal Rubble Flat",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "subtidal-rubble-flat",
+        qty: 1
+      },
+      materials: {
+        sand: 2,
+        shells: 2
+      },
+      unlock: {
+        minHealth: 30,
+        label: "Restore Pelican Shore to 30% health"
+      }
+    },
+    {
+      id: "surge-swept-rock-face",
+      name: "Surge-Swept Rock Face",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "surge-swept-rock-face",
+        qty: 1
+      },
+      materials: {
+        sand: 3,
+        shells: 2,
+        water: 1
+      },
+      unlock: {
+        minHealth: 18,
+        label: "Restore Pelican Shore to 18% health"
+      }
+    },
+    {
+      id: "barnacle-crust-rock",
+      name: "Barnacle Crust",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "barnacle-crust-rock",
+        qty: 1
+      },
+      materials: {
+        shells: 3,
+        water: 1
+      },
+      unlock: {
+        minHealth: 10,
+        label: "Restore Pelican Shore to 10% health"
+      }
+    },
+    {
+      id: "protected-sand-gravel-flat",
+      name: "Sheltered Sand-Gravel Flat",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "protected-sand-gravel-flat",
+        qty: 1
+      },
+      materials: {
+        sand: 4,
+        shells: 2
+      },
+      unlock: {
+        minHealth: 20,
+        label: "Restore Pelican Shore to 20% health"
+      }
+    },
+    {
+      id: "benthic-amphipod-bed",
+      name: "Amphipod and Mysid Bed",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "benthic-amphipod-bed",
+        qty: 1
+      },
+      materials: {
+        sand: 4,
+        kelp: 3,
+        water: 2
+      },
+      unlock: {
+        minHealth: 15,
+        label: "Restore Pelican Shore to 15% health"
+      }
+    },
+    {
+      id: "sheltered-cobble-field",
+      name: "Sheltered Cobble Field",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "sheltered-cobble-field",
+        qty: 1
+      },
+      materials: {
+        sand: 2,
+        shells: 2
+      },
+      unlock: {
+        minHealth: 22,
+        label: "Restore Pelican Shore to 22% health"
+      }
+    },
+    {
+      id: "splash-zone-crevice",
+      name: "Splash-Zone Crevice",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "splash-zone-crevice",
+        qty: 1
+      },
+      materials: {
+        sand: 2,
+        shells: 1
+      },
+      unlock: {
+        minHealth: 8,
+        label: "Restore Pelican Shore to 8% health"
+      }
+    },
+    {
+      id: "shell-dropping-rock",
+      name: "Shell-Dropping Rock",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "shell-dropping-rock",
+        qty: 1
+      },
+      materials: {
+        shells: 2,
+        sand: 1
+      },
+      unlock: {
+        minHealth: 12,
+        label: "Restore Pelican Shore to 12% health"
+      }
+    },
+    {
+      id: "swash-zone-runnel",
+      name: "Swash-Zone Runnel",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "swash-zone-runnel",
+        qty: 1
+      },
+      materials: {
+        sand: 2,
+        water: 2
+      },
+      unlock: {
+        minHealth: 35,
+        label: "Restore Pelican Shore to 35% health"
+      }
+    },
+    {
+      id: "plover-scrape-closure",
+      name: "Plover Scrape Closure",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "plover-scrape-closure",
+        qty: 1
+      },
+      materials: {
+        driftwood: 4,
+        sand: 2,
+        "sea-glass": 1
+      },
+      unlock: {
+        minHealth: 45,
+        label: "Restore Pelican Shore to 45% health"
+      }
+    },
+    {
+      id: "high-tide-roost-rock",
+      name: "High-Tide Roost",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "high-tide-roost-rock",
+        qty: 1
+      },
+      materials: {
+        sand: 2,
+        shells: 2
+      },
+      unlock: {
+        minHealth: 28,
+        label: "Restore Pelican Shore to 28% health"
+      }
+    },
+    {
+      id: "dune-manzanita",
+      name: "Dune Manzanita",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "dune-manzanita",
+        qty: 1
+      },
+      materials: {
+        sand: 3,
+        water: 2
+      },
+      unlock: {
+        minHealth: 35,
+        label: "Restore Pelican Shore to 35% health"
+      }
+    },
+    {
+      id: "mussel-bed",
+      name: "Mussel Bed",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "mussel-bed",
+        qty: 1
+      },
+      materials: {
+        shells: 5,
+        sand: 2,
+        water: 2
+      },
+      unlock: {
+        requiresAnimal: "mussel",
+        label: "Welcome the California Mussel back to Pelican Shore"
+      }
+    },
+    {
+      id: "mussel-bed-lower-margin",
+      name: "Mussel Bed Lower Margin",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "mussel-bed-lower-margin",
+        qty: 1
+      },
+      materials: {
+        shells: 4,
+        water: 1
+      },
+      unlock: {
+        requiresAnimal: "mussel",
+        label: "Welcome the California Mussel back to Pelican Shore"
+      }
+    },
+    {
+      id: "sunlit-surge-pool",
+      name: "Sunlit Surge Pool",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "sunlit-surge-pool",
+        qty: 1
+      },
+      materials: {
+        water: 4,
+        sand: 2,
+        "sea-glass": 1
+      },
+      unlock: {
+        minHealth: 24,
+        label: "Restore Pelican Shore to 24% health"
+      }
+    },
+    {
+      id: "offshore-nesting-island",
+      name: "Offshore Nesting Island",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "offshore-nesting-island",
+        qty: 1
+      },
+      materials: {
+        sand: 6,
+        driftwood: 4,
+        shells: 2
+      },
+      unlock: {
+        requiresAnimal: "northern-anchovy",
+        label: "Welcome the Northern Anchovy back to Pelican Shore"
+      }
+    },
+    {
+      id: "sandbar-loafing-roost",
+      name: "Sandbar Roost",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "sandbar-loafing-roost",
+        qty: 1
+      },
+      materials: {
+        sand: 4,
+        driftwood: 2
+      },
+      unlock: {
+        minHealth: 40,
+        label: "Restore Pelican Shore to 40% health"
+      }
+    },
+    {
+      id: "haul-out-rocks",
+      name: "Seal Haul-Out Rocks",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "haul-out-rocks",
+        qty: 1
+      },
+      materials: {
+        sand: 5,
+        driftwood: 3,
+        shells: 1
+      },
+      unlock: {
+        minHealth: 55,
+        label: "Restore Pelican Shore to 55% health"
+      }
+    },
+    {
+      id: "sheltered-rafting-cove",
+      name: "Sheltered Rafting Cove",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "sheltered-rafting-cove",
+        qty: 1
+      },
+      materials: {
+        kelp: 4,
+        water: 3,
+        sand: 2
+      },
+      unlock: {
+        minHealth: 15,
+        label: "Restore Pelican Shore to 15% health"
+      }
+    },
+    {
+      id: "creosote-bush",
+      name: "Creosote Bush",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "creosote-bush",
+        qty: 1
+      },
+      materials: {
+        sand: 3,
+        clay: 2,
+        stones: 1
+      },
+      unlock: {
+        minHealth: 5,
+        label: "Restore Redstone Scrubland to 5% health"
+      }
+    },
+    {
+      id: "cryptobiotic-crust",
+      name: "Cryptobiotic Soil Crust",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "cryptobiotic-crust",
+        qty: 1
+      },
+      materials: {
+        sand: 3,
+        clay: 3
+      },
+      unlock: {
+        minHealth: 5,
+        label: "Restore Redstone Scrubland to 5% health"
+      }
+    },
+    {
+      id: "buried-deadwood",
+      name: "Buried Deadwood",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "buried-deadwood",
+        qty: 1
+      },
+      materials: {
+        sand: 2,
+        clay: 2
+      },
+      unlock: {
+        minHealth: 5,
+        label: "Restore Redstone Scrubland to 5% health"
+      }
+    },
+    {
+      id: "shrub-litter-mound",
+      name: "Shrub Litter Mound",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "shrub-litter-mound",
+        qty: 1
+      },
+      materials: {
+        sand: 2,
+        clay: 1
+      },
+      unlock: {
+        minHealth: 8,
+        label: "Restore Redstone Scrubland to 8% health"
+      }
+    },
+    {
+      id: "bare-ground-patch",
+      name: "Open Bare Ground",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "bare-ground-patch",
+        qty: 1
+      },
+      materials: {
+        sand: 2,
+        stones: 1
+      },
+      unlock: {
+        minHealth: 10,
+        label: "Restore Redstone Scrubland to 10% health"
+      }
+    },
+    {
+      id: "harvester-ant-mound",
+      name: "Harvester Ant Mound",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "harvester-ant-mound",
+        qty: 1
+      },
+      materials: {
+        sand: 2,
+        stones: 2
+      },
+      unlock: {
+        minHealth: 12,
+        label: "Restore Redstone Scrubland to 12% health"
+      }
+    },
+    {
+      id: "deep-sand-burrow",
+      name: "Deep Sand Burrow",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "deep-sand-burrow",
+        qty: 1
+      },
+      materials: {
+        sand: 4,
+        stones: 1
+      },
+      unlock: {
+        minHealth: 14,
+        label: "Restore Redstone Scrubland to 14% health"
+      }
+    },
+    {
+      id: "bush-muhly",
+      name: "Bush Muhly",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "bush-muhly",
+        qty: 1
+      },
+      materials: {
+        sand: 2,
+        clay: 1
+      },
+      unlock: {
+        minHealth: 15,
+        label: "Restore Redstone Scrubland to 15% health"
+      }
+    },
+    {
+      id: "seed-larder-burrow",
+      name: "Seed Larder Burrow",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "seed-larder-burrow",
+        qty: 1
+      },
+      materials: {
+        sand: 4,
+        clay: 1
+      },
+      unlock: {
+        minHealth: 18,
+        label: "Restore Redstone Scrubland to 18% health"
+      }
+    },
+    {
+      id: "shade-form-scrape",
+      name: "Shade Form",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "shade-form-scrape",
+        qty: 1
+      },
+      materials: {
+        sand: 2,
+        stones: 1
+      },
+      unlock: {
+        minHealth: 20,
+        label: "Restore Redstone Scrubland to 20% health"
+      }
+    },
+    {
+      id: "saguaro",
+      name: "Saguaro",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "saguaro",
+        qty: 1
+      },
+      materials: {
+        sand: 5,
+        clay: 4,
+        "cactus-fruit": 3,
+        stones: 2
+      },
+      unlock: {
+        minHealth: 25,
+        label: "Restore Redstone Scrubland to 25% health"
+      }
+    },
+    {
+      id: "chuparosa",
+      name: "Chuparosa",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "chuparosa",
+        qty: 1
+      },
+      materials: {
+        sand: 2,
+        clay: 1,
+        "agave-nectar": 1
+      },
+      unlock: {
+        minHealth: 25,
+        label: "Restore Redstone Scrubland to 25% health"
+      }
+    },
+    {
+      id: "catclaw-acacia",
+      name: "Catclaw Acacia",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "catclaw-acacia",
+        qty: 1
+      },
+      materials: {
+        sand: 3,
+        clay: 2,
+        stones: 1
+      },
+      unlock: {
+        minHealth: 28,
+        label: "Restore Redstone Scrubland to 28% health"
+      }
+    },
+    {
+      id: "cholla",
+      name: "Chain-fruit Cholla",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "cholla",
+        qty: 1
+      },
+      materials: {
+        sand: 3,
+        "cactus-fruit": 2,
+        clay: 1
+      },
+      unlock: {
+        minHealth: 30,
+        label: "Restore Redstone Scrubland to 30% health"
+      }
+    },
+    {
+      id: "caliche-shelter-cave",
+      name: "Caliche Den",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "caliche-shelter-cave",
+        qty: 1
+      },
+      materials: {
+        stones: 4,
+        clay: 2,
+        sand: 1
+      },
+      unlock: {
+        minHealth: 35,
+        label: "Restore Redstone Scrubland to 35% health"
+      }
+    },
+    {
+      id: "desert-mistletoe",
+      name: "Desert Mistletoe",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "desert-mistletoe",
+        qty: 1
+      },
+      materials: {
+        clay: 2,
+        "cactus-fruit": 1
+      },
+      unlock: {
+        minHealth: 35,
+        label: "Restore Redstone Scrubland to 35% health"
+      }
+    },
+    {
+      id: "thornscrub-stick-nest",
+      name: "Thorn Thicket Nest",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "thornscrub-stick-nest",
+        qty: 1
+      },
+      materials: {
+        sand: 2,
+        clay: 1,
+        stones: 1
+      },
+      unlock: {
+        minHealth: 40,
+        label: "Restore Redstone Scrubland to 40% health"
+      }
+    },
+    {
+      id: "snake-hibernaculum-desert",
+      name: "Snake Den",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "snake-hibernaculum-desert",
+        qty: 1
+      },
+      materials: {
+        stones: 5,
+        clay: 1
+      },
+      unlock: {
+        minHealth: 45,
+        label: "Restore Redstone Scrubland to 45% health"
+      }
+    },
+    {
+      id: "wash-bank-den",
+      name: "Wash Bank Den",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "wash-bank-den",
+        qty: 1
+      },
+      materials: {
+        clay: 4,
+        sand: 2,
+        stones: 1
+      },
+      unlock: {
+        minHealth: 55,
+        label: "Restore Redstone Scrubland to 55% health"
+      }
+    },
+    {
+      id: "termite-worked-litter",
+      name: "Termite-Worked Soil",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "termite-worked-litter",
+        qty: 1
+      },
+      materials: {
+        sand: 3,
+        clay: 3
+      },
+      unlock: {
+        requiresAnimal: "desert-termite",
+        label: "Welcome the Desert Subterranean Termite back to Redstone Scrubland"
+      }
+    },
+    {
+      id: "pollinated-cactus-fruit",
+      name: "Cactus Fruit Set",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "pollinated-cactus-fruit",
+        qty: 1
+      },
+      materials: {
+        "cactus-fruit": 3,
+        sand: 1
+      },
+      unlock: {
+        requiresAnimal: "desert-bee",
+        label: "Welcome the Cactus Bee back to Redstone Scrubland"
+      }
+    },
+    {
+      id: "creosote-mound",
+      name: "Creosote Coppice Mound",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "creosote-mound",
+        qty: 1
+      },
+      materials: {
+        sand: 4,
+        clay: 2
+      },
+      unlock: {
+        requiresAnimal: "kangaroo-rat",
+        label: "Welcome Merriam's Kangaroo Rat back to Redstone Scrubland"
+      }
+    },
+    {
+      id: "kit-fox-den",
+      name: "Kit Fox Den",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "kit-fox-den",
+        qty: 1
+      },
+      materials: {
+        sand: 4,
+        clay: 2,
+        stones: 1
+      },
+      unlock: {
+        requiresAnimal: "kangaroo-rat",
+        label: "Welcome Merriam's Kangaroo Rat back to Redstone Scrubland"
+      }
+    },
+    {
+      id: "carrion-patch",
+      name: "Carrion Ground",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "carrion-patch",
+        qty: 1
+      },
+      materials: {
+        sand: 2,
+        clay: 1
+      },
+      unlock: {
+        requiresAnimal: "jackrabbit",
+        label: "Welcome the Black-tailed Jackrabbit back to Redstone Scrubland"
+      }
+    },
+    {
+      id: "saguaro-fruit-fall",
+      name: "Saguaro Fruit Fall",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "saguaro-fruit-fall",
+        qty: 1
+      },
+      materials: {
+        "cactus-fruit": 3,
+        sand: 1
+      },
+      unlock: {
+        minHealth: 30,
+        label: "Restore Redstone Scrubland to 30% health"
+      }
+    },
+    {
+      id: "tortoise-burrow",
+      name: "Tortoise Burrow",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "tortoise-burrow",
+        qty: 1
+      },
+      materials: {
+        sand: 4,
+        clay: 3,
+        stones: 2
+      },
+      unlock: {
+        requiresAnimal: "desert-tortoise",
+        label: "Welcome the Sonoran Desert Tortoise back to Redstone Scrubland"
+      }
+    },
+    {
+      id: "saguaro-boot",
+      name: "Saguaro Boot",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "saguaro-boot",
+        qty: 1
+      },
+      materials: {
+        clay: 3,
+        sand: 2,
+        stones: 2
+      },
+      unlock: {
+        requiresAnimal: "gila-woodpecker",
+        label: "Welcome the Gila Woodpecker back to Redstone Scrubland"
+      }
+    },
+    {
+      id: "browse-exclosure",
+      name: "Browse Exclosure",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "browse-exclosure",
+        qty: 1
+      },
+      materials: {
+        branches: 3,
+        acorns: 1
+      },
+      unlock: {
+        minHealth: 4,
+        label: "Restore Old Hollow Forest to 4% health"
+      }
+    },
+    {
+      id: "nurse-log-seedbed",
+      name: "Nurse Log Seedbed",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "nurse-log-seedbed",
+        qty: 1
+      },
+      materials: {
+        branches: 3,
+        moss: 2,
+        mushrooms: 1
+      },
+      unlock: {
+        minHealth: 8,
+        label: "Restore Old Hollow Forest to 8% health"
+      }
+    },
+    {
+      id: "deep-duff-soil",
+      name: "Deep Duff Layer",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "deep-duff-soil",
+        qty: 1
+      },
+      materials: {
+        moss: 4,
+        branches: 2,
+        water: 2
+      },
+      unlock: {
+        requiresAnimal: "banana-slug",
+        label: "Welcome the Banana Slug back to Old Hollow Forest"
+      }
+    },
+    {
+      id: "truffle-patch",
+      name: "Truffle Patch",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "truffle-patch",
+        qty: 1
+      },
+      materials: {
+        mushrooms: 4,
+        moss: 2,
+        acorns: 2
+      },
+      unlock: {
+        minHealth: 42,
+        label: "Restore Old Hollow Forest to 42% health"
+      }
+    },
+    {
+      id: "soft-rot-snag",
+      name: "Soft-Rot Snag",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "soft-rot-snag",
+        qty: 1
+      },
+      materials: {
+        branches: 3,
+        mushrooms: 2,
+        bark: 1
+      },
+      unlock: {
+        minHealth: 8,
+        label: "Restore Old Hollow Forest to 8% health"
+      }
+    },
+    {
+      id: "ant-riddled-log",
+      name: "Ant-Riddled Log",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "ant-riddled-log",
+        qty: 1
+      },
+      materials: {
+        branches: 4,
+        mushrooms: 2,
+        bark: 1
+      },
+      unlock: {
+        minHealth: 8,
+        label: "Restore Old Hollow Forest to 8% health"
+      }
+    },
+    {
+      id: "rotting-heartwood-log",
+      name: "Rotted-Out Log",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "rotting-heartwood-log",
+        qty: 1
+      },
+      materials: {
+        branches: 3,
+        moss: 2,
+        mushrooms: 1
+      },
+      unlock: {
+        minHealth: 8,
+        label: "Restore Old Hollow Forest to 8% health"
+      }
+    },
+    {
+      id: "downy-cavity",
+      name: "Downy Woodpecker Hole",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "downy-cavity",
+        qty: 1
+      },
+      materials: {
+        branches: 2,
+        bark: 2
+      },
+      unlock: {
+        requiresAnimal: "woodpecker",
+        label: "Welcome the Downy Woodpecker back to Old Hollow Forest"
+      }
+    },
+    {
+      id: "pileated-cavity-snag",
+      name: "Pileated Cavity Snag",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "pileated-cavity-snag",
+        qty: 1
+      },
+      materials: {
+        branches: 5,
+        bark: 3,
+        mushrooms: 1
+      },
+      unlock: {
+        requiresAnimal: "pileated-woodpecker",
+        label: "Welcome the Pileated Woodpecker back to Old Hollow Forest"
+      }
+    },
+    {
+      id: "flooded-cavity-snag",
+      name: "Flooded Cavity Snag",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "flooded-cavity-snag",
+        qty: 1
+      },
+      materials: {
+        branches: 5,
+        bark: 2,
+        clay: 2
+      },
+      unlock: {
+        requiresAnimal: "pileated-woodpecker",
+        label: "Welcome the Pileated Woodpecker back to Old Hollow Forest"
+      }
+    },
+    {
+      id: "bark-slab-snag",
+      name: "Loose-Bark Snag",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "bark-slab-snag",
+        qty: 1
+      },
+      materials: {
+        bark: 3,
+        branches: 1
+      },
+      unlock: {
+        requiresAnimal: "porcupine",
+        label: "Welcome the North American Porcupine back to Old Hollow Forest"
+      }
+    },
+    {
+      id: "leaf-drey",
+      name: "Leaf Drey",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "leaf-drey",
+        qty: 1
+      },
+      materials: {
+        branches: 2,
+        moss: 1
+      },
+      unlock: {
+        minHealth: 12,
+        label: "Restore Old Hollow Forest to 12% health"
+      }
+    },
+    {
+      id: "larder-burrow",
+      name: "Larder Burrow",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "larder-burrow",
+        qty: 1
+      },
+      materials: {
+        stones: 2,
+        acorns: 2
+      },
+      unlock: {
+        minHealth: 8,
+        label: "Restore Old Hollow Forest to 8% health"
+      }
+    },
+    {
+      id: "hemlock-stand",
+      name: "Hemlock Stand",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "hemlock-stand",
+        qty: 1
+      },
+      materials: {
+        pinecones: 6,
+        water: 4,
+        moss: 3
+      },
+      unlock: {
+        minHealth: 20,
+        label: "Restore Old Hollow Forest to 20% health"
+      }
+    },
+    {
+      id: "browse-thicket",
+      name: "Browse Thicket",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "browse-thicket",
+        qty: 1
+      },
+      materials: {
+        branches: 4,
+        berries: 2,
+        water: 2
+      },
+      unlock: {
+        minHealth: 30,
+        label: "Restore Old Hollow Forest to 30% health"
+      }
+    },
+    {
+      id: "crayfish-shallows",
+      name: "Crayfish Shallows",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "crayfish-shallows",
+        qty: 1
+      },
+      materials: {
+        stones: 4,
+        water: 3,
+        clay: 2
+      },
+      unlock: {
+        minHealth: 35,
+        label: "Restore Old Hollow Forest to 35% health"
+      }
+    },
+    {
+      id: "root-mass-den",
+      name: "Root-Mass Den",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "root-mass-den",
+        qty: 1
+      },
+      materials: {
+        branches: 5,
+        moss: 2,
+        clay: 2
+      },
+      unlock: {
+        minHealth: 55,
+        label: "Restore Old Hollow Forest to 55% health"
+      }
+    },
+    {
+      id: "earth-den-bank",
+      name: "Earth Den Bank",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "earth-den-bank",
+        qty: 1
+      },
+      materials: {
+        clay: 4,
+        branches: 2,
+        stones: 2
+      },
+      unlock: {
+        minHealth: 40,
+        label: "Restore Old Hollow Forest to 40% health"
+      }
+    },
+    {
+      id: "snake-hibernaculum-forest",
+      name: "Snake Hibernaculum",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "snake-hibernaculum-forest",
+        qty: 1
+      },
+      materials: {
+        stones: 5,
+        clay: 2,
+        branches: 1
+      },
+      unlock: {
+        minHealth: 30,
+        label: "Restore Old Hollow Forest to 30% health"
+      }
+    },
+    {
+      id: "broken-top-chimney",
+      name: "Broken-Top Chimney Tree",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "broken-top-chimney",
+        qty: 1
+      },
+      materials: {
+        branches: 8,
+        bark: 4,
+        mushrooms: 2
+      },
+      unlock: {
+        minHealth: 45,
+        label: "Restore Old Hollow Forest to 45% health"
+      }
+    },
+    {
+      id: "hollow-denning-tree",
+      name: "Hollow Denning Tree",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "hollow-denning-tree",
+        qty: 1
+      },
+      materials: {
+        branches: 8,
+        bark: 3,
+        moss: 2
+      },
+      unlock: {
+        minHealth: 50,
+        label: "Restore Old Hollow Forest to 50% health"
+      }
+    },
+    {
+      id: "rocky-den-ledge",
+      name: "Rocky Den Ledge",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "rocky-den-ledge",
+        qty: 1
+      },
+      materials: {
+        stones: 6,
+        branches: 2,
+        moss: 1
+      },
+      unlock: {
+        minHealth: 55,
+        label: "Restore Old Hollow Forest to 55% health"
+      }
+    },
+    {
+      id: "adopted-stick-nest",
+      name: "Adopted Stick Nest",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "adopted-stick-nest",
+        qty: 1
+      },
+      materials: {
+        branches: 5,
+        moss: 2,
+        bark: 1
+      },
+      unlock: {
+        requiresAnimal: "tree-squirrel",
+        label: "Welcome the Eastern Gray Squirrel back to Old Hollow Forest"
+      }
+    },
+    {
+      id: "bare-soil-scrape",
+      name: "Bare Soil Scrape",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "bare-soil-scrape",
+        qty: 1
+      },
+      materials: {
+        stones: 1,
+        fiber: 1
+      },
+      unlock: {
+        minHealth: 2,
+        label: "Restore Willow Meadow to 2% health"
+      }
+    },
+    {
+      id: "native-thistle-stand",
+      name: "Native Thistle Stand",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "native-thistle-stand",
+        qty: 1
+      },
+      materials: {
+        seeds: 3,
+        wildflowers: 2,
+        water: 1
+      },
+      unlock: {
+        minHealth: 20,
+        label: "Restore Willow Meadow to 20% health"
+      }
+    },
+    {
+      id: "prairie-swale-seedbed",
+      name: "Prairie Swale Seedbed",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "prairie-swale-seedbed",
+        qty: 1
+      },
+      materials: {
+        seeds: 2,
+        clay: 1,
+        water: 1
+      },
+      unlock: {
+        minHealth: 4,
+        label: "Restore Willow Meadow to 4% health"
+      }
+    },
+    {
+      id: "bunchgrass-sod-plug",
+      name: "Bunchgrass Sod Plug",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "bunchgrass-sod-plug",
+        qty: 1
+      },
+      materials: {
+        seeds: 3,
+        water: 2,
+        clay: 1
+      },
+      unlock: {
+        minHealth: 3,
+        label: "Restore Willow Meadow to 3% health"
+      }
+    },
+    {
+      id: "grass-thatch-litter",
+      name: "Grass Thatch Litter",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "grass-thatch-litter",
+        qty: 1
+      },
+      materials: {
+        fiber: 2,
+        branches: 1
+      },
+      unlock: {
+        minHealth: 5,
+        label: "Restore Willow Meadow to 5% health"
+      }
+    },
+    {
+      id: "grasshopper-egg-pod-bank",
+      name: "Egg Pod Bank",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "grasshopper-egg-pod-bank",
+        qty: 1
+      },
+      materials: {
+        clay: 2,
+        stones: 1
+      },
+      unlock: {
+        minHealth: 6,
+        label: "Restore Willow Meadow to 6% health"
+      }
+    },
+    {
+      id: "vole-runway-network",
+      name: "Vole Runway Network",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "vole-runway-network",
+        qty: 1
+      },
+      materials: {
+        fiber: 3,
+        seeds: 1
+      },
+      unlock: {
+        minHealth: 8,
+        label: "Restore Willow Meadow to 8% health"
+      }
+    },
+    {
+      id: "milkweed-rhizome-bed",
+      name: "Milkweed Rhizome Bed",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "milkweed-rhizome-bed",
+        qty: 1
+      },
+      materials: {
+        seeds: 3,
+        clay: 2,
+        water: 2
+      },
+      unlock: {
+        minHealth: 6,
+        label: "Restore Willow Meadow to 6% health"
+      }
+    },
+    {
+      id: "bumblebee-nest-tussock",
+      name: "Nesting Tussock",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "bumblebee-nest-tussock",
+        qty: 1
+      },
+      materials: {
+        fiber: 2,
+        seeds: 2
+      },
+      unlock: {
+        requiresAnimal: "meadow-vole",
+        label: "Welcome the Prairie Vole back to Willow Meadow"
+      }
+    },
+    {
+      id: "brush-form-hollow",
+      name: "Brush Form Hollow",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "brush-form-hollow",
+        qty: 1
+      },
+      materials: {
+        branches: 3,
+        fiber: 1
+      },
+      unlock: {
+        minHealth: 20,
+        label: "Restore Willow Meadow to 20% health"
+      }
+    },
+    {
+      id: "serviceberry-browse-thicket",
+      name: "Serviceberry Browse Thicket",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "serviceberry-browse-thicket",
+        qty: 1
+      },
+      materials: {
+        seeds: 4,
+        berries: 3,
+        water: 2
+      },
+      unlock: {
+        minHealth: 45,
+        label: "Restore Willow Meadow to 45% health"
+      }
+    },
+    {
+      id: "milkweed-aphid-colony",
+      name: "Milkweed Aphid Colony",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "milkweed-aphid-colony",
+        qty: 1
+      },
+      materials: {
+        wildflowers: 2
+      },
+      unlock: {
+        minHealth: 6,
+        label: "Restore Willow Meadow to 6% health"
+      }
+    },
+    {
+      id: "squirrel-burrow-town",
+      name: "Burrow Town",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "squirrel-burrow-town",
+        qty: 1
+      },
+      materials: {
+        clay: 4,
+        stones: 2
+      },
+      unlock: {
+        minHealth: 12,
+        label: "Restore Willow Meadow to 12% health"
+      }
+    },
+    {
+      id: "mantis-ootheca-stem",
+      name: "Standing Stem Ootheca",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "mantis-ootheca-stem",
+        qty: 1
+      },
+      materials: {
+        fiber: 2
+      },
+      unlock: {
+        minHealth: 6,
+        label: "Restore Willow Meadow to 6% health"
+      }
+    },
+    {
+      id: "domed-grass-nest-tunnel",
+      name: "Domed Grass Nest",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "domed-grass-nest-tunnel",
+        qty: 1
+      },
+      materials: {
+        fiber: 4,
+        branches: 2
+      },
+      unlock: {
+        minHealth: 5,
+        label: "Restore Willow Meadow to 5% health"
+      }
+    },
+    {
+      id: "bluebird-nest-box",
+      name: "Bluebird Nest Box",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "bluebird-nest-box",
+        qty: 1
+      },
+      materials: {
+        branches: 5,
+        fiber: 2
+      },
+      unlock: {
+        minHealth: 45,
+        label: "Restore Willow Meadow to 45% health"
+      }
+    },
+    {
+      id: "snake-hibernaculum-meadow",
+      name: "Snake Hibernaculum",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "snake-hibernaculum-meadow",
+        qty: 1
+      },
+      materials: {
+        stones: 4,
+        branches: 2,
+        clay: 2
+      },
+      unlock: {
+        requiresAnimal: "ground-squirrel",
+        label: "Welcome the Ground Squirrel back to Willow Meadow"
+      }
+    },
+    {
+      id: "deep-loam-soil-bank",
+      name: "Deep Loam Soil Bank",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "deep-loam-soil-bank",
+        qty: 1
+      },
+      materials: {
+        clay: 5,
+        stones: 2
+      },
+      unlock: {
+        minHealth: 55,
+        label: "Restore Willow Meadow to 55% health"
+      }
+    },
+    {
+      id: "earthen-fox-den",
+      name: "Earthen Fox Den",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "earthen-fox-den",
+        qty: 1
+      },
+      materials: {
+        clay: 4,
+        branches: 3
+      },
+      unlock: {
+        requiresAnimal: "ground-squirrel",
+        label: "Welcome the Ground Squirrel back to Willow Meadow"
+      }
+    },
+    {
+      id: "crown-stick-eyrie",
+      name: "Crown Stick Eyrie",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "crown-stick-eyrie",
+        qty: 1
+      },
+      materials: {
+        branches: 8,
+        fiber: 4
+      },
+      unlock: {
+        minHealth: 65,
+        label: "Restore Willow Meadow to 65% health"
+      }
+    },
+    {
+      id: "sunlit-mudflat",
+      name: "Sunlit Mudflat",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "sunlit-mudflat",
+        qty: 1
+      },
+      materials: {
+        mud: 2,
+        clay: 1
+      },
+      unlock: {
+        minHealth: 5,
+        label: "Restore Rushwater Wetland to 5% health"
+      }
+    },
+    {
+      id: "clearwater-shallows",
+      name: "Clearwater Shallows",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "clearwater-shallows",
+        qty: 1
+      },
+      materials: {
+        "clean-water": 4,
+        stones: 3
+      },
+      unlock: {
+        minHealth: 10,
+        label: "Restore Rushwater Wetland to 10% health"
+      }
+    },
+    {
+      id: "detritus-drift",
+      name: "Litter Drift",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "detritus-drift",
+        qty: 1
+      },
+      materials: {
+        reeds: 2,
+        mud: 2
+      },
+      unlock: {
+        minHealth: 8,
+        label: "Restore Rushwater Wetland to 8% health"
+      }
+    },
+    {
+      id: "crayfish-burrow-bank",
+      name: "Crayfish Burrow Bank",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "crayfish-burrow-bank",
+        qty: 1
+      },
+      materials: {
+        clay: 4,
+        mud: 3
+      },
+      unlock: {
+        minHealth: 18,
+        label: "Restore Rushwater Wetland to 18% health"
+      }
+    },
+    {
+      id: "submerged-spawning-slab",
+      name: "Submerged Spawning Slab",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "submerged-spawning-slab",
+        qty: 1
+      },
+      materials: {
+        stones: 3,
+        fiber: 1
+      },
+      unlock: {
+        minHealth: 24,
+        label: "Restore Rushwater Wetland to 24% health"
+      }
+    },
+    {
+      id: "stable-silt-shoal",
+      name: "Stable Silt Shoal",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "stable-silt-shoal",
+        qty: 1
+      },
+      materials: {
+        stones: 5,
+        clay: 2,
+        "clean-water": 2
+      },
+      unlock: {
+        requiresAnimal: "freshwater-fish",
+        label: "Welcome the Fathead Minnow back to Rushwater Wetland"
+      }
+    },
+    {
+      id: "cattail-root-shallows",
+      name: "Cattail Root Shallows",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "cattail-root-shallows",
+        qty: 1
+      },
+      materials: {
+        reeds: 4,
+        mud: 3,
+        water: 2
+      },
+      unlock: {
+        minHealth: 8,
+        label: "Restore Rushwater Wetland to 8% health"
+      }
+    },
+    {
+      id: "flooded-reed-clump",
+      name: "Flooded Reed Clump",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "flooded-reed-clump",
+        qty: 1
+      },
+      materials: {
+        reeds: 4,
+        water: 2
+      },
+      unlock: {
+        minHealth: 8,
+        label: "Restore Rushwater Wetland to 8% health"
+      }
+    },
+    {
+      id: "winter-litter-mound",
+      name: "Winter Litter Mound",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "winter-litter-mound",
+        qty: 1
+      },
+      materials: {
+        reeds: 2,
+        fiber: 2
+      },
+      unlock: {
+        minHealth: 22,
+        label: "Restore Rushwater Wetland to 22% health"
+      }
+    },
+    {
+      id: "vernal-pool",
+      name: "Fishless Vernal Pool",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "vernal-pool",
+        qty: 1
+      },
+      materials: {
+        clay: 4,
+        "clean-water": 4
+      },
+      unlock: {
+        minHealth: 30,
+        label: "Restore Rushwater Wetland to 30% health"
+      }
+    },
+    {
+      id: "wet-meadow-margin",
+      name: "Wet Meadow Margin",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "wet-meadow-margin",
+        qty: 1
+      },
+      materials: {
+        fiber: 3,
+        mud: 2,
+        water: 2
+      },
+      unlock: {
+        minHealth: 34,
+        label: "Restore Rushwater Wetland to 34% health"
+      }
+    },
+    {
+      id: "sandy-nest-bank",
+      name: "Sandy Nest Bank",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "sandy-nest-bank",
+        qty: 1
+      },
+      materials: {
+        stones: 4,
+        clay: 3
+      },
+      unlock: {
+        minHealth: 40,
+        label: "Restore Rushwater Wetland to 40% health"
+      }
+    },
+    {
+      id: "crane-nest-mound",
+      name: "Crane Nest Mound",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "crane-nest-mound",
+        qty: 1
+      },
+      materials: {
+        reeds: 5,
+        mud: 3,
+        fiber: 1
+      },
+      unlock: {
+        minHealth: 60,
+        label: "Restore Rushwater Wetland to 60% health"
+      }
+    },
+    {
+      id: "hidden-reed-platform",
+      name: "Hidden Reed Platform",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "hidden-reed-platform",
+        qty: 1
+      },
+      materials: {
+        reeds: 5,
+        fiber: 2
+      },
+      unlock: {
+        minHealth: 45,
+        label: "Restore Rushwater Wetland to 45% health"
+      }
+    },
+    {
+      id: "cut-bank-burrow",
+      name: "Cut Bank Burrow",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "cut-bank-burrow",
+        qty: 1
+      },
+      materials: {
+        clay: 5,
+        mud: 3
+      },
+      unlock: {
+        minHealth: 50,
+        label: "Restore Rushwater Wetland to 50% health"
+      }
+    },
+    {
+      id: "overwater-thicket",
+      name: "Overwater Thicket",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "overwater-thicket",
+        qty: 1
+      },
+      materials: {
+        fiber: 4,
+        mud: 3,
+        water: 2
+      },
+      unlock: {
+        requiresAnimal: "beaver",
+        label: "Welcome the Beaver back to Rushwater Wetland"
+      }
+    },
+    {
+      id: "muskrat-bank-den",
+      name: "Old Muskrat Bank Den",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "muskrat-bank-den",
+        qty: 1
+      },
+      materials: {
+        mud: 4,
+        reeds: 2
+      },
+      unlock: {
+        requiresAnimal: "muskrat",
+        label: "Welcome the Muskrat back to Rushwater Wetland"
+      }
+    },
+    {
+      id: "otter-bank-den",
+      name: "Otter Bank Den",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "otter-bank-den",
+        qty: 1
+      },
+      materials: {
+        mud: 5,
+        clay: 3,
+        reeds: 1
+      },
+      unlock: {
+        requiresAnimal: "beaver",
+        label: "Welcome the Beaver back to Rushwater Wetland"
+      }
+    },
+    {
+      id: "beaver-pond",
+      name: "Beaver Pond",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "beaver-pond",
+        qty: 1
+      },
+      materials: {
+        mud: 6,
+        clay: 4,
+        water: 3,
+        reeds: 2
+      },
+      unlock: {
+        requiresAnimal: "beaver",
+        label: "Welcome the Beaver back to Rushwater Wetland"
+      }
+    },
+    {
+      id: "beaver-canal",
+      name: "Beaver Canal",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "beaver-canal",
+        qty: 1
+      },
+      materials: {
+        mud: 4,
+        clay: 2,
+        water: 2
+      },
+      unlock: {
+        requiresAnimal: "beaver",
+        label: "Welcome the Beaver back to Rushwater Wetland"
+      }
+    },
+    {
+      id: "rotting-log-crumble",
+      name: "Crumbling Log",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "rotting-log-crumble",
+        qty: 1
+      },
+      materials: {
+        branches: 3,
+        water: 1
+      },
+      unlock: {
+        minHealth: 8,
+        label: "Restore Willow Meadow to 8% health"
+      }
+    },
+    {
+      id: "orb-web-anchor-stems",
+      name: "Web Anchor Stems",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "orb-web-anchor-stems",
+        qty: 1
+      },
+      materials: {
+        fiber: 2,
+        branches: 1
+      },
+      unlock: {
+        requiresAnimal: "grasshopper",
+        label: "Welcome the Grasshopper back to Willow Meadow"
+      }
+    },
+    {
+      id: "bat-maternity-roost",
+      name: "Maternity Roost",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "bat-maternity-roost",
+        qty: 1
+      },
+      materials: {
+        branches: 5,
+        fiber: 2,
+        clay: 1
+      },
+      unlock: {
+        minHealth: 42,
+        label: "Restore Willow Meadow to 42% health"
+      }
+    },
+    {
+      id: "barn-loft-nest-box",
+      name: "Barn Loft",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "barn-loft-nest-box",
+        qty: 1
+      },
+      materials: {
+        branches: 6,
+        fiber: 2,
+        clay: 1
+      },
+      unlock: {
+        requiresAnimal: "meadow-vole",
+        label: "Welcome the Prairie Vole back to Willow Meadow"
+      }
+    },
+    {
+      id: "coyote-natal-den-bank",
+      name: "Coyote Den Bank",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "coyote-natal-den-bank",
+        qty: 1
+      },
+      materials: {
+        clay: 4,
+        branches: 3,
+        stones: 1
+      },
+      unlock: {
+        requiresAnimal: "american-badger",
+        label: "Welcome the American Badger back to Willow Meadow"
+      }
+    },
+    {
+      id: "damp-leaf-corner",
+      name: "Damp Leaf Corner",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "damp-leaf-corner",
+        qty: 1
+      },
+      materials: {
+        fiber: 2,
+        branches: 1,
+        water: 1
+      },
+      unlock: {
+        minHealth: 5,
+        label: "Restore Willow Meadow to 5% health"
+      }
+    },
+    {
+      id: "hidden-grass-nest",
+      name: "Hidden Grass Nest",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "hidden-grass-nest",
+        qty: 1
+      },
+      materials: {
+        fiber: 3,
+        seeds: 2
+      },
+      unlock: {
+        minHealth: 44,
+        label: "Restore Willow Meadow to 44% health"
+      }
+    },
+    {
+      id: "thorn-larder-hedge",
+      name: "Thorn Larder Hedge",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "thorn-larder-hedge",
+        qty: 1
+      },
+      materials: {
+        branches: 4,
+        seeds: 2,
+        water: 1
+      },
+      unlock: {
+        minHealth: 54,
+        label: "Restore Willow Meadow to 54% health"
+      }
+    },
+    {
+      id: "meadow-mushroom-ring",
+      name: "Meadow Mushroom Ring",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "meadow-mushroom-ring",
+        qty: 1
+      },
+      materials: {
+        mushrooms: 2,
+        fiber: 1
+      },
+      unlock: {
+        minHealth: 10,
+        label: "Restore Willow Meadow to 10% health"
+      }
+    },
+    {
+      id: "cocoon-leaf-drift",
+      name: "Cocoon Leaf Drift",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "cocoon-leaf-drift",
+        qty: 1
+      },
+      materials: {
+        fiber: 3,
+        branches: 1
+      },
+      unlock: {
+        minHealth: 26,
+        label: "Restore Old Hollow Forest to 26% health"
+      }
+    },
+    {
+      id: "acorn-cache-scatter",
+      name: "Acorn Cache",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "acorn-cache-scatter",
+        qty: 1
+      },
+      materials: {
+        acorns: 4,
+        clay: 1
+      },
+      unlock: {
+        minHealth: 24,
+        label: "Restore Old Hollow Forest to 24% health"
+      }
+    },
+    {
+      id: "winter-freeze-litter-bed",
+      name: "Freeze-Down Litter Bed",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "winter-freeze-litter-bed",
+        qty: 1
+      },
+      materials: {
+        fiber: 2,
+        moss: 2,
+        bark: 1
+      },
+      unlock: {
+        minHealth: 34,
+        label: "Restore Old Hollow Forest to 34% health"
+      }
+    },
+    {
+      id: "canopy-nest-limb",
+      name: "Canopy Nest Limb",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "canopy-nest-limb",
+        qty: 1
+      },
+      materials: {
+        branches: 8,
+        fiber: 4,
+        moss: 2
+      },
+      unlock: {
+        minHealth: 72,
+        label: "Restore Old Hollow Forest to 72% health"
+      }
+    },
+    {
+      id: "bracket-fungus-shelf",
+      name: "Bracket Fungus Shelf",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "bracket-fungus-shelf",
+        qty: 1
+      },
+      materials: {
+        mushrooms: 3,
+        bark: 2,
+        branches: 2
+      },
+      unlock: {
+        minHealth: 8,
+        label: "Restore Old Hollow Forest to 8% health"
+      }
+    },
+    {
+      id: "wild-celery-bed",
+      name: "Wild Celery Bed",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "wild-celery-bed",
+        qty: 1
+      },
+      materials: {
+        reeds: 3,
+        mud: 2,
+        water: 2
+      },
+      unlock: {
+        minHealth: 12,
+        label: "Restore Rushwater Wetland to 12% health"
+      }
+    },
+    {
+      id: "thicket-bed-hollow",
+      name: "Thicket Bed Hollow",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "thicket-bed-hollow",
+        qty: 1
+      },
+      materials: {
+        branches: 4,
+        sand: 3,
+        fiber: 2
+      },
+      unlock: {
+        minHealth: 46,
+        label: "Restore Redstone Scrubland to 46% health"
+      }
+    },
+    {
+      id: "falcon-scrape-ledge",
+      name: "Scrape Ledge",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "falcon-scrape-ledge",
+        qty: 1
+      },
+      materials: {
+        stones: 5,
+        sand: 2
+      },
+      unlock: {
+        minHealth: 64,
+        label: "Restore Graywind Heights to 64% health"
+      }
+    },
+    {
+      id: "snowbank-mushroom-cluster",
+      name: "Snowbank Mushrooms",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "snowbank-mushroom-cluster",
+        qty: 1
+      },
+      materials: {
+        mushrooms: 3,
+        moss: 2,
+        snow: 1
+      },
+      unlock: {
+        minHealth: 22,
+        label: "Restore Graywind Heights to 22% health"
+      }
+    },
+    {
+      id: "algae-garden-scar",
+      name: "Grazed Algae Garden",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "algae-garden-scar",
+        qty: 1
+      },
+      materials: {
+        kelp: 2,
+        stones: 2,
+        water: 1
+      },
+      unlock: {
+        minHealth: 20,
+        label: "Restore Pelican Shore to 20% health"
+      }
+    },
+    {
+      id: "octopus-den-midden",
+      name: "Den Midden",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "octopus-den-midden",
+        qty: 1
+      },
+      materials: {
+        stones: 6,
+        shells: 4,
+        sand: 2
+      },
+      unlock: {
+        minHealth: 66,
+        label: "Restore Pelican Shore to 66% health"
+      }
+    },
+    {
+      id: "grizzly-dig-slope",
+      name: "Dig Slope",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "grizzly-dig-slope",
+        qty: 1
+      },
+      materials: {
+        stones: 4,
+        moss: 2,
+        "clean-water": 2
+      },
+      unlock: {
+        minHealth: 60,
+        label: "Restore Graywind Heights to 60% health"
+      }
+    },
+    {
+      id: "feather-lined-crack",
+      name: "Feather-Lined Crack",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "feather-lined-crack",
+        qty: 1
+      },
+      materials: {
+        stones: 3,
+        moss: 1
+      },
+      unlock: {
+        minHealth: 20,
+        label: "Restore the area to 20% health"
+      }
+    },
+    {
+      id: "borrowed-burrow-mouth",
+      name: "Borrowed Burrow",
+      category: "habitat",
+      unlockBiome: "desert",
+      output: {
+        itemId: "borrowed-burrow-mouth",
+        qty: 1
+      },
+      materials: {
+        sand: 3,
+        stones: 2
+      },
+      unlock: {
+        minHealth: 20,
+        label: "Restore the area to 20% health"
+      }
+    },
+    {
+      id: "browsed-pond-shallows",
+      name: "Browsed Shallows",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "browsed-pond-shallows",
+        qty: 1
+      },
+      materials: {
+        mud: 3,
+        reeds: 3,
+        "clean-water": 2
+      },
+      unlock: {
+        minHealth: 30,
+        label: "Restore Rushwater Wetland to 30% health"
+      }
+    },
+    {
+      id: "waterfall-splash-ledge",
+      name: "Splash Ledge",
+      category: "habitat",
+      unlockBiome: "alpine",
+      output: {
+        itemId: "waterfall-splash-ledge",
+        qty: 1
+      },
+      materials: {
+        stones: 4,
+        moss: 2,
+        "clean-water": 3
+      },
+      unlock: {
+        minHealth: 34,
+        label: "Restore Graywind Heights to 34% health"
+      }
+    },
+    {
+      id: "grub-digging-ground",
+      name: "Digging Ground",
+      category: "habitat",
+      unlockBiome: "forest",
+      output: {
+        itemId: "grub-digging-ground",
+        qty: 1
+      },
+      materials: {
+        moss: 2,
+        bark: 2
+      },
+      unlock: {
+        minHealth: 34,
+        label: "Restore Old Hollow Forest to 34% health"
+      }
+    },
+    {
+      id: "clifftop-burrow",
+      name: "Clifftop Burrow",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "clifftop-burrow",
+        qty: 1
+      },
+      materials: {
+        sand: 3,
+        driftwood: 2
+      },
+      unlock: {
+        minHealth: 48,
+        label: "Restore Pelican Shore to 48% health"
+      }
     }
   ]
 };
@@ -2853,7 +6036,7 @@ var habitat_objects_default = {
       ],
       shape: "patch",
       color: "#5f9e44",
-      description: "Deep-rooted native bunchgrass. Food and cover for meadow life.",
+      description: "Deep-rooted native bunchgrass that sends roots down further than it stands tall. It holds soil together and keeps the ground covered year-round.",
       matureHours: 2,
       matureBonus: 1
     },
@@ -2876,7 +6059,7 @@ var habitat_objects_default = {
         seeds: 2
       },
       growSeconds: 45,
-      description: "Mixed native wildflowers. Pollinators can spot it from far away.",
+      description: "Mixed native wildflowers in a loose, unplanned drift. A wide splash of colour you can pick out from a long way off.",
       matureHours: 2,
       matureBonus: 1,
       yield: {
@@ -2906,7 +6089,7 @@ var habitat_objects_default = {
         wildflowers: 1
       },
       growSeconds: 45,
-      description: "Bright field poppies, grown from seed in a watered bed.",
+      description: "Field poppies, an old European farm weed. Lovely in a garden bed; they are not part of a native prairie planting.",
       matureHours: 2,
       matureBonus: 1,
       yield: {
@@ -2934,7 +6117,7 @@ var habitat_objects_default = {
         seeds: 3
       },
       growSeconds: 60,
-      description: "Tall sunflowers that feed seed-eating birds all season.",
+      description: "Tall common sunflowers (Helianthus annuus), a true North American native, left standing through the autumn instead of cut back \u2014 the seed heads dry hard on the stalk and stay put.",
       matureHours: 2,
       matureBonus: 1,
       yield: {
@@ -3025,7 +6208,7 @@ var habitat_objects_default = {
         acorns: 2
       },
       growSeconds: 90,
-      description: "An acorn-grown oak. Squirrels and jays will thank you for decades.",
+      description: "An acorn-grown oak. Slow at first, and then for decades the most productive single tree you can put in the ground \u2014 nothing else in North America supports as much.",
       matureHours: 8,
       matureBonus: 2,
       yield: {
@@ -3078,7 +6261,7 @@ var habitat_objects_default = {
       ],
       shape: "butterflyflowers",
       color: "#e8813a",
-      description: "Milkweed and nectar flowers, planted especially for butterflies.",
+      description: "A mixed bed of native nectar flowers \u2014 blazing star, aster and bee balm \u2014 chosen so something is open from midsummer right through autumn. Milkweed is now its own plant and has to be sown separately.",
       matureHours: 2,
       matureBonus: 1
     },
@@ -3096,7 +6279,7 @@ var habitat_objects_default = {
       ],
       shape: "pollinatorgarden",
       color: "#5a7bd8",
-      description: "A dense, season-long banquet for bees and butterflies.",
+      description: "A dense bed of overlapping bloom, planned so that something is always open from the first warm week to the last. Nectar and pollen, all season, in one place.",
       matureHours: 2,
       matureBonus: 1
     },
@@ -3115,7 +6298,7 @@ var habitat_objects_default = {
       ],
       shape: "bush",
       color: "#4f7d3a",
-      description: "A young native shrub. Quick cover for anyone passing through.",
+      description: "A young native shrub \u2014 quick, dense cover at knee height. But a meadow is a grassland, and letting shrubs spread across it turns it into something else entirely.",
       matureHours: 4,
       matureBonus: 1
     },
@@ -3140,7 +6323,7 @@ var habitat_objects_default = {
         berries: 2
       },
       growSeconds: 70,
-      description: "A thornless native berry bush. Songbirds, rabbits, deer, and bears all visit. Sow it in a watered bed from seeds and a few berries.",
+      description: "A native thimbleberry and wild rose thicket \u2014 prickly, as most native brambles are, and heavy with fruit by late summer. Sow it in a watered bed from seeds and a few berries.",
       matureHours: 4,
       matureBonus: 1,
       yield: {
@@ -3179,7 +6362,7 @@ var habitat_objects_default = {
       ],
       shape: "pond",
       color: "#4f86a8",
-      description: "A shaded forest pool fed by a cold spring. Deer, raccoons, and salamanders all come to drink."
+      description: "A shaded forest pool fed by a cold spring. Deep shade, cold clean water, and a soft muddy edge you can walk right down to."
     },
     {
       id: "fern-spring",
@@ -3212,7 +6395,7 @@ var habitat_objects_default = {
       ],
       shape: "pool",
       color: "#7fb4d8",
-      description: "A gently sloped pool, safe for small animals to wade and drink."
+      description: "A gently sloped pool with a long sunlit shallow edge you could wade across without wetting your knees. Shallow and warm rather than deep \u2014 no substitute for real depth."
     },
     {
       id: "log-shelter",
@@ -3228,7 +6411,7 @@ var habitat_objects_default = {
       ],
       shape: "log",
       color: "#7a5a3a",
-      description: "Stacked fallen logs. Small mammals, salamanders, and insects move in fast."
+      description: "Fallen logs stacked into a loose pile, with gaps running right through the middle. Damp underneath, and slowly going soft."
     },
     {
       id: "hollow-log",
@@ -3244,7 +6427,7 @@ var habitat_objects_default = {
       ],
       shape: "log",
       color: "#6a4a30",
-      description: "A fallen log carefully opened into a den. Small mammals and foxes love it."
+      description: "A fallen log carefully opened out down the middle into a dry, close chamber with an entrance at one end."
     },
     {
       id: "rock-pile",
@@ -3262,7 +6445,7 @@ var habitat_objects_default = {
       ],
       shape: "rocks",
       color: "#8e8e8a",
-      description: "Sun-warmed stones with cool gaps beneath \u2014 insects, lizards, and pika approve."
+      description: "Flat stones piled loosely so the sun bakes the top while the gaps underneath stay cool and damp."
     },
     {
       id: "fallen-branch-shelter",
@@ -3278,7 +6461,7 @@ var habitat_objects_default = {
       ],
       shape: "log",
       color: "#94703f",
-      description: "A loose brush pile. Humble, but everyone hides in it."
+      description: "A loose pile of branches thrown together rather than stacked, twigs and all. Humble, and riddled with gaps to disappear into."
     },
     {
       id: "bird-perch",
@@ -3295,7 +6478,7 @@ var habitat_objects_default = {
       ],
       shape: "perch",
       color: "#9a7448",
-      description: "A tall snag for singing and scouting."
+      description: "A tall bare snag with a clear view in every direction and open sky above it."
     },
     {
       id: "simple-path",
@@ -3395,7 +6578,7 @@ var habitat_objects_default = {
       ],
       shape: "mossy",
       color: "#7fa05a",
-      description: "Old stones wearing soft green moss \u2014 the forest approves."
+      description: "Old stones wearing soft green moss \u2014 they keep boots off the wet ground without compacting it."
     },
     {
       id: "wooden-bridge",
@@ -3416,7 +6599,7 @@ var habitat_objects_default = {
       shape: "bridge",
       color: "#a3814f",
       bridge: true,
-      description: "A sturdy plank bridge \u2014 place it on open water to cross your rivers and lakes."
+      description: "A sturdy plank bridge \u2014 place it over a pond or wet swale so boots stay off the soft ground."
     },
     {
       id: "wooden-fence",
@@ -3452,7 +6635,7 @@ var habitat_objects_default = {
       ],
       shape: "tree",
       color: "#3f6e38",
-      description: "A fast-growing native tree planted for squirrels, owls, and nuthatches.",
+      description: "A fast-growing native sapling. Give it a few seasons and it will be tall enough to hold weight in its crown.",
       matureHours: 8,
       matureBonus: 2
     },
@@ -3469,7 +6652,7 @@ var habitat_objects_default = {
       ],
       shape: "deadwood",
       color: "#8d7a5e",
-      description: "A safely anchored dead snag. Woodpecker real estate."
+      description: "A dead snag left standing and safely anchored. The bigger around it is the better \u2014 a slim stub is easy to work, but only a full trunk can hold anything large."
     },
     {
       id: "mushroom-log",
@@ -3485,7 +6668,7 @@ var habitat_objects_default = {
       ],
       shape: "log",
       color: "#7c6248",
-      description: "A damp, mossy log seeded with fungi. Salamanders and slugs love the shade."
+      description: "A damp, mossy log seeded with fungi. The fungus is doing the real work \u2014 it digests the wood, which is what turns a dead log into food, soil and shelter for everything else."
     },
     {
       id: "reed-bed",
@@ -3502,7 +6685,7 @@ var habitat_objects_default = {
       ],
       shape: "reed",
       color: "#7fa05a",
-      description: "Dense replanted reeds \u2014 nursery for frogs, dragonflies, and blackbirds.",
+      description: "Dense replanted reeds standing in shallow water, thick enough to walk into and lose sight of the bank.",
       plantable: true,
       plantCost: {
         reeds: 3
@@ -3533,7 +6716,7 @@ var habitat_objects_default = {
         id: "shovel",
         tier: 2
       },
-      description: "A shaped soft bank for burrowing and basking. Requires the restoration shovel."
+      description: "A shaped bank of bare, soft, damp earth sloping down into the water, open to the sun and easy to dig. Requires the restoration shovel."
     },
     {
       id: "nesting-platform",
@@ -3549,7 +6732,7 @@ var habitat_objects_default = {
       ],
       shape: "platform",
       color: "#9a8a64",
-      description: "A raised, quiet platform safe from floods and footsteps."
+      description: "A raised, quiet platform out in the open with a broad flat top and nothing overhanging it. It is not a substitute for a tree cavity, a bank tunnel or a colony rookery."
     },
     {
       id: "cattail-stand",
@@ -3565,7 +6748,7 @@ var habitat_objects_default = {
       ],
       shape: "cattail",
       color: "#7a4a22",
-      description: "Tall cattails along the water's edge \u2014 cover for nesting marsh birds and shade for the shallows.",
+      description: "Tall cattails crowded along the water's edge \u2014 dense at the base, and shading the shallows behind them.",
       plantable: true,
       plantCost: {
         reeds: 2
@@ -3592,7 +6775,7 @@ var habitat_objects_default = {
       ],
       shape: "log",
       color: "#6e553c",
-      description: "A half-sunken log for turtles and frogs to bask on and otters to slip beneath."
+      description: "A half-sunken log, one end up in the sun and the other lost under water. Dark, close gaps run beneath it the whole way."
     },
     {
       id: "lily-pool",
@@ -3607,7 +6790,7 @@ var habitat_objects_default = {
       ],
       shape: "pool",
       color: "#6fae86",
-      description: "Still, clean water blanketed with lily pads \u2014 a hatchery for dragonflies and frogs."
+      description: "Still, clean water blanketed edge to edge with lily pads, with cool shaded water underneath them."
     },
     {
       id: "burrow-mound",
@@ -3627,7 +6810,7 @@ var habitat_objects_default = {
         id: "shovel",
         tier: 2
       },
-      description: "A starter burrow bank for diggers. Requires the restoration shovel."
+      description: "A heaped mound of loose, well-drained earth with one bare face, soft enough to tunnel straight into. Requires the restoration shovel."
     },
     {
       id: "cactus-patch",
@@ -3643,7 +6826,7 @@ var habitat_objects_default = {
       ],
       shape: "cactus",
       color: "#5e8a4a",
-      description: "Transplanted native cactus. Fruit, moisture, and a fortress in one.",
+      description: "Transplanted native pad and barrel cactus. Fruit, moisture and a spiny fortress in one \u2014 though nothing this short can hold a cavity.",
       plantable: true,
       plantCost: {
         "cactus-fruit": 2
@@ -3671,7 +6854,7 @@ var habitat_objects_default = {
       ],
       shape: "brush",
       color: "#8a8a4e",
-      description: "Hardy scrub that throws precious shade.",
+      description: "A mixed stand of bursage and brittlebush \u2014 the low scrub that fills the gaps between the bigger shrubs.",
       plantable: true,
       plantCost: {
         sand: 2
@@ -3709,7 +6892,7 @@ var habitat_objects_default = {
       ],
       shape: "flowers",
       color: "#9d86d9",
-      description: "Tough little high-country flowers for alpine pollinators.",
+      description: "Tough little high-country forbs, low and tight to the ground, flowering all at once in the short summer. Nectar, seed and green leaf \u2014 forage, not shelter.",
       plantable: true,
       plantCost: {
         "alpine-flowers": 2
@@ -3736,7 +6919,7 @@ var habitat_objects_default = {
       ],
       shape: "pool",
       color: "#8fd0e8",
-      description: "A stone-lined pool that catches cold, clean snowmelt."
+      description: "A stone-lined pool that catches cold, clean snowmelt and holds it clear. Leave it unstocked \u2014 high alpine water was naturally barren, and what gets put into it does not come out again."
     },
     {
       id: "tidepool",
@@ -3752,11 +6935,13 @@ var habitat_objects_default = {
       ],
       shape: "tidepool",
       color: "#5d96c8",
-      description: "A restored rocky pool that holds the sea between tides."
+      description: "A restored rocky pool that keeps a pocket of the sea behind when the tide drops. Only ever a pocket \u2014 it warms, it goes salty, and it waits.",
+      zone: "mid",
+      waveExposure: "moderate"
     },
     {
       id: "dune-grass",
-      name: "Dune Grass",
+      name: "American Dunegrass",
       placement: "outdoor",
       biomes: [
         "coastal"
@@ -3768,14 +6953,16 @@ var habitat_objects_default = {
       ],
       shape: "dunegrass",
       color: "#bdb670",
-      description: "Deep-rooted grass that anchors the dunes and hides shorebird nests.",
+      description: "Native American dunegrass (Leymus mollis), which holds blowing sand in open, patchy clumps rather than a dense wall.",
       plantable: true,
       plantCost: {
         sand: 2
       },
       growSeconds: 45,
       matureHours: 4,
-      matureBonus: 1
+      matureBonus: 1,
+      zone: "backdune",
+      waveExposure: "sheltered"
     },
     {
       id: "driftwood-shelter",
@@ -3805,9 +6992,11 @@ var habitat_objects_default = {
       ],
       shape: "kelp",
       color: "#6a7a3a",
-      description: "A protected line of washed-up kelp \u2014 a buffet for the whole beach.",
+      description: "A protected line of washed-up kelp left lying where the tide dropped it, going soft and dark underneath. Groom it away and the beach loses the only real food it gets.",
       matureHours: 4,
-      matureBonus: 1
+      matureBonus: 1,
+      zone: "high",
+      waveExposure: "moderate"
     },
     {
       id: "coastal-nesting-area",
@@ -3823,7 +7012,7 @@ var habitat_objects_default = {
       ],
       shape: "nest",
       color: "#d8c8a0",
-      description: "A roped-off quiet stretch of upper beach for nesting."
+      description: "A general roped-off stretch of quiet upper beach, marked with posts and line. It protects the ground broadly \u2014 the narrower closures are far more particular about what they cover."
     },
     {
       id: "coral-garden",
@@ -3839,7 +7028,7 @@ var habitat_objects_default = {
       ],
       shape: "coralgarden",
       color: "#e58b6f",
-      description: "Transplanted coral rubble that grows back into a living reef \u2014 food and shelter for the whole tideline."
+      description: "DEPRECATED \u2014 do not offer in this biome. There are no shallow reef-building corals in the temperate northeast Pacific; reef corals need water around 23-25 C and this coast runs 11-21 C. Replaced by the Kelp Forest object."
     },
     {
       id: "sea-glass-lantern",
@@ -3878,7 +7067,7 @@ var habitat_objects_default = {
       needs: [],
       shape: "pearldisplay",
       color: "#f2ece0",
-      description: "A polished shell cradle showing off the rarest pearls the shore gives up \u2014 the pride of a restored coast."
+      description: "A polished shell cradle for beachcombed treasures. Note: there is no natural pearl fishery on this coast, and taking live shellfish for pearls is not restoration \u2014 display only what the tide gave up."
     },
     {
       id: "sea-glass-path",
@@ -4060,7 +7249,7 @@ var habitat_objects_default = {
       needs: [],
       shape: "bench",
       color: "#a3814f",
-      description: "A weathered bench \u2014 a quiet place to sit and watch the wildlife."
+      description: "A weathered bench, silvered by salt and sun \u2014 a quiet place to sit for a long while and just look."
     },
     {
       id: "garden-arch",
@@ -4077,7 +7266,7 @@ var habitat_objects_default = {
       ],
       shape: "arch",
       color: "#5e9455",
-      description: "A flowering arch that frames a path and feeds passing pollinators."
+      description: "A flowering arch that frames a path, heavy with bloom by midsummer. Pretty, but it is a garden feature rather than habitat, and nothing here depends on one."
     },
     {
       id: "bird-bath",
@@ -4095,7 +7284,7 @@ var habitat_objects_default = {
       ],
       shape: "birdbath",
       color: "#7fb4d8",
-      description: "Fresh water for songbirds to drink and bathe."
+      description: "A shallow stone basin on a pedestal, no deeper than a thumb, with a rough bottom for footing and fresh water in it."
     },
     {
       id: "trail-signpost",
@@ -4133,7 +7322,7 @@ var habitat_objects_default = {
       ],
       shape: "planter",
       color: "#8c6a42",
-      description: "A timber planter box brimming with flowers."
+      description: "A timber box planted with desert natives \u2014 brittlebush, penstemon and globemallow rather than garden flowers."
     },
     {
       id: "gazebo",
@@ -4155,7 +7344,7 @@ var habitat_objects_default = {
     },
     {
       id: "clover-patch",
-      name: "Clover Patch",
+      name: "Native Clover Patch",
       placement: "outdoor",
       biomes: [
         "meadow",
@@ -4168,7 +7357,7 @@ var habitat_objects_default = {
       ],
       shape: "clover",
       color: "#6fae5a",
-      description: "Low clover and trefoil \u2014 nectar for bees and forage for rabbits.",
+      description: "Introduced clover and birdsfoot trefoil, soft and green underfoot. It crowds out native forbs \u2014 treat it as a garden patch, not restoration.",
       matureHours: 2,
       matureBonus: 1
     },
@@ -4186,7 +7375,7 @@ var habitat_objects_default = {
       ],
       shape: "brushpile",
       color: "#8a7048",
-      description: "A loose pile of branches \u2014 cover for small mammals and ground birds."
+      description: "A loose pile of branches, thickest at the bottom and open through the middle, with runs and gaps at ground level."
     },
     {
       id: "fern-grove",
@@ -4224,7 +7413,7 @@ var habitat_objects_default = {
       ],
       shape: "stump",
       color: "#8a6a44",
-      description: "A mossy old stump riddled with cavities for dens and grubs."
+      description: "A mossy old stump riddled with holes and soft rot, crumbling a little further into the ground every year."
     },
     {
       id: "sedge-tussock",
@@ -4240,7 +7429,7 @@ var habitat_objects_default = {
       ],
       shape: "sedge",
       color: "#8aa85a",
-      description: "Clumped sedges along the shallows \u2014 nesting cover for marsh birds.",
+      description: "Clumped sedges standing in the shallows, each one a dense knee-high tuft with dry footing in the middle of it.",
       plantable: true,
       plantCost: {
         reeds: 2
@@ -4263,7 +7452,7 @@ var habitat_objects_default = {
       ],
       shape: "snag",
       color: "#8a7860",
-      description: "A standing dead alder \u2014 perch and cavity nest above the water."
+      description: "A standing dead alder drowned by rising water, its trunk riddled with old cavities and its bare top branches reaching out over open water."
     },
     {
       id: "agave-rosette",
@@ -4279,7 +7468,7 @@ var habitat_objects_default = {
       ],
       shape: "agave",
       color: "#6f8a5a",
-      description: "A spiny rosette whose tall bloom feeds desert pollinators.",
+      description: "A spiny rosette that spends years low to the ground and then throws up a single flowering mast taller than you are.",
       plantable: true,
       plantCost: {
         "cactus-fruit": 1,
@@ -4377,7 +7566,7 @@ var habitat_objects_default = {
       ],
       shape: "seagrass",
       color: "#6a9a7a",
-      description: "Swaying eelgrass \u2014 nursery for fish and grazing for sea geese.",
+      description: "Swaying eelgrass (Zostera marina) rooted in soft mud in a sheltered bay \u2014 an underwater meadow, dense enough to disappear into.",
       plantable: true,
       plantCost: {
         sand: 1,
@@ -4385,7 +7574,9 @@ var habitat_objects_default = {
       },
       growSeconds: 45,
       matureHours: 4,
-      matureBonus: 1
+      matureBonus: 1,
+      zone: "subtidal",
+      waveExposure: "sheltered"
     },
     {
       id: "oyster-bed",
@@ -4401,11 +7592,13 @@ var habitat_objects_default = {
       ],
       shape: "oyster",
       color: "#8e8e8a",
-      description: "A clustered shellfish reef that filters the tide and feeds shorebirds."
+      description: "A restored reef of native Olympia oysters (Ostrea lurida) \u2014 the Pacific coast's own oyster and a real restoration target, not the introduced Pacific oyster.",
+      zone: "low",
+      waveExposure: "sheltered"
     },
     {
       id: "daisy-patch",
-      name: "Daisy Patch",
+      name: "Blanketflower Patch",
       placement: "outdoor",
       biomes: [
         "meadow"
@@ -4422,7 +7615,7 @@ var habitat_objects_default = {
         seeds: 2
       },
       growSeconds: 45,
-      description: "Cheerful oxeye daisies that open with the morning sun.",
+      description: "Oxeye daisies \u2014 pretty, but introduced from Europe and listed as a noxious weed in several places. Cheerful decoration, not native meadow restoration.",
       matureHours: 2,
       matureBonus: 1,
       yield: {
@@ -4433,7 +7626,7 @@ var habitat_objects_default = {
     },
     {
       id: "foxglove",
-      name: "Foxglove",
+      name: "Penstemon Spires",
       placement: "outdoor",
       biomes: [
         "meadow"
@@ -4451,7 +7644,7 @@ var habitat_objects_default = {
         wildflowers: 1
       },
       growSeconds: 50,
-      description: "Tall pink foxglove spires \u2014 a bumblebee favourite.",
+      description: "Foxglove \u2014 introduced, poisonous in every part, and invasive in some regions. Decorative only.",
       matureHours: 2,
       matureBonus: 1,
       yield: {
@@ -4537,7 +7730,7 @@ var habitat_objects_default = {
         seeds: 1
       },
       growSeconds: 45,
-      description: "Golden marsh marigolds that ring the shallows in spring.",
+      description: "Golden marsh marigolds ringing the seepy shallows in spring, out before almost anything else. A reliable sign that the wet-meadow edge is working.",
       matureHours: 2,
       matureBonus: 1,
       yield: {
@@ -4678,7 +7871,7 @@ var habitat_objects_default = {
         moss: 2
       },
       growSeconds: 45,
-      description: "A springy cushion of moss dotted with tiny blooms.",
+      description: "A springy cushion of moss campion and alpine avens, tight as upholstery and noticeably warm and damp inside.",
       matureHours: 2,
       matureBonus: 1
     },
@@ -4731,9 +7924,11 @@ var habitat_objects_default = {
         driftwood: 1
       },
       growSeconds: 55,
-      description: "A salt-hardy grey-green coastal shrub.",
+      description: "A salt-hardy grey-green coastal scrub of the back dune and bluff, wind-pruned flat on top and dense underneath.",
       matureHours: 4,
-      matureBonus: 1
+      matureBonus: 1,
+      zone: "backdune",
+      waveExposure: "sheltered"
     },
     {
       id: "nectar-feeder",
@@ -4748,7 +7943,7 @@ var habitat_objects_default = {
       ],
       shape: "feeder",
       color: "#c0392b",
-      description: "A sweet agave-nectar feeder that draws hummingbirds and nectar bats."
+      description: "A sugar-water feeder on a hook. Pretty, and fun to watch \u2014 but sugar water is not food, so treat this as decoration rather than habitat."
     },
     {
       id: "crystal-cairn",
@@ -4820,7 +8015,7 @@ var habitat_objects_default = {
         sand: 1
       },
       growSeconds: 90,
-      description: "A salt-bent pine that anchors the back dunes and shelters shorebirds.",
+      description: "A salt-bent pine, low and broad, that anchors the back dunes and breaks the wind coming off the water.",
       matureHours: 8,
       matureBonus: 2
     },
@@ -4844,7 +8039,7 @@ var habitat_objects_default = {
         reeds: 1
       },
       growSeconds: 90,
-      description: "A towering swamp cypress with feathery needles and a flared, knee-rooted base.",
+      description: "A towering swamp cypress with a flared, knee-rooted base \u2014 a southeastern bottomland tree, planted here as an ornamental. It is outside its natural range in a northern emergent marsh.",
       matureHours: 8,
       matureBonus: 2
     },
@@ -4868,7 +8063,7 @@ var habitat_objects_default = {
         mud: 1
       },
       growSeconds: 90,
-      description: "A round-crowned wetland tree whose swollen base stands right in the water.",
+      description: "A round-crowned wetland tree whose swollen base stands in the water \u2014 a southeastern bottomland species, planted here as an ornamental and outside its natural range.",
       matureHours: 8,
       matureBonus: 2
     },
@@ -4962,7 +8157,7 @@ var habitat_objects_default = {
         seeds: 2
       },
       growSeconds: 90,
-      description: "White-barked aspen whose golden leaves shiver in the alpine wind.",
+      description: "White-barked aspen whose golden leaves shiver in the wind. It grows in sheltered subalpine basins well below the tundra, never above treeline.",
       matureHours: 8,
       matureBonus: 2
     },
@@ -4986,7 +8181,7 @@ var habitat_objects_default = {
         sand: 1
       },
       growSeconds: 90,
-      description: "A wind-flattened coastal cypress sculpted by the sea breeze.",
+      description: "A wind-flattened coastal cypress sculpted by the sea breeze \u2014 planted here, not native: wild Monterey cypress survives in only two relict groves on the Monterey Peninsula.",
       matureHours: 8,
       matureBonus: 2
     },
@@ -5240,7 +8435,7 @@ var habitat_objects_default = {
       needs: [],
       shape: "insecthotel",
       color: "#b07a3a",
-      description: "A stack of hollow stems and bark that solitary bees and beetles nest in."
+      description: "A stack of hollow and pithy stems, drilled blocks and bark riddled with old boring holes, packed into a frame under a small roof. Tubes of every width, from pencil-thin down to a hair."
     },
     {
       id: "dry-stone-wall",
@@ -5253,7 +8448,7 @@ var habitat_objects_default = {
       needs: [],
       shape: "stonewall",
       color: "#9a948a",
-      description: "A low wall of stacked stones with cool, shady gaps for small creatures."
+      description: "A low wall of stacked stones laid without mortar, cool and shady in the gaps between them."
     },
     {
       id: "bat-box",
@@ -5266,7 +8461,7 @@ var habitat_objects_default = {
       needs: [],
       shape: "batbox",
       color: "#6b5238",
-      description: "A tall, narrow roost box where bats shelter through the day."
+      description: "A tall, narrow wooden box with a rough inner face and an open slot along the bottom, mounted high and facing the sun. The gap inside is barely wider than a finger."
     },
     {
       id: "leaf-litter-pile",
@@ -5279,7 +8474,7 @@ var habitat_objects_default = {
       needs: [],
       shape: "leaflitter",
       color: "#8a6a3a",
-      description: "A mound of damp leaves and moss alive with forest-floor life."
+      description: "A mound of damp leaves and moss left where it fell, warm in the middle and slowly turning to soil."
     },
     {
       id: "duck-nest-box",
@@ -5292,7 +8487,7 @@ var habitat_objects_default = {
       needs: [],
       shape: "ducknest",
       color: "#7c5a3c",
-      description: "A raised wooden box where cavity-nesting waterfowl raise their young."
+      description: "A raised wooden box on a pole standing over water, with a round entrance high on one face and a bed of wood shavings inside."
     },
     {
       id: "basking-log",
@@ -5305,7 +8500,7 @@ var habitat_objects_default = {
       needs: [],
       shape: "baskinglog",
       color: "#7a5a3a",
-      description: "A half-submerged log where turtles and frogs warm in the sun."
+      description: "A half-submerged log angled up out of the water into full sun, dry along its upper length and slick below. Getting properly warm out here is not a luxury."
     },
     {
       id: "rock-crevice",
@@ -5315,10 +8510,12 @@ var habitat_objects_default = {
         "desert"
       ],
       healthValue: 2,
-      needs: [],
+      needs: [
+        "shelter"
+      ],
       shape: "crevice",
       color: "#b07a4a",
-      description: "Stacked slabs leaving shady cracks where reptiles shelter from the heat."
+      description: "Stacked slabs leaving narrow shady cracks that run back further than you can see, cool even at midday."
     },
     {
       id: "dew-basin",
@@ -5328,7 +8525,9 @@ var habitat_objects_default = {
         "desert"
       ],
       healthValue: 3,
-      needs: [],
+      needs: [
+        "water"
+      ],
       shape: "guzzler",
       color: "#9a8a6a",
       description: "A shallow clay basin that catches dew and rain \u2014 precious desert water."
@@ -5341,10 +8540,12 @@ var habitat_objects_default = {
         "alpine"
       ],
       healthValue: 2,
-      needs: [],
+      needs: [
+        "shelter"
+      ],
       shape: "talus",
       color: "#9a948a",
-      description: "A jumble of broken rock \u2014 the burrows and runways pikas love."
+      description: "A jumble of broken rock with deep spaces between the blocks \u2014 runways and hollows running right down into the pile."
     },
     {
       id: "alpine-nest-shelf",
@@ -5354,10 +8555,12 @@ var habitat_objects_default = {
         "alpine"
       ],
       healthValue: 2,
-      needs: [],
+      needs: [
+        "shelter"
+      ],
       shape: "nestshelf",
       color: "#8a847a",
-      description: "A sheltered rock ledge lined with moss for high-country nesters."
+      description: "A sheltered rock ledge lined with moss, out of the wind and with a solid overhang above it."
     },
     {
       id: "driftwood-pile",
@@ -5366,11 +8569,13 @@ var habitat_objects_default = {
       biomes: [
         "coastal"
       ],
-      healthValue: 2,
+      healthValue: 4,
       needs: [],
       shape: "driftpile",
       color: "#b8a888",
-      description: "A tangle of sun-bleached driftwood that shelters shore life."
+      description: "A tangle of sun-bleached driftwood, silver-grey and hollow-sounding, with damp shade under the lowest pieces.",
+      zone: "backdune",
+      waveExposure: "sheltered"
     },
     {
       id: "nesting-bluff",
@@ -5379,11 +8584,13 @@ var habitat_objects_default = {
       biomes: [
         "coastal"
       ],
-      healthValue: 2,
+      healthValue: 6,
       needs: [],
       shape: "bluff",
       color: "#c2b9a0",
-      description: "A built-up sandy bank with ledges for cliff-nesting seabirds."
+      description: "A built-up sandy bank with narrow ledges cut across its face, sheer below and out of reach from the ground.",
+      zone: "splash",
+      waveExposure: "exposed"
     },
     {
       id: "pika-haypile",
@@ -5399,7 +8606,7 @@ var habitat_objects_default = {
       ],
       shape: "haypile",
       color: "#c2b070",
-      description: "A stockpile of dried grasses and flowers, cured the way pikas hoard hay for the long winter."
+      description: "A stockpile of grasses and flowers cut green and cured dry under a rock overhang, packed tight and out of the rain."
     },
     {
       id: "lichen-boulder",
@@ -5414,7 +8621,7 @@ var habitat_objects_default = {
       ],
       shape: "lichenrock",
       color: "#9fb38a",
-      description: "A weathered boulder crusted with map lichen \u2014 slow alpine grazing and a foothold for new life."
+      description: "A weathered boulder crusted with map lichen. It grows roughly a millimetre every ten years, quietly crumbling the rock into the first grains of alpine soil."
     },
     {
       id: "scree-slope",
@@ -5424,7 +8631,10 @@ var habitat_objects_default = {
         "alpine"
       ],
       healthValue: 3,
-      needs: [],
+      needs: [
+        "shelter",
+        "open"
+      ],
       shape: "scree",
       color: "#9a948a",
       description: "A shifting apron of shattered rock, laced with the runways and hideaways of the high country."
@@ -5443,7 +8653,7 @@ var habitat_objects_default = {
       ],
       shape: "snowbank",
       color: "#eef4fb",
-      description: "A packed drift of late-lying snow \u2014 a cool roost and a trickle of meltwater for ptarmigan and hares."
+      description: "A packed drift of late-lying snow, firm enough on top to walk on and soft enough underneath to push into. Inside a drift like this the wind stops entirely."
     },
     {
       id: "whitebark-cache",
@@ -5458,7 +8668,7 @@ var habitat_objects_default = {
       ],
       shape: "seedcache",
       color: "#c8a86a",
-      description: "A hidden larder of whitebark pine nuts \u2014 the seed bank nutcrackers and grosbeaks live by."
+      description: "A hidden larder of whitebark pine nuts buried a few centimetres down \u2014 rich, oily seed, kept sound right through the winter."
     },
     {
       id: "juniper-thicket",
@@ -5491,7 +8701,7 @@ var habitat_objects_default = {
       ],
       shape: "cliffniche",
       color: "#8a847a",
-      description: "A sheltered cleft in the cliff face, mossed and tucked away for high-country nesters."
+      description: "A sheltered cleft in the cliff face, mossed and tucked back out of sight, dry under an overhanging lip."
     },
     {
       id: "crystal-spring",
@@ -5532,7 +8742,8 @@ var habitat_objects_default = {
       needs: [],
       shape: "crystallantern",
       color: "#d8f0fa",
-      description: "A stone lantern set with a glowing shard of quartz that holds the last of the daylight."
+      description: "A stone lantern set with a glowing shard of quartz that holds the last of the daylight.",
+      decorative: true
     },
     {
       id: "obsidian-totem",
@@ -5545,7 +8756,8 @@ var habitat_objects_default = {
       needs: [],
       shape: "obsidiantotem",
       color: "#2e2b38",
-      description: "A polished column of volcanic glass that catches the high light like dark, still water."
+      description: "A polished column of volcanic glass that catches the high light like dark, still water.",
+      decorative: true
     },
     {
       id: "large-chest",
@@ -5834,7 +9046,7 @@ var habitat_objects_default = {
       ],
       shape: "rainbasin",
       color: "#6fa8d6",
-      description: "A carved stone bowl that catches rainwater \u2014 a drinking spot for visiting wildlife."
+      description: "A carved stone bowl that catches rainwater and holds it. Precious out here, and rarely full for long."
     },
     {
       id: "dew-lantern",
@@ -5851,7 +9063,8 @@ var habitat_objects_default = {
       needs: [],
       shape: "dewlantern",
       color: "#a8d2c0",
-      description: "A glass globe of glowing morning dew that throws a soft green light."
+      description: "Decoration. A glass globe of glowing morning dew that throws a soft green light \u2014 invented, not habitat.",
+      decorative: true
     },
     {
       id: "sunstone-cairn",
@@ -5863,12 +9076,10 @@ var habitat_objects_default = {
         "forest"
       ],
       healthValue: 4,
-      needs: [
-        "shelter"
-      ],
+      needs: [],
       shape: "sunstonecairn",
       color: "#e6a94e",
-      description: "A stack of sun-baked stones that hold the day's warmth into the cool evening."
+      description: "Decoration. A stack of sun-baked stones that hold the day's warmth long into the cool evening \u2014 pretty, but nothing here actually needs one."
     },
     {
       id: "frostflower-planter",
@@ -5880,12 +9091,11 @@ var habitat_objects_default = {
         "meadow"
       ],
       healthValue: 3,
-      needs: [
-        "plant"
-      ],
+      needs: [],
       shape: "frostflowerplanter",
       color: "#bcd9e8",
-      description: "A planter of pale ice-blooms that keep their shape long after the snow has gone."
+      description: "Decoration. A planter of imaginary pale ice-blooms \u2014 a made-up flower, not a plant you could grow.",
+      decorative: true
     },
     {
       id: "stormglass-lantern",
@@ -5937,7 +9147,7 @@ var habitat_objects_default = {
       needs: [],
       shape: "boardwalk",
       color: "#9a7448",
-      description: "A raised plank walkway that lets you cross the marsh without trampling the reeds and mud below."
+      description: "A raised plank walkway. Nothing out here needs one \u2014 it exists so that you don't: every footstep off it compacts mud, crushes stems and opens a path straight through cover."
     },
     {
       id: "heron-rookery",
@@ -5952,7 +9162,7 @@ var habitat_objects_default = {
       ],
       shape: "heronrookery",
       color: "#8a8270",
-      description: "A tall marsh snag crowned with a stick nest \u2014 exactly the high, safe perch that herons and egrets raise their young on."
+      description: "A stand of tall snags and crowns carrying a dozen bulky stick platforms, all within sight of one another. A rookery is a colony, not a single structure \u2014 one platform on its own is not the same thing."
     },
     {
       id: "dragonfly-pond",
@@ -5967,7 +9177,7 @@ var habitat_objects_default = {
       ],
       shape: "dragonflypond",
       color: "#5aa6cf",
-      description: "A clear pool ringed with reeds \u2014 open water where dragonflies hunt and frogs and newts breed."
+      description: "A clear pool ringed with reeds \u2014 open sunlit water in the middle, and stems running from the bottom right up past the surface."
     },
     {
       id: "trail-tent",
@@ -6019,6 +9229,3172 @@ var habitat_objects_default = {
       shape: "hikingboots",
       color: "#8a5a34",
       description: "Sturdy boots cobbled from tough forest bark, springy moss, and woven wetland reeds. Once crafted they're yours for good \u2014 wear them to roam the preserve a little faster."
+    },
+    {
+      id: "fellfield-gravel",
+      name: "Fellfield Gravel",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 3,
+      needs: [
+        "plant",
+        "open"
+      ],
+      shape: "talus",
+      color: "#9a9385",
+      description: "Wind-scoured gravel that freezes, heaves and re-sorts itself every spring, held together by thin crusts of lichen. It looks like nothing, and it is the only ground a cushion plant will take.",
+      matureHours: 6,
+      matureBonus: 1
+    },
+    {
+      id: "alpine-turf-mat",
+      name: "Alpine Turf Mat",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 6,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "tree",
+      color: "#7c8f5a",
+      description: "A knitted mat of sedge, alpine avens and cushion plants over dark alpine soil. Turf like this takes decades to close over bare ground, and one summer of boot traffic to open it up again.",
+      matureHours: 30,
+      matureBonus: 3
+    },
+    {
+      id: "snowmelt-litter-mat",
+      name: "Snowmelt Litter Mat",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 3,
+      needs: [
+        "food",
+        "shelter"
+      ],
+      shape: "cushion",
+      color: "#6b6151",
+      description: "A sodden mat of last year's stems and leaves, released as the snowpack pulls back. Almost all of the alpine's decomposition happens in these few damp weeks.",
+      matureHours: 4,
+      matureBonus: 1
+    },
+    {
+      id: "rotting-conifer-log",
+      name: "Rotting Conifer Log",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter",
+        "food"
+      ],
+      shape: "log",
+      color: "#5c4a35",
+      description: "A well-rotted subalpine fir log lying where the drifts pile deepest, soft enough to push a finger into. Dead wood is habitat, not mess.",
+      matureHours: 10,
+      matureBonus: 1
+    },
+    {
+      id: "escape-cliff",
+      name: "Escape Cliff",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 7,
+      needs: [
+        "shelter",
+        "open"
+      ],
+      shape: "bluff",
+      color: "#7d7469",
+      description: "A near-vertical band of broken cliff, cut with ledges and footholds the whole way up. Nothing can be cornered on ground like this."
+    },
+    {
+      id: "willow-basin-thicket",
+      name: "Willow Basin Thicket",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 6,
+      needs: [
+        "food",
+        "shelter",
+        "plant"
+      ],
+      shape: "tree",
+      color: "#6f7f52",
+      description: "Planeleaf and snow willow filling a sheltered basin, low and dense and buried by drifts each winter. Its buds and twigs stay reachable when everything else this high is under snow.",
+      matureHours: 20,
+      matureBonus: 2
+    },
+    {
+      id: "boulder-burrow-den",
+      name: "Boulder Burrow Den",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#8b7f68",
+      description: "A deep, many-chambered burrow tunnelled under a boulder, well below the frost line. Down there the temperature barely moves all winter."
+    },
+    {
+      id: "inherited-earth-den",
+      name: "Inherited Earth Den",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#8a6f50",
+      description: "A hollow opened up under boulders and roots by whoever dug it first, then widened and taken over. Second-hand, and none the worse for it."
+    },
+    {
+      id: "stonecrop-patch",
+      name: "Stonecrop Patch",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 4,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "rocks",
+      color: "#a8b56a",
+      description: "Lance-leaved stonecrop wedged into gravel and rock cracks, its fat leaves storing water where there is almost no soil. Nothing else in the high country substitutes for it.",
+      matureHours: 6,
+      matureBonus: 1
+    },
+    {
+      id: "bumblebee-nest-burrow",
+      name: "Bumble Bee Nest Burrow",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 3,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#8f7c55",
+      description: "An abandoned tunnel in the turf, packed with dry grass and old bedding \u2014 a ready-made cavity, warm and dark, that nobody had to dig."
+    },
+    {
+      id: "chipmunk-burrow-larder",
+      name: "Chipmunk Burrow Larder",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter",
+        "food"
+      ],
+      shape: "stump",
+      color: "#a08a63",
+      description: "A shallow tunnel under a slab with a side chamber packed full of seed heads, dry and reachable all winter. No species in the game requires it any more."
+    },
+    {
+      id: "whitebark-pine",
+      name: "Whitebark Pine",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 8,
+      needs: [
+        "shelter",
+        "plant",
+        "food"
+      ],
+      shape: "tree",
+      color: "#55684a",
+      description: "A whitebark pine grown from a seed buried and never dug back up. Its cones do not open on their own, so it cannot spread anywhere without help.",
+      matureHours: 48,
+      matureBonus: 3
+    },
+    {
+      id: "beetle-killed-snag",
+      name: "Beetle-Killed Snag",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter",
+        "food"
+      ],
+      shape: "deadwood",
+      color: "#6e6558",
+      description: "A big standing dead fir, its bark lifting away and its outer wood loosened and galleried through. Still standing hard, but soft enough now to work."
+    },
+    {
+      id: "old-woodpecker-cavity",
+      name: "Old Woodpecker Cavity",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "birdhouse",
+      color: "#4f4335",
+      description: "A round chiselled hole in a dead trunk, cut seasons ago and left empty since. The entrance is still clean-edged and the chamber below is dry."
+    },
+    {
+      id: "snowfield-debris-line",
+      name: "Snowfield Debris Line",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 3,
+      needs: [
+        "food"
+      ],
+      shape: "leaflitter",
+      color: "#c9d3dc",
+      description: "The dark seam of wind-carried seed, pollen and grit stranded along the edge of a shrinking snowfield \u2014 a free delivery, carried uphill and dropped."
+    },
+    {
+      id: "toad-upland-burrow",
+      name: "Toad Upland Burrow",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#7a6f57",
+      description: "A borrowed tunnel in damp ground above a breeding pool, below the frost line and above the water table. Somewhere to sit out eight months of the year."
+    },
+    {
+      id: "treeline-log-den",
+      name: "Treeline Log Den",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#59493a",
+      description: "A hollow log at the edge of the last trees, buried by drifts all winter, with tunnels running away from it under the snowpack."
+    },
+    {
+      id: "fur-lined-prey-den",
+      name: "Fur-Lined Prey Den",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#9c8d78",
+      description: "A stolen burrow, relined with fur from whatever dug it. Small, close and warm \u2014 and no work at all to move into."
+    },
+    {
+      id: "cliff-eyrie",
+      name: "Cliff Eyrie",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 7,
+      needs: [
+        "shelter"
+      ],
+      shape: "bluff",
+      color: "#6f6a61",
+      description: "A bulky stick eyrie on a sheer ledge, added to year after year until the same pair has used it for decades."
+    },
+    {
+      id: "ledge-natal-den",
+      name: "Ledge Natal Den",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 6,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#6b5f52",
+      description: "A dry overhang deep in broken cliff, screened by fallen rock. Invisible from below, and reachable only along one narrow ledge."
+    },
+    {
+      id: "krummholz-bed-hollow",
+      name: "Krummholz Bed Hollow",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter"
+      ],
+      shape: "mound",
+      color: "#6a7355",
+      description: "A shaded, wind-broken scrape pressed flat into the ground under the krummholz. Out of the sun, out of the wind, and out of sight from above."
+    },
+    {
+      id: "kelp-holdfast-reef",
+      name: "Kelp Holdfast Reef",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 6,
+      needs: [
+        "plant",
+        "shelter"
+      ],
+      shape: "kelp",
+      color: "#4a5f3a",
+      description: "Clean rock on the shallow seafloor for kelp holdfasts to grip. Kelp is not rooted in sand \u2014 without hard bottom the whole forest washes away.",
+      zone: "subtidal",
+      waveExposure: "moderate",
+      matureHours: 6,
+      matureBonus: 2
+    },
+    {
+      id: "nutrient-upwelling-current",
+      name: "Upwelling Current",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 5,
+      needs: [
+        "water",
+        "food"
+      ],
+      shape: "mound",
+      color: "#2f6b86",
+      description: "Cold, nutrient-rich water rising from the deep along the shore. It is the fertiliser of this whole coast \u2014 everything here is ultimately running on it.",
+      zone: "subtidal",
+      waveExposure: "exposed"
+    },
+    {
+      id: "coralline-algae-crust",
+      name: "Coralline Turf",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 4,
+      needs: [
+        "plant"
+      ],
+      shape: "cushion",
+      color: "#c07a97",
+      description: "Pink, branching coralline and red algae turf on low-zone rock. Surfgrass seeds carry bristly arms that hook onto these branches \u2014 no turf, no surfgrass.",
+      zone: "low",
+      waveExposure: "exposed",
+      matureHours: 4,
+      matureBonus: 1
+    },
+    {
+      id: "low-tide-rock-bench",
+      name: "Low-Tide Rock Bench",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter",
+        "water"
+      ],
+      shape: "rocks",
+      color: "#6d7a80",
+      description: "A broad shelf of bedrock uncovered only at the lowest tides \u2014 the richest strip of the shore, and the one that is underwater most of the time.",
+      zone: "low",
+      waveExposure: "moderate"
+    },
+    {
+      id: "urchin-crevice-pit",
+      name: "Urchin Pit",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 3,
+      needs: [
+        "shelter"
+      ],
+      shape: "rocks",
+      color: "#6b4a8a",
+      description: "Rounded hollows ground into solid rock, each a smooth bowl about a hand's width across. Once a pit like this is started it only ever gets deeper.",
+      zone: "subtidal",
+      waveExposure: "moderate"
+    },
+    {
+      id: "kelp-forest",
+      name: "Kelp Forest",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 9,
+      needs: [
+        "plant",
+        "food",
+        "shelter"
+      ],
+      shape: "kelp",
+      color: "#3f6b45",
+      description: "Living giant kelp rising from the seafloor to a golden canopy at the surface. Dim green water the whole way up, and fronds thick enough to lie back in.",
+      zone: "subtidal",
+      waveExposure: "moderate",
+      matureHours: 8,
+      matureBonus: 3
+    },
+    {
+      id: "surfgrass-bed",
+      name: "Surfgrass Bed",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 6,
+      needs: [
+        "plant",
+        "food",
+        "shelter"
+      ],
+      shape: "kelp",
+      color: "#3d7a52",
+      description: "A green meadow of surfgrass streaming out in the surge on low-zone rock, so dense you cannot see the stone underneath.",
+      zone: "low",
+      waveExposure: "exposed",
+      matureHours: 6,
+      matureBonus: 2
+    },
+    {
+      id: "nearshore-spawning-shallows",
+      name: "Nearshore Spawning Shallows",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 5,
+      needs: [
+        "water",
+        "food"
+      ],
+      shape: "mound",
+      color: "#3b7ea1",
+      description: "Quiet, plankton-rich water just off the surf line, barely moving and thick with drifting food. Warm at the top, and calm enough that nothing sinks in a hurry.",
+      zone: "subtidal",
+      waveExposure: "moderate"
+    },
+    {
+      id: "bare-sand-beach",
+      name: "Open Sand Beach",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 4,
+      needs: [
+        "open"
+      ],
+      shape: "mound",
+      color: "#e2d3ac",
+      description: "Wide, flat, unplanted sand above the tide line. Bare open sand is habitat in its own right here \u2014 leave the sight lines long and the surface undisturbed.",
+      zone: "high",
+      waveExposure: "moderate"
+    },
+    {
+      id: "empty-shell-drift",
+      name: "Empty Shell Drift",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 3,
+      needs: [
+        "shelter"
+      ],
+      shape: "oyster",
+      color: "#b8a68b",
+      description: "A pocket of empty shells caught in a rock hollow, sorted by the waves and heaped up by size. A beach with no spare shells on it is missing something.",
+      zone: "mid",
+      waveExposure: "sheltered"
+    },
+    {
+      id: "subtidal-rubble-flat",
+      name: "Subtidal Rubble Flat",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter",
+        "food"
+      ],
+      shape: "talus",
+      color: "#7a7f75",
+      description: "Loose cobble and broken rock just below the tide, where dead material drifts in and settles down between the stones.",
+      zone: "subtidal",
+      waveExposure: "sheltered"
+    },
+    {
+      id: "surge-swept-rock-face",
+      name: "Surge-Swept Rock Face",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter",
+        "water"
+      ],
+      shape: "bluff",
+      color: "#5b6169",
+      description: "Open rock taking the full weight of the swell. Punishing to hold onto, and the water never stops moving past it.",
+      zone: "mid",
+      waveExposure: "exposed"
+    },
+    {
+      id: "barnacle-crust-rock",
+      name: "Barnacle Crust",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 4,
+      needs: [
+        "food",
+        "shelter"
+      ],
+      shape: "rocks",
+      color: "#d8d2c4",
+      description: "A white crust of acorn barnacles welded across the upper rock \u2014 sharp underfoot, rough as coarse sandpaper, and cemented on so hard it is part of the stone.",
+      zone: "high",
+      waveExposure: "exposed",
+      matureHours: 4,
+      matureBonus: 1
+    },
+    {
+      id: "protected-sand-gravel-flat",
+      name: "Sheltered Sand-Gravel Flat",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter",
+        "water"
+      ],
+      shape: "talus",
+      color: "#b5ac8e",
+      description: "Stable mixed sand and gravel in the lee of a headland \u2014 firm enough to dig into and calm enough that it stays exactly where it is.",
+      zone: "low",
+      waveExposure: "sheltered"
+    },
+    {
+      id: "benthic-amphipod-bed",
+      name: "Amphipod and Mysid Bed",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 7,
+      needs: [
+        "food"
+      ],
+      shape: "mound",
+      color: "#8a7f6a",
+      description: "Soft, deep sediment along the kelp edge, so thick with tube-building amphipods that the seafloor is more animal than mud.",
+      zone: "subtidal",
+      waveExposure: "moderate",
+      matureHours: 8,
+      matureBonus: 2
+    },
+    {
+      id: "sheltered-cobble-field",
+      name: "Sheltered Cobble Field",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter"
+      ],
+      shape: "talus",
+      color: "#8b8578",
+      description: "Loose stones lying on a shore the surf never reaches hard, each one damp and dark underneath. The underside is the habitat, not the top.",
+      zone: "mid",
+      waveExposure: "sheltered"
+    },
+    {
+      id: "splash-zone-crevice",
+      name: "Splash-Zone Crevice",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 3,
+      needs: [
+        "shelter"
+      ],
+      shape: "rocks",
+      color: "#7d7367",
+      description: "Dry-looking cracks in rock that the waves only ever reach as spray. The highest, driest tier of the shore \u2014 salt, sun, and hardly any water at all.",
+      zone: "splash",
+      waveExposure: "exposed"
+    },
+    {
+      id: "shell-dropping-rock",
+      name: "Shell-Dropping Rock",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 3,
+      needs: [
+        "food"
+      ],
+      shape: "rocks",
+      color: "#9a958c",
+      description: "A flat, hard-topped boulder standing clear of the sand, scattered with cracked shells. Hard enough that anything dropped on it from a height breaks open.",
+      zone: "high",
+      waveExposure: "moderate"
+    },
+    {
+      id: "swash-zone-runnel",
+      name: "Swash-Zone Runnel",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 4,
+      needs: [
+        "water",
+        "food"
+      ],
+      shape: "mound",
+      color: "#a9c4cf",
+      description: "The wet, sliding strip where each wave runs out and drains back again, turning the top few centimetres of sand over with every surge.",
+      zone: "low",
+      waveExposure: "exposed"
+    },
+    {
+      id: "plover-scrape-closure",
+      name: "Plover Scrape Closure",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 6,
+      needs: [
+        "shelter",
+        "open"
+      ],
+      shape: "nest",
+      color: "#ddd0b0",
+      description: "A roped-off stretch of bare, open, unvegetated sand with symbolic fencing and signs. There is nothing to build here \u2014 what protects the ground is that nobody walks across it.",
+      zone: "backdune",
+      waveExposure: "moderate"
+    },
+    {
+      id: "high-tide-roost-rock",
+      name: "High-Tide Roost",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter",
+        "open"
+      ],
+      shape: "rocks",
+      color: "#8d8a84",
+      description: "A raised rock or islet that stays dry even at the top of the tide, with open water all around it. Somewhere to stand and wait out the hours when the flats are gone.",
+      zone: "high",
+      waveExposure: "moderate"
+    },
+    {
+      id: "dune-manzanita",
+      name: "Dune Manzanita",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant",
+        "food",
+        "shelter"
+      ],
+      shape: "mound",
+      color: "#8f6f5c",
+      description: "Low sandmat manzanita, a coastal dune shrub that flowers in midwinter and holds its berries hard into the cold months \u2014 food behind the beach exactly when there is nothing else going.",
+      zone: "backdune",
+      waveExposure: "sheltered",
+      matureHours: 10,
+      matureBonus: 2
+    },
+    {
+      id: "mussel-bed",
+      name: "Mussel Bed",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 7,
+      needs: [
+        "food",
+        "shelter"
+      ],
+      shape: "oyster",
+      color: "#3c3a4a",
+      description: "A dense band of blue-black mussels layered two and three deep across mid-zone rock, packed so tight the shells hold each other upright. The gaps between them run right down to the stone.",
+      zone: "mid",
+      waveExposure: "exposed",
+      matureHours: 6,
+      matureBonus: 2
+    },
+    {
+      id: "mussel-bed-lower-margin",
+      name: "Mussel Bed Lower Margin",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 5,
+      needs: [
+        "food"
+      ],
+      shape: "oyster",
+      color: "#5a4f5e",
+      description: "The sharp lower edge of the mussel bed, with clean open rock below it. Nothing about the tide explains where that line falls \u2014 something else is holding it there.",
+      zone: "low",
+      waveExposure: "exposed"
+    },
+    {
+      id: "sunlit-surge-pool",
+      name: "Sunlit Surge Pool",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 6,
+      needs: [
+        "water",
+        "shelter"
+      ],
+      shape: "pool",
+      color: "#2e8f7d",
+      description: "A deep pool flushed by every wave and open straight to the sky \u2014 surge pouring food down from the rocks above, and full sun reaching all the way to the bottom.",
+      zone: "low",
+      waveExposure: "exposed"
+    },
+    {
+      id: "offshore-nesting-island",
+      name: "Offshore Nesting Island",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 8,
+      needs: [
+        "shelter",
+        "open"
+      ],
+      shape: "mound",
+      color: "#9b9384",
+      description: "A rock stack or islet standing off the coast, with deep water all around and no way onto it on foot. Nothing that walks can reach it.",
+      zone: "splash",
+      waveExposure: "exposed"
+    },
+    {
+      id: "sandbar-loafing-roost",
+      name: "Sandbar Roost",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 5,
+      needs: [
+        "open",
+        "shelter"
+      ],
+      shape: "mound",
+      color: "#ccbf9d",
+      description: "A low sandbar that dries out between tides \u2014 flat, open, ringed with water, and far enough off the beach to be left alone.",
+      zone: "low",
+      waveExposure: "sheltered"
+    },
+    {
+      id: "haul-out-rocks",
+      name: "Seal Haul-Out Rocks",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 7,
+      needs: [
+        "shelter",
+        "open"
+      ],
+      shape: "rocks",
+      color: "#767f86",
+      description: "Low rocks and a sand spit with a wide buffer of quiet kept around them, sloping gently enough to climb straight out of the water. The buffer is the point: cross it and the place empties.",
+      zone: "high",
+      waveExposure: "sheltered"
+    },
+    {
+      id: "sheltered-rafting-cove",
+      name: "Sheltered Rafting Cove",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 7,
+      needs: [
+        "water",
+        "shelter"
+      ],
+      shape: "mound",
+      color: "#356b7d",
+      description: "Calm water in the lee of a point, inside the kelp \u2014 flat as a pond even when the swell is running, with fronds lying loose across the surface.",
+      zone: "subtidal",
+      waveExposure: "sheltered"
+    },
+    {
+      id: "creosote-bush",
+      name: "Creosote Bush",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 6,
+      needs: [
+        "plant",
+        "shelter"
+      ],
+      shape: "mound",
+      color: "#6b7f4a",
+      description: "The dominant shrub of the Sonoran flats, spaced wide apart because its roots take all the water for metres around. Its resinous leaves smell like rain and lose almost none of it.",
+      matureHours: 6,
+      matureBonus: 2
+    },
+    {
+      id: "saguaro",
+      name: "Saguaro",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 8,
+      needs: [
+        "plant",
+        "shelter",
+        "food"
+      ],
+      shape: "cactus",
+      color: "#4a7c3f",
+      description: "A columnar giant that stores months of rain in its pleated stem, swelling and shrinking with the season. Flowers at the crown, fruit in June, and a trunk soft enough to cut into.",
+      matureHours: 24,
+      matureBonus: 3
+    },
+    {
+      id: "cholla",
+      name: "Chain-fruit Cholla",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant",
+        "shelter"
+      ],
+      shape: "cactus",
+      color: "#8ba06a",
+      description: "A jointed cactus armoured all over in barbed spines that come away at a touch. Inside the tangle of arms is a space almost nothing can push through to.",
+      matureHours: 8,
+      matureBonus: 2
+    },
+    {
+      id: "desert-mistletoe",
+      name: "Desert Mistletoe",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 3,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "mound",
+      color: "#9a8f5c",
+      description: "A leafless parasitic plant rooted inside mesquite and ironwood branches, hanging in dense green-brown clumps. It fruits in midwinter, when nothing else does.",
+      matureHours: 6,
+      matureBonus: 1
+    },
+    {
+      id: "chuparosa",
+      name: "Chuparosa",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 4,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "mound",
+      color: "#c4523a",
+      description: "A soft grey shrub carrying tubular scarlet flowers right through the desert winter, when almost nothing else is in bloom.",
+      matureHours: 4,
+      matureBonus: 1
+    },
+    {
+      id: "catclaw-acacia",
+      name: "Catclaw Acacia",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant",
+        "shelter",
+        "food"
+      ],
+      shape: "mound",
+      color: "#7d8b5a",
+      description: "A low thorny tree of desert washes, hooked all over with curved spines that catch as you pass. Thick cover overhead and heavy seed pods by late summer.",
+      matureHours: 10,
+      matureBonus: 2
+    },
+    {
+      id: "bush-muhly",
+      name: "Bush Muhly",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 4,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "mound",
+      color: "#b8a35e",
+      description: "A fine-stemmed native perennial grass that grows up through shrubs for protection. It is the first thing livestock graze away, so its return is a sign the flat is healing.",
+      matureHours: 5,
+      matureBonus: 2
+    },
+    {
+      id: "cryptobiotic-crust",
+      name: "Cryptobiotic Soil Crust",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant"
+      ],
+      shape: "cushion",
+      color: "#5c5a4a",
+      description: "A living skin of cyanobacteria, lichens and mosses knitting the bare soil together. It fixes nitrogen, holds water and blocks weed seedlings \u2014 and a single boot or hoof print undoes decades of it.",
+      matureHours: 48,
+      matureBonus: 3
+    },
+    {
+      id: "bare-ground-patch",
+      name: "Open Bare Ground",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 3,
+      needs: [
+        "open"
+      ],
+      shape: "flowers",
+      color: "#cbb287",
+      description: "A patch of soft, uncompacted soil deliberately left open between the shrubs. Loose enough to dig straight down into \u2014 but only where nothing has packed it hard.",
+      matureHours: 2,
+      matureBonus: 1
+    },
+    {
+      id: "harvester-ant-mound",
+      name: "Harvester Ant Mound",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 4,
+      needs: [
+        "food"
+      ],
+      shape: "mound",
+      color: "#a8763f",
+      description: "A low gravel-capped mound with a bare cleared disc around it and a rim of discarded seed husks. Whatever is under there moves an astonishing amount of soil.",
+      matureHours: 12,
+      matureBonus: 1
+    },
+    {
+      id: "buried-deadwood",
+      name: "Buried Deadwood",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter",
+        "food"
+      ],
+      shape: "deadwood",
+      color: "#6e5a41",
+      description: "Dead mesquite and creosote stems worked half into the soil, in contact with damp earth rather than lying dry on the surface. Buried wood breaks down; surface wood just bleaches.",
+      matureHours: 4,
+      matureBonus: 1
+    },
+    {
+      id: "shrub-litter-mound",
+      name: "Shrub Litter Mound",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 3,
+      needs: [
+        "shelter",
+        "food"
+      ],
+      shape: "leaflitter",
+      color: "#8a7a52",
+      description: "Wind-drifted leaves, stems and seed husks caught and heaped under a shrub. Dry and crackling on top, damp and dark underneath after any rain.",
+      matureHours: 3,
+      matureBonus: 1
+    },
+    {
+      id: "termite-worked-litter",
+      name: "Termite-Worked Soil",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant"
+      ],
+      shape: "leaflitter",
+      color: "#7a6748",
+      description: "Soil laced with fine old galleries and sheeted over with cemented litter, worked through from below rather than from the surface. The tunnels let rain soak in instead of running off.",
+      matureHours: 12,
+      matureBonus: 2
+    },
+    {
+      id: "tortoise-burrow",
+      name: "Tortoise Burrow",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 7,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#7b6a4f",
+      description: "A long, cool, straight-sided den dug back into a bank and kept open by use. Far deeper than anything else out here manages, and steady in temperature all year.",
+      matureHours: 8,
+      matureBonus: 2
+    },
+    {
+      id: "caliche-shelter-cave",
+      name: "Caliche Den",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 6,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#b9ac8e",
+      description: "A hollow eroded into a hard caliche bank on a rocky slope \u2014 a ready-made chamber with a solid roof, and no digging required.",
+      matureHours: 6,
+      matureBonus: 1
+    },
+    {
+      id: "creosote-mound",
+      name: "Creosote Coppice Mound",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter",
+        "plant"
+      ],
+      shape: "mound",
+      color: "#7e7d55",
+      description: "Wind-caught soil heaped up around a creosote's base and riddled with fine tunnels. The earth is loose and easy to work, and the shrub above hides the doorways.",
+      matureHours: 8,
+      matureBonus: 2
+    },
+    {
+      id: "seed-larder-burrow",
+      name: "Seed Larder Burrow",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter",
+        "food"
+      ],
+      shape: "stump",
+      color: "#a4885c",
+      description: "A shallow burrow under a shrub with side chambers packed full of seeds, its entrances plugged with sand every dawn. The plug traps humid air inside, which matters as much as the food does.",
+      matureHours: 4,
+      matureBonus: 1
+    },
+    {
+      id: "deep-sand-burrow",
+      name: "Deep Sand Burrow",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#9c7f5a",
+      description: "A spiral shaft driven as much as two and a half metres down into loose soil. At that depth the heat and the dryness of the surface simply do not reach.",
+      matureHours: 4,
+      matureBonus: 1
+    },
+    {
+      id: "kit-fox-den",
+      name: "Kit Fox Den",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 6,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#8d7f66",
+      description: "A cool den with several entrances, widened out of an older tunnel rather than dug from scratch. The extra doors are escape routes.",
+      matureHours: 6,
+      matureBonus: 2
+    },
+    {
+      id: "wash-bank-den",
+      name: "Wash Bank Den",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 6,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#85704f",
+      description: "An earthen den dug into the cut bank of a dry wash, set above the flood line \u2014 shaded, well-drained, and dry even when the wash runs.",
+      matureHours: 6,
+      matureBonus: 2
+    },
+    {
+      id: "snake-hibernaculum-desert",
+      name: "Snake Den",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#6f6660",
+      description: "A deep rock fissure running below the frost line that stays above freezing all winter. The same fissure gets used again year after year, sometimes for decades.",
+      matureHours: 6,
+      matureBonus: 1
+    },
+    {
+      id: "saguaro-boot",
+      name: "Saguaro Boot",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 6,
+      needs: [
+        "shelter"
+      ],
+      shape: "birdhouse",
+      color: "#8f7f5e",
+      description: "The hard, waterproof scar a cactus grows around a hole cut into its trunk \u2014 a smooth-walled flask of dried callus. It outlasts the soft flesh around it entirely.",
+      matureHours: 12,
+      matureBonus: 2
+    },
+    {
+      id: "thornscrub-stick-nest",
+      name: "Thorn Thicket Nest",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter"
+      ],
+      shape: "nest",
+      color: "#7a6a4c",
+      description: "A bulky stick platform wedged a metre or two up inside a thorny shrub. High enough to be off the ground, and prickly enough that nothing follows.",
+      matureHours: 4,
+      matureBonus: 1
+    },
+    {
+      id: "carrion-patch",
+      name: "Carrion Ground",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 3,
+      needs: [
+        "food"
+      ],
+      shape: "flowers",
+      color: "#7d6b63",
+      description: "An animal that has died, left where it fell instead of hauled away. Within a few days almost nothing is left of it, and all of it is back in the soil.",
+      matureHours: 2,
+      matureBonus: 1
+    },
+    {
+      id: "saguaro-fruit-fall",
+      name: "Saguaro Fruit Fall",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 4,
+      needs: [
+        "food"
+      ],
+      shape: "cactus",
+      color: "#b8443c",
+      description: "Split crimson saguaro fruit at the height of the June heat, just before the rains. For a few weeks it is the richest food and the wettest drink in the whole desert.",
+      matureHours: 6,
+      matureBonus: 1
+    },
+    {
+      id: "pollinated-cactus-fruit",
+      name: "Cactus Fruit Set",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 4,
+      needs: [
+        "food"
+      ],
+      shape: "cactus",
+      color: "#9c3f5a",
+      description: "Prickly pear and cholla hanging heavy with ripe fruit. A crop this size only sets where every flower was properly pollinated first \u2014 and out here that is never guaranteed.",
+      matureHours: 6,
+      matureBonus: 1
+    },
+    {
+      id: "shade-form-scrape",
+      name: "Shade Form",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 3,
+      needs: [
+        "shelter"
+      ],
+      shape: "nest",
+      color: "#a3906a",
+      description: "A shallow scrape hollowed out in the deep shade under a shrub, down to cool soil. Ten degrees cooler than the open ground a metre away.",
+      matureHours: 2,
+      matureBonus: 1
+    },
+    {
+      id: "browse-exclosure",
+      name: "Browse Exclosure",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 4,
+      needs: [
+        "plant"
+      ],
+      shape: "mound",
+      color: "#7d8b5a",
+      description: "A low fence ringed around a patch of oak seedlings. Where browsing pressure is heavy, young oaks never get past knee height \u2014 inside the fence, acorns get to become trees.",
+      matureHours: 4,
+      matureBonus: 2
+    },
+    {
+      id: "nurse-log-seedbed",
+      name: "Nurse Log Seedbed",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant"
+      ],
+      shape: "log",
+      color: "#6b7a55",
+      description: "A rotting, moss-covered log lying on the forest floor. Hemlock seeds that land on bare leaf litter almost always fail; the ones that land on rotten wood become the next generation of trees.",
+      matureHours: 6,
+      matureBonus: 2
+    },
+    {
+      id: "deep-duff-soil",
+      name: "Deep Duff Layer",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 6,
+      needs: [
+        "plant"
+      ],
+      shape: "leaflitter",
+      color: "#4a3b28",
+      description: "Years of undisturbed leaf mould, never raked and never driven over, threaded through with tree roots and fungal strands. This is where the forest's fungi actually live.",
+      matureHours: 12,
+      matureBonus: 3
+    },
+    {
+      id: "truffle-patch",
+      name: "Truffle Patch",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 6,
+      needs: [
+        "food"
+      ],
+      shape: "flowers",
+      color: "#5c4a33",
+      description: "Underground fungal tubers clustered on oak and hemlock roots. Nothing shows above ground at all; the whole crop sits an inch or two down and has to be smelled out.",
+      matureHours: 8,
+      matureBonus: 2
+    },
+    {
+      id: "soft-rot-snag",
+      name: "Soft-Rot Snag",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "deadwood",
+      color: "#8c7f6a",
+      description: "A small dead stub whose wood has gone soft and pale with white rot, easy to press a thumbnail into. The fungi got here first, and that is what makes it workable.",
+      matureHours: 6,
+      matureBonus: 1
+    },
+    {
+      id: "ant-riddled-log",
+      name: "Ant-Riddled Log",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 5,
+      needs: [
+        "food",
+        "shelter"
+      ],
+      shape: "log",
+      color: "#6e5b40",
+      description: "A fallen trunk gone punky with rot and tunnelled through and through with galleries the width of a pencil lead \u2014 a whole colony's worth of corridors inside one log.",
+      matureHours: 8,
+      matureBonus: 2
+    },
+    {
+      id: "rotting-heartwood-log",
+      name: "Rotted-Out Log",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "log",
+      color: "#7a6a4e",
+      description: "A log rotted hollow right through the middle while its outer shell still holds. Inside it is dark, damp and sealed off from the weather.",
+      matureHours: 6,
+      matureBonus: 2
+    },
+    {
+      id: "downy-cavity",
+      name: "Downy Woodpecker Hole",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter"
+      ],
+      shape: "birdhouse",
+      color: "#9a8b70",
+      description: "A round hole about the width of a thumb, chiselled into a dead trunk and left after a single season. Small, dry, and already made.",
+      matureHours: 2,
+      matureBonus: 1
+    },
+    {
+      id: "pileated-cavity-snag",
+      name: "Pileated Cavity Snag",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 7,
+      needs: [
+        "shelter"
+      ],
+      shape: "birdhouse",
+      color: "#8a7a5e",
+      description: "A large snag carrying a deep rectangular cavity cut into it last spring, big enough to put an arm into. A fresh one gets cut every year, and the old ones stay.",
+      matureHours: 6,
+      matureBonus: 2
+    },
+    {
+      id: "flooded-cavity-snag",
+      name: "Flooded Cavity Snag",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 7,
+      needs: [
+        "shelter"
+      ],
+      shape: "birdhouse",
+      color: "#7e7458",
+      description: "A dead trunk standing in shallow water with an old cavity high in it. Nothing below the hole but open air, and several metres down, water.",
+      matureHours: 6,
+      matureBonus: 2
+    },
+    {
+      id: "bark-slab-snag",
+      name: "Loose-Bark Snag",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter"
+      ],
+      shape: "deadwood",
+      color: "#87765d",
+      description: "A dying tree whose bark has pulled away from the trunk in loose curling slabs. Behind each slab is a warm, dry, flat gap barely wider than a finger.",
+      matureHours: 4,
+      matureBonus: 1
+    },
+    {
+      id: "leaf-drey",
+      name: "Leaf Drey",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 3,
+      needs: [
+        "shelter"
+      ],
+      shape: "leaflitter",
+      color: "#7f6b45",
+      description: "A ball of leaves and twigs the size of a football, wedged tight into a high fork and woven from the inside out. Rebuilt every year, and rarely left standing empty for long.",
+      matureHours: 2,
+      matureBonus: 1
+    },
+    {
+      id: "larder-burrow",
+      name: "Larder Burrow",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter",
+        "food"
+      ],
+      shape: "stump",
+      color: "#6b5b45",
+      description: "A burrow entrance no wider than a coin, with tunnels running metres underground to a nest chamber and a storage room holding more than a litre of seeds.",
+      matureHours: 3,
+      matureBonus: 1
+    },
+    {
+      id: "hemlock-stand",
+      name: "Hemlock Stand",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 8,
+      needs: [
+        "shelter",
+        "plant",
+        "food"
+      ],
+      shape: "mound",
+      color: "#2f4a37",
+      description: "A close-grown group of hemlocks. The canopy holds the snow off the ground beneath it, the shade keeps the stream running cold, and the inner bark stays reachable all winter.",
+      matureHours: 14,
+      matureBonus: 3
+    },
+    {
+      id: "browse-thicket",
+      name: "Browse Thicket",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 5,
+      needs: [
+        "food",
+        "plant"
+      ],
+      shape: "brush",
+      color: "#6d8348",
+      description: "Dense young regrowth crowding a gap where a big tree came down \u2014 every twig within reach from the ground. It only stays this thick while the browsing pressure stays light.",
+      matureHours: 6,
+      matureBonus: 2
+    },
+    {
+      id: "crayfish-shallows",
+      name: "Crayfish Shallows",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 5,
+      needs: [
+        "water",
+        "food"
+      ],
+      shape: "mound",
+      color: "#5f7d84",
+      description: "A stony, ankle-deep margin of loose flat rocks over gravel, with dark backed-up gaps underneath every one of them.",
+      matureHours: 4,
+      matureBonus: 1
+    },
+    {
+      id: "root-mass-den",
+      name: "Root-Mass Den",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 6,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#5a4a36",
+      description: "The dry hollow left under the tipped-up root plate of a fallen tree \u2014 roofed with earth and roots, and sheltered from every direction but one.",
+      matureHours: 8,
+      matureBonus: 2
+    },
+    {
+      id: "earth-den-bank",
+      name: "Earth Den Bank",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#6f5c42",
+      description: "A well-drained slope with a den dug back into it and several entrances along the face. Enlarged and reused for generations rather than dug fresh.",
+      matureHours: 4,
+      matureBonus: 1
+    },
+    {
+      id: "snake-hibernaculum-forest",
+      name: "Snake Hibernaculum",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#78736a",
+      description: "A deep, rubble-filled crack running below the frost line and staying there all winter. Cold but never freezing, right through to spring.",
+      matureHours: 4,
+      matureBonus: 1
+    },
+    {
+      id: "broken-top-chimney",
+      name: "Broken-Top Chimney Tree",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 8,
+      needs: [
+        "shelter"
+      ],
+      shape: "tree",
+      color: "#7b6e52",
+      description: "A big living tree snapped off high and hollowed downward by heart rot, leaving an open chimney a foot across. Nothing cuts a cavity this size \u2014 it only appears in a tree old enough to rot from the inside.",
+      matureHours: 12,
+      matureBonus: 3
+    },
+    {
+      id: "hollow-denning-tree",
+      name: "Hollow Denning Tree",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 8,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#6c5f47",
+      description: "A living tree with a rot-hollowed chamber high in the trunk, dry inside and metres above the forest floor. Nothing that hunts on the ground gets up to it.",
+      matureHours: 12,
+      matureBonus: 3
+    },
+    {
+      id: "rocky-den-ledge",
+      name: "Rocky Den Ledge",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#7f8288",
+      description: "A dry gap under a leaning slab of rock, screened by brush and open at both ends. Sheltered, but easy to slip out of at the first sound.",
+      matureHours: 6,
+      matureBonus: 1
+    },
+    {
+      id: "adopted-stick-nest",
+      name: "Adopted Stick Nest",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "nest",
+      color: "#8b7c63",
+      description: "A bulky old platform of sticks and leaves left behind in a high fork, weathered and a little sagging but still sound. Second-hand, and ready to use in the middle of winter.",
+      matureHours: 4,
+      matureBonus: 1
+    },
+    {
+      id: "bare-soil-scrape",
+      name: "Bare Soil Scrape",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 2,
+      needs: [
+        "open"
+      ],
+      shape: "soilscrape",
+      color: "#c9b183",
+      description: "A hand-cleared patch of open mineral soil, raked back to bare ground. Bare ground is habitat too \u2014 seedlings and open earth both need somewhere that isn't covered."
+    },
+    {
+      id: "native-thistle-stand",
+      name: "Native Thistle Stand",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "thistlestand",
+      color: "#9b6fa8",
+      description: "Wavyleaf thistle, a native prairie thistle rather than one of the invasive European kinds. Deep tubular flowers, and seed heads that break open into soft down."
+    },
+    {
+      id: "prairie-swale-seedbed",
+      name: "Prairie Swale Seedbed",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 4,
+      needs: [
+        "plant"
+      ],
+      shape: "swaleseedbed",
+      color: "#6f7a4a",
+      description: "A shallow damp swale of loosened soil, sown in autumn. Showy milkweed and native forbs germinate here where the ground stays moist into early summer.",
+      matureHours: 4,
+      matureBonus: 1
+    },
+    {
+      id: "grass-thatch-litter",
+      name: "Grass Thatch Litter",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 3,
+      needs: [
+        "shelter"
+      ],
+      shape: "thatchmat",
+      color: "#b6a06a",
+      description: "A deep mat of dead grass stems, leaves and roots left where they fell. This is the raw material meadow fungi take apart and hand back to the soil as minerals.",
+      matureHours: 3,
+      matureBonus: 1
+    },
+    {
+      id: "grasshopper-egg-pod-bank",
+      name: "Egg Pod Bank",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 3,
+      needs: [
+        "open"
+      ],
+      shape: "eggpodbank",
+      color: "#d9c48a",
+      description: "A strip of firm, sun-warmed bare soil along the edge of the grass, packed hard enough to hold a drilled hole open. Whatever gets buried in it sits out the whole winter there."
+    },
+    {
+      id: "vole-runway-network",
+      name: "Vole Runway Network",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter",
+        "food"
+      ],
+      shape: "volerunway",
+      color: "#6f8f3f",
+      description: "Narrow runways clipped through dense grass at ground level, linking burrow openings and grass-lined chambers. A whole map of little highways hidden under the thatch."
+    },
+    {
+      id: "milkweed-rhizome-bed",
+      name: "Milkweed Rhizome Bed",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 6,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "milkweedbed",
+      color: "#c98fa8",
+      description: "A spreading bed of showy milkweed grown from rhizome cuttings, its stems bleeding white sap wherever they break. Nothing else in the meadow substitutes for it, and one bed slowly becomes a patch.",
+      matureHours: 6,
+      matureBonus: 2
+    },
+    {
+      id: "bumblebee-nest-tussock",
+      name: "Nesting Tussock",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter",
+        "plant"
+      ],
+      shape: "nesttussock",
+      color: "#9aa85f",
+      description: "A dense unmown grass tussock sitting over an abandoned hole in the turf \u2014 warm, fur-lined, dry and completely hidden from above."
+    },
+    {
+      id: "brush-form-hollow",
+      name: "Brush Form Hollow",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter"
+      ],
+      shape: "formhollow",
+      color: "#a8925c",
+      description: "A shallow scrape pressed into the grass under low brush, just deep enough to sit level with the ground. A resting place rather than a burrow \u2014 no digging involved.",
+      matureHours: 2,
+      matureBonus: 1
+    },
+    {
+      id: "serviceberry-browse-thicket",
+      name: "Serviceberry Browse Thicket",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 7,
+      needs: [
+        "food",
+        "plant",
+        "shelter"
+      ],
+      shape: "serviceberry",
+      color: "#5d7a4a",
+      description: "Saskatoon serviceberry, a native shrub with soft twigs and fat buds that stay reachable above the snow, and heavy purple fruit by late summer.",
+      matureHours: 10,
+      matureBonus: 3
+    },
+    {
+      id: "milkweed-aphid-colony",
+      name: "Milkweed Aphid Colony",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 2,
+      needs: [
+        "food"
+      ],
+      shape: "aphidcluster",
+      color: "#e8d24a",
+      description: "Bright orange oleander aphids packed shoulder to shoulder along milkweed stems, thick enough to hide the green underneath. Not a problem to be sprayed \u2014 a stand of milkweed carries them every year and is none the worse for it."
+    },
+    {
+      id: "squirrel-burrow-town",
+      name: "Burrow Town",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "burrowtown",
+      color: "#8b7a5a",
+      description: "A multi-entrance burrow system dug into deep open soil, its mounded doorways scattered right across a wide patch of ground. Long after it is abandoned the tunnels stay open."
+    },
+    {
+      id: "mantis-ootheca-stem",
+      name: "Standing Stem Ootheca",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 2,
+      needs: [
+        "shelter"
+      ],
+      shape: "ootheca",
+      color: "#a89a6c",
+      description: "Stiff dead forb stems left standing through the winter, with a hardened tan foam case glued around one of them. Cut the stems back in autumn and you cut out what is inside them."
+    },
+    {
+      id: "domed-grass-nest-tunnel",
+      name: "Domed Grass Nest",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "domednest",
+      color: "#c8b46a",
+      description: "A grass-roofed nest cup woven down into deep bunchgrass, with a covered runway leading in. Only a real expanse of native grass is thick enough to hide one."
+    },
+    {
+      id: "bluebird-nest-box",
+      name: "Bluebird Nest Box",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "bluebirdbox",
+      color: "#6b8cc4",
+      description: "A wooden box with a small round entrance hole and a metal baffle on the pole below it, facing open grass. The hole is cut to one exact width, and that width is the whole design."
+    },
+    {
+      id: "snake-hibernaculum-meadow",
+      name: "Snake Hibernaculum",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "hibernaculum",
+      color: "#6e6a5c",
+      description: "A rock-and-soil chamber dug below the frost line, often started from an old tunnel in the bank. Room enough down there for a great many bodies at once."
+    },
+    {
+      id: "deep-loam-soil-bank",
+      name: "Deep Loam Soil Bank",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 6,
+      needs: [
+        "shelter"
+      ],
+      shape: "loambank",
+      color: "#4e3d2c",
+      description: "A bank of deep, stone-free, uncompacted loam \u2014 no rock, no hardpan, nothing to hit. Soil like this can be dug faster than it can be walked over."
+    },
+    {
+      id: "earthen-fox-den",
+      name: "Earthen Fox Den",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 6,
+      needs: [
+        "shelter"
+      ],
+      shape: "foxden",
+      color: "#b4622e",
+      description: "A south-facing bank widened into a den with several exits, enlarged from an older burrow rather than dug from scratch. Dry, warm early in the year, and quick to leave from."
+    },
+    {
+      id: "crown-stick-eyrie",
+      name: "Crown Stick Eyrie",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 8,
+      needs: [
+        "shelter"
+      ],
+      shape: "crowneyrie",
+      color: "#a89070",
+      description: "A bulky platform of sticks wedged into the crown of the tallest tree, with a clear view out over open grass. Built once, then added to and handed on."
+    },
+    {
+      id: "sunlit-mudflat",
+      name: "Sunlit Mudflat",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 3,
+      needs: [
+        "open"
+      ],
+      shape: "mound",
+      color: "#8a6f4e",
+      description: "A bare shelf of wet, sun-warmed mud at the water's edge. Cattail seed is tiny and needs light and open ground to germinate \u2014 it will not sprout in shade or under standing water."
+    },
+    {
+      id: "clearwater-shallows",
+      name: "Clearwater Shallows",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 6,
+      needs: [
+        "water"
+      ],
+      shape: "pool",
+      color: "#8fc7d6",
+      description: "Slow water with the silt settled out of it, so sunlight reaches the bottom. Submerged plants live on that light \u2014 which is why clear water and underwater meadows always arrive together."
+    },
+    {
+      id: "detritus-drift",
+      name: "Litter Drift",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 4,
+      needs: [
+        "food"
+      ],
+      shape: "leaflitter",
+      color: "#6b5a3e",
+      description: "A submerged raft of dead cattail and sedge leaves, softening under a fur of fungi and bacteria. More energy moves through a marsh this way \u2014 as dead plants \u2014 than through anything eaten alive.",
+      matureHours: 4,
+      matureBonus: 2
+    },
+    {
+      id: "crayfish-burrow-bank",
+      name: "Crayfish Burrow Bank",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#9c7b52",
+      description: "A saturated clay bank riddled with finger-wide tunnels running back into the wet clay. Each one holds water even when the marsh draws right down in late summer."
+    },
+    {
+      id: "submerged-spawning-slab",
+      name: "Submerged Spawning Slab",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter"
+      ],
+      shape: "mound",
+      color: "#6e7d78",
+      description: "A flat stone or plank lying just below the surface with a clear gap underneath. The underside is smooth, shaded and scrubbed clean \u2014 a ceiling rather than a floor."
+    },
+    {
+      id: "stable-silt-shoal",
+      name: "Stable Silt Shoal",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 6,
+      needs: [
+        "water"
+      ],
+      shape: "pool",
+      color: "#b9ae90",
+      description: "A broad shelf of settled silt and fine sand in water slow enough that it stays put for years at a time. Soft enough to sink into, stable enough not to shift."
+    },
+    {
+      id: "cattail-root-shallows",
+      name: "Cattail Root Shallows",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 6,
+      needs: [
+        "food",
+        "water"
+      ],
+      shape: "reed",
+      color: "#6d8a4a",
+      description: "Shallow water over a dense mat of cattail rootstocks \u2014 starchy, swollen and packed down into the mud. Reachable from underneath even when the surface is frozen over.",
+      matureHours: 6,
+      matureBonus: 2
+    },
+    {
+      id: "flooded-reed-clump",
+      name: "Flooded Reed Clump",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter",
+        "plant"
+      ],
+      shape: "reed",
+      color: "#7f8f4e",
+      description: "A tight stand of cattail and reed stems standing in ankle-deep water, stiff enough to hold a weight slung between them. The water underneath is what makes it safe.",
+      matureHours: 5,
+      matureBonus: 2
+    },
+    {
+      id: "winter-litter-mound",
+      name: "Winter Litter Mound",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter"
+      ],
+      shape: "leaflitter",
+      color: "#6a5a3c",
+      description: "A deep pile of damp leaves, loose bark and old stems heaped on dry ground beside the marsh. Deep enough that the middle of it never quite reaches the temperature of the air."
+    },
+    {
+      id: "vernal-pool",
+      name: "Fishless Vernal Pool",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 6,
+      needs: [
+        "water"
+      ],
+      shape: "pool",
+      color: "#7fb2a8",
+      description: "A shallow, separate pool that fills with snowmelt and dries out completely by late summer. Drying is the point: nothing that needs water year-round can ever establish in it."
+    },
+    {
+      id: "wet-meadow-margin",
+      name: "Wet Meadow Margin",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant",
+        "shelter"
+      ],
+      shape: "mound",
+      color: "#86a35a",
+      description: "A band of damp, grassy meadow between the marsh and dry land \u2014 never flooded, never properly dry. Lose this band and the marsh ends in a hard edge.",
+      matureHours: 6,
+      matureBonus: 2
+    },
+    {
+      id: "sandy-nest-bank",
+      name: "Sandy Nest Bank",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "mound",
+      color: "#c2ad7e",
+      description: "A warm, well-drained rise of sand and fine gravel above the waterline, loose enough to dig and quick to drain. Banks like this are far scarcer than they look."
+    },
+    {
+      id: "crane-nest-mound",
+      name: "Crane Nest Mound",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 6,
+      needs: [
+        "shelter"
+      ],
+      shape: "nest",
+      color: "#8a8557",
+      description: "A broad heap of piled marsh plants built up in open shallow water, its top standing well clear of the waterline. Anything approaching it has to wade."
+    },
+    {
+      id: "hidden-reed-platform",
+      name: "Hidden Reed Platform",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 6,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#7a7a44",
+      description: "A low platform of living reeds bent down and woven together deep inside a dense stand, barely a hand's width above the water. Invisible from every direction, including above."
+    },
+    {
+      id: "cut-bank-burrow",
+      name: "Cut Bank Burrow",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 6,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#a08258",
+      description: "A bare, vertical earth bank rising straight out of the water, soft enough to tunnel a metre back into and firm enough that the tunnel holds."
+    },
+    {
+      id: "overwater-thicket",
+      name: "Overwater Thicket",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 7,
+      needs: [
+        "shelter",
+        "plant"
+      ],
+      shape: "pool",
+      color: "#4f7a45",
+      description: "Low willow and alder leaning right out over deep still water, their branches hanging a metre above the surface with cool shade underneath.",
+      matureHours: 8,
+      matureBonus: 2
+    },
+    {
+      id: "muskrat-bank-den",
+      name: "Old Muskrat Bank Den",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#7d6647",
+      description: "An abandoned bank burrow with its entrance below the waterline and its chamber dry above it. Someone else dug it, and it has stood empty since."
+    },
+    {
+      id: "otter-bank-den",
+      name: "Otter Bank Den",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 7,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#6b5540",
+      description: "A roomy den in the bank with an underwater entrance and a dry chamber above \u2014 almost always an older lodge or burrow taken over rather than dug fresh."
+    },
+    {
+      id: "beaver-pond",
+      name: "Beaver Pond",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 9,
+      needs: [
+        "water",
+        "shelter"
+      ],
+      shape: "pool",
+      color: "#4f7d93",
+      description: "Deep, permanent water held back behind a stick-and-mud dam, with drowned trees still standing in it. Quite different from open cattail marsh \u2014 deeper, more open, and it does not appear on its own.",
+      matureHours: 12,
+      matureBonus: 3
+    },
+    {
+      id: "beaver-canal",
+      name: "Beaver Canal",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 6,
+      needs: [
+        "water"
+      ],
+      shape: "mound",
+      color: "#5f8fa0",
+      description: "A shallow dug channel running out from the pond into the marsh, just deep enough to float a branch down. It keeps open water connected right through a dry summer."
+    },
+    {
+      id: "rotting-log-crumble",
+      name: "Crumbling Log",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 3,
+      needs: [
+        "shelter",
+        "food"
+      ],
+      shape: "punkylog",
+      color: "#7c5a3c",
+      description: "A soft, damp, half-rotted log going back to soil, crumbling apart when you lift it. Under it the air stays wet all day, whatever the weather is doing above.",
+      matureHours: 6,
+      matureBonus: 2
+    },
+    {
+      id: "orb-web-anchor-stems",
+      name: "Web Anchor Stems",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 2,
+      needs: [
+        "shelter"
+      ],
+      shape: "orbweb",
+      color: "#cfd6c2",
+      description: "Tall dry stems left standing in a sunny gap, stiff enough to hold a line of silk taut between them."
+    },
+    {
+      id: "bat-maternity-roost",
+      name: "Maternity Roost",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "batroost",
+      color: "#5a4a5e",
+      description: "A narrow, dark crevice high off the ground with full sun on the rock outside it. Warm right through the day, and tight enough that anything inside is pressed against the walls."
+    },
+    {
+      id: "barn-loft-nest-box",
+      name: "Barn Loft",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 7,
+      needs: [
+        "shelter"
+      ],
+      shape: "owlloft",
+      color: "#a83c2b",
+      description: "A deep wooden box mounted high under a gable, open on one side, with a lip of straw across the sill. Dark and dry inside, well above the ground."
+    },
+    {
+      id: "coyote-natal-den-bank",
+      name: "Coyote Den Bank",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 6,
+      needs: [
+        "shelter"
+      ],
+      shape: "coyoteden",
+      color: "#8a6f4a",
+      description: "A den dug into a brushy bank, usually an old hole widened out rather than started fresh. Used hard for a few weeks and then left behind."
+    },
+    {
+      id: "damp-leaf-corner",
+      name: "Damp Leaf Corner",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 3,
+      needs: [
+        "shelter",
+        "plant"
+      ],
+      shape: "leafcorner",
+      color: "#6b5a3a",
+      description: "A shaded corner where fallen leaves are left to pile up and soften instead of being cleared away. Underneath it stays damp even through a dry week.",
+      matureHours: 2,
+      matureBonus: 1
+    },
+    {
+      id: "goat-cliff-ledge",
+      name: "Goat Cliff Ledge",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 7,
+      needs: [
+        "shelter",
+        "open"
+      ],
+      shape: "bluff",
+      color: "#8d8579",
+      description: "A narrow shelf cut across a near-vertical face, scraped bare and dusty and no wider than a doormat. Ground far steeper than anything else would attempt."
+    },
+    {
+      id: "alpine-mineral-lick",
+      name: "Mineral Lick",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 4,
+      needs: [
+        "food",
+        "open"
+      ],
+      shape: "tree",
+      color: "#c9bfa6",
+      description: "A damp bank of salty earth, gnawed and licked down into a hollow. The minerals in it are not in the spring grass, and there is nowhere else this high to get them."
+    },
+    {
+      id: "deep-snow-den",
+      name: "Deep Snow Den",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 6,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#dfe9f2",
+      description: "A tunnel driven metres down into a drift that holds into late spring, threaded around fallen boulders, with frozen food stashed in side chambers. A nursery and a freezer at once \u2014 and it only works where the snow lasts."
+    },
+    {
+      id: "deep-canyon-edge",
+      name: "Deep Canyon Edge",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 9,
+      needs: [
+        "water",
+        "open"
+      ],
+      shape: "mound",
+      color: "#12384f",
+      description: "The place where the seafloor stops and falls away into cold blue-black depth. Deep water, right up hard against the coast."
+    },
+    {
+      id: "breaking-surf-line",
+      name: "Breaking Surf Line",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 6,
+      needs: [
+        "water",
+        "food"
+      ],
+      shape: "mound",
+      color: "#2f7f8c",
+      description: "A clean line of waves standing up and toppling along an open beach \u2014 a moving wall of white water running the whole length of the shore."
+    },
+    {
+      id: "eelgrass-grazing-lawn",
+      name: "Turtle Grazing Lawn",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 6,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "kelp",
+      color: "#7fae6d",
+      description: "A patch of eelgrass cropped short and kept that way, its blades staying young and tender instead of growing long and tough. The cropping is what maintains it."
+    },
+    {
+      id: "saguaro-crown-nest",
+      name: "Cactus Crown Nest",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 6,
+      needs: [
+        "shelter"
+      ],
+      shape: "cactus",
+      color: "#8a7145",
+      description: "A bulky stick platform wedged into the crook where a tall cactus splits into arms \u2014 wide enough to stand a whole family on, with a wall of spines below that nothing can climb."
+    },
+    {
+      id: "tarantula-silk-burrow",
+      name: "Silk-Lined Burrow",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#6b5844",
+      description: "A thumb-wide hole in firm ground, its rim smoothed and bound with silk, and a few trip-lines fanned out across the sand around it. Whatever made it may keep the same one for twenty years."
+    },
+    {
+      id: "elk-wallow",
+      name: "Elk Wallow",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 5,
+      needs: [
+        "water",
+        "open"
+      ],
+      shape: "mound",
+      color: "#6b5a45",
+      description: "A churned muddy hollow in a forest opening, kept wet and bare by something heavy rolling in it. The puddle left in the dish afterwards holds water for weeks."
+    },
+    {
+      id: "bramble-ground-nest",
+      name: "Bramble Ground Nest",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 3,
+      needs: [
+        "shelter"
+      ],
+      shape: "nest",
+      color: "#7a6a4a",
+      description: "A grass-lined cup sunk level with the leaf litter beneath an arching bramble. Nothing above it but thorns, and that is the entire defence."
+    },
+    {
+      id: "eagle-nest-crown",
+      name: "Eagle Nest Crown",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 8,
+      needs: [
+        "shelter"
+      ],
+      shape: "nest",
+      color: "#6c7b4e",
+      description: "The crown of the tallest living tree on the marsh, holding a stick nest the size of a bathtub. A pair returns to the same nest year after year and adds to it until the branch underneath finally gives way.",
+      matureHours: 6,
+      matureBonus: 2
+    },
+    {
+      id: "still-water-cove",
+      name: "Still Water Cove",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 4,
+      needs: [
+        "water"
+      ],
+      shape: "pool",
+      color: "#93c0cf",
+      description: "A pocket of open water tucked in behind the reeds where the wind never reaches, its surface as smooth as glass with a few floating stems drifting on it. Nothing disturbs the skin of it at all."
+    },
+    {
+      id: "winter-sleep-burrow",
+      name: "Winter Sleep Burrow",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#5c4a38",
+      description: "A tunnel driven in under a tilted slab to a grass-lined chamber below the frost line. No larder, no side rooms \u2014 just somewhere to lie still, barely above freezing, until spring."
+    },
+    {
+      id: "moth-scree-crack",
+      name: "Moth Scree Crack",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter"
+      ],
+      shape: "talus",
+      color: "#7b7166",
+      description: "A dark slot under a loose scree slab, cool, windless and dry, running back further than the daylight reaches. The day's heat never gets to the back of it."
+    },
+    {
+      id: "swift-cliff-seam",
+      name: "Cliff Seam",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "bluff",
+      color: "#6e7480",
+      description: "A narrow vertical crack running up a sheer rock face, far too tight for anything with proper feet to stand in. The only way in is head-first, and the only way out is a drop."
+    },
+    {
+      id: "wild-grape-tangle",
+      name: "Wild Grape Tangle",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 6,
+      needs: [
+        "plant",
+        "food",
+        "shelter"
+      ],
+      shape: "brush",
+      color: "#5b7c3a",
+      plantable: true,
+      plantCost: {
+        berries: 2
+      },
+      growSeconds: 60,
+      matureHours: 6,
+      matureBonus: 2,
+      description: "A woody vine roped up a leaning trunk, heavy with fruit by late summer. A ladder and a larder at once \u2014 climbable the whole way up, with food waiting at the top.",
+      yield: {
+        resourceId: "berries",
+        qty: 1,
+        regrowSeconds: 60
+      }
+    },
+    {
+      id: "snake-egg-mound",
+      name: "Snake Egg Mound",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "mound",
+      color: "#7a6249",
+      description: "A heap of rotting wood chips and bark banked up against a cut stump. It runs warm inside as it rots, which is the whole point \u2014 bury something in it and the heap does the work."
+    },
+    {
+      id: "willow-thicket-swale",
+      name: "Willow Thicket Swale",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 6,
+      needs: [
+        "plant",
+        "shelter"
+      ],
+      shape: "tree",
+      color: "#6f8a5a",
+      plantable: true,
+      plantCost: {
+        seeds: 2,
+        water: 1
+      },
+      growSeconds: 60,
+      matureHours: 6,
+      matureBonus: 2,
+      zone: "backdune",
+      waveExposure: "sheltered",
+      description: "A damp hollow behind the dunes filled with low willow and bramble, tangled right down to the ground. Nothing of any size can push into it."
+    },
+    {
+      id: "canyon-ledge-den",
+      name: "Canyon Ledge Den",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 6,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#8a5f45",
+      description: "A dry overhang cut back into a canyon wall and screened by fallen slabs \u2014 shaded all day, invisible from below, and reachable by only one route."
+    },
+    {
+      id: "puffball-turf-ring",
+      name: "Puffball Ring",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 3,
+      needs: [
+        "plant"
+      ],
+      shape: "cushion",
+      color: "#cfc6a8",
+      description: "A ring of pale domes pushing up through old turf. Step on a ripe one and it smokes.",
+      matureHours: 3,
+      matureBonus: 1
+    },
+    {
+      id: "sedge-tussock-nest",
+      name: "Sedge Tussock",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter",
+        "plant"
+      ],
+      shape: "sedgetussock",
+      color: "#7f8f4a",
+      description: "A dense knee-high clump of sedge in a damp low spot, packed so tightly you could push a fist deep inside it and never find the hole again.",
+      matureHours: 3,
+      matureBonus: 1
+    },
+    {
+      id: "hidden-grass-nest",
+      name: "Hidden Grass Nest",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter",
+        "plant"
+      ],
+      shape: "stump",
+      color: "#8a9a52",
+      description: "A grass cup sunk level with the ground at the foot of a tussock, roofed over by leaning stems. The parents land well away and walk in through the grass so nothing follows them to it.",
+      matureHours: 3,
+      matureBonus: 1
+    },
+    {
+      id: "thorn-larder-hedge",
+      name: "Thorn Larder Hedge",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter",
+        "food"
+      ],
+      shape: "mound",
+      color: "#6d7f4b",
+      description: "A squat, spiny native hedge with a few bare twigs sticking out of the top. A shrike wedges its catch onto the thorns and comes back for it later, so a well-stocked hedge is a shrike's pantry and its billboard at once.",
+      matureHours: 5,
+      matureBonus: 2
+    },
+    {
+      id: "cocoon-leaf-drift",
+      name: "Cocoon Leaf Drift",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter"
+      ],
+      shape: "leaflitter",
+      color: "#8a6a3c",
+      description: "A drift of curled fallen leaves left banked against a log. Giant silk moths spin their cocoons inside a leaf that then falls with it, so the whole next generation is lying in this pile all winter.",
+      matureHours: 4,
+      matureBonus: 1
+    },
+    {
+      id: "acorn-cache-scatter",
+      name: "Acorn Cache",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 5,
+      needs: [
+        "food",
+        "open"
+      ],
+      shape: "mound",
+      color: "#7a6340",
+      description: "A patch of soft open ground pocked with little digs where a jay has pushed acorns in one at a time. Most get eaten over winter; the forgotten ones come up as oak seedlings in spring.",
+      matureHours: 4,
+      matureBonus: 1
+    },
+    {
+      id: "winter-freeze-litter-bed",
+      name: "Freeze-Down Litter Bed",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter"
+      ],
+      shape: "leaflitter",
+      color: "#6f5b3e",
+      description: "A shallow bed of loose leaves and duff over soft soil \u2014 only a few centimetres deep, which is all a wood frog needs, because it does not dig below the frost. It simply freezes with the ground and thaws out in spring.",
+      matureHours: 3,
+      matureBonus: 1
+    },
+    {
+      id: "canopy-nest-limb",
+      name: "Canopy Nest Limb",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 7,
+      needs: [
+        "shelter"
+      ],
+      shape: "nest",
+      color: "#4a5f3c",
+      description: "A heavy horizontal limb against the trunk of an old tree, high up where the canopy closes over. Big forest hawks need a limb thick enough to hold a nest they will use for years, and clear flying room underneath it.",
+      matureHours: 12,
+      matureBonus: 3
+    },
+    {
+      id: "thicket-bed-hollow",
+      name: "Thicket Bed Hollow",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "brush",
+      color: "#8b7a52",
+      description: "A scooped, dusty hollow under dense thornscrub where a whole herd lies up through the heat of the day, pressed together. The shade is worth more than the cover \u2014 it is ten degrees cooler in there.",
+      matureHours: 5,
+      matureBonus: 2
+    },
+    {
+      id: "falcon-scrape-ledge",
+      name: "Scrape Ledge",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 6,
+      needs: [
+        "shelter"
+      ],
+      shape: "bluff",
+      color: "#7b8290",
+      description: "A gravel-floored shelf high on a cliff with a shallow dip kicked into the grit. No nest is built here and none is needed \u2014 the ledge and the drop below it are the whole thing."
+    },
+    {
+      id: "algae-garden-scar",
+      name: "Grazed Algae Garden",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 4,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "stump",
+      color: "#6f8f5e",
+      description: "A clean oval of rock kept scrubbed to a film of green algae, with a shell-shaped scar worn into the middle of it. The limpet that owns it weeds out anything else and shoves rivals over the edge.",
+      zone: "mid",
+      waveExposure: "exposed",
+      matureHours: 3,
+      matureBonus: 1
+    },
+    {
+      id: "octopus-den-midden",
+      name: "Den Midden",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 6,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#6a6f7a",
+      description: "A dark crevice under a boulder with a rock dragged part-way across the entrance, and a tidy heap of emptied crab shells and drilled clams outside it. The rubbish pile is how you find the octopus.",
+      zone: "subtidal",
+      waveExposure: "moderate"
+    },
+    {
+      id: "meadow-mushroom-ring",
+      name: "Meadow Mushroom Ring",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 4,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "mushrooms",
+      color: "#d8cdb4",
+      description: "A curved arc of pale button caps pushing up through damp grass thatch after rain. The ring is the edge of a fungus growing outward underground, and it can be older than every plant around it.",
+      matureHours: 2,
+      matureBonus: 1
+    },
+    {
+      id: "bracket-fungus-shelf",
+      name: "Bracket Fungus Shelf",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 5,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "mushrooms",
+      color: "#a8763f",
+      description: "Overlapping fans of banded bracket fungus stepping up the side of a dead hardwood log. This is the thing actually digesting the wood \u2014 the log only becomes soil because the fungus gets there first.",
+      matureHours: 4,
+      matureBonus: 2
+    },
+    {
+      id: "wild-celery-bed",
+      name: "Wild Celery Bed",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 6,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "mound",
+      color: "#4f8f66",
+      description: "Long ribbon leaves streaming underwater in the shallows, rooted in the silt. It lives entirely on the light that reaches the bottom, so it only grows where the water has been allowed to settle clear.",
+      matureHours: 5,
+      matureBonus: 2
+    },
+    {
+      id: "snowbank-mushroom-cluster",
+      name: "Snowbank Mushrooms",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 4,
+      needs: [
+        "plant",
+        "food"
+      ],
+      shape: "mound",
+      color: "#cfd6dc",
+      description: "A crowd of small pale mushrooms with hairy stems, fruiting right at the edge of a melting drift on buried rotten conifer wood. They come up while there is still snow on the ground.",
+      matureHours: 3,
+      matureBonus: 1
+    },
+    {
+      id: "grizzly-dig-slope",
+      name: "Dig Slope",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 5,
+      needs: [
+        "open",
+        "shelter"
+      ],
+      shape: "bluff",
+      color: "#8a7a5c",
+      description: "A high bank of loose, root-threaded earth soft enough to be torn open, with the turned soil left in heaps."
+    },
+    {
+      id: "feather-lined-crack",
+      name: "Feather-Lined Crack",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter"
+      ],
+      shape: "birdhouse",
+      color: "#8b8378",
+      description: "A narrow dry fissure in a wind-scoured rock face, packed at the back with down and fur."
+    },
+    {
+      id: "borrowed-burrow-mouth",
+      name: "Borrowed Burrow",
+      placement: "outdoor",
+      biomes: [
+        "desert"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#9a7f52",
+      description: "A burrow mouth someone else dug, widened and swept clean, with a fan of loose sand at the entrance."
+    },
+    {
+      id: "browsed-pond-shallows",
+      name: "Browsed Shallows",
+      placement: "outdoor",
+      biomes: [
+        "wetland"
+      ],
+      healthValue: 6,
+      needs: [
+        "water",
+        "plant"
+      ],
+      shape: "pool",
+      color: "#4f6b48",
+      description: "A soft-bottomed margin where the water is chest-deep and thick with stems, cropped short in ragged patches."
+    },
+    {
+      id: "waterfall-splash-ledge",
+      name: "Splash Ledge",
+      placement: "outdoor",
+      biomes: [
+        "alpine"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter",
+        "water"
+      ],
+      shape: "bluff",
+      color: "#6f8894",
+      description: "A wet shelf tucked behind a thread of falling meltwater, mossy and permanently in shadow."
+    },
+    {
+      id: "grub-digging-ground",
+      name: "Digging Ground",
+      placement: "outdoor",
+      biomes: [
+        "forest"
+      ],
+      healthValue: 4,
+      needs: [
+        "open",
+        "food"
+      ],
+      shape: "digground",
+      color: "#6b5a3f",
+      description: "A patch of soft leaf-mould soil left unpacked, already pitted with small cone-shaped holes where something has been turning it over."
+    },
+    {
+      id: "clifftop-burrow",
+      name: "Clifftop Burrow",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "clifftopburrow",
+      color: "#6f7a52",
+      description: "A round hole driven back into deep turf at the very top of a sea cliff, with a worn patch of bare earth at the entrance.",
+      zone: "backdune",
+      waveExposure: "exposed"
     }
   ]
 };
@@ -6550,1547 +12926,38 @@ var animals_1_default = {
   table: "Animal",
   records: [
     {
-      id: "cottontail-rabbit",
-      name: "Cottontail Rabbit",
-      biome: "meadow",
-      kind: "mammal",
-      rarity: "common",
-      featured: true,
-      diet: "Grasses and clover in summer; twigs, bark, and buds in winter",
-      shelter: "Rests in shallow grass 'forms'; uses brush piles and old burrows",
-      preferredHabitat: "Meadows and field edges with brushy fencerows to bolt into",
-      fact: "Cottontails rest in shallow ground depressions called 'forms' rather than digging their own burrows.",
-      requirements: {
-        minHealth: 25,
-        objects: {
-          "native-grass-patch": 1,
-          "berry-bush": 1,
-          shrub: 1
-        },
-        hint: "Plant native grass and a berry bush, with shrub cover close by."
-      },
-      scientificName: "Sylvilagus floridanus",
-      role: "An abundant grazing herbivore and cornerstone prey animal of the meadow. It feeds on grasses, clover, and woody browse and breeds rapidly to offset heavy predation. Foxes, hawks, owls, and badgers all depend on cottontails as a food source.",
-      trophic: "herbivore",
-      eatenBy: [
-        "american-badger",
-        "barn-owl",
-        "bobcat",
-        "great-horned-owl",
-        "red-fox-forest",
-        "red-fox-meadow",
-        "red-tailed-hawk"
-      ],
-      eatsOther: [
-        "bark",
-        "berries",
-        "buds",
-        "clover",
-        "grasses",
-        "twigs"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Sylvilagus floridanus",
-          url: "https://animaldiversity.org/accounts/Sylvilagus_floridanus/"
-        },
-        {
-          name: "NHPBS NatureWorks \u2014 Eastern Cottontail",
-          url: "https://nhpbs.org/natureworks/easterncottontail.htm"
-        }
-      ]
-    },
-    {
-      id: "monarch-butterfly",
-      name: "Monarch Butterfly",
-      biome: "meadow",
-      kind: "insect",
-      rarity: "common",
-      featured: true,
-      diet: "Caterpillars eat only milkweed; adults sip flower nectar",
-      shelter: "Roosts in trees and shrubs; overwinters clustered in dense groves",
-      preferredHabitat: "Open meadows and roadsides with milkweed and nectar flowers",
-      fact: "Monarchs migrate up to 3,000 miles, but no single butterfly makes the whole round trip; it takes several generations.",
-      requirements: {
-        minHealth: 15,
-        objects: {
-          "wildflower-patch": 1,
-          "butterfly-flowers": 1
-        },
-        hint: "Wildflowers plus dedicated butterfly flowers with milkweed."
-      },
-      scientificName: "Danaus plexippus",
-      role: "A milkweed specialist and iconic pollinator whose caterpillars sequester the plant's cardenolide toxins, making both larvae and adults poisonous to most predators. Their bright orange warning coloration keeps nearly all birds and mammals away, so they have very few predators. Adults are important late-season nectar visitors.",
-      trophic: "herbivore",
-      eatsOther: [
-        "flower nectar (adult)",
-        "milkweed leaves (caterpillar)"
-      ],
-      sources: [
-        {
-          name: "U.S. Fish & Wildlife Service \u2014 Monarch",
-          url: "https://www.fws.gov/species/monarch-danaus-plexippus"
-        },
-        {
-          name: "PNAS \u2014 Cardenolide sequestration and toxicity in monarchs",
-          url: "https://www.pnas.org/doi/10.1073/pnas.2024463118"
-        }
-      ]
-    },
-    {
-      id: "song-sparrow",
-      name: "Song Sparrow",
-      biome: "meadow",
-      kind: "bird",
-      rarity: "common",
-      featured: true,
-      diet: "Insects and invertebrates in summer; seeds and fruits year-round",
-      shelter: "Cup nest hidden on the ground or low in shrubs and grass tussocks",
-      preferredHabitat: "Brushy edges, weedy fields, and marsh edges with singing perches",
-      fact: "A male Song Sparrow can learn up to about 20 different tunes and sing hundreds of variations of them.",
-      requirements: {
-        minHealth: 16,
-        objects: {
-          shrub: 1,
-          "bird-perch": 1
-        },
-        hint: "Shrubs, native grass, and somewhere high to sing from."
-      },
-      scientificName: "Melospiza melodia",
-      role: "A ground-foraging omnivore that switches between insects in the breeding season and seeds/fruit the rest of the year, so it both controls insects and disperses seeds. Its abundance makes it a key prey item for meadow hawks and snakes, linking ground invertebrates to larger predators.",
-      trophic: "omnivore",
-      eats: [
-        "grasshopper",
-        "lady-beetle",
-        "praying-mantis"
-      ],
-      eatenBy: [
-        "coopers-hawk",
-        "garter-snake-meadow",
-        "red-fox-meadow",
-        "red-tailed-hawk"
-      ],
-      eatsOther: [
-        "berries",
-        "caterpillars",
-        "seeds",
-        "spiders",
-        "wild fruit"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds \u2014 Song Sparrow Life History",
-          url: "https://www.allaboutbirds.org/guide/Song_Sparrow/lifehistory"
-        },
-        {
-          name: "Audubon Field Guide \u2014 Song Sparrow",
-          url: "https://www.audubon.org/field-guide/bird/song-sparrow"
-        }
-      ]
-    },
-    {
-      id: "mule-deer",
-      name: "Mule Deer",
-      biome: "meadow",
-      kind: "mammal",
-      rarity: "uncommon",
-      featured: true,
-      diet: "Browses shrubs, forbs, twigs, buds, and seasonal grasses",
-      shelter: "Beds in brushy cover, tall grass, or forest edges; no permanent den",
-      preferredHabitat: "Open meadows and shrublands with browse and water nearby",
-      fact: "Mule deer are named for their oversized, mule-like ears, which rotate independently to pinpoint the direction of danger.",
-      requirements: {
-        minHealth: 55,
-        objects: {
-          shrub: 2,
-          "native-grass-patch": 2,
-          "small-pond": 1
-        },
-        hint: "A healthier meadow with plenty of browse and a pond to drink from."
-      },
-      scientificName: "Odocoileus hemionus",
-      role: "A large grazing herbivore that shapes meadow vegetation by browsing shrubs and forbs. Its grazing and droppings help cycle nutrients and keep browse in check. Its usual predators (coyotes, mountain lions) are absent from this meadow roster, so it faces little predation here.",
-      trophic: "herbivore",
-      eatsOther: [
-        "buds",
-        "forbs",
-        "grasses",
-        "shrubs",
-        "twigs"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Odocoileus hemionus",
-          url: "https://animaldiversity.org/accounts/Odocoileus_hemionus/"
-        },
-        {
-          name: "Landmark Wildlife \u2014 Mule Deer ears and senses",
-          url: "https://landmarkwildlife.com/stot-this-way-texas-mule-deers-big-ears-bigger-personality/"
-        }
-      ]
-    },
-    {
-      id: "red-fox-meadow",
-      name: "Red Fox",
-      biome: "meadow",
-      kind: "mammal",
-      rarity: "rare",
-      featured: true,
-      diet: "Voles, rabbits, squirrels, birds, and insects; also berries and carrion",
-      shelter: "Digs earthen dens or enlarges burrows; uses brush and hollows",
-      preferredHabitat: "Meadows, farmland edges, and hedgerows across open country",
-      fact: "When 'mousing,' red foxes tend to pounce facing magnetic northeast, apparently using Earth's magnetic field as a rangefinder to judge the leap.",
-      requirements: {
-        minHealth: 65,
-        minBalance: 40,
-        objects: {
-          "hollow-log": 1,
-          shrub: 2,
-          "wildflower-patch": 1
-        },
-        animals: [
-          "meadow-vole",
-          "cottontail-rabbit"
-        ],
-        hint: "Foxes only return once smaller animals are back, with denning cover and a balanced meadow."
-      },
-      scientificName: "Vulpes vulpes",
-      role: "A generalist mesopredator that helps control rodent and rabbit populations, hunting by stalk-and-pounce and rounding out its diet with insects, berries, and carrion. With larger predators like coyotes absent from this roster, it sits near the top of the meadow food web.",
-      trophic: "mesopredator",
-      eats: [
-        "cottontail-rabbit",
-        "garter-snake-meadow",
-        "grasshopper",
-        "ground-squirrel",
-        "killdeer",
-        "meadow-vole",
-        "song-sparrow",
-        "western-meadowlark"
-      ],
-      eatsOther: [
-        "berries",
-        "bird eggs",
-        "carrion",
-        "insects"
-      ],
-      sources: [
-        {
-          name: "Phys.org \u2014 Predation by foxes aided by Earth's magnetic field",
-          url: "https://phys.org/news/2011-01-predation-foxes-aided-earth-magnetic.html"
-        },
-        {
-          name: "Animal Diversity Web \u2014 Vulpes vulpes",
-          url: "https://animaldiversity.org/accounts/Vulpes_vulpes/"
-        }
-      ]
-    },
-    {
-      id: "meadow-vole",
-      name: "Meadow Vole",
-      biome: "meadow",
-      kind: "mammal",
-      rarity: "common",
-      diet: "Herbivore; grasses, sedges, seeds, roots, and bark in winter",
-      shelter: "Shallow burrows and grass nests linked by surface runways",
-      preferredHabitat: "Moist grassy meadows and fields with dense ground cover",
-      fact: "Voles mow narrow 'runways' through the grass \u2014 tidy little highways they patrol between burrow openings.",
-      requirements: {
-        minHealth: 10,
-        objects: {
-          "grass-patch": 1,
-          "native-grass-patch": 1
-        },
-        hint: "Any thick grass cover will do \u2014 voles arrive early."
-      },
-      scientificName: "Microtus pennsylvanicus",
-      role: "A keystone prey species and prolific breeder that converts meadow plants into food for nearly every predator. Its grazing and runway-building shape the grass layer. Its abundance drives the populations of hawks, owls, foxes, snakes, and badgers.",
-      trophic: "herbivore",
-      eatenBy: [
-        "american-badger",
-        "barn-owl",
-        "barred-owl",
-        "bobcat",
-        "garter-snake-meadow",
-        "great-horned-owl",
-        "red-fox-forest",
-        "red-fox-meadow",
-        "red-tailed-hawk",
-        "western-screech-owl"
-      ],
-      eatsOther: [
-        "bark",
-        "grasses",
-        "roots",
-        "sedges",
-        "seeds"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Microtus pennsylvanicus",
-          url: "https://animaldiversity.org/accounts/Microtus_pennsylvanicus/"
-        },
-        {
-          name: "Chesapeake Bay Program \u2014 Meadow vole",
-          url: "https://www.chesapeakebay.net/discover/field-guide/entry/meadow-vole"
-        }
-      ]
-    },
-    {
-      id: "ground-squirrel",
-      name: "Ground Squirrel",
-      biome: "meadow",
-      kind: "mammal",
-      rarity: "common",
-      diet: "Mostly seeds, grasses, and flowers, plus insects like grasshoppers",
-      shelter: "Extensive multi-entrance burrow systems dug in open ground",
-      preferredHabitat: "Open grassy meadows and slopes near rocky lookout points",
-      fact: "Facing a rattlesnake, these squirrels kick sand and wave heated tails \u2014 flushing their tails with blood to jam the snake's infrared 'vision.'",
-      requirements: {
-        minHealth: 14,
-        objects: {
-          "rock-pile": 1,
-          "native-grass-patch": 1
-        },
-        hint: "Grass to eat and rocks to keep watch from."
-      },
-      scientificName: "Otospermophilus beecheyi",
-      role: "A burrowing omnivore whose diggings aerate soil and whose abandoned burrows shelter other species. It eats seeds, greens, and insects and is major prey for hawks, foxes, snakes, and badgers. Its colonies anchor the meadow's rodent-based food web.",
-      trophic: "omnivore",
-      eats: [
-        "grasshopper"
-      ],
-      eatenBy: [
-        "american-badger",
-        "barn-owl",
-        "garter-snake-meadow",
-        "red-fox-meadow",
-        "red-tailed-hawk"
-      ],
-      eatsOther: [
-        "flowers",
-        "fruit",
-        "grasses",
-        "insects",
-        "seeds"
-      ],
-      sources: [
-        {
-          name: "PNAS \u2014 Ground squirrels heat their tails to discourage rattlesnake attack",
-          url: "https://www.pnas.org/doi/10.1073/pnas.0707286104"
-        },
-        {
-          name: "The Ethogram (UC Davis) \u2014 California ground squirrel",
-          url: "https://theethogram.com/2020/01/21/creature-feature-california-ground-squirrel/"
-        }
-      ]
-    },
-    {
-      id: "garter-snake-meadow",
-      name: "Garter Snake",
-      biome: "meadow",
-      kind: "reptile",
-      rarity: "uncommon",
-      diet: "Earthworms, amphibians, slugs, small fish, insects, and small rodents",
-      shelter: "Shelters under rocks and logs; overwinters in communal dens",
-      preferredHabitat: "Moist meadows and grasslands near sunny rocks and water",
-      fact: "Garter snakes are mildly venomous to their tiny prey but completely harmless to people.",
-      requirements: {
-        minHealth: 20,
-        objects: {
-          "rock-pile": 1,
-          "grass-patch": 1,
-          shrub: 1
-        },
-        hint: "Warm rocks, grass to hunt in, and small prey already about."
-      },
-      scientificName: "Thamnophis sirtalis",
-      role: "A common meadow mesopredator that hunts earthworms, amphibians, fish, insects, and small rodents, using mild venomous saliva to subdue small prey. It helps control invertebrate and amphibian populations. It is preyed on by hawks, owls, and foxes.",
-      trophic: "mesopredator",
-      eats: [
-        "grasshopper",
-        "ground-squirrel",
-        "meadow-vole",
-        "praying-mantis",
-        "song-sparrow"
-      ],
-      eatenBy: [
-        "barn-owl",
-        "coopers-hawk",
-        "red-fox-meadow",
-        "red-tailed-hawk"
-      ],
-      eatsOther: [
-        "amphibians",
-        "earthworms",
-        "slugs",
-        "small fish"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Thamnophis sirtalis",
-          url: "https://animaldiversity.org/accounts/Thamnophis_sirtalis/"
-        },
-        {
-          name: "U.S. Fish & Wildlife Service \u2014 Common Garter Snake",
-          url: "https://www.fws.gov/species/common-garter-snake-thamnophis-sirtalis"
-        }
-      ]
-    },
-    {
-      id: "bumblebee",
-      name: "Bumblebee",
-      biome: "meadow",
-      kind: "insect",
-      rarity: "common",
-      diet: "Nectar for energy and pollen for protein, from many flower types",
-      shelter: "Nests in abandoned rodent burrows, grass tussocks, or ground cavities",
-      preferredHabitat: "Flower-rich meadows and grasslands with continuous bloom",
-      fact: "Bumblebees 'buzz pollinate' \u2014 vibrating their flight muscles to shake pollen loose from flowers like tomatoes and blueberries.",
-      requirements: {
-        minHealth: 25,
-        objects: {
-          "wildflower-patch": 1,
-          "pollinator-garden": 1,
-          shrub: 1
-        },
-        hint: "The more kinds of flowers, the better."
-      },
-      scientificName: "Bombus spp.",
-      role: "A generalist, large-bodied pollinator that visits a huge variety of flowers for nectar and pollen. Its buzz pollination unlocks pollen that many other bees cannot reach, making it vital to meadow plant reproduction. It is preyed on by ambush hunters and aerial insectivores.",
-      trophic: "herbivore",
-      eatenBy: [
-        "barn-swallow",
-        "eastern-bluebird",
-        "praying-mantis"
-      ],
-      eatsOther: [
-        "flower nectar",
-        "pollen"
-      ],
-      sources: [
-        {
-          name: "Xerces Society \u2014 About Bumble Bees",
-          url: "https://xerces.org/bumble-bees/about"
-        },
-        {
-          name: "USDA Forest Service \u2014 Bumblebees (Bombus spp.)",
-          url: "https://www.fs.usda.gov/wildflowers/pollinators/pollinator-of-the-month/bumblebees.shtml"
-        }
-      ]
-    },
-    {
-      id: "grasshopper",
-      name: "Grasshopper",
-      biome: "meadow",
-      kind: "insect",
-      rarity: "common",
-      diet: "Herbivore feeding on grasses, sedges, and broadleaf forbs",
-      shelter: "Shelters in grass and low vegetation; lays eggs in soil",
-      preferredHabitat: "Sunny grasslands and meadows rich in grasses and forbs",
-      fact: "Grasshoppers hear through tympana \u2014 eardrum-like membranes on the first segment of the abdomen, not their heads.",
-      requirements: {
-        minHealth: 8,
-        objects: {
-          "grass-patch": 1
-        },
-        hint: "Grasshoppers return almost as soon as the grass does."
-      },
-      scientificName: "Melanoplus spp. (family Acrididae)",
-      role: "A dominant plant-eater and the meadow's key prey base, converting grasses and forbs into food for a huge range of predators. Its abundance supports birds, snakes, mammals, and other insects. Booms in grasshopper numbers ripple up the whole food web.",
-      trophic: "herbivore",
-      eatenBy: [
-        "eastern-bluebird",
-        "garter-snake-meadow",
-        "ground-squirrel",
-        "killdeer",
-        "praying-mantis",
-        "red-fox-meadow",
-        "song-sparrow",
-        "western-meadowlark",
-        "western-screech-owl"
-      ],
-      eatsOther: [
-        "grasses",
-        "leaves and forbs",
-        "sedges"
-      ],
-      sources: [
-        {
-          name: "Britannica \u2014 Short-horned grasshopper (Acrididae)",
-          url: "https://www.britannica.com/animal/short-horned-grasshopper"
-        },
-        {
-          name: "Ecology and Evolution \u2014 Grasshopper diet (gut-content sequencing)",
-          url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC4559048/"
-        }
-      ]
-    },
-    {
-      id: "lady-beetle",
-      name: "Lady Beetle",
-      biome: "meadow",
-      kind: "insect",
-      rarity: "common",
-      diet: "Predator of aphids and other small, soft-bodied insects",
-      shelter: "Overwinters in leaf litter and aggregations; shelters on foliage",
-      preferredHabitat: "Meadows and gardens with aphid-infested plants",
-      fact: "A single lady beetle can eat around 5,000 aphids over its lifetime \u2014 roughly 50 a day.",
-      requirements: {
-        minHealth: 12,
-        objects: {
-          "clover-patch": 1
-        },
-        hint: "Flowers bring aphids, and aphids bring lady beetles."
-      },
-      scientificName: "Hippodamia convergens (family Coccinellidae)",
-      role: "A voracious small predator that controls aphids and other soft-bodied pests as both larva and adult, making it a valuable biological-control insect. In turn it is eaten by insectivorous birds and larger insect predators, linking the aphid layer up into the food web.",
-      trophic: "insectivore",
-      eatenBy: [
-        "eastern-bluebird",
-        "praying-mantis",
-        "song-sparrow",
-        "western-meadowlark"
-      ],
-      eatsOther: [
-        "aphids",
-        "scale insects",
-        "small soft-bodied insects",
-        "thrips"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Hippodamia convergens",
-          url: "https://animaldiversity.org/accounts/Hippodamia_convergens/"
-        },
-        {
-          name: "UC ANR \u2014 Lady beetle aphid consumption",
-          url: "https://ucanr.edu/blog/bug-squad/article/incredible-aphid-eating-machines"
-        }
-      ]
-    },
-    {
-      id: "western-meadowlark",
-      name: "Western Meadowlark",
-      biome: "meadow",
-      kind: "bird",
-      rarity: "uncommon",
-      diet: "Mostly insects in summer (beetles, grasshoppers); seeds and grain in winter",
-      shelter: "Domed grass nest woven on the ground, often with a covered runway",
-      preferredHabitat: "Wide native grasslands and meadows with song perches",
-      fact: "The Western Meadowlark's flute-like song is the state bird anthem of six U.S. states.",
-      requirements: {
-        minHealth: 45,
-        objects: {
-          "native-grass-patch": 2,
-          "bird-perch": 1,
-          shrub: 1,
-          "rain-basin": 1
-        },
-        hint: "Meadowlarks need real expanses of native grass before they will nest, with a basin to drink and bathe."
-      },
-      scientificName: "Sturnella neglecta",
-      role: "A grassland omnivore that eats large numbers of grasshoppers, crickets, and beetles in summer while taking seeds in winter, helping keep insect populations in check. As a plump ground bird it is important prey for hawks and mammalian predators of the meadow.",
-      trophic: "omnivore",
-      eats: [
-        "grasshopper",
-        "lady-beetle",
-        "praying-mantis"
-      ],
-      eatenBy: [
-        "american-badger",
-        "coopers-hawk",
-        "red-fox-meadow",
-        "red-tailed-hawk"
-      ],
-      eatsOther: [
-        "ants",
-        "beetles",
-        "caterpillars",
-        "crickets",
-        "seeds",
-        "waste grain"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds \u2014 Western Meadowlark",
-          url: "https://www.allaboutbirds.org/guide/Western_Meadowlark/lifehistory"
-        },
-        {
-          name: "Audubon Field Guide \u2014 Western Meadowlark",
-          url: "https://www.audubon.org/field-guide/bird/western-meadowlark"
-        }
-      ]
-    },
-    {
-      id: "barn-swallow",
-      name: "Barn Swallow",
-      biome: "meadow",
-      kind: "bird",
-      rarity: "uncommon",
-      diet: "Flying insects caught midair: flies, beetles, bees, wasps, and moths",
-      shelter: "Cup nest of mud pellets and grass on beams under eaves and bridges",
-      preferredHabitat: "Open country for foraging near water, flowers, and structures",
-      fact: "Barn Swallows build their cup nests from up to 1,000 individual beakfuls of mud.",
-      requirements: {
-        minHealth: 40,
-        objects: {
-          "small-pond": 1,
-          "bird-perch": 1,
-          shrub: 1
-        },
-        hint: "A pond for mud and insects, and a perch to rest between flights."
-      },
-      scientificName: "Hirundo rustica",
-      role: "An aerial insectivore that snaps up huge numbers of flying insects over meadows, following livestock and machinery to catch flushed prey. It is a natural check on flies and flying pests, and both adults and fledglings are hunted by fast-flying hawks.",
-      trophic: "insectivore",
-      eats: [
-        "bumblebee",
-        "leafcutter-bee",
-        "painted-lady",
-        "red-admiral"
-      ],
-      eatenBy: [
-        "coopers-hawk",
-        "red-tailed-hawk"
-      ],
-      eatsOther: [
-        "beetles",
-        "flies",
-        "flying insects",
-        "moths",
-        "wasps"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds \u2014 Barn Swallow Life History",
-          url: "https://www.allaboutbirds.org/guide/Barn_Swallow/lifehistory"
-        },
-        {
-          name: "Audubon Field Guide \u2014 Barn Swallow",
-          url: "https://www.audubon.org/field-guide/bird/barn-swallow"
-        }
-      ]
-    },
-    {
-      id: "red-tailed-hawk",
-      name: "Red-tailed Hawk",
-      biome: "meadow",
-      kind: "bird",
-      rarity: "rare",
-      diet: "Mostly small mammals (voles, ground squirrels, rabbits); also birds and snakes",
-      shelter: "Bulky stick nest in the crown of a tall tree or on a cliff ledge",
-      preferredHabitat: "Open country: grasslands, fields, and meadows seen from above",
-      fact: "That piercing 'eagle' cry in the movies is almost always actually a Red-tailed Hawk.",
-      requirements: {
-        minHealth: 70,
-        minBalance: 40,
-        objects: {
-          "bird-perch": 1,
-          shrub: 1
-        },
-        animals: [
-          "meadow-vole",
-          "ground-squirrel"
-        ],
-        hint: "Hawks watch for a meadow already full of small animals.",
-        conditions: {
-          weather: [
-            "clear",
-            "cloudy"
-          ],
-          dayPhase: [
-            "day"
-          ]
-        }
-      },
-      scientificName: "Buteo jamaicensis",
-      role: "The meadow's apex daytime hunter, soaring on broad wings or watching from a perch for prey below. By preying on voles, ground squirrels, rabbits, and birds it keeps herbivore numbers in check. Adults have essentially no predators in the meadow.",
-      trophic: "apex-predator",
-      eats: [
-        "barn-swallow",
-        "cottontail-rabbit",
-        "eastern-bluebird",
-        "garter-snake-meadow",
-        "ground-squirrel",
-        "killdeer",
-        "meadow-vole",
-        "song-sparrow",
-        "western-meadowlark"
-      ],
-      eatsOther: [
-        "carrion",
-        "mice"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds \u2014 Red-tailed Hawk Life History",
-          url: "https://www.allaboutbirds.org/guide/Red-tailed_Hawk/lifehistory"
-        },
-        {
-          name: "Cornell Lab All About Birds \u2014 Red-tailed Hawk Overview",
-          url: "https://www.allaboutbirds.org/guide/Red-tailed_Hawk/overview"
-        }
-      ]
-    },
-    {
-      id: "barn-owl",
-      name: "Barn Owl",
-      biome: "meadow",
-      kind: "bird",
-      rarity: "rare",
-      diet: "Almost entirely small mammals \u2014 voles, mice, and shrews; hunted at night",
-      shelter: "Nests in tree hollows, cliff crevices, and quiet building cavities",
-      preferredHabitat: "Open grasslands and meadows hunted on silent wings at night",
-      fact: "A Barn Owl's heart-shaped facial disc funnels sound so precisely it can catch prey in total darkness by ear alone.",
-      requirements: {
-        minHealth: 75,
-        minBalance: 40,
-        objects: {
-          "log-shelter": 1,
-          shrub: 1
-        },
-        animals: [
-          "meadow-vole"
-        ],
-        hint: "A quiet, healthy meadow with plenty of voles and a dark place to roost.",
-        conditions: {
-          dayPhase: [
-            "dusk",
-            "night"
-          ]
-        }
-      },
-      scientificName: "Tyto alba",
-      role: "The meadow's night-shift rodent hunter, coursing low over the grass on silent wings and swallowing voles and mice whole. This makes it a major check on rodent populations. In the meadow it sits near the top of the food web with no regular predators.",
-      trophic: "apex-predator",
-      eats: [
-        "cottontail-rabbit",
-        "garter-snake-meadow",
-        "ground-squirrel",
-        "meadow-vole"
-      ],
-      eatsOther: [
-        "mice",
-        "rats",
-        "shrews"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds \u2014 Barn Owl Life History",
-          url: "https://www.allaboutbirds.org/guide/American_Barn_Owl/lifehistory"
-        },
-        {
-          name: "Audubon Field Guide \u2014 Barn Owl",
-          url: "https://www.audubon.org/field-guide/bird/barn-owl"
-        }
-      ]
-    },
-    {
-      id: "tree-squirrel",
-      name: "Tree Squirrel",
-      biome: "forest",
-      kind: "mammal",
-      rarity: "common",
-      featured: true,
-      diet: "Acorns, nuts, seeds, tree buds, and fungi; occasional insects and bird eggs",
-      shelter: "Tree cavity dens and leaf-and-twig dreys built high in the canopy",
-      preferredHabitat: "Mature deciduous or mixed forest rich in oaks and hickories",
-      fact: "Gray squirrels scatter-hoard thousands of nuts each year, and the caches they forget grow into new trees.",
-      requirements: {
-        minHealth: 15,
-        objects: {
-          "nesting-tree": 1,
-          "log-shelter": 1
-        },
-        hint: "A nesting tree and fallen logs with seeds to cache."
-      },
-      scientificName: "Sciurus carolinensis",
-      role: "Tree squirrels are major seed predators and accidental seed dispersers whose buried, forgotten nuts regenerate the forest canopy. They also spread mycorrhizal fungal spores and occasionally raid bird nests. As abundant prey they feed nearly every forest mesopredator and raptor.",
-      trophic: "omnivore",
-      eats: [
-        "nuthatch",
-        "woodpecker"
-      ],
-      eatenBy: [
-        "barred-owl",
-        "black-bear",
-        "bobcat",
-        "fisher",
-        "great-horned-owl",
-        "red-fox-forest"
-      ],
-      eatsOther: [
-        "acorns",
-        "berries",
-        "bird eggs",
-        "fungi",
-        "insects",
-        "nuts",
-        "seeds",
-        "tree buds"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Sciurus carolinensis",
-          url: "https://animaldiversity.org/accounts/Sciurus_carolinensis/"
-        }
-      ]
-    },
-    {
-      id: "woodpecker",
-      name: "Woodpecker",
-      biome: "forest",
-      kind: "bird",
-      rarity: "common",
-      featured: true,
-      diet: "Mostly insects\u2014beetle larvae, ants, caterpillars\u2014with some berries and sap",
-      shelter: "Self-excavated cavities in standing deadwood; roosts in cavities year-round",
-      preferredHabitat: "Open deciduous and mixed woodland with dead snags full of insects",
-      fact: "Downy woodpeckers are small enough to hammer into goldenrod galls for fly larvae that larger woodpeckers can't reach.",
-      requirements: {
-        minHealth: 16,
-        objects: {
-          "standing-deadwood": 1
-        },
-        hint: "Woodpeckers need standing deadwood \u2014 keep some snags up."
-      },
-      scientificName: "Picoides pubescens",
-      role: "Woodpeckers regulate wood-boring beetles and bark insects, easing pest pressure on trees. Their abandoned cavities house nuthatches, wrens, and flying squirrels, making them ecosystem engineers. They feed hawks, owls, and nest-raiding squirrels and snakes.",
-      trophic: "insectivore",
-      eatenBy: [
-        "barred-owl",
-        "fisher",
-        "garter-snake-forest",
-        "great-horned-owl",
-        "tree-squirrel"
-      ],
-      eatsOther: [
-        "acorns",
-        "ants",
-        "beetle larvae",
-        "berries",
-        "caterpillars",
-        "sap",
-        "spiders"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds \u2014 Downy Woodpecker",
-          url: "https://www.allaboutbirds.org/guide/Downy_Woodpecker/lifehistory"
-        },
-        {
-          name: "Animal Diversity Web \u2014 Picoides pubescens",
-          url: "https://animaldiversity.org/accounts/Picoides_pubescens/"
-        }
-      ]
-    },
-    {
-      id: "forest-salamander",
-      name: "Forest Salamander",
-      biome: "forest",
-      kind: "amphibian",
-      rarity: "uncommon",
-      featured: true,
-      diet: "Small invertebrates: mites, springtails, spiders, beetles, ants, and earthworms",
-      shelter: "Under logs, rocks, and moist leaf litter; retreats into soil burrows",
-      preferredHabitat: "Cool, damp deciduous forest floor with abundant woody debris",
-      fact: "In some eastern forests the combined weight of these tiny lungless salamanders exceeds that of all the birds.",
-      requirements: {
-        minHealth: 40,
-        objects: {
-          "mushroom-log": 1,
-          "shallow-water-pool": 1,
-          shrub: 1
-        },
-        hint: "Damp shaded logs and clean shallow water."
-      },
-      scientificName: "Plethodon cinereus",
-      role: "Red-backed salamanders are a keystone of the forest-floor detritus web, controlling the mites and springtails that break down leaf litter. Their huge collective biomass makes them a key food subsidy for snakes, birds, and small mammals. They breathe through their skin, so they signal forest moisture and soil health.",
-      trophic: "insectivore",
-      eatenBy: [
-        "barred-owl",
-        "garter-snake-forest",
-        "great-horned-owl",
-        "raccoon",
-        "red-fox-forest"
-      ],
-      eatsOther: [
-        "ants",
-        "beetles",
-        "earthworms",
-        "mites",
-        "snails",
-        "spiders",
-        "springtails"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Plethodon cinereus",
-          url: "https://animaldiversity.org/accounts/Plethodon_cinereus/"
-        }
-      ]
-    },
-    {
-      id: "great-horned-owl",
-      name: "Great Horned Owl",
-      biome: "forest",
-      kind: "bird",
-      rarity: "rare",
-      featured: true,
-      diet: "Mammals and birds\u2014rabbits, voles, squirrels, skunks\u2014plus reptiles and frogs",
-      shelter: "Adopts old hawk, crow, or heron stick nests in large trees; also snags and ledges",
-      preferredHabitat: "Mature forest broken by open ground, across nearly every biome",
-      fact: "Great horned owls are among the only predators that routinely kill and eat skunks, seemingly unbothered by the spray.",
-      requirements: {
-        minHealth: 65,
-        minBalance: 40,
-        objects: {
-          "nesting-tree": 2,
-          shrub: 1
-        },
-        animals: [
-          "tree-squirrel",
-          "chipmunk"
-        ],
-        hint: "Tall trees, quiet shelter, and prey animals already returned."
-      },
-      scientificName: "Bubo virginianus",
-      role: "The great horned owl sits at the top of the nocturnal forest food web, with the most varied prey base of any North American raptor. It regulates rabbits, squirrels, chipmunks, and even other owls, so its loss lets prey populations surge. Adults have essentially no predators; only eggs and young are vulnerable.",
-      trophic: "apex-predator",
-      eats: [
-        "barred-owl",
-        "bobcat",
-        "chipmunk",
-        "cottontail-rabbit",
-        "forest-salamander",
-        "garter-snake-forest",
-        "little-brown-bat",
-        "meadow-vole",
-        "northern-flying-squirrel",
-        "nuthatch",
-        "pacific-wren",
-        "pileated-woodpecker",
-        "porcupine",
-        "raccoon",
-        "red-fox-forest",
-        "spotted-towhee",
-        "tree-squirrel",
-        "wood-duck",
-        "woodpecker"
-      ],
-      eatsOther: [
-        "carrion",
-        "frogs",
-        "insects",
-        "mice",
-        "rabbits",
-        "skunks",
-        "voles"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds \u2014 Great Horned Owl",
-          url: "https://www.allaboutbirds.org/guide/Great_Horned_Owl/lifehistory"
-        },
-        {
-          name: "Animal Diversity Web \u2014 Bubo virginianus",
-          url: "https://animaldiversity.org/accounts/Bubo_virginianus/"
-        }
-      ]
-    },
-    {
-      id: "black-bear",
-      name: "Black Bear",
-      biome: "forest",
-      kind: "mammal",
-      rarity: "rare",
-      featured: true,
-      diet: "Berries, nuts, grasses, and forbs; insects, fish, carrion, and fawns",
-      shelter: "Dens in hollow trees, root masses, rock crevices, or dug cavities; hibernates in winter",
-      preferredHabitat: "Dense forest with thick understory and abundant berry and nut mast",
-      fact: "Black bear cubs are born during hibernation weighing under half a pound\u2014the smallest newborns relative to adult size of any placental mammal.",
-      requirements: {
-        minHealth: 75,
-        minBalance: 50,
-        objects: {
-          "berry-bush": 3,
-          "small-pond": 1,
-          "log-shelter": 1
-        },
-        hint: "Bears return only to a richly restored forest: lots of berries, water, shelter, and space.",
-        conditions: {
-          season: [
-            "spring",
-            "summer",
-            "autumn"
-          ]
-        }
-      },
-      scientificName: "Ursus americanus",
-      role: "Black bears are generalist omnivores that disperse berry seeds, dig up and regulate colonial insects, and opportunistically take deer fawns and elk calves. As the most abundant large carnivore in North American forests, they link the mast, insect, and vertebrate food layers at once. Adults have essentially no natural predators.",
-      trophic: "omnivore",
-      eats: [
-        "chipmunk",
-        "elk-forest",
-        "freshwater-fish",
-        "garter-snake-forest",
-        "mule-deer-forest",
-        "porcupine",
-        "red-fox-forest",
-        "tree-squirrel"
-      ],
-      eatsOther: [
-        "acorns",
-        "berries",
-        "carrion",
-        "grasses",
-        "honey",
-        "insects",
-        "nuts"
-      ],
-      sources: [
-        {
-          name: "NPS \u2014 Black Bears",
-          url: "https://www.nps.gov/subjects/bears/black-bears.htm"
-        },
-        {
-          name: "Animal Diversity Web \u2014 Ursus americanus",
-          url: "https://animaldiversity.org/accounts/Ursus_americanus/"
-        }
-      ]
-    },
-    {
-      id: "red-fox-forest",
-      name: "Red Fox",
-      biome: "forest",
-      kind: "mammal",
-      rarity: "uncommon",
-      diet: "Rodents, rabbits, birds, and reptiles; insects, fruit, and carrion",
-      shelter: "Earthen dens dug into slopes or taken over from other animals, reused for generations",
-      preferredHabitat: "Forest edges and scrub-woodland mixes; avoids dense unbroken forest",
-      fact: "Red foxes have around 28 distinct calls, and each individual's voice is recognizable to other foxes.",
-      requirements: {
-        minHealth: 60,
-        objects: {
-          "hollow-log": 1,
-          shrub: 1,
-          "fern-grove": 1
-        },
-        animals: [
-          "chipmunk"
-        ],
-        hint: "Denning cover and small prey back in the woods."
-      },
-      scientificName: "Vulpes vulpes",
-      role: "The red fox is a versatile mesopredator that keeps small rodents, rabbits, and ground-nesting birds in check while dispersing seeds through the fruit it eats. It sits below apex predators like bears and bobcats and above the small mammals it hunts. Fox pairs often reuse and expand the same den site across generations.",
-      trophic: "mesopredator",
-      eats: [
-        "chipmunk",
-        "cottontail-rabbit",
-        "fisher",
-        "forest-salamander",
-        "garter-snake-forest",
-        "meadow-vole",
-        "northern-flying-squirrel",
-        "pileated-woodpecker",
-        "raccoon",
-        "spotted-towhee",
-        "tree-squirrel",
-        "wood-duck"
-      ],
-      eatenBy: [
-        "black-bear",
-        "bobcat",
-        "great-horned-owl"
-      ],
-      eatsOther: [
-        "berries",
-        "carrion",
-        "earthworms",
-        "fruit",
-        "insects"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Vulpes vulpes",
-          url: "https://animaldiversity.org/accounts/Vulpes_vulpes/"
-        },
-        {
-          name: "National Wildlife Federation \u2014 Raccoon (fox as predator)",
-          url: "https://www.nwf.org/Educational-Resources/Wildlife-Guide/Mammals/Raccoon"
-        }
-      ]
-    },
-    {
-      id: "mule-deer-forest",
-      name: "Mule Deer",
-      biome: "forest",
-      kind: "mammal",
-      rarity: "uncommon",
-      diet: "Browser: leaves, twigs, and forbs in summer; acorns and berries in winter",
-      shelter: "No fixed den; beds in dense shrubs and forest cover for warmth and safety",
-      preferredHabitat: "Forest edges and open woodland with shrubby browse and water",
-      fact: "A bounding mule deer releases an alarm scent from its hind legs that alerts every nearby deer at once.",
-      requirements: {
-        minHealth: 55,
-        objects: {
-          shrub: 2,
-          "small-pond": 1,
-          "fern-grove": 1
-        },
-        hint: "Shrubby browse and a quiet pond."
-      },
-      scientificName: "Odocoileus hemionus",
-      role: "Mule deer are key large browsers that shape the forest understory and the regeneration of shrubs and young conifers. They form a critical prey base for large carnivores, while their fawns feed bobcats, foxes, and bears. Seasonal migrations move nutrients across the landscape.",
-      trophic: "herbivore",
-      eatenBy: [
-        "black-bear",
-        "bobcat"
-      ],
-      eatsOther: [
-        "acorns",
-        "bark",
-        "berries",
-        "forbs",
-        "grasses",
-        "leaves",
-        "twigs"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Odocoileus hemionus",
-          url: "https://animaldiversity.org/accounts/Odocoileus_hemionus/"
-        },
-        {
-          name: "NPS \u2014 Mule Deer",
-          url: "https://www.nps.gov/articles/000/mule-deer.htm"
-        }
-      ]
-    },
-    {
-      id: "elk-forest",
-      name: "Elk",
-      biome: "forest",
-      kind: "mammal",
-      rarity: "rare",
-      diet: "Grasses, sedges, and forbs in summer; woody browse and bark in winter",
-      shelter: "No fixed shelter; calves hidden in dense vegetation; the herd shares vigilance",
-      preferredHabitat: "Grassy clearings and open woodland edges within larger forest",
-      fact: "In Yellowstone, elk make up about 85% of winter wolf kills and their carcasses feed at least a dozen scavenger species.",
-      requirements: {
-        minHealth: 70,
-        objects: {
-          "grass-patch": 2,
-          "small-pond": 1,
-          shrub: 1
-        },
-        hint: "Grassy clearings and water in a healthy forest.",
-        conditions: {
-          season: [
-            "autumn",
-            "winter"
-          ]
-        }
-      },
-      scientificName: "Cervus canadensis",
-      role: "Elk are a dominant large herbivore whose heavy grazing shapes grasslands, willows, and aspen; their decline lets vegetation rebound. As the primary prey of wolves, cougars, and bears, they anchor the large-predator food web, and their carcasses sustain a broad scavenger guild. Migrations redistribute nutrients across elevations.",
-      trophic: "herbivore",
-      eatenBy: [
-        "black-bear",
-        "bobcat"
-      ],
-      eatsOther: [
-        "acorns",
-        "bark",
-        "forbs",
-        "fungi",
-        "grasses",
-        "lichens",
-        "sedges"
-      ],
-      sources: [
-        {
-          name: "NPS Yellowstone \u2014 Elk",
-          url: "https://www.nps.gov/yell/learn/nature/elk.htm"
-        },
-        {
-          name: "Animal Diversity Web \u2014 Cervus elaphus",
-          url: "https://animaldiversity.org/accounts/Cervus_elaphus/"
-        }
-      ]
-    },
-    {
-      id: "raccoon",
-      name: "Raccoon",
-      biome: "forest",
-      kind: "mammal",
-      rarity: "common",
-      diet: "Opportunistic: crayfish, insects, frogs, fish, small mammals, eggs, and fruit",
-      shelter: "Hollow tree dens preferred; also rock crevices, burrows, and structures",
-      preferredHabitat: "Moist forest near water for foraging and dabbling",
-      fact: "A raccoon's sensitive forepaws carry about four times more touch receptors than its eyes have light receptors.",
-      requirements: {
-        minHealth: 45,
-        objects: {
-          "hollow-log": 1,
-          "small-pond": 1,
-          shrub: 1
-        },
-        hint: "A den log near water to dabble in."
-      },
-      scientificName: "Procyon lotor",
-      role: "Raccoons are adaptable omnivores that regulate crayfish, frogs, and invertebrates while dispersing fruit seeds and preying on bird nests. Their high density makes them a major mid-trophic connector between the aquatic and forest webs. Coyotes, large owls, and bobcats keep them in the mesopredator tier.",
-      trophic: "omnivore",
-      eats: [
-        "banana-slug",
-        "barred-owl",
-        "chipmunk",
-        "ensatina",
-        "forest-salamander",
-        "freshwater-fish",
-        "garter-snake-forest",
-        "little-brown-bat",
-        "northern-flying-squirrel",
-        "pacific-wren",
-        "pileated-woodpecker",
-        "rough-skinned-newt",
-        "spotted-towhee",
-        "wood-duck"
-      ],
-      eatenBy: [
-        "bobcat",
-        "fisher",
-        "great-horned-owl",
-        "red-fox-forest"
-      ],
-      eatsOther: [
-        "acorns",
-        "berries",
-        "bird eggs",
-        "carrion",
-        "crayfish",
-        "insects",
-        "nuts"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Procyon lotor",
-          url: "https://animaldiversity.org/accounts/Procyon_lotor/"
-        },
-        {
-          name: "National Wildlife Federation \u2014 Raccoon",
-          url: "https://www.nwf.org/Educational-Resources/Wildlife-Guide/Mammals/Raccoon"
-        }
-      ]
-    },
-    {
-      id: "porcupine",
-      name: "Porcupine",
-      biome: "forest",
-      kind: "mammal",
-      rarity: "uncommon",
-      diet: "Strict herbivore: inner bark in winter; buds, twigs, and leaves in summer",
-      shelter: "Rock dens, hollow logs, and tree canopies; reuses the same dens seasonally",
-      preferredHabitat: "Coniferous and mixed forest with trees offering edible bark",
-      fact: "The fisher is one of the only predators able to kill porcupines, flipping them to reach the quill-free belly.",
-      requirements: {
-        minHealth: 50,
-        objects: {
-          "nesting-tree": 1,
-          "fallen-branch-shelter": 1,
-          shrub: 1
-        },
-        hint: "Trees to climb and brushy shelter below."
-      },
-      scientificName: "Erethizon dorsatum",
-      role: "Porcupines are ecosystem engineers whose bark-stripping kills or deforms trees, creating snags for cavity nesters and diversifying forest structure. Their mast feeding competes with deer and squirrels. They are the main prey base for fishers and a supplemental meal for bobcats and bears.",
-      trophic: "herbivore",
-      eatenBy: [
-        "black-bear",
-        "bobcat",
-        "fisher",
-        "great-horned-owl"
-      ],
-      eatsOther: [
-        "acorns",
-        "buds",
-        "conifer needles",
-        "grasses",
-        "inner bark",
-        "leaves",
-        "twigs"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Erethizon dorsatum",
-          url: "https://animaldiversity.org/accounts/Erethizon_dorsatum/"
-        },
-        {
-          name: "NPS Acadia \u2014 Porcupines",
-          url: "https://www.nps.gov/articles/acadia-porcupines.htm"
-        }
-      ]
-    },
-    {
-      id: "bobcat",
-      name: "Bobcat",
-      biome: "forest",
-      kind: "mammal",
-      rarity: "rare",
-      diet: "Obligate carnivore: rabbits, rodents, and squirrels; some birds and reptiles",
-      shelter: "Dens in hollow logs, brush piles, thickets, and rock crevices",
-      preferredHabitat: "Forest with dense understory, brushland, and rocky terrain",
-      fact: "In the eastern U.S. bobcat numbers rise and fall closely with the local cottontail rabbit supply.",
-      requirements: {
-        minHealth: 75,
-        minBalance: 45,
-        objects: {
-          "rock-pile": 1,
-          shrub: 2,
-          "fern-grove": 1
-        },
-        animals: [
-          "tree-squirrel",
-          "chipmunk"
-        ],
-        hint: "Bobcats follow plentiful prey and need rocky, brushy cover.",
-        conditions: {
-          dayPhase: [
-            "dawn",
-            "dusk",
-            "night"
-          ]
-        }
-      },
-      scientificName: "Lynx rufus",
-      role: "Bobcats are keystone mesopredators that suppress rabbits, rodents, and squirrels, easing browsing pressure on forest plants. As mid-level hunters they sit below cougars and wolves and above the small mammals they take. They help structure entire small-mammal communities.",
-      trophic: "mesopredator",
-      eats: [
-        "chipmunk",
-        "cottontail-rabbit",
-        "elk-forest",
-        "fisher",
-        "meadow-vole",
-        "mule-deer-forest",
-        "northern-flying-squirrel",
-        "pileated-woodpecker",
-        "porcupine",
-        "raccoon",
-        "red-fox-forest",
-        "spotted-towhee",
-        "tree-squirrel"
-      ],
-      eatenBy: [
-        "fisher",
-        "great-horned-owl"
-      ],
-      eatsOther: [
-        "birds",
-        "mice",
-        "rabbits",
-        "reptiles",
-        "voles"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Lynx rufus",
-          url: "https://animaldiversity.org/accounts/Lynx_rufus/"
-        },
-        {
-          name: "IUCN Red List \u2014 Lynx rufus",
-          url: "https://www.iucnredlist.org/species/12521/50655874"
-        }
-      ]
-    },
-    {
-      id: "chipmunk",
-      name: "Chipmunk",
-      biome: "forest",
-      kind: "mammal",
-      rarity: "common",
-      diet: "Seeds, nuts, and fruit, plus insects, worms, slugs, fungi, and bird eggs",
-      shelter: "Underground burrows up to 10 m long with nest and food-storage chambers",
-      preferredHabitat: "Mature deciduous forest with logs, stumps, and rocky cover",
-      fact: "Chipmunks don't truly hibernate\u2014they wake through winter to eat from seed caches holding over a liter of food.",
-      requirements: {
-        minHealth: 12,
-        objects: {
-          "rock-pile": 1,
-          "fallen-branch-shelter": 1
-        },
-        hint: "Rocky cover and brush piles on the forest floor."
-      },
-      scientificName: "Tamias striatus",
-      role: "Chipmunks are important scatter-hoarders that disperse tree seeds and fungal spores, aiding forest regeneration. They eat many insects in summer and, as abundant prey, feed a wide guild of predators from weasels to owls. Their burrows aerate soil and shelter other small animals.",
-      trophic: "omnivore",
-      eatenBy: [
-        "barred-owl",
-        "black-bear",
-        "bobcat",
-        "fisher",
-        "great-horned-owl",
-        "raccoon",
-        "red-fox-forest"
-      ],
-      eatsOther: [
-        "acorns",
-        "berries",
-        "bird eggs",
-        "earthworms",
-        "fungi",
-        "insects",
-        "nuts",
-        "seeds"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Tamias striatus",
-          url: "https://animaldiversity.org/accounts/Tamias_striatus/"
-        }
-      ]
-    },
-    {
-      id: "nuthatch",
-      name: "Nuthatch",
-      biome: "forest",
-      kind: "bird",
-      rarity: "common",
-      diet: "Insects and spiders in summer; seeds, acorns, and cached nuts through winter",
-      shelter: "Tree cavities and old woodpecker holes in mature hardwoods; also nest boxes",
-      preferredHabitat: "Mature deciduous and mixed forest with large oaks and hickories",
-      fact: "Nuthatches sweep smelly insects around their nest hole, apparently to mask their scent from squirrels.",
-      requirements: {
-        minHealth: 40,
-        objects: {
-          "nesting-tree": 1,
-          "standing-deadwood": 1,
-          shrub: 1
-        },
-        hint: "Live trees to forage and deadwood to nest in."
-      },
-      scientificName: "Sitta carolinensis",
-      role: "Nuthatches prey on bark-dwelling insects, including tent caterpillars and wood borers, helping check forest pests. By wedging and caching acorns and seeds in bark they aid short-distance seed dispersal. They bridge the insect and seed layers and serve as prey for hawks and owls.",
-      trophic: "omnivore",
-      eatenBy: [
-        "barred-owl",
-        "great-horned-owl",
-        "pileated-woodpecker",
-        "tree-squirrel"
-      ],
-      eatsOther: [
-        "acorns",
-        "insect eggs",
-        "insects",
-        "nuts",
-        "seeds",
-        "spiders"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds \u2014 White-breasted Nuthatch",
-          url: "https://www.allaboutbirds.org/guide/White-breasted_Nuthatch/"
-        },
-        {
-          name: "Animal Diversity Web \u2014 Sitta carolinensis",
-          url: "https://animaldiversity.org/accounts/Sitta_carolinensis/"
-        }
-      ]
-    },
-    {
-      id: "garter-snake-forest",
-      name: "Garter Snake",
-      biome: "forest",
-      kind: "reptile",
-      rarity: "uncommon",
-      diet: "Earthworms, amphibians, and slugs; also leeches, fish, and small rodents",
-      shelter: "Communal winter dens in burrows and rock piles; hides under logs and rocks",
-      preferredHabitat: "Moist forest edges and riparian zones near ponds and streams",
-      fact: "Garter snakes are the main predator of the toxic rough-skinned newt, and some have evolved resistance to its poison.",
-      requirements: {
-        minHealth: 45,
-        objects: {
-          "rock-pile": 1,
-          "grass-patch": 1,
-          shrub: 1
-        },
-        hint: "A sunny rock pile beside grassy hunting ground."
-      },
-      scientificName: "Thamnophis sirtalis",
-      role: "Garter snakes are generalist mid-web predators that suppress earthworms, slugs, amphibians, and small fish. In the Pacific Northwest they are the key check on rough-skinned newts, and their toxin resistance makes them a famous coevolutionary node. They are important prey for raptors, corvids, and larger predators.",
-      trophic: "mesopredator",
-      eats: [
-        "banana-slug",
-        "ensatina",
-        "forest-salamander",
-        "little-brown-bat",
-        "pacific-wren",
-        "rough-skinned-newt",
-        "spotted-towhee",
-        "wood-duck",
-        "woodpecker"
-      ],
-      eatenBy: [
-        "barred-owl",
-        "black-bear",
-        "fisher",
-        "great-horned-owl",
-        "raccoon",
-        "red-fox-forest"
-      ],
-      eatsOther: [
-        "earthworms",
-        "insects",
-        "leeches",
-        "slugs",
-        "small fish"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Thamnophis sirtalis",
-          url: "https://animaldiversity.org/accounts/Thamnophis_sirtalis/"
-        },
-        {
-          name: "Animal Diversity Web \u2014 Taricha granulosa",
-          url: "https://animaldiversity.org/accounts/Taricha_granulosa/"
-        }
-      ]
-    },
-    {
       id: "banana-slug",
       name: "Banana Slug",
-      biome: "forest",
-      kind: "invertebrate",
-      rarity: "common",
-      diet: "Dead leaves, fungi, decaying matter, and animal scat; occasional live seedlings",
-      shelter: "Under logs and bark; seals into a mucus cocoon during dry spells",
-      preferredHabitat: "Cool, shaded, persistently moist Pacific forest floor",
-      fact: "Banana slugs pass viable seeds and fungal spores through their gut, seeding plants and mycorrhizal networks as they crawl.",
-      requirements: {
-        minHealth: 35,
-        objects: {
-          "mushroom-log": 1,
-          "shallow-water-pool": 1,
-          shrub: 1
-        },
-        hint: "Keep the forest floor damp, mossy, and full of logs."
-      },
       scientificName: "Ariolimax columbianus",
-      role: "Banana slugs are primary decomposers that break down leaf litter and scat, returning nutrients to the soil. They disperse seeds and mycorrhizal spores, partnering with both plants and the fungal networks that feed forest trees. Their numbing mucus deters most predators, leaving garter snakes and shrews as the main consumers.",
-      trophic: "decomposer",
-      eatenBy: [
-        "ensatina",
-        "garter-snake-forest",
-        "raccoon"
-      ],
+      kind: "invertebrate",
+      trophic: "detritivore",
+      rarity: "common",
+      diet: "Fallen leaves, mushrooms, animal droppings and other decaying matter; occasionally live seedlings",
+      shelter: "Under logs and loose bark; seals itself into a mucus cocoon and waits out dry spells",
+      preferredHabitat: "Cool, shaded forest floor that stays damp \u2014 deep leaf litter, mossy logs and seeps",
+      fact: "Banana slug slime is a numbing agent \u2014 one lick and most animals spit the slug straight back out, tongue tingling.",
+      role: "The banana slug is the forest floor's shredder. Fungi and bacteria do the fine chemistry; the slug does the chewing, grinding fallen leaves into wet crumbs that rot far faster and turning a whole autumn of leaves into soft duff. It grazes mushrooms too, and spores ride safely through its gut, so every silver trail plants fungi somewhere new. Gartersnakes and raccoons are two of the very few animals willing to put up with the slime.",
+      eats: [],
       eatsOther: [
-        "algae",
-        "animal scat",
-        "carrion",
         "dead leaves",
-        "fungi",
+        "animal scat",
         "lichen",
         "seedlings"
       ],
+      eatenBy: [
+        "raccoon",
+        "wood-frog"
+      ],
+      requirements: {
+        minHealth: 35,
+        objects: {
+          "mushroom-ring": 1,
+          "leaf-litter-pile": 2,
+          "fern-spring": 1
+        },
+        signature: "mushroom-ring",
+        hint: "Deep damp leaves, mossy shade and mushrooms to graze. Skip the pond \u2014 a slug drinks through its skin straight out of the litter."
+      },
       sources: [
         {
           name: "Animal Diversity Web \u2014 Ariolimax columbianus",
@@ -8100,640 +12967,2091 @@ var animals_1_default = {
           name: "NPS Muir Woods \u2014 Banana Slug",
           url: "https://www.nps.gov/muwo/learn/nature/banana-slug.htm"
         }
-      ]
+      ],
+      biome: "forest"
     },
     {
-      id: "beaver",
-      name: "Beaver",
-      biome: "wetland",
+      id: "tree-squirrel",
+      name: "Tree Squirrel",
+      scientificName: "Sciurus carolinensis",
       kind: "mammal",
-      rarity: "rare",
-      featured: true,
-      diet: "Bark and cambium of willow and aspen, plus aquatic plants",
-      shelter: "Stick-and-mud lodges with underwater entrances",
-      preferredHabitat: "Slow channels with mud banks and woody plants to fell",
-      fact: "Beaver dams create wetlands that store water and support hundreds of other species.",
-      requirements: {
-        minHealth: 70,
-        objects: {
-          "shallow-water-pool": 2,
-          "mud-bank": 1,
-          "reed-bed": 1
-        },
-        hint: "Restored water channels, mud banks, and woody plants."
-      },
-      scientificName: "Castor canadensis",
-      role: "The wetland's ecosystem engineer. By felling trees and building dams, beavers flood new ponds, raise the water table, and create habitat that most other marsh species depend on.",
       trophic: "herbivore",
-      eatenBy: [
-        "river-otter"
-      ],
-      eatsOther: [
-        "aquatic plants",
-        "bark",
-        "twigs"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web - Castor canadensis",
-          url: "https://animaldiversity.org/accounts/Castor_canadensis/"
-        }
-      ]
-    },
-    {
-      id: "river-otter",
-      name: "River Otter",
-      biome: "wetland",
-      kind: "mammal",
-      rarity: "rare",
-      featured: true,
-      diet: "Fish, crayfish, frogs, and other aquatic animals",
-      shelter: "Bank dens with underwater entrances",
-      preferredHabitat: "Clean water rich with fish and slow prey",
-      fact: "River otters can hold their breath underwater for up to eight minutes while hunting.",
-      requirements: {
-        minHealth: 75,
-        objects: {
-          "shallow-water-pool": 2,
-          "mud-bank": 1,
-          "reed-bed": 1
-        },
-        animals: [
-          "freshwater-fish"
-        ],
-        hint: "Otters follow the fish. Restore clean water and den banks first."
-      },
-      scientificName: "Lontra canadensis",
-      role: "An agile aquatic mesopredator that patrols channels for fish and crayfish. Otters keep fish and amphibian numbers in check and are a sign of clean, well-connected water.",
-      trophic: "mesopredator",
-      eats: [
-        "beaver",
-        "chorus-frog",
-        "freshwater-fish",
-        "muskrat",
-        "northern-leopard-frog",
-        "painted-turtle",
-        "spotted-turtle"
-      ],
-      eatsOther: [
-        "crayfish",
-        "fish"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web - Lontra canadensis",
-          url: "https://animaldiversity.org/accounts/Lontra_canadensis/"
-        }
-      ]
-    },
-    {
-      id: "muskrat",
-      name: "Muskrat",
-      biome: "wetland",
-      kind: "mammal",
       rarity: "common",
-      diet: "Mainly cattails, reeds, and roots; sometimes clams and small fish",
-      shelter: "Dome lodges woven from reeds, and bank burrows",
-      preferredHabitat: "Reedy shallows with abundant cattails",
-      fact: "Muskrats can stay underwater for up to 15 minutes on a single breath.",
+      diet: "Acorns, hickory nuts, tree buds, samaras and fungi; occasional insects and bird eggs",
+      shelter: "Tree cavity dens in winter and leaf-and-twig dreys built high in the canopy in summer",
+      preferredHabitat: "Mature deciduous or mixed forest rich in oaks and hickories",
+      fact: "A squirrel buries thousands of nuts a year and forgets a good share of them. The forgotten ones grow into trees, so most squirrels accidentally plant a forest in a lifetime.",
+      role: "The gray squirrel is a seed eater who keeps failing at his own plan, and the woods are better for it: acorns buried and never dug up again are how oaks climb hills and fill gaps. Its droppings scatter fungal spores, its leafy summer dreys get taken over by great horned owls, and being the commonest mid-sized animal in the forest it is on the menu of nearly every predator here.",
+      eats: [],
+      eatsOther: [
+        "hickory nuts",
+        "tree buds",
+        "maple samaras",
+        "mushrooms",
+        "bird eggs",
+        "nestlings"
+      ],
+      eatenBy: [
+        "red-fox-forest",
+        "fisher",
+        "bobcat",
+        "great-horned-owl",
+        "black-bear",
+        {
+          id: "garter-snake-forest",
+          stage: "young"
+        },
+        "goshawk"
+      ],
+      requirements: {
+        minHealth: 15,
+        objects: {
+          "leaf-drey": 1,
+          "oak-tree": 2,
+          "nesting-tree": 1
+        },
+        signature: "leaf-drey",
+        hint: "Oaks to feed and bury from, a high fork for a summer drey, and a big tree to den in over winter."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Sciurus carolinensis",
+          url: "https://animaldiversity.org/accounts/Sciurus_carolinensis/"
+        },
+        {
+          name: "NC Wildlife Resources Commission \u2014 Eastern Gray Squirrel",
+          url: "https://www.ncwildlife.gov/species/eastern-gray-squirrel"
+        }
+      ],
+      biome: "forest"
+    },
+    {
+      id: "chipmunk",
+      name: "Chipmunk",
+      scientificName: "Tamias striatus",
+      kind: "mammal",
+      trophic: "herbivore",
+      rarity: "common",
+      diet: "Seeds, acorns, hickory nuts, berries and underground fungi, plus some insects and bird eggs",
+      shelter: "Underground burrows up to 10 m long with a nest chamber and a seed-storage larder",
+      preferredHabitat: "Mature deciduous forest with logs, stumps and diggable soil",
+      fact: "A chipmunk can cram so many acorns into its cheek pouches that its head looks twice as wide, then unload them into an underground pantry holding more than a litre of seeds. It wakes up all winter to snack \u2014 chipmunks never truly hibernate.",
+      role: "The chipmunk is a hoarder and a digger. Every seed it carries off and never eats is a seed planted somewhere new, and spores from the fungi it digs up travel with it. Its tunnels loosen and air the soil. Small, common and awake in daylight, it is the prey base almost every predator here is waiting on \u2014 which is why so many of them cannot come back until it does.",
+      eats: [],
+      eatsOther: [
+        "hickory nuts",
+        "seeds",
+        "berries",
+        "insects",
+        "bird eggs"
+      ],
+      eatenBy: [
+        "red-fox-forest",
+        "fisher",
+        "bobcat",
+        "great-horned-owl",
+        "black-bear",
+        "garter-snake-forest",
+        "goshawk"
+      ],
+      requirements: {
+        minHealth: 12,
+        objects: {
+          "larder-burrow": 1,
+          "oak-tree": 1,
+          "brush-pile": 1
+        },
+        signature: "larder-burrow",
+        hint: "Diggable soil for a burrow and its pantry, oaks overhead, and a brush pile to bolt into."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Tamias striatus",
+          url: "https://animaldiversity.org/accounts/Tamias_striatus/"
+        },
+        {
+          name: "Mass Audubon \u2014 Eastern Chipmunk",
+          url: "https://www.massaudubon.org/nature-wildlife/mammals/eastern-chipmunk"
+        }
+      ],
+      biome: "forest"
+    },
+    {
+      id: "porcupine",
+      name: "Porcupine",
+      scientificName: "Erethizon dorsatum",
+      kind: "mammal",
+      trophic: "herbivore",
+      rarity: "uncommon",
+      diet: "Almost entirely herbivorous \u2014 inner bark in winter, buds, twigs and leaves in summer \u2014 but gnaws shed antlers and bones for minerals",
+      shelter: "Rock dens and hollow logs, reused season after season; also rests high in tree canopies",
+      preferredHabitat: "Mixed and coniferous forest with thick-barked trees, especially hemlock, and rock or log dens below",
+      fact: "A porcupine cannot throw its quills \u2014 they simply stick to whatever bumps them. The barbed tips are coated in a natural antibiotic, so a porcupine that falls out of a tree and lands on itself usually heals up fine.",
+      role: "Porcupines improve the forest by damaging it. Stripping bark kills limbs and whole trees, and those dying trees become the snags, loose bark slabs and cavities that woodpeckers, bats and denning mammals move into \u2014 one animal's dinner is another animal's house. They eat the same nuts as squirrels and elk, and they are the entire reason a fisher would bother living here.",
+      eats: [],
+      eatsOther: [
+        "inner bark",
+        "buds",
+        "twigs",
+        "shed antlers and bones"
+      ],
+      eatenBy: [
+        "fisher",
+        "bobcat",
+        "great-horned-owl",
+        "black-bear"
+      ],
+      requirements: {
+        minHealth: 50,
+        objects: {
+          "hemlock-stand": 1,
+          "hollow-log": 1,
+          "log-shelter": 1,
+          "pine-tree": 1
+        },
+        signature: "hemlock-stand",
+        hint: "Hemlock and pine bark to live on through winter, and a hollow log or rock den to sleep the day away in."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Erethizon dorsatum",
+          url: "https://animaldiversity.org/accounts/Erethizon_dorsatum/"
+        },
+        {
+          name: "Pennsylvania Game Commission \u2014 Porcupine",
+          url: "https://www.pa.gov/agencies/pgc/wildlife/discover-pa-wildlife/porcupine"
+        }
+      ],
+      biome: "forest"
+    },
+    {
+      id: "woodpecker",
+      name: "Woodpecker",
+      scientificName: "Dryobates pubescens",
+      kind: "bird",
+      trophic: "insectivore",
+      rarity: "common",
+      diet: "Mostly insects \u2014 beetle larvae, ants, caterpillars \u2014 with some berries and sap",
+      shelter: "Excavates its own cavity in a small dead stub, usually in wood already softened by fungus; roosts in cavities year-round",
+      preferredHabitat: "Open deciduous and mixed woodland with small dead stubs and dead limbs on living trees",
+      fact: "A downy woodpecker weighs about as much as four sheets of paper \u2014 light enough to hang off a dead weed stem and drill into it, which no bigger woodpecker can manage.",
+      role: "The downy cuts the small holes. It can only chisel wood that fungi have already softened, so it waits on the decomposers \u2014 and the nuthatches and chickadees, which cannot cut a hole at all, wait on it. It works bark crevices and dead twigs for beetle grubs and ants that heavier woodpeckers can't reach, and its eggs feed climbing snakes.",
+      eats: [
+        {
+          id: "polyphemus-moth",
+          stage: "young"
+        }
+      ],
+      eatsOther: [
+        "beetle larvae",
+        "carpenter ants",
+        "spiders",
+        "sap"
+      ],
+      eatenBy: [
+        {
+          id: "garter-snake-forest",
+          stage: "eggs"
+        }
+      ],
+      requirements: {
+        minHealth: 16,
+        objects: {
+          "soft-rot-snag": 1,
+          "standing-deadwood": 2,
+          "nesting-tree": 1
+        },
+        signature: "soft-rot-snag",
+        hint: "Small dead stubs with the wood already gone soft. A downy can't chisel healthy timber, so leave the rotting stuff standing."
+      },
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Downy Woodpecker life history",
+          url: "https://www.allaboutbirds.org/guide/Downy_Woodpecker/lifehistory"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Downy Woodpecker",
+          url: "https://animaldiversity.org/accounts/Picoides_pubescens/"
+        }
+      ],
+      biome: "forest"
+    },
+    {
+      id: "nuthatch",
+      name: "Nuthatch",
+      scientificName: "Sitta carolinensis",
+      kind: "bird",
+      trophic: "omnivore",
+      rarity: "common",
+      diet: "Insects and spiders from bark in summer; acorns, hickory nuts and cached seeds through winter",
+      shelter: "Natural cavities and old woodpecker holes in mature hardwoods; cannot excavate its own",
+      preferredHabitat: "Mature deciduous and mixed forest with large oaks and hickories",
+      fact: "A nuthatch walks down tree trunks head-first, which lets it spot insects tucked in bark that every upward-climbing bird walks straight past.",
+      role: "The nuthatch reads the bark upside down, taking beetles, insect eggs and spiders from angles other birds never see. In autumn it wedges acorns and seeds into bark cracks to hammer open later, shifting seed around the woods. It cannot cut a hole of its own, so it moves into last year's downy woodpecker hole \u2014 no woodpecker, no nuthatch.",
+      eats: [
+        {
+          id: "polyphemus-moth",
+          stage: "young"
+        }
+      ],
+      eatsOther: [
+        "bark beetles",
+        "insect eggs",
+        "spiders",
+        "hickory nuts"
+      ],
+      eatenBy: [
+        {
+          id: "garter-snake-forest",
+          stage: "eggs"
+        }
+      ],
       requirements: {
         minHealth: 40,
         objects: {
-          "reed-bed": 1,
-          "shallow-water-pool": 1,
-          "sedge-tussock": 1
+          "downy-cavity": 1,
+          "oak-tree": 2,
+          "standing-deadwood": 1
         },
-        hint: "Reeds to eat and build with, water to swim."
+        signature: "downy-cavity",
+        animals: [
+          "woodpecker"
+        ],
+        hint: "An old woodpecker hole it can move straight into, with big oaks to work over and stash seeds in."
       },
-      scientificName: "Ondatra zibethicus",
-      role: "A mostly plant-eating rodent that clips reeds and cattails, opening water lanes used by ducks and other marsh life. It is important prey for mink and otters.",
-      trophic: "herbivore",
-      eats: [
-        "spotted-turtle"
-      ],
-      eatenBy: [
-        "mink",
-        "river-otter"
-      ],
-      eatsOther: [
-        "aquatic plants",
-        "cattail roots"
-      ],
       sources: [
         {
-          name: "Animal Diversity Web - Ondatra zibethicus",
-          url: "https://animaldiversity.org/accounts/Ondatra_zibethicus/"
+          name: "Cornell Lab All About Birds \u2014 White-breasted Nuthatch",
+          url: "https://www.allaboutbirds.org/guide/White-breasted_Nuthatch/lifehistory"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Sitta carolinensis",
+          url: "https://animaldiversity.org/accounts/Sitta_carolinensis/"
         }
-      ]
+      ],
+      biome: "forest"
     },
     {
-      id: "mink",
-      name: "Mink",
-      biome: "wetland",
-      kind: "mammal",
-      rarity: "rare",
-      diet: "Fish, frogs, crayfish, and small mammals like muskrats",
-      shelter: "Bank burrows, often taken over from muskrats",
-      preferredHabitat: "Brushy banks beside busy water",
-      fact: "Mink can swim up to 30 metres underwater when chasing prey.",
+      id: "forest-salamander",
+      name: "Forest Salamander",
+      scientificName: "Plethodon cinereus",
+      kind: "amphibian",
+      trophic: "insectivore",
+      rarity: "uncommon",
+      diet: "Small invertebrates: mites, springtails, spiders, beetles, ants and earthworms",
+      shelter: "Under logs, bark and damp leaf litter; lays its eggs in a cavity inside rotting wood and stays coiled around them",
+      preferredHabitat: "Cool, damp deciduous forest floor with abundant rotting wood \u2014 and no pond required anywhere in its life",
+      fact: "Add up all the red-backed salamanders in a patch of forest and they can outweigh every bird in it. They have no lungs at all \u2014 the whole animal breathes through its skin.",
+      role: "This salamander is the bridge between the leaf litter and everything above it: it eats the mites, springtails and small worms that shred fallen leaves, and its own huge numbers feed snakes, birds and small mammals. It also breaks the rule everyone learns about amphibians \u2014 no pond, no tadpole, the entire life cycle inside one rotting log. Skin-breathing means it dries out fast, so the ground has to stay damp.",
+      eats: [],
+      eatsOther: [
+        "springtails",
+        "mites",
+        "ants",
+        "beetles",
+        "earthworms",
+        "snails"
+      ],
+      eatenBy: [
+        "raccoon",
+        "red-fox-forest"
+      ],
       requirements: {
-        minHealth: 65,
+        minHealth: 40,
         objects: {
-          "mud-bank": 1,
-          "reed-bed": 1,
-          "sedge-tussock": 1
+          "rotting-heartwood-log": 1,
+          "leaf-litter-pile": 2,
+          "fern-spring": 1
         },
-        animals: [
-          "chorus-frog"
-        ],
-        hint: "Bank shelter and plenty of small wetland prey."
+        signature: "rotting-heartwood-log",
+        hint: "This one skips the tadpole stage completely \u2014 the eggs hatch into tiny salamanders right inside a rotting log. No pond needed, just damp wood and deep leaves."
       },
-      scientificName: "Neogale vison",
-      role: "A fierce semi-aquatic hunter that takes fish, frogs, and even muskrats. Mink are versatile mesopredators that help regulate small wetland prey.",
-      trophic: "mesopredator",
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Plethodon cinereus",
+          url: "https://animaldiversity.org/accounts/Plethodon_cinereus/"
+        },
+        {
+          name: "Virginia Herpetological Society \u2014 Eastern Red-backed Salamander",
+          url: "https://www.virginiaherpetologicalsociety.com/amphibians/salamanders/eastern-red-backed-salamander/eastern_red-backed_salamander.php"
+        }
+      ],
+      biome: "forest"
+    },
+    {
+      id: "raccoon",
+      name: "Raccoon",
+      scientificName: "Procyon lotor",
+      kind: "mammal",
+      trophic: "omnivore",
+      rarity: "common",
+      diet: "Opportunistic: crayfish, insects, earthworms, frogs, eggs and fruit, with vertebrate prey a smaller share than most people assume",
+      shelter: "Hollow tree dens preferred; also rock crevices, burrows and buildings",
+      preferredHabitat: "Moist forest beside water shallow enough to wade and feel around in",
+      fact: "A raccoon sees with its hands. Its front paws carry four to five times more touch nerves than most mammals', and it will stare off in the opposite direction while its fingers read a stream bed.",
+      role: "The raccoon carries the stream into the woods: it feels out crayfish and insects in the shallows and unloads that energy up the bank, dropping fruit seeds as it goes. It is also this forest's great nest robber \u2014 the same crowd of cavities that lets wood ducks and flying squirrels move in hands a raccoon a list of doors to try.",
       eats: [
-        "chorus-frog",
-        "freshwater-fish",
-        "hooded-merganser",
-        "mallard-duck",
-        "muskrat",
-        "northern-leopard-frog",
-        "painted-turtle",
-        "red-winged-blackbird"
+        "banana-slug",
+        "forest-salamander",
+        {
+          id: "polyphemus-moth",
+          stage: "young"
+        },
+        {
+          id: "wood-duck",
+          stage: "eggs"
+        },
+        {
+          id: "pileated-woodpecker",
+          stage: "eggs"
+        },
+        {
+          id: "northern-flying-squirrel",
+          stage: "young"
+        },
+        "wood-frog"
       ],
       eatsOther: [
         "crayfish",
-        "fish"
+        "earthworms",
+        "berries",
+        "fruit",
+        "carrion"
       ],
-      sources: [
-        {
-          name: "Animal Diversity Web - American mink",
-          url: "https://animaldiversity.org/accounts/Neovison_vison/"
-        },
-        {
-          name: "NatureServe Explorer - Neogale vison",
-          url: "https://explorer.natureserve.org/Taxon/ELEMENT_GLOBAL.2.791856/Neogale_vison"
-        }
-      ]
-    },
-    {
-      id: "great-blue-heron",
-      name: "Great Blue Heron",
-      biome: "wetland",
-      kind: "bird",
-      rarity: "uncommon",
-      featured: true,
-      diet: "Fish, frogs, and small aquatic animals; also voles and other birds",
-      shelter: "Colonial stick nests high in trees near water",
-      preferredHabitat: "Still shallows for slow, patient hunting",
-      fact: "A great blue heron can strike like lightning to spear a fish or snap up a vole.",
-      requirements: {
-        minHealth: 60,
-        objects: {
-          "shallow-water-pool": 2,
-          "reed-bed": 1,
-          "nesting-platform": 1
-        },
-        animals: [
-          "freshwater-fish"
-        ],
-        hint: "Shallow water with fish, reeds, and quiet nesting space."
-      },
-      scientificName: "Ardea herodias",
-      role: "The tall, patient sentinel of the shallows and a top predator of the wetland's fish community. It stalks slowly, then strikes faster than the eye can follow.",
-      trophic: "apex-predator",
-      eats: [
-        "chorus-frog",
-        "dragonfly",
-        "freshwater-fish",
-        "northern-leopard-frog"
-      ],
-      eatsOther: [
-        "fish"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds - Great Blue Heron",
-          url: "https://www.allaboutbirds.org/guide/Great_Blue_Heron/lifehistory"
-        }
-      ]
-    },
-    {
-      id: "mallard-duck",
-      name: "Mallard Duck",
-      biome: "wetland",
-      kind: "bird",
-      rarity: "common",
-      diet: "Seeds and aquatic plants, plus insect larvae, snails, and worms",
-      shelter: "Ground nests hidden in reedy water edges",
-      preferredHabitat: "Calm pools with reed cover",
-      fact: "Mallards can sleep with one eye open, resting half their brain at a time.",
-      requirements: {
-        minHealth: 25,
-        objects: {
-          "shallow-water-pool": 1,
-          "reed-bed": 1
-        },
-        hint: "Calm shallow water with reed cover."
-      },
-      scientificName: "Anas platyrhynchos",
-      role: "A dabbling omnivore that tips forward to feed on seeds, plants, and small invertebrates. Its ducklings and eggs feed many marsh predators.",
-      trophic: "omnivore",
       eatenBy: [
-        "mink",
-        "snapping-turtle"
-      ],
-      eatsOther: [
-        "aquatic plants",
-        "insect larvae",
-        "seeds"
-      ],
-      sources: [
+        "bobcat",
+        "fisher",
         {
-          name: "Cornell Lab All About Birds - Mallard",
-          url: "https://www.allaboutbirds.org/guide/Mallard/lifehistory"
+          id: "great-horned-owl",
+          stage: "young"
         }
-      ]
-    },
-    {
-      id: "red-winged-blackbird",
-      name: "Red-winged Blackbird",
-      biome: "wetland",
-      kind: "bird",
-      rarity: "common",
-      diet: "Insects in summer, seeds and grain the rest of the year",
-      shelter: "Cup nests woven into standing reeds",
-      preferredHabitat: "Dense reed beds and cattail marsh",
-      fact: "Male red-winged blackbirds can hide or flash their scarlet shoulder patches at will.",
+      ],
       requirements: {
-        minHealth: 25,
+        minHealth: 45,
         objects: {
-          "reed-bed": 2
+          "crayfish-shallows": 1,
+          "hollow-log": 1,
+          "woodland-pool": 1,
+          "berry-bush": 1
         },
-        hint: "The thicker the reeds, the better."
+        signature: "crayfish-shallows",
+        water: {
+          tiles: 3
+        },
+        hint: "A hollow den log and a stony shallow edge to feel around in \u2014 a raccoon hunts with its hands, not its eyes."
       },
-      scientificName: "Agelaius phoeniceus",
-      role: "An abundant, noisy marsh songbird that eats insects and seeds. Males fiercely defend reed-bed territories that may hold a dozen nests.",
-      trophic: "omnivore",
-      eatenBy: [
-        "mink"
-      ],
-      eatsOther: [
-        "insects",
-        "seeds"
-      ],
       sources: [
         {
-          name: "Cornell Lab All About Birds - Red-winged Blackbird",
-          url: "https://www.allaboutbirds.org/guide/Red-winged_Blackbird/lifehistory"
+          name: "Animal Diversity Web \u2014 Procyon lotor",
+          url: "https://animaldiversity.org/accounts/Procyon_lotor/"
+        },
+        {
+          name: "NWF Wildlife Guide \u2014 Raccoon",
+          url: "https://www.nwf.org/Educational-Resources/Wildlife-Guide/Mammals/Raccoon"
         }
-      ]
+      ],
+      biome: "forest"
     },
     {
-      id: "sandhill-crane",
-      name: "Sandhill Crane",
-      biome: "wetland",
-      kind: "bird",
+      id: "black-bear",
+      name: "Black Bear",
+      scientificName: "Ursus americanus",
+      kind: "mammal",
+      trophic: "omnivore",
       rarity: "rare",
-      diet: "Grains, tubers, insects, and small animals",
-      shelter: "Large ground mounds of marsh plants near standing water",
-      preferredHabitat: "Broad, quiet, restored marshland",
-      fact: "Sandhill cranes mate for life and choose partners through leaping, bowing dances.",
+      diet: "Berries, acorns and nuts above all; also grasses and forbs, insects and grubs, carrion, and fawns in spring",
+      shelter: "Winter dens under upturned root masses, in hollow trees and rock cavities, or dug into a bank",
+      preferredHabitat: "Dense forest with a thick understory and reliable berry and acorn crops",
+      fact: "Black bear cubs are born in the middle of hibernation, blind and smaller than a soup can, and their mother barely wakes up for it.",
+      role: "A black bear ties the whole forest together in one animal: berries, acorns, grubs torn out of rotting logs, an elk calf in spring. It carries berry seeds for miles before dropping them, and every log it rips apart rots faster afterwards. A bear's year is really an acorn year \u2014 when the mast crop fails bears wander enormous distances, and a forest with no oaks cannot keep them. Nothing here hunts a grown bear.",
+      eats: [
+        "chipmunk",
+        "tree-squirrel",
+        "porcupine",
+        {
+          id: "elk-forest",
+          stage: "young"
+        }
+      ],
+      eatsOther: [
+        "berries",
+        "insects",
+        "grubs",
+        "carrion",
+        "honey"
+      ],
+      eatenBy: [],
       requirements: {
         minHealth: 75,
-        minBalance: 45,
+        minBalance: 50,
         objects: {
-          "shallow-water-pool": 2,
-          "reed-bed": 2,
-          "sedge-tussock": 1
+          "root-mass-den": 1,
+          "oak-tree": 2,
+          "berry-bush": 2,
+          "small-pond": 1
         },
-        hint: "Cranes need a wide, quiet, well-balanced marsh.",
+        signature: "root-mass-den",
+        water: {
+          tiles: 2
+        },
+        hint: "Bears need a full larder and a winter bed: heavy berry crops, acorn-bearing oaks, water, and a den under the tipped-up roots of a fallen tree.",
         conditions: {
           season: [
             "spring",
+            "summer",
             "autumn"
           ]
         }
       },
-      scientificName: "Antigone canadensis",
-      role: "A stately omnivore of open marsh that probes for tubers and grain and snaps up insects and small animals. Its presence signals a wide, healthy wetland.",
-      trophic: "omnivore",
+      sources: [
+        {
+          name: "NPS \u2014 Black Bears",
+          url: "https://www.nps.gov/subjects/bears/black-bears.htm"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Ursus americanus",
+          url: "https://animaldiversity.org/accounts/Ursus_americanus/"
+        }
+      ],
+      biome: "forest"
+    },
+    {
+      id: "red-fox-forest",
+      name: "Gray Fox",
+      scientificName: "Urocyon cinereoargenteus",
+      kind: "mammal",
+      trophic: "mesopredator",
+      rarity: "uncommon",
+      diet: "Mice, voles, rabbits, squirrels, birds and eggs \u2014 and in late summer an astonishing amount of fruit",
+      shelter: "Hollow logs, rock crevices and old earth dens; it will also curl up on a branch well off the ground",
+      preferredHabitat: "Brushy woodland edges and old clearings growing back, with tangled climbable cover",
+      fact: "It is the only dog in the world that climbs trees. A gray fox hooks its curved claws into the bark, shins up the trunk like a cat, and naps ten metres up where nothing that hunts it can follow.",
+      role: "The forest's climbing fox. It works the brushy edges for mice, rabbits and ground-nesting birds, then goes straight up a trunk after squirrels, nests and grapes. By late summer it is eating so much fruit that its droppings are half seeds, which plants the next generation of berry tangles all along the edge. Bobcats kill it when they catch it in the open and great horned owls take its kits, so it keeps a climbable tree within a sprint at all times.",
       eats: [
-        "chorus-frog"
+        "chipmunk",
+        "tree-squirrel",
+        "northern-flying-squirrel",
+        "forest-salamander",
+        "garter-snake-forest",
+        {
+          id: "wood-duck",
+          stage: "eggs"
+        },
+        "spotted-towhee"
+      ],
+      eatsOther: [
+        "mice",
+        "voles",
+        "grapes",
+        "berries",
+        "beetles",
+        "carrion"
+      ],
+      eatenBy: [
+        "bobcat",
+        {
+          id: "great-horned-owl",
+          stage: "young"
+        }
+      ],
+      requirements: {
+        minHealth: 60,
+        objects: {
+          "wild-grape-tangle": 1,
+          "earth-den-bank": 1,
+          "brush-pile": 1
+        },
+        signature: "wild-grape-tangle",
+        animals: [
+          "chipmunk",
+          "tree-squirrel"
+        ],
+        water: {
+          tiles: 1
+        },
+        hint: "A brushy edge to hunt along, a dry bank to den in, and something woody to climb \u2014 a fox that can get up a tree is a fox that stays alive. Fruit matters as much as mice here."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Urocyon cinereoargenteus",
+          url: "https://animaldiversity.org/accounts/Urocyon_cinereoargenteus/"
+        },
+        {
+          name: "NPS \u2014 Gray Fox",
+          url: "https://www.nps.gov/articles/gray-fox.htm"
+        }
+      ],
+      biome: "forest"
+    },
+    {
+      id: "garter-snake-forest",
+      name: "Ratsnake",
+      scientificName: "Pantherophis obsoletus",
+      kind: "reptile",
+      trophic: "mesopredator",
+      rarity: "uncommon",
+      diet: "Mice, voles, chipmunks and young squirrels, plus birds and eggs lifted straight out of nests",
+      shelter: "Hollow trunks, rot pockets and stump cavities; the eggs go into a warm heap of rotting wood chips",
+      preferredHabitat: "Old woods and woodland edges with big rough-barked trees to climb and rodents underneath them",
+      fact: "A ratsnake can climb straight up a bare tree trunk with nothing to hold onto. It wedges the edges of its belly scales into the ridges in the bark and walks up the side of the tree, then robs the nest at the top.",
+      role: "The forest's rodent brake, and the only hunter here that works in three dimensions. On the ground it takes mice, voles and chipmunks by the dozen; up in the canopy it raids old woodpecker holes and songbird nests, which is why every bird in earshot mobs it. It kills by wrapping and squeezing, not venom, and when it is startled it freezes into a stiff kinked shape that looks exactly like a fallen branch. She never sits on her eggs \u2014 she buries them in rotting wood and lets the heat of the rot do the incubating. Foxes, fishers and great horned owls eat it.",
+      eats: [
+        "chipmunk",
+        {
+          id: "tree-squirrel",
+          stage: "young"
+        },
+        {
+          id: "woodpecker",
+          stage: "eggs"
+        },
+        {
+          id: "nuthatch",
+          stage: "eggs"
+        },
+        {
+          id: "spotted-towhee",
+          stage: "eggs"
+        },
+        "wood-frog"
+      ],
+      eatsOther: [
+        "mice",
+        "voles",
+        "shrews",
+        "nestling birds"
+      ],
+      eatenBy: [
+        "red-fox-forest",
+        "fisher",
+        "great-horned-owl"
+      ],
+      requirements: {
+        minHealth: 45,
+        objects: {
+          "snake-egg-mound": 1,
+          "oak-tree": 2,
+          "leaf-litter-pile": 1
+        },
+        signature: "snake-egg-mound",
+        animals: [
+          "chipmunk",
+          "woodpecker"
+        ],
+        hint: "Big rough-barked trees are the whole trick \u2014 this snake hunts up them as much as under them. Leave a heap of rotting wood chips at the foot of a stump for her eggs, and skip the pond; she does not need one."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Pantherophis obsoletus",
+          url: "https://animaldiversity.org/accounts/Pantherophis_obsoletus/"
+        },
+        {
+          name: "Virginia Herpetological Society \u2014 Eastern Ratsnake",
+          url: "https://www.virginiaherpetologicalsociety.com/reptiles/snakes/eastern-ratsnake/eastern_ratsnake.php"
+        }
+      ],
+      biome: "forest"
+    },
+    {
+      id: "bobcat",
+      name: "Bobcat",
+      scientificName: "Lynx rufus",
+      kind: "mammal",
+      trophic: "apex-predator",
+      rarity: "rare",
+      diet: "Obligate carnivore: rabbits, squirrels and rodents, plus some birds, reptiles and deer fawns",
+      shelter: "Dens under rock ledges, in hollow logs and in dense thickets; a female moves her kittens if disturbed",
+      preferredHabitat: "Forest with a dense understory, brushy edges and broken rocky ground",
+      fact: "A bobcat can bring down prey eight times its own weight, then bury the leftovers under leaves or snow and come back the next night.",
+      role: "With no wolves or cougars in these woods, the bobcat is the top hunter on the ground and nothing hunts a grown one. It takes everything from chipmunks up to raccoons, foxes and even fishers, and it kills by ambush \u2014 creeping close through cover, then one short rush. Strip the understory and the bobcat leaves, however much prey is still standing around: it has nothing left to hide behind.",
+      eats: [
+        "tree-squirrel",
+        "chipmunk",
+        "porcupine",
+        "raccoon",
+        "red-fox-forest",
+        "fisher"
+      ],
+      eatsOther: [
+        "mice",
+        "voles",
+        "ground birds"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 75,
+        minBalance: 45,
+        objects: {
+          "rocky-den-ledge": 1,
+          "brush-pile": 2,
+          "fern-grove": 1
+        },
+        signature: "rocky-den-ledge",
+        animals: [
+          "tree-squirrel",
+          "chipmunk"
+        ],
+        water: {
+          tiles: 1
+        },
+        hint: "Dense understory to stalk through, a sheltered rock den for kittens, and plenty of prey already back.",
+        conditions: {
+          dayPhase: [
+            "dawn",
+            "dusk",
+            "night"
+          ]
+        }
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Lynx rufus",
+          url: "https://animaldiversity.org/accounts/Lynx_rufus/"
+        },
+        {
+          name: "IUCN Red List \u2014 Lynx rufus",
+          url: "https://www.iucnredlist.org/species/12521/50655874"
+        }
+      ],
+      biome: "forest"
+    },
+    {
+      id: "great-horned-owl",
+      name: "Great Horned Owl",
+      scientificName: "Bubo virginianus",
+      kind: "bird",
+      trophic: "apex-predator",
+      rarity: "rare",
+      diet: "Mammals and birds \u2014 squirrels, rabbits, skunks, other owls \u2014 plus reptiles, amphibians and carrion",
+      shelter: "Never builds a nest: takes over an old hawk, crow or squirrel nest, or a broken snag top or ledge",
+      preferredHabitat: "Mature forest broken by open ground, with big trees holding other animals' abandoned nests",
+      fact: "Great horned owls are one of the only animals that regularly kill and eat skunks. The spray does not appear to bother them in the slightest.",
+      role: "The great horned owl runs the night shift and eats a longer list of animals than any other bird of prey here \u2014 squirrels, bats, snakes, ducks, even porcupines \u2014 and adults have nothing above them. It builds nothing at all: it starts nesting in midwinter by claiming an old squirrel drey or hawk nest somebody else made last spring, which is why the squirrels have to come back before the owl can.",
+      eats: [
+        "tree-squirrel",
+        "chipmunk",
+        "northern-flying-squirrel",
+        "porcupine",
+        "wood-duck",
+        "garter-snake-forest",
+        "little-brown-bat",
+        "pileated-woodpecker",
+        {
+          id: "raccoon",
+          stage: "young"
+        },
+        {
+          id: "red-fox-forest",
+          stage: "young"
+        },
+        "little-brown-bat"
+      ],
+      eatsOther: [
+        "skunks",
+        "rabbits",
+        "carrion",
+        "frogs"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 65,
+        minBalance: 40,
+        objects: {
+          "adopted-stick-nest": 1,
+          "standing-deadwood": 1,
+          "nesting-tree": 2
+        },
+        signature: "adopted-stick-nest",
+        animals: [
+          "tree-squirrel",
+          "chipmunk"
+        ],
+        hint: "Tall trees holding somebody else's old nest \u2014 this owl never builds one \u2014 and prey already back in the woods."
+      },
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Great Horned Owl life history",
+          url: "https://www.allaboutbirds.org/guide/Great_Horned_Owl/lifehistory"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Bubo virginianus",
+          url: "https://animaldiversity.org/accounts/Bubo_virginianus/"
+        }
+      ],
+      biome: "forest"
+    },
+    {
+      id: "grasshopper",
+      name: "Grasshopper",
+      scientificName: "Melanoplus spp.",
+      kind: "insect",
+      trophic: "herbivore",
+      rarity: "common",
+      diet: "Grasses, sedges and broadleaf forbs",
+      shelter: "Shelters down in grass and low vegetation; lays eggs in firm bare soil",
+      preferredHabitat: "Sunny grasslands and meadows rich in grasses and forbs",
+      fact: "A grasshopper's ears are on its belly \u2014 a pair of eardrums on the first segment of the abdomen, nowhere near its head.",
+      role: "Grasshoppers turn grass into food for everything else. Almost every meat-eater in this meadow takes them at some point \u2014 birds, snakes, foxes, spiders, mantises, even a screech owl \u2014 so a good grasshopper summer is a good summer for the whole food web.",
+      eats: [],
+      eatsOther: [
+        "grasses",
+        "leaves and forbs",
+        "sedges"
+      ],
+      eatenBy: [
+        "eastern-bluebird",
+        "garden-spider",
+        "garter-snake-meadow",
+        "ground-squirrel",
+        "praying-mantis",
+        "red-fox-meadow",
+        "western-meadowlark",
+        "shrike"
+      ],
+      requirements: {
+        minHealth: 8,
+        objects: {
+          "grasshopper-egg-pod-bank": 1,
+          "native-grass-patch": 1,
+          "grass-patch": 1
+        },
+        signature: "grasshopper-egg-pod-bank",
+        hint: "Grass to eat, and a strip of firm sun-warmed bare soil where the females drill their frothy egg pods for the winter."
+      },
+      sources: [
+        {
+          name: "Britannica \u2014 Short-horned grasshopper",
+          url: "https://www.britannica.com/animal/short-horned-grasshopper"
+        },
+        {
+          name: "Grasshopper tympanal hearing (PMC)",
+          url: "https://pmc.ncbi.nlm.nih.gov/articles/PMC4559048/"
+        }
+      ],
+      biome: "meadow"
+    },
+    {
+      id: "meadow-vole",
+      name: "Prairie Vole",
+      scientificName: "Microtus ochrogaster",
+      kind: "mammal",
+      trophic: "herbivore",
+      rarity: "common",
+      diet: "Grasses, sedges, seeds and roots, plus bark in winter",
+      shelter: "Shallow burrows and woven grass nests linked by clipped surface runways",
+      preferredHabitat: "Dense grassy prairie and meadow with thick ground cover left standing",
+      fact: "Prairie voles pair up and stay together, and both parents raise the pups \u2014 which is why scientists who study bonding and loyalty end up studying this small brown rodent.",
+      role: "The vole is the meadow's engine of small furry food. It mows narrow highways through the grass, breeds fast, and feeds hawks, owls, foxes, coyotes, snakes and badgers. The burrows it abandons get taken over by bumble bee queens and garter snakes, so it builds homes as well as filling stomachs.",
+      eats: [],
+      eatsOther: [
+        "bark",
+        "grasses",
+        "roots",
+        "sedges",
+        "seeds"
+      ],
+      eatenBy: [
+        "american-badger",
+        "barn-owl",
+        "coyote-meadow",
+        "garter-snake-meadow",
+        "red-fox-meadow",
+        "red-tailed-hawk",
+        "shrike",
+        "harrier"
+      ],
+      requirements: {
+        minHealth: 10,
+        objects: {
+          "vole-runway-network": 1,
+          "native-grass-patch": 2,
+          "wildflower-patch": 1
+        },
+        signature: "vole-runway-network",
+        hint: "Thick unmown grass with clipped runways beneath it. Voles arrive early, and almost everything with teeth or talons is waiting on them."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Microtus ochrogaster",
+          url: "https://animaldiversity.org/accounts/Microtus_ochrogaster/"
+        },
+        {
+          name: "USDA Forest Service FEIS \u2014 Microtus ochrogaster",
+          url: "https://www.fs.usda.gov/database/feis/animals/mammal/mioc/all.html"
+        }
+      ],
+      biome: "meadow"
+    },
+    {
+      id: "monarch-butterfly",
+      name: "Monarch Butterfly",
+      scientificName: "Danaus plexippus",
+      kind: "insect",
+      trophic: "herbivore",
+      rarity: "common",
+      diet: "Caterpillars eat only milkweed; adults sip flower nectar",
+      shelter: "Roosts in trees and shrubs; overwinters clustered in dense groves far to the south",
+      preferredHabitat: "Open meadows and roadsides with milkweed to breed on and nectar flowers to refuel on",
+      fact: "No single monarch flies the whole round trip. The butterflies that head south in autumn are the great-grandchildren of the ones that came north in spring, and they find the same groves anyway.",
+      role: "Monarch caterpillars eat milkweed and store its poison in their own bodies, so a bird that tries one usually spits it out and remembers the orange for the rest of its life. It doesn't save them from everything \u2014 mantises, spiders, wasps and ants take eggs and caterpillars by the thousand, and only a few in every hundred ever grow wings.",
+      eats: [],
+      eatsOther: [
+        "flower nectar (adult)",
+        "milkweed leaves (caterpillar)"
+      ],
+      eatenBy: [
+        {
+          id: "praying-mantis",
+          stage: "young"
+        }
+      ],
+      requirements: {
+        minHealth: 15,
+        objects: {
+          "milkweed-rhizome-bed": 1,
+          "butterfly-flowers": 1,
+          "pollinator-garden": 1
+        },
+        signature: "milkweed-rhizome-bed",
+        hint: "A spreading milkweed bed for the caterpillars \u2014 nothing else will do \u2014 and nectar flowers close by for the adults."
+      },
+      sources: [
+        {
+          name: "USFWS \u2014 Monarch (Danaus plexippus)",
+          url: "https://www.fws.gov/species/monarch-danaus-plexippus"
+        },
+        {
+          name: "PNAS \u2014 monarch population dynamics",
+          url: "https://www.pnas.org/doi/10.1073/pnas.2024463118"
+        }
+      ],
+      biome: "meadow"
+    },
+    {
+      id: "bumblebee",
+      name: "Bumblebee",
+      scientificName: "Bombus spp.",
+      kind: "insect",
+      trophic: "herbivore",
+      rarity: "common",
+      diet: "Nectar for fuel and pollen for protein, from a wide range of flowers",
+      shelter: "Nests in abandoned rodent burrows, grass tussocks and ground cavities",
+      preferredHabitat: "Flower-rich meadows with something in bloom from spring to frost",
+      fact: "Some flowers refuse to let go of their pollen unless they are shaken. A bumblebee grabs on and buzzes its flight muscles until the pollen falls out \u2014 tomatoes and blueberries depend on it.",
+      role: "Big, furry and warm enough to fly on cold grey mornings when other bees are still grounded, the bumblebee is the meadow's heavy-duty pollinator. A whole colony starts with one queen in spring hunting for an old vole hole to move into, so nest holes matter every bit as much as flowers. Orb weavers and crab spiders take her at the flowers, and badgers dig entire nests out of the ground.",
+      eats: [],
+      eatsOther: [
+        "flower nectar",
+        "pollen"
+      ],
+      eatenBy: [
+        "american-badger",
+        "eastern-bluebird",
+        "garden-spider",
+        "praying-mantis"
+      ],
+      requirements: {
+        minHealth: 25,
+        objects: {
+          "bumblebee-nest-tussock": 1,
+          "native-thistle-stand": 1,
+          "butterfly-flowers": 1
+        },
+        signature: "bumblebee-nest-tussock",
+        hint: "Flowers are only half of it. A queen also needs an abandoned vole hole under a thick grass tussock to start her colony in."
+      },
+      sources: [
+        {
+          name: "Xerces Society \u2014 About Bumble Bees",
+          url: "https://xerces.org/bumble-bees/about"
+        },
+        {
+          name: "Xerces Society \u2014 Nesting Resources",
+          url: "https://xerces.org/pollinator-conservation/nesting-resources"
+        }
+      ],
+      biome: "meadow"
+    },
+    {
+      id: "cottontail-rabbit",
+      name: "Cottontail Rabbit",
+      scientificName: "Sylvilagus floridanus",
+      kind: "mammal",
+      trophic: "herbivore",
+      rarity: "common",
+      diet: "Grasses and clover in summer; twigs, bark and buds in winter",
+      shelter: "Rests in shallow grass 'forms'; bolts into brush piles and old burrows",
+      preferredHabitat: "Meadows and field edges with brushy cover close enough to run to",
+      fact: "A cottontail doesn't dig a burrow. It presses a shallow bowl into the grass called a form and sits so still in it that you can walk straight past.",
+      role: "Cottontails eat grass and clover all summer and switch to twigs and bark in winter, and they breed fast enough to keep up with everything that hunts them \u2014 fox, coyote, badger, hawk and owl all count on them. Their droppings feed the soil life underfoot, which is a polite way of saying rabbits fertilise the meadow they eat.",
+      eats: [],
+      eatsOther: [
+        "bark",
+        "berries",
+        "buds",
+        "clover",
+        "grasses",
+        "twigs"
+      ],
+      eatenBy: [
+        "american-badger",
+        "coyote-meadow",
+        "red-fox-meadow",
+        "red-tailed-hawk",
+        "barn-owl",
+        "harrier"
+      ],
+      requirements: {
+        minHealth: 25,
+        objects: {
+          "brush-form-hollow": 1,
+          "native-grass-patch": 1,
+          "berry-bush": 1,
+          "brush-pile": 1
+        },
+        signature: "brush-form-hollow",
+        hint: "A brushy form to bolt into, native grass to graze, and berries close by. Cottontails get most of their water straight out of green plants."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Sylvilagus floridanus",
+          url: "https://animaldiversity.org/accounts/Sylvilagus_floridanus/"
+        },
+        {
+          name: "NatureWorks \u2014 Eastern cottontail",
+          url: "https://nhpbs.org/natureworks/easterncottontail.htm"
+        }
+      ],
+      biome: "meadow"
+    },
+    {
+      id: "mule-deer",
+      name: "Mule Deer",
+      scientificName: "Odocoileus hemionus",
+      kind: "mammal",
+      trophic: "herbivore",
+      rarity: "uncommon",
+      diet: "Browses shrubs, forbs, twigs and buds, plus seasonal grasses",
+      shelter: "Beds down in brushy cover or tall grass; no permanent den",
+      preferredHabitat: "Open meadows and shrubby edges with browse and daily water",
+      fact: "A bounding mule deer lands on all four hooves at once like a pogo stick, and puffs out scent from a gland on its hind leg as it goes \u2014 a warning the other deer can smell.",
+      role: "The mule deer is a browser rather than a grazer: it works on shrub twigs, buds and broad-leaved plants instead of cropping turf, so it shapes the edges of the meadow rather than the middle. Its browsing and droppings move nutrients around. Coyotes take fawns; a healthy adult is more than most hunters here want to take on.",
+      eats: [],
+      eatsOther: [
+        "buds",
+        "forbs",
+        "grasses",
+        "shrubs",
+        "twigs"
+      ],
+      eatenBy: [
+        {
+          id: "coyote-meadow",
+          stage: "young"
+        }
+      ],
+      requirements: {
+        minHealth: 55,
+        objects: {
+          "serviceberry-browse-thicket": 2,
+          "native-grass-patch": 1,
+          "small-pond": 1
+        },
+        signature: "serviceberry-browse-thicket",
+        water: {
+          tiles: 2
+        },
+        hint: "Real browse \u2014 serviceberry twigs and buds, not lawn \u2014 plus water it can reach every day."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Odocoileus hemionus",
+          url: "https://animaldiversity.org/accounts/Odocoileus_hemionus/"
+        },
+        {
+          name: "Montana Field Guide \u2014 Saskatoon Serviceberry",
+          url: "https://fieldguide.mt.gov/speciesDetail.aspx?elcode=pdros05010"
+        }
+      ],
+      biome: "meadow"
+    },
+    {
+      id: "lady-beetle",
+      name: "Lady Beetle",
+      scientificName: "Hippodamia convergens",
+      kind: "insect",
+      trophic: "insectivore",
+      rarity: "common",
+      diet: "Aphids and other small soft-bodied insects, as both larva and adult",
+      shelter: "Overwinters packed into leaf litter in big huddles; shelters on foliage in summer",
+      preferredHabitat: "Meadows with aphid-bearing plants, especially milkweed",
+      fact: "One lady beetle can put away around 5,000 aphids in a lifetime. Pinch it and it bleeds bitter yellow blood out of its knees, which is why most birds spit it straight back out.",
+      role: "Larva and adult both hunt aphids, so a lady beetle's whole life runs on an aphid supply \u2014 in this meadow, the yellow oleander aphids crowding the milkweed stems. Its bright shell is a warning label and it works on most birds. Mantises and orb weavers are not most birds.",
+      eats: [],
+      eatsOther: [
+        "aphids",
+        "scale insects",
+        "small soft-bodied insects",
+        "thrips"
+      ],
+      eatenBy: [
+        "garden-spider",
+        "praying-mantis"
+      ],
+      requirements: {
+        minHealth: 12,
+        objects: {
+          "milkweed-aphid-colony": 1,
+          "wildflower-patch": 1,
+          "fallen-branch-shelter": 1
+        },
+        signature: "milkweed-aphid-colony",
+        hint: "The aphids on the milkweed are the point, not a problem. Leave leaf litter too \u2014 that's where the adults spend the winter packed shoulder to shoulder."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Hippodamia convergens",
+          url: "https://animaldiversity.org/accounts/Hippodamia_convergens/"
+        },
+        {
+          name: "UC ANR \u2014 Aphid-eating machines",
+          url: "https://ucanr.edu/blog/bug-squad/article/incredible-aphid-eating-machines"
+        }
+      ],
+      biome: "meadow"
+    },
+    {
+      id: "ground-squirrel",
+      name: "Ground Squirrel",
+      scientificName: "Otospermophilus beecheyi",
+      kind: "mammal",
+      trophic: "omnivore",
+      rarity: "common",
+      diet: "Mostly seeds, grasses, flowers and fungi, plus insects like grasshoppers",
+      shelter: "Big multi-entrance burrow systems dug into deep open ground",
+      preferredHabitat: "Open grassy meadow and slopes with a stone wall or bank to keep watch from",
+      fact: "Facing a rattlesnake, this squirrel kicks sand and waves its tail \u2014 and pumps hot blood into the tail first, so the snake's heat-sensing pits see a far bigger animal than is really standing there.",
+      role: "A digger and a generalist. It eats seeds, greens, fungi and insects, turns over soil every time it excavates, and the tunnels it abandons become homes for bumble bee queens, garter snakes and foxes. Its colonies are what pull badgers, hawks and coyotes into a meadow in the first place.",
+      eats: [
+        "grasshopper"
+      ],
+      eatsOther: [
+        "flowers",
+        "fruit",
+        "grasses",
+        "insects",
+        "seeds"
+      ],
+      eatenBy: [
+        "american-badger",
+        "coyote-meadow",
+        "red-fox-meadow",
+        "red-tailed-hawk"
+      ],
+      requirements: {
+        minHealth: 14,
+        objects: {
+          "squirrel-burrow-town": 1,
+          "dry-stone-wall": 1,
+          "native-grass-patch": 1
+        },
+        signature: "squirrel-burrow-town",
+        hint: "Deep diggable soil for a burrow town, and a stone wall to stand sentry on."
+      },
+      sources: [
+        {
+          name: "PNAS \u2014 infrared tail-flagging in ground squirrels",
+          url: "https://www.pnas.org/doi/10.1073/pnas.0707286104"
+        },
+        {
+          name: "The Ethogram \u2014 California Ground Squirrel",
+          url: "https://theethogram.com/2020/01/21/creature-feature-california-ground-squirrel/"
+        }
+      ],
+      biome: "meadow"
+    },
+    {
+      id: "western-meadowlark",
+      name: "Western Meadowlark",
+      scientificName: "Sturnella neglecta",
+      kind: "bird",
+      trophic: "omnivore",
+      rarity: "uncommon",
+      diet: "Mostly insects in summer \u2014 beetles, grasshoppers, crickets \u2014 and seeds in winter",
+      shelter: "A domed grass nest woven on the ground, usually with a covered runway leading in",
+      preferredHabitat: "Wide native grassland with song perches and no shrubs moving in",
+      fact: "A meadowlark weaves a roof over its nest and a covered tunnel leading in, so from above there is nothing to see at all \u2014 just grass.",
+      role: "A grassland bird through and through. It eats grasshoppers, crickets and beetles by the hundred all summer and switches to seed in winter, and it needs real open space \u2014 as shrubs and trees creep in, meadowlarks quietly vanish. A plump bird that nests on the ground is a favourite of hawks, foxes, badgers and coyotes.",
+      eats: [
+        "grasshopper",
+        {
+          id: "praying-mantis",
+          stage: "young"
+        }
+      ],
+      eatsOther: [
+        "ants",
+        "beetles",
+        "caterpillars",
+        "crickets",
+        "seeds"
+      ],
+      eatenBy: [
+        "american-badger",
+        "coyote-meadow",
+        "red-fox-meadow",
+        "red-tailed-hawk",
+        "harrier"
+      ],
+      requirements: {
+        minHealth: 45,
+        objects: {
+          "domed-grass-nest-tunnel": 1,
+          "native-grass-patch": 3,
+          "bird-perch": 1
+        },
+        signature: "domed-grass-nest-tunnel",
+        water: {
+          tiles: 1
+        },
+        hint: "Wide unbroken native grass and a perch to sing from. Skip the shrubs here \u2014 woody cover is exactly what pushes meadowlarks out."
+      },
+      sources: [
+        {
+          name: "Cornell All About Birds \u2014 Western Meadowlark",
+          url: "https://www.allaboutbirds.org/guide/Western_Meadowlark/lifehistory"
+        },
+        {
+          name: "Audubon Field Guide \u2014 Western Meadowlark",
+          url: "https://www.audubon.org/field-guide/bird/western-meadowlark"
+        }
+      ],
+      biome: "meadow"
+    },
+    {
+      id: "garter-snake-meadow",
+      name: "Garter Snake",
+      scientificName: "Thamnophis sirtalis",
+      kind: "reptile",
+      trophic: "mesopredator",
+      rarity: "uncommon",
+      diet: "Earthworms, pillbugs, amphibians, slugs, insects and young rodents",
+      shelter: "Shelters under stone walls and logs; winters below the frost line in a communal den",
+      preferredHabitat: "Moist meadow and grassland near sunny stones and water",
+      fact: "Garter snakes spend the whole winter piled together by the dozen in one frost-free hole underground, and come pouring back out of it in a knot in spring.",
+      role: "The meadow's damp-grass hunter \u2014 earthworms, pillbugs, frogs, insects and young voles, always within reach of water. It is harmless to people, though a bite can itch. Where it can survive the winter is what decides where it can live at all, so one deep frost-free den matters more than anything else you can build for it.",
+      eats: [
+        "grasshopper",
+        "meadow-vole",
+        "pillbug",
+        "praying-mantis",
+        "garden-snail"
+      ],
+      eatsOther: [
+        "amphibians",
+        "earthworms",
+        "slugs"
+      ],
+      eatenBy: [
+        "coyote-meadow",
+        "red-fox-meadow",
+        "red-tailed-hawk"
+      ],
+      requirements: {
+        minHealth: 20,
+        objects: {
+          "snake-hibernaculum-meadow": 1,
+          "small-pond": 1,
+          "dry-stone-wall": 1
+        },
+        signature: "snake-hibernaculum-meadow",
+        water: {
+          tiles: 2
+        },
+        animals: [
+          "grasshopper",
+          "meadow-vole"
+        ],
+        hint: "Water to hunt beside, warm stone to bask on, and a den deep enough to spend the winter below the frost."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Thamnophis sirtalis",
+          url: "https://animaldiversity.org/accounts/Thamnophis_sirtalis/"
+        },
+        {
+          name: "USFWS \u2014 Common Gartersnake",
+          url: "https://www.fws.gov/species/common-garter-snake-thamnophis-sirtalis"
+        }
+      ],
+      biome: "meadow"
+    },
+    {
+      id: "red-fox-meadow",
+      name: "Red Fox",
+      scientificName: "Vulpes vulpes",
+      kind: "mammal",
+      trophic: "mesopredator",
+      rarity: "rare",
+      diet: "Voles, rabbits, squirrels, birds and insects, rounded out with berries and carrion",
+      shelter: "Enlarges a burrow another animal dug into a natal den; also uses brush and hollows",
+      preferredHabitat: "Meadows, field edges and hedgerows across open country",
+      fact: "A fox listening for a vole under deep grass or snow lines itself up facing magnetic north before it leaps \u2014 and the trick only seems to help when it cannot see the prey at all.",
+      role: "A stalk-and-pounce generalist that keeps rodent and rabbit numbers down and fills the gaps with insects, berries and whatever it finds already dead. It rarely digs a den from scratch \u2014 it widens an old ground squirrel or badger burrow instead. Great horned owls take its kits, and now that coyotes are back, foxes have to give ground.",
+      eats: [
+        "cottontail-rabbit",
+        "garter-snake-meadow",
+        "grasshopper",
+        "ground-squirrel",
+        "meadow-vole",
+        "western-meadowlark",
+        "bobolink"
+      ],
+      eatsOther: [
+        "berries",
+        "bird eggs",
+        "carrion",
+        "insects"
+      ],
+      eatenBy: [
+        "coyote-meadow"
+      ],
+      requirements: {
+        minHealth: 65,
+        minBalance: 40,
+        objects: {
+          "earthen-fox-den": 1,
+          "native-grass-patch": 2,
+          "brush-pile": 1
+        },
+        signature: "earthen-fox-den",
+        water: {
+          tiles: 1
+        },
+        animals: [
+          "cottontail-rabbit",
+          "meadow-vole"
+        ],
+        hint: "Foxes come back once the small animals do \u2014 and a vixen needs an old burrow she can widen into a nursery."
+      },
+      sources: [
+        {
+          name: "Phys.org \u2014 magnetic alignment in fox predation (Cerveny et al.)",
+          url: "https://phys.org/news/2011-01-predation-foxes-aided-earth-magnetic.html"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Vulpes vulpes",
+          url: "https://animaldiversity.org/accounts/Vulpes_vulpes/"
+        }
+      ],
+      biome: "meadow"
+    },
+    {
+      id: "red-tailed-hawk",
+      name: "Red-tailed Hawk",
+      scientificName: "Buteo jamaicensis",
+      kind: "bird",
+      trophic: "apex-predator",
+      rarity: "rare",
+      diet: "Mostly small mammals \u2014 voles, ground squirrels, rabbits \u2014 plus birds and snakes",
+      shelter: "A bulky stick nest in the crown of a tall tree or on a cliff ledge",
+      preferredHabitat: "Open country seen from above: grassland, fields and meadows",
+      fact: "That screaming eagle cry in every film is a red-tailed hawk. Actual bald eagles sound like squeaky gulls, so the movies quietly swapped them.",
+      role: "The daylight hunter over this meadow, either circling on broad flat wings or sitting on a pole staring at the grass. It is heavy and powerful and built for taking prey off the ground \u2014 voles, ground squirrels, rabbits, snakes \u2014 not for chasing birds through the air. The huge stick nest it builds gets inherited by a great horned owl the very next winter.",
+      eats: [
+        "cottontail-rabbit",
+        "garter-snake-meadow",
+        "ground-squirrel",
+        "meadow-vole",
+        "western-meadowlark",
+        "shrike"
+      ],
+      eatsOther: [
+        "carrion",
+        "mice"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 70,
+        minBalance: 40,
+        objects: {
+          "crown-stick-eyrie": 1,
+          "oak-tree": 1,
+          "native-grass-patch": 1,
+          "bird-perch": 1
+        },
+        signature: "crown-stick-eyrie",
+        animals: [
+          "ground-squirrel",
+          "meadow-vole"
+        ],
+        conditions: {
+          weather: [
+            "clear",
+            "cloudy"
+          ],
+          dayPhase: [
+            "day"
+          ]
+        },
+        hint: "A tall tree crown for the stick nest, open grass to hunt over, and a meadow already full of small mammals. Hawks get their water from their prey."
+      },
+      sources: [
+        {
+          name: "Cornell All About Birds \u2014 Red-tailed Hawk",
+          url: "https://www.allaboutbirds.org/guide/Red-tailed_Hawk/lifehistory"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Buteo jamaicensis",
+          url: "https://animaldiversity.org/accounts/Buteo_jamaicensis/"
+        }
+      ],
+      biome: "meadow"
+    },
+    {
+      id: "freshwater-fish",
+      name: "Minnow",
+      scientificName: "Pimephales promelas",
+      kind: "fish",
+      trophic: "herbivore",
+      rarity: "common",
+      diet: "Algae, diatoms and plankton sifted off mud, stems and stones, plus detritus and small insect larvae.",
+      shelter: "Reed roots, submerged plant beds, and the shaded underside of sunken wood.",
+      preferredHabitat: "Connected, clean, weedy pools.",
+      fact: "The male minnow scrubs the underside of a sunken slab spotless using a spongy pad on his own back, then guards the eggs the females glue to that ceiling \u2014 fanning them day and night until they hatch.",
+      role: "The little silver engine of the marsh. Minnow schools graze algae and plankton and then get eaten by nearly everything with a bill, a beak or a claw \u2014 and they give baby mussels a free ride to new water on their gills.",
+      eats: [
+        "amphipod",
+        "water-strider",
+        {
+          id: "dragonfly",
+          stage: "young"
+        }
+      ],
+      eatsOther: [
+        "algae",
+        "diatoms",
+        "plankton",
+        "detritus"
+      ],
+      eatenBy: [
+        "bald-eagle",
+        "belted-kingfisher",
+        "great-blue-heron",
+        "hooded-merganser",
+        "mink",
+        "river-otter",
+        "snapping-turtle",
+        {
+          id: "dragonfly",
+          stage: "young"
+        }
+      ],
+      requirements: {
+        minHealth: 28,
+        objects: {
+          "submerged-spawning-slab": 2,
+          "shallow-water-pool": 2,
+          "marsh-log": 1
+        },
+        signature: "submerged-spawning-slab",
+        water: {
+          tiles: 5
+        },
+        hint: "Clean pools that join up to each other, plus something flat and submerged for the males to glue their eggs underneath."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Pimephales promelas",
+          url: "https://animaldiversity.org/accounts/Pimephales_promelas/"
+        },
+        {
+          name: "Missouri Department of Conservation \u2014 Fathead Minnow",
+          url: "https://mdc.mo.gov/discover-nature/field-guide/fathead-minnow"
+        }
+      ],
+      biome: "wetland",
+      aquatic: true
+    },
+    {
+      id: "beaver",
+      name: "Beaver",
+      scientificName: "Castor canadensis",
+      kind: "mammal",
+      trophic: "herbivore",
+      rarity: "uncommon",
+      diet: "Bark and cambium of willow and aspen, plus cattail rhizomes and submerged plants",
+      shelter: "Stick-and-mud lodges with underwater entrances",
+      preferredHabitat: "Slow channels with mud banks and woody plants to fell",
+      fact: "A beaver's front teeth never stop growing and are orange because they are reinforced with iron \u2014 living chisels that gnawing keeps sharp. Its lips shut behind those teeth, so it can carry and cut branches underwater without swallowing the pond.",
+      role: "The marsh's engineer, and the turning point of the whole restoration. Fell a few willows, dam a channel, and suddenly there is deep permanent water with drowned trees standing in it \u2014 the pond the otter, the merganser, the kingfisher, the heron and the eagle all move in on afterwards.",
+      eats: [],
+      eatsOther: [
+        "willow bark and cambium",
+        "aspen",
+        "twigs"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 38,
+        objects: {
+          "willow-tree": 2,
+          "mud-bank": 1,
+          "shallow-water-pool": 2
+        },
+        signature: "willow-tree",
+        water: {
+          tiles: 5
+        },
+        hint: "Willows to fell and eat, a soft bank to den in, and enough water to float a log. The moment a beaver settles here, seven new habitats become buildable."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Castor canadensis",
+          url: "https://animaldiversity.org/accounts/Castor_canadensis/"
+        },
+        {
+          name: "US Forest Service \u2014 Beaver as ecosystem engineers",
+          url: "https://research.fs.usda.gov/understory/beavers-natures-engineers"
+        }
+      ],
+      biome: "wetland",
+      aquatic: true
+    },
+    {
+      id: "muskrat",
+      name: "Muskrat",
+      scientificName: "Ondatra zibethicus",
+      kind: "mammal",
+      trophic: "herbivore",
+      rarity: "common",
+      diet: "Mainly cattails, bulrush and roots; sometimes freshwater mussels and small fish",
+      shelter: "Dome lodges woven from cattail and reed, and burrows dug into banks",
+      preferredHabitat: "Reedy shallows with abundant cattails",
+      fact: "A muskrat can stay under for a quarter of an hour on one breath, and in midwinter it dives beneath the ice to dig up frozen-in cattail roots and eat them down there in the dark.",
+      role: "The cattail harvester. It clips reeds into lodges and feeding lanes that ducks and herons then hunt along, it feeds the mink, the otter and the eagle, and the bank burrows it abandons are the only homes mink ever move into.",
+      eats: [
+        "freshwater-mussel"
+      ],
+      eatsOther: [
+        "cattail rhizomes",
+        "bulrush",
+        "sedge roots"
+      ],
+      eatenBy: [
+        "mink",
+        "river-otter",
+        "bald-eagle"
+      ],
+      requirements: {
+        minHealth: 32,
+        objects: {
+          "cattail-root-shallows": 2,
+          "cattail-stand": 2,
+          "reed-bed": 1,
+          "mud-bank": 1
+        },
+        signature: "cattail-root-shallows",
+        water: {
+          tiles: 3
+        },
+        hint: "Cattails to eat and to build lodges from, and shallow water over their roots so it can keep feeding all winter."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Ondatra zibethicus",
+          url: "https://animaldiversity.org/accounts/Ondatra_zibethicus/"
+        },
+        {
+          name: "Illinois DNR \u2014 Muskrat",
+          url: "https://dnr.illinois.gov/education/wildaboutpages/wildaboutwildmammals/wildaboutmammalsrodents/wawmmuskrat.html"
+        }
+      ],
+      biome: "wetland",
+      aquatic: true
+    },
+    {
+      id: "mallard-duck",
+      name: "Mallard",
+      scientificName: "Anas platyrhynchos",
+      kind: "bird",
+      trophic: "herbivore",
+      rarity: "common",
+      diet: "Mostly seeds and submerged plants, though hens switch to insect larvae, snails and freshwater shrimp while laying, and ducklings eat almost nothing else at first",
+      shelter: "Ground nests hidden in dense sedge and grass tussocks near water",
+      preferredHabitat: "Calm, plant-rich shallows with tussock cover on the bank",
+      fact: "Mallards sleep with one eye open and half the brain awake. On a raft of sleeping ducks it is the ones on the outside doing the watching \u2014 and they swap places so everyone gets a proper nap.",
+      role: "The tail-up dabbler of the shallows, tipping forward to reach seeds and leaves it can't dive for. Hens switch to insects and snails while they are laying, and ducklings eat almost nothing else at first, so a mallard family needs a bug-rich marsh, not just a weedy one.",
+      eats: [],
+      eatsOther: [
+        "seeds",
+        "aquatic invertebrates",
+        "snails"
+      ],
+      eatenBy: [
+        "bald-eagle",
+        {
+          id: "mink",
+          stage: "young"
+        },
+        {
+          id: "snapping-turtle",
+          stage: "young"
+        }
+      ],
+      requirements: {
+        minHealth: 25,
+        objects: {
+          "sedge-tussock": 2,
+          "shallow-water-pool": 2,
+          "lily-pool": 1
+        },
+        signature: "sedge-tussock",
+        water: {
+          tiles: 3
+        },
+        hint: "Water shallow enough to tip into headfirst, and thick dry tussocks a few steps up the bank for the hen to hide her nest in."
+      },
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Mallard life history",
+          url: "https://www.allaboutbirds.org/guide/Mallard/lifehistory"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Anas platyrhynchos",
+          url: "https://animaldiversity.org/accounts/Anas_platyrhynchos/"
+        }
+      ],
+      biome: "wetland"
+    },
+    {
+      id: "painted-turtle",
+      name: "Painted Turtle",
+      scientificName: "Chrysemys picta",
+      kind: "reptile",
+      trophic: "herbivore",
+      rarity: "common",
+      diet: "Mostly aquatic plants and algae as an adult; hatchlings and young turtles eat far more insects and carrion",
+      shelter: "Muddy pond bottoms; hauls out onto logs to bask",
+      preferredHabitat: "Still water with basking logs",
+      fact: "A painted turtle spends the entire winter under the ice without taking a breath. It absorbs what oxygen it can through its back end, and when that runs short it dissolves minerals out of its own shell to stay alive until spring.",
+      role: "The marsh's sunbather. A cold turtle cannot digest a thing, so a log in the sun is a feeding requirement rather than a luxury \u2014 and as painted turtles grow they flip from hunting insects to grazing plants.",
+      eats: [],
+      eatsOther: [
+        "algae",
+        "aquatic plants",
+        "carrion",
+        "dead fish",
+        "insects"
+      ],
+      eatenBy: [
+        {
+          id: "mink",
+          stage: "young"
+        },
+        {
+          id: "river-otter",
+          stage: "young"
+        }
+      ],
+      requirements: {
+        minHealth: 45,
+        objects: {
+          "basking-log": 2,
+          "mud-bank": 1,
+          "beaver-canal": 1
+        },
+        signature: "basking-log",
+        water: {
+          tiles: 4
+        },
+        hint: "Still water, a soft mud bottom, and a log tilted up out of the water. No sunny log, no digestion."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Chrysemys picta",
+          url: "https://animaldiversity.org/accounts/Chrysemys_picta/"
+        },
+        {
+          name: "Turtle Guardians \u2014 Butt breathers and frogsicles: overwintering herpetofauna",
+          url: "https://www.turtleguardians.com/2024/05/butt-breathers-and-frogsicles-overwintering-herpetofauna-at-their-northern-range-limit/"
+        }
+      ],
+      biome: "wetland",
+      aquatic: true
+    },
+    {
+      id: "red-winged-blackbird",
+      name: "Red-winged Blackbird",
+      scientificName: "Agelaius phoeniceus",
+      kind: "bird",
+      trophic: "omnivore",
+      rarity: "common",
+      diet: "Insects in summer, seeds and grain the rest of the year",
+      shelter: "Cup nests wound around several upright stems standing in water",
+      preferredHabitat: "Dense cattail and reed stands with water underneath",
+      fact: "A male red-wing can switch his scarlet shoulder patches on and off. Flared wide they start fights; tucked away under the black feathers they let him slip through a rival's territory completely unnoticed.",
+      role: "The loudest bird in the marsh and the first one back in spring. It hunts insects all summer and switches to seeds for the rest of the year, and it winds its nest around standing stems with water underneath \u2014 a moat the mink will not cross.",
+      eats: [
+        "dragonfly",
+        "water-strider"
+      ],
+      eatsOther: [
+        "seeds",
+        "midges",
+        "beetles",
+        "spiders"
+      ],
+      eatenBy: [
+        {
+          id: "mink",
+          stage: "young"
+        },
+        {
+          id: "marsh-wren",
+          stage: "eggs"
+        }
+      ],
+      requirements: {
+        minHealth: 25,
+        objects: {
+          "flooded-reed-clump": 2,
+          "reed-bed": 2,
+          "cattail-stand": 1
+        },
+        signature: "flooded-reed-clump",
+        water: {
+          tiles: 2
+        },
+        hint: "Standing stems with water beneath them. The nest is stitched around the reeds and the water underneath is the burglar alarm."
+      },
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Red-winged Blackbird life history",
+          url: "https://www.allaboutbirds.org/guide/Red-winged_Blackbird/lifehistory"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Agelaius phoeniceus",
+          url: "https://animaldiversity.org/accounts/Agelaius_phoeniceus/"
+        }
+      ],
+      biome: "wetland"
+    },
+    {
+      id: "sandhill-crane",
+      name: "Sandhill Crane",
+      scientificName: "Antigone canadensis",
+      kind: "bird",
+      trophic: "herbivore",
+      rarity: "rare",
+      diet: "Grains, tubers, insects, crayfish and small animals",
+      shelter: "Large ground mounds of piled marsh plants standing in shallow water",
+      preferredHabitat: "Broad, quiet, restored marshland",
+      fact: "Cranes dance to choose a partner \u2014 leaping, bowing and flinging sticks in the air \u2014 and once they pair up they usually stay together for life. Their bugling carries more than two kilometres because the windpipe is coiled up inside the breastbone like a trumpet.",
+      role: "The tallest bird on the marsh and the last one to arrive. Cranes probe the mud for tubers and snap up frogs, crayfish and insects, and they will only settle where the water is wide, quiet and genuinely healthy.",
+      eats: [
+        "chorus-frog",
+        "crayfish"
       ],
       eatsOther: [
         "grain",
         "insects",
         "tubers"
       ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds - Sandhill Crane",
-          url: "https://www.allaboutbirds.org/guide/Sandhill_Crane/lifehistory"
-        }
-      ]
-    },
-    {
-      id: "painted-turtle",
-      name: "Painted Turtle",
-      biome: "wetland",
-      kind: "reptile",
-      rarity: "common",
-      diet: "Aquatic plants, insects, small fish, and carrion",
-      shelter: "Muddy pond bottoms; basks on logs",
-      preferredHabitat: "Still water with basking logs",
-      fact: "Painted turtles overwinter under the ice, taking in oxygen through their skin.",
+      eatenBy: [],
       requirements: {
-        minHealth: 45,
+        minHealth: 75,
+        minBalance: 45,
         objects: {
-          "shallow-water-pool": 1,
-          "mud-bank": 1,
-          "reed-bed": 1
+          "crane-nest-mound": 1,
+          "shallow-water-pool": 2,
+          "mud-bank": 1
         },
-        hint: "Still water and a soft bank to bask on."
+        signature: "crane-nest-mound",
+        water: {
+          tiles: 6
+        },
+        conditions: {
+          season: [
+            "spring",
+            "autumn"
+          ]
+        },
+        hint: "Cranes want space and quiet. Build a wide, well-balanced marsh and heap a nest mound up above the waterline.",
+        excludes: []
       },
-      scientificName: "Chrysemys picta",
-      role: "A basking omnivore that grazes plants and hunts insects and small fish, and cleans up carrion. Young are mostly carnivorous, shifting toward plants with age.",
-      trophic: "omnivore",
-      eats: [
-        "freshwater-fish"
-      ],
-      eatenBy: [
-        "mink",
-        "river-otter"
-      ],
-      eatsOther: [
-        "aquatic plants",
-        "detritus",
-        "insects"
-      ],
       sources: [
         {
-          name: "Animal Diversity Web - Chrysemys picta",
-          url: "https://animaldiversity.org/accounts/Chrysemys_picta/"
+          name: "Cornell Lab All About Birds \u2014 Sandhill Crane life history",
+          url: "https://www.allaboutbirds.org/guide/Sandhill_Crane/lifehistory"
         },
         {
-          name: "Turtle Guardians - Overwintering Herpetofauna",
-          url: "https://www.turtleguardians.com/2024/05/butt-breathers-and-frogsicles-overwintering-herpetofauna-at-their-northern-range-limit/"
+          name: "International Crane Foundation \u2014 Sandhill Crane",
+          url: "https://savingcranes.org/species-field-guide/sandhill-crane/"
         }
-      ]
+      ],
+      biome: "wetland"
     },
     {
       id: "chorus-frog",
       name: "Chorus Frog",
-      biome: "wetland",
+      scientificName: "Pseudacris maculata",
       kind: "amphibian",
-      rarity: "common",
-      featured: true,
-      diet: "Small insects and other tiny invertebrates",
-      shelter: "Shallow water and wet vegetation",
-      preferredHabitat: "Shallow pools ringed with reeds",
-      fact: "A chorus frog's comb-like call carries up to half a mile across the marsh.",
-      requirements: {
-        minHealth: 30,
-        objects: {
-          "shallow-water-pool": 1,
-          "reed-bed": 1
-        },
-        hint: "Shallow water, reeds, and insect life."
-      },
-      scientificName: "Pseudacris triseriata",
-      role: "A tiny insectivore whose spring chorus fills the marsh. It eats small invertebrates and is itself vital prey for herons, mink, and snakes.",
       trophic: "insectivore",
-      eats: [
-        "damselfly",
-        "dragonfly",
-        "water-strider"
+      rarity: "common",
+      diet: "Small insects and other tiny invertebrates",
+      shelter: "Damp litter and loose bark under fallen wood in winter; wet vegetation in summer",
+      preferredHabitat: "Shallow pools ringed with reeds and wet meadow",
+      fact: "A chorus frog freezes solid every winter. Ice fills the spaces around its organs, its heart stops for weeks \u2014 and in spring it thaws out and starts singing as though nothing happened. The call sounds exactly like running your thumb along a comb.",
+      role: "Small enough to sit on a coin and loud enough to hear right across the marsh. It mops up tiny insects all summer and then feeds herons, mink, otters and cranes \u2014 the most-eaten voice in the wetland.",
+      eats: [],
+      eatsOther: [
+        "midges",
+        "small flies",
+        "spiders",
+        "beetles"
       ],
       eatenBy: [
-        "american-bittern",
         "great-blue-heron",
         "mink",
         "river-otter",
-        "sandhill-crane"
+        "sandhill-crane",
+        {
+          id: "dragonfly",
+          stage: "young"
+        },
+        {
+          id: "wetland-salamander",
+          stage: "young"
+        }
       ],
-      eatsOther: [
-        "insect larvae",
-        "insects"
-      ],
+      requirements: {
+        minHealth: 30,
+        objects: {
+          "winter-litter-mound": 2,
+          "reed-bed": 1,
+          "marsh-marigold": 1
+        },
+        signature: "winter-litter-mound",
+        water: {
+          tiles: 2
+        },
+        hint: "Shallow water to sing and breed in, and a deep, damp pile of leaves on dry land to spend the winter frozen inside."
+      },
       sources: [
         {
-          name: "Animal Diversity Web - Pseudacris triseriata",
-          url: "https://animaldiversity.org/accounts/Pseudacris_triseriata/"
+          name: "Michigan Natural Features Inventory \u2014 Pseudacris maculata",
+          url: "https://mnfi.anr.msu.edu/species/description/10852/Pseudacris-maculata"
+        },
+        {
+          name: "Montana Field Guide \u2014 Boreal Chorus Frog",
+          url: "https://fieldguide.mt.gov/speciesDetail.aspx?elcode=aaabc05130"
         }
-      ]
+      ],
+      biome: "wetland"
     },
     {
       id: "wetland-salamander",
       name: "Tiger Salamander",
-      biome: "wetland",
-      kind: "amphibian",
-      rarity: "uncommon",
-      diet: "Worms, insects, small invertebrates, and even small vertebrates",
-      shelter: "Damp burrows near fishless breeding pools",
-      preferredHabitat: "Fishless pools with soft banks",
-      fact: "Tiger salamanders are among the largest land salamanders in North America.",
-      requirements: {
-        minHealth: 50,
-        objects: {
-          "shallow-water-pool": 1,
-          "mud-bank": 1,
-          "reed-bed": 1
-        },
-        hint: "Quiet breeding pools with soft digging banks."
-      },
       scientificName: "Ambystoma tigrinum",
-      role: "A voracious burrowing carnivore that hunts worms and invertebrates near breeding pools. Larvae grow in fishless water and can even turn cannibal.",
+      kind: "amphibian",
       trophic: "insectivore",
-      eatsOther: [
-        "insect larvae",
-        "insects",
-        "worms"
+      rarity: "uncommon",
+      diet: "Worms, insects, freshwater shrimp and other small invertebrates; larvae take tadpoles",
+      shelter: "Damp burrows in soft ground near fishless breeding pools",
+      preferredHabitat: "Fishless seasonal pools with soft banks",
+      fact: "Tiger salamanders spend most of their lives alone underground, then walk back on the first warm rainy night of spring to the exact pool they hatched in \u2014 and if that pool starts drying too fast, some larvae grow oversized heads and start eating their own brothers and sisters.",
+      role: "A fat, blotched, black-and-gold hunter that only breeds where fish cannot live. Its larvae race to grow legs before the pool dries, which is a bet they can only win in water no minnow could survive.",
+      eats: [
+        "amphipod",
+        {
+          id: "chorus-frog",
+          stage: "young"
+        }
       ],
+      eatsOther: [
+        "worms",
+        "insect larvae"
+      ],
+      eatenBy: [
+        "great-blue-heron"
+      ],
+      requirements: {
+        minHealth: 48,
+        objects: {
+          "vernal-pool": 2,
+          "mud-bank": 1,
+          "marsh-log": 1
+        },
+        signature: "vernal-pool",
+        water: {
+          tiles: 2
+        },
+        excludes: [
+          "freshwater-fish"
+        ],
+        hint: "Dig the vernal pools well away from the fish pools and let them dry right out in summer. Fish and tiger salamander larvae cannot share water."
+      },
       sources: [
         {
-          name: "Animal Diversity Web - Ambystoma tigrinum",
+          name: "Animal Diversity Web \u2014 Ambystoma tigrinum",
           url: "https://animaldiversity.org/accounts/Ambystoma_tigrinum/"
+        },
+        {
+          name: "US Fish & Wildlife Service \u2014 Eastern Tiger Salamander",
+          url: "https://www.fws.gov/species/eastern-tiger-salamander-ambystoma-tigrinum"
         }
-      ]
+      ],
+      biome: "wetland"
     },
     {
       id: "dragonfly",
       name: "Dragonfly",
-      biome: "wetland",
+      scientificName: "Anax junius",
       kind: "insect",
-      rarity: "common",
-      featured: true,
-      diet: "Flying insects as adults; aquatic larvae eat mosquito larvae and tadpoles",
-      shelter: "Emergent reed stems; larvae live in the water",
-      preferredHabitat: "Clean water with reed perches",
-      fact: "Dragonflies catch up to 95% of the prey they chase, among Earth's best hunters.",
-      requirements: {
-        minHealth: 35,
-        objects: {
-          "shallow-water-pool": 1,
-          "reed-bed": 1,
-          "sedge-tussock": 1
-        },
-        hint: "Clean water and reeds for the larvae to climb."
-      },
-      scientificName: "Anisoptera (Odonata)",
-      role: "A top invertebrate predator both in the air and underwater. Adults hawk flying insects while aquatic nymphs devour mosquito larvae and tiny fish.",
       trophic: "insectivore",
+      rarity: "common",
+      diet: "Flying insects as an adult; the underwater nymph takes midge larvae, freshwater shrimp, tadpoles and fish fry",
+      shelter: "Emergent reed stems for the adults; the nymphs live in the water below",
+      preferredHabitat: "Clean open water with emergent stems to climb out on",
+      fact: "Dragonflies catch about 95 out of every 100 things they chase \u2014 a better strike rate than a lion, a shark or a falcon. They also see the world in something close to slow motion, which is why swatting one never works.",
+      role: "A hunter with two completely different lives. The nymph spends a year underwater firing out a hinged, grabbing lower lip at tadpoles and fish fry; then it climbs a reed stem, splits its own back open and flies away to hunt mosquitoes over the marsh.",
       eats: [
-        "damselfly"
-      ],
-      eatenBy: [
-        "chorus-frog",
-        "freshwater-fish",
-        "great-blue-heron",
-        "northern-leopard-frog"
+        {
+          id: "freshwater-fish",
+          stage: "young"
+        },
+        "amphipod",
+        "water-strider",
+        {
+          id: "chorus-frog",
+          stage: "young"
+        },
+        {
+          id: "northern-leopard-frog",
+          stage: "young"
+        }
       ],
       eatsOther: [
-        "insect larvae",
-        "insects"
+        "midges",
+        "mosquitoes",
+        "flies"
       ],
+      eatenBy: [
+        {
+          id: "freshwater-fish",
+          stage: "young"
+        },
+        {
+          id: "hooded-merganser",
+          stage: "young"
+        },
+        "northern-leopard-frog",
+        "great-blue-heron",
+        "red-winged-blackbird"
+      ],
+      requirements: {
+        minHealth: 26,
+        objects: {
+          "dragonfly-pond": 2,
+          "reed-bed": 2,
+          "cattail-stand": 1
+        },
+        signature: "dragonfly-pond",
+        water: {
+          tiles: 3
+        },
+        hint: "Open, clean water for the nymphs below, and tall stems at the edge for them to climb when it is time to change."
+      },
       sources: [
         {
-          name: "Natural History Museum - Dragonflies: The ultimate hunters",
+          name: "Natural History Museum \u2014 Dragonflies: the ultimate hunters",
           url: "https://www.nhm.ac.uk/discover/dragonflies-the-ultimate-hunters.html"
-        }
-      ]
-    },
-    {
-      id: "damselfly",
-      name: "Damselfly",
-      biome: "wetland",
-      kind: "insect",
-      rarity: "common",
-      diet: "Small flying insects as adults; larvae eat aquatic invertebrates",
-      shelter: "Waterside vegetation; larvae among submerged plants",
-      preferredHabitat: "Calm, clean shallows",
-      fact: "Damselflies fold their wings together over the back at rest, unlike dragonflies.",
-      requirements: {
-        minHealth: 35,
-        objects: {
-          "shallow-water-pool": 1,
-          "reed-bed": 1,
-          "sedge-tussock": 1
-        },
-        hint: "Calm, clean water with plants at the edge."
-      },
-      scientificName: "Zygoptera (Odonata)",
-      role: "A slender aerial insectivore that snatches midges and mosquitoes with its legs. Its aquatic nymphs hunt tiny invertebrates and feed marsh fish and frogs.",
-      trophic: "insectivore",
-      eatenBy: [
-        "chorus-frog",
-        "dragonfly",
-        "freshwater-fish",
-        "northern-leopard-frog"
-      ],
-      eatsOther: [
-        "insect larvae",
-        "insects"
-      ],
-      sources: [
-        {
-          name: "Britannica - Damselfly",
-          url: "https://www.britannica.com/animal/damselfly"
-        }
-      ]
-    },
-    {
-      id: "water-strider",
-      name: "Water Strider",
-      biome: "wetland",
-      kind: "insect",
-      rarity: "common",
-      diet: "Insects and larvae trapped on the water surface; also scavenges",
-      shelter: "Still water surfaces among emergent plants",
-      preferredHabitat: "Any calm pool",
-      fact: "Water striders ride the surface on legs coated in thousands of tiny hairs.",
-      requirements: {
-        minHealth: 12,
-        objects: {
-          "shallow-water-pool": 1
-        },
-        hint: "One calm pool is enough."
-      },
-      scientificName: "Gerridae (Hemiptera)",
-      role: "A surface-skating predator and scavenger that seizes insects trapped in the water film. It is easy prey for fish, frogs, and wading birds.",
-      trophic: "insectivore",
-      eatenBy: [
-        "chorus-frog",
-        "freshwater-fish",
-        "northern-leopard-frog"
-      ],
-      eatsOther: [
-        "detritus",
-        "insects"
-      ],
-      sources: [
-        {
-          name: "Britannica - Water strider",
-          url: "https://www.britannica.com/animal/water-strider"
         },
         {
-          name: "National Wildlife Federation - Water Striders",
-          url: "https://www.nwf.org/Educational-Resources/Wildlife-Guide/Invertebrates/Water-Striders"
+          name: "Animal Diversity Web \u2014 Anax junius",
+          url: "https://animaldiversity.org/accounts/Anax_junius/"
         }
-      ]
+      ],
+      biome: "wetland"
     },
     {
-      id: "freshwater-fish",
-      name: "Freshwater Minnows",
-      biome: "wetland",
-      kind: "fish",
-      rarity: "common",
-      diet: "Algae, plankton, insect larvae, and small invertebrates",
-      shelter: "Deeper pools and reed roots",
-      preferredHabitat: "Connected clean pools",
-      fact: "Minnow schools are the foundation that herons, otters, and mink all depend on.",
-      requirements: {
-        minHealth: 35,
-        objects: {
-          "shallow-water-pool": 2,
-          "reed-bed": 1
-        },
-        hint: "Connected clean pools with reedy cover bring fish back \u2014 and everyone who eats them."
-      },
-      scientificName: "Leuciscidae",
-      role: "The forage base of the wetland food web. These schooling fish graze algae and plankton and eat insect larvae, then feed nearly every predator in the marsh.",
-      trophic: "omnivore",
+      id: "mink",
+      name: "Mink",
+      scientificName: "Neogale vison",
+      kind: "mammal",
+      trophic: "mesopredator",
+      rarity: "rare",
+      diet: "Fish, frogs, crayfish, muskrats, and the eggs and young of marsh birds",
+      shelter: "Bank burrows, usually taken over from muskrats rather than dug",
+      preferredHabitat: "Brushy banks beside busy water",
+      fact: "A mink will chase a fish thirty metres underwater, and it hunts on land, in the water and up trees. What it almost never does is dig \u2014 it simply moves into a burrow a muskrat made and does not ask.",
+      role: "A small brown fury with an enormous menu: fish, frogs, crayfish, muskrats, eggs, ducklings, whatever is slowest that day. Its home is always second-hand, so no muskrats usually means no mink no matter how much prey there is.",
       eats: [
-        "damselfly",
-        "dragonfly",
-        "water-strider"
-      ],
-      eatenBy: [
-        "american-bittern",
-        "belted-kingfisher",
-        "black-bear",
-        "great-blue-heron",
-        "green-heron",
-        "hooded-merganser",
-        "mink",
-        "painted-turtle",
-        "raccoon",
-        "river-otter",
-        "snapping-turtle"
-      ],
-      eatsOther: [
-        "algae",
-        "detritus",
-        "insect larvae",
-        "plankton"
-      ],
-      sources: [
+        "freshwater-fish",
+        "chorus-frog",
+        "northern-leopard-frog",
+        "muskrat",
+        "crayfish",
         {
-          name: "USGS - Minnow (Leuciscidae) trophic dynamics study",
-          url: "https://www.usgs.gov/publications/effects-stream-intermittency-minnow-leuciscidae-and-darter-percidae-trophic-dynamics"
+          id: "painted-turtle",
+          stage: "young"
         },
         {
-          name: "Encyclopaedia Britannica - Minnow",
-          url: "https://www.britannica.com/animal/minnow"
+          id: "mallard-duck",
+          stage: "young"
+        },
+        {
+          id: "red-winged-blackbird",
+          stage: "young"
+        },
+        {
+          id: "hooded-merganser",
+          stage: "young"
         }
-      ]
+      ],
+      eatsOther: [],
+      eatenBy: [],
+      requirements: {
+        minHealth: 65,
+        objects: {
+          "muskrat-bank-den": 1,
+          "mud-bank": 1,
+          "reed-bed": 1,
+          "beaver-pond": 1
+        },
+        signature: "muskrat-bank-den",
+        water: {
+          tiles: 3
+        },
+        animals: [
+          "freshwater-fish",
+          "chorus-frog"
+        ],
+        hint: "Water to hunt in, a bank to den in \u2014 and a muskrat to dig that den first."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 American mink",
+          url: "https://animaldiversity.org/accounts/Neovison_vison/"
+        },
+        {
+          name: "NatureServe Explorer \u2014 Neogale vison",
+          url: "https://explorer.natureserve.org/Taxon/ELEMENT_GLOBAL.2.791856/Neogale_vison"
+        }
+      ],
+      biome: "wetland",
+      aquatic: true
+    },
+    {
+      id: "great-blue-heron",
+      name: "Great Blue Heron",
+      scientificName: "Ardea herodias",
+      kind: "bird",
+      trophic: "mesopredator",
+      rarity: "uncommon",
+      diet: "Fish, frogs, salamanders, crayfish and large insects",
+      shelter: "Colonial stick nests built high in tall trees and snags near water",
+      preferredHabitat: "Still shallows for slow, patient hunting, with tall nest trees within reach",
+      fact: "A heron's neck has one specially kinked bone in it that works like a loaded spring \u2014 the strike is over faster than you can blink, and the fish is caught crosswise in the bill rather than speared.",
+      role: "The tall grey statue of the shallows. It hunts alone but flatly refuses to nest alone, packing dozens of stick nests into one stand of tall trees \u2014 and it spends a good part of its life being chased and robbed of its catch by eagles.",
+      eats: [
+        "freshwater-fish",
+        "chorus-frog",
+        "northern-leopard-frog",
+        "crayfish",
+        "dragonfly",
+        "wetland-salamander"
+      ],
+      eatsOther: [],
+      eatenBy: [
+        "bald-eagle"
+      ],
+      requirements: {
+        minHealth: 70,
+        objects: {
+          "heron-rookery": 2,
+          "shallow-water-pool": 2,
+          "beaver-pond": 1
+        },
+        signature: "heron-rookery",
+        water: {
+          tiles: 6
+        },
+        animals: [
+          "freshwater-fish",
+          "northern-leopard-frog"
+        ],
+        hint: "Shallow water full of fish and frogs, and a stand of tall trees for the colony. Herons nest together or not at all."
+      },
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Great Blue Heron life history",
+          url: "https://www.allaboutbirds.org/guide/Great_Blue_Heron/lifehistory"
+        },
+        {
+          name: "Audubon Field Guide \u2014 Great Blue Heron",
+          url: "https://www.audubon.org/field-guide/bird/great-blue-heron"
+        }
+      ],
+      biome: "wetland"
+    },
+    {
+      id: "river-otter",
+      name: "River Otter",
+      scientificName: "Lontra canadensis",
+      kind: "mammal",
+      trophic: "apex-predator",
+      rarity: "rare",
+      diet: "Fish, crayfish, mussels, frogs and other aquatic animals",
+      shelter: "Bank dens with underwater entrances \u2014 usually a beaver's old lodge or burrow",
+      preferredHabitat: "Clean, connected water rich in fish and slow prey",
+      fact: "An otter has around 350,000 hairs packed into every square centimetre of its fur \u2014 more than most animals have on their entire body. It is the air trapped in all that fur, not fat, that keeps an otter warm in freezing water.",
+      role: "The best swimmer in the marsh and the top hunter under the surface. Otters need a lot of clean connected water and a den they did not dig themselves, so an otter here means the beaver came back first \u2014 and it means the eagles finally have someone worth robbing.",
+      eats: [
+        "freshwater-fish",
+        "crayfish",
+        "muskrat",
+        "northern-leopard-frog",
+        "chorus-frog",
+        "freshwater-mussel",
+        {
+          id: "painted-turtle",
+          stage: "young"
+        },
+        "river-cooter"
+      ],
+      eatsOther: [],
+      eatenBy: [],
+      requirements: {
+        minHealth: 78,
+        objects: {
+          "otter-bank-den": 1,
+          "beaver-pond": 2,
+          "marsh-log": 1
+        },
+        signature: "otter-bank-den",
+        water: {
+          tiles: 8
+        },
+        animals: [
+          "freshwater-fish",
+          "crayfish"
+        ],
+        hint: "Lots of connected clean water, plenty of fish and crayfish, and a beaver-made bank den with an underwater door."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Lontra canadensis",
+          url: "https://animaldiversity.org/accounts/Lontra_canadensis/"
+        },
+        {
+          name: "Mass.gov \u2014 Learn about river otters",
+          url: "https://www.mass.gov/info-details/learn-about-river-otters"
+        }
+      ],
+      biome: "wetland",
+      aquatic: true
     }
   ]
 };
@@ -8744,1840 +15062,1321 @@ var animals_2_default = {
   table: "Animal",
   records: [
     {
-      id: "desert-cottontail",
-      name: "Desert Cottontail",
-      biome: "desert",
-      kind: "mammal",
-      rarity: "common",
-      featured: true,
-      diet: "Grasses, mesquite, cactus pads, and other desert plants",
-      shelter: "Brush cover and borrowed or natural burrows",
-      preferredHabitat: "Brushy flats with shade and open forage",
-      fact: "Desert cottontails get most of their water from the plants they eat.",
-      requirements: {
-        minHealth: 25,
-        objects: {
-          "desert-brush": 1,
-          "burrow-mound": 1
-        },
-        hint: "Brush for cover and a burrow bank to shelter in."
-      },
-      scientificName: "Sylvilagus audubonii",
-      role: "A common desert herbivore that grazes grasses and browse. It is a cornerstone prey species, feeding foxes, coyotes, bobcats, and raptors. Its abundance helps support the desert's predators.",
-      trophic: "herbivore",
-      eatenBy: [
-        "coyote",
-        "kit-fox",
-        "rattlesnake"
-      ],
-      eatsOther: [
-        "cactus pads",
-        "grasses",
-        "mesquite"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Sylvilagus audubonii",
-          url: "https://animaldiversity.org/accounts/Sylvilagus_audubonii/"
-        }
-      ]
-    },
-    {
-      id: "kit-fox",
-      name: "Kit Fox",
-      biome: "desert",
-      kind: "mammal",
-      rarity: "rare",
-      featured: true,
-      diet: "Kangaroo rats, rabbits, insects, and occasional fruit",
-      shelter: "Cool underground dens with several entrances",
-      preferredHabitat: "Open desert with abundant small prey",
-      fact: "The smallest wild dog in North America, its huge ears both hear prey and shed heat.",
-      requirements: {
-        minHealth: 70,
-        minBalance: 40,
-        objects: {
-          "desert-brush": 2,
-          "burrow-mound": 1,
-          "cactus-patch": 1
-        },
-        animals: [
-          "kangaroo-rat",
-          "desert-cottontail"
-        ],
-        hint: "Kit foxes return when prey is plentiful and dens are ready.",
-        conditions: {
-          dayPhase: [
-            "dusk",
-            "night"
-          ]
-        }
-      },
-      scientificName: "Vulpes macrotis",
-      role: "A small nocturnal desert canid and mesopredator that hunts rodents and rabbits. It seldom needs to drink, getting moisture from prey. Coyotes are its main threat.",
-      trophic: "mesopredator",
-      eats: [
-        "antelope-squirrel",
-        "desert-cottontail",
-        "desert-iguana",
-        "desert-tortoise",
-        "jackrabbit",
-        "kangaroo-mouse",
-        "kangaroo-rat"
-      ],
-      eatenBy: [
-        "coyote"
-      ],
-      eatsOther: [
-        "cactus fruit",
-        "insects"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Vulpes macrotis",
-          url: "https://animaldiversity.org/accounts/Vulpes_macrotis/"
-        }
-      ]
-    },
-    {
-      id: "coyote",
-      name: "Coyote",
-      biome: "desert",
-      kind: "mammal",
-      rarity: "rare",
-      diet: "Rodents, rabbits, fruit, carrion, and insects",
-      shelter: "Brushy washes and rock dens",
-      preferredHabitat: "Open desert with prey and cover",
-      fact: "The most vocal wild mammal in North America; a howling pack sounds like many more.",
-      requirements: {
-        minHealth: 75,
-        objects: {
-          "desert-brush": 2,
-          "shaded-rock-shelter": 1,
-          "cactus-patch": 1
-        },
-        animals: [
-          "jackrabbit"
-        ],
-        hint: "Cover, shade, and prey on the move."
-      },
-      scientificName: "Canis latrans",
-      role: "The desert's most adaptable predator, an omnivore taking rodents, rabbits, fruit, and carrion. It is the top mammalian predator here and the main killer of kit foxes. Its howls carry for miles at dusk.",
-      trophic: "apex-predator",
-      eats: [
-        "antelope-squirrel",
-        "burrowing-owl",
-        "chuckwalla",
-        "desert-cottontail",
-        "desert-tortoise",
-        "gambels-quail",
-        "horned-lizard",
-        "jackrabbit",
-        "kangaroo-rat",
-        "kit-fox",
-        "rattlesnake",
-        "roadrunner"
-      ],
-      eatsOther: [
-        "cactus fruit",
-        "carrion",
-        "insects"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Canis latrans",
-          url: "https://animaldiversity.org/accounts/Canis_latrans/"
-        }
-      ]
-    },
-    {
-      id: "kangaroo-rat",
-      name: "Kangaroo Rat",
-      biome: "desert",
-      kind: "mammal",
-      rarity: "common",
-      featured: true,
-      diet: "Seeds, carefully cached underground",
-      shelter: "Deep burrow systems in loose soil",
-      preferredHabitat: "Loose soil below seed-bearing brush",
-      fact: "Kangaroo rats never sweat or pant and get by on water made from the dry seeds they eat.",
-      requirements: {
-        minHealth: 25,
-        objects: {
-          "burrow-mound": 1,
-          "desert-brush": 1
-        },
-        hint: "Burrow banks and seed plants nearby."
-      },
-      scientificName: "Dipodomys merriami",
-      role: "A seed-eating rodent and key desert prey species. It caches seeds underground, shaping which plants grow. It feeds nearly every desert predator, from rattlesnakes to owls to foxes.",
-      trophic: "herbivore",
-      eatenBy: [
-        "burrowing-owl",
-        "coyote",
-        "kit-fox",
-        "rattlesnake"
-      ],
-      eatsOther: [
-        "mesquite",
-        "seeds"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Dipodomys merriami",
-          url: "https://animaldiversity.org/accounts/Dipodomys_merriami/"
-        }
-      ]
-    },
-    {
-      id: "jackrabbit",
-      name: "Black-tailed Jackrabbit",
-      biome: "desert",
-      kind: "mammal",
-      rarity: "common",
-      diet: "Grasses, cactus, and woody twigs and bark",
-      shelter: "Shade forms scraped under brush",
-      preferredHabitat: "Open flats with scattered brush",
-      fact: "A jackrabbit's enormous ears act like radiators, releasing body heat to keep it cool.",
-      requirements: {
-        minHealth: 30,
-        objects: {
-          "desert-brush": 2
-        },
-        hint: "Open running room with brush for shade."
-      },
-      scientificName: "Lepus californicus",
-      role: "A fast, open-country herbivore that browses grasses, twigs, and cactus. It is major prey for coyotes, bobcats, and large raptors. Its big ears both hear predators and dump heat.",
-      trophic: "herbivore",
-      eatenBy: [
-        "coyote",
-        "kit-fox"
-      ],
-      eatsOther: [
-        "cactus pads",
-        "grasses"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Lepus californicus",
-          url: "https://animaldiversity.org/accounts/Lepus_californicus/"
-        }
-      ]
-    },
-    {
-      id: "roadrunner",
-      name: "Greater Roadrunner",
-      biome: "desert",
-      kind: "bird",
-      rarity: "uncommon",
-      featured: true,
-      diet: "Lizards, insects, scorpions, and small snakes",
-      shelter: "Low nests in brush and cactus",
-      preferredHabitat: "Open hunting ground with brushy edges",
-      fact: "It slams large prey against rocks to break the bones, and will kill and eat rattlesnakes.",
-      requirements: {
-        minHealth: 50,
-        objects: {
-          "desert-brush": 1,
-          "cactus-patch": 1,
-          "rock-pile": 1
-        },
-        animals: [
-          "horned-lizard"
-        ],
-        hint: "Open desert, brush, and reptile prey about."
-      },
-      scientificName: "Geococcyx californianus",
-      role: "A ground-running predatory bird that sprints down lizards, insects, scorpions, and snakes. It is a key mesopredator on small desert reptiles and arthropods. Coyotes and hawks hunt it.",
-      trophic: "mesopredator",
-      eats: [
-        "banded-gecko",
-        "cactus-wren",
-        "collared-lizard",
-        "gambels-quail",
-        "horned-lizard",
-        "rattlesnake",
-        "scorpion",
-        "tarantula"
-      ],
-      eatenBy: [
-        "coyote"
-      ],
-      eatsOther: [
-        "cactus fruit",
-        "insects"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds \u2014 Greater Roadrunner",
-          url: "https://www.allaboutbirds.org/guide/Greater_Roadrunner/lifehistory"
-        },
-        {
-          name: "Audubon \u2014 Greater Roadrunner",
-          url: "https://www.audubon.org/field-guide/bird/greater-roadrunner"
-        }
-      ]
-    },
-    {
-      id: "burrowing-owl",
-      name: "Burrowing Owl",
-      biome: "desert",
-      kind: "bird",
-      rarity: "uncommon",
-      featured: true,
-      diet: "Insects and small rodents",
-      shelter: "Underground burrows dug by other animals",
-      preferredHabitat: "Burrow mounds with open hunting space",
-      fact: "It hisses a raspy call that mimics a rattlesnake to scare intruders out of its burrow.",
-      requirements: {
-        minHealth: 55,
-        objects: {
-          "burrow-mound": 2,
-          "desert-brush": 1
-        },
-        hint: "Ready-made burrows and open ground to hunt over."
-      },
-      scientificName: "Athene cunicularia",
-      role: "A small ground-dwelling owl that nests in borrowed burrows and hunts insects by day and rodents at night. It is both an insectivore and a mesopredator on small mammals. Badgers and coyotes prey on it.",
-      trophic: "insectivore",
-      eats: [
-        "kangaroo-mouse",
-        "kangaroo-rat",
-        "scorpion"
-      ],
-      eatenBy: [
-        "coyote"
-      ],
-      eatsOther: [
-        "insects"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds \u2014 Burrowing Owl",
-          url: "https://www.allaboutbirds.org/guide/Burrowing_Owl/lifehistory"
-        },
-        {
-          name: "Audubon \u2014 Burrowing Owl",
-          url: "https://www.audubon.org/field-guide/bird/burrowing-owl"
-        }
-      ]
-    },
-    {
-      id: "gambels-quail",
-      name: "Gambel's Quail",
-      biome: "desert",
-      kind: "bird",
-      rarity: "common",
-      diet: "Seeds, leaves, and cactus fruit",
-      shelter: "Dense brush thickets",
-      preferredHabitat: "Brushy cover with seed plants",
-      fact: "A male sentinel calls from a perch while the rest of the covey feeds below.",
-      requirements: {
-        minHealth: 40,
-        objects: {
-          "desert-brush": 2,
-          "cactus-patch": 1,
-          "rock-pile": 1
-        },
-        hint: "Thick brush to hide a whole covey."
-      },
-      scientificName: "Callipepla gambelii",
-      role: "A social, ground-feeding quail that eats seeds, greens, and cactus fruit. It is important prey for coyotes, bobcats, and desert hawks. Coveys post a lookout while the flock forages.",
-      trophic: "herbivore",
-      eatenBy: [
-        "coyote",
-        "roadrunner"
-      ],
-      eatsOther: [
-        "cactus fruit",
-        "insects",
-        "seeds"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds \u2014 Gambel's Quail",
-          url: "https://www.allaboutbirds.org/guide/Gambels_Quail/lifehistory"
-        },
-        {
-          name: "Audubon \u2014 Gambel's Quail",
-          url: "https://www.audubon.org/field-guide/bird/gambels-quail"
-        }
-      ]
-    },
-    {
-      id: "desert-tortoise",
-      name: "Desert Tortoise",
-      biome: "desert",
-      kind: "reptile",
-      rarity: "rare",
-      diet: "Grasses, wildflowers, and cactus pads",
-      shelter: "Long, cool burrows",
-      preferredHabitat: "Native plants with shade and burrow ground",
-      fact: "Desert tortoises can live 80 years and spend up to 98% of their lives in burrows.",
-      requirements: {
-        minHealth: 65,
-        objects: {
-          "burrow-mound": 1,
-          "cactus-patch": 1,
-          "shaded-rock-shelter": 1
-        },
-        hint: "Shade, native plants, and burrow habitat."
-      },
-      scientificName: "Gopherus agassizii",
-      role: "A long-lived herbivore and ecosystem engineer. Its burrows, which can exceed 10 metres, shelter snakes, lizards, rodents, and insects. Adults are nearly predator-free, but eggs and young are widely eaten.",
-      trophic: "herbivore",
-      eatenBy: [
-        "coyote",
-        "kit-fox"
-      ],
-      eatsOther: [
-        "cactus pads",
-        "grasses",
-        "wildflowers"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Gopherus agassizii",
-          url: "https://animaldiversity.org/accounts/Gopherus_agassizii/"
-        }
-      ]
-    },
-    {
-      id: "horned-lizard",
-      name: "Horned Lizard",
-      biome: "desert",
-      kind: "reptile",
-      rarity: "common",
-      diet: "Mostly ants, plus other small insects",
-      shelter: "Loose sand and rock edges",
-      preferredHabitat: "Sunny open ground near ant trails",
-      fact: "Texas horned lizards can squirt a jet of blood from their eyes to startle predators.",
-      requirements: {
-        minHealth: 16,
-        objects: {
-          "rock-pile": 1,
-          "rock-crevice": 1
-        },
-        hint: "Sunny rocks and sandy ground bring the ants \u2014 and the lizards."
-      },
-      scientificName: "Phrynosoma cornutum",
-      role: "A specialist insectivore that feeds mainly on harvester ants, with a large stomach to process them. It is prey for roadrunners, hawks, shrikes, and snakes. Its blood-squirting defense targets canid predators.",
-      trophic: "insectivore",
-      eatenBy: [
-        "coyote",
-        "roadrunner"
-      ],
-      eatsOther: [
-        "insects"
-      ],
-      sources: [
-        {
-          name: "Sherbrooke & Middendorf 2001, Copeia \u2014 blood squirting (PDF)",
-          url: "http://yubawatershedinstitute.org/wp-content/uploads/2015/04/Blood-squirting.pdf"
-        },
-        {
-          name: "Wikipedia \u2014 Texas horned lizard",
-          url: "https://en.wikipedia.org/wiki/Texas_horned_lizard"
-        }
-      ]
-    },
-    {
-      id: "collared-lizard",
-      name: "Collared Lizard",
-      biome: "desert",
-      kind: "reptile",
-      rarity: "uncommon",
-      diet: "Insects and smaller lizards",
-      shelter: "Rock piles and ledges",
-      preferredHabitat: "Boulder fields with lookout rocks",
-      fact: "Collared lizards sprint on their hind legs like tiny dinosaurs, tail streaming behind.",
-      requirements: {
-        minHealth: 45,
-        objects: {
-          "rock-pile": 2,
-          "desert-brush": 1
-        },
-        hint: "Plenty of warm rock to perch and hunt from."
-      },
-      scientificName: "Crotaphytus collaris",
-      role: "An active, sit-and-wait predator of insects and smaller lizards among the rocks. It is a mesopredator on desert arthropods and hatchling reptiles. Hawks, snakes, and roadrunners prey on it.",
-      trophic: "insectivore",
-      eats: [
-        "banded-gecko"
-      ],
-      eatenBy: [
-        "rattlesnake",
-        "roadrunner"
-      ],
-      eatsOther: [
-        "insects"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Crotaphytus collaris",
-          url: "https://animaldiversity.org/accounts/Crotaphytus_collaris/"
-        }
-      ]
-    },
-    {
-      id: "rattlesnake",
-      name: "Western Rattlesnake",
-      biome: "desert",
-      kind: "reptile",
-      rarity: "rare",
-      diet: "Rodents and small mammals",
-      shelter: "Rock crevices and burrows",
-      preferredHabitat: "Rocky shelter near busy rodent trails",
-      fact: "It adds a rattle segment at each shed, but segments break, so you can't count its age.",
-      requirements: {
-        minHealth: 60,
-        objects: {
-          "shaded-rock-shelter": 1,
-          "rock-pile": 1,
-          "desert-brush": 1
-        },
-        animals: [
-          "kangaroo-rat"
-        ],
-        hint: "Rocky shelter and rodents to hunt."
-      },
-      scientificName: "Crotalus atrox",
-      role: "A venomous ambush predator and key control on desert rodent populations. It swallows prey whole and eats only every few weeks. Roadrunners, hawks, and coyotes are among its predators.",
-      trophic: "mesopredator",
-      eats: [
-        "antelope-squirrel",
-        "banded-gecko",
-        "cactus-wren",
-        "chuckwalla",
-        "collared-lizard",
-        "desert-cottontail",
-        "desert-iguana",
-        "gila-woodpecker",
-        "kangaroo-mouse",
-        "kangaroo-rat"
-      ],
-      eatenBy: [
-        "coyote",
-        "roadrunner"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Crotalus atrox",
-          url: "https://animaldiversity.org/accounts/Crotalus_atrox/"
-        }
-      ]
-    },
-    {
-      id: "tarantula",
-      name: "Desert Tarantula",
-      biome: "desert",
+      id: "alpine-springtail",
+      name: "Snow Flea",
+      scientificName: "Hypogastrura nivicola",
       kind: "invertebrate",
-      rarity: "uncommon",
-      diet: "Insects and other small invertebrates",
-      shelter: "Silk-lined ground burrows",
-      preferredHabitat: "Undisturbed ground with burrow banks",
-      fact: "A desert tarantula may live 25 years, most of it within a few feet of one burrow.",
-      requirements: {
-        minHealth: 45,
-        objects: {
-          "burrow-mound": 1,
-          "desert-brush": 1
-        },
-        hint: "Quiet, diggable ground."
-      },
-      scientificName: "Aphonopelma chalcodes",
-      role: "A long-lived, nocturnal ambush predator of insects and other invertebrates from its burrow. It is a mesopredator on desert arthropods. Birds, snakes, and the tarantula hawk wasp prey on it.",
-      trophic: "insectivore",
-      eats: [
-        "scorpion"
-      ],
-      eatenBy: [
-        "roadrunner"
-      ],
-      eatsOther: [
-        "insects"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Aphonopelma chalcodes",
-          url: "https://animaldiversity.org/accounts/Aphonopelma_chalcodes/"
-        }
-      ]
-    },
-    {
-      id: "scorpion",
-      name: "Desert Scorpion",
-      biome: "desert",
-      kind: "invertebrate",
+      trophic: "detritivore",
       rarity: "common",
-      diet: "Insects, spiders, and other small invertebrates",
-      shelter: "Burrows and cover under rocks and bark",
-      preferredHabitat: "Rocky cover with night hunting ground",
-      fact: "Scorpions glow blue-green under ultraviolet light, and no one is entirely sure why.",
-      requirements: {
-        minHealth: 12,
-        objects: {
-          "rock-pile": 1
-        },
-        hint: "Rocks to hide beneath by day."
-      },
-      scientificName: "Hadrurus arizonensis",
-      role: "The largest scorpion in North America, a nocturnal ambush predator of insects, spiders, and even other scorpions. It is a mesopredator on desert arthropods and small prey. Owls, lizards, and roadrunners hunt it.",
-      trophic: "insectivore",
-      eatenBy: [
-        "banded-gecko",
-        "burrowing-owl",
-        "elf-owl",
-        "roadrunner",
-        "tarantula"
-      ],
+      diet: "Dead leaves and stems, fungal threads, pollen, and the pink algae that grow on old snow",
+      shelter: "Wet leaf litter, moss cushions, and the hollow gap between the snowpack and the ground in winter",
+      preferredHabitat: "Damp alpine turf, moss cushions and snowmelt litter, plus the surface of late-lying snow on warm days",
+      fact: "On a mild winter day snow fleas pour out onto the snow in their thousands, like somebody spilled pepper across the drift. Their blood is full of natural antifreeze, so they keep moving when everything else is frozen stiff.",
+      role: "The clean-up crew, and the reason last year's leaves do not simply pile up forever. Snow fleas shred dead stems and graze fungal threads into soil, and they keep at it all winter in the dark gap between the snowpack and the ground. Pipits, finches, chickadees, bluebirds, nutcrackers and toads all snap them up.",
+      eats: [],
       eatsOther: [
-        "insects"
+        "dead leaves and stems",
+        "pollen",
+        "snow algae"
       ],
+      eatenBy: [
+        "american-pipit",
+        "rosy-finch",
+        "boreal-toad",
+        "mountain-chickadee",
+        "clarks-nutcracker",
+        "snow-bunting"
+      ],
+      requirements: {
+        minHealth: 18,
+        objects: {
+          "snowmelt-litter-mat": 2,
+          "moss-cushion": 2,
+          "alpine-turf-mat": 1
+        },
+        signature: "snowmelt-litter-mat",
+        hint: "Damp litter and moss, not open water. A snow flea drinks through its skin, so what it needs is ground that never quite dries out and a mat of old leaves left lying where the drifts melt last."
+      },
       sources: [
         {
-          name: "Animal Diversity Web \u2014 Hadrurus arizonensis",
-          url: "https://animaldiversity.org/accounts/Hadrurus_arizonensis/"
-        }
-      ]
-    },
-    {
-      id: "desert-bee",
-      name: "Desert Bee",
-      biome: "desert",
-      kind: "insect",
-      rarity: "common",
-      diet: "Cactus flower nectar and pollen",
-      shelter: "Tiny solitary ground nests",
-      preferredHabitat: "Blooming cactus and brush",
-      fact: "Solitary cactus bees nest alone but gather by the thousands in shared ground colonies.",
-      requirements: {
-        minHealth: 20,
-        objects: {
-          "cactus-patch": 1
+          name: "Britannica \u2014 Snow flea",
+          url: "https://www.britannica.com/animal/snow-flea"
         },
-        hint: "Cactus blooms are the desert's flower patch."
-      },
-      scientificName: "Diadasia rinconis",
-      role: "A solitary native bee and key pollinator of desert cacti such as prickly pear and cholla. As a herbivore on nectar and pollen, it sustains cactus reproduction. Lizards, birds, and spiders prey on it.",
-      trophic: "herbivore",
-      eatenBy: [
-        "banded-gecko",
-        "cactus-wren"
-      ],
-      eatsOther: [
-        "cactus flower nectar",
-        "pollen"
-      ],
-      sources: [
         {
-          name: "Arizona-Sonora Desert Museum \u2014 Bees",
-          url: "https://www.desertmuseum.org/books/nhsd_bees.php"
+          name: "Hypogastrura nivicola \u2014 antifreeze protein",
+          url: "https://en.wikipedia.org/wiki/Hypogastrura_nivicola"
         }
-      ]
-    },
-    {
-      id: "mountain-goat",
-      name: "Mountain Goat",
-      biome: "alpine",
-      kind: "mammal",
-      rarity: "rare",
-      featured: true,
-      diet: "Alpine grasses, sedges, forbs, woody browse, mosses, and lichens",
-      shelter: "Shallow bedding depressions pawed into cliff ledges and rocky terrain",
-      preferredHabitat: "Steep alpine and subalpine cliffs with escape terrain above turf",
-      fact: "Both sexes grow permanent black horns; you can count the annual rings to age one.",
-      requirements: {
-        minHealth: 70,
-        objects: {
-          "rock-pile": 2,
-          "alpine-wildflower-patch": 2,
-          "heather-mat": 1
-        },
-        hint: "Rocky terrain and restored alpine vegetation."
-      },
-      scientificName: "Oreamnos americanus",
-      role: "A sure-footed alpine grazer of the highest cliffs, browsing grasses, forbs, and lichens across the rock. Its rubbery-padded hooves grip terrain few predators can follow. Kids and adults are still taken by cougars, and eagles snatch newborns from ledges.",
-      trophic: "herbivore",
-      eatenBy: [
-        "golden-eagle"
       ],
-      eatsOther: [
-        "alpine plants",
-        "grasses",
-        "lichen",
-        "moss",
-        "sedges"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web - Oreamnos americanus",
-          url: "https://animaldiversity.org/accounts/Oreamnos_americanus/"
-        }
-      ]
+      biome: "alpine"
     },
     {
       id: "bighorn-sheep",
       name: "Bighorn Sheep",
-      biome: "alpine",
+      scientificName: "Ovis canadensis",
       kind: "mammal",
+      trophic: "herbivore",
       rarity: "rare",
       diet: "Chiefly grasses and sedges, with forbs and woody browse in winter",
       shelter: "Beds on rocky ledges and rugged escape terrain near cliffs",
-      preferredHabitat: "Open grassy mountain slopes beside rugged, rocky cliffs",
-      fact: "Bighorns flee across rocky ledges barely a few inches wide to escape predators.",
-      requirements: {
-        minHealth: 75,
-        objects: {
-          "rock-pile": 2,
-          "grass-patch": 2,
-          "alpine-wildflower-patch": 1
-        },
-        hint: "Grassy slopes with rocky escape ground."
-      },
-      scientificName: "Ovis canadensis",
-      role: "A cliff-edge grazer that crops grasses and forbs on open slopes, never far from rugged escape terrain. Rams clash horns in booming rutting contests each fall. Lambs and adults are hunted by cougars, and eagles may take the very young.",
-      trophic: "herbivore",
+      preferredHabitat: "Open alpine turf directly beside steep, broken escape cliffs",
+      fact: "Rams charge each other and crash horns hard enough to be heard a mile off. Their skulls are double-layered to take the hit, and a lamb is climbing rock within a day of being born.",
+      role: "A cliff-edge grazer that crops turf on open slopes and never feeds further from broken rock than it can sprint. Mountain lions take adults and lambs, and eagles carry newborn lambs off the ledges.",
+      eats: [],
+      eatsOther: [
+        "alpine grasses",
+        "sedges",
+        "forbs"
+      ],
       eatenBy: [
         "golden-eagle"
       ],
-      eatsOther: [
-        "alpine plants",
-        "grasses",
-        "sedges"
-      ],
+      requirements: {
+        minHealth: 72,
+        objects: {
+          "escape-cliff": 2,
+          "alpine-turf-mat": 2,
+          "alpine-mineral-lick": 1
+        },
+        signature: "escape-cliff",
+        water: {
+          tiles: 1
+        },
+        hint: "Good grazing is only half of it. A bighorn will not use a slope it cannot escape from, so put the turf right up against broken cliff, and a mineral lick nearby because sheep will travel a long way for salt."
+      },
       sources: [
         {
-          name: "Animal Diversity Web - Ovis canadensis",
+          name: "ADW \u2014 Ovis canadensis",
           url: "https://animaldiversity.org/accounts/Ovis_canadensis/"
         },
         {
-          name: "National Wildlife Federation - Bighorn Sheep",
+          name: "NWF Wildlife Guide \u2014 Bighorn Sheep",
           url: "https://www.nwf.org/Educational-Resources/Wildlife-Guide/Mammals/bighorn-sheep"
         }
-      ]
+      ],
+      biome: "alpine"
     },
     {
       id: "pika",
-      name: "American Pika",
-      biome: "alpine",
-      kind: "mammal",
-      rarity: "common",
-      featured: true,
-      diet: "Grasses, forbs, and wildflowers, gathered and dried into winter haypiles",
-      shelter: "Cool gaps deep within talus and broken rock",
-      preferredHabitat: "Talus slopes and rock piles bordering alpine flower meadows",
-      fact: "Pikas cut and sun-dry little haystacks of plants to eat beneath the winter snow.",
-      requirements: {
-        minHealth: 14,
-        objects: {
-          "talus-pile": 1,
-          "rock-pile": 1
-        },
-        hint: "Cool rock piles and flowers to harvest."
-      },
+      name: "Pika",
       scientificName: "Ochotona princeps",
-      role: "A tiny talus-dwelling relative of rabbits and the engine of the alpine food web. It spends summer harvesting haypiles of forbs and grasses to survive under snow. Pikas are hunted by weasels, martens, foxes, and eagles alike.",
+      kind: "mammal",
       trophic: "herbivore",
+      rarity: "common",
+      diet: "Grasses, forbs, wildflowers and lichen, cut green and dried into winter haypiles",
+      shelter: "Cool gaps deep within talus and broken rock",
+      preferredHabitat: "Deep, stable talus with alpine flower turf right at its edge",
+      fact: "A pika spends its whole summer cutting flowers and grass and stacking them into little haystacks under the rocks, then eats its way through the pile in the dark under the snow.",
+      role: "A hamster-shaped cousin of rabbits that lives in the gaps inside talus and squeaks at anything that comes near. It overheats after an hour of warm sun, so it works at dawn and dusk, and it has already vanished from the lower, hotter rockslides, which makes it the mountain's early warning system. Weasels, martens, foxes, wolverines and eagles all hunt it.",
+      eats: [],
+      eatsOther: [
+        "alpine grasses",
+        "forbs",
+        "wildflowers"
+      ],
       eatenBy: [
         "ermine",
         "fox-alpine",
         "golden-eagle",
-        "pine-marten"
+        "pine-marten",
+        "wolverine"
       ],
-      eatsOther: [
-        "alpine plants",
-        "grasses",
-        "lichen",
-        "wildflowers"
-      ],
+      requirements: {
+        minHealth: 30,
+        objects: {
+          "pika-haypile": 1,
+          "talus-pile": 3,
+          "alpine-wildflower-patch": 1
+        },
+        signature: "pika-haypile",
+        hint: "Deep talus to vanish into with flowers a short dash away, then a haypile, because a pika that cannot cure its hay in summer will not last the winter. It barely drinks. Its water comes out of the plants it eats."
+      },
       sources: [
         {
-          name: "Animal Diversity Web - Ochotona princeps",
+          name: "ADW \u2014 Ochotona princeps",
           url: "https://animaldiversity.org/accounts/Ochotona_princeps/"
+        },
+        {
+          name: "USGS \u2014 Pikas and climate",
+          url: "https://www.usgs.gov/centers/fort-collins-science-center/science/american-pika"
         }
-      ]
+      ],
+      biome: "alpine"
     },
     {
       id: "marmot",
       name: "Yellow-bellied Marmot",
-      biome: "alpine",
+      scientificName: "Marmota flaviventris",
       kind: "mammal",
+      trophic: "herbivore",
       rarity: "common",
-      featured: true,
-      diet: "Grasses, flowering plants, and seeds in late summer",
-      shelter: "Deep burrow systems dug beneath boulders",
-      preferredHabitat: "Open meadow patches with boulders and burrow ground",
-      fact: "Predation causes about 98% of yellow-bellied marmots' summer deaths.",
+      diet: "Grasses, flowering plants and seeds, eaten hard through a short summer",
+      shelter: "Deep, many-chambered burrows dug beneath boulders, below the frost line",
+      preferredHabitat: "Open alpine turf broken by boulders, with diggable soil underneath",
+      fact: "A marmot sleeps for about eight months of the year and wakes up weighing half what it did when it went to bed.",
+      role: "A fat, sun-basking rodent that eats meadow plants flat out through a short summer and whistles from a boulder the moment a shadow crosses. Its old burrows become fox dens, bumble bee nests and toad hideouts, so a surprising amount of the mountain depends on its digging. Eagles, foxes, martens, wolverines and lions hunt it.",
+      eats: [],
+      eatsOther: [
+        "alpine grasses",
+        "forbs",
+        "seeds"
+      ],
+      eatenBy: [
+        "golden-eagle",
+        "fox-alpine",
+        "pine-marten",
+        "wolverine",
+        "mule-deer-alpine"
+      ],
       requirements: {
         minHealth: 35,
         objects: {
-          "burrow-mound": 1,
-          "alpine-wildflower-patch": 1
+          "boulder-burrow-den": 1,
+          "alpine-turf-mat": 2,
+          "talus-pile": 1
         },
-        hint: "Burrows, meadow patches, and open space."
+        signature: "boulder-burrow-den",
+        conditions: {
+          season: [
+            "spring",
+            "summer"
+          ]
+        },
+        hint: "Soil deep enough to dig, a boulder to dig under, and a lot of green within waddling distance. Do not go looking after early autumn, because it is underground until spring."
       },
-      scientificName: "Marmota flaviventris",
-      role: "A stout, sun-loving rodent that grazes meadow plants and fattens on seeds before an eight-month hibernation. Colonies whistle alarm calls from boulder lookouts. They are prime prey for golden eagles, coyotes, and foxes.",
-      trophic: "herbivore",
-      eatenBy: [
-        "fox-alpine",
-        "golden-eagle"
-      ],
-      eatsOther: [
-        "alpine plants",
-        "grasses",
-        "seeds",
-        "wildflowers"
-      ],
       sources: [
         {
-          name: "Animal Diversity Web - Marmota flaviventris",
+          name: "ADW \u2014 Marmota flaviventris",
           url: "https://animaldiversity.org/accounts/Marmota_flaviventris/"
+        },
+        {
+          name: "NPS \u2014 Yellow-bellied marmot",
+          url: "https://www.nps.gov/romo/learn/nature/marmot.htm"
         }
-      ]
+      ],
+      biome: "alpine"
     },
     {
       id: "snowshoe-hare",
       name: "Snowshoe Hare",
-      biome: "alpine",
+      scientificName: "Lepus americanus",
       kind: "mammal",
+      trophic: "herbivore",
       rarity: "uncommon",
-      diet: "Green plants in summer; buds, twigs, bark, and conifer needles in winter",
-      shelter: "Shallow forms under dense shrubs and conifer cover",
-      preferredHabitat: "Brushy thickets and dense understory near open turf",
-      fact: "Its molt from brown to winter white is triggered by day length, not snow.",
+      diet: "Green plants in summer; willow and juniper twigs, buds, bark and conifer needles in winter",
+      shelter: "Shallow 'forms' scraped under dense shrubs and low conifer branches",
+      preferredHabitat: "Dense krummholz, juniper and willow thickets at and just below treeline",
+      fact: "The hare changes colour by the calendar, not the weather. Shortening days flip its coat white whether the snow has turned up or not, so a warm autumn can leave a white hare sitting on brown ground.",
+      role: "A browsing hare of thick treeline cover with back feet like snowshoes that hold it up on top of drifts. It freezes rather than runs, so tangled low cover is everything to it, and willow twigs get it through the winter. Martens, foxes, eagles, wolverines and lions all hunt it.",
+      eats: [],
+      eatsOther: [
+        "willow twigs",
+        "juniper foliage",
+        "conifer needles",
+        "bark",
+        "summer greens"
+      ],
+      eatenBy: [
+        "pine-marten",
+        "golden-eagle",
+        "fox-alpine",
+        "wolverine"
+      ],
       requirements: {
         minHealth: 40,
         objects: {
-          "grass-patch": 2,
-          "rock-pile": 1
+          "juniper-thicket": 2,
+          "krummholz-pine": 2,
+          "willow-basin-thicket": 1,
+          "krummholz-bed-hollow": 1
         },
-        hint: "Cover and forage at the treeline."
+        signature: "juniper-thicket",
+        hint: "Low tangled cover it can freeze motionless inside, a scraped hollow under the krummholz to sit out the day, and willow to browse in winter. Open ground with a rock pile on it is the opposite of hare habitat. It eats snow instead of drinking."
       },
-      scientificName: "Lepus americanus",
-      role: "A browsing hare of brushy treeline cover whose coat flips brown-to-white with the seasons. Its numbers cycle roughly every ten years, driving predator populations. Martens, foxes, eagles, and owls all hunt it.",
-      trophic: "herbivore",
-      eatenBy: [
-        "golden-eagle",
-        "pine-marten"
-      ],
-      eatsOther: [
-        "alpine plants",
-        "bark",
-        "buds",
-        "grasses"
-      ],
       sources: [
         {
-          name: "Animal Diversity Web - Lepus americanus",
+          name: "ADW \u2014 Lepus americanus",
           url: "https://animaldiversity.org/accounts/Lepus_americanus/"
         },
         {
-          name: "USFS Fire Effects Information System - Lepus americanus",
+          name: "USDA Forest Service FEIS \u2014 Lepus americanus",
           url: "https://research.fs.usda.gov/feis/species-reviews/leam"
         }
-      ]
-    },
-    {
-      id: "elk-alpine",
-      name: "Elk",
-      biome: "alpine",
-      kind: "mammal",
-      rarity: "rare",
-      diet: "Grasses, sedges, and forbs in summer; browse, bark, and lichens in winter",
-      shelter: "Beds in timber edges and shaded cover beside meadows",
-      preferredHabitat: "High summer meadows near forest cover and snowmelt water",
-      fact: "Elk chase the 'green wave' of new growth up the mountains each summer.",
-      requirements: {
-        minHealth: 70,
-        objects: {
-          "grass-patch": 2,
-          "snowmelt-pool": 1,
-          "rock-pile": 1
-        },
-        hint: "High meadow forage and snowmelt water."
-      },
-      scientificName: "Cervus canadensis",
-      role: "A large migratory grazer that summers in high meadows, following fresh growth uphill and bugling through the autumn rut. Bulls regrow massive antlers yearly. Cougars take adults, while eagles and coyotes may take newborn calves.",
-      trophic: "herbivore",
-      eatsOther: [
-        "alpine plants",
-        "bark",
-        "grasses",
-        "sedges"
       ],
-      sources: [
-        {
-          name: "Animal Diversity Web - Cervus",
-          url: "https://animaldiversity.org/accounts/Cervus_elaphus/"
-        },
-        {
-          name: "WDFW - Elk (Cervus canadensis)",
-          url: "https://wdfw.wa.gov/species-habitats/species/cervus-canadensis"
-        }
-      ]
-    },
-    {
-      id: "mule-deer-alpine",
-      name: "Mule Deer",
-      biome: "alpine",
-      kind: "mammal",
-      rarity: "uncommon",
-      diet: "A selective browser of shrubs, forbs, buds, fruits, and lichens",
-      shelter: "Beds in shaded thickets and krummholz cover",
-      preferredHabitat: "High summer meadows and shrublands with clean water",
-      fact: "Mule deer clear obstacles with a bounding, four-footed gait called stotting.",
-      requirements: {
-        minHealth: 55,
-        objects: {
-          "grass-patch": 1,
-          "alpine-wildflower-patch": 1,
-          "snowmelt-pool": 1
-        },
-        hint: "Forage and clean water up high."
-      },
-      scientificName: "Odocoileus hemionus",
-      role: "A selective high-country browser that summers in alpine meadows and shrublands before migrating down each fall. It picks the most digestible forbs, buds, and browse. Cougars are its main predator; fawns are also taken by eagles and coyotes.",
-      trophic: "herbivore",
-      eatenBy: [
-        "golden-eagle"
-      ],
-      eatsOther: [
-        "alpine plants",
-        "buds",
-        "lichen",
-        "shrubs"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web - Odocoileus hemionus",
-          url: "https://animaldiversity.org/accounts/Odocoileus_hemionus/"
-        },
-        {
-          name: "CDFW - Mule Deer Natural History",
-          url: "https://wildlife.ca.gov/Regions/6/Mule-Deer/Natural-History"
-        }
-      ]
-    },
-    {
-      id: "fox-alpine",
-      name: "Red Fox",
-      biome: "alpine",
-      kind: "mammal",
-      rarity: "rare",
-      diet: "Voles, pikas, hares, ground birds and eggs, insects, and berries",
-      shelter: "Earthen dens, often burrows co-opted from other animals",
-      preferredHabitat: "High country with rocky cover and abundant small prey",
-      fact: "Red foxes often move into burrows dug by rabbits or marmots instead of digging.",
-      requirements: {
-        minHealth: 65,
-        objects: {
-          "rock-pile": 1,
-          "alpine-wildflower-patch": 1
-        },
-        animals: [
-          "pika",
-          "marmot"
-        ],
-        hint: "Foxes follow the pikas and marmots."
-      },
-      scientificName: "Vulpes vulpes",
-      role: "An adaptable mountain mesopredator that hunts pikas, marmots, and ground birds and rounds out its diet with insects and berries. It listens for prey moving beneath the snow, then dives in headfirst. Golden eagles are its main threat here.",
-      trophic: "mesopredator",
-      eats: [
-        "alpine-chipmunk",
-        "american-pipit",
-        "boreal-toad",
-        "cascades-frog",
-        "ermine",
-        "marmot",
-        "mountain-chickadee",
-        "pika",
-        "pine-grosbeak",
-        "ptarmigan",
-        "white-crowned-sparrow"
-      ],
-      eatenBy: [
-        "golden-eagle"
-      ],
-      eatsOther: [
-        "berries",
-        "insects",
-        "seeds",
-        "voles"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web - Vulpes vulpes",
-          url: "https://animaldiversity.org/accounts/Vulpes_vulpes/"
-        },
-        {
-          name: "USFWS - Sierra Nevada Red Fox",
-          url: "https://www.fws.gov/species/sierra-nevada-red-fox-vulpes-vulpes-necator"
-        }
-      ]
-    },
-    {
-      id: "pine-marten",
-      name: "Pine Marten",
-      biome: "alpine",
-      kind: "mammal",
-      rarity: "rare",
-      diet: "Voles, red squirrels, pikas, hares, birds, eggs, insects, and berries",
-      shelter: "Dens in tree cavities, hollow logs, stumps, and rock crevices",
-      preferredHabitat: "Structurally complex treeline forest with rocky cover",
-      fact: "Pine martens hunt beneath the winter snowpack through tunnels others can't reach.",
-      requirements: {
-        minHealth: 70,
-        objects: {
-          "rock-pile": 2,
-          "alpine-wildflower-patch": 1
-        },
-        animals: [
-          "snowshoe-hare"
-        ],
-        hint: "Rocky cover and prey near the treeline."
-      },
-      scientificName: "Martes americana",
-      role: "An agile treeline weasel that hunts voles, squirrels, pikas, and young hares, adding berries and insects in season. It ranges over complex forest and rock, even beneath the snowpack. Great horned owls, eagles, and larger carnivores prey on it.",
-      trophic: "mesopredator",
-      eats: [
-        "alpine-chipmunk",
-        "ermine",
-        "mountain-chickadee",
-        "pika",
-        "pine-grosbeak",
-        "ptarmigan",
-        "snowshoe-hare",
-        "white-crowned-sparrow"
-      ],
-      eatenBy: [
-        "golden-eagle"
-      ],
-      eatsOther: [
-        "berries",
-        "insects",
-        "squirrels",
-        "voles"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web - Martes americana",
-          url: "https://animaldiversity.org/accounts/Martes_americana/"
-        },
-        {
-          name: "Alaska Dept. of Fish & Game - American Marten",
-          url: "https://www.adfg.alaska.gov/index.cfm?adfg=americanmarten.main"
-        }
-      ]
+      biome: "alpine"
     },
     {
       id: "ptarmigan",
       name: "White-tailed Ptarmigan",
-      biome: "alpine",
-      kind: "bird",
-      rarity: "uncommon",
-      featured: true,
-      diet: "Buds, twigs, leaves, seeds, and flowers; willow is the sole winter food",
-      shelter: "Camouflaged ground scrapes among lichen-covered alpine rocks",
-      preferredHabitat: "Alpine tundra above treeline year-round, wintering in willow basins",
-      fact: "It is the only North American bird living entirely above treeline all year.",
-      requirements: {
-        minHealth: 55,
-        objects: {
-          "alpine-wildflower-patch": 1,
-          "grass-patch": 1,
-          "rock-pile": 1,
-          "frostflower-planter": 1
-        },
-        hint: "Alpine shrubs and quiet nesting cover, with hardy frostflowers in bloom."
-      },
       scientificName: "Lagopus leucura",
-      role: "A superbly camouflaged alpine grouse that grazes buds, leaves, and seeds, surviving winter almost entirely on willow. It grows feathered 'snowshoes' on its feet each winter. Eagles, foxes, weasels, and martens all hunt it and its chicks.",
+      kind: "bird",
       trophic: "herbivore",
+      rarity: "uncommon",
+      diet: "Buds, twigs, leaves, seeds and flowers; in winter almost entirely willow buds and twigs",
+      shelter: "Camouflaged ground scrapes among lichen-covered rock, and burrows dug into soft snow to roost",
+      preferredHabitat: "Alpine tundra above treeline year-round, dropping into sheltered willow basins in winter",
+      fact: "It grows feathers on its feet for winter, built-in snowshoes, and then dives into a snowdrift to sleep, because inside the drift it is far warmer than out in the wind.",
+      role: "A grouse that spends its entire life above the trees, mottled brown in summer and pure white in winter and so well hidden that people walk within a metre without seeing one. Willow buds are almost its whole winter diet. Eagles, foxes, weasels, martens and wolverines hunt it and its chicks.",
+      eats: [],
+      eatsOther: [
+        "willow buds and twigs",
+        "alpine forbs",
+        "seeds",
+        "insects"
+      ],
       eatenBy: [
         "ermine",
         "fox-alpine",
         "golden-eagle",
-        "pine-marten"
+        "pine-marten",
+        "wolverine",
+        "peregrine-falcon"
       ],
-      eatsOther: [
-        "alpine plants",
-        "buds",
-        "insects",
-        "seeds"
-      ],
+      requirements: {
+        minHealth: 45,
+        objects: {
+          "snowbank-roost": 1,
+          "willow-basin-thicket": 2,
+          "scree-slope": 1,
+          "alpine-turf-mat": 1
+        },
+        signature: "snowbank-roost",
+        hint: "Willow is the whole winter for a ptarmigan, and a soft deep drift is its bedroom. It eats snow instead of drinking, and it has no use at all for a flower planter."
+      },
       sources: [
         {
-          name: "Cornell Lab All About Birds - White-tailed Ptarmigan",
+          name: "All About Birds \u2014 White-tailed Ptarmigan life history",
           url: "https://www.allaboutbirds.org/guide/White-tailed_Ptarmigan/lifehistory"
         },
         {
-          name: "Animal Diversity Web - Lagopus leucura",
+          name: "ADW \u2014 Lagopus leucura",
           url: "https://animaldiversity.org/accounts/Lagopus_leucura/"
         }
-      ]
+      ],
+      biome: "alpine"
+    },
+    {
+      id: "alpine-butterfly",
+      name: "Alpine Butterfly",
+      scientificName: "Parnassius smintheus",
+      kind: "insect",
+      trophic: "herbivore",
+      rarity: "common",
+      diet: "Caterpillars eat lance-leaved stonecrop and nothing else; adults sip nectar from alpine flowers",
+      shelter: "No nest \u2014 the caterpillar develops fully inside the egg and overwinters there, hatching at snowmelt",
+      preferredHabitat: "Rocky open alpine and subalpine slopes where stonecrop grows between the stones",
+      fact: "Its wings are almost see-through, like waxed paper held up to the light, and the red spots are a warning. Birds that try one usually spit it straight back out.",
+      role: "A butterfly that flies in air most insects cannot manage. Its caterpillars eat stonecrop and absolutely nothing else, so the butterfly only lives where the stonecrop does, while the adults drift between meadow flowers for nectar. Pipits and bluebirds still catch a few.",
+      eats: [],
+      eatsOther: [
+        "stonecrop leaves",
+        "nectar"
+      ],
+      eatenBy: [
+        "mountain-bluebird",
+        "american-pipit"
+      ],
+      requirements: {
+        minHealth: 25,
+        objects: {
+          "stonecrop-patch": 2,
+          "alpine-wildflower-patch": 1,
+          "gentian-patch": 1,
+          "scree-slope": 1
+        },
+        signature: "stonecrop-patch",
+        hint: "Nectar keeps the adults hanging around. Stonecrop is what keeps them for good. Plant flowers without the caterpillar's one food plant and all you get is visitors."
+      },
+      sources: [
+        {
+          name: "Butterflies and Moths of North America \u2014 Parnassius smintheus",
+          url: "https://www.butterfliesandmoths.org/species/Parnassius-smintheus"
+        },
+        {
+          name: "Washington Butterfly Association \u2014 Mountain Parnassian",
+          url: "https://wabutterflyassoc.org/species-profile-mountain-parnassian-parnassius-smintheus/"
+        }
+      ],
+      biome: "alpine"
+    },
+    {
+      id: "bumblebee-alpine",
+      name: "Alpine Moth",
+      scientificName: "Euxoa auxiliaris",
+      kind: "insect",
+      trophic: "herbivore",
+      rarity: "common",
+      diet: "Flower nectar as an adult, drunk after dark; leaves and roots down in the lowlands as a caterpillar",
+      shelter: "Packed by the thousand into cracks under scree slabs, out of the sun and the wind",
+      preferredHabitat: "High rockslides beside flower turf \u2014 but only in summer; it spends the rest of the year far below",
+      fact: "Every summer millions of these moths fly up out of the lowlands and hide in the rock on the highest peaks. They are so fatty that a bear will spend all day flipping stones to eat them, and can put away forty thousand moths in a single day.",
+      role: "The mountain's fuel delivery. The moths fatten on lowland flowers, then migrate hundreds of kilometres uphill to sit out the summer in the cold rock, and every one arrives as a little parcel of fat richer than anything else growing up here. Bears, birds and just about everything that hunts a rockslide feeds on them. At night they come out to drink nectar and pollinate high-country flowers; by dawn they are back under the slabs. Break up the loose rock and the whole larder goes with it.",
+      eats: [],
+      eatsOther: [
+        "nectar",
+        "pollen",
+        "leaves and roots as a caterpillar"
+      ],
+      eatenBy: [
+        "mountain-bluebird",
+        "black-swift"
+      ],
+      requirements: {
+        minHealth: 38,
+        objects: {
+          "moth-scree-crack": 1,
+          "alpine-wildflower-patch": 2,
+          "gentian-patch": 1
+        },
+        signature: "moth-scree-crack",
+        conditions: {
+          season: [
+            "summer"
+          ]
+        },
+        hint: "Flowers to drink from at night and loose slabs to hide under by day. It only shows up in high summer \u2014 the rest of the year it is a caterpillar a long way downhill."
+      },
+      sources: [
+        {
+          name: "USGS Northern Rocky Mountain Science Center \u2014 Army Cutworm Moth Aggregation Sites",
+          url: "https://www.usgs.gov/centers/norock/science/army-cutworm-moth-aggregation-sites"
+        },
+        {
+          name: "NPS \u2014 Army Cutworm Moths",
+          url: "https://www.nps.gov/articles/army-cutworm-moths.htm"
+        }
+      ],
+      biome: "alpine"
+    },
+    {
+      id: "alpine-chipmunk",
+      name: "Rock Squirrel",
+      scientificName: "Callospermophilus lateralis",
+      kind: "mammal",
+      trophic: "omnivore",
+      rarity: "common",
+      diet: "Seeds, berries and green shoots, plus underground fungi, insects and the occasional egg",
+      shelter: "A burrow driven in under a boulder or a fallen log, with a grass-lined sleeping chamber at the far end",
+      preferredHabitat: "Sunny rocky slopes, talus edges and open dwarf-pine ground at and above the tree line",
+      fact: "Everyone calls it a giant chipmunk, but look at its face \u2014 no stripes on the cheeks. And it does not just nap through winter: it cools until its body is barely above freezing and its heart slows to a few beats a minute.",
+      role: "A stripe-backed seed machine that spends the short summer eating itself round, then vanishes underground for half the year. It buries seeds all over the slope and forgets enough of them to replant it, and it digs up and eats underground fungi, so the spores ride through its gut and get planted somewhere new. Ermines, martens, lynx and eagles all hunt it, and the tunnels it abandons become shelter for toads and beetles.",
+      eats: [],
+      eatsOther: [
+        "seeds",
+        "berries",
+        "insects",
+        "bird eggs"
+      ],
+      eatenBy: [
+        "ermine",
+        "fox-alpine",
+        "pine-marten",
+        "golden-eagle"
+      ],
+      requirements: {
+        minHealth: 35,
+        objects: {
+          "winter-sleep-burrow": 1,
+          "talus-pile": 2,
+          "alpine-wildflower-patch": 1,
+          "krummholz-pine": 1
+        },
+        signature: "winter-sleep-burrow",
+        conditions: {
+          season: [
+            "spring",
+            "summer",
+            "fall"
+          ]
+        },
+        hint: "It is only above ground for half the year, so look for it in the warm months. Seed-heavy flowers to fatten on, rock to duck into, and diggable ground under a boulder for the long sleep."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Callospermophilus lateralis",
+          url: "https://animaldiversity.org/accounts/Callospermophilus_lateralis/"
+        },
+        {
+          name: "Montana Field Guide \u2014 Golden-mantled Ground Squirrel",
+          url: "https://fieldguide.mt.gov/speciesDetail.aspx?elcode=AMAFB05010"
+        }
+      ],
+      biome: "alpine"
     },
     {
       id: "clarks-nutcracker",
-      name: "Clark's Nutcracker",
-      biome: "alpine",
+      name: "Nutcracker",
+      scientificName: "Nucifraga columbiana",
       kind: "bird",
+      trophic: "omnivore",
       rarity: "uncommon",
-      diet: "Pine seeds cached by the thousand, plus insects and small animals",
-      shelter: "Cup nest in conifer branches, sited near winter seed caches",
-      preferredHabitat: "High conifer forest and treeline near pine-seed sources",
-      fact: "It can relocate thousands of buried seed caches months later, even under snow.",
+      diet: "Whitebark and limber pine seeds cached by the thousand, plus insects and small animals",
+      shelter: "Cup nest in a conifer, sited near the winter seed caches",
+      preferredHabitat: "Treeline conifer forest and krummholz within reach of pine-seed sources",
+      fact: "One bird buries tens of thousands of pine seeds in a single autumn and can still find them months later under snow, navigating by rocks and logs it has memorised like landmarks on a map.",
+      role: "A crow-family bird with a deal running with the whitebark pine. The cones never open by themselves, so nearly every young whitebark on the mountain grew from a seed this bird buried and never came back for. It carries seeds in a pouch under its tongue, breeds in late winter off its hoard, and takes insects and small animals besides. Martens and eagles catch it.",
+      eats: [
+        "alpine-springtail"
+      ],
+      eatsOther: [
+        "whitebark pine seeds",
+        "conifer seeds",
+        "insects"
+      ],
+      eatenBy: [
+        "pine-marten",
+        "golden-eagle"
+      ],
       requirements: {
         minHealth: 50,
         objects: {
-          "rock-pile": 1,
-          "alpine-wildflower-patch": 1,
-          "heather-mat": 1
+          "whitebark-cache": 2,
+          "krummholz-pine": 2,
+          "subalpine-fir": 1
         },
-        hint: "A recovering treeline with seeds to cache."
+        signature: "whitebark-cache",
+        hint: "A nutcracker needs a seed bank it can find again under the snow. Build the caches, and the pines it forgets to dig up will follow."
       },
-      scientificName: "Nucifraga columbiana",
-      role: "A mountain corvid that harvests and buries thousands of pine seeds, replanting the very forests it depends on. Its cached hoard lets it breed in deep winter. It also takes insects and small vertebrates when available.",
-      trophic: "omnivore",
-      eatsOther: [
-        "insects",
-        "pine seeds",
-        "seeds"
-      ],
       sources: [
         {
-          name: "Cornell Lab All About Birds - Clark's Nutcracker",
+          name: "All About Birds \u2014 Clark's Nutcracker life history",
           url: "https://www.allaboutbirds.org/guide/Clarks_Nutcracker/lifehistory"
         },
         {
-          name: "Animal Diversity Web - Nucifraga columbiana",
+          name: "ADW \u2014 Nucifraga columbiana",
           url: "https://animaldiversity.org/accounts/Nucifraga_columbiana/"
         }
-      ]
+      ],
+      biome: "alpine"
+    },
+    {
+      id: "rosy-finch",
+      name: "Gray-crowned Rosy-Finch",
+      scientificName: "Leucosticte tephrocotis",
+      kind: "bird",
+      trophic: "omnivore",
+      rarity: "uncommon",
+      diet: "Tiny alpine plant seeds and insects, often gleaned off the surface of snowfields",
+      shelter: "Bulky cup of moss and grass wedged deep into a cliff crack or a hole in talus",
+      preferredHabitat: "Above treeline: talus, scree, cliff faces and the edges of permanent snow",
+      fact: "It nests higher than almost any other songbird here, jammed into cracks in cliffs and rockslides where nothing else will build at all.",
+      role: "A pink-brown finch that hops across snowfields picking up wind-blown seeds and insects the cold has knocked flat. It can only breed where the rock has real cracks in it, so cliffs matter to it even more than food does. Eagles and ermines take it.",
+      eats: [
+        "alpine-springtail"
+      ],
+      eatsOther: [
+        "alpine seeds",
+        "wind-blown insects"
+      ],
+      eatenBy: [
+        "golden-eagle",
+        "ermine",
+        "peregrine-falcon"
+      ],
+      requirements: {
+        minHealth: 50,
+        objects: {
+          "cliff-nest-niche": 2,
+          "scree-slope": 2,
+          "crystal-spring": 1
+        },
+        signature: "cliff-nest-niche",
+        hint: "Rock with cracks in it, not a heap of stones. A rosy-finch nests inside the cliff, feeds out across the scree, and drinks meltwater."
+      },
+      sources: [
+        {
+          name: "All About Birds \u2014 Gray-crowned Rosy-Finch life history",
+          url: "https://www.allaboutbirds.org/guide/Gray-crowned_Rosy-Finch/lifehistory"
+        },
+        {
+          name: "USFWS \u2014 Gray-crowned Rosy-Finch",
+          url: "https://www.fws.gov/species/grey-crowned-rosy-finch-leucosticte-tephrocotis"
+        }
+      ],
+      biome: "alpine"
+    },
+    {
+      id: "american-pipit",
+      name: "Pipit",
+      scientificName: "Anthus rubescens",
+      kind: "bird",
+      trophic: "insectivore",
+      rarity: "common",
+      diet: "Mostly insects, springtails, spiders and their larvae, plus some seeds",
+      shelter: "Ground nest of grass tucked into the turf beside a rock or a tussock",
+      preferredHabitat: "Open alpine turf and fellfield, especially along the edges of melting snow",
+      fact: "Wind sweeps insects up off the lowlands and dumps them on the snowfields, chilled and helpless. The pipit walks the edge of the melting snow eating a meal the weather delivered uphill.",
+      role: "A slim brown ground-walker that bobs its tail non-stop as it hunts across open turf. It nests in a scrape tucked beside a rock and feeds heavily on that stranded insect fallout, one of the strangest free lunches in the mountains. Foxes and ermines take it and its ground nests.",
+      eats: [
+        "alpine-springtail",
+        {
+          id: "alpine-butterfly",
+          stage: "young"
+        }
+      ],
+      eatsOther: [
+        "spiders",
+        "beetles",
+        "flies"
+      ],
+      eatenBy: [
+        "ermine"
+      ],
+      requirements: {
+        minHealth: 42,
+        objects: {
+          "snowfield-debris-line": 1,
+          "alpine-turf-mat": 2,
+          "moss-cushion": 1
+        },
+        signature: "snowfield-debris-line",
+        water: {
+          tiles: 1
+        },
+        hint: "Open turf to walk and nest in, and a lingering snowbank with a dark line of debris along its edge. That stripe is the dinner table."
+      },
+      sources: [
+        {
+          name: "Birds of the World \u2014 American Pipit food habits",
+          url: "https://birdsoftheworld.org/bow/species/amepip/cur/foodhabits"
+        },
+        {
+          name: "Audubon Field Guide \u2014 American Pipit",
+          url: "https://www.audubon.org/field-guide/bird/american-pipit"
+        }
+      ],
+      biome: "alpine"
+    },
+    {
+      id: "boreal-toad",
+      name: "Boreal Toad",
+      scientificName: "Anaxyrus boreas",
+      kind: "amphibian",
+      trophic: "insectivore",
+      rarity: "uncommon",
+      diet: "Beetles, ants, flies, springtails and other invertebrates; tadpoles graze algae",
+      shelter: "Rodent burrows, rock chambers and damp cover above the breeding pools",
+      preferredHabitat: "Subalpine and alpine wet meadows with shallow, sun-warmed, fish-free breeding pools",
+      fact: "It spends September to May underground, then comes out and breeds in pools that were solid ice a few weeks earlier.",
+      role: "The only toad living this high. Adults eat insects by the thousand and the tadpoles graze algae in shallow, sun-warmed pools, and almost nothing eats them because their skin tastes foul. What actually threatens this toad is a skin fungus and trout stocked into lakes that never had fish.",
+      eats: [
+        "alpine-springtail"
+      ],
+      eatsOther: [
+        "beetles",
+        "ants",
+        "flies"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 45,
+        objects: {
+          "toad-upland-burrow": 1,
+          "snowmelt-pool": 3,
+          "crystal-spring": 1
+        },
+        signature: "toad-upland-burrow",
+        water: {
+          tiles: 5
+        },
+        conditions: {
+          season: [
+            "spring",
+            "summer"
+          ]
+        },
+        hint: "Shallow warm pools to breed in and a burrow to spend the other eight months of the year in. Keep the pools fishless, because stocked trout are the single biggest reason high-country amphibians disappear."
+      },
+      sources: [
+        {
+          name: "USDA Forest Service FEIS \u2014 Anaxyrus boreas",
+          url: "https://research.fs.usda.gov/feis/species-reviews/anbo"
+        },
+        {
+          name: "NPS Rocky Mountain NP \u2014 Where do boreal toads spend the winter?",
+          url: "https://www.nps.gov/romo/boreal_toad_night.htm"
+        },
+        {
+          name: "Colorado Parks and Wildlife \u2014 Boreal Toad",
+          url: "https://cpw.state.co.us/species/boreal-toad"
+        }
+      ],
+      biome: "alpine"
+    },
+    {
+      id: "mountain-bluebird",
+      name: "White-throated Swift",
+      scientificName: "Aeronautes saxatalis",
+      kind: "bird",
+      trophic: "insectivore",
+      rarity: "common",
+      diet: "Flying insects only \u2014 moths, beetles, flies and drifting swarms of ants, all taken in mid-air",
+      shelter: "A cup of feathers glued with its own spit into a narrow crack in a cliff face",
+      preferredHabitat: "Sheer cliffs and broken crags with a lot of open air in front of them to hunt in",
+      fact: "It does everything in the air. It eats in the air, drinks in the air, and pairs mate in mid-air \u2014 locking together and tumbling hundreds of feet down the cliff face before they let go.",
+      role: "A blade-shaped bird that lives in the sky above the mountain, hoovering up moths, beetles and whatever else the wind lifts, at speeds that make it one of the fastest birds alive in level flight. Its feet only cling, never perch, so it has to fold itself into a crack in a cliff at night, and it sticks the nest in place with its own saliva. Because it eats only what is flying, a swift working the ridge is proof the insect life below has come back. Almost nothing is quick enough to catch one.",
+      eats: [
+        "bumblebee-alpine",
+        "alpine-butterfly"
+      ],
+      eatsOther: [
+        "flying ants",
+        "beetles",
+        "flies",
+        "aphids on the wind"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 60,
+        objects: {
+          "swift-cliff-seam": 1,
+          "alpine-turf-mat": 2,
+          "scree-slope": 1
+        },
+        signature: "swift-cliff-seam",
+        water: {
+          tiles: 1
+        },
+        hint: "A narrow crack in a cliff to sleep in and a lot of open air in front of it. It never lands to feed and it drinks on the wing, so any pool it can skim will do."
+      },
+      sources: [
+        {
+          name: "All About Birds \u2014 White-throated Swift",
+          url: "https://www.allaboutbirds.org/guide/White-throated_Swift/lifehistory"
+        },
+        {
+          name: "Audubon Field Guide \u2014 White-throated Swift",
+          url: "https://www.audubon.org/field-guide/bird/white-throated-swift"
+        }
+      ],
+      biome: "alpine"
+    },
+    {
+      id: "mountain-chickadee",
+      name: "Mountain Chickadee",
+      scientificName: "Poecile gambeli",
+      kind: "bird",
+      trophic: "insectivore",
+      rarity: "common",
+      diet: "Insects, spiders and bark-beetle larvae in summer; cached conifer seeds in fall and winter",
+      shelter: "Existing cavities in dead conifers \u2014 old woodpecker holes, or soft rotten wood it can enlarge",
+      preferredHabitat: "Treeline conifer forest of fir and whitebark pine with standing dead trees",
+      fact: "It hides thousands of seeds one at a time and remembers where they are. The part of its brain that does the remembering actually grows bigger in autumn.",
+      role: "The small busy bird that seems to be everywhere in the last trees, hanging upside down off twigs after insects and beetle grubs and switching to hidden seeds in winter. It can only nest where the wood has already gone soft, so dead trees are not mess, they are the nursery. Weasels, foxes and martens take it.",
+      eats: [
+        "alpine-springtail"
+      ],
+      eatsOther: [
+        "bark-beetle larvae",
+        "spiders",
+        "conifer seeds"
+      ],
+      eatenBy: [
+        "ermine",
+        "pine-marten"
+      ],
+      requirements: {
+        minHealth: 52,
+        objects: {
+          "beetle-killed-snag": 2,
+          "whitebark-pine": 2,
+          "subalpine-fir": 1
+        },
+        signature: "beetle-killed-snag",
+        hint: "Dead trees are the point. A beetle-killed snag is both the chickadee's larder and the only wood soft enough for it to hollow out. The whitebark pines come from the nutcracker's forgotten seeds."
+      },
+      sources: [
+        {
+          name: "All About Birds \u2014 Mountain Chickadee life history",
+          url: "https://www.allaboutbirds.org/guide/Mountain_Chickadee/lifehistory"
+        },
+        {
+          name: "ADW \u2014 Poecile gambeli",
+          url: "https://animaldiversity.org/accounts/Parus_gambeli/"
+        }
+      ],
+      biome: "alpine"
+    },
+    {
+      id: "fox-alpine",
+      name: "Lynx",
+      scientificName: "Lynx canadensis",
+      kind: "mammal",
+      trophic: "mesopredator",
+      rarity: "rare",
+      diet: "Snowshoe hares above all \u2014 sometimes almost nothing else \u2014 plus ptarmigan, ground squirrels and young marmots",
+      shelter: "A hollow under boulders, roots or deadfall, often a burrow something else started and it widened",
+      preferredHabitat: "High snowy country with thickets of dwarf conifer where hares can hide and lynx can wait for them",
+      fact: "A lynx weighs about as much as a border collie, but its paws are as wide as a mountain lion's. They spread as it steps, so it walks on top of snow a fox would sink straight through.",
+      role: "The mountain's hare specialist, and almost nothing else will do. When hares are everywhere, lynx are everywhere; when the hares crash a few years later, the lynx crash right behind them, and the whole thing swings back and forth on roughly a ten-year beat. It hunts by sitting perfectly still in the thickets and letting the hare come to it, so low tangled cover matters more to it than open ground. It rarely digs, moving instead into a hollow under rock that somebody else opened up. Eagles take its kittens.",
+      eats: [
+        "snowshoe-hare",
+        "ptarmigan",
+        "alpine-chipmunk",
+        "pika",
+        {
+          id: "marmot",
+          stage: "young"
+        }
+      ],
+      eatsOther: [
+        "voles",
+        "grouse",
+        "carrion"
+      ],
+      eatenBy: [
+        {
+          id: "golden-eagle",
+          stage: "young"
+        }
+      ],
+      requirements: {
+        minHealth: 65,
+        objects: {
+          "inherited-earth-den": 1,
+          "krummholz-pine": 2,
+          "talus-pile": 2
+        },
+        signature: "inherited-earth-den",
+        animals: [
+          "snowshoe-hare",
+          "ptarmigan"
+        ],
+        water: {
+          tiles: 1
+        },
+        hint: "No hares, no lynx \u2014 it really is that simple. Get the dwarf-pine thickets back so hares have somewhere to hide, and the lynx will move into a hollow under the rocks that something else dug."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Lynx canadensis",
+          url: "https://animaldiversity.org/accounts/Lynx_canadensis/"
+        },
+        {
+          name: "USFWS \u2014 Canada Lynx",
+          url: "https://www.fws.gov/species/canada-lynx-lynx-canadensis"
+        }
+      ],
+      biome: "alpine"
+    },
+    {
+      id: "pine-marten",
+      name: "Pine Marten",
+      scientificName: "Martes americana",
+      kind: "mammal",
+      trophic: "mesopredator",
+      rarity: "rare",
+      diet: "Voles, red squirrels, pikas, hares, birds, eggs, insects and berries",
+      shelter: "Dens in hollow logs, tree cavities and rock crevices, usually under deep snow",
+      preferredHabitat: "Structurally complex treeline forest with big trees, dead wood and rock",
+      fact: "In winter a marten hunts inside the snowpack, in the hollow spaces between the drifts and the ground, where nothing else its size can follow it.",
+      role: "A cat-sized weasel equally at home in the treetops and the snow tunnels, hunting voles, pikas, young hares and birds, with berries in late summer. Structure is what it needs above everything else, so a cleared slope empties of martens even while the prey is still there. Eagles catch it.",
+      eats: [
+        "pika",
+        "snowshoe-hare",
+        "alpine-chipmunk",
+        "ptarmigan",
+        "mountain-chickadee",
+        "ermine",
+        {
+          id: "marmot",
+          stage: "young"
+        },
+        {
+          id: "clarks-nutcracker",
+          stage: "eggs"
+        }
+      ],
+      eatsOther: [
+        "voles",
+        "red squirrels",
+        "berries"
+      ],
+      eatenBy: [
+        "golden-eagle"
+      ],
+      requirements: {
+        minHealth: 65,
+        objects: {
+          "treeline-log-den": 1,
+          "subalpine-fir": 3,
+          "whitebark-pine": 1
+        },
+        signature: "treeline-log-den",
+        animals: [
+          "snowshoe-hare",
+          "pika"
+        ],
+        hint: "You cannot build marten habitat out of rocks and flowers. It needs a stand of real trees, dead wood on the ground, and hares and pikas already living there."
+      },
+      sources: [
+        {
+          name: "ADW \u2014 Martes americana",
+          url: "https://animaldiversity.org/accounts/Martes_americana/"
+        },
+        {
+          name: "Alaska Department of Fish and Game \u2014 American marten",
+          url: "https://www.adfg.alaska.gov/index.cfm?adfg=americanmarten.main"
+        }
+      ],
+      biome: "alpine"
+    },
+    {
+      id: "ermine",
+      name: "Ermine",
+      scientificName: "Mustela richardsonii",
+      kind: "mammal",
+      trophic: "mesopredator",
+      rarity: "rare",
+      diet: "Small rodents, especially voles; also young pikas, birds, eggs and insects",
+      shelter: "Dens taken over from its prey \u2014 rodent burrows and rock crevices, relined with the previous owner's fur",
+      preferredHabitat: "Talus and heath edges beside turf with dense rodent prey, used all year round",
+      fact: "An ermine turns pure white in winter except for the black tip of its tail, and it is narrow enough to chase a vole down the vole's own tunnel.",
+      role: "A weasel shaped like a furry pencil, living mostly on voles and mice and taking young pikas, nestlings and eggs besides. It builds nothing. It moves into the burrow of whatever it has just eaten and lines the nest with the previous owner's fur. It is here in every season, not only in the snow. Foxes, martens and eagles kill it in turn.",
+      eats: [
+        "alpine-chipmunk",
+        "mountain-chickadee",
+        "american-pipit",
+        "rosy-finch",
+        {
+          id: "pika",
+          stage: "young"
+        },
+        {
+          id: "ptarmigan",
+          stage: "eggs"
+        },
+        "snow-bunting"
+      ],
+      eatsOther: [
+        "voles",
+        "mice",
+        "insects"
+      ],
+      eatenBy: [
+        "pine-marten",
+        "golden-eagle"
+      ],
+      requirements: {
+        minHealth: 55,
+        objects: {
+          "fur-lined-prey-den": 1,
+          "talus-pile": 2,
+          "alpine-turf-mat": 1
+        },
+        signature: "fur-lined-prey-den",
+        animals: [
+          "alpine-chipmunk",
+          "pika"
+        ],
+        hint: "An ermine moves into a burrow it has just emptied, so bring the chipmunks and pikas back first. Look for it in any season. It does not vanish in summer, it just turns brown."
+      },
+      sources: [
+        {
+          name: "ADW \u2014 Mustela richardsonii (American ermine)",
+          url: "https://animaldiversity.org/accounts/Mustela_richardsonii/"
+        },
+        {
+          name: "Idaho Fish and Game species catalog \u2014 ermine",
+          url: "https://idfg.idaho.gov/species/taxa/17667"
+        }
+      ],
+      biome: "alpine"
     },
     {
       id: "golden-eagle",
       name: "Golden Eagle",
-      biome: "alpine",
+      scientificName: "Aquila chrysaetos",
       kind: "bird",
+      trophic: "apex-predator",
       rarity: "rare",
       diet: "Marmots, hares, ground squirrels, ptarmigan and other birds, plus carrion",
-      shelter: "Huge stick eyries on cliffs and steep escarpments",
-      preferredHabitat: "Open, high country with cliffs and abundant medium prey",
-      fact: "Golden eagles sometimes line their nests with aromatic leaves, perhaps to deter insects.",
-      requirements: {
-        minHealth: 75,
-        minBalance: 45,
-        objects: {
-          "rock-pile": 2,
-          "alpine-wildflower-patch": 1
-        },
-        animals: [
-          "marmot",
-          "snowshoe-hare"
-        ],
-        hint: "Eagles arrive last \u2014 when the high country is truly alive again."
-      },
-      scientificName: "Aquila chrysaetos",
-      role: "The apex hunter of the high country, taking marmots, hares, and ptarmigan and even smaller carnivores in powerful stoops. It arrives only when the mountain teems with prey. Adults have essentially no predators.",
-      trophic: "apex-predator",
+      shelter: "Huge stick eyries built on sheer cliff ledges and reused for decades",
+      preferredHabitat: "Open, high country with big cliffs to nest on and plenty of medium-sized prey",
+      fact: "A hunting golden eagle drops out of the sky at over 240 kilometres an hour, and its eyesight is sharp enough to pick a marmot out of a boulder field from a kilometre up.",
+      role: "The hunter that owns the air up here, taking marmots, hares and ptarmigan in long stooping dives and killing smaller predators outright when it gets the chance. It takes newborn lambs, kids and fox cubs, but not adult sheep or goats. Its huge stick eyrie on a cliff ledge gets added to and reused for decades. Adults have nothing above them.",
       eats: [
-        "alpine-chipmunk",
-        "bighorn-sheep",
-        "ermine",
-        "fox-alpine",
         "marmot",
-        "mountain-goat",
-        "mule-deer-alpine",
+        "snowshoe-hare",
         "pika",
-        "pine-grosbeak",
-        "pine-marten",
         "ptarmigan",
-        "snowshoe-hare"
+        "alpine-chipmunk",
+        "ermine",
+        "pine-marten",
+        "rosy-finch",
+        "clarks-nutcracker",
+        {
+          id: "bighorn-sheep",
+          stage: "young"
+        },
+        {
+          id: "mountain-goat",
+          stage: "young"
+        },
+        {
+          id: "fox-alpine",
+          stage: "young"
+        },
+        "peregrine-falcon"
       ],
       eatsOther: [
         "carrion",
         "ground squirrels"
       ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 78,
+        minBalance: 45,
+        objects: {
+          "cliff-eyrie": 1,
+          "alpine-turf-mat": 2,
+          "scree-slope": 1
+        },
+        signature: "cliff-eyrie",
+        animals: [
+          "marmot",
+          "snowshoe-hare"
+        ],
+        hint: "Eagles come last, when the mountain is properly alive again. They need a real cliff for the eyrie and open ground below with plenty moving on it."
+      },
       sources: [
         {
-          name: "Cornell Lab All About Birds - Golden Eagle",
+          name: "All About Birds \u2014 Golden Eagle life history",
           url: "https://www.allaboutbirds.org/guide/Golden_Eagle/lifehistory"
         },
         {
-          name: "Birds of the World - Golden Eagle Food Habits",
+          name: "Birds of the World \u2014 Golden Eagle food habits",
           url: "https://birdsoftheworld.org/bow/species/goleag/cur/foodhabits"
         }
-      ]
+      ],
+      biome: "alpine"
     },
     {
-      id: "alpine-butterfly",
-      name: "Alpine Butterfly",
-      biome: "alpine",
-      kind: "insect",
-      rarity: "common",
-      diet: "Larvae eat stonecrop; adults sip nectar from Sedum and daisy-family flowers",
-      shelter: "No nest; larvae shelter in leaf litter and rocks, overwintering as eggs",
-      preferredHabitat: "Rocky open alpine and montane slopes where stonecrop grows",
-      fact: "Its pale red-and-black wings warn predators that it tastes unpalatable.",
-      requirements: {
-        minHealth: 25,
-        objects: {
-          "alpine-wildflower-patch": 1
-        },
-        hint: "Alpine flowers in bloom."
-      },
-      scientificName: "Parnassius smintheus",
-      role: "A hardy alpine butterfly whose caterpillars feed only on stonecrop while adults nectar across the meadow flowers. Its aposematic wings advertise a foul taste. Birds and spiders that ignore the warning still catch some.",
-      trophic: "herbivore",
-      eatsOther: [
-        "alpine plants",
-        "nectar"
-      ],
-      sources: [
-        {
-          name: "Butterflies and Moths of North America - Parnassius smintheus",
-          url: "https://www.butterfliesandmoths.org/species/Parnassius-smintheus"
-        },
-        {
-          name: "Washington Butterfly Assoc. - Mountain Parnassian",
-          url: "https://wabutterflyassoc.org/species-profile-mountain-parnassian-parnassius-smintheus/"
-        }
-      ]
-    },
-    {
-      id: "bumblebee-alpine",
-      name: "Alpine Bumblebee",
-      biome: "alpine",
-      kind: "insect",
-      rarity: "common",
-      diet: "Nectar and pollen from deep-throated alpine flowers",
-      shelter: "Colonial nests in ground cavities and old rodent burrows",
-      preferredHabitat: "High alpine and boreal flower meadows, often above treeline",
-      fact: "This bee's tongue grew measurably shorter from 1966 to 2014 as flowers declined.",
-      requirements: {
-        minHealth: 25,
-        objects: {
-          "alpine-wildflower-patch": 2
-        },
-        hint: "More flowers, more bees \u2014 even up here."
-      },
-      scientificName: "Bombus balteatus",
-      role: "A cold-tolerant, long-tongued bumblebee that pollinates deep alpine blossoms, shivering its flight muscles to fly in near-freezing air. Its colonies nest underground. Birds, crab spiders, and robber flies prey on foragers.",
-      trophic: "herbivore",
-      eatsOther: [
-        "alpine plants",
-        "nectar",
-        "pollen"
-      ],
-      sources: [
-        {
-          name: "Molecular Ecology - Alpine bumblebee tongue-length study",
-          url: "https://onlinelibrary.wiley.com/doi/full/10.1111/mec.16291"
-        },
-        {
-          name: "Bombus balteatus - Wikipedia",
-          url: "https://en.wikipedia.org/wiki/Bombus_balteatus"
-        }
-      ]
-    },
-    {
-      id: "snowmelt-trout",
-      name: "Cutthroat Trout",
-      biome: "alpine",
-      kind: "fish",
-      rarity: "uncommon",
-      diet: "Aquatic and terrestrial insects; larger fish add small fish to the diet",
-      shelter: "Cold, clear pools and undercut banks; gravel riffles for spawning",
-      preferredHabitat: "Cold, clear, connected snowmelt streams and mountain lakes",
-      fact: "A poor competitor, native cutthroat are displaced by introduced brown and brook trout.",
-      requirements: {
-        minHealth: 60,
-        objects: {
-          "snowmelt-pool": 2,
-          "rock-pile": 1
-        },
-        hint: "Cold, clean, connected snowmelt pools."
-      },
-      scientificName: "Oncorhynchus clarkii",
-      role: "A cold-water native whose presence signals a clean, healthy mountain stream. It picks off drifting insects and, when large, smaller fish. It is threatened by non-native trout that out-compete and prey on it.",
-      trophic: "insectivore",
-      eats: [
-        "cascades-frog"
-      ],
-      eatsOther: [
-        "aquatic insects",
-        "crustaceans",
-        "insects"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web - Oncorhynchus clarkii",
-          url: "https://animaldiversity.org/accounts/Oncorhynchus_clarkii/"
-        },
-        {
-          name: "USGS - Cutthroat trout diet study",
-          url: "https://www.usgs.gov/publications/changing-patterns-coastal-cutthroat-trout-oncorhynchus-clarki-clarki-diet-and-prey-a"
-        }
-      ]
-    },
-    {
-      id: "tidepool-crab",
-      name: "Shore Crab",
-      biome: "coastal",
+      id: "purple-sea-urchin",
+      name: "Purple Sea Urchin",
+      scientificName: "Strongylocentrotus purpuratus",
       kind: "invertebrate",
+      trophic: "herbivore",
       rarity: "common",
-      featured: true,
-      diet: "Mostly algae, plus detritus, worms, snails, and carrion",
-      shelter: "Tidepool rocks and crevices",
-      preferredHabitat: "Rocky tidepools and intertidal splash zone",
-      fact: "Striped shore crabs graze algae but will scavenge and even turn cannibal after molting.",
+      diet: "Living kelp and surfgrass, drift kelp, and encrusting coralline algae",
+      shelter: "Pits it grinds into the rock itself with its teeth and spines",
+      preferredHabitat: "Wave-exposed low intertidal and shallow subtidal rock near kelp",
+      fact: "A purple urchin chews a pit into solid rock with five teeth and then sits in it for years. On some reefs the urchins wear away more stone than the waves do.",
+      role: "The grazer at the middle of this coast's most famous story. Fed on scraps of drift kelp and kept in check by otters, urchins are just one more part of a healthy forest. Take the predators away and they march up the rock, mow the kelp to bare stone, and leave an urchin barren behind them.",
+      eats: [],
+      eatsOther: [
+        "drift kelp",
+        "coralline algae"
+      ],
+      eatenBy: [
+        "sea-otter",
+        "sea-star"
+      ],
+      requirements: {
+        minHealth: 35,
+        objects: {
+          "urchin-crevice-pit": 1,
+          "kelp-forest": 1,
+          "surfgrass-bed": 1,
+          "low-tide-rock-bench": 1
+        },
+        signature: "urchin-crevice-pit",
+        water: {
+          ocean: 3
+        },
+        animals: [],
+        hint: "Kelp first \u2014 an urchin has to have something to eat. Then think hard about what is going to eat the urchins."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Strongylocentrotus purpuratus",
+          url: "https://animaldiversity.org/accounts/Strongylocentrotus_purpuratus/"
+        },
+        {
+          name: "MARINe (UC Santa Cruz) \u2014 Strongylocentrotus",
+          url: "https://marine.ucsc.edu/target/strongylocentrotus/"
+        }
+      ],
+      biome: "coastal",
+      ocean: true
+    },
+    {
+      id: "northern-anchovy",
+      name: "Anchovy",
+      scientificName: "Engraulis mordax",
+      kind: "fish",
+      trophic: "filter-feeder",
+      rarity: "common",
+      diet: "Plankton \u2014 copepods, diatoms and larvae \u2014 strained from the water or picked one at a time",
+      shelter: "The school itself; open nearshore water, with kelp and surfgrass edges as nursery cover",
+      preferredHabitat: "Cool, plankton-rich nearshore water over the shelf",
+      fact: "An anchovy eats two ways: it snaps at big prey one bite at a time, or just opens its mouth and swims, straining the sea like a living net.",
+      role: "Anchovies travel in silver schools so thick they turn the water dark from below. Almost everything that hunts here takes them at some point \u2014 pelicans, seals, dolphins, gulls \u2014 so when the anchovies fail, the whole coast goes hungry at once.",
+      eats: [],
+      eatsOther: [
+        "copepods",
+        "diatoms",
+        "krill"
+      ],
+      eatenBy: [
+        "pelican",
+        "harbor-seal",
+        "gull",
+        "bottlenose-dolphin",
+        "black-oystercatcher"
+      ],
+      requirements: {
+        minHealth: 30,
+        objects: {
+          "nearshore-spawning-shallows": 1,
+          "nutrient-upwelling-current": 1,
+          "kelp-forest": 1,
+          "surfgrass-bed": 1
+        },
+        signature: "nearshore-spawning-shallows",
+        water: {
+          ocean: 8,
+          deep: true
+        },
+        hint: "Cold water rising from the deep grows the plankton they eat, and quiet shallows give the schools somewhere to spawn."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Engraulis mordax",
+          url: "https://animaldiversity.org/accounts/Engraulis_mordax/"
+        },
+        {
+          name: "NOAA Fisheries \u2014 Northern Anchovy",
+          url: "https://www.fisheries.noaa.gov/species/northern-anchovy"
+        }
+      ],
+      biome: "coastal",
+      ocean: true
+    },
+    {
+      id: "beach-hopper",
+      name: "Beach Hopper",
+      scientificName: "Megalorchestia californiana",
+      kind: "invertebrate",
+      trophic: "detritivore",
+      rarity: "common",
+      diet: "Decaying kelp and other stranded seaweed in the wrack line",
+      shelter: "Burrows dug in damp sand high on the beach, and the damp underside of drift kelp and driftwood",
+      preferredHabitat: "Gently sloping sandy beach with an undisturbed wrack line",
+      fact: "Beach hoppers spend all day sealed inside a burrow in dry sand, then pour out after dark to shred the seaweed the tide left behind. Step near one and it fires itself into the air like a flicked pebble.",
+      role: "The engine room of the beach. Hoppers chew stranded kelp down into crumbs and nutrients, and in doing so they turn dead seaweed into bird food \u2014 which is the entire reason plovers, sanderlings and gulls patrol the tide line. Rake the wrack away and this link vanishes overnight.",
+      eats: [],
+      eatsOther: [
+        "drift kelp",
+        "stranded seaweed",
+        "beach wrack"
+      ],
+      eatenBy: [
+        "snowy-plover",
+        "sanderling",
+        "gull",
+        "annas-hummingbird"
+      ],
       requirements: {
         minHealth: 12,
         objects: {
-          tidepool: 1
+          "kelp-wrack": 2,
+          "bare-sand-beach": 1,
+          "driftwood-pile": 1
         },
-        hint: "Restore the tidepools and the crabs scuttle back first."
+        signature: "kelp-wrack",
+        hint: "No water needed at all \u2014 hoppers live above the tide. Leave the wrack where the sea dropped it and give them dry sand to dig into."
       },
-      scientificName: "Pachygrapsus crassipes",
-      role: "An abundant intertidal grazer-scavenger that keeps rock surfaces clear of algae and recycles carrion. It is a key prey item for gulls, shorebirds, and larger crabs, linking algae to higher predators.",
-      trophic: "omnivore",
-      eatenBy: [
-        "anemone",
-        "black-oystercatcher",
-        "black-turnstone",
-        "gull"
-      ],
-      eatsOther: [
-        "algae",
-        "kelp"
-      ],
       sources: [
         {
-          name: "Animal Diversity Web - Pachygrapsus crassipes",
-          url: "https://animaldiversity.org/accounts/Pachygrapsus_crassipes/"
+          name: "iNaturalist \u2014 Megalorchestia californiana",
+          url: "https://www.inaturalist.org/taxa/63287-Megalorchestia-californiana"
+        },
+        {
+          name: "California Conservation Genomics Project \u2014 Megalorchestia californiana",
+          url: "https://www.ccgproject.org/species/megalorchestia-californiana"
         }
-      ]
+      ],
+      biome: "coastal"
     },
     {
       id: "hermit-crab",
       name: "Hermit Crab",
-      biome: "coastal",
+      scientificName: "Pagurus samuelis",
       kind: "invertebrate",
+      trophic: "detritivore",
       rarity: "common",
       diet: "Algae, detritus, and scavenged carrion",
       shelter: "Borrowed empty snail shells",
-      preferredHabitat: "Tidepools with a supply of empty shells",
-      fact: "When a better shell appears, hermit crabs line up by size and swap shells down the chain.",
-      requirements: {
-        minHealth: 35,
-        objects: {
-          tidepool: 1,
-          "kelp-wrack": 1,
-          "dune-grass": 1
-        },
-        hint: "Tidepools plus washed-up shells to move into."
-      },
-      scientificName: "Pagurus samuelis",
-      role: "A tidepool scavenger that cleans up algae and carrion and recycles empty snail shells as portable armor. It is common prey for gulls, fish, and octopus in the intertidal food web.",
-      trophic: "scavenger",
+      preferredHabitat: "Tidepools and low rock benches with a supply of empty snail shells",
+      fact: "Hermit crabs queue up by size and swap houses in a chain: the biggest one moves into the new shell, the next takes the house it left, and so on all the way down the line until the smallest crab gets an upgrade.",
+      role: "A tidepool tidier that grazes algae and cleans up dead things \u2014 and one of the shore's great recyclers, since every shell it wears is the leftover of a snail. What limits hermit crabs is almost never food. It is houses.",
+      eats: [],
+      eatsOther: [
+        "algae",
+        "detritus",
+        "carrion"
+      ],
       eatenBy: [
         "black-turnstone",
         "gull"
       ],
-      eatsOther: [
-        "algae"
-      ],
+      requirements: {
+        minHealth: 35,
+        objects: {
+          "empty-shell-drift": 2,
+          tidepool: 1,
+          "low-tide-rock-bench": 1,
+          "sheltered-cobble-field": 1
+        },
+        signature: "empty-shell-drift",
+        water: {
+          ocean: 2
+        },
+        hint: "A pool is not enough. Leave a supply of empty snail shells, or there is nothing for a hermit crab to move into \u2014 and a few loose cobbles to hide under while it is between shells."
+      },
       sources: [
         {
-          name: "iNaturalist - Blueband Hermit Crab (Pagurus samuelis)",
+          name: "iNaturalist \u2014 Pagurus samuelis",
           url: "https://www.inaturalist.org/taxa/49095-Pagurus-samuelis"
+        },
+        {
+          name: "Monterey Bay Aquarium \u2014 Hermit crabs",
+          url: "https://www.montereybayaquarium.org/animals-the-ocean/animals-a-to-z/hermit-crab"
         }
-      ]
+      ],
+      biome: "coastal",
+      ocean: true
     },
     {
-      id: "sea-star",
-      name: "Ochre Sea Star",
-      biome: "coastal",
+      id: "bat-star",
+      name: "Bat Star",
+      scientificName: "Patiria miniata",
       kind: "invertebrate",
-      rarity: "uncommon",
-      featured: true,
-      diet: "Mussels, barnacles, limpets, chitons, and snails",
-      shelter: "Tidepool rock faces and crevices",
-      preferredHabitat: "Wave-washed rocky intertidal with shellfish",
-      fact: "The classic keystone predator: removing it lets mussels overrun the whole shore.",
-      requirements: {
-        minHealth: 50,
-        objects: {
-          tidepool: 2,
-          "dune-grass": 1
-        },
-        animals: [
-          "mussel"
-        ],
-        hint: "Sea stars need established pools with mussels to eat."
-      },
-      scientificName: "Pisaster ochraceus",
-      role: "The textbook keystone predator of the rocky shore. By eating mussels it sets the mussel bed's lower limit and keeps space open for many other species, maintaining intertidal biodiversity.",
-      trophic: "mesopredator",
-      eats: [
-        "mussel"
+      trophic: "detritivore",
+      rarity: "common",
+      diet: "Algae, detritus, and dead plants and animals",
+      shelter: "Rocky rubble bottoms, surfgrass beds and kelp holdfasts",
+      preferredHabitat: "Shallow rocky and rubble bottom with surfgrass or kelp",
+      fact: "A bat star eats by pushing its stomach out through its mouth and spreading it over its meal, digesting food outside its own body. It also refuses to stick to five arms \u2014 four to nine is perfectly normal.",
+      role: "The cleanup crew of the shallows. It slides over the seafloor digesting algae, scraps and dead animals exactly where they lie, doing the same job a mushroom or an earthworm does on land \u2014 just wetter, and with more arms.",
+      eats: [],
+      eatsOther: [
+        "algae",
+        "detritus",
+        "carrion",
+        "surfgrass leaf litter"
       ],
       eatenBy: [
-        "gull",
-        "sea-otter"
+        "gull"
       ],
-      eatsOther: [
-        "barnacles",
-        "mussels"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web - Pisaster ochraceus",
-          url: "https://animaldiversity.org/accounts/Pisaster_ochraceus/"
-        }
-      ]
-    },
-    {
-      id: "anemone",
-      name: "Giant Green Anemone",
-      biome: "coastal",
-      kind: "invertebrate",
-      rarity: "common",
-      diet: "Crabs, detached mussels, and small fish stung by its tentacles",
-      shelter: "Tidepool walls, often below mussel beds",
-      preferredHabitat: "Clear, surge-fed tidepools near mussel beds",
-      fact: "Its green glow comes from algae living inside its tissues that share sugars.",
       requirements: {
-        minHealth: 30,
+        minHealth: 45,
         objects: {
-          tidepool: 1
+          "subtidal-rubble-flat": 2,
+          "surfgrass-bed": 1,
+          "low-tide-rock-bench": 1
         },
-        hint: "Clear, quiet pools."
+        signature: "subtidal-rubble-flat",
+        water: {
+          ocean: 3
+        },
+        hint: "Broken rock and rubble with surfgrass streaming over it. This is a rocky-bottom animal, not an eelgrass one."
       },
-      scientificName: "Anthopleura xanthogrammica",
-      role: "A sit-and-wait carnivore of tidepools that ambushes prey washed off the rocks, while also farming symbiotic algae for extra food. It is a minor predator that helps recycle dislodged shellfish and crabs.",
-      trophic: "mesopredator",
-      eats: [
-        "mussel",
-        "purple-shore-crab",
-        "tidepool-crab"
-      ],
-      eatsOther: [
-        "mussels"
-      ],
       sources: [
         {
-          name: "Animal Diversity Web - Anthopleura xanthogrammica",
-          url: "https://animaldiversity.org/accounts/Anthopleura_xanthogrammica/"
+          name: "Monterey Bay Aquarium \u2014 Bat star",
+          url: "https://www.montereybayaquarium.org/animals-the-ocean/animals-a-to-z/bat-star"
         },
         {
-          name: "Monterey Bay Aquarium - Giant green anemone",
-          url: "https://www.montereybayaquarium.org/animals-the-ocean/animals-a-to-z/giant-green-anemone"
+          name: "Animal Diversity Web \u2014 Patiria miniata",
+          url: "https://animaldiversity.org/accounts/Patiria_miniata/"
         }
-      ]
+      ],
+      biome: "coastal",
+      ocean: true
     },
     {
       id: "mussel",
-      name: "California Mussel",
-      biome: "coastal",
+      name: "Mussel",
+      scientificName: "Mytilus californianus",
       kind: "invertebrate",
+      trophic: "filter-feeder",
       rarity: "common",
       diet: "Plankton filtered from seawater",
-      shelter: "Dense beds anchored to wave-washed rock",
-      preferredHabitat: "Exposed rocky shore with clean moving water",
-      fact: "A single mussel filters several liters of seawater an hour as it feeds.",
-      requirements: {
-        minHealth: 30,
-        objects: {
-          tidepool: 1
-        },
-        hint: "Clean water over rocky shore."
-      },
-      scientificName: "Mytilus californianus",
-      role: "A reef-building filter feeder whose beds create habitat for countless small animals. It is the key prey that ties together the shore's top predators, from ochre sea stars to sea otters and oystercatchers.",
-      trophic: "filter-feeder",
-      eatenBy: [
-        "anemone",
-        "black-oystercatcher",
-        "black-turnstone",
-        "gull",
-        "sea-otter",
-        "sea-star"
-      ],
+      shelter: "Dense beds anchored to wave-washed rock by byssal threads",
+      preferredHabitat: "Exposed rocky shore with clean, constantly moving water",
+      fact: "A mussel glues itself to the rock with threads it spins out of its own foot \u2014 and if it does not like where it landed, it cuts them, crawls a little way, and glues itself down again.",
+      role: "A shellfish that builds its own reef. The beds pile up thick enough that hundreds of smaller animals live in the gaps between shells, and half this shore's hunters \u2014 sea stars, oystercatchers, turnstones, otters \u2014 are really just here for the mussels.",
+      eats: [],
       eatsOther: [
         "plankton"
       ],
-      sources: [
-        {
-          name: "Animal Diversity Web - Mytilus californianus",
-          url: "https://animaldiversity.org/accounts/Mytilus_californianus/"
-        },
-        {
-          name: "Monterey Bay Aquarium - California mussel",
-          url: "https://www.montereybayaquarium.org/animals-the-ocean/animals-a-to-z/california-mussel"
-        }
-      ]
-    },
-    {
-      id: "clam",
-      name: "Pacific Littleneck Clam",
-      biome: "coastal",
-      kind: "invertebrate",
-      rarity: "common",
-      diet: "Plankton filtered from seawater",
-      shelter: "Buried in sand and gravel",
-      preferredHabitat: "Stable sand and gravel near tidepools",
-      fact: "You can estimate a littleneck clam's age by counting the growth rings on its shell.",
-      requirements: {
-        minHealth: 30,
-        objects: {
-          tidepool: 1,
-          "dune-grass": 1
-        },
-        hint: "Stable, quiet sand to dig into."
-      },
-      scientificName: "Leukoma staminea",
-      role: "A buried filter feeder that helps clean coastal water and stores energy in sheltered sediment. It is important prey for sea otters, shorebirds, crabs, and gulls that dig or crack it open.",
-      trophic: "filter-feeder",
       eatenBy: [
+        "sea-star",
+        "anemone",
+        "black-turnstone",
         "gull",
         "sea-otter"
       ],
-      eatsOther: [
-        "plankton"
-      ],
-      sources: [
-        {
-          name: "WDFW - Pacific littleneck clam",
-          url: "https://wdfw.wa.gov/species-habitats/species/leukoma-staminea"
-        },
-        {
-          name: "Animal Diversity Web - Enhydra lutris (predation on clams)",
-          url: "https://animaldiversity.org/accounts/Enhydra_lutris/"
-        }
-      ]
-    },
-    {
-      id: "shorebird",
-      name: "Snowy Plover",
-      biome: "coastal",
-      kind: "bird",
-      rarity: "uncommon",
-      featured: true,
-      diet: "Sand crustaceans, mole crabs, and kelp-fly larvae",
-      shelter: "Shallow scrapes hidden on open sand",
-      preferredHabitat: "Undisturbed sandy beaches and dune edges",
-      fact: "Snowy plover chicks can run and feed themselves within hours of hatching.",
       requirements: {
-        minHealth: 50,
+        minHealth: 28,
         objects: {
-          "dune-grass": 2,
-          "coastal-nesting-area": 1,
-          tidepool: 1
+          "surge-swept-rock-face": 2,
+          "nutrient-upwelling-current": 1,
+          "barnacle-crust-rock": 1
         },
-        hint: "Anchored dunes and a protected stretch of quiet beach."
+        signature: "surge-swept-rock-face",
+        water: {
+          ocean: 3
+        },
+        hint: "A filter feeder needs water that keeps moving. Give it surge-washed rock rather than a still pool, and barnacle crust for the baby mussels to settle on."
       },
-      scientificName: "Charadrius nivosus",
-      role: "A small beach forager that snaps up tiny crustaceans and kelp flies along the tide line. A threatened species and sensitive indicator of quiet, undisturbed beach; its nests fail easily where beaches are busy.",
-      trophic: "insectivore",
-      eatsOther: [
-        "fly larvae",
-        "mole crabs"
-      ],
       sources: [
         {
-          name: "All About Birds - Snowy Plover Life History",
-          url: "https://www.allaboutbirds.org/guide/Snowy_Plover/lifehistory"
+          name: "Animal Diversity Web \u2014 Mytilus californianus",
+          url: "https://animaldiversity.org/accounts/Mytilus_californianus/"
         },
         {
-          name: "USFWS - Western Snowy Plover",
-          url: "https://www.fws.gov/species/western-snowy-plover-charadrius-nivosus-nivosus"
+          name: "Monterey Bay Aquarium \u2014 California mussel",
+          url: "https://www.montereybayaquarium.org/animals-the-ocean/animals-a-to-z/california-mussel"
         }
-      ]
-    },
-    {
-      id: "gull",
-      name: "Western Gull",
+      ],
       biome: "coastal",
-      kind: "bird",
-      rarity: "common",
-      diet: "Fish, crabs, clams, sea stars, and carrion",
-      shelter: "Open beach, rocky points, and islands",
-      preferredHabitat: "Any shoreline with food to scavenge or catch",
-      fact: "Western gulls crack clams by dropping them from the air onto rocks below.",
-      requirements: {
-        minHealth: 20,
-        objects: {
-          "kelp-wrack": 1
-        },
-        hint: "Gulls show up as soon as there's a beach worth patrolling."
-      },
-      scientificName: "Larus occidentalis",
-      role: "A bold generalist that scavenges carrion and preys on crabs, shellfish, and even sea stars, cleaning the beach and linking many prey to the top of the food web. Foxes and coyotes take gulls and their eggs on land.",
-      trophic: "omnivore",
-      eats: [
-        "clam",
-        "hermit-crab",
-        "mussel",
-        "purple-shore-crab",
-        "sea-star",
-        "tidepool-crab"
-      ],
-      eatsOther: [
-        "clams",
-        "fish",
-        "mussels"
-      ],
-      sources: [
-        {
-          name: "All About Birds - Western Gull Life History",
-          url: "https://www.allaboutbirds.org/guide/Western_Gull/lifehistory"
-        }
-      ]
-    },
-    {
-      id: "pelican",
-      name: "Brown Pelican",
-      biome: "coastal",
-      kind: "bird",
-      rarity: "uncommon",
-      diet: "Small schooling fish, especially anchovies",
-      shelter: "Quiet roosts on rocks and sandbars",
-      preferredHabitat: "Fish-rich nearshore water with quiet roosts",
-      fact: "Brown pelicans plunge-dive from up to 65 feet, twisting to protect the neck on impact.",
-      requirements: {
-        minHealth: 55,
-        objects: {
-          "coastal-nesting-area": 1,
-          tidepool: 1,
-          "dune-grass": 1
-        },
-        hint: "Quiet roosting space and fishable water."
-      },
-      scientificName: "Pelecanus occidentalis",
-      role: "A plunge-diving fish specialist whose recovery after DDT is a major conservation success. Its presence signals healthy schools of forage fish like anchovies in nearshore water.",
-      trophic: "apex-predator",
-      eatsOther: [
-        "fish"
-      ],
-      sources: [
-        {
-          name: "All About Birds - Brown Pelican Life History",
-          url: "https://www.allaboutbirds.org/guide/Brown_Pelican/lifehistory"
-        }
-      ]
-    },
-    {
-      id: "cormorant",
-      name: "Pelagic Cormorant",
-      biome: "coastal",
-      kind: "bird",
-      rarity: "uncommon",
-      diet: "Small fish, plus crabs and shrimp chased underwater",
-      shelter: "Cliff and rock roosts",
-      preferredHabitat: "Rocky shore with clear diving water",
-      fact: "Cormorant feathers soak through on purpose, so less buoyancy makes them better divers.",
-      requirements: {
-        minHealth: 55,
-        objects: {
-          tidepool: 2,
-          "dune-grass": 1
-        },
-        hint: "Healthy rocky shallows to dive in."
-      },
-      scientificName: "Urile pelagicus",
-      role: "A pursuit-diving fish hunter that works rocky reefs and the water column. It depends on clear water and healthy fish stocks, so thriving cormorants signal a productive rocky shore.",
-      trophic: "apex-predator",
-      eatsOther: [
-        "fish"
-      ],
-      sources: [
-        {
-          name: "All About Birds - Pelagic Cormorant Life History",
-          url: "https://www.allaboutbirds.org/guide/Pelagic_Cormorant/lifehistory"
-        }
-      ]
-    },
-    {
-      id: "sea-turtle",
-      name: "Green Sea Turtle",
-      biome: "coastal",
-      kind: "reptile",
-      rarity: "rare",
-      diet: "Mostly seagrass and algae as adults; omnivorous when young",
-      shelter: "Offshore waters; nests on quiet sand",
-      preferredHabitat: "Clean shallow water with seagrass and undisturbed beach",
-      fact: "Green sea turtles return to nest on the very beach where they hatched decades earlier.",
-      requirements: {
-        minHealth: 75,
-        objects: {
-          "coastal-nesting-area": 1,
-          "dune-grass": 2,
-          "kelp-wrack": 1
-        },
-        hint: "An undisturbed nesting beach and clean water."
-      },
-      scientificName: "Chelonia mydas",
-      role: "The only mostly herbivorous sea turtle; adults graze seagrass and algae, keeping beds healthy, while juveniles start as omnivores. Its nesting success is a strong indicator of clean water and undisturbed beaches.",
-      trophic: "herbivore",
-      eatsOther: [
-        "algae",
-        "seagrass"
-      ],
-      sources: [
-        {
-          name: "NOAA Fisheries - Green Turtle",
-          url: "https://www.fisheries.noaa.gov/species/green-turtle"
-        },
-        {
-          name: "Animal Diversity Web - Chelonia mydas",
-          url: "https://animaldiversity.org/accounts/Chelonia_mydas/"
-        }
-      ],
-      ocean: true
-    },
-    {
-      id: "harbor-seal",
-      name: "Harbor Seal",
-      biome: "coastal",
-      kind: "mammal",
-      rarity: "rare",
-      featured: true,
-      diet: "Fish, plus squid, octopus, and crustaceans",
-      shelter: "Quiet haul-out beaches and rocks",
-      preferredHabitat: "Calm, clean water with undisturbed haul-out shore",
-      fact: "Harbor seals can sleep underwater, surfacing to breathe without fully waking.",
-      requirements: {
-        minHealth: 70,
-        objects: {
-          "coastal-nesting-area": 1,
-          tidepool: 1,
-          "dune-grass": 1
-        },
-        hint: "Quiet beaches and clean water \u2014 seals need calm above all."
-      },
-      scientificName: "Phoca vitulina",
-      role: "A generalist marine predator that eats whatever fish is abundant and easy to catch. Sharks and killer whales are its main predators offshore, but on this restored coast it sits near the top of the food web.",
-      trophic: "apex-predator",
-      eatsOther: [
-        "fish"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web - Phoca vitulina",
-          url: "https://animaldiversity.org/accounts/Phoca_vitulina/"
-        },
-        {
-          name: "NOAA Fisheries - Harbor Seal",
-          url: "https://www.fisheries.noaa.gov/species/harbor-seal"
-        }
-      ],
-      ocean: true
-    },
-    {
-      id: "sea-otter",
-      name: "Sea Otter",
-      biome: "coastal",
-      kind: "mammal",
-      rarity: "rare",
-      diet: "Sea urchins, crabs, mussels, clams, and other shellfish",
-      shelter: "Kelp canopy anchor points",
-      preferredHabitat: "Kelp forest and rocky shore with abundant shellfish",
-      fact: "Sea otters wrap up in kelp before sleeping so they don't drift away.",
-      requirements: {
-        minHealth: 75,
-        minBalance: 45,
-        objects: {
-          "kelp-wrack": 2,
-          tidepool: 1,
-          "dune-grass": 1
-        },
-        animals: [
-          "mussel",
-          "clam"
-        ],
-        hint: "Kelp habitat and shellfish beds first; otters follow."
-      },
-      scientificName: "Enhydra lutris",
-      role: "A keystone species: by eating sea urchins it stops them overgrazing kelp, letting kelp forests and the life they shelter thrive. It also preys heavily on mussels and clams along the rocky shore.",
-      trophic: "apex-predator",
-      eats: [
-        "clam",
-        "mussel",
-        "sea-star"
-      ],
-      eatsOther: [
-        "clams",
-        "crabs",
-        "sea urchins"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web - Enhydra lutris",
-          url: "https://animaldiversity.org/accounts/Enhydra_lutris/"
-        },
-        {
-          name: "Monterey Bay Aquarium - Sea otter",
-          url: "https://www.montereybayaquarium.org/animals-the-ocean/animals-a-to-z/sea-otter"
-        }
-      ],
-      ocean: true
-    },
-    {
-      id: "dolphin",
-      name: "Bottlenose Dolphin",
-      biome: "coastal",
-      kind: "mammal",
-      rarity: "rare",
-      diet: "Fish, squid, and crustaceans",
-      shelter: "Open coastal water",
-      preferredHabitat: "Clean, lively nearshore water",
-      fact: "Bottlenose dolphins call each other by name, using signature whistles unique to each one.",
-      requirements: {
-        minHealth: 75,
-        objects: {
-          tidepool: 2,
-          "kelp-wrack": 1,
-          "dune-grass": 1
-        },
-        hint: "A clean, busy shoreline brings dolphins close in."
-      },
-      scientificName: "Tursiops truncatus",
-      role: "A clever, cooperative predator that herds fish and hunts squid in nearshore water. Larger sharks and orcas can prey on it, but in this roster it is a top predator whose presence marks a lively, fish-rich coast.",
-      trophic: "apex-predator",
-      eatsOther: [
-        "fish"
-      ],
-      sources: [
-        {
-          name: "NOAA Fisheries - Common Bottlenose Dolphin",
-          url: "https://www.fisheries.noaa.gov/species/common-bottlenose-dolphin"
-        }
-      ],
       ocean: true
     },
     {
       id: "migrating-whale",
       name: "Gray Whale",
-      biome: "coastal",
+      scientificName: "Eschrichtius robustus",
       kind: "mammal",
+      trophic: "filter-feeder",
       rarity: "rare",
-      diet: "Amphipods and other tiny bottom crustaceans, sifted from sediment",
-      shelter: "Open ocean; passes close to healthy shores",
-      preferredHabitat: "Seen offshore from a fully restored coast",
-      fact: "Gray whales migrate up to 14,000 miles round trip, among the longest of any mammal.",
+      diet: "Bottom-living amphipods and swarming mysid shrimp, sifted through baleen",
+      shelter: "Open ocean; passes close inshore along a healthy coast",
+      preferredHabitat: "Nearshore water with soft-bottom amphipod beds and mysid swarms at the kelp edge",
+      fact: "Gray whales roll onto one side and vacuum the seafloor, straining out shrimp-like amphipods and leaving long muddy plumes trailing behind them \u2014 and they do it at the end of a swim of up to 14,000 miles.",
+      role: "A baleen whale that feeds off the bottom rather than skimming the surface, so a whale that lingers offshore is really a report on the seabed and the kelp edge below it. Adults are far too big to be hunted here; the calves travelling with them in spring are not, and orcas know it.",
+      eats: [],
+      eatsOther: [
+        "benthic amphipods",
+        "mysid shrimp"
+      ],
+      eatenBy: [
+        "orca"
+      ],
       requirements: {
         minHealth: 75,
         minBalance: 50,
         objects: {
-          tidepool: 2,
-          "dune-grass": 2,
-          "coastal-nesting-area": 1
+          "benthic-amphipod-bed": 2,
+          "nutrient-upwelling-current": 1
         },
-        hint: "Only a truly thriving shore earns a whale sighting. Watch the horizon.",
+        signature: "benthic-amphipod-bed",
+        water: {
+          ocean: 14,
+          deep: true
+        },
+        hint: "Give this one deep water and a seabed thick with tiny shrimp-like amphipods. Tidepools and dune plantings will never bring a whale in.",
         conditions: {
           season: [
             "winter",
@@ -10585,101 +16384,2126 @@ var animals_2_default = {
           ]
         }
       },
-      scientificName: "Eschrichtius robustus",
-      role: "A bottom-feeding baleen whale that rolls on its side to suck up sediment and filter out tiny crustaceans. Killer whales are its main predator; a passing gray whale is a sign of a fully restored, productive coast.",
-      trophic: "filter-feeder",
-      eatsOther: [
-        "plankton"
-      ],
       sources: [
         {
-          name: "NOAA Fisheries - Gray Whale",
+          name: "NOAA Fisheries \u2014 Gray Whale",
           url: "https://www.fisheries.noaa.gov/species/gray-whale"
         },
         {
-          name: "Animal Diversity Web - Eschrichtius robustus",
-          url: "https://animaldiversity.org/accounts/Eschrichtius_robustus/"
+          name: "Hildebrand et al. 2024, Sci Rep \u2014 urchin/kelp cascade and gray whale foraging",
+          url: "https://www.nature.com/articles/s41598-024-59964-x"
         }
       ],
+      biome: "coastal",
       ocean: true
+    },
+    {
+      id: "brant-goose",
+      name: "Brant Goose",
+      scientificName: "Branta bernicla nigricans",
+      kind: "bird",
+      trophic: "herbivore",
+      rarity: "uncommon",
+      diet: "Eelgrass, plus sea lettuce and other green algae",
+      shelter: "Open shoreline, sandbars and shallow bays",
+      preferredHabitat: "Shallow coastal bays with eelgrass beds",
+      fact: "Brant fly thousands of miles to eat basically one thing: eelgrass. Lose the eelgrass in a bay and the geese are gone within a season or two, no matter how nice the rest of it looks.",
+      role: "A small sea goose that grazes eelgrass and green algae in shallow bays and almost nothing else. Because it is so fussy, a bay full of brant is a bay with healthy seagrass \u2014 they are a living gauge of the meadow below them.",
+      eats: [],
+      eatsOther: [
+        "eelgrass",
+        "sea lettuce"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 60,
+        objects: {
+          "eelgrass-bed": 2,
+          "sandbar-loafing-roost": 1
+        },
+        signature: "eelgrass-bed",
+        water: {
+          ocean: 6
+        },
+        hint: "Eelgrass to graze, and a quiet sandbar to stand on while the tide is too high to feed."
+      },
+      sources: [
+        {
+          name: "All About Birds \u2014 Brant",
+          url: "https://www.allaboutbirds.org/guide/Brant/lifehistory"
+        },
+        {
+          name: "Audubon Field Guide \u2014 Brant",
+          url: "https://www.audubon.org/field-guide/bird/brant"
+        }
+      ],
+      biome: "coastal"
+    },
+    {
+      id: "tidepool-crab",
+      name: "Shore Crab",
+      scientificName: "Pachygrapsus crassipes",
+      kind: "invertebrate",
+      trophic: "omnivore",
+      rarity: "common",
+      diet: "Mostly algae and drift kelp, plus detritus, worms, snails and carrion",
+      shelter: "Crevices in splash-zone rock",
+      preferredHabitat: "Rocky intertidal and splash zone, often out of the water altogether",
+      fact: "The shore crab spends more than half its life out of the sea, breathing air on dry rock, and only nips back to a pool now and then to wet its gills.",
+      role: "The busiest scavenger on the highest rocks, scraping surfaces clean of algae and hauling away anything that dies. It is also breakfast for gulls, oystercatchers and turnstones, and one of the very first animals to reappear on a shore that is coming back to life.",
+      eats: [],
+      eatsOther: [
+        "algae",
+        "detritus",
+        "carrion"
+      ],
+      eatenBy: [
+        "anemone",
+        "black-turnstone",
+        "gull",
+        "octopus"
+      ],
+      requirements: {
+        minHealth: 12,
+        objects: {
+          "splash-zone-crevice": 2,
+          tidepool: 1,
+          "barnacle-crust-rock": 1
+        },
+        signature: "splash-zone-crevice",
+        water: {
+          ocean: 1
+        },
+        hint: "Barely any water. High rock, deep cracks to wedge into, and one pool nearby to duck into when it needs a drink."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Pachygrapsus crassipes",
+          url: "https://animaldiversity.org/accounts/Pachygrapsus_crassipes/"
+        },
+        {
+          name: "iNaturalist \u2014 Pachygrapsus crassipes",
+          url: "https://www.inaturalist.org/taxa/50930-Pachygrapsus-crassipes"
+        }
+      ],
+      biome: "coastal",
+      ocean: true
+    },
+    {
+      id: "gull",
+      name: "Gull",
+      scientificName: "Larus occidentalis",
+      kind: "bird",
+      trophic: "omnivore",
+      rarity: "common",
+      diet: "Fish, crabs, mussels, sea stars and carrion",
+      shelter: "Ground scrapes on offshore rocks and islands, tucked beside driftwood, rock or low coastal scrub",
+      preferredHabitat: "Any shoreline with food to scavenge or catch",
+      fact: "A gull that finds a mussel it cannot open carries it high into the air and drops it onto rock \u2014 and it remembers which rock cracks shells best, coming back to the same one all season.",
+      role: "A bold, clever generalist that scavenges carrion and hunts crabs, shellfish, anchovies and even sea stars, tying dozens of small animals to the top of the food web. Nothing on this shore hunts a grown gull, which is exactly why it can afford to be so cheeky.",
+      eats: [
+        "hermit-crab",
+        "mussel",
+        "tidepool-crab",
+        "beach-hopper",
+        "northern-anchovy",
+        "sea-star",
+        "bat-star",
+        "annas-hummingbird",
+        "black-oystercatcher"
+      ],
+      eatsOther: [
+        "carrion",
+        "seabird eggs"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 20,
+        objects: {
+          "shell-dropping-rock": 1,
+          "bare-sand-beach": 2,
+          "beach-shrub": 1
+        },
+        signature: "shell-dropping-rock",
+        water: {
+          ocean: 2
+        },
+        animals: [
+          "tidepool-crab"
+        ],
+        hint: "Open beach to patrol, low scrub to nest beside, and one hard flat rock to bomb shellfish onto."
+      },
+      sources: [
+        {
+          name: "All About Birds \u2014 Western Gull",
+          url: "https://www.allaboutbirds.org/guide/Western_Gull/lifehistory"
+        },
+        {
+          name: "Audubon Field Guide \u2014 Western Gull",
+          url: "https://www.audubon.org/field-guide/bird/western-gull"
+        }
+      ],
+      biome: "coastal"
+    },
+    {
+      id: "sanderling",
+      name: "Sanderling",
+      scientificName: "Calidris alba",
+      kind: "bird",
+      trophic: "insectivore",
+      rarity: "common",
+      diet: "Beach hoppers, mole crabs, amphipods, worms and small molluscs",
+      shelter: "Open beach above the surf line",
+      preferredHabitat: "The wet swash zone of an open sandy beach",
+      fact: "Sanderlings spend the whole day sprinting at the sea and running away from it, chasing each wave out to grab whatever it uncovered and fleeing the next one before it buries them.",
+      role: "A specialist of the sliding strip of water at the sea's edge, feeding on the small crustaceans the surf keeps turning over. Its flocks live or die on how much life the wrack line produces, so a beach that is groomed clean is a beach without sanderlings.",
+      eats: [
+        "beach-hopper"
+      ],
+      eatsOther: [
+        "mole crabs",
+        "amphipods",
+        "marine worms"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 50,
+        objects: {
+          "swash-zone-runnel": 2,
+          "bare-sand-beach": 1
+        },
+        signature: "swash-zone-runnel",
+        water: {
+          ocean: 2
+        },
+        animals: [
+          "beach-hopper"
+        ],
+        hint: "The wet strip where the waves run out, with open sand behind it. Do not plant anything here \u2014 this bird feeds where the water slides."
+      },
+      sources: [
+        {
+          name: "All About Birds \u2014 Sanderling",
+          url: "https://www.allaboutbirds.org/guide/Sanderling/lifehistory"
+        },
+        {
+          name: "Audubon Field Guide \u2014 Sanderling",
+          url: "https://www.audubon.org/field-guide/bird/sanderling"
+        }
+      ],
+      biome: "coastal"
+    },
+    {
+      id: "snowy-plover",
+      name: "Snowy Plover",
+      scientificName: "Charadrius nivosus nivosus",
+      kind: "bird",
+      trophic: "insectivore",
+      rarity: "rare",
+      diet: "Beach invertebrates: beach hoppers, kelp flies and their larvae, small crustaceans and molluscs",
+      shelter: "A shallow scrape on open sand, sometimes lined with shell fragments; chicks shelter beside driftwood and wrack",
+      preferredHabitat: "Wide, flat, sparsely vegetated open sand above the tide line",
+      fact: "A snowy plover's entire nest is a dent in bare sand lined with a few shell chips. The chicks run within hours of hatching, and freeze flat as pebbles the moment a shadow crosses them.",
+      role: "A threatened beach nester that feeds on tiny invertebrates along the sand and the wrack. It will not nest where it cannot see a predator coming, which makes it one of the very few animals here that thick planting drives away rather than attracts \u2014 the kindest thing you can build it is emptiness nobody walks through.",
+      eats: [
+        "beach-hopper"
+      ],
+      eatsOther: [
+        "kelp flies",
+        "fly larvae",
+        "mole crabs"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 60,
+        objects: {
+          "plover-scrape-closure": 1,
+          "bare-sand-beach": 2,
+          "driftwood-pile": 1
+        },
+        signature: "plover-scrape-closure",
+        animals: [
+          "beach-hopper"
+        ],
+        hint: "No water, no planting. Bare open sand, a roped-off patch where nobody treads, and driftwood for the chicks to hide beside.",
+        conditions: {
+          season: [
+            "spring",
+            "summer"
+          ]
+        }
+      },
+      sources: [
+        {
+          name: "All About Birds \u2014 Snowy Plover",
+          url: "https://www.allaboutbirds.org/guide/Snowy_Plover/lifehistory"
+        },
+        {
+          name: "USFWS \u2014 Western Snowy Plover",
+          url: "https://www.fws.gov/species/western-snowy-plover-charadrius-nivosus-nivosus"
+        }
+      ],
+      biome: "coastal"
+    },
+    {
+      id: "black-turnstone",
+      name: "Black Turnstone",
+      scientificName: "Arenaria melanocephala",
+      kind: "bird",
+      trophic: "insectivore",
+      rarity: "common",
+      diet: "Barnacles, limpets, small mussels, hermit crabs and other rocky-shore invertebrates",
+      shelter: "Rocky shoreline; tight flocks on raised rock at high tide",
+      preferredHabitat: "Rocky intertidal shores with barnacle and limpet crusts",
+      fact: "A turnstone does exactly what its name promises \u2014 flips over stones, shells and clumps of seaweed to snatch whatever is hiding underneath \u2014 and hammers barnacles open with a stubby bill shaped like a chisel.",
+      role: "A rocky-shore forager that pries barnacles and limpets loose and turns over wrack for hidden prey. It also needs somewhere safe to sit out high tide, when every feeding rock it owns is underwater. Take away the roosts and the shore loses its turnstones even with the food untouched.",
+      eats: [
+        "hermit-crab",
+        "mussel",
+        "tidepool-crab"
+      ],
+      eatsOther: [
+        "barnacles",
+        "limpets"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 40,
+        objects: {
+          "high-tide-roost-rock": 1,
+          "barnacle-crust-rock": 2,
+          "low-tide-rock-bench": 1
+        },
+        signature: "high-tide-roost-rock",
+        water: {
+          ocean: 2
+        },
+        animals: [
+          "hermit-crab"
+        ],
+        hint: "Barnacle-crusted rock to hammer at when the tide is out, and a high dry rock to stand on when it is not."
+      },
+      sources: [
+        {
+          name: "All About Birds \u2014 Black Turnstone",
+          url: "https://www.allaboutbirds.org/guide/Black_Turnstone/lifehistory"
+        },
+        {
+          name: "Audubon Field Guide \u2014 Black Turnstone",
+          url: "https://www.audubon.org/field-guide/bird/black-turnstone"
+        }
+      ],
+      biome: "coastal"
+    },
+    {
+      id: "annas-hummingbird",
+      name: "Song Sparrow",
+      scientificName: "Melospiza melodia",
+      kind: "bird",
+      trophic: "omnivore",
+      rarity: "common",
+      diet: "Seeds and berries most of the year; insects, spiders and sand hoppers off the tideline in summer",
+      shelter: "A grass cup hidden low in a dense damp thicket, usually less than a metre off the ground",
+      preferredHabitat: "Tangled scrub along damp hollows behind the dunes, thick enough that you could not push through it",
+      fact: "A young male learns his songs from the neighbours he grows up beside, so sparrows in one stretch of coast end up singing with a different accent from the ones round the next headland. Listen long enough and you can tell individual birds apart by ear.",
+      role: "The scrappy brown bird of the wet thickets and the constant background sound of the coastal scrub. It scratches seeds and insects out of the litter, works the tideline wrack for sand hoppers, and spends the rest of its day singing from the top of a bush to hold its patch of ground. It only nests where the scrub is low, dense and damp underneath \u2014 tidy that tangle away and it is the first bird to vanish. Gulls pick off the odd one.",
+      eats: [
+        "beach-hopper"
+      ],
+      eatsOther: [
+        "seeds",
+        "berries",
+        "spiders",
+        "beetles"
+      ],
+      eatenBy: [
+        "gull"
+      ],
+      requirements: {
+        minHealth: 50,
+        objects: {
+          "willow-thicket-swale": 1,
+          "beach-shrub": 2,
+          "dune-manzanita": 1
+        },
+        signature: "willow-thicket-swale",
+        hint: "It wants a tangle, not a lawn \u2014 low dense scrub over damp ground. Berry-bearing shrubs behind it carry the bird through the winter."
+      },
+      sources: [
+        {
+          name: "All About Birds \u2014 Song Sparrow",
+          url: "https://www.allaboutbirds.org/guide/Song_Sparrow/lifehistory"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Melospiza melodia",
+          url: "https://animaldiversity.org/accounts/Melospiza_melodia/"
+        }
+      ],
+      biome: "coastal"
+    },
+    {
+      id: "sea-star",
+      name: "Sea Star",
+      scientificName: "Pisaster ochraceus",
+      kind: "invertebrate",
+      trophic: "mesopredator",
+      rarity: "uncommon",
+      diet: "Mussels above all, plus barnacles, limpets, chitons, snails and small urchins",
+      shelter: "Damp surge channels and rock crevices at the lower edge of the mussel bed",
+      preferredHabitat: "Wave-washed rocky intertidal with mussel beds above and surge below",
+      fact: "This is the animal the word 'keystone' was invented for. Take the sea stars off a shore and within a couple of years the mussels spread down over everything else \u2014 which is precisely what happened when a wasting disease melted these stars by the million along thousands of miles of coast.",
+      role: "The rocky shore's most famous predator. Working upward from the low zone and eating mussels as it goes, it decides where the mussel bed stops, and that leaves bare space on the rock for barnacles, algae, anemones and dozens of other species. Remove it and the mussels simply take everything.",
+      eats: [
+        "mussel",
+        {
+          id: "purple-sea-urchin",
+          stage: "young"
+        },
+        "owl-limpet"
+      ],
+      eatsOther: [
+        "barnacles",
+        "limpets",
+        "chitons",
+        "snails"
+      ],
+      eatenBy: [
+        "gull",
+        "sea-otter"
+      ],
+      requirements: {
+        minHealth: 50,
+        objects: {
+          "mussel-bed-lower-margin": 1,
+          "mussel-bed": 2,
+          "barnacle-crust-rock": 1
+        },
+        signature: "mussel-bed-lower-margin",
+        water: {
+          ocean: 3
+        },
+        animals: [
+          "mussel"
+        ],
+        hint: "Build the mussel bed first. The sea star lives at its bottom edge \u2014 and that edge only exists because the sea star is standing on it."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Pisaster ochraceus",
+          url: "https://animaldiversity.org/accounts/Pisaster_ochraceus/"
+        },
+        {
+          name: "MARINe (UC Santa Cruz) \u2014 Pisaster and sea star wasting disease",
+          url: "https://marine.ucsc.edu/target/pisaster/"
+        }
+      ],
+      biome: "coastal",
+      ocean: true
+    },
+    {
+      id: "anemone",
+      name: "Anemone",
+      scientificName: "Anthopleura xanthogrammica",
+      kind: "invertebrate",
+      trophic: "mesopredator",
+      rarity: "common",
+      diet: "Crabs, detached mussels and small fish stung by its tentacles",
+      shelter: "The walls and floors of surge-flushed pools, characteristically just below the mussel beds",
+      preferredHabitat: "Clear, sunlit, surge-fed pools in the low zone",
+      fact: "That glowing green comes from algae living inside the anemone's own body, making sugar out of sunlight and handing it over like rent. An anemone stuck in the shade goes pale and goes hungry.",
+      role: "A sit-still hunter that waits below the mussel beds and catches whatever the surf knocks loose from above, while farming its own private algae for extra meals. Half its food arrives by accident, falling out of the rocks overhead.",
+      eats: [
+        "mussel",
+        "tidepool-crab"
+      ],
+      eatsOther: [
+        "dislodged mussels",
+        "small fish"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 36,
+        objects: {
+          "sunlit-surge-pool": 2,
+          tidepool: 1,
+          "mussel-bed": 1
+        },
+        signature: "sunlit-surge-pool",
+        water: {
+          ocean: 2
+        },
+        animals: [
+          "mussel",
+          "tidepool-crab"
+        ],
+        hint: "A sunlit pool with surge running through it, sitting below a mussel bed. Dinner falls in from upstairs."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Anthopleura xanthogrammica",
+          url: "https://animaldiversity.org/accounts/Anthopleura_xanthogrammica/"
+        },
+        {
+          name: "Monterey Bay Aquarium \u2014 Giant green anemone",
+          url: "https://www.montereybayaquarium.org/animals-the-ocean/animals-a-to-z/giant-green-anemone"
+        }
+      ],
+      biome: "coastal",
+      ocean: true
+    },
+    {
+      id: "black-oystercatcher",
+      name: "Puffin",
+      scientificName: "Fratercula cirrhata",
+      kind: "bird",
+      trophic: "omnivore",
+      rarity: "uncommon",
+      diet: "Small fish carried crosswise in its beak, plus shrimp and other small swimmers",
+      shelter: "A burrow dug a metre back into the turf on top of a sea cliff",
+      preferredHabitat: "Grassy clifftops above deep water, with soil soft enough to dig",
+      fact: "A puffin can hold a dozen fish crosswise in its beak at once without dropping any \u2014 backward-pointing spines on its tongue and the roof of its mouth pin each one while it catches the next.",
+      role: "A small seabird that lives almost its whole life out on the water and only comes ashore to nest, digging a burrow into the clifftop turf. Its beak only turns bright orange for the breeding season, then dulls again for winter.",
+      eats: [
+        "northern-anchovy"
+      ],
+      eatsOther: [
+        "small fish",
+        "shrimp",
+        "zooplankton"
+      ],
+      eatenBy: [
+        "gull"
+      ],
+      requirements: {
+        minHealth: 55,
+        objects: {
+          "clifftop-burrow": 1,
+          "nesting-bluff": 1
+        },
+        signature: "clifftop-burrow",
+        water: {
+          ocean: 6,
+          deep: true
+        },
+        animals: [
+          "northern-anchovy"
+        ],
+        hint: "Soft turf on top of a cliff to dig a burrow into, and deep water below it full of small fish."
+      },
+      sources: [
+        {
+          name: "All About Birds \u2014 Tufted Puffin",
+          url: "https://www.allaboutbirds.org/guide/Tufted_Puffin/lifehistory"
+        }
+      ],
+      biome: "coastal",
+      ocean: true
+    },
+    {
+      id: "pelican",
+      name: "Brown Pelican",
+      scientificName: "Pelecanus occidentalis californicus",
+      kind: "bird",
+      trophic: "mesopredator",
+      rarity: "uncommon",
+      diet: "Small schooling fish, especially northern anchovy",
+      shelter: "Nests only on undisturbed offshore islands; loafs on sandbars and rocks",
+      preferredHabitat: "Anchovy-rich nearshore water within reach of an island colony",
+      fact: "A brown pelican dives from sixty feet up and hits the water hard enough to stun fish \u2014 and it twists its body left just before impact so the blow does not break its neck.",
+      role: "A plunge-diving anchovy hunter whose comeback after pesticide poisoning is one of the great conservation rescues. It nests only on islands offshore, never on the mainland beach, and its colonies fail outright in years when the anchovy schools do not show \u2014 so a nesting pelican is a statement about the fish, not the sand.",
+      eats: [
+        "northern-anchovy"
+      ],
+      eatsOther: [
+        "sardines",
+        "small schooling fish"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 55,
+        objects: {
+          "offshore-nesting-island": 1,
+          "sandbar-loafing-roost": 2
+        },
+        signature: "offshore-nesting-island",
+        water: {
+          ocean: 10,
+          deep: true
+        },
+        animals: [
+          "northern-anchovy"
+        ],
+        hint: "An island the tide and the footpaths cannot reach, sandbars to loaf on, and anchovy schools in the water offshore."
+      },
+      sources: [
+        {
+          name: "All About Birds \u2014 Brown Pelican",
+          url: "https://www.allaboutbirds.org/guide/Brown_Pelican/lifehistory"
+        },
+        {
+          name: "USFWS \u2014 Brown Pelican",
+          url: "https://www.fws.gov/species/brown-pelican-pelecanus-occidentalis"
+        }
+      ],
+      biome: "coastal",
+      ocean: true
+    },
+    {
+      id: "sea-otter",
+      name: "Sea Otter",
+      scientificName: "Enhydra lutris",
+      kind: "mammal",
+      trophic: "apex-predator",
+      rarity: "rare",
+      diet: "Sea urchins above all, plus mussels, crabs and sea stars",
+      shelter: "Rafts wrapped in living surface kelp canopy, in coves calm enough to groom in",
+      preferredHabitat: "Kelp forest and rocky shore with abundant shellfish and calm rafting water",
+      fact: "A sea otter has no blubber at all \u2014 just the thickest fur on Earth, about a million hairs in a patch the size of a postage stamp \u2014 so it spends hours a day combing air into its coat, and wraps itself in kelp so it does not drift away while it sleeps.",
+      role: "The animal this whole coast hangs on. By eating urchins it stops them mowing the kelp down to bare rock, so the forest and everything sheltering in it survives. Remove the otter and the urchins multiply, the kelp goes, and what is left is a barren. Note what it rafts in: living canopy, not dead wrack on the beach.",
+      eats: [
+        "purple-sea-urchin",
+        "mussel",
+        "sea-star"
+      ],
+      eatsOther: [
+        "crabs",
+        "snails",
+        "abalone"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 75,
+        minBalance: 45,
+        objects: {
+          "sheltered-rafting-cove": 1,
+          "kelp-forest": 2,
+          "mussel-bed": 1
+        },
+        signature: "sheltered-rafting-cove",
+        water: {
+          ocean: 10,
+          deep: true
+        },
+        animals: [
+          "purple-sea-urchin",
+          "mussel"
+        ],
+        hint: "Living kelp forest to wrap up in, calm water to groom in, and urchins and shellfish to eat. Dead kelp on the sand is no use to an otter."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Enhydra lutris",
+          url: "https://animaldiversity.org/accounts/Enhydra_lutris/"
+        },
+        {
+          name: "Monterey Bay Aquarium \u2014 Sea otter",
+          url: "https://www.montereybayaquarium.org/animals-the-ocean/animals-a-to-z/sea-otter"
+        }
+      ],
+      biome: "coastal",
+      ocean: true
+    },
+    {
+      id: "harbor-seal",
+      name: "Harbor Seal",
+      scientificName: "Phoca vitulina",
+      kind: "mammal",
+      trophic: "apex-predator",
+      rarity: "rare",
+      diet: "Fish, especially anchovy and flatfish, plus squid, octopus and crustaceans",
+      shelter: "Undisturbed low-tide rocks and sandbars used as haul-outs for resting and pupping",
+      preferredHabitat: "Calm, clean water beside a haul-out nobody walks up to",
+      fact: "Harbor seals can sleep at sea, hanging upright just below the surface like bottles and bobbing up for a breath without properly waking.",
+      role: "A patient, curious hunter that eats whatever fish is easiest to catch that week. Everything it does on land happens on a haul-out: resting, moulting, giving birth. Walk up to one once and the seals stop using it. Nothing on this shore hunts an adult seal \u2014 but something out in the deep water does.",
+      eats: [
+        "northern-anchovy"
+      ],
+      eatsOther: [
+        "flatfish",
+        "squid",
+        "octopus"
+      ],
+      eatenBy: [
+        "orca"
+      ],
+      requirements: {
+        minHealth: 70,
+        objects: {
+          "haul-out-rocks": 2,
+          "kelp-forest": 1
+        },
+        signature: "haul-out-rocks",
+        water: {
+          ocean: 10,
+          deep: true
+        },
+        animals: [
+          "northern-anchovy"
+        ],
+        hint: "Deep water to fish in and quiet rocks to haul out on, with room around them. A seal haul-out is not a bird nesting closure \u2014 build the right thing."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Phoca vitulina",
+          url: "https://animaldiversity.org/accounts/Phoca_vitulina/"
+        },
+        {
+          name: "NOAA Fisheries \u2014 Harbor Seal",
+          url: "https://www.fisheries.noaa.gov/species/harbor-seal"
+        }
+      ],
+      biome: "coastal",
+      ocean: true
+    },
+    {
+      id: "desert-termite",
+      name: "Desert Termite",
+      scientificName: "Gnathamitermes perplexus",
+      kind: "insect",
+      trophic: "decomposer",
+      rarity: "common",
+      diet: "Dead grass, fallen leaves, dry dung and the weathered outsides of dead wood",
+      shelter: "Tunnels and chambers underground, plus mud sheeting built over whatever it is eating",
+      preferredHabitat: "Soil beneath shrubs and grasses where dead plant litter collects",
+      fact: "These termites plaster a thin mud roof over a dead stem and eat underneath it, so they can feed in full sun without ever touching the dry air.",
+      role: "The animal that actually recycles this desert. There is too little water here for litter to rot the way it does in a forest, so termites eat almost all of it instead, carrying the nitrogen and carbon back underground and leaving tunnels that let rain soak in rather than run off. On swarm nights, everything with a beak or a sting comes to the feast.",
+      eats: [],
+      eatsOther: [
+        "dead grass and stems",
+        "dry dung",
+        "buried dead wood"
+      ],
+      eatenBy: [
+        "horned-lizard",
+        "burrowing-owl",
+        "scorpion",
+        "tarantula",
+        "grasshopper-mouse"
+      ],
+      requirements: {
+        minHealth: 8,
+        objects: {
+          "buried-deadwood": 2,
+          "creosote-bush": 1,
+          "cryptobiotic-crust": 1
+        },
+        signature: "buried-deadwood",
+        hint: "Push dead stems down into the soil. These termites never cross open ground \u2014 they come up at their food from below."
+      },
+      sources: [
+        {
+          name: "Arizona-Sonora Desert Museum \u2014 Termites",
+          url: "https://www.desertmuseum.org/books/nhsd_termites.php"
+        },
+        {
+          name: "USDA Forest Service \u2014 Physical and chemical alteration of soil by two subterranean termite species in a desert grassland",
+          url: "https://research.fs.usda.gov/treesearch/9934"
+        }
+      ],
+      biome: "desert"
+    },
+    {
+      id: "jackrabbit",
+      name: "Jackrabbit",
+      scientificName: "Lepus californicus",
+      kind: "mammal",
+      trophic: "herbivore",
+      rarity: "common",
+      diet: "Grasses, wildflowers, cactus pads, and the twigs and bark of desert shrubs",
+      shelter: "A shallow shaded scrape under a shrub; it never digs a burrow",
+      preferredHabitat: "Open flats with scattered shrubs and room to run",
+      fact: "Those enormous ears are radiators \u2014 a jackrabbit lies dead still in the shade and pours its body heat straight out through the blood vessels inside them.",
+      role: "The biggest everyday plant-eater here, and the meal at the centre of everyone else's day. Its babies are born furred and open-eyed in a shallow scrape, because a jackrabbit owns no burrow and never will \u2014 it bets everything on ears, speed and knowing where the shade is.",
+      eats: [],
+      eatsOther: [
+        "grasses",
+        "cactus pads",
+        "twigs and bark"
+      ],
+      eatenBy: [
+        "coyote",
+        "kit-fox",
+        "rattlesnake",
+        "common-raven",
+        "harris-hawk"
+      ],
+      requirements: {
+        minHealth: 30,
+        objects: {
+          "shade-form-scrape": 1,
+          "bush-muhly": 2,
+          "creosote-bush": 1
+        },
+        signature: "shade-form-scrape",
+        hint: "Grass to graze, shrubs to browse and a shaded scrape to lie in. Skip the water \u2014 it drinks from the plants."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Lepus californicus",
+          url: "https://animaldiversity.org/accounts/Lepus_californicus/"
+        },
+        {
+          name: "USDA Forest Service FEIS \u2014 Lepus californicus",
+          url: "https://www.fs.usda.gov/database/feis/animals/mammal/leca/all.html"
+        }
+      ],
+      biome: "desert"
+    },
+    {
+      id: "kangaroo-rat",
+      name: "Kangaroo Rat",
+      scientificName: "Dipodomys merriami",
+      kind: "mammal",
+      trophic: "herbivore",
+      rarity: "common",
+      diet: "Seeds, carried home in fur-lined cheek pouches and buried in underground larders",
+      shelter: "Shallow burrows under shrubs and soil mounds, plugged with sand every dawn",
+      preferredHabitat: "Loose soil under seed-bearing shrubs and mesquite",
+      fact: "A kangaroo rat never drinks \u2014 it manufactures all the water it needs out of dry seeds \u2014 and it can leap sideways almost two metres to dodge a striking snake.",
+      role: "The desert's accidental gardener. It buries seeds all over its patch and forgets enough of them that those are the plants that come up next spring. Its tunnels are the starting point for everything that cannot dig well: kit foxes widen them into dens, and half the burrows in the biome began as its work. Nearly every predator here eats it.",
+      eats: [],
+      eatsOther: [
+        "mesquite seeds",
+        "grass seeds",
+        "green shoots"
+      ],
+      eatenBy: [
+        "kit-fox",
+        "rattlesnake",
+        "burrowing-owl"
+      ],
+      requirements: {
+        minHealth: 25,
+        objects: {
+          "seed-larder-burrow": 1,
+          "creosote-mound": 1,
+          "bush-muhly": 1,
+          "mesquite-tree": 1
+        },
+        signature: "seed-larder-burrow",
+        hint: "Seed plants and soft diggable soil, especially the loose mounds heaped round a shrub's base. Build no water at all \u2014 this one may never take a drink in its life."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Dipodomys merriami",
+          url: "https://animaldiversity.org/accounts/Dipodomys_merriami/"
+        },
+        {
+          name: "NPS \u2014 Kangaroo Rats",
+          url: "https://www.nps.gov/moja/learn/nature/kangaroo-rats.htm"
+        }
+      ],
+      biome: "desert"
+    },
+    {
+      id: "desert-tortoise",
+      name: "Desert Tortoise",
+      scientificName: "Gopherus morafkai",
+      kind: "reptile",
+      trophic: "herbivore",
+      rarity: "rare",
+      diet: "Native grasses, spring wildflowers, and cactus pads and fruit",
+      shelter: "Caliche caves, rock crevices and dens under boulders on rocky slopes",
+      preferredHabitat: "Rocky slopes with native grasses and wildflowers",
+      fact: "A desert tortoise can live 80 years and spends about 95 of every 100 days of it underground \u2014 and it carries a bladder of stored water it can live off for a year if the rains fail.",
+      role: "A slow, long-lived grazer that also happens to be the landlord. The dens it hollows out get used for years afterwards by owls, snakes, lizards, rodents and insects that could never dig anything like them, so saving one tortoise quietly saves a dozen other animals. Grown tortoises are nearly untouchable; it is the hatchlings, soft-shelled for years, that ravens and coyotes take.",
+      eats: [],
+      eatsOther: [
+        "native grasses",
+        "spring wildflowers",
+        "cactus pads"
+      ],
+      eatenBy: [
+        "common-raven"
+      ],
+      requirements: {
+        minHealth: 50,
+        objects: {
+          "caliche-shelter-cave": 1,
+          "bush-muhly": 2,
+          "desert-marigold": 1
+        },
+        signature: "caliche-shelter-cave",
+        hint: "A caliche den on a rocky slope, with grass and wildflowers to graze in front of it. It drinks only when rain puddles, and can wait a whole year for that."
+      },
+      sources: [
+        {
+          name: "USFWS \u2014 Sonoran Desert Tortoise (Gopherus morafkai)",
+          url: "https://www.fws.gov/species/sonoran-desert-tortoise-gopherus-morafkai"
+        },
+        {
+          name: "Desert Tortoise Council \u2014 Biology of Desert Tortoises",
+          url: "https://deserttortoise.org/about-desert-tortoises/biology-desert-tortoises/"
+        }
+      ],
+      biome: "desert"
+    },
+    {
+      id: "desert-bee",
+      name: "Cactus Bee",
+      scientificName: "Diadasia rinconis",
+      kind: "insect",
+      trophic: "herbivore",
+      rarity: "common",
+      diet: "Pollen and nectar from prickly pear and cholla flowers",
+      shelter: "A vertical nest shaft dug in bare, loose ground, often with a little mud chimney over the door",
+      preferredHabitat: "Blooming prickly pear and cholla beside open, undisturbed soil",
+      fact: "Every female digs her own nest and stocks it herself \u2014 but thousands of these single mothers dig side by side in the same patch of bare ground, so the whole ground hums.",
+      role: "The bee that makes cactus fruit happen. No bee visits means no fruit set, and no fruit means no midsummer water for the squirrels, birds and rodents that live on it. She needs soft, undisturbed bare soil to dig in, which is exactly what hooves and tyres destroy first.",
+      eats: [],
+      eatsOther: [
+        "cactus pollen",
+        "cactus nectar"
+      ],
+      eatenBy: [
+        "cactus-wren",
+        "phainopepla"
+      ],
+      requirements: {
+        minHealth: 20,
+        objects: {
+          "prickly-pear": 2,
+          "bare-ground-patch": 1,
+          "cactus-patch": 1
+        },
+        signature: "prickly-pear",
+        hint: "Cactus flowers to work and a patch of loose, unpacked ground to dig in. Trampled hardpan is useless to her."
+      },
+      sources: [
+        {
+          name: "Arizona-Sonora Desert Museum \u2014 Cactus Bee nesting sites",
+          url: "https://www.desertmuseum.org/center/cactus_bee.php"
+        },
+        {
+          name: "Arizona-Sonora Desert Museum \u2014 Bees",
+          url: "https://www.desertmuseum.org/books/nhsd_bees.php"
+        }
+      ],
+      biome: "desert"
+    },
+    {
+      id: "costas-hummingbird",
+      name: "Desert Hummingbird",
+      scientificName: "Calypte costae",
+      kind: "bird",
+      trophic: "herbivore",
+      rarity: "uncommon",
+      diet: "Nectar from chuparosa, ocotillo and creosote flowers, plus small insects and spiders",
+      shelter: "A thimble-sized cup of plant down and spider silk in a low shrub",
+      preferredHabitat: "Washes and flats with shrubs that flower in winter and spring",
+      fact: "The male dives past the female at full speed and shrieks \u2014 except the shriek comes from his tail feathers, not his throat \u2014 while flaring a violet moustache of feathers out sideways.",
+      role: "A nectar-drinker that chases the bloom, arriving with the winter flowers of chuparosa and moving on as the desert dries out. It never needs to find water, and on the hardest days it switches itself almost off, dropping into a torpor so deep it feels cold to the touch.",
+      eats: [],
+      eatsOther: [
+        "flower nectar",
+        "small insects",
+        "spiders"
+      ],
+      eatenBy: [
+        "roadrunner"
+      ],
+      requirements: {
+        minHealth: 40,
+        objects: {
+          chuparosa: 2,
+          ocotillo: 1,
+          "creosote-bush": 1
+        },
+        signature: "chuparosa",
+        hint: "Real flowers beat a feeder every time: chuparosa blooms right through the desert winter, and ocotillo takes over in spring."
+      },
+      sources: [
+        {
+          name: "Sonoran Joint Venture \u2014 Costa's Hummingbird species account",
+          url: "https://sonoranjv.org/accounts/costas-hummingbird.pdf"
+        },
+        {
+          name: "Cornell Lab All About Birds \u2014 Costa's Hummingbird Life History",
+          url: "https://www.allaboutbirds.org/guide/Costas_Hummingbird/lifehistory"
+        }
+      ],
+      biome: "desert"
+    },
+    {
+      id: "gambels-quail",
+      name: "Quail",
+      scientificName: "Callipepla gambelii",
+      kind: "bird",
+      trophic: "herbivore",
+      rarity: "common",
+      diet: "Seeds, green leaves and cactus fruit \u2014 and, for the first weeks of life only, insects",
+      shelter: "A ground nest tucked under a shrub; the covey roosts up inside thorny cover at night",
+      preferredHabitat: "Thorny thickets along washes, within walking distance of water",
+      fact: "One male stands sentry on a high branch with that comma of feathers bobbing on his forehead while the rest of the covey feeds below, and when he calls the alarm the whole group runs \u2014 quail would nearly always rather sprint than fly.",
+      role: "A sociable ground bird living on seeds and greens, with the chicks fattened on insects for their first few weeks. Unlike almost everything else here it genuinely has to drink, so coveys walk the same path to the same water every summer day. Coyotes and hawks take adults; ravens and roadrunners take eggs and chicks.",
+      eats: [],
+      eatsOther: [
+        "seeds",
+        "green leaves",
+        "cactus fruit",
+        "insects"
+      ],
+      eatenBy: [
+        "roadrunner",
+        "common-raven",
+        "harris-hawk"
+      ],
+      requirements: {
+        minHealth: 40,
+        water: {
+          tiles: 1
+        },
+        objects: {
+          "catclaw-acacia": 2,
+          "bush-muhly": 1,
+          "dew-basin": 1
+        },
+        signature: "catclaw-acacia",
+        hint: "Thorny thickets to roost in and seeds to eat \u2014 and unlike most of this desert, water it can actually drink."
+      },
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Gambel's Quail Life History",
+          url: "https://www.allaboutbirds.org/guide/Gambels_Quail/lifehistory"
+        },
+        {
+          name: "Audubon Field Guide \u2014 Gambel's Quail",
+          url: "https://www.audubon.org/field-guide/bird/gambels-quail"
+        }
+      ],
+      biome: "desert"
+    },
+    {
+      id: "gila-woodpecker",
+      name: "Cactus Woodpecker",
+      scientificName: "Melanerpes uropygialis",
+      kind: "bird",
+      trophic: "omnivore",
+      rarity: "uncommon",
+      diet: "Insects, cactus fruit and mistletoe berries",
+      shelter: "Cavities it chisels out of living saguaros",
+      preferredHabitat: "Saguaro stands with mesquite and washes nearby",
+      fact: "It chisels a hole into a living cactus and then waits months, doing nothing, while the plant seals the raw walls with hard scar tissue \u2014 only then will it move in.",
+      role: "The only animal here that can build a home from scratch, and half the biome lives in its leftovers: elf owls, kestrels, flycatchers and wild bees all move into old woodpecker holes. It also eats cactus fruit by the beakful and drops the seeds wherever it goes, so the cactus needs the bird just as much as the bird needs the cactus.",
+      eats: [],
+      eatsOther: [
+        "insects",
+        "mistletoe berries"
+      ],
+      eatenBy: [
+        "rattlesnake"
+      ],
+      requirements: {
+        minHealth: 50,
+        objects: {
+          "saguaro-fruit-fall": 1,
+          saguaro: 2,
+          "mesquite-tree": 1
+        },
+        signature: "saguaro-fruit-fall",
+        hint: "Tall cactus to carve and split fruit to eat. A pad cactus is far too small \u2014 only a great column can hold a nest hole."
+      },
+      sources: [
+        {
+          name: "Arizona-Sonora Desert Museum \u2014 Gila Woodpecker",
+          url: "https://www.desertmuseum.org/kids/oz/long-fact-sheets/Gila%20Woodpecker.php"
+        },
+        {
+          name: "Cornell Lab All About Birds \u2014 Gila Woodpecker Life History",
+          url: "https://www.allaboutbirds.org/guide/Gila_Woodpecker/lifehistory"
+        }
+      ],
+      biome: "desert"
+    },
+    {
+      id: "phainopepla",
+      name: "Phainopepla",
+      scientificName: "Phainopepla nitens",
+      kind: "bird",
+      trophic: "omnivore",
+      rarity: "uncommon",
+      diet: "Mistletoe berries in winter, flying insects the rest of the year",
+      shelter: "A small cup nest in a mesquite or ironwood, usually hidden in a clump of mistletoe",
+      preferredHabitat: "Mesquite stands carrying mistletoe, with water nearby",
+      fact: "A phainopepla can put away more than a thousand mistletoe berries in a single day, and the seeds come out the other end still sticky \u2014 so the bird glues the next generation of mistletoe onto branches as it flies.",
+      role: "Mistletoe's one dependable gardener; almost nothing else will touch the berries. The plant only grows on mesquite, ironwood and acacia, so this glossy black bird with red eyes needs those trees as much as the mistletoe does. Out of berry season it snaps insects out of the air instead.",
+      eats: [
+        "desert-bee"
+      ],
+      eatsOther: [
+        "mistletoe berries",
+        "flying insects"
+      ],
+      eatenBy: [
+        "roadrunner",
+        "rattlesnake"
+      ],
+      requirements: {
+        minHealth: 46,
+        objects: {
+          "desert-mistletoe": 2,
+          "mesquite-tree": 1,
+          "dew-basin": 1
+        },
+        signature: "desert-mistletoe",
+        hint: "Mistletoe in a mesquite is the whole story \u2014 the berries are dinner and the clump is the nest. It still comes down to drink."
+      },
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Phainopepla Life History",
+          url: "https://www.allaboutbirds.org/guide/Phainopepla/lifehistory"
+        },
+        {
+          name: "Audubon Field Guide \u2014 Phainopepla",
+          url: "https://www.audubon.org/field-guide/bird/phainopepla"
+        }
+      ],
+      biome: "desert"
+    },
+    {
+      id: "antelope-squirrel",
+      name: "Antelope Squirrel",
+      scientificName: "Ammospermophilus harrisii",
+      kind: "mammal",
+      trophic: "herbivore",
+      rarity: "common",
+      diet: "Cactus fruit, seeds and green shoots, with the odd insect",
+      shelter: "Burrows and cracks under rocks and cactus",
+      preferredHabitat: "Rocky ground with cactus in fruit",
+      fact: "It runs with its tail flipped flat over its back like a tiny parasol, then throws itself belly-down on cool shaded ground to dump the heat it picked up on the way.",
+      role: "The one animal still out and about at midday, when everything else has gone underground to wait. It cannot make its own water, so it lives on juicy cactus fruit \u2014 which only exists if the cactus bees got to the flowers first. Coyotes, kit foxes, hawks, roadrunners and rattlesnakes all hunt it.",
+      eats: [],
+      eatsOther: [
+        "cactus fruit",
+        "seeds",
+        "green shoots"
+      ],
+      eatenBy: [
+        "coyote",
+        "kit-fox",
+        "rattlesnake",
+        "roadrunner",
+        "harris-hawk"
+      ],
+      requirements: {
+        minHealth: 38,
+        objects: {
+          "pollinated-cactus-fruit": 1,
+          "burrow-mound": 1,
+          "cactus-patch": 1
+        },
+        signature: "pollinated-cactus-fruit",
+        hint: "Dry seeds alone will not keep it alive \u2014 it needs juicy fruit, and that means welcoming the bees before the squirrel."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Ammospermophilus harrisii",
+          url: "https://animaldiversity.org/accounts/Ammospermophilus_harrisii/"
+        },
+        {
+          name: "Arizona-Sonora Desert Museum \u2014 Antelope Squirrels",
+          url: "https://www.desertmuseum.org/books/nhsd_antelope_squirrel.php"
+        }
+      ],
+      biome: "desert"
+    },
+    {
+      id: "cactus-wren",
+      name: "Cactus Wren",
+      scientificName: "Campylorhynchus brunneicapillus",
+      kind: "bird",
+      trophic: "insectivore",
+      rarity: "common",
+      diet: "Insects and spiders, with some cactus fruit and seeds",
+      shelter: "Football-shaped grass nests built deep inside a cholla",
+      preferredHabitat: "Desert with dense cholla and scattered trees",
+      fact: "A cactus wren builds several football-shaped nests and keeps the spare ones as bedrooms all year, so it goes to sleep surrounded on every side by cactus spines.",
+      role: "The biggest wren you will ever meet, flipping over leaves and bark for insects and spiders and taking every drop of its water from that food. Its nest sits deep inside a cholla where the spines keep snakes and raiding birds out \u2014 take away the cholla and the wren has nowhere at all to raise chicks.",
+      eats: [
+        "desert-bee"
+      ],
+      eatsOther: [
+        "spiders",
+        "grasshoppers",
+        "cactus fruit"
+      ],
+      eatenBy: [
+        "rattlesnake",
+        "roadrunner"
+      ],
+      requirements: {
+        minHealth: 45,
+        objects: {
+          cholla: 2,
+          "desert-ironwood": 1,
+          "cactus-patch": 1
+        },
+        signature: "cholla",
+        hint: "Cholla is the nest. Nothing else out here is spiny enough, and the wren never once needs a drink."
+      },
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Cactus Wren Life History",
+          url: "https://www.allaboutbirds.org/guide/Cactus_Wren/lifehistory"
+        },
+        {
+          name: "Audubon Field Guide \u2014 Cactus Wren",
+          url: "https://www.audubon.org/field-guide/bird/cactus-wren"
+        }
+      ],
+      biome: "desert"
+    },
+    {
+      id: "burrowing-owl",
+      name: "Burrowing Owl",
+      scientificName: "Athene cunicularia",
+      kind: "bird",
+      trophic: "insectivore",
+      rarity: "uncommon",
+      diet: "Big insects \u2014 termites, grasshoppers and crickets \u2014 plus small rodents and scorpions",
+      shelter: "Underground burrows dug by somebody else; it cannot dig its own",
+      preferredHabitat: "Open ground with low, sparse plants and ready-made burrows",
+      fact: "Corner a burrowing owl down its hole and it hisses like a rattlesnake \u2014 biologists think it is doing an impression, and whatever is digging usually decides not to.",
+      role: "A long-legged little owl that hunts insects in broad daylight and rodents after dark, standing on its doorstep bobbing at anything that comes near. It is the clearest case here of an animal that cannot make its own home: every pair depends on a burrow something else dug, so where the diggers go, the owls go too.",
+      eats: [
+        "desert-termite",
+        "kangaroo-rat",
+        "scorpion"
+      ],
+      eatsOther: [
+        "grasshoppers",
+        "crickets"
+      ],
+      eatenBy: [
+        {
+          id: "rattlesnake",
+          stage: "young"
+        }
+      ],
+      requirements: {
+        minHealth: 55,
+        objects: {
+          "tortoise-burrow": 1,
+          "burrow-mound": 2,
+          "bush-muhly": 1
+        },
+        signature: "tortoise-burrow",
+        hint: "It cannot dig. Bring the tortoise back first and its old den becomes the owl's front door \u2014 with low, open ground out front to hunt over."
+      },
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Burrowing Owl Life History",
+          url: "https://www.allaboutbirds.org/guide/Burrowing_Owl/lifehistory"
+        },
+        {
+          name: "Audubon Field Guide \u2014 Burrowing Owl",
+          url: "https://www.audubon.org/field-guide/bird/burrowing-owl"
+        }
+      ],
+      biome: "desert"
+    },
+    {
+      id: "horned-lizard",
+      name: "Horned Lizard",
+      scientificName: "Phrynosoma solare",
+      kind: "reptile",
+      trophic: "insectivore",
+      rarity: "common",
+      diet: "Harvester ants above all \u2014 about nine mouthfuls in ten \u2014 plus termites and a few other insects",
+      shelter: "Shuffles itself down into loose sand; shelters under low shrubs",
+      preferredHabitat: "Open sandy ground between shrubs, near harvester ant mounds",
+      fact: "Cornered, a horned lizard squirts a jet of its own blood out of the corners of its eyes \u2014 it can carry a metre \u2014 and it tastes so foul that a fox will spit and keep spitting for minutes.",
+      role: "An ant specialist with a stomach far too big for its body, because harvester ants are such poor food that it has to eat hundreds every day just to break even. Those ants only build on open bare ground, so the tidier, greener and more trampled a desert gets, the faster this flat little lizard vanishes from it.",
+      eats: [
+        "desert-termite"
+      ],
+      eatsOther: [
+        "harvester ants",
+        "small insects"
+      ],
+      eatenBy: [
+        "roadrunner",
+        "common-raven",
+        "harris-hawk"
+      ],
+      requirements: {
+        minHealth: 16,
+        objects: {
+          "harvester-ant-mound": 2,
+          "bare-ground-patch": 1,
+          "creosote-bush": 1
+        },
+        signature: "harvester-ant-mound",
+        hint: "No ants, no horned lizard. Leave the gaps between the shrubs bare and open \u2014 that is exactly where harvester ants clear their mounds."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Phrynosoma solare",
+          url: "https://animaldiversity.org/accounts/Phrynosoma_solare/"
+        },
+        {
+          name: "Arizona-Sonora Desert Museum \u2014 Horned Lizards",
+          url: "https://www.desertmuseum.org/books/nhsd_horned_lizard.php"
+        }
+      ],
+      biome: "desert"
+    },
+    {
+      id: "common-raven",
+      name: "Raven",
+      scientificName: "Corvus corax",
+      kind: "bird",
+      trophic: "scavenger",
+      rarity: "common",
+      diet: "Carrion above all, plus eggs, nestlings, young reptiles, insects and cactus fruit",
+      shelter: "Bulky stick nests on cliffs and in tall cactus and ironwoods \u2014 and, more and more, on power poles",
+      preferredHabitat: "Open desert with tall nest structures and a reliable food supply",
+      fact: "Ravens remember individual human faces and hold the grudge for years, and a pair will run a con together \u2014 one bird makes a nuisance of itself while the other robs the food.",
+      role: "The cleanup crew, and the biggest human story in the biome. Roads, rubbish tips, farms and power poles hand ravens free food, water and nest platforms, so there are now far more of them than this desert could ever feed by itself \u2014 and all those extra ravens eat baby tortoises, whose shells stay soft for years. Cutting off the free lunch is now a real part of saving the tortoise.",
+      eats: [
+        {
+          id: "desert-tortoise",
+          stage: "young"
+        },
+        {
+          id: "jackrabbit",
+          stage: "young"
+        },
+        {
+          id: "gambels-quail",
+          stage: "eggs"
+        },
+        "horned-lizard"
+      ],
+      eatsOther: [
+        "carrion",
+        "insects",
+        "cactus fruit"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 35,
+        water: {
+          tiles: 1
+        },
+        objects: {
+          "carrion-patch": 1,
+          saguaro: 1,
+          "dew-basin": 1
+        },
+        signature: "carrion-patch",
+        hint: "Ravens follow whatever gets left lying around: a carcass, a tall perch, something to drink. That is all they ask for \u2014 which is exactly the trouble."
+      },
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Common Raven Life History",
+          url: "https://www.allaboutbirds.org/guide/Common_Raven/lifehistory"
+        },
+        {
+          name: "USFWS \u2014 Environmental Assessment to Reduce Common Raven Predation on the Desert Tortoise",
+          url: "https://www.fws.gov/sites/default/files/documents/Raven%20EA%20Final%203-08.pdf"
+        }
+      ],
+      biome: "desert"
+    },
+    {
+      id: "roadrunner",
+      name: "Roadrunner",
+      scientificName: "Geococcyx californianus",
+      kind: "bird",
+      trophic: "mesopredator",
+      rarity: "uncommon",
+      diet: "Lizards, big insects, millipedes, scorpions, tarantulas, small birds, rodents and snakes",
+      shelter: "A bulky stick nest a metre or two up inside a thorny shrub or cholla",
+      preferredHabitat: "Open running ground broken up by thorny thickets",
+      fact: "A roadrunner can outrun you \u2014 over 30 km an hour on two legs \u2014 and it kills a rattlesnake by grabbing it behind the head and beating it against a rock until it stops moving.",
+      role: "The daytime terror of anything small and quick: lizards, tarantulas, scorpions, millipedes, other birds, and one of the very few birds anywhere that will pick a fight with a rattlesnake. It needs both halves of its home \u2014 open ground to sprint across and a thorn thicket high enough to keep its chicks out of a coyote's reach.",
+      eats: [
+        "horned-lizard",
+        "scorpion",
+        "tarantula",
+        "desert-millipede",
+        "cactus-wren",
+        "costas-hummingbird",
+        "antelope-squirrel",
+        {
+          id: "gambels-quail",
+          stage: "young"
+        },
+        "rattlesnake",
+        "phainopepla"
+      ],
+      eatsOther: [
+        "cactus fruit"
+      ],
+      eatenBy: [
+        "harris-hawk"
+      ],
+      requirements: {
+        minHealth: 50,
+        objects: {
+          "thornscrub-stick-nest": 1,
+          "cactus-patch": 1,
+          "rock-pile": 1
+        },
+        signature: "thornscrub-stick-nest",
+        hint: "Open ground to run flat out on and a thorn thicket to nest in, with lizards and big crawlers to chase between the two.",
+        animals: [
+          "horned-lizard",
+          "scorpion"
+        ]
+      },
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Greater Roadrunner Life History",
+          url: "https://www.allaboutbirds.org/guide/Greater_Roadrunner/lifehistory"
+        },
+        {
+          name: "Audubon Field Guide \u2014 Greater Roadrunner",
+          url: "https://www.audubon.org/field-guide/bird/greater-roadrunner"
+        }
+      ],
+      biome: "desert"
+    },
+    {
+      id: "rattlesnake",
+      name: "Rattlesnake",
+      scientificName: "Crotalus atrox",
+      kind: "reptile",
+      trophic: "mesopredator",
+      rarity: "rare",
+      diet: "Rodents and small mammals, with birds and lizards taken now and then",
+      shelter: "Rock crevices and burrows; a deep frost-free fissure all winter",
+      preferredHabitat: "Rocky shelter within striking distance of busy rodent trails",
+      fact: "A rattlesnake adds a new rattle segment every time it sheds, but the old ones keep snapping off \u2014 so counting the rattles tells you nothing whatsoever about its age.",
+      role: "An ambush hunter that lies beside a rodent trail for days, strikes, lets go, then follows the scent trail to the body. It may eat only once a month, which makes it a slow but relentless brake on the rodent population. Every winter it goes back to the same rock den it used last year, and the year before that.",
+      eats: [
+        "kangaroo-rat",
+        "antelope-squirrel",
+        "cactus-wren",
+        "gila-woodpecker",
+        "phainopepla",
+        {
+          id: "jackrabbit",
+          stage: "young"
+        },
+        {
+          id: "burrowing-owl",
+          stage: "young"
+        },
+        "grasshopper-mouse"
+      ],
+      eatsOther: [],
+      eatenBy: [
+        "roadrunner"
+      ],
+      requirements: {
+        minHealth: 60,
+        objects: {
+          "rock-pile": 1,
+          "shaded-rock-shelter": 1,
+          "snake-hibernaculum-desert": 1
+        },
+        signature: "snake-hibernaculum-desert",
+        hint: "A deep winter den it can come back to every single year, warm rock to wait on, and rodents on the move nearby.",
+        animals: [
+          "kangaroo-rat",
+          "antelope-squirrel"
+        ]
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Crotalus atrox",
+          url: "https://animaldiversity.org/accounts/Crotalus_atrox/"
+        },
+        {
+          name: "Arizona-Sonora Desert Museum \u2014 Western Diamondback Rattlesnake",
+          url: "https://www.desertmuseum.org/kids/oz/long-fact-sheets/Diamondback%20Rattlesnake.php"
+        }
+      ],
+      biome: "desert"
+    },
+    {
+      id: "scorpion",
+      name: "Scorpion",
+      scientificName: "Hadrurus arizonensis",
+      kind: "invertebrate",
+      trophic: "insectivore",
+      rarity: "common",
+      diet: "Millipedes, termites, crickets, spiders, tarantulas and other scorpions",
+      shelter: "A spiral burrow it digs itself, as much as two and a half metres deep",
+      preferredHabitat: "Loose diggable soil with litter and stone cover to hunt across at night",
+      fact: "Scorpions glow an eerie blue-green under ultraviolet light, and after decades of looking at it nobody can say for certain why.",
+      role: "The heavyweight of the night shift. Big, hairy and unhurried, it takes millipedes, termites, spiders and even tarantulas, which are its own size. The rocks are only its day cover \u2014 what actually keeps it alive is a spiral burrow driven metres straight down, where it sits out most of the year. Owls and roadrunners are the ones that get it.",
+      eats: [
+        "desert-millipede",
+        "desert-termite",
+        "tarantula"
+      ],
+      eatsOther: [
+        "crickets",
+        "spiders",
+        "centipedes"
+      ],
+      eatenBy: [
+        "elf-owl",
+        "burrowing-owl",
+        "roadrunner",
+        "grasshopper-mouse"
+      ],
+      requirements: {
+        minHealth: 18,
+        objects: {
+          "deep-sand-burrow": 1,
+          "rock-pile": 1,
+          "creosote-bush": 1
+        },
+        signature: "deep-sand-burrow",
+        hint: "Rocks are only the doormat. What it really needs is soil deep and loose enough to dig metres straight down into.",
+        animals: [
+          "desert-millipede"
+        ]
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Hadrurus arizonensis",
+          url: "https://animaldiversity.org/accounts/Hadrurus_arizonensis/"
+        },
+        {
+          name: "Arizona-Sonora Desert Museum \u2014 Scorpions",
+          url: "https://www.desertmuseum.org/books/nhsd_scorpion.php"
+        }
+      ],
+      biome: "desert"
+    },
+    {
+      id: "elf-owl",
+      name: "Elf Owl",
+      scientificName: "Micrathene whitneyi",
+      kind: "bird",
+      trophic: "mesopredator",
+      rarity: "rare",
+      diet: "Moths, beetles, crickets and scorpions",
+      shelter: "Old woodpecker holes in cactus and desert trees; it cannot carve its own",
+      preferredHabitat: "Saguaro stands and mesquite washes full of old woodpecker holes",
+      fact: "The smallest owl in the world weighs about as much as a golf ball, and it nips the stinger off a scorpion before carrying the rest home to its chicks.",
+      role: "A migratory night hunter of moths and scorpions that cannot make a hole to save its life. Every nest it has ever used was chiselled out by a woodpecker and then hardened by the cactus into a waterproof boot. Plant a whole forest of cactus and you still get no elf owls until the woodpecker has done its work.",
+      eats: [
+        "scorpion"
+      ],
+      eatsOther: [
+        "moths",
+        "beetles",
+        "crickets"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 55,
+        objects: {
+          "saguaro-boot": 1,
+          saguaro: 1,
+          "mesquite-tree": 1
+        },
+        signature: "saguaro-boot",
+        hint: "Cactus alone will not do it \u2014 a woodpecker has to drill the hole first and let the plant seal it into a boot the owl can move into.",
+        animals: [
+          "scorpion"
+        ],
+        conditions: {
+          dayPhase: [
+            "night"
+          ],
+          season: [
+            "spring",
+            "summer"
+          ]
+        }
+      },
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Elf Owl Life History",
+          url: "https://www.allaboutbirds.org/guide/Elf_Owl/lifehistory"
+        },
+        {
+          name: "Audubon Field Guide \u2014 Elf Owl",
+          url: "https://www.audubon.org/field-guide/bird/elf-owl"
+        }
+      ],
+      biome: "desert"
+    },
+    {
+      id: "kit-fox",
+      name: "Kit Fox",
+      scientificName: "Vulpes macrotis",
+      kind: "mammal",
+      trophic: "mesopredator",
+      rarity: "rare",
+      diet: "Kangaroo rats and other rodents, jackrabbits, squirrels, lizards, insects and some fruit",
+      shelter: "A cool underground den with several doors, usually a rodent burrow it has widened",
+      preferredHabitat: "Open desert with loose soil and plenty of small prey",
+      fact: "The smallest wild dog here weighs less than a house cat, and its ridiculous ears do two jobs at once: hearing a mouse move underground, and shedding body heat like radiators.",
+      role: "A night fox that lives almost entirely on rodents and hardly ever drinks \u2014 it takes its water out of what it catches. It rarely digs a den from scratch; it moves into a kangaroo rat's burrow and enlarges it, then keeps several doors open so a coyote can never corner it in there.",
+      eats: [
+        "kangaroo-rat",
+        "jackrabbit",
+        "antelope-squirrel"
+      ],
+      eatsOther: [
+        "cactus fruit",
+        "insects",
+        "lizards"
+      ],
+      eatenBy: [
+        "coyote"
+      ],
+      requirements: {
+        minHealth: 70,
+        minBalance: 40,
+        objects: {
+          "kit-fox-den": 1,
+          "creosote-bush": 2,
+          "burrow-mound": 1
+        },
+        signature: "kit-fox-den",
+        hint: "Rodents first \u2014 the fox's den is a kangaroo rat's burrow made bigger. It never needs a drink you provide.",
+        animals: [
+          "kangaroo-rat",
+          "jackrabbit"
+        ],
+        conditions: {
+          dayPhase: [
+            "dusk",
+            "night"
+          ]
+        }
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Vulpes macrotis",
+          url: "https://animaldiversity.org/accounts/Vulpes_macrotis/"
+        },
+        {
+          name: "USFWS \u2014 Kit Fox (Vulpes macrotis)",
+          url: "https://www.fws.gov/species/san-joaquin-kit-fox-vulpes-macrotis-mutica"
+        }
+      ],
+      biome: "desert"
+    },
+    {
+      id: "coyote-meadow",
+      name: "Coyote",
+      scientificName: "Canis latrans",
+      kind: "mammal",
+      trophic: "apex-predator",
+      rarity: "rare",
+      diet: "Voles, rabbits and ground squirrels; deer fawns; also fruit, insects and carrion",
+      shelter: "Raises pups in a den dug into a brushy bank, often an enlarged badger or fox burrow",
+      preferredHabitat: "Open grassland and edges with brushy cover for a den and water within reach",
+      fact: "Three coyotes can sound like a dozen. Each one slides its pitch around while it howls, so a small family throws up a wall of voices \u2014 biologists call it the 'beau geste' effect.",
+      role: "The animal at the top of this meadow, and the most adaptable carnivore in here. It hunts voles and rabbits alone, fawns in pairs, and eats fruit, insects and carrion in between. Its return is what finally puts pressure on the foxes, badgers and deer that nothing else here could touch \u2014 and it will happily trail a digging badger to snap up whatever bolts out the far side.",
+      eats: [
+        "cottontail-rabbit",
+        "garter-snake-meadow",
+        "ground-squirrel",
+        "meadow-vole",
+        "red-fox-meadow",
+        "western-meadowlark",
+        {
+          id: "american-badger",
+          stage: "young"
+        },
+        {
+          id: "mule-deer",
+          stage: "young"
+        }
+      ],
+      eatsOther: [
+        "berries",
+        "carrion",
+        "grasshoppers",
+        "mice"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 80,
+        minBalance: 45,
+        objects: {
+          "coyote-natal-den-bank": 1,
+          "native-grass-patch": 2,
+          "brush-pile": 1,
+          "small-pond": 1
+        },
+        signature: "coyote-natal-den-bank",
+        water: {
+          tiles: 1
+        },
+        animals: [
+          "cottontail-rabbit",
+          "meadow-vole"
+        ],
+        hint: "A den bank tucked into brushy cover, wide grass full of rabbits and voles, and water within reach. Coyotes are the last piece \u2014 they only settle where there is already plenty to eat."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Canis latrans",
+          url: "https://animaldiversity.org/accounts/Canis_latrans/"
+        },
+        {
+          name: "NPS \u2014 Coyote",
+          url: "https://www.nps.gov/articles/coyote.htm"
+        }
+      ],
+      biome: "meadow"
+    },
+    {
+      id: "polyphemus-moth",
+      name: "Polyphemus Moth",
+      scientificName: "Antheraea polyphemus",
+      kind: "insect",
+      trophic: "herbivore",
+      rarity: "uncommon",
+      diet: "As a caterpillar, tree leaves \u2014 oak, birch, hickory, maple, willow. The adult moth has no working mouth and never eats anything at all.",
+      shelter: "Spins a tough silk cocoon wrapped in a leaf; the cocoon falls with the leaves in autumn and overwinters on the forest floor.",
+      preferredHabitat: "Broadleaf woodland and woodland edge with oak, birch and hickory, and an undisturbed litter layer beneath them.",
+      fact: "The adult moth has no mouth. It cannot eat a single thing \u2014 everything it will ever spend finding a mate and laying eggs was eaten months earlier, by the caterpillar.",
+      role: "This moth stands for the caterpillar layer, the step nearly every forest bird depends on. Caterpillars turn tough, chewy tree leaves into soft protein, and it is caterpillars, not seeds, that woodland songbirds cram into their chicks. The adults that make it through feed bats at dusk. The cocoons spend all winter down in the fallen leaves, so a woodland raked bare in autumn throws next summer's moths out with the leaf bags.",
+      eats: [],
+      eatsOther: [
+        "birch leaves",
+        "hickory leaves",
+        "maple leaves"
+      ],
+      eatenBy: [
+        {
+          id: "woodpecker",
+          stage: "young"
+        },
+        {
+          id: "nuthatch",
+          stage: "young"
+        },
+        {
+          id: "little-brown-bat",
+          stage: "adult"
+        },
+        {
+          id: "raccoon",
+          stage: "young"
+        },
+        {
+          id: "spotted-towhee",
+          stage: "young"
+        },
+        "little-brown-bat"
+      ],
+      requirements: {
+        minHealth: 22,
+        objects: {
+          "birch-tree": 1,
+          "oak-tree": 1,
+          "leaf-litter-pile": 2
+        },
+        signature: "birch-tree",
+        animals: [],
+        hint: "Broadleaf trees for the caterpillars to eat, and leaves left lying all winter for the cocoons hidden among them."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Antheraea polyphemus",
+          url: "https://animaldiversity.org/accounts/Antheraea_polyphemus/"
+        },
+        {
+          name: "Butterflies and Moths of North America \u2014 Antheraea polyphemus",
+          url: "https://www.butterfliesandmoths.org/species/Antheraea-polyphemus"
+        }
+      ],
+      biome: "forest"
+    },
+    {
+      id: "wood-duck",
+      name: "Wood Duck",
+      scientificName: "Aix sponsa",
+      kind: "bird",
+      trophic: "herbivore",
+      rarity: "uncommon",
+      diet: "Acorns, seeds and aquatic plants; ducklings eat insects and snails for their first weeks",
+      shelter: "Obligate cavity nester \u2014 old woodpecker holes and natural hollows in trees over or beside water",
+      preferredHabitat: "Wooded ponds, sloughs and slow backwaters with big cavity trees standing in or near the water",
+      fact: "A wood duckling leaves home the day after it hatches by jumping out of a hole up to fifty feet up, bouncing off the ground or water, and walking away unhurt.",
+      role: "The wood duck is the clearest borrower in the forest: it cannot make a hole and cannot nest without one, so it turns up only after the woodpeckers do. It ferries acorns and pond-plant seeds between the woods and the water, and it feeds owls, raccoons and foxes. Wood ducks nearly vanished a century ago, and what still limits them is holes.",
+      eats: [],
+      eatsOther: [
+        "duckweed",
+        "aquatic plants",
+        "sedge seeds",
+        "snails"
+      ],
+      eatenBy: [
+        "great-horned-owl",
+        {
+          id: "raccoon",
+          stage: "eggs"
+        },
+        {
+          id: "red-fox-forest",
+          stage: "eggs"
+        },
+        "goshawk"
+      ],
+      requirements: {
+        minHealth: 60,
+        objects: {
+          "flooded-cavity-snag": 1,
+          "oak-tree": 1,
+          "woodland-pool": 1
+        },
+        signature: "flooded-cavity-snag",
+        animals: [
+          "pileated-woodpecker"
+        ],
+        water: {
+          lake: 4
+        },
+        hint: "An old woodpecker hole in a snag standing over quiet water, with oaks nearby for acorns. No woodpecker, no wood duck."
+      },
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Wood Duck life history",
+          url: "https://www.allaboutbirds.org/guide/Wood_Duck/lifehistory"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Aix sponsa",
+          url: "https://animaldiversity.org/accounts/Aix_sponsa/"
+        }
+      ],
+      biome: "forest"
+    },
+    {
+      id: "northern-flying-squirrel",
+      name: "Flying Squirrel",
+      scientificName: "Glaucomys sabrinus",
+      kind: "mammal",
+      trophic: "herbivore",
+      rarity: "rare",
+      diet: "Mostly underground truffle fungi; also lichens, acorns, tree seeds and some insects",
+      shelter: "Old woodpecker cavities and natural hollows; huddles in groups through winter to stay warm",
+      preferredHabitat: "Cool, closed-canopy hemlock and hardwood forest with old cavity trees and a deep fungal layer in the soil",
+      fact: "Flying squirrels do not fly, they glide \u2014 and under ultraviolet light their fur glows bubblegum pink, something nobody noticed until a researcher pointed a UV torch into the trees a few years ago.",
+      role: "This squirrel lives mostly on mushrooms, and mostly on underground ones it has to smell through the soil and dig up. The spores ride through it and get planted at the next set of tree roots, so squirrel, fungus and tree are one loop that keeps all three going. It cannot cut a hole either, so it sleeps in old woodpecker cavities, huddled in a heap with others for warmth \u2014 and it is the favourite meal of owls and fishers, which is how energy from the underground fungi ends up at the very top of the food web.",
+      eats: [],
+      eatsOther: [
+        "lichens",
+        "tree seeds",
+        "hickory nuts"
+      ],
+      eatenBy: [
+        "fisher",
+        "great-horned-owl",
+        {
+          id: "raccoon",
+          stage: "young"
+        },
+        "red-fox-forest"
+      ],
+      requirements: {
+        minHealth: 65,
+        objects: {
+          "truffle-patch": 2,
+          "pileated-cavity-snag": 1,
+          "nesting-tree": 1
+        },
+        signature: "truffle-patch",
+        animals: [
+          "pileated-woodpecker"
+        ],
+        hint: "Truffles in the soil to dig up and an old woodpecker hole to sleep in \u2014 this squirrel makes neither for itself."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Glaucomys sabrinus",
+          url: "https://animaldiversity.org/accounts/Glaucomys_sabrinus/"
+        },
+        {
+          name: "USDA Forest Service \u2014 Northern flying squirrel ecology and diet",
+          url: "https://www.nrs.fs.usda.gov/pubs/jrnl/2007/nrs_2007_ford_006.pdf"
+        }
+      ],
+      biome: "forest"
+    },
+    {
+      id: "pileated-woodpecker",
+      name: "Pileated Woodpecker",
+      scientificName: "Dryocopus pileatus",
+      kind: "bird",
+      trophic: "insectivore",
+      rarity: "uncommon",
+      diet: "Carpenter ants and wood-boring beetle larvae above all; also berries and nuts",
+      shelter: "Excavates a new rectangular nest cavity each year in a large dead snag, and leaves last year's behind",
+      preferredHabitat: "Mature forest with large-diameter standing snags and plenty of big fallen logs on the ground",
+      fact: "A pileated woodpecker chisels rectangular holes so deep into rotten trunks that a small tree can snap in half where it has been working.",
+      role: "This is the forest's landlord. It carves a fresh nest hole every spring and never reuses the old one, and the leftovers become homes for wood ducks, flying squirrels, fishers, bats and owls \u2014 none of which can make a hole themselves. It needs two things a tidied forest lacks: standing snags fat enough to hold a cavity, and fallen logs rotted soft enough to fill with carpenter ants. Bring those back and a dozen other species follow it in.",
+      eats: [],
+      eatsOther: [
+        "carpenter ants",
+        "beetle larvae",
+        "termites",
+        "berries",
+        "nuts"
+      ],
+      eatenBy: [
+        "great-horned-owl",
+        {
+          id: "raccoon",
+          stage: "eggs"
+        }
+      ],
+      requirements: {
+        minHealth: 55,
+        objects: {
+          "ant-riddled-log": 2,
+          "standing-deadwood": 2,
+          "nesting-tree": 1
+        },
+        signature: "ant-riddled-log",
+        hint: "Big snags \u2014 plural, and thick \u2014 plus rotted logs on the ground crawling with carpenter ants."
+      },
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Pileated Woodpecker life history",
+          url: "https://www.allaboutbirds.org/guide/Pileated_Woodpecker/lifehistory"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Dryocopus pileatus",
+          url: "https://animaldiversity.org/accounts/Dryocopus_pileatus/"
+        },
+        {
+          name: "NPS \u2014 Pileated Woodpecker",
+          url: "https://home.nps.gov/articles/pileated-woodpecker.htm"
+        }
+      ],
+      biome: "forest"
+    },
+    {
+      id: "little-brown-bat",
+      name: "Skunk",
+      scientificName: "Mephitis mephitis",
+      kind: "mammal",
+      trophic: "insectivore",
+      rarity: "common",
+      diet: "Beetle grubs and insects dug out of the soil, plus eggs, berries and mice",
+      shelter: "A borrowed burrow or a hollow under a log, plugged with leaves in the coldest weeks",
+      preferredHabitat: "Forest edges and clearings with soft diggable ground and plenty of cover",
+      fact: "A skunk would much rather not spray you. First it stamps its front feet, then it hisses, then it does a handstand \u2014 and only if you ignore all three does it turn around and fire, accurately, from about three metres.",
+      role: "The forest's night gardener. It spends the dark hours digging little cone-shaped holes across the floor hunting beetle grubs, turning over the soil as it goes, and almost nothing dares hunt it \u2014 except the great horned owl, which has no sense of smell worth mentioning.",
+      eats: [
+        "polyphemus-moth",
+        "luna-moth"
+      ],
+      eatsOther: [
+        "beetle grubs",
+        "insects",
+        "eggs",
+        "berries",
+        "mice"
+      ],
+      eatenBy: [
+        "great-horned-owl"
+      ],
+      requirements: {
+        minHealth: 42,
+        objects: {
+          "grub-digging-ground": 1,
+          "hollow-log": 1,
+          "brush-pile": 1
+        },
+        signature: "grub-digging-ground",
+        hint: "Soft, diggable earth full of grubs, and a hollow log to sleep the day away in. Skunks want somewhere to dig more than somewhere to hide."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Mephitis mephitis",
+          url: "https://animaldiversity.org/accounts/Mephitis_mephitis/"
+        }
+      ],
+      biome: "forest"
+    },
+    {
+      id: "fisher",
+      name: "Fisher",
+      scientificName: "Pekania pennanti",
+      kind: "mammal",
+      trophic: "mesopredator",
+      rarity: "rare",
+      diet: "Small and medium mammals \u2014 porcupines, squirrels, hares \u2014 plus birds, carrion and fruit",
+      shelter: "Dens in hollow logs and ground burrows; kits are raised in a cavity high inside a living tree",
+      preferredHabitat: "Unbroken conifer and mixed forest with a closed canopy and large hollow trees",
+      fact: "The fisher is one of the only animals that eats porcupines. It circles round to the face \u2014 the one place with no quills \u2014 and keeps biting until it can flip the porcupine over and reach the belly.",
+      role: "The fisher treats the treetops like the ground, chasing squirrels through branches and catching flying squirrels most predators never even see, and it is the main check on porcupine numbers. Because it needs canopy that connects tree to tree and big trees hollow enough to raise kits inside, finding a fisher tells you the forest is old and joined up rather than cut into patches.",
+      eats: [
+        "porcupine",
+        "tree-squirrel",
+        "chipmunk",
+        "northern-flying-squirrel",
+        "raccoon",
+        "garter-snake-forest"
+      ],
+      eatsOther: [
+        "berries",
+        "carrion",
+        "shrews",
+        "voles"
+      ],
+      eatenBy: [
+        "bobcat"
+      ],
+      requirements: {
+        minHealth: 60,
+        objects: {
+          "hollow-denning-tree": 1,
+          "pileated-cavity-snag": 1,
+          "nesting-tree": 2
+        },
+        signature: "hollow-denning-tree",
+        animals: [
+          "porcupine",
+          "tree-squirrel"
+        ],
+        hint: "Closed canopy overhead, a big living tree hollow enough to raise kits high off the ground, and porcupines below to hunt."
+      },
+      sources: [
+        {
+          name: "NPS \u2014 Species Spotlight: Fisher",
+          url: "https://www.nps.gov/articles/netn-species-spotlight-fisher.htm"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Fisher (Pekania pennanti)",
+          url: "https://animaldiversity.org/accounts/Martes_pennanti/"
+        }
+      ],
+      biome: "forest"
     },
     {
       id: "american-goldfinch",
       name: "American Goldfinch",
-      biome: "meadow",
-      kind: "bird",
-      rarity: "common",
-      featured: false,
-      diet: "Almost entirely seeds \u2014 thistle, sunflower, aster, and grass seeds",
-      shelter: "Tightly woven cup nest lashed high in a shrub with spider silk",
-      preferredHabitat: "Weedy fields and open areas with thistle, sunflower, and asters",
-      fact: "Goldfinches are strict vegetarians and nest late in summer so thistle down is ready to line their nests.",
-      requirements: {
-        minHealth: 45,
-        objects: {
-          "wildflower-patch": 1,
-          "bird-perch": 1,
-          shrub: 1
-        },
-        hint: "Plant a wildflower patch and add a bird perch."
-      },
       scientificName: "Spinus tristis",
-      role: "A specialist granivore that thrives on thistle and other composite seeds, making it an important disperser of weedy plant seeds across the meadow. Being small and abundant, it is prey for agile bird-hunting hawks and small owls.",
+      kind: "bird",
       trophic: "herbivore",
-      eatenBy: [
-        "coopers-hawk",
-        "western-screech-owl"
-      ],
+      rarity: "common",
+      diet: "Almost entirely seeds \u2014 thistle, sunflower, aster and grass seed",
+      shelter: "A tight cup nest lashed a few feet up in a shrub, bound with spider silk and lined with thistle down",
+      preferredHabitat: "Weedy fields and open ground with native thistle, sunflower and asters left standing",
+      fact: "Goldfinches are such strict vegetarians that a cowbird chick sneaked into a goldfinch nest starves \u2014 it cannot survive on an all-seed diet.",
+      role: "A seed specialist that waits until midsummer to nest, when thistle down is finally ready to line the cup. It feeds its chicks on seed rather than insects, which almost no other songbird does, and it scatters thistle and sunflower seed across the meadow as it feeds. Being small and everywhere makes it a favourite of bird-catching hawks.",
+      eats: [],
       eatsOther: [
         "aster seeds",
         "grass seeds",
         "sunflower seeds",
         "thistle seeds"
       ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 45,
+        objects: {
+          "sunflower-patch": 1,
+          "native-thistle-stand": 1,
+          "native-grass-patch": 1
+        },
+        signature: "sunflower-patch",
+        hint: "Let the sunflowers and native thistles stand and go to seed. The down is what the late nest is lined with, so don't cut them back in autumn."
+      },
       sources: [
         {
-          name: "Cornell Lab All About Birds \u2014 American Goldfinch Life History",
+          name: "Cornell All About Birds \u2014 American Goldfinch",
           url: "https://www.allaboutbirds.org/guide/American_Goldfinch/lifehistory"
         },
         {
-          name: "Audubon Field Guide \u2014 American Goldfinch",
-          url: "https://www.audubon.org/field-guide/bird/american-goldfinch"
+          name: "Xerces Society \u2014 Standing Up for Native Thistles",
+          url: "https://xerces.org/blog/standing-up-for-native-thistles"
         }
-      ]
+      ],
+      biome: "meadow"
     },
     {
-      id: "eastern-bluebird",
-      name: "Eastern Bluebird",
-      biome: "meadow",
-      kind: "bird",
-      rarity: "uncommon",
-      featured: false,
-      diet: "Mainly ground insects (caterpillars, beetles, grasshoppers); fruit in winter",
-      shelter: "Grass-lined nest inside tree cavities, old woodpecker holes, or boxes",
-      preferredHabitat: "Grassy openings with scattered trees and perches to hunt from",
-      fact: "Eastern Bluebirds can spot a tiny insect in the grass from about 60 feet away, then drop down to grab it.",
-      requirements: {
-        minHealth: 55,
-        objects: {
-          "bird-perch": 1,
-          "native-grass-patch": 1,
-          "berry-bush": 1
-        },
-        hint: "Native grass, a berry bush, and a perch to hunt from."
-      },
-      scientificName: "Sialia sialis",
-      role: "A cavity-nesting insectivore that hunts caterpillars, beetles, and grasshoppers from perches, switching to berries in winter, both controlling insects and dispersing fruit seeds. It competes for nest holes and is preyed on by hawks and small owls.",
+      id: "praying-mantis",
+      name: "Praying Mantis",
+      scientificName: "Stagmomantis californica",
+      kind: "insect",
       trophic: "insectivore",
+      rarity: "uncommon",
+      diet: "Live insects seized by ambush \u2014 grasshoppers, bees, butterflies and anything else that walks past",
+      shelter: "Perches motionless on plants; glues a foam egg case to a stiff standing stem for the winter",
+      preferredHabitat: "Meadows and flowery edges with standing vegetation to ambush from",
+      fact: "A mantis has one ear, in the middle of its chest, and it is tuned to bat calls. When it hears a bat hunting it folds its wings and power-dives out of the sky.",
+      role: "A sit-still ambush hunter that snaps out its spined forelegs faster than you can blink and swivels its head almost right around to watch you. It is not a pest-control specialist \u2014 it takes whatever comes past, which means grasshoppers, but also bumble bees, leafcutter bees and monarch caterpillars. Bluebirds, meadowlarks, garter snakes and bats take it in turn.",
       eats: [
         "bumblebee",
         "grasshopper",
         "lady-beetle",
-        "praying-mantis"
+        {
+          id: "monarch-butterfly",
+          stage: "young"
+        }
+      ],
+      eatsOther: [
+        "flies",
+        "moths",
+        "other live insects"
       ],
       eatenBy: [
-        "coopers-hawk",
-        "red-tailed-hawk",
-        "western-screech-owl"
+        "big-brown-bat",
+        {
+          id: "eastern-bluebird",
+          stage: "young"
+        },
+        "garter-snake-meadow",
+        {
+          id: "western-meadowlark",
+          stage: "young"
+        },
+        "shrike"
+      ],
+      requirements: {
+        minHealth: 24,
+        objects: {
+          "mantis-ootheca-stem": 1,
+          "wildflower-patch": 1,
+          "native-grass-patch": 1
+        },
+        signature: "mantis-ootheca-stem",
+        hint: "Leave stiff dead stems standing through the winter. That's where the foam egg case is glued, and cutting them back in autumn cuts next summer's mantises."
+      },
+      sources: [
+        {
+          name: "NC State Extension \u2014 Challenging the conventional wisdom about praying mantids",
+          url: "https://growingsmallfarms.ces.ncsu.edu/news/challenging-the-conventional-wisdom-about-praying-mantids/"
+        },
+        {
+          name: "iNaturalist \u2014 Stagmomantis californica",
+          url: "https://www.inaturalist.org/taxa/82008-Stagmomantis-californica"
+        }
+      ],
+      biome: "meadow"
+    },
+    {
+      id: "eastern-bluebird",
+      name: "Bluebird",
+      scientificName: "Sialia sialis",
+      kind: "bird",
+      trophic: "insectivore",
+      rarity: "uncommon",
+      diet: "Ground insects \u2014 caterpillars, beetles, grasshoppers \u2014 plus berries in winter",
+      shelter: "Grass-lined nest inside a tree cavity, an old woodpecker hole or a nest box",
+      preferredHabitat: "Grassy openings with scattered trees and low perches to drop from",
+      fact: "A bluebird can spot a caterpillar on the ground from the top of a fencepost twenty metres away, drop on it, and be back on the post before you've noticed it left.",
+      role: "Bluebirds hunt by perching, staring at short grass, and dropping. They cannot cut their own nest hole, so they take over holes something else made \u2014 and in a meadow with no woodpecker, that means a nest box. Volunteers putting up box trails are a large part of why this bird came back at all.",
+      eats: [
+        "bumblebee",
+        "grasshopper",
+        {
+          id: "praying-mantis",
+          stage: "young"
+        }
       ],
       eatsOther: [
         "beetles",
@@ -10688,133 +18512,49 @@ var animals_2_default = {
         "crickets",
         "spiders"
       ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 55,
+        objects: {
+          "bluebird-nest-box": 1,
+          "native-grass-patch": 1,
+          "berry-bush": 1,
+          "bird-perch": 1
+        },
+        signature: "bluebird-nest-box",
+        hint: "It can't make its own hole. Put a box up facing open grass, keep the grass short enough to hunt over, and add berries for the winter."
+      },
       sources: [
         {
-          name: "Cornell Lab All About Birds \u2014 Eastern Bluebird Life History",
+          name: "Cornell All About Birds \u2014 Eastern Bluebird",
           url: "https://www.allaboutbirds.org/guide/Eastern_Bluebird/lifehistory"
         },
         {
-          name: "Audubon Field Guide \u2014 Eastern Bluebird",
-          url: "https://www.audubon.org/field-guide/bird/eastern-bluebird"
+          name: "Sialis \u2014 Eastern Bluebird biology",
+          url: "https://www.sialis.org/ebbio.htm"
         }
-      ]
-    },
-    {
-      id: "leafcutter-bee",
-      name: "Leafcutter Bee",
-      biome: "meadow",
-      kind: "insect",
-      rarity: "common",
-      featured: false,
-      diet: "Adults eat nectar and pollen from many flowering plants",
-      shelter: "Nests in hollow stems and soil, lining cells with cut leaf pieces",
-      preferredHabitat: "Meadows and gardens with diverse flowers and nesting cavities",
-      fact: "Female leafcutter bees snip neat circles from leaves to build and seal their nest cells.",
-      requirements: {
-        minHealth: 40,
-        objects: {
-          "clover-patch": 1,
-          "wildflower-patch": 1,
-          shrub: 1
-        },
-        hint: "Clover and wildflowers side by side."
-      },
-      scientificName: "Megachile spp.",
-      role: "A solitary native bee that pollinates a wide range of meadow and crop plants, carrying pollen on the underside of its abdomen. Its leaf-lined nest cells provision the next generation with pollen and nectar. Adults are caught by ambush predators and aerial insectivores.",
-      trophic: "herbivore",
-      eatenBy: [
-        "barn-swallow",
-        "praying-mantis"
       ],
-      eatsOther: [
-        "flower nectar",
-        "pollen"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Megachile rotundata",
-          url: "https://animaldiversity.org/accounts/Megachile_rotundata/"
-        },
-        {
-          name: "USDA Forest Service \u2014 Leafcutter Bees (Megachile spp.)",
-          url: "https://www.fs.usda.gov/wildflowers/pollinators/pollinator-of-the-month/megachile_bees.shtml"
-        }
-      ]
-    },
-    {
-      id: "painted-lady",
-      name: "Painted Lady",
-      biome: "meadow",
-      kind: "insect",
-      rarity: "common",
-      featured: false,
-      diet: "Adults nectar on composite flowers; caterpillars eat thistles and mallows",
-      shelter: "Rests on vegetation; caterpillars build silk nests on host plants",
-      preferredHabitat: "Open meadows and disturbed ground with thistles and nectar flowers",
-      fact: "Painted ladies migrate thousands of miles across continents \u2014 one of the most widespread butterflies on Earth.",
-      requirements: {
-        minHealth: 40,
-        objects: {
-          "butterfly-flowers": 1,
-          "clover-patch": 1,
-          shrub: 1
-        },
-        hint: "Butterfly flowers near a clover patch."
-      },
-      scientificName: "Vanessa cardui",
-      role: "A wide-ranging migratory butterfly and generalist nectar pollinator whose caterpillars feed on thistles, mallows, and over 100 other host plants. Population booms can trigger massive migrations. Adults and larvae are eaten by birds, wasps, and spiders.",
-      trophic: "herbivore",
-      eatenBy: [
-        "barn-swallow",
-        "praying-mantis"
-      ],
-      eatsOther: [
-        "flower nectar (adult)",
-        "mallows (caterpillar)",
-        "thistles (caterpillar)"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Vanessa cardui",
-          url: "https://animaldiversity.org/accounts/Vanessa_cardui/"
-        },
-        {
-          name: "Butterflies and Moths of North America \u2014 Painted Lady",
-          url: "https://www.butterfliesandmoths.org/species/Vanessa-cardui"
-        }
-      ]
+      biome: "meadow"
     },
     {
       id: "american-badger",
       name: "American Badger",
-      biome: "meadow",
-      kind: "mammal",
-      rarity: "rare",
-      featured: false,
-      diet: "Digs out ground squirrels, gophers, voles, and mice; also insects",
-      shelter: "Digs its own large underground burrows; a powerful excavator",
-      preferredHabitat: "Open meadows and grasslands with diggable soil and rodent prey",
-      fact: "Badgers sometimes team up with coyotes: the badger digs prey out below while the coyote catches those that bolt above ground.",
-      requirements: {
-        minHealth: 65,
-        objects: {
-          "brush-pile": 1,
-          "rock-pile": 1,
-          shrub: 1
-        },
-        animals: [
-          "meadow-vole"
-        ],
-        hint: "Brush pile and rock pile, once voles have returned."
-      },
       scientificName: "Taxidea taxus",
-      role: "A fossorial carnivore that hunts by digging burrowing rodents straight out of their tunnels, keeping ground squirrel and vole numbers down. Its abandoned burrows benefit other animals. Adult badgers have essentially no predators in this meadow.",
+      kind: "mammal",
       trophic: "mesopredator",
+      rarity: "rare",
+      diet: "Ground squirrels, gophers, voles and mice dug straight out of their tunnels; also insects and bumble bee nests",
+      shelter: "Digs its own large burrows; one of the fastest excavators alive",
+      preferredHabitat: "Open grassland with deep, stone-free, diggable soil and a rodent colony to work",
+      fact: "A badger can dig itself completely out of sight in under a minute \u2014 and it sometimes hunts alongside a coyote, the badger going in from below while the coyote grabs whatever bolts out of the top.",
+      role: "A carnivore that hunts by excavation, going down a squirrel or gopher tunnel after its owner. That only works in deep stone-free soil, and only where there is a rodent colony worth the digging. The big holes it leaves behind get reused by foxes, coyotes and burrowing insects for years afterwards. Adults are safe from almost everything; cubs are not.",
       eats: [
+        "bumblebee",
         "cottontail-rabbit",
         "ground-squirrel",
         "meadow-vole",
-        "western-meadowlark"
+        "western-meadowlark",
+        "garden-snail"
       ],
       eatsOther: [
         "carrion",
@@ -10823,2402 +18563,2198 @@ var animals_2_default = {
         "mice",
         "pocket gophers"
       ],
+      eatenBy: [
+        {
+          id: "coyote-meadow",
+          stage: "young"
+        }
+      ],
+      requirements: {
+        minHealth: 65,
+        objects: {
+          "deep-loam-soil-bank": 1,
+          "native-grass-patch": 2,
+          "bare-soil-scrape": 1
+        },
+        signature: "deep-loam-soil-bank",
+        animals: [
+          "ground-squirrel",
+          "meadow-vole"
+        ],
+        hint: "Deep stone-free soil it can tear through, wide grass on top, and a ground squirrel colony to hunt. Rock piles are the one thing badger country doesn't have."
+      },
       sources: [
         {
           name: "Animal Diversity Web \u2014 Taxidea taxus",
           url: "https://animaldiversity.org/accounts/Taxidea_taxus/"
         },
         {
-          name: "NHPBS NatureWorks \u2014 American Badger",
+          name: "NatureWorks \u2014 American Badger",
           url: "https://nhpbs.org/natureworks/americanbadger.htm"
         }
-      ]
+      ],
+      biome: "meadow"
     },
     {
-      id: "pileated-woodpecker",
-      name: "Pileated Woodpecker",
-      biome: "forest",
-      kind: "bird",
-      rarity: "uncommon",
-      featured: false,
-      diet: "Carpenter ants and wood-boring beetle larvae; also termites, berries, and nuts",
-      shelter: "Excavates a new rectangular nest cavity each year in large dead snags",
-      preferredHabitat: "Mature and old-growth forest with big standing snags and downed logs",
-      fact: "Its deep rectangular excavations can be large enough to snap a small tree in half.",
-      requirements: {
-        minHealth: 55,
-        objects: {
-          "standing-deadwood": 1,
-          "nesting-tree": 1,
-          shrub: 1
-        },
-        hint: "Standing deadwood beside a nesting tree."
-      },
-      scientificName: "Dryocopus pileatus",
-      role: "The pileated woodpecker is a keystone ecosystem engineer whose big cavities become homes for wood ducks, flying squirrels, fishers, bats, and barred owls. It regulates carpenter ant and beetle populations and opens decaying wood to fungi and decomposers. It sits as a secondary consumer and feeds raptors and mustelids.",
-      trophic: "insectivore",
-      eats: [
-        "nuthatch"
-      ],
-      eatenBy: [
-        "barred-owl",
-        "bobcat",
-        "fisher",
-        "great-horned-owl",
-        "raccoon",
-        "red-fox-forest"
-      ],
-      eatsOther: [
-        "acorns",
-        "beetle larvae",
-        "berries",
-        "carpenter ants",
-        "nuts",
-        "termites"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds \u2014 Pileated Woodpecker",
-          url: "https://www.allaboutbirds.org/guide/Pileated_Woodpecker/lifehistory"
-        },
-        {
-          name: "Animal Diversity Web \u2014 Dryocopus pileatus",
-          url: "https://animaldiversity.org/accounts/Dryocopus_pileatus/"
-        }
-      ]
-    },
-    {
-      id: "pacific-wren",
-      name: "Pacific Wren",
-      biome: "forest",
-      kind: "bird",
-      rarity: "common",
-      featured: false,
-      diet: "Beetles, caterpillars, ants, flies, and spiders; some winter berries",
-      shelter: "Domed nests low in upturned roots, decaying logs, and stream banks",
-      preferredHabitat: "Old-growth conifer forest with dense understory near streams",
-      fact: "Pacific wren numbers along streams rise with salmon runs, whose nutrients boost the insects the wrens eat.",
-      requirements: {
-        minHealth: 50,
-        objects: {
-          "fern-grove": 1,
-          "mushroom-log": 1,
-          shrub: 1
-        },
-        hint: "Ferns and a mushroom log in the shade."
-      },
-      scientificName: "Troglodytes pacificus",
-      role: "The Pacific wren is a secondary consumer that suppresses understory invertebrates in old-growth forest, passing that energy up to hawks, corvids, and weasels. Its dependence on damp, log-strewn old growth and salmon-fed streams makes it a living indicator of both forest and watershed health. It nests low in root tangles and rotting wood.",
-      trophic: "insectivore",
-      eatenBy: [
-        "barred-owl",
-        "garter-snake-forest",
-        "great-horned-owl",
-        "raccoon"
-      ],
-      eatsOther: [
-        "ants",
-        "beetles",
-        "berries",
-        "caterpillars",
-        "millipedes",
-        "snails",
-        "spiders"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds \u2014 Pacific Wren",
-          url: "https://www.allaboutbirds.org/guide/Pacific_Wren/lifehistory"
-        },
-        {
-          name: "Audubon \u2014 Pacific Wren",
-          url: "https://www.audubon.org/field-guide/bird/pacific-wren"
-        }
-      ]
-    },
-    {
-      id: "rough-skinned-newt",
-      name: "Rough-skinned Newt",
-      biome: "forest",
-      kind: "amphibian",
-      rarity: "uncommon",
-      featured: false,
-      diet: "Insects, earthworms, slugs, snails, and amphibian and fish eggs",
-      shelter: "Under rotting logs, rocks, and leaf litter; in ponds during breeding season",
-      preferredHabitat: "Pacific conifer forest near still or slow water",
-      fact: "Its skin holds enough tetrodotoxin to kill several adults, driving a famous poison arms race with garter snakes.",
-      requirements: {
-        minHealth: 55,
-        objects: {
-          "mushroom-log": 1,
-          shrub: 1
-        },
-        water: {
-          tiles: 3
-        },
-        hint: "A mushroom log and a few flooded water tiles."
-      },
-      scientificName: "Taricha granulosa",
-      role: "The rough-skinned newt is a mid-trophic consumer of insects, worms, and amphibian eggs, shaping wetland invertebrate and amphibian communities. Its potent tetrodotoxin defense drives adaptive evolution in resistant garter snakes, one of biology's best-known coevolutionary arms races. The toxin leaves it nearly free from most other predators.",
-      trophic: "insectivore",
-      eatenBy: [
-        "barred-owl",
-        "garter-snake-forest",
-        "raccoon"
-      ],
-      eatsOther: [
-        "amphibian eggs",
-        "earthworms",
-        "fish eggs",
-        "insects",
-        "slugs",
-        "snails"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Taricha granulosa",
-          url: "https://animaldiversity.org/accounts/Taricha_granulosa/"
-        },
-        {
-          name: "USGS \u2014 Barred Owl predation on Taricha granulosa",
-          url: "https://www.usgs.gov/publications/taricha-granulosa-rough-skinned-newt-predation"
-        }
-      ]
-    },
-    {
-      id: "northern-flying-squirrel",
-      name: "Northern Flying Squirrel",
-      biome: "forest",
-      kind: "mammal",
-      rarity: "rare",
-      featured: false,
-      diet: "Mostly underground truffle fungi; also lichens, seeds, nuts, fruit, and insects",
-      shelter: "Tree cavities, old woodpecker holes, and branch dreys; huddles in winter groups",
-      preferredHabitat: "Closed-canopy mature conifer forest rich in mycorrhizal fungi",
-      fact: "Fungal spores turn up in nearly every flying squirrel dropping, making it the forest's key truffle disperser.",
-      requirements: {
-        minHealth: 65,
-        objects: {
-          "nesting-tree": 1,
-          "tree-stump": 1,
-          shrub: 1
-        },
-        animals: [
-          "tree-squirrel"
-        ],
-        hint: "Nesting tree and a stump, once tree squirrels are back."
-      },
-      scientificName: "Glaucomys sabrinus",
-      role: "The northern flying squirrel is a keystone mutualist, the main disperser of underground mycorrhizal fungi that conifers depend on for nutrients. This squirrel-fungi-tree partnership underpins forest regeneration. It is also a prime prey item for owls, martens, and fishers, funneling energy from the fungal layer up to top predators.",
-      trophic: "omnivore",
-      eatenBy: [
-        "barred-owl",
-        "bobcat",
-        "fisher",
-        "great-horned-owl",
-        "raccoon",
-        "red-fox-forest"
-      ],
-      eatsOther: [
-        "acorns",
-        "fungi",
-        "insects",
-        "lichens",
-        "nuts",
-        "seeds",
-        "truffles"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Glaucomys sabrinus",
-          url: "https://animaldiversity.org/accounts/Glaucomys_sabrinus/"
-        },
-        {
-          name: "USDA Forest Service \u2014 Meyer et al. 2005 (truffle spore dispersal)",
-          url: "https://www.fs.usda.gov/psw/publications/meyer/captured/psw_2005_meyer003.pdf"
-        }
-      ]
-    },
-    {
-      id: "wood-duck",
-      name: "Wood Duck",
-      biome: "forest",
-      kind: "bird",
-      rarity: "uncommon",
-      featured: false,
-      diet: "Acorns, seeds, and aquatic plants; ducklings also eat insects and snails",
-      shelter: "Obligate cavity nester in tree holes and nest boxes near water",
-      preferredHabitat: "Bottomland hardwood and wooded swamps with slow water and cavity trees",
-      fact: "A day after hatching, wood duck ducklings leap from nest cavities up to 50 feet high and land unhurt.",
-      requirements: {
-        minHealth: 60,
-        objects: {
-          "nesting-tree": 1,
-          shrub: 1
-        },
-        water: {
-          lake: 4
-        },
-        hint: "A nesting tree beside a flooded pool of 4+ water tiles."
-      },
-      scientificName: "Aix sponsa",
-      role: "Wood ducks are omnivorous consumers linking bottomland forest and wetland food webs, dispersing acorn and aquatic-plant seeds and regulating shallow-water invertebrates. As prey they feed great horned owls, mink, raccoons, and snapping turtles. Depending on woodpecker cavities, their abundance signals healthy wooded wetlands.",
-      trophic: "omnivore",
-      eatenBy: [
-        "barred-owl",
-        "fisher",
-        "garter-snake-forest",
-        "great-horned-owl",
-        "raccoon",
-        "red-fox-forest"
-      ],
-      eatsOther: [
-        "acorns",
-        "aquatic plants",
-        "duckweed",
-        "insects",
-        "nuts",
-        "seeds",
-        "snails"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds \u2014 Wood Duck",
-          url: "https://www.allaboutbirds.org/guide/Wood_Duck/lifehistory"
-        },
-        {
-          name: "Animal Diversity Web \u2014 Aix sponsa",
-          url: "https://animaldiversity.org/accounts/Aix_sponsa/"
-        }
-      ]
-    },
-    {
-      id: "american-bittern",
-      name: "American Bittern",
-      biome: "wetland",
-      kind: "bird",
-      rarity: "rare",
-      featured: false,
-      diet: "Fish, frogs, insects, crayfish, snakes, and small mammals",
-      shelter: "Platform nests hidden low in dense reeds",
-      preferredHabitat: "Tall marsh vegetation over shallow water",
-      fact: "The bittern freezes bill-skyward, swaying like a reed to vanish in the marsh.",
-      requirements: {
-        minHealth: 60,
-        objects: {
-          "reed-bed": 2,
-          "cattail-stand": 1,
-          "sedge-tussock": 1
-        },
-        water: {
-          tiles: 4
-        },
-        hint: "Thick reeds and cattails beside open water.",
-        conditions: {
-          dayPhase: [
-            "dawn",
-            "dusk"
-          ]
-        }
-      },
-      scientificName: "Botaurus lentiginosus",
-      role: "A secretive ambush predator of the reed beds. It stands motionless, then seizes fish, frogs, and insects, relying on stripy camouflage to stay hidden.",
-      trophic: "mesopredator",
-      eats: [
-        "chorus-frog",
-        "freshwater-fish",
-        "northern-leopard-frog"
-      ],
-      eatsOther: [
-        "crayfish",
-        "insects"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds - American Bittern",
-          url: "https://www.allaboutbirds.org/guide/American_Bittern/lifehistory"
-        }
-      ]
-    },
-    {
-      id: "belted-kingfisher",
-      name: "Belted Kingfisher",
-      biome: "wetland",
-      kind: "bird",
-      rarity: "uncommon",
-      featured: false,
-      diet: "Small fish and crayfish, plus other aquatic prey",
-      shelter: "Tunnel burrows dug into earthen banks",
-      preferredHabitat: "Clear water with perches over fishable shallows",
-      fact: "Kingfishers dive headfirst into the water with their eyes closed to grab fish.",
-      requirements: {
-        minHealth: 65,
-        objects: {
-          "nesting-platform": 1,
-          "reed-bed": 1
-        },
-        water: {
-          river: 4
-        },
-        animals: [
-          "freshwater-fish"
-        ],
-        hint: "Carve a river 4+ tiles long with fish present, plus a platform."
-      },
-      scientificName: "Megaceryle alcyon",
-      role: "A plunge-diving fish specialist that watches from a perch and dives on small fish and crayfish. It nests in tunnels dug metres into stream banks.",
-      trophic: "mesopredator",
-      eats: [
-        "freshwater-fish"
-      ],
-      eatsOther: [
-        "crayfish",
-        "fish"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds - Belted Kingfisher",
-          url: "https://www.allaboutbirds.org/guide/Belted_Kingfisher/lifehistory"
-        }
-      ]
-    },
-    {
-      id: "northern-leopard-frog",
-      name: "Northern Leopard Frog",
-      biome: "wetland",
-      kind: "amphibian",
-      rarity: "common",
-      featured: false,
-      diet: "Insects, spiders, worms, and other small animals",
-      shelter: "Shallow water and grassy margins",
-      preferredHabitat: "Lily-fringed shallows",
-      fact: "Leopard frogs escape with erratic zig-zag leaps straight back into the water.",
-      requirements: {
-        minHealth: 50,
-        objects: {
-          "lily-pool": 1,
-          "reed-bed": 1
-        },
-        water: {
-          tiles: 3
-        },
-        hint: "A lily pool and a few open-water tiles."
-      },
-      scientificName: "Lithobates pipiens",
-      role: "A wide-mouthed generalist that eats almost any small animal it can swallow, from insects to smaller frogs. It is key prey for herons, mink, and snakes.",
-      trophic: "insectivore",
-      eats: [
-        "damselfly",
-        "dragonfly",
-        "water-strider"
-      ],
-      eatenBy: [
-        "american-bittern",
-        "great-blue-heron",
-        "green-heron",
-        "mink",
-        "river-otter"
-      ],
-      eatsOther: [
-        "insects",
-        "worms"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web - Lithobates pipiens",
-          url: "https://animaldiversity.org/accounts/Lithobates_pipiens/"
-        },
-        {
-          name: "U.S. National Park Service - Northern Leopard Frog",
-          url: "https://www.nps.gov/articles/northern-leopard-frog.htm"
-        }
-      ]
-    },
-    {
-      id: "snapping-turtle",
-      name: "Snapping Turtle",
-      biome: "wetland",
-      kind: "reptile",
-      rarity: "uncommon",
-      featured: false,
-      diet: "Fish, aquatic plants, carrion, and almost anything it can catch",
-      shelter: "Muddy lake and pond bottoms",
-      preferredHabitat: "Deep still water with a soft mud bottom",
-      fact: "Adult snapping turtles have almost no natural predators and can live for decades.",
-      requirements: {
-        minHealth: 60,
-        objects: {
-          "mud-bank": 1,
-          "reed-bed": 1
-        },
-        water: {
-          lake: 5
-        },
-        hint: "A mud bank beside a lake of 5+ connected water tiles."
-      },
-      scientificName: "Chelydra serpentina",
-      role: "A heavily armored omnivore and scavenger lurking on the pond bottom. As an adult it sits near the top of the wetland food web, eating fish, ducklings, plants, and carrion.",
-      trophic: "omnivore",
-      eats: [
-        "freshwater-fish",
-        "mallard-duck"
-      ],
-      eatsOther: [
-        "aquatic plants",
-        "detritus",
-        "fish"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web - Chelydra serpentina",
-          url: "https://animaldiversity.org/accounts/Chelydra_serpentina/"
-        }
-      ]
-    },
-    {
-      id: "marsh-wren",
-      name: "Marsh Wren",
-      biome: "wetland",
-      kind: "bird",
-      rarity: "common",
-      featured: false,
-      diet: "Insects and spiders picked from marsh vegetation",
-      shelter: "Woven dome nests among cattails and bulrushes",
-      preferredHabitat: "Cattail and sedge stands",
-      fact: "Males build many dummy nests and even destroy neighbours' eggs.",
-      requirements: {
-        minHealth: 50,
-        objects: {
-          "reed-bed": 2,
-          "sedge-tussock": 1,
-          "shallow-water-pool": 1
-        },
-        hint: "Two reed beds and a sedge tussock."
-      },
-      scientificName: "Cistothorus palustris",
-      role: "A tiny, feisty insectivore of the reeds. It gleans insects and spiders from stems and famously builds several decoy nests to court a mate.",
-      trophic: "insectivore",
-      eatsOther: [
-        "insects"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds - Marsh Wren",
-          url: "https://www.allaboutbirds.org/guide/Marsh_Wren/lifehistory"
-        }
-      ]
-    },
-    {
-      id: "gila-woodpecker",
-      name: "Gila Woodpecker",
-      biome: "desert",
-      kind: "bird",
-      rarity: "uncommon",
-      featured: false,
-      diet: "Insects, cactus fruit, and berries",
-      shelter: "Cavities excavated in saguaro cactus",
-      preferredHabitat: "Saguaro and cactus stands",
-      fact: "Its abandoned saguaro cavities later shelter elf owls, pygmy-owls, and kestrels.",
-      requirements: {
-        minHealth: 50,
-        objects: {
-          "cactus-patch": 2,
-          "desert-brush": 1
-        },
-        hint: "Two cactus patches for nesting cavities."
-      },
-      scientificName: "Melanerpes uropygialis",
-      role: "A cactus-nesting woodpecker and desert keystone builder. It eats insects, cactus fruit, and berries, and its old nest holes house many other desert animals. Hawks, snakes, and bobcats prey on it.",
-      trophic: "omnivore",
-      eatenBy: [
-        "rattlesnake"
-      ],
-      eatsOther: [
-        "berries",
-        "cactus fruit",
-        "insects"
-      ],
-      sources: [
-        {
-          name: "Arizona-Sonora Desert Museum \u2014 Gila Woodpecker",
-          url: "https://www.desertmuseum.org/kids/oz/long-fact-sheets/Gila%20Woodpecker.php"
-        },
-        {
-          name: "Cornell Lab All About Birds \u2014 Gila Woodpecker",
-          url: "https://www.allaboutbirds.org/guide/Gila_Woodpecker/overview"
-        }
-      ]
-    },
-    {
-      id: "cactus-wren",
-      name: "Cactus Wren",
-      biome: "desert",
-      kind: "bird",
-      rarity: "common",
-      featured: false,
-      diet: "Spiders, insects, and some fruit",
-      shelter: "Thorny cactus and brush",
-      preferredHabitat: "Open desert with cactus",
-      fact: "Cactus wrens use their football-shaped cholla nests year-round, even sleeping in them.",
-      requirements: {
-        minHealth: 45,
-        objects: {
-          "cactus-patch": 1,
-          "desert-brush": 1,
-          "rock-pile": 1
-        },
-        hint: "A cactus patch and desert brush."
-      },
-      scientificName: "Campylorhynchus brunneicapillus",
-      role: "The largest North American wren, an insectivore gleaning spiders and insects and taking cactus fruit. It gets most of its water from food. Snakes, roadrunners, and hawks prey on it and its nests.",
-      trophic: "insectivore",
-      eats: [
-        "desert-bee"
-      ],
-      eatenBy: [
-        "rattlesnake",
-        "roadrunner"
-      ],
-      eatsOther: [
-        "cactus fruit",
-        "insects"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds \u2014 Cactus Wren",
-          url: "https://www.allaboutbirds.org/guide/Cactus_Wren/lifehistory"
-        }
-      ]
-    },
-    {
-      id: "desert-iguana",
-      name: "Desert Iguana",
-      biome: "desert",
-      kind: "reptile",
-      rarity: "uncommon",
-      featured: false,
-      diet: "Flowers, buds, and leaves, especially creosote",
-      shelter: "Burrows under shrubs",
-      preferredHabitat: "Hot sandy flats with cover",
-      fact: "Desert iguanas stay active near 40C, heat that drives other lizards into the shade.",
-      requirements: {
-        minHealth: 50,
-        objects: {
-          "agave-rosette": 1,
-          "rock-pile": 1,
-          "desert-brush": 1
-        },
-        hint: "An agave rosette and a rock pile."
-      },
-      scientificName: "Dipsosaurus dorsalis",
-      role: "A heat-loving herbivorous lizard that feeds mainly on creosote bush flowers and leaves. It is a desert plant grazer and prey for snakes, raptors, and foxes. It shelters in burrows through the hottest hours.",
-      trophic: "herbivore",
-      eatenBy: [
-        "kit-fox",
-        "rattlesnake"
-      ],
-      eatsOther: [
-        "flowers",
-        "leaves"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Dipsosaurus dorsalis",
-          url: "https://animaldiversity.org/accounts/Dipsosaurus_dorsalis/"
-        }
-      ]
-    },
-    {
-      id: "kangaroo-mouse",
-      name: "Kangaroo Mouse",
-      biome: "desert",
-      kind: "mammal",
-      rarity: "uncommon",
-      featured: false,
-      diet: "Seeds, plus insects in summer",
-      shelter: "Sand burrows plugged by day",
-      preferredHabitat: "Fine sandy desert",
-      fact: "It survives on water made from its food and may go a lifetime without ever drinking.",
-      requirements: {
-        minHealth: 50,
-        objects: {
-          "burrow-mound": 1,
-          "desert-brush": 1,
-          "cactus-patch": 1
-        },
-        hint: "A burrow mound near desert brush."
-      },
-      scientificName: "Microdipodops pallidus",
-      role: "A tiny seed-eating rodent that stores fat in its tail for lean times. It is prey for rattlesnakes, owls, and foxes, making it part of the base of the desert food web. It rarely if ever needs to drink.",
-      trophic: "herbivore",
-      eatenBy: [
-        "burrowing-owl",
-        "kit-fox",
-        "rattlesnake"
-      ],
-      eatsOther: [
-        "insects",
-        "seeds"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Microdipodops pallidus",
-          url: "https://animaldiversity.org/accounts/Microdipodops_pallidus/"
-        }
-      ]
-    },
-    {
-      id: "banded-gecko",
-      name: "Western Banded Gecko",
-      biome: "desert",
-      kind: "reptile",
-      rarity: "common",
-      featured: false,
-      diet: "Insects, spiders, and small scorpions",
-      shelter: "Rock crevices",
-      preferredHabitat: "Sheltered rocky desert",
-      fact: "Unlike most geckos, the banded gecko has movable eyelids and squeaks when captured.",
-      requirements: {
-        minHealth: 45,
-        objects: {
-          ocotillo: 1,
-          "shaded-rock-shelter": 1,
-          "desert-brush": 1
-        },
-        hint: "Ocotillo beside a shaded rock shelter."
-      },
-      scientificName: "Coleonyx variegatus",
-      role: "A small nocturnal gecko that hunts insects, spiders, and even young scorpions. It is a mesopredator on tiny desert prey and food for larger lizards, snakes, and roadrunners. It sheds its tail to escape.",
-      trophic: "insectivore",
-      eats: [
-        "desert-bee",
-        "scorpion"
-      ],
-      eatenBy: [
-        "collared-lizard",
-        "rattlesnake",
-        "roadrunner"
-      ],
-      eatsOther: [
-        "insects"
-      ],
-      sources: [
-        {
-          name: "Arizona-Sonora Desert Museum \u2014 Western Banded Gecko",
-          url: "https://www.desertmuseum.org/books/nhsd_banded_gecko.php"
-        }
-      ]
-    },
-    {
-      id: "rosy-finch",
-      name: "Gray-crowned Rosy-Finch",
-      biome: "alpine",
-      kind: "bird",
-      rarity: "uncommon",
-      featured: false,
-      diet: "Tiny alpine plant seeds and insects, often gleaned off snowfields",
-      shelter: "Bulky cup of moss and grass tucked into a cliff crack or talus",
-      preferredHabitat: "Alpine zones above treeline: talus, scree, cliffs, and glaciers",
-      fact: "It nests higher than nearly any other songbird in North America.",
-      requirements: {
-        minHealth: 50,
-        objects: {
-          "alpine-wildflower-patch": 1,
-          "rock-pile": 1,
-          "heather-mat": 1
-        },
-        hint: "Alpine wildflowers and a rock pile."
-      },
-      scientificName: "Leucosticte tephrocotis",
-      role: "A high-altitude songbird that hops across snow and talus gathering wind-borne seeds and chilled insects. It nests in rock crevices above treeline. Falcons and hawks are its main predators.",
-      trophic: "omnivore",
-      eatsOther: [
-        "alpine plants",
-        "insects",
-        "seeds"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds - Gray-crowned Rosy-Finch",
-          url: "https://www.allaboutbirds.org/guide/Gray-crowned_Rosy-Finch/lifehistory"
-        },
-        {
-          name: "USFWS - Gray-crowned Rosy-Finch",
-          url: "https://www.fws.gov/species/grey-crowned-rosy-finch-leucosticte-tephrocotis"
-        }
-      ]
-    },
-    {
-      id: "american-pipit",
-      name: "American Pipit",
-      biome: "alpine",
-      kind: "bird",
-      rarity: "common",
-      featured: false,
-      diet: "Mostly insects and their larvae, plus spiders and some seeds",
-      shelter: "Ground nest of grass tucked beside a rock or vegetation clump",
-      preferredHabitat: "Open alpine meadows and tundra in the breeding season",
-      fact: "It forages at snowbank edges for insects chilled after drifting up from below.",
-      requirements: {
-        minHealth: 50,
-        objects: {
-          "heather-mat": 1,
-          "alpine-wildflower-patch": 1,
-          "rock-pile": 1
-        },
-        hint: "A heather mat and alpine wildflowers."
-      },
-      scientificName: "Anthus rubescens",
-      role: "A slender ground-walking songbird of open alpine meadows that constantly bobs its tail as it hunts insects. It gleans chilled prey from snowbank margins. Hawks and nest raiders are its chief threats.",
-      trophic: "insectivore",
-      eatenBy: [
-        "fox-alpine"
-      ],
-      eatsOther: [
-        "insects",
-        "seeds",
-        "spiders"
-      ],
-      sources: [
-        {
-          name: "Birds of the World - American Pipit Food Habits",
-          url: "https://birdsoftheworld.org/bow/species/amepip/cur/foodhabits"
-        },
-        {
-          name: "Audubon Field Guide - American Pipit",
-          url: "https://www.audubon.org/field-guide/bird/american-pipit"
-        }
-      ]
-    },
-    {
-      id: "ermine",
-      name: "Ermine",
-      biome: "alpine",
-      kind: "mammal",
-      rarity: "rare",
-      featured: false,
-      diet: "Small rodents, especially voles; also pikas, birds, eggs, and insects",
-      shelter: "Dens in prey burrows, rock piles, and hollow logs, lined with fur",
-      preferredHabitat: "Talus and shrubby edges near meadows with dense rodent prey",
-      fact: "Its coat turns pure white in winter except for a jet-black tail tip.",
-      requirements: {
-        minHealth: 65,
-        objects: {
-          "rock-pile": 1,
-          "krummholz-pine": 1,
-          "alpine-wildflower-patch": 1
-        },
-        animals: [
-          "pika"
-        ],
-        hint: "Rock pile and krummholz, once pikas are back.",
-        conditions: {
-          season: [
-            "winter"
-          ]
-        }
-      },
-      scientificName: "Mustela richardsonii",
-      role: "A small, fierce weasel that specializes in voles and other rodents, also taking young pikas and ground-bird eggs. It hunts prey burrows it can slip right into. Foxes, martens, and raptors prey on it in turn.",
-      trophic: "mesopredator",
-      eats: [
-        "alpine-chipmunk",
-        "mountain-chickadee",
-        "pika",
-        "ptarmigan",
-        "white-crowned-sparrow"
-      ],
-      eatenBy: [
-        "fox-alpine",
-        "golden-eagle",
-        "pine-marten"
-      ],
-      eatsOther: [
-        "insects",
-        "mice",
-        "voles"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web - Mustela erminea",
-          url: "https://animaldiversity.org/accounts/Mustela_erminea/"
-        },
-        {
-          name: "Idaho Fish and Game - Mustela erminea",
-          url: "https://idfg.idaho.gov/species/taxa/17667"
-        }
-      ]
-    },
-    {
-      id: "boreal-toad",
-      name: "Boreal Toad",
-      biome: "alpine",
-      kind: "amphibian",
-      rarity: "uncommon",
-      featured: false,
-      diet: "Beetles, ants, flies, and other invertebrates; tadpoles graze algae",
-      shelter: "Burrows, rodent holes, logs, and rocks in moist cover near pools",
-      preferredHabitat: "Subalpine and alpine wet meadows with open breeding pools",
-      fact: "Rocky Mountain boreal toads have crashed from the deadly amphibian chytrid fungus.",
-      requirements: {
-        minHealth: 55,
-        objects: {
-          "snowmelt-pool": 1,
-          "rock-pile": 1
-        },
-        water: {
-          tiles: 3
-        },
-        hint: "A snowmelt pool and a few open-water tiles."
-      },
-      scientificName: "Anaxyrus boreas boreas",
-      role: "The high country's only toad, an insect-eating amphibian that breeds in shallow snowmelt pools and takes years to mature. Its tadpoles graze algae. Chytrid fungus has devastated southern populations, making it a conservation flagship.",
-      trophic: "insectivore",
-      eatenBy: [
-        "fox-alpine"
-      ],
-      eatsOther: [
-        "insects",
-        "invertebrates"
-      ],
-      sources: [
-        {
-          name: "USFS FEIS - Anaxyrus boreas",
-          url: "https://www.fs.usda.gov/database/feis/animals/amphibian/anbo/all.html"
-        },
-        {
-          name: "USFWS - Boreal toad species profile",
-          url: "https://ecos.fws.gov/ecp/species/D026"
-        }
-      ]
-    },
-    {
-      id: "mountain-bluebird",
-      name: "Mountain Bluebird",
-      biome: "alpine",
-      kind: "bird",
-      rarity: "common",
-      featured: false,
-      diet: "Mostly insects caught in flight; berries and seeds in colder months",
-      shelter: "Old woodpecker holes, natural cavities, and nest boxes",
-      preferredHabitat: "Open high meadows with scattered trees and hunting perches",
-      fact: "It cannot dig its own hole, so it reuses old woodpecker cavities and nest boxes.",
-      requirements: {
-        minHealth: 50,
-        objects: {
-          "krummholz-pine": 1,
-          "alpine-wildflower-patch": 1,
-          "rock-pile": 1
-        },
-        hint: "A krummholz pine and alpine wildflowers."
-      },
-      scientificName: "Sialia currucoides",
-      role: "A brilliant sky-blue thrush of open high meadows that hover-hunts insects on the wing and adds berries in the cold. As a cavity nester it depends on old woodpecker holes. Hawks and cavity raiders prey on it.",
-      trophic: "insectivore",
-      eatsOther: [
-        "berries",
-        "insects",
-        "seeds"
-      ],
-      sources: [
-        {
-          name: "Audubon Field Guide - Mountain Bluebird",
-          url: "https://www.audubon.org/field-guide/bird/mountain-bluebird"
-        },
-        {
-          name: "Sialis.org - Mountain Bluebird biology",
-          url: "https://www.sialis.org/moblbio/"
-        }
-      ]
-    },
-    {
-      id: "sanderling",
-      name: "Sanderling",
-      biome: "coastal",
-      kind: "bird",
-      rarity: "common",
-      featured: false,
-      diet: "Small crabs, amphipods, worms, and mollusks",
-      shelter: "Open beach above the surf line",
-      preferredHabitat: "Sandy surf line and wave-washed beach",
-      fact: "Sanderlings chase retreating waves in busy little sprints to grab stranded invertebrates.",
-      requirements: {
-        minHealth: 50,
-        objects: {
-          "dune-grass": 2,
-          tidepool: 1,
-          "kelp-wrack": 1
-        },
-        hint: "Two dune-grass plantings and a tidepool."
-      },
-      scientificName: "Calidris alba",
-      role: "A wave-chasing sandpiper that feeds on small crustaceans and worms churned up by the surf. Falcons are a key predator, and its winter flocks track the health of open sandy beaches.",
-      trophic: "insectivore",
-      eatsOther: [
-        "clams",
-        "mole crabs"
-      ],
-      sources: [
-        {
-          name: "All About Birds - Sanderling Life History",
-          url: "https://www.allaboutbirds.org/guide/Sanderling/lifehistory"
-        }
-      ]
-    },
-    {
-      id: "black-oystercatcher",
-      name: "Black Oystercatcher",
-      biome: "coastal",
-      kind: "bird",
-      rarity: "uncommon",
-      featured: false,
-      diet: "Mussels and limpets, plus whelks and crabs",
-      shelter: "Rocky shore ledges just above the tide",
-      preferredHabitat: "Rocky intertidal reefs and tidepool shores",
-      fact: "Its long red bill pries shellfish open and cuts the muscle before the shell shuts.",
-      requirements: {
-        minHealth: 55,
-        objects: {
-          "oyster-bed": 1,
-          tidepool: 1,
-          "dune-grass": 1
-        },
-        hint: "An oyster bed beside a tidepool."
-      },
-      scientificName: "Haematopus bachmani",
-      role: "A rocky-shore specialist that pries mussels and limpets from the rocks, timing feeding to the tides. It is a sensitive indicator of intertidal health, thriving only where shellfish are plentiful.",
-      trophic: "mesopredator",
-      eats: [
-        "mussel",
-        "tidepool-crab"
-      ],
-      eatsOther: [
-        "clams",
-        "mussels"
-      ],
-      sources: [
-        {
-          name: "All About Birds - Black Oystercatcher Life History",
-          url: "https://www.allaboutbirds.org/guide/Black_Oystercatcher/lifehistory"
-        }
-      ]
-    },
-    {
-      id: "purple-shore-crab",
-      name: "Purple Shore Crab",
-      biome: "coastal",
+      id: "amphipod",
+      name: "Freshwater Shrimp",
+      scientificName: "Hyalella azteca",
       kind: "invertebrate",
+      trophic: "detritivore",
       rarity: "common",
-      featured: false,
-      diet: "Sea lettuce and other green algae, plus occasional carrion",
-      shelter: "Under rocks in the intertidal",
-      preferredHabitat: "Sheltered rocky intertidal under stones",
-      fact: "They scrape green algae from rocks and scuttle sideways under stones at low tide.",
-      requirements: {
-        minHealth: 45,
-        objects: {
-          tidepool: 1,
-          "oyster-bed": 1,
-          "dune-grass": 1
-        },
-        hint: "A tidepool and an oyster bed."
-      },
-      scientificName: "Hemigrapsus nudus",
-      role: "A small grazing crab that scrapes algae from intertidal rocks and occasionally scavenges. It is common prey for gulls, anemones, and tidepool fish, moving algal energy up the food web.",
-      trophic: "omnivore",
-      eatenBy: [
-        "anemone",
-        "black-turnstone",
-        "gull"
-      ],
+      diet: "Dead leaves and stems, the fungi and bacteria growing on them, and algal film scraped off plants.",
+      shelter: "Among submerged litter, plant stems and the loose top layer of sediment.",
+      preferredHabitat: "Shallow, well-oxygenated water with a deep drift of decaying plant litter.",
+      fact: "Freshwater shrimp swim on their sides, and males carry females around piggyback for days before they mate. Lift a handful of soggy leaves out of a pond and dozens of them will be flicking about in it.",
+      role: "The marsh's shredder. One shrimp chews a single dead cattail leaf into thousands of crumbs \u2014 and it is really after the fungus furring the leaf, not the leaf itself. That is how a heap of dead plants becomes food for minnows, salamander larvae and dragonfly nymphs.",
+      eats: [],
       eatsOther: [
-        "algae",
-        "kelp"
-      ],
-      sources: [
-        {
-          name: "iNaturalist - Purple Shore Crab (Hemigrapsus nudus)",
-          url: "https://www.inaturalist.org/taxa/48342-Hemigrapsus-nudus"
-        }
-      ]
-    },
-    {
-      id: "brant-goose",
-      name: "Brant Goose",
-      biome: "coastal",
-      kind: "bird",
-      rarity: "uncommon",
-      featured: false,
-      diet: "Eelgrass and large green algae like sea lettuce",
-      shelter: "Open shoreline and shallow bays",
-      preferredHabitat: "Shallow coastal bays with eelgrass beds",
-      fact: "Whole flocks of brant depend on eelgrass beds to fuel their long migrations.",
-      requirements: {
-        minHealth: 60,
-        objects: {
-          "eelgrass-bed": 1,
-          "dune-grass": 1
-        },
-        water: {
-          tiles: 4
-        },
-        hint: "An eelgrass bed beside open water."
-      },
-      scientificName: "Branta bernicla",
-      role: "A small sea goose that grazes almost entirely on eelgrass and green algae in shallow bays. Its dependence on eelgrass makes healthy brant flocks a clear indicator of intact seagrass beds.",
-      trophic: "herbivore",
-      eatsOther: [
-        "algae",
-        "seagrass"
-      ],
-      sources: [
-        {
-          name: "All About Birds - Brant Life History",
-          url: "https://www.allaboutbirds.org/guide/Brant/lifehistory"
-        }
-      ]
-    },
-    {
-      id: "snowy-plover",
-      name: "Western Snowy Plover",
-      biome: "coastal",
-      kind: "bird",
-      rarity: "rare",
-      featured: false,
-      diet: "Beach invertebrates: crustaceans, flies, and small mollusks",
-      shelter: "Shallow scrapes on open sand",
-      preferredHabitat: "Quiet sandy dunes and open beach",
-      fact: "Western snowy plovers nest in tiny scrapes right on the open sand.",
-      requirements: {
-        minHealth: 60,
-        objects: {
-          "dune-grass": 1,
-          "coastal-nesting-area": 1,
-          tidepool: 1
-        },
-        hint: "Dune grass and a coastal nesting area.",
-        conditions: {
-          season: [
-            "spring",
-            "summer"
-          ]
-        }
-      },
-      scientificName: "Charadrius nivosus nivosus",
-      role: "A threatened beach-nesting plover that feeds on small invertebrates along the sand and tide line. Extremely sensitive to disturbance, it is a flagship indicator of protected, undisturbed dune beaches.",
-      trophic: "insectivore",
-      eatsOther: [
-        "fly larvae",
-        "mole crabs"
-      ],
-      sources: [
-        {
-          name: "All About Birds - Snowy Plover Life History",
-          url: "https://www.allaboutbirds.org/guide/Snowy_Plover/lifehistory"
-        },
-        {
-          name: "USFWS - Western Snowy Plover",
-          url: "https://www.fws.gov/species/western-snowy-plover-charadrius-nivosus-nivosus"
-        }
-      ]
-    },
-    {
-      id: "costas-hummingbird",
-      name: "Costa's Hummingbird",
-      biome: "desert",
-      kind: "bird",
-      rarity: "uncommon",
-      featured: false,
-      diet: "Flower nectar and tiny insects",
-      shelter: "Nests in shrubs and cactus",
-      preferredHabitat: "Blooming desert with nectar sources",
-      fact: "Courting males dive past a female with a shrill whistle, flashing violet throat feathers.",
-      requirements: {
-        minHealth: 40,
-        objects: {
-          "nectar-feeder": 1,
-          "cactus-patch": 1
-        },
-        hint: "A nectar feeder beside a cactus patch."
-      },
-      scientificName: "Calypte costae",
-      role: "A small desert hummingbird that feeds on nectar from agave, chuparosa, and other blooms plus tiny insects. It is an important pollinator and a nectar-feeding herbivore. Snakes and predatory birds take it.",
-      trophic: "herbivore",
-      eatsOther: [
-        "insects",
-        "nectar"
-      ],
-      sources: [
-        {
-          name: "Audubon \u2014 Costa's Hummingbird",
-          url: "https://www.audubon.org/field-guide/bird/costas-hummingbird"
-        }
-      ]
-    },
-    {
-      id: "coopers-hawk",
-      name: "Cooper's Hawk",
-      biome: "meadow",
-      kind: "bird",
-      rarity: "uncommon",
-      featured: false,
-      diet: "Mainly medium and small birds; also chipmunks, mice, and squirrels",
-      shelter: "Builds a stick nest high in a tree, on a limb or in a crotch",
-      preferredHabitat: "Woodland edges and open country with scattered trees near meadows",
-      fact: "Cooper's Hawks thread through dense cover at high speed to ambush songbirds \u2014 a risky style that leaves many with healed chest-bone fractures.",
-      requirements: {
-        minHealth: 55,
-        objects: {
-          "oak-tree": 1,
-          "bird-perch": 1,
-          shrub: 1
-        },
-        animals: [
-          "song-sparrow"
-        ],
-        hint: "Plant an oak, add a bird perch and a shrub, once sparrows are back."
-      },
-      scientificName: "Accipiter cooperii",
-      role: "A bird-hunting mesopredator that patrols meadow edges and thickets for songbirds. Its agile, low pursuit flight lets it pluck sparrows, finches, and bluebirds from cover. It controls small-bird numbers but can itself be displaced by larger raptors.",
-      trophic: "mesopredator",
-      eats: [
-        "american-goldfinch",
-        "barn-swallow",
-        "eastern-bluebird",
-        "garter-snake-meadow",
-        "killdeer",
-        "song-sparrow",
-        "western-meadowlark"
-      ],
-      eatsOther: [
-        "chipmunks",
-        "mice",
-        "squirrels"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds \u2014 Cooper's Hawk Life History",
-          url: "https://www.allaboutbirds.org/guide/Coopers_Hawk/lifehistory"
-        },
-        {
-          name: "Cornell Lab All About Birds \u2014 Cooper's Hawk Overview",
-          url: "https://www.allaboutbirds.org/guide/Coopers_Hawk/overview"
-        }
-      ]
-    },
-    {
-      id: "western-screech-owl",
-      name: "Western Screech-Owl",
-      biome: "meadow",
-      kind: "bird",
-      rarity: "uncommon",
-      featured: false,
-      diet: "Small mammals and large insects; also small birds and worms",
-      shelter: "Roosts and nests in tree cavities, old woodpecker holes, and boxes",
-      preferredHabitat: "Wooded edges and brushy areas bordering open meadows",
-      fact: "This pint-sized owl occasionally takes prey larger than itself, including cottontail rabbits.",
-      requirements: {
-        minHealth: 55,
-        objects: {
-          "oak-tree": 1,
-          "hollow-log": 1,
-          "log-shelter": 1
-        },
-        hint: "Plant an oak and craft a hollow log and log shelter."
-      },
-      scientificName: "Megascops kennicottii",
-      role: "A small nocturnal mesopredator that sits and waits, then drops onto rodents and insects, gleaning grasshoppers and beetles and snatching voles and mice on the ground. It bridges insect and rodent control in the meadow at night.",
-      trophic: "mesopredator",
-      eats: [
-        "american-goldfinch",
-        "eastern-bluebird",
-        "grasshopper",
-        "meadow-vole"
-      ],
-      eatsOther: [
-        "deer mice",
-        "large insects",
-        "worms"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds \u2014 Western Screech-Owl Life History",
-          url: "https://www.allaboutbirds.org/guide/Western_Screech-Owl/lifehistory"
-        },
-        {
-          name: "Cornell Lab All About Birds \u2014 Western Screech-Owl Overview",
-          url: "https://www.allaboutbirds.org/guide/Western_Screech-Owl/overview"
-        }
-      ]
-    },
-    {
-      id: "barred-owl",
-      name: "Barred Owl",
-      biome: "forest",
-      kind: "bird",
-      rarity: "uncommon",
-      featured: false,
-      diet: "Small mammals, birds, amphibians, reptiles, fish, and invertebrates",
-      shelter: "Large tree cavities in mature forest; also old hawk, crow, or squirrel nests",
-      preferredHabitat: "Mature mixed or conifer forest near water with large cavity trees",
-      fact: "Barred owls sometimes wade into shallow water to catch fish\u2014unusual hunting for a woodland owl.",
-      requirements: {
-        minHealth: 55,
-        objects: {
-          "nesting-tree": 1,
-          "oak-tree": 1,
-          "standing-deadwood": 1
-        },
-        hint: "A nesting tree, a planted oak, and standing deadwood."
-      },
-      scientificName: "Strix varia",
-      role: "The barred owl is a mid-level predator that regulates mice, voles, chipmunks, squirrels, and amphibians. It sits between small prey and the apex great horned owl, which is its main predator. Its need for large cavity trees makes it an indicator of mature forest health.",
-      trophic: "mesopredator",
-      eats: [
-        "chipmunk",
-        "forest-salamander",
-        "garter-snake-forest",
-        "little-brown-bat",
-        "meadow-vole",
-        "northern-flying-squirrel",
-        "nuthatch",
-        "pacific-wren",
-        "pileated-woodpecker",
-        "rough-skinned-newt",
-        "spotted-towhee",
-        "tree-squirrel",
-        "wood-duck",
-        "woodpecker"
+        "decaying leaf litter",
+        "aquatic fungi",
+        "bacterial film",
+        "algae"
       ],
       eatenBy: [
-        "great-horned-owl",
-        "raccoon"
-      ],
-      eatsOther: [
-        "crayfish",
-        "fish",
-        "insects",
-        "mice",
-        "voles"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Strix varia",
-          url: "https://animaldiversity.org/accounts/Strix_varia/"
-        },
-        {
-          name: "Cornell Lab All About Birds \u2014 Barred Owl",
-          url: "https://www.allaboutbirds.org/guide/Barred_Owl/lifehistory"
-        }
-      ]
-    },
-    {
-      id: "fisher",
-      name: "Fisher",
-      biome: "forest",
-      kind: "mammal",
-      rarity: "rare",
-      featured: false,
-      diet: "Small and medium mammals\u2014porcupines, hares, squirrels; also birds and fruit",
-      shelter: "Dens in hollow trees, logs, stumps, and ground burrows; young in high tree cavities",
-      preferredHabitat: "Dense conifer and mixed forest with high canopy closure and hollow trees",
-      fact: "The fisher is one of the only predators that regularly kills porcupines, slashing the face until it can flip it over.",
-      requirements: {
-        minHealth: 60,
-        objects: {
-          "birch-tree": 1,
-          "tree-stump": 1,
-          "mushroom-log": 1
-        },
-        animals: [
-          "tree-squirrel"
-        ],
-        hint: "Plant a birch, add a stump and mushroom log, once squirrels are back."
-      },
-      scientificName: "Pekania pennanti",
-      role: "The fisher is a powerful mid-level forest predator and one of the few checks on porcupine numbers, which otherwise damage timber. It partly fills the niche of vanished apex predators, and its presence signals mature, connected forest. Young fishers are prey for bobcats, foxes, and lynx.",
-      trophic: "mesopredator",
-      eats: [
-        "bobcat",
-        "chipmunk",
-        "garter-snake-forest",
-        "little-brown-bat",
-        "northern-flying-squirrel",
-        "pileated-woodpecker",
-        "porcupine",
-        "raccoon",
-        "tree-squirrel",
-        "wood-duck",
-        "woodpecker"
-      ],
-      eatenBy: [
-        "bobcat",
-        "red-fox-forest"
-      ],
-      eatsOther: [
-        "berries",
-        "carrion",
-        "hares",
-        "nuts",
-        "shrews",
-        "voles"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Martes pennanti",
-          url: "https://animaldiversity.org/accounts/Martes_pennanti/"
-        },
-        {
-          name: "NPS \u2014 Species Spotlight: Fisher",
-          url: "https://www.nps.gov/articles/netn-species-spotlight-fisher.htm"
-        }
-      ]
-    },
-    {
-      id: "prothonotary-warbler",
-      name: "Prothonotary Warbler",
-      biome: "wetland",
-      kind: "bird",
-      rarity: "rare",
-      featured: false,
-      diet: "Insects and spiders; some snails, fruit, and seeds off-season",
-      shelter: "Tree cavities and nest boxes over standing water",
-      preferredHabitat: "Flooded wooded swamp",
-      fact: "It is one of only two North American warblers that nest in tree cavities.",
-      requirements: {
-        minHealth: 55,
-        objects: {
-          "bald-cypress": 1,
-          "reed-bed": 1,
-          "nesting-platform": 1
-        },
-        hint: "Plant a bald cypress with a reed bed and nesting platform.",
-        conditions: {
-          season: [
-            "spring",
-            "summer"
-          ]
-        }
-      },
-      scientificName: "Protonotaria citrea",
-      role: "A glowing-gold swamp warbler that gleans insects and spiders over the water. Unusually for a warbler, it nests in cavities, often above standing water.",
-      trophic: "insectivore",
-      eatsOther: [
-        "insects"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds - Prothonotary Warbler",
-          url: "https://www.allaboutbirds.org/guide/Prothonotary_Warbler/lifehistory"
-        }
-      ]
-    },
-    {
-      id: "green-heron",
-      name: "Green Heron",
-      biome: "wetland",
-      kind: "bird",
-      rarity: "uncommon",
-      featured: false,
-      diet: "Mainly small fish; also insects, crustaceans, and frogs",
-      shelter: "Stick nests in trees and shrubs overhanging water",
-      preferredHabitat: "Quiet wooded shallows",
-      fact: "The green heron drops bait on the water to lure fish within striking range.",
-      requirements: {
-        minHealth: 55,
-        objects: {
-          "water-tupelo": 1,
-          "lily-pool": 1
-        },
-        water: {
-          tiles: 3
-        },
-        hint: "Plant a water tupelo by a lily pool and open water."
-      },
-      scientificName: "Butorides virescens",
-      role: "A small, crafty heron of shady shallows and one of few tool-using birds. It fishes patiently and sometimes baits the surface to draw fish close.",
-      trophic: "mesopredator",
-      eats: [
         "freshwater-fish",
-        "northern-leopard-frog"
+        "crayfish",
+        "dragonfly",
+        "wetland-salamander"
       ],
-      eatsOther: [
-        "fish",
-        "insects"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds - Green Heron",
-          url: "https://www.allaboutbirds.org/guide/Green_Heron/lifehistory"
-        }
-      ]
-    },
-    {
-      id: "elf-owl",
-      name: "Elf Owl",
-      biome: "desert",
-      kind: "bird",
-      rarity: "rare",
-      featured: false,
-      diet: "Insects and scorpions",
-      shelter: "Cavities in cactus and trees",
-      preferredHabitat: "Mesquite and saguaro desert",
-      fact: "The world's smallest owl plucks the stinger off scorpions before eating them.",
       requirements: {
-        minHealth: 55,
+        minHealth: 16,
         objects: {
-          "mesquite-tree": 1,
-          "desert-ironwood": 1,
-          "cactus-patch": 1
+          "detritus-drift": 2,
+          "reed-bed": 1,
+          "mud-bank": 1
         },
-        hint: "Plant a mesquite and an ironwood beside a cactus patch.",
-        conditions: {
-          dayPhase: [
-            "night"
-          ],
-          season: [
-            "spring",
-            "summer"
-          ]
-        }
+        signature: "detritus-drift",
+        water: {
+          tiles: 2
+        },
+        hint: "Let the dead cattail leaves pile up underwater. Freshwater shrimp live down in the litter, not out in the open water."
       },
-      scientificName: "Micrathene whitneyi",
-      role: "The world's smallest owl, a nocturnal insectivore that hunts insects and scorpions and nests in old woodpecker holes. It is a mesopredator on desert arthropods. Snakes and larger owls threaten it.",
-      trophic: "insectivore",
-      eats: [
-        "scorpion"
-      ],
-      eatsOther: [
-        "insects"
-      ],
       sources: [
         {
-          name: "Cornell Lab All About Birds \u2014 Elf Owl",
-          url: "https://www.allaboutbirds.org/guide/Elf_Owl/lifehistory"
+          name: "Wikipedia \u2014 Hyalella azteca",
+          url: "https://en.wikipedia.org/wiki/Hyalella_azteca"
         },
         {
-          name: "Cornell Lab All About Birds \u2014 Elf Owl Overview",
-          url: "https://www.allaboutbirds.org/guide/Elf_Owl/overview"
+          name: "Biological Invasions \u2014 Potential impact of invasive amphipods on leaf litter recycling in aquatic ecosystems",
+          url: "https://link.springer.com/article/10.1007/s10530-011-9969-y"
         }
-      ]
+      ],
+      biome: "wetland",
+      aquatic: true
     },
     {
-      id: "mountain-chickadee",
-      name: "Mountain Chickadee",
-      biome: "alpine",
-      kind: "bird",
+      id: "crayfish",
+      name: "Crayfish",
+      scientificName: "Faxonius virilis",
+      kind: "invertebrate",
+      trophic: "detritivore",
       rarity: "common",
-      featured: false,
-      diet: "Insects and spiders in summer; conifer seeds and nuts in fall and winter",
-      shelter: "Old woodpecker holes and natural cavities in conifers and aspen",
-      preferredHabitat: "High evergreen forests of pine, fir, and spruce in the West",
-      fact: "It caches thousands of seeds and remembers where it hid them.",
-      requirements: {
-        minHealth: 55,
-        objects: {
-          "subalpine-fir": 1,
-          "krummholz-pine": 1,
-          "alpine-wildflower-patch": 1
-        },
-        hint: "Plant a subalpine fir and krummholz with alpine wildflowers."
-      },
-      scientificName: "Poecile gambeli",
-      role: "A busy conifer-forest insectivore that gleans insects from twigs and switches to cached pine seeds in winter. Often the nucleus of mixed foraging flocks, it disperses conifer seeds. Small hawks, weasels, and martens prey on it and its nestlings.",
-      trophic: "insectivore",
-      eatenBy: [
-        "ermine",
-        "fox-alpine",
-        "pine-marten"
-      ],
-      eatsOther: [
-        "conifer seeds",
-        "insects",
-        "seeds",
-        "spiders"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds - Mountain Chickadee",
-          url: "https://www.allaboutbirds.org/guide/Mountain_Chickadee/lifehistory"
-        },
-        {
-          name: "Audubon Field Guide - Mountain Chickadee",
-          url: "https://www.audubon.org/field-guide/bird/mountain-chickadee"
-        }
-      ]
-    },
-    {
-      id: "pine-grosbeak",
-      name: "Pine Grosbeak",
-      biome: "alpine",
-      kind: "bird",
-      rarity: "uncommon",
-      featured: false,
-      diet: "Buds, seeds, and fruits of conifers and shrubs; some insects in summer",
-      shelter: "Concealed cup nest near the trunk of a dense conifer",
-      preferredHabitat: "Open subalpine spruce, fir, and pine forest near timberline",
-      fact: "A plump, unhurried finch of the cold high forests, nipping buds and needles.",
-      requirements: {
-        minHealth: 55,
-        objects: {
-          "quaking-aspen": 1,
-          "subalpine-fir": 1,
-          "rock-pile": 1
-        },
-        hint: "Plant an aspen and a subalpine fir near a rock pile."
-      },
-      scientificName: "Pinicola enucleator",
-      role: "A large, sluggish finch that lives almost entirely on conifer buds, seeds, and fruits, adding insects to feed its young. It helps disperse tree and shrub seeds. Martens, small raptors, and foxes prey on it, especially at nests.",
-      trophic: "omnivore",
-      eatenBy: [
-        "fox-alpine",
-        "golden-eagle",
-        "pine-marten"
-      ],
-      eatsOther: [
-        "berries",
-        "conifer buds",
-        "insects",
-        "seeds"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds - Pine Grosbeak",
-          url: "https://www.allaboutbirds.org/guide/Pine_Grosbeak/lifehistory"
-        },
-        {
-          name: "Audubon Field Guide - Pine Grosbeak",
-          url: "https://www.audubon.org/field-guide/bird/pine-grosbeak"
-        }
-      ]
-    },
-    {
-      id: "annas-hummingbird",
-      name: "Anna's Hummingbird",
-      biome: "coastal",
-      kind: "bird",
-      rarity: "common",
-      featured: false,
-      diet: "Flower nectar and small insects",
-      shelter: "Shrubs and small trees in coastal scrub",
-      preferredHabitat: "Flowering coastal scrub and gardens",
-      fact: "Males dive from about 27 m and pull up with a loud chirp made by their tail feathers.",
-      requirements: {
-        minHealth: 50,
-        objects: {
-          "monterey-cypress": 1,
-          "dune-grass": 1,
-          "sea-thrift": 1
-        },
-        hint: "Plant a Monterey cypress with dune grass and sea thrift."
-      },
-      scientificName: "Calypte anna",
-      role: "A year-round coastal hummingbird that feeds on nectar and small insects, pollinating shrubs like manzanita and gooseberry as it forages. It links flowering coastal scrub to the wider food web.",
-      trophic: "omnivore",
-      sources: [
-        {
-          name: "All About Birds - Anna's Hummingbird Life History",
-          url: "https://www.allaboutbirds.org/guide/Annas_Hummingbird/lifehistory"
-        }
-      ]
-    },
-    {
-      id: "acorn-woodpecker",
-      name: "Acorn Woodpecker",
-      biome: "coastal",
-      kind: "bird",
-      rarity: "uncommon",
-      featured: false,
-      diet: "Acorns and insects, plus sap and fruit",
-      shelter: "Oak granary trees with stored acorns",
-      preferredHabitat: "Coastal oak woodland",
-      fact: "It drills thousands of holes in a granary tree and stores a single acorn in each.",
-      requirements: {
-        minHealth: 55,
-        objects: {
-          "coast-live-oak": 1,
-          "driftwood-shelter": 1,
-          tidepool: 1
-        },
-        hint: "Plant a coast live oak near a driftwood shelter and tidepool."
-      },
-      scientificName: "Melanerpes formicivorus",
-      role: "A social woodpecker that hoards acorns in shared granary trees and hawks flying insects. Its acorn caching and old cavities support other coastal-woodland animals, making it a habitat keystone in oak groves.",
-      trophic: "omnivore",
-      sources: [
-        {
-          name: "All About Birds - Acorn Woodpecker Life History",
-          url: "https://www.allaboutbirds.org/guide/Acorn_Woodpecker/lifehistory"
-        }
-      ]
-    },
-    {
-      id: "praying-mantis",
-      name: "Praying Mantis",
-      biome: "meadow",
-      kind: "insect",
-      rarity: "uncommon",
-      diet: "Ambush predator eating live insects \u2014 bees, grasshoppers, and more",
-      shelter: "Perches motionless on plants; lays eggs in a foam egg case (ootheca)",
-      preferredHabitat: "Meadows and shrubby edges with dense vegetation for ambush",
-      fact: "A praying mantis can swivel its head almost 180 degrees \u2014 unique among insects \u2014 for a wide field of view.",
-      requirements: {
-        minHealth: 24,
-        objects: {
-          "grass-patch": 1,
-          shrub: 1,
-          "insect-hotel": 1
-        },
-        hint: "Tall grass, a shrub, and an insect hotel give it cover to hunt from."
-      },
-      scientificName: "Stagmomantis spp. / Mantis religiosa",
-      role: "A sit-and-wait ambush mesopredator that seizes prey with spined forelegs in a strike faster than a blink. As a generalist it eats grasshoppers, bees, beetles, and other insects, helping regulate insect numbers. It is itself taken by birds, garter snakes, and small owls.",
-      trophic: "mesopredator",
+      diet: "Decaying plants and carcasses, live aquatic plants, snails, insect larvae and freshwater shrimp.",
+      shelter: "Burrows dug into saturated banks, and gaps beneath sunken logs and stones.",
+      preferredHabitat: "Slow, weedy water with woody cover and a bank soft enough to dig into.",
+      fact: "Lose a claw in a fight and a crayfish just grows a new one, a little bigger at every moult, until it matches the old one. Startle it and it flips its tail and rockets backwards faster than you can grab.",
+      role: "The marsh's recycler, and very nearly everybody's dinner. Crayfish shred dead plants and tidy up carcasses, turning buried gunk back into living meat \u2014 which the otter, the mink, the kingfisher, the merganser, the crane, the snapping turtle and the heron then come and take.",
       eats: [
-        "bumblebee",
-        "grasshopper",
-        "lady-beetle",
-        "leafcutter-bee",
-        "painted-lady",
-        "red-admiral"
-      ],
-      eatenBy: [
-        "eastern-bluebird",
-        "garter-snake-meadow",
-        "song-sparrow",
-        "western-meadowlark"
+        "amphipod"
       ],
       eatsOther: [
-        "flies",
-        "moths",
-        "other live insects"
-      ],
-      sources: [
-        {
-          name: "NC State Extension \u2014 Praying Mantids",
-          url: "https://growingsmallfarms.ces.ncsu.edu/news/challenging-the-conventional-wisdom-about-praying-mantids/"
-        },
-        {
-          name: "National Geographic \u2014 Praying mantis",
-          url: "https://www.nationalgeographic.com/animals/invertebrates/facts/praying-mantis"
-        }
-      ]
-    },
-    {
-      id: "killdeer",
-      name: "Killdeer",
-      biome: "meadow",
-      kind: "bird",
-      rarity: "common",
-      diet: "Invertebrates \u2014 earthworms, grasshoppers, beetles, and snails",
-      shelter: "Nests in a bare ground scrape lined with pebbles and shell bits",
-      preferredHabitat: "Open, flat ground with very short grass and scattered stones",
-      fact: "Killdeer fake a broken wing, dragging it as if injured to lure predators away from the nest.",
-      requirements: {
-        minHealth: 35,
-        objects: {
-          "native-grass-patch": 1,
-          "rock-pile": 1,
-          "dry-stone-wall": 1
-        },
-        hint: "Open native grass with a rock pile and a stone wall to nest beside."
-      },
-      scientificName: "Charadrius vociferus",
-      role: "A ground-foraging insectivore that races and halts across open meadow, snapping up worms and insects. As abundant, exposed ground-nesters they are important prey for meadow hunters, which take adults, chicks, and eggs alike.",
-      trophic: "insectivore",
-      eats: [
-        "grasshopper"
-      ],
-      eatenBy: [
-        "coopers-hawk",
-        "red-fox-meadow",
-        "red-tailed-hawk"
-      ],
-      eatsOther: [
-        "beetles",
-        "earthworms",
+        "detritus",
+        "carrion",
         "snails"
       ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds \u2014 Killdeer Life History",
-          url: "https://www.allaboutbirds.org/guide/Killdeer/lifehistory"
-        },
-        {
-          name: "Audubon Field Guide \u2014 Killdeer",
-          url: "https://www.audubon.org/field-guide/bird/killdeer"
-        }
-      ]
-    },
-    {
-      id: "red-admiral",
-      name: "Red Admiral",
-      biome: "meadow",
-      kind: "insect",
-      rarity: "common",
-      diet: "Adults prefer tree sap, fermenting fruit, and nectar; caterpillars eat nettles",
-      shelter: "Caterpillars fold nettle leaves into shelters; adults roost on trees",
-      preferredHabitat: "Flowery clearings and woodland edges near nettle patches",
-      fact: "Red admirals are bold and territorial, and will readily land and perch on people who stay still.",
-      requirements: {
-        minHealth: 30,
-        objects: {
-          "butterfly-flowers": 1,
-          "wildflower-patch": 1,
-          "insect-hotel": 1
-        },
-        hint: "Butterfly flowers and wildflowers beside an insect hotel."
-      },
-      scientificName: "Vanessa atalanta",
-      role: "A fast, territorial butterfly that feeds mainly on tree sap, fruit, and dung, visiting flowers as a nectar pollinator when preferred foods are scarce; its caterpillars specialize on stinging nettles. Lacking chemical defenses, it relies on camouflage and speed to escape birds and other predators.",
-      trophic: "herbivore",
       eatenBy: [
-        "barn-swallow",
-        "praying-mantis"
+        "river-otter",
+        "mink",
+        "belted-kingfisher",
+        "hooded-merganser",
+        "snapping-turtle",
+        "great-blue-heron",
+        "sandhill-crane"
       ],
-      eatsOther: [
-        "fermenting fruit",
-        "flower nectar",
-        "nettles (caterpillar)",
-        "tree sap"
-      ],
-      sources: [
-        {
-          name: "USDA Forest Service \u2014 Red Admiral Butterfly",
-          url: "https://www.fs.usda.gov/wildflowers/pollinators/pollinator-of-the-month/red-admiral-butterfly.shtml"
-        },
-        {
-          name: "Butterflies and Moths of North America \u2014 Red Admiral",
-          url: "https://www.butterfliesandmoths.org/species/Vanessa-atalanta"
-        }
-      ]
-    },
-    {
-      id: "little-brown-bat",
-      name: "Little Brown Bat",
-      biome: "forest",
-      kind: "mammal",
-      rarity: "uncommon",
-      diet: "Strict insectivore: midges, caddisflies, mayflies, moths, and mosquitoes",
-      shelter: "Roosts in tree hollows, under bark, and in buildings; hibernates in caves and mines",
-      preferredHabitat: "Forested land near streams, ponds, and openings for aerial feeding",
-      fact: "White-nose syndrome, a cold-loving fungus, has wiped out over 90% of little brown bats at many hibernation sites.",
       requirements: {
-        minHealth: 46,
+        minHealth: 22,
         objects: {
-          "bat-box": 1,
-          "standing-deadwood": 1,
-          shrub: 1
+          "crayfish-burrow-bank": 2,
+          "marsh-log": 1,
+          "mud-bank": 1
         },
-        hint: "A bat box near standing deadwood, with shrubs full of insects."
-      },
-      scientificName: "Myotis lucifugus",
-      role: "Little brown bats are voracious insectivores, each eating up to half its body weight in insects a night and suppressing forest and aquatic pests. They are a mid-web link between the insect layer and larger predators like owls, fishers, and snakes. White-nose syndrome has caused catastrophic declines.",
-      trophic: "insectivore",
-      eatenBy: [
-        "barred-owl",
-        "fisher",
-        "garter-snake-forest",
-        "great-horned-owl",
-        "raccoon"
-      ],
-      eatsOther: [
-        "beetles",
-        "caddisflies",
-        "mayflies",
-        "midges",
-        "mosquitoes",
-        "moths"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Myotis lucifugus",
-          url: "https://animaldiversity.org/accounts/Myotis_lucifugus/"
-        },
-        {
-          name: "USGS \u2014 White-Nose Syndrome",
-          url: "https://www.usgs.gov/centers/nwhc/science/white-nose-syndrome"
-        }
-      ]
-    },
-    {
-      id: "ensatina",
-      name: "Ensatina Salamander",
-      biome: "forest",
-      kind: "amphibian",
-      rarity: "uncommon",
-      diet: "Invertebrates: worms, ants, beetles, spiders, centipedes, and snails",
-      shelter: "Under rocks, bark, and logs on the forest floor; retreats underground when dry",
-      preferredHabitat: "Moist, shaded forest floor rich in coarse woody debris",
-      fact: "Ensatinas are lungless, breathing through their skin, and can drop a wriggling, poison-laced tail to escape.",
-      requirements: {
-        minHealth: 42,
-        objects: {
-          "leaf-litter-pile": 1,
-          "mushroom-log": 1,
-          "shallow-water-pool": 1
-        },
-        hint: "Leaf litter and a mushroom log beside a shallow pool."
-      },
-      scientificName: "Ensatina eschscholtzii",
-      role: "The ensatina is an abundant forest-floor predator that suppresses decomposer invertebrates like centipedes, millipedes, and sowbugs, linking the detritus web to vertebrate predators. Being lungless, it depends on damp, intact forest, making it an indicator of forest-floor moisture. It is prey for garter snakes, raccoons, and jays.",
-      trophic: "insectivore",
-      eats: [
-        "banana-slug"
-      ],
-      eatenBy: [
-        "garter-snake-forest",
-        "raccoon"
-      ],
-      eatsOther: [
-        "ants",
-        "beetles",
-        "centipedes",
-        "earthworms",
-        "millipedes",
-        "snails",
-        "spiders"
-      ],
-      sources: [
-        {
-          name: "CaliforniaHerps \u2014 Ensatina eschscholtzii",
-          url: "https://californiaherps.com/salamanders/pages/e.e.oregonensis.html"
-        },
-        {
-          name: "Animal Diversity Web \u2014 Plethodontidae (lungless salamanders)",
-          url: "https://animaldiversity.org/accounts/Plethodontidae/"
-        }
-      ]
-    },
-    {
-      id: "spotted-towhee",
-      name: "Spotted Towhee",
-      biome: "forest",
-      kind: "bird",
-      rarity: "common",
-      diet: "Insects and invertebrates in summer; seeds, acorns, and berries in winter",
-      shelter: "Dense shrubby thickets and brushy edges; nests on or near the ground",
-      preferredHabitat: "Brushy forest edges and chaparral with deep leaf litter",
-      fact: "The spotted towhee feeds with a two-footed backward hop that flicks leaf litter aside to expose food.",
-      requirements: {
-        minHealth: 38,
-        objects: {
-          "brush-pile": 1,
-          shrub: 1,
-          "leaf-litter-pile": 1
-        },
-        hint: "A brush pile and shrubs over a bed of leaf litter."
-      },
-      scientificName: "Pipilo maculatus",
-      role: "The spotted towhee is an omnivorous ground forager that bridges the invertebrate and seed layers, eating ground beetles and caterpillars in summer and dispersing seeds in winter. Its ground nesting leaves it vulnerable to foxes, raccoons, and snakes, while hawks and owls take adults. It helps turn over and recycle forest-floor litter.",
-      trophic: "omnivore",
-      eatenBy: [
-        "barred-owl",
-        "bobcat",
-        "garter-snake-forest",
-        "great-horned-owl",
-        "raccoon",
-        "red-fox-forest"
-      ],
-      eatsOther: [
-        "acorns",
-        "berries",
-        "insects",
-        "millipedes",
-        "seeds",
-        "sowbugs",
-        "spiders"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds \u2014 Spotted Towhee",
-          url: "https://www.allaboutbirds.org/guide/Spotted_Towhee/lifehistory"
-        },
-        {
-          name: "Audubon \u2014 Spotted Towhee",
-          url: "https://www.audubon.org/field-guide/bird/spotted-towhee"
-        }
-      ]
-    },
-    {
-      id: "hooded-merganser",
-      name: "Hooded Merganser",
-      biome: "wetland",
-      kind: "bird",
-      rarity: "uncommon",
-      diet: "Small fish, crayfish, aquatic insects, and amphibians",
-      shelter: "Tree cavities and nest boxes near water",
-      preferredHabitat: "Quiet wooded ponds",
-      fact: "Hooded merganser ducklings can dive for their own food at just one day old.",
-      requirements: {
-        minHealth: 46,
-        objects: {
-          "duck-nest-box": 1,
-          "reed-bed": 1
-        },
+        signature: "crayfish-burrow-bank",
         water: {
           tiles: 3
         },
-        hint: "A duck nest box beside reeds and open water."
+        hint: "A soft bank to tunnel into, sunken wood to hide under, and plenty of rotting plants to eat."
       },
-      scientificName: "Lophodytes cucullatus",
-      role: "A small diving duck with a serrated bill for gripping slippery prey. It pursues fish, crayfish, and insects underwater and nests in tree cavities.",
-      trophic: "mesopredator",
-      eats: [
-        "freshwater-fish"
-      ],
-      eatenBy: [
-        "mink"
-      ],
-      eatsOther: [
-        "crayfish",
-        "fish",
-        "insect larvae"
-      ],
       sources: [
         {
-          name: "Cornell Lab All About Birds - Hooded Merganser",
-          url: "https://www.allaboutbirds.org/guide/Hooded_Merganser/lifehistory"
+          name: "Reviews in Fisheries Science \u2014 Redefining the role of crayfish in aquatic ecosystems",
+          url: "https://www.tandfonline.com/doi/abs/10.1080/10641269509388566"
+        },
+        {
+          name: "Oecologia \u2014 Effects of crayfish on leaf processing and invertebrate colonisation of leaves",
+          url: "https://link.springer.com/article/10.1007/s004420000422"
         }
-      ]
+      ],
+      biome: "wetland",
+      aquatic: true
     },
     {
-      id: "spotted-turtle",
-      name: "Spotted Turtle",
-      biome: "wetland",
-      kind: "reptile",
+      id: "freshwater-mussel",
+      name: "Freshwater Mussel",
+      scientificName: "Pyganodon grandis",
+      kind: "invertebrate",
+      trophic: "filter-feeder",
       rarity: "uncommon",
-      diet: "Aquatic plants, insects, worms, mollusks, and small invertebrates",
-      shelter: "Basking logs and shallow, muddy-bottomed water",
-      preferredHabitat: "Sunny shallow marsh",
-      fact: "Each spotted turtle wears a unique pattern of yellow polka dots on its shell.",
-      requirements: {
-        minHealth: 42,
-        objects: {
-          "basking-log": 1,
-          "shallow-water-pool": 1,
-          "reed-bed": 1
-        },
-        hint: "A basking log in a reedy, shallow pool."
-      },
-      scientificName: "Clemmys guttata",
-      role: "A small, declining omnivore that forages underwater for plants and invertebrates. It basks on logs and buries in mud when startled.",
-      trophic: "omnivore",
+      diet: "Algae, bacteria and fine dead particles strained out of the water.",
+      shelter: "Burrowed upright in stable fine sediment with only its two siphons showing.",
+      preferredHabitat: "Slow, settled water over firm silt and fine sand.",
+      fact: "A baby mussel has to hitchhike. It clamps onto the gills of a passing fish and rides there for weeks before dropping off to start life on the bottom \u2014 and some mother mussels wave a flap of flesh shaped like a little fish to lure a host in close.",
+      role: "The marsh's water filter, and one of the longest-lived animals in it. One mussel can strain the same patch of water for thirty years, dropping what it catches to the bottom for shrimp and crayfish. No fish means no baby mussels, so the mussels only come back after the minnows do.",
+      eats: [],
+      eatsOther: [
+        "algae",
+        "bacteria",
+        "fine detritus"
+      ],
       eatenBy: [
         "muskrat",
         "river-otter"
       ],
+      requirements: {
+        minHealth: 42,
+        objects: {
+          "stable-silt-shoal": 2,
+          "shallow-water-pool": 2,
+          "marsh-log": 1
+        },
+        signature: "stable-silt-shoal",
+        water: {
+          tiles: 5
+        },
+        animals: [
+          "freshwater-fish"
+        ],
+        hint: "A settled bed that stays put for years \u2014 and fish, because young mussels ride to their new home clamped to fish gills."
+      },
+      sources: [
+        {
+          name: "Xerces Society \u2014 About Freshwater Mussels",
+          url: "https://xerces.org/endangered-species/freshwater-mussels/about"
+        },
+        {
+          name: "NC Wildlife \u2014 General Life History for Mussels",
+          url: "https://www.ncwildlife.gov/wildlife-habitat/species/general-life-history-mussels"
+        }
+      ],
+      biome: "wetland",
+      aquatic: true
+    },
+    {
+      id: "northern-leopard-frog",
+      name: "Leopard Frog",
+      scientificName: "Lithobates pipiens",
+      kind: "amphibian",
+      trophic: "insectivore",
+      rarity: "common",
+      diet: "Insects, spiders and worms taken in wet meadows and along the water's edge",
+      shelter: "Shallow water in spring; damp grassy meadow through the summer",
+      preferredHabitat: "Lily-fringed shallows with wet meadow beside them",
+      fact: "A startled leopard frog leaps in zig-zags away from the water instead of towards it \u2014 and the second it lands in long grass those big dark spots break its outline up and it vanishes.",
+      role: "The frog that leaves the pond. It spends the whole summer hunting insects out in damp meadow and only hops back to the water in autumn, which is why a marsh mown right to the waterline loses its leopard frogs first.",
+      eats: [
+        "dragonfly",
+        "water-strider"
+      ],
       eatsOther: [
-        "aquatic plants",
-        "insects",
+        "beetles",
+        "flies",
+        "spiders",
         "worms"
       ],
-      sources: [
-        {
-          name: "Animal Diversity Web - Clemmys guttata",
-          url: "https://animaldiversity.org/accounts/Clemmys_guttata/"
-        },
-        {
-          name: "U.S. Fish & Wildlife Service - Spotted Turtle",
-          url: "https://www.fws.gov/species/spotted-turtle-clemmys-guttata"
-        }
-      ]
-    },
-    {
-      id: "common-yellowthroat",
-      name: "Common Yellowthroat",
-      biome: "wetland",
-      kind: "bird",
-      rarity: "common",
-      diet: "Insects and spiders gleaned from low vegetation",
-      shelter: "Bulky grass cups low in cattails and sedges",
-      preferredHabitat: "Thick marsh vegetation",
-      fact: "The male's black bandit mask is a signal that rivals will attack on sight.",
-      requirements: {
-        minHealth: 40,
-        objects: {
-          "cattail-stand": 1,
-          "reed-bed": 2
-        },
-        hint: "A cattail stand among thick reed beds."
-      },
-      scientificName: "Geothlypis trichas",
-      role: "A masked marsh warbler that gleans insects and spiders from dense low cover. It skulks through cattails and briars in search of prey.",
-      trophic: "insectivore",
-      eatsOther: [
-        "insects"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds - Common Yellowthroat",
-          url: "https://www.allaboutbirds.org/guide/Common_Yellowthroat/lifehistory"
-        }
-      ]
-    },
-    {
-      id: "chuckwalla",
-      name: "Chuckwalla",
-      biome: "desert",
-      kind: "reptile",
-      rarity: "uncommon",
-      diet: "Desert flowers, leaves, and fruit",
-      shelter: "Rock crevices",
-      preferredHabitat: "Boulder piles near brush",
-      fact: "A threatened chuckwalla wedges into a crack and inflates its lungs to lock itself in.",
-      requirements: {
-        minHealth: 40,
-        objects: {
-          "rock-crevice": 1,
-          "cactus-patch": 1,
-          "desert-brush": 1,
-          "sunstone-cairn": 1
-        },
-        hint: "A rock crevice to wedge into, with cactus and brush to graze \u2014 and a sun-warmed cairn to bask on."
-      },
-      scientificName: "Sauromalus ater",
-      role: "A large herbivorous lizard that grazes desert leaves, flowers, and fruit among boulders. It is a plant-eater and prey for hawks, kestrels, coyotes, and rattlesnakes. Its lung-inflation defense locks it into crevices.",
-      trophic: "herbivore",
       eatenBy: [
-        "coyote",
-        "rattlesnake"
-      ],
-      eatsOther: [
-        "flowers",
-        "leaves"
-      ],
-      sources: [
+        "great-blue-heron",
+        "mink",
+        "river-otter",
+        "snapping-turtle",
         {
-          name: "Animal Diversity Web \u2014 Sauromalus ater",
-          url: "https://animaldiversity.org/accounts/Sauromalus_ater/"
+          id: "dragonfly",
+          stage: "young"
         }
-      ]
-    },
-    {
-      id: "phainopepla",
-      name: "Phainopepla",
-      biome: "desert",
-      kind: "bird",
-      rarity: "uncommon",
-      diet: "Mistletoe berries and flying insects",
-      shelter: "Tall desert brush",
-      preferredHabitat: "Brushy desert with water nearby",
-      fact: "The phainopepla is desert mistletoe's key seed disperser; the two depend on each other.",
+      ],
       requirements: {
         minHealth: 46,
         objects: {
-          "desert-brush": 2,
-          "dew-basin": 1
+          "wet-meadow-margin": 2,
+          "lily-pool": 1,
+          "marsh-marigold": 1
         },
-        hint: "Dense desert brush beside a dew basin."
-      },
-      scientificName: "Phainopepla nitens",
-      role: "A glossy desert songbird whose winter diet is mostly desert mistletoe berries, plus insects caught on the wing. It is a crucial mistletoe seed disperser and a fruit-and-insect omnivore. Snakes and raptors prey on it.",
-      trophic: "omnivore",
-      eatsOther: [
-        "insects",
-        "mistletoe berries"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds \u2014 Phainopepla",
-          url: "https://www.allaboutbirds.org/guide/Phainopepla/lifehistory"
-        },
-        {
-          name: "Audubon \u2014 Phainopepla",
-          url: "https://www.audubon.org/field-guide/bird/phainopepla"
-        }
-      ]
-    },
-    {
-      id: "antelope-squirrel",
-      name: "Antelope Squirrel",
-      biome: "desert",
-      kind: "mammal",
-      rarity: "common",
-      diet: "Seeds, fruit, greens, and insects",
-      shelter: "Burrows and rock cracks",
-      preferredHabitat: "Open desert with burrows",
-      fact: "It carries its tail arched over its back like a parasol to shade itself from the sun.",
-      requirements: {
-        minHealth: 38,
-        objects: {
-          "burrow-mound": 1,
-          "desert-brush": 1,
-          "rock-crevice": 1
-        },
-        hint: "A burrow and a rock crevice among desert brush."
-      },
-      scientificName: "Ammospermophilus leucurus",
-      role: "A diurnal, heat-tolerant omnivore that eats seeds, greens, fruit, and insects even in midday heat. It is prey for hawks, foxes, bobcats, and snakes. It shades itself with its tail and dumps heat on cool ground.",
-      trophic: "omnivore",
-      eatenBy: [
-        "coyote",
-        "kit-fox",
-        "rattlesnake"
-      ],
-      eatsOther: [
-        "cactus fruit",
-        "insects",
-        "seeds"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web \u2014 Ammospermophilus leucurus",
-          url: "https://animaldiversity.org/accounts/Ammospermophilus_leucurus/"
-        },
-        {
-          name: "NPS Mojave \u2014 White-tailed Antelope Squirrel",
-          url: "https://www.nps.gov/moja/learn/nature/white-tailed-antelope-ground-squirrel.htm"
-        }
-      ]
-    },
-    {
-      id: "alpine-chipmunk",
-      name: "Alpine Chipmunk",
-      biome: "alpine",
-      kind: "mammal",
-      rarity: "common",
-      diet: "Seeds of sedges, forbs, and grasses, plus berries, fungi, pine seeds, and eggs",
-      shelter: "Nests deep in crevices between talus rocks and boulders",
-      preferredHabitat: "High talus slopes and rocky meadows of the Sierra Nevada",
-      fact: "It ranges higher than almost any other chipmunk, up to 3,900 meters.",
-      requirements: {
-        minHealth: 40,
-        objects: {
-          "talus-pile": 1,
-          "alpine-wildflower-patch": 1,
-          "rock-pile": 1
-        },
-        hint: "A talus pile and rock pile among alpine wildflowers."
-      },
-      scientificName: "Tamias alpinus",
-      role: "A tiny, high-altitude seed-eater that caches seeds and helps disperse alpine plants across the talus. It also raids the eggs of rosy-finches and sparrows. Foxes, weasels, martens, and raptors all hunt it, tying it into the predator web.",
-      trophic: "herbivore",
-      eatenBy: [
-        "ermine",
-        "fox-alpine",
-        "golden-eagle",
-        "pine-marten"
-      ],
-      eatsOther: [
-        "alpine plants",
-        "berries",
-        "fungi",
-        "nuts",
-        "seeds"
-      ],
-      sources: [
-        {
-          name: "Animal Diversity Web - Tamias alpinus",
-          url: "https://animaldiversity.org/accounts/Tamias_alpinus/"
-        },
-        {
-          name: "IUCN Red List - Tamias alpinus",
-          url: "https://www.iucnredlist.org/species/42568/22268290"
-        }
-      ]
-    },
-    {
-      id: "white-crowned-sparrow",
-      name: "White-crowned Sparrow",
-      biome: "alpine",
-      kind: "bird",
-      rarity: "common",
-      diet: "Mainly weed and grass seeds, plus caterpillars, beetles, and other insects",
-      shelter: "Ground or low-shrub cup nest among mosses, lichens, and heath",
-      preferredHabitat: "Krummholz edges, alpine meadows, and heath with bare ground",
-      fact: "Young white-crowns learn their song dialect from the neighbours nearby.",
-      requirements: {
-        minHealth: 48,
-        objects: {
-          "heather-mat": 1,
-          "alpine-nest-shelf": 1,
-          "krummholz-pine": 1
-        },
-        hint: "A heather mat and nest shelf sheltered by krummholz pine."
-      },
-      scientificName: "Zonotrichia leucophrys",
-      role: "A ground-foraging sparrow of alpine meadow and krummholz edges that eats seeds and summer insects. It disperses seeds and feeds insect larvae to its chicks. Foxes, weasels, and martens hunt the adults and raid its low nests.",
-      trophic: "omnivore",
-      eatenBy: [
-        "ermine",
-        "fox-alpine",
-        "pine-marten"
-      ],
-      eatsOther: [
-        "berries",
-        "insects",
-        "seeds"
-      ],
-      sources: [
-        {
-          name: "Cornell Lab All About Birds - White-crowned Sparrow",
-          url: "https://www.allaboutbirds.org/guide/White-crowned_Sparrow/lifehistory"
-        },
-        {
-          name: "Audubon Field Guide - White-crowned Sparrow",
-          url: "https://www.audubon.org/field-guide/bird/white-crowned-sparrow"
-        }
-      ]
-    },
-    {
-      id: "cascades-frog",
-      name: "Cascades Frog",
-      biome: "alpine",
-      kind: "amphibian",
-      rarity: "rare",
-      diet: "An aquatic and semiaquatic insectivore, taking insects and spiders",
-      shelter: "Snowmelt ponds and lakes; hibernates in soil under lake bottoms",
-      preferredHabitat: "Cold high-country ponds and streams near coniferous forest",
-      fact: "It stays active in near-freezing snowmelt water and basks on wet rocks.",
-      requirements: {
-        minHealth: 52,
-        objects: {
-          "snowmelt-pool": 1,
-          "talus-pile": 1
-        },
+        signature: "wet-meadow-margin",
         water: {
           tiles: 3
         },
-        hint: "A snowmelt pool beside a talus pile, with open water near.",
+        hint: "A lily pool to breed in and a wide band of damp meadow beside it to spend the whole summer hunting in."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Lithobates pipiens",
+          url: "https://animaldiversity.org/accounts/Lithobates_pipiens/"
+        },
+        {
+          name: "National Park Service \u2014 Northern Leopard Frog",
+          url: "https://www.nps.gov/articles/northern-leopard-frog.htm"
+        }
+      ],
+      biome: "wetland"
+    },
+    {
+      id: "marsh-wren",
+      name: "Marsh Wren",
+      scientificName: "Cistothorus palustris",
+      kind: "bird",
+      trophic: "insectivore",
+      rarity: "common",
+      diet: "Insects and spiders picked from marsh stems",
+      shelter: "Woven dome nests lashed among cattails and bulrushes",
+      preferredHabitat: "Cattail and bulrush stands over water",
+      fact: "A male marsh wren builds up to a dozen empty practice nests for one female to come and inspect \u2014 and while he is at it he will sneak into a neighbour's nest and punch holes in the eggs.",
+      role: "A thumb-sized bird with an enormous attitude. It runs up and down reed stems picking off spiders and insects, stitches hanging ball nests between the stiff stalks, and robs the eggs of anything that nests too close.",
+      eats: [
+        {
+          id: "red-winged-blackbird",
+          stage: "eggs"
+        }
+      ],
+      eatsOther: [
+        "insects",
+        "spiders"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 44,
+        objects: {
+          bulrush: 2,
+          "cattail-stand": 2,
+          "reed-bed": 1
+        },
+        signature: "bulrush",
+        water: {
+          tiles: 2
+        },
+        hint: "Bulrush and cattail standing in water \u2014 stiff stems a wren can weave a hanging ball nest between."
+      },
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Marsh Wren life history",
+          url: "https://www.allaboutbirds.org/guide/Marsh_Wren/lifehistory"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Cistothorus palustris",
+          url: "https://animaldiversity.org/accounts/Cistothorus_palustris/"
+        }
+      ],
+      biome: "wetland"
+    },
+    {
+      id: "snapping-turtle",
+      name: "Snapping Turtle",
+      scientificName: "Chelydra serpentina",
+      kind: "reptile",
+      trophic: "scavenger",
+      rarity: "uncommon",
+      diet: "Carrion, fish, crayfish, aquatic plants and almost anything else it can catch",
+      shelter: "Muddy pond bottoms; females travel overland to sandy banks to nest",
+      preferredHabitat: "Deep still water with a soft mud bottom and a sandy rise to nest on",
+      fact: "A snapping turtle is too big to pull into its own shell, so it does not bother trying. Underwater it is calm and shy and will swim away from you \u2014 the famous snap only comes out when it is stranded on dry land with nowhere left to hide.",
+      role: "The marsh's bulldozer and its clean-up crew, walking the bottom eating carrion, plants, fish and the occasional duckling. Grown adults are almost untouchable; it is the eggs everything digs up, which is why one good nest bank matters more than any single old turtle.",
+      eats: [
+        "freshwater-fish",
+        "crayfish",
+        "northern-leopard-frog",
+        {
+          id: "mallard-duck",
+          stage: "young"
+        },
+        "river-cooter"
+      ],
+      eatsOther: [
+        "aquatic plants",
+        "carrion"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 58,
+        objects: {
+          "sandy-nest-bank": 1,
+          "mud-bank": 1,
+          "beaver-pond": 1,
+          "marsh-log": 1
+        },
+        signature: "sandy-nest-bank",
+        water: {
+          lake: 5
+        },
+        animals: [
+          "freshwater-fish"
+        ],
+        hint: "Deep still water with a soft bottom, plus a warm sandy rise above the waterline for the females to dig their nests in."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Chelydra serpentina",
+          url: "https://animaldiversity.org/accounts/Chelydra_serpentina/"
+        },
+        {
+          name: "Ontario Nature \u2014 Snapping Turtle",
+          url: "https://ontarionature.org/programs/community-science/reptile-amphibian-atlas/snapping-turtle/"
+        }
+      ],
+      biome: "wetland",
+      aquatic: true
+    },
+    {
+      id: "belted-kingfisher",
+      name: "Kingfisher",
+      scientificName: "Megaceryle alcyon",
+      kind: "bird",
+      trophic: "mesopredator",
+      rarity: "uncommon",
+      diet: "Small fish and crayfish",
+      shelter: "Tunnel burrows dug a metre or more into bare earthen banks",
+      preferredHabitat: "Clear water with a bare vertical bank beside it and perches overhead",
+      fact: "A kingfisher shuts its eyes just before it hits the water, so the last part of the dive is flown blind from memory. Then it whacks the fish against a branch and swallows it head-first so the fins fold the right way.",
+      role: "The rattling plunge-diver of the marsh, and one of the rare birds where the female is the flashier of the pair. It digs its own nest tunnel a metre back into a bare earth bank, so a marsh stuffed with fish but with no raw bank still gets no kingfishers.",
+      eats: [
+        "freshwater-fish",
+        "crayfish"
+      ],
+      eatsOther: [],
+      eatenBy: [],
+      requirements: {
+        minHealth: 62,
+        objects: {
+          "cut-bank-burrow": 1,
+          "mud-bank": 1,
+          "beaver-pond": 1
+        },
+        signature: "cut-bank-burrow",
+        water: {
+          tiles: 5
+        },
+        animals: [
+          "freshwater-fish",
+          "crayfish"
+        ],
+        hint: "Clear open water to dive into and a bare vertical earth bank to tunnel into. A nest box is no use to a bird that digs its own."
+      },
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Belted Kingfisher life history",
+          url: "https://www.allaboutbirds.org/guide/Belted_Kingfisher/lifehistory"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Megaceryle alcyon",
+          url: "https://animaldiversity.org/accounts/Megaceryle_alcyon/"
+        }
+      ],
+      biome: "wetland"
+    },
+    {
+      id: "hooded-merganser",
+      name: "Merganser",
+      scientificName: "Lophodytes cucullatus",
+      kind: "bird",
+      trophic: "mesopredator",
+      rarity: "uncommon",
+      diet: "Small fish, crayfish, dragonfly nymphs and other aquatic insects",
+      shelter: "Tree cavities in standing dead timber over or beside water",
+      preferredHabitat: "Quiet ponds with drowned standing trees",
+      fact: "Merganser ducklings jump out of a tree hole up to fifteen metres above the ground the day after they hatch, bounce off the leaf litter unhurt, and are diving for their own food within a day of landing.",
+      role: "A tiny diving duck with a fold-out white fan on its head, a saw-edged bill for gripping slippery fish, and a clear third eyelid it wears like swimming goggles. It nests in holes in drowned trees, which makes a beaver pond exactly its sort of place.",
+      eats: [
+        "freshwater-fish",
+        "crayfish",
+        {
+          id: "dragonfly",
+          stage: "young"
+        }
+      ],
+      eatsOther: [],
+      eatenBy: [
+        "bald-eagle",
+        {
+          id: "mink",
+          stage: "young"
+        }
+      ],
+      requirements: {
+        minHealth: 52,
+        objects: {
+          "alder-snag": 2,
+          "beaver-pond": 1,
+          "duck-nest-box": 1
+        },
+        signature: "alder-snag",
+        water: {
+          tiles: 4
+        },
+        animals: [
+          "freshwater-fish",
+          "crayfish"
+        ],
+        hint: "A beaver pond with dead trees still standing in it. The hen wants a hole in a drowned alder \u2014 a nest box is only a stand-in."
+      },
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Hooded Merganser life history",
+          url: "https://www.allaboutbirds.org/guide/Hooded_Merganser/lifehistory"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Lophodytes cucullatus",
+          url: "https://animaldiversity.org/accounts/Lophodytes_cucullatus/"
+        }
+      ],
+      biome: "wetland"
+    },
+    {
+      id: "pillbug",
+      name: "Pillbug",
+      scientificName: "Armadillidium vulgare",
+      kind: "invertebrate",
+      trophic: "detritivore",
+      rarity: "common",
+      diet: "Dead leaves, rotting wood, grass thatch and fungal threads; also droppings and old bones for minerals",
+      shelter: "Hides by day under crumbling logs, flat stones and deep litter, where the air stays damp",
+      preferredHabitat: "Shaded, damp corners of meadow with rotting wood and a thick layer of dead plant litter",
+      fact: "A pillbug is not an insect at all \u2014 it's a crustacean, closer kin to a crab than to a beetle, and it still breathes through gill-like flaps that have to stay wet.",
+      role: "Pillbugs work the night shift under logs and thatch, shredding dead leaves and soft rotten wood into crumbs small enough for fungi and bacteria to finish off. That shredding is the first step in turning last year's meadow into next year's soil. Garter snakes and killdeer hunt them, so the recycling crew feeds upward as well as downward.",
+      eats: [],
+      eatsOther: [
+        "dead leaves",
+        "rotting wood",
+        "grass thatch",
+        "droppings"
+      ],
+      eatenBy: [
+        "garter-snake-meadow"
+      ],
+      requirements: {
+        minHealth: 12,
+        objects: {
+          "rotting-log-crumble": 1,
+          "fallen-branch-shelter": 1,
+          "native-grass-patch": 1
+        },
+        signature: "rotting-log-crumble",
+        water: {
+          tiles: 1
+        },
+        hint: "Damp, dark and rotting is the whole recipe \u2014 a crumbling log, deep thatch, and ground that never dries right out. Roll one over and it curls into a ball."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Armadillidium vulgare",
+          url: "https://animaldiversity.org/accounts/Armadillidium_vulgare/"
+        },
+        {
+          name: "UF/IFAS Featured Creatures \u2014 pillbug",
+          url: "https://entnemdept.ufl.edu/creatures/misc/pillbug.htm"
+        }
+      ],
+      biome: "meadow"
+    },
+    {
+      id: "garden-spider",
+      name: "Garden Spider",
+      scientificName: "Argiope aurantia",
+      kind: "invertebrate",
+      trophic: "insectivore",
+      rarity: "common",
+      diet: "Flying and jumping insects caught in the web \u2014 grasshoppers, bees, flies, moths",
+      shelter: "Hangs head-down at the hub of its own orb web, slung between tall standing stems",
+      preferredHabitat: "Sunny meadow with tall stiff vegetation left standing and plenty of flying insects",
+      fact: "This spider takes down most of its web every night and eats the old silk to build the next one \u2014 and it stitches a bold white zigzag through the middle that nobody has fully explained yet.",
+      role: "The meadow's trapper. It slings a wheel of silk wider than your hand between tall stems and waits head-down at the hub for grasshoppers, bees and flies to blunder in. Spiders are the largest predator group in any grassland and the biggest single thing missing from this meadow until now \u2014 they eat enormous numbers of insects, and they are in turn the main food of half the songbirds here.",
+      eats: [
+        "bumblebee",
+        "grasshopper",
+        "lady-beetle"
+      ],
+      eatsOther: [
+        "flies",
+        "moths",
+        "wasps"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 26,
+        objects: {
+          "orb-web-anchor-stems": 1,
+          "wildflower-patch": 1,
+          "native-grass-patch": 1
+        },
+        signature: "orb-web-anchor-stems",
+        hint: "Tall stiff stems left standing, spaced far enough apart to sling a big web between them, with flowers close by to bring the insects in."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Argiope aurantia",
+          url: "https://animaldiversity.org/accounts/Argiope_aurantia/"
+        },
+        {
+          name: "UF/IFAS Featured Creatures \u2014 yellow garden spider",
+          url: "https://entnemdept.ufl.edu/creatures/urban/spiders/Argiope_aurantia.htm"
+        }
+      ],
+      biome: "meadow"
+    },
+    {
+      id: "big-brown-bat",
+      name: "Brown Bat",
+      scientificName: "Eptesicus fuscus",
+      kind: "mammal",
+      trophic: "insectivore",
+      rarity: "uncommon",
+      diet: "Night-flying insects, especially beetles, plus moths, flying ants and midges",
+      shelter: "Roosts by day in warm dark spaces \u2014 barn lofts, attics, and under loose bark; hibernates in cold cracks",
+      preferredHabitat: "Open meadow and hedgerow airspace to hunt over, with still water to drink from and a warm roost nearby",
+      fact: "A big brown bat finds a moth in total darkness by shouting and listening to the echo \u2014 and it can pick out something no thicker than a pencil lead this way.",
+      role: "The night shift over the meadow. Big brown bats work the air above the grass and along the hedgerows after sunset, catching beetles, moths and flying ants; one bat can put away thousands of insects in a single night. They drink on the wing, dipping their jaws into still water without stopping, and mothers gather in warm roosts to raise pups together. Great horned owls catch them at dusk.",
+      eats: [
+        "praying-mantis"
+      ],
+      eatsOther: [
+        "beetles",
+        "moths",
+        "flying ants",
+        "midges"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 50,
+        objects: {
+          "bat-maternity-roost": 1,
+          "small-pond": 1,
+          "oak-tree": 1
+        },
+        signature: "bat-maternity-roost",
+        water: {
+          tiles: 2
+        },
         conditions: {
-          weather: [
-            "rain"
-          ],
+          dayPhase: [
+            "dusk",
+            "night"
+          ]
+        },
+        hint: "A warm crevice to raise pups in, insects in the air above the grass, and calm open water it can skim a drink from without landing."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Eptesicus fuscus",
+          url: "https://animaldiversity.org/accounts/Eptesicus_fuscus/"
+        },
+        {
+          name: "Bat Conservation International \u2014 Big Brown Bat",
+          url: "https://www.batcon.org/bat/eptesicus-fuscus/"
+        }
+      ],
+      biome: "meadow"
+    },
+    {
+      id: "barn-owl",
+      name: "Barn Owl",
+      scientificName: "Tyto furcata",
+      kind: "bird",
+      trophic: "apex-predator",
+      rarity: "rare",
+      diet: "Almost entirely small mammals under about 100 grams \u2014 voles, mice and shrews",
+      shelter: "Nests and roosts in a dark high cavity: a barn loft, a hollow tree, or a large nest box. Builds nothing itself",
+      preferredHabitat: "Wide open grassland to hunt over, with a dark cavity above ground to sleep and nest in",
+      fact: "A barn owl can catch a mouse in complete darkness by sound alone. One ear sits higher than the other, so it hears in three dimensions \u2014 and the fringed edges of its wings mean the mouse never hears it coming.",
+      role: "The meadow works a night shift, and the barn owl runs it. While the hawk and the coyote hunt by daylight, this one quarters the same grass in the dark on silent wings, living almost entirely on voles \u2014 a single family can take well over a thousand of them in a year. Nothing here hunts the barn owl back.",
+      eats: [
+        "meadow-vole",
+        {
+          id: "cottontail-rabbit",
+          stage: "young"
+        }
+      ],
+      eatsOther: [
+        "mice",
+        "shrews",
+        "pocket gophers"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 60,
+        objects: {
+          "barn-loft-nest-box": 1,
+          "native-grass-patch": 2,
+          "bird-perch": 1
+        },
+        signature: "barn-loft-nest-box",
+        animals: [
+          "meadow-vole"
+        ],
+        conditions: {
+          dayPhase: [
+            "dusk",
+            "night"
+          ]
+        },
+        hint: "A dark loft or a deep box up off the ground, wide grass to quarter over, and a meadow already full of voles. Owls take their water from their prey."
+      },
+      sources: [
+        {
+          name: "Cornell All About Birds \u2014 American Barn Owl",
+          url: "https://www.allaboutbirds.org/guide/American_Barn_Owl/lifehistory"
+        },
+        {
+          name: "American Ornithological Society \u2014 65th Supplement to the Check-list",
+          url: "https://americanornithology.org/publications/north-and-middle-american-checklist/"
+        }
+      ],
+      biome: "meadow"
+    },
+    {
+      id: "coyote",
+      name: "Mountain Lion",
+      scientificName: "Puma concolor",
+      kind: "mammal",
+      trophic: "apex-predator",
+      rarity: "rare",
+      diet: "Deer and wild sheep mostly, plus jackrabbits, foxes and anything else it can get close enough to",
+      shelter: "No fixed home; the kittens are hidden in a dry cave or overhang in a canyon wall",
+      preferredHabitat: "Broken canyon country with ledges, boulders and brush to stalk through, and somewhere reliable to drink",
+      fact: "The biggest cat out here cannot roar. It purrs like a house cat, screams like something out of a nightmare, and can jump five metres straight up onto a ledge from standing.",
+      role: "The top of the desert food chain and a pure ambush hunter \u2014 it does not chase things down, it gets close and then explodes. Because it kills by stalking, it needs broken ground and brush to hide in; out on the open flat it goes hungry. It drags a big kill into cover and buries it under sticks and sand to come back to for days, which quietly feeds ravens, foxes and half the beetles in the wash. Kittens spend their first weeks tucked into a cave in a canyon wall, and nothing out here hunts a grown lion.",
+      eats: [
+        "jackrabbit",
+        "kit-fox",
+        "antelope-squirrel",
+        "javelina"
+      ],
+      eatsOther: [
+        "mule deer",
+        "wild sheep",
+        "javelina",
+        "porcupines",
+        "carrion"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 75,
+        water: {
+          tiles: 1
+        },
+        objects: {
+          "canyon-ledge-den": 1,
+          "rock-pile": 2,
+          "mesquite-tree": 1,
+          "dew-basin": 1
+        },
+        signature: "canyon-ledge-den",
+        animals: [
+          "jackrabbit",
+          "kit-fox"
+        ],
+        hint: "Big prey first, then rough broken ground to stalk through and a sheltered overhang for the kittens. Unlike most things out here it does come down to drink. It is the last animal to come back."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Puma concolor",
+          url: "https://animaldiversity.org/accounts/Puma_concolor/"
+        },
+        {
+          name: "Arizona-Sonora Desert Museum \u2014 Mountain Lion",
+          url: "https://www.desertmuseum.org/kids/oz/long-fact-sheets/Mountain%20Lion.php"
+        }
+      ],
+      biome: "desert"
+    },
+    {
+      id: "garden-snail",
+      name: "Snail",
+      biome: "meadow",
+      kind: "invertebrate",
+      rarity: "common",
+      featured: false,
+      trophic: "detritivore",
+      diet: "Dead leaves, soft rotting stems, and the algae film on damp stones",
+      shelter: "Seals itself to the underside of a damp log or stone and waits out dry weather",
+      preferredHabitat: "Shady, damp corners with leaf litter and something chalky to rasp at",
+      fact: "A snail carries its own house and can shut the door behind it \u2014 when things get dry it glues itself to a stone and sleeps until it rains, sometimes for months.",
+      role: "Snails are the meadow's slow recyclers. They shred fallen leaves into crumbs that fungi and soil life can finish off, and their shells give calcium back to the ground when they die.",
+      eats: [],
+      eatsOther: [
+        "dead leaves",
+        "rotting stems",
+        "algae film",
+        "fungi"
+      ],
+      eatenBy: [
+        "garter-snake-meadow",
+        "american-badger"
+      ],
+      requirements: {
+        minHealth: 8,
+        objects: {
+          "damp-leaf-corner": 1,
+          "brush-pile": 1
+        },
+        signature: "damp-leaf-corner",
+        hint: "A shady damp corner where leaves are allowed to pile up and rot. Snails want the mess, not the tidy bit."
+      },
+      scientificName: "Cepaea nemoralis",
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Cepaea nemoralis",
+          url: "https://animaldiversity.org/accounts/Cepaea_nemoralis/"
+        }
+      ]
+    },
+    {
+      id: "mountain-goat",
+      name: "Mountain Goat",
+      scientificName: "Oreamnos americanus",
+      kind: "mammal",
+      trophic: "herbivore",
+      rarity: "rare",
+      diet: "Grasses, sedges and alpine forbs in summer; lichen, moss and shrub twigs scraped off rock in winter",
+      shelter: "Beds scraped out on narrow cliff ledges and in shallow caves under overhangs",
+      preferredHabitat: "The steepest broken cliff and ledge ground above the treeline, with turf to graze and a mineral seep within reach",
+      fact: "A mountain goat's hooves split apart as it steps, gripping stone like the rubber on climbing shoes, and it will sleep on a ledge no wider than a doormat with a 300-metre drop underneath it.",
+      role: "The white climber of the high cliffs, grazing turf and lichen and then retreating onto ground so steep that almost nothing can follow. That is the whole trick: goats live where other big grazers simply cannot go. They will walk for hours to a mineral lick and shove each other around at it. Mountain lions are the real threat, while eagles and wolverines take kids. In some ranges goats are native and in others people brought them in, so a white goat on a skyline is not always a local.",
+      eats: [],
+      eatsOther: [
+        "alpine grasses",
+        "sedges",
+        "mosses",
+        "shrub twigs"
+      ],
+      eatenBy: [
+        "golden-eagle",
+        "wolverine"
+      ],
+      requirements: {
+        minHealth: 74,
+        objects: {
+          "goat-cliff-ledge": 2,
+          "alpine-mineral-lick": 1,
+          "alpine-turf-mat": 2,
+          "scree-slope": 1
+        },
+        signature: "goat-cliff-ledge",
+        water: {
+          tiles: 1
+        },
+        hint: "Steeper is better. Give it cliff ledges to bed on, turf to graze between them, and a mineral lick, because goats will travel for hours to eat salty ground. Do not expect one out on the open flats."
+      },
+      sources: [
+        {
+          name: "ADW \u2014 Oreamnos americanus",
+          url: "https://animaldiversity.org/accounts/Oreamnos_americanus/"
+        },
+        {
+          name: "NPS \u2014 Mountain Goat",
+          url: "https://www.nps.gov/glac/learn/nature/mountain-goats.htm"
+        }
+      ],
+      biome: "alpine"
+    },
+    {
+      id: "wolverine",
+      name: "Wolverine",
+      scientificName: "Gulo gulo",
+      kind: "mammal",
+      trophic: "apex-predator",
+      rarity: "rare",
+      diet: "Marmots, hares and ptarmigan when it can catch them, frozen carcasses when it cannot, and berries in late summer",
+      shelter: "Tunnels dug metres down into deep spring drifts, usually around a fallen boulder or log, with food stored in side chambers",
+      preferredHabitat: "Big, empty, high country with talus and broken rock, and snow that lasts into late spring",
+      fact: "A wolverine can smell a dead animal buried under three metres of snow, dig it out, and then drive a bear off it, all in a body about the size of a small dog.",
+      role: "The largest weasel in the world and the mountain's great scavenger, now the top hunter on these peaks. It roams enormous distances, kills marmots, hares and ptarmigan when it gets the chance and lives off frozen carcasses when it does not, cracking frozen bone with jaws built for exactly that. Snow is its refrigerator: it stores food in drifts and dens deep inside them, so a female can only raise kits where the snowpack holds into late spring. That makes it the first animal to go when winters get short \u2014 and nothing up here is willing to argue with it over a carcass.",
+      eats: [
+        "marmot",
+        "snowshoe-hare",
+        "ptarmigan",
+        "pika",
+        {
+          id: "mountain-goat",
+          stage: "young"
+        }
+      ],
+      eatsOther: [
+        "carrion",
+        "frozen carcasses",
+        "ground squirrels",
+        "berries"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 76,
+        objects: {
+          "deep-snow-den": 1,
+          "talus-pile": 2,
+          "scree-slope": 2,
+          "subalpine-fir": 1
+        },
+        signature: "deep-snow-den",
+        animals: [
+          "marmot",
+          "snowshoe-hare"
+        ],
+        water: {
+          tiles: 1
+        },
+        hint: "Wolverines need space and snow, not scenery. Give it drifts deep enough to last into late spring for the den and the larder, broken rock to travel through, and marmots and hares already on the mountain. It is the last of the hunters to arrive."
+      },
+      sources: [
+        {
+          name: "ADW \u2014 Gulo gulo",
+          url: "https://animaldiversity.org/accounts/Gulo_gulo/"
+        },
+        {
+          name: "USFWS \u2014 North American wolverine",
+          url: "https://www.fws.gov/species/north-american-wolverine-gulo-gulo-luscus"
+        }
+      ],
+      biome: "alpine"
+    },
+    {
+      id: "sea-turtle",
+      name: "Sea Turtle",
+      scientificName: "Chelonia mydas",
+      kind: "reptile",
+      trophic: "herbivore",
+      rarity: "rare",
+      diet: "Seagrass above all \u2014 eelgrass and surfgrass \u2014 plus sea lettuce and other soft algae",
+      shelter: "Sleeps wedged under ledges or resting on quiet sand and gravel bottom between grazing trips",
+      preferredHabitat: "Warm summer water in a sheltered bay with seagrass meadows to graze",
+      fact: "Adult green sea turtles are the only sea turtles that eat plants, and their jaws are serrated like bread knives for sawing through seagrass. They crop the same patch again and again, which keeps it short and tender \u2014 a turtle basically mows a lawn on the seafloor.",
+      role: "A summer visitor that swims in from warmer water to eat, not to nest \u2014 no turtle lays eggs on a cool coast like this one. Grazing adults keep the seagrass cropped and growing fresh instead of going long and shaggy, and they are the only animal here besides the brant that eats a seagrass meadow for a living.",
+      eats: [],
+      eatsOther: [
+        "eelgrass",
+        "sea lettuce",
+        "soft red algae"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 68,
+        objects: {
+          "eelgrass-grazing-lawn": 2,
+          "surfgrass-bed": 1,
+          "protected-sand-gravel-flat": 1
+        },
+        signature: "eelgrass-grazing-lawn",
+        water: {
+          ocean: 8,
+          deep: true
+        },
+        hint: "This one comes for the grazing, not the sand, so do not build it a nest beach. Warm summer water, a cropped grazing lawn out in the eelgrass, and quiet bottom to sleep on between meals.",
+        conditions: {
           season: [
-            "spring",
             "summer"
           ]
         }
       },
-      scientificName: "Rana cascadae",
-      role: "A cold-adapted mountain frog that eats insects and spiders while its tadpoles graze algae in snowmelt pools. It links pond invertebrates to larger predators. Introduced trout eat its tadpoles, driving steep declines across its southern range.",
-      trophic: "insectivore",
-      eatenBy: [
-        "fox-alpine",
-        "snowmelt-trout"
-      ],
-      eatsOther: [
-        "aquatic insects",
-        "insects",
-        "spiders"
-      ],
       sources: [
         {
-          name: "Animal Diversity Web - Rana cascadae",
-          url: "https://animaldiversity.org/accounts/Rana_cascadae/"
+          name: "NOAA Fisheries \u2014 Green Turtle",
+          url: "https://www.fisheries.noaa.gov/species/green-turtle"
         },
         {
-          name: "IUCN Red List - Rana cascadae",
-          url: "https://www.iucnredlist.org/species/19176/78907070"
+          name: "Animal Diversity Web \u2014 Chelonia mydas",
+          url: "https://animaldiversity.org/accounts/Chelonia_mydas/"
         }
-      ]
+      ],
+      biome: "coastal",
+      ocean: true
     },
     {
-      id: "black-turnstone",
-      name: "Black Turnstone",
-      biome: "coastal",
-      kind: "bird",
-      rarity: "common",
-      diet: "Barnacles, limpets, mussels, and small invertebrates",
-      shelter: "Rocky shoreline and beach wrack",
-      preferredHabitat: "Rocky intertidal shores",
-      fact: "Turnstones flip over stones and shells to snatch the creatures hiding beneath.",
-      requirements: {
-        minHealth: 40,
-        objects: {
-          tidepool: 1,
-          "driftwood-pile": 1,
-          "kelp-wrack": 1
-        },
-        hint: "Tidepools and kelp wrack with a driftwood pile to shelter in."
-      },
-      scientificName: "Arenaria melanocephala",
-      role: "A rocky-shore forager that pries barnacles and limpets loose and flips wrack to find hidden prey. It helps keep intertidal invertebrate numbers in check and depends on rich rocky shores.",
-      trophic: "insectivore",
-      eats: [
-        "hermit-crab",
-        "mussel",
-        "purple-shore-crab",
-        "tidepool-crab"
-      ],
-      eatsOther: [
-        "barnacles",
-        "mussels"
-      ],
-      sources: [
-        {
-          name: "All About Birds - Black Turnstone Life History",
-          url: "https://www.allaboutbirds.org/guide/Black_Turnstone/lifehistory"
-        }
-      ]
-    },
-    {
-      id: "pigeon-guillemot",
-      name: "Pigeon Guillemot",
-      biome: "coastal",
-      kind: "bird",
+      id: "bottlenose-dolphin",
+      name: "Bottlenose Dolphin",
+      scientificName: "Tursiops truncatus",
+      kind: "mammal",
+      trophic: "mesopredator",
       rarity: "uncommon",
-      diet: "Small fish, plus crabs, worms, and mollusks",
-      shelter: "Bluff and rock crevices above water",
-      preferredHabitat: "Rocky nesting bluffs over clear water",
-      fact: "Pigeon guillemots have bright coral-red feet and matching mouth linings.",
-      requirements: {
-        minHealth: 52,
-        objects: {
-          "nesting-bluff": 1,
-          "oyster-bed": 1
-        },
-        water: {
-          tiles: 4
-        },
-        hint: "A nesting bluff above open water near an oyster bed."
-      },
-      scientificName: "Cepphus columba",
-      role: "A diving seabird that chases small fish and pries invertebrates from crevices near the seafloor. It nests in rocky bluffs and depends on the healthy nearshore fish and habitat that kelp forests support.",
-      trophic: "apex-predator",
-      eatsOther: [
-        "fish"
+      diet: "Schooling fish, especially anchovy, plus squid and bottom fish",
+      shelter: "None built \u2014 travels and sleeps at sea in a small group, half its brain awake at a time",
+      preferredHabitat: "Nearshore water along an open beach with a strong surf line and fish schools offshore",
+      fact: "Every dolphin invents its own signature whistle, and the others copy that whistle back when they want to call it over. Along an open beach these dolphins hunt right inside the breakers, surfing the waves they are herding fish against.",
+      role: "Fast, social hunters that work the surf line in small groups, pushing anchovy schools up against the breaking waves until the fish have nowhere left to go. They are quick and clever enough to catch almost anything that schools here \u2014 and still not the biggest thing in the water.",
+      eats: [
+        "northern-anchovy"
       ],
+      eatsOther: [
+        "squid",
+        "sardines",
+        "bottom fish"
+      ],
+      eatenBy: [
+        "orca"
+      ],
+      requirements: {
+        minHealth: 62,
+        objects: {
+          "breaking-surf-line": 2,
+          "kelp-forest": 1,
+          "nutrient-upwelling-current": 1
+        },
+        signature: "breaking-surf-line",
+        water: {
+          ocean: 12,
+          deep: true
+        },
+        animals: [
+          "northern-anchovy"
+        ],
+        hint: "Deep water to travel through, cold currents and kelp edges to hold the fish, and a real breaking surf line, because that is where these dolphins do their hunting."
+      },
       sources: [
         {
-          name: "All About Birds - Pigeon Guillemot Life History",
-          url: "https://www.allaboutbirds.org/guide/Pigeon_Guillemot/lifehistory"
+          name: "NOAA Fisheries \u2014 Common Bottlenose Dolphin",
+          url: "https://www.fisheries.noaa.gov/species/common-bottlenose-dolphin"
+        },
+        {
+          name: "Janik & King 2013, Proc R Soc B \u2014 Vocal copying of individually distinctive signature whistles",
+          url: "https://royalsocietypublishing.org/doi/10.1098/rspb.2013.0053"
         }
-      ]
+      ],
+      biome: "coastal"
     },
     {
-      id: "bat-star",
-      name: "Bat Star",
+      id: "orca",
+      name: "Orca",
+      scientificName: "Orcinus orca",
+      kind: "mammal",
+      trophic: "apex-predator",
+      rarity: "rare",
+      diet: "Marine mammals \u2014 harbor seals above all, plus dolphins, sea lions and gray whale calves",
+      shelter: "None ashore; rests at the surface in deep water with its family pod",
+      preferredHabitat: "Cold deep water close inshore, along the drop-off and the kelp edge within reach of seal haul-outs",
+      fact: "Orcas live in families that never split up, and different families eat completely different food. The ones that hunt this coast are mammal specialists, and they go silent to do it \u2014 no clicks, no calls \u2014 because a seal can hear a talking orca coming from a long way off.",
+      role: "The top of this coast, with nothing above it. A pod of mammal-hunting orcas patrols the drop-off where the seafloor falls away, listening at seal haul-outs and shadowing gray whales that pass through with calves in spring. When they come into a bay, every seal on the rocks goes still and silent.",
+      eats: [
+        "harbor-seal",
+        "bottlenose-dolphin",
+        {
+          id: "migrating-whale",
+          stage: "young"
+        }
+      ],
+      eatsOther: [
+        "sea lions",
+        "porpoises"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 88,
+        minBalance: 60,
+        objects: {
+          "deep-canyon-edge": 2,
+          "kelp-forest": 1,
+          "nutrient-upwelling-current": 1
+        },
+        signature: "deep-canyon-edge",
+        water: {
+          ocean: 18,
+          deep: true
+        },
+        animals: [
+          "harbor-seal"
+        ],
+        hint: "The last and hardest animal to bring back. Orcas need deep water pressed right up against the shore and something big to hunt \u2014 so bring the seals back first, because the seals are what they come for."
+      },
+      sources: [
+        {
+          name: "NOAA Fisheries \u2014 Killer Whale",
+          url: "https://www.fisheries.noaa.gov/species/killer-whale"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Orcinus orca",
+          url: "https://animaldiversity.org/accounts/Orcinus_orca/"
+        }
+      ],
       biome: "coastal",
+      ocean: true
+    },
+    {
+      id: "desert-millipede",
+      name: "Desert Millipede",
+      scientificName: "Orthoporus ornatus",
       kind: "invertebrate",
+      trophic: "detritivore",
       rarity: "common",
-      diet: "Algae, detritus, and dead plants and animals",
-      shelter: "Tidepools and eelgrass beds",
-      preferredHabitat: "Shallow rocky tidepools and eelgrass",
-      fact: "A bat star can have anywhere from four to nine arms, not always five.",
+      diet: "Dead leaves, stems, seed husks and other dry plant litter on the ground",
+      shelter: "Buried in soil and tucked under litter and rock slabs by day; out walking on damp nights",
+      preferredHabitat: "Litter drifts under shrubs with rock slabs and diggable soil nearby",
+      fact: "A desert millipede spends most of the year underground, then comes pouring out by the hundreds after the first summer storm \u2014 and if you touch one it coils into a tight spiral like a cinnamon bun and oozes a bitter brown liquid that stains your fingers for days.",
+      role: "The litter shredder. It chews dead leaves, stems and husks into crumbs small enough for termites and soil microbes to finish, which is how dead plants become soil again out here. It has hundreds of legs and absolutely no hurry \u2014 armour and a foul chemical mean it can afford to stroll \u2014 but scorpions and roadrunners eat it anyway.",
+      eats: [],
+      eatsOther: [
+        "fallen leaves",
+        "dead stems",
+        "seed husks"
+      ],
+      eatenBy: [
+        "scorpion",
+        "roadrunner"
+      ],
+      requirements: {
+        minHealth: 14,
+        objects: {
+          "shrub-litter-mound": 2,
+          "creosote-bush": 1,
+          "rock-crevice": 1
+        },
+        signature: "shrub-litter-mound",
+        hint: "Let the leaves drift up under the shrubs and leave a slab it can crawl beneath. Damp litter is both its dinner and its hiding place \u2014 bare hot sand is neither."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Orthoporus ornatus",
+          url: "https://animaldiversity.org/accounts/Orthoporus_ornatus/"
+        },
+        {
+          name: "Arizona-Sonora Desert Museum \u2014 Millipedes and Centipedes",
+          url: "https://www.desertmuseum.org/books/nhsd_millipede.php"
+        }
+      ],
+      biome: "desert"
+    },
+    {
+      id: "tarantula",
+      name: "Desert Tarantula",
+      scientificName: "Aphonopelma chalcodes",
+      kind: "invertebrate",
+      trophic: "insectivore",
+      rarity: "uncommon",
+      diet: "Crickets, beetles, grasshoppers, termites and other spiders",
+      shelter: "A silk-lined burrow in firm soil, its doorway strung with trip-lines",
+      preferredHabitat: "Firm open ground between shrubs with litter and cover close by",
+      fact: "A frightened tarantula rubs its back legs over its belly and flicks off a cloud of barbed hairs that itch like fibreglass \u2014 and if nothing comes past to eat, it can simply wait, going a whole year between meals.",
+      role: "A patient ambush hunter that lives at the mouth of a silk-lined burrow, feeling for the twitch of a cricket on the trip-lines at its door. A female may keep the same hole for twenty years, which makes her one of the longest-lived animals in the biome. Roadrunners take them \u2014 and so does the giant hairy scorpion, which outweighs a tarantula and is not remotely afraid of one.",
+      eats: [
+        "desert-termite"
+      ],
+      eatsOther: [
+        "crickets",
+        "grasshoppers",
+        "beetles",
+        "other spiders"
+      ],
+      eatenBy: [
+        "scorpion",
+        "roadrunner"
+      ],
       requirements: {
         minHealth: 45,
         objects: {
-          tidepool: 2,
-          "eelgrass-bed": 1
+          "tarantula-silk-burrow": 1,
+          "bare-ground-patch": 1,
+          "creosote-bush": 1
         },
-        hint: "A couple of tidepools with an eelgrass bed."
+        signature: "tarantula-silk-burrow",
+        hint: "Firm ground it can line with silk, and then quiet. A burrow a tarantula digs is a burrow she may still be sitting in twenty years from now.",
+        animals: [
+          "desert-termite"
+        ],
+        conditions: {
+          dayPhase: [
+            "dusk",
+            "night"
+          ]
+        }
       },
-      scientificName: "Patiria miniata",
-      role: "An omnivorous scavenger that spreads its stomach over the seafloor to digest algae and carrion. It is a cleanup crew of the shallows, recycling dead matter and keeping tidepools and eelgrass beds tidy.",
-      trophic: "scavenger",
-      eatsOther: [
-        "algae"
-      ],
       sources: [
         {
-          name: "Monterey Bay Aquarium - Bat star",
-          url: "https://www.montereybayaquarium.org/animals-the-ocean/animals-a-to-z/bat-star"
+          name: "Animal Diversity Web \u2014 Aphonopelma chalcodes",
+          url: "https://animaldiversity.org/accounts/Aphonopelma_chalcodes/"
         },
         {
-          name: "Animal Diversity Web - Patiria miniata",
-          url: "https://animaldiversity.org/accounts/Patiria_miniata/"
+          name: "Arizona-Sonora Desert Museum \u2014 Tarantulas",
+          url: "https://www.desertmuseum.org/kids/oz/long-fact-sheets/Tarantula.php"
+        }
+      ],
+      biome: "desert"
+    },
+    {
+      id: "harris-hawk",
+      name: "Desert Hawk",
+      scientificName: "Parabuteo unicinctus",
+      kind: "bird",
+      trophic: "apex-predator",
+      rarity: "rare",
+      diet: "Jackrabbits, ground squirrels, quail, woodrats and lizards",
+      shelter: "A bulky stick nest wedged in the arms of a tall cactus or a thorny tree, built and guarded by the whole family",
+      preferredHabitat: "Open scrub with tall cactus and trees to nest and keep lookout from",
+      fact: "These are the only birds of prey in the world that hunt in packs: a family of five or six spreads out, some crashing into a thorn bush to panic a rabbit while the others wait on the far side. And when there is nowhere decent to perch, they simply stand on each other's backs, three hawks high.",
+      role: "The daytime top predator, working the same desert the coyote works at night. Two or three generations live together all year, share every kill, help feed each other's chicks and take turns on lookout \u2014 teamwork that lets them bring down jackrabbits far heavier than any single hawk. They need tall lookouts above open ground and a big cactus solid enough to hold a family nest.",
+      eats: [
+        "jackrabbit",
+        "gambels-quail",
+        "antelope-squirrel",
+        "horned-lizard",
+        "roadrunner",
+        "grasshopper-mouse"
+      ],
+      eatsOther: [
+        "woodrats",
+        "lizards"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 65,
+        objects: {
+          "saguaro-crown-nest": 1,
+          saguaro: 2,
+          "desert-ironwood": 1
+        },
+        signature: "saguaro-crown-nest",
+        hint: "One hawk is never the whole story. A family needs a tall cactus strong enough to hold the nest, high lookouts all around it, and open ground with rabbits crossing it.",
+        animals: [
+          "jackrabbit",
+          "gambels-quail"
+        ]
+      },
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Harris's Hawk Life History",
+          url: "https://www.allaboutbirds.org/guide/Harriss_Hawk/lifehistory"
+        },
+        {
+          name: "Audubon Field Guide \u2014 Harris's Hawk",
+          url: "https://www.audubon.org/field-guide/bird/harriss-hawk"
+        }
+      ],
+      biome: "desert"
+    },
+    {
+      id: "elk-forest",
+      name: "Elk",
+      scientificName: "Cervus canadensis",
+      kind: "mammal",
+      trophic: "herbivore",
+      rarity: "rare",
+      diet: "Grass and leafy plants through the growing season; twigs, buds, bark and acorns once the green is gone",
+      shelter: "No den \u2014 beds down in thick conifer cover by day and moves out into open gaps to feed at dawn and dusk",
+      preferredHabitat: "Big blocks of forest broken by clearings and young regrowth to graze, thick cover to rest in, and a muddy wallow within a day's walk",
+      fact: "A bull elk grows a whole new set of antlers every year, laying down up to an inch of bone a day \u2014 the fastest-growing bone of any animal \u2014 and drops the lot each spring. In autumn he bugles: a squeal that carries more than a mile from an animal the size of a horse.",
+      role: "The elk is this forest's big grazer, and the only animal here that eats grass in bulk. Where a squirrel nibbles and a porcupine peels bark, a herd of elk crops whole clearings, keeping gaps open and sunlit so the plants and insects of the forest edge have somewhere to live \u2014 and grazing them bare if there are too many. Elk churn wallows into muddy pools that frogs and insects then breed in, carry seeds in their coats and droppings, and their calves are one of the few big meals a bear can find in spring. Elk vanished from these woods for more than a century and are back only where people put them back.",
+      eats: [],
+      eatsOther: [
+        "grasses",
+        "leafy plants",
+        "twigs",
+        "bark",
+        "acorns"
+      ],
+      eatenBy: [
+        {
+          id: "black-bear",
+          stage: "young"
+        }
+      ],
+      requirements: {
+        minHealth: 70,
+        objects: {
+          "elk-wallow": 1,
+          "browse-thicket": 2,
+          "woodland-pool": 1
+        },
+        signature: "elk-wallow",
+        water: {
+          tiles: 3
+        },
+        hint: "Grassy gaps and young regrowth to graze, thick cover to rest in, and a muddy wallow to roll in \u2014 a bull plasters himself in mud before he starts bugling."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Cervus canadensis",
+          url: "https://animaldiversity.org/accounts/Cervus_canadensis/"
+        },
+        {
+          name: "Smithsonian's National Zoo \u2014 Elk",
+          url: "https://nationalzoo.si.edu/animals/elk"
+        }
+      ],
+      biome: "forest"
+    },
+    {
+      id: "spotted-towhee",
+      name: "Towhee",
+      scientificName: "Pipilo erythrophthalmus",
+      kind: "bird",
+      trophic: "omnivore",
+      rarity: "common",
+      diet: "Insects, spiders and millipedes kicked out of the leaf litter, plus seeds, berries and bits of acorn",
+      shelter: "Nests on the ground in dead leaves beneath a bramble or dense shrub, the cup sunk level with the surface",
+      preferredHabitat: "Brushy tangles, forest edges and sunlit gaps where young growth is thick and the ground is deep in fallen leaves",
+      fact: "That loud rustling in the dead leaves usually isn't a deer \u2014 it's a bird the size of your hand, kicking backwards with both feet at once to flip the leaves over and see what's underneath.",
+      role: "The towhee works a layer nothing else in this forest bothers with: the top couple of inches of dead leaves. Its two-footed backwards kick turns litter over and over while it hunts the insects, spiders and millipedes hiding there, and the seeds and berries it swallows come back out along the brushy edges. Because the nest sits flat on the ground, the towhee feeds foxes and snakes \u2014 and it can only nest where the brush overhead is thick enough to hide a cup of grass.",
+      eats: [
+        {
+          id: "polyphemus-moth",
+          stage: "young"
+        }
+      ],
+      eatsOther: [
+        "millipedes",
+        "ground beetles",
+        "spiders",
+        "seeds",
+        "berries"
+      ],
+      eatenBy: [
+        "red-fox-forest",
+        {
+          id: "garter-snake-forest",
+          stage: "eggs"
+        }
+      ],
+      requirements: {
+        minHealth: 38,
+        objects: {
+          "bramble-ground-nest": 1,
+          "browse-thicket": 1,
+          "berry-bush": 1,
+          "leaf-litter-pile": 2
+        },
+        signature: "bramble-ground-nest",
+        hint: "Thick young brush standing over a deep, unraked leaf layer. The nest goes on the ground, so the tangle above it has to be dense enough to hide it."
+      },
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Eastern Towhee life history",
+          url: "https://www.allaboutbirds.org/guide/Eastern_Towhee/lifehistory"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Pipilo erythrophthalmus",
+          url: "https://animaldiversity.org/accounts/Pipilo_erythrophthalmus/"
+        }
+      ],
+      biome: "forest"
+    },
+    {
+      id: "water-strider",
+      name: "Water Strider",
+      scientificName: "Aquarius remigis",
+      kind: "insect",
+      trophic: "insectivore",
+      rarity: "common",
+      diet: "Insects and spiders trapped in the surface film, plus mosquito larvae hanging just underneath it.",
+      shelter: "Sheltered, wind-free water; overwinters tucked under bank litter and floating debris.",
+      preferredHabitat: "Smooth, calm pockets of open water out of the wind, with floating stems to rest and lay eggs on.",
+      fact: "Water striders do not swim \u2014 they stand on the water. Thousands of tiny hairs on each foot trap air and refuse to get wet, and the strider reads ripples the way a spider reads its web to find insects thrashing on the surface.",
+      role: "The marsh's surface patrol, and one of the first animals back once the water is clean and still. Striders skate over the film eating whatever falls in and cannot climb out, and they are themselves easy pickings for minnows, frogs, dragonflies and blackbirds.",
+      eats: [],
+      eatsOther: [
+        "mosquito larvae",
+        "midges",
+        "fallen insects",
+        "spiders"
+      ],
+      eatenBy: [
+        "freshwater-fish",
+        "northern-leopard-frog",
+        "dragonfly",
+        "red-winged-blackbird"
+      ],
+      requirements: {
+        minHealth: 20,
+        objects: {
+          "still-water-cove": 2,
+          "cattail-stand": 1,
+          "shallow-water-pool": 1
+        },
+        signature: "still-water-cove",
+        water: {
+          tiles: 2
+        },
+        hint: "Striders need calm. Find a pocket of water the wind cannot ruffle, with floating stems on it to rest and lay eggs on."
+      },
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Aquarius remigis",
+          url: "https://animaldiversity.org/accounts/Aquarius_remigis/"
+        },
+        {
+          name: "Nature \u2014 The hydrodynamics of water strider locomotion",
+          url: "https://www.nature.com/articles/nature01793"
+        }
+      ],
+      biome: "wetland",
+      aquatic: true
+    },
+    {
+      id: "bald-eagle",
+      name: "Bald Eagle",
+      scientificName: "Haliaeetus leucocephalus",
+      kind: "bird",
+      trophic: "apex-predator",
+      rarity: "rare",
+      diet: "Mostly fish, plus ducks, muskrats and carrion \u2014 and anything it can bully out of another hunter's grip",
+      shelter: "A huge stick nest in the crown of the tallest living tree beside open water, added to every year",
+      preferredHabitat: "Wide open water full of fish, with one very tall tree to watch it all from",
+      fact: "A bald eagle would honestly rather rob than fish. It shadows otters and herons and harasses them until they drop their catch, then takes it \u2014 and the nest it rebuilds every year can end up heavier than a small car.",
+      role: "The top predator of the marsh and its biggest bully. It takes fish, ducks and muskrats for itself, kills herons at their nesting colonies, and spends much of the day stealing meals from otters and herons \u2014 which means it can only settle somewhere those hunters are already doing well.",
+      eats: [
+        "freshwater-fish",
+        "muskrat",
+        "mallard-duck",
+        "hooded-merganser",
+        "great-blue-heron"
+      ],
+      eatsOther: [
+        "carrion",
+        "fish stolen from otters and herons"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 82,
+        objects: {
+          "eagle-nest-crown": 1,
+          "beaver-pond": 2,
+          "marsh-log": 1
+        },
+        signature: "eagle-nest-crown",
+        water: {
+          tiles: 8
+        },
+        animals: [
+          "freshwater-fish",
+          "great-blue-heron"
+        ],
+        hint: "One huge old tree with a clear view over deep water, enough fish to live on \u2014 and successful otters and herons below to steal from."
+      },
+      sources: [
+        {
+          name: "Cornell Lab All About Birds \u2014 Bald Eagle life history",
+          url: "https://www.allaboutbirds.org/guide/Bald_Eagle/lifehistory"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Haliaeetus leucocephalus",
+          url: "https://animaldiversity.org/accounts/Haliaeetus_leucocephalus/"
+        }
+      ],
+      biome: "wetland"
+    },
+    {
+      id: "bobolink",
+      name: "Bobolink",
+      biome: "meadow",
+      kind: "bird",
+      rarity: "uncommon",
+      trophic: "herbivore",
+      diet: "Grass and wildflower seeds for most of the year; caterpillars, grasshopper nymphs and other insects while raising chicks",
+      shelter: "A grass-lined cup sunk into the ground at the base of a tussock, reached by landing some way off and walking in through the stems",
+      preferredHabitat: "Large, unmowed meadows of tall native grass and forbs, with nothing taller than the grass for a long way around",
+      fact: "A bobolink flies about 20,000 km a year, and it navigates partly by iron in the bristles of its own nose, which works like a tiny built-in compass.",
+      role: "Bobolinks are seed eaters that switch to insects the moment they have chicks to feed, so a nesting pair quietly takes thousands of grasshoppers and caterpillars out of the meadow every summer. They nest flat on the ground, which makes them one of the first birds to vanish when a meadow is mown or grazed early, and one of the surest signs of a healthy one when they return. Their scattered, half-eaten seed heads reseed the grass they nest in.",
+      eats: [],
+      eatsOther: [
+        "grass seeds",
+        "wildflower seeds",
+        "caterpillars",
+        "grasshopper nymphs"
+      ],
+      eatenBy: [
+        "harrier",
+        "red-fox-meadow"
+      ],
+      requirements: {
+        minHealth: 48,
+        objects: {
+          "hidden-grass-nest": 1,
+          "native-grass-patch": 3,
+          "wildflower-patch": 2
+        },
+        signature: "hidden-grass-nest",
+        hint: "Grow a big unbroken sweep of tall grass and then leave it completely alone through the summer. Bobolinks will not nest in a meadow that gets tidied."
+      },
+      scientificName: "Dolichonyx oryzivorus",
+      sources: [
+        {
+          name: "All About Birds \u2014 Bobolink",
+          url: "https://www.allaboutbirds.org/guide/Bobolink/"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Dolichonyx oryzivorus",
+          url: "https://animaldiversity.org/accounts/Dolichonyx_oryzivorus/"
+        }
+      ]
+    },
+    {
+      id: "shrike",
+      name: "Shrike",
+      biome: "meadow",
+      kind: "bird",
+      rarity: "uncommon",
+      trophic: "insectivore",
+      diet: "Grasshoppers, crickets, beetles and mantises, plus the occasional vole or lizard",
+      shelter: "A bulky twig nest deep inside a thorny shrub, with a larder of stored prey hanging on the spines nearby",
+      preferredHabitat: "Open grassland broken up by scattered thorny shrubs, fence wire and low perches to hunt from",
+      fact: "A shrike is a songbird with no talons, so it skewers its catch on a thorn or a barb of fence wire and comes back to eat it later \u2014 a hedge full of stored grasshoppers is how a male shows off.",
+      role: "The shrike sits at the top of the insect food chain in the meadow and eats mainly the large-bodied grasshoppers and mantises that few other songbirds can handle. Because it has a hooked beak but weak feet, it has to wedge or impale food to tear it, and those larders let it survive cold snaps when nothing is flying. It needs both open hunting ground and thorny cover, so it only appears once the meadow has structure as well as grass.",
+      eats: [
+        "grasshopper",
+        "meadow-vole",
+        "praying-mantis"
+      ],
+      eatsOther: [
+        "crickets",
+        "beetles",
+        "small lizards"
+      ],
+      eatenBy: [
+        "red-tailed-hawk"
+      ],
+      requirements: {
+        minHealth: 58,
+        objects: {
+          "thorn-larder-hedge": 1,
+          "native-thistle-stand": 2,
+          "wooden-fence": 1
+        },
+        signature: "thorn-larder-hedge",
+        hint: "Leave the thorns in. A shrike needs spiky shrubs or a wire fence to hang its catch on, and open grass in between to hunt over."
+      },
+      scientificName: "Lanius ludovicianus",
+      sources: [
+        {
+          name: "All About Birds \u2014 Loggerhead Shrike",
+          url: "https://www.allaboutbirds.org/guide/Loggerhead_Shrike/"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Lanius ludovicianus",
+          url: "https://animaldiversity.org/accounts/Lanius_ludovicianus/"
+        }
+      ]
+    },
+    {
+      id: "harrier",
+      name: "Harrier",
+      biome: "meadow",
+      kind: "bird",
+      rarity: "rare",
+      trophic: "apex-predator",
+      diet: "Voles, mice, rabbits and ground-nesting birds, hunted low over open grass",
+      shelter: "A ground nest of piled stems in a damp swale, hidden in grass taller than the bird itself",
+      preferredHabitat: "Wide, wet-bottomed meadow and marsh edge with deep grass and no trees to block a low glide",
+      fact: "The harrier is the only hawk with an owl-like face, and it uses it the same way \u2014 it hunts by listening for voles rustling under the grass, not by seeing them.",
+      role: "Harriers quarter back and forth a metre above the grass all day, and they are the main daytime check on vole numbers in an open meadow, taking over from the barn owl at dawn. The stiff feather disc around the face funnels sound to the ears, which is why a harrier can catch something it never sees. Nesting on the ground means it needs deep, undisturbed damp grass, so it is one of the last animals to return to a meadow and the first to leave.",
+      eats: [
+        "meadow-vole",
+        "cottontail-rabbit",
+        "bobolink",
+        "western-meadowlark"
+      ],
+      eatsOther: [
+        "mice",
+        "frogs",
+        "large insects"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 72,
+        objects: {
+          "prairie-swale-seedbed": 1,
+          "native-grass-patch": 1
+        },
+        signature: "prairie-swale-seedbed",
+        animals: [
+          "meadow-vole",
+          "cottontail-rabbit"
+        ],
+        hint: "Keep the low damp corner of the meadow wet and shaggy, and keep the voles coming. A harrier needs a lot of open grass and no tall trees in the middle of it."
+      },
+      scientificName: "Circus hudsonius",
+      sources: [
+        {
+          name: "All About Birds \u2014 Northern Harrier",
+          url: "https://www.allaboutbirds.org/guide/Northern_Harrier/"
+        },
+        {
+          name: "Audubon Field Guide \u2014 Northern Harrier",
+          url: "https://www.audubon.org/field-guide/bird/northern-harrier"
+        }
+      ]
+    },
+    {
+      id: "luna-moth",
+      name: "Luna Moth",
+      biome: "forest",
+      kind: "insect",
+      rarity: "uncommon",
+      trophic: "herbivore",
+      diet: "Hickory, walnut, sweetgum and birch leaves as a caterpillar; the adult eats nothing at all",
+      shelter: "A papery cocoon spun inside a curled leaf that falls to the ground, where it lies buried in the litter all winter",
+      preferredHabitat: "Mature deciduous woodland with deep undisturbed leaf litter under the host trees",
+      fact: "An adult luna moth has no mouth. It hatches out with about a week to live, never eats once, and spends the whole of it looking for a mate.",
+      role: "Luna moth caterpillars are leaf-eaters that turn tree leaves into fat, high-energy insect bodies, and everything from bats to jays cashes that in. The long twisted tails on the hindwings are an anti-bat device: they spin as the moth flies and throw a bat's echolocation off target, so the bat grabs a tail streamer instead of the body. Because the cocoon overwinters in fallen leaves, a forest that gets raked loses its luna moths even if every host tree is still standing.",
+      eats: [],
+      eatsOther: [
+        "hickory leaves",
+        "walnut leaves",
+        "sweetgum leaves",
+        "birch leaves"
+      ],
+      eatenBy: [
+        {
+          id: "little-brown-bat",
+          stage: "adult"
+        },
+        "blue-jay",
+        "little-brown-bat"
+      ],
+      requirements: {
+        minHealth: 30,
+        objects: {
+          "cocoon-leaf-drift": 1,
+          "leaf-litter-pile": 2,
+          "nesting-tree": 1
+        },
+        signature: "cocoon-leaf-drift",
+        hint: "Plant the leafy trees, then let the leaves lie where they fall. The cocoons spend the whole winter down in that litter."
+      },
+      scientificName: "Actias luna",
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Actias luna",
+          url: "https://animaldiversity.org/accounts/Actias_luna/"
+        },
+        {
+          name: "Butterflies and Moths of North America \u2014 Actias luna",
+          url: "https://www.butterfliesandmoths.org/species/Actias-luna"
+        }
+      ]
+    },
+    {
+      id: "blue-jay",
+      name: "Blue Jay",
+      biome: "forest",
+      kind: "bird",
+      rarity: "common",
+      trophic: "herbivore",
+      diet: "Acorns and beechnuts, caterpillars, beetles and other insects, and eggs or nestlings when it finds them",
+      shelter: "A cup of twigs and rootlets wedged in a fork high in a leafy tree, screened by foliage",
+      preferredHabitat: "Oak-rich woodland and its edges, with open ground nearby for caching",
+      fact: "Blue jay feathers are not actually blue \u2014 the pigment in them is brown, and the blue is a trick of light bouncing off tiny air pockets. Crush one and the colour disappears.",
+      role: "A single blue jay can carry five acorns at a time and bury a few thousand in an autumn, and it chooses sound ones and pushes them into open ground \u2014 which makes jays the fastest tree planters in the forest and the reason oaks spread uphill after a fire. Jays also mimic hawk calls, sometimes to clear a feeding spot and sometimes to warn everything nearby that a real hawk has arrived, so the whole wood listens to them.",
+      eats: [
+        "luna-moth"
+      ],
+      eatsOther: [
+        "acorns",
+        "beechnuts",
+        "caterpillars",
+        "insects",
+        "other birds' eggs"
+      ],
+      eatenBy: [
+        "goshawk"
+      ],
+      requirements: {
+        minHealth: 28,
+        objects: {
+          "acorn-cache-scatter": 1,
+          "oak-tree": 2,
+          "nesting-tree": 1
+        },
+        signature: "acorn-cache-scatter",
+        hint: "Oaks and a patch of soft open ground to bury the acorns in. Some of the ones the jay forgets will be your next oak trees."
+      },
+      scientificName: "Cyanocitta cristata",
+      sources: [
+        {
+          name: "All About Birds \u2014 Blue Jay",
+          url: "https://www.allaboutbirds.org/guide/Blue_Jay/"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Cyanocitta cristata",
+          url: "https://animaldiversity.org/accounts/Cyanocitta_cristata/"
+        }
+      ]
+    },
+    {
+      id: "wood-frog",
+      name: "Wood Frog",
+      biome: "forest",
+      kind: "amphibian",
+      rarity: "common",
+      trophic: "insectivore",
+      diet: "Beetles, spiders, slugs, flies and other small forest-floor invertebrates",
+      shelter: "Shallow leaf litter and loose duff on the forest floor \u2014 it does not burrow below the frost line",
+      preferredHabitat: "Damp deciduous forest with fishless woodland pools that fill in spring and dry out by late summer",
+      fact: "A wood frog freezes solid every winter. Its heart stops, two thirds of the water in its body turns to ice, and in spring it thaws out and hops away.",
+      role: "Wood frogs are the first amphibian to call in spring, breeding in temporary pools that dry up before fish can ever live in them \u2014 which is exactly why the tadpoles survive. Sugar flooding the blood keeps their cells from bursting while they are frozen, so they can hibernate under a few centimetres of leaves. As adults they eat their way through the invertebrates of the leaf litter and are eaten in turn by snakes and raccoons, moving forest-floor energy up the food chain.",
+      eats: [
+        "banana-slug"
+      ],
+      eatsOther: [
+        "beetles",
+        "spiders",
+        "flies",
+        "ants"
+      ],
+      eatenBy: [
+        "garter-snake-forest",
+        "raccoon"
+      ],
+      requirements: {
+        minHealth: 38,
+        objects: {
+          "winter-freeze-litter-bed": 1,
+          "woodland-pool": 2,
+          "log-shelter": 1
+        },
+        signature: "winter-freeze-litter-bed",
+        water: {
+          tiles: 3
+        },
+        hint: "A pool that dries up in summer is the good kind \u2014 no fish means the tadpoles live. Keep deep leaves nearby for the frogs to freeze in."
+      },
+      scientificName: "Lithobates sylvaticus",
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Lithobates sylvaticus",
+          url: "https://animaldiversity.org/accounts/Lithobates_sylvaticus/"
+        },
+        {
+          name: "National Park Service \u2014 Wood Frog",
+          url: "https://www.nps.gov/articles/wood-frogs.htm"
+        }
+      ]
+    },
+    {
+      id: "goshawk",
+      name: "Goshawk",
+      biome: "forest",
+      kind: "bird",
+      rarity: "rare",
+      trophic: "apex-predator",
+      diet: "Squirrels, jays, grouse, rabbits and woodpeckers, chased down inside the trees",
+      shelter: "A broad stick nest built against the trunk on a heavy limb, halfway up a big old tree in closed canopy",
+      preferredHabitat: "Mature forest with a high closed canopy and open flying room underneath it",
+      fact: "A goshawk hunts by crashing straight through the branches at full speed with its wings half folded, and it will dive at anything \u2014 including people \u2014 that walks too near its nest.",
+      role: "The goshawk is the forest's top daytime hunter and the reason squirrels freeze against tree trunks. Short broad wings and a long steering tail let it turn inside a wood at speed, so unlike a soaring hawk it hunts under the canopy rather than above it. It needs old forest with big limbs to nest on and clear space beneath to fly, which makes its arrival a sign that the trees have finally grown up.",
+      eats: [
+        "tree-squirrel",
+        "blue-jay",
+        "chipmunk",
+        "wood-duck"
+      ],
+      eatsOther: [
+        "grouse",
+        "rabbits",
+        "woodpeckers"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 78,
+        objects: {
+          "canopy-nest-limb": 1,
+          "nesting-tree": 3,
+          "oak-tree": 2
+        },
+        signature: "canopy-nest-limb",
+        animals: [
+          "tree-squirrel",
+          "blue-jay"
+        ],
+        hint: "Grow the forest tall and leave the understory open. A goshawk needs a big limb to nest on and room to fly hard underneath the canopy."
+      },
+      scientificName: "Astur atricapillus",
+      sources: [
+        {
+          name: "All About Birds \u2014 American Goshawk",
+          url: "https://www.allaboutbirds.org/guide/American_Goshawk/"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Accipiter gentilis",
+          url: "https://animaldiversity.org/accounts/Accipiter_gentilis/"
+        }
+      ]
+    },
+    {
+      id: "moose",
+      name: "Moose",
+      biome: "wetland",
+      kind: "mammal",
+      rarity: "rare",
+      trophic: "herbivore",
+      diet: "Submerged pondweed and water lilies in summer, willow and aspen twigs in winter",
+      shelter: "Beds pressed into willow thickets and shaded marsh edge; in summer it stands chest-deep in water to escape flies",
+      preferredHabitat: "Marsh and pond edge with deep willow thickets and clear shallow water full of submerged plants",
+      fact: "A moose can hold its breath for a minute and walk along the bottom of a pond with its whole head underwater, pulling up plants by the roots.",
+      role: "Moose come to the wetland for sodium, which the submerged plants have and the forest browse does not, and a big one can pull 20 kilograms of pondweed a day out of the shallows. That heavy grazing keeps open lanes through the plant beds where ducks feed and fish shelter, and the willow they browse in winter grows back thicker and lower \u2014 which is better cover for everything small. Their trails through the marsh become channels that hold water in dry summers.",
+      eats: [],
+      eatsOther: [
+        "pondweed",
+        "water lily roots",
+        "willow shoots",
+        "aspen twigs"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 68,
+        objects: {
+          "wild-celery-bed": 2,
+          "shallow-water-pool": 1,
+          "browsed-pond-shallows": 1
+        },
+        signature: "browsed-pond-shallows",
+        water: {
+          tiles: 6
+        },
+        hint: "Grow the underwater plant beds first and keep the water clear enough for them. A moose comes for what is growing under the surface, not on the bank."
+      },
+      scientificName: "Alces alces",
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Alces alces",
+          url: "https://animaldiversity.org/accounts/Alces_alces/"
+        },
+        {
+          name: "National Park Service, Isle Royale \u2014 Moose",
+          url: "https://www.nps.gov/isro/learn/nature/moose.htm"
+        }
+      ]
+    },
+    {
+      id: "river-cooter",
+      name: "River Cooter",
+      biome: "wetland",
+      kind: "reptile",
+      rarity: "uncommon",
+      trophic: "herbivore",
+      diet: "Pondweed, algae, water lily leaves and fallen fruit; hatchlings take insects before switching to plants",
+      shelter: "Sleeps wedged under submerged logs and root tangles; spends the winter buried in the mud of the pond bottom",
+      preferredHabitat: "Slow, plant-filled water with logs to bask on and an open sunlit bank to lay eggs in",
+      fact: "Whether a cooter's eggs hatch into males or females depends on how warm the nest is, not on the eggs themselves \u2014 a cool nest makes brothers, a warm one makes sisters.",
+      role: "The cooter is the wetland's big plant-eating turtle, cropping the underwater meadows and keeping them from choking the shallows, and passing seeds out intact somewhere else. It has to bask for hours to get warm enough to digest all that plant food, which is why a good log stacked with turtles is a sign of a working marsh. Its eggs and hatchlings feed almost everything else, so it lays a lot of them.",
+      eats: [],
+      eatsOther: [
+        "pondweed",
+        "algae",
+        "water lily leaves",
+        "fallen fruit"
+      ],
+      eatenBy: [
+        {
+          id: "snapping-turtle",
+          stage: "young"
+        },
+        {
+          id: "river-otter",
+          stage: "young"
+        }
+      ],
+      requirements: {
+        minHealth: 50,
+        objects: {
+          "sunlit-mudflat": 1,
+          "marsh-log": 2,
+          "reed-bed": 2
+        },
+        signature: "sunlit-mudflat",
+        water: {
+          tiles: 5
+        },
+        hint: "Logs in the sun to bask on and a bare warm bank to bury eggs in. A cooter that cannot get warm cannot digest its dinner."
+      },
+      scientificName: "Pseudemys concinna",
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Pseudemys concinna",
+          url: "https://animaldiversity.org/accounts/Pseudemys_concinna/"
+        },
+        {
+          name: "SREL Herpetology \u2014 River Cooter",
+          url: "https://srelherp.uga.edu/turtles/psecon.htm"
+        }
+      ],
+      aquatic: true
+    },
+    {
+      id: "javelina",
+      name: "Javelina",
+      biome: "desert",
+      kind: "mammal",
+      rarity: "uncommon",
+      trophic: "herbivore",
+      diet: "Prickly pear pads, mesquite pods, agave hearts, roots and tubers",
+      shelter: "Beds down as a herd in the shade of dense thornscrub or a rock overhang through the heat of the day",
+      preferredHabitat: "Desert scrub and washes with thick thorny cover and stands of prickly pear",
+      fact: "A javelina eats prickly pear whole \u2014 spines and all \u2014 and has a scent gland on its back so strong that a herd can find each other in the dark by smell alone.",
+      role: "Javelinas are the desert's cactus processors: they crunch through pads that nothing else will touch, which keeps prickly pear from taking over a wash and spreads its seeds in their droppings. Rooting for tubers turns over hard-crusted soil and buries litter, giving seeds somewhere to germinate after rain. They travel in herds of six to a dozen, and the herd smell is also the alarm system, because their eyesight is terrible.",
+      eats: [],
+      eatsOther: [
+        "prickly pear pads",
+        "mesquite pods",
+        "agave hearts",
+        "roots and tubers"
+      ],
+      eatenBy: [
+        {
+          id: "coyote",
+          stage: "young"
+        }
+      ],
+      requirements: {
+        minHealth: 52,
+        objects: {
+          "thicket-bed-hollow": 1,
+          "mesquite-tree": 2,
+          "desert-brush": 1
+        },
+        signature: "thicket-bed-hollow",
+        hint: "Grow the prickly pear and leave a shaded thorny tangle to bed down in. A herd sleeps out the middle of the day and feeds at dusk."
+      },
+      scientificName: "Pecari tajacu",
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Pecari tajacu",
+          url: "https://animaldiversity.org/accounts/Pecari_tajacu/"
+        },
+        {
+          name: "National Park Service, Saguaro \u2014 Javelina",
+          url: "https://www.nps.gov/sagu/learn/nature/javelina.htm"
+        }
+      ]
+    },
+    {
+      id: "black-swift",
+      name: "Black Swift",
+      biome: "alpine",
+      kind: "bird",
+      rarity: "rare",
+      trophic: "insectivore",
+      diet: "Flying ants, aphids, beetles and mayflies caught on the wing, often hundreds of metres up",
+      shelter: "A cup of moss glued to a wet rock seam behind or beside falling water, reached only from the air",
+      preferredHabitat: "Cliffs with cold running water and wide open sky above the treeline",
+      fact: "A black swift can stay in the air for six months without landing once \u2014 it eats, drinks and sleeps flying, and the chick is left alone all day while its parents hunt insects 50 km away.",
+      role: "Swifts hoover up the swarming insects that get lifted onto the mountain by rising air, and they carry that food back as a compressed pellet \u2014 one delivery a day is enough for a chick because the load is so concentrated. The nest has to be permanently wet and unreachable, so the birds only appear where there is a cliff seam with water running over it. They are among the very last summer visitors to arrive and the first to leave for the Amazon.",
+      eats: [
+        "bumblebee-alpine"
+      ],
+      eatsOther: [
+        "flying ants",
+        "aphids carried up on the wind",
+        "beetles",
+        "mayflies"
+      ],
+      eatenBy: [
+        "peregrine-falcon"
+      ],
+      requirements: {
+        minHealth: 62,
+        objects: {
+          "crystal-spring": 1,
+          "snowmelt-pool": 2,
+          "waterfall-splash-ledge": 1
+        },
+        signature: "waterfall-splash-ledge",
+        water: {
+          tiles: 2
+        },
+        hint: "Find the wettest, darkest crack in the cliff and keep the water running down it. A swift will not nest anywhere it can walk to."
+      },
+      scientificName: "Cypseloides niger",
+      sources: [
+        {
+          name: "All About Birds \u2014 Black Swift",
+          url: "https://www.allaboutbirds.org/guide/Black_Swift/"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Cypseloides niger",
+          url: "https://animaldiversity.org/accounts/Cypseloides_niger/"
+        }
+      ]
+    },
+    {
+      id: "peregrine-falcon",
+      name: "Peregrine Falcon",
+      biome: "alpine",
+      kind: "bird",
+      rarity: "rare",
+      trophic: "mesopredator",
+      diet: "Other birds taken in mid-air \u2014 ptarmigan, rosy-finches, swifts, pipits and small ducks",
+      shelter: "A bare scrape kicked into gravel on a high cliff ledge; it builds no nest at all",
+      preferredHabitat: "Sheer cliffs and rock faces overlooking open ground with plenty of birds flying below",
+      fact: "A stooping peregrine hits about 380 km/h, which makes it the fastest animal alive \u2014 and it has bony cones in its nostrils that slow the air down so the dive does not burst its lungs.",
+      role: "The peregrine is the mountain's aerial hunter, and it takes almost all of its food in the air, striking from above with a closed fist rather than grabbing. Because it hunts birds and nothing else, it is a direct check on the flocks of finches, pipits and ptarmigan feeding across the slopes. It needs an undisturbed cliff ledge and clear air below it, and nothing at all to build with \u2014 just loose gravel to scrape a hollow in.",
+      eats: [
+        "ptarmigan",
+        "rosy-finch",
+        "black-swift",
+        "snow-bunting"
+      ],
+      eatsOther: [
+        "pipits",
+        "swallows",
+        "small ducks"
+      ],
+      eatenBy: [
+        {
+          id: "golden-eagle",
+          stage: "young"
+        }
+      ],
+      requirements: {
+        minHealth: 70,
+        objects: {
+          "falcon-scrape-ledge": 1,
+          "talus-pile": 2,
+          "scree-slope": 1
+        },
+        signature: "falcon-scrape-ledge",
+        animals: [
+          "ptarmigan",
+          "rosy-finch"
+        ],
+        hint: "A high ledge with loose gravel on it and open sky underneath. Do not build a nest \u2014 a peregrine just kicks a dip in the grit."
+      },
+      scientificName: "Falco peregrinus",
+      sources: [
+        {
+          name: "All About Birds \u2014 Peregrine Falcon",
+          url: "https://www.allaboutbirds.org/guide/Peregrine_Falcon/"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Falco peregrinus",
+          url: "https://animaldiversity.org/accounts/Falco_peregrinus/"
+        }
+      ]
+    },
+    {
+      id: "owl-limpet",
+      name: "Owl Limpet",
+      biome: "coastal",
+      kind: "invertebrate",
+      rarity: "common",
+      trophic: "herbivore",
+      diet: "Film algae and diatoms scraped off the rock inside its own garden patch",
+      shelter: "A shallow scar worn into the rock exactly the shape of its own shell, which it returns to at every low tide",
+      preferredHabitat: "Wave-washed mid-zone rock faces with steady spray and space to hold a territory",
+      fact: "An owl limpet farms. It keeps a patch of rock the size of a beer mat, weeds the seaweed out of it, and bulldozes any other limpet that trespasses right off the edge.",
+      role: "This is the rare grazer that gardens rather than wanders: by clearing everything but its own film of algae, an owl limpet keeps a bare patch open on rock that would otherwise be smothered by barnacles and seaweed, and dozens of smaller animals settle in those gaps. It grinds the rock down as it feeds, which is one of the ways a shoreline slowly wears away. Every limpet starts life male and the biggest ones turn female, so the largest limpet on the rock is always a she.",
+      eats: [],
+      eatsOther: [
+        "film algae",
+        "diatoms",
+        "young seaweed sporelings"
+      ],
+      eatenBy: [
+        "sea-star"
+      ],
+      requirements: {
+        minHealth: 26,
+        objects: {
+          "algae-garden-scar": 1,
+          "coralline-algae-crust": 1,
+          "barnacle-crust-rock": 2
+        },
+        signature: "algae-garden-scar",
+        water: {
+          ocean: 2
+        },
+        hint: "Give it a clear stretch of wave-washed rock and do not crowd it. One limpet needs a whole patch to itself."
+      },
+      scientificName: "Lottia gigantea",
+      sources: [
+        {
+          name: "Monterey Bay Aquarium \u2014 Owl limpet",
+          url: "https://www.montereybayaquarium.org/animals/animals-a-to-z/owl-limpet"
+        },
+        {
+          name: "National Park Service, Cabrillo \u2014 Rocky Intertidal",
+          url: "https://www.nps.gov/cabr/learn/nature/rocky-intertidal.htm"
+        }
+      ],
+      ocean: true
+    },
+    {
+      id: "octopus",
+      name: "Octopus",
+      biome: "coastal",
+      kind: "invertebrate",
+      rarity: "rare",
+      trophic: "apex-predator",
+      diet: "Shore crabs, clams, mussels, snails and shrimp, cracked open or drilled through",
+      shelter: "A crevice or empty shell it pulls a rock across behind itself, with a heap of emptied shells outside the door",
+      preferredHabitat: "Rocky subtidal seafloor and deep tidepools with plenty of crevices and cold, clean water",
+      fact: "An octopus has three hearts, blue blood, and tastes everything it touches with its arms \u2014 and because the only hard part of it is its beak, one the size of a dinner plate can squeeze through a hole the size of a grape.",
+      role: "The octopus is the top invertebrate hunter of the rocky shore, and the pile of emptied crab and clam shells outside its den is the easiest way to find one. It can change colour and skin texture in under a second to vanish against rock or kelp, despite being colourblind, and it will drill a neat hole through a stubborn clam and inject it to make the shell relax. Each octopus works through a huge number of crabs, which keeps the grazers and scavengers of the tidepools in check.",
+      eats: [
+        "tidepool-crab"
+      ],
+      eatsOther: [
+        "snails",
+        "shrimp",
+        "small fish"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 72,
+        objects: {
+          "octopus-den-midden": 1,
+          "kelp-holdfast-reef": 2,
+          "kelp-forest": 1
+        },
+        signature: "octopus-den-midden",
+        water: {
+          ocean: 6,
+          deep: true
+        },
+        animals: [
+          "tidepool-crab"
+        ],
+        hint: "Broken rock with gaps to hide in, and plenty of crabs. Leave the shell pile outside the den alone \u2014 that is how you know somebody is home."
+      },
+      scientificName: "Octopus rubescens",
+      sources: [
+        {
+          name: "Monterey Bay Aquarium \u2014 East Pacific red octopus",
+          url: "https://www.montereybayaquarium.org/animals/animals-a-to-z/east-pacific-red-octopus"
+        },
+        {
+          name: "Animal Diversity Web \u2014 Octopus rubescens",
+          url: "https://animaldiversity.org/accounts/Octopus_rubescens/"
+        }
+      ],
+      ocean: true
+    },
+    {
+      id: "mule-deer-alpine",
+      name: "Grizzly Bear",
+      biome: "alpine",
+      kind: "mammal",
+      rarity: "rare",
+      trophic: "apex-predator",
+      diet: "Roots, berries, ground squirrels, winter-killed carcasses \u2014 and moths, by the hundred thousand",
+      shelter: "Digs a den into a high slope in autumn and sleeps in it until the snow softens",
+      preferredHabitat: "Open high country with digging ground, berry slopes and no people",
+      fact: "Grizzlies climb above the trees in late summer to eat moths \u2014 flipping rocks to get at them and putting away up to 40,000 in a day, which is most of a year's fat in a few weeks.",
+      role: "The biggest thing on the mountain and the reason everything else stays alert. It digs up whole slopes hunting roots and ground squirrels, which turns the soil over, and it will drive a wolverine off a carcass without breaking stride.",
+      eats: [
+        "marmot"
+      ],
+      eatsOther: [
+        "roots",
+        "berries",
+        "carrion",
+        "ground squirrels"
+      ],
+      eatenBy: [],
+      requirements: {
+        minHealth: 85,
+        objects: {
+          "grizzly-dig-slope": 1,
+          "talus-pile": 1,
+          "alpine-turf-mat": 1
+        },
+        signature: "grizzly-dig-slope",
+        animals: [
+          "marmot"
+        ],
+        hint: "A high open slope soft enough to dig, rocks to flip, and a mountain already full enough to feed something this big."
+      },
+      scientificName: "Ursus arctos horribilis",
+      sources: [
+        {
+          name: "National Park Service \u2014 Grizzly Bear",
+          url: "https://www.nps.gov/subjects/bears/grizzly-bears.htm"
+        }
+      ]
+    },
+    {
+      id: "grasshopper-mouse",
+      name: "Grasshopper Mouse",
+      biome: "desert",
+      kind: "mammal",
+      rarity: "uncommon",
+      trophic: "mesopredator",
+      diet: "Scorpions, centipedes, beetles and other mice",
+      shelter: "Takes over a burrow another animal dug, then defends it",
+      preferredHabitat: "Open sandy flats with scattered brush and plenty of prey underfoot",
+      fact: "This mouse hunts scorpions, gets stung in the face, and carries on eating \u2014 its body turns the venom's pain signal off. Then it stands up on its hind legs and howls at the moon like a tiny wolf.",
+      role: "A mouse that decided to be a predator. It keeps scorpions and big insects in check, and it is one of the only animals that can eat the desert's most venomous residents without flinching.",
+      eats: [
+        "scorpion",
+        "desert-termite"
+      ],
+      eatsOther: [
+        "centipedes",
+        "beetles",
+        "seeds"
+      ],
+      eatenBy: [
+        "rattlesnake",
+        "harris-hawk"
+      ],
+      requirements: {
+        minHealth: 42,
+        objects: {
+          "borrowed-burrow-mouth": 1,
+          "bare-ground-patch": 1
+        },
+        signature: "borrowed-burrow-mouth",
+        animals: [
+          "scorpion"
+        ],
+        hint: "An old burrow it can take over and open ground to hunt across. It gets all its water from what it catches."
+      },
+      scientificName: "Onychomys torridus",
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Onychomys torridus",
+          url: "https://animaldiversity.org/accounts/Onychomys_torridus/"
+        }
+      ]
+    },
+    {
+      id: "snow-bunting",
+      name: "Snow Bunting",
+      biome: "alpine",
+      kind: "bird",
+      rarity: "uncommon",
+      trophic: "herbivore",
+      diet: "Seeds blown onto the snow, plus insects in the short summer",
+      shelter: "Deep in a rock crevice, lined with feathers and fur against the cold",
+      preferredHabitat: "Windswept ridges and fellfield where the snow blows clear",
+      fact: "Snow buntings nest further north than any other songbird on Earth, tucked so deep in rock cracks that the male has to feed the female in the dark while she sits.",
+      role: "A small bird that treats a blizzard as ordinary weather. Flocks drift across bare ridges picking up seed the wind has stranded on the snow, and they turn from white to warm brown as the season turns.",
+      eats: [
+        "alpine-springtail"
+      ],
+      eatsOther: [
+        "seeds",
+        "insects"
+      ],
+      eatenBy: [
+        "peregrine-falcon",
+        "ermine"
+      ],
+      requirements: {
+        minHealth: 30,
+        objects: {
+          "feather-lined-crack": 1,
+          "scree-slope": 1
+        },
+        signature: "feather-lined-crack",
+        hint: "A deep, dry crack in the rock out of the wind, and open stony ground nearby where the snow blows clear."
+      },
+      scientificName: "Plectrophenax nivalis",
+      sources: [
+        {
+          name: "All About Birds \u2014 Snow Bunting",
+          url: "https://www.allaboutbirds.org/guide/Snow_Bunting/lifehistory"
         }
       ]
     }
@@ -18106,7 +25642,7 @@ body.lb-open{overflow:hidden}
 </html>
 `;
 var ogImageB64 = "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";
-var buildStamp = "0.2.10+2026-08-07T20:58:42.019Z";
+var buildStamp = "0.2.10+2026-08-09T18:11:50.480Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";

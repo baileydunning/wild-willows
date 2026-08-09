@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useGame } from '../state';
-import type { AnimalDef, Discovery, GameData } from '../types';
+import type { AnimalDef, Discovery, GameData, FoodEdge } from '../types';
 import { animalSpriteDataUri } from '../game/textures';
 import { t, content } from '../i18n';
 import { useI18n } from '../i18n/react';
@@ -48,6 +48,7 @@ const comfortText = (c: number) => t(`panels.journal.comfort.${comfortLabel(c)}`
 const TROPHIC: Record<string, { tier: number; color: string }> = {
 	producer: { tier: 0, color: '#6aa253' },
 	decomposer: { tier: 0, color: '#8a7b5c' },
+	detritivore: { tier: 0, color: '#7d6f52' },
 	'filter-feeder': { tier: 1, color: '#5b9cab' },
 	herbivore: { tier: 1, color: '#7bae55' },
 	insectivore: { tier: 2, color: '#c99a3f' },
@@ -238,7 +239,9 @@ function FoodWebLinks({ animal }: { animal: AnimalDef }) {
 	const openCard = (id: string) => {
 		void observe(id);
 	}; // reading the entry = observing
-	const chip = (id: string) => {
+	const chip = (edge: FoodEdge) => {
+		const id = typeof edge === 'string' ? edge : edge.id;
+		const stage = typeof edge === 'string' ? undefined : edge.stage;
 		const seen = known.has(id);
 		const a = data.animals.find((aa) => aa.id === id);
 		return (
@@ -252,6 +255,7 @@ function FoodWebLinks({ animal }: { animal: AnimalDef }) {
 				{seen
 					? nameOf(id)
 					: t('panels.journal.unknownChip', { kind: a ? content('animal', a.id, 'kind', a.kind) : '' }).trim()}
+				{stage ? <span className="web-chip-stage"> {t(`panels.journal.stage.${stage}`)}</span> : null}
 			</button>
 		);
 	};
@@ -393,7 +397,10 @@ function FoodWebView({ animals, discs }: { animals: AnimalDef[]; discs: Map<stri
 			label: t('panels.journal.tiers.herbivores'),
 			test: (a) => a.trophic === 'herbivore' || a.trophic === 'filter-feeder',
 		},
-		{ label: t('panels.journal.tiers.producers'), test: (a) => a.trophic === 'producer' || a.trophic === 'decomposer' },
+		{
+			label: t('panels.journal.tiers.producers'),
+			test: (a) => a.trophic === 'producer' || a.trophic === 'decomposer' || a.trophic === 'detritivore',
+		},
 	];
 	const placed = new Set<string>();
 	const rows = tiers.map((tr) => {

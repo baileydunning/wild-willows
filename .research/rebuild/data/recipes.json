@@ -118,8 +118,8 @@
         "water": 1
       },
       "unlock": {
-        "minHealth": 16,
-        "label": "Restore Willow Meadow to 16% health"
+        "minHealth": 25,
+        "label": "Restore Willow Meadow to 25% health"
       }
     },
     {
@@ -447,8 +447,8 @@
         "water": 5
       },
       "unlock": {
-        "minHealth": 38,
-        "label": "Restore the area to 38% health"
+        "minHealth": 45,
+        "label": "Restore Old Hollow Forest to 45% health"
       }
     },
     {
@@ -1138,8 +1138,8 @@
         "fiber": 2
       },
       "unlock": {
-        "minHealth": 8,
-        "label": "Restore Willow Meadow to 8% health"
+        "minHealth": 12,
+        "label": "Restore Old Hollow Forest to 12% health"
       }
     },
     {
@@ -2652,8 +2652,8 @@
         "lichen": 1
       },
       "unlock": {
-        "minHealth": 5,
-        "label": "Restore Graywind Heights to 5% health"
+        "requiresAnimal": "map-lichen",
+        "label": "Welcome the Map Lichen back to Graywind Heights"
       }
     },
     {
@@ -2671,8 +2671,8 @@
         "clay": 2
       },
       "unlock": {
-        "minHealth": 12,
-        "label": "Restore Graywind Heights to 12% health"
+        "requiresAnimal": "moss-campion",
+        "label": "Welcome the Moss Campion back to Graywind Heights"
       }
     },
     {
@@ -2690,8 +2690,8 @@
         "lichen": 1
       },
       "unlock": {
-        "minHealth": 12,
-        "label": "Restore Graywind Heights to 12% health"
+        "requiresAnimal": "moss-campion",
+        "label": "Welcome the Moss Campion back to Graywind Heights"
       }
     },
     {
@@ -3023,8 +3023,8 @@
         "stones": 1
       },
       "unlock": {
-        "minHealth": 40,
-        "label": "Restore the area to 40% health"
+        "minHealth": 45,
+        "label": "Restore Graywind Heights to 45% health"
       }
     },
     {
@@ -3114,8 +3114,8 @@
         "sand": 1
       },
       "unlock": {
-        "minHealth": 15,
-        "label": "Restore Pelican Shore to 15% health"
+        "requiresAnimal": "giant-kelp",
+        "label": "Welcome the Giant Kelp back to Pelican Shore"
       }
     },
     {
@@ -3133,8 +3133,8 @@
         "water": 3
       },
       "unlock": {
-        "minHealth": 15,
-        "label": "Restore Pelican Shore to 15% health"
+        "requiresAnimal": "giant-kelp",
+        "label": "Welcome the Giant Kelp back to Pelican Shore"
       }
     },
     {
@@ -3152,8 +3152,8 @@
         "water": 2
       },
       "unlock": {
-        "minHealth": 10,
-        "label": "Restore Pelican Shore to 10% health"
+        "requiresAnimal": "surfgrass",
+        "label": "Welcome Torrey's Surfgrass back to Pelican Shore"
       }
     },
     {
@@ -3296,8 +3296,8 @@
         "water": 2
       },
       "unlock": {
-        "minHealth": 15,
-        "label": "Restore Pelican Shore to 15% health"
+        "requiresAnimal": "giant-kelp",
+        "label": "Welcome the Giant Kelp back to Pelican Shore"
       }
     },
     {
@@ -3484,6 +3484,24 @@
       }
     },
     {
+      "id": "shell-lined-rock-scrape",
+      "name": "Shell-Lined Rock Scrape",
+      "category": "habitat",
+      "unlockBiome": "coastal",
+      "output": {
+        "itemId": "shell-lined-rock-scrape",
+        "qty": 1
+      },
+      "materials": {
+        "shells": 4,
+        "sand": 2
+      },
+      "unlock": {
+        "requiresAnimal": "mussel",
+        "label": "Welcome the California Mussel back to Pelican Shore"
+      }
+    },
+    {
       "id": "offshore-nesting-island",
       "name": "Offshore Nesting Island",
       "category": "habitat",
@@ -3554,8 +3572,8 @@
         "sand": 2
       },
       "unlock": {
-        "minHealth": 15,
-        "label": "Restore Pelican Shore to 15% health"
+        "requiresAnimal": "giant-kelp",
+        "label": "Welcome the Giant Kelp back to Pelican Shore"
       }
     },
     {
@@ -4014,8 +4032,8 @@
         "sand": 1
       },
       "unlock": {
-        "minHealth": 30,
-        "label": "Restore Redstone Scrubland to 30% health"
+        "requiresAnimal": "saguaro",
+        "label": "Welcome the Saguaro back to Redstone Scrubland"
       }
     },
     {
@@ -4089,8 +4107,8 @@
         "mushrooms": 1
       },
       "unlock": {
-        "minHealth": 8,
-        "label": "Restore Old Hollow Forest to 8% health"
+        "requiresAnimal": "turkey-tail",
+        "label": "Welcome the Turkey Tail back to Old Hollow Forest"
       }
     },
     {
@@ -4127,8 +4145,8 @@
         "acorns": 2
       },
       "unlock": {
-        "minHealth": 42,
-        "label": "Restore Old Hollow Forest to 42% health"
+        "requiresAnimal": "deer-truffle",
+        "label": "Welcome the Deer Truffle back to Old Hollow Forest"
       }
     },
     {
@@ -4146,8 +4164,8 @@
         "bark": 1
       },
       "unlock": {
-        "minHealth": 8,
-        "label": "Restore Old Hollow Forest to 8% health"
+        "requiresAnimal": "turkey-tail",
+        "label": "Welcome the Turkey Tail back to Old Hollow Forest"
       }
     },
     {
@@ -4165,8 +4183,8 @@
         "bark": 1
       },
       "unlock": {
-        "minHealth": 8,
-        "label": "Restore Old Hollow Forest to 8% health"
+        "requiresAnimal": "turkey-tail",
+        "label": "Welcome the Turkey Tail back to Old Hollow Forest"
       }
     },
     {
@@ -4184,8 +4202,8 @@
         "mushrooms": 1
       },
       "unlock": {
-        "minHealth": 8,
-        "label": "Restore Old Hollow Forest to 8% health"
+        "requiresAnimal": "turkey-tail",
+        "label": "Welcome the Turkey Tail back to Old Hollow Forest"
       }
     },
     {
@@ -4313,8 +4331,8 @@
         "moss": 3
       },
       "unlock": {
-        "minHealth": 20,
-        "label": "Restore Old Hollow Forest to 20% health"
+        "requiresAnimal": "eastern-hemlock",
+        "label": "Welcome the Eastern Hemlock back to Old Hollow Forest"
       }
     },
     {
@@ -4526,6 +4544,25 @@
       }
     },
     {
+      "id": "prairie-swale-seedbed",
+      "name": "Prairie Swale Seedbed",
+      "category": "habitat",
+      "unlockBiome": "meadow",
+      "output": {
+        "itemId": "prairie-swale-seedbed",
+        "qty": 1
+      },
+      "materials": {
+        "seeds": 2,
+        "clay": 1,
+        "water": 1
+      },
+      "unlock": {
+        "minHealth": 4,
+        "label": "Restore Willow Meadow to 4% health"
+      }
+    },
+    {
       "id": "bunchgrass-sod-plug",
       "name": "Bunchgrass Sod Plug",
       "category": "habitat",
@@ -4558,8 +4595,26 @@
         "branches": 1
       },
       "unlock": {
-        "minHealth": 5,
-        "label": "Restore Willow Meadow to 5% health"
+        "requiresAnimal": "blue-grama",
+        "label": "Welcome the Blue Grama back to Willow Meadow"
+      }
+    },
+    {
+      "id": "burial-soil-plot",
+      "name": "Burial Soil Plot",
+      "category": "habitat",
+      "unlockBiome": "meadow",
+      "output": {
+        "itemId": "burial-soil-plot",
+        "qty": 1
+      },
+      "materials": {
+        "clay": 2,
+        "fiber": 1
+      },
+      "unlock": {
+        "requiresAnimal": "meadow-vole",
+        "label": "Welcome the Montane Vole back to Willow Meadow"
       }
     },
     {
@@ -4613,8 +4668,8 @@
         "water": 2
       },
       "unlock": {
-        "minHealth": 6,
-        "label": "Restore Willow Meadow to 6% health"
+        "requiresAnimal": "showy-milkweed",
+        "label": "Welcome the Showy Milkweed back to Willow Meadow"
       }
     },
     {
@@ -4632,7 +4687,7 @@
       },
       "unlock": {
         "requiresAnimal": "meadow-vole",
-        "label": "Welcome the Prairie Vole back to Willow Meadow"
+        "label": "Welcome the Montane Vole back to Willow Meadow"
       }
     },
     {
@@ -4685,8 +4740,27 @@
         "wildflowers": 2
       },
       "unlock": {
-        "minHealth": 6,
-        "label": "Restore Willow Meadow to 6% health"
+        "requiresAnimal": "showy-milkweed",
+        "label": "Welcome the Showy Milkweed back to Willow Meadow"
+      }
+    },
+    {
+      "id": "wet-meadow-sedge-clump",
+      "name": "Wet Meadow Sedge Clump",
+      "category": "habitat",
+      "unlockBiome": "meadow",
+      "output": {
+        "itemId": "wet-meadow-sedge-clump",
+        "qty": 1
+      },
+      "materials": {
+        "seeds": 3,
+        "water": 3,
+        "clay": 1
+      },
+      "unlock": {
+        "minHealth": 12,
+        "label": "Restore Willow Meadow to 12% health"
       }
     },
     {
@@ -4720,8 +4794,25 @@
         "fiber": 2
       },
       "unlock": {
-        "minHealth": 6,
-        "label": "Restore Willow Meadow to 6% health"
+        "requiresAnimal": "showy-milkweed",
+        "label": "Welcome the Showy Milkweed back to Willow Meadow"
+      }
+    },
+    {
+      "id": "pebble-nest-scrape",
+      "name": "Pebble Nest Scrape",
+      "category": "habitat",
+      "unlockBiome": "meadow",
+      "output": {
+        "itemId": "pebble-nest-scrape",
+        "qty": 1
+      },
+      "materials": {
+        "stones": 3
+      },
+      "unlock": {
+        "minHealth": 30,
+        "label": "Restore Willow Meadow to 30% health"
       }
     },
     {
@@ -4738,8 +4829,8 @@
         "branches": 2
       },
       "unlock": {
-        "minHealth": 5,
-        "label": "Restore Willow Meadow to 5% health"
+        "requiresAnimal": "blue-grama",
+        "label": "Welcome the Blue Grama back to Willow Meadow"
       }
     },
     {
@@ -4776,7 +4867,26 @@
       },
       "unlock": {
         "requiresAnimal": "ground-squirrel",
-        "label": "Welcome the Ground Squirrel back to Willow Meadow"
+        "label": "Welcome the California Ground Squirrel back to Willow Meadow"
+      }
+    },
+    {
+      "id": "hedgerow-ambush-lane",
+      "name": "Hedgerow Ambush Lane",
+      "category": "habitat",
+      "unlockBiome": "meadow",
+      "output": {
+        "itemId": "hedgerow-ambush-lane",
+        "qty": 1
+      },
+      "materials": {
+        "seeds": 3,
+        "branches": 3,
+        "water": 2
+      },
+      "unlock": {
+        "minHealth": 50,
+        "label": "Restore Willow Meadow to 50% health"
       }
     },
     {
@@ -4812,7 +4922,7 @@
       },
       "unlock": {
         "requiresAnimal": "ground-squirrel",
-        "label": "Welcome the Ground Squirrel back to Willow Meadow"
+        "label": "Welcome the California Ground Squirrel back to Willow Meadow"
       }
     },
     {
@@ -4831,6 +4941,25 @@
       "unlock": {
         "minHealth": 65,
         "label": "Restore Willow Meadow to 65% health"
+      }
+    },
+    {
+      "id": "abandoned-stick-nest",
+      "name": "Abandoned Stick Nest",
+      "category": "habitat",
+      "unlockBiome": "meadow",
+      "output": {
+        "itemId": "abandoned-stick-nest",
+        "qty": 1
+      },
+      "materials": {
+        "branches": 7,
+        "fiber": 3,
+        "stones": 2
+      },
+      "unlock": {
+        "requiresAnimal": "red-tailed-hawk",
+        "label": "Welcome the Red-tailed Hawk back to Willow Meadow"
       }
     },
     {
@@ -4883,8 +5012,8 @@
         "mud": 2
       },
       "unlock": {
-        "minHealth": 8,
-        "label": "Restore Rushwater Wetland to 8% health"
+        "requiresAnimal": "cattail",
+        "label": "Welcome the Broadleaf Cattail back to Rushwater Wetland"
       }
     },
     {
@@ -4957,8 +5086,8 @@
         "water": 2
       },
       "unlock": {
-        "minHealth": 8,
-        "label": "Restore Rushwater Wetland to 8% health"
+        "requiresAnimal": "cattail",
+        "label": "Welcome the Broadleaf Cattail back to Rushwater Wetland"
       }
     },
     {
@@ -4975,8 +5104,8 @@
         "water": 2
       },
       "unlock": {
-        "minHealth": 8,
-        "label": "Restore Rushwater Wetland to 8% health"
+        "requiresAnimal": "cattail",
+        "label": "Welcome the Broadleaf Cattail back to Rushwater Wetland"
       }
     },
     {
@@ -5200,544 +5329,6 @@
       "unlock": {
         "requiresAnimal": "beaver",
         "label": "Welcome the Beaver back to Rushwater Wetland"
-      }
-    },
-    {
-      "id": "rotting-log-crumble",
-      "name": "Crumbling Log",
-      "category": "habitat",
-      "unlockBiome": "meadow",
-      "output": {
-        "itemId": "rotting-log-crumble",
-        "qty": 1
-      },
-      "materials": {
-        "branches": 3,
-        "water": 1
-      },
-      "unlock": {
-        "minHealth": 8,
-        "label": "Restore Willow Meadow to 8% health"
-      }
-    },
-    {
-      "id": "orb-web-anchor-stems",
-      "name": "Web Anchor Stems",
-      "category": "habitat",
-      "unlockBiome": "meadow",
-      "output": {
-        "itemId": "orb-web-anchor-stems",
-        "qty": 1
-      },
-      "materials": {
-        "fiber": 2,
-        "branches": 1
-      },
-      "unlock": {
-        "requiresAnimal": "grasshopper",
-        "label": "Welcome the Grasshopper back to Willow Meadow"
-      }
-    },
-    {
-      "id": "bat-maternity-roost",
-      "name": "Maternity Roost",
-      "category": "habitat",
-      "unlockBiome": "meadow",
-      "output": {
-        "itemId": "bat-maternity-roost",
-        "qty": 1
-      },
-      "materials": {
-        "branches": 5,
-        "fiber": 2,
-        "clay": 1
-      },
-      "unlock": {
-        "minHealth": 42,
-        "label": "Restore Willow Meadow to 42% health"
-      }
-    },
-    {
-      "id": "barn-loft-nest-box",
-      "name": "Barn Loft",
-      "category": "habitat",
-      "unlockBiome": "meadow",
-      "output": {
-        "itemId": "barn-loft-nest-box",
-        "qty": 1
-      },
-      "materials": {
-        "branches": 6,
-        "fiber": 2,
-        "clay": 1
-      },
-      "unlock": {
-        "requiresAnimal": "meadow-vole",
-        "label": "Welcome the Prairie Vole back to Willow Meadow"
-      }
-    },
-    {
-      "id": "coyote-natal-den-bank",
-      "name": "Coyote Den Bank",
-      "category": "habitat",
-      "unlockBiome": "meadow",
-      "output": {
-        "itemId": "coyote-natal-den-bank",
-        "qty": 1
-      },
-      "materials": {
-        "clay": 4,
-        "branches": 3,
-        "stones": 1
-      },
-      "unlock": {
-        "requiresAnimal": "american-badger",
-        "label": "Welcome the American Badger back to Willow Meadow"
-      }
-    },
-    {
-      "id": "damp-leaf-corner",
-      "name": "Damp Leaf Corner",
-      "category": "habitat",
-      "unlockBiome": "meadow",
-      "output": {
-        "itemId": "damp-leaf-corner",
-        "qty": 1
-      },
-      "materials": {
-        "fiber": 2,
-        "branches": 1,
-        "water": 1
-      },
-      "unlock": {
-        "minHealth": 5,
-        "label": "Restore Willow Meadow to 5% health"
-      }
-    },
-    {
-      "id": "hidden-grass-nest",
-      "name": "Hidden Grass Nest",
-      "category": "habitat",
-      "unlockBiome": "meadow",
-      "output": {
-        "itemId": "hidden-grass-nest",
-        "qty": 1
-      },
-      "materials": {
-        "fiber": 3,
-        "seeds": 2
-      },
-      "unlock": {
-        "minHealth": 12,
-        "label": "Restore Willow Meadow to 12% health"
-      }
-    },
-    {
-      "id": "meadow-mushroom-ring",
-      "name": "Meadow Mushroom Ring",
-      "category": "habitat",
-      "unlockBiome": "meadow",
-      "output": {
-        "itemId": "meadow-mushroom-ring",
-        "qty": 1
-      },
-      "materials": {
-        "mushrooms": 2,
-        "fiber": 1
-      },
-      "unlock": {
-        "minHealth": 10,
-        "label": "Restore Willow Meadow to 10% health"
-      }
-    },
-    {
-      "id": "cocoon-leaf-drift",
-      "name": "Cocoon Leaf Drift",
-      "category": "habitat",
-      "unlockBiome": "forest",
-      "output": {
-        "itemId": "cocoon-leaf-drift",
-        "qty": 1
-      },
-      "materials": {
-        "fiber": 3,
-        "branches": 1
-      },
-      "unlock": {
-        "minHealth": 26,
-        "label": "Restore Old Hollow Forest to 26% health"
-      }
-    },
-    {
-      "id": "acorn-cache-scatter",
-      "name": "Acorn Cache",
-      "category": "habitat",
-      "unlockBiome": "forest",
-      "output": {
-        "itemId": "acorn-cache-scatter",
-        "qty": 1
-      },
-      "materials": {
-        "acorns": 4,
-        "clay": 1
-      },
-      "unlock": {
-        "minHealth": 24,
-        "label": "Restore Old Hollow Forest to 24% health"
-      }
-    },
-    {
-      "id": "winter-freeze-litter-bed",
-      "name": "Freeze-Down Litter Bed",
-      "category": "habitat",
-      "unlockBiome": "forest",
-      "output": {
-        "itemId": "winter-freeze-litter-bed",
-        "qty": 1
-      },
-      "materials": {
-        "fiber": 2,
-        "moss": 2,
-        "bark": 1
-      },
-      "unlock": {
-        "minHealth": 34,
-        "label": "Restore Old Hollow Forest to 34% health"
-      }
-    },
-    {
-      "id": "canopy-nest-limb",
-      "name": "Canopy Nest Limb",
-      "category": "habitat",
-      "unlockBiome": "forest",
-      "output": {
-        "itemId": "canopy-nest-limb",
-        "qty": 1
-      },
-      "materials": {
-        "branches": 8,
-        "fiber": 4,
-        "moss": 2
-      },
-      "unlock": {
-        "minHealth": 72,
-        "label": "Restore Old Hollow Forest to 72% health"
-      }
-    },
-    {
-      "id": "bracket-fungus-shelf",
-      "name": "Bracket Fungus Shelf",
-      "category": "habitat",
-      "unlockBiome": "forest",
-      "output": {
-        "itemId": "bracket-fungus-shelf",
-        "qty": 1
-      },
-      "materials": {
-        "mushrooms": 3,
-        "bark": 2,
-        "branches": 2
-      },
-      "unlock": {
-        "minHealth": 8,
-        "label": "Restore Old Hollow Forest to 8% health"
-      }
-    },
-    {
-      "id": "wild-celery-bed",
-      "name": "Wild Celery Bed",
-      "category": "habitat",
-      "unlockBiome": "wetland",
-      "output": {
-        "itemId": "wild-celery-bed",
-        "qty": 1
-      },
-      "materials": {
-        "reeds": 3,
-        "mud": 2,
-        "water": 2
-      },
-      "unlock": {
-        "minHealth": 12,
-        "label": "Restore Rushwater Wetland to 12% health"
-      }
-    },
-    {
-      "id": "thicket-bed-hollow",
-      "name": "Thicket Bed Hollow",
-      "category": "habitat",
-      "unlockBiome": "desert",
-      "output": {
-        "itemId": "thicket-bed-hollow",
-        "qty": 1
-      },
-      "materials": {
-        "branches": 4,
-        "sand": 3,
-        "fiber": 2
-      },
-      "unlock": {
-        "minHealth": 46,
-        "label": "Restore Redstone Scrubland to 46% health"
-      }
-    },
-    {
-      "id": "falcon-scrape-ledge",
-      "name": "Scrape Ledge",
-      "category": "habitat",
-      "unlockBiome": "alpine",
-      "output": {
-        "itemId": "falcon-scrape-ledge",
-        "qty": 1
-      },
-      "materials": {
-        "stones": 5,
-        "sand": 2
-      },
-      "unlock": {
-        "minHealth": 64,
-        "label": "Restore Graywind Heights to 64% health"
-      }
-    },
-    {
-      "id": "snowbank-mushroom-cluster",
-      "name": "Snowbank Mushrooms",
-      "category": "habitat",
-      "unlockBiome": "alpine",
-      "output": {
-        "itemId": "snowbank-mushroom-cluster",
-        "qty": 1
-      },
-      "materials": {
-        "mushrooms": 3,
-        "moss": 2,
-        "snow": 1
-      },
-      "unlock": {
-        "minHealth": 22,
-        "label": "Restore Graywind Heights to 22% health"
-      }
-    },
-    {
-      "id": "algae-garden-scar",
-      "name": "Grazed Algae Garden",
-      "category": "habitat",
-      "unlockBiome": "coastal",
-      "output": {
-        "itemId": "algae-garden-scar",
-        "qty": 1
-      },
-      "materials": {
-        "kelp": 2,
-        "stones": 2,
-        "water": 1
-      },
-      "unlock": {
-        "minHealth": 20,
-        "label": "Restore Pelican Shore to 20% health"
-      }
-    },
-    {
-      "id": "octopus-den-midden",
-      "name": "Den Midden",
-      "category": "habitat",
-      "unlockBiome": "coastal",
-      "output": {
-        "itemId": "octopus-den-midden",
-        "qty": 1
-      },
-      "materials": {
-        "stones": 6,
-        "shells": 4,
-        "sand": 2
-      },
-      "unlock": {
-        "minHealth": 66,
-        "label": "Restore Pelican Shore to 66% health"
-      }
-    },
-    {
-      "id": "grizzly-dig-slope",
-      "name": "Dig Slope",
-      "category": "habitat",
-      "unlockBiome": "alpine",
-      "output": {
-        "itemId": "grizzly-dig-slope",
-        "qty": 1
-      },
-      "materials": {
-        "stones": 4,
-        "moss": 2,
-        "clean-water": 2
-      },
-      "unlock": {
-        "minHealth": 60,
-        "label": "Restore Graywind Heights to 60% health"
-      }
-    },
-    {
-      "id": "feather-lined-crack",
-      "name": "Feather-Lined Crack",
-      "category": "habitat",
-      "unlockBiome": "alpine",
-      "output": {
-        "itemId": "feather-lined-crack",
-        "qty": 1
-      },
-      "materials": {
-        "stones": 3,
-        "moss": 1
-      },
-      "unlock": {
-        "minHealth": 20,
-        "label": "Restore the area to 20% health"
-      }
-    },
-    {
-      "id": "borrowed-burrow-mouth",
-      "name": "Borrowed Burrow",
-      "category": "habitat",
-      "unlockBiome": "desert",
-      "output": {
-        "itemId": "borrowed-burrow-mouth",
-        "qty": 1
-      },
-      "materials": {
-        "sand": 3,
-        "stones": 2
-      },
-      "unlock": {
-        "minHealth": 20,
-        "label": "Restore the area to 20% health"
-      }
-    },
-    {
-      "id": "browsed-pond-shallows",
-      "name": "Browsed Shallows",
-      "category": "habitat",
-      "unlockBiome": "wetland",
-      "output": {
-        "itemId": "browsed-pond-shallows",
-        "qty": 1
-      },
-      "materials": {
-        "mud": 3,
-        "reeds": 3,
-        "clean-water": 2
-      },
-      "unlock": {
-        "minHealth": 30,
-        "label": "Restore Rushwater Wetland to 30% health"
-      }
-    },
-    {
-      "id": "waterfall-splash-ledge",
-      "name": "Splash Ledge",
-      "category": "habitat",
-      "unlockBiome": "alpine",
-      "output": {
-        "itemId": "waterfall-splash-ledge",
-        "qty": 1
-      },
-      "materials": {
-        "stones": 4,
-        "moss": 2,
-        "clean-water": 3
-      },
-      "unlock": {
-        "minHealth": 34,
-        "label": "Restore Graywind Heights to 34% health"
-      }
-    },
-    {
-      "id": "grub-digging-ground",
-      "name": "Digging Ground",
-      "category": "habitat",
-      "unlockBiome": "forest",
-      "output": {
-        "itemId": "grub-digging-ground",
-        "qty": 1
-      },
-      "materials": {
-        "moss": 2,
-        "bark": 2
-      },
-      "unlock": {
-        "minHealth": 34,
-        "label": "Restore Old Hollow Forest to 34% health"
-      }
-    },
-    {
-      "id": "clifftop-burrow",
-      "name": "Clifftop Burrow",
-      "category": "habitat",
-      "unlockBiome": "coastal",
-      "output": {
-        "itemId": "clifftop-burrow",
-        "qty": 1
-      },
-      "materials": {
-        "sand": 3,
-        "driftwood": 2
-      },
-      "unlock": {
-        "minHealth": 48,
-        "label": "Restore Pelican Shore to 48% health"
-      }
-    },
-    {
-      "id": "groundhog-burrow-mound",
-      "name": "Burrow Mound",
-      "category": "habitat",
-      "unlockBiome": "meadow",
-      "output": {
-        "itemId": "groundhog-burrow-mound",
-        "qty": 1
-      },
-      "materials": {
-        "stones": 2,
-        "fiber": 2,
-        "water": 1
-      },
-      "unlock": {
-        "minHealth": 30,
-        "label": "Restore Willow Meadow to 30% health"
-      }
-    },
-    {
-      "id": "opossum-den-hollow",
-      "name": "Den Hollow",
-      "category": "habitat",
-      "unlockBiome": "meadow",
-      "output": {
-        "itemId": "opossum-den-hollow",
-        "qty": 1
-      },
-      "materials": {
-        "branches": 3,
-        "fiber": 2
-      },
-      "unlock": {
-        "minHealth": 36,
-        "label": "Restore Willow Meadow to 36% health"
-      }
-    },
-    {
-      "id": "shore-stick-nest",
-      "name": "Stick Nest",
-      "category": "habitat",
-      "unlockBiome": "coastal",
-      "output": {
-        "itemId": "shore-stick-nest",
-        "qty": 1
-      },
-      "materials": {
-        "driftwood": 3,
-        "kelp": 1
-      },
-      "unlock": {
-        "minHealth": 24,
-        "label": "Restore Pelican Shore to 24% health"
       }
     }
   ]

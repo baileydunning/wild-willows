@@ -2183,6 +2183,635 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 		g.fillStyle(C('#5b9cab'), 1).fillRect(19, 9, 6, 1.4); // dragonfly wings
 		g.fillStyle(C('#2f6f6a'), 1).fillRect(21, 8, 2, 4); // dragonfly body
 	});
+
+	// --- Pass-2 meadow habitat objects -------------------------------------
+	// --- Willow Meadow habitat objects ---
+
+	// Abandoned stick nest: a flat grey raft slumped in a bare fork — wide and
+	// untidy, deliberately nothing like the tight woven cup of `nest`.
+	o('oldsticknest', 36, 28, (g) => {
+		g.lineStyle(3, C('#6b5a44'), 1).lineBetween(6, 27, 16, 17).lineBetween(30, 27, 20, 17); // bare fork
+		g.fillStyle(C('#6d6046'), 1).fillEllipse(18, 15, 32, 11); // raft of weathered sticks
+		g.fillStyle(C('#8a7c60'), 1).fillEllipse(16, 12, 28, 7);
+		g.lineStyle(1.2, C('#574c38'), 1);
+		for (const [x1, y1, x2, y2] of [
+			[3, 14, 15, 10],
+			[6, 17, 20, 13],
+			[12, 9, 32, 14],
+			[9, 12, 28, 9],
+			[14, 18, 33, 17],
+		] as const)
+			g.lineBetween(x1, y1, x2, y2); // loose twig ends
+		g.fillStyle(C('#4a412f'), 1).fillEllipse(25, 16, 12, 5); // rim sagging on one side
+		g.fillStyle(C('#d8cdb4'), 1).fillTriangle(28, 21, 34, 9, 31, 22); // barred feather caught in it
+		g.lineStyle(0.7, C('#8a7a58'), 1).lineBetween(30, 19, 33, 12).lineBetween(30, 16, 33.5, 10);
+	});
+
+	// Bare soil scrape: raked mineral soil ringed by cut stubble. Flat and open —
+	// a hole in the vegetation, not a mound.
+	o('soilscrape', 34, 24, (g) => {
+		g.fillStyle(C('#6e8a46'), 1).fillEllipse(17, 14, 33, 18); // cut grass stubble ring
+		g.lineStyle(1, C('#88a35a'), 1);
+		for (let i = 0; i < 10; i++) g.lineBetween(2 + i * 3.4, 13 + (i % 2) * 3, 2 + i * 3.4, 7 + (i % 2) * 3);
+		g.fillStyle(C('#a89065'), 1).fillEllipse(17, 15, 24, 12); // scraped down to tan mineral soil
+		g.fillStyle(C('#c9b183'), 1).fillEllipse(17, 14, 21, 9);
+		g.fillStyle(C('#d8c79a'), 0.7).fillEllipse(13, 11, 11, 3);
+		g.lineStyle(1, C('#a08a5e'), 0.9).lineBetween(8, 11, 26, 13).lineBetween(8, 14, 26, 16).lineBetween(9, 17, 25, 18); // rake lines
+	});
+
+	// Bluebird box: pale cedar on a slim pole with a flaring cone guard — the
+	// silhouette is a lollipop on a stick, unlike the flush-mounted cavities.
+	o('bluebirdbox', 26, 36, (g) => {
+		g.fillStyle(C('#8e8e8a'), 1).fillRect(11, 19, 3.5, 17); // slim grey pole
+		g.fillStyle(C('#9a8460'), 1).fillTriangle(2, 30, 24, 30, 13, 19); // predator guard flaring below
+		g.fillStyle(C('#cdb68c'), 1).fillTriangle(4, 29, 22, 29, 13, 21);
+		g.fillStyle(C('#d8c49c'), 1).fillRect(6, 5, 14, 15); // pale cedar box
+		g.fillStyle(C('#bda87f'), 1).fillRect(6, 5, 4.5, 15);
+		g.fillStyle(C('#a8916a'), 1).fillTriangle(2, 6, 22, 2, 22, 5).fillTriangle(2, 6, 2, 3, 22, 2); // sloped roof
+		g.fillStyle(C('#2b2118'), 1).fillCircle(13, 11, 3.2); // round entrance hole
+		g.fillStyle(C('#6b8cc4'), 1).fillCircle(13.6, 11.6, 1.4); // blue shoulder in the dark
+	});
+
+	// Brush form hollow: a fur-smoothed bowl pressed into dry grass under a twig
+	// arch — a dish with two ear shadows in it, read from above.
+	o('formhollow', 34, 24, (g) => {
+		g.fillStyle(C('#c2ab72'), 1).fillEllipse(17, 16, 32, 15); // straw-gold grass
+		g.lineStyle(1.4, C('#6b5a3c'), 1).lineBetween(2, 14, 11, 4).lineBetween(11, 4, 24, 5).lineBetween(24, 5, 32, 13); // low twig arch
+		g.fillStyle(C('#a8925c'), 1).fillEllipse(17, 17, 23, 11); // pressed bowl
+		g.fillStyle(C('#8a7648'), 1).fillEllipse(17, 18, 18, 8); // fur-smoothed floor
+		g.fillStyle(C('#5f5133'), 0.85).fillEllipse(13, 17, 4, 9).fillEllipse(20, 17, 4, 9); // two long ear shadows
+		g.fillStyle(C('#d8c795'), 0.6).fillEllipse(12, 13, 10, 3); // sun on the lip
+	});
+
+	// Bumblebee tussock: a shaggy fountain of blades with a thumb-sized hole at
+	// the very base — the dome is the giveaway, plus one fat bee going in.
+	o('nesttussock', 32, 32, (g) => {
+		g.lineStyle(1.6, C('#8a9a4e'), 1);
+		for (let i = 0; i < 11; i++) g.lineBetween(16, 26, 1 + i * 3, 3 + Math.abs(i - 5) * 3); // blades fountaining out
+		g.fillStyle(C('#9aa85f'), 1).fillEllipse(16, 24, 28, 15); // shaggy dome
+		g.fillStyle(C('#b0bd72'), 1).fillEllipse(13, 20, 18, 8);
+		g.fillStyle(C('#5d5a33'), 1).fillEllipse(16, 27, 9, 6); // worn rim
+		g.fillStyle(C('#241d10'), 1).fillEllipse(16, 28, 7, 5); // thumb-hole at the base
+		g.fillStyle(C('#e3c75f'), 1).fillEllipse(19, 28, 4.4, 3.2); // bee entering
+		g.fillStyle(C('#3b2e25'), 1).fillRect(19.4, 27, 1.2, 2.6);
+	});
+
+	// Bunchgrass sod plugs: three squat turf cylinders in a row, one tipped on
+	// its side to show the root mat. Blocky and countable, not a patch.
+	o('sodplug', 34, 26, (g) => {
+		for (const x of [7, 17]) {
+			g.fillStyle(C('#4a3626'), 1).fillRect(x - 5, 12, 10, 10); // root-bound soil
+			g.fillStyle(C('#3a2a1c'), 1).fillEllipse(x, 22, 10, 4);
+			g.fillStyle(C('#8fa05a'), 1).fillEllipse(x, 12, 10, 5); // blue-green cap
+			g.lineStyle(1.2, C('#6f8a45'), 1);
+			for (const d of [-3, 0, 3]) g.lineBetween(x + d, 12, x + d * 1.5, 4);
+		}
+		g.fillStyle(C('#4a3626'), 1).fillEllipse(28, 18, 13, 10); // third plug tipped over
+		g.fillStyle(C('#7a5c3c'), 1).fillEllipse(28, 18, 9, 6);
+		g.lineStyle(0.8, C('#c9b183'), 1);
+		for (const dy of [-3, -1, 1, 3]) g.lineBetween(24, 18 + dy, 32, 18 + dy * 1.2); // exposed root mat
+	});
+
+	// Crown eyrie: a deep pale stick bowl wedged in the topmost fork with sky all
+	// round it — tall and narrow where the old hawk nest is wide and flat.
+	o('crowneyrie', 30, 30, (g) => {
+		g.fillStyle(C('#5a4634'), 1).fillRect(13, 20, 4, 10); // trunk top
+		g.lineStyle(2.4, C('#5a4634'), 1).lineBetween(15, 22, 7, 15).lineBetween(15, 22, 23, 15); // crown fork
+		g.fillStyle(C('#8a7452'), 1).fillEllipse(15, 16, 26, 14); // deep bowl
+		g.fillStyle(C('#a89070'), 1).fillEllipse(15, 13, 26, 10); // sunlit pale sticks
+		g.fillStyle(C('#4a3d2a'), 1).fillEllipse(15, 11, 15, 6); // dark cup interior
+		g.lineStyle(1, C('#c4b08a'), 1);
+		for (const [x1, y1, x2, y2] of [
+			[1, 15, 13, 12],
+			[5, 19, 27, 15],
+			[3, 12, 21, 17],
+			[11, 20, 29, 13],
+		] as const)
+			g.lineBetween(x1, y1, x2, y2); // sticks jutting into the air
+		g.lineStyle(1.4, C('#5d8a4a'), 1).lineBetween(19, 11, 26, 6); // fresh green sprig on the rim
+		g.fillStyle(C('#6da84e'), 1).fillEllipse(25, 6, 6, 3).fillEllipse(22, 8, 4.4, 2.4);
+	});
+
+	// Deep loam bank: a cutaway face in three chocolate layers with a spoil fan at
+	// the foot — reads as a straight-edged cut, not a rounded mound.
+	o('loambank', 34, 26, (g) => {
+		g.fillStyle(C('#33261a'), 1).fillRect(3, 3, 28, 7); // dark topsoil
+		g.fillStyle(C('#584530'), 1).fillRect(3, 10, 28, 6); // loam
+		g.fillStyle(C('#7d6647'), 1).fillRect(3, 16, 28, 5); // subsoil
+		g.fillStyle(C('#1e160d'), 0.8).fillRect(3, 9.2, 28, 1.2).fillRect(3, 15.2, 28, 1.2); // layer seams
+		g.fillStyle(0xffffff, 0.16).fillRect(3, 3, 28, 2); // light off the cut face
+		g.fillStyle(C('#7a6347'), 1).fillEllipse(17, 23, 30, 8); // freshly thrown soil
+		g.fillStyle(C('#8c7454'), 1).fillEllipse(15, 22, 20, 5);
+		g.fillStyle(C('#5a462f'), 1).fillCircle(9, 24, 1.6).fillCircle(21, 25, 1.4).fillCircle(26, 23, 1.2); // crumbs
+	});
+
+	// Domed grass nest: a hummock with a woven straw roof and a low arched tunnel
+	// mouth at ground level, eggs just visible in the shadow.
+	o('domednest', 32, 26, (g) => {
+		g.fillStyle(C('#a8934f'), 1).fillEllipse(16, 18, 30, 16); // hummock
+		g.fillStyle(C('#c8b46a'), 1).fillEllipse(16, 15, 28, 12); // grass roof
+		g.lineStyle(0.9, C('#9a8442'), 1);
+		for (const y of [10, 13, 16]) g.lineBetween(3, y, 29, y + 1); // woven courses
+		for (const x of [8, 16, 24]) g.lineBetween(x, 8, x - 2, 20);
+		g.fillStyle(C('#8a7436'), 1).fillEllipse(16, 21, 15, 10); // mouth rim
+		g.fillStyle(C('#221b0e'), 1).fillEllipse(16, 22, 11, 7); // arched tunnel mouth
+		g.fillStyle(C('#efe7cd'), 1)
+			.fillCircle(13, 22, 1.6)
+			.fillCircle(16, 21, 1.6)
+			.fillCircle(19, 22, 1.6)
+			.fillCircle(16, 24, 1.5); // speckled eggs
+		g.fillStyle(C('#9a7448'), 1).fillCircle(12.6, 21.6, 0.5).fillCircle(19.4, 22.4, 0.5);
+	});
+
+	// Earthen fox den: two dark mouths in one mound with a pale spoil fan below.
+	// Two openings is the tell — coyote dens get one wide one.
+	o('foxden', 34, 26, (g) => {
+		g.fillStyle(C('#7c6242'), 1).fillEllipse(17, 13, 32, 18); // earth mound
+		g.fillStyle(C('#8f7450'), 1).fillEllipse(14, 9, 22, 10);
+		g.fillStyle(C('#5c452c'), 1).fillEllipse(10, 15, 11, 9).fillEllipse(24, 16, 9, 7); // worn rims
+		g.fillStyle(C('#2a1d12'), 1).fillEllipse(10, 16, 9, 7).fillEllipse(24, 17, 7, 5); // two den mouths
+		g.fillStyle(C('#b49a70'), 1).fillEllipse(17, 23, 30, 7); // fan of dug soil
+		g.fillStyle(C('#c9b183'), 1).fillEllipse(14, 22, 18, 4);
+		g.fillStyle(C('#efe9dc'), 1).fillRect(19, 23, 6, 1.4).fillCircle(19, 23.7, 1.1).fillCircle(25, 23.7, 1.1); // gnawed bone
+		g.fillStyle(C('#b4622e'), 1).fillEllipse(6, 21, 5, 3); // rust-red tuft of fur
+	});
+
+	// Grass thatch litter: springy dead layers pressed flat, straw-blond and
+	// horizontal, with pale mushroom caps pushing up through the middle.
+	o('thatchmat', 34, 22, (g) => {
+		g.fillStyle(C('#9a8759'), 1).fillEllipse(17, 16, 32, 10); // packed bottom layer
+		g.fillStyle(C('#b6a06a'), 1).fillEllipse(17, 13, 31, 9); // springy middle
+		g.fillStyle(C('#cbb87f'), 1).fillEllipse(16, 10, 28, 7); // sun-bleached top
+		g.lineStyle(1, C('#8d7a4c'), 0.9);
+		for (let i = 0; i < 8; i++) g.lineBetween(3 + i * 4, 9 + (i % 3), 8 + i * 4, 12 - (i % 2) * 2); // flattened stems
+		g.fillStyle(C('#5d4c30'), 0.8).fillEllipse(9, 12, 6, 1.6).fillEllipse(26, 15, 7, 1.8); // shadowed gaps
+		g.fillStyle(C('#e8dcc0'), 1).fillRect(15, 7, 1.6, 5).fillRect(20, 6, 1.6, 5); // mushroom stalks
+		g.fillStyle(C('#efe4cc'), 1).fillEllipse(15.8, 7, 7, 4).fillEllipse(20.8, 6, 6, 3.4); // pale caps
+	});
+
+	// Grasshopper egg-pod bank: a sunlit sandy ridge with one shoulder cut away so
+	// two frothy cream pods show, buried like corks.
+	o('eggpodbank', 34, 24, (g) => {
+		g.fillStyle(C('#bda06d'), 1).fillEllipse(17, 15, 32, 16); // firm sandy ridge
+		g.fillStyle(C('#d9c48a'), 1).fillEllipse(16, 11, 28, 9); // sunlit crest
+		g.fillStyle(C('#6b5734'), 1).fillTriangle(17, 3, 33, 11, 33, 23); // cut-away face
+		g.fillStyle(C('#846d44'), 1).fillTriangle(19, 6, 32, 12, 32, 21);
+		g.fillStyle(C('#fbf4dc'), 1).fillEllipse(24, 12, 6, 10).fillEllipse(29, 17, 5.4, 9); // frothy egg pods
+		g.fillStyle(C('#ddd0a6'), 1).fillEllipse(24, 14, 5, 5).fillEllipse(29, 19, 4.4, 4.4);
+		g.lineStyle(0.7, C('#b9a97e'), 1).lineBetween(21.5, 10, 26.5, 10).lineBetween(21.5, 13, 26.5, 13); // foam banding
+		g.fillStyle(C('#cbb277'), 1).fillCircle(8, 20, 1.4).fillCircle(12, 21, 1.1); // loose sand
+	});
+
+	// Hedgerow lane: a dark green wall seen end-on, tangled bare twigs under the
+	// leaves and one narrow flight gap punched through at bird height.
+	o('hedgerow', 36, 30, (g) => {
+		g.lineStyle(1.2, C('#584732'), 1);
+		for (let i = 0; i < 9; i++) g.lineBetween(3 + i * 4, 29, 6 + i * 3, 14); // tangled bare twigs
+		g.fillStyle(C('#2f4a2c'), 1).fillEllipse(18, 14, 36, 20); // dense hedge wall
+		g.fillStyle(C('#3f5c39'), 1).fillCircle(7, 12, 8).fillCircle(18, 9, 9).fillCircle(29, 12, 8);
+		g.fillStyle(C('#54774a'), 1).fillCircle(10, 8, 4).fillCircle(22, 6, 4.5).fillCircle(31, 10, 3.5); // sunlit leaf tops
+		g.fillStyle(C('#1a2a18'), 1).fillEllipse(18, 17, 8, 10); // flight gap punched through
+		g.fillStyle(C('#243a20'), 1).fillEllipse(18, 17, 5, 7);
+		g.fillStyle(C('#2f4a2c'), 1).fillEllipse(18, 26, 34, 8); // shaded base
+	});
+
+	// Mantis ootheca: two stiff dead stems, one carrying a tan foam case ridged in
+	// horizontal bands — a lump on a stick, no foliage at all.
+	o('ootheca', 28, 32, (g) => {
+		g.fillStyle(C('#7f8a5c'), 1).fillEllipse(14, 30, 22, 6); // dead grass base
+		g.lineStyle(2, C('#c2b489'), 1).lineBetween(9, 30, 8, 2); // stiff pale stem
+		g.lineStyle(1.6, C('#ab9d74'), 1).lineBetween(19, 30, 21, 5); // second stem
+		g.fillStyle(C('#8f8258'), 1).fillEllipse(20.8, 15, 11, 16); // case, shaded side
+		g.fillStyle(C('#a89a6c'), 1).fillEllipse(20, 15, 10, 15); // hardened foam
+		g.fillStyle(C('#c8bb8c'), 1).fillEllipse(18.6, 13, 5, 9); // lit side
+		g.lineStyle(0.8, C('#7d7049'), 1);
+		for (const y of [10, 13, 16, 19]) g.lineBetween(15.5, y, 24.5, y + 0.6); // ridged banding
+	});
+
+	// Milkweed aphid colony: one green stem crawling with a dense band of lemon
+	// dots, with a lady beetle larva climbing up toward them.
+	o('aphidcluster', 26, 32, (g) => {
+		g.fillStyle(C('#5d8a4a'), 1).fillEllipse(13, 30, 18, 5); // leaf litter base
+		g.fillStyle(C('#4f8a38'), 1).fillRect(11, 2, 4, 29); // milkweed stem
+		g.fillStyle(C('#6da84e'), 1).fillRect(11, 2, 1.5, 29);
+		g.fillStyle(C('#5d8a4a'), 1).fillEllipse(6, 9, 12, 5).fillEllipse(20, 20, 12, 5); // paired leaves
+		g.fillStyle(C('#e8d24a'), 1); // dense band of aphids
+		for (const [x, y] of [
+			[9, 7],
+			[13, 6],
+			[16, 8],
+			[9, 10],
+			[12, 10],
+			[16, 11],
+			[10, 13],
+			[14, 13],
+			[17, 14],
+			[9, 16],
+			[13, 16],
+			[16, 17],
+			[11, 19],
+			[15, 20],
+			[12, 22],
+		] as const)
+			g.fillCircle(x, y, 1.5);
+		g.fillStyle(C('#f7ea8e'), 1)
+			.fillCircle(12.6, 5.6, 0.6)
+			.fillCircle(9.6, 12.6, 0.6)
+			.fillCircle(12.6, 15.6, 0.6)
+			.fillCircle(14.6, 19.6, 0.6);
+		g.lineStyle(0.5, C('#2b2415'), 1)
+			.lineBetween(8, 8, 6.6, 9)
+			.lineBetween(17, 12, 18.4, 13)
+			.lineBetween(8, 17, 6.6, 18); // tiny black legs
+		g.fillStyle(C('#e08030'), 1).fillEllipse(19, 26, 4, 7); // lady beetle larva
+		g.fillStyle(C('#3b2e25'), 1).fillEllipse(19, 23.5, 3, 2.4);
+	});
+
+	// Milkweed rhizome bed: broad grey-green paddles on thick stems, dusty-pink
+	// flower domes, and one pod split open spilling white silk.
+	o('milkweedbed', 36, 32, (g) => {
+		g.fillStyle(C('#4f6b3a'), 1).fillEllipse(18, 29, 32, 7); // rhizome bed
+		g.lineStyle(2.4, C('#5d7a44'), 1).lineBetween(11, 29, 10, 8).lineBetween(24, 29, 26, 10); // thick stems
+		g.fillStyle(C('#7f9273'), 1); // grey-green paddle leaves
+		for (const [x, y, w, h] of [
+			[5, 16, 13, 7],
+			[17, 14, 13, 7],
+			[4, 23, 12, 6],
+			[31, 19, 10, 6],
+			[20, 24, 13, 6],
+		] as const)
+			g.fillEllipse(x, y, w, h);
+		g.fillStyle(C('#93a686'), 1).fillEllipse(5, 15, 8, 3).fillEllipse(18, 13, 8, 3); // leaf sheen
+		g.fillStyle(C('#c98fa8'), 1).fillCircle(10, 7, 5).fillCircle(26, 9, 4.2); // dusty-pink flower balls
+		g.fillStyle(C('#e0acc0'), 1).fillCircle(8.6, 5.6, 2).fillCircle(24.8, 7.8, 1.7);
+		g.fillStyle(C('#8fa06a'), 1).fillEllipse(31, 12, 6, 11); // split seed pod
+		g.fillStyle(C('#f4f0e6'), 1).fillEllipse(32, 9, 5, 6).fillCircle(34, 5, 2).fillCircle(30, 4, 1.6); // spilling silk
+	});
+
+	// Native thistle stand: three tall spiny stems with lavender shaving-brush
+	// heads, one already blown to seed-down. Vertical and prickly.
+	o('thistlestand', 32, 34, (g) => {
+		g.fillStyle(C('#6f8a5a'), 1).fillEllipse(16, 31, 26, 7); // basal rosette
+		g.lineStyle(2, C('#7d9078'), 1).lineBetween(8, 31, 7, 12).lineBetween(16, 31, 16, 7).lineBetween(24, 31, 25, 14); // grey-green stems
+		g.lineStyle(0.8, C('#9aae94'), 1);
+		for (const [x, y] of [
+			[7, 16],
+			[16, 12],
+			[25, 18],
+			[7, 22],
+			[16, 19],
+			[25, 24],
+		] as const)
+			g.lineBetween(x - 4, y + 2, x, y).lineBetween(x + 4, y + 3, x, y + 1); // spiny leaves
+		g.fillStyle(C('#5f6b4a'), 1).fillEllipse(7, 12, 6, 5).fillEllipse(16, 7, 7, 6).fillEllipse(25, 14, 6, 5); // spiny bracts
+		g.fillStyle(C('#9b6fa8'), 1).fillEllipse(7, 8, 7, 6).fillEllipse(16, 3, 8, 6); // shaving-brush blooms
+		g.lineStyle(1, C('#b98ec4'), 1);
+		for (const d of [-3, -1, 1, 3]) g.lineBetween(7 + d, 9, 7 + d * 1.5, 4).lineBetween(16 + d, 4, 16 + d * 1.5, 0);
+		g.fillStyle(C('#f2efe6'), 1).fillCircle(25, 10, 5); // one head gone to seed-down
+		g.fillStyle(0xffffff, 0.8).fillCircle(23.6, 8.6, 2.4);
+	});
+
+	// Pebble scrape: a ring of grey and cream stones on open gravel with four eggs
+	// that match them almost exactly. Flat, stony, no green at all.
+	o('pebblescrape', 34, 24, (g) => {
+		g.fillStyle(C('#a29a8c'), 1).fillEllipse(17, 13, 33, 20); // open gravel
+		g.fillStyle(C('#8e867a'), 1)
+			.fillCircle(5, 6, 2.2)
+			.fillCircle(28, 6, 2.2)
+			.fillCircle(4, 19, 2)
+			.fillCircle(31, 18, 2)
+			.fillCircle(17, 3, 2);
+		g.fillStyle(C('#7d766a'), 1).fillEllipse(17, 14, 21, 12); // scraped dish
+		const peb = ['#b9b0a0', '#cfc8b6', '#9d968a', '#c4bca8'];
+		for (let i = 0; i < 12; i++) {
+			const a = (i / 12) * 6.283;
+			g.fillStyle(C(peb[i % 4]), 1).fillCircle(17 + Math.cos(a) * 11, 14 + Math.sin(a) * 7, 2.4); // pebble rim
+		}
+		g.fillStyle(C('#c9c0a8'), 1)
+			.fillEllipse(14, 13, 6, 4.6)
+			.fillEllipse(20, 12, 6, 4.6)
+			.fillEllipse(15, 17, 6, 4.6)
+			.fillEllipse(21, 16, 6, 4.6); // cryptic eggs
+		g.fillStyle(C('#6e6558'), 1);
+		for (const [x, y] of [
+			[13, 12],
+			[15, 14],
+			[21, 11],
+			[19, 13],
+			[14, 17],
+			[16, 18],
+			[22, 16],
+			[20, 17],
+		] as const)
+			g.fillCircle(x, y, 0.6); // speckling
+		g.fillStyle(0xffffff, 0.22).fillEllipse(13, 11.4, 3, 1.6);
+	});
+
+	// Prairie swale seedbed: a dished scrape holding a shine of standing water,
+	// sown seed on the surface and a green fringe of seedlings round the rim.
+	o('swaleseedbed', 34, 24, (g) => {
+		g.lineStyle(1.4, C('#6f7a4a'), 1);
+		for (let i = 0; i < 11; i++) g.lineBetween(2 + i * 3.1, 9 + (i % 2) * 3, 3 + i * 3.1, 1 + (i % 3) * 2); // fringe of seedlings
+		g.fillStyle(C('#86994f'), 1);
+		for (let i = 0; i < 11; i++) g.fillEllipse(3 + i * 3.1, 1 + (i % 3) * 2, 3.4, 1.8);
+		g.fillStyle(C('#4a3a26'), 1).fillEllipse(17, 15, 32, 16); // dish of loosened soil
+		g.fillStyle(C('#5e4a30'), 1).fillEllipse(17, 13, 28, 12);
+		g.fillStyle(C('#3a2c1c'), 1).fillEllipse(17, 15, 23, 11); // wet hollow
+		g.fillStyle(C('#5d8fa8'), 0.75).fillEllipse(17, 15, 18, 8); // standing water
+		g.fillStyle(0xffffff, 0.32).fillEllipse(13, 13, 8, 2.4); // sky shine on it
+		g.fillStyle(C('#c9b183'), 1);
+		for (const [x, y] of [
+			[10, 12],
+			[14, 17],
+			[20, 12],
+			[23, 16],
+			[17, 19],
+			[12, 19],
+			[24, 11],
+		] as const)
+			g.fillCircle(x, y, 0.9); // scattered seed
+	});
+
+	// Serviceberry thicket: several grey stems fanning from the ground with purple
+	// berry clusters, and lower twigs bitten off blunt by browsing.
+	o('serviceberry', 34, 34, (g) => {
+		g.lineStyle(2.4, C('#9a968c'), 1)
+			.lineBetween(17, 33, 9, 14)
+			.lineBetween(17, 33, 17, 11)
+			.lineBetween(17, 33, 25, 15); // multi-stemmed
+		g.lineStyle(2, C('#8a8680'), 1).lineBetween(14, 26, 6, 24).lineBetween(20, 24, 27, 23); // lower twigs
+		g.fillStyle(C('#b8b2a4'), 1).fillCircle(5.6, 24, 1.5).fillCircle(27.6, 23, 1.5); // blunt browse-clipped tips
+		g.fillStyle(C('#5d7a4a'), 1); // small oval leaves
+		for (const [x, y] of [
+			[9, 12],
+			[14, 9],
+			[20, 10],
+			[25, 13],
+			[6, 17],
+			[28, 17],
+			[17, 6],
+			[12, 16],
+			[22, 17],
+		] as const)
+			g.fillEllipse(x, y, 7, 4);
+		g.fillStyle(C('#749360'), 1).fillEllipse(13, 8, 6, 3.4).fillEllipse(24, 12, 6, 3.4); // sunlit leaves
+		g.fillStyle(C('#4a3a6a'), 1).fillCircle(11, 15, 2.2).fillCircle(19, 13, 2.2).fillCircle(24, 19, 2.2); // berry clusters
+		g.fillStyle(C('#6b53a0'), 1).fillCircle(10.2, 14.2, 1.1).fillCircle(18.2, 12.2, 1.1).fillCircle(23.2, 18.2, 1.1);
+	});
+
+	// Snake hibernaculum: a stone-lined shaft cut away in section, dropping past a
+	// dashed frost line into a dark chamber with three snakes coiled inside.
+	o('hibernaculum', 30, 34, (g) => {
+		g.fillStyle(C('#79633f'), 1).fillRect(1, 4, 28, 30); // soil in section
+		g.fillStyle(C('#9a958a'), 1); // stone lining
+		for (const [x, y] of [
+			[9, 6],
+			[20, 6],
+			[8, 11],
+			[21, 11],
+			[9, 16],
+			[20, 16],
+		] as const)
+			g.fillCircle(x, y, 3.4);
+		g.fillStyle(C('#241c12'), 1).fillRect(12, 4, 5, 15); // the shaft
+		g.lineStyle(1, C('#a8c4d8'), 0.9);
+		for (const x of [2, 7, 21, 26]) g.lineBetween(x, 13, x + 3, 13); // dashed frost line
+		g.fillStyle(C('#1c150d'), 1).fillCircle(15, 25, 9); // chamber below the frost
+		g.fillStyle(C('#3d6b4a'), 1).fillEllipse(15, 27, 15, 4).fillEllipse(13, 23, 12, 4).fillEllipse(17, 20, 10, 3.4); // coiled snakes
+		g.lineStyle(0.8, C('#d9c86a'), 1).lineBetween(8, 27, 22, 27).lineBetween(7, 23, 19, 23).lineBetween(12, 20, 22, 20); // yellow stripes
+		g.fillStyle(C('#8e8e8a'), 1).fillEllipse(15, 3, 22, 5); // capstone
+	});
+
+	// Squirrel burrow town: three craters joined by worn dirt paths, each with a
+	// dark mouth, one animal standing bolt upright on the biggest mound.
+	o('burrowtown', 36, 26, (g) => {
+		g.fillStyle(C('#7f9450'), 1).fillEllipse(18, 15, 36, 22); // meadow floor
+		g.lineStyle(3.4, C('#a89268'), 1).lineBetween(8, 19, 20, 21).lineBetween(20, 21, 30, 15); // worn paths between them
+		const mounds: [number, number, number][] = [
+			[8, 18, 8],
+			[20, 20, 10],
+			[30, 14, 7],
+		];
+		mounds.forEach(([x, y, r]) => {
+			g.fillStyle(C('#8b7a5a'), 1).fillEllipse(x, y, r * 2, r); // crater rim
+			g.fillStyle(C('#a3906c'), 1).fillEllipse(x, y - 1, r * 1.6, r * 0.6);
+			g.fillStyle(C('#231a10'), 1).fillEllipse(x, y, r * 0.85, r * 0.45); // dark mouth
+		});
+		g.fillStyle(C('#9a7a4e'), 1).fillEllipse(24, 11, 3.4, 9).fillEllipse(20, 12, 5, 9); // tail and upright body
+		g.fillStyle(C('#c4a878'), 1).fillEllipse(20, 13, 3, 5);
+		g.fillStyle(C('#9a7a4e'), 1).fillCircle(20, 6, 2.6);
+		g.fillStyle(C('#2b2118'), 1).fillCircle(19.2, 5.6, 0.7);
+	});
+
+	// Vole runways: seen from above — clipped channels winding through the grass
+	// with seed husks and dark pellets dropped along them.
+	o('volerunway', 36, 26, (g) => {
+		g.fillStyle(C('#4f7a34'), 1).fillRect(1, 1, 34, 24); // dense grass from above
+		g.fillStyle(C('#5d8a3c'), 1);
+		for (let i = 0; i < 14; i++) g.fillEllipse(3 + ((i * 7) % 33), 3 + ((i * 5) % 21), 6, 4); // tufts
+		const runs: [number, number, number, number][] = [
+			[0, 8, 12, 9],
+			[12, 9, 16, 20],
+			[16, 20, 30, 18],
+			[12, 9, 26, 5],
+			[26, 5, 35, 12],
+			[16, 20, 6, 24],
+		];
+		g.lineStyle(4.5, C('#6f8f3f'), 1);
+		runs.forEach(([a, b, c, d]) => g.lineBetween(a, b, c, d)); // clipped channels
+		g.lineStyle(2, C('#a3bd72'), 1);
+		runs.forEach(([a, b, c, d]) => g.lineBetween(a, b, c, d)); // worn floor of each run
+		g.fillStyle(C('#d9c78e'), 1)
+			.fillEllipse(6, 8, 2.4, 1.4)
+			.fillEllipse(14, 14, 2.4, 1.4)
+			.fillEllipse(22, 7, 2.4, 1.4)
+			.fillEllipse(28, 17, 2.4, 1.4); // seed husks
+		g.fillStyle(C('#2e2418'), 1)
+			.fillEllipse(10, 9, 1.6, 1)
+			.fillEllipse(16, 17, 1.6, 1)
+			.fillEllipse(25, 6, 1.6, 1)
+			.fillEllipse(31, 17, 1.6, 1); // pellets
+	});
+
+	// Wet meadow sedge: a stiff triangular fountain in dark wet soil with water
+	// standing round the base — darker and sharper-edged than the dryland `sedge`.
+	o('sedgeclump', 32, 34, (g) => {
+		g.fillStyle(C('#3a2e22'), 1).fillEllipse(16, 30, 30, 9); // dark damp soil
+		g.fillStyle(C('#4a7a8a'), 0.65).fillEllipse(16, 31, 26, 6); // water pooling
+		g.fillStyle(0xffffff, 0.25).fillEllipse(11, 30, 10, 2);
+		g.fillStyle(C('#2f6b4e'), 1); // arching triangular blades
+		for (let i = 0; i < 9; i++) {
+			const s = i - 4;
+			g.fillTriangle(16, 30, 16 + s * 3.6 - 1, 3 + Math.abs(s) * 5, 16 + s * 3.6 + 1.8, 4 + Math.abs(s) * 5);
+		}
+		g.fillStyle(C('#3f7a5c'), 1);
+		for (const s of [-3, -1, 2])
+			g.fillTriangle(16, 29, 16 + s * 4 - 1, 6 + Math.abs(s) * 4, 16 + s * 4 + 1.4, 7 + Math.abs(s) * 4); // lit blades
+		g.lineStyle(1.4, C('#6b5a3c'), 1).lineBetween(16, 28, 27, 12).lineBetween(16, 28, 6, 14); // seed spikes leaning out
+		g.fillStyle(C('#8a6b42'), 1).fillEllipse(27, 11, 3.4, 6).fillEllipse(6, 13, 3.4, 6);
+		g.fillStyle(C('#a3854f'), 1).fillEllipse(26.4, 10, 1.6, 3).fillEllipse(5.4, 12, 1.6, 3);
+	});
+
+	// Rotting log crumble: bark split off a core of orange punky crumb, curls of
+	// grey bark shed either side, pillbugs dotted through the soft wood.
+	o('punkylog', 36, 24, (g) => {
+		g.fillStyle(C('#3a2c1e'), 1).fillEllipse(18, 21, 34, 7); // damp soil beneath
+		g.fillStyle(C('#8e887c'), 1).fillEllipse(18, 14, 32, 14); // grey bark shell
+		g.fillStyle(C('#a89570'), 1).fillEllipse(18, 11, 30, 8);
+		g.fillStyle(C('#b5651f'), 1).fillEllipse(19, 15, 24, 11); // split open to punky orange
+		g.fillStyle(C('#d1832e'), 1).fillEllipse(18, 14, 20, 8);
+		g.fillStyle(C('#e0a04f'), 1)
+			.fillEllipse(11, 13, 4, 2.4)
+			.fillEllipse(16, 16, 4, 2.4)
+			.fillEllipse(22, 12, 4, 2.4)
+			.fillEllipse(26, 15, 4, 2.4); // crumbling fibre
+		g.fillStyle(C('#7c746a'), 1).fillEllipse(4, 12, 7, 10).fillEllipse(32, 13, 6, 10); // bark peeling in curls
+		g.fillStyle(C('#9a9288'), 1).fillEllipse(4, 11, 4, 6).fillEllipse(32, 12, 3.4, 6);
+		g.fillStyle(C('#5a6068'), 1)
+			.fillEllipse(13, 17, 3, 2)
+			.fillEllipse(21, 18, 3, 2)
+			.fillEllipse(27, 13, 3, 2)
+			.fillEllipse(9, 19, 3, 2); // slate-grey pillbugs
+		g.fillStyle(C('#7d848d'), 1).fillEllipse(13, 16.4, 2, 0.9).fillEllipse(21, 17.4, 2, 0.9);
+	});
+
+	// Orb web: an actual spiral strung between two dry stems, with the bold white
+	// zigzag stitched down the middle and the spider hanging head-down at the hub.
+	o('orbweb', 34, 34, (g) => {
+		g.fillStyle(C('#7f8a5c'), 1).fillEllipse(17, 32, 22, 5); // dry ground
+		g.lineStyle(2, C('#b8a878'), 1).lineBetween(4, 33, 3, 3).lineBetween(30, 33, 31, 4); // two upright stems
+		g.lineStyle(0.7, C('#cfd6c2'), 0.95);
+		for (let i = 0; i < 12; i++) {
+			const a = (i / 12) * 6.283;
+			g.lineBetween(17, 16, 17 + Math.cos(a) * 14, 16 + Math.sin(a) * 13); // radials
+		}
+		for (const r of [4.5, 7.5, 10.5, 13]) {
+			let px = 17 + r,
+				py = 16;
+			for (let i = 1; i <= 12; i++) {
+				const a = (i / 12) * 6.283,
+					nx = 17 + Math.cos(a) * r,
+					ny = 16 + Math.sin(a) * r * 0.93;
+				g.lineBetween(px, py, nx, ny); // spiral rings
+				px = nx;
+				py = ny;
+			}
+		}
+		g.lineStyle(1.6, 0xffffff, 0.9);
+		for (let i = 0; i < 5; i++)
+			g.lineBetween(17 + (i % 2 ? 3 : -3), 17 + i * 2.6, 17 + (i % 2 ? -3 : 3), 19.6 + i * 2.6); // zigzag stabilimentum
+		g.fillStyle(C('#cfd6c2'), 0.9).fillCircle(17, 16, 1.6); // empty hub where the lines meet
+	});
+
+	// Bat maternity roost: a long horizontal slot under weathered boards with a
+	// warm glow inside — a wide letterbox, not a round hole.
+	o('batroost', 34, 26, (g) => {
+		g.fillStyle(C('#7e7a72'), 1).fillRect(2, 2, 30, 11); // weathered grey boards
+		g.fillStyle(C('#8e8a80'), 1).fillRect(2, 2, 30, 3).fillRect(2, 8, 30, 2.4);
+		g.lineStyle(0.8, C('#5e5a52'), 1)
+			.lineBetween(2, 5, 32, 5)
+			.lineBetween(2, 10.6, 32, 10.6)
+			.lineBetween(12, 2, 12, 13); // plank seams
+		g.fillStyle(C('#6b6760'), 1).fillRect(2, 13, 30, 3); // lintel over the slot
+		g.fillStyle(C('#120d10'), 1).fillRect(4, 16, 26, 7); // narrow dark slot
+		g.fillStyle(C('#4a3020'), 0.9).fillRect(5, 17, 24, 4); // warm brown glow inside
+		g.fillStyle(C('#5a4a5e'), 1).fillEllipse(13, 19, 5, 7).fillEllipse(21, 19, 5, 7); // two folded bats
+		g.fillStyle(C('#6e5c74'), 1).fillTriangle(11, 16, 15, 16, 12, 22).fillTriangle(19, 16, 23, 16, 20, 22); // one wing edge each
+		g.fillStyle(C('#3d3242'), 1).fillTriangle(11.8, 17, 14.4, 17, 13.2, 14.2); // one ear showing
+		g.fillStyle(C('#7e7a72'), 1).fillRect(2, 23, 30, 3); // sill below
+	});
+
+	// Barn loft nest box: red plank gable with a square loft opening, straw over
+	// the sill and a pale heart face just inside the shadow.
+	o('plankloft', 34, 32, (g) => {
+		g.fillStyle(C('#8f3324'), 1).fillTriangle(1, 12, 17, 1, 33, 12); // gable peak
+		g.fillStyle(C('#a83c2b'), 1).fillRect(3, 12, 28, 20); // weathered red planks
+		g.lineStyle(0.9, C('#7a2a1d'), 1);
+		for (const x of [8, 13, 18, 23, 28]) g.lineBetween(x, 12, x, 32); // plank seams
+		g.fillStyle(C('#c05a44'), 0.45).fillRect(3, 12, 28, 2.4).fillRect(24, 12, 4, 20); // sun-bleached boards
+		g.fillStyle(C('#6b2418'), 1).fillRect(9, 15, 16, 15); // opening frame
+		g.fillStyle(C('#120e0a'), 1).fillRect(11, 17, 12, 13); // dark loft slot
+		g.fillStyle(C('#8a6a3c'), 1).fillRect(9, 29, 16, 2); // sill
+		g.lineStyle(1, C('#cbb87f'), 1).lineBetween(12, 29, 10, 32).lineBetween(17, 29, 19, 32).lineBetween(21, 30, 23, 32); // straw wisps
+		g.fillStyle(C('#2a211a'), 1).fillRect(11, 17, 12, 3); // lintel shadow, so the slot reads as deep
+		g.fillStyle(C('#3d3025'), 0.7).fillRect(11, 27, 12, 3); // dusty floor of the loft
+	});
+
+	// Flicker cavity snag: a silver standing stub with one neat round hole
+	// chiselled in it and pale chips at the foot — a tall pillar, not a box.
+	o('flickerhole', 26, 36, (g) => {
+		g.fillStyle(C('#8a8378'), 1).fillRect(6, 2, 14, 31); // silver-grey snag
+		g.fillStyle(C('#9c8a6e'), 1).fillRect(6, 2, 5, 31); // lit face
+		g.lineStyle(0.8, C('#6e675c'), 1).lineBetween(11, 3, 12, 32).lineBetween(16, 2, 15, 33); // weather checks
+		g.fillStyle(C('#6b5a44'), 1).fillTriangle(6, 3, 20, 3, 13, 0); // broken top
+		g.fillStyle(C('#5a4a34'), 1).fillCircle(13, 13, 5.4); // chiselled rim
+		g.fillStyle(C('#181209'), 1).fillCircle(13, 13, 4.4); // the cavity
+		g.fillStyle(C('#9a8258'), 1).fillEllipse(13, 14, 7.4, 5.4); // small owl filling it
+		g.fillStyle(C('#b39a6c'), 1).fillTriangle(10, 12, 12, 12, 10.2, 9).fillTriangle(16, 12, 14, 12, 15.8, 9); // ear tufts
+		g.fillStyle(C('#f2e08a'), 1).fillCircle(11.4, 13.4, 1.3).fillCircle(14.6, 13.4, 1.3);
+		g.fillStyle(C('#2b2118'), 1).fillCircle(11.4, 13.4, 0.7).fillCircle(14.6, 13.4, 0.7);
+		g.fillStyle(C('#e0d2b0'), 1)
+			.fillEllipse(5, 33, 4, 1.8)
+			.fillEllipse(9, 34, 4, 1.8)
+			.fillEllipse(14, 34, 4, 1.8)
+			.fillEllipse(19, 33, 4, 1.8); // pale chips at the foot
+	});
+
+	// Coyote natal den: a single wide dark mouth in a brush-topped bank, with a
+	// packed trail leading in and paw tracks fanning across the dirt apron.
+	o('coyoteden', 36, 26, (g) => {
+		g.fillStyle(C('#7a6444'), 1).fillEllipse(18, 13, 36, 20); // low earth bank
+		g.fillStyle(C('#8a6f4a'), 1).fillEllipse(16, 10, 30, 13);
+		g.fillStyle(C('#4a5c38'), 1).fillCircle(6, 5, 5).fillCircle(15, 3, 6).fillCircle(25, 5, 5).fillCircle(32, 7, 4); // brush cap
+		g.fillStyle(C('#5e7346'), 1).fillCircle(13, 1, 3).fillCircle(27, 3, 2.6);
+		g.fillStyle(C('#5c4830'), 1).fillEllipse(16, 17, 17, 13); // worn mouth rim
+		g.fillStyle(C('#150f08'), 1).fillEllipse(16, 18, 13, 10); // wide dark den mouth
+		g.fillStyle(C('#c0a87e'), 1).fillEllipse(18, 24, 32, 6); // bare dirt apron
+		g.fillStyle(C('#ab9068'), 1).fillEllipse(16, 23, 10, 5); // packed trail leading in
+		g.fillStyle(C('#6b573a'), 1);
+		for (const [x, y] of [
+			[7, 24],
+			[11, 22],
+			[25, 23],
+			[29, 25],
+			[22, 25],
+		] as const) {
+			g.fillEllipse(x, y, 2.6, 2);
+			g.fillCircle(x - 1, y - 1.7, 0.5).fillCircle(x + 1, y - 1.7, 0.5); // paw tracks
+		}
+	});
+	o('leafcorner', 32, 24, (g) => {
+		g.fillStyle(C('#4a3d28'), 1).fillEllipse(16, 18, 30, 11); // damp shaded ground
+		const leaves: [number, number, number, string][] = [
+			[8, 16, -0.3, '#8a6a3a'],
+			[16, 15, 0.2, '#a07f45'],
+			[24, 17, -0.1, '#7a5c33'],
+			[12, 11, 0.4, '#b08a4e'],
+			[21, 10, -0.4, '#96773f'],
+		];
+		for (const [x, y, tilt, col] of leaves) {
+			g.fillStyle(C(col), 1).fillEllipse(x, y, 12, 6); // fallen leaf
+			g.lineStyle(0.7, C('#5f4a28'), 1).lineBetween(x - 5, y - tilt * 3, x + 5, y + tilt * 3); // midrib
+		}
+		g.fillStyle(C('#2f2a1e'), 1).fillEllipse(16, 21, 16, 4); // dark damp gap underneath
+		g.fillStyle(C('#9fb38a'), 0.6).fillCircle(6, 20, 2).fillCircle(27, 20, 1.6); // moss on the edge
+	});
+	o('sedgetussock', 30, 28, (g) => {
+		g.fillStyle(C('#3f4a2a'), 1).fillEllipse(15, 25, 24, 7); // damp shaded base
+		g.fillStyle(C('#6f8340'), 1).fillEllipse(15, 21, 22, 10); // dense clump body
+		g.lineStyle(1.6, C('#8fa551'), 1);
+		for (const [x, tx] of [
+			[7, 2],
+			[10, 6],
+			[13, 11],
+			[16, 16],
+			[19, 21],
+			[22, 26],
+		] as [number, number][])
+			g.lineBetween(x, 22, tx, 4); // arching blades
+		g.fillStyle(C('#2b2a1c'), 1).fillEllipse(15, 20, 7, 4); // the hidden nest cup
+		g.fillStyle(C('#c3b06a'), 1).fillEllipse(5, 6, 5, 2.5).fillEllipse(24, 8, 5, 2.5); // seed heads
+	});
 }
 
 /**
@@ -2256,6 +2885,27 @@ export function ensureAnimalTexture(scene: Phaser.Scene, id: string, kind: strin
 		g.fillStyle(0xffffff, 1).fillCircle(3, 15, 3).fillEllipse(24, 13, 6, 4);
 		g.fillStyle(0x2e2018, 1).fillCircle(27, 9, 1.3).fillCircle(30, 11, 1.4);
 	});
+	a('grayfox', 32, 26, (g) => {
+		g.fillStyle(C('#4a4640'), 1).fillRect(9, 19, 3, 6).fillRect(14, 20, 3, 6).fillRect(20, 19, 3, 6); // legs
+		g.fillStyle(C('#8d8b84'), 1).fillEllipse(15, 16, 20, 12).fillCircle(25, 10, 6); // grizzled grey body
+		g.fillTriangle(21, 3, 24, 9, 19, 9).fillTriangle(27, 3, 30, 9, 25, 9); // ears
+		g.fillStyle(C('#6e6b64'), 1).fillEllipse(6, 16, 12, 8); // darker tail
+		g.fillStyle(C('#2b2b28'), 1).fillRect(3, 14, 9, 2); // black stripe along the tail
+		g.fillStyle(C('#b4682f'), 1).fillEllipse(22, 15, 8, 5).fillCircle(28, 8, 2.4); // rusty neck and ear backs
+		g.fillStyle(0xffffff, 1).fillEllipse(25, 13, 6, 4);
+		g.fillStyle(0x2e2018, 1).fillCircle(27, 9, 1.3).fillCircle(30, 11, 1.4);
+	});
+	a('snail', 30, 24, (g) => {
+		g.fillStyle(C('#d9cdb4'), 1).fillEllipse(9, 19, 18, 7); // soft foot
+		g.fillCircle(4, 16, 3.2); // head
+		g.lineStyle(1.4, C('#d9cdb4'), 1).lineBetween(4, 14, 1, 6).lineBetween(6, 14, 8, 6); // eye stalks
+		g.fillStyle(C('#2e2018'), 1).fillCircle(1, 5, 1.5).fillCircle(8, 5, 1.5); // eyes on stalk tips
+		g.fillStyle(C('#3f6fa8'), 1).fillCircle(18, 12, 11); // big blue shell
+		g.fillStyle(C('#5b8fc9'), 1).fillCircle(18, 12, 8);
+		g.fillStyle(C('#2c5183'), 1).fillCircle(18, 12, 5);
+		g.fillStyle(C('#7fb0e0'), 1).fillCircle(18, 12, 2.4); // spiral centre
+		g.fillStyle(0xffffff, 0.3).fillEllipse(14, 7, 7, 3.5); // shine
+	});
 	a('squirrel', 26, 26, (g) => {
 		g.fillStyle(C('#9a7448'), 1).fillRect(11, 22, 3.4, 4).fillRect(17, 22, 3.4, 4); // feet
 		g.fillEllipse(14, 18, 14, 11).fillCircle(20, 12, 5);
@@ -2296,7 +2946,10 @@ export function ensureAnimalTexture(scene: Phaser.Scene, id: string, kind: strin
 	});
 	a('owl', 26, 30, (g) => {
 		g.fillStyle(C('#7c6248'), 1).fillEllipse(13, 17, 20, 22);
-		g.fillTriangle(5, 6, 9, 12, 3, 12).fillTriangle(21, 6, 23, 12, 17, 12); // tufts
+		g.fillStyle(C('#6b5238'), 1);
+		g.fillTriangle(4, 0, 11, 11, 1, 12).fillTriangle(22, 0, 25, 12, 15, 11); // big ear tufts — the 'horns'
+		g.fillStyle(C('#8d7050'), 1).fillTriangle(5, 3, 9, 11, 3, 11).fillTriangle(21, 3, 23, 11, 17, 11);
+		g.fillStyle(C('#7c6248'), 1);
 		g.fillStyle(C('#d8c8a8'), 1).fillEllipse(13, 20, 12, 14);
 		g.fillStyle(0xf4e3b1, 1).fillCircle(9, 12, 3.4).fillCircle(17, 12, 3.4);
 		g.fillStyle(0x2e2018, 1).fillCircle(9, 12, 1.6).fillCircle(17, 12, 1.6);
@@ -2490,6 +3143,360 @@ export function ensureAnimalTexture(scene: Phaser.Scene, id: string, kind: strin
 		g.fillStyle(C('#b53a1f'), 1).fillCircle(cx, cy, 1.4);
 	});
 
+	// --- Custom sprites for species that were falling through to generics ----
+	a('barnowl', 26, 30, (g) => {
+		g.fillStyle(C('#7c6248'), 1).fillEllipse(13, 17, 20, 22);
+		g.fillTriangle(5, 6, 9, 12, 3, 12).fillTriangle(21, 6, 23, 12, 17, 12); // small tufts
+		g.fillStyle(C('#d8c8a8'), 1).fillEllipse(13, 20, 12, 14);
+		g.fillStyle(0xf4e3b1, 1).fillCircle(9, 12, 3.4).fillCircle(17, 12, 3.4);
+		g.fillStyle(0x2e2018, 1).fillCircle(9, 12, 1.6).fillCircle(17, 12, 1.6);
+		g.fillStyle(C('#e3c75f'), 1).fillTriangle(13, 14, 11, 17, 15, 17);
+	});
+	a('lynx', 34, 28, (g) => {
+		// Read from the extremes: stub tail, oversized paws, ear tufts. The ruff is a
+		// soft halo BEHIND the head — drawn as forward triangles it looked like fangs.
+		g.fillStyle(C('#a9a396'), 1).fillEllipse(6, 14, 11, 7); // stubby tail
+		g.fillStyle(C('#2a2622'), 1).fillEllipse(2.5, 14, 5, 6); // black tail tip
+		g.fillStyle(C('#8f8a7e'), 1).fillRect(10, 19, 4.5, 6).fillRect(19, 19, 4.5, 6); // front and hind legs
+		g.fillStyle(C('#cfcabd'), 1).fillEllipse(12.2, 25, 10, 5).fillEllipse(21.2, 25, 10, 5); // huge snowshoe paws
+		g.fillStyle(C('#b8b2a6'), 1).fillEllipse(16, 15, 22, 14); // body
+		g.fillStyle(C('#8f8a7e'), 0.55).fillCircle(12, 12, 1.6).fillCircle(18, 16, 1.5).fillCircle(9, 17, 1.3); // faint spots
+		g.fillStyle(C('#e6e2d8'), 1).fillEllipse(25, 13, 17, 13); // cheek ruff, framing the face
+		g.fillStyle(C('#b8b2a6'), 1).fillCircle(25, 10, 6.6); // head, sitting over the ruff
+		g.fillTriangle(20, 2, 23.5, 8.5, 18.5, 8.5).fillTriangle(30, 2, 31.5, 8.5, 26.5, 8.5); // ears
+		g.fillStyle(C('#2a2622'), 1).fillTriangle(20.6, -1, 22.4, 3, 19.4, 3).fillTriangle(29.6, -1, 31, 3, 28.2, 3); // black tufts
+		g.fillStyle(C('#e6e2d8'), 1).fillEllipse(26, 13, 8, 5); // pale muzzle
+		g.fillStyle(C('#2e2018'), 1).fillCircle(23, 9.5, 1.2).fillCircle(28, 9.5, 1.2); // eyes
+		g.fillStyle(C('#3a2a22'), 1).fillTriangle(26, 11.4, 24.8, 13, 27.2, 13); // nose
+	});
+	a('grizzly', 40, 32, (g) => {
+		// the shoulder hump is the silhouette — everything else hangs off it
+		g.fillStyle(C('#4a3524'), 1).fillRoundedRect(9, 21, 8, 10, 3); // hind leg
+		g.fillStyle(C('#7a5636'), 1).fillEllipse(18, 19, 30, 16); // barrel body
+		g.fillCircle(25, 12, 8); // the muscular hump, riding high over the forelegs
+		g.fillStyle(C('#a4855c'), 0.85).fillEllipse(23, 7, 16, 5); // grizzled pale tips along the hump
+		g.fillStyle(C('#4a3524'), 1).fillRoundedRect(26, 21, 9, 10, 3); // heavy foreleg
+		g.fillStyle(C('#7a5636'), 1).fillCircle(32, 19, 6.5); // head, carried low below the hump
+		g.fillStyle(C('#654529'), 1).fillCircle(28, 13, 2.6).fillCircle(35, 13.5, 2.6); // small round ears
+		g.fillStyle(C('#9c7c52'), 1).fillEllipse(36, 21, 8, 5); // dished muzzle
+		g.fillStyle(C('#e8e2d2'), 1)
+			.fillTriangle(27, 30, 29, 31.6, 27, 32)
+			.fillTriangle(30, 30, 32, 31.6, 30, 32)
+			.fillTriangle(33, 30, 35, 31.6, 33, 32); // long front claws
+		g.fillStyle(C('#1a1410'), 1).fillEllipse(39, 20.5, 2.4, 2); // nose
+		g.fillStyle(C('#2e2018'), 1).fillCircle(31, 17, 1.3).fillCircle(35, 17.5, 1.3); // eyes
+	});
+	a('orca', 38, 28, (g) => {
+		// the tall dorsal fin is the read; black over a sharply cut white belly
+		g.fillStyle(C('#16181c'), 1).fillTriangle(15, 14, 20, 0, 24, 14); // tall triangular dorsal fin
+		g.fillTriangle(1, 9, 8, 16, 1, 15).fillTriangle(1, 23, 8, 16, 1, 17); // tail flukes
+		g.fillEllipse(19, 17, 32, 13); // black body, blunt-headed
+		g.fillStyle(C('#f4f4f0'), 1).fillEllipse(20, 20.5, 26, 5); // sharp white belly
+		g.fillStyle(C('#16181c'), 1).fillTriangle(19, 20, 27, 22, 20, 27); // pectoral flipper
+		g.fillStyle(C('#6a6f76'), 0.75).fillEllipse(13, 13, 10, 4); // grey saddle behind the fin
+		g.fillStyle(C('#f4f4f0'), 1).fillEllipse(31, 13.5, 6.5, 3); // white eye patch
+		g.fillStyle(C('#2e2018'), 1).fillCircle(29, 16, 1.2); // eye
+	});
+	a('graywhale', 40, 24, (g) => {
+		// mottled grey, no dorsal fin at all — only a low knuckled ridge
+		g.fillStyle(C('#767b7c'), 1).fillTriangle(1, 6, 10, 13, 1, 12).fillTriangle(1, 20, 10, 13, 1, 14); // broad flukes
+		g.fillEllipse(20, 13, 30, 12); // heavy body
+		g.fillTriangle(30, 8, 39, 14, 30, 19); // long tapering head
+		g.fillStyle(C('#8e9394'), 1)
+			.fillCircle(10, 8, 1.8)
+			.fillCircle(13.5, 7.4, 1.8)
+			.fillCircle(17, 7.2, 1.8)
+			.fillCircle(20.5, 7.6, 1.6); // knuckled ridge where a fin would be
+		g.fillStyle(C('#9aa0a0'), 0.65).fillEllipse(16, 16, 11, 5).fillEllipse(25, 10, 8, 4); // grey mottling
+		g.fillStyle(C('#d8d2bf'), 1).fillCircle(32, 11, 2.2).fillCircle(35, 13, 1.7).fillCircle(33, 16, 1.5); // barnacle crust
+		g.fillStyle(C('#5f6465'), 1).fillTriangle(22, 18, 30, 20, 23, 23); // paddle flipper
+		g.fillStyle(C('#2e2018'), 1).fillCircle(29, 15.5, 1); // small eye
+	});
+	a('octopus', 32, 30, (g) => {
+		// Cute read: big round mantle, two large friendly eyes, short curling arms.
+		g.fillStyle(C('#c56b86'), 1);
+		for (const [x1, y1, x2, y2, x3, y3] of [
+			[9, 20, 3, 25, 7, 29],
+			[13, 22, 10, 27, 15, 29],
+			[19, 22, 22, 27, 17, 29],
+			[23, 20, 29, 25, 25, 29],
+		] as [number, number, number, number, number, number][]) {
+			g.fillEllipse((x1 + x2) / 2, (y1 + y2) / 2, 7, 7); // upper curl of each arm
+			g.fillEllipse((x2 + x3) / 2, (y2 + y3) / 2, 6, 6); // tip curling back up
+		}
+		g.fillStyle(C('#e0a2b6'), 1);
+		for (const [x, y] of [
+			[5, 27],
+			[12, 28],
+			[20, 28],
+			[27, 27],
+		] as [number, number][])
+			g.fillCircle(x, y, 1.3); // suckers on the curled tips
+		g.fillStyle(C('#d9829c'), 1).fillEllipse(16, 13, 26, 24); // big round mantle
+		g.fillStyle(C('#e8a8bd'), 0.55).fillEllipse(11, 7, 12, 7); // soft highlight on top
+		g.fillStyle(0xffffff, 1).fillCircle(11, 15, 5).fillCircle(21, 15, 5); // big eyes
+		g.fillStyle(C('#2e2018'), 1).fillCircle(11.6, 15.4, 2.6).fillCircle(20.4, 15.4, 2.6);
+		g.fillStyle(0xffffff, 1).fillCircle(10.4, 14.2, 1.1).fillCircle(19.2, 14.2, 1.1); // catchlights
+		g.fillStyle(C('#b8556f'), 1).fillEllipse(16, 20.5, 5, 2.2); // small smile
+	});
+	a('moth', 34, 26, (g) => {
+		// broad triangular wings held flat, fat furry body — nothing bee-like
+		g.fillStyle(C('#8d8272'), 1).fillTriangle(17, 8, 1, 7, 5, 19).fillTriangle(17, 8, 33, 7, 29, 19); // broad forewings, held flat
+		g.fillStyle(C('#6f6557'), 1).fillTriangle(17, 14, 6, 19, 14, 24).fillTriangle(17, 14, 28, 19, 20, 24); // hindwings
+		g.fillStyle(C('#5a5044'), 0.55).fillTriangle(3, 10, 15, 9, 4, 14).fillTriangle(31, 10, 19, 9, 30, 14); // muted wing bands
+		g.fillStyle(C('#cfc4ae'), 1).fillCircle(8, 12, 2.8); // single eyespot
+		g.fillStyle(C('#4a4038'), 1).fillCircle(8, 12, 1.2);
+		g.fillStyle(C('#5a5044'), 1).fillEllipse(17, 15, 7, 16); // fat furry body
+		g.fillStyle(C('#7a6f5e'), 1).fillCircle(17, 9, 3.6).fillCircle(17, 5.4, 2.4); // furry thorax + small head
+		g.lineStyle(1.6, C('#4a4038'), 1).lineBetween(16, 5, 10, 2).lineBetween(18, 5, 24, 2); // antenna shafts
+		g.lineStyle(1, C('#4a4038'), 1);
+		for (let i = 1; i <= 3; i++)
+			g.lineBetween(16 - i * 2, 5 - i * 0.75, 16 - i * 2, 2.4 - i * 0.75).lineBetween(
+				18 + i * 2,
+				5 - i * 0.75,
+				18 + i * 2,
+				2.4 - i * 0.75,
+			); // feathery comb teeth
+	});
+	a('javelina', 34, 26, (g) => {
+		// pig-shaped: barrel on stubby legs, wedge head low, pale shoulder collar
+		g.fillStyle(C('#332f2a'), 1).fillRect(8, 18, 4, 8).fillRect(14, 18, 4, 8).fillRect(20, 18, 4, 8); // short stumpy legs
+		g.fillStyle(C('#5b554b'), 1).fillEllipse(15, 13, 24, 14); // barrel body
+		g.fillStyle(C('#cdc2ab'), 1).fillEllipse(23, 12, 5, 14); // pale collar band across the shoulders
+		g.lineStyle(1.2, C('#2b2823'), 1);
+		g.lineBetween(7, 8, 6, 4).lineBetween(11, 7, 10, 3).lineBetween(15, 6.5, 15, 2.5).lineBetween(19, 7, 19, 3); // coarse bristly back
+		g.fillStyle(C('#4a443c'), 1).fillTriangle(24, 7, 33, 17, 23, 19); // big wedge head, held low
+		g.fillStyle(C('#3a352f'), 1).fillTriangle(23.5, 6, 28, 5, 26, 10); // small ear
+		g.fillStyle(C('#241f1b'), 1).fillCircle(31.5, 16, 2); // flat snout disc
+		g.fillStyle(C('#2e2018'), 1).fillCircle(27, 11, 1.2); // eye
+	});
+	a('crayfish', 36, 26, (g) => {
+		// two big pincers held forward, segmented abdomen ending in a tail fan
+		g.fillStyle(C('#8e3a24'), 1).fillTriangle(1, 6, 9, 13, 1, 20); // tail fan
+		g.fillStyle(C('#a8492c'), 1).fillEllipse(9, 13, 6, 8).fillEllipse(13, 13, 6, 9.5).fillEllipse(17, 13, 6, 11); // segmented abdomen
+		g.lineStyle(1.4, C('#7a2f1c'), 1)
+			.lineBetween(19, 17, 17, 22)
+			.lineBetween(23, 18, 22, 23)
+			.lineBetween(26, 18, 26, 23); // walking legs
+		g.fillStyle(C('#b8563a'), 1).fillEllipse(24, 13, 14, 12); // carapace
+		g.fillStyle(C('#a8492c'), 1).fillEllipse(29, 7, 10, 4).fillEllipse(29, 19, 10, 4); // claw arms thrown forward
+		g.fillStyle(C('#c46248'), 1).fillEllipse(33, 5, 7, 5.5).fillEllipse(33, 21, 7, 5.5); // big pincers
+		g.lineStyle(1, C('#6e2a18'), 1).lineBetween(30.5, 5, 36, 3.5).lineBetween(30.5, 21, 36, 22.5); // pincer gape
+		g.lineStyle(1, C('#7a2f1c'), 1).lineBetween(30, 10, 20, 2).lineBetween(30, 16, 18, 24); // long antennae
+		g.fillStyle(C('#2e2018'), 1).fillCircle(29, 11, 1.1).fillCircle(29, 15, 1.1); // stalked eyes
+	});
+	a('shrimp', 26, 24, (g) => {
+		// small, translucent, curled into a comma; many tiny legs, long antennae
+		g.lineStyle(1, C('#b8a892'), 1).lineBetween(20, 5, 3, 1).lineBetween(20, 7, 1, 7); // long trailing antennae
+		g.fillStyle(C('#efe2d2'), 0.85)
+			.fillCircle(18, 8, 5)
+			.fillCircle(13, 11, 4.6)
+			.fillCircle(9, 15, 4)
+			.fillCircle(10, 20, 3.2); // translucent comma body
+		g.fillStyle(C('#efe2d2'), 0.65).fillTriangle(11, 21, 17, 23, 16, 18); // tail fan
+		g.fillStyle(C('#d6c1a6'), 0.6).fillEllipse(15, 10, 9, 3); // faint gut line showing through
+		g.lineStyle(1, C('#c8b7a0'), 1);
+		for (let i = 0; i < 5; i++) g.lineBetween(18 - i * 1.8, 12 + i * 2, 21 - i * 1.8, 13.5 + i * 2); // many tiny legs
+		g.fillStyle(C('#2e2018'), 1).fillCircle(20, 6, 1.3); // dark eye
+	});
+	a('pillbug', 26, 22, (g) => {
+		// overlapping armour plates in a domed row, partly curled forward
+		g.lineStyle(1.2, C('#3a3e44'), 1);
+		for (let i = 0; i < 7; i++) g.lineBetween(4 + i * 2.6, 17, 3 + i * 2.6, 21); // seven pairs of legs
+		g.fillStyle(C('#4e535a'), 1).fillEllipse(13, 13, 24, 16); // domed slate body
+		g.fillStyle(C('#646a72'), 1);
+		for (let i = 0; i < 6; i++) g.fillEllipse(5 + i * 3.2, 11 + i * 0.6, 6.4, 13 - i); // overlapping armour plates
+		g.lineStyle(1, C('#33373c'), 1);
+		for (let i = 0; i < 6; i++) g.lineBetween(8 + i * 3.2, 5.5 + i * 1, 8 + i * 3.2, 18); // plate seams
+		g.fillStyle(C('#3f444a'), 1).fillEllipse(22, 14, 7, 10); // head end tucking under as it curls
+		g.lineStyle(1, C('#3a3e44'), 1).lineBetween(24, 11, 25, 8); // short antenna
+		g.fillStyle(C('#2e2018'), 1).fillCircle(23.5, 12, 1); // eye
+	});
+	a('bananaslug', 34, 22, (g) => {
+		// long soft yellow body with dark speckles, eye stalks up, slime behind
+		g.fillStyle(C('#d6e0cc'), 0.5).fillEllipse(12, 19, 22, 4); // glistening slime trail
+		g.fillStyle(C('#e3c451'), 1).fillEllipse(17, 13, 28, 10).fillEllipse(27, 11, 12, 9); // long body + raised head end
+		g.fillStyle(C('#e3c451'), 1).fillTriangle(2, 13, 8, 9, 8, 17); // tapered tail
+		g.fillStyle(C('#efd97a'), 1).fillEllipse(15, 10, 15, 5); // pale mantle saddle
+		g.fillStyle(C('#6b5a1e'), 1)
+			.fillCircle(9, 13, 1.3)
+			.fillCircle(15, 12, 1.2)
+			.fillCircle(20, 15, 1.3)
+			.fillCircle(24, 10, 1.1)
+			.fillCircle(12, 16, 1.1); // dark speckles
+		g.lineStyle(1.6, C('#e3c451'), 1).lineBetween(30, 9, 32, 3).lineBetween(27, 9, 28, 4); // raised eye stalks
+		g.fillStyle(C('#2e2018'), 1).fillCircle(32, 3, 1.2).fillCircle(28, 4, 1.1); // eye dots on the stalks
+	});
+	a('snowflea', 28, 20, (g) => {
+		// barely a grain of an animal, dark on snow, with its spring tail cocked
+		g.fillStyle(C('#f2f4f6'), 1).fillEllipse(14, 16, 28, 8); // snow surface
+		g.fillStyle(C('#d8dee4'), 1).fillEllipse(5, 15, 5, 2.5).fillEllipse(11, 13.5, 4, 2); // hop marks pocked in the snow
+		g.lineStyle(1.2, C('#2b2f36'), 1).lineBetween(18, 11, 15, 14).lineBetween(15, 14, 19, 15); // furcula — the springing tail fork
+		g.lineStyle(1, C('#2b2f36'), 1).lineBetween(20, 12, 19, 15).lineBetween(23, 12, 23.5, 15); // stubby legs
+		g.fillStyle(C('#2b2f36'), 1).fillEllipse(21, 9, 9, 6.5); // tiny dark springtail body
+		g.fillStyle(C('#3d434c'), 1).fillCircle(25, 8, 2.6); // head
+		g.lineStyle(1, C('#2b2f36'), 1).lineBetween(26, 6, 27.5, 3); // antenna
+		g.fillStyle(C('#e8eef4'), 1).fillCircle(25.5, 7, 0.9); // eye, pale against the dark body
+	});
+	a('beachhopper', 28, 24, (g) => {
+		// sand-coloured and laterally flattened, curled like a comma mid-jump
+		g.lineStyle(1, C('#b09a74'), 1).lineBetween(19, 5, 27, 1).lineBetween(19, 7, 27, 8); // long antennae
+		g.fillStyle(C('#d9c49b'), 1).fillCircle(16, 8, 5.6).fillCircle(11, 12, 5).fillCircle(9, 18, 4.2); // flattened body curled forward
+		g.fillStyle(C('#d9c49b'), 0.9).fillTriangle(9, 21, 15, 23, 12, 17); // tail flick
+		g.lineStyle(1, C('#b09a74'), 1).lineBetween(13, 4, 10, 10).lineBetween(8, 8, 5, 14).lineBetween(5, 15, 7, 20); // segment seams down the flank
+		g.lineStyle(1.6, C('#c2ab84'), 1).lineBetween(17, 12, 22, 18).lineBetween(22, 18, 18, 22); // big kicking hind leg
+		g.lineStyle(1, C('#c2ab84'), 1);
+		for (let i = 0; i < 4; i++) g.lineBetween(17 - i * 2, 12 + i * 1.6, 20 - i * 2, 15 + i * 1.6); // small legs
+		g.fillStyle(C('#2e2018'), 1).fillCircle(19, 6, 1.2); // eye
+	});
+	a('hermitcrab', 30, 26, (g) => {
+		// the borrowed shell is the read — the crab spills out of its mouth
+		g.fillStyle(C('#c9a978'), 1).fillCircle(11, 14, 10); // outer whorl of the coiled shell
+		g.fillStyle(C('#dcbe8e'), 1).fillCircle(9, 11, 6.8); // second whorl
+		g.fillStyle(C('#c9a978'), 1).fillCircle(11, 8.5, 4.4); // third whorl
+		g.fillStyle(C('#dcbe8e'), 1).fillCircle(9.5, 6.5, 2.6).fillCircle(11, 5, 1.4); // whorls tightening to the apex
+		g.lineStyle(1, C('#a8865a'), 1).lineBetween(3, 17, 19, 19).lineBetween(4, 10, 17, 13); // ridges spiralling round the shell
+		g.fillStyle(C('#8e7146'), 1).fillEllipse(18, 19, 10, 11); // dark shell mouth
+		g.lineStyle(1.8, C('#a8442e'), 1).lineBetween(19, 22, 23, 25).lineBetween(22, 21, 27, 23); // legs emerging
+		g.fillStyle(C('#a8442e'), 1).fillEllipse(23, 19, 9, 6).fillEllipse(27, 17, 6, 5); // claw reaching out
+		g.lineStyle(1.4, C('#a8442e'), 1).lineBetween(20, 16, 22, 11).lineBetween(23, 16, 26, 12); // eye stalks
+		g.fillStyle(C('#2e2018'), 1).fillCircle(22, 10.5, 1.2).fillCircle(26, 11.5, 1.2); // eyes
+	});
+	a('termite', 30, 20, (g) => {
+		// pale soft segmented body, broad-waisted (no ant pinch), dark jawed head
+		g.lineStyle(1.4, C('#c9b48e'), 1);
+		g.lineBetween(8, 14, 6, 19).lineBetween(13, 14, 12, 19).lineBetween(19, 14, 18, 19); // three legs below
+		g.lineBetween(9, 7, 7, 2).lineBetween(14, 6, 13, 1).lineBetween(19, 7, 18, 2); // three legs above
+		g.fillStyle(C('#e6dcc6'), 1).fillEllipse(11, 10, 19, 11); // pale swollen abdomen
+		g.lineStyle(1, C('#cbbfa4'), 1).lineBetween(6, 6, 6, 14).lineBetween(10, 5, 10, 15).lineBetween(14, 5.5, 14, 14.5); // soft body segments
+		g.fillStyle(C('#e6dcc6'), 1).fillEllipse(20, 10, 9, 10); // thorax, as broad as the waist
+		g.fillStyle(C('#8a5a34'), 1).fillCircle(25, 10, 4.6); // hard dark head
+		g.fillStyle(C('#5e3a20'), 1).fillTriangle(28, 6.5, 30, 9, 26.5, 9.5).fillTriangle(28, 13.5, 30, 11, 26.5, 10.5); // jaws
+		g.lineStyle(1, C('#8a5a34'), 1).lineBetween(27, 7, 29, 3); // short antenna
+		g.fillStyle(C('#2e2018'), 1).fillCircle(26, 8.5, 1); // eye
+	});
+	a('millipede', 32, 28, (g) => {
+		// a long tube wound into a loose spiral, fringed with many tiny legs
+		const seg: [number, number, number][] = [];
+		for (let i = 0; i < 24; i++) {
+			const t = i / 23,
+				ang = t * Math.PI * 2.4 - Math.PI * 0.55;
+			seg.push([16 + Math.cos(ang) * (12.5 - t * 7.5), 14 + Math.sin(ang) * (12.5 - t * 7.5) * 0.8, ang]);
+		}
+		g.lineStyle(1, C('#3a1a12'), 1);
+		for (const [x, y, ang] of seg) g.lineBetween(x, y, x + Math.cos(ang) * 3.8, y + Math.sin(ang) * 3.4); // dense fringe of legs
+		g.fillStyle(C('#6b3020'), 1);
+		for (const [x, y] of seg) g.fillCircle(x, y, 3.2); // dark red-brown segmented tube
+		g.fillStyle(C('#8a4028'), 0.7);
+		for (const [x, y] of seg) g.fillCircle(x, y - 0.7, 1.5); // lighter ridge along the back
+		g.fillStyle(C('#4a2014'), 1).fillCircle(seg[0][0], seg[0][1], 3.6); // head at the free end of the coil
+		g.fillStyle(C('#2e2018'), 1).fillCircle(seg[0][0] + 1, seg[0][1] + 1, 1); // eye
+	});
+	a('skunk', 34, 24, (g) => {
+		g.fillStyle(C('#17161a'), 1).fillRect(11, 17, 3.4, 6).fillRect(17, 17, 3.4, 6).fillRect(23, 17, 3.4, 6); // short legs
+		g.fillStyle(C('#1b1a1f'), 1).fillEllipse(8, 10, 13, 20); // big plume tail, held up
+		g.fillStyle(0xffffff, 1).fillEllipse(7, 7, 8, 13); // white blaze up the tail
+		g.fillStyle(C('#1b1a1f'), 1).fillEllipse(19, 15, 24, 13); // low body
+		g.fillStyle(0xffffff, 1).fillRect(13, 9, 13, 3.6); // the two white back stripes
+		g.fillStyle(C('#1b1a1f'), 1).fillRect(18.5, 9, 2.4, 3.6); // split down the middle
+		g.fillStyle(C('#1b1a1f'), 1).fillTriangle(27, 9, 34, 15, 27, 19); // wedge head
+		g.fillStyle(0xffffff, 1).fillRect(28, 9, 1.8, 6); // thin white stripe down the face
+		g.fillStyle(C('#2e2018'), 1).fillCircle(30, 13, 1.1); // eye
+		g.fillStyle(C('#0d0d10'), 1).fillCircle(33.4, 14.6, 1.2); // nose
+	});
+	a('lunamoth', 34, 32, (g) => {
+		g.fillStyle(C('#9fd88f'), 1);
+		g.fillEllipse(10, 11, 15, 12).fillEllipse(24, 11, 15, 12); // broad forewings
+		g.fillEllipse(11, 19, 12, 11).fillEllipse(23, 19, 12, 11); // hindwings
+		g.fillTriangle(9, 22, 13, 22, 6, 32).fillTriangle(21, 22, 25, 22, 28, 32); // the long trailing tails
+		g.fillStyle(C('#7fbf72'), 1).fillRect(4, 8, 26, 1.6); // leading edge
+		g.fillStyle(C('#e8f2c9'), 1).fillEllipse(17, 15, 5, 17); // furry pale body
+		g.fillStyle(C('#f2e6a8'), 1).fillCircle(10, 12, 2).fillCircle(24, 12, 2); // eyespots
+		g.fillStyle(C('#4a3a22'), 1).fillCircle(10, 12, 0.9).fillCircle(24, 12, 0.9);
+		g.lineStyle(1.2, C('#c9a24a'), 1).lineBetween(16, 7, 12, 2).lineBetween(18, 7, 22, 2); // feathery antennae
+		g.fillStyle(C('#2e2018'), 1).fillCircle(15.6, 7, 0.9).fillCircle(18.4, 7, 0.9);
+	});
+	a('polyphemus', 34, 28, (g) => {
+		g.fillStyle(C('#c08b52'), 1);
+		g.fillTriangle(17, 6, 2, 10, 14, 17).fillTriangle(17, 6, 32, 10, 20, 17); // forewings held flat
+		g.fillStyle(C('#a97442'), 1);
+		g.fillEllipse(9, 19, 15, 11).fillEllipse(25, 19, 15, 11); // hindwings
+		g.fillStyle(C('#e0c295'), 1).fillRect(3, 9, 28, 1.4); // pale wing band
+		g.fillStyle(C('#6b4a8a'), 1).fillCircle(9, 19, 4).fillCircle(25, 19, 4); // the big purple eyespots
+		g.fillStyle(C('#f0e6d2'), 1).fillCircle(9, 19, 2.4).fillCircle(25, 19, 2.4);
+		g.fillStyle(C('#241a12'), 1).fillCircle(9, 19, 1.1).fillCircle(25, 19, 1.1);
+		g.fillStyle(C('#8a6238'), 1).fillEllipse(17, 15, 5, 15); // furry body
+		g.lineStyle(1.6, C('#7a5a34'), 1).lineBetween(16, 7, 11, 3).lineBetween(18, 7, 23, 3); // big comb antennae
+	});
+	a('parnassian', 30, 26, (g) => {
+		g.fillStyle(0xffffff, 0.82);
+		g.fillEllipse(9, 11, 15, 13).fillEllipse(21, 11, 15, 13); // translucent forewings
+		g.fillEllipse(10, 18, 12, 10).fillEllipse(20, 18, 12, 10);
+		g.fillStyle(C('#4a4a48'), 1).fillEllipse(4, 8, 6, 3).fillEllipse(26, 8, 6, 3); // smoky wingtips
+		g.fillStyle(C('#c8402f'), 1).fillCircle(9, 18, 2.4).fillCircle(21, 18, 2.4); // red warning spots
+		g.fillStyle(0xffffff, 1).fillCircle(9, 18, 1).fillCircle(21, 18, 1);
+		g.fillStyle(C('#3a3a38'), 1).fillEllipse(15, 14, 4, 14); // dark furry body
+		g.lineStyle(1.1, C('#2e2e2c'), 1).lineBetween(14, 7, 10, 2).lineBetween(16, 7, 20, 2); // antennae
+	});
+	a('puffin', 26, 30, (g) => {
+		g.fillStyle(C('#e0812f'), 1).fillEllipse(9, 28, 7, 3.5).fillEllipse(17, 28, 7, 3.5); // orange webbed feet
+		g.fillStyle(C('#22201f'), 1).fillEllipse(13, 16, 18, 24); // black back and crown
+		g.fillStyle(0xffffff, 1).fillEllipse(14, 20, 14, 18); // white breast
+		g.fillStyle(C('#d8d5cf'), 1).fillCircle(13, 9, 7); // pale grey face patch
+		g.fillStyle(C('#22201f'), 1).fillEllipse(13, 3, 15, 6); // black cap over the top
+		g.fillStyle(C('#e8e5df'), 1).fillTriangle(19, 6, 26, 11, 19, 15); // the big beak, pale outer half
+		g.fillStyle(C('#e0812f'), 1).fillTriangle(19, 7, 24, 11, 19, 14); // orange inner half
+		g.fillStyle(C('#c23b2e'), 1).fillTriangle(19, 8, 21.5, 11, 19, 13); // red base
+		g.lineStyle(0.9, C('#8a7f70'), 1).lineBetween(21, 8.4, 21, 13.4); // the groove across it
+		g.fillStyle(C('#2e2018'), 1).fillEllipse(13, 8, 3.4, 3.8); // the sad-looking eye
+		g.fillStyle(0xffffff, 1).fillCircle(12.3, 7.2, 0.9);
+	});
+	a('ladybeetle', 24, 22, (g) => {
+		g.fillStyle(C('#1e1c1a'), 1).fillRect(4, 16, 2, 4).fillRect(11, 17, 2, 4).fillRect(18, 16, 2, 4); // six little legs
+		g.fillStyle(C('#c8342b'), 1).fillCircle(12, 11, 9); // domed red shell
+		g.fillStyle(C('#a8241d'), 1).fillRect(11.2, 3, 1.6, 17); // the split down the wing cases
+		g.fillStyle(C('#1e1c1a'), 1);
+		g.fillCircle(7, 8, 2).fillCircle(17, 8, 2).fillCircle(6, 14, 1.8).fillCircle(18, 14, 1.8).fillCircle(12, 16, 1.6); // spots
+		g.fillStyle(C('#1e1c1a'), 1).fillEllipse(12, 3, 11, 6); // black head and pronotum
+		g.fillStyle(0xffffff, 1).fillCircle(8, 2.6, 1.6).fillCircle(16, 2.6, 1.6); // the two white cheek patches
+		g.fillStyle(C('#1e1c1a'), 1).fillCircle(9.6, 4.4, 0.9).fillCircle(14.4, 4.4, 0.9); // eyes
+		g.lineStyle(1, C('#1e1c1a'), 1).lineBetween(9, 1, 6, -1).lineBetween(15, 1, 18, -1); // antennae
+	});
+	a('groundhog', 34, 26, (g) => {
+		g.fillStyle(C('#6b5334'), 1).fillEllipse(6, 18, 10, 6); // low bushy tail
+		g.fillStyle(C('#4a3a24'), 1).fillRect(12, 19, 4, 5).fillRect(21, 19, 4, 5); // stubby legs
+		g.fillStyle(C('#7d6140'), 1).fillEllipse(17, 15, 26, 14); // heavy barrel body
+		g.fillStyle(C('#94764e'), 1).fillEllipse(17, 12, 22, 7); // grizzled lighter back
+		g.fillStyle(C('#7d6140'), 1).fillCircle(28, 12, 6.4); // blunt head
+		g.fillStyle(C('#5e4a2e'), 1).fillCircle(26, 6.5, 2.4).fillCircle(31, 7, 2.4); // small round ears
+		g.fillStyle(C('#a68a60'), 1).fillEllipse(31, 14, 7, 5); // pale muzzle
+		g.fillStyle(C('#e8e2d2'), 1).fillRect(32, 14.6, 2.6, 2.4); // the big front teeth
+		g.fillStyle(C('#241a12'), 1).fillCircle(33.6, 13, 1); // nose
+		g.fillStyle(C('#2e2018'), 1).fillCircle(28, 11, 1.2); // eye
+	});
+	a('opossum', 36, 26, (g) => {
+		g.lineStyle(2.6, C('#d8c8b8'), 1).lineBetween(5, 18, 1, 11); // naked pink tail
+		g.fillStyle(C('#3a3a38'), 1).fillRect(13, 18, 3.4, 5).fillRect(21, 18, 3.4, 5); // dark feet
+		g.fillStyle(C('#9a9690'), 1).fillEllipse(17, 15, 24, 13); // grizzled grey body
+		g.fillStyle(C('#c4c0b8'), 1).fillEllipse(17, 13, 20, 7); // pale guard hairs on top
+		g.fillStyle(C('#f2eee6'), 1).fillTriangle(24, 8, 36, 14, 24, 18); // long pale wedge face
+		g.fillStyle(C('#3a3a38'), 1).fillEllipse(24, 8, 5, 5).fillEllipse(27, 6, 4.5, 4.5); // big bare black ears
+		g.fillStyle(C('#e8b8c0'), 1).fillCircle(35, 13.6, 1.3); // pink nose
+		g.fillStyle(C('#2e2018'), 1).fillCircle(29, 11, 1.2); // small dark eye
+		g.fillStyle(0xffffff, 1).fillTriangle(33, 15, 35, 15, 34, 17); // a tooth showing
+	});
+	a('crow', 30, 24, (g) => {
+		g.fillStyle(C('#1a1a1e'), 1).fillRect(12, 18, 2, 5).fillRect(17, 18, 2, 5); // legs
+		g.fillStyle(C('#22222a'), 1).fillEllipse(15, 13, 24, 13); // body
+		g.fillTriangle(2, 9, 9, 13, 3, 16); // squared-off tail
+		g.fillStyle(C('#2e2e38'), 1).fillEllipse(14, 11, 16, 7); // folded wing
+		g.fillStyle(C('#3a3a46'), 0.7).fillEllipse(13, 9, 11, 3); // faint blue-black sheen
+		g.fillStyle(C('#22222a'), 1).fillCircle(23, 9, 5.4); // head
+		g.fillStyle(C('#141418'), 1).fillTriangle(27, 6.5, 30, 9.4, 27, 12); // stout straight bill
+		g.fillStyle(C('#c9c4bb'), 1).fillCircle(23.6, 8, 1.5); // pale eye
+		g.fillStyle(C('#141418'), 1).fillCircle(23.6, 8, 0.8);
+	});
+
 	// Generic bodies by kind. Each kind gets three silhouette variants so that,
 	// combined with a unique per-animal tint and size, even same-kind animals
 	// read as distinct individuals rather than copies of one another.
@@ -2567,23 +3574,48 @@ const FEATURED_TEXTURE: Record<string, string> = {
 	'song-sparrow': 'ani-sparrow',
 	'mule-deer': 'ani-deer',
 	'red-fox-meadow': 'ani-fox',
-	'red-fox-forest': 'ani-fox',
-	'fox-alpine': 'ani-fox',
+	'red-fox-forest': 'ani-grayfox',
+	'fox-alpine': 'ani-lynx',
 	'tree-squirrel': 'ani-squirrel',
 	woodpecker: 'ani-woodpecker',
 	'forest-salamander': 'ani-salamander',
 	'wetland-salamander': 'ani-salamander',
 	'great-horned-owl': 'ani-owl',
-	'barn-owl': 'ani-owl',
+	'barn-owl': 'ani-barnowl',
 	'black-bear': 'ani-bear',
 	raccoon: 'ani-raccoon',
 	'mule-deer-forest': 'ani-deer',
-	'mule-deer-alpine': 'ani-deer',
+	'mule-deer-alpine': 'ani-grizzly',
 	// newer animals — each gets its own bespoke sprite
 	'praying-mantis': 'ani-mantis',
 	killdeer: 'ani-killdeer',
 	'red-admiral': 'ani-redadmiral',
-	'little-brown-bat': 'ani-bat',
+
+	'garden-snail': 'ani-snail',
+	'annas-hummingbird': 'ani-crow',
+	'lady-beetle': 'ani-ladybeetle',
+	groundhog: 'ani-groundhog',
+	opossum: 'ani-opossum',
+	'black-oystercatcher': 'ani-puffin',
+	'luna-moth': 'ani-lunamoth',
+	'polyphemus-moth': 'ani-polyphemus',
+	'alpine-butterfly': 'ani-parnassian',
+	'little-brown-bat': 'ani-skunk',
+	orca: 'ani-orca',
+	'migrating-whale': 'ani-graywhale',
+	octopus: 'ani-octopus',
+	'bumblebee-alpine': 'ani-moth',
+	javelina: 'ani-javelina',
+	crayfish: 'ani-crayfish',
+	amphipod: 'ani-shrimp',
+	pillbug: 'ani-pillbug',
+	'banana-slug': 'ani-bananaslug',
+	'alpine-springtail': 'ani-snowflea',
+	'beach-hopper': 'ani-beachhopper',
+	'hermit-crab': 'ani-hermitcrab',
+	'desert-termite': 'ani-termite',
+	'desert-millipede': 'ani-millipede',
+	'big-brown-bat': 'ani-bat',
 	ensatina: 'ani-ensatina',
 	'spotted-towhee': 'ani-towhee',
 	'hooded-merganser': 'ani-merganser',
@@ -2625,6 +3657,169 @@ function composeAnimalDraw(id: string, kind: string): { w: number; h: number; dr
 	const BODY = 0xffffff; // tintable body colour
 	const DK = 0x2e2018; // eyes / dark detail
 	const draw = (fn: (g: G) => void) => fn;
+
+	// --- Producers and decomposers ---------------------------------------------
+	// Plants, fungi, lichens and seaweeds are living things in the journal, so they
+	// need to read as themselves. Without this they fall through to the generic
+	// quadruped and a mushroom arrives looking like a small brown animal.
+	if (kind === 'plant' || kind === 'fungus' || kind === 'lichen' || kind === 'algae') {
+		// Mushrooms and bracket fungi: cap, stem, gills.
+		if (kind === 'fungus') {
+			const bracket = t(/turkey-tail|shelf|bracket/);
+			return {
+				w: 30,
+				h: 28,
+				draw: draw((g) => {
+					if (bracket) {
+						g.fillStyle(C('#6b543a'), 1).fillRect(3, 4, 4, 22); // trunk it grows on
+						for (const [y, w] of [
+							[8, 18],
+							[14, 15],
+							[20, 12],
+						] as [number, number][]) {
+							g.fillStyle(C('#c8a86a'), 1).fillEllipse(7 + w / 2, y, w, 7);
+							g.fillStyle(C('#e0cba0'), 1).fillEllipse(7 + w / 2, y - 1, w - 5, 3.5);
+						}
+						return;
+					}
+					g.fillStyle(C('#e8dcc2'), 1).fillRect(13, 13, 5, 12); // stem
+					g.fillStyle(C('#d8c8a8'), 1).fillRect(13, 13, 2, 12);
+					g.fillStyle(C('#efe3c8'), 1).fillEllipse(15.5, 15, 17, 5); // gills under the cap
+					g.lineStyle(0.8, C('#c9b691'), 1);
+					for (const x of [9, 12, 15, 19, 22]) g.lineBetween(x, 13.5, x, 16.5);
+					g.fillStyle(C(t(/mushroom|agaricus|meadow/) ? '#c9805c' : '#a8683f'), 1).fillEllipse(15.5, 11, 24, 15); // cap
+					g.fillStyle(0xffffff, 0.22).fillEllipse(11, 8, 10, 5); // highlight
+					g.fillStyle(C('#8f5136'), 1).fillEllipse(15.5, 15, 24, 3.5); // cap rim shadow
+				}),
+			};
+		}
+		// Lichen: crusty rosette clinging to a pebble.
+		if (kind === 'lichen') {
+			return {
+				w: 28,
+				h: 22,
+				draw: draw((g) => {
+					g.fillStyle(C('#8e8e8a'), 1).fillEllipse(14, 14, 24, 14); // rock
+					g.fillStyle(C('#a8a29a'), 1).fillEllipse(10, 11, 10, 6);
+					g.fillStyle(C('#9fb38a'), 1).fillCircle(11, 12, 5).fillCircle(19, 14, 4).fillCircle(15, 8, 3.2);
+					g.fillStyle(C('#c9d98f'), 1).fillCircle(11, 12, 3).fillCircle(19, 14, 2.2);
+					g.fillStyle(C('#5f6b4a'), 1).fillCircle(11, 12, 1).fillCircle(19, 14, 0.9); // dark centres
+				}),
+			};
+		}
+		// Kelp and seaweed: long blades rising from a holdfast, with floats.
+		if (kind === 'algae' || t(/kelp|seaweed|surfgrass|eelgrass/)) {
+			return {
+				w: 26,
+				h: 34,
+				draw: draw((g) => {
+					g.fillStyle(C('#3f5c33'), 1).fillEllipse(13, 31, 14, 6); // holdfast
+					g.lineStyle(2.2, C('#4f7a3f'), 1);
+					g.lineBetween(13, 30, 10, 4);
+					g.lineBetween(13, 30, 17, 8);
+					for (const [x, y, w2, h2] of [
+						[7, 10, 9, 5],
+						[19, 14, 9, 5],
+						[6, 19, 8, 4],
+						[20, 23, 8, 4],
+					] as [number, number, number, number][])
+						g.fillStyle(C('#6d9a4e'), 1).fillEllipse(x, y, w2, h2); // blades
+					g.fillStyle(C('#b7cf7a'), 1).fillCircle(10, 5, 3).fillCircle(17, 9, 2.4); // gas floats
+				}),
+			};
+		}
+		// Columnar cactus.
+		if (t(/saguaro|cactus|cholla|prickly/)) {
+			return {
+				w: 28,
+				h: 36,
+				draw: draw((g) => {
+					g.fillStyle(C('#4f7a44'), 1).fillRect(11, 6, 8, 28); // trunk
+					g.fillEllipse(15, 7, 8, 7);
+					g.fillRect(4, 18, 5, 10).fillEllipse(6.5, 18, 5, 5); // arms
+					g.fillRect(21, 14, 5, 12).fillEllipse(23.5, 14, 5, 5);
+					g.fillStyle(C('#3f6437'), 1).fillRect(13, 6, 1.6, 28); // ribs
+					g.fillStyle(C('#f2ead6'), 1).fillCircle(15, 5, 3).fillCircle(6.5, 16, 2); // blossoms
+				}),
+			};
+		}
+		// Trees.
+		if (t(/oak|hemlock|pine|willow|cypress|fir|aspen|tree/)) {
+			const conifer = t(/hemlock|pine|fir|cypress/);
+			return {
+				w: 32,
+				h: 36,
+				draw: draw((g) => {
+					g.fillStyle(C('#6b543a'), 1).fillRect(14, 20, 5, 15); // trunk
+					if (conifer) {
+						g.fillStyle(C('#3f6b46'), 1);
+						g.fillTriangle(16, 2, 5, 17, 27, 17);
+						g.fillTriangle(16, 10, 3, 26, 29, 26);
+						g.fillStyle(C('#4f7f55'), 1).fillTriangle(16, 6, 8, 16, 24, 16);
+					} else {
+						g.fillStyle(C('#4f8043'), 1).fillCircle(16, 14, 13);
+						g.fillStyle(C('#5f9450'), 1).fillCircle(11, 11, 7).fillCircle(21, 13, 6);
+						g.fillStyle(C('#3e6a37'), 1).fillCircle(19, 19, 5);
+					}
+				}),
+			};
+		}
+		// Cattail / reed / rush: blades with a brown spike.
+		if (t(/cattail|reed|rush|bulrush/)) {
+			return {
+				w: 26,
+				h: 36,
+				draw: draw((g) => {
+					g.lineStyle(2, C('#6f9a4e'), 1);
+					g.lineBetween(8, 35, 5, 10);
+					g.lineBetween(18, 35, 21, 12);
+					g.lineBetween(13, 35, 13, 6);
+					g.fillStyle(C('#7d5a3a'), 1).fillEllipse(13, 9, 6, 13); // the sausage
+					g.fillStyle(C('#946c46'), 1).fillEllipse(12, 7, 3, 7);
+					g.lineStyle(1.6, C('#8fae63'), 1).lineBetween(13, 4, 13, 0); // tip
+				}),
+			};
+		}
+		// Grasses and low turf: a tuft of blades with seed heads.
+		if (t(/grama|grass|sedge|turf|muhly|campion|moss/)) {
+			return {
+				w: 30,
+				h: 26,
+				draw: draw((g) => {
+					g.lineStyle(1.8, C('#7fa34e'), 1);
+					for (const [x, tipx] of [
+						[7, 3],
+						[11, 9],
+						[15, 15],
+						[19, 22],
+						[23, 27],
+					] as [number, number][])
+						g.lineBetween(x, 25, tipx, 5);
+					g.fillStyle(C('#c3b06a'), 1);
+					for (const [x, y] of [
+						[3, 5],
+						[9, 4],
+						[22, 6],
+					] as [number, number][])
+						g.fillEllipse(x, y, 7, 3); // seed heads
+					g.fillStyle(C('#5f7f3c'), 1).fillEllipse(15, 25, 22, 5); // base
+				}),
+			};
+		}
+		// Default flowering plant: stem, leaves, a cluster of blooms.
+		const petal = t(/milkweed/) ? '#d98cae' : t(/sunflower|marigold|arnica/) ? '#e8bf3f' : '#c98fd0';
+		return {
+			w: 28,
+			h: 34,
+			draw: draw((g) => {
+				g.lineStyle(2, C('#5f8a44'), 1).lineBetween(14, 33, 14, 10);
+				g.fillStyle(C('#6d9a4e'), 1).fillEllipse(7, 22, 12, 6).fillEllipse(21, 26, 12, 6); // leaves
+				g.fillStyle(C(petal), 1);
+				g.fillCircle(14, 9, 6).fillCircle(8, 13, 4).fillCircle(20, 13, 4); // bloom cluster
+				g.fillStyle(C('#f2e6c0'), 1).fillCircle(14, 9, 2.4);
+			}),
+		};
+	}
 
 	if (kind === 'mammal') {
 		if (t(/porcupine|hedgehog/)) {

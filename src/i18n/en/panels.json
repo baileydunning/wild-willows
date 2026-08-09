@@ -221,7 +221,8 @@
 			"omnivore": "Omnivore",
 			"mesopredator": "Mid predator",
 			"apex-predator": "Apex predator",
-			"wildlife": "Wildlife"
+			"wildlife": "Wildlife",
+			"detritivore": "Detritivore"
 		},
 		"seasons": {
 			"spring": "spring",
@@ -302,7 +303,12 @@
 		"historyForward": "Forward along your journal trail",
 		"addGoal": "Add 'attract this animal' to your goals",
 		"animalReqUnknown": "Another {kind} needs to return first",
-		"lockedCard": "Upgrade your field guide to Tier {tier} to read this animal's full entry — its ecological role, diet, and food-web links."
+		"lockedCard": "Upgrade your field guide to Tier {tier} to read this animal's full entry — its ecological role, diet, and food-web links.",
+		"stage": {
+			"eggs": "(eggs)",
+			"young": "(young)",
+			"adult": "(adults)"
+		}
 	},
 	"achievements": {
 		"title": "Achievements",
