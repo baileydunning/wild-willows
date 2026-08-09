@@ -191,11 +191,23 @@ export async function loadServer(): Promise<Record<string, any>> {
 	const g = globalThis as any;
 	g.Resource = class {
 		_id: any;
+		/** Set by `fetch()` below when a test wants request headers in scope. */
+		_ctx: any = null;
 		constructor(id?: any) {
 			this._id = id;
 		}
 		getId() {
 			return this._id;
+		}
+		/**
+		 * Harper hands endpoints a request context; the ones that content-negotiate
+		 * (GameData, and the inlined HTML pages) read `.headers` off it and fall back
+		 * to an uncompressed plain response when there is none — that no-context path
+		 * is also how the in-app solo backend calls them. Null by default so every
+		 * existing test keeps taking that path unchanged.
+		 */
+		getContext() {
+			return this._ctx;
 		}
 	};
 	g.databases = {
@@ -211,6 +223,13 @@ export interface World {
 	db: Db;
 	post<T = any>(cls: string, body: any): Promise<T>;
 	get<T = any>(cls: string, id?: string, query?: Record<string, string | string[]>): Promise<T>;
+	/**
+	 * Like get(), but with an HTTP request context carrying `headers` — for the
+	 * endpoints that content-negotiate or answer If-None-Match. Endpoint names here
+	 * are the URL-path exports ('' for the landing page, 'og-image', …), not class
+	 * names, so pass them exactly as they appear in the export map.
+	 */
+	fetch<T = any>(cls: string, headers?: Record<string, string>): Promise<T>;
 }
 
 /** Reset to a brand-new world and return helpers bound to the loaded server. */
@@ -238,6 +257,15 @@ export async function freshWorld(): Promise<World> {
 			}
 			target.id = id;
 			return inst(cls, id).get(target);
+		},
+		// Same call, but with a request context in scope. Header lookup is
+		// case-insensitive, like a real Headers object.
+		fetch: (cls, headers) => {
+			const lower: Record<string, string> = {};
+			for (const [k, v] of Object.entries(headers || {})) lower[k.toLowerCase()] = v;
+			const r = inst(cls);
+			r._ctx = { headers: { get: (k: string) => lower[String(k).toLowerCase()] ?? null } };
+			return r.get(new URLSearchParams());
 		},
 	};
 }
