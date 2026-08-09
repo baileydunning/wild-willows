@@ -1672,8 +1672,18 @@
 						privacy: 'Privacy page',
 						support: 'Support page',
 						'get-nav': 'Get the game (nav)',
+						'edu-nav': 'For teachers (nav)',
+						'pdf-guide': 'Educator guide (click)',
+						'pdf-worksheets': 'Worksheets (click)',
+						'school-copy': 'Classroom copy request',
 						other: 'Other',
 					};
+					// Server-side download counts from the two PDF endpoints — the honest
+					// number, since it also catches direct links teachers pass around,
+					// which never fire the landing page's click beacon.
+					const dl = lt.downloads || {};
+					const dlToday = todayRow.downloads || {};
+					const DL_LABELS = { guide: 'Educator Guide', worksheets: 'Student Worksheets' };
 					const ldays = LANDING.days || [];
 					const todayRow = ldays.find((d) => d.day === LANDING.today) || {};
 					const dayCols = {};
@@ -1690,6 +1700,11 @@
 							),
 							kpi(fmt(lt.totalClicks), 'Link clicks', 'store, demo & theme buttons'),
 							kpi(
+								fmt(lt.totalDownloads),
+								'PDF downloads',
+								`${fmt(dl.guide)} guide · ${fmt(dl.worksheets)} worksheets`,
+							),
+							kpi(
 								`<span class="accent">${fmt(lt.signups)}</span>`,
 								'Mailing list',
 								'signups all-time · emails visible only to admin',
@@ -1701,7 +1716,12 @@
 								barRows(objToEntries(lt.clicks), { labelMap: CLICK_LABELS, cls: 'gold' }),
 							) +
 							cardTitled('Daily visits', `last ${Object.keys(dayCols).length || 0} days`, histCols(dayCols)) +
-							`</div>`,
+							`</div>` +
+							cardTitled(
+								'Classroom PDFs',
+								`downloaded all-time · ${fmt(Object.values(dlToday).reduce((a, v) => a + n(v), 0))} today`,
+								barRows(objToEntries(dl), { labelMap: DL_LABELS, cls: 'sky' }),
+							),
 					);
 				}
 

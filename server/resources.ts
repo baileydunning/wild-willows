@@ -7850,14 +7850,45 @@ const LANDING_CLICK_TARGETS = new Set([
 	'support',
 	'get-nav',
 	'gallery',
+	'edu-nav',
+	'pdf-guide',
+	'pdf-worksheets',
+	'school-copy',
 ]);
 const landingDay = (t: number) => new Date(t).toISOString().slice(0, 10); // UTC day
 
 let landingStatsCache: { at: number; out: any } | null = null;
 const LANDING_STATS_CACHE_MS = 15_000;
 
+/** Copy a stored `{ key: count }` map into a fresh, plain, sane object. Anything
+ *  that isn't a finite positive number is dropped rather than carried forward. */
+function countMap(stored: any): Record<string, number> {
+	const out: Record<string, number> = {};
+	if (stored && typeof stored === 'object' && !Array.isArray(stored))
+		for (const [k, v] of Object.entries(stored)) {
+			const n = Number(v);
+			if (Number.isFinite(n) && n > 0) out[k] = n;
+		}
+	return out;
+}
+
 /** Apply one mutation to today's LandingStat row. Never throws — a metrics
- *  hiccup (table not deployed yet, decode error, …) must not break the caller. */
+ *  hiccup (table not deployed yet, decode error, …) must not break the caller.
+ *
+ *  The mutation is applied to a PLAIN object rebuilt from the stored row, never to
+ *  the record Harper handed back. Harper FREEZES every record it decodes (its row
+ *  cache depends on that), and this bundle is ESM — strict mode — so `row.visits =
+ *  …` on a fetched record throws "Cannot assign to read only property". That throw
+ *  landed in the catch below and was quietly logged, so every increment after the
+ *  day's row existed was thrown away: each day stayed at whatever the FIRST event
+ *  of the day wrote, i.e. visits: 1. That is the "one visit a day" the dashboard
+ *  was reporting — not the traffic, the write.
+ *
+ *  Every other counter in this file (AppOpen, flushRefusals, noteSaveIncident)
+ *  already rebuilds a literal before put; this was the one that mutated in place.
+ *  The integration harness handed back structuredClones, which are writable, so
+ *  the tests passed while production flatlined — tests/integration/harness.ts now
+ *  freezes reads the way Harper does, so this can't come back unnoticed. */
 async function bumpLandingStat(mutate: (row: any) => void): Promise<void> {
 	try {
 		const table = (db() as any).LandingStat;
@@ -7867,7 +7898,16 @@ async function bumpLandingStat(mutate: (row: any) => void): Promise<void> {
 		const id = `day:${day}`;
 		// findCounterRow, NOT safeGet: a cold-start null from a primary-key .get()
 		// would look like "first event of the day" and reset the row to zero.
-		const row = (await findCounterRow(table, id)) || { id, day, visits: 0, uniques: 0, clicks: {}, signups: 0 };
+		const stored = await findCounterRow(table, id);
+		const row: any = {
+			id,
+			day,
+			visits: Number(stored?.visits) || 0,
+			uniques: Number(stored?.uniques) || 0,
+			signups: Number(stored?.signups) || 0,
+			clicks: countMap(stored?.clicks),
+			downloads: countMap(stored?.downloads),
+		};
 		mutate(row);
 		row.updatedAt = now;
 		await table.put(row);
@@ -7875,6 +7915,15 @@ async function bumpLandingStat(mutate: (row: any) => void): Promise<void> {
 	} catch (e: any) {
 		console.error('landing stat bump failed —', e?.message || e);
 	}
+}
+
+/** One classroom-PDF download, counted server-side by the pdf endpoints below.
+ *  This is the honest number: it also catches the direct links teachers forward to
+ *  each other, which never touch the landing page's click beacon. */
+async function bumpPdfDownload(which: 'guide' | 'worksheets'): Promise<void> {
+	await bumpLandingStat((r) => {
+		r.downloads[which] = (r.downloads[which] || 0) + 1;
+	});
 }
 
 /**
@@ -7968,7 +8017,6 @@ export class LandingEvent extends PublicEndpoint {
 				.slice(0, 24);
 			const target = LANDING_CLICK_TARGETS.has(raw) ? raw : 'other';
 			await bumpLandingStat((r) => {
-				r.clicks = r.clicks && typeof r.clicks === 'object' && !Array.isArray(r.clicks) ? r.clicks : {};
 				r.clicks[target] = (r.clicks[target] || 0) + 1;
 			});
 		}
@@ -8212,13 +8260,21 @@ export class LandingStats extends PublicEndpoint {
 			rows = [];
 		}
 		rows = rows.filter((r: any) => r && r.day).sort((a: any, b: any) => String(a.day).localeCompare(String(b.day)));
-		const totals = { visits: 0, uniques: 0, signups: 0, clicks: {} as Record<string, number> };
+		const totals = {
+			visits: 0,
+			uniques: 0,
+			signups: 0,
+			clicks: {} as Record<string, number>,
+			downloads: {} as Record<string, number>,
+		};
 		for (const r of rows) {
 			totals.visits += r.visits || 0;
 			totals.uniques += r.uniques || 0;
 			totals.signups += r.signups || 0;
 			for (const [k, v] of Object.entries(r.clicks || {}))
 				totals.clicks[k] = (totals.clicks[k] || 0) + (Number(v) || 0);
+			for (const [k, v] of Object.entries(r.downloads || {}))
+				totals.downloads[k] = (totals.downloads[k] || 0) + (Number(v) || 0);
 		}
 		let signupCount = totals.signups;
 		try {
@@ -8233,11 +8289,18 @@ export class LandingStats extends PublicEndpoint {
 			signups: r.signups || 0,
 			clicks: r.clicks || {},
 			totalClicks: sumValues(r.clicks),
+			downloads: r.downloads || {},
+			totalDownloads: sumValues(r.downloads),
 		}));
 		const out = {
 			generatedAt: now,
 			today: landingDay(now),
-			totals: { ...totals, signups: signupCount, totalClicks: sumValues(totals.clicks) },
+			totals: {
+				...totals,
+				signups: signupCount,
+				totalClicks: sumValues(totals.clicks),
+				totalDownloads: sumValues(totals.downloads),
+			},
 			days,
 		};
 		landingStatsCache = { at: now, out };
@@ -8361,8 +8424,50 @@ class Theme extends PublicEndpoint {
 	}
 }
 
+/** The two classroom PDFs behind the landing page's "For teachers" section.
+ *
+ * Same deal as /theme.mp3: the hosted Harper serves no static files, so the bytes
+ * are inlined as base64 by scripts/build-pages.mjs into server/pdf-assets.ts and
+ * dynamic-imported here — that keeps ~2 MB of base64 out of the web/desktop bundle
+ * (Vite code-splits it; the game never loads it) while esbuild inlines it into the
+ * server's resources.js.
+ *
+ * Each GET counts a download before it answers. Deliberately a SHORT cache: a
+ * week-long one would hide every repeat download from the numbers, and an hour is
+ * plenty to stop a reload from re-sending a megabyte. */
+const pdfPage = (b64: string, filename: string) => ({
+	status: 200,
+	headers: {
+		'content-type': 'application/pdf',
+		'cache-control': 'public, max-age=3600',
+		// ASCII-only filename on purpose — a header value is latin-1, and the real
+		// titles carry an em dash.
+		'content-disposition': `inline; filename="${filename}"`,
+	},
+	body: nodeBuffer.from(b64, 'base64'),
+});
+
+class EducatorGuidePdf extends PublicEndpoint {
+	async get() {
+		await bumpPdfDownload('guide');
+		const { educatorGuidePdfB64 } = await import('./pdf-assets');
+		return pdfPage(educatorGuidePdfB64, 'Wild-Willows-Educator-Guide.pdf');
+	}
+}
+
+class StudentWorksheetsPdf extends PublicEndpoint {
+	async get() {
+		await bumpPdfDownload('worksheets');
+		const { studentWorksheetsPdfB64 } = await import('./pdf-assets');
+		return pdfPage(studentWorksheetsPdfB64, 'Wild-Willows-Student-Worksheets.pdf');
+	}
+}
+
 // Export under the exact URL paths (string export names keep the hyphen; the empty
 // name serves the site root, and Harper strips a trailing .ico/.jpg/.svg extension).
+// The PDFs are exported under BOTH the bare name and the .pdf one, because the
+// extension-stripping list is Harper's, not ours — this way /educator-guide.pdf
+// resolves whether or not Harper decides to trim the suffix first.
 export {
 	LandingPage as '',
 	PrivacyPage as privacy,
@@ -8372,4 +8477,8 @@ export {
 	Favicon as favicon,
 	OgImage as 'og-image',
 	Theme as theme,
+	EducatorGuidePdf as 'educator-guide',
+	EducatorGuidePdf as 'educator-guide.pdf',
+	StudentWorksheetsPdf as 'student-worksheets',
+	StudentWorksheetsPdf as 'student-worksheets.pdf',
 };

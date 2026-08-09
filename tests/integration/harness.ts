@@ -40,6 +40,15 @@ interface Table {
 	_isCorrupt(id: string): boolean;
 }
 
+/** Freeze an object and everything reachable from it (Harper's `freezeData`). */
+function deepFreeze<T>(value: T): T {
+	if (value && typeof value === 'object' && !Object.isFrozen(value)) {
+		Object.freeze(value);
+		for (const v of Object.values(value as any)) deepFreeze(v);
+	}
+	return value;
+}
+
 function makeTable(name = 'Table'): Table {
 	const rows = new Map<string, any>();
 	const corrupt = new Set<string>();
@@ -56,11 +65,28 @@ function makeTable(name = 'Table'): Table {
 		return out;
 	};
 
+	/**
+	 * Hand back a FROZEN copy, the way real Harper does.
+	 *
+	 * Harper deep-freezes every record it decodes — its row cache depends on the
+	 * decoded object never being mutated (utility/lmdb: `freezeData = true`, plus an
+	 * explicit `freezeRecord` on the read path). Because the deployed bundle is ESM,
+	 * i.e. strict mode, `row.count = row.count + 1` on a fetched record THROWS
+	 * "Cannot assign to read only property" rather than failing quietly.
+	 *
+	 * This harness used to return plain writable structuredClones, so read-modify-
+	 * write-in-place looked fine here and died in production — which is exactly how
+	 * the landing-page counters sat at 1/day for weeks with green tests. Server code
+	 * must rebuild a literal (`{ ...row, count: row.count + 1 }`) or use patch();
+	 * freezing here is what makes that non-negotiable.
+	 */
+	const frozenCopy = (row: any): any => deepFreeze(structuredClone(row));
+
 	const table: Table = {
 		async get(id) {
 			// Harper returns null for a record it cannot decode — it does NOT throw.
 			if (corrupt.has(id)) return undefined;
-			return rows.has(id) ? structuredClone(rows.get(id)) : undefined;
+			return rows.has(id) ? frozenCopy(rows.get(id)) : undefined;
 		},
 		async put(row) {
 			corrupt.delete(row.id); // a full put rewrites the bytes → row is healed
@@ -76,7 +102,7 @@ function makeTable(name = 'Table'): Table {
 		},
 		search() {
 			// Undecodable rows surface as nulls in a scan, exactly as Harper yields them.
-			const snap = [...rows.values()].map((r) => (corrupt.has(r.id) ? null : structuredClone(r)));
+			const snap = [...rows.values()].map((r) => (corrupt.has(r.id) ? null : frozenCopy(r)));
 			return (async function* () {
 				for (const r of snap) yield r;
 			})();
@@ -88,7 +114,7 @@ function makeTable(name = 'Table'): Table {
 			// `valueAsBuffer` short-circuits decoding and returns the stored payload.
 			getSync(id: string, options?: any) {
 				if (!rows.has(id)) return undefined;
-				if (!options?.valueAsBuffer) return structuredClone(rows.get(id));
+				if (!options?.valueAsBuffer) return frozenCopy(rows.get(id));
 				const packed = encoder.pack(rows.get(id));
 				return corrupt.has(id) ? withTrailer(packed) : packed;
 			},
