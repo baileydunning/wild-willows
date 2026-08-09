@@ -54,10 +54,16 @@ for b in sorted(per_biome):
         cells.append(f"{tier[:5]} {n}[{target}]")
     print("  " + f"{b:9}" + "  ".join(cells))
 
+starters = {min((x for x in species.values() if x['biome'] == b),
+                key=lambda x: x['requirements']['minHealth'])['id']
+            for b in {x['biome'] for x in species.values()}}
+
 # signatures
 sig_owner = {}
 for sid, s in species.items():
     sig = s['requirements'].get('signature')
+    # A species that asks for a single shared object has no signature by design.
+    if not sig and len(s['requirements'].get('objects', {})) <= 1: continue
     if not sig: err(f"{sid}: no signature object"); continue
     if sig in GENERIC: err(f"{sid}: signature '{sig}' is a generic object")
     if sig not in s['requirements'].get('objects', {}): err(f"{sid}: signature not in own objects")
@@ -71,7 +77,8 @@ for sid, s in species.items():
 # objects exist, are in-biome, generic use capped
 for sid, s in species.items():
     objs = s['requirements'].get('objects', {})
-    if not (2 <= len(objs) <= 4): err(f"{sid}: {len(objs)} objects, expected 2-4")
+    lo = 1   # difficulty is meant to vary: easy animals ask for one thing, late ones for four   # a biome's first arrival may ask for one thing
+    if not (lo <= len(objs) <= 4): err(f"{sid}: {len(objs)} objects, expected {lo}-4")
     if len([o for o in objs if o in GENERIC]) > 1: err(f"{sid}: >1 generic object")
     for o in objs:
         if o not in objects: err(f"{sid}: unknown object '{o}'")

@@ -300,6 +300,10 @@ var recipes_default = {
         seeds: 4,
         fiber: 2,
         water: 1
+      },
+      unlock: {
+        minHealth: 10,
+        label: "Restore Willow Meadow to 10% health"
       }
     },
     {
@@ -315,6 +319,10 @@ var recipes_default = {
         wildflowers: 3,
         seeds: 2,
         water: 1
+      },
+      unlock: {
+        minHealth: 8,
+        label: "Restore Willow Meadow to 8% health"
       }
     },
     {
@@ -389,8 +397,8 @@ var recipes_default = {
         water: 1
       },
       unlock: {
-        minHealth: 25,
-        label: "Restore Willow Meadow to 25% health"
+        minHealth: 16,
+        label: "Restore Willow Meadow to 16% health"
       }
     },
     {
@@ -531,6 +539,10 @@ var recipes_default = {
       },
       materials: {
         stones: 2
+      },
+      unlock: {
+        minHealth: 18,
+        label: "Restore Willow Meadow to 18% health"
       }
     },
     {
@@ -1210,6 +1222,10 @@ var recipes_default = {
         branches: 8,
         stones: 6,
         water: 4
+      },
+      unlock: {
+        minHealth: 45,
+        label: "Restore Willow Meadow to 45% health"
       }
     },
     {
@@ -1409,8 +1425,8 @@ var recipes_default = {
         fiber: 2
       },
       unlock: {
-        minHealth: 8,
-        label: "Restore Willow Meadow to 8% health"
+        minHealth: 6,
+        label: "Restore Willow Meadow to 6% health"
       }
     },
     {
@@ -2704,6 +2720,10 @@ var recipes_default = {
       materials: {
         rainwater: 3,
         stones: 2
+      },
+      unlock: {
+        minHealth: 14,
+        label: "Restore Willow Meadow to 14% health"
       }
     },
     {
@@ -2872,7 +2892,11 @@ var recipes_default = {
         fiber: 4,
         stones: 2
       },
-      once: true
+      once: true,
+      unlock: {
+        minHealth: 22,
+        label: "Restore Willow Meadow to 22% health"
+      }
     },
     {
       id: "binoculars",
@@ -2942,8 +2966,8 @@ var recipes_default = {
         clay: 2
       },
       unlock: {
-        minHealth: 12,
-        label: "Restore Graywind Heights to 12% health"
+        minHealth: 13,
+        label: "Restore Graywind Heights to 13% health"
       }
     },
     {
@@ -2961,8 +2985,8 @@ var recipes_default = {
         lichen: 1
       },
       unlock: {
-        minHealth: 12,
-        label: "Restore Graywind Heights to 12% health"
+        minHealth: 0,
+        label: "Available from the start"
       }
     },
     {
@@ -2997,8 +3021,8 @@ var recipes_default = {
         clay: 2
       },
       unlock: {
-        minHealth: 60,
-        label: "Restore Graywind Heights to 60% health"
+        minHealth: 67,
+        label: "Restore Graywind Heights to 67% health"
       }
     },
     {
@@ -3016,8 +3040,8 @@ var recipes_default = {
         moss: 2
       },
       unlock: {
-        minHealth: 30,
-        label: "Restore Graywind Heights to 30% health"
+        minHealth: 35,
+        label: "Restore Graywind Heights to 35% health"
       }
     },
     {
@@ -3034,8 +3058,8 @@ var recipes_default = {
         clay: 3
       },
       unlock: {
-        minHealth: 28,
-        label: "Restore Graywind Heights to 28% health"
+        minHealth: 30,
+        label: "Restore Graywind Heights to 30% health"
       }
     },
     {
@@ -3070,13 +3094,13 @@ var recipes_default = {
         stones: 2
       },
       unlock: {
-        minHealth: 18,
-        label: "Restore Graywind Heights to 18% health"
+        minHealth: 20,
+        label: "Restore Graywind Heights to 20% health"
       }
     },
     {
       id: "bumblebee-nest-burrow",
-      name: "Bumble Bee Nest Burrow",
+      name: "Nest Burrow",
       category: "habitat",
       unlockBiome: "alpine",
       output: {
@@ -3145,8 +3169,8 @@ var recipes_default = {
         clay: 1
       },
       unlock: {
-        minHealth: 45,
-        label: "Restore Graywind Heights to 45% health"
+        minHealth: 47,
+        label: "Restore Graywind Heights to 47% health"
       }
     },
     {
@@ -3220,8 +3244,8 @@ var recipes_default = {
         stones: 2
       },
       unlock: {
-        minHealth: 55,
-        label: "Restore Graywind Heights to 55% health"
+        minHealth: 60,
+        label: "Restore Graywind Heights to 60% health"
       }
     },
     {
@@ -3257,13 +3281,13 @@ var recipes_default = {
         clay: 2
       },
       unlock: {
-        minHealth: 70,
-        label: "Restore Graywind Heights to 70% health"
+        minHealth: 73,
+        label: "Restore Graywind Heights to 73% health"
       }
     },
     {
       id: "ledge-natal-den",
-      name: "Ledge Natal Den",
+      name: "Ledge Den",
       category: "habitat",
       unlockBiome: "alpine",
       output: {
@@ -3294,8 +3318,8 @@ var recipes_default = {
         stones: 1
       },
       unlock: {
-        minHealth: 40,
-        label: "Restore the area to 40% health"
+        minHealth: 35,
+        label: "Restore Graywind Heights to 35% health"
       }
     },
     {
@@ -3313,8 +3337,8 @@ var recipes_default = {
         water: 2
       },
       unlock: {
-        minHealth: 10,
-        label: "Restore Pelican Shore to 10% health"
+        minHealth: 67,
+        label: "Restore Pelican Shore to 67% health"
       }
     },
     {
@@ -3331,8 +3355,8 @@ var recipes_default = {
         kelp: 2
       },
       unlock: {
-        minHealth: 10,
-        label: "Restore Pelican Shore to 10% health"
+        minHealth: 23,
+        label: "Restore Pelican Shore to 23% health"
       }
     },
     {
@@ -3367,8 +3391,8 @@ var recipes_default = {
         shells: 2
       },
       unlock: {
-        minHealth: 6,
-        label: "Restore Pelican Shore to 6% health"
+        minHealth: 30,
+        label: "Restore Pelican Shore to 30% health"
       }
     },
     {
@@ -3385,8 +3409,8 @@ var recipes_default = {
         sand: 1
       },
       unlock: {
-        minHealth: 15,
-        label: "Restore Pelican Shore to 15% health"
+        minHealth: 30,
+        label: "Restore Pelican Shore to 30% health"
       }
     },
     {
@@ -3404,8 +3428,8 @@ var recipes_default = {
         water: 3
       },
       unlock: {
-        minHealth: 15,
-        label: "Restore Pelican Shore to 15% health"
+        minHealth: 25,
+        label: "Restore Pelican Shore to 25% health"
       }
     },
     {
@@ -3423,8 +3447,8 @@ var recipes_default = {
         water: 2
       },
       unlock: {
-        minHealth: 10,
-        label: "Restore Pelican Shore to 10% health"
+        minHealth: 25,
+        label: "Restore Pelican Shore to 25% health"
       }
     },
     {
@@ -3441,8 +3465,8 @@ var recipes_default = {
         sand: 2
       },
       unlock: {
-        minHealth: 22,
-        label: "Restore Pelican Shore to 22% health"
+        minHealth: 25,
+        label: "Restore Pelican Shore to 25% health"
       }
     },
     {
@@ -3458,8 +3482,8 @@ var recipes_default = {
         sand: 3
       },
       unlock: {
-        minHealth: 6,
-        label: "Restore Pelican Shore to 6% health"
+        minHealth: 7,
+        label: "Restore Pelican Shore to 7% health"
       }
     },
     {
@@ -3475,8 +3499,8 @@ var recipes_default = {
         shells: 3
       },
       unlock: {
-        minHealth: 25,
-        label: "Restore Pelican Shore to 25% health"
+        minHealth: 30,
+        label: "Restore Pelican Shore to 30% health"
       }
     },
     {
@@ -3493,8 +3517,8 @@ var recipes_default = {
         shells: 2
       },
       unlock: {
-        minHealth: 30,
-        label: "Restore Pelican Shore to 30% health"
+        minHealth: 40,
+        label: "Restore Pelican Shore to 40% health"
       }
     },
     {
@@ -3512,8 +3536,8 @@ var recipes_default = {
         water: 1
       },
       unlock: {
-        minHealth: 18,
-        label: "Restore Pelican Shore to 18% health"
+        minHealth: 23,
+        label: "Restore Pelican Shore to 23% health"
       }
     },
     {
@@ -3530,8 +3554,8 @@ var recipes_default = {
         water: 1
       },
       unlock: {
-        minHealth: 10,
-        label: "Restore Pelican Shore to 10% health"
+        minHealth: 7,
+        label: "Restore Pelican Shore to 7% health"
       }
     },
     {
@@ -3548,13 +3572,13 @@ var recipes_default = {
         shells: 2
       },
       unlock: {
-        minHealth: 20,
-        label: "Restore Pelican Shore to 20% health"
+        minHealth: 63,
+        label: "Restore Pelican Shore to 63% health"
       }
     },
     {
       id: "benthic-amphipod-bed",
-      name: "Amphipod and Mysid Bed",
+      name: "Muddy Seabed",
       category: "habitat",
       unlockBiome: "coastal",
       output: {
@@ -3567,8 +3591,8 @@ var recipes_default = {
         water: 2
       },
       unlock: {
-        minHealth: 15,
-        label: "Restore Pelican Shore to 15% health"
+        minHealth: 70,
+        label: "Restore Pelican Shore to 70% health"
       }
     },
     {
@@ -3585,8 +3609,8 @@ var recipes_default = {
         shells: 2
       },
       unlock: {
-        minHealth: 22,
-        label: "Restore Pelican Shore to 22% health"
+        minHealth: 30,
+        label: "Restore Pelican Shore to 30% health"
       }
     },
     {
@@ -3603,8 +3627,8 @@ var recipes_default = {
         shells: 1
       },
       unlock: {
-        minHealth: 8,
-        label: "Restore Pelican Shore to 8% health"
+        minHealth: 7,
+        label: "Restore Pelican Shore to 7% health"
       }
     },
     {
@@ -3621,8 +3645,8 @@ var recipes_default = {
         sand: 1
       },
       unlock: {
-        minHealth: 12,
-        label: "Restore Pelican Shore to 12% health"
+        minHealth: 15,
+        label: "Restore Pelican Shore to 15% health"
       }
     },
     {
@@ -3639,8 +3663,8 @@ var recipes_default = {
         water: 2
       },
       unlock: {
-        minHealth: 35,
-        label: "Restore Pelican Shore to 35% health"
+        minHealth: 45,
+        label: "Restore Pelican Shore to 45% health"
       }
     },
     {
@@ -3658,8 +3682,8 @@ var recipes_default = {
         "sea-glass": 1
       },
       unlock: {
-        minHealth: 45,
-        label: "Restore Pelican Shore to 45% health"
+        minHealth: 55,
+        label: "Restore Pelican Shore to 55% health"
       }
     },
     {
@@ -3676,8 +3700,8 @@ var recipes_default = {
         shells: 2
       },
       unlock: {
-        minHealth: 28,
-        label: "Restore Pelican Shore to 28% health"
+        minHealth: 35,
+        label: "Restore Pelican Shore to 35% health"
       }
     },
     {
@@ -3719,7 +3743,7 @@ var recipes_default = {
     },
     {
       id: "mussel-bed-lower-margin",
-      name: "Mussel Bed Lower Margin",
+      name: "Mussel Bed Edge",
       category: "habitat",
       unlockBiome: "coastal",
       output: {
@@ -3750,8 +3774,8 @@ var recipes_default = {
         "sea-glass": 1
       },
       unlock: {
-        minHealth: 24,
-        label: "Restore Pelican Shore to 24% health"
+        minHealth: 31,
+        label: "Restore Pelican Shore to 31% health"
       }
     },
     {
@@ -3787,8 +3811,8 @@ var recipes_default = {
         driftwood: 2
       },
       unlock: {
-        minHealth: 40,
-        label: "Restore Pelican Shore to 40% health"
+        minHealth: 50,
+        label: "Restore Pelican Shore to 50% health"
       }
     },
     {
@@ -3806,8 +3830,8 @@ var recipes_default = {
         shells: 1
       },
       unlock: {
-        minHealth: 55,
-        label: "Restore Pelican Shore to 55% health"
+        minHealth: 65,
+        label: "Restore Pelican Shore to 65% health"
       }
     },
     {
@@ -3825,8 +3849,8 @@ var recipes_default = {
         sand: 2
       },
       unlock: {
-        minHealth: 15,
-        label: "Restore Pelican Shore to 15% health"
+        minHealth: 70,
+        label: "Restore Pelican Shore to 70% health"
       }
     },
     {
@@ -3844,13 +3868,13 @@ var recipes_default = {
         stones: 1
       },
       unlock: {
-        minHealth: 5,
-        label: "Restore Redstone Scrubland to 5% health"
+        minHealth: 3,
+        label: "Restore Redstone Scrubland to 3% health"
       }
     },
     {
       id: "cryptobiotic-crust",
-      name: "Cryptobiotic Soil Crust",
+      name: "Living Soil Crust",
       category: "habitat",
       unlockBiome: "desert",
       output: {
@@ -3862,8 +3886,8 @@ var recipes_default = {
         clay: 3
       },
       unlock: {
-        minHealth: 5,
-        label: "Restore Redstone Scrubland to 5% health"
+        minHealth: 3,
+        label: "Restore Redstone Scrubland to 3% health"
       }
     },
     {
@@ -3880,8 +3904,8 @@ var recipes_default = {
         clay: 2
       },
       unlock: {
-        minHealth: 5,
-        label: "Restore Redstone Scrubland to 5% health"
+        minHealth: 0,
+        label: "Available from the start"
       }
     },
     {
@@ -3898,8 +3922,8 @@ var recipes_default = {
         clay: 1
       },
       unlock: {
-        minHealth: 8,
-        label: "Restore Redstone Scrubland to 8% health"
+        minHealth: 9,
+        label: "Restore Redstone Scrubland to 9% health"
       }
     },
     {
@@ -3916,8 +3940,8 @@ var recipes_default = {
         stones: 1
       },
       unlock: {
-        minHealth: 10,
-        label: "Restore Redstone Scrubland to 10% health"
+        minHealth: 11,
+        label: "Restore Redstone Scrubland to 11% health"
       }
     },
     {
@@ -3934,8 +3958,8 @@ var recipes_default = {
         stones: 2
       },
       unlock: {
-        minHealth: 12,
-        label: "Restore Redstone Scrubland to 12% health"
+        minHealth: 11,
+        label: "Restore Redstone Scrubland to 11% health"
       }
     },
     {
@@ -3952,8 +3976,8 @@ var recipes_default = {
         stones: 1
       },
       unlock: {
-        minHealth: 14,
-        label: "Restore Redstone Scrubland to 14% health"
+        minHealth: 13,
+        label: "Restore Redstone Scrubland to 13% health"
       }
     },
     {
@@ -3970,8 +3994,8 @@ var recipes_default = {
         clay: 1
       },
       unlock: {
-        minHealth: 15,
-        label: "Restore Redstone Scrubland to 15% health"
+        minHealth: 20,
+        label: "Restore Redstone Scrubland to 20% health"
       }
     },
     {
@@ -3988,8 +4012,8 @@ var recipes_default = {
         clay: 1
       },
       unlock: {
-        minHealth: 18,
-        label: "Restore Redstone Scrubland to 18% health"
+        minHealth: 20,
+        label: "Restore Redstone Scrubland to 20% health"
       }
     },
     {
@@ -4006,8 +4030,8 @@ var recipes_default = {
         stones: 1
       },
       unlock: {
-        minHealth: 20,
-        label: "Restore Redstone Scrubland to 20% health"
+        minHealth: 25,
+        label: "Restore Redstone Scrubland to 25% health"
       }
     },
     {
@@ -4026,8 +4050,8 @@ var recipes_default = {
         stones: 2
       },
       unlock: {
-        minHealth: 25,
-        label: "Restore Redstone Scrubland to 25% health"
+        minHealth: 30,
+        label: "Restore Redstone Scrubland to 30% health"
       }
     },
     {
@@ -4045,8 +4069,8 @@ var recipes_default = {
         "agave-nectar": 1
       },
       unlock: {
-        minHealth: 25,
-        label: "Restore Redstone Scrubland to 25% health"
+        minHealth: 35,
+        label: "Restore Redstone Scrubland to 35% health"
       }
     },
     {
@@ -4064,8 +4088,8 @@ var recipes_default = {
         stones: 1
       },
       unlock: {
-        minHealth: 28,
-        label: "Restore Redstone Scrubland to 28% health"
+        minHealth: 35,
+        label: "Restore Redstone Scrubland to 35% health"
       }
     },
     {
@@ -4083,8 +4107,8 @@ var recipes_default = {
         clay: 1
       },
       unlock: {
-        minHealth: 30,
-        label: "Restore Redstone Scrubland to 30% health"
+        minHealth: 40,
+        label: "Restore Redstone Scrubland to 40% health"
       }
     },
     {
@@ -4102,8 +4126,8 @@ var recipes_default = {
         sand: 1
       },
       unlock: {
-        minHealth: 35,
-        label: "Restore Redstone Scrubland to 35% health"
+        minHealth: 45,
+        label: "Restore Redstone Scrubland to 45% health"
       }
     },
     {
@@ -4120,8 +4144,8 @@ var recipes_default = {
         "cactus-fruit": 1
       },
       unlock: {
-        minHealth: 35,
-        label: "Restore Redstone Scrubland to 35% health"
+        minHealth: 41,
+        label: "Restore Redstone Scrubland to 41% health"
       }
     },
     {
@@ -4139,13 +4163,13 @@ var recipes_default = {
         stones: 1
       },
       unlock: {
-        minHealth: 40,
-        label: "Restore Redstone Scrubland to 40% health"
+        minHealth: 45,
+        label: "Restore Redstone Scrubland to 45% health"
       }
     },
     {
       id: "snake-hibernaculum-desert",
-      name: "Snake Den",
+      name: "Winter Rock Den",
       category: "habitat",
       unlockBiome: "desert",
       output: {
@@ -4157,8 +4181,8 @@ var recipes_default = {
         clay: 1
       },
       unlock: {
-        minHealth: 45,
-        label: "Restore Redstone Scrubland to 45% health"
+        minHealth: 55,
+        label: "Restore Redstone Scrubland to 55% health"
       }
     },
     {
@@ -4182,7 +4206,7 @@ var recipes_default = {
     },
     {
       id: "termite-worked-litter",
-      name: "Termite-Worked Soil",
+      name: "Crumbled Soil",
       category: "habitat",
       unlockBiome: "desert",
       output: {
@@ -4236,7 +4260,7 @@ var recipes_default = {
     },
     {
       id: "kit-fox-den",
-      name: "Kit Fox Den",
+      name: "Sandy Den",
       category: "habitat",
       unlockBiome: "desert",
       output: {
@@ -4285,8 +4309,8 @@ var recipes_default = {
         sand: 1
       },
       unlock: {
-        minHealth: 30,
-        label: "Restore Redstone Scrubland to 30% health"
+        minHealth: 45,
+        label: "Restore Redstone Scrubland to 45% health"
       }
     },
     {
@@ -4310,7 +4334,7 @@ var recipes_default = {
     },
     {
       id: "saguaro-boot",
-      name: "Saguaro Boot",
+      name: "Cactus Hollow",
       category: "habitat",
       unlockBiome: "desert",
       output: {
@@ -4366,7 +4390,7 @@ var recipes_default = {
     },
     {
       id: "deep-duff-soil",
-      name: "Deep Duff Layer",
+      name: "Deep Leaf Mould",
       category: "habitat",
       unlockBiome: "forest",
       output: {
@@ -4398,13 +4422,13 @@ var recipes_default = {
         acorns: 2
       },
       unlock: {
-        minHealth: 42,
-        label: "Restore Old Hollow Forest to 42% health"
+        minHealth: 60,
+        label: "Restore Old Hollow Forest to 60% health"
       }
     },
     {
       id: "soft-rot-snag",
-      name: "Soft-Rot Snag",
+      name: "Rotting Dead Tree",
       category: "habitat",
       unlockBiome: "forest",
       output: {
@@ -4417,13 +4441,13 @@ var recipes_default = {
         bark: 1
       },
       unlock: {
-        minHealth: 8,
-        label: "Restore Old Hollow Forest to 8% health"
+        minHealth: 11,
+        label: "Restore Old Hollow Forest to 11% health"
       }
     },
     {
       id: "ant-riddled-log",
-      name: "Ant-Riddled Log",
+      name: "Hollowed Log",
       category: "habitat",
       unlockBiome: "forest",
       output: {
@@ -4436,8 +4460,8 @@ var recipes_default = {
         bark: 1
       },
       unlock: {
-        minHealth: 8,
-        label: "Restore Old Hollow Forest to 8% health"
+        minHealth: 50,
+        label: "Restore Old Hollow Forest to 50% health"
       }
     },
     {
@@ -4455,8 +4479,8 @@ var recipes_default = {
         mushrooms: 1
       },
       unlock: {
-        minHealth: 8,
-        label: "Restore Old Hollow Forest to 8% health"
+        minHealth: 35,
+        label: "Restore Old Hollow Forest to 35% health"
       }
     },
     {
@@ -4479,7 +4503,7 @@ var recipes_default = {
     },
     {
       id: "pileated-cavity-snag",
-      name: "Pileated Cavity Snag",
+      name: "Tall Hollow Tree",
       category: "habitat",
       unlockBiome: "forest",
       output: {
@@ -4498,7 +4522,7 @@ var recipes_default = {
     },
     {
       id: "flooded-cavity-snag",
-      name: "Flooded Cavity Snag",
+      name: "Dead Tree Over Water",
       category: "habitat",
       unlockBiome: "forest",
       output: {
@@ -4517,7 +4541,7 @@ var recipes_default = {
     },
     {
       id: "bark-slab-snag",
-      name: "Loose-Bark Snag",
+      name: "Peeling Bark Tree",
       category: "habitat",
       unlockBiome: "forest",
       output: {
@@ -4547,8 +4571,8 @@ var recipes_default = {
         moss: 1
       },
       unlock: {
-        minHealth: 12,
-        label: "Restore Old Hollow Forest to 12% health"
+        minHealth: 10,
+        label: "Restore Old Hollow Forest to 10% health"
       }
     },
     {
@@ -4565,8 +4589,8 @@ var recipes_default = {
         acorns: 2
       },
       unlock: {
-        minHealth: 8,
-        label: "Restore Old Hollow Forest to 8% health"
+        minHealth: 7,
+        label: "Restore Old Hollow Forest to 7% health"
       }
     },
     {
@@ -4584,8 +4608,8 @@ var recipes_default = {
         moss: 3
       },
       unlock: {
-        minHealth: 20,
-        label: "Restore Old Hollow Forest to 20% health"
+        minHealth: 45,
+        label: "Restore Old Hollow Forest to 45% health"
       }
     },
     {
@@ -4603,8 +4627,8 @@ var recipes_default = {
         water: 2
       },
       unlock: {
-        minHealth: 30,
-        label: "Restore Old Hollow Forest to 30% health"
+        minHealth: 33,
+        label: "Restore Old Hollow Forest to 33% health"
       }
     },
     {
@@ -4622,8 +4646,8 @@ var recipes_default = {
         clay: 2
       },
       unlock: {
-        minHealth: 35,
-        label: "Restore Old Hollow Forest to 35% health"
+        minHealth: 40,
+        label: "Restore Old Hollow Forest to 40% health"
       }
     },
     {
@@ -4641,8 +4665,8 @@ var recipes_default = {
         clay: 2
       },
       unlock: {
-        minHealth: 55,
-        label: "Restore Old Hollow Forest to 55% health"
+        minHealth: 70,
+        label: "Restore Old Hollow Forest to 70% health"
       }
     },
     {
@@ -4660,13 +4684,13 @@ var recipes_default = {
         stones: 2
       },
       unlock: {
-        minHealth: 40,
-        label: "Restore Old Hollow Forest to 40% health"
+        minHealth: 55,
+        label: "Restore Old Hollow Forest to 55% health"
       }
     },
     {
       id: "snake-hibernaculum-forest",
-      name: "Snake Hibernaculum",
+      name: "Forest Winter Den",
       category: "habitat",
       unlockBiome: "forest",
       output: {
@@ -4717,8 +4741,8 @@ var recipes_default = {
         moss: 2
       },
       unlock: {
-        minHealth: 50,
-        label: "Restore Old Hollow Forest to 50% health"
+        minHealth: 55,
+        label: "Restore Old Hollow Forest to 55% health"
       }
     },
     {
@@ -4736,8 +4760,8 @@ var recipes_default = {
         moss: 1
       },
       unlock: {
-        minHealth: 55,
-        label: "Restore Old Hollow Forest to 55% health"
+        minHealth: 70,
+        label: "Restore Old Hollow Forest to 70% health"
       }
     },
     {
@@ -4773,8 +4797,8 @@ var recipes_default = {
         fiber: 1
       },
       unlock: {
-        minHealth: 2,
-        label: "Restore Willow Meadow to 2% health"
+        minHealth: 60,
+        label: "Restore Willow Meadow to 60% health"
       }
     },
     {
@@ -4794,25 +4818,6 @@ var recipes_default = {
       unlock: {
         minHealth: 20,
         label: "Restore Willow Meadow to 20% health"
-      }
-    },
-    {
-      id: "prairie-swale-seedbed",
-      name: "Prairie Swale Seedbed",
-      category: "habitat",
-      unlockBiome: "meadow",
-      output: {
-        itemId: "prairie-swale-seedbed",
-        qty: 1
-      },
-      materials: {
-        seeds: 2,
-        clay: 1,
-        water: 1
-      },
-      unlock: {
-        minHealth: 4,
-        label: "Restore Willow Meadow to 4% health"
       }
     },
     {
@@ -4866,13 +4871,13 @@ var recipes_default = {
         stones: 1
       },
       unlock: {
-        minHealth: 6,
-        label: "Restore Willow Meadow to 6% health"
+        minHealth: 3,
+        label: "Restore Willow Meadow to 3% health"
       }
     },
     {
       id: "vole-runway-network",
-      name: "Vole Runway Network",
+      name: "Grass Runways",
       category: "habitat",
       unlockBiome: "meadow",
       output: {
@@ -4884,13 +4889,13 @@ var recipes_default = {
         seeds: 1
       },
       unlock: {
-        minHealth: 8,
-        label: "Restore Willow Meadow to 8% health"
+        minHealth: 5,
+        label: "Restore Willow Meadow to 5% health"
       }
     },
     {
       id: "milkweed-rhizome-bed",
-      name: "Milkweed Rhizome Bed",
+      name: "Milkweed Bed",
       category: "habitat",
       unlockBiome: "meadow",
       output: {
@@ -4903,8 +4908,8 @@ var recipes_default = {
         water: 2
       },
       unlock: {
-        minHealth: 6,
-        label: "Restore Willow Meadow to 6% health"
+        minHealth: 10,
+        label: "Restore Willow Meadow to 10% health"
       }
     },
     {
@@ -4927,7 +4932,7 @@ var recipes_default = {
     },
     {
       id: "brush-form-hollow",
-      name: "Brush Form Hollow",
+      name: "Brush Hollow",
       category: "habitat",
       unlockBiome: "meadow",
       output: {
@@ -4945,7 +4950,7 @@ var recipes_default = {
     },
     {
       id: "serviceberry-browse-thicket",
-      name: "Serviceberry Browse Thicket",
+      name: "Berry Thicket",
       category: "habitat",
       unlockBiome: "meadow",
       output: {
@@ -4958,13 +4963,13 @@ var recipes_default = {
         water: 2
       },
       unlock: {
-        minHealth: 45,
-        label: "Restore Willow Meadow to 45% health"
+        minHealth: 50,
+        label: "Restore Willow Meadow to 50% health"
       }
     },
     {
       id: "milkweed-aphid-colony",
-      name: "Milkweed Aphid Colony",
+      name: "Sap-Rich Stems",
       category: "habitat",
       unlockBiome: "meadow",
       output: {
@@ -4975,8 +4980,8 @@ var recipes_default = {
         wildflowers: 2
       },
       unlock: {
-        minHealth: 6,
-        label: "Restore Willow Meadow to 6% health"
+        minHealth: 7,
+        label: "Restore Willow Meadow to 7% health"
       }
     },
     {
@@ -4993,13 +4998,13 @@ var recipes_default = {
         stones: 2
       },
       unlock: {
-        minHealth: 12,
-        label: "Restore Willow Meadow to 12% health"
+        minHealth: 9,
+        label: "Restore Willow Meadow to 9% health"
       }
     },
     {
       id: "mantis-ootheca-stem",
-      name: "Standing Stem Ootheca",
+      name: "Egg-Case Stem",
       category: "habitat",
       unlockBiome: "meadow",
       output: {
@@ -5010,8 +5015,8 @@ var recipes_default = {
         fiber: 2
       },
       unlock: {
-        minHealth: 6,
-        label: "Restore Willow Meadow to 6% health"
+        minHealth: 19,
+        label: "Restore Willow Meadow to 19% health"
       }
     },
     {
@@ -5028,8 +5033,8 @@ var recipes_default = {
         branches: 2
       },
       unlock: {
-        minHealth: 5,
-        label: "Restore Willow Meadow to 5% health"
+        minHealth: 40,
+        label: "Restore Willow Meadow to 40% health"
       }
     },
     {
@@ -5046,13 +5051,13 @@ var recipes_default = {
         fiber: 2
       },
       unlock: {
-        minHealth: 45,
-        label: "Restore Willow Meadow to 45% health"
+        minHealth: 50,
+        label: "Restore Willow Meadow to 50% health"
       }
     },
     {
       id: "snake-hibernaculum-meadow",
-      name: "Snake Hibernaculum",
+      name: "Meadow Winter Den",
       category: "habitat",
       unlockBiome: "meadow",
       output: {
@@ -5071,7 +5076,7 @@ var recipes_default = {
     },
     {
       id: "deep-loam-soil-bank",
-      name: "Deep Loam Soil Bank",
+      name: "Deep Soil Bank",
       category: "habitat",
       unlockBiome: "meadow",
       output: {
@@ -5083,13 +5088,13 @@ var recipes_default = {
         stones: 2
       },
       unlock: {
-        minHealth: 55,
-        label: "Restore Willow Meadow to 55% health"
+        minHealth: 60,
+        label: "Restore Willow Meadow to 60% health"
       }
     },
     {
       id: "earthen-fox-den",
-      name: "Earthen Fox Den",
+      name: "Earth Den",
       category: "habitat",
       unlockBiome: "meadow",
       output: {
@@ -5137,8 +5142,8 @@ var recipes_default = {
         clay: 1
       },
       unlock: {
-        minHealth: 5,
-        label: "Restore Rushwater Wetland to 5% health"
+        minHealth: 45,
+        label: "Restore Rushwater Wetland to 45% health"
       }
     },
     {
@@ -5173,8 +5178,8 @@ var recipes_default = {
         mud: 2
       },
       unlock: {
-        minHealth: 8,
-        label: "Restore Rushwater Wetland to 8% health"
+        minHealth: 0,
+        label: "Available from the start"
       }
     },
     {
@@ -5191,8 +5196,8 @@ var recipes_default = {
         mud: 3
       },
       unlock: {
-        minHealth: 18,
-        label: "Restore Rushwater Wetland to 18% health"
+        minHealth: 17,
+        label: "Restore Rushwater Wetland to 17% health"
       }
     },
     {
@@ -5209,8 +5214,8 @@ var recipes_default = {
         fiber: 1
       },
       unlock: {
-        minHealth: 24,
-        label: "Restore Rushwater Wetland to 24% health"
+        minHealth: 23,
+        label: "Restore Rushwater Wetland to 23% health"
       }
     },
     {
@@ -5247,8 +5252,8 @@ var recipes_default = {
         water: 2
       },
       unlock: {
-        minHealth: 8,
-        label: "Restore Rushwater Wetland to 8% health"
+        minHealth: 27,
+        label: "Restore Rushwater Wetland to 27% health"
       }
     },
     {
@@ -5265,8 +5270,8 @@ var recipes_default = {
         water: 2
       },
       unlock: {
-        minHealth: 8,
-        label: "Restore Rushwater Wetland to 8% health"
+        minHealth: 20,
+        label: "Restore Rushwater Wetland to 20% health"
       }
     },
     {
@@ -5283,8 +5288,8 @@ var recipes_default = {
         fiber: 2
       },
       unlock: {
-        minHealth: 22,
-        label: "Restore Rushwater Wetland to 22% health"
+        minHealth: 25,
+        label: "Restore Rushwater Wetland to 25% health"
       }
     },
     {
@@ -5301,13 +5306,13 @@ var recipes_default = {
         "clean-water": 4
       },
       unlock: {
-        minHealth: 30,
-        label: "Restore Rushwater Wetland to 30% health"
+        minHealth: 43,
+        label: "Restore Rushwater Wetland to 43% health"
       }
     },
     {
       id: "wet-meadow-margin",
-      name: "Wet Meadow Margin",
+      name: "Wet Meadow Edge",
       category: "habitat",
       unlockBiome: "wetland",
       output: {
@@ -5320,8 +5325,8 @@ var recipes_default = {
         water: 2
       },
       unlock: {
-        minHealth: 34,
-        label: "Restore Rushwater Wetland to 34% health"
+        minHealth: 41,
+        label: "Restore Rushwater Wetland to 41% health"
       }
     },
     {
@@ -5338,8 +5343,8 @@ var recipes_default = {
         clay: 3
       },
       unlock: {
-        minHealth: 40,
-        label: "Restore Rushwater Wetland to 40% health"
+        minHealth: 53,
+        label: "Restore Rushwater Wetland to 53% health"
       }
     },
     {
@@ -5357,8 +5362,8 @@ var recipes_default = {
         fiber: 1
       },
       unlock: {
-        minHealth: 60,
-        label: "Restore Rushwater Wetland to 60% health"
+        minHealth: 70,
+        label: "Restore Rushwater Wetland to 70% health"
       }
     },
     {
@@ -5393,8 +5398,8 @@ var recipes_default = {
         mud: 3
       },
       unlock: {
-        minHealth: 50,
-        label: "Restore Rushwater Wetland to 50% health"
+        minHealth: 57,
+        label: "Restore Rushwater Wetland to 57% health"
       }
     },
     {
@@ -5418,7 +5423,7 @@ var recipes_default = {
     },
     {
       id: "muskrat-bank-den",
-      name: "Old Muskrat Bank Den",
+      name: "Old Bank Den",
       category: "habitat",
       unlockBiome: "wetland",
       output: {
@@ -5436,7 +5441,7 @@ var recipes_default = {
     },
     {
       id: "otter-bank-den",
-      name: "Otter Bank Den",
+      name: "River Bank Den",
       category: "habitat",
       unlockBiome: "wetland",
       output: {
@@ -5455,7 +5460,7 @@ var recipes_default = {
     },
     {
       id: "beaver-pond",
-      name: "Beaver Pond",
+      name: "Dammed Pond",
       category: "habitat",
       unlockBiome: "wetland",
       output: {
@@ -5475,7 +5480,7 @@ var recipes_default = {
     },
     {
       id: "beaver-canal",
-      name: "Beaver Canal",
+      name: "Dug Channel",
       category: "habitat",
       unlockBiome: "wetland",
       output: {
@@ -5506,8 +5511,8 @@ var recipes_default = {
         water: 1
       },
       unlock: {
-        minHealth: 8,
-        label: "Restore Willow Meadow to 8% health"
+        minHealth: 7,
+        label: "Restore Willow Meadow to 7% health"
       }
     },
     {
@@ -5543,8 +5548,8 @@ var recipes_default = {
         clay: 1
       },
       unlock: {
-        minHealth: 42,
-        label: "Restore Willow Meadow to 42% health"
+        minHealth: 45,
+        label: "Restore Willow Meadow to 45% health"
       }
     },
     {
@@ -5568,7 +5573,7 @@ var recipes_default = {
     },
     {
       id: "coyote-natal-den-bank",
-      name: "Coyote Den Bank",
+      name: "Den Bank",
       category: "habitat",
       unlockBiome: "meadow",
       output: {
@@ -5600,8 +5605,8 @@ var recipes_default = {
         water: 1
       },
       unlock: {
-        minHealth: 5,
-        label: "Restore Willow Meadow to 5% health"
+        minHealth: 3,
+        label: "Restore Willow Meadow to 3% health"
       }
     },
     {
@@ -5618,27 +5623,8 @@ var recipes_default = {
         seeds: 2
       },
       unlock: {
-        minHealth: 44,
-        label: "Restore Willow Meadow to 44% health"
-      }
-    },
-    {
-      id: "thorn-larder-hedge",
-      name: "Thorn Larder Hedge",
-      category: "habitat",
-      unlockBiome: "meadow",
-      output: {
-        itemId: "thorn-larder-hedge",
-        qty: 1
-      },
-      materials: {
-        branches: 4,
-        seeds: 2,
-        water: 1
-      },
-      unlock: {
-        minHealth: 54,
-        label: "Restore Willow Meadow to 54% health"
+        minHealth: 11,
+        label: "Restore Willow Meadow to 11% health"
       }
     },
     {
@@ -5673,8 +5659,8 @@ var recipes_default = {
         branches: 1
       },
       unlock: {
-        minHealth: 26,
-        label: "Restore Old Hollow Forest to 26% health"
+        minHealth: 25,
+        label: "Restore Old Hollow Forest to 25% health"
       }
     },
     {
@@ -5691,13 +5677,13 @@ var recipes_default = {
         clay: 1
       },
       unlock: {
-        minHealth: 24,
-        label: "Restore Old Hollow Forest to 24% health"
+        minHealth: 23,
+        label: "Restore Old Hollow Forest to 23% health"
       }
     },
     {
       id: "winter-freeze-litter-bed",
-      name: "Freeze-Down Litter Bed",
+      name: "Frozen Leaf Bed",
       category: "habitat",
       unlockBiome: "forest",
       output: {
@@ -5710,8 +5696,8 @@ var recipes_default = {
         bark: 1
       },
       unlock: {
-        minHealth: 34,
-        label: "Restore Old Hollow Forest to 34% health"
+        minHealth: 33,
+        label: "Restore Old Hollow Forest to 33% health"
       }
     },
     {
@@ -5729,8 +5715,8 @@ var recipes_default = {
         moss: 2
       },
       unlock: {
-        minHealth: 72,
-        label: "Restore Old Hollow Forest to 72% health"
+        minHealth: 73,
+        label: "Restore Old Hollow Forest to 73% health"
       }
     },
     {
@@ -5767,8 +5753,8 @@ var recipes_default = {
         water: 2
       },
       unlock: {
-        minHealth: 12,
-        label: "Restore Rushwater Wetland to 12% health"
+        minHealth: 63,
+        label: "Restore Rushwater Wetland to 63% health"
       }
     },
     {
@@ -5786,8 +5772,8 @@ var recipes_default = {
         fiber: 2
       },
       unlock: {
-        minHealth: 46,
-        label: "Restore Redstone Scrubland to 46% health"
+        minHealth: 47,
+        label: "Restore Redstone Scrubland to 47% health"
       }
     },
     {
@@ -5804,8 +5790,8 @@ var recipes_default = {
         sand: 2
       },
       unlock: {
-        minHealth: 64,
-        label: "Restore Graywind Heights to 64% health"
+        minHealth: 65,
+        label: "Restore Graywind Heights to 65% health"
       }
     },
     {
@@ -5828,27 +5814,8 @@ var recipes_default = {
       }
     },
     {
-      id: "algae-garden-scar",
-      name: "Grazed Algae Garden",
-      category: "habitat",
-      unlockBiome: "coastal",
-      output: {
-        itemId: "algae-garden-scar",
-        qty: 1
-      },
-      materials: {
-        kelp: 2,
-        stones: 2,
-        water: 1
-      },
-      unlock: {
-        minHealth: 20,
-        label: "Restore Pelican Shore to 20% health"
-      }
-    },
-    {
       id: "octopus-den-midden",
-      name: "Den Midden",
+      name: "Den Scrap Pile",
       category: "habitat",
       unlockBiome: "coastal",
       output: {
@@ -5861,8 +5828,8 @@ var recipes_default = {
         sand: 2
       },
       unlock: {
-        minHealth: 66,
-        label: "Restore Pelican Shore to 66% health"
+        minHealth: 67,
+        label: "Restore Pelican Shore to 67% health"
       }
     },
     {
@@ -5880,13 +5847,13 @@ var recipes_default = {
         "clean-water": 2
       },
       unlock: {
-        minHealth: 60,
-        label: "Restore Graywind Heights to 60% health"
+        minHealth: 80,
+        label: "Restore Graywind Heights to 80% health"
       }
     },
     {
       id: "feather-lined-crack",
-      name: "Feather-Lined Crack",
+      name: "Lined Rock Crack",
       category: "habitat",
       unlockBiome: "alpine",
       output: {
@@ -5898,8 +5865,8 @@ var recipes_default = {
         moss: 1
       },
       unlock: {
-        minHealth: 20,
-        label: "Restore the area to 20% health"
+        minHealth: 25,
+        label: "Restore Graywind Heights to 25% health"
       }
     },
     {
@@ -5916,8 +5883,8 @@ var recipes_default = {
         stones: 2
       },
       unlock: {
-        minHealth: 20,
-        label: "Restore the area to 20% health"
+        minHealth: 37,
+        label: "Restore Redstone Scrubland to 37% health"
       }
     },
     {
@@ -5935,8 +5902,8 @@ var recipes_default = {
         "clean-water": 2
       },
       unlock: {
-        minHealth: 30,
-        label: "Restore Rushwater Wetland to 30% health"
+        minHealth: 63,
+        label: "Restore Rushwater Wetland to 63% health"
       }
     },
     {
@@ -5954,8 +5921,8 @@ var recipes_default = {
         "clean-water": 3
       },
       unlock: {
-        minHealth: 34,
-        label: "Restore Graywind Heights to 34% health"
+        minHealth: 57,
+        label: "Restore Graywind Heights to 57% health"
       }
     },
     {
@@ -5972,8 +5939,8 @@ var recipes_default = {
         bark: 2
       },
       unlock: {
-        minHealth: 34,
-        label: "Restore Old Hollow Forest to 34% health"
+        minHealth: 37,
+        label: "Restore Old Hollow Forest to 37% health"
       }
     },
     {
@@ -5990,8 +5957,117 @@ var recipes_default = {
         driftwood: 2
       },
       unlock: {
-        minHealth: 48,
-        label: "Restore Pelican Shore to 48% health"
+        minHealth: 50,
+        label: "Restore Pelican Shore to 50% health"
+      }
+    },
+    {
+      id: "groundhog-burrow-mound",
+      name: "Meadow Burrow Mound",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "groundhog-burrow-mound",
+        qty: 1
+      },
+      materials: {
+        stones: 2,
+        fiber: 2,
+        water: 1
+      },
+      unlock: {
+        minHealth: 33,
+        label: "Restore Willow Meadow to 33% health"
+      }
+    },
+    {
+      id: "opossum-den-hollow",
+      name: "Den Hollow",
+      category: "habitat",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "opossum-den-hollow",
+        qty: 1
+      },
+      materials: {
+        branches: 3,
+        fiber: 2
+      },
+      unlock: {
+        minHealth: 39,
+        label: "Restore Willow Meadow to 39% health"
+      }
+    },
+    {
+      id: "shore-stick-nest",
+      name: "Stick Nest",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "shore-stick-nest",
+        qty: 1
+      },
+      materials: {
+        driftwood: 3,
+        kelp: 1
+      },
+      unlock: {
+        minHealth: 25,
+        label: "Restore Pelican Shore to 25% health"
+      }
+    },
+    {
+      id: "happy-buddha",
+      name: "Happy Buddha",
+      category: "home",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "happy-buddha",
+        qty: 1
+      },
+      materials: {
+        clay: 4,
+        stones: 1
+      },
+      unlock: {
+        minHealth: 68,
+        label: "Restore Willow Meadow to 68% health"
+      }
+    },
+    {
+      id: "lucky-toad",
+      name: "Lucky Toad",
+      category: "home",
+      unlockBiome: "meadow",
+      output: {
+        itemId: "lucky-toad",
+        qty: 1
+      },
+      materials: {
+        clay: 3,
+        stones: 2
+      },
+      unlock: {
+        minHealth: 71,
+        label: "Restore Willow Meadow to 71% health"
+      }
+    },
+    {
+      id: "rippled-sand-bed",
+      name: "Rippled Sand",
+      category: "habitat",
+      unlockBiome: "coastal",
+      output: {
+        itemId: "rippled-sand-bed",
+        qty: 1
+      },
+      materials: {
+        sand: 4,
+        shells: 1
+      },
+      unlock: {
+        minHealth: 21,
+        label: "Restore Pelican Shore to 21% health"
       }
     }
   ]
@@ -6034,8 +6110,8 @@ var habitat_objects_default = {
         "plant",
         "food"
       ],
-      shape: "patch",
-      color: "#5f9e44",
+      shape: "nativegrass",
+      color: "#a8a94e",
       description: "Deep-rooted native bunchgrass that sends roots down further than it stands tall. It holds soil together and keeps the ground covered year-round.",
       matureHours: 2,
       matureBonus: 1
@@ -6941,7 +7017,7 @@ var habitat_objects_default = {
     },
     {
       id: "dune-grass",
-      name: "American Dunegrass",
+      name: "Dune Grass",
       placement: "outdoor",
       biomes: [
         "coastal"
@@ -7344,7 +7420,7 @@ var habitat_objects_default = {
     },
     {
       id: "clover-patch",
-      name: "Native Clover Patch",
+      name: "Clover Patch",
       placement: "outdoor",
       biomes: [
         "meadow",
@@ -7598,7 +7674,7 @@ var habitat_objects_default = {
     },
     {
       id: "daisy-patch",
-      name: "Blanketflower Patch",
+      name: "Daisy Patch",
       placement: "outdoor",
       biomes: [
         "meadow"
@@ -7626,7 +7702,7 @@ var habitat_objects_default = {
     },
     {
       id: "foxglove",
-      name: "Penstemon Spires",
+      name: "Foxglove",
       placement: "outdoor",
       biomes: [
         "meadow"
@@ -9387,7 +9463,7 @@ var habitat_objects_default = {
     },
     {
       id: "bumblebee-nest-burrow",
-      name: "Bumble Bee Nest Burrow",
+      name: "Nest Burrow",
       placement: "outdoor",
       biomes: [
         "alpine"
@@ -9543,7 +9619,7 @@ var habitat_objects_default = {
     },
     {
       id: "ledge-natal-den",
-      name: "Ledge Natal Den",
+      name: "Ledge Den",
       placement: "outdoor",
       biomes: [
         "alpine"
@@ -9833,7 +9909,7 @@ var habitat_objects_default = {
     },
     {
       id: "benthic-amphipod-bed",
-      name: "Amphipod and Mysid Bed",
+      name: "Muddy Seabed",
       placement: "outdoor",
       biomes: [
         "coastal"
@@ -9998,7 +10074,7 @@ var habitat_objects_default = {
     },
     {
       id: "mussel-bed-lower-margin",
-      name: "Mussel Bed Lower Margin",
+      name: "Mussel Bed Edge",
       placement: "outdoor",
       biomes: [
         "coastal"
@@ -10233,7 +10309,7 @@ var habitat_objects_default = {
     },
     {
       id: "cryptobiotic-crust",
-      name: "Cryptobiotic Soil Crust",
+      name: "Living Soil Crust",
       placement: "outdoor",
       biomes: [
         "desert"
@@ -10320,7 +10396,7 @@ var habitat_objects_default = {
     },
     {
       id: "termite-worked-litter",
-      name: "Termite-Worked Soil",
+      name: "Crumbled Soil",
       placement: "outdoor",
       biomes: [
         "desert"
@@ -10424,7 +10500,7 @@ var habitat_objects_default = {
     },
     {
       id: "kit-fox-den",
-      name: "Kit Fox Den",
+      name: "Sandy Den",
       placement: "outdoor",
       biomes: [
         "desert"
@@ -10458,7 +10534,7 @@ var habitat_objects_default = {
     },
     {
       id: "snake-hibernaculum-desert",
-      name: "Snake Den",
+      name: "Winter Rock Den",
       placement: "outdoor",
       biomes: [
         "desert"
@@ -10475,7 +10551,7 @@ var habitat_objects_default = {
     },
     {
       id: "saguaro-boot",
-      name: "Saguaro Boot",
+      name: "Cactus Hollow",
       placement: "outdoor",
       biomes: [
         "desert"
@@ -10611,7 +10687,7 @@ var habitat_objects_default = {
     },
     {
       id: "deep-duff-soil",
-      name: "Deep Duff Layer",
+      name: "Deep Leaf Mould",
       placement: "outdoor",
       biomes: [
         "forest"
@@ -10645,7 +10721,7 @@ var habitat_objects_default = {
     },
     {
       id: "soft-rot-snag",
-      name: "Soft-Rot Snag",
+      name: "Rotting Dead Tree",
       placement: "outdoor",
       biomes: [
         "forest"
@@ -10662,7 +10738,7 @@ var habitat_objects_default = {
     },
     {
       id: "ant-riddled-log",
-      name: "Ant-Riddled Log",
+      name: "Hollowed Log",
       placement: "outdoor",
       biomes: [
         "forest"
@@ -10714,7 +10790,7 @@ var habitat_objects_default = {
     },
     {
       id: "pileated-cavity-snag",
-      name: "Pileated Cavity Snag",
+      name: "Tall Hollow Tree",
       placement: "outdoor",
       biomes: [
         "forest"
@@ -10731,7 +10807,7 @@ var habitat_objects_default = {
     },
     {
       id: "flooded-cavity-snag",
-      name: "Flooded Cavity Snag",
+      name: "Dead Tree Over Water",
       placement: "outdoor",
       biomes: [
         "forest"
@@ -10748,7 +10824,7 @@ var habitat_objects_default = {
     },
     {
       id: "bark-slab-snag",
-      name: "Loose-Bark Snag",
+      name: "Peeling Bark Tree",
       placement: "outdoor",
       biomes: [
         "forest"
@@ -10889,7 +10965,7 @@ var habitat_objects_default = {
     },
     {
       id: "snake-hibernaculum-forest",
-      name: "Snake Hibernaculum",
+      name: "Forest Winter Den",
       placement: "outdoor",
       biomes: [
         "forest"
@@ -11004,23 +11080,6 @@ var habitat_objects_default = {
       description: "Wavyleaf thistle, a native prairie thistle rather than one of the invasive European kinds. Deep tubular flowers, and seed heads that break open into soft down."
     },
     {
-      id: "prairie-swale-seedbed",
-      name: "Prairie Swale Seedbed",
-      placement: "outdoor",
-      biomes: [
-        "meadow"
-      ],
-      healthValue: 4,
-      needs: [
-        "plant"
-      ],
-      shape: "swaleseedbed",
-      color: "#6f7a4a",
-      description: "A shallow damp swale of loosened soil, sown in autumn. Showy milkweed and native forbs germinate here where the ground stays moist into early summer.",
-      matureHours: 4,
-      matureBonus: 1
-    },
-    {
       id: "grass-thatch-litter",
       name: "Grass Thatch Litter",
       placement: "outdoor",
@@ -11054,7 +11113,7 @@ var habitat_objects_default = {
     },
     {
       id: "vole-runway-network",
-      name: "Vole Runway Network",
+      name: "Grass Runways",
       placement: "outdoor",
       biomes: [
         "meadow"
@@ -11070,7 +11129,7 @@ var habitat_objects_default = {
     },
     {
       id: "milkweed-rhizome-bed",
-      name: "Milkweed Rhizome Bed",
+      name: "Milkweed Bed",
       placement: "outdoor",
       biomes: [
         "meadow"
@@ -11104,7 +11163,7 @@ var habitat_objects_default = {
     },
     {
       id: "brush-form-hollow",
-      name: "Brush Form Hollow",
+      name: "Brush Hollow",
       placement: "outdoor",
       biomes: [
         "meadow"
@@ -11121,7 +11180,7 @@ var habitat_objects_default = {
     },
     {
       id: "serviceberry-browse-thicket",
-      name: "Serviceberry Browse Thicket",
+      name: "Berry Thicket",
       placement: "outdoor",
       biomes: [
         "meadow"
@@ -11140,7 +11199,7 @@ var habitat_objects_default = {
     },
     {
       id: "milkweed-aphid-colony",
-      name: "Milkweed Aphid Colony",
+      name: "Sap-Rich Stems",
       placement: "outdoor",
       biomes: [
         "meadow"
@@ -11170,7 +11229,7 @@ var habitat_objects_default = {
     },
     {
       id: "mantis-ootheca-stem",
-      name: "Standing Stem Ootheca",
+      name: "Egg-Case Stem",
       placement: "outdoor",
       biomes: [
         "meadow"
@@ -11215,7 +11274,7 @@ var habitat_objects_default = {
     },
     {
       id: "snake-hibernaculum-meadow",
-      name: "Snake Hibernaculum",
+      name: "Meadow Winter Den",
       placement: "outdoor",
       biomes: [
         "meadow"
@@ -11230,7 +11289,7 @@ var habitat_objects_default = {
     },
     {
       id: "deep-loam-soil-bank",
-      name: "Deep Loam Soil Bank",
+      name: "Deep Soil Bank",
       placement: "outdoor",
       biomes: [
         "meadow"
@@ -11245,7 +11304,7 @@ var habitat_objects_default = {
     },
     {
       id: "earthen-fox-den",
-      name: "Earthen Fox Den",
+      name: "Earth Den",
       placement: "outdoor",
       biomes: [
         "meadow"
@@ -11433,7 +11492,7 @@ var habitat_objects_default = {
     },
     {
       id: "wet-meadow-margin",
-      name: "Wet Meadow Margin",
+      name: "Wet Meadow Edge",
       placement: "outdoor",
       biomes: [
         "wetland"
@@ -11529,7 +11588,7 @@ var habitat_objects_default = {
     },
     {
       id: "muskrat-bank-den",
-      name: "Old Muskrat Bank Den",
+      name: "Old Bank Den",
       placement: "outdoor",
       biomes: [
         "wetland"
@@ -11544,7 +11603,7 @@ var habitat_objects_default = {
     },
     {
       id: "otter-bank-den",
-      name: "Otter Bank Den",
+      name: "River Bank Den",
       placement: "outdoor",
       biomes: [
         "wetland"
@@ -11559,7 +11618,7 @@ var habitat_objects_default = {
     },
     {
       id: "beaver-pond",
-      name: "Beaver Pond",
+      name: "Dammed Pond",
       placement: "outdoor",
       biomes: [
         "wetland"
@@ -11577,7 +11636,7 @@ var habitat_objects_default = {
     },
     {
       id: "beaver-canal",
-      name: "Beaver Canal",
+      name: "Dug Channel",
       placement: "outdoor",
       biomes: [
         "wetland"
@@ -11649,13 +11708,13 @@ var habitat_objects_default = {
       needs: [
         "shelter"
       ],
-      shape: "owlloft",
+      shape: "plankloft",
       color: "#a83c2b",
       description: "A deep wooden box mounted high under a gable, open on one side, with a lip of straw across the sill. Dark and dry inside, well above the ground."
     },
     {
       id: "coyote-natal-den-bank",
-      name: "Coyote Den Bank",
+      name: "Den Bank",
       placement: "outdoor",
       biomes: [
         "meadow"
@@ -11891,7 +11950,7 @@ var habitat_objects_default = {
     },
     {
       id: "moth-scree-crack",
-      name: "Moth Scree Crack",
+      name: "Rock Crack",
       placement: "outdoor",
       biomes: [
         "alpine"
@@ -11965,7 +12024,7 @@ var habitat_objects_default = {
     },
     {
       id: "willow-thicket-swale",
-      name: "Willow Thicket Swale",
+      name: "Willow Thicket",
       placement: "outdoor",
       biomes: [
         "coastal"
@@ -12023,7 +12082,7 @@ var habitat_objects_default = {
     },
     {
       id: "sedge-tussock-nest",
-      name: "Sedge Tussock",
+      name: "Meadow Sedge Tussock",
       placement: "outdoor",
       biomes: [
         "meadow"
@@ -12053,27 +12112,9 @@ var habitat_objects_default = {
       ],
       shape: "stump",
       color: "#8a9a52",
-      description: "A grass cup sunk level with the ground at the foot of a tussock, roofed over by leaning stems. The parents land well away and walk in through the grass so nothing follows them to it.",
+      description: "A thick tussock left standing in a damp hollow, with the middle pressed down into a deep cup you would walk past without seeing.",
       matureHours: 3,
       matureBonus: 1
-    },
-    {
-      id: "thorn-larder-hedge",
-      name: "Thorn Larder Hedge",
-      placement: "outdoor",
-      biomes: [
-        "meadow"
-      ],
-      healthValue: 5,
-      needs: [
-        "shelter",
-        "food"
-      ],
-      shape: "mound",
-      color: "#6d7f4b",
-      description: "A squat, spiny native hedge with a few bare twigs sticking out of the top. A shrike wedges its catch onto the thorns and comes back for it later, so a well-stocked hedge is a shrike's pantry and its billboard at once.",
-      matureHours: 5,
-      matureBonus: 2
     },
     {
       id: "cocoon-leaf-drift",
@@ -12112,7 +12153,7 @@ var habitat_objects_default = {
     },
     {
       id: "winter-freeze-litter-bed",
-      name: "Freeze-Down Litter Bed",
+      name: "Frozen Leaf Bed",
       placement: "outdoor",
       biomes: [
         "forest"
@@ -12177,28 +12218,8 @@ var habitat_objects_default = {
       description: "A gravel-floored shelf high on a cliff with a shallow dip kicked into the grit. No nest is built here and none is needed \u2014 the ledge and the drop below it are the whole thing."
     },
     {
-      id: "algae-garden-scar",
-      name: "Grazed Algae Garden",
-      placement: "outdoor",
-      biomes: [
-        "coastal"
-      ],
-      healthValue: 4,
-      needs: [
-        "plant",
-        "food"
-      ],
-      shape: "stump",
-      color: "#6f8f5e",
-      description: "A clean oval of rock kept scrubbed to a film of green algae, with a shell-shaped scar worn into the middle of it. The limpet that owns it weeds out anything else and shoves rivals over the edge.",
-      zone: "mid",
-      waveExposure: "exposed",
-      matureHours: 3,
-      matureBonus: 1
-    },
-    {
       id: "octopus-den-midden",
-      name: "Den Midden",
+      name: "Den Scrap Pile",
       placement: "outdoor",
       biomes: [
         "coastal"
@@ -12303,7 +12324,7 @@ var habitat_objects_default = {
     },
     {
       id: "feather-lined-crack",
-      name: "Feather-Lined Crack",
+      name: "Lined Rock Crack",
       placement: "outdoor",
       biomes: [
         "alpine"
@@ -12375,7 +12396,7 @@ var habitat_objects_default = {
         "open",
         "food"
       ],
-      shape: "digground",
+      shape: "mound",
       color: "#6b5a3f",
       description: "A patch of soft leaf-mould soil left unpacked, already pitted with small cone-shaped holes where something has been turning it over."
     },
@@ -12390,11 +12411,113 @@ var habitat_objects_default = {
       needs: [
         "shelter"
       ],
-      shape: "clifftopburrow",
+      shape: "stump",
       color: "#6f7a52",
       description: "A round hole driven back into deep turf at the very top of a sea cliff, with a worn patch of bare earth at the entrance.",
       zone: "backdune",
       waveExposure: "exposed"
+    },
+    {
+      id: "groundhog-burrow-mound",
+      name: "Meadow Burrow Mound",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 5,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#8a7550",
+      description: "A fan of freshly turned earth banked around a round hole, with a second hole hidden in the grass a few paces off."
+    },
+    {
+      id: "opossum-den-hollow",
+      name: "Den Hollow",
+      placement: "outdoor",
+      biomes: [
+        "meadow"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter"
+      ],
+      shape: "stump",
+      color: "#6b5a44",
+      description: "A dry cavity under a leaning log, floored with dragged-in leaves and open at both ends."
+    },
+    {
+      id: "shore-stick-nest",
+      name: "Stick Nest",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 4,
+      needs: [
+        "shelter"
+      ],
+      shape: "nest",
+      color: "#7a6a4e",
+      description: "A bulky platform of salt-bleached sticks wedged in a high fork, added to and patched every season.",
+      zone: "backdune",
+      waveExposure: "sheltered"
+    },
+    {
+      id: "happy-buddha",
+      name: "Happy Buddha",
+      placement: "both",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "buddhastatue",
+      color: "#c9a86a",
+      decorative: true,
+      description: "A round little figure sat cross-legged with both arms thrown up and a grin across its whole face. Rubbing the belly is supposed to be lucky, and the clay has gone smooth and shiny in that one spot."
+    },
+    {
+      id: "lucky-toad",
+      name: "Lucky Toad",
+      placement: "both",
+      biomes: [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      healthValue: 0,
+      needs: [],
+      shape: "luckytoad",
+      color: "#9ab35c",
+      decorative: true,
+      description: "A fat three-legged toad sitting on a little heap of coins with one more held in its mouth. Tradition says it faces into the camp, never out, so the luck comes in with you."
+    },
+    {
+      id: "rippled-sand-bed",
+      name: "Rippled Sand",
+      placement: "outdoor",
+      biomes: [
+        "coastal"
+      ],
+      healthValue: 4,
+      needs: [
+        "open"
+      ],
+      shape: "mound",
+      color: "#d8c9a4",
+      description: "Clean sand below the low tide line, combed into even ridges by a current gentle enough to leave them standing.",
+      zone: "subtidal",
+      waveExposure: "sheltered"
     }
   ]
 };
@@ -12932,7 +13055,7 @@ var animals_1_default = {
       kind: "invertebrate",
       trophic: "detritivore",
       rarity: "common",
-      diet: "Fallen leaves, mushrooms, animal droppings and other decaying matter; occasionally live seedlings",
+      diet: "fallen leaves, mushrooms, animal droppings and other decaying matter; occasionally live seedlings",
       shelter: "Under logs and loose bark; seals itself into a mucus cocoon and waits out dry spells",
       preferredHabitat: "Cool, shaded forest floor that stays damp \u2014 deep leaf litter, mossy logs and seeps",
       fact: "Banana slug slime is a numbing agent \u2014 one lick and most animals spit the slug straight back out, tongue tingling.",
@@ -12952,7 +13075,6 @@ var animals_1_default = {
         minHealth: 35,
         objects: {
           "mushroom-ring": 1,
-          "leaf-litter-pile": 2,
           "fern-spring": 1
         },
         signature: "mushroom-ring",
@@ -12977,7 +13099,7 @@ var animals_1_default = {
       kind: "mammal",
       trophic: "herbivore",
       rarity: "common",
-      diet: "Acorns, hickory nuts, tree buds, samaras and fungi; occasional insects and bird eggs",
+      diet: "acorns, hickory nuts, tree buds, samaras and fungi; occasional insects and bird eggs",
       shelter: "Tree cavity dens in winter and leaf-and-twig dreys built high in the canopy in summer",
       preferredHabitat: "Mature deciduous or mixed forest rich in oaks and hickories",
       fact: "A squirrel buries thousands of nuts a year and forgets a good share of them. The forgotten ones grow into trees, so most squirrels accidentally plant a forest in a lifetime.",
@@ -13007,7 +13129,6 @@ var animals_1_default = {
         minHealth: 15,
         objects: {
           "leaf-drey": 1,
-          "oak-tree": 2,
           "nesting-tree": 1
         },
         signature: "leaf-drey",
@@ -13032,7 +13153,7 @@ var animals_1_default = {
       kind: "mammal",
       trophic: "herbivore",
       rarity: "common",
-      diet: "Seeds, acorns, hickory nuts, berries and underground fungi, plus some insects and bird eggs",
+      diet: "seeds, acorns, hickory nuts, berries and underground fungi, plus some insects and bird eggs",
       shelter: "Underground burrows up to 10 m long with a nest chamber and a seed-storage larder",
       preferredHabitat: "Mature deciduous forest with logs, stumps and diggable soil",
       fact: "A chipmunk can cram so many acorns into its cheek pouches that its head looks twice as wide, then unload them into an underground pantry holding more than a litre of seeds. It wakes up all winter to snack \u2014 chipmunks never truly hibernate.",
@@ -13057,12 +13178,9 @@ var animals_1_default = {
       requirements: {
         minHealth: 12,
         objects: {
-          "larder-burrow": 1,
-          "oak-tree": 1,
           "brush-pile": 1
         },
-        signature: "larder-burrow",
-        hint: "Diggable soil for a burrow and its pantry, oaks overhead, and a brush pile to bolt into."
+        hint: "A brush pile to bolt into is enough to start with."
       },
       sources: [
         {
@@ -13083,7 +13201,7 @@ var animals_1_default = {
       kind: "mammal",
       trophic: "herbivore",
       rarity: "uncommon",
-      diet: "Almost entirely herbivorous \u2014 inner bark in winter, buds, twigs and leaves in summer \u2014 but gnaws shed antlers and bones for minerals",
+      diet: "almost entirely herbivorous \u2014 inner bark in winter, buds, twigs and leaves in summer \u2014 but gnaws shed antlers and bones for minerals",
       shelter: "Rock dens and hollow logs, reused season after season; also rests high in tree canopies",
       preferredHabitat: "Mixed and coniferous forest with thick-barked trees, especially hemlock, and rock or log dens below",
       fact: "A porcupine cannot throw its quills \u2014 they simply stick to whatever bumps them. The barbed tips are coated in a natural antibiotic, so a porcupine that falls out of a tree and lands on itself usually heals up fine.",
@@ -13131,7 +13249,7 @@ var animals_1_default = {
       kind: "bird",
       trophic: "insectivore",
       rarity: "common",
-      diet: "Mostly insects \u2014 beetle larvae, ants, caterpillars \u2014 with some berries and sap",
+      diet: "mostly insects \u2014 beetle larvae, ants, caterpillars \u2014 with some berries and sap",
       shelter: "Excavates its own cavity in a small dead stub, usually in wood already softened by fungus; roosts in cavities year-round",
       preferredHabitat: "Open deciduous and mixed woodland with small dead stubs and dead limbs on living trees",
       fact: "A downy woodpecker weighs about as much as four sheets of paper \u2014 light enough to hang off a dead weed stem and drill into it, which no bigger woodpecker can manage.",
@@ -13158,8 +13276,7 @@ var animals_1_default = {
         minHealth: 16,
         objects: {
           "soft-rot-snag": 1,
-          "standing-deadwood": 2,
-          "nesting-tree": 1
+          "standing-deadwood": 2
         },
         signature: "soft-rot-snag",
         hint: "Small dead stubs with the wood already gone soft. A downy can't chisel healthy timber, so leave the rotting stuff standing."
@@ -13183,7 +13300,7 @@ var animals_1_default = {
       kind: "bird",
       trophic: "omnivore",
       rarity: "common",
-      diet: "Insects and spiders from bark in summer; acorns, hickory nuts and cached seeds through winter",
+      diet: "insects and spiders from bark in summer; acorns, hickory nuts and cached seeds through winter",
       shelter: "Natural cavities and old woodpecker holes in mature hardwoods; cannot excavate its own",
       preferredHabitat: "Mature deciduous and mixed forest with large oaks and hickories",
       fact: "A nuthatch walks down tree trunks head-first, which lets it spot insects tucked in bark that every upward-climbing bird walks straight past.",
@@ -13238,7 +13355,7 @@ var animals_1_default = {
       kind: "amphibian",
       trophic: "insectivore",
       rarity: "uncommon",
-      diet: "Small invertebrates: mites, springtails, spiders, beetles, ants and earthworms",
+      diet: "small invertebrates: mites, springtails, spiders, beetles, ants and earthworms",
       shelter: "Under logs, bark and damp leaf litter; lays its eggs in a cavity inside rotting wood and stays coiled around them",
       preferredHabitat: "Cool, damp deciduous forest floor with abundant rotting wood \u2014 and no pond required anywhere in its life",
       fact: "Add up all the red-backed salamanders in a patch of forest and they can outweigh every bird in it. They have no lungs at all \u2014 the whole animal breathes through its skin.",
@@ -13260,7 +13377,6 @@ var animals_1_default = {
         minHealth: 40,
         objects: {
           "rotting-heartwood-log": 1,
-          "leaf-litter-pile": 2,
           "fern-spring": 1
         },
         signature: "rotting-heartwood-log",
@@ -13285,7 +13401,7 @@ var animals_1_default = {
       kind: "mammal",
       trophic: "omnivore",
       rarity: "common",
-      diet: "Opportunistic: crayfish, insects, earthworms, frogs, eggs and fruit, with vertebrate prey a smaller share than most people assume",
+      diet: "opportunistic: crayfish, insects, earthworms, frogs, eggs and fruit, with vertebrate prey a smaller share than most people assume",
       shelter: "Hollow tree dens preferred; also rock crevices, burrows and buildings",
       preferredHabitat: "Moist forest beside water shallow enough to wade and feel around in",
       fact: "A raccoon sees with its hands. Its front paws carry four to five times more touch nerves than most mammals', and it will stare off in the opposite direction while its fingers read a stream bed.",
@@ -13338,7 +13454,7 @@ var animals_1_default = {
         water: {
           tiles: 3
         },
-        hint: "A hollow den log and a stony shallow edge to feel around in \u2014 a raccoon hunts with its hands, not its eyes."
+        hint: "A hollow den log and a stony shallow edge to feel around in. It hunts with its hands, not its eyes."
       },
       sources: [
         {
@@ -13359,7 +13475,7 @@ var animals_1_default = {
       kind: "mammal",
       trophic: "omnivore",
       rarity: "rare",
-      diet: "Berries, acorns and nuts above all; also grasses and forbs, insects and grubs, carrion, and fawns in spring",
+      diet: "berries, acorns and nuts above all; also grasses and forbs, insects and grubs, carrion, and fawns in spring",
       shelter: "Winter dens under upturned root masses, in hollow trees and rock cavities, or dug into a bank",
       preferredHabitat: "Dense forest with a thick understory and reliable berry and acorn crops",
       fact: "Black bear cubs are born in the middle of hibernation, blind and smaller than a soup can, and their mother barely wakes up for it.",
@@ -13386,7 +13502,6 @@ var animals_1_default = {
         minBalance: 50,
         objects: {
           "root-mass-den": 1,
-          "oak-tree": 2,
           "berry-bush": 2,
           "small-pond": 1
         },
@@ -13422,7 +13537,7 @@ var animals_1_default = {
       kind: "mammal",
       trophic: "mesopredator",
       rarity: "uncommon",
-      diet: "Mice, voles, rabbits, squirrels, birds and eggs \u2014 and in late summer an astonishing amount of fruit",
+      diet: "mice, voles, rabbits, squirrels, birds and eggs \u2014 and in late summer an astonishing amount of fruit",
       shelter: "Hollow logs, rock crevices and old earth dens; it will also curl up on a branch well off the ground",
       preferredHabitat: "Brushy woodland edges and old clearings growing back, with tangled climbable cover",
       fact: "It is the only dog in the world that climbs trees. A gray fox hooks its curved claws into the bark, shins up the trunk like a cat, and naps ten metres up where nothing that hunts it can follow.",
@@ -13490,7 +13605,7 @@ var animals_1_default = {
       kind: "reptile",
       trophic: "mesopredator",
       rarity: "uncommon",
-      diet: "Mice, voles, chipmunks and young squirrels, plus birds and eggs lifted straight out of nests",
+      diet: "mice, voles, chipmunks and young squirrels, plus birds and eggs lifted straight out of nests",
       shelter: "Hollow trunks, rot pockets and stump cavities; the eggs go into a warm heap of rotting wood chips",
       preferredHabitat: "Old woods and woodland edges with big rough-barked trees to climb and rodents underneath them",
       fact: "A ratsnake can climb straight up a bare tree trunk with nothing to hold onto. It wedges the edges of its belly scales into the ridges in the bark and walks up the side of the tree, then robs the nest at the top.",
@@ -13559,7 +13674,7 @@ var animals_1_default = {
       kind: "mammal",
       trophic: "apex-predator",
       rarity: "rare",
-      diet: "Obligate carnivore: rabbits, squirrels and rodents, plus some birds, reptiles and deer fawns",
+      diet: "obligate carnivore: rabbits, squirrels and rodents, plus some birds, reptiles and deer fawns",
       shelter: "Dens under rock ledges, in hollow logs and in dense thickets; a female moves her kittens if disturbed",
       preferredHabitat: "Forest with a dense understory, brushy edges and broken rocky ground",
       fact: "A bobcat can bring down prey eight times its own weight, then bury the leftovers under leaves or snow and come back the next night.",
@@ -13584,7 +13699,8 @@ var animals_1_default = {
         objects: {
           "rocky-den-ledge": 1,
           "brush-pile": 2,
-          "fern-grove": 1
+          "fern-grove": 1,
+          "nesting-tree": 1
         },
         signature: "rocky-den-ledge",
         animals: [
@@ -13622,7 +13738,7 @@ var animals_1_default = {
       kind: "bird",
       trophic: "apex-predator",
       rarity: "rare",
-      diet: "Mammals and birds \u2014 squirrels, rabbits, skunks, other owls \u2014 plus reptiles, amphibians and carrion",
+      diet: "mammals and birds \u2014 squirrels, rabbits, skunks, other owls \u2014 plus reptiles, amphibians and carrion",
       shelter: "Never builds a nest: takes over an old hawk, crow or squirrel nest, or a broken snag top or ledge",
       preferredHabitat: "Mature forest broken by open ground, with big trees holding other animals' abandoned nests",
       fact: "Great horned owls are one of the only animals that regularly kill and eat skunks. The spray does not appear to bother them in the slightest.",
@@ -13659,7 +13775,8 @@ var animals_1_default = {
         objects: {
           "adopted-stick-nest": 1,
           "standing-deadwood": 1,
-          "nesting-tree": 2
+          "nesting-tree": 2,
+          "brush-pile": 1
         },
         signature: "adopted-stick-nest",
         animals: [
@@ -13687,7 +13804,7 @@ var animals_1_default = {
       kind: "insect",
       trophic: "herbivore",
       rarity: "common",
-      diet: "Grasses, sedges and broadleaf forbs",
+      diet: "grasses, sedges and broadleaf forbs",
       shelter: "Shelters down in grass and low vegetation; lays eggs in firm bare soil",
       preferredHabitat: "Sunny grasslands and meadows rich in grasses and forbs",
       fact: "A grasshopper's ears are on its belly \u2014 a pair of eardrums on the first segment of the abdomen, nowhere near its head.",
@@ -13706,17 +13823,15 @@ var animals_1_default = {
         "praying-mantis",
         "red-fox-meadow",
         "western-meadowlark",
-        "shrike"
+        "opossum",
+        "song-sparrow"
       ],
       requirements: {
         minHealth: 8,
         objects: {
-          "grasshopper-egg-pod-bank": 1,
-          "native-grass-patch": 1,
           "grass-patch": 1
         },
-        signature: "grasshopper-egg-pod-bank",
-        hint: "Grass to eat, and a strip of firm sun-warmed bare soil where the females drill their frothy egg pods for the winter."
+        hint: "They return almost as soon as the grass does."
       },
       sources: [
         {
@@ -13737,7 +13852,7 @@ var animals_1_default = {
       kind: "mammal",
       trophic: "herbivore",
       rarity: "common",
-      diet: "Grasses, sedges, seeds and roots, plus bark in winter",
+      diet: "grasses, sedges, seeds and roots, plus bark in winter",
       shelter: "Shallow burrows and woven grass nests linked by clipped surface runways",
       preferredHabitat: "Dense grassy prairie and meadow with thick ground cover left standing",
       fact: "Prairie voles pair up and stay together, and both parents raise the pups \u2014 which is why scientists who study bonding and loyalty end up studying this small brown rodent.",
@@ -13756,16 +13871,12 @@ var animals_1_default = {
         "coyote-meadow",
         "garter-snake-meadow",
         "red-fox-meadow",
-        "red-tailed-hawk",
-        "shrike",
-        "harrier"
+        "red-tailed-hawk"
       ],
       requirements: {
         minHealth: 10,
         objects: {
-          "vole-runway-network": 1,
-          "native-grass-patch": 2,
-          "wildflower-patch": 1
+          "vole-runway-network": 1
         },
         signature: "vole-runway-network",
         hint: "Thick unmown grass with clipped runways beneath it. Voles arrive early, and almost everything with teeth or talons is waiting on them."
@@ -13789,7 +13900,7 @@ var animals_1_default = {
       kind: "insect",
       trophic: "herbivore",
       rarity: "common",
-      diet: "Caterpillars eat only milkweed; adults sip flower nectar",
+      diet: "caterpillars eat only milkweed; adults sip flower nectar",
       shelter: "Roosts in trees and shrubs; overwinters clustered in dense groves far to the south",
       preferredHabitat: "Open meadows and roadsides with milkweed to breed on and nectar flowers to refuel on",
       fact: "No single monarch flies the whole round trip. The butterflies that head south in autumn are the great-grandchildren of the ones that came north in spring, and they find the same groves anyway.",
@@ -13809,7 +13920,6 @@ var animals_1_default = {
         minHealth: 15,
         objects: {
           "milkweed-rhizome-bed": 1,
-          "butterfly-flowers": 1,
           "pollinator-garden": 1
         },
         signature: "milkweed-rhizome-bed",
@@ -13834,7 +13944,7 @@ var animals_1_default = {
       kind: "insect",
       trophic: "herbivore",
       rarity: "common",
-      diet: "Nectar for fuel and pollen for protein, from a wide range of flowers",
+      diet: "nectar for fuel and pollen for protein, from a wide range of flowers",
       shelter: "Nests in abandoned rodent burrows, grass tussocks and ground cavities",
       preferredHabitat: "Flower-rich meadows with something in bloom from spring to frost",
       fact: "Some flowers refuse to let go of their pollen unless they are shaken. A bumblebee grabs on and buzzes its flight muscles until the pollen falls out \u2014 tomatoes and blueberries depend on it.",
@@ -13854,8 +13964,7 @@ var animals_1_default = {
         minHealth: 25,
         objects: {
           "bumblebee-nest-tussock": 1,
-          "native-thistle-stand": 1,
-          "butterfly-flowers": 1
+          "native-thistle-stand": 1
         },
         signature: "bumblebee-nest-tussock",
         hint: "Flowers are only half of it. A queen also needs an abandoned vole hole under a thick grass tussock to start her colony in."
@@ -13879,7 +13988,7 @@ var animals_1_default = {
       kind: "mammal",
       trophic: "herbivore",
       rarity: "common",
-      diet: "Grasses and clover in summer; twigs, bark and buds in winter",
+      diet: "grasses and clover in summer; twigs, bark and buds in winter",
       shelter: "Rests in shallow grass 'forms'; bolts into brush piles and old burrows",
       preferredHabitat: "Meadows and field edges with brushy cover close enough to run to",
       fact: "A cottontail doesn't dig a burrow. It presses a shallow bowl into the grass called a form and sits so still in it that you can walk straight past.",
@@ -13898,16 +14007,13 @@ var animals_1_default = {
         "coyote-meadow",
         "red-fox-meadow",
         "red-tailed-hawk",
-        "barn-owl",
-        "harrier"
+        "barn-owl"
       ],
       requirements: {
         minHealth: 25,
         objects: {
           "brush-form-hollow": 1,
-          "native-grass-patch": 1,
-          "berry-bush": 1,
-          "brush-pile": 1
+          "berry-bush": 1
         },
         signature: "brush-form-hollow",
         hint: "A brushy form to bolt into, native grass to graze, and berries close by. Cottontails get most of their water straight out of green plants."
@@ -13931,7 +14037,7 @@ var animals_1_default = {
       kind: "mammal",
       trophic: "herbivore",
       rarity: "uncommon",
-      diet: "Browses shrubs, forbs, twigs and buds, plus seasonal grasses",
+      diet: "shrubs, forbs, twigs and buds, plus grasses in spring",
       shelter: "Beds down in brushy cover or tall grass; no permanent den",
       preferredHabitat: "Open meadows and shrubby edges with browse and daily water",
       fact: "A bounding mule deer lands on all four hooves at once like a pogo stick, and puffs out scent from a gland on its hind leg as it goes \u2014 a warning the other deer can smell.",
@@ -13977,16 +14083,16 @@ var animals_1_default = {
     },
     {
       id: "lady-beetle",
-      name: "Lady Beetle",
+      name: "Ladybug",
       scientificName: "Hippodamia convergens",
       kind: "insect",
       trophic: "insectivore",
       rarity: "common",
-      diet: "Aphids and other small soft-bodied insects, as both larva and adult",
+      diet: "aphids and other small soft-bodied insects, as both larva and adult",
       shelter: "Overwinters packed into leaf litter in big huddles; shelters on foliage in summer",
       preferredHabitat: "Meadows with aphid-bearing plants, especially milkweed",
-      fact: "One lady beetle can put away around 5,000 aphids in a lifetime. Pinch it and it bleeds bitter yellow blood out of its knees, which is why most birds spit it straight back out.",
-      role: "Larva and adult both hunt aphids, so a lady beetle's whole life runs on an aphid supply \u2014 in this meadow, the yellow oleander aphids crowding the milkweed stems. Its bright shell is a warning label and it works on most birds. Mantises and orb weavers are not most birds.",
+      fact: "One ladybug can put away around 5,000 aphids in a lifetime. Pinch it and it bleeds bitter yellow blood out of its knees, which is why most birds spit it straight back out.",
+      role: "Larva and adult both hunt aphids, so a ladybug's whole life runs on an aphid supply \u2014 in this meadow, the yellow oleander aphids crowding the milkweed stems. Its bright shell is a warning label and it works on most birds. Mantises and orb weavers are not most birds.",
       eats: [],
       eatsOther: [
         "aphids",
@@ -13996,17 +14102,15 @@ var animals_1_default = {
       ],
       eatenBy: [
         "garden-spider",
-        "praying-mantis"
+        "praying-mantis",
+        "song-sparrow"
       ],
       requirements: {
         minHealth: 12,
         objects: {
-          "milkweed-aphid-colony": 1,
-          "wildflower-patch": 1,
-          "fallen-branch-shelter": 1
+          "clover-patch": 1
         },
-        signature: "milkweed-aphid-colony",
-        hint: "The aphids on the milkweed are the point, not a problem. Leave leaf litter too \u2014 that's where the adults spend the winter packed shoulder to shoulder."
+        hint: "A patch of clover. The aphids arrive on their own, and that is the whole invitation."
       },
       sources: [
         {
@@ -14027,7 +14131,7 @@ var animals_1_default = {
       kind: "mammal",
       trophic: "omnivore",
       rarity: "common",
-      diet: "Mostly seeds, grasses, flowers and fungi, plus insects like grasshoppers",
+      diet: "mostly seeds, grasses, flowers and fungi, plus insects like grasshoppers",
       shelter: "Big multi-entrance burrow systems dug into deep open ground",
       preferredHabitat: "Open grassy meadow and slopes with a stone wall or bank to keep watch from",
       fact: "Facing a rattlesnake, this squirrel kicks sand and waves its tail \u2014 and pumps hot blood into the tail first, so the snake's heat-sensing pits see a far bigger animal than is really standing there.",
@@ -14052,8 +14156,7 @@ var animals_1_default = {
         minHealth: 14,
         objects: {
           "squirrel-burrow-town": 1,
-          "dry-stone-wall": 1,
-          "native-grass-patch": 1
+          "dry-stone-wall": 1
         },
         signature: "squirrel-burrow-town",
         hint: "Deep diggable soil for a burrow town, and a stone wall to stand sentry on."
@@ -14077,7 +14180,7 @@ var animals_1_default = {
       kind: "bird",
       trophic: "omnivore",
       rarity: "uncommon",
-      diet: "Mostly insects in summer \u2014 beetles, grasshoppers, crickets \u2014 and seeds in winter",
+      diet: "mostly insects in summer \u2014 beetles, grasshoppers, crickets \u2014 and seeds in winter",
       shelter: "A domed grass nest woven on the ground, usually with a covered runway leading in",
       preferredHabitat: "Wide native grassland with song perches and no shrubs moving in",
       fact: "A meadowlark weaves a roof over its nest and a covered tunnel leading in, so from above there is nothing to see at all \u2014 just grass.",
@@ -14100,8 +14203,7 @@ var animals_1_default = {
         "american-badger",
         "coyote-meadow",
         "red-fox-meadow",
-        "red-tailed-hawk",
-        "harrier"
+        "red-tailed-hawk"
       ],
       requirements: {
         minHealth: 45,
@@ -14135,7 +14237,7 @@ var animals_1_default = {
       kind: "reptile",
       trophic: "mesopredator",
       rarity: "uncommon",
-      diet: "Earthworms, pillbugs, amphibians, slugs, insects and young rodents",
+      diet: "earthworms, pillbugs, amphibians, slugs, insects and young rodents",
       shelter: "Shelters under stone walls and logs; winters below the frost line in a communal den",
       preferredHabitat: "Moist meadow and grassland near sunny stones and water",
       fact: "Garter snakes spend the whole winter piled together by the dozen in one frost-free hole underground, and come pouring back out of it in a knot in spring.",
@@ -14145,7 +14247,8 @@ var animals_1_default = {
         "meadow-vole",
         "pillbug",
         "praying-mantis",
-        "garden-snail"
+        "garden-snail",
+        "song-sparrow"
       ],
       eatsOther: [
         "amphibians",
@@ -14161,7 +14264,6 @@ var animals_1_default = {
         minHealth: 20,
         objects: {
           "snake-hibernaculum-meadow": 1,
-          "small-pond": 1,
           "dry-stone-wall": 1
         },
         signature: "snake-hibernaculum-meadow",
@@ -14193,7 +14295,7 @@ var animals_1_default = {
       kind: "mammal",
       trophic: "mesopredator",
       rarity: "rare",
-      diet: "Voles, rabbits, squirrels, birds and insects, rounded out with berries and carrion",
+      diet: "voles, rabbits, squirrels, birds and insects, rounded out with berries and carrion",
       shelter: "Enlarges a burrow another animal dug into a natal den; also uses brush and hollows",
       preferredHabitat: "Meadows, field edges and hedgerows across open country",
       fact: "A fox listening for a vole under deep grass or snow lines itself up facing magnetic north before it leaps \u2014 and the trick only seems to help when it cannot see the prey at all.",
@@ -14205,7 +14307,8 @@ var animals_1_default = {
         "ground-squirrel",
         "meadow-vole",
         "western-meadowlark",
-        "bobolink"
+        "groundhog",
+        "song-sparrow"
       ],
       eatsOther: [
         "berries",
@@ -14222,7 +14325,8 @@ var animals_1_default = {
         objects: {
           "earthen-fox-den": 1,
           "native-grass-patch": 2,
-          "brush-pile": 1
+          "brush-pile": 1,
+          "oak-tree": 1
         },
         signature: "earthen-fox-den",
         water: {
@@ -14253,7 +14357,7 @@ var animals_1_default = {
       kind: "bird",
       trophic: "apex-predator",
       rarity: "rare",
-      diet: "Mostly small mammals \u2014 voles, ground squirrels, rabbits \u2014 plus birds and snakes",
+      diet: "mostly small mammals \u2014 voles, ground squirrels, rabbits \u2014 plus birds and snakes",
       shelter: "A bulky stick nest in the crown of a tall tree or on a cliff ledge",
       preferredHabitat: "Open country seen from above: grassland, fields and meadows",
       fact: "That screaming eagle cry in every film is a red-tailed hawk. Actual bald eagles sound like squeaky gulls, so the movies quietly swapped them.",
@@ -14264,7 +14368,7 @@ var animals_1_default = {
         "ground-squirrel",
         "meadow-vole",
         "western-meadowlark",
-        "shrike"
+        "song-sparrow"
       ],
       eatsOther: [
         "carrion",
@@ -14277,7 +14381,6 @@ var animals_1_default = {
         objects: {
           "crown-stick-eyrie": 1,
           "oak-tree": 1,
-          "native-grass-patch": 1,
           "bird-perch": 1
         },
         signature: "crown-stick-eyrie",
@@ -14315,7 +14418,7 @@ var animals_1_default = {
       kind: "fish",
       trophic: "herbivore",
       rarity: "common",
-      diet: "Algae, diatoms and plankton sifted off mud, stems and stones, plus detritus and small insect larvae.",
+      diet: "algae, diatoms and plankton sifted off mud, stems and stones, plus detritus and small insect larvae.",
       shelter: "Reed roots, submerged plant beds, and the shaded underside of sunken wood.",
       preferredHabitat: "Connected, clean, weedy pools.",
       fact: "The male minnow scrubs the underside of a sunken slab spotless using a spongy pad on his own back, then guards the eggs the females glue to that ceiling \u2014 fanning them day and night until they hatch.",
@@ -14351,7 +14454,6 @@ var animals_1_default = {
         minHealth: 28,
         objects: {
           "submerged-spawning-slab": 2,
-          "shallow-water-pool": 2,
           "marsh-log": 1
         },
         signature: "submerged-spawning-slab",
@@ -14380,7 +14482,7 @@ var animals_1_default = {
       kind: "mammal",
       trophic: "herbivore",
       rarity: "uncommon",
-      diet: "Bark and cambium of willow and aspen, plus cattail rhizomes and submerged plants",
+      diet: "bark and cambium of willow and aspen, plus cattail rhizomes and submerged plants",
       shelter: "Stick-and-mud lodges with underwater entrances",
       preferredHabitat: "Slow channels with mud banks and woody plants to fell",
       fact: "A beaver's front teeth never stop growing and are orange because they are reinforced with iron \u2014 living chisels that gnawing keeps sharp. Its lips shut behind those teeth, so it can carry and cut branches underwater without swallowing the pond.",
@@ -14403,7 +14505,7 @@ var animals_1_default = {
         water: {
           tiles: 5
         },
-        hint: "Willows to fell and eat, a soft bank to den in, and enough water to float a log. The moment a beaver settles here, seven new habitats become buildable."
+        hint: "Willows to fell and eat, a soft bank to den in, and enough water to float a log. Once it settles, seven new habitats become buildable."
       },
       sources: [
         {
@@ -14425,7 +14527,7 @@ var animals_1_default = {
       kind: "mammal",
       trophic: "herbivore",
       rarity: "common",
-      diet: "Mainly cattails, bulrush and roots; sometimes freshwater mussels and small fish",
+      diet: "mainly cattails, bulrush and roots; sometimes freshwater mussels and small fish",
       shelter: "Dome lodges woven from cattail and reed, and burrows dug into banks",
       preferredHabitat: "Reedy shallows with abundant cattails",
       fact: "A muskrat can stay under for a quarter of an hour on one breath, and in midwinter it dives beneath the ice to dig up frozen-in cattail roots and eat them down there in the dark.",
@@ -14448,7 +14550,6 @@ var animals_1_default = {
         objects: {
           "cattail-root-shallows": 2,
           "cattail-stand": 2,
-          "reed-bed": 1,
           "mud-bank": 1
         },
         signature: "cattail-root-shallows",
@@ -14477,7 +14578,7 @@ var animals_1_default = {
       kind: "bird",
       trophic: "herbivore",
       rarity: "common",
-      diet: "Mostly seeds and submerged plants, though hens switch to insect larvae, snails and freshwater shrimp while laying, and ducklings eat almost nothing else at first",
+      diet: "mostly seeds and submerged plants, though hens switch to insect larvae, snails and freshwater shrimp while laying, and ducklings eat almost nothing else at first",
       shelter: "Ground nests hidden in dense sedge and grass tussocks near water",
       preferredHabitat: "Calm, plant-rich shallows with tussock cover on the bank",
       fact: "Mallards sleep with one eye open and half the brain awake. On a raft of sleeping ducks it is the ones on the outside doing the watching \u2014 and they swap places so everyone gets a proper nap.",
@@ -14503,7 +14604,6 @@ var animals_1_default = {
         minHealth: 25,
         objects: {
           "sedge-tussock": 2,
-          "shallow-water-pool": 2,
           "lily-pool": 1
         },
         signature: "sedge-tussock",
@@ -14531,7 +14631,7 @@ var animals_1_default = {
       kind: "reptile",
       trophic: "herbivore",
       rarity: "common",
-      diet: "Mostly aquatic plants and algae as an adult; hatchlings and young turtles eat far more insects and carrion",
+      diet: "mostly aquatic plants and algae as an adult; hatchlings and young turtles eat far more insects and carrion",
       shelter: "Muddy pond bottoms; hauls out onto logs to bask",
       preferredHabitat: "Still water with basking logs",
       fact: "A painted turtle spends the entire winter under the ice without taking a breath. It absorbs what oxygen it can through its back end, and when that runs short it dissolves minerals out of its own shell to stay alive until spring.",
@@ -14587,7 +14687,7 @@ var animals_1_default = {
       kind: "bird",
       trophic: "omnivore",
       rarity: "common",
-      diet: "Insects in summer, seeds and grain the rest of the year",
+      diet: "insects in summer, seeds and grain the rest of the year",
       shelter: "Cup nests wound around several upright stems standing in water",
       preferredHabitat: "Dense cattail and reed stands with water underneath",
       fact: "A male red-wing can switch his scarlet shoulder patches on and off. Flared wide they start fights; tucked away under the black feathers they let him slip through a rival's territory completely unnoticed.",
@@ -14644,7 +14744,7 @@ var animals_1_default = {
       kind: "bird",
       trophic: "herbivore",
       rarity: "rare",
-      diet: "Grains, tubers, insects, crayfish and small animals",
+      diet: "grains, tubers, insects, crayfish and small animals",
       shelter: "Large ground mounds of piled marsh plants standing in shallow water",
       preferredHabitat: "Broad, quiet, restored marshland",
       fact: "Cranes dance to choose a partner \u2014 leaping, bowing and flinging sticks in the air \u2014 and once they pair up they usually stay together for life. Their bugling carries more than two kilometres because the windpipe is coiled up inside the breastbone like a trumpet.",
@@ -14699,7 +14799,7 @@ var animals_1_default = {
       kind: "amphibian",
       trophic: "insectivore",
       rarity: "common",
-      diet: "Small insects and other tiny invertebrates",
+      diet: "small insects and other tiny invertebrates",
       shelter: "Damp litter and loose bark under fallen wood in winter; wet vegetation in summer",
       preferredHabitat: "Shallow pools ringed with reeds and wet meadow",
       fact: "A chorus frog freezes solid every winter. Ice fills the spaces around its organs, its heart stops for weeks \u2014 and in spring it thaws out and starts singing as though nothing happened. The call sounds exactly like running your thumb along a comb.",
@@ -14757,7 +14857,7 @@ var animals_1_default = {
       kind: "amphibian",
       trophic: "insectivore",
       rarity: "uncommon",
-      diet: "Worms, insects, freshwater shrimp and other small invertebrates; larvae take tadpoles",
+      diet: "worms, insects, freshwater shrimp and other small invertebrates; larvae take tadpoles",
       shelter: "Damp burrows in soft ground near fishless breeding pools",
       preferredHabitat: "Fishless seasonal pools with soft banks",
       fact: "Tiger salamanders spend most of their lives alone underground, then walk back on the first warm rainy night of spring to the exact pool they hatched in \u2014 and if that pool starts drying too fast, some larvae grow oversized heads and start eating their own brothers and sisters.",
@@ -14790,7 +14890,7 @@ var animals_1_default = {
         excludes: [
           "freshwater-fish"
         ],
-        hint: "Dig the vernal pools well away from the fish pools and let them dry right out in summer. Fish and tiger salamander larvae cannot share water."
+        hint: "Dig the vernal pools well away from the fish pools and let them dry right out in summer. Fish and it larvae cannot share water."
       },
       sources: [
         {
@@ -14811,7 +14911,7 @@ var animals_1_default = {
       kind: "insect",
       trophic: "insectivore",
       rarity: "common",
-      diet: "Flying insects as an adult; the underwater nymph takes midge larvae, freshwater shrimp, tadpoles and fish fry",
+      diet: "flying insects as an adult; the underwater nymph takes midge larvae, freshwater shrimp, tadpoles and fish fry",
       shelter: "Emergent reed stems for the adults; the nymphs live in the water below",
       preferredHabitat: "Clean open water with emergent stems to climb out on",
       fact: "Dragonflies catch about 95 out of every 100 things they chase \u2014 a better strike rate than a lion, a shark or a falcon. They also see the world in something close to slow motion, which is why swatting one never works.",
@@ -14882,7 +14982,7 @@ var animals_1_default = {
       kind: "mammal",
       trophic: "mesopredator",
       rarity: "rare",
-      diet: "Fish, frogs, crayfish, muskrats, and the eggs and young of marsh birds",
+      diet: "fish, frogs, crayfish, muskrats, and the eggs and young of marsh birds",
       shelter: "Bank burrows, usually taken over from muskrats rather than dug",
       preferredHabitat: "Brushy banks beside busy water",
       fact: "A mink will chase a fish thirty metres underwater, and it hunts on land, in the water and up trees. What it almost never does is dig \u2014 it simply moves into a burrow a muskrat made and does not ask.",
@@ -14928,7 +15028,7 @@ var animals_1_default = {
           "freshwater-fish",
           "chorus-frog"
         ],
-        hint: "Water to hunt in, a bank to den in \u2014 and a muskrat to dig that den first."
+        hint: "Water to hunt in, and a bank den \u2014 but something else has to dig that den first."
       },
       sources: [
         {
@@ -14950,7 +15050,7 @@ var animals_1_default = {
       kind: "bird",
       trophic: "mesopredator",
       rarity: "uncommon",
-      diet: "Fish, frogs, salamanders, crayfish and large insects",
+      diet: "fish, frogs, salamanders, crayfish and large insects",
       shelter: "Colonial stick nests built high in tall trees and snags near water",
       preferredHabitat: "Still shallows for slow, patient hunting, with tall nest trees within reach",
       fact: "A heron's neck has one specially kinked bone in it that works like a loaded spring \u2014 the strike is over faster than you can blink, and the fish is caught crosswise in the bill rather than speared.",
@@ -15003,7 +15103,7 @@ var animals_1_default = {
       kind: "mammal",
       trophic: "apex-predator",
       rarity: "rare",
-      diet: "Fish, crayfish, mussels, frogs and other aquatic animals",
+      diet: "fish, crayfish, mussels, frogs and other aquatic animals",
       shelter: "Bank dens with underwater entrances \u2014 usually a beaver's old lodge or burrow",
       preferredHabitat: "Clean, connected water rich in fish and slow prey",
       fact: "An otter has around 350,000 hairs packed into every square centimetre of its fur \u2014 more than most animals have on their entire body. It is the air trapped in all that fur, not fat, that keeps an otter warm in freezing water.",
@@ -15038,7 +15138,7 @@ var animals_1_default = {
           "freshwater-fish",
           "crayfish"
         ],
-        hint: "Lots of connected clean water, plenty of fish and crayfish, and a beaver-made bank den with an underwater door."
+        hint: "Lots of connected clean water, plenty of fish and crayfish, and an old beaver-made bank den with an underwater door."
       },
       sources: [
         {
@@ -15068,7 +15168,7 @@ var animals_2_default = {
       kind: "invertebrate",
       trophic: "detritivore",
       rarity: "common",
-      diet: "Dead leaves and stems, fungal threads, pollen, and the pink algae that grow on old snow",
+      diet: "dead leaves and stems, fungal threads, pollen, and the pink algae that grow on old snow",
       shelter: "Wet leaf litter, moss cushions, and the hollow gap between the snowpack and the ground in winter",
       preferredHabitat: "Damp alpine turf, moss cushions and snowmelt litter, plus the surface of late-lying snow on warm days",
       fact: "On a mild winter day snow fleas pour out onto the snow in their thousands, like somebody spilled pepper across the drift. Their blood is full of natural antifreeze, so they keep moving when everything else is frozen stiff.",
@@ -15090,12 +15190,9 @@ var animals_2_default = {
       requirements: {
         minHealth: 18,
         objects: {
-          "snowmelt-litter-mat": 2,
-          "moss-cushion": 2,
-          "alpine-turf-mat": 1
+          "snowmelt-litter-mat": 1
         },
-        signature: "snowmelt-litter-mat",
-        hint: "Damp litter and moss, not open water. A snow flea drinks through its skin, so what it needs is ground that never quite dries out and a mat of old leaves left lying where the drifts melt last."
+        hint: "A mat of litter under melting snow is enough to start."
       },
       sources: [
         {
@@ -15116,7 +15213,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "herbivore",
       rarity: "rare",
-      diet: "Chiefly grasses and sedges, with forbs and woody browse in winter",
+      diet: "chiefly grasses and sedges, with forbs and woody browse in winter",
       shelter: "Beds on rocky ledges and rugged escape terrain near cliffs",
       preferredHabitat: "Open alpine turf directly beside steep, broken escape cliffs",
       fact: "Rams charge each other and crash horns hard enough to be heard a mile off. Their skulls are double-layered to take the hit, and a lamb is climbing rock within a day of being born.",
@@ -15162,7 +15259,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "herbivore",
       rarity: "common",
-      diet: "Grasses, forbs, wildflowers and lichen, cut green and dried into winter haypiles",
+      diet: "grasses, forbs, wildflowers and lichen, cut green and dried into winter haypiles",
       shelter: "Cool gaps deep within talus and broken rock",
       preferredHabitat: "Deep, stable talus with alpine flower turf right at its edge",
       fact: "A pika spends its whole summer cutting flowers and grass and stacking them into little haystacks under the rocks, then eats its way through the pile in the dark under the snow.",
@@ -15188,7 +15285,7 @@ var animals_2_default = {
           "alpine-wildflower-patch": 1
         },
         signature: "pika-haypile",
-        hint: "Deep talus to vanish into with flowers a short dash away, then a haypile, because a pika that cannot cure its hay in summer will not last the winter. It barely drinks. Its water comes out of the plants it eats."
+        hint: "Deep talus to vanish into with flowers a short dash away, then a haypile. Without cured hay it cannot last the winter."
       },
       sources: [
         {
@@ -15209,7 +15306,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "herbivore",
       rarity: "common",
-      diet: "Grasses, flowering plants and seeds, eaten hard through a short summer",
+      diet: "grasses, flowering plants and seeds, eaten hard through a short summer",
       shelter: "Deep, many-chambered burrows dug beneath boulders, below the frost line",
       preferredHabitat: "Open alpine turf broken by boulders, with diggable soil underneath",
       fact: "A marmot sleeps for about eight months of the year and wakes up weighing half what it did when it went to bed.",
@@ -15262,7 +15359,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "herbivore",
       rarity: "uncommon",
-      diet: "Green plants in summer; willow and juniper twigs, buds, bark and conifer needles in winter",
+      diet: "green plants in summer; willow and juniper twigs, buds, bark and conifer needles in winter",
       shelter: "Shallow 'forms' scraped under dense shrubs and low conifer branches",
       preferredHabitat: "Dense krummholz, juniper and willow thickets at and just below treeline",
       fact: "The hare changes colour by the calendar, not the weather. Shortening days flip its coat white whether the snow has turned up or not, so a warm autumn can leave a white hare sitting on brown ground.",
@@ -15285,7 +15382,6 @@ var animals_2_default = {
         minHealth: 40,
         objects: {
           "juniper-thicket": 2,
-          "krummholz-pine": 2,
           "willow-basin-thicket": 1,
           "krummholz-bed-hollow": 1
         },
@@ -15311,7 +15407,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "herbivore",
       rarity: "uncommon",
-      diet: "Buds, twigs, leaves, seeds and flowers; in winter almost entirely willow buds and twigs",
+      diet: "buds, twigs, leaves, seeds and flowers; in winter almost entirely willow buds and twigs",
       shelter: "Camouflaged ground scrapes among lichen-covered rock, and burrows dug into soft snow to roost",
       preferredHabitat: "Alpine tundra above treeline year-round, dropping into sheltered willow basins in winter",
       fact: "It grows feathers on its feet for winter, built-in snowshoes, and then dives into a snowdrift to sleep, because inside the drift it is far warmer than out in the wind.",
@@ -15336,8 +15432,7 @@ var animals_2_default = {
         objects: {
           "snowbank-roost": 1,
           "willow-basin-thicket": 2,
-          "scree-slope": 1,
-          "alpine-turf-mat": 1
+          "scree-slope": 1
         },
         signature: "snowbank-roost",
         hint: "Willow is the whole winter for a ptarmigan, and a soft deep drift is its bedroom. It eats snow instead of drinking, and it has no use at all for a flower planter."
@@ -15361,7 +15456,7 @@ var animals_2_default = {
       kind: "insect",
       trophic: "herbivore",
       rarity: "common",
-      diet: "Caterpillars eat lance-leaved stonecrop and nothing else; adults sip nectar from alpine flowers",
+      diet: "stonecrop as a caterpillar, then nectar from stonecrop and daisies as an adult",
       shelter: "No nest \u2014 the caterpillar develops fully inside the egg and overwinters there, hatching at snowmelt",
       preferredHabitat: "Rocky open alpine and subalpine slopes where stonecrop grows between the stones",
       fact: "Its wings are almost see-through, like waxed paper held up to the light, and the red spots are a warning. Birds that try one usually spit it straight back out.",
@@ -15379,7 +15474,6 @@ var animals_2_default = {
         minHealth: 25,
         objects: {
           "stonecrop-patch": 2,
-          "alpine-wildflower-patch": 1,
           "gentian-patch": 1,
           "scree-slope": 1
         },
@@ -15405,7 +15499,7 @@ var animals_2_default = {
       kind: "insect",
       trophic: "herbivore",
       rarity: "common",
-      diet: "Flower nectar as an adult, drunk after dark; leaves and roots down in the lowlands as a caterpillar",
+      diet: "flower nectar as an adult, drunk after dark; leaves and roots down in the lowlands as a caterpillar",
       shelter: "Packed by the thousand into cracks under scree slabs, out of the sun and the wind",
       preferredHabitat: "High rockslides beside flower turf \u2014 but only in summer; it spends the rest of the year far below",
       fact: "Every summer millions of these moths fly up out of the lowlands and hide in the rock on the highest peaks. They are so fatty that a bear will spend all day flipping stones to eat them, and can put away forty thousand moths in a single day.",
@@ -15454,7 +15548,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "omnivore",
       rarity: "common",
-      diet: "Seeds, berries and green shoots, plus underground fungi, insects and the occasional egg",
+      diet: "seeds, berries and green shoots, plus underground fungi, insects and the occasional egg",
       shelter: "A burrow driven in under a boulder or a fallen log, with a grass-lined sleeping chamber at the far end",
       preferredHabitat: "Sunny rocky slopes, talus edges and open dwarf-pine ground at and above the tree line",
       fact: "Everyone calls it a giant chipmunk, but look at its face \u2014 no stripes on the cheeks. And it does not just nap through winter: it cools until its body is barely above freezing and its heart slows to a few beats a minute.",
@@ -15476,8 +15570,6 @@ var animals_2_default = {
         minHealth: 35,
         objects: {
           "winter-sleep-burrow": 1,
-          "talus-pile": 2,
-          "alpine-wildflower-patch": 1,
           "krummholz-pine": 1
         },
         signature: "winter-sleep-burrow",
@@ -15509,7 +15601,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "omnivore",
       rarity: "uncommon",
-      diet: "Whitebark and limber pine seeds cached by the thousand, plus insects and small animals",
+      diet: "whitebark and limber pine seeds cached by the thousand, plus insects and small animals",
       shelter: "Cup nest in a conifer, sited near the winter seed caches",
       preferredHabitat: "Treeline conifer forest and krummholz within reach of pine-seed sources",
       fact: "One bird buries tens of thousands of pine seeds in a single autumn and can still find them months later under snow, navigating by rocks and logs it has memorised like landmarks on a map.",
@@ -15534,7 +15626,7 @@ var animals_2_default = {
           "subalpine-fir": 1
         },
         signature: "whitebark-cache",
-        hint: "A nutcracker needs a seed bank it can find again under the snow. Build the caches, and the pines it forgets to dig up will follow."
+        hint: "It needs a seed bank it can find again under the snow. Build the caches, and the pines it forgets to dig up become next year's forest."
       },
       sources: [
         {
@@ -15555,7 +15647,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "omnivore",
       rarity: "uncommon",
-      diet: "Tiny alpine plant seeds and insects, often gleaned off the surface of snowfields",
+      diet: "tiny alpine plant seeds and insects, often gleaned off the surface of snowfields",
       shelter: "Bulky cup of moss and grass wedged deep into a cliff crack or a hole in talus",
       preferredHabitat: "Above treeline: talus, scree, cliff faces and the edges of permanent snow",
       fact: "It nests higher than almost any other songbird here, jammed into cracks in cliffs and rockslides where nothing else will build at all.",
@@ -15601,7 +15693,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "insectivore",
       rarity: "common",
-      diet: "Mostly insects, springtails, spiders and their larvae, plus some seeds",
+      diet: "mostly insects, springtails, spiders and their larvae, plus some seeds",
       shelter: "Ground nest of grass tucked into the turf beside a rock or a tussock",
       preferredHabitat: "Open alpine turf and fellfield, especially along the edges of melting snow",
       fact: "Wind sweeps insects up off the lowlands and dumps them on the snowfields, chilled and helpless. The pipit walks the edge of the melting snow eating a meal the weather delivered uphill.",
@@ -15653,7 +15745,7 @@ var animals_2_default = {
       kind: "amphibian",
       trophic: "insectivore",
       rarity: "uncommon",
-      diet: "Beetles, ants, flies, springtails and other invertebrates; tadpoles graze algae",
+      diet: "beetles, ants, flies, springtails and other invertebrates; tadpoles graze algae",
       shelter: "Rodent burrows, rock chambers and damp cover above the breeding pools",
       preferredHabitat: "Subalpine and alpine wet meadows with shallow, sun-warmed, fish-free breeding pools",
       fact: "It spends September to May underground, then comes out and breeds in pools that were solid ice a few weeks earlier.",
@@ -15709,7 +15801,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "insectivore",
       rarity: "common",
-      diet: "Flying insects only \u2014 moths, beetles, flies and drifting swarms of ants, all taken in mid-air",
+      diet: "flying insects only \u2014 moths, beetles, flies and drifting swarms of ants, all taken in mid-air",
       shelter: "A cup of feathers glued with its own spit into a narrow crack in a cliff face",
       preferredHabitat: "Sheer cliffs and broken crags with a lot of open air in front of them to hunt in",
       fact: "It does everything in the air. It eats in the air, drinks in the air, and pairs mate in mid-air \u2014 locking together and tumbling hundreds of feet down the cliff face before they let go.",
@@ -15757,7 +15849,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "insectivore",
       rarity: "common",
-      diet: "Insects, spiders and bark-beetle larvae in summer; cached conifer seeds in fall and winter",
+      diet: "insects, spiders and bark-beetle larvae in summer; cached conifer seeds in fall and winter",
       shelter: "Existing cavities in dead conifers \u2014 old woodpecker holes, or soft rotten wood it can enlarge",
       preferredHabitat: "Treeline conifer forest of fir and whitebark pine with standing dead trees",
       fact: "It hides thousands of seeds one at a time and remembers where they are. The part of its brain that does the remembering actually grows bigger in autumn.",
@@ -15778,11 +15870,10 @@ var animals_2_default = {
         minHealth: 52,
         objects: {
           "beetle-killed-snag": 2,
-          "whitebark-pine": 2,
-          "subalpine-fir": 1
+          "whitebark-pine": 2
         },
         signature: "beetle-killed-snag",
-        hint: "Dead trees are the point. A beetle-killed snag is both the chickadee's larder and the only wood soft enough for it to hollow out. The whitebark pines come from the nutcracker's forgotten seeds."
+        hint: "Dead trees are the point. A beetle-killed snag is both the chickadee's larder and the only wood soft enough for it to hollow out. The whitebark pines come from it's forgotten seeds."
       },
       sources: [
         {
@@ -15803,7 +15894,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "mesopredator",
       rarity: "rare",
-      diet: "Snowshoe hares above all \u2014 sometimes almost nothing else \u2014 plus ptarmigan, ground squirrels and young marmots",
+      diet: "snowshoe hares above all \u2014 sometimes almost nothing else \u2014 plus ptarmigan, ground squirrels and young marmots",
       shelter: "A hollow under boulders, roots or deadfall, often a burrow something else started and it widened",
       preferredHabitat: "High snowy country with thickets of dwarf conifer where hares can hide and lynx can wait for them",
       fact: "A lynx weighs about as much as a border collie, but its paws are as wide as a mountain lion's. They spread as it steps, so it walks on top of snow a fox would sink straight through.",
@@ -15844,7 +15935,7 @@ var animals_2_default = {
         water: {
           tiles: 1
         },
-        hint: "No hares, no lynx \u2014 it really is that simple. Get the dwarf-pine thickets back so hares have somewhere to hide, and the lynx will move into a hollow under the rocks that something else dug."
+        hint: "No hares, no it \u2014 it really is that simple. Get the dwarf-pine thickets back so hares have somewhere to hide, and it will move into a hollow under the rocks that something else dug."
       },
       sources: [
         {
@@ -15865,7 +15956,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "mesopredator",
       rarity: "rare",
-      diet: "Voles, red squirrels, pikas, hares, birds, eggs, insects and berries",
+      diet: "voles, red squirrels, pikas, hares, birds, eggs, insects and berries",
       shelter: "Dens in hollow logs, tree cavities and rock crevices, usually under deep snow",
       preferredHabitat: "Structurally complex treeline forest with big trees, dead wood and rock",
       fact: "In winter a marten hunts inside the snowpack, in the hollow spaces between the drifts and the ground, where nothing else its size can follow it.",
@@ -15906,7 +15997,7 @@ var animals_2_default = {
           "snowshoe-hare",
           "pika"
         ],
-        hint: "You cannot build marten habitat out of rocks and flowers. It needs a stand of real trees, dead wood on the ground, and hares and pikas already living there."
+        hint: "You cannot build marten habitat out of rocks and flowers. It needs a stand of real trees, dead wood on the ground, and hares and they already living there."
       },
       sources: [
         {
@@ -15927,7 +16018,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "mesopredator",
       rarity: "rare",
-      diet: "Small rodents, especially voles; also young pikas, birds, eggs and insects",
+      diet: "small rodents, especially voles; also young pikas, birds, eggs and insects",
       shelter: "Dens taken over from its prey \u2014 rodent burrows and rock crevices, relined with the previous owner's fur",
       preferredHabitat: "Talus and heath edges beside turf with dense rodent prey, used all year round",
       fact: "An ermine turns pure white in winter except for the black tip of its tail, and it is narrow enough to chase a vole down the vole's own tunnel.",
@@ -15968,7 +16059,7 @@ var animals_2_default = {
           "alpine-chipmunk",
           "pika"
         ],
-        hint: "An ermine moves into a burrow it has just emptied, so bring the chipmunks and pikas back first. Look for it in any season. It does not vanish in summer, it just turns brown."
+        hint: "It moves into a burrow it has just emptied, so bring the small rodents back first."
       },
       sources: [
         {
@@ -15989,7 +16080,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "apex-predator",
       rarity: "rare",
-      diet: "Marmots, hares, ground squirrels, ptarmigan and other birds, plus carrion",
+      diet: "marmots, hares, ground squirrels, ptarmigan and other birds, plus carrion",
       shelter: "Huge stick eyries built on sheer cliff ledges and reused for decades",
       preferredHabitat: "Open, high country with big cliffs to nest on and plenty of medium-sized prey",
       fact: "A hunting golden eagle drops out of the sky at over 240 kilometres an hour, and its eyesight is sharp enough to pick a marmot out of a boulder field from a kilometre up.",
@@ -16057,7 +16148,7 @@ var animals_2_default = {
       kind: "invertebrate",
       trophic: "herbivore",
       rarity: "common",
-      diet: "Living kelp and surfgrass, drift kelp, and encrusting coralline algae",
+      diet: "living kelp and surfgrass, drift kelp, and encrusting coralline algae",
       shelter: "Pits it grinds into the rock itself with its teeth and spines",
       preferredHabitat: "Wave-exposed low intertidal and shallow subtidal rock near kelp",
       fact: "A purple urchin chews a pit into solid rock with five teeth and then sits in it for years. On some reefs the urchins wear away more stone than the waves do.",
@@ -16075,9 +16166,7 @@ var animals_2_default = {
         minHealth: 35,
         objects: {
           "urchin-crevice-pit": 1,
-          "kelp-forest": 1,
-          "surfgrass-bed": 1,
-          "low-tide-rock-bench": 1
+          "surfgrass-bed": 1
         },
         signature: "urchin-crevice-pit",
         water: {
@@ -16106,7 +16195,7 @@ var animals_2_default = {
       kind: "fish",
       trophic: "filter-feeder",
       rarity: "common",
-      diet: "Plankton \u2014 copepods, diatoms and larvae \u2014 strained from the water or picked one at a time",
+      diet: "plankton \u2014 copepods, diatoms and larvae \u2014 strained from the water or picked one at a time",
       shelter: "The school itself; open nearshore water, with kelp and surfgrass edges as nursery cover",
       preferredHabitat: "Cool, plankton-rich nearshore water over the shelf",
       fact: "An anchovy eats two ways: it snaps at big prey one bite at a time, or just opens its mouth and swims, straining the sea like a living net.",
@@ -16128,8 +16217,6 @@ var animals_2_default = {
         minHealth: 30,
         objects: {
           "nearshore-spawning-shallows": 1,
-          "nutrient-upwelling-current": 1,
-          "kelp-forest": 1,
           "surfgrass-bed": 1
         },
         signature: "nearshore-spawning-shallows",
@@ -16159,7 +16246,7 @@ var animals_2_default = {
       kind: "invertebrate",
       trophic: "detritivore",
       rarity: "common",
-      diet: "Decaying kelp and other stranded seaweed in the wrack line",
+      diet: "decaying kelp and other stranded seaweed in the wrack line",
       shelter: "Burrows dug in damp sand high on the beach, and the damp underside of drift kelp and driftwood",
       preferredHabitat: "Gently sloping sandy beach with an undisturbed wrack line",
       fact: "Beach hoppers spend all day sealed inside a burrow in dry sand, then pour out after dark to shred the seaweed the tide left behind. Step near one and it fires itself into the air like a flicked pebble.",
@@ -16179,12 +16266,9 @@ var animals_2_default = {
       requirements: {
         minHealth: 12,
         objects: {
-          "kelp-wrack": 2,
-          "bare-sand-beach": 1,
-          "driftwood-pile": 1
+          "kelp-wrack": 1
         },
-        signature: "kelp-wrack",
-        hint: "No water needed at all \u2014 hoppers live above the tide. Leave the wrack where the sea dropped it and give them dry sand to dig into."
+        hint: "Leave the seaweed where the tide drops it. That is the whole meal."
       },
       sources: [
         {
@@ -16205,7 +16289,7 @@ var animals_2_default = {
       kind: "invertebrate",
       trophic: "detritivore",
       rarity: "common",
-      diet: "Algae, detritus, and scavenged carrion",
+      diet: "algae, detritus, and scavenged carrion",
       shelter: "Borrowed empty snail shells",
       preferredHabitat: "Tidepools and low rock benches with a supply of empty snail shells",
       fact: "Hermit crabs queue up by size and swap houses in a chain: the biggest one moves into the new shell, the next takes the house it left, and so on all the way down the line until the smallest crab gets an upgrade.",
@@ -16224,7 +16308,6 @@ var animals_2_default = {
         minHealth: 35,
         objects: {
           "empty-shell-drift": 2,
-          tidepool: 1,
           "low-tide-rock-bench": 1,
           "sheltered-cobble-field": 1
         },
@@ -16232,7 +16315,7 @@ var animals_2_default = {
         water: {
           ocean: 2
         },
-        hint: "A pool is not enough. Leave a supply of empty snail shells, or there is nothing for a hermit crab to move into \u2014 and a few loose cobbles to hide under while it is between shells."
+        hint: "A pool is not enough. Leave a supply of empty snail shells, or there is nothing to move into."
       },
       sources: [
         {
@@ -16254,7 +16337,7 @@ var animals_2_default = {
       kind: "invertebrate",
       trophic: "detritivore",
       rarity: "common",
-      diet: "Algae, detritus, and dead plants and animals",
+      diet: "algae, detritus, and dead plants and animals",
       shelter: "Rocky rubble bottoms, surfgrass beds and kelp holdfasts",
       preferredHabitat: "Shallow rocky and rubble bottom with surfgrass or kelp",
       fact: "A bat star eats by pushing its stomach out through its mouth and spreading it over its meal, digesting food outside its own body. It also refuses to stick to five arms \u2014 four to nine is perfectly normal.",
@@ -16302,7 +16385,7 @@ var animals_2_default = {
       kind: "invertebrate",
       trophic: "filter-feeder",
       rarity: "common",
-      diet: "Plankton filtered from seawater",
+      diet: "plankton filtered from seawater",
       shelter: "Dense beds anchored to wave-washed rock by byssal threads",
       preferredHabitat: "Exposed rocky shore with clean, constantly moving water",
       fact: "A mussel glues itself to the rock with threads it spins out of its own foot \u2014 and if it does not like where it landed, it cuts them, crawls a little way, and glues itself down again.",
@@ -16322,14 +16405,13 @@ var animals_2_default = {
         minHealth: 28,
         objects: {
           "surge-swept-rock-face": 2,
-          "nutrient-upwelling-current": 1,
           "barnacle-crust-rock": 1
         },
         signature: "surge-swept-rock-face",
         water: {
           ocean: 3
         },
-        hint: "A filter feeder needs water that keeps moving. Give it surge-washed rock rather than a still pool, and barnacle crust for the baby mussels to settle on."
+        hint: "A filter feeder needs water that keeps moving. Give it surge-washed rock rather than a still pool, and barnacle crust for the baby they to settle on."
       },
       sources: [
         {
@@ -16351,7 +16433,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "filter-feeder",
       rarity: "rare",
-      diet: "Bottom-living amphipods and swarming mysid shrimp, sifted through baleen",
+      diet: "bottom-living amphipods and swarming mysid shrimp, sifted through baleen",
       shelter: "Open ocean; passes close inshore along a healthy coast",
       preferredHabitat: "Nearshore water with soft-bottom amphipod beds and mysid swarms at the kelp edge",
       fact: "Gray whales roll onto one side and vacuum the seafloor, straining out shrimp-like amphipods and leaving long muddy plumes trailing behind them \u2014 and they do it at the end of a swim of up to 14,000 miles.",
@@ -16404,7 +16486,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "herbivore",
       rarity: "uncommon",
-      diet: "Eelgrass, plus sea lettuce and other green algae",
+      diet: "eelgrass, plus sea lettuce and other green algae",
       shelter: "Open shoreline, sandbars and shallow bays",
       preferredHabitat: "Shallow coastal bays with eelgrass beds",
       fact: "Brant fly thousands of miles to eat basically one thing: eelgrass. Lose the eelgrass in a bay and the geese are gone within a season or two, no matter how nice the rest of it looks.",
@@ -16437,7 +16519,8 @@ var animals_2_default = {
           url: "https://www.audubon.org/field-guide/bird/brant"
         }
       ],
-      biome: "coastal"
+      biome: "coastal",
+      amphibious: true
     },
     {
       id: "tidepool-crab",
@@ -16446,7 +16529,7 @@ var animals_2_default = {
       kind: "invertebrate",
       trophic: "omnivore",
       rarity: "common",
-      diet: "Mostly algae and drift kelp, plus detritus, worms, snails and carrion",
+      diet: "mostly algae and drift kelp, plus detritus, worms, snails and carrion",
       shelter: "Crevices in splash-zone rock",
       preferredHabitat: "Rocky intertidal and splash zone, often out of the water altogether",
       fact: "The shore crab spends more than half its life out of the sea, breathing air on dry rock, and only nips back to a pool now and then to wet its gills.",
@@ -16461,13 +16544,13 @@ var animals_2_default = {
         "anemone",
         "black-turnstone",
         "gull",
-        "octopus"
+        "octopus",
+        "annas-hummingbird"
       ],
       requirements: {
         minHealth: 12,
         objects: {
           "splash-zone-crevice": 2,
-          tidepool: 1,
           "barnacle-crust-rock": 1
         },
         signature: "splash-zone-crevice",
@@ -16496,7 +16579,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "omnivore",
       rarity: "common",
-      diet: "Fish, crabs, mussels, sea stars and carrion",
+      diet: "fish, crabs, mussels, sea stars and carrion",
       shelter: "Ground scrapes on offshore rocks and islands, tucked beside driftwood, rock or low coastal scrub",
       preferredHabitat: "Any shoreline with food to scavenge or catch",
       fact: "A gull that finds a mussel it cannot open carries it high into the air and drops it onto rock \u2014 and it remembers which rock cracks shells best, coming back to the same one all season.",
@@ -16509,7 +16592,6 @@ var animals_2_default = {
         "northern-anchovy",
         "sea-star",
         "bat-star",
-        "annas-hummingbird",
         "black-oystercatcher"
       ],
       eatsOther: [
@@ -16543,7 +16625,8 @@ var animals_2_default = {
           url: "https://www.audubon.org/field-guide/bird/western-gull"
         }
       ],
-      biome: "coastal"
+      biome: "coastal",
+      amphibious: true
     },
     {
       id: "sanderling",
@@ -16552,7 +16635,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "insectivore",
       rarity: "common",
-      diet: "Beach hoppers, mole crabs, amphipods, worms and small molluscs",
+      diet: "beach hoppers, mole crabs, amphipods, worms and small molluscs",
       shelter: "Open beach above the surf line",
       preferredHabitat: "The wet swash zone of an open sandy beach",
       fact: "Sanderlings spend the whole day sprinting at the sea and running away from it, chasing each wave out to grab whatever it uncovered and fleeing the next one before it buries them.",
@@ -16600,7 +16683,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "insectivore",
       rarity: "rare",
-      diet: "Beach invertebrates: beach hoppers, kelp flies and their larvae, small crustaceans and molluscs",
+      diet: "beach invertebrates: beach hoppers, kelp flies and their larvae, small crustaceans and molluscs",
       shelter: "A shallow scrape on open sand, sometimes lined with shell fragments; chicks shelter beside driftwood and wrack",
       preferredHabitat: "Wide, flat, sparsely vegetated open sand above the tide line",
       fact: "A snowy plover's entire nest is a dent in bare sand lined with a few shell chips. The chicks run within hours of hatching, and freeze flat as pebbles the moment a shadow crosses them.",
@@ -16652,7 +16735,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "insectivore",
       rarity: "common",
-      diet: "Barnacles, limpets, small mussels, hermit crabs and other rocky-shore invertebrates",
+      diet: "barnacles, limpets, small mussels, hermit crabs and other rocky-shore invertebrates",
       shelter: "Rocky shoreline; tight flocks on raised rock at high tide",
       preferredHabitat: "Rocky intertidal shores with barnacle and limpet crusts",
       fact: "A turnstone does exactly what its name promises \u2014 flips over stones, shells and clumps of seaweed to snatch whatever is hiding underneath \u2014 and hammers barnacles open with a stubby bill shaped like a chisel.",
@@ -16671,7 +16754,6 @@ var animals_2_default = {
         minHealth: 40,
         objects: {
           "high-tide-roost-rock": 1,
-          "barnacle-crust-rock": 2,
           "low-tide-rock-bench": 1
         },
         signature: "high-tide-roost-rock",
@@ -16697,46 +16779,41 @@ var animals_2_default = {
     },
     {
       id: "annas-hummingbird",
-      name: "Song Sparrow",
-      scientificName: "Melospiza melodia",
+      name: "Crow",
+      scientificName: "Corvus brachyrhynchos",
       kind: "bird",
       trophic: "omnivore",
       rarity: "common",
-      diet: "Seeds and berries most of the year; insects, spiders and sand hoppers off the tideline in summer",
-      shelter: "A grass cup hidden low in a dense damp thicket, usually less than a metre off the ground",
-      preferredHabitat: "Tangled scrub along damp hollows behind the dunes, thick enough that you could not push through it",
-      fact: "A young male learns his songs from the neighbours he grows up beside, so sparrows in one stretch of coast end up singing with a different accent from the ones round the next headland. Listen long enough and you can tell individual birds apart by ear.",
-      role: "The scrappy brown bird of the wet thickets and the constant background sound of the coastal scrub. It scratches seeds and insects out of the litter, works the tideline wrack for sand hoppers, and spends the rest of its day singing from the top of a bush to hold its patch of ground. It only nests where the scrub is low, dense and damp underneath \u2014 tidy that tangle away and it is the first bird to vanish. Gulls pick off the odd one.",
+      diet: "crabs, shellfish, eggs, insects, fruit and whatever the tide leaves behind",
+      shelter: "A bulky stick nest high in a shore pine, reused and repaired year after year",
+      preferredHabitat: "The strip where the beach meets the trees, with a clear view of the tideline",
+      fact: "Crows work out that a shell will break if you drop it on rock, and they pick their spot \u2014 one that has learned the trick will carry a clam up, drop it, and adjust its height until the shell cracks. They also remember faces for years.",
+      role: "The sharpest bird on the shore. It patrols the tideline for anything stranded, cracks open what it can't bite through, and follows the gulls and the otters to see what they turn up.",
       eats: [
+        "tidepool-crab",
         "beach-hopper"
       ],
       eatsOther: [
-        "seeds",
-        "berries",
-        "spiders",
-        "beetles"
+        "shellfish",
+        "eggs",
+        "insects",
+        "fruit",
+        "carrion"
       ],
-      eatenBy: [
-        "gull"
-      ],
+      eatenBy: [],
       requirements: {
-        minHealth: 50,
+        minHealth: 30,
         objects: {
-          "willow-thicket-swale": 1,
-          "beach-shrub": 2,
-          "dune-manzanita": 1
+          "shore-stick-nest": 1,
+          "shore-pine": 1
         },
-        signature: "willow-thicket-swale",
-        hint: "It wants a tangle, not a lawn \u2014 low dense scrub over damp ground. Berry-bearing shrubs behind it carry the bird through the winter."
+        signature: "shore-stick-nest",
+        hint: "A tall tree back from the beach to nest in, and a wrack line worth patrolling. It will find everything else on its own."
       },
       sources: [
         {
-          name: "All About Birds \u2014 Song Sparrow",
-          url: "https://www.allaboutbirds.org/guide/Song_Sparrow/lifehistory"
-        },
-        {
-          name: "Animal Diversity Web \u2014 Melospiza melodia",
-          url: "https://animaldiversity.org/accounts/Melospiza_melodia/"
+          name: "All About Birds \u2014 American Crow",
+          url: "https://www.allaboutbirds.org/guide/American_Crow/lifehistory"
         }
       ],
       biome: "coastal"
@@ -16748,7 +16825,7 @@ var animals_2_default = {
       kind: "invertebrate",
       trophic: "mesopredator",
       rarity: "uncommon",
-      diet: "Mussels above all, plus barnacles, limpets, chitons, snails and small urchins",
+      diet: "mussels above all, plus barnacles, limpets, chitons, snails and small urchins",
       shelter: "Damp surge channels and rock crevices at the lower edge of the mussel bed",
       preferredHabitat: "Wave-washed rocky intertidal with mussel beds above and surge below",
       fact: "This is the animal the word 'keystone' was invented for. Take the sea stars off a shore and within a couple of years the mussels spread down over everything else \u2014 which is precisely what happened when a wasting disease melted these stars by the million along thousands of miles of coast.",
@@ -16785,7 +16862,7 @@ var animals_2_default = {
         animals: [
           "mussel"
         ],
-        hint: "Build the mussel bed first. The sea star lives at its bottom edge \u2014 and that edge only exists because the sea star is standing on it."
+        hint: "Build the mussel bed first. It lives along the bed's bottom edge, and that edge only exists because something is holding it there."
       },
       sources: [
         {
@@ -16807,7 +16884,7 @@ var animals_2_default = {
       kind: "invertebrate",
       trophic: "mesopredator",
       rarity: "common",
-      diet: "Crabs, detached mussels and small fish stung by its tentacles",
+      diet: "crabs, detached mussels and small fish stung by its tentacles",
       shelter: "The walls and floors of surge-flushed pools, characteristically just below the mussel beds",
       preferredHabitat: "Clear, sunlit, surge-fed pools in the low zone",
       fact: "That glowing green comes from algae living inside the anemone's own body, making sugar out of sunlight and handing it over like rent. An anemone stuck in the shade goes pale and goes hungry.",
@@ -16858,7 +16935,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "omnivore",
       rarity: "uncommon",
-      diet: "Small fish carried crosswise in its beak, plus shrimp and other small swimmers",
+      diet: "small fish carried crosswise in its beak, plus shrimp and other small swimmers",
       shelter: "A burrow dug a metre back into the turf on top of a sea cliff",
       preferredHabitat: "Grassy clifftops above deep water, with soil soft enough to dig",
       fact: "A puffin can hold a dozen fish crosswise in its beak at once without dropping any \u2014 backward-pointing spines on its tongue and the roof of its mouth pin each one while it catches the next.",
@@ -16896,8 +16973,7 @@ var animals_2_default = {
           url: "https://www.allaboutbirds.org/guide/Tufted_Puffin/lifehistory"
         }
       ],
-      biome: "coastal",
-      ocean: true
+      biome: "coastal"
     },
     {
       id: "pelican",
@@ -16906,7 +16982,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "mesopredator",
       rarity: "uncommon",
-      diet: "Small schooling fish, especially northern anchovy",
+      diet: "small schooling fish, especially northern anchovy",
       shelter: "Nests only on undisturbed offshore islands; loafs on sandbars and rocks",
       preferredHabitat: "Anchovy-rich nearshore water within reach of an island colony",
       fact: "A brown pelican dives from sixty feet up and hits the water hard enough to stun fish \u2014 and it twists its body left just before impact so the blow does not break its neck.",
@@ -16933,7 +17009,7 @@ var animals_2_default = {
         animals: [
           "northern-anchovy"
         ],
-        hint: "An island the tide and the footpaths cannot reach, sandbars to loaf on, and anchovy schools in the water offshore."
+        hint: "An island the tide and the footpaths cannot reach, sandbars to loaf on, and it schools in the water offshore."
       },
       sources: [
         {
@@ -16946,7 +17022,8 @@ var animals_2_default = {
         }
       ],
       biome: "coastal",
-      ocean: true
+      ocean: true,
+      amphibious: true
     },
     {
       id: "sea-otter",
@@ -16955,7 +17032,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "apex-predator",
       rarity: "rare",
-      diet: "Sea urchins above all, plus mussels, crabs and sea stars",
+      diet: "sea urchins above all, plus mussels, crabs and sea stars",
       shelter: "Rafts wrapped in living surface kelp canopy, in coves calm enough to groom in",
       preferredHabitat: "Kelp forest and rocky shore with abundant shellfish and calm rafting water",
       fact: "A sea otter has no blubber at all \u2014 just the thickest fur on Earth, about a million hairs in a patch the size of a postage stamp \u2014 so it spends hours a day combing air into its coat, and wraps itself in kelp so it does not drift away while it sleeps.",
@@ -17001,7 +17078,8 @@ var animals_2_default = {
         }
       ],
       biome: "coastal",
-      ocean: true
+      ocean: true,
+      amphibious: true
     },
     {
       id: "harbor-seal",
@@ -17010,7 +17088,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "apex-predator",
       rarity: "rare",
-      diet: "Fish, especially anchovy and flatfish, plus squid, octopus and crustaceans",
+      diet: "fish, especially anchovy and flatfish, plus squid, octopus and crustaceans",
       shelter: "Undisturbed low-tide rocks and sandbars used as haul-outs for resting and pupping",
       preferredHabitat: "Calm, clean water beside a haul-out nobody walks up to",
       fact: "Harbor seals can sleep at sea, hanging upright just below the surface like bottles and bobbing up for a breath without properly waking.",
@@ -17053,7 +17131,8 @@ var animals_2_default = {
         }
       ],
       biome: "coastal",
-      ocean: true
+      ocean: true,
+      amphibious: true
     },
     {
       id: "desert-termite",
@@ -17062,7 +17141,7 @@ var animals_2_default = {
       kind: "insect",
       trophic: "decomposer",
       rarity: "common",
-      diet: "Dead grass, fallen leaves, dry dung and the weathered outsides of dead wood",
+      diet: "dead grass, fallen leaves, dry dung and the weathered outsides of dead wood",
       shelter: "Tunnels and chambers underground, plus mud sheeting built over whatever it is eating",
       preferredHabitat: "Soil beneath shrubs and grasses where dead plant litter collects",
       fact: "These termites plaster a thin mud roof over a dead stem and eat underneath it, so they can feed in full sun without ever touching the dry air.",
@@ -17083,12 +17162,9 @@ var animals_2_default = {
       requirements: {
         minHealth: 8,
         objects: {
-          "buried-deadwood": 2,
-          "creosote-bush": 1,
-          "cryptobiotic-crust": 1
+          "buried-deadwood": 1
         },
-        signature: "buried-deadwood",
-        hint: "Push dead stems down into the soil. These termites never cross open ground \u2014 they come up at their food from below."
+        hint: "Bury a little dead wood and they will find it \u2014 dead wood is the desert\u2019s pantry."
       },
       sources: [
         {
@@ -17109,7 +17185,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "herbivore",
       rarity: "common",
-      diet: "Grasses, wildflowers, cactus pads, and the twigs and bark of desert shrubs",
+      diet: "grasses, wildflowers, cactus pads, and the twigs and bark of desert shrubs",
       shelter: "A shallow shaded scrape under a shrub; it never digs a burrow",
       preferredHabitat: "Open flats with scattered shrubs and room to run",
       fact: "Those enormous ears are radiators \u2014 a jackrabbit lies dead still in the shade and pours its body heat straight out through the blood vessels inside them.",
@@ -17156,7 +17232,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "herbivore",
       rarity: "common",
-      diet: "Seeds, carried home in fur-lined cheek pouches and buried in underground larders",
+      diet: "seeds, carried home in fur-lined cheek pouches and buried in underground larders",
       shelter: "Shallow burrows under shrubs and soil mounds, plugged with sand every dawn",
       preferredHabitat: "Loose soil under seed-bearing shrubs and mesquite",
       fact: "A kangaroo rat never drinks \u2014 it manufactures all the water it needs out of dry seeds \u2014 and it can leap sideways almost two metres to dodge a striking snake.",
@@ -17177,8 +17253,7 @@ var animals_2_default = {
         objects: {
           "seed-larder-burrow": 1,
           "creosote-mound": 1,
-          "bush-muhly": 1,
-          "mesquite-tree": 1
+          "bush-muhly": 1
         },
         signature: "seed-larder-burrow",
         hint: "Seed plants and soft diggable soil, especially the loose mounds heaped round a shrub's base. Build no water at all \u2014 this one may never take a drink in its life."
@@ -17202,7 +17277,7 @@ var animals_2_default = {
       kind: "reptile",
       trophic: "herbivore",
       rarity: "rare",
-      diet: "Native grasses, spring wildflowers, and cactus pads and fruit",
+      diet: "native grasses, spring wildflowers, and cactus pads and fruit",
       shelter: "Caliche caves, rock crevices and dens under boulders on rocky slopes",
       preferredHabitat: "Rocky slopes with native grasses and wildflowers",
       fact: "A desert tortoise can live 80 years and spends about 95 of every 100 days of it underground \u2014 and it carries a bladder of stored water it can live off for a year if the rains fail.",
@@ -17220,7 +17295,6 @@ var animals_2_default = {
         minHealth: 50,
         objects: {
           "caliche-shelter-cave": 1,
-          "bush-muhly": 2,
           "desert-marigold": 1
         },
         signature: "caliche-shelter-cave",
@@ -17245,7 +17319,7 @@ var animals_2_default = {
       kind: "insect",
       trophic: "herbivore",
       rarity: "common",
-      diet: "Pollen and nectar from prickly pear and cholla flowers",
+      diet: "pollen and nectar from prickly pear and cholla flowers",
       shelter: "A vertical nest shaft dug in bare, loose ground, often with a little mud chimney over the door",
       preferredHabitat: "Blooming prickly pear and cholla beside open, undisturbed soil",
       fact: "Every female digs her own nest and stocks it herself \u2014 but thousands of these single mothers dig side by side in the same patch of bare ground, so the whole ground hums.",
@@ -17288,7 +17362,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "herbivore",
       rarity: "uncommon",
-      diet: "Nectar from chuparosa, ocotillo and creosote flowers, plus small insects and spiders",
+      diet: "nectar from chuparosa, ocotillo and creosote flowers, plus small insects and spiders",
       shelter: "A thimble-sized cup of plant down and spider silk in a low shrub",
       preferredHabitat: "Washes and flats with shrubs that flower in winter and spring",
       fact: "The male dives past the female at full speed and shrieks \u2014 except the shriek comes from his tail feathers, not his throat \u2014 while flaring a violet moustache of feathers out sideways.",
@@ -17306,8 +17380,7 @@ var animals_2_default = {
         minHealth: 40,
         objects: {
           chuparosa: 2,
-          ocotillo: 1,
-          "creosote-bush": 1
+          ocotillo: 1
         },
         signature: "chuparosa",
         hint: "Real flowers beat a feeder every time: chuparosa blooms right through the desert winter, and ocotillo takes over in spring."
@@ -17331,7 +17404,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "herbivore",
       rarity: "common",
-      diet: "Seeds, green leaves and cactus fruit \u2014 and, for the first weeks of life only, insects",
+      diet: "seeds, green leaves and cactus fruit \u2014 and, for the first weeks of life only, insects",
       shelter: "A ground nest tucked under a shrub; the covey roosts up inside thorny cover at night",
       preferredHabitat: "Thorny thickets along washes, within walking distance of water",
       fact: "One male stands sentry on a high branch with that comma of feathers bobbing on his forehead while the rest of the covey feeds below, and when he calls the alarm the whole group runs \u2014 quail would nearly always rather sprint than fly.",
@@ -17380,7 +17453,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "omnivore",
       rarity: "uncommon",
-      diet: "Insects, cactus fruit and mistletoe berries",
+      diet: "insects, cactus fruit and mistletoe berries",
       shelter: "Cavities it chisels out of living saguaros",
       preferredHabitat: "Saguaro stands with mesquite and washes nearby",
       fact: "It chisels a hole into a living cactus and then waits months, doing nothing, while the plant seals the raw walls with hard scar tissue \u2014 only then will it move in.",
@@ -17397,8 +17470,7 @@ var animals_2_default = {
         minHealth: 50,
         objects: {
           "saguaro-fruit-fall": 1,
-          saguaro: 2,
-          "mesquite-tree": 1
+          saguaro: 2
         },
         signature: "saguaro-fruit-fall",
         hint: "Tall cactus to carve and split fruit to eat. A pad cactus is far too small \u2014 only a great column can hold a nest hole."
@@ -17422,7 +17494,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "omnivore",
       rarity: "uncommon",
-      diet: "Mistletoe berries in winter, flying insects the rest of the year",
+      diet: "mistletoe berries in winter, flying insects the rest of the year",
       shelter: "A small cup nest in a mesquite or ironwood, usually hidden in a clump of mistletoe",
       preferredHabitat: "Mesquite stands carrying mistletoe, with water nearby",
       fact: "A phainopepla can put away more than a thousand mistletoe berries in a single day, and the seeds come out the other end still sticky \u2014 so the bird glues the next generation of mistletoe onto branches as it flies.",
@@ -17467,7 +17539,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "herbivore",
       rarity: "common",
-      diet: "Cactus fruit, seeds and green shoots, with the odd insect",
+      diet: "cactus fruit, seeds and green shoots, with the odd insect",
       shelter: "Burrows and cracks under rocks and cactus",
       preferredHabitat: "Rocky ground with cactus in fruit",
       fact: "It runs with its tail flipped flat over its back like a tiny parasol, then throws itself belly-down on cool shaded ground to dump the heat it picked up on the way.",
@@ -17489,8 +17561,7 @@ var animals_2_default = {
         minHealth: 38,
         objects: {
           "pollinated-cactus-fruit": 1,
-          "burrow-mound": 1,
-          "cactus-patch": 1
+          "burrow-mound": 1
         },
         signature: "pollinated-cactus-fruit",
         hint: "Dry seeds alone will not keep it alive \u2014 it needs juicy fruit, and that means welcoming the bees before the squirrel."
@@ -17514,7 +17585,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "insectivore",
       rarity: "common",
-      diet: "Insects and spiders, with some cactus fruit and seeds",
+      diet: "insects and spiders, with some cactus fruit and seeds",
       shelter: "Football-shaped grass nests built deep inside a cholla",
       preferredHabitat: "Desert with dense cholla and scattered trees",
       fact: "A cactus wren builds several football-shaped nests and keeps the spare ones as bedrooms all year, so it goes to sleep surrounded on every side by cactus spines.",
@@ -17560,7 +17631,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "insectivore",
       rarity: "uncommon",
-      diet: "Big insects \u2014 termites, grasshoppers and crickets \u2014 plus small rodents and scorpions",
+      diet: "big insects \u2014 termites, grasshoppers and crickets \u2014 plus small rodents and scorpions",
       shelter: "Underground burrows dug by somebody else; it cannot dig its own",
       preferredHabitat: "Open ground with low, sparse plants and ready-made burrows",
       fact: "Corner a burrowing owl down its hole and it hisses like a rattlesnake \u2014 biologists think it is doing an impression, and whatever is digging usually decides not to.",
@@ -17609,7 +17680,7 @@ var animals_2_default = {
       kind: "reptile",
       trophic: "insectivore",
       rarity: "common",
-      diet: "Harvester ants above all \u2014 about nine mouthfuls in ten \u2014 plus termites and a few other insects",
+      diet: "harvester ants above all \u2014 about nine mouthfuls in ten \u2014 plus termites and a few other insects",
       shelter: "Shuffles itself down into loose sand; shelters under low shrubs",
       preferredHabitat: "Open sandy ground between shrubs, near harvester ant mounds",
       fact: "Cornered, a horned lizard squirts a jet of its own blood out of the corners of its eyes \u2014 it can carry a metre \u2014 and it tastes so foul that a fox will spit and keep spitting for minutes.",
@@ -17630,11 +17701,10 @@ var animals_2_default = {
         minHealth: 16,
         objects: {
           "harvester-ant-mound": 2,
-          "bare-ground-patch": 1,
-          "creosote-bush": 1
+          "bare-ground-patch": 1
         },
         signature: "harvester-ant-mound",
-        hint: "No ants, no horned lizard. Leave the gaps between the shrubs bare and open \u2014 that is exactly where harvester ants clear their mounds."
+        hint: "No ants, no it. Leave the gaps between the shrubs bare and open \u2014 that is exactly where harvester ants clear their mounds."
       },
       sources: [
         {
@@ -17655,7 +17725,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "scavenger",
       rarity: "common",
-      diet: "Carrion above all, plus eggs, nestlings, young reptiles, insects and cactus fruit",
+      diet: "carrion above all, plus eggs, nestlings, young reptiles, insects and cactus fruit",
       shelter: "Bulky stick nests on cliffs and in tall cactus and ironwoods \u2014 and, more and more, on power poles",
       preferredHabitat: "Open desert with tall nest structures and a reliable food supply",
       fact: "Ravens remember individual human faces and hold the grudge for years, and a pair will run a con together \u2014 one bird makes a nuisance of itself while the other robs the food.",
@@ -17692,7 +17762,7 @@ var animals_2_default = {
           "dew-basin": 1
         },
         signature: "carrion-patch",
-        hint: "Ravens follow whatever gets left lying around: a carcass, a tall perch, something to drink. That is all they ask for \u2014 which is exactly the trouble."
+        hint: "They follow whatever gets left lying around: a carcass, a tall perch, something to drink. That is all they ask for \u2014 which is exactly the trouble."
       },
       sources: [
         {
@@ -17713,7 +17783,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "mesopredator",
       rarity: "uncommon",
-      diet: "Lizards, big insects, millipedes, scorpions, tarantulas, small birds, rodents and snakes",
+      diet: "lizards, big insects, millipedes, scorpions, tarantulas, small birds, rodents and snakes",
       shelter: "A bulky stick nest a metre or two up inside a thorny shrub or cholla",
       preferredHabitat: "Open running ground broken up by thorny thickets",
       fact: "A roadrunner can outrun you \u2014 over 30 km an hour on two legs \u2014 and it kills a rattlesnake by grabbing it behind the head and beating it against a rock until it stops moving.",
@@ -17772,7 +17842,7 @@ var animals_2_default = {
       kind: "reptile",
       trophic: "mesopredator",
       rarity: "rare",
-      diet: "Rodents and small mammals, with birds and lizards taken now and then",
+      diet: "rodents and small mammals, with birds and lizards taken now and then",
       shelter: "Rock crevices and burrows; a deep frost-free fissure all winter",
       preferredHabitat: "Rocky shelter within striking distance of busy rodent trails",
       fact: "A rattlesnake adds a new rattle segment every time it sheds, but the old ones keep snapping off \u2014 so counting the rattles tells you nothing whatsoever about its age.",
@@ -17830,7 +17900,7 @@ var animals_2_default = {
       kind: "invertebrate",
       trophic: "insectivore",
       rarity: "common",
-      diet: "Millipedes, termites, crickets, spiders, tarantulas and other scorpions",
+      diet: "millipedes, termites, crickets, spiders, tarantulas and other scorpions",
       shelter: "A spiral burrow it digs itself, as much as two and a half metres deep",
       preferredHabitat: "Loose diggable soil with litter and stone cover to hunt across at night",
       fact: "Scorpions glow an eerie blue-green under ultraviolet light, and after decades of looking at it nobody can say for certain why.",
@@ -17855,7 +17925,6 @@ var animals_2_default = {
         minHealth: 18,
         objects: {
           "deep-sand-burrow": 1,
-          "rock-pile": 1,
           "creosote-bush": 1
         },
         signature: "deep-sand-burrow",
@@ -17883,7 +17952,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "mesopredator",
       rarity: "rare",
-      diet: "Moths, beetles, crickets and scorpions",
+      diet: "moths, beetles, crickets and scorpions",
       shelter: "Old woodpecker holes in cactus and desert trees; it cannot carve its own",
       preferredHabitat: "Saguaro stands and mesquite washes full of old woodpecker holes",
       fact: "The smallest owl in the world weighs about as much as a golf ball, and it nips the stinger off a scorpion before carrying the rest home to its chicks.",
@@ -17905,7 +17974,7 @@ var animals_2_default = {
           "mesquite-tree": 1
         },
         signature: "saguaro-boot",
-        hint: "Cactus alone will not do it \u2014 a woodpecker has to drill the hole first and let the plant seal it into a boot the owl can move into.",
+        hint: "Cactus alone will not do. A woodpecker has to drill the hole first and let the plant seal it into a boot.",
         animals: [
           "scorpion"
         ],
@@ -17938,7 +18007,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "mesopredator",
       rarity: "rare",
-      diet: "Kangaroo rats and other rodents, jackrabbits, squirrels, lizards, insects and some fruit",
+      diet: "kangaroo rats and other rodents, jackrabbits, squirrels, lizards, insects and some fruit",
       shelter: "A cool underground den with several doors, usually a rodent burrow it has widened",
       preferredHabitat: "Open desert with loose soil and plenty of small prey",
       fact: "The smallest wild dog here weighs less than a house cat, and its ridiculous ears do two jobs at once: hearing a mouse move underground, and shedding body heat like radiators.",
@@ -17965,7 +18034,7 @@ var animals_2_default = {
           "burrow-mound": 1
         },
         signature: "kit-fox-den",
-        hint: "Rodents first \u2014 the fox's den is a kangaroo rat's burrow made bigger. It never needs a drink you provide.",
+        hint: "Rodents first \u2014 its den is a borrowed burrow made bigger. It never needs a drink you provide.",
         animals: [
           "kangaroo-rat",
           "jackrabbit"
@@ -17996,7 +18065,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "apex-predator",
       rarity: "rare",
-      diet: "Voles, rabbits and ground squirrels; deer fawns; also fruit, insects and carrion",
+      diet: "voles, rabbits and ground squirrels; deer fawns; also fruit, insects and carrion",
       shelter: "Raises pups in a den dug into a brushy bank, often an enlarged badger or fox burrow",
       preferredHabitat: "Open grassland and edges with brushy cover for a den and water within reach",
       fact: "Three coyotes can sound like a dozen. Each one slides its pitch around while it howls, so a small family throws up a wall of voices \u2014 biologists call it the 'beau geste' effect.",
@@ -18015,7 +18084,9 @@ var animals_2_default = {
         {
           id: "mule-deer",
           stage: "young"
-        }
+        },
+        "groundhog",
+        "opossum"
       ],
       eatsOther: [
         "berries",
@@ -18041,7 +18112,7 @@ var animals_2_default = {
           "cottontail-rabbit",
           "meadow-vole"
         ],
-        hint: "A den bank tucked into brushy cover, wide grass full of rabbits and voles, and water within reach. Coyotes are the last piece \u2014 they only settle where there is already plenty to eat."
+        hint: "A den bank tucked into brushy cover, wide grass full of rabbits and voles, and water within reach. they are the last piece \u2014 they only settle where there is already plenty to eat."
       },
       sources: [
         {
@@ -18062,7 +18133,7 @@ var animals_2_default = {
       kind: "insect",
       trophic: "herbivore",
       rarity: "uncommon",
-      diet: "As a caterpillar, tree leaves \u2014 oak, birch, hickory, maple, willow. The adult moth has no working mouth and never eats anything at all.",
+      diet: "as a caterpillar, tree leaves \u2014 oak, birch, hickory, maple, willow. The adult moth has no working mouth and never eats anything at all.",
       shelter: "Spins a tough silk cocoon wrapped in a leaf; the cocoon falls with the leaves in autumn and overwinters on the forest floor.",
       preferredHabitat: "Broadleaf woodland and woodland edge with oak, birch and hickory, and an undisturbed litter layer beneath them.",
       fact: "The adult moth has no mouth. It cannot eat a single thing \u2014 everything it will ever spend finding a mate and laying eggs was eaten months earlier, by the caterpillar.",
@@ -18126,7 +18197,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "herbivore",
       rarity: "uncommon",
-      diet: "Acorns, seeds and aquatic plants; ducklings eat insects and snails for their first weeks",
+      diet: "acorns, seeds and aquatic plants; ducklings eat insects and snails for their first weeks",
       shelter: "Obligate cavity nester \u2014 old woodpecker holes and natural hollows in trees over or beside water",
       preferredHabitat: "Wooded ponds, sloughs and slow backwaters with big cavity trees standing in or near the water",
       fact: "A wood duckling leaves home the day after it hatches by jumping out of a hole up to fifty feet up, bouncing off the ground or water, and walking away unhurt.",
@@ -18164,7 +18235,7 @@ var animals_2_default = {
         water: {
           lake: 4
         },
-        hint: "An old woodpecker hole in a snag standing over quiet water, with oaks nearby for acorns. No woodpecker, no wood duck."
+        hint: "An old woodpecker hole in a snag standing over quiet water, with oaks nearby for acorns."
       },
       sources: [
         {
@@ -18185,7 +18256,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "herbivore",
       rarity: "rare",
-      diet: "Mostly underground truffle fungi; also lichens, acorns, tree seeds and some insects",
+      diet: "mostly underground truffle fungi; also lichens, acorns, tree seeds and some insects",
       shelter: "Old woodpecker cavities and natural hollows; huddles in groups through winter to stay warm",
       preferredHabitat: "Cool, closed-canopy hemlock and hardwood forest with old cavity trees and a deep fungal layer in the soil",
       fact: "Flying squirrels do not fly, they glide \u2014 and under ultraviolet light their fur glows bubblegum pink, something nobody noticed until a researcher pointed a UV torch into the trees a few years ago.",
@@ -18216,7 +18287,7 @@ var animals_2_default = {
         animals: [
           "pileated-woodpecker"
         ],
-        hint: "Truffles in the soil to dig up and an old woodpecker hole to sleep in \u2014 this squirrel makes neither for itself."
+        hint: "Truffles in the soil to dig up and an old woodpecker hole to sleep in. It makes neither for itself."
       },
       sources: [
         {
@@ -18237,7 +18308,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "insectivore",
       rarity: "uncommon",
-      diet: "Carpenter ants and wood-boring beetle larvae above all; also berries and nuts",
+      diet: "carpenter ants and wood-boring beetle larvae above all; also berries and nuts",
       shelter: "Excavates a new rectangular nest cavity each year in a large dead snag, and leaves last year's behind",
       preferredHabitat: "Mature forest with large-diameter standing snags and plenty of big fallen logs on the ground",
       fact: "A pileated woodpecker chisels rectangular holes so deep into rotten trunks that a small tree can snap in half where it has been working.",
@@ -18290,7 +18361,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "insectivore",
       rarity: "common",
-      diet: "Beetle grubs and insects dug out of the soil, plus eggs, berries and mice",
+      diet: "beetle grubs and insects dug out of the soil, plus eggs, berries and mice",
       shelter: "A borrowed burrow or a hollow under a log, plugged with leaves in the coldest weeks",
       preferredHabitat: "Forest edges and clearings with soft diggable ground and plenty of cover",
       fact: "A skunk would much rather not spray you. First it stamps its front feet, then it hisses, then it does a handstand \u2014 and only if you ignore all three does it turn around and fire, accurately, from about three metres.",
@@ -18317,7 +18388,7 @@ var animals_2_default = {
           "brush-pile": 1
         },
         signature: "grub-digging-ground",
-        hint: "Soft, diggable earth full of grubs, and a hollow log to sleep the day away in. Skunks want somewhere to dig more than somewhere to hide."
+        hint: "Soft, diggable earth full of grubs, and a hollow log to sleep the day away in. they want somewhere to dig more than somewhere to hide."
       },
       sources: [
         {
@@ -18334,7 +18405,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "mesopredator",
       rarity: "rare",
-      diet: "Small and medium mammals \u2014 porcupines, squirrels, hares \u2014 plus birds, carrion and fruit",
+      diet: "small and medium mammals \u2014 porcupines, squirrels, hares \u2014 plus birds, carrion and fruit",
       shelter: "Dens in hollow logs and ground burrows; kits are raised in a cavity high inside a living tree",
       preferredHabitat: "Unbroken conifer and mixed forest with a closed canopy and large hollow trees",
       fact: "The fisher is one of the only animals that eats porcupines. It circles round to the face \u2014 the one place with no quills \u2014 and keeps biting until it can flip the porcupine over and reach the belly.",
@@ -18368,7 +18439,7 @@ var animals_2_default = {
           "porcupine",
           "tree-squirrel"
         ],
-        hint: "Closed canopy overhead, a big living tree hollow enough to raise kits high off the ground, and porcupines below to hunt."
+        hint: "Closed canopy overhead, a big living tree hollow enough to raise kits high off the ground, and they below to hunt."
       },
       sources: [
         {
@@ -18389,7 +18460,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "herbivore",
       rarity: "common",
-      diet: "Almost entirely seeds \u2014 thistle, sunflower, aster and grass seed",
+      diet: "almost entirely seeds \u2014 thistle, sunflower, aster and grass seed",
       shelter: "A tight cup nest lashed a few feet up in a shrub, bound with spider silk and lined with thistle down",
       preferredHabitat: "Weedy fields and open ground with native thistle, sunflower and asters left standing",
       fact: "Goldfinches are such strict vegetarians that a cowbird chick sneaked into a goldfinch nest starves \u2014 it cannot survive on an all-seed diet.",
@@ -18431,7 +18502,7 @@ var animals_2_default = {
       kind: "insect",
       trophic: "insectivore",
       rarity: "uncommon",
-      diet: "Live insects seized by ambush \u2014 grasshoppers, bees, butterflies and anything else that walks past",
+      diet: "live insects seized by ambush \u2014 grasshoppers, bees, butterflies and anything else that walks past",
       shelter: "Perches motionless on plants; glues a foam egg case to a stiff standing stem for the winter",
       preferredHabitat: "Meadows and flowery edges with standing vegetation to ambush from",
       fact: "A mantis has one ear, in the middle of its chest, and it is tuned to bat calls. When it hears a bat hunting it folds its wings and power-dives out of the sky.",
@@ -18460,8 +18531,7 @@ var animals_2_default = {
         {
           id: "western-meadowlark",
           stage: "young"
-        },
-        "shrike"
+        }
       ],
       requirements: {
         minHealth: 24,
@@ -18492,7 +18562,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "insectivore",
       rarity: "uncommon",
-      diet: "Ground insects \u2014 caterpillars, beetles, grasshoppers \u2014 plus berries in winter",
+      diet: "ground insects \u2014 caterpillars, beetles, grasshoppers \u2014 plus berries in winter",
       shelter: "Grass-lined nest inside a tree cavity, an old woodpecker hole or a nest box",
       preferredHabitat: "Grassy openings with scattered trees and low perches to drop from",
       fact: "A bluebird can spot a caterpillar on the ground from the top of a fencepost twenty metres away, drop on it, and be back on the post before you've noticed it left.",
@@ -18517,7 +18587,6 @@ var animals_2_default = {
         minHealth: 55,
         objects: {
           "bluebird-nest-box": 1,
-          "native-grass-patch": 1,
           "berry-bush": 1,
           "bird-perch": 1
         },
@@ -18543,7 +18612,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "mesopredator",
       rarity: "rare",
-      diet: "Ground squirrels, gophers, voles and mice dug straight out of their tunnels; also insects and bumble bee nests",
+      diet: "ground squirrels, gophers, voles and mice dug straight out of their tunnels; also insects and bumble bee nests",
       shelter: "Digs its own large burrows; one of the fastest excavators alive",
       preferredHabitat: "Open grassland with deep, stone-free, diggable soil and a rodent colony to work",
       fact: "A badger can dig itself completely out of sight in under a minute \u2014 and it sometimes hunts alongside a coyote, the badger going in from below while the coyote grabs whatever bolts out of the top.",
@@ -18581,7 +18650,7 @@ var animals_2_default = {
           "ground-squirrel",
           "meadow-vole"
         ],
-        hint: "Deep stone-free soil it can tear through, wide grass on top, and a ground squirrel colony to hunt. Rock piles are the one thing badger country doesn't have."
+        hint: "Deep stone-free soil it can tear through, wide grass on top, and a ground squirrel colony to hunt. Rock piles are the opposite of what it wants."
       },
       sources: [
         {
@@ -18602,7 +18671,7 @@ var animals_2_default = {
       kind: "invertebrate",
       trophic: "detritivore",
       rarity: "common",
-      diet: "Dead leaves and stems, the fungi and bacteria growing on them, and algal film scraped off plants.",
+      diet: "dead leaves and stems, the fungi and bacteria growing on them, and algal film scraped off plants.",
       shelter: "Among submerged litter, plant stems and the loose top layer of sediment.",
       preferredHabitat: "Shallow, well-oxygenated water with a deep drift of decaying plant litter.",
       fact: "Freshwater shrimp swim on their sides, and males carry females around piggyback for days before they mate. Lift a handful of soggy leaves out of a pond and dozens of them will be flicking about in it.",
@@ -18623,15 +18692,12 @@ var animals_2_default = {
       requirements: {
         minHealth: 16,
         objects: {
-          "detritus-drift": 2,
-          "reed-bed": 1,
-          "mud-bank": 1
+          "detritus-drift": 1
         },
-        signature: "detritus-drift",
         water: {
           tiles: 2
         },
-        hint: "Let the dead cattail leaves pile up underwater. Freshwater shrimp live down in the litter, not out in the open water."
+        hint: "A drift of rotting leaves in still water is all they need."
       },
       sources: [
         {
@@ -18653,7 +18719,7 @@ var animals_2_default = {
       kind: "invertebrate",
       trophic: "detritivore",
       rarity: "common",
-      diet: "Decaying plants and carcasses, live aquatic plants, snails, insect larvae and freshwater shrimp.",
+      diet: "decaying plants and carcasses, live aquatic plants, snails, insect larvae and freshwater shrimp.",
       shelter: "Burrows dug into saturated banks, and gaps beneath sunken logs and stones.",
       preferredHabitat: "Slow, weedy water with woody cover and a bank soft enough to dig into.",
       fact: "Lose a claw in a fight and a crayfish just grows a new one, a little bigger at every moult, until it matches the old one. Startle it and it flips its tail and rockets backwards faster than you can grab.",
@@ -18708,7 +18774,7 @@ var animals_2_default = {
       kind: "invertebrate",
       trophic: "filter-feeder",
       rarity: "uncommon",
-      diet: "Algae, bacteria and fine dead particles strained out of the water.",
+      diet: "algae, bacteria and fine dead particles strained out of the water.",
       shelter: "Burrowed upright in stable fine sediment with only its two siphons showing.",
       preferredHabitat: "Slow, settled water over firm silt and fine sand.",
       fact: "A baby mussel has to hitchhike. It clamps onto the gills of a passing fish and rides there for weeks before dropping off to start life on the bottom \u2014 and some mother mussels wave a flap of flesh shaped like a little fish to lure a host in close.",
@@ -18727,7 +18793,6 @@ var animals_2_default = {
         minHealth: 42,
         objects: {
           "stable-silt-shoal": 2,
-          "shallow-water-pool": 2,
           "marsh-log": 1
         },
         signature: "stable-silt-shoal",
@@ -18737,7 +18802,7 @@ var animals_2_default = {
         animals: [
           "freshwater-fish"
         ],
-        hint: "A settled bed that stays put for years \u2014 and fish, because young mussels ride to their new home clamped to fish gills."
+        hint: "A settled bed that stays put for years \u2014 and fish, because young they ride to their new home clamped to fish gills."
       },
       sources: [
         {
@@ -18759,7 +18824,7 @@ var animals_2_default = {
       kind: "amphibian",
       trophic: "insectivore",
       rarity: "common",
-      diet: "Insects, spiders and worms taken in wet meadows and along the water's edge",
+      diet: "insects, spiders and worms taken in wet meadows and along the water's edge",
       shelter: "Shallow water in spring; damp grassy meadow through the summer",
       preferredHabitat: "Lily-fringed shallows with wet meadow beside them",
       fact: "A startled leopard frog leaps in zig-zags away from the water instead of towards it \u2014 and the second it lands in long grass those big dark spots break its outline up and it vanishes.",
@@ -18816,7 +18881,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "insectivore",
       rarity: "common",
-      diet: "Insects and spiders picked from marsh stems",
+      diet: "insects and spiders picked from marsh stems",
       shelter: "Woven dome nests lashed among cattails and bulrushes",
       preferredHabitat: "Cattail and bulrush stands over water",
       fact: "A male marsh wren builds up to a dozen empty practice nests for one female to come and inspect \u2014 and while he is at it he will sneak into a neighbour's nest and punch holes in the eggs.",
@@ -18836,8 +18901,7 @@ var animals_2_default = {
         minHealth: 44,
         objects: {
           bulrush: 2,
-          "cattail-stand": 2,
-          "reed-bed": 1
+          "cattail-stand": 2
         },
         signature: "bulrush",
         water: {
@@ -18864,7 +18928,7 @@ var animals_2_default = {
       kind: "reptile",
       trophic: "scavenger",
       rarity: "uncommon",
-      diet: "Carrion, fish, crayfish, aquatic plants and almost anything else it can catch",
+      diet: "carrion, fish, crayfish, aquatic plants and almost anything else it can catch",
       shelter: "Muddy pond bottoms; females travel overland to sandy banks to nest",
       preferredHabitat: "Deep still water with a soft mud bottom and a sandy rise to nest on",
       fact: "A snapping turtle is too big to pull into its own shell, so it does not bother trying. Underwater it is calm and shy and will swim away from you \u2014 the famous snap only comes out when it is stranded on dry land with nowhere left to hide.",
@@ -18888,9 +18952,7 @@ var animals_2_default = {
         minHealth: 58,
         objects: {
           "sandy-nest-bank": 1,
-          "mud-bank": 1,
-          "beaver-pond": 1,
-          "marsh-log": 1
+          "beaver-pond": 1
         },
         signature: "sandy-nest-bank",
         water: {
@@ -18921,7 +18983,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "mesopredator",
       rarity: "uncommon",
-      diet: "Small fish and crayfish",
+      diet: "small fish and crayfish",
       shelter: "Tunnel burrows dug a metre or more into bare earthen banks",
       preferredHabitat: "Clear water with a bare vertical bank beside it and perches overhead",
       fact: "A kingfisher shuts its eyes just before it hits the water, so the last part of the dive is flown blind from memory. Then it whacks the fish against a branch and swallows it head-first so the fins fold the right way.",
@@ -18968,7 +19030,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "mesopredator",
       rarity: "uncommon",
-      diet: "Small fish, crayfish, dragonfly nymphs and other aquatic insects",
+      diet: "small fish, crayfish, dragonfly nymphs and other aquatic insects",
       shelter: "Tree cavities in standing dead timber over or beside water",
       preferredHabitat: "Quiet ponds with drowned standing trees",
       fact: "Merganser ducklings jump out of a tree hole up to fifteen metres above the ground the day after they hatch, bounce off the leaf litter unhurt, and are diving for their own food within a day of landing.",
@@ -19004,7 +19066,7 @@ var animals_2_default = {
           "freshwater-fish",
           "crayfish"
         ],
-        hint: "A beaver pond with dead trees still standing in it. The hen wants a hole in a drowned alder \u2014 a nest box is only a stand-in."
+        hint: "A wooded pond with dead trees still standing in it. The hen wants a hole in a drowned alder \u2014 a nest box is only a stand-in."
       },
       sources: [
         {
@@ -19025,7 +19087,7 @@ var animals_2_default = {
       kind: "invertebrate",
       trophic: "detritivore",
       rarity: "common",
-      diet: "Dead leaves, rotting wood, grass thatch and fungal threads; also droppings and old bones for minerals",
+      diet: "dead leaves, rotting wood, grass thatch and fungal threads; also droppings and old bones for minerals",
       shelter: "Hides by day under crumbling logs, flat stones and deep litter, where the air stays damp",
       preferredHabitat: "Shaded, damp corners of meadow with rotting wood and a thick layer of dead plant litter",
       fact: "A pillbug is not an insect at all \u2014 it's a crustacean, closer kin to a crab than to a beetle, and it still breathes through gill-like flaps that have to stay wet.",
@@ -19043,9 +19105,7 @@ var animals_2_default = {
       requirements: {
         minHealth: 12,
         objects: {
-          "rotting-log-crumble": 1,
-          "fallen-branch-shelter": 1,
-          "native-grass-patch": 1
+          "rotting-log-crumble": 1
         },
         signature: "rotting-log-crumble",
         water: {
@@ -19072,7 +19132,7 @@ var animals_2_default = {
       kind: "invertebrate",
       trophic: "insectivore",
       rarity: "common",
-      diet: "Flying and jumping insects caught in the web \u2014 grasshoppers, bees, flies, moths",
+      diet: "flying and jumping insects caught in the web \u2014 grasshoppers, bees, flies, moths",
       shelter: "Hangs head-down at the hub of its own orb web, slung between tall standing stems",
       preferredHabitat: "Sunny meadow with tall stiff vegetation left standing and plenty of flying insects",
       fact: "This spider takes down most of its web every night and eats the old silk to build the next one \u2014 and it stitches a bold white zigzag through the middle that nobody has fully explained yet.",
@@ -19092,8 +19152,7 @@ var animals_2_default = {
         minHealth: 26,
         objects: {
           "orb-web-anchor-stems": 1,
-          "wildflower-patch": 1,
-          "native-grass-patch": 1
+          "wildflower-patch": 1
         },
         signature: "orb-web-anchor-stems",
         hint: "Tall stiff stems left standing, spaced far enough apart to sling a big web between them, with flowers close by to bring the insects in."
@@ -19117,7 +19176,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "insectivore",
       rarity: "uncommon",
-      diet: "Night-flying insects, especially beetles, plus moths, flying ants and midges",
+      diet: "night-flying insects, especially beetles, plus moths, flying ants and midges",
       shelter: "Roosts by day in warm dark spaces \u2014 barn lofts, attics, and under loose bark; hibernates in cold cracks",
       preferredHabitat: "Open meadow and hedgerow airspace to hunt over, with still water to drink from and a warm roost nearby",
       fact: "A big brown bat finds a moth in total darkness by shouting and listening to the echo \u2014 and it can pick out something no thicker than a pencil lead this way.",
@@ -19170,7 +19229,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "apex-predator",
       rarity: "rare",
-      diet: "Almost entirely small mammals under about 100 grams \u2014 voles, mice and shrews",
+      diet: "almost entirely small mammals under about 100 grams \u2014 voles, mice and shrews",
       shelter: "Nests and roosts in a dark high cavity: a barn loft, a hollow tree, or a large nest box. Builds nothing itself",
       preferredHabitat: "Wide open grassland to hunt over, with a dark cavity above ground to sleep and nest in",
       fact: "A barn owl can catch a mouse in complete darkness by sound alone. One ear sits higher than the other, so it hears in three dimensions \u2014 and the fringed edges of its wings mean the mouse never hears it coming.",
@@ -19180,7 +19239,8 @@ var animals_2_default = {
         {
           id: "cottontail-rabbit",
           stage: "young"
-        }
+        },
+        "opossum"
       ],
       eatsOther: [
         "mice",
@@ -19226,7 +19286,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "apex-predator",
       rarity: "rare",
-      diet: "Deer and wild sheep mostly, plus jackrabbits, foxes and anything else it can get close enough to",
+      diet: "deer and wild sheep mostly, plus jackrabbits, foxes and anything else it can get close enough to",
       shelter: "No fixed home; the kittens are hidden in a dry cave or overhang in a canyon wall",
       preferredHabitat: "Broken canyon country with ledges, boulders and brush to stalk through, and somewhere reliable to drink",
       fact: "The biggest cat out here cannot roar. It purrs like a house cat, screams like something out of a nightmare, and can jump five metres straight up onto a ledge from standing.",
@@ -19252,7 +19312,6 @@ var animals_2_default = {
         },
         objects: {
           "canyon-ledge-den": 1,
-          "rock-pile": 2,
           "mesquite-tree": 1,
           "dew-basin": 1
         },
@@ -19283,7 +19342,7 @@ var animals_2_default = {
       rarity: "common",
       featured: false,
       trophic: "detritivore",
-      diet: "Dead leaves, soft rotting stems, and the algae film on damp stones",
+      diet: "dead leaves, soft rotting stems, and the algae film on damp stones",
       shelter: "Seals itself to the underside of a damp log or stone and waits out dry weather",
       preferredHabitat: "Shady, damp corners with leaf litter and something chalky to rasp at",
       fact: "A snail carries its own house and can shut the door behind it \u2014 when things get dry it glues itself to a stone and sleeps until it rains, sometimes for months.",
@@ -19297,16 +19356,16 @@ var animals_2_default = {
       ],
       eatenBy: [
         "garter-snake-meadow",
-        "american-badger"
+        "american-badger",
+        "opossum"
       ],
       requirements: {
         minHealth: 8,
         objects: {
-          "damp-leaf-corner": 1,
-          "brush-pile": 1
+          "damp-leaf-corner": 1
         },
         signature: "damp-leaf-corner",
-        hint: "A shady damp corner where leaves are allowed to pile up and rot. Snails want the mess, not the tidy bit."
+        hint: "A shady damp corner where leaves are allowed to pile up and rot. they want the mess, not the tidy bit."
       },
       scientificName: "Cepaea nemoralis",
       sources: [
@@ -19323,7 +19382,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "herbivore",
       rarity: "rare",
-      diet: "Grasses, sedges and alpine forbs in summer; lichen, moss and shrub twigs scraped off rock in winter",
+      diet: "grasses, sedges and alpine forbs in summer; lichen, moss and shrub twigs scraped off rock in winter",
       shelter: "Beds scraped out on narrow cliff ledges and in shallow caves under overhangs",
       preferredHabitat: "The steepest broken cliff and ledge ground above the treeline, with turf to graze and a mineral seep within reach",
       fact: "A mountain goat's hooves split apart as it steps, gripping stone like the rubber on climbing shoes, and it will sleep on a ledge no wider than a doormat with a 300-metre drop underneath it.",
@@ -19372,7 +19431,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "apex-predator",
       rarity: "rare",
-      diet: "Marmots, hares and ptarmigan when it can catch them, frozen carcasses when it cannot, and berries in late summer",
+      diet: "marmots, hares and ptarmigan when it can catch them, frozen carcasses when it cannot, and berries in late summer",
       shelter: "Tunnels dug metres down into deep spring drifts, usually around a fallen boulder or log, with food stored in side chambers",
       preferredHabitat: "Big, empty, high country with talus and broken rock, and snow that lasts into late spring",
       fact: "A wolverine can smell a dead animal buried under three metres of snow, dig it out, and then drive a bear off it, all in a body about the size of a small dog.",
@@ -19399,7 +19458,6 @@ var animals_2_default = {
         objects: {
           "deep-snow-den": 1,
           "talus-pile": 2,
-          "scree-slope": 2,
           "subalpine-fir": 1
         },
         signature: "deep-snow-den",
@@ -19410,7 +19468,7 @@ var animals_2_default = {
         water: {
           tiles: 1
         },
-        hint: "Wolverines need space and snow, not scenery. Give it drifts deep enough to last into late spring for the den and the larder, broken rock to travel through, and marmots and hares already on the mountain. It is the last of the hunters to arrive."
+        hint: "They need space and snow, not scenery. Give it drifts deep enough to last into late spring for the den and the larder, broken rock to travel through, and marmots and hares already on the mountain. It is the last of the hunters to arrive."
       },
       sources: [
         {
@@ -19431,7 +19489,7 @@ var animals_2_default = {
       kind: "reptile",
       trophic: "herbivore",
       rarity: "rare",
-      diet: "Seagrass above all \u2014 eelgrass and surfgrass \u2014 plus sea lettuce and other soft algae",
+      diet: "seagrass above all \u2014 eelgrass and surfgrass \u2014 plus sea lettuce and other soft algae",
       shelter: "Sleeps wedged under ledges or resting on quiet sand and gravel bottom between grazing trips",
       preferredHabitat: "Warm summer water in a sheltered bay with seagrass meadows to graze",
       fact: "Adult green sea turtles are the only sea turtles that eat plants, and their jaws are serrated like bread knives for sawing through seagrass. They crop the same patch again and again, which keeps it short and tender \u2014 a turtle basically mows a lawn on the seafloor.",
@@ -19473,7 +19531,8 @@ var animals_2_default = {
         }
       ],
       biome: "coastal",
-      ocean: true
+      ocean: true,
+      amphibious: true
     },
     {
       id: "bottlenose-dolphin",
@@ -19482,7 +19541,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "mesopredator",
       rarity: "uncommon",
-      diet: "Schooling fish, especially anchovy, plus squid and bottom fish",
+      diet: "schooling fish, especially anchovy, plus squid and bottom fish",
       shelter: "None built \u2014 travels and sleeps at sea in a small group, half its brain awake at a time",
       preferredHabitat: "Nearshore water along an open beach with a strong surf line and fish schools offshore",
       fact: "Every dolphin invents its own signature whistle, and the others copy that whistle back when they want to call it over. Along an open beach these dolphins hunt right inside the breakers, surfing the waves they are herding fish against.",
@@ -19525,7 +19584,8 @@ var animals_2_default = {
           url: "https://royalsocietypublishing.org/doi/10.1098/rspb.2013.0053"
         }
       ],
-      biome: "coastal"
+      biome: "coastal",
+      ocean: true
     },
     {
       id: "orca",
@@ -19534,7 +19594,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "apex-predator",
       rarity: "rare",
-      diet: "Marine mammals \u2014 harbor seals above all, plus dolphins, sea lions and gray whale calves",
+      diet: "marine mammals \u2014 harbor seals above all, plus dolphins, sea lions and gray whale calves",
       shelter: "None ashore; rests at the surface in deep water with its family pod",
       preferredHabitat: "Cold deep water close inshore, along the drop-off and the kelp edge within reach of seal haul-outs",
       fact: "Orcas live in families that never split up, and different families eat completely different food. The ones that hunt this coast are mammal specialists, and they go silent to do it \u2014 no clicks, no calls \u2014 because a seal can hear a talking orca coming from a long way off.",
@@ -19568,7 +19628,7 @@ var animals_2_default = {
         animals: [
           "harbor-seal"
         ],
-        hint: "The last and hardest animal to bring back. Orcas need deep water pressed right up against the shore and something big to hunt \u2014 so bring the seals back first, because the seals are what they come for."
+        hint: "The last and hardest animal to bring back. they need deep water pressed right up against the shore and something big to hunt \u2014 so bring the seals back first, because the seals are what they come for."
       },
       sources: [
         {
@@ -19590,7 +19650,7 @@ var animals_2_default = {
       kind: "invertebrate",
       trophic: "detritivore",
       rarity: "common",
-      diet: "Dead leaves, stems, seed husks and other dry plant litter on the ground",
+      diet: "dead leaves, stems, seed husks and other dry plant litter on the ground",
       shelter: "Buried in soil and tucked under litter and rock slabs by day; out walking on damp nights",
       preferredHabitat: "Litter drifts under shrubs with rock slabs and diggable soil nearby",
       fact: "A desert millipede spends most of the year underground, then comes pouring out by the hundreds after the first summer storm \u2014 and if you touch one it coils into a tight spiral like a cinnamon bun and oozes a bitter brown liquid that stains your fingers for days.",
@@ -19609,7 +19669,6 @@ var animals_2_default = {
         minHealth: 14,
         objects: {
           "shrub-litter-mound": 2,
-          "creosote-bush": 1,
           "rock-crevice": 1
         },
         signature: "shrub-litter-mound",
@@ -19634,7 +19693,7 @@ var animals_2_default = {
       kind: "invertebrate",
       trophic: "insectivore",
       rarity: "uncommon",
-      diet: "Crickets, beetles, grasshoppers, termites and other spiders",
+      diet: "crickets, beetles, grasshoppers, termites and other spiders",
       shelter: "A silk-lined burrow in firm soil, its doorway strung with trip-lines",
       preferredHabitat: "Firm open ground between shrubs with litter and cover close by",
       fact: "A frightened tarantula rubs its back legs over its belly and flicks off a cloud of barbed hairs that itch like fibreglass \u2014 and if nothing comes past to eat, it can simply wait, going a whole year between meals.",
@@ -19690,7 +19749,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "apex-predator",
       rarity: "rare",
-      diet: "Jackrabbits, ground squirrels, quail, woodrats and lizards",
+      diet: "jackrabbits, ground squirrels, quail, woodrats and lizards",
       shelter: "A bulky stick nest wedged in the arms of a tall cactus or a thorny tree, built and guarded by the whole family",
       preferredHabitat: "Open scrub with tall cactus and trees to nest and keep lookout from",
       fact: "These are the only birds of prey in the world that hunt in packs: a family of five or six spreads out, some crashing into a thorn bush to panic a rabbit while the others wait on the far side. And when there is nowhere decent to perch, they simply stand on each other's backs, three hawks high.",
@@ -19741,7 +19800,7 @@ var animals_2_default = {
       kind: "mammal",
       trophic: "herbivore",
       rarity: "rare",
-      diet: "Grass and leafy plants through the growing season; twigs, buds, bark and acorns once the green is gone",
+      diet: "grass and leafy plants through the growing season; twigs, buds, bark and acorns once the green is gone",
       shelter: "No den \u2014 beds down in thick conifer cover by day and moves out into open gaps to feed at dawn and dusk",
       preferredHabitat: "Big blocks of forest broken by clearings and young regrowth to graze, thick cover to rest in, and a muddy wallow within a day's walk",
       fact: "A bull elk grows a whole new set of antlers every year, laying down up to an inch of bone a day \u2014 the fastest-growing bone of any animal \u2014 and drops the lot each spring. In autumn he bugles: a squeal that carries more than a mile from an animal the size of a horse.",
@@ -19792,7 +19851,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "omnivore",
       rarity: "common",
-      diet: "Insects, spiders and millipedes kicked out of the leaf litter, plus seeds, berries and bits of acorn",
+      diet: "insects, spiders and millipedes kicked out of the leaf litter, plus seeds, berries and bits of acorn",
       shelter: "Nests on the ground in dead leaves beneath a bramble or dense shrub, the cup sunk level with the surface",
       preferredHabitat: "Brushy tangles, forest edges and sunlit gaps where young growth is thick and the ground is deep in fallen leaves",
       fact: "That loud rustling in the dead leaves usually isn't a deer \u2014 it's a bird the size of your hand, kicking backwards with both feet at once to flip the leaves over and see what's underneath.",
@@ -19821,9 +19880,7 @@ var animals_2_default = {
         minHealth: 38,
         objects: {
           "bramble-ground-nest": 1,
-          "browse-thicket": 1,
-          "berry-bush": 1,
-          "leaf-litter-pile": 2
+          "browse-thicket": 1
         },
         signature: "bramble-ground-nest",
         hint: "Thick young brush standing over a deep, unraked leaf layer. The nest goes on the ground, so the tangle above it has to be dense enough to hide it."
@@ -19847,7 +19904,7 @@ var animals_2_default = {
       kind: "insect",
       trophic: "insectivore",
       rarity: "common",
-      diet: "Insects and spiders trapped in the surface film, plus mosquito larvae hanging just underneath it.",
+      diet: "insects and spiders trapped in the surface film, plus mosquito larvae hanging just underneath it.",
       shelter: "Sheltered, wind-free water; overwinters tucked under bank litter and floating debris.",
       preferredHabitat: "Smooth, calm pockets of open water out of the wind, with floating stems to rest and lay eggs on.",
       fact: "Water striders do not swim \u2014 they stand on the water. Thousands of tiny hairs on each foot trap air and refuse to get wet, and the strider reads ripples the way a spider reads its web to find insects thrashing on the surface.",
@@ -19898,7 +19955,7 @@ var animals_2_default = {
       kind: "bird",
       trophic: "apex-predator",
       rarity: "rare",
-      diet: "Mostly fish, plus ducks, muskrats and carrion \u2014 and anything it can bully out of another hunter's grip",
+      diet: "mostly fish, plus ducks, muskrats and carrion \u2014 and anything it can bully out of another hunter's grip",
       shelter: "A huge stick nest in the crown of the tallest living tree beside open water, added to every year",
       preferredHabitat: "Wide open water full of fish, with one very tall tree to watch it all from",
       fact: "A bald eagle would honestly rather rob than fish. It shadows otters and herons and harasses them until they drop their catch, then takes it \u2014 and the nest it rebuilds every year can end up heavier than a small car.",
@@ -19920,7 +19977,8 @@ var animals_2_default = {
         objects: {
           "eagle-nest-crown": 1,
           "beaver-pond": 2,
-          "marsh-log": 1
+          "marsh-log": 1,
+          "mud-bank": 1
         },
         signature: "eagle-nest-crown",
         water: {
@@ -19945,154 +20003,13 @@ var animals_2_default = {
       biome: "wetland"
     },
     {
-      id: "bobolink",
-      name: "Bobolink",
-      biome: "meadow",
-      kind: "bird",
-      rarity: "uncommon",
-      trophic: "herbivore",
-      diet: "Grass and wildflower seeds for most of the year; caterpillars, grasshopper nymphs and other insects while raising chicks",
-      shelter: "A grass-lined cup sunk into the ground at the base of a tussock, reached by landing some way off and walking in through the stems",
-      preferredHabitat: "Large, unmowed meadows of tall native grass and forbs, with nothing taller than the grass for a long way around",
-      fact: "A bobolink flies about 20,000 km a year, and it navigates partly by iron in the bristles of its own nose, which works like a tiny built-in compass.",
-      role: "Bobolinks are seed eaters that switch to insects the moment they have chicks to feed, so a nesting pair quietly takes thousands of grasshoppers and caterpillars out of the meadow every summer. They nest flat on the ground, which makes them one of the first birds to vanish when a meadow is mown or grazed early, and one of the surest signs of a healthy one when they return. Their scattered, half-eaten seed heads reseed the grass they nest in.",
-      eats: [],
-      eatsOther: [
-        "grass seeds",
-        "wildflower seeds",
-        "caterpillars",
-        "grasshopper nymphs"
-      ],
-      eatenBy: [
-        "harrier",
-        "red-fox-meadow"
-      ],
-      requirements: {
-        minHealth: 48,
-        objects: {
-          "hidden-grass-nest": 1,
-          "native-grass-patch": 3,
-          "wildflower-patch": 2
-        },
-        signature: "hidden-grass-nest",
-        hint: "Grow a big unbroken sweep of tall grass and then leave it completely alone through the summer. Bobolinks will not nest in a meadow that gets tidied."
-      },
-      scientificName: "Dolichonyx oryzivorus",
-      sources: [
-        {
-          name: "All About Birds \u2014 Bobolink",
-          url: "https://www.allaboutbirds.org/guide/Bobolink/"
-        },
-        {
-          name: "Animal Diversity Web \u2014 Dolichonyx oryzivorus",
-          url: "https://animaldiversity.org/accounts/Dolichonyx_oryzivorus/"
-        }
-      ]
-    },
-    {
-      id: "shrike",
-      name: "Shrike",
-      biome: "meadow",
-      kind: "bird",
-      rarity: "uncommon",
-      trophic: "insectivore",
-      diet: "Grasshoppers, crickets, beetles and mantises, plus the occasional vole or lizard",
-      shelter: "A bulky twig nest deep inside a thorny shrub, with a larder of stored prey hanging on the spines nearby",
-      preferredHabitat: "Open grassland broken up by scattered thorny shrubs, fence wire and low perches to hunt from",
-      fact: "A shrike is a songbird with no talons, so it skewers its catch on a thorn or a barb of fence wire and comes back to eat it later \u2014 a hedge full of stored grasshoppers is how a male shows off.",
-      role: "The shrike sits at the top of the insect food chain in the meadow and eats mainly the large-bodied grasshoppers and mantises that few other songbirds can handle. Because it has a hooked beak but weak feet, it has to wedge or impale food to tear it, and those larders let it survive cold snaps when nothing is flying. It needs both open hunting ground and thorny cover, so it only appears once the meadow has structure as well as grass.",
-      eats: [
-        "grasshopper",
-        "meadow-vole",
-        "praying-mantis"
-      ],
-      eatsOther: [
-        "crickets",
-        "beetles",
-        "small lizards"
-      ],
-      eatenBy: [
-        "red-tailed-hawk"
-      ],
-      requirements: {
-        minHealth: 58,
-        objects: {
-          "thorn-larder-hedge": 1,
-          "native-thistle-stand": 2,
-          "wooden-fence": 1
-        },
-        signature: "thorn-larder-hedge",
-        hint: "Leave the thorns in. A shrike needs spiky shrubs or a wire fence to hang its catch on, and open grass in between to hunt over."
-      },
-      scientificName: "Lanius ludovicianus",
-      sources: [
-        {
-          name: "All About Birds \u2014 Loggerhead Shrike",
-          url: "https://www.allaboutbirds.org/guide/Loggerhead_Shrike/"
-        },
-        {
-          name: "Animal Diversity Web \u2014 Lanius ludovicianus",
-          url: "https://animaldiversity.org/accounts/Lanius_ludovicianus/"
-        }
-      ]
-    },
-    {
-      id: "harrier",
-      name: "Harrier",
-      biome: "meadow",
-      kind: "bird",
-      rarity: "rare",
-      trophic: "apex-predator",
-      diet: "Voles, mice, rabbits and ground-nesting birds, hunted low over open grass",
-      shelter: "A ground nest of piled stems in a damp swale, hidden in grass taller than the bird itself",
-      preferredHabitat: "Wide, wet-bottomed meadow and marsh edge with deep grass and no trees to block a low glide",
-      fact: "The harrier is the only hawk with an owl-like face, and it uses it the same way \u2014 it hunts by listening for voles rustling under the grass, not by seeing them.",
-      role: "Harriers quarter back and forth a metre above the grass all day, and they are the main daytime check on vole numbers in an open meadow, taking over from the barn owl at dawn. The stiff feather disc around the face funnels sound to the ears, which is why a harrier can catch something it never sees. Nesting on the ground means it needs deep, undisturbed damp grass, so it is one of the last animals to return to a meadow and the first to leave.",
-      eats: [
-        "meadow-vole",
-        "cottontail-rabbit",
-        "bobolink",
-        "western-meadowlark"
-      ],
-      eatsOther: [
-        "mice",
-        "frogs",
-        "large insects"
-      ],
-      eatenBy: [],
-      requirements: {
-        minHealth: 72,
-        objects: {
-          "prairie-swale-seedbed": 1,
-          "native-grass-patch": 1
-        },
-        signature: "prairie-swale-seedbed",
-        animals: [
-          "meadow-vole",
-          "cottontail-rabbit"
-        ],
-        hint: "Keep the low damp corner of the meadow wet and shaggy, and keep the voles coming. A harrier needs a lot of open grass and no tall trees in the middle of it."
-      },
-      scientificName: "Circus hudsonius",
-      sources: [
-        {
-          name: "All About Birds \u2014 Northern Harrier",
-          url: "https://www.allaboutbirds.org/guide/Northern_Harrier/"
-        },
-        {
-          name: "Audubon Field Guide \u2014 Northern Harrier",
-          url: "https://www.audubon.org/field-guide/bird/northern-harrier"
-        }
-      ]
-    },
-    {
       id: "luna-moth",
       name: "Luna Moth",
       biome: "forest",
       kind: "insect",
       rarity: "uncommon",
       trophic: "herbivore",
-      diet: "Hickory, walnut, sweetgum and birch leaves as a caterpillar; the adult eats nothing at all",
+      diet: "hickory, walnut, sweetgum and birch leaves as a caterpillar; the adult eats nothing at all",
       shelter: "A papery cocoon spun inside a curled leaf that falls to the ground, where it lies buried in the litter all winter",
       preferredHabitat: "Mature deciduous woodland with deep undisturbed leaf litter under the host trees",
       fact: "An adult luna moth has no mouth. It hatches out with about a week to live, never eats once, and spends the whole of it looking for a mate.",
@@ -20141,7 +20058,7 @@ var animals_2_default = {
       kind: "bird",
       rarity: "common",
       trophic: "herbivore",
-      diet: "Acorns and beechnuts, caterpillars, beetles and other insects, and eggs or nestlings when it finds them",
+      diet: "acorns and beechnuts, caterpillars, beetles and other insects, and eggs or nestlings when it finds them",
       shelter: "A cup of twigs and rootlets wedged in a fork high in a leafy tree, screened by foliage",
       preferredHabitat: "Oak-rich woodland and its edges, with open ground nearby for caching",
       fact: "Blue jay feathers are not actually blue \u2014 the pigment in them is brown, and the blue is a trick of light bouncing off tiny air pockets. Crush one and the colour disappears.",
@@ -20163,7 +20080,6 @@ var animals_2_default = {
         minHealth: 28,
         objects: {
           "acorn-cache-scatter": 1,
-          "oak-tree": 2,
           "nesting-tree": 1
         },
         signature: "acorn-cache-scatter",
@@ -20188,7 +20104,7 @@ var animals_2_default = {
       kind: "amphibian",
       rarity: "common",
       trophic: "insectivore",
-      diet: "Beetles, spiders, slugs, flies and other small forest-floor invertebrates",
+      diet: "beetles, spiders, slugs, flies and other small forest-floor invertebrates",
       shelter: "Shallow leaf litter and loose duff on the forest floor \u2014 it does not burrow below the frost line",
       preferredHabitat: "Damp deciduous forest with fishless woodland pools that fill in spring and dry out by late summer",
       fact: "A wood frog freezes solid every winter. Its heart stops, two thirds of the water in its body turns to ice, and in spring it thaws out and hops away.",
@@ -20210,7 +20126,6 @@ var animals_2_default = {
         minHealth: 38,
         objects: {
           "winter-freeze-litter-bed": 1,
-          "woodland-pool": 2,
           "log-shelter": 1
         },
         signature: "winter-freeze-litter-bed",
@@ -20238,7 +20153,7 @@ var animals_2_default = {
       kind: "bird",
       rarity: "rare",
       trophic: "apex-predator",
-      diet: "Squirrels, jays, grouse, rabbits and woodpeckers, chased down inside the trees",
+      diet: "squirrels, jays, grouse, rabbits and woodpeckers, chased down inside the trees",
       shelter: "A broad stick nest built against the trunk on a heavy limb, halfway up a big old tree in closed canopy",
       preferredHabitat: "Mature forest with a high closed canopy and open flying room underneath it",
       fact: "A goshawk hunts by crashing straight through the branches at full speed with its wings half folded, and it will dive at anything \u2014 including people \u2014 that walks too near its nest.",
@@ -20267,7 +20182,7 @@ var animals_2_default = {
           "tree-squirrel",
           "blue-jay"
         ],
-        hint: "Grow the forest tall and leave the understory open. A goshawk needs a big limb to nest on and room to fly hard underneath the canopy."
+        hint: "Grow the forest tall and leave the understory open. It needs a big limb to nest on and room to fly hard between the trunks."
       },
       scientificName: "Astur atricapillus",
       sources: [
@@ -20288,7 +20203,7 @@ var animals_2_default = {
       kind: "mammal",
       rarity: "rare",
       trophic: "herbivore",
-      diet: "Submerged pondweed and water lilies in summer, willow and aspen twigs in winter",
+      diet: "submerged pondweed and water lilies in summer, willow and aspen twigs in winter",
       shelter: "Beds pressed into willow thickets and shaded marsh edge; in summer it stands chest-deep in water to escape flies",
       preferredHabitat: "Marsh and pond edge with deep willow thickets and clear shallow water full of submerged plants",
       fact: "A moose can hold its breath for a minute and walk along the bottom of a pond with its whole head underwater, pulling up plants by the roots.",
@@ -20312,7 +20227,7 @@ var animals_2_default = {
         water: {
           tiles: 6
         },
-        hint: "Grow the underwater plant beds first and keep the water clear enough for them. A moose comes for what is growing under the surface, not on the bank."
+        hint: "Grow the underwater plant beds first and keep the water clear. It comes for what is growing under the surface, not on the bank."
       },
       scientificName: "Alces alces",
       sources: [
@@ -20333,7 +20248,7 @@ var animals_2_default = {
       kind: "reptile",
       rarity: "uncommon",
       trophic: "herbivore",
-      diet: "Pondweed, algae, water lily leaves and fallen fruit; hatchlings take insects before switching to plants",
+      diet: "pondweed, algae, water lily leaves and fallen fruit; hatchlings take insects before switching to plants",
       shelter: "Sleeps wedged under submerged logs and root tangles; spends the winter buried in the mud of the pond bottom",
       preferredHabitat: "Slow, plant-filled water with logs to bask on and an open sunlit bank to lay eggs in",
       fact: "Whether a cooter's eggs hatch into males or females depends on how warm the nest is, not on the eggs themselves \u2014 a cool nest makes brothers, a warm one makes sisters.",
@@ -20388,7 +20303,7 @@ var animals_2_default = {
       kind: "mammal",
       rarity: "uncommon",
       trophic: "herbivore",
-      diet: "Prickly pear pads, mesquite pods, agave hearts, roots and tubers",
+      diet: "prickly pear pads, mesquite pods, agave hearts, roots and tubers",
       shelter: "Beds down as a herd in the shade of dense thornscrub or a rock overhang through the heat of the day",
       preferredHabitat: "Desert scrub and washes with thick thorny cover and stands of prickly pear",
       fact: "A javelina eats prickly pear whole \u2014 spines and all \u2014 and has a scent gland on its back so strong that a herd can find each other in the dark by smell alone.",
@@ -20410,8 +20325,7 @@ var animals_2_default = {
         minHealth: 52,
         objects: {
           "thicket-bed-hollow": 1,
-          "mesquite-tree": 2,
-          "desert-brush": 1
+          "mesquite-tree": 2
         },
         signature: "thicket-bed-hollow",
         hint: "Grow the prickly pear and leave a shaded thorny tangle to bed down in. A herd sleeps out the middle of the day and feeds at dusk."
@@ -20435,7 +20349,7 @@ var animals_2_default = {
       kind: "bird",
       rarity: "rare",
       trophic: "insectivore",
-      diet: "Flying ants, aphids, beetles and mayflies caught on the wing, often hundreds of metres up",
+      diet: "flying ants, aphids, beetles and mayflies caught on the wing, often hundreds of metres up",
       shelter: "A cup of moss glued to a wet rock seam behind or beside falling water, reached only from the air",
       preferredHabitat: "Cliffs with cold running water and wide open sky above the treeline",
       fact: "A black swift can stay in the air for six months without landing once \u2014 it eats, drinks and sleeps flying, and the chick is left alone all day while its parents hunt insects 50 km away.",
@@ -20484,7 +20398,7 @@ var animals_2_default = {
       kind: "bird",
       rarity: "rare",
       trophic: "mesopredator",
-      diet: "Other birds taken in mid-air \u2014 ptarmigan, rosy-finches, swifts, pipits and small ducks",
+      diet: "other birds taken in mid-air \u2014 ptarmigan, rosy-finches, swifts, pipits and small ducks",
       shelter: "A bare scrape kicked into gravel on a high cliff ledge; it builds no nest at all",
       preferredHabitat: "Sheer cliffs and rock faces overlooking open ground with plenty of birds flying below",
       fact: "A stooping peregrine hits about 380 km/h, which makes it the fastest animal alive \u2014 and it has bony cones in its nostrils that slow the air down so the dive does not burst its lungs.",
@@ -20511,7 +20425,8 @@ var animals_2_default = {
         objects: {
           "falcon-scrape-ledge": 1,
           "talus-pile": 2,
-          "scree-slope": 1
+          "scree-slope": 1,
+          "alpine-turf-mat": 1
         },
         signature: "falcon-scrape-ledge",
         animals: [
@@ -20534,21 +20449,21 @@ var animals_2_default = {
     },
     {
       id: "owl-limpet",
-      name: "Owl Limpet",
+      name: "Sand Dollar",
       biome: "coastal",
       kind: "invertebrate",
       rarity: "common",
       trophic: "herbivore",
-      diet: "Film algae and diatoms scraped off the rock inside its own garden patch",
-      shelter: "A shallow scar worn into the rock exactly the shape of its own shell, which it returns to at every low tide",
-      preferredHabitat: "Wave-washed mid-zone rock faces with steady spray and space to hold a territory",
-      fact: "An owl limpet farms. It keeps a patch of rock the size of a beer mat, weeds the seaweed out of it, and bulldozes any other limpet that trespasses right off the edge.",
-      role: "This is the rare grazer that gardens rather than wanders: by clearing everything but its own film of algae, an owl limpet keeps a bare patch open on rock that would otherwise be smothered by barnacles and seaweed, and dozens of smaller animals settle in those gaps. It grinds the rock down as it feeds, which is one of the ways a shoreline slowly wears away. Every limpet starts life male and the biggest ones turn female, so the largest limpet on the rock is always a she.",
+      diet: "algae, plankton and scraps of food picked out of the sand grain by grain",
+      shelter: "Half buried on edge in rippled sand, in beds of hundreds at a time",
+      preferredHabitat: "Sheltered sandy bottoms just below the low tide line, where the current is gentle",
+      fact: "A living sand dollar is not white and smooth \u2014 it is purple and covered in tiny moving spines it uses to walk and to pass food along to its mouth. The white disc with the flower pattern is its skeleton, after everything else has washed away.",
+      role: "A whole bed of them stands half-buried on edge like coins in a slot, all leaning into the current to catch what drifts past. Where the water is rougher they lie flat instead so they do not get rolled away.",
       eats: [],
       eatsOther: [
-        "film algae",
-        "diatoms",
-        "young seaweed sporelings"
+        "algae",
+        "plankton",
+        "tiny drifting scraps"
       ],
       eatenBy: [
         "sea-star"
@@ -20556,25 +20471,20 @@ var animals_2_default = {
       requirements: {
         minHealth: 26,
         objects: {
-          "algae-garden-scar": 1,
-          "coralline-algae-crust": 1,
-          "barnacle-crust-rock": 2
+          "rippled-sand-bed": 1,
+          tidepool: 1
         },
-        signature: "algae-garden-scar",
+        signature: "rippled-sand-bed",
         water: {
-          ocean: 2
+          ocean: 3
         },
-        hint: "Give it a clear stretch of wave-washed rock and do not crowd it. One limpet needs a whole patch to itself."
+        hint: "Clean rippled sand just below the tide line, somewhere sheltered enough that the current is gentle."
       },
-      scientificName: "Lottia gigantea",
+      scientificName: "Dendraster excentricus",
       sources: [
         {
-          name: "Monterey Bay Aquarium \u2014 Owl limpet",
-          url: "https://www.montereybayaquarium.org/animals/animals-a-to-z/owl-limpet"
-        },
-        {
-          name: "National Park Service, Cabrillo \u2014 Rocky Intertidal",
-          url: "https://www.nps.gov/cabr/learn/nature/rocky-intertidal.htm"
+          name: "Monterey Bay Aquarium \u2014 Sand dollar",
+          url: "https://www.montereybayaquarium.org/animals/animals-a-to-z/sand-dollar"
         }
       ],
       ocean: true
@@ -20586,7 +20496,7 @@ var animals_2_default = {
       kind: "invertebrate",
       rarity: "rare",
       trophic: "apex-predator",
-      diet: "Shore crabs, clams, mussels, snails and shrimp, cracked open or drilled through",
+      diet: "shore crabs, clams, mussels, snails and shrimp, cracked open or drilled through",
       shelter: "A crevice or empty shell it pulls a rock across behind itself, with a heap of emptied shells outside the door",
       preferredHabitat: "Rocky subtidal seafloor and deep tidepools with plenty of crevices and cold, clean water",
       fact: "An octopus has three hearts, blue blood, and tastes everything it touches with its arms \u2014 and because the only hard part of it is its beak, one the size of a dinner plate can squeeze through a hole the size of a grape.",
@@ -20637,7 +20547,7 @@ var animals_2_default = {
       kind: "mammal",
       rarity: "rare",
       trophic: "apex-predator",
-      diet: "Roots, berries, ground squirrels, winter-killed carcasses \u2014 and moths, by the hundred thousand",
+      diet: "roots, berries, ground squirrels, winter-killed carcasses \u2014 and moths, by the hundred thousand",
       shelter: "Digs a den into a high slope in autumn and sleeps in it until the snow softens",
       preferredHabitat: "Open high country with digging ground, berry slopes and no people",
       fact: "Grizzlies climb above the trees in late summer to eat moths \u2014 flipping rocks to get at them and putting away up to 40,000 in a day, which is most of a year's fat in a few weeks.",
@@ -20680,7 +20590,7 @@ var animals_2_default = {
       kind: "mammal",
       rarity: "uncommon",
       trophic: "mesopredator",
-      diet: "Scorpions, centipedes, beetles and other mice",
+      diet: "scorpions, centipedes, beetles and other mice",
       shelter: "Takes over a burrow another animal dug, then defends it",
       preferredHabitat: "Open sandy flats with scattered brush and plenty of prey underfoot",
       fact: "This mouse hunts scorpions, gets stung in the face, and carries on eating \u2014 its body turns the venom's pain signal off. Then it stands up on its hind legs and howls at the moon like a tiny wolf.",
@@ -20725,7 +20635,7 @@ var animals_2_default = {
       kind: "bird",
       rarity: "uncommon",
       trophic: "herbivore",
-      diet: "Seeds blown onto the snow, plus insects in the short summer",
+      diet: "seeds blown onto the snow, plus insects in the short summer",
       shelter: "Deep in a rock crevice, lined with feathers and fur against the cold",
       preferredHabitat: "Windswept ridges and fellfield where the snow blows clear",
       fact: "Snow buntings nest further north than any other songbird on Earth, tucked so deep in rock cracks that the male has to feed the female in the dark while she sits.",
@@ -20755,6 +20665,136 @@ var animals_2_default = {
         {
           name: "All About Birds \u2014 Snow Bunting",
           url: "https://www.allaboutbirds.org/guide/Snow_Bunting/lifehistory"
+        }
+      ]
+    },
+    {
+      id: "groundhog",
+      name: "Groundhog",
+      biome: "meadow",
+      kind: "mammal",
+      rarity: "common",
+      trophic: "herbivore",
+      diet: "grass, clover, dandelions and just about any tender green thing it can reach",
+      shelter: "A burrow with several entrances, a grass-lined sleeping chamber and a separate toilet room",
+      preferredHabitat: "Meadow edges with deep, well-drained soil it can tunnel through",
+      fact: "A groundhog digs a burrow with a front door, a back door, a bedroom and a separate room for going to the toilet \u2014 and moves about a tonne of soil doing it. In winter its heart slows to about five beats a minute.",
+      role: "The meadow's earthmover. Its abandoned burrows become homes for foxes, snakes, rabbits and half the small animals here, so one groundhog's digging outlives the groundhog by years.",
+      eats: [],
+      eatsOther: [
+        "grasses",
+        "clover",
+        "dandelions",
+        "bark"
+      ],
+      eatenBy: [
+        "coyote-meadow",
+        "red-fox-meadow"
+      ],
+      requirements: {
+        minHealth: 38,
+        objects: {
+          "groundhog-burrow-mound": 1,
+          "native-grass-patch": 1,
+          "brush-pile": 1
+        },
+        signature: "groundhog-burrow-mound",
+        hint: "Deep, well-drained soil at the edge of the grass, with a bolt-hole close by. It wants somewhere to dig more than somewhere to hide."
+      },
+      scientificName: "Marmota monax",
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Marmota monax",
+          url: "https://animaldiversity.org/accounts/Marmota_monax/"
+        }
+      ]
+    },
+    {
+      id: "opossum",
+      name: "Opossum",
+      biome: "meadow",
+      kind: "mammal",
+      rarity: "common",
+      trophic: "omnivore",
+      diet: "almost anything \u2014 insects, fruit, eggs, carrion, and an enormous number of ticks",
+      shelter: "Sleeps the day out in a hollow log or a borrowed burrow, and rarely uses the same one twice",
+      preferredHabitat: "Brushy edges with hollow wood, water nearby and plenty to scavenge",
+      fact: "When an opossum plays dead it is not acting \u2014 it faints. The body goes stiff, the tongue lolls out and it gives off a smell like something long dead, and it cannot snap out of it for several minutes even if you walk away.",
+      role: "The meadow's clean-up crew. It eats what everything else has left, including carrion and vast quantities of ticks, and it is the only animal here that carries its young around on its back.",
+      eats: [
+        "garden-snail",
+        "grasshopper"
+      ],
+      eatsOther: [
+        "fruit",
+        "eggs",
+        "carrion",
+        "ticks",
+        "insects"
+      ],
+      eatenBy: [
+        "barn-owl",
+        "coyote-meadow"
+      ],
+      requirements: {
+        minHealth: 44,
+        objects: {
+          "opossum-den-hollow": 1,
+          "hollow-log": 1
+        },
+        signature: "opossum-den-hollow",
+        hint: "Hollow wood to sleep the day away in and berries within a night's walk. It moves house constantly, so give it more than one option."
+      },
+      scientificName: "Didelphis virginiana",
+      sources: [
+        {
+          name: "Animal Diversity Web \u2014 Didelphis virginiana",
+          url: "https://animaldiversity.org/accounts/Didelphis_virginiana/"
+        }
+      ]
+    },
+    {
+      id: "song-sparrow",
+      name: "Song Sparrow",
+      biome: "meadow",
+      kind: "bird",
+      rarity: "common",
+      featured: true,
+      trophic: "omnivore",
+      diet: "insects and spiders in summer; seeds, berries and grass heads the rest of the year",
+      shelter: "A cup of grass tucked low in a shrub or a thick tussock, close to damp ground",
+      preferredHabitat: "Brushy, slightly damp edges \u2014 the messy strip between open grass and thicker cover",
+      fact: "Every song sparrow makes up its own tunes. A young male listens to the neighbours, then invents his own set of eight or ten and sings them for life, so you can learn to tell individual birds apart by ear.",
+      role: "One of the first birds to find a mending meadow and one of the last to leave it. It works the scruffy middle ground, eating insects all summer and switching to seeds in winter.",
+      eats: [
+        "grasshopper",
+        "lady-beetle"
+      ],
+      eatsOther: [
+        "seeds",
+        "berries",
+        "spiders",
+        "caterpillars"
+      ],
+      eatenBy: [
+        "red-fox-meadow",
+        "garter-snake-meadow",
+        "red-tailed-hawk"
+      ],
+      requirements: {
+        minHealth: 16,
+        objects: {
+          "hidden-grass-nest": 1,
+          "berry-bush": 1
+        },
+        signature: "hidden-grass-nest",
+        hint: "A damp, messy corner with a thick tussock to hide a nest in and berries close by. they like the untidy bits best."
+      },
+      scientificName: "Melospiza melodia",
+      sources: [
+        {
+          name: "All About Birds \u2014 Song Sparrow",
+          url: "https://www.allaboutbirds.org/guide/Song_Sparrow/lifehistory"
         }
       ]
     }
@@ -25642,7 +25682,7 @@ body.lb-open{overflow:hidden}
 </html>
 `;
 var ogImageB64 = "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";
-var buildStamp = "0.2.10+2026-08-09T18:11:50.480Z";
+var buildStamp = "0.2.10+2026-08-09T20:12:19.046Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";

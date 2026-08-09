@@ -9,7 +9,7 @@
       "kind": "invertebrate",
       "trophic": "detritivore",
       "rarity": "common",
-      "diet": "Fallen leaves, mushrooms, animal droppings and other decaying matter; occasionally live seedlings",
+      "diet": "fallen leaves, mushrooms, animal droppings and other decaying matter; occasionally live seedlings",
       "shelter": "Under logs and loose bark; seals itself into a mucus cocoon and waits out dry spells",
       "preferredHabitat": "Cool, shaded forest floor that stays damp — deep leaf litter, mossy logs and seeps",
       "fact": "Banana slug slime is a numbing agent — one lick and most animals spit the slug straight back out, tongue tingling.",
@@ -29,7 +29,6 @@
         "minHealth": 35,
         "objects": {
           "mushroom-ring": 1,
-          "leaf-litter-pile": 2,
           "fern-spring": 1
         },
         "signature": "mushroom-ring",
@@ -54,7 +53,7 @@
       "kind": "mammal",
       "trophic": "herbivore",
       "rarity": "common",
-      "diet": "Acorns, hickory nuts, tree buds, samaras and fungi; occasional insects and bird eggs",
+      "diet": "acorns, hickory nuts, tree buds, samaras and fungi; occasional insects and bird eggs",
       "shelter": "Tree cavity dens in winter and leaf-and-twig dreys built high in the canopy in summer",
       "preferredHabitat": "Mature deciduous or mixed forest rich in oaks and hickories",
       "fact": "A squirrel buries thousands of nuts a year and forgets a good share of them. The forgotten ones grow into trees, so most squirrels accidentally plant a forest in a lifetime.",
@@ -84,7 +83,6 @@
         "minHealth": 15,
         "objects": {
           "leaf-drey": 1,
-          "oak-tree": 2,
           "nesting-tree": 1
         },
         "signature": "leaf-drey",
@@ -109,7 +107,7 @@
       "kind": "mammal",
       "trophic": "herbivore",
       "rarity": "common",
-      "diet": "Seeds, acorns, hickory nuts, berries and underground fungi, plus some insects and bird eggs",
+      "diet": "seeds, acorns, hickory nuts, berries and underground fungi, plus some insects and bird eggs",
       "shelter": "Underground burrows up to 10 m long with a nest chamber and a seed-storage larder",
       "preferredHabitat": "Mature deciduous forest with logs, stumps and diggable soil",
       "fact": "A chipmunk can cram so many acorns into its cheek pouches that its head looks twice as wide, then unload them into an underground pantry holding more than a litre of seeds. It wakes up all winter to snack — chipmunks never truly hibernate.",
@@ -134,12 +132,9 @@
       "requirements": {
         "minHealth": 12,
         "objects": {
-          "larder-burrow": 1,
-          "oak-tree": 1,
           "brush-pile": 1
         },
-        "signature": "larder-burrow",
-        "hint": "Diggable soil for a burrow and its pantry, oaks overhead, and a brush pile to bolt into."
+        "hint": "A brush pile to bolt into is enough to start with."
       },
       "sources": [
         {
@@ -160,7 +155,7 @@
       "kind": "mammal",
       "trophic": "herbivore",
       "rarity": "uncommon",
-      "diet": "Almost entirely herbivorous — inner bark in winter, buds, twigs and leaves in summer — but gnaws shed antlers and bones for minerals",
+      "diet": "almost entirely herbivorous — inner bark in winter, buds, twigs and leaves in summer — but gnaws shed antlers and bones for minerals",
       "shelter": "Rock dens and hollow logs, reused season after season; also rests high in tree canopies",
       "preferredHabitat": "Mixed and coniferous forest with thick-barked trees, especially hemlock, and rock or log dens below",
       "fact": "A porcupine cannot throw its quills — they simply stick to whatever bumps them. The barbed tips are coated in a natural antibiotic, so a porcupine that falls out of a tree and lands on itself usually heals up fine.",
@@ -208,7 +203,7 @@
       "kind": "bird",
       "trophic": "insectivore",
       "rarity": "common",
-      "diet": "Mostly insects — beetle larvae, ants, caterpillars — with some berries and sap",
+      "diet": "mostly insects — beetle larvae, ants, caterpillars — with some berries and sap",
       "shelter": "Excavates its own cavity in a small dead stub, usually in wood already softened by fungus; roosts in cavities year-round",
       "preferredHabitat": "Open deciduous and mixed woodland with small dead stubs and dead limbs on living trees",
       "fact": "A downy woodpecker weighs about as much as four sheets of paper — light enough to hang off a dead weed stem and drill into it, which no bigger woodpecker can manage.",
@@ -235,8 +230,7 @@
         "minHealth": 16,
         "objects": {
           "soft-rot-snag": 1,
-          "standing-deadwood": 2,
-          "nesting-tree": 1
+          "standing-deadwood": 2
         },
         "signature": "soft-rot-snag",
         "hint": "Small dead stubs with the wood already gone soft. A downy can't chisel healthy timber, so leave the rotting stuff standing."
@@ -260,7 +254,7 @@
       "kind": "bird",
       "trophic": "omnivore",
       "rarity": "common",
-      "diet": "Insects and spiders from bark in summer; acorns, hickory nuts and cached seeds through winter",
+      "diet": "insects and spiders from bark in summer; acorns, hickory nuts and cached seeds through winter",
       "shelter": "Natural cavities and old woodpecker holes in mature hardwoods; cannot excavate its own",
       "preferredHabitat": "Mature deciduous and mixed forest with large oaks and hickories",
       "fact": "A nuthatch walks down tree trunks head-first, which lets it spot insects tucked in bark that every upward-climbing bird walks straight past.",
@@ -315,7 +309,7 @@
       "kind": "amphibian",
       "trophic": "insectivore",
       "rarity": "uncommon",
-      "diet": "Small invertebrates: mites, springtails, spiders, beetles, ants and earthworms",
+      "diet": "small invertebrates: mites, springtails, spiders, beetles, ants and earthworms",
       "shelter": "Under logs, bark and damp leaf litter; lays its eggs in a cavity inside rotting wood and stays coiled around them",
       "preferredHabitat": "Cool, damp deciduous forest floor with abundant rotting wood — and no pond required anywhere in its life",
       "fact": "Add up all the red-backed salamanders in a patch of forest and they can outweigh every bird in it. They have no lungs at all — the whole animal breathes through its skin.",
@@ -337,7 +331,6 @@
         "minHealth": 40,
         "objects": {
           "rotting-heartwood-log": 1,
-          "leaf-litter-pile": 2,
           "fern-spring": 1
         },
         "signature": "rotting-heartwood-log",
@@ -362,7 +355,7 @@
       "kind": "mammal",
       "trophic": "omnivore",
       "rarity": "common",
-      "diet": "Opportunistic: crayfish, insects, earthworms, frogs, eggs and fruit, with vertebrate prey a smaller share than most people assume",
+      "diet": "opportunistic: crayfish, insects, earthworms, frogs, eggs and fruit, with vertebrate prey a smaller share than most people assume",
       "shelter": "Hollow tree dens preferred; also rock crevices, burrows and buildings",
       "preferredHabitat": "Moist forest beside water shallow enough to wade and feel around in",
       "fact": "A raccoon sees with its hands. Its front paws carry four to five times more touch nerves than most mammals', and it will stare off in the opposite direction while its fingers read a stream bed.",
@@ -415,7 +408,7 @@
         "water": {
           "tiles": 3
         },
-        "hint": "A hollow den log and a stony shallow edge to feel around in — a raccoon hunts with its hands, not its eyes."
+        "hint": "A hollow den log and a stony shallow edge to feel around in. It hunts with its hands, not its eyes."
       },
       "sources": [
         {
@@ -436,7 +429,7 @@
       "kind": "mammal",
       "trophic": "omnivore",
       "rarity": "rare",
-      "diet": "Berries, acorns and nuts above all; also grasses and forbs, insects and grubs, carrion, and fawns in spring",
+      "diet": "berries, acorns and nuts above all; also grasses and forbs, insects and grubs, carrion, and fawns in spring",
       "shelter": "Winter dens under upturned root masses, in hollow trees and rock cavities, or dug into a bank",
       "preferredHabitat": "Dense forest with a thick understory and reliable berry and acorn crops",
       "fact": "Black bear cubs are born in the middle of hibernation, blind and smaller than a soup can, and their mother barely wakes up for it.",
@@ -463,7 +456,6 @@
         "minBalance": 50,
         "objects": {
           "root-mass-den": 1,
-          "oak-tree": 2,
           "berry-bush": 2,
           "small-pond": 1
         },
@@ -499,7 +491,7 @@
       "kind": "mammal",
       "trophic": "mesopredator",
       "rarity": "uncommon",
-      "diet": "Mice, voles, rabbits, squirrels, birds and eggs — and in late summer an astonishing amount of fruit",
+      "diet": "mice, voles, rabbits, squirrels, birds and eggs — and in late summer an astonishing amount of fruit",
       "shelter": "Hollow logs, rock crevices and old earth dens; it will also curl up on a branch well off the ground",
       "preferredHabitat": "Brushy woodland edges and old clearings growing back, with tangled climbable cover",
       "fact": "It is the only dog in the world that climbs trees. A gray fox hooks its curved claws into the bark, shins up the trunk like a cat, and naps ten metres up where nothing that hunts it can follow.",
@@ -567,7 +559,7 @@
       "kind": "reptile",
       "trophic": "mesopredator",
       "rarity": "uncommon",
-      "diet": "Mice, voles, chipmunks and young squirrels, plus birds and eggs lifted straight out of nests",
+      "diet": "mice, voles, chipmunks and young squirrels, plus birds and eggs lifted straight out of nests",
       "shelter": "Hollow trunks, rot pockets and stump cavities; the eggs go into a warm heap of rotting wood chips",
       "preferredHabitat": "Old woods and woodland edges with big rough-barked trees to climb and rodents underneath them",
       "fact": "A ratsnake can climb straight up a bare tree trunk with nothing to hold onto. It wedges the edges of its belly scales into the ridges in the bark and walks up the side of the tree, then robs the nest at the top.",
@@ -636,7 +628,7 @@
       "kind": "mammal",
       "trophic": "apex-predator",
       "rarity": "rare",
-      "diet": "Obligate carnivore: rabbits, squirrels and rodents, plus some birds, reptiles and deer fawns",
+      "diet": "obligate carnivore: rabbits, squirrels and rodents, plus some birds, reptiles and deer fawns",
       "shelter": "Dens under rock ledges, in hollow logs and in dense thickets; a female moves her kittens if disturbed",
       "preferredHabitat": "Forest with a dense understory, brushy edges and broken rocky ground",
       "fact": "A bobcat can bring down prey eight times its own weight, then bury the leftovers under leaves or snow and come back the next night.",
@@ -661,7 +653,8 @@
         "objects": {
           "rocky-den-ledge": 1,
           "brush-pile": 2,
-          "fern-grove": 1
+          "fern-grove": 1,
+          "nesting-tree": 1
         },
         "signature": "rocky-den-ledge",
         "animals": [
@@ -699,7 +692,7 @@
       "kind": "bird",
       "trophic": "apex-predator",
       "rarity": "rare",
-      "diet": "Mammals and birds — squirrels, rabbits, skunks, other owls — plus reptiles, amphibians and carrion",
+      "diet": "mammals and birds — squirrels, rabbits, skunks, other owls — plus reptiles, amphibians and carrion",
       "shelter": "Never builds a nest: takes over an old hawk, crow or squirrel nest, or a broken snag top or ledge",
       "preferredHabitat": "Mature forest broken by open ground, with big trees holding other animals' abandoned nests",
       "fact": "Great horned owls are one of the only animals that regularly kill and eat skunks. The spray does not appear to bother them in the slightest.",
@@ -736,7 +729,8 @@
         "objects": {
           "adopted-stick-nest": 1,
           "standing-deadwood": 1,
-          "nesting-tree": 2
+          "nesting-tree": 2,
+          "brush-pile": 1
         },
         "signature": "adopted-stick-nest",
         "animals": [
@@ -764,7 +758,7 @@
       "kind": "insect",
       "trophic": "herbivore",
       "rarity": "common",
-      "diet": "Grasses, sedges and broadleaf forbs",
+      "diet": "grasses, sedges and broadleaf forbs",
       "shelter": "Shelters down in grass and low vegetation; lays eggs in firm bare soil",
       "preferredHabitat": "Sunny grasslands and meadows rich in grasses and forbs",
       "fact": "A grasshopper's ears are on its belly — a pair of eardrums on the first segment of the abdomen, nowhere near its head.",
@@ -789,12 +783,9 @@
       "requirements": {
         "minHealth": 8,
         "objects": {
-          "grasshopper-egg-pod-bank": 1,
-          "native-grass-patch": 1,
           "grass-patch": 1
         },
-        "signature": "grasshopper-egg-pod-bank",
-        "hint": "Grass to eat, and a strip of firm sun-warmed bare soil where the females drill their frothy egg pods for the winter."
+        "hint": "They return almost as soon as the grass does."
       },
       "sources": [
         {
@@ -815,7 +806,7 @@
       "kind": "mammal",
       "trophic": "herbivore",
       "rarity": "common",
-      "diet": "Grasses, sedges, seeds and roots, plus bark in winter",
+      "diet": "grasses, sedges, seeds and roots, plus bark in winter",
       "shelter": "Shallow burrows and woven grass nests linked by clipped surface runways",
       "preferredHabitat": "Dense grassy prairie and meadow with thick ground cover left standing",
       "fact": "Prairie voles pair up and stay together, and both parents raise the pups — which is why scientists who study bonding and loyalty end up studying this small brown rodent.",
@@ -839,9 +830,7 @@
       "requirements": {
         "minHealth": 10,
         "objects": {
-          "vole-runway-network": 1,
-          "native-grass-patch": 2,
-          "wildflower-patch": 1
+          "vole-runway-network": 1
         },
         "signature": "vole-runway-network",
         "hint": "Thick unmown grass with clipped runways beneath it. Voles arrive early, and almost everything with teeth or talons is waiting on them."
@@ -865,7 +854,7 @@
       "kind": "insect",
       "trophic": "herbivore",
       "rarity": "common",
-      "diet": "Caterpillars eat only milkweed; adults sip flower nectar",
+      "diet": "caterpillars eat only milkweed; adults sip flower nectar",
       "shelter": "Roosts in trees and shrubs; overwinters clustered in dense groves far to the south",
       "preferredHabitat": "Open meadows and roadsides with milkweed to breed on and nectar flowers to refuel on",
       "fact": "No single monarch flies the whole round trip. The butterflies that head south in autumn are the great-grandchildren of the ones that came north in spring, and they find the same groves anyway.",
@@ -885,7 +874,6 @@
         "minHealth": 15,
         "objects": {
           "milkweed-rhizome-bed": 1,
-          "butterfly-flowers": 1,
           "pollinator-garden": 1
         },
         "signature": "milkweed-rhizome-bed",
@@ -910,7 +898,7 @@
       "kind": "insect",
       "trophic": "herbivore",
       "rarity": "common",
-      "diet": "Nectar for fuel and pollen for protein, from a wide range of flowers",
+      "diet": "nectar for fuel and pollen for protein, from a wide range of flowers",
       "shelter": "Nests in abandoned rodent burrows, grass tussocks and ground cavities",
       "preferredHabitat": "Flower-rich meadows with something in bloom from spring to frost",
       "fact": "Some flowers refuse to let go of their pollen unless they are shaken. A bumblebee grabs on and buzzes its flight muscles until the pollen falls out — tomatoes and blueberries depend on it.",
@@ -930,8 +918,7 @@
         "minHealth": 25,
         "objects": {
           "bumblebee-nest-tussock": 1,
-          "native-thistle-stand": 1,
-          "butterfly-flowers": 1
+          "native-thistle-stand": 1
         },
         "signature": "bumblebee-nest-tussock",
         "hint": "Flowers are only half of it. A queen also needs an abandoned vole hole under a thick grass tussock to start her colony in."
@@ -955,7 +942,7 @@
       "kind": "mammal",
       "trophic": "herbivore",
       "rarity": "common",
-      "diet": "Grasses and clover in summer; twigs, bark and buds in winter",
+      "diet": "grasses and clover in summer; twigs, bark and buds in winter",
       "shelter": "Rests in shallow grass 'forms'; bolts into brush piles and old burrows",
       "preferredHabitat": "Meadows and field edges with brushy cover close enough to run to",
       "fact": "A cottontail doesn't dig a burrow. It presses a shallow bowl into the grass called a form and sits so still in it that you can walk straight past.",
@@ -980,9 +967,7 @@
         "minHealth": 25,
         "objects": {
           "brush-form-hollow": 1,
-          "native-grass-patch": 1,
-          "berry-bush": 1,
-          "brush-pile": 1
+          "berry-bush": 1
         },
         "signature": "brush-form-hollow",
         "hint": "A brushy form to bolt into, native grass to graze, and berries close by. Cottontails get most of their water straight out of green plants."
@@ -1006,7 +991,7 @@
       "kind": "mammal",
       "trophic": "herbivore",
       "rarity": "uncommon",
-      "diet": "Browses shrubs, forbs, twigs and buds, plus seasonal grasses",
+      "diet": "shrubs, forbs, twigs and buds, plus grasses in spring",
       "shelter": "Beds down in brushy cover or tall grass; no permanent den",
       "preferredHabitat": "Open meadows and shrubby edges with browse and daily water",
       "fact": "A bounding mule deer lands on all four hooves at once like a pogo stick, and puffs out scent from a gland on its hind leg as it goes — a warning the other deer can smell.",
@@ -1052,16 +1037,16 @@
     },
     {
       "id": "lady-beetle",
-      "name": "Lady Beetle",
+      "name": "Ladybug",
       "scientificName": "Hippodamia convergens",
       "kind": "insect",
       "trophic": "insectivore",
       "rarity": "common",
-      "diet": "Aphids and other small soft-bodied insects, as both larva and adult",
+      "diet": "aphids and other small soft-bodied insects, as both larva and adult",
       "shelter": "Overwinters packed into leaf litter in big huddles; shelters on foliage in summer",
       "preferredHabitat": "Meadows with aphid-bearing plants, especially milkweed",
-      "fact": "One lady beetle can put away around 5,000 aphids in a lifetime. Pinch it and it bleeds bitter yellow blood out of its knees, which is why most birds spit it straight back out.",
-      "role": "Larva and adult both hunt aphids, so a lady beetle's whole life runs on an aphid supply — in this meadow, the yellow oleander aphids crowding the milkweed stems. Its bright shell is a warning label and it works on most birds. Mantises and orb weavers are not most birds.",
+      "fact": "One ladybug can put away around 5,000 aphids in a lifetime. Pinch it and it bleeds bitter yellow blood out of its knees, which is why most birds spit it straight back out.",
+      "role": "Larva and adult both hunt aphids, so a ladybug's whole life runs on an aphid supply — in this meadow, the yellow oleander aphids crowding the milkweed stems. Its bright shell is a warning label and it works on most birds. Mantises and orb weavers are not most birds.",
       "eats": [],
       "eatsOther": [
         "aphids",
@@ -1077,12 +1062,9 @@
       "requirements": {
         "minHealth": 12,
         "objects": {
-          "milkweed-aphid-colony": 1,
-          "wildflower-patch": 1,
-          "fallen-branch-shelter": 1
+          "clover-patch": 1
         },
-        "signature": "milkweed-aphid-colony",
-        "hint": "The aphids on the milkweed are the point, not a problem. Leave leaf litter too — that's where the adults spend the winter packed shoulder to shoulder."
+        "hint": "A patch of clover. The aphids arrive on their own, and that is the whole invitation."
       },
       "sources": [
         {
@@ -1103,7 +1085,7 @@
       "kind": "mammal",
       "trophic": "omnivore",
       "rarity": "common",
-      "diet": "Mostly seeds, grasses, flowers and fungi, plus insects like grasshoppers",
+      "diet": "mostly seeds, grasses, flowers and fungi, plus insects like grasshoppers",
       "shelter": "Big multi-entrance burrow systems dug into deep open ground",
       "preferredHabitat": "Open grassy meadow and slopes with a stone wall or bank to keep watch from",
       "fact": "Facing a rattlesnake, this squirrel kicks sand and waves its tail — and pumps hot blood into the tail first, so the snake's heat-sensing pits see a far bigger animal than is really standing there.",
@@ -1128,8 +1110,7 @@
         "minHealth": 14,
         "objects": {
           "squirrel-burrow-town": 1,
-          "dry-stone-wall": 1,
-          "native-grass-patch": 1
+          "dry-stone-wall": 1
         },
         "signature": "squirrel-burrow-town",
         "hint": "Deep diggable soil for a burrow town, and a stone wall to stand sentry on."
@@ -1153,7 +1134,7 @@
       "kind": "bird",
       "trophic": "omnivore",
       "rarity": "uncommon",
-      "diet": "Mostly insects in summer — beetles, grasshoppers, crickets — and seeds in winter",
+      "diet": "mostly insects in summer — beetles, grasshoppers, crickets — and seeds in winter",
       "shelter": "A domed grass nest woven on the ground, usually with a covered runway leading in",
       "preferredHabitat": "Wide native grassland with song perches and no shrubs moving in",
       "fact": "A meadowlark weaves a roof over its nest and a covered tunnel leading in, so from above there is nothing to see at all — just grass.",
@@ -1210,7 +1191,7 @@
       "kind": "reptile",
       "trophic": "mesopredator",
       "rarity": "uncommon",
-      "diet": "Earthworms, pillbugs, amphibians, slugs, insects and young rodents",
+      "diet": "earthworms, pillbugs, amphibians, slugs, insects and young rodents",
       "shelter": "Shelters under stone walls and logs; winters below the frost line in a communal den",
       "preferredHabitat": "Moist meadow and grassland near sunny stones and water",
       "fact": "Garter snakes spend the whole winter piled together by the dozen in one frost-free hole underground, and come pouring back out of it in a knot in spring.",
@@ -1237,7 +1218,6 @@
         "minHealth": 20,
         "objects": {
           "snake-hibernaculum-meadow": 1,
-          "small-pond": 1,
           "dry-stone-wall": 1
         },
         "signature": "snake-hibernaculum-meadow",
@@ -1269,7 +1249,7 @@
       "kind": "mammal",
       "trophic": "mesopredator",
       "rarity": "rare",
-      "diet": "Voles, rabbits, squirrels, birds and insects, rounded out with berries and carrion",
+      "diet": "voles, rabbits, squirrels, birds and insects, rounded out with berries and carrion",
       "shelter": "Enlarges a burrow another animal dug into a natal den; also uses brush and hollows",
       "preferredHabitat": "Meadows, field edges and hedgerows across open country",
       "fact": "A fox listening for a vole under deep grass or snow lines itself up facing magnetic north before it leaps — and the trick only seems to help when it cannot see the prey at all.",
@@ -1299,7 +1279,8 @@
         "objects": {
           "earthen-fox-den": 1,
           "native-grass-patch": 2,
-          "brush-pile": 1
+          "brush-pile": 1,
+          "oak-tree": 1
         },
         "signature": "earthen-fox-den",
         "water": {
@@ -1330,7 +1311,7 @@
       "kind": "bird",
       "trophic": "apex-predator",
       "rarity": "rare",
-      "diet": "Mostly small mammals — voles, ground squirrels, rabbits — plus birds and snakes",
+      "diet": "mostly small mammals — voles, ground squirrels, rabbits — plus birds and snakes",
       "shelter": "A bulky stick nest in the crown of a tall tree or on a cliff ledge",
       "preferredHabitat": "Open country seen from above: grassland, fields and meadows",
       "fact": "That screaming eagle cry in every film is a red-tailed hawk. Actual bald eagles sound like squeaky gulls, so the movies quietly swapped them.",
@@ -1354,7 +1335,6 @@
         "objects": {
           "crown-stick-eyrie": 1,
           "oak-tree": 1,
-          "native-grass-patch": 1,
           "bird-perch": 1
         },
         "signature": "crown-stick-eyrie",
@@ -1392,7 +1372,7 @@
       "kind": "fish",
       "trophic": "herbivore",
       "rarity": "common",
-      "diet": "Algae, diatoms and plankton sifted off mud, stems and stones, plus detritus and small insect larvae.",
+      "diet": "algae, diatoms and plankton sifted off mud, stems and stones, plus detritus and small insect larvae.",
       "shelter": "Reed roots, submerged plant beds, and the shaded underside of sunken wood.",
       "preferredHabitat": "Connected, clean, weedy pools.",
       "fact": "The male minnow scrubs the underside of a sunken slab spotless using a spongy pad on his own back, then guards the eggs the females glue to that ceiling — fanning them day and night until they hatch.",
@@ -1428,7 +1408,6 @@
         "minHealth": 28,
         "objects": {
           "submerged-spawning-slab": 2,
-          "shallow-water-pool": 2,
           "marsh-log": 1
         },
         "signature": "submerged-spawning-slab",
@@ -1457,7 +1436,7 @@
       "kind": "mammal",
       "trophic": "herbivore",
       "rarity": "uncommon",
-      "diet": "Bark and cambium of willow and aspen, plus cattail rhizomes and submerged plants",
+      "diet": "bark and cambium of willow and aspen, plus cattail rhizomes and submerged plants",
       "shelter": "Stick-and-mud lodges with underwater entrances",
       "preferredHabitat": "Slow channels with mud banks and woody plants to fell",
       "fact": "A beaver's front teeth never stop growing and are orange because they are reinforced with iron — living chisels that gnawing keeps sharp. Its lips shut behind those teeth, so it can carry and cut branches underwater without swallowing the pond.",
@@ -1480,7 +1459,7 @@
         "water": {
           "tiles": 5
         },
-        "hint": "Willows to fell and eat, a soft bank to den in, and enough water to float a log. The moment a beaver settles here, seven new habitats become buildable."
+        "hint": "Willows to fell and eat, a soft bank to den in, and enough water to float a log. Once it settles, seven new habitats become buildable."
       },
       "sources": [
         {
@@ -1502,7 +1481,7 @@
       "kind": "mammal",
       "trophic": "herbivore",
       "rarity": "common",
-      "diet": "Mainly cattails, bulrush and roots; sometimes freshwater mussels and small fish",
+      "diet": "mainly cattails, bulrush and roots; sometimes freshwater mussels and small fish",
       "shelter": "Dome lodges woven from cattail and reed, and burrows dug into banks",
       "preferredHabitat": "Reedy shallows with abundant cattails",
       "fact": "A muskrat can stay under for a quarter of an hour on one breath, and in midwinter it dives beneath the ice to dig up frozen-in cattail roots and eat them down there in the dark.",
@@ -1525,7 +1504,6 @@
         "objects": {
           "cattail-root-shallows": 2,
           "cattail-stand": 2,
-          "reed-bed": 1,
           "mud-bank": 1
         },
         "signature": "cattail-root-shallows",
@@ -1554,7 +1532,7 @@
       "kind": "bird",
       "trophic": "herbivore",
       "rarity": "common",
-      "diet": "Mostly seeds and submerged plants, though hens switch to insect larvae, snails and freshwater shrimp while laying, and ducklings eat almost nothing else at first",
+      "diet": "mostly seeds and submerged plants, though hens switch to insect larvae, snails and freshwater shrimp while laying, and ducklings eat almost nothing else at first",
       "shelter": "Ground nests hidden in dense sedge and grass tussocks near water",
       "preferredHabitat": "Calm, plant-rich shallows with tussock cover on the bank",
       "fact": "Mallards sleep with one eye open and half the brain awake. On a raft of sleeping ducks it is the ones on the outside doing the watching — and they swap places so everyone gets a proper nap.",
@@ -1580,7 +1558,6 @@
         "minHealth": 25,
         "objects": {
           "sedge-tussock": 2,
-          "shallow-water-pool": 2,
           "lily-pool": 1
         },
         "signature": "sedge-tussock",
@@ -1608,7 +1585,7 @@
       "kind": "reptile",
       "trophic": "herbivore",
       "rarity": "common",
-      "diet": "Mostly aquatic plants and algae as an adult; hatchlings and young turtles eat far more insects and carrion",
+      "diet": "mostly aquatic plants and algae as an adult; hatchlings and young turtles eat far more insects and carrion",
       "shelter": "Muddy pond bottoms; hauls out onto logs to bask",
       "preferredHabitat": "Still water with basking logs",
       "fact": "A painted turtle spends the entire winter under the ice without taking a breath. It absorbs what oxygen it can through its back end, and when that runs short it dissolves minerals out of its own shell to stay alive until spring.",
@@ -1664,7 +1641,7 @@
       "kind": "bird",
       "trophic": "omnivore",
       "rarity": "common",
-      "diet": "Insects in summer, seeds and grain the rest of the year",
+      "diet": "insects in summer, seeds and grain the rest of the year",
       "shelter": "Cup nests wound around several upright stems standing in water",
       "preferredHabitat": "Dense cattail and reed stands with water underneath",
       "fact": "A male red-wing can switch his scarlet shoulder patches on and off. Flared wide they start fights; tucked away under the black feathers they let him slip through a rival's territory completely unnoticed.",
@@ -1721,7 +1698,7 @@
       "kind": "bird",
       "trophic": "herbivore",
       "rarity": "rare",
-      "diet": "Grains, tubers, insects, crayfish and small animals",
+      "diet": "grains, tubers, insects, crayfish and small animals",
       "shelter": "Large ground mounds of piled marsh plants standing in shallow water",
       "preferredHabitat": "Broad, quiet, restored marshland",
       "fact": "Cranes dance to choose a partner — leaping, bowing and flinging sticks in the air — and once they pair up they usually stay together for life. Their bugling carries more than two kilometres because the windpipe is coiled up inside the breastbone like a trumpet.",
@@ -1776,7 +1753,7 @@
       "kind": "amphibian",
       "trophic": "insectivore",
       "rarity": "common",
-      "diet": "Small insects and other tiny invertebrates",
+      "diet": "small insects and other tiny invertebrates",
       "shelter": "Damp litter and loose bark under fallen wood in winter; wet vegetation in summer",
       "preferredHabitat": "Shallow pools ringed with reeds and wet meadow",
       "fact": "A chorus frog freezes solid every winter. Ice fills the spaces around its organs, its heart stops for weeks — and in spring it thaws out and starts singing as though nothing happened. The call sounds exactly like running your thumb along a comb.",
@@ -1834,7 +1811,7 @@
       "kind": "amphibian",
       "trophic": "insectivore",
       "rarity": "uncommon",
-      "diet": "Worms, insects, freshwater shrimp and other small invertebrates; larvae take tadpoles",
+      "diet": "worms, insects, freshwater shrimp and other small invertebrates; larvae take tadpoles",
       "shelter": "Damp burrows in soft ground near fishless breeding pools",
       "preferredHabitat": "Fishless seasonal pools with soft banks",
       "fact": "Tiger salamanders spend most of their lives alone underground, then walk back on the first warm rainy night of spring to the exact pool they hatched in — and if that pool starts drying too fast, some larvae grow oversized heads and start eating their own brothers and sisters.",
@@ -1867,7 +1844,7 @@
         "excludes": [
           "freshwater-fish"
         ],
-        "hint": "Dig the vernal pools well away from the fish pools and let them dry right out in summer. Fish and tiger salamander larvae cannot share water."
+        "hint": "Dig the vernal pools well away from the fish pools and let them dry right out in summer. Fish and it larvae cannot share water."
       },
       "sources": [
         {
@@ -1888,7 +1865,7 @@
       "kind": "insect",
       "trophic": "insectivore",
       "rarity": "common",
-      "diet": "Flying insects as an adult; the underwater nymph takes midge larvae, freshwater shrimp, tadpoles and fish fry",
+      "diet": "flying insects as an adult; the underwater nymph takes midge larvae, freshwater shrimp, tadpoles and fish fry",
       "shelter": "Emergent reed stems for the adults; the nymphs live in the water below",
       "preferredHabitat": "Clean open water with emergent stems to climb out on",
       "fact": "Dragonflies catch about 95 out of every 100 things they chase — a better strike rate than a lion, a shark or a falcon. They also see the world in something close to slow motion, which is why swatting one never works.",
@@ -1959,7 +1936,7 @@
       "kind": "mammal",
       "trophic": "mesopredator",
       "rarity": "rare",
-      "diet": "Fish, frogs, crayfish, muskrats, and the eggs and young of marsh birds",
+      "diet": "fish, frogs, crayfish, muskrats, and the eggs and young of marsh birds",
       "shelter": "Bank burrows, usually taken over from muskrats rather than dug",
       "preferredHabitat": "Brushy banks beside busy water",
       "fact": "A mink will chase a fish thirty metres underwater, and it hunts on land, in the water and up trees. What it almost never does is dig — it simply moves into a burrow a muskrat made and does not ask.",
@@ -2005,7 +1982,7 @@
           "freshwater-fish",
           "chorus-frog"
         ],
-        "hint": "Water to hunt in, a bank to den in — and a muskrat to dig that den first."
+        "hint": "Water to hunt in, and a bank den — but something else has to dig that den first."
       },
       "sources": [
         {
@@ -2027,7 +2004,7 @@
       "kind": "bird",
       "trophic": "mesopredator",
       "rarity": "uncommon",
-      "diet": "Fish, frogs, salamanders, crayfish and large insects",
+      "diet": "fish, frogs, salamanders, crayfish and large insects",
       "shelter": "Colonial stick nests built high in tall trees and snags near water",
       "preferredHabitat": "Still shallows for slow, patient hunting, with tall nest trees within reach",
       "fact": "A heron's neck has one specially kinked bone in it that works like a loaded spring — the strike is over faster than you can blink, and the fish is caught crosswise in the bill rather than speared.",
@@ -2080,7 +2057,7 @@
       "kind": "mammal",
       "trophic": "apex-predator",
       "rarity": "rare",
-      "diet": "Fish, crayfish, mussels, frogs and other aquatic animals",
+      "diet": "fish, crayfish, mussels, frogs and other aquatic animals",
       "shelter": "Bank dens with underwater entrances — usually a beaver's old lodge or burrow",
       "preferredHabitat": "Clean, connected water rich in fish and slow prey",
       "fact": "An otter has around 350,000 hairs packed into every square centimetre of its fur — more than most animals have on their entire body. It is the air trapped in all that fur, not fat, that keeps an otter warm in freezing water.",
@@ -2115,7 +2092,7 @@
           "freshwater-fish",
           "crayfish"
         ],
-        "hint": "Lots of connected clean water, plenty of fish and crayfish, and a beaver-made bank den with an underwater door."
+        "hint": "Lots of connected clean water, plenty of fish and crayfish, and an old beaver-made bank den with an underwater door."
       },
       "sources": [
         {

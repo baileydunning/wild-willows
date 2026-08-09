@@ -34,8 +34,8 @@
         "plant",
         "food"
       ],
-      "shape": "patch",
-      "color": "#5f9e44",
+      "shape": "nativegrass",
+      "color": "#a8a94e",
       "description": "Deep-rooted native bunchgrass that sends roots down further than it stands tall. It holds soil together and keeps the ground covered year-round.",
       "matureHours": 2,
       "matureBonus": 1
@@ -941,7 +941,7 @@
     },
     {
       "id": "dune-grass",
-      "name": "American Dunegrass",
+      "name": "Dune Grass",
       "placement": "outdoor",
       "biomes": [
         "coastal"
@@ -1344,7 +1344,7 @@
     },
     {
       "id": "clover-patch",
-      "name": "Native Clover Patch",
+      "name": "Clover Patch",
       "placement": "outdoor",
       "biomes": [
         "meadow",
@@ -1598,7 +1598,7 @@
     },
     {
       "id": "daisy-patch",
-      "name": "Blanketflower Patch",
+      "name": "Daisy Patch",
       "placement": "outdoor",
       "biomes": [
         "meadow"
@@ -1626,7 +1626,7 @@
     },
     {
       "id": "foxglove",
-      "name": "Penstemon Spires",
+      "name": "Foxglove",
       "placement": "outdoor",
       "biomes": [
         "meadow"
@@ -3387,7 +3387,7 @@
     },
     {
       "id": "bumblebee-nest-burrow",
-      "name": "Bumble Bee Nest Burrow",
+      "name": "Nest Burrow",
       "placement": "outdoor",
       "biomes": [
         "alpine"
@@ -3543,7 +3543,7 @@
     },
     {
       "id": "ledge-natal-den",
-      "name": "Ledge Natal Den",
+      "name": "Ledge Den",
       "placement": "outdoor",
       "biomes": [
         "alpine"
@@ -3833,7 +3833,7 @@
     },
     {
       "id": "benthic-amphipod-bed",
-      "name": "Amphipod and Mysid Bed",
+      "name": "Muddy Seabed",
       "placement": "outdoor",
       "biomes": [
         "coastal"
@@ -3998,7 +3998,7 @@
     },
     {
       "id": "mussel-bed-lower-margin",
-      "name": "Mussel Bed Lower Margin",
+      "name": "Mussel Bed Edge",
       "placement": "outdoor",
       "biomes": [
         "coastal"
@@ -4233,7 +4233,7 @@
     },
     {
       "id": "cryptobiotic-crust",
-      "name": "Cryptobiotic Soil Crust",
+      "name": "Living Soil Crust",
       "placement": "outdoor",
       "biomes": [
         "desert"
@@ -4320,7 +4320,7 @@
     },
     {
       "id": "termite-worked-litter",
-      "name": "Termite-Worked Soil",
+      "name": "Crumbled Soil",
       "placement": "outdoor",
       "biomes": [
         "desert"
@@ -4424,7 +4424,7 @@
     },
     {
       "id": "kit-fox-den",
-      "name": "Kit Fox Den",
+      "name": "Sandy Den",
       "placement": "outdoor",
       "biomes": [
         "desert"
@@ -4458,7 +4458,7 @@
     },
     {
       "id": "snake-hibernaculum-desert",
-      "name": "Snake Den",
+      "name": "Winter Rock Den",
       "placement": "outdoor",
       "biomes": [
         "desert"
@@ -4475,7 +4475,7 @@
     },
     {
       "id": "saguaro-boot",
-      "name": "Saguaro Boot",
+      "name": "Cactus Hollow",
       "placement": "outdoor",
       "biomes": [
         "desert"
@@ -4611,7 +4611,7 @@
     },
     {
       "id": "deep-duff-soil",
-      "name": "Deep Duff Layer",
+      "name": "Deep Leaf Mould",
       "placement": "outdoor",
       "biomes": [
         "forest"
@@ -4645,7 +4645,7 @@
     },
     {
       "id": "soft-rot-snag",
-      "name": "Soft-Rot Snag",
+      "name": "Rotting Dead Tree",
       "placement": "outdoor",
       "biomes": [
         "forest"
@@ -4662,7 +4662,7 @@
     },
     {
       "id": "ant-riddled-log",
-      "name": "Ant-Riddled Log",
+      "name": "Hollowed Log",
       "placement": "outdoor",
       "biomes": [
         "forest"
@@ -4714,7 +4714,7 @@
     },
     {
       "id": "pileated-cavity-snag",
-      "name": "Pileated Cavity Snag",
+      "name": "Tall Hollow Tree",
       "placement": "outdoor",
       "biomes": [
         "forest"
@@ -4731,7 +4731,7 @@
     },
     {
       "id": "flooded-cavity-snag",
-      "name": "Flooded Cavity Snag",
+      "name": "Dead Tree Over Water",
       "placement": "outdoor",
       "biomes": [
         "forest"
@@ -4748,7 +4748,7 @@
     },
     {
       "id": "bark-slab-snag",
-      "name": "Loose-Bark Snag",
+      "name": "Peeling Bark Tree",
       "placement": "outdoor",
       "biomes": [
         "forest"
@@ -4889,7 +4889,7 @@
     },
     {
       "id": "snake-hibernaculum-forest",
-      "name": "Snake Hibernaculum",
+      "name": "Forest Winter Den",
       "placement": "outdoor",
       "biomes": [
         "forest"
@@ -5037,7 +5037,7 @@
     },
     {
       "id": "vole-runway-network",
-      "name": "Vole Runway Network",
+      "name": "Grass Runways",
       "placement": "outdoor",
       "biomes": [
         "meadow"
@@ -5053,7 +5053,7 @@
     },
     {
       "id": "milkweed-rhizome-bed",
-      "name": "Milkweed Rhizome Bed",
+      "name": "Milkweed Bed",
       "placement": "outdoor",
       "biomes": [
         "meadow"
@@ -5087,7 +5087,7 @@
     },
     {
       "id": "brush-form-hollow",
-      "name": "Brush Form Hollow",
+      "name": "Brush Hollow",
       "placement": "outdoor",
       "biomes": [
         "meadow"
@@ -5104,7 +5104,7 @@
     },
     {
       "id": "serviceberry-browse-thicket",
-      "name": "Serviceberry Browse Thicket",
+      "name": "Berry Thicket",
       "placement": "outdoor",
       "biomes": [
         "meadow"
@@ -5123,7 +5123,7 @@
     },
     {
       "id": "milkweed-aphid-colony",
-      "name": "Milkweed Aphid Colony",
+      "name": "Sap-Rich Stems",
       "placement": "outdoor",
       "biomes": [
         "meadow"
@@ -5153,7 +5153,7 @@
     },
     {
       "id": "mantis-ootheca-stem",
-      "name": "Standing Stem Ootheca",
+      "name": "Egg-Case Stem",
       "placement": "outdoor",
       "biomes": [
         "meadow"
@@ -5198,7 +5198,7 @@
     },
     {
       "id": "snake-hibernaculum-meadow",
-      "name": "Snake Hibernaculum",
+      "name": "Meadow Winter Den",
       "placement": "outdoor",
       "biomes": [
         "meadow"
@@ -5213,7 +5213,7 @@
     },
     {
       "id": "deep-loam-soil-bank",
-      "name": "Deep Loam Soil Bank",
+      "name": "Deep Soil Bank",
       "placement": "outdoor",
       "biomes": [
         "meadow"
@@ -5228,7 +5228,7 @@
     },
     {
       "id": "earthen-fox-den",
-      "name": "Earthen Fox Den",
+      "name": "Earth Den",
       "placement": "outdoor",
       "biomes": [
         "meadow"
@@ -5416,7 +5416,7 @@
     },
     {
       "id": "wet-meadow-margin",
-      "name": "Wet Meadow Margin",
+      "name": "Wet Meadow Edge",
       "placement": "outdoor",
       "biomes": [
         "wetland"
@@ -5512,7 +5512,7 @@
     },
     {
       "id": "muskrat-bank-den",
-      "name": "Old Muskrat Bank Den",
+      "name": "Old Bank Den",
       "placement": "outdoor",
       "biomes": [
         "wetland"
@@ -5527,7 +5527,7 @@
     },
     {
       "id": "otter-bank-den",
-      "name": "Otter Bank Den",
+      "name": "River Bank Den",
       "placement": "outdoor",
       "biomes": [
         "wetland"
@@ -5542,7 +5542,7 @@
     },
     {
       "id": "beaver-pond",
-      "name": "Beaver Pond",
+      "name": "Dammed Pond",
       "placement": "outdoor",
       "biomes": [
         "wetland"
@@ -5560,7 +5560,7 @@
     },
     {
       "id": "beaver-canal",
-      "name": "Beaver Canal",
+      "name": "Dug Channel",
       "placement": "outdoor",
       "biomes": [
         "wetland"
@@ -5638,7 +5638,7 @@
     },
     {
       "id": "coyote-natal-den-bank",
-      "name": "Coyote Den Bank",
+      "name": "Den Bank",
       "placement": "outdoor",
       "biomes": [
         "meadow"
@@ -5874,7 +5874,7 @@
     },
     {
       "id": "moth-scree-crack",
-      "name": "Moth Scree Crack",
+      "name": "Rock Crack",
       "placement": "outdoor",
       "biomes": [
         "alpine"
@@ -5948,7 +5948,7 @@
     },
     {
       "id": "willow-thicket-swale",
-      "name": "Willow Thicket Swale",
+      "name": "Willow Thicket",
       "placement": "outdoor",
       "biomes": [
         "coastal"
@@ -6006,7 +6006,7 @@
     },
     {
       "id": "sedge-tussock-nest",
-      "name": "Sedge Tussock",
+      "name": "Meadow Sedge Tussock",
       "placement": "outdoor",
       "biomes": [
         "meadow"
@@ -6077,7 +6077,7 @@
     },
     {
       "id": "winter-freeze-litter-bed",
-      "name": "Freeze-Down Litter Bed",
+      "name": "Frozen Leaf Bed",
       "placement": "outdoor",
       "biomes": [
         "forest"
@@ -6142,28 +6142,8 @@
       "description": "A gravel-floored shelf high on a cliff with a shallow dip kicked into the grit. No nest is built here and none is needed — the ledge and the drop below it are the whole thing."
     },
     {
-      "id": "algae-garden-scar",
-      "name": "Grazed Algae Garden",
-      "placement": "outdoor",
-      "biomes": [
-        "coastal"
-      ],
-      "healthValue": 4,
-      "needs": [
-        "plant",
-        "food"
-      ],
-      "shape": "stump",
-      "color": "#6f8f5e",
-      "description": "A clean oval of rock kept scrubbed to a film of green algae, with a shell-shaped scar worn into the middle of it. The limpet that owns it weeds out anything else and shoves rivals over the edge.",
-      "zone": "mid",
-      "waveExposure": "exposed",
-      "matureHours": 3,
-      "matureBonus": 1
-    },
-    {
       "id": "octopus-den-midden",
-      "name": "Den Midden",
+      "name": "Den Scrap Pile",
       "placement": "outdoor",
       "biomes": [
         "coastal"
@@ -6268,7 +6248,7 @@
     },
     {
       "id": "feather-lined-crack",
-      "name": "Feather-Lined Crack",
+      "name": "Lined Rock Crack",
       "placement": "outdoor",
       "biomes": [
         "alpine"
@@ -6363,7 +6343,7 @@
     },
     {
       "id": "groundhog-burrow-mound",
-      "name": "Burrow Mound",
+      "name": "Meadow Burrow Mound",
       "placement": "outdoor",
       "biomes": [
         "meadow"
@@ -6406,6 +6386,61 @@
       "color": "#7a6a4e",
       "description": "A bulky platform of salt-bleached sticks wedged in a high fork, added to and patched every season.",
       "zone": "backdune",
+      "waveExposure": "sheltered"
+    },
+    {
+      "id": "happy-buddha",
+      "name": "Happy Buddha",
+      "placement": "both",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "buddhastatue",
+      "color": "#c9a86a",
+      "decorative": true,
+      "description": "A round little figure sat cross-legged with both arms thrown up and a grin across its whole face. Rubbing the belly is supposed to be lucky, and the clay has gone smooth and shiny in that one spot."
+    },
+    {
+      "id": "lucky-toad",
+      "name": "Lucky Toad",
+      "placement": "both",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "luckytoad",
+      "color": "#9ab35c",
+      "decorative": true,
+      "description": "A fat three-legged toad sitting on a little heap of coins with one more held in its mouth. Tradition says it faces into the camp, never out, so the luck comes in with you."
+    },
+    {
+      "id": "rippled-sand-bed",
+      "name": "Rippled Sand",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "open"
+      ],
+      "shape": "mound",
+      "color": "#d8c9a4",
+      "description": "Clean sand below the low tide line, combed into even ridges by a current gentle enough to leave them standing.",
+      "zone": "subtidal",
       "waveExposure": "sheltered"
     }
   ]

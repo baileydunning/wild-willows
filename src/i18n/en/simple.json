@@ -310,10 +310,10 @@
 				"role": "A clever mid-sized hunter that keeps mice and rabbits in check. It stalks low, then pounces. It also eats bugs, berries, and dead animals. No bigger hunters live here, so the fox sits near the top."
 			},
 			"lady-beetle": {
-				"hint": "Flowers bring aphids. Aphids bring lady beetles.",
-				"diet": "Hunts aphids and other small, soft bugs",
+				"hint": "Flowers bring aphids. Aphids bring they.",
+				"diet": "aphids and other small, soft bugs",
 				"shelter": "Winters in leaf litter in big groups. Rests on leaves",
-				"fact": "One lady beetle can eat about 5,000 aphids in its life. That is about 50 a day.",
+				"fact": "One ladybug can eat about 5,000 aphids in its life. That is about 50 a day.",
 				"role": "A small hunter that eats aphids and other soft bugs, both when young and when grown. That makes it a great helper in gardens. Birds and bigger bugs then eat it, which links the aphids up the food web."
 			},
 			"western-meadowlark": {
@@ -322,8 +322,8 @@
 				"role": "A grassland bird that eats lots of grasshoppers, crickets, and beetles in summer. In winter it eats seeds. All that eating keeps bug numbers down. It is round and feeds on the ground, so hawks and other meadow hunters catch it."
 			},
 			"red-tailed-hawk": {
-				"hint": "Hawks look for a meadow that is already full of small animals.",
-				"diet": "Mostly small mammals like voles, squirrels, and rabbits. Also birds and snakes",
+				"hint": "A tall tree to nest in. Open grass to hunt over. And plenty of small animals already there.",
+				"diet": "voles, ground squirrels and rabbits. Also birds and snakes",
 				"preferredHabitat": "Open land: grassland, fields, and meadows seen from above",
 				"fact": "That sharp eagle cry in movies is almost always a red-tailed hawk.",
 				"role": "The top day hunter of the meadow. It rides the wind on wide wings or watches from a perch. By eating voles, ground squirrels, rabbits, and birds it keeps plant eaters in check. Almost nothing hunts a grown hawk here."
@@ -336,7 +336,7 @@
 				"role": "The night hunter of mice. It flies low and silent over the grass and swallows mice whole, which keeps mouse numbers down. Nothing here hunts it."
 			},
 			"woodpecker": {
-				"hint": "Woodpeckers need dead standing trees. Leave some up.",
+				"hint": "they need dead standing trees. Leave some up.",
 				"diet": "Mostly bugs: beetle grubs, ants, and caterpillars. Some berries and sap",
 				"shelter": "Holes it cuts itself in dead standing trees. Sleeps in them all year",
 				"preferredHabitat": "Open leafy and mixed woods with dead trees full of bugs",
@@ -365,8 +365,8 @@
 				"role": "Elk are big grazers. Heavy grazing shapes grass, willow, and aspen, and those plants come back when elk numbers drop. They are the main food of wolves, big cats, and bears, so they hold the big hunters up, and when one dies many scavengers eat. Their yearly moves spread goodness up and down the mountain."
 			},
 			"bobcat": {
-				"hint": "Bobcats follow lots of prey. They need rocks and brush to hide in.",
-				"diet": "Eats only meat: rabbits, mice, and squirrels. Some birds and lizards",
+				"hint": "they follow lots of prey. They need rocks and brush to hide in.",
+				"diet": "only meat: rabbits, mice, and squirrels. Some birds and lizards",
 				"preferredHabitat": "Forest with thick brush, scrub, and rocky ground",
 				"fact": "In the eastern US, bobcat numbers rise and fall with how many rabbits there are.",
 				"role": "Bobcats are key mid-sized hunters. They hold down rabbits, mice, and squirrels, which eases the pressure on forest plants. They sit below cougars and wolves and above the small animals they take. They shape whole groups of small animals."
@@ -390,7 +390,7 @@
 				"role": "The base of the wetland food web. These small schooling fish eat algae, plankton, and bug babies. Then almost every marsh hunter eats them."
 			},
 			"burrowing-owl": {
-				"hint": "Burrows that are already dug, and open ground to hunt over.",
+				"hint": "It cannot dig. Bring back a digger first. Then it needs low, open ground to hunt.",
 				"fact": "It makes a rasping call like a rattlesnake to scare visitors out of its burrow.",
 				"role": "A small owl that lives in holes other animals dug. It hunts bugs by day and mice by night, so it holds down both. Badgers, coyotes, and snakes hunt it."
 			},
@@ -409,14 +409,9 @@
 			},
 			"sea-otter": {
 				"hint": "Kelp and shellfish beds come first. Otters follow.",
-				"diet": "Sea urchins, crabs, mussels, clams, and other shellfish",
+				"diet": "sea urchins most of all. Also crabs, mussels and sea stars",
 				"preferredHabitat": "Kelp forest and rocky shore with lots of shellfish",
 				"role": "A key animal of the coast. By eating sea urchins it stops them from mowing down the kelp. So kelp forests and everything living in them can thrive. It also eats a lot of mussels and clams along the rocks."
-			},
-			"dolphin": {
-				"hint": "A clean, busy shore brings dolphins in close.",
-				"fact": "Bottlenose dolphins call each other by name. Each one has its own whistle.",
-				"role": "A smart hunter that works with others to herd fish and chase squid near shore. Big sharks and orcas can hunt it. But here it is a top hunter, and seeing one means the coast is full of fish."
 			},
 			"migrating-whale": {
 				"hint": "Only a truly healthy shore brings a whale. Watch the horizon.",
@@ -436,15 +431,8 @@
 				"fact": "Rocky Mountain boreal toads have crashed because of a deadly skin fungus.",
 				"role": "The only toad of the high country. It eats bugs, breeds in shallow snowmelt pools, and takes years to grow up. Its tadpoles eat algae. A skin fungus has wiped out many southern groups, so people work hard to save it."
 			},
-			"green-heron": {
-				"hint": "Plant a water tupelo next to a lily pool and open water.",
-				"diet": "Mostly small fish. Also bugs, crabs, and frogs",
-				"shelter": "Stick nests in trees and shrubs that hang over water",
-				"fact": "The green heron drops bait on the water to pull fish close enough to grab.",
-				"role": "A small, clever heron of shady shallows. It is one of the few birds that uses tools. It fishes with great patience. Sometimes it drops bait on the water to pull fish in close."
-			},
 			"elf-owl": {
-				"hint": "Plant a mesquite and an ironwood next to a cactus patch.",
+				"hint": "A cactus is not enough. Something has to drill the hole first.",
 				"fact": "The world’s smallest owl pulls the stinger off scorpions before eating them.",
 				"role": "The smallest owl in the world. It hunts bugs and scorpions at night and nests in old woodpecker holes. Snakes and bigger owls are a danger to it."
 			},
@@ -454,47 +442,16 @@
 				"shelter": "Old woodpecker holes and tree holes in pines and aspens",
 				"role": "A busy little bird that picks bugs off pine twigs and lives on seeds it hid away in winter. Mixed flocks often form around it, and it spreads pine seeds. Small hawks, weasels, and martens eat it and its chicks."
 			},
-			"killdeer": {
-				"hint": "Open native grass with a rock pile and a stone wall to nest by.",
-				"fact": "Killdeer fake a broken wing, dragging it as if hurt to lead hunters away from the nest.",
-				"role": "A bug eater that runs and stops, runs and stops across open ground. It grabs worms and bugs as it goes. It nests right out on the ground where it can be seen. So meadow hunters take the adults, the chicks, and the eggs."
-			},
-			"red-admiral": {
-				"hint": "Flowers for butterflies and wild flowers, next to a bug hotel.",
-				"diet": "Adults like tree sap, old fruit, and nectar. Young eat nettles",
-				"shelter": "Young fold nettle leaves into little tents. Adults rest on trees",
-				"preferredHabitat": "Flowery clearings and wood edges near nettle patches",
-				"fact": "Red admirals are bold and defend their patch. They will land on people who stay still.",
-				"role": "A fast butterfly that guards its own patch. It feeds mostly on tree sap, fruit, and droppings, and drinks from flowers when nothing better is around. Its caterpillars eat only stinging nettle. It has no bad taste to protect it, so it hides and flies fast to get away."
-			},
-			"chuckwalla": {
-				"hint": "A rock crack to squeeze into, cactus and brush to eat, and a warm stone pile to sit on.",
-				"fact": "A scared chuckwalla wedges into a crack and puffs up its lungs to lock itself in.",
-				"role": "A big plant-eating lizard that feeds on desert leaves, flowers, and fruit among the boulders. Hawks, kestrels, coyotes, and rattlesnakes hunt it. When scared it puffs up with air so it gets stuck tight in a rock crack."
-			},
 			"alpine-chipmunk": {
 				"hint": "A pile of loose rock and a rock pile among mountain flowers.",
 				"preferredHabitat": "High rock slopes and rocky meadows of the Sierra Nevada",
 				"fact": "It lives higher than almost any other chipmunk, up to 3,900 meters.",
 				"role": "A tiny high-mountain seed eater. It buries seeds and helps spread mountain plants across the rocks. It also takes eggs from rosy-finch and sparrow nests. Foxes, weasels, martens, and hawks all hunt it."
 			},
-			"cascades-frog": {
-				"hint": "A snowmelt pool next to a talus pile, with open water close by.",
-				"diet": "Eats bugs and spiders in and near the water",
-				"shelter": "Snowmelt ponds and lakes. Sleeps the winter in soil under the lake bed",
-				"preferredHabitat": "Cold high ponds and streams near pine forest",
-				"fact": "It stays active in near-freezing snowmelt water. It suns itself on wet rocks.",
-				"role": "A mountain frog built for the cold. It eats bugs and spiders, and its tadpoles eat algae in snowmelt pools. It links pond life to bigger hunters. Trout brought in by people eat its tadpoles, and its numbers have dropped sharply in the south."
-			},
 			"black-turnstone": {
 				"hint": "Tidepools and kelp wrack with a driftwood pile to hide in.",
 				"fact": "Turnstones flip over stones and shells to grab the creatures hiding beneath.",
 				"role": "A shore bird that pries barnacles and limpets loose. It also flips seaweed to find food hidden under it. It helps hold down shore bug numbers, and it needs rich rocky shores."
-			},
-			"pigeon-guillemot": {
-				"hint": "A nesting cliff above open water, near an oyster bed.",
-				"fact": "This seabird has bright red feet and a bright red mouth.",
-				"role": "A seabird that dives and chases small fish. It also pulls small animals out of cracks near the sea floor. It nests in rocky cliffs. It needs the healthy fish and shelter that kelp forests give."
 			},
 			"bat-star": {
 				"hint": "A couple of tidepools with an eelgrass bed.",
@@ -536,20 +493,15 @@
 				"role": "A common meadow hunter that eats worms, frogs, fish, bugs, and small mice. Its spit is a little poisonous, just enough to slow small prey. It keeps bugs and frogs in check. Hawks, owls, and foxes eat it."
 			},
 			"bumblebee": {
-				"diet": "Nectar for energy and pollen for growing, from many flowers",
+				"diet": "nectar and pollen, from many kinds of flower",
 				"shelter": "Nests in old mouse burrows, grass clumps, or holes in the ground",
 				"fact": "Bumblebees shake their flight muscles to knock pollen loose. Tomatoes and blueberries need this to make fruit.",
 				"role": "A big, fuzzy bee that visits many kinds of flowers for nectar and pollen. It buzzes to shake pollen loose, which most bees cannot do. That makes it key to meadow plants. Spiders and birds hunt it."
 			},
 			"grasshopper": {
-				"diet": "Eats plants: grasses, sedges, and broad-leaved weeds",
+				"diet": "plants: grasses, sedges, and broad-leaved weeds",
 				"fact": "Grasshoppers hear through eardrums on their belly, not their head.",
 				"role": "The main plant eater of the meadow and the main food too. It turns grass into food for many hunters. Birds, snakes, mammals, and other bugs all eat it. When grasshoppers boom, the whole food web feels it."
-			},
-			"barn-swallow": {
-				"preferredHabitat": "Open land near water, flowers, and buildings",
-				"fact": "Barn swallows build cup nests from up to 1,000 beakfuls of mud.",
-				"role": "A bird that catches flying bugs in the air. It follows cows and tractors to grab the bugs they stir up. It keeps flies and other pests in check. Fast hawks hunt both the grown birds and the young."
 			},
 			"tree-squirrel": {
 				"diet": "Acorns, nuts, seeds, tree buds, and fungi. Sometimes bugs and eggs",
@@ -572,22 +524,15 @@
 				"fact": "Red foxes have about 28 different calls. Other foxes can tell each one apart by voice.",
 				"role": "The red fox is a handy mid-sized hunter that keeps mice, rabbits, and ground-nesting birds in check. The fruit it eats spreads seeds. It sits below bears and bobcats and above the small animals it hunts. Fox pairs often use and add on to the same den for years."
 			},
-			"mule-deer-forest": {
-				"diet": "Eats leaves, twigs, and weeds in summer. Acorns and berries in winter",
-				"shelter": "No den. Sleeps in thick shrubs and forest cover to stay warm and safe",
-				"preferredHabitat": "Forest edges and open woods with shrubs to eat and water",
-				"fact": "A bounding mule deer gives off an alarm smell from its back legs. Every deer nearby knows at once.",
-				"role": "Mule deer are big plant eaters that shape which shrubs and young trees grow back. They are key food for big hunters, and their fawns feed bobcats, foxes, and bears. The way they move with the seasons carries goodness across the land."
-			},
 			"raccoon": {
-				"diet": "Eats what it finds: crayfish, bugs, frogs, fish, small mammals, eggs, and fruit",
+				"diet": "what it finds: crayfish, bugs, frogs, fish, small mammals, eggs, and fruit",
 				"shelter": "Likes hollow tree dens. Also rock cracks, burrows, and buildings",
 				"preferredHabitat": "Damp forest near water for finding food",
 				"fact": "A raccoon’s paws have about four times more touch sensors than its eyes have light sensors.",
 				"role": "Raccoons eat almost anything. They hold down crayfish, frogs, and bugs, spread fruit seeds, and raid bird nests. There are lots of them, so they tie the water and the forest together. Coyotes, big owls, and bobcats keep their numbers down."
 			},
 			"porcupine": {
-				"diet": "Eats only plants. Inner bark in winter. Buds, twigs, and leaves in summer",
+				"diet": "only plants. Inner bark in winter. Buds, twigs, and leaves in summer",
 				"shelter": "Rock dens, hollow logs, and treetops. Uses the same dens each season",
 				"preferredHabitat": "Pine and mixed forest with trees whose bark it can eat",
 				"fact": "The fisher is one of the few hunters that can kill a porcupine. It flips it over to reach the soft belly.",
@@ -626,19 +571,10 @@
 				"shelter": "Reed stems above water. The young live in the water",
 				"role": "A top bug hunter both in the air and under water. Adults grab flying bugs. The young live in the water and eat mosquito babies and tiny fish."
 			},
-			"damselfly": {
-				"diet": "Small flying bugs as an adult. Young ones eat small water animals",
-				"fact": "Damselflies fold their wings together over the back when resting. Dragonflies do not.",
-				"role": "A slim flier that scoops midges and mosquitoes out of the air with its legs. Its young live in water, hunt tiny bugs, and feed marsh fish and frogs."
-			},
 			"water-strider": {
 				"diet": "Bugs caught on the water surface. Also eats dead ones",
 				"fact": "Water striders ride on top of the water. Their legs are covered in thousands of tiny hairs.",
 				"role": "A bug that skates on top of the water. It grabs insects caught in the surface and cleans up dead ones. Fish, frogs, and wading birds catch it easily."
-			},
-			"desert-cottontail": {
-				"diet": "Grasses, mesquite, cactus pads, and other desert plants",
-				"role": "A common desert plant eater that feeds on grass and twigs. Foxes, coyotes, bobcats, and hawks all live on it. Its numbers help hold up the desert hunters."
 			},
 			"mountain-goat": {
 				"shelter": "Shallow beds scraped into cliff ledges and rocky ground",
@@ -666,10 +602,6 @@
 				"shelter": "Shallow hollows under thick shrubs and pine cover",
 				"preferredHabitat": "Brushy thickets and thick undergrowth near open grass",
 				"role": "A hare of brushy cover near treeline. Its coat flips from brown to white with the seasons. Its numbers rise and fall about every ten years, and hunter numbers rise and fall with them. Martens, foxes, eagles, and owls all hunt it."
-			},
-			"elk-alpine": {
-				"preferredHabitat": "High summer meadows near tree cover and snowmelt water",
-				"role": "A big grazer that moves with the seasons. It spends summer in high meadows, walking uphill after fresh grass, and calls all through the fall. Bulls grow huge new antlers every year. Cougars take grown elk, and eagles and coyotes may take newborn calves."
 			},
 			"mule-deer-alpine": {
 				"preferredHabitat": "High summer meadows and shrubland with clean water",
@@ -705,12 +637,6 @@
 				"fact": "This bee’s tongue got shorter between 1966 and 2014 as flowers grew scarce.",
 				"role": "A cold-hardy bumblebee with a long tongue. It moves pollen for deep mountain flowers. It shivers its wing muscles to warm up and fly in near-freezing air. Its nests are underground. Birds, crab spiders, and robber flies catch the workers."
 			},
-			"snowmelt-trout": {
-				"diet": "Bugs from the water and the land. Bigger ones also eat small fish",
-				"shelter": "Cold, clear pools and cut-away banks. Gravel shallows for eggs",
-				"fact": "Native cutthroat trout lose out to brown and brook trout brought in from elsewhere.",
-				"role": "A native cold-water fish. Where it lives, the mountain stream is clean and healthy. It picks bugs off the current, and big ones take smaller fish. Trout brought in from elsewhere crowd it out and eat it."
-			},
 			"tidepool-crab": {
 				"diet": "Mostly algae, plus bits of waste, worms, snails, and dead animals",
 				"fact": "Striped shore crabs eat algae. They also eat dead things, and even each other after they shed their shell.",
@@ -734,19 +660,6 @@
 				"fact": "An eastern bluebird can spot a tiny bug in the grass 60 feet away. Then it drops down and grabs it.",
 				"role": "A bug eater that nests in tree holes. It watches from a perch, then drops on caterpillars, beetles, and grasshoppers, and eats berries in winter. So it holds bugs down and spreads fruit seeds. It fights for nest holes, and hawks and small owls hunt it."
 			},
-			"leafcutter-bee": {
-				"diet": "Adults eat nectar and pollen from many kinds of flowers",
-				"preferredHabitat": "Meadows and gardens with many flowers and holes to nest in",
-				"fact": "Female leafcutter bees cut neat circles from leaves to build and seal their nest.",
-				"role": "A bee that lives alone and moves pollen for many meadow and farm plants. It carries pollen on its belly. It lines its nest with cut leaves and packs each room with pollen and nectar for its young. Spiders and birds catch the adults."
-			},
-			"painted-lady": {
-				"diet": "Adults drink from daisy-like flowers. Young eat thistle and mallow",
-				"shelter": "Rests on plants. Young build silk nests on the plants they eat",
-				"preferredHabitat": "Open meadows and rough ground with thistles and flowers",
-				"fact": "Painted ladies travel thousands of miles across continents. They are one of the most widespread butterflies on Earth.",
-				"role": "A butterfly that travels far. It drinks from many kinds of flowers and moves pollen as it goes. Its caterpillars eat thistle, mallow, and more than 100 other plants. When numbers boom, huge groups fly off together. Birds, wasps, and spiders eat both the adults and the young."
-			},
 			"american-badger": {
 				"diet": "Digs out squirrels, gophers, voles, and mice. Also eats bugs",
 				"shelter": "Digs its own big burrows. A very strong digger",
@@ -759,18 +672,6 @@
 				"shelter": "Cuts a new square nest hole each year in big dead trees",
 				"fact": "Its deep square holes can be big enough to snap a small tree in half.",
 				"role": "This big woodpecker builds homes for the whole forest. Its large holes become nests for wood ducks, flying squirrels, fishers, bats, and barred owls. It holds down carpenter ants and beetles. It opens up rotting wood so fungus and other tiny life can get in. Hawks and weasels eat it."
-			},
-			"pacific-wren": {
-				"diet": "Beetles, caterpillars, ants, flies, and spiders. Some berries in winter",
-				"preferredHabitat": "Very old pine forest with thick undergrowth near streams",
-				"fact": "Pacific wren numbers rise near streams with salmon runs. The fish feed the bugs the wrens eat.",
-				"role": "The Pacific wren eats the small creatures of the shady forest floor. That food then feeds hawks, crows, and weasels. It needs damp old forest full of fallen logs, and streams fed by salmon. So it shows how healthy both the forest and the water are. It nests low in root tangles and rotting wood."
-			},
-			"rough-skinned-newt": {
-				"shelter": "Under rotting logs, rocks, and leaves. In ponds when breeding",
-				"preferredHabitat": "Coastal pine forest near still or slow water",
-				"fact": "Its skin holds enough poison to kill several adults. Garter snakes have been in an arms race with it for ages.",
-				"role": "The rough-skinned newt eats bugs, worms, and frog eggs, so it shapes what lives in a wetland. Its skin holds a very strong poison. Garter snakes have slowly become able to handle it. That back-and-forth is one of the best-known stories in biology. The poison keeps almost everything else from eating the newt."
 			},
 			"northern-flying-squirrel": {
 				"diet": "Mostly fungus from underground. Also lichen, seeds, nuts, and bugs",
@@ -815,46 +716,12 @@
 				"fact": "It cannot dig its own hole, so it reuses old woodpecker holes and nest boxes.",
 				"role": "A bright blue bird of open high meadows. It hovers and drops on bugs in the air and adds berries when it turns cold. It nests in tree holes, so it needs old woodpecker holes. Hawks and nest raiders hunt it."
 			},
-			"purple-shore-crab": {
-				"diet": "Sea lettuce and other green algae, plus the odd dead animal",
-				"fact": "They scrape green algae off rocks and scuttle sideways under stones at low tide.",
-				"role": "A small crab that scrapes algae off shore rocks. Now and then it cleans up dead animals too. Gulls, anemones, and tidepool fish eat it, so it moves food from the algae up the web."
-			},
-			"coopers-hawk": {
-				"diet": "Mostly small and mid-sized birds. Also chipmunks, mice, and squirrels",
-				"preferredHabitat": "Wood edges and open land with scattered trees near meadows",
-				"fact": "Cooper’s hawks race through thick cover to surprise small birds. It is risky, and many end up with healed chest breaks.",
-				"role": "A hawk that hunts other birds along meadow edges and thickets. It flies low and turns fast, so it can pluck sparrows, finches, and bluebirds out of cover. It keeps small-bird numbers down, but bigger hawks can push it out."
-			},
-			"western-screech-owl": {
-				"shelter": "Sleeps and nests in tree holes, old woodpecker holes, and boxes",
-				"preferredHabitat": "Wooded edges and brushy spots next to open meadows",
-				"fact": "This tiny owl will take prey bigger than itself, even a rabbit.",
-				"role": "A small night hunter that waits, then drops on mice and bugs. It picks up grasshoppers and beetles and grabs voles and mice off the ground. At night it holds down both bugs and mice in the meadow."
-			},
-			"barred-owl": {
-				"diet": "Small mammals, birds, frogs, lizards, fish, and bugs",
-				"shelter": "Big tree holes in old forest. Also old hawk, crow, or squirrel nests",
-				"preferredHabitat": "Old mixed or pine forest near water with big hollow trees",
-				"fact": "Barred owls sometimes wade into shallow water to catch fish. That is unusual for a woodland owl.",
-				"role": "The barred owl is a mid-level hunter. It holds down mice, voles, chipmunks, squirrels, and frogs. It sits above the small animals it eats and below the great horned owl, which is its main threat. It needs big trees with holes, so it shows whether a forest is old and healthy."
-			},
 			"fisher": {
 				"diet": "Small and mid-sized mammals: porcupines, hares, squirrels. Also birds and fruit",
 				"shelter": "Dens in hollow trees, logs, stumps, and ground burrows. Young go high up",
 				"preferredHabitat": "Thick pine and mixed forest with a closed leaf roof and hollow trees",
 				"fact": "The fisher is one of the few hunters that kills porcupines. It goes for the face until it can flip it over.",
 				"role": "The fisher is a strong mid-level forest hunter. It is one of the few animals that can take a porcupine, which would otherwise damage lots of trees. It fills part of the gap left by big hunters that are gone. When fishers are around, the forest is old and well linked. Bobcats, foxes, and lynx eat the young ones."
-			},
-			"prothonotary-warbler": {
-				"shelter": "Tree holes and nest boxes standing over water",
-				"fact": "It is one of only two North American warblers that nest in tree holes.",
-				"role": "A bright gold swamp bird. It picks bugs and spiders from over the water. Most warblers nest in the open. This one nests in tree holes, often right above the water."
-			},
-			"pine-grosbeak": {
-				"preferredHabitat": "Open high spruce, fir, and pine forest near the tree line",
-				"fact": "A plump, unhurried finch of the cold high forests, nipping at buds and needles.",
-				"role": "A big, slow finch that lives almost only on pine buds, seeds, and fruit, adding bugs to feed its young. It helps spread tree and shrub seeds. Martens, small hawks, and foxes eat it, mostly at the nest."
 			},
 			"praying-mantis": {
 				"diet": "Waits and grabs live bugs, like bees and grasshoppers",
@@ -869,27 +736,11 @@
 				"fact": "A cold-loving fungus has killed more than 90% of little brown bats at many winter caves.",
 				"role": "Little brown bats eat a huge number of bugs. One bat can eat half its own weight in a night, which holds down forest and water pests. They tie the bug layer to bigger hunters like owls, fishers, and snakes. A sickness called white-nose has killed most of them."
 			},
-			"ensatina": {
-				"diet": "Small crawlers: worms, ants, beetles, spiders, centipedes, and snails",
-				"shelter": "Under rocks, bark, and logs on the forest floor. Goes underground when dry",
-				"fact": "Ensatinas have no lungs and breathe through their skin. They can drop a wriggling, poison-laced tail to escape.",
-				"role": "The ensatina is a common hunter of the forest floor. It holds down centipedes, millipedes, and sowbugs. That links the dead-leaf world to bigger animals. It has no lungs and breathes through its skin, so it needs damp, whole forest. That makes it a good sign of how wet the ground is. Garter snakes, raccoons, and jays eat it."
-			},
 			"spotted-towhee": {
 				"diet": "Bugs and small crawlers in summer. Seeds, acorns, and berries in winter",
 				"preferredHabitat": "Brushy forest edges and scrub with deep leaf litter",
 				"fact": "The spotted towhee feeds with a two-footed backward hop that flicks leaves aside.",
 				"role": "The spotted towhee feeds on the ground and ties the bug layer to the seed layer. It eats ground beetles and caterpillars in summer and spreads seeds in winter. It nests on the ground, so foxes, raccoons, and snakes get the nests while hawks and owls take the adults. Its scratching turns over the leaf litter."
-			},
-			"spotted-turtle": {
-				"diet": "Water plants, bugs, worms, snails, and other small crawlers",
-				"fact": "Each spotted turtle wears its own pattern of yellow dots on its shell.",
-				"role": "A small turtle that is getting rare. It hunts plants and small water animals below the surface. It suns on logs and buries itself in mud when scared."
-			},
-			"white-crowned-sparrow": {
-				"diet": "Mostly weed and grass seeds, plus caterpillars, beetles, and other bugs",
-				"fact": "Young white-crowns learn their song from the neighbours nearby.",
-				"role": "A sparrow that feeds on the ground at the edge of mountain meadows and low twisted trees. It eats seeds and summer bugs, spreads seeds, and feeds bug young to its chicks. Foxes, weasels, and martens take the adults and raid its low nests."
 			},
 			"meadow-vole": {
 				"fact": "Voles mow narrow paths through the grass. They are tidy little roads they patrol between burrow doors.",
@@ -938,10 +789,6 @@
 				"fact": "Texas horned lizards can squirt blood from their eyes to startle a hunter.",
 				"role": "A lizard that eats mostly one kind of ant and has a big belly to hold them. Roadrunners, hawks, shrikes, and snakes hunt it."
 			},
-			"collared-lizard": {
-				"fact": "The collared lizard runs on its back legs like a tiny dinosaur, tail out behind.",
-				"role": "A quick hunter that waits among the rocks. Then it grabs bugs and smaller lizards. It hunts desert bugs and baby lizards."
-			},
 			"tarantula": {
 				"fact": "A desert tarantula may live 25 years, most of it within a few feet of one burrow.",
 				"role": "A big spider that lives many years. At night it waits in its hole and grabs bugs and other small creatures. Birds, snakes, and wasps hunt it."
@@ -966,29 +813,13 @@
 				"fact": "One mussel cleans several liters of sea water an hour as it feeds.",
 				"role": "A filter feeder that builds reefs. Its beds make homes for countless small animals. It is the key food that ties the top shore hunters together, from sea stars to sea otters to oystercatchers."
 			},
-			"clam": {
-				"fact": "You can guess a clam’s age by counting the rings on its shell.",
-				"role": "A shellfish buried in the sand. It strains its food from the water, which helps keep the sea clean. Sea otters, shorebirds, crabs, and gulls dig it up or crack it open."
-			},
-			"shorebird": {
-				"fact": "Snowy plover chicks can run and feed themselves within hours of hatching.",
-				"role": "A small beach bird that snaps up tiny sea bugs and kelp flies along the tide line. It is at risk and needs quiet beaches. Its nests fail easily where beaches are busy."
-			},
 			"pelican": {
 				"fact": "Brown pelicans dive from up to 65 feet, twisting to protect the neck as they hit.",
 				"role": "A fish hunter that dives from the air. It nearly died out from the pesticide DDT and then came back, which is one of the great wins for wildlife. Where pelicans are, the water holds healthy schools of small fish."
 			},
-			"cormorant": {
-				"fact": "Cormorant feathers soak up water on purpose. Less float means better diving.",
-				"role": "A bird that dives and chases fish over reefs and open water. It needs clear water and lots of fish, so lots of cormorants means the rocky shore is doing well."
-			},
 			"harbor-seal": {
 				"fact": "Harbor seals can sleep under water. They come up to breathe without fully waking.",
 				"role": "A sea hunter that eats whatever fish is easy to catch. Sharks and killer whales hunt it out at sea, but on this healed coast it sits near the top of the food web."
-			},
-			"american-bittern": {
-				"fact": "The bittern freezes with its bill up and sways like a reed to vanish in the marsh.",
-				"role": "A shy hunter of the reeds. It stands perfectly still, then grabs fish, frogs, and bugs. Its stripes let it hide in plain sight."
 			},
 			"marsh-wren": {
 				"fact": "Males build many spare nests and even break their neighbours’ eggs.",
@@ -1001,17 +832,6 @@
 			"cactus-wren": {
 				"fact": "Cactus wrens use their ball-shaped nests all year, even for sleeping.",
 				"role": "The biggest wren in North America. It picks spiders and bugs off the brush and eats cactus fruit. It gets most of its water from its food. Snakes, roadrunners, and hawks take it and raid its nests."
-			},
-			"desert-iguana": {
-				"fact": "The desert iguana stays busy in heat that sends other lizards into the shade.",
-				"role": "A heat-loving lizard that eats mostly creosote bush flowers and leaves. It is a plant eater and food for snakes, hawks, and foxes. It waits out the hottest hours in a burrow."
-			},
-			"kangaroo-mouse": {
-				"fact": "It lives on water made from its food. It may never drink in its whole life."
-			},
-			"banded-gecko": {
-				"fact": "Unlike most geckos, this one has eyelids that move, and it squeaks when caught.",
-				"role": "A small night gecko that hunts bugs, spiders, and even baby scorpions. It is food for bigger lizards, snakes, and roadrunners. It can drop its tail to get away."
 			},
 			"sanderling": {
 				"fact": "Sanderlings chase the waves back out in busy little sprints to grab stranded creatures.",
@@ -1032,13 +852,6 @@
 			"costas-hummingbird": {
 				"fact": "A male dives past a female with a high whistle. His purple throat flashes in the sun.",
 				"role": "A small desert hummingbird that drinks nectar from agave, chuparosa, and other blooms and eats tiny bugs. It moves lots of pollen. Snakes and hunting birds catch it."
-			},
-			"acorn-woodpecker": {
-				"fact": "It drills thousands of holes in one tree and stores a single acorn in each.",
-				"role": "A woodpecker that lives in groups and stuffs acorns into shared storage trees. It also catches flying bugs. Its acorn stashes and its old holes help other animals, so it is a key builder in oak woods."
-			},
-			"common-yellowthroat": {
-				"fact": "The male’s black mask is a signal that rivals will attack on sight."
 			},
 			"phainopepla": {
 				"fact": "This bird spreads desert mistletoe seeds. The two depend on each other.",
@@ -1076,6 +889,294 @@
 			},
 			"gull": {
 				"role": "A bold bird that eats almost anything. It cleans up dead animals and hunts crabs, shellfish, and even sea stars, which links many kinds of prey to the top of the food web. Foxes and coyotes take gulls and their eggs on land."
+			},
+			"alpine-springtail": {
+				"diet": "Dead leaves and stems, fungus threads, pollen, and the pink algae that grows on old snow",
+				"shelter": "Wet dead leaves, moss, and the gap between the snow and the ground in winter",
+				"preferredHabitat": "Damp mountain grass, moss, and wet leaves. Also the top of old snow on warm days",
+				"fact": "On a mild winter day, snow fleas pour onto the snow in their thousands. It looks like spilled pepper. Their blood is full of antifreeze, so they keep moving when everything else is frozen stiff.",
+				"role": "The clean-up crew. Without them, last year's leaves would pile up forever. They chew dead stems and graze fungus threads into soil. They keep at it all winter, in the dark gap under the snow. Pipits, finches, chickadees, bluebirds, nutcrackers, and toads all eat them.",
+				"hint": "A mat of dead leaves under melting snow. That is enough to start."
+			},
+			"purple-sea-urchin": {
+				"diet": "Living kelp and surfgrass, loose kelp that drifts by, and hard pink algae on the rock",
+				"shelter": "A pit it grinds into the rock with its own teeth and spines",
+				"preferredHabitat": "Rock near kelp, low down the shore, with waves washing over it",
+				"fact": "A purple urchin chews a pit into solid rock with five teeth. Then it sits in that pit for years. On some reefs, urchins wear away more stone than the waves do.",
+				"role": "This grazer sits at the heart of the coast's most famous story. Otters keep their numbers down, and scraps of loose kelp keep them fed. Then they are just one more part of a healthy forest. Take the hunters away and they march up the rock. They mow the kelp down to bare stone and leave an empty desert behind.",
+				"hint": "Kelp first. There has to be something to eat. Then think hard about what will keep the grazers in check."
+			},
+			"northern-anchovy": {
+				"diet": "Plankton: tiny animals, plant cells, and larvae, strained from the water or picked off one at a time",
+				"shelter": "The school itself. Open water near shore, with kelp and surfgrass edges as cover for the young",
+				"preferredHabitat": "Cool water near shore with plenty of plankton in it",
+				"fact": "An anchovy eats in two ways. It can snap at big prey one bite at a time. Or it can open its mouth and swim, straining the sea like a living net.",
+				"role": "Anchovies swim in silver schools so thick they turn the water dark from below. Almost every hunter here takes them at some point: pelicans, seals, dolphins, gulls. So when the anchovies fail, the whole coast goes hungry at once.",
+				"hint": "Cold water rising from the deep grows the plankton they eat. Quiet shallows give the schools a place to lay eggs."
+			},
+			"beach-hopper": {
+				"diet": "Rotting kelp and other seaweed washed up at the tide line",
+				"shelter": "Burrows dug in damp sand high up the beach, and the wet underside of kelp and driftwood",
+				"preferredHabitat": "A gently sloping sandy beach with the seaweed left where it lands",
+				"fact": "Beach hoppers spend all day shut inside a burrow in dry sand. After dark they pour out to shred the seaweed the tide left behind. Step near one and it fires into the air like a flicked pebble.",
+				"role": "The engine room of the beach. Hoppers chew washed-up kelp down into crumbs. That turns dead seaweed into bird food, which is the whole reason plovers, sanderlings, and gulls walk the tide line. Rake the seaweed away and this link is gone overnight.",
+				"hint": "Leave the seaweed where the tide drops it. That is the whole meal."
+			},
+			"desert-termite": {
+				"diet": "Dead grass, fallen leaves, dry dung, and the weathered outside of dead wood",
+				"shelter": "Tunnels and rooms underground, plus a mud roof built over whatever it is eating",
+				"preferredHabitat": "Soil under shrubs and grass where dead leaves and stems pile up",
+				"fact": "These termites spread a thin mud roof over a dead stem and eat under it. That way they can feed in full sun and never touch the dry air.",
+				"role": "This is the animal that recycles the desert. There is too little water here for dead plants to rot the way they do in a forest. So termites eat almost all of it instead. They carry the goodness back underground. They also leave tunnels that let rain soak in instead of running off. On the nights they swarm, everything with a beak or a sting comes to feed.",
+				"hint": "Bury a little dead wood and they will find it. Dead wood is the desert's pantry."
+			},
+			"common-raven": {
+				"diet": "Dead animals most of all, plus eggs, chicks, young reptiles, bugs, and cactus fruit",
+				"shelter": "A big stick nest on a cliff or in a tall cactus. More and more often, on power poles",
+				"preferredHabitat": "Open desert with tall places to nest and food it can count on",
+				"fact": "Ravens remember single human faces and hold the grudge for years. A pair will even run a trick together. One bird makes a fuss while the other steals the food.",
+				"role": "The clean-up crew, and the biggest human story in the desert. Roads, dumps, farms, and power poles hand ravens free food, water, and places to nest. So there are far more of them than this desert could ever feed on its own. All those extra ravens eat baby tortoises, whose shells stay soft for years. Cutting off the free meals is now a real part of saving the tortoise.",
+				"hint": "They follow whatever gets left lying around: a dead animal, a tall perch, something to drink. That is all they ask for, and that is the trouble."
+			},
+			"coyote-meadow": {
+				"diet": "Voles, rabbits, and ground squirrels; young deer; also fruit, bugs, and dead animals",
+				"shelter": "Raises pups in a den dug into a brushy bank, often an old badger or fox hole made bigger",
+				"preferredHabitat": "Open grassland and edges with brushy cover for a den, and water close by",
+				"fact": "Three coyotes can sound like a dozen. Each one slides its voice up and down as it howls. So a small family throws up a wall of sound. Scientists call it the 'beau geste' trick.",
+				"role": "The top hunter of this meadow, and the one that copes with anything. It hunts voles and rabbits alone. It hunts young deer in pairs. In between it eats fruit, bugs, and dead animals. Its return finally puts pressure on the foxes, badgers, and deer that nothing else here could touch. It will even trail a digging badger and grab whatever bolts out the far side.",
+				"hint": "A brushy bank for a den, wide grass full of rabbits and voles, and water close by. This is the last piece. It only moves in where there is already plenty to eat."
+			},
+			"polyphemus-moth": {
+				"diet": "tree leaves as a caterpillar. Oak, birch, maple and willow. The grown moth has no mouth and never eats",
+				"shelter": "Spins a tough silk cocoon wrapped in a leaf. The cocoon falls with the leaves in autumn and lies on the forest floor all winter",
+				"preferredHabitat": "Broadleaf woods and woodland edges with oak, birch, and hickory, and deep leaves left lying below",
+				"fact": "The grown moth has no mouth. It cannot eat one single thing. Everything it will ever spend on finding a mate and laying eggs was eaten months before, by the caterpillar.",
+				"role": "This moth stands for the caterpillar layer. Nearly every forest bird depends on that step. Caterpillars turn tough, chewy tree leaves into soft protein. And it is caterpillars, not seeds, that woodland songbirds stuff into their chicks. The adults that make it feed bats at dusk. The cocoons spend all winter down in the fallen leaves. So a wood raked bare in autumn throws next summer's moths out with the leaf bags.",
+				"hint": "Broadleaf trees for the caterpillars to eat, and leaves left lying all winter for the cocoons hidden among them."
+			},
+			"amphipod": {
+				"diet": "Dead leaves and stems, the fungus and germs growing on them, and algae scraped off water plants",
+				"shelter": "Among sunken dead leaves, plant stems, and the loose mud on top",
+				"preferredHabitat": "Shallow water with plenty of air in it and a deep drift of rotting leaves",
+				"fact": "Freshwater shrimp swim on their sides. Males carry females around piggyback for days before they mate. Lift a handful of soggy leaves out of a pond and dozens will be flicking about in it.",
+				"role": "The marsh's shredder. One shrimp chews a single dead cattail leaf into thousands of crumbs. It is really after the fungus furring the leaf, not the leaf itself. That is how a heap of dead plants becomes food for minnows, young salamanders, and young dragonflies.",
+				"hint": "A drift of rotting leaves in still water is all they need."
+			},
+			"crayfish": {
+				"diet": "Rotting plants and dead animals, live water plants, snails, insect young, and freshwater shrimp",
+				"shelter": "Burrows dug into soggy banks, and gaps under sunken logs and stones",
+				"preferredHabitat": "Slow, weedy water with sunken wood, and a bank soft enough to dig into",
+				"fact": "Lose a claw in a fight and a crayfish just grows a new one. It comes back bigger at every moult, until it matches the old one. Startle it and it flips its tail and shoots backwards, faster than you can grab.",
+				"role": "The marsh's recycler, and nearly everybody's dinner. Crayfish shred dead plants and clean up dead animals. That turns buried gunk back into living meat. Then the otter, the mink, the kingfisher, the merganser, the crane, the snapping turtle, and the heron come and take it.",
+				"hint": "A soft bank to tunnel into, sunken wood to hide under, and plenty of rotting plants to eat."
+			},
+			"freshwater-mussel": {
+				"diet": "Algae, germs, and fine dead bits strained out of the water",
+				"shelter": "Buried upright in firm, fine mud with only its two tubes showing",
+				"preferredHabitat": "Slow, settled water over firm silt and fine sand",
+				"fact": "A baby mussel has to hitch a ride. It clamps onto the gills of a passing fish and rides there for weeks. Then it drops off and starts life on the bottom. Some mother mussels even wave a flap of flesh shaped like a little fish to pull a host in close.",
+				"role": "The marsh's water filter, and one of the longest-lived animals in it. One mussel can strain the same patch of water for thirty years. What it catches drops to the bottom for shrimp and crayfish. No fish means no baby mussels. So they only come back after the minnows do.",
+				"hint": "A settled bed that stays put for years. And fish, because the young ride to their new home clamped to fish gills."
+			},
+			"pillbug": {
+				"diet": "Dead leaves, rotting wood, dead grass, and fungus threads. Also droppings and old bones, for the minerals",
+				"shelter": "Hides by day under crumbling logs, flat stones, and deep leaves, where the air stays damp",
+				"preferredHabitat": "Shady, damp corners of the meadow with rotting wood and a thick layer of dead leaves",
+				"fact": "A pillbug is not an insect at all. It is a crustacean, closer kin to a crab than to a beetle. It still breathes through flaps like gills, and they have to stay wet.",
+				"role": "Pillbugs work the night shift under logs and dead grass. They shred dead leaves and soft rotten wood into crumbs. Fungus and germs can then finish the job. That is the first step in turning last year's meadow into next year's soil. Garter snakes and killdeer hunt them, so the clean-up crew feeds upward as well as downward.",
+				"hint": "Damp, dark, and rotting is the whole recipe. A crumbling log, deep dead grass, and ground that never dries right out. Roll one over and it curls into a ball."
+			},
+			"garden-spider": {
+				"diet": "Flying and jumping bugs caught in the web: grasshoppers, bees, flies, and moths",
+				"shelter": "Hangs head-down in the middle of its own round web, strung between tall stems",
+				"preferredHabitat": "Sunny meadow with tall stiff plants left standing and plenty of flying bugs",
+				"fact": "This spider takes most of its web down every night and eats the old silk to build the next one. It also stitches a bold white zigzag through the middle, and nobody has fully worked out why.",
+				"role": "The meadow's trapper. It slings a wheel of silk wider than your hand between tall stems. Then it waits head-down in the middle for grasshoppers, bees, and flies to blunder in. Spiders are the biggest group of hunters in any grassland. They were also the biggest thing missing from this meadow until now. They eat huge numbers of bugs, and they are the main food of half the songbirds here.",
+				"hint": "Tall stiff stems left standing, far enough apart to sling a big web between them, with flowers close by to bring the bugs in."
+			},
+			"big-brown-bat": {
+				"diet": "Bugs that fly at night, mostly beetles, plus moths, flying ants, and midges",
+				"shelter": "Sleeps by day in warm dark spaces: barn lofts, attics, and under loose bark. Winters in cold cracks",
+				"preferredHabitat": "Open air over meadow and hedges to hunt in, still water to drink from, and a warm sleeping spot nearby",
+				"fact": "A big brown bat finds a moth in total darkness by shouting and listening to the echo. It can pick out something no thicker than a pencil lead this way.",
+				"role": "The night shift over the meadow. These bats work the air above the grass and along the hedges after sunset. They catch beetles, moths, and flying ants. One bat can eat thousands of bugs in a single night. They drink on the wing, dipping their jaws into still water without stopping. Mothers gather in warm roosts to raise pups together. Great horned owls catch them at dusk.",
+				"hint": "A warm crack to raise pups in, bugs in the air above the grass, and calm open water to skim a drink from without landing."
+			},
+			"garden-snail": {
+				"diet": "Dead leaves, soft rotting stems, and the algae film on damp stones",
+				"shelter": "Seals itself to the underside of a damp log or stone and waits out dry weather",
+				"preferredHabitat": "Shady, damp corners with dead leaves and something chalky to scrape at",
+				"fact": "A snail carries its own house and can shut the door behind it. When things get dry it glues itself to a stone and sleeps until it rains. Sometimes that takes months.",
+				"role": "Snails are the meadow's slow recyclers. They shred fallen leaves into crumbs that fungus and soil life can finish off. When they die, their shells give calcium back to the ground.",
+				"hint": "A shady damp corner where leaves are left to pile up and rot. The messy bit is the point here, not the tidy bit."
+			},
+			"wolverine": {
+				"diet": "marmots, hares and ptarmigan when it can catch them. Frozen dead animals when it cannot. Berries in late summer",
+				"shelter": "Tunnels dug metres down into deep spring snow, usually beside a fallen boulder or log, with food stored in side rooms",
+				"preferredHabitat": "Big, empty, high country with broken rock, and snow that lasts into late spring",
+				"fact": "A wolverine can smell a dead animal buried under three metres of snow, dig it out, and then drive a bear off it. It does all that in a body about the size of a small dog.",
+				"role": "The biggest weasel in the world, and the mountain's great scavenger. It is now the top hunter on these peaks. It roams huge distances. It kills marmots, hares, and ptarmigan when it gets the chance, and lives off frozen dead animals when it does not. Its jaws are built to crack frozen bone. Snow is its fridge. It stores food in drifts and dens deep inside them. So a female can only raise young where the snow holds into late spring. That makes it the first animal to go when winters get short. And nothing up here will argue with it over a dead animal.",
+				"hint": "What is needed here is space and snow, not views. Drifts deep enough to last into late spring, for the den and the food store. Broken rock to travel through. And marmots and hares already on the mountain. This is the last hunter to arrive."
+			},
+			"bottlenose-dolphin": {
+				"diet": "Fish that swim in schools, above all anchovy, plus squid and fish from the bottom",
+				"shelter": "It builds none. It sleeps at sea in a small group. Half its brain stays awake",
+				"preferredHabitat": "Water close in along an open beach, with strong surf and fish schools offshore",
+				"fact": "Every dolphin makes up its own whistle. The others copy that whistle back when they want to call it over. Along an open beach, these dolphins hunt right inside the breaking waves they are herding fish against.",
+				"role": "Fast, sociable hunters that work the surf in small groups. They push anchovy schools up against the breaking waves until the fish have nowhere left to go. They are quick and clever enough to catch almost anything that schools here. And they are still not the biggest thing in the water.",
+				"hint": "Deep water to travel through, cold currents and kelp edges to hold the fish, and real breaking surf, because that is where the hunting happens."
+			},
+			"orca": {
+				"diet": "Sea mammals: harbor seals most of all, plus dolphins, sea lions, and gray whale calves",
+				"shelter": "None on land. It rests at the surface in deep water with its family",
+				"preferredHabitat": "Cold deep water close to shore, where the sea floor drops away by the kelp edge, within reach of seal resting rocks",
+				"fact": "Orcas live in families that never split up, and different families eat completely different food. The ones that hunt this coast eat only mammals. They go silent to do it, with no clicks and no calls, because a seal can hear a talking orca coming from a long way off.",
+				"role": "The top of this coast, with nothing above it. A family of mammal-hunting orcas patrols the edge where the sea floor drops away. They listen at seal rocks. In spring they shadow gray whales passing through with calves. When they come into a bay, every seal on the rocks goes still and silent.",
+				"hint": "The last and hardest animal to bring back. Deep water pressed right up against the shore, and something big to hunt. Bring the seals back first, because the seals are the whole draw."
+			},
+			"desert-millipede": {
+				"diet": "Dead leaves, stems, seed husks, and other dry plant litter on the ground",
+				"shelter": "Buried in soil and tucked under leaves and flat rocks by day; out walking on damp nights",
+				"preferredHabitat": "Drifts of dead leaves under shrubs, with flat rocks and soft soil nearby",
+				"fact": "A desert millipede spends most of the year underground. Then it pours out by the hundreds after the first summer storm. Touch one and it coils into a tight spiral like a cinnamon bun. It also oozes a bitter brown liquid that stains your fingers for days.",
+				"role": "The litter shredder. It chews dead leaves, stems, and husks into crumbs. Termites and tiny soil life can then finish the job. That is how dead plants become soil again out here. It has hundreds of legs and no hurry at all. Armor and a foul chemical mean it can afford to stroll. Scorpions and roadrunners eat it anyway.",
+				"hint": "Let the leaves drift up under the shrubs, and leave a flat rock to crawl beneath. Damp leaves are both dinner and hiding place. Bare hot sand is neither."
+			},
+			"harris-hawk": {
+				"diet": "Jackrabbits, ground squirrels, quail, woodrats, and lizards",
+				"shelter": "A big stick nest wedged in the arms of a tall cactus or a thorny tree, built and guarded by the whole family",
+				"preferredHabitat": "Open scrub with tall cactus and trees to nest in and watch from",
+				"fact": "These are the only birds of prey in the world that hunt in packs. A family of five or six spreads out. Some crash into a thorn bush to panic a rabbit while the others wait on the far side. And when there is nowhere good to perch, they stand on each other's backs, three birds high.",
+				"role": "The top hunter by day. It works the same desert the coyote works at night. Two or three generations live together all year. They share every kill, help feed each other's chicks, and take turns on lookout. That teamwork lets them bring down jackrabbits far heavier than one bird could handle alone. They need tall lookouts above open ground, and a big cactus strong enough to hold a family nest.",
+				"hint": "One bird is never the whole story. A family needs a tall cactus strong enough to hold the nest, high lookouts all around it, and open ground with rabbits crossing it."
+			},
+			"bald-eagle": {
+				"diet": "mostly fish. Also ducks, muskrats and dead animals. It robs other hunters too",
+				"shelter": "A huge stick nest in the top of the tallest living tree beside open water, added to every year",
+				"preferredHabitat": "Wide open water full of fish, with one very tall tree to watch it all from",
+				"fact": "A bald eagle would rather rob than fish. It follows otters and herons and pesters them until they drop their catch, then takes it. The nest it rebuilds every year can end up heavier than a small car.",
+				"role": "The top hunter of the marsh, and its biggest bully. It takes fish, ducks, and muskrats for itself. It kills herons at their nesting colonies. It spends much of the day stealing meals from otters and herons. So it can only settle somewhere those hunters are already doing well.",
+				"hint": "One huge old tree with a clear view over deep water. Enough fish to live on. And otters and herons below doing well enough to steal from."
+			},
+			"luna-moth": {
+				"diet": "Hickory, walnut, sweetgum, and birch leaves as a caterpillar. The grown moth eats nothing at all",
+				"shelter": "A papery cocoon spun inside a curled leaf. The leaf falls, and the cocoon lies buried in the dead leaves all winter",
+				"preferredHabitat": "Old broadleaf woods with deep dead leaves left alone under the trees",
+				"fact": "A grown luna moth has no mouth. It comes out with about a week to live. It never eats once, and it spends that whole week looking for a mate.",
+				"role": "Luna moth caterpillars eat leaves and turn them into fat, high-energy insect bodies. Everything from bats to jays cashes that in. The long twisted tails on the back wings are an anti-bat trick. They spin as the moth flies and throw a bat's echo off target. So the bat grabs a tail streamer instead of the body. The cocoon spends winter in the fallen leaves. So a forest that gets raked loses its luna moths, even if every tree is still standing.",
+				"hint": "Plant the leafy trees, then let the leaves lie where they fall. The cocoons spend the whole winter down in them."
+			},
+			"blue-jay": {
+				"diet": "Acorns and beechnuts, caterpillars, beetles and other bugs, and eggs or chicks when it finds them",
+				"shelter": "A cup of twigs and roots wedged in a fork high in a leafy tree, hidden by the leaves",
+				"preferredHabitat": "Woods full of oaks, and their edges, with open ground nearby for burying acorns",
+				"fact": "Blue jay feathers are not really blue. The color in them is brown. The blue is a trick of light bouncing off tiny air pockets. Crush one and the blue is gone.",
+				"role": "One blue jay can carry five acorns at a time and bury a few thousand in one autumn. It picks the sound ones and pushes them into open ground. That makes jays the fastest tree planters in the forest, and the reason oaks spread uphill after a fire. Jays also copy hawk calls. Sometimes that clears a feeding spot. Sometimes it warns everything nearby that a real hawk has arrived. So the whole wood listens to them.",
+				"hint": "Oaks, and a patch of soft open ground to bury the acorns in. Some get forgotten. Those are your next oak trees."
+			},
+			"wood-frog": {
+				"diet": "Beetles, spiders, slugs, flies, and other small creatures from the forest floor",
+				"shelter": "Shallow dead leaves and loose litter on the forest floor. It does not dig down below the frost",
+				"preferredHabitat": "Damp broadleaf forest with fishless woodland pools that fill in spring and dry up by late summer",
+				"fact": "A wood frog freezes solid every winter. Its heart stops. Two thirds of the water in its body turns to ice. In spring it thaws out and hops away.",
+				"role": "Wood frogs are the first frog to call in spring. They breed in pools that dry up before fish can ever live in them. That is exactly why the tadpoles survive. Sugar floods their blood and stops their cells bursting while they are frozen. So they can sleep the winter under a few centimetres of leaves. Grown frogs eat their way through the small creatures in the dead leaves. Snakes and raccoons then eat them, which carries food up the chain.",
+				"hint": "A pool that dries up in summer is the good kind. No fish means the tadpoles live. Keep deep leaves nearby to freeze in."
+			},
+			"goshawk": {
+				"diet": "Squirrels, jays, grouse, rabbits, and woodpeckers, chased down inside the trees",
+				"shelter": "A wide stick nest against the trunk on a heavy branch, halfway up a big old tree",
+				"preferredHabitat": "Old forest with a high closed roof of leaves and open flying room under it",
+				"fact": "A goshawk hunts by crashing straight through the branches at full speed with its wings half folded. It will dive at anything that walks too near its nest, people included.",
+				"role": "The forest's top hunter by day, and the reason squirrels freeze against tree trunks. Short wide wings and a long steering tail let it turn inside a wood at speed. So it hunts under the leaves, not above them like a soaring hawk. It needs old forest with big branches to nest on, and clear space below to fly. That is why its arrival means the trees have finally grown up.",
+				"hint": "Grow the forest tall and leave the space below it open. A big branch to nest on, and room to fly hard under the leaves."
+			},
+			"moose": {
+				"diet": "Pondweed and water lilies in summer, willow and aspen twigs in winter",
+				"shelter": "Beds pressed into willow thickets. In summer it stands chest-deep in water to escape the flies",
+				"preferredHabitat": "Marsh and pond edge with thick willow and clear shallow water",
+				"fact": "A moose can hold its breath for a minute and walk along the bottom of a pond with its whole head under water, pulling plants up by the roots.",
+				"role": "Moose come to the wetland for salt. The underwater plants have it and forest leaves do not. A big one can pull 20 kilograms of pondweed a day out of the shallows. All that heavy feeding keeps open lanes through the plant beds, where ducks feed and fish shelter. The willow it eats in winter grows back thicker and lower, which is better cover for everything small. Its trails through the marsh turn into channels that hold water in dry summers.",
+				"hint": "Grow the underwater plant beds first, and keep the water clear enough for them. The draw here is what grows under the surface, not on the bank."
+			},
+			"river-cooter": {
+				"diet": "Pondweed, algae, water lily leaves, and fallen fruit. Babies eat bugs first, then switch to plants",
+				"shelter": "Sleeps wedged under sunken logs and root tangles. Spends the winter buried in the mud at the bottom",
+				"preferredHabitat": "Slow, plant-filled water with logs to bask on and an open sunny bank to lay eggs in",
+				"fact": "Whether the eggs hatch into males or females depends on how warm the nest is, not on the eggs. A cool nest makes brothers. A warm one makes sisters.",
+				"role": "This is the wetland's big plant-eating turtle. It crops the underwater meadows so they do not choke the shallows. It also drops the seeds somewhere else, still whole. It has to bask for hours to get warm enough to digest all that plant food. That is why a log stacked with turtles is a sign of a working marsh. Its eggs and babies feed almost everything else, so it lays a lot of them.",
+				"hint": "Logs in the sun to bask on, and a bare warm bank to bury eggs in. No warm spot means no way to digest dinner."
+			},
+			"javelina": {
+				"diet": "Prickly pear pads, mesquite pods, agave hearts, roots, and tubers",
+				"shelter": "The herd beds down in the shade of thick thorny scrub or under a rock ledge through the heat of the day",
+				"preferredHabitat": "Desert scrub and dry washes with thick thorny cover and prickly pear",
+				"fact": "A javelina eats prickly pear whole, spines and all. It also has a scent gland on its back so strong that a herd can find each other in the dark by smell alone.",
+				"role": "Javelinas are the desert's cactus crushers. They crunch through pads that nothing else will touch, which stops prickly pear taking over a wash. They spread its seeds in their droppings too. Rooting for tubers turns over hard crusted soil and buries dead leaves, so seeds have somewhere to sprout after rain. They travel in herds of six to a dozen. The herd smell is also the alarm system, because their eyesight is terrible.",
+				"hint": "Grow the prickly pear and leave a shady thorny tangle to bed down in. The herd sleeps out the middle of the day and feeds at dusk."
+			},
+			"black-swift": {
+				"diet": "Flying ants, aphids, beetles, and mayflies caught in the air, often hundreds of metres up",
+				"shelter": "A cup of moss glued to wet rock behind a waterfall. Only reachable from the air",
+				"preferredHabitat": "Cliffs with cold running water and wide open sky above the treeline",
+				"fact": "A black swift can stay in the air for six months without landing once. It eats, drinks, and sleeps flying. The chick is left alone all day while its parents hunt bugs 50 km away.",
+				"role": "Swifts hoover up the swarms of bugs that rising air lifts onto the mountain. They carry that food back as one squashed pellet. One delivery a day is enough for a chick, because the load is packed so tight. The nest has to stay wet and out of reach. So these birds only turn up where a cliff crack has water running over it. They are among the very last summer visitors to arrive, and the first to leave for the Amazon.",
+				"hint": "Find the wettest, darkest crack in the cliff and keep the water running down it. Nothing will nest here if it can be walked to."
+			},
+			"peregrine-falcon": {
+				"diet": "Other birds, caught in mid-air: ptarmigan, rosy-finches, swifts, pipits, and small ducks",
+				"shelter": "A bare dip kicked into gravel on a high cliff ledge. It builds no nest at all",
+				"preferredHabitat": "Steep cliffs and rock faces above open ground, with plenty of birds flying below",
+				"fact": "A diving peregrine hits about 380 km/h. That makes it the fastest animal alive. It has bony cones in its nostrils that slow the air down, so the dive does not burst its lungs.",
+				"role": "The mountain's hunter of the air. It takes almost all of its food in flight, striking from above with a closed fist instead of grabbing. It hunts birds and nothing else. So it is a direct check on the flocks of finches, pipits, and ptarmigan feeding across the slopes. It needs a quiet cliff ledge and clear air below. It needs nothing at all to build with, just loose gravel to scrape a hollow in.",
+				"hint": "A high ledge with loose gravel on it, and open sky underneath. Do not build a nest. All it takes is a dip kicked in the grit."
+			},
+			"owl-limpet": {
+				"diet": "Algae, plankton, and scraps of food picked out of the sand, grain by grain",
+				"shelter": "Half buried on edge in rippled sand, in beds of hundreds at a time",
+				"preferredHabitat": "Sheltered sandy bottoms just below the low tide line, where the current is gentle",
+				"fact": "A living sand dollar is not white and smooth. It is purple, and covered in tiny moving spines. It uses them to walk and to pass food along to its mouth. The white disc with the flower pattern is the skeleton, after everything else has washed away.",
+				"role": "A whole bed of them stands half buried on edge, like coins in a slot. They all lean into the current to catch what drifts past. Where the water is rougher, they lie flat instead, so they do not get rolled away.",
+				"hint": "Clean rippled sand just below the tide line, somewhere sheltered enough that the current stays gentle."
+			},
+			"octopus": {
+				"diet": "Shore crabs, clams, mussels, snails, and shrimp, cracked open or drilled through",
+				"shelter": "A crack or an empty shell, with a rock pulled across behind it and a heap of empty shells outside the door",
+				"preferredHabitat": "Rocky sea floor and deep tidepools with lots of cracks and cold, clean water",
+				"fact": "An octopus has three hearts and blue blood, and it tastes everything it touches with its arms. The only hard part of it is its beak. So one the size of a dinner plate can squeeze through a hole the size of a grape.",
+				"role": "The top hunter without a backbone on the rocky shore. The pile of empty crab and clam shells outside its den is the easiest way to find one. It can change color and skin texture in under a second to vanish against rock or kelp, even though it is colorblind. If a clam will not open, it drills a neat hole and puts in a drug that makes the shell relax. Each octopus works through a huge number of crabs, which keeps the grazers and cleaners of the tidepools in check.",
+				"hint": "Broken rock with gaps to hide in, and plenty of crabs. Leave the shell pile outside the den alone. That pile is how you know somebody is home."
+			},
+			"grasshopper-mouse": {
+				"diet": "Scorpions, centipedes, beetles, and other mice",
+				"shelter": "Takes over a burrow another animal dug, then defends it",
+				"preferredHabitat": "Open sandy flats with scattered brush and plenty of prey underfoot",
+				"fact": "This mouse hunts scorpions, gets stung in the face, and carries on eating. Its body switches the venom's pain signal off. Then it stands up on its back legs and howls at the moon like a tiny wolf.",
+				"role": "A mouse that decided to be a hunter. It keeps scorpions and big bugs in check. It is one of the only animals that can eat the most venomous creatures in the desert without flinching.",
+				"hint": "An old burrow it can take over, and open ground to hunt across. It gets all its water from what it catches."
+			},
+			"snow-bunting": {
+				"diet": "Seeds blown onto the snow, plus bugs in the short summer",
+				"shelter": "Deep in a crack in the rock, lined with feathers and fur against the cold",
+				"preferredHabitat": "Windswept ridges and stony ground where the snow blows clear",
+				"fact": "Snow buntings nest further north than any other songbird on Earth. They tuck so deep into rock cracks that the male has to feed the female in the dark while she sits on the eggs.",
+				"role": "A small bird that treats a blizzard as ordinary weather. Flocks drift across bare ridges, picking up seed the wind has stranded on the snow. They turn from white to warm brown as the season turns.",
+				"hint": "A deep, dry crack in the rock out of the wind, and open stony ground nearby where the snow blows clear."
+			},
+			"groundhog": {
+				"diet": "Grass, clover, dandelions, and just about any soft green thing it can reach",
+				"shelter": "A burrow with several doors, a sleeping room lined with grass, and a separate toilet room",
+				"preferredHabitat": "Meadow edges with deep, well-drained soil it can dig through",
+				"fact": "A groundhog digs a burrow with a front door, a back door, a bedroom, and a separate room for the toilet. It moves about a tonne of soil doing it. In winter its heart slows to about five beats a minute.",
+				"role": "The meadow's earthmover. Its old burrows become homes for foxes, snakes, rabbits, and half the small animals here. So one groundhog's digging lasts for years after the digger has gone.",
+				"hint": "Deep, well-drained soil at the edge of the grass, with a bolt-hole close by. It wants a place to dig more than a place to hide."
+			},
+			"opossum": {
+				"diet": "Almost anything: bugs, fruit, eggs, dead animals, and a huge number of ticks",
+				"shelter": "Sleeps the day in a hollow log or a borrowed burrow. It rarely uses the same one twice",
+				"preferredHabitat": "Brushy edges with hollow wood, water nearby, and plenty to scavenge",
+				"fact": "When an opossum plays dead, it is not acting. It faints. The body goes stiff, the tongue lolls out, and it gives off a smell like something long dead. It cannot snap out of it for several minutes, even if you walk away.",
+				"role": "The meadow's clean-up crew. It eats what everything else has left, including dead animals and huge numbers of ticks. It is the only animal here that carries its young around on its back.",
+				"hint": "Hollow wood to sleep the day away in, and berries within a night's walk. It moves house all the time, so give it more than one option."
 			}
 		},
 		"biome": {
@@ -1134,7 +1235,7 @@
 				"hint": "Grow the meadow well past its first lonely guest."
 			},
 			"meadow-pollinators": {
-				"flavor": "Monarch, bumblebee, leafcutter, lady beetle, painted lady. They work for free. They turn flowers into seeds, and seeds into more meadow."
+				"flavor": "Monarch, bumblebee, leafcutter, ladybug, painted lady. They work for free. They turn flowers into seeds, and seeds into more meadow."
 			},
 			"meadow-apex": {
 				"flavor": "A fox only stays where there are voles and rabbits to hunt. So when it shows up, everything below it is finally fed."
@@ -1223,20 +1324,8 @@
 			}
 		},
 		"habitatObject": {
-			"wildflower-patch": {
-				"description": "Mixed native wildflowers. Bees can spot it from far away."
-			},
-			"sunflower-patch": {
-				"description": "Tall sunflowers that feed seed-eating birds all season."
-			},
 			"willow-tree": {
 				"description": "The tree this place is named for, grown from a watered bed."
-			},
-			"butterfly-flowers": {
-				"description": "Milkweed and nectar flowers, planted just for butterflies."
-			},
-			"pollinator-garden": {
-				"description": "A thick, all-season feast for bees and butterflies."
 			},
 			"small-pond": {
 				"description": "A clay-lined pond. Clean drinking water changes everything."
@@ -1244,32 +1333,11 @@
 			"fern-spring": {
 				"description": "A mossy wet spot ringed with ferns. Damp ground wakes up the whole forest floor."
 			},
-			"rock-pile": {
-				"description": "Sun-warm stones with cool gaps below. Bugs, lizards, and pikas love it."
-			},
 			"wooden-bridge": {
 				"description": "A strong plank bridge. Put it on open water to cross rivers and lakes."
 			},
-			"nesting-tree": {
-				"description": "A fast-growing native tree for squirrels, owls, and nuthatches."
-			},
-			"standing-deadwood": {
-				"description": "A dead tree held up safely. Prime woodpecker property."
-			},
-			"reed-bed": {
-				"description": "Thick replanted reeds. A nursery for frogs, dragonflies, and blackbirds."
-			},
 			"mud-bank": {
 				"description": "A soft shaped bank for digging and sunning. Needs the restoration shovel."
-			},
-			"cattail-stand": {
-				"description": "Tall cattails at the water edge. Cover for marsh birds and shade for the shallows."
-			},
-			"marsh-log": {
-				"description": "A half-sunk log. Turtles and frogs sun on it and otters slip under it."
-			},
-			"lily-pool": {
-				"description": "Still, clean water covered in lily pads. Dragonflies and frogs raise their young here."
 			},
 			"burrow-mound": {
 				"description": "A starter bank for diggers. Needs the restoration shovel."
@@ -1307,17 +1375,11 @@
 			"scrubland-restoration-kit": {
 				"description": "Sleds and tough cuttings to carry this work into the dry scrubland. Making it helps open Redstone Scrubland."
 			},
-			"garden-arch": {
-				"description": "A flowery arch that frames a path and feeds passing bees."
-			},
 			"trail-signpost": {
 				"description": "A hand-painted sign to guide visitors through the preserve."
 			},
 			"gazebo": {
 				"description": "An open shelter with a roof. A pretty centerpiece and a shady place to watch from."
-			},
-			"clover-patch": {
-				"description": "Low clover and trefoil. Nectar for bees and food for rabbits."
 			},
 			"fern-grove": {
 				"description": "Shady arching ferns that carpet the forest floor."
@@ -1325,20 +1387,11 @@
 			"alder-snag": {
 				"description": "A dead alder left standing. A perch and a nest hole above the water."
 			},
-			"agave-rosette": {
-				"description": "A spiky plant whose tall flower feeds desert bees."
-			},
 			"ocotillo": {
 				"description": "Whip-like stalks with red tips. Cover and nectar in the open flats."
 			},
 			"heather-mat": {
 				"description": "A low mountain mat of heather flowers above the rocks."
-			},
-			"eelgrass-bed": {
-				"description": "Waving eelgrass. A nursery for fish and food for sea geese."
-			},
-			"oyster-bed": {
-				"description": "A clump of shellfish that cleans the tide and feeds shore birds."
 			},
 			"daisy-patch": {
 				"description": "Bright white daisies that open with the morning sun."
@@ -1349,12 +1402,6 @@
 			"gentian-patch": {
 				"description": "Bright blue mountain gentians, kept low by the wind."
 			},
-			"nectar-feeder": {
-				"description": "A sweet agave feeder that draws hummingbirds and nectar bats."
-			},
-			"shore-pine": {
-				"description": "A salt-bent pine that holds the back dunes and shelters shore birds."
-			},
 			"bald-cypress": {
 				"description": "A tall swamp cypress with feathery needles and a wide, knobby base."
 			},
@@ -1363,9 +1410,6 @@
 			},
 			"quaking-aspen": {
 				"description": "White-barked aspen whose golden leaves shake in the mountain wind."
-			},
-			"birdhouse": {
-				"description": "A hand-built birdhouse on a post. Charming, even when empty."
 			},
 			"flower-cart": {
 				"description": "A little wooden cart spilling over with cut flowers."
@@ -1376,38 +1420,14 @@
 			"flower-pots": {
 				"description": "A neat row of clay pots full of blooms."
 			},
-			"insect-hotel": {
-				"description": "A stack of hollow stems and bark where bees and beetles nest."
-			},
-			"duck-nest-box": {
-				"description": "A raised wooden box where water birds raise their young."
-			},
-			"rock-crevice": {
-				"description": "Stacked slabs with shady cracks where lizards hide from the heat."
-			},
 			"dew-basin": {
 				"description": "A shallow clay bowl that catches dew and rain. Precious desert water."
-			},
-			"talus-pile": {
-				"description": "A jumble of broken rock. The tunnels and runways pikas love."
-			},
-			"nesting-bluff": {
-				"description": "A built-up sandy bank with ledges for cliff-nesting sea birds."
-			},
-			"pika-haypile": {
-				"description": "A pile of dried grass and flowers, cured the way pikas store hay for winter."
 			},
 			"lichen-boulder": {
 				"description": "A weathered boulder crusted with lichen. Slow mountain grazing and a foothold for new life."
 			},
 			"scree-slope": {
 				"description": "A shifting slope of broken rock, laced with the runways and hideouts of the high country."
-			},
-			"snowbank-roost": {
-				"description": "A packed drift of late snow. A cool resting spot and a trickle of meltwater for hares and birds."
-			},
-			"whitebark-cache": {
-				"description": "A hidden store of pine nuts. The seed bank nutcrackers and grosbeaks live on."
 			},
 			"juniper-thicket": {
 				"description": "A low, tough juniper heavy with frosted berries. Cover and winter food where little else grows."
@@ -1454,14 +1474,962 @@
 			"boardwalk": {
 				"description": "A raised plank path. Cross the marsh without stepping on the reeds and mud."
 			},
-			"heron-rookery": {
-				"description": "A tall marsh snag with a stick nest on top. Just the high, safe perch herons and egrets need."
-			},
-			"dragonfly-pond": {
-				"description": "A clear pool ringed with reeds. Open water where dragonflies hunt and frogs and newts breed."
-			},
 			"hiking-boots": {
 				"description": "Strong boots made from tough bark, springy moss, and woven reeds. Once made they are yours for good. Wear them to move a little faster."
+			},
+			"grass-patch": {
+				"description": "A soft patch of new grass. A good first step for bare ground."
+			},
+			"native-grass-patch": {
+				"description": "Native bunchgrass with roots deeper than the grass is tall. It holds the soil together and covers the ground all year."
+			},
+			"wildflower-patch": {
+				"description": "A loose mix of wild flowers, planted in no set order. A wide splash of colour you can spot from far away."
+			},
+			"poppy-patch": {
+				"description": "Field poppies, an old farm weed from Europe. They look lovely in a garden bed, but they are not a prairie plant."
+			},
+			"sunflower-patch": {
+				"description": "Tall sunflowers, wild in North America, left standing all autumn. The seed heads dry hard on the stalk and stay put."
+			},
+			"lupine-patch": {
+				"description": "Tall blue lupine spikes. They feed the soil as they bloom."
+			},
+			"oak-tree": {
+				"description": "An oak grown from an acorn. It starts slow, then for years it does more good than any other tree you can plant."
+			},
+			"pine-tree": {
+				"description": "A young pine grown from a cone. Green shelter in every season."
+			},
+			"butterfly-flowers": {
+				"description": "A mixed bed of wild nectar flowers, in bloom from midsummer to autumn. Milkweed is its own plant now, so sow that one on its own."
+			},
+			"pollinator-garden": {
+				"description": "A thick bed of flowers planned to bloom all season long. Nectar and pollen from the first warm week to the last."
+			},
+			"shrub": {
+				"description": "A young wild shrub that gives thick cover at knee height. But a meadow is grassland, and too many shrubs change it into something else."
+			},
+			"berry-bush": {
+				"description": "A prickly thicket of wild rose and thimbleberry. It is full of fruit by late summer, so sow it in a watered bed."
+			},
+			"woodland-pool": {
+				"description": "A shady forest pool fed by a cold spring. It is cold and clean, with a soft muddy edge to walk down."
+			},
+			"shallow-water-pool": {
+				"description": "A pool with a long, sunny shallow edge you could wade across. It is warm and shallow, not deep, so it is no match for real deep water."
+			},
+			"log-shelter": {
+				"description": "Fallen logs stacked in a loose pile with gaps running through it. It stays damp underneath and slowly goes soft."
+			},
+			"hollow-log": {
+				"description": "A fallen log opened out down the middle. Inside is a dry, close space with one way in."
+			},
+			"rock-pile": {
+				"description": "Flat stones piled loosely. The sun bakes the top while the gaps under it stay cool and damp."
+			},
+			"fallen-branch-shelter": {
+				"description": "A loose heap of branches, twigs and all, thrown together rather than stacked. It is full of gaps to slip into."
+			},
+			"bird-perch": {
+				"description": "A tall bare dead tree with a clear view all around. Open sky sits above it."
+			},
+			"simple-path": {
+				"description": "Flat stepping stones that keep your boots off the new growth."
+			},
+			"gravel-path": {
+				"description": "Crunchy gravel underfoot. It keeps boots off the new growth."
+			},
+			"plank-path": {
+				"description": "Old boardwalk planks. They are gentle on soft ground."
+			},
+			"flagstone-path": {
+				"description": "Wide flat stones set into the ground."
+			},
+			"mossy-path": {
+				"description": "Old stones wearing soft green moss. They keep boots off the wet ground without packing it down."
+			},
+			"wooden-fence": {
+				"description": "A low rail fence. It marks quiet spots where the ground is healing."
+			},
+			"nesting-tree": {
+				"description": "A young native tree that grows fast. Give it a few seasons and its top will be strong enough to hold weight."
+			},
+			"standing-deadwood": {
+				"description": "A dead tree left standing and held safe. The thicker it is the better, since a thin stub cannot hold much."
+			},
+			"mushroom-log": {
+				"description": "A damp, mossy log seeded with fungus. The fungus eats the wood and turns the dead log into food, soil, and shelter."
+			},
+			"reed-bed": {
+				"description": "Thick reeds standing in shallow water. They grow tall enough to walk in and lose sight of the bank."
+			},
+			"nesting-platform": {
+				"description": "A raised, quiet platform out in the open, flat on top with nothing above it. It does not take the place of a tree hole, a bank tunnel, or a big shared nest."
+			},
+			"cattail-stand": {
+				"description": "Tall cattails crowded along the water's edge. They are thick at the base and shade the shallows behind them."
+			},
+			"marsh-log": {
+				"description": "A half-sunk log with one end in the sun and the other under water. Dark, tight gaps run beneath it the whole way."
+			},
+			"lily-pool": {
+				"description": "Still, clean water covered edge to edge with lily pads. The water under them stays cool and shady."
+			},
+			"cactus-patch": {
+				"description": "Moved-in pad and barrel cactus. Fruit, water, and a spiny fort in one, though it is too short to hold a hole."
+			},
+			"desert-brush": {
+				"description": "A mixed stand of low bursage and brittlebush. It is the small scrub that fills the gaps between bigger shrubs."
+			},
+			"shaded-rock-shelter": {
+				"description": "Stacked slabs with a cool dark gap. Shelter from the midday sun."
+			},
+			"alpine-wildflower-patch": {
+				"description": "Tough little mountain flowers, low and tight to the ground. They all bloom at once in the short summer, so this is food, not shelter."
+			},
+			"snowmelt-pool": {
+				"description": "A stone pool that holds cold, clear snowmelt. Leave it empty, since water this high starts out bare."
+			},
+			"tidepool": {
+				"description": "A rocky pool that keeps a bit of sea behind when the tide goes out. It is only a bit, so it warms up and goes salty."
+			},
+			"dune-grass": {
+				"description": "Wild dunegrass that holds blowing sand. It grows in open, patchy clumps, not a thick wall."
+			},
+			"driftwood-shelter": {
+				"description": "Old driftwood stacked into a shelter on the beach."
+			},
+			"tide-chime": {
+				"description": "Shells and sea glass strung on driftwood. They ring softly in the sea breeze."
+			},
+			"medium-chest": {
+				"description": "A stronger chest. Holds 250 materials."
+			},
+			"flower-vase": {
+				"description": "A clay pot of meadow flowers to brighten your camp."
+			},
+			"migration-path-marker": {
+				"description": "Stone stacks and markers that make the high route safe again. Making it helps open Pelican Shore."
+			},
+			"alpine-restoration-kit": {
+				"description": "Shade cloth, water stores, and climbing gear for the high country. Making it helps open Graywind Heights."
+			},
+			"stone-lantern": {
+				"description": "A little stone lantern with a warm glow to light the path."
+			},
+			"wooden-bench": {
+				"description": "An old bench turned silver by salt and sun. A quiet place to sit and just look."
+			},
+			"garden-arch": {
+				"description": "A flowery arch over a path, heavy with blooms by midsummer. It is pretty, but it is a garden piece and nothing here needs one."
+			},
+			"bird-bath": {
+				"description": "A shallow stone bowl on a stand, no deeper than a thumb. The bottom is rough for footing and the water is fresh."
+			},
+			"planter-box": {
+				"description": "A wooden box planted with desert plants. Brittlebush, penstemon, and globemallow, not garden flowers."
+			},
+			"clover-patch": {
+				"description": "Clover and trefoil brought in from away, soft and green underfoot. It crowds out wild flowers, so treat it as a garden patch, not real healing."
+			},
+			"brush-pile": {
+				"description": "A loose pile of branches, thickest at the bottom and open in the middle. Gaps and runs lead in at ground level."
+			},
+			"tree-stump": {
+				"description": "A mossy old stump full of holes and soft rot. It crumbles a little further into the ground every year."
+			},
+			"sedge-tussock": {
+				"description": "Clumps of sedge standing in the shallows. Each one is a thick, knee-high tuft with dry footing inside."
+			},
+			"agave-rosette": {
+				"description": "A spiny rosette that stays low for years. Then it throws up one flower stalk taller than you."
+			},
+			"krummholz-pine": {
+				"description": "A dwarf pine bent by the wind. Rare shelter at the tree line."
+			},
+			"eelgrass-bed": {
+				"description": "Eelgrass swaying in soft mud in a calm bay. It is a meadow under the water, thick enough to vanish into."
+			},
+			"oyster-bed": {
+				"description": "A rebuilt reef of small native shells. These are the Pacific coast's own kind, not the ones brought in from far away."
+			},
+			"foxglove": {
+				"description": "Foxglove, brought in from away and poisonous in every part. It spreads too well in some places, so keep it for looks only."
+			},
+			"mushroom-ring": {
+				"description": "A ring of woodland mushrooms in the leaf litter."
+			},
+			"birch-tree": {
+				"description": "A slim birch with white bark, grown from a watered bed."
+			},
+			"marsh-marigold": {
+				"description": "Gold marsh marigolds ringing the wet shallows in spring. They bloom before almost anything else, which shows the wet edge is working."
+			},
+			"prickly-pear": {
+				"description": "Pad cactus with sweet fruit and bright blooms."
+			},
+			"desert-marigold": {
+				"description": "Tough marigolds that glow against the sand."
+			},
+			"moss-cushion": {
+				"description": "A springy cushion of moss campion and mountain avens. It is tight as a pillow and warm and damp inside."
+			},
+			"sea-thrift": {
+				"description": "Pink sea-thrift pompoms. They love salt spray."
+			},
+			"beach-shrub": {
+				"description": "Grey-green coastal scrub that puts up with salt. The wind cuts it flat on top and it stays thick underneath."
+			},
+			"nectar-feeder": {
+				"description": "A sugar water feeder on a hook. It is fun to watch, but sugar water is not real food, so this is only a decoration."
+			},
+			"crystal-cairn": {
+				"description": "A cracked geode set on stacked stones. A shiny desert landmark."
+			},
+			"sun-totem": {
+				"description": "A carved sandstone totem topped with a desert crystal."
+			},
+			"palo-verde-tree": {
+				"description": "The desert tree with green bark. Rare shade and yellow flowers for the scrubland."
+			},
+			"shore-pine": {
+				"description": "A pine bent low and wide by salt wind. It holds the back dunes and blocks the wind off the water."
+			},
+			"water-tupelo": {
+				"description": "A round-topped wetland tree with a swollen base standing in water. It comes from the far southeast, so here it is only for looks."
+			},
+			"mesquite-tree": {
+				"description": "A low, spreading desert tree. Light shade and seed pods for the scrubland."
+			},
+			"subalpine-fir": {
+				"description": "A slim, pointed fir that shrugs off deep mountain snow."
+			},
+			"monterey-cypress": {
+				"description": "A coastal cypress pressed flat by the sea wind. It is planted here, not wild, since only two wild groves are left."
+			},
+			"coast-live-oak": {
+				"description": "A wide evergreen oak. It holds the back shore and casts deep shade."
+			},
+			"campfire": {
+				"description": "A crackling campfire ringed with stones. The heart of camp."
+			},
+			"string-lights": {
+				"description": "A string of warm little lanterns to hang over your camp."
+			},
+			"pinwheel": {
+				"description": "A bright pinwheel that spins in the breeze."
+			},
+			"birdhouse": {
+				"description": "A little wooden house on a post. It looks charming even when nothing is home."
+			},
+			"garden-gnome": {
+				"description": "A cheerful little gnome to watch over the garden."
+			},
+			"wind-chimes": {
+				"description": "Driftwood chimes that sing softly when the wind moves through."
+			},
+			"sundial": {
+				"description": "A carved stone sundial for telling time the slow way."
+			},
+			"stone-cairn": {
+				"description": "A neat stack of smooth stones marking a quiet spot."
+			},
+			"picnic-blanket": {
+				"description": "A checked blanket spread out for a sunny picnic."
+			},
+			"insect-hotel": {
+				"description": "A frame packed with hollow stems, drilled blocks, and old bark, all under a small roof. The tubes come in every width, from pencil-thin down to a hair."
+			},
+			"dry-stone-wall": {
+				"description": "A low wall of stacked stones laid with no cement. The gaps between them stay cool and shady."
+			},
+			"bat-box": {
+				"description": "A tall, narrow wooden box with a rough inside and a slot along the bottom. Hang it high in the sun, and note the gap inside is barely wider than a finger."
+			},
+			"leaf-litter-pile": {
+				"description": "A mound of damp leaves and moss left where it fell. It is warm in the middle and slowly turning into soil."
+			},
+			"duck-nest-box": {
+				"description": "A wooden box on a pole standing over water. It has a round hole high on one side and wood shavings inside."
+			},
+			"basking-log": {
+				"description": "A half-sunk log tilting up out of the water into full sun. The top stays dry and the bottom stays slick, and warming up out here really matters."
+			},
+			"talus-pile": {
+				"description": "A jumble of broken rock with deep spaces between the blocks. Runs and hollows lead right down into the pile."
+			},
+			"alpine-nest-shelf": {
+				"description": "A rock ledge lined with moss, out of the wind. A solid roof of rock hangs over it."
+			},
+			"driftwood-pile": {
+				"description": "A tangle of sun-bleached driftwood, silver-grey and hollow-sounding. Damp shade hides under the lowest pieces."
+			},
+			"nesting-bluff": {
+				"description": "A built-up sandy bank with narrow ledges cut into it. It drops away sheer below, out of reach from the ground."
+			},
+			"pika-haypile": {
+				"description": "A stack of grass and flowers cut green and dried under a rock roof. It is packed tight and out of the rain."
+			},
+			"snowbank-roost": {
+				"description": "A packed drift of late snow, firm on top and soft underneath. Inside a drift like this the wind stops completely."
+			},
+			"whitebark-cache": {
+				"description": "A hidden store of pine nuts buried a few centimetres down. The seed is rich and oily and keeps all winter."
+			},
+			"quartz-lantern": {
+				"description": "A stone lantern set with a glowing piece of quartz. It holds the last of the daylight."
+			},
+			"home-rug": {
+				"description": "A soft woven rug to warm your floor."
+			},
+			"home-table": {
+				"description": "A small wooden table with a sprig of flowers."
+			},
+			"home-bookshelf": {
+				"description": "A shelf of field guides and well-read nature books."
+			},
+			"home-fireplace": {
+				"description": "A crackling stone hearth that warms the whole room."
+			},
+			"home-potplant": {
+				"description": "A leafy plant in a pot. A little bit of the meadow indoors."
+			},
+			"home-painting": {
+				"description": "A framed painting of the preserve at its best."
+			},
+			"home-sleeping-bag": {
+				"description": "A simple sleeping bag. Just the thing for a cozy night in the tent."
+			},
+			"home-cushions": {
+				"description": "A pile of soft floor cushions to flop on."
+			},
+			"home-stool": {
+				"description": "A simple stool with a cushion on top."
+			},
+			"home-mushroomshelf": {
+				"description": "A little shelf dotted with woodland mushrooms."
+			},
+			"home-reedmat": {
+				"description": "A woven reed mat from the marsh."
+			},
+			"home-cactuspot": {
+				"description": "A tough little cactus in a clay pot."
+			},
+			"home-driftwoodshelf": {
+				"description": "A shelf of worn driftwood holding beach finds."
+			},
+			"home-wallclock": {
+				"description": "A handsome wall clock. A house needs one."
+			},
+			"home-dresser": {
+				"description": "A strong chest of drawers."
+			},
+			"home-peltrug": {
+				"description": "A thick, warm rug for cold mountain nights."
+			},
+			"home-chandelier": {
+				"description": "A grand candle chandelier. Just right for a lodge."
+			},
+			"home-aquarium": {
+				"description": "A glass tank of clear water with a few little fish in it."
+			},
+			"home-telescope": {
+				"description": "A brass telescope for the clear mountain sky."
+			},
+			"dew-lantern": {
+				"description": "A glass globe of glowing morning dew that gives off a soft green light. It is made up, and just for looks."
+			},
+			"stormglass-lantern": {
+				"description": "A shard of glass fused by lightning. It flickers with a cold light inside."
+			},
+			"dragonfly-pond": {
+				"description": "A clear pool ringed with reeds. Open sunny water in the middle, with stems running from the bottom up past the top."
+			},
+			"trail-tent": {
+				"description": "A snug canvas tent, a little home away from home. Step in and make it your own, and pitch one in each wild area past the meadow."
+			},
+			"headlamp": {
+				"description": "A hand-wound lamp on a woven strap. Once made it is yours for good, and after dark it lights the ground around you."
+			},
+			"binoculars": {
+				"description": "Hand-ground lenses in a woven grip. Once made they are yours for good, and what you have not written up yet gives a soft glint."
+			},
+			"fellfield-gravel": {
+				"description": "Bare gravel that freezes and shifts every spring, held loosely by thin crusts of lichen. It looks like nothing, but only here will a cushion plant grow."
+			},
+			"alpine-turf-mat": {
+				"description": "A tight mat of sedge, avens, and cushion plants over dark mountain soil. Turf like this takes years to close over bare ground and one summer of boots to open it up."
+			},
+			"snowmelt-litter-mat": {
+				"description": "A soaked mat of last year's stems and leaves, let go as the snow pulls back. Almost all the rotting up here happens in these few damp weeks."
+			},
+			"rotting-conifer-log": {
+				"description": "A well-rotted fir log lying where the drifts pile deepest. It is soft enough to push a finger into, and dead wood like this is a home, not a mess."
+			},
+			"escape-cliff": {
+				"description": "A near-straight-up band of broken cliff, cut with ledges and footholds all the way. Nothing can be cornered on ground like this."
+			},
+			"willow-basin-thicket": {
+				"description": "Low willow filling a sheltered dip, thick and buried by drifts each winter. Its buds and twigs stay in reach when everything else up here is under snow."
+			},
+			"boulder-burrow-den": {
+				"description": "A deep burrow with many rooms, dug under a boulder well below the frost. Down there the cold hardly moves all winter."
+			},
+			"inherited-earth-den": {
+				"description": "A hollow under boulders and roots, first dug by someone else, then made wider and taken over. Second-hand, and none the worse for it."
+			},
+			"stonecrop-patch": {
+				"description": "Stonecrop wedged into gravel and rock cracks. Its fat leaves store water where there is almost no soil, and nothing else up high does the same job."
+			},
+			"bumblebee-nest-burrow": {
+				"description": "An old tunnel in the turf, packed with dry grass and bedding. It is a ready-made room, warm and dark, that nobody had to dig."
+			},
+			"chipmunk-burrow-larder": {
+				"description": "A shallow tunnel under a slab, with a side room packed full of seed heads. It stays dry and in reach all winter, though nothing in the game needs it now."
+			},
+			"whitebark-pine": {
+				"description": "A whitebark pine grown from a seed that was buried and never dug up. Its cones do not open on their own, so it cannot spread without help."
+			},
+			"beetle-killed-snag": {
+				"description": "A big dead fir still standing, its bark lifting away. The outer wood has loosened and is riddled with tunnels, so it is soft enough to work."
+			},
+			"old-woodpecker-cavity": {
+				"description": "A round hole cut into a dead trunk seasons ago and left empty since. The rim is still clean and the room below is dry."
+			},
+			"snowfield-debris-line": {
+				"description": "A dark line of seed, pollen, and grit blown against the edge of a melting snowfield. It is a free delivery, carried uphill and dropped."
+			},
+			"toad-upland-burrow": {
+				"description": "A borrowed tunnel in damp ground above a breeding pool. It sits below the frost and above the water, a place to wait out eight months."
+			},
+			"treeline-log-den": {
+				"description": "A hollow log at the edge of the last trees, buried by drifts all winter. Tunnels run away from it under the snow."
+			},
+			"fur-lined-prey-den": {
+				"description": "A den taken from whoever dug it, then lined with fur. Small, close and warm, with no work at all to do."
+			},
+			"cliff-eyrie": {
+				"description": "A big stick nest on a bare cliff ledge. More sticks get added every year, and the same nest is used for decades."
+			},
+			"ledge-natal-den": {
+				"description": "A dry overhang deep in broken cliff, hidden behind fallen rock. You cannot see it from below, and one narrow ledge is the only way in."
+			},
+			"krummholz-bed-hollow": {
+				"description": "A shady scrape pressed flat into the ground under the bent pines. Out of the sun, out of the wind, and out of sight from above."
+			},
+			"kelp-holdfast-reef": {
+				"description": "Clean rock on the shallow sea floor for kelp to grip. Kelp does not root in sand, so with no hard bottom the forest washes away."
+			},
+			"nutrient-upwelling-current": {
+				"description": "Cold, rich water rising from the deep along the shore. It feeds this whole coast, and everything here runs on it."
+			},
+			"coralline-algae-crust": {
+				"description": "Pink branching algae on low rock, like a rough turf. Surfgrass seeds have bristly arms that hook onto it, so no turf means no surfgrass."
+			},
+			"low-tide-rock-bench": {
+				"description": "A wide shelf of bedrock that shows only at the lowest tides. It is the richest strip of shore, and it spends most of its time under water."
+			},
+			"urchin-crevice-pit": {
+				"description": "Round hollows ground into solid rock, each a smooth bowl about a hand wide. Once a pit like this starts, it only gets deeper."
+			},
+			"kelp-forest": {
+				"description": "Living giant kelp rising from the sea floor to a golden roof at the top. The water is dim green all the way up, and the fronds are thick enough to lie back in."
+			},
+			"surfgrass-bed": {
+				"description": "A green meadow of surfgrass streaming in the surge on low rock. It grows so thick you cannot see the stone under it."
+			},
+			"nearshore-spawning-shallows": {
+				"description": "Quiet water just off the surf line, thick with drifting food. It is warm on top and so calm that nothing sinks fast."
+			},
+			"bare-sand-beach": {
+				"description": "Wide, flat, empty sand above the tide line. Bare sand matters on its own, so keep the view long and the surface untouched."
+			},
+			"empty-shell-drift": {
+				"description": "A pocket of empty shells caught in a rock hollow, sorted by size by the waves. A beach with no spare shells is missing something."
+			},
+			"subtidal-rubble-flat": {
+				"description": "Loose cobbles and broken rock just below the tide. Dead bits drift in and settle down between the stones."
+			},
+			"surge-swept-rock-face": {
+				"description": "Open rock taking the full weight of the swell. It is hard to hold onto, and the water never stops moving past."
+			},
+			"barnacle-crust-rock": {
+				"description": "A hard white crust welded across the upper rock. It is sharp underfoot, rough as coarse sandpaper, and stuck on like part of the stone."
+			},
+			"protected-sand-gravel-flat": {
+				"description": "Firm sand and gravel behind a headland. It is easy to dig into, and calm enough that it stays right where it is."
+			},
+			"benthic-amphipod-bed": {
+				"description": "Soft, deep mud along the kelp edge, packed with tiny tubes. There is so much life in it that the sea floor is more life than mud."
+			},
+			"sheltered-cobble-field": {
+				"description": "Loose stones on a shore the surf never hits hard. Each one is damp and dark underneath, and the underside is the important part."
+			},
+			"splash-zone-crevice": {
+				"description": "Dry-looking cracks in rock that the waves only reach as spray. It is the highest, driest step of the shore."
+			},
+			"shell-dropping-rock": {
+				"description": "A flat, hard-topped boulder standing clear of the sand. Cracked shells lie on it, since a hard drop breaks them open."
+			},
+			"swash-zone-runnel": {
+				"description": "The wet strip where each wave runs out and drains back. Every surge turns over the top few centimetres of sand."
+			},
+			"plover-scrape-closure": {
+				"description": "A roped-off stretch of bare, open sand with light fencing and signs. There is nothing to build here, and what keeps it safe is that nobody walks on it."
+			},
+			"high-tide-roost-rock": {
+				"description": "A raised rock that stays dry even at high tide. Open water rings it, so you can wait there when the flats are gone."
+			},
+			"dune-manzanita": {
+				"description": "A low dune shrub that flowers in midwinter. It holds its berries deep into the cold months, when there is nothing else to eat behind the beach."
+			},
+			"mussel-bed": {
+				"description": "A thick band of blue-black shells stacked two and three deep on mid-zone rock. They are packed so tight they hold each other up, and the gaps run right down to the stone."
+			},
+			"mussel-bed-lower-margin": {
+				"description": "The sharp lower edge of the shell bed, with clean open rock below. The tide does not explain that line, so something else holds it."
+			},
+			"sunlit-surge-pool": {
+				"description": "A deep pool washed by every wave and open to the sky. Food pours in from the rocks above, and full sun reaches the bottom."
+			},
+			"offshore-nesting-island": {
+				"description": "A rock stack standing off the coast, with deep water all around. There is no way to walk onto it."
+			},
+			"sandbar-loafing-roost": {
+				"description": "A low sandbar that dries out between tides. It is flat, open, ringed with water, and far enough out to be left alone."
+			},
+			"haul-out-rocks": {
+				"description": "Low rocks and a sand spit with a wide quiet buffer around them. They slope up gently from the water, and crossing that buffer empties the place."
+			},
+			"sheltered-rafting-cove": {
+				"description": "Calm water behind a point, inside the kelp. It stays flat as a pond even in a swell, with fronds lying loose on top."
+			},
+			"creosote-bush": {
+				"description": "The main shrub of the desert flats, spaced far apart because its roots take all the water nearby. Its sticky leaves smell like rain and lose almost none of it."
+			},
+			"saguaro": {
+				"description": "A giant column that stores months of rain in its pleated stem, swelling and shrinking with the season. Flowers on top, fruit in June, and a trunk soft enough to cut into."
+			},
+			"cholla": {
+				"description": "A jointed cactus covered in barbed spines that come away at a touch. Inside the tangle of arms is a space almost nothing can push through."
+			},
+			"desert-mistletoe": {
+				"description": "A leafless plant that roots inside mesquite and ironwood branches. It hangs in thick green-brown clumps and fruits in midwinter, when nothing else does."
+			},
+			"chuparosa": {
+				"description": "A soft grey shrub with tube-shaped red flowers. It blooms right through the desert winter, when almost nothing else is out."
+			},
+			"catclaw-acacia": {
+				"description": "A low thorny tree of desert washes, hooked all over with curved spines that catch as you pass. Thick cover above, and heavy seed pods by late summer."
+			},
+			"bush-muhly": {
+				"description": "A fine-stemmed wild grass that grows up through shrubs for cover. It is the first thing grazed away, so seeing it back means the flat is healing."
+			},
+			"cryptobiotic-crust": {
+				"description": "A living skin of tiny plants and lichen that knits bare soil together. It holds water and blocks weeds, and one boot print undoes years of it."
+			},
+			"bare-ground-patch": {
+				"description": "A patch of soft, loose soil left open between the shrubs. It is loose enough to dig straight down into, but only where nothing has packed it hard."
+			},
+			"harvester-ant-mound": {
+				"description": "A low mound capped with gravel, with a bare cleared ring around it and old seed husks at the rim. Whatever is under there moves a huge amount of soil."
+			},
+			"buried-deadwood": {
+				"description": "Dead stems worked half down into the soil. Buried wood touches damp earth and breaks down, while wood on top just bleaches."
+			},
+			"shrub-litter-mound": {
+				"description": "Leaves, stems, and husks blown into a heap under a shrub. It is dry and crackly on top, damp and dark underneath after rain."
+			},
+			"termite-worked-litter": {
+				"description": "Soil laced with fine old tunnels and capped with litter stuck together. It is worked from below, and the tunnels let rain soak in instead of running off."
+			},
+			"tortoise-burrow": {
+				"description": "A long, cool den with straight sides dug back into a bank, kept open by use. It goes far deeper than anything else out here and stays the same warmth all year."
+			},
+			"caliche-shelter-cave": {
+				"description": "A hollow worn into a hard bank on a rocky slope. It is a ready-made room with a solid roof and no digging needed."
+			},
+			"creosote-mound": {
+				"description": "Blown soil heaped around the base of a creosote and riddled with fine tunnels. The earth is loose and easy to work, and the shrub hides the doorways."
+			},
+			"seed-larder-burrow": {
+				"description": "A shallow burrow under a shrub with side rooms packed with seeds. The doors get plugged with sand each dawn, which traps damp air inside."
+			},
+			"deep-sand-burrow": {
+				"description": "A shaft that spirals two and a half metres down into loose soil. Down there the heat and dry air from above never reach."
+			},
+			"kit-fox-den": {
+				"description": "A cool den with several doors, widened out of an older tunnel. The extra doors are ways to escape."
+			},
+			"wash-bank-den": {
+				"description": "An earth den dug into the cut bank of a dry wash, above the flood line. It stays shaded, drained, and dry even when the wash runs."
+			},
+			"snake-hibernaculum-desert": {
+				"description": "A deep rock crack that runs below the frost and stays above freezing all winter. The same crack gets used year after year, sometimes for decades."
+			},
+			"saguaro-boot": {
+				"description": "The hard, waterproof scar a cactus grows around a hole in its trunk. It is a smooth flask of dried skin, and it lasts longer than the soft flesh around it."
+			},
+			"thornscrub-stick-nest": {
+				"description": "A bulky stick platform wedged a metre or two up inside a thorny shrub. It is off the ground and too prickly for anything to follow."
+			},
+			"carrion-patch": {
+				"description": "Something that has died, left where it fell instead of hauled away. In a few days almost nothing is left, and all of it is back in the soil."
+			},
+			"saguaro-fruit-fall": {
+				"description": "Split red cactus fruit at the height of the June heat, just before the rains. For a few weeks it is the richest food and the wettest drink in the desert."
+			},
+			"pollinated-cactus-fruit": {
+				"description": "Prickly pear and cholla hanging heavy with ripe fruit. A crop this big only sets when every flower was dusted first, and out here that is never sure."
+			},
+			"shade-form-scrape": {
+				"description": "A shallow scrape dug in the deep shade under a shrub, down to cool soil. It is ten degrees cooler than the open ground a metre away."
+			},
+			"browse-exclosure": {
+				"description": "A low fence around a patch of young oaks. Nibbled hard, they never pass knee height, but inside the fence acorns become trees."
+			},
+			"nurse-log-seedbed": {
+				"description": "A rotting, mossy log lying on the forest floor. Seeds that land on bare leaves die, but those on rotten wood grow into trees."
+			},
+			"deep-duff-soil": {
+				"description": "Years of old leaf mould, never raked and never driven over, threaded with roots and fungus. This is where the forest fungus really lives."
+			},
+			"truffle-patch": {
+				"description": "Fungus lumps that grow underground on oak and hemlock roots. Nothing shows on top, so the crop has to be sniffed out."
+			},
+			"soft-rot-snag": {
+				"description": "A small dead stub whose wood has gone soft and pale. You can press a thumbnail into it, and that is what makes it easy to work."
+			},
+			"ant-riddled-log": {
+				"description": "A fallen trunk gone soft with rot and tunnelled through and through. The holes are as wide as a pencil lead and run all through the log."
+			},
+			"rotting-heartwood-log": {
+				"description": "A log rotted hollow down the middle while its outer shell still holds. Inside it is dark, damp, and shut off from the weather."
+			},
+			"downy-cavity": {
+				"description": "A round hole about as wide as a thumb, cut into a dead trunk one season and left. It is small, dry, and already made."
+			},
+			"pileated-cavity-snag": {
+				"description": "A big dead trunk with a deep square hole cut last spring, wide enough for an arm. A fresh one gets cut each year, and the old ones stay."
+			},
+			"flooded-cavity-snag": {
+				"description": "A dead trunk standing in shallow water with an old hole high up. Below the hole there is nothing but open air, then several metres down, water."
+			},
+			"bark-slab-snag": {
+				"description": "A dying tree whose bark has curled away from the trunk in loose slabs. Behind each slab is a warm, dry gap barely wider than a finger."
+			},
+			"leaf-drey": {
+				"description": "A ball of leaves and twigs the size of a football, wedged into a high fork. It is woven from the inside out and rebuilt every year."
+			},
+			"larder-burrow": {
+				"description": "A burrow door no wider than a coin, with tunnels running metres underground. They lead to a nest room and a store holding more than a litre of seeds."
+			},
+			"hemlock-stand": {
+				"description": "A close-grown clump of hemlocks that hold the snow off the ground. Their shade keeps the stream cold, and the inner bark stays in reach all winter."
+			},
+			"browse-thicket": {
+				"description": "Thick young regrowth in a gap where a big tree came down. Every twig is in reach from the ground."
+			},
+			"crayfish-shallows": {
+				"description": "A stony, ankle-deep edge of loose flat rocks over gravel. Dark gaps back up underneath every one of them."
+			},
+			"root-mass-den": {
+				"description": "The dry hollow left under the tipped-up roots of a fallen tree. Earth and roots make the roof, and it is sheltered from every side but one."
+			},
+			"earth-den-bank": {
+				"description": "A well-drained slope with a den dug back into it and several doors along the face. It gets made bigger and reused for years rather than dug fresh."
+			},
+			"snake-hibernaculum-forest": {
+				"description": "A deep crack filled with rubble, running below the frost line. It stays cold but never freezes, right through to spring."
+			},
+			"broken-top-chimney": {
+				"description": "A big living tree snapped off high, rotted hollow inside. The open chimney is a foot across, and only a very old tree rots this way."
+			},
+			"hollow-denning-tree": {
+				"description": "A living tree with a rotted-out room high in the trunk. It is dry inside and metres above the ground, out of reach from below."
+			},
+			"rocky-den-ledge": {
+				"description": "A dry gap under a leaning slab of rock, screened by brush and open at both ends. Sheltered, but easy to slip out of at the first sound."
+			},
+			"adopted-stick-nest": {
+				"description": "A bulky old pile of sticks and leaves left in a high fork. It is worn and a bit saggy but still sound, and ready to use in midwinter."
+			},
+			"bare-soil-scrape": {
+				"description": "A patch raked back by hand to bare, open soil. Bare ground counts too, since seedlings need somewhere that is not covered."
+			},
+			"native-thistle-stand": {
+				"description": "A wild prairie thistle, not one of the weedy kinds from Europe. It has deep tube-shaped flowers and seed heads that break open into soft down."
+			},
+			"grass-thatch-litter": {
+				"description": "A deep mat of dead grass stems, leaves, and roots left where they fell. Meadow fungus pulls it apart and hands it back to the soil."
+			},
+			"grasshopper-egg-pod-bank": {
+				"description": "A strip of firm, sun-warmed bare soil at the edge of the grass. It is packed hard enough to hold a drilled hole open all winter."
+			},
+			"vole-runway-network": {
+				"description": "Narrow runways clipped through thick grass at ground level. They link burrow doors and grass-lined rooms, like little highways hidden under the thatch."
+			},
+			"milkweed-rhizome-bed": {
+				"description": "A spreading bed of showy milkweed grown from root cuttings. The stems bleed white sap when they break, and one bed slowly becomes a patch."
+			},
+			"bumblebee-nest-tussock": {
+				"description": "A thick clump of unmown grass sitting over an old hole in the turf. It is warm, fur-lined, dry, and completely hidden from above."
+			},
+			"brush-form-hollow": {
+				"description": "A shallow scrape pressed into the grass under low brush. It is a resting spot, not a burrow, so no digging is needed."
+			},
+			"serviceberry-browse-thicket": {
+				"description": "A wild shrub with soft twigs and fat buds that stay above the snow. By late summer it hangs heavy with purple fruit."
+			},
+			"milkweed-aphid-colony": {
+				"description": "Bright orange specks packed tight along milkweed stems, thick enough to hide the green. Do not spray them, since every milkweed patch gets them and does fine."
+			},
+			"squirrel-burrow-town": {
+				"description": "A burrow system with many doors dug into deep open soil, its mounds spread across a wide patch. Long after it is left, the tunnels stay open."
+			},
+			"mantis-ootheca-stem": {
+				"description": "Stiff dead stems left standing through winter, with a hard tan foam case glued to one. Cut the stems back in autumn and you cut out what is inside."
+			},
+			"domed-grass-nest-tunnel": {
+				"description": "A grass-roofed nest cup woven down into deep bunchgrass, with a covered run leading in. Only a real spread of wild grass is thick enough to hide one."
+			},
+			"bluebird-nest-box": {
+				"description": "A wooden box facing open grass, with a small round hole and a metal guard on the pole below. The hole is cut to one exact width, and that width is the whole design."
+			},
+			"snake-hibernaculum-meadow": {
+				"description": "A room of rock and soil dug below the frost line, often started from an old tunnel in the bank. There is space down there for a great many at once."
+			},
+			"deep-loam-soil-bank": {
+				"description": "A bank of deep, soft, stone-free soil with nothing hard to hit. Soil like this can be dug faster than it can be walked over."
+			},
+			"earthen-fox-den": {
+				"description": "A south-facing bank widened into a den with several exits, made from an older burrow. It is dry, warm early in the year, and quick to leave."
+			},
+			"crown-stick-eyrie": {
+				"description": "A big stick platform wedged into the top of the tallest tree. It looks out over open grass, and more sticks go on each year."
+			},
+			"sunlit-mudflat": {
+				"description": "A bare shelf of wet, sun-warmed mud at the water's edge. Cattail seed is tiny and needs light, so it will not sprout in shade."
+			},
+			"clearwater-shallows": {
+				"description": "Slow water with the silt settled out, so light reaches the bottom. Plants under the water live on that light, so clear water comes first."
+			},
+			"detritus-drift": {
+				"description": "A sunken raft of dead cattail and sedge leaves going soft under fungus. More energy moves through a marsh as dead plants than as live ones."
+			},
+			"crayfish-burrow-bank": {
+				"description": "A soaked clay bank riddled with finger-wide tunnels. Each one holds water even when the marsh drops low in late summer."
+			},
+			"submerged-spawning-slab": {
+				"description": "A flat stone just under the surface with a clear gap below. The underside is smooth, shady and clean."
+			},
+			"stable-silt-shoal": {
+				"description": "A wide shelf of silt and fine sand where the water moves slowly. It is soft enough to sink into and firm enough not to shift."
+			},
+			"cattail-root-shallows": {
+				"description": "Shallow water over a thick mat of cattail roots, packed down into the mud. They are starchy and swollen, and in reach from below even when the top is frozen."
+			},
+			"flooded-reed-clump": {
+				"description": "A tight stand of cattail and reed stems in ankle-deep water. They are stiff enough to hold a weight slung between them, and the water underneath is what makes it safe."
+			},
+			"winter-litter-mound": {
+				"description": "A deep pile of damp leaves, loose bark, and old stems heaped on dry ground by the marsh. It is deep enough that the middle never gets as cold as the air."
+			},
+			"vernal-pool": {
+				"description": "A shallow, separate pool that fills with snowmelt and dries right up by late summer. The drying is the point, since nothing that needs water all year can settle in."
+			},
+			"wet-meadow-margin": {
+				"description": "A band of damp, grassy meadow between the marsh and dry land. It is never flooded and never fully dry, and the marsh needs it."
+			},
+			"sandy-nest-bank": {
+				"description": "A warm, drained rise of sand and fine gravel above the waterline. It is loose enough to dig and quick to drain, and banks like this are rarer than they look."
+			},
+			"crane-nest-mound": {
+				"description": "A wide heap of marsh plants piled up in open shallow water. Its top stands well clear of the water, so anything coming close has to wade."
+			},
+			"hidden-reed-platform": {
+				"description": "A low platform of living reeds bent down and woven together deep in a thick stand. It sits barely a hand above the water and cannot be seen from any side."
+			},
+			"cut-bank-burrow": {
+				"description": "A bare, upright earth bank rising straight out of the water. It is soft enough to tunnel a metre back into and firm enough that the tunnel holds."
+			},
+			"overwater-thicket": {
+				"description": "Low willow and alder leaning out over deep still water. Their branches hang a metre above the surface, with cool shade underneath."
+			},
+			"muskrat-bank-den": {
+				"description": "An old bank burrow with its door below the waterline and its room dry above. Someone else dug it, and it has stood empty since."
+			},
+			"otter-bank-den": {
+				"description": "A roomy bank den with an underwater door and a dry room above. It is almost always taken over from an older burrow rather than dug fresh."
+			},
+			"beaver-pond": {
+				"description": "Deep, lasting water held back by a dam of sticks and mud, with drowned trees still standing in it. It is deeper and more open than cattail marsh, and it will not appear on its own."
+			},
+			"beaver-canal": {
+				"description": "A shallow dug channel running from the pond out into the marsh. It is just deep enough to float a branch, and it keeps open water joined up through a dry summer."
+			},
+			"rotting-log-crumble": {
+				"description": "A soft, damp, half-rotted log going back to soil. It falls apart when you lift it, and the air under it stays wet all day."
+			},
+			"orb-web-anchor-stems": {
+				"description": "Tall dry stems left standing in a sunny gap. They are stiff enough to hold a line of silk pulled tight between them."
+			},
+			"bat-maternity-roost": {
+				"description": "A narrow, dark crack high off the ground, with full sun on the rock outside. It stays warm all day and is tight enough to press against on both sides."
+			},
+			"barn-loft-nest-box": {
+				"description": "A deep wooden box mounted high under a gable, open on one side. There is a lip of straw across the sill, and it is dark and dry inside."
+			},
+			"coyote-natal-den-bank": {
+				"description": "A den dug into a brushy bank, usually an old hole made wider. It gets used hard for a few weeks and then left."
+			},
+			"damp-leaf-corner": {
+				"description": "A shady corner where fallen leaves pile up and go soft. It stays damp under there even in a dry week."
+			},
+			"goat-cliff-ledge": {
+				"description": "A narrow shelf cut across a near-straight cliff face, scraped bare and dusty. It is no wider than a doormat, on ground far steeper than most would try."
+			},
+			"alpine-mineral-lick": {
+				"description": "A damp bank of salty earth, gnawed and licked into a hollow. Spring grass has no salt in it, and there is nowhere else this high to get it."
+			},
+			"deep-snow-den": {
+				"description": "A tunnel driven metres down into a drift that lasts into late spring, winding past buried boulders. Side rooms hold frozen food, and it only works where the snow stays."
+			},
+			"deep-canyon-edge": {
+				"description": "The place where the sea floor stops and drops away into cold blue-black deep. Deep water, right up against the coast."
+			},
+			"breaking-surf-line": {
+				"description": "A clean line of waves standing up and toppling along an open beach. It is a moving wall of white water the whole length of the shore."
+			},
+			"eelgrass-grazing-lawn": {
+				"description": "A patch of eelgrass cropped short and kept that way. The blades stay young and tender instead of growing long and tough."
+			},
+			"saguaro-crown-nest": {
+				"description": "A bulky stick platform wedged where a tall cactus splits into arms. It is wide enough for a whole family, with a wall of spines below that nothing can climb."
+			},
+			"tarantula-silk-burrow": {
+				"description": "A thumb-wide hole in firm ground, its rim smoothed and bound with silk. A few trip-lines fan out over the sand, and whatever made it may keep it for twenty years."
+			},
+			"elk-wallow": {
+				"description": "A churned muddy dip in a forest opening, kept wet and bare by something heavy rolling in it. The puddle left behind holds water for weeks."
+			},
+			"bramble-ground-nest": {
+				"description": "A grass-lined cup set level with the leaf litter under a bramble arch. Nothing above it but thorns, and that is the whole defence."
+			},
+			"eagle-nest-crown": {
+				"description": "The top of the tallest living tree on the marsh, holding a stick nest the size of a bathtub. The same nest gets added to year after year until the branch finally gives way."
+			},
+			"still-water-cove": {
+				"description": "A pocket of open water behind the reeds where the wind never reaches. The surface is smooth as glass, with a few stems drifting on it."
+			},
+			"winter-sleep-burrow": {
+				"description": "A tunnel under a tilted slab leading to a grass-lined room below the frost line. No store and no side rooms, just somewhere to lie still until spring."
+			},
+			"moth-scree-crack": {
+				"description": "A dark slot under a loose slab of scree, cool, still, and dry. It runs back further than the daylight reaches, so the heat never gets to the end."
+			},
+			"swift-cliff-seam": {
+				"description": "A narrow upright crack running up a sheer rock face, far too tight to stand in. The only way in is head-first, and the only way out is a drop."
+			},
+			"wild-grape-tangle": {
+				"description": "A woody vine roped up a leaning trunk, heavy with fruit by late summer. It is a ladder and a larder at once."
+			},
+			"snake-egg-mound": {
+				"description": "A heap of rotting wood chips and bark piled against a cut stump. As it rots it runs warm, and that warms what is buried in it."
+			},
+			"willow-thicket-swale": {
+				"description": "A damp hollow behind the dunes, filled with low willow and bramble. It is tangled right down to the ground, so nothing big can push in."
+			},
+			"canyon-ledge-den": {
+				"description": "A dry overhang cut back into a canyon wall, screened by fallen slabs. It is shaded all day, hidden from below, and reached by one route only."
+			},
+			"puffball-turf-ring": {
+				"description": "A ring of pale domes pushing up through old turf. Step on a ripe one and it smokes."
+			},
+			"sedge-tussock-nest": {
+				"description": "A thick, knee-high clump of sedge in a damp low spot. It is packed so tight you could push a fist deep inside and never find the hole again."
+			},
+			"hidden-grass-nest": {
+				"description": "A thick tuft of grass left standing in a damp hollow. The middle is pressed down into a deep cup you would walk right past."
+			},
+			"cocoon-leaf-drift": {
+				"description": "A drift of curled fallen leaves banked against a log. Silk cases are wrapped in leaves that fell with them, so the whole lot lies here all winter."
+			},
+			"acorn-cache-scatter": {
+				"description": "A patch of soft open ground pocked with little digs. Acorns went in one at a time, and the ones left grow into oak seedlings."
+			},
+			"winter-freeze-litter-bed": {
+				"description": "A shallow bed of loose leaves over soft soil, only a few inches deep. That is deep enough, since it freezes and thaws with the ground."
+			},
+			"canopy-nest-limb": {
+				"description": "A heavy flat limb against the trunk of an old tree, high where the leaves close over. It is thick enough to hold a big nest for years, with clear flying room below."
+			},
+			"thicket-bed-hollow": {
+				"description": "A scooped, dusty hollow under thick thorn bushes, lain in all through the heat of the day. The shade counts more than the cover."
+			},
+			"falcon-scrape-ledge": {
+				"description": "A gravel shelf high on a cliff with a shallow dip kicked in it. Nothing is built here, and nothing needs to be."
+			},
+			"octopus-den-midden": {
+				"description": "A dark crack under a boulder with a rock pulled part-way across the door. Outside is a tidy heap of empty, drilled shells, and that heap is how you find it."
+			},
+			"meadow-mushroom-ring": {
+				"description": "A curved arc of pale button caps pushing up through damp grass after rain. The ring is the edge of a fungus growing outward under the ground."
+			},
+			"bracket-fungus-shelf": {
+				"description": "Overlapping fans of banded fungus stepping up the side of a dead log. This is the thing eating the wood, and the log only turns to soil because of it."
+			},
+			"wild-celery-bed": {
+				"description": "Long ribbon leaves streaming underwater in the shallows, rooted in silt. It lives only on the light that reaches the bottom, so the water must be left to settle clear."
+			},
+			"snowbank-mushroom-cluster": {
+				"description": "A crowd of small pale mushrooms with hairy stems, growing on buried rotten wood. They come up right at the edge of a melting drift, while snow is still on the ground."
+			},
+			"grizzly-dig-slope": {
+				"description": "A high bank of loose earth threaded with roots, soft enough to tear open. The turned soil is left lying in heaps."
+			},
+			"feather-lined-crack": {
+				"description": "A narrow dry crack in a wind-scoured rock face. The back of it is packed with down and fur."
+			},
+			"borrowed-burrow-mouth": {
+				"description": "A burrow mouth someone else dug, widened and swept clean. A fan of loose sand spreads out at the door."
+			},
+			"browsed-pond-shallows": {
+				"description": "A soft-bottomed edge where the water is chest-deep and thick with stems. It has been cropped short in ragged patches."
+			},
+			"waterfall-splash-ledge": {
+				"description": "A wet shelf tucked behind a thread of falling meltwater. It is mossy and always in shadow."
+			},
+			"grub-digging-ground": {
+				"description": "A patch of soft leaf-mould soil left loose, already pitted with small cone-shaped holes. Something has been turning it over."
+			},
+			"clifftop-burrow": {
+				"description": "A round hole driven back into deep turf right at the top of a sea cliff. The earth is worn bare at the door."
+			},
+			"groundhog-burrow-mound": {
+				"description": "A fan of fresh-turned earth banked around a round hole. A second hole hides in the grass a few paces off."
+			},
+			"opossum-den-hollow": {
+				"description": "A dry hollow under a leaning log, open at both ends. The floor is covered with dragged-in leaves."
+			},
+			"shore-stick-nest": {
+				"description": "A bulky platform of salt-bleached sticks wedged in a high fork. It gets added to and patched every season."
+			},
+			"happy-buddha": {
+				"description": "A round little figure sitting cross-legged, both arms thrown up and grinning. Rubbing the belly is meant to be lucky, and the clay has gone smooth and shiny there."
+			},
+			"lucky-toad": {
+				"description": "A fat little three-legged toad sitting on a pile of coins."
+			},
+			"rippled-sand-bed": {
+				"description": "Clean sand below the low tide line, combed into even ridges. The current is gentle enough to leave them standing."
+			},
+			"rock-crevice": {
+				"description": "Stacked slabs with narrow shady cracks. They run back further than you can see."
+			},
+			"heron-rookery": {
+				"description": "A stand of tall dead trees holding a dozen big stick platforms."
 			}
 		},
 		"tool": {

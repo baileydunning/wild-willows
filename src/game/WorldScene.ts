@@ -3814,7 +3814,9 @@ export class WorldScene extends Phaser.Scene {
 		// Species flagged `aquatic` in the data stay over open water the way fish do,
 		// so otters, beavers and crayfish stop strolling across dry land.
 		const moveKind = (animal as any).aquatic === true ? 'aquatic' : animal.kind;
-		this.wander(img, img.x, img.y, moveKind, rng, ocean, gait);
+		// Seals, otters, turtles and seabirds work both sides of the tideline.
+		const amphibious = (animal as any).amphibious === true;
+		this.wander(img, img.x, img.y, moveKind, rng, ocean || amphibious, gait, amphibious);
 	}
 
 	/** How a species carries itself — picks the movement flourish in wander().
@@ -3997,6 +3999,7 @@ export class WorldScene extends Phaser.Scene {
 		rng: () => number,
 		ocean = false,
 		gait: string = 'amble',
+		amphibious = false,
 	) {
 		const roam = ocean ? 140 : kind === 'bird' || kind === 'insect' ? 130 : 80;
 		const speed = ocean ? 22 : kind === 'insect' ? 26 : kind === 'bird' ? 42 : 18;
@@ -4006,7 +4009,10 @@ export class WorldScene extends Phaser.Scene {
 			if (!img.active) return;
 			const eastEdge = this.area === 'coastal' ? (this.landRight + 1.2) * TILE : this.worldW - TILE;
 			let tx: number, ty: number;
-			if (ocean) {
+			// An amphibious animal picks a side each time it moves, so it hauls out
+			// onto the shore and slips back into the water over and over.
+			const goSea = amphibious ? rng() < 0.55 : ocean;
+			if (goSea) {
 				// marine swimmers drift around the open ocean band, near their spot
 				const w = this.oceanTarget(rng, homeX, homeY, roam);
 				tx = w.x;

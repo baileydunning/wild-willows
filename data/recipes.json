@@ -29,6 +29,10 @@
         "seeds": 4,
         "fiber": 2,
         "water": 1
+      },
+      "unlock": {
+        "minHealth": 10,
+        "label": "Restore Willow Meadow to 10% health"
       }
     },
     {
@@ -44,6 +48,10 @@
         "wildflowers": 3,
         "seeds": 2,
         "water": 1
+      },
+      "unlock": {
+        "minHealth": 8,
+        "label": "Restore Willow Meadow to 8% health"
       }
     },
     {
@@ -260,6 +268,10 @@
       },
       "materials": {
         "stones": 2
+      },
+      "unlock": {
+        "minHealth": 18,
+        "label": "Restore Willow Meadow to 18% health"
       }
     },
     {
@@ -939,6 +951,10 @@
         "branches": 8,
         "stones": 6,
         "water": 4
+      },
+      "unlock": {
+        "minHealth": 45,
+        "label": "Restore Willow Meadow to 45% health"
       }
     },
     {
@@ -1138,8 +1154,8 @@
         "fiber": 2
       },
       "unlock": {
-        "minHealth": 8,
-        "label": "Restore Willow Meadow to 8% health"
+        "minHealth": 6,
+        "label": "Restore Willow Meadow to 6% health"
       }
     },
     {
@@ -2433,6 +2449,10 @@
       "materials": {
         "rainwater": 3,
         "stones": 2
+      },
+      "unlock": {
+        "minHealth": 14,
+        "label": "Restore Willow Meadow to 14% health"
       }
     },
     {
@@ -2601,7 +2621,11 @@
         "fiber": 4,
         "stones": 2
       },
-      "once": true
+      "once": true,
+      "unlock": {
+        "minHealth": 22,
+        "label": "Restore Willow Meadow to 22% health"
+      }
     },
     {
       "id": "binoculars",
@@ -2671,8 +2695,8 @@
         "clay": 2
       },
       "unlock": {
-        "minHealth": 12,
-        "label": "Restore Graywind Heights to 12% health"
+        "minHealth": 13,
+        "label": "Restore Graywind Heights to 13% health"
       }
     },
     {
@@ -2690,8 +2714,8 @@
         "lichen": 1
       },
       "unlock": {
-        "minHealth": 12,
-        "label": "Restore Graywind Heights to 12% health"
+        "minHealth": 0,
+        "label": "Available from the start"
       }
     },
     {
@@ -2726,8 +2750,8 @@
         "clay": 2
       },
       "unlock": {
-        "minHealth": 60,
-        "label": "Restore Graywind Heights to 60% health"
+        "minHealth": 67,
+        "label": "Restore Graywind Heights to 67% health"
       }
     },
     {
@@ -2745,8 +2769,8 @@
         "moss": 2
       },
       "unlock": {
-        "minHealth": 30,
-        "label": "Restore Graywind Heights to 30% health"
+        "minHealth": 35,
+        "label": "Restore Graywind Heights to 35% health"
       }
     },
     {
@@ -2763,8 +2787,8 @@
         "clay": 3
       },
       "unlock": {
-        "minHealth": 28,
-        "label": "Restore Graywind Heights to 28% health"
+        "minHealth": 30,
+        "label": "Restore Graywind Heights to 30% health"
       }
     },
     {
@@ -2799,13 +2823,13 @@
         "stones": 2
       },
       "unlock": {
-        "minHealth": 18,
-        "label": "Restore Graywind Heights to 18% health"
+        "minHealth": 20,
+        "label": "Restore Graywind Heights to 20% health"
       }
     },
     {
       "id": "bumblebee-nest-burrow",
-      "name": "Bumble Bee Nest Burrow",
+      "name": "Nest Burrow",
       "category": "habitat",
       "unlockBiome": "alpine",
       "output": {
@@ -2874,8 +2898,8 @@
         "clay": 1
       },
       "unlock": {
-        "minHealth": 45,
-        "label": "Restore Graywind Heights to 45% health"
+        "minHealth": 47,
+        "label": "Restore Graywind Heights to 47% health"
       }
     },
     {
@@ -2949,8 +2973,8 @@
         "stones": 2
       },
       "unlock": {
-        "minHealth": 55,
-        "label": "Restore Graywind Heights to 55% health"
+        "minHealth": 60,
+        "label": "Restore Graywind Heights to 60% health"
       }
     },
     {
@@ -2986,13 +3010,13 @@
         "clay": 2
       },
       "unlock": {
-        "minHealth": 70,
-        "label": "Restore Graywind Heights to 70% health"
+        "minHealth": 73,
+        "label": "Restore Graywind Heights to 73% health"
       }
     },
     {
       "id": "ledge-natal-den",
-      "name": "Ledge Natal Den",
+      "name": "Ledge Den",
       "category": "habitat",
       "unlockBiome": "alpine",
       "output": {
@@ -3023,8 +3047,8 @@
         "stones": 1
       },
       "unlock": {
-        "minHealth": 40,
-        "label": "Restore the area to 40% health"
+        "minHealth": 35,
+        "label": "Restore Graywind Heights to 35% health"
       }
     },
     {
@@ -3042,8 +3066,8 @@
         "water": 2
       },
       "unlock": {
-        "minHealth": 10,
-        "label": "Restore Pelican Shore to 10% health"
+        "minHealth": 67,
+        "label": "Restore Pelican Shore to 67% health"
       }
     },
     {
@@ -3060,8 +3084,8 @@
         "kelp": 2
       },
       "unlock": {
-        "minHealth": 10,
-        "label": "Restore Pelican Shore to 10% health"
+        "minHealth": 23,
+        "label": "Restore Pelican Shore to 23% health"
       }
     },
     {
@@ -3096,8 +3120,8 @@
         "shells": 2
       },
       "unlock": {
-        "minHealth": 6,
-        "label": "Restore Pelican Shore to 6% health"
+        "minHealth": 30,
+        "label": "Restore Pelican Shore to 30% health"
       }
     },
     {
@@ -3114,8 +3138,8 @@
         "sand": 1
       },
       "unlock": {
-        "minHealth": 15,
-        "label": "Restore Pelican Shore to 15% health"
+        "minHealth": 30,
+        "label": "Restore Pelican Shore to 30% health"
       }
     },
     {
@@ -3133,8 +3157,8 @@
         "water": 3
       },
       "unlock": {
-        "minHealth": 15,
-        "label": "Restore Pelican Shore to 15% health"
+        "minHealth": 25,
+        "label": "Restore Pelican Shore to 25% health"
       }
     },
     {
@@ -3152,8 +3176,8 @@
         "water": 2
       },
       "unlock": {
-        "minHealth": 10,
-        "label": "Restore Pelican Shore to 10% health"
+        "minHealth": 25,
+        "label": "Restore Pelican Shore to 25% health"
       }
     },
     {
@@ -3170,8 +3194,8 @@
         "sand": 2
       },
       "unlock": {
-        "minHealth": 22,
-        "label": "Restore Pelican Shore to 22% health"
+        "minHealth": 25,
+        "label": "Restore Pelican Shore to 25% health"
       }
     },
     {
@@ -3187,8 +3211,8 @@
         "sand": 3
       },
       "unlock": {
-        "minHealth": 6,
-        "label": "Restore Pelican Shore to 6% health"
+        "minHealth": 7,
+        "label": "Restore Pelican Shore to 7% health"
       }
     },
     {
@@ -3204,8 +3228,8 @@
         "shells": 3
       },
       "unlock": {
-        "minHealth": 25,
-        "label": "Restore Pelican Shore to 25% health"
+        "minHealth": 30,
+        "label": "Restore Pelican Shore to 30% health"
       }
     },
     {
@@ -3222,8 +3246,8 @@
         "shells": 2
       },
       "unlock": {
-        "minHealth": 30,
-        "label": "Restore Pelican Shore to 30% health"
+        "minHealth": 40,
+        "label": "Restore Pelican Shore to 40% health"
       }
     },
     {
@@ -3241,8 +3265,8 @@
         "water": 1
       },
       "unlock": {
-        "minHealth": 18,
-        "label": "Restore Pelican Shore to 18% health"
+        "minHealth": 23,
+        "label": "Restore Pelican Shore to 23% health"
       }
     },
     {
@@ -3259,8 +3283,8 @@
         "water": 1
       },
       "unlock": {
-        "minHealth": 10,
-        "label": "Restore Pelican Shore to 10% health"
+        "minHealth": 7,
+        "label": "Restore Pelican Shore to 7% health"
       }
     },
     {
@@ -3277,13 +3301,13 @@
         "shells": 2
       },
       "unlock": {
-        "minHealth": 20,
-        "label": "Restore Pelican Shore to 20% health"
+        "minHealth": 63,
+        "label": "Restore Pelican Shore to 63% health"
       }
     },
     {
       "id": "benthic-amphipod-bed",
-      "name": "Amphipod and Mysid Bed",
+      "name": "Muddy Seabed",
       "category": "habitat",
       "unlockBiome": "coastal",
       "output": {
@@ -3296,8 +3320,8 @@
         "water": 2
       },
       "unlock": {
-        "minHealth": 15,
-        "label": "Restore Pelican Shore to 15% health"
+        "minHealth": 70,
+        "label": "Restore Pelican Shore to 70% health"
       }
     },
     {
@@ -3314,8 +3338,8 @@
         "shells": 2
       },
       "unlock": {
-        "minHealth": 22,
-        "label": "Restore Pelican Shore to 22% health"
+        "minHealth": 30,
+        "label": "Restore Pelican Shore to 30% health"
       }
     },
     {
@@ -3332,8 +3356,8 @@
         "shells": 1
       },
       "unlock": {
-        "minHealth": 8,
-        "label": "Restore Pelican Shore to 8% health"
+        "minHealth": 7,
+        "label": "Restore Pelican Shore to 7% health"
       }
     },
     {
@@ -3350,8 +3374,8 @@
         "sand": 1
       },
       "unlock": {
-        "minHealth": 12,
-        "label": "Restore Pelican Shore to 12% health"
+        "minHealth": 15,
+        "label": "Restore Pelican Shore to 15% health"
       }
     },
     {
@@ -3368,8 +3392,8 @@
         "water": 2
       },
       "unlock": {
-        "minHealth": 35,
-        "label": "Restore Pelican Shore to 35% health"
+        "minHealth": 45,
+        "label": "Restore Pelican Shore to 45% health"
       }
     },
     {
@@ -3387,8 +3411,8 @@
         "sea-glass": 1
       },
       "unlock": {
-        "minHealth": 45,
-        "label": "Restore Pelican Shore to 45% health"
+        "minHealth": 55,
+        "label": "Restore Pelican Shore to 55% health"
       }
     },
     {
@@ -3405,8 +3429,8 @@
         "shells": 2
       },
       "unlock": {
-        "minHealth": 28,
-        "label": "Restore Pelican Shore to 28% health"
+        "minHealth": 35,
+        "label": "Restore Pelican Shore to 35% health"
       }
     },
     {
@@ -3448,7 +3472,7 @@
     },
     {
       "id": "mussel-bed-lower-margin",
-      "name": "Mussel Bed Lower Margin",
+      "name": "Mussel Bed Edge",
       "category": "habitat",
       "unlockBiome": "coastal",
       "output": {
@@ -3479,8 +3503,8 @@
         "sea-glass": 1
       },
       "unlock": {
-        "minHealth": 24,
-        "label": "Restore Pelican Shore to 24% health"
+        "minHealth": 31,
+        "label": "Restore Pelican Shore to 31% health"
       }
     },
     {
@@ -3516,8 +3540,8 @@
         "driftwood": 2
       },
       "unlock": {
-        "minHealth": 40,
-        "label": "Restore Pelican Shore to 40% health"
+        "minHealth": 50,
+        "label": "Restore Pelican Shore to 50% health"
       }
     },
     {
@@ -3535,8 +3559,8 @@
         "shells": 1
       },
       "unlock": {
-        "minHealth": 55,
-        "label": "Restore Pelican Shore to 55% health"
+        "minHealth": 65,
+        "label": "Restore Pelican Shore to 65% health"
       }
     },
     {
@@ -3554,8 +3578,8 @@
         "sand": 2
       },
       "unlock": {
-        "minHealth": 15,
-        "label": "Restore Pelican Shore to 15% health"
+        "minHealth": 70,
+        "label": "Restore Pelican Shore to 70% health"
       }
     },
     {
@@ -3573,13 +3597,13 @@
         "stones": 1
       },
       "unlock": {
-        "minHealth": 5,
-        "label": "Restore Redstone Scrubland to 5% health"
+        "minHealth": 3,
+        "label": "Restore Redstone Scrubland to 3% health"
       }
     },
     {
       "id": "cryptobiotic-crust",
-      "name": "Cryptobiotic Soil Crust",
+      "name": "Living Soil Crust",
       "category": "habitat",
       "unlockBiome": "desert",
       "output": {
@@ -3591,8 +3615,8 @@
         "clay": 3
       },
       "unlock": {
-        "minHealth": 5,
-        "label": "Restore Redstone Scrubland to 5% health"
+        "minHealth": 3,
+        "label": "Restore Redstone Scrubland to 3% health"
       }
     },
     {
@@ -3609,8 +3633,8 @@
         "clay": 2
       },
       "unlock": {
-        "minHealth": 5,
-        "label": "Restore Redstone Scrubland to 5% health"
+        "minHealth": 0,
+        "label": "Available from the start"
       }
     },
     {
@@ -3627,8 +3651,8 @@
         "clay": 1
       },
       "unlock": {
-        "minHealth": 8,
-        "label": "Restore Redstone Scrubland to 8% health"
+        "minHealth": 9,
+        "label": "Restore Redstone Scrubland to 9% health"
       }
     },
     {
@@ -3645,8 +3669,8 @@
         "stones": 1
       },
       "unlock": {
-        "minHealth": 10,
-        "label": "Restore Redstone Scrubland to 10% health"
+        "minHealth": 11,
+        "label": "Restore Redstone Scrubland to 11% health"
       }
     },
     {
@@ -3663,8 +3687,8 @@
         "stones": 2
       },
       "unlock": {
-        "minHealth": 12,
-        "label": "Restore Redstone Scrubland to 12% health"
+        "minHealth": 11,
+        "label": "Restore Redstone Scrubland to 11% health"
       }
     },
     {
@@ -3681,8 +3705,8 @@
         "stones": 1
       },
       "unlock": {
-        "minHealth": 14,
-        "label": "Restore Redstone Scrubland to 14% health"
+        "minHealth": 13,
+        "label": "Restore Redstone Scrubland to 13% health"
       }
     },
     {
@@ -3699,8 +3723,8 @@
         "clay": 1
       },
       "unlock": {
-        "minHealth": 15,
-        "label": "Restore Redstone Scrubland to 15% health"
+        "minHealth": 20,
+        "label": "Restore Redstone Scrubland to 20% health"
       }
     },
     {
@@ -3717,8 +3741,8 @@
         "clay": 1
       },
       "unlock": {
-        "minHealth": 18,
-        "label": "Restore Redstone Scrubland to 18% health"
+        "minHealth": 20,
+        "label": "Restore Redstone Scrubland to 20% health"
       }
     },
     {
@@ -3735,8 +3759,8 @@
         "stones": 1
       },
       "unlock": {
-        "minHealth": 20,
-        "label": "Restore Redstone Scrubland to 20% health"
+        "minHealth": 25,
+        "label": "Restore Redstone Scrubland to 25% health"
       }
     },
     {
@@ -3755,8 +3779,8 @@
         "stones": 2
       },
       "unlock": {
-        "minHealth": 25,
-        "label": "Restore Redstone Scrubland to 25% health"
+        "minHealth": 30,
+        "label": "Restore Redstone Scrubland to 30% health"
       }
     },
     {
@@ -3774,8 +3798,8 @@
         "agave-nectar": 1
       },
       "unlock": {
-        "minHealth": 25,
-        "label": "Restore Redstone Scrubland to 25% health"
+        "minHealth": 35,
+        "label": "Restore Redstone Scrubland to 35% health"
       }
     },
     {
@@ -3793,8 +3817,8 @@
         "stones": 1
       },
       "unlock": {
-        "minHealth": 28,
-        "label": "Restore Redstone Scrubland to 28% health"
+        "minHealth": 35,
+        "label": "Restore Redstone Scrubland to 35% health"
       }
     },
     {
@@ -3812,8 +3836,8 @@
         "clay": 1
       },
       "unlock": {
-        "minHealth": 30,
-        "label": "Restore Redstone Scrubland to 30% health"
+        "minHealth": 40,
+        "label": "Restore Redstone Scrubland to 40% health"
       }
     },
     {
@@ -3831,8 +3855,8 @@
         "sand": 1
       },
       "unlock": {
-        "minHealth": 35,
-        "label": "Restore Redstone Scrubland to 35% health"
+        "minHealth": 45,
+        "label": "Restore Redstone Scrubland to 45% health"
       }
     },
     {
@@ -3849,8 +3873,8 @@
         "cactus-fruit": 1
       },
       "unlock": {
-        "minHealth": 35,
-        "label": "Restore Redstone Scrubland to 35% health"
+        "minHealth": 41,
+        "label": "Restore Redstone Scrubland to 41% health"
       }
     },
     {
@@ -3868,13 +3892,13 @@
         "stones": 1
       },
       "unlock": {
-        "minHealth": 40,
-        "label": "Restore Redstone Scrubland to 40% health"
+        "minHealth": 45,
+        "label": "Restore Redstone Scrubland to 45% health"
       }
     },
     {
       "id": "snake-hibernaculum-desert",
-      "name": "Snake Den",
+      "name": "Winter Rock Den",
       "category": "habitat",
       "unlockBiome": "desert",
       "output": {
@@ -3886,8 +3910,8 @@
         "clay": 1
       },
       "unlock": {
-        "minHealth": 45,
-        "label": "Restore Redstone Scrubland to 45% health"
+        "minHealth": 55,
+        "label": "Restore Redstone Scrubland to 55% health"
       }
     },
     {
@@ -3911,7 +3935,7 @@
     },
     {
       "id": "termite-worked-litter",
-      "name": "Termite-Worked Soil",
+      "name": "Crumbled Soil",
       "category": "habitat",
       "unlockBiome": "desert",
       "output": {
@@ -3965,7 +3989,7 @@
     },
     {
       "id": "kit-fox-den",
-      "name": "Kit Fox Den",
+      "name": "Sandy Den",
       "category": "habitat",
       "unlockBiome": "desert",
       "output": {
@@ -4014,8 +4038,8 @@
         "sand": 1
       },
       "unlock": {
-        "minHealth": 30,
-        "label": "Restore Redstone Scrubland to 30% health"
+        "minHealth": 45,
+        "label": "Restore Redstone Scrubland to 45% health"
       }
     },
     {
@@ -4039,7 +4063,7 @@
     },
     {
       "id": "saguaro-boot",
-      "name": "Saguaro Boot",
+      "name": "Cactus Hollow",
       "category": "habitat",
       "unlockBiome": "desert",
       "output": {
@@ -4095,7 +4119,7 @@
     },
     {
       "id": "deep-duff-soil",
-      "name": "Deep Duff Layer",
+      "name": "Deep Leaf Mould",
       "category": "habitat",
       "unlockBiome": "forest",
       "output": {
@@ -4127,13 +4151,13 @@
         "acorns": 2
       },
       "unlock": {
-        "minHealth": 42,
-        "label": "Restore Old Hollow Forest to 42% health"
+        "minHealth": 60,
+        "label": "Restore Old Hollow Forest to 60% health"
       }
     },
     {
       "id": "soft-rot-snag",
-      "name": "Soft-Rot Snag",
+      "name": "Rotting Dead Tree",
       "category": "habitat",
       "unlockBiome": "forest",
       "output": {
@@ -4146,13 +4170,13 @@
         "bark": 1
       },
       "unlock": {
-        "minHealth": 8,
-        "label": "Restore Old Hollow Forest to 8% health"
+        "minHealth": 11,
+        "label": "Restore Old Hollow Forest to 11% health"
       }
     },
     {
       "id": "ant-riddled-log",
-      "name": "Ant-Riddled Log",
+      "name": "Hollowed Log",
       "category": "habitat",
       "unlockBiome": "forest",
       "output": {
@@ -4165,8 +4189,8 @@
         "bark": 1
       },
       "unlock": {
-        "minHealth": 8,
-        "label": "Restore Old Hollow Forest to 8% health"
+        "minHealth": 50,
+        "label": "Restore Old Hollow Forest to 50% health"
       }
     },
     {
@@ -4184,8 +4208,8 @@
         "mushrooms": 1
       },
       "unlock": {
-        "minHealth": 8,
-        "label": "Restore Old Hollow Forest to 8% health"
+        "minHealth": 35,
+        "label": "Restore Old Hollow Forest to 35% health"
       }
     },
     {
@@ -4208,7 +4232,7 @@
     },
     {
       "id": "pileated-cavity-snag",
-      "name": "Pileated Cavity Snag",
+      "name": "Tall Hollow Tree",
       "category": "habitat",
       "unlockBiome": "forest",
       "output": {
@@ -4227,7 +4251,7 @@
     },
     {
       "id": "flooded-cavity-snag",
-      "name": "Flooded Cavity Snag",
+      "name": "Dead Tree Over Water",
       "category": "habitat",
       "unlockBiome": "forest",
       "output": {
@@ -4246,7 +4270,7 @@
     },
     {
       "id": "bark-slab-snag",
-      "name": "Loose-Bark Snag",
+      "name": "Peeling Bark Tree",
       "category": "habitat",
       "unlockBiome": "forest",
       "output": {
@@ -4276,8 +4300,8 @@
         "moss": 1
       },
       "unlock": {
-        "minHealth": 12,
-        "label": "Restore Old Hollow Forest to 12% health"
+        "minHealth": 10,
+        "label": "Restore Old Hollow Forest to 10% health"
       }
     },
     {
@@ -4294,8 +4318,8 @@
         "acorns": 2
       },
       "unlock": {
-        "minHealth": 8,
-        "label": "Restore Old Hollow Forest to 8% health"
+        "minHealth": 7,
+        "label": "Restore Old Hollow Forest to 7% health"
       }
     },
     {
@@ -4313,8 +4337,8 @@
         "moss": 3
       },
       "unlock": {
-        "minHealth": 20,
-        "label": "Restore Old Hollow Forest to 20% health"
+        "minHealth": 45,
+        "label": "Restore Old Hollow Forest to 45% health"
       }
     },
     {
@@ -4332,8 +4356,8 @@
         "water": 2
       },
       "unlock": {
-        "minHealth": 30,
-        "label": "Restore Old Hollow Forest to 30% health"
+        "minHealth": 33,
+        "label": "Restore Old Hollow Forest to 33% health"
       }
     },
     {
@@ -4351,8 +4375,8 @@
         "clay": 2
       },
       "unlock": {
-        "minHealth": 35,
-        "label": "Restore Old Hollow Forest to 35% health"
+        "minHealth": 40,
+        "label": "Restore Old Hollow Forest to 40% health"
       }
     },
     {
@@ -4370,8 +4394,8 @@
         "clay": 2
       },
       "unlock": {
-        "minHealth": 55,
-        "label": "Restore Old Hollow Forest to 55% health"
+        "minHealth": 70,
+        "label": "Restore Old Hollow Forest to 70% health"
       }
     },
     {
@@ -4389,13 +4413,13 @@
         "stones": 2
       },
       "unlock": {
-        "minHealth": 40,
-        "label": "Restore Old Hollow Forest to 40% health"
+        "minHealth": 55,
+        "label": "Restore Old Hollow Forest to 55% health"
       }
     },
     {
       "id": "snake-hibernaculum-forest",
-      "name": "Snake Hibernaculum",
+      "name": "Forest Winter Den",
       "category": "habitat",
       "unlockBiome": "forest",
       "output": {
@@ -4446,8 +4470,8 @@
         "moss": 2
       },
       "unlock": {
-        "minHealth": 50,
-        "label": "Restore Old Hollow Forest to 50% health"
+        "minHealth": 55,
+        "label": "Restore Old Hollow Forest to 55% health"
       }
     },
     {
@@ -4465,8 +4489,8 @@
         "moss": 1
       },
       "unlock": {
-        "minHealth": 55,
-        "label": "Restore Old Hollow Forest to 55% health"
+        "minHealth": 70,
+        "label": "Restore Old Hollow Forest to 70% health"
       }
     },
     {
@@ -4502,8 +4526,8 @@
         "fiber": 1
       },
       "unlock": {
-        "minHealth": 2,
-        "label": "Restore Willow Meadow to 2% health"
+        "minHealth": 60,
+        "label": "Restore Willow Meadow to 60% health"
       }
     },
     {
@@ -4576,13 +4600,13 @@
         "stones": 1
       },
       "unlock": {
-        "minHealth": 6,
-        "label": "Restore Willow Meadow to 6% health"
+        "minHealth": 3,
+        "label": "Restore Willow Meadow to 3% health"
       }
     },
     {
       "id": "vole-runway-network",
-      "name": "Vole Runway Network",
+      "name": "Grass Runways",
       "category": "habitat",
       "unlockBiome": "meadow",
       "output": {
@@ -4594,13 +4618,13 @@
         "seeds": 1
       },
       "unlock": {
-        "minHealth": 8,
-        "label": "Restore Willow Meadow to 8% health"
+        "minHealth": 5,
+        "label": "Restore Willow Meadow to 5% health"
       }
     },
     {
       "id": "milkweed-rhizome-bed",
-      "name": "Milkweed Rhizome Bed",
+      "name": "Milkweed Bed",
       "category": "habitat",
       "unlockBiome": "meadow",
       "output": {
@@ -4613,8 +4637,8 @@
         "water": 2
       },
       "unlock": {
-        "minHealth": 6,
-        "label": "Restore Willow Meadow to 6% health"
+        "minHealth": 10,
+        "label": "Restore Willow Meadow to 10% health"
       }
     },
     {
@@ -4637,7 +4661,7 @@
     },
     {
       "id": "brush-form-hollow",
-      "name": "Brush Form Hollow",
+      "name": "Brush Hollow",
       "category": "habitat",
       "unlockBiome": "meadow",
       "output": {
@@ -4655,7 +4679,7 @@
     },
     {
       "id": "serviceberry-browse-thicket",
-      "name": "Serviceberry Browse Thicket",
+      "name": "Berry Thicket",
       "category": "habitat",
       "unlockBiome": "meadow",
       "output": {
@@ -4668,13 +4692,13 @@
         "water": 2
       },
       "unlock": {
-        "minHealth": 45,
-        "label": "Restore Willow Meadow to 45% health"
+        "minHealth": 50,
+        "label": "Restore Willow Meadow to 50% health"
       }
     },
     {
       "id": "milkweed-aphid-colony",
-      "name": "Milkweed Aphid Colony",
+      "name": "Sap-Rich Stems",
       "category": "habitat",
       "unlockBiome": "meadow",
       "output": {
@@ -4685,8 +4709,8 @@
         "wildflowers": 2
       },
       "unlock": {
-        "minHealth": 6,
-        "label": "Restore Willow Meadow to 6% health"
+        "minHealth": 7,
+        "label": "Restore Willow Meadow to 7% health"
       }
     },
     {
@@ -4703,13 +4727,13 @@
         "stones": 2
       },
       "unlock": {
-        "minHealth": 12,
-        "label": "Restore Willow Meadow to 12% health"
+        "minHealth": 9,
+        "label": "Restore Willow Meadow to 9% health"
       }
     },
     {
       "id": "mantis-ootheca-stem",
-      "name": "Standing Stem Ootheca",
+      "name": "Egg-Case Stem",
       "category": "habitat",
       "unlockBiome": "meadow",
       "output": {
@@ -4720,8 +4744,8 @@
         "fiber": 2
       },
       "unlock": {
-        "minHealth": 6,
-        "label": "Restore Willow Meadow to 6% health"
+        "minHealth": 19,
+        "label": "Restore Willow Meadow to 19% health"
       }
     },
     {
@@ -4738,8 +4762,8 @@
         "branches": 2
       },
       "unlock": {
-        "minHealth": 5,
-        "label": "Restore Willow Meadow to 5% health"
+        "minHealth": 40,
+        "label": "Restore Willow Meadow to 40% health"
       }
     },
     {
@@ -4756,13 +4780,13 @@
         "fiber": 2
       },
       "unlock": {
-        "minHealth": 45,
-        "label": "Restore Willow Meadow to 45% health"
+        "minHealth": 50,
+        "label": "Restore Willow Meadow to 50% health"
       }
     },
     {
       "id": "snake-hibernaculum-meadow",
-      "name": "Snake Hibernaculum",
+      "name": "Meadow Winter Den",
       "category": "habitat",
       "unlockBiome": "meadow",
       "output": {
@@ -4781,7 +4805,7 @@
     },
     {
       "id": "deep-loam-soil-bank",
-      "name": "Deep Loam Soil Bank",
+      "name": "Deep Soil Bank",
       "category": "habitat",
       "unlockBiome": "meadow",
       "output": {
@@ -4793,13 +4817,13 @@
         "stones": 2
       },
       "unlock": {
-        "minHealth": 55,
-        "label": "Restore Willow Meadow to 55% health"
+        "minHealth": 60,
+        "label": "Restore Willow Meadow to 60% health"
       }
     },
     {
       "id": "earthen-fox-den",
-      "name": "Earthen Fox Den",
+      "name": "Earth Den",
       "category": "habitat",
       "unlockBiome": "meadow",
       "output": {
@@ -4847,8 +4871,8 @@
         "clay": 1
       },
       "unlock": {
-        "minHealth": 5,
-        "label": "Restore Rushwater Wetland to 5% health"
+        "minHealth": 45,
+        "label": "Restore Rushwater Wetland to 45% health"
       }
     },
     {
@@ -4883,8 +4907,8 @@
         "mud": 2
       },
       "unlock": {
-        "minHealth": 8,
-        "label": "Restore Rushwater Wetland to 8% health"
+        "minHealth": 0,
+        "label": "Available from the start"
       }
     },
     {
@@ -4901,8 +4925,8 @@
         "mud": 3
       },
       "unlock": {
-        "minHealth": 18,
-        "label": "Restore Rushwater Wetland to 18% health"
+        "minHealth": 17,
+        "label": "Restore Rushwater Wetland to 17% health"
       }
     },
     {
@@ -4919,8 +4943,8 @@
         "fiber": 1
       },
       "unlock": {
-        "minHealth": 24,
-        "label": "Restore Rushwater Wetland to 24% health"
+        "minHealth": 23,
+        "label": "Restore Rushwater Wetland to 23% health"
       }
     },
     {
@@ -4957,8 +4981,8 @@
         "water": 2
       },
       "unlock": {
-        "minHealth": 8,
-        "label": "Restore Rushwater Wetland to 8% health"
+        "minHealth": 27,
+        "label": "Restore Rushwater Wetland to 27% health"
       }
     },
     {
@@ -4975,8 +4999,8 @@
         "water": 2
       },
       "unlock": {
-        "minHealth": 8,
-        "label": "Restore Rushwater Wetland to 8% health"
+        "minHealth": 20,
+        "label": "Restore Rushwater Wetland to 20% health"
       }
     },
     {
@@ -4993,8 +5017,8 @@
         "fiber": 2
       },
       "unlock": {
-        "minHealth": 22,
-        "label": "Restore Rushwater Wetland to 22% health"
+        "minHealth": 25,
+        "label": "Restore Rushwater Wetland to 25% health"
       }
     },
     {
@@ -5011,13 +5035,13 @@
         "clean-water": 4
       },
       "unlock": {
-        "minHealth": 30,
-        "label": "Restore Rushwater Wetland to 30% health"
+        "minHealth": 43,
+        "label": "Restore Rushwater Wetland to 43% health"
       }
     },
     {
       "id": "wet-meadow-margin",
-      "name": "Wet Meadow Margin",
+      "name": "Wet Meadow Edge",
       "category": "habitat",
       "unlockBiome": "wetland",
       "output": {
@@ -5030,8 +5054,8 @@
         "water": 2
       },
       "unlock": {
-        "minHealth": 34,
-        "label": "Restore Rushwater Wetland to 34% health"
+        "minHealth": 41,
+        "label": "Restore Rushwater Wetland to 41% health"
       }
     },
     {
@@ -5048,8 +5072,8 @@
         "clay": 3
       },
       "unlock": {
-        "minHealth": 40,
-        "label": "Restore Rushwater Wetland to 40% health"
+        "minHealth": 53,
+        "label": "Restore Rushwater Wetland to 53% health"
       }
     },
     {
@@ -5067,8 +5091,8 @@
         "fiber": 1
       },
       "unlock": {
-        "minHealth": 60,
-        "label": "Restore Rushwater Wetland to 60% health"
+        "minHealth": 70,
+        "label": "Restore Rushwater Wetland to 70% health"
       }
     },
     {
@@ -5103,8 +5127,8 @@
         "mud": 3
       },
       "unlock": {
-        "minHealth": 50,
-        "label": "Restore Rushwater Wetland to 50% health"
+        "minHealth": 57,
+        "label": "Restore Rushwater Wetland to 57% health"
       }
     },
     {
@@ -5128,7 +5152,7 @@
     },
     {
       "id": "muskrat-bank-den",
-      "name": "Old Muskrat Bank Den",
+      "name": "Old Bank Den",
       "category": "habitat",
       "unlockBiome": "wetland",
       "output": {
@@ -5146,7 +5170,7 @@
     },
     {
       "id": "otter-bank-den",
-      "name": "Otter Bank Den",
+      "name": "River Bank Den",
       "category": "habitat",
       "unlockBiome": "wetland",
       "output": {
@@ -5165,7 +5189,7 @@
     },
     {
       "id": "beaver-pond",
-      "name": "Beaver Pond",
+      "name": "Dammed Pond",
       "category": "habitat",
       "unlockBiome": "wetland",
       "output": {
@@ -5185,7 +5209,7 @@
     },
     {
       "id": "beaver-canal",
-      "name": "Beaver Canal",
+      "name": "Dug Channel",
       "category": "habitat",
       "unlockBiome": "wetland",
       "output": {
@@ -5216,8 +5240,8 @@
         "water": 1
       },
       "unlock": {
-        "minHealth": 8,
-        "label": "Restore Willow Meadow to 8% health"
+        "minHealth": 7,
+        "label": "Restore Willow Meadow to 7% health"
       }
     },
     {
@@ -5253,8 +5277,8 @@
         "clay": 1
       },
       "unlock": {
-        "minHealth": 42,
-        "label": "Restore Willow Meadow to 42% health"
+        "minHealth": 45,
+        "label": "Restore Willow Meadow to 45% health"
       }
     },
     {
@@ -5278,7 +5302,7 @@
     },
     {
       "id": "coyote-natal-den-bank",
-      "name": "Coyote Den Bank",
+      "name": "Den Bank",
       "category": "habitat",
       "unlockBiome": "meadow",
       "output": {
@@ -5310,8 +5334,8 @@
         "water": 1
       },
       "unlock": {
-        "minHealth": 5,
-        "label": "Restore Willow Meadow to 5% health"
+        "minHealth": 3,
+        "label": "Restore Willow Meadow to 3% health"
       }
     },
     {
@@ -5328,8 +5352,8 @@
         "seeds": 2
       },
       "unlock": {
-        "minHealth": 12,
-        "label": "Restore Willow Meadow to 12% health"
+        "minHealth": 11,
+        "label": "Restore Willow Meadow to 11% health"
       }
     },
     {
@@ -5364,8 +5388,8 @@
         "branches": 1
       },
       "unlock": {
-        "minHealth": 26,
-        "label": "Restore Old Hollow Forest to 26% health"
+        "minHealth": 25,
+        "label": "Restore Old Hollow Forest to 25% health"
       }
     },
     {
@@ -5382,13 +5406,13 @@
         "clay": 1
       },
       "unlock": {
-        "minHealth": 24,
-        "label": "Restore Old Hollow Forest to 24% health"
+        "minHealth": 23,
+        "label": "Restore Old Hollow Forest to 23% health"
       }
     },
     {
       "id": "winter-freeze-litter-bed",
-      "name": "Freeze-Down Litter Bed",
+      "name": "Frozen Leaf Bed",
       "category": "habitat",
       "unlockBiome": "forest",
       "output": {
@@ -5401,8 +5425,8 @@
         "bark": 1
       },
       "unlock": {
-        "minHealth": 34,
-        "label": "Restore Old Hollow Forest to 34% health"
+        "minHealth": 33,
+        "label": "Restore Old Hollow Forest to 33% health"
       }
     },
     {
@@ -5420,8 +5444,8 @@
         "moss": 2
       },
       "unlock": {
-        "minHealth": 72,
-        "label": "Restore Old Hollow Forest to 72% health"
+        "minHealth": 73,
+        "label": "Restore Old Hollow Forest to 73% health"
       }
     },
     {
@@ -5458,8 +5482,8 @@
         "water": 2
       },
       "unlock": {
-        "minHealth": 12,
-        "label": "Restore Rushwater Wetland to 12% health"
+        "minHealth": 63,
+        "label": "Restore Rushwater Wetland to 63% health"
       }
     },
     {
@@ -5477,8 +5501,8 @@
         "fiber": 2
       },
       "unlock": {
-        "minHealth": 46,
-        "label": "Restore Redstone Scrubland to 46% health"
+        "minHealth": 47,
+        "label": "Restore Redstone Scrubland to 47% health"
       }
     },
     {
@@ -5495,8 +5519,8 @@
         "sand": 2
       },
       "unlock": {
-        "minHealth": 64,
-        "label": "Restore Graywind Heights to 64% health"
+        "minHealth": 65,
+        "label": "Restore Graywind Heights to 65% health"
       }
     },
     {
@@ -5519,27 +5543,8 @@
       }
     },
     {
-      "id": "algae-garden-scar",
-      "name": "Grazed Algae Garden",
-      "category": "habitat",
-      "unlockBiome": "coastal",
-      "output": {
-        "itemId": "algae-garden-scar",
-        "qty": 1
-      },
-      "materials": {
-        "kelp": 2,
-        "stones": 2,
-        "water": 1
-      },
-      "unlock": {
-        "minHealth": 20,
-        "label": "Restore Pelican Shore to 20% health"
-      }
-    },
-    {
       "id": "octopus-den-midden",
-      "name": "Den Midden",
+      "name": "Den Scrap Pile",
       "category": "habitat",
       "unlockBiome": "coastal",
       "output": {
@@ -5552,8 +5557,8 @@
         "sand": 2
       },
       "unlock": {
-        "minHealth": 66,
-        "label": "Restore Pelican Shore to 66% health"
+        "minHealth": 67,
+        "label": "Restore Pelican Shore to 67% health"
       }
     },
     {
@@ -5571,13 +5576,13 @@
         "clean-water": 2
       },
       "unlock": {
-        "minHealth": 60,
-        "label": "Restore Graywind Heights to 60% health"
+        "minHealth": 80,
+        "label": "Restore Graywind Heights to 80% health"
       }
     },
     {
       "id": "feather-lined-crack",
-      "name": "Feather-Lined Crack",
+      "name": "Lined Rock Crack",
       "category": "habitat",
       "unlockBiome": "alpine",
       "output": {
@@ -5589,8 +5594,8 @@
         "moss": 1
       },
       "unlock": {
-        "minHealth": 20,
-        "label": "Restore the area to 20% health"
+        "minHealth": 25,
+        "label": "Restore Graywind Heights to 25% health"
       }
     },
     {
@@ -5607,8 +5612,8 @@
         "stones": 2
       },
       "unlock": {
-        "minHealth": 20,
-        "label": "Restore the area to 20% health"
+        "minHealth": 37,
+        "label": "Restore Redstone Scrubland to 37% health"
       }
     },
     {
@@ -5626,8 +5631,8 @@
         "clean-water": 2
       },
       "unlock": {
-        "minHealth": 30,
-        "label": "Restore Rushwater Wetland to 30% health"
+        "minHealth": 63,
+        "label": "Restore Rushwater Wetland to 63% health"
       }
     },
     {
@@ -5645,8 +5650,8 @@
         "clean-water": 3
       },
       "unlock": {
-        "minHealth": 34,
-        "label": "Restore Graywind Heights to 34% health"
+        "minHealth": 57,
+        "label": "Restore Graywind Heights to 57% health"
       }
     },
     {
@@ -5663,8 +5668,8 @@
         "bark": 2
       },
       "unlock": {
-        "minHealth": 34,
-        "label": "Restore Old Hollow Forest to 34% health"
+        "minHealth": 37,
+        "label": "Restore Old Hollow Forest to 37% health"
       }
     },
     {
@@ -5681,13 +5686,13 @@
         "driftwood": 2
       },
       "unlock": {
-        "minHealth": 48,
-        "label": "Restore Pelican Shore to 48% health"
+        "minHealth": 50,
+        "label": "Restore Pelican Shore to 50% health"
       }
     },
     {
       "id": "groundhog-burrow-mound",
-      "name": "Burrow Mound",
+      "name": "Meadow Burrow Mound",
       "category": "habitat",
       "unlockBiome": "meadow",
       "output": {
@@ -5700,8 +5705,8 @@
         "water": 1
       },
       "unlock": {
-        "minHealth": 30,
-        "label": "Restore Willow Meadow to 30% health"
+        "minHealth": 33,
+        "label": "Restore Willow Meadow to 33% health"
       }
     },
     {
@@ -5718,8 +5723,8 @@
         "fiber": 2
       },
       "unlock": {
-        "minHealth": 36,
-        "label": "Restore Willow Meadow to 36% health"
+        "minHealth": 39,
+        "label": "Restore Willow Meadow to 39% health"
       }
     },
     {
@@ -5736,8 +5741,62 @@
         "kelp": 1
       },
       "unlock": {
-        "minHealth": 24,
-        "label": "Restore Pelican Shore to 24% health"
+        "minHealth": 25,
+        "label": "Restore Pelican Shore to 25% health"
+      }
+    },
+    {
+      "id": "happy-buddha",
+      "name": "Happy Buddha",
+      "category": "home",
+      "unlockBiome": "meadow",
+      "output": {
+        "itemId": "happy-buddha",
+        "qty": 1
+      },
+      "materials": {
+        "clay": 4,
+        "stones": 1
+      },
+      "unlock": {
+        "minHealth": 68,
+        "label": "Restore Willow Meadow to 68% health"
+      }
+    },
+    {
+      "id": "lucky-toad",
+      "name": "Lucky Toad",
+      "category": "home",
+      "unlockBiome": "meadow",
+      "output": {
+        "itemId": "lucky-toad",
+        "qty": 1
+      },
+      "materials": {
+        "clay": 3,
+        "stones": 2
+      },
+      "unlock": {
+        "minHealth": 71,
+        "label": "Restore Willow Meadow to 71% health"
+      }
+    },
+    {
+      "id": "rippled-sand-bed",
+      "name": "Rippled Sand",
+      "category": "habitat",
+      "unlockBiome": "coastal",
+      "output": {
+        "itemId": "rippled-sand-bed",
+        "qty": 1
+      },
+      "materials": {
+        "sand": 4,
+        "shells": 1
+      },
+      "unlock": {
+        "minHealth": 21,
+        "label": "Restore Pelican Shore to 21% health"
       }
     }
   ]

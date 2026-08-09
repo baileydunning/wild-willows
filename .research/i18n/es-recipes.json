@@ -1,0 +1,515 @@
+{
+ "hiking-boots": {
+  "name": "Hiking Boots"
+ },
+ "fellfield-gravel": {
+  "name": "Fellfield Gravel"
+ },
+ "alpine-turf-mat": {
+  "name": "Alpine Turf Mat"
+ },
+ "snowmelt-litter-mat": {
+  "name": "Snowmelt Litter Mat"
+ },
+ "rotting-conifer-log": {
+  "name": "Rotting Conifer Log"
+ },
+ "escape-cliff": {
+  "name": "Escape Cliff"
+ },
+ "willow-basin-thicket": {
+  "name": "Willow Basin Thicket"
+ },
+ "boulder-burrow-den": {
+  "name": "Boulder Burrow Den"
+ },
+ "inherited-earth-den": {
+  "name": "Inherited Earth Den"
+ },
+ "stonecrop-patch": {
+  "name": "Stonecrop Patch"
+ },
+ "bumblebee-nest-burrow": {
+  "name": "Nest Burrow"
+ },
+ "chipmunk-burrow-larder": {
+  "name": "Chipmunk Burrow Larder"
+ },
+ "whitebark-pine": {
+  "name": "Whitebark Pine"
+ },
+ "beetle-killed-snag": {
+  "name": "Beetle-Killed Snag"
+ },
+ "old-woodpecker-cavity": {
+  "name": "Old Woodpecker Cavity"
+ },
+ "snowfield-debris-line": {
+  "name": "Snowfield Debris Line"
+ },
+ "toad-upland-burrow": {
+  "name": "Toad Upland Burrow"
+ },
+ "treeline-log-den": {
+  "name": "Treeline Log Den"
+ },
+ "fur-lined-prey-den": {
+  "name": "Fur-Lined Prey Den"
+ },
+ "cliff-eyrie": {
+  "name": "Cliff Eyrie"
+ },
+ "ledge-natal-den": {
+  "name": "Ledge Den"
+ },
+ "krummholz-bed-hollow": {
+  "name": "Krummholz Bed Hollow"
+ },
+ "kelp-holdfast-reef": {
+  "name": "Kelp Holdfast Reef"
+ },
+ "nutrient-upwelling-current": {
+  "name": "Upwelling Current"
+ },
+ "coralline-algae-crust": {
+  "name": "Coralline Turf"
+ },
+ "low-tide-rock-bench": {
+  "name": "Low-Tide Rock Bench"
+ },
+ "urchin-crevice-pit": {
+  "name": "Urchin Pit"
+ },
+ "kelp-forest": {
+  "name": "Kelp Forest"
+ },
+ "surfgrass-bed": {
+  "name": "Surfgrass Bed"
+ },
+ "nearshore-spawning-shallows": {
+  "name": "Nearshore Spawning Shallows"
+ },
+ "bare-sand-beach": {
+  "name": "Open Sand Beach"
+ },
+ "empty-shell-drift": {
+  "name": "Empty Shell Drift"
+ },
+ "subtidal-rubble-flat": {
+  "name": "Subtidal Rubble Flat"
+ },
+ "surge-swept-rock-face": {
+  "name": "Surge-Swept Rock Face"
+ },
+ "barnacle-crust-rock": {
+  "name": "Barnacle Crust"
+ },
+ "protected-sand-gravel-flat": {
+  "name": "Sheltered Sand-Gravel Flat"
+ },
+ "benthic-amphipod-bed": {
+  "name": "Muddy Seabed"
+ },
+ "sheltered-cobble-field": {
+  "name": "Sheltered Cobble Field"
+ },
+ "splash-zone-crevice": {
+  "name": "Splash-Zone Crevice"
+ },
+ "shell-dropping-rock": {
+  "name": "Shell-Dropping Rock"
+ },
+ "swash-zone-runnel": {
+  "name": "Swash-Zone Runnel"
+ },
+ "plover-scrape-closure": {
+  "name": "Plover Scrape Closure"
+ },
+ "high-tide-roost-rock": {
+  "name": "High-Tide Roost"
+ },
+ "dune-manzanita": {
+  "name": "Dune Manzanita"
+ },
+ "mussel-bed": {
+  "name": "Mussel Bed"
+ },
+ "mussel-bed-lower-margin": {
+  "name": "Mussel Bed Edge"
+ },
+ "sunlit-surge-pool": {
+  "name": "Sunlit Surge Pool"
+ },
+ "offshore-nesting-island": {
+  "name": "Offshore Nesting Island"
+ },
+ "sandbar-loafing-roost": {
+  "name": "Sandbar Roost"
+ },
+ "haul-out-rocks": {
+  "name": "Seal Haul-Out Rocks"
+ },
+ "sheltered-rafting-cove": {
+  "name": "Sheltered Rafting Cove"
+ },
+ "creosote-bush": {
+  "name": "Creosote Bush"
+ },
+ "cryptobiotic-crust": {
+  "name": "Living Soil Crust"
+ },
+ "buried-deadwood": {
+  "name": "Buried Deadwood"
+ },
+ "shrub-litter-mound": {
+  "name": "Shrub Litter Mound"
+ },
+ "bare-ground-patch": {
+  "name": "Open Bare Ground"
+ },
+ "harvester-ant-mound": {
+  "name": "Harvester Ant Mound"
+ },
+ "deep-sand-burrow": {
+  "name": "Deep Sand Burrow"
+ },
+ "bush-muhly": {
+  "name": "Bush Muhly"
+ },
+ "seed-larder-burrow": {
+  "name": "Seed Larder Burrow"
+ },
+ "shade-form-scrape": {
+  "name": "Shade Form"
+ },
+ "saguaro": {
+  "name": "Saguaro"
+ },
+ "chuparosa": {
+  "name": "Chuparosa"
+ },
+ "catclaw-acacia": {
+  "name": "Catclaw Acacia"
+ },
+ "cholla": {
+  "name": "Chain-fruit Cholla"
+ },
+ "caliche-shelter-cave": {
+  "name": "Caliche Den"
+ },
+ "desert-mistletoe": {
+  "name": "Desert Mistletoe"
+ },
+ "thornscrub-stick-nest": {
+  "name": "Thorn Thicket Nest"
+ },
+ "snake-hibernaculum-desert": {
+  "name": "Winter Rock Den"
+ },
+ "wash-bank-den": {
+  "name": "Wash Bank Den"
+ },
+ "termite-worked-litter": {
+  "name": "Crumbled Soil"
+ },
+ "pollinated-cactus-fruit": {
+  "name": "Cactus Fruit Set"
+ },
+ "creosote-mound": {
+  "name": "Creosote Coppice Mound"
+ },
+ "kit-fox-den": {
+  "name": "Sandy Den"
+ },
+ "carrion-patch": {
+  "name": "Carrion Ground"
+ },
+ "saguaro-fruit-fall": {
+  "name": "Saguaro Fruit Fall"
+ },
+ "tortoise-burrow": {
+  "name": "Tortoise Burrow"
+ },
+ "saguaro-boot": {
+  "name": "Cactus Hollow"
+ },
+ "browse-exclosure": {
+  "name": "Browse Exclosure"
+ },
+ "nurse-log-seedbed": {
+  "name": "Nurse Log Seedbed"
+ },
+ "deep-duff-soil": {
+  "name": "Deep Leaf Mould"
+ },
+ "truffle-patch": {
+  "name": "Truffle Patch"
+ },
+ "soft-rot-snag": {
+  "name": "Rotting Dead Tree"
+ },
+ "ant-riddled-log": {
+  "name": "Hollowed Log"
+ },
+ "rotting-heartwood-log": {
+  "name": "Rotted-Out Log"
+ },
+ "downy-cavity": {
+  "name": "Downy Woodpecker Hole"
+ },
+ "pileated-cavity-snag": {
+  "name": "Tall Hollow Tree"
+ },
+ "flooded-cavity-snag": {
+  "name": "Dead Tree Over Water"
+ },
+ "bark-slab-snag": {
+  "name": "Peeling Bark Tree"
+ },
+ "leaf-drey": {
+  "name": "Leaf Drey"
+ },
+ "larder-burrow": {
+  "name": "Larder Burrow"
+ },
+ "hemlock-stand": {
+  "name": "Hemlock Stand"
+ },
+ "browse-thicket": {
+  "name": "Browse Thicket"
+ },
+ "crayfish-shallows": {
+  "name": "Crayfish Shallows"
+ },
+ "root-mass-den": {
+  "name": "Root-Mass Den"
+ },
+ "earth-den-bank": {
+  "name": "Earth Den Bank"
+ },
+ "snake-hibernaculum-forest": {
+  "name": "Forest Winter Den"
+ },
+ "broken-top-chimney": {
+  "name": "Broken-Top Chimney Tree"
+ },
+ "hollow-denning-tree": {
+  "name": "Hollow Denning Tree"
+ },
+ "rocky-den-ledge": {
+  "name": "Rocky Den Ledge"
+ },
+ "adopted-stick-nest": {
+  "name": "Adopted Stick Nest"
+ },
+ "bare-soil-scrape": {
+  "name": "Bare Soil Scrape"
+ },
+ "native-thistle-stand": {
+  "name": "Native Thistle Stand"
+ },
+ "bunchgrass-sod-plug": {
+  "name": "Bunchgrass Sod Plug"
+ },
+ "grass-thatch-litter": {
+  "name": "Grass Thatch Litter"
+ },
+ "grasshopper-egg-pod-bank": {
+  "name": "Egg Pod Bank"
+ },
+ "vole-runway-network": {
+  "name": "Grass Runways"
+ },
+ "milkweed-rhizome-bed": {
+  "name": "Milkweed Bed"
+ },
+ "bumblebee-nest-tussock": {
+  "name": "Nesting Tussock"
+ },
+ "brush-form-hollow": {
+  "name": "Brush Hollow"
+ },
+ "serviceberry-browse-thicket": {
+  "name": "Berry Thicket"
+ },
+ "milkweed-aphid-colony": {
+  "name": "Sap-Rich Stems"
+ },
+ "squirrel-burrow-town": {
+  "name": "Burrow Town"
+ },
+ "mantis-ootheca-stem": {
+  "name": "Egg-Case Stem"
+ },
+ "domed-grass-nest-tunnel": {
+  "name": "Domed Grass Nest"
+ },
+ "bluebird-nest-box": {
+  "name": "Bluebird Nest Box"
+ },
+ "snake-hibernaculum-meadow": {
+  "name": "Meadow Winter Den"
+ },
+ "deep-loam-soil-bank": {
+  "name": "Deep Soil Bank"
+ },
+ "earthen-fox-den": {
+  "name": "Earth Den"
+ },
+ "crown-stick-eyrie": {
+  "name": "Crown Stick Eyrie"
+ },
+ "sunlit-mudflat": {
+  "name": "Sunlit Mudflat"
+ },
+ "clearwater-shallows": {
+  "name": "Clearwater Shallows"
+ },
+ "detritus-drift": {
+  "name": "Litter Drift"
+ },
+ "crayfish-burrow-bank": {
+  "name": "Crayfish Burrow Bank"
+ },
+ "submerged-spawning-slab": {
+  "name": "Submerged Spawning Slab"
+ },
+ "stable-silt-shoal": {
+  "name": "Stable Silt Shoal"
+ },
+ "cattail-root-shallows": {
+  "name": "Cattail Root Shallows"
+ },
+ "flooded-reed-clump": {
+  "name": "Flooded Reed Clump"
+ },
+ "winter-litter-mound": {
+  "name": "Winter Litter Mound"
+ },
+ "vernal-pool": {
+  "name": "Fishless Vernal Pool"
+ },
+ "wet-meadow-margin": {
+  "name": "Wet Meadow Edge"
+ },
+ "sandy-nest-bank": {
+  "name": "Sandy Nest Bank"
+ },
+ "crane-nest-mound": {
+  "name": "Crane Nest Mound"
+ },
+ "hidden-reed-platform": {
+  "name": "Hidden Reed Platform"
+ },
+ "cut-bank-burrow": {
+  "name": "Cut Bank Burrow"
+ },
+ "overwater-thicket": {
+  "name": "Overwater Thicket"
+ },
+ "muskrat-bank-den": {
+  "name": "Old Bank Den"
+ },
+ "otter-bank-den": {
+  "name": "River Bank Den"
+ },
+ "beaver-pond": {
+  "name": "Dammed Pond"
+ },
+ "beaver-canal": {
+  "name": "Dug Channel"
+ },
+ "rotting-log-crumble": {
+  "name": "Crumbling Log"
+ },
+ "orb-web-anchor-stems": {
+  "name": "Web Anchor Stems"
+ },
+ "bat-maternity-roost": {
+  "name": "Maternity Roost"
+ },
+ "barn-loft-nest-box": {
+  "name": "Barn Loft"
+ },
+ "coyote-natal-den-bank": {
+  "name": "Den Bank"
+ },
+ "damp-leaf-corner": {
+  "name": "Damp Leaf Corner"
+ },
+ "hidden-grass-nest": {
+  "name": "Hidden Grass Nest"
+ },
+ "meadow-mushroom-ring": {
+  "name": "Meadow Mushroom Ring"
+ },
+ "cocoon-leaf-drift": {
+  "name": "Cocoon Leaf Drift"
+ },
+ "acorn-cache-scatter": {
+  "name": "Acorn Cache"
+ },
+ "winter-freeze-litter-bed": {
+  "name": "Frozen Leaf Bed"
+ },
+ "canopy-nest-limb": {
+  "name": "Canopy Nest Limb"
+ },
+ "bracket-fungus-shelf": {
+  "name": "Bracket Fungus Shelf"
+ },
+ "wild-celery-bed": {
+  "name": "Wild Celery Bed"
+ },
+ "thicket-bed-hollow": {
+  "name": "Thicket Bed Hollow"
+ },
+ "falcon-scrape-ledge": {
+  "name": "Scrape Ledge"
+ },
+ "snowbank-mushroom-cluster": {
+  "name": "Snowbank Mushrooms"
+ },
+ "octopus-den-midden": {
+  "name": "Den Scrap Pile"
+ },
+ "grizzly-dig-slope": {
+  "name": "Dig Slope"
+ },
+ "feather-lined-crack": {
+  "name": "Lined Rock Crack"
+ },
+ "borrowed-burrow-mouth": {
+  "name": "Borrowed Burrow"
+ },
+ "browsed-pond-shallows": {
+  "name": "Browsed Shallows"
+ },
+ "waterfall-splash-ledge": {
+  "name": "Splash Ledge"
+ },
+ "grub-digging-ground": {
+  "name": "Digging Ground"
+ },
+ "clifftop-burrow": {
+  "name": "Clifftop Burrow"
+ },
+ "groundhog-burrow-mound": {
+  "name": "Meadow Burrow Mound"
+ },
+ "opossum-den-hollow": {
+  "name": "Den Hollow"
+ },
+ "shore-stick-nest": {
+  "name": "Stick Nest"
+ },
+ "happy-buddha": {
+  "name": "Happy Buddha"
+ },
+ "lucky-toad": {
+  "name": "Lucky Toad"
+ },
+ "rippled-sand-bed": {
+  "name": "Rippled Sand"
+ }
+}

@@ -1,0 +1,950 @@
+{
+  "grass-patch": {
+    "description": "A soft patch of new grass. A good first step for bare ground."
+  },
+  "native-grass-patch": {
+    "description": "Native bunchgrass with roots deeper than the grass is tall. It holds the soil together and covers the ground all year."
+  },
+  "wildflower-patch": {
+    "description": "A loose mix of wild flowers, planted in no set order. A wide splash of colour you can spot from far away."
+  },
+  "poppy-patch": {
+    "description": "Field poppies, an old farm weed from Europe. They look lovely in a garden bed, but they are not a prairie plant."
+  },
+  "sunflower-patch": {
+    "description": "Tall sunflowers, wild in North America, left standing all autumn. The seed heads dry hard on the stalk and stay put."
+  },
+  "lupine-patch": {
+    "description": "Tall blue lupine spikes. They feed the soil as they bloom."
+  },
+  "oak-tree": {
+    "description": "An oak grown from an acorn. It starts slow, then for years it does more good than any other tree you can plant."
+  },
+  "pine-tree": {
+    "description": "A young pine grown from a cone. Green shelter in every season."
+  },
+  "butterfly-flowers": {
+    "description": "A mixed bed of wild nectar flowers, in bloom from midsummer to autumn. Milkweed is its own plant now, so sow that one on its own."
+  },
+  "pollinator-garden": {
+    "description": "A thick bed of flowers planned to bloom all season long. Nectar and pollen from the first warm week to the last."
+  },
+  "shrub": {
+    "description": "A young wild shrub that gives thick cover at knee height. But a meadow is grassland, and too many shrubs change it into something else."
+  },
+  "berry-bush": {
+    "description": "A prickly thicket of wild rose and thimbleberry. It is full of fruit by late summer, so sow it in a watered bed."
+  },
+  "woodland-pool": {
+    "description": "A shady forest pool fed by a cold spring. It is cold and clean, with a soft muddy edge to walk down."
+  },
+  "shallow-water-pool": {
+    "description": "A pool with a long, sunny shallow edge you could wade across. It is warm and shallow, not deep, so it is no match for real deep water."
+  },
+  "log-shelter": {
+    "description": "Fallen logs stacked in a loose pile with gaps running through it. It stays damp underneath and slowly goes soft."
+  },
+  "hollow-log": {
+    "description": "A fallen log opened out down the middle. Inside is a dry, close space with one way in."
+  },
+  "rock-pile": {
+    "description": "Flat stones piled loosely. The sun bakes the top while the gaps under it stay cool and damp."
+  },
+  "fallen-branch-shelter": {
+    "description": "A loose heap of branches, twigs and all, thrown together rather than stacked. It is full of gaps to slip into."
+  },
+  "bird-perch": {
+    "description": "A tall bare dead tree with a clear view all around. Open sky sits above it."
+  },
+  "simple-path": {
+    "description": "Flat stepping stones that keep your boots off the new growth."
+  },
+  "gravel-path": {
+    "description": "Crunchy gravel underfoot. It keeps boots off the new growth."
+  },
+  "plank-path": {
+    "description": "Old boardwalk planks. They are gentle on soft ground."
+  },
+  "flagstone-path": {
+    "description": "Wide flat stones set into the ground."
+  },
+  "mossy-path": {
+    "description": "Old stones wearing soft green moss. They keep boots off the wet ground without packing it down."
+  },
+  "wooden-fence": {
+    "description": "A low rail fence. It marks quiet spots where the ground is healing."
+  },
+  "nesting-tree": {
+    "description": "A young native tree that grows fast. Give it a few seasons and its top will be strong enough to hold weight."
+  },
+  "standing-deadwood": {
+    "description": "A dead tree left standing and held safe. The thicker it is the better, since a thin stub cannot hold much."
+  },
+  "mushroom-log": {
+    "description": "A damp, mossy log seeded with fungus. The fungus eats the wood and turns the dead log into food, soil, and shelter."
+  },
+  "reed-bed": {
+    "description": "Thick reeds standing in shallow water. They grow tall enough to walk in and lose sight of the bank."
+  },
+  "nesting-platform": {
+    "description": "A raised, quiet platform out in the open, flat on top with nothing above it. It does not take the place of a tree hole, a bank tunnel, or a big shared nest."
+  },
+  "cattail-stand": {
+    "description": "Tall cattails crowded along the water's edge. They are thick at the base and shade the shallows behind them."
+  },
+  "marsh-log": {
+    "description": "A half-sunk log with one end in the sun and the other under water. Dark, tight gaps run beneath it the whole way."
+  },
+  "lily-pool": {
+    "description": "Still, clean water covered edge to edge with lily pads. The water under them stays cool and shady."
+  },
+  "cactus-patch": {
+    "description": "Moved-in pad and barrel cactus. Fruit, water, and a spiny fort in one, though it is too short to hold a hole."
+  },
+  "desert-brush": {
+    "description": "A mixed stand of low bursage and brittlebush. It is the small scrub that fills the gaps between bigger shrubs."
+  },
+  "shaded-rock-shelter": {
+    "description": "Stacked slabs with a cool dark gap. Shelter from the midday sun."
+  },
+  "alpine-wildflower-patch": {
+    "description": "Tough little mountain flowers, low and tight to the ground. They all bloom at once in the short summer, so this is food, not shelter."
+  },
+  "snowmelt-pool": {
+    "description": "A stone pool that holds cold, clear snowmelt. Leave it empty, since water this high starts out bare."
+  },
+  "tidepool": {
+    "description": "A rocky pool that keeps a bit of sea behind when the tide goes out. It is only a bit, so it warms up and goes salty."
+  },
+  "dune-grass": {
+    "description": "Wild dunegrass that holds blowing sand. It grows in open, patchy clumps, not a thick wall."
+  },
+  "driftwood-shelter": {
+    "description": "Old driftwood stacked into a shelter on the beach."
+  },
+  "tide-chime": {
+    "description": "Shells and sea glass strung on driftwood. They ring softly in the sea breeze."
+  },
+  "medium-chest": {
+    "description": "A stronger chest. Holds 250 materials."
+  },
+  "flower-vase": {
+    "description": "A clay pot of meadow flowers to brighten your camp."
+  },
+  "migration-path-marker": {
+    "description": "Stone stacks and markers that make the high route safe again. Making it helps open Pelican Shore."
+  },
+  "alpine-restoration-kit": {
+    "description": "Shade cloth, water stores, and climbing gear for the high country. Making it helps open Graywind Heights."
+  },
+  "stone-lantern": {
+    "description": "A little stone lantern with a warm glow to light the path."
+  },
+  "wooden-bench": {
+    "description": "An old bench turned silver by salt and sun. A quiet place to sit and just look."
+  },
+  "garden-arch": {
+    "description": "A flowery arch over a path, heavy with blooms by midsummer. It is pretty, but it is a garden piece and nothing here needs one."
+  },
+  "bird-bath": {
+    "description": "A shallow stone bowl on a stand, no deeper than a thumb. The bottom is rough for footing and the water is fresh."
+  },
+  "planter-box": {
+    "description": "A wooden box planted with desert plants. Brittlebush, penstemon, and globemallow, not garden flowers."
+  },
+  "clover-patch": {
+    "description": "Clover and trefoil brought in from away, soft and green underfoot. It crowds out wild flowers, so treat it as a garden patch, not real healing."
+  },
+  "brush-pile": {
+    "description": "A loose pile of branches, thickest at the bottom and open in the middle. Gaps and runs lead in at ground level."
+  },
+  "tree-stump": {
+    "description": "A mossy old stump full of holes and soft rot. It crumbles a little further into the ground every year."
+  },
+  "sedge-tussock": {
+    "description": "Clumps of sedge standing in the shallows. Each one is a thick, knee-high tuft with dry footing inside."
+  },
+  "agave-rosette": {
+    "description": "A spiny rosette that stays low for years. Then it throws up one flower stalk taller than you."
+  },
+  "krummholz-pine": {
+    "description": "A dwarf pine bent by the wind. Rare shelter at the tree line."
+  },
+  "eelgrass-bed": {
+    "description": "Eelgrass swaying in soft mud in a calm bay. It is a meadow under the water, thick enough to vanish into."
+  },
+  "oyster-bed": {
+    "description": "A rebuilt reef of small native shells. These are the Pacific coast's own kind, not the ones brought in from far away."
+  },
+  "foxglove": {
+    "description": "Foxglove, brought in from away and poisonous in every part. It spreads too well in some places, so keep it for looks only."
+  },
+  "mushroom-ring": {
+    "description": "A ring of woodland mushrooms in the leaf litter."
+  },
+  "birch-tree": {
+    "description": "A slim birch with white bark, grown from a watered bed."
+  },
+  "marsh-marigold": {
+    "description": "Gold marsh marigolds ringing the wet shallows in spring. They bloom before almost anything else, which shows the wet edge is working."
+  },
+  "prickly-pear": {
+    "description": "Pad cactus with sweet fruit and bright blooms."
+  },
+  "desert-marigold": {
+    "description": "Tough marigolds that glow against the sand."
+  },
+  "moss-cushion": {
+    "description": "A springy cushion of moss campion and mountain avens. It is tight as a pillow and warm and damp inside."
+  },
+  "sea-thrift": {
+    "description": "Pink sea-thrift pompoms. They love salt spray."
+  },
+  "beach-shrub": {
+    "description": "Grey-green coastal scrub that puts up with salt. The wind cuts it flat on top and it stays thick underneath."
+  },
+  "nectar-feeder": {
+    "description": "A sugar water feeder on a hook. It is fun to watch, but sugar water is not real food, so this is only a decoration."
+  },
+  "crystal-cairn": {
+    "description": "A cracked geode set on stacked stones. A shiny desert landmark."
+  },
+  "sun-totem": {
+    "description": "A carved sandstone totem topped with a desert crystal."
+  },
+  "palo-verde-tree": {
+    "description": "The desert tree with green bark. Rare shade and yellow flowers for the scrubland."
+  },
+  "shore-pine": {
+    "description": "A pine bent low and wide by salt wind. It holds the back dunes and blocks the wind off the water."
+  },
+  "water-tupelo": {
+    "description": "A round-topped wetland tree with a swollen base standing in water. It comes from the far southeast, so here it is only for looks."
+  },
+  "mesquite-tree": {
+    "description": "A low, spreading desert tree. Light shade and seed pods for the scrubland."
+  },
+  "subalpine-fir": {
+    "description": "A slim, pointed fir that shrugs off deep mountain snow."
+  },
+  "monterey-cypress": {
+    "description": "A coastal cypress pressed flat by the sea wind. It is planted here, not wild, since only two wild groves are left."
+  },
+  "coast-live-oak": {
+    "description": "A wide evergreen oak. It holds the back shore and casts deep shade."
+  },
+  "campfire": {
+    "description": "A crackling campfire ringed with stones. The heart of camp."
+  },
+  "string-lights": {
+    "description": "A string of warm little lanterns to hang over your camp."
+  },
+  "pinwheel": {
+    "description": "A bright pinwheel that spins in the breeze."
+  },
+  "birdhouse": {
+    "description": "A little wooden house on a post. It looks charming even when nothing is home."
+  },
+  "garden-gnome": {
+    "description": "A cheerful little gnome to watch over the garden."
+  },
+  "wind-chimes": {
+    "description": "Driftwood chimes that sing softly when the wind moves through."
+  },
+  "sundial": {
+    "description": "A carved stone sundial for telling time the slow way."
+  },
+  "stone-cairn": {
+    "description": "A neat stack of smooth stones marking a quiet spot."
+  },
+  "picnic-blanket": {
+    "description": "A checked blanket spread out for a sunny picnic."
+  },
+  "insect-hotel": {
+    "description": "A frame packed with hollow stems, drilled blocks, and old bark, all under a small roof. The tubes come in every width, from pencil-thin down to a hair."
+  },
+  "dry-stone-wall": {
+    "description": "A low wall of stacked stones laid with no cement. The gaps between them stay cool and shady."
+  },
+  "bat-box": {
+    "description": "A tall, narrow wooden box with a rough inside and a slot along the bottom. Hang it high in the sun, and note the gap inside is barely wider than a finger."
+  },
+  "leaf-litter-pile": {
+    "description": "A mound of damp leaves and moss left where it fell. It is warm in the middle and slowly turning into soil."
+  },
+  "duck-nest-box": {
+    "description": "A wooden box on a pole standing over water. It has a round hole high on one side and wood shavings inside."
+  },
+  "basking-log": {
+    "description": "A half-sunk log tilting up out of the water into full sun. The top stays dry and the bottom stays slick, and warming up out here really matters."
+  },
+  "talus-pile": {
+    "description": "A jumble of broken rock with deep spaces between the blocks. Runs and hollows lead right down into the pile."
+  },
+  "alpine-nest-shelf": {
+    "description": "A rock ledge lined with moss, out of the wind. A solid roof of rock hangs over it."
+  },
+  "driftwood-pile": {
+    "description": "A tangle of sun-bleached driftwood, silver-grey and hollow-sounding. Damp shade hides under the lowest pieces."
+  },
+  "nesting-bluff": {
+    "description": "A built-up sandy bank with narrow ledges cut into it. It drops away sheer below, out of reach from the ground."
+  },
+  "pika-haypile": {
+    "description": "A stack of grass and flowers cut green and dried under a rock roof. It is packed tight and out of the rain."
+  },
+  "snowbank-roost": {
+    "description": "A packed drift of late snow, firm on top and soft underneath. Inside a drift like this the wind stops completely."
+  },
+  "whitebark-cache": {
+    "description": "A hidden store of pine nuts buried a few centimetres down. The seed is rich and oily and keeps all winter."
+  },
+  "quartz-lantern": {
+    "description": "A stone lantern set with a glowing piece of quartz. It holds the last of the daylight."
+  },
+  "home-rug": {
+    "description": "A soft woven rug to warm your floor."
+  },
+  "home-table": {
+    "description": "A small wooden table with a sprig of flowers."
+  },
+  "home-bookshelf": {
+    "description": "A shelf of field guides and well-read nature books."
+  },
+  "home-fireplace": {
+    "description": "A crackling stone hearth that warms the whole room."
+  },
+  "home-potplant": {
+    "description": "A leafy plant in a pot. A little bit of the meadow indoors."
+  },
+  "home-painting": {
+    "description": "A framed painting of the preserve at its best."
+  },
+  "home-sleeping-bag": {
+    "description": "A simple sleeping bag. Just the thing for a cozy night in the tent."
+  },
+  "home-cushions": {
+    "description": "A pile of soft floor cushions to flop on."
+  },
+  "home-stool": {
+    "description": "A simple stool with a cushion on top."
+  },
+  "home-mushroomshelf": {
+    "description": "A little shelf dotted with woodland mushrooms."
+  },
+  "home-reedmat": {
+    "description": "A woven reed mat from the marsh."
+  },
+  "home-cactuspot": {
+    "description": "A tough little cactus in a clay pot."
+  },
+  "home-driftwoodshelf": {
+    "description": "A shelf of worn driftwood holding beach finds."
+  },
+  "home-wallclock": {
+    "description": "A handsome wall clock. A house needs one."
+  },
+  "home-dresser": {
+    "description": "A strong chest of drawers."
+  },
+  "home-peltrug": {
+    "description": "A thick, warm rug for cold mountain nights."
+  },
+  "home-chandelier": {
+    "description": "A grand candle chandelier. Just right for a lodge."
+  },
+  "home-aquarium": {
+    "description": "A glass tank of clear water. Tiny things dart about in it."
+  },
+  "home-telescope": {
+    "description": "A brass telescope for the clear mountain sky."
+  },
+  "dew-lantern": {
+    "description": "A glass globe of glowing morning dew that gives off a soft green light. It is made up, and just for looks."
+  },
+  "stormglass-lantern": {
+    "description": "A shard of glass fused by lightning. It flickers with a cold light inside."
+  },
+  "dragonfly-pond": {
+    "description": "A clear pool ringed with reeds. Open sunny water in the middle, with stems running from the bottom up past the top."
+  },
+  "trail-tent": {
+    "description": "A snug canvas tent, a little home away from home. Step in and make it your own, and pitch one in each wild area past the meadow."
+  },
+  "headlamp": {
+    "description": "A hand-wound lamp on a woven strap. Once made it is yours for good, and after dark it lights the ground around you."
+  },
+  "binoculars": {
+    "description": "Hand-ground lenses in a woven grip. Once made they are yours for good, and what you have not written up yet gives a soft glint."
+  },
+  "fellfield-gravel": {
+    "description": "Bare gravel that freezes and shifts every spring, held loosely by thin crusts of lichen. It looks like nothing, but only here will a cushion plant grow."
+  },
+  "alpine-turf-mat": {
+    "description": "A tight mat of sedge, avens, and cushion plants over dark mountain soil. Turf like this takes years to close over bare ground and one summer of boots to open it up."
+  },
+  "snowmelt-litter-mat": {
+    "description": "A soaked mat of last year's stems and leaves, let go as the snow pulls back. Almost all the rotting up here happens in these few damp weeks."
+  },
+  "rotting-conifer-log": {
+    "description": "A well-rotted fir log lying where the drifts pile deepest. It is soft enough to push a finger into, and dead wood like this is a home, not a mess."
+  },
+  "escape-cliff": {
+    "description": "A near-straight-up band of broken cliff, cut with ledges and footholds all the way. Nothing can be cornered on ground like this."
+  },
+  "willow-basin-thicket": {
+    "description": "Low willow filling a sheltered dip, thick and buried by drifts each winter. Its buds and twigs stay in reach when everything else up here is under snow."
+  },
+  "boulder-burrow-den": {
+    "description": "A deep burrow with many rooms, dug under a boulder well below the frost. Down there the cold hardly moves all winter."
+  },
+  "inherited-earth-den": {
+    "description": "A hollow under boulders and roots, first dug by someone else, then made wider and taken over. Second-hand, and none the worse for it."
+  },
+  "stonecrop-patch": {
+    "description": "Stonecrop wedged into gravel and rock cracks. Its fat leaves store water where there is almost no soil, and nothing else up high does the same job."
+  },
+  "bumblebee-nest-burrow": {
+    "description": "An old tunnel in the turf, packed with dry grass and bedding. It is a ready-made room, warm and dark, that nobody had to dig."
+  },
+  "chipmunk-burrow-larder": {
+    "description": "A shallow tunnel under a slab, with a side room packed full of seed heads. It stays dry and in reach all winter, though nothing in the game needs it now."
+  },
+  "whitebark-pine": {
+    "description": "A whitebark pine grown from a seed that was buried and never dug up. Its cones do not open on their own, so it cannot spread without help."
+  },
+  "beetle-killed-snag": {
+    "description": "A big dead fir still standing, its bark lifting away. The outer wood has loosened and is riddled with tunnels, so it is soft enough to work."
+  },
+  "old-woodpecker-cavity": {
+    "description": "A round hole cut into a dead trunk seasons ago and left empty since. The rim is still clean and the room below is dry."
+  },
+  "snowfield-debris-line": {
+    "description": "A dark line of seed, pollen, and grit blown against the edge of a melting snowfield. It is a free delivery, carried uphill and dropped."
+  },
+  "toad-upland-burrow": {
+    "description": "A borrowed tunnel in damp ground above a breeding pool. It sits below the frost and above the water, a place to wait out eight months."
+  },
+  "treeline-log-den": {
+    "description": "A hollow log at the edge of the last trees, buried by drifts all winter. Tunnels run away from it under the snow."
+  },
+  "fur-lined-prey-den": {
+    "description": "A den taken from whoever dug it, then lined with fur. Small, close and warm, with no work at all to do."
+  },
+  "cliff-eyrie": {
+    "description": "A big stick nest on a bare cliff ledge. More sticks get added every year, and the same nest is used for decades."
+  },
+  "ledge-natal-den": {
+    "description": "A dry overhang deep in broken cliff, hidden behind fallen rock. You cannot see it from below, and one narrow ledge is the only way in."
+  },
+  "krummholz-bed-hollow": {
+    "description": "A shady scrape pressed flat into the ground under the bent pines. Out of the sun, out of the wind, and out of sight from above."
+  },
+  "kelp-holdfast-reef": {
+    "description": "Clean rock on the shallow sea floor for kelp to grip. Kelp does not root in sand, so with no hard bottom the forest washes away."
+  },
+  "nutrient-upwelling-current": {
+    "description": "Cold, rich water rising from the deep along the shore. It feeds this whole coast, and everything here runs on it."
+  },
+  "coralline-algae-crust": {
+    "description": "Pink branching algae on low rock, like a rough turf. Surfgrass seeds have bristly arms that hook onto it, so no turf means no surfgrass."
+  },
+  "low-tide-rock-bench": {
+    "description": "A wide shelf of bedrock that shows only at the lowest tides. It is the richest strip of shore, and it spends most of its time under water."
+  },
+  "urchin-crevice-pit": {
+    "description": "Round hollows ground into solid rock, each a smooth bowl about a hand wide. Once a pit like this starts, it only gets deeper."
+  },
+  "kelp-forest": {
+    "description": "Living giant kelp rising from the sea floor to a golden roof at the top. The water is dim green all the way up, and the fronds are thick enough to lie back in."
+  },
+  "surfgrass-bed": {
+    "description": "A green meadow of surfgrass streaming in the surge on low rock. It grows so thick you cannot see the stone under it."
+  },
+  "nearshore-spawning-shallows": {
+    "description": "Quiet water just off the surf line, thick with drifting food. It is warm on top and so calm that nothing sinks fast."
+  },
+  "bare-sand-beach": {
+    "description": "Wide, flat, empty sand above the tide line. Bare sand matters on its own, so keep the view long and the surface untouched."
+  },
+  "empty-shell-drift": {
+    "description": "A pocket of empty shells caught in a rock hollow, sorted by size by the waves. A beach with no spare shells is missing something."
+  },
+  "subtidal-rubble-flat": {
+    "description": "Loose cobbles and broken rock just below the tide. Dead bits drift in and settle down between the stones."
+  },
+  "surge-swept-rock-face": {
+    "description": "Open rock taking the full weight of the swell. It is hard to hold onto, and the water never stops moving past."
+  },
+  "barnacle-crust-rock": {
+    "description": "A hard white crust welded across the upper rock. It is sharp underfoot, rough as coarse sandpaper, and stuck on like part of the stone."
+  },
+  "protected-sand-gravel-flat": {
+    "description": "Firm sand and gravel behind a headland. It is easy to dig into, and calm enough that it stays right where it is."
+  },
+  "benthic-amphipod-bed": {
+    "description": "Soft, deep mud along the kelp edge, packed with tiny tubes. There is so much life in it that the sea floor is more life than mud."
+  },
+  "sheltered-cobble-field": {
+    "description": "Loose stones on a shore the surf never hits hard. Each one is damp and dark underneath, and the underside is the important part."
+  },
+  "splash-zone-crevice": {
+    "description": "Dry-looking cracks in rock that the waves only reach as spray. It is the highest, driest step of the shore."
+  },
+  "shell-dropping-rock": {
+    "description": "A flat, hard-topped boulder standing clear of the sand. Cracked shells lie on it, since a hard drop breaks them open."
+  },
+  "swash-zone-runnel": {
+    "description": "The wet strip where each wave runs out and drains back. Every surge turns over the top few centimetres of sand."
+  },
+  "plover-scrape-closure": {
+    "description": "A roped-off stretch of bare, open sand with light fencing and signs. There is nothing to build here, and what keeps it safe is that nobody walks on it."
+  },
+  "high-tide-roost-rock": {
+    "description": "A raised rock that stays dry even at high tide. Open water rings it, so you can wait there when the flats are gone."
+  },
+  "dune-manzanita": {
+    "description": "A low dune shrub that flowers in midwinter. It holds its berries deep into the cold months, when there is nothing else to eat behind the beach."
+  },
+  "mussel-bed": {
+    "description": "A thick band of blue-black shells stacked two and three deep on mid-zone rock. They are packed so tight they hold each other up, and the gaps run right down to the stone."
+  },
+  "mussel-bed-lower-margin": {
+    "description": "The sharp lower edge of the shell bed, with clean open rock below. The tide does not explain that line, so something else holds it."
+  },
+  "sunlit-surge-pool": {
+    "description": "A deep pool washed by every wave and open to the sky. Food pours in from the rocks above, and full sun reaches the bottom."
+  },
+  "offshore-nesting-island": {
+    "description": "A rock stack standing off the coast, with deep water all around. There is no way to walk onto it."
+  },
+  "sandbar-loafing-roost": {
+    "description": "A low sandbar that dries out between tides. It is flat, open, ringed with water, and far enough out to be left alone."
+  },
+  "haul-out-rocks": {
+    "description": "Low rocks and a sand spit with a wide quiet buffer around them. They slope up gently from the water, and crossing that buffer empties the place."
+  },
+  "sheltered-rafting-cove": {
+    "description": "Calm water behind a point, inside the kelp. It stays flat as a pond even in a swell, with fronds lying loose on top."
+  },
+  "creosote-bush": {
+    "description": "The main shrub of the desert flats, spaced far apart because its roots take all the water nearby. Its sticky leaves smell like rain and lose almost none of it."
+  },
+  "saguaro": {
+    "description": "A giant column that stores months of rain in its pleated stem, swelling and shrinking with the season. Flowers on top, fruit in June, and a trunk soft enough to cut into."
+  },
+  "cholla": {
+    "description": "A jointed cactus covered in barbed spines that come away at a touch. Inside the tangle of arms is a space almost nothing can push through."
+  },
+  "desert-mistletoe": {
+    "description": "A leafless plant that roots inside mesquite and ironwood branches. It hangs in thick green-brown clumps and fruits in midwinter, when nothing else does."
+  },
+  "chuparosa": {
+    "description": "A soft grey shrub with tube-shaped red flowers. It blooms right through the desert winter, when almost nothing else is out."
+  },
+  "catclaw-acacia": {
+    "description": "A low thorny tree of desert washes, hooked all over with curved spines that catch as you pass. Thick cover above, and heavy seed pods by late summer."
+  },
+  "bush-muhly": {
+    "description": "A fine-stemmed wild grass that grows up through shrubs for cover. It is the first thing grazed away, so seeing it back means the flat is healing."
+  },
+  "cryptobiotic-crust": {
+    "description": "A living skin of tiny plants and lichen that knits bare soil together. It holds water and blocks weeds, and one boot print undoes years of it."
+  },
+  "bare-ground-patch": {
+    "description": "A patch of soft, loose soil left open between the shrubs. It is loose enough to dig straight down into, but only where nothing has packed it hard."
+  },
+  "harvester-ant-mound": {
+    "description": "A low mound capped with gravel, with a bare cleared ring around it and old seed husks at the rim. Whatever is under there moves a huge amount of soil."
+  },
+  "buried-deadwood": {
+    "description": "Dead stems worked half down into the soil. Buried wood touches damp earth and breaks down, while wood on top just bleaches."
+  },
+  "shrub-litter-mound": {
+    "description": "Leaves, stems, and husks blown into a heap under a shrub. It is dry and crackly on top, damp and dark underneath after rain."
+  },
+  "termite-worked-litter": {
+    "description": "Soil laced with fine old tunnels and capped with litter stuck together. It is worked from below, and the tunnels let rain soak in instead of running off."
+  },
+  "tortoise-burrow": {
+    "description": "A long, cool den with straight sides dug back into a bank, kept open by use. It goes far deeper than anything else out here and stays the same warmth all year."
+  },
+  "caliche-shelter-cave": {
+    "description": "A hollow worn into a hard bank on a rocky slope. It is a ready-made room with a solid roof and no digging needed."
+  },
+  "creosote-mound": {
+    "description": "Blown soil heaped around the base of a creosote and riddled with fine tunnels. The earth is loose and easy to work, and the shrub hides the doorways."
+  },
+  "seed-larder-burrow": {
+    "description": "A shallow burrow under a shrub with side rooms packed with seeds. The doors get plugged with sand each dawn, which traps damp air inside."
+  },
+  "deep-sand-burrow": {
+    "description": "A shaft that spirals two and a half metres down into loose soil. Down there the heat and dry air from above never reach."
+  },
+  "kit-fox-den": {
+    "description": "A cool den with several doors, widened out of an older tunnel. The extra doors are ways to escape."
+  },
+  "wash-bank-den": {
+    "description": "An earth den dug into the cut bank of a dry wash, above the flood line. It stays shaded, drained, and dry even when the wash runs."
+  },
+  "snake-hibernaculum-desert": {
+    "description": "A deep rock crack that runs below the frost and stays above freezing all winter. The same crack gets used year after year, sometimes for decades."
+  },
+  "saguaro-boot": {
+    "description": "The hard, waterproof scar a cactus grows around a hole in its trunk. It is a smooth flask of dried skin, and it lasts longer than the soft flesh around it."
+  },
+  "thornscrub-stick-nest": {
+    "description": "A bulky stick platform wedged a metre or two up inside a thorny shrub. It is off the ground and too prickly for anything to follow."
+  },
+  "carrion-patch": {
+    "description": "Something that has died, left where it fell instead of hauled away. In a few days almost nothing is left, and all of it is back in the soil."
+  },
+  "saguaro-fruit-fall": {
+    "description": "Split red cactus fruit at the height of the June heat, just before the rains. For a few weeks it is the richest food and the wettest drink in the desert."
+  },
+  "pollinated-cactus-fruit": {
+    "description": "Prickly pear and cholla hanging heavy with ripe fruit. A crop this big only sets when every flower was dusted first, and out here that is never sure."
+  },
+  "shade-form-scrape": {
+    "description": "A shallow scrape dug in the deep shade under a shrub, down to cool soil. It is ten degrees cooler than the open ground a metre away."
+  },
+  "browse-exclosure": {
+    "description": "A low fence around a patch of young oaks. Nibbled hard, they never pass knee height, but inside the fence acorns become trees."
+  },
+  "nurse-log-seedbed": {
+    "description": "A rotting, mossy log lying on the forest floor. Seeds that land on bare leaves die, but those on rotten wood grow into trees."
+  },
+  "deep-duff-soil": {
+    "description": "Years of old leaf mould, never raked and never driven over, threaded with roots and fungus. This is where the forest fungus really lives."
+  },
+  "truffle-patch": {
+    "description": "Fungus lumps that grow underground on oak and hemlock roots. Nothing shows on top, so the crop has to be sniffed out."
+  },
+  "soft-rot-snag": {
+    "description": "A small dead stub whose wood has gone soft and pale. You can press a thumbnail into it, and that is what makes it easy to work."
+  },
+  "ant-riddled-log": {
+    "description": "A fallen trunk gone soft with rot and tunnelled through and through. The holes are as wide as a pencil lead and run all through the log."
+  },
+  "rotting-heartwood-log": {
+    "description": "A log rotted hollow down the middle while its outer shell still holds. Inside it is dark, damp, and shut off from the weather."
+  },
+  "downy-cavity": {
+    "description": "A round hole about as wide as a thumb, cut into a dead trunk one season and left. It is small, dry, and already made."
+  },
+  "pileated-cavity-snag": {
+    "description": "A big dead trunk with a deep square hole cut last spring, wide enough for an arm. A fresh one gets cut each year, and the old ones stay."
+  },
+  "flooded-cavity-snag": {
+    "description": "A dead trunk standing in shallow water with an old hole high up. Below the hole there is nothing but open air, then several metres down, water."
+  },
+  "bark-slab-snag": {
+    "description": "A dying tree whose bark has curled away from the trunk in loose slabs. Behind each slab is a warm, dry gap barely wider than a finger."
+  },
+  "leaf-drey": {
+    "description": "A ball of leaves and twigs the size of a football, wedged into a high fork. It is woven from the inside out and rebuilt every year."
+  },
+  "larder-burrow": {
+    "description": "A burrow door no wider than a coin, with tunnels running metres underground. They lead to a nest room and a store holding more than a litre of seeds."
+  },
+  "hemlock-stand": {
+    "description": "A close-grown clump of hemlocks that hold the snow off the ground. Their shade keeps the stream cold, and the inner bark stays in reach all winter."
+  },
+  "browse-thicket": {
+    "description": "Thick young regrowth in a gap where a big tree came down. Every twig is in reach from the ground."
+  },
+  "crayfish-shallows": {
+    "description": "A stony, ankle-deep edge of loose flat rocks over gravel. Dark gaps back up underneath every one of them."
+  },
+  "root-mass-den": {
+    "description": "The dry hollow left under the tipped-up roots of a fallen tree. Earth and roots make the roof, and it is sheltered from every side but one."
+  },
+  "earth-den-bank": {
+    "description": "A well-drained slope with a den dug back into it and several doors along the face. It gets made bigger and reused for years rather than dug fresh."
+  },
+  "snake-hibernaculum-forest": {
+    "description": "A deep crack filled with rubble, running below the frost line. It stays cold but never freezes, right through to spring."
+  },
+  "broken-top-chimney": {
+    "description": "A big living tree snapped off high, rotted hollow inside. The open chimney is a foot across, and only a very old tree rots this way."
+  },
+  "hollow-denning-tree": {
+    "description": "A living tree with a rotted-out room high in the trunk. It is dry inside and metres above the ground, out of reach from below."
+  },
+  "rocky-den-ledge": {
+    "description": "A dry gap under a leaning slab of rock, screened by brush and open at both ends. Sheltered, but easy to slip out of at the first sound."
+  },
+  "adopted-stick-nest": {
+    "description": "A bulky old pile of sticks and leaves left in a high fork. It is worn and a bit saggy but still sound, and ready to use in midwinter."
+  },
+  "bare-soil-scrape": {
+    "description": "A patch raked back by hand to bare, open soil. Bare ground counts too, since seedlings need somewhere that is not covered."
+  },
+  "native-thistle-stand": {
+    "description": "A wild prairie thistle, not one of the weedy kinds from Europe. It has deep tube-shaped flowers and seed heads that break open into soft down."
+  },
+  "grass-thatch-litter": {
+    "description": "A deep mat of dead grass stems, leaves, and roots left where they fell. Meadow fungus pulls it apart and hands it back to the soil."
+  },
+  "grasshopper-egg-pod-bank": {
+    "description": "A strip of firm, sun-warmed bare soil at the edge of the grass. It is packed hard enough to hold a drilled hole open all winter."
+  },
+  "vole-runway-network": {
+    "description": "Narrow runways clipped through thick grass at ground level. They link burrow doors and grass-lined rooms, like little highways hidden under the thatch."
+  },
+  "milkweed-rhizome-bed": {
+    "description": "A spreading bed of showy milkweed grown from root cuttings. The stems bleed white sap when they break, and one bed slowly becomes a patch."
+  },
+  "bumblebee-nest-tussock": {
+    "description": "A thick clump of unmown grass sitting over an old hole in the turf. It is warm, fur-lined, dry, and completely hidden from above."
+  },
+  "brush-form-hollow": {
+    "description": "A shallow scrape pressed into the grass under low brush. It is a resting spot, not a burrow, so no digging is needed."
+  },
+  "serviceberry-browse-thicket": {
+    "description": "A wild shrub with soft twigs and fat buds that stay above the snow. By late summer it hangs heavy with purple fruit."
+  },
+  "milkweed-aphid-colony": {
+    "description": "Bright orange specks packed tight along milkweed stems, thick enough to hide the green. Do not spray them, since every milkweed patch gets them and does fine."
+  },
+  "squirrel-burrow-town": {
+    "description": "A burrow system with many doors dug into deep open soil, its mounds spread across a wide patch. Long after it is left, the tunnels stay open."
+  },
+  "mantis-ootheca-stem": {
+    "description": "Stiff dead stems left standing through winter, with a hard tan foam case glued to one. Cut the stems back in autumn and you cut out what is inside."
+  },
+  "domed-grass-nest-tunnel": {
+    "description": "A grass-roofed nest cup woven down into deep bunchgrass, with a covered run leading in. Only a real spread of wild grass is thick enough to hide one."
+  },
+  "bluebird-nest-box": {
+    "description": "A wooden box facing open grass, with a small round hole and a metal guard on the pole below. The hole is cut to one exact width, and that width is the whole design."
+  },
+  "snake-hibernaculum-meadow": {
+    "description": "A room of rock and soil dug below the frost line, often started from an old tunnel in the bank. There is space down there for a great many at once."
+  },
+  "deep-loam-soil-bank": {
+    "description": "A bank of deep, soft, stone-free soil with nothing hard to hit. Soil like this can be dug faster than it can be walked over."
+  },
+  "earthen-fox-den": {
+    "description": "A south-facing bank widened into a den with several exits, made from an older burrow. It is dry, warm early in the year, and quick to leave."
+  },
+  "crown-stick-eyrie": {
+    "description": "A big stick platform wedged into the top of the tallest tree. It looks out over open grass, and more sticks go on each year."
+  },
+  "sunlit-mudflat": {
+    "description": "A bare shelf of wet, sun-warmed mud at the water's edge. Cattail seed is tiny and needs light, so it will not sprout in shade."
+  },
+  "clearwater-shallows": {
+    "description": "Slow water with the silt settled out, so light reaches the bottom. Plants under the water live on that light, so clear water comes first."
+  },
+  "detritus-drift": {
+    "description": "A sunken raft of dead cattail and sedge leaves going soft under fungus. More energy moves through a marsh as dead plants than as live ones."
+  },
+  "crayfish-burrow-bank": {
+    "description": "A soaked clay bank riddled with finger-wide tunnels. Each one holds water even when the marsh drops low in late summer."
+  },
+  "submerged-spawning-slab": {
+    "description": "A flat stone just under the surface with a clear gap below. The underside is smooth, shady and clean."
+  },
+  "stable-silt-shoal": {
+    "description": "A wide shelf of silt and fine sand where the water moves slowly. It is soft enough to sink into and firm enough not to shift."
+  },
+  "cattail-root-shallows": {
+    "description": "Shallow water over a thick mat of cattail roots, packed down into the mud. They are starchy and swollen, and in reach from below even when the top is frozen."
+  },
+  "flooded-reed-clump": {
+    "description": "A tight stand of cattail and reed stems in ankle-deep water. They are stiff enough to hold a weight slung between them, and the water underneath is what makes it safe."
+  },
+  "winter-litter-mound": {
+    "description": "A deep pile of damp leaves, loose bark, and old stems heaped on dry ground by the marsh. It is deep enough that the middle never gets as cold as the air."
+  },
+  "vernal-pool": {
+    "description": "A shallow, separate pool that fills with snowmelt and dries right up by late summer. The drying is the point, since nothing that needs water all year can settle in."
+  },
+  "wet-meadow-margin": {
+    "description": "A band of damp, grassy meadow between the marsh and dry land. It is never flooded and never fully dry, and the marsh needs it."
+  },
+  "sandy-nest-bank": {
+    "description": "A warm, drained rise of sand and fine gravel above the waterline. It is loose enough to dig and quick to drain, and banks like this are rarer than they look."
+  },
+  "crane-nest-mound": {
+    "description": "A wide heap of marsh plants piled up in open shallow water. Its top stands well clear of the water, so anything coming close has to wade."
+  },
+  "hidden-reed-platform": {
+    "description": "A low platform of living reeds bent down and woven together deep in a thick stand. It sits barely a hand above the water and cannot be seen from any side."
+  },
+  "cut-bank-burrow": {
+    "description": "A bare, upright earth bank rising straight out of the water. It is soft enough to tunnel a metre back into and firm enough that the tunnel holds."
+  },
+  "overwater-thicket": {
+    "description": "Low willow and alder leaning out over deep still water. Their branches hang a metre above the surface, with cool shade underneath."
+  },
+  "muskrat-bank-den": {
+    "description": "An old bank burrow with its door below the waterline and its room dry above. Someone else dug it, and it has stood empty since."
+  },
+  "otter-bank-den": {
+    "description": "A roomy bank den with an underwater door and a dry room above. It is almost always taken over from an older burrow rather than dug fresh."
+  },
+  "beaver-pond": {
+    "description": "Deep, lasting water held back by a dam of sticks and mud, with drowned trees still standing in it. It is deeper and more open than cattail marsh, and it will not appear on its own."
+  },
+  "beaver-canal": {
+    "description": "A shallow dug channel running from the pond out into the marsh. It is just deep enough to float a branch, and it keeps open water joined up through a dry summer."
+  },
+  "rotting-log-crumble": {
+    "description": "A soft, damp, half-rotted log going back to soil. It falls apart when you lift it, and the air under it stays wet all day."
+  },
+  "orb-web-anchor-stems": {
+    "description": "Tall dry stems left standing in a sunny gap. They are stiff enough to hold a line of silk pulled tight between them."
+  },
+  "bat-maternity-roost": {
+    "description": "A narrow, dark crack high off the ground, with full sun on the rock outside. It stays warm all day and is tight enough to press against on both sides."
+  },
+  "barn-loft-nest-box": {
+    "description": "A deep wooden box mounted high under a gable, open on one side. There is a lip of straw across the sill, and it is dark and dry inside."
+  },
+  "coyote-natal-den-bank": {
+    "description": "A den dug into a brushy bank, usually an old hole made wider. It gets used hard for a few weeks and then left."
+  },
+  "damp-leaf-corner": {
+    "description": "A shady corner where fallen leaves pile up and go soft. It stays damp under there even in a dry week."
+  },
+  "goat-cliff-ledge": {
+    "description": "A narrow shelf cut across a near-straight cliff face, scraped bare and dusty. It is no wider than a doormat, on ground far steeper than most would try."
+  },
+  "alpine-mineral-lick": {
+    "description": "A damp bank of salty earth, gnawed and licked into a hollow. Spring grass has no salt in it, and there is nowhere else this high to get it."
+  },
+  "deep-snow-den": {
+    "description": "A tunnel driven metres down into a drift that lasts into late spring, winding past buried boulders. Side rooms hold frozen food, and it only works where the snow stays."
+  },
+  "deep-canyon-edge": {
+    "description": "The place where the sea floor stops and drops away into cold blue-black deep. Deep water, right up against the coast."
+  },
+  "breaking-surf-line": {
+    "description": "A clean line of waves standing up and toppling along an open beach. It is a moving wall of white water the whole length of the shore."
+  },
+  "eelgrass-grazing-lawn": {
+    "description": "A patch of eelgrass cropped short and kept that way. The blades stay young and tender instead of growing long and tough."
+  },
+  "saguaro-crown-nest": {
+    "description": "A bulky stick platform wedged where a tall cactus splits into arms. It is wide enough for a whole family, with a wall of spines below that nothing can climb."
+  },
+  "tarantula-silk-burrow": {
+    "description": "A thumb-wide hole in firm ground, its rim smoothed and bound with silk. A few trip-lines fan out over the sand, and whatever made it may keep it for twenty years."
+  },
+  "elk-wallow": {
+    "description": "A churned muddy dip in a forest opening, kept wet and bare by something heavy rolling in it. The puddle left behind holds water for weeks."
+  },
+  "bramble-ground-nest": {
+    "description": "A grass-lined cup set level with the leaf litter under a bramble arch. Nothing above it but thorns, and that is the whole defence."
+  },
+  "eagle-nest-crown": {
+    "description": "The top of the tallest living tree on the marsh, holding a stick nest the size of a bathtub. The same nest gets added to year after year until the branch finally gives way."
+  },
+  "still-water-cove": {
+    "description": "A pocket of open water behind the reeds where the wind never reaches. The surface is smooth as glass, with a few stems drifting on it."
+  },
+  "winter-sleep-burrow": {
+    "description": "A tunnel under a tilted slab leading to a grass-lined room below the frost line. No store and no side rooms, just somewhere to lie still until spring."
+  },
+  "moth-scree-crack": {
+    "description": "A dark slot under a loose slab of scree, cool, still, and dry. It runs back further than the daylight reaches, so the heat never gets to the end."
+  },
+  "swift-cliff-seam": {
+    "description": "A narrow upright crack running up a sheer rock face, far too tight to stand in. The only way in is head-first, and the only way out is a drop."
+  },
+  "wild-grape-tangle": {
+    "description": "A woody vine roped up a leaning trunk, heavy with fruit by late summer. It is a ladder and a larder at once."
+  },
+  "snake-egg-mound": {
+    "description": "A heap of rotting wood chips and bark piled against a cut stump. As it rots it runs warm, and that warms what is buried in it."
+  },
+  "willow-thicket-swale": {
+    "description": "A damp hollow behind the dunes, filled with low willow and bramble. It is tangled right down to the ground, so nothing big can push in."
+  },
+  "canyon-ledge-den": {
+    "description": "A dry overhang cut back into a canyon wall, screened by fallen slabs. It is shaded all day, hidden from below, and reached by one route only."
+  },
+  "puffball-turf-ring": {
+    "description": "A ring of pale domes pushing up through old turf. Step on a ripe one and it smokes."
+  },
+  "sedge-tussock-nest": {
+    "description": "A thick, knee-high clump of sedge in a damp low spot. It is packed so tight you could push a fist deep inside and never find the hole again."
+  },
+  "hidden-grass-nest": {
+    "description": "A thick tuft of grass left standing in a damp hollow. The middle is pressed down into a deep cup you would walk right past."
+  },
+  "cocoon-leaf-drift": {
+    "description": "A drift of curled fallen leaves banked against a log. Silk cases are wrapped in leaves that fell with them, so the whole lot lies here all winter."
+  },
+  "acorn-cache-scatter": {
+    "description": "A patch of soft open ground pocked with little digs. Acorns went in one at a time, and the ones left grow into oak seedlings."
+  },
+  "winter-freeze-litter-bed": {
+    "description": "A shallow bed of loose leaves over soft soil, only a few inches deep. That is deep enough, since it freezes and thaws with the ground."
+  },
+  "canopy-nest-limb": {
+    "description": "A heavy flat limb against the trunk of an old tree, high where the leaves close over. It is thick enough to hold a big nest for years, with clear flying room below."
+  },
+  "thicket-bed-hollow": {
+    "description": "A scooped, dusty hollow under thick thorn bushes, lain in all through the heat of the day. The shade counts more than the cover."
+  },
+  "falcon-scrape-ledge": {
+    "description": "A gravel shelf high on a cliff with a shallow dip kicked in it. Nothing is built here, and nothing needs to be."
+  },
+  "octopus-den-midden": {
+    "description": "A dark crack under a boulder with a rock pulled part-way across the door. Outside is a tidy heap of empty, drilled shells, and that heap is how you find it."
+  },
+  "meadow-mushroom-ring": {
+    "description": "A curved arc of pale button caps pushing up through damp grass after rain. The ring is the edge of a fungus growing outward under the ground."
+  },
+  "bracket-fungus-shelf": {
+    "description": "Overlapping fans of banded fungus stepping up the side of a dead log. This is the thing eating the wood, and the log only turns to soil because of it."
+  },
+  "wild-celery-bed": {
+    "description": "Long ribbon leaves streaming underwater in the shallows, rooted in silt. It lives only on the light that reaches the bottom, so the water must be left to settle clear."
+  },
+  "snowbank-mushroom-cluster": {
+    "description": "A crowd of small pale mushrooms with hairy stems, growing on buried rotten wood. They come up right at the edge of a melting drift, while snow is still on the ground."
+  },
+  "grizzly-dig-slope": {
+    "description": "A high bank of loose earth threaded with roots, soft enough to tear open. The turned soil is left lying in heaps."
+  },
+  "feather-lined-crack": {
+    "description": "A narrow dry crack in a wind-scoured rock face. The back of it is packed with down and fur."
+  },
+  "borrowed-burrow-mouth": {
+    "description": "A burrow mouth someone else dug, widened and swept clean. A fan of loose sand spreads out at the door."
+  },
+  "browsed-pond-shallows": {
+    "description": "A soft-bottomed edge where the water is chest-deep and thick with stems. It has been cropped short in ragged patches."
+  },
+  "waterfall-splash-ledge": {
+    "description": "A wet shelf tucked behind a thread of falling meltwater. It is mossy and always in shadow."
+  },
+  "grub-digging-ground": {
+    "description": "A patch of soft leaf-mould soil left loose, already pitted with small cone-shaped holes. Something has been turning it over."
+  },
+  "clifftop-burrow": {
+    "description": "A round hole driven back into deep turf right at the top of a sea cliff. The earth is worn bare at the door."
+  },
+  "groundhog-burrow-mound": {
+    "description": "A fan of fresh-turned earth banked around a round hole. A second hole hides in the grass a few paces off."
+  },
+  "opossum-den-hollow": {
+    "description": "A dry hollow under a leaning log, open at both ends. The floor is covered with dragged-in leaves."
+  },
+  "shore-stick-nest": {
+    "description": "A bulky platform of salt-bleached sticks wedged in a high fork. It gets added to and patched every season."
+  },
+  "happy-buddha": {
+    "description": "A round little figure sitting cross-legged, both arms thrown up and grinning. Rubbing the belly is meant to be lucky, and the clay has gone smooth and shiny there."
+  },
+  "lucky-toad": {
+    "description": "A fat little three-legged figure sat on a heap of coins, with one more in its mouth. It faces into camp, never out, so the luck comes in with you."
+  },
+  "rippled-sand-bed": {
+    "description": "Clean sand below the low tide line, combed into even ridges. The current is gentle enough to leave them standing."
+  }
+}
