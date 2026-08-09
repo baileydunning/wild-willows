@@ -6442,6 +6442,25 @@
       "description": "Clean sand below the low tide line, combed into even ridges by a current gentle enough to leave them standing.",
       "zone": "subtidal",
       "waveExposure": "sheltered"
+    },
+    {
+      "id": "bunchgrass-sod-plug",
+      "name": "Bunchgrass Sod Plug",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "alpine"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "plant",
+        "open"
+      ],
+      "shape": "bunchgrass",
+      "color": "#8aa85e",
+      "description": "A hand-cut plug of native bunchgrass, roots and soil together. Set it in bare ground and it spreads on its own.",
+      "matureHours": 2,
+      "matureBonus": 1
     }
   ]
 }

@@ -784,6 +784,34 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 		g.lineStyle(2, C('#4f8a38'), 1);
 		for (let i = 0; i < 6; i++) g.lineBetween(6 + i * 5, 22, 8 + i * 5, 10);
 	});
+	// Bunchgrass is not a lawn: it grows in separate tussocks with bare ground
+	// between them, blades arching out from a tight crown, seed heads held above.
+	// That gapped, three-mound silhouette is the whole point — `patch` above is
+	// the flat continuous mat, and the two must not read as the same plant.
+	o('bunchgrass', 36, 32, (g) => {
+		const clump = (cx: number, base: number, scale: number) => {
+			g.fillStyle(C('#6b5a3e'), 1).fillEllipse(cx, base, 13 * scale, 4); // soil at the crown
+			g.fillStyle(C('#5f7334'), 1).fillEllipse(cx, base - 3, 11 * scale, 7 * scale); // dense tuft
+			g.lineStyle(1.4, C('#7f9440'), 1);
+			for (let i = -3; i <= 3; i++) {
+				// blades arch up and only a little out, so the clump stays a column
+				g.lineBetween(cx, base - 2, cx + i * 2.1 * scale, base - 6 - (13 - Math.abs(i) * 2.2) * scale);
+			}
+		};
+		clump(8, 28, 0.8);
+		clump(28, 29, 0.75);
+		clump(18, 26, 1); // the tallest sits behind, between the other two
+		g.lineStyle(1, C('#a89355'), 1);
+		g.fillStyle(C('#cdb972'), 1);
+		for (const [x, y, foot] of [
+			[6, 8, 26],
+			[18, 3, 24],
+			[30, 10, 27],
+		] as [number, number, number][]) {
+			g.lineBetween(x, y + 2, x + 1.5, foot); // seed stalk, right down into the tuft
+			g.fillEllipse(x, y, 2.6, 5.4); // nodding seed head
+		}
+	});
 	o('flowers', 36, 32, (g) => {
 		g.fillStyle(C('#6da84e'), 1).fillEllipse(18, 24, 32, 12);
 		const cols = ['#d77bb1', '#e8954f', '#e3c75f', '#c45ad0', '#e86a6a'];
@@ -2944,9 +2972,13 @@ export function ensureAnimalTexture(scene: Phaser.Scene, id: string, kind: strin
 		g.fillStyle(0x2e2018, 1).fillCircle(27, 9, 1.3).fillCircle(30, 11, 1.4);
 	});
 	a('snail', 30, 24, (g) => {
-		g.fillStyle(C('#d9cdb4'), 1).fillEllipse(9, 19, 18, 7); // soft foot
+		// Dark grey body: the old cream one washed out against both meadow palettes
+		// (healthy green AND dry tan), so the snail read as a shell floating alone.
+		g.fillStyle(C('#5e5b56'), 1).fillEllipse(9, 19, 18, 7); // soft foot
 		g.fillCircle(4, 16, 3.2); // head
-		g.lineStyle(1.4, C('#d9cdb4'), 1).lineBetween(4, 14, 1, 6).lineBetween(6, 14, 8, 6); // eye stalks
+		g.fillStyle(C('#7a766f'), 1).fillEllipse(9, 17.6, 15, 2.6); // lighter crease along the top of the foot
+		g.fillStyle(C('#5e5b56'), 1);
+		g.lineStyle(1.4, C('#5e5b56'), 1).lineBetween(4, 14, 1, 6).lineBetween(6, 14, 8, 6); // eye stalks
 		g.fillStyle(C('#2e2018'), 1).fillCircle(1, 5, 1.5).fillCircle(8, 5, 1.5); // eyes on stalk tips
 		g.fillStyle(C('#3f6fa8'), 1).fillCircle(18, 12, 11); // big blue shell
 		g.fillStyle(C('#5b8fc9'), 1).fillCircle(18, 12, 8);
@@ -3582,7 +3614,10 @@ export function ensureAnimalTexture(scene: Phaser.Scene, id: string, kind: strin
 			g.lineBetween(13 + Math.cos(a) * 10, 13 + Math.sin(a) * 10, 13 + Math.cos(a) * 11.6, 13 + Math.sin(a) * 11.6); // spine fringe
 		}
 	});
-	a('mountain-lion', 38, 30, (g) => {
+	// A coyote, not a cougar: bushy low-slung tail, tall pointed ears, long narrow
+	// muzzle. (The cougar is `mountainlion` below — flatter head, wide-set ears,
+	// long heavy tail.)
+	a('coyote', 38, 30, (g) => {
 		g.fillStyle(C('#8a7355'), 1).fillEllipse(6, 19, 13, 7); // low bushy tail
 		g.fillStyle(C('#5f4d38'), 1).fillEllipse(3, 21, 5, 5); // dark tail tip
 		g.fillStyle(C('#7d6749'), 1).fillRect(12, 18, 4, 9).fillRect(18, 19, 4, 8).fillRect(24, 18, 4, 9); // long legs
@@ -3682,6 +3717,22 @@ export function ensureAnimalTexture(scene: Phaser.Scene, id: string, kind: strin
 		g.fillStyle(C('#9b6bc9'), 1).fillCircle(13, 13, 2.6); // sheen
 		g.fillStyle(C('#3d2359'), 1).fillCircle(15, 15, 1.8); // mouth at the centre
 	});
+	a('bluejay', 30, 26, (g) => {
+		g.fillStyle(C('#9ecdea'), 1).fillTriangle(2, 12, 12, 14, 3, 18); // tail
+		g.fillStyle(C('#7fb8dd'), 1).fillRect(3, 13.4, 9, 1).fillRect(3, 16, 8, 1); // tail barring
+		g.fillStyle(C('#a8d4f0'), 1).fillEllipse(15, 14, 20, 13); // light blue body
+		g.fillStyle(C('#f2f6fa'), 1).fillEllipse(15, 17, 15, 7); // pale breast
+		g.fillStyle(C('#8fc4e8'), 1).fillEllipse(13, 12, 13, 7); // folded wing
+		g.fillStyle(C('#6fa8d4'), 1).fillRect(8, 10.4, 10, 1).fillRect(8, 12.6, 9, 1); // wing bars
+		g.fillStyle(C('#a8d4f0'), 1).fillCircle(23, 9, 5.4); // head
+		g.fillTriangle(20, 5, 24, 1, 26, 6); // crest
+		g.fillStyle(C('#f2f6fa'), 1).fillEllipse(24.5, 10.5, 7, 5); // white face
+		g.fillStyle(C('#2b2b30'), 1).fillEllipse(20.5, 13.4, 8, 1.4); // thin black necklace
+		g.fillEllipse(20.4, 9.4, 1.3, 4.6); // narrow black line behind the eye
+		g.fillTriangle(27, 8.6, 30, 9.8, 27, 11); // bill
+		g.fillStyle(C('#2e2018'), 1).fillCircle(23.6, 8.6, 1.2); // eye
+		g.fillStyle(C('#6fa8d4'), 1).fillRect(13, 20, 1.6, 4).fillRect(18, 20, 1.6, 4); // legs
+	});
 
 	// Generic bodies by kind. Each kind gets three silhouette variants so that,
 	// combined with a unique per-animal tint and size, even same-kind animals
@@ -3780,7 +3831,6 @@ const FEATURED_TEXTURE: Record<string, string> = {
 	'mountain-lion': 'ani-mountainlion',
 	'rock-squirrel': 'ani-rocksquirrel',
 	'white-throated-swift': 'ani-swift',
-	'mountain-lion': 'ani-mountainlion',
 	coyote: 'ani-coyote',
 	'sand-dollar': 'ani-sanddollar',
 	crow: 'ani-crow',
@@ -3792,6 +3842,7 @@ const FEATURED_TEXTURE: Record<string, string> = {
 	'polyphemus-moth': 'ani-polyphemus',
 	'alpine-butterfly': 'ani-parnassian',
 	skunk: 'ani-skunk',
+	'blue-jay': 'ani-bluejay',
 	orca: 'ani-orca',
 	'gray-whale': 'ani-graywhale',
 	octopus: 'ani-octopus',
@@ -5459,7 +5510,7 @@ const SIZE_RULES: [RegExp, number][] = [
 	[/orca/, 2.6], // the biggest thing in the preserve
 	[/whale|dolphin/, 1.95],
 	[/bear|elk|moose/, 1.7],
-	[/deer|bighorn|mountain-goat|mountain-lion|seal|sandhill|crane|brown-pelican|eagle|turkey/, 1.42],
+	[/deer|bighorn|mountain-goat|mountain-lion|coyote|seal|sandhill|crane|brown-pelican|eagle|turkey/, 1.42],
 	[
 		/fox|bobcat|otter|beaver|raccoon|porcupine|heron|owl|hawk|cormorant|marten|muskrat|mink|yellow-bellied-marmot|tortoise|sea-turtle|roadrunner|gull|snowshoe-hare/,
 		1.18,

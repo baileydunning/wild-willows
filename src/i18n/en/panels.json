@@ -92,7 +92,9 @@
 		"craft": "Craft",
 		"addGoal": "Add crafting this to your goals",
 		"plantedNotCrafted": "Planted, not crafted — dig a soil bed with the shovel (2), water it with the can (3), then click the watered bed and pick it from the planting menu.",
-		"plantedSection": "Planted, not crafted"
+		"plantedSection": "Planted, not crafted",
+		"comingUp": "Coming up next",
+		"needs": "Needs:"
 	},
 	"tools": {
 		"title": "Tools & Upgrades",

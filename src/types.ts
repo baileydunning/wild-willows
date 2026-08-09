@@ -134,11 +134,51 @@ export interface ResourceDef {
 	color: string;
 }
 
+/**
+ * What a recipe is waiting on. Every listed condition must be met (AND), and no
+ * two recipes in an area share the same set — each thing you can make has its
+ * own reason to open up, drawn from a different part of the game.
+ *
+ * Unless noted, a condition reads the recipe's OWN area (`RecipeDef.unlockBiome`).
+ */
 export interface RecipeUnlock {
+	/** Restoration health of this area, 0-100. */
 	minHealth?: number;
+	/** Ecological balance of this area (food-web completeness), 0-100. */
+	minBalance?: number;
+	/** How many of this area's animals have come home. */
 	animalsReturned?: number;
+	/** A specific animal of this area must be back. */
 	requiresAnimal?: string;
+	/** N animals of one kind ('bird', 'mammal', 'insect'…) back in this area. */
+	requiresKind?: { kind: string; count: number };
+	/** Animals welcomed back across the whole preserve. */
+	totalAnimals?: number;
+	/** Something you must have crafted at least once (anywhere, ever). */
 	requiresCrafted?: string;
+	/** How many DIFFERENT things you've crafted, ever. */
+	craftedDistinct?: number;
+	/** Copies of an object standing (or planted) in this area right now. */
+	requiresPlaced?: { objectId: string; count: number };
+	/** A tool upgraded to at least this tier. */
+	requiresTool?: { id: string; tier: number };
+	/** A home upgrade track raised to at least this level. */
+	requiresHome?: { track: 'space' | 'comfort' | 'decor' | 'light'; level: number };
+	/** You've traded the starting tent for an actual house (any style). */
+	homeBuilt?: boolean;
+	/** Once your clock has been through this time of day — 'dawn' | 'day' | 'dusk'
+	 *  | 'night' (any listed). A one-way milestone: your first nightfall unlocks
+	 *  the headlamp, and it stays unlocked at sunrise. */
+	phaseSeen?: string[];
+	/** Open water shaped in this area: total tiles / largest pond / longest channel. */
+	requiresWater?: { tiles?: number; lake?: number; river?: number };
+	/** Progress in a DIFFERENT area (mastery items that look outward). */
+	requiresBiome?: { biome: string; minHealth: number };
+	/** An achievement you must have earned. */
+	requiresAchievement?: string;
+	/** How many areas of the preserve are open. */
+	biomesOpen?: number;
+	/** Plain-language rendering of the whole condition, shown in the UI. */
 	label: string;
 }
 
@@ -402,6 +442,9 @@ export interface WeatherSnapshot {
 	dayIndex: number;
 	/** Real-time length of one in-game day, so the client can advance lighting locally. */
 	dayMs: number;
+	/** Times of day this player's clock has already been through at least once
+	 *  (mirrors phasesSeen() in server/weather.ts). Grows, never shrinks. */
+	seenPhases?: string[];
 	/** Active weather per biome (climate differs by biome). */
 	byBiome: Record<string, { type: string; since: number }>;
 	/** Present only when a dev override forces weather/season — honored verbatim. */

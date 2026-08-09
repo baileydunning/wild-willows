@@ -3,7 +3,7 @@ import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import type { ChestState, RecipeDef } from '../types';
 import { homePerkStrength } from '../types';
-import { recipeUnlocked, recipeSearchScore } from '../recipes';
+import { recipeUnlocked, recipeSearchScore, upcomingRecipes } from '../recipes';
 import { useGear, setGear, GEAR_IDS, type GearId } from '../gear';
 import { nextHealthMilestone } from '../health';
 import {
@@ -454,6 +454,14 @@ export function CraftingPanel() {
 	// Biome-unlock kits are tracked by the "unlock next biome" goal, so they don't
 	// get their own craft-goal button.
 	const unlockKitIds = new Set(data.biomes.map((b) => b.unlock?.requiresItem).filter(Boolean) as string[]);
+	// The next few recipes this area is holding back, nearest first. Scoped to the
+	// Place filter so it answers "what's next HERE", and never the biome-unlock
+	// kits (the pinned "open the next area" goal already tracks those).
+	const upcoming = upcomingRecipes(data, state, {
+		area: placeFilter === 'home' ? 'all' : placeFilter,
+		limit: 4,
+		skipItemIds: unlockKitIds,
+	});
 
 	const placeable = Object.entries(player.craftedItems || {}).filter(([id]) => {
 		const def = data.habitatObjects.find((o) => o.id === id);
@@ -658,6 +666,33 @@ export function CraftingPanel() {
 						})}
 				</div>
 			))}
+			{/* What's coming next. Locked recipes stay hidden, but showing the nearest
+			    few with their requirement turns "there's nothing else here" into
+			    something to work toward — and each requirement is its own, so this
+			    doubles as a list of different things worth doing today. Hidden while
+			    searching (the search is about what you can make now). */}
+			{!searching && upcoming.length > 0 && (
+				<div>
+					<h3>
+						<Icon name="lock" size={14} /> {t('panels.crafting.comingUp')}
+					</h3>
+					{upcoming.map(({ recipe: r }) => {
+						const def = objOf(r);
+						return (
+							<div className="recipe recipe-off" key={`soon-${r.id}`}>
+								<ObjectIcon shape={def?.shape || 'patch'} color={def?.color || '#8a8a8a'} size={34} />
+								<div className="grow">
+									<b>{content('recipe', r.id, 'name', r.name)}</b>
+									<div className="small unlock-req">
+										<b>{t('panels.crafting.needs')}</b>{' '}
+										{content('recipe', r.id, 'unlock.label', r.unlock!.label)}
+									</div>
+								</div>
+							</div>
+						);
+					})}
+				</div>
+			)}
 			{/* plantable cross-references get their own labelled section below the
 			    craftable results — recipes you can actually craft always come first */}
 			{plantableMatches.length > 0 && (

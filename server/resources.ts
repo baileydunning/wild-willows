@@ -43,6 +43,7 @@ import {
 	isWeatherGatheredResource,
 	seasonAt,
 	dayPhaseAt,
+	phasesSeen,
 	nextDawnAt,
 	nextPhaseAt,
 	WEATHER_TYPES,
@@ -2414,22 +2415,69 @@ async function checkUnlocks(
 
 /**
  * Recipe unlocks. A recipe with no `unlock` block is craftable from the moment
- * its biome is open (the handful of starter recipes). Everything else is gated
- * behind progress *in that recipe's own biome* — health, the number of animals
- * welcomed back, a specific keystone animal, or having already crafted a
- * prerequisite item. This is what turns crafting into a steady retention loop:
- * restore a little, unlock a little more to craft.
+ * its biome is open (three starters per area). Everything else waits on its own
+ * condition, and no two recipes in an area share one — so the crafting menu
+ * grows a little at a time, and each new line in it is the reward for a
+ * particular piece of caretaking rather than for a health bar ticking over.
+ *
+ * The conditions reach across the whole game: this area's health and ecological
+ * balance, how many animals are back (in total, of one kind, or one specific
+ * keystone species), what you have crafted before and how widely, what is
+ * standing or planted on the ground here, the open water you've shaped, your
+ * tool tiers, your home upgrades, achievements, and progress in other areas.
+ * See RecipeUnlock in src/types.ts; the client mirrors this in src/recipes.ts.
  */
-function recipeUnlockMet(
-	recipe: any,
-	ctx: { health: number; animalsReturned: number; returnedAnimalIds: Set<string>; craftedEver: Record<string, number> },
-): boolean {
+interface RecipeUnlockCtx {
+	health: number;
+	balance: number;
+	animalsReturned: number;
+	returnedAnimalIds: Set<string>;
+	returnedKinds: Record<string, number>;
+	totalAnimals: number;
+	craftedEver: Record<string, number>;
+	craftedDistinct: number;
+	placedHere: Record<string, number>;
+	water: { tiles: number; lake: number; river: number };
+	tools: Record<string, number>;
+	home: Record<string, any>;
+	homeBuilt: boolean;
+	biomeHealth: Record<string, number>;
+	achievements: Set<string>;
+	biomesOpen: number;
+	seenPhases: string[];
+}
+
+function recipeUnlockMet(recipe: any, ctx: RecipeUnlockCtx): boolean {
 	const u = recipe.unlock;
 	if (!u) return true; // starter recipe
+	// how far this area has come back
 	if (typeof u.minHealth === 'number' && ctx.health < u.minHealth) return false;
+	if (typeof u.minBalance === 'number' && ctx.balance < u.minBalance) return false;
+	// the life that's returned
 	if (typeof u.animalsReturned === 'number' && ctx.animalsReturned < u.animalsReturned) return false;
 	if (u.requiresAnimal && !ctx.returnedAnimalIds.has(u.requiresAnimal)) return false;
+	if (u.requiresKind && (ctx.returnedKinds[u.requiresKind.kind] || 0) < u.requiresKind.count) return false;
+	if (typeof u.totalAnimals === 'number' && ctx.totalAnimals < u.totalAnimals) return false;
+	// what you've made, and what you've put in the ground here
 	if (u.requiresCrafted && (ctx.craftedEver?.[u.requiresCrafted] || 0) <= 0) return false;
+	if (typeof u.craftedDistinct === 'number' && ctx.craftedDistinct < u.craftedDistinct) return false;
+	if (u.requiresPlaced && (ctx.placedHere[u.requiresPlaced.objectId] || 0) < u.requiresPlaced.count) return false;
+	if (u.requiresWater) {
+		if (ctx.water.tiles < (u.requiresWater.tiles || 0)) return false;
+		if (ctx.water.lake < (u.requiresWater.lake || 0)) return false;
+		if (ctx.water.river < (u.requiresWater.river || 0)) return false;
+	}
+	// your own kit
+	if (u.requiresTool && (ctx.tools[u.requiresTool.id] || 1) < u.requiresTool.tier) return false;
+	if (u.requiresHome && (ctx.home[u.requiresHome.track] || 1) < u.requiresHome.level) return false;
+	if (u.homeBuilt && !ctx.homeBuilt) return false; // a real house, not the starting tent
+	// a time of day you've been through once (the headlamp arrives at nightfall
+	// and stays — see phasesSeen() in server/weather.ts)
+	if (u.phaseSeen?.length && !u.phaseSeen.some((p: string) => ctx.seenPhases.includes(p))) return false;
+	// the wider preserve
+	if (u.requiresBiome && (ctx.biomeHealth[u.requiresBiome.biome] || 0) < u.requiresBiome.minHealth) return false;
+	if (u.requiresAchievement && !ctx.achievements.has(u.requiresAchievement)) return false;
+	if (typeof u.biomesOpen === 'number' && ctx.biomesOpen < u.biomesOpen) return false;
 	return true;
 }
 
@@ -2438,22 +2486,47 @@ function recipeUnlockMet(
  * Used by CraftItem to enforce the gate server-side (Harper is the source of
  * truth — the client only hides locked recipes for nicer UX).
  */
-async function recipeUnlockContext(wid: string, biomeId: string, player: any, d: any) {
+async function recipeUnlockContext(wid: string, biomeId: string, player: any, d: any): Promise<RecipeUnlockCtx> {
 	const t = db();
 	// Use the reliable per-world scan, not BiomeState.get(): a primary-key .get()
 	// can return null for a record that exists on a cold Harper instance, which made
 	// health read as 0 and wrongly rejected a craft the client correctly showed as
 	// unlocked (e.g. a Bird Perch at 24% health).
-	const bs = await findBiomeState(t.BiomeState, wid, biomeId);
+	const states = await byWorld(t.BiomeState, wid);
+	const bs = states.find((s: any) => s.biomeId === biomeId) || (await findBiomeState(t.BiomeState, wid, biomeId));
 	const discoveries = await byWorld(t.Discovery, wid);
-	const returnedAnimalIds = new Set<string>(
-		discoveries.filter((x: any) => d.animal.get(x.animalId)?.biome === biomeId).map((x: any) => x.animalId),
-	);
+	const here = discoveries.filter((x: any) => d.animal.get(x.animalId)?.biome === biomeId);
+	const returnedAnimalIds = new Set<string>(here.map((x: any) => x.animalId));
+	const returnedKinds: Record<string, number> = {};
+	for (const x of here) {
+		const kind = d.animal.get(x.animalId)?.kind;
+		if (kind) returnedKinds[kind] = (returnedKinds[kind] || 0) + 1;
+	}
+	const placements = (await byWorld(t.Placement, wid)).filter((p: any) => p.area === biomeId);
+	const terrain = (await byWorld(t.TerrainTile, wid)).filter((tt: any) => tt.area === biomeId);
+	const achievements = await earnedAchievementIds(player.id);
+	const biomeHealth: Record<string, number> = {};
+	for (const s of states) biomeHealth[s.biomeId] = s.health || 0;
+	const wxTime = weatherTimeFromPlay(player); // play-time clock, never null
 	return {
 		health: bs?.health || 0,
+		balance: bs?.balance || 0,
 		animalsReturned: returnedAnimalIds.size,
 		returnedAnimalIds,
+		returnedKinds,
+		totalAnimals: discoveries.length,
 		craftedEver: (player.craftedEver || {}) as Record<string, number>,
+		craftedDistinct: Object.keys(player.craftedEver || {}).length,
+		placedHere: placementCounts(placements),
+		water: analyzeWater(terrain),
+		tools: (player.tools || {}) as Record<string, number>,
+		home: homeOf(player),
+		homeBuilt: !!homeOf(player).styleLocked,
+		biomeHealth,
+		achievements,
+		biomesOpen: (player.unlockedBiomes || []).length,
+		// same play-time clock the weather snapshot and rare animals read
+		seenPhases: phasesSeen(wxTime),
 	};
 }
 
@@ -3510,7 +3583,7 @@ async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 		player = { ...player, unlockedBiomes: [...unlocked] };
 	}
 	const now = Date.now();
-	const wxTime = weatherTimeFromPlay(player);
+	const wxTime = weatherTimeFromPlay(player); // play-time clock, never null
 	return {
 		player: sanitizePlayer(player),
 		worldId: wid,

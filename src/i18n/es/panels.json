@@ -92,7 +92,9 @@
 		"craft": "Fabricar",
 		"addGoal": "Añadir fabricar esto a tus objetivos",
 		"plantedNotCrafted": "Se planta, no se fabrica — cava un bancal con la pala (2), riégalo con la regadera (3) y luego haz clic en el bancal regado para elegirlo en el menú de plantado.",
-		"plantedSection": "Se plantan, no se fabrican"
+		"plantedSection": "Se plantan, no se fabrican",
+		"comingUp": "Próximamente",
+		"needs": "Necesita:"
 	},
 	"tools": {
 		"title": "Herramientas y mejoras",

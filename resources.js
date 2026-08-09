@@ -292,6 +292,11 @@ var recipes_default = {
       name: "Native Grass Patch",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 16,
+        requiresCrafted: "milkweed-rhizome-bed",
+        label: "Restore Willow Meadow to 16% health and craft a Milkweed Bed"
+      },
       output: {
         itemId: "native-grass-patch",
         qty: 1
@@ -300,10 +305,6 @@ var recipes_default = {
         seeds: 4,
         fiber: 2,
         water: 1
-      },
-      unlock: {
-        minHealth: 10,
-        label: "Restore Willow Meadow to 10% health"
       }
     },
     {
@@ -311,6 +312,10 @@ var recipes_default = {
       name: "Wildflower Patch",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 8,
+        label: "Restore Willow Meadow to 8% health"
+      },
       output: {
         itemId: "wildflower-patch",
         qty: 1
@@ -319,10 +324,6 @@ var recipes_default = {
         wildflowers: 3,
         seeds: 2,
         water: 1
-      },
-      unlock: {
-        minHealth: 8,
-        label: "Restore Willow Meadow to 8% health"
       }
     },
     {
@@ -330,6 +331,10 @@ var recipes_default = {
       name: "Butterfly Flowers",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        requiresAnimal: "groundhog",
+        label: "Welcome the Groundhog back to Willow Meadow"
+      },
       output: {
         itemId: "butterfly-flowers",
         qty: 1
@@ -337,10 +342,6 @@ var recipes_default = {
       materials: {
         wildflowers: 4,
         seeds: 1
-      },
-      unlock: {
-        requiresAnimal: "grasshopper",
-        label: "Welcome the grasshopper back to Willow Meadow"
       }
     },
     {
@@ -348,6 +349,10 @@ var recipes_default = {
       name: "Pollinator Garden",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        requiresAnimal: "snail",
+        label: "Welcome the Snail back to Willow Meadow"
+      },
       output: {
         itemId: "pollinator-garden",
         qty: 1
@@ -357,10 +362,6 @@ var recipes_default = {
         seeds: 3,
         water: 2,
         fiber: 1
-      },
-      unlock: {
-        minHealth: 15,
-        label: "Restore Willow Meadow to 15% health"
       }
     },
     {
@@ -368,6 +369,14 @@ var recipes_default = {
       name: "Shrub",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 34,
+        requiresPlaced: {
+          objectId: "wind-chimes",
+          count: 4
+        },
+        label: "Restore Willow Meadow to 34% health and have 4 Wind Chimes standing in Willow Meadow"
+      },
       output: {
         itemId: "shrub",
         qty: 1
@@ -376,10 +385,6 @@ var recipes_default = {
         branches: 2,
         seeds: 2,
         water: 1
-      },
-      unlock: {
-        minHealth: 10,
-        label: "Restore Willow Meadow to 10% health"
       }
     },
     {
@@ -387,6 +392,10 @@ var recipes_default = {
       name: "Berry Bush",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 16,
+        label: "Restore Willow Meadow to 16% health"
+      },
       output: {
         itemId: "berry-bush",
         qty: 1
@@ -395,10 +404,6 @@ var recipes_default = {
         berries: 4,
         seeds: 2,
         water: 1
-      },
-      unlock: {
-        minHealth: 16,
-        label: "Restore Willow Meadow to 16% health"
       }
     },
     {
@@ -406,6 +411,13 @@ var recipes_default = {
       name: "Small Pond",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 19,
+        requiresWater: {
+          lake: 5
+        },
+        label: "Restore Willow Meadow to 19% health and shape a pond of 5 connected water tiles in Willow Meadow"
+      },
       output: {
         itemId: "small-pond",
         qty: 1
@@ -414,10 +426,6 @@ var recipes_default = {
         stones: 6,
         clay: 4,
         water: 4
-      },
-      unlock: {
-        minHealth: 20,
-        label: "Restore Willow Meadow to 20% health"
       }
     },
     {
@@ -425,6 +433,13 @@ var recipes_default = {
       name: "Shallow Water Pool",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 8,
+        requiresWater: {
+          tiles: 4
+        },
+        label: "Restore Willow Meadow to 8% health and shape 4 tiles of open water in Willow Meadow"
+      },
       output: {
         itemId: "shallow-water-pool",
         qty: 1
@@ -433,10 +448,6 @@ var recipes_default = {
         clay: 3,
         stones: 3,
         water: 3
-      },
-      unlock: {
-        minHealth: 8,
-        label: "Restore Rushwater Wetland to 8% health"
       }
     },
     {
@@ -444,6 +455,10 @@ var recipes_default = {
       name: "Log Shelter",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minBalance: 45,
+        label: "Bring Willow Meadow to 45% ecological balance"
+      },
       output: {
         itemId: "log-shelter",
         qty: 1
@@ -451,10 +466,6 @@ var recipes_default = {
       materials: {
         branches: 6,
         fiber: 2
-      },
-      unlock: {
-        minHealth: 8,
-        label: "Restore Old Hollow Forest to 8% health"
       }
     },
     {
@@ -462,6 +473,14 @@ var recipes_default = {
       name: "Hollow Log",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 16,
+        requiresTool: {
+          id: "watering-can",
+          tier: 2
+        },
+        label: "Restore Willow Meadow to 16% health and upgrade your Tin Watering Can to the Rainwater Canteen"
+      },
       output: {
         itemId: "hollow-log",
         qty: 1
@@ -469,10 +488,6 @@ var recipes_default = {
       materials: {
         branches: 8,
         fiber: 3
-      },
-      unlock: {
-        minHealth: 42,
-        label: "Restore Willow Meadow to 42% health"
       }
     },
     {
@@ -480,16 +495,17 @@ var recipes_default = {
       name: "Rock Pile",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 32,
+        requiresCrafted: "groundhog-burrow-mound",
+        label: "Restore Willow Meadow to 32% health and craft a Meadow Burrow Mound"
+      },
       output: {
         itemId: "rock-pile",
         qty: 1
       },
       materials: {
         stones: 5
-      },
-      unlock: {
-        minHealth: 6,
-        label: "Restore Willow Meadow to 6% health"
       }
     },
     {
@@ -497,6 +513,10 @@ var recipes_default = {
       name: "Fallen Branch Shelter",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        requiresAnimal: "american-goldfinch",
+        label: "Welcome the American Goldfinch back to Willow Meadow"
+      },
       output: {
         itemId: "fallen-branch-shelter",
         qty: 1
@@ -504,10 +524,6 @@ var recipes_default = {
       materials: {
         branches: 4,
         fiber: 2
-      },
-      unlock: {
-        minHealth: 10,
-        label: "Restore Willow Meadow to 10% health"
       }
     },
     {
@@ -515,6 +531,14 @@ var recipes_default = {
       name: "Bird Perch",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 17,
+        requiresHome: {
+          track: "comfort",
+          level: 2
+        },
+        label: "Restore Willow Meadow to 17% health and raise your home's Comfort to level 2"
+      },
       output: {
         itemId: "bird-perch",
         qty: 1
@@ -522,10 +546,6 @@ var recipes_default = {
       materials: {
         branches: 3,
         fiber: 1
-      },
-      unlock: {
-        minHealth: 8,
-        label: "Restore Willow Meadow to 8% health"
       }
     },
     {
@@ -533,16 +553,16 @@ var recipes_default = {
       name: "Stepping-Stone Path",
       category: "decoration",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 12,
+        label: "Restore Willow Meadow to 12% health"
+      },
       output: {
         itemId: "simple-path",
         qty: 2
       },
       materials: {
         stones: 2
-      },
-      unlock: {
-        minHealth: 18,
-        label: "Restore Willow Meadow to 18% health"
       }
     },
     {
@@ -550,16 +570,20 @@ var recipes_default = {
       name: "Gravel Path",
       category: "decoration",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 7,
+        requiresPlaced: {
+          objectId: "rotting-log-crumble",
+          count: 2
+        },
+        label: "Restore Willow Meadow to 7% health and have 2 Crumbling Logs standing in Willow Meadow"
+      },
       output: {
         itemId: "gravel-path",
         qty: 2
       },
       materials: {
         stones: 2
-      },
-      unlock: {
-        minHealth: 50,
-        label: "Restore Willow Meadow to 50% health"
       }
     },
     {
@@ -567,16 +591,17 @@ var recipes_default = {
       name: "Plank Path",
       category: "decoration",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 12,
+        requiresCrafted: "brush-pile",
+        label: "Restore Willow Meadow to 12% health and craft a Brush Pile"
+      },
       output: {
         itemId: "plank-path",
         qty: 2
       },
       materials: {
         branches: 2
-      },
-      unlock: {
-        minHealth: 52,
-        label: "Restore Willow Meadow to 52% health"
       }
     },
     {
@@ -584,6 +609,10 @@ var recipes_default = {
       name: "Flagstone Path",
       category: "decoration",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 38,
+        label: "Restore Willow Meadow to 38% health"
+      },
       output: {
         itemId: "flagstone-path",
         qty: 2
@@ -591,10 +620,6 @@ var recipes_default = {
       materials: {
         stones: 3,
         clay: 1
-      },
-      unlock: {
-        minHealth: 53,
-        label: "Restore Willow Meadow to 53% health"
       }
     },
     {
@@ -602,6 +627,14 @@ var recipes_default = {
       name: "Mossy Path",
       category: "decoration",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 9,
+        requiresPlaced: {
+          objectId: "soft-rot-snag",
+          count: 2
+        },
+        label: "Restore Old Hollow Forest to 9% health and have 2 Rotting Dead Trees standing in Old Hollow Forest"
+      },
       output: {
         itemId: "mossy-path",
         qty: 2
@@ -616,6 +649,11 @@ var recipes_default = {
       name: "Wooden Bridge",
       category: "decoration",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 46,
+        requiresCrafted: "bare-soil-scrape",
+        label: "Restore Willow Meadow to 46% health and craft a Bare Soil Scrape"
+      },
       output: {
         itemId: "wooden-bridge",
         qty: 1
@@ -624,10 +662,6 @@ var recipes_default = {
         branches: 4,
         stones: 1,
         fiber: 1
-      },
-      unlock: {
-        minHealth: 57,
-        label: "Restore Willow Meadow to 57% health"
       }
     },
     {
@@ -635,6 +669,11 @@ var recipes_default = {
       name: "Small Chest",
       category: "storage",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 6,
+        requiresCrafted: "grass-patch",
+        label: "Restore Willow Meadow to 6% health and craft a Grass Patch"
+      },
       output: {
         itemId: "small-chest",
         qty: 1
@@ -650,6 +689,11 @@ var recipes_default = {
       name: "Medium Chest",
       category: "storage",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 15,
+        requiresCrafted: "small-chest",
+        label: "Restore Old Hollow Forest to 15% health and craft a Small Chest"
+      },
       output: {
         itemId: "medium-chest",
         qty: 1
@@ -665,6 +709,11 @@ var recipes_default = {
       name: "Field Journal Stand",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 23,
+        requiresAchievement: "meadow-first-bloom",
+        label: "Restore Willow Meadow to 23% health and earn the \u201CFirst Bloom\u201D achievement"
+      },
       output: {
         itemId: "field-journal-stand",
         qty: 1
@@ -672,10 +721,6 @@ var recipes_default = {
       materials: {
         branches: 4,
         stones: 2
-      },
-      unlock: {
-        minHealth: 67,
-        label: "Restore Willow Meadow to 67% health"
       }
     },
     {
@@ -683,6 +728,11 @@ var recipes_default = {
       name: "Potted Flowers",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 28,
+        totalAnimals: 30,
+        label: "Restore Willow Meadow to 28% health and welcome 30 animals back across the preserve"
+      },
       output: {
         itemId: "flower-vase",
         qty: 1
@@ -690,10 +740,6 @@ var recipes_default = {
       materials: {
         clay: 3,
         wildflowers: 2
-      },
-      unlock: {
-        minHealth: 60,
-        label: "Restore Willow Meadow to 60% health"
       }
     },
     {
@@ -709,10 +755,6 @@ var recipes_default = {
         acorns: 3,
         water: 2,
         clay: 1
-      },
-      unlock: {
-        minHealth: 14,
-        label: "Restore Old Hollow Forest to 14% health"
       }
     },
     {
@@ -720,6 +762,10 @@ var recipes_default = {
       name: "Woodland Pool",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 29,
+        label: "Restore Old Hollow Forest to 29% health"
+      },
       output: {
         itemId: "woodland-pool",
         qty: 1
@@ -728,10 +774,6 @@ var recipes_default = {
         clay: 4,
         stones: 2,
         water: 5
-      },
-      unlock: {
-        minHealth: 38,
-        label: "Restore the area to 38% health"
       }
     },
     {
@@ -739,6 +781,10 @@ var recipes_default = {
       name: "Fern Spring",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minBalance: 15,
+        label: "Bring Old Hollow Forest to 15% ecological balance"
+      },
       output: {
         itemId: "fern-spring",
         qty: 1
@@ -747,10 +793,6 @@ var recipes_default = {
         moss: 3,
         branches: 2,
         water: 3
-      },
-      unlock: {
-        minHealth: 20,
-        label: "Restore Old Hollow Forest to 20% health"
       }
     },
     {
@@ -765,10 +807,6 @@ var recipes_default = {
       materials: {
         branches: 6,
         bark: 2
-      },
-      unlock: {
-        minHealth: 12,
-        label: "Restore Old Hollow Forest to 12% health"
       }
     },
     {
@@ -776,6 +814,11 @@ var recipes_default = {
       name: "Mushroom Log",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 56,
+        requiresCrafted: "nurse-log-seedbed",
+        label: "Restore Old Hollow Forest to 56% health and craft a Nurse Log Seedbed"
+      },
       output: {
         itemId: "mushroom-log",
         qty: 1
@@ -784,10 +827,6 @@ var recipes_default = {
         branches: 4,
         mushrooms: 3,
         moss: 2
-      },
-      unlock: {
-        minHealth: 8,
-        label: "Restore Old Hollow Forest to 8% health"
       }
     },
     {
@@ -795,6 +834,12 @@ var recipes_default = {
       name: "Wetland Restoration Kit",
       category: "kit",
       unlockBiome: "forest",
+      once: true,
+      unlock: {
+        minHealth: 65,
+        requiresCrafted: "elk-wallow",
+        label: "Restore Old Hollow Forest to 65% health and craft an Elk Wallow"
+      },
       output: {
         itemId: "wetland-restoration-kit",
         qty: 1
@@ -806,8 +851,7 @@ var recipes_default = {
         water: 6,
         moss: 3,
         bark: 2
-      },
-      once: true
+      }
     },
     {
       id: "reed-bed",
@@ -832,6 +876,10 @@ var recipes_default = {
         id: "shovel",
         tier: 2
       },
+      unlock: {
+        requiresAnimal: "freshwater-shrimp",
+        label: "Welcome the Freshwater Shrimp back to Rushwater Wetland"
+      },
       output: {
         itemId: "mud-bank",
         qty: 1
@@ -839,10 +887,6 @@ var recipes_default = {
       materials: {
         mud: 6,
         clay: 2
-      },
-      unlock: {
-        minHealth: 8,
-        label: "Restore Rushwater Wetland to 8% health"
       }
     },
     {
@@ -850,6 +894,14 @@ var recipes_default = {
       name: "Nesting Platform",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        minHealth: 32,
+        requiresBiome: {
+          biome: "meadow",
+          minHealth: 90
+        },
+        label: "Restore Rushwater Wetland to 32% health and restore Willow Meadow to 90% health"
+      },
       output: {
         itemId: "nesting-platform",
         qty: 1
@@ -857,10 +909,6 @@ var recipes_default = {
       materials: {
         branches: 6,
         reeds: 3
-      },
-      unlock: {
-        minHealth: 57,
-        label: "Restore Rushwater Wetland to 57% health"
       }
     },
     {
@@ -868,6 +916,10 @@ var recipes_default = {
       name: "Cattail Stand",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        minHealth: 18,
+        label: "Restore Rushwater Wetland to 18% health"
+      },
       output: {
         itemId: "cattail-stand",
         qty: 1
@@ -875,10 +927,6 @@ var recipes_default = {
       materials: {
         reeds: 4,
         mud: 1
-      },
-      unlock: {
-        minHealth: 18,
-        label: "Restore Rushwater Wetland to 18% health"
       }
     },
     {
@@ -886,6 +934,11 @@ var recipes_default = {
       name: "Marsh Log",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        minHealth: 14,
+        requiresCrafted: "crayfish-burrow-bank",
+        label: "Restore Rushwater Wetland to 14% health and craft a Crayfish Burrow Bank"
+      },
       output: {
         itemId: "marsh-log",
         qty: 1
@@ -893,10 +946,6 @@ var recipes_default = {
       materials: {
         branches: 5,
         mud: 2
-      },
-      unlock: {
-        minHealth: 22,
-        label: "Restore Rushwater Wetland to 22% health"
       }
     },
     {
@@ -904,6 +953,10 @@ var recipes_default = {
       name: "Lily Pool",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        minHealth: 16,
+        label: "Restore Rushwater Wetland to 16% health"
+      },
       output: {
         itemId: "lily-pool",
         qty: 1
@@ -912,10 +965,6 @@ var recipes_default = {
         reeds: 2,
         clay: 2,
         "clean-water": 2
-      },
-      unlock: {
-        minHealth: 25,
-        label: "Restore Rushwater Wetland to 25% health"
       }
     },
     {
@@ -926,6 +975,10 @@ var recipes_default = {
       requiresTool: {
         id: "shovel",
         tier: 2
+      },
+      unlock: {
+        minHealth: 25,
+        label: "Restore Redstone Scrubland to 25% health"
       },
       output: {
         itemId: "burrow-mound",
@@ -972,6 +1025,10 @@ var recipes_default = {
       name: "Shaded Rock Shelter",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 39,
+        label: "Restore Redstone Scrubland to 39% health"
+      },
       output: {
         itemId: "shaded-rock-shelter",
         qty: 1
@@ -979,10 +1036,6 @@ var recipes_default = {
       materials: {
         stones: 8,
         sand: 2
-      },
-      unlock: {
-        minHealth: 12,
-        label: "Restore Redstone Scrubland to 12% health"
       }
     },
     {
@@ -1005,6 +1058,14 @@ var recipes_default = {
       name: "Snowmelt Pool",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        requiresKind: {
+          kind: "mammal",
+          count: 2
+        },
+        requiresCrafted: "krummholz-bed-hollow",
+        label: "Welcome 2 mammals back to Graywind Heights and craft a Krummholz Bed Hollow"
+      },
       output: {
         itemId: "snowmelt-pool",
         qty: 1
@@ -1012,10 +1073,6 @@ var recipes_default = {
       materials: {
         stones: 5,
         "clean-water": 4
-      },
-      unlock: {
-        minHealth: 45,
-        label: "Restore Graywind Heights to 45% health"
       }
     },
     {
@@ -1023,6 +1080,12 @@ var recipes_default = {
       name: "Migration Path Marker",
       category: "kit",
       unlockBiome: "alpine",
+      once: true,
+      unlock: {
+        minHealth: 65,
+        requiresCrafted: "quartz-lantern",
+        label: "Restore Graywind Heights to 65% health and craft a Quartz Lantern"
+      },
       output: {
         itemId: "migration-path-marker",
         qty: 1
@@ -1032,14 +1095,17 @@ var recipes_default = {
         "alpine-flowers": 5,
         fiber: 4,
         "quartz-crystal": 2
-      },
-      once: true
+      }
     },
     {
       id: "tidepool",
       name: "Tidepool",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        animalsReturned: 3,
+        label: "Welcome 3 animals back to Pelican Shore"
+      },
       output: {
         itemId: "tidepool",
         qty: 1
@@ -1070,6 +1136,14 @@ var recipes_default = {
       name: "Driftwood Shelter",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 29,
+        requiresBiome: {
+          biome: "meadow",
+          minHealth: 90
+        },
+        label: "Restore Pelican Shore to 29% health and restore Willow Meadow to 90% health"
+      },
       output: {
         itemId: "driftwood-shelter",
         qty: 1
@@ -1077,10 +1151,6 @@ var recipes_default = {
       materials: {
         driftwood: 5,
         fiber: 2
-      },
-      unlock: {
-        minHealth: 14,
-        label: "Restore Pelican Shore to 14% health"
       }
     },
     {
@@ -1103,6 +1173,11 @@ var recipes_default = {
       name: "Coastal Nesting Area",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 44,
+        biomesOpen: 6,
+        label: "Restore Pelican Shore to 44% health and open 6 areas of the preserve"
+      },
       output: {
         itemId: "coastal-nesting-area",
         qty: 1
@@ -1111,10 +1186,6 @@ var recipes_default = {
         driftwood: 4,
         sand: 4,
         fiber: 2
-      },
-      unlock: {
-        minHealth: 65,
-        label: "Restore Pelican Shore to 65% health"
       }
     },
     {
@@ -1122,6 +1193,10 @@ var recipes_default = {
       name: "Coral Garden",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 80,
+        label: "Restore Pelican Shore to 80% health"
+      },
       output: {
         itemId: "coral-garden",
         qty: 1
@@ -1131,10 +1206,6 @@ var recipes_default = {
         kelp: 3,
         stones: 2,
         water: 2
-      },
-      unlock: {
-        minHealth: 40,
-        label: "Restore Pelican Shore to 40% health"
       }
     },
     {
@@ -1142,6 +1213,11 @@ var recipes_default = {
       name: "Sea Glass Lantern",
       category: "structure",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 31,
+        totalAnimals: 125,
+        label: "Restore Pelican Shore to 31% health and welcome 125 animals back across the preserve"
+      },
       output: {
         itemId: "sea-glass-lantern",
         qty: 1
@@ -1149,10 +1225,6 @@ var recipes_default = {
       materials: {
         "sea-glass": 4,
         driftwood: 2
-      },
-      unlock: {
-        minHealth: 30,
-        label: "Restore Pelican Shore to 30% health"
       }
     },
     {
@@ -1160,6 +1232,11 @@ var recipes_default = {
       name: "Tide Chime",
       category: "home",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 33,
+        craftedDistinct: 74,
+        label: "Restore Pelican Shore to 33% health and craft 74 different things"
+      },
       output: {
         itemId: "tide-chime",
         qty: 1
@@ -1168,10 +1245,6 @@ var recipes_default = {
         "sea-glass": 2,
         shells: 3,
         driftwood: 1
-      },
-      unlock: {
-        minHealth: 50,
-        label: "Restore Pelican Shore to 50% health"
       }
     },
     {
@@ -1179,6 +1252,11 @@ var recipes_default = {
       name: "Pearl Display",
       category: "structure",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 76,
+        requiresCrafted: "sea-glass-lantern",
+        label: "Restore Pelican Shore to 76% health and craft a Sea Glass Lantern"
+      },
       output: {
         itemId: "pearl-display",
         qty: 1
@@ -1187,10 +1265,6 @@ var recipes_default = {
         pearl: 2,
         shells: 5,
         driftwood: 2
-      },
-      unlock: {
-        minHealth: 72,
-        label: "Restore Pelican Shore to 72% health"
       }
     },
     {
@@ -1198,6 +1272,14 @@ var recipes_default = {
       name: "Sea Glass Path",
       category: "decoration",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 22,
+        requiresHome: {
+          track: "comfort",
+          level: 4
+        },
+        label: "Restore Pelican Shore to 22% health and raise your home's Comfort to level 4"
+      },
       output: {
         itemId: "sea-glass-path",
         qty: 1
@@ -1213,6 +1295,11 @@ var recipes_default = {
       category: "kit",
       unlockBiome: "meadow",
       once: true,
+      unlock: {
+        minHealth: 45,
+        requiresCrafted: "groundhog-burrow-mound",
+        label: "Restore Willow Meadow to 45% health and craft a Meadow Burrow Mound"
+      },
       output: {
         itemId: "forest-restoration-kit",
         qty: 1
@@ -1222,10 +1309,6 @@ var recipes_default = {
         branches: 8,
         stones: 6,
         water: 4
-      },
-      unlock: {
-        minHealth: 45,
-        label: "Restore Willow Meadow to 45% health"
       }
     },
     {
@@ -1234,6 +1317,11 @@ var recipes_default = {
       category: "kit",
       unlockBiome: "wetland",
       once: true,
+      unlock: {
+        minHealth: 65,
+        requiresCrafted: "otter-bank-den",
+        label: "Restore Rushwater Wetland to 65% health and craft a River Bank Den"
+      },
       output: {
         itemId: "scrubland-restoration-kit",
         qty: 1
@@ -1251,6 +1339,11 @@ var recipes_default = {
       category: "kit",
       unlockBiome: "desert",
       once: true,
+      unlock: {
+        minHealth: 65,
+        requiresCrafted: "saguaro",
+        label: "Restore Redstone Scrubland to 65% health and craft a Saguaro"
+      },
       output: {
         itemId: "alpine-restoration-kit",
         qty: 1
@@ -1268,6 +1361,10 @@ var recipes_default = {
       name: "Stone Lantern",
       category: "structure",
       unlockBiome: "meadow",
+      unlock: {
+        minBalance: 60,
+        label: "Bring Willow Meadow to 60% ecological balance"
+      },
       output: {
         itemId: "stone-lantern",
         qty: 1
@@ -1275,10 +1372,6 @@ var recipes_default = {
       materials: {
         stones: 4,
         clay: 2
-      },
-      unlock: {
-        minHealth: 71,
-        label: "Restore Willow Meadow to 71% health"
       }
     },
     {
@@ -1286,6 +1379,11 @@ var recipes_default = {
       name: "Wooden Bench",
       category: "structure",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 25,
+        requiresAchievement: "meadow-pollinators",
+        label: "Restore Willow Meadow to 25% health and earn the \u201CPollinator Highway\u201D achievement"
+      },
       output: {
         itemId: "wooden-bench",
         qty: 1
@@ -1293,10 +1391,6 @@ var recipes_default = {
       materials: {
         branches: 5,
         fiber: 2
-      },
-      unlock: {
-        minHealth: 73,
-        label: "Restore Willow Meadow to 73% health"
       }
     },
     {
@@ -1304,6 +1398,10 @@ var recipes_default = {
       name: "Garden Arch",
       category: "structure",
       unlockBiome: "meadow",
+      unlock: {
+        requiresAnimal: "barn-owl",
+        label: "Welcome the Barn Owl back to Willow Meadow"
+      },
       output: {
         itemId: "garden-arch",
         qty: 1
@@ -1312,10 +1410,6 @@ var recipes_default = {
         branches: 4,
         wildflowers: 3,
         fiber: 1
-      },
-      unlock: {
-        minHealth: 74,
-        label: "Restore Willow Meadow to 74% health"
       }
     },
     {
@@ -1323,6 +1417,13 @@ var recipes_default = {
       name: "Bird Bath",
       category: "structure",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 44,
+        requiresWater: {
+          river: 12
+        },
+        label: "Restore Willow Meadow to 44% health and shape a channel 12 tiles long in Willow Meadow"
+      },
       output: {
         itemId: "bird-bath",
         qty: 1
@@ -1331,10 +1432,6 @@ var recipes_default = {
         stones: 5,
         clay: 2,
         water: 2
-      },
-      unlock: {
-        minHealth: 58,
-        label: "Restore Willow Meadow to 58% health"
       }
     },
     {
@@ -1342,6 +1439,10 @@ var recipes_default = {
       name: "Trail Signpost",
       category: "structure",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 27,
+        label: "Restore Willow Meadow to 27% health"
+      },
       output: {
         itemId: "trail-signpost",
         qty: 1
@@ -1349,10 +1450,6 @@ var recipes_default = {
       materials: {
         branches: 3,
         stones: 1
-      },
-      unlock: {
-        minHealth: 76,
-        label: "Restore Willow Meadow to 76% health"
       }
     },
     {
@@ -1360,6 +1457,11 @@ var recipes_default = {
       name: "Planter Box",
       category: "structure",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 67,
+        requiresCrafted: "garden-arch",
+        label: "Restore Willow Meadow to 67% health and craft a Garden Arch"
+      },
       output: {
         itemId: "planter-box",
         qty: 1
@@ -1368,10 +1470,6 @@ var recipes_default = {
         branches: 3,
         wildflowers: 2,
         clay: 1
-      },
-      unlock: {
-        minHealth: 65,
-        label: "Restore Willow Meadow to 65% health"
       }
     },
     {
@@ -1379,6 +1477,10 @@ var recipes_default = {
       name: "Gazebo",
       category: "structure",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 79,
+        label: "Restore Willow Meadow to 79% health"
+      },
       output: {
         itemId: "gazebo",
         qty: 1
@@ -1387,10 +1489,6 @@ var recipes_default = {
         branches: 10,
         stones: 5,
         fiber: 4
-      },
-      unlock: {
-        minHealth: 77,
-        label: "Restore Willow Meadow to 77% health"
       }
     },
     {
@@ -1398,6 +1496,14 @@ var recipes_default = {
       name: "Clover Patch",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 4,
+        requiresPlaced: {
+          objectId: "grass-patch",
+          count: 2
+        },
+        label: "Restore Willow Meadow to 4% health and have 2 Grass Patches standing in Willow Meadow"
+      },
       output: {
         itemId: "clover-patch",
         qty: 1
@@ -1405,10 +1511,6 @@ var recipes_default = {
       materials: {
         seeds: 3,
         water: 1
-      },
-      unlock: {
-        minHealth: 12,
-        label: "Restore Willow Meadow to 12% health"
       }
     },
     {
@@ -1416,6 +1518,11 @@ var recipes_default = {
       name: "Brush Pile",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 6,
+        requiresCrafted: "damp-leaf-corner",
+        label: "Restore Willow Meadow to 6% health and craft a Damp Leaf Corner"
+      },
       output: {
         itemId: "brush-pile",
         qty: 1
@@ -1423,10 +1530,6 @@ var recipes_default = {
       materials: {
         branches: 4,
         fiber: 2
-      },
-      unlock: {
-        minHealth: 6,
-        label: "Restore Willow Meadow to 6% health"
       }
     },
     {
@@ -1434,6 +1537,10 @@ var recipes_default = {
       name: "Fern Grove",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 46,
+        label: "Restore Old Hollow Forest to 46% health"
+      },
       output: {
         itemId: "fern-grove",
         qty: 1
@@ -1441,10 +1548,6 @@ var recipes_default = {
       materials: {
         moss: 3,
         water: 2
-      },
-      unlock: {
-        minHealth: 46,
-        label: "Restore Old Hollow Forest to 46% health"
       }
     },
     {
@@ -1452,6 +1555,14 @@ var recipes_default = {
       name: "Tree Stump",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 16,
+        requiresHome: {
+          track: "light",
+          level: 3
+        },
+        label: "Restore Old Hollow Forest to 16% health and raise your home's Warmth to level 3"
+      },
       output: {
         itemId: "tree-stump",
         qty: 1
@@ -1459,10 +1570,6 @@ var recipes_default = {
       materials: {
         branches: 4,
         bark: 2
-      },
-      unlock: {
-        minHealth: 32,
-        label: "Restore Old Hollow Forest to 32% health"
       }
     },
     {
@@ -1484,6 +1591,10 @@ var recipes_default = {
       name: "Alder Snag",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        requiresAnimal: "muskrat",
+        label: "Welcome the Muskrat back to Rushwater Wetland"
+      },
       output: {
         itemId: "alder-snag",
         qty: 1
@@ -1491,10 +1602,6 @@ var recipes_default = {
       materials: {
         branches: 5,
         mud: 1
-      },
-      unlock: {
-        minHealth: 52,
-        label: "Restore Rushwater Wetland to 52% health"
       }
     },
     {
@@ -1502,6 +1609,10 @@ var recipes_default = {
       name: "Agave Rosette",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 45,
+        label: "Restore Redstone Scrubland to 45% health"
+      },
       output: {
         itemId: "agave-rosette",
         qty: 1
@@ -1509,10 +1620,6 @@ var recipes_default = {
       materials: {
         "cactus-fruit": 2,
         sand: 2
-      },
-      unlock: {
-        minHealth: 45,
-        label: "Restore Redstone Scrubland to 45% health"
       }
     },
     {
@@ -1520,6 +1627,10 @@ var recipes_default = {
       name: "Ocotillo",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 40,
+        label: "Restore Redstone Scrubland to 40% health"
+      },
       output: {
         itemId: "ocotillo",
         qty: 1
@@ -1528,10 +1639,6 @@ var recipes_default = {
         branches: 2,
         sand: 2,
         "cactus-fruit": 1
-      },
-      unlock: {
-        minHealth: 40,
-        label: "Restore Redstone Scrubland to 40% health"
       }
     },
     {
@@ -1539,6 +1646,10 @@ var recipes_default = {
       name: "Heather Mat",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 14,
+        label: "Restore Graywind Heights to 14% health"
+      },
       output: {
         itemId: "heather-mat",
         qty: 1
@@ -1546,10 +1657,6 @@ var recipes_default = {
       materials: {
         "alpine-flowers": 3,
         moss: 1
-      },
-      unlock: {
-        minHealth: 14,
-        label: "Restore Graywind Heights to 14% health"
       }
     },
     {
@@ -1557,6 +1664,10 @@ var recipes_default = {
       name: "Krummholz Pine",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minBalance: 10,
+        label: "Bring Graywind Heights to 10% ecological balance"
+      },
       output: {
         itemId: "krummholz-pine",
         qty: 1
@@ -1564,10 +1675,6 @@ var recipes_default = {
       materials: {
         branches: 4,
         moss: 2
-      },
-      unlock: {
-        minHealth: 22,
-        label: "Restore Graywind Heights to 22% health"
       }
     },
     {
@@ -1575,6 +1682,10 @@ var recipes_default = {
       name: "Eelgrass Bed",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 60,
+        label: "Restore Pelican Shore to 60% health"
+      },
       output: {
         itemId: "eelgrass-bed",
         qty: 1
@@ -1583,10 +1694,6 @@ var recipes_default = {
         driftwood: 2,
         sand: 2,
         water: 2
-      },
-      unlock: {
-        minHealth: 60,
-        label: "Restore Pelican Shore to 60% health"
       }
     },
     {
@@ -1594,6 +1701,11 @@ var recipes_default = {
       name: "Oyster Bed",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 23,
+        requiresAchievement: "coastal-tide",
+        label: "Restore Pelican Shore to 23% health and earn the \u201CThe Tide Returns\u201D achievement"
+      },
       output: {
         itemId: "oyster-bed",
         qty: 1
@@ -1601,10 +1713,6 @@ var recipes_default = {
       materials: {
         shells: 3,
         stones: 2
-      },
-      unlock: {
-        minHealth: 22,
-        label: "Restore Pelican Shore to 22% health"
       }
     },
     {
@@ -1612,6 +1720,14 @@ var recipes_default = {
       name: "Nectar Feeder",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 26,
+        requiresBiome: {
+          biome: "meadow",
+          minHealth: 90
+        },
+        label: "Restore Redstone Scrubland to 26% health and restore Willow Meadow to 90% health"
+      },
       output: {
         itemId: "nectar-feeder",
         qty: 1
@@ -1619,10 +1735,6 @@ var recipes_default = {
       materials: {
         "agave-nectar": 2,
         branches: 2
-      },
-      unlock: {
-        minHealth: 16,
-        label: "Restore Redstone Scrubland to 16% health"
       }
     },
     {
@@ -1630,6 +1742,11 @@ var recipes_default = {
       name: "Crystal Cairn",
       category: "structure",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 38,
+        totalAnimals: 95,
+        label: "Restore Redstone Scrubland to 38% health and welcome 95 animals back across the preserve"
+      },
       output: {
         itemId: "crystal-cairn",
         qty: 1
@@ -1637,10 +1754,6 @@ var recipes_default = {
       materials: {
         geode: 2,
         stones: 3
-      },
-      unlock: {
-        minHealth: 40,
-        label: "Restore Redstone Scrubland to 40% health"
       }
     },
     {
@@ -1648,6 +1761,11 @@ var recipes_default = {
       name: "Sun Totem",
       category: "structure",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 74,
+        requiresCrafted: "crystal-cairn",
+        label: "Restore Redstone Scrubland to 74% health and craft a Crystal Cairn"
+      },
       output: {
         itemId: "sun-totem",
         qty: 1
@@ -1656,10 +1774,6 @@ var recipes_default = {
         geode: 1,
         stones: 4,
         sand: 2
-      },
-      unlock: {
-        minHealth: 72,
-        label: "Restore Redstone Scrubland to 72% health"
       }
     },
     {
@@ -1667,6 +1781,10 @@ var recipes_default = {
       name: "Campfire",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 32,
+        label: "Restore Willow Meadow to 32% health"
+      },
       output: {
         itemId: "campfire",
         qty: 1
@@ -1674,10 +1792,6 @@ var recipes_default = {
       materials: {
         branches: 4,
         stones: 3
-      },
-      unlock: {
-        minHealth: 55,
-        label: "Restore Willow Meadow to 55% health"
       }
     },
     {
@@ -1685,6 +1799,11 @@ var recipes_default = {
       name: "String Lights",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 27,
+        requiresCrafted: "grass-thatch-litter",
+        label: "Restore Willow Meadow to 27% health and craft a Grass Thatch Litter"
+      },
       output: {
         itemId: "string-lights",
         qty: 1
@@ -1692,10 +1811,6 @@ var recipes_default = {
       materials: {
         fiber: 3,
         branches: 2
-      },
-      unlock: {
-        minHealth: 48,
-        label: "Restore Willow Meadow to 48% health"
       }
     },
     {
@@ -1703,6 +1818,14 @@ var recipes_default = {
       name: "Pinwheel",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 11,
+        requiresHome: {
+          track: "space",
+          level: 2
+        },
+        label: "Restore Willow Meadow to 11% health and raise your home's Space to level 2"
+      },
       output: {
         itemId: "pinwheel",
         qty: 1
@@ -1710,10 +1833,6 @@ var recipes_default = {
       materials: {
         fiber: 2,
         branches: 1
-      },
-      unlock: {
-        minHealth: 46,
-        label: "Restore Willow Meadow to 46% health"
       }
     },
     {
@@ -1721,6 +1840,10 @@ var recipes_default = {
       name: "Birdhouse",
       category: "structure",
       unlockBiome: "meadow",
+      unlock: {
+        requiresAnimal: "garden-spider",
+        label: "Welcome the Garden Spider back to Willow Meadow"
+      },
       output: {
         itemId: "birdhouse",
         qty: 1
@@ -1728,10 +1851,6 @@ var recipes_default = {
       materials: {
         branches: 3,
         fiber: 1
-      },
-      unlock: {
-        minHealth: 33,
-        label: "Restore Willow Meadow to 33% health"
       }
     },
     {
@@ -1739,6 +1858,13 @@ var recipes_default = {
       name: "Flower Cart",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        requiresKind: {
+          kind: "invertebrate",
+          count: 3
+        },
+        label: "Welcome 3 small invertebrates back to Willow Meadow"
+      },
       output: {
         itemId: "flower-cart",
         qty: 1
@@ -1746,10 +1872,6 @@ var recipes_default = {
       materials: {
         branches: 4,
         wildflowers: 3
-      },
-      unlock: {
-        minHealth: 72,
-        label: "Restore Willow Meadow to 72% health"
       }
     },
     {
@@ -1757,6 +1879,11 @@ var recipes_default = {
       name: "Hammock",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 32,
+        requiresCrafted: "string-lights",
+        label: "Restore Willow Meadow to 32% health and craft String Lights"
+      },
       output: {
         itemId: "hammock",
         qty: 1
@@ -1764,10 +1891,6 @@ var recipes_default = {
       materials: {
         fiber: 5,
         branches: 2
-      },
-      unlock: {
-        minHealth: 66,
-        label: "Restore Willow Meadow to 66% health"
       }
     },
     {
@@ -1775,16 +1898,16 @@ var recipes_default = {
       name: "Garden Gnome",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        minBalance: 35,
+        label: "Bring Willow Meadow to 35% ecological balance"
+      },
       output: {
         itemId: "garden-gnome",
         qty: 1
       },
       materials: {
         clay: 3
-      },
-      unlock: {
-        minHealth: 70,
-        label: "Restore Willow Meadow to 70% health"
       }
     },
     {
@@ -1792,6 +1915,14 @@ var recipes_default = {
       name: "Wind Chimes",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 25,
+        requiresHome: {
+          track: "decor",
+          level: 3
+        },
+        label: "Restore Willow Meadow to 25% health and raise your home's Furnishings to level 3"
+      },
       output: {
         itemId: "wind-chimes",
         qty: 1
@@ -1800,10 +1931,6 @@ var recipes_default = {
         branches: 2,
         stones: 2,
         fiber: 1
-      },
-      unlock: {
-        minHealth: 69,
-        label: "Restore Willow Meadow to 69% health"
       }
     },
     {
@@ -1811,6 +1938,11 @@ var recipes_default = {
       name: "Sundial",
       category: "structure",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 55,
+        requiresCrafted: "coyote-natal-den-bank",
+        label: "Restore Willow Meadow to 55% health and craft a Den Bank"
+      },
       output: {
         itemId: "sundial",
         qty: 1
@@ -1818,10 +1950,6 @@ var recipes_default = {
       materials: {
         stones: 4,
         clay: 2
-      },
-      unlock: {
-        minHealth: 75,
-        label: "Restore Willow Meadow to 75% health"
       }
     },
     {
@@ -1829,16 +1957,17 @@ var recipes_default = {
       name: "Stone Cairn",
       category: "structure",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 13,
+        craftedDistinct: 14,
+        label: "Restore Willow Meadow to 13% health and craft 14 different things"
+      },
       output: {
         itemId: "stone-cairn",
         qty: 1
       },
       materials: {
         stones: 6
-      },
-      unlock: {
-        minHealth: 76,
-        label: "Restore Willow Meadow to 76% health"
       }
     },
     {
@@ -1846,16 +1975,20 @@ var recipes_default = {
       name: "Picnic Blanket",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 11,
+        requiresTool: {
+          id: "shovel",
+          tier: 2
+        },
+        label: "Restore Willow Meadow to 11% health and upgrade your Basic Shovel to the Restoration Shovel"
+      },
       output: {
         itemId: "picnic-blanket",
         qty: 1
       },
       materials: {
         fiber: 6
-      },
-      unlock: {
-        minHealth: 64,
-        label: "Restore Willow Meadow to 64% health"
       }
     },
     {
@@ -1863,6 +1996,14 @@ var recipes_default = {
       name: "Flower Pot Row",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 28,
+        requiresBiome: {
+          biome: "forest",
+          minHealth: 90
+        },
+        label: "Restore Willow Meadow to 28% health and restore Old Hollow Forest to 90% health"
+      },
       output: {
         itemId: "flower-pots",
         qty: 1
@@ -1870,10 +2011,6 @@ var recipes_default = {
       materials: {
         clay: 3,
         wildflowers: 2
-      },
-      unlock: {
-        minHealth: 61,
-        label: "Restore Willow Meadow to 61% health"
       }
     },
     {
@@ -1881,6 +2018,10 @@ var recipes_default = {
       name: "Insect Hotel",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 65,
+        label: "Restore Willow Meadow to 65% health"
+      },
       output: {
         itemId: "insect-hotel",
         qty: 1
@@ -1889,10 +2030,6 @@ var recipes_default = {
         branches: 4,
         fiber: 3,
         clay: 1
-      },
-      unlock: {
-        minHealth: 30,
-        label: "Restore Willow Meadow to 30% health"
       }
     },
     {
@@ -1900,16 +2037,17 @@ var recipes_default = {
       name: "Dry Stone Wall",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 8,
+        requiresCrafted: "damp-leaf-corner",
+        label: "Restore Willow Meadow to 8% health and craft a Damp Leaf Corner"
+      },
       output: {
         itemId: "dry-stone-wall",
         qty: 1
       },
       materials: {
         stones: 8
-      },
-      unlock: {
-        minHealth: 14,
-        label: "Restore Willow Meadow to 14% health"
       }
     },
     {
@@ -1917,6 +2055,13 @@ var recipes_default = {
       name: "Bat Box",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        requiresKind: {
+          kind: "mammal",
+          count: 2
+        },
+        label: "Welcome 2 mammals back to Old Hollow Forest"
+      },
       output: {
         itemId: "bat-box",
         qty: 1
@@ -1924,10 +2069,6 @@ var recipes_default = {
       materials: {
         branches: 5,
         bark: 2
-      },
-      unlock: {
-        minHealth: 30,
-        label: "Restore Old Hollow Forest to 30% health"
       }
     },
     {
@@ -1935,6 +2076,11 @@ var recipes_default = {
       name: "Leaf Litter Pile",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 14,
+        requiresCrafted: "leaf-drey",
+        label: "Restore Old Hollow Forest to 14% health and craft a Leaf Drey"
+      },
       output: {
         itemId: "leaf-litter-pile",
         qty: 1
@@ -1942,10 +2088,6 @@ var recipes_default = {
       materials: {
         moss: 2,
         branches: 2
-      },
-      unlock: {
-        minHealth: 6,
-        label: "Restore Old Hollow Forest to 6% health"
       }
     },
     {
@@ -1953,6 +2095,10 @@ var recipes_default = {
       name: "Duck Nest Box",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        minHealth: 34,
+        label: "Restore Rushwater Wetland to 34% health"
+      },
       output: {
         itemId: "duck-nest-box",
         qty: 1
@@ -1961,10 +2107,6 @@ var recipes_default = {
         branches: 4,
         reeds: 2,
         fiber: 2
-      },
-      unlock: {
-        minHealth: 35,
-        label: "Restore Rushwater Wetland to 35% health"
       }
     },
     {
@@ -1972,6 +2114,10 @@ var recipes_default = {
       name: "Basking Log",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        minHealth: 29,
+        label: "Restore Rushwater Wetland to 29% health"
+      },
       output: {
         itemId: "basking-log",
         qty: 1
@@ -1979,10 +2125,6 @@ var recipes_default = {
       materials: {
         branches: 5,
         mud: 2
-      },
-      unlock: {
-        minHealth: 45,
-        label: "Restore Rushwater Wetland to 45% health"
       }
     },
     {
@@ -1997,10 +2139,6 @@ var recipes_default = {
       materials: {
         stones: 6,
         clay: 2
-      },
-      unlock: {
-        minHealth: 14,
-        label: "Restore Redstone Scrubland to 14% health"
       }
     },
     {
@@ -2008,6 +2146,10 @@ var recipes_default = {
       name: "Dew Basin",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 23,
+        label: "Restore Redstone Scrubland to 23% health"
+      },
       output: {
         itemId: "dew-basin",
         qty: 1
@@ -2015,10 +2157,6 @@ var recipes_default = {
       materials: {
         clay: 4,
         stones: 4
-      },
-      unlock: {
-        minHealth: 35,
-        label: "Restore Redstone Scrubland to 35% health"
       }
     },
     {
@@ -2026,16 +2164,20 @@ var recipes_default = {
       name: "Talus Pile",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 12,
+        requiresPlaced: {
+          objectId: "rotting-conifer-log",
+          count: 2
+        },
+        label: "Restore Graywind Heights to 12% health and have 2 Rotting Conifer Logs standing in Graywind Heights"
+      },
       output: {
         itemId: "talus-pile",
         qty: 1
       },
       materials: {
         stones: 7
-      },
-      unlock: {
-        minHealth: 5,
-        label: "Restore Graywind Heights to 5% health"
       }
     },
     {
@@ -2050,10 +2192,6 @@ var recipes_default = {
       materials: {
         stones: 3,
         moss: 3
-      },
-      unlock: {
-        minHealth: 45,
-        label: "Restore Graywind Heights to 45% health"
       }
     },
     {
@@ -2061,6 +2199,14 @@ var recipes_default = {
       name: "Driftwood Pile",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 23,
+        requiresPlaced: {
+          objectId: "mussel-bed-lower-margin",
+          count: 3
+        },
+        label: "Restore Pelican Shore to 23% health and have 3 Mussel Bed Edges standing in Pelican Shore"
+      },
       output: {
         itemId: "driftwood-pile",
         qty: 1
@@ -2068,10 +2214,6 @@ var recipes_default = {
       materials: {
         driftwood: 3,
         shells: 2
-      },
-      unlock: {
-        minHealth: 12,
-        label: "Restore Pelican Shore to 12% health"
       }
     },
     {
@@ -2079,6 +2221,10 @@ var recipes_default = {
       name: "Nesting Bluff",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minBalance: 35,
+        label: "Bring Pelican Shore to 35% ecological balance"
+      },
       output: {
         itemId: "nesting-bluff",
         qty: 1
@@ -2086,10 +2232,6 @@ var recipes_default = {
       materials: {
         sand: 4,
         stones: 3
-      },
-      unlock: {
-        minHealth: 45,
-        label: "Restore Pelican Shore to 45% health"
       }
     },
     {
@@ -2097,6 +2239,11 @@ var recipes_default = {
       name: "Pika Haypile",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 20,
+        requiresCrafted: "stonecrop-patch",
+        label: "Restore Graywind Heights to 20% health and craft a Stonecrop Patch"
+      },
       output: {
         itemId: "pika-haypile",
         qty: 1
@@ -2105,10 +2252,6 @@ var recipes_default = {
         fiber: 3,
         "alpine-flowers": 2,
         lichen: 2
-      },
-      unlock: {
-        minHealth: 18,
-        label: "Restore Graywind Heights to 18% health"
       }
     },
     {
@@ -2116,6 +2259,10 @@ var recipes_default = {
       name: "Lichen Boulder",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        requiresAnimal: "mountain-chickadee",
+        label: "Welcome the Mountain Chickadee back to Graywind Heights"
+      },
       output: {
         itemId: "lichen-boulder",
         qty: 1
@@ -2123,10 +2270,6 @@ var recipes_default = {
       materials: {
         lichen: 4,
         stones: 4
-      },
-      unlock: {
-        minHealth: 5,
-        label: "Restore Graywind Heights to 5% health"
       }
     },
     {
@@ -2134,6 +2277,10 @@ var recipes_default = {
       name: "Scree Slope",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        requiresAnimal: "snow-flea",
+        label: "Welcome the Snow Flea back to Graywind Heights"
+      },
       output: {
         itemId: "scree-slope",
         qty: 1
@@ -2141,10 +2288,6 @@ var recipes_default = {
       materials: {
         stones: 6,
         lichen: 1
-      },
-      unlock: {
-        minHealth: 5,
-        label: "Restore Graywind Heights to 5% health"
       }
     },
     {
@@ -2152,6 +2295,13 @@ var recipes_default = {
       name: "Snowbank Roost",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 17,
+        requiresWater: {
+          tiles: 6
+        },
+        label: "Restore Graywind Heights to 17% health and shape 6 tiles of open water in Graywind Heights"
+      },
       output: {
         itemId: "snowbank-roost",
         qty: 1
@@ -2159,10 +2309,6 @@ var recipes_default = {
       materials: {
         snow: 5,
         "clean-water": 2
-      },
-      unlock: {
-        minHealth: 25,
-        label: "Restore Graywind Heights to 25% health"
       }
     },
     {
@@ -2170,6 +2316,10 @@ var recipes_default = {
       name: "Whitebark Seed Cache",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minBalance: 15,
+        label: "Bring Graywind Heights to 15% ecological balance"
+      },
       output: {
         itemId: "whitebark-cache",
         qty: 1
@@ -2177,10 +2327,6 @@ var recipes_default = {
       materials: {
         "pine-nuts": 4,
         branches: 2
-      },
-      unlock: {
-        minHealth: 30,
-        label: "Restore Graywind Heights to 30% health"
       }
     },
     {
@@ -2188,6 +2334,10 @@ var recipes_default = {
       name: "Juniper Thicket",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        requiresAnimal: "pika",
+        label: "Welcome the Pika back to Graywind Heights"
+      },
       output: {
         itemId: "juniper-thicket",
         qty: 1
@@ -2196,10 +2346,6 @@ var recipes_default = {
         "juniper-berries": 3,
         branches: 3,
         moss: 1
-      },
-      unlock: {
-        minHealth: 35,
-        label: "Restore Graywind Heights to 35% health"
       }
     },
     {
@@ -2207,6 +2353,10 @@ var recipes_default = {
       name: "Cliff Nest Niche",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        requiresAnimal: "snow-bunting",
+        label: "Welcome the Snow Bunting back to Graywind Heights"
+      },
       output: {
         itemId: "cliff-nest-niche",
         qty: 1
@@ -2215,10 +2365,6 @@ var recipes_default = {
         stones: 4,
         moss: 2,
         lichen: 2
-      },
-      unlock: {
-        minHealth: 45,
-        label: "Restore Graywind Heights to 45% health"
       }
     },
     {
@@ -2226,6 +2372,10 @@ var recipes_default = {
       name: "Crystal Snowmelt Spring",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 29,
+        label: "Restore Graywind Heights to 29% health"
+      },
       output: {
         itemId: "crystal-spring",
         qty: 1
@@ -2234,10 +2384,6 @@ var recipes_default = {
         "quartz-crystal": 3,
         "clean-water": 4,
         stones: 3
-      },
-      unlock: {
-        minHealth: 45,
-        label: "Restore Graywind Heights to 45% health"
       }
     },
     {
@@ -2245,6 +2391,11 @@ var recipes_default = {
       name: "Summit Prayer Flags",
       category: "structure",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 23,
+        requiresAchievement: "alpine-treeline",
+        label: "Restore Graywind Heights to 23% health and earn the \u201CAbove the Treeline\u201D achievement"
+      },
       output: {
         itemId: "summit-prayer-flags",
         qty: 1
@@ -2252,10 +2403,6 @@ var recipes_default = {
       materials: {
         fiber: 4,
         "alpine-flowers": 2
-      },
-      unlock: {
-        minHealth: 30,
-        label: "Restore Graywind Heights to 30% health"
       }
     },
     {
@@ -2263,6 +2410,10 @@ var recipes_default = {
       name: "Quartz Lantern",
       category: "home",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 62,
+        label: "Restore Graywind Heights to 62% health"
+      },
       output: {
         itemId: "quartz-lantern",
         qty: 1
@@ -2271,10 +2422,6 @@ var recipes_default = {
         "quartz-crystal": 2,
         stones: 2,
         fiber: 1
-      },
-      unlock: {
-        minHealth: 40,
-        label: "Restore Graywind Heights to 40% health"
       }
     },
     {
@@ -2282,6 +2429,10 @@ var recipes_default = {
       name: "Obsidian Totem",
       category: "structure",
       unlockBiome: "alpine",
+      unlock: {
+        requiresAnimal: "bighorn-sheep",
+        label: "Welcome the Bighorn Sheep back to Graywind Heights"
+      },
       output: {
         itemId: "obsidian-totem",
         qty: 1
@@ -2290,10 +2441,6 @@ var recipes_default = {
         obsidian: 3,
         stones: 2,
         fiber: 1
-      },
-      unlock: {
-        minHealth: 50,
-        label: "Restore Graywind Heights to 50% health"
       }
     },
     {
@@ -2301,6 +2448,11 @@ var recipes_default = {
       name: "Large Chest",
       category: "storage",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 25,
+        requiresCrafted: "medium-chest",
+        label: "Restore Redstone Scrubland to 25% health and craft a Medium Chest"
+      },
       output: {
         itemId: "large-chest",
         qty: 1
@@ -2311,11 +2463,6 @@ var recipes_default = {
         fiber: 6,
         stones: 6,
         clay: 4
-      },
-      unlock: {
-        minHealth: 60,
-        requiresCrafted: "medium-chest",
-        label: "Restore Redstone Scrubland to 60% health and craft a Medium Chest first"
       }
     },
     {
@@ -2323,16 +2470,19 @@ var recipes_default = {
       name: "Woven Rug",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        requiresKind: {
+          kind: "insect",
+          count: 3
+        },
+        label: "Welcome 3 insects back to Willow Meadow"
+      },
       output: {
         itemId: "home-rug",
         qty: 1
       },
       materials: {
         fiber: 6
-      },
-      unlock: {
-        minHealth: 10,
-        label: "Restore Willow Meadow to 10% health"
       }
     },
     {
@@ -2340,6 +2490,11 @@ var recipes_default = {
       name: "Little Table",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 41,
+        requiresCrafted: "hammock",
+        label: "Restore Willow Meadow to 41% health and craft a Hammock"
+      },
       output: {
         itemId: "home-table",
         qty: 1
@@ -2347,10 +2502,6 @@ var recipes_default = {
       materials: {
         branches: 6,
         fiber: 2
-      },
-      unlock: {
-        minHealth: 15,
-        label: "Restore Willow Meadow to 15% health"
       }
     },
     {
@@ -2358,6 +2509,10 @@ var recipes_default = {
       name: "Cozy Bed",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 59,
+        label: "Restore Willow Meadow to 59% health"
+      },
       output: {
         itemId: "home-bed",
         qty: 1
@@ -2365,10 +2520,6 @@ var recipes_default = {
       materials: {
         fiber: 8,
         branches: 4
-      },
-      unlock: {
-        minHealth: 20,
-        label: "Restore Willow Meadow to 20% health"
       }
     },
     {
@@ -2376,6 +2527,10 @@ var recipes_default = {
       name: "Bookshelf",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 55,
+        label: "Restore Willow Meadow to 55% health"
+      },
       output: {
         itemId: "home-bookshelf",
         qty: 1
@@ -2383,10 +2538,6 @@ var recipes_default = {
       materials: {
         branches: 8,
         fiber: 3
-      },
-      unlock: {
-        minHealth: 30,
-        label: "Restore Willow Meadow to 30% health"
       }
     },
     {
@@ -2394,6 +2545,13 @@ var recipes_default = {
       name: "Cozy Armchair",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        requiresKind: {
+          kind: "bird",
+          count: 4
+        },
+        label: "Welcome 4 birds back to Willow Meadow"
+      },
       output: {
         itemId: "home-armchair",
         qty: 1
@@ -2401,10 +2559,6 @@ var recipes_default = {
       materials: {
         fiber: 7,
         branches: 3
-      },
-      unlock: {
-        minHealth: 18,
-        label: "Restore Willow Meadow to 18% health"
       }
     },
     {
@@ -2412,6 +2566,10 @@ var recipes_default = {
       name: "Stone Fireplace",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        animalsReturned: 22,
+        label: "Welcome 22 animals back to Willow Meadow"
+      },
       output: {
         itemId: "home-fireplace",
         qty: 1
@@ -2419,10 +2577,6 @@ var recipes_default = {
       materials: {
         stones: 8,
         clay: 3
-      },
-      unlock: {
-        minHealth: 25,
-        label: "Restore Willow Meadow to 25% health"
       }
     },
     {
@@ -2430,6 +2584,11 @@ var recipes_default = {
       name: "Floor Lamp",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 32,
+        requiresCrafted: "domed-grass-nest-tunnel",
+        label: "Restore Willow Meadow to 32% health and craft a Domed Grass Nest"
+      },
       output: {
         itemId: "home-lamp",
         qty: 1
@@ -2437,10 +2596,6 @@ var recipes_default = {
       materials: {
         branches: 4,
         fiber: 3
-      },
-      unlock: {
-        minHealth: 12,
-        label: "Restore Willow Meadow to 12% health"
       }
     },
     {
@@ -2448,6 +2603,14 @@ var recipes_default = {
       name: "House Plant",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 28,
+        requiresBiome: {
+          biome: "wetland",
+          minHealth: 95
+        },
+        label: "Restore Willow Meadow to 28% health and restore Rushwater Wetland to 95% health"
+      },
       output: {
         itemId: "home-potplant",
         qty: 1
@@ -2455,10 +2618,6 @@ var recipes_default = {
       materials: {
         clay: 3,
         wildflowers: 2
-      },
-      unlock: {
-        minHealth: 8,
-        label: "Restore Willow Meadow to 8% health"
       }
     },
     {
@@ -2466,6 +2625,14 @@ var recipes_default = {
       name: "Framed Landscape",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 25,
+        requiresTool: {
+          id: "basket",
+          tier: 2
+        },
+        label: "Restore Willow Meadow to 25% health and upgrade your Gathering Basket to the Reinforced Gathering Basket"
+      },
       output: {
         itemId: "home-painting",
         qty: 1
@@ -2473,10 +2640,6 @@ var recipes_default = {
       materials: {
         branches: 4,
         fiber: 4
-      },
-      unlock: {
-        minHealth: 22,
-        label: "Restore Willow Meadow to 22% health"
       }
     },
     {
@@ -2484,16 +2647,16 @@ var recipes_default = {
       name: "Sleeping Bag",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        animalsReturned: 6,
+        label: "Welcome 6 animals back to Willow Meadow"
+      },
       output: {
         itemId: "home-sleeping-bag",
         qty: 1
       },
       materials: {
         fiber: 4
-      },
-      unlock: {
-        minHealth: 5,
-        label: "Restore Willow Meadow to 5% health"
       }
     },
     {
@@ -2501,16 +2664,16 @@ var recipes_default = {
       name: "Floor Cushions",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 16,
+        label: "Restore Willow Meadow to 16% health"
+      },
       output: {
         itemId: "home-cushions",
         qty: 1
       },
       materials: {
         fiber: 5
-      },
-      unlock: {
-        minHealth: 10,
-        label: "Restore that biome to 10% health"
       }
     },
     {
@@ -2518,16 +2681,16 @@ var recipes_default = {
       name: "Wooden Stool",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 14,
+        label: "Restore Willow Meadow to 14% health"
+      },
       output: {
         itemId: "home-stool",
         qty: 1
       },
       materials: {
         branches: 4
-      },
-      unlock: {
-        minHealth: 14,
-        label: "Restore that biome to 14% health"
       }
     },
     {
@@ -2535,6 +2698,14 @@ var recipes_default = {
       name: "Mushroom Shelf",
       category: "home",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 16,
+        requiresTool: {
+          id: "watering-can",
+          tier: 3
+        },
+        label: "Restore Old Hollow Forest to 16% health and upgrade your Tin Watering Can to the Spring-fed Ewer"
+      },
       output: {
         itemId: "home-mushroomshelf",
         qty: 1
@@ -2542,10 +2713,6 @@ var recipes_default = {
       materials: {
         mushrooms: 4,
         branches: 4
-      },
-      unlock: {
-        minHealth: 45,
-        label: "Restore that biome to 45% health"
       }
     },
     {
@@ -2553,16 +2720,16 @@ var recipes_default = {
       name: "Reed Floor Mat",
       category: "home",
       unlockBiome: "wetland",
+      unlock: {
+        minHealth: 12,
+        label: "Restore Rushwater Wetland to 12% health"
+      },
       output: {
         itemId: "home-reedmat",
         qty: 1
       },
       materials: {
         reeds: 6
-      },
-      unlock: {
-        minHealth: 30,
-        label: "Restore that biome to 30% health"
       }
     },
     {
@@ -2570,6 +2737,11 @@ var recipes_default = {
       name: "Potted Cactus",
       category: "home",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 19,
+        craftedDistinct: 50,
+        label: "Restore Redstone Scrubland to 19% health and craft 50 different things"
+      },
       output: {
         itemId: "home-cactuspot",
         qty: 1
@@ -2577,10 +2749,6 @@ var recipes_default = {
       materials: {
         sand: 4,
         clay: 3
-      },
-      unlock: {
-        minHealth: 30,
-        label: "Restore that biome to 30% health"
       }
     },
     {
@@ -2588,16 +2756,17 @@ var recipes_default = {
       name: "Driftwood Shelf",
       category: "home",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 13,
+        requiresCrafted: "kelp-wrack",
+        label: "Restore Pelican Shore to 13% health and craft a Kelp Wrack"
+      },
       output: {
         itemId: "home-driftwoodshelf",
         qty: 1
       },
       materials: {
         driftwood: 5
-      },
-      unlock: {
-        minHealth: 30,
-        label: "Restore that biome to 30% health"
       }
     },
     {
@@ -2605,6 +2774,10 @@ var recipes_default = {
       name: "Wall Clock",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 41,
+        label: "Restore Willow Meadow to 41% health"
+      },
       output: {
         itemId: "home-wallclock",
         qty: 1
@@ -2612,10 +2785,6 @@ var recipes_default = {
       materials: {
         branches: 5,
         stones: 3
-      },
-      unlock: {
-        minHealth: 40,
-        label: "Restore that biome to 40% health"
       }
     },
     {
@@ -2623,6 +2792,11 @@ var recipes_default = {
       name: "Wooden Dresser",
       category: "home",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 27,
+        totalAnimals: 55,
+        label: "Restore Old Hollow Forest to 27% health and welcome 55 animals back across the preserve"
+      },
       output: {
         itemId: "home-dresser",
         qty: 1
@@ -2630,10 +2804,6 @@ var recipes_default = {
       materials: {
         branches: 10,
         bark: 4
-      },
-      unlock: {
-        minHealth: 30,
-        label: "Restore that biome to 30% health"
       }
     },
     {
@@ -2641,6 +2811,14 @@ var recipes_default = {
       name: "Woolly Rug",
       category: "home",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 28,
+        requiresBiome: {
+          biome: "meadow",
+          minHealth: 90
+        },
+        label: "Restore Graywind Heights to 28% health and restore Willow Meadow to 90% health"
+      },
       output: {
         itemId: "home-peltrug",
         qty: 1
@@ -2648,10 +2826,6 @@ var recipes_default = {
       materials: {
         lichen: 4,
         moss: 4
-      },
-      unlock: {
-        minHealth: 35,
-        label: "Restore that biome to 35% health"
       }
     },
     {
@@ -2659,6 +2833,14 @@ var recipes_default = {
       name: "Antler Chandelier",
       category: "home",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 27,
+        requiresBiome: {
+          biome: "meadow",
+          minHealth: 90
+        },
+        label: "Restore Old Hollow Forest to 27% health and restore Willow Meadow to 90% health"
+      },
       output: {
         itemId: "home-chandelier",
         qty: 1
@@ -2666,10 +2848,6 @@ var recipes_default = {
       materials: {
         branches: 8,
         bark: 6
-      },
-      unlock: {
-        minHealth: 60,
-        label: "Restore that biome to 60% health"
       }
     },
     {
@@ -2677,6 +2855,14 @@ var recipes_default = {
       name: "Aquarium",
       category: "home",
       unlockBiome: "wetland",
+      unlock: {
+        minHealth: 18,
+        requiresTool: {
+          id: "shovel",
+          tier: 4
+        },
+        label: "Restore Rushwater Wetland to 18% health and upgrade your Basic Shovel to the Earthshaper's Spade"
+      },
       output: {
         itemId: "home-aquarium",
         qty: 1
@@ -2684,10 +2870,6 @@ var recipes_default = {
       materials: {
         "clean-water": 4,
         clay: 6
-      },
-      unlock: {
-        minHealth: 65,
-        label: "Restore that biome to 65% health"
       }
     },
     {
@@ -2695,6 +2877,11 @@ var recipes_default = {
       name: "Stargazing Telescope",
       category: "home",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 31,
+        craftedDistinct: 62,
+        label: "Restore Graywind Heights to 31% health and craft 62 different things"
+      },
       output: {
         itemId: "home-telescope",
         qty: 1
@@ -2702,10 +2889,6 @@ var recipes_default = {
       materials: {
         "quartz-crystal": 2,
         branches: 4
-      },
-      unlock: {
-        minHealth: 55,
-        label: "Restore that biome to 55% health"
       }
     },
     {
@@ -2713,6 +2896,10 @@ var recipes_default = {
       name: "Rain Basin",
       category: "structure",
       unlockBiome: "meadow",
+      unlock: {
+        requiresAnimal: "coyote",
+        label: "Welcome the Coyote back to Willow Meadow"
+      },
       output: {
         itemId: "rain-basin",
         qty: 1
@@ -2720,10 +2907,6 @@ var recipes_default = {
       materials: {
         rainwater: 3,
         stones: 2
-      },
-      unlock: {
-        minHealth: 14,
-        label: "Restore Willow Meadow to 14% health"
       }
     },
     {
@@ -2731,6 +2914,10 @@ var recipes_default = {
       name: "Dewlit Lantern",
       category: "structure",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 73,
+        label: "Restore Old Hollow Forest to 73% health"
+      },
       output: {
         itemId: "dew-lantern",
         qty: 1
@@ -2745,6 +2932,10 @@ var recipes_default = {
       name: "Sunstone Cairn",
       category: "structure",
       unlockBiome: "desert",
+      unlock: {
+        requiresAnimal: "mountain-lion",
+        label: "Welcome the Mountain Lion back to Redstone Scrubland"
+      },
       output: {
         itemId: "sunstone-cairn",
         qty: 1
@@ -2759,6 +2950,10 @@ var recipes_default = {
       name: "Frostflower Planter",
       category: "structure",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 76,
+        label: "Restore Graywind Heights to 76% health"
+      },
       output: {
         itemId: "frostflower-planter",
         qty: 1
@@ -2773,6 +2968,14 @@ var recipes_default = {
       name: "Stormglass Lantern",
       category: "structure",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 43,
+        requiresTool: {
+          id: "field-journal",
+          tier: 5
+        },
+        label: "Restore Redstone Scrubland to 43% health and upgrade your Field Journal to the Redstone Scrubland Field Guide"
+      },
       output: {
         itemId: "stormglass-lantern",
         qty: 1
@@ -2787,6 +2990,11 @@ var recipes_default = {
       name: "Frostflower Vase",
       category: "home",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 62,
+        requiresCrafted: "chipmunk-burrow-larder",
+        label: "Restore Graywind Heights to 62% health and craft a Chipmunk Burrow Larder"
+      },
       output: {
         itemId: "frostflower-vase",
         qty: 1
@@ -2801,6 +3009,10 @@ var recipes_default = {
       name: "Stormglass Chandelier",
       category: "home",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 67,
+        label: "Restore Redstone Scrubland to 67% health"
+      },
       output: {
         itemId: "stormglass-chandelier",
         qty: 1
@@ -2815,6 +3027,11 @@ var recipes_default = {
       name: "Marsh Boardwalk",
       category: "structure",
       unlockBiome: "wetland",
+      unlock: {
+        minHealth: 43,
+        requiresAchievement: "wetland-first-water",
+        label: "Restore Rushwater Wetland to 43% health and earn the \u201CWater Returns\u201D achievement"
+      },
       output: {
         itemId: "boardwalk",
         qty: 1
@@ -2830,6 +3047,14 @@ var recipes_default = {
       name: "Heron Rookery",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        minHealth: 28,
+        requiresPlaced: {
+          objectId: "hidden-reed-platform",
+          count: 3
+        },
+        label: "Restore Rushwater Wetland to 28% health and have 3 Hidden Reed Platforms standing in Rushwater Wetland"
+      },
       output: {
         itemId: "heron-rookery",
         qty: 1
@@ -2838,10 +3063,6 @@ var recipes_default = {
         branches: 10,
         reeds: 5,
         mud: 3
-      },
-      unlock: {
-        minHealth: 45,
-        label: "Restore Rushwater Wetland to 45% health"
       }
     },
     {
@@ -2849,6 +3070,10 @@ var recipes_default = {
       name: "Dragonfly Pond",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        animalsReturned: 2,
+        label: "Welcome 2 animals back to Rushwater Wetland"
+      },
       output: {
         itemId: "dragonfly-pond",
         qty: 1
@@ -2857,10 +3082,6 @@ var recipes_default = {
         clay: 6,
         "clean-water": 5,
         reeds: 4
-      },
-      unlock: {
-        minHealth: 26,
-        label: "Restore Rushwater Wetland to 26% health"
       }
     },
     {
@@ -2868,6 +3089,10 @@ var recipes_default = {
       name: "Trail Tent",
       category: "structure",
       unlockBiome: "forest",
+      unlock: {
+        requiresAnimal: "raccoon",
+        label: "Welcome the Raccoon back to Old Hollow Forest"
+      },
       output: {
         itemId: "trail-tent",
         qty: 1
@@ -2883,6 +3108,13 @@ var recipes_default = {
       name: "Headlamp",
       category: "gear",
       unlockBiome: "meadow",
+      once: true,
+      unlock: {
+        phaseSeen: [
+          "night"
+        ],
+        label: "See your first nightfall"
+      },
       output: {
         itemId: "headlamp",
         qty: 1
@@ -2891,11 +3123,6 @@ var recipes_default = {
         branches: 2,
         fiber: 4,
         stones: 2
-      },
-      once: true,
-      unlock: {
-        minHealth: 22,
-        label: "Restore Willow Meadow to 22% health"
       }
     },
     {
@@ -2903,6 +3130,15 @@ var recipes_default = {
       name: "Field Binoculars",
       category: "gear",
       unlockBiome: "meadow",
+      once: true,
+      unlock: {
+        minHealth: 20,
+        requiresTool: {
+          id: "field-journal",
+          tier: 2
+        },
+        label: "Restore Willow Meadow to 20% health and upgrade your Field Journal to the Willow Meadow Field Guide"
+      },
       output: {
         itemId: "binoculars",
         qty: 1
@@ -2912,14 +3148,18 @@ var recipes_default = {
         stones: 3,
         bark: 3,
         moss: 2
-      },
-      once: true
+      }
     },
     {
       id: "hiking-boots",
       name: "Hiking Boots",
       category: "gear",
       unlockBiome: "meadow",
+      once: true,
+      unlock: {
+        animalsReturned: 8,
+        label: "Welcome 8 animals back to Willow Meadow"
+      },
       output: {
         itemId: "hiking-boots",
         qty: 1
@@ -2930,14 +3170,20 @@ var recipes_default = {
         bark: 5,
         moss: 4,
         reeds: 4
-      },
-      once: true
+      }
     },
     {
       id: "fellfield-gravel",
       name: "Fellfield Gravel",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        requiresKind: {
+          kind: "mammal",
+          count: 2
+        },
+        label: "Welcome 2 mammals back to Graywind Heights"
+      },
       output: {
         itemId: "fellfield-gravel",
         qty: 1
@@ -2945,10 +3191,6 @@ var recipes_default = {
       materials: {
         stones: 3,
         lichen: 1
-      },
-      unlock: {
-        minHealth: 5,
-        label: "Restore Graywind Heights to 5% health"
       }
     },
     {
@@ -2956,6 +3198,10 @@ var recipes_default = {
       name: "Alpine Turf Mat",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 23,
+        label: "Restore Graywind Heights to 23% health"
+      },
       output: {
         itemId: "alpine-turf-mat",
         qty: 1
@@ -2964,10 +3210,6 @@ var recipes_default = {
         moss: 4,
         "alpine-flowers": 3,
         clay: 2
-      },
-      unlock: {
-        minHealth: 13,
-        label: "Restore Graywind Heights to 13% health"
       }
     },
     {
@@ -2983,10 +3225,6 @@ var recipes_default = {
         moss: 2,
         "clean-water": 1,
         lichen: 1
-      },
-      unlock: {
-        minHealth: 0,
-        label: "Available from the start"
       }
     },
     {
@@ -2994,6 +3232,10 @@ var recipes_default = {
       name: "Rotting Conifer Log",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 14,
+        label: "Restore Graywind Heights to 14% health"
+      },
       output: {
         itemId: "rotting-conifer-log",
         qty: 1
@@ -3001,10 +3243,6 @@ var recipes_default = {
       materials: {
         moss: 3,
         clay: 1
-      },
-      unlock: {
-        minHealth: 15,
-        label: "Restore Graywind Heights to 15% health"
       }
     },
     {
@@ -3012,6 +3250,14 @@ var recipes_default = {
       name: "Escape Cliff",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 28,
+        requiresTool: {
+          id: "field-journal",
+          tier: 6
+        },
+        label: "Restore Graywind Heights to 28% health and upgrade your Field Journal to the Graywind Heights Field Guide"
+      },
       output: {
         itemId: "escape-cliff",
         qty: 1
@@ -3019,10 +3265,6 @@ var recipes_default = {
       materials: {
         stones: 6,
         clay: 2
-      },
-      unlock: {
-        minHealth: 67,
-        label: "Restore Graywind Heights to 67% health"
       }
     },
     {
@@ -3030,6 +3272,10 @@ var recipes_default = {
       name: "Willow Basin Thicket",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 26,
+        label: "Restore Graywind Heights to 26% health"
+      },
       output: {
         itemId: "willow-basin-thicket",
         qty: 1
@@ -3038,10 +3284,6 @@ var recipes_default = {
         "clean-water": 3,
         clay: 3,
         moss: 2
-      },
-      unlock: {
-        minHealth: 35,
-        label: "Restore Graywind Heights to 35% health"
       }
     },
     {
@@ -3049,6 +3291,10 @@ var recipes_default = {
       name: "Boulder Burrow Den",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        animalsReturned: 2,
+        label: "Welcome 2 animals back to Graywind Heights"
+      },
       output: {
         itemId: "boulder-burrow-den",
         qty: 1
@@ -3056,10 +3302,6 @@ var recipes_default = {
       materials: {
         stones: 4,
         clay: 3
-      },
-      unlock: {
-        minHealth: 30,
-        label: "Restore Graywind Heights to 30% health"
       }
     },
     {
@@ -3067,6 +3309,10 @@ var recipes_default = {
       name: "Inherited Earth Den",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        requiresAnimal: "pipit",
+        label: "Welcome the Pipit back to Graywind Heights"
+      },
       output: {
         itemId: "inherited-earth-den",
         qty: 1
@@ -3074,10 +3320,6 @@ var recipes_default = {
       materials: {
         clay: 4,
         stones: 3
-      },
-      unlock: {
-        requiresAnimal: "yellow-bellied-marmot",
-        label: "Welcome the Yellow-bellied Marmot back to Graywind Heights"
       }
     },
     {
@@ -3085,6 +3327,11 @@ var recipes_default = {
       name: "Stonecrop Patch",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 16,
+        requiresCrafted: "alpine-nest-shelf",
+        label: "Restore Graywind Heights to 16% health and craft a Nest Shelf"
+      },
       output: {
         itemId: "stonecrop-patch",
         qty: 1
@@ -3092,10 +3339,6 @@ var recipes_default = {
       materials: {
         "alpine-flowers": 2,
         stones: 2
-      },
-      unlock: {
-        minHealth: 20,
-        label: "Restore Graywind Heights to 20% health"
       }
     },
     {
@@ -3110,10 +3353,6 @@ var recipes_default = {
       materials: {
         clay: 2,
         moss: 2
-      },
-      unlock: {
-        requiresAnimal: "yellow-bellied-marmot",
-        label: "Welcome the Yellow-bellied Marmot back to Graywind Heights"
       }
     },
     {
@@ -3121,6 +3360,11 @@ var recipes_default = {
       name: "Chipmunk Burrow Larder",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 31,
+        totalAnimals: 110,
+        label: "Restore Graywind Heights to 31% health and welcome 110 animals back across the preserve"
+      },
       output: {
         itemId: "chipmunk-burrow-larder",
         qty: 1
@@ -3129,10 +3373,6 @@ var recipes_default = {
         clay: 2,
         stones: 1,
         "pine-nuts": 1
-      },
-      unlock: {
-        minHealth: 28,
-        label: "Restore Graywind Heights to 28% health"
       }
     },
     {
@@ -3140,6 +3380,11 @@ var recipes_default = {
       name: "Whitebark Pine",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 34,
+        requiresCrafted: "willow-basin-thicket",
+        label: "Restore Graywind Heights to 34% health and craft a Willow Basin Thicket"
+      },
       output: {
         itemId: "whitebark-pine",
         qty: 1
@@ -3148,10 +3393,6 @@ var recipes_default = {
         "pine-nuts": 6,
         clay: 4,
         "clean-water": 3
-      },
-      unlock: {
-        requiresAnimal: "nutcracker",
-        label: "Welcome Clark's Nutcracker back to Graywind Heights"
       }
     },
     {
@@ -3159,6 +3400,10 @@ var recipes_default = {
       name: "Beetle-Killed Snag",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 34,
+        label: "Restore Graywind Heights to 34% health"
+      },
       output: {
         itemId: "beetle-killed-snag",
         qty: 1
@@ -3167,10 +3412,6 @@ var recipes_default = {
         moss: 3,
         stones: 2,
         clay: 1
-      },
-      unlock: {
-        minHealth: 47,
-        label: "Restore Graywind Heights to 47% health"
       }
     },
     {
@@ -3178,6 +3419,14 @@ var recipes_default = {
       name: "Old Woodpecker Cavity",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 16,
+        requiresTool: {
+          id: "field-journal",
+          tier: 6
+        },
+        label: "Restore Graywind Heights to 16% health and upgrade your Field Journal to the Graywind Heights Field Guide"
+      },
       output: {
         itemId: "old-woodpecker-cavity",
         qty: 1
@@ -3186,10 +3435,6 @@ var recipes_default = {
         moss: 3,
         clay: 2,
         stones: 1
-      },
-      unlock: {
-        minHealth: 50,
-        label: "Restore Graywind Heights to 50% health"
       }
     },
     {
@@ -3197,6 +3442,10 @@ var recipes_default = {
       name: "Snowfield Debris Line",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 27,
+        label: "Restore Graywind Heights to 27% health"
+      },
       output: {
         itemId: "snowfield-debris-line",
         qty: 1
@@ -3205,10 +3454,6 @@ var recipes_default = {
         snow: 2,
         "alpine-flowers": 1,
         moss: 1
-      },
-      unlock: {
-        requiresAnimal: "snow-flea",
-        label: "Welcome the Snow Flea back to Graywind Heights"
       }
     },
     {
@@ -3216,6 +3461,11 @@ var recipes_default = {
       name: "Toad Upland Burrow",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 29,
+        requiresCrafted: "krummholz-bed-hollow",
+        label: "Restore Graywind Heights to 29% health and craft a Krummholz Bed Hollow"
+      },
       output: {
         itemId: "toad-upland-burrow",
         qty: 1
@@ -3223,10 +3473,6 @@ var recipes_default = {
       materials: {
         clay: 3,
         moss: 1
-      },
-      unlock: {
-        requiresAnimal: "yellow-bellied-marmot",
-        label: "Welcome the Yellow-bellied Marmot back to Graywind Heights"
       }
     },
     {
@@ -3234,6 +3480,11 @@ var recipes_default = {
       name: "Treeline Log Den",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 42,
+        requiresCrafted: "swift-cliff-seam",
+        label: "Restore Graywind Heights to 42% health and craft a Cliff Seam"
+      },
       output: {
         itemId: "treeline-log-den",
         qty: 1
@@ -3242,10 +3493,6 @@ var recipes_default = {
         moss: 3,
         clay: 2,
         stones: 2
-      },
-      unlock: {
-        minHealth: 60,
-        label: "Restore Graywind Heights to 60% health"
       }
     },
     {
@@ -3253,6 +3500,14 @@ var recipes_default = {
       name: "Fur-Lined Prey Den",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 22,
+        requiresPlaced: {
+          objectId: "juniper-thicket",
+          count: 3
+        },
+        label: "Restore Graywind Heights to 22% health and have 3 Juniper Thickets standing in Graywind Heights"
+      },
       output: {
         itemId: "fur-lined-prey-den",
         qty: 1
@@ -3260,10 +3515,6 @@ var recipes_default = {
       materials: {
         clay: 2,
         moss: 2
-      },
-      unlock: {
-        requiresAnimal: "rock-squirrel",
-        label: "Welcome the Least Chipmunk back to Graywind Heights"
       }
     },
     {
@@ -3271,6 +3522,11 @@ var recipes_default = {
       name: "Cliff Eyrie",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 51,
+        requiresCrafted: "treeline-log-den",
+        label: "Restore Graywind Heights to 51% health and craft a Treeline Log Den"
+      },
       output: {
         itemId: "cliff-eyrie",
         qty: 1
@@ -3279,10 +3535,6 @@ var recipes_default = {
         stones: 5,
         moss: 2,
         clay: 2
-      },
-      unlock: {
-        minHealth: 73,
-        label: "Restore Graywind Heights to 73% health"
       }
     },
     {
@@ -3290,6 +3542,14 @@ var recipes_default = {
       name: "Ledge Den",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 19,
+        requiresHome: {
+          track: "space",
+          level: 4
+        },
+        label: "Restore Graywind Heights to 19% health and raise your home's Space to level 4"
+      },
       output: {
         itemId: "ledge-natal-den",
         qty: 1
@@ -3297,10 +3557,6 @@ var recipes_default = {
       materials: {
         stones: 5,
         clay: 3
-      },
-      unlock: {
-        minHealth: 70,
-        label: "Restore Graywind Heights to 70% health"
       }
     },
     {
@@ -3308,6 +3564,11 @@ var recipes_default = {
       name: "Krummholz Bed Hollow",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 26,
+        requiresCrafted: "alpine-turf-mat",
+        label: "Restore Graywind Heights to 26% health and craft an Alpine Turf Mat"
+      },
       output: {
         itemId: "krummholz-bed-hollow",
         qty: 1
@@ -3316,10 +3577,6 @@ var recipes_default = {
         moss: 2,
         clay: 1,
         stones: 1
-      },
-      unlock: {
-        minHealth: 35,
-        label: "Restore Graywind Heights to 35% health"
       }
     },
     {
@@ -3327,6 +3584,14 @@ var recipes_default = {
       name: "Kelp Holdfast Reef",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 28,
+        requiresPlaced: {
+          objectId: "plover-scrape-closure",
+          count: 3
+        },
+        label: "Restore Pelican Shore to 28% health and have 3 Plover Scrape Closures standing in Pelican Shore"
+      },
       output: {
         itemId: "kelp-holdfast-reef",
         qty: 1
@@ -3335,10 +3600,6 @@ var recipes_default = {
         sand: 3,
         shells: 2,
         water: 2
-      },
-      unlock: {
-        minHealth: 67,
-        label: "Restore Pelican Shore to 67% health"
       }
     },
     {
@@ -3346,6 +3607,10 @@ var recipes_default = {
       name: "Upwelling Current",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 40,
+        label: "Restore Pelican Shore to 40% health"
+      },
       output: {
         itemId: "nutrient-upwelling-current",
         qty: 1
@@ -3353,10 +3618,6 @@ var recipes_default = {
       materials: {
         water: 4,
         kelp: 2
-      },
-      unlock: {
-        minHealth: 23,
-        label: "Restore Pelican Shore to 23% health"
       }
     },
     {
@@ -3364,6 +3625,10 @@ var recipes_default = {
       name: "Coralline Turf",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minBalance: 10,
+        label: "Bring Pelican Shore to 10% ecological balance"
+      },
       output: {
         itemId: "coralline-algae-crust",
         qty: 1
@@ -3371,10 +3636,6 @@ var recipes_default = {
       materials: {
         shells: 2,
         water: 1
-      },
-      unlock: {
-        minHealth: 6,
-        label: "Restore Pelican Shore to 6% health"
       }
     },
     {
@@ -3382,6 +3643,14 @@ var recipes_default = {
       name: "Low-Tide Rock Bench",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 14,
+        requiresPlaced: {
+          objectId: "rippled-sand-bed",
+          count: 2
+        },
+        label: "Restore Pelican Shore to 14% health and have 2 Rippled Sands standing in Pelican Shore"
+      },
       output: {
         itemId: "low-tide-rock-bench",
         qty: 1
@@ -3389,10 +3658,6 @@ var recipes_default = {
       materials: {
         sand: 3,
         shells: 2
-      },
-      unlock: {
-        minHealth: 30,
-        label: "Restore Pelican Shore to 30% health"
       }
     },
     {
@@ -3400,6 +3665,10 @@ var recipes_default = {
       name: "Urchin Pit",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 23,
+        label: "Restore Pelican Shore to 23% health"
+      },
       output: {
         itemId: "urchin-crevice-pit",
         qty: 1
@@ -3407,10 +3676,6 @@ var recipes_default = {
       materials: {
         shells: 2,
         sand: 1
-      },
-      unlock: {
-        minHealth: 30,
-        label: "Restore Pelican Shore to 30% health"
       }
     },
     {
@@ -3418,6 +3683,11 @@ var recipes_default = {
       name: "Kelp Forest",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 40,
+        requiresCrafted: "surfgrass-bed",
+        label: "Restore Pelican Shore to 40% health and craft a Surfgrass Bed"
+      },
       output: {
         itemId: "kelp-forest",
         qty: 1
@@ -3426,10 +3696,6 @@ var recipes_default = {
         kelp: 8,
         sand: 3,
         water: 3
-      },
-      unlock: {
-        minHealth: 25,
-        label: "Restore Pelican Shore to 25% health"
       }
     },
     {
@@ -3437,6 +3703,10 @@ var recipes_default = {
       name: "Surfgrass Bed",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 20,
+        label: "Restore Pelican Shore to 20% health"
+      },
       output: {
         itemId: "surfgrass-bed",
         qty: 1
@@ -3445,10 +3715,6 @@ var recipes_default = {
         kelp: 3,
         sand: 2,
         water: 2
-      },
-      unlock: {
-        minHealth: 25,
-        label: "Restore Pelican Shore to 25% health"
       }
     },
     {
@@ -3456,6 +3722,13 @@ var recipes_default = {
       name: "Nearshore Spawning Shallows",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 12,
+        requiresWater: {
+          tiles: 6
+        },
+        label: "Restore Pelican Shore to 12% health and shape 6 tiles of open water in Pelican Shore"
+      },
       output: {
         itemId: "nearshore-spawning-shallows",
         qty: 1
@@ -3463,10 +3736,6 @@ var recipes_default = {
       materials: {
         water: 4,
         sand: 2
-      },
-      unlock: {
-        minHealth: 25,
-        label: "Restore Pelican Shore to 25% health"
       }
     },
     {
@@ -3474,16 +3743,16 @@ var recipes_default = {
       name: "Open Sand Beach",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 13,
+        label: "Restore Pelican Shore to 13% health"
+      },
       output: {
         itemId: "bare-sand-beach",
         qty: 1
       },
       materials: {
         sand: 3
-      },
-      unlock: {
-        minHealth: 7,
-        label: "Restore Pelican Shore to 7% health"
       }
     },
     {
@@ -3491,16 +3760,16 @@ var recipes_default = {
       name: "Empty Shell Drift",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        requiresAnimal: "gull",
+        label: "Welcome the Gull back to Pelican Shore"
+      },
       output: {
         itemId: "empty-shell-drift",
         qty: 1
       },
       materials: {
         shells: 3
-      },
-      unlock: {
-        minHealth: 30,
-        label: "Restore Pelican Shore to 30% health"
       }
     },
     {
@@ -3508,6 +3777,14 @@ var recipes_default = {
       name: "Subtidal Rubble Flat",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 17,
+        requiresTool: {
+          id: "field-journal",
+          tier: 7
+        },
+        label: "Restore Pelican Shore to 17% health and upgrade your Field Journal to the Master Naturalist's Guide"
+      },
       output: {
         itemId: "subtidal-rubble-flat",
         qty: 1
@@ -3515,10 +3792,6 @@ var recipes_default = {
       materials: {
         sand: 2,
         shells: 2
-      },
-      unlock: {
-        minHealth: 40,
-        label: "Restore Pelican Shore to 40% health"
       }
     },
     {
@@ -3526,6 +3799,10 @@ var recipes_default = {
       name: "Surge-Swept Rock Face",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 18,
+        label: "Restore Pelican Shore to 18% health"
+      },
       output: {
         itemId: "surge-swept-rock-face",
         qty: 1
@@ -3534,10 +3811,6 @@ var recipes_default = {
         sand: 3,
         shells: 2,
         water: 1
-      },
-      unlock: {
-        minHealth: 23,
-        label: "Restore Pelican Shore to 23% health"
       }
     },
     {
@@ -3552,10 +3825,6 @@ var recipes_default = {
       materials: {
         shells: 3,
         water: 1
-      },
-      unlock: {
-        minHealth: 7,
-        label: "Restore Pelican Shore to 7% health"
       }
     },
     {
@@ -3563,6 +3832,10 @@ var recipes_default = {
       name: "Sheltered Sand-Gravel Flat",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 44,
+        label: "Restore Pelican Shore to 44% health"
+      },
       output: {
         itemId: "protected-sand-gravel-flat",
         qty: 1
@@ -3570,10 +3843,6 @@ var recipes_default = {
       materials: {
         sand: 4,
         shells: 2
-      },
-      unlock: {
-        minHealth: 63,
-        label: "Restore Pelican Shore to 63% health"
       }
     },
     {
@@ -3581,6 +3850,11 @@ var recipes_default = {
       name: "Muddy Seabed",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 49,
+        requiresCrafted: "kelp-forest",
+        label: "Restore Pelican Shore to 49% health and craft a Kelp Forest"
+      },
       output: {
         itemId: "benthic-amphipod-bed",
         qty: 1
@@ -3589,10 +3863,6 @@ var recipes_default = {
         sand: 4,
         kelp: 3,
         water: 2
-      },
-      unlock: {
-        minHealth: 70,
-        label: "Restore Pelican Shore to 70% health"
       }
     },
     {
@@ -3600,6 +3870,11 @@ var recipes_default = {
       name: "Sheltered Cobble Field",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 23,
+        requiresCrafted: "surge-swept-rock-face",
+        label: "Restore Pelican Shore to 23% health and craft a Surge-Swept Rock Face"
+      },
       output: {
         itemId: "sheltered-cobble-field",
         qty: 1
@@ -3607,10 +3882,6 @@ var recipes_default = {
       materials: {
         sand: 2,
         shells: 2
-      },
-      unlock: {
-        minHealth: 30,
-        label: "Restore Pelican Shore to 30% health"
       }
     },
     {
@@ -3625,10 +3896,6 @@ var recipes_default = {
       materials: {
         sand: 2,
         shells: 1
-      },
-      unlock: {
-        minHealth: 7,
-        label: "Restore Pelican Shore to 7% health"
       }
     },
     {
@@ -3636,6 +3903,10 @@ var recipes_default = {
       name: "Shell-Dropping Rock",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        requiresAnimal: "beach-hopper",
+        label: "Welcome the Beach Hopper back to Pelican Shore"
+      },
       output: {
         itemId: "shell-dropping-rock",
         qty: 1
@@ -3643,10 +3914,6 @@ var recipes_default = {
       materials: {
         shells: 2,
         sand: 1
-      },
-      unlock: {
-        minHealth: 15,
-        label: "Restore Pelican Shore to 15% health"
       }
     },
     {
@@ -3654,6 +3921,13 @@ var recipes_default = {
       name: "Swash-Zone Runnel",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        requiresKind: {
+          kind: "bird",
+          count: 2
+        },
+        label: "Welcome 2 birds back to Pelican Shore"
+      },
       output: {
         itemId: "swash-zone-runnel",
         qty: 1
@@ -3661,10 +3935,6 @@ var recipes_default = {
       materials: {
         sand: 2,
         water: 2
-      },
-      unlock: {
-        minHealth: 45,
-        label: "Restore Pelican Shore to 45% health"
       }
     },
     {
@@ -3672,6 +3942,10 @@ var recipes_default = {
       name: "Plover Scrape Closure",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        animalsReturned: 11,
+        label: "Welcome 11 animals back to Pelican Shore"
+      },
       output: {
         itemId: "plover-scrape-closure",
         qty: 1
@@ -3680,10 +3954,6 @@ var recipes_default = {
         driftwood: 4,
         sand: 2,
         "sea-glass": 1
-      },
-      unlock: {
-        minHealth: 55,
-        label: "Restore Pelican Shore to 55% health"
       }
     },
     {
@@ -3691,6 +3961,11 @@ var recipes_default = {
       name: "High-Tide Roost",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 26,
+        requiresCrafted: "low-tide-rock-bench",
+        label: "Restore Pelican Shore to 26% health and craft a Low-Tide Rock Bench"
+      },
       output: {
         itemId: "high-tide-roost-rock",
         qty: 1
@@ -3698,10 +3973,6 @@ var recipes_default = {
       materials: {
         sand: 2,
         shells: 2
-      },
-      unlock: {
-        minHealth: 35,
-        label: "Restore Pelican Shore to 35% health"
       }
     },
     {
@@ -3709,6 +3980,13 @@ var recipes_default = {
       name: "Dune Manzanita",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        requiresKind: {
+          kind: "invertebrate",
+          count: 3
+        },
+        label: "Welcome 3 small invertebrates back to Pelican Shore"
+      },
       output: {
         itemId: "dune-manzanita",
         qty: 1
@@ -3716,10 +3994,6 @@ var recipes_default = {
       materials: {
         sand: 3,
         water: 2
-      },
-      unlock: {
-        minHealth: 35,
-        label: "Restore Pelican Shore to 35% health"
       }
     },
     {
@@ -3727,6 +4001,10 @@ var recipes_default = {
       name: "Mussel Bed",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        requiresAnimal: "sand-dollar",
+        label: "Welcome the Sand Dollar back to Pelican Shore"
+      },
       output: {
         itemId: "mussel-bed",
         qty: 1
@@ -3735,10 +4013,6 @@ var recipes_default = {
         shells: 5,
         sand: 2,
         water: 2
-      },
-      unlock: {
-        requiresAnimal: "mussel",
-        label: "Welcome the California Mussel back to Pelican Shore"
       }
     },
     {
@@ -3746,6 +4020,10 @@ var recipes_default = {
       name: "Mussel Bed Edge",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 32,
+        label: "Restore Pelican Shore to 32% health"
+      },
       output: {
         itemId: "mussel-bed-lower-margin",
         qty: 1
@@ -3753,10 +4031,6 @@ var recipes_default = {
       materials: {
         shells: 4,
         water: 1
-      },
-      unlock: {
-        requiresAnimal: "mussel",
-        label: "Welcome the California Mussel back to Pelican Shore"
       }
     },
     {
@@ -3764,6 +4038,11 @@ var recipes_default = {
       name: "Sunlit Surge Pool",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 23,
+        requiresCrafted: "nearshore-spawning-shallows",
+        label: "Restore Pelican Shore to 23% health and craft Nearshore Spawning Shallows"
+      },
       output: {
         itemId: "sunlit-surge-pool",
         qty: 1
@@ -3772,10 +4051,6 @@ var recipes_default = {
         water: 4,
         sand: 2,
         "sea-glass": 1
-      },
-      unlock: {
-        minHealth: 31,
-        label: "Restore Pelican Shore to 31% health"
       }
     },
     {
@@ -3783,6 +4058,11 @@ var recipes_default = {
       name: "Offshore Nesting Island",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 36,
+        requiresCrafted: "high-tide-roost-rock",
+        label: "Restore Pelican Shore to 36% health and craft a High-Tide Roost"
+      },
       output: {
         itemId: "offshore-nesting-island",
         qty: 1
@@ -3791,10 +4071,6 @@ var recipes_default = {
         sand: 6,
         driftwood: 4,
         shells: 2
-      },
-      unlock: {
-        requiresAnimal: "anchovy",
-        label: "Welcome the Northern Anchovy back to Pelican Shore"
       }
     },
     {
@@ -3802,6 +4078,10 @@ var recipes_default = {
       name: "Sandbar Roost",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 36,
+        label: "Restore Pelican Shore to 36% health"
+      },
       output: {
         itemId: "sandbar-loafing-roost",
         qty: 1
@@ -3809,10 +4089,6 @@ var recipes_default = {
       materials: {
         sand: 4,
         driftwood: 2
-      },
-      unlock: {
-        minHealth: 50,
-        label: "Restore Pelican Shore to 50% health"
       }
     },
     {
@@ -3820,6 +4096,14 @@ var recipes_default = {
       name: "Seal Haul-Out Rocks",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 28,
+        requiresHome: {
+          track: "space",
+          level: 4
+        },
+        label: "Restore Pelican Shore to 28% health and raise your home's Space to level 4"
+      },
       output: {
         itemId: "haul-out-rocks",
         qty: 1
@@ -3828,10 +4112,6 @@ var recipes_default = {
         sand: 5,
         driftwood: 3,
         shells: 1
-      },
-      unlock: {
-        minHealth: 65,
-        label: "Restore Pelican Shore to 65% health"
       }
     },
     {
@@ -3839,6 +4119,10 @@ var recipes_default = {
       name: "Sheltered Rafting Cove",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        requiresAnimal: "sanderling",
+        label: "Welcome the Sanderling back to Pelican Shore"
+      },
       output: {
         itemId: "sheltered-rafting-cove",
         qty: 1
@@ -3847,10 +4131,6 @@ var recipes_default = {
         kelp: 4,
         water: 3,
         sand: 2
-      },
-      unlock: {
-        minHealth: 70,
-        label: "Restore Pelican Shore to 70% health"
       }
     },
     {
@@ -3858,6 +4138,14 @@ var recipes_default = {
       name: "Creosote Bush",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 7,
+        requiresPlaced: {
+          objectId: "cactus-patch",
+          count: 2
+        },
+        label: "Restore Redstone Scrubland to 7% health and have 2 Cactus Patches growing in Redstone Scrubland"
+      },
       output: {
         itemId: "creosote-bush",
         qty: 1
@@ -3866,10 +4154,6 @@ var recipes_default = {
         sand: 3,
         clay: 2,
         stones: 1
-      },
-      unlock: {
-        minHealth: 3,
-        label: "Restore Redstone Scrubland to 3% health"
       }
     },
     {
@@ -3877,6 +4161,11 @@ var recipes_default = {
       name: "Living Soil Crust",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 23,
+        requiresAchievement: "desert-first-life",
+        label: "Restore Redstone Scrubland to 23% health and earn the \u201CLife in the Heat\u201D achievement"
+      },
       output: {
         itemId: "cryptobiotic-crust",
         qty: 1
@@ -3884,10 +4173,6 @@ var recipes_default = {
       materials: {
         sand: 3,
         clay: 3
-      },
-      unlock: {
-        minHealth: 3,
-        label: "Restore Redstone Scrubland to 3% health"
       }
     },
     {
@@ -3902,10 +4187,6 @@ var recipes_default = {
       materials: {
         sand: 2,
         clay: 2
-      },
-      unlock: {
-        minHealth: 0,
-        label: "Available from the start"
       }
     },
     {
@@ -3920,10 +4201,6 @@ var recipes_default = {
       materials: {
         sand: 2,
         clay: 1
-      },
-      unlock: {
-        minHealth: 9,
-        label: "Restore Redstone Scrubland to 9% health"
       }
     },
     {
@@ -3931,6 +4208,10 @@ var recipes_default = {
       name: "Open Bare Ground",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 10,
+        label: "Restore Redstone Scrubland to 10% health"
+      },
       output: {
         itemId: "bare-ground-patch",
         qty: 1
@@ -3938,10 +4219,6 @@ var recipes_default = {
       materials: {
         sand: 2,
         stones: 1
-      },
-      unlock: {
-        minHealth: 11,
-        label: "Restore Redstone Scrubland to 11% health"
       }
     },
     {
@@ -3949,6 +4226,11 @@ var recipes_default = {
       name: "Harvester Ant Mound",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 10,
+        requiresCrafted: "buried-deadwood",
+        label: "Restore Redstone Scrubland to 10% health and craft a Buried Deadwood"
+      },
       output: {
         itemId: "harvester-ant-mound",
         qty: 1
@@ -3956,10 +4238,6 @@ var recipes_default = {
       materials: {
         sand: 2,
         stones: 2
-      },
-      unlock: {
-        minHealth: 11,
-        label: "Restore Redstone Scrubland to 11% health"
       }
     },
     {
@@ -3967,6 +4245,10 @@ var recipes_default = {
       name: "Deep Sand Burrow",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        requiresAnimal: "desert-termite",
+        label: "Welcome the Desert Termite back to Redstone Scrubland"
+      },
       output: {
         itemId: "deep-sand-burrow",
         qty: 1
@@ -3974,10 +4256,6 @@ var recipes_default = {
       materials: {
         sand: 4,
         stones: 1
-      },
-      unlock: {
-        minHealth: 13,
-        label: "Restore Redstone Scrubland to 13% health"
       }
     },
     {
@@ -3985,6 +4263,10 @@ var recipes_default = {
       name: "Bush Muhly",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        animalsReturned: 3,
+        label: "Welcome 3 animals back to Redstone Scrubland"
+      },
       output: {
         itemId: "bush-muhly",
         qty: 1
@@ -3992,10 +4274,6 @@ var recipes_default = {
       materials: {
         sand: 2,
         clay: 1
-      },
-      unlock: {
-        minHealth: 20,
-        label: "Restore Redstone Scrubland to 20% health"
       }
     },
     {
@@ -4003,6 +4281,10 @@ var recipes_default = {
       name: "Seed Larder Burrow",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 16,
+        label: "Restore Redstone Scrubland to 16% health"
+      },
       output: {
         itemId: "seed-larder-burrow",
         qty: 1
@@ -4010,10 +4292,6 @@ var recipes_default = {
       materials: {
         sand: 4,
         clay: 1
-      },
-      unlock: {
-        minHealth: 20,
-        label: "Restore Redstone Scrubland to 20% health"
       }
     },
     {
@@ -4021,6 +4299,13 @@ var recipes_default = {
       name: "Shade Form",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        requiresKind: {
+          kind: "insect",
+          count: 2
+        },
+        label: "Welcome 2 insects back to Redstone Scrubland"
+      },
       output: {
         itemId: "shade-form-scrape",
         qty: 1
@@ -4028,10 +4313,6 @@ var recipes_default = {
       materials: {
         sand: 2,
         stones: 1
-      },
-      unlock: {
-        minHealth: 25,
-        label: "Restore Redstone Scrubland to 25% health"
       }
     },
     {
@@ -4039,6 +4320,10 @@ var recipes_default = {
       name: "Saguaro",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        requiresAnimal: "kangaroo-rat",
+        label: "Welcome the Kangaroo Rat back to Redstone Scrubland"
+      },
       output: {
         itemId: "saguaro",
         qty: 1
@@ -4048,10 +4333,6 @@ var recipes_default = {
         clay: 4,
         "cactus-fruit": 3,
         stones: 2
-      },
-      unlock: {
-        minHealth: 30,
-        label: "Restore Redstone Scrubland to 30% health"
       }
     },
     {
@@ -4059,6 +4340,10 @@ var recipes_default = {
       name: "Chuparosa",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        requiresAnimal: "jackrabbit",
+        label: "Welcome the Jackrabbit back to Redstone Scrubland"
+      },
       output: {
         itemId: "chuparosa",
         qty: 1
@@ -4067,10 +4352,6 @@ var recipes_default = {
         sand: 2,
         clay: 1,
         "agave-nectar": 1
-      },
-      unlock: {
-        minHealth: 35,
-        label: "Restore Redstone Scrubland to 35% health"
       }
     },
     {
@@ -4078,6 +4359,11 @@ var recipes_default = {
       name: "Catclaw Acacia",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 26,
+        requiresCrafted: "creosote-bush",
+        label: "Restore Redstone Scrubland to 26% health and craft a Creosote Bush"
+      },
       output: {
         itemId: "catclaw-acacia",
         qty: 1
@@ -4086,10 +4372,6 @@ var recipes_default = {
         sand: 3,
         clay: 2,
         stones: 1
-      },
-      unlock: {
-        minHealth: 35,
-        label: "Restore Redstone Scrubland to 35% health"
       }
     },
     {
@@ -4097,6 +4379,11 @@ var recipes_default = {
       name: "Chain-fruit Cholla",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 29,
+        requiresCrafted: "saguaro",
+        label: "Restore Redstone Scrubland to 29% health and craft a Saguaro"
+      },
       output: {
         itemId: "cholla",
         qty: 1
@@ -4105,10 +4392,6 @@ var recipes_default = {
         sand: 3,
         "cactus-fruit": 2,
         clay: 1
-      },
-      unlock: {
-        minHealth: 40,
-        label: "Restore Redstone Scrubland to 40% health"
       }
     },
     {
@@ -4116,6 +4399,10 @@ var recipes_default = {
       name: "Caliche Den",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        minBalance: 35,
+        label: "Bring Redstone Scrubland to 35% ecological balance"
+      },
       output: {
         itemId: "caliche-shelter-cave",
         qty: 1
@@ -4124,10 +4411,6 @@ var recipes_default = {
         stones: 4,
         clay: 2,
         sand: 1
-      },
-      unlock: {
-        minHealth: 45,
-        label: "Restore Redstone Scrubland to 45% health"
       }
     },
     {
@@ -4135,6 +4418,14 @@ var recipes_default = {
       name: "Desert Mistletoe",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 18,
+        requiresHome: {
+          track: "comfort",
+          level: 4
+        },
+        label: "Restore Redstone Scrubland to 18% health and raise your home's Comfort to level 4"
+      },
       output: {
         itemId: "desert-mistletoe",
         qty: 1
@@ -4142,10 +4433,6 @@ var recipes_default = {
       materials: {
         clay: 2,
         "cactus-fruit": 1
-      },
-      unlock: {
-        minHealth: 41,
-        label: "Restore Redstone Scrubland to 41% health"
       }
     },
     {
@@ -4153,6 +4440,13 @@ var recipes_default = {
       name: "Thorn Thicket Nest",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        requiresKind: {
+          kind: "mammal",
+          count: 2
+        },
+        label: "Welcome 2 mammals back to Redstone Scrubland"
+      },
       output: {
         itemId: "thornscrub-stick-nest",
         qty: 1
@@ -4161,10 +4455,6 @@ var recipes_default = {
         sand: 2,
         clay: 1,
         stones: 1
-      },
-      unlock: {
-        minHealth: 45,
-        label: "Restore Redstone Scrubland to 45% health"
       }
     },
     {
@@ -4172,6 +4462,14 @@ var recipes_default = {
       name: "Winter Rock Den",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 23,
+        requiresPlaced: {
+          objectId: "saguaro-fruit-fall",
+          count: 3
+        },
+        label: "Restore Redstone Scrubland to 23% health and have 3 Saguaro Fruit Falls standing in Redstone Scrubland"
+      },
       output: {
         itemId: "snake-hibernaculum-desert",
         qty: 1
@@ -4179,10 +4477,6 @@ var recipes_default = {
       materials: {
         stones: 5,
         clay: 1
-      },
-      unlock: {
-        minHealth: 55,
-        label: "Restore Redstone Scrubland to 55% health"
       }
     },
     {
@@ -4190,6 +4484,10 @@ var recipes_default = {
       name: "Wash Bank Den",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 57,
+        label: "Restore Redstone Scrubland to 57% health"
+      },
       output: {
         itemId: "wash-bank-den",
         qty: 1
@@ -4198,10 +4496,6 @@ var recipes_default = {
         clay: 4,
         sand: 2,
         stones: 1
-      },
-      unlock: {
-        minHealth: 55,
-        label: "Restore Redstone Scrubland to 55% health"
       }
     },
     {
@@ -4209,6 +4503,11 @@ var recipes_default = {
       name: "Crumbled Soil",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 23,
+        biomesOpen: 4,
+        label: "Restore Redstone Scrubland to 23% health and open 4 areas of the preserve"
+      },
       output: {
         itemId: "termite-worked-litter",
         qty: 1
@@ -4216,10 +4515,6 @@ var recipes_default = {
       materials: {
         sand: 3,
         clay: 3
-      },
-      unlock: {
-        requiresAnimal: "desert-termite",
-        label: "Welcome the Desert Subterranean Termite back to Redstone Scrubland"
       }
     },
     {
@@ -4227,6 +4522,14 @@ var recipes_default = {
       name: "Cactus Fruit Set",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 15,
+        requiresPlaced: {
+          objectId: "shade-form-scrape",
+          count: 3
+        },
+        label: "Restore Redstone Scrubland to 15% health and have 3 Shade Forms standing in Redstone Scrubland"
+      },
       output: {
         itemId: "pollinated-cactus-fruit",
         qty: 1
@@ -4234,10 +4537,6 @@ var recipes_default = {
       materials: {
         "cactus-fruit": 3,
         sand: 1
-      },
-      unlock: {
-        requiresAnimal: "cactus-bee",
-        label: "Welcome the Cactus Bee back to Redstone Scrubland"
       }
     },
     {
@@ -4245,6 +4544,11 @@ var recipes_default = {
       name: "Creosote Coppice Mound",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 16,
+        requiresCrafted: "creosote-bush",
+        label: "Restore Redstone Scrubland to 16% health and craft a Creosote Bush"
+      },
       output: {
         itemId: "creosote-mound",
         qty: 1
@@ -4252,10 +4556,6 @@ var recipes_default = {
       materials: {
         sand: 4,
         clay: 2
-      },
-      unlock: {
-        requiresAnimal: "kangaroo-rat",
-        label: "Welcome Merriam's Kangaroo Rat back to Redstone Scrubland"
       }
     },
     {
@@ -4263,6 +4563,10 @@ var recipes_default = {
       name: "Sandy Den",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        requiresAnimal: "phainopepla",
+        label: "Welcome the Phainopepla back to Redstone Scrubland"
+      },
       output: {
         itemId: "kit-fox-den",
         qty: 1
@@ -4271,10 +4575,6 @@ var recipes_default = {
         sand: 4,
         clay: 2,
         stones: 1
-      },
-      unlock: {
-        requiresAnimal: "kangaroo-rat",
-        label: "Welcome Merriam's Kangaroo Rat back to Redstone Scrubland"
       }
     },
     {
@@ -4282,6 +4582,10 @@ var recipes_default = {
       name: "Carrion Ground",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        minBalance: 30,
+        label: "Bring Redstone Scrubland to 30% ecological balance"
+      },
       output: {
         itemId: "carrion-patch",
         qty: 1
@@ -4289,10 +4593,6 @@ var recipes_default = {
       materials: {
         sand: 2,
         clay: 1
-      },
-      unlock: {
-        requiresAnimal: "jackrabbit",
-        label: "Welcome the Black-tailed Jackrabbit back to Redstone Scrubland"
       }
     },
     {
@@ -4300,6 +4600,10 @@ var recipes_default = {
       name: "Saguaro Fruit Fall",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 32,
+        label: "Restore Redstone Scrubland to 32% health"
+      },
       output: {
         itemId: "saguaro-fruit-fall",
         qty: 1
@@ -4307,10 +4611,6 @@ var recipes_default = {
       materials: {
         "cactus-fruit": 3,
         sand: 1
-      },
-      unlock: {
-        minHealth: 45,
-        label: "Restore Redstone Scrubland to 45% health"
       }
     },
     {
@@ -4318,6 +4618,11 @@ var recipes_default = {
       name: "Tortoise Burrow",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 36,
+        requiresCrafted: "thornscrub-stick-nest",
+        label: "Restore Redstone Scrubland to 36% health and craft a Thorn Thicket Nest"
+      },
       output: {
         itemId: "tortoise-burrow",
         qty: 1
@@ -4326,10 +4631,6 @@ var recipes_default = {
         sand: 4,
         clay: 3,
         stones: 2
-      },
-      unlock: {
-        requiresAnimal: "desert-tortoise",
-        label: "Welcome the Sonoran Desert Tortoise back to Redstone Scrubland"
       }
     },
     {
@@ -4337,6 +4638,10 @@ var recipes_default = {
       name: "Cactus Hollow",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 36,
+        label: "Restore Redstone Scrubland to 36% health"
+      },
       output: {
         itemId: "saguaro-boot",
         qty: 1
@@ -4345,10 +4650,6 @@ var recipes_default = {
         clay: 3,
         sand: 2,
         stones: 2
-      },
-      unlock: {
-        requiresAnimal: "cactus-woodpecker",
-        label: "Welcome the Gila Woodpecker back to Redstone Scrubland"
       }
     },
     {
@@ -4356,6 +4657,10 @@ var recipes_default = {
       name: "Browse Exclosure",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 18,
+        label: "Restore Old Hollow Forest to 18% health"
+      },
       output: {
         itemId: "browse-exclosure",
         qty: 1
@@ -4363,10 +4668,6 @@ var recipes_default = {
       materials: {
         branches: 3,
         acorns: 1
-      },
-      unlock: {
-        minHealth: 4,
-        label: "Restore Old Hollow Forest to 4% health"
       }
     },
     {
@@ -4374,6 +4675,11 @@ var recipes_default = {
       name: "Nurse Log Seedbed",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 22,
+        craftedDistinct: 26,
+        label: "Restore Old Hollow Forest to 22% health and craft 26 different things"
+      },
       output: {
         itemId: "nurse-log-seedbed",
         qty: 1
@@ -4382,10 +4688,6 @@ var recipes_default = {
         branches: 3,
         moss: 2,
         mushrooms: 1
-      },
-      unlock: {
-        minHealth: 8,
-        label: "Restore Old Hollow Forest to 8% health"
       }
     },
     {
@@ -4393,6 +4695,10 @@ var recipes_default = {
       name: "Deep Leaf Mould",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        requiresAnimal: "fisher",
+        label: "Welcome the Fisher back to Old Hollow Forest"
+      },
       output: {
         itemId: "deep-duff-soil",
         qty: 1
@@ -4401,10 +4707,6 @@ var recipes_default = {
         moss: 4,
         branches: 2,
         water: 2
-      },
-      unlock: {
-        requiresAnimal: "banana-slug",
-        label: "Welcome the Banana Slug back to Old Hollow Forest"
       }
     },
     {
@@ -4412,6 +4714,10 @@ var recipes_default = {
       name: "Truffle Patch",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        animalsReturned: 12,
+        label: "Welcome 12 animals back to Old Hollow Forest"
+      },
       output: {
         itemId: "truffle-patch",
         qty: 1
@@ -4420,10 +4726,6 @@ var recipes_default = {
         mushrooms: 4,
         moss: 2,
         acorns: 2
-      },
-      unlock: {
-        minHealth: 60,
-        label: "Restore Old Hollow Forest to 60% health"
       }
     },
     {
@@ -4431,6 +4733,10 @@ var recipes_default = {
       name: "Rotting Dead Tree",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 10,
+        label: "Restore Old Hollow Forest to 10% health"
+      },
       output: {
         itemId: "soft-rot-snag",
         qty: 1
@@ -4439,10 +4745,6 @@ var recipes_default = {
         branches: 3,
         mushrooms: 2,
         bark: 1
-      },
-      unlock: {
-        minHealth: 11,
-        label: "Restore Old Hollow Forest to 11% health"
       }
     },
     {
@@ -4450,6 +4752,10 @@ var recipes_default = {
       name: "Hollowed Log",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        requiresAnimal: "banana-slug",
+        label: "Welcome the Banana Slug back to Old Hollow Forest"
+      },
       output: {
         itemId: "ant-riddled-log",
         qty: 1
@@ -4458,10 +4764,6 @@ var recipes_default = {
         branches: 4,
         mushrooms: 2,
         bark: 1
-      },
-      unlock: {
-        minHealth: 50,
-        label: "Restore Old Hollow Forest to 50% health"
       }
     },
     {
@@ -4469,6 +4771,10 @@ var recipes_default = {
       name: "Rotted-Out Log",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        requiresAnimal: "blue-jay",
+        label: "Welcome the Blue Jay back to Old Hollow Forest"
+      },
       output: {
         itemId: "rotting-heartwood-log",
         qty: 1
@@ -4477,10 +4783,6 @@ var recipes_default = {
         branches: 3,
         moss: 2,
         mushrooms: 1
-      },
-      unlock: {
-        minHealth: 35,
-        label: "Restore Old Hollow Forest to 35% health"
       }
     },
     {
@@ -4488,6 +4790,11 @@ var recipes_default = {
       name: "Downy Woodpecker Hole",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 26,
+        requiresCrafted: "bark-slab-snag",
+        label: "Restore Old Hollow Forest to 26% health and craft a Peeling Bark Tree"
+      },
       output: {
         itemId: "downy-cavity",
         qty: 1
@@ -4495,10 +4802,6 @@ var recipes_default = {
       materials: {
         branches: 2,
         bark: 2
-      },
-      unlock: {
-        requiresAnimal: "woodpecker",
-        label: "Welcome the Downy Woodpecker back to Old Hollow Forest"
       }
     },
     {
@@ -4506,6 +4809,14 @@ var recipes_default = {
       name: "Tall Hollow Tree",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 23,
+        requiresPlaced: {
+          objectId: "ant-riddled-log",
+          count: 3
+        },
+        label: "Restore Old Hollow Forest to 23% health and have 3 Hollowed Logs standing in Old Hollow Forest"
+      },
       output: {
         itemId: "pileated-cavity-snag",
         qty: 1
@@ -4514,10 +4825,6 @@ var recipes_default = {
         branches: 5,
         bark: 3,
         mushrooms: 1
-      },
-      unlock: {
-        requiresAnimal: "pileated-woodpecker",
-        label: "Welcome the Pileated Woodpecker back to Old Hollow Forest"
       }
     },
     {
@@ -4525,6 +4832,11 @@ var recipes_default = {
       name: "Dead Tree Over Water",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 39,
+        requiresCrafted: "ant-riddled-log",
+        label: "Restore Old Hollow Forest to 39% health and craft a Hollowed Log"
+      },
       output: {
         itemId: "flooded-cavity-snag",
         qty: 1
@@ -4533,10 +4845,6 @@ var recipes_default = {
         branches: 5,
         bark: 2,
         clay: 2
-      },
-      unlock: {
-        requiresAnimal: "pileated-woodpecker",
-        label: "Welcome the Pileated Woodpecker back to Old Hollow Forest"
       }
     },
     {
@@ -4544,6 +4852,10 @@ var recipes_default = {
       name: "Peeling Bark Tree",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        requiresAnimal: "woodpecker",
+        label: "Welcome the Woodpecker back to Old Hollow Forest"
+      },
       output: {
         itemId: "bark-slab-snag",
         qty: 1
@@ -4551,10 +4863,6 @@ var recipes_default = {
       materials: {
         bark: 3,
         branches: 1
-      },
-      unlock: {
-        requiresAnimal: "porcupine",
-        label: "Welcome the North American Porcupine back to Old Hollow Forest"
       }
     },
     {
@@ -4569,10 +4877,6 @@ var recipes_default = {
       materials: {
         branches: 2,
         moss: 1
-      },
-      unlock: {
-        minHealth: 10,
-        label: "Restore Old Hollow Forest to 10% health"
       }
     },
     {
@@ -4580,6 +4884,10 @@ var recipes_default = {
       name: "Larder Burrow",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        animalsReturned: 3,
+        label: "Welcome 3 animals back to Old Hollow Forest"
+      },
       output: {
         itemId: "larder-burrow",
         qty: 1
@@ -4587,10 +4895,6 @@ var recipes_default = {
       materials: {
         stones: 2,
         acorns: 2
-      },
-      unlock: {
-        minHealth: 7,
-        label: "Restore Old Hollow Forest to 7% health"
       }
     },
     {
@@ -4598,6 +4902,13 @@ var recipes_default = {
       name: "Hemlock Stand",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        requiresKind: {
+          kind: "insect",
+          count: 2
+        },
+        label: "Welcome 2 insects back to Old Hollow Forest"
+      },
       output: {
         itemId: "hemlock-stand",
         qty: 1
@@ -4606,10 +4917,6 @@ var recipes_default = {
         pinecones: 6,
         water: 4,
         moss: 3
-      },
-      unlock: {
-        minHealth: 45,
-        label: "Restore Old Hollow Forest to 45% health"
       }
     },
     {
@@ -4617,6 +4924,11 @@ var recipes_default = {
       name: "Browse Thicket",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 25,
+        requiresCrafted: "fern-spring",
+        label: "Restore Old Hollow Forest to 25% health and craft a Fern Spring"
+      },
       output: {
         itemId: "browse-thicket",
         qty: 1
@@ -4625,10 +4937,6 @@ var recipes_default = {
         branches: 4,
         berries: 2,
         water: 2
-      },
-      unlock: {
-        minHealth: 33,
-        label: "Restore Old Hollow Forest to 33% health"
       }
     },
     {
@@ -4636,6 +4944,13 @@ var recipes_default = {
       name: "Crayfish Shallows",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 17,
+        requiresWater: {
+          tiles: 6
+        },
+        label: "Restore Old Hollow Forest to 17% health and shape 6 tiles of open water in Old Hollow Forest"
+      },
       output: {
         itemId: "crayfish-shallows",
         qty: 1
@@ -4644,10 +4959,6 @@ var recipes_default = {
         stones: 4,
         water: 3,
         clay: 2
-      },
-      unlock: {
-        minHealth: 40,
-        label: "Restore Old Hollow Forest to 40% health"
       }
     },
     {
@@ -4655,6 +4966,14 @@ var recipes_default = {
       name: "Root-Mass Den",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 29,
+        requiresTool: {
+          id: "shovel",
+          tier: 3
+        },
+        label: "Restore Old Hollow Forest to 29% health and upgrade your Basic Shovel to the Tempered Spade"
+      },
       output: {
         itemId: "root-mass-den",
         qty: 1
@@ -4663,10 +4982,6 @@ var recipes_default = {
         branches: 5,
         moss: 2,
         clay: 2
-      },
-      unlock: {
-        minHealth: 70,
-        label: "Restore Old Hollow Forest to 70% health"
       }
     },
     {
@@ -4674,6 +4989,10 @@ var recipes_default = {
       name: "Earth Den Bank",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 39,
+        label: "Restore Old Hollow Forest to 39% health"
+      },
       output: {
         itemId: "earth-den-bank",
         qty: 1
@@ -4682,10 +5001,6 @@ var recipes_default = {
         clay: 4,
         branches: 2,
         stones: 2
-      },
-      unlock: {
-        minHealth: 55,
-        label: "Restore Old Hollow Forest to 55% health"
       }
     },
     {
@@ -4693,6 +5008,10 @@ var recipes_default = {
       name: "Forest Winter Den",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 50,
+        label: "Restore Old Hollow Forest to 50% health"
+      },
       output: {
         itemId: "snake-hibernaculum-forest",
         qty: 1
@@ -4701,10 +5020,6 @@ var recipes_default = {
         stones: 5,
         clay: 2,
         branches: 1
-      },
-      unlock: {
-        minHealth: 30,
-        label: "Restore Old Hollow Forest to 30% health"
       }
     },
     {
@@ -4712,6 +5027,11 @@ var recipes_default = {
       name: "Broken-Top Chimney Tree",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 48,
+        biomesOpen: 3,
+        label: "Restore Old Hollow Forest to 48% health and open 3 areas of the preserve"
+      },
       output: {
         itemId: "broken-top-chimney",
         qty: 1
@@ -4720,10 +5040,6 @@ var recipes_default = {
         branches: 8,
         bark: 4,
         mushrooms: 2
-      },
-      unlock: {
-        minHealth: 45,
-        label: "Restore Old Hollow Forest to 45% health"
       }
     },
     {
@@ -4731,6 +5047,10 @@ var recipes_default = {
       name: "Hollow Denning Tree",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minBalance: 30,
+        label: "Bring Old Hollow Forest to 30% ecological balance"
+      },
       output: {
         itemId: "hollow-denning-tree",
         qty: 1
@@ -4739,10 +5059,6 @@ var recipes_default = {
         branches: 8,
         bark: 3,
         moss: 2
-      },
-      unlock: {
-        minHealth: 55,
-        label: "Restore Old Hollow Forest to 55% health"
       }
     },
     {
@@ -4750,6 +5066,11 @@ var recipes_default = {
       name: "Rocky Den Ledge",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 49,
+        requiresCrafted: "adopted-stick-nest",
+        label: "Restore Old Hollow Forest to 49% health and craft an Adopted Stick Nest"
+      },
       output: {
         itemId: "rocky-den-ledge",
         qty: 1
@@ -4758,10 +5079,6 @@ var recipes_default = {
         stones: 6,
         branches: 2,
         moss: 1
-      },
-      unlock: {
-        minHealth: 70,
-        label: "Restore Old Hollow Forest to 70% health"
       }
     },
     {
@@ -4769,6 +5086,10 @@ var recipes_default = {
       name: "Adopted Stick Nest",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 42,
+        label: "Restore Old Hollow Forest to 42% health"
+      },
       output: {
         itemId: "adopted-stick-nest",
         qty: 1
@@ -4777,10 +5098,6 @@ var recipes_default = {
         branches: 5,
         moss: 2,
         bark: 1
-      },
-      unlock: {
-        requiresAnimal: "tree-squirrel",
-        label: "Welcome the Eastern Gray Squirrel back to Old Hollow Forest"
       }
     },
     {
@@ -4788,6 +5105,14 @@ var recipes_default = {
       name: "Bare Soil Scrape",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 25,
+        requiresPlaced: {
+          objectId: "serviceberry-browse-thicket",
+          count: 3
+        },
+        label: "Restore Willow Meadow to 25% health and have 3 Berry Thickets standing in Willow Meadow"
+      },
       output: {
         itemId: "bare-soil-scrape",
         qty: 1
@@ -4795,10 +5120,6 @@ var recipes_default = {
       materials: {
         stones: 1,
         fiber: 1
-      },
-      unlock: {
-        minHealth: 60,
-        label: "Restore Willow Meadow to 60% health"
       }
     },
     {
@@ -4806,6 +5127,11 @@ var recipes_default = {
       name: "Native Thistle Stand",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 16,
+        requiresCrafted: "pollinator-garden",
+        label: "Restore Willow Meadow to 16% health and craft a Pollinator Garden"
+      },
       output: {
         itemId: "native-thistle-stand",
         qty: 1
@@ -4814,10 +5140,6 @@ var recipes_default = {
         seeds: 3,
         wildflowers: 2,
         water: 1
-      },
-      unlock: {
-        minHealth: 20,
-        label: "Restore Willow Meadow to 20% health"
       }
     },
     {
@@ -4825,6 +5147,11 @@ var recipes_default = {
       name: "Bunchgrass Sod Plug",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 37,
+        biomesOpen: 2,
+        label: "Restore Willow Meadow to 37% health and open 2 areas of the preserve"
+      },
       output: {
         itemId: "bunchgrass-sod-plug",
         qty: 1
@@ -4833,10 +5160,6 @@ var recipes_default = {
         seeds: 3,
         water: 2,
         clay: 1
-      },
-      unlock: {
-        minHealth: 3,
-        label: "Restore Willow Meadow to 3% health"
       }
     },
     {
@@ -4844,6 +5167,13 @@ var recipes_default = {
       name: "Grass Thatch Litter",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        requiresKind: {
+          kind: "insect",
+          count: 4
+        },
+        label: "Welcome 4 insects back to Willow Meadow"
+      },
       output: {
         itemId: "grass-thatch-litter",
         qty: 1
@@ -4851,10 +5181,6 @@ var recipes_default = {
       materials: {
         fiber: 2,
         branches: 1
-      },
-      unlock: {
-        minHealth: 5,
-        label: "Restore Willow Meadow to 5% health"
       }
     },
     {
@@ -4862,6 +5188,11 @@ var recipes_default = {
       name: "Egg Pod Bank",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 38,
+        requiresCrafted: "small-pond",
+        label: "Restore Willow Meadow to 38% health and craft a Small Pond"
+      },
       output: {
         itemId: "grasshopper-egg-pod-bank",
         qty: 1
@@ -4869,10 +5200,6 @@ var recipes_default = {
       materials: {
         clay: 2,
         stones: 1
-      },
-      unlock: {
-        minHealth: 3,
-        label: "Restore Willow Meadow to 3% health"
       }
     },
     {
@@ -4887,10 +5214,6 @@ var recipes_default = {
       materials: {
         fiber: 3,
         seeds: 1
-      },
-      unlock: {
-        minHealth: 5,
-        label: "Restore Willow Meadow to 5% health"
       }
     },
     {
@@ -4898,6 +5221,11 @@ var recipes_default = {
       name: "Milkweed Bed",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 9,
+        requiresCrafted: "clover-patch",
+        label: "Restore Willow Meadow to 9% health and craft a Clover Patch"
+      },
       output: {
         itemId: "milkweed-rhizome-bed",
         qty: 1
@@ -4906,10 +5234,6 @@ var recipes_default = {
         seeds: 3,
         clay: 2,
         water: 2
-      },
-      unlock: {
-        minHealth: 10,
-        label: "Restore Willow Meadow to 10% health"
       }
     },
     {
@@ -4917,6 +5241,10 @@ var recipes_default = {
       name: "Nesting Tussock",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        requiresAnimal: "song-sparrow",
+        label: "Welcome the Song Sparrow back to Willow Meadow"
+      },
       output: {
         itemId: "bumblebee-nest-tussock",
         qty: 1
@@ -4924,10 +5252,6 @@ var recipes_default = {
       materials: {
         fiber: 2,
         seeds: 2
-      },
-      unlock: {
-        requiresAnimal: "prairie-vole",
-        label: "Welcome the Prairie Vole back to Willow Meadow"
       }
     },
     {
@@ -4935,6 +5259,14 @@ var recipes_default = {
       name: "Brush Hollow",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 10,
+        requiresPlaced: {
+          objectId: "milkweed-aphid-colony",
+          count: 2
+        },
+        label: "Restore Willow Meadow to 10% health and have 2 Sap-Rich Stems standing in Willow Meadow"
+      },
       output: {
         itemId: "brush-form-hollow",
         qty: 1
@@ -4942,10 +5274,6 @@ var recipes_default = {
       materials: {
         branches: 3,
         fiber: 1
-      },
-      unlock: {
-        minHealth: 20,
-        label: "Restore Willow Meadow to 20% health"
       }
     },
     {
@@ -4953,6 +5281,14 @@ var recipes_default = {
       name: "Berry Thicket",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 22,
+        requiresPlaced: {
+          objectId: "picnic-blanket",
+          count: 3
+        },
+        label: "Restore Willow Meadow to 22% health and have 3 Picnic Blankets standing in Willow Meadow"
+      },
       output: {
         itemId: "serviceberry-browse-thicket",
         qty: 1
@@ -4961,10 +5297,6 @@ var recipes_default = {
         seeds: 4,
         berries: 3,
         water: 2
-      },
-      unlock: {
-        minHealth: 50,
-        label: "Restore Willow Meadow to 50% health"
       }
     },
     {
@@ -4972,16 +5304,16 @@ var recipes_default = {
       name: "Sap-Rich Stems",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        animalsReturned: 3,
+        label: "Welcome 3 animals back to Willow Meadow"
+      },
       output: {
         itemId: "milkweed-aphid-colony",
         qty: 1
       },
       materials: {
         wildflowers: 2
-      },
-      unlock: {
-        minHealth: 7,
-        label: "Restore Willow Meadow to 7% health"
       }
     },
     {
@@ -4989,6 +5321,10 @@ var recipes_default = {
       name: "Burrow Town",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        requiresAnimal: "grasshopper",
+        label: "Welcome the Grasshopper back to Willow Meadow"
+      },
       output: {
         itemId: "squirrel-burrow-town",
         qty: 1
@@ -4996,10 +5332,6 @@ var recipes_default = {
       materials: {
         clay: 4,
         stones: 2
-      },
-      unlock: {
-        minHealth: 9,
-        label: "Restore Willow Meadow to 9% health"
       }
     },
     {
@@ -5007,16 +5339,17 @@ var recipes_default = {
       name: "Egg-Case Stem",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 16,
+        requiresCrafted: "hidden-grass-nest",
+        label: "Restore Willow Meadow to 16% health and craft a Hidden Grass Nest"
+      },
       output: {
         itemId: "mantis-ootheca-stem",
         qty: 1
       },
       materials: {
         fiber: 2
-      },
-      unlock: {
-        minHealth: 19,
-        label: "Restore Willow Meadow to 19% health"
       }
     },
     {
@@ -5024,6 +5357,14 @@ var recipes_default = {
       name: "Domed Grass Nest",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 17,
+        requiresPlaced: {
+          objectId: "grass-thatch-litter",
+          count: 3
+        },
+        label: "Restore Willow Meadow to 17% health and have 3 Grass Thatch Litters standing in Willow Meadow"
+      },
       output: {
         itemId: "domed-grass-nest-tunnel",
         qty: 1
@@ -5031,10 +5372,6 @@ var recipes_default = {
       materials: {
         fiber: 4,
         branches: 2
-      },
-      unlock: {
-        minHealth: 40,
-        label: "Restore Willow Meadow to 40% health"
       }
     },
     {
@@ -5042,6 +5379,10 @@ var recipes_default = {
       name: "Bluebird Nest Box",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        requiresAnimal: "opossum",
+        label: "Welcome the Opossum back to Willow Meadow"
+      },
       output: {
         itemId: "bluebird-nest-box",
         qty: 1
@@ -5049,10 +5390,6 @@ var recipes_default = {
       materials: {
         branches: 5,
         fiber: 2
-      },
-      unlock: {
-        minHealth: 50,
-        label: "Restore Willow Meadow to 50% health"
       }
     },
     {
@@ -5060,6 +5397,10 @@ var recipes_default = {
       name: "Meadow Winter Den",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        requiresAnimal: "ladybug",
+        label: "Welcome the Ladybug back to Willow Meadow"
+      },
       output: {
         itemId: "snake-hibernaculum-meadow",
         qty: 1
@@ -5068,10 +5409,6 @@ var recipes_default = {
         stones: 4,
         branches: 2,
         clay: 2
-      },
-      unlock: {
-        requiresAnimal: "ground-squirrel",
-        label: "Welcome the Ground Squirrel back to Willow Meadow"
       }
     },
     {
@@ -5079,6 +5416,10 @@ var recipes_default = {
       name: "Deep Soil Bank",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 42,
+        label: "Restore Willow Meadow to 42% health"
+      },
       output: {
         itemId: "deep-loam-soil-bank",
         qty: 1
@@ -5086,10 +5427,6 @@ var recipes_default = {
       materials: {
         clay: 5,
         stones: 2
-      },
-      unlock: {
-        minHealth: 60,
-        label: "Restore Willow Meadow to 60% health"
       }
     },
     {
@@ -5097,6 +5434,10 @@ var recipes_default = {
       name: "Earth Den",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        requiresAnimal: "western-meadowlark",
+        label: "Welcome the Western Meadowlark back to Willow Meadow"
+      },
       output: {
         itemId: "earthen-fox-den",
         qty: 1
@@ -5104,10 +5445,6 @@ var recipes_default = {
       materials: {
         clay: 4,
         branches: 3
-      },
-      unlock: {
-        requiresAnimal: "ground-squirrel",
-        label: "Welcome the Ground Squirrel back to Willow Meadow"
       }
     },
     {
@@ -5115,6 +5452,10 @@ var recipes_default = {
       name: "Crown Stick Eyrie",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 46,
+        label: "Restore Willow Meadow to 46% health"
+      },
       output: {
         itemId: "crown-stick-eyrie",
         qty: 1
@@ -5122,10 +5463,6 @@ var recipes_default = {
       materials: {
         branches: 8,
         fiber: 4
-      },
-      unlock: {
-        minHealth: 65,
-        label: "Restore Willow Meadow to 65% health"
       }
     },
     {
@@ -5133,6 +5470,14 @@ var recipes_default = {
       name: "Sunlit Mudflat",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        minHealth: 19,
+        requiresPlaced: {
+          objectId: "stable-silt-shoal",
+          count: 3
+        },
+        label: "Restore Rushwater Wetland to 19% health and have 3 Stable Silt Shoals standing in Rushwater Wetland"
+      },
       output: {
         itemId: "sunlit-mudflat",
         qty: 1
@@ -5140,10 +5485,6 @@ var recipes_default = {
       materials: {
         mud: 2,
         clay: 1
-      },
-      unlock: {
-        minHealth: 45,
-        label: "Restore Rushwater Wetland to 45% health"
       }
     },
     {
@@ -5151,6 +5492,14 @@ var recipes_default = {
       name: "Clearwater Shallows",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        minHealth: 24,
+        requiresHome: {
+          track: "light",
+          level: 4
+        },
+        label: "Restore Rushwater Wetland to 24% health and raise your home's Warmth to level 4"
+      },
       output: {
         itemId: "clearwater-shallows",
         qty: 1
@@ -5158,10 +5507,6 @@ var recipes_default = {
       materials: {
         "clean-water": 4,
         stones: 3
-      },
-      unlock: {
-        minHealth: 10,
-        label: "Restore Rushwater Wetland to 10% health"
       }
     },
     {
@@ -5176,10 +5521,6 @@ var recipes_default = {
       materials: {
         reeds: 2,
         mud: 2
-      },
-      unlock: {
-        minHealth: 0,
-        label: "Available from the start"
       }
     },
     {
@@ -5194,10 +5535,6 @@ var recipes_default = {
       materials: {
         clay: 4,
         mud: 3
-      },
-      unlock: {
-        minHealth: 17,
-        label: "Restore Rushwater Wetland to 17% health"
       }
     },
     {
@@ -5205,6 +5542,13 @@ var recipes_default = {
       name: "Submerged Spawning Slab",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        requiresKind: {
+          kind: "invertebrate",
+          count: 2
+        },
+        label: "Welcome 2 small invertebrates back to Rushwater Wetland"
+      },
       output: {
         itemId: "submerged-spawning-slab",
         qty: 1
@@ -5212,10 +5556,6 @@ var recipes_default = {
       materials: {
         stones: 3,
         fiber: 1
-      },
-      unlock: {
-        minHealth: 23,
-        label: "Restore Rushwater Wetland to 23% health"
       }
     },
     {
@@ -5223,6 +5563,10 @@ var recipes_default = {
       name: "Stable Silt Shoal",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        minBalance: 20,
+        label: "Bring Rushwater Wetland to 20% ecological balance"
+      },
       output: {
         itemId: "stable-silt-shoal",
         qty: 1
@@ -5231,10 +5575,6 @@ var recipes_default = {
         stones: 5,
         clay: 2,
         "clean-water": 2
-      },
-      unlock: {
-        requiresAnimal: "minnow",
-        label: "Welcome the Fathead Minnow back to Rushwater Wetland"
       }
     },
     {
@@ -5242,6 +5582,13 @@ var recipes_default = {
       name: "Cattail Root Shallows",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        minHealth: 13,
+        requiresWater: {
+          tiles: 6
+        },
+        label: "Restore Rushwater Wetland to 13% health and shape 6 tiles of open water in Rushwater Wetland"
+      },
       output: {
         itemId: "cattail-root-shallows",
         qty: 1
@@ -5250,10 +5597,6 @@ var recipes_default = {
         reeds: 4,
         mud: 3,
         water: 2
-      },
-      unlock: {
-        minHealth: 27,
-        label: "Restore Rushwater Wetland to 27% health"
       }
     },
     {
@@ -5261,6 +5604,14 @@ var recipes_default = {
       name: "Flooded Reed Clump",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        minHealth: 10,
+        requiresPlaced: {
+          objectId: "reed-bed",
+          count: 2
+        },
+        label: "Restore Rushwater Wetland to 10% health and have 2 Reed Beds growing in Rushwater Wetland"
+      },
       output: {
         itemId: "flooded-reed-clump",
         qty: 1
@@ -5268,10 +5619,6 @@ var recipes_default = {
       materials: {
         reeds: 4,
         water: 2
-      },
-      unlock: {
-        minHealth: 20,
-        label: "Restore Rushwater Wetland to 20% health"
       }
     },
     {
@@ -5279,6 +5626,11 @@ var recipes_default = {
       name: "Winter Litter Mound",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        minHealth: 20,
+        requiresCrafted: "flooded-reed-clump",
+        label: "Restore Rushwater Wetland to 20% health and craft a Flooded Reed Clump"
+      },
       output: {
         itemId: "winter-litter-mound",
         qty: 1
@@ -5286,10 +5638,6 @@ var recipes_default = {
       materials: {
         reeds: 2,
         fiber: 2
-      },
-      unlock: {
-        minHealth: 25,
-        label: "Restore Rushwater Wetland to 25% health"
       }
     },
     {
@@ -5297,6 +5645,11 @@ var recipes_default = {
       name: "Fishless Vernal Pool",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        minHealth: 31,
+        requiresCrafted: "stable-silt-shoal",
+        label: "Restore Rushwater Wetland to 31% health and craft a Stable Silt Shoal"
+      },
       output: {
         itemId: "vernal-pool",
         qty: 1
@@ -5304,10 +5657,6 @@ var recipes_default = {
       materials: {
         clay: 4,
         "clean-water": 4
-      },
-      unlock: {
-        minHealth: 43,
-        label: "Restore Rushwater Wetland to 43% health"
       }
     },
     {
@@ -5315,6 +5664,10 @@ var recipes_default = {
       name: "Wet Meadow Edge",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        minHealth: 30,
+        label: "Restore Rushwater Wetland to 30% health"
+      },
       output: {
         itemId: "wet-meadow-margin",
         qty: 1
@@ -5323,10 +5676,6 @@ var recipes_default = {
         fiber: 3,
         mud: 2,
         water: 2
-      },
-      unlock: {
-        minHealth: 41,
-        label: "Restore Rushwater Wetland to 41% health"
       }
     },
     {
@@ -5334,6 +5683,13 @@ var recipes_default = {
       name: "Sandy Nest Bank",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        requiresKind: {
+          kind: "mammal",
+          count: 2
+        },
+        label: "Welcome 2 mammals back to Rushwater Wetland"
+      },
       output: {
         itemId: "sandy-nest-bank",
         qty: 1
@@ -5341,10 +5697,6 @@ var recipes_default = {
       materials: {
         stones: 4,
         clay: 3
-      },
-      unlock: {
-        minHealth: 53,
-        label: "Restore Rushwater Wetland to 53% health"
       }
     },
     {
@@ -5352,6 +5704,10 @@ var recipes_default = {
       name: "Crane Nest Mound",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        animalsReturned: 15,
+        label: "Welcome 15 animals back to Rushwater Wetland"
+      },
       output: {
         itemId: "crane-nest-mound",
         qty: 1
@@ -5360,10 +5716,6 @@ var recipes_default = {
         reeds: 5,
         mud: 3,
         fiber: 1
-      },
-      unlock: {
-        minHealth: 70,
-        label: "Restore Rushwater Wetland to 70% health"
       }
     },
     {
@@ -5371,6 +5723,10 @@ var recipes_default = {
       name: "Hidden Reed Platform",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        minHealth: 40,
+        label: "Restore Rushwater Wetland to 40% health"
+      },
       output: {
         itemId: "hidden-reed-platform",
         qty: 1
@@ -5378,10 +5734,6 @@ var recipes_default = {
       materials: {
         reeds: 5,
         fiber: 2
-      },
-      unlock: {
-        minHealth: 45,
-        label: "Restore Rushwater Wetland to 45% health"
       }
     },
     {
@@ -5389,6 +5741,10 @@ var recipes_default = {
       name: "Cut Bank Burrow",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        minBalance: 35,
+        label: "Bring Rushwater Wetland to 35% ecological balance"
+      },
       output: {
         itemId: "cut-bank-burrow",
         qty: 1
@@ -5396,10 +5752,6 @@ var recipes_default = {
       materials: {
         clay: 5,
         mud: 3
-      },
-      unlock: {
-        minHealth: 57,
-        label: "Restore Rushwater Wetland to 57% health"
       }
     },
     {
@@ -5407,6 +5759,11 @@ var recipes_default = {
       name: "Overwater Thicket",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        minHealth: 41,
+        totalAnimals: 75,
+        label: "Restore Rushwater Wetland to 41% health and welcome 75 animals back across the preserve"
+      },
       output: {
         itemId: "overwater-thicket",
         qty: 1
@@ -5415,10 +5772,6 @@ var recipes_default = {
         fiber: 4,
         mud: 3,
         water: 2
-      },
-      unlock: {
-        requiresAnimal: "beaver",
-        label: "Welcome the Beaver back to Rushwater Wetland"
       }
     },
     {
@@ -5426,6 +5779,10 @@ var recipes_default = {
       name: "Old Bank Den",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        requiresAnimal: "freshwater-mussel",
+        label: "Welcome the Freshwater Mussel back to Rushwater Wetland"
+      },
       output: {
         itemId: "muskrat-bank-den",
         qty: 1
@@ -5433,10 +5790,6 @@ var recipes_default = {
       materials: {
         mud: 4,
         reeds: 2
-      },
-      unlock: {
-        requiresAnimal: "muskrat",
-        label: "Welcome the Muskrat back to Rushwater Wetland"
       }
     },
     {
@@ -5444,6 +5797,10 @@ var recipes_default = {
       name: "River Bank Den",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        minHealth: 51,
+        label: "Restore Rushwater Wetland to 51% health"
+      },
       output: {
         itemId: "otter-bank-den",
         qty: 1
@@ -5452,10 +5809,6 @@ var recipes_default = {
         mud: 5,
         clay: 3,
         reeds: 1
-      },
-      unlock: {
-        requiresAnimal: "beaver",
-        label: "Welcome the Beaver back to Rushwater Wetland"
       }
     },
     {
@@ -5463,6 +5816,11 @@ var recipes_default = {
       name: "Dammed Pond",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        minHealth: 34,
+        requiresCrafted: "beaver-canal",
+        label: "Restore Rushwater Wetland to 34% health and craft a Dug Channel"
+      },
       output: {
         itemId: "beaver-pond",
         qty: 1
@@ -5472,10 +5830,6 @@ var recipes_default = {
         clay: 4,
         water: 3,
         reeds: 2
-      },
-      unlock: {
-        requiresAnimal: "beaver",
-        label: "Welcome the Beaver back to Rushwater Wetland"
       }
     },
     {
@@ -5483,6 +5837,10 @@ var recipes_default = {
       name: "Dug Channel",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        requiresAnimal: "minnow",
+        label: "Welcome the Minnow back to Rushwater Wetland"
+      },
       output: {
         itemId: "beaver-canal",
         qty: 1
@@ -5491,10 +5849,6 @@ var recipes_default = {
         mud: 4,
         clay: 2,
         water: 2
-      },
-      unlock: {
-        requiresAnimal: "beaver",
-        label: "Welcome the Beaver back to Rushwater Wetland"
       }
     },
     {
@@ -5502,6 +5856,10 @@ var recipes_default = {
       name: "Crumbling Log",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 6,
+        label: "Restore Willow Meadow to 6% health"
+      },
       output: {
         itemId: "rotting-log-crumble",
         qty: 1
@@ -5509,10 +5867,6 @@ var recipes_default = {
       materials: {
         branches: 3,
         water: 1
-      },
-      unlock: {
-        minHealth: 7,
-        label: "Restore Willow Meadow to 7% health"
       }
     },
     {
@@ -5520,6 +5874,11 @@ var recipes_default = {
       name: "Web Anchor Stems",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        animalsReturned: 8,
+        requiresCrafted: "brush-pile",
+        label: "Welcome 8 animals back to Willow Meadow and craft a Brush Pile"
+      },
       output: {
         itemId: "orb-web-anchor-stems",
         qty: 1
@@ -5527,10 +5886,6 @@ var recipes_default = {
       materials: {
         fiber: 2,
         branches: 1
-      },
-      unlock: {
-        requiresAnimal: "grasshopper",
-        label: "Welcome the Grasshopper back to Willow Meadow"
       }
     },
     {
@@ -5538,6 +5893,10 @@ var recipes_default = {
       name: "Maternity Roost",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minBalance: 50,
+        label: "Bring Willow Meadow to 50% ecological balance"
+      },
       output: {
         itemId: "bat-maternity-roost",
         qty: 1
@@ -5546,10 +5905,6 @@ var recipes_default = {
         branches: 5,
         fiber: 2,
         clay: 1
-      },
-      unlock: {
-        minHealth: 45,
-        label: "Restore Willow Meadow to 45% health"
       }
     },
     {
@@ -5557,6 +5912,10 @@ var recipes_default = {
       name: "Barn Loft",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 39,
+        label: "Restore Willow Meadow to 39% health"
+      },
       output: {
         itemId: "barn-loft-nest-box",
         qty: 1
@@ -5565,10 +5924,6 @@ var recipes_default = {
         branches: 6,
         fiber: 2,
         clay: 1
-      },
-      unlock: {
-        requiresAnimal: "prairie-vole",
-        label: "Welcome the Prairie Vole back to Willow Meadow"
       }
     },
     {
@@ -5576,6 +5931,10 @@ var recipes_default = {
       name: "Den Bank",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        requiresAnimal: "brown-bat",
+        label: "Welcome the Brown Bat back to Willow Meadow"
+      },
       output: {
         itemId: "coyote-natal-den-bank",
         qty: 1
@@ -5584,10 +5943,6 @@ var recipes_default = {
         clay: 4,
         branches: 3,
         stones: 1
-      },
-      unlock: {
-        requiresAnimal: "american-badger",
-        label: "Welcome the American Badger back to Willow Meadow"
       }
     },
     {
@@ -5603,10 +5958,6 @@ var recipes_default = {
         fiber: 2,
         branches: 1,
         water: 1
-      },
-      unlock: {
-        minHealth: 3,
-        label: "Restore Willow Meadow to 3% health"
       }
     },
     {
@@ -5614,6 +5965,10 @@ var recipes_default = {
       name: "Hidden Grass Nest",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 10,
+        label: "Restore Willow Meadow to 10% health"
+      },
       output: {
         itemId: "hidden-grass-nest",
         qty: 1
@@ -5621,10 +5976,6 @@ var recipes_default = {
       materials: {
         fiber: 3,
         seeds: 2
-      },
-      unlock: {
-        minHealth: 11,
-        label: "Restore Willow Meadow to 11% health"
       }
     },
     {
@@ -5632,6 +5983,11 @@ var recipes_default = {
       name: "Meadow Mushroom Ring",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 47,
+        requiresCrafted: "bluebird-nest-box",
+        label: "Restore Willow Meadow to 47% health and craft a Bluebird Nest Box"
+      },
       output: {
         itemId: "meadow-mushroom-ring",
         qty: 1
@@ -5639,10 +5995,6 @@ var recipes_default = {
       materials: {
         mushrooms: 2,
         fiber: 1
-      },
-      unlock: {
-        minHealth: 10,
-        label: "Restore Willow Meadow to 10% health"
       }
     },
     {
@@ -5650,6 +6002,10 @@ var recipes_default = {
       name: "Cocoon Leaf Drift",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        requiresAnimal: "polyphemus-moth",
+        label: "Welcome the Polyphemus Moth back to Old Hollow Forest"
+      },
       output: {
         itemId: "cocoon-leaf-drift",
         qty: 1
@@ -5657,10 +6013,6 @@ var recipes_default = {
       materials: {
         fiber: 3,
         branches: 1
-      },
-      unlock: {
-        minHealth: 25,
-        label: "Restore Old Hollow Forest to 25% health"
       }
     },
     {
@@ -5668,6 +6020,11 @@ var recipes_default = {
       name: "Acorn Cache",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 18,
+        requiresCrafted: "nesting-tree",
+        label: "Restore Old Hollow Forest to 18% health and craft a Nesting Tree"
+      },
       output: {
         itemId: "acorn-cache-scatter",
         qty: 1
@@ -5675,10 +6032,6 @@ var recipes_default = {
       materials: {
         acorns: 4,
         clay: 1
-      },
-      unlock: {
-        minHealth: 23,
-        label: "Restore Old Hollow Forest to 23% health"
       }
     },
     {
@@ -5686,6 +6039,14 @@ var recipes_default = {
       name: "Frozen Leaf Bed",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 15,
+        requiresPlaced: {
+          objectId: "browse-exclosure",
+          count: 3
+        },
+        label: "Restore Old Hollow Forest to 15% health and have 3 Browse Exclosures standing in Old Hollow Forest"
+      },
       output: {
         itemId: "winter-freeze-litter-bed",
         qty: 1
@@ -5694,10 +6055,6 @@ var recipes_default = {
         fiber: 2,
         moss: 2,
         bark: 1
-      },
-      unlock: {
-        minHealth: 33,
-        label: "Restore Old Hollow Forest to 33% health"
       }
     },
     {
@@ -5705,6 +6062,14 @@ var recipes_default = {
       name: "Canopy Nest Limb",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 31,
+        requiresHome: {
+          track: "space",
+          level: 3
+        },
+        label: "Restore Old Hollow Forest to 31% health and raise your home's Space to level 3"
+      },
       output: {
         itemId: "canopy-nest-limb",
         qty: 1
@@ -5713,10 +6078,6 @@ var recipes_default = {
         branches: 8,
         fiber: 4,
         moss: 2
-      },
-      unlock: {
-        minHealth: 73,
-        label: "Restore Old Hollow Forest to 73% health"
       }
     },
     {
@@ -5724,6 +6085,11 @@ var recipes_default = {
       name: "Bracket Fungus Shelf",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 25,
+        requiresAchievement: "forest-understory",
+        label: "Restore Old Hollow Forest to 25% health and earn the \u201CUnderstory Returns\u201D achievement"
+      },
       output: {
         itemId: "bracket-fungus-shelf",
         qty: 1
@@ -5732,10 +6098,6 @@ var recipes_default = {
         mushrooms: 3,
         bark: 2,
         branches: 2
-      },
-      unlock: {
-        minHealth: 8,
-        label: "Restore Old Hollow Forest to 8% health"
       }
     },
     {
@@ -5743,6 +6105,10 @@ var recipes_default = {
       name: "Wild Celery Bed",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        minHealth: 44,
+        label: "Restore Rushwater Wetland to 44% health"
+      },
       output: {
         itemId: "wild-celery-bed",
         qty: 1
@@ -5751,10 +6117,6 @@ var recipes_default = {
         reeds: 3,
         mud: 2,
         water: 2
-      },
-      unlock: {
-        minHealth: 63,
-        label: "Restore Rushwater Wetland to 63% health"
       }
     },
     {
@@ -5762,6 +6124,10 @@ var recipes_default = {
       name: "Thicket Bed Hollow",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        requiresAnimal: "raven",
+        label: "Welcome the Raven back to Redstone Scrubland"
+      },
       output: {
         itemId: "thicket-bed-hollow",
         qty: 1
@@ -5770,10 +6136,6 @@ var recipes_default = {
         branches: 4,
         sand: 3,
         fiber: 2
-      },
-      unlock: {
-        minHealth: 47,
-        label: "Restore Redstone Scrubland to 47% health"
       }
     },
     {
@@ -5781,6 +6143,10 @@ var recipes_default = {
       name: "Scrape Ledge",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 46,
+        label: "Restore Graywind Heights to 46% health"
+      },
       output: {
         itemId: "falcon-scrape-ledge",
         qty: 1
@@ -5788,10 +6154,6 @@ var recipes_default = {
       materials: {
         stones: 5,
         sand: 2
-      },
-      unlock: {
-        minHealth: 65,
-        label: "Restore Graywind Heights to 65% health"
       }
     },
     {
@@ -5799,6 +6161,11 @@ var recipes_default = {
       name: "Snowbank Mushrooms",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 35,
+        biomesOpen: 5,
+        label: "Restore Graywind Heights to 35% health and open 5 areas of the preserve"
+      },
       output: {
         itemId: "snowbank-mushroom-cluster",
         qty: 1
@@ -5807,10 +6174,6 @@ var recipes_default = {
         mushrooms: 3,
         moss: 2,
         snow: 1
-      },
-      unlock: {
-        minHealth: 22,
-        label: "Restore Graywind Heights to 22% health"
       }
     },
     {
@@ -5818,6 +6181,10 @@ var recipes_default = {
       name: "Den Scrap Pile",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 47,
+        label: "Restore Pelican Shore to 47% health"
+      },
       output: {
         itemId: "octopus-den-midden",
         qty: 1
@@ -5826,10 +6193,6 @@ var recipes_default = {
         stones: 6,
         shells: 4,
         sand: 2
-      },
-      unlock: {
-        minHealth: 67,
-        label: "Restore Pelican Shore to 67% health"
       }
     },
     {
@@ -5837,6 +6200,10 @@ var recipes_default = {
       name: "Dig Slope",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 55,
+        label: "Restore Graywind Heights to 55% health"
+      },
       output: {
         itemId: "grizzly-dig-slope",
         qty: 1
@@ -5845,10 +6212,6 @@ var recipes_default = {
         stones: 4,
         moss: 2,
         "clean-water": 2
-      },
-      unlock: {
-        minHealth: 80,
-        label: "Restore Graywind Heights to 80% health"
       }
     },
     {
@@ -5856,6 +6219,10 @@ var recipes_default = {
       name: "Lined Rock Crack",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 20,
+        label: "Restore Graywind Heights to 20% health"
+      },
       output: {
         itemId: "feather-lined-crack",
         qty: 1
@@ -5863,10 +6230,6 @@ var recipes_default = {
       materials: {
         stones: 3,
         moss: 1
-      },
-      unlock: {
-        minHealth: 25,
-        label: "Restore Graywind Heights to 25% health"
       }
     },
     {
@@ -5874,6 +6237,14 @@ var recipes_default = {
       name: "Borrowed Burrow",
       category: "habitat",
       unlockBiome: "desert",
+      unlock: {
+        minHealth: 16,
+        requiresTool: {
+          id: "field-journal",
+          tier: 5
+        },
+        label: "Restore Redstone Scrubland to 16% health and upgrade your Field Journal to the Redstone Scrubland Field Guide"
+      },
       output: {
         itemId: "borrowed-burrow-mouth",
         qty: 1
@@ -5881,10 +6252,6 @@ var recipes_default = {
       materials: {
         sand: 3,
         stones: 2
-      },
-      unlock: {
-        minHealth: 37,
-        label: "Restore Redstone Scrubland to 37% health"
       }
     },
     {
@@ -5892,6 +6259,11 @@ var recipes_default = {
       name: "Browsed Shallows",
       category: "habitat",
       unlockBiome: "wetland",
+      unlock: {
+        minHealth: 44,
+        requiresCrafted: "still-water-cove",
+        label: "Restore Rushwater Wetland to 44% health and craft a Still Water Cove"
+      },
       output: {
         itemId: "browsed-pond-shallows",
         qty: 1
@@ -5900,10 +6272,6 @@ var recipes_default = {
         mud: 3,
         reeds: 3,
         "clean-water": 2
-      },
-      unlock: {
-        minHealth: 63,
-        label: "Restore Rushwater Wetland to 63% health"
       }
     },
     {
@@ -5911,6 +6279,10 @@ var recipes_default = {
       name: "Splash Ledge",
       category: "habitat",
       unlockBiome: "alpine",
+      unlock: {
+        minHealth: 40,
+        label: "Restore Graywind Heights to 40% health"
+      },
       output: {
         itemId: "waterfall-splash-ledge",
         qty: 1
@@ -5919,10 +6291,6 @@ var recipes_default = {
         stones: 4,
         moss: 2,
         "clean-water": 3
-      },
-      unlock: {
-        minHealth: 57,
-        label: "Restore Graywind Heights to 57% health"
       }
     },
     {
@@ -5930,6 +6298,10 @@ var recipes_default = {
       name: "Digging Ground",
       category: "habitat",
       unlockBiome: "forest",
+      unlock: {
+        minHealth: 27,
+        label: "Restore Old Hollow Forest to 27% health"
+      },
       output: {
         itemId: "grub-digging-ground",
         qty: 1
@@ -5937,10 +6309,6 @@ var recipes_default = {
       materials: {
         moss: 2,
         bark: 2
-      },
-      unlock: {
-        minHealth: 37,
-        label: "Restore Old Hollow Forest to 37% health"
       }
     },
     {
@@ -5948,6 +6316,10 @@ var recipes_default = {
       name: "Clifftop Burrow",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        requiresAnimal: "anemone",
+        label: "Welcome the Anemone back to Pelican Shore"
+      },
       output: {
         itemId: "clifftop-burrow",
         qty: 1
@@ -5955,10 +6327,6 @@ var recipes_default = {
       materials: {
         sand: 3,
         driftwood: 2
-      },
-      unlock: {
-        minHealth: 50,
-        label: "Restore Pelican Shore to 50% health"
       }
     },
     {
@@ -5966,6 +6334,10 @@ var recipes_default = {
       name: "Meadow Burrow Mound",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 25,
+        label: "Restore Willow Meadow to 25% health"
+      },
       output: {
         itemId: "groundhog-burrow-mound",
         qty: 1
@@ -5974,10 +6346,6 @@ var recipes_default = {
         stones: 2,
         fiber: 2,
         water: 1
-      },
-      unlock: {
-        minHealth: 33,
-        label: "Restore Willow Meadow to 33% health"
       }
     },
     {
@@ -5985,6 +6353,10 @@ var recipes_default = {
       name: "Den Hollow",
       category: "habitat",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 29,
+        label: "Restore Willow Meadow to 29% health"
+      },
       output: {
         itemId: "opossum-den-hollow",
         qty: 1
@@ -5992,10 +6364,6 @@ var recipes_default = {
       materials: {
         branches: 3,
         fiber: 2
-      },
-      unlock: {
-        minHealth: 39,
-        label: "Restore Willow Meadow to 39% health"
       }
     },
     {
@@ -6003,6 +6371,11 @@ var recipes_default = {
       name: "Stick Nest",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 20,
+        requiresCrafted: "kelp-wrack",
+        label: "Restore Pelican Shore to 20% health and craft a Kelp Wrack"
+      },
       output: {
         itemId: "shore-stick-nest",
         qty: 1
@@ -6010,10 +6383,6 @@ var recipes_default = {
       materials: {
         driftwood: 3,
         kelp: 1
-      },
-      unlock: {
-        minHealth: 25,
-        label: "Restore Pelican Shore to 25% health"
       }
     },
     {
@@ -6021,6 +6390,10 @@ var recipes_default = {
       name: "Happy Buddha",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        homeBuilt: true,
+        label: "Build yourself a home"
+      },
       output: {
         itemId: "happy-buddha",
         qty: 1
@@ -6028,10 +6401,6 @@ var recipes_default = {
       materials: {
         clay: 4,
         stones: 1
-      },
-      unlock: {
-        minHealth: 68,
-        label: "Restore Willow Meadow to 68% health"
       }
     },
     {
@@ -6039,6 +6408,10 @@ var recipes_default = {
       name: "Lucky Toad",
       category: "home",
       unlockBiome: "meadow",
+      unlock: {
+        minHealth: 47,
+        label: "Restore Willow Meadow to 47% health"
+      },
       output: {
         itemId: "lucky-toad",
         qty: 1
@@ -6046,10 +6419,6 @@ var recipes_default = {
       materials: {
         clay: 3,
         stones: 2
-      },
-      unlock: {
-        minHealth: 71,
-        label: "Restore Willow Meadow to 71% health"
       }
     },
     {
@@ -6057,6 +6426,14 @@ var recipes_default = {
       name: "Rippled Sand",
       category: "habitat",
       unlockBiome: "coastal",
+      unlock: {
+        minHealth: 10,
+        requiresPlaced: {
+          objectId: "shell-dropping-rock",
+          count: 2
+        },
+        label: "Restore Pelican Shore to 10% health and have 2 Shell-Dropping Rocks standing in Pelican Shore"
+      },
       output: {
         itemId: "rippled-sand-bed",
         qty: 1
@@ -6064,10 +6441,346 @@ var recipes_default = {
       materials: {
         sand: 4,
         shells: 1
-      },
+      }
+    },
+    {
+      id: "bramble-ground-nest",
+      name: "Bramble Ground Nest",
+      category: "habitat",
+      unlockBiome: "forest",
       unlock: {
-        minHealth: 21,
-        label: "Restore Pelican Shore to 21% health"
+        minHealth: 25,
+        label: "Restore Old Hollow Forest to 25% health"
+      },
+      output: {
+        itemId: "bramble-ground-nest",
+        qty: 1
+      },
+      materials: {
+        branches: 3,
+        fiber: 2
+      }
+    },
+    {
+      id: "elk-wallow",
+      name: "Elk Wallow",
+      category: "habitat",
+      unlockBiome: "forest",
+      unlock: {
+        minHealth: 46,
+        label: "Restore Old Hollow Forest to 46% health"
+      },
+      output: {
+        itemId: "elk-wallow",
+        qty: 1
+      },
+      materials: {
+        clay: 3,
+        water: 3,
+        moss: 2
+      }
+    },
+    {
+      id: "snake-egg-mound",
+      name: "Snake Egg Mound",
+      category: "habitat",
+      unlockBiome: "forest",
+      unlock: {
+        minHealth: 29,
+        requiresCrafted: "downy-cavity",
+        label: "Restore Old Hollow Forest to 29% health and craft a Downy Woodpecker Hole"
+      },
+      output: {
+        itemId: "snake-egg-mound",
+        qty: 1
+      },
+      materials: {
+        bark: 3,
+        moss: 2,
+        branches: 2
+      }
+    },
+    {
+      id: "eagle-nest-crown",
+      name: "Eagle Nest Crown",
+      category: "habitat",
+      unlockBiome: "wetland",
+      unlock: {
+        minHealth: 32,
+        requiresTool: {
+          id: "basket",
+          tier: 4
+        },
+        label: "Restore Rushwater Wetland to 32% health and upgrade your Gathering Basket to the Naturalist's Pack"
+      },
+      output: {
+        itemId: "eagle-nest-crown",
+        qty: 1
+      },
+      materials: {
+        branches: 8,
+        reeds: 4,
+        mud: 2
+      }
+    },
+    {
+      id: "still-water-cove",
+      name: "Still Water Cove",
+      category: "habitat",
+      unlockBiome: "wetland",
+      output: {
+        itemId: "still-water-cove",
+        qty: 1
+      },
+      materials: {
+        mud: 2,
+        "clean-water": 3,
+        reeds: 2
+      }
+    },
+    {
+      id: "canyon-ledge-den",
+      name: "Canyon Ledge Den",
+      category: "habitat",
+      unlockBiome: "desert",
+      unlock: {
+        minHealth: 49,
+        requiresCrafted: "kit-fox-den",
+        label: "Restore Redstone Scrubland to 49% health and craft a Sandy Den"
+      },
+      output: {
+        itemId: "canyon-ledge-den",
+        qty: 1
+      },
+      materials: {
+        stones: 6,
+        clay: 3,
+        sand: 2
+      }
+    },
+    {
+      id: "saguaro-crown-nest",
+      name: "Cactus Crown Nest",
+      category: "habitat",
+      unlockBiome: "desert",
+      unlock: {
+        animalsReturned: 12,
+        label: "Welcome 12 animals back to Redstone Scrubland"
+      },
+      output: {
+        itemId: "saguaro-crown-nest",
+        qty: 1
+      },
+      materials: {
+        branches: 4,
+        "cactus-fruit": 3,
+        sand: 3
+      }
+    },
+    {
+      id: "tarantula-silk-burrow",
+      name: "Silk-Lined Burrow",
+      category: "habitat",
+      unlockBiome: "desert",
+      unlock: {
+        minHealth: 29,
+        label: "Restore Redstone Scrubland to 29% health"
+      },
+      output: {
+        itemId: "tarantula-silk-burrow",
+        qty: 1
+      },
+      materials: {
+        sand: 3,
+        clay: 2,
+        fiber: 2
+      }
+    },
+    {
+      id: "alpine-mineral-lick",
+      name: "Mineral Lick",
+      category: "habitat",
+      unlockBiome: "alpine",
+      unlock: {
+        minHealth: 28,
+        requiresHome: {
+          track: "light",
+          level: 4
+        },
+        label: "Restore Graywind Heights to 28% health and raise your home's Warmth to level 4"
+      },
+      output: {
+        itemId: "alpine-mineral-lick",
+        qty: 1
+      },
+      materials: {
+        clay: 4,
+        stones: 2,
+        snow: 2
+      }
+    },
+    {
+      id: "deep-snow-den",
+      name: "Deep Snow Den",
+      category: "habitat",
+      unlockBiome: "alpine",
+      unlock: {
+        minHealth: 29,
+        requiresPlaced: {
+          objectId: "inherited-earth-den",
+          count: 3
+        },
+        label: "Restore Graywind Heights to 29% health and have 3 Inherited Earth Dens standing in Graywind Heights"
+      },
+      output: {
+        itemId: "deep-snow-den",
+        qty: 1
+      },
+      materials: {
+        snow: 5,
+        stones: 3,
+        moss: 2
+      }
+    },
+    {
+      id: "goat-cliff-ledge",
+      name: "Goat Cliff Ledge",
+      category: "habitat",
+      unlockBiome: "alpine",
+      unlock: {
+        minHealth: 48,
+        label: "Restore Graywind Heights to 48% health"
+      },
+      output: {
+        itemId: "goat-cliff-ledge",
+        qty: 1
+      },
+      materials: {
+        stones: 7,
+        clay: 3,
+        lichen: 2
+      }
+    },
+    {
+      id: "moth-scree-crack",
+      name: "Rock Crack",
+      category: "habitat",
+      unlockBiome: "alpine",
+      unlock: {
+        minHealth: 15,
+        requiresPlaced: {
+          objectId: "scree-slope",
+          count: 3
+        },
+        label: "Restore Graywind Heights to 15% health and have 3 Scree Slopes standing in Graywind Heights"
+      },
+      output: {
+        itemId: "moth-scree-crack",
+        qty: 1
+      },
+      materials: {
+        stones: 4,
+        lichen: 1
+      }
+    },
+    {
+      id: "swift-cliff-seam",
+      name: "Cliff Seam",
+      category: "habitat",
+      unlockBiome: "alpine",
+      unlock: {
+        animalsReturned: 7,
+        label: "Welcome 7 animals back to Graywind Heights"
+      },
+      output: {
+        itemId: "swift-cliff-seam",
+        qty: 1
+      },
+      materials: {
+        stones: 5,
+        clay: 2,
+        moss: 1
+      }
+    },
+    {
+      id: "winter-sleep-burrow",
+      name: "Winter Sleep Burrow",
+      category: "habitat",
+      unlockBiome: "alpine",
+      unlock: {
+        requiresAnimal: "alpine-butterfly",
+        label: "Welcome the Alpine Butterfly back to Graywind Heights"
+      },
+      output: {
+        itemId: "winter-sleep-burrow",
+        qty: 1
+      },
+      materials: {
+        stones: 3,
+        clay: 2,
+        fiber: 2
+      }
+    },
+    {
+      id: "breaking-surf-line",
+      name: "Breaking Surf Line",
+      category: "habitat",
+      unlockBiome: "coastal",
+      unlock: {
+        requiresAnimal: "black-turnstone",
+        label: "Welcome the Black Turnstone back to Pelican Shore"
+      },
+      output: {
+        itemId: "breaking-surf-line",
+        qty: 1
+      },
+      materials: {
+        water: 4,
+        sand: 3,
+        shells: 2
+      }
+    },
+    {
+      id: "deep-canyon-edge",
+      name: "Deep Canyon Edge",
+      category: "habitat",
+      unlockBiome: "coastal",
+      unlock: {
+        minHealth: 57,
+        label: "Restore Pelican Shore to 57% health"
+      },
+      output: {
+        itemId: "deep-canyon-edge",
+        qty: 1
+      },
+      materials: {
+        stones: 8,
+        kelp: 4,
+        driftwood: 3,
+        water: 3
+      }
+    },
+    {
+      id: "eelgrass-grazing-lawn",
+      name: "Turtle Grazing Lawn",
+      category: "habitat",
+      unlockBiome: "coastal",
+      unlock: {
+        minHealth: 26,
+        requiresTool: {
+          id: "field-journal",
+          tier: 7
+        },
+        label: "Restore Pelican Shore to 26% health and upgrade your Field Journal to the Master Naturalist's Guide"
+      },
+      output: {
+        itemId: "eelgrass-grazing-lawn",
+        qty: 1
+      },
+      materials: {
+        kelp: 4,
+        sand: 3,
+        water: 2
       }
     }
   ]
@@ -12518,6 +13231,25 @@ var habitat_objects_default = {
       description: "Clean sand below the low tide line, combed into even ridges by a current gentle enough to leave them standing.",
       zone: "subtidal",
       waveExposure: "sheltered"
+    },
+    {
+      id: "bunchgrass-sod-plug",
+      name: "Bunchgrass Sod Plug",
+      placement: "outdoor",
+      biomes: [
+        "meadow",
+        "alpine"
+      ],
+      healthValue: 3,
+      needs: [
+        "plant",
+        "open"
+      ],
+      shape: "bunchgrass",
+      color: "#8aa85e",
+      description: "A hand-cut plug of native bunchgrass, roots and soil together. Set it in bare ground and it spreads on its own.",
+      matureHours: 2,
+      matureBonus: 1
     }
   ]
 };
@@ -21993,15 +22725,19 @@ function dayPhaseAt(t2) {
   for (const ph of DAY_PHASES) if (p < ph.until) return ph.id;
   return DAY_PHASES[DAY_PHASES.length - 1].id;
 }
-function nextPhaseAt(t2, phaseId) {
-  let start = 0;
+function phaseStart(phaseId) {
   for (let i = 0; i < DAY_PHASES.length; i++) {
-    if (DAY_PHASES[i].id === phaseId) {
-      start = i === 0 ? 0 : DAY_PHASES[i - 1].until;
-      break;
-    }
+    if (DAY_PHASES[i].id === phaseId) return i === 0 ? 0 : DAY_PHASES[i - 1].until;
   }
-  const target = dayStartAt(t2) + start * DAY_MS;
+  return 0;
+}
+function phasesSeen(t2) {
+  const p = dayProgressAt(t2);
+  const firstDay = dayIndexAt(t2) === 0;
+  return DAY_PHASES.filter((ph) => !firstDay || p >= phaseStart(ph.id)).map((ph) => ph.id);
+}
+function nextPhaseAt(t2, phaseId) {
+  const target = dayStartAt(t2) + phaseStart(phaseId) * DAY_MS;
   return target > t2 ? target : target + DAY_MS;
 }
 function nextDawnAt(t2) {
@@ -22033,6 +22769,7 @@ function weatherSnapshot(worldId, t2, biomeIds, override) {
     dayProgress: dayProgressAt(t2),
     dayIndex: dayIndexAt(t2),
     dayMs: DAY_MS,
+    seenPhases: phasesSeen(t2),
     byBiome
   };
   if (forcedType || forcedSeason) snap.override = { type: forcedType, season: forcedSeason };
@@ -25716,7 +26453,7 @@ body.lb-open{overflow:hidden}
 </html>
 `;
 var ogImageB64 = "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";
-var buildStamp = "0.2.10+2026-08-09T20:39:23.523Z";
+var buildStamp = "0.2.10+2026-08-09T23:02:43.900Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
@@ -27226,23 +27963,65 @@ function recipeUnlockMet(recipe, ctx) {
   const u = recipe.unlock;
   if (!u) return true;
   if (typeof u.minHealth === "number" && ctx.health < u.minHealth) return false;
+  if (typeof u.minBalance === "number" && ctx.balance < u.minBalance) return false;
   if (typeof u.animalsReturned === "number" && ctx.animalsReturned < u.animalsReturned) return false;
   if (u.requiresAnimal && !ctx.returnedAnimalIds.has(u.requiresAnimal)) return false;
+  if (u.requiresKind && (ctx.returnedKinds[u.requiresKind.kind] || 0) < u.requiresKind.count) return false;
+  if (typeof u.totalAnimals === "number" && ctx.totalAnimals < u.totalAnimals) return false;
   if (u.requiresCrafted && (ctx.craftedEver?.[u.requiresCrafted] || 0) <= 0) return false;
+  if (typeof u.craftedDistinct === "number" && ctx.craftedDistinct < u.craftedDistinct) return false;
+  if (u.requiresPlaced && (ctx.placedHere[u.requiresPlaced.objectId] || 0) < u.requiresPlaced.count) return false;
+  if (u.requiresWater) {
+    if (ctx.water.tiles < (u.requiresWater.tiles || 0)) return false;
+    if (ctx.water.lake < (u.requiresWater.lake || 0)) return false;
+    if (ctx.water.river < (u.requiresWater.river || 0)) return false;
+  }
+  if (u.requiresTool && (ctx.tools[u.requiresTool.id] || 1) < u.requiresTool.tier) return false;
+  if (u.requiresHome && (ctx.home[u.requiresHome.track] || 1) < u.requiresHome.level) return false;
+  if (u.homeBuilt && !ctx.homeBuilt) return false;
+  if (u.phaseSeen?.length && !u.phaseSeen.some((p) => ctx.seenPhases.includes(p))) return false;
+  if (u.requiresBiome && (ctx.biomeHealth[u.requiresBiome.biome] || 0) < u.requiresBiome.minHealth) return false;
+  if (u.requiresAchievement && !ctx.achievements.has(u.requiresAchievement)) return false;
+  if (typeof u.biomesOpen === "number" && ctx.biomesOpen < u.biomesOpen) return false;
   return true;
 }
 async function recipeUnlockContext(wid, biomeId, player, d) {
   const t2 = db();
-  const bs = await findBiomeState(t2.BiomeState, wid, biomeId);
+  const states = await byWorld(t2.BiomeState, wid);
+  const bs = states.find((s) => s.biomeId === biomeId) || await findBiomeState(t2.BiomeState, wid, biomeId);
   const discoveries = await byWorld(t2.Discovery, wid);
-  const returnedAnimalIds = new Set(
-    discoveries.filter((x) => d.animal.get(x.animalId)?.biome === biomeId).map((x) => x.animalId)
-  );
+  const here = discoveries.filter((x) => d.animal.get(x.animalId)?.biome === biomeId);
+  const returnedAnimalIds = new Set(here.map((x) => x.animalId));
+  const returnedKinds = {};
+  for (const x of here) {
+    const kind = d.animal.get(x.animalId)?.kind;
+    if (kind) returnedKinds[kind] = (returnedKinds[kind] || 0) + 1;
+  }
+  const placements = (await byWorld(t2.Placement, wid)).filter((p) => p.area === biomeId);
+  const terrain = (await byWorld(t2.TerrainTile, wid)).filter((tt) => tt.area === biomeId);
+  const achievements = await earnedAchievementIds(player.id);
+  const biomeHealth = {};
+  for (const s of states) biomeHealth[s.biomeId] = s.health || 0;
+  const wxTime = weatherTimeFromPlay(player);
   return {
     health: bs?.health || 0,
+    balance: bs?.balance || 0,
     animalsReturned: returnedAnimalIds.size,
     returnedAnimalIds,
-    craftedEver: player.craftedEver || {}
+    returnedKinds,
+    totalAnimals: discoveries.length,
+    craftedEver: player.craftedEver || {},
+    craftedDistinct: Object.keys(player.craftedEver || {}).length,
+    placedHere: placementCounts(placements),
+    water: analyzeWater(terrain),
+    tools: player.tools || {},
+    home: homeOf(player),
+    homeBuilt: !!homeOf(player).styleLocked,
+    biomeHealth,
+    achievements,
+    biomesOpen: (player.unlockedBiomes || []).length,
+    // same play-time clock the weather snapshot and rare animals read
+    seenPhases: phasesSeen(wxTime)
   };
 }
 async function getOwnedChest(t2, d, chestId, wid) {
