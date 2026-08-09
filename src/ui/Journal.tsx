@@ -476,7 +476,7 @@ function OverviewGrid({ query }: { query: string }) {
 				!q ||
 				[content('animal', a.id, 'name', a.name), a.kind, a.biome, a.trophic || ''].join(' ').toLowerCase().includes(q),
 		)
-		.sort((a, b) => order.get(a.biome)! - order.get(b.biome)! || a.name.localeCompare(b.name));
+		.sort((a, b) => content('animal', a.id, 'name', a.name).localeCompare(content('animal', b.id, 'name', b.name)));
 
 	if (!state.discoveries.length) {
 		return (
@@ -512,9 +512,12 @@ export function JournalPanel() {
 	const { data, state, setPanel, setAnimalCardId } = useGame();
 	const { t, content } = useI18n();
 	// 'overview' shows every returned animal; otherwise a biome id is selected.
-	// Reopening picks up wherever the history trail currently points.
+	// Opening the journal lands on the area you are standing in — that is nearly
+	// always what you want to read about. The one thing worth remembering is a
+	// preference for "All animals": if that is where you were last, stay there.
 	const cur = journalNav.current();
-	const [tab, setTab] = useState<string>(cur?.kind === 'view' ? cur.tab : state?.player.area || 'meadow');
+	const openTab = () => (cur?.kind === 'view' && cur.tab === 'overview' ? 'overview' : state?.player.area || 'meadow');
+	const [tab, setTab] = useState<string>(openTab);
 	const [view, setView] = useState<'list' | 'web'>(cur?.kind === 'view' ? cur.view : 'list');
 	const [unknownFirst, setUnknownFirst] = useState(() => {
 		try {
@@ -529,6 +532,13 @@ export function JournalPanel() {
 	useEffect(() => {
 		journalNav.visit({ kind: 'view', tab, view });
 	}, [tab, view]);
+	// Walking into another area re-points the journal at it, unless you have
+	// deliberately parked on "All animals".
+	const area = state?.player.area;
+	useEffect(() => {
+		if (area && tab !== 'overview' && tab !== area) setTab(area);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [area]);
 	// When back/forward (here or on an animal card) retargets a list/web stop,
 	// steer the open panel there.
 	useEffect(
@@ -567,9 +577,10 @@ export function JournalPanel() {
 		.sort((a, b) => {
 			const da = discs.get(a.id),
 				db = discs.get(b.id);
+			// Found and not-yet-found stay grouped; within each group it is A-Z by the
+			// name the player actually sees, so an entry is easy to look up.
 			if (!!da !== !!db) return (da ? -1 : 1) * (unknownFirst ? -1 : 1);
-			if (da && db) return (db.firstObservedAt || 0) - (da.firstObservedAt || 0);
-			return (a.requirements?.minHealth || 0) - (b.requirements?.minHealth || 0);
+			return content('animal', a.id, 'name', a.name).localeCompare(content('animal', b.id, 'name', b.name));
 		});
 	const returned = allInTab.filter((a) => discs.has(a.id)).length;
 

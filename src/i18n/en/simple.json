@@ -302,14 +302,14 @@
 	},
 	"content": {
 		"animal": {
-			"red-fox-meadow": {
+			"red-fox": {
 				"hint": "Foxes come back once smaller animals are here. They need cover for a den and a healthy meadow.",
 				"diet": "Voles, rabbits, squirrels, birds, and bugs. Also berries",
 				"preferredHabitat": "Meadows, farm edges, and hedges across open land",
 				"fact": "When hunting mice, red foxes tend to pounce facing northeast. They seem to use the Earth like a compass to judge the jump.",
 				"role": "A clever mid-sized hunter that keeps mice and rabbits in check. It stalks low, then pounces. It also eats bugs, berries, and dead animals. No bigger hunters live here, so the fox sits near the top."
 			},
-			"lady-beetle": {
+			"ladybug": {
 				"hint": "Flowers bring aphids. Aphids bring they.",
 				"diet": "aphids and other small, soft bugs",
 				"shelter": "Winters in leaf litter in big groups. Rests on leaves",
@@ -357,7 +357,7 @@
 				"fact": "Black bear cubs are born in winter sleep and weigh under half a pound. That is the smallest newborn compared to adult size of any furry animal.",
 				"role": "Black bears eat almost anything. They spread berry seeds, dig up bugs, and now and then take deer and elk babies. They are the most common big meat eater in North American forests. They tie the nut, bug, and animal layers together. Nothing hunts a grown bear."
 			},
-			"elk-forest": {
+			"elk": {
 				"hint": "Grassy clearings and water in a healthy forest.",
 				"shelter": "No den. Calves hide in thick plants. The herd watches out together",
 				"preferredHabitat": "Grassy clearings and open wood edges inside a bigger forest",
@@ -371,7 +371,7 @@
 				"fact": "In the eastern US, bobcat numbers rise and fall with how many rabbits there are.",
 				"role": "Bobcats are key mid-sized hunters. They hold down rabbits, mice, and squirrels, which eases the pressure on forest plants. They sit below cougars and wolves and above the small animals they take. They shape whole groups of small animals."
 			},
-			"garter-snake-forest": {
+			"ratsnake": {
 				"hint": "A sunny rock pile next to grassy hunting ground.",
 				"diet": "Worms, frogs, and slugs. Also leeches, fish, and small mice",
 				"shelter": "Shared winter dens in burrows and rock piles. Hides under logs",
@@ -384,7 +384,7 @@
 				"fact": "Beaver dams make wetlands that hold water and support hundreds of other kinds of life.",
 				"role": "The builder of the wetland. By cutting trees and damming streams, beavers make new ponds, raise the water, and build the home that most marsh animals need."
 			},
-			"freshwater-fish": {
+			"minnow": {
 				"hint": "Clean pools joined together with reeds bring fish back. Then everyone who eats fish follows.",
 				"fact": "Minnow schools are the base that herons, otters, and mink all depend on.",
 				"role": "The base of the wetland food web. These small schooling fish eat algae, plankton, and bug babies. Then almost every marsh hunter eats them."
@@ -394,7 +394,7 @@
 				"fact": "It makes a rasping call like a rattlesnake to scare visitors out of its burrow.",
 				"role": "A small owl that lives in holes other animals dug. It hunts bugs by day and mice by night, so it holds down both. Badgers, coyotes, and snakes hunt it."
 			},
-			"ptarmigan": {
+			"white-tailed-ptarmigan": {
 				"hint": "Alpine shrubs and quiet cover to nest in, with frostflowers in bloom.",
 				"preferredHabitat": "High open ground above the trees all year. Winters in willow hollows",
 				"fact": "It is the only bird in North America that lives above the tree line all year.",
@@ -405,7 +405,7 @@
 				"diet": "Marmots, hares, ground squirrels, and birds. Also dead animals",
 				"preferredHabitat": "Open high country with cliffs and plenty of mid-sized prey",
 				"fact": "Golden eagles sometimes line the nest with leaves that smell sweet. It may keep bugs away.",
-				"role": "The top hunter of the high country. It drops from the sky on marmots, hares, ptarmigan, and even small meat eaters. It only shows up when the mountain is full of prey. Almost nothing hunts a grown eagle."
+				"role": "The top hunter of the high country. It drops from the sky on marmots, hares, white-tailed-ptarmigan, and even small meat eaters. It only shows up when the mountain is full of prey. Almost nothing hunts a grown eagle."
 			},
 			"sea-otter": {
 				"hint": "Kelp and shellfish beds come first. Otters follow.",
@@ -413,13 +413,13 @@
 				"preferredHabitat": "Kelp forest and rocky shore with lots of shellfish",
 				"role": "A key animal of the coast. By eating sea urchins it stops them from mowing down the kelp. So kelp forests and everything living in them can thrive. It also eats a lot of mussels and clams along the rocks."
 			},
-			"migrating-whale": {
+			"gray-whale": {
 				"hint": "Only a truly healthy shore brings a whale. Watch the horizon.",
 				"diet": "Tiny shrimp-like animals, strained out of the sea floor mud",
 				"fact": "Gray whales travel up to 14,000 miles there and back. That is one of the longest trips of any mammal.",
 				"role": "A whale that feeds on the sea floor. It rolls on its side, sucks up mud, and strains out tiny shrimp-like animals. Killer whales are its main danger. A whale passing by means the coast is fully healed."
 			},
-			"northern-leopard-frog": {
+			"leopard-frog": {
 				"hint": "A lily pool and a few open water tiles.",
 				"fact": "Leopard frogs escape with wild zig-zag leaps straight back into the water.",
 				"role": "A wide-mouthed frog. It eats almost any small animal it can swallow, even other frogs. Herons, mink, and snakes need it for food."
@@ -442,11 +442,11 @@
 				"shelter": "Old woodpecker holes and tree holes in pines and aspens",
 				"role": "A busy little bird that picks bugs off pine twigs and lives on seeds it hid away in winter. Mixed flocks often form around it, and it spreads pine seeds. Small hawks, weasels, and martens eat it and its chicks."
 			},
-			"alpine-chipmunk": {
+			"rock-squirrel": {
 				"hint": "A pile of loose rock and a rock pile among mountain flowers.",
 				"preferredHabitat": "High rock slopes and rocky meadows of the Sierra Nevada",
 				"fact": "It lives higher than almost any other chipmunk, up to 3,900 meters.",
-				"role": "A tiny high-mountain seed eater. It buries seeds and helps spread mountain plants across the rocks. It also takes eggs from rosy-finch and sparrow nests. Foxes, weasels, martens, and hawks all hunt it."
+				"role": "A tiny high-mountain seed eater. It buries seeds and helps spread mountain plants across the rocks. It also takes eggs from gray-crowned-rosy-finch and sparrow nests. Foxes, weasels, martens, and hawks all hunt it."
 			},
 			"black-turnstone": {
 				"hint": "Tidepools and kelp wrack with a driftwood pile to hide in.",
@@ -486,7 +486,7 @@
 				"fact": "Facing a rattlesnake, these squirrels kick sand and wave hot tails. The heat jams the snake’s way of seeing.",
 				"role": "A digging animal that eats seeds, greens, and bugs. Its holes let air into the soil, and old holes become homes for others. Hawks, foxes, snakes, and badgers all hunt it. Its towns hold the meadow food web together."
 			},
-			"garter-snake-meadow": {
+			"garter-snake": {
 				"diet": "Worms, frogs, slugs, small fish, bugs, and small mice",
 				"shelter": "Hides under rocks and logs. Winters in shared dens",
 				"fact": "Garter snakes have a mild venom for their tiny prey. They are harmless to people.",
@@ -517,7 +517,7 @@
 				"fact": "In some woods, all these tiny salamanders together weigh more than all the birds.",
 				"role": "This little salamander rules the leaf litter. It eats the tiny mites and springtails that break down dead leaves. There are so many of them that snakes, birds, and small mammals count on them for food. It breathes through its skin, so it shows whether the forest is damp and healthy."
 			},
-			"red-fox-forest": {
+			"gray-fox": {
 				"diet": "Mice, rabbits, birds, and lizards. Also bugs and fruit",
 				"shelter": "Dens dug into slopes, or taken from other animals. Used for years",
 				"preferredHabitat": "Forest edges and mixed scrub. Avoids thick unbroken forest",
@@ -561,7 +561,7 @@
 				"diet": "Fish, frogs, and small water animals. Also voles and other birds",
 				"role": "The tall, patient watcher of the shallows and the top hunter of the wetland fish. It steps slowly, then strikes faster than you can see."
 			},
-			"wetland-salamander": {
+			"tiger-salamander": {
 				"diet": "Worms, bugs, small crawlers, and even small animals with backbones",
 				"fact": "The tiger salamander is one of the biggest on land in North America.",
 				"role": "A hungry digger that hunts worms and bugs near its breeding pools. Its young grow in pools with no fish, and they will even eat each other."
@@ -592,7 +592,7 @@
 				"fact": "Pikas cut and dry little haystacks of plants to eat under the winter snow.",
 				"role": "A tiny cousin of rabbits that lives in rock piles. It drives the whole mountain food web. All summer it cuts and dries little haystacks of plants so it can eat under the snow. Weasels, martens, foxes, and eagles all hunt it."
 			},
-			"marmot": {
+			"yellow-bellied-marmot": {
 				"preferredHabitat": "Open meadow patches with boulders and ground to burrow in",
 				"fact": "About 98 out of every 100 marmots that die in summer are caught by a hunter.",
 				"role": "A round rodent that loves to sun itself. It grazes meadow plants and fattens on seeds before sleeping eight months. Groups whistle from boulder lookouts to warn each other. Golden eagles, coyotes, and foxes hunt them."
@@ -603,12 +603,12 @@
 				"preferredHabitat": "Brushy thickets and thick undergrowth near open grass",
 				"role": "A hare of brushy cover near treeline. Its coat flips from brown to white with the seasons. Its numbers rise and fall about every ten years, and hunter numbers rise and fall with them. Martens, foxes, eagles, and owls all hunt it."
 			},
-			"mule-deer-alpine": {
+			"grizzly-bear": {
 				"preferredHabitat": "High summer meadows and shrubland with clean water",
 				"fact": "Mule deer clear rocks and logs with a bouncy, four-footed hop.",
 				"role": "A picky high-country plant eater. It spends summer in mountain meadows and shrubs, then walks downhill each fall. It picks the softest, richest leaves and buds. Cougars hunt it most, and eagles and coyotes take fawns."
 			},
-			"fox-alpine": {
+			"lynx": {
 				"shelter": "Dens dug in soil, often taken over from other animals",
 				"preferredHabitat": "High country with rocky cover and lots of small prey",
 				"fact": "Red foxes often move into holes dug by rabbits or marmots. They skip the digging.",
@@ -619,7 +619,7 @@
 				"fact": "Pine martens hunt under the winter snow, in tunnels others cannot reach.",
 				"role": "A quick weasel of the treeline. It hunts voles, squirrels, pikas, and young hares. It adds berries and bugs in season. It roams over rough forest and rock, and even under the snow. Great horned owls, eagles, and bigger meat eaters hunt it."
 			},
-			"clarks-nutcracker": {
+			"nutcracker": {
 				"preferredHabitat": "High pine forest and treeline near pine seeds",
 				"fact": "It can find thousands of buried seed stores months later, even under snow.",
 				"role": "A mountain bird that gathers and buries thousands of pine seeds, so it plants the very forest it needs. Its buried food lets it raise chicks in deep winter. It also takes bugs and small animals when it can."
@@ -631,13 +631,13 @@
 				"fact": "Its pale red and black wings warn hunters that it tastes bad.",
 				"role": "A tough mountain butterfly. Its caterpillars eat only stonecrop, and the adults drink from meadow flowers. Its bright wings warn that it tastes bad. Birds and spiders that ignore the warning still catch a few."
 			},
-			"bumblebee-alpine": {
+			"alpine-moth": {
 				"shelter": "Group nests in holes in the ground and old mouse burrows",
 				"preferredHabitat": "High flower meadows, often above the tree line",
 				"fact": "This bee’s tongue got shorter between 1966 and 2014 as flowers grew scarce.",
 				"role": "A cold-hardy bumblebee with a long tongue. It moves pollen for deep mountain flowers. It shivers its wing muscles to warm up and fly in near-freezing air. Its nests are underground. Birds, crab spiders, and robber flies catch the workers."
 			},
-			"tidepool-crab": {
+			"shore-crab": {
 				"diet": "Mostly algae, plus bits of waste, worms, snails, and dead animals",
 				"fact": "Striped shore crabs eat algae. They also eat dead things, and even each other after they shed their shell.",
 				"role": "A common shore crab. It scrapes algae off the rocks and cleans up dead animals. Gulls, shorebirds, and bigger crabs all eat it, so it moves food from the algae up to the hunters."
@@ -654,7 +654,7 @@
 				"fact": "Goldfinches eat only plants. They nest late in summer so thistle fluff is ready to line the nest.",
 				"role": "A seed eater that lives on thistle and other flower seeds. So it spreads those seeds across the meadow. It is small and common, so quick hawks and small owls catch it."
 			},
-			"eastern-bluebird": {
+			"bluebird": {
 				"diet": "Mostly bugs off the ground: caterpillars, beetles, crickets. Fruit in winter",
 				"shelter": "A grass-lined nest in tree holes, old woodpecker holes, or boxes",
 				"fact": "An eastern bluebird can spot a tiny bug in the grass 60 feet away. Then it drops down and grabs it.",
@@ -664,7 +664,7 @@
 				"diet": "Digs out squirrels, gophers, voles, and mice. Also eats bugs",
 				"shelter": "Digs its own big burrows. A very strong digger",
 				"preferredHabitat": "Open meadows and grassland with soft soil and mice to hunt",
-				"fact": "Badgers sometimes team up with coyotes. The badger digs prey out below while the coyote catches the ones that run.",
+				"fact": "Badgers sometimes team up with coyotes. The badger digs prey out below while the mountain-lion catches the ones that run.",
 				"role": "A meat eater that digs prey right out of their tunnels. That keeps ground squirrel and vole numbers down. The holes it leaves behind help other animals. Almost nothing hunts a grown badger in this meadow."
 			},
 			"pileated-woodpecker": {
@@ -673,7 +673,7 @@
 				"fact": "Its deep square holes can be big enough to snap a small tree in half.",
 				"role": "This big woodpecker builds homes for the whole forest. Its large holes become nests for wood ducks, flying squirrels, fishers, bats, and barred owls. It holds down carpenter ants and beetles. It opens up rotting wood so fungus and other tiny life can get in. Hawks and weasels eat it."
 			},
-			"northern-flying-squirrel": {
+			"flying-squirrel": {
 				"diet": "Mostly fungus from underground. Also lichen, seeds, nuts, and bugs",
 				"shelter": "Tree holes, old woodpecker holes, and branch nests. Huddles in winter",
 				"preferredHabitat": "Old pine forest with a closed roof of leaves and lots of fungi",
@@ -687,7 +687,7 @@
 				"fact": "A day after hatching, wood duck ducklings jump from nest holes up to 50 feet high and land unhurt.",
 				"role": "Wood ducks tie the flooded woods and the marsh together. They spread acorn and water-plant seeds and hold down the small life of the shallows. Great horned owls, mink, raccoons, and snapping turtles eat them. They nest in old woodpecker holes, so lots of wood ducks means the wooded wetland is healthy."
 			},
-			"belted-kingfisher": {
+			"kingfisher": {
 				"diet": "Small fish and crayfish, plus other water life",
 				"fact": "Kingfishers dive headfirst into the water with their eyes shut to grab fish."
 			},
@@ -696,13 +696,13 @@
 				"fact": "Almost nothing hunts a grown snapping turtle. They can live for many years.",
 				"role": "A heavy turtle with a hard shell. It waits on the pond bottom and eats almost anything. Grown ones sit near the top of the marsh food web. They eat fish, ducklings, plants, and dead animals."
 			},
-			"rosy-finch": {
+			"gray-crowned-rosy-finch": {
 				"diet": "Tiny mountain plant seeds and bugs, often picked off the snow",
 				"preferredHabitat": "High ground above the trees: rock, scree, cliffs, and ice",
 				"fact": "It nests higher than almost any other song bird in North America.",
 				"role": "A high-mountain bird that hops over snow and rock, gathering seeds blown in by the wind and bugs chilled by the cold. It nests in cracks in the rock above treeline. Falcons and hawks are its main danger."
 			},
-			"american-pipit": {
+			"pipit": {
 				"preferredHabitat": "Open high meadows and bare ground during nesting season",
 				"fact": "It feeds at the edge of snowbanks, picking up bugs chilled after drifting up from below.",
 				"role": "A slim bird that walks across open mountain meadows, bobbing its tail as it hunts bugs. It picks up cold, slow bugs at the edge of snowbanks. Hawks and nest raiders are its main threats."
@@ -711,7 +711,7 @@
 				"diet": "Small mice, mostly voles. Also pikas, birds, eggs, and bugs",
 				"role": "A small, fierce weasel that lives on voles and other mice, and also takes young pikas and ground-bird eggs. It is thin enough to slip right into their burrows. Foxes, martens, and hawks hunt it in turn."
 			},
-			"mountain-bluebird": {
+			"white-throated-swift": {
 				"shelter": "Old woodpecker holes, tree holes, and nest boxes",
 				"fact": "It cannot dig its own hole, so it reuses old woodpecker holes and nest boxes.",
 				"role": "A bright blue bird of open high meadows. It hovers and drops on bugs in the air and adds berries when it turns cold. It nests in tree holes, so it needs old woodpecker holes. Hawks and nest raiders hunt it."
@@ -729,20 +729,20 @@
 				"fact": "A praying mantis can turn its head almost all the way around. No other insect can.",
 				"role": "A hunter that sits still and waits, then grabs prey with its spiky front legs faster than you can blink. It eats grasshoppers, bees, beetles, and other bugs, which helps keep bug numbers in check. Birds, garter snakes, and small owls eat it."
 			},
-			"little-brown-bat": {
+			"skunk": {
 				"diet": "Bugs only: midges, mayflies, moths, and mosquitoes",
 				"shelter": "Sleeps in tree hollows, under bark, and in buildings. Winters in caves",
 				"preferredHabitat": "Forest near streams, ponds, and clearings for catching bugs in the air",
 				"fact": "A cold-loving fungus has killed more than 90% of little brown bats at many winter caves.",
 				"role": "Little brown bats eat a huge number of bugs. One bat can eat half its own weight in a night, which holds down forest and water pests. They tie the bug layer to bigger hunters like owls, fishers, and snakes. A sickness called white-nose has killed most of them."
 			},
-			"spotted-towhee": {
+			"towhee": {
 				"diet": "Bugs and small crawlers in summer. Seeds, acorns, and berries in winter",
 				"preferredHabitat": "Brushy forest edges and scrub with deep leaf litter",
 				"fact": "The spotted towhee feeds with a two-footed backward hop that flicks leaves aside.",
 				"role": "The spotted towhee feeds on the ground and ties the bug layer to the seed layer. It eats ground beetles and caterpillars in summer and spreads seeds in winter. It nests on the ground, so foxes, raccoons, and snakes get the nests while hawks and owls take the adults. Its scratching turns over the leaf litter."
 			},
-			"meadow-vole": {
+			"prairie-vole": {
 				"fact": "Voles mow narrow paths through the grass. They are tidy little roads they patrol between burrow doors.",
 				"role": "A tiny mouse that almost every hunter eats, and it has babies fast. It turns meadow plants into food for everyone else. Its eating and its little grass paths shape the grass layer. Hawks, owls, foxes, snakes, and badgers all count on it."
 			},
@@ -770,9 +770,13 @@
 				"fact": "The smallest wild dog in North America. Its huge ears hear prey and let out heat.",
 				"role": "A small desert fox that hunts mice and rabbits at night. It hardly ever drinks, since it gets water from its food. Coyotes are its biggest danger."
 			},
-			"coyote": {
-				"fact": "The noisiest wild mammal in North America. A howling pack sounds like far more animals.",
-				"role": "The most flexible hunter in the desert. It eats mice, rabbits, fruit, and dead animals. It is the top mammal hunter here and the main killer of kit foxes. Its howls carry for miles at dusk."
+			"mountain-lion": {
+				"diet": "deer and wild sheep mostly. Also jackrabbits, foxes, and anything it can get close to",
+				"shelter": "It has no fixed home. The kittens are hidden in a dry cave or under a rock ledge",
+				"preferredHabitat": "Broken canyon country with ledges, boulders, and brush to sneak through. It needs water too",
+				"fact": "The biggest cat out here cannot roar. It purrs like a house cat and screams like a nightmare. From standing still, it can jump five metres straight up onto a ledge.",
+				"role": "The top hunter of the desert. It does not chase. It sneaks up close, then explodes. So it needs rough ground and brush to hide in. Out on the open flat it goes hungry. It drags a big kill into cover and buries it under sticks and sand to come back to for days. That feeds ravens, foxes, and beetles too. Nothing out here hunts a grown one.",
+				"hint": "Big prey first. Then rough broken ground to sneak through and a sheltered ledge for the kittens. It does come down to drink. It is the last animal to come back."
 			},
 			"kangaroo-rat": {
 				"fact": "Kangaroo rats never sweat or pant. They live on water made from the dry seeds they eat.",
@@ -781,7 +785,7 @@
 			"jackrabbit": {
 				"fact": "A jackrabbit’s huge ears work like radiators. They let out body heat to keep it cool."
 			},
-			"gambels-quail": {
+			"quail": {
 				"fact": "One male keeps watch from a perch while the rest of the group feeds below.",
 				"role": "A friendly ground bird that eats seeds, greens, and cactus fruit. Coyotes, bobcats, and desert hawks all need it for food. Flocks scratch through the brush together."
 			},
@@ -789,15 +793,15 @@
 				"fact": "Texas horned lizards can squirt blood from their eyes to startle a hunter.",
 				"role": "A lizard that eats mostly one kind of ant and has a big belly to hold them. Roadrunners, hawks, shrikes, and snakes hunt it."
 			},
-			"tarantula": {
-				"fact": "A desert tarantula may live 25 years, most of it within a few feet of one burrow.",
+			"desert-tarantula": {
+				"fact": "A desert desert-tarantula may live 25 years, most of it within a few feet of one burrow.",
 				"role": "A big spider that lives many years. At night it waits in its hole and grabs bugs and other small creatures. Birds, snakes, and wasps hunt it."
 			},
 			"scorpion": {
 				"fact": "Scorpions glow blue-green under black light. Nobody is quite sure why.",
 				"role": "The biggest scorpion in North America. At night it waits and grabs bugs, spiders, and even other scorpions. Owls, snakes, and lizards eat it."
 			},
-			"desert-bee": {
+			"cactus-bee": {
 				"fact": "Cactus bees nest alone, but thousands of them share the same patch of ground.",
 				"role": "A bee that lives alone. It moves pollen for desert cactus like prickly pear and cholla. It eats nectar and pollen, and the cactus needs it to make fruit."
 			},
@@ -813,7 +817,7 @@
 				"fact": "One mussel cleans several liters of sea water an hour as it feeds.",
 				"role": "A filter feeder that builds reefs. Its beds make homes for countless small animals. It is the key food that ties the top shore hunters together, from sea stars to sea otters to oystercatchers."
 			},
-			"pelican": {
+			"brown-pelican": {
 				"fact": "Brown pelicans dive from up to 65 feet, twisting to protect the neck as they hit.",
 				"role": "A fish hunter that dives from the air. It nearly died out from the pesticide DDT and then came back, which is one of the great wins for wildlife. Where pelicans are, the water holds healthy schools of small fish."
 			},
@@ -825,7 +829,7 @@
 				"fact": "Males build many spare nests and even break their neighbours’ eggs.",
 				"role": "A tiny, feisty bug eater of the reeds. It picks bugs and spiders off the stems, and males build several fake nests to win a mate."
 			},
-			"gila-woodpecker": {
+			"cactus-woodpecker": {
 				"fact": "The holes it leaves in cactus later shelter elf owls, tiny owls, and kestrels.",
 				"role": "A woodpecker that nests in cactus and builds homes for the whole desert. It eats bugs, cactus fruit, and berries. Its old holes shelter many other animals. Hawks, snakes, and bobcats hunt it."
 			},
@@ -837,7 +841,7 @@
 				"fact": "Sanderlings chase the waves back out in busy little sprints to grab stranded creatures.",
 				"role": "A small sandpiper that chases the waves in and out, eating tiny sea bugs and worms the surf digs up. Falcons hunt it. Its winter flocks show how healthy open sandy beaches are."
 			},
-			"black-oystercatcher": {
+			"puffin": {
 				"fact": "Its long red bill pries shellfish open and cuts the muscle before the shell can shut.",
 				"role": "A shore bird that pries mussels and limpets off the rock. It feeds when the tide lets it. It only does well where there is plenty of shellfish, so it shows how healthy the shore is."
 			},
@@ -849,7 +853,7 @@
 				"fact": "Western snowy plovers nest in tiny scrapes right on the open sand.",
 				"role": "A beach-nesting bird that is at risk. It eats tiny animals along the sand and tide line. It is easily scared off its nest, so it only does well on quiet, protected dune beaches."
 			},
-			"costas-hummingbird": {
+			"desert-hummingbird": {
 				"fact": "A male dives past a female with a high whistle. His purple throat flashes in the sun.",
 				"role": "A small desert hummingbird that drinks nectar from agave, chuparosa, and other blooms and eats tiny bugs. It moves lots of pollen. Snakes and hunting birds catch it."
 			},
@@ -860,19 +864,19 @@
 			"antelope-squirrel": {
 				"fact": "It carries its tail arched over its back like a parasol for shade."
 			},
-			"annas-hummingbird": {
+			"crow": {
 				"role": "A hummingbird that stays on the coast all year. It drinks nectar and eats small bugs. As it feeds it moves pollen for shrubs like manzanita and gooseberry. It links coastal flowers to the wider food web."
 			},
 			"mink": {
 				"role": "A bold hunter that swims after fish, frogs, and even muskrats. Mink are mid-sized hunters that help hold down small marsh animals."
 			},
-			"mallard-duck": {
+			"mallard": {
 				"role": "A duck that tips head down to eat seeds, plants, and small water bugs. Its ducklings and eggs feed many marsh hunters."
 			},
 			"sandhill-crane": {
 				"role": "A tall bird of the open marsh. It digs for roots and grain and snaps up bugs and small animals. When cranes are here, the wetland is wide and healthy."
 			},
-			"hooded-merganser": {
+			"merganser": {
 				"role": "A small diving duck. Its bill has saw-like teeth for holding slippery prey. It chases fish, crayfish, and bugs under water. It nests in tree holes."
 			},
 			"roadrunner": {
@@ -890,7 +894,7 @@
 			"gull": {
 				"role": "A bold bird that eats almost anything. It cleans up dead animals and hunts crabs, shellfish, and even sea stars, which links many kinds of prey to the top of the food web. Foxes and coyotes take gulls and their eggs on land."
 			},
-			"alpine-springtail": {
+			"snow-flea": {
 				"diet": "Dead leaves and stems, fungus threads, pollen, and the pink algae that grows on old snow",
 				"shelter": "Wet dead leaves, moss, and the gap between the snow and the ground in winter",
 				"preferredHabitat": "Damp mountain grass, moss, and wet leaves. Also the top of old snow on warm days",
@@ -906,7 +910,7 @@
 				"role": "This grazer sits at the heart of the coast's most famous story. Otters keep their numbers down, and scraps of loose kelp keep them fed. Then they are just one more part of a healthy forest. Take the hunters away and they march up the rock. They mow the kelp down to bare stone and leave an empty desert behind.",
 				"hint": "Kelp first. There has to be something to eat. Then think hard about what will keep the grazers in check."
 			},
-			"northern-anchovy": {
+			"anchovy": {
 				"diet": "Plankton: tiny animals, plant cells, and larvae, strained from the water or picked off one at a time",
 				"shelter": "The school itself. Open water near shore, with kelp and surfgrass edges as cover for the young",
 				"preferredHabitat": "Cool water near shore with plenty of plankton in it",
@@ -930,21 +934,13 @@
 				"role": "This is the animal that recycles the desert. There is too little water here for dead plants to rot the way they do in a forest. So termites eat almost all of it instead. They carry the goodness back underground. They also leave tunnels that let rain soak in instead of running off. On the nights they swarm, everything with a beak or a sting comes to feed.",
 				"hint": "Bury a little dead wood and they will find it. Dead wood is the desert's pantry."
 			},
-			"common-raven": {
+			"raven": {
 				"diet": "Dead animals most of all, plus eggs, chicks, young reptiles, bugs, and cactus fruit",
 				"shelter": "A big stick nest on a cliff or in a tall cactus. More and more often, on power poles",
 				"preferredHabitat": "Open desert with tall places to nest and food it can count on",
 				"fact": "Ravens remember single human faces and hold the grudge for years. A pair will even run a trick together. One bird makes a fuss while the other steals the food.",
 				"role": "The clean-up crew, and the biggest human story in the desert. Roads, dumps, farms, and power poles hand ravens free food, water, and places to nest. So there are far more of them than this desert could ever feed on its own. All those extra ravens eat baby tortoises, whose shells stay soft for years. Cutting off the free meals is now a real part of saving the tortoise.",
 				"hint": "They follow whatever gets left lying around: a dead animal, a tall perch, something to drink. That is all they ask for, and that is the trouble."
-			},
-			"coyote-meadow": {
-				"diet": "Voles, rabbits, and ground squirrels; young deer; also fruit, bugs, and dead animals",
-				"shelter": "Raises pups in a den dug into a brushy bank, often an old badger or fox hole made bigger",
-				"preferredHabitat": "Open grassland and edges with brushy cover for a den, and water close by",
-				"fact": "Three coyotes can sound like a dozen. Each one slides its voice up and down as it howls. So a small family throws up a wall of sound. Scientists call it the 'beau geste' trick.",
-				"role": "The top hunter of this meadow, and the one that copes with anything. It hunts voles and rabbits alone. It hunts young deer in pairs. In between it eats fruit, bugs, and dead animals. Its return finally puts pressure on the foxes, badgers, and deer that nothing else here could touch. It will even trail a digging badger and grab whatever bolts out the far side.",
-				"hint": "A brushy bank for a den, wide grass full of rabbits and voles, and water close by. This is the last piece. It only moves in where there is already plenty to eat."
 			},
 			"polyphemus-moth": {
 				"diet": "tree leaves as a caterpillar. Oak, birch, maple and willow. The grown moth has no mouth and never eats",
@@ -954,7 +950,7 @@
 				"role": "This moth stands for the caterpillar layer. Nearly every forest bird depends on that step. Caterpillars turn tough, chewy tree leaves into soft protein. And it is caterpillars, not seeds, that woodland songbirds stuff into their chicks. The adults that make it feed bats at dusk. The cocoons spend all winter down in the fallen leaves. So a wood raked bare in autumn throws next summer's moths out with the leaf bags.",
 				"hint": "Broadleaf trees for the caterpillars to eat, and leaves left lying all winter for the cocoons hidden among them."
 			},
-			"amphipod": {
+			"freshwater-shrimp": {
 				"diet": "Dead leaves and stems, the fungus and germs growing on them, and algae scraped off water plants",
 				"shelter": "Among sunken dead leaves, plant stems, and the loose mud on top",
 				"preferredHabitat": "Shallow water with plenty of air in it and a deep drift of rotting leaves",
@@ -994,7 +990,7 @@
 				"role": "The meadow's trapper. It slings a wheel of silk wider than your hand between tall stems. Then it waits head-down in the middle for grasshoppers, bees, and flies to blunder in. Spiders are the biggest group of hunters in any grassland. They were also the biggest thing missing from this meadow until now. They eat huge numbers of bugs, and they are the main food of half the songbirds here.",
 				"hint": "Tall stiff stems left standing, far enough apart to sling a big web between them, with flowers close by to bring the bugs in."
 			},
-			"big-brown-bat": {
+			"brown-bat": {
 				"diet": "Bugs that fly at night, mostly beetles, plus moths, flying ants, and midges",
 				"shelter": "Sleeps by day in warm dark spaces: barn lofts, attics, and under loose bark. Winters in cold cracks",
 				"preferredHabitat": "Open air over meadow and hedges to hunt in, still water to drink from, and a warm sleeping spot nearby",
@@ -1002,7 +998,7 @@
 				"role": "The night shift over the meadow. These bats work the air above the grass and along the hedges after sunset. They catch beetles, moths, and flying ants. One bat can eat thousands of bugs in a single night. They drink on the wing, dipping their jaws into still water without stopping. Mothers gather in warm roosts to raise pups together. Great horned owls catch them at dusk.",
 				"hint": "A warm crack to raise pups in, bugs in the air above the grass, and calm open water to skim a drink from without landing."
 			},
-			"garden-snail": {
+			"snail": {
 				"diet": "Dead leaves, soft rotting stems, and the algae film on damp stones",
 				"shelter": "Seals itself to the underside of a damp log or stone and waits out dry weather",
 				"preferredHabitat": "Shady, damp corners with dead leaves and something chalky to scrape at",
@@ -1011,11 +1007,11 @@
 				"hint": "A shady damp corner where leaves are left to pile up and rot. The messy bit is the point here, not the tidy bit."
 			},
 			"wolverine": {
-				"diet": "marmots, hares and ptarmigan when it can catch them. Frozen dead animals when it cannot. Berries in late summer",
+				"diet": "marmots, hares and white-tailed-ptarmigan when it can catch them. Frozen dead animals when it cannot. Berries in late summer",
 				"shelter": "Tunnels dug metres down into deep spring snow, usually beside a fallen boulder or log, with food stored in side rooms",
 				"preferredHabitat": "Big, empty, high country with broken rock, and snow that lasts into late spring",
 				"fact": "A wolverine can smell a dead animal buried under three metres of snow, dig it out, and then drive a bear off it. It does all that in a body about the size of a small dog.",
-				"role": "The biggest weasel in the world, and the mountain's great scavenger. It is now the top hunter on these peaks. It roams huge distances. It kills marmots, hares, and ptarmigan when it gets the chance, and lives off frozen dead animals when it does not. Its jaws are built to crack frozen bone. Snow is its fridge. It stores food in drifts and dens deep inside them. So a female can only raise young where the snow holds into late spring. That makes it the first animal to go when winters get short. And nothing up here will argue with it over a dead animal.",
+				"role": "The biggest weasel in the world, and the mountain's great scavenger. It is now the top hunter on these peaks. It roams huge distances. It kills marmots, hares, and white-tailed-ptarmigan when it gets the chance, and lives off frozen dead animals when it does not. Its jaws are built to crack frozen bone. Snow is its fridge. It stores food in drifts and dens deep inside them. So a female can only raise young where the snow holds into late spring. That makes it the first animal to go when winters get short. And nothing up here will argue with it over a dead animal.",
 				"hint": "What is needed here is space and snow, not views. Drifts deep enough to last into late spring, for the den and the food store. Broken rock to travel through. And marmots and hares already on the mountain. This is the last hunter to arrive."
 			},
 			"bottlenose-dolphin": {
@@ -1042,12 +1038,12 @@
 				"role": "The litter shredder. It chews dead leaves, stems, and husks into crumbs. Termites and tiny soil life can then finish the job. That is how dead plants become soil again out here. It has hundreds of legs and no hurry at all. Armor and a foul chemical mean it can afford to stroll. Scorpions and roadrunners eat it anyway.",
 				"hint": "Let the leaves drift up under the shrubs, and leave a flat rock to crawl beneath. Damp leaves are both dinner and hiding place. Bare hot sand is neither."
 			},
-			"harris-hawk": {
+			"desert-hawk": {
 				"diet": "Jackrabbits, ground squirrels, quail, woodrats, and lizards",
 				"shelter": "A big stick nest wedged in the arms of a tall cactus or a thorny tree, built and guarded by the whole family",
 				"preferredHabitat": "Open scrub with tall cactus and trees to nest in and watch from",
 				"fact": "These are the only birds of prey in the world that hunt in packs. A family of five or six spreads out. Some crash into a thorn bush to panic a rabbit while the others wait on the far side. And when there is nowhere good to perch, they stand on each other's backs, three birds high.",
-				"role": "The top hunter by day. It works the same desert the coyote works at night. Two or three generations live together all year. They share every kill, help feed each other's chicks, and take turns on lookout. That teamwork lets them bring down jackrabbits far heavier than one bird could handle alone. They need tall lookouts above open ground, and a big cactus strong enough to hold a family nest.",
+				"role": "The top hunter by day. It works the same desert the mountain-lion works at night. Two or three generations live together all year. They share every kill, help feed each other's chicks, and take turns on lookout. That teamwork lets them bring down jackrabbits far heavier than one bird could handle alone. They need tall lookouts above open ground, and a big cactus strong enough to hold a family nest.",
 				"hint": "One bird is never the whole story. A family needs a tall cactus strong enough to hold the nest, high lookouts all around it, and open ground with rabbits crossing it."
 			},
 			"bald-eagle": {
@@ -1123,14 +1119,14 @@
 				"hint": "Find the wettest, darkest crack in the cliff and keep the water running down it. Nothing will nest here if it can be walked to."
 			},
 			"peregrine-falcon": {
-				"diet": "Other birds, caught in mid-air: ptarmigan, rosy-finches, swifts, pipits, and small ducks",
+				"diet": "Other birds, caught in mid-air: white-tailed-ptarmigan, rosy-finches, swifts, pipits, and small ducks",
 				"shelter": "A bare dip kicked into gravel on a high cliff ledge. It builds no nest at all",
 				"preferredHabitat": "Steep cliffs and rock faces above open ground, with plenty of birds flying below",
 				"fact": "A diving peregrine hits about 380 km/h. That makes it the fastest animal alive. It has bony cones in its nostrils that slow the air down, so the dive does not burst its lungs.",
-				"role": "The mountain's hunter of the air. It takes almost all of its food in flight, striking from above with a closed fist instead of grabbing. It hunts birds and nothing else. So it is a direct check on the flocks of finches, pipits, and ptarmigan feeding across the slopes. It needs a quiet cliff ledge and clear air below. It needs nothing at all to build with, just loose gravel to scrape a hollow in.",
+				"role": "The mountain's hunter of the air. It takes almost all of its food in flight, striking from above with a closed fist instead of grabbing. It hunts birds and nothing else. So it is a direct check on the flocks of finches, pipits, and white-tailed-ptarmigan feeding across the slopes. It needs a quiet cliff ledge and clear air below. It needs nothing at all to build with, just loose gravel to scrape a hollow in.",
 				"hint": "A high ledge with loose gravel on it, and open sky underneath. Do not build a nest. All it takes is a dip kicked in the grit."
 			},
-			"owl-limpet": {
+			"sand-dollar": {
 				"diet": "Algae, plankton, and scraps of food picked out of the sand, grain by grain",
 				"shelter": "Half buried on edge in rippled sand, in beds of hundreds at a time",
 				"preferredHabitat": "Sheltered sandy bottoms just below the low tide line, where the current is gentle",
@@ -1177,6 +1173,14 @@
 				"fact": "When an opossum plays dead, it is not acting. It faints. The body goes stiff, the tongue lolls out, and it gives off a smell like something long dead. It cannot snap out of it for several minutes, even if you walk away.",
 				"role": "The meadow's clean-up crew. It eats what everything else has left, including dead animals and huge numbers of ticks. It is the only animal here that carries its young around on its back.",
 				"hint": "Hollow wood to sleep the day away in, and berries within a night's walk. It moves house all the time, so give it more than one option."
+			},
+			"coyote": {
+				"diet": "Voles, rabbits, and ground squirrels; young deer; also fruit, bugs, and dead animals",
+				"shelter": "Raises pups in a den dug into a brushy bank, often an old badger or fox hole made bigger",
+				"preferredHabitat": "Open grassland and edges with brushy cover for a den, and water close by",
+				"fact": "Three coyotes can sound like a dozen. Each one slides its voice up and down as it howls. So a small family throws up a wall of sound. Scientists call it the 'beau geste' trick.",
+				"role": "The top hunter of this meadow, and the one that copes with anything. It hunts voles and rabbits alone. It hunts young deer in pairs. In between it eats fruit, bugs, and dead animals. Its return finally puts pressure on the foxes, badgers, and deer that nothing else here could touch. It will even trail a digging badger and grab whatever bolts out the far side.",
+				"hint": "A brushy bank for a den, wide grass full of rabbits and voles, and water close by. This is the last piece. It only moves in where there is already plenty to eat."
 			}
 		},
 		"biome": {
@@ -1269,14 +1273,14 @@
 				"flavor": "A hunter that can wait out the heat means there is finally enough prey to wait for."
 			},
 			"desert-reborn": {
-				"flavor": "The hardest land here, fully alive. From the elf owl in the cactus to the tarantula under the stone."
+				"flavor": "The hardest land here, fully alive. From the elf owl in the cactus to the desert-tarantula under the stone."
 			},
 			"alpine-haypile": {
 				"flavor": "The pika spends all summer stacking little hay piles for a winter it refuses to sleep through. Tiny animal, huge work ethic.",
 				"hint": "Welcome back the little hay stacker of the rocks."
 			},
 			"alpine-reborn": {
-				"flavor": "Goat to ptarmigan to trout in the snowmelt. The whole high country, brought back against the wind."
+				"flavor": "Goat to white-tailed-ptarmigan to trout in the snowmelt. The whole high country, brought back against the wind."
 			},
 			"coastal-keystone": {
 				"flavor": "The classic key animal. Take the sea star away and mussels take everything. Put it back and the whole tidepool shares the rock again.",
@@ -2494,9 +2498,9 @@
 			"wetland-beaver-wake": "Otters and herons followed the beaver in. They hunt in the deep, still water its dams make. That water would not be here without it.",
 			"wetland-heron-hunt": "A great blue heron works the shallows. It stands still for minutes. Then it strikes faster than you can see.",
 			"desert-snake-rodent": "The rattlesnake is back, and it earns its keep. It waits and finds prey by body heat with pits on its face. It keeps desert mice in check.",
-			"desert-coyote-prey": "A coyote roams the scrubland again. It hunts mice and rabbits. That keeps the whole desert food web in balance.",
+			"desert-coyote-prey": "A mountain-lion roams the scrubland again. It hunts mice and rabbits. That keeps the whole desert food web in balance.",
 			"desert-shared-burrow": "Nobody wastes a hole in the desert. The tortoise digs a burrow, and a burrowing owl takes the spare room. A few feet down it stays cool while the top bakes.",
-			"alpine-eagle-prey": "A golden eagle watches the ridge. It can see a marmot from over a mile away. Then it dives faster than a car on the highway. It is the top hunter up here.",
+			"alpine-eagle-prey": "A golden eagle watches the ridge. It can see a yellow-bellied-marmot from over a mile away. Then it dives faster than a car on the highway. It is the top hunter up here.",
 			"coastal-keystone": "The ochre sea star is back. It was the first animal ever called a keystone. Take it away and mussels cover every rock. Bring it back and the whole tidepool shares the space.",
 			"coastal-otter-kelp": "An otter floating offshore means a forest below. Otters eat the urchins that would chew the kelp down to bare rock."
 		},
@@ -2525,7 +2529,7 @@
 			},
 			"desert": {
 				"damaged": "A flat with no brush and no burrows, eaten bare. With no way to escape the heat, even the toughest animals stay away.",
-				"restored": "The hardest land here, fully alive. An elf owl in the cactus and a tarantula under a stone. You cannot flood a desert back. You have to shade it back.",
+				"restored": "The hardest land here, fully alive. An elf owl in the cactus and a desert-tarantula under a stone. You cannot flood a desert back. You have to shade it back.",
 				"coexistence": "In the desert nobody wastes a hole. A tortoise digs a burrow, and a burrowing owl takes the spare room under the brush."
 			},
 			"alpine": {
@@ -2751,7 +2755,7 @@
 				"A horned lizard can shoot blood from its eyes to scare off a hunter.",
 				"A roadrunner can run more than 20 miles an hour. It would rather run than fly.",
 				"An elf owl is smaller than a soda can. It nests in holes woodpeckers leave in the cactus.",
-				"A tarantula can go months without a meal. It can live for many years.",
+				"A desert-tarantula can go months without a meal. It can live for many years.",
 				"Gila woodpeckers drill nest holes in the big cactus. Later, many other animals use them.",
 				"A jackrabbit lets heat out through its huge ears. Hold one up to the sun and you can see the blood inside.",
 				"Some desert toads sleep under the ground most of the year. They come up only for the rains.",
@@ -2759,7 +2763,7 @@
 				"A kit fox's big ears let heat out. They also pick up the tiniest rustle of a beetle in the dark.",
 				"No hole goes to waste in the desert. The tortoise digs it and the owl takes the spare room.",
 				"A rattlesnake finds its prey by body heat. It keeps the mice in check, and it waits as long as it takes.",
-				"A coyote eats whatever the desert has. That is what keeps the whole web from tipping over.",
+				"A mountain-lion eats whatever the desert has. That is what keeps the whole web from tipping over.",
 				"The woodpecker carves the cactus. Elf owls and flycatchers move into the holes it leaves.",
 				"Quail move in flocks. Dozens of eyes watch for the hawk so each bird can keep eating.",
 				"Brush is taking hold, and with it the first scraps of shade the flat has had in years.",
@@ -2790,7 +2794,7 @@
 			"alpine": [
 				"The wind never quite stops up here; it leans on the grass and combs the snowfields.",
 				"Far below, the lower country lies hazed and small; up here the air is thin and bright.",
-				"A marmot whistles. The sound bounces off the rock and the whole slope seems to listen.",
+				"A yellow-bellied-marmot whistles. The sound bounces off the rock and the whole slope seems to listen.",
 				"Cloud shadows slide across the rock. For a moment the mountain goes dim, then it blazes again.",
 				"Melted snow runs between the stones. It is ice cold and so clear you can see every pebble.",
 				"Cushion plants hug the ground in tight green mounds, out of the wind's reach.",
@@ -2811,9 +2815,9 @@
 				"Pikas do not sleep through winter. They spend all summer stacking hay to eat under the snow.",
 				"A golden eagle can spot prey from over a mile away. It dives at more than 150 miles an hour.",
 				"Mountain goats are not really goats. They climb near-straight cliffs on soft, gripping hooves.",
-				"In winter the ptarmigan turns white to hide. It also grows feathered snowshoes on its feet.",
+				"In winter the white-tailed-ptarmigan turns white to hide. It also grows feathered snowshoes on its feet.",
 				"A Clark's nutcracker can hide tens of thousands of pine seeds. It remembers where most of them are.",
-				"A marmot can sleep for eight months of the year. Its heart barely ticks over.",
+				"A yellow-bellied-marmot can sleep for eight months of the year. Its heart barely ticks over.",
 				"Bighorn rams crash heads at 20 mph; their skulls are built with a double layer to take it.",
 				"In winter the ermine turns from brown to pure white. Only the tip of its tail stays black.",
 				"Rosy-finches nest higher than almost any other song bird. They nest right up in the snow.",
@@ -2832,14 +2836,14 @@
 				"Whitebark pines count on one bird. The nutcracker plants nearly all their seeds.",
 				"Mountain air holds less of what we breathe. So the animals up here have blood that makes the most of it.",
 				"Pine grosbeaks hardly mind people at all. Old-timers called them mope-heads.",
-				"A marmot town keeps lookouts. One whistle and the whole slope is empty in a heartbeat.",
+				"A yellow-bellied-marmot town keeps lookouts. One whistle and the whole slope is empty in a heartbeat.",
 				"Snow hangs on in the shade of boulders into midsummer. It waters the flowers downhill of it.",
 				"Up here a warm rock in the morning sun is the best spot on the whole mountain.",
 				"Glacier lilies push up right at the edge of the melting snow. They bloom before anything else.",
 				"The song of a white-crowned sparrow shifts from one mountain to the next. Each range has its own tune.",
 				"Alpine chipmunks spread their seeds among dozens of hidden stores. That is how they last the winter.",
 				"The treeline is not really a line. It is the forest slowly giving in to wind and cold.",
-				"A pika stacks hay while a marmot suns above it. The rock pile is full up now.",
+				"A pika stacks hay while a yellow-bellied-marmot suns above it. The rock pile is full up now.",
 				"An eagle circles and the marmots below whistle the warning. The whole slope works as one.",
 				"A cliff-climber has claimed the crags, picking its way where nothing else dares.",
 				"A small, fierce hunter works the rock pile now. It slips between the stones after voles.",
@@ -2857,7 +2861,7 @@
 				"Fog rolls in off the water and turns the whole coast soft and gray.",
 				"Sea glass and shell fragments glint where the last high tide stranded them.",
 				"The rocks are slick with weed and loud with the suck and hiss of the surge.",
-				"A pelican glides a hand's width above the swell. It rides the cushion of air the wave makes.",
+				"A brown-pelican glides a hand's width above the swell. It rides the cushion of air the wave makes.",
 				"Out past the breaking waves the sea lifts and falls, slow and huge and uncaring.",
 				"Tidepool animals live two lives. They take crashing waves and then hours out in the air.",
 				"Kelp can grow two feet in a day. It builds forests under water that shelter hundreds of kinds of life.",

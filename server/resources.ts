@@ -3594,18 +3594,15 @@ const ACHIEVEMENT_TRIGGERS: Record<string, (c: AchCtx) => boolean> = {
 
 	'meadow-first-bloom': (c) => c.returned('meadow') >= 8,
 	'meadow-pollinators': (c) => c.kindReturned('meadow', 'insect') >= 5,
-	'meadow-apex': (c) => !!c.disc('red-fox-meadow'),
+	'meadow-apex': (c) => !!c.disc('red-fox'),
 	'meadow-mender': (c) => c.health('meadow') >= 80,
 	'meadow-reborn': (c) => c.returned('meadow') >= 25,
 
 	'forest-understory': (c) => c.returned('forest') >= 10,
 	'forest-cavities': (c) =>
 		!!c.disc('pileated-woodpecker') &&
-		(!!c.disc('wood-duck') ||
-			!!c.disc('northern-flying-squirrel') ||
-			!!c.disc('great-horned-owl') ||
-			!!c.disc('barred-owl')),
-	'forest-night-shift': (c) => !!c.disc('great-horned-owl') && !!c.disc('barred-owl') && !!c.disc('little-brown-bat'),
+		(!!c.disc('wood-duck') || !!c.disc('flying-squirrel') || !!c.disc('great-horned-owl') || !!c.disc('goshawk')),
+	'forest-night-shift': (c) => !!c.disc('great-horned-owl') && !!c.disc('goshawk') && !!c.disc('skunk'),
 	'forest-canopy': (c) => c.health('forest') >= 80,
 	'forest-reborn': (c) => c.returned('forest') >= 25,
 
@@ -3617,7 +3614,7 @@ const ACHIEVEMENT_TRIGGERS: Record<string, (c: AchCtx) => boolean> = {
 
 	'desert-first-life': (c) => c.returned('desert') >= 8,
 	'desert-burrows': (c) => !!c.disc('burrowing-owl') && !!c.disc('kangaroo-rat') && !!c.disc('desert-tortoise'),
-	'desert-hunter': (c) => !!c.disc('rattlesnake') || !!c.disc('coyote'),
+	'desert-hunter': (c) => !!c.disc('rattlesnake') || !!c.disc('mountain-lion'),
 	'desert-restored': (c) => c.health('desert') >= 80,
 	'desert-reborn': (c) => c.returned('desert') >= 25,
 

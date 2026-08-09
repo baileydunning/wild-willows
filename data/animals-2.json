@@ -3,7 +3,7 @@
   "table": "Animal",
   "records": [
     {
-      "id": "alpine-springtail",
+      "id": "snow-flea",
       "name": "Snow Flea",
       "scientificName": "Hypogastrura nivicola",
       "kind": "invertebrate",
@@ -21,11 +21,11 @@
         "snow algae"
       ],
       "eatenBy": [
-        "american-pipit",
-        "rosy-finch",
+        "pipit",
+        "gray-crowned-rosy-finch",
         "boreal-toad",
         "mountain-chickadee",
-        "clarks-nutcracker",
+        "nutcracker",
         "snow-bunting"
       ],
       "requirements": {
@@ -66,7 +66,8 @@
         "forbs"
       ],
       "eatenBy": [
-        "golden-eagle"
+        "golden-eagle",
+        "grizzly-bear"
       ],
       "requirements": {
         "minHealth": 72,
@@ -113,10 +114,11 @@
       ],
       "eatenBy": [
         "ermine",
-        "fox-alpine",
+        "lynx",
         "golden-eagle",
         "pine-marten",
-        "wolverine"
+        "wolverine",
+        "grizzly-bear"
       ],
       "requirements": {
         "minHealth": 30,
@@ -141,7 +143,7 @@
       "biome": "alpine"
     },
     {
-      "id": "marmot",
+      "id": "yellow-bellied-marmot",
       "name": "Yellow-bellied Marmot",
       "scientificName": "Marmota flaviventris",
       "kind": "mammal",
@@ -150,7 +152,7 @@
       "diet": "grasses, flowering plants and seeds, eaten hard through a short summer",
       "shelter": "Deep, many-chambered burrows dug beneath boulders, below the frost line",
       "preferredHabitat": "Open alpine turf broken by boulders, with diggable soil underneath",
-      "fact": "A marmot sleeps for about eight months of the year and wakes up weighing half what it did when it went to bed.",
+      "fact": "A yellow-bellied-marmot sleeps for about eight months of the year and wakes up weighing half what it did when it went to bed.",
       "role": "A fat, sun-basking rodent that eats meadow plants flat out through a short summer and whistles from a boulder the moment a shadow crosses. Its old burrows become fox dens, bumble bee nests and toad hideouts, so a surprising amount of the mountain depends on its digging. Eagles, foxes, martens, wolverines and lions hunt it.",
       "eats": [],
       "eatsOther": [
@@ -160,10 +162,10 @@
       ],
       "eatenBy": [
         "golden-eagle",
-        "fox-alpine",
+        "lynx",
         "pine-marten",
         "wolverine",
-        "mule-deer-alpine"
+        "grizzly-bear"
       ],
       "requirements": {
         "minHealth": 35,
@@ -187,8 +189,8 @@
           "url": "https://animaldiversity.org/accounts/Marmota_flaviventris/"
         },
         {
-          "name": "NPS — Yellow-bellied marmot",
-          "url": "https://www.nps.gov/romo/learn/nature/marmot.htm"
+          "name": "NPS — Yellow-bellied yellow-bellied-marmot",
+          "url": "https://www.nps.gov/romo/learn/nature/yellow-bellied-marmot.htm"
         }
       ],
       "biome": "alpine"
@@ -216,8 +218,9 @@
       "eatenBy": [
         "pine-marten",
         "golden-eagle",
-        "fox-alpine",
-        "wolverine"
+        "lynx",
+        "wolverine",
+        "grizzly-bear"
       ],
       "requirements": {
         "minHealth": 40,
@@ -242,7 +245,7 @@
       "biome": "alpine"
     },
     {
-      "id": "ptarmigan",
+      "id": "white-tailed-ptarmigan",
       "name": "White-tailed Ptarmigan",
       "scientificName": "Lagopus leucura",
       "kind": "bird",
@@ -262,7 +265,7 @@
       ],
       "eatenBy": [
         "ermine",
-        "fox-alpine",
+        "lynx",
         "golden-eagle",
         "pine-marten",
         "wolverine",
@@ -276,7 +279,7 @@
           "scree-slope": 1
         },
         "signature": "snowbank-roost",
-        "hint": "Willow is the whole winter for a ptarmigan, and a soft deep drift is its bedroom. It eats snow instead of drinking, and it has no use at all for a flower planter."
+        "hint": "Willow is the whole winter for a white-tailed-ptarmigan, and a soft deep drift is its bedroom. It eats snow instead of drinking, and it has no use at all for a flower planter."
       },
       "sources": [
         {
@@ -308,8 +311,8 @@
         "nectar"
       ],
       "eatenBy": [
-        "mountain-bluebird",
-        "american-pipit"
+        "white-throated-swift",
+        "pipit"
       ],
       "requirements": {
         "minHealth": 25,
@@ -334,7 +337,7 @@
       "biome": "alpine"
     },
     {
-      "id": "bumblebee-alpine",
+      "id": "alpine-moth",
       "name": "Alpine Moth",
       "scientificName": "Euxoa auxiliaris",
       "kind": "insect",
@@ -352,8 +355,9 @@
         "leaves and roots as a caterpillar"
       ],
       "eatenBy": [
-        "mountain-bluebird",
-        "black-swift"
+        "white-throated-swift",
+        "black-swift",
+        "grizzly-bear"
       ],
       "requirements": {
         "minHealth": 38,
@@ -383,7 +387,7 @@
       "biome": "alpine"
     },
     {
-      "id": "alpine-chipmunk",
+      "id": "rock-squirrel",
       "name": "Rock Squirrel",
       "scientificName": "Callospermophilus lateralis",
       "kind": "mammal",
@@ -403,9 +407,10 @@
       ],
       "eatenBy": [
         "ermine",
-        "fox-alpine",
+        "lynx",
         "pine-marten",
-        "golden-eagle"
+        "golden-eagle",
+        "grizzly-bear"
       ],
       "requirements": {
         "minHealth": 35,
@@ -436,7 +441,7 @@
       "biome": "alpine"
     },
     {
-      "id": "clarks-nutcracker",
+      "id": "nutcracker",
       "name": "Nutcracker",
       "scientificName": "Nucifraga columbiana",
       "kind": "bird",
@@ -448,7 +453,7 @@
       "fact": "One bird buries tens of thousands of pine seeds in a single autumn and can still find them months later under snow, navigating by rocks and logs it has memorised like landmarks on a map.",
       "role": "A crow-family bird with a deal running with the whitebark pine. The cones never open by themselves, so nearly every young whitebark on the mountain grew from a seed this bird buried and never came back for. It carries seeds in a pouch under its tongue, breeds in late winter off its hoard, and takes insects and small animals besides. Martens and eagles catch it.",
       "eats": [
-        "alpine-springtail"
+        "snow-flea"
       ],
       "eatsOther": [
         "whitebark pine seeds",
@@ -482,7 +487,7 @@
       "biome": "alpine"
     },
     {
-      "id": "rosy-finch",
+      "id": "gray-crowned-rosy-finch",
       "name": "Gray-crowned Rosy-Finch",
       "scientificName": "Leucosticte tephrocotis",
       "kind": "bird",
@@ -494,7 +499,7 @@
       "fact": "It nests higher than almost any other songbird here, jammed into cracks in cliffs and rockslides where nothing else will build at all.",
       "role": "A pink-brown finch that hops across snowfields picking up wind-blown seeds and insects the cold has knocked flat. It can only breed where the rock has real cracks in it, so cliffs matter to it even more than food does. Eagles and ermines take it.",
       "eats": [
-        "alpine-springtail"
+        "snow-flea"
       ],
       "eatsOther": [
         "alpine seeds",
@@ -513,7 +518,7 @@
           "crystal-spring": 1
         },
         "signature": "cliff-nest-niche",
-        "hint": "Rock with cracks in it, not a heap of stones. A rosy-finch nests inside the cliff, feeds out across the scree, and drinks meltwater."
+        "hint": "Rock with cracks in it, not a heap of stones. A gray-crowned-rosy-finch nests inside the cliff, feeds out across the scree, and drinks meltwater."
       },
       "sources": [
         {
@@ -528,7 +533,7 @@
       "biome": "alpine"
     },
     {
-      "id": "american-pipit",
+      "id": "pipit",
       "name": "Pipit",
       "scientificName": "Anthus rubescens",
       "kind": "bird",
@@ -540,7 +545,7 @@
       "fact": "Wind sweeps insects up off the lowlands and dumps them on the snowfields, chilled and helpless. The pipit walks the edge of the melting snow eating a meal the weather delivered uphill.",
       "role": "A slim brown ground-walker that bobs its tail non-stop as it hunts across open turf. It nests in a scrape tucked beside a rock and feeds heavily on that stranded insect fallout, one of the strangest free lunches in the mountains. Foxes and ermines take it and its ground nests.",
       "eats": [
-        "alpine-springtail",
+        "snow-flea",
         {
           "id": "alpine-butterfly",
           "stage": "young"
@@ -574,7 +579,7 @@
         },
         {
           "name": "Audubon Field Guide — American Pipit",
-          "url": "https://www.audubon.org/field-guide/bird/american-pipit"
+          "url": "https://www.audubon.org/field-guide/bird/pipit"
         }
       ],
       "biome": "alpine"
@@ -592,7 +597,7 @@
       "fact": "It spends September to May underground, then comes out and breeds in pools that were solid ice a few weeks earlier.",
       "role": "The only toad living this high. Adults eat insects by the thousand and the tadpoles graze algae in shallow, sun-warmed pools, and almost nothing eats them because their skin tastes foul. What actually threatens this toad is a skin fungus and trout stocked into lakes that never had fish.",
       "eats": [
-        "alpine-springtail"
+        "snow-flea"
       ],
       "eatsOther": [
         "beetles",
@@ -636,7 +641,7 @@
       "biome": "alpine"
     },
     {
-      "id": "mountain-bluebird",
+      "id": "white-throated-swift",
       "name": "White-throated Swift",
       "scientificName": "Aeronautes saxatalis",
       "kind": "bird",
@@ -648,7 +653,7 @@
       "fact": "It does everything in the air. It eats in the air, drinks in the air, and pairs mate in mid-air — locking together and tumbling hundreds of feet down the cliff face before they let go.",
       "role": "A blade-shaped bird that lives in the sky above the mountain, hoovering up moths, beetles and whatever else the wind lifts, at speeds that make it one of the fastest birds alive in level flight. Its feet only cling, never perch, so it has to fold itself into a crack in a cliff at night, and it sticks the nest in place with its own saliva. Because it eats only what is flying, a swift working the ridge is proof the insect life below has come back. Almost nothing is quick enough to catch one.",
       "eats": [
-        "bumblebee-alpine",
+        "alpine-moth",
         "alpine-butterfly"
       ],
       "eatsOther": [
@@ -696,7 +701,7 @@
       "fact": "It hides thousands of seeds one at a time and remembers where they are. The part of its brain that does the remembering actually grows bigger in autumn.",
       "role": "The small busy bird that seems to be everywhere in the last trees, hanging upside down off twigs after insects and beetle grubs and switching to hidden seeds in winter. It can only nest where the wood has already gone soft, so dead trees are not mess, they are the nursery. Weasels, foxes and martens take it.",
       "eats": [
-        "alpine-springtail"
+        "snow-flea"
       ],
       "eatsOther": [
         "bark-beetle larvae",
@@ -729,24 +734,24 @@
       "biome": "alpine"
     },
     {
-      "id": "fox-alpine",
+      "id": "lynx",
       "name": "Lynx",
       "scientificName": "Lynx canadensis",
       "kind": "mammal",
       "trophic": "mesopredator",
       "rarity": "rare",
-      "diet": "snowshoe hares above all — sometimes almost nothing else — plus ptarmigan, ground squirrels and young marmots",
+      "diet": "snowshoe hares above all — sometimes almost nothing else — plus white-tailed-ptarmigan, ground squirrels and young marmots",
       "shelter": "A hollow under boulders, roots or deadfall, often a burrow something else started and it widened",
       "preferredHabitat": "High snowy country with thickets of dwarf conifer where hares can hide and lynx can wait for them",
       "fact": "A lynx weighs about as much as a border collie, but its paws are as wide as a mountain lion's. They spread as it steps, so it walks on top of snow a fox would sink straight through.",
       "role": "The mountain's hare specialist, and almost nothing else will do. When hares are everywhere, lynx are everywhere; when the hares crash a few years later, the lynx crash right behind them, and the whole thing swings back and forth on roughly a ten-year beat. It hunts by sitting perfectly still in the thickets and letting the hare come to it, so low tangled cover matters more to it than open ground. It rarely digs, moving instead into a hollow under rock that somebody else opened up. Eagles take its kittens.",
       "eats": [
         "snowshoe-hare",
-        "ptarmigan",
-        "alpine-chipmunk",
+        "white-tailed-ptarmigan",
+        "rock-squirrel",
         "pika",
         {
-          "id": "marmot",
+          "id": "yellow-bellied-marmot",
           "stage": "young"
         }
       ],
@@ -771,7 +776,7 @@
         "signature": "inherited-earth-den",
         "animals": [
           "snowshoe-hare",
-          "ptarmigan"
+          "white-tailed-ptarmigan"
         ],
         "water": {
           "tiles": 1
@@ -805,16 +810,16 @@
       "eats": [
         "pika",
         "snowshoe-hare",
-        "alpine-chipmunk",
-        "ptarmigan",
+        "rock-squirrel",
+        "white-tailed-ptarmigan",
         "mountain-chickadee",
         "ermine",
         {
-          "id": "marmot",
+          "id": "yellow-bellied-marmot",
           "stage": "young"
         },
         {
-          "id": "clarks-nutcracker",
+          "id": "nutcracker",
           "stage": "eggs"
         }
       ],
@@ -865,16 +870,16 @@
       "fact": "An ermine turns pure white in winter except for the black tip of its tail, and it is narrow enough to chase a vole down the vole's own tunnel.",
       "role": "A weasel shaped like a furry pencil, living mostly on voles and mice and taking young pikas, nestlings and eggs besides. It builds nothing. It moves into the burrow of whatever it has just eaten and lines the nest with the previous owner's fur. It is here in every season, not only in the snow. Foxes, martens and eagles kill it in turn.",
       "eats": [
-        "alpine-chipmunk",
+        "rock-squirrel",
         "mountain-chickadee",
-        "american-pipit",
-        "rosy-finch",
+        "pipit",
+        "gray-crowned-rosy-finch",
         {
           "id": "pika",
           "stage": "young"
         },
         {
-          "id": "ptarmigan",
+          "id": "white-tailed-ptarmigan",
           "stage": "eggs"
         },
         "snow-bunting"
@@ -897,7 +902,7 @@
         },
         "signature": "fur-lined-prey-den",
         "animals": [
-          "alpine-chipmunk",
+          "rock-squirrel",
           "pika"
         ],
         "hint": "It moves into a burrow it has just emptied, so bring the small rodents back first."
@@ -921,21 +926,21 @@
       "kind": "bird",
       "trophic": "apex-predator",
       "rarity": "rare",
-      "diet": "marmots, hares, ground squirrels, ptarmigan and other birds, plus carrion",
+      "diet": "marmots, hares, ground squirrels, white-tailed-ptarmigan and other birds, plus carrion",
       "shelter": "Huge stick eyries built on sheer cliff ledges and reused for decades",
       "preferredHabitat": "Open, high country with big cliffs to nest on and plenty of medium-sized prey",
-      "fact": "A hunting golden eagle drops out of the sky at over 240 kilometres an hour, and its eyesight is sharp enough to pick a marmot out of a boulder field from a kilometre up.",
-      "role": "The hunter that owns the air up here, taking marmots, hares and ptarmigan in long stooping dives and killing smaller predators outright when it gets the chance. It takes newborn lambs, kids and fox cubs, but not adult sheep or goats. Its huge stick eyrie on a cliff ledge gets added to and reused for decades. Adults have nothing above them.",
+      "fact": "A hunting golden eagle drops out of the sky at over 240 kilometres an hour, and its eyesight is sharp enough to pick a yellow-bellied-marmot out of a boulder field from a kilometre up.",
+      "role": "The hunter that owns the air up here, taking marmots, hares and white-tailed-ptarmigan in long stooping dives and killing smaller predators outright when it gets the chance. It takes newborn lambs, kids and fox cubs, but not adult sheep or goats. Its huge stick eyrie on a cliff ledge gets added to and reused for decades. Adults have nothing above them.",
       "eats": [
-        "marmot",
+        "yellow-bellied-marmot",
         "snowshoe-hare",
         "pika",
-        "ptarmigan",
-        "alpine-chipmunk",
+        "white-tailed-ptarmigan",
+        "rock-squirrel",
         "ermine",
         "pine-marten",
-        "rosy-finch",
-        "clarks-nutcracker",
+        "gray-crowned-rosy-finch",
+        "nutcracker",
         {
           "id": "bighorn-sheep",
           "stage": "young"
@@ -945,7 +950,7 @@
           "stage": "young"
         },
         {
-          "id": "fox-alpine",
+          "id": "lynx",
           "stage": "young"
         },
         "peregrine-falcon"
@@ -965,7 +970,7 @@
         },
         "signature": "cliff-eyrie",
         "animals": [
-          "marmot",
+          "yellow-bellied-marmot",
           "snowshoe-hare"
         ],
         "hint": "Eagles come last, when the mountain is properly alive again. They need a real cliff for the eyrie and open ground below with plenty moving on it."
@@ -1001,7 +1006,8 @@
       ],
       "eatenBy": [
         "sea-otter",
-        "sea-star"
+        "sea-star",
+        "octopus"
       ],
       "requirements": {
         "minHealth": 35,
@@ -1030,7 +1036,7 @@
       "ocean": true
     },
     {
-      "id": "northern-anchovy",
+      "id": "anchovy",
       "name": "Anchovy",
       "scientificName": "Engraulis mordax",
       "kind": "fish",
@@ -1048,11 +1054,11 @@
         "krill"
       ],
       "eatenBy": [
-        "pelican",
+        "brown-pelican",
         "harbor-seal",
         "gull",
         "bottlenose-dolphin",
-        "black-oystercatcher"
+        "puffin"
       ],
       "requirements": {
         "minHealth": 30,
@@ -1074,7 +1080,7 @@
         },
         {
           "name": "NOAA Fisheries — Northern Anchovy",
-          "url": "https://www.fisheries.noaa.gov/species/northern-anchovy"
+          "url": "https://www.fisheries.noaa.gov/species/anchovy"
         }
       ],
       "biome": "coastal",
@@ -1102,7 +1108,7 @@
         "snowy-plover",
         "sanderling",
         "gull",
-        "annas-hummingbird"
+        "crow"
       ],
       "requirements": {
         "minHealth": 12,
@@ -1240,7 +1246,8 @@
         "anemone",
         "black-turnstone",
         "gull",
-        "sea-otter"
+        "sea-otter",
+        "octopus"
       ],
       "requirements": {
         "minHealth": 28,
@@ -1268,7 +1275,7 @@
       "ocean": true
     },
     {
-      "id": "migrating-whale",
+      "id": "gray-whale",
       "name": "Gray Whale",
       "scientificName": "Eschrichtius robustus",
       "kind": "mammal",
@@ -1276,7 +1283,7 @@
       "rarity": "rare",
       "diet": "bottom-living amphipods and swarming mysid shrimp, sifted through baleen",
       "shelter": "Open ocean; passes close inshore along a healthy coast",
-      "preferredHabitat": "Nearshore water with soft-bottom amphipod beds and mysid swarms at the kelp edge",
+      "preferredHabitat": "Nearshore water with soft-bottom freshwater-shrimp beds and mysid swarms at the kelp edge",
       "fact": "Gray whales roll onto one side and vacuum the seafloor, straining out shrimp-like amphipods and leaving long muddy plumes trailing behind them — and they do it at the end of a swim of up to 14,000 miles.",
       "role": "A baleen whale that feeds off the bottom rather than skimming the surface, so a whale that lingers offshore is really a report on the seabed and the kelp edge below it. Adults are far too big to be hunted here; the calves travelling with them in spring are not, and orcas know it.",
       "eats": [],
@@ -1364,7 +1371,7 @@
       "amphibious": true
     },
     {
-      "id": "tidepool-crab",
+      "id": "shore-crab",
       "name": "Shore Crab",
       "scientificName": "Pachygrapsus crassipes",
       "kind": "invertebrate",
@@ -1386,7 +1393,9 @@
         "black-turnstone",
         "gull",
         "octopus",
-        "annas-hummingbird"
+        "crow",
+        "bottlenose-dolphin",
+        "harbor-seal"
       ],
       "requirements": {
         "minHealth": 12,
@@ -1428,12 +1437,12 @@
       "eats": [
         "hermit-crab",
         "mussel",
-        "tidepool-crab",
+        "shore-crab",
         "beach-hopper",
-        "northern-anchovy",
+        "anchovy",
         "sea-star",
         "bat-star",
-        "black-oystercatcher"
+        "puffin"
       ],
       "eatsOther": [
         "carrion",
@@ -1452,7 +1461,7 @@
           "ocean": 2
         },
         "animals": [
-          "tidepool-crab"
+          "shore-crab"
         ],
         "hint": "Open beach to patrol, low scrub to nest beside, and one hard flat rock to bomb shellfish onto."
       },
@@ -1584,7 +1593,7 @@
       "eats": [
         "hermit-crab",
         "mussel",
-        "tidepool-crab"
+        "shore-crab"
       ],
       "eatsOther": [
         "barnacles",
@@ -1619,7 +1628,7 @@
       "biome": "coastal"
     },
     {
-      "id": "annas-hummingbird",
+      "id": "crow",
       "name": "Crow",
       "scientificName": "Corvus brachyrhynchos",
       "kind": "bird",
@@ -1631,7 +1640,7 @@
       "fact": "Crows work out that a shell will break if you drop it on rock, and they pick their spot — one that has learned the trick will carry a clam up, drop it, and adjust its height until the shell cracks. They also remember faces for years.",
       "role": "The sharpest bird on the shore. It patrols the tideline for anything stranded, cracks open what it can't bite through, and follows the gulls and the otters to see what they turn up.",
       "eats": [
-        "tidepool-crab",
+        "shore-crab",
         "beach-hopper"
       ],
       "eatsOther": [
@@ -1677,7 +1686,7 @@
           "id": "purple-sea-urchin",
           "stage": "young"
         },
-        "owl-limpet"
+        "sand-dollar"
       ],
       "eatsOther": [
         "barnacles",
@@ -1732,7 +1741,7 @@
       "role": "A sit-still hunter that waits below the mussel beds and catches whatever the surf knocks loose from above, while farming its own private algae for extra meals. Half its food arrives by accident, falling out of the rocks overhead.",
       "eats": [
         "mussel",
-        "tidepool-crab"
+        "shore-crab"
       ],
       "eatsOther": [
         "dislodged mussels",
@@ -1752,7 +1761,7 @@
         },
         "animals": [
           "mussel",
-          "tidepool-crab"
+          "shore-crab"
         ],
         "hint": "A sunlit pool with surge running through it, sitting below a mussel bed. Dinner falls in from upstairs."
       },
@@ -1770,7 +1779,7 @@
       "ocean": true
     },
     {
-      "id": "black-oystercatcher",
+      "id": "puffin",
       "name": "Puffin",
       "scientificName": "Fratercula cirrhata",
       "kind": "bird",
@@ -1782,7 +1791,7 @@
       "fact": "A puffin can hold a dozen fish crosswise in its beak at once without dropping any — backward-pointing spines on its tongue and the roof of its mouth pin each one while it catches the next.",
       "role": "A small seabird that lives almost its whole life out on the water and only comes ashore to nest, digging a burrow into the clifftop turf. Its beak only turns bright orange for the breeding season, then dulls again for winter.",
       "eats": [
-        "northern-anchovy"
+        "anchovy"
       ],
       "eatsOther": [
         "small fish",
@@ -1804,7 +1813,7 @@
           "deep": true
         },
         "animals": [
-          "northern-anchovy"
+          "anchovy"
         ],
         "hint": "Soft turf on top of a cliff to dig a burrow into, and deep water below it full of small fish."
       },
@@ -1817,7 +1826,7 @@
       "biome": "coastal"
     },
     {
-      "id": "pelican",
+      "id": "brown-pelican",
       "name": "Brown Pelican",
       "scientificName": "Pelecanus occidentalis californicus",
       "kind": "bird",
@@ -1826,10 +1835,11 @@
       "diet": "small schooling fish, especially northern anchovy",
       "shelter": "Nests only on undisturbed offshore islands; loafs on sandbars and rocks",
       "preferredHabitat": "Anchovy-rich nearshore water within reach of an island colony",
-      "fact": "A brown pelican dives from sixty feet up and hits the water hard enough to stun fish — and it twists its body left just before impact so the blow does not break its neck.",
-      "role": "A plunge-diving anchovy hunter whose comeback after pesticide poisoning is one of the great conservation rescues. It nests only on islands offshore, never on the mainland beach, and its colonies fail outright in years when the anchovy schools do not show — so a nesting pelican is a statement about the fish, not the sand.",
+      "fact": "A brown brown-pelican dives from sixty feet up and hits the water hard enough to stun fish — and it twists its body left just before impact so the blow does not break its neck.",
+      "role": "A plunge-diving anchovy hunter whose comeback after pesticide poisoning is one of the great conservation rescues. It nests only on islands offshore, never on the mainland beach, and its colonies fail outright in years when the anchovy schools do not show — so a nesting brown-pelican is a statement about the fish, not the sand.",
       "eats": [
-        "northern-anchovy"
+        "anchovy",
+        "sand-dollar"
       ],
       "eatsOther": [
         "sardines",
@@ -1848,7 +1858,7 @@
           "deep": true
         },
         "animals": [
-          "northern-anchovy"
+          "anchovy"
         ],
         "hint": "An island the tide and the footpaths cannot reach, sandbars to loaf on, and it schools in the water offshore."
       },
@@ -1935,7 +1945,9 @@
       "fact": "Harbor seals can sleep at sea, hanging upright just below the surface like bottles and bobbing up for a breath without properly waking.",
       "role": "A patient, curious hunter that eats whatever fish is easiest to catch that week. Everything it does on land happens on a haul-out: resting, moulting, giving birth. Walk up to one once and the seals stop using it. Nothing on this shore hunts an adult seal — but something out in the deep water does.",
       "eats": [
-        "northern-anchovy"
+        "anchovy",
+        "shore-crab",
+        "octopus"
       ],
       "eatsOther": [
         "flatfish",
@@ -1957,7 +1969,7 @@
           "deep": true
         },
         "animals": [
-          "northern-anchovy"
+          "anchovy"
         ],
         "hint": "Deep water to fish in and quiet rocks to haul out on, with room around them. A seal haul-out is not a bird nesting closure — build the right thing."
       },
@@ -1997,7 +2009,7 @@
         "horned-lizard",
         "burrowing-owl",
         "scorpion",
-        "tarantula",
+        "desert-tarantula",
         "grasshopper-mouse"
       ],
       "requirements": {
@@ -2038,11 +2050,11 @@
         "twigs and bark"
       ],
       "eatenBy": [
-        "coyote",
+        "mountain-lion",
         "kit-fox",
         "rattlesnake",
-        "common-raven",
-        "harris-hawk"
+        "raven",
+        "desert-hawk"
       ],
       "requirements": {
         "minHealth": 30,
@@ -2130,7 +2142,7 @@
         "cactus pads"
       ],
       "eatenBy": [
-        "common-raven"
+        "raven"
       ],
       "requirements": {
         "minHealth": 50,
@@ -2154,7 +2166,7 @@
       "biome": "desert"
     },
     {
-      "id": "desert-bee",
+      "id": "cactus-bee",
       "name": "Cactus Bee",
       "scientificName": "Diadasia rinconis",
       "kind": "insect",
@@ -2197,7 +2209,7 @@
       "biome": "desert"
     },
     {
-      "id": "costas-hummingbird",
+      "id": "desert-hummingbird",
       "name": "Desert Hummingbird",
       "scientificName": "Calypte costae",
       "kind": "bird",
@@ -2229,7 +2241,7 @@
       "sources": [
         {
           "name": "Sonoran Joint Venture — Costa's Hummingbird species account",
-          "url": "https://sonoranjv.org/accounts/costas-hummingbird.pdf"
+          "url": "https://sonoranjv.org/accounts/desert-hummingbird.pdf"
         },
         {
           "name": "Cornell Lab All About Birds — Costa's Hummingbird Life History",
@@ -2239,7 +2251,7 @@
       "biome": "desert"
     },
     {
-      "id": "gambels-quail",
+      "id": "quail",
       "name": "Quail",
       "scientificName": "Callipepla gambelii",
       "kind": "bird",
@@ -2259,8 +2271,8 @@
       ],
       "eatenBy": [
         "roadrunner",
-        "common-raven",
-        "harris-hawk"
+        "raven",
+        "desert-hawk"
       ],
       "requirements": {
         "minHealth": 40,
@@ -2282,13 +2294,13 @@
         },
         {
           "name": "Audubon Field Guide — Gambel's Quail",
-          "url": "https://www.audubon.org/field-guide/bird/gambels-quail"
+          "url": "https://www.audubon.org/field-guide/bird/quail"
         }
       ],
       "biome": "desert"
     },
     {
-      "id": "gila-woodpecker",
+      "id": "cactus-woodpecker",
       "name": "Cactus Woodpecker",
       "scientificName": "Melanerpes uropygialis",
       "kind": "bird",
@@ -2341,7 +2353,7 @@
       "fact": "A phainopepla can put away more than a thousand mistletoe berries in a single day, and the seeds come out the other end still sticky — so the bird glues the next generation of mistletoe onto branches as it flies.",
       "role": "Mistletoe's one dependable gardener; almost nothing else will touch the berries. The plant only grows on mesquite, ironwood and acacia, so this glossy black bird with red eyes needs those trees as much as the mistletoe does. Out of berry season it snaps insects out of the air instead.",
       "eats": [
-        "desert-bee"
+        "cactus-bee"
       ],
       "eatsOther": [
         "mistletoe berries",
@@ -2392,11 +2404,11 @@
         "green shoots"
       ],
       "eatenBy": [
-        "coyote",
+        "mountain-lion",
         "kit-fox",
         "rattlesnake",
         "roadrunner",
-        "harris-hawk"
+        "desert-hawk"
       ],
       "requirements": {
         "minHealth": 38,
@@ -2432,7 +2444,7 @@
       "fact": "A cactus wren builds several football-shaped nests and keeps the spare ones as bedrooms all year, so it goes to sleep surrounded on every side by cactus spines.",
       "role": "The biggest wren you will ever meet, flipping over leaves and bark for insects and spiders and taking every drop of its water from that food. Its nest sits deep inside a cholla where the spines keep snakes and raiding birds out — take away the cholla and the wren has nowhere at all to raise chicks.",
       "eats": [
-        "desert-bee"
+        "cactus-bee"
       ],
       "eatsOther": [
         "spiders",
@@ -2535,8 +2547,8 @@
       ],
       "eatenBy": [
         "roadrunner",
-        "common-raven",
-        "harris-hawk"
+        "raven",
+        "desert-hawk"
       ],
       "requirements": {
         "minHealth": 16,
@@ -2560,7 +2572,7 @@
       "biome": "desert"
     },
     {
-      "id": "common-raven",
+      "id": "raven",
       "name": "Raven",
       "scientificName": "Corvus corax",
       "kind": "bird",
@@ -2581,7 +2593,7 @@
           "stage": "young"
         },
         {
-          "id": "gambels-quail",
+          "id": "quail",
           "stage": "eggs"
         },
         "horned-lizard"
@@ -2628,17 +2640,17 @@
       "shelter": "A bulky stick nest a metre or two up inside a thorny shrub or cholla",
       "preferredHabitat": "Open running ground broken up by thorny thickets",
       "fact": "A roadrunner can outrun you — over 30 km an hour on two legs — and it kills a rattlesnake by grabbing it behind the head and beating it against a rock until it stops moving.",
-      "role": "The daytime terror of anything small and quick: lizards, tarantulas, scorpions, millipedes, other birds, and one of the very few birds anywhere that will pick a fight with a rattlesnake. It needs both halves of its home — open ground to sprint across and a thorn thicket high enough to keep its chicks out of a coyote's reach.",
+      "role": "The daytime terror of anything small and quick: lizards, tarantulas, scorpions, millipedes, other birds, and one of the very few birds anywhere that will pick a fight with a rattlesnake. It needs both halves of its home — open ground to sprint across and a thorn thicket high enough to keep its chicks out of a mountain-lion's reach.",
       "eats": [
         "horned-lizard",
         "scorpion",
-        "tarantula",
+        "desert-tarantula",
         "desert-millipede",
         "cactus-wren",
-        "costas-hummingbird",
+        "desert-hummingbird",
         "antelope-squirrel",
         {
-          "id": "gambels-quail",
+          "id": "quail",
           "stage": "young"
         },
         "rattlesnake",
@@ -2648,7 +2660,7 @@
         "cactus fruit"
       ],
       "eatenBy": [
-        "harris-hawk"
+        "desert-hawk"
       ],
       "requirements": {
         "minHealth": 50,
@@ -2692,7 +2704,7 @@
         "kangaroo-rat",
         "antelope-squirrel",
         "cactus-wren",
-        "gila-woodpecker",
+        "cactus-woodpecker",
         "phainopepla",
         {
           "id": "jackrabbit",
@@ -2749,7 +2761,7 @@
       "eats": [
         "desert-millipede",
         "desert-termite",
-        "tarantula"
+        "desert-tarantula"
       ],
       "eatsOther": [
         "crickets",
@@ -2799,7 +2811,8 @@
       "fact": "The smallest owl in the world weighs about as much as a golf ball, and it nips the stinger off a scorpion before carrying the rest home to its chicks.",
       "role": "A migratory night hunter of moths and scorpions that cannot make a hole to save its life. Every nest it has ever used was chiselled out by a woodpecker and then hardened by the cactus into a waterproof boot. Plant a whole forest of cactus and you still get no elf owls until the woodpecker has done its work.",
       "eats": [
-        "scorpion"
+        "scorpion",
+        "desert-millipede"
       ],
       "eatsOther": [
         "moths",
@@ -2852,7 +2865,7 @@
       "shelter": "A cool underground den with several doors, usually a rodent burrow it has widened",
       "preferredHabitat": "Open desert with loose soil and plenty of small prey",
       "fact": "The smallest wild dog here weighs less than a house cat, and its ridiculous ears do two jobs at once: hearing a mouse move underground, and shedding body heat like radiators.",
-      "role": "A night fox that lives almost entirely on rodents and hardly ever drinks — it takes its water out of what it catches. It rarely digs a den from scratch; it moves into a kangaroo rat's burrow and enlarges it, then keeps several doors open so a coyote can never corner it in there.",
+      "role": "A night fox that lives almost entirely on rodents and hardly ever drinks — it takes its water out of what it catches. It rarely digs a den from scratch; it moves into a kangaroo rat's burrow and enlarges it, then keeps several doors open so a mountain-lion can never corner it in there.",
       "eats": [
         "kangaroo-rat",
         "jackrabbit",
@@ -2864,7 +2877,7 @@
         "lizards"
       ],
       "eatenBy": [
-        "coyote"
+        "mountain-lion"
       ],
       "requirements": {
         "minHealth": 70,
@@ -2900,7 +2913,7 @@
       "biome": "desert"
     },
     {
-      "id": "coyote-meadow",
+      "id": "coyote",
       "name": "Coyote",
       "scientificName": "Canis latrans",
       "kind": "mammal",
@@ -2913,10 +2926,10 @@
       "role": "The animal at the top of this meadow, and the most adaptable carnivore in here. It hunts voles and rabbits alone, fawns in pairs, and eats fruit, insects and carrion in between. Its return is what finally puts pressure on the foxes, badgers and deer that nothing else here could touch — and it will happily trail a digging badger to snap up whatever bolts out the far side.",
       "eats": [
         "cottontail-rabbit",
-        "garter-snake-meadow",
+        "garter-snake",
         "ground-squirrel",
-        "meadow-vole",
-        "red-fox-meadow",
+        "prairie-vole",
+        "red-fox",
         "western-meadowlark",
         {
           "id": "american-badger",
@@ -2951,7 +2964,7 @@
         },
         "animals": [
           "cottontail-rabbit",
-          "meadow-vole"
+          "prairie-vole"
         ],
         "hint": "A den bank tucked into brushy cover, wide grass full of rabbits and voles, and water within reach. they are the last piece — they only settle where there is already plenty to eat."
       },
@@ -2962,7 +2975,7 @@
         },
         {
           "name": "NPS — Coyote",
-          "url": "https://www.nps.gov/articles/coyote.htm"
+          "url": "https://www.nps.gov/articles/mountain-lion.htm"
         }
       ],
       "biome": "meadow"
@@ -2995,7 +3008,7 @@
           "stage": "young"
         },
         {
-          "id": "little-brown-bat",
+          "id": "skunk",
           "stage": "adult"
         },
         {
@@ -3003,10 +3016,10 @@
           "stage": "young"
         },
         {
-          "id": "spotted-towhee",
+          "id": "towhee",
           "stage": "young"
         },
-        "little-brown-bat"
+        "skunk"
       ],
       "requirements": {
         "minHealth": 22,
@@ -3057,7 +3070,7 @@
           "stage": "eggs"
         },
         {
-          "id": "red-fox-forest",
+          "id": "gray-fox",
           "stage": "eggs"
         },
         "goshawk"
@@ -3091,7 +3104,7 @@
       "biome": "forest"
     },
     {
-      "id": "northern-flying-squirrel",
+      "id": "flying-squirrel",
       "name": "Flying Squirrel",
       "scientificName": "Glaucomys sabrinus",
       "kind": "mammal",
@@ -3115,7 +3128,7 @@
           "id": "raccoon",
           "stage": "young"
         },
-        "red-fox-forest"
+        "gray-fox"
       ],
       "requirements": {
         "minHealth": 65,
@@ -3196,7 +3209,7 @@
       "biome": "forest"
     },
     {
-      "id": "little-brown-bat",
+      "id": "skunk",
       "name": "Skunk",
       "scientificName": "Mephitis mephitis",
       "kind": "mammal",
@@ -3255,9 +3268,9 @@
         "porcupine",
         "tree-squirrel",
         "chipmunk",
-        "northern-flying-squirrel",
+        "flying-squirrel",
         "raccoon",
-        "garter-snake-forest"
+        "ratsnake"
       ],
       "eatsOther": [
         "berries",
@@ -3351,7 +3364,7 @@
       "eats": [
         "bumblebee",
         "grasshopper",
-        "lady-beetle",
+        "ladybug",
         {
           "id": "monarch-butterfly",
           "stage": "young"
@@ -3363,12 +3376,12 @@
         "other live insects"
       ],
       "eatenBy": [
-        "big-brown-bat",
+        "brown-bat",
         {
-          "id": "eastern-bluebird",
+          "id": "bluebird",
           "stage": "young"
         },
-        "garter-snake-meadow",
+        "garter-snake",
         {
           "id": "western-meadowlark",
           "stage": "young"
@@ -3397,7 +3410,7 @@
       "biome": "meadow"
     },
     {
-      "id": "eastern-bluebird",
+      "id": "bluebird",
       "name": "Bluebird",
       "scientificName": "Sialia sialis",
       "kind": "bird",
@@ -3456,15 +3469,15 @@
       "diet": "ground squirrels, gophers, voles and mice dug straight out of their tunnels; also insects and bumble bee nests",
       "shelter": "Digs its own large burrows; one of the fastest excavators alive",
       "preferredHabitat": "Open grassland with deep, stone-free, diggable soil and a rodent colony to work",
-      "fact": "A badger can dig itself completely out of sight in under a minute — and it sometimes hunts alongside a coyote, the badger going in from below while the coyote grabs whatever bolts out of the top.",
+      "fact": "A badger can dig itself completely out of sight in under a minute — and it sometimes hunts alongside a mountain-lion, the badger going in from below while the mountain-lion grabs whatever bolts out of the top.",
       "role": "A carnivore that hunts by excavation, going down a squirrel or gopher tunnel after its owner. That only works in deep stone-free soil, and only where there is a rodent colony worth the digging. The big holes it leaves behind get reused by foxes, coyotes and burrowing insects for years afterwards. Adults are safe from almost everything; cubs are not.",
       "eats": [
         "bumblebee",
         "cottontail-rabbit",
         "ground-squirrel",
-        "meadow-vole",
+        "prairie-vole",
         "western-meadowlark",
-        "garden-snail"
+        "snail"
       ],
       "eatsOther": [
         "carrion",
@@ -3475,7 +3488,7 @@
       ],
       "eatenBy": [
         {
-          "id": "coyote-meadow",
+          "id": "coyote",
           "stage": "young"
         }
       ],
@@ -3489,7 +3502,7 @@
         "signature": "deep-loam-soil-bank",
         "animals": [
           "ground-squirrel",
-          "meadow-vole"
+          "prairie-vole"
         ],
         "hint": "Deep stone-free soil it can tear through, wide grass on top, and a ground squirrel colony to hunt. Rock piles are the opposite of what it wants."
       },
@@ -3506,7 +3519,7 @@
       "biome": "meadow"
     },
     {
-      "id": "amphipod",
+      "id": "freshwater-shrimp",
       "name": "Freshwater Shrimp",
       "scientificName": "Hyalella azteca",
       "kind": "invertebrate",
@@ -3525,10 +3538,10 @@
         "algae"
       ],
       "eatenBy": [
-        "freshwater-fish",
+        "minnow",
         "crayfish",
         "dragonfly",
-        "wetland-salamander"
+        "tiger-salamander"
       ],
       "requirements": {
         "minHealth": 16,
@@ -3566,7 +3579,7 @@
       "fact": "Lose a claw in a fight and a crayfish just grows a new one, a little bigger at every moult, until it matches the old one. Startle it and it flips its tail and rockets backwards faster than you can grab.",
       "role": "The marsh's recycler, and very nearly everybody's dinner. Crayfish shred dead plants and tidy up carcasses, turning buried gunk back into living meat — which the otter, the mink, the kingfisher, the merganser, the crane, the snapping turtle and the heron then come and take.",
       "eats": [
-        "amphipod"
+        "freshwater-shrimp"
       ],
       "eatsOther": [
         "detritus",
@@ -3576,8 +3589,8 @@
       "eatenBy": [
         "river-otter",
         "mink",
-        "belted-kingfisher",
-        "hooded-merganser",
+        "kingfisher",
+        "merganser",
         "snapping-turtle",
         "great-blue-heron",
         "sandhill-crane"
@@ -3641,7 +3654,7 @@
           "tiles": 5
         },
         "animals": [
-          "freshwater-fish"
+          "minnow"
         ],
         "hint": "A settled bed that stays put for years — and fish, because young they ride to their new home clamped to fish gills."
       },
@@ -3659,7 +3672,7 @@
       "aquatic": true
     },
     {
-      "id": "northern-leopard-frog",
+      "id": "leopard-frog",
       "name": "Leopard Frog",
       "scientificName": "Lithobates pipiens",
       "kind": "amphibian",
@@ -3710,7 +3723,7 @@
         },
         {
           "name": "National Park Service — Northern Leopard Frog",
-          "url": "https://www.nps.gov/articles/northern-leopard-frog.htm"
+          "url": "https://www.nps.gov/articles/leopard-frog.htm"
         }
       ],
       "biome": "wetland"
@@ -3775,11 +3788,11 @@
       "fact": "A snapping turtle is too big to pull into its own shell, so it does not bother trying. Underwater it is calm and shy and will swim away from you — the famous snap only comes out when it is stranded on dry land with nowhere left to hide.",
       "role": "The marsh's bulldozer and its clean-up crew, walking the bottom eating carrion, plants, fish and the occasional duckling. Grown adults are almost untouchable; it is the eggs everything digs up, which is why one good nest bank matters more than any single old turtle.",
       "eats": [
-        "freshwater-fish",
+        "minnow",
         "crayfish",
-        "northern-leopard-frog",
+        "leopard-frog",
         {
-          "id": "mallard-duck",
+          "id": "mallard",
           "stage": "young"
         },
         "river-cooter"
@@ -3800,7 +3813,7 @@
           "lake": 5
         },
         "animals": [
-          "freshwater-fish"
+          "minnow"
         ],
         "hint": "Deep still water with a soft bottom, plus a warm sandy rise above the waterline for the females to dig their nests in."
       },
@@ -3818,7 +3831,7 @@
       "aquatic": true
     },
     {
-      "id": "belted-kingfisher",
+      "id": "kingfisher",
       "name": "Kingfisher",
       "scientificName": "Megaceryle alcyon",
       "kind": "bird",
@@ -3830,7 +3843,7 @@
       "fact": "A kingfisher shuts its eyes just before it hits the water, so the last part of the dive is flown blind from memory. Then it whacks the fish against a branch and swallows it head-first so the fins fold the right way.",
       "role": "The rattling plunge-diver of the marsh, and one of the rare birds where the female is the flashier of the pair. It digs its own nest tunnel a metre back into a bare earth bank, so a marsh stuffed with fish but with no raw bank still gets no kingfishers.",
       "eats": [
-        "freshwater-fish",
+        "minnow",
         "crayfish"
       ],
       "eatsOther": [],
@@ -3847,7 +3860,7 @@
           "tiles": 5
         },
         "animals": [
-          "freshwater-fish",
+          "minnow",
           "crayfish"
         ],
         "hint": "Clear open water to dive into and a bare vertical earth bank to tunnel into. A nest box is no use to a bird that digs its own."
@@ -3865,7 +3878,7 @@
       "biome": "wetland"
     },
     {
-      "id": "hooded-merganser",
+      "id": "merganser",
       "name": "Merganser",
       "scientificName": "Lophodytes cucullatus",
       "kind": "bird",
@@ -3877,7 +3890,7 @@
       "fact": "Merganser ducklings jump out of a tree hole up to fifteen metres above the ground the day after they hatch, bounce off the leaf litter unhurt, and are diving for their own food within a day of landing.",
       "role": "A tiny diving duck with a fold-out white fan on its head, a saw-edged bill for gripping slippery fish, and a clear third eyelid it wears like swimming goggles. It nests in holes in drowned trees, which makes a beaver pond exactly its sort of place.",
       "eats": [
-        "freshwater-fish",
+        "minnow",
         "crayfish",
         {
           "id": "dragonfly",
@@ -3904,7 +3917,7 @@
           "tiles": 4
         },
         "animals": [
-          "freshwater-fish",
+          "minnow",
           "crayfish"
         ],
         "hint": "A wooded pond with dead trees still standing in it. The hen wants a hole in a drowned alder — a nest box is only a stand-in."
@@ -3941,7 +3954,7 @@
         "droppings"
       ],
       "eatenBy": [
-        "garter-snake-meadow"
+        "garter-snake"
       ],
       "requirements": {
         "minHealth": 12,
@@ -3981,7 +3994,7 @@
       "eats": [
         "bumblebee",
         "grasshopper",
-        "lady-beetle"
+        "ladybug"
       ],
       "eatsOther": [
         "flies",
@@ -4011,7 +4024,7 @@
       "biome": "meadow"
     },
     {
-      "id": "big-brown-bat",
+      "id": "brown-bat",
       "name": "Brown Bat",
       "scientificName": "Eptesicus fuscus",
       "kind": "mammal",
@@ -4074,9 +4087,9 @@
       "shelter": "Nests and roosts in a dark high cavity: a barn loft, a hollow tree, or a large nest box. Builds nothing itself",
       "preferredHabitat": "Wide open grassland to hunt over, with a dark cavity above ground to sleep and nest in",
       "fact": "A barn owl can catch a mouse in complete darkness by sound alone. One ear sits higher than the other, so it hears in three dimensions — and the fringed edges of its wings mean the mouse never hears it coming.",
-      "role": "The meadow works a night shift, and the barn owl runs it. While the hawk and the coyote hunt by daylight, this one quarters the same grass in the dark on silent wings, living almost entirely on voles — a single family can take well over a thousand of them in a year. Nothing here hunts the barn owl back.",
+      "role": "The meadow works a night shift, and the barn owl runs it. While the hawk and the mountain-lion hunt by daylight, this one quarters the same grass in the dark on silent wings, living almost entirely on voles — a single family can take well over a thousand of them in a year. Nothing here hunts the barn owl back.",
       "eats": [
-        "meadow-vole",
+        "prairie-vole",
         {
           "id": "cottontail-rabbit",
           "stage": "young"
@@ -4098,7 +4111,7 @@
         },
         "signature": "barn-loft-nest-box",
         "animals": [
-          "meadow-vole"
+          "prairie-vole"
         ],
         "conditions": {
           "dayPhase": [
@@ -4121,7 +4134,7 @@
       "biome": "meadow"
     },
     {
-      "id": "coyote",
+      "id": "mountain-lion",
       "name": "Mountain Lion",
       "scientificName": "Puma concolor",
       "kind": "mammal",
@@ -4176,7 +4189,7 @@
       "biome": "desert"
     },
     {
-      "id": "garden-snail",
+      "id": "snail",
       "name": "Snail",
       "biome": "meadow",
       "kind": "invertebrate",
@@ -4196,7 +4209,7 @@
         "fungi"
       ],
       "eatenBy": [
-        "garter-snake-meadow",
+        "garter-snake",
         "american-badger",
         "opossum"
       ],
@@ -4237,7 +4250,8 @@
       ],
       "eatenBy": [
         "golden-eagle",
-        "wolverine"
+        "wolverine",
+        "grizzly-bear"
       ],
       "requirements": {
         "minHealth": 74,
@@ -4272,15 +4286,15 @@
       "kind": "mammal",
       "trophic": "apex-predator",
       "rarity": "rare",
-      "diet": "marmots, hares and ptarmigan when it can catch them, frozen carcasses when it cannot, and berries in late summer",
+      "diet": "marmots, hares and white-tailed-ptarmigan when it can catch them, frozen carcasses when it cannot, and berries in late summer",
       "shelter": "Tunnels dug metres down into deep spring drifts, usually around a fallen boulder or log, with food stored in side chambers",
       "preferredHabitat": "Big, empty, high country with talus and broken rock, and snow that lasts into late spring",
       "fact": "A wolverine can smell a dead animal buried under three metres of snow, dig it out, and then drive a bear off it, all in a body about the size of a small dog.",
-      "role": "The largest weasel in the world and the mountain's great scavenger, now the top hunter on these peaks. It roams enormous distances, kills marmots, hares and ptarmigan when it gets the chance and lives off frozen carcasses when it does not, cracking frozen bone with jaws built for exactly that. Snow is its refrigerator: it stores food in drifts and dens deep inside them, so a female can only raise kits where the snowpack holds into late spring. That makes it the first animal to go when winters get short — and nothing up here is willing to argue with it over a carcass.",
+      "role": "The largest weasel in the world and the mountain's great scavenger, now the top hunter on these peaks. It roams enormous distances, kills marmots, hares and white-tailed-ptarmigan when it gets the chance and lives off frozen carcasses when it does not, cracking frozen bone with jaws built for exactly that. Snow is its refrigerator: it stores food in drifts and dens deep inside them, so a female can only raise kits where the snowpack holds into late spring. That makes it the first animal to go when winters get short — and nothing up here is willing to argue with it over a carcass.",
       "eats": [
-        "marmot",
+        "yellow-bellied-marmot",
         "snowshoe-hare",
-        "ptarmigan",
+        "white-tailed-ptarmigan",
         "pika",
         {
           "id": "mountain-goat",
@@ -4303,7 +4317,7 @@
         },
         "signature": "deep-snow-den",
         "animals": [
-          "marmot",
+          "yellow-bellied-marmot",
           "snowshoe-hare"
         ],
         "water": {
@@ -4388,7 +4402,8 @@
       "fact": "Every dolphin invents its own signature whistle, and the others copy that whistle back when they want to call it over. Along an open beach these dolphins hunt right inside the breakers, surfing the waves they are herding fish against.",
       "role": "Fast, social hunters that work the surf line in small groups, pushing anchovy schools up against the breaking waves until the fish have nowhere left to go. They are quick and clever enough to catch almost anything that schools here — and still not the biggest thing in the water.",
       "eats": [
-        "northern-anchovy"
+        "anchovy",
+        "shore-crab"
       ],
       "eatsOther": [
         "squid",
@@ -4411,7 +4426,7 @@
           "deep": true
         },
         "animals": [
-          "northern-anchovy"
+          "anchovy"
         ],
         "hint": "Deep water to travel through, cold currents and kelp edges to hold the fish, and a real breaking surf line, because that is where these dolphins do their hunting."
       },
@@ -4444,7 +4459,7 @@
         "harbor-seal",
         "bottlenose-dolphin",
         {
-          "id": "migrating-whale",
+          "id": "gray-whale",
           "stage": "young"
         }
       ],
@@ -4504,7 +4519,8 @@
       ],
       "eatenBy": [
         "scorpion",
-        "roadrunner"
+        "roadrunner",
+        "elf-owl"
       ],
       "requirements": {
         "minHealth": 14,
@@ -4528,7 +4544,7 @@
       "biome": "desert"
     },
     {
-      "id": "tarantula",
+      "id": "desert-tarantula",
       "name": "Desert Tarantula",
       "scientificName": "Aphonopelma chalcodes",
       "kind": "invertebrate",
@@ -4537,8 +4553,8 @@
       "diet": "crickets, beetles, grasshoppers, termites and other spiders",
       "shelter": "A silk-lined burrow in firm soil, its doorway strung with trip-lines",
       "preferredHabitat": "Firm open ground between shrubs with litter and cover close by",
-      "fact": "A frightened tarantula rubs its back legs over its belly and flicks off a cloud of barbed hairs that itch like fibreglass — and if nothing comes past to eat, it can simply wait, going a whole year between meals.",
-      "role": "A patient ambush hunter that lives at the mouth of a silk-lined burrow, feeling for the twitch of a cricket on the trip-lines at its door. A female may keep the same hole for twenty years, which makes her one of the longest-lived animals in the biome. Roadrunners take them — and so does the giant hairy scorpion, which outweighs a tarantula and is not remotely afraid of one.",
+      "fact": "A frightened desert-tarantula rubs its back legs over its belly and flicks off a cloud of barbed hairs that itch like fibreglass — and if nothing comes past to eat, it can simply wait, going a whole year between meals.",
+      "role": "A patient ambush hunter that lives at the mouth of a silk-lined burrow, feeling for the twitch of a cricket on the trip-lines at its door. A female may keep the same hole for twenty years, which makes her one of the longest-lived animals in the biome. Roadrunners take them — and so does the giant hairy scorpion, which outweighs a desert-tarantula and is not remotely afraid of one.",
       "eats": [
         "desert-termite"
       ],
@@ -4560,7 +4576,7 @@
           "creosote-bush": 1
         },
         "signature": "tarantula-silk-burrow",
-        "hint": "Firm ground it can line with silk, and then quiet. A burrow a tarantula digs is a burrow she may still be sitting in twenty years from now.",
+        "hint": "Firm ground it can line with silk, and then quiet. A burrow a desert-tarantula digs is a burrow she may still be sitting in twenty years from now.",
         "animals": [
           "desert-termite"
         ],
@@ -4584,7 +4600,7 @@
       "biome": "desert"
     },
     {
-      "id": "harris-hawk",
+      "id": "desert-hawk",
       "name": "Desert Hawk",
       "scientificName": "Parabuteo unicinctus",
       "kind": "bird",
@@ -4594,10 +4610,10 @@
       "shelter": "A bulky stick nest wedged in the arms of a tall cactus or a thorny tree, built and guarded by the whole family",
       "preferredHabitat": "Open scrub with tall cactus and trees to nest and keep lookout from",
       "fact": "These are the only birds of prey in the world that hunt in packs: a family of five or six spreads out, some crashing into a thorn bush to panic a rabbit while the others wait on the far side. And when there is nowhere decent to perch, they simply stand on each other's backs, three hawks high.",
-      "role": "The daytime top predator, working the same desert the coyote works at night. Two or three generations live together all year, share every kill, help feed each other's chicks and take turns on lookout — teamwork that lets them bring down jackrabbits far heavier than any single hawk. They need tall lookouts above open ground and a big cactus solid enough to hold a family nest.",
+      "role": "The daytime top predator, working the same desert the mountain-lion works at night. Two or three generations live together all year, share every kill, help feed each other's chicks and take turns on lookout — teamwork that lets them bring down jackrabbits far heavier than any single hawk. They need tall lookouts above open ground and a big cactus solid enough to hold a family nest.",
       "eats": [
         "jackrabbit",
-        "gambels-quail",
+        "quail",
         "antelope-squirrel",
         "horned-lizard",
         "roadrunner",
@@ -4619,7 +4635,7 @@
         "hint": "One hawk is never the whole story. A family needs a tall cactus strong enough to hold the nest, high lookouts all around it, and open ground with rabbits crossing it.",
         "animals": [
           "jackrabbit",
-          "gambels-quail"
+          "quail"
         ]
       },
       "sources": [
@@ -4635,7 +4651,7 @@
       "biome": "desert"
     },
     {
-      "id": "elk-forest",
+      "id": "elk",
       "name": "Elk",
       "scientificName": "Cervus canadensis",
       "kind": "mammal",
@@ -4686,7 +4702,7 @@
       "biome": "forest"
     },
     {
-      "id": "spotted-towhee",
+      "id": "towhee",
       "name": "Towhee",
       "scientificName": "Pipilo erythrophthalmus",
       "kind": "bird",
@@ -4711,9 +4727,9 @@
         "berries"
       ],
       "eatenBy": [
-        "red-fox-forest",
+        "gray-fox",
         {
-          "id": "garter-snake-forest",
+          "id": "ratsnake",
           "stage": "eggs"
         }
       ],
@@ -4758,8 +4774,8 @@
         "spiders"
       ],
       "eatenBy": [
-        "freshwater-fish",
-        "northern-leopard-frog",
+        "minnow",
+        "leopard-frog",
         "dragonfly",
         "red-winged-blackbird"
       ],
@@ -4802,10 +4818,10 @@
       "fact": "A bald eagle would honestly rather rob than fish. It shadows otters and herons and harasses them until they drop their catch, then takes it — and the nest it rebuilds every year can end up heavier than a small car.",
       "role": "The top predator of the marsh and its biggest bully. It takes fish, ducks and muskrats for itself, kills herons at their nesting colonies, and spends much of the day stealing meals from otters and herons — which means it can only settle somewhere those hunters are already doing well.",
       "eats": [
-        "freshwater-fish",
+        "minnow",
         "muskrat",
-        "mallard-duck",
-        "hooded-merganser",
+        "mallard",
+        "merganser",
         "great-blue-heron"
       ],
       "eatsOther": [
@@ -4826,7 +4842,7 @@
           "tiles": 8
         },
         "animals": [
-          "freshwater-fish",
+          "minnow",
           "great-blue-heron"
         ],
         "hint": "One huge old tree with a clear view over deep water, enough fish to live on — and successful otters and herons below to steal from."
@@ -4864,11 +4880,11 @@
       ],
       "eatenBy": [
         {
-          "id": "little-brown-bat",
+          "id": "skunk",
           "stage": "adult"
         },
         "blue-jay",
-        "little-brown-bat"
+        "skunk"
       ],
       "requirements": {
         "minHealth": 30,
@@ -4960,7 +4976,7 @@
         "ants"
       ],
       "eatenBy": [
-        "garter-snake-forest",
+        "ratsnake",
         "raccoon"
       ],
       "requirements": {
@@ -5158,7 +5174,7 @@
       ],
       "eatenBy": [
         {
-          "id": "coyote",
+          "id": "mountain-lion",
           "stage": "young"
         }
       ],
@@ -5196,7 +5212,7 @@
       "fact": "A black swift can stay in the air for six months without landing once — it eats, drinks and sleeps flying, and the chick is left alone all day while its parents hunt insects 50 km away.",
       "role": "Swifts hoover up the swarming insects that get lifted onto the mountain by rising air, and they carry that food back as a compressed pellet — one delivery a day is enough for a chick because the load is so concentrated. The nest has to be permanently wet and unreachable, so the birds only appear where there is a cliff seam with water running over it. They are among the very last summer visitors to arrive and the first to leave for the Amazon.",
       "eats": [
-        "bumblebee-alpine"
+        "alpine-moth"
       ],
       "eatsOther": [
         "flying ants",
@@ -5239,14 +5255,14 @@
       "kind": "bird",
       "rarity": "rare",
       "trophic": "mesopredator",
-      "diet": "other birds taken in mid-air — ptarmigan, rosy-finches, swifts, pipits and small ducks",
+      "diet": "other birds taken in mid-air — white-tailed-ptarmigan, rosy-finches, swifts, pipits and small ducks",
       "shelter": "A bare scrape kicked into gravel on a high cliff ledge; it builds no nest at all",
       "preferredHabitat": "Sheer cliffs and rock faces overlooking open ground with plenty of birds flying below",
       "fact": "A stooping peregrine hits about 380 km/h, which makes it the fastest animal alive — and it has bony cones in its nostrils that slow the air down so the dive does not burst its lungs.",
-      "role": "The peregrine is the mountain's aerial hunter, and it takes almost all of its food in the air, striking from above with a closed fist rather than grabbing. Because it hunts birds and nothing else, it is a direct check on the flocks of finches, pipits and ptarmigan feeding across the slopes. It needs an undisturbed cliff ledge and clear air below it, and nothing at all to build with — just loose gravel to scrape a hollow in.",
+      "role": "The peregrine is the mountain's aerial hunter, and it takes almost all of its food in the air, striking from above with a closed fist rather than grabbing. Because it hunts birds and nothing else, it is a direct check on the flocks of finches, pipits and white-tailed-ptarmigan feeding across the slopes. It needs an undisturbed cliff ledge and clear air below it, and nothing at all to build with — just loose gravel to scrape a hollow in.",
       "eats": [
-        "ptarmigan",
-        "rosy-finch",
+        "white-tailed-ptarmigan",
+        "gray-crowned-rosy-finch",
         "black-swift",
         "snow-bunting"
       ],
@@ -5271,8 +5287,8 @@
         },
         "signature": "falcon-scrape-ledge",
         "animals": [
-          "ptarmigan",
-          "rosy-finch"
+          "white-tailed-ptarmigan",
+          "gray-crowned-rosy-finch"
         ],
         "hint": "A high ledge with loose gravel on it and open sky underneath. Do not build a nest — a peregrine just kicks a dip in the grit."
       },
@@ -5289,7 +5305,7 @@
       ]
     },
     {
-      "id": "owl-limpet",
+      "id": "sand-dollar",
       "name": "Sand Dollar",
       "biome": "coastal",
       "kind": "invertebrate",
@@ -5307,7 +5323,8 @@
         "tiny drifting scraps"
       ],
       "eatenBy": [
-        "sea-star"
+        "sea-star",
+        "brown-pelican"
       ],
       "requirements": {
         "minHealth": 26,
@@ -5343,14 +5360,18 @@
       "fact": "An octopus has three hearts, blue blood, and tastes everything it touches with its arms — and because the only hard part of it is its beak, one the size of a dinner plate can squeeze through a hole the size of a grape.",
       "role": "The octopus is the top invertebrate hunter of the rocky shore, and the pile of emptied crab and clam shells outside its den is the easiest way to find one. It can change colour and skin texture in under a second to vanish against rock or kelp, despite being colourblind, and it will drill a neat hole through a stubborn clam and inject it to make the shell relax. Each octopus works through a huge number of crabs, which keeps the grazers and scavengers of the tidepools in check.",
       "eats": [
-        "tidepool-crab"
+        "shore-crab",
+        "mussel",
+        "purple-sea-urchin"
       ],
       "eatsOther": [
         "snails",
         "shrimp",
         "small fish"
       ],
-      "eatenBy": [],
+      "eatenBy": [
+        "harbor-seal"
+      ],
       "requirements": {
         "minHealth": 72,
         "objects": {
@@ -5364,7 +5385,7 @@
           "deep": true
         },
         "animals": [
-          "tidepool-crab"
+          "shore-crab"
         ],
         "hint": "Broken rock with gaps to hide in, and plenty of crabs. Leave the shell pile outside the den alone — that is how you know somebody is home."
       },
@@ -5382,25 +5403,37 @@
       "ocean": true
     },
     {
-      "id": "mule-deer-alpine",
+      "id": "grizzly-bear",
       "name": "Grizzly Bear",
       "biome": "alpine",
       "kind": "mammal",
       "rarity": "rare",
       "trophic": "apex-predator",
-      "diet": "roots, berries, ground squirrels, winter-killed carcasses — and moths, by the hundred thousand",
+      "diet": "roots and berries dug out of the slope, ground squirrels and marmots, winter-killed carcasses — and moths, by the hundred thousand",
       "shelter": "Digs a den into a high slope in autumn and sleeps in it until the snow softens",
       "preferredHabitat": "Open high country with digging ground, berry slopes and no people",
       "fact": "Grizzlies climb above the trees in late summer to eat moths — flipping rocks to get at them and putting away up to 40,000 in a day, which is most of a year's fat in a few weeks.",
-      "role": "The biggest thing on the mountain and the reason everything else stays alert. It digs up whole slopes hunting roots and ground squirrels, which turns the soil over, and it will drive a wolverine off a carcass without breaking stride.",
+      "role": "The biggest thing on the mountain and the reason everything else stays alert. It digs whole slopes apart for roots and ground squirrels, which turns the soil over, and in late summer it climbs above the trees to eat moths off the rockslides. It will drive a wolverine off a carcass without breaking stride.",
       "eats": [
-        "marmot"
+        "alpine-moth",
+        "rock-squirrel",
+        "yellow-bellied-marmot",
+        "snowshoe-hare",
+        "pika",
+        {
+          "id": "bighorn-sheep",
+          "stage": "young"
+        },
+        {
+          "id": "mountain-goat",
+          "stage": "young"
+        }
       ],
       "eatsOther": [
         "roots",
         "berries",
         "carrion",
-        "ground squirrels"
+        "pine seeds"
       ],
       "eatenBy": [],
       "requirements": {
@@ -5412,9 +5445,10 @@
         },
         "signature": "grizzly-dig-slope",
         "animals": [
-          "marmot"
+          "yellow-bellied-marmot",
+          "alpine-moth"
         ],
-        "hint": "A high open slope soft enough to dig, rocks to flip, and a mountain already full enough to feed something this big."
+        "hint": "A high open slope soft enough to dig, rocks to flip for moths, and a mountain already full enough to feed something this big."
       },
       "scientificName": "Ursus arctos horribilis",
       "sources": [
@@ -5447,7 +5481,7 @@
       ],
       "eatenBy": [
         "rattlesnake",
-        "harris-hawk"
+        "desert-hawk"
       ],
       "requirements": {
         "minHealth": 42,
@@ -5482,7 +5516,7 @@
       "fact": "Snow buntings nest further north than any other songbird on Earth, tucked so deep in rock cracks that the male has to feed the female in the dark while she sits.",
       "role": "A small bird that treats a blizzard as ordinary weather. Flocks drift across bare ridges picking up seed the wind has stranded on the snow, and they turn from white to warm brown as the season turns.",
       "eats": [
-        "alpine-springtail"
+        "snow-flea"
       ],
       "eatsOther": [
         "seeds",
@@ -5529,8 +5563,8 @@
         "bark"
       ],
       "eatenBy": [
-        "coyote-meadow",
-        "red-fox-meadow"
+        "coyote",
+        "red-fox"
       ],
       "requirements": {
         "minHealth": 38,
@@ -5563,7 +5597,7 @@
       "fact": "When an opossum plays dead it is not acting — it faints. The body goes stiff, the tongue lolls out and it gives off a smell like something long dead, and it cannot snap out of it for several minutes even if you walk away.",
       "role": "The meadow's clean-up crew. It eats what everything else has left, including carrion and vast quantities of ticks, and it is the only animal here that carries its young around on its back.",
       "eats": [
-        "garden-snail",
+        "snail",
         "grasshopper"
       ],
       "eatsOther": [
@@ -5575,7 +5609,7 @@
       ],
       "eatenBy": [
         "barn-owl",
-        "coyote-meadow"
+        "coyote"
       ],
       "requirements": {
         "minHealth": 44,
@@ -5609,7 +5643,7 @@
       "role": "One of the first birds to find a mending meadow and one of the last to leave it. It works the scruffy middle ground, eating insects all summer and switching to seeds in winter.",
       "eats": [
         "grasshopper",
-        "lady-beetle"
+        "ladybug"
       ],
       "eatsOther": [
         "seeds",
@@ -5618,8 +5652,8 @@
         "caterpillars"
       ],
       "eatenBy": [
-        "red-fox-meadow",
-        "garter-snake-meadow",
+        "red-fox",
+        "garter-snake",
         "red-tailed-hawk"
       ],
       "requirements": {

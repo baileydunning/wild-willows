@@ -2805,7 +2805,7 @@
         "stones": 3
       },
       "unlock": {
-        "requiresAnimal": "marmot",
+        "requiresAnimal": "yellow-bellied-marmot",
         "label": "Welcome the Yellow-bellied Marmot back to Graywind Heights"
       }
     },
@@ -2841,7 +2841,7 @@
         "moss": 2
       },
       "unlock": {
-        "requiresAnimal": "marmot",
+        "requiresAnimal": "yellow-bellied-marmot",
         "label": "Welcome the Yellow-bellied Marmot back to Graywind Heights"
       }
     },
@@ -2879,7 +2879,7 @@
         "clean-water": 3
       },
       "unlock": {
-        "requiresAnimal": "clarks-nutcracker",
+        "requiresAnimal": "nutcracker",
         "label": "Welcome Clark's Nutcracker back to Graywind Heights"
       }
     },
@@ -2936,7 +2936,7 @@
         "moss": 1
       },
       "unlock": {
-        "requiresAnimal": "alpine-springtail",
+        "requiresAnimal": "snow-flea",
         "label": "Welcome the Snow Flea back to Graywind Heights"
       }
     },
@@ -2954,7 +2954,7 @@
         "moss": 1
       },
       "unlock": {
-        "requiresAnimal": "marmot",
+        "requiresAnimal": "yellow-bellied-marmot",
         "label": "Welcome the Yellow-bellied Marmot back to Graywind Heights"
       }
     },
@@ -2991,7 +2991,7 @@
         "moss": 2
       },
       "unlock": {
-        "requiresAnimal": "alpine-chipmunk",
+        "requiresAnimal": "rock-squirrel",
         "label": "Welcome the Least Chipmunk back to Graywind Heights"
       }
     },
@@ -3522,7 +3522,7 @@
         "shells": 2
       },
       "unlock": {
-        "requiresAnimal": "northern-anchovy",
+        "requiresAnimal": "anchovy",
         "label": "Welcome the Northern Anchovy back to Pelican Shore"
       }
     },
@@ -3965,7 +3965,7 @@
         "sand": 1
       },
       "unlock": {
-        "requiresAnimal": "desert-bee",
+        "requiresAnimal": "cactus-bee",
         "label": "Welcome the Cactus Bee back to Redstone Scrubland"
       }
     },
@@ -4076,7 +4076,7 @@
         "stones": 2
       },
       "unlock": {
-        "requiresAnimal": "gila-woodpecker",
+        "requiresAnimal": "cactus-woodpecker",
         "label": "Welcome the Gila Woodpecker back to Redstone Scrubland"
       }
     },
@@ -4655,7 +4655,7 @@
         "seeds": 2
       },
       "unlock": {
-        "requiresAnimal": "meadow-vole",
+        "requiresAnimal": "prairie-vole",
         "label": "Welcome the Prairie Vole back to Willow Meadow"
       }
     },
@@ -4962,7 +4962,7 @@
         "clean-water": 2
       },
       "unlock": {
-        "requiresAnimal": "freshwater-fish",
+        "requiresAnimal": "minnow",
         "label": "Welcome the Fathead Minnow back to Rushwater Wetland"
       }
     },
@@ -5296,7 +5296,7 @@
         "clay": 1
       },
       "unlock": {
-        "requiresAnimal": "meadow-vole",
+        "requiresAnimal": "prairie-vole",
         "label": "Welcome the Prairie Vole back to Willow Meadow"
       }
     },

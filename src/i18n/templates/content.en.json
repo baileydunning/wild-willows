@@ -13,7 +13,7 @@
 				"name": "The Haymaker"
 			},
 			"alpine-reborn": {
-				"flavor": "Goat to ptarmigan to trout in the snowmelt — the whole high country, restored against the wind.",
+				"flavor": "Goat to white-tailed-ptarmigan to trout in the snowmelt — the whole high country, restored against the wind.",
 				"hint": "Leave no alpine animal behind.",
 				"name": "Graywind Heights Reborn"
 			},
@@ -73,7 +73,7 @@
 				"name": "Dryland Hunter"
 			},
 			"desert-reborn": {
-				"flavor": "The hardest country in the preserve, fully alive — from the elf owl in the cactus to the tarantula under the stone.",
+				"flavor": "The hardest country in the preserve, fully alive — from the elf owl in the cactus to the desert-tarantula under the stone.",
 				"hint": "Leave no desert animal behind.",
 				"name": "Redstone Scrubland Reborn"
 			},
@@ -272,7 +272,7 @@
 				"role": "A hardy alpine butterfly whose caterpillars feed only on stonecrop while adults nectar across the meadow flowers. Its aposematic wings advertise a foul taste. Birds and spiders that ignore the warning still catch some.",
 				"shelter": "No nest; larvae shelter in leaf litter and rocks, overwintering as eggs"
 			},
-			"alpine-chipmunk": {
+			"rock-squirrel": {
 				"diet": "Seeds of sedges, forbs, and grasses, plus berries, fungi, pine seeds, and eggs",
 				"fact": "It ranges higher than almost any other chipmunk, up to 3,900 meters.",
 				"hint": "A talus pile and rock pile among alpine wildflowers.",
@@ -283,7 +283,7 @@
 			},
 			"american-badger": {
 				"diet": "Digs out ground squirrels, gophers, voles, and mice; also insects",
-				"fact": "Badgers sometimes team up with coyotes: the badger digs prey out below while the coyote catches those that bolt above ground.",
+				"fact": "Badgers sometimes team up with coyotes: the badger digs prey out below while the mountain-lion catches those that bolt above ground.",
 				"hint": "Brush pile and rock pile, once voles have returned.",
 				"name": "American Badger",
 				"preferredHabitat": "Open meadows and grasslands with diggable soil and rodent prey",
@@ -308,7 +308,7 @@
 				"role": "A specialist granivore that thrives on thistle and other composite seeds, making it an important disperser of weedy plant seeds across the meadow. Being small and abundant, it is prey for agile bird-hunting hawks and small owls.",
 				"shelter": "Tightly woven cup nest lashed high in a shrub with spider silk"
 			},
-			"american-pipit": {
+			"pipit": {
 				"diet": "Mostly insects and their larvae, plus spiders and some seeds",
 				"fact": "It forages at snowbank edges for insects chilled after drifting up from below.",
 				"hint": "A heather mat and alpine wildflowers.",
@@ -326,7 +326,7 @@
 				"role": "A sit-and-wait carnivore of tidepools that ambushes prey washed off the rocks, while also farming symbiotic algae for extra food. It is a minor predator that helps recycle dislodged shellfish and crabs.",
 				"shelter": "Tidepool walls, often below mussel beds"
 			},
-			"annas-hummingbird": {
+			"crow": {
 				"diet": "Flower nectar and small insects",
 				"fact": "Males dive from about 27 m and pull up with a loud chirp made by their tail feathers.",
 				"hint": "Plant a Monterey cypress with dune grass and sea thrift.",
@@ -407,7 +407,7 @@
 				"role": "The wetland's ecosystem engineer. By felling trees and building dams, beavers flood new ponds, raise the water table, and create habitat that most other marsh species depend on.",
 				"shelter": "Stick-and-mud lodges with underwater entrances"
 			},
-			"belted-kingfisher": {
+			"kingfisher": {
 				"diet": "Small fish and crayfish, plus other aquatic prey",
 				"fact": "Kingfishers dive headfirst into the water with their eyes closed to grab fish.",
 				"hint": "Carve a river 4+ tiles long with fish present, plus a platform.",
@@ -434,7 +434,7 @@
 				"role": "Black bears are generalist omnivores that disperse berry seeds, dig up and regulate colonial insects, and opportunistically take deer fawns and elk calves. As the most abundant large carnivore in North American forests, they link the mast, insect, and vertebrate food layers at once. Adults have essentially no natural predators.",
 				"shelter": "Dens in hollow trees, root masses, rock crevices, or dug cavities; hibernates in winter"
 			},
-			"black-oystercatcher": {
+			"puffin": {
 				"diet": "Mussels and limpets, plus whelks and crabs",
 				"fact": "Its long red bill pries shellfish open and cuts the muscle before the shell shuts.",
 				"hint": "An oyster bed beside a tidepool.",
@@ -488,7 +488,7 @@
 				"role": "A generalist, large-bodied pollinator that visits a huge variety of flowers for nectar and pollen. Its buzz pollination unlocks pollen that many other bees cannot reach, making it vital to meadow plant reproduction. It is preyed on by ambush hunters and aerial insectivores.",
 				"shelter": "Nests in abandoned rodent burrows, grass tussocks, or ground cavities"
 			},
-			"bumblebee-alpine": {
+			"alpine-moth": {
 				"diet": "Nectar and pollen from deep-throated alpine flowers",
 				"fact": "This bee's tongue grew measurably shorter from 1966 to 2014 as flowers declined.",
 				"hint": "More flowers, more bees — even up here.",
@@ -560,7 +560,7 @@
 				"role": "A buried filter feeder that helps clean coastal water and stores energy in sheltered sediment. It is important prey for sea otters, shorebirds, crabs, and gulls that dig or crack it open.",
 				"shelter": "Buried in sand and gravel"
 			},
-			"clarks-nutcracker": {
+			"nutcracker": {
 				"diet": "Pine seeds cached by the thousand, plus insects and small animals",
 				"fact": "It can relocate thousands of buried seed caches months later, even under snow.",
 				"hint": "A recovering treeline with seeds to cache.",
@@ -605,7 +605,7 @@
 				"role": "A pursuit-diving fish hunter that works rocky reefs and the water column. It depends on clear water and healthy fish stocks, so thriving cormorants signal a productive rocky shore.",
 				"shelter": "Cliff and rock roosts"
 			},
-			"costas-hummingbird": {
+			"desert-hummingbird": {
 				"diet": "Flower nectar and tiny insects",
 				"fact": "Courting males dive past a female with a shrill whistle, flashing violet throat feathers.",
 				"hint": "A nectar feeder beside a cactus patch.",
@@ -623,7 +623,7 @@
 				"role": "An abundant grazing herbivore and cornerstone prey animal of the meadow. It feeds on grasses, clover, and woody browse and breeds rapidly to offset heavy predation. Foxes, hawks, owls, and badgers all depend on cottontails as a food source.",
 				"shelter": "Rests in shallow grass 'forms'; uses brush piles and old burrows"
 			},
-			"coyote": {
+			"mountain-lion": {
 				"diet": "Rodents, rabbits, fruit, carrion, and insects",
 				"fact": "The most vocal wild mammal in North America; a howling pack sounds like many more.",
 				"hint": "Cover, shade, and prey on the move.",
@@ -641,7 +641,7 @@
 				"role": "A slender aerial insectivore that snatches midges and mosquitoes with its legs. Its aquatic nymphs hunt tiny invertebrates and feed marsh fish and frogs.",
 				"shelter": "Waterside vegetation; larvae among submerged plants"
 			},
-			"desert-bee": {
+			"cactus-bee": {
 				"diet": "Cactus flower nectar and pollen",
 				"fact": "Solitary cactus bees nest alone but gather by the thousands in shared ground colonies.",
 				"hint": "Cactus blooms are the desert's flower patch.",
@@ -695,7 +695,7 @@
 				"role": "A top invertebrate predator both in the air and underwater. Adults hawk flying insects while aquatic nymphs devour mosquito larvae and tiny fish.",
 				"shelter": "Emergent reed stems; larvae live in the water"
 			},
-			"eastern-bluebird": {
+			"bluebird": {
 				"diet": "Mainly ground insects (caterpillars, beetles, grasshoppers); fruit in winter",
 				"fact": "Eastern Bluebirds can spot a tiny insect in the grass from about 60 feet away, then drop down to grab it.",
 				"hint": "Native grass, a berry bush, and a perch to hunt from.",
@@ -722,7 +722,7 @@
 				"role": "A large migratory grazer that summers in high meadows, following fresh growth uphill and bugling through the autumn rut. Bulls regrow massive antlers yearly. Cougars take adults, while eagles and coyotes may take newborn calves.",
 				"shelter": "Beds in timber edges and shaded cover beside meadows"
 			},
-			"elk-forest": {
+			"elk": {
 				"diet": "Grasses, sedges, and forbs in summer; woody browse and bark in winter",
 				"fact": "In Yellowstone, elk make up about 85% of winter wolf kills and their carcasses feed at least a dozen scavenger species.",
 				"hint": "Grassy clearings and water in a healthy forest.",
@@ -767,7 +767,7 @@
 				"role": "Red-backed salamanders are a keystone of the forest-floor detritus web, controlling the mites and springtails that break down leaf litter. Their huge collective biomass makes them a key food subsidy for snakes, birds, and small mammals. They breathe through their skin, so they signal forest moisture and soil health.",
 				"shelter": "Under logs, rocks, and moist leaf litter; retreats into soil burrows"
 			},
-			"fox-alpine": {
+			"lynx": {
 				"diet": "Voles, pikas, hares, ground birds and eggs, insects, and berries",
 				"fact": "Red foxes often move into burrows dug by rabbits or marmots instead of digging.",
 				"hint": "Foxes follow the pikas and marmots.",
@@ -776,7 +776,7 @@
 				"role": "An adaptable mountain mesopredator that hunts pikas, marmots, and ground birds and rounds out its diet with insects and berries. It listens for prey moving beneath the snow, then dives in headfirst. Golden eagles are its main threat here.",
 				"shelter": "Earthen dens, often burrows co-opted from other animals"
 			},
-			"freshwater-fish": {
+			"minnow": {
 				"diet": "Algae, plankton, insect larvae, and small invertebrates",
 				"fact": "Minnow schools are the foundation that herons, otters, and mink all depend on.",
 				"hint": "Connected clean pools with reedy cover bring fish back — and everyone who eats them.",
@@ -785,7 +785,7 @@
 				"role": "The forage base of the wetland food web. These schooling fish graze algae and plankton and eat insect larvae, then feed nearly every predator in the marsh.",
 				"shelter": "Deeper pools and reed roots"
 			},
-			"gambels-quail": {
+			"quail": {
 				"diet": "Seeds, leaves, and cactus fruit",
 				"fact": "A male sentinel calls from a perch while the rest of the covey feeds below.",
 				"hint": "Thick brush to hide a whole covey.",
@@ -794,7 +794,7 @@
 				"role": "A social, ground-feeding quail that eats seeds, greens, and cactus fruit. It is important prey for coyotes, bobcats, and desert hawks. Coveys post a lookout while the flock forages.",
 				"shelter": "Dense brush thickets"
 			},
-			"garter-snake-forest": {
+			"ratsnake": {
 				"diet": "Earthworms, amphibians, and slugs; also leeches, fish, insects, and small rodents",
 				"fact": "Garter snakes are the main predator of the toxic rough-skinned newt, and some have evolved resistance to its poison.",
 				"hint": "A sunny rock pile beside grassy hunting ground.",
@@ -803,7 +803,7 @@
 				"role": "Garter snakes are generalist mid-web predators that suppress earthworms, slugs, amphibians, and small fish. In the Pacific Northwest they are the key check on rough-skinned newts, and their toxin resistance makes them a famous coevolutionary node. They are important prey for raptors, corvids, and larger predators.",
 				"shelter": "Communal winter dens in burrows and rock piles; hides under logs and rocks"
 			},
-			"garter-snake-meadow": {
+			"garter-snake": {
 				"diet": "Earthworms, amphibians, slugs, small fish, insects, and small rodents",
 				"fact": "Garter snakes are mildly venomous to their tiny prey but completely harmless to people.",
 				"hint": "Warm rocks, grass to hunt in, and small prey already about.",
@@ -812,7 +812,7 @@
 				"role": "A common meadow mesopredator that hunts earthworms, amphibians, fish, insects, and small rodents, using mild venomous saliva to subdue small prey. It helps control invertebrate and amphibian populations. It is preyed on by hawks, owls, and foxes.",
 				"shelter": "Shelters under rocks and logs; overwinters in communal dens"
 			},
-			"gila-woodpecker": {
+			"cactus-woodpecker": {
 				"diet": "Insects, cactus fruit, and berries",
 				"fact": "Its abandoned saguaro cavities later shelter elf owls, pygmy-owls, and kestrels.",
 				"hint": "Two cactus patches for nesting cavities.",
@@ -822,12 +822,12 @@
 				"shelter": "Cavities excavated in saguaro cactus"
 			},
 			"golden-eagle": {
-				"diet": "Marmots, hares, ground squirrels, ptarmigan and other birds, plus carrion",
+				"diet": "Marmots, hares, ground squirrels, white-tailed-ptarmigan and other birds, plus carrion",
 				"fact": "Golden eagles sometimes line their nests with aromatic leaves, perhaps to deter insects.",
 				"hint": "Eagles arrive last — when the high country is truly alive again.",
 				"name": "Golden Eagle",
 				"preferredHabitat": "Open, high country with cliffs and abundant medium prey",
-				"role": "The apex hunter of the high country, taking marmots, hares, and ptarmigan and even smaller carnivores in powerful stoops. It arrives only when the mountain teems with prey. Adults have essentially no predators.",
+				"role": "The apex hunter of the high country, taking marmots, hares, and white-tailed-ptarmigan and even smaller carnivores in powerful stoops. It arrives only when the mountain teems with prey. Adults have essentially no predators.",
 				"shelter": "Huge stick eyries on cliffs and steep escarpments"
 			},
 			"grasshopper": {
@@ -902,7 +902,7 @@
 				"role": "A tidepool scavenger that cleans up algae and carrion and recycles empty snail shells as portable armor. It is common prey for gulls, fish, and octopus in the intertidal food web.",
 				"shelter": "Borrowed empty snail shells"
 			},
-			"hooded-merganser": {
+			"merganser": {
 				"diet": "Small fish, crayfish, aquatic insects, and amphibians",
 				"fact": "Hooded merganser ducklings can dive for their own food at just one day old.",
 				"hint": "A duck nest box beside reeds and open water.",
@@ -965,7 +965,7 @@
 				"role": "A small nocturnal desert canid and mesopredator that hunts rodents and rabbits. It seldom needs to drink, getting moisture from prey. Coyotes are its main threat.",
 				"shelter": "Cool underground dens with several entrances"
 			},
-			"lady-beetle": {
+			"ladybug": {
 				"diet": "Predator of aphids and other small, soft-bodied insects",
 				"fact": "A single lady beetle can eat around 5,000 aphids over its lifetime — roughly 50 a day.",
 				"hint": "Flowers bring aphids, and aphids bring lady beetles.",
@@ -983,7 +983,7 @@
 				"role": "A solitary native bee that pollinates a wide range of meadow and crop plants, carrying pollen on the underside of its abdomen. Its leaf-lined nest cells provision the next generation with pollen and nectar. Adults are caught by ambush predators and aerial insectivores.",
 				"shelter": "Nests in hollow stems and soil, lining cells with cut leaf pieces"
 			},
-			"little-brown-bat": {
+			"skunk": {
 				"diet": "Strict insectivore: midges, caddisflies, mayflies, moths, beetles, and mosquitoes",
 				"fact": "White-nose syndrome, a cold-loving fungus, has wiped out over 90% of little brown bats at many hibernation sites.",
 				"hint": "A bat box near standing deadwood, with shrubs full of insects.",
@@ -992,7 +992,7 @@
 				"role": "Little brown bats are voracious insectivores, each eating up to half its body weight in insects a night and suppressing forest and aquatic pests. They are a mid-web link between the insect layer and larger predators like owls, fishers, and snakes. White-nose syndrome has caused catastrophic declines.",
 				"shelter": "Roosts in tree hollows, under bark, and in buildings; hibernates in caves and mines"
 			},
-			"mallard-duck": {
+			"mallard": {
 				"diet": "Seeds and aquatic plants, plus insect larvae, snails, and worms",
 				"fact": "Mallards can sleep with one eye open, resting half their brain at a time.",
 				"hint": "Calm shallow water with reed cover.",
@@ -1001,7 +1001,7 @@
 				"role": "A dabbling omnivore that tips forward to feed on seeds, plants, and small invertebrates. Its ducklings and eggs feed many marsh predators.",
 				"shelter": "Ground nests hidden in reedy water edges"
 			},
-			"marmot": {
+			"yellow-bellied-marmot": {
 				"diet": "Grasses, flowering plants, and seeds in late summer",
 				"fact": "Predation causes about 98% of yellow-bellied marmots' summer deaths.",
 				"hint": "Burrows, meadow patches, and open space.",
@@ -1019,7 +1019,7 @@
 				"role": "A tiny, feisty insectivore of the reeds. It gleans insects and spiders from stems and famously builds several decoy nests to court a mate.",
 				"shelter": "Woven dome nests among cattails and bulrushes"
 			},
-			"meadow-vole": {
+			"prairie-vole": {
 				"diet": "Herbivore; grasses, sedges, seeds, roots, and bark in winter",
 				"fact": "Voles mow narrow 'runways' through the grass — tidy little highways they patrol between burrow openings.",
 				"hint": "Any thick grass cover will do — voles arrive early.",
@@ -1028,7 +1028,7 @@
 				"role": "A keystone prey species and prolific breeder that converts meadow plants into food for nearly every predator. Its grazing and runway-building shape the grass layer. Its abundance drives the populations of hawks, owls, foxes, snakes, and badgers.",
 				"shelter": "Shallow burrows and grass nests linked by surface runways"
 			},
-			"migrating-whale": {
+			"gray-whale": {
 				"diet": "Amphipods and other tiny bottom crustaceans, sifted from sediment",
 				"fact": "Gray whales migrate up to 14,000 miles round trip, among the longest of any mammal.",
 				"hint": "Only a truly thriving shore earns a whale sighting. Watch the horizon.",
@@ -1055,7 +1055,7 @@
 				"role": "A milkweed specialist and iconic pollinator whose caterpillars sequester the plant's cardenolide toxins, making both larvae and adults poisonous to most predators. Their bright orange warning coloration keeps nearly all birds and mammals away, so they have very few predators. Adults are important late-season nectar visitors.",
 				"shelter": "Roosts in trees and shrubs; overwinters clustered in dense groves"
 			},
-			"mountain-bluebird": {
+			"white-throated-swift": {
 				"diet": "Mostly insects caught in flight; berries and seeds in colder months",
 				"fact": "It cannot dig its own hole, so it reuses old woodpecker cavities and nest boxes.",
 				"hint": "A krummholz pine and alpine wildflowers.",
@@ -1091,7 +1091,7 @@
 				"role": "A large grazing herbivore that shapes meadow vegetation by browsing shrubs and forbs. Its grazing and droppings help cycle nutrients and keep browse in check. Its usual predators (coyotes, mountain lions) are absent from this meadow roster, so it faces little predation here.",
 				"shelter": "Beds in brushy cover, tall grass, or forest edges; no permanent den"
 			},
-			"mule-deer-alpine": {
+			"grizzly-bear": {
 				"diet": "A selective browser of shrubs, forbs, buds, fruits, and lichens",
 				"fact": "Mule deer clear obstacles with a bounding, four-footed gait called stotting.",
 				"hint": "Forage and clean water up high.",
@@ -1127,7 +1127,7 @@
 				"role": "A reef-building filter feeder whose beds create habitat for countless small animals. It is the key prey that ties together the shore's top predators, from ochre sea stars to sea otters and oystercatchers.",
 				"shelter": "Dense beds anchored to wave-washed rock"
 			},
-			"northern-flying-squirrel": {
+			"flying-squirrel": {
 				"diet": "Mostly underground truffle fungi; also lichens, seeds, nuts, fruit, and insects",
 				"fact": "Fungal spores turn up in nearly every flying squirrel dropping, making it the forest's key truffle disperser.",
 				"hint": "Nesting tree and a stump, once tree squirrels are back.",
@@ -1136,7 +1136,7 @@
 				"role": "The northern flying squirrel is a keystone mutualist, the main disperser of underground mycorrhizal fungi that conifers depend on for nutrients. This squirrel-fungi-tree partnership underpins forest regeneration. It is also a prime prey item for owls, martens, and fishers, funneling energy from the fungal layer up to top predators.",
 				"shelter": "Tree cavities, old woodpecker holes, and branch dreys; huddles in winter groups"
 			},
-			"northern-leopard-frog": {
+			"leopard-frog": {
 				"diet": "Insects, spiders, worms, and other small animals",
 				"fact": "Leopard frogs escape with erratic zig-zag leaps straight back into the water.",
 				"hint": "A lily pool and a few open-water tiles.",
@@ -1181,7 +1181,7 @@
 				"role": "A basking omnivore that grazes plants and hunts insects and small fish, and cleans up carrion. Young are mostly carnivorous, shifting toward plants with age.",
 				"shelter": "Muddy pond bottoms; basks on logs"
 			},
-			"pelican": {
+			"brown-pelican": {
 				"diet": "Small schooling fish, especially anchovies",
 				"fact": "Brown pelicans plunge-dive from up to 65 feet, twisting to protect the neck on impact.",
 				"hint": "Quiet roosting space and fishable water.",
@@ -1271,7 +1271,7 @@
 				"role": "A glowing-gold swamp warbler that gleans insects and spiders over the water. Unusually for a warbler, it nests in cavities, often above standing water.",
 				"shelter": "Tree cavities and nest boxes over standing water"
 			},
-			"ptarmigan": {
+			"white-tailed-ptarmigan": {
 				"diet": "Buds, twigs, leaves, seeds, and flowers; willow is the sole winter food",
 				"fact": "It is the only North American bird living entirely above treeline all year.",
 				"hint": "Alpine shrubs and quiet nesting cover, with hardy frostflowers in bloom.",
@@ -1316,7 +1316,7 @@
 				"role": "A fast, territorial butterfly that feeds mainly on tree sap, fruit, and dung, visiting flowers as a nectar pollinator when preferred foods are scarce; its caterpillars specialize on stinging nettles. Lacking chemical defenses, it relies on camouflage and speed to escape birds and other predators.",
 				"shelter": "Caterpillars fold nettle leaves into shelters; adults roost on trees"
 			},
-			"red-fox-forest": {
+			"gray-fox": {
 				"diet": "Rodents, rabbits, birds, and reptiles; insects, fruit, and carrion",
 				"fact": "Red foxes have around 28 distinct calls, and each individual's voice is recognizable to other foxes.",
 				"hint": "Denning cover and small prey back in the woods.",
@@ -1325,7 +1325,7 @@
 				"role": "The red fox is a versatile mesopredator that keeps small rodents, rabbits, and ground-nesting birds in check while dispersing seeds through the fruit it eats. It sits below apex predators like bears and bobcats and above the small mammals it hunts. Fox pairs often reuse and expand the same den site across generations.",
 				"shelter": "Earthen dens dug into slopes or taken over from other animals, reused for generations"
 			},
-			"red-fox-meadow": {
+			"red-fox": {
 				"diet": "Voles, rabbits, squirrels, birds, and insects; also berries and carrion",
 				"fact": "When 'mousing,' red foxes tend to pounce facing magnetic northeast, apparently using Earth's magnetic field as a rangefinder to judge the leap.",
 				"hint": "Foxes only return once smaller animals are back, with denning cover and a balanced meadow.",
@@ -1370,7 +1370,7 @@
 				"role": "A ground-running predatory bird that sprints down lizards, insects, scorpions, and snakes. It is a key mesopredator on small desert reptiles and arthropods. Coyotes and hawks hunt it.",
 				"shelter": "Low nests in brush and cactus"
 			},
-			"rosy-finch": {
+			"gray-crowned-rosy-finch": {
 				"diet": "Tiny alpine plant seeds and insects, often gleaned off snowfields",
 				"fact": "It nests higher than nearly any other songbird in North America.",
 				"hint": "Alpine wildflowers and a rock pile.",
@@ -1496,7 +1496,7 @@
 				"role": "A ground-foraging omnivore that switches between insects in the breeding season and seeds/fruit the rest of the year, so it both controls insects and disperses seeds. Its abundance makes it a key prey item for meadow hawks and snakes, linking ground invertebrates to larger predators.",
 				"shelter": "Cup nest hidden on the ground or low in shrubs and grass tussocks"
 			},
-			"spotted-towhee": {
+			"towhee": {
 				"diet": "Insects and invertebrates in summer; seeds, acorns, and berries in fall and winter",
 				"fact": "The spotted towhee feeds with a two-footed backward hop that flicks leaf litter aside to expose food.",
 				"hint": "A brush pile and shrubs over a bed of leaf litter.",
@@ -1514,16 +1514,16 @@
 				"role": "A small, declining omnivore that forages underwater for plants and invertebrates. It basks on logs and buries in mud when startled.",
 				"shelter": "Basking logs and shallow, muddy-bottomed water"
 			},
-			"tarantula": {
+			"desert-tarantula": {
 				"diet": "Insects and other small invertebrates",
-				"fact": "A desert tarantula may live 25 years, most of it within a few feet of one burrow.",
+				"fact": "A desert desert-tarantula may live 25 years, most of it within a few feet of one burrow.",
 				"hint": "Quiet, diggable ground.",
 				"name": "Desert Tarantula",
 				"preferredHabitat": "Undisturbed ground with burrow banks",
-				"role": "A long-lived, nocturnal ambush predator of insects and other invertebrates from its burrow. It is a mesopredator on desert arthropods. Birds, snakes, and the tarantula hawk wasp prey on it.",
+				"role": "A long-lived, nocturnal ambush predator of insects and other invertebrates from its burrow. It is a mesopredator on desert arthropods. Birds, snakes, and the desert-tarantula hawk wasp prey on it.",
 				"shelter": "Silk-lined ground burrows"
 			},
-			"tidepool-crab": {
+			"shore-crab": {
 				"diet": "Mostly algae, plus detritus, worms, snails, and carrion",
 				"fact": "Striped shore crabs graze algae but will scavenge and even turn cannibal after molting.",
 				"hint": "Restore the tidepools and the crabs scuttle back first.",
@@ -1568,7 +1568,7 @@
 				"role": "A small nocturnal mesopredator that sits and waits, then drops onto rodents and insects, gleaning grasshoppers and beetles and snatching voles and mice on the ground. It bridges insect and rodent control in the meadow at night.",
 				"shelter": "Roosts and nests in tree cavities, old woodpecker holes, and boxes"
 			},
-			"wetland-salamander": {
+			"tiger-salamander": {
 				"diet": "Worms, insects, small invertebrates, and even small vertebrates",
 				"fact": "Tiger salamanders are among the largest land salamanders in North America.",
 				"hint": "Quiet breeding pools with soft digging banks.",
@@ -1603,6 +1603,15 @@
 				"preferredHabitat": "Open deciduous and mixed woodland with dead snags full of insects",
 				"role": "Woodpeckers regulate wood-boring beetles and bark insects, easing pest pressure on trees. Their abandoned cavities house nuthatches, wrens, and flying squirrels, making them ecosystem engineers. They feed hawks, owls, and nest-raiding squirrels and snakes.",
 				"shelter": "Self-excavated cavities in standing deadwood; roosts in cavities year-round"
+			},
+			"coyote": {
+				"diet": "Rodents, rabbits, fruit, carrion, and insects",
+				"fact": "The most vocal wild mammal in North America; a howling pack sounds like many more.",
+				"hint": "Cover, shade, and prey on the move.",
+				"name": "Coyote",
+				"preferredHabitat": "Open desert with prey and cover",
+				"role": "The desert's most adaptable predator, an omnivore taking rodents, rabbits, fruit, and carrion. It is the top mammalian predator here and the main killer of kit foxes. Its howls carry for miles at dusk.",
+				"shelter": "Brushy washes and rock dens"
 			}
 		},
 		"biome": {
@@ -2645,7 +2654,7 @@
 				"name": "Small Pond"
 			},
 			"snowbank-roost": {
-				"description": "A packed drift of late-lying snow — a cool roost and a trickle of meltwater for ptarmigan and hares.",
+				"description": "A packed drift of late-lying snow — a cool roost and a trickle of meltwater for white-tailed-ptarmigan and hares.",
 				"name": "Snowbank Roost"
 			},
 			"snowmelt-pool": {

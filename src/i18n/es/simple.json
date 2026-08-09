@@ -302,14 +302,14 @@
 	},
 	"content": {
 		"animal": {
-			"red-fox-meadow": {
+			"red-fox": {
 				"hint": "Los zorros vuelven cuando ya hay animales pequeños. Necesitan cobijo para su madriguera y un prado sano.",
 				"diet": "Ratones de campo, conejos, ardillas, aves y bichos. También bayas",
 				"preferredHabitat": "Prados, bordes de campo y setos en terreno abierto",
 				"fact": "Al cazar ratones, el zorro suele saltar mirando al noreste. Parece usar la Tierra como brújula para medir el salto.",
 				"role": "Un cazador mediano y listo que frena a los ratones y conejos. Se agacha, acecha y salta. También come insectos, bayas y animales muertos. Aquí no hay cazadores más grandes, así que el zorro queda casi arriba."
 			},
-			"lady-beetle": {
+			"ladybug": {
 				"hint": "Las flores traen pulgones. Los pulgones traen mariquitas.",
 				"diet": "Caza pulgones y otros bichos pequeños y blandos",
 				"shelter": "Pasa el invierno en las hojas caídas, en grupos. Descansa en las hojas",
@@ -357,7 +357,7 @@
 				"fact": "Los oseznos nacen en pleno sueño invernal y pesan menos de medio kilo. Son las crías más pequeñas frente al tamaño adulto.",
 				"role": "Los osos negros comen casi de todo. Reparten semillas de bayas, escarban insectos y a veces se llevan crías de venado y de alce. Son el gran carnívoro más común de los bosques de América del Norte. Unen la capa de nueces, la de insectos y la de animales. Nada caza a un oso adulto."
 			},
-			"elk-forest": {
+			"elk": {
 				"hint": "Claros con hierba y agua en un bosque sano.",
 				"shelter": "Sin guarida. Las crías se esconden entre plantas. La manada vigila junta",
 				"preferredHabitat": "Claros con hierba y bordes abiertos dentro de un bosque mayor",
@@ -371,7 +371,7 @@
 				"fact": "En el este de EE. UU., el número de linces sube y baja con el de conejos.",
 				"role": "Los linces son cazadores medianos clave. Frenan a conejos, ratones y ardillas, y así alivian a las plantas del bosque. Están debajo de pumas y lobos y encima de los animalitos que cazan. Dan forma a grupos enteros de animales pequeños."
 			},
-			"garter-snake-forest": {
+			"ratsnake": {
 				"hint": "Un montón de piedras al sol junto a un terreno con hierba.",
 				"diet": "Lombrices, ranas y babosas. También sanguijuelas, peces y ratones",
 				"shelter": "Guaridas de invierno compartidas en madrigueras y piedras. Se esconde bajo troncos",
@@ -384,7 +384,7 @@
 				"fact": "Las presas de castor crean humedales que guardan agua y sostienen a cientos de especies.",
 				"role": "El que construye el humedal. Al tumbar árboles y hacer presas, los castores crean lagunas nuevas, suben el agua y arman la casa que casi todo el pantano necesita."
 			},
-			"freshwater-fish": {
+			"minnow": {
 				"hint": "Charcas limpias y unidas con juncos traen peces. Luego llega quien come peces.",
 				"fact": "Los bancos de pececillos son la base de la que viven garzas, nutrias y visones.",
 				"role": "La base de la red de comida del humedal. Estos peces chicos nadan en grupo y comen algas, plancton y larvas. Luego casi todos los cazadores del pantano se los comen."
@@ -394,7 +394,7 @@
 				"fact": "Hace un sonido áspero como una cascabel para espantar visitas de su madriguera.",
 				"role": "Un búho chico que vive en huecos que otros cavaron. De día caza insectos y de noche ratones, así que frena a los dos. Tejones, coyotes y culebras lo cazan."
 			},
-			"ptarmigan": {
+			"white-tailed-ptarmigan": {
 				"hint": "Arbustos alpinos y cobijo tranquilo para anidar, con flores de escarcha.",
 				"preferredHabitat": "Terreno alto sobre los árboles todo el año. Inverna en hondonadas de sauce",
 				"fact": "Es la única ave de Norteamérica que vive sobre el límite del bosque todo el año.",
@@ -418,13 +418,13 @@
 				"fact": "Los delfines se llaman por su nombre. Cada uno tiene su propio silbido.",
 				"role": "Un cazador listo que trabaja en grupo para juntar peces y perseguir calamares cerca de la orilla. Los tiburones grandes y las orcas lo pueden cazar. Pero aquí es un cazador de arriba, y verlo quiere decir que la costa está llena de peces."
 			},
-			"migrating-whale": {
+			"gray-whale": {
 				"hint": "Solo una costa muy sana trae una ballena. Mira al horizonte.",
 				"diet": "Animalitos parecidos a gambas, colados del barro del fondo",
 				"fact": "La ballena gris recorre hasta 22.000 km ida y vuelta. Es de los viajes más largos.",
 				"role": "Una ballena que come en el fondo del mar. Se gira de lado, chupa lodo y cuela animalitos parecidos a camarones. Las orcas son su mayor peligro. Que pase una ballena quiere decir que la costa sanó del todo."
 			},
-			"northern-leopard-frog": {
+			"leopard-frog": {
 				"hint": "Una charca con nenúfares y unas casillas de agua.",
 				"fact": "La rana leopardo huye con saltos en zigzag directos al agua.",
 				"role": "Una rana de boca ancha. Come casi cualquier animalito que pueda tragar, hasta otras ranas. Garzas, visones y culebras la necesitan para comer."
@@ -472,7 +472,7 @@
 				"fact": "Asustado, el chuckwalla se mete en una grieta e infla los pulmones para trabarse.",
 				"role": "Una lagartija grande que come plantas: hojas, flores y fruta del desierto entre las rocas. Halcones, cernícalos, coyotes y cascabeles la cazan. Cuando se asusta se llena de aire y queda bien trabada en una grieta."
 			},
-			"alpine-chipmunk": {
+			"rock-squirrel": {
 				"hint": "Un montón de roca suelta y un montón de piedras entre flores de montaña.",
 				"preferredHabitat": "Laderas de piedra altas y prados rocosos de Sierra Nevada",
 				"fact": "Vive más alto que casi cualquier otra ardilla listada, hasta 3.900 metros.",
@@ -529,7 +529,7 @@
 				"fact": "Ante una cascabel, estas ardillas lanzan arena y agitan la cola caliente. El calor confunde la vista de la serpiente.",
 				"role": "Un animal que cava y come semillas, hojas verdes e insectos. Sus túneles dejan entrar aire a la tierra, y los viejos se vuelven casa de otros. Halcones, zorros, culebras y tejones lo cazan. Sus colonias sostienen la red de comida del prado."
 			},
-			"garter-snake-meadow": {
+			"garter-snake": {
 				"diet": "Lombrices, ranas, babosas, peces pequeños, bichos y ratones",
 				"shelter": "Se esconde bajo rocas y troncos. Pasa el invierno en guaridas compartidas",
 				"fact": "Su veneno es leve y solo sirve para presas diminutas. No hace daño a las personas.",
@@ -565,7 +565,7 @@
 				"fact": "En algunos bosques, todas estas salamandras juntas pesan más que todas las aves.",
 				"role": "Esta salamandra chica manda en la hojarasca. Come los ácaros y bichitos que deshacen las hojas caídas. Hay tantas que las culebras, aves y mamíferos chicos cuentan con ellas. Respira por la piel, así que muestra si el bosque está húmedo y sano."
 			},
-			"red-fox-forest": {
+			"gray-fox": {
 				"diet": "Ratones, conejos, aves y lagartos. También bichos y fruta",
 				"shelter": "Guaridas cavadas en laderas, o tomadas de otros animales. Se usan años",
 				"preferredHabitat": "Bordes de bosque y matorral mixto. Evita el bosque muy cerrado",
@@ -616,7 +616,7 @@
 				"diet": "Peces, ranas y animales pequeños de agua. También ratones y otras aves",
 				"role": "El vigía alto y paciente de las aguas bajas y el mayor cazador de peces del humedal. Camina despacio y luego golpea más rápido de lo que ves."
 			},
-			"wetland-salamander": {
+			"tiger-salamander": {
 				"diet": "Lombrices, bichos, criaturas pequeñas e incluso animales pequeños con huesos",
 				"fact": "La salamandra tigre es una de las más grandes de tierra en América del Norte.",
 				"role": "Una cavadora hambrienta que caza lombrices e insectos cerca de sus charcas. Sus crías crecen en charcas sin peces, y hasta se comen entre ellas."
@@ -656,7 +656,7 @@
 				"fact": "Las picas cortan y secan montoncitos de plantas para comer bajo la nieve.",
 				"role": "Un primo diminuto de los conejos que vive entre las piedras. Mueve toda la red de comida de la montaña. Todo el verano corta y seca montoncitos de plantas para comer bajo la nieve. Comadrejas, martas, zorros y águilas lo cazan."
 			},
-			"marmot": {
+			"yellow-bellied-marmot": {
 				"preferredHabitat": "Trozos de prado abierto con rocas y suelo donde cavar",
 				"fact": "De cada 100 marmotas que mueren en verano, unas 98 caen ante un cazador.",
 				"role": "Un roedor redondo al que le encanta el sol. Come plantas del prado y engorda con semillas antes de dormir ocho meses. Los grupos silban desde las rocas para avisarse. Águilas reales, coyotes y zorros los cazan."
@@ -671,12 +671,12 @@
 				"preferredHabitat": "Prados altos de verano cerca de árboles y agua de deshielo",
 				"role": "Un animal grande que come pasto y se mueve con las estaciones. Pasa el verano en los prados altos, subiendo tras el pasto nuevo, y brama todo el otoño. Los machos hacen astas nuevas y enormes cada año. Los pumas se llevan adultos, y las águilas y coyotes pueden llevarse crías recién nacidas."
 			},
-			"mule-deer-alpine": {
+			"grizzly-bear": {
 				"preferredHabitat": "Prados altos de verano y matorral con agua limpia",
 				"fact": "El venado bura salta rocas y troncos con un brinco de cuatro patas.",
 				"role": "Come plantas de la montaña y es muy exigente. Pasa el verano en los prados y matorrales altos y baja cada otoño. Escoge las hojas y brotes más blandos y ricos. El puma es su mayor cazador, y las águilas y coyotes se llevan a las crías."
 			},
-			"fox-alpine": {
+			"lynx": {
 				"shelter": "Guaridas cavadas en la tierra, muchas veces tomadas de otros animales",
 				"preferredHabitat": "Montaña alta con rocas donde cobijarse y muchas presas pequeñas",
 				"fact": "Los zorros rojos se meten en huecos que cavaron conejos o marmotas. Se ahorran el trabajo.",
@@ -687,7 +687,7 @@
 				"fact": "Las martas cazan bajo la nieve, en túneles que otros no alcanzan.",
 				"role": "Una comadreja rápida del límite de los árboles. Caza topillos, ardillas, picas y liebres jóvenes. Suma bayas e insectos según la estación. Recorre bosque y roca difíciles, y hasta anda bajo la nieve. Búhos cornudos, águilas y carnívoros mayores la cazan."
 			},
-			"clarks-nutcracker": {
+			"nutcracker": {
 				"preferredHabitat": "Bosque alto de pinos y límite del bosque cerca de piñones",
 				"fact": "Encuentra miles de escondites de semillas meses después, incluso bajo la nieve.",
 				"role": "Un ave de montaña que junta y entierra miles de semillas de pino, así que siembra el mismo bosque que necesita. Esa comida guardada le deja criar en pleno invierno. También come insectos y animalitos cuando puede."
@@ -699,7 +699,7 @@
 				"fact": "Sus alas rojas y negras avisan a los cazadores de que sabe mal.",
 				"role": "Una mariposa dura de montaña. Sus orugas comen solo siempreviva, y las adultas beben de las flores del prado. Sus alas brillantes avisan que sabe mal. Las aves y arañas que no hacen caso igual atrapan algunas."
 			},
-			"bumblebee-alpine": {
+			"alpine-moth": {
 				"shelter": "Nidos en grupo en huecos del suelo y madrigueras viejas de ratón",
 				"preferredHabitat": "Prados de flores altos, muchas veces sobre el límite del bosque",
 				"fact": "La lengua de esta abeja se acortó entre 1966 y 2014, al escasear las flores.",
@@ -711,7 +711,7 @@
 				"fact": "La trucha degollada nativa pierde terreno ante truchas traídas de fuera.",
 				"role": "Una trucha nativa de agua fría. Donde vive, el arroyo de montaña está limpio y sano. Saca insectos de la corriente, y las grandes comen peces chicos. Las truchas traídas de fuera la desplazan y se la comen."
 			},
-			"tidepool-crab": {
+			"shore-crab": {
 				"diet": "Sobre todo algas, más restos, lombrices, caracoles y animales muertos",
 				"fact": "Los cangrejos rayados comen algas. También comen cosas muertas, y hasta a otros después de cambiar de caparazón.",
 				"role": "Un cangrejo común de la orilla. Raspa las algas de las rocas y limpia animales muertos. Gaviotas, aves de playa y cangrejos mayores se lo comen, así que lleva la comida de las algas hasta los cazadores."
@@ -728,7 +728,7 @@
 				"fact": "Solo come plantas. Anida tarde en verano, cuando el vilano del cardo ya sirve para el nido.",
 				"role": "Come semillas de cardo y de otras flores. Así reparte esas semillas por el prado. Es pequeño y común, así que los halcones rápidos y los búhos chicos lo atrapan."
 			},
-			"eastern-bluebird": {
+			"bluebird": {
 				"diet": "Casi todo bichos del suelo: orugas, escarabajos, grillos. Fruta en invierno",
 				"shelter": "Un nido de hierba en huecos de árbol, huecos de carpintero o cajas",
 				"fact": "El azulejo del este ve un bicho chiquito en la hierba a veinte metros. Luego baja y lo agarra.",
@@ -751,7 +751,7 @@
 				"diet": "Desentierra ardillas, tuzas y ratones. También come bichos",
 				"shelter": "Cava sus propias madrigueras grandes. Es muy buen cavador",
 				"preferredHabitat": "Prados y pastizal abierto con tierra blanda y ratones que cazar",
-				"fact": "A veces el tejón y el coyote cazan juntos. El tejón cava abajo y el coyote atrapa a los que huyen.",
+				"fact": "A veces el tejón y el mountain-lion cazan juntos. El tejón cava abajo y el mountain-lion atrapa a los que huyen.",
 				"role": "Come carne y saca a sus presas cavando en sus propios túneles. Así frena a las ardillas de tierra y a los topillos. Los huecos que deja ayudan a otros animales. Aquí casi nada caza a un tejón adulto."
 			},
 			"pileated-woodpecker": {
@@ -772,7 +772,7 @@
 				"fact": "Su piel guarda veneno para matar a varios adultos. Lleva siglos en una carrera con las culebras.",
 				"role": "El tritón de piel rugosa come insectos, lombrices y huevos de rana, así que decide qué vive en el humedal. Su piel guarda un veneno muy fuerte. Las culebras de agua poco a poco aprendieron a aguantarlo. Ese tira y afloja es una de las historias más conocidas de la biología. El veneno hace que casi nada más se lo coma."
 			},
-			"northern-flying-squirrel": {
+			"flying-squirrel": {
 				"diet": "Sobre todo hongos de bajo tierra. También liquen, semillas, nueces y bichos",
 				"shelter": "Huecos de árbol, huecos viejos de carpintero y nidos de rama. Se juntan en invierno",
 				"preferredHabitat": "Bosque viejo de pinos con techo cerrado de hojas y muchos hongos",
@@ -786,7 +786,7 @@
 				"fact": "Un día tras nacer, los patitos saltan de huecos a 15 metros de altura y caen sin daño.",
 				"role": "Los patos joyuyos unen el bosque inundado con el pantano. Reparten semillas de bellota y de plantas de agua y frenan a los bichitos de la orilla. Búhos, visones, mapaches y tortugas mordedoras se los comen. Anidan en huecos viejos de carpintero, así que si hay muchos, el humedal con árboles está sano."
 			},
-			"belted-kingfisher": {
+			"kingfisher": {
 				"diet": "Peces pequeños y cangrejos de río, más otros seres del agua",
 				"fact": "El martín pescador se lanza de cabeza con los ojos cerrados para coger peces."
 			},
@@ -795,13 +795,13 @@
 				"fact": "Casi nada caza a una tortuga mordedora adulta. Pueden vivir muchos años.",
 				"role": "Una tortuga pesada de caparazón duro. Espera en el fondo de la laguna y come casi de todo. Las adultas quedan casi arriba de la red de comida del pantano. Comen peces, patitos, plantas y animales muertos."
 			},
-			"rosy-finch": {
+			"gray-crowned-rosy-finch": {
 				"diet": "Semillas diminutas de montaña y bichos, muchas veces cogidos de la nieve",
 				"preferredHabitat": "Terreno alto sobre los árboles: roca, pedregal, acantilados y hielo",
 				"fact": "Anida más alto que casi cualquier otra ave cantora de América del Norte.",
 				"role": "Un ave de alta montaña que salta por la nieve y la roca juntando semillas que trae el viento e insectos que el frío dejó quietos. Anida en grietas por encima de los árboles. Halcones y águilas son su mayor peligro."
 			},
-			"american-pipit": {
+			"pipit": {
 				"preferredHabitat": "Prados altos abiertos y terreno pelado en época de cría",
 				"fact": "Come al borde de la nieve, recogiendo bichos aturdidos por el frío.",
 				"role": "Un ave delgada que camina por los prados altos y abiertos moviendo la cola mientras caza insectos. Recoge bichos fríos y lentos al borde de la nieve. Los halcones y los que roban nidos son su mayor peligro."
@@ -810,7 +810,7 @@
 				"diet": "Ratones pequeños, sobre todo de campo. También picas, aves, huevos y bichos",
 				"role": "Una comadreja chica y brava que vive de topillos y otros ratones, y también se lleva picas jóvenes y huevos. Es tan flaca que entra derecho a sus túneles. Zorros, martas y halcones la cazan a ella."
 			},
-			"mountain-bluebird": {
+			"white-throated-swift": {
 				"shelter": "Huecos viejos de carpintero, huecos de árbol y cajas nido",
 				"fact": "No sabe cavar su hueco, así que reusa huecos viejos de carpintero y cajas nido.",
 				"role": "Un ave azul brillante de los prados altos y abiertos. Se queda flotando en el aire y cae sobre los insectos, y come bayas cuando llega el frío. Anida en huecos, así que necesita huecos viejos de carpintero. Halcones y ladrones de nidos la cazan."
@@ -862,7 +862,7 @@
 				"fact": "La mantis puede girar la cabeza casi del todo. Ningún otro insecto puede.",
 				"role": "Un cazador que se queda quieto y luego atrapa con sus patas de espinas más rápido de lo que parpadeas. Come saltamontes, abejas, escarabajos y otros insectos, así que frena sus números. Aves, culebras y búhos chicos se la comen."
 			},
-			"little-brown-bat": {
+			"skunk": {
 				"diet": "Solo bichos: mosquitos, efímeras y polillas",
 				"shelter": "Duerme en huecos de árbol, bajo corteza y en edificios. Inverna en cuevas",
 				"preferredHabitat": "Bosque cerca de arroyos, charcas y claros para cazar en el aire",
@@ -875,7 +875,7 @@
 				"fact": "No tiene pulmones y respira por la piel. Puede soltar la cola, que se retuerce y lleva veneno.",
 				"role": "La ensatina es un cazador común del suelo del bosque. Frena a los ciempiés, milpiés y cochinillas. Eso une el mundo de las hojas caídas con los animales mayores. No tiene pulmones y respira por la piel, así que necesita un bosque húmedo y entero. Por eso muestra qué tan mojado está el suelo. Culebras, mapaches y arrendajos se la comen."
 			},
-			"spotted-towhee": {
+			"towhee": {
 				"diet": "Bichos y criaturas pequeñas en verano. Semillas, bellotas y bayas en invierno",
 				"preferredHabitat": "Bordes de bosque con matorral y hojas caídas espesas",
 				"fact": "Come dando saltitos hacia atrás con las dos patas para apartar las hojas.",
@@ -891,7 +891,7 @@
 				"fact": "Los jóvenes aprenden su canto de los vecinos de al lado.",
 				"role": "Un gorrión que come en el suelo, al borde de los prados altos y los árboles chaparros. Come semillas e insectos de verano, reparte semillas y da larvas a sus pollos. Zorros, comadrejas y martas se llevan a los adultos y roban sus nidos bajitos."
 			},
-			"meadow-vole": {
+			"prairie-vole": {
 				"fact": "Los ratones de campo cortan caminos estrechos en la hierba. Son carreteras que patrullan entre sus puertas.",
 				"role": "Un ratón diminuto que casi todos los cazadores comen, y tiene crías muy rápido. Convierte las plantas del prado en comida para los demás. Lo que come y sus caminitos en el pasto dan forma a la hierba. Halcones, búhos, zorros, culebras y tejones cuentan con él."
 			},
@@ -919,7 +919,7 @@
 				"fact": "El perro salvaje más pequeño de Norteamérica. Sus orejas enormes oyen presas y sueltan calor.",
 				"role": "Un zorro chico del desierto que caza ratones y conejos de noche. Casi nunca bebe, porque saca el agua de su comida. Los coyotes son su mayor peligro."
 			},
-			"coyote": {
+			"mountain-lion": {
 				"fact": "El mamífero salvaje más ruidoso de Norteamérica. Un grupo aullando suena a muchos más.",
 				"role": "El cazador que mejor se acomoda en el desierto. Come ratones, conejos, fruta y animales muertos. Es el mayor cazador con pelo de aquí y el que más mata zorros chicos. Sus aullidos llegan lejísimos al caer la tarde."
 			},
@@ -930,7 +930,7 @@
 			"jackrabbit": {
 				"fact": "Sus orejas enormes funcionan como radiadores. Sueltan calor para mantenerla fresca."
 			},
-			"gambels-quail": {
+			"quail": {
 				"fact": "Un macho vigila desde una rama mientras el grupo come abajo.",
 				"role": "Un ave de suelo muy sociable que come semillas, hojas verdes y fruta de cactus. Coyotes, linces y halcones del desierto la necesitan. Los grupos escarban juntos entre los arbustos."
 			},
@@ -942,7 +942,7 @@
 				"fact": "La lagartija de collar corre en dos patas como un dinosaurio chiquito, con la cola atrás.",
 				"role": "Un cazador rápido que espera entre las rocas. Luego agarra insectos y lagartijas más chicas. Caza bichos del desierto y crías de reptil."
 			},
-			"tarantula": {
+			"desert-tarantula": {
 				"fact": "Una tarántula del desierto puede vivir 25 años, casi siempre a pocos pasos de su hueco.",
 				"role": "Una araña grande que vive muchos años. De noche espera en su hueco y agarra insectos y otros bichos. Aves, culebras y avispas la cazan."
 			},
@@ -950,7 +950,7 @@
 				"fact": "Los escorpiones brillan verde azulado con luz negra. Nadie sabe bien por qué.",
 				"role": "El alacrán más grande de América del Norte. De noche espera y agarra insectos, arañas y hasta otros alacranes. Búhos, culebras y lagartijas se lo comen."
 			},
-			"desert-bee": {
+			"cactus-bee": {
 				"fact": "Las abejas de cactus anidan solas, pero miles comparten el mismo trozo de suelo.",
 				"role": "Una abeja que vive sola. Lleva polen a cactus del desierto como el nopal y la cholla. Come néctar y polen, y el cactus la necesita para dar fruta."
 			},
@@ -974,7 +974,7 @@
 				"fact": "Los pollitos del chorlito corren y comen solos a las pocas horas de nacer.",
 				"role": "Un ave chica de playa que atrapa bichitos de mar y moscas de alga por la orilla. Está en riesgo y necesita playas tranquilas. Sus nidos se pierden fácil donde hay mucha gente."
 			},
-			"pelican": {
+			"brown-pelican": {
 				"fact": "El pelícano pardo se lanza desde 20 metros y gira para proteger el cuello al caer.",
 				"role": "Un cazador de peces que se lanza en picada. Casi desapareció por un veneno para plagas llamado DDT y luego volvió, y ese es uno de los grandes logros para la vida silvestre. Donde hay pelícanos, el agua tiene buenos bancos de peces chicos."
 			},
@@ -994,7 +994,7 @@
 				"fact": "Los machos hacen muchos nidos de más y hasta rompen los huevos de sus vecinos.",
 				"role": "Un ave diminuta y brava de los juncos que come insectos. Los saca de los tallos junto con arañas, y los machos hacen varios nidos falsos para conquistar pareja."
 			},
-			"gila-woodpecker": {
+			"cactus-woodpecker": {
 				"fact": "Los huecos que deja en el cactus luego cobijan búhos elfo, mochuelos y cernícalos.",
 				"role": "Un carpintero que anida en el cactus y hace casas para todo el desierto. Come insectos, fruta de cactus y bayas. Sus huecos viejos dan refugio a muchos otros animales. Halcones, culebras y linces lo cazan."
 			},
@@ -1017,7 +1017,7 @@
 				"fact": "Los correlimos persiguen las olas al retirarse para coger lo que queda varado.",
 				"role": "Un playero chico que corre con las olas y come bichitos y gusanos que el mar destapa. Los halcones lo cazan. Sus bandadas de invierno muestran qué tan sanas están las playas de arena."
 			},
-			"black-oystercatcher": {
+			"puffin": {
 				"fact": "Su pico rojo y largo abre mariscos y corta el músculo antes de que se cierren.",
 				"role": "Un ave de costa rocosa que arranca mejillones y lapas de la roca. Come cuando la marea la deja. Solo le va bien donde hay muchos mariscos, así que muestra qué tan sana está la orilla."
 			},
@@ -1029,7 +1029,7 @@
 				"fact": "El chorlito nevado anida en hoyos diminutos en plena arena.",
 				"role": "Un ave que anida en la playa y está en riesgo. Come animalitos por la arena y la orilla. Se asusta muy fácil y deja el nido, así que solo le va bien en playas de duna tranquilas y cuidadas."
 			},
-			"costas-hummingbird": {
+			"desert-hummingbird": {
 				"fact": "El macho pasa en picada junto a la hembra con un silbido agudo. Su garganta morada brilla al sol.",
 				"role": "Un colibrí chico del desierto que bebe néctar de agave, chuparrosa y otras flores y come bichitos. Lleva mucho polen. Culebras y aves cazadoras lo atrapan."
 			},
@@ -1047,19 +1047,19 @@
 			"antelope-squirrel": {
 				"fact": "Lleva la cola curvada sobre el lomo como una sombrilla."
 			},
-			"annas-hummingbird": {
+			"crow": {
 				"role": "Un colibrí que se queda en la costa todo el año. Bebe néctar y come insectos chicos. Mientras come lleva polen a arbustos como la manzanita y la grosella. Une las flores de la costa con el resto de la red de comida."
 			},
 			"mink": {
 				"role": "Un cazador valiente que nada tras peces, ranas y hasta ratas almizcleras. Los visones son cazadores medianos que ayudan a frenar a los animalitos del pantano."
 			},
-			"mallard-duck": {
+			"mallard": {
 				"role": "Un pato que mete la cabeza al agua para comer semillas, plantas y bichitos. Sus patitos y sus huevos alimentan a muchos cazadores del pantano."
 			},
 			"sandhill-crane": {
 				"role": "Un ave alta del pantano abierto. Escarba raíces y granos y atrapa insectos y animalitos. Si hay grullas, el humedal es ancho y está sano."
 			},
-			"hooded-merganser": {
+			"merganser": {
 				"role": "Un pato buceador pequeño. Su pico tiene dientecitos como sierra para sostener presas resbalosas. Persigue peces, cangrejos de río e insectos bajo el agua. Anida en huecos de árbol."
 			},
 			"roadrunner": {
@@ -1076,6 +1076,10 @@
 			},
 			"gull": {
 				"role": "Un ave atrevida que come casi de todo. Limpia animales muertos y caza cangrejos, mariscos y hasta estrellas de mar, lo que une muchas presas con la parte de arriba de la red de comida. En tierra los zorros y coyotes se llevan gaviotas y huevos."
+			},
+			"coyote": {
+				"fact": "El mamífero salvaje más ruidoso de Norteamérica. Un grupo aullando suena a muchos más.",
+				"role": "El cazador que mejor se acomoda en el desierto. Come ratones, conejos, fruta y animales muertos. Es el mayor cazador con pelo de aquí y el que más mata zorros chicos. Sus aullidos llegan lejísimos al caer la tarde."
 			}
 		},
 		"biome": {
@@ -1526,7 +1530,7 @@
 			"wetland-beaver-wake": "Las nutrias y las garzas siguieron al castor. Cazan en el agua honda y quieta que hacen sus presas. Esa agua no existiría sin él.",
 			"wetland-heron-hunt": "Una garza azul trabaja la orilla. Se queda quieta varios minutos. Luego ataca más rápido de lo que puedes ver.",
 			"desert-snake-rodent": "La serpiente de cascabel volvió y hace su trabajo. Espera y encuentra a su presa por el calor con hoyos en la cara. Así controla a los ratones del desierto.",
-			"desert-coyote-prey": "Un coyote recorre el matorral otra vez. Caza ratones y conejos. Así mantiene en equilibrio toda la red del desierto.",
+			"desert-coyote-prey": "Un mountain-lion recorre el matorral otra vez. Caza ratones y conejos. Así mantiene en equilibrio toda la red del desierto.",
 			"desert-shared-burrow": "En el desierto nadie desperdicia un hoyo. La tortuga cava una madriguera y un búho llanero ocupa el cuarto libre. Un poco más abajo está fresco mientras arriba quema.",
 			"alpine-eagle-prey": "Un águila real vigila la cresta. Puede ver una marmota a más de un kilómetro y medio. Luego baja en picado muy rápido. Es la gran cazadora de la montaña.",
 			"coastal-keystone": "La estrella de mar ocre volvió. Fue el primer animal llamado clave. Si no está, los mejillones cubren cada roca. Si vuelve, toda la charca comparte el sitio.",
@@ -1791,7 +1795,7 @@
 				"Las orejotas del zorro chico sueltan calor. Y oyen hasta el ruidito de un escarabajo en la oscuridad.",
 				"En el desierto ningún hueco se desperdicia. La tortuga lo cava y el búho se queda el cuarto de sobra.",
 				"La cascabel encuentra su presa por el calor del cuerpo. Frena a los ratones, y espera lo que haga falta.",
-				"Un coyote come lo que el desierto le dé. Eso es lo que evita que toda la red se vaya de lado.",
+				"Un mountain-lion come lo que el desierto le dé. Eso es lo que evita que toda la red se vaya de lado.",
 				"El carpintero talla el cactus. Los búhos duende y los mosqueros se mudan a los huecos que deja.",
 				"Las codornices andan en bandada. Decenas de ojos vigilan al halcón para que cada una pueda comer.",
 				"El matorral se afianza, y con él las primeras pizcas de sombra que la planicie ha tenido en años.",

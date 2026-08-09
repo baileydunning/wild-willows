@@ -58,6 +58,14 @@ starters = {min((x for x in species.values() if x['biome'] == b),
                 key=lambda x: x['requirements']['minHealth'])['id']
             for b in {x['biome'] for x in species.values()}}
 
+# ids must match display names — a drifting id is how food-web edges get written
+# to a species that no longer exists, and those fail silently.
+import re as _re
+def _slug(n): return _re.sub(r'[^a-z0-9]+', '-', n.lower()).strip('-')
+for sid, s in species.items():
+    if _slug(s['name']) != sid:
+        err(f"{sid}: id does not match its name '{s['name']}' (expected '{_slug(s['name'])}')")
+
 # signatures
 sig_owner = {}
 for sid, s in species.items():

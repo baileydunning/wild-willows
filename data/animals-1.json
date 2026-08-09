@@ -68,13 +68,13 @@
         "nestlings"
       ],
       "eatenBy": [
-        "red-fox-forest",
+        "gray-fox",
         "fisher",
         "bobcat",
         "great-horned-owl",
         "black-bear",
         {
-          "id": "garter-snake-forest",
+          "id": "ratsnake",
           "stage": "young"
         },
         "goshawk"
@@ -121,12 +121,12 @@
         "bird eggs"
       ],
       "eatenBy": [
-        "red-fox-forest",
+        "gray-fox",
         "fisher",
         "bobcat",
         "great-horned-owl",
         "black-bear",
-        "garter-snake-forest",
+        "ratsnake",
         "goshawk"
       ],
       "requirements": {
@@ -222,7 +222,7 @@
       ],
       "eatenBy": [
         {
-          "id": "garter-snake-forest",
+          "id": "ratsnake",
           "stage": "eggs"
         }
       ],
@@ -273,7 +273,7 @@
       ],
       "eatenBy": [
         {
-          "id": "garter-snake-forest",
+          "id": "ratsnake",
           "stage": "eggs"
         }
       ],
@@ -325,7 +325,7 @@
       ],
       "eatenBy": [
         "raccoon",
-        "red-fox-forest"
+        "gray-fox"
       ],
       "requirements": {
         "minHealth": 40,
@@ -376,7 +376,7 @@
           "stage": "eggs"
         },
         {
-          "id": "northern-flying-squirrel",
+          "id": "flying-squirrel",
           "stage": "young"
         },
         "wood-frog"
@@ -439,7 +439,7 @@
         "tree-squirrel",
         "porcupine",
         {
-          "id": "elk-forest",
+          "id": "elk",
           "stage": "young"
         }
       ],
@@ -485,7 +485,7 @@
       "biome": "forest"
     },
     {
-      "id": "red-fox-forest",
+      "id": "gray-fox",
       "name": "Gray Fox",
       "scientificName": "Urocyon cinereoargenteus",
       "kind": "mammal",
@@ -499,14 +499,14 @@
       "eats": [
         "chipmunk",
         "tree-squirrel",
-        "northern-flying-squirrel",
+        "flying-squirrel",
         "forest-salamander",
-        "garter-snake-forest",
+        "ratsnake",
         {
           "id": "wood-duck",
           "stage": "eggs"
         },
-        "spotted-towhee"
+        "towhee"
       ],
       "eatsOther": [
         "mice",
@@ -553,7 +553,7 @@
       "biome": "forest"
     },
     {
-      "id": "garter-snake-forest",
+      "id": "ratsnake",
       "name": "Ratsnake",
       "scientificName": "Pantherophis obsoletus",
       "kind": "reptile",
@@ -579,7 +579,7 @@
           "stage": "eggs"
         },
         {
-          "id": "spotted-towhee",
+          "id": "towhee",
           "stage": "eggs"
         },
         "wood-frog"
@@ -591,7 +591,7 @@
         "nestling birds"
       ],
       "eatenBy": [
-        "red-fox-forest",
+        "gray-fox",
         "fisher",
         "great-horned-owl"
       ],
@@ -638,7 +638,7 @@
         "chipmunk",
         "porcupine",
         "raccoon",
-        "red-fox-forest",
+        "gray-fox",
         "fisher"
       ],
       "eatsOther": [
@@ -700,21 +700,21 @@
       "eats": [
         "tree-squirrel",
         "chipmunk",
-        "northern-flying-squirrel",
+        "flying-squirrel",
         "porcupine",
         "wood-duck",
-        "garter-snake-forest",
-        "little-brown-bat",
+        "ratsnake",
+        "skunk",
         "pileated-woodpecker",
         {
           "id": "raccoon",
           "stage": "young"
         },
         {
-          "id": "red-fox-forest",
+          "id": "gray-fox",
           "stage": "young"
         },
-        "little-brown-bat"
+        "skunk"
       ],
       "eatsOther": [
         "skunks",
@@ -770,12 +770,12 @@
         "sedges"
       ],
       "eatenBy": [
-        "eastern-bluebird",
+        "bluebird",
         "garden-spider",
-        "garter-snake-meadow",
+        "garter-snake",
         "ground-squirrel",
         "praying-mantis",
-        "red-fox-meadow",
+        "red-fox",
         "western-meadowlark",
         "opossum",
         "song-sparrow"
@@ -800,7 +800,7 @@
       "biome": "meadow"
     },
     {
-      "id": "meadow-vole",
+      "id": "prairie-vole",
       "name": "Prairie Vole",
       "scientificName": "Microtus ochrogaster",
       "kind": "mammal",
@@ -822,9 +822,9 @@
       "eatenBy": [
         "american-badger",
         "barn-owl",
-        "coyote-meadow",
-        "garter-snake-meadow",
-        "red-fox-meadow",
+        "coyote",
+        "garter-snake",
+        "red-fox",
         "red-tailed-hawk"
       ],
       "requirements": {
@@ -910,7 +910,7 @@
       ],
       "eatenBy": [
         "american-badger",
-        "eastern-bluebird",
+        "bluebird",
         "garden-spider",
         "praying-mantis"
       ],
@@ -946,7 +946,7 @@
       "shelter": "Rests in shallow grass 'forms'; bolts into brush piles and old burrows",
       "preferredHabitat": "Meadows and field edges with brushy cover close enough to run to",
       "fact": "A cottontail doesn't dig a burrow. It presses a shallow bowl into the grass called a form and sits so still in it that you can walk straight past.",
-      "role": "Cottontails eat grass and clover all summer and switch to twigs and bark in winter, and they breed fast enough to keep up with everything that hunts them — fox, coyote, badger, hawk and owl all count on them. Their droppings feed the soil life underfoot, which is a polite way of saying rabbits fertilise the meadow they eat.",
+      "role": "Cottontails eat grass and clover all summer and switch to twigs and bark in winter, and they breed fast enough to keep up with everything that hunts them — fox, mountain-lion, badger, hawk and owl all count on them. Their droppings feed the soil life underfoot, which is a polite way of saying rabbits fertilise the meadow they eat.",
       "eats": [],
       "eatsOther": [
         "bark",
@@ -958,8 +958,8 @@
       ],
       "eatenBy": [
         "american-badger",
-        "coyote-meadow",
-        "red-fox-meadow",
+        "coyote",
+        "red-fox",
         "red-tailed-hawk",
         "barn-owl"
       ],
@@ -1006,7 +1006,7 @@
       ],
       "eatenBy": [
         {
-          "id": "coyote-meadow",
+          "id": "coyote",
           "stage": "young"
         }
       ],
@@ -1036,7 +1036,7 @@
       "biome": "meadow"
     },
     {
-      "id": "lady-beetle",
+      "id": "ladybug",
       "name": "Ladybug",
       "scientificName": "Hippodamia convergens",
       "kind": "insect",
@@ -1102,8 +1102,8 @@
       ],
       "eatenBy": [
         "american-badger",
-        "coyote-meadow",
-        "red-fox-meadow",
+        "coyote",
+        "red-fox",
         "red-tailed-hawk"
       ],
       "requirements": {
@@ -1155,8 +1155,8 @@
       ],
       "eatenBy": [
         "american-badger",
-        "coyote-meadow",
-        "red-fox-meadow",
+        "coyote",
+        "red-fox",
         "red-tailed-hawk"
       ],
       "requirements": {
@@ -1185,7 +1185,7 @@
       "biome": "meadow"
     },
     {
-      "id": "garter-snake-meadow",
+      "id": "garter-snake",
       "name": "Garter Snake",
       "scientificName": "Thamnophis sirtalis",
       "kind": "reptile",
@@ -1198,10 +1198,10 @@
       "role": "The meadow's damp-grass hunter — earthworms, pillbugs, frogs, insects and young voles, always within reach of water. It is harmless to people, though a bite can itch. Where it can survive the winter is what decides where it can live at all, so one deep frost-free den matters more than anything else you can build for it.",
       "eats": [
         "grasshopper",
-        "meadow-vole",
+        "prairie-vole",
         "pillbug",
         "praying-mantis",
-        "garden-snail",
+        "snail",
         "song-sparrow"
       ],
       "eatsOther": [
@@ -1210,8 +1210,8 @@
         "slugs"
       ],
       "eatenBy": [
-        "coyote-meadow",
-        "red-fox-meadow",
+        "coyote",
+        "red-fox",
         "red-tailed-hawk"
       ],
       "requirements": {
@@ -1226,7 +1226,7 @@
         },
         "animals": [
           "grasshopper",
-          "meadow-vole"
+          "prairie-vole"
         ],
         "hint": "Water to hunt beside, warm stone to bask on, and a den deep enough to spend the winter below the frost."
       },
@@ -1243,7 +1243,7 @@
       "biome": "meadow"
     },
     {
-      "id": "red-fox-meadow",
+      "id": "red-fox",
       "name": "Red Fox",
       "scientificName": "Vulpes vulpes",
       "kind": "mammal",
@@ -1256,10 +1256,10 @@
       "role": "A stalk-and-pounce generalist that keeps rodent and rabbit numbers down and fills the gaps with insects, berries and whatever it finds already dead. It rarely digs a den from scratch — it widens an old ground squirrel or badger burrow instead. Great horned owls take its kits, and now that coyotes are back, foxes have to give ground.",
       "eats": [
         "cottontail-rabbit",
-        "garter-snake-meadow",
+        "garter-snake",
         "grasshopper",
         "ground-squirrel",
-        "meadow-vole",
+        "prairie-vole",
         "western-meadowlark",
         "groundhog",
         "song-sparrow"
@@ -1271,7 +1271,7 @@
         "insects"
       ],
       "eatenBy": [
-        "coyote-meadow"
+        "coyote"
       ],
       "requirements": {
         "minHealth": 65,
@@ -1288,7 +1288,7 @@
         },
         "animals": [
           "cottontail-rabbit",
-          "meadow-vole"
+          "prairie-vole"
         ],
         "hint": "Foxes come back once the small animals do — and a vixen needs an old burrow she can widen into a nursery."
       },
@@ -1318,9 +1318,9 @@
       "role": "The daylight hunter over this meadow, either circling on broad flat wings or sitting on a pole staring at the grass. It is heavy and powerful and built for taking prey off the ground — voles, ground squirrels, rabbits, snakes — not for chasing birds through the air. The huge stick nest it builds gets inherited by a great horned owl the very next winter.",
       "eats": [
         "cottontail-rabbit",
-        "garter-snake-meadow",
+        "garter-snake",
         "ground-squirrel",
-        "meadow-vole",
+        "prairie-vole",
         "western-meadowlark",
         "song-sparrow"
       ],
@@ -1340,7 +1340,7 @@
         "signature": "crown-stick-eyrie",
         "animals": [
           "ground-squirrel",
-          "meadow-vole"
+          "prairie-vole"
         ],
         "conditions": {
           "weather": [
@@ -1366,7 +1366,7 @@
       "biome": "meadow"
     },
     {
-      "id": "freshwater-fish",
+      "id": "minnow",
       "name": "Minnow",
       "scientificName": "Pimephales promelas",
       "kind": "fish",
@@ -1378,7 +1378,7 @@
       "fact": "The male minnow scrubs the underside of a sunken slab spotless using a spongy pad on his own back, then guards the eggs the females glue to that ceiling — fanning them day and night until they hatch.",
       "role": "The little silver engine of the marsh. Minnow schools graze algae and plankton and then get eaten by nearly everything with a bill, a beak or a claw — and they give baby mussels a free ride to new water on their gills.",
       "eats": [
-        "amphipod",
+        "freshwater-shrimp",
         "water-strider",
         {
           "id": "dragonfly",
@@ -1393,9 +1393,9 @@
       ],
       "eatenBy": [
         "bald-eagle",
-        "belted-kingfisher",
+        "kingfisher",
         "great-blue-heron",
-        "hooded-merganser",
+        "merganser",
         "mink",
         "river-otter",
         "snapping-turtle",
@@ -1526,7 +1526,7 @@
       "aquatic": true
     },
     {
-      "id": "mallard-duck",
+      "id": "mallard",
       "name": "Mallard",
       "scientificName": "Anas platyrhynchos",
       "kind": "bird",
@@ -1775,7 +1775,7 @@
           "stage": "young"
         },
         {
-          "id": "wetland-salamander",
+          "id": "tiger-salamander",
           "stage": "young"
         }
       ],
@@ -1805,7 +1805,7 @@
       "biome": "wetland"
     },
     {
-      "id": "wetland-salamander",
+      "id": "tiger-salamander",
       "name": "Tiger Salamander",
       "scientificName": "Ambystoma tigrinum",
       "kind": "amphibian",
@@ -1817,7 +1817,7 @@
       "fact": "Tiger salamanders spend most of their lives alone underground, then walk back on the first warm rainy night of spring to the exact pool they hatched in — and if that pool starts drying too fast, some larvae grow oversized heads and start eating their own brothers and sisters.",
       "role": "A fat, blotched, black-and-gold hunter that only breeds where fish cannot live. Its larvae race to grow legs before the pool dries, which is a bet they can only win in water no minnow could survive.",
       "eats": [
-        "amphipod",
+        "freshwater-shrimp",
         {
           "id": "chorus-frog",
           "stage": "young"
@@ -1842,7 +1842,7 @@
           "tiles": 2
         },
         "excludes": [
-          "freshwater-fish"
+          "minnow"
         ],
         "hint": "Dig the vernal pools well away from the fish pools and let them dry right out in summer. Fish and it larvae cannot share water."
       },
@@ -1872,17 +1872,17 @@
       "role": "A hunter with two completely different lives. The nymph spends a year underwater firing out a hinged, grabbing lower lip at tadpoles and fish fry; then it climbs a reed stem, splits its own back open and flies away to hunt mosquitoes over the marsh.",
       "eats": [
         {
-          "id": "freshwater-fish",
+          "id": "minnow",
           "stage": "young"
         },
-        "amphipod",
+        "freshwater-shrimp",
         "water-strider",
         {
           "id": "chorus-frog",
           "stage": "young"
         },
         {
-          "id": "northern-leopard-frog",
+          "id": "leopard-frog",
           "stage": "young"
         }
       ],
@@ -1893,14 +1893,14 @@
       ],
       "eatenBy": [
         {
-          "id": "freshwater-fish",
+          "id": "minnow",
           "stage": "young"
         },
         {
-          "id": "hooded-merganser",
+          "id": "merganser",
           "stage": "young"
         },
-        "northern-leopard-frog",
+        "leopard-frog",
         "great-blue-heron",
         "red-winged-blackbird"
       ],
@@ -1942,9 +1942,9 @@
       "fact": "A mink will chase a fish thirty metres underwater, and it hunts on land, in the water and up trees. What it almost never does is dig — it simply moves into a burrow a muskrat made and does not ask.",
       "role": "A small brown fury with an enormous menu: fish, frogs, crayfish, muskrats, eggs, ducklings, whatever is slowest that day. Its home is always second-hand, so no muskrats usually means no mink no matter how much prey there is.",
       "eats": [
-        "freshwater-fish",
+        "minnow",
         "chorus-frog",
-        "northern-leopard-frog",
+        "leopard-frog",
         "muskrat",
         "crayfish",
         {
@@ -1952,7 +1952,7 @@
           "stage": "young"
         },
         {
-          "id": "mallard-duck",
+          "id": "mallard",
           "stage": "young"
         },
         {
@@ -1960,7 +1960,7 @@
           "stage": "young"
         },
         {
-          "id": "hooded-merganser",
+          "id": "merganser",
           "stage": "young"
         }
       ],
@@ -1979,7 +1979,7 @@
           "tiles": 3
         },
         "animals": [
-          "freshwater-fish",
+          "minnow",
           "chorus-frog"
         ],
         "hint": "Water to hunt in, and a bank den — but something else has to dig that den first."
@@ -2010,12 +2010,12 @@
       "fact": "A heron's neck has one specially kinked bone in it that works like a loaded spring — the strike is over faster than you can blink, and the fish is caught crosswise in the bill rather than speared.",
       "role": "The tall grey statue of the shallows. It hunts alone but flatly refuses to nest alone, packing dozens of stick nests into one stand of tall trees — and it spends a good part of its life being chased and robbed of its catch by eagles.",
       "eats": [
-        "freshwater-fish",
+        "minnow",
         "chorus-frog",
-        "northern-leopard-frog",
+        "leopard-frog",
         "crayfish",
         "dragonfly",
-        "wetland-salamander"
+        "tiger-salamander"
       ],
       "eatsOther": [],
       "eatenBy": [
@@ -2033,8 +2033,8 @@
           "tiles": 6
         },
         "animals": [
-          "freshwater-fish",
-          "northern-leopard-frog"
+          "minnow",
+          "leopard-frog"
         ],
         "hint": "Shallow water full of fish and frogs, and a stand of tall trees for the colony. Herons nest together or not at all."
       },
@@ -2063,10 +2063,10 @@
       "fact": "An otter has around 350,000 hairs packed into every square centimetre of its fur — more than most animals have on their entire body. It is the air trapped in all that fur, not fat, that keeps an otter warm in freezing water.",
       "role": "The best swimmer in the marsh and the top hunter under the surface. Otters need a lot of clean connected water and a den they did not dig themselves, so an otter here means the beaver came back first — and it means the eagles finally have someone worth robbing.",
       "eats": [
-        "freshwater-fish",
+        "minnow",
         "crayfish",
         "muskrat",
-        "northern-leopard-frog",
+        "leopard-frog",
         "chorus-frog",
         "freshwater-mussel",
         {
@@ -2089,7 +2089,7 @@
           "tiles": 8
         },
         "animals": [
-          "freshwater-fish",
+          "minnow",
           "crayfish"
         ],
         "hint": "Lots of connected clean water, plenty of fish and crayfish, and an old beaver-made bank den with an underwater door."

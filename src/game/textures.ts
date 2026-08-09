@@ -2324,7 +2324,7 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 	});
 
 	// Earthen fox den: two dark mouths in one mound with a pale spoil fan below.
-	// Two openings is the tell — coyote dens get one wide one.
+	// Two openings is the tell — mountain-lion dens get one wide one.
 	o('foxden', 34, 26, (g) => {
 		g.fillStyle(C('#7c6242'), 1).fillEllipse(17, 13, 32, 18); // earth mound
 		g.fillStyle(C('#8f7450'), 1).fillEllipse(14, 9, 22, 10);
@@ -3033,20 +3033,20 @@ export function ensureAnimalTexture(scene: Phaser.Scene, id: string, kind: strin
 
 	// --- unique sprites for the newer animals ---
 	a('mantis', 30, 24, (g) => {
-		g.lineStyle(1.4, C('#6a9a3a'), 1);
+		g.lineStyle(1.4, C('#4f7429'), 1);
 		g.lineBetween(11, 13, 7, 21).lineBetween(7, 21, 4, 22); // back legs, down to the ground
 		g.lineBetween(15, 13, 13, 21).lineBetween(13, 21, 10, 22);
 		g.lineBetween(18, 12, 18, 20).lineBetween(18, 20, 15, 22); // middle pair
-		g.fillStyle(C('#6a9a3a'), 1).fillEllipse(8, 11, 13, 6); // long abdomen, angled up
-		g.fillStyle(C('#7fb04a'), 1).fillEllipse(13, 11, 16, 6); // wing case over it
-		g.lineStyle(0.8, C('#5f8a34'), 1).lineBetween(7, 10, 19, 11); // wing seam
-		g.fillStyle(C('#7fb04a'), 1).fillEllipse(21, 10, 8, 4.5); // thorax reaching the head
-		g.lineStyle(2.2, C('#7fb04a'), 1);
+		g.fillStyle(C('#4f7429'), 1).fillEllipse(8, 11, 13, 6); // long abdomen, angled up
+		g.fillStyle(C('#4a6b28'), 1).fillEllipse(13, 11, 16, 6); // wing case over it
+		g.lineStyle(0.8, C('#4a6b28'), 1).lineBetween(7, 10, 19, 11); // wing seam
+		g.fillStyle(C('#4a6b28'), 1).fillEllipse(21, 10, 8, 4.5); // thorax reaching the head
+		g.lineStyle(2.2, C('#4a6b28'), 1);
 		g.lineBetween(22, 11, 26, 15).lineBetween(26, 15, 21, 17); // folded raptorial forelegs
 		g.lineBetween(21, 11, 25, 16).lineBetween(25, 16, 20, 18);
-		g.fillStyle(C('#8fbf58'), 1).fillTriangle(24, 5, 29, 9, 23, 12); // triangular head
+		g.fillStyle(C('#6f9c3e'), 1).fillTriangle(24, 5, 29, 9, 23, 12); // triangular head
 		g.fillStyle(C('#2e2018'), 1).fillCircle(27.4, 7.6, 1.3).fillCircle(24.4, 7.2, 1.1); // the two big eyes
-		g.lineStyle(0.9, C('#6a9a3a'), 1).lineBetween(26, 5, 29, 1).lineBetween(24, 5, 24, 1); // antennae
+		g.lineStyle(0.9, C('#4f7429'), 1).lineBetween(26, 5, 29, 1).lineBetween(24, 5, 24, 1); // antennae
 	});
 	a('killdeer', 28, 20, (g) => {
 		g.fillStyle(C('#8a6a48'), 1).fillEllipse(12, 12, 18, 10).fillCircle(20, 8, 4.5); // brown back + head
@@ -3227,22 +3227,30 @@ export function ensureAnimalTexture(scene: Phaser.Scene, id: string, kind: strin
 		g.fillStyle(C('#2e2018'), 1).fillCircle(23, 9.5, 1.2).fillCircle(28, 9.5, 1.2); // eyes
 		g.fillStyle(C('#3a2a22'), 1).fillTriangle(26, 11.4, 24.8, 13, 27.2, 13); // nose
 	});
-	a('grizzly', 40, 32, (g) => {
-		// the shoulder hump is the silhouette — everything else hangs off it
-		g.fillStyle(C('#4a3524'), 1).fillRoundedRect(9, 21, 8, 10, 3); // hind leg
-		g.fillStyle(C('#7a5636'), 1).fillEllipse(18, 19, 30, 16); // barrel body
-		g.fillCircle(25, 12, 8); // the muscular hump, riding high over the forelegs
-		g.fillStyle(C('#a4855c'), 0.85).fillEllipse(23, 7, 16, 5); // grizzled pale tips along the hump
-		g.fillStyle(C('#4a3524'), 1).fillRoundedRect(26, 21, 9, 10, 3); // heavy foreleg
-		g.fillStyle(C('#7a5636'), 1).fillCircle(32, 19, 6.5); // head, carried low below the hump
-		g.fillStyle(C('#654529'), 1).fillCircle(28, 13, 2.6).fillCircle(35, 13.5, 2.6); // small round ears
-		g.fillStyle(C('#9c7c52'), 1).fillEllipse(36, 21, 8, 5); // dished muzzle
-		g.fillStyle(C('#e8e2d2'), 1)
-			.fillTriangle(27, 30, 29, 31.6, 27, 32)
-			.fillTriangle(30, 30, 32, 31.6, 30, 32)
-			.fillTriangle(33, 30, 35, 31.6, 33, 32); // long front claws
-		g.fillStyle(C('#1a1410'), 1).fillEllipse(39, 20.5, 2.4, 2); // nose
-		g.fillStyle(C('#2e2018'), 1).fillCircle(31, 17, 1.3).fillCircle(35, 17.5, 1.3); // eyes
+	a('grizzly', 48, 32, (g) => {
+		g.fillStyle(C('#5a4028'), 1)
+			.fillRect(12, 20, 6, 11)
+			.fillRect(20, 21, 5.5, 10)
+			.fillRect(29, 20, 6, 11)
+			.fillRect(35, 21, 5.5, 10); // four heavy legs
+		g.fillStyle(C('#4a3420'), 1)
+			.fillEllipse(15, 30.5, 8, 3)
+			.fillEllipse(22.7, 30.5, 7.5, 3)
+			.fillEllipse(32, 30.5, 8, 3)
+			.fillEllipse(37.7, 30.5, 7.5, 3); // broad paws
+		g.fillStyle(C('#7a5636'), 1).fillEllipse(24, 18, 34, 15); // long barrel body
+		g.fillEllipse(31, 11, 17, 11); // the shoulder hump, part of the same silhouette
+		g.fillStyle(C('#6b4a2e'), 1).fillEllipse(24, 22, 26, 6); // shaded underside
+		g.fillStyle(C('#7a5636'), 1).fillCircle(39, 17, 7); // head carried low and forward
+		g.fillCircle(34.5, 10.5, 2.8).fillCircle(41.5, 9.8, 2.8); // small round ears
+		g.fillStyle(C('#5a4028'), 1).fillCircle(34.5, 10.5, 1.3).fillCircle(41.5, 9.8, 1.3);
+		g.fillStyle(C('#a8845a'), 1).fillEllipse(44, 20, 8, 5); // pale dished muzzle
+		g.fillStyle(C('#1f1710'), 1).fillCircle(46.6, 18.6, 1.4); // nose
+		g.fillStyle(C('#2e2018'), 1).fillCircle(37.5, 15.4, 1.2).fillCircle(42.4, 15.2, 1.2); // small deep-set eyes
+		g.fillStyle(C('#e8dcc4'), 1)
+			.fillTriangle(13, 31, 14.4, 31, 13.7, 32.6)
+			.fillTriangle(16, 31, 17.4, 31, 16.7, 32.6)
+			.fillTriangle(30, 31, 31.4, 31, 30.7, 32.6); // the long front claws
 	});
 	a('orca', 38, 28, (g) => {
 		// the tall dorsal fin is the read; black over a sharply cut white belly
@@ -3270,31 +3278,27 @@ export function ensureAnimalTexture(scene: Phaser.Scene, id: string, kind: strin
 		g.fillStyle(C('#5f6465'), 1).fillTriangle(22, 18, 30, 20, 23, 23); // paddle flipper
 		g.fillStyle(C('#2e2018'), 1).fillCircle(29, 15.5, 1); // small eye
 	});
-	a('octopus', 32, 28, (g) => {
-		// Same read as the rest of the roster: muted body, small dark eyes, no face.
-		g.fillStyle(C('#8f4a5c'), 1);
-		for (const [ax, ay, bx, by] of [
-			[10, 18, 3, 26],
-			[13, 20, 9, 27],
-			[19, 20, 23, 27],
-			[22, 18, 29, 25],
-		] as [number, number, number, number][]) {
-			g.fillEllipse((ax + bx) / 2, (ay + by) / 2, 6.5, 6.5); // arm bends outward
-			g.fillEllipse(bx, by, 4.5, 4); // and tapers to the tip
+	a('octopus', 32, 30, (g) => {
+		// Arms are dense overlapping circles so they read as smooth tapering tentacles
+		// rather than a string of beads.
+		const arms: [number, number, number, number][] = [
+			[13, 19, -9, 10],
+			[15, 20, -4, 11],
+			[17, 20, 4, 11],
+			[19, 19, 9, 10],
+		];
+		for (const [sx, sy, dx, dy] of arms) {
+			for (let t = 0; t <= 1.001; t += 0.09) {
+				const x = sx + dx * t + Math.sin(t * 3) * dx * 0.18;
+				const y = sy + dy * t;
+				g.fillStyle(C(t < 0.5 ? '#a85a70' : '#93495d'), 1).fillCircle(x, y, 3 - t * 1.9);
+			}
 		}
-		g.fillStyle(C('#a4596d'), 1).fillEllipse(16, 17, 20, 10); // arm crown
-		g.fillStyle(C('#b06479'), 1).fillEllipse(16, 10, 22, 17); // mantle
-		g.fillStyle(C('#9a5164'), 1).fillEllipse(16, 15, 18, 6); // shading under it
-		g.fillStyle(C('#7d3f50'), 1);
-		for (const [x, y] of [
-			[6, 24],
-			[11, 25],
-			[21, 25],
-			[26, 23],
-		] as [number, number][])
-			g.fillCircle(x, y, 1.1); // suckers
-		g.fillStyle(C('#d9b48c'), 1).fillEllipse(11, 12, 5, 3.4).fillEllipse(21, 12, 5, 3.4); // the raised eye humps
-		g.fillStyle(C('#2e2018'), 1).fillRect(9.4, 11.4, 3.2, 1.4).fillRect(19.4, 11.4, 3.2, 1.4); // slit pupils
+		g.fillStyle(C('#c07087'), 1).fillEllipse(16, 11, 19, 21); // tall sac-shaped mantle
+		g.fillStyle(C('#cf7f95'), 1).fillEllipse(14, 7, 11, 9); // highlight
+		g.fillStyle(C('#a85a70'), 1).fillEllipse(16, 18, 16, 7); // head, where the arms meet
+		g.fillStyle(C('#e8cdbc'), 1).fillEllipse(11, 16, 4, 2.8).fillEllipse(21, 16, 4, 2.8);
+		g.fillStyle(C('#2e2018'), 1).fillCircle(11, 16, 1.2).fillCircle(21, 16, 1.2);
 	});
 	a('moth', 34, 26, (g) => {
 		// broad triangular wings held flat, fat furry body — nothing bee-like
@@ -3384,16 +3388,14 @@ export function ensureAnimalTexture(scene: Phaser.Scene, id: string, kind: strin
 		g.lineStyle(1.6, C('#e3c451'), 1).lineBetween(30, 9, 32, 3).lineBetween(27, 9, 28, 4); // raised eye stalks
 		g.fillStyle(C('#2e2018'), 1).fillCircle(32, 3, 1.2).fillCircle(28, 4, 1.1); // eye dots on the stalks
 	});
-	a('snowflea', 28, 20, (g) => {
-		// barely a grain of an animal, dark on snow, with its spring tail cocked
-		g.fillStyle(C('#f2f4f6'), 1).fillEllipse(14, 16, 28, 8); // snow surface
-		g.fillStyle(C('#d8dee4'), 1).fillEllipse(5, 15, 5, 2.5).fillEllipse(11, 13.5, 4, 2); // hop marks pocked in the snow
-		g.lineStyle(1.2, C('#2b2f36'), 1).lineBetween(18, 11, 15, 14).lineBetween(15, 14, 19, 15); // furcula — the springing tail fork
-		g.lineStyle(1, C('#2b2f36'), 1).lineBetween(20, 12, 19, 15).lineBetween(23, 12, 23.5, 15); // stubby legs
-		g.fillStyle(C('#2b2f36'), 1).fillEllipse(21, 9, 9, 6.5); // tiny dark springtail body
-		g.fillStyle(C('#3d434c'), 1).fillCircle(25, 8, 2.6); // head
-		g.lineStyle(1, C('#2b2f36'), 1).lineBetween(26, 6, 27.5, 3); // antenna
-		g.fillStyle(C('#e8eef4'), 1).fillCircle(25.5, 7, 0.9); // eye, pale against the dark body
+	a('snowflea', 24, 18, (g) => {
+		// Just the animal — no ground under it, the way every other sprite is drawn.
+		g.lineStyle(1.2, C('#2b2f36'), 1).lineBetween(11, 11, 7, 14).lineBetween(7, 14, 12, 15); // furcula, the springing tail fork
+		g.lineStyle(1, C('#2b2f36'), 1).lineBetween(13, 12, 12, 16).lineBetween(17, 12, 17.5, 16); // stubby legs
+		g.fillStyle(C('#2b2f36'), 1).fillEllipse(15, 9, 12, 8); // dark rounded body
+		g.fillStyle(C('#3d434c'), 1).fillCircle(20, 8, 3.2); // head
+		g.lineStyle(1, C('#2b2f36'), 1).lineBetween(21.5, 6, 23, 2.5); // antenna
+		g.fillStyle(C('#e8eef4'), 1).fillCircle(20.6, 7, 1); // pale eye
 	});
 	a('beachhopper', 28, 24, (g) => {
 		// sand-coloured and laterally flattened, curled like a comma mid-jump
@@ -3486,9 +3488,14 @@ export function ensureAnimalTexture(scene: Phaser.Scene, id: string, kind: strin
 		g.lineStyle(1.6, C('#7a5a34'), 1).lineBetween(16, 7, 11, 3).lineBetween(18, 7, 23, 3); // big comb antennae
 	});
 	a('parnassian', 30, 26, (g) => {
-		g.fillStyle(0xffffff, 0.82);
-		g.fillEllipse(9, 11, 15, 13).fillEllipse(21, 11, 15, 13); // translucent forewings
-		g.fillEllipse(10, 18, 12, 10).fillEllipse(20, 18, 12, 10);
+		// The wings are near-transparent, which vanishes against the journal's pale
+		// card — so they get a drawn edge to hold their shape.
+		g.fillStyle(0xffffff, 0.88);
+		g.fillEllipse(9, 11, 15, 13).fillEllipse(21, 11, 15, 13); // forewings
+		g.fillEllipse(10, 18, 12, 10).fillEllipse(20, 18, 12, 10); // hindwings
+		g.lineStyle(1.1, C('#6f6d66'), 1);
+		g.strokeEllipse(9, 11, 15, 13).strokeEllipse(21, 11, 15, 13); // outline
+		g.strokeEllipse(10, 18, 12, 10).strokeEllipse(20, 18, 12, 10);
 		g.fillStyle(C('#4a4a48'), 1).fillEllipse(4, 8, 6, 3).fillEllipse(26, 8, 6, 3); // smoky wingtips
 		g.fillStyle(C('#c8402f'), 1).fillCircle(9, 18, 2.4).fillCircle(21, 18, 2.4); // red warning spots
 		g.fillStyle(0xffffff, 1).fillCircle(9, 18, 1).fillCircle(21, 18, 1);
@@ -3575,7 +3582,7 @@ export function ensureAnimalTexture(scene: Phaser.Scene, id: string, kind: strin
 			g.lineBetween(13 + Math.cos(a) * 10, 13 + Math.sin(a) * 10, 13 + Math.cos(a) * 11.6, 13 + Math.sin(a) * 11.6); // spine fringe
 		}
 	});
-	a('coyote', 38, 30, (g) => {
+	a('mountain-lion', 38, 30, (g) => {
 		g.fillStyle(C('#8a7355'), 1).fillEllipse(6, 19, 13, 7); // low bushy tail
 		g.fillStyle(C('#5f4d38'), 1).fillEllipse(3, 21, 5, 5); // dark tail tip
 		g.fillStyle(C('#7d6749'), 1).fillRect(12, 18, 4, 9).fillRect(18, 19, 4, 8).fillRect(24, 18, 4, 9); // long legs
@@ -3593,23 +3600,32 @@ export function ensureAnimalTexture(scene: Phaser.Scene, id: string, kind: strin
 		g.fillStyle(C('#c9a24a'), 1).fillEllipse(30, 10.4, 3, 2.2).fillEllipse(34, 11, 2.6, 2); // yellow eyes
 		g.fillStyle(C('#2b2118'), 1).fillCircle(30, 10.4, 0.9).fillCircle(34, 11, 0.8);
 	});
-	a('mountainlion', 42, 30, (g) => {
-		g.fillStyle(C('#b3945f'), 1).fillEllipse(7, 20, 16, 6).fillEllipse(2, 23, 7, 5); // long heavy tail
-		g.fillStyle(C('#3a2c1c'), 1).fillEllipse(1, 24, 5, 4); // dark tail tip
-		g.fillStyle(C('#a8875a'), 1).fillRect(14, 18, 5, 9).fillRect(21, 19, 5, 8).fillRect(28, 18, 5, 9); // heavy legs
+	a('mountainlion', 46, 30, (g) => {
+		g.fillStyle(C('#b3945f'), 1).fillEllipse(9, 18, 16, 4.5).fillEllipse(3, 21, 9, 4); // long tail
+		g.fillStyle(C('#3a2c1c'), 1).fillEllipse(1.5, 22, 5, 3.6);
+		g.fillStyle(C('#a8875a'), 1)
+			.fillRect(12, 19, 3.6, 9)
+			.fillRect(18, 20, 3.6, 8)
+			.fillRect(28, 19, 3.6, 9)
+			.fillRect(33, 20, 3.6, 8); // longer legs
 		g.fillStyle(C('#8f7048'), 1)
-			.fillEllipse(16.5, 26.5, 7, 3.4)
-			.fillEllipse(23.5, 26.5, 7, 3.4)
-			.fillEllipse(30.5, 26.5, 7, 3.4); // big paws
-		g.fillStyle(C('#c2a068'), 1).fillEllipse(21, 16, 30, 14); // long muscular body
-		g.fillStyle(C('#d8bc8c'), 1).fillEllipse(21, 19, 25, 6); // pale belly
-		g.fillStyle(C('#c2a068'), 1).fillCircle(34, 12, 7.4); // broad round head
-		g.fillCircle(30, 5.5, 3).fillCircle(38, 5.5, 3); // small rounded ears
-		g.fillStyle(C('#f0e2c8'), 1).fillEllipse(37, 15, 9, 6); // pale muzzle
-		g.fillStyle(C('#3a2c1c'), 1).fillEllipse(33, 12.5, 2.4, 5).fillEllipse(41, 13.5, 2.4, 5); // dark marks either side of the muzzle
-		g.fillStyle(C('#241a12'), 1).fillCircle(40.6, 14, 1.2); // nose
-		g.fillStyle(C('#c9a24a'), 1).fillEllipse(33.5, 11, 3, 2.4).fillEllipse(37.5, 11.4, 2.6, 2.2); // pale gold eyes
-		g.fillStyle(C('#241a12'), 1).fillCircle(33.5, 11, 0.9).fillCircle(37.5, 11.4, 0.8);
+			.fillEllipse(13.8, 28, 5.4, 2.6)
+			.fillEllipse(19.8, 28, 5.4, 2.6)
+			.fillEllipse(29.8, 28, 5.4, 2.6)
+			.fillEllipse(34.8, 28, 5.4, 2.6);
+		g.fillStyle(C('#c2a068'), 1).fillEllipse(24, 16, 32, 10); // lean body
+		g.fillEllipse(14, 16, 11, 10).fillEllipse(31, 15, 10, 10); // slighter haunch and shoulder
+		g.fillStyle(C('#d8bc8c'), 1).fillEllipse(24, 19, 21, 3.4); // belly line
+		g.fillStyle(C('#c2a068'), 1).fillEllipse(38, 12, 12, 10); // wider, flatter cat head
+		g.fillTriangle(33, 5, 37, 10, 32.5, 10).fillTriangle(43, 5, 44, 10, 39.5, 10); // ears set wide
+		g.fillStyle(C('#8f7048'), 1)
+			.fillTriangle(33.6, 6.6, 36, 9.6, 33.2, 9.6)
+			.fillTriangle(42.4, 6.6, 43.2, 9.6, 40.4, 9.6);
+		g.fillStyle(C('#f0e2c8'), 1).fillEllipse(39.5, 15, 6, 3.6); // small muzzle
+		g.fillStyle(C('#8f7048'), 1).fillEllipse(36.8, 13.4, 1.1, 2).fillEllipse(42.2, 13.4, 1.1, 2); // soft cheek shading
+		g.fillStyle(C('#241a12'), 1).fillTriangle(39.5, 13.2, 38.6, 14.4, 40.4, 14.4); // nose
+		g.fillStyle(C('#c9a24a'), 1).fillEllipse(35.6, 11.4, 2.8, 2).fillEllipse(40.4, 11.4, 2.8, 2); // eyes
+		g.fillStyle(C('#241a12'), 1).fillCircle(35.6, 11.4, 0.9).fillCircle(40.4, 11.4, 0.9);
 	});
 	a('rocksquirrel', 30, 26, (g) => {
 		g.fillStyle(C('#9a8a68'), 1).fillEllipse(6, 14, 11, 16); // full bushy tail held up
@@ -3743,67 +3759,58 @@ const FEATURED_TEXTURE: Record<string, string> = {
 	'monarch-butterfly': 'ani-butterfly',
 	'song-sparrow': 'ani-sparrow',
 	'mule-deer': 'ani-deer',
-	'red-fox-meadow': 'ani-fox',
-	'red-fox-forest': 'ani-grayfox',
-	'fox-alpine': 'ani-lynx',
+	'red-fox': 'ani-fox',
+	'gray-fox': 'ani-grayfox',
+	lynx: 'ani-lynx',
 	'tree-squirrel': 'ani-squirrel',
 	woodpecker: 'ani-woodpecker',
 	'forest-salamander': 'ani-salamander',
-	'wetland-salamander': 'ani-salamander',
+	'tiger-salamander': 'ani-salamander',
 	'great-horned-owl': 'ani-owl',
 	'barn-owl': 'ani-barnowl',
 	'black-bear': 'ani-bear',
 	raccoon: 'ani-raccoon',
-	'mule-deer-forest': 'ani-deer',
-	'mule-deer-alpine': 'ani-grizzly',
+	'grizzly-bear': 'ani-grizzly',
 	// newer animals — each gets its own bespoke sprite
 	'praying-mantis': 'ani-mantis',
-	killdeer: 'ani-killdeer',
-	'red-admiral': 'ani-redadmiral',
 
-	'garden-snail': 'ani-snail',
+	snail: 'ani-snail',
 	'purple-sea-urchin': 'ani-urchin',
 	'kangaroo-rat': 'ani-kangaroorat',
-	coyote: 'ani-mountainlion',
-	'alpine-chipmunk': 'ani-rocksquirrel',
-	'mountain-bluebird': 'ani-swift',
-	'coyote-meadow': 'ani-coyote',
-	'owl-limpet': 'ani-sanddollar',
-	'annas-hummingbird': 'ani-crow',
-	'lady-beetle': 'ani-ladybeetle',
+	'mountain-lion': 'ani-mountainlion',
+	'rock-squirrel': 'ani-rocksquirrel',
+	'white-throated-swift': 'ani-swift',
+	'mountain-lion': 'ani-mountainlion',
+	coyote: 'ani-coyote',
+	'sand-dollar': 'ani-sanddollar',
+	crow: 'ani-crow',
+	ladybug: 'ani-ladybeetle',
 	groundhog: 'ani-groundhog',
 	opossum: 'ani-opossum',
-	'black-oystercatcher': 'ani-puffin',
+	puffin: 'ani-puffin',
 	'luna-moth': 'ani-lunamoth',
 	'polyphemus-moth': 'ani-polyphemus',
 	'alpine-butterfly': 'ani-parnassian',
-	'little-brown-bat': 'ani-skunk',
+	skunk: 'ani-skunk',
 	orca: 'ani-orca',
-	'migrating-whale': 'ani-graywhale',
+	'gray-whale': 'ani-graywhale',
 	octopus: 'ani-octopus',
-	'bumblebee-alpine': 'ani-moth',
+	'alpine-moth': 'ani-moth',
 	javelina: 'ani-javelina',
 	crayfish: 'ani-crayfish',
-	amphipod: 'ani-shrimp',
+	'freshwater-shrimp': 'ani-shrimp',
 	pillbug: 'ani-pillbug',
 	'banana-slug': 'ani-bananaslug',
-	'alpine-springtail': 'ani-snowflea',
+	'snow-flea': 'ani-snowflea',
 	'beach-hopper': 'ani-beachhopper',
 	'hermit-crab': 'ani-hermitcrab',
 	'desert-termite': 'ani-termite',
 	'desert-millipede': 'ani-millipede',
-	'big-brown-bat': 'ani-bat',
-	ensatina: 'ani-ensatina',
-	'spotted-towhee': 'ani-towhee',
-	'hooded-merganser': 'ani-merganser',
-	'spotted-turtle': 'ani-spottedturtle',
-	'common-yellowthroat': 'ani-yellowthroat',
-	chuckwalla: 'ani-chuckwalla',
+	'brown-bat': 'ani-bat',
+	towhee: 'ani-towhee',
+	merganser: 'ani-merganser',
 	phainopepla: 'ani-phainopepla',
-	'white-crowned-sparrow': 'ani-whitecrown',
-	'cascades-frog': 'ani-cascadesfrog',
 	'black-turnstone': 'ani-turnstone',
-	'pigeon-guillemot': 'ani-guillemot',
 	'bat-star': 'ani-batstar',
 };
 
@@ -4262,7 +4269,7 @@ function composeAnimalDraw(id: string, kind: string): { w: number; h: number; dr
 			};
 		}
 		// --- Marmot / woodchuck / prairie dog: chunky, sitting upright ---
-		if (t(/marmot|woodchuck|groundhog|prairie-dog/)) {
+		if (t(/yellow-bellied-marmot|woodchuck|groundhog|prairie-dog/)) {
 			return {
 				w: 30,
 				h: 30,
@@ -4432,8 +4439,8 @@ function composeAnimalDraw(id: string, kind: string): { w: number; h: number; dr
 				}),
 			};
 		}
-		// --- Wild canids (coyote/kit fox/wolf): long legs, snout, bushy tail ---
-		if (t(/coyote|wolf|kit-fox|fox|jackal/)) {
+		// --- Wild canids (mountain-lion/kit fox/wolf): long legs, snout, bushy tail ---
+		if (t(/mountain-lion|wolf|kit-fox|fox|jackal/)) {
 			const kit = t(/kit-fox/);
 			return {
 				w: 40,
@@ -4632,11 +4639,11 @@ function composeAnimalDraw(id: string, kind: string): { w: number; h: number; dr
 		const wader = t(/heron|crane|egret|bittern|stilt|flamingo|sandhill/);
 		const raptor = t(/hawk|owl|falcon|kite|harrier|osprey|goshawk|kestrel|merlin/);
 		const finch = t(/finch|grosbeak|goldfinch|sparrow|bunting|crossbill|junco|towhee/);
-		const chunky = t(/ptarmigan|quail|grouse|partridge/);
+		const chunky = t(/white-tailed-ptarmigan|quail|grouse|partridge/);
 		// Long-billed birds need a wider canvas so the bill tip isn't clipped;
 		// waders need a taller one so the raised neck/head clears the top edge.
 		const longBill = t(
-			/heron|crane|egret|bittern|kingfisher|woodpecker|sapsucker|stork|pelican|oystercatcher|hummingbird/,
+			/heron|crane|egret|bittern|kingfisher|woodpecker|sapsucker|stork|brown-pelican|oystercatcher|hummingbird/,
 		);
 		const W = longBill ? 32 : 28;
 		const H = wader ? 34 : 24;
@@ -4652,7 +4659,7 @@ function composeAnimalDraw(id: string, kind: string): { w: number; h: number; dr
 					g.lineBetween(12, baseY + 8, 11, H - 1).lineBetween(16, baseY + 8, 17, H - 1);
 					g.fillStyle(BODY, 1);
 				}
-				// body + head — plump, rounded body for chunky ground birds (ptarmigan/quail)
+				// body + head — plump, rounded body for chunky ground birds (white-tailed-ptarmigan/quail)
 				if (chunky) g.fillEllipse(12, baseY, 20, 15).fillCircle(20, baseY - 7, 4.6);
 				else g.fillEllipse(13, baseY, 17, 12).fillCircle(20, baseY - 6, 4.6);
 				if (wader) {
@@ -4672,7 +4679,7 @@ function composeAnimalDraw(id: string, kind: string): { w: number; h: number; dr
 				if (t(/hummingbird/)) {
 					g.fillStyle(DK, 1);
 					g.lineStyle(1.2, DK, 1).lineBetween(hx + 3, hy, hx + 11, hy - 1);
-				} else if (t(/heron|crane|egret|bittern|kingfisher|woodpecker|sapsucker|stork|pelican|oystercatcher/)) {
+				} else if (t(/heron|crane|egret|bittern|kingfisher|woodpecker|sapsucker|stork|brown-pelican|oystercatcher/)) {
 					g.fillStyle(C('#e0a93f'), 1).fillTriangle(hx + 3, hy - 1.5, hx + 11, hy, hx + 3, hy + 1.5);
 				} else if (raptor) {
 					g.fillStyle(C('#e6b84a'), 1).fillTriangle(hx + 3, hy - 1, hx + 7, hy + 0.5, hx + 3, hy + 2.5);
@@ -4684,8 +4691,8 @@ function composeAnimalDraw(id: string, kind: string): { w: number; h: number; dr
 				} else {
 					g.fillStyle(C('#e0a93f'), 1).fillTriangle(hx + 3, hy - 1, hx + 7, hy, hx + 3, hy + 1.5);
 				}
-				// pelican: a big orange gular pouch slung under the long bill
-				if (t(/pelican/)) {
+				// brown-pelican: a big orange gular pouch slung under the long bill
+				if (t(/brown-pelican/)) {
 					g.fillStyle(C('#e6a63c'), 1).fillEllipse(hx + 6, hy + 4, 11, 8);
 					g.fillStyle(C('#f0c060'), 1).fillEllipse(hx + 6, hy + 3, 8, 5);
 				}
@@ -4918,7 +4925,7 @@ function composeAnimalDraw(id: string, kind: string): { w: number; h: number; dr
 			}),
 		};
 	}
-	if (t(/spider|tarantula/)) {
+	if (t(/spider|desert-tarantula/)) {
 		return {
 			w: 24,
 			h: 22,
@@ -5452,20 +5459,20 @@ const SIZE_RULES: [RegExp, number][] = [
 	[/orca/, 2.6], // the biggest thing in the preserve
 	[/whale|dolphin/, 1.95],
 	[/bear|elk|moose/, 1.7],
-	[/deer|bighorn|mountain-goat|coyote|seal|sandhill|crane|pelican|eagle|turkey/, 1.42],
+	[/deer|bighorn|mountain-goat|mountain-lion|seal|sandhill|crane|brown-pelican|eagle|turkey/, 1.42],
 	[
-		/fox|bobcat|otter|beaver|raccoon|porcupine|heron|owl|hawk|cormorant|marten|muskrat|mink|marmot|tortoise|sea-turtle|roadrunner|gull|snowshoe-hare/,
+		/fox|bobcat|otter|beaver|raccoon|porcupine|heron|owl|hawk|cormorant|marten|muskrat|mink|yellow-bellied-marmot|tortoise|sea-turtle|roadrunner|gull|snowshoe-hare/,
 		1.18,
 	],
 	[
-		/rabbit|cottontail|jackrabbit|duck|quail|ptarmigan|squirrel|rattlesnake|snake|nutcracker|woodpecker|shorebird|crab|sea-star|anemone/,
+		/rabbit|cottontail|jackrabbit|duck|quail|white-tailed-ptarmigan|squirrel|rattlesnake|snake|nutcracker|woodpecker|shorebird|crab|sea-star|anemone/,
 		0.95,
 	],
 	[
 		/chipmunk|vole|rat|mouse|pika|sparrow|swallow|nuthatch|blackbird|meadowlark|frog|salamander|newt|lizard|turtle|trout|fish|mussel|clam/,
 		0.7,
 	],
-	[/butterfly|bee|beetle|dragonfly|damselfly|grasshopper|strider|scorpion|tarantula|slug|snail/, 0.5],
+	[/butterfly|bee|beetle|dragonfly|damselfly|grasshopper|strider|scorpion|desert-tarantula|slug|snail/, 0.5],
 ];
 
 const KIND_SIZE: Record<string, number> = {
