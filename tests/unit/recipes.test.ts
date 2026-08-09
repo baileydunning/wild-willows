@@ -373,7 +373,12 @@ describe('recipeUnlocked — the wider unlock vocabulary', () => {
 
 describe('upcomingRecipes', () => {
 	const data = makeData({
-		habitatObjects: [obj({ id: 'near' }), obj({ id: 'far' }), obj({ id: 'open' }), obj({ id: 'seed', plantable: true })],
+		habitatObjects: [
+			obj({ id: 'near' }),
+			obj({ id: 'far' }),
+			obj({ id: 'open' }),
+			obj({ id: 'seed', plantable: true }),
+		],
 		recipes: [
 			recipe({ id: 'open', output: { itemId: 'open', qty: 1 } }),
 			recipe({ id: 'near', output: { itemId: 'near', qty: 1 }, unlock: { minHealth: 20, label: 'soon' } }),

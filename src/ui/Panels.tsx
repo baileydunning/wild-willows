@@ -684,8 +684,7 @@ export function CraftingPanel() {
 								<div className="grow">
 									<b>{content('recipe', r.id, 'name', r.name)}</b>
 									<div className="small unlock-req">
-										<b>{t('panels.crafting.needs')}</b>{' '}
-										{content('recipe', r.id, 'unlock.label', r.unlock!.label)}
+										<b>{t('panels.crafting.needs')}</b> {content('recipe', r.id, 'unlock.label', r.unlock!.label)}
 									</div>
 								</div>
 							</div>
