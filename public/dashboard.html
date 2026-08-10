@@ -204,6 +204,15 @@
 			.kpis {
 				grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 			}
+			/* The Overview row is a fixed set of six. auto-fit would drop the last one
+			   to a line of its own at common laptop widths, so pin the count once
+			   there is room for it; below that it falls back to the rule above.
+			   minmax(0, 1fr) rather than 1fr so a long number can't widen its track. */
+			@media (min-width: 900px) {
+				.kpis-6 {
+					grid-template-columns: repeat(6, minmax(0, 1fr));
+				}
+			}
 			.card {
 				background: var(--card);
 				border: 1px solid var(--rule);
@@ -509,6 +518,18 @@
 			.hledi.full {
 				color: var(--accent-dark);
 				background: var(--accent-soft);
+			}
+			/* A save the report treats as an open window rather than play. */
+			.hlidle {
+				font-size: 0.6rem;
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: 0.04em;
+				border-radius: 999px;
+				padding: 0.1rem 0.45rem;
+				color: #8a6a1f;
+				background: #f3ead2;
+				cursor: help;
 			}
 			.hlstats {
 				display: grid;
@@ -883,6 +904,13 @@
 						><span>Platform</span>
 						<select id="platform-filter">
 							<option value="all">All platforms</option>
+						</select>
+					</label>
+					<label class="vfilter" title="Saves that logged long stretches with almost no actions — a window left open rather than someone playing. Discounting them drops their play time, sessions and area dwell from the totals; they stay in the caretaker count, the funnel and retention."
+						><span>Idle windows</span>
+						<select id="idle-filter">
+							<option value="exclude">Discounted</option>
+							<option value="include">Counted</option>
 						</select>
 					</label>
 					<button class="refresh" id="refresh" type="button">↻ Refresh</button>
@@ -1411,6 +1439,17 @@
 					['Upgraded a home', act.upgradedHome || cdid('homeUpgrades')],
 					['Unlocked 2nd biome', act.unlockedSecondBiome || n(p.unlockedBiomes || bs.biomesUnlocked) >= 2],
 				];
+				// Demo players get one more: did they reach the end of the demo? The demo
+				// stops itself after DEMO_FOREST_MINUTES spent standing in the forest
+				// (src/demo.ts), so forest dwell time IS the finish line — several saves
+				// sit at exactly 600s because that is where the thank-you popup froze
+				// them. Read from the player's own row, which means a finished demo whose
+				// save was wiped on dismiss reads as unfinished here; the device-scoped
+				// `demoCompletion` block in the summary is the one that survives that.
+				const DEMO_FOREST_SECONDS = 10 * 60;
+				if (edi === 'demo') {
+					flags.push(['Finished the demo', n((p.areaSeconds || {}).forest) >= DEMO_FOREST_SECONDS]);
+				}
 				const checklist = cardTitled(
 					'Milestones',
 					null,
@@ -1470,7 +1509,7 @@
 				return (
 					`<button class="modal-close" data-close aria-label="Close">×</button>` +
 					`<div class="modal-head"><div class="mav">${avatarSVG(p.appearance)}</div><div><h2>${esc(p.name || 'Unnamed')}</h2>` +
-					`<div class="msub"><span class="hledi ${edi}">${edi}</span>${meta ? `<span>${meta}</span>` : ''}${when ? `<span>${when}</span>` : ''}</div></div></div>` +
+					`<div class="msub"><span class="hledi ${edi}">${edi}</span>${p.idle ? `<span class="hlidle" title="Over ${n(p.playMinutes)} minutes at ${n(p.actionsPerMinute)} actions/min — counted as a window left open, not play">idle window</span>` : ''}${meta ? `<span>${meta}</span>` : ''}${when ? `<span>${when}</span>` : ''}</div></div></div>` +
 					kpis +
 					`<div class="grid two" style="margin-top:.8rem">${progress}${checklist}</div>` +
 					`<div style="margin-top:.8rem">${actionsCard}</div>` +
@@ -1528,11 +1567,12 @@
 					sec(
 						'Overview',
 						overviewSub,
-						`<div class="grid kpis">${[
+						`<div class="grid kpis kpis-6">${[
 							kpi(fmt(s.players), 'Total caretakers', 'unique anonymous saves'),
 							kpi(`<span class="accent">${fmt(A.activeNow)}</span>`, 'Active now', 'seen in the last 5 minutes'),
 							kpi(fmt(A.activeLast24h), 'Active · 24h'),
 							kpi(fmt(A.activeLast7d), 'Active · 7d'),
+							kpi(fmt(A.activeLast14d), 'Active · 14d'),
 							kpi(fmt(A.newLast24h), 'New · 24h', `${fmt(A.newLast7d)} in the last 7 days`),
 						].join('')}</div>`,
 					),
@@ -2194,7 +2234,9 @@
 			 * Fetch + wire-up
 			 * ------------------------------------------------------------------ */
 			// Active dashboard filters (all server-side, applied to the whole report).
-			const FILTERS = { version: 'all', edition: 'all', platform: 'all', versionMode: 'exact' };
+			// `idle` defaults to 'exclude': an abandoned window is not play, so the numbers
+			// on this page should not count it unless you deliberately ask them to.
+			const FILTERS = { version: 'all', edition: 'all', platform: 'all', versionMode: 'exact', idle: 'exclude' };
 
 			/** Grey out the "Range" selector unless a specific version is chosen. */
 			function syncVersionMode() {
@@ -2258,6 +2300,9 @@
 					// A specific version can be widened to "this version & newer" (min mode);
 					// otherwise the report isolates the single selected version.
 					if (FILTERS.version !== 'all' && FILTERS.versionMode === 'min') url += '&versionMode=min';
+					// Windows left open are classified server-side and dropped from every
+					// aggregate when hidden, so the totals and the per-player list agree.
+					if (FILTERS.idle === 'exclude') url += '&idle=exclude';
 					// Landing-page stats load in parallel, best-effort: a missing/failed
 					// /LandingStats/ just hides that section instead of breaking the page.
 					const landingReq = fetch('../LandingStats/', { headers: { accept: 'application/json' } })
@@ -2300,6 +2345,14 @@
 						if (cfg.key === 'version') syncVersionMode(); // enable/disable the range control
 						load();
 					});
+			}
+			const idleSel = document.getElementById('idle-filter');
+			if (idleSel) {
+				idleSel.value = FILTERS.idle;
+				idleSel.addEventListener('change', (e) => {
+					FILTERS.idle = e.target.value === 'include' ? 'include' : 'exclude';
+					load();
+				});
 			}
 			const versionModeSel = document.getElementById('version-mode');
 			if (versionModeSel)

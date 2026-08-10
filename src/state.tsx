@@ -156,6 +156,16 @@ let toastSeq = 1;
 /** Quiet period after the last optimistic action before the trailing full sync. */
 const RECONCILE_MS = 1500;
 
+/**
+ * How long without a click, keypress, touch or scroll before the heartbeat stops
+ * crediting play time.
+ *
+ * Generous on purpose: this game is meant to be sat with, and reading a journal
+ * entry or watching the meadow for a few minutes is playing it. What it catches
+ * is the other thing — a window left open on screen for hours.
+ */
+const HEARTBEAT_IDLE_MS = 5 * 60 * 1000;
+
 export function GameProvider({ children }: { children: React.ReactNode }) {
 	const [data, setData] = useState<GameData | null>(null);
 	const [state, setState] = useState<GameState | null>(null);
@@ -910,13 +920,35 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	}, []);
 
 	// Heartbeat: while a save is open, ping the server on a timer so it can
-	// accrue play time and session counts. Best-effort and paused when the tab
-	// is hidden, so backgrounded tabs never inflate the numbers.
+	// accrue play time and session counts. Best-effort, and skipped in two cases
+	// so the number means what it says: while the tab is hidden, and once nobody
+	// has touched anything for HEARTBEAT_IDLE_MS.
+	//
+	// Hiding alone was not enough. A window left open ON SCREEN kept beating every
+	// 30 seconds indefinitely, and one abandoned tab logged 798 minutes of "play"
+	// against 152 actions — 17% of all the play time the dashboard had ever
+	// recorded, from one person who wasn't there. Requiring recent input means
+	// walking away stops the clock and coming back restarts it on the first touch.
 	const sessionPlayerId = state?.player?.id ?? null;
+	const lastInputAt = useRef(Date.now());
+	useEffect(() => {
+		// Deliberately not pointermove: a cursor crossing the window on its way
+		// somewhere else is not someone playing. These are the events the game runs
+		// on anyway — clicks, keys (WASD repeats while held), touch, wheel.
+		const seen = () => {
+			lastInputAt.current = Date.now();
+		};
+		const events = ['pointerdown', 'keydown', 'wheel', 'touchstart'] as const;
+		for (const e of events) window.addEventListener(e, seen, { passive: true });
+		return () => {
+			for (const e of events) window.removeEventListener(e, seen);
+		};
+	}, []);
 	useEffect(() => {
 		if (!sessionPlayerId) return;
 		const beat = () => {
 			if (document.visibilityState === 'hidden') return;
+			if (Date.now() - lastInputAt.current > HEARTBEAT_IDLE_MS) return;
 			api
 				.heartbeat()
 				.then((r: any) => {

@@ -46,6 +46,7 @@ describe('DevTools populate-biome (showcase)', () => {
 		expect(wc.length).toBeGreaterThan(0);
 		const cells = new Set(wc.map((t: any) => `${t.x},${t.y}`));
 		const wSeen = new Set<string>();
+		const pieces: number[] = [];
 		let lake = 0,
 			river = 0;
 		for (const t of wc) {
@@ -69,11 +70,20 @@ describe('DevTools populate-biome (showcase)', () => {
 				maxy = Math.max(maxy, y);
 				stack.push([x + 1, y], [x - 1, y], [x, y + 1], [x, y - 1]);
 			}
+			pieces.push(size);
 			lake = Math.max(lake, size);
 			river = Math.max(river, Math.max(maxx - minx + 1, maxy - miny + 1));
 		}
 		expect(lake).toBeGreaterThanOrEqual(6); // lake blob
 		expect(river).toBeGreaterThanOrEqual(8); // river span
+		// Shape, not just size: exactly two bodies of water, the lake and the river.
+		// The carver refuses cells it may not take (camp, lake, board edge), and a
+		// refused step used to be skipped in place — which SEVERED the channel into
+		// extra stubby fragments rather than shortening it. The span check above only
+		// noticed when the surviving piece happened to land under 8 tiles, so it
+		// failed on roughly one run in twelve and passed on the rest; counting the
+		// pieces catches the same break every time.
+		expect(pieces.filter((n) => n >= 3)).toHaveLength(2);
 
 		// well-formed: no two objects share a cell, none sit on water, none in camp.
 		// Chests are pre-existing camp fixtures the showcase keeps — exclude them.

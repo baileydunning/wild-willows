@@ -6519,6 +6519,34 @@ export class AppendFeed extends PublicEndpoint {
 const SESSION_GAP_MS = 30 * 60 * 1000; // a fresh heartbeat after this gap = a new session
 const MAX_BEAT_MS = 90 * 1000; // credit at most this much play time per beat (guards idle/closed tabs)
 
+// --------------------------------------------------------- idle-window anomaly
+// A window left open on screen still beats. Heartbeat is paused while the tab is
+// hidden (see the beat() guard in src/state.tsx), but a VISIBLE tab nobody is
+// sitting at looked exactly like play, and the 90s cap above only bounds each
+// beat — not how many of them an abandoned window sends. One such save logged
+// 798 minutes against 152 actions, which was 17% of every hour this dashboard
+// had ever recorded: enough on its own to move every average on the page.
+//
+// The tell is the rate, not the length. A long session is normal; a long session
+// with almost nothing happening in it is someone who walked away. Real players
+// bottom out around 1.2 actions/min even when playing slowly, and abandoned
+// windows sit at 0.0-0.3, so the floor goes between them. It only applies once a
+// session is long enough for the distinction to mean anything — a two-minute
+// look-and-leave is a bounce, which the acquisition funnel already counts, and
+// not the same thing at all.
+//
+// This classifies; it never deletes. The rows keep their real numbers and the
+// dashboard decides whether to count them (`?idle=exclude`).
+const IDLE_MIN_MINUTES = 10;
+const IDLE_MAX_ACTIONS_PER_MIN = 0.5;
+
+/** Did this save spend its time as an unattended window rather than as play? */
+function isIdleAnomaly(row: { playSeconds?: number; totalActions?: number }): boolean {
+	const minutes = (row.playSeconds || 0) / 60;
+	if (minutes < IDLE_MIN_MINUTES) return false;
+	return (row.totalActions || 0) / minutes < IDLE_MAX_ACTIONS_PER_MIN;
+}
+
 /**
  * POST /Heartbeat/ {playerId} — the client pings this on a timer while the game
  * is open and focused. We accrue play time from the gap since the last beat
@@ -6746,6 +6774,9 @@ async function buildDashboardRows(): Promise<any[]> {
 				status,
 				daysSinceJoined: Math.floor((now - createdAt) / DAY_MS),
 				isNewToday: now - createdAt <= DAY_MS,
+				// Reported on every row so the dashboard can badge one player, not just
+				// drop them from a total.
+				idle: isIdleAnomaly({ playSeconds: sessionSeconds, totalActions: s.totalActions || 0 }),
 			};
 		})
 		.sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
@@ -6913,6 +6944,32 @@ export class Metrics extends PublicEndpoint {
 		if (platformFilter && platformFilter.toLowerCase() !== 'all')
 			all = all.filter((v) => (v.platform || 'unknown') === platformFilter);
 
+		// `?idle=exclude` drops windows that were left open rather than played
+		// (see isIdleAnomaly). Counted BEFORE the filter runs, so the dashboard can
+		// say what it is leaving out instead of silently shrinking. Default is to
+		// include them: the raw endpoint keeps reporting everything it recorded,
+		// and the dashboard opts out on the reader's behalf.
+		const idleRows = all.filter((v) => v.idle);
+		const idleExcluded = oneParam('idle').toLowerCase() === 'exclude';
+		// Note what is NOT filtered here. An idle window is still a real person who
+		// really opened the game, so they stay in the head count, the audience
+		// buckets, the funnel, retention and their own (real) action totals. What
+		// cannot be trusted is their CLOCK — the play time, the sessions the gaps
+		// invented, and the hours parked in one area. Those aggregates read from
+		// `timed` instead, and everything else keeps reading `all`.
+		const timed = idleExcluded ? all.filter((v) => !v.idle) : all;
+		const anomalies = {
+			idlePlayers: idleRows.length,
+			idleHours: round1(idleRows.reduce((acc, v) => acc + (v.playSeconds || 0), 0) / 3600),
+			idleActions: idleRows.reduce((acc, v) => acc + (v.totalActions || 0), 0),
+			excluded: idleExcluded,
+			rule: `over ${IDLE_MIN_MINUTES} min of play at under ${IDLE_MAX_ACTIONS_PER_MIN} actions/min`,
+			// Spelled out because "excluded" is easy to over-read: these saves keep
+			// their place in the player count, the funnel and retention. It is only
+			// their play time, sessions and area dwell that stop counting.
+			affects: 'play time, sessions and area dwell only',
+		};
+
 		const N = all.length || 1;
 		const pct = (n: number) => Math.round((n / N) * 100);
 
@@ -6922,9 +6979,16 @@ export class Metrics extends PublicEndpoint {
 			for (const [k, n] of Object.entries(v.counts)) actionTotals[k] = (actionTotals[k] || 0) + (n as number);
 		}
 
-		const totalPlaySeconds = all.reduce((acc, v) => acc + v.playSeconds, 0);
-		const totalSessions = all.reduce((acc, v) => acc + v.sessions, 0);
+		// Sessions count as clock, not population: an abandoned tab crossing the
+		// 30-minute gap threshold mints a fresh "session" every time it does it
+		// (one such save logged 16 of them without a single action).
+		const totalPlaySeconds = timed.reduce((acc, v) => acc + v.playSeconds, 0);
+		const totalSessions = timed.reduce((acc, v) => acc + v.sessions, 0);
+		// Actions are real even when the clock around them is not, so this one keeps
+		// reading everybody.
 		const totalActions = all.reduce((acc, v) => acc + v.totalActions, 0);
+		/** Denominator for the per-player time averages — the saves whose clock counts. */
+		const NT = timed.length || 1;
 
 		// Audience buckets by recency. `activeNow` counts saves seen in the last 5
 		// minutes — note solo saves uplink every ~3 min, so that's the practical
@@ -6933,6 +6997,9 @@ export class Metrics extends PublicEndpoint {
 			activeNow: all.filter((v) => v.minutesSinceActive != null && v.minutesSinceActive <= 5).length,
 			activeLast24h: all.filter((v) => v.status === 'active').length,
 			activeLast7d: all.filter((v) => v.status === 'active' || v.status === 'recent').length,
+			// `status` only knows the 24h and 7d cutoffs, so this one is measured
+			// straight off the clock. It is a superset of activeLast7d.
+			activeLast14d: all.filter((v) => v.hoursSinceActive != null && v.hoursSinceActive <= 24 * 14).length,
 			dormant: all.filter((v) => v.status === 'dormant').length,
 			newLast24h: all.filter((v) => now - v.createdAt <= DAY_MS).length,
 			newLast7d: all.filter((v) => now - v.createdAt <= 7 * DAY_MS).length,
@@ -7045,7 +7112,7 @@ export class Metrics extends PublicEndpoint {
 		// Time-per-area: sum every save's dwell time, so you can see where players
 		// actually spend their sessions (and the single most-lived-in area).
 		const areaSecondsTotals: Record<string, number> = {};
-		for (const v of all) {
+		for (const v of timed) {
 			for (const [a, sec] of Object.entries(v.areaSeconds || {}))
 				areaSecondsTotals[a] = (areaSecondsTotals[a] || 0) + (sec as number);
 		}
@@ -7061,7 +7128,7 @@ export class Metrics extends PublicEndpoint {
 
 		// Session-length distribution: sum each save's finished-session histogram.
 		const sessionLengthDistribution: Record<string, number> = { '<2m': 0, '2-10m': 0, '10-30m': 0, '30m+': 0 };
-		for (const v of all) {
+		for (const v of timed) {
 			for (const [b, n] of Object.entries(v.sessionLengths || {}))
 				sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + (n as number);
 		}
@@ -7243,11 +7310,13 @@ export class Metrics extends PublicEndpoint {
 				versionMode: versionActive ? versionMode : null,
 				edition: editionFilter && editionFilter.toLowerCase() !== 'all' ? editionFilter : null,
 				platform: platformFilter && platformFilter.toLowerCase() !== 'all' ? platformFilter : null,
+				idle: idleExcluded ? 'exclude' : null,
 			},
 			summary: {
 				players: all.length,
 				soloPlayers: all.length,
 				excludedNames: [...excludedNames],
+				anomalies,
 				audience,
 				languages,
 				platforms,
@@ -7257,9 +7326,10 @@ export class Metrics extends PublicEndpoint {
 				engagement: {
 					totalPlayHours: round1(totalPlaySeconds / 3600),
 					totalPlaySeconds,
-					avgPlayMinutesPerPlayer: Math.round(totalPlaySeconds / 60 / N),
+					avgPlayMinutesPerPlayer: Math.round(totalPlaySeconds / 60 / NT),
 					totalSessions,
-					avgSessionsPerPlayer: round1(totalSessions / N),
+					// totalSessions comes from `timed`, so this divides by the same population.
+					avgSessionsPerPlayer: round1(totalSessions / NT),
 					avgSessionMinutes: totalSessions ? Math.round(totalPlaySeconds / 60 / totalSessions) : 0,
 					totalActions,
 					avgActionsPerPlayer: round1(totalActions / N),
@@ -7728,12 +7798,19 @@ export class DevTools extends PublicEndpoint {
 
 				// ---- water: shovel out a lake (big blob) and a river (long channel) ----
 				const waterCells: { x: number; y: number }[] = [];
-				const carve = (x: number, y: number) => {
-					if (free(x, y)) {
-						occupied.add(`${x},${y}`);
-						waterCells.push({ x, y });
-					}
+				const waterAt = new Set<string>();
+				/** Carve one cell. False when it was refused: camp, board edge, already taken. */
+				const carve = (x: number, y: number): boolean => {
+					if (!free(x, y)) return false;
+					occupied.add(`${x},${y}`);
+					waterAt.add(`${x},${y}`);
+					waterCells.push({ x, y });
+					return true;
 				};
+				/** Move the river onto a cell, carving it unless it is already water. Water
+				 *  the channel laid down earlier is somewhere it can keep flowing THROUGH —
+				 *  only genuinely forbidden ground (camp, lake, edge) turns it back. */
+				const flow = (x: number, y: number): boolean => carve(x, y) || waterAt.has(`${x},${y}`);
 				if (biome.canFlood !== false) {
 					// lake: a rounded blob toward the left-center of the map
 					const lx = ri(xMin + 1, Math.max(xMin + 1, Math.min(xMax - 4, xMin + 8)));
@@ -7747,15 +7824,49 @@ export class DevTools extends PublicEndpoint {
 					carve(lx + 2, ly + 3); // organic edges
 					// river: a channel winding downhill — one 4-connected step at a time
 					// (mostly down, occasional bend) so it stays a single connected river.
+					//
+					// carve() REFUSES a cell that isn't free — the camp box, the lake, the
+					// board edge — and a refused step used to be skipped in place. That
+					// punched a hole straight THROUGH the channel rather than shortening it:
+					// the meadow's camp sits at x19-24 / y3-6 and the river starts somewhere
+					// in x22-40, so about one scene in six arrived as two short stubs with the
+					// middle missing — the longer piece as little as five tiles. A blocked step
+					// now flows AROUND the obstruction, and the walk counts the rows it
+					// actually carved rather than the turns it took, so the river comes out one
+					// long connected run whatever it has to get past.
 					let rx = ri(Math.floor((xMin + xMax) / 2), xMax - 2),
 						ry = yMin;
-					carve(rx, ry);
-					for (let i = 0, steps = ri(13, 18); i < steps && ry < yMax; i++) {
-						if (rng() < 0.25 && rx > xMin + 1 && rx < xMax - 1)
-							rx += rng() < 0.5 ? -1 : 1; // bend
-						else ry += 1; // flow down
-						carve(rx, ry);
-						if (rng() < 0.25) carve(Math.min(xMax, rx + 1), ry); // gentle widening (adjacent)
+					while (!carve(rx, ry) && rx < xMax) rx++; // an open cell to spring from
+					const riverRows = ri(13, 18);
+					// Every pass either moves the head or gives up, so this terminates on its
+					// own — the guard is belt and braces, sized to leave room for the bends and
+					// detours that cost a pass without gaining a row.
+					for (let rows = 1, guard = 0; rows < riverRows && ry < yMax && guard < 6 * riverRows; guard++) {
+						// an occasional bend, for a channel that winds rather than ruling a line
+						if (rng() < 0.25 && rx > xMin + 1 && rx < xMax - 1) {
+							const bx = rx + (rng() < 0.5 ? -1 : 1);
+							if (flow(bx, ry)) rx = bx;
+							continue;
+						}
+						if (flow(rx, ry + 1)) {
+							ry += 1;
+							rows += 1; // only downstream progress counts toward the river's length
+							if (rng() < 0.25) carve(Math.min(xMax, rx + 1), ry); // gentle widening (adjacent)
+							continue;
+						}
+						// Blocked below. Sidestep — still 4-connected to the cell the head is on
+						// — and try to resume downhill from there, so the water flows AROUND the
+						// camp instead of leaving a hole in the middle of the channel.
+						const dir = rx < xMax - 1 ? 1 : -1;
+						if (flow(rx + dir, ry)) {
+							rx += dir;
+							continue;
+						}
+						if (flow(rx - dir, ry)) {
+							rx -= dir;
+							continue;
+						}
+						break; // boxed in both ways; the river ends here
 					}
 				}
 
