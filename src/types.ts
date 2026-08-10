@@ -121,9 +121,27 @@ export interface AnimalDef {
 		objects?: Record<string, number>;
 		animals?: string[];
 		hint?: string;
+		/** Open water this animal needs in its area.
+		 *
+		 * `tiles` / `lake` / `river` are the shapes you dig: any water at all, a
+		 * connected pond, a long channel. Those three are what canReturn() weighs
+		 * (see server/resources.ts) — the rest of the animal's needs can be met and
+		 * it still stays away until the water is there.
+		 *
+		 * `ocean` / `deep` describe water the coastal map already has, so they gate
+		 * nothing and the journal deliberately doesn't list them as chores. They are
+		 * kept because they say what the species actually needs. */
+		water?: { tiles?: number; lake?: number; river?: number; ocean?: number; deep?: boolean };
 		/** Rare-sighting gate: this animal only returns while the live weather /
 		 * season / day-phase matches (any listed value). Derived server-side. */
 		conditions?: { weather?: string[]; season?: string[]; dayPhase?: string[] };
+		/** The one habitat object most associated with this species — authoring
+		 * metadata from the ecology pass, carried in the data but not read at
+		 * runtime today. */
+		signature?: string;
+		/** Objects whose presence keeps this animal away. Authored, currently
+		 * empty everywhere, and not yet weighed by canReturn(). */
+		excludes?: string[];
 	};
 }
 
