@@ -236,11 +236,13 @@ describe('condition-gated rare sightings', () => {
 				y: 3 + Math.floor(i++ / 26),
 				placedAt: now - 10 * H,
 			});
-		for (let k = 0; k < 20; k++) await put('willow-tree'); // health well past 75
-		await put('log-shelter');
-		await put('shrub');
-		await put('grass-patch');
+		for (let k = 0; k < 20; k++) await put('willow-tree'); // health well past 60
+		// Exactly what the barn owl asks for now: a dark cavity up off the ground,
+		// two stands of native grass to quarter over, and somewhere to hunt from.
+		await put('barn-loft-nest-box');
 		await put('native-grass-patch');
+		await put('native-grass-patch');
+		await put('bird-perch');
 		// every other meadow animal is already home (balance + the vole prerequisite)
 		const animals: any[] = [];
 		for await (const a of w.db.Animal.search()) animals.push(a);

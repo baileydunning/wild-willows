@@ -46,9 +46,10 @@ beforeEach(async () => {
 
 describe('refusals', () => {
 	it('records the reason a player was turned away', async () => {
-		// No stones, so the craft is refused. This is the shape of the bug the panel
-		// exists to catch: the player is stuck and nothing else on the dashboard moves.
-		await expect(post('CraftItem', { playerId: pid, recipeId: 'simple-path' })).rejects.toThrow();
+		// A starting player has neither seeds nor fiber, so the craft is refused for
+		// materials. This is the shape of the bug the panel exists to catch: the
+		// player is stuck and nothing else on the dashboard moves.
+		await expect(post('CraftItem', { playerId: pid, recipeId: 'grass-patch' })).rejects.toThrow();
 
 		const health = await get('GameplayHealth');
 		expect(health.refusals.total).toBeGreaterThan(0);
@@ -59,8 +60,10 @@ describe('refusals', () => {
 	it('counts by message key, so one problem does not split across languages', async () => {
 		// The same refusal three times is one row with a count of three — not three
 		// rows, and not one row per locale the message happened to be rendered in.
+		// grass-patch is ungated, so this is reliably a materials refusal rather
+		// than a locked-recipe one.
 		for (let i = 0; i < 3; i++) {
-			await expect(post('CraftItem', { playerId: pid, recipeId: 'simple-path' })).rejects.toThrow();
+			await expect(post('CraftItem', { playerId: pid, recipeId: 'grass-patch' })).rejects.toThrow();
 		}
 		const health = await get('GameplayHealth');
 		const rows = health.refusals.top.filter((r: any) => r.code === 'server.err.notEnough');
