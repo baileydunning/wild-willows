@@ -97,15 +97,10 @@ describe('the carried save keeps its history', () => {
 			'NodeState',
 			'TerrainTile',
 			'FeedEntry',
-			'World',
-			'WorldMember',
-			'WorldPresence',
-			'JoinRequest',
 		]) {
 			expect(Array.isArray(out.data[table]), `${table} missing from the export`).toBe(true);
 		}
 		expect(out.data.BiomeState.length).toBeGreaterThan(0); // real world state, not just empty arrays
-		expect(out.data.World.length).toBe(1);
 	});
 });
 

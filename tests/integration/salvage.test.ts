@@ -86,41 +86,6 @@ describe('undecodable Player rows heal on read', () => {
 	});
 });
 
-describe('a corrupt World is not mistaken for a missing one', () => {
-	it('ensureSoloWorld heals the world rather than re-creating it', async () => {
-		const { playerId } = await make();
-		// Give the world state that a freshly-created replacement would NOT have, so
-		// a silent re-create is actually detectable. (Without this the test passes
-		// even against the bug, because a rebuilt solo world coincidentally matches
-		// the original field for field.) Only fields ensureSoloWorld leaves alone —
-		// meadowShift is legitimately rewritten by migrateMeadowWest.
-		const world = w.db.World._rows.get(playerId);
-		world.name = "Kayla's long-running preserve";
-		world.createdAt = 1600000000000;
-		const before = structuredClone(world);
-		w.db.World._corrupt(playerId);
-
-		await w.post('LoginPlayer', { name: 'Kayla', passcode: 'hunter2' });
-
-		// The exact production failure: a null read here used to run World.put() and
-		// stamp a brand-new world over the real one, resetting name/createdAt/shift.
-		expect(w.db.World._rows.get(playerId)).toEqual(before);
-		expect(w.db.World._isCorrupt(playerId)).toBe(false);
-	});
-
-	it('does not create a duplicate membership for a corrupt WorldMember row', async () => {
-		const { playerId } = await make();
-		const memberId = `${playerId}:${playerId}`;
-		const before = structuredClone(w.db.WorldMember._rows.get(memberId));
-		w.db.WorldMember._corrupt(memberId);
-
-		await w.post('LoginPlayer', { name: 'Kayla', passcode: 'hunter2' });
-
-		expect(w.db.WorldMember._rows.get(memberId)).toEqual(before);
-		expect([...w.db.WorldMember._rows.keys()]).toEqual([memberId]);
-	});
-});
-
 describe('safety limits on salvage', () => {
 	it('refuses a salvage that lost the passcode, leaving the row for manual repair', async () => {
 		const { playerId } = await make();

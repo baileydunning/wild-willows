@@ -631,8 +631,6 @@ class RollupCache<T> {
 //   NodeState         `${wid}:${biomeId}:${nodeId}`
 //   TerrainTile       `${wid}:${area}:${x}:${y}`
 //   Discovery         `${wid}:${animalId}`
-//   WorldMember       `${wid}:${playerId}`
-//   JoinRequest       `${wid}:${token}`
 //   Placement         `${wid}:pl_${ts}_${rand}`   (was `pl_${ts}_${rand}`)
 //   Chest             the same id as its Placement — an invariant, not a coincidence
 //   FeedEntry         `${wid}:f_${at}_${rand}`    (was `f_${wid}_${at}_${rand}`)
@@ -645,17 +643,7 @@ class RollupCache<T> {
 const KEY_REV = 3;
 
 /** Tables whose ids carry a `${worldId}:` prefix under KEY_REV 2. */
-const WORLD_KEYED = new Set([
-	'BiomeState',
-	'NodeState',
-	'TerrainTile',
-	'Discovery',
-	'WorldMember',
-	'JoinRequest',
-	'Placement',
-	'Chest',
-	'FeedEntry',
-]);
+const WORLD_KEYED = new Set(['BiomeState', 'NodeState', 'TerrainTile', 'Discovery', 'Placement', 'Chest', 'FeedEntry']);
 
 /** Tables re-keyed by the KEY_REV 2 migration (see migrateWorldKeys). */
 const REKEYED_TABLES = ['Placement', 'Chest', 'FeedEntry', 'BiomeState', 'NodeState', 'TerrainTile', 'Discovery'];
@@ -681,28 +669,10 @@ async function scanPrefix(table: any, prefix: string): Promise<any[]> {
  */
 const keyedWorlds = new Set<string>();
 
-/**
- * Where a world's KEY_REV marker lives.
- *
- * For a solo world it is on the PLAYER row — a solo world's id IS the player's
- * id, so the row is already there and already read on every request. For a co-op
- * world (id `w_…`) there is no such Player row, so it falls back to the World row.
- *
- * Player first, deliberately. If this marker ever depended on a World row that
- * stopped existing, every world would read as unmigrated forever and byWorld
- * would fall back to the full scan this entire contract exists to avoid — a
- * silent return to O(database) reads, with every test still green. Anchoring it
- * to the player keeps the fast path alive even if worlds go away entirely.
- */
-async function keyMarker(worldId: string): Promise<any | null> {
-	const t = db();
-	return (await getPlayer(worldId)) || (await safeGet(t.World, worldId));
-}
-
 async function worldIsKeyed(worldId: string): Promise<boolean> {
 	if (!worldId) return false;
 	if (keyedWorlds.has(worldId)) return true;
-	if (((await keyMarker(worldId))?.keyRev || 0) >= KEY_REV) {
+	if (((await getPlayer(worldId))?.keyRev || 0) >= KEY_REV) {
 		keyedWorlds.add(worldId);
 		return true;
 	}
@@ -725,7 +695,7 @@ async function worldIsKeyed(worldId: string): Promise<boolean> {
 async function migrateWorldKeys(worldId: string): Promise<void> {
 	if (!worldId || keyedWorlds.has(worldId)) return;
 	const t = db();
-	if (((await keyMarker(worldId))?.keyRev || 0) >= KEY_REV) {
+	if (((await getPlayer(worldId))?.keyRev || 0) >= KEY_REV) {
 		keyedWorlds.add(worldId);
 		return;
 	}
@@ -768,9 +738,7 @@ async function migrateWorldKeys(worldId: string): Promise<void> {
 			}
 		}
 
-		// Mark wherever the marker lives for this world (see keyMarker).
-		if (await safeGet(t.Player, worldId)) await patchPlayer(worldId, { keyRev: KEY_REV });
-		else await t.World.patch(worldId, { keyRev: KEY_REV });
+		await patchPlayer(worldId, { keyRev: KEY_REV });
 		keyedWorlds.add(worldId);
 	} catch (e: any) {
 		// A failed migration must never break the action that triggered it — the
@@ -916,107 +884,31 @@ async function findDiscovery(table: any, worldId: string, animalId: string): Pro
 	return rows.find((r: any) => r.animalId === animalId) || null;
 }
 
-/** Short, unambiguous invite code (no 0/O/1/I to avoid confusion). */
-function genJoinCode(): string {
-	const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-	let out = '';
-	for (let i = 0; i < 6; i++) out += alphabet[Math.floor(Math.random() * alphabet.length)];
-	return out;
-}
-
-const DEFAULT_MAX_MEMBERS = 6;
-
 /**
- * Ensure a player has a solo "world of one" and is a member of it. Idempotent:
- * safe to call on every login, which back-fills the World/WorldMember rows for
- * saves created before multiplayer existed. The solo world's id equals the
- * playerId, so all of that player's existing world-state rows already belong to
- * it without any re-keying.
+ * Per-save setup on login and character creation. Idempotent.
+ *
+ * Named for the co-op era, when it built a "world of one" and a membership row.
+ * Both are gone; what remains is the `worldId` compat field and the key-contract
+ * migration. Kept under the old name because every login path calls it — renaming
+ * it belongs with the Phase 4 cleanup, not here.
  */
 async function ensureSoloWorld(player: any, opts: { freshGrid?: boolean } = {}): Promise<void> {
-	const t = db();
 	const soloId = player.id;
-	// safeGet (not get) so an undecodable World is salvaged rather than read as
-	// absent. existsRaw is the backstop: if the row is on disk but salvage
-	// declined it, creating a replacement would overwrite a real world with a
-	// blank one, so we leave it alone and let the rest of the call proceed.
-	if (!(await safeGet(t.World, soloId)) && !existsRaw(t.World, soloId)) {
-		await t.World.put({
-			id: soloId,
-			name: player.name ? tr('server.world.soloName', { name: player.name }) : tr('server.world.mySoloName'),
-			solo: true,
-			ownerId: player.id,
-			joinCode: null,
-			createdAt: player.createdAt || Date.now(),
-			maxMembers: 1,
-			keyRev: KEY_REV, // born key-scoped — nothing to migrate
-		});
-		// The player row is the authoritative marker for a solo world; the World
-		// row carries a copy only so a co-op world reads the same way.
+	// COMPAT: `worldId` is still written, and snapshot() still emits it, because a
+	// released 0.2.x browser client reads it. A solo world's id IS the player's id,
+	// so this is now pure ceremony. Remove in Phase 4, once /Metrics/ shows no
+	// clients below 0.3.0 for 30 days.
+	if (!player.worldId) await patchPlayer(player.id, { worldId: soloId });
+
+	// A brand-new save is born on the current key contract, so there is nothing to
+	// migrate — mark it and skip the scan. Every other save goes through the
+	// migration, which is a no-op after the first time.
+	if (opts.freshGrid && !player.keyRev) {
 		await patchPlayer(player.id, { keyRev: KEY_REV });
 		keyedWorlds.add(soloId);
+		return;
 	}
-	const memberId = `${soloId}:${player.id}`;
-	if (!(await safeGet(t.WorldMember, memberId)) && !existsRaw(t.WorldMember, memberId)) {
-		await t.WorldMember.put({
-			id: memberId,
-			worldId: soloId,
-			playerId: player.id,
-			role: 'owner',
-			joinedAt: player.createdAt || Date.now(),
-			lastSeenAt: Date.now(),
-		});
-	}
-	if (!player.worldId) await patchPlayer(player.id, { worldId: soloId });
-	// Bring a save written by an earlier build onto the KEY_REV 2 key contract.
-	// This is a write path (login / world switch), it self-marks, and it is a
-	// no-op for every world after the first time — so the full scan it performs
-	// happens once per save, ever, instead of once per state read.
 	await migrateWorldKeys(soloId);
-}
-
-/** Every world a player belongs to, shaped for the client's world picker. */
-async function listMemberships(playerId: string): Promise<any[]> {
-	const t = db();
-	const members = await byPlayer(t.WorldMember, playerId);
-	const out: any[] = [];
-	for (const m of members) {
-		const world = await safeGet(t.World, m.worldId);
-		if (!world) continue;
-		const memberCount = (await byWorld(t.WorldMember, world.id)).length;
-		out.push({
-			worldId: world.id,
-			name: world.name,
-			solo: !!world.solo,
-			role: m.role,
-			joinCode: world.solo ? null : world.joinCode,
-			memberCount,
-			maxMembers: world.maxMembers || DEFAULT_MAX_MEMBERS,
-			isOwner: world.ownerId === playerId,
-		});
-	}
-	// solo first, then most-recently-joined co-op worlds
-	return out.sort((a, b) => (a.solo === b.solo ? 0 : a.solo ? -1 : 1));
-}
-
-/**
- * A co-op member's set of unlocked biomes is the union of their own and every
- * biome the shared world has opened. Persisted on the player so the per-action
- * unlock gates (which read player.unlockedBiomes) admit areas a world-mate
- * restored. No-op for solo worlds. Call on login / world switch / join.
- */
-async function syncMemberUnlocks(playerId: string, worldId: string): Promise<string[]> {
-	const t = db();
-	const player = await safeGet(t.Player, playerId);
-	if (!player) return [];
-	const current: string[] = player.unlockedBiomes || ['meadow'];
-	if (worldId === player.id) return current; // solo world — already authoritative
-	const worldStates = await byWorld(t.BiomeState, worldId);
-	const unlocked = new Set(current);
-	for (const bs of worldStates) if (bs.unlocked) unlocked.add(bs.biomeId);
-	const merged = [...unlocked];
-	if (merged.length !== current.length) await patchPlayer(playerId, { unlockedBiomes: merged });
-	return merged;
 }
 
 /**
@@ -1198,10 +1090,6 @@ async function purgeCorruptRecords() {
 		'TerrainTile',
 		'FeedEntry',
 		'PlayerAchievement',
-		'WorldMember',
-		'World',
-		'WorldPresence',
-		'JoinRequest',
 	];
 	for (const name of names) {
 		const table = t[name];
@@ -2938,8 +2826,7 @@ async function seedStartingTerrain(wid: string, playerId: string, biomeId: strin
  * Evaluate biome unlock requirements; unlock anything newly earned. Biome
  * unlock is a world property (BiomeState.unlocked under the world id), but the
  * acting player's personal `unlockedBiomes` is also updated so their action
- * gates open immediately. World-mates pick up the new unlock on their next
- * login / world switch via syncMemberUnlocks.
+ * gates open immediately.
  */
 async function checkUnlocks(
 	wid: string,
@@ -4437,32 +4324,18 @@ async function awardAchievements(
 }
 
 /**
- * Award achievements for a WORLD-changing action. The actor is evaluated as usual,
- * but in a co-op world every other member is evaluated too — so world-derived
- * achievements (welcoming the grasshopper / First Friend, keystones, biome
- * milestones…) land for everyone at the same moment, since they all share the same
- * world state. Personal achievements (your own crafting/gathering counts) still
- * only fire for whoever actually qualifies. Returns the actor's newly-earned set.
+ * Award achievements for a world-changing action. One player owns one world, so
+ * this is just the actor — the wrapper stays because every world-mutating call
+ * site already goes through it, and it is the right seam if that ever changes.
  */
 async function awardWorldAchievements(
 	wid: string,
 	actorId: string,
 	opts: { addDiscoveries?: any[]; freshBiomeStates?: any[] } = {},
 ): Promise<any[]> {
-	const newlyForActor = await awardAchievements(actorId, opts);
-	try {
-		const t = db();
-		const world = await safeGet(t.World, wid);
-		if (world && !world.solo) {
-			for (const m of await byWorld(t.WorldMember, wid)) {
-				if (m.playerId === actorId) continue;
-				await awardAchievements(m.playerId, opts); // same world context → shared world achievements
-			}
-		}
-	} catch {
-		/* co-op fan-out is best-effort */
-	}
-	return newlyForActor;
+	// One player owns one world, so there is nobody else to evaluate. The wrapper
+	// stays because every world-mutating call site already routes through it.
+	return awardAchievements(actorId, opts);
 }
 
 // ================================================================ ENDPOINTS
@@ -4670,17 +4543,15 @@ export class CreatePlayer extends PublicEndpoint {
 			ed,
 		);
 		await indexPlayerName(cleanName, playerId);
-		// World plumbing must never block starting a save: if the World/WorldMember
-		// tables aren't ready yet (instance not restarted after the schema change),
-		// fall back to a plain solo session so core play still works.
-		let worlds: any[] = [];
+		// Per-save setup must never block starting a save — if it throws, the save
+		// still works and the next login retries it.
 		try {
 			await ensureSoloWorld(created.player, { freshGrid: true });
-			worlds = await listMemberships(playerId);
 		} catch (e) {
-			console.error('world setup skipped (CreatePlayer):', e);
+			console.error('save setup skipped (CreatePlayer):', e);
 		}
-		return { ok: true, playerId, worldId: playerId, worlds, state: await freshSnapshot(created) };
+		// COMPAT: `worldId` and `worlds` are dead fields a 0.2.x client still reads.
+		return { ok: true, playerId, worldId: playerId, worlds: [], state: await freshSnapshot(created) };
 	}
 }
 
@@ -4819,17 +4690,10 @@ export class DeletePlayer extends PublicEndpoint {
 			await t.PlayerAchievement.delete(rec.id);
 			removed++;
 		}
-		// drop every world membership, and the solo World row itself
-		for (const m of await byPlayer(t.WorldMember, playerId)) {
-			await t.WorldMember.delete(m.id);
-			removed++;
-		}
 		// Deleting the save is the one place a still-undecodable row must not be
 		// left behind, so fall back to forceRemove (stub-then-delete) when the row
 		// exists on disk but neither salvage nor a plain delete can touch it.
-		if ((await safeGet(t.World, playerId)) || existsRaw(t.World, playerId)) {
-			if (await forceRemove(t.World, playerId)) removed++;
-		}
+		if (existsRaw(t.Player, playerId)) await forceRemove(t.Player, playerId);
 		await t.Player.delete(playerId);
 		await unindexPlayerName(player.name, playerId);
 		return { ok: true, deleted: playerId, recordsRemoved: removed + 1 };
@@ -4862,14 +4726,6 @@ export class DeleteDemoSave extends PublicEndpoint {
 		}
 		for (const rec of await byPlayer(t.PlayerAchievement, id)) {
 			await t.PlayerAchievement.delete(rec.id);
-			removed++;
-		}
-		for (const m of await byPlayer(t.WorldMember, id)) {
-			await t.WorldMember.delete(m.id);
-			removed++;
-		}
-		if (await safeGet(t.World, id)) {
-			await t.World.delete(id);
 			removed++;
 		}
 		await t.Player.delete(id);
@@ -4910,7 +4766,7 @@ export class ExportDemoSave extends PublicEndpoint {
 				updatedAt: Date.now(),
 			},
 			// Keys mirror src/solo/localDb.ts DYNAMIC_TABLES so loadSoloGame hydrates
-			// cleanly. WorldPresence / JoinRequest are transient — exported empty.
+			// cleanly.
 			data: {
 				Player: [exportedPlayer],
 				PlayerAchievement: await byPlayer(t.PlayerAchievement, id),
@@ -4921,10 +4777,6 @@ export class ExportDemoSave extends PublicEndpoint {
 				NodeState: await byWorld(t.NodeState, wid),
 				TerrainTile: await byWorld(t.TerrainTile, wid),
 				FeedEntry: await byWorld(t.FeedEntry, wid),
-				World: (await safeGet(t.World, wid)) ? [await safeGet(t.World, wid)] : [],
-				WorldMember: await byPlayer(t.WorldMember, id),
-				WorldPresence: [],
-				JoinRequest: [],
 			},
 		};
 		return { ok: true, ...save };
@@ -4982,13 +4834,10 @@ export class LoginPlayer extends PublicEndpoint {
 		// co-op world they had joined — this is how you log back in to co-op).
 		// Guarded so a not-yet-migrated instance still logs you in (solo) rather than erroring.
 		let active = player.worldId || playerId;
-		let worlds: any[] = [];
 		try {
 			await ensureSoloWorld(player);
 			active = (await safeGet(db().Player, playerId))?.worldId || playerId;
-			await syncMemberUnlocks(playerId, active);
 			await migrateAnimalAliases(active, playerId);
-			worlds = await listMemberships(playerId);
 		} catch (e) {
 			console.error('world setup skipped (LoginPlayer):', e);
 		}
@@ -4999,7 +4848,8 @@ export class LoginPlayer extends PublicEndpoint {
 		if (player.area === 'home' || !areaBiome || !areaBiome.explorable) {
 			await patchPlayer(playerId, { area: 'meadow', x: 24.5, y: 6.5 });
 		}
-		return { ok: true, playerId, worldId: active, worlds, state: await snapshot(playerId) };
+		// COMPAT: `worldId` and `worlds` are dead fields a 0.2.x client still reads.
+		return { ok: true, playerId, worldId: active, worlds: [], state: await snapshot(playerId) };
 	}
 }
 
@@ -5013,411 +4863,26 @@ export class GameState extends PublicEndpoint {
 	}
 }
 
-// ------------------------------------------------------------- worlds API
-// Co-op lets several players restore one shared preserve. Personal progress
-// (inventory, tools, appearance, achievements, position) always stays with the
-// player; only the world (biomes, terrain, placements, animals, chests, feed)
-// is shared. A player can belong to many worlds and switch between them, and
-// because membership is persisted they can log back in straight into a co-op
-// world they had joined.
-
-/** GET/POST /MyWorlds/ {playerId} — every world this player can enter. */
+/**
+ * COMPAT: `MyWorlds` outlives co-op.
+ *
+ * Deleting it looked safe — co-op is behind a false flag — but `api.myWorlds()`
+ * is called UNGATED in three core solo paths (startNewSolo, resumeSolo,
+ * continueLast). In continueLast the catch rethrows, and `isMissingSaveError` is
+ * `status === 404`, so a missing endpoint would break the Continue button AND
+ * call `forgetSave()`, dropping the player's save pointer. The solo backend
+ * returns 404 for an unknown endpoint too, so desktop would break the same way.
+ *
+ * So it stays, answering the only shape the client reads: one solo world, which
+ * is the player themselves. Remove in Phase 4, together with the client calls —
+ * gated on /Metrics/ showing no clients below 0.3.0 for 30 days.
+ */
 export class MyWorlds extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId } = await bodyOf(data);
 		const { player } = await requirePlayer(playerId);
 		await ensureSoloWorld(player);
-		return { ok: true, activeWorldId: worldOf(player), worlds: await listMemberships(playerId) };
-	}
-}
-
-/** POST /CreateWorld/ {playerId, name} — start a new shared co-op preserve. */
-export class CreateWorld extends PublicEndpoint {
-	async post(data: any) {
-		const { playerId, name } = await bodyOf(data);
-		const t = db();
-		const { player } = await requirePlayer(playerId);
-		await ensureSoloWorld(player);
-
-		const cleanName = String(name || '').trim() || tr('server.world.coopName', { name: player.name });
-		if (cleanName.length > 40) throw new GameError(tr('server.err.worldNameLength'), 400, 'server.err.worldNameLength');
-
-		// generate a unique world id + a collision-free join code
-		const worldId = `w_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
-		let joinCode = genJoinCode();
-		const allWorlds = await allOf(t.World);
-		const taken = new Set(allWorlds.map((w: any) => w.joinCode).filter(Boolean));
-		let guard = 0;
-		while (taken.has(joinCode) && guard++ < 20) joinCode = genJoinCode();
-
-		const now = Date.now();
-		await t.World.put({
-			id: worldId,
-			name: cleanName,
-			solo: false,
-			ownerId: playerId,
-			keyRev: KEY_REV, // born key-scoped — nothing to migrate
-			joinCode,
-			createdAt: now,
-			maxMembers: DEFAULT_MAX_MEMBERS,
-		});
-		await t.WorldMember.put({
-			id: `${worldId}:${playerId}`,
-			worldId,
-			playerId,
-			role: 'owner',
-			joinedAt: now,
-			lastSeenAt: now,
-		});
-		// seed the shared world's biome rows (meadow unlocked, like a fresh save) so
-		// restoration starts from scratch in the co-op world
-		const d = await defs();
-		for (const b of d.biomes) {
-			await t.BiomeState.put({
-				id: `${worldId}:${b.id}`,
-				worldId,
-				playerId,
-				biomeId: b.id,
-				health: BASE_HEALTH,
-				balance: 0,
-				returnedCount: 0,
-				unlocked: b.id === 'meadow',
-			});
-		}
-		return {
-			ok: true,
-			world: {
-				worldId,
-				name: cleanName,
-				joinCode,
-				solo: false,
-				role: 'owner',
-				isOwner: true,
-				memberCount: 1,
-				maxMembers: DEFAULT_MAX_MEMBERS,
-			},
-			worlds: await listMemberships(playerId),
-		};
-	}
-}
-
-/** POST /JoinWorld/ {playerId, joinCode} — join a co-op preserve and enter it. */
-/** Find a joinable (non-solo) world by its code. */
-async function worldByCode(t: any, joinCode: any): Promise<any | null> {
-	const code = String(joinCode || '')
-		.trim()
-		.toUpperCase();
-	if (!code) return null;
-	return (await allOf(t.World)).find((w: any) => !w.solo && w.joinCode === code) || null;
-}
-
-export class JoinWorld extends PublicEndpoint {
-	async post(data: any) {
-		const { playerId, joinCode, token } = await bodyOf(data);
-		const t = db();
-		const { player } = await requirePlayer(playerId);
-		await ensureSoloWorld(player);
-
-		const world = await worldByCode(t, joinCode);
-		if (!world) throw new GameError(tr('server.err.noWorldWithCode'), 404, 'server.err.noWorldWithCode');
-
-		const memberId = `${world.id}:${playerId}`;
-		const already = await t.WorldMember.get(memberId);
-		if (!already) {
-			// You can only become a member once the host has APPROVED your request —
-			// redeem the token you got when you entered the code.
-			const tok = String(token || '').trim();
-			const req = tok ? await t.JoinRequest.get(`${world.id}:${tok}`) : null;
-			if (!req || req.status !== 'approved') {
-				throw new GameError(tr('server.err.hostNotApproved'), 403, 'server.err.hostNotApproved');
-			}
-			const max = world.maxMembers || DEFAULT_MAX_MEMBERS;
-			const members = await byWorld(t.WorldMember, world.id);
-			if (members.length >= max) {
-				throw new GameError(tr('server.err.worldFullJoined', { max }), 409, 'server.err.worldFullJoined');
-			}
-			await t.WorldMember.put({
-				id: memberId,
-				worldId: world.id,
-				playerId,
-				role: 'member',
-				joinedAt: Date.now(),
-				lastSeenAt: Date.now(),
-			});
-			await t.JoinRequest.delete(`${world.id}:${tok}`); // consume the approval
-			// announce the arrival in the shared world feed (everyone sees it)
-			await appendFeed(world.id, [
-				{ at: Date.now(), icon: 'user', text: tr('server.feed.joinedWorld', { name: player.name }) },
-			]);
-		}
-		// entering the world: make it active and open up whatever biomes it has unlocked
-		await patchPlayer(playerId, { worldId: world.id });
-		await syncMemberUnlocks(playerId, world.id);
-		await migrateAnimalAliases(world.id, playerId);
-		// The membership/worldId we just wrote may not be visible to reads in this same
-		// transaction yet, so force the active world id and make sure the joined world
-		// is present in the returned list (otherwise the client needs a second load to
-		// recognize co-op).
-		let worldsList = await listMemberships(playerId);
-		if (!worldsList.some((w: any) => w.worldId === world.id)) {
-			const members = await byWorld(t.WorldMember, world.id);
-			const here = members.some((m: any) => m.playerId === playerId) ? members.length : members.length + 1;
-			worldsList = [
-				...worldsList,
-				{
-					worldId: world.id,
-					name: world.name,
-					solo: false,
-					role: world.ownerId === playerId ? 'owner' : 'member',
-					joinCode: world.joinCode,
-					memberCount: here,
-					maxMembers: world.maxMembers || DEFAULT_MAX_MEMBERS,
-					isOwner: world.ownerId === playerId,
-				},
-			];
-		}
-		return { ok: true, worldId: world.id, worlds: worldsList, state: await snapshot(playerId, { worldId: world.id }) };
-	}
-}
-
-/** POST /CheckWorldCode/ {joinCode} — does this code point to a real co-op world? (no account needed) */
-export class CheckWorldCode extends PublicEndpoint {
-	async post(data: any) {
-		const { joinCode } = await bodyOf(data);
-		const t = db();
-		const world = await worldByCode(t, joinCode);
-		if (!world) return { ok: true, exists: false };
-		const memberCount = (await byWorld(t.WorldMember, world.id)).length;
-		const owner = await safeGet(t.Player, world.ownerId);
-		const max = world.maxMembers || DEFAULT_MAX_MEMBERS;
-		return {
-			ok: true,
-			exists: true,
-			world: {
-				worldId: world.id,
-				name: world.name,
-				hostName: owner?.name || tr('server.fallback.host'),
-				memberCount,
-				maxMembers: max,
-				full: memberCount >= max,
-			},
-		};
-	}
-}
-
-/** POST /RequestJoin/ {joinCode, token, name} — ask the host to let you in (before making a character). */
-export class RequestJoin extends PublicEndpoint {
-	async post(data: any) {
-		const { joinCode, token, name } = await bodyOf(data);
-		const t = db();
-		const world = await worldByCode(t, joinCode);
-		if (!world) throw new GameError(tr('server.err.noWorldWithCode'), 404, 'server.err.noWorldWithCode');
-		const tok = String(token || '').trim();
-		if (!tok) throw new GameError(tr('server.err.missingToken'), 400, 'server.err.missingToken');
-		const max = world.maxMembers || DEFAULT_MAX_MEMBERS;
-		const memberCount = (await byWorld(t.WorldMember, world.id)).length;
-		if (memberCount >= max)
-			throw new GameError(tr('server.err.worldFullClosed', { max }), 409, 'server.err.worldFullClosed');
-		const cleanName =
-			String(name || '')
-				.trim()
-				.slice(0, 24) || tr('server.fallback.newCaretaker');
-		await t.JoinRequest.put({
-			id: `${world.id}:${tok}`,
-			worldId: world.id,
-			token: tok,
-			name: cleanName,
-			status: 'pending',
-			createdAt: Date.now(),
-		});
-		const owner = await safeGet(t.Player, world.ownerId);
-		return {
-			ok: true,
-			worldId: world.id,
-			world: { name: world.name, hostName: owner?.name || tr('server.fallback.host') },
-		};
-	}
-}
-
-/** POST /JoinRequestStatus/ {worldId, token} — the waiting joiner polls this. */
-export class JoinRequestStatus extends PublicEndpoint {
-	async post(data: any) {
-		const { worldId, token } = await bodyOf(data);
-		const t = db();
-		const req = await t.JoinRequest.get(`${worldId}:${String(token || '').trim()}`);
-		return { ok: true, status: req?.status || 'none' };
-	}
-}
-
-/** POST /PendingJoinRequests/ {playerId} — the host's pending requests for their active world. */
-export class PendingJoinRequests extends PublicEndpoint {
-	async post(data: any) {
-		const { playerId } = await bodyOf(data);
-		const { player } = await requirePlayer(playerId);
-		const t = db();
-		const wid = worldOf(player);
-		const world = await safeGet(t.World, wid);
-		if (!world || world.solo || world.ownerId !== playerId) return { ok: true, requests: [] };
-		const reqs = (await byWorld(t.JoinRequest, wid)).filter((r: any) => r.status === 'pending');
-		reqs.sort((a: any, b: any) => (a.createdAt || 0) - (b.createdAt || 0));
-		return { ok: true, requests: reqs.map((r: any) => ({ token: r.token, name: r.name, createdAt: r.createdAt })) };
-	}
-}
-
-/** POST /ResolveJoin/ {playerId, worldId, token, approve} — host approves or denies a request. */
-export class ResolveJoin extends PublicEndpoint {
-	async post(data: any) {
-		const { playerId, worldId, token, approve } = await bodyOf(data);
-		await requirePlayer(playerId);
-		const t = db();
-		const world = await safeGet(t.World, worldId);
-		if (!world || world.solo) throw new GameError(tr('server.err.noCoopWorld'), 404, 'server.err.noCoopWorld');
-		if (world.ownerId !== playerId)
-			throw new GameError(tr('server.err.onlyHostApproves'), 403, 'server.err.onlyHostApproves');
-		const id = `${worldId}:${String(token || '').trim()}`;
-		const req = await t.JoinRequest.get(id);
-		if (!req) throw new GameError(tr('server.err.requestNotPending'), 404, 'server.err.requestNotPending');
-		await t.JoinRequest.patch(id, { status: approve ? 'approved' : 'denied', resolvedAt: Date.now() });
-		return { ok: true };
-	}
-}
-
-/**
- * POST /WorldRoster/ {playerId} — the full join history of the active co-op world:
- * everyone who has ever joined (caretakers stay on the roster so they can always
- * return), in join order, plus whether the world has hit its cap and is closed.
- */
-export class WorldRoster extends PublicEndpoint {
-	async post(data: any) {
-		const { playerId } = await bodyOf(data);
-		const { player } = await requirePlayer(playerId);
-		const t = db();
-		const wid = worldOf(player);
-		const world = await safeGet(t.World, wid);
-		const max = world?.maxMembers || DEFAULT_MAX_MEMBERS;
-		if (!world || world.solo) return { ok: true, roster: [], closed: false, maxMembers: max, joinCode: null };
-		const members = await byWorld(t.WorldMember, wid);
-		const roster: any[] = [];
-		for (const m of members) {
-			const p = await safeGet(t.Player, m.playerId);
-			roster.push({
-				playerId: m.playerId,
-				name: p?.name || tr('server.fallback.caretaker'),
-				isOwner: m.role === 'owner' || world.ownerId === m.playerId,
-				joinedAt: m.joinedAt || 0,
-			});
-		}
-		roster.sort((a, b) => (a.joinedAt || 0) - (b.joinedAt || 0));
-		return { ok: true, roster, closed: roster.length >= max, maxMembers: max, joinCode: world.joinCode };
-	}
-}
-
-/** POST /SwitchWorld/ {playerId, worldId} — make one of your worlds active and load it. */
-export class SwitchWorld extends PublicEndpoint {
-	async post(data: any) {
-		const { playerId, worldId } = await bodyOf(data);
-		const t = db();
-		const { player } = await requirePlayer(playerId);
-		await ensureSoloWorld(player);
-
-		const target = String(worldId || '');
-		if (!(await t.WorldMember.get(`${target}:${playerId}`))) {
-			throw new GameError(tr('server.err.notWorldMember'), 403, 'server.err.notWorldMember');
-		}
-		await patchPlayer(playerId, { worldId: target });
-		await t.WorldMember.patch(`${target}:${playerId}`, { lastSeenAt: Date.now() });
-		await syncMemberUnlocks(playerId, target);
-		await migrateAnimalAliases(target, playerId);
-		return {
-			ok: true,
-			worldId: target,
-			worlds: await listMemberships(playerId),
-			state: await snapshot(playerId, { worldId: target }),
-		};
-	}
-}
-
-/** POST /LeaveWorld/ {playerId, worldId} — leave a co-op world (your solo world stays). */
-export class LeaveWorld extends PublicEndpoint {
-	async post(data: any) {
-		const { playerId, worldId } = await bodyOf(data);
-		const t = db();
-		const { player } = await requirePlayer(playerId);
-		const target = String(worldId || '');
-		if (target === playerId) throw new GameError(tr('server.err.cannotLeaveSolo'), 400, 'server.err.cannotLeaveSolo');
-		const memberId = `${target}:${playerId}`;
-		if (!(await t.WorldMember.get(memberId)))
-			throw new GameError(tr('server.err.notInWorld'), 404, 'server.err.notInWorld');
-		await t.WorldMember.delete(memberId);
-		// if you were standing in that world, fall back to your solo world
-		if (player.worldId === target) {
-			await patchPlayer(playerId, { worldId: playerId, area: 'meadow', x: 24.5, y: 6.5 });
-			await syncMemberUnlocks(playerId, playerId);
-			await migrateAnimalAliases(playerId, playerId);
-		}
-		const active = player.worldId === target ? playerId : player.worldId || playerId;
-		return {
-			ok: true,
-			worldId: active,
-			worlds: await listMemberships(playerId),
-			state: await snapshot(playerId, { worldId: active }),
-		};
-	}
-}
-
-// How recently a member must have pinged to count as "here right now".
-const PRESENCE_WINDOW_MS = 15_000;
-
-/**
- * POST /Presence/ {playerId, x, y, area} — live co-op presence. The caller's
- * position is recorded on their WorldMember row, and the positions of every
- * other member seen within the presence window are returned (with name +
- * appearance) so the client can render their avatars. A no-op for solo worlds.
- *
- * This is the pragmatic v1 transport (a short client poll). The design doc's
- * end state moves this onto Harper's native pub/sub so positions are pushed,
- * never persisted; the client contract here stays the same when that lands.
- */
-export class Presence extends PublicEndpoint {
-	async post(data: any) {
-		const { playerId, x, y, area } = await bodyOf(data);
-		const t = db();
-		const { player } = await requirePlayer(playerId);
-		const wid = worldOf(player);
-		const now = Date.now();
-
-		const px = Number.isFinite(Number(x)) ? Number(x) : player.x;
-		const py = Number.isFinite(Number(y)) ? Number(y) : player.y;
-		const parea = typeof area === 'string' ? area : player.area;
-
-		// solo worlds have no one else — nothing to broadcast
-		const world = await safeGet(t.World, wid);
-		if (world?.solo) return { ok: true, worldId: wid, peers: [] };
-
-		// Merge my live position into the shared WorldPresence record. Writing it
-		// pushes the new map to everyone SUBSCRIBED to this world over WebSocket —
-		// that's the realtime channel (no one polls to see others move). We prune
-		// players who've gone quiet so avatars disappear when someone leaves.
-		const rec = (await t.WorldPresence.get(wid)) || { id: wid, players: {} };
-		const players = { ...(rec.players || {}) };
-		players[playerId] = {
-			playerId,
-			name: player.name,
-			appearance: player.appearance,
-			area: parea,
-			x: px,
-			y: py,
-			t: now,
-		};
-		for (const pid of Object.keys(players)) {
-			if (now - (players[pid]?.t || 0) > PRESENCE_WINDOW_MS) delete players[pid];
-		}
-		await t.WorldPresence.put({ id: wid, players, updatedAt: now });
-
-		// Also return the current peers, so a client whose WebSocket isn't connected
-		// (or hasn't connected yet) still has a polling fallback.
-		const peers = Object.values(players).filter((p: any) => p.playerId !== playerId);
-		return { ok: true, worldId: wid, peers };
+		return { ok: true, activeWorldId: player.id, worlds: [] };
 	}
 }
 

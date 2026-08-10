@@ -102,9 +102,8 @@ type Achievement @table(database: "wildwillows") {
 # unbounded scan it replaces, and its cost tracks the size of ONE world rather
 # than the size of the whole database.
 #
-#   `${worldId}:…`  BiomeState · NodeState · TerrainTile · Discovery ·
-#                   Placement · Chest · FeedEntry · WorldMember · JoinRequest
-#   `${playerId}:…` PlayerAchievement
+#   `${playerId}:…`  BiomeState · NodeState · TerrainTile · Discovery ·
+#                     Placement · Chest · FeedEntry · PlayerAchievement
 #
 # A player id (`slugId(name)`, optionally `-${rand}`) and a world id
 # (`w_${ts36}_${rand}`) can never contain `:`, so `${id}:` is an unambiguous
@@ -192,8 +191,3 @@ type MailingListSignup @table(database: "wildwillows") { id: ID @primaryKey }
 #               the /dashboard landing section.
 type LandingStat @table(database: "wildwillows") { id: ID @primaryKey }
 
-# ---------- co-op tables (dynamic) ----------
-type World @table(database: "wildwillows") { id: ID @primaryKey }         # name, solo, ownerId, joinCode, createdAt, maxMembers, keyRev (key-contract revision; see above)
-type WorldMember @table(database: "wildwillows") { id: ID @primaryKey }   # `${worldId}:${playerId}` · worldId, playerId, role, joinedAt, lastSeenAt
-type WorldPresence @table(database: "wildwillows") { id: ID @primaryKey } # worldId · players { [playerId]: {name, appearance, area, x, y, t} }, updatedAt
-type JoinRequest @table(database: "wildwillows") { id: ID @primaryKey }   # `${worldId}:${token}` · worldId, token, name, status, createdAt, resolvedAt

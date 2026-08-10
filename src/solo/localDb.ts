@@ -117,10 +117,6 @@ export const DYNAMIC_TABLES = [
 	'NodeState',
 	'TerrainTile',
 	'FeedEntry',
-	'World',
-	'WorldMember',
-	'WorldPresence',
-	'JoinRequest',
 ] as const;
 
 const SEED: Record<string, { records: any[] }> = {
