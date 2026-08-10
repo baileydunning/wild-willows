@@ -158,7 +158,7 @@ for (const mode of MODES) {
 	});
 }
 
-test('plain-language mode actually replaces the wording', async ({ page }) => {
+test('plain-language mode actually replaces the wording', async ({ browser }) => {
 	// A guard against the whole "simpler wording" half of this suite passing for
 	// the wrong reason: if the overlay silently stopped being applied, every
 	// simple-mode test above would still be green, because plain English is
@@ -166,36 +166,40 @@ test('plain-language mode actually replaces the wording', async ({ page }) => {
 	// the words must differ somewhere.
 	//
 	// The title screen itself carries nothing to compare — it is four buttons and
-	// a credit line, none of them overridden. "How to Play" is the nearest screen
-	// that is: it opens without starting a save, and twelve of its strings are
-	// rewritten in simple.json, `panels.help.intro` among them.
-	const readHelp = async () => {
+	// a credit line, none of them overridden. Its "How to Play" button opens the
+	// welcome intro card (Welcome.tsx, which reuses the `.help-backdrop` class —
+	// it is NOT the in-game Help overlay), and two of that card's lines are
+	// rewritten in simple.json. It needs no save, so this stays on the front door.
+	//
+	// One context per wording, rather than one page reloaded twice: addInitScript
+	// re-runs on EVERY navigation, reload included, so a reload cannot switch a
+	// setting the init script itself writes — it puts the old value straight back.
+	// That is not hypothetical; it silently made both reads identical.
+	const readIntro = async (plainLanguage: boolean) => {
+		const context = await browser.newContext({ baseURL: test.info().project.use.baseURL });
+		const page = await context.newPage();
+		await page.addInitScript((plain) => {
+			(window as any).wildWillowsDesktop = { isDesktop: true };
+			localStorage.setItem('ww:locale', 'en');
+			localStorage.setItem('ww:a11y', JSON.stringify({ simpleText: plain }));
+		}, plainLanguage);
+		await page.goto('/');
 		await page.getByRole('button', { name: 'How to Play' }).click();
-		const help = page.locator('.help-backdrop .panel');
-		await expect(help).toBeVisible();
-		return help.innerText(); // the reload below is what closes it again
+		const card = page.locator('.welcome-intro');
+		await expect(card).toBeVisible();
+		const text = await card.innerText();
+		await context.close();
+		return text;
 	};
 
-	await page.addInitScript(() => {
-		(window as any).wildWillowsDesktop = { isDesktop: true };
-		localStorage.setItem('ww:locale', 'en');
-		localStorage.setItem('ww:a11y', JSON.stringify({ simpleText: false }));
-	});
-	await page.goto('/');
-	await expect(page.getByRole('button', { name: 'New Game' })).toBeEnabled();
-	const normal = await readHelp();
+	const normal = await readIntro(false);
+	const simple = await readIntro(true);
 
-	// Prefs are read from localStorage at boot, so a reload is all it takes.
-	await page.evaluate(() => localStorage.setItem('ww:a11y', JSON.stringify({ simpleText: true })));
-	await page.reload();
-	await expect(page.getByRole('button', { name: 'New Game' })).toBeEnabled();
-	const simple = await readHelp();
-
-	expect(simple, 'the plain-language overlay changed nothing in How to Play').not.toBe(normal);
-	// The one hard-coded sentence in this suite, and the point of the whole
-	// option: the opening line, rewritten short. If it gets reworded, this is the
-	// line to update — that it is checked at all is what stops the overlay from
-	// quietly detaching.
-	expect(normal).toContain('A gentle loop');
-	expect(simple).toContain('A calm loop');
+	expect(simple, 'the plain-language overlay changed nothing on the intro card').not.toBe(normal);
+	// The two hard-coded sentences in this suite, and the point of the whole
+	// option: one clause split into two short ones. If the copy gets reworded,
+	// these are the lines to update — that they are checked at all is what stops
+	// the overlay from quietly detaching.
+	expect(normal).toContain('place them around the land');
+	expect(simple).toContain('Then place them on the land');
 });
