@@ -16,9 +16,21 @@ import { test, expect, type Page } from '@playwright/test';
 // `simpleText` field of `ww:a11y` (src/prefs.ts) — read at boot, so no test hook
 // is needed in the app.
 //
-// Deliberately NOT asserted here: which title each panel shows. That is
-// tests/e2e/solo.spec.ts's job, in one language. This suite only cares that
-// whatever renders is real, finished text.
+// Deliberately NOT asserted here:
+//
+//   • Which title each panel shows — that is tests/e2e/solo.spec.ts's job, in one
+//     language. This suite only cares that whatever renders is real, finished text.
+//
+//   • Layout. A first cut of this file measured every element against its panel
+//     to catch a translated line pushing out of its card. It cannot work
+//     generically: `.panel-body` is `overflow-y: auto`, which the browser coerces
+//     `overflow-x` to `auto` as well, and `.tabs-scroll` scrolls horizontally on
+//     purpose — so either the check flags legitimately-scrolled content (the
+//     journal's locked biome tabs did exactly this, in English) or, once those
+//     are exempted, it matches nothing at all and passes forever. A no-op that
+//     looks like a safety net is worse than no check. Layout per locale belongs
+//     in a targeted geometry test that knows which box should hold what, the way
+//     tests/e2e/journal-overflow.spec.ts does for the field guide's cards.
 
 interface Mode {
 	id: string;
@@ -118,35 +130,6 @@ async function unfinishedStrings(page: Page): Promise<string[]> {
 	return bad;
 }
 
-/**
- * Text that has escaped the panel holding it — the shape of the Great Horned Owl
- * bug (see journal-overflow.spec.ts), which is exactly the bug a longer
- * translation reintroduces. Elements that are scrollable or clipped by design
- * are exempt, as are positioned overlays (tooltips, badges) that legitimately
- * sit outside their parent.
- */
-async function overflowingElements(page: Page): Promise<string[]> {
-	return page.evaluate(() => {
-		const panel = document.querySelector('.panel');
-		if (!panel) return [];
-		const box = panel.getBoundingClientRect();
-		const out: string[] = [];
-		for (const el of Array.from(panel.querySelectorAll('*'))) {
-			const cs = getComputedStyle(el);
-			if (cs.overflowX !== 'visible') continue;
-			if (cs.position === 'absolute' || cs.position === 'fixed') continue;
-			const label = (el.textContent || '').trim();
-			if (!label) continue;
-			const r = el.getBoundingClientRect();
-			if (r.width === 0) continue;
-			if (r.right > box.right + 2 || r.left < box.left - 2) {
-				out.push(`<${el.tagName.toLowerCase()} class="${el.className}"> "${label.slice(0, 80)}"`);
-			}
-		}
-		return out;
-	});
-}
-
 for (const mode of MODES) {
 	test(`the title screen is fully translated — ${mode.id}`, async ({ page }) => {
 		await bootIn(page, mode);
@@ -170,9 +153,6 @@ for (const mode of MODES) {
 			const problems = await unfinishedStrings(page);
 			expect(problems, `panel "${key}" in ${mode.id}`).toEqual([]);
 
-			const spills = await overflowingElements(page);
-			expect(spills, `panel "${key}" in ${mode.id} has text outside the card`).toEqual([]);
-
 			await closePanel(page);
 		}
 	});
@@ -185,9 +165,17 @@ test('plain-language mode actually replaces the wording', async ({ page }) => {
 	// perfectly valid English. So: same locale, same screen, both wordings, and
 	// the words must differ somewhere.
 	//
-	// The welcome screen carries overrides of its own (app.welcome.intro.*), so
-	// the comparison is available before a save even exists. Prefs are read from
-	// localStorage at boot, so a reload is all it takes to switch.
+	// The title screen itself carries nothing to compare — it is four buttons and
+	// a credit line, none of them overridden. "How to Play" is the nearest screen
+	// that is: it opens without starting a save, and twelve of its strings are
+	// rewritten in simple.json, `panels.help.intro` among them.
+	const readHelp = async () => {
+		await page.getByRole('button', { name: 'How to Play' }).click();
+		const help = page.locator('.help-backdrop .panel');
+		await expect(help).toBeVisible();
+		return help.innerText(); // the reload below is what closes it again
+	};
+
 	await page.addInitScript(() => {
 		(window as any).wildWillowsDesktop = { isDesktop: true };
 		localStorage.setItem('ww:locale', 'en');
@@ -195,12 +183,19 @@ test('plain-language mode actually replaces the wording', async ({ page }) => {
 	});
 	await page.goto('/');
 	await expect(page.getByRole('button', { name: 'New Game' })).toBeEnabled();
-	const normal = await page.evaluate(() => document.body.innerText);
+	const normal = await readHelp();
 
+	// Prefs are read from localStorage at boot, so a reload is all it takes.
 	await page.evaluate(() => localStorage.setItem('ww:a11y', JSON.stringify({ simpleText: true })));
 	await page.reload();
 	await expect(page.getByRole('button', { name: 'New Game' })).toBeEnabled();
-	const simple = await page.evaluate(() => document.body.innerText);
+	const simple = await readHelp();
 
-	expect(simple, 'the plain-language overlay changed nothing on screen').not.toBe(normal);
+	expect(simple, 'the plain-language overlay changed nothing in How to Play').not.toBe(normal);
+	// The one hard-coded sentence in this suite, and the point of the whole
+	// option: the opening line, rewritten short. If it gets reworded, this is the
+	// line to update — that it is checked at all is what stops the overlay from
+	// quietly detaching.
+	expect(normal).toContain('A gentle loop');
+	expect(simple).toContain('A calm loop');
 });
