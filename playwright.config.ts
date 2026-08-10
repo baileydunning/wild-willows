@@ -32,6 +32,16 @@ export default defineConfig({
 			testMatch: /(solo|button-hover|journal-overflow)\.spec\.ts/,
 			use: { ...devices['Desktop Chrome'], baseURL: PREVIEW_URL },
 		},
+		{
+			// The language sweep: the same offline preview, booted in English,
+			// Spanish, and plain-language mode, checking that every string in the
+			// interface actually resolved and fits. Its own project so it can be run
+			// (and re-run) alone from .github/workflows/i18n.yml without dragging the
+			// rest of the solo suite along — `npx playwright test --project=i18n`.
+			name: 'i18n',
+			testMatch: /i18n-render\.spec\.ts/,
+			use: { ...devices['Desktop Chrome'], baseURL: PREVIEW_URL },
+		},
 		...(RUN_COOP
 			? [
 					{
