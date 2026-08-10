@@ -642,7 +642,7 @@ class RollupCache<T> {
 // `-`) optionally plus `-${rand}`, and a world id is `w_${ts36}_${rand}`.
 // Neither can contain a colon, so no world's key prefix can be a prefix of
 // another world's key. (This is why the prefix is `${wid}:` and never `${wid}`.)
-const KEY_REV = 2;
+const KEY_REV = 3;
 
 /** Tables whose ids carry a `${worldId}:` prefix under KEY_REV 2. */
 const WORLD_KEYED = new Set([
@@ -696,7 +696,7 @@ const keyedWorlds = new Set<string>();
  */
 async function keyMarker(worldId: string): Promise<any | null> {
 	const t = db();
-	return (await safeGet(t.Player, worldId)) || (await safeGet(t.World, worldId));
+	return (await getPlayer(worldId)) || (await safeGet(t.World, worldId));
 }
 
 async function worldIsKeyed(worldId: string): Promise<boolean> {
@@ -747,8 +747,29 @@ async function migrateWorldKeys(worldId: string): Promise<void> {
 			}
 			if (stale.length) console.error(`key migration: re-keyed ${stale.length} ${name} row(s) for world ${worldId}`);
 		}
+		// KEY_REV 3: collapse a per-line feed into the single feed row. Done after
+		// the re-key loop so any legacy line already carries this world's prefix.
+		const feedTable = t.FeedEntry;
+		if (feedTable && typeof feedTable.search === 'function') {
+			const lines = (await toArray(feedTable.search({}), 'FeedEntry')).filter(
+				(r: any) =>
+					(r?.worldId ?? r?.playerId) === worldId && r?.id !== feedRowId(worldId) && !Array.isArray(r?.entries),
+			);
+			if (lines.length) {
+				const merged = [
+					...(Array.isArray((await safeGet(feedTable, feedRowId(worldId)))?.entries)
+						? (await safeGet(feedTable, feedRowId(worldId))).entries
+						: []),
+					...lines.map((r: any) => ({ id: r.id, at: r.at, icon: r.icon, text: r.text })),
+				].sort((a: any, b: any) => (a.at || 0) - (b.at || 0));
+				await writeFeed(worldId, merged);
+				for (const r of lines) await feedTable.delete(r.id);
+				console.error(`key migration: collapsed ${lines.length} feed line(s) for world ${worldId}`);
+			}
+		}
+
 		// Mark wherever the marker lives for this world (see keyMarker).
-		if (await safeGet(t.Player, worldId)) await t.Player.patch(worldId, { keyRev: KEY_REV });
+		if (await safeGet(t.Player, worldId)) await patchPlayer(worldId, { keyRev: KEY_REV });
 		else await t.World.patch(worldId, { keyRev: KEY_REV });
 		keyedWorlds.add(worldId);
 	} catch (e: any) {
@@ -932,7 +953,7 @@ async function ensureSoloWorld(player: any, opts: { freshGrid?: boolean } = {}):
 		});
 		// The player row is the authoritative marker for a solo world; the World
 		// row carries a copy only so a co-op world reads the same way.
-		await t.Player.patch(player.id, { keyRev: KEY_REV });
+		await patchPlayer(player.id, { keyRev: KEY_REV });
 		keyedWorlds.add(soloId);
 	}
 	const memberId = `${soloId}:${player.id}`;
@@ -946,7 +967,7 @@ async function ensureSoloWorld(player: any, opts: { freshGrid?: boolean } = {}):
 			lastSeenAt: Date.now(),
 		});
 	}
-	if (!player.worldId) await t.Player.patch(player.id, { worldId: soloId });
+	if (!player.worldId) await patchPlayer(player.id, { worldId: soloId });
 	// Bring a save written by an earlier build onto the KEY_REV 2 key contract.
 	// This is a write path (login / world switch), it self-marks, and it is a
 	// no-op for every world after the first time — so the full scan it performs
@@ -994,7 +1015,7 @@ async function syncMemberUnlocks(playerId: string, worldId: string): Promise<str
 	const unlocked = new Set(current);
 	for (const bs of worldStates) if (bs.unlocked) unlocked.add(bs.biomeId);
 	const merged = [...unlocked];
-	if (merged.length !== current.length) await t.Player.patch(playerId, { unlockedBiomes: merged });
+	if (merged.length !== current.length) await patchPlayer(playerId, { unlockedBiomes: merged });
 	return merged;
 }
 
@@ -1153,7 +1174,7 @@ async function migrateAnimalAliases(worldId: string, playerId: string): Promise<
 		seen.add(key);
 		migrated.push({ ...g, animalId: alias });
 	}
-	await t.Player.patch(playerId, { customGoals: migrated });
+	await patchPlayer(playerId, { customGoals: migrated });
 }
 
 /**
@@ -1254,6 +1275,66 @@ const FIRST_ANIMAL_ID = 'grasshopper';
 // How many activity-feed messages we keep per player (the feed is pruned to this
 // on every append so the table never grows unbounded as people play).
 const FEED_CAP = 100;
+
+// ------------------------------------------------------------- activity feed
+//
+// The feed is ONE row per world (`${wid}:feed`) holding an array, not one row
+// per line.
+//
+// It used to be a row per line, and that made it the most expensive thing in the
+// game per unit of value. Every flush wrote a row per entry, and then pruned to
+// the cap — so once a world had been played for a while, each line cost a put
+// AND a delete. A capped, append-only log that is only ever read whole has no
+// use for per-row addressability; it was paying for random access nobody used.
+// As a single row it is one write per flush no matter how many lines it carries,
+// and pruning is a slice() rather than a stream of deletes.
+const feedRowId = (worldId: string) => `${worldId}:feed`;
+
+/**
+ * The world's feed, oldest→newest. Falls back to the pre-KEY_REV-3 per-line rows
+ * for a world that has not been collapsed yet, so an un-migrated save shows its
+ * history rather than an empty panel.
+ */
+async function readFeed(worldId: string): Promise<any[]> {
+	const t = db();
+	const row = await safeGet(t.FeedEntry, feedRowId(worldId));
+	const entries = Array.isArray(row?.entries) ? row.entries : [];
+	if (await worldIsKeyed(worldId)) return entries;
+	const legacy = (await byWorld(t.FeedEntry, worldId)).filter((r: any) => r?.id !== feedRowId(worldId));
+	if (!legacy.length) return entries;
+	return [...entries, ...legacy].sort((a: any, b: any) => (a.at || 0) - (b.at || 0)).slice(-FEED_CAP);
+}
+
+/** Replace the world's feed with `entries`, newest kept, capped. One write. */
+async function writeFeed(worldId: string, entries: any[]): Promise<void> {
+	await db().FeedEntry.put({
+		id: feedRowId(worldId),
+		worldId,
+		// solo worlds are keyed by the player's id, and several reset/delete paths
+		// still find rows via byPlayer — keep them working by carrying it through.
+		playerId: worldId,
+		entries: entries.slice(-FEED_CAP),
+		updatedAt: Date.now(),
+	});
+}
+
+/** Append lines to a world's feed. One write regardless of how many. */
+async function appendFeed(worldId: string, lines: any[]): Promise<number> {
+	const clean = lines
+		.map((e: any) => ({
+			id: `f_${Number(e?.at) || Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+			at: Number(e?.at) || Date.now(),
+			icon: String(e?.icon || 'leaf').slice(0, 40),
+			text: String(e?.text || '')
+				.slice(0, 500)
+				.trim(),
+		}))
+		.filter((e) => e.text);
+	if (!clean.length) return 0;
+	const next = [...(await readFeed(worldId)), ...clean].sort((a, b) => (a.at || 0) - (b.at || 0));
+	await writeFeed(worldId, next);
+	return clean.length;
+}
 
 // ----------------------------------------------------------- the home
 // A personal interior (area id 'home') you step into from your camp tent, decorate
@@ -1680,7 +1761,7 @@ async function verifyPasscode(player: any, passcode: string): Promise<boolean> {
 	// legacy plaintext save — verify then migrate to a hash
 	if (typeof player.passcode === 'string' && code.length > 0 && code === player.passcode) {
 		const { salt, hash } = hashPasscode(code);
-		await db().Player.patch(player.id, { passcodeHash: hash, passcodeSalt: salt, passcode: null });
+		await patchPlayer(player.id, { passcodeHash: hash, passcodeSalt: salt, passcode: null });
 		return true;
 	}
 	return false;
@@ -1720,15 +1801,75 @@ const STARTER_CHEST = { x: 23, y: 5, size: 'small-chest', capacity: 120 };
  */
 const playerLocks = new Map<string, Promise<void>>();
 
+// ------------------------------------------------- coalesced player writes
+//
+// One gameplay action used to write the Player row two or three times: once for
+// the state change (inventory, tools, craftedItems), once for bumpMetrics'
+// counters, and sometimes again for achievements. Same row, same request, and on
+// Harper every one of those is a separate billable write. On the free tier the
+// 1,000 writes/minute allowance is what caps how many people can play at once,
+// so the duplicates were coming straight out of the concurrency budget.
+//
+// While a player is inside withPlayerLock, patches to their row accumulate here
+// and are written ONCE when the lock releases. Outside a lock (Heartbeat and the
+// login/admin paths do not take one) patchPlayer writes through immediately, so
+// a buffered patch can never be left unflushed by a path that does not know
+// about the buffer.
+//
+// Reads have to see the buffer or the coalescing would be observable: bumpMetrics
+// deliberately re-reads the freshest row before merging counters, and snapshot()
+// builds its response from the row mid-action. getPlayer() overlays the pending
+// patch, so every reader sees the row as this request has left it.
+const pendingPlayerPatch = new Map<string, any>();
+const bufferingPlayers = new Set<string>();
+
+/** Patch the player row — buffered inside a lock, written through outside one. */
+async function patchPlayer(playerId: string, partial: any): Promise<void> {
+	if (!playerId || !partial) return;
+	if (!bufferingPlayers.has(playerId)) {
+		await db().Player.patch(playerId, partial); // the real write — never patchPlayer, that is this function
+		return;
+	}
+	const cur = pendingPlayerPatch.get(playerId);
+	// Shallow merge, exactly like a sequence of Harper patches: last write wins
+	// per key, so collapsing them changes the number of writes and nothing else.
+	pendingPlayerPatch.set(playerId, cur ? { ...cur, ...partial } : { ...partial });
+}
+
+/** The player row as this request has left it: stored row plus anything pending. */
+async function getPlayer(playerId: string): Promise<any | null> {
+	const stored = await safeGet(db().Player, playerId);
+	const pending = pendingPlayerPatch.get(playerId);
+	if (!pending) return stored;
+	return { ...(stored || { id: playerId }), ...pending };
+}
+
+async function flushPlayerPatch(playerId: string): Promise<void> {
+	const pending = pendingPlayerPatch.get(playerId);
+	pendingPlayerPatch.delete(playerId);
+	if (pending) await db().Player.patch(playerId, pending); // the real write
+}
+
 async function withPlayerLock<T>(playerId: string, fn: () => Promise<T>): Promise<T> {
 	const ahead = playerLocks.get(playerId);
 	let release!: () => void;
 	const mine = new Promise<void>((r) => (release = r));
 	playerLocks.set(playerId, mine);
 	if (ahead) await ahead;
+	bufferingPlayers.add(playerId);
 	try {
 		return await fn();
 	} finally {
+		// Flush BEFORE releasing, so the next request in the chain reads a row that
+		// already includes this one's writes. On the error path we still flush: the
+		// un-coalesced code had already written each patch by the time it threw, and
+		// collapsing writes must not also change what survives a failure.
+		bufferingPlayers.delete(playerId);
+		try {
+			await flushPlayerPatch(playerId);
+		} catch (e: any) {
+			console.error(`flushing player writes for ${playerId} failed —`, e?.message || e);
+		}
 		release();
 		// Only the last one out clears the slot, or a queued request would be
 		// dropped from the chain and start racing again.
@@ -1739,7 +1880,7 @@ async function withPlayerLock<T>(playerId: string, fn: () => Promise<T>): Promis
 async function requirePlayer(playerId: string): Promise<any> {
 	if (!playerId || typeof playerId !== 'string')
 		throw new GameError(tr('server.err.playerIdRequired'), 400, 'server.err.playerIdRequired');
-	const player = await safeGet(db().Player, playerId);
+	const player = await getPlayer(playerId);
 	if (!player) throw new GameError(tr('server.err.noSaveLogin'), 404, 'server.err.noSaveLogin');
 	return { player };
 }
@@ -1852,7 +1993,7 @@ async function bumpMetrics(
 	// placement bump plus recalcBiome's health/animal bump) from stale copies.
 	// safeGet so an undecodable row heals here instead of silently falling back
 	// to the stale in-memory copy and writing its older counters back over the top.
-	const live = (await safeGet(db().Player, player.id)) || player;
+	const live = (await getPlayer(player.id)) || player;
 	const prev = readMetrics(live) || freshMetrics(live.createdAt || now);
 	const counts = { ...(prev.counts || {}) };
 	for (const [k, v] of entries) counts[k] = (counts[k] || 0) + v;
@@ -1871,7 +2012,7 @@ async function bumpMetrics(
 		for (const [k, v] of dailyEntries) dcounts[k] = (dcounts[k] || 0) + v;
 		patch.daily = encodeDaily({ dayKey, counts: dcounts });
 	}
-	await db().Player.patch(player.id, patch);
+	await patchPlayer(player.id, patch);
 	return metrics;
 }
 
@@ -2840,7 +2981,7 @@ async function checkUnlocks(
 		worldUnlocked.add(biome.id);
 		unlockedSet.add(biome.id);
 		pendingRewards.add(biome.id);
-		await t.Player.patch(playerId, { unlockedBiomes: [...unlockedSet], pendingUnlockRewards: [...pendingRewards] });
+		await patchPlayer(playerId, { unlockedBiomes: [...unlockedSet], pendingUnlockRewards: [...pendingRewards] });
 		const bsRow = await findBiomeState(t.BiomeState, wid, biome.id);
 		await t.BiomeState.patch(bsRow?.id ?? `${wid}:${biome.id}`, { unlocked: true });
 		await seedStartingTerrain(wid, playerId, biome.id);
@@ -3056,7 +3197,7 @@ async function consumeMaterials(player: any, materials: Record<string, number>, 
 			throw new GameError(tr('server.err.notEnoughShort', { resource: resId }), 400, 'server.err.notEnoughShort'); // defensive; checked above
 	}
 
-	await t.Player.patch(player.id, { inventory });
+	await patchPlayer(player.id, { inventory });
 	for (const chest of chests) {
 		if (usedFrom.chests[chest.id]) {
 			await t.Chest.patch(chest.id, { contents: chestContents.get(chest.id) });
@@ -3987,7 +4128,7 @@ function dailyTasksBlock(ctx: TaskCtx) {
 async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 	const t = db();
 	const d = await defs();
-	let player = await safeGet(t.Player, playerId);
+	let player = await getPlayer(playerId);
 	// normalize saves whose last area no longer exists / isn't explorable — but the
 	// home interior ('home') and trail-tent interiors ('tent-<biome>') are valid
 	// non-biome areas, so leave those be (as long as the tent's biome still is).
@@ -4010,7 +4151,7 @@ async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 			byWorld(t.NodeState, wid),
 			byWorld(t.TerrainTile, wid),
 			byPlayer(t.PlayerAchievement, playerId),
-			byWorld(t.FeedEntry, wid),
+			readFeed(wid),
 		]);
 	// The player's OWN unlocked biomes, before any co-op roam expansion below —
 	// daily tasks & their rewards are scoped to these so you never get items from
@@ -4038,11 +4179,8 @@ async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 		achievements: [...achievementRows]
 			.sort((a: any, b: any) => (b.earnedAt || 0) - (a.earnedAt || 0))
 			.map((r: any) => r.achievementId),
-		// persisted activity feed, oldest→newest (last 100 kept per player)
-		feed: [...feedRows]
-			.sort((a: any, b: any) => (a.at || 0) - (b.at || 0))
-			.slice(-FEED_CAP)
-			.map((r: any) => ({ id: r.id, at: r.at, icon: r.icon, text: r.text })),
+		// persisted activity feed, oldest→newest (last 100 kept per world)
+		feed: feedRows.slice(-FEED_CAP).map((r: any) => ({ id: r.id, at: r.at, icon: r.icon, text: r.text })),
 		serverTime: now,
 		weather: weatherSnapshot(wid, wxTime, WEATHER_BIOME_IDS, player?.devWeather || null),
 		dailyTasks: dailyTasksBlock({
@@ -4808,7 +4946,7 @@ export class ChangePasscode extends PublicEndpoint {
 		if (next.length < 4 || next.length > 32)
 			throw new GameError(tr('server.err.newPasscodeLength'), 400, 'server.err.newPasscodeLength');
 		const { salt, hash } = hashPasscode(next);
-		await db().Player.patch(playerId, { passcodeHash: hash, passcodeSalt: salt, passcode: null });
+		await patchPlayer(playerId, { passcodeHash: hash, passcodeSalt: salt, passcode: null });
 		return { ok: true };
 	}
 }
@@ -4834,7 +4972,7 @@ export class LoginPlayer extends PublicEndpoint {
 		const now = Date.now();
 		const playerId = player.id;
 		const prev = readMetrics(player) || freshMetrics(player.createdAt || now);
-		await db().Player.patch(playerId, {
+		await patchPlayer(playerId, {
 			metrics: encodeMetrics({ ...prev, lastHeartbeatAt: 0 }),
 			...(tzOffsetMinutes != null ? { tzOffsetMinutes: sanitizeTzOffset(tzOffsetMinutes) } : {}),
 		});
@@ -4859,7 +4997,7 @@ export class LoginPlayer extends PublicEndpoint {
 		// above so a returning player lands on the current spawn, never a shifted one.
 		const areaBiome = d.biome.get(player.area);
 		if (player.area === 'home' || !areaBiome || !areaBiome.explorable) {
-			await db().Player.patch(playerId, { area: 'meadow', x: 24.5, y: 6.5 });
+			await patchPlayer(playerId, { area: 'meadow', x: 24.5, y: 6.5 });
 		}
 		return { ok: true, playerId, worldId: active, worlds, state: await snapshot(playerId) };
 	}
@@ -5008,18 +5146,12 @@ export class JoinWorld extends PublicEndpoint {
 			});
 			await t.JoinRequest.delete(`${world.id}:${tok}`); // consume the approval
 			// announce the arrival in the shared world feed (everyone sees it)
-			const at = Date.now();
-			await t.FeedEntry.put({
-				id: `${world.id}:f_${at}_${Math.random().toString(36).slice(2, 7)}`,
-				worldId: world.id,
-				playerId,
-				at,
-				icon: 'user',
-				text: tr('server.feed.joinedWorld', { name: player.name }),
-			});
+			await appendFeed(world.id, [
+				{ at: Date.now(), icon: 'user', text: tr('server.feed.joinedWorld', { name: player.name }) },
+			]);
 		}
 		// entering the world: make it active and open up whatever biomes it has unlocked
-		await t.Player.patch(playerId, { worldId: world.id });
+		await patchPlayer(playerId, { worldId: world.id });
 		await syncMemberUnlocks(playerId, world.id);
 		await migrateAnimalAliases(world.id, playerId);
 		// The membership/worldId we just wrote may not be visible to reads in this same
@@ -5192,7 +5324,7 @@ export class SwitchWorld extends PublicEndpoint {
 		if (!(await t.WorldMember.get(`${target}:${playerId}`))) {
 			throw new GameError(tr('server.err.notWorldMember'), 403, 'server.err.notWorldMember');
 		}
-		await t.Player.patch(playerId, { worldId: target });
+		await patchPlayer(playerId, { worldId: target });
 		await t.WorldMember.patch(`${target}:${playerId}`, { lastSeenAt: Date.now() });
 		await syncMemberUnlocks(playerId, target);
 		await migrateAnimalAliases(target, playerId);
@@ -5219,7 +5351,7 @@ export class LeaveWorld extends PublicEndpoint {
 		await t.WorldMember.delete(memberId);
 		// if you were standing in that world, fall back to your solo world
 		if (player.worldId === target) {
-			await t.Player.patch(playerId, { worldId: playerId, area: 'meadow', x: 24.5, y: 6.5 });
+			await patchPlayer(playerId, { worldId: playerId, area: 'meadow', x: 24.5, y: 6.5 });
 			await syncMemberUnlocks(playerId, playerId);
 			await migrateAnimalAliases(playerId, playerId);
 		}
@@ -5386,7 +5518,7 @@ export class CollectResource extends PublicEndpoint {
 
 			const inventory = { ...(player.inventory || {}) };
 			inventory[resourceId] = (inventory[resourceId] || 0) + total;
-			await t.Player.patch(playerId, { inventory });
+			await patchPlayer(playerId, { inventory });
 			await t.NodeState.put({ id: nodeKey, worldId: wid, playerId, harvestedAt: now });
 
 			await bumpMetrics(player, { resourcesCollected: total }, { [`res:${resourceId}`]: total });
@@ -5447,7 +5579,7 @@ export class ChestTransfer extends PublicEndpoint {
 				throw new GameError(tr('server.err.badDirection'), 400, 'server.err.badDirection');
 			}
 
-			await t.Player.patch(playerId, { inventory });
+			await patchPlayer(playerId, { inventory });
 			await t.Chest.patch(chestId, { contents });
 			await bumpMetrics(player, direction === 'deposit' ? { chestDeposits: 1 } : { chestWithdrawals: 1 });
 			return { ok: true, inventory, chest: { ...chest, contents } };
@@ -5475,7 +5607,7 @@ export class DiscardItem extends PublicEndpoint {
 					throw new GameError(tr('server.err.discardTooMany'), 400, 'server.err.discardTooMany');
 				craftedItems[id] -= amount;
 				if (craftedItems[id] <= 0) delete craftedItems[id];
-				await t.Player.patch(playerId, { craftedItems });
+				await patchPlayer(playerId, { craftedItems });
 				await bumpMetrics(player, { itemsDiscarded: amount });
 				return { ok: true, craftedItems };
 			}
@@ -5485,7 +5617,7 @@ export class DiscardItem extends PublicEndpoint {
 				throw new GameError(tr('server.err.discardTooMany'), 400, 'server.err.discardTooMany');
 			inventory[id] -= amount;
 			if (inventory[id] <= 0) delete inventory[id];
-			await t.Player.patch(playerId, { inventory });
+			await patchPlayer(playerId, { inventory });
 			await bumpMetrics(player, { itemsDiscarded: amount });
 			return { ok: true, inventory };
 		});
@@ -5577,7 +5709,7 @@ export class CraftItem extends PublicEndpoint {
 		const craftedEver = { ...(player.craftedEver || {}) };
 		craftedItems[recipe.output.itemId] = (craftedItems[recipe.output.itemId] || 0) + (recipe.output.qty || 1);
 		craftedEver[recipe.output.itemId] = (craftedEver[recipe.output.itemId] || 0) + (recipe.output.qty || 1);
-		await t.Player.patch(playerId, refund ? { craftedItems, craftedEver, inventory } : { craftedItems, craftedEver });
+		await patchPlayer(playerId, refund ? { craftedItems, craftedEver, inventory } : { craftedItems, craftedEver });
 
 		// crafting key items (e.g. the water restoration kit) can unlock biomes
 		const unlockedBiomes = await checkUnlocks(wid, playerId, { player: { ...player, craftedItems, craftedEver } });
@@ -5749,7 +5881,7 @@ export class PlaceObject extends PublicEndpoint {
 			const craftedItems = { ...(player.craftedItems || {}) };
 			craftedItems[objectId] -= 1;
 			if (craftedItems[objectId] <= 0) delete craftedItems[objectId];
-			await t.Player.patch(playerId, { craftedItems });
+			await patchPlayer(playerId, { craftedItems });
 
 			const placementId = `${wid}:pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 			const placement = {
@@ -5919,7 +6051,7 @@ export class HarvestPlacement extends PublicEndpoint {
 			if (take <= 0) throw new GameError(tr('server.err.basketFullHarvest'), 409, 'server.err.basketFullHarvest');
 			inventory[y.resourceId] = (inventory[y.resourceId] || 0) + take;
 
-			await t.Player.patch(playerId, { inventory });
+			await patchPlayer(playerId, { inventory });
 			await t.Placement.patch(placementId, { lastHarvestAt: now });
 			await bumpMetrics(player, { resourcesCollected: take });
 			return {
@@ -5939,7 +6071,7 @@ export class UpdateAppearance extends PublicEndpoint {
 		const { playerId, appearance } = await bodyOf(data);
 		const { player } = await requirePlayer(playerId);
 		const clean = sanitizeAppearance(appearance);
-		await db().Player.patch(playerId, { appearance: clean });
+		await patchPlayer(playerId, { appearance: clean });
 		await bumpMetrics(player, { appearanceChanges: 1 });
 		return { ok: true, appearance: clean };
 	}
@@ -6080,10 +6212,10 @@ export class RemoveObject extends PublicEndpoint {
 			if (chest) await t.Chest.delete(placementId);
 			await t.Placement.delete(placementId);
 			if (refunded) {
-				await t.Player.patch(playerId, { inventory });
+				await patchPlayer(playerId, { inventory });
 				for (const [cid, contents] of chestUpdates) await t.Chest.patch(cid, { contents });
 			} else {
-				await t.Player.patch(playerId, { craftedItems });
+				await patchPlayer(playerId, { craftedItems });
 			}
 
 			// interiors (home / tent) aren't biomes — skip recalc for their decor
@@ -6139,7 +6271,7 @@ export class UpgradeTool extends PublicEndpoint {
 
 			const { usedFrom, inventory } = await consumeMaterials(player, nextTier.materials || {}, wid);
 			const tools = { ...(player.tools || {}), [toolId]: nextTier.tier };
-			await t.Player.patch(playerId, { tools });
+			await patchPlayer(playerId, { tools });
 
 			// tool upgrades can satisfy biome unlock requirements
 			const unlockedBiomes = await checkUnlocks(wid, playerId, { player: { ...player, tools } });
@@ -6199,7 +6331,7 @@ export class UpgradeHome extends PublicEndpoint {
 
 			const { usedFrom, inventory } = await consumeMaterials(player, next.materials || {}, wid);
 			const updated = { ...home, [track]: level + 1 };
-			await t.Player.patch(playerId, { home: updated });
+			await patchPlayer(playerId, { home: updated });
 			const chests = await byWorld(t.Chest, wid);
 			await awardAchievements(playerId);
 			await bumpMetrics(player, { homeUpgrades: 1 });
@@ -6237,7 +6369,7 @@ export class Rest extends PublicEndpoint {
 		// would wake you at 00:00 in the dark.
 		const nowT = weatherTimeFromPlay(player);
 		const skip = nextDawnAt(nowT) - nowT;
-		await t.Player.patch(playerId, { clockOffsetMs: (player.clockOffsetMs || 0) + skip });
+		await patchPlayer(playerId, { clockOffsetMs: (player.clockOffsetMs || 0) + skip });
 		await bumpMetrics(player, { restsTaken: 1 });
 		return { ok: true, rested: true, refreshed: nodes.length };
 	}
@@ -6258,7 +6390,7 @@ export class SetHomeColors extends PublicEndpoint {
 		for (const k of ['floor', 'wall', 'accent', 'rug']) {
 			if (colors?.[k] && isHexColor(colors[k])) next[k] = String(colors[k]).trim().toLowerCase();
 		}
-		await t.Player.patch(playerId, { home: { ...home, colors: next } });
+		await patchPlayer(playerId, { home: { ...home, colors: next } });
 		await bumpMetrics(player, { recolors: 1 });
 		return { ok: true };
 	}
@@ -6316,7 +6448,7 @@ export class SetHomeStyle extends PublicEndpoint {
 		}
 		const { usedFrom, inventory } = await consumeMaterials(player, styleDef.materials || {}, wid);
 		const updated = { ...home, style, styleLocked: true, space: 2 };
-		await t.Player.patch(playerId, { home: updated });
+		await patchPlayer(playerId, { home: updated });
 		const chests = await byWorld(t.Chest, wid);
 		await awardAchievements(playerId);
 		await bumpMetrics(player, { homesBuilt: 1 });
@@ -6418,7 +6550,7 @@ export class ClaimTask extends PublicEndpoint {
 			} else {
 				patch.customGoals = (player.customGoals || []).filter((g: CustomGoal) => g.id !== task.id);
 			}
-			await t.Player.patch(playerId, patch);
+			await patchPlayer(playerId, patch);
 			await bumpMetrics(player, { tasksCompleted: 1 });
 			await awardAchievements(playerId);
 
@@ -6485,7 +6617,7 @@ export class SetGoals extends PublicEndpoint {
 			}
 			keep.push(out);
 		}
-		await t.Player.patch(playerId, { customGoals: keep });
+		await patchPlayer(playerId, { customGoals: keep });
 		return { ok: true, customGoals: keep, goalLimit: limit };
 	}
 }
@@ -6555,7 +6687,7 @@ export class Terraform extends PublicEndpoint {
 					const amount = Math.min(player.tools?.shovel || 1, room);
 					if (amount > 0) {
 						inventory = { ...inventory, [resId]: (inventory[resId] || 0) + amount };
-						await t.Player.patch(playerId, { inventory });
+						await patchPlayer(playerId, { inventory });
 						dug = { resourceId: resId, amount };
 					}
 				}
@@ -6585,7 +6717,7 @@ export class Terraform extends PublicEndpoint {
 						remaining -= take;
 					}
 				}
-				await t.Player.patch(playerId, { inventory });
+				await patchPlayer(playerId, { inventory });
 				tile = { ...existing, type: newType, updatedAt: Date.now() };
 				await t.TerrainTile.patch(existing.id, { type: newType, updatedAt: Date.now() });
 			} else if (action === 'clear') {
@@ -6693,7 +6825,7 @@ export class SyncPlayer extends PublicEndpoint {
 				}
 			}
 		}
-		await t.Player.patch(playerId, patch);
+		await patchPlayer(playerId, patch);
 		// the tutorial finishing (and reaching the grasshopper step) can earn First Friend
 		if (patch.tutorialStep !== undefined) await awardAchievements(playerId);
 		return { ok: true, player: sanitizePlayer(await safeGet(t.Player, playerId)) };
@@ -6712,23 +6844,10 @@ export class AppendFeed extends PublicEndpoint {
 		const wid = worldOf(player);
 		const t = db();
 		const list = Array.isArray(entries) ? entries.slice(0, FEED_CAP) : [];
-		let added = 0;
-		for (const e of list) {
-			const text = String(e?.text || '')
-				.slice(0, 500)
-				.trim();
-			if (!text) continue;
-			const at = Number(e?.at) || Date.now();
-			const icon = String(e?.icon || 'leaf').slice(0, 40);
-			const id = `${wid}:f_${at}_${Math.random().toString(36).slice(2, 9)}`;
-			await t.FeedEntry.put({ id, worldId: wid, playerId, at, icon, text });
-			added++;
-		}
-		// prune to the most recent FEED_CAP messages for this world
-		const all = (await byWorld(t.FeedEntry, wid)).sort((a, b) => (a.at || 0) - (b.at || 0));
-		if (all.length > FEED_CAP) {
-			for (const old of all.slice(0, all.length - FEED_CAP)) await t.FeedEntry.delete(old.id);
-		}
+		// One write for the whole batch, and the cap is applied by slicing the array
+		// rather than by deleting rows — so a long-running save costs no more per
+		// line than a fresh one.
+		const added = await appendFeed(wid, list);
 		return { ok: true, added };
 	}
 }
@@ -6825,7 +6944,7 @@ export class Heartbeat extends PublicEndpoint {
 			// Keep 'demo' sticky: a demo player is never re-tagged 'full'.
 			...(ed ? { edition: prev.edition === 'demo' ? 'demo' : ed } : {}),
 		};
-		await t.Player.patch(playerId, { metrics: encodeMetrics(metrics) });
+		await patchPlayer(playerId, { metrics: encodeMetrics(metrics) });
 
 		// ---- habitat growth: the preserve keeps living while the game is closed ----
 		// Placements mature on wall-clock time (see matureMs), but biome health is
@@ -7649,7 +7768,7 @@ export class DevTools extends PublicEndpoint {
 				const phase = String(value || 'dawn');
 				const nowT = weatherTimeFromPlay(player);
 				const skip = nextPhaseAt(nowT, phase) - nowT;
-				await t.Player.patch(playerId, { clockOffsetMs: (player.clockOffsetMs || 0) + skip });
+				await patchPlayer(playerId, { clockOffsetMs: (player.clockOffsetMs || 0) + skip });
 				log.push(`Set time to ${phase}`);
 				break;
 			}
@@ -7658,7 +7777,7 @@ export class DevTools extends PublicEndpoint {
 				// fresh save gets. Solve for the offset that lands the current play time
 				// back on the day-phase start (season resets to the first day too).
 				const playMs = Math.round((readMetrics(player)?.playSeconds || 0) * 1000);
-				await t.Player.patch(playerId, { clockOffsetMs: nextPhaseAt(0, 'day') - playMs });
+				await patchPlayer(playerId, { clockOffsetMs: nextPhaseAt(0, 'day') - playMs });
 				log.push('Reset the game clock to the first morning');
 				break;
 			}
@@ -7704,7 +7823,7 @@ export class DevTools extends PublicEndpoint {
 					for (const r of d.resources) inventory[r.id] = (inventory[r.id] || 0) + give;
 					log.push(`Granted ${give} of every resource`);
 				}
-				await t.Player.patch(playerId, { inventory });
+				await patchPlayer(playerId, { inventory });
 				break;
 			}
 			case 'max-tools': {
@@ -7713,13 +7832,13 @@ export class DevTools extends PublicEndpoint {
 					const top = Math.max(...tool.tiers.map((ti: any) => ti.tier));
 					tools[tool.id] = top;
 				}
-				await t.Player.patch(playerId, { tools });
+				await patchPlayer(playerId, { tools });
 				log.push('All tools set to max tier');
 				break;
 			}
 			case 'unlock-all': {
 				const ids = d.biomes.map((b: any) => b.id);
-				await t.Player.patch(playerId, { unlockedBiomes: ids });
+				await patchPlayer(playerId, { unlockedBiomes: ids });
 				for (const id of ids) await t.BiomeState.patch(`${playerId}:${id}`, { unlocked: true });
 				log.push(`Unlocked all biomes (${ids.length})`);
 				break;
@@ -7734,7 +7853,7 @@ export class DevTools extends PublicEndpoint {
 					break;
 				}
 				unlocked.add(nextB.id);
-				await t.Player.patch(playerId, { unlockedBiomes: [...unlocked] });
+				await patchPlayer(playerId, { unlockedBiomes: [...unlocked] });
 				await t.BiomeState.patch(`${playerId}:${nextB.id}`, { unlocked: true });
 				await seedStartingTerrain(playerId, playerId, nextB.id);
 				log.push(`Unlocked the next area: ${nextB.name}`);
@@ -7742,13 +7861,13 @@ export class DevTools extends PublicEndpoint {
 			}
 			case 'relock-all': {
 				// re-lock everything except the meadow, to retest the whole unlock flow
-				await t.Player.patch(playerId, { unlockedBiomes: ['meadow'] });
+				await patchPlayer(playerId, { unlockedBiomes: ['meadow'] });
 				for (const b of d.biomes) await t.BiomeState.patch(`${playerId}:${b.id}`, { unlocked: b.id === 'meadow' });
 				log.push('Re-locked every biome except the meadow');
 				break;
 			}
 			case 'reset-tools': {
-				await t.Player.patch(playerId, { tools: { ...START_TOOLS } });
+				await patchPlayer(playerId, { tools: { ...START_TOOLS } });
 				log.push('Tools reset to tier 1');
 				break;
 			}
@@ -7800,7 +7919,7 @@ export class DevTools extends PublicEndpoint {
 					contents: {},
 				});
 				// Reset the player fields to fresh-start values, keeping identity.
-				await t.Player.patch(playerId, {
+				await patchPlayer(playerId, {
 					area: 'meadow',
 					x: 24.5,
 					y: 6.5,
@@ -7826,7 +7945,7 @@ export class DevTools extends PublicEndpoint {
 				// build/found the home in a style (Space → 2, style locked)
 				const style = value && HOME_STYLES[value] ? value : 'cabin';
 				const home = { ...homeOf(player), style, space: Math.max(2, homeOf(player).space || 1), styleLocked: true };
-				await t.Player.patch(playerId, { home });
+				await patchPlayer(playerId, { home });
 				log.push(`Built home: ${HOME_STYLES[style].name}`);
 				break;
 			}
@@ -7839,12 +7958,12 @@ export class DevTools extends PublicEndpoint {
 					light: HOME_TRACKS.light.levels.length,
 					styleLocked: true,
 				};
-				await t.Player.patch(playerId, { home });
+				await patchPlayer(playerId, { home });
 				log.push('Home maxed on every track');
 				break;
 			}
 			case 'reset-home': {
-				await t.Player.patch(playerId, { home: { ...DEFAULT_HOME } });
+				await patchPlayer(playerId, { home: { ...DEFAULT_HOME } });
 				log.push('Home reset to the starter tent');
 				break;
 			}
@@ -7893,7 +8012,7 @@ export class DevTools extends PublicEndpoint {
 				const ar = area || player.area;
 				if (ar === 'meadow') throw new GameError(tr('server.err.meadowCannotLock'), 400, 'server.err.meadowCannotLock');
 				const unlocked = (player.unlockedBiomes || []).filter((b: string) => b !== ar);
-				await t.Player.patch(playerId, { unlockedBiomes: unlocked });
+				await patchPlayer(playerId, { unlockedBiomes: unlocked });
 				await t.BiomeState.patch(`${playerId}:${ar}`, { unlocked: false });
 				log.push(`Locked ${ar} again (unlock requirements must be met to re-enter)`);
 				break;
@@ -7901,7 +8020,7 @@ export class DevTools extends PublicEndpoint {
 			case 'unlock-recipes': {
 				// Toggle the dev "all recipes craftable" override (ignores progress gates).
 				const next = value === undefined ? !player.devUnlockAll : !!value;
-				await t.Player.patch(playerId, { devUnlockAll: next });
+				await patchPlayer(playerId, { devUnlockAll: next });
 				log.push(next ? 'All recipes unlocked (gates ignored)' : 'Recipe progress gates restored');
 				break;
 			}
@@ -7955,7 +8074,7 @@ export class DevTools extends PublicEndpoint {
 				// Make sure the animal's biome is reachable so you can actually go see it.
 				const unlocked: string[] = player.unlockedBiomes || ['meadow'];
 				if (!unlocked.includes(animal.biome)) {
-					await t.Player.patch(playerId, { unlockedBiomes: [...unlocked, animal.biome] });
+					await patchPlayer(playerId, { unlockedBiomes: [...unlocked, animal.biome] });
 				}
 				// recalcBiome recomputes comfort from the (probably bare) habitat, which
 				// would drop this animal to "rarely seen" and skip drawing it. Run it for
@@ -7983,7 +8102,7 @@ export class DevTools extends PublicEndpoint {
 				const unlockedSet = new Set<string>(player.unlockedBiomes || ['meadow']);
 				if (!unlockedSet.has(ar)) {
 					unlockedSet.add(ar);
-					await t.Player.patch(playerId, { unlockedBiomes: [...unlockedSet] });
+					await patchPlayer(playerId, { unlockedBiomes: [...unlockedSet] });
 				}
 
 				// clean canvas: drop existing non-chest placements + all terrain here
@@ -8249,7 +8368,7 @@ export class DevTools extends PublicEndpoint {
 				// empty value (or value.clear) lifts the override back to the live sky.
 				const v = value && typeof value === 'object' ? value : null;
 				if (!v || v.clear) {
-					await t.Player.patch(playerId, { devWeather: null });
+					await patchPlayer(playerId, { devWeather: null });
 					log.push('Weather override cleared — back to the live sky');
 					break;
 				}
@@ -8269,7 +8388,7 @@ export class DevTools extends PublicEndpoint {
 						throw new GameError(tr('server.err.unknownSeason', { season: v.season }), 400, 'server.err.unknownSeason');
 					next.season = v.season || null;
 				}
-				await t.Player.patch(playerId, { devWeather: next });
+				await patchPlayer(playerId, { devWeather: next });
 				log.push(`Weather override: ${next.type || 'live'} · ${next.season || 'live'}`);
 				break;
 			}

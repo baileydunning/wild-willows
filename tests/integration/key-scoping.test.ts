@@ -62,7 +62,10 @@ describe('key contract: isolation', () => {
 		await settle(b);
 
 		const stateA = await w.get<any>('GameState', a);
-		const idsA = [...stateA.placements, ...stateA.terrain, ...stateA.feed].map((r: any) => String(r.id));
+		// Feed entries are array members inside the single feed row, not rows, so
+		// their ids are not primary keys and carry no world prefix. The ROW is
+		// covered by the "inside that save key run" test above.
+		const idsA = [...stateA.placements, ...stateA.terrain].map((r: any) => String(r.id));
 		expect(idsA.length).toBeGreaterThan(0);
 		expect(idsA.every((id) => id.startsWith(`${a}:`))).toBe(true);
 		expect(idsA.some((id) => id.startsWith(`${b}:`))).toBe(false);
@@ -146,6 +149,7 @@ describe('key contract: migration', () => {
 				{ id: 'pl_1700000000000_abc123', area: 'meadow', x: 5, y: 5, size: 'basket', capacity: 60, contents: {} },
 			],
 			TerrainTile: [{ id: `${LEGACY}:meadow:7:7`, area: 'meadow', x: 7, y: 7, type: 'tilled', updatedAt: Date.now() }],
+			// A pre-KEY_REV-3 feed: one row per line, which the migration collapses.
 			FeedEntry: [{ id: `f_${LEGACY}_1700000000000_xyz789`, at: Date.now(), icon: 'leaf', text: 'an older season' }],
 		};
 		for (const [name, rows] of Object.entries(legacyRows)) {
@@ -174,7 +178,13 @@ describe('key contract: migration', () => {
 
 		// A solo world's marker lives on the PLAYER row (see keyMarker) — the point
 		// being that it survives the World table going away.
-		expect(w.db.Player._rows.get(LEGACY).keyRev).toBe(2);
+		expect(w.db.Player._rows.get(LEGACY).keyRev).toBe(3);
+		// The feed collapses from one row per line into a single row holding an
+		// array, so its ROW count is 1 whatever the line count was — the lines
+		// themselves are checked below.
+		expect([...w.db.FeedEntry._rows.values()].filter((r) => (r.worldId ?? r.playerId) === LEGACY)).toHaveLength(1);
+		expect(w.db.FeedEntry._rows.get(`${LEGACY}:feed`).entries).toHaveLength(expected.FeedEntry);
+		delete expected.FeedEntry;
 		for (const name of Object.keys(expected)) {
 			const mine = [...w.db[name]._rows.values()].filter((r) => (r.worldId ?? r.playerId) === LEGACY);
 			expect(mine.length, `${name} lost or duplicated rows during migration`).toBe(expected[name]);
@@ -192,7 +202,7 @@ describe('key contract: migration', () => {
 
 		// And the migrated save still reads the same, now on the bounded path.
 		const after = await w.get<any>('GameState', LEGACY);
-		expect(after.feed.length).toBe(expected.FeedEntry);
+		expect(after.feed.length).toBe(1); // the one legacy line, carried across
 		expect(after.placements.length).toBe(expected.Placement);
 		expect(after.terrain.length).toBe(expected.TerrainTile);
 	});

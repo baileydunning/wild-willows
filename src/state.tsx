@@ -165,6 +165,9 @@ const RECONCILE_MS = 1500;
  * is the other thing — a window left open on screen for hours.
  */
 const HEARTBEAT_IDLE_MS = 5 * 60 * 1000;
+// The activity feed rides the heartbeat (see the flush effect below). This is a
+// safety net for lines buffered between beats — not a second, faster cadence.
+const FEED_FLUSH_MS = 30_000;
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
 	const [data, setData] = useState<GameData | null>(null);
@@ -949,6 +952,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		const beat = () => {
 			if (document.visibilityState === 'hidden') return;
 			if (Date.now() - lastInputAt.current > HEARTBEAT_IDLE_MS) return;
+			// Send buffered feed lines on the same beat, so an active player costs
+			// one feed write per heartbeat instead of one every six seconds.
+			flushFeed();
 			api
 				.heartbeat()
 				.then((r: any) => {
@@ -1185,11 +1191,19 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		return () => window.clearInterval(id);
 	}, [sessionPlayerId, pushLog]);
 
-	// Flush buffered feed lines to Harper on a timer (and when the tab is hidden or
-	// closed), so the activity feed survives reloads. The server keeps the last 100.
+	// Flush buffered feed lines to Harper (and when the tab is hidden or closed),
+	// so the activity feed survives reloads. The server keeps the last 100.
+	//
+	// The cadence is the HEARTBEAT's, not a timer of its own. This used to flush
+	// every 6 seconds, which meant ten writes a minute per player for a panel
+	// nobody reads in real time — and Harper's free tier allows 1,000 writes a
+	// minute across everyone, so that alone was capping simultaneous players.
+	// Riding the 30s beat costs two. Nothing is lost by waiting: the buffer still
+	// flushes on hide, on unload, and on unmount, so the only lines at risk are
+	// ones from the last few seconds of a session that ended in a hard crash.
 	useEffect(() => {
 		if (!sessionPlayerId) return;
-		const id = window.setInterval(flushFeed, 6000);
+		const id = window.setInterval(flushFeed, FEED_FLUSH_MS);
 		const onHide = () => {
 			if (document.visibilityState === 'hidden') flushFeed();
 		};
