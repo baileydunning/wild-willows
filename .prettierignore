@@ -6,6 +6,7 @@ resources.js
 server/pages.ts
 node_modules/
 server/theme-audio.ts
+server/pdf-assets.ts
 
 # Vendored / lockfiles
 package-lock.json

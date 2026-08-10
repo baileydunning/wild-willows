@@ -487,17 +487,116 @@ async function allOf(table: any): Promise<any[]> {
  * cold Harper instance — the same failure findOwned/byPlayer were rewritten to
  * dodge. For a per-player read that's a retryable miss; here it is destructive,
  * because the caller reads the null as "no row for today yet", starts from zero
- * and `put`s over the whole day's accumulated counts. A full scan never depends
- * on the primary-key path being warm, and these tables hold at most one row per
- * day / per device.
+ * and `put`s over the whole day's accumulated counts.
  *
- * Falls back to safeGet when the scan comes up empty: toArray drops rows Harper
- * couldn't decode, and safeGet's salvage path can still recover (and heal) one.
+ * So the ONLY answer that must never be trusted is a null. A non-null row is
+ * already proof the read worked, and that is the common case on every request
+ * after the first. This used to scan the whole table unconditionally, which made
+ * the cost of the cold-start guard grow with the table: AppOpen is keyed
+ * `dev:<deviceId>` — one row per install, forever, not "one row per day" — so
+ * every single app-open ping was scanning every device ever seen. Reading by id
+ * first and scanning only to disambiguate a null keeps the guarantee (a false
+ * null still can't reset a counter, because the scan runs before we believe it)
+ * and takes the scan off the hot path.
+ *
+ * safeGet already does its own salvage on an undecodable record; the scan is the
+ * last resort behind both.
  */
 async function findCounterRow(table: any, id: string): Promise<any | null> {
 	if (!table || typeof table.search !== 'function') return null;
+	const direct = await safeGet(table, id);
+	if (direct) return direct;
+	// Null: EITHER genuinely absent OR a cold-instance miss. Only a scan can tell
+	// the two apart, and only the second one is dangerous.
 	const rows = await toArray(table.search({}), tableName(table));
-	return rows.find((r: any) => r?.id === id) || (await safeGet(table, id));
+	return rows.find((r: any) => r?.id === id) || null;
+}
+
+/**
+ * A short-TTL, single-flight cache for the analytics rollups.
+ *
+ * Both rollups (the /dashboard numbers and the landing-page counters) full-scan a
+ * table and parse every row, and both were being INVALIDATED by the very writes
+ * that make them expensive: every AppOpen ping nulled the dashboard cache, every
+ * landing visit nulled the landing one. Under any traffic at all the TTL never got
+ * a chance to fire, so N dashboard reads after a write cost N full scans — the
+ * cache was load-bearing on paper and dead in practice.
+ *
+ * Two changes fix that, and neither costs the write path anything:
+ *
+ *  • A WRITE NO LONGER TRIGGERS A SCAN. invalidate() sets a flag and bumps a
+ *    version counter. That's it. Rebuilding stays lazy — the next reader pays,
+ *    and only if one shows up.
+ *  • SINGLE FLIGHT ON READ. Readers arriving while a scan is running join it
+ *    instead of each starting their own, so a burst of dashboard loads costs one
+ *    scan rather than one per load.
+ *
+ * The version counter is what makes joining safe. A reader may only join a scan
+ * that STARTED AFTER the most recent write — otherwise it could be handed a
+ * rollup that predates a write already committed when the read arrived, and
+ * read-your-own-write is a property this thing needs to keep (a player's own
+ * uplink has to show on the dashboard, and metrics-uplink / metrics-extra assert
+ * exactly that ordering). A reader that can't join queues a fresh scan behind the
+ * running one instead. Worst case — a write landing between two concurrent reads
+ * — is two serialized scans, which is still bounded and still better than the
+ * scan-per-read this replaced.
+ *
+ * Deliberately NOT stale-while-revalidate. Serving the previous rollup while
+ * refreshing would be faster still, but it's the same read-your-own-write
+ * sacrifice. If /dashboard ever gets heavy enough for the wait to show up in the
+ * p95, returning `this.value` from get() when one exists is the one-line change.
+ */
+class RollupCache<T> {
+	private value: T | null = null;
+	private at = 0;
+	private stale = false;
+	/** Bumped by every write. A scan is only reusable by readers at its version. */
+	private version = 0;
+	private inFlight: Promise<T> | null = null;
+	private inFlightVersion = -1;
+
+	constructor(
+		private readonly ttlMs: number,
+		private readonly build: () => Promise<T>,
+	) {}
+
+	/** The underlying table changed. Cheap: no scan, no allocation, no await. */
+	invalidate(): void {
+		this.stale = true;
+		this.version++;
+	}
+
+	async get(now: number): Promise<T> {
+		if (this.value !== null && !this.stale && now - this.at < this.ttlMs) return this.value;
+		return this.refresh();
+	}
+
+	private refresh(): Promise<T> {
+		// Joinable only if it started after the last write — see the note above.
+		if (this.inFlight && this.inFlightVersion === this.version) return this.inFlight;
+		const startedAt = this.version;
+		const prior = this.inFlight;
+		const p = (async () => {
+			// Never run two scans at once; queue behind whatever is already going.
+			if (prior) await prior.catch(() => {});
+			const v = await this.build();
+			this.value = v;
+			this.at = Date.now();
+			// Only call it fresh if nothing was written while the scan ran. If
+			// something was, this result may predate it and the next read rebuilds.
+			if (this.version === startedAt) this.stale = false;
+			return v;
+		})();
+		this.inFlight = p;
+		this.inFlightVersion = startedAt;
+		// Clear the slot however it settles, so a failed rebuild doesn't wedge the
+		// cache into never trying again. Guarded on identity in case a later refresh
+		// has already claimed the slot.
+		p.finally(() => {
+			if (this.inFlight === p) this.inFlight = null;
+		}).catch(() => {});
+		return p;
+	}
 }
 
 /**
@@ -6424,10 +6523,105 @@ export class Heartbeat extends PublicEndpoint {
 // Small in-memory cache for the global dashboard rollup. The dashboard branch
 // full-scans SoloMetrics and JSON.parses every row's snapshot; that's the only
 // expensive part, so we cache the scanned+parsed rows for a short TTL and let
-// each request apply its ?exclude filter + aggregation cheaply on top. Reset on
-// every new uplink (SyncMetrics) so a player's own report shows up immediately.
-let dashboardCache: { at: number; all: any[] } | null = null;
+// each request apply its ?exclude filter + aggregation cheaply on top. Marked
+// stale on every new uplink (SyncMetrics / AppOpen) so a player's own report
+// shows up on the next read — see RollupCache for why it's marked rather than
+// dropped.
 const DASHBOARD_CACHE_MS = 30_000;
+
+/**
+ * Scan SoloMetrics and flatten every stored snapshot into the row shape the
+ * dashboard aggregates over. The expensive half of GET /Metrics/ — everything
+ * downstream of this is cheap filtering and summing over the result.
+ */
+async function buildDashboardRows(): Promise<any[]> {
+	const now = Date.now();
+	const t = db();
+	let soloRows: any[] = [];
+	try {
+		soloRows = await allOf(t.SoloMetrics);
+	} catch {
+		/* SoloMetrics table not created yet — empty dashboard */
+	}
+
+	return soloRows
+		.map((r: any) => {
+			// snapshot is stored as a JSON string (see SyncMetrics); tolerate any
+			// legacy object rows too.
+			let s: any = {};
+			if (r.snapshot) {
+				try {
+					s = typeof r.snapshot === 'string' ? JSON.parse(r.snapshot) : r.snapshot;
+				} catch {
+					s = {};
+				}
+			}
+			const lastSeenAt = s.lastSeenAt || r.updatedAt || null;
+			const createdAt = s.createdAt || r.createdAt || now;
+			const hoursSinceActive = lastSeenAt ? round1((now - lastSeenAt) / 3_600_000) : null;
+			let status: 'active' | 'recent' | 'dormant' = 'dormant';
+			if (hoursSinceActive != null) {
+				if (hoursSinceActive <= 24) status = 'active';
+				else if (hoursSinceActive <= 24 * 7) status = 'recent';
+			}
+			// Count character-creation time as part of the session. The raw
+			// `playSeconds` metric only starts accruing AFTER the creator, so a
+			// player who spent 30–80s (sometimes minutes) customizing and then left
+			// logged 0 play time and a 0-length session — noise that swamped the
+			// report. Fold the creator time in here (report-only: the gameplay clock
+			// still reads raw playSeconds elsewhere) and credit one session to anyone
+			// who got as far as creating a character.
+			const rawPlaySeconds = s.playSeconds || 0;
+			const sessionSeconds = Math.round(rawPlaySeconds + (s.creationMs || 0) / 1000);
+			const sessionCount = Math.max(s.sessions || 0, (s.creationMs || 0) > 0 ? 1 : 0);
+			return {
+				...s,
+				playerId: r.id, // slot-scoped id — solo name slugs can collide across machines
+				name: r.name || s.name || null,
+				solo: true,
+				platform: r.platform || null,
+				os: r.os || null,
+				language: r.language || s.language || null,
+				version: r.version || null,
+				build: r.build || null,
+				lastSyncedAt: r.updatedAt || null,
+				counts: s.counts || {},
+				playSeconds: sessionSeconds,
+				playMinutes: Math.round(sessionSeconds / 60),
+				avgSessionMinutes: sessionCount ? Math.round(sessionSeconds / 60 / sessionCount) : 0,
+				sessions: sessionCount,
+				totalActions: s.totalActions || 0,
+				currentArea: s.currentArea || null,
+				unlockedBiomes: s.unlockedBiomes || 0,
+				tutorialStep: s.tutorialStep || 0,
+				activation: s.activation || {},
+				achievements: s.achievements || null,
+				biomeSummary: s.biomeSummary || {
+					biomesUnlocked: 0,
+					avgHealth: 0,
+					biomesFullyRestored: 0,
+					totalAnimalsReturned: 0,
+				},
+				// new metric fields (defaulted so aggregation is safe on legacy rows)
+				areaSeconds: s.areaSeconds || {},
+				sessionLengths: s.sessionLengths || {},
+				creationMs: s.creationMs || 0,
+				creationSeconds: s.creationSeconds ?? (s.creationMs ? round1(s.creationMs / 1000) : null),
+				timeToFirstActionSeconds: s.timeToFirstActionSeconds ?? null,
+				appearance: s.appearance || null,
+				createdAt,
+				lastSeenAt,
+				hoursSinceActive,
+				minutesSinceActive: lastSeenAt ? round1((now - lastSeenAt) / 60_000) : null,
+				status,
+				daysSinceJoined: Math.floor((now - createdAt) / DAY_MS),
+				isNewToday: now - createdAt <= DAY_MS,
+			};
+		})
+		.sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
+}
+
+const dashboardCache = new RollupCache<any[]>(DASHBOARD_CACHE_MS, buildDashboardRows);
 
 /** Numeric segments of a version string, e.g. "0.2.10+build" → [0, 2, 10]. */
 function versionSegments(s: string): number[] {
@@ -6496,94 +6690,9 @@ export class Metrics extends PublicEndpoint {
 		// Player/BiomeState tables. (Full hosted web/co-op, if ever added, report
 		// server-side and would stay out of this rollup.)
 		const now = Date.now();
-		let all: any[];
-		if (dashboardCache && now - dashboardCache.at < DASHBOARD_CACHE_MS) {
-			all = dashboardCache.all; // fresh enough — skip the full scan + JSON.parse
-		} else {
-			let soloRows: any[] = [];
-			try {
-				soloRows = await allOf(t.SoloMetrics);
-			} catch {
-				/* SoloMetrics table not created yet — empty dashboard */
-			}
-
-			all = soloRows
-				.map((r: any) => {
-					// snapshot is stored as a JSON string (see SyncMetrics); tolerate any
-					// legacy object rows too.
-					let s: any = {};
-					if (r.snapshot) {
-						try {
-							s = typeof r.snapshot === 'string' ? JSON.parse(r.snapshot) : r.snapshot;
-						} catch {
-							s = {};
-						}
-					}
-					const lastSeenAt = s.lastSeenAt || r.updatedAt || null;
-					const createdAt = s.createdAt || r.createdAt || now;
-					const hoursSinceActive = lastSeenAt ? round1((now - lastSeenAt) / 3_600_000) : null;
-					let status: 'active' | 'recent' | 'dormant' = 'dormant';
-					if (hoursSinceActive != null) {
-						if (hoursSinceActive <= 24) status = 'active';
-						else if (hoursSinceActive <= 24 * 7) status = 'recent';
-					}
-					// Count character-creation time as part of the session. The raw
-					// `playSeconds` metric only starts accruing AFTER the creator, so a
-					// player who spent 30–80s (sometimes minutes) customizing and then left
-					// logged 0 play time and a 0-length session — noise that swamped the
-					// report. Fold the creator time in here (report-only: the gameplay clock
-					// still reads raw playSeconds elsewhere) and credit one session to anyone
-					// who got as far as creating a character.
-					const rawPlaySeconds = s.playSeconds || 0;
-					const sessionSeconds = Math.round(rawPlaySeconds + (s.creationMs || 0) / 1000);
-					const sessionCount = Math.max(s.sessions || 0, (s.creationMs || 0) > 0 ? 1 : 0);
-					return {
-						...s,
-						playerId: r.id, // slot-scoped id — solo name slugs can collide across machines
-						name: r.name || s.name || null,
-						solo: true,
-						platform: r.platform || null,
-						os: r.os || null,
-						language: r.language || s.language || null,
-						version: r.version || null,
-						build: r.build || null,
-						lastSyncedAt: r.updatedAt || null,
-						counts: s.counts || {},
-						playSeconds: sessionSeconds,
-						playMinutes: Math.round(sessionSeconds / 60),
-						avgSessionMinutes: sessionCount ? Math.round(sessionSeconds / 60 / sessionCount) : 0,
-						sessions: sessionCount,
-						totalActions: s.totalActions || 0,
-						currentArea: s.currentArea || null,
-						unlockedBiomes: s.unlockedBiomes || 0,
-						tutorialStep: s.tutorialStep || 0,
-						activation: s.activation || {},
-						achievements: s.achievements || null,
-						biomeSummary: s.biomeSummary || {
-							biomesUnlocked: 0,
-							avgHealth: 0,
-							biomesFullyRestored: 0,
-							totalAnimalsReturned: 0,
-						},
-						// new metric fields (defaulted so aggregation is safe on legacy rows)
-						areaSeconds: s.areaSeconds || {},
-						sessionLengths: s.sessionLengths || {},
-						creationMs: s.creationMs || 0,
-						creationSeconds: s.creationSeconds ?? (s.creationMs ? round1(s.creationMs / 1000) : null),
-						timeToFirstActionSeconds: s.timeToFirstActionSeconds ?? null,
-						appearance: s.appearance || null,
-						createdAt,
-						lastSeenAt,
-						hoursSinceActive,
-						minutesSinceActive: lastSeenAt ? round1((now - lastSeenAt) / 60_000) : null,
-						status,
-						daysSinceJoined: Math.floor((now - createdAt) / DAY_MS),
-						isNewToday: now - createdAt <= DAY_MS,
-					};
-				})
-				.sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
-			dashboardCache = { at: now, all }; // cache the scanned + parsed rollup
-		}
+		// `all` is the SHARED cached rollup — the ?filter branches below rebind it to
+		// new arrays via .filter() and never mutate the rows, so the cache stays intact.
+		let all = await dashboardCache.get(now);
 
 		// Full list of versions seen (before any filtering), so the dashboard's
 		// version dropdown always has every option regardless of the active filter.
@@ -7820,7 +7929,7 @@ export class SyncMetrics extends PublicEndpoint {
 			createdAt: existing?.createdAt || Date.now(),
 			updatedAt: Date.now(),
 		});
-		dashboardCache = null; // new data landed — force the next dashboard read to rebuild
+		dashboardCache.invalidate(); // new data landed — the next dashboard read refreshes
 		return { ok: true };
 	}
 }
@@ -7890,7 +7999,7 @@ export class AppOpen extends PublicEndpoint {
 			demoGoalAt: existing?.demoGoalAt || (phase === 'demo_done' ? now : 0),
 			updatedAt: now,
 		});
-		dashboardCache = null; // acquisition numbers changed — rebuild the dashboard
+		dashboardCache.invalidate(); // acquisition numbers changed — refresh on the next read
 		return { ok: true };
 	}
 }
@@ -7920,14 +8029,106 @@ const LANDING_CLICK_TARGETS = new Set([
 	'support',
 	'get-nav',
 	'gallery',
+	'edu-nav',
+	'pdf-guide',
+	'pdf-worksheets',
+	'school-copy',
 ]);
 const landingDay = (t: number) => new Date(t).toISOString().slice(0, 10); // UTC day
 
-let landingStatsCache: { at: number; out: any } | null = null;
 const LANDING_STATS_CACHE_MS = 15_000;
 
+/**
+ * The landing-page counter rollup: scan every LandingStat day-row, sum the
+ * totals, and count the mailing list. Behind a stale-while-revalidate cache
+ * (see RollupCache) because bumpLandingStat fires on every single landing visit
+ * and used to drop this on the floor each time.
+ */
+async function buildLandingStats(): Promise<any> {
+	const now = Date.now();
+	const t = db() as any;
+	let rows: any[] = [];
+	try {
+		rows = t.LandingStat ? await allOf(t.LandingStat) : [];
+	} catch {
+		rows = [];
+	}
+	rows = rows.filter((r: any) => r && r.day).sort((a: any, b: any) => String(a.day).localeCompare(String(b.day)));
+	const totals = {
+		visits: 0,
+		uniques: 0,
+		signups: 0,
+		clicks: {} as Record<string, number>,
+		downloads: {} as Record<string, number>,
+	};
+	for (const r of rows) {
+		totals.visits += r.visits || 0;
+		totals.uniques += r.uniques || 0;
+		totals.signups += r.signups || 0;
+		for (const [k, v] of Object.entries(r.clicks || {})) totals.clicks[k] = (totals.clicks[k] || 0) + (Number(v) || 0);
+		for (const [k, v] of Object.entries(r.downloads || {}))
+			totals.downloads[k] = (totals.downloads[k] || 0) + (Number(v) || 0);
+	}
+	let signupCount = totals.signups;
+	try {
+		if (t.MailingListSignup) signupCount = (await allOf(t.MailingListSignup)).length;
+	} catch {
+		/* keep the counter sum */
+	}
+	const days = rows.slice(-60).map((r: any) => ({
+		day: r.day,
+		visits: r.visits || 0,
+		uniques: r.uniques || 0,
+		signups: r.signups || 0,
+		clicks: r.clicks || {},
+		totalClicks: sumValues(r.clicks),
+		downloads: r.downloads || {},
+		totalDownloads: sumValues(r.downloads),
+	}));
+	return {
+		generatedAt: now,
+		today: landingDay(now),
+		totals: {
+			...totals,
+			signups: signupCount,
+			totalClicks: sumValues(totals.clicks),
+			totalDownloads: sumValues(totals.downloads),
+		},
+		days,
+	};
+}
+
+const landingStatsCache = new RollupCache<any>(LANDING_STATS_CACHE_MS, buildLandingStats);
+
+/** Copy a stored `{ key: count }` map into a fresh, plain, sane object. Anything
+ *  that isn't a finite positive number is dropped rather than carried forward. */
+function countMap(stored: any): Record<string, number> {
+	const out: Record<string, number> = {};
+	if (stored && typeof stored === 'object' && !Array.isArray(stored))
+		for (const [k, v] of Object.entries(stored)) {
+			const n = Number(v);
+			if (Number.isFinite(n) && n > 0) out[k] = n;
+		}
+	return out;
+}
+
 /** Apply one mutation to today's LandingStat row. Never throws — a metrics
- *  hiccup (table not deployed yet, decode error, …) must not break the caller. */
+ *  hiccup (table not deployed yet, decode error, …) must not break the caller.
+ *
+ *  The mutation is applied to a PLAIN object rebuilt from the stored row, never to
+ *  the record Harper handed back. Harper FREEZES every record it decodes (its row
+ *  cache depends on that), and this bundle is ESM — strict mode — so `row.visits =
+ *  …` on a fetched record throws "Cannot assign to read only property". That throw
+ *  landed in the catch below and was quietly logged, so every increment after the
+ *  day's row existed was thrown away: each day stayed at whatever the FIRST event
+ *  of the day wrote, i.e. visits: 1. That is the "one visit a day" the dashboard
+ *  was reporting — not the traffic, the write.
+ *
+ *  Every other counter in this file (AppOpen, flushRefusals, noteSaveIncident)
+ *  already rebuilds a literal before put; this was the one that mutated in place.
+ *  The integration harness handed back structuredClones, which are writable, so
+ *  the tests passed while production flatlined — tests/integration/harness.ts now
+ *  freezes reads the way Harper does, so this can't come back unnoticed. */
 async function bumpLandingStat(mutate: (row: any) => void): Promise<void> {
 	try {
 		const table = (db() as any).LandingStat;
@@ -7937,14 +8138,32 @@ async function bumpLandingStat(mutate: (row: any) => void): Promise<void> {
 		const id = `day:${day}`;
 		// findCounterRow, NOT safeGet: a cold-start null from a primary-key .get()
 		// would look like "first event of the day" and reset the row to zero.
-		const row = (await findCounterRow(table, id)) || { id, day, visits: 0, uniques: 0, clicks: {}, signups: 0 };
+		const stored = await findCounterRow(table, id);
+		const row: any = {
+			id,
+			day,
+			visits: Number(stored?.visits) || 0,
+			uniques: Number(stored?.uniques) || 0,
+			signups: Number(stored?.signups) || 0,
+			clicks: countMap(stored?.clicks),
+			downloads: countMap(stored?.downloads),
+		};
 		mutate(row);
 		row.updatedAt = now;
 		await table.put(row);
-		landingStatsCache = null; // new numbers — next LandingStats read rebuilds
+		landingStatsCache.invalidate(); // new numbers — the next LandingStats read refreshes
 	} catch (e: any) {
 		console.error('landing stat bump failed —', e?.message || e);
 	}
+}
+
+/** One classroom-PDF download, counted server-side by the pdf endpoints below.
+ *  This is the honest number: it also catches the direct links teachers forward to
+ *  each other, which never touch the landing page's click beacon. */
+async function bumpPdfDownload(which: 'guide' | 'worksheets'): Promise<void> {
+	await bumpLandingStat((r) => {
+		r.downloads[which] = (r.downloads[which] || 0) + 1;
+	});
 }
 
 /**
@@ -8038,7 +8257,6 @@ export class LandingEvent extends PublicEndpoint {
 				.slice(0, 24);
 			const target = LANDING_CLICK_TARGETS.has(raw) ? raw : 'other';
 			await bumpLandingStat((r) => {
-				r.clicks = r.clicks && typeof r.clicks === 'object' && !Array.isArray(r.clicks) ? r.clicks : {};
 				r.clicks[target] = (r.clicks[target] || 0) + 1;
 			});
 		}
@@ -8272,46 +8490,7 @@ export class SaveHealth extends PublicEndpoint {
  */
 export class LandingStats extends PublicEndpoint {
 	async get() {
-		const now = Date.now();
-		if (landingStatsCache && now - landingStatsCache.at < LANDING_STATS_CACHE_MS) return landingStatsCache.out;
-		const t = db() as any;
-		let rows: any[] = [];
-		try {
-			rows = t.LandingStat ? await allOf(t.LandingStat) : [];
-		} catch {
-			rows = [];
-		}
-		rows = rows.filter((r: any) => r && r.day).sort((a: any, b: any) => String(a.day).localeCompare(String(b.day)));
-		const totals = { visits: 0, uniques: 0, signups: 0, clicks: {} as Record<string, number> };
-		for (const r of rows) {
-			totals.visits += r.visits || 0;
-			totals.uniques += r.uniques || 0;
-			totals.signups += r.signups || 0;
-			for (const [k, v] of Object.entries(r.clicks || {}))
-				totals.clicks[k] = (totals.clicks[k] || 0) + (Number(v) || 0);
-		}
-		let signupCount = totals.signups;
-		try {
-			if (t.MailingListSignup) signupCount = (await allOf(t.MailingListSignup)).length;
-		} catch {
-			/* keep the counter sum */
-		}
-		const days = rows.slice(-60).map((r: any) => ({
-			day: r.day,
-			visits: r.visits || 0,
-			uniques: r.uniques || 0,
-			signups: r.signups || 0,
-			clicks: r.clicks || {},
-			totalClicks: sumValues(r.clicks),
-		}));
-		const out = {
-			generatedAt: now,
-			today: landingDay(now),
-			totals: { ...totals, signups: signupCount, totalClicks: sumValues(totals.clicks) },
-			days,
-		};
-		landingStatsCache = { at: now, out };
-		return out;
+		return landingStatsCache.get(Date.now());
 	}
 }
 
@@ -8328,33 +8507,99 @@ export class LandingStats extends PublicEndpoint {
 //   GET /privacy.html     → privacy      (also /privacy/)
 //   GET /age-rating.html  → age-rating   (also /age-rating/)
 
-const htmlPage = (html: string) => ({
-	status: 200,
-	headers: {
+/**
+ * Compressed representations of the inlined pages, built lazily ONCE per process.
+ *
+ * Same reason GameData compresses itself: Harper's REST path does not compress
+ * resource responses, so whatever these endpoints return goes out on the wire
+ * verbatim. That is fine for the policy pages and very much not fine for the two
+ * big ones — /dashboard is ~90 KB of HTML and the landing page is ~575 KB, and
+ * every visit was paying for all of it.
+ *
+ * The bytes are fixed by the build, so this is a one-time cost per page per
+ * process (~15 ms for the landing page at quality 5) and free forever after.
+ * Note the landing page is mostly base64-inlined screenshots, i.e. already-
+ * compressed image data — it only comes down to ~403 KB. Getting it properly
+ * small means serving those screenshots as their own cacheable endpoints rather
+ * than compressing them harder.
+ */
+const pageCompressed = new Map<string, { br?: Uint8Array; gzip?: Uint8Array }>();
+function compressedPage(key: string, html: string, enc: 'br' | 'gzip'): Uint8Array {
+	let entry = pageCompressed.get(key);
+	if (!entry) pageCompressed.set(key, (entry = {}));
+	if (enc === 'br') {
+		if (!entry.br) {
+			const buf = nodeBuffer.from(html, 'utf8');
+			entry.br = brotliCompressSync(buf, {
+				params: { [zlibConstants.BROTLI_PARAM_QUALITY]: 5, [zlibConstants.BROTLI_PARAM_SIZE_HINT]: buf.length },
+			});
+		}
+		return entry.br as Uint8Array;
+	}
+	if (!entry.gzip) entry.gzip = gzipSync(nodeBuffer.from(html, 'utf8'), { level: 6 });
+	return entry.gzip as Uint8Array;
+}
+
+/**
+ * One of the inlined HTML pages, content-negotiated and revalidatable.
+ *
+ * `res` is the endpoint instance, needed only to reach the request headers. As in
+ * GameData: no HTTP context means an internal/renderer caller, and those get the
+ * plain string back without zlib ever being touched (node:zlib is a no-op shim in
+ * the web build).
+ *
+ * The ETag is the build stamp, so a returning visitor's browser revalidates into
+ * an empty 304 instead of re-downloading the page — which matters more here than
+ * the compression does, since the landing page's weight is images that don't
+ * shrink but do cache.
+ */
+function htmlPage(res: any, key: string, html: string) {
+	const etag = `W/"${key}-${buildStamp}"`;
+	const headers: Record<string, string> = {
 		'content-type': 'text/html; charset=utf-8',
 		'cache-control': 'public, max-age=3600',
-	},
-	body: html,
-});
+		etag,
+		vary: 'Accept-Encoding',
+	};
+
+	const reqHeaders: any = res?.getContext?.()?.headers;
+	if (!reqHeaders || typeof reqHeaders.get !== 'function') return { status: 200, headers, body: html };
+
+	// Compare loosely so a weak/strong prefix or quoting mismatch still matches.
+	const norm = (s: string) => s.replace(/^W\//, '').trim();
+	const ifNoneMatch = String(reqHeaders.get('if-none-match') || '');
+	if (ifNoneMatch && norm(ifNoneMatch) === norm(etag)) return { status: 304, headers };
+
+	const accept = String(reqHeaders.get('accept-encoding') || '');
+	if (/\bbr\b/.test(accept))
+		return { status: 200, headers: { ...headers, 'content-encoding': 'br' }, body: compressedPage(key, html, 'br') };
+	if (/\bgzip\b/.test(accept))
+		return {
+			status: 200,
+			headers: { ...headers, 'content-encoding': 'gzip' },
+			body: compressedPage(key, html, 'gzip'),
+		};
+	return { status: 200, headers, body: html };
+}
 
 /** GET /privacy.html — the privacy policy (linked from App Store Connect, itch, etc.). */
 class PrivacyPage extends PublicEndpoint {
 	async get() {
-		return htmlPage(privacyHtml);
+		return htmlPage(this, 'privacy', privacyHtml);
 	}
 }
 
 /** GET /age-rating.html — age-suitability / content information page. */
 class AgeRatingPage extends PublicEndpoint {
 	async get() {
-		return htmlPage(ageRatingHtml);
+		return htmlPage(this, 'age-rating', ageRatingHtml);
 	}
 }
 
 /** GET /support.html — support / FAQ page (App Store Connect's Support URL). */
 class SupportPage extends PublicEndpoint {
 	async get() {
-		return htmlPage(supportHtml);
+		return htmlPage(this, 'support', supportHtml);
 	}
 }
 
@@ -8368,7 +8613,7 @@ class SupportPage extends PublicEndpoint {
  */
 class DashboardPage extends PublicEndpoint {
 	async get() {
-		return htmlPage(dashboardHtml);
+		return htmlPage(this, 'dashboard', dashboardHtml);
 	}
 }
 
@@ -8380,7 +8625,7 @@ class DashboardPage extends PublicEndpoint {
  */
 class LandingPage extends PublicEndpoint {
 	async get() {
-		return htmlPage(landingHtml);
+		return htmlPage(this, 'landing', landingHtml);
 	}
 }
 
@@ -8402,23 +8647,51 @@ class Favicon extends PublicEndpoint {
 	}
 }
 
+/**
+ * The base64-inlined binaries (og image, theme audio, the two PDFs), decoded
+ * ONCE per process.
+ *
+ * These were being re-decoded on every single request: `Buffer.from(b64,
+ * 'base64')` over ~2.8 MB of base64 for /theme.mp3 and ~2 MB for each PDF, per
+ * hit, throwing the result away afterwards. The source strings are compiled into
+ * the bundle and never change, so there is nothing to invalidate — decode on
+ * first use and hold the buffer.
+ *
+ * The decoded buffers are held for the life of the process (a few MB resident).
+ * That is the trade being made deliberately: memory that the module's base64
+ * strings were already costing anyway, in exchange for taking the decode off
+ * every response.
+ */
+const decodedBinaries = new Map<string, any>();
+function decodedBinary(key: string, b64: string): any {
+	let buf = decodedBinaries.get(key);
+	if (!buf) decodedBinaries.set(key, (buf = nodeBuffer.from(b64, 'base64')));
+	return buf;
+}
+
 /** GET /og-image.jpg — the social/OpenGraph preview image for the landing page. */
 class OgImage extends PublicEndpoint {
 	async get() {
 		return {
 			status: 200,
 			headers: { 'content-type': 'image/jpeg', 'cache-control': 'public, max-age=604800' },
-			body: nodeBuffer.from(ogImageB64, 'base64'),
+			body: decodedBinary('og-image', ogImageB64),
 		};
 	}
 }
 
 /** GET /theme.mp3 — the game's main theme (Jon Licht), for the landing-page player.
  * The ~2 MB audio lives in its own module and is dynamic-imported so it never lands
- * in the web/desktop bundle (this endpoint only ever runs on the hosted Harper). */
+ * in the web/desktop bundle (this endpoint only ever runs on the hosted Harper).
+ * The import is cheap after the first call (module registry); the base64 decode was
+ * not, hence decodedBinary. */
 class Theme extends PublicEndpoint {
 	async get() {
-		const { themeMp3B64 } = await import('./theme-audio');
+		let body = decodedBinaries.get('theme');
+		if (!body) {
+			const { themeMp3B64 } = await import('./theme-audio');
+			body = decodedBinary('theme', themeMp3B64);
+		}
 		return {
 			status: 200,
 			headers: {
@@ -8426,13 +8699,63 @@ class Theme extends PublicEndpoint {
 				'cache-control': 'public, max-age=604800',
 				'accept-ranges': 'none',
 			},
-			body: nodeBuffer.from(themeMp3B64, 'base64'),
+			body,
 		};
+	}
+}
+
+/** The two classroom PDFs behind the landing page's "For teachers" section.
+ *
+ * Same deal as /theme.mp3: the hosted Harper serves no static files, so the bytes
+ * are inlined as base64 by scripts/build-pages.mjs into server/pdf-assets.ts and
+ * dynamic-imported here — that keeps ~2 MB of base64 out of the web/desktop bundle
+ * (Vite code-splits it; the game never loads it) while esbuild inlines it into the
+ * server's resources.js.
+ *
+ * Each GET counts a download before it answers. Deliberately a SHORT cache: a
+ * week-long one would hide every repeat download from the numbers, and an hour is
+ * plenty to stop a reload from re-sending a megabyte. */
+const pdfPage = (body: any, filename: string) => ({
+	status: 200,
+	headers: {
+		'content-type': 'application/pdf',
+		'cache-control': 'public, max-age=3600',
+		// ASCII-only filename on purpose — a header value is latin-1, and the real
+		// titles carry an em dash.
+		'content-disposition': `inline; filename="${filename}"`,
+	},
+	body,
+});
+
+class EducatorGuidePdf extends PublicEndpoint {
+	async get() {
+		await bumpPdfDownload('guide');
+		let body = decodedBinaries.get('pdf-guide');
+		if (!body) {
+			const { educatorGuidePdfB64 } = await import('./pdf-assets');
+			body = decodedBinary('pdf-guide', educatorGuidePdfB64);
+		}
+		return pdfPage(body, 'Wild-Willows-Educator-Guide.pdf');
+	}
+}
+
+class StudentWorksheetsPdf extends PublicEndpoint {
+	async get() {
+		await bumpPdfDownload('worksheets');
+		let body = decodedBinaries.get('pdf-worksheets');
+		if (!body) {
+			const { studentWorksheetsPdfB64 } = await import('./pdf-assets');
+			body = decodedBinary('pdf-worksheets', studentWorksheetsPdfB64);
+		}
+		return pdfPage(body, 'Wild-Willows-Student-Worksheets.pdf');
 	}
 }
 
 // Export under the exact URL paths (string export names keep the hyphen; the empty
 // name serves the site root, and Harper strips a trailing .ico/.jpg/.svg extension).
+// The PDFs are exported under BOTH the bare name and the .pdf one, because the
+// extension-stripping list is Harper's, not ours — this way /educator-guide.pdf
+// resolves whether or not Harper decides to trim the suffix first.
 export {
 	LandingPage as '',
 	PrivacyPage as privacy,
@@ -8442,4 +8765,8 @@ export {
 	Favicon as favicon,
 	OgImage as 'og-image',
 	Theme as theme,
+	EducatorGuidePdf as 'educator-guide',
+	EducatorGuidePdf as 'educator-guide.pdf',
+	StudentWorksheetsPdf as 'student-worksheets',
+	StudentWorksheetsPdf as 'student-worksheets.pdf',
 };
