@@ -32,7 +32,7 @@
           "fern-spring": 1
         },
         "signature": "mushroom-ring",
-        "hint": "Deep damp leaves, mossy shade and mushrooms to graze. Skip the pond — a slug drinks through its skin straight out of the litter."
+        "hint": "Deep damp leaves, mossy shade and mushrooms to graze. Skip the pond — this one drinks through its skin, straight out of the litter."
       },
       "sources": [
         {
@@ -233,7 +233,7 @@
           "standing-deadwood": 2
         },
         "signature": "soft-rot-snag",
-        "hint": "Small dead stubs with the wood already gone soft. A downy can't chisel healthy timber, so leave the rotting stuff standing."
+        "hint": "Small dead stubs with the wood already gone soft. It cannot chisel healthy timber, so leave the rotting stuff standing."
       },
       "sources": [
         {
@@ -334,7 +334,7 @@
           "fern-spring": 1
         },
         "signature": "rotting-heartwood-log",
-        "hint": "This one skips the tadpole stage completely — the eggs hatch into tiny salamanders right inside a rotting log. No pond needed, just damp wood and deep leaves."
+        "hint": "This one skips the tadpole stage completely — the eggs hatch fully formed inside a rotting log. No pond needed, just damp wood and deep leaves."
       },
       "sources": [
         {
@@ -463,7 +463,7 @@
         "water": {
           "tiles": 2
         },
-        "hint": "Bears need a full larder and a winter bed: heavy berry crops, acorn-bearing oaks, water, and a den under the tipped-up roots of a fallen tree.",
+        "hint": "A full larder and a winter bed: heavy berry crops, acorn-bearing oaks, water, and a den under the tipped-up roots of a fallen tree.",
         "conditions": {
           "season": [
             "spring",
@@ -538,7 +538,7 @@
         "water": {
           "tiles": 1
         },
-        "hint": "A brushy edge to hunt along, a dry bank to den in, and something woody to climb — a fox that can get up a tree is a fox that stays alive. Fruit matters as much as mice here."
+        "hint": "A brushy edge to hunt along, a dry bank to den in, and something woody to climb — going straight up a trunk is how this one gets away from whatever is bigger. Fruit matters as much as mice here."
       },
       "sources": [
         {
@@ -737,7 +737,7 @@
           "tree-squirrel",
           "chipmunk"
         ],
-        "hint": "Tall trees holding somebody else's old nest — this owl never builds one — and prey already back in the woods."
+        "hint": "Tall trees holding somebody else's old nest — this one never builds its own — and prey already back in the woods."
       },
       "sources": [
         {
@@ -833,7 +833,7 @@
           "vole-runway-network": 1
         },
         "signature": "vole-runway-network",
-        "hint": "Thick unmown grass with clipped runways beneath it. Voles arrive early, and almost everything with teeth or talons is waiting on them."
+        "hint": "Thick unmown grass with clipped runways beneath it. This one arrives early, and almost everything with teeth or talons is waiting on it."
       },
       "sources": [
         {
@@ -970,7 +970,7 @@
           "berry-bush": 1
         },
         "signature": "brush-form-hollow",
-        "hint": "A brushy form to bolt into, native grass to graze, and berries close by. Cottontails get most of their water straight out of green plants."
+        "hint": "A brushy form to bolt into, native grass to graze, and berries close by. It gets most of its water straight out of green plants."
       },
       "sources": [
         {
@@ -1170,7 +1170,7 @@
         "water": {
           "tiles": 1
         },
-        "hint": "Wide unbroken native grass and a perch to sing from. Skip the shrubs here — woody cover is exactly what pushes meadowlarks out."
+        "hint": "Wide unbroken native grass and a perch to sing from. Skip the shrubs here — woody cover is exactly what pushes this one out."
       },
       "sources": [
         {
@@ -1288,7 +1288,7 @@
           "cottontail-rabbit",
           "prairie-vole"
         ],
-        "hint": "Foxes come back once the small animals do — and a vixen needs an old burrow she can widen into a nursery."
+        "hint": "This one comes back once the small animals do — and she needs an old burrow she can widen into a nursery."
       },
       "sources": [
         {
@@ -1349,7 +1349,7 @@
             "day"
           ]
         },
-        "hint": "A tall tree crown for the stick nest, open grass to hunt over, and a meadow already full of small mammals. Hawks get their water from their prey."
+        "hint": "A tall tree crown for the stick nest, open grass to hunt over, and a meadow already full of small mammals. It takes its water from its prey."
       },
       "sources": [
         {
@@ -1729,7 +1729,7 @@
             "autumn"
           ]
         },
-        "hint": "Cranes want space and quiet. Build a wide, well-balanced marsh and heap a nest mound up above the waterline.",
+        "hint": "This one wants space and quiet. Build a wide, well-balanced marsh and heap a nest mound up above the waterline.",
         "excludes": []
       },
       "sources": [
@@ -2034,7 +2034,7 @@
           "minnow",
           "leopard-frog"
         ],
-        "hint": "Shallow water full of fish and frogs, and a stand of tall trees for the colony. Herons nest together or not at all."
+        "hint": "Shallow water full of fish and frogs, and a stand of tall trees for the colony. This one nests alongside its own kind or not at all."
       },
       "sources": [
         {

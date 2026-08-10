@@ -143,8 +143,7 @@
 			"comfortGrows": "La comodidad sube con buenos hogares. Pon más de lo que le gusta, como {items}, y se quedará.",
 			"foodWebIntro": "Las filas de arriba comen a las de abajo. Encontraste {returned} de {total}. Construye más hogares para ver el resto.",
 			"lockedCard": "Mejora tu guía al nivel {tier} para leer la ficha completa. Muestra su papel, su comida y a quién come.",
-			"overviewEmpty": "Todavía no volvió ningún animal. Construye hogares y empezarán a llegar. Vuelve aquí para verlos.",
-			"summaryAll": "Volvieron {returned} de {total} animales a la reserva."
+			"overviewEmpty": "Todavía no volvió ningún animal. Construye hogares y empezarán a llegar. Vuelve aquí para verlos."
 		},
 		"home": {
 			"buildIntro": "Tu casa aún es una tienda. Elige un estilo para volverla una casa. Cada estilo usa sus materiales y fija tu aspecto para siempre. Cada uno da un bono que crece con cada mejora.",
@@ -360,7 +359,7 @@
 			"barn-owl": {
 				"diet": "Casi solo mamíferos de menos de 100 gramos: ratones de campo, ratones y musarañas",
 				"fact": "La lechuza común atrapa un ratón a oscuras solo con el oído. Un oído lo tiene más alto que el otro, así que oye en tres dimensiones. Y los bordes suaves de sus alas hacen que el ratón nunca la oiga llegar.",
-				"hint": "Un pajar oscuro o una caja honda en alto, pasto amplio donde cazar y un prado ya lleno de ratones de campo. Las lechuzas sacan el agua de sus presas.",
+				"hint": "Un pajar oscuro o una caja honda en alto, pasto amplio donde cazar y un prado ya lleno de ratones de campo. El agua la saca de sus presas.",
 				"role": "El prado tiene turno de noche y lo lleva la lechuza común. El halcón y el coyote cazan de día; ella recorre el mismo pasto a oscuras con vuelo silencioso. Vive casi solo de ratones de campo. Una sola familia puede cazar más de mil en un año. Aquí nada la caza a ella.",
 				"shelter": "Anida y duerme en un hueco alto y oscuro: un pajar, un árbol hueco o una caja nido grande. No construye nada"
 			},
@@ -389,7 +388,7 @@
 			},
 			"black-bear": {
 				"fact": "Los oseznos nacen en pleno sueño invernal. Son ciegos y más pequeños que una lata, y su madre casi ni se despierta.",
-				"hint": "Los osos necesitan una despensa llena y una cama de invierno: muchas bayas, robles con bellotas, agua y una guarida bajo las raíces levantadas de un árbol caído.",
+				"hint": "Una despensa llena y una cama de invierno: muchas bayas, robles con bellotas, agua y una guarida bajo las raíces levantadas de un árbol caído.",
 				"preferredHabitat": "Bosque espeso con mucha maleza y buenas cosechas de bayas y bellotas",
 				"role": "Un oso negro junta el bosque entero en un solo animal: bayas, bellotas, larvas sacadas de troncos podridos y una cría de alce en primavera. Lleva las semillas de las bayas durante kilómetros antes de soltarlas, y cada tronco que rompe se pudre más rápido. El año del oso es en realidad el año de las bellotas. Cuando falla la cosecha, los osos recorren distancias enormes, y un bosque sin robles no los retiene. Aquí nada caza a un oso adulto.",
 				"shelter": "Guaridas de invierno bajo raíces levantadas, en árboles huecos, grietas de roca o cavadas en una ladera"
@@ -431,7 +430,7 @@
 			"boreal-toad": {
 				"diet": "Escarabajos, hormigas, moscas, colémbolos y otros bichos. Los renacuajos comen algas",
 				"fact": "Pasa de septiembre a mayo bajo tierra. Luego sale y cría en charcas que unas semanas antes eran hielo puro.",
-				"hint": "Charcas bajas y templadas para criar, y una madriguera para los otros ocho meses. No dejes peces en las charcas. Las truchas que sueltan en los lagos altos son la mayor causa de que desaparezcan las ranas y los sapos de la montaña.",
+				"hint": "Charcas bajas y templadas para criar, y una madriguera para los otros ocho meses. No dejes peces en las charcas. Las truchas que sueltan en los lagos altos son la mayor causa de que desaparezcan los anfibios de la montaña.",
 				"preferredHabitat": "Prados altos y húmedos con charcas bajas, templadas y sin peces para criar",
 				"role": "El único sapo que vive tan alto. Los adultos comen insectos a miles y los renacuajos comen algas en charcas bajas y soleadas. Casi nadie se los come, porque su piel sabe muy mal. Lo que de verdad le hace daño es un hongo de la piel y las truchas que sueltan en lagos que nunca tuvieron peces."
 			},
@@ -467,7 +466,7 @@
 			},
 			"burrowing-owl": {
 				"fact": "Si acorralas a un tecolote en su agujero, sisea como una serpiente de cascabel. Los biólogos creen que la está imitando, y quien esté cavando suele parar.",
-				"hint": "No sabe cavar. Trae primero a la tortuga: su vieja madriguera será la puerta del tecolote. Delante hace falta terreno bajo y abierto para cazar.",
+				"hint": "No sabe cavar. Trae primero a la tortuga: su vieja madriguera será la puerta de entrada. Delante hace falta terreno bajo y abierto para cazar.",
 				"role": "Un búho chico de patas largas. Caza insectos a plena luz del día y roedores de noche, de pie en su puerta y balanceándose ante todo lo que se acerca. Es el caso más claro de un animal que no puede hacerse su casa. Cada pareja necesita una madriguera que cavó otro, así que a donde van los excavadores, van también los tecolotes."
 			},
 			"cactus-bee": {
@@ -501,7 +500,7 @@
 				"fact": "Tres coyotes pueden sonar como doce. Cada uno mueve el tono mientras aúlla, así que una familia pequeña levanta un muro de voces. Los científicos lo llaman el efecto 'beau geste'.",
 				"role": "El mayor cazador de este prado, y el que se adapta a todo. Caza solo los ratones de campo y los conejos. Caza en pareja los cervatillos. Entremedio come fruta, bichos y animales muertos. Su regreso por fin presiona a los zorros, los tejones y los venados que aquí nada más podía tocar. Hasta sigue a un tejón que excava para atrapar lo que salga huyendo por el otro lado.",
 				"diet": "Ratones, conejos y ardillas de tierra; venaditos; también fruta, insectos y animales muertos",
-				"hint": "Un talud con matorral para la guarida, pasto ancho lleno de conejos y ratones, y agua cerca. Es la última pieza. Solo llega donde ya hay mucho que comer.",
+				"hint": "Un talud con matorral para la guarida, pasto ancho lleno de conejos y ratones, y agua cerca. Solo llega donde ya hay mucho que comer.",
 				"preferredHabitat": "Pasto abierto y bordes con matorral para la guarida, y agua cerca",
 				"shelter": "Cría a sus cachorros en una guarida cavada en un talud con matorral. Muchas veces es un hueco viejo de tejón o zorro, hecho más grande"
 			},
@@ -626,7 +625,7 @@
 			"golden-eagle": {
 				"diet": "Marmotas, liebres, ardillas de tierra, lagópodos coliblancos, otras aves y animales muertos",
 				"fact": "Un águila real cazando cae del cielo a más de 240 kilómetros por hora. Ve tan bien que distingue una marmota de vientre amarillo en un pedregal desde un kilómetro de altura.",
-				"hint": "Las águilas llegan al final, cuando la montaña vuelve a estar de verdad viva. Necesitan un acantilado de verdad para el nido y terreno abierto abajo con mucho movimiento.",
+				"hint": "Este llega al final, cuando la montaña vuelve a estar de verdad viva. Necesita un acantilado de piedra para el nido y terreno abierto abajo con mucho movimiento.",
 				"preferredHabitat": "Montaña alta y abierta con grandes acantilados para anidar y presas medianas",
 				"role": "El cazador que manda en el aire de aquí arriba. Cae en picado sobre marmotas, liebres y lagópodos coliblancos, y mata a cazadores más pequeños cuando puede. Se lleva corderos, cabritos y zorreznos recién nacidos, pero no ovejas ni cabras adultas. Los adultos no tienen a nadie encima."
 			},
@@ -667,7 +666,7 @@
 			"gray-whale": {
 				"diet": "Animalitos parecidos a gambas, colados del barro del fondo",
 				"fact": "La ballena gris se gira de costado y aspira el fondo del mar. Cuela anfípodos parecidos a camarones y deja detrás largas nubes de lodo. Y lo hace al final de un viaje de hasta 22.500 kilómetros.",
-				"hint": "Dale agua profunda y un fondo marino lleno de diminutos anfípodos parecidos a camarones. Las pozas de marea y las plantas de duna nunca traerán una ballena.",
+				"hint": "Dale agua profunda y un fondo marino lleno de diminutos anfípodos parecidos a camarones. Las pozas de marea y las plantas de duna nunca lo traerán.",
 				"role": "Una ballena que come en el fondo en vez de rasar la superficie. Por eso una ballena que se queda costa afuera te dice cómo están el lecho marino y el borde del bosque de algas. Los adultos son demasiado grandes para que los cacen aquí. Las crías que van con ellos en primavera no lo son, y las orcas lo saben."
 			},
 			"great-blue-heron": {
@@ -677,7 +676,7 @@
 			"great-horned-owl": {
 				"diet": "Mamíferos y aves: conejos, zorrillos, hasta otros búhos. También ranas",
 				"fact": "Es uno de los pocos animales que mata y come zorrillos a menudo. El rociado no parece molestarle nada.",
-				"hint": "Árboles altos con el nido viejo de otro, porque este búho nunca hace el suyo, y presas que ya hayan vuelto al bosque.",
+				"hint": "Árboles altos con el nido viejo de otro, porque este nunca hace el suyo, y presas que ya hayan vuelto al bosque.",
 				"preferredHabitat": "Bosque viejo con claros abiertos y árboles grandes con nidos viejos de otros animales",
 				"role": "Este búho trabaja de noche. Come una lista de animales más larga que cualquier otra rapaz de aquí: ardillas, murciélagos, culebras, patos y hasta puercoespines. Nada caza a los adultos. Y no construye nada: en pleno invierno se queda con un nido viejo de ardilla o de halcón que hizo otro la primavera pasada. Por eso las ardillas tienen que volver antes que él."
 			},
@@ -811,7 +810,7 @@
 				"fact": "El mamífero salvaje más ruidoso de Norteamérica. Un grupo aullando suena a muchos más.",
 				"role": "El cazador que mejor se acomoda en el desierto. Come ratones, conejos, fruta y animales muertos. Es el mayor cazador con pelo de aquí y el que más mata zorros chicos. Sus aullidos llegan lejísimos al caer la tarde.",
 				"diet": "venados y borregos sobre todo. También liebres, zorras y todo lo que pueda alcanzar",
-				"hint": "Primero presas grandes. Luego terreno con piedras y huecos para acechar, y un saliente tapado para los cachorros. Este sí baja a beber. Es el último animal en volver.",
+				"hint": "Primero presas grandes. Luego terreno con piedras y huecos para acechar, y un saliente tapado para los cachorros. Este sí baja a beber.",
 				"preferredHabitat": "Cañones con piedras y salientes, matorral para acechar, y agua segura cerca",
 				"shelter": "No tiene casa fija. Esconde a sus cachorros en una cueva seca o bajo un saliente del cañón"
 			},
@@ -860,7 +859,7 @@
 			"orca": {
 				"diet": "Mamíferos marinos: sobre todo focas comunes, más delfines, lobos marinos y crías de ballena gris",
 				"fact": "Las orcas viven en familias que nunca se separan, y cada familia come cosas muy distintas. Las que cazan en esta costa comen solo mamíferos. Para hacerlo van en silencio, sin chasquidos ni llamadas, porque una foca oye llegar de muy lejos a una orca que habla.",
-				"hint": "El último animal y el más difícil de traer de vuelta. Agua profunda pegada a la orilla y algo grande que cazar. Trae primero a las focas, porque son ellas las que la atraen.",
+				"hint": "Agua profunda pegada a la orilla y algo grande que cazar. Trae primero a las focas, porque son ellas las que la atraen.",
 				"preferredHabitat": "Agua fría y honda junto a la orilla, donde el fondo cae junto a las algas, cerca de las rocas de las focas",
 				"role": "La cima de esta costa, sin nada por encima. Una familia de orcas cazadoras de mamíferos patrulla el borde donde el fondo del mar se desploma. Escuchan junto a las rocas de las focas. En primavera siguen a las ballenas grises que pasan con crías. Cuando entran en una bahía, todas las focas de las rocas se quedan quietas y calladas.",
 				"shelter": "Ninguno en tierra. Descansa en la superficie, en agua honda, con su familia"
@@ -943,7 +942,7 @@
 			"purple-sea-urchin": {
 				"diet": "Algas pardas y pasto marino vivos, algas sueltas a la deriva y algas rosadas duras",
 				"fact": "Un erizo morado mastica un hoyo en la roca dura con cinco dientes. Luego se queda ahí dentro durante años. En algunos arrecifes los erizos desgastan más piedra que las olas.",
-				"hint": "Primero las algas. Algo tiene que haber para comer. Después piensa bien en quién va a frenar a los erizos.",
+				"hint": "Primero las algas. Algo tiene que haber para comer. Después piensa bien en qué va a frenar a los que pastan.",
 				"preferredHabitat": "Roca cerca de las algas, baja en la orilla y batida por las olas",
 				"role": "Este herbívoro está en el centro de la historia más famosa de esta costa. Las nutrias frenan su número y los trozos de alga suelta les dan de comer. Así son una parte más de un bosque sano. Quita a los cazadores y avanzan por la roca. Siegan las algas hasta dejar la piedra desnuda y dejan atrás un desierto vacío.",
 				"shelter": "Un hoyo que él mismo cava en la roca con dientes y espinas"
@@ -980,14 +979,14 @@
 			"red-fox": {
 				"diet": "Ratones de campo, conejos, ardillas, aves y bichos. También bayas",
 				"fact": "Un zorro que escucha a un ratón de campo bajo la hierba o la nieve se coloca mirando al norte antes de saltar. El truco solo parece servir cuando no ve a la presa.",
-				"hint": "Los zorros vuelven cuando vuelven los animales pequeños. La zorra necesita una madriguera vieja que pueda agrandar para criar.",
+				"hint": "Vuelve cuando vuelven los animales pequeños. Necesita una madriguera vieja que pueda agrandar para criar.",
 				"preferredHabitat": "Prados, bordes de campo y setos en terreno abierto",
 				"role": "Un cazador que acecha agachado y salta, y frena a los ratones de campo y conejos. Completa la dieta con bichos, bayas y animales ya muertos. Casi nunca cava su madriguera: agranda la vieja de una ardilla de tierra o un tejón. Los búhos cornudos se llevan a sus cachorros y, ahora que los coyotes han vuelto, el zorro debe ceder terreno."
 			},
 			"red-tailed-hawk": {
 				"diet": "Ratones de campo, ardillas de tierra y conejos. También aves y serpientes",
 				"fact": "Ese grito de águila de las películas es en realidad un halcón de cola roja. Las águilas calvas de verdad chillan como gaviotas, así que el cine las cambió.",
-				"hint": "La copa de un árbol alto para el nido, hierba abierta donde cazar y un prado ya lleno de animales pequeños. El halcón saca el agua de sus presas.",
+				"hint": "La copa de un árbol alto para el nido, hierba abierta donde cazar y un prado ya lleno de animales pequeños. El agua la saca de sus presas.",
 				"preferredHabitat": "Terreno abierto visto desde arriba: pastizal, campos y prados",
 				"role": "El cazador de día de este prado. Vuela en círculos con alas anchas y planas o mira la hierba desde un poste. Es pesado y fuerte, hecho para agarrar presas del suelo: ratones de campo, ardillas de tierra, conejos y serpientes. No está hecho para perseguir aves en el aire. Un búho cornudo se queda con su gran nido de ramas al invierno siguiente."
 			},
@@ -1037,7 +1036,7 @@
 			},
 			"sea-otter": {
 				"diet": "Sobre todo erizos. También mejillones, cangrejos y estrellas de mar",
-				"hint": "Bosque de kelp vivo donde envolverse, agua calma donde acicalarse, y erizos y mariscos que comer. El kelp muerto de la arena no le sirve a una nutria.",
+				"hint": "Bosque de kelp vivo donde envolverse, agua calma donde acicalarse, y erizos y mariscos que comer. El kelp muerto de la arena no sirve.",
 				"preferredHabitat": "Bosque de kelp y costa rocosa con muchos mariscos y agua calma donde flotar",
 				"role": "El animal del que depende toda esta costa. Al comer erizos evita que sieguen el kelp hasta dejar la roca desnuda, y así sobreviven el bosque y todo lo que se cobija en él. Si quitas a la nutria, los erizos se multiplican, el kelp desaparece y solo queda roca pelada. Fíjate dónde flota: en el kelp vivo, no en el kelp muerto de la playa."
 			},
@@ -1132,7 +1131,7 @@
 			},
 			"western-meadowlark": {
 				"diet": "Sobre todo bichos en verano: escarabajos, saltamontes y grillos. Semillas en invierno",
-				"hint": "Pasto nativo amplio y sin cortes, y una percha para cantar. Sáltate los arbustos. La maleza leñosa es lo que echa a los praderos.",
+				"hint": "Pasto nativo amplio y sin cortes, y una percha para cantar. Sáltate los arbustos. La maleza leñosa es lo que echa a este de aquí.",
 				"role": "Un ave del pastizal de pies a cabeza. En verano come cientos de saltamontes, grillos y escarabajos. En invierno pasa a las semillas. Necesita espacio abierto de verdad. Cuando entran arbustos y árboles, los praderos desaparecen sin ruido. Es regordeta y anida en el suelo, así que es la favorita de halcones, zorros, tejones y coyotes."
 			},
 			"white-tailed-ptarmigan": {
@@ -1149,7 +1148,7 @@
 			"wolverine": {
 				"diet": "Marmotas, liebres y lagópodos coliblancos cuando los atrapa. Animales muertos congelados cuando no. Bayas a fines del verano",
 				"fact": "Un glotón huele un animal muerto bajo tres metros de nieve, lo desentierra y luego echa de ahí a un oso. Todo eso en un cuerpo del tamaño de un perro pequeño.",
-				"hint": "Aquí hacen falta espacio y nieve, no paisaje. Ventisqueros lo bastante hondos para durar hasta fines de primavera, para la guarida y la despensa. Roca partida por donde viajar. Y marmotas y liebres ya en la montaña. Es el último cazador en llegar.",
+				"hint": "Aquí hacen falta espacio y nieve, no paisaje. Ventisqueros lo bastante hondos para durar hasta fines de primavera, para la guarida y la despensa. Roca partida por donde viajar. Y marmotas y liebres ya en la montaña.",
 				"preferredHabitat": "Alta montaña grande y vacía, con roca partida y nieve que dura hasta fines de primavera",
 				"role": "La comadreja más grande del mundo y el gran carroñero de la montaña. Hoy es el cazador supremo de estas cumbres. Recorre distancias enormes. Caza marmotas, liebres y lagópodos coliblancos cuando puede, y vive de animales muertos congelados cuando no. Sus mandíbulas están hechas para partir hueso helado. La nieve es su refrigerador: guarda comida en los ventisqueros y hace la guarida dentro de ellos. Por eso una hembra solo cría donde la nieve aguanta hasta fines de primavera. Es el primer animal que desaparece cuando los inviernos se acortan. Y aquí arriba nadie le discute un cadáver.",
 				"shelter": "Túneles cavados metros dentro de la nieve de primavera, junto a un peñasco o tronco caído, con comida en cámaras laterales"
@@ -1172,7 +1171,7 @@
 			"woodpecker": {
 				"diet": "Sobre todo bichos —larvas de escarabajo, hormigas y orugas— con bayas y savia",
 				"fact": "El pico velloso pesa más o menos lo que cuatro hojas de papel. Es tan ligero que puede colgarse del tallo seco de una hierba y taladrarlo. Ningún carpintero más grande puede hacerlo.",
-				"hint": "Troncos secos pequeños con la madera ya blanda. El pico velloso no puede picar madera sana, así que deja en pie lo que se pudre.",
+				"hint": "Troncos secos pequeños con la madera ya blanda. No puede picar madera sana, así que deja en pie lo que se pudre.",
 				"preferredHabitat": "Bosque abierto de hoja y mixto con troncos secos y ramas muertas en árboles vivos",
 				"role": "El pico velloso hace los agujeros pequeños. Solo puede picar madera que los hongos ya han ablandado, así que tiene que esperar a que se pudra. Y los trepadores y carboneros, que no saben abrir un agujero, dependen de él. Busca larvas de escarabajo y hormigas en las grietas de la corteza y en las ramitas secas, donde los carpinteros más pesados no llegan. Sus huevos alimentan a las culebras trepadoras.",
 				"shelter": "Cava su hueco en un tronco seco pequeño, casi siempre en madera ya ablandada por hongos. Duerme en huecos todo el año"

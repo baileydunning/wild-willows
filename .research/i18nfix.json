@@ -1,0 +1,218 @@
+{
+  "en_simple_replace": {
+    "crow": {
+      "role": "The smartest bird on the shore. It walks the tide line looking for anything left stranded. It cracks open what it cannot bite through. It follows the gulls and the otters to see what they turn up."
+    },
+    "grizzly-bear": {
+      "preferredHabitat": "Open high country with soft ground to dig, berry slopes, and no people",
+      "fact": "In late summer grizzly bears climb above the trees to eat moths. They flip rocks to find them, and one bear can eat up to 40,000 in a day.",
+      "role": "It is the biggest animal on the mountain, and that is why everything else stays alert. It digs whole slopes apart looking for roots and ground squirrels, which turns the soil over. In late summer it climbs above the trees to eat moths off the rockslides. It will push a wolverine off a carcass without slowing down."
+    },
+    "lynx": {
+      "shelter": "A hollow under rocks, roots, or fallen wood, often started by another animal",
+      "preferredHabitat": "High snowy country with thickets of small conifers where hares can hide",
+      "fact": "A lynx weighs about as much as a border collie, but its paws are as wide as a mountain lion's. They spread out as it steps, so it walks on top of snow a fox would sink through.",
+      "role": "The mountain's hare specialist, and almost nothing else will do. When there are lots of hares, there are lots of lynx. When the hares crash a few years later, the lynx crash right behind them, and the whole cycle repeats about every ten years. It hunts by sitting still in the thickets and waiting for a hare to come close, so low tangled cover matters more to it than open ground. It almost never digs. It moves into a hollow under rock that something else opened. Eagles take its kittens."
+    },
+    "skunk": {
+      "diet": "Beetle grubs and bugs dug out of the soil, plus eggs, berries, and mice",
+      "shelter": "A borrowed burrow or a hollow under a log. In the coldest weeks it plugs the door with leaves",
+      "preferredHabitat": "Forest edges and clearings with soft ground to dig and plenty of cover",
+      "fact": "A skunk would rather not spray you. First it stamps its front feet. Then it hisses. Then it does a handstand. Only if you ignore all three does it turn around and fire.",
+      "role": "The forest's night gardener. At night it digs little cone-shaped holes across the forest floor looking for beetle grubs, and that turns the soil over as it goes. Almost nothing dares hunt it, except the great horned owl, which can barely smell."
+    },
+    "puffin": {
+      "fact": "A puffin can hold a dozen fish crosswise in its beak without dropping any. Backward-pointing spines on its tongue and the roof of its mouth pin each fish while it catches the next.",
+      "role": "A small seabird that spends almost its whole life out at sea. It only comes ashore to nest, and it digs a burrow into the turf on top of a cliff. Its beak only turns bright orange for the breeding season, then fades again for winter."
+    },
+    "white-throated-swift": {
+      "shelter": "A cup of feathers glued with its own spit into a narrow crack in a cliff",
+      "fact": "It does everything in the air. It eats, drinks, and even mates in mid-air. A pair locks together and tumbles down the cliff face before letting go.",
+      "role": "A blade-shaped bird that lives in the sky above the mountain. It scoops up moths, beetles, and whatever else the wind lifts, and it is one of the fastest birds in the world in level flight. Its feet cling but never perch, so at night it folds itself into a crack in the cliff. It glues the nest in place with its own spit. It only eats what flies, so a swift working the ridge means the insects below have come back."
+    },
+    "gray-fox": {
+      "diet": "Mice, voles, rabbits, squirrels, birds, and eggs. In late summer, a huge amount of fruit",
+      "shelter": "Hollow logs, rock cracks, and old dens. It will also curl up on a high branch",
+      "preferredHabitat": "Brushy forest edges and old clearings growing back, with tangled cover to climb",
+      "fact": "It is the only dog in the world that climbs trees. It hooks its curved claws into the bark, goes up the trunk like a cat, and naps ten meters up, where nothing that hunts it can follow.",
+      "role": "The forest's climbing fox. It hunts the brushy edges for mice, rabbits, and ground-nesting birds, then goes straight up a trunk after squirrels, nests, and grapes. By late summer it eats so much fruit that its droppings are half seeds, which plants the next berry tangles all along the edge. Bobcats kill it in the open and great horned owls take its kits, so it always keeps a climbable tree close."
+    },
+    "ratsnake": {
+      "hint": "Big rough-barked trees are the whole trick. It hunts up them as much as under them. Leave a heap of rotting wood chips at the foot of a stump for her eggs. No pond needed.",
+      "diet": "Mice, voles, chipmunks, and young squirrels. Also birds and eggs taken straight from nests",
+      "shelter": "Hollow trunks, rot pockets, and stump cavities. The eggs go in a warm heap of rotting wood chips",
+      "fact": "It can climb straight up a bare trunk with nothing to hold onto. It wedges the edges of its belly scales into the ridges in the bark and walks up the side of the tree.",
+      "role": "The forest's rodent brake, and the only hunter here that works up high and down low. On the ground it eats mice, voles, and chipmunks by the dozen. Up in the trees it raids old woodpecker holes and songbird nests, so every bird nearby mobs it. It has no venom. It wraps and squeezes. If it gets startled it goes stiff and looks exactly like a fallen branch. She never sits on her eggs. She buries them in rotting wood and lets the heat of the rot do the work. Foxes, fishers, and great horned owls eat it."
+    },
+    "rock-squirrel": {
+      "hint": "It is only above ground for half the year, so look in the warm months. Give it seed-heavy flowers to fatten on, rock to duck into, and diggable ground under a boulder for the long sleep.",
+      "preferredHabitat": "Sunny rocky slopes, loose rock edges, and open dwarf pine at and above the tree line",
+      "fact": "People call it a giant chipmunk, but it has no stripes on its cheeks. In winter it cools until it is barely above freezing and its heart beats only a few times a minute.",
+      "role": "A stripe-backed seed eater. It spends the short summer eating until it is round, then vanishes underground for half the year. It buries seeds all over the slope and forgets enough of them to replant it. It also digs up and eats underground fungi, so the spores ride through its gut and get planted somewhere new. Ermines, martens, lynx, and eagles all hunt it."
+    },
+    "alpine-moth": {
+      "shelter": "Packed by the thousand into cracks under loose rock slabs, out of the sun and the wind",
+      "preferredHabitat": "High rockslides beside flower meadows. Summer only; the rest of the year it lives far below",
+      "fact": "Every summer millions of these moths fly up out of the lowlands and hide in the rock on the highest peaks. They are so fatty that a bear will spend all day flipping stones to eat them, and can eat forty thousand in a day.",
+      "role": "The mountain's fuel delivery. The moths fatten on lowland flowers, then fly hundreds of kilometers uphill to spend the summer in cold rock. Each one arrives as a little parcel of fat, richer than anything that grows up here. Bears, birds, and almost everything that hunts a rockslide eats them. At night they come out to drink nectar and pollinate the high flowers. By dawn they are back under the slabs."
+    }
+  },
+
+  "es_content_replace": {
+    "crow": {
+      "name": "Cuervo americano",
+      "diet": "cangrejos, mariscos, huevos, insectos, fruta y todo lo que deja la marea",
+      "shelter": "Un nido voluminoso de ramas en lo alto de un pino costero, reparado y reutilizado año tras año",
+      "preferredHabitat": "La franja donde la playa se encuentra con los árboles, con vista despejada a la línea de marea",
+      "fact": "Los cuervos deducen que una concha se rompe si la dejan caer sobre roca, y eligen el sitio: uno que ha aprendido el truco sube con una almeja, la suelta y ajusta la altura hasta que la concha cede. Además recuerdan caras durante años.",
+      "role": "El ave más astuta de la costa. Patrulla la línea de marea en busca de cualquier cosa varada, abre a golpes lo que no puede morder y sigue a las gaviotas y a las nutrias para ver qué sacan.",
+      "hint": "Un árbol alto retirado de la playa donde anidar, y una línea de algas que valga la pena patrullar. Lo demás lo encuentra solo."
+    },
+    "grizzly-bear": {
+      "name": "Oso grizzly",
+      "diet": "raíces y bayas escarbadas en la ladera, ardillas terrestres y marmotas, carroña de los muertos del invierno, y polillas, por cientos de miles",
+      "shelter": "Excava una madriguera en una ladera alta en otoño y duerme en ella hasta que la nieve se ablanda",
+      "preferredHabitat": "Tierras altas abiertas con suelo escarbable, laderas de bayas y sin gente",
+      "fact": "A finales del verano los osos grizzly suben por encima del límite arbóreo para comer polillas: voltean piedras para llegar a ellas y llegan a tragar hasta 40.000 en un día, casi toda la grasa del año en unas pocas semanas.",
+      "role": "Lo más grande de la montaña y la razón por la que todo lo demás está alerta. Destroza laderas enteras escarbando raíces y ardillas terrestres, lo que remueve el suelo, y a finales del verano sube por encima de los árboles a comer polillas de los pedregales. Echa a un glotón de una carroña sin siquiera aminorar el paso.",
+      "hint": "Una ladera alta y abierta, lo bastante blanda para escarbar, piedras que voltear en busca de polillas, y una montaña ya lo bastante llena como para alimentar algo así de grande."
+    },
+    "lynx": {
+      "name": "Lince canadiense",
+      "diet": "liebres americanas por encima de todo, a veces casi nada más, además de lagópodos coliblancos, ardillas terrestres y marmotas jóvenes",
+      "shelter": "Un hueco bajo rocas, raíces o troncos caídos, a menudo una madriguera que otro empezó y él ensanchó",
+      "preferredHabitat": "Tierras altas nevadas con espesuras de coníferas enanas donde las liebres puedan esconderse y él pueda esperarlas",
+      "fact": "Un lince canadiense pesa más o menos lo que un border collie, pero sus patas son tan anchas como las de un puma. Se abren al pisar, así que camina sobre una nieve por la que un zorro se hundiría.",
+      "role": "El especialista en liebres de la montaña, y casi nada más le sirve. Cuando hay liebres por todas partes, hay linces por todas partes; cuando las liebres se desploman unos años después, los linces se desploman detrás, y el ciclo entero oscila con un pulso de unos diez años. Caza quedándose absolutamente quieto en la espesura y dejando que la liebre venga a él, así que la cobertura baja y enmarañada le importa más que el terreno abierto. Rara vez excava: se muda a un hueco bajo las rocas que abrió otro. Las águilas se llevan a sus crías.",
+      "hint": "Sin liebres no hay nada que hacer: es así de simple. Recupera las espesuras de pino enano para que las liebres tengan dónde esconderse, y se instalará en un hueco bajo las rocas que algo más excavó."
+    },
+    "skunk": {
+      "name": "Mofeta rayada",
+      "diet": "larvas de escarabajo e insectos escarbados del suelo, además de huevos, bayas y ratones",
+      "shelter": "Una madriguera prestada o un hueco bajo un tronco, tapado con hojas en las semanas más frías",
+      "preferredHabitat": "Bordes de bosque y claros con tierra blanda y fácil de escarbar y cobertura abundante",
+      "fact": "Preferiría no rociarte. Primero patea con las patas delanteras, luego bufa, luego hace el pino; y solo si ignoras las tres cosas se da la vuelta y dispara, con puntería, desde unos tres metros.",
+      "role": "La jardinera nocturna del bosque. Pasa las horas oscuras cavando pequeños hoyos cónicos por todo el suelo en busca de larvas de escarabajo, removiendo la tierra a su paso, y casi nada se atreve a cazarla, salvo el búho cornudo, que apenas tiene olfato.",
+      "hint": "Tierra blanda y fácil de escarbar, llena de larvas, y un tronco hueco donde pasar el día durmiendo. Quiere más un sitio donde cavar que un sitio donde esconderse."
+    },
+    "puffin": {
+      "name": "Frailecillo coletudo",
+      "diet": "peces pequeños llevados de través en el pico, más camarones y otros nadadores diminutos",
+      "shelter": "Una madriguera excavada un metro hacia dentro del césped, en lo alto de un acantilado marino",
+      "preferredHabitat": "Cumbres de acantilado cubiertas de hierba sobre agua profunda, con suelo blando para excavar",
+      "fact": "Puede sostener una docena de peces de través en el pico a la vez sin que se le caiga ninguno: unas púas dirigidas hacia atrás en la lengua y el paladar sujetan cada uno mientras atrapa el siguiente.",
+      "role": "Un ave marina pequeña que pasa casi toda su vida en mar abierto y solo toca tierra para anidar, excavando una madriguera en el césped del acantilado. Su pico solo se vuelve naranja intenso en la época de cría; después se apaga otra vez para el invierno.",
+      "hint": "Césped blando en lo alto de un acantilado donde excavar una madriguera, y agua profunda debajo llena de peces pequeños."
+    },
+    "white-throated-swift": {
+      "name": "Vencejo gorjiblanco",
+      "diet": "solo insectos en vuelo: polillas, escarabajos, moscas y enjambres de hormigas a la deriva, todo capturado en el aire",
+      "shelter": "Una copa de plumas pegada con su propia saliva en una grieta estrecha de la pared del acantilado",
+      "preferredHabitat": "Acantilados verticales y riscos quebrados con mucho aire abierto delante donde cazar",
+      "fact": "Lo hace todo en el aire. Come en el aire, bebe en el aire, y las parejas se aparean en pleno vuelo: se enganchan y caen dando vueltas cientos de metros por la pared del acantilado antes de soltarse.",
+      "role": "Un ave con forma de cuchilla que vive en el cielo sobre la montaña, aspirando polillas, escarabajos y todo lo que levante el viento, a velocidades que lo convierten en una de las aves más rápidas en vuelo horizontal. Sus patas solo se agarran, nunca se posan, así que de noche tiene que plegarse dentro de una grieta del acantilado, y fija el nido con su propia saliva. Como solo come lo que vuela, uno trabajando la cresta es prueba de que la vida de insectos de abajo ha vuelto. Casi nada es lo bastante rápido para atraparlo.",
+      "hint": "Una grieta estrecha en un acantilado donde dormir y mucho aire abierto delante. Nunca aterriza para comer y bebe en vuelo, así que le sirve cualquier charca que pueda rozar."
+    },
+    "gray-fox": {
+      "name": "Zorro gris",
+      "diet": "ratones, campañoles, conejos, ardillas, aves y huevos; y a finales del verano una cantidad asombrosa de fruta",
+      "shelter": "Troncos huecos, grietas de roca y viejas madrigueras de tierra; también se enrosca en una rama bien alta",
+      "preferredHabitat": "Bordes de bosque con matorral y viejos claros en regeneración, con cobertura enmarañada y trepable",
+      "fact": "Es el único cánido del mundo que trepa a los árboles. Clava sus garras curvas en la corteza, sube por el tronco como un gato y duerme la siesta a diez metros de altura, donde nada que lo cace puede seguirlo.",
+      "role": "El zorro trepador del bosque. Recorre los bordes de matorral en busca de ratones, conejos y aves que anidan en el suelo, y luego sube derecho por un tronco tras ardillas, nidos y uvas. A finales del verano come tanta fruta que sus excrementos son medio semillas, lo que planta la siguiente generación de zarzales a lo largo de todo el borde. Los linces rojos lo matan si lo pillan a descubierto y los búhos cornudos se llevan a sus crías, así que siempre mantiene un árbol trepable a un sprint de distancia.",
+      "hint": "Un borde de matorral por donde cazar, un talud seco donde hacer la madriguera y algo leñoso donde trepar: subir derecho por un tronco es como este escapa de lo que sea más grande. Aquí la fruta importa tanto como los ratones."
+    },
+    "ratsnake": {
+      "name": "Culebra ratonera negra",
+      "diet": "ratones, campañoles, ardillas listadas y ardillas jóvenes, además de aves y huevos sacados directamente de los nidos",
+      "shelter": "Troncos huecos, bolsas de pudrición y cavidades de tocón; los huevos van a un montón cálido de virutas de madera podrida",
+      "preferredHabitat": "Bosques viejos y bordes de bosque con árboles grandes de corteza rugosa para trepar y roedores debajo",
+      "fact": "Puede subir por un tronco desnudo sin nada a lo que agarrarse. Encaja los bordes de sus escamas ventrales en los surcos de la corteza y camina por el costado del árbol, y luego saquea el nido de arriba.",
+      "role": "El freno de roedores del bosque, y el único cazador de aquí que trabaja en tres dimensiones. En el suelo se lleva ratones, campañoles y ardillas listadas por docenas; arriba, en la copa, asalta viejos huecos de carpintero y nidos de aves canoras, por lo que todo pájaro que la oye la acosa. Mata enroscándose y apretando, no con veneno, y cuando se sobresalta se queda rígida en una forma quebrada que parece exactamente una rama caída. Nunca incuba sus huevos: los entierra en madera podrida y deja que el calor de la pudrición haga el trabajo. Zorros, martas pescadoras y búhos cornudos la comen.",
+      "hint": "Los árboles grandes de corteza rugosa son la clave entera: caza tanto por ellos como debajo de ellos. Deja un montón de virutas de madera podrida al pie de un tocón para sus huevos, y sáltate el estanque: no lo necesita."
+    },
+    "rock-squirrel": {
+      "name": "Ardilla de las rocas",
+      "diet": "semillas, bayas y brotes verdes, además de hongos subterráneos, insectos y algún huevo ocasional",
+      "shelter": "Una madriguera excavada bajo un canto rodado o un tronco caído, con una cámara de dormir forrada de hierba al fondo",
+      "preferredHabitat": "Laderas rocosas soleadas, bordes de talud y terreno abierto de pino enano en el límite arbóreo y por encima",
+      "fact": "Todo el mundo la llama ardilla listada gigante, pero mírale la cara: no tiene rayas en las mejillas. Y no solo dormita durante el invierno: se enfría hasta quedar apenas por encima del punto de congelación y su corazón baja a unos pocos latidos por minuto.",
+      "role": "Una máquina de semillas de lomo rayado que se pasa el corto verano comiendo hasta redondearse y luego desaparece bajo tierra medio año. Entierra semillas por toda la ladera y olvida las suficientes como para replantarla, y desentierra y come hongos subterráneos, así que las esporas viajan por su intestino y acaban plantadas en otro sitio. Armiños, martas, linces y águilas la cazan, y los túneles que abandona se convierten en refugio para sapos y escarabajos.",
+      "hint": "Solo está sobre el suelo medio año, así que búscala en los meses cálidos. Flores cargadas de semillas para engordar, roca donde meterse y terreno escarbable bajo un canto rodado para el sueño largo."
+    },
+    "alpine-moth": {
+      "name": "Polilla alpina",
+      "diet": "néctar de flores de adulta, bebido después del anochecer; hojas y raíces en las tierras bajas, de oruga",
+      "shelter": "Apretadas por millares en las grietas bajo las lajas del pedregal, a salvo del sol y del viento",
+      "preferredHabitat": "Pedregales altos junto a praderas floridas, pero solo en verano; el resto del año lo pasa mucho más abajo",
+      "fact": "Cada verano millones de estas polillas suben desde las tierras bajas y se esconden en la roca de los picos más altos. Son tan grasas que un oso se pasa el día entero volteando piedras para comerlas, y puede tragar cuarenta mil en una sola jornada.",
+      "role": "El reparto de combustible de la montaña. Engordan con las flores de las tierras bajas, luego migran cientos de kilómetros cuesta arriba para pasar el verano en la roca fría, y cada una llega como un paquetito de grasa más rico que cualquier otra cosa que crezca aquí arriba. Osos, aves y casi todo lo que caza en un pedregal se alimenta de ellas. De noche salen a beber néctar y polinizan las flores de las alturas; al amanecer están otra vez bajo las lajas. Rompe la roca suelta y se va con ella la despensa entera.",
+      "hint": "Flores de las que beber por la noche y lajas sueltas bajo las que esconderse de día. Solo aparece en pleno verano; el resto del año es una oruga muy montaña abajo."
+    }
+  },
+
+  "es_content_hint": {
+    "banana-slug": "Hojarasca profunda y húmeda, sombra con musgo y setas que pastar. Sáltate el estanque: esta bebe por la piel, directamente de la hojarasca.",
+    "forest-salamander": "Esta se salta la fase de renacuajo por completo: los huevos eclosionan ya formados dentro de un tronco podrido. No hace falta estanque, solo madera húmeda y hojarasca profunda.",
+    "black-bear": "Una despensa llena y una cama de invierno: cosechas abundantes de bayas, robles que den bellotas, agua, y una guarida bajo las raíces levantadas de un árbol caído.",
+    "great-horned-owl": "Árboles altos con el nido viejo de otro, porque este nunca construye el suyo, y presas que ya hayan vuelto al bosque.",
+    "prairie-vole": "Pasto espeso sin segar, con senderos recortados por debajo. Este llega temprano, y casi todo lo que tiene dientes o garras lo está esperando.",
+    "western-meadowlark": "Pasto nativo amplio e ininterrumpido, y una percha desde donde cantar. Sáltate los arbustos: la cobertura leñosa es justo lo que expulsa a este.",
+    "red-tailed-hawk": "La copa de un árbol alto para el nido de ramas, pasto abierto sobre el que cazar y una pradera ya llena de mamíferos pequeños. El agua la saca de sus presas.",
+    "sandhill-crane": "Esta quiere espacio y silencio. Construye un pantano amplio y bien equilibrado, y amontona un nido por encima de la línea del agua.",
+    "great-blue-heron": "Agua somera llena de peces y ranas, y un rodal de árboles altos para la colonia. Esta anida junto a los de su especie o no anida.",
+    "bighorn-sheep": "El buen pasto es solo la mitad. No usará una ladera de la que no pueda escapar, así que pon el césped pegado al acantilado quebrado, y un salero cerca, porque viajará muy lejos por sal.",
+    "snowshoe-hare": "Cobertura baja y enmarañada donde quedarse inmóvil, un hoyo raspado bajo el krummholz para pasar el día, y sauce que ramonear en invierno. Terreno abierto con un montón de rocas encima es justo lo contrario de lo que quiere. Come nieve en vez de beber.",
+    "white-tailed-ptarmigan": "El sauce es el invierno entero para este, y un ventisquero hondo y blando es su dormitorio. Come nieve en vez de beber, y no tiene ningún uso para una jardinera de flores.",
+    "gray-crowned-rosy-finch": "Roca con grietas, no un montón de piedras. Este anida dentro del acantilado, se alimenta por el pedregal y bebe agua de deshielo.",
+    "mountain-chickadee": "Los árboles muertos son la clave. Un viejo hueco de carpintero es a la vez refugio y punto de partida: este toma una cavidad ya hecha y la ensancha. Los pinos albares salen de las semillas que olvida.",
+    "pine-marten": "El hábitat de este no se construye con rocas y flores. Necesita un rodal de árboles de verdad, madera muerta en el suelo y liebres ya viviendo allí.",
+    "golden-eagle": "Este llega el último, cuando la montaña vuelve a estar de verdad viva. Necesita un acantilado real para el nido y terreno abierto debajo con mucho movimiento.",
+    "purple-sea-urchin": "Primero el kelp: tiene que tener algo que comer. Después piensa bien en qué se lo va a comer a él.",
+    "gray-whale": "Dale agua profunda y un fondo marino espeso de diminutos anfípodos parecidos a camarones. Las pozas de marea y las plantaciones de duna nunca lo traerán.",
+    "sea-otter": "Bosque de kelp vivo donde envolverse, agua tranquila donde acicalarse, y erizos y mariscos que comer. El kelp muerto en la arena no le sirve.",
+    "harbor-seal": "Agua profunda donde pescar y rocas tranquilas donde salir del agua, con espacio alrededor. Un varadero no es un cierre de nidificación de aves: construye lo correcto.",
+    "antelope-squirrel": "Las semillas secas por sí solas no lo mantendrán vivo: necesita fruta jugosa, y eso significa recibir antes a las abejas.",
+    "cactus-wren": "La cholla es el nido. Nada más aquí fuera es lo bastante espinoso, y no necesita beber ni una vez.",
+    "burrowing-owl": "No sabe cavar. Trae primero a la tortuga y su vieja madriguera será la puerta de entrada, con terreno bajo y abierto delante donde cazar.",
+    "praying-mantis": "Deja los tallos secos y rígidos en pie todo el invierno. Ahí es donde se pega la ooteca de espuma, y cortarlos en otoño corta la nidada del verano siguiente.",
+    "marsh-wren": "Juncos y espadañas de pie dentro del agua: tallos rígidos entre los que pueda tejer un nido colgante en forma de bola.",
+    "barn-owl": "Un pajar oscuro o una caja honda en alto, pasto amplio que peinar y una pradera ya llena de campañoles. El agua la saca de sus presas.",
+    "mountain-goat": "Cuanto más empinado, mejor. Dale repisas de acantilado donde echarse, césped que pastar entre ellas y un salero, porque viajará horas por comer tierra salada. No esperes ver uno en el llano abierto.",
+    "bottlenose-dolphin": "Agua profunda por donde viajar, corrientes frías y bordes de kelp que retengan el pescado, y una línea de rompiente de verdad, porque ahí es donde este caza.",
+    "desert-tarantula": "Suelo firme que pueda forrar de seda, y luego tranquilidad. Una madriguera que ella misma cava puede seguir ocupándola veinte años después.",
+    "desert-hawk": "Uno solo nunca es la historia completa. Una familia necesita un cactus alto lo bastante fuerte para sostener el nido, atalayas altas alrededor y terreno abierto con conejos cruzándolo.",
+    "water-strider": "Este necesita calma. Busca un rincón de agua que el viento no pueda rizar, con tallos flotantes donde descansar y poner huevos.",
+    "blue-jay": "Robles y un trozo de suelo blando y abierto donde enterrar las bellotas. Algunas de las que olvide serán tus próximos robles.",
+    "wood-frog": "Una charca que se seca en verano es la buena: sin peces, los renacuajos sobreviven. Deja hojarasca profunda cerca para que se congelen dentro.",
+    "river-cooter": "Troncos al sol donde asolearse y una orilla desnuda y cálida donde enterrar los huevos. Una que no logra calentarse no puede digerir la cena.",
+    "black-swift": "Busca la grieta más húmeda y oscura del acantilado y mantén el agua cayendo por ella. Este no anidará en ningún sitio al que se pueda llegar caminando.",
+
+    "bobcat": "Sotobosque denso por donde acechar, una guarida de roca resguardada para las crías, y presas ya de vuelta en abundancia.",
+    "grasshopper": "Vuelve casi tan pronto como lo hace el pasto.",
+    "gull": "Playa abierta que patrullar, matorral bajo junto al que anidar, y una roca plana y dura sobre la que bombardear mariscos.",
+    "horned-lizard": "Sin hormigas no hay nada que hacer. Deja los huecos entre los arbustos desnudos y abiertos: ahí es exactamente donde las hormigas cosechadoras despejan sus hormigueros.",
+    "kit-fox": "Primero los roedores; su guarida es una madriguera prestada y agrandada. Nunca necesita que le des de beber.",
+    "ladybug": "Un macizo de trébol. Los pulgones llegan solos, y esa es toda la invitación.",
+    "monarch-butterfly": "Un macizo extenso de algodoncillo para las orugas (nada más sirve) y flores con néctar cerca para los adultos.",
+    "river-otter": "Mucha agua limpia y conectada, peces y cangrejos de río en abundancia, y una vieja madriguera de orilla hecha por castores, con puerta bajo el agua.",
+    "sea-star": "Construye primero el banco de mejillones, y hazlo grande. Vive metida entre las conchas, por el borde inferior donde el banco cede paso a la roca desnuda.",
+    "shore-crab": "Apenas nada de agua. Roca alta, grietas hondas donde encajarse, y una poza cerca donde meterse cuando necesite beber.",
+    "woodpecker": "Tocones pequeños y muertos con la madera ya reblandecida. No puede cincelar madera sana, así que deja en pie lo que se está pudriendo.",
+    "garden-spider": "Tallos altos y rígidos dejados en pie, lo bastante separados como para tender una tela grande entre ellos, con flores cerca que atraigan a los insectos."
+  },
+
+  "es_simple_hint": {
+    "barn-owl": "Un pajar oscuro o una caja honda en alto, pasto amplio donde cazar y un prado ya lleno de ratones de campo. El agua la saca de sus presas.",
+    "boreal-toad": "Charcas bajas y templadas para criar, y una madriguera para los otros ocho meses. No dejes peces en las charcas. Las truchas que sueltan en los lagos altos son la mayor causa de que desaparezcan los anfibios de la montaña.",
+    "burrowing-owl": "No sabe cavar. Trae primero a la tortuga: su vieja madriguera será la puerta de entrada. Delante hace falta terreno bajo y abierto para cazar.",
+    "golden-eagle": "Este llega al final, cuando la montaña vuelve a estar de verdad viva. Necesita un acantilado de verdad para el nido y terreno abierto abajo con mucho movimiento.",
+    "gray-whale": "Dale agua profunda y un fondo marino lleno de diminutos anfípodos parecidos a camarones. Las pozas de marea y las plantas de duna nunca lo traerán.",
+    "great-horned-owl": "Árboles altos con el nido viejo de otro, porque este nunca hace el suyo, y presas que ya hayan vuelto al bosque.",
+    "purple-sea-urchin": "Primero las algas. Algo tiene que haber para comer. Después piensa bien en qué va a frenar a los que pastan.",
+    "red-tailed-hawk": "La copa de un árbol alto para el nido, hierba abierta donde cazar y un prado ya lleno de animales pequeños. El agua la saca de sus presas.",
+    "sea-otter": "Bosque de kelp vivo donde envolverse, agua calma donde acicalarse, y erizos y mariscos que comer. El kelp muerto de la arena no sirve.",
+    "western-meadowlark": "Pasto nativo amplio y sin cortes, y una percha para cantar. Sáltate los arbustos. La maleza leñosa es lo que echa a este de aquí.",
+    "black-bear": "Una despensa llena y una cama de invierno: muchas bayas, robles con bellotas, agua y una guarida bajo las raíces levantadas de un árbol caído."
+  }
+}

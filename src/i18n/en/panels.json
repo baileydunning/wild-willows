@@ -195,11 +195,14 @@
 		"fieldFallback": "Field",
 		"allAnimals": "All animals",
 		"lockedTab": "{biome} is still locked — unlock it in the world first",
-		"summaryAll": "{returned} of {total} animals have returned across the preserve.",
-		"summaryBiome": "{returned}/{total} animals have returned to {biome}.",
 		"entriesTitle": "Entry list",
 		"entries": "Entries",
 		"foodWebTitle": "Food web for this biome",
+		"roles": "Roles",
+		"rolesTitle": "What each animal does here",
+		"rolesIntro": "Every animal has a job in the web. An area is only balanced when all of these are filled — that is what ecological balance measures, and why the last few arrivals matter more than the first.",
+		"rolesCount": "{back} of {total} back",
+		"rolesEmpty": "No animals recorded for this area yet.",
 		"foodWeb": "Food web",
 		"unknownFirstTitle": "Sort animals you haven't found yet to the top",
 		"unknownFirst": "Unknown first",
@@ -314,6 +317,19 @@
 			"eggs": "(eggs)",
 			"young": "(young)",
 			"adult": "(adults)"
+		},
+		"trophicAbout": {
+			"producer": "The floor of the whole web. Plants, algae and kelp take sunlight, water and air and make food out of them — the only thing here that can. Every other animal on this list is, at some remove, eating a plant, so producers are the first thing to bring back and the last thing an area can afford to lose.",
+			"decomposer": "It takes the dead apart and hands it back as soil. Without it an area slowly buries itself: nitrogen and minerals stay locked up in fallen wood and carcasses instead of returning to the roots. It is invisible work, and it is the reason a restored area keeps feeding itself instead of running down.",
+			"detritivore": "The clean-up crew of the forest floor, the streambed and the tideline. It eats fallen leaves, rotting wood and whatever the current drops, shredding it small enough for decomposers to finish the job. Nothing about it looks dramatic, but it is what turns last year's litter into this year's growth.",
+			"filter-feeder": "It strains its food straight out of the water — plankton, algae, drifting scraps — and leaves the water clearer than it found it. A bed of them is a working filter, and everything that hunts by sight depends on that clarity. When the filter feeders go, the water clouds over first.",
+			"herbivore": "It eats plants and turns them into meat, which is the only route the energy a plant captured has to anything higher up. Its grazing also shapes the place: it opens grass, prunes shrubs and carries seeds around in the process. Too few and the growth chokes itself; too many and the plants never get ahead.",
+			"insectivore": "It lives on insects, which makes it the bridge between the smallest lives in an area and the largest. It also keeps insect numbers off the plants underneath it. An insectivore only stays where the bug life has genuinely come back, so its arrival is one of the more honest tests of whether an area is really working.",
+			"scavenger": "It eats what has already died, and it gets there first. That keeps carcasses from sitting, puts their nutrients back into circulation and quietly holds disease down. A scavenger needs a place with enough life in it to keep producing something worth finding.",
+			"omnivore": "It takes plants and animals both, and switches between them as the year turns — grubs in spring, berries in autumn, whatever is going. That flexibility makes it hard to starve out, and it makes it a connector: it ties the plant half of the web to the hunting half, and carries seeds a long way while it does.",
+			"mesopredator": "The middle of the web. It hunts the small animals and holds their numbers down, and it is hunted in turn by whatever sits above it. Take the top away and a mid predator multiplies until the small animals are gone — which is the roundabout reason apex predators matter to plants.",
+			"apex-predator": "It hunts at the top, and nothing here hunts it back. Its return is usually the last piece of a restored area, because it needs everything underneath it to be abundant first. Once it settles it leans on the mid predators, which takes the pressure off the small animals and, further down, off the plants.",
+			"wildlife": "A role the guide has not classified yet. It still counts as an animal living here, but it has not been slotted into the web."
 		}
 	},
 	"achievements": {

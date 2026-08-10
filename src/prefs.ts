@@ -7,6 +7,7 @@
 import { useSyncExternalStore } from 'react';
 import { scheduleFlush, flushNow } from './perf';
 import { setSimpleText } from './i18n/core';
+import { DEMO } from './demo';
 
 export type TextScale = 'sm' | 'md' | 'lg' | 'xl';
 
@@ -110,8 +111,19 @@ const DEFAULTS: Prefs = {
  * browser explicitly reporting little memory). Anything unknown or
  * unavailable (most desktop Safari, some privacy-hardened browsers) is
  * treated as capable rather than guessed against.
+ *
+ * The browser demo is the one exception and starts on 'low' outright — see the
+ * first line of the body.
  */
 export function detectDefaultGraphicsQuality(): GraphicsQuality {
+	// The browser demo starts on low whatever the machine claims. It runs inside
+	// an itch.io iframe, on hardware we know nothing about, sharing a GPU with
+	// every other tab the player has open — and the autodetect below is
+	// deliberately optimistic, so it would wave most of that through. A first
+	// impression that stutters costs more than one that is slightly less pretty.
+	// This is only the DEFAULT: the toggle is on the title screen, and the choice
+	// sticks in localStorage once made.
+	if (DEMO && !isDesktopBuild()) return 'low';
 	try {
 		const cores = typeof navigator !== 'undefined' ? navigator.hardwareConcurrency : undefined;
 		if (typeof cores === 'number' && cores > 0 && cores <= 2) return 'low';
@@ -123,6 +135,13 @@ export function detectDefaultGraphicsQuality(): GraphicsQuality {
 		/* navigator unavailable (SSR, tests) — fall through to the safe default */
 	}
 	return 'high';
+}
+
+/** True on the Electron desktop build. Checked inline off the preload bridge —
+ *  the same thing audio.ts does — rather than importing IS_DESKTOP from api.ts,
+ *  which would drag the whole API module into a module every entry point loads. */
+function isDesktopBuild(): boolean {
+	return !!(globalThis as { wildWillowsDesktop?: { isDesktop?: boolean } }).wildWillowsDesktop?.isDesktop;
 }
 
 /** Clamp an arbitrary value to a 0–1 volume, falling back when it isn't a number. */

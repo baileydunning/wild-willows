@@ -80,7 +80,7 @@
         "water": {
           "tiles": 1
         },
-        "hint": "Good grazing is only half of it. A bighorn will not use a slope it cannot escape from, so put the turf right up against broken cliff, and a mineral lick nearby because sheep will travel a long way for salt."
+        "hint": "Good grazing is only half of it. It will not use a slope it cannot escape from, so put the turf right up against broken cliff — and a mineral lick nearby, because it will travel a long way for salt."
       },
       "sources": [
         {
@@ -152,7 +152,7 @@
       "diet": "grasses, flowering plants and seeds, eaten hard through a short summer",
       "shelter": "Deep, many-chambered burrows dug beneath boulders, below the frost line",
       "preferredHabitat": "Open alpine turf broken by boulders, with diggable soil underneath",
-      "fact": "A yellow-bellied-marmot sleeps for about eight months of the year and wakes up weighing half what it did when it went to bed.",
+      "fact": "A yellow-bellied marmot sleeps for about eight months of the year and wakes up weighing half what it did when it went to bed.",
       "role": "A fat, sun-basking rodent that eats meadow plants flat out through a short summer and whistles from a boulder the moment a shadow crosses. Its old burrows become fox dens, bumble bee nests and toad hideouts, so a surprising amount of the mountain depends on its digging. Eagles, foxes, martens, wolverines and lions hunt it.",
       "eats": [],
       "eatsOther": [
@@ -230,7 +230,7 @@
           "krummholz-bed-hollow": 1
         },
         "signature": "juniper-thicket",
-        "hint": "Low tangled cover it can freeze motionless inside, a scraped hollow under the krummholz to sit out the day, and willow to browse in winter. Open ground with a rock pile on it is the opposite of hare habitat. It eats snow instead of drinking."
+        "hint": "Low tangled cover it can freeze motionless inside, a scraped hollow under the krummholz to sit out the day, and willow to browse in winter. Open ground with a rock pile on it is the opposite of what it wants. It eats snow instead of drinking."
       },
       "sources": [
         {
@@ -279,7 +279,7 @@
           "scree-slope": 1
         },
         "signature": "snowbank-roost",
-        "hint": "Willow is the whole winter for a white-tailed-ptarmigan, and a soft deep drift is its bedroom. It eats snow instead of drinking, and it has no use at all for a flower planter."
+        "hint": "Willow is the whole winter for this one, and a soft deep drift is its bedroom. It eats snow instead of drinking, and it has no use at all for a flower planter."
       },
       "sources": [
         {
@@ -518,7 +518,7 @@
           "crystal-spring": 1
         },
         "signature": "cliff-nest-niche",
-        "hint": "Rock with cracks in it, not a heap of stones. A gray-crowned-rosy-finch nests inside the cliff, feeds out across the scree, and drinks meltwater."
+        "hint": "Rock with cracks in it, not a heap of stones. This one nests inside the cliff, feeds out across the scree, and drinks meltwater."
       },
       "sources": [
         {
@@ -719,7 +719,7 @@
           "old-woodpecker-cavity": 2
         },
         "signature": "old-woodpecker-cavity",
-        "hint": "Dead trees are the point. An old woodpecker hole is both shelter and a starting place — a chickadee will take a ready-made cavity and work it wider. The whitebark pines come from its forgotten seeds."
+        "hint": "Dead trees are the point. An old woodpecker hole is both shelter and a starting place — this one takes a ready-made cavity and works it wider. The whitebark pines come from its forgotten seeds."
       },
       "sources": [
         {
@@ -740,7 +740,7 @@
       "kind": "mammal",
       "trophic": "mesopredator",
       "rarity": "rare",
-      "diet": "snowshoe hares above all — sometimes almost nothing else — plus white-tailed-ptarmigan, ground squirrels and young marmots",
+      "diet": "snowshoe hares above all — sometimes almost nothing else — plus white-tailed ptarmigan, ground squirrels and young marmots",
       "shelter": "A hollow under boulders, roots or deadfall, often a burrow something else started and it widened",
       "preferredHabitat": "High snowy country with thickets of dwarf conifer where hares can hide and lynx can wait for them",
       "fact": "A lynx weighs about as much as a border collie, but its paws are as wide as a mountain lion's. They spread as it steps, so it walks on top of snow a fox would sink straight through.",
@@ -781,7 +781,7 @@
         "water": {
           "tiles": 1
         },
-        "hint": "No hares, no it — it really is that simple. Get the dwarf-pine thickets back so hares have somewhere to hide, and it will move into a hollow under the rocks that something else dug."
+        "hint": "No hares, nothing doing — it really is that simple. Get the dwarf-pine thickets back so hares have somewhere to hide, and it will move into a hollow under the rocks that something else dug."
       },
       "sources": [
         {
@@ -843,7 +843,7 @@
           "snowshoe-hare",
           "pika"
         ],
-        "hint": "You cannot build marten habitat out of rocks and flowers. It needs a stand of real trees, dead wood on the ground, and hares and they already living there."
+        "hint": "You cannot build this one's habitat out of rocks and flowers. It needs a stand of real trees, dead wood on the ground, and hares already living there."
       },
       "sources": [
         {
@@ -926,11 +926,11 @@
       "kind": "bird",
       "trophic": "apex-predator",
       "rarity": "rare",
-      "diet": "marmots, hares, ground squirrels, white-tailed-ptarmigan and other birds, plus carrion",
+      "diet": "marmots, hares, ground squirrels, white-tailed ptarmigan and other birds, plus carrion",
       "shelter": "Huge stick eyries built on sheer cliff ledges and reused for decades",
       "preferredHabitat": "Open, high country with big cliffs to nest on and plenty of medium-sized prey",
-      "fact": "A hunting golden eagle drops out of the sky at over 240 kilometres an hour, and its eyesight is sharp enough to pick a yellow-bellied-marmot out of a boulder field from a kilometre up.",
-      "role": "The hunter that owns the air up here, taking marmots, hares and white-tailed-ptarmigan in long stooping dives and killing smaller predators outright when it gets the chance. It takes newborn lambs, kids and fox cubs, but not adult sheep or goats. Its huge stick eyrie on a cliff ledge gets added to and reused for decades. Adults have nothing above them.",
+      "fact": "A hunting golden eagle drops out of the sky at over 240 kilometres an hour, and its eyesight is sharp enough to pick a yellow-bellied marmot out of a boulder field from a kilometre up.",
+      "role": "The hunter that owns the air up here, taking marmots, hares and white-tailed ptarmigan in long stooping dives and killing smaller predators outright when it gets the chance. It takes newborn lambs, kids and fox cubs, but not adult sheep or goats. Its huge stick eyrie on a cliff ledge gets added to and reused for decades. Adults have nothing above them.",
       "eats": [
         "yellow-bellied-marmot",
         "snowshoe-hare",
@@ -973,7 +973,7 @@
           "yellow-bellied-marmot",
           "snowshoe-hare"
         ],
-        "hint": "Eagles come last, when the mountain is properly alive again. They need a real cliff for the eyrie and open ground below with plenty moving on it."
+        "hint": "This one comes last, when the mountain is properly alive again. It needs a real cliff for the eyrie and open ground below with plenty moving on it."
       },
       "sources": [
         {
@@ -1020,7 +1020,7 @@
           "ocean": 3
         },
         "animals": [],
-        "hint": "Kelp first — an urchin has to have something to eat. Then think hard about what is going to eat the urchins."
+        "hint": "Kelp first — it has to have something to eat. Then think hard about what is going to eat it."
       },
       "sources": [
         {
@@ -1259,7 +1259,7 @@
         "water": {
           "ocean": 3
         },
-        "hint": "A filter feeder needs water that keeps moving. Give it surge-washed rock rather than a still pool, and barnacle crust for the baby they to settle on."
+        "hint": "A filter feeder needs water that keeps moving. Give it surge-washed rock rather than a still pool, and barnacle crust for the young to settle on."
       },
       "sources": [
         {
@@ -1283,7 +1283,7 @@
       "rarity": "rare",
       "diet": "bottom-living amphipods and swarming mysid shrimp, sifted through baleen",
       "shelter": "Open ocean; passes close inshore along a healthy coast",
-      "preferredHabitat": "Nearshore water with soft-bottom freshwater-shrimp beds and mysid swarms at the kelp edge",
+      "preferredHabitat": "Nearshore water with soft-bottom freshwater shrimp beds and mysid swarms at the kelp edge",
       "fact": "Gray whales roll onto one side and vacuum the seafloor, straining out shrimp-like amphipods and leaving long muddy plumes trailing behind them — and they do it at the end of a swim of up to 14,000 miles.",
       "role": "A baleen whale that feeds off the bottom rather than skimming the surface, so a whale that lingers offshore is really a report on the seabed and the kelp edge below it. Adults are far too big to be hunted here; the calves travelling with them in spring are not, and orcas know it.",
       "eats": [],
@@ -1306,7 +1306,7 @@
           "ocean": 14,
           "deep": true
         },
-        "hint": "Give this one deep water and a seabed thick with tiny shrimp-like amphipods. Tidepools and dune plantings will never bring a whale in.",
+        "hint": "Give this one deep water and a seabed thick with tiny shrimp-like amphipods. Tidepools and dune plantings will never bring it in.",
         "conditions": {
           "season": [
             "winter",
@@ -1834,8 +1834,8 @@
       "diet": "small schooling fish, especially northern anchovy",
       "shelter": "Nests only on undisturbed offshore islands; loafs on sandbars and rocks",
       "preferredHabitat": "Anchovy-rich nearshore water within reach of an island colony",
-      "fact": "A brown brown-pelican dives from sixty feet up and hits the water hard enough to stun fish — and it twists its body left just before impact so the blow does not break its neck.",
-      "role": "A plunge-diving anchovy hunter whose comeback after pesticide poisoning is one of the great conservation rescues. It nests only on islands offshore, never on the mainland beach, and its colonies fail outright in years when the anchovy schools do not show — so a nesting brown-pelican is a statement about the fish, not the sand.",
+      "fact": "A brown pelican dives from sixty feet up and hits the water hard enough to stun fish — and it twists its body left just before impact so the blow does not break its neck.",
+      "role": "A plunge-diving anchovy hunter whose comeback after pesticide poisoning is one of the great conservation rescues. It nests only on islands offshore, never on the mainland beach, and its colonies fail outright in years when the anchovy schools do not show — so a nesting brown pelican is a statement about the fish, not the sand.",
       "eats": [
         "anchovy",
         "sand-dollar"
@@ -1915,7 +1915,7 @@
           "purple-sea-urchin",
           "mussel"
         ],
-        "hint": "Living kelp forest to wrap up in, calm water to groom in, and urchins and shellfish to eat. Dead kelp on the sand is no use to an otter."
+        "hint": "Living kelp forest to wrap up in, calm water to groom in, and urchins and shellfish to eat. Dead kelp on the sand is no use to it."
       },
       "sources": [
         {
@@ -1970,7 +1970,7 @@
         "animals": [
           "anchovy"
         ],
-        "hint": "Deep water to fish in and quiet rocks to haul out on, with room around them. A seal haul-out is not a bird nesting closure — build the right thing."
+        "hint": "Deep water to fish in and quiet rocks to haul out on, with room around them. A haul-out is not a bird nesting closure — build the right thing."
       },
       "sources": [
         {
@@ -2416,7 +2416,7 @@
           "burrow-mound": 1
         },
         "signature": "pollinated-cactus-fruit",
-        "hint": "Dry seeds alone will not keep it alive — it needs juicy fruit, and that means welcoming the bees before the squirrel."
+        "hint": "Dry seeds alone will not keep it alive — it needs juicy fruit, and that means welcoming the bees first."
       },
       "sources": [
         {
@@ -2462,7 +2462,7 @@
           "cactus-patch": 1
         },
         "signature": "cholla",
-        "hint": "Cholla is the nest. Nothing else out here is spiny enough, and the wren never once needs a drink."
+        "hint": "Cholla is the nest. Nothing else out here is spiny enough, and it never once needs a drink."
       },
       "sources": [
         {
@@ -2511,7 +2511,7 @@
           "bush-muhly": 1
         },
         "signature": "tortoise-burrow",
-        "hint": "It cannot dig. Bring the tortoise back first and its old den becomes the owl's front door — with low, open ground out front to hunt over."
+        "hint": "It cannot dig. Bring the tortoise back first and its old den becomes the front door — with low, open ground out front to hunt over."
       },
       "sources": [
         {
@@ -2556,7 +2556,7 @@
           "bare-ground-patch": 1
         },
         "signature": "harvester-ant-mound",
-        "hint": "No ants, no it. Leave the gaps between the shrubs bare and open — that is exactly where harvester ants clear their mounds."
+        "hint": "No ants, nothing doing. Leave the gaps between the shrubs bare and open — that is exactly where harvester ants clear their mounds."
       },
       "sources": [
         {
@@ -2639,7 +2639,7 @@
       "shelter": "A bulky stick nest a metre or two up inside a thorny shrub or cholla",
       "preferredHabitat": "Open running ground broken up by thorny thickets",
       "fact": "A roadrunner can outrun you — over 30 km an hour on two legs — and it kills a rattlesnake by grabbing it behind the head and beating it against a rock until it stops moving.",
-      "role": "The daytime terror of anything small and quick: lizards, tarantulas, scorpions, millipedes, other birds, and one of the very few birds anywhere that will pick a fight with a rattlesnake. It needs both halves of its home — open ground to sprint across and a thorn thicket high enough to keep its chicks out of a mountain-lion's reach.",
+      "role": "The daytime terror of anything small and quick: lizards, tarantulas, scorpions, millipedes, other birds, and one of the very few birds anywhere that will pick a fight with a rattlesnake. It needs both halves of its home — open ground to sprint across and a thorn thicket high enough to keep its chicks out of a mountain lion's reach.",
       "eats": [
         "horned-lizard",
         "scorpion",
@@ -2864,7 +2864,7 @@
       "shelter": "A cool underground den with several doors, usually a rodent burrow it has widened",
       "preferredHabitat": "Open desert with loose soil and plenty of small prey",
       "fact": "The smallest wild dog here weighs less than a house cat, and its ridiculous ears do two jobs at once: hearing a mouse move underground, and shedding body heat like radiators.",
-      "role": "A night fox that lives almost entirely on rodents and hardly ever drinks — it takes its water out of what it catches. It rarely digs a den from scratch; it moves into a kangaroo rat's burrow and enlarges it, then keeps several doors open so a mountain-lion can never corner it in there.",
+      "role": "A night fox that lives almost entirely on rodents and hardly ever drinks — it takes its water out of what it catches. It rarely digs a den from scratch; it moves into a kangaroo rat's burrow and enlarges it, then keeps several doors open so a mountain lion can never corner it in there.",
       "eats": [
         "kangaroo-rat",
         "jackrabbit",
@@ -2964,7 +2964,7 @@
           "cottontail-rabbit",
           "prairie-vole"
         ],
-        "hint": "A den bank tucked into brushy cover, wide grass full of rabbits and voles, and water within reach. they are the last piece — they only settle where there is already plenty to eat."
+        "hint": "A den bank tucked into brushy cover, wide grass full of rabbits and voles, and water within reach. It only settles where there is already plenty to eat."
       },
       "sources": [
         {
@@ -3240,7 +3240,7 @@
           "brush-pile": 1
         },
         "signature": "grub-digging-ground",
-        "hint": "Soft, diggable earth full of grubs, and a hollow log to sleep the day away in. they want somewhere to dig more than somewhere to hide."
+        "hint": "Soft, diggable earth full of grubs, and a hollow log to sleep the day away in. It wants somewhere to dig more than somewhere to hide."
       },
       "sources": [
         {
@@ -3291,7 +3291,7 @@
           "porcupine",
           "tree-squirrel"
         ],
-        "hint": "Closed canopy overhead, a big living tree hollow enough to raise kits high off the ground, and they below to hunt."
+        "hint": "Closed canopy overhead, a big living tree hollow enough to raise kits high off the ground, and squirrels and porcupines below to hunt."
       },
       "sources": [
         {
@@ -3393,7 +3393,7 @@
           "native-grass-patch": 1
         },
         "signature": "mantis-ootheca-stem",
-        "hint": "Leave stiff dead stems standing through the winter. That's where the foam egg case is glued, and cutting them back in autumn cuts next summer's mantises."
+        "hint": "Leave stiff dead stems standing through the winter. That's where the foam egg case is glued, and cutting them back in autumn cuts next summer's brood."
       },
       "sources": [
         {
@@ -3467,7 +3467,7 @@
       "diet": "ground squirrels, gophers, voles and mice dug straight out of their tunnels; also insects and bumble bee nests",
       "shelter": "Digs its own large burrows; one of the fastest excavators alive",
       "preferredHabitat": "Open grassland with deep, stone-free, diggable soil and a rodent colony to work",
-      "fact": "A badger can dig itself completely out of sight in under a minute — and it sometimes hunts alongside a mountain-lion, the badger going in from below while the mountain-lion grabs whatever bolts out of the top.",
+      "fact": "A badger can dig itself completely out of sight in under a minute — and it sometimes hunts alongside a mountain lion, the badger going in from below while the mountain lion grabs whatever bolts out of the top.",
       "role": "A carnivore that hunts by excavation, going down a squirrel or gopher tunnel after its owner. That only works in deep stone-free soil, and only where there is a rodent colony worth the digging. The big holes it leaves behind get reused by foxes, coyotes and burrowing insects for years afterwards. Adults are safe from almost everything; cubs are not.",
       "eats": [
         "bumblebee",
@@ -3759,7 +3759,7 @@
         "water": {
           "tiles": 2
         },
-        "hint": "Bulrush and cattail standing in water — stiff stems a wren can weave a hanging ball nest between."
+        "hint": "Bulrush and cattail standing in water — stiff stems it can weave a hanging ball nest between."
       },
       "sources": [
         {
@@ -3955,7 +3955,7 @@
         "garter-snake"
       ],
       "requirements": {
-        "minHealth": 12,
+        "minHealth": 9,
         "objects": {
           "rotting-log-crumble": 1
         },
@@ -4082,7 +4082,7 @@
       "shelter": "Nests and roosts in a dark high cavity: a barn loft, a hollow tree, or a large nest box. Builds nothing itself",
       "preferredHabitat": "Wide open grassland to hunt over, with a dark cavity above ground to sleep and nest in",
       "fact": "A barn owl can catch a mouse in complete darkness by sound alone. One ear sits higher than the other, so it hears in three dimensions — and the fringed edges of its wings mean the mouse never hears it coming.",
-      "role": "The meadow works a night shift, and the barn owl runs it. While the hawk and the mountain-lion hunt by daylight, this one quarters the same grass in the dark on silent wings, living almost entirely on voles — a single family can take well over a thousand of them in a year. Nothing here hunts the barn owl back.",
+      "role": "The meadow works a night shift, and the barn owl runs it. While the hawk and the mountain lion hunt by daylight, this one quarters the same grass in the dark on silent wings, living almost entirely on voles — a single family can take well over a thousand of them in a year. Nothing here hunts the barn owl back.",
       "eats": [
         "prairie-vole",
         {
@@ -4114,7 +4114,7 @@
             "night"
           ]
         },
-        "hint": "A dark loft or a deep box up off the ground, wide grass to quarter over, and a meadow already full of voles. Owls take their water from their prey."
+        "hint": "A dark loft or a deep box up off the ground, wide grass to quarter over, and a meadow already full of voles. It takes its water from its prey."
       },
       "sources": [
         {
@@ -4169,7 +4169,7 @@
           "jackrabbit",
           "kit-fox"
         ],
-        "hint": "Big prey first, then rough broken ground to stalk through and a sheltered overhang for the kittens. Unlike most things out here it does come down to drink. It is the last animal to come back."
+        "hint": "Big prey first, then rough broken ground to stalk through and a sheltered overhang for the kittens. Unlike most things out here it does come down to drink."
       },
       "sources": [
         {
@@ -4214,7 +4214,7 @@
           "damp-leaf-corner": 1
         },
         "signature": "damp-leaf-corner",
-        "hint": "A shady damp corner where leaves are allowed to pile up and rot. they want the mess, not the tidy bit."
+        "hint": "A shady damp corner where leaves are allowed to pile up and rot. It wants the mess, not the tidy bit."
       },
       "scientificName": "Cepaea nemoralis",
       "sources": [
@@ -4260,7 +4260,7 @@
         "water": {
           "tiles": 1
         },
-        "hint": "Steeper is better. Give it cliff ledges to bed on, turf to graze between them, and a mineral lick, because goats will travel for hours to eat salty ground. Do not expect one out on the open flats."
+        "hint": "Steeper is better. Give it cliff ledges to bed on, turf to graze between them, and a mineral lick, because it will travel for hours to eat salty ground. Do not expect one out on the open flats."
       },
       "sources": [
         {
@@ -4281,11 +4281,11 @@
       "kind": "mammal",
       "trophic": "apex-predator",
       "rarity": "rare",
-      "diet": "marmots, hares and white-tailed-ptarmigan when it can catch them, frozen carcasses when it cannot, and berries in late summer",
+      "diet": "marmots, hares and white-tailed ptarmigan when it can catch them, frozen carcasses when it cannot, and berries in late summer",
       "shelter": "Tunnels dug metres down into deep spring drifts, usually around a fallen boulder or log, with food stored in side chambers",
       "preferredHabitat": "Big, empty, high country with talus and broken rock, and snow that lasts into late spring",
       "fact": "A wolverine can smell a dead animal buried under three metres of snow, dig it out, and then drive a bear off it, all in a body about the size of a small dog.",
-      "role": "The largest weasel in the world and the mountain's great scavenger, now the top hunter on these peaks. It roams enormous distances, kills marmots, hares and white-tailed-ptarmigan when it gets the chance and lives off frozen carcasses when it does not, cracking frozen bone with jaws built for exactly that. Snow is its refrigerator: it stores food in drifts and dens deep inside them, so a female can only raise kits where the snowpack holds into late spring. That makes it the first animal to go when winters get short — and nothing up here is willing to argue with it over a carcass.",
+      "role": "The largest weasel in the world and the mountain's great scavenger, now the top hunter on these peaks. It roams enormous distances, kills marmots, hares and white-tailed ptarmigan when it gets the chance and lives off frozen carcasses when it does not, cracking frozen bone with jaws built for exactly that. Snow is its refrigerator: it stores food in drifts and dens deep inside them, so a female can only raise kits where the snowpack holds into late spring. That makes it the first animal to go when winters get short — and nothing up here is willing to argue with it over a carcass.",
       "eats": [
         "yellow-bellied-marmot",
         "snowshoe-hare",
@@ -4318,7 +4318,7 @@
         "water": {
           "tiles": 1
         },
-        "hint": "They need space and snow, not scenery. Give it drifts deep enough to last into late spring for the den and the larder, broken rock to travel through, and marmots and hares already on the mountain. It is the last of the hunters to arrive."
+        "hint": "It needs space and snow, not scenery. Give it drifts deep enough to last into late spring for the den and the larder, broken rock to travel through, and marmots and hares already on the mountain."
       },
       "sources": [
         {
@@ -4423,7 +4423,7 @@
         "animals": [
           "anchovy"
         ],
-        "hint": "Deep water to travel through, cold currents and kelp edges to hold the fish, and a real breaking surf line, because that is where these dolphins do their hunting."
+        "hint": "Deep water to travel through, cold currents and kelp edges to hold the fish, and a real breaking surf line, because that is where this one does its hunting."
       },
       "sources": [
         {
@@ -4479,7 +4479,7 @@
         "animals": [
           "harbor-seal"
         ],
-        "hint": "The last and hardest animal to bring back. they need deep water pressed right up against the shore and something big to hunt — so bring the seals back first, because the seals are what they come for."
+        "hint": "Deep water pressed right up against the shore and something big to hunt — so bring the seals back first, because the seals are what it comes for."
       },
       "sources": [
         {
@@ -4548,8 +4548,8 @@
       "diet": "crickets, beetles, grasshoppers, termites and other spiders",
       "shelter": "A silk-lined burrow in firm soil, its doorway strung with trip-lines",
       "preferredHabitat": "Firm open ground between shrubs with litter and cover close by",
-      "fact": "A frightened desert-tarantula rubs its back legs over its belly and flicks off a cloud of barbed hairs that itch like fibreglass — and if nothing comes past to eat, it can simply wait, going a whole year between meals.",
-      "role": "A patient ambush hunter that lives at the mouth of a silk-lined burrow, feeling for the twitch of a cricket on the trip-lines at its door. A female may keep the same hole for twenty years, which makes her one of the longest-lived animals in the biome. Roadrunners take them — and so does the giant hairy scorpion, which outweighs a desert-tarantula and is not remotely afraid of one.",
+      "fact": "A frightened desert tarantula rubs its back legs over its belly and flicks off a cloud of barbed hairs that itch like fibreglass — and if nothing comes past to eat, it can simply wait, going a whole year between meals.",
+      "role": "A patient ambush hunter that lives at the mouth of a silk-lined burrow, feeling for the twitch of a cricket on the trip-lines at its door. A female may keep the same hole for twenty years, which makes her one of the longest-lived animals in the biome. Roadrunners take them — and so does the giant hairy scorpion, which outweighs a desert tarantula and is not remotely afraid of one.",
       "eats": [
         "desert-termite"
       ],
@@ -4571,7 +4571,7 @@
           "creosote-bush": 1
         },
         "signature": "tarantula-silk-burrow",
-        "hint": "Firm ground it can line with silk, and then quiet. A burrow a desert-tarantula digs is a burrow she may still be sitting in twenty years from now.",
+        "hint": "Firm ground it can line with silk, and then quiet. A burrow it digs is one she may still be sitting in twenty years from now.",
         "animals": [
           "desert-termite"
         ],
@@ -4605,7 +4605,7 @@
       "shelter": "A bulky stick nest wedged in the arms of a tall cactus or a thorny tree, built and guarded by the whole family",
       "preferredHabitat": "Open scrub with tall cactus and trees to nest and keep lookout from",
       "fact": "These are the only birds of prey in the world that hunt in packs: a family of five or six spreads out, some crashing into a thorn bush to panic a rabbit while the others wait on the far side. And when there is nowhere decent to perch, they simply stand on each other's backs, three hawks high.",
-      "role": "The daytime top predator, working the same desert the mountain-lion works at night. Two or three generations live together all year, share every kill, help feed each other's chicks and take turns on lookout — teamwork that lets them bring down jackrabbits far heavier than any single hawk. They need tall lookouts above open ground and a big cactus solid enough to hold a family nest.",
+      "role": "The daytime top predator, working the same desert the mountain lion works at night. Two or three generations live together all year, share every kill, help feed each other's chicks and take turns on lookout — teamwork that lets them bring down jackrabbits far heavier than any single hawk. They need tall lookouts above open ground and a big cactus solid enough to hold a family nest.",
       "eats": [
         "jackrabbit",
         "quail",
@@ -4627,7 +4627,7 @@
           "desert-ironwood": 1
         },
         "signature": "saguaro-crown-nest",
-        "hint": "One hawk is never the whole story. A family needs a tall cactus strong enough to hold the nest, high lookouts all around it, and open ground with rabbits crossing it.",
+        "hint": "One bird is never the whole story. A family needs a tall cactus strong enough to hold the nest, high lookouts all around it, and open ground with rabbits crossing it.",
         "animals": [
           "jackrabbit",
           "quail"
@@ -4785,7 +4785,7 @@
         "water": {
           "tiles": 2
         },
-        "hint": "Striders need calm. Find a pocket of water the wind cannot ruffle, with floating stems on it to rest and lay eggs on."
+        "hint": "This one needs calm. Find a pocket of water the wind cannot ruffle, with floating stems on it to rest and lay eggs on."
       },
       "sources": [
         {
@@ -4935,7 +4935,7 @@
           "nesting-tree": 1
         },
         "signature": "acorn-cache-scatter",
-        "hint": "Oaks and a patch of soft open ground to bury the acorns in. Some of the ones the jay forgets will be your next oak trees."
+        "hint": "Oaks and a patch of soft open ground to bury the acorns in. Some of the ones it forgets will be your next oak trees."
       },
       "scientificName": "Cyanocitta cristata",
       "sources": [
@@ -4984,7 +4984,7 @@
         "water": {
           "tiles": 3
         },
-        "hint": "A pool that dries up in summer is the good kind — no fish means the tadpoles live. Keep deep leaves nearby for the frogs to freeze in."
+        "hint": "A pool that dries up in summer is the good kind — no fish means the tadpoles live. Keep deep leaves nearby for them to freeze in."
       },
       "scientificName": "Lithobates sylvaticus",
       "sources": [
@@ -5133,7 +5133,7 @@
         "water": {
           "tiles": 5
         },
-        "hint": "Logs in the sun to bask on and a bare warm bank to bury eggs in. A cooter that cannot get warm cannot digest its dinner."
+        "hint": "Logs in the sun to bask on and a bare warm bank to bury eggs in. One that cannot get warm cannot digest its dinner."
       },
       "scientificName": "Pseudemys concinna",
       "sources": [
@@ -5229,7 +5229,7 @@
         "water": {
           "tiles": 2
         },
-        "hint": "Find the wettest, darkest crack in the cliff and keep the water running down it. A swift will not nest anywhere it can walk to."
+        "hint": "Find the wettest, darkest crack in the cliff and keep the water running down it. This one will not nest anywhere it can walk to."
       },
       "scientificName": "Cypseloides niger",
       "sources": [
@@ -5250,11 +5250,11 @@
       "kind": "bird",
       "rarity": "rare",
       "trophic": "mesopredator",
-      "diet": "other birds taken in mid-air — white-tailed-ptarmigan, rosy-finches, swifts, pipits and small ducks",
+      "diet": "other birds taken in mid-air — white-tailed ptarmigan, rosy-finches, swifts, pipits and small ducks",
       "shelter": "A bare scrape kicked into gravel on a high cliff ledge; it builds no nest at all",
       "preferredHabitat": "Sheer cliffs and rock faces overlooking open ground with plenty of birds flying below",
       "fact": "A stooping peregrine hits about 380 km/h, which makes it the fastest animal alive — and it has bony cones in its nostrils that slow the air down so the dive does not burst its lungs.",
-      "role": "The peregrine is the mountain's aerial hunter, and it takes almost all of its food in the air, striking from above with a closed fist rather than grabbing. Because it hunts birds and nothing else, it is a direct check on the flocks of finches, pipits and white-tailed-ptarmigan feeding across the slopes. It needs an undisturbed cliff ledge and clear air below it, and nothing at all to build with — just loose gravel to scrape a hollow in.",
+      "role": "The peregrine is the mountain's aerial hunter, and it takes almost all of its food in the air, striking from above with a closed fist rather than grabbing. Because it hunts birds and nothing else, it is a direct check on the flocks of finches, pipits and white-tailed ptarmigan feeding across the slopes. It needs an undisturbed cliff ledge and clear air below it, and nothing at all to build with — just loose gravel to scrape a hollow in.",
       "eats": [
         "white-tailed-ptarmigan",
         "gray-crowned-rosy-finch",
@@ -5285,7 +5285,7 @@
           "white-tailed-ptarmigan",
           "gray-crowned-rosy-finch"
         ],
-        "hint": "A high ledge with loose gravel on it and open sky underneath. Do not build a nest — a peregrine just kicks a dip in the grit."
+        "hint": "A high ledge with loose gravel on it and open sky underneath. Do not build a nest — this one just kicks a dip in the grit."
       },
       "scientificName": "Falco peregrinus",
       "sources": [
@@ -5658,7 +5658,7 @@
           "berry-bush": 1
         },
         "signature": "hidden-grass-nest",
-        "hint": "A damp, messy corner with a thick tussock to hide a nest in and berries close by. they like the untidy bits best."
+        "hint": "A damp, messy corner with a thick tussock to hide a nest in and berries close by. It likes the untidy bits best."
       },
       "scientificName": "Melospiza melodia",
       "sources": [

@@ -256,25 +256,25 @@
 			"alpine-butterfly": {
 				"diet": "Las larvas comen crasas; los adultos liban néctar de Sedum y flores de la familia de las margaritas",
 				"fact": "Sus pálidas alas rojas y negras advierten a los depredadores que su sabor es desagradable.",
-				"hint": "Flores alpinas en floración.",
+				"hint": "El néctar hace que los adultos ronden por aquí. El sedum es lo que los retiene de verdad. Planta flores sin la única planta de la que come la oruga y solo tendrás visitas de paso.",
 				"name": "Mariposa alpina",
 				"preferredHabitat": "Laderas alpinas y montanas rocosas y abiertas donde crece la crasa",
 				"role": "Una resistente mariposa alpina cuyas orugas se alimentan solo de crasas mientras los adultos liban néctar por las flores de la pradera. Sus alas aposemáticas anuncian un sabor repugnante. Aves y arañas que ignoran la advertencia aún atrapan a algunas.",
 				"shelter": "Sin nido; las larvas se refugian en la hojarasca y las rocas, invernando como huevos"
 			},
 			"rock-squirrel": {
-				"diet": "Semillas de juncias, herbáceas y pastos, además de bayas, hongos, semillas de pino y huevos",
-				"fact": "Habita a mayor altura que casi cualquier otra ardilla listada, hasta los 3.900 metros.",
-				"hint": "Una pila de talud y una pila de rocas entre flores silvestres alpinas.",
-				"name": "Ardilla listada alpina",
-				"preferredHabitat": "Laderas altas de talud y praderas rocosas de Sierra Nevada",
-				"role": "Una diminuta comedora de semillas de gran altitud que las almacena y ayuda a dispersar plantas alpinas por el talud. También saquea los huevos de pinzones montañeses y gorriones. Zorros, comadrejas, martas y rapaces la cazan, integrándola en la red de depredadores.",
-				"shelter": "Nidos en lo profundo de las grietas entre las rocas del talud y los peñascos"
+				"name": "Ardilla de las rocas",
+				"diet": "semillas, bayas y brotes verdes, además de hongos subterráneos, insectos y algún huevo ocasional",
+				"shelter": "Una madriguera excavada bajo un canto rodado o un tronco caído, con una cámara de dormir forrada de hierba al fondo",
+				"preferredHabitat": "Laderas rocosas soleadas, bordes de talud y terreno abierto de pino enano en el límite arbóreo y por encima",
+				"fact": "Todo el mundo la llama ardilla listada gigante, pero mírale la cara: no tiene rayas en las mejillas. Y no solo dormita durante el invierno: se enfría hasta quedar apenas por encima del punto de congelación y su corazón baja a unos pocos latidos por minuto.",
+				"role": "Una máquina de semillas de lomo rayado que se pasa el corto verano comiendo hasta redondearse y luego desaparece bajo tierra medio año. Entierra semillas por toda la ladera y olvida las suficientes como para replantarla, y desentierra y come hongos subterráneos, así que las esporas viajan por su intestino y acaban plantadas en otro sitio. Armiños, martas, linces y águilas la cazan, y los túneles que abandona se convierten en refugio para sapos y escarabajos.",
+				"hint": "Solo está sobre el suelo medio año, así que búscala en los meses cálidos. Flores cargadas de semillas para engordar, roca donde meterse y terreno escarbable bajo un canto rodado para el sueño largo."
 			},
 			"american-badger": {
 				"diet": "Desentierra ardillas terrestres, tuzas, campañoles y ratones; también insectos",
-				"fact": "Los tejones a veces se asocian con coyotes: el tejón desentierra presas por abajo mientras el mountain-lion captura a las que huyen por arriba.",
-				"hint": "Un montón de ramas y un montón de rocas, una vez que los campañoles hayan regresado.",
+				"fact": "Los tejones a veces se asocian con coyotes: el tejón desentierra presas por abajo mientras el mountain lion captura a las que huyen por arriba.",
+				"hint": "Suelo profundo y sin piedras que pueda desgarrar, pasto amplio encima y una colonia de ardillas terrestres que cazar. Los montones de rocas son justo lo contrario de lo que quiere.",
 				"name": "Tejón americano",
 				"preferredHabitat": "Praderas y pastizales abiertos con suelo excavable y roedores como presa",
 				"role": "Un carnívoro fosorial que caza excavando roedores de madriguera directamente de sus túneles, manteniendo a raya el número de ardillas terrestres y campañoles. Sus madrigueras abandonadas benefician a otros animales. Los tejones adultos prácticamente no tienen depredadores en esta pradera.",
@@ -283,7 +283,7 @@
 			"american-goldfinch": {
 				"diet": "Casi por completo semillas: de cardo, girasol, aster y pasto",
 				"fact": "Los jilgueros son estrictamente vegetarianos y anidan tarde en verano, cuando el vilano del cardo ya está listo para forrar sus nidos.",
-				"hint": "Planta un rincón de flores silvestres y añade una percha para aves.",
+				"hint": "Deja que los girasoles y los cardos nativos se queden en pie y granen. El vilano es lo que forra el nido tardío, así que no los cortes en otoño.",
 				"name": "Jilguero yanqui",
 				"preferredHabitat": "Campos con maleza y zonas abiertas con cardo, girasol y asters",
 				"role": "Un granívoro especialista que prospera con el cardo y otras semillas de compuestas, lo que lo vuelve un importante dispersor de semillas de plantas de maleza por toda la pradera. Al ser pequeño y abundante, es presa de ágiles halcones cazadores de aves y de pequeños búhos.",
@@ -301,25 +301,25 @@
 			"anemone": {
 				"diet": "Cangrejos, mejillones desprendidos y peces pequeños aturdidos por sus tentáculos",
 				"fact": "Su resplandor verde proviene de algas que viven dentro de sus tejidos y le comparten azúcares.",
-				"hint": "Pozas claras y tranquilas.",
+				"hint": "Una poza soleada con oleaje corriendo por ella, justo debajo de un banco de mejillones. La cena cae desde arriba.",
 				"name": "Anémona verde gigante",
 				"preferredHabitat": "Pozas de marea claras y alimentadas por el oleaje cerca de bancos de mejillones",
 				"role": "Una carnívora de emboscada de las pozas de marea que captura presas arrastradas de las rocas, mientras cultiva algas simbióticas para obtener alimento extra. Es una depredadora menor que ayuda a reciclar mariscos y cangrejos desprendidos.",
 				"shelter": "Paredes de las pozas de marea, a menudo bajo los bancos de mejillones"
 			},
 			"crow": {
-				"diet": "Néctar de flores e insectos pequeños",
-				"fact": "Los machos se lanzan en picada desde unos 27 m y se enderezan con un fuerte chirrido producido por las plumas de la cola.",
-				"hint": "Planta un ciprés de Monterrey con pasto de duna y armeria marina.",
-				"name": "Colibrí de Anna",
-				"preferredHabitat": "Matorral costero florido y jardines",
-				"role": "Un colibrí costero de todo el año que se alimenta de néctar e insectos pequeños, polinizando arbustos como la manzanita y la grosella mientras forrajea. Enlaza el matorral costero florido con la red trófica más amplia.",
-				"shelter": "Arbustos y árboles pequeños del matorral costero"
+				"name": "Cuervo americano",
+				"diet": "cangrejos, mariscos, huevos, insectos, fruta y todo lo que deja la marea",
+				"shelter": "Un nido voluminoso de ramas en lo alto de un pino costero, reparado y reutilizado año tras año",
+				"preferredHabitat": "La franja donde la playa se encuentra con los árboles, con vista despejada a la línea de marea",
+				"fact": "Los cuervos deducen que una concha se rompe si la dejan caer sobre roca, y eligen el sitio: uno que ha aprendido el truco sube con una almeja, la suelta y ajusta la altura hasta que la concha cede. Además recuerdan caras durante años.",
+				"role": "El ave más astuta de la costa. Patrulla la línea de marea en busca de cualquier cosa varada, abre a golpes lo que no puede morder y sigue a las gaviotas y a las nutrias para ver qué sacan.",
+				"hint": "Un árbol alto retirado de la playa donde anidar, y una línea de algas que valga la pena patrullar. Lo demás lo encuentra solo."
 			},
 			"antelope-squirrel": {
 				"diet": "Semillas, fruta, verdes e insectos",
 				"fact": "Lleva la cola arqueada sobre el lomo como una sombrilla para protegerse del sol.",
-				"hint": "Una madriguera y una grieta en la roca entre el matorral del desierto.",
+				"hint": "Las semillas secas por sí solas no lo mantendrán vivo: necesita fruta jugosa, y eso significa recibir antes a las abejas.",
 				"name": "Ardillón antílope",
 				"preferredHabitat": "Desierto abierto con madrigueras",
 				"role": "Un omnívoro diurno y tolerante al calor que come semillas, verdes, fruta e insectos incluso bajo el calor del mediodía. Es presa de halcones, zorros, gatos monteses y serpientes. Se da sombra con su cola y disipa calor sobre el suelo fresco.",
@@ -328,7 +328,7 @@
 			"banana-slug": {
 				"diet": "Hojas muertas, hongos, materia en descomposición y excrementos de animales; ocasionalmente plántulas vivas",
 				"fact": "Las babosas banana pasan semillas viables y esporas de hongos por su intestino, sembrando plantas y redes micorrízicas a medida que se arrastran.",
-				"hint": "Mantén el suelo del bosque húmedo, cubierto de musgo y lleno de troncos.",
+				"hint": "Hojarasca profunda y húmeda, sombra con musgo y setas que pastar. Sáltate el estanque: esta bebe por la piel, directamente de la hojarasca.",
 				"name": "Babosa banana",
 				"preferredHabitat": "Suelo de bosque del Pacífico fresco, sombreado y persistentemente húmedo",
 				"role": "Las babosas banana son descomponedoras primarias que degradan la hojarasca y los excrementos, devolviendo nutrientes al suelo. Dispersan semillas y esporas micorrízicas, asociándose tanto con las plantas como con las redes de hongos que alimentan a los árboles del bosque. Su mucosa adormecedora disuade a la mayoría de los depredadores, dejando a las culebras de jarretera y las musarañas como sus principales consumidores.",
@@ -337,7 +337,7 @@
 			"barn-owl": {
 				"diet": "Casi por completo mamíferos pequeños: ratones de campo, ratones y musarañas; caza de noche",
 				"fact": "El disco facial en forma de corazón de la lechuza común canaliza el sonido con tal precisión que puede cazar presas en total oscuridad guiándose solo por el oído.",
-				"hint": "Una pradera tranquila y sana con muchos ratones de campo y un lugar oscuro para descansar.",
+				"hint": "Un pajar oscuro o una caja honda en alto, pasto amplio que peinar y una pradera ya llena de campañoles. El agua la saca de sus presas.",
 				"name": "Lechuza común",
 				"preferredHabitat": "Pastizales y praderas abiertas cazados de noche con vuelo silencioso",
 				"role": "La cazadora de roedores del turno nocturno de la pradera, que recorre el pasto a baja altura con vuelo silencioso y traga enteros a ratones de campo y ratones. Esto la convierte en un freno importante para las poblaciones de roedores. En la pradera se ubica cerca de la cima de la red trófica, sin depredadores habituales.",
@@ -346,7 +346,7 @@
 			"bat-star": {
 				"diet": "Algas, detritos y plantas y animales muertos",
 				"fact": "Una estrella murciélago puede tener entre cuatro y nueve brazos, no siempre cinco.",
-				"hint": "Un par de pozas de marea con una pradera de pasto marino.",
+				"hint": "Roca partida y cascajo con pasto marino ondeando por encima. Es un animal de fondo rocoso, no de zostera.",
 				"name": "Estrella murciélago",
 				"preferredHabitat": "Pozas de marea rocosas poco profundas y pasto marino",
 				"role": "Una carroñera omnívora que extiende su estómago sobre el fondo marino para digerir algas y carroña. Es la cuadrilla de limpieza de los bajíos, reciclando materia muerta y manteniendo ordenadas las pozas de marea y las praderas de pasto marino.",
@@ -355,7 +355,7 @@
 			"beaver": {
 				"diet": "Corteza y cámbium de sauce y álamo temblón, además de plantas acuáticas",
 				"fact": "Las represas de castores crean humedales que almacenan agua y sostienen a cientos de otras especies.",
-				"hint": "Canales de agua restaurados, orillas de barro y plantas leñosas.",
+				"hint": "Sauces que talar y comer, una orilla blanda donde hacer la madriguera y agua suficiente para que flote un tronco. Cuando se instale, se podrán construir siete hábitats nuevos.",
 				"name": "Castor americano",
 				"preferredHabitat": "Canales lentos con orillas de barro y plantas leñosas para talar",
 				"role": "El ingeniero del ecosistema del humedal. Al talar árboles y construir represas, los castores inundan nuevas charcas, elevan el nivel freático y crean hábitat del que dependen casi todas las demás especies del pantano.",
@@ -373,7 +373,7 @@
 			"bighorn-sheep": {
 				"diet": "Principalmente pastos y juncias, con herbáceas y ramoneo leñoso en invierno",
 				"fact": "Los cimarrones huyen por salientes rocosos de apenas unos centímetros de ancho para escapar de los depredadores.",
-				"hint": "Laderas con pasto y terreno rocoso de escape.",
+				"hint": "El buen pasto es solo la mitad. No usará una ladera de la que no pueda escapar, así que pon el césped pegado al acantilado quebrado, y un salero cerca, porque viajará muy lejos por sal.",
 				"name": "Borrego cimarrón",
 				"preferredHabitat": "Laderas de montaña abiertas y cubiertas de pasto junto a acantilados rocosos y escarpados",
 				"role": "Un pastoreador de borde de acantilado que recorta pastos y herbáceas en laderas abiertas, nunca lejos de terreno de escape escarpado. Los machos chocan sus cuernos en estruendosos combates de celo cada otoño. Los pumas cazan a corderos y adultos, y las águilas pueden llevarse a los más jóvenes.",
@@ -382,25 +382,25 @@
 			"black-bear": {
 				"diet": "Bayas, nueces, pastos y hierbas; insectos, peces y carroña; crías de venado de forma oportunista",
 				"fact": "Las crías del oso negro nacen durante la hibernación pesando menos de un cuarto de kilo: los recién nacidos más pequeños respecto al tamaño adulto de cualquier mamífero placentario.",
-				"hint": "Los osos solo regresan a un bosque ricamente restaurado: muchas bayas, agua, refugio y espacio.",
+				"hint": "Una despensa llena y una cama de invierno: cosechas abundantes de bayas, robles que den bellotas, agua, y una guarida bajo las raíces levantadas de un árbol caído.",
 				"name": "Oso negro",
 				"preferredHabitat": "Bosque denso con sotobosque espeso y abundante fruto de bayas y nueces",
 				"role": "Los osos negros son omnívoros generalistas que dispersan las semillas de las bayas, desentierran y regulan insectos coloniales y toman de forma oportunista crías de venado y de alce. Como el carnívoro grande más abundante de los bosques de Norteamérica, conectan a la vez las capas de fruto, de insectos y de vertebrados. Los adultos prácticamente no tienen depredadores naturales.",
 				"shelter": "Guaridas en árboles huecos, masas de raíces, grietas rocosas o cavidades cavadas; hiberna en invierno"
 			},
 			"puffin": {
-				"diet": "Mejillones y lapas, además de bocinas y cangrejos",
-				"fact": "Su largo pico rojo abre los mariscos por palanca y corta el músculo antes de que la concha se cierre.",
-				"hint": "Un banco de ostras junto a una poza de marea.",
-				"name": "Ostrero negro",
-				"preferredHabitat": "Arrecifes intermareales rocosos y orillas de pozas de marea",
-				"role": "Un especialista de la costa rocosa que arranca mejillones y lapas de las rocas, ajustando su alimentación a las mareas. Es un indicador sensible de la salud intermareal, que prospera solo donde los mariscos abundan.",
-				"shelter": "Repisas de la costa rocosa justo por encima de la marea"
+				"name": "Frailecillo coletudo",
+				"diet": "peces pequeños llevados de través en el pico, más camarones y otros nadadores diminutos",
+				"shelter": "Una madriguera excavada un metro hacia dentro del césped, en lo alto de un acantilado marino",
+				"preferredHabitat": "Cumbres de acantilado cubiertas de hierba sobre agua profunda, con suelo blando para excavar",
+				"fact": "Puede sostener una docena de peces de través en el pico a la vez sin que se le caiga ninguno: unas púas dirigidas hacia atrás en la lengua y el paladar sujetan cada uno mientras atrapa el siguiente.",
+				"role": "Un ave marina pequeña que pasa casi toda su vida en mar abierto y solo toca tierra para anidar, excavando una madriguera en el césped del acantilado. Su pico solo se vuelve naranja intenso en la época de cría; después se apaga otra vez para el invierno.",
+				"hint": "Césped blando en lo alto de un acantilado donde excavar una madriguera, y agua profunda debajo llena de peces pequeños."
 			},
 			"black-turnstone": {
 				"diet": "Percebes, lapas, mejillones y pequeños invertebrados",
 				"fact": "Los vuelvepiedras dan vuelta piedras y conchas para atrapar a las criaturas que se esconden debajo.",
-				"hint": "Pozas de marea y arribazón de kelp con un montón de madera flotante donde refugiarse.",
+				"hint": "Roca con costra de percebes que martillear cuando baja la marea, y una roca alta y seca donde plantarse cuando no.",
 				"name": "Vuelvepiedras negro",
 				"preferredHabitat": "Costas intermareales rocosas",
 				"role": "Un forrajeador de la costa rocosa que desprende percebes y lapas y voltea la arribazón para encontrar presas ocultas. Ayuda a mantener a raya el número de invertebrados intermareales y depende de costas rocosas ricas.",
@@ -409,7 +409,7 @@
 			"bobcat": {
 				"diet": "Carnívoro obligado: conejos, roedores, ardillas y crías de venado; algunas aves y reptiles",
 				"fact": "En el este de EE. UU., el número de linces rojos sube y baja de cerca junto con la disponibilidad local de conejos de cola de algodón.",
-				"hint": "Los linces siguen a las presas abundantes y necesitan refugio rocoso y de matorral.",
+				"hint": "Sotobosque denso por donde acechar, una guarida de roca resguardada para las crías, y presas ya de vuelta en abundancia.",
 				"name": "Lince rojo",
 				"preferredHabitat": "Bosque con sotobosque denso, matorral y terreno rocoso",
 				"role": "Los linces rojos son mesodepredadores clave que reducen conejos, roedores y ardillas, aliviando la presión de ramoneo sobre las plantas del bosque. Como cazadores de nivel medio, se ubican por debajo de pumas y lobos y por encima de los mamíferos pequeños que capturan. Ayudan a estructurar comunidades enteras de mamíferos pequeños.",
@@ -418,7 +418,7 @@
 			"boreal-toad": {
 				"diet": "Escarabajos, hormigas, moscas y otros invertebrados; los renacuajos pastan algas",
 				"fact": "Los sapos boreales de las Rocosas se han desplomado por el letal hongo quítrido de los anfibios.",
-				"hint": "Una poza de deshielo y unas cuantas casillas de agua abierta.",
+				"hint": "Charcas someras y templadas donde criar, y una madriguera donde pasar los otros ocho meses del año. Mantén las charcas sin peces: las truchas sembradas son la mayor causa de que desaparezcan los anfibios de altura.",
 				"name": "Sapo boreal",
 				"preferredHabitat": "Praderas húmedas subalpinas y alpinas con pozas de cría abiertas",
 				"role": "El único sapo de las tierras altas, un anfibio insectívoro que se reproduce en pozas someras de deshielo y tarda años en madurar. Sus renacuajos pastan algas. El hongo quítrido ha devastado las poblaciones del sur, convirtiéndolo en emblema de la conservación.",
@@ -427,7 +427,7 @@
 			"brant-goose": {
 				"diet": "Pasto marino y algas verdes grandes como la lechuga de mar",
 				"fact": "Bandadas enteras de barnaclas dependen de las praderas de pasto marino para impulsar sus largas migraciones.",
-				"hint": "Una pradera de pasto marino junto a agua abierta.",
+				"hint": "Pasto marino que pastar y un banco de arena tranquilo donde esperar mientras la marea está demasiado alta para comer.",
 				"name": "Barnacla carinegra",
 				"preferredHabitat": "Bahías costeras poco profundas con praderas de pasto marino",
 				"role": "Un pequeño ganso marino que pasta casi por completo pasto marino y algas verdes en bahías poco profundas. Su dependencia del pasto marino convierte a las bandadas sanas de barnaclas en un claro indicador de praderas de pasto marino intactas.",
@@ -436,25 +436,25 @@
 			"bumblebee": {
 				"diet": "Néctar para obtener energía y polen para proteína, de muchos tipos de flores",
 				"fact": "Los abejorros hacen 'polinización por vibración': vibran los músculos de vuelo para sacudir el polen de flores como el tomate y el arándano.",
-				"hint": "Cuantos más tipos de flores, mejor.",
+				"hint": "Las flores son solo la mitad. La reina necesita además un viejo agujero de campañol bajo una mata espesa de pasto para fundar su colonia.",
 				"name": "Abejorro",
 				"preferredHabitat": "Praderas y pastizales ricos en flores con floración continua",
 				"role": "Un polinizador generalista de cuerpo grande que visita una enorme variedad de flores en busca de néctar y polen. Su polinización por vibración libera polen que muchas otras abejas no pueden alcanzar, lo que lo hace vital para la reproducción de las plantas de la pradera. Es presa de cazadores al acecho e insectívoros aéreos.",
 				"shelter": "Anida en madrigueras de roedores abandonadas, matas de pasto o cavidades en el suelo"
 			},
 			"alpine-moth": {
-				"diet": "Néctar y polen de flores alpinas de corola profunda",
-				"fact": "La lengua de este abejorro se acortó de forma medible entre 1966 y 2014 a medida que menguaban las flores.",
-				"hint": "Más flores, más abejas, incluso aquí arriba.",
-				"name": "Abejorro alpino",
-				"preferredHabitat": "Praderas floridas alpinas y boreales, a menudo sobre el límite arbóreo",
-				"role": "Un abejorro tolerante al frío y de lengua larga que poliniza las flores alpinas profundas, haciendo vibrar sus músculos de vuelo para volar en aire casi helado. Sus colonias anidan bajo tierra. Aves, arañas cangrejo y moscas asesinas depredan a las forrajeadoras.",
-				"shelter": "Nidos coloniales en cavidades del suelo y viejas madrigueras de roedores"
+				"name": "Polilla alpina",
+				"diet": "néctar de flores de adulta, bebido después del anochecer; hojas y raíces en las tierras bajas, de oruga",
+				"shelter": "Apretadas por millares en las grietas bajo las lajas del pedregal, a salvo del sol y del viento",
+				"preferredHabitat": "Pedregales altos junto a praderas floridas, pero solo en verano; el resto del año lo pasa mucho más abajo",
+				"fact": "Cada verano millones de estas polillas suben desde las tierras bajas y se esconden en la roca de los picos más altos. Son tan grasas que un oso se pasa el día entero volteando piedras para comerlas, y puede tragar cuarenta mil en una sola jornada.",
+				"role": "El reparto de combustible de la montaña. Engordan con las flores de las tierras bajas, luego migran cientos de kilómetros cuesta arriba para pasar el verano en la roca fría, y cada una llega como un paquetito de grasa más rico que cualquier otra cosa que crezca aquí arriba. Osos, aves y casi todo lo que caza en un pedregal se alimenta de ellas. De noche salen a beber néctar y polinizan las flores de las alturas; al amanecer están otra vez bajo las lajas. Rompe la roca suelta y se va con ella la despensa entera.",
+				"hint": "Flores de las que beber por la noche y lajas sueltas bajo las que esconderse de día. Solo aparece en pleno verano; el resto del año es una oruga muy montaña abajo."
 			},
 			"burrowing-owl": {
 				"diet": "Insectos y pequeños roedores",
 				"fact": "Emite un siseo áspero que imita a una serpiente de cascabel para ahuyentar a los intrusos de su madriguera.",
-				"hint": "Madrigueras listas para usar y terreno abierto donde cazar.",
+				"hint": "No sabe cavar. Trae primero a la tortuga y su vieja madriguera será la puerta de entrada, con terreno bajo y abierto delante donde cazar.",
 				"name": "Tecolote llanero",
 				"preferredHabitat": "Montículos de madriguera con espacio abierto para cazar",
 				"role": "Un pequeño búho terrestre que anida en madrigueras prestadas y caza insectos de día y roedores de noche. Es a la vez insectívoro y mesodepredador de pequeños mamíferos. Tejones y coyotes lo depredan.",
@@ -463,7 +463,7 @@
 			"cactus-wren": {
 				"diet": "Arañas, insectos y algo de fruta",
 				"fact": "Los cucaracheros desérticos usan sus nidos de cholla con forma de balón todo el año, incluso duermen en ellos.",
-				"hint": "Un parche de cactus y matorral del desierto.",
+				"hint": "La cholla es el nido. Nada más aquí fuera es lo bastante espinoso, y no necesita beber ni una vez.",
 				"name": "Cucarachero desértico",
 				"preferredHabitat": "Desierto abierto con cactus",
 				"role": "El cucarachero más grande de Norteamérica, un insectívoro que espiga arañas e insectos y consume fruta de cactus. Obtiene casi toda su agua del alimento. Serpientes, correcaminos y halcones lo depredan a él y a sus nidos.",
@@ -472,7 +472,7 @@
 			"chipmunk": {
 				"diet": "Semillas, nueces y fruta, además de insectos, lombrices, babosas, hongos y huevos de aves ocasionales",
 				"fact": "Las ardillas listadas no hibernan de verdad: despiertan durante el invierno para comer de despensas de semillas que guardan más de un litro de alimento.",
-				"hint": "Refugio rocoso y montones de ramas en el suelo del bosque.",
+				"hint": "Con un montón de ramas donde meterse de un salto basta para empezar.",
 				"name": "Ardilla listada",
 				"preferredHabitat": "Bosque maduro caducifolio con troncos, tocones y refugio rocoso",
 				"role": "Las ardillas listadas son importantes almacenadoras dispersas que reparten semillas de árboles y esporas de hongos, favoreciendo la regeneración del bosque. Comen muchos insectos en verano y, como presa abundante, alimentan a un amplio gremio de depredadores, desde comadrejas hasta búhos. Sus madrigueras airean el suelo y dan refugio a otros animales pequeños.",
@@ -481,7 +481,7 @@
 			"chorus-frog": {
 				"diet": "Insectos pequeños y otros invertebrados diminutos",
 				"fact": "El canto en forma de peine de una rana coro se oye hasta a casi un kilómetro a través del pantano.",
-				"hint": "Agua poco profunda, cañas y vida de insectos.",
+				"hint": "Agua somera donde cantar y criar, y un montón hondo y húmedo de hojas en tierra firme donde pasar el invierno congelada dentro.",
 				"name": "Rana coro",
 				"preferredHabitat": "Charcas poco profundas rodeadas de cañas",
 				"role": "Un diminuto insectívoro cuyo coro primaveral llena el pantano. Come invertebrados pequeños y es a su vez una presa vital para garzas, visones y serpientes.",
@@ -508,7 +508,7 @@
 			"cottontail-rabbit": {
 				"diet": "Pastos y trébol en verano; ramitas, corteza y brotes en invierno",
 				"fact": "Los conejos de cola de algodón descansan en depresiones poco profundas del suelo llamadas 'camas', en lugar de cavar sus propias madrigueras.",
-				"hint": "Planta pasto nativo y un arbusto de bayas, con matorrales que sirvan de refugio cerca.",
+				"hint": "Una cama de matorral donde refugiarse de un brinco, pasto nativo que pastar y bayas cerca. Casi toda su agua la saca de las plantas verdes.",
 				"name": "Conejo de cola de algodón",
 				"preferredHabitat": "Praderas y bordes de campos con setos espesos donde refugiarse",
 				"role": "Un herbívoro pastador abundante y una presa fundamental de la pradera. Se alimenta de pastos, trébol y ramoneo leñoso, y se reproduce rápido para compensar la fuerte depredación. Zorros, halcones, búhos y tejones dependen de estos conejos como fuente de alimento.",
@@ -521,7 +521,7 @@
 				"preferredHabitat": "Cañones quebrados con salientes, peñascos y matorral para acechar, y agua confiable cerca",
 				"fact": "El felino más grande de aquí no puede rugir. Ronronea como un gato casero, grita como una pesadilla y, desde parado, salta cinco metros hacia arriba hasta un saliente.",
 				"role": "La cima de la cadena alimenticia del desierto y un cazador de emboscada puro: no persigue, se acerca y estalla. Por eso necesita terreno quebrado y matorral donde esconderse; en el llano abierto se queda con hambre. Arrastra una presa grande hasta la sombra y la entierra bajo palos y arena para volver durante días, lo que alimenta de paso a cuervos, zorras y escarabajos. Nada de aquí caza a un puma adulto.",
-				"hint": "Primero presas grandes. Luego terreno quebrado para acechar y un saliente resguardado para los cachorros. Este sí baja a beber. Es el último animal en volver."
+				"hint": "Primero presas grandes. Luego terreno quebrado para acechar y un saliente resguardado para los cachorros. Este sí baja a beber."
 			},
 			"cactus-bee": {
 				"diet": "Néctar y polen de flores de cactus",
@@ -535,7 +535,7 @@
 			"desert-tortoise": {
 				"diet": "Pastos, flores silvestres y pencas de cactus",
 				"fact": "Las tortugas del desierto pueden vivir 80 años y pasar hasta el 98 % de su vida en madrigueras.",
-				"hint": "Sombra, plantas nativas y terreno para madrigueras.",
+				"hint": "Una madriguera de caliche en una ladera rocosa, con pasto y flores silvestres que pastar delante. Solo bebe cuando la lluvia encharca, y puede esperar un año entero a que pase.",
 				"name": "Tortuga del desierto",
 				"preferredHabitat": "Plantas nativas con sombra y suelo para madrigueras",
 				"role": "Un herbívoro longevo e ingeniero del ecosistema. Sus madrigueras, que pueden superar los 10 metros, dan refugio a serpientes, lagartijas, roedores e insectos. Los adultos casi no tienen depredadores, pero los huevos y las crías son muy consumidos.",
@@ -544,7 +544,7 @@
 			"dragonfly": {
 				"diet": "Insectos voladores de adulta; las larvas acuáticas comen larvas de mosquito y renacuajos",
 				"fact": "Las libélulas atrapan hasta el 95 % de las presas que persiguen, entre las mejores cazadoras de la Tierra.",
-				"hint": "Agua limpia y cañas para que trepen las larvas.",
+				"hint": "Agua limpia y abierta para las ninfas de abajo, y tallos altos en la orilla por los que trepar cuando llegue el momento de cambiar.",
 				"name": "Libélula",
 				"preferredHabitat": "Agua limpia con posaderos de cañas",
 				"role": "Un depredador tope entre los invertebrados, tanto en el aire como bajo el agua. Los adultos cazan insectos voladores mientras que las ninfas acuáticas devoran larvas de mosquito y peces diminutos.",
@@ -562,7 +562,7 @@
 			"elf-owl": {
 				"diet": "Insectos y escorpiones",
 				"fact": "El búho más pequeño del mundo le arranca el aguijón a los escorpiones antes de comérselos.",
-				"hint": "Planta un mezquite y un palo fierro junto a un parche de cactus.",
+				"hint": "Con el cactus no basta. Primero un carpintero tiene que perforar el hueco y dejar que la planta lo selle hasta formar una bota.",
 				"name": "Tecolote elfo",
 				"preferredHabitat": "Desierto de mezquite y saguaro",
 				"role": "El búho más pequeño del mundo, un insectívoro nocturno que caza insectos y escorpiones y anida en viejos huecos de carpintero. Es un mesodepredador de artrópodos del desierto. Serpientes y búhos mayores lo amenazan.",
@@ -580,7 +580,7 @@
 			"ermine": {
 				"diet": "Pequeños roedores, sobre todo campañoles; también picas, aves, huevos e insectos",
 				"fact": "Su pelaje se vuelve blanco puro en invierno, salvo por una punta de la cola negro azabache.",
-				"hint": "Pila de rocas y krummholz, una vez que las picas hayan vuelto.",
+				"hint": "Se muda a una madriguera que acaba de vaciar, así que trae primero de vuelta a los roedores pequeños.",
 				"name": "Armiño",
 				"preferredHabitat": "Talud y bordes con arbustos cerca de praderas con densas presas roedoras",
 				"role": "Una comadreja pequeña y fiera que se especializa en campañoles y otros roedores, capturando también picas jóvenes y huevos de aves terrestres. Caza en las madrigueras de sus presas, en las que se cuela sin problema. Zorros, martas y rapaces la depredan a su vez.",
@@ -589,7 +589,7 @@
 			"fisher": {
 				"diet": "Mamíferos pequeños y medianos: puercoespines, liebres, ardillas, ratones; también aves y fruta",
 				"fact": "La marta pescadora es uno de los pocos depredadores que mata regularmente puercoespines, acuchillándoles la cara hasta poder darles vuelta.",
-				"hint": "Planta un abedul, añade un tocón y un tronco con hongos, una vez que las ardillas hayan vuelto.",
+				"hint": "Dosel cerrado por encima, un árbol vivo grande y lo bastante hueco para criar a las crías bien alto, y ardillas y puercoespines abajo que cazar.",
 				"name": "Marta pescadora",
 				"preferredHabitat": "Bosque denso de coníferas y mixto con alto cierre de dosel y árboles huecos",
 				"role": "La marta pescadora es un poderoso depredador de bosque de nivel medio y uno de los pocos frenos al número de puercoespines, que de otro modo dañan la madera. En parte llena el nicho de los depredadores apicales desaparecidos, y su presencia indica un bosque maduro y conectado. Las martas pescadoras jóvenes son presa de gatos monteses, zorros y linces.",
@@ -598,20 +598,20 @@
 			"forest-salamander": {
 				"diet": "Invertebrados pequeños: ácaros, colémbolos, arañas, escarabajos, hormigas y lombrices",
 				"fact": "En algunos bosques del este, el peso combinado de estas diminutas salamandras sin pulmones supera al de todas las aves.",
-				"hint": "Troncos húmedos y sombreados y agua limpia y poco profunda.",
+				"hint": "Esta se salta la fase de renacuajo por completo: los huevos eclosionan ya formados dentro de un tronco podrido. No hace falta estanque, solo madera húmeda y hojarasca profunda.",
 				"name": "Salamandra de bosque",
 				"preferredHabitat": "Suelo de bosque caducifolio fresco y húmedo con abundantes restos leñosos",
 				"role": "Las salamandras de dorso rojo son una especie clave de la red de detritos del suelo del bosque, ya que controlan a los ácaros y colémbolos que descomponen la hojarasca. Su enorme biomasa colectiva las hace un aporte alimenticio clave para serpientes, aves y mamíferos pequeños. Respiran a través de la piel, así que reflejan la humedad del bosque y la salud del suelo.",
 				"shelter": "Bajo troncos, rocas y hojarasca húmeda; se retira a madrigueras en el suelo"
 			},
 			"lynx": {
-				"diet": "Campañoles, picas, liebres, aves terrestres y huevos, insectos y bayas",
-				"fact": "Los zorros rojos suelen instalarse en madrigueras excavadas por conejos o marmotas en lugar de cavar.",
-				"hint": "Los zorros siguen a las picas y las marmotas.",
-				"name": "Zorro rojo",
-				"preferredHabitat": "Tierras altas con cobertura rocosa y abundantes presas pequeñas",
-				"role": "Un mesodepredador de montaña adaptable que caza picas, marmotas y aves terrestres, y completa su dieta con insectos y bayas. Escucha a sus presas moviéndose bajo la nieve y luego se lanza de cabeza. Las águilas reales son su principal amenaza aquí.",
-				"shelter": "Madrigueras de tierra, a menudo apropiadas de otros animales"
+				"name": "Lince canadiense",
+				"diet": "liebres americanas por encima de todo, a veces casi nada más, además de lagópodos coliblancos, ardillas terrestres y marmotas jóvenes",
+				"shelter": "Un hueco bajo rocas, raíces o troncos caídos, a menudo una madriguera que otro empezó y él ensanchó",
+				"preferredHabitat": "Tierras altas nevadas con espesuras de coníferas enanas donde las liebres puedan esconderse y él pueda esperarlas",
+				"fact": "Un lince canadiense pesa más o menos lo que un border collie, pero sus patas son tan anchas como las de un puma. Se abren al pisar, así que camina sobre una nieve por la que un zorro se hundiría.",
+				"role": "El especialista en liebres de la montaña, y casi nada más le sirve. Cuando hay liebres por todas partes, hay linces por todas partes; cuando las liebres se desploman unos años después, los linces se desploman detrás, y el ciclo entero oscila con un pulso de unos diez años. Caza quedándose absolutamente quieto en la espesura y dejando que la liebre venga a él, así que la cobertura baja y enmarañada le importa más que el terreno abierto. Rara vez excava: se muda a un hueco bajo las rocas que abrió otro. Las águilas se llevan a sus crías.",
+				"hint": "Sin liebres no hay nada que hacer: es así de simple. Recupera las espesuras de pino enano para que las liebres tengan dónde esconderse, y se instalará en un hueco bajo las rocas que algo más excavó."
 			},
 			"minnow": {
 				"diet": "Algas, plancton, larvas de insecto e invertebrados pequeños",
@@ -632,13 +632,13 @@
 				"shelter": "Espesuras densas de matorral"
 			},
 			"ratsnake": {
-				"diet": "Lombrices, anfibios y babosas; también sanguijuelas, peces, insectos y roedores pequeños",
-				"fact": "Las culebras de jarretera son el principal depredador del tritón de piel rugosa, que es tóxico, y algunas han desarrollado resistencia a su veneno.",
-				"hint": "Un montón de rocas soleado junto a un terreno herboso de caza.",
-				"name": "Culebra de jarretera",
-				"preferredHabitat": "Bordes de bosque húmedos y zonas ribereñas cerca de estanques y arroyos",
-				"role": "Las culebras de jarretera son depredadoras generalistas de nivel medio que reducen lombrices, babosas, anfibios y peces pequeños. En el noroeste del Pacífico son el freno clave para los tritones de piel rugosa, y su resistencia a la toxina las convierte en un famoso nodo coevolutivo. Son presa importante de rapaces, córvidos y depredadores mayores.",
-				"shelter": "Madrigueras comunales de invierno en túneles y montones de rocas; se esconde bajo troncos y rocas"
+				"name": "Culebra ratonera negra",
+				"diet": "ratones, campañoles, ardillas listadas y ardillas jóvenes, además de aves y huevos sacados directamente de los nidos",
+				"shelter": "Troncos huecos, bolsas de pudrición y cavidades de tocón; los huevos van a un montón cálido de virutas de madera podrida",
+				"preferredHabitat": "Bosques viejos y bordes de bosque con árboles grandes de corteza rugosa para trepar y roedores debajo",
+				"fact": "Puede subir por un tronco desnudo sin nada a lo que agarrarse. Encaja los bordes de sus escamas ventrales en los surcos de la corteza y camina por el costado del árbol, y luego saquea el nido de arriba.",
+				"role": "El freno de roedores del bosque, y el único cazador de aquí que trabaja en tres dimensiones. En el suelo se lleva ratones, campañoles y ardillas listadas por docenas; arriba, en la copa, asalta viejos huecos de carpintero y nidos de aves canoras, por lo que todo pájaro que la oye la acosa. Mata enroscándose y apretando, no con veneno, y cuando se sobresalta se queda rígida en una forma quebrada que parece exactamente una rama caída. Nunca incuba sus huevos: los entierra en madera podrida y deja que el calor de la pudrición haga el trabajo. Zorros, martas pescadoras y búhos cornudos la comen.",
+				"hint": "Los árboles grandes de corteza rugosa son la clave entera: caza tanto por ellos como debajo de ellos. Deja un montón de virutas de madera podrida al pie de un tocón para sus huevos, y sáltate el estanque: no lo necesita."
 			},
 			"garter-snake": {
 				"diet": "Lombrices, anfibios, babosas, peces pequeños, insectos y roedores pequeños",
@@ -661,7 +661,7 @@
 			"golden-eagle": {
 				"diet": "Marmotas, liebres, ardillas terrestres, lagópodos y otras aves, además de carroña",
 				"fact": "Las águilas reales a veces recubren sus nidos con hojas aromáticas, quizás para ahuyentar insectos.",
-				"hint": "Las águilas llegan las últimas, cuando las tierras altas están de verdad llenas de vida otra vez.",
+				"hint": "Este llega el último, cuando la montaña vuelve a estar de verdad viva. Necesita un acantilado de verdad para el nido y terreno abierto debajo con mucho movimiento.",
 				"name": "Águila real",
 				"preferredHabitat": "Tierras altas abiertas con acantilados y abundantes presas medianas",
 				"role": "El cazador ápice de las tierras altas, que caza marmotas, liebres y lagópodos e incluso carnívoros más pequeños en picados poderosos. Llega solo cuando la montaña rebosa de presas. Los adultos prácticamente no tienen depredadores.",
@@ -670,7 +670,7 @@
 			"grasshopper": {
 				"diet": "Herbívoro que se alimenta de pastos, juncias y hierbas de hoja ancha",
 				"fact": "Los saltamontes oyen a través de tímpanos: membranas parecidas a un oído situadas en el primer segmento del abdomen, no en la cabeza.",
-				"hint": "Los saltamontes vuelven casi tan pronto como lo hace el pasto.",
+				"hint": "Vuelve casi tan pronto como lo hace el pasto.",
 				"name": "Saltamontes",
 				"preferredHabitat": "Pastizales y praderas soleados ricos en pastos y hierbas",
 				"role": "Un herbívoro dominante y la principal base de presas de la pradera, que convierte pastos y hierbas en alimento para una enorme variedad de depredadores. Su abundancia sostiene a aves, serpientes, mamíferos y otros insectos. Los auges en el número de saltamontes repercuten en toda la red trófica.",
@@ -679,7 +679,7 @@
 			"great-blue-heron": {
 				"diet": "Peces, ranas y animales acuáticos pequeños; también ratones de campo y otras aves",
 				"fact": "Una garza azul puede atacar como un rayo para arponear un pez o atrapar un ratón de campo.",
-				"hint": "Agua poco profunda con peces, cañas y un espacio tranquilo para anidar.",
+				"hint": "Agua somera llena de peces y ranas, y un rodal de árboles altos para la colonia. Esta anida junto a los de su especie o no anida.",
 				"name": "Garza azul",
 				"preferredHabitat": "Bajíos quietos para cazar con lentitud y paciencia",
 				"role": "El alto y paciente centinela de los bajíos y un depredador tope de la comunidad de peces del humedal. Acecha despacio y luego ataca más rápido de lo que el ojo puede seguir.",
@@ -688,7 +688,7 @@
 			"great-horned-owl": {
 				"diet": "Mamíferos y aves —conejos, ratones de campo, ardillas, ardillas listadas, zorrillos— además de reptiles y ranas",
 				"fact": "Los búhos cornudos están entre los pocos depredadores que matan y comen zorrillos con regularidad, al parecer sin inmutarse por el rociado.",
-				"hint": "Árboles altos, refugio tranquilo y presas que ya hayan regresado.",
+				"hint": "Árboles altos con el nido viejo de otro, porque este nunca construye el suyo, y presas que ya hayan vuelto al bosque.",
 				"name": "Búho cornudo",
 				"preferredHabitat": "Bosque maduro salpicado de terreno abierto, en casi todos los biomas",
 				"role": "El búho cornudo se ubica en la cima de la red trófica nocturna del bosque, con la base de presas más variada de cualquier rapaz de Norteamérica. Regula conejos, ardillas, ardillas listadas e incluso otros búhos, así que su pérdida deja que las poblaciones de presas se disparen. Los adultos prácticamente no tienen depredadores; solo los huevos y las crías son vulnerables.",
@@ -697,7 +697,7 @@
 			"ground-squirrel": {
 				"diet": "Sobre todo semillas, pastos y flores, además de insectos como saltamontes",
 				"fact": "Ante una serpiente de cascabel, estas ardillas patean arena y agitan la cola caliente: la llenan de sangre para saturar la 'visión' infrarroja de la serpiente.",
-				"hint": "Pasto para comer y rocas desde donde vigilar.",
+				"hint": "Suelo profundo y escarbable para un pueblo de madrigueras, y un muro de piedra desde donde montar guardia.",
 				"name": "Ardilla terrestre",
 				"preferredHabitat": "Praderas y laderas abiertas y herbosas cerca de puntos rocosos de vigilancia",
 				"role": "Un omnívoro excavador cuyas madrigueras airean el suelo y cuyos túneles abandonados dan refugio a otras especies. Come semillas, verdes e insectos y es una presa importante para halcones, zorros, serpientes y tejones. Sus colonias anclan la red trófica de la pradera basada en roedores.",
@@ -706,7 +706,7 @@
 			"gull": {
 				"diet": "Peces, cangrejos, almejas, estrellas de mar y carroña",
 				"fact": "Las gaviotas occidentales rompen las almejas dejándolas caer desde el aire sobre las rocas de abajo.",
-				"hint": "Las gaviotas aparecen apenas hay una playa que valga la pena patrullar.",
+				"hint": "Playa abierta que patrullar, matorral bajo junto al que anidar, y una roca plana y dura sobre la que bombardear mariscos.",
 				"name": "Gaviota occidental",
 				"preferredHabitat": "Cualquier costa con alimento que carroñear o capturar",
 				"role": "Una generalista atrevida que carroñea restos y depreda cangrejos, mariscos e incluso estrellas de mar, limpiando la playa y enlazando muchas presas con la cima de la red trófica. En tierra, zorros y coyotes cazan gaviotas y sus huevos.",
@@ -715,7 +715,7 @@
 			"harbor-seal": {
 				"diet": "Peces, además de calamares, pulpos y crustáceos",
 				"fact": "Las focas comunes pueden dormir bajo el agua, saliendo a respirar sin despertar del todo.",
-				"hint": "Playas tranquilas y agua limpia: las focas necesitan calma ante todo.",
+				"hint": "Agua profunda donde pescar y rocas tranquilas donde salir del agua, con espacio alrededor. Un varadero no es un cierre de nidificación de aves: construye lo correcto.",
 				"name": "Foca común",
 				"preferredHabitat": "Agua calma y limpia con costa de descanso sin perturbaciones",
 				"role": "Un depredador marino generalista que come cualquier pez abundante y fácil de capturar. Tiburones y orcas son sus principales depredadores costa afuera, pero en esta costa restaurada se ubica cerca de la cima de la red trófica.",
@@ -724,7 +724,7 @@
 			"hermit-crab": {
 				"diet": "Algas, detritos y carroña recolectada",
 				"fact": "Cuando aparece una concha mejor, los cangrejos ermitaños se ordenan por tamaño e intercambian conchas en cadena.",
-				"hint": "Pozas de marea más conchas arrastradas por el mar para mudarse.",
+				"hint": "Con una poza no basta. Deja un surtido de conchas de caracol vacías, o no habrá a dónde mudarse.",
 				"name": "Cangrejo ermitaño",
 				"preferredHabitat": "Pozas de marea con suministro de conchas vacías",
 				"role": "Un carroñero de las pozas de marea que limpia algas y carroña y recicla conchas de caracol vacías como armadura portátil. Es presa común de gaviotas, peces y pulpos en la red trófica intermareal.",
@@ -742,7 +742,7 @@
 			"horned-lizard": {
 				"diet": "Sobre todo hormigas, además de otros insectos pequeños",
 				"fact": "Los lagartos cornudos de Texas pueden lanzar un chorro de sangre desde los ojos para sobresaltar a los depredadores.",
-				"hint": "Rocas soleadas y suelo arenoso atraen a las hormigas, y a los lagartos.",
+				"hint": "Sin hormigas no hay nada que hacer. Deja los huecos entre los arbustos desnudos y abiertos: ahí es exactamente donde las hormigas cosechadoras despejan sus hormigueros.",
 				"name": "Lagarto cornudo",
 				"preferredHabitat": "Terreno abierto y soleado cerca de senderos de hormigas",
 				"role": "Un insectívoro especializado que se alimenta principalmente de hormigas cosechadoras, con un estómago grande para procesarlas. Es presa de correcaminos, halcones, alcaudones y serpientes. Su defensa de chorro de sangre apunta a los cánidos.",
@@ -751,7 +751,7 @@
 			"jackrabbit": {
 				"diet": "Pastos, cactus, y ramitas y corteza leñosas",
 				"fact": "Las enormes orejas de la liebre funcionan como radiadores, liberando el calor corporal para mantenerla fresca.",
-				"hint": "Espacio abierto para correr con matorral para dar sombra.",
+				"hint": "Pasto que pastar, arbustos que ramonear y un hoyo a la sombra donde echarse. Sáltate el agua: bebe de las plantas.",
 				"name": "Liebre de cola negra",
 				"preferredHabitat": "Planicies abiertas con matorral disperso",
 				"role": "Un herbívoro veloz de campo abierto que ramonea pastos, ramitas y cactus. Es presa importante de coyotes, gatos monteses y grandes rapaces. Sus grandes orejas sirven tanto para oír a los depredadores como para disipar calor.",
@@ -760,7 +760,7 @@
 			"kangaroo-rat": {
 				"diet": "Semillas, cuidadosamente almacenadas bajo tierra",
 				"fact": "Las ratas canguro nunca sudan ni jadean y se las arreglan con el agua que producen a partir de las semillas secas que comen.",
-				"hint": "Taludes con madrigueras y plantas con semillas cerca.",
+				"hint": "Plantas con semillas y suelo blando y escarbable, sobre todo los montículos sueltos amontonados en la base de un arbusto. No construyas nada de agua: puede que esta no beba ni una sola vez en toda su vida.",
 				"name": "Rata canguro",
 				"preferredHabitat": "Suelo suelto bajo matorral con semillas",
 				"role": "Un roedor granívoro y una especie presa clave del desierto. Almacena semillas bajo tierra, influyendo en qué plantas crecen. Alimenta a casi todos los depredadores del desierto, desde serpientes de cascabel hasta búhos y zorros.",
@@ -769,7 +769,7 @@
 			"kit-fox": {
 				"diet": "Ratas canguro, conejos, insectos y fruta ocasional",
 				"fact": "Es el cánido silvestre más pequeño de Norteamérica; sus enormes orejas le sirven tanto para oír a sus presas como para liberar calor.",
-				"hint": "Los zorros norteños regresan cuando abundan las presas y las madrigueras están listas.",
+				"hint": "Primero los roedores; su guarida es una madriguera prestada y agrandada. Nunca necesita que le des de beber.",
 				"name": "Zorro norteño",
 				"preferredHabitat": "Desierto abierto con abundantes presas pequeñas",
 				"role": "Un pequeño cánido nocturno del desierto y mesodepredador que caza roedores y conejos. Rara vez necesita beber, pues obtiene humedad de sus presas. Los coyotes son su principal amenaza.",
@@ -778,20 +778,20 @@
 			"ladybug": {
 				"diet": "Depredadora de pulgones y otros insectos pequeños de cuerpo blando",
 				"fact": "Una sola mariquita puede comer unos 5.000 pulgones a lo largo de su vida, aproximadamente 50 al día.",
-				"hint": "Las flores traen pulgones, y los pulgones traen mariquitas.",
+				"hint": "Un macizo de trébol. Los pulgones llegan solos, y esa es toda la invitación.",
 				"name": "Mariquita",
 				"preferredHabitat": "Praderas y jardines con plantas infestadas de pulgones",
 				"role": "Un pequeño depredador voraz que controla pulgones y otras plagas de cuerpo blando tanto de larva como de adulto, lo que la vuelve un valioso insecto de control biológico. A su vez es comida por aves insectívoras y depredadores de insectos mayores, conectando la capa de pulgones con el resto de la red trófica.",
 				"shelter": "Pasa el invierno en la hojarasca y en agrupaciones; se refugia en el follaje"
 			},
 			"skunk": {
-				"diet": "Insectívoro estricto: mosquitos enanos, frigáneas, efímeras, polillas, escarabajos y mosquitos",
-				"fact": "El síndrome de la nariz blanca, un hongo que prospera en el frío, ha eliminado más del 90 % de los murciélagos marrones pequeños en muchos sitios de hibernación.",
-				"hint": "Una caja para murciélagos cerca de madera muerta en pie, con arbustos llenos de insectos.",
-				"name": "Murciélago marrón pequeño",
-				"preferredHabitat": "Terreno boscoso cerca de arroyos, charcas y claros para alimentarse al vuelo",
-				"role": "Los murciélagos marrones pequeños son insectívoros voraces; cada uno come hasta la mitad de su peso corporal en insectos por noche y controla plagas del bosque y acuáticas. Son un enlace de nivel medio entre la capa de insectos y depredadores mayores como búhos, martas pescadoras y serpientes. El síndrome de la nariz blanca ha causado descensos catastróficos.",
-				"shelter": "Se posa en huecos de árbol, bajo la corteza y en edificios; hiberna en cuevas y minas"
+				"name": "Mofeta rayada",
+				"diet": "larvas de escarabajo e insectos escarbados del suelo, además de huevos, bayas y ratones",
+				"shelter": "Una madriguera prestada o un hueco bajo un tronco, tapado con hojas en las semanas más frías",
+				"preferredHabitat": "Bordes de bosque y claros con tierra blanda y fácil de escarbar y cobertura abundante",
+				"fact": "Preferiría no rociarte. Primero patea con las patas delanteras, luego bufa, luego hace el pino; y solo si ignoras las tres cosas se da la vuelta y dispara, con puntería, desde unos tres metros.",
+				"role": "La jardinera nocturna del bosque. Pasa las horas oscuras cavando pequeños hoyos cónicos por todo el suelo en busca de larvas de escarabajo, removiendo la tierra a su paso, y casi nada se atreve a cazarla, salvo el búho cornudo, que apenas tiene olfato.",
+				"hint": "Tierra blanda y fácil de escarbar, llena de larvas, y un tronco hueco donde pasar el día durmiendo. Quiere más un sitio donde cavar que un sitio donde esconderse."
 			},
 			"mallard": {
 				"diet": "Semillas y plantas acuáticas, además de larvas de insecto, caracoles y lombrices",
@@ -814,7 +814,7 @@
 			"marsh-wren": {
 				"diet": "Insectos y arañas recogidos de la vegetación del pantano",
 				"fact": "Los machos construyen muchos nidos falsos e incluso destruyen los huevos de los vecinos.",
-				"hint": "Dos juncales y un macollo de juncia.",
+				"hint": "Juncos y espadañas de pie dentro del agua: tallos rígidos entre los que pueda tejer un nido colgante en forma de bola.",
 				"name": "Chochín pantanero",
 				"preferredHabitat": "Rodales de espadaña y juncia",
 				"role": "Un insectívoro diminuto y aguerrido de los juncos. Espiga insectos y arañas de los tallos y célebremente construye varios nidos señuelo para cortejar a una pareja.",
@@ -823,7 +823,7 @@
 			"prairie-vole": {
 				"diet": "pastos, juncias, semillas, raíces y corteza en invierno",
 				"fact": "Los ratones de campo cortan estrechos 'senderos' entre el pasto: pequeñas carreteras prolijas que patrullan entre las bocas de sus madrigueras.",
-				"hint": "Basta con cualquier cobertura densa de pasto: los ratones de campo llegan temprano.",
+				"hint": "Pasto espeso sin segar, con senderos recortados por debajo. Este llega temprano, y casi todo lo que tiene dientes o garras lo está esperando.",
 				"name": "Ratón de campo",
 				"preferredHabitat": "Praderas y campos húmedos y herbosos con densa cobertura del suelo",
 				"role": "Una especie presa clave y de cría prolífica que convierte las plantas de la pradera en alimento para casi todos los depredadores. Su pastoreo y la creación de senderos moldean la capa de pasto. Su abundancia impulsa las poblaciones de halcones, búhos, zorros, serpientes y tejones.",
@@ -832,7 +832,7 @@
 			"gray-whale": {
 				"diet": "Anfípodos y otros diminutos crustáceos de fondo, cernidos del sedimento",
 				"fact": "Las ballenas grises migran hasta 22.500 kilómetros ida y vuelta, entre las mayores de cualquier mamífero.",
-				"hint": "Solo una costa verdaderamente próspera merece el avistamiento de una ballena. Mira el horizonte.",
+				"hint": "Dale agua profunda y un fondo marino espeso de diminutos anfípodos parecidos a camarones. Las pozas de marea y las plantaciones de duna nunca lo traerán.",
 				"name": "Ballena gris",
 				"preferredHabitat": "Vista costa afuera desde una costa totalmente restaurada",
 				"role": "Una ballena barbada que se alimenta en el fondo, rodando de costado para succionar sedimento y filtrar diminutos crustáceos. La orca es su principal depredador; una ballena gris de paso es señal de una costa plenamente restaurada y productiva.",
@@ -841,7 +841,7 @@
 			"mink": {
 				"diet": "Peces, ranas, cangrejos de río y mamíferos pequeños como ratas almizcleras",
 				"fact": "Los visones pueden nadar hasta 30 metros bajo el agua persiguiendo a sus presas.",
-				"hint": "Refugio en las orillas y muchas presas pequeñas de humedal.",
+				"hint": "Agua donde cazar y una madriguera en la orilla, pero alguien más tiene que excavarla primero.",
 				"name": "Visón americano",
 				"preferredHabitat": "Orillas con matorral junto a agua concurrida",
 				"role": "Un feroz cazador semiacuático que captura peces, ranas e incluso ratas almizcleras. Los visones son mesodepredadores versátiles que ayudan a regular a las presas pequeñas del humedal.",
@@ -850,25 +850,25 @@
 			"monarch-butterfly": {
 				"diet": "Las orugas comen solo algodoncillo; los adultos beben néctar de flores",
 				"fact": "Las monarcas migran hasta 4.800 kilómetros, pero ninguna mariposa hace sola todo el viaje de ida y vuelta: hacen falta varias generaciones.",
-				"hint": "Flores silvestres más flores dedicadas a mariposas con algodoncillo.",
+				"hint": "Un macizo extenso de algodoncillo para las orugas (nada más sirve) y flores con néctar cerca para los adultos.",
 				"name": "Mariposa monarca",
 				"preferredHabitat": "Praderas abiertas y bordes de caminos con algodoncillo y flores de néctar",
 				"role": "Una especialista del algodoncillo y polinizadora icónica cuyas orugas acumulan las toxinas cardenólidas de la planta, lo que vuelve venenosas tanto a larvas como a adultos. Su llamativo color naranja de advertencia mantiene alejadas a casi todas las aves y mamíferos, así que tiene muy pocos depredadores. Los adultos son importantes visitantes de néctar a fin de temporada.",
 				"shelter": "Se posa en árboles y arbustos; pasa el invierno agrupada en arboledas densas"
 			},
 			"white-throated-swift": {
-				"diet": "Sobre todo insectos capturados en vuelo; bayas y semillas en los meses fríos",
-				"fact": "No puede excavar su propio hueco, así que reutiliza viejas cavidades de carpintero y cajas nido.",
-				"hint": "Un pino krummholz y flores silvestres alpinas.",
-				"name": "Azulejo de las montañas",
-				"preferredHabitat": "Praderas altas abiertas con árboles dispersos y perchas de caza",
-				"role": "Un tordo de un azul cielo brillante de las praderas altas abiertas que caza insectos al vuelo cerniéndose y suma bayas en el frío. Como anidador de cavidades depende de viejos huecos de carpintero. Halcones y saqueadores de cavidades lo depredan.",
-				"shelter": "Viejos huecos de carpintero, cavidades naturales y cajas nido"
+				"name": "Vencejo gorjiblanco",
+				"diet": "solo insectos en vuelo: polillas, escarabajos, moscas y enjambres de hormigas a la deriva, todo capturado en el aire",
+				"shelter": "Una copa de plumas pegada con su propia saliva en una grieta estrecha de la pared del acantilado",
+				"preferredHabitat": "Acantilados verticales y riscos quebrados con mucho aire abierto delante donde cazar",
+				"fact": "Lo hace todo en el aire. Come en el aire, bebe en el aire, y las parejas se aparean en pleno vuelo: se enganchan y caen dando vueltas cientos de metros por la pared del acantilado antes de soltarse.",
+				"role": "Un ave con forma de cuchilla que vive en el cielo sobre la montaña, aspirando polillas, escarabajos y todo lo que levante el viento, a velocidades que lo convierten en una de las aves más rápidas en vuelo horizontal. Sus patas solo se agarran, nunca se posan, así que de noche tiene que plegarse dentro de una grieta del acantilado, y fija el nido con su propia saliva. Como solo come lo que vuela, uno trabajando la cresta es prueba de que la vida de insectos de abajo ha vuelto. Casi nada es lo bastante rápido para atraparlo.",
+				"hint": "Una grieta estrecha en un acantilado donde dormir y mucho aire abierto delante. Nunca aterriza para comer y bebe en vuelo, así que le sirve cualquier charca que pueda rozar."
 			},
 			"mountain-chickadee": {
 				"diet": "Insectos y arañas en verano; semillas de coníferas y frutos secos en otoño e invierno",
 				"fact": "Almacena miles de semillas y recuerda dónde las escondió.",
-				"hint": "Planta un abeto subalpino y krummholz con flores silvestres alpinas.",
+				"hint": "Los árboles muertos son la clave. Un viejo hueco de carpintero es a la vez refugio y punto de partida: este toma una cavidad ya hecha y la ensancha. Los pinos albares salen de las semillas que olvida.",
 				"name": "Carbonero montañés",
 				"preferredHabitat": "Bosques altos de siempreverdes de pino, abeto y pícea en el oeste",
 				"role": "Un atareado insectívoro del bosque de coníferas que espiga insectos de las ramitas y cambia a semillas de pino almacenadas en invierno. A menudo es el núcleo de bandadas mixtas de forrajeo, y dispersa semillas de coníferas. Pequeños halcones, comadrejas y martas lo depredan a él y a sus polluelos.",
@@ -877,7 +877,7 @@
 			"mountain-goat": {
 				"diet": "Pastos alpinos, juncias, herbáceas, ramoneo leñoso, musgos y líquenes",
 				"fact": "Ambos sexos desarrollan cuernos negros permanentes; se pueden contar los anillos anuales para calcular su edad.",
-				"hint": "Terreno rocoso y vegetación alpina restaurada.",
+				"hint": "Cuanto más empinado, mejor. Dale repisas de acantilado donde echarse, césped que pastar entre ellas y un salero, porque viajará horas por comer tierra salada. No esperes ver uno en el llano abierto.",
 				"name": "Cabra de las Rocosas",
 				"preferredHabitat": "Acantilados alpinos y subalpinos escarpados con terreno de escape sobre el pastizal",
 				"role": "Un pastoreador alpino de pisada segura de los acantilados más altos, que ramonea pastos, herbáceas y líquenes por la roca. Sus pezuñas de almohadilla gomosa se aferran a terrenos que pocos depredadores pueden seguir. A las crías y adultos aún los cazan los pumas, y las águilas arrebatan recién nacidos de los salientes.",
@@ -886,25 +886,25 @@
 			"mule-deer": {
 				"diet": "arbustos, hierbas, ramitas, brotes y pastos de temporada",
 				"fact": "El venado bura debe su nombre a sus enormes orejas de mula, que giran de forma independiente para localizar la dirección del peligro.",
-				"hint": "Una pradera más sana con abundante ramoneo y un estanque para beber.",
+				"hint": "Ramoneo de verdad (ramitas y brotes de guillomo, no césped), más agua a su alcance todos los días.",
 				"name": "Venado bura",
 				"preferredHabitat": "Praderas abiertas y matorrales con ramoneo y agua cerca",
 				"role": "Un herbívoro pastador grande que moldea la vegetación de la pradera al ramonear arbustos y hierbas. Su pastoreo y sus excrementos ayudan a reciclar nutrientes y a mantener el ramoneo bajo control. Sus depredadores habituales (coyotes, pumas) están ausentes en esta pradera, así que aquí enfrenta poca depredación.",
 				"shelter": "Se echa en cobertura de matorral, pasto alto o bordes de bosque; sin madriguera fija"
 			},
 			"grizzly-bear": {
-				"diet": "Un ramoneador selectivo de arbustos, herbáceas, brotes, frutos y líquenes",
-				"fact": "Los venados bura salvan obstáculos con un andar saltarín de cuatro patas llamado 'stotting'.",
-				"hint": "Forraje y agua limpia en las alturas.",
-				"name": "Venado bura",
-				"preferredHabitat": "Praderas altas de verano y matorrales con agua limpia",
-				"role": "Un ramoneador selectivo de tierras altas que veranea en praderas y matorrales alpinos antes de migrar hacia abajo cada otoño. Escoge las herbáceas, brotes y ramoneo más digeribles. Los pumas son su principal depredador; a los cervatos también los cazan águilas y coyotes.",
-				"shelter": "Camas en espesuras sombreadas y cobertura de krummholz"
+				"name": "Oso grizzly",
+				"diet": "raíces y bayas escarbadas en la ladera, ardillas terrestres y marmotas, carroña de los muertos del invierno, y polillas, por cientos de miles",
+				"shelter": "Excava una madriguera en una ladera alta en otoño y duerme en ella hasta que la nieve se ablanda",
+				"preferredHabitat": "Tierras altas abiertas con suelo escarbable, laderas de bayas y sin gente",
+				"fact": "A finales del verano los osos grizzly suben por encima del límite arbóreo para comer polillas: voltean piedras para llegar a ellas y llegan a tragar hasta 40.000 en un día, casi toda la grasa del año en unas pocas semanas.",
+				"role": "Lo más grande de la montaña y la razón por la que todo lo demás está alerta. Destroza laderas enteras escarbando raíces y ardillas terrestres, lo que remueve el suelo, y a finales del verano sube por encima de los árboles a comer polillas de los pedregales. Echa a un glotón de una carroña sin siquiera aminorar el paso.",
+				"hint": "Una ladera alta y abierta, lo bastante blanda para escarbar, piedras que voltear en busca de polillas, y una montaña ya lo bastante llena como para alimentar algo así de grande."
 			},
 			"muskrat": {
 				"diet": "Principalmente eneas, cañas y raíces; a veces almejas y peces pequeños",
 				"fact": "Las ratas almizcleras pueden permanecer bajo el agua hasta 15 minutos con una sola bocanada de aire.",
-				"hint": "Cañas para comer y construir, agua para nadar.",
+				"hint": "Espadañas que comer y con las que construir sus cabañas, y agua somera sobre sus raíces para poder seguir comiendo todo el invierno.",
 				"name": "Rata almizclera",
 				"preferredHabitat": "Bajíos con cañas y abundantes eneas",
 				"role": "Un roedor mayormente herbívoro que corta cañas y eneas, abriendo canales de agua que usan los patos y otra fauna del pantano. Es una presa importante para el visón y las nutrias.",
@@ -913,7 +913,7 @@
 			"mussel": {
 				"diet": "Plancton filtrado del agua de mar",
 				"fact": "Un solo mejillón filtra varios litros de agua de mar por hora mientras se alimenta.",
-				"hint": "Agua limpia sobre costa rocosa.",
+				"hint": "Un filtrador necesita agua que no deje de moverse. Dale roca batida por el oleaje en vez de una poza quieta, y costra de percebes donde puedan asentarse las crías.",
 				"name": "Mejillón de California",
 				"preferredHabitat": "Costa rocosa expuesta con agua limpia en movimiento",
 				"role": "Un filtrador constructor de arrecifes cuyos bancos crean hábitat para innumerables animales pequeños. Es la presa clave que enlaza a los depredadores superiores de la costa, desde las estrellas de mar ocre hasta las nutrias marinas y los ostreros.",
@@ -940,7 +940,7 @@
 			"nuthatch": {
 				"diet": "Insectos y arañas en verano; semillas, bellotas y nueces almacenadas durante el invierno",
 				"fact": "Los trepadores barren insectos malolientes alrededor del agujero de su nido, al parecer para enmascarar su olor ante las ardillas.",
-				"hint": "Árboles vivos para forrajear y madera muerta para anidar.",
+				"hint": "Un viejo hueco de carpintero al que pueda mudarse directamente, con robles grandes que recorrer y donde esconder semillas.",
 				"name": "Trepador",
 				"preferredHabitat": "Bosque maduro caducifolio y mixto con grandes robles y nogales",
 				"role": "Los trepadores depredan insectos que viven en la corteza, incluidas orugas de tienda y barrenadores de la madera, ayudando a controlar las plagas del bosque. Al encajar y almacenar bellotas y semillas en la corteza, favorecen la dispersión de semillas a corta distancia. Conectan las capas de insectos y de semillas y sirven de presa a halcones y búhos.",
@@ -949,7 +949,7 @@
 			"painted-turtle": {
 				"diet": "Plantas acuáticas, insectos, peces pequeños y carroña",
 				"fact": "Las tortugas pintadas pasan el invierno bajo el hielo, tomando oxígeno a través de la piel.",
-				"hint": "Agua quieta y una orilla blanda para tomar el sol.",
+				"hint": "Agua quieta, fondo de barro blando y un tronco inclinado que sobresalga del agua. Sin tronco al sol no hay digestión.",
 				"name": "Tortuga pintada",
 				"preferredHabitat": "Agua quieta con troncos para asolearse",
 				"role": "Un omnívoro que se asolea, pasta plantas y caza insectos y peces pequeños, y limpia la carroña. Las crías son sobre todo carnívoras y, con la edad, se inclinan hacia las plantas.",
@@ -967,7 +967,7 @@
 			"phainopepla": {
 				"diet": "Bayas de muérdago e insectos voladores",
 				"fact": "El capulinero negro es el principal dispersor de semillas del muérdago del desierto; ambos dependen uno del otro.",
-				"hint": "Matorral denso del desierto junto a una pileta de rocío.",
+				"hint": "El muérdago en un mezquite es toda la historia: las bayas son la cena y la mata es el nido. Aun así baja a beber.",
 				"name": "Capulinero negro",
 				"preferredHabitat": "Desierto con matorral y agua cerca",
 				"role": "Un ave canora lustrosa del desierto cuya dieta invernal se compone sobre todo de bayas de muérdago del desierto, más insectos capturados al vuelo. Es un dispersor crucial de semillas de muérdago y un omnívoro de fruta e insectos. Serpientes y rapaces lo depredan.",
@@ -976,7 +976,7 @@
 			"pika": {
 				"diet": "Pastos, herbáceas y flores silvestres, recolectados y secados en pajares para el invierno",
 				"fact": "Las pikas cortan y secan al sol pequeños montones de plantas para comerlos bajo la nieve del invierno.",
-				"hint": "Pilas de roca frescas y flores que cosechar.",
+				"hint": "Talud profundo donde desaparecer con flores a un par de zancadas, y luego un henil. Sin heno curado no aguanta el invierno.",
 				"name": "Pika americana",
 				"preferredHabitat": "Laderas de talud y pilas de rocas que bordean praderas alpinas floridas",
 				"role": "Un diminuto pariente de los conejos que habita el talud y motor de la red trófica alpina. Pasa el verano recolectando pajares de herbáceas y pastos para sobrevivir bajo la nieve. A las pikas las cazan por igual comadrejas, martas, zorros y águilas.",
@@ -985,7 +985,7 @@
 			"pileated-woodpecker": {
 				"diet": "Hormigas carpinteras y larvas de escarabajos perforadores; también termitas, bayas y nueces",
 				"fact": "Sus profundas excavaciones rectangulares pueden ser tan grandes como para partir en dos un árbol pequeño.",
-				"hint": "Madera muerta en pie junto a un árbol para anidar.",
+				"hint": "Troncos secos en pie grandes (en plural, y gruesos), más troncos en el suelo lo bastante podridos y huecos como para desgarrarlos de una vez.",
 				"name": "Picamaderos norteamericano",
 				"preferredHabitat": "Bosque maduro y primario con grandes troncos secos en pie y troncos caídos",
 				"role": "El picamaderos norteamericano es un ingeniero de ecosistemas y especie clave cuyas grandes cavidades se convierten en hogares para patos joyuyo, ardillas voladoras, martas pescadoras, murciélagos y búhos barrados. Regula las poblaciones de hormigas carpinteras y escarabajos y abre la madera en descomposición a hongos y descomponedores. Se ubica como consumidor secundario y alimenta a rapaces y mustélidos.",
@@ -994,7 +994,7 @@
 			"pine-marten": {
 				"diet": "Campañoles, ardillas rojas, picas, liebres, aves, huevos, insectos y bayas",
 				"fact": "Las martas cazan bajo la capa de nieve invernal por túneles que otros no pueden alcanzar.",
-				"hint": "Cobertura rocosa y presas cerca del límite arbóreo.",
+				"hint": "El hábitat de este no se construye con rocas y flores. Necesita un rodal de árboles de verdad, madera muerta en el suelo y liebres ya viviendo allí.",
 				"name": "Marta americana",
 				"preferredHabitat": "Bosque de límite arbóreo estructuralmente complejo con cobertura rocosa",
 				"role": "Una ágil comadreja del límite arbóreo que caza campañoles, ardillas, picas y liebres jóvenes, sumando bayas e insectos según la temporada. Recorre bosque y roca complejos, incluso bajo la capa de nieve. Búhos cornudos, águilas y carnívoros mayores la depredan.",
@@ -1003,7 +1003,7 @@
 			"porcupine": {
 				"diet": "Herbívoro estricto: corteza interna en invierno; brotes, ramitas, hojas y frutos secos en meses cálidos",
 				"fact": "La marta pescadora es uno de los pocos depredadores capaces de matar puercoespines, volteándolos para alcanzar el vientre sin púas.",
-				"hint": "Árboles para trepar y refugio de matorral debajo.",
+				"hint": "Corteza de cicuta y de pino de la que vivir todo el invierno, y un tronco hueco o una guarida de roca donde dormir el día.",
 				"name": "Puercoespín",
 				"preferredHabitat": "Bosque de coníferas y mixto con árboles de corteza comestible",
 				"role": "Los puercoespines son ingenieros del ecosistema cuyo descortezado mata o deforma árboles, creando árboles muertos en pie para las aves que anidan en cavidades y diversificando la estructura del bosque. Su consumo de frutos secos compite con venados y ardillas. Son la principal base de presas de las martas pescadoras y una comida complementaria para linces y osos.",
@@ -1012,7 +1012,7 @@
 			"praying-mantis": {
 				"diet": "Depredadora de emboscada que come insectos vivos: abejas, saltamontes y más",
 				"fact": "Una mantis religiosa puede girar la cabeza casi 180 grados, algo único entre los insectos, para un amplio campo de visión.",
-				"hint": "Pasto alto, un arbusto y un hotel de insectos le dan cobertura desde donde cazar.",
+				"hint": "Deja los tallos secos y rígidos en pie todo el invierno. Ahí es donde se pega la ooteca de espuma, y cortarlos en otoño corta la nidada del verano siguiente.",
 				"name": "Mantis religiosa",
 				"preferredHabitat": "Praderas y bordes de matorral con vegetación densa para emboscar",
 				"role": "Un mesodepredador de emboscada que se sienta al acecho y captura presas con sus patas delanteras espinosas en un ataque más rápido que un parpadeo. Como generalista, come saltamontes, abejas, escarabajos y otros insectos, ayudando a regular su número. A su vez es capturada por aves, culebras de jarretera y pequeños búhos.",
@@ -1021,7 +1021,7 @@
 			"white-tailed-ptarmigan": {
 				"diet": "Brotes, ramitas, hojas, semillas y flores; el sauce es su único alimento invernal",
 				"fact": "Es la única ave de Norteamérica que vive por completo sobre el límite arbóreo durante todo el año.",
-				"hint": "Arbustos alpinos y cobertura tranquila para anidar, con resistentes flores de escarcha en floración.",
+				"hint": "El sauce es el invierno entero para este, y un ventisquero hondo y blando es su dormitorio. Come nieve en vez de beber, y no tiene ningún uso para una jardinera de flores.",
 				"name": "Lagópodo coliblanco",
 				"preferredHabitat": "Tundra alpina sobre el límite arbóreo todo el año, invernando en cuencas de sauce",
 				"role": "Un urogallo alpino de camuflaje excelente que pasta brotes, hojas y semillas, sobreviviendo el invierno casi por completo a base de sauce. Cada invierno le crecen 'raquetas' de plumas en las patas. Águilas, zorros, comadrejas y martas lo cazan a él y a sus polluelos.",
@@ -1030,7 +1030,7 @@
 			"raccoon": {
 				"diet": "Oportunista: cangrejos de río, insectos, ranas, peces, mamíferos pequeños, huevos de aves, fruta y nueces",
 				"fact": "Las sensibles patas delanteras del mapache tienen unas cuatro veces más receptores táctiles que receptores de luz tienen sus ojos.",
-				"hint": "Un tronco-guarida cerca del agua donde chapotear.",
+				"hint": "Un tronco hueco donde hacer la guarida y una orilla somera y pedregosa donde palpar. Caza con las manos, no con los ojos.",
 				"name": "Mapache",
 				"preferredHabitat": "Bosque húmedo cerca del agua para forrajear y chapotear",
 				"role": "Los mapaches son omnívoros adaptables que regulan cangrejos de río, ranas e invertebrados, a la vez que dispersan semillas de fruta y depredan nidos de aves. Su alta densidad los hace un importante conector de nivel medio entre las redes acuática y del bosque. Coyotes, búhos grandes y linces los mantienen en el nivel de los mesodepredadores.",
@@ -1039,25 +1039,25 @@
 			"rattlesnake": {
 				"diet": "Roedores y pequeños mamíferos",
 				"fact": "Añade un segmento al cascabel en cada muda, pero los segmentos se rompen, así que no se puede contar su edad.",
-				"hint": "Refugio rocoso y roedores para cazar.",
+				"hint": "Una guarida de invierno profunda a la que pueda volver todos los años, roca cálida donde esperar y roedores moviéndose cerca.",
 				"name": "Serpiente de cascabel occidental",
 				"preferredHabitat": "Refugio rocoso cerca de senderos concurridos de roedores",
 				"role": "Un depredador venenoso de emboscada y un control clave de las poblaciones de roedores del desierto. Traga a sus presas enteras y come solo cada pocas semanas. Correcaminos, halcones y coyotes están entre sus depredadores.",
 				"shelter": "Grietas entre rocas y madrigueras"
 			},
 			"gray-fox": {
-				"diet": "Roedores, conejos, aves y reptiles; insectos, fruta y carroña",
-				"fact": "Los zorros rojos tienen unas 28 llamadas distintas, y otros zorros reconocen la voz de cada individuo.",
-				"hint": "Cobertura para hacer madriguera y presas pequeñas de vuelta en el bosque.",
-				"name": "Zorro rojo",
-				"preferredHabitat": "Bordes de bosque y mezclas de matorral y arbolado; evita el bosque denso e ininterrumpido",
-				"role": "El zorro rojo es un mesodepredador versátil que mantiene a raya a roedores, conejos y aves que anidan en el suelo, a la vez que dispersa semillas mediante la fruta que come. Se ubica por debajo de depredadores tope como osos y linces, y por encima de los mamíferos pequeños que caza. Las parejas de zorros suelen reutilizar y ampliar la misma madriguera a lo largo de generaciones.",
-				"shelter": "Madrigueras de tierra cavadas en laderas o tomadas de otros animales, reutilizadas por generaciones"
+				"name": "Zorro gris",
+				"diet": "ratones, campañoles, conejos, ardillas, aves y huevos; y a finales del verano una cantidad asombrosa de fruta",
+				"shelter": "Troncos huecos, grietas de roca y viejas madrigueras de tierra; también se enrosca en una rama bien alta",
+				"preferredHabitat": "Bordes de bosque con matorral y viejos claros en regeneración, con cobertura enmarañada y trepable",
+				"fact": "Es el único cánido del mundo que trepa a los árboles. Clava sus garras curvas en la corteza, sube por el tronco como un gato y duerme la siesta a diez metros de altura, donde nada que lo cace puede seguirlo.",
+				"role": "El zorro trepador del bosque. Recorre los bordes de matorral en busca de ratones, conejos y aves que anidan en el suelo, y luego sube derecho por un tronco tras ardillas, nidos y uvas. A finales del verano come tanta fruta que sus excrementos son medio semillas, lo que planta la siguiente generación de zarzales a lo largo de todo el borde. Los linces rojos lo matan si lo pillan a descubierto y los búhos cornudos se llevan a sus crías, así que siempre mantiene un árbol trepable a un sprint de distancia.",
+				"hint": "Un borde de matorral por donde cazar, un talud seco donde hacer la madriguera y algo leñoso donde trepar: subir derecho por un tronco es como este escapa de lo que sea más grande. Aquí la fruta importa tanto como los ratones."
 			},
 			"red-fox": {
 				"diet": "Ratones de campo, conejos, ardillas, aves e insectos; también bayas y carroña",
 				"fact": "Al 'ratonear', los zorros rojos tienden a saltar orientados hacia el noreste magnético, al parecer usando el campo magnético de la Tierra como telémetro para calcular el salto.",
-				"hint": "Los zorros solo regresan cuando los animales pequeños han vuelto, con cobertura para hacer madriguera y una pradera equilibrada.",
+				"hint": "Solo regresa cuando los animales pequeños han vuelto, con cobertura para hacer madriguera y una pradera equilibrada.",
 				"name": "Zorro rojo",
 				"preferredHabitat": "Praderas, bordes de tierras de cultivo y setos por el campo abierto",
 				"role": "Un mesodepredador generalista que ayuda a controlar las poblaciones de roedores y conejos, cazando al acecho y salto, y completando su dieta con insectos, bayas y carroña. Con depredadores mayores como los coyotes ausentes de esta lista, se ubica cerca de la cima de la red trófica de la pradera.",
@@ -1066,7 +1066,7 @@
 			"red-tailed-hawk": {
 				"diet": "Sobre todo mamíferos pequeños (ratones de campo, ardillas terrestres, conejos); también aves y serpientes",
 				"fact": "Ese penetrante grito de 'águila' de las películas casi siempre es en realidad el de un halcón de cola roja.",
-				"hint": "Los halcones buscan una pradera ya llena de animales pequeños.",
+				"hint": "La copa de un árbol alto para el nido de ramas, pasto abierto sobre el que cazar y una pradera ya llena de mamíferos pequeños. El agua la saca de sus presas.",
 				"name": "Halcón de cola roja",
 				"preferredHabitat": "Campo abierto: pastizales, campos y praderas vistos desde lo alto",
 				"role": "El cazador diurno dominante de la pradera, que planea con sus amplias alas o vigila desde un posadero a las presas de abajo. Al cazar ratones de campo, ardillas terrestres, conejos y aves, mantiene a raya el número de herbívoros. Los adultos prácticamente no tienen depredadores en la pradera.",
@@ -1075,7 +1075,7 @@
 			"red-winged-blackbird": {
 				"diet": "Insectos en verano, semillas y grano el resto del año",
 				"fact": "Los tordos sargento machos pueden ocultar o exhibir a voluntad sus charreteras escarlata.",
-				"hint": "Cuanto más espesas las cañas, mejor.",
+				"hint": "Tallos en pie con agua debajo. El nido va cosido alrededor de las cañas, y el agua de abajo es la alarma antirrobo.",
 				"name": "Tordo sargento",
 				"preferredHabitat": "Densos cañaverales y pantanos de eneas",
 				"role": "Un ave cantora del pantano abundante y ruidosa que come insectos y semillas. Los machos defienden con fiereza territorios en el cañaveral que pueden albergar una docena de nidos.",
@@ -1084,7 +1084,7 @@
 			"river-otter": {
 				"diet": "Peces, cangrejos de río, ranas y otros animales acuáticos",
 				"fact": "Las nutrias de río pueden contener la respiración bajo el agua hasta ocho minutos mientras cazan.",
-				"hint": "Las nutrias siguen a los peces. Restaura primero agua limpia y madrigueras en las orillas.",
+				"hint": "Mucha agua limpia y conectada, peces y cangrejos de río en abundancia, y una vieja madriguera de orilla hecha por castores, con puerta bajo el agua.",
 				"name": "Nutria de río",
 				"preferredHabitat": "Agua limpia rica en peces y presas lentas",
 				"role": "Un ágil mesodepredador acuático que patrulla los canales en busca de peces y cangrejos de río. Las nutrias mantienen a raya el número de peces y anfibios y son señal de agua limpia y bien conectada.",
@@ -1093,7 +1093,7 @@
 			"roadrunner": {
 				"diet": "Lagartijas, insectos, escorpiones y pequeñas serpientes",
 				"fact": "Golpea a sus presas grandes contra las rocas para romperles los huesos, y llega a matar y comer serpientes de cascabel.",
-				"hint": "Desierto abierto, matorral y presas reptiles alrededor.",
+				"hint": "Terreno abierto donde correr a fondo y una espesura espinosa donde anidar, con lagartijas y bichos grandes que perseguir entre lo uno y lo otro.",
 				"name": "Correcaminos",
 				"preferredHabitat": "Terreno de caza abierto con bordes de matorral",
 				"role": "Un ave depredadora corredora que persigue lagartijas, insectos, escorpiones y serpientes. Es un mesodepredador clave de pequeños reptiles y artrópodos del desierto. Coyotes y halcones lo cazan.",
@@ -1102,7 +1102,7 @@
 			"gray-crowned-rosy-finch": {
 				"diet": "Diminutas semillas de plantas alpinas e insectos, a menudo recogidos de los neveros",
 				"fact": "Anida a mayor altura que casi cualquier otra ave canora de Norteamérica.",
-				"hint": "Flores silvestres alpinas y una pila de rocas.",
+				"hint": "Roca con grietas, no un montón de piedras. Este anida dentro del acantilado, se alimenta por el pedregal y bebe agua de deshielo.",
 				"name": "Pinzón montañés de corona gris",
 				"preferredHabitat": "Zonas alpinas sobre el límite arbóreo: talud, pedregal, acantilados y glaciares",
 				"role": "Un ave canora de gran altitud que salta por la nieve y el talud recogiendo semillas transportadas por el viento e insectos ateridos. Anida en grietas de roca sobre el límite arbóreo. Halcones y gavilanes son sus principales depredadores.",
@@ -1111,7 +1111,7 @@
 			"sanderling": {
 				"diet": "Cangrejos pequeños, anfípodos, gusanos y moluscos",
 				"fact": "Los playeros blancos persiguen las olas que retroceden en pequeñas carreras afanosas para atrapar invertebrados varados.",
-				"hint": "Dos plantaciones de pasto de duna y una poza de marea.",
+				"hint": "La franja mojada donde se acaban las olas, con arena abierta detrás. No plantes nada aquí: esta ave come justo donde resbala el agua.",
 				"name": "Playero blanco",
 				"preferredHabitat": "Línea de oleaje arenosa y playa batida por las olas",
 				"role": "Un playero que persigue las olas y se alimenta de pequeños crustáceos y gusanos removidos por el oleaje. Los halcones son un depredador clave, y sus bandadas de invierno reflejan la salud de las playas de arena abiertas.",
@@ -1120,7 +1120,7 @@
 			"sandhill-crane": {
 				"diet": "Granos, tubérculos, insectos y animales pequeños",
 				"fact": "Las grullas canadienses se emparejan de por vida y eligen pareja mediante danzas de saltos y reverencias.",
-				"hint": "Las grullas necesitan un pantano amplio, tranquilo y bien equilibrado.",
+				"hint": "Esta quiere espacio y silencio. Construye un pantano amplio y bien equilibrado, y amontona un nido por encima de la línea del agua.",
 				"name": "Grulla canadiense",
 				"preferredHabitat": "Pantano amplio, tranquilo y restaurado",
 				"role": "Un omnívoro majestuoso del pantano abierto que sondea en busca de tubérculos y grano y atrapa insectos y animales pequeños. Su presencia señala un humedal amplio y sano.",
@@ -1129,7 +1129,7 @@
 			"scorpion": {
 				"diet": "Insectos, arañas y otros pequeños invertebrados",
 				"fact": "Los escorpiones brillan azul-verdoso bajo la luz ultravioleta, y nadie sabe con certeza por qué.",
-				"hint": "Rocas bajo las cuales esconderse durante el día.",
+				"hint": "Las rocas son solo el felpudo. Lo que de verdad necesita es suelo lo bastante hondo y suelto como para cavar metros hacia abajo.",
 				"name": "Escorpión del desierto",
 				"preferredHabitat": "Cobertura rocosa con terreno para cazar de noche",
 				"role": "El escorpión más grande de Norteamérica, un depredador nocturno de emboscada de insectos, arañas e incluso otros escorpiones. Es un mesodepredador de artrópodos y pequeñas presas del desierto. Búhos, lagartijas y correcaminos lo cazan.",
@@ -1138,7 +1138,7 @@
 			"sea-otter": {
 				"diet": "Erizos de mar, cangrejos, mejillones, almejas y otros mariscos",
 				"fact": "Las nutrias marinas se envuelven en kelp antes de dormir para no ir a la deriva.",
-				"hint": "Primero hábitat de kelp y bancos de mariscos; las nutrias vendrán después.",
+				"hint": "Bosque de kelp vivo donde envolverse, agua tranquila donde acicalarse, y erizos y mariscos que comer. El kelp muerto en la arena no le sirve.",
 				"name": "Nutria marina",
 				"preferredHabitat": "Bosque de kelp y costa rocosa con abundantes mariscos",
 				"role": "Una especie clave: al comer erizos de mar impide que estos sobrepasten el kelp, permitiendo prosperar a los bosques de kelp y a la vida que albergan. También depreda intensamente mejillones y almejas a lo largo de la costa rocosa.",
@@ -1147,7 +1147,7 @@
 			"sea-star": {
 				"diet": "Mejillones, percebes, lapas, quitones y caracoles",
 				"fact": "La clásica depredadora clave: quitarla deja que los mejillones invadan toda la costa.",
-				"hint": "Las estrellas de mar necesitan pozas establecidas con mejillones para comer.",
+				"hint": "Construye primero el banco de mejillones, y hazlo grande. Vive metida entre las conchas, por el borde inferior donde el banco cede paso a la roca desnuda.",
 				"name": "Estrella de mar ocre",
 				"preferredHabitat": "Intermareal rocoso batido por olas con mariscos",
 				"role": "La depredadora clave de manual de la costa rocosa. Al comer mejillones, fija el límite inferior del banco de mejillones y mantiene el espacio libre para muchas otras especies, preservando la biodiversidad intermareal.",
@@ -1156,7 +1156,7 @@
 			"sea-turtle": {
 				"diet": "Sobre todo pastos marinos y algas de adulta; omnívora de joven",
 				"fact": "Las tortugas verdes regresan a anidar en la misma playa donde nacieron décadas atrás.",
-				"hint": "Una playa de anidación sin perturbaciones y agua limpia.",
+				"hint": "Esta viene por el pasto, no por la arena, así que no le construyas una playa de anidación. Agua cálida de verano, una pradera de zostera bien pastada y fondo tranquilo donde dormir entre comida y comida.",
 				"name": "Tortuga verde",
 				"preferredHabitat": "Agua limpia y poco profunda con pastos marinos y playa sin perturbaciones",
 				"role": "La única tortuga marina mayormente herbívora; las adultas pastan pastos marinos y algas, manteniendo sanos los prados, mientras las juveniles empiezan siendo omnívoras. Su éxito de anidación es un fuerte indicador de agua limpia y playas sin perturbaciones.",
@@ -1165,7 +1165,7 @@
 			"snapping-turtle": {
 				"diet": "Peces, plantas acuáticas, carroña y casi cualquier cosa que pueda atrapar",
 				"fact": "Las tortugas mordedoras adultas casi no tienen depredadores naturales y pueden vivir décadas.",
-				"hint": "Una orilla de barro junto a un lago de 5 casillas de agua conectadas o más.",
+				"hint": "Agua profunda y quieta con fondo blando, más una loma arenosa y cálida por encima de la línea del agua donde las hembras caven sus nidos.",
 				"name": "Tortuga mordedora",
 				"preferredHabitat": "Agua profunda y quieta con fondo de barro blando",
 				"role": "Una omnívora y carroñera fuertemente acorazada que acecha en el fondo de la charca. De adulta se ubica cerca de la cima de la red trófica del humedal, comiendo peces, patitos, plantas y carroña.",
@@ -1174,7 +1174,7 @@
 			"snowshoe-hare": {
 				"diet": "Plantas verdes en verano; brotes, ramitas, corteza y acículas de coníferas en invierno",
 				"fact": "Su muda de pardo a blanco invernal se activa por la duración del día, no por la nieve.",
-				"hint": "Cobertura y forraje en el límite arbóreo.",
+				"hint": "Cobertura baja y enmarañada donde quedarse inmóvil, un hoyo raspado bajo el krummholz para pasar el día, y sauce que ramonear en invierno. Terreno abierto con un montón de rocas encima es justo lo contrario de lo que quiere. Come nieve en vez de beber.",
 				"name": "Liebre americana",
 				"preferredHabitat": "Espesuras de matorral y sotobosque denso cerca de pastizal abierto",
 				"role": "Una liebre ramoneadora de la cobertura de matorral del límite arbóreo cuyo pelaje cambia de pardo a blanco con las estaciones. Sus números fluctúan cada diez años aproximadamente, impulsando las poblaciones de depredadores. Martas, zorros, águilas y búhos la cazan.",
@@ -1183,7 +1183,7 @@
 			"snowy-plover": {
 				"diet": "Invertebrados de playa: crustáceos, moscas y pequeños moluscos",
 				"fact": "Los chorlitos nevados occidentales anidan en diminutas depresiones justo sobre la arena abierta.",
-				"hint": "Pasto de duna y una zona costera de anidación.",
+				"hint": "Ni agua ni plantaciones. Arena abierta y desnuda, un tramo acordonado donde nadie pise, y madera flotante junto a la que los pollos puedan esconderse.",
 				"name": "Chorlito nevado occidental",
 				"preferredHabitat": "Dunas de arena tranquilas y playa abierta",
 				"role": "Un chorlito amenazado que anida en la playa y se alimenta de pequeños invertebrados a lo largo de la arena y la línea de marea. Extremadamente sensible a las perturbaciones, es un indicador emblemático de playas de dunas protegidas y sin perturbaciones.",
@@ -1192,7 +1192,7 @@
 			"song-sparrow": {
 				"diet": "Insectos e invertebrados en verano; semillas y frutos todo el año",
 				"fact": "Un gorrión cantor macho puede aprender hasta unas 20 melodías distintas y cantar cientos de variaciones de ellas.",
-				"hint": "Arbustos, pasto nativo y un lugar alto desde donde cantar.",
+				"hint": "Un rincón húmedo y desordenado con una mata espesa donde esconder el nido y bayas cerca. Le gustan más las partes descuidadas.",
 				"name": "Gorrión cantor",
 				"preferredHabitat": "Bordes con matorral, campos de malezas y orillas de pantano con posaderos para cantar",
 				"role": "Un omnívoro que forrajea en el suelo y alterna entre insectos en la época de cría y semillas y frutos el resto del año, así que controla insectos y dispersa semillas a la vez. Su abundancia lo convierte en una presa clave para los halcones y serpientes de la pradera, conectando los invertebrados del suelo con depredadores mayores.",
@@ -1210,7 +1210,7 @@
 			"desert-tarantula": {
 				"diet": "Insectos y otros pequeños invertebrados",
 				"fact": "Una tarántula del desierto puede vivir 25 años, la mayoría a pocos metros de una sola madriguera.",
-				"hint": "Terreno tranquilo y fácil de excavar.",
+				"hint": "Suelo firme que pueda forrar de seda, y luego tranquilidad. Una madriguera que ella misma cava puede seguir ocupándola veinte años después.",
 				"name": "Tarántula del desierto",
 				"preferredHabitat": "Terreno no perturbado con taludes para madrigueras",
 				"role": "Un depredador de emboscada longevo y nocturno de insectos y otros invertebrados desde su madriguera. Es un mesodepredador de artrópodos del desierto. Aves, serpientes y la avispa halcón de tarántulas la depredan.",
@@ -1219,7 +1219,7 @@
 			"shore-crab": {
 				"diet": "Principalmente algas, además de detritos, gusanos, caracoles y carroña",
 				"fact": "Los cangrejos de orilla rayados pastan algas, pero también carroñean e incluso se vuelven caníbales tras la muda.",
-				"hint": "Restaura las pozas de marea y los cangrejos serán los primeros en volver correteando.",
+				"hint": "Apenas nada de agua. Roca alta, grietas hondas donde encajarse, y una poza cerca donde meterse cuando necesite beber.",
 				"name": "Cangrejo de orilla",
 				"preferredHabitat": "Pozas de marea rocosas y zona de salpicadura intermareal",
 				"role": "Un abundante herbívoro-carroñero intermareal que mantiene las superficies rocosas libres de algas y recicla la carroña. Es una presa clave para gaviotas, aves playeras y cangrejos mayores, conectando las algas con los depredadores superiores.",
@@ -1228,7 +1228,7 @@
 			"tree-squirrel": {
 				"diet": "Bellotas, nueces, semillas, brotes de árboles y hongos; ocasionalmente insectos y huevos de aves",
 				"fact": "Las ardillas grises esconden miles de nueces cada año, y las despensas que olvidan se convierten en árboles nuevos.",
-				"hint": "Un árbol para anidar y troncos caídos con semillas para almacenar.",
+				"hint": "Robles de los que comer y donde enterrar, una horcadura alta para el nido de verano y un árbol grande donde pasar el invierno.",
 				"name": "Ardilla arborícola",
 				"preferredHabitat": "Bosque maduro caducifolio o mixto rico en robles y nogales",
 				"role": "Las ardillas arborícolas son grandes consumidoras de semillas y dispersoras accidentales, cuyas nueces enterradas y olvidadas regeneran el dosel del bosque. También esparcen esporas de hongos micorrízicos y de vez en cuando saquean nidos de aves. Como presa abundante, alimentan a casi todos los mesodepredadores y rapaces del bosque.",
@@ -1237,7 +1237,7 @@
 			"water-strider": {
 				"diet": "Insectos y larvas atrapados en la superficie del agua; también carroña",
 				"fact": "Los zapateros se deslizan por la superficie sobre patas recubiertas de miles de diminutos pelos.",
-				"hint": "Basta con una charca tranquila.",
+				"hint": "Este necesita calma. Busca un rincón de agua que el viento no pueda rizar, con tallos flotantes donde descansar y poner huevos.",
 				"name": "Zapatero de agua",
 				"preferredHabitat": "Cualquier charca tranquila",
 				"role": "Un depredador y carroñero que patina en la superficie y captura insectos atrapados en la película de agua. Es presa fácil para peces, ranas y aves zancudas.",
@@ -1246,7 +1246,7 @@
 			"western-meadowlark": {
 				"diet": "Sobre todo insectos en verano (escarabajos, saltamontes); semillas y grano en invierno",
 				"fact": "El canto aflautado del pradero occidental es el himno del ave estatal de seis estados de EE. UU.",
-				"hint": "Los praderos occidentales necesitan verdaderas extensiones de pasto nativo antes de anidar, con una cuenca para beber y bañarse.",
+				"hint": "Pasto nativo amplio e ininterrumpido, y una percha desde donde cantar. Sáltate los arbustos: la cobertura leñosa es justo lo que expulsa a este.",
 				"name": "Pradero occidental",
 				"preferredHabitat": "Amplios pastizales y praderas nativas con posaderos para cantar",
 				"role": "Un omnívoro de pastizal que come grandes cantidades de saltamontes, grillos y escarabajos en verano y semillas en invierno, ayudando a mantener a raya las poblaciones de insectos. Como ave regordeta de suelo, es una presa importante para halcones y mamíferos depredadores de la pradera.",
@@ -1264,7 +1264,7 @@
 			"wood-duck": {
 				"diet": "Bellotas, semillas y plantas acuáticas; los patitos y las aves de primavera comen también insectos y caracoles",
 				"fact": "Un día después de nacer, los patitos del pato joyuyo saltan de las cavidades del nido desde hasta 15 metros de altura y aterrizan ilesos.",
-				"hint": "Un árbol para anidar junto a una charca inundada de 4 casillas de agua o más.",
+				"hint": "Un viejo hueco de carpintero en un tronco seco en pie sobre agua tranquila, con robles cerca para las bellotas.",
 				"name": "Pato joyuyo",
 				"preferredHabitat": "Bosque de madera dura de tierras bajas y pantanos arbolados con agua lenta y árboles con cavidades",
 				"role": "Los patos joyuyo son consumidores omnívoros que enlazan las redes tróficas del bosque de tierras bajas y del humedal, dispersando semillas de bellota y de plantas acuáticas y regulando los invertebrados de agua poco profunda. Como presa, alimentan a búhos cornudos, visones, mapaches y tortugas mordedoras. Al depender de las cavidades del picamaderos, su abundancia indica humedales arbolados sanos.",
@@ -1273,7 +1273,7 @@
 			"woodpecker": {
 				"diet": "Sobre todo insectos —larvas de escarabajo, hormigas, orugas— con algo de bayas, semillas y savia",
 				"fact": "Los picos velloso son lo bastante pequeños para taladrar las agallas de la vara de oro y sacar larvas de mosca que los pájaros carpinteros más grandes no alcanzan.",
-				"hint": "Los pájaros carpinteros necesitan madera muerta en pie: deja algunos árboles muertos en pie.",
+				"hint": "Tocones pequeños y muertos con la madera ya reblandecida. No puede cincelar madera sana, así que deja en pie lo que se está pudriendo.",
 				"name": "Pájaro carpintero",
 				"preferredHabitat": "Bosque abierto caducifolio y mixto con árboles muertos en pie llenos de insectos",
 				"role": "Los pájaros carpinteros regulan a los escarabajos barrenadores y a los insectos de la corteza, aliviando la presión de plagas sobre los árboles. Sus cavidades abandonadas alojan a trepadores, chochines y ardillas voladoras, lo que los hace ingenieros del ecosistema. Alimentan a halcones, búhos y a ardillas y serpientes que saquean nidos.",
@@ -1295,7 +1295,7 @@
 				"preferredHabitat": "Roca intermareal baja y submareal poco profunda, expuesta al oleaje y cerca del kelp",
 				"fact": "Un erizo morado mastica un hoyo en la roca sólida con cinco dientes y luego se queda dentro de él durante años. En algunos arrecifes los erizos desgastan más piedra que las olas.",
 				"role": "El herbívoro que está en el centro de la historia más famosa de esta costa. Alimentados con trozos de kelp a la deriva y controlados por las nutrias, los erizos son una parte más de un bosque sano. Quita a los depredadores y avanzan por la roca, siegan el kelp hasta dejar la piedra desnuda y dejan atrás un desierto de erizos.",
-				"hint": "Primero el kelp, porque algo tiene que haber para comer. Después piensa muy bien en quién los va a mantener a raya."
+				"hint": "Primero el kelp: tiene que tener algo que comer. Después piensa bien en qué se lo va a comer a él."
 			},
 			"anchovy": {
 				"name": "Anchoa norteña",
@@ -1385,7 +1385,7 @@
 				"preferredHabitat": "Pradera soleada con vegetación alta y rígida dejada en pie y muchos insectos voladores",
 				"fact": "Esta araña desmonta casi toda su telaraña cada noche y se come la seda vieja para construir la siguiente, y cose por el medio un zigzag blanco y llamativo que nadie ha logrado explicar del todo.",
 				"role": "La trampera de la pradera. Tiende una rueda de seda más ancha que tu mano entre tallos altos y espera cabeza abajo en el centro a que se estrellen saltamontes, abejas y moscas. Las arañas son el grupo de depredadores más numeroso de cualquier pastizal y lo más importante que le faltaba a esta pradera hasta ahora: comen cantidades enormes de insectos y, a su vez, son el alimento principal de la mitad de las aves canoras de aquí.",
-				"hint": "Tallos altos y rígidos dejados en pie, lo bastante separados como para tender una telaraña grande entre ellos, con flores cerca que atraigan a los insectos."
+				"hint": "Tallos altos y rígidos dejados en pie, lo bastante separados como para tender una tela grande entre ellos, con flores cerca que atraigan a los insectos."
 			},
 			"brown-bat": {
 				"name": "Murciélago marrón grande",
@@ -1412,7 +1412,7 @@
 				"preferredHabitat": "Alta montaña grande y vacía, con talud y roca fragmentada, y nieve que dura hasta bien entrada la primavera",
 				"fact": "Un glotón puede oler un animal muerto bajo tres metros de nieve, desenterrarlo y luego echar de ahí a un oso, todo con un cuerpo del tamaño de un perro pequeño.",
 				"role": "La comadreja más grande del mundo y el gran carroñero de la montaña, hoy el cazador supremo de estas cumbres. Recorre distancias enormes, mata marmotas, liebres y lagópodos cuando tiene ocasión y vive de cadáveres congelados cuando no, partiendo el hueso helado con mandíbulas hechas justo para eso. La nieve es su refrigerador: guarda comida en los ventisqueros y hace la guarida dentro de ellos, así que una hembra solo puede criar donde la nieve aguanta hasta fines de la primavera. Eso lo convierte en el primer animal en desaparecer cuando los inviernos se acortan, y aquí arriba nadie está dispuesto a discutirle un cadáver.",
-				"hint": "Aquí hacen falta espacio y nieve, no paisaje. Da ventisqueros lo bastante profundos para que duren hasta fines de la primavera —la guarida y la despensa—, roca fragmentada por donde viajar, y marmotas y liebres ya instaladas en la montaña. Es el último de los cazadores en llegar."
+				"hint": "Aquí hacen falta espacio y nieve, no paisaje. Da ventisqueros lo bastante profundos para que duren hasta fines de la primavera —la guarida y la despensa—, roca fragmentada por donde viajar, y marmotas y liebres ya instaladas en la montaña."
 			},
 			"bottlenose-dolphin": {
 				"name": "Delfín nariz de botella",
@@ -1421,7 +1421,7 @@
 				"preferredHabitat": "Agua cercana a la costa frente a una playa abierta, con una línea de oleaje fuerte y cardúmenes mar adentro",
 				"fact": "Cada delfín se inventa su propio silbido personal, y los demás repiten ese silbido cuando quieren llamarlo. Frente a una playa abierta, estos delfines cazan dentro de las mismas olas rompientes, surfeando las olas contra las que están acorralando a los peces.",
 				"role": "Cazadores rápidos y sociables que trabajan la línea de oleaje en grupos pequeños, empujando los cardúmenes de anchoas contra las olas que rompen hasta que los peces no tienen a dónde ir. Son lo bastante veloces y listos para capturar casi cualquier cosa que forme cardumen aquí, y aun así no son lo más grande del agua.",
-				"hint": "Agua profunda por donde viajar, corrientes frías y bordes de kelp que retengan a los peces, y una línea de oleaje que rompa de verdad, porque ahí es donde ocurre la cacería."
+				"hint": "Agua profunda por donde viajar, corrientes frías y bordes de kelp que retengan el pescado, y una línea de rompiente de verdad, porque ahí es donde este caza."
 			},
 			"orca": {
 				"name": "Orca",
@@ -1430,7 +1430,7 @@
 				"preferredHabitat": "Agua fría y profunda pegada a la costa, donde el fondo se desploma junto al borde de kelp, al alcance de los descansaderos de focas",
 				"fact": "Las orcas viven en familias que nunca se separan, y distintas familias comen alimentos completamente distintos. Las que cazan en esta costa son especialistas en mamíferos, y lo hacen en silencio —sin chasquidos, sin llamadas—, porque una foca oye llegar de muy lejos a una orca que habla.",
 				"role": "La cima de esta costa, sin nada por encima. Un grupo de orcas cazadoras de mamíferos patrulla el borde donde el fondo del mar se desploma, escucha en los descansaderos de focas y sigue de cerca a las ballenas grises que pasan con crías en primavera. Cuando entran en una bahía, todas las focas de las rocas se quedan quietas y calladas.",
-				"hint": "El último animal y el más difícil de traer de vuelta. Hace falta agua profunda pegada a la orilla y algo grande que cazar, así que trae primero a las focas: son ellas las que la atraen."
+				"hint": "Agua profunda pegada a la orilla y algo grande que cazar, así que trae primero a las focas: son ellas las que la atraen."
 			},
 			"desert-millipede": {
 				"name": "Milpiés del desierto",
@@ -1447,8 +1447,8 @@
 				"shelter": "Un voluminoso nido de ramas encajado entre los brazos de un cactus alto o de un árbol espinoso, construido y vigilado por toda la familia",
 				"preferredHabitat": "Matorral abierto con cactus y árboles altos donde anidar y vigilar",
 				"fact": "Son las únicas rapaces del mundo que cazan en grupo: una familia de cinco o seis se despliega, y algunas se lanzan contra un arbusto espinoso para asustar a un conejo mientras las otras esperan del otro lado. Y cuando no hay dónde posarse, se paran unas sobre las espaldas de otras, hasta tres de altura.",
-				"role": "El depredador supremo del día, que trabaja el mismo desierto que el mountain-lion trabaja de noche. Dos o tres generaciones viven juntas todo el año, comparten cada presa, ayudan a alimentar a los pollitos de las demás y se turnan la vigilancia: un trabajo en equipo que les permite derribar liebres mucho más pesadas de lo que podría cualquiera por su cuenta. Necesitan miradores altos sobre terreno abierto y un cactus grande, lo bastante firme para sostener el nido familiar.",
-				"hint": "Una sola nunca es toda la historia. La familia necesita un cactus alto y firme que aguante el nido, miradores altos alrededor y terreno abierto con conejos cruzándolo."
+				"role": "El depredador supremo del día, que trabaja el mismo desierto que el mountain lion trabaja de noche. Dos o tres generaciones viven juntas todo el año, comparten cada presa, ayudan a alimentar a los pollitos de las demás y se turnan la vigilancia: un trabajo en equipo que les permite derribar liebres mucho más pesadas de lo que podría cualquiera por su cuenta. Necesitan miradores altos sobre terreno abierto y un cactus grande, lo bastante firme para sostener el nido familiar.",
+				"hint": "Uno solo nunca es la historia completa. Una familia necesita un cactus alto lo bastante fuerte para sostener el nido, atalayas altas alrededor y terreno abierto con conejos cruzándolo."
 			},
 			"bald-eagle": {
 				"name": "Águila calva",
@@ -1475,7 +1475,7 @@
 				"preferredHabitat": "Bosque rico en robles y sus bordes, con terreno abierto cerca donde enterrar semillas",
 				"fact": "Las plumas del arrendajo azul no son azules en realidad: el pigmento que tienen es marrón, y el azul es un truco de la luz al rebotar en diminutas bolsas de aire. Aplasta una y el color desaparece.",
 				"role": "Un solo arrendajo azul puede cargar cinco bellotas a la vez y enterrar unos cuantos miles en un otoño; además elige las sanas y las empuja en terreno abierto, lo que convierte a los arrendajos en los plantadores de árboles más rápidos del bosque y en la razón de que los robles suban por la ladera después de un incendio. También imitan el grito de los halcones, a veces para despejar un lugar de comida y a veces para avisar de que llegó un halcón de verdad, así que todo el bosque los escucha.",
-				"hint": "Robles y un parche de tierra suelta y abierta donde enterrar las bellotas. Algunas de las que se queden olvidadas serán tus próximos robles."
+				"hint": "Robles y un trozo de suelo blando y abierto donde enterrar las bellotas. Algunas de las que olvide serán tus próximos robles."
 			},
 			"wood-frog": {
 				"name": "Rana de bosque",
@@ -1484,7 +1484,7 @@
 				"preferredHabitat": "Bosque caducifolio húmedo con charcas sin peces que se llenan en primavera y se secan a fines del verano",
 				"fact": "Una rana de bosque se congela por completo cada invierno. Su corazón se detiene, dos tercios del agua de su cuerpo se vuelven hielo y en primavera se descongela y se va dando saltos.",
 				"role": "Las ranas de bosque son el primer anfibio que canta en primavera y se reproducen en charcas temporales que se secan antes de que un pez pueda vivir en ellas, que es justamente por lo que sobreviven los renacuajos. Un azúcar que inunda su sangre impide que sus células revienten mientras están congeladas, así que pueden hibernar bajo unos pocos centímetros de hojas. De adultas se comen los invertebrados de la hojarasca y son comidas a su vez por serpientes y mapaches, subiendo por la red trófica la energía del suelo del bosque.",
-				"hint": "Una charca que se seque en verano es de las buenas: sin peces, los renacuajos viven. Y deja hojas profundas cerca; ahí es donde se pasa el invierno congelado."
+				"hint": "Una charca que se seca en verano es la buena: sin peces, los renacuajos sobreviven. Deja hojarasca profunda cerca para que se congelen dentro."
 			},
 			"goshawk": {
 				"name": "Azor común",
@@ -1511,7 +1511,7 @@
 				"preferredHabitat": "Agua lenta y llena de plantas, con troncos donde asolearse y una orilla abierta y soleada donde poner huevos",
 				"fact": "Que de los huevos salgan machos o hembras depende del calor del nido, no de los huevos mismos: un nido fresco da hermanos y uno cálido da hermanas.",
 				"role": "Es la gran tortuga herbívora del humedal: recorta las praderas subacuáticas para que no ahoguen los bajos, y suelta las semillas intactas en otro lado. Tiene que asolearse durante horas para calentarse lo suficiente y digerir toda esa comida vegetal, y por eso un buen tronco cargado de tortugas es señal de un pantano que funciona. Sus huevos y sus crías alimentan a casi todo lo demás, así que pone muchísimos.",
-				"hint": "Troncos al sol donde asolearse y una orilla cálida y desnuda donde enterrar los huevos. Sin un sitio caliente no hay manera de digerir la cena."
+				"hint": "Troncos al sol donde asolearse y una orilla desnuda y cálida donde enterrar los huevos. Una que no logra calentarse no puede digerir la cena."
 			},
 			"javelina": {
 				"name": "Pecarí de collar",
@@ -1529,7 +1529,7 @@
 				"preferredHabitat": "Acantilados con agua fría corriendo por ellos y cielo abierto por encima del límite arbóreo",
 				"fact": "Un vencejo negro puede pasar seis meses en el aire sin posarse ni una vez: come, bebe y duerme volando, y el pollito se queda solo todo el día mientras sus padres cazan insectos a 50 km de distancia.",
 				"role": "Los vencejos aspiran los enjambres de insectos que el aire ascendente sube a la montaña, y llevan esa comida de vuelta convertida en una bolita comprimida: una entrega al día le basta al pollito porque la carga viene concentradísima. El nido tiene que estar permanentemente mojado y ser inalcanzable, así que solo aparecen donde hay una grieta de acantilado con agua corriéndole encima. Están entre los últimos visitantes del verano en llegar y los primeros en irse hacia el Amazonas.",
-				"hint": "Busca la grieta más mojada y oscura del acantilado y mantén el agua corriendo por ella. Aquí no anida nada que pueda llegar caminando."
+				"hint": "Busca la grieta más húmeda y oscura del acantilado y mantén el agua cayendo por ella. Este no anidará en ningún sitio al que se pueda llegar caminando."
 			},
 			"peregrine-falcon": {
 				"name": "Halcón peregrino",
@@ -1601,7 +1601,7 @@
 				"preferredHabitat": "Pastizal abierto y bordes con matorral para la guarida, y agua al alcance",
 				"fact": "Tres coyotes pueden sonar como una docena. Cada uno desliza el tono mientras aúlla, así que una familia pequeña levanta un muro de voces: los biólogos lo llaman el efecto 'beau geste'.",
 				"role": "El animal en la cima de esta pradera y el carnívoro más adaptable de aquí. Caza solo ratones de campo y conejos, en pareja los cervatillos, y entremedio come fruta, insectos y carroña. Su regreso es lo que por fin presiona a los zorros, los tejones y los venados que nada más aquí podía tocar; y con gusto seguirá a un tejón que excava para atrapar lo que salga huyendo por el otro lado.",
-				"hint": "Un talud con matorral para la guarida, pasto amplio lleno de conejos y ratones de campo, y agua cerca. Es la última pieza: solo se instala donde ya hay mucho que comer."
+				"hint": "Un talud con matorral para la guarida, pasto amplio lleno de conejos y ratones de campo, y agua cerca. Solo se instala donde ya hay mucho que comer."
 			}
 		},
 		"biome": {

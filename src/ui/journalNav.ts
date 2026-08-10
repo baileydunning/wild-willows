@@ -7,7 +7,7 @@
  * crafting menu's memory.
  */
 
-export type JournalLoc = { kind: 'view'; tab: string; view: 'list' | 'web' } | { kind: 'animal'; id: string };
+export type JournalLoc = { kind: 'view'; tab: string; view: 'list' | 'web' | 'roles' } | { kind: 'animal'; id: string };
 
 const same = (a: JournalLoc | undefined, b: JournalLoc): boolean => {
 	if (!a || a.kind !== b.kind) return false;

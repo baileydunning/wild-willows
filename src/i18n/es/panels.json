@@ -195,11 +195,14 @@
 		"fieldFallback": "Campo",
 		"allAnimals": "Todos los animales",
 		"lockedTab": "{biome} todavía está bloqueado — desbloquéalo primero en el mundo",
-		"summaryAll": "{returned} de {total} animales han regresado en toda la reserva.",
-		"summaryBiome": "{returned}/{total} animales han regresado a {biome}.",
 		"entriesTitle": "Lista de entradas",
 		"entries": "Entradas",
 		"foodWebTitle": "Red trófica de este bioma",
+		"roles": "Papeles",
+		"rolesTitle": "Qué hace aquí cada animal",
+		"rolesIntro": "Cada animal tiene un trabajo en la red. Un área solo está equilibrada cuando todos están cubiertos: eso es lo que mide el equilibrio ecológico, y por eso los últimos en llegar importan más que los primeros.",
+		"rolesCount": "{back} de {total} de vuelta",
+		"rolesEmpty": "Todavía no hay animales registrados para esta área.",
 		"foodWeb": "Red trófica",
 		"unknownFirstTitle": "Mostrar primero los animales que aún no has encontrado",
 		"unknownFirst": "Desconocidos primero",
@@ -314,6 +317,19 @@
 			"eggs": "(huevos)",
 			"young": "(crías)",
 			"adult": "(adultos)"
+		},
+		"trophicAbout": {
+			"producer": "La base de toda la red. Las plantas, las algas y el kelp toman luz, agua y aire y fabrican alimento con ellos; son lo único aquí que puede hacerlo. Todos los demás animales de esta lista se están comiendo, de una forma u otra, una planta, así que los productores son lo primero que hay que recuperar y lo último que un área puede permitirse perder.",
+			"decomposer": "Desarma lo muerto y lo devuelve convertido en suelo. Sin él, un área se entierra poco a poco: el nitrógeno y los minerales se quedan encerrados en la madera caída y en los cadáveres en vez de volver a las raíces. Es un trabajo invisible, y es la razón de que un área restaurada siga alimentándose sola en lugar de agotarse.",
+			"detritivore": "La cuadrilla de limpieza del suelo del bosque, del lecho del arroyo y de la línea de marea. Come hojas caídas, madera podrida y lo que arrastre la corriente, y lo tritura hasta dejarlo lo bastante fino para que los descomponedores terminen el trabajo. No tiene nada de espectacular, pero es lo que convierte la hojarasca del año pasado en el crecimiento de este.",
+			"filter-feeder": "Filtra su alimento directamente del agua (plancton, algas, restos a la deriva) y la deja más limpia de como la encontró. Un banco de ellos es un filtro en funcionamiento, y todo lo que caza con la vista depende de esa transparencia. Cuando desaparecen los filtradores, lo primero que se enturbia es el agua.",
+			"herbivore": "Come plantas y las convierte en carne, que es la única vía por la que la energía que capturó una planta llega a algo más arriba. Además, al pastar da forma al lugar: abre el pasto, poda los arbustos y va repartiendo semillas. Si hay pocos, la vegetación se ahoga a sí misma; si hay demasiados, las plantas nunca levantan cabeza.",
+			"insectivore": "Vive de los insectos, lo que lo convierte en el puente entre las vidas más pequeñas de un área y las más grandes. También mantiene a raya el número de insectos sobre las plantas que tiene debajo. Un insectívoro solo se queda donde la vida de insectos ha vuelto de verdad, así que su llegada es una de las pruebas más honestas de que un área está funcionando.",
+			"scavenger": "Come lo que ya murió, y llega el primero. Así evita que los cadáveres se queden ahí, devuelve sus nutrientes a la circulación y, de paso, frena las enfermedades. Un carroñero necesita un lugar con suficiente vida como para seguir produciendo algo que valga la pena encontrar.",
+			"omnivore": "Come plantas y animales por igual, y alterna entre unos y otros según avanza el año: larvas en primavera, bayas en otoño, lo que haya. Esa flexibilidad hace que sea difícil matarlo de hambre, y lo convierte en un conector: enlaza la mitad vegetal de la red con la mitad cazadora, y de camino lleva semillas muy lejos.",
+			"mesopredator": "El centro de la red. Caza a los animales pequeños y mantiene bajos sus números, y a su vez es cazado por lo que esté por encima. Quita la cima y un depredador medio se multiplica hasta acabar con los animales pequeños: esa es la razón indirecta por la que los superdepredadores les importan a las plantas.",
+			"apex-predator": "Caza en lo más alto, y aquí nada lo caza a él. Su regreso suele ser la última pieza de un área restaurada, porque necesita que todo lo que tiene debajo sea abundante primero. Cuando se asienta, presiona a los depredadores medios, lo que alivia a los animales pequeños y, más abajo, a las plantas.",
+			"wildlife": "Un papel que la guía todavía no ha clasificado. Cuenta igual como animal que vive aquí, pero aún no tiene sitio asignado en la red."
 		}
 	},
 	"achievements": {
