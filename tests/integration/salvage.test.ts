@@ -162,7 +162,9 @@ describe('scans surface dropped rows instead of hiding them', () => {
 
 		await w.post('LoginPlayer', { name: 'Kayla', passcode: 'pw1234' });
 
-		expect(errs.join('\n')).toMatch(/scan of \w+: \d+ undecodable record\(s\) omitted/);
+		// The label carries the key range for a bounded scan (`TerrainTile[kayla:*]`),
+		// so allow it — the assertion is that the drop is REPORTED, not how it's named.
+		expect(errs.join('\n')).toMatch(/scan of \w+(\[[^\]]*\])?: \d+ undecodable record\(s\) omitted/);
 	});
 
 	it('one bad row does not truncate the rest of a scan', async () => {

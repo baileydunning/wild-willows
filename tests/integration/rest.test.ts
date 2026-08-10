@@ -7,7 +7,7 @@ describe('rest / sleep', () => {
 		const pid = (await w.post('CreatePlayer', { name: 'Sleeper', passcode: '1234', appearance })).playerId;
 		// a bed to sleep in, and set the clock to late night (0.9 of a 12-min day)
 		await w.db.Placement.put({
-			id: 'pl_bed',
+			id: `${pid}:pl_bed`,
 			worldId: pid,
 			playerId: pid,
 			objectId: 'home-bed',

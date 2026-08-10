@@ -95,7 +95,14 @@ describe('Log Cabin — forager’s instinct (bonus gather)', () => {
 describe('Meadow Cottage — green thumb (growth head start)', () => {
 	it('backdates a new planting by the perk strength', async () => {
 		await givenHouse('cottage', {}, { seeds: 4 }); // base 10% head start
-		await holder.db.TerrainTile.put({ id: 'tt-test', worldId: pid, area: 'meadow', x: 3, y: 3, type: 'watered' });
+		await holder.db.TerrainTile.put({
+			id: `${pid}:meadow:3:3`,
+			worldId: pid,
+			area: 'meadow',
+			x: 3,
+			y: 3,
+			type: 'watered',
+		});
 		const before = Date.now();
 		const r = await post('Plant', { playerId: pid, area: 'meadow', x: 3, y: 3, plantId: 'wildflower-patch' });
 		expect(r.perkGrowth).toBeCloseTo(0.1, 5);
@@ -109,7 +116,14 @@ describe('Meadow Cottage — green thumb (growth head start)', () => {
 
 	it('plants with no head start from other styles', async () => {
 		await givenHouse('cabin', {}, { seeds: 4 });
-		await holder.db.TerrainTile.put({ id: 'tt-test2', worldId: pid, area: 'meadow', x: 4, y: 4, type: 'watered' });
+		await holder.db.TerrainTile.put({
+			id: `${pid}:meadow:4:4`,
+			worldId: pid,
+			area: 'meadow',
+			x: 4,
+			y: 4,
+			type: 'watered',
+		});
 		const before = Date.now();
 		const r = await post('Plant', { playerId: pid, area: 'meadow', x: 4, y: 4, plantId: 'wildflower-patch' });
 		expect(r.perkGrowth).toBeUndefined();

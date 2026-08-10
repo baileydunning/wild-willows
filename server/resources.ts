@@ -603,34 +603,201 @@ class RollupCache<T> {
 	}
 }
 
+// --------------------------------------------------------------- key contract
+//
+// Every mutable row is keyed so that the rows of ONE world (or one player) form
+// a CONTIGUOUS RUN in the primary key index. That is what turns a per-world read
+// into a bounded range scan instead of a scan of every save in the database.
+//
+// Why the primary key and not a secondary index. Two independent reasons:
+//
+//  1. The mutable tables declare only `id` (see schema.graphql — everything else
+//     is dynamic on purpose, because declared columns use the positional
+//     structon encoding and adding one leaves existing rows undecodable). Harper
+//     REJECTS a condition on an undeclared attribute, so `worldId` is not
+//     something we can filter on server-side even if we wanted to.
+//  2. A primary-key `starts_with` is not an index lookup at all. Harper compiles
+//     it to `primaryStore.getRange({ start, end })` — the same call, on the same
+//     store, that a bare `search({})` already makes with no bounds
+//     (harper/resources/search.ts: `starts_with` sets `start`, then
+//     `index.getRange(rangeOptions)` where `index === table.primaryStore`).
+//     Narrowing the bounds cannot be less reliable than not narrowing them, so
+//     this preserves the exact property the full scans were there to protect:
+//     it never depends on a secondary index being warm.
+//
+// The key shapes (KEY_REV 2):
+//
+//   BiomeState        `${wid}:${biomeId}`
+//   NodeState         `${wid}:${biomeId}:${nodeId}`
+//   TerrainTile       `${wid}:${area}:${x}:${y}`
+//   Discovery         `${wid}:${animalId}`
+//   WorldMember       `${wid}:${playerId}`
+//   JoinRequest       `${wid}:${token}`
+//   Placement         `${wid}:pl_${ts}_${rand}`   (was `pl_${ts}_${rand}`)
+//   Chest             the same id as its Placement — an invariant, not a coincidence
+//   FeedEntry         `${wid}:f_${at}_${rand}`    (was `f_${wid}_${at}_${rand}`)
+//   PlayerAchievement `${playerId}:${achievementId}`
+//
+// `:` is a safe delimiter: a player id is `slugId(name)` (lowercase a-z0-9 and
+// `-`) optionally plus `-${rand}`, and a world id is `w_${ts36}_${rand}`.
+// Neither can contain a colon, so no world's key prefix can be a prefix of
+// another world's key. (This is why the prefix is `${wid}:` and never `${wid}`.)
+const KEY_REV = 2;
+
+/** Tables whose ids carry a `${worldId}:` prefix under KEY_REV 2. */
+const WORLD_KEYED = new Set([
+	'BiomeState',
+	'NodeState',
+	'TerrainTile',
+	'Discovery',
+	'WorldMember',
+	'JoinRequest',
+	'Placement',
+	'Chest',
+	'FeedEntry',
+]);
+
+/** Tables re-keyed by the KEY_REV 2 migration (see migrateWorldKeys). */
+const REKEYED_TABLES = ['Placement', 'Chest', 'FeedEntry', 'BiomeState', 'NodeState', 'TerrainTile', 'Discovery'];
+
 /**
- * Every per-player query goes through here. The search condition narrows by
- * playerId, and the explicit filter guarantees strict save isolation even if
- * the underlying index ever returns extra rows — nothing from another save
- * can leak into (or be deleted from) this player's world.
+ * Bounded scan of one contiguous primary-key run.
+ *
+ * Same decode tolerance as a full scan (toArray) — an undecodable row inside the
+ * range is counted and skipped, never allowed to abort the read.
+ */
+async function scanPrefix(table: any, prefix: string): Promise<any[]> {
+	if (!table || typeof table.search !== 'function' || !prefix) return [];
+	return toArray(
+		table.search({ conditions: [{ attribute: 'id', comparator: 'starts_with', value: prefix }] }),
+		`${tableName(table)}[${prefix}*]`,
+	);
+}
+
+/**
+ * Worlds this worker has confirmed are on KEY_REV 2. Migration is one-way and
+ * permanent, so a positive answer can be memoized forever; a negative one is
+ * never cached, because the very next write may migrate it.
+ */
+const keyedWorlds = new Set<string>();
+
+/**
+ * Where a world's KEY_REV marker lives.
+ *
+ * For a solo world it is on the PLAYER row — a solo world's id IS the player's
+ * id, so the row is already there and already read on every request. For a co-op
+ * world (id `w_…`) there is no such Player row, so it falls back to the World row.
+ *
+ * Player first, deliberately. If this marker ever depended on a World row that
+ * stopped existing, every world would read as unmigrated forever and byWorld
+ * would fall back to the full scan this entire contract exists to avoid — a
+ * silent return to O(database) reads, with every test still green. Anchoring it
+ * to the player keeps the fast path alive even if worlds go away entirely.
+ */
+async function keyMarker(worldId: string): Promise<any | null> {
+	const t = db();
+	return (await safeGet(t.Player, worldId)) || (await safeGet(t.World, worldId));
+}
+
+async function worldIsKeyed(worldId: string): Promise<boolean> {
+	if (!worldId) return false;
+	if (keyedWorlds.has(worldId)) return true;
+	if (((await keyMarker(worldId))?.keyRev || 0) >= KEY_REV) {
+		keyedWorlds.add(worldId);
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Re-key one world's rows into the KEY_REV 2 contract, once, then mark the World
+ * row so it never happens again.
+ *
+ * The new id is simply `${wid}:${oldId}`. Old ids were already globally unique,
+ * so the mapping is deterministic and collision-free, it needs no per-table
+ * logic, and it preserves the Chest-id-equals-Placement-id invariant for free
+ * (both rows carry the same old id, so both get the same new one).
+ *
+ * This is the ONLY full scan left on the per-world path, it runs at most once
+ * per world, and it runs from write paths only (login and heartbeat) — never
+ * from a GET handler, which must not write.
+ */
+async function migrateWorldKeys(worldId: string): Promise<void> {
+	if (!worldId || keyedWorlds.has(worldId)) return;
+	const t = db();
+	if (((await keyMarker(worldId))?.keyRev || 0) >= KEY_REV) {
+		keyedWorlds.add(worldId);
+		return;
+	}
+	const prefix = `${worldId}:`;
+	try {
+		for (const name of REKEYED_TABLES) {
+			const table = t[name];
+			if (!table || typeof table.search !== 'function') continue;
+			const stale = (await toArray(table.search({}), name)).filter(
+				(r: any) => (r?.worldId ?? r?.playerId) === worldId && !String(r?.id ?? '').startsWith(prefix),
+			);
+			for (const row of stale) {
+				const oldId = String(row.id);
+				// Write the new row before removing the old one: a crash between the
+				// two leaves a duplicate (which byWorld dedupes by id) rather than a
+				// hole. Losing a placement is unrecoverable; seeing one twice is not.
+				await table.put({ ...row, id: `${prefix}${oldId}`, worldId });
+				await table.delete(oldId);
+			}
+			if (stale.length) console.error(`key migration: re-keyed ${stale.length} ${name} row(s) for world ${worldId}`);
+		}
+		// Mark wherever the marker lives for this world (see keyMarker).
+		if (await safeGet(t.Player, worldId)) await t.Player.patch(worldId, { keyRev: KEY_REV });
+		else await t.World.patch(worldId, { keyRev: KEY_REV });
+		keyedWorlds.add(worldId);
+	} catch (e: any) {
+		// A failed migration must never break the action that triggered it — the
+		// world stays unmigrated and byWorld keeps using the legacy merge path,
+		// which is slower but correct. We simply try again on the next write.
+		console.error(`key migration for world ${worldId} skipped —`, e?.message || e);
+	}
+}
+
+/**
+ * Every per-player query goes through here. PlayerAchievement is keyed
+ * `${playerId}:${achievementId}`, so it reads as a bounded range scan; the
+ * explicit filter still runs, and guarantees strict save isolation even if the
+ * range ever yields an extra row — nothing from another save can leak into (or
+ * be deleted from) this player's world.
+ *
+ * The remaining callers ask world-owned tables for "rows this player owns"
+ * (export, delete-my-save, dev reset). Those rows live under the WORLD's prefix,
+ * not the player's, so they still need the unbounded scan — but every one of
+ * them is a cold path, and none is reached from snapshot() or a gameplay action.
  */
 async function byPlayer(table: any, playerId: string): Promise<any[]> {
 	// Defensive: if a table isn't available yet (e.g. a newly added schema table on
 	// an instance that hasn't been restarted), treat it as empty rather than throwing
 	// — a missing optional table must never break a full state read / refresh.
-	if (!table || typeof table.search !== 'function') return [];
-	// Full scan + filter instead of a secondary-index conditional search. The
-	// indexed `playerId` search proved unreliable across Harper versions/cold
-	// starts — it could return zero rows for a perfectly good save, which made
-	// the world (placements, chests, terrain) load empty until the first action
-	// "warmed" things up. A plain scan never depends on the index being ready,
-	// and these per-player tables are tiny, so this is both correct and cheap.
-	const rows = await toArray(table.search({}), tableName(table));
-	return rows.filter((r: any) => r?.playerId === playerId);
+	if (!table || typeof table.search !== 'function' || !playerId) return [];
+	const own = (r: any) => r?.playerId === playerId;
+	if (tableName(table) === 'PlayerAchievement') {
+		const rows = (await scanPrefix(table, `${playerId}:`)).filter(own);
+		// Achievement ids have always been player-prefixed, but a save that predates
+		// that is cheap to rescue and impossible to detect any other way: only fall
+		// back when the bounded read came up empty, so the cost is paid by saves
+		// with no achievements yet (a scan of a table that is, for them, tiny).
+		if (rows.length) return rows;
+		return (await toArray(table.search({}), tableName(table))).filter(own);
+	}
+	return (await toArray(table.search({}), tableName(table))).filter(own);
 }
 
 /**
- * Reliable per-player lookup of a single record by id. Uses the same full scan
- * as byPlayer rather than a primary-key `.get()`, which proved unreliable on
- * cold Harper instances — a `.get()` could return null for a record that
- * genuinely exists, surfacing as "Placement not found" / unseen soil beds.
+ * Reliable per-player lookup of a single record by id. safeGet first (it also
+ * salvages an undecodable row, which a scan cannot — a dropped row carries no
+ * id), and only fall back to the scan when that comes up null, which is the one
+ * answer a cold Harper instance is allowed to get wrong.
  */
 async function findOwned(table: any, playerId: string, id: string): Promise<any | null> {
+	const direct = await safeGet(table, id);
+	if (direct && direct.playerId === playerId) return direct;
 	const rows = await byPlayer(table, playerId);
 	return rows.find((r: any) => r.id === id) || null;
 }
@@ -648,15 +815,45 @@ function worldOf(player: any): string {
 	return player?.worldId || player?.id;
 }
 
-/** All rows belonging to one world (worldId, falling back to legacy playerId). */
+/**
+ * All rows belonging to one world (worldId, falling back to legacy playerId).
+ *
+ * The hot read. Under KEY_REV 2 this is a bounded range scan over one world's
+ * contiguous key run, so its cost tracks the size of THAT world rather than the
+ * size of the database — which is the whole point: before this, every state
+ * refresh read every row of every save that had ever been created.
+ *
+ * The explicit `worldId` filter is kept even though the range is already
+ * narrow. It costs nothing on a small result set and it is the backstop that
+ * makes cross-save leakage impossible if a key ever escapes the contract.
+ */
 async function byWorld(table: any, worldId: string): Promise<any[]> {
-	if (!table || typeof table.search !== 'function') return [];
-	const rows = await toArray(table.search({}), tableName(table));
-	return rows.filter((r: any) => (r?.worldId ?? r?.playerId) === worldId);
+	if (!table || typeof table.search !== 'function' || !worldId) return [];
+	const name = tableName(table);
+	const own = (r: any) => (r?.worldId ?? r?.playerId) === worldId;
+	if (!WORLD_KEYED.has(name)) return (await toArray(table.search({}), name)).filter(own);
+
+	const rows = (await scanPrefix(table, `${worldId}:`)).filter(own);
+	// Until this world has been migrated its rows may still be under the old id
+	// scheme, and a bounded scan would silently return fewer than exist — which
+	// the game reads as "this world has no placements/terrain", the exact failure
+	// mode the original full scans were written to avoid. So an unmigrated world
+	// pays for both reads. Migration runs on login and on every heartbeat, so a
+	// save spends at most one session here, and a brand-new world never does.
+	if (!(await worldIsKeyed(worldId))) {
+		const seen = new Set(rows.map((r: any) => r.id));
+		for (const r of (await toArray(table.search({}), name)).filter(own)) if (!seen.has(r.id)) rows.push(r);
+	}
+	return rows;
 }
 
 /** Single record by id, scoped to one world. */
 async function findInWorld(table: any, worldId: string, id: string): Promise<any | null> {
+	// Point read first — under KEY_REV 2 the id already carries the world prefix,
+	// so ownership is verifiable without reading the world. safeGet salvages an
+	// undecodable row on the way through; only a null needs the scan.
+	const direct = await safeGet(table, id);
+	if (direct && (direct.worldId ?? direct.playerId) === worldId) return direct;
 	const rows = await byWorld(table, worldId);
 	return rows.find((r: any) => r.id === id) || null;
 }
@@ -671,6 +868,11 @@ async function findInWorld(table: any, worldId: string, id: string): Promise<any
  * `.id`, so legacy rows are patched/deleted correctly and heal over time.
  */
 async function findTerrainAt(table: any, worldId: string, area: string, x: number, y: number): Promise<any | null> {
+	// The current id IS the position, so try it directly before scanning. A hit
+	// here turns the most frequent lookup in the game (every dig, plant, place and
+	// terraform does at least one) into a single point read.
+	const direct = await safeGet(table, `${worldId}:${area}:${x}:${y}`);
+	if (direct && (direct.worldId ?? direct.playerId) === worldId) return direct;
 	const rows = await byWorld(table, worldId);
 	return rows.find((r: any) => r.area === area && r.x === x && r.y === y) || null;
 }
@@ -681,10 +883,14 @@ async function findTerrainAt(table: any, worldId: string, area: string, x: numbe
  * safeguard as findTerrainAt. Callers patch the row's real `.id`.
  */
 async function findBiomeState(table: any, worldId: string, biomeId: string): Promise<any | null> {
+	const direct = await safeGet(table, `${worldId}:${biomeId}`);
+	if (direct && (direct.worldId ?? direct.playerId) === worldId) return direct;
 	const rows = await byWorld(table, worldId);
 	return rows.find((r: any) => r.biomeId === biomeId) || null;
 }
 async function findDiscovery(table: any, worldId: string, animalId: string): Promise<any | null> {
+	const direct = await safeGet(table, `${worldId}:${animalId}`);
+	if (direct && (direct.worldId ?? direct.playerId) === worldId) return direct;
 	const rows = await byWorld(table, worldId);
 	return rows.find((r: any) => r.animalId === animalId) || null;
 }
@@ -722,7 +928,12 @@ async function ensureSoloWorld(player: any, opts: { freshGrid?: boolean } = {}):
 			joinCode: null,
 			createdAt: player.createdAt || Date.now(),
 			maxMembers: 1,
+			keyRev: KEY_REV, // born key-scoped — nothing to migrate
 		});
+		// The player row is the authoritative marker for a solo world; the World
+		// row carries a copy only so a co-op world reads the same way.
+		await t.Player.patch(player.id, { keyRev: KEY_REV });
+		keyedWorlds.add(soloId);
 	}
 	const memberId = `${soloId}:${player.id}`;
 	if (!(await safeGet(t.WorldMember, memberId)) && !existsRaw(t.WorldMember, memberId)) {
@@ -736,6 +947,11 @@ async function ensureSoloWorld(player: any, opts: { freshGrid?: boolean } = {}):
 		});
 	}
 	if (!player.worldId) await t.Player.patch(player.id, { worldId: soloId });
+	// Bring a save written by an earlier build onto the KEY_REV 2 key contract.
+	// This is a write path (login / world switch), it self-marks, and it is a
+	// no-op for every world after the first time — so the full scan it performs
+	// happens once per save, ever, instead of once per state read.
+	await migrateWorldKeys(soloId);
 }
 
 /** Every world a player belongs to, shaped for the client's world picker. */
@@ -1979,7 +2195,7 @@ async function createPlayerRecords(
 	}));
 	for (const bs of biomeStates) await t.BiomeState.put(bs);
 
-	const chestPlacementId = `pl_${playerId}_starter-chest`;
+	const chestPlacementId = `${wid}:pl_${playerId}_starter-chest`;
 	const placements = [
 		{
 			id: chestPlacementId,
@@ -4702,6 +4918,7 @@ export class CreateWorld extends PublicEndpoint {
 			name: cleanName,
 			solo: false,
 			ownerId: playerId,
+			keyRev: KEY_REV, // born key-scoped — nothing to migrate
 			joinCode,
 			createdAt: now,
 			maxMembers: DEFAULT_MAX_MEMBERS,
@@ -4793,7 +5010,7 @@ export class JoinWorld extends PublicEndpoint {
 			// announce the arrival in the shared world feed (everyone sees it)
 			const at = Date.now();
 			await t.FeedEntry.put({
-				id: `f_${world.id}_${at}_${Math.random().toString(36).slice(2, 7)}`,
+				id: `${world.id}:f_${at}_${Math.random().toString(36).slice(2, 7)}`,
 				worldId: world.id,
 				playerId,
 				at,
@@ -5534,7 +5751,7 @@ export class PlaceObject extends PublicEndpoint {
 			if (craftedItems[objectId] <= 0) delete craftedItems[objectId];
 			await t.Player.patch(playerId, { craftedItems });
 
-			const placementId = `pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+			const placementId = `${wid}:pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 			const placement = {
 				id: placementId,
 				worldId: wid,
@@ -5628,7 +5845,7 @@ export class Plant extends PublicEndpoint {
 		const perk = homePerk(player);
 		const headStart = perk?.id === 'growth' ? perk.strength : 0;
 		const now = Date.now();
-		const placementId = `pl_${now}_${Math.random().toString(36).slice(2, 8)}`;
+		const placementId = `${wid}:pl_${now}_${Math.random().toString(36).slice(2, 8)}`;
 		const placement = {
 			id: placementId,
 			worldId: wid,
@@ -6503,7 +6720,7 @@ export class AppendFeed extends PublicEndpoint {
 			if (!text) continue;
 			const at = Number(e?.at) || Date.now();
 			const icon = String(e?.icon || 'leaf').slice(0, 40);
-			const id = `f_${wid}_${at}_${Math.random().toString(36).slice(2, 9)}`;
+			const id = `${wid}:f_${at}_${Math.random().toString(36).slice(2, 9)}`;
 			await t.FeedEntry.put({ id, worldId: wid, playerId, at, icon, text });
 			added++;
 		}
@@ -6618,6 +6835,10 @@ export class Heartbeat extends PublicEndpoint {
 		//  • first beat of a session after a real absence: recalc every unlocked
 		//    biome and shape a small welcome-back summary for the client.
 		const wid = worldOf(player);
+		// Backstop for the key migration: ensureSoloWorld covers login, but a co-op
+		// world (or a session that never re-logged in) reaches KEY_REV 2 here, on
+		// the first beat. Marked and memoized, so every later beat is a no-op.
+		await migrateWorldKeys(wid);
 		let welcomeBack: any = null;
 		const newAnimals: any[] = [];
 		const freshBiomeStates: any[] = [];
@@ -7556,7 +7777,7 @@ export class DevTools extends PublicEndpoint {
 					});
 				}
 				// Recreate the empty starter chest by the camp.
-				const chestId = `pl_${playerId}_starter-chest`;
+				const chestId = `${wid}:pl_${playerId}_starter-chest`;
 				await t.Placement.put({
 					id: chestId,
 					worldId: wid,
@@ -7914,7 +8135,7 @@ export class DevTools extends PublicEndpoint {
 					if (!def || !free(x, y)) return false;
 					occupied.add(`${x},${y}`);
 					const row: any = {
-						id: `pl_dev_${ar}_${x}_${y}`,
+						id: `${wid}:pl_dev_${ar}_${x}_${y}`,
 						worldId: wid,
 						playerId,
 						objectId: def.id,
