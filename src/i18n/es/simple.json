@@ -499,7 +499,11 @@
 			},
 			"coyote": {
 				"fact": "Tres coyotes pueden sonar como doce. Cada uno mueve el tono mientras aúlla, así que una familia pequeña levanta un muro de voces. Los científicos lo llaman el efecto 'beau geste'.",
-				"role": "El mayor cazador de este prado, y el que se adapta a todo. Caza solo los ratones de campo y los conejos. Caza en pareja los cervatillos. Entremedio come fruta, bichos y animales muertos. Su regreso por fin presiona a los zorros, los tejones y los venados que aquí nada más podía tocar. Hasta sigue a un tejón que excava para atrapar lo que salga huyendo por el otro lado."
+				"role": "El mayor cazador de este prado, y el que se adapta a todo. Caza solo los ratones de campo y los conejos. Caza en pareja los cervatillos. Entremedio come fruta, bichos y animales muertos. Su regreso por fin presiona a los zorros, los tejones y los venados que aquí nada más podía tocar. Hasta sigue a un tejón que excava para atrapar lo que salga huyendo por el otro lado.",
+				"diet": "Ratones, conejos y ardillas de tierra; venaditos; también fruta, insectos y animales muertos",
+				"hint": "Un talud con matorral para la guarida, pasto ancho lleno de conejos y ratones, y agua cerca. Es la última pieza. Solo llega donde ya hay mucho que comer.",
+				"preferredHabitat": "Pasto abierto y bordes con matorral para la guarida, y agua cerca",
+				"shelter": "Cría a sus cachorros en una guarida cavada en un talud con matorral. Muchas veces es un hueco viejo de tejón o zorro, hecho más grande"
 			},
 			"crayfish": {
 				"diet": "Plantas y animales muertos, plantas de agua vivas, caracoles, larvas de insecto y camarones de río",
@@ -805,7 +809,11 @@
 			},
 			"mountain-lion": {
 				"fact": "El mamífero salvaje más ruidoso de Norteamérica. Un grupo aullando suena a muchos más.",
-				"role": "El cazador que mejor se acomoda en el desierto. Come ratones, conejos, fruta y animales muertos. Es el mayor cazador con pelo de aquí y el que más mata zorros chicos. Sus aullidos llegan lejísimos al caer la tarde."
+				"role": "El cazador que mejor se acomoda en el desierto. Come ratones, conejos, fruta y animales muertos. Es el mayor cazador con pelo de aquí y el que más mata zorros chicos. Sus aullidos llegan lejísimos al caer la tarde.",
+				"diet": "venados y borregos sobre todo. También liebres, zorras y todo lo que pueda alcanzar",
+				"hint": "Primero presas grandes. Luego terreno con piedras y huecos para acechar, y un saliente tapado para los cachorros. Este sí baja a beber. Es el último animal en volver.",
+				"preferredHabitat": "Cañones con piedras y salientes, matorral para acechar, y agua segura cerca",
+				"shelter": "No tiene casa fija. Esconde a sus cachorros en una cueva seca o bajo un saliente del cañón"
 			},
 			"mule-deer": {
 				"fact": "El venado bura salta y cae con las cuatro pezuñas a la vez, como un pogo. Al hacerlo suelta olor por una glándula de la pata trasera. Los otros venados huelen el aviso.",
@@ -1559,6 +1567,864 @@
 			},
 			"hiking-boots": {
 				"description": "Botas fuertes de corteza dura, musgo elástico y juncos tejidos. Una vez hechas son tuyas para siempre. Póntelas para ir más rápido."
+			},
+			"acorn-cache-scatter": {
+				"description": "Un parche de tierra blanda y abierta, lleno de hoyitos donde alguien metió bellotas una por una. Casi todas se comen en invierno. Las olvidadas salen como robles en primavera."
+			},
+			"adopted-stick-nest": {
+				"description": "Una plataforma vieja y grande de ramas y hojas, dejada en una horqueta alta. Está gastada y algo hundida, pero aguanta. De segunda mano y lista para usarse en pleno invierno."
+			},
+			"alpine-mineral-lick": {
+				"description": "Un talud húmedo de tierra salada, roído y lamido hasta hacer un hueco. La sal que tiene no está en el pasto, y aquí arriba no hay otro lugar donde conseguirla."
+			},
+			"alpine-nest-shelf": {
+				"description": "Una repisa de roca tapada del viento y forrada de musgo para las aves de las alturas."
+			},
+			"alpine-restoration-kit": {
+				"description": "Malla de sombra, agua guardada y equipo de escalada para las alturas. Fabricarlo ayuda a abrir las Cumbres del Viento Gris."
+			},
+			"alpine-turf-mat": {
+				"description": "Un tapiz tejido de juncias, flores de montaña y plantas en cojín sobre tierra oscura. Un pasto así tarda décadas en tapar el suelo desnudo, y un solo verano de pisadas en volver a abrirlo."
+			},
+			"alpine-wildflower-patch": {
+				"description": "Flores pequeñas y duras de las alturas para las abejas de montaña."
+			},
+			"bare-ground-patch": {
+				"description": "Un parche de tierra blanda y suelta, dejado a propósito entre los arbustos. Tan suelto que se puede cavar derecho hacia abajo, pero solo donde nada lo ha apretado."
+			},
+			"bare-sand-beach": {
+				"description": "Arena ancha, plana y sin plantas, arriba de la marea. Aquí la arena desnuda ya es hábitat. Deja la vista despejada y la superficie sin pisar."
+			},
+			"bare-soil-scrape": {
+				"description": "Un parche despejado a mano hasta la tierra desnuda. El suelo desnudo también es hábitat: las plantitas nuevas necesitan un lugar sin tapar."
+			},
+			"bark-slab-snag": {
+				"description": "Un árbol que se está muriendo y cuya corteza se despegó en placas curvas y flojas. Detrás de cada placa hay una rendija tibia, seca y plana, apenas más ancha que un dedo."
+			},
+			"barn-loft-nest-box": {
+				"description": "Una caja de madera honda, puesta bien alto bajo el alero y abierta de un lado, con paja en el borde. Oscura y seca por dentro, muy arriba del suelo."
+			},
+			"barnacle-crust-rock": {
+				"description": "Una costra blanca de bálanos pegada sobre la roca alta. Filosa bajo el pie, áspera como lija, y tan pegada que ya es parte de la piedra."
+			},
+			"basking-log": {
+				"description": "Un tronco medio hundido donde tortugas y ranas se calientan al sol."
+			},
+			"bat-box": {
+				"description": "Una caja alta y angosta donde los murciélagos se esconden de día."
+			},
+			"bat-maternity-roost": {
+				"description": "Una grieta angosta y oscura, alta sobre el suelo, con sol de lleno en la roca de afuera. Tibia todo el día y tan estrecha que lo que entra queda apretado contra las paredes."
+			},
+			"beach-shrub": {
+				"description": "Un arbusto de costa verde grisáceo que aguanta la sal."
+			},
+			"beaver-canal": {
+				"description": "Un canal poco hondo cavado del estanque hacia el pantano, apenas lo hondo para que flote una rama. Mantiene unida el agua abierta durante todo un verano seco."
+			},
+			"beaver-pond": {
+				"description": "Agua honda y permanente detenida detrás de una represa de ramas y lodo, con árboles ahogados todavía en pie. Muy distinto de un pantano abierto de espadañas: más hondo, más despejado, y no aparece solo."
+			},
+			"benthic-amphipod-bed": {
+				"description": "Lodo blando y hondo junto al borde del kelp, tan lleno de bichitos que hacen tubos que el fondo es más animal que lodo."
+			},
+			"berry-bush": {
+				"description": "Un arbusto de bayas nativo sin espinas. Lo visitan aves, conejos, venados y osos. Siémbralo en un bancal regado con semillas y unas cuantas bayas."
+			},
+			"binoculars": {
+				"description": "Lentes pulidas a mano con agarre tejido. Una vez hechos son tuyos para siempre. Los animales que aún no anotas en tu diario brillan con un destello suave."
+			},
+			"birch-tree": {
+				"description": "Un abedul delgado de corteza blanca, criado en un bancal regado."
+			},
+			"bird-bath": {
+				"description": "Agua limpia para que las aves beban y se bañen."
+			},
+			"bird-perch": {
+				"description": "Un tronco seco y alto para cantar y vigilar."
+			},
+			"bluebird-nest-box": {
+				"description": "Una caja de madera con un agujero redondo pequeño y una placa de metal en el poste, mirando al pasto abierto. El agujero está cortado a un ancho exacto, y ese ancho es todo el diseño."
+			},
+			"borrowed-burrow-mouth": {
+				"description": "La boca de una madriguera que cavó otro, hecha más ancha y barrida, con un abanico de arena suelta en la entrada."
+			},
+			"boulder-burrow-den": {
+				"description": "Una madriguera honda y con muchos cuartos, cavada bajo un peñasco, muy por debajo de donde llega la helada. Allá abajo la temperatura casi no cambia en todo el invierno."
+			},
+			"bracket-fungus-shelf": {
+				"description": "Abanicos rayados de hongo de repisa que suben como escalones por el costado de un tronco muerto. Esto es lo que de verdad se come la madera: el tronco solo se vuelve tierra porque el hongo llega primero."
+			},
+			"bramble-ground-nest": {
+				"description": "Una copa forrada de pasto, hundida a ras de la hojarasca bajo una zarza arqueada. Encima no hay más que espinas, y esa es toda la defensa."
+			},
+			"breaking-surf-line": {
+				"description": "Una línea limpia de olas que se levantan y se caen a lo largo de la playa: una pared de espuma que se mueve por toda la costa."
+			},
+			"broken-top-chimney": {
+				"description": "Un árbol vivo y grande, quebrado en lo alto y ahuecado hacia abajo por la pudrición, con una chimenea abierta de un palmo de ancho. Nadie cava un hueco así de grande. Solo aparece en un árbol lo bastante viejo para pudrirse por dentro."
+			},
+			"browse-exclosure": {
+				"description": "Una cerca baja alrededor de un parche de robles jóvenes. Donde comen mucho los venados, los robles nunca pasan de la rodilla. Dentro de la cerca, las bellotas llegan a ser árboles."
+			},
+			"browse-thicket": {
+				"description": "Rebrote joven y tupido que llena el claro donde cayó un árbol grande, con cada ramita al alcance desde el suelo. Solo sigue así de tupido mientras los venados coman poco."
+			},
+			"browsed-pond-shallows": {
+				"description": "Una orilla de fondo blando donde el agua llega al pecho y está llena de tallos, cortados al ras en parches disparejos."
+			},
+			"brush-form-hollow": {
+				"description": "Un hueco poco hondo, aplastado en el pasto bajo la maleza, apenas lo hondo para quedar a ras del suelo. Es un lugar de descanso, no una madriguera: no hay que cavar nada."
+			},
+			"brush-pile": {
+				"description": "Un montón suelto de ramas. Cobijo para animales pequeños y aves de suelo."
+			},
+			"bumblebee-nest-burrow": {
+				"description": "Un túnel abandonado en el pasto, relleno de hierba seca y cama vieja. Un hueco listo, tibio y oscuro, que nadie tuvo que cavar."
+			},
+			"bumblebee-nest-tussock": {
+				"description": "Una mata densa de pasto sin cortar sobre un agujero abandonado. Tibia, forrada de pelo, seca y sin verse desde arriba."
+			},
+			"buried-deadwood": {
+				"description": "Tallos muertos de mezquite y creosota metidos a medias en la tierra, tocando suelo húmedo en vez de secarse arriba. La madera enterrada se pudre; la de arriba solo se blanquea."
+			},
+			"bush-muhly": {
+				"description": "Un pasto nativo de tallos finos que crece entre los arbustos para protegerse. Es lo primero que se come el ganado, así que su regreso avisa que el llano está sanando."
+			},
+			"cactus-patch": {
+				"description": "Cactus nativo trasplantado. Fruta, agua y fortaleza en uno."
+			},
+			"caliche-shelter-cave": {
+				"description": "Un hueco gastado en un banco duro de caliche, en una ladera con piedras. Un cuarto ya hecho, con techo firme y sin necesidad de cavar."
+			},
+			"campfire": {
+				"description": "Una fogata que crepita entre piedras. El corazón del campamento."
+			},
+			"canopy-nest-limb": {
+				"description": "Una rama gruesa y horizontal pegada al tronco de un árbol viejo, allá arriba donde las copas se cierran. Hace falta una rama capaz de sostener un nido por años, con espacio libre para volar debajo."
+			},
+			"canyon-ledge-den": {
+				"description": "Un alero seco cortado en la pared de un cañón y tapado por lajas caídas. Con sombra todo el día, no se ve desde abajo y solo se llega por un camino."
+			},
+			"carrion-patch": {
+				"description": "Un animal que murió y quedó donde cayó, sin que se lo llevaran. En pocos días casi no queda nada de él, y todo vuelve a la tierra."
+			},
+			"catclaw-acacia": {
+				"description": "Un árbol bajo y espinoso de los arroyos secos, lleno de espinas curvas que se enganchan al pasar. Da sombra espesa arriba y vainas pesadas de semillas a fines del verano."
+			},
+			"cattail-root-shallows": {
+				"description": "Agua poco honda sobre una masa apretada de raíces de espadaña, gordas y llenas de almidón, hundidas en el lodo. Se alcanzan desde abajo aunque la superficie esté congelada."
+			},
+			"chipmunk-burrow-larder": {
+				"description": "Un túnel poco hondo bajo una losa, con un cuarto de al lado repleto de espigas de semillas, seco y al alcance todo el invierno. Ya ninguna especie del juego lo necesita."
+			},
+			"cholla": {
+				"description": "Un cactus de pedazos unidos, cubierto por todos lados de espinas con púa que se sueltan al menor roce. Dentro de la maraña de brazos hay un espacio donde casi nada logra entrar."
+			},
+			"chuparosa": {
+				"description": "Un arbusto gris y suave con flores rojas en forma de tubo durante todo el invierno del desierto, cuando casi nada más florece."
+			},
+			"clearwater-shallows": {
+				"description": "Agua lenta con el lodo ya asentado, así que la luz llega hasta el fondo. Las plantas de abajo viven de esa luz, y por eso el agua clara y las praderas bajo el agua siempre llegan juntas."
+			},
+			"cliff-eyrie": {
+				"description": "Un nido grande de ramas en un saliente vertical. Cada año se le agrega algo, hasta que la misma pareja lleva décadas usándolo."
+			},
+			"clifftop-burrow": {
+				"description": "Un agujero redondo que entra en el pasto hondo justo en lo alto de un acantilado del mar, con un claro de tierra pelada en la entrada."
+			},
+			"coast-live-oak": {
+				"description": "Un encino ancho de hoja perenne que sujeta la playa de atrás con su sombra espesa."
+			},
+			"cocoon-leaf-drift": {
+				"description": "Un montón de hojas caídas y enrolladas, arrimadas contra un tronco. El capullo se teje dentro de una hoja que después cae con él, así que toda la próxima generación pasa el invierno en esta pila."
+			},
+			"coralline-algae-crust": {
+				"description": "Una alfombra rosada de algas ramificadas sobre la roca baja. Las semillas del pasto marino tienen bracitos con ganchos que se agarran de esas ramitas. Sin alfombra, no hay pasto marino."
+			},
+			"coyote-natal-den-bank": {
+				"description": "Una madriguera cavada en un barranco con maleza, casi siempre un agujero viejo hecho más ancho en vez de empezado de cero. Se usa a fondo unas pocas semanas y luego se deja."
+			},
+			"crane-nest-mound": {
+				"description": "Un montón ancho de plantas de pantano apiladas en agua abierta y poco honda, con la cima bien arriba del agua. Cualquier cosa que se acerque tiene que meterse al agua."
+			},
+			"crayfish-burrow-bank": {
+				"description": "Un barranco de barro empapado, lleno de túneles del ancho de un dedo que entran hacia adentro. Cada uno guarda agua aunque el pantano baje del todo a fines del verano."
+			},
+			"crayfish-shallows": {
+				"description": "Una orilla con piedras que llega al tobillo, de lajas sueltas sobre grava, con huecos oscuros y con agua bajo cada una."
+			},
+			"creosote-bush": {
+				"description": "El arbusto más común de los llanos secos, muy separado uno de otro porque sus raíces se llevan toda el agua a metros a la redonda. Sus hojas huelen a lluvia y casi no pierden nada de ella."
+			},
+			"creosote-mound": {
+				"description": "Tierra que el viento amontonó alrededor de la base de una creosota, agujereada por túneles finos. La tierra está suelta y fácil de trabajar, y el arbusto de arriba esconde las puertas."
+			},
+			"crown-stick-eyrie": {
+				"description": "Una plataforma grande de ramas encajada en la copa del árbol más alto, con vista despejada sobre el pasto. Se construye una vez, y después se le agrega y se hereda."
+			},
+			"cryptobiotic-crust": {
+				"description": "Una piel viva de musgos, líquenes y bacterias que amarra el suelo desnudo. Guarda agua, alimenta la tierra y frena las malezas. Una sola pisada deshace décadas de ella."
+			},
+			"crystal-cairn": {
+				"description": "Una geoda partida sobre piedras apiladas. Una señal brillante en el desierto."
+			},
+			"cut-bank-burrow": {
+				"description": "Un barranco de tierra pelado y parado, que sale directo del agua. Blando para cavar un metro hacia adentro y firme para que el túnel aguante."
+			},
+			"damp-leaf-corner": {
+				"description": "Un rincón con sombra donde las hojas caídas se dejan amontonar y ablandarse en vez de barrerlas. Debajo se mantiene húmedo aun en una semana seca."
+			},
+			"deep-canyon-edge": {
+				"description": "El punto donde el fondo del mar se acaba y cae hacia una hondura azul oscuro y fría. Agua honda, pegada justo a la costa."
+			},
+			"deep-duff-soil": {
+				"description": "Años de hojas hechas tierra, sin rastrillar y sin pisar, cruzadas por raíces e hilos de hongos. Aquí es donde de verdad viven los hongos del bosque."
+			},
+			"deep-loam-soil-bank": {
+				"description": "Un talud de tierra honda y suelta. Nada de roca, nada de capa dura, nada con qué toparse. Un suelo así se cava más rápido de lo que se camina sobre él."
+			},
+			"deep-sand-burrow": {
+				"description": "Un pozo en espiral que baja hasta dos metros y medio en la tierra suelta. A esa hondura el calor y la sequedad de arriba no llegan."
+			},
+			"deep-snow-den": {
+				"description": "Un túnel que baja metros dentro de un ventisquero que dura hasta la primavera tardía, rodeando peñascos caídos, con comida congelada en cuartos de al lado. Guardería y congelador a la vez, y solo sirve donde la nieve aguanta."
+			},
+			"desert-brush": {
+				"description": "Matorral duro que da una sombra preciosa."
+			},
+			"desert-marigold": {
+				"description": "Flores amarillas que aguantan la sequía y brillan contra la arena."
+			},
+			"desert-mistletoe": {
+				"description": "Una planta sin hojas que vive dentro de las ramas de mezquite y palo fierro, colgando en matas verdes y cafés. Da fruta a mitad del invierno, cuando nada más la da."
+			},
+			"detritus-drift": {
+				"description": "Una balsa hundida de hojas muertas de espadaña y juncia, ablandándose bajo una pelusa de hongos. Por este camino, el de las plantas muertas, pasa más energía que por todo lo que se come vivo."
+			},
+			"dew-lantern": {
+				"description": "Un globo de vidrio con rocío de la mañana que da una luz verde suave."
+			},
+			"domed-grass-nest-tunnel": {
+				"description": "Un nido en forma de copa tejido hacia abajo dentro de una mata espesa, con techo de pasto y un pasillo tapado que lleva adentro. Solo un pastizal nativo de verdad es lo bastante tupido para esconderlo."
+			},
+			"downy-cavity": {
+				"description": "Un agujero redondo del ancho de un pulgar, picado en un tronco muerto y dejado después de una sola temporada. Chico, seco y ya hecho."
+			},
+			"driftwood-pile": {
+				"description": "Una maraña de madera de mar blanqueada por el sol que cobija la vida de la costa."
+			},
+			"driftwood-shelter": {
+				"description": "Madera de mar gastada, apilada como refugio de playa."
+			},
+			"dry-stone-wall": {
+				"description": "Un muro bajo de piedras apiladas con huecos frescos y con sombra para los animalitos."
+			},
+			"dune-grass": {
+				"description": "Pasto de raíces hondas que sujeta las dunas y esconde los nidos de las aves de playa."
+			},
+			"dune-manzanita": {
+				"description": "Manzanita rastrera de las dunas, que florece a mitad del invierno y aguanta su fruta bien entrado el frío. Comida detrás de la playa justo cuando no hay ninguna otra."
+			},
+			"eagle-nest-crown": {
+				"description": "La copa del árbol vivo más alto del pantano, con un nido de ramas del tamaño de una tina. La misma pareja vuelve cada año y le agrega más, hasta que la rama de abajo por fin cede."
+			},
+			"earth-den-bank": {
+				"description": "Una ladera que drena bien, con una madriguera cavada hacia adentro y varias entradas a lo largo de la cara. Se agranda y se reusa por generaciones en vez de cavarse de nuevo."
+			},
+			"earthen-fox-den": {
+				"description": "Un talud que mira al sur, hecho madriguera con varias salidas, agrandado a partir de uno más viejo en vez de cavado desde cero. Seco, tibio a principios de año y rápido de dejar."
+			},
+			"eelgrass-grazing-lawn": {
+				"description": "Un parche de pasto marino cortado corto y mantenido así, con las hojas siempre tiernas en vez de largas y duras. El corte constante es lo que lo conserva."
+			},
+			"elk-wallow": {
+				"description": "Un hueco de lodo revuelto en un claro del bosque, que sigue mojado y pelado porque algo pesado se revuelca en él. El charco que queda guarda agua por semanas."
+			},
+			"empty-shell-drift": {
+				"description": "Un rincón de conchas vacías atrapadas en un hueco de roca, acomodadas por las olas y amontonadas por tamaño. A una playa sin conchas de repuesto le falta algo."
+			},
+			"escape-cliff": {
+				"description": "Una franja casi parada de acantilado partido, cortada por salientes y apoyos hasta arriba. En un terreno así nadie puede quedar acorralado."
+			},
+			"falcon-scrape-ledge": {
+				"description": "Una repisa alta del acantilado con piso de grava y un hoyo poco hondo pateado en el cascajo. Aquí no se construye nido ni hace falta: el saliente y el vacío de abajo son todo."
+			},
+			"fallen-branch-shelter": {
+				"description": "Un montón suelto de ramas. Humilde, pero todos se esconden en él."
+			},
+			"feather-lined-crack": {
+				"description": "Una grieta angosta y seca en una pared de roca pulida por el viento, rellena al fondo con plumón y pelo."
+			},
+			"fellfield-gravel": {
+				"description": "Grava pulida por el viento que se congela, se levanta y se reacomoda cada primavera, sujeta apenas por costras delgadas de líquen. Parece que no es nada, y es el único suelo que acepta una planta en cojín."
+			},
+			"flagstone-path": {
+				"description": "Piedras anchas y planas asentadas en la tierra."
+			},
+			"flooded-cavity-snag": {
+				"description": "Un tronco muerto parado en agua poco honda, con un hueco viejo allá arriba. Debajo del agujero no hay más que aire, y varios metros más abajo, agua."
+			},
+			"flooded-reed-clump": {
+				"description": "Un grupo apretado de tallos de espadaña y junco parados en agua hasta el tobillo, tan tiesos que sostienen un peso colgado entre ellos. El agua de abajo es lo que lo vuelve seguro."
+			},
+			"flower-vase": {
+				"description": "Una maceta de barro con flores de pradera para alegrar tu campamento."
+			},
+			"foxglove": {
+				"description": "Espigas altas de dedalera rosada. La favorita de los abejorros."
+			},
+			"fur-lined-prey-den": {
+				"description": "Una madriguera robada, vuelta a forrar con el pelo de quien la cavó. Chica, apretada y tibia, y mudarse a ella no cuesta ningún trabajo."
+			},
+			"garden-gnome": {
+				"description": "Un gnomito alegre para cuidar el jardín."
+			},
+			"goat-cliff-ledge": {
+				"description": "Una repisa angosta cortada en una pared casi parada, pelada, polvosa y no más ancha que un tapete. Terreno mucho más empinado de lo que cualquier otro se atrevería a pisar."
+			},
+			"grass-patch": {
+				"description": "Un parche suave de pasto que vuelve a crecer. Un primer paso para cualquier suelo pelado."
+			},
+			"grass-thatch-litter": {
+				"description": "Una capa honda de tallos, hojas y raíces de pasto muertos, dejados donde cayeron. Este es el material que los hongos de la pradera deshacen y devuelven al suelo."
+			},
+			"grasshopper-egg-pod-bank": {
+				"description": "Una franja de tierra pelada, firme y calentada por el sol al borde del pasto, tan apretada que mantiene abierto un agujero. Lo que quede enterrado ahí pasa el invierno entero."
+			},
+			"gravel-path": {
+				"description": "Grava que cruje bajo los pies. Mantiene las botas lejos de las plantas nuevas."
+			},
+			"grizzly-dig-slope": {
+				"description": "Un talud alto de tierra suelta y llena de raíces, tan blanda que se abre de un tirón, con la tierra removida dejada en montones."
+			},
+			"groundhog-burrow-mound": {
+				"description": "Un abanico de tierra recién sacada, amontonada alrededor de un agujero redondo, con un segundo agujero escondido en el pasto a unos pasos."
+			},
+			"grub-digging-ground": {
+				"description": "Un parche de tierra blanda de hojas, dejada sin apretar y ya picada de hoyitos en forma de cono donde algo ha estado escarbando."
+			},
+			"happy-buddha": {
+				"description": "Una figurita redonda sentada con las piernas cruzadas, los brazos en alto y una sonrisa de oreja a oreja. Dicen que frotarle la panza da suerte, y el barro quedó liso y brillante justo ahí."
+			},
+			"harvester-ant-mound": {
+				"description": "Un montículo bajo cubierto de grava, con un círculo pelado alrededor y un borde de cáscaras de semilla tiradas. Lo que sea que viva ahí abajo mueve una cantidad asombrosa de tierra."
+			},
+			"haul-out-rocks": {
+				"description": "Rocas bajas y una punta de arena con un ancho margen de calma alrededor, en bajada suave para salir del agua de un tirón. El margen es lo importante: si se cruza, el lugar se vacía."
+			},
+			"headlamp": {
+				"description": "Una lámpara de cuerda con correa tejida. Una vez hecha es tuya para siempre. Después del anochecer, una luz tibia alumbra el suelo a tu alrededor donde vayas."
+			},
+			"hemlock-stand": {
+				"description": "Un grupo apretado de tsugas. Las copas detienen la nieve antes de que llegue al suelo, la sombra mantiene frío el arroyo y la corteza de adentro queda al alcance todo el invierno."
+			},
+			"hidden-grass-nest": {
+				"description": "Una mata espesa dejada en pie en una hondonada húmeda, con el centro aplastado en una copa honda que pasarías de largo sin ver."
+			},
+			"hidden-reed-platform": {
+				"description": "Una plataforma baja de juncos vivos doblados y tejidos entre sí, en lo hondo de un cañaveral espeso, apenas a un palmo del agua. No se ve desde ningún lado, ni siquiera desde arriba."
+			},
+			"high-tide-roost-rock": {
+				"description": "Una roca o islote alto que sigue seco aun con la marea más alta, con agua abierta alrededor. Un lugar donde pararse y esperar las horas en que los llanos desaparecen."
+			},
+			"hollow-denning-tree": {
+				"description": "Un árbol vivo con un cuarto ahuecado por la pudrición en lo alto del tronco, seco por dentro y a metros del suelo. Nada que cace en el suelo llega hasta ahí."
+			},
+			"hollow-log": {
+				"description": "Un tronco caído abierto con cuidado hasta hacer una guarida. A los animales pequeños y a los zorros les encanta."
+			},
+			"home-aquarium": {
+				"description": "Un tanque de vidrio con pececitos que van y vienen."
+			},
+			"home-bookshelf": {
+				"description": "Un estante de guías de campo y libros de naturaleza muy usados."
+			},
+			"home-cactuspot": {
+				"description": "Un cactito duro en una maceta de barro."
+			},
+			"home-chandelier": {
+				"description": "Un gran candelabro de velas, digno de una cabaña."
+			},
+			"home-cushions": {
+				"description": "Un montón de cojines suaves de piso para descansar."
+			},
+			"home-dresser": {
+				"description": "Una cómoda firme con cajones."
+			},
+			"home-driftwoodshelf": {
+				"description": "Un estante de madera de mar con cosas encontradas en la playa."
+			},
+			"home-fireplace": {
+				"description": "Una chimenea de piedra que crepita y calienta todo el cuarto."
+			},
+			"home-mushroomshelf": {
+				"description": "Un estante chico salpicado de hongos del bosque."
+			},
+			"home-painting": {
+				"description": "Un cuadro con marco de la reserva en su mejor momento."
+			},
+			"home-peltrug": {
+				"description": "Un tapete grueso y tibio para las noches frías de montaña."
+			},
+			"home-potplant": {
+				"description": "Una planta frondosa en maceta para traer un poco de la pradera adentro."
+			},
+			"home-reedmat": {
+				"description": "Un tapete tejido con juncos del pantano."
+			},
+			"home-rug": {
+				"description": "Un tapete suave y tejido para calentar el piso de tu casa."
+			},
+			"home-sleeping-bag": {
+				"description": "Un saco de dormir sencillo. Justo lo que hace falta para una noche a gusto en la tienda."
+			},
+			"home-stool": {
+				"description": "Un banco sencillo y acolchado."
+			},
+			"home-table": {
+				"description": "Una mesita de madera con un ramito de flores."
+			},
+			"home-telescope": {
+				"description": "Un telescopio de latón para el cielo despejado de la montaña."
+			},
+			"home-wallclock": {
+				"description": "Un reloj de pared bonito. Toda casa necesita uno."
+			},
+			"inherited-earth-den": {
+				"description": "Un hueco abierto entre peñascos y raíces por quien lo cavó primero, después hecho más ancho y ocupado. De segunda mano, y no por eso peor."
+			},
+			"kelp-forest": {
+				"description": "Kelp gigante vivo que sube desde el fondo hasta un techo dorado en la superficie. Agua verde y oscura todo el camino, y hojas tan tupidas que puedes recostarte en ellas."
+			},
+			"kelp-holdfast-reef": {
+				"description": "Roca limpia en el fondo poco hondo para que el kelp se agarre. El kelp no echa raíces en la arena: sin fondo duro, el mar se lleva todo el bosque."
+			},
+			"kit-fox-den": {
+				"description": "Una madriguera fresca con varias entradas, hecha más ancha a partir de un túnel viejo en vez de cavada desde cero. Las puertas de más son para escapar."
+			},
+			"krummholz-bed-hollow": {
+				"description": "Un hueco con sombra y sin viento, aplastado contra el suelo bajo los pinos torcidos. Fuera del sol, fuera del viento y sin verse desde arriba."
+			},
+			"krummholz-pine": {
+				"description": "Un pino enano moldeado por el viento. Un refugio raro en el límite del bosque."
+			},
+			"larder-burrow": {
+				"description": "Una entrada de madriguera no más ancha que una moneda, con túneles que corren metros bajo tierra hasta un cuarto nido y una despensa con más de un litro de semillas."
+			},
+			"leaf-drey": {
+				"description": "Una bola de hojas y ramitas del tamaño de un balón, encajada en una horqueta alta y tejida de adentro hacia afuera. Se rehace cada año y casi nunca queda vacía mucho tiempo."
+			},
+			"leaf-litter-pile": {
+				"description": "Un montón de hojas húmedas y musgo, lleno de la vida del suelo del bosque."
+			},
+			"ledge-natal-den": {
+				"description": "Un alero seco en lo hondo de un acantilado partido, tapado por roca caída. No se ve desde abajo y solo se llega por un saliente angosto."
+			},
+			"log-shelter": {
+				"description": "Troncos caídos apilados. Los animales pequeños, las salamandras y los insectos se mudan rápido."
+			},
+			"low-tide-rock-bench": {
+				"description": "Un escalón ancho de roca que solo queda al aire en las mareas más bajas. La franja más rica de la costa, y la que pasa más tiempo bajo el agua."
+			},
+			"lucky-toad": {
+				"description": "Un sapo gordo de tres patas sentado sobre un montoncito de monedas, con una más en la boca. Se dice que mira hacia el campamento y nunca hacia afuera, para que la suerte entre contigo."
+			},
+			"lupine-patch": {
+				"description": "Espigas de lupino azul que sujetan el suelo mientras florecen."
+			},
+			"mantis-ootheca-stem": {
+				"description": "Tallos secos y tiesos dejados en pie todo el invierno, con una cápsula de espuma dura color canela pegada a uno. Si cortas los tallos en otoño, cortas también lo que llevan dentro."
+			},
+			"marsh-marigold": {
+				"description": "Flores doradas de pantano que rodean el agua poco honda en primavera."
+			},
+			"meadow-mushroom-ring": {
+				"description": "Un arco curvo de sombreros pálidos que asoman por la paja húmeda del pasto después de la lluvia. El anillo es el borde de un hongo que crece hacia afuera bajo tierra, y puede ser más viejo que todas las plantas de alrededor."
+			},
+			"medium-chest": {
+				"description": "Un cofre más resistente. Guarda 250 materiales."
+			},
+			"mesquite-tree": {
+				"description": "Un árbol del desierto bajo y ancho. Sombra ligera y vainas de semillas para el matorral."
+			},
+			"migration-path-marker": {
+				"description": "Montones de piedras y señales que devuelven una ruta segura por las alturas. Fabricarla ayuda a abrir la Costa del Pelícano."
+			},
+			"milkweed-aphid-colony": {
+				"description": "Una capa anaranjada y brillante apretada a lo largo de los tallos de algodoncillo, tan tupida que tapa el verde de abajo. No es una plaga que haya que fumigar: un parche de algodoncillo la trae cada año y no le pasa nada."
+			},
+			"milkweed-rhizome-bed": {
+				"description": "Un parche ancho de algodoncillo crecido de trozos de raíz, con tallos que sueltan savia blanca donde se rompen. Nada más en la pradera lo reemplaza, y un parche chico se vuelve grande poco a poco."
+			},
+			"monterey-cypress": {
+				"description": "Un ciprés de costa aplanado y moldeado por el viento del mar."
+			},
+			"moss-cushion": {
+				"description": "Un cojín blandito de musgo salpicado de flores diminutas."
+			},
+			"mossy-path": {
+				"description": "Piedras viejas cubiertas de musgo verde y suave. Al bosque le gusta."
+			},
+			"moth-scree-crack": {
+				"description": "Una ranura oscura bajo una laja suelta, fresca, sin viento y seca, que se mete más adentro de lo que llega la luz. El calor del día nunca alcanza el fondo."
+			},
+			"mushroom-log": {
+				"description": "Un tronco húmedo y con musgo sembrado de hongos. A las salamandras y babosas les encanta la sombra."
+			},
+			"mushroom-ring": {
+				"description": "Un anillo de hongos del bosque entre la hojarasca."
+			},
+			"muskrat-bank-den": {
+				"description": "Una madriguera abandonada en la orilla, con la entrada bajo el agua y el cuarto seco arriba. Alguien más la cavó, y desde entonces está vacía."
+			},
+			"mussel-bed": {
+				"description": "Una banda apretada de mejillones azul oscuro, apilados en dos y tres capas sobre la roca de en medio, tan juntos que las conchas se sostienen entre sí. Los huecos que quedan bajan hasta la piedra."
+			},
+			"native-grass-patch": {
+				"description": "Pasto nativo en matas, de raíces hondas. Comida y cobijo para la vida de la pradera."
+			},
+			"native-thistle-stand": {
+				"description": "Un cardo nativo de pradera, no uno de los europeos que invaden. Flores hondas en forma de tubo y cabezas que se abren en un plumón suave."
+			},
+			"nearshore-spawning-shallows": {
+				"description": "Agua tranquila y llena de plancton justo detrás de las olas, casi quieta y espesa de comida flotando. Tibia arriba, y tan calmada que nada se hunde rápido."
+			},
+			"nesting-platform": {
+				"description": "Una plataforma alta y tranquila, a salvo de crecidas y pisadas."
+			},
+			"nurse-log-seedbed": {
+				"description": "Un tronco podrido y cubierto de musgo tendido en el suelo del bosque. Las semillas de tsuga que caen en la hojarasca casi siempre fallan; las que caen en madera podrida se vuelven la próxima generación de árboles."
+			},
+			"nutrient-upwelling-current": {
+				"description": "Agua fría y llena de alimento que sube desde lo hondo junto a la costa. Es el abono de todo este litoral: al final, aquí todo funciona con ella."
+			},
+			"oak-tree": {
+				"description": "Un roble crecido de una bellota. Las ardillas y los arrendajos te lo van a agradecer por décadas."
+			},
+			"octopus-den-midden": {
+				"description": "Una grieta oscura bajo un peñasco, con una piedra jalada a medias sobre la entrada y afuera un montoncito ordenado de caparazones vacíos y almejas con hoyo. El montón de restos es lo que delata la guarida."
+			},
+			"offshore-nesting-island": {
+				"description": "Un peñón o islote frente a la costa, con agua honda alrededor y sin forma de llegar a pie. Nada que camine puede alcanzarlo."
+			},
+			"old-woodpecker-cavity": {
+				"description": "Un agujero redondo picado en un tronco muerto hace temporadas y vacío desde entonces. El borde sigue limpio y el cuarto de abajo está seco."
+			},
+			"opossum-den-hollow": {
+				"description": "Un hueco seco bajo un tronco inclinado, con piso de hojas arrastradas y abierto por los dos lados."
+			},
+			"orb-web-anchor-stems": {
+				"description": "Tallos altos y secos dejados en pie en un claro soleado, lo bastante tiesos para sostener tensa una línea de seda entre ellos."
+			},
+			"otter-bank-den": {
+				"description": "Una madriguera amplia en la orilla, con entrada bajo el agua y un cuarto seco arriba. Casi siempre es una guarida vieja ocupada, no cavada de nuevo."
+			},
+			"overwater-thicket": {
+				"description": "Sauces y alisos bajos inclinados sobre el agua honda y quieta, con las ramas colgando a un metro del agua y sombra fresca debajo."
+			},
+			"palo-verde-tree": {
+				"description": "El árbol del desierto de tronco verde. Sombra rara y flores amarillas para el matorral."
+			},
+			"picnic-blanket": {
+				"description": "Una manta a cuadros tendida para un picnic al sol."
+			},
+			"pileated-cavity-snag": {
+				"description": "Un tronco seco y grande con un hueco cuadrado y hondo abierto la primavera pasada, tan grande que cabe un brazo. Cada año se abre uno nuevo y los viejos se quedan."
+			},
+			"pine-tree": {
+				"description": "Un pino joven crecido de una piña. Refugio verde en cualquier estación."
+			},
+			"pinwheel": {
+				"description": "Un rehilete brillante que gira con el viento."
+			},
+			"plank-path": {
+				"description": "Tablas de pasarela gastadas, suaves con el suelo blando."
+			},
+			"planter-box": {
+				"description": "Una jardinera de madera llena de flores."
+			},
+			"plover-scrape-closure": {
+				"description": "Un tramo con cuerdas de arena pelada y abierta, con cerca simbólica y letreros. Aquí no hay nada que construir: lo que protege el suelo es que nadie lo cruce."
+			},
+			"pollinated-cactus-fruit": {
+				"description": "Nopales y chollas cargados de fruta madura. Una cosecha así solo se da donde cada flor fue bien polinizada antes, y aquí eso nunca está asegurado."
+			},
+			"poppy-patch": {
+				"description": "Amapolas brillantes de campo, crecidas de semilla en un bancal regado."
+			},
+			"prickly-pear": {
+				"description": "Nopal de pencas con fruta dulce y flores brillantes."
+			},
+			"protected-sand-gravel-flat": {
+				"description": "Arena y grava mezcladas y firmes al abrigo de una punta. Buenas para escarbar y tan calmadas que se quedan justo donde están."
+			},
+			"puffball-turf-ring": {
+				"description": "Un anillo de domos pálidos que empujan a través del pasto viejo. Pisa uno maduro y suelta humo."
+			},
+			"quartz-lantern": {
+				"description": "Un farol de piedra con un trozo brillante de cuarzo que guarda lo último de la luz del día."
+			},
+			"rippled-sand-bed": {
+				"description": "Arena limpia debajo de la marea baja, peinada en crestas parejas por una corriente lo bastante suave para dejarlas en pie."
+			},
+			"rocky-den-ledge": {
+				"description": "Una rendija seca bajo una losa inclinada, tapada por la maleza y abierta por los dos lados. Resguardada, pero fácil de dejar al primer ruido."
+			},
+			"root-mass-den": {
+				"description": "El hueco seco que queda bajo el plato de raíces levantado de un árbol caído. Con techo de tierra y raíces, y tapado por todos lados menos uno."
+			},
+			"rotting-conifer-log": {
+				"description": "Un tronco de abeto bien podrido, tendido donde la nieve se junta más honda, tan blando que puedes hundirle un dedo. La madera muerta es hábitat, no basura."
+			},
+			"rotting-heartwood-log": {
+				"description": "Un tronco podrido y hueco por el centro, aunque su cáscara de afuera todavía aguanta. Adentro está oscuro, húmedo y a salvo del clima."
+			},
+			"rotting-log-crumble": {
+				"description": "Un tronco blando, húmedo y medio podrido que ya vuelve a ser tierra y se deshace cuando lo levantas. Debajo el aire se mantiene mojado todo el día, haga el tiempo que haga arriba."
+			},
+			"saguaro-boot": {
+				"description": "La cicatriz dura y a prueba de agua que el cactus forma alrededor de un agujero abierto en su tronco: un frasco de paredes lisas hecho de callo seco. Dura mucho más que la carne blanda de alrededor."
+			},
+			"saguaro-crown-nest": {
+				"description": "Una plataforma grande de ramas encajada en la horqueta donde un cactus alto se abre en brazos. Ancha para toda una familia, con una muralla de espinas debajo que nadie puede subir."
+			},
+			"saguaro-fruit-fall": {
+				"description": "Frutas rojas de saguaro abiertas en pleno calor de junio, justo antes de las lluvias. Por unas semanas son la comida más rica y la bebida más jugosa de todo el desierto."
+			},
+			"saguaro": {
+				"description": "Un gigante en forma de columna que guarda meses de lluvia en su tallo plegado, hinchándose y encogiéndose con la temporada. Flores en la corona, fruta en junio y un tronco lo bastante blando para excavarlo."
+			},
+			"sandbar-loafing-roost": {
+				"description": "Un banco de arena que queda seco entre mareas. Plano, abierto, rodeado de agua y lo bastante lejos de la playa para que nadie lo moleste."
+			},
+			"sandy-nest-bank": {
+				"description": "Un lomo tibio de arena y grava fina por encima del agua, suelto para cavar y rápido para escurrir. Barrancos así son mucho más raros de lo que parecen."
+			},
+			"sea-thrift": {
+				"description": "Pompones rosados de armeria de mar que crecen bien con la brisa salada."
+			},
+			"sedge-tussock-nest": {
+				"description": "Una mata densa de juncia a la altura de la rodilla en un bajo húmedo, tan apretada que podrías meter el puño hasta el fondo y no volver a encontrar el hueco."
+			},
+			"sedge-tussock": {
+				"description": "Juncias en matas a lo largo del agua poco honda. Cobijo para anidar de las aves de pantano."
+			},
+			"seed-larder-burrow": {
+				"description": "Una madriguera poco honda bajo un arbusto, con cuartos de al lado llenos de semillas y las entradas tapadas con arena cada amanecer. El tapón guarda aire húmedo adentro, y eso importa tanto como la comida."
+			},
+			"serviceberry-browse-thicket": {
+				"description": "Guillomo, un arbusto nativo de ramitas blandas y yemas gordas que quedan al alcance por encima de la nieve, y fruta morada y pesada a fines del verano."
+			},
+			"shade-form-scrape": {
+				"description": "Un hueco poco hondo escarbado en la sombra espesa bajo un arbusto, hasta llegar a la tierra fresca. Diez grados más fresco que el suelo abierto a un metro."
+			},
+			"shaded-rock-shelter": {
+				"description": "Losas apiladas con un hueco fresco y oscuro. Refugio del sol del mediodía."
+			},
+			"shallow-water-pool": {
+				"description": "Una poza de bajada suave, segura para que los animales pequeños entren y beban."
+			},
+			"shell-dropping-rock": {
+				"description": "Un peñasco plano y de tapa dura que sobresale de la arena, salpicado de conchas rotas. Tan duro que lo que caiga sobre él desde lo alto se abre."
+			},
+			"sheltered-cobble-field": {
+				"description": "Piedras sueltas en una orilla que las olas nunca golpean fuerte, cada una húmeda y oscura por debajo. El hábitat es el lado de abajo, no el de arriba."
+			},
+			"sheltered-rafting-cove": {
+				"description": "Agua calma al abrigo de una punta, dentro del kelp. Lisa como un estanque aunque haya oleaje, con hojas sueltas tendidas en la superficie."
+			},
+			"shore-stick-nest": {
+				"description": "Una plataforma grande de ramas blanqueadas por la sal, encajada en una horqueta alta, a la que se le agrega y se le remienda cada temporada."
+			},
+			"shrub-litter-mound": {
+				"description": "Hojas, tallos y cáscaras de semilla que el viento arrastra y amontona bajo un arbusto. Seco y crujiente arriba, húmedo y oscuro debajo después de cualquier lluvia."
+			},
+			"shrub": {
+				"description": "Un arbusto nativo joven. Cobijo rápido para cualquiera que pase."
+			},
+			"simple-path": {
+				"description": "Piedras planas para pisar que mantienen tus botas lejos de las plantas nuevas."
+			},
+			"snake-egg-mound": {
+				"description": "Un montón de astillas de madera podrida y corteza apilado contra un tocón cortado. Por dentro se calienta al pudrirse, y ese es todo el punto: entierra algo ahí y el montón hace el trabajo."
+			},
+			"snake-hibernaculum-desert": {
+				"description": "Una grieta honda en la roca que baja por debajo de donde llega la helada y se mantiene sobre cero todo el invierno. La misma grieta se usa año tras año, a veces por décadas."
+			},
+			"snake-hibernaculum-forest": {
+				"description": "Una grieta honda llena de cascajo que baja por debajo de donde llega la helada y se queda ahí todo el invierno. Fría, pero nunca congelada, hasta la primavera."
+			},
+			"snake-hibernaculum-meadow": {
+				"description": "Un cuarto de roca y tierra cavado bajo la línea de helada, muchas veces a partir de un túnel viejo del talud. Allá abajo caben muchos cuerpos a la vez."
+			},
+			"snowbank-mushroom-cluster": {
+				"description": "Un grupo de hongos chicos y pálidos de tallo peludo, saliendo justo al borde de un ventisquero que se derrite, sobre madera podrida y enterrada. Salen cuando todavía hay nieve en el suelo."
+			},
+			"snowfield-debris-line": {
+				"description": "La franja oscura de semillas, polen y arenilla que el viento arrastra y deja al borde de un nevero que se encoge. Un reparto gratis, subido cuesta arriba y soltado ahí."
+			},
+			"snowmelt-litter-mat": {
+				"description": "Una capa empapada de tallos y hojas del año pasado, que queda libre cuando la nieve se retira. Casi toda la pudrición del mundo alpino pasa en estas pocas semanas húmedas."
+			},
+			"snowmelt-pool": {
+				"description": "Una poza forrada de piedra que atrapa el agua fría y limpia del deshielo."
+			},
+			"soft-rot-snag": {
+				"description": "Un tocón muerto y chico cuya madera se volvió blanda y pálida, tan fácil de marcar que se hunde con la uña. Los hongos llegaron primero, y por eso ahora se puede trabajar."
+			},
+			"splash-zone-crevice": {
+				"description": "Grietas que se ven secas en la roca, a las que las olas solo llegan como rocío. El piso más alto y más seco de la costa: sal, sol y casi nada de agua."
+			},
+			"squirrel-burrow-town": {
+				"description": "Un conjunto de madrigueras con muchas entradas, cavado en suelo hondo y abierto, con sus montoncitos de tierra repartidos por todo un parche ancho. Mucho después de dejarse, los túneles siguen abiertos."
+			},
+			"stable-silt-shoal": {
+				"description": "Un escalón ancho de lodo asentado y arena fina, en agua tan lenta que se queda en su sitio por años. Blando para hundirse, firme para no moverse."
+			},
+			"still-water-cove": {
+				"description": "Un rincón de agua abierta escondido detrás de los juncos, donde el viento nunca llega, con la superficie lisa como vidrio y algunos tallos flotando encima. Nada le mueve la piel."
+			},
+			"stone-cairn": {
+				"description": "Una pila equilibrada de piedras lisas que marca un lugar tranquilo."
+			},
+			"stone-lantern": {
+				"description": "Un farolito de piedra con un brillo tibio para alumbrar el camino."
+			},
+			"stonecrop-patch": {
+				"description": "Siemprevivas encajadas en la grava y en las grietas de la roca, con hojas gordas que guardan agua donde casi no hay tierra. Nada más en la alta montaña la reemplaza."
+			},
+			"stormglass-lantern": {
+				"description": "Un trozo de vidrio derretido por un rayo que titila con una luz fría por dentro."
+			},
+			"string-lights": {
+				"description": "Una hilera de farolitos cálidos para colgar sobre tu campamento."
+			},
+			"subalpine-fir": {
+				"description": "Un abeto delgado y puntiagudo que se sacude la nieve de las alturas."
+			},
+			"submerged-spawning-slab": {
+				"description": "Una piedra plana o una tabla justo debajo de la superficie, con un hueco libre por debajo. La cara de abajo es lisa, con sombra y bien limpia: un techo más que un piso."
+			},
+			"subtidal-rubble-flat": {
+				"description": "Piedra suelta y roca partida justo bajo la marea, donde lo que muere llega flotando y se asienta entre las piedras."
+			},
+			"sun-totem": {
+				"description": "Un tótem tallado en arenisca con un cristal del desierto en la punta."
+			},
+			"sundial": {
+				"description": "Un reloj de sol tallado en piedra para saber la hora despacio."
+			},
+			"sunlit-mudflat": {
+				"description": "Un escalón pelado de lodo mojado y calentado por el sol al borde del agua. La semilla de espadaña es diminuta y necesita luz y suelo abierto para brotar: no sale a la sombra ni bajo el agua."
+			},
+			"sunlit-surge-pool": {
+				"description": "Una poza honda que cada ola vuelve a llenar, abierta directo al cielo. El oleaje le tira comida desde las rocas de arriba y el sol llega hasta el fondo."
+			},
+			"surfgrass-bed": {
+				"description": "Una pradera verde de pasto marino que ondea con el oleaje sobre la roca baja, tan tupida que no se ve la piedra de abajo."
+			},
+			"surge-swept-rock-face": {
+				"description": "Roca abierta que recibe todo el peso del oleaje. Agarrarse ahí cuesta mucho, y el agua nunca deja de pasar."
+			},
+			"swash-zone-runnel": {
+				"description": "La franja mojada y resbalosa donde cada ola se termina y se escurre de vuelta, volteando los primeros centímetros de arena en cada empujón."
+			},
+			"swift-cliff-seam": {
+				"description": "Una grieta angosta y parada que sube por una pared de roca, demasiado estrecha para que algo con patas se pare en ella. Solo se entra de cabeza, y solo se sale dejándose caer."
+			},
+			"tarantula-silk-burrow": {
+				"description": "Un agujero del ancho de un pulgar en tierra firme, con el borde liso y forrado de seda, y unos hilos tendidos en abanico sobre la arena de alrededor. Quien lo hizo puede quedarse en el mismo veinte años."
+			},
+			"termite-worked-litter": {
+				"description": "Suelo cruzado por galerías finas y viejas, cubierto por una costra de hojarasca pegada, trabajado desde abajo y no desde arriba. Los túneles dejan que la lluvia se meta en vez de escurrirse."
+			},
+			"thicket-bed-hollow": {
+				"description": "Un hueco escarbado y polvoso bajo el matorral espinoso espeso, donde una manada entera se echa durante el calor del día, bien apretada. La sombra vale más que el escondite: ahí adentro hace diez grados menos."
+			},
+			"thornscrub-stick-nest": {
+				"description": "Una plataforma grande de ramas encajada uno o dos metros arriba dentro de un arbusto espinoso. Alto para estar fuera del suelo y con suficientes púas para que nada la siga."
+			},
+			"tide-chime": {
+				"description": "Conchas y vidrio de mar colgados de madera de deriva que suenan suave con la brisa de la costa."
+			},
+			"tidepool": {
+				"description": "Una poza de roca restaurada que guarda el mar entre mareas."
+			},
+			"toad-upland-burrow": {
+				"description": "Un túnel prestado en tierra húmeda por encima de una poza de cría, bajo la línea de helada y arriba del agua del subsuelo. Un sitio donde pasar ocho meses del año."
+			},
+			"tortoise-burrow": {
+				"description": "Una madriguera larga, fresca y de paredes rectas, cavada hacia adentro de un talud y mantenida abierta por el uso. Mucho más honda que cualquier otra de por aquí, y pareja de temperatura todo el año."
+			},
+			"trail-tent": {
+				"description": "Una tienda de lona a gusto en la que puedes entrar y decorar. Una casita lejos de casa. Pon una en cada bioma silvestre más allá de la pradera."
+			},
+			"tree-stump": {
+				"description": "Un tocón viejo con musgo, lleno de huecos para guaridas y larvas."
+			},
+			"treeline-log-den": {
+				"description": "Un tronco hueco al borde de los últimos árboles, tapado por la nieve todo el invierno, con túneles que salen de él por debajo del manto."
+			},
+			"truffle-patch": {
+				"description": "Bultos de hongo agrupados en las raíces de robles y tsugas. Arriba no se ve nada: toda la cosecha está a dos o tres centímetros y hay que olerla."
+			},
+			"urchin-crevice-pit": {
+				"description": "Huecos redondos gastados en la roca dura, cada uno un tazón liso del ancho de una mano. Una vez que un hoyo así empieza, solo se hace más hondo."
+			},
+			"vernal-pool": {
+				"description": "Una poza aparte y poco honda que se llena con el deshielo y se seca del todo a fines del verano. Secarse es justo el punto: nada que necesite agua todo el año puede instalarse en ella."
+			},
+			"vole-runway-network": {
+				"description": "Caminitos angostos cortados a ras del suelo por el pasto espeso, que unen bocas de madriguera con cuartos forrados de hierba. Todo un mapa de senderos escondido bajo la paja."
+			},
+			"wash-bank-den": {
+				"description": "Una madriguera de tierra cavada en el talud cortado de un arroyo seco, por encima de la línea de crecida. Con sombra, drena bien y sigue seca aunque el arroyo corra."
+			},
+			"water-tupelo": {
+				"description": "Un árbol de pantano de copa redonda cuya base ancha se para justo en el agua."
+			},
+			"waterfall-splash-ledge": {
+				"description": "Una repisa mojada metida detrás de un hilo de agua de deshielo que cae, cubierta de musgo y siempre con sombra."
+			},
+			"wet-meadow-margin": {
+				"description": "Una franja de pradera húmeda entre el pantano y la tierra seca. Nunca inundada, nunca del todo seca. Si se pierde esa franja, el pantano termina en un borde duro."
+			},
+			"whitebark-pine": {
+				"description": "Un pino albar crecido de una semilla que alguien enterró y nunca volvió a sacar. Sus piñas no se abren solas, así que no puede extenderse a ningún lado sin ayuda."
+			},
+			"wild-celery-bed": {
+				"description": "Hojas largas en forma de cinta que ondean bajo el agua en los bajos, con raíces en el lodo. Vive solo de la luz que llega al fondo, así que solo crece donde el agua se ha asentado limpia."
+			},
+			"wild-grape-tangle": {
+				"description": "Una vid leñosa enrollada en un tronco inclinado, cargada de fruta a fines del verano. Escalera y despensa a la vez: se trepa hasta arriba, y arriba espera la comida."
+			},
+			"willow-basin-thicket": {
+				"description": "Sauces enanos que llenan una hondonada resguardada, bajos y espesos, tapados por la nieve cada invierno. Sus yemas y ramitas siguen al alcance cuando todo lo demás a esta altura está bajo la nieve."
+			},
+			"willow-thicket-swale": {
+				"description": "Una hondonada húmeda detrás de las dunas, llena de sauces bajos y zarzas enredadas hasta el suelo. Nada de cierto tamaño logra meterse ahí."
+			},
+			"wind-chimes": {
+				"description": "Campanillas de madera de deriva que cantan suave cuando el viento las mueve."
+			},
+			"winter-freeze-litter-bed": {
+				"description": "Una cama poco honda de hojas sueltas y mantillo sobre tierra blanda, de apenas unos centímetros. Es todo lo que hace falta, porque lo que pasa el invierno adentro no cava por debajo de la helada. Simplemente se congela con el suelo y se descongela en primavera."
+			},
+			"winter-litter-mound": {
+				"description": "Un montón hondo de hojas húmedas, corteza suelta y tallos viejos, apilado en tierra seca junto al pantano. Tan hondo que su centro nunca llega del todo a la temperatura del aire."
+			},
+			"winter-sleep-burrow": {
+				"description": "Un túnel que entra bajo una losa inclinada hasta un cuarto forrado de pasto, por debajo de la línea de helada. Sin despensa ni cuartos de al lado: solo un sitio donde quedarse quieto, apenas sobre cero, hasta la primavera."
+			},
+			"wooden-bench": {
+				"description": "Una banca gastada. Un lugar tranquilo para sentarse a mirar los animales."
+			},
+			"wooden-fence": {
+				"description": "Una cerca baja de barrotes que marca zonas tranquilas para el suelo que se recupera."
+			},
+			"woodland-pool": {
+				"description": "Una poza con sombra del bosque, alimentada por un manantial frío. Venados, mapaches y salamandras vienen todos a beber."
 			}
 		},
 		"tool": {
