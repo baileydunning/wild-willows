@@ -2015,14 +2015,14 @@ import{S as e,_ as t,a as n,b as r,c as i,d as a,f as o,g as s,h as c,i as l,l a
 						'school-copy': 'Classroom copy request',
 						other: 'Other',
 					};
-					// Server-side download counts from the two PDF endpoints — the honest
+					const ldays = LANDING.days || [];
+					const todayRow = ldays.find((d) => d.day === LANDING.today) || {};
+					// Server-side download counts from the two PDF endpoints \u2014 the honest
 					// number, since it also catches direct links teachers pass around,
 					// which never fire the landing page's click beacon.
 					const dl = lt.downloads || {};
 					const dlToday = todayRow.downloads || {};
 					const DL_LABELS = { guide: 'Educator Guide', worksheets: 'Student Worksheets' };
-					const ldays = LANDING.days || [];
-					const todayRow = ldays.find((d) => d.day === LANDING.today) || {};
 					const dayCols = {};
 					for (const d of ldays.slice(-14)) dayCols[String(d.day).slice(5)] = n(d.visits);
 					landingSection = sec(
