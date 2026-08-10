@@ -15,11 +15,18 @@ function returnedInBiome(data: GameData, state: GameState, biomeId: string): Set
 /**
  * Open water the player has shaped in an area: total tiles, the largest connected
  * body ("lake") and the longest connected span ("river"). 4-neighbour flood fill,
- * mirrored from analyzeWater() in server/resources.ts.
+ * mirrored from analyzeWater(terrain, true) in server/resources.ts.
+ *
+ * `seeded` tiles are excluded, exactly as the server excludes them: Rushwater
+ * opens with 18 tiles of channel and pond already shaped, and counting those
+ * showed a "Shape 6 water tiles" recipe as unlocked the moment the wetland
+ * opened — while the server, which is the real gate, still refused the craft.
  */
 export function waterShape(state: GameState, biomeId: string): { tiles: number; lake: number; river: number } {
 	const cells = new Set(
-		(state.terrain || []).filter((t) => t.area === biomeId && t.type === 'water').map((t) => `${t.x},${t.y}`),
+		(state.terrain || [])
+			.filter((t) => t.area === biomeId && t.type === 'water' && !t.seeded)
+			.map((t) => `${t.x},${t.y}`),
 	);
 	const seen = new Set<string>();
 	let lake = 0;
@@ -251,11 +258,16 @@ export function unlockDistance(recipe: RecipeDef, data: GameData, state: GameSta
  * Only looks at areas that are already open, and skips plantables (never
  * crafted) and once-only kits (the "open the next area" goal already tracks
  * those).
+ *
+ * `area` narrows by the biome a recipe UNLOCKS in. `match` is the general form —
+ * pass an arbitrary predicate when the caller scopes by something else, e.g. the
+ * crafting panel's Place filter, which asks where a thing GOES ("Home" means
+ * indoor-placeable, which no unlockBiome can express).
  */
 export function upcomingRecipes(
 	data: GameData | null,
 	state: GameState | null,
-	opts: { area?: string; limit?: number; skipItemIds?: Set<string> } = {},
+	opts: { area?: string; limit?: number; skipItemIds?: Set<string>; match?: (recipe: RecipeDef) => boolean } = {},
 ): { recipe: RecipeDef; distance: number }[] {
 	if (!data || !state) return [];
 	const limit = opts.limit ?? 4;
@@ -264,6 +276,7 @@ export function upcomingRecipes(
 		.filter((r) => r.unlock && !plantable.has(r.output.itemId) && !opts.skipItemIds?.has(r.output.itemId))
 		.filter((r) => (state.player.unlockedBiomes || []).includes(r.unlockBiome))
 		.filter((r) => !opts.area || opts.area === 'all' || r.unlockBiome === opts.area)
+		.filter((r) => !opts.match || opts.match(r))
 		.filter((r) => !recipeUnlocked(r, data, state))
 		.map((r) => ({ recipe: r, distance: unlockDistance(r, data, state) }))
 		.sort((a, b) => a.distance - b.distance || a.recipe.name.localeCompare(b.recipe.name))

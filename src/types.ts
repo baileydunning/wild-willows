@@ -436,6 +436,11 @@ export interface TerrainTile {
 	x: number;
 	y: number;
 	type: 'tilled' | 'watered' | 'water';
+	/** Pre-shaped starting terrain (Rushwater's channels and pond), laid down when
+	 *  the area first unlocks. It is scenery the player was given, not work they
+	 *  did, so it counts toward neither biome health nor the "shape N water tiles"
+	 *  recipe gates — see seedStartingTerrain() and analyzeWater() on the server. */
+	seeded?: boolean;
 }
 
 export interface BiomeState {

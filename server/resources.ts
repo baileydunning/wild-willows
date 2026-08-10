@@ -36,6 +36,10 @@ import resourcesData from '../data/resources.json';
 import animals1Data from '../data/animals-1.json';
 import animals2Data from '../data/animals-2.json';
 import achievementsData from '../data/achievements.json';
+// Retired animal ids -> what replaced them. Deliberately NOT in config.yaml's
+// dataLoader glob: it is a build-time lookup table for migrating SAVES, not a
+// seed table, and has no business being a database table of its own.
+import animalAliasData from '../data/animal-aliases.json';
 import {
 	weatherSnapshot,
 	weatherTypeAt,
@@ -817,6 +821,123 @@ async function reconcileDefinitions() {
 	// reading it (to find it) re-triggers Harper's own "Error decoding record" log.
 	// `safeGet` still drops a corrupt row if it's ever fetched by id, but the clean
 	// fix for accumulated dev-time schema drift is to drop the database (see README).
+}
+
+/**
+ * Old animal id -> the id that replaced it (data/animal-aliases.json). The 0.3
+ * ecology pass renamed and re-cast a lot of the roster: `coyote-meadow` became
+ * plain `coyote`, `mule-deer-alpine` became `grizzly-bear`, and so on.
+ *
+ * reconcileDefinitions() above already drops the retired rows from the Animal
+ * table — but that only fixes the DEFINITIONS. The SAVES still point at the old
+ * ids, which is what migrateAnimalAliases() is for.
+ */
+const ANIMAL_ALIASES = new Map<string, string>(
+	animalAliasData.records.map((r: { from: string; to: string }) => [r.from, r.to] as [string, string]),
+);
+
+/**
+ * Rewrite one save's references to retired animal ids.
+ *
+ * A pre-0.3 save keeps a Discovery row for, say, `coyote-meadow`. Everything
+ * that resolves the row through the animal definitions now skips it —
+ * `returnedHere`, `computeBalance`, `returnedKinds` all look up
+ * `d.animal.get('coyote-meadow')` and get undefined — but the row is still
+ * there, so `totalAnimals` (a raw row count) keeps counting it. Worse, the
+ * replacement `coyote` can then satisfy its own requirements and add a SECOND
+ * row for the same ecological slot, so the preserve-wide total drifts upward by
+ * one per renamed animal. Custom `welcome`/`attract` goals hold the same dead
+ * ids: they read their animal straight off `goal.animalId`, so they render as a
+ * raw slug and can never complete.
+ *
+ * So every stale row is either moved onto the new id or folded into the row
+ * that is already there — never left in place. Idempotent, because a migrated
+ * save has no aliased ids left to match, and cheap enough (one per-world scan)
+ * to run on every world entry rather than as a one-shot boot sweep: saves that
+ * do not log in during any given deploy still get migrated the next time they
+ * do, and no worker has to scan every Discovery row in the database to find
+ * them.
+ */
+async function migrateAnimalAliases(worldId: string, playerId: string): Promise<void> {
+	const t = db();
+	const d = await defs();
+
+	// ---- Discovery rows. World-owned, so this covers every member of a co-op world.
+	const rows = await byWorld(t.Discovery, worldId);
+	const stale = rows.filter((r: any) => ANIMAL_ALIASES.has(r?.animalId));
+	if (stale.length) {
+		// Keyed by animalId rather than row id: a legacy save keys Discovery off the
+		// playerId (see findDiscovery), so the id tells us nothing about the animal.
+		const live = new Map<string, any>(
+			rows.filter((r: any) => !ANIMAL_ALIASES.has(r?.animalId)).map((r: any) => [r.animalId, r]),
+		);
+		for (const old of stale) {
+			const newId = ANIMAL_ALIASES.get(old.animalId)!;
+			const animal = d.animal.get(newId);
+			// The replacement is gone too (retired in a later pass). Nothing to move the
+			// row onto, so drop it rather than leave an id no lookup can resolve.
+			if (!animal) {
+				await t.Discovery.delete(old.id);
+				continue;
+			}
+			const existing = live.get(newId);
+			if (existing) {
+				// Both the old and the new animal have a row: this is the double-count.
+				// Keep ONE row and fold the retired one's history into it, so the player
+				// does not lose observations they actually made.
+				const firsts = [existing.firstObservedAt, old.firstObservedAt].filter((n: any) => typeof n === 'number');
+				await t.Discovery.patch(existing.id, {
+					timesObserved: (existing.timesObserved || 0) + (old.timesObserved || 0),
+					...(firsts.length ? { firstObservedAt: Math.min(...firsts) } : {}),
+				});
+				await t.Discovery.delete(old.id);
+				continue;
+			}
+			// The slot is free: re-key the row onto the new animal. `biomeId` comes from
+			// the definitions and not from the old row, because several aliases move the
+			// animal to a different biome (mule-deer-alpine -> grizzly-bear) and a stale
+			// biomeId would mis-file it in every per-biome count.
+			const moved = {
+				...old,
+				id: `${worldId}:${newId}`,
+				worldId,
+				animalId: newId,
+				biomeId: animal.biome,
+				whyReturned: whyReturnedText(animal, d),
+			};
+			await t.Discovery.put(moved);
+			if (moved.id !== old.id) await t.Discovery.delete(old.id); // legacy playerId-keyed row
+			live.set(newId, moved);
+		}
+	}
+
+	// ---- Custom goals. Per-player, so each member migrates their own on their own entry.
+	const player = await safeGet(t.Player, playerId);
+	const goals = (player?.customGoals || []) as CustomGoal[];
+	if (!goals.some((g) => ANIMAL_ALIASES.has(g?.animalId || ''))) return;
+	// Goals that already name a live animal stay exactly as they are — an id this
+	// table says nothing about is sanitizeGoals()' business, not the migration's.
+	const seen = new Set<string>(
+		goals.filter((g) => g?.animalId && !ANIMAL_ALIASES.has(g.animalId)).map((g) => `${g.kind}:${g.animalId}`),
+	);
+	const migrated: CustomGoal[] = [];
+	for (const g of goals) {
+		const alias = ANIMAL_ALIASES.get(g?.animalId || '');
+		if (!alias) {
+			migrated.push(g);
+			continue;
+		}
+		// The replacement is gone too: translating would just move the goal onto a
+		// second dead id, where it renders as a raw slug and can never complete.
+		if (!d.animal.get(alias)) continue;
+		// Two goals can alias onto the same animal — or onto one the player already
+		// has a goal for. Keep the first and drop the twin.
+		const key = `${g.kind}:${alias}`;
+		if (seen.has(key)) continue;
+		seen.add(key);
+		migrated.push({ ...g, animalId: alias });
+	}
+	await t.Player.patch(playerId, { customGoals: migrated });
 }
 
 /**
@@ -2617,7 +2738,12 @@ async function recipeUnlockContext(wid: string, biomeId: string, player: any, d:
 		craftedEver: (player.craftedEver || {}) as Record<string, number>,
 		craftedDistinct: Object.keys(player.craftedEver || {}).length,
 		placedHere: placementCounts(placements),
-		water: analyzeWater(terrain),
+		// playerOnly. The "shape N water tiles" gates are defined as open water YOU
+		// shaped, and Rushwater opens with 18 pre-seeded tiles (a nine-tile channel
+		// plus a six-tile pond) — counting those satisfied a 6-tile gate the moment
+		// the wetland unlocked. Animal water needs are a separate question and still
+		// read the natural channels: see the bare analyzeWater(terrain) in recalcBiome.
+		water: analyzeWater(terrain, true),
 		tools: (player.tools || {}) as Record<string, number>,
 		home: homeOf(player),
 		homeBuilt: !!homeOf(player).styleLocked,
@@ -4507,6 +4633,7 @@ export class LoginPlayer extends PublicEndpoint {
 			await ensureSoloWorld(player);
 			active = (await safeGet(db().Player, playerId))?.worldId || playerId;
 			await syncMemberUnlocks(playerId, active);
+			await migrateAnimalAliases(active, playerId);
 			worlds = await listMemberships(playerId);
 		} catch (e) {
 			console.error('world setup skipped (LoginPlayer):', e);
@@ -4677,6 +4804,7 @@ export class JoinWorld extends PublicEndpoint {
 		// entering the world: make it active and open up whatever biomes it has unlocked
 		await t.Player.patch(playerId, { worldId: world.id });
 		await syncMemberUnlocks(playerId, world.id);
+		await migrateAnimalAliases(world.id, playerId);
 		// The membership/worldId we just wrote may not be visible to reads in this same
 		// transaction yet, so force the active world id and make sure the joined world
 		// is present in the returned list (otherwise the client needs a second load to
@@ -4850,6 +4978,7 @@ export class SwitchWorld extends PublicEndpoint {
 		await t.Player.patch(playerId, { worldId: target });
 		await t.WorldMember.patch(`${target}:${playerId}`, { lastSeenAt: Date.now() });
 		await syncMemberUnlocks(playerId, target);
+		await migrateAnimalAliases(target, playerId);
 		return {
 			ok: true,
 			worldId: target,
@@ -4875,6 +5004,7 @@ export class LeaveWorld extends PublicEndpoint {
 		if (player.worldId === target) {
 			await t.Player.patch(playerId, { worldId: playerId, area: 'meadow', x: 24.5, y: 6.5 });
 			await syncMemberUnlocks(playerId, playerId);
+			await migrateAnimalAliases(playerId, playerId);
 		}
 		const active = player.worldId === target ? playerId : player.worldId || playerId;
 		return {

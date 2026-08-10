@@ -19,6 +19,10 @@ steam_appid.txt
 # MAS_PROVISIONING_PROFILE secret; keep the local copy out of git)
 build/embedded.provisionprofile
 
+# Python bytecode from the gating scripts (scripts/gating/*.py)
+__pycache__/
+*.pyc
+
 # test + coverage output
 coverage/
 playwright-report/

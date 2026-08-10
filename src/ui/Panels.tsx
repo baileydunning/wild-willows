@@ -400,6 +400,17 @@ export function CraftingPanel() {
 		return i === -1 ? 50 : i;
 	};
 	const objOf = (r: RecipeDef) => data.habitatObjects.find((o) => o.id === r.output.itemId);
+	// The Place filter asks where a thing GOES, not where its recipe unlocks:
+	// "home" shows only indoor-placeable decor; a biome shows what fits there plus
+	// the area-less kits; "all" shows everything. One predicate, shared by the
+	// craftable list, the locked-recipe search and Coming up next, so all three
+	// answer the same question about the same filter.
+	const matchesPlace = (r: RecipeDef) => {
+		const o = objOf(r);
+		if (placeFilter === 'all') return true;
+		if (placeFilter === 'home') return o?.placement === 'indoor' || o?.placement === 'both';
+		return o?.placement === 'none' || (o?.biomes || []).includes(placeFilter);
+	};
 	// Only show recipes the player has actually unlocked: their biome is open AND
 	// the biome is restored far enough (health / animals returned). Locked recipes
 	// stay hidden until earned, then announce themselves with a toast.
@@ -407,14 +418,7 @@ export function CraftingPanel() {
 	const searching = query.trim().length > 0;
 	const searchScores = new Map<string, number>();
 	const visible = unlocked
-		// "home" shows only indoor-placeable decor; a biome shows what fits there plus
-		// the area-less kits; "all" shows everything.
-		.filter((r) => {
-			const o = objOf(r);
-			if (placeFilter === 'all') return true;
-			if (placeFilter === 'home') return o?.placement === 'indoor' || o?.placement === 'both';
-			return o?.placement === 'none' || (o?.biomes || []).includes(placeFilter);
-		})
+		.filter(matchesPlace)
 		.filter((r) => typeFilter === 'all' || r.category === typeFilter)
 		// free-text search across the recipe name, what it makes, and its type —
 		// ranked, so a name hit ("gr" → Grass Patch) sorts above recipes that only
@@ -454,11 +458,13 @@ export function CraftingPanel() {
 	// Biome-unlock kits are tracked by the "unlock next biome" goal, so they don't
 	// get their own craft-goal button.
 	const unlockKitIds = new Set(data.biomes.map((b) => b.unlock?.requiresItem).filter(Boolean) as string[]);
-	// The next few recipes this area is holding back, nearest first. Scoped to the
-	// Place filter so it answers "what's next HERE", and never the biome-unlock
-	// kits (the pinned "open the next area" goal already tracks those).
+	// The next few recipes this area is holding back, nearest first. Scoped by the
+	// same Place predicate as the list above — passing `area: 'all'` for Home used
+	// to hand back outdoor recipes from every open biome, because unlockBiome has
+	// no way to say "indoor" — and never the biome-unlock kits (the pinned "open
+	// the next area" goal already tracks those).
 	const upcoming = upcomingRecipes(data, state, {
-		area: placeFilter === 'home' ? 'all' : placeFilter,
+		match: matchesPlace,
 		limit: 4,
 		skipItemIds: unlockKitIds,
 	});
@@ -475,12 +481,7 @@ export function CraftingPanel() {
 				.filter((r) => r.unlock && !recipeUnlocked(r, data, state))
 				.filter((r) => (player.unlockedBiomes || []).includes(r.unlockBiome))
 				.filter((r) => !objOf(r)?.plantable)
-				.filter((r) => {
-					const o = objOf(r);
-					if (placeFilter === 'all') return true;
-					if (placeFilter === 'home') return o?.placement === 'indoor' || o?.placement === 'both';
-					return o?.placement === 'none' || (o?.biomes || []).includes(placeFilter);
-				})
+				.filter(matchesPlace)
 				.filter((r) => typeFilter === 'all' || r.category === typeFilter)
 				.map((r) => ({
 					r,

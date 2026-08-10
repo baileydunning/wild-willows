@@ -298,6 +298,37 @@ describe('recipeUnlocked — the wider unlock vocabulary', () => {
 		expect(recipeUnlocked(gated({ requiresWater: { lake: 3 }, label: 'x' }), data, st)).toBe(true);
 	});
 
+	// Rushwater Wetland opens with 18 tiles of channel and pond already shaped
+	// (STARTING_TERRAIN in server/resources.ts). That is scenery the player was
+	// handed, not work they did, so a "Shape 6 water tiles" gate has to stay shut
+	// until they dig their own. The server counts the same way — recipeUnlockContext
+	// passes analyzeWater(terrain, true) — and this mirror used to disagree with it,
+	// showing the recipe as unlocked while the craft itself was refused.
+	it("does not count the area's pre-seeded starting water", () => {
+		const wet = (x: number, y: number, seeded = false) => ({
+			id: `t${x}-${y}`,
+			area: 'meadow',
+			x,
+			y,
+			type: 'water' as const,
+			...(seeded ? { seeded: true } : {}),
+		});
+		const r = gated({ requiresWater: { tiles: 6 }, label: 'x' });
+
+		// six seeded tiles in a row: enough to satisfy the gate on a raw count
+		const seeded = makeState({ terrain: [0, 1, 2, 3, 4, 5].map((x) => wet(x, 4, true)) });
+		expect(waterShape(seeded, 'meadow')).toEqual({ tiles: 0, lake: 0, river: 0 });
+		expect(recipeUnlocked(r, data, seeded)).toBe(false);
+		expect(unlockDistance(r, data, seeded)).toBe(6); // still six tiles of digging away
+
+		// dig six of your own alongside them and it opens
+		const dug = makeState({
+			terrain: [...seeded.terrain, ...[0, 1, 2, 3, 4, 5].map((x) => wet(x, 9))],
+		});
+		expect(waterShape(dug, 'meadow')).toEqual({ tiles: 6, lake: 6, river: 6 });
+		expect(recipeUnlocked(r, data, dug)).toBe(true);
+	});
+
 	it('gates on an upgraded tool', () => {
 		const r = gated({ requiresTool: { id: 'shovel', tier: 3 }, label: 'x' });
 		expect(recipeUnlocked(r, data, makeState({}, { tools: { shovel: 2 } }))).toBe(false);
@@ -404,6 +435,30 @@ describe('upcomingRecipes', () => {
 
 	it('reports zero distance for a recipe that is already unlocked', () => {
 		expect(unlockDistance(data.recipes[0], data, state)).toBe(0);
+	});
+
+	// `area` can only narrow by the biome a recipe UNLOCKS in, which cannot express
+	// the crafting panel's "Home" filter — Home means indoor-placeable, and indoor
+	// recipes unlock in ordinary outdoor biomes. Home therefore used to fall back to
+	// area: 'all' and recommend outdoor recipes from every open biome. `match` lets
+	// the panel hand over the very same Place predicate it filters the list with.
+	it('accepts an arbitrary predicate, so Home can scope to indoor things', () => {
+		const indoorData = makeData({
+			habitatObjects: [obj({ id: 'shelf', placement: 'indoor' }), obj({ id: 'bench', placement: 'outdoor' })],
+			recipes: [
+				recipe({ id: 'shelf', output: { itemId: 'shelf', qty: 1 }, unlock: { minHealth: 20, label: 'soon' } }),
+				recipe({ id: 'bench', output: { itemId: 'bench', qty: 1 }, unlock: { minHealth: 30, label: 'later' } }),
+			],
+		});
+		const objOf = (r: RecipeDef) => indoorData.habitatObjects.find((o) => o.id === r.output.itemId);
+		const indoorOnly = (r: RecipeDef) => {
+			const o = objOf(r);
+			return o?.placement === 'indoor' || o?.placement === 'both';
+		};
+
+		// without a predicate both are recommended, outdoor bench included
+		expect(upcomingRecipes(indoorData, state, {}).map((u) => u.recipe.id)).toEqual(['shelf', 'bench']);
+		expect(upcomingRecipes(indoorData, state, { match: indoorOnly }).map((u) => u.recipe.id)).toEqual(['shelf']);
 	});
 });
 
