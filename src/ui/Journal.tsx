@@ -188,6 +188,14 @@ function RequirementHints({ animal, full }: { animal: AnimalDef; full: boolean }
 			<ul>
 				{req.minHealth ? <li>{t('panels.journal.minHealth', { value: req.minHealth })}</li> : null}
 				{req.minBalance ? <li>{t('panels.journal.minBalance', { value: req.minBalance })}</li> : null}
+				{/* Open water you have to dig. Only the shapes the player can actually
+				    terraform are listed: coastal `ocean`/`deep` are part of the map from
+				    the start, so printing them would read as a chore that isn't one. */}
+				{req.water?.lake ? <li>{t('panels.journal.waterLake', { tiles: req.water.lake })}</li> : null}
+				{req.water?.river ? <li>{t('panels.journal.waterRiver', { tiles: req.water.river })}</li> : null}
+				{req.water?.tiles && !req.water?.lake && !req.water?.river ? (
+					<li>{t('panels.journal.waterTiles', { tiles: req.water.tiles })}</li>
+				) : null}
 				{Object.entries(req.objects || {}).map(([id, q]) => {
 					const o = data?.habitatObjects.find((oo) => oo.id === id);
 					return (

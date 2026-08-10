@@ -94,6 +94,7 @@
 		"plantedNotCrafted": "Se planta, no se fabrica — cava un bancal con la pala (2), riégalo con la regadera (3) y luego haz clic en el bancal regado para elegirlo en el menú de plantado.",
 		"plantedSection": "Se plantan, no se fabrican",
 		"comingUp": "Próximamente",
+		"lockedSection": "Aún no desbloqueado",
 		"needs": "Necesita:"
 	},
 	"tools": {
@@ -260,6 +261,9 @@
 		"hintDefault": "Restaura más hábitat y descubre quién llega.",
 		"minHealth": "Salud del bioma ≥ {value}%",
 		"minBalance": "Equilibrio ecológico ≥ {value}%",
+		"waterTiles": "Forma {tiles}+ casillas de agua abierta",
+		"waterLake": "Forma un estanque de {tiles}+ casillas conectadas",
+		"waterRiver": "Forma un canal de {tiles}+ casillas de largo",
 		"objectReq": "{qty}× {name}",
 		"animalReq": "{name} ya regresó",
 		"condCheck": "{cond} — consulta el panel del clima (N)",

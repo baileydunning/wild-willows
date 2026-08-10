@@ -5936,12 +5936,28 @@ export function ensureAnimalTexture(scene: Phaser.Scene, id: string, kind: strin
 		g.fillStyle(0x2e2018, 1).fillCircle(20, 6, 1.2);
 	});
 	a('deer', 34, 32, (g) => {
-		g.fillStyle(C('#b08a5c'), 1).fillEllipse(15, 16, 22, 14);
-		g.fillRect(7, 22, 3, 9).fillRect(21, 22, 3, 9); // legs
-		g.fillCircle(27, 9, 6);
-		g.fillEllipse(24, 3, 3, 7).fillEllipse(30, 3, 3, 7); // big mule ears
-		g.fillStyle(C('#f4ecd8'), 1).fillEllipse(6, 14, 6, 7); // rump patch
-		g.fillStyle(0x2e2018, 1).fillCircle(29, 8, 1.3);
+		// Mule deer. The ears are the whole point — outsized and held wide, which is
+		// where the name comes from — so they stand clear of the skull instead of
+		// merging into it. Long muzzle, a neck that rises, and the white rump with
+		// the narrow black-tipped tail that tells it from a whitetail.
+		// Everything stays inside 0..34 x 0..32: the texture and the journal's SVG
+		// viewBox are both exactly that, so anything drawn past it loses its tips.
+		g.fillStyle(C('#8a6a44'), 1); // legs, a shade darker than the coat
+		g.fillRect(8, 23, 3, 8.5).fillRect(13, 24, 2.6, 7.5).fillRect(19, 23, 3, 8.5);
+		g.fillStyle(C('#9a7548'), 1).fillEllipse(4.2, 20.5, 3.2, 8); // tail, set behind the rump
+		g.fillStyle(C('#2e2018'), 1).fillEllipse(4.2, 23.2, 3.2, 2.8); // and its black tip
+		g.fillStyle(C('#b08a5c'), 1).fillEllipse(15, 17.5, 23, 14); // body
+		g.fillEllipse(22.5, 13.5, 10, 13); // neck, rising toward the head
+		g.fillStyle(C('#f4ecd8'), 1).fillEllipse(7.5, 17, 8, 9.5); // white rump patch, inside the flank
+		g.fillStyle(C('#b08a5c'), 1);
+		g.fillEllipse(21, 4.8, 5, 8.6).fillEllipse(29.6, 4.8, 5, 8.6); // the big mule ears
+		g.fillStyle(C('#8a6a44'), 1);
+		g.fillEllipse(21.3, 5.2, 2.4, 5.4).fillEllipse(29.3, 5.2, 2.4, 5.4); // inner ear
+		g.fillStyle(C('#b08a5c'), 1).fillEllipse(26, 9.2, 11, 9); // head
+		g.fillStyle(C('#9a7548'), 1).fillEllipse(29.8, 11.4, 7, 5); // long muzzle
+		g.fillStyle(C('#f4ecd8'), 1).fillEllipse(30.4, 12.6, 4.6, 2.2); // pale band around the mouth
+		g.fillStyle(0x2e2018, 1).fillCircle(27.6, 8.4, 1.3); // eye
+		g.fillEllipse(32.4, 10.8, 2.2, 1.8); // nose
 	});
 	a('fox', 32, 26, (g) => {
 		g.fillStyle(C('#46301f'), 1).fillRect(9, 19, 3, 6).fillRect(14, 20, 3, 6).fillRect(20, 19, 3, 6); // dark-socked legs
@@ -5964,17 +5980,18 @@ export function ensureAnimalTexture(scene: Phaser.Scene, id: string, kind: strin
 	a('snail', 30, 24, (g) => {
 		// Dark grey body: the old cream one washed out against both meadow palettes
 		// (healthy green AND dry tan), so the snail read as a shell floating alone.
-		g.fillStyle(C('#5e5b56'), 1).fillEllipse(9, 19, 18, 7); // soft foot
-		g.fillCircle(4, 16, 3.2); // head
-		g.fillStyle(C('#7a766f'), 1).fillEllipse(9, 17.6, 15, 2.6); // lighter crease along the top of the foot
+		// Faces right, like every other animal in the set.
+		g.fillStyle(C('#5e5b56'), 1).fillEllipse(21, 19, 18, 7); // soft foot
+		g.fillCircle(26, 16, 3.2); // head
+		g.fillStyle(C('#7a766f'), 1).fillEllipse(21, 17.6, 15, 2.6); // lighter crease along the top of the foot
 		g.fillStyle(C('#5e5b56'), 1);
-		g.lineStyle(1.4, C('#5e5b56'), 1).lineBetween(4, 14, 1, 6).lineBetween(6, 14, 8, 6); // eye stalks
-		g.fillStyle(C('#2e2018'), 1).fillCircle(1, 5, 1.5).fillCircle(8, 5, 1.5); // eyes on stalk tips
-		g.fillStyle(C('#3f6fa8'), 1).fillCircle(18, 12, 11); // big blue shell
-		g.fillStyle(C('#5b8fc9'), 1).fillCircle(18, 12, 8);
-		g.fillStyle(C('#2c5183'), 1).fillCircle(18, 12, 5);
-		g.fillStyle(C('#7fb0e0'), 1).fillCircle(18, 12, 2.4); // spiral centre
-		g.fillStyle(0xffffff, 0.3).fillEllipse(14, 7, 7, 3.5); // shine
+		g.lineStyle(1.4, C('#5e5b56'), 1).lineBetween(26, 14, 29, 6).lineBetween(24, 14, 22, 6); // eye stalks
+		g.fillStyle(C('#2e2018'), 1).fillCircle(29, 5, 1.5).fillCircle(22, 5, 1.5); // eyes on stalk tips
+		g.fillStyle(C('#3f6fa8'), 1).fillCircle(12, 12, 11); // big blue shell
+		g.fillStyle(C('#5b8fc9'), 1).fillCircle(12, 12, 8);
+		g.fillStyle(C('#2c5183'), 1).fillCircle(12, 12, 5);
+		g.fillStyle(C('#7fb0e0'), 1).fillCircle(12, 12, 2.4); // spiral centre
+		g.fillStyle(0xffffff, 0.3).fillEllipse(16, 7, 7, 3.5); // shine
 	});
 	a('squirrel', 26, 26, (g) => {
 		g.fillStyle(C('#9a7448'), 1).fillRect(11, 22, 3.4, 4).fillRect(17, 22, 3.4, 4); // feet

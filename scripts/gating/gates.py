@@ -174,6 +174,40 @@ OVERRIDES = {
     'scrubland-restoration-kit': {'minHealth': 65},
     'alpine-restoration-kit':    {'minHealth': 65},
     'migration-path-marker':     {'minHealth': 65},
+    # The meadow's two grass-and-forb plantings wait on the grasshopper — the first
+    # thing the grass itself brings back, so its return is the moment the meadow
+    # starts being a meadow. The health floors only exist to keep the two gates
+    # distinct: validate.py rejects two recipes in one area sharing a requirement,
+    # and squirrel-burrow-town already holds the bare grasshopper gate.
+    'clover-patch':       {'requiresAnimal': 'grasshopper', 'minHealth': 10},
+    'native-grass-patch': {'requiresAnimal': 'grasshopper', 'minHealth': 14},
+    # The opening hour has to be buildable. None of these may sit behind a tool
+    # upgrade, a home level, terraforming or a distinct-craft count — a new player
+    # has none of those, and a habitat recipe they cannot reach reads as a bug.
+    # Plain health is the only gate that explains itself at 10%.
+    'shallow-water-pool': {'minHealth': 7},
+    'picnic-blanket':     {'minHealth': 11},
+    'stone-cairn':        {'minHealth': 13},
+    'pinwheel':           {'minHealth': 15},
+    'hollow-log':         {'minHealth': 17},
+    'bird-perch':         {'minHealth': 18},
+    'small-pond':         {'minHealth': 19},
+    # Camp comforts do not unlock habitat. Picnic blankets, wind chimes and home
+    # upgrade levels are how you make the camp yours; they have nothing to say
+    # about whether a shrub or a den belongs in the world. Habitat waits on the
+    # restoration itself.
+    # (ALLOWED below now enforces this for future regenerations; these entries
+    # only exist because data/recipes.json is currently hand-maintained.)
+    'alpine-mineral-lick':         {'minHealth': 28},
+    'canopy-nest-limb':            {'minHealth': 31},
+    'clearwater-shallows':         {'minHealth': 24},
+    'desert-mistletoe':            {'minHealth': 18},
+    'haul-out-rocks':              {'minHealth': 28},
+    'ledge-natal-den':             {'minHealth': 19},
+    'sea-glass-path':              {'minHealth': 22},
+    'serviceberry-browse-thicket': {'minHealth': 22},
+    'shrub':                       {'minHealth': 34},
+    'tree-stump':                  {'minHealth': 16},
     # a housewarming present to yourself — the first thing the meadow offers once
     # you stop living in the tent
     'happy-buddha': {'homeBuilt': True},
@@ -234,9 +268,13 @@ def label_for(g, biome):
 # ------------------------------------------------------------------- families
 # Not every requirement suits every object: a rug shouldn't ask you to dig a
 # pond, and a footpath shouldn't wait on the food web.
+QUOTA_KEYS = ['health', 'chain', 'animal', 'placed', 'kind', 'balance', 'count',
+              'tool', 'home', 'water', 'cross', 'total', 'achv', 'distinct', 'open']
 ALLOWED = {
-    'habitat':    set(QUOTA_KEYS := ['health', 'chain', 'animal', 'placed', 'kind', 'balance', 'count',
-                                     'tool', 'home', 'water', 'cross', 'total', 'achv', 'distinct', 'open']),
+    # Camp comforts do not unlock habitat. How snug your house is says nothing
+    # about whether a shrub or a den belongs in the world, so 'home' is off the
+    # table here — and the 'placed' builder below will only ask for habitat.
+    'habitat':    set(QUOTA_KEYS) - {'home'},
     'structure':  set(QUOTA_KEYS),
     'home':       {'health', 'chain', 'home', 'tool', 'distinct', 'animal', 'kind', 'count', 'balance',
                    'achv', 'cross', 'total', 'open'},
@@ -332,9 +370,14 @@ class Assigner:
             if not cands: return None
             bal, h = near(cands, T); return ({'minBalance': bal}, h)
         if fam == 'placed':
+            # A habitat recipe may ask for more habitat standing in the area, never
+            # for camp comforts: "3 picnic blankets" is a chore, not restoration.
+            # healthValue > 0 is exactly the line between the two.
+            want_habitat = (r.get('category') == 'habitat')
             pool = [(p['output']['itemId'], self.diff[p['id']]) for p in self.rs
                     if p['id'] in self.gates and self.diff[p['id']] <= max(0, min(T, ceil) - 4)
                     and not OBJS.get(p['output']['itemId'], {}).get('onePerArea')
+                    and (not want_habitat or (OBJS.get(p['output']['itemId'], {}).get('healthValue') or 0) > 0)
                     and (OBJS.get(p['output']['itemId'], {}).get('placement') in ('outdoor', 'both'))]
             pool += [(pid, 4) for pid in self.plantables_here() if min(T, ceil) >= 8]
             if not pool: return None

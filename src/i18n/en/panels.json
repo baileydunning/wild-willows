@@ -94,6 +94,7 @@
 		"plantedNotCrafted": "Planted, not crafted — dig a soil bed with the shovel (2), water it with the can (3), then click the watered bed and pick it from the planting menu.",
 		"plantedSection": "Planted, not crafted",
 		"comingUp": "Coming up next",
+		"lockedSection": "Not unlocked yet",
 		"needs": "Needs:"
 	},
 	"tools": {
@@ -260,6 +261,9 @@
 		"hintDefault": "Restore more habitat and see who arrives.",
 		"minHealth": "Biome health ≥ {value}%",
 		"minBalance": "Ecological balance ≥ {value}%",
+		"waterTiles": "Shape {tiles}+ tiles of open water",
+		"waterLake": "Shape a pond of {tiles}+ connected tiles",
+		"waterRiver": "Shape a channel {tiles}+ tiles long",
 		"objectReq": "{qty}× {name}",
 		"animalReq": "{name} already returned",
 		"condCheck": "{cond} — check the weather panel (N)",

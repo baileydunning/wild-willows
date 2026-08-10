@@ -463,6 +463,40 @@ export function CraftingPanel() {
 		skipItemIds: unlockKitIds,
 	});
 
+	// Searching for something you cannot make yet used to come up empty, which
+	// reads as "this doesn't exist". Instead the locked recipes that match are
+	// listed greyed out with the requirement that would open them — the same shape
+	// as Coming up next, so the search bar answers "how do I get this?".
+	// Scoped like `upcoming`: only areas already open, never the plantables (they
+	// have their own section below).
+	const lockedMatches = !searching
+		? []
+		: data.recipes
+				.filter((r) => r.unlock && !recipeUnlocked(r, data, state))
+				.filter((r) => (player.unlockedBiomes || []).includes(r.unlockBiome))
+				.filter((r) => !objOf(r)?.plantable)
+				.filter((r) => {
+					const o = objOf(r);
+					if (placeFilter === 'all') return true;
+					if (placeFilter === 'home') return o?.placement === 'indoor' || o?.placement === 'both';
+					return o?.placement === 'none' || (o?.biomes || []).includes(placeFilter);
+				})
+				.filter((r) => typeFilter === 'all' || r.category === typeFilter)
+				.map((r) => ({
+					r,
+					s: recipeSearchScore(
+						r,
+						objOf(r),
+						catLabel[r.category] || r.category,
+						query,
+						Object.keys(r.materials).map((m) => resName(data, m)),
+					),
+				}))
+				.filter(({ s }) => s >= 0)
+				.sort((a, b) => a.s - b.s || a.r.name.localeCompare(b.r.name))
+				.slice(0, 8)
+				.map(({ r }) => r);
+
 	const placeable = Object.entries(player.craftedItems || {}).filter(([id]) => {
 		const def = data.habitatObjects.find((o) => o.id === id);
 		return def && def.placement !== 'none';
@@ -680,6 +714,27 @@ export function CraftingPanel() {
 						const def = objOf(r);
 						return (
 							<div className="recipe recipe-off" key={`soon-${r.id}`}>
+								<ObjectIcon shape={def?.shape || 'patch'} color={def?.color || '#8a8a8a'} size={34} />
+								<div className="grow">
+									<b>{content('recipe', r.id, 'name', r.name)}</b>
+									<div className="small unlock-req">
+										<b>{t('panels.crafting.needs')}</b> {content('recipe', r.id, 'unlock.label', r.unlock!.label)}
+									</div>
+								</div>
+							</div>
+						);
+					})}
+				</div>
+			)}
+			{searching && lockedMatches.length > 0 && (
+				<div>
+					<h3>
+						<Icon name="lock" size={14} /> {t('panels.crafting.lockedSection')}
+					</h3>
+					{lockedMatches.map((r) => {
+						const def = objOf(r);
+						return (
+							<div className="recipe recipe-off" key={`locked-${r.id}`}>
 								<ObjectIcon shape={def?.shape || 'patch'} color={def?.color || '#8a8a8a'} size={34} />
 								<div className="grow">
 									<b>{content('recipe', r.id, 'name', r.name)}</b>

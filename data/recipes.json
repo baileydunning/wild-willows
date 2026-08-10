@@ -22,9 +22,9 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 16,
-        "requiresCrafted": "milkweed-rhizome-bed",
-        "label": "Restore Willow Meadow to 16% health and craft a Milkweed Bed"
+        "minHealth": 14,
+        "requiresAnimal": "grasshopper",
+        "label": "Restore Willow Meadow to 14% health and welcome the Grasshopper back to Willow Meadow"
       },
       "output": {
         "itemId": "native-grass-patch",
@@ -100,11 +100,7 @@
       "unlockBiome": "meadow",
       "unlock": {
         "minHealth": 34,
-        "requiresPlaced": {
-          "objectId": "wind-chimes",
-          "count": 4
-        },
-        "label": "Restore Willow Meadow to 34% health and have 4 Wind Chimes standing in Willow Meadow"
+        "label": "Restore Willow Meadow to 34% health"
       },
       "output": {
         "itemId": "shrub",
@@ -142,10 +138,7 @@
       "unlockBiome": "meadow",
       "unlock": {
         "minHealth": 19,
-        "requiresWater": {
-          "lake": 5
-        },
-        "label": "Restore Willow Meadow to 19% health and shape a pond of 5 connected water tiles in Willow Meadow"
+        "label": "Restore Willow Meadow to 19% health"
       },
       "output": {
         "itemId": "small-pond",
@@ -163,11 +156,8 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 8,
-        "requiresWater": {
-          "tiles": 4
-        },
-        "label": "Restore Willow Meadow to 8% health and shape 4 tiles of open water in Willow Meadow"
+        "minHealth": 7,
+        "label": "Restore Willow Meadow to 7% health"
       },
       "output": {
         "itemId": "shallow-water-pool",
@@ -203,12 +193,8 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 16,
-        "requiresTool": {
-          "id": "watering-can",
-          "tier": 2
-        },
-        "label": "Restore Willow Meadow to 16% health and upgrade your Tin Watering Can to the Rainwater Canteen"
+        "minHealth": 17,
+        "label": "Restore Willow Meadow to 17% health"
       },
       "output": {
         "itemId": "hollow-log",
@@ -261,12 +247,8 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 17,
-        "requiresHome": {
-          "track": "comfort",
-          "level": 2
-        },
-        "label": "Restore Willow Meadow to 17% health and raise your home's Comfort to level 2"
+        "minHealth": 18,
+        "label": "Restore Willow Meadow to 18% health"
       },
       "output": {
         "itemId": "bird-perch",
@@ -1001,11 +983,7 @@
       "unlockBiome": "coastal",
       "unlock": {
         "minHealth": 22,
-        "requiresHome": {
-          "track": "comfort",
-          "level": 4
-        },
-        "label": "Restore Pelican Shore to 22% health and raise your home's Comfort to level 4"
+        "label": "Restore Pelican Shore to 22% health"
       },
       "output": {
         "itemId": "sea-glass-path",
@@ -1221,12 +1199,9 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 4,
-        "requiresPlaced": {
-          "objectId": "grass-patch",
-          "count": 2
-        },
-        "label": "Restore Willow Meadow to 4% health and have 2 Grass Patches standing in Willow Meadow"
+        "minHealth": 10,
+        "requiresAnimal": "grasshopper",
+        "label": "Restore Willow Meadow to 10% health and welcome the Grasshopper back to Willow Meadow"
       },
       "output": {
         "itemId": "clover-patch",
@@ -1281,11 +1256,7 @@
       "unlockBiome": "forest",
       "unlock": {
         "minHealth": 16,
-        "requiresHome": {
-          "track": "light",
-          "level": 3
-        },
-        "label": "Restore Old Hollow Forest to 16% health and raise your home's Warmth to level 3"
+        "label": "Restore Old Hollow Forest to 16% health"
       },
       "output": {
         "itemId": "tree-stump",
@@ -1543,12 +1514,8 @@
       "category": "home",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 11,
-        "requiresHome": {
-          "track": "space",
-          "level": 2
-        },
-        "label": "Restore Willow Meadow to 11% health and raise your home's Space to level 2"
+        "minHealth": 15,
+        "label": "Restore Willow Meadow to 15% health"
       },
       "output": {
         "itemId": "pinwheel",
@@ -1683,8 +1650,7 @@
       "unlockBiome": "meadow",
       "unlock": {
         "minHealth": 13,
-        "craftedDistinct": 14,
-        "label": "Restore Willow Meadow to 13% health and craft 14 different things"
+        "label": "Restore Willow Meadow to 13% health"
       },
       "output": {
         "itemId": "stone-cairn",
@@ -1701,11 +1667,7 @@
       "unlockBiome": "meadow",
       "unlock": {
         "minHealth": 11,
-        "requiresTool": {
-          "id": "shovel",
-          "tier": 2
-        },
-        "label": "Restore Willow Meadow to 11% health and upgrade your Basic Shovel to the Restoration Shovel"
+        "label": "Restore Willow Meadow to 11% health"
       },
       "output": {
         "itemId": "picnic-blanket",
@@ -3249,11 +3211,7 @@
       "unlockBiome": "alpine",
       "unlock": {
         "minHealth": 19,
-        "requiresHome": {
-          "track": "space",
-          "level": 4
-        },
-        "label": "Restore Graywind Heights to 19% health and raise your home's Space to level 4"
+        "label": "Restore Graywind Heights to 19% health"
       },
       "output": {
         "itemId": "ledge-natal-den",
@@ -3785,11 +3743,7 @@
       "unlockBiome": "coastal",
       "unlock": {
         "minHealth": 28,
-        "requiresHome": {
-          "track": "space",
-          "level": 4
-        },
-        "label": "Restore Pelican Shore to 28% health and raise your home's Space to level 4"
+        "label": "Restore Pelican Shore to 28% health"
       },
       "output": {
         "itemId": "haul-out-rocks",
@@ -4107,11 +4061,7 @@
       "unlockBiome": "desert",
       "unlock": {
         "minHealth": 18,
-        "requiresHome": {
-          "track": "comfort",
-          "level": 4
-        },
-        "label": "Restore Redstone Scrubland to 18% health and raise your home's Comfort to level 4"
+        "label": "Restore Redstone Scrubland to 18% health"
       },
       "output": {
         "itemId": "desert-mistletoe",
@@ -4951,11 +4901,7 @@
       "unlockBiome": "meadow",
       "unlock": {
         "minHealth": 22,
-        "requiresPlaced": {
-          "objectId": "picnic-blanket",
-          "count": 3
-        },
-        "label": "Restore Willow Meadow to 22% health and have 3 Picnic Blankets standing in Willow Meadow"
+        "label": "Restore Willow Meadow to 22% health"
       },
       "output": {
         "itemId": "serviceberry-browse-thicket",
@@ -5162,11 +5108,7 @@
       "unlockBiome": "wetland",
       "unlock": {
         "minHealth": 24,
-        "requiresHome": {
-          "track": "light",
-          "level": 4
-        },
-        "label": "Restore Rushwater Wetland to 24% health and raise your home's Warmth to level 4"
+        "label": "Restore Rushwater Wetland to 24% health"
       },
       "output": {
         "itemId": "clearwater-shallows",
@@ -5732,11 +5674,7 @@
       "unlockBiome": "forest",
       "unlock": {
         "minHealth": 31,
-        "requiresHome": {
-          "track": "space",
-          "level": 3
-        },
-        "label": "Restore Old Hollow Forest to 31% health and raise your home's Space to level 3"
+        "label": "Restore Old Hollow Forest to 31% health"
       },
       "output": {
         "itemId": "canopy-nest-limb",
@@ -6271,11 +6209,7 @@
       "unlockBiome": "alpine",
       "unlock": {
         "minHealth": 28,
-        "requiresHome": {
-          "track": "light",
-          "level": 4
-        },
-        "label": "Restore Graywind Heights to 28% health and raise your home's Warmth to level 4"
+        "label": "Restore Graywind Heights to 28% health"
       },
       "output": {
         "itemId": "alpine-mineral-lick",

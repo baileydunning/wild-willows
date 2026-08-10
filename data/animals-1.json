@@ -1270,9 +1270,7 @@
         "carrion",
         "insects"
       ],
-      "eatenBy": [
-        "coyote"
-      ],
+      "eatenBy": [],
       "requirements": {
         "minHealth": 65,
         "minBalance": 40,

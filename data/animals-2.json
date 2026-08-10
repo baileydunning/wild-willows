@@ -2928,7 +2928,6 @@
         "garter-snake",
         "ground-squirrel",
         "prairie-vole",
-        "red-fox",
         "western-meadowlark",
         {
           "id": "american-badger",
@@ -3961,9 +3960,6 @@
           "rotting-log-crumble": 1
         },
         "signature": "rotting-log-crumble",
-        "water": {
-          "tiles": 1
-        },
         "hint": "Damp, dark and rotting is the whole recipe — a crumbling log, deep thatch, and ground that never dries right out. Roll one over and it curls into a ball."
       },
       "sources": [

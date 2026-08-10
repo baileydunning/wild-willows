@@ -135,6 +135,12 @@ interface Interactable {
 	/** Optional live-computed prompt (recomputed each frame while you're near),
 	 *  used for locked gates so the bottom bar always shows what's still needed. */
 	liveLabel?: () => string;
+	/** Optional live check for "is there anything to do here right now". Something
+	 *  that returns false is skipped when picking what to focus, so a spent
+	 *  resource node stops claiming the ring and the prompt while it regrows —
+	 *  the sprout already says it is coming back. Clicking one directly still
+	 *  runs `action`, which is what explains the wait. */
+	available?: () => boolean;
 }
 
 export class WorldScene extends Phaser.Scene {
@@ -3069,6 +3075,7 @@ export class WorldScene extends Phaser.Scene {
 				label: t('game.label.gather', {
 					name: content('resource', node.resourceId, 'name', res?.name || node.resourceId),
 				}),
+				available: () => this.nodeAvailable(node),
 				action: () => {
 					if (this.nodeAvailable(node))
 						bridge.emit('collect-node', {
@@ -4444,6 +4451,7 @@ export class WorldScene extends Phaser.Scene {
 		let best: Interactable | null = null;
 		let bestDist = 90; // generous reach so E grabs what you're clearly standing near (was 68)
 		for (const it of this.interactables) {
+			if (it.available && !it.available()) continue;
 			const d = Phaser.Math.Distance.Between(this.player.x, this.player.y, it.x, it.y);
 			if (d < bestDist) {
 				best = it;
@@ -4461,7 +4469,8 @@ export class WorldScene extends Phaser.Scene {
 		const near = busy ? null : this.nearestInteractable();
 		// Prefer the thing you're standing beside; otherwise light up whatever the
 		// pointer is hovering, so it's clear what a click would act on.
-		const focus = near || (busy || terraforming ? null : this.hoveredIt);
+		const hovered = this.hoveredIt && this.hoveredIt.available && !this.hoveredIt.available() ? null : this.hoveredIt;
+		const focus = near || (busy || terraforming ? null : hovered);
 		const focusSource: 'near' | 'hover' | null = near ? 'near' : focus ? 'hover' : null;
 
 		// Fire exactly once when the ring lands on a new target (or clears), so
