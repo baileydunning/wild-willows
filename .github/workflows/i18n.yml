@@ -1,0 +1,102 @@
+name: i18n
+
+# Every string the game shows, in every way it can be worded: English, Spanish,
+# and the "Simpler wording" accessibility option (which is a plain-language
+# overlay laid over whichever language is active — so it doubles the matrix
+# rather than adding one entry to it).
+#
+# Three jobs, deliberately separate, because they catch three different failures:
+#
+#   keys      A key the code asks for that no catalog answers, or one English has
+#             and Spanish doesn't. Seconds. Runs --strict, so an untranslated key
+#             fails here even though `npm run check` only warns about it locally.
+#
+#   catalogs  The catalogs agreeing with each other: es mirroring en key-for-key
+#             with the same {placeholder} tokens and the same line-pool lengths,
+#             and the simple-text overlay resolving per key with fallback.
+#
+#   render    What a player actually sees. The first two jobs pass on a build
+#             whose Spanish panels render in English, because core.ts falls back
+#             locale → en → key and never throws — the failure only exists on
+#             screen. This boots the real client in all four modes and reads the
+#             painted text: no raw keys, no unfilled {name}, nothing spilling out
+#             of the card holding it.
+#
+# `render` builds the web client and drives Chromium, so it is the slow one
+# (a few minutes). If that gets tiresome on unrelated PRs, add a `paths:` filter
+# to the trigger below — src/i18n/**, src/ui/**, data/** would cover the sources
+# of nearly every regression it catches.
+
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# A newer push to the same branch supersedes this run.
+concurrency:
+  group: i18n-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  keys:
+    name: Key hygiene (strict)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      # Fails on: a referenced key missing from en, an unparsable catalog, or —
+      # because of --strict — any key English has that Spanish does not.
+      - name: Check catalog keys
+        run: npm run i18n:check:strict
+
+  catalogs:
+    name: Catalog tests (en · es · simpler wording)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Run the i18n unit specs
+        run: npm run i18n:test
+
+  render:
+    name: Rendering sweep (4 modes, real browser)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+
+      # Only Chromium — this suite is about text, not browser differences.
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      # playwright.config.ts's webServer builds the web client and serves it with
+      # `vite preview`, so there is no separate build step here. The app runs in
+      # offline solo mode, so no Harper is involved.
+      - name: Boot the client in each language and read the screen
+        run: npm run test:e2e:i18n
+
+      # The report names the exact string and the mode it broke in, which is the
+      # part worth keeping when this fails.
+      - name: Upload Playwright report
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: i18n-render-report
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
