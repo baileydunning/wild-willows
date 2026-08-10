@@ -1,7 +1,7 @@
 {
 	"name": "wild-willows",
 	"author": "Bailey Dunning",
-	"version": "0.3.0",
+	"version": "0.2.10",
 	"private": true,
 	"description": "Wild Willows — a cozy nature-restoration life sim",
 	"type": "module",
@@ -23,6 +23,7 @@
 		"i18n:check": "node scripts/check-i18n.mjs",
 		"i18n:check:strict": "node scripts/check-i18n.mjs --strict",
 		"i18n:test": "vitest run --project unit tests/unit/i18n.test.ts tests/unit/i18n-es.test.ts tests/unit/simple-text.test.ts",
+		"i18n:readability": "node scripts/readability.mjs",
 		"i18n:extract": "node scripts/i18n-extract.mjs",
 		"test": "npm run build:server && vitest run",
 		"test:unit": "vitest run --project unit",

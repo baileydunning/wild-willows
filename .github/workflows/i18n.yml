@@ -5,22 +5,29 @@ name: i18n
 # overlay laid over whichever language is active — so it doubles the matrix
 # rather than adding one entry to it).
 #
-# Three jobs, deliberately separate, because they catch three different failures:
+# Four jobs, deliberately separate, because they catch four different failures:
 #
-#   keys      A key the code asks for that no catalog answers, or one English has
-#             and Spanish doesn't. Seconds. Runs --strict, so an untranslated key
-#             fails here even though `npm run check` only warns about it locally.
+#   keys         A key the code asks for that no catalog answers, or one English
+#                has and Spanish doesn't. Seconds. Runs --strict, so an
+#                untranslated key fails here even though `npm run check` only
+#                warns about it locally.
 #
-#   catalogs  The catalogs agreeing with each other: es mirroring en key-for-key
-#             with the same {placeholder} tokens and the same line-pool lengths,
-#             and the simple-text overlay resolving per key with fallback.
+#   catalogs     The catalogs agreeing with each other: es mirroring en
+#                key-for-key with the same {placeholder} tokens and the same
+#                line-pool lengths, and the simple-text overlay resolving per key
+#                with fallback.
 #
-#   render    What a player actually sees. The first two jobs pass on a build
-#             whose Spanish panels render in English, because core.ts falls back
-#             locale → en → key and never throws — the failure only exists on
-#             screen. This boots the real client in all four modes and reads the
-#             painted text: no raw keys, no unfilled {name}, nothing spilling out
-#             of the card holding it.
+#   render       What a player actually sees. The first two jobs pass on a build
+#                whose Spanish panels render in English, because core.ts falls
+#                back locale → en → key and never throws — the failure only
+#                exists on screen. This boots the real client in all four modes
+#                and reads the painted text: no raw keys, no unfilled {name}.
+#
+#   readability  Whether the plain-language option is still plain. Nothing above
+#                can tell: a simple.json line that has drifted back to the
+#                original wording still resolves, still renders, still matches
+#                its key. This scores both wordings of the same strings and
+#                posts the result on the PR.
 #
 # `render` builds the web client and drives Chromium, so it is the slow one
 # (a few minutes). If that gets tiresome on unrelated PRs, add a `paths:` filter
@@ -67,6 +74,74 @@ jobs:
       - run: npm ci
       - name: Run the i18n unit specs
         run: npm run i18n:test
+
+  readability:
+    name: Readability (posts on the PR)
+    runs-on: ubuntu-latest
+    # The default GITHUB_TOKEN is read-only on pull_request; the comment step
+    # needs this to write. Everything else here only reads the checkout.
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+
+      # No `npm ci`: scripts/readability.mjs has zero dependencies, like
+      # check-i18n.mjs, so this job is a checkout and a node run — about ten
+      # seconds. Adding an install would multiply its runtime for nothing.
+      - name: Score the catalogs
+        run: node scripts/readability.mjs --markdown > readability.md
+
+      # Always attached to the run itself — so the numbers are there on a push to
+      # main, on a manual run, and on a fork PR where commenting isn't permitted.
+      - name: Add the report to the run summary
+        run: cat readability.md >> "$GITHUB_STEP_SUMMARY"
+
+      # One comment per PR, rewritten in place on every push, so the thread keeps
+      # a single current score instead of a stack of stale ones. The marker is
+      # how it finds its own comment again.
+      #
+      # Skipped for PRs from forks: their GITHUB_TOKEN is read-only no matter
+      # what `permissions` says, and the API call would 403. The step summary
+      # above still carries the report in that case.
+      - name: Comment the readability score on the PR
+        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const MARKER = '<!-- wild-willows:readability -->';
+            const body = `${MARKER}\n${fs.readFileSync('readability.md', 'utf8')}`;
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+
+            const comments = await github.paginate(github.rest.issues.listComments, {
+              owner,
+              repo,
+              issue_number,
+              per_page: 100,
+            });
+            const existing = comments.find((c) => c.body?.includes(MARKER));
+
+            if (existing) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
+              core.info(`Updated comment ${existing.id}`);
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+              core.info('Posted a new readability comment');
+            }
+
+      # Reporting only, by design: a readability number is a prompt to look, not
+      # a spec to enforce, and a wording change that trips a threshold is usually
+      # fine. To make drift block a merge instead — the overlay scoring no easier
+      # than the text it replaces, or English simple text drifting above the ~5th
+      # grade it promises — add:
+      #
+      #   - name: Fail if the plain-language overlay stopped being simpler
+      #     run: node scripts/readability.mjs --fail-drift
 
   render:
     name: Rendering sweep (4 modes, real browser)
