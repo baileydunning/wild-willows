@@ -715,11 +715,11 @@
       "requirements": {
         "minHealth": 52,
         "objects": {
-          "beetle-killed-snag": 2,
-          "whitebark-pine": 2
+          "whitebark-pine": 2,
+          "old-woodpecker-cavity": 2
         },
-        "signature": "beetle-killed-snag",
-        "hint": "Dead trees are the point. A beetle-killed snag is both the chickadee's larder and the only wood soft enough for it to hollow out. The whitebark pines come from it's forgotten seeds."
+        "signature": "old-woodpecker-cavity",
+        "hint": "Dead trees are the point. An old woodpecker hole is both shelter and a starting place — a chickadee will take a ready-made cavity and work it wider. The whitebark pines come from its forgotten seeds."
       },
       "sources": [
         {
@@ -1701,18 +1701,17 @@
       "requirements": {
         "minHealth": 50,
         "objects": {
-          "mussel-bed-lower-margin": 1,
-          "mussel-bed": 2,
+          "mussel-bed": 3,
           "barnacle-crust-rock": 1
         },
-        "signature": "mussel-bed-lower-margin",
+        "signature": "mussel-bed",
         "water": {
           "ocean": 3
         },
         "animals": [
           "mussel"
         ],
-        "hint": "Build the mussel bed first. It lives along the bed's bottom edge, and that edge only exists because something is holding it there."
+        "hint": "Build the mussel bed first, and build it big. It lives down in among the shells, along the bottom edge where the bed gives way to open rock."
       },
       "sources": [
         {
@@ -3185,12 +3184,12 @@
       "requirements": {
         "minHealth": 55,
         "objects": {
-          "ant-riddled-log": 2,
           "standing-deadwood": 2,
-          "nesting-tree": 1
+          "nesting-tree": 1,
+          "rotting-heartwood-log": 2
         },
-        "signature": "ant-riddled-log",
-        "hint": "Big snags — plural, and thick — plus rotted logs on the ground crawling with carpenter ants."
+        "signature": "rotting-heartwood-log",
+        "hint": "Big snags — plural, and thick — plus logs on the ground rotted hollow enough to tear straight into."
       },
       "sources": [
         {
@@ -4214,7 +4213,7 @@
         "opossum"
       ],
       "requirements": {
-        "minHealth": 8,
+        "minHealth": 10,
         "objects": {
           "damp-leaf-corner": 1
         },

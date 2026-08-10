@@ -79,8 +79,8 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "requiresAnimal": "snail",
-        "label": "Welcome the Snail back to Willow Meadow"
+        "minHealth": 9,
+        "label": "Restore Willow Meadow to 9% health"
       },
       "output": {
         "itemId": "pollinator-garden",
@@ -566,8 +566,7 @@
       "once": true,
       "unlock": {
         "minHealth": 65,
-        "requiresCrafted": "elk-wallow",
-        "label": "Restore Old Hollow Forest to 65% health and craft an Elk Wallow"
+        "label": "Restore Old Hollow Forest to 65% health"
       },
       "output": {
         "itemId": "wetland-restoration-kit",
@@ -812,8 +811,7 @@
       "once": true,
       "unlock": {
         "minHealth": 65,
-        "requiresCrafted": "quartz-lantern",
-        "label": "Restore Graywind Heights to 65% health and craft a Quartz Lantern"
+        "label": "Restore Graywind Heights to 65% health"
       },
       "output": {
         "itemId": "migration-path-marker",
@@ -1026,8 +1024,7 @@
       "once": true,
       "unlock": {
         "minHealth": 45,
-        "requiresCrafted": "groundhog-burrow-mound",
-        "label": "Restore Willow Meadow to 45% health and craft a Meadow Burrow Mound"
+        "label": "Restore Willow Meadow to 45% health"
       },
       "output": {
         "itemId": "forest-restoration-kit",
@@ -1048,8 +1045,7 @@
       "once": true,
       "unlock": {
         "minHealth": 65,
-        "requiresCrafted": "otter-bank-den",
-        "label": "Restore Rushwater Wetland to 65% health and craft a River Bank Den"
+        "label": "Restore Rushwater Wetland to 65% health"
       },
       "output": {
         "itemId": "scrubland-restoration-kit",
@@ -1070,8 +1066,7 @@
       "once": true,
       "unlock": {
         "minHealth": 65,
-        "requiresCrafted": "saguaro",
-        "label": "Restore Redstone Scrubland to 65% health and craft a Saguaro"
+        "label": "Restore Redstone Scrubland to 65% health"
       },
       "output": {
         "itemId": "alpine-restoration-kit",
@@ -1931,10 +1926,10 @@
       "unlock": {
         "minHealth": 23,
         "requiresPlaced": {
-          "objectId": "mussel-bed-lower-margin",
+          "objectId": "mussel-bed",
           "count": 3
         },
-        "label": "Restore Pelican Shore to 23% health and have 3 Mussel Bed Edges standing in Pelican Shore"
+        "label": "Restore Pelican Shore to 23% health and have 3 Mussel Beds standing in Pelican Shore"
       },
       "output": {
         "itemId": "driftwood-pile",
@@ -3125,25 +3120,6 @@
       }
     },
     {
-      "id": "beetle-killed-snag",
-      "name": "Beetle-Killed Snag",
-      "category": "habitat",
-      "unlockBiome": "alpine",
-      "unlock": {
-        "minHealth": 34,
-        "label": "Restore Graywind Heights to 34% health"
-      },
-      "output": {
-        "itemId": "beetle-killed-snag",
-        "qty": 1
-      },
-      "materials": {
-        "moss": 3,
-        "stones": 2,
-        "clay": 1
-      }
-    },
-    {
       "id": "old-woodpecker-cavity",
       "name": "Old Woodpecker Cavity",
       "category": "habitat",
@@ -3742,24 +3718,6 @@
         "shells": 5,
         "sand": 2,
         "water": 2
-      }
-    },
-    {
-      "id": "mussel-bed-lower-margin",
-      "name": "Mussel Bed Edge",
-      "category": "habitat",
-      "unlockBiome": "coastal",
-      "unlock": {
-        "minHealth": 32,
-        "label": "Restore Pelican Shore to 32% health"
-      },
-      "output": {
-        "itemId": "mussel-bed-lower-margin",
-        "qty": 1
-      },
-      "materials": {
-        "shells": 4,
-        "water": 1
       }
     },
     {
@@ -4477,32 +4435,13 @@
       }
     },
     {
-      "id": "ant-riddled-log",
-      "name": "Hollowed Log",
-      "category": "habitat",
-      "unlockBiome": "forest",
-      "unlock": {
-        "requiresAnimal": "banana-slug",
-        "label": "Welcome the Banana Slug back to Old Hollow Forest"
-      },
-      "output": {
-        "itemId": "ant-riddled-log",
-        "qty": 1
-      },
-      "materials": {
-        "branches": 4,
-        "mushrooms": 2,
-        "bark": 1
-      }
-    },
-    {
       "id": "rotting-heartwood-log",
       "name": "Rotted-Out Log",
       "category": "habitat",
       "unlockBiome": "forest",
       "unlock": {
-        "requiresAnimal": "blue-jay",
-        "label": "Welcome the Blue Jay back to Old Hollow Forest"
+        "requiresAnimal": "banana-slug",
+        "label": "Welcome the Banana Slug back to Old Hollow Forest"
       },
       "output": {
         "itemId": "rotting-heartwood-log",
@@ -4541,10 +4480,10 @@
       "unlock": {
         "minHealth": 23,
         "requiresPlaced": {
-          "objectId": "ant-riddled-log",
+          "objectId": "rotting-heartwood-log",
           "count": 3
         },
-        "label": "Restore Old Hollow Forest to 23% health and have 3 Hollowed Logs standing in Old Hollow Forest"
+        "label": "Restore Old Hollow Forest to 23% health and have 3 Rotted-Out Logs standing in Old Hollow Forest"
       },
       "output": {
         "itemId": "pileated-cavity-snag",
@@ -4563,8 +4502,8 @@
       "unlockBiome": "forest",
       "unlock": {
         "minHealth": 39,
-        "requiresCrafted": "ant-riddled-log",
-        "label": "Restore Old Hollow Forest to 39% health and craft a Hollowed Log"
+        "requiresCrafted": "rotting-heartwood-log",
+        "label": "Restore Old Hollow Forest to 39% health and craft a Rotted-Out Log"
       },
       "output": {
         "itemId": "flooded-cavity-snag",
@@ -4816,8 +4755,8 @@
       "category": "habitat",
       "unlockBiome": "forest",
       "unlock": {
-        "minHealth": 42,
-        "label": "Restore Old Hollow Forest to 42% health"
+        "requiresAnimal": "blue-jay",
+        "label": "Welcome the Blue Jay back to Old Hollow Forest"
       },
       "output": {
         "itemId": "adopted-stick-nest",
@@ -5034,8 +4973,8 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "animalsReturned": 3,
-        "label": "Welcome 3 animals back to Willow Meadow"
+        "animalsReturned": 2,
+        "label": "Welcome 2 animals back to Willow Meadow"
       },
       "output": {
         "itemId": "milkweed-aphid-colony",
@@ -5695,8 +5634,8 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 10,
-        "label": "Restore Willow Meadow to 10% health"
+        "requiresAnimal": "prairie-vole",
+        "label": "Welcome the Prairie Vole back to Willow Meadow"
       },
       "output": {
         "itemId": "hidden-grass-nest",

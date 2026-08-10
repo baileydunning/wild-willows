@@ -164,6 +164,16 @@ OVERRIDES = {
     # the headlamp turns up the first time the sun goes down — the moment you
     # actually want one — and stays on the list from then on.
     'headlamp':     {'phaseSeen': ['night']},
+    # The five area-opening kits are the critical path: the goals panel pins them,
+    # and everything else waits on them. A plain health bar is the only gate that
+    # explains itself at that moment — chaining one behind another crafted item
+    # reads as a bug ("why can't I make the kit?"). Each sits well under its
+    # area's own unlock bar (60/80/80/80/80).
+    'forest-restoration-kit':    {'minHealth': 45},
+    'wetland-restoration-kit':   {'minHealth': 65},
+    'scrubland-restoration-kit': {'minHealth': 65},
+    'alpine-restoration-kit':    {'minHealth': 65},
+    'migration-path-marker':     {'minHealth': 65},
     # a housewarming present to yourself — the first thing the meadow offers once
     # you stop living in the tent
     'happy-buddha': {'homeBuilt': True},
@@ -402,9 +412,6 @@ def run():
             # crafting chain, always comfortably under the biome's own unlock bar
             if r['id'] in OVERRIDES:
                 g, fam = (dict(OVERRIDES[r['id']]), max(T, 1)), 'authored'
-            elif oid in KIT_IDS:
-                g = A.build('chain', r, T, ceil) or A.build('health', r, T, ceil)
-                fam = 'kit'
             else:
                 done = sum(picks.values()) or 1
                 order = sorted(QUOTA, key=lambda f: (picks[f] / done) - QUOTA[f])

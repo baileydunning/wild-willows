@@ -315,7 +315,7 @@
         "food",
         "plant"
       ],
-      "shape": "bush",
+      "shape": "berrybush",
       "color": "#5d3a5f",
       "plantable": true,
       "plantCost": {
@@ -360,7 +360,7 @@
         "water",
         "open"
       ],
-      "shape": "pond",
+      "shape": "woodlandpool",
       "color": "#4f86a8",
       "description": "A shaded forest pool fed by a cold spring. Deep shade, cold clean water, and a soft muddy edge you can walk right down to."
     },
@@ -376,7 +376,7 @@
         "water",
         "plant"
       ],
-      "shape": "pool",
+      "shape": "springseep",
       "color": "#6aa884",
       "description": "A mossy seep ringed with ferns — damp ground that wakes the whole understory."
     },
@@ -393,7 +393,7 @@
       "needs": [
         "water"
       ],
-      "shape": "pool",
+      "shape": "shallowpool",
       "color": "#7fb4d8",
       "description": "A gently sloped pool with a long sunlit shallow edge you could wade across without wetting your knees. Shallow and warm rather than deep — no substitute for real depth."
     },
@@ -409,7 +409,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "log",
+      "shape": "logpile",
       "color": "#7a5a3a",
       "description": "Fallen logs stacked into a loose pile, with gaps running right through the middle. Damp underneath, and slowly going soft."
     },
@@ -459,7 +459,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "log",
+      "shape": "branchpile",
       "color": "#94703f",
       "description": "A loose pile of branches thrown together rather than stacked, twigs and all. Humble, and riddled with gaps to disappear into."
     },
@@ -666,7 +666,7 @@
         "food",
         "shelter"
       ],
-      "shape": "log",
+      "shape": "mushroomlog",
       "color": "#7c6248",
       "description": "A damp, mossy log seeded with fungi. The fungus is doing the real work — it digests the wood, which is what turns a dead log into food, soil and shelter for everything else."
     },
@@ -710,7 +710,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "mound",
+      "shape": "mudbank",
       "color": "#7a6a52",
       "requiresTool": {
         "id": "shovel",
@@ -773,7 +773,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "log",
+      "shape": "marshlog",
       "color": "#6e553c",
       "description": "A half-sunken log, one end up in the sun and the other lost under water. Dark, close gaps run beneath it the whole way."
     },
@@ -788,7 +788,7 @@
       "needs": [
         "plant"
       ],
-      "shape": "pool",
+      "shape": "lilypool",
       "color": "#6fae86",
       "description": "Still, clean water blanketed edge to edge with lily pads, with cool shaded water underneath them."
     },
@@ -890,7 +890,7 @@
         "food",
         "plant"
       ],
-      "shape": "flowers",
+      "shape": "alpineflowers",
       "color": "#9d86d9",
       "description": "Tough little high-country forbs, low and tight to the ground, flowering all at once in the short summer. Nectar, seed and green leaf — forage, not shelter.",
       "plantable": true,
@@ -917,7 +917,7 @@
       "needs": [
         "water"
       ],
-      "shape": "pool",
+      "shape": "snowmeltpool",
       "color": "#8fd0e8",
       "description": "A stone-lined pool that catches cold, clean snowmelt and holds it clear. Leave it unstocked — high alpine water was naturally barren, and what gets put into it does not come out again."
     },
@@ -1010,7 +1010,7 @@
         "shelter",
         "open"
       ],
-      "shape": "nest",
+      "shape": "beachclosure",
       "color": "#d8c8a0",
       "description": "A general roped-off stretch of quiet upper beach, marked with posts and line. It protects the ground broadly — the narrower closures are far more particular about what they cover."
     },
@@ -1118,7 +1118,7 @@
       ],
       "healthValue": 0,
       "needs": [],
-      "shape": "chest",
+      "shape": "mediumchest",
       "color": "#6e553c",
       "isChest": true,
       "chestCapacity": 250,
@@ -1178,7 +1178,7 @@
       "biomes": [],
       "healthValue": 0,
       "needs": [],
-      "shape": "kit",
+      "shape": "kitmarker",
       "color": "#9d86d9",
       "description": "Cairns and markers that restore a safe migration path through the heights. Crafting it helps unlock Pelican Shore."
     },
@@ -1189,7 +1189,7 @@
       "biomes": [],
       "healthValue": 0,
       "needs": [],
-      "shape": "kit",
+      "shape": "kitforest",
       "color": "#8fbf6f",
       "description": "Seed mixes, fiber twine, and trail tools to open the overgrown forest path. Crafting it helps unlock Old Hollow Forest."
     },
@@ -1200,7 +1200,7 @@
       "biomes": [],
       "healthValue": 0,
       "needs": [],
-      "shape": "kit",
+      "shape": "kitscrub",
       "color": "#6aa884",
       "description": "Sediment sleds and hardy cuttings to carry restoration into the dry scrubland. Crafting it helps unlock Redstone Scrubland."
     },
@@ -1211,7 +1211,7 @@
       "biomes": [],
       "healthValue": 0,
       "needs": [],
-      "shape": "kit",
+      "shape": "kitalpine",
       "color": "#d6a96a",
       "description": "Shade cloth, water caches, and climbing gear for the high country. Crafting it helps unlock Graywind Heights."
     },
@@ -3242,7 +3242,7 @@
         "plant",
         "open"
       ],
-      "shape": "talus",
+      "shape": "fellfield",
       "color": "#9a9385",
       "description": "Wind-scoured gravel that freezes, heaves and re-sorts itself every spring, held together by thin crusts of lichen. It looks like nothing, and it is the only ground a cushion plant will take.",
       "matureHours": 6,
@@ -3260,7 +3260,7 @@
         "plant",
         "food"
       ],
-      "shape": "tree",
+      "shape": "turfmat",
       "color": "#7c8f5a",
       "description": "A knitted mat of sedge, alpine avens and cushion plants over dark alpine soil. Turf like this takes decades to close over bare ground, and one summer of boot traffic to open it up again.",
       "matureHours": 30,
@@ -3278,7 +3278,7 @@
         "food",
         "shelter"
       ],
-      "shape": "cushion",
+      "shape": "snowmeltmat",
       "color": "#6b6151",
       "description": "A sodden mat of last year's stems and leaves, released as the snowpack pulls back. Almost all of the alpine's decomposition happens in these few damp weeks.",
       "matureHours": 4,
@@ -3296,7 +3296,7 @@
         "shelter",
         "food"
       ],
-      "shape": "log",
+      "shape": "coniferlog",
       "color": "#5c4a35",
       "description": "A well-rotted subalpine fir log lying where the drifts pile deepest, soft enough to push a finger into. Dead wood is habitat, not mess.",
       "matureHours": 10,
@@ -3314,7 +3314,7 @@
         "shelter",
         "open"
       ],
-      "shape": "bluff",
+      "shape": "escapecliff",
       "color": "#7d7469",
       "description": "A near-vertical band of broken cliff, cut with ledges and footholds the whole way up. Nothing can be cornered on ground like this."
     },
@@ -3331,7 +3331,7 @@
         "shelter",
         "plant"
       ],
-      "shape": "tree",
+      "shape": "willowbasin",
       "color": "#6f7f52",
       "description": "Planeleaf and snow willow filling a sheltered basin, low and dense and buried by drifts each winter. Its buds and twigs stay reachable when everything else this high is under snow.",
       "matureHours": 20,
@@ -3348,7 +3348,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "boulderden",
       "color": "#8b7f68",
       "description": "A deep, many-chambered burrow tunnelled under a boulder, well below the frost line. Down there the temperature barely moves all winter."
     },
@@ -3363,7 +3363,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "inheritedden",
       "color": "#8a6f50",
       "description": "A hollow opened up under boulders and roots by whoever dug it first, then widened and taken over. Second-hand, and none the worse for it."
     },
@@ -3379,7 +3379,7 @@
         "plant",
         "food"
       ],
-      "shape": "rocks",
+      "shape": "stonecrop",
       "color": "#a8b56a",
       "description": "Lance-leaved stonecrop wedged into gravel and rock cracks, its fat leaves storing water where there is almost no soil. Nothing else in the high country substitutes for it.",
       "matureHours": 6,
@@ -3396,7 +3396,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "bumblebeeburrow",
       "color": "#8f7c55",
       "description": "An abandoned tunnel in the turf, packed with dry grass and old bedding — a ready-made cavity, warm and dark, that nobody had to dig."
     },
@@ -3412,7 +3412,7 @@
         "shelter",
         "food"
       ],
-      "shape": "stump",
+      "shape": "chipmunklarder",
       "color": "#a08a63",
       "description": "A shallow tunnel under a slab with a side chamber packed full of seed heads, dry and reachable all winter. No species in the game requires it any more."
     },
@@ -3429,27 +3429,11 @@
         "plant",
         "food"
       ],
-      "shape": "tree",
+      "shape": "whitebarkpine",
       "color": "#55684a",
       "description": "A whitebark pine grown from a seed buried and never dug back up. Its cones do not open on their own, so it cannot spread anywhere without help.",
       "matureHours": 48,
       "matureBonus": 3
-    },
-    {
-      "id": "beetle-killed-snag",
-      "name": "Beetle-Killed Snag",
-      "placement": "outdoor",
-      "biomes": [
-        "alpine"
-      ],
-      "healthValue": 5,
-      "needs": [
-        "shelter",
-        "food"
-      ],
-      "shape": "deadwood",
-      "color": "#6e6558",
-      "description": "A big standing dead fir, its bark lifting away and its outer wood loosened and galleried through. Still standing hard, but soft enough now to work."
     },
     {
       "id": "old-woodpecker-cavity",
@@ -3462,7 +3446,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "birdhouse",
+      "shape": "oldcavity",
       "color": "#4f4335",
       "description": "A round chiselled hole in a dead trunk, cut seasons ago and left empty since. The entrance is still clean-edged and the chamber below is dry."
     },
@@ -3477,7 +3461,7 @@
       "needs": [
         "food"
       ],
-      "shape": "leaflitter",
+      "shape": "debrisline",
       "color": "#c9d3dc",
       "description": "The dark seam of wind-carried seed, pollen and grit stranded along the edge of a shrinking snowfield — a free delivery, carried uphill and dropped."
     },
@@ -3492,7 +3476,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "toadburrow",
       "color": "#7a6f57",
       "description": "A borrowed tunnel in damp ground above a breeding pool, below the frost line and above the water table. Somewhere to sit out eight months of the year."
     },
@@ -3507,7 +3491,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "treelinelogden",
       "color": "#59493a",
       "description": "A hollow log at the edge of the last trees, buried by drifts all winter, with tunnels running away from it under the snowpack."
     },
@@ -3522,7 +3506,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "furlinedden",
       "color": "#9c8d78",
       "description": "A stolen burrow, relined with fur from whatever dug it. Small, close and warm — and no work at all to move into."
     },
@@ -3537,7 +3521,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "bluff",
+      "shape": "eyrie",
       "color": "#6f6a61",
       "description": "A bulky stick eyrie on a sheer ledge, added to year after year until the same pair has used it for decades."
     },
@@ -3552,7 +3536,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "ledgeden",
       "color": "#6b5f52",
       "description": "A dry overhang deep in broken cliff, screened by fallen rock. Invisible from below, and reachable only along one narrow ledge."
     },
@@ -3567,7 +3551,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "mound",
+      "shape": "krummholzbed",
       "color": "#6a7355",
       "description": "A shaded, wind-broken scrape pressed flat into the ground under the krummholz. Out of the sun, out of the wind, and out of sight from above."
     },
@@ -3583,7 +3567,7 @@
         "plant",
         "shelter"
       ],
-      "shape": "kelp",
+      "shape": "holdfastreef",
       "color": "#4a5f3a",
       "description": "Clean rock on the shallow seafloor for kelp holdfasts to grip. Kelp is not rooted in sand — without hard bottom the whole forest washes away.",
       "zone": "subtidal",
@@ -3603,7 +3587,7 @@
         "water",
         "food"
       ],
-      "shape": "mound",
+      "shape": "upwelling",
       "color": "#2f6b86",
       "description": "Cold, nutrient-rich water rising from the deep along the shore. It is the fertiliser of this whole coast — everything here is ultimately running on it.",
       "zone": "subtidal",
@@ -3620,7 +3604,7 @@
       "needs": [
         "plant"
       ],
-      "shape": "cushion",
+      "shape": "corallineturf",
       "color": "#c07a97",
       "description": "Pink, branching coralline and red algae turf on low-zone rock. Surfgrass seeds carry bristly arms that hook onto these branches — no turf, no surfgrass.",
       "zone": "low",
@@ -3640,7 +3624,7 @@
         "shelter",
         "water"
       ],
-      "shape": "rocks",
+      "shape": "lowtidebench",
       "color": "#6d7a80",
       "description": "A broad shelf of bedrock uncovered only at the lowest tides — the richest strip of the shore, and the one that is underwater most of the time.",
       "zone": "low",
@@ -3657,7 +3641,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "rocks",
+      "shape": "urchinpit",
       "color": "#6b4a8a",
       "description": "Rounded hollows ground into solid rock, each a smooth bowl about a hand's width across. Once a pit like this is started it only ever gets deeper.",
       "zone": "subtidal",
@@ -3676,7 +3660,7 @@
         "food",
         "shelter"
       ],
-      "shape": "kelp",
+      "shape": "kelpforest",
       "color": "#3f6b45",
       "description": "Living giant kelp rising from the seafloor to a golden canopy at the surface. Dim green water the whole way up, and fronds thick enough to lie back in.",
       "zone": "subtidal",
@@ -3697,7 +3681,7 @@
         "food",
         "shelter"
       ],
-      "shape": "kelp",
+      "shape": "surfgrass",
       "color": "#3d7a52",
       "description": "A green meadow of surfgrass streaming out in the surge on low-zone rock, so dense you cannot see the stone underneath.",
       "zone": "low",
@@ -3717,7 +3701,7 @@
         "water",
         "food"
       ],
-      "shape": "mound",
+      "shape": "spawnshallows",
       "color": "#3b7ea1",
       "description": "Quiet, plankton-rich water just off the surf line, barely moving and thick with drifting food. Warm at the top, and calm enough that nothing sinks in a hurry.",
       "zone": "subtidal",
@@ -3734,7 +3718,7 @@
       "needs": [
         "open"
       ],
-      "shape": "mound",
+      "shape": "sandbeach",
       "color": "#e2d3ac",
       "description": "Wide, flat, unplanted sand above the tide line. Bare open sand is habitat in its own right here — leave the sight lines long and the surface undisturbed.",
       "zone": "high",
@@ -3751,7 +3735,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "oyster",
+      "shape": "shelldrift",
       "color": "#b8a68b",
       "description": "A pocket of empty shells caught in a rock hollow, sorted by the waves and heaped up by size. A beach with no spare shells on it is missing something.",
       "zone": "mid",
@@ -3769,7 +3753,7 @@
         "shelter",
         "food"
       ],
-      "shape": "talus",
+      "shape": "rubbleflat",
       "color": "#7a7f75",
       "description": "Loose cobble and broken rock just below the tide, where dead material drifts in and settles down between the stones.",
       "zone": "subtidal",
@@ -3787,7 +3771,7 @@
         "shelter",
         "water"
       ],
-      "shape": "bluff",
+      "shape": "surgeface",
       "color": "#5b6169",
       "description": "Open rock taking the full weight of the swell. Punishing to hold onto, and the water never stops moving past it.",
       "zone": "mid",
@@ -3805,7 +3789,7 @@
         "food",
         "shelter"
       ],
-      "shape": "rocks",
+      "shape": "barnaclerock",
       "color": "#d8d2c4",
       "description": "A white crust of acorn barnacles welded across the upper rock — sharp underfoot, rough as coarse sandpaper, and cemented on so hard it is part of the stone.",
       "zone": "high",
@@ -3825,7 +3809,7 @@
         "shelter",
         "water"
       ],
-      "shape": "talus",
+      "shape": "gravelflat",
       "color": "#b5ac8e",
       "description": "Stable mixed sand and gravel in the lee of a headland — firm enough to dig into and calm enough that it stays exactly where it is.",
       "zone": "low",
@@ -3842,7 +3826,7 @@
       "needs": [
         "food"
       ],
-      "shape": "mound",
+      "shape": "amphipodbed",
       "color": "#8a7f6a",
       "description": "Soft, deep sediment along the kelp edge, so thick with tube-building amphipods that the seafloor is more animal than mud.",
       "zone": "subtidal",
@@ -3861,7 +3845,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "talus",
+      "shape": "cobblefield",
       "color": "#8b8578",
       "description": "Loose stones lying on a shore the surf never reaches hard, each one damp and dark underneath. The underside is the habitat, not the top.",
       "zone": "mid",
@@ -3878,7 +3862,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "rocks",
+      "shape": "splashcrevice",
       "color": "#7d7367",
       "description": "Dry-looking cracks in rock that the waves only ever reach as spray. The highest, driest tier of the shore — salt, sun, and hardly any water at all.",
       "zone": "splash",
@@ -3895,7 +3879,7 @@
       "needs": [
         "food"
       ],
-      "shape": "rocks",
+      "shape": "shellrock",
       "color": "#9a958c",
       "description": "A flat, hard-topped boulder standing clear of the sand, scattered with cracked shells. Hard enough that anything dropped on it from a height breaks open.",
       "zone": "high",
@@ -3913,7 +3897,7 @@
         "water",
         "food"
       ],
-      "shape": "mound",
+      "shape": "swashrunnel",
       "color": "#a9c4cf",
       "description": "The wet, sliding strip where each wave runs out and drains back again, turning the top few centimetres of sand over with every surge.",
       "zone": "low",
@@ -3931,7 +3915,7 @@
         "shelter",
         "open"
       ],
-      "shape": "nest",
+      "shape": "ploverscrape",
       "color": "#ddd0b0",
       "description": "A roped-off stretch of bare, open, unvegetated sand with symbolic fencing and signs. There is nothing to build here — what protects the ground is that nobody walks across it.",
       "zone": "backdune",
@@ -3949,7 +3933,7 @@
         "shelter",
         "open"
       ],
-      "shape": "rocks",
+      "shape": "roostrock",
       "color": "#8d8a84",
       "description": "A raised rock or islet that stays dry even at the top of the tide, with open water all around it. Somewhere to stand and wait out the hours when the flats are gone.",
       "zone": "high",
@@ -3968,7 +3952,7 @@
         "food",
         "shelter"
       ],
-      "shape": "mound",
+      "shape": "dunemanzanita",
       "color": "#8f6f5c",
       "description": "Low sandmat manzanita, a coastal dune shrub that flowers in midwinter and holds its berries hard into the cold months — food behind the beach exactly when there is nothing else going.",
       "zone": "backdune",
@@ -3988,30 +3972,13 @@
         "food",
         "shelter"
       ],
-      "shape": "oyster",
+      "shape": "musselbed",
       "color": "#3c3a4a",
       "description": "A dense band of blue-black mussels layered two and three deep across mid-zone rock, packed so tight the shells hold each other upright. The gaps between them run right down to the stone.",
       "zone": "mid",
       "waveExposure": "exposed",
       "matureHours": 6,
       "matureBonus": 2
-    },
-    {
-      "id": "mussel-bed-lower-margin",
-      "name": "Mussel Bed Edge",
-      "placement": "outdoor",
-      "biomes": [
-        "coastal"
-      ],
-      "healthValue": 5,
-      "needs": [
-        "food"
-      ],
-      "shape": "oyster",
-      "color": "#5a4f5e",
-      "description": "The sharp lower edge of the mussel bed, with clean open rock below it. Nothing about the tide explains where that line falls — something else is holding it there.",
-      "zone": "low",
-      "waveExposure": "exposed"
     },
     {
       "id": "sunlit-surge-pool",
@@ -4025,7 +3992,7 @@
         "water",
         "shelter"
       ],
-      "shape": "pool",
+      "shape": "surgepool",
       "color": "#2e8f7d",
       "description": "A deep pool flushed by every wave and open straight to the sky — surge pouring food down from the rocks above, and full sun reaching all the way to the bottom.",
       "zone": "low",
@@ -4043,7 +4010,7 @@
         "shelter",
         "open"
       ],
-      "shape": "mound",
+      "shape": "offshoreislet",
       "color": "#9b9384",
       "description": "A rock stack or islet standing off the coast, with deep water all around and no way onto it on foot. Nothing that walks can reach it.",
       "zone": "splash",
@@ -4061,7 +4028,7 @@
         "open",
         "shelter"
       ],
-      "shape": "mound",
+      "shape": "sandbar",
       "color": "#ccbf9d",
       "description": "A low sandbar that dries out between tides — flat, open, ringed with water, and far enough off the beach to be left alone.",
       "zone": "low",
@@ -4079,7 +4046,7 @@
         "shelter",
         "open"
       ],
-      "shape": "rocks",
+      "shape": "haulout",
       "color": "#767f86",
       "description": "Low rocks and a sand spit with a wide buffer of quiet kept around them, sloping gently enough to climb straight out of the water. The buffer is the point: cross it and the place empties.",
       "zone": "high",
@@ -4097,7 +4064,7 @@
         "water",
         "shelter"
       ],
-      "shape": "mound",
+      "shape": "raftingcove",
       "color": "#356b7d",
       "description": "Calm water in the lee of a point, inside the kelp — flat as a pond even when the swell is running, with fronds lying loose across the surface.",
       "zone": "subtidal",
@@ -4115,7 +4082,7 @@
         "plant",
         "shelter"
       ],
-      "shape": "mound",
+      "shape": "creosotebush",
       "color": "#6b7f4a",
       "description": "The dominant shrub of the Sonoran flats, spaced wide apart because its roots take all the water for metres around. Its resinous leaves smell like rain and lose almost none of it.",
       "matureHours": 6,
@@ -4134,7 +4101,7 @@
         "shelter",
         "food"
       ],
-      "shape": "cactus",
+      "shape": "saguarocolumn",
       "color": "#4a7c3f",
       "description": "A columnar giant that stores months of rain in its pleated stem, swelling and shrinking with the season. Flowers at the crown, fruit in June, and a trunk soft enough to cut into.",
       "matureHours": 24,
@@ -4152,7 +4119,7 @@
         "plant",
         "shelter"
       ],
-      "shape": "cactus",
+      "shape": "cholla",
       "color": "#8ba06a",
       "description": "A jointed cactus armoured all over in barbed spines that come away at a touch. Inside the tangle of arms is a space almost nothing can push through to.",
       "matureHours": 8,
@@ -4170,7 +4137,7 @@
         "plant",
         "food"
       ],
-      "shape": "mound",
+      "shape": "mistletoe",
       "color": "#9a8f5c",
       "description": "A leafless parasitic plant rooted inside mesquite and ironwood branches, hanging in dense green-brown clumps. It fruits in midwinter, when nothing else does.",
       "matureHours": 6,
@@ -4188,7 +4155,7 @@
         "plant",
         "food"
       ],
-      "shape": "mound",
+      "shape": "chuparosa",
       "color": "#c4523a",
       "description": "A soft grey shrub carrying tubular scarlet flowers right through the desert winter, when almost nothing else is in bloom.",
       "matureHours": 4,
@@ -4207,7 +4174,7 @@
         "shelter",
         "food"
       ],
-      "shape": "mound",
+      "shape": "catclaw",
       "color": "#7d8b5a",
       "description": "A low thorny tree of desert washes, hooked all over with curved spines that catch as you pass. Thick cover overhead and heavy seed pods by late summer.",
       "matureHours": 10,
@@ -4225,7 +4192,7 @@
         "plant",
         "food"
       ],
-      "shape": "mound",
+      "shape": "bushmuhly",
       "color": "#b8a35e",
       "description": "A fine-stemmed native perennial grass that grows up through shrubs for protection. It is the first thing livestock graze away, so its return is a sign the flat is healing.",
       "matureHours": 5,
@@ -4242,7 +4209,7 @@
       "needs": [
         "plant"
       ],
-      "shape": "cushion",
+      "shape": "soilcrust",
       "color": "#5c5a4a",
       "description": "A living skin of cyanobacteria, lichens and mosses knitting the bare soil together. It fixes nitrogen, holds water and blocks weed seedlings — and a single boot or hoof print undoes decades of it.",
       "matureHours": 48,
@@ -4259,7 +4226,7 @@
       "needs": [
         "open"
       ],
-      "shape": "flowers",
+      "shape": "bareground",
       "color": "#cbb287",
       "description": "A patch of soft, uncompacted soil deliberately left open between the shrubs. Loose enough to dig straight down into — but only where nothing has packed it hard.",
       "matureHours": 2,
@@ -4276,7 +4243,7 @@
       "needs": [
         "food"
       ],
-      "shape": "mound",
+      "shape": "antmound",
       "color": "#a8763f",
       "description": "A low gravel-capped mound with a bare cleared disc around it and a rim of discarded seed husks. Whatever is under there moves an astonishing amount of soil.",
       "matureHours": 12,
@@ -4294,7 +4261,7 @@
         "shelter",
         "food"
       ],
-      "shape": "deadwood",
+      "shape": "burieddeadwood",
       "color": "#6e5a41",
       "description": "Dead mesquite and creosote stems worked half into the soil, in contact with damp earth rather than lying dry on the surface. Buried wood breaks down; surface wood just bleaches.",
       "matureHours": 4,
@@ -4312,7 +4279,7 @@
         "shelter",
         "food"
       ],
-      "shape": "leaflitter",
+      "shape": "shrublitter",
       "color": "#8a7a52",
       "description": "Wind-drifted leaves, stems and seed husks caught and heaped under a shrub. Dry and crackling on top, damp and dark underneath after any rain.",
       "matureHours": 3,
@@ -4329,7 +4296,7 @@
       "needs": [
         "plant"
       ],
-      "shape": "leaflitter",
+      "shape": "crumbledsoil",
       "color": "#7a6748",
       "description": "Soil laced with fine old galleries and sheeted over with cemented litter, worked through from below rather than from the surface. The tunnels let rain soak in instead of running off.",
       "matureHours": 12,
@@ -4346,7 +4313,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "tortoiseburrow",
       "color": "#7b6a4f",
       "description": "A long, cool, straight-sided den dug back into a bank and kept open by use. Far deeper than anything else out here manages, and steady in temperature all year.",
       "matureHours": 8,
@@ -4363,7 +4330,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "calichecave",
       "color": "#b9ac8e",
       "description": "A hollow eroded into a hard caliche bank on a rocky slope — a ready-made chamber with a solid roof, and no digging required.",
       "matureHours": 6,
@@ -4381,7 +4348,7 @@
         "shelter",
         "plant"
       ],
-      "shape": "mound",
+      "shape": "creosotemound",
       "color": "#7e7d55",
       "description": "Wind-caught soil heaped up around a creosote's base and riddled with fine tunnels. The earth is loose and easy to work, and the shrub above hides the doorways.",
       "matureHours": 8,
@@ -4399,7 +4366,7 @@
         "shelter",
         "food"
       ],
-      "shape": "stump",
+      "shape": "seedlarder",
       "color": "#a4885c",
       "description": "A shallow burrow under a shrub with side chambers packed full of seeds, its entrances plugged with sand every dawn. The plug traps humid air inside, which matters as much as the food does.",
       "matureHours": 4,
@@ -4416,7 +4383,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "deepsandburrow",
       "color": "#9c7f5a",
       "description": "A spiral shaft driven as much as two and a half metres down into loose soil. At that depth the heat and the dryness of the surface simply do not reach.",
       "matureHours": 4,
@@ -4433,7 +4400,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "kitfoxden",
       "color": "#8d7f66",
       "description": "A cool den with several entrances, widened out of an older tunnel rather than dug from scratch. The extra doors are escape routes.",
       "matureHours": 6,
@@ -4450,7 +4417,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "washbankden",
       "color": "#85704f",
       "description": "An earthen den dug into the cut bank of a dry wash, set above the flood line — shaded, well-drained, and dry even when the wash runs.",
       "matureHours": 6,
@@ -4467,7 +4434,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "desertwinterden",
       "color": "#6f6660",
       "description": "A deep rock fissure running below the frost line that stays above freezing all winter. The same fissure gets used again year after year, sometimes for decades.",
       "matureHours": 6,
@@ -4484,7 +4451,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "birdhouse",
+      "shape": "saguaroboot",
       "color": "#8f7f5e",
       "description": "The hard, waterproof scar a cactus grows around a hole cut into its trunk — a smooth-walled flask of dried callus. It outlasts the soft flesh around it entirely.",
       "matureHours": 12,
@@ -4501,7 +4468,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "nest",
+      "shape": "thornnest",
       "color": "#7a6a4c",
       "description": "A bulky stick platform wedged a metre or two up inside a thorny shrub. High enough to be off the ground, and prickly enough that nothing follows.",
       "matureHours": 4,
@@ -4518,7 +4485,7 @@
       "needs": [
         "food"
       ],
-      "shape": "flowers",
+      "shape": "carrionground",
       "color": "#7d6b63",
       "description": "An animal that has died, left where it fell instead of hauled away. Within a few days almost nothing is left of it, and all of it is back in the soil.",
       "matureHours": 2,
@@ -4535,7 +4502,7 @@
       "needs": [
         "food"
       ],
-      "shape": "cactus",
+      "shape": "saguarofruit",
       "color": "#b8443c",
       "description": "Split crimson saguaro fruit at the height of the June heat, just before the rains. For a few weeks it is the richest food and the wettest drink in the whole desert.",
       "matureHours": 6,
@@ -4552,7 +4519,7 @@
       "needs": [
         "food"
       ],
-      "shape": "cactus",
+      "shape": "cactusfruitset",
       "color": "#9c3f5a",
       "description": "Prickly pear and cholla hanging heavy with ripe fruit. A crop this size only sets where every flower was properly pollinated first — and out here that is never guaranteed.",
       "matureHours": 6,
@@ -4569,7 +4536,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "nest",
+      "shape": "shadeform",
       "color": "#a3906a",
       "description": "A shallow scrape hollowed out in the deep shade under a shrub, down to cool soil. Ten degrees cooler than the open ground a metre away.",
       "matureHours": 2,
@@ -4586,7 +4553,7 @@
       "needs": [
         "plant"
       ],
-      "shape": "mound",
+      "shape": "browseexclosure",
       "color": "#7d8b5a",
       "description": "A low fence ringed around a patch of oak seedlings. Where browsing pressure is heavy, young oaks never get past knee height — inside the fence, acorns get to become trees.",
       "matureHours": 4,
@@ -4603,7 +4570,7 @@
       "needs": [
         "plant"
       ],
-      "shape": "log",
+      "shape": "nurselog",
       "color": "#6b7a55",
       "description": "A rotting, moss-covered log lying on the forest floor. Hemlock seeds that land on bare leaf litter almost always fail; the ones that land on rotten wood become the next generation of trees.",
       "matureHours": 6,
@@ -4620,7 +4587,7 @@
       "needs": [
         "plant"
       ],
-      "shape": "leaflitter",
+      "shape": "deepduff",
       "color": "#4a3b28",
       "description": "Years of undisturbed leaf mould, never raked and never driven over, threaded through with tree roots and fungal strands. This is where the forest's fungi actually live.",
       "matureHours": 12,
@@ -4637,7 +4604,7 @@
       "needs": [
         "food"
       ],
-      "shape": "flowers",
+      "shape": "trufflepatch",
       "color": "#5c4a33",
       "description": "Underground fungal tubers clustered on oak and hemlock roots. Nothing shows above ground at all; the whole crop sits an inch or two down and has to be smelled out.",
       "matureHours": 8,
@@ -4654,29 +4621,11 @@
       "needs": [
         "shelter"
       ],
-      "shape": "deadwood",
+      "shape": "softrotsnag",
       "color": "#8c7f6a",
       "description": "A small dead stub whose wood has gone soft and pale with white rot, easy to press a thumbnail into. The fungi got here first, and that is what makes it workable.",
       "matureHours": 6,
       "matureBonus": 1
-    },
-    {
-      "id": "ant-riddled-log",
-      "name": "Hollowed Log",
-      "placement": "outdoor",
-      "biomes": [
-        "forest"
-      ],
-      "healthValue": 5,
-      "needs": [
-        "food",
-        "shelter"
-      ],
-      "shape": "log",
-      "color": "#6e5b40",
-      "description": "A fallen trunk gone punky with rot and tunnelled through and through with galleries the width of a pencil lead — a whole colony's worth of corridors inside one log.",
-      "matureHours": 8,
-      "matureBonus": 2
     },
     {
       "id": "rotting-heartwood-log",
@@ -4689,7 +4638,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "log",
+      "shape": "hollowheartlog",
       "color": "#7a6a4e",
       "description": "A log rotted hollow right through the middle while its outer shell still holds. Inside it is dark, damp and sealed off from the weather.",
       "matureHours": 6,
@@ -4706,7 +4655,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "birdhouse",
+      "shape": "downycavity",
       "color": "#9a8b70",
       "description": "A round hole about the width of a thumb, chiselled into a dead trunk and left after a single season. Small, dry, and already made.",
       "matureHours": 2,
@@ -4723,7 +4672,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "birdhouse",
+      "shape": "pileatedsnag",
       "color": "#8a7a5e",
       "description": "A large snag carrying a deep rectangular cavity cut into it last spring, big enough to put an arm into. A fresh one gets cut every year, and the old ones stay.",
       "matureHours": 6,
@@ -4740,7 +4689,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "birdhouse",
+      "shape": "floodedsnag",
       "color": "#7e7458",
       "description": "A dead trunk standing in shallow water with an old cavity high in it. Nothing below the hole but open air, and several metres down, water.",
       "matureHours": 6,
@@ -4757,7 +4706,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "deadwood",
+      "shape": "barkslabsnag",
       "color": "#87765d",
       "description": "A dying tree whose bark has pulled away from the trunk in loose curling slabs. Behind each slab is a warm, dry, flat gap barely wider than a finger.",
       "matureHours": 4,
@@ -4774,7 +4723,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "leaflitter",
+      "shape": "leafdrey",
       "color": "#7f6b45",
       "description": "A ball of leaves and twigs the size of a football, wedged tight into a high fork and woven from the inside out. Rebuilt every year, and rarely left standing empty for long.",
       "matureHours": 2,
@@ -4792,7 +4741,7 @@
         "shelter",
         "food"
       ],
-      "shape": "stump",
+      "shape": "larderburrow",
       "color": "#6b5b45",
       "description": "A burrow entrance no wider than a coin, with tunnels running metres underground to a nest chamber and a storage room holding more than a litre of seeds.",
       "matureHours": 3,
@@ -4811,7 +4760,7 @@
         "plant",
         "food"
       ],
-      "shape": "mound",
+      "shape": "hemlockstand",
       "color": "#2f4a37",
       "description": "A close-grown group of hemlocks. The canopy holds the snow off the ground beneath it, the shade keeps the stream running cold, and the inner bark stays reachable all winter.",
       "matureHours": 14,
@@ -4829,7 +4778,7 @@
         "food",
         "plant"
       ],
-      "shape": "brush",
+      "shape": "browsethicket",
       "color": "#6d8348",
       "description": "Dense young regrowth crowding a gap where a big tree came down — every twig within reach from the ground. It only stays this thick while the browsing pressure stays light.",
       "matureHours": 6,
@@ -4847,7 +4796,7 @@
         "water",
         "food"
       ],
-      "shape": "mound",
+      "shape": "crayfishshallows",
       "color": "#5f7d84",
       "description": "A stony, ankle-deep margin of loose flat rocks over gravel, with dark backed-up gaps underneath every one of them.",
       "matureHours": 4,
@@ -4864,7 +4813,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "rootplateden",
       "color": "#5a4a36",
       "description": "The dry hollow left under the tipped-up root plate of a fallen tree — roofed with earth and roots, and sheltered from every direction but one.",
       "matureHours": 8,
@@ -4881,7 +4830,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "earthdenbank",
       "color": "#6f5c42",
       "description": "A well-drained slope with a den dug back into it and several entrances along the face. Enlarged and reused for generations rather than dug fresh.",
       "matureHours": 4,
@@ -4898,7 +4847,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "forestwinterden",
       "color": "#78736a",
       "description": "A deep, rubble-filled crack running below the frost line and staying there all winter. Cold but never freezing, right through to spring.",
       "matureHours": 4,
@@ -4915,7 +4864,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "tree",
+      "shape": "chimneytree",
       "color": "#7b6e52",
       "description": "A big living tree snapped off high and hollowed downward by heart rot, leaving an open chimney a foot across. Nothing cuts a cavity this size — it only appears in a tree old enough to rot from the inside.",
       "matureHours": 12,
@@ -4932,7 +4881,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "denningtree",
       "color": "#6c5f47",
       "description": "A living tree with a rot-hollowed chamber high in the trunk, dry inside and metres above the forest floor. Nothing that hunts on the ground gets up to it.",
       "matureHours": 12,
@@ -4949,7 +4898,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "rockydenledge",
       "color": "#7f8288",
       "description": "A dry gap under a leaning slab of rock, screened by brush and open at both ends. Sheltered, but easy to slip out of at the first sound.",
       "matureHours": 6,
@@ -4966,7 +4915,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "nest",
+      "shape": "adoptednest",
       "color": "#8b7c63",
       "description": "A bulky old platform of sticks and leaves left behind in a high fork, weathered and a little sagging but still sound. Second-hand, and ready to use in the middle of winter.",
       "matureHours": 4,
@@ -5267,7 +5216,7 @@
       "needs": [
         "open"
       ],
-      "shape": "mound",
+      "shape": "mudflat",
       "color": "#8a6f4e",
       "description": "A bare shelf of wet, sun-warmed mud at the water's edge. Cattail seed is tiny and needs light and open ground to germinate — it will not sprout in shade or under standing water."
     },
@@ -5282,7 +5231,7 @@
       "needs": [
         "water"
       ],
-      "shape": "pool",
+      "shape": "clearshallows",
       "color": "#8fc7d6",
       "description": "Slow water with the silt settled out of it, so sunlight reaches the bottom. Submerged plants live on that light — which is why clear water and underwater meadows always arrive together."
     },
@@ -5297,7 +5246,7 @@
       "needs": [
         "food"
       ],
-      "shape": "leaflitter",
+      "shape": "detritusdrift",
       "color": "#6b5a3e",
       "description": "A submerged raft of dead cattail and sedge leaves, softening under a fur of fungi and bacteria. More energy moves through a marsh this way — as dead plants — than through anything eaten alive.",
       "matureHours": 4,
@@ -5314,7 +5263,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "crayfishbank",
       "color": "#9c7b52",
       "description": "A saturated clay bank riddled with finger-wide tunnels running back into the wet clay. Each one holds water even when the marsh draws right down in late summer."
     },
@@ -5329,7 +5278,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "mound",
+      "shape": "spawningslab",
       "color": "#6e7d78",
       "description": "A flat stone or plank lying just below the surface with a clear gap underneath. The underside is smooth, shaded and scrubbed clean — a ceiling rather than a floor."
     },
@@ -5344,7 +5293,7 @@
       "needs": [
         "water"
       ],
-      "shape": "pool",
+      "shape": "siltshoal",
       "color": "#b9ae90",
       "description": "A broad shelf of settled silt and fine sand in water slow enough that it stays put for years at a time. Soft enough to sink into, stable enough not to shift."
     },
@@ -5360,7 +5309,7 @@
         "food",
         "water"
       ],
-      "shape": "reed",
+      "shape": "cattailroots",
       "color": "#6d8a4a",
       "description": "Shallow water over a dense mat of cattail rootstocks — starchy, swollen and packed down into the mud. Reachable from underneath even when the surface is frozen over.",
       "matureHours": 6,
@@ -5378,7 +5327,7 @@
         "shelter",
         "plant"
       ],
-      "shape": "reed",
+      "shape": "floodedreeds",
       "color": "#7f8f4e",
       "description": "A tight stand of cattail and reed stems standing in ankle-deep water, stiff enough to hold a weight slung between them. The water underneath is what makes it safe.",
       "matureHours": 5,
@@ -5395,7 +5344,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "leaflitter",
+      "shape": "winterlitter",
       "color": "#6a5a3c",
       "description": "A deep pile of damp leaves, loose bark and old stems heaped on dry ground beside the marsh. Deep enough that the middle of it never quite reaches the temperature of the air."
     },
@@ -5410,7 +5359,7 @@
       "needs": [
         "water"
       ],
-      "shape": "pool",
+      "shape": "vernalpool",
       "color": "#7fb2a8",
       "description": "A shallow, separate pool that fills with snowmelt and dries out completely by late summer. Drying is the point: nothing that needs water year-round can ever establish in it."
     },
@@ -5426,7 +5375,7 @@
         "plant",
         "shelter"
       ],
-      "shape": "mound",
+      "shape": "wetmeadow",
       "color": "#86a35a",
       "description": "A band of damp, grassy meadow between the marsh and dry land — never flooded, never properly dry. Lose this band and the marsh ends in a hard edge.",
       "matureHours": 6,
@@ -5443,7 +5392,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "mound",
+      "shape": "sandnestbank",
       "color": "#c2ad7e",
       "description": "A warm, well-drained rise of sand and fine gravel above the waterline, loose enough to dig and quick to drain. Banks like this are far scarcer than they look."
     },
@@ -5458,7 +5407,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "nest",
+      "shape": "cranenest",
       "color": "#8a8557",
       "description": "A broad heap of piled marsh plants built up in open shallow water, its top standing well clear of the waterline. Anything approaching it has to wade."
     },
@@ -5473,7 +5422,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "reedplatform",
       "color": "#7a7a44",
       "description": "A low platform of living reeds bent down and woven together deep inside a dense stand, barely a hand's width above the water. Invisible from every direction, including above."
     },
@@ -5488,7 +5437,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "cutbank",
       "color": "#a08258",
       "description": "A bare, vertical earth bank rising straight out of the water, soft enough to tunnel a metre back into and firm enough that the tunnel holds."
     },
@@ -5504,7 +5453,7 @@
         "shelter",
         "plant"
       ],
-      "shape": "pool",
+      "shape": "overwaterthicket",
       "color": "#4f7a45",
       "description": "Low willow and alder leaning right out over deep still water, their branches hanging a metre above the surface with cool shade underneath.",
       "matureHours": 8,
@@ -5521,7 +5470,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "muskratden",
       "color": "#7d6647",
       "description": "An abandoned bank burrow with its entrance below the waterline and its chamber dry above it. Someone else dug it, and it has stood empty since."
     },
@@ -5536,7 +5485,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "otterden",
       "color": "#6b5540",
       "description": "A roomy den in the bank with an underwater entrance and a dry chamber above — almost always an older lodge or burrow taken over rather than dug fresh."
     },
@@ -5552,7 +5501,7 @@
         "water",
         "shelter"
       ],
-      "shape": "pool",
+      "shape": "beaverpond",
       "color": "#4f7d93",
       "description": "Deep, permanent water held back behind a stick-and-mud dam, with drowned trees still standing in it. Quite different from open cattail marsh — deeper, more open, and it does not appear on its own.",
       "matureHours": 12,
@@ -5569,7 +5518,7 @@
       "needs": [
         "water"
       ],
-      "shape": "mound",
+      "shape": "beavercanal",
       "color": "#5f8fa0",
       "description": "A shallow dug channel running out from the pond into the marsh, just deep enough to float a branch down. It keeps open water connected right through a dry summer."
     },
@@ -5681,7 +5630,7 @@
         "shelter",
         "open"
       ],
-      "shape": "bluff",
+      "shape": "goatledge",
       "color": "#8d8579",
       "description": "A narrow shelf cut across a near-vertical face, scraped bare and dusty and no wider than a doormat. Ground far steeper than anything else would attempt."
     },
@@ -5697,7 +5646,7 @@
         "food",
         "open"
       ],
-      "shape": "tree",
+      "shape": "minerallick",
       "color": "#c9bfa6",
       "description": "A damp bank of salty earth, gnawed and licked down into a hollow. The minerals in it are not in the spring grass, and there is nowhere else this high to get them."
     },
@@ -5712,7 +5661,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "snowden",
       "color": "#dfe9f2",
       "description": "A tunnel driven metres down into a drift that holds into late spring, threaded around fallen boulders, with frozen food stashed in side chambers. A nursery and a freezer at once — and it only works where the snow lasts."
     },
@@ -5728,7 +5677,7 @@
         "water",
         "open"
       ],
-      "shape": "mound",
+      "shape": "deepedge",
       "color": "#12384f",
       "description": "The place where the seafloor stops and falls away into cold blue-black depth. Deep water, right up hard against the coast."
     },
@@ -5744,7 +5693,7 @@
         "water",
         "food"
       ],
-      "shape": "mound",
+      "shape": "surfline",
       "color": "#2f7f8c",
       "description": "A clean line of waves standing up and toppling along an open beach — a moving wall of white water running the whole length of the shore."
     },
@@ -5760,7 +5709,7 @@
         "plant",
         "food"
       ],
-      "shape": "kelp",
+      "shape": "eelgrasslawn",
       "color": "#7fae6d",
       "description": "A patch of eelgrass cropped short and kept that way, its blades staying young and tender instead of growing long and tough. The cropping is what maintains it."
     },
@@ -5775,7 +5724,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "cactus",
+      "shape": "cactuscrownnest",
       "color": "#8a7145",
       "description": "A bulky stick platform wedged into the crook where a tall cactus splits into arms — wide enough to stand a whole family on, with a wall of spines below that nothing can climb."
     },
@@ -5790,7 +5739,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "silkburrow",
       "color": "#6b5844",
       "description": "A thumb-wide hole in firm ground, its rim smoothed and bound with silk, and a few trip-lines fanned out across the sand around it. Whatever made it may keep the same one for twenty years."
     },
@@ -5806,7 +5755,7 @@
         "water",
         "open"
       ],
-      "shape": "mound",
+      "shape": "elkwallow",
       "color": "#6b5a45",
       "description": "A churned muddy hollow in a forest opening, kept wet and bare by something heavy rolling in it. The puddle left in the dish afterwards holds water for weeks."
     },
@@ -5836,7 +5785,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "nest",
+      "shape": "eaglecrown",
       "color": "#6c7b4e",
       "description": "The crown of the tallest living tree on the marsh, holding a stick nest the size of a bathtub. A pair returns to the same nest year after year and adds to it until the branch underneath finally gives way.",
       "matureHours": 6,
@@ -5853,7 +5802,7 @@
       "needs": [
         "water"
       ],
-      "shape": "pool",
+      "shape": "stillcove",
       "color": "#93c0cf",
       "description": "A pocket of open water tucked in behind the reeds where the wind never reaches, its surface as smooth as glass with a few floating stems drifting on it. Nothing disturbs the skin of it at all."
     },
@@ -5868,7 +5817,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "wintersleepburrow",
       "color": "#5c4a38",
       "description": "A tunnel driven in under a tilted slab to a grass-lined chamber below the frost line. No larder, no side rooms — just somewhere to lie still, barely above freezing, until spring."
     },
@@ -5883,7 +5832,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "talus",
+      "shape": "screecrack",
       "color": "#7b7166",
       "description": "A dark slot under a loose scree slab, cool, windless and dry, running back further than the daylight reaches. The day's heat never gets to the back of it."
     },
@@ -5898,7 +5847,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "bluff",
+      "shape": "cliffseam",
       "color": "#6e7480",
       "description": "A narrow vertical crack running up a sheer rock face, far too tight for anything with proper feet to stand in. The only way in is head-first, and the only way out is a drop."
     },
@@ -5915,7 +5864,7 @@
         "food",
         "shelter"
       ],
-      "shape": "brush",
+      "shape": "grapetangle",
       "color": "#5b7c3a",
       "plantable": true,
       "plantCost": {
@@ -5942,7 +5891,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "mound",
+      "shape": "eggmound",
       "color": "#7a6249",
       "description": "A heap of rotting wood chips and bark banked up against a cut stump. It runs warm inside as it rots, which is the whole point — bury something in it and the heap does the work."
     },
@@ -5958,7 +5907,7 @@
         "plant",
         "shelter"
       ],
-      "shape": "tree",
+      "shape": "dunewillow",
       "color": "#6f8a5a",
       "plantable": true,
       "plantCost": {
@@ -5983,7 +5932,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "canyonledgeden",
       "color": "#8a5f45",
       "description": "A dry overhang cut back into a canyon wall and screened by fallen slabs — shaded all day, invisible from below, and reachable by only one route."
     },
@@ -5998,7 +5947,7 @@
       "needs": [
         "plant"
       ],
-      "shape": "cushion",
+      "shape": "puffballring",
       "color": "#cfc6a8",
       "description": "A ring of pale domes pushing up through old turf. Step on a ripe one and it smokes.",
       "matureHours": 3,
@@ -6034,7 +5983,7 @@
         "shelter",
         "plant"
       ],
-      "shape": "stump",
+      "shape": "grasstussocknest",
       "color": "#8a9a52",
       "description": "A thick tussock left standing in a damp hollow, with the middle pressed down into a deep cup you would walk past without seeing.",
       "matureHours": 3,
@@ -6051,7 +6000,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "leaflitter",
+      "shape": "cocoondrift",
       "color": "#8a6a3c",
       "description": "A drift of curled fallen leaves left banked against a log. Giant silk moths spin their cocoons inside a leaf that then falls with it, so the whole next generation is lying in this pile all winter.",
       "matureHours": 4,
@@ -6069,7 +6018,7 @@
         "food",
         "open"
       ],
-      "shape": "mound",
+      "shape": "acorncache",
       "color": "#7a6340",
       "description": "A patch of soft open ground pocked with little digs where a jay has pushed acorns in one at a time. Most get eaten over winter; the forgotten ones come up as oak seedlings in spring.",
       "matureHours": 4,
@@ -6086,7 +6035,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "leaflitter",
+      "shape": "frozenleafbed",
       "color": "#6f5b3e",
       "description": "A shallow bed of loose leaves and duff over soft soil — only a few centimetres deep, which is all a wood frog needs, because it does not dig below the frost. It simply freezes with the ground and thaws out in spring.",
       "matureHours": 3,
@@ -6103,7 +6052,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "nest",
+      "shape": "canopylimb",
       "color": "#4a5f3c",
       "description": "A heavy horizontal limb against the trunk of an old tree, high up where the canopy closes over. Big forest hawks need a limb thick enough to hold a nest they will use for years, and clear flying room underneath it.",
       "matureHours": 12,
@@ -6120,7 +6069,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "brush",
+      "shape": "thicketbed",
       "color": "#8b7a52",
       "description": "A scooped, dusty hollow under dense thornscrub where a whole herd lies up through the heat of the day, pressed together. The shade is worth more than the cover — it is ten degrees cooler in there.",
       "matureHours": 5,
@@ -6137,7 +6086,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "bluff",
+      "shape": "scrapeledge",
       "color": "#7b8290",
       "description": "A gravel-floored shelf high on a cliff with a shallow dip kicked into the grit. No nest is built here and none is needed — the ledge and the drop below it are the whole thing."
     },
@@ -6152,7 +6101,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "octopusmidden",
       "color": "#6a6f7a",
       "description": "A dark crevice under a boulder with a rock dragged part-way across the entrance, and a tidy heap of emptied crab shells and drilled clams outside it. The rubbish pile is how you find the octopus.",
       "zone": "subtidal",
@@ -6170,7 +6119,7 @@
         "plant",
         "food"
       ],
-      "shape": "mushrooms",
+      "shape": "meadowring",
       "color": "#d8cdb4",
       "description": "A curved arc of pale button caps pushing up through damp grass thatch after rain. The ring is the edge of a fungus growing outward underground, and it can be older than every plant around it.",
       "matureHours": 2,
@@ -6188,7 +6137,7 @@
         "plant",
         "food"
       ],
-      "shape": "mushrooms",
+      "shape": "bracketfungus",
       "color": "#a8763f",
       "description": "Overlapping fans of banded bracket fungus stepping up the side of a dead hardwood log. This is the thing actually digesting the wood — the log only becomes soil because the fungus gets there first.",
       "matureHours": 4,
@@ -6206,7 +6155,7 @@
         "plant",
         "food"
       ],
-      "shape": "mound",
+      "shape": "celerybed",
       "color": "#4f8f66",
       "description": "Long ribbon leaves streaming underwater in the shallows, rooted in the silt. It lives entirely on the light that reaches the bottom, so it only grows where the water has been allowed to settle clear.",
       "matureHours": 5,
@@ -6224,7 +6173,7 @@
         "plant",
         "food"
       ],
-      "shape": "mound",
+      "shape": "snowbankmushrooms",
       "color": "#cfd6dc",
       "description": "A crowd of small pale mushrooms with hairy stems, fruiting right at the edge of a melting drift on buried rotten conifer wood. They come up while there is still snow on the ground.",
       "matureHours": 3,
@@ -6242,7 +6191,7 @@
         "open",
         "shelter"
       ],
-      "shape": "bluff",
+      "shape": "digslope",
       "color": "#8a7a5c",
       "description": "A high bank of loose, root-threaded earth soft enough to be torn open, with the turned soil left in heaps."
     },
@@ -6257,7 +6206,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "birdhouse",
+      "shape": "linedcrack",
       "color": "#8b8378",
       "description": "A narrow dry fissure in a wind-scoured rock face, packed at the back with down and fur."
     },
@@ -6272,7 +6221,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "borrowedburrow",
       "color": "#9a7f52",
       "description": "A burrow mouth someone else dug, widened and swept clean, with a fan of loose sand at the entrance."
     },
@@ -6288,7 +6237,7 @@
         "water",
         "plant"
       ],
-      "shape": "pool",
+      "shape": "browsedshallows",
       "color": "#4f6b48",
       "description": "A soft-bottomed margin where the water is chest-deep and thick with stems, cropped short in ragged patches."
     },
@@ -6304,7 +6253,7 @@
         "shelter",
         "water"
       ],
-      "shape": "bluff",
+      "shape": "splashledge",
       "color": "#6f8894",
       "description": "A wet shelf tucked behind a thread of falling meltwater, mossy and permanently in shadow."
     },
@@ -6320,7 +6269,7 @@
         "open",
         "food"
       ],
-      "shape": "mound",
+      "shape": "diggingground",
       "color": "#6b5a3f",
       "description": "A patch of soft leaf-mould soil left unpacked, already pitted with small cone-shaped holes where something has been turning it over."
     },
@@ -6335,7 +6284,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "clifftopburrow",
       "color": "#6f7a52",
       "description": "A round hole driven back into deep turf at the very top of a sea cliff, with a worn patch of bare earth at the entrance.",
       "zone": "backdune",
@@ -6352,7 +6301,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "groundhogmound",
       "color": "#8a7550",
       "description": "A fan of freshly turned earth banked around a round hole, with a second hole hidden in the grass a few paces off."
     },
@@ -6367,7 +6316,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "stump",
+      "shape": "opossumhollow",
       "color": "#6b5a44",
       "description": "A dry cavity under a leaning log, floored with dragged-in leaves and open at both ends."
     },
@@ -6382,7 +6331,7 @@
       "needs": [
         "shelter"
       ],
-      "shape": "nest",
+      "shape": "shorenest",
       "color": "#7a6a4e",
       "description": "A bulky platform of salt-bleached sticks wedged in a high fork, added to and patched every season.",
       "zone": "backdune",
@@ -6437,7 +6386,7 @@
       "needs": [
         "open"
       ],
-      "shape": "mound",
+      "shape": "rippledsand",
       "color": "#d8c9a4",
       "description": "Clean sand below the low tide line, combed into even ridges by a current gentle enough to leave them standing.",
       "zone": "subtidal",

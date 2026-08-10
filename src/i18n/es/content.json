@@ -2823,10 +2823,6 @@
 				"name": "Pino Albar",
 				"description": "Un pino albar crecido de una semilla que alguien enterró y nunca volvió a desenterrar. Sus conos no se abren solos, así que no puede extenderse a ningún lado sin ayuda."
 			},
-			"beetle-killed-snag": {
-				"name": "Tronco Seco por Escarabajos",
-				"description": "Un gran abeto muerto en pie, con la corteza despegándose y la madera de afuera aflojada y llena de galerías. Sigue firme, pero ya está lo bastante blando para trabajarlo."
-			},
 			"old-woodpecker-cavity": {
 				"name": "Cavidad Vieja de Carpintero",
 				"description": "Un agujero redondo cincelado en un tronco muerto, hecho hace temporadas y vacío desde entonces. El borde sigue limpio y la cámara de abajo está seca."
@@ -2950,10 +2946,6 @@
 			"mussel-bed": {
 				"name": "Banco de Mejillones",
 				"description": "Una banda densa de mejillones azul negruzco, apilados de dos y tres capas sobre la roca media, tan apretados que las conchas se sostienen entre sí. Los huecos que quedan entre ellos bajan hasta la piedra."
-			},
-			"mussel-bed-lower-margin": {
-				"name": "Borde Inferior del Banco",
-				"description": "El filo inferior y nítido del banco de mejillones, con roca limpia y abierta justo debajo. Nada en la marea explica dónde cae esa línea: algo más la mantiene ahí."
 			},
 			"sunlit-surge-pool": {
 				"name": "Poza Soleada de Oleaje",
@@ -3102,10 +3094,6 @@
 			"soft-rot-snag": {
 				"name": "Árbol Muerto Podrido",
 				"description": "Un tocón muerto y pequeño cuya madera se volvió blanda y pálida, tan fácil de marcar que se hunde con la uña. Los hongos llegaron primero, y por eso ahora se puede trabajar."
-			},
-			"ant-riddled-log": {
-				"name": "Tronco Ahuecado",
-				"description": "Un tronco caído vuelto quebradizo por la pudrición y agujereado de galerías del grosor de una mina de lápiz: los corredores de toda una colonia dentro de un solo tronco."
 			},
 			"rotting-heartwood-log": {
 				"name": "Tronco Hueco por Dentro",
@@ -4023,9 +4011,6 @@
 			"whitebark-pine": {
 				"name": "Pino Albar"
 			},
-			"beetle-killed-snag": {
-				"name": "Tronco Seco por Escarabajos"
-			},
 			"old-woodpecker-cavity": {
 				"name": "Cavidad Vieja de Carpintero"
 			},
@@ -4118,9 +4103,6 @@
 			},
 			"mussel-bed": {
 				"name": "Banco de Mejillones"
-			},
-			"mussel-bed-lower-margin": {
-				"name": "Borde Inferior del Banco"
 			},
 			"sunlit-surge-pool": {
 				"name": "Poza Soleada de Oleaje"
@@ -4232,9 +4214,6 @@
 			},
 			"soft-rot-snag": {
 				"name": "Árbol Muerto Podrido"
-			},
-			"ant-riddled-log": {
-				"name": "Tronco Ahuecado"
 			},
 			"rotting-heartwood-log": {
 				"name": "Tronco Hueco por Dentro"

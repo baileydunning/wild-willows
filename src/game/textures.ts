@@ -859,21 +859,30 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 		g.fillStyle(C('#4f7d3a'), 1).fillCircle(12, 20, 11).fillCircle(24, 18, 12).fillCircle(18, 12, 10);
 		g.fillStyle(C('#5d3a5f'), 1).fillCircle(12, 14, 2.4).fillCircle(22, 11, 2.4).fillCircle(27, 20, 2.4);
 	});
+	// Small Pond: the built one — a deliberately dug clay basin with a clean
+	// packed rim. Every other body of water in the game now draws its own shape
+	// (see the water section further down), so this one is free to read as
+	// man-made rather than as the generic "some water goes here" ellipse.
 	o('pond', 52, 40, (g) => {
-		g.fillStyle(C('#b9a37c'), 1).fillEllipse(26, 22, 52, 34);
-		g.fillStyle(C('#5d96c8'), 1).fillEllipse(26, 22, 44, 27);
-		g.fillStyle(C('#8fc0e0'), 0.8).fillEllipse(22, 18, 18, 8);
-	});
-	o('pool', 44, 32, (g) => {
-		g.fillStyle(C('#c9b98a'), 1).fillEllipse(22, 18, 44, 26);
-		g.fillStyle(C('#7fb4d8'), 1).fillEllipse(22, 18, 36, 19);
-		g.fillStyle(0xffffff, 0.45).fillEllipse(18, 14, 12, 5);
+		g.fillStyle(C('#a89372'), 1).fillEllipse(26, 22, 52, 34); // excavated spoil rim
+		g.fillStyle(C('#b9a37c'), 1).fillEllipse(26, 20, 48, 28); // packed clay lip
+		g.fillStyle(C('#8a7550'), 1).fillEllipse(26, 22, 44, 27); // the liner, cut clean
+		g.fillStyle(C('#5d96c8'), 1).fillEllipse(26, 22, 40, 23); // held water
+		g.fillStyle(C('#417ba8'), 1).fillEllipse(28, 24, 26, 13); // deeper middle
+		g.fillStyle(C('#8fc0e0'), 0.8).fillEllipse(20, 17, 18, 8); // sky on the surface
+		g.fillStyle(0xffffff, 0.4).fillEllipse(18, 15, 10, 3);
+		g.fillStyle(C('#6f9450'), 1).fillEllipse(7, 30, 10, 5).fillEllipse(45, 14, 9, 4); // planted edge taking hold
 	});
 	o('log', 42, 26, (g) => {
-		g.fillStyle(C('#7a5a3a'), 1).fillRoundedRect(2, 8, 38, 14, 7);
-		g.fillStyle(C('#9a7448'), 1).fillEllipse(38, 15, 8, 12);
-		g.fillStyle(C('#5d4128'), 1).fillEllipse(38, 15, 4, 6);
-		g.fillStyle(C('#5d8a4a'), 0.9).fillEllipse(10, 8, 10, 5);
+		g.fillStyle(C('#5f7a44'), 1).fillEllipse(21, 23, 40, 8); // ground
+		g.fillStyle(C('#6a4a30'), 1).fillRoundedRect(2, 8, 30, 13, 6); // the log
+		g.fillStyle(C('#7f5c3c'), 1).fillRoundedRect(2, 8, 26, 4, 2); // sunlit upper curve
+		g.fillStyle(C('#8a6544'), 1).fillEllipse(32, 14, 12, 15); // the open end
+		g.fillStyle(C('#5d4128'), 1).fillEllipse(32, 14, 9, 12);
+		g.fillStyle(C('#150f0a'), 1).fillEllipse(32, 15, 6, 9); // the dry chamber inside
+		g.fillStyle(C('#3d3120'), 1).fillEllipse(32, 18, 6, 2.4); // its worn floor
+		g.fillStyle(C('#5d8a4a'), 0.9).fillEllipse(11, 8, 11, 4); // moss on the outside
+		g.fillStyle(C('#4f4030'), 1).fillEllipse(16, 15, 9, 3); // the seam it was opened along
 	});
 	o('rocks', 38, 30, (g) => {
 		g.fillStyle(C('#8e8e8a'), 1).fillCircle(12, 20, 9).fillCircle(26, 21, 8);
@@ -999,8 +1008,14 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 		});
 	});
 	o('mound', 38, 26, (g) => {
-		g.fillStyle(C('#a8845c'), 1).fillEllipse(19, 18, 36, 16);
-		g.fillStyle(C('#4a3826'), 1).fillEllipse(19, 18, 12, 8);
+		g.fillStyle(C('#a8905f'), 1).fillEllipse(19, 17, 38, 17); // the heaped rise
+		g.fillStyle(C('#c2a070'), 1).fillEllipse(18, 13, 32, 12); // loose sunlit crown
+		g.fillStyle(C('#d4b585'), 1).fillEllipse(15, 10, 20, 7); // freshly turned, still pale
+		g.fillStyle(C('#8a7048'), 1).fillEllipse(24, 18, 20, 11); // the one bare worked face
+		g.fillStyle(C('#241c14'), 1).fillEllipse(24, 18, 11, 8); // tunnelled straight in
+		g.fillStyle(C('#4a3f2e'), 1).fillEllipse(24, 21, 11, 2.4); // worn sill
+		g.fillStyle(C('#b59a6c'), 1).fillEllipse(9, 21, 12, 4); // spoil spilling off the side
+		g.fillStyle(C('#8f7850'), 1).fillCircle(6, 14, 1.6).fillCircle(30, 9, 1.4).fillCircle(12, 8, 1.2); // clods
 	});
 	o('platform', 30, 50, (g) => {
 		g.fillStyle(C('#9a8a64'), 1).fillRect(13, 12, 5, 38);
@@ -1042,9 +1057,25 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 		g.fillStyle(C('#8a9a4e'), 1).fillCircle(12, 10, 2.4).fillCircle(24, 12, 2.4);
 	});
 	o('nest', 40, 30, (g) => {
-		g.fillStyle(C('#d8c8a0'), 1).fillEllipse(20, 18, 38, 20);
-		g.lineStyle(2, C('#8a6a44'), 1).strokeEllipse(20, 18, 30, 14);
-		g.fillStyle(C('#f4ecd8'), 1).fillEllipse(16, 17, 6, 5).fillEllipse(24, 18, 6, 5);
+		g.fillStyle(C('#6b5b3e'), 1).fillEllipse(20, 22, 40, 14); // leaf litter
+		g.fillStyle(C('#8a6a3a'), 1).fillEllipse(9, 20, 12, 4).fillEllipse(31, 21, 11, 4);
+		g.fillStyle(C('#5f4c33'), 1).fillEllipse(20, 22, 18, 8); // the cup, sunk level with it
+		g.fillStyle(C('#a89a68'), 1).fillEllipse(20, 22, 14, 6); // grass lining
+		g.fillStyle(C('#c2b478'), 1).fillEllipse(18, 21, 6, 2).fillEllipse(23, 23, 5, 1.8);
+		g.fillStyle(C('#e8e2d4'), 1).fillEllipse(18, 22, 4.4, 3.4).fillEllipse(22.5, 22.6, 4.4, 3.4); // eggs
+		g.fillStyle(C('#a89478'), 1).fillCircle(17, 21.4, 0.6).fillCircle(23, 22, 0.6);
+		g.lineStyle(2.4, C('#4f7d3a'), 1); // the bramble arching over — the whole defence
+		g.lineBetween(1, 24, 12, 5).lineBetween(12, 5, 28, 4).lineBetween(28, 4, 39, 22);
+		g.lineStyle(1.6, C('#5f9448'), 1).lineBetween(4, 24, 14, 9).lineBetween(26, 8, 36, 23);
+		g.fillStyle(C('#4f7d3a'), 1).fillEllipse(9, 7, 8, 5).fillEllipse(20, 3, 9, 5).fillEllipse(31, 9, 8, 5); // leaves
+		g.lineStyle(1, C('#7a5a3a'), 1); // and it is thorny
+		for (const [x, y] of [
+			[6, 15],
+			[14, 6],
+			[24, 4],
+			[34, 15],
+		] as [number, number][])
+			g.lineBetween(x, y, x + 1.8, y + 1.8).lineBetween(x, y, x - 1.8, y + 1.6);
 	});
 	o('coralgarden', 42, 32, (g) => {
 		g.fillStyle(C('#cdbfa0'), 1).fillEllipse(21, 26, 40, 12); // sandy bed
@@ -1189,8 +1220,18 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 		g.fillStyle(C('#f4ecd8'), 1).fillRoundedRect(5, 6, 14, 8, 3); // pillow
 	});
 	o('kit', 30, 26, (g) => {
-		g.fillStyle(C('#c9b98a'), 1).fillRoundedRect(2, 6, 26, 18, 3);
-		g.fillStyle(C('#4a7c59'), 1).fillRect(12, 9, 6, 12).fillRect(9, 12, 12, 6);
+		g.fillStyle(C('#4f4030'), 0.4).fillEllipse(17, 25, 28, 4); // shadow
+		g.fillStyle(C('#6b5f47'), 1).fillRoundedRect(3, 10, 28, 15, 2); // the crate
+		g.fillStyle(C('#6fa8d6'), 1).fillRect(3, 14, 28, 4); // wetland livery
+		g.lineStyle(1, C('#524936'), 1).lineBetween(10, 10, 10, 25).lineBetween(24, 10, 24, 25); // slats
+		g.fillStyle(C('#4f6b74'), 1).fillEllipse(10, 6, 15, 7); // a rolled pond liner
+		g.fillStyle(C('#6a8b94'), 1).fillEllipse(10, 5, 12, 4);
+		g.lineStyle(1, C('#3d545c'), 1).strokeEllipse(10, 5.4, 8, 3);
+		g.fillStyle(C('#c9b48c'), 1).fillRoundedRect(19, 2, 9, 8, 1.5); // a filter box
+		g.fillStyle(C('#8fa8b0'), 1).fillRect(20, 3.4, 7, 1.4).fillRect(20, 6, 7, 1.4).fillRect(20, 8, 7, 1.2);
+		g.fillStyle(C('#8a8478'), 1).fillRect(29, 1, 1.8, 9); // a channel tool
+		g.fillStyle(C('#a8a29a'), 1).fillTriangle(28, 9, 32, 9, 30, 12);
+		g.fillStyle(0xffffff, 0.14).fillRect(3, 10, 28, 1.6);
 	});
 	o('binoculars', 30, 24, (g) => {
 		// two barrels joined by a bridge, glass catching the light
@@ -1625,9 +1666,17 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 		g.fillStyle(C('#9a8a6a'), 1).fillCircle(34, 16, 3).fillCircle(34, 11, 2.5);
 	});
 	o('bluff', 40, 28, (g) => {
-		g.fillStyle(C('#c2b9a0'), 1).fillRoundedRect(2, 10, 36, 18, 3); // sandy bank
-		g.fillStyle(C('#a89878'), 1).fillRect(2, 16, 36, 2).fillRect(2, 22, 36, 2); // strata
-		g.fillStyle(C('#3a2e22'), 1).fillEllipse(12, 14, 5, 4).fillEllipse(27, 14, 5, 4); // nest hollows
+		g.fillStyle(C('#a89878'), 1).fillRoundedRect(2, 4, 36, 24, 3); // the built-up sandy bank
+		g.fillStyle(C('#c2b9a0'), 1).fillRoundedRect(2, 4, 36, 9, 3); // sunlit top
+		g.fillStyle(C('#8f8268'), 1).fillRoundedRect(2, 22, 36, 6, 3); // sheer, shadowed below
+		g.fillStyle(C('#b5aa8e'), 1); // narrow ledges cut across the face
+		g.fillRect(4, 13, 15, 2.6).fillRect(22, 15, 14, 2.6).fillRect(9, 19, 16, 2.4);
+		g.fillStyle(C('#d0c8b0'), 1).fillRect(4, 13, 15, 1).fillRect(22, 15, 14, 1).fillRect(9, 19, 16, 1);
+		g.fillStyle(C('#3a2e22'), 1); // burrow mouths along them
+		g.fillEllipse(9, 13, 5, 3.4).fillEllipse(16, 13, 4.4, 3).fillEllipse(27, 15, 5, 3.4);
+		g.fillEllipse(14, 19, 4.4, 3).fillEllipse(21, 19, 4, 2.8);
+		g.fillStyle(C('#7f9a4a'), 1).fillEllipse(11, 4, 14, 4).fillEllipse(30, 4, 12, 4); // turf on the crest
+		g.fillStyle(C('#6f6858'), 1).fillEllipse(20, 28, 34, 3); // and nothing to stand on beneath
 	});
 	// --- additional habitat objects (distinct silhouettes) ---
 	o('clover', 34, 26, (g) => {
@@ -2887,6 +2936,2947 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 		g.fillStyle(C('#7f9a48'), 1).fillEllipse(14, 15, 11, 3); // wide mouth
 		g.fillStyle(C('#e0c25a'), 1).fillCircle(14, 16, 3); // the coin held in it
 		g.fillStyle(C('#b8973a'), 1).fillRect(13, 15, 2, 2);
+	});
+
+	// --- Water bodies, wet margins and tidal ground -------------------------
+	// Every object that is (or sits in) water used to fall back on one of four
+	// generic shapes — `pool`, `pond`, `mound`, `rocks` — so a vernal pool, a
+	// beaver dam and a surge pool all drew the same blue ellipse. Each one below
+	// gets its own silhouette, water colour and a couple of identifying details,
+	// so they read apart at a glance without needing the label.
+
+	// --- Freshwater pools and ponds ---
+	// Fern Spring: a mossy seep, not open water — a dark trickle under arching fronds.
+	o('springseep', 38, 32, (g) => {
+		g.fillStyle(C('#4a6b48'), 1).fillEllipse(19, 22, 36, 18); // wet mossy ground
+		g.fillStyle(C('#6aa884'), 1).fillEllipse(19, 22, 26, 11); // the seep face
+		g.fillStyle(C('#2f4a3c'), 1).fillEllipse(20, 25, 14, 5); // dark seep mouth
+		g.fillStyle(0xffffff, 0.35).fillEllipse(15, 21, 8, 2.5); // wet shine on it
+		const fronds: [number, number, number, number][] = [
+			[5, 25, 10, 5],
+			[33, 25, 28, 4],
+			[12, 26, 17, 9],
+			[27, 26, 23, 10],
+		];
+		fronds.forEach(([x0, y0, x1, y1]) => {
+			g.lineStyle(1.5, C('#4f7d3a'), 1).lineBetween(x0, y0, x1, y1); // the frond's midrib
+			g.fillStyle(C('#6da84e'), 1);
+			for (let i = 1; i <= 5; i++) {
+				const t = i / 6;
+				g.fillEllipse(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t, 6 - i * 0.7, 2); // pinnae down its length
+			}
+		});
+	});
+	// Shallow Water Pool: deliberately flat and wide, with a long pale wading
+	// shelf down one side — the shape says "you could walk across this".
+	o('shallowpool', 48, 26, (g) => {
+		g.fillStyle(C('#c2b189'), 1).fillEllipse(24, 15, 48, 22); // sandy surround
+		g.fillStyle(C('#a9cfe2'), 1).fillEllipse(24, 15, 40, 15); // the shallow shelf
+		g.fillStyle(C('#7fb4d8'), 1).fillEllipse(27, 15, 26, 11); // slightly deeper middle
+		g.lineStyle(1, 0xffffff, 0.55).strokeEllipse(27, 15, 16, 6).strokeEllipse(27, 15, 9, 3.4); // ripple rings
+		g.fillStyle(C('#b5a074'), 1).fillEllipse(8, 16, 12, 6); // wadeable bar breaking the edge
+	});
+	// Lily Pool: pads packed edge to edge — the water barely shows.
+	o('lilypool', 42, 34, (g) => {
+		g.fillStyle(C('#3f5f4a'), 1).fillEllipse(21, 18, 42, 30); // shaded water beneath
+		g.fillStyle(C('#2e4a3c'), 1).fillEllipse(21, 20, 32, 20); // cool dark underside
+		const pads: [number, number, number][] = [
+			[10, 12, 7],
+			[22, 9, 6.5],
+			[32, 14, 6],
+			[8, 24, 6.5],
+			[19, 22, 7],
+			[31, 25, 6],
+			[25, 16, 5],
+		];
+		pads.forEach(([x, y, r], i) => {
+			g.fillStyle(C(['#6fae86', '#5f9d76', '#7cbb90'][i % 3]), 1).fillCircle(x, y, r);
+			g.fillStyle(C('#4a7d5e'), 1).fillTriangle(x, y, x + r, y - 1.6, x + r, y + 1.6); // pad notch
+		});
+		g.fillStyle(C('#f4f0e2'), 1).fillCircle(19, 22, 3.2); // one open bloom
+		g.fillStyle(C('#e8c85a'), 1).fillCircle(19, 22, 1.3);
+	});
+	// Snowmelt Pool: stone-kerbed, hard-edged and glacier-pale. Deliberately
+	// unstocked — no fish, no plants, just cold clean water.
+	o('snowmeltpool', 40, 30, (g) => {
+		g.fillStyle(C('#8d9298'), 1).fillEllipse(20, 17, 40, 26); // stone rim
+		const kerb: [number, number, number][] = [
+			[5, 13, 4],
+			[13, 6, 4.5],
+			[24, 5, 4],
+			[34, 12, 4.5],
+			[36, 22, 4],
+			[6, 23, 4],
+		];
+		kerb.forEach(([x, y, r], i) => g.fillStyle(C(['#a8adb2', '#93989e', '#b8bcc0'][i % 3]), 1).fillCircle(x, y, r));
+		g.fillStyle(C('#8fd0e8'), 1).fillEllipse(20, 17, 26, 15); // meltwater
+		g.fillStyle(C('#c8ecf6'), 0.8).fillEllipse(20, 15, 18, 8); // pale cold shine
+		g.fillStyle(0xffffff, 0.9).fillEllipse(9, 8, 9, 4); // a last patch of snow on the rim
+	});
+	// Clearwater Shallows: the point is that you can see the bottom — stones and
+	// submerged weed read straight through the water.
+	o('clearshallows', 42, 28, (g) => {
+		g.fillStyle(C('#9aa88e'), 1).fillEllipse(21, 16, 42, 24); // silty surround
+		g.fillStyle(C('#8fc7d6'), 0.9).fillEllipse(21, 16, 34, 17); // clear water
+		g.fillStyle(C('#7f8a72'), 0.85); // bottom stones showing through
+		for (const [x, y, r] of [
+			[12, 19, 2.6],
+			[20, 21, 2],
+			[28, 18, 2.4],
+			[24, 13, 1.8],
+		] as [number, number, number][])
+			g.fillCircle(x, y, r);
+		g.lineStyle(1.4, C('#4f8f66'), 0.85); // submerged plants standing in the light
+		g.lineBetween(14, 21, 13, 11).lineBetween(22, 22, 24, 10).lineBetween(29, 20, 30, 12);
+		g.fillStyle(0xffffff, 0.45).fillEllipse(16, 11, 10, 3); // surface glint
+	});
+	// Stable Silt Shoal: a broad tan shelf sitting just under the surface — more
+	// sediment than water, and flat enough to read as a shoal rather than a pool.
+	o('siltshoal', 46, 24, (g) => {
+		g.fillStyle(C('#7fa8b8'), 0.8).fillEllipse(23, 13, 46, 20); // slow water over it
+		g.fillStyle(C('#b9ae90'), 1).fillEllipse(23, 14, 36, 14); // the shoal itself
+		g.fillStyle(C('#cbc0a2'), 1).fillEllipse(20, 12, 24, 8); // sunlit crown, nearly breaking surface
+		g.fillStyle(C('#a09678'), 0.8).fillEllipse(33, 16, 12, 5).fillEllipse(11, 16, 10, 4); // settled edges
+		g.fillStyle(0xffffff, 0.3).fillEllipse(18, 10, 12, 2.4);
+	});
+	// Fishless Vernal Pool: a drying ring is the whole identity — cracked mud
+	// collar around a shrinking centre.
+	o('vernalpool', 40, 30, (g) => {
+		g.fillStyle(C('#a89a7c'), 1).fillEllipse(20, 17, 40, 26); // dried outer ring
+		g.lineStyle(1, C('#7f7258'), 1); // shrinkage cracks in the exposed collar
+		g.lineBetween(4, 12, 10, 15).lineBetween(36, 14, 29, 16).lineBetween(20, 3, 20, 8).lineBetween(9, 26, 14, 22);
+		g.fillStyle(C('#c2b596'), 1).fillEllipse(20, 17, 30, 18); // damp last-wet band
+		g.fillStyle(C('#7fb2a8'), 1).fillEllipse(20, 17, 20, 11); // what water is left
+		g.fillStyle(C('#9ccdc2'), 0.8).fillEllipse(18, 15, 12, 5);
+		g.fillStyle(C('#5f8f86'), 1).fillCircle(24, 19, 1.6).fillCircle(21, 20, 1.3); // no fish — just egg mass
+	});
+	// Overwater Thicket: dark deep water with willow leaning right out over it
+	// from one side. The overhang, not the water, is the sprite.
+	o('overwaterthicket', 44, 34, (g) => {
+		g.fillStyle(C('#2f4a52'), 1).fillEllipse(22, 24, 44, 20); // deep still water
+		g.fillStyle(C('#3d5f68'), 1).fillEllipse(22, 22, 34, 12);
+		g.fillStyle(C('#4f7a45'), 1).fillEllipse(11, 10, 26, 16).fillEllipse(28, 8, 22, 14); // leaning canopy
+		g.fillStyle(C('#3f6238'), 1).fillEllipse(15, 15, 24, 9); // shaded underside
+		g.lineStyle(2, C('#6a5a3a'), 1).lineBetween(2, 4, 16, 14).lineBetween(4, 10, 20, 17); // branches out over water
+		g.fillStyle(C('#5f9d50'), 1).fillEllipse(33, 14, 12, 6); // fringe hanging above the surface
+		g.fillStyle(0x000000, 0.25).fillEllipse(20, 26, 26, 6); // shadow thrown on the water
+	});
+	// Dammed Pond: the stick dam and the drowned standing snags are what tell it
+	// apart from open marsh.
+	o('beaverpond', 48, 36, (g) => {
+		g.fillStyle(C('#6a7a58'), 1).fillEllipse(24, 20, 48, 30); // wet surround
+		g.fillStyle(C('#4f7d93'), 1).fillEllipse(24, 18, 40, 22); // deep permanent water
+		g.fillStyle(C('#67a0b5'), 0.7).fillEllipse(20, 15, 22, 8);
+		g.fillStyle(C('#8a8270'), 1).fillRect(14, 4, 3, 16).fillRect(30, 6, 2.6, 14); // drowned snags still standing
+		g.fillStyle(C('#6f6857'), 1).fillRect(14, 4, 1.2, 16).fillRect(30, 6, 1, 14);
+		g.fillStyle(C('#7a5a3a'), 1).fillRoundedRect(4, 26, 40, 7, 3); // the dam
+		g.lineStyle(1.4, C('#5d4128'), 1); // criss-crossed sticks in it
+		g.lineBetween(7, 33, 14, 26).lineBetween(15, 33, 22, 26).lineBetween(23, 33, 30, 26).lineBetween(31, 33, 38, 26);
+		g.fillStyle(C('#4a3826'), 1).fillEllipse(24, 33, 36, 4); // packed mud face
+	});
+	// Still Water Cove: framed tight by reeds on both sides, mirror-flat, with a
+	// couple of stems drifting on it.
+	o('stillcove', 40, 32, (g) => {
+		g.fillStyle(C('#5f7d45'), 1).fillEllipse(20, 16, 40, 30); // the reed bank hemming it in
+		g.fillStyle(C('#6f9450'), 1).fillEllipse(20, 13, 38, 20);
+		g.fillStyle(C('#93c0cf'), 1).fillEllipse(21, 21, 30, 18); // the pocket of open water
+		g.fillStyle(C('#b6d8e2'), 1).fillEllipse(21, 19, 24, 11); // sky on it, unbroken
+		g.fillStyle(0xffffff, 0.4).fillEllipse(17, 17, 14, 3); // glass-flat glint
+		g.lineStyle(2, C('#7fa05a'), 1); // reeds standing round the back of it
+		g.lineBetween(4, 20, 3, 6).lineBetween(9, 15, 8, 3).lineBetween(31, 15, 33, 4).lineBetween(36, 20, 37, 7);
+		g.fillStyle(C('#8a6a3a'), 1).fillEllipse(3, 5, 2.2, 5).fillEllipse(33, 4, 2.2, 5); // a couple of old heads
+		g.fillStyle(C('#8a9a5e'), 1).fillEllipse(17, 24, 9, 1.6).fillEllipse(25, 27, 7, 1.4); // stems drifting on it
+	});
+	// Browsed Shallows: murky green, chest-deep, and thick with cropped-off stems.
+	o('browsedshallows', 42, 30, (g) => {
+		g.fillStyle(C('#3f5636'), 1).fillEllipse(21, 19, 42, 22); // soft dark bottom
+		g.fillStyle(C('#4f6b48'), 1).fillEllipse(21, 17, 34, 16); // murky water
+		g.fillStyle(C('#5f7d56'), 0.7).fillEllipse(19, 15, 22, 7);
+		g.lineStyle(2, C('#6f8a4e'), 1); // stems, all cropped at different heights
+		g.lineBetween(7, 22, 7, 12).lineBetween(12, 23, 12, 6).lineBetween(17, 22, 17, 14);
+		g.lineBetween(24, 23, 24, 5).lineBetween(29, 22, 29, 13).lineBetween(34, 21, 34, 9);
+		g.fillStyle(C('#a8b578'), 1); // pale blunt cut ends
+		for (const [x, y] of [
+			[7, 12],
+			[17, 14],
+			[29, 13],
+			[34, 9],
+		] as [number, number][])
+			g.fillEllipse(x, y, 2.4, 1.2);
+	});
+	// Woodland Pool: deep shade, cold blue-grey water, soft muddy walk-down edge.
+	o('woodlandpool', 44, 32, (g) => {
+		g.fillStyle(C('#5a4a34'), 1).fillEllipse(22, 19, 44, 24); // damp forest floor
+		g.fillStyle(C('#6b5a3e'), 1).fillEllipse(9, 24, 20, 9); // muddy walk-down edge
+		g.fillStyle(C('#4f86a8'), 1).fillEllipse(23, 17, 34, 18); // cold spring-fed water
+		g.fillStyle(C('#2f5468'), 1).fillEllipse(26, 18, 20, 10); // deep shaded middle
+		g.fillStyle(C('#6fa8c4'), 0.6).fillEllipse(17, 13, 14, 5); // the one shaft of light on it
+		g.fillStyle(C('#3a2e20'), 0.5).fillEllipse(30, 8, 22, 7); // canopy shadow across the top
+	});
+	// Dug Channel: a narrow worked channel running off across the sprite, with a
+	// branch floating down it — nothing like an open pool.
+	o('beavercanal', 44, 28, (g) => {
+		g.fillStyle(C('#6a7a52'), 1).fillEllipse(22, 14, 44, 26); // marsh ground
+		g.fillStyle(C('#7f8f5e'), 1).fillEllipse(11, 8, 20, 11).fillEllipse(33, 20, 20, 11); // drier hummocks
+		g.fillStyle(C('#4a5a3a'), 1).fillTriangle(6, 25, 14, 3, 22, 3).fillTriangle(6, 25, 22, 3, 15, 26); // cut banks
+		g.fillStyle(C('#5f8fa0'), 1).fillTriangle(8, 24, 15, 4, 19, 4).fillTriangle(8, 24, 19, 4, 13, 25); // the channel
+		g.fillStyle(C('#84b2c0'), 0.75).fillTriangle(10, 23, 16, 6, 18, 6).fillTriangle(10, 23, 18, 6, 13, 24);
+		g.fillStyle(C('#7a5a3a'), 1).fillRoundedRect(11, 12, 9, 2.6, 1.3); // a branch floating down it
+		g.fillStyle(C('#5d4128'), 1).fillCircle(11.5, 13.3, 1.5);
+	});
+
+	// --- Wet margins: mud, meadow edge, submerged beds ---
+	// Mud Bank: a shaped, shovel-cut slope of bare damp earth going into water.
+	o('mudbank', 42, 28, (g) => {
+		g.fillStyle(C('#5f7f8a'), 1).fillEllipse(21, 23, 42, 10); // water at the foot of it
+		g.fillStyle(C('#7a6a52'), 1).fillTriangle(0, 4, 42, 10, 42, 22).fillTriangle(0, 4, 42, 22, 0, 22); // sloped bank
+		g.fillStyle(C('#94836a'), 1).fillTriangle(0, 4, 42, 10, 42, 13).fillTriangle(0, 4, 42, 13, 0, 8); // sunlit face
+		g.fillStyle(C('#5a4c3a'), 1).fillEllipse(14, 20, 16, 4).fillEllipse(32, 21, 12, 3); // wet dark waterline
+		g.fillStyle(C('#4f4133'), 1); // dug-in prints and scrapes
+		for (const [x, y] of [
+			[9, 12],
+			[17, 15],
+			[26, 13],
+			[34, 16],
+		] as [number, number][])
+			g.fillEllipse(x, y, 3.4, 2);
+	});
+	// Sunlit Mudflat: flat, bright, cracked and shining — germination ground, not
+	// a bank. Seedlings just breaking through.
+	o('mudflat', 44, 24, (g) => {
+		g.fillStyle(C('#6f8f9a'), 1).fillEllipse(38, 12, 16, 22); // water pulled back to one side
+		g.fillStyle(C('#8a6f4e'), 1).fillEllipse(20, 13, 40, 20); // exposed flat
+		g.fillStyle(C('#a3855f'), 1).fillEllipse(19, 11, 32, 13); // sun-warmed crust
+		g.lineStyle(0.9, C('#6b5540'), 1); // drying cracks
+		g.lineBetween(6, 8, 13, 12).lineBetween(13, 12, 11, 19).lineBetween(13, 12, 22, 10);
+		g.lineBetween(22, 10, 28, 15).lineBetween(22, 10, 24, 4).lineBetween(28, 15, 34, 13);
+		g.fillStyle(0xffffff, 0.28).fillEllipse(16, 9, 14, 3); // wet shine
+		g.lineStyle(1.2, C('#7fae5a'), 1); // cattail seedlings taking the light
+		g.lineBetween(10, 17, 10, 11).lineBetween(18, 18, 18, 12).lineBetween(27, 18, 27, 13);
+	});
+	// Wet Meadow Edge: half damp grass, half marsh — the sprite is the gradient.
+	o('wetmeadow', 44, 28, (g) => {
+		g.fillStyle(C('#86a35a'), 1).fillEllipse(22, 14, 44, 26); // damp grassy band
+		g.fillStyle(C('#9ab469'), 1).fillEllipse(13, 9, 26, 12); // drier upslope side
+		g.fillStyle(C('#6f8f52'), 1).fillEllipse(23, 19, 38, 14); // greener, wetter downslope
+		g.fillStyle(C('#5f8a7a'), 1).fillEllipse(30, 23, 26, 8); // marsh water creeping in
+		g.fillStyle(C('#7fae9c'), 0.7).fillEllipse(32, 22, 18, 4);
+		g.lineStyle(1.6, C('#7f9a4a'), 1); // grass thinning out as it gets wetter
+		for (let i = 0; i < 8; i++) g.lineBetween(6 + i * 4.4, 20 - (i % 3), 5 + i * 4.4, 8 + (i % 4) * 3);
+		g.fillStyle(C('#b9c98a'), 1);
+		for (let i = 0; i < 4; i++) g.fillEllipse(7 + i * 8, 8 + (i % 2) * 3, 3, 1.5); // seed heads
+	});
+	// Submerged Spawning Slab: a flat plate lying just under the surface with a
+	// clear dark gap beneath it — a ceiling, not a floor.
+	o('spawningslab', 40, 26, (g) => {
+		g.fillStyle(C('#5f8a96'), 1).fillEllipse(20, 14, 40, 22); // water over everything
+		g.fillStyle(C('#4a6b72'), 1).fillEllipse(20, 19, 34, 10); // dark silt below
+		g.fillStyle(C('#2f4046'), 1).fillEllipse(20, 17, 26, 6); // the gap underneath
+		g.fillStyle(C('#6e7d78'), 1).fillRoundedRect(5, 9, 30, 6, 2); // the slab
+		g.fillStyle(C('#8b9a94'), 1).fillRoundedRect(5, 9, 30, 2.6, 1.2); // scrubbed-clean upper face
+		g.fillStyle(C('#5b6a66'), 1).fillRect(7, 15, 3, 2).fillRect(30, 15, 3, 2); // props holding it clear
+		g.fillStyle(0xffffff, 0.35).fillEllipse(14, 7, 12, 2.4); // surface just above it
+	});
+	// Wild Celery Bed: long ribbon leaves streaming downcurrent underwater.
+	o('celerybed', 40, 30, (g) => {
+		g.fillStyle(C('#6fa8b8'), 0.85).fillEllipse(20, 17, 40, 26); // lit shallow water
+		g.fillStyle(C('#8a7f62'), 1).fillEllipse(20, 26, 34, 8); // silt bed they root in
+		g.lineStyle(2.2, C('#4f8f66'), 1); // ribbons all streaming the same way
+		for (let i = 0; i < 7; i++) {
+			const x = 4 + i * 5.4;
+			g.lineBetween(x, 26, x + 7, 8 + (i % 3) * 3);
+		}
+		g.lineStyle(1.4, C('#7fbf8a'), 0.9);
+		for (let i = 0; i < 5; i++) {
+			const x = 7 + i * 6;
+			g.lineBetween(x, 26, x + 9, 6 + (i % 2) * 4);
+		}
+		g.fillStyle(0xffffff, 0.3).fillEllipse(15, 7, 16, 3); // light reaching the bottom
+	});
+	// Cattail Root Shallows: shallow water over a mat of pale swollen rootstocks —
+	// the food is under the surface, so that is what shows.
+	o('cattailroots', 42, 28, (g) => {
+		g.fillStyle(C('#5f7a4a'), 1).fillEllipse(21, 16, 42, 24); // muddy shallows
+		g.fillStyle(C('#6d8a4a'), 0.85).fillEllipse(21, 14, 36, 15); // thin water over the mat
+		g.fillStyle(C('#c2bc8a'), 1); // packed starchy rootstocks
+		for (const [x, y, w] of [
+			[10, 20, 14],
+			[24, 21, 15],
+			[16, 17, 13],
+			[31, 18, 12],
+		] as [number, number, number][])
+			g.fillEllipse(x, y, w, 5);
+		g.lineStyle(1.2, C('#a89f6a'), 1); // the runners tying them together
+		g.lineBetween(5, 20, 36, 19).lineBetween(8, 17, 34, 18);
+		g.lineStyle(2, C('#6f9450'), 1); // a few blades still up out of the water
+		g.lineBetween(9, 15, 8, 3).lineBetween(30, 15, 32, 4);
+	});
+	// Flooded Reed Clump: a tight stiff stand in ankle-deep water — narrow and
+	// vertical where the reed bed is broad.
+	o('floodedreeds', 30, 40, (g) => {
+		g.fillStyle(C('#5f8a8a'), 1).fillEllipse(15, 34, 28, 10); // shallow standing water
+		g.fillStyle(C('#87b0b0'), 0.7).fillEllipse(13, 33, 18, 4);
+		g.lineStyle(2.4, C('#7f8f4e'), 1); // stiff stems, tight together
+		for (let i = 0; i < 6; i++) g.lineBetween(6 + i * 3.6, 35, 5 + i * 3.8, 4 + (i % 3) * 4);
+		g.lineStyle(1.6, C('#98a85e'), 1);
+		for (let i = 0; i < 5; i++) g.lineBetween(8 + i * 3.4, 34, 9 + i * 3.6, 6 + (i % 2) * 5);
+		g.fillStyle(C('#8a6a3a'), 1); // a couple of old cattail heads
+		g.fillEllipse(8, 7, 2.6, 6).fillEllipse(20, 5, 2.6, 6);
+		g.fillStyle(C('#5f7a3a'), 1).fillEllipse(15, 34, 16, 3); // stems meeting the waterline
+	});
+
+	// --- Things standing in, or lying on, the water ---
+	// Marsh Log: one end up in the sun, the other lost under the surface.
+	o('marshlog', 44, 26, (g) => {
+		g.fillStyle(C('#5f8494'), 1).fillEllipse(30, 16, 30, 18); // water it slides into
+		g.fillStyle(C('#4a6b78'), 0.9).fillEllipse(34, 18, 20, 9);
+		g.fillStyle(C('#6e553c'), 1).fillRoundedRect(2, 8, 34, 10, 5); // the trunk
+		g.fillStyle(C('#8a6d4a'), 1).fillRoundedRect(2, 8, 30, 4, 2); // sunlit upper side
+		g.fillStyle(C('#9a7a52'), 1).fillEllipse(4, 13, 7, 10); // raised cut end
+		g.fillStyle(C('#5d4128'), 1).fillEllipse(4, 13, 3.5, 5.5);
+		g.fillStyle(C('#3f5f4a'), 1).fillEllipse(16, 8, 12, 4); // moss along the top
+		g.fillStyle(C('#4a6b78'), 0.55).fillRoundedRect(28, 12, 12, 7, 3); // submerged end going dark
+		g.fillStyle(0xffffff, 0.25).fillEllipse(30, 12, 10, 1.6);
+	});
+	// Dead Tree Over Water: the drop below the cavity is the whole point.
+	o('floodedsnag', 30, 44, (g) => {
+		g.fillStyle(C('#5f8494'), 1).fillEllipse(15, 39, 30, 12); // water at the base
+		g.fillStyle(C('#87b0c0'), 0.6).fillEllipse(12, 38, 16, 4);
+		g.fillStyle(C('#7e7458'), 1).fillRect(11, 2, 8, 38); // dead trunk standing in it
+		g.fillStyle(C('#5f5844'), 1).fillRect(11, 2, 3, 38); // shadow side
+		g.fillStyle(C('#948a6a'), 1).fillRect(16, 2, 2, 38); // bleached side
+		g.fillStyle(C('#8a8068'), 1).fillRect(3, 9, 8, 2.4).fillRect(19, 15, 8, 2.2); // broken limbs
+		g.fillStyle(C('#2a2318'), 1).fillEllipse(15, 11, 7, 8); // the cavity, high up
+		g.fillStyle(C('#4a4030'), 1).fillEllipse(15, 8.5, 7, 2.6); // worn lip
+		g.fillStyle(0x000000, 0.2).fillEllipse(15, 39, 12, 3); // reflection under it
+	});
+	// Litter Drift: a submerged raft of dead leaves furred over with decay.
+	o('detritusdrift', 42, 26, (g) => {
+		g.fillStyle(C('#5f7f80'), 1).fillEllipse(21, 14, 42, 22); // tea-coloured water
+		g.fillStyle(C('#6b5a3e'), 1).fillEllipse(21, 16, 34, 14); // the sunken raft
+		g.fillStyle(C('#836f4c'), 1); // individual sodden leaves and stems, lying every which way
+		for (const [x, y, w, h] of [
+			[10, 14, 13, 4],
+			[19, 12, 6, 9],
+			[28, 15, 12, 5],
+			[15, 19, 5, 8],
+			[26, 20, 11, 4],
+		] as [number, number, number, number][])
+			g.fillEllipse(x, y, w, h);
+		g.fillStyle(C('#c2c4ae'), 0.7); // the fur of fungi and bacteria on it
+		for (const [x, y] of [
+			[12, 12],
+			[22, 14],
+			[17, 18],
+			[29, 17],
+		] as [number, number][])
+			g.fillEllipse(x, y, 6, 2.4);
+		g.fillStyle(0xffffff, 0.22).fillEllipse(16, 8, 18, 2.4); // surface above it
+	});
+	// Crane Nest Mound: a heap of piled marsh plants standing clear of open water
+	// — anything coming at it has to wade.
+	o('cranenest', 42, 30, (g) => {
+		g.fillStyle(C('#5f8a96'), 1).fillEllipse(21, 20, 42, 20); // open shallow water all round
+		g.fillStyle(C('#82adb8'), 0.7).fillEllipse(18, 18, 26, 7);
+		g.fillStyle(C('#6b6a42'), 1).fillEllipse(21, 18, 30, 14); // waterlogged base of the heap
+		g.fillStyle(C('#8a8557'), 1).fillEllipse(21, 14, 28, 13); // the built mound
+		g.fillStyle(C('#a3a06a'), 1).fillEllipse(21, 12, 22, 9); // dry top standing clear
+		g.lineStyle(1.2, C('#6f6c44'), 1); // piled stems
+		g.lineBetween(8, 15, 21, 10).lineBetween(34, 15, 21, 10).lineBetween(10, 11, 30, 13).lineBetween(12, 17, 32, 12);
+		g.fillStyle(C('#c9bf9a'), 1).fillEllipse(21, 11, 12, 5); // the shallow cup
+		g.fillStyle(C('#c2b28a'), 1).fillEllipse(19, 11, 4.5, 3.4).fillEllipse(24, 11.5, 4.5, 3.4); // two big eggs
+	});
+	// Hidden Reed Platform: living reeds bent down and woven, barely a hand above
+	// the water, walled in on every side.
+	o('reedplatform', 36, 34, (g) => {
+		g.fillStyle(C('#4a6b62'), 1).fillEllipse(18, 26, 36, 16); // dark water inside the stand
+		g.fillStyle(C('#7a7a44'), 1).fillEllipse(18, 22, 24, 9); // woven platform
+		g.fillStyle(C('#98974f'), 1).fillEllipse(18, 21, 20, 6);
+		g.lineStyle(1.4, C('#8a8a4a'), 1); // the weave
+		g.lineBetween(8, 21, 28, 22).lineBetween(8, 23, 28, 20).lineBetween(12, 18, 14, 25).lineBetween(22, 18, 20, 25);
+		g.lineStyle(2.4, C('#6f8a3f'), 1); // the stand closing over it
+		for (const x of [2, 5, 9, 27, 31, 34]) g.lineBetween(x, 32, x - 1 + (x % 3), 2 + (x % 4) * 3);
+		g.lineStyle(1.8, C('#8aa050'), 1);
+		for (const x of [7, 13, 24, 29]) g.lineBetween(x, 30, x + 1, 4 + (x % 3) * 4);
+	});
+
+	// --- Bank dens at the waterline ---
+	// Crayfish Burrow Bank: saturated clay riddled with finger-wide holes, each
+	// capped with the little turret of pellets they push out.
+	o('crayfishbank', 40, 28, (g) => {
+		g.fillStyle(C('#5f7f74'), 1).fillEllipse(20, 24, 40, 8); // drawn-down water at the foot
+		g.fillStyle(C('#9c7b52'), 1).fillRoundedRect(0, 4, 40, 20, 3); // wet clay bank
+		g.fillStyle(C('#b0916a'), 1).fillRoundedRect(0, 4, 40, 7, 3); // drier top
+		g.fillStyle(C('#2f2418'), 1); // the tunnels
+		for (const [x, y] of [
+			[8, 16],
+			[19, 14],
+			[29, 17],
+			[34, 12],
+		] as [number, number][])
+			g.fillCircle(x, y, 2.4);
+		g.fillStyle(C('#8a6a44'), 1); // chimneys of stacked mud pellets
+		for (const [x, y] of [
+			[8, 16],
+			[19, 14],
+			[29, 17],
+		] as [number, number][]) {
+			g.fillEllipse(x, y - 3.4, 6.5, 3);
+			g.fillEllipse(x, y - 5.4, 5, 2.6);
+		}
+		g.fillStyle(C('#7f6448'), 1).fillEllipse(20, 23, 34, 3); // wet dark waterline
+	});
+	// Cut Bank Burrow: a sheer earth wall rising straight out of the water, with a
+	// row of tunnel mouths along it.
+	o('cutbank', 40, 30, (g) => {
+		g.fillStyle(C('#5f8494'), 1).fillEllipse(20, 25, 40, 10); // water right at its foot
+		g.fillStyle(C('#87b0c0'), 0.6).fillEllipse(18, 23, 28, 3.4);
+		g.fillStyle(C('#a08258'), 1).fillRoundedRect(2, 5, 36, 19, 3); // sheer vertical face
+		g.fillStyle(C('#b89a70'), 1).fillRoundedRect(2, 5, 36, 5, 2.5); // lip
+		g.fillStyle(C('#8a6f4a'), 1).fillRect(2, 13, 36, 1.6).fillRect(2, 19, 36, 1.4); // soil strata
+		g.fillStyle(C('#7f9a4a'), 1).fillEllipse(11, 5, 16, 5).fillEllipse(29, 4, 18, 5); // turf overhanging the top
+		g.fillStyle(C('#2a2016'), 1); // burrow mouths in a row
+		for (const x of [8, 17, 26, 33]) g.fillEllipse(x, 16, 5, 4.4);
+		g.fillStyle(C('#8a7050'), 0.9);
+		for (const x of [8, 17, 26, 33]) g.fillEllipse(x, 18.6, 5, 1.6); // worn sills
+	});
+	// Old Bank Den: entrance below the waterline, chamber dry above it — the
+	// sprite cuts away to show both.
+	o('muskratden', 42, 30, (g) => {
+		g.fillStyle(C('#5f8494'), 1).fillEllipse(21, 24, 42, 12); // water level cutting across
+		g.fillStyle(C('#7d6647'), 1).fillRoundedRect(2, 3, 38, 22, 4); // the bank, shown in section
+		g.fillStyle(C('#94794f'), 1).fillRoundedRect(2, 3, 38, 7, 3.5); // dry upper soil
+		g.fillStyle(C('#5f8494'), 0.85).fillRect(2, 18, 38, 7); // waterline across the cut
+		g.fillStyle(C('#7fa8b8'), 0.5).fillRect(2, 18, 38, 1.6);
+		g.fillStyle(C('#5f4c34'), 1).fillEllipse(27, 23, 20, 9); // submerged bank shoulder
+		g.fillStyle(C('#241c12'), 1).fillEllipse(30, 22, 7, 6); // entrance, below the waterline
+		g.fillStyle(C('#241c12'), 1).fillEllipse(15, 13, 15, 9); // dry chamber above it
+		g.fillStyle(C('#3d3120'), 1).fillEllipse(15, 15, 13, 4.5); // bedding on the floor
+		g.lineStyle(2.4, C('#241c12'), 1).lineBetween(27, 20, 19, 15); // the run between them
+		g.fillStyle(C('#7f9a4a'), 1).fillEllipse(13, 3, 20, 5).fillEllipse(32, 3, 15, 4); // turf on top
+	});
+	// River Bank Den: roomier than the muskrat's, with a worn slide down into the
+	// water beside the underwater door.
+	o('otterden', 44, 30, (g) => {
+		g.fillStyle(C('#5f8494'), 1).fillEllipse(22, 24, 44, 12); // the river
+		g.fillStyle(C('#6b5540'), 1).fillRoundedRect(2, 3, 40, 22, 4); // bank in section
+		g.fillStyle(C('#836a50'), 1).fillRoundedRect(2, 3, 40, 7, 3.5);
+		g.fillStyle(C('#5f8494'), 0.85).fillRect(2, 19, 40, 6); // waterline across the cut
+		g.fillStyle(C('#87b0c0'), 0.5).fillRect(2, 19, 40, 1.6);
+		g.fillStyle(C('#9a8464'), 1).fillTriangle(30, 5, 41, 5, 37, 21); // the polished mud slide
+		g.fillStyle(C('#b09a76'), 1).fillTriangle(32, 6, 39, 6, 36, 20);
+		g.fillStyle(C('#241c12'), 1).fillEllipse(21, 23, 9, 7); // underwater entrance
+		g.fillStyle(C('#241c12'), 1).fillRoundedRect(6, 9, 19, 10, 4); // big dry chamber
+		g.fillStyle(C('#43382a'), 1).fillEllipse(15, 16, 15, 4); // dry bedding
+		g.lineStyle(3, C('#241c12'), 1).lineBetween(20, 21, 15, 17); // run up from the water
+		g.fillStyle(C('#7f9a4a'), 1).fillEllipse(12, 3, 20, 5); // turf lip
+	});
+
+	// --- Forest and alpine water ---
+	// Crayfish Shallows: ankle-deep, all loose flat rock, dark gaps under every one.
+	o('crayfishshallows', 42, 26, (g) => {
+		g.fillStyle(C('#5f7d84'), 1).fillEllipse(21, 14, 42, 22); // thin cold water
+		g.fillStyle(C('#8aa8ae'), 0.6).fillEllipse(18, 11, 26, 7); // glare off the surface
+		g.fillStyle(C('#7f8a80'), 1).fillEllipse(21, 20, 36, 9); // gravel bed
+		const slabs: [number, number, number, number][] = [
+			[9, 15, 13, 6],
+			[22, 13, 14, 6],
+			[33, 17, 12, 5],
+			[16, 20, 12, 5],
+			[28, 20, 11, 5],
+		];
+		slabs.forEach(([x, y, w, h], i) => {
+			g.fillStyle(C('#2f3c40'), 1).fillEllipse(x, y + 2, w, h * 0.7); // the dark gap under it
+			g.fillStyle(C(['#93a09a', '#87938e', '#a3aea6'][i % 3]), 1).fillEllipse(x, y, w, h); // the flat rock
+		});
+	});
+	// Elk Wallow: churned bare mud with a heavy body-print dish in the middle,
+	// holding a shine of water.
+	o('elkwallow', 42, 28, (g) => {
+		g.fillStyle(C('#5f6b46'), 1).fillEllipse(21, 15, 42, 24); // forest opening
+		g.fillStyle(C('#6b5a45'), 1).fillEllipse(21, 16, 34, 18); // churned bare ring
+		g.fillStyle(C('#54452f'), 1).fillEllipse(21, 17, 24, 12); // the dish
+		g.fillStyle(C('#7f8a76'), 1).fillEllipse(21, 18, 16, 7); // puddle left in it
+		g.fillStyle(0xffffff, 0.35).fillEllipse(18, 17, 8, 2.4);
+		g.fillStyle(C('#3f3423'), 1); // split hoof marks around the rim
+		for (const [x, y] of [
+			[7, 12],
+			[33, 13],
+			[12, 24],
+			[31, 24],
+		] as [number, number][]) {
+			g.fillEllipse(x - 1, y, 2, 3.2);
+			g.fillEllipse(x + 1.4, y, 2, 3.2);
+		}
+		g.fillStyle(C('#7f6a4a'), 1).fillEllipse(24, 9, 12, 4); // thrown-up mud
+	});
+	// Splash Ledge: a shelf tucked behind a falling thread of meltwater, moss on
+	// permanently wet rock.
+	o('splashledge', 34, 40, (g) => {
+		g.fillStyle(C('#4a505a'), 1).fillCircle(11, 12, 13).fillCircle(9, 28, 12).fillCircle(20, 6, 10); // broken cliff behind
+		g.fillStyle(C('#5b6169'), 1).fillCircle(9, 15, 10).fillCircle(7, 30, 9); // lit rock faces
+		g.fillStyle(C('#39404a'), 1).fillEllipse(13, 22, 22, 9); // the recess it sits in
+		g.fillStyle(C('#2a3038'), 1).fillEllipse(14, 27, 22, 7); // dark undercut below the shelf
+		g.fillStyle(C('#6f8894'), 1).fillEllipse(14, 23, 24, 7); // the wet shelf jutting out
+		g.fillStyle(C('#8aa4ae'), 1).fillEllipse(13, 21, 20, 4); // shine along its top
+		g.fillStyle(C('#4f7d54'), 1).fillEllipse(7, 22, 10, 4).fillEllipse(19, 23, 9, 3.4); // moss, permanently damp
+		g.fillStyle(C('#6fae6a'), 1).fillCircle(6, 21, 2).fillCircle(10, 22, 1.6).fillCircle(20, 22, 1.8);
+		g.fillStyle(C('#c8e6f0'), 0.9).fillTriangle(24, 0, 29, 0, 27, 30); // the thread, tapering as it falls
+		g.fillStyle(0xffffff, 0.7).fillTriangle(25.5, 0, 27.5, 0, 26.5, 26);
+		g.fillStyle(0xffffff, 0.55).fillEllipse(26, 33, 14, 6); // where it lands
+		g.fillStyle(0xffffff, 0.4)
+			.fillCircle(21, 31, 1.8)
+			.fillCircle(31, 30, 1.5)
+			.fillCircle(23, 36, 1.3)
+			.fillCircle(30, 36, 1.1);
+	});
+
+	// --- Coastal water ---
+	// Sunlit Surge Pool: deep, open to the sky, with white surge pouring in over
+	// the rim from the rocks above.
+	o('surgepool', 42, 34, (g) => {
+		g.fillStyle(C('#6b7076'), 1).fillEllipse(21, 18, 42, 30); // rock bowl
+		g.fillStyle(C('#2e8f7d'), 1).fillEllipse(21, 19, 32, 21); // deep sunlit pool
+		g.fillStyle(C('#1d5f56'), 1).fillEllipse(23, 22, 20, 11); // the deep middle
+		g.fillStyle(C('#4fc0a4'), 0.8).fillEllipse(16, 14, 16, 7); // full sun reaching in
+		g.fillStyle(0xffffff, 0.85).fillEllipse(30, 8, 16, 6); // surge spilling over the rim
+		g.fillStyle(0xffffff, 0.6).fillEllipse(27, 12, 11, 4).fillCircle(34, 12, 1.6).fillCircle(24, 10, 1.3);
+		g.fillStyle(C('#8e8e8a'), 1).fillEllipse(5, 10, 10, 8).fillEllipse(38, 24, 9, 8); // rim boulders
+	});
+	// Upwelling Current: cold deep water rising — a pale plankton plume lifting
+	// through dark blue.
+	o('upwelling', 36, 40, (g) => {
+		g.fillStyle(C('#17384a'), 1).fillEllipse(18, 21, 34, 40); // deep water column
+		g.fillStyle(C('#2f6b86'), 1).fillEllipse(18, 25, 28, 28); // the rising body of it
+		g.fillStyle(C('#4a92a8'), 0.9).fillEllipse(18, 20, 21, 22);
+		g.fillStyle(C('#7fc0c4'), 0.75).fillEllipse(18, 13, 15, 15); // plankton-rich crown
+		g.lineStyle(2, C('#a8dcd8'), 0.75); // upward streamlines
+		g.lineBetween(11, 33, 12, 12).lineBetween(18, 36, 18, 8).lineBetween(25, 33, 24, 12);
+		g.fillStyle(C('#c8ece2'), 0.9); // the fine stuff it carries up
+		for (const [x, y] of [
+			[13, 16],
+			[18, 10],
+			[23, 15],
+			[15, 23],
+			[22, 25],
+			[18, 19],
+		] as [number, number][])
+			g.fillCircle(x, y, 1.3);
+	});
+	// Nearshore Spawning Shallows: barely moving, warm on top, thick with drift.
+	o('spawnshallows', 44, 26, (g) => {
+		g.fillStyle(C('#3b7ea1'), 1).fillEllipse(22, 13, 44, 24); // quiet water
+		g.fillStyle(C('#5fa3bf'), 1).fillEllipse(22, 7, 40, 10); // warm surface layer
+		g.fillStyle(C('#7fc0d4'), 0.6).fillEllipse(17, 5, 24, 4);
+		g.fillStyle(C('#2f6480'), 1).fillEllipse(22, 21, 34, 7); // still bottom
+		g.fillStyle(C('#cfe4d8'), 0.85); // drifting food, hanging exactly where it is
+		for (const [x, y] of [
+			[9, 12],
+			[15, 8],
+			[21, 14],
+			[27, 10],
+			[33, 14],
+			[12, 17],
+			[25, 18],
+			[35, 9],
+			[18, 19],
+			[31, 19],
+		] as [number, number][])
+			g.fillCircle(x, y, 1.2);
+		g.lineStyle(1, 0xffffff, 0.3).lineBetween(6, 4, 38, 5); // no chop at all
+	});
+	// Swash-Zone Runnel: the sliding wet strip a wave drains back down, with a
+	// thin lace of foam at its edge.
+	o('swashrunnel', 44, 26, (g) => {
+		g.fillStyle(C('#dfd0a8'), 1).fillEllipse(22, 13, 44, 24); // sand
+		g.fillStyle(C('#c2ae82'), 1).fillEllipse(11, 5, 20, 6); // dry sand above the reach
+		g.fillStyle(C('#a9c4cf'), 1).fillTriangle(1, 11, 43, 5, 43, 19).fillTriangle(1, 11, 43, 19, 1, 23); // wet sliding strip
+		g.fillStyle(C('#c2d8e0'), 1).fillTriangle(1, 13, 43, 7, 43, 12).fillTriangle(1, 13, 43, 12, 1, 18); // sheeting water
+		g.fillStyle(0xffffff, 0.85); // foam lace along the leading edge
+		for (let i = 0; i < 8; i++) g.fillCircle(4 + i * 5, 12 - i * 0.65, 1.6 + (i % 2) * 0.7);
+		g.fillStyle(0xffffff, 0.4).fillEllipse(22, 10, 28, 2);
+		g.fillStyle(C('#8fa8b2'), 0.8).fillEllipse(29, 20, 17, 4); // draining back
+	});
+	// Breaking Surf Line: a wave standing up and toppling — the only sprite here
+	// with real vertical motion in it.
+	o('surfline', 46, 30, (g) => {
+		g.fillStyle(C('#2f7f8c'), 1).fillEllipse(23, 19, 46, 22); // open water
+		g.fillStyle(C('#1f5f6b'), 1).fillEllipse(23, 24, 40, 10); // trough
+		g.fillStyle(C('#3f9aa8'), 1).fillTriangle(4, 24, 26, 4, 33, 24); // the wave standing up
+		g.fillStyle(C('#5fbcc4'), 1).fillTriangle(11, 24, 26, 7, 30, 24); // lit face
+		g.fillStyle(0xffffff, 0.9).fillEllipse(27, 6, 14, 6); // the lip curling over
+		g.fillStyle(0xffffff, 0.75).fillEllipse(33, 12, 12, 7).fillEllipse(37, 18, 10, 6); // white water tumbling down
+		g.fillStyle(0xffffff, 0.5).fillEllipse(39, 23, 11, 5);
+		g.fillStyle(0xffffff, 0.35).fillCircle(31, 4, 1.6).fillCircle(36, 8, 1.3).fillCircle(24, 3, 1.2); // spray
+	});
+	// Deep Canyon Edge: the shelf stops and it goes blue-black. All the drama is
+	// in the drop-off line.
+	o('deepedge', 44, 32, (g) => {
+		g.fillStyle(C('#12384f'), 1).fillEllipse(22, 16, 44, 32); // the deep
+		g.fillStyle(C('#08202f'), 1).fillEllipse(29, 22, 30, 20); // colder, blacker below
+		g.fillStyle(C('#4a8fa8'), 1).fillTriangle(2, 7, 21, 7, 4, 25); // sunlit shelf
+		g.fillStyle(C('#6fb0c2'), 1).fillTriangle(3, 7, 17, 7, 4, 18);
+		g.fillStyle(C('#7f8f80'), 1).fillTriangle(1, 5, 22, 9, 2, 13); // rock lip of the shelf
+		g.fillStyle(C('#5f6f62'), 1).fillTriangle(15, 9, 22, 9, 17, 19); // the wall falling away
+		g.fillStyle(0x000000, 0.35).fillTriangle(17, 11, 24, 11, 21, 29); // shadow down the face
+		g.fillStyle(C('#8fd0e0'), 0.35).fillEllipse(9, 4, 14, 3); // light, only up top
+	});
+	// Sheltered Rafting Cove: flat as a pond, with loose kelp fronds lying across
+	// the surface and a point of rock holding the swell off.
+	o('raftingcove', 44, 30, (g) => {
+		g.fillStyle(C('#356b7d'), 1).fillEllipse(22, 18, 44, 26); // calm water in the lee
+		g.fillStyle(C('#4f8a9c'), 1).fillEllipse(20, 14, 32, 12); // glassy top
+		g.fillStyle(C('#767f86'), 1).fillEllipse(3, 8, 20, 18); // the sheltering point
+		g.fillStyle(C('#8e938a'), 1).fillEllipse(4, 5, 14, 10);
+		g.fillStyle(C('#6a7a3a'), 1); // kelp lying loose across the surface
+		for (const [x, y, w] of [
+			[16, 12, 18],
+			[26, 18, 20],
+			[20, 23, 16],
+			[33, 13, 14],
+		] as [number, number, number][])
+			g.fillEllipse(x, y, w, 2.6);
+		g.fillStyle(C('#8a9a4e'), 1).fillCircle(24, 12, 1.8).fillCircle(35, 18, 1.6).fillCircle(14, 22, 1.5); // floats
+		g.fillStyle(0xffffff, 0.25).fillEllipse(26, 9, 16, 2);
+	});
+	// Sandbar Roost: flat, dry, and ringed with water on every side.
+	o('sandbar', 44, 24, (g) => {
+		g.fillStyle(C('#6f9aa8'), 1).fillEllipse(22, 12, 44, 22); // water all round it
+		g.fillStyle(C('#8ab4c0'), 0.6).fillEllipse(11, 5, 20, 4).fillEllipse(33, 19, 18, 4);
+		g.fillStyle(C('#b5a882'), 1).fillEllipse(22, 12, 36, 12); // wet fringe of the bar
+		g.fillStyle(C('#ccbf9d'), 1).fillEllipse(22, 11, 29, 9); // dry flat top
+		g.fillStyle(C('#ddd2b2'), 1).fillEllipse(20, 10, 20, 5); // bleached crown
+		g.lineStyle(1, C('#b8ab88'), 1).strokeEllipse(22, 12, 33, 10.5); // the tide line around it
+		g.fillStyle(C('#a89a76'), 1).fillCircle(14, 12, 1.2).fillCircle(28, 11, 1.1).fillCircle(21, 13, 1); // shell grit
+	});
+	// Offshore Nesting Island: a stack standing in deep water, no way up from below.
+	o('offshoreislet', 34, 40, (g) => {
+		g.fillStyle(C('#3b7ea1'), 1).fillEllipse(17, 33, 34, 14); // deep water round it
+		g.fillStyle(C('#2f6480'), 1).fillEllipse(17, 36, 32, 10);
+		g.fillStyle(C('#9b9384'), 1).fillTriangle(4, 32, 17, 4, 30, 32); // the stack
+		g.fillStyle(C('#b0a898'), 1).fillTriangle(10, 32, 17, 5, 20, 32); // lit face
+		g.fillStyle(C('#6f6a60'), 1).fillTriangle(20, 32, 17, 6, 30, 32); // shadowed face
+		g.fillStyle(C('#8a8478'), 1).fillRect(6, 30, 22, 3); // sheer waterline base
+		g.fillStyle(0xffffff, 0.75).fillEllipse(17, 7, 12, 3.4); // guano cap on top
+		g.fillStyle(0xffffff, 0.4).fillEllipse(12, 14, 6, 2).fillEllipse(23, 18, 5, 1.8); // streaks down the face
+		g.fillStyle(0xffffff, 0.55).fillEllipse(6, 31, 9, 3).fillEllipse(28, 31, 8, 3); // wash at the base
+	});
+
+	// --- Tidal rock ---
+	// Low-Tide Rock Bench: a broad flat shelf with a thin film of water still on
+	// it and weed fringing the edge.
+	o('lowtidebench', 46, 24, (g) => {
+		g.fillStyle(C('#5f8494'), 1).fillEllipse(23, 19, 46, 10); // water waiting to come back
+		g.fillStyle(C('#6d7a80'), 1).fillRoundedRect(1, 4, 44, 14, 2); // bedrock bench
+		g.fillStyle(C('#87939a'), 1).fillRoundedRect(1, 4, 44, 5, 2); // exposed dry-ish top
+		g.fillStyle(C('#9aa8ae'), 0.6).fillEllipse(16, 8, 24, 4); // film of water still standing
+		g.fillStyle(C('#4a5f3a'), 1); // weed fringe along the seaward lip
+		for (let i = 0; i < 8; i++) g.fillEllipse(3 + i * 6, 17, 7, 3.4);
+		g.fillStyle(C('#6a7a3a'), 1);
+		for (let i = 0; i < 7; i++) g.fillEllipse(6 + i * 6, 18, 5, 2.4);
+		g.fillStyle(C('#4f6b74'), 1).fillEllipse(30, 11, 9, 4).fillEllipse(11, 12, 7, 3); // little pools left on it
+	});
+	// Urchin Pit: smooth ground-out bowls in solid rock, one occupied.
+	o('urchinpit', 38, 26, (g) => {
+		g.fillStyle(C('#7d848a'), 1).fillRoundedRect(1, 2, 36, 22, 3); // solid rock
+		g.fillStyle(C('#8f969a'), 1).fillRoundedRect(1, 2, 36, 7, 3);
+		g.fillStyle(C('#5f6a70'), 1).fillCircle(11, 12, 6).fillCircle(26, 10, 5.5).fillCircle(19, 20, 5); // ground-out pits
+		g.fillStyle(C('#48545a'), 1).fillCircle(11, 13, 4.4).fillCircle(26, 11, 4).fillCircle(19, 21, 3.6); // each a smooth bowl
+		g.fillStyle(C('#6b4a8a'), 1).fillCircle(11, 12.5, 3.4); // the urchin still in one
+		g.lineStyle(1.2, C('#4f3468'), 1);
+		for (let i = 0; i < 8; i++) {
+			const a = (i / 8) * Math.PI * 2;
+			g.lineBetween(11 + Math.cos(a) * 3, 12.5 + Math.sin(a) * 3, 11 + Math.cos(a) * 5.6, 12.5 + Math.sin(a) * 5.6);
+		}
+		g.fillStyle(C('#8a63a8'), 1).fillCircle(10, 11.5, 1.2);
+	});
+	// Barnacle Crust: the sprite is texture, not shape — a hard white stipple
+	// welded across the upper rock.
+	o('barnaclerock', 38, 26, (g) => {
+		g.fillStyle(C('#7d7367'), 1).fillEllipse(19, 16, 38, 20); // the rock
+		g.fillStyle(C('#8f8578'), 1).fillEllipse(17, 13, 30, 12);
+		g.fillStyle(C('#d8d2c4'), 1).fillEllipse(18, 12, 32, 12); // the crust across the top of it
+		g.fillStyle(C('#eae5d8'), 1);
+		const cones: [number, number, number][] = [
+			[7, 12, 2.6],
+			[12, 9, 2.2],
+			[17, 12, 2.8],
+			[22, 8, 2.4],
+			[27, 12, 2.6],
+			[31, 10, 2],
+			[10, 15, 2.2],
+			[20, 16, 2.4],
+			[25, 15, 2],
+			[14, 6, 1.8],
+			[29, 6, 1.8],
+			[5, 9, 1.8],
+		];
+		cones.forEach(([x, y, r]) => g.fillCircle(x, y, r));
+		g.fillStyle(C('#b0a898'), 1);
+		cones.forEach(([x, y, r]) => g.fillEllipse(x, y, r * 0.7, r * 0.5)); // the little plate opening in each
+	});
+	// Splash-Zone Crevice: the driest tier of the shore — dark cracks, sun-bleached
+	// rock, and only a fleck or two of spray.
+	o('splashcrevice', 36, 30, (g) => {
+		g.fillStyle(C('#7d7367'), 1).fillRoundedRect(1, 1, 34, 28, 2); // dry upper rock
+		g.fillStyle(C('#948a7c'), 1).fillRoundedRect(1, 1, 34, 9, 2); // sun-bleached top
+		g.fillStyle(C('#a89e8e'), 0.6).fillEllipse(14, 5, 20, 4);
+		g.lineStyle(2.6, C('#3a352c'), 1); // the cracks
+		g.lineBetween(8, 4, 11, 27).lineBetween(20, 2, 17, 28).lineBetween(28, 6, 31, 26);
+		g.lineStyle(1.2, C('#57503f'), 1).lineBetween(11, 14, 17, 16).lineBetween(17, 20, 28, 18);
+		g.fillStyle(C('#c9c2b0'), 1).fillEllipse(24, 12, 6, 3).fillEllipse(5, 20, 5, 2.4); // salt crust
+		g.fillStyle(0xffffff, 0.55).fillCircle(30, 3, 1.4).fillCircle(13, 2, 1.1).fillCircle(23, 6, 0.9); // the only water it gets
+	});
+	// Shell-Dropping Rock: a hard flat anvil standing clear of the sand, littered
+	// with what has already been broken on it.
+	o('shellrock', 40, 28, (g) => {
+		g.fillStyle(C('#d8c9a4'), 1).fillEllipse(20, 23, 40, 10); // sand around it
+		g.fillStyle(C('#9a958c'), 1).fillRoundedRect(5, 8, 30, 15, 3); // the boulder
+		g.fillStyle(C('#b0aba0'), 1).fillRoundedRect(5, 8, 30, 6, 3); // hard flat top
+		g.fillStyle(C('#7f7a72'), 1).fillEllipse(20, 23, 30, 4); // shadowed base
+		g.fillStyle(C('#efe6d2'), 1); // cracked shells on the anvil
+		g.fillEllipse(12, 10, 7, 3.4).fillEllipse(24, 9, 6, 3).fillEllipse(30, 12, 5, 2.6);
+		g.lineStyle(0.9, C('#b5a88e'), 1).lineBetween(9, 10, 15, 10).lineBetween(22, 9, 27, 9);
+		g.fillStyle(C('#e2d6bc'), 1).fillEllipse(6, 24, 5, 2.4).fillEllipse(34, 25, 4.5, 2.2); // fragments fallen off
+	});
+	// High-Tide Roost: raised, dry at the top of the tide, water all the way round.
+	o('roostrock', 36, 30, (g) => {
+		g.fillStyle(C('#5f8494'), 1).fillEllipse(18, 21, 36, 18); // high water on every side
+		g.fillStyle(C('#7fa8b8'), 0.6).fillEllipse(8, 18, 16, 4).fillEllipse(28, 26, 16, 4);
+		g.fillStyle(C('#8d8a84'), 1).fillEllipse(18, 15, 26, 20); // the rock
+		g.fillStyle(C('#a09d96'), 1).fillEllipse(16, 10, 20, 11); // dry crown standing clear
+		g.fillStyle(C('#6f6d68'), 1).fillEllipse(24, 18, 14, 9); // shadow side
+		g.fillStyle(0xffffff, 0.7).fillEllipse(16, 7, 15, 4); // whitewash where they stand
+		g.fillStyle(0xffffff, 0.4).fillEllipse(11, 12, 5, 2).fillEllipse(22, 13, 4, 1.8);
+		g.fillStyle(0xffffff, 0.5).fillEllipse(18, 25, 26, 3); // wash line around the base
+	});
+	// Seal Haul-Out Rocks: low, gently sloping, easy to climb straight out onto —
+	// and a wide quiet buffer marked around them.
+	o('haulout', 46, 28, (g) => {
+		g.fillStyle(C('#5f8494'), 1).fillEllipse(23, 20, 46, 16); // water
+		g.lineStyle(1, 0xffffff, 0.3).strokeEllipse(23, 16, 44, 22); // the buffer, kept quiet
+		g.fillStyle(C('#c2b48e'), 1).fillEllipse(34, 17, 24, 9); // sand spit
+		g.fillStyle(C('#767f86'), 1).fillEllipse(12, 15, 22, 12).fillEllipse(25, 16, 18, 10); // low rocks
+		g.fillStyle(C('#8b939a'), 1).fillEllipse(11, 12, 17, 7).fillEllipse(25, 13, 13, 6); // dry sloping backs
+		g.fillStyle(C('#5f676d'), 1).fillEllipse(16, 19, 20, 5); // wet lower slope, easy to climb
+		g.fillStyle(0xffffff, 0.3).fillEllipse(20, 21, 26, 2.4); // waterline
+		g.fillStyle(C('#a3a8ad'), 0.8).fillEllipse(7, 11, 8, 3); // worn smooth on top
+	});
+	// Surge-Swept Rock Face: open rock with the swell dragging past it — motion
+	// streaks are the identifying detail.
+	o('surgeface', 36, 34, (g) => {
+		g.fillStyle(C('#5b6169'), 1).fillRoundedRect(2, 1, 32, 32, 2); // the face
+		g.fillStyle(C('#6e747c'), 1).fillRoundedRect(2, 1, 32, 10, 2);
+		g.fillStyle(C('#474d54'), 1).fillRoundedRect(2, 22, 32, 11, 2); // wet lower band
+		g.lineStyle(1.6, C('#3d434a'), 1).lineBetween(9, 2, 7, 32).lineBetween(21, 1, 24, 33); // seams in the rock
+		g.fillStyle(0xffffff, 0.65); // water tearing past, all one direction
+		for (const [x, y, w] of [
+			[10, 8, 18],
+			[22, 15, 20],
+			[13, 21, 22],
+			[24, 27, 16],
+		] as [number, number, number][])
+			g.fillEllipse(x, y, w, 2.4);
+		g.fillStyle(0xffffff, 0.35).fillEllipse(18, 12, 14, 1.6).fillEllipse(16, 30, 20, 2);
+		g.fillStyle(0xffffff, 0.5).fillCircle(31, 6, 1.6).fillCircle(6, 17, 1.3).fillCircle(29, 22, 1.2); // spray coming off it
+	});
+
+	// --- Seabed and living beds ---
+	// Muddy Seabed: soft deep sediment so thick with amphipod tubes it is more
+	// animal than mud.
+	o('amphipodbed', 42, 26, (g) => {
+		g.fillStyle(C('#3f6b7a'), 1).fillEllipse(21, 8, 42, 16); // dim water above
+		g.fillStyle(C('#8a7f6a'), 1).fillEllipse(21, 18, 42, 18); // deep soft sediment
+		g.fillStyle(C('#9c9078'), 1).fillEllipse(20, 14, 34, 9);
+		g.fillStyle(C('#b5aa90'), 1); // the tube stubble
+		for (let i = 0; i < 14; i++) {
+			const x = 4 + i * 2.5,
+				h = 3 + (i % 4) * 1.6;
+			g.fillRect(x, 13 - h, 1.4, h);
+		}
+		g.fillStyle(C('#cfc6ae'), 1);
+		for (let i = 0; i < 14; i++) g.fillCircle(4.7 + i * 2.5, 13 - (3 + (i % 4) * 1.6), 0.9); // tube mouths
+		g.fillStyle(C('#6f6552'), 0.7).fillEllipse(21, 22, 32, 5); // undisturbed depth below
+	});
+	// Rippled Sand: even combed ridges, and nothing else — the pattern is the object.
+	o('rippledsand', 44, 24, (g) => {
+		g.fillStyle(C('#8fbccf'), 0.5).fillEllipse(22, 12, 44, 24); // clean water over it
+		g.fillStyle(C('#d8c9a4'), 1).fillEllipse(22, 13, 42, 20); // sand
+		g.fillStyle(C('#c2b28a'), 1); // the troughs
+		for (let i = 0; i < 6; i++) g.fillEllipse(22, 6 + i * 3.2, 40 - Math.abs(i - 2.5) * 4, 1.8);
+		g.fillStyle(C('#eadfbe'), 1); // the sunlit crests
+		for (let i = 0; i < 6; i++) g.fillEllipse(22, 4.9 + i * 3.2, 38 - Math.abs(i - 2.5) * 4, 1.1);
+		g.fillStyle(0xffffff, 0.22).fillEllipse(15, 8, 20, 3); // light banding across them
+	});
+	// Subtidal Rubble Flat: loose cobble under water with drifted material
+	// settling into the gaps.
+	o('rubbleflat', 42, 26, (g) => {
+		g.fillStyle(C('#4f7f8f'), 0.85).fillEllipse(21, 13, 42, 26); // water
+		g.fillStyle(C('#5f6b62'), 1).fillEllipse(21, 18, 40, 14); // dark gaps between the stones
+		const stones: [number, number, number, number][] = [
+			[8, 14, 9, 7],
+			[18, 12, 10, 7],
+			[29, 15, 9, 7],
+			[36, 12, 7, 6],
+			[12, 21, 10, 6],
+			[24, 22, 11, 6],
+			[33, 21, 8, 5],
+		];
+		stones.forEach(([x, y, w, h], i) =>
+			g.fillStyle(C(['#7a7f75', '#8b9086', '#6e7369'][i % 3]), 1).fillEllipse(x, y, w, h),
+		);
+		g.fillStyle(C('#6b6a4a'), 0.85); // drift settling down into it
+		g.fillEllipse(13, 17, 8, 2.4).fillEllipse(27, 18, 9, 2.2).fillEllipse(21, 24, 10, 2);
+		g.fillStyle(0xffffff, 0.18).fillEllipse(18, 4, 22, 3);
+	});
+	// Sheltered Sand-Gravel Flat: firm, even, mixed grain, and conspicuously
+	// undisturbed — a diggable flat rather than a rubble one.
+	o('gravelflat', 44, 24, (g) => {
+		g.fillStyle(C('#6f9aab'), 0.7).fillEllipse(22, 6, 42, 11); // calm water in the lee
+		g.fillStyle(C('#b5ac8e'), 1).fillEllipse(22, 14, 44, 19); // the flat
+		g.fillStyle(C('#c4bc9e'), 1).fillEllipse(21, 11, 34, 8); // firm sunlit surface
+		g.fillStyle(C('#9a927a'), 1); // mixed gravel worked evenly through it
+		for (let i = 0; i < 20; i++) g.fillCircle(6 + ((i * 7) % 33), 9 + ((i * 5) % 12), 1.1 + (i % 3) * 0.4);
+		g.fillStyle(C('#d2cbb0'), 1);
+		for (let i = 0; i < 13; i++) g.fillCircle(8 + ((i * 11) % 30), 12 + ((i * 3) % 9), 0.9);
+		g.fillStyle(C('#8f8770'), 0.7).fillEllipse(22, 20, 32, 4); // settled, going nowhere
+	});
+	// Sheltered Cobble Field: the underside is the habitat, so one stone is turned
+	// over to show it.
+	o('cobblefield', 42, 26, (g) => {
+		g.fillStyle(C('#a8a48f'), 1).fillEllipse(21, 13, 42, 24); // damp shore
+		const cobbles: [number, number, number, number][] = [
+			[9, 9, 11, 8],
+			[21, 7, 10, 7],
+			[32, 10, 10, 8],
+			[14, 18, 11, 8],
+			[34, 19, 9, 7],
+		];
+		cobbles.forEach(([x, y, w, h], i) => {
+			g.fillStyle(C('#5f5a50'), 0.8).fillEllipse(x, y + 3, w, h * 0.6); // dark and damp underneath
+			g.fillStyle(C(['#8b8578', '#9a948a', '#7c776c'][i % 3]), 1).fillEllipse(x, y, w, h);
+			g.fillStyle(0xffffff, 0.18).fillEllipse(x - 2, y - 2, w * 0.5, h * 0.35);
+		});
+		g.fillStyle(C('#3f3a32'), 1).fillEllipse(26, 19, 12, 8); // one flipped over
+		g.fillStyle(C('#4f4a40'), 1).fillEllipse(26, 19, 9, 5.5); // the dark damp face
+		g.fillStyle(C('#6b6a4a'), 1).fillCircle(24, 18, 1.2).fillCircle(28, 20, 1).fillCircle(26, 21, 0.9); // what lives on it
+	});
+	// Empty Shell Drift: wave-sorted, heaped up by size in a rock hollow.
+	o('shelldrift', 40, 26, (g) => {
+		g.fillStyle(C('#8b8578'), 1).fillEllipse(20, 18, 40, 18); // the rock hollow holding them
+		g.fillStyle(C('#6f6a60'), 1).fillEllipse(20, 20, 32, 11);
+		g.fillStyle(C('#b8a68b'), 1).fillEllipse(20, 16, 30, 12); // the heap
+		g.fillStyle(C('#d8cbb2'), 1); // big shells settled at the bottom
+		g.fillEllipse(10, 19, 9, 4.5).fillEllipse(21, 20, 10, 4.5).fillEllipse(30, 19, 8, 4);
+		g.fillStyle(C('#e8ddc6'), 1); // medium
+		g.fillEllipse(13, 15, 6.5, 3.4).fillEllipse(22, 14, 7, 3.4).fillEllipse(29, 15, 6, 3);
+		g.fillStyle(C('#f2ebd8'), 1); // small on top, sorted
+		g.fillEllipse(16, 11, 4.5, 2.4).fillEllipse(23, 10, 4, 2.2).fillEllipse(27, 12, 3.6, 2);
+		g.lineStyle(0.8, C('#b0a58c'), 1).lineBetween(7, 19, 13, 19).lineBetween(18, 20, 25, 20);
+	});
+	// Mussel Bed: a dense blue-black band, shells packed upright two and three deep.
+	o('musselbed', 40, 26, (g) => {
+		g.fillStyle(C('#7d7367'), 1).fillRoundedRect(1, 1, 38, 24, 3); // mid-zone rock
+		g.fillStyle(C('#8f8578'), 1).fillRoundedRect(1, 1, 38, 6, 3);
+		g.fillStyle(C('#3c3a4a'), 1).fillRoundedRect(2, 6, 36, 17, 2); // the packed band
+		g.fillStyle(C('#4a4759'), 1); // individual shells standing on end
+		for (let i = 0; i < 12; i++) g.fillEllipse(4 + i * 3, 11 + (i % 3) * 1.4, 2.6, 8);
+		g.fillStyle(C('#5a5668'), 1);
+		for (let i = 0; i < 11; i++) g.fillEllipse(5.5 + i * 3.1, 17 - (i % 2) * 1.6, 2.4, 7);
+		g.fillStyle(C('#6f6b80'), 0.8); // the shine along the top of the band
+		for (let i = 0; i < 12; i++) g.fillEllipse(4 + i * 3, 8 + (i % 3) * 1.4, 1.6, 2.4);
+		g.fillStyle(C('#2b2937'), 1).fillEllipse(20, 22, 34, 3); // dark packed base
+	});
+	// Mussel Bed Edge: the same band, but the sprite is the hard line where it
+	// stops and clean rock begins.
+	// Kelp Holdfast Reef: bare hard bottom with the claw-like holdfasts gripping
+	// it — the anchor, not the forest.
+	o('holdfastreef', 42, 26, (g) => {
+		g.fillStyle(C('#3f6b7a'), 0.8).fillEllipse(21, 12, 42, 24); // shallow seafloor water
+		g.fillStyle(C('#6b7168'), 1).fillEllipse(21, 18, 40, 15); // clean hard rock
+		g.fillStyle(C('#7d8378'), 1).fillEllipse(20, 14, 34, 7);
+		const bases: [number, number][] = [
+			[10, 14],
+			[21, 13],
+			[32, 15],
+		];
+		bases.forEach(([x, y]) => {
+			g.fillStyle(C('#4a5f3a'), 1).fillEllipse(x, y, 13, 6); // the holdfast
+			g.lineStyle(1.6, C('#3d4f30'), 1); // haptera gripping outward
+			g.lineBetween(x, y, x - 6, y + 4)
+				.lineBetween(x, y, x - 3, y + 5)
+				.lineBetween(x, y, x + 3, y + 5);
+			g.lineBetween(x, y, x + 6, y + 4);
+			g.fillStyle(C('#5f7a45'), 1).fillEllipse(x, y - 3, 6, 4); // stub of the stipe
+			g.lineStyle(2, C('#5f7a45'), 1).lineBetween(x, y - 4, x + 2, 1);
+		});
+	});
+	// Kelp Forest: full height — stipes rising through dim green water to a golden
+	// canopy lying on the surface.
+	o('kelpforest', 40, 46, (g) => {
+		g.fillStyle(C('#2f5a4a'), 1).fillEllipse(20, 24, 38, 44); // dim green water
+		g.fillStyle(C('#c9a84a'), 1).fillEllipse(20, 6, 36, 9); // golden surface canopy
+		g.fillStyle(C('#e0c25a'), 1).fillEllipse(12, 5, 20, 6).fillEllipse(29, 4, 18, 5);
+		g.lineStyle(2.4, C('#3f6b45'), 1); // stipes rising the whole way
+		g.lineBetween(9, 42, 11, 6).lineBetween(20, 43, 18, 5).lineBetween(30, 42, 28, 6);
+		g.fillStyle(C('#4f7d4a'), 1); // blades hanging off them
+		for (const [x, y] of [
+			[10, 14],
+			[19, 12],
+			[29, 16],
+			[11, 24],
+			[18, 26],
+			[28, 28],
+			[10, 34],
+			[20, 36],
+		] as [number, number][]) {
+			g.fillEllipse(x - 5, y, 10, 3);
+			g.fillEllipse(x + 5, y + 3, 10, 3);
+		}
+		g.fillStyle(C('#8a9a4e'), 1); // the gas floats
+		for (const [x, y] of [
+			[10, 14],
+			[19, 12],
+			[29, 16],
+			[11, 24],
+			[18, 26],
+			[28, 28],
+		] as [number, number][])
+			g.fillCircle(x, y, 1.8);
+		g.fillStyle(C('#7fd8a8'), 0.15).fillEllipse(20, 22, 30, 28); // green light filtering down
+	});
+	// Surfgrass Bed: long blades all laid over sideways in the surge, dense enough
+	// to hide the rock.
+	o('surfgrass', 42, 28, (g) => {
+		g.fillStyle(C('#4f7f8f'), 0.8).fillEllipse(21, 14, 42, 26); // moving water
+		g.fillStyle(C('#6b7168'), 1).fillEllipse(21, 24, 36, 8); // low-zone rock beneath
+		g.lineStyle(2.2, C('#3d7a52'), 1); // blades streaming one way
+		for (let i = 0; i < 8; i++) g.lineBetween(4 + i * 4.4, 24, 15 + i * 3, 9 + (i % 3) * 3);
+		g.lineStyle(1.6, C('#55a06a'), 1);
+		for (let i = 0; i < 7; i++) g.lineBetween(6 + i * 4.6, 25, 18 + i * 2.6, 6 + (i % 4) * 4);
+		g.lineStyle(1.2, C('#7fbf8a'), 0.9);
+		for (let i = 0; i < 5; i++) g.lineBetween(8 + i * 5.2, 24, 20 + i * 2.8, 11 + (i % 2) * 5);
+		g.fillStyle(C('#2f6b45'), 1).fillEllipse(21, 25, 30, 4); // dense root band
+	});
+	// Turtle Grazing Lawn: eelgrass cropped short and even — the opposite of
+	// surfgrass, and the crop is what makes it habitat.
+	o('eelgrasslawn', 42, 24, (g) => {
+		g.fillStyle(C('#6fa8b8'), 0.75).fillEllipse(21, 12, 42, 22); // clear shallow water
+		g.fillStyle(C('#9a9078'), 1).fillEllipse(21, 19, 38, 8); // sandy bottom
+		g.fillStyle(C('#7fae6d'), 1).fillRoundedRect(4, 9, 34, 10, 3); // the cropped lawn
+		g.lineStyle(1.6, C('#6f9d5d'), 1); // short, even, tender blades
+		for (let i = 0; i < 12; i++) g.lineBetween(6 + i * 2.8, 19, 6 + i * 2.8, 9 + (i % 3));
+		g.fillStyle(C('#a8cf92'), 1);
+		for (let i = 0; i < 12; i++) g.fillEllipse(6 + i * 2.8, 9 + (i % 3), 1.8, 1.2); // blunt cropped tips
+		g.fillStyle(C('#5f8a4a'), 1).fillEllipse(21, 19, 32, 3); // even root line
+		g.fillStyle(0xffffff, 0.2).fillEllipse(16, 5, 20, 3);
+	});
+	// Coralline Turf: pink branching crust — nothing else on the shore is this colour.
+	o('corallineturf', 38, 24, (g) => {
+		g.fillStyle(C('#4f7f8f'), 0.7).fillEllipse(19, 12, 38, 22); // low-zone water
+		g.fillStyle(C('#6b7168'), 1).fillEllipse(19, 18, 34, 10); // the rock
+		g.fillStyle(C('#c07a97'), 1).fillEllipse(19, 15, 32, 11); // pink crust over it
+		g.fillStyle(C('#d894ac'), 1).fillEllipse(18, 13, 24, 7);
+		g.lineStyle(1.4, C('#a85f7c'), 1); // the branching turf
+		for (let i = 0; i < 7; i++) {
+			const x = 6 + i * 4.2;
+			g.lineBetween(x, 18, x, 9 + (i % 3) * 2);
+			g.lineBetween(x, 12 + (i % 3), x - 2.4, 8 + (i % 3) * 2);
+			g.lineBetween(x, 12 + (i % 3), x + 2.4, 8 + (i % 2) * 2);
+		}
+		g.fillStyle(C('#e8b0c4'), 1);
+		for (let i = 0; i < 7; i++) g.fillCircle(6 + i * 4.2, 8 + (i % 3) * 2, 1.3); // pale branch tips
+	});
+	// --- Dens, burrows and hibernacula ---------------------------------------
+	// Thirty-two objects used to share `obj-stump`, so a tortoise burrow, a snow
+	// den and an octopus midden all drew the same mossy stump. What separates
+	// these in the fiction is the *entrance* — its shape, what it is cut into,
+	// and what is piled outside it — so that is what each sprite leads with.
+
+	// Boulder Burrow Den: the boulder is the roof; chambers run away below the
+	// frost line, shown as the dark room under the rock.
+	o('boulderden', 40, 32, (g) => {
+		g.fillStyle(C('#6f6a56'), 1).fillEllipse(20, 25, 40, 14); // turned earth apron
+		g.fillStyle(C('#8b7f68'), 1).fillCircle(20, 15, 13).fillCircle(9, 20, 7).fillCircle(31, 20, 7); // the boulder
+		g.fillStyle(C('#a49881'), 1).fillCircle(17, 11, 8); // lit crown
+		g.fillStyle(C('#241c14'), 1).fillEllipse(20, 26, 12, 7); // the mouth beneath it
+		g.fillStyle(C('#3a2f22'), 1).fillEllipse(20, 24, 12, 3); // shaded lintel
+		g.fillStyle(C('#4a3f30'), 0.9).fillEllipse(13, 30, 9, 3).fillEllipse(28, 30, 8, 3); // side chambers hinted below
+	});
+	// Inherited Earth Den: a hollow under boulders and roots, visibly widened —
+	// the fresh cut ring around an older mouth is the whole story.
+	o('inheritedden', 40, 30, (g) => {
+		g.fillStyle(C('#8a6f50'), 1).fillEllipse(20, 19, 40, 22); // earth bank
+		g.fillStyle(C('#9c8160'), 1).fillEllipse(19, 14, 32, 12);
+		g.fillStyle(C('#7f7568'), 1).fillCircle(6, 12, 6).fillCircle(34, 13, 6); // boulders either side
+		g.lineStyle(2, C('#6b5540'), 1).lineBetween(10, 8, 17, 15).lineBetween(30, 7, 23, 15); // roots over the top
+		g.fillStyle(C('#b09472'), 1).fillEllipse(20, 21, 19, 13); // the newly widened collar
+		g.fillStyle(C('#241c14'), 1).fillEllipse(20, 22, 13, 9); // the older mouth inside it
+		g.fillStyle(C('#4a3a28'), 1).fillEllipse(20, 27, 12, 3); // worn sill
+	});
+	// Nest Burrow: an abandoned tunnel in turf, stuffed with old dry bedding.
+	o('bumblebeeburrow', 34, 26, (g) => {
+		g.fillStyle(C('#7f9a52'), 1).fillEllipse(17, 15, 34, 20); // turf
+		g.fillStyle(C('#8f7c55'), 1).fillEllipse(17, 18, 24, 12); // bare worn ground at the mouth
+		g.fillStyle(C('#241c14'), 1).fillEllipse(17, 17, 13, 10); // the tunnel
+		g.fillStyle(C('#c9b878'), 1).fillEllipse(17, 19, 11, 6); // packed dry grass bedding
+		g.fillStyle(C('#ded0a0'), 1).fillEllipse(15, 18, 6, 2.4).fillEllipse(20, 20, 5, 2.2);
+		g.fillStyle(C('#e3c75f'), 1).fillEllipse(26, 8, 4, 3); // a bee at the entrance
+		g.fillStyle(C('#3b2e25'), 1).fillRect(25.4, 7, 1.1, 2.6);
+		g.fillStyle(0xffffff, 0.7).fillEllipse(27.4, 6.6, 2.4, 1.4);
+	});
+	// Chipmunk Burrow Larder: a flat slab lid, and the side room stacked with
+	// seed heads showing through beside it.
+	o('chipmunklarder', 40, 26, (g) => {
+		g.fillStyle(C('#a08a63'), 1).fillEllipse(20, 17, 40, 18); // dry ground
+		g.fillStyle(C('#8e8e8a'), 1).fillEllipse(14, 11, 26, 11); // the slab it runs under
+		g.fillStyle(C('#a3a39e'), 1).fillEllipse(13, 9, 22, 7);
+		g.fillStyle(C('#241c14'), 1).fillEllipse(15, 17, 9, 7); // tunnel mouth under the slab
+		g.fillStyle(C('#3d3120'), 1).fillEllipse(30, 18, 16, 10); // the side larder
+		g.fillStyle(C('#c9a95f'), 1); // seed heads packed into it
+		for (const [x, y] of [
+			[26, 17],
+			[31, 16],
+			[35, 18],
+			[29, 20],
+			[34, 21],
+		] as [number, number][])
+			g.fillEllipse(x, y, 4.5, 2.4);
+		g.fillStyle(C('#e0c98a'), 1).fillEllipse(31, 16, 3, 1.4);
+	});
+	// Toad Upland Burrow: small, in dark damp ground, with the soil visibly moist
+	// around it — no spoil heap, because it was borrowed.
+	o('toadburrow', 32, 24, (g) => {
+		g.fillStyle(C('#6a6a4a'), 1).fillEllipse(16, 14, 32, 18); // damp upland ground
+		g.fillStyle(C('#7a6f57'), 1).fillEllipse(16, 12, 24, 11); // bare patch
+		g.fillStyle(C('#4f4a34'), 1).fillEllipse(16, 16, 20, 8); // wet dark soil ring
+		g.fillStyle(C('#241c14'), 1).fillEllipse(16, 15, 9, 7); // the small mouth
+		g.fillStyle(C('#3f3a28'), 1).fillEllipse(16, 18, 9, 2.4);
+		g.fillStyle(C('#5d8a4a'), 1).fillEllipse(4, 8, 8, 4).fillEllipse(28, 9, 7, 3.5); // damp-ground plants
+		g.fillStyle(0xffffff, 0.18).fillEllipse(11, 11, 7, 2);
+	});
+	// Treeline Log Den: a hollow log half-buried in old drift, with snow tunnels
+	// running away from it.
+	o('treelinelogden', 44, 28, (g) => {
+		g.fillStyle(C('#dfe9f2'), 1).fillEllipse(22, 21, 44, 14); // packed snow around it
+		g.fillStyle(C('#59493a'), 1).fillRoundedRect(4, 8, 32, 12, 6); // the log
+		g.fillStyle(C('#6f5c47'), 1).fillRoundedRect(4, 8, 30, 4, 2); // sunlit top
+		g.fillStyle(C('#7a6852'), 1).fillEllipse(35, 14, 8, 12); // cut end
+		g.fillStyle(C('#1f1810'), 1).fillEllipse(35, 14, 5, 8); // the hollow
+		g.fillStyle(C('#c8d8e4'), 1).fillEllipse(10, 22, 14, 5).fillEllipse(30, 24, 13, 5); // tunnel mouths under the snowpack
+		g.fillStyle(C('#8fa4b4'), 1).fillEllipse(10, 22, 8, 3).fillEllipse(30, 24, 7, 3);
+		g.fillStyle(C('#3f5a44'), 1).fillEllipse(41, 8, 8, 12); // the last conifer
+	});
+	// Fur-Lined Prey Den: small and close, with tufts of pulled fur caught round
+	// the rim — the relining is the identifying detail.
+	o('furlinedden', 34, 26, (g) => {
+		g.fillStyle(C('#9c8d78'), 1).fillEllipse(17, 16, 34, 18); // dry ground
+		g.fillStyle(C('#b0a28c'), 1).fillEllipse(16, 13, 26, 11);
+		g.fillStyle(C('#241c14'), 1).fillEllipse(17, 16, 12, 9); // the mouth
+		g.fillStyle(C('#e0d6c4'), 1); // fur caught on the rim
+		for (const [x, y, w] of [
+			[10, 13, 5],
+			[17, 11, 6],
+			[24, 13, 5],
+			[9, 20, 4],
+			[25, 20, 4],
+		] as [number, number, number][])
+			g.fillEllipse(x, y, w, 2.6);
+		g.fillStyle(C('#f2ece0'), 1).fillEllipse(17, 19, 9, 3); // fur lining the floor
+		g.fillStyle(C('#c4b8a4'), 1).fillEllipse(17, 12, 8, 2);
+	});
+	// Ledge Den: a dry overhang deep inside broken cliff, screened by fallen rock
+	// so only one narrow way in shows.
+	o('ledgeden', 40, 32, (g) => {
+		g.fillStyle(C('#6b5f52'), 1).fillRoundedRect(2, 2, 36, 26, 3); // broken cliff
+		g.fillStyle(C('#7f7263'), 1).fillRoundedRect(2, 2, 36, 8, 3); // lit upper band
+		g.fillStyle(C('#150f0a'), 1).fillEllipse(20, 18, 22, 13); // the dry overhang
+		g.fillStyle(C('#2f2418'), 1).fillEllipse(20, 13, 22, 5); // roof of it
+		g.fillStyle(C('#8b8073'), 1).fillCircle(8, 24, 8).fillCircle(31, 25, 8).fillCircle(20, 28, 6); // fallen rock screening it
+		g.fillStyle(C('#9c9184'), 1).fillCircle(6, 22, 4).fillCircle(33, 23, 4);
+		g.fillStyle(C('#241c14'), 1).fillEllipse(20, 23, 7, 5); // the one narrow way in
+	});
+	// Tortoise Burrow: the giveaway is the shape — a wide, flat-floored half-moon
+	// mouth, far bigger and straighter-sided than anything else out here.
+	o('tortoiseburrow', 42, 28, (g) => {
+		g.fillStyle(C('#9c8a68'), 1).fillEllipse(21, 20, 42, 16); // apron of worn spoil
+		g.fillStyle(C('#7b6a4f'), 1).fillRoundedRect(4, 4, 34, 17, 4); // the bank it is cut into
+		g.fillStyle(C('#8f7c5c'), 1).fillRoundedRect(4, 4, 34, 6, 3);
+		g.fillStyle(C('#241c14'), 1).fillRoundedRect(11, 12, 20, 10, 5); // wide flat-floored mouth
+		g.fillStyle(C('#241c14'), 1).fillEllipse(21, 12, 20, 8); // its domed roof
+		g.fillStyle(C('#4f4030'), 1).fillEllipse(21, 21, 21, 3); // the worn sill it is kept open by
+		g.fillStyle(C('#b5a07c'), 1).fillEllipse(21, 24, 26, 5); // the polished ramp out
+	});
+	// Caliche Den: pale, hard, ready-made — a chamber eroded into a cemented bank,
+	// with no spoil outside because nothing had to be dug.
+	o('calichecave', 40, 28, (g) => {
+		g.fillStyle(C('#8a7f68'), 1).fillEllipse(20, 24, 38, 8); // rocky slope below
+		g.fillStyle(C('#b9ac8e'), 1).fillRoundedRect(2, 3, 36, 20, 3); // the caliche bank
+		g.fillStyle(C('#cdc2a6'), 1).fillRoundedRect(2, 3, 36, 6, 3); // hard cemented cap
+		g.fillStyle(C('#a3957a'), 1).fillRect(2, 14, 36, 1.6); // a bedding seam
+		g.fillStyle(C('#1f1810'), 1).fillEllipse(19, 17, 18, 12); // the eroded chamber
+		g.fillStyle(C('#4a4030'), 1).fillEllipse(19, 12, 18, 4); // its solid roof
+		g.fillStyle(C('#d8cdb2'), 1).fillEllipse(8, 8, 7, 4).fillEllipse(32, 10, 6, 3.5); // hard nodules in the face
+	});
+	// Seed Larder Burrow: the sand plug across the mouth is the point — it traps
+	// humid air inside. Shown sealed, under its shrub.
+	o('seedlarder', 38, 28, (g) => {
+		g.fillStyle(C('#a4885c'), 1).fillEllipse(19, 20, 38, 16); // sandy ground
+		g.fillStyle(C('#7d8b5a'), 1).fillEllipse(19, 7, 32, 14); // the shrub over it
+		g.fillStyle(C('#8f9c68'), 1).fillEllipse(13, 5, 18, 9);
+		g.fillStyle(C('#3d3120'), 1).fillEllipse(13, 20, 11, 8); // one mouth, open
+		g.fillStyle(C('#c2a878'), 1).fillEllipse(27, 20, 11, 8); // the other, plugged with sand
+		g.fillStyle(C('#d8c49a'), 1).fillEllipse(27, 19, 8, 5);
+		g.fillStyle(C('#8a7048'), 1).fillEllipse(20, 25, 24, 4); // swept apron
+		g.fillStyle(C('#c9a95f'), 1).fillEllipse(9, 24, 4, 2).fillEllipse(31, 25, 3.5, 1.8); // spilled seed
+	});
+	// Deep Sand Burrow: a spiral shaft — drawn as descending rings so the depth,
+	// not the mouth, is what reads.
+	o('deepsandburrow', 34, 30, (g) => {
+		g.fillStyle(C('#c2a878'), 1).fillEllipse(17, 15, 34, 28); // loose sand
+		g.fillStyle(C('#9c7f5a'), 1).fillEllipse(17, 10, 26, 11); // the open shaft mouth
+		const rings: [number, number, number, number][] = [
+			[17, 11, 22, 9],
+			[16, 15, 17, 7],
+			[18, 19, 13, 5.5],
+			[16, 22, 9, 4],
+			[18, 25, 6, 3],
+		];
+		rings.forEach(([x, y, w, h], i) => {
+			g.fillStyle(C(['#7f6544', '#6b5438', '#57432c', '#43331f', '#2f2416'][i]), 1).fillEllipse(x, y, w, h);
+		});
+		g.fillStyle(C('#d8c49a'), 1).fillEllipse(17, 6, 26, 5); // rim of thrown sand
+	});
+	// Sandy Den: several mouths in one low rise — the extra doors are the feature.
+	o('kitfoxden', 42, 26, (g) => {
+		g.fillStyle(C('#8d7f66'), 1).fillEllipse(21, 16, 42, 18); // low sandy rise
+		g.fillStyle(C('#a3957a'), 1).fillEllipse(20, 11, 34, 11); // sunlit crown
+		g.fillStyle(C('#241c14'), 1); // the several entrances
+		g.fillEllipse(9, 17, 10, 7).fillEllipse(22, 19, 11, 8).fillEllipse(34, 16, 9, 6);
+		g.fillStyle(C('#4a3f2e'), 1);
+		g.fillEllipse(9, 19.5, 10, 2.4).fillEllipse(22, 22, 11, 2.6).fillEllipse(34, 18.5, 9, 2.2); // worn sills
+		g.fillStyle(C('#c2b494'), 1).fillEllipse(15, 23, 10, 3).fillEllipse(29, 23, 9, 3); // fans of loose sand
+	});
+	// Wash Bank Den: cut into a dry wash's bank, set clearly above the flood line
+	// with dry gravel running below it.
+	o('washbankden', 44, 28, (g) => {
+		g.fillStyle(C('#c2b494'), 1).fillEllipse(22, 24, 44, 9); // dry gravel wash bed
+		g.fillStyle(C('#a89a7c'), 1).fillEllipse(12, 25, 12, 3).fillEllipse(31, 25, 11, 3);
+		g.fillStyle(C('#85704f'), 1).fillRoundedRect(2, 3, 40, 18, 3); // the cut bank
+		g.fillStyle(C('#9a8560'), 1).fillRoundedRect(2, 3, 40, 5, 2.5); // dry top
+		g.fillStyle(C('#6f5c42'), 1).fillRect(2, 12, 40, 1.4).fillRect(2, 17, 40, 1.2); // flood strata
+		g.fillStyle(C('#241c14'), 1).fillEllipse(20, 12, 14, 9); // the den, above the flood line
+		g.fillStyle(C('#4a3f2e'), 1).fillEllipse(20, 15, 14, 2.6);
+		g.fillStyle(C('#7d8b5a'), 1).fillEllipse(8, 3, 12, 4).fillEllipse(34, 3, 11, 4); // scrub on the rim
+	});
+	// Winter Rock Den (desert): a deep fissure in warm-toned rock, used year after
+	// year — the crack runs back further than the light goes.
+	o('desertwinterden', 38, 30, (g) => {
+		g.fillStyle(C('#6f6660'), 1).fillCircle(12, 17, 12).fillCircle(27, 16, 11).fillCircle(19, 23, 10); // broken rock
+		g.fillStyle(C('#857a72'), 1).fillCircle(11, 12, 8).fillCircle(28, 12, 7);
+		g.fillStyle(C('#0f0b08'), 1).fillTriangle(15, 4, 22, 4, 19, 27); // the fissure
+		g.fillStyle(C('#0f0b08'), 1).fillTriangle(16, 12, 24, 16, 19, 27);
+		g.fillStyle(C('#3a322c'), 1).fillTriangle(15, 4, 18, 4, 18, 14); // its lit lip
+		g.fillStyle(C('#9a8f86'), 1).fillEllipse(6, 25, 9, 5).fillEllipse(33, 25, 8, 5); // rubble at the foot
+	});
+	// Larder Burrow: a coin-sized mouth, and a cutaway of the tunnel running down
+	// to a store bigger than the entrance would suggest.
+	o('larderburrow', 40, 30, (g) => {
+		g.fillStyle(C('#6b5b45'), 1).fillEllipse(20, 18, 40, 22); // forest soil, in section
+		g.fillStyle(C('#7d6b52'), 1).fillEllipse(20, 8, 36, 10); // leaf-mould surface
+		g.fillStyle(C('#241c14'), 1).fillCircle(11, 8, 2.4); // the tiny entrance
+		g.lineStyle(2.6, C('#241c14'), 1).lineBetween(11, 9, 15, 16).lineBetween(15, 16, 25, 20); // tunnels running away
+		g.fillStyle(C('#241c14'), 1).fillEllipse(16, 17, 9, 6); // nest chamber
+		g.fillStyle(C('#3d3120'), 1).fillEllipse(30, 21, 16, 11); // the store room
+		g.fillStyle(C('#c9a95f'), 1); // more than a litre of seed
+		for (const [x, y] of [
+			[26, 20],
+			[30, 19],
+			[34, 21],
+			[28, 23],
+			[33, 24],
+			[31, 22],
+		] as [number, number][])
+			g.fillCircle(x, y, 2);
+	});
+	// Root-Mass Den: the tipped-up root plate is the roof, and the dry hollow left
+	// underneath is the den.
+	o('rootplateden', 42, 34, (g) => {
+		g.fillStyle(C('#5a4a36'), 1).fillCircle(20, 15, 15); // the root plate, stood on end
+		g.fillStyle(C('#6b5a42'), 1).fillCircle(18, 12, 12); // earth still held in it
+		g.lineStyle(1.8, C('#43351f'), 1); // roots radiating out of it
+		for (let i = 0; i < 8; i++) {
+			const a = -0.4 + (i / 7) * 3.9;
+			g.lineBetween(20, 15, 20 + Math.cos(a) * 17, 15 + Math.sin(a) * 15);
+		}
+		g.fillStyle(C('#7a6a52'), 1).fillRoundedRect(30, 20, 12, 6, 3); // the trunk lying away
+		g.fillStyle(C('#3d3120'), 1).fillEllipse(19, 28, 24, 10); // the dry hollow beneath
+		g.fillStyle(C('#150f0a'), 1).fillEllipse(19, 27, 17, 7);
+		g.fillStyle(C('#6b5a3e'), 1).fillEllipse(19, 32, 28, 4); // the floor of it
+	});
+	// Earth Den Bank: a whole well-drained slope with a row of mouths along the
+	// face, widened by generations.
+	o('earthdenbank', 46, 28, (g) => {
+		g.fillStyle(C('#6f5c42'), 1).fillEllipse(23, 17, 46, 24); // the slope
+		g.fillStyle(C('#856f50'), 1).fillEllipse(22, 9, 40, 13); // dry sunlit upper face
+		g.fillStyle(C('#7f9a4a'), 1).fillEllipse(10, 3, 18, 6).fillEllipse(34, 3, 16, 6); // turf on the crest
+		g.fillStyle(C('#241c14'), 1); // several entrances along it
+		g.fillEllipse(10, 16, 11, 8).fillEllipse(24, 18, 12, 9).fillEllipse(37, 15, 10, 7);
+		g.fillStyle(C('#4a3f2e'), 1);
+		g.fillEllipse(10, 19, 11, 2.4).fillEllipse(24, 21.5, 12, 2.6).fillEllipse(37, 17.5, 10, 2.2);
+		g.fillStyle(C('#9a8464'), 1).fillEllipse(17, 24, 13, 4).fillEllipse(31, 24, 12, 4); // spoil fans, long since packed
+	});
+	// Forest Winter Den: a rubble-filled crack in cool grey rock, going down past
+	// the frost line.
+	o('forestwinterden', 40, 28, (g) => {
+		g.fillStyle(C('#4f5a3f'), 1).fillEllipse(20, 22, 40, 12); // forest floor
+		g.fillStyle(C('#78736a'), 1).fillEllipse(11, 14, 20, 18).fillEllipse(29, 13, 19, 17); // split rock
+		g.fillStyle(C('#8d887e'), 1).fillEllipse(10, 9, 15, 9).fillEllipse(30, 8, 14, 9);
+		g.fillStyle(C('#100d0a'), 1).fillTriangle(16, 3, 24, 3, 20, 24); // the crack
+		g.fillStyle(C('#3a352c'), 1); // rubble packed into it
+		for (const [x, y, r] of [
+			[19, 8, 2.2],
+			[21, 13, 2],
+			[19, 18, 1.8],
+			[21, 21, 1.5],
+		] as [number, number, number][])
+			g.fillCircle(x, y, r);
+		g.fillStyle(C('#5d8a4a'), 1).fillEllipse(4, 20, 8, 4).fillEllipse(36, 20, 7, 4); // ferns at the base
+	});
+	// Hollow Denning Tree: a living tree with the chamber metres up — the height is
+	// the defence, so the sprite is tall.
+	o('denningtree', 32, 46, (g) => {
+		g.fillStyle(C('#5d8a4a'), 1).fillEllipse(16, 42, 26, 7); // ground cover at the foot
+		g.fillStyle(C('#6c5f47'), 1).fillRect(11, 10, 10, 32); // trunk
+		g.fillStyle(C('#52472f'), 1).fillRect(11, 10, 3.4, 32); // shadow side
+		g.fillStyle(C('#7f7256'), 1).fillRect(18.4, 10, 2, 32); // lit side
+		g.fillStyle(C('#5c5038'), 1).fillEllipse(16, 41, 15, 5); // root flare
+		g.fillStyle(C('#2f5a30'), 1).fillEllipse(16, 12, 30, 15); // lower canopy
+		g.fillStyle(C('#3f6e38'), 1).fillEllipse(11, 8, 20, 13).fillEllipse(23, 7, 18, 12); // upper masses
+		g.fillStyle(C('#4f8442'), 1).fillEllipse(13, 4, 15, 8).fillEllipse(24, 4, 12, 7); // sunlit tops
+		g.fillStyle(C('#241c14'), 1).fillEllipse(16, 22, 9.5, 10); // the chamber, metres up
+		g.fillStyle(C('#4a3f2b'), 1).fillEllipse(16, 18, 9.5, 3.4); // worn upper lip
+		g.fillStyle(0x000000, 0.3).fillEllipse(16, 25, 7, 2.4); // depth inside it
+	});
+	// Rocky Den Ledge: a leaning slab with a gap under it, open at both ends and
+	// screened by brush.
+	o('rockydenledge', 42, 28, (g) => {
+		g.fillStyle(C('#8a8a70'), 1).fillEllipse(21, 24, 40, 8); // ground
+		g.fillStyle(C('#7f8288'), 1).fillTriangle(3, 20, 38, 4, 41, 12).fillTriangle(3, 20, 41, 12, 8, 22); // the leaning slab
+		g.fillStyle(C('#969aa0'), 1).fillTriangle(4, 19, 37, 5, 39, 9).fillTriangle(4, 19, 39, 9, 7, 20); // lit face
+		g.fillStyle(C('#150f0a'), 1).fillTriangle(6, 22, 36, 12, 38, 19).fillTriangle(6, 22, 38, 19, 10, 24); // the gap beneath
+		g.fillStyle(C('#5f6a70'), 1).fillCircle(38, 21, 6).fillCircle(5, 23, 5); // rock at each end
+		g.fillStyle(C('#4f7d3a'), 1).fillCircle(12, 21, 7).fillCircle(20, 23, 6); // brush screening it
+		g.fillStyle(C('#5f9448'), 1).fillCircle(11, 18, 4).fillCircle(21, 20, 3.5);
+	});
+	// Deep Snow Den: white on white — a shaft driven down into a late drift, with
+	// boulders threaded through it and food stashed off to the side.
+	o('snowden', 42, 30, (g) => {
+		g.fillStyle(C('#dfe9f2'), 1).fillEllipse(21, 17, 42, 26); // the drift
+		g.fillStyle(0xffffff, 0.9).fillEllipse(19, 11, 34, 13); // wind-smoothed crown
+		g.fillStyle(C('#a8bfd0'), 1).fillEllipse(20, 19, 15, 11); // the shaft going down
+		g.fillStyle(C('#6f8ba3'), 1).fillEllipse(20, 21, 10, 7);
+		g.fillStyle(C('#3f5468'), 1).fillEllipse(20, 23, 6, 4); // and into the dark
+		g.fillStyle(C('#9aa8b0'), 1).fillCircle(7, 20, 6).fillCircle(34, 19, 5.5); // boulders it threads around
+		g.fillStyle(C('#c8d8e4'), 1).fillEllipse(33, 25, 12, 6); // a side chamber
+		g.fillStyle(C('#8a6a4a'), 1).fillEllipse(33, 25, 7, 3); // with food frozen into it
+	});
+	// Silk-Lined Burrow: a small hole with a silk-bound rim and trip-lines fanned
+	// across the sand — the lines are the tell.
+	o('silkburrow', 38, 30, (g) => {
+		g.fillStyle(C('#a89474'), 1).fillEllipse(19, 17, 38, 24); // firm sand
+		g.fillStyle(C('#b8a687'), 1).fillEllipse(18, 13, 30, 13);
+		g.lineStyle(1, C('#f2ece0'), 0.9); // trip-lines fanning out
+		for (let i = 0; i < 7; i++) {
+			const a = -2.6 + (i / 6) * 2.2;
+			g.lineBetween(19, 17, 19 + Math.cos(a) * 17, 17 + Math.sin(a) * 13);
+		}
+		g.lineStyle(1, C('#f2ece0'), 0.7);
+		for (let i = 0; i < 4; i++) g.lineBetween(19, 17, 5 + i * 9, 27);
+		g.fillStyle(C('#e8e2d4'), 1).fillCircle(19, 17, 6); // the smoothed silk rim
+		g.fillStyle(C('#6b5844'), 1).fillCircle(19, 17, 4.2);
+		g.fillStyle(C('#150f0a'), 1).fillCircle(19, 17, 3); // the hole
+	});
+	// Winter Sleep Burrow: a tilted slab, one tunnel, one grass-lined chamber.
+	// Nothing stored — that is what separates it from the larder burrows.
+	o('wintersleepburrow', 40, 30, (g) => {
+		g.fillStyle(C('#5c4a38'), 1).fillEllipse(20, 19, 40, 22); // soil, in section
+		g.fillStyle(C('#6f8a4a'), 1).fillEllipse(20, 7, 36, 9); // turf above
+		g.fillStyle(C('#8e8e8a'), 1).fillTriangle(4, 12, 24, 3, 27, 8).fillTriangle(4, 12, 27, 8, 8, 14); // the tilted slab
+		g.fillStyle(C('#a3a39e'), 1).fillTriangle(5, 11, 23, 4, 25, 6).fillTriangle(5, 11, 25, 6, 7, 12);
+		g.lineStyle(3, C('#241c14'), 1).lineBetween(9, 14, 20, 20); // the one tunnel
+		g.fillStyle(C('#241c14'), 1).fillEllipse(26, 22, 16, 10); // the chamber
+		g.fillStyle(C('#a89a5e'), 1).fillEllipse(26, 24, 13, 4); // grass lining, and nothing else
+		g.fillStyle(C('#c2b478'), 1).fillEllipse(24, 23, 6, 1.6).fillEllipse(29, 24, 5, 1.4);
+	});
+	// Canyon Ledge Den: red rock, a cut-back overhang, and fallen slabs across the
+	// front leaving one route in.
+	o('canyonledgeden', 42, 30, (g) => {
+		g.fillStyle(C('#8a5f45'), 1).fillRoundedRect(2, 2, 38, 24, 3); // canyon wall
+		g.fillStyle(C('#a3765a'), 1).fillRoundedRect(2, 2, 38, 7, 3); // sunlit rim
+		g.fillStyle(C('#75503a'), 1).fillRect(2, 13, 38, 1.6).fillRect(2, 19, 38, 1.4); // strata
+		g.fillStyle(C('#120c08'), 1).fillEllipse(21, 19, 26, 12); // the cut-back overhang
+		g.fillStyle(C('#3a2418'), 1).fillEllipse(21, 14, 26, 5); // its shaded roof
+		g.fillStyle(C('#9c6f52'), 1).fillTriangle(4, 28, 14, 14, 18, 28).fillTriangle(28, 28, 34, 16, 40, 28); // fallen slabs
+		g.fillStyle(C('#b08066'), 1).fillTriangle(5, 27, 13, 16, 15, 27);
+		g.fillStyle(C('#120c08'), 1).fillEllipse(23, 25, 7, 5); // the one way in
+	});
+	// Hidden Grass Nest: a standing tussock with a cup pressed into the middle —
+	// you would walk past it.
+	o('grasstussocknest', 36, 30, (g) => {
+		g.fillStyle(C('#6f8a44'), 1).fillEllipse(18, 21, 36, 16); // damp hollow
+		g.lineStyle(2.4, C('#8a9a52'), 1); // the thick tussock
+		for (let i = 0; i < 9; i++) g.lineBetween(3 + i * 3.8, 24, 2 + i * 4, 4 + (i % 4) * 4);
+		g.lineStyle(1.8, C('#a3b06a'), 1);
+		for (let i = 0; i < 8; i++) g.lineBetween(5 + i * 3.6, 24, 7 + i * 3.6, 6 + (i % 3) * 5);
+		g.fillStyle(C('#5f6f3a'), 1).fillEllipse(18, 17, 17, 9); // the pressed-down cup
+		g.fillStyle(C('#43502a'), 1).fillEllipse(18, 18, 12, 6);
+		g.fillStyle(C('#c2b478'), 1).fillEllipse(18, 19, 9, 3.5); // dry grass lining it
+	});
+	// Den Scrap Pile: a crevice under a boulder with a rock hauled part-way across
+	// it, and a tidy midden of emptied shells outside.
+	o('octopusmidden', 42, 28, (g) => {
+		g.fillStyle(C('#4f7f8f'), 0.8).fillEllipse(21, 14, 42, 26); // water
+		g.fillStyle(C('#6a6f7a'), 1).fillCircle(15, 12, 13); // the boulder
+		g.fillStyle(C('#7f8590'), 1).fillCircle(13, 8, 9);
+		g.fillStyle(C('#0d0f14'), 1).fillEllipse(17, 20, 16, 9); // the crevice under it
+		g.fillStyle(C('#8b909a'), 1).fillEllipse(24, 20, 11, 8); // the rock dragged across
+		g.fillStyle(C('#9ba0aa'), 1).fillEllipse(24, 18, 8, 4);
+		g.fillStyle(C('#d8cdb8'), 1); // the midden, tidily heaped
+		for (const [x, y, w] of [
+			[33, 22, 7],
+			[38, 20, 6],
+			[35, 17, 5],
+			[31, 18, 5],
+		] as [number, number, number][])
+			g.fillEllipse(x, y, w, 4);
+		g.fillStyle(C('#b0a48c'), 1).fillCircle(33, 22, 1.4).fillCircle(38, 20, 1.2).fillCircle(35, 17, 1); // drilled holes
+	});
+	// Borrowed Burrow: swept clean, with a fan of loose sand thrown out in front.
+	o('borrowedburrow', 38, 26, (g) => {
+		g.fillStyle(C('#9a7f52'), 1).fillEllipse(19, 15, 38, 18); // desert ground
+		g.fillStyle(C('#b09468'), 1).fillEllipse(18, 11, 30, 11);
+		g.fillStyle(C('#d8c49a'), 1).fillTriangle(19, 15, 4, 25, 34, 25); // the fan of thrown sand
+		g.fillStyle(C('#e2d3ac'), 1).fillTriangle(19, 16, 9, 24, 29, 24);
+		g.fillStyle(C('#241c14'), 1).fillEllipse(19, 14, 13, 10); // the widened mouth
+		g.fillStyle(C('#4a3f2e'), 1).fillEllipse(19, 17.5, 13, 2.6); // swept sill
+		g.fillStyle(C('#c2ad86'), 1).fillEllipse(11, 12, 6, 3).fillEllipse(28, 12, 5, 2.6); // spoil either side
+	});
+	// Clifftop Burrow: a round hole driven back into deep turf, with the entrance
+	// worn to bare earth and the drop just beyond.
+	o('clifftopburrow', 40, 28, (g) => {
+		g.fillStyle(C('#6f7a52'), 1).fillEllipse(20, 14, 40, 22); // deep sea-cliff turf
+		g.fillStyle(C('#83904f'), 1).fillEllipse(19, 9, 34, 13);
+		g.lineStyle(1.4, C('#5f6b3a'), 0.9);
+		for (let i = 0; i < 9; i++) g.lineBetween(3 + i * 4.2, 12, 2 + i * 4.4, 5 + (i % 3) * 3); // turf blades
+		g.fillStyle(C('#9a8a68'), 1).fillEllipse(20, 18, 17, 9); // worn bare patch at the mouth
+		g.fillStyle(C('#241c14'), 1).fillCircle(20, 17, 5.5); // the round hole
+		g.fillStyle(C('#3f3a28'), 1).fillEllipse(20, 20, 10, 2.4);
+		g.fillStyle(C('#8fb0c0'), 1).fillEllipse(20, 27, 40, 5); // the drop, just beyond
+	});
+	// Meadow Burrow Mound: a fan of fresh earth round the main hole, and a second
+	// one hidden in the grass a few paces off.
+	o('groundhogmound', 44, 28, (g) => {
+		g.fillStyle(C('#7f9a4a'), 1).fillEllipse(22, 16, 44, 22); // meadow
+		g.fillStyle(C('#8a7550'), 1).fillEllipse(15, 17, 26, 14); // the fan of turned earth
+		g.fillStyle(C('#9c8560'), 1).fillEllipse(14, 14, 20, 9); // freshly dug, still pale
+		g.fillStyle(C('#241c14'), 1).fillEllipse(15, 17, 12, 9); // the main hole
+		g.fillStyle(C('#4a3f2e'), 1).fillEllipse(15, 20, 12, 2.6);
+		g.lineStyle(2, C('#6f8a3f'), 1); // grass hiding the back door
+		for (const x of [30, 33, 36, 39]) g.lineBetween(x, 22, x - 1, 8 + (x % 4) * 2);
+		g.fillStyle(C('#241c14'), 1).fillEllipse(35, 20, 8, 5); // the second hole
+		g.fillStyle(C('#5f7a35'), 1).fillEllipse(35, 18, 9, 3); // half-covered by grass
+	});
+	// Den Hollow: a leaning log with a dry cavity under it, floored with dragged-in
+	// leaves and open at both ends.
+	o('opossumhollow', 44, 26, (g) => {
+		g.fillStyle(C('#6f8a4a'), 1).fillEllipse(22, 19, 44, 14); // meadow floor
+		g.fillStyle(C('#6b5a44'), 1).fillRoundedRect(3, 5, 36, 11, 5); // the leaning log
+		g.fillStyle(C('#85704f'), 1).fillRoundedRect(3, 5, 34, 4, 2); // sunlit upper side
+		g.fillStyle(C('#8a7358'), 1).fillEllipse(39, 12, 8, 11); // raised end
+		g.fillStyle(C('#4f4030'), 1).fillEllipse(39, 12, 4, 6);
+		g.fillStyle(C('#150f0a'), 1).fillEllipse(20, 18, 30, 9); // the dry cavity beneath
+		g.fillStyle(C('#8a6a3a'), 1).fillEllipse(20, 20, 24, 5); // dragged-in leaves on the floor
+		g.fillStyle(C('#a3814f'), 1).fillEllipse(14, 20, 7, 2.6).fillEllipse(26, 21, 6, 2.4);
+		g.fillStyle(C('#150f0a'), 1).fillEllipse(5, 18, 7, 6).fillEllipse(37, 18, 7, 6); // open at both ends
+	});
+
+	// --- Desert shrubs, mounds and forage ground -----------------------------
+	// Eighteen objects shared `obj-mound` — a plain brown hummock — which meant
+	// a creosote bush, an ant mound and a hemlock stand were the same picture.
+
+	// Krummholz Bed Hollow: a scrape pressed flat under a wind-bent conifer mat.
+	// The mat leans all one way, because the wind does.
+	o('krummholzbed', 42, 28, (g) => {
+		g.fillStyle(C('#6a7355'), 1).fillEllipse(21, 20, 42, 15); // stony alpine ground
+		g.fillStyle(C('#3f5a44'), 1).fillEllipse(22, 11, 40, 15); // the krummholz mat
+		g.fillStyle(C('#4f6f4a'), 1).fillEllipse(26, 8, 30, 10); // wind-combed upper surface
+		g.lineStyle(1.6, C('#35503a'), 1); // everything laid over downwind
+		for (let i = 0; i < 7; i++) g.lineBetween(4 + i * 5, 16, 12 + i * 4.6, 6);
+		g.fillStyle(C('#2f4436'), 1).fillEllipse(18, 18, 26, 7); // deep shade under it
+		g.fillStyle(C('#55503c'), 1).fillEllipse(16, 20, 17, 6); // the scrape, pressed flat
+		g.fillStyle(C('#6b6650'), 1).fillEllipse(16, 19, 12, 3.5);
+	});
+	// Open Sand Beach: the habitat is emptiness — flat, pale, undisturbed, with
+	// nothing on it but faint wind ripples.
+	o('sandbeach', 46, 22, (g) => {
+		g.fillStyle(C('#e2d3ac'), 1).fillEllipse(23, 12, 46, 18); // wide open sand
+		g.fillStyle(C('#eee2c0'), 1).fillEllipse(22, 9, 38, 10); // sun-bleached crown
+		g.fillStyle(C('#d4c49c'), 0.8); // faint wind ripples, nothing more
+		for (let i = 0; i < 4; i++) g.fillEllipse(23, 9 + i * 3.4, 40 - i * 5, 1.2);
+		g.fillStyle(C('#c9b892'), 1).fillEllipse(9, 17, 8, 2).fillEllipse(35, 18, 7, 2); // faint shadowed troughs
+		g.fillStyle(C('#f4ead0'), 1).fillCircle(14, 7, 1).fillCircle(31, 6, 0.9).fillCircle(24, 5, 0.8); // grains catching light
+	});
+	// Dune Manzanita: low and spreading, with the smooth red bark manzanita is
+	// known for and pale berries held into winter.
+	o('dunemanzanita', 40, 28, (g) => {
+		g.fillStyle(C('#ded0a8'), 1).fillEllipse(20, 23, 38, 9); // dune sand
+		g.fillStyle(C('#8f6f5c'), 1); // the red-barked frame, spreading low
+		g.fillRoundedRect(17, 12, 5, 11, 2);
+		g.lineStyle(2.4, C('#a3705a'), 1);
+		g.lineBetween(19, 16, 7, 12).lineBetween(19, 15, 32, 11).lineBetween(19, 18, 11, 17).lineBetween(19, 17, 30, 16);
+		g.fillStyle(C('#5f7a52'), 1).fillEllipse(9, 10, 15, 8).fillEllipse(29, 9, 16, 8).fillEllipse(19, 8, 14, 8); // grey-green leaves
+		g.fillStyle(C('#728a5f'), 1).fillEllipse(8, 8, 9, 4).fillEllipse(28, 7, 9, 4);
+		g.fillStyle(C('#e8dcc0'), 1); // pale berries held hard into the cold
+		for (const [x, y] of [
+			[7, 13],
+			[13, 11],
+			[25, 12],
+			[32, 13],
+			[19, 12],
+		] as [number, number][])
+			g.fillCircle(x, y, 1.8);
+	});
+	// Creosote Bush: open and airy with visible gaps — it is spaced wide because
+	// its roots take everything around it, and the silhouette should say so.
+	o('creosotebush', 40, 32, (g) => {
+		g.fillStyle(C('#c2ab7e'), 1).fillEllipse(20, 27, 34, 8); // bare ground it has cleared
+		g.lineStyle(1.8, C('#7a6a44'), 1); // the open woody frame
+		g.lineBetween(20, 28, 14, 10).lineBetween(20, 28, 20, 6).lineBetween(20, 28, 27, 11).lineBetween(20, 28, 9, 16);
+		g.lineBetween(20, 28, 31, 18);
+		g.fillStyle(C('#6b7f4a'), 1); // small resinous leaf clusters, deliberately sparse
+		for (const [x, y, r] of [
+			[14, 9, 4.5],
+			[20, 5, 5],
+			[27, 10, 4.5],
+			[9, 15, 4],
+			[31, 17, 4],
+			[17, 14, 3.5],
+			[24, 16, 3.5],
+		] as [number, number, number][])
+			g.fillCircle(x, y, r);
+		g.fillStyle(C('#e0c95a'), 1).fillCircle(12, 7, 1.6).fillCircle(23, 4, 1.6).fillCircle(30, 14, 1.4); // yellow flowers
+		g.fillStyle(0xffffff, 0.8).fillCircle(17, 12, 1.3).fillCircle(28, 20, 1.2); // fuzzy seed capsules
+	});
+	// Desert Mistletoe: leafless, and rooted *inside* the host — so it hangs as
+	// dense clumps within another plant's branches, not on the ground.
+	o('mistletoe', 38, 30, (g) => {
+		g.lineStyle(3.4, C('#7a6a4a'), 1); // the host branch it is rooted inside
+		g.lineBetween(2, 6, 36, 11);
+		g.lineStyle(2.6, C('#6b5b3f'), 1).lineBetween(14, 8, 8, 20).lineBetween(24, 9, 31, 19);
+		g.fillStyle(C('#5f5836'), 1).fillEllipse(19, 20, 30, 22); // the clump, hanging heavy
+		g.fillStyle(C('#7f7548'), 1).fillEllipse(18, 18, 26, 18);
+		g.fillStyle(C('#9a8f5c'), 1).fillEllipse(17, 16, 19, 12); // lit outer growth
+		g.lineStyle(1.2, C('#b0a468'), 1); // jointed, leafless stems all through it
+		for (let i = 0; i < 9; i++) {
+			const a = 0.2 + (i / 8) * 2.7;
+			g.lineBetween(19, 14, 19 + Math.cos(a) * 13, 14 + Math.sin(a) * 13);
+		}
+		g.lineStyle(1, C('#8a8050'), 1);
+		for (let i = 0; i < 6; i++) {
+			const a = 0.5 + (i / 5) * 2.2;
+			g.lineBetween(
+				19 + Math.cos(a) * 7,
+				14 + Math.sin(a) * 7,
+				19 + Math.cos(a + 0.5) * 13,
+				14 + Math.sin(a + 0.5) * 12,
+			);
+		}
+		g.fillStyle(C('#d8484a'), 1); // midwinter fruit, the only red out here
+		for (const [x, y] of [
+			[10, 20],
+			[16, 25],
+			[23, 24],
+			[28, 19],
+			[13, 15],
+			[24, 14],
+			[19, 28],
+		] as [number, number][])
+			g.fillCircle(x, y, 2);
+		g.fillStyle(0xffffff, 0.5).fillCircle(9.4, 19.4, 0.8).fillCircle(22.4, 23.4, 0.8).fillCircle(12.4, 14.4, 0.7);
+	});
+	// Chuparosa: a soft grey shrub carrying scarlet tubular flowers — the tube
+	// shape matters, so they are drawn as little trumpets, not dots.
+	o('chuparosa', 38, 30, (g) => {
+		g.fillStyle(C('#c2ab82'), 1).fillEllipse(19, 26, 32, 7); // desert ground
+		g.fillStyle(C('#9aa08a'), 1).fillEllipse(12, 16, 18, 16).fillEllipse(25, 15, 18, 16); // soft grey growth
+		g.fillStyle(C('#adb39c'), 1).fillEllipse(11, 12, 13, 9).fillEllipse(26, 11, 12, 9);
+		g.lineStyle(1.2, C('#8a9078'), 1);
+		for (let i = 0; i < 6; i++) g.lineBetween(7 + i * 5, 25, 8 + i * 4.6, 9 + (i % 3) * 3); // wandy stems
+		g.fillStyle(C('#c4523a'), 1); // scarlet tubes
+		for (const [x, y, a] of [
+			[6, 11, 1],
+			[14, 7, 1],
+			[22, 9, -1],
+			[31, 8, -1],
+			[18, 16, 1],
+			[28, 17, -1],
+		] as [number, number, number][]) {
+			g.fillEllipse(x, y, 6.5, 2.6);
+			g.fillCircle(x + 3 * a, y, 1.7);
+		}
+		g.fillStyle(C('#e0735a'), 1).fillEllipse(14, 6.4, 4, 1.2).fillEllipse(31, 7.4, 3.5, 1.1);
+	});
+	// Catclaw Acacia: low, wide and thorny, with the hooked spines drawn as little
+	// claws along the branches and heavy pods hanging under them.
+	o('catclaw', 42, 30, (g) => {
+		g.fillStyle(C('#c2ab82'), 1).fillEllipse(21, 26, 34, 7); // wash floor
+		g.fillStyle(C('#6b5b3f'), 1).fillRect(19, 14, 4, 12); // short trunk
+		g.lineStyle(2.2, C('#7a6a4a'), 1); // wide-spreading limbs
+		g.lineBetween(21, 16, 6, 11).lineBetween(21, 15, 36, 10).lineBetween(21, 17, 12, 18).lineBetween(21, 16, 32, 17);
+		g.fillStyle(C('#7d8b5a'), 1).fillEllipse(10, 8, 18, 9).fillEllipse(30, 7, 19, 9).fillEllipse(20, 6, 15, 8); // feathery canopy
+		g.fillStyle(C('#8d9a68'), 1).fillEllipse(9, 6, 11, 5).fillEllipse(31, 5, 11, 5);
+		g.lineStyle(1, C('#4f4030'), 1); // the hooked spines
+		for (const [x, y] of [
+			[11, 11],
+			[16, 13],
+			[26, 12],
+			[33, 11],
+			[14, 17],
+			[29, 16],
+		] as [number, number][])
+			g.lineBetween(x, y, x + 2, y + 2.4).lineBetween(x + 2, y + 2.4, x + 0.4, y + 3);
+		g.fillStyle(C('#8a6a3a'), 1).fillEllipse(15, 20, 3, 9).fillEllipse(27, 21, 3, 8); // heavy seed pods
+	});
+	// Bush Muhly: fine and wispy, and specifically growing up *through* a shrub —
+	// the shrub it shelters in is part of the identity.
+	o('bushmuhly', 38, 30, (g) => {
+		g.fillStyle(C('#c2ab82'), 1).fillEllipse(19, 26, 34, 8); // desert soil
+		g.fillStyle(C('#6f7a4a'), 1).fillEllipse(19, 19, 26, 14); // the sheltering shrub
+		g.fillStyle(C('#7d8a56'), 1).fillEllipse(17, 16, 19, 9);
+		g.lineStyle(1, C('#b8a35e'), 1); // very fine grass stems pushing up through it
+		for (let i = 0; i < 11; i++) g.lineBetween(6 + i * 2.7, 24, 4 + i * 3, 4 + (i % 5) * 3);
+		g.lineStyle(0.8, C('#cdb974'), 1);
+		for (let i = 0; i < 9; i++) g.lineBetween(8 + i * 2.6, 23, 10 + i * 2.8, 6 + (i % 4) * 3);
+		g.fillStyle(C('#ded0a0'), 0.85); // the airy seed haze it makes
+		for (const [x, y] of [
+			[6, 6],
+			[13, 4],
+			[21, 5],
+			[29, 4],
+			[34, 8],
+			[17, 9],
+			[26, 9],
+		] as [number, number][])
+			g.fillEllipse(x, y, 4, 2);
+	});
+	// Harvester Ant Mound: a gravel cap, a bare cleared disc around it, a rim of
+	// discarded husks, and a column of ants coming in.
+	o('antmound', 42, 28, (g) => {
+		g.fillStyle(C('#c9b48c'), 1).fillEllipse(21, 16, 42, 22); // the cleared disc
+		g.fillStyle(C('#d8c8a0'), 1).fillEllipse(21, 15, 34, 17); // swept bare
+		g.fillStyle(C('#a8763f'), 1).fillEllipse(21, 15, 22, 13); // the mound
+		g.fillStyle(C('#bd8a4c'), 1).fillEllipse(20, 12, 17, 8); // gravel cap
+		g.fillStyle(C('#8a5f30'), 1); // individual gravel
+		for (const [x, y] of [
+			[15, 12],
+			[21, 10],
+			[26, 13],
+			[18, 15],
+			[24, 16],
+		] as [number, number][])
+			g.fillCircle(x, y, 1.4);
+		g.fillStyle(C('#241c14'), 1).fillEllipse(21, 15, 5, 3.5); // the hole
+		g.fillStyle(C('#e0d0a4'), 1); // rim of discarded seed husks
+		for (let i = 0; i < 10; i++) {
+			const a = (i / 10) * Math.PI * 2;
+			g.fillEllipse(21 + Math.cos(a) * 14, 15 + Math.sin(a) * 8, 3, 1.4);
+		}
+		g.fillStyle(C('#3f2f1c'), 1); // the column coming in
+		for (const [x, y] of [
+			[33, 20],
+			[36, 21],
+			[39, 22],
+		] as [number, number][])
+			g.fillEllipse(x, y, 2, 1.2);
+	});
+	// Creosote Coppice Mound: wind-caught soil heaped round a shrub's base and
+	// riddled with fine tunnels — the mound is the habitat, the shrub is the lid.
+	o('creosotemound', 40, 30, (g) => {
+		g.fillStyle(C('#7e7d55'), 1).fillEllipse(20, 21, 40, 18); // the heaped mound
+		g.fillStyle(C('#8f8d62'), 1).fillEllipse(19, 17, 32, 12); // loose windblown crown
+		g.fillStyle(C('#6b7f4a'), 1).fillEllipse(20, 8, 30, 14); // the creosote above it
+		g.fillStyle(C('#7b8f56'), 1).fillEllipse(14, 6, 17, 8).fillEllipse(28, 6, 14, 7);
+		g.lineStyle(1.6, C('#6b5b3f'), 1).lineBetween(20, 18, 16, 8).lineBetween(20, 18, 25, 9); // stems out of the heap
+		g.fillStyle(C('#3d3120'), 1); // fine tunnels all through it
+		for (const [x, y] of [
+			[8, 20],
+			[14, 24],
+			[22, 25],
+			[30, 22],
+			[34, 19],
+			[18, 21],
+		] as [number, number][])
+			g.fillEllipse(x, y, 4, 2.6);
+		g.fillStyle(C('#5c4a38'), 1);
+		for (const [x, y] of [
+			[8, 20],
+			[22, 25],
+			[34, 19],
+		] as [number, number][])
+			g.fillEllipse(x, y, 2, 1.4);
+	});
+	// Browse Exclosure: a ring fence with knee-high oak seedlings safe inside and
+	// nothing outside it — the contrast is the whole idea.
+	o('browseexclosure', 44, 30, (g) => {
+		g.fillStyle(C('#7a8f52'), 1).fillEllipse(22, 20, 44, 18); // forest floor
+		g.fillStyle(C('#6b7f44'), 1).fillEllipse(22, 19, 30, 13); // protected ground inside
+		g.fillStyle(C('#4f7d3a'), 1); // oak seedlings, actually getting away
+		for (const [x, y, h] of [
+			[14, 18, 9],
+			[21, 16, 12],
+			[28, 18, 10],
+		] as [number, number, number][]) {
+			g.fillRect(x - 0.7, y - h + 4, 1.4, h);
+			g.fillEllipse(x - 3, y - h + 5, 6, 3.4);
+			g.fillEllipse(x + 3, y - h + 8, 6, 3.4);
+			g.fillEllipse(x, y - h + 3, 6, 3.4);
+		}
+		g.fillStyle(C('#a3814f'), 1); // the low ring fence
+		for (const x of [5, 14, 23, 32, 39]) g.fillRect(x, 14, 2, 11);
+		g.fillStyle(C('#b8975e'), 1).fillEllipse(22, 17, 40, 2).fillEllipse(22, 23, 40, 2);
+		g.fillStyle(C('#8a9a5e'), 1).fillEllipse(3, 26, 8, 3).fillEllipse(41, 26, 7, 3); // grazed-flat ground outside
+	});
+	// Hemlock Stand: close-grown dark conifers holding snow up off the ground.
+	o('hemlockstand', 40, 44, (g) => {
+		g.fillStyle(C('#4a5f3f'), 1).fillEllipse(20, 40, 38, 8); // shaded floor beneath
+		g.fillStyle(C('#6b5b3f'), 1).fillRect(11, 30, 3, 10).fillRect(25, 32, 3, 8).fillRect(18, 28, 3.4, 12);
+		g.fillStyle(C('#2f4a37'), 1); // three crowns, close-grown
+		g.fillTriangle(2, 34, 12, 6, 22, 34).fillTriangle(17, 36, 27, 10, 37, 36).fillTriangle(10, 32, 20, 2, 30, 32);
+		g.fillStyle(C('#3d5c44'), 1).fillTriangle(6, 32, 12, 10, 18, 32).fillTriangle(15, 30, 20, 6, 25, 30);
+		g.fillStyle(0xffffff, 0.8); // snow held in the canopy, not on the ground
+		g.fillEllipse(12, 12, 9, 3).fillEllipse(20, 8, 8, 3).fillEllipse(27, 16, 8, 3).fillEllipse(15, 20, 7, 2.6);
+		g.fillStyle(0xffffff, 0.5).fillEllipse(24, 24, 7, 2.4).fillEllipse(9, 26, 6, 2.2);
+	});
+	// Sandy Nest Bank: a warm, quick-draining rise of sand and fine gravel standing
+	// above the waterline.
+	o('sandnestbank', 42, 26, (g) => {
+		g.fillStyle(C('#6f9aa8'), 1).fillEllipse(21, 23, 42, 8); // water below it
+		g.fillStyle(C('#c2ad7e'), 1).fillEllipse(21, 14, 40, 18); // the rise
+		g.fillStyle(C('#d8c69a'), 1).fillEllipse(20, 10, 32, 11); // dry sunlit crown
+		g.fillStyle(C('#a89474'), 1); // fine gravel through it
+		for (let i = 0; i < 16; i++) g.fillCircle(5 + ((i * 9) % 32), 10 + ((i * 5) % 10), 1.1);
+		g.fillStyle(C('#e8dcc0'), 1);
+		for (let i = 0; i < 10; i++) g.fillCircle(7 + ((i * 7) % 28), 8 + ((i * 3) % 7), 0.8);
+		g.fillStyle(C('#b0996f'), 1).fillEllipse(21, 20, 34, 4); // where it drops to the water
+		g.fillStyle(0xffffff, 0.25).fillEllipse(16, 7, 14, 2.4);
+	});
+	// Snake Egg Mound: a heap of rotting chips banked against a cut stump. The
+	// warmth is the point, so the sprite shows heat coming off it.
+	o('eggmound', 42, 30, (g) => {
+		g.fillStyle(C('#5f7a44'), 1).fillEllipse(21, 24, 42, 11); // forest floor
+		g.fillStyle(C('#8a7358'), 1).fillEllipse(33, 16, 16, 20); // the cut stump
+		g.fillStyle(C('#a08a6a'), 1).fillEllipse(33, 9, 15, 7); // sawn top
+		g.fillStyle(C('#7a6249'), 1).fillEllipse(17, 20, 30, 16); // the banked heap
+		g.fillStyle(C('#8f7455'), 1).fillEllipse(16, 16, 24, 10); // loose chips on top
+		g.fillStyle(C('#5f4c38'), 1); // bark and chips, individually
+		for (const [x, y, w] of [
+			[8, 19, 7],
+			[16, 15, 8],
+			[23, 18, 7],
+			[12, 23, 6],
+			[21, 23, 6],
+		] as [number, number, number][])
+			g.fillEllipse(x, y, w, 3);
+		g.fillStyle(0xffffff, 0.22).fillEllipse(13, 8, 5, 8).fillEllipse(20, 6, 4, 7); // warmth rising off it
+	});
+	// Acorn Cache: soft open ground pocked with single little digs, one acorn each.
+	o('acorncache', 42, 26, (g) => {
+		g.fillStyle(C('#7a6340'), 1).fillEllipse(21, 15, 42, 20); // soft open ground
+		g.fillStyle(C('#8d7550'), 1).fillEllipse(20, 11, 34, 12);
+		const digs: [number, number][] = [
+			[8, 12],
+			[16, 9],
+			[24, 12],
+			[32, 10],
+			[12, 19],
+			[21, 20],
+			[30, 18],
+			[36, 15],
+		];
+		digs.forEach(([x, y], i) => {
+			g.fillStyle(C('#5c4a30'), 1).fillEllipse(x, y, 7, 4.5); // the little dig
+			g.fillStyle(C('#43351f'), 1).fillEllipse(x, y + 0.6, 4.5, 2.6);
+			if (i % 2 === 0) {
+				g.fillStyle(C('#9a7038'), 1).fillEllipse(x, y, 3.4, 4); // the acorn pushed in
+				g.fillStyle(C('#6b4a24'), 1).fillEllipse(x, y - 1.6, 3.6, 1.8); // its cap
+			}
+		});
+		g.fillStyle(C('#a89060'), 1).fillEllipse(21, 23, 30, 3); // scuffed soil
+	});
+	// Snowbank Mushrooms: pale hairy-stemmed caps crowded right at a melting edge —
+	// half snow, half fruiting.
+	o('snowbankmushrooms', 40, 28, (g) => {
+		g.fillStyle(C('#6b5b45'), 1).fillEllipse(20, 20, 40, 15); // wet ground the drift has left
+		g.fillStyle(C('#cfd6dc'), 1).fillEllipse(9, 13, 26, 20); // the shrinking drift
+		g.fillStyle(0xffffff, 0.9).fillEllipse(7, 10, 20, 12);
+		g.fillStyle(C('#8fa4b0'), 1).fillEllipse(15, 21, 14, 5); // its melting lip
+		const caps: [number, number, number][] = [
+			[21, 17, 5],
+			[26, 15, 4.5],
+			[31, 18, 5],
+			[35, 15, 4],
+			[24, 21, 4],
+			[30, 22, 3.6],
+		];
+		caps.forEach(([x, y, r]) => {
+			g.fillStyle(C('#e8e2d2'), 1).fillRect(x - 0.9, y, 1.8, 6); // hairy stem
+			g.lineStyle(0.7, C('#c4bca8'), 1).lineBetween(x - 1.4, y + 2, x + 1.4, y + 3);
+			g.fillStyle(C('#f2ede0'), 1).fillEllipse(x, y, r * 2, r); // pale cap
+			g.fillStyle(C('#d8d0bc'), 1).fillEllipse(x, y + 0.8, r * 1.6, r * 0.5);
+		});
+	});
+	// Digging Ground: unpacked leaf-mould already pitted with small cone-shaped
+	// holes where something has been turning it over.
+	o('diggingground', 42, 26, (g) => {
+		g.fillStyle(C('#6b5a3f'), 1).fillEllipse(21, 15, 42, 20); // soft leaf-mould
+		g.fillStyle(C('#7d6a4a'), 1).fillEllipse(20, 11, 34, 12); // loose unpacked crown
+		g.fillStyle(C('#8a6a3a'), 0.7); // leaf fragments through it
+		for (const [x, y] of [
+			[7, 9],
+			[17, 7],
+			[29, 9],
+			[36, 12],
+		] as [number, number][])
+			g.fillEllipse(x, y, 7, 2.6);
+		const pits: [number, number, number][] = [
+			[10, 14, 5],
+			[19, 12, 6],
+			[27, 15, 5.5],
+			[34, 13, 4.5],
+			[15, 19, 5],
+			[25, 20, 4.5],
+		];
+		pits.forEach(([x, y, r]) => {
+			g.fillStyle(C('#4f4030'), 1).fillEllipse(x, y, r * 2, r); // the cone-shaped hole
+			g.fillStyle(C('#2f2618'), 1).fillTriangle(x - r * 0.7, y - 0.4, x + r * 0.7, y - 0.4, x, y + r * 0.7);
+			g.fillStyle(C('#8d7a58'), 1).fillEllipse(x, y - r * 0.6, r * 1.6, 1.4); // spoil on the upslope rim
+		});
+	});
+
+	// --- Deadwood: logs, snags, cavities and trees ---------------------------
+	// The `log`, `deadwood`, `tree` and `birdhouse` shapes covered twenty-six
+	// objects between them. What distinguishes dead wood is how far the rot has
+	// got and what the rot has opened up, so each sprite below leads with that.
+
+	// Log Shelter: stacked, not single — the gaps running through the middle of
+	// the pile are the habitat.
+	o('logpile', 44, 28, (g) => {
+		g.fillStyle(C('#5f7a44'), 1).fillEllipse(22, 23, 42, 9); // damp ground
+		g.fillStyle(C('#5d4128'), 1).fillRoundedRect(4, 15, 36, 9, 4.5); // bottom course
+		g.fillStyle(C('#7a5a3a'), 1).fillRoundedRect(2, 9, 30, 9, 4.5); // middle log, offset
+		g.fillStyle(C('#94703f'), 1).fillRoundedRect(14, 4, 28, 8, 4); // top log
+		g.fillStyle(C('#a3814f'), 1).fillEllipse(41, 8, 7, 8).fillEllipse(31, 13, 7, 9); // cut ends
+		g.fillStyle(C('#5d4128'), 1).fillEllipse(41, 8, 3.4, 4).fillEllipse(31, 13, 3.4, 4.4);
+		g.fillStyle(C('#150f0a'), 1).fillEllipse(9, 19, 8, 5).fillEllipse(24, 19, 7, 5); // gaps right through
+		g.fillStyle(C('#4f7d3a'), 1).fillEllipse(12, 8, 9, 3.4).fillEllipse(22, 15, 7, 3); // moss going soft
+	});
+	// Fallen Branch Shelter: thrown together rather than stacked — all angles,
+	// twigs still on, riddled with holes.
+	o('branchpile', 42, 28, (g) => {
+		g.fillStyle(C('#6f8a4a'), 1).fillEllipse(21, 23, 40, 9); // ground
+		g.lineStyle(3.4, C('#94703f'), 1); // branches thrown down every which way
+		g.lineBetween(3, 22, 33, 8).lineBetween(6, 8, 36, 21).lineBetween(20, 4, 24, 24).lineBetween(2, 15, 39, 14);
+		g.lineStyle(2.2, C('#7a5a3a'), 1);
+		g.lineBetween(9, 24, 29, 5).lineBetween(12, 6, 32, 23);
+		g.lineStyle(1.2, C('#a3814f'), 1); // twigs still on them
+		g.lineBetween(33, 8, 39, 4).lineBetween(33, 8, 38, 10).lineBetween(6, 8, 2, 4).lineBetween(24, 24, 27, 27);
+		g.lineBetween(20, 4, 17, 1).lineBetween(36, 21, 40, 24);
+		g.fillStyle(C('#150f0a'), 0.85).fillEllipse(15, 16, 7, 5).fillEllipse(27, 17, 6, 4); // gaps to disappear into
+	});
+	// Mushroom Log: mossy and damp, with the fungus doing the visible work —
+	// brackets stepping up the side and caps along the top.
+	o('mushroomlog', 44, 26, (g) => {
+		g.fillStyle(C('#4f6b3a'), 1).fillEllipse(22, 22, 42, 8); // damp forest floor
+		g.fillStyle(C('#7c6248'), 1).fillRoundedRect(2, 9, 38, 12, 6); // the log
+		g.fillStyle(C('#8f7355'), 1).fillRoundedRect(2, 9, 34, 4, 2); // upper curve
+		g.fillStyle(C('#3f6b3a'), 1).fillEllipse(14, 9, 20, 5).fillEllipse(30, 10, 12, 4); // moss along the top
+		g.fillStyle(C('#5f9448'), 1).fillEllipse(12, 8, 12, 3);
+		g.fillStyle(C('#c2a05f'), 1); // brackets stepping up the flank
+		g.fillEllipse(8, 15, 11, 5).fillEllipse(17, 18, 9, 4).fillEllipse(26, 15, 10, 4.5);
+		g.fillStyle(C('#d8bc7a'), 1).fillEllipse(8, 14, 8, 2.4).fillEllipse(17, 17, 6.5, 2).fillEllipse(26, 14, 7, 2.2);
+		g.fillStyle(C('#e0d0a8'), 1); // caps coming up out of the top
+		g.fillRect(21, 5, 1.4, 5).fillRect(34, 6, 1.3, 5);
+		g.fillEllipse(21.7, 5, 7, 3.4).fillEllipse(34.6, 6, 6, 3);
+	});
+	// Rotting Conifer Log: alpine, soft enough to push a finger into, lying where
+	// the drifts pile deepest — so it keeps a collar of old snow.
+	o('coniferlog', 44, 26, (g) => {
+		g.fillStyle(C('#dfe9f2'), 1).fillEllipse(22, 21, 42, 10); // drift that hasn't gone yet
+		g.fillStyle(C('#5c4a35'), 1).fillRoundedRect(3, 8, 36, 12, 6); // the log
+		g.fillStyle(C('#6f5a42'), 1).fillRoundedRect(3, 8, 32, 4, 2);
+		g.fillStyle(C('#4a3a28'), 1); // soft punky patches you could press into
+		g.fillEllipse(12, 14, 12, 7).fillEllipse(26, 15, 10, 6);
+		g.fillStyle(C('#3a2c1e'), 1).fillEllipse(12, 15, 7, 4).fillEllipse(26, 16, 6, 3.4);
+		g.fillStyle(C('#7a6a52'), 1).fillEllipse(38, 13, 7, 11); // shattered end
+		g.lineStyle(1, C('#4a3a28'), 1).lineBetween(36, 8, 40, 18).lineBetween(38, 8, 37, 19); // splinters
+		g.fillStyle(0xffffff, 0.85).fillEllipse(8, 8, 12, 4).fillEllipse(31, 9, 10, 3.4); // snow along the top
+	});
+	// Nurse Log Seedbed: the whole point is what is growing *on* it — a rank of
+	// hemlock seedlings in a line along a moss-covered log.
+	o('nurselog', 46, 30, (g) => {
+		g.fillStyle(C('#5f6b44'), 1).fillEllipse(23, 26, 44, 8); // forest floor
+		g.fillStyle(C('#6b5a42'), 1).fillRoundedRect(3, 14, 40, 11, 5.5); // the rotting log
+		g.fillStyle(C('#6b7a55'), 1).fillRoundedRect(3, 13, 40, 6, 3); // moss blanket over it
+		g.fillStyle(C('#84936a'), 1).fillEllipse(20, 14, 32, 4);
+		g.fillStyle(C('#2f5a30'), 1); // seedlings, in a line because the log is
+		for (const [x, h] of [
+			[9, 9],
+			[17, 12],
+			[25, 8],
+			[33, 11],
+			[39, 7],
+		] as [number, number][]) {
+			g.fillRect(x - 0.6, 13 - h + 2, 1.2, h);
+			g.fillTriangle(x - 3.4, 15 - h + 4, x + 3.4, 15 - h + 4, x, 13 - h);
+		}
+		g.fillStyle(C('#3f7a3a'), 1);
+		for (const [x, h] of [
+			[17, 12],
+			[33, 11],
+		] as [number, number][])
+			g.fillTriangle(x - 2.4, 13 - h + 3, x + 2.4, 13 - h + 3, x, 12 - h);
+		g.fillStyle(C('#4f4030'), 1).fillEllipse(43, 20, 5, 9); // crumbling end
+	});
+	// Hollowed Log: gone punky and tunnelled through and through — the sprite is a
+	// cutaway riddled with pencil-lead galleries.
+	// Rotted-Out Log: shell intact, middle gone — a thick ring of sound wood
+	// around a dark sealed void.
+	o('hollowheartlog', 42, 28, (g) => {
+		g.fillStyle(C('#5f7a44'), 1).fillEllipse(21, 24, 40, 8); // ground
+		g.fillStyle(C('#7a6a4e'), 1).fillRoundedRect(2, 9, 30, 13, 6); // the outer shell
+		g.fillStyle(C('#8f7e5e'), 1).fillRoundedRect(2, 9, 26, 4, 2);
+		g.fillStyle(C('#95845f'), 1).fillEllipse(32, 15, 12, 15); // the open end, shell still sound
+		g.fillStyle(C('#6b5b42'), 1).fillEllipse(32, 15, 9, 12); // inner ring
+		g.fillStyle(C('#0f0b08'), 1).fillEllipse(32, 15, 6.5, 9); // and nothing in the middle
+		g.fillStyle(C('#3d3120'), 0.9).fillEllipse(32, 19, 6, 2.4); // damp floor of the void
+		g.fillStyle(C('#4f7d3a'), 1).fillEllipse(12, 9, 14, 4); // moss on the sound outside
+		g.fillStyle(C('#8a6a3a'), 1).fillEllipse(7, 14, 6, 3); // a knot
+	});
+
+	// Beetle-Killed Snag: still standing hard, but the bark is lifting off in
+	// sheets and the wood beneath is galleried.
+	// Buried Deadwood: stems worked *into* the soil — half above, half below, in
+	// contact with damp earth rather than lying dry on it.
+	o('burieddeadwood', 42, 26, (g) => {
+		g.fillStyle(C('#b09874'), 1).fillEllipse(21, 11, 42, 16); // dry desert surface
+		g.fillStyle(C('#8a7050'), 1).fillEllipse(21, 19, 42, 14); // damp worked soil below
+		g.fillStyle(C('#6e5a41'), 1); // stems part-buried, at angles
+		g.fillRoundedRect(4, 12, 18, 4, 2).fillRoundedRect(14, 17, 20, 4, 2).fillRoundedRect(24, 9, 15, 3.4, 1.7);
+		g.fillStyle(C('#846d4e'), 1).fillRoundedRect(4, 12, 16, 1.6, 0.8).fillRoundedRect(24, 9, 13, 1.4, 0.7);
+		g.fillStyle(C('#7d6a4e'), 0.75).fillEllipse(12, 15, 16, 5).fillEllipse(28, 20, 15, 5); // soil closing over them
+		g.fillStyle(C('#5c4a35'), 1).fillEllipse(21, 22, 30, 5); // dark damp contact zone
+		g.fillStyle(C('#c2ab82'), 1).fillCircle(8, 7, 1.4).fillCircle(31, 5, 1.2).fillCircle(19, 6, 1.1); // surface grit
+	});
+	// Rotting Dead Tree: a short stub gone pale and soft with white rot — the
+	// bleached colour is the tell.
+	o('softrotsnag', 28, 34, (g) => {
+		g.fillStyle(C('#5f7a44'), 1).fillEllipse(14, 31, 24, 7); // forest floor
+		g.fillStyle(C('#8c7f6a'), 1).fillRoundedRect(8, 6, 12, 26, 2); // the stub
+		g.fillStyle(C('#a89c88'), 1).fillRoundedRect(8, 6, 5, 26, 2); // pale rotted side
+		g.fillStyle(C('#c9c2b0'), 1).fillEllipse(14, 7, 12, 5); // soft white-rot top
+		g.fillStyle(C('#ded8c8'), 1).fillEllipse(13, 6, 8, 3);
+		g.fillStyle(C('#b5aa94'), 1); // thumbnail-soft pockets
+		g.fillEllipse(11, 15, 6, 4).fillEllipse(17, 22, 5, 4).fillEllipse(12, 26, 5, 3.4);
+		g.fillStyle(C('#7f7360'), 1).fillEllipse(11, 15, 3, 2).fillEllipse(17, 22, 2.6, 2);
+		g.fillStyle(C('#4f7d3a'), 1).fillEllipse(14, 30, 15, 4); // moss at the base
+	});
+	// Peeling Bark Tree: the flat dry gap behind each curling slab is the habitat,
+	// so the slabs stand proud of the trunk with shadow behind them.
+	o('barkslabsnag', 30, 44, (g) => {
+		g.fillStyle(C('#5f7a44'), 1).fillEllipse(15, 41, 26, 6); // ground
+		g.fillStyle(C('#6b6152'), 1).fillRect(10, 2, 11, 40); // trunk beneath
+		g.fillStyle(C('#7f7565'), 1).fillRect(16, 2, 3, 40);
+		g.fillStyle(0x000000, 0.35).fillEllipse(8, 12, 5, 12).fillEllipse(23, 24, 5, 12); // the dry gaps, in shadow
+		g.fillStyle(C('#87765d'), 1); // slabs curling away
+		g.fillTriangle(10, 6, 4, 12, 10, 20).fillTriangle(21, 18, 27, 25, 21, 33).fillTriangle(10, 24, 5, 30, 10, 36);
+		g.fillStyle(C('#9c8b70'), 1);
+		g.fillTriangle(10, 7, 6, 12, 10, 18).fillTriangle(21, 19, 25, 25, 21, 31).fillTriangle(10, 25, 7, 30, 10, 34);
+		g.lineStyle(0.9, C('#6b5b45'), 1).lineBetween(8, 9, 8, 17).lineBetween(23, 21, 23, 30); // bark fissures
+		g.fillStyle(C('#7f7565'), 1).fillEllipse(15, 3, 12, 4); // broken top
+	});
+
+	// Alpine Turf Mat: a knitted low mat over dark soil — decades to close over,
+	// so it is drawn dense and continuous with soil showing only at the edge.
+	o('turfmat', 42, 24, (g) => {
+		g.fillStyle(C('#3f3528'), 1).fillEllipse(21, 15, 42, 16); // dark alpine soil
+		g.fillStyle(C('#7c8f5a'), 1).fillEllipse(21, 12, 38, 13); // the knitted mat
+		g.fillStyle(C('#8fa168'), 1).fillEllipse(19, 9, 30, 8);
+		g.fillStyle(C('#6b8049'), 1); // individual cushions knitted together
+		for (const [x, y, r] of [
+			[8, 11, 5],
+			[16, 8, 5.5],
+			[25, 10, 5],
+			[33, 9, 4.5],
+			[12, 15, 4.5],
+			[22, 16, 4.5],
+			[30, 15, 4],
+		] as [number, number, number][])
+			g.fillCircle(x, y, r);
+		g.fillStyle(C('#a3b57c'), 1);
+		for (const [x, y] of [
+			[8, 10],
+			[16, 7],
+			[25, 9],
+			[33, 8],
+		] as [number, number][])
+			g.fillCircle(x, y, 2.4);
+		g.fillStyle(C('#d8c86a'), 1).fillCircle(13, 11, 1.3).fillCircle(28, 12, 1.2); // avens flowers
+		g.fillStyle(C('#c9a0c0'), 1).fillCircle(20, 13, 1.2).fillCircle(34, 12, 1.1);
+	});
+	// Willow Basin Thicket: low, dense, filling a dish in the ground, with the
+	// winter snow line showing how far it gets buried.
+	o('willowbasin', 44, 28, (g) => {
+		g.fillStyle(C('#7f8a6a'), 1).fillEllipse(22, 21, 44, 14); // the sheltered basin
+		g.fillStyle(C('#68705a'), 1).fillEllipse(22, 23, 32, 8); // its dished floor
+		g.fillStyle(C('#5f6f42'), 1).fillEllipse(22, 16, 40, 20); // willow packed into it
+		g.fillStyle(C('#6f7f52'), 1).fillEllipse(13, 12, 24, 15).fillEllipse(31, 11, 22, 14);
+		g.fillStyle(C('#84956a'), 1).fillEllipse(12, 8, 16, 8).fillEllipse(31, 7, 14, 7); // sunlit tops
+		g.lineStyle(1.4, C('#8a7a5c'), 1); // bud-bearing twigs above the drift line
+		for (let i = 0; i < 9; i++) g.lineBetween(6 + i * 4, 15, 5 + i * 4.2, 4 + (i % 3) * 3);
+		g.fillStyle(C('#b0a888'), 1);
+		for (let i = 0; i < 7; i++) g.fillEllipse(6 + i * 5, 4 + (i % 3) * 3, 2.2, 3);
+		g.fillStyle(0xffffff, 0.28).fillEllipse(22, 20, 34, 2.4); // where the drifts reach each winter
+	});
+	// Whitebark Pine: grown from a buried seed — so it is drawn as a cluster of
+	// stems from one spot, carrying cones that never open.
+	o('whitebarkpine', 34, 44, (g) => {
+		g.fillStyle(C('#6f7a58'), 1).fillEllipse(17, 41, 28, 6); // stony alpine ground
+		g.fillStyle(C('#7f7058'), 1); // several stems from a single cache
+		g.fillRect(13, 20, 3, 21).fillRect(17, 22, 2.6, 19).fillRect(10, 26, 2.2, 15);
+		g.fillStyle(C('#55684a'), 1); // wind-shaped crowns
+		g.fillEllipse(14, 16, 24, 16).fillEllipse(22, 24, 18, 12).fillEllipse(9, 26, 14, 10);
+		g.fillStyle(C('#66795a'), 1).fillEllipse(13, 12, 18, 9).fillEllipse(23, 21, 12, 7);
+		g.lineStyle(1.2, C('#43563c'), 1); // needle bundles
+		for (let i = 0; i < 6; i++) g.lineBetween(6 + i * 4.4, 14 + (i % 3) * 3, 4 + i * 4.6, 9 + (i % 3) * 3);
+		g.fillStyle(C('#7a5f3f'), 1); // cones that stay shut
+		g.fillEllipse(9, 13, 4, 6).fillEllipse(20, 11, 4, 6).fillEllipse(25, 22, 3.6, 5.4);
+		g.fillStyle(C('#5f4830'), 1).fillEllipse(9, 13, 2, 3.4).fillEllipse(20, 11, 2, 3.4);
+	});
+	// Broken-Top Chimney Tree: a big living tree snapped off high, with the open
+	// shaft looking straight down into it.
+	o('chimneytree', 34, 46, (g) => {
+		g.fillStyle(C('#5d8a4a'), 1).fillEllipse(17, 43, 28, 6); // ground
+		g.fillStyle(C('#7b6e52'), 1).fillRect(9, 12, 16, 31); // big trunk
+		g.fillStyle(C('#5f5540'), 1).fillRect(9, 12, 5, 31); // shadow side
+		g.fillStyle(C('#948871'), 1).fillRect(21, 12, 3, 31); // lit side
+		g.fillStyle(C('#3f6e38'), 1).fillEllipse(6, 24, 14, 12).fillEllipse(29, 20, 13, 12); // it is still alive
+		g.fillStyle(C('#4f8442'), 1).fillEllipse(5, 21, 9, 7).fillEllipse(30, 17, 8, 7);
+		g.fillStyle(C('#8f8471'), 1).fillEllipse(17, 12, 16, 7); // the snapped-off top
+		g.fillStyle(C('#241c14'), 1).fillEllipse(17, 12, 10, 4.5); // open chimney, a foot across
+		g.fillStyle(0x000000, 0.45).fillRect(13.5, 12, 7, 10); // and it goes straight down
+		g.lineStyle(1.4, C('#6b6152'), 1).lineBetween(10, 12, 8, 6).lineBetween(24, 12, 26, 7); // splintered rim
+	});
+	// Mineral Lick: a damp salty bank gnawed down into a hollow — the tooth-marked
+	// scoop is the whole object.
+	o('minerallick', 42, 26, (g) => {
+		g.fillStyle(C('#8a9a68'), 1).fillEllipse(21, 20, 42, 12); // turf around it
+		g.fillStyle(C('#c9bfa6'), 1).fillEllipse(21, 13, 36, 18); // the pale salty bank
+		g.fillStyle(C('#ded6c0'), 1).fillEllipse(20, 9, 28, 9); // dried crust on top
+		g.fillStyle(C('#a89f88'), 1).fillEllipse(21, 15, 24, 11); // the licked-out hollow
+		g.fillStyle(C('#8d8574'), 1).fillEllipse(21, 16, 18, 8); // damp inside it
+		g.fillStyle(C('#9a927e'), 1); // gnaw scoops around the rim
+		for (let i = 0; i < 7; i++) g.fillEllipse(9 + i * 4, 11 + (i % 2) * 1.6, 3.4, 2.4);
+		g.fillStyle(0xffffff, 0.4).fillEllipse(13, 8, 10, 2.4); // salt showing
+		g.fillStyle(C('#6b6a52'), 1).fillEllipse(21, 20, 20, 3); // wet floor of the scoop
+	});
+	// Willow Thicket (dune swale): tangled right to the ground — impenetrable, so
+	// there is no visible floor at all.
+	o('dunewillow', 44, 28, (g) => {
+		g.fillStyle(C('#ded0a8'), 1).fillEllipse(22, 24, 42, 8); // dune sand behind it
+		g.fillStyle(C('#4f6b3f'), 1).fillEllipse(22, 17, 44, 20); // the mass of it
+		g.fillStyle(C('#6f8a5a'), 1).fillEllipse(13, 12, 22, 14).fillEllipse(31, 11, 20, 13); // sunlit crowns
+		g.fillStyle(C('#809a68'), 1).fillEllipse(12, 8, 15, 8).fillEllipse(31, 7, 13, 7);
+		g.lineStyle(1.4, C('#5f5540'), 1); // bramble and willow tangled to ground level
+		g.lineBetween(4, 24, 16, 8).lineBetween(14, 25, 8, 9).lineBetween(24, 25, 34, 9);
+		g.lineBetween(36, 24, 28, 8).lineBetween(6, 18, 38, 16).lineBetween(8, 22, 36, 21);
+		g.fillStyle(C('#3f5533'), 1).fillEllipse(22, 22, 38, 7); // no way in at the bottom
+		g.fillStyle(C('#7a3a52'), 1).fillCircle(10, 14, 1.4).fillCircle(29, 13, 1.3).fillCircle(20, 10, 1.2); // bramble fruit
+	});
+
+	// Old Woodpecker Cavity: clean-edged and empty — an old hole in a dead trunk
+	// with nothing living in it.
+	o('oldcavity', 28, 42, (g) => {
+		g.fillStyle(C('#6f7a58'), 1).fillEllipse(14, 39, 24, 6); // ground
+		g.fillStyle(C('#4f4335'), 1).fillRect(8, 2, 13, 38); // the dead trunk
+		g.fillStyle(C('#665949'), 1).fillRect(16, 2, 3.4, 38); // lit side
+		g.fillStyle(C('#3a3128'), 1).fillRect(8, 2, 3.4, 38);
+		g.lineStyle(0.9, C('#3a3128'), 1); // old weathered bark
+		for (let i = 0; i < 5; i++) g.lineBetween(10 + i * 2.4, 4, 10 + i * 2.4, 38);
+		g.fillStyle(C('#0f0b08'), 1).fillCircle(14, 15, 5.4); // the hole, still clean-edged
+		g.fillStyle(C('#7d6f5c'), 1).fillCircle(14, 15, 5.4);
+		g.fillStyle(C('#0f0b08'), 1).fillCircle(14, 15, 4.2);
+		g.fillStyle(C('#8f8170'), 1).fillEllipse(14, 10.6, 9, 2); // the crisp upper rim
+		g.fillStyle(C('#5f5344'), 1).fillEllipse(14, 3, 13, 4); // broken top
+	});
+	// Cactus Hollow: the hard waterproof flask a saguaro grows around a wound —
+	// pale callus, and it outlasts the plant.
+	o('saguaroboot', 30, 40, (g) => {
+		g.fillStyle(C('#c2ab82'), 1).fillEllipse(15, 37, 26, 6); // desert floor
+		g.fillStyle(C('#5e8a4a'), 1).fillRoundedRect(9, 4, 13, 32, 6); // what is left of the cactus
+		g.fillStyle(C('#6f9c58'), 1).fillRoundedRect(9, 4, 5, 32, 3);
+		g.lineStyle(1, C('#4a7038'), 1);
+		for (const x of [12, 16, 20]) g.lineBetween(x, 6, x, 34); // ribs
+		g.fillStyle(C('#8f7f5e'), 1).fillEllipse(15, 17, 17, 18); // the hard callus boot
+		g.fillStyle(C('#a3947a'), 1).fillEllipse(14, 14, 13, 11); // smooth waterproof wall
+		g.fillStyle(C('#0f0b08'), 1).fillEllipse(15, 17, 8, 9); // the flask inside
+		g.fillStyle(C('#5f5544'), 1).fillEllipse(15, 13, 8, 2.6); // its lip
+		g.fillStyle(C('#c2b08c'), 1).fillEllipse(15, 24, 12, 3); // where the flesh has gone
+	});
+	// Downy Woodpecker Hole: deliberately tiny — a thumb-wide hole, and the sprite
+	// is scaled so it reads small.
+	o('downycavity', 26, 38, (g) => {
+		g.fillStyle(C('#5f7a44'), 1).fillEllipse(13, 35, 22, 6); // ground
+		g.fillStyle(C('#9a8b70'), 1).fillRect(7, 2, 12, 34); // slim dead trunk
+		g.fillStyle(C('#b0a189'), 1).fillRect(14, 2, 3, 34); // lit side
+		g.fillStyle(C('#7f7360'), 1).fillRect(7, 2, 3, 34);
+		g.fillStyle(C('#0f0b08'), 1).fillCircle(13, 14, 2.8); // the thumb-wide hole
+		g.fillStyle(C('#c2b49c'), 1).fillEllipse(13, 11.6, 5, 1.4); // fresh pale rim
+		g.fillStyle(C('#d8cbb2'), 1); // a season's chips still at the foot
+		g.fillEllipse(9, 33, 5, 2).fillEllipse(16, 34, 4, 1.8).fillEllipse(13, 32, 3.4, 1.6);
+		g.fillStyle(C('#8a7a62'), 1).fillEllipse(13, 3, 12, 3.4); // snapped top
+	});
+	// Tall Hollow Tree: the cavity is rectangular and big enough to put an arm
+	// into — that shape is unmistakably pileated.
+	o('pileatedsnag', 32, 48, (g) => {
+		g.fillStyle(C('#5f7a44'), 1).fillEllipse(16, 45, 28, 6); // ground
+		g.fillStyle(C('#8a7a5e'), 1).fillRect(9, 2, 15, 43); // big snag
+		g.fillStyle(C('#a3947a'), 1).fillRect(19, 2, 4, 43); // lit side
+		g.fillStyle(C('#6b5f4a'), 1).fillRect(9, 2, 4, 43);
+		g.fillStyle(C('#0f0b08'), 1).fillRoundedRect(12, 13, 9, 14, 2); // this year's rectangular cut
+		g.fillStyle(C('#5f5344'), 1).fillRect(12, 13, 9, 2.4); // its chiselled top edge
+		g.fillStyle(C('#3d3428'), 1).fillRoundedRect(13, 31, 7, 9, 2); // last year's, further down
+		g.fillStyle(C('#c9bca0'), 1); // big chips thrown out below
+		g.fillEllipse(8, 43, 7, 2.6).fillEllipse(24, 44, 6, 2.4).fillEllipse(16, 42, 5, 2.2);
+		g.fillStyle(C('#7f7360'), 1).fillEllipse(16, 3, 14, 4); // broken top
+	});
+	// Lined Rock Crack: a narrow dry fissure with down and fur packed into the
+	// back of it — the lining is what you can actually see.
+	o('linedcrack', 36, 30, (g) => {
+		g.fillStyle(C('#8b8378'), 1).fillCircle(11, 15, 13).fillCircle(26, 14, 12).fillCircle(18, 25, 10); // wind-scoured face
+		g.fillStyle(C('#9e968a'), 1).fillCircle(9, 10, 8).fillCircle(28, 9, 7);
+		g.fillStyle(C('#110e0b'), 1).fillTriangle(14, 2, 22, 2, 18, 27); // the fissure
+		g.fillStyle(C('#e8e2d4'), 1); // down and fur packed into the back of it
+		g.fillEllipse(18, 17, 8, 11);
+		g.fillEllipse(16, 13, 4.5, 5).fillEllipse(20, 15, 4, 5).fillEllipse(17, 21, 5, 4);
+		g.fillStyle(C('#f6f2e8'), 1).fillEllipse(18, 16, 5, 7).fillEllipse(19, 20, 3.4, 3);
+		g.fillStyle(C('#4a443c'), 1).fillTriangle(14, 2, 16.5, 2, 16.5, 11); // its one lit edge
+		g.fillStyle(C('#d8d0c0'), 1).fillCircle(14, 8, 1.3).fillCircle(22, 23, 1.1).fillCircle(21, 6, 1); // wisps escaping
+	});
+
+	// --- Nests, litter beds and cliff ledges ---------------------------------
+	// `nest`, `leaflitter` and `bluff` covered twenty-five objects. A roped-off
+	// beach closure, an eagle's crown nest and a bramble ground cup are not the
+	// same picture, and neither are nine different piles of dead leaves.
+
+	// Coastal Nesting Area: the object is the protection, not a nest — posts and
+	// line across a broad stretch of quiet upper beach.
+	o('beachclosure', 46, 26, (g) => {
+		g.fillStyle(C('#d8c8a0'), 1).fillEllipse(23, 16, 46, 18); // quiet upper beach
+		g.fillStyle(C('#e6d8b4'), 1).fillEllipse(22, 13, 38, 11);
+		g.fillStyle(C('#9a8560'), 1); // posts
+		for (const x of [4, 15, 27, 39]) g.fillRect(x, 6, 2, 13);
+		g.lineStyle(1, C('#f2ece0'), 1).lineBetween(4, 9, 41, 8).lineBetween(4, 13, 41, 12); // the line between them
+		g.fillStyle(C('#e8e2d4'), 1).fillRoundedRect(18, 4, 9, 6, 1); // a sign
+		g.fillStyle(C('#7a8f9a'), 1).fillRect(19.5, 5.5, 6, 1).fillRect(19.5, 7.5, 4, 1);
+		g.fillStyle(C('#c2ad86'), 1).fillCircle(9, 21, 1.3).fillCircle(31, 22, 1.2).fillCircle(20, 22, 1.1); // undisturbed sand
+	});
+	// Plover Scrape Closure: narrower and stricter — bare unvegetated sand, with a
+	// single shallow scrape inside the fence and nothing built.
+	o('ploverscrape', 42, 26, (g) => {
+		g.fillStyle(C('#ddd0b0'), 1).fillEllipse(21, 15, 42, 18); // bare open sand
+		g.fillStyle(C('#ebe0c4'), 1).fillEllipse(20, 12, 34, 11); // nothing growing on it
+		g.fillStyle(C('#9a8560'), 1);
+		for (const x of [3, 14, 26, 37]) g.fillRect(x, 8, 1.8, 10);
+		g.lineStyle(0.9, C('#f2ece0'), 1).lineBetween(3, 10, 38, 9.4).lineBetween(3, 14, 38, 13.4);
+		g.fillStyle(C('#c2b28e'), 1).fillEllipse(20, 19, 13, 6); // the scrape itself
+		g.fillStyle(C('#a89876'), 1).fillEllipse(20, 20, 9, 4);
+		g.fillStyle(C('#e0d6c0'), 1); // three speckled eggs, and that is all there is
+		g.fillEllipse(18, 20, 3, 2.4).fillEllipse(21.5, 19.4, 3, 2.4).fillEllipse(20, 21.6, 3, 2.4);
+		g.fillStyle(C('#8a7a5c'), 1).fillCircle(17.6, 19.6, 0.5).fillCircle(22, 19, 0.5).fillCircle(20.4, 21.8, 0.5);
+	});
+	// Thorn Thicket Nest: a bulky stick platform wedged up inside a thorn bush —
+	// the thorns around it are the defence.
+	o('thornnest', 40, 34, (g) => {
+		g.fillStyle(C('#c2ab82'), 1).fillEllipse(20, 30, 34, 7); // desert ground
+		g.fillStyle(C('#5f7042'), 1).fillEllipse(20, 18, 38, 26); // the thorny shrub
+		g.fillStyle(C('#6f8250'), 1).fillEllipse(12, 13, 20, 14).fillEllipse(29, 12, 18, 13);
+		g.lineStyle(1.2, C('#4f5f38'), 1); // thorns bristling out of it
+		for (let i = 0; i < 10; i++) {
+			const a = (i / 10) * Math.PI * 2;
+			g.lineBetween(20 + Math.cos(a) * 15, 18 + Math.sin(a) * 11, 20 + Math.cos(a) * 19, 18 + Math.sin(a) * 14);
+		}
+		g.fillStyle(C('#7a6a4c'), 1).fillEllipse(20, 15, 22, 10); // the stick platform, wedged in
+		g.lineStyle(1.2, C('#5f5238'), 1);
+		g.lineBetween(10, 15, 30, 14).lineBetween(11, 17, 29, 16).lineBetween(14, 11, 17, 19).lineBetween(24, 11, 22, 19);
+		g.fillStyle(C('#9a8a68'), 1).fillEllipse(20, 13, 14, 5); // the cup
+		g.fillStyle(C('#c2b28e'), 1).fillEllipse(18, 13, 4, 3).fillEllipse(22, 13.4, 4, 3);
+	});
+	// Shade Form: a scrape in deep shade under a shrub, down to cool soil. The
+	// contrast between hot open ground and the dark hollow is the object.
+	o('shadeform', 40, 28, (g) => {
+		g.fillStyle(C('#dcc79a'), 1).fillEllipse(20, 20, 40, 16); // hot open ground
+		g.fillStyle(C('#7d8b5a'), 1).fillEllipse(20, 9, 36, 16); // the shrub
+		g.fillStyle(C('#8d9a68'), 1).fillEllipse(13, 6, 20, 9).fillEllipse(29, 6, 16, 8);
+		g.fillStyle(C('#4a4130'), 0.55).fillEllipse(20, 20, 30, 11); // its pool of shade
+		g.fillStyle(C('#a3906a'), 1).fillEllipse(20, 20, 18, 8); // the scrape
+		g.fillStyle(C('#6f6148'), 1).fillEllipse(20, 21, 13, 5.5); // cool soil at the bottom
+		g.fillStyle(C('#544a36'), 1).fillEllipse(20, 22, 9, 3);
+		g.fillStyle(C('#b5a078'), 1).fillEllipse(20, 17, 16, 2.4); // spoil pushed to the upslope rim
+	});
+	// Adopted Stick Nest: an old platform in a high fork — weathered, sagging a
+	// little, and clearly second-hand.
+	o('adoptednest', 38, 34, (g) => {
+		g.fillStyle(C('#6b5b45'), 1); // the fork it sits in
+		g.fillRect(17, 16, 5, 18);
+		g.lineStyle(3, C('#7a6a52'), 1).lineBetween(19, 20, 8, 12).lineBetween(19, 20, 31, 11);
+		g.fillStyle(C('#8b7c63'), 1).fillEllipse(19, 13, 30, 12); // the bulky old platform
+		g.fillStyle(C('#9c8d72'), 1).fillEllipse(19, 11, 26, 8);
+		g.lineStyle(1.2, C('#6f6049'), 1); // weathered sticks, sagging out of line
+		g.lineBetween(5, 14, 33, 13).lineBetween(6, 16, 32, 16).lineBetween(9, 9, 12, 18).lineBetween(27, 9, 25, 18);
+		g.fillStyle(C('#7f7058'), 1).fillEllipse(19, 17, 24, 5); // the sag underneath
+		g.fillStyle(C('#5f5240'), 1).fillEllipse(19, 10, 15, 5); // the old cup
+		g.fillStyle(C('#8a7a5c'), 1).fillEllipse(11, 8, 6, 2).fillEllipse(28, 8, 5, 2); // leaves worked in
+	});
+	// Eagle Nest Crown: the top of the tallest tree, with a nest the size of a
+	// bathtub in it. Scale is the point, so the tree is tall and the nest huge.
+	o('eaglecrown', 40, 48, (g) => {
+		g.fillStyle(C('#4a6b3a'), 1).fillEllipse(20, 44, 30, 8); // canopy below
+		g.fillStyle(C('#6b5b45'), 1).fillRect(17, 20, 6, 26); // the trunk, right to the top
+		g.lineStyle(2.6, C('#7a6a52'), 1).lineBetween(20, 26, 8, 20).lineBetween(20, 28, 32, 21); // crown limbs
+		g.fillStyle(C('#6c7b4e'), 1).fillEllipse(9, 30, 18, 12).fillEllipse(31, 31, 16, 11); // living foliage
+		g.fillStyle(C('#7d8c5c'), 1).fillEllipse(8, 27, 12, 7).fillEllipse(32, 28, 10, 6);
+		g.fillStyle(C('#7a6a4e'), 1).fillEllipse(20, 14, 34, 16); // the nest — enormous
+		g.fillStyle(C('#8f7f60'), 1).fillEllipse(20, 11, 30, 11);
+		g.lineStyle(1.4, C('#5f5238'), 1); // years of added sticks
+		g.lineBetween(4, 15, 36, 14).lineBetween(5, 18, 35, 17).lineBetween(10, 6, 14, 21).lineBetween(30, 6, 26, 21);
+		g.fillStyle(C('#5f5240'), 1).fillEllipse(20, 10, 17, 6); // the bowl
+		g.fillStyle(C('#e8e2d4'), 1).fillEllipse(17, 10, 5, 4).fillEllipse(23, 10.6, 5, 4); // two eggs
+	});
+	// Canopy Nest Limb: no nest yet — the object is a limb thick enough to hold
+	// one, high where the canopy closes over.
+	o('canopylimb', 42, 32, (g) => {
+		g.fillStyle(C('#4a5f3c'), 1).fillEllipse(21, 6, 42, 14); // canopy closing overhead
+		g.fillStyle(C('#3d5232'), 1).fillEllipse(12, 4, 22, 9).fillEllipse(31, 5, 20, 9);
+		g.fillStyle(C('#5f5240'), 1).fillRect(3, 8, 9, 24); // the trunk
+		g.fillStyle(C('#75664f'), 1).fillRect(9, 8, 3, 24);
+		g.fillStyle(C('#6b5b45'), 1).fillRoundedRect(10, 16, 30, 8, 4); // a genuinely heavy limb
+		g.fillStyle(C('#83725a'), 1).fillRoundedRect(10, 16, 28, 3, 1.5); // lit upper surface
+		g.fillStyle(C('#4f4433'), 1).fillEllipse(13, 20, 7, 8); // where it joins the trunk
+		g.fillStyle(C('#5d8a4a'), 0.8).fillEllipse(24, 16, 12, 3.4).fillEllipse(34, 17, 8, 3); // moss along the top
+		g.lineStyle(1.6, C('#6b5b45'), 1).lineBetween(38, 20, 42, 14).lineBetween(38, 21, 42, 26); // it forks at the end
+	});
+	// Stick Nest (shore): salt-bleached sticks, patched every season — paler and
+	// scruffier than the forest platforms.
+	o('shorenest', 38, 32, (g) => {
+		g.fillStyle(C('#6b5b45'), 1).fillRect(16, 16, 5, 16); // fork
+		g.lineStyle(2.6, C('#7a6a52'), 1).lineBetween(18, 19, 8, 12).lineBetween(18, 19, 29, 12);
+		g.fillStyle(C('#8f8470'), 1).fillEllipse(19, 13, 32, 13); // the bulky platform
+		g.fillStyle(C('#a8a08c'), 1).fillEllipse(19, 11, 27, 9); // salt-bleached upper sticks
+		g.lineStyle(1.3, C('#c2bca8'), 1); // pale, weathered, added to every year
+		g.lineBetween(4, 13, 34, 12).lineBetween(5, 16, 33, 15).lineBetween(10, 7, 13, 19).lineBetween(28, 7, 25, 19);
+		g.lineStyle(1.2, C('#7a6a4e'), 1).lineBetween(7, 10, 30, 17); // this season's patch, still brown
+		g.fillStyle(C('#6f6857'), 1).fillEllipse(19, 10, 15, 5); // the cup
+		g.fillStyle(C('#e8e2d4'), 1).fillEllipse(19, 10, 5, 4);
+	});
+
+	// Snowfield Debris Line: a dark seam of wind-carried grit stranded along a
+	// melting edge — mostly snow, with one dirty line across it.
+	o('debrisline', 44, 26, (g) => {
+		g.fillStyle(C('#c9d3dc'), 1).fillEllipse(22, 13, 44, 22); // the shrinking snowfield
+		g.fillStyle(0xffffff, 0.9).fillEllipse(20, 8, 36, 12); // clean upper snow
+		g.fillStyle(C('#8fa4b4'), 1).fillEllipse(22, 18, 38, 9); // its melting lower edge
+		g.fillStyle(C('#5f5238'), 1).fillEllipse(22, 17, 36, 4); // the stranded seam
+		g.fillStyle(C('#7a6a4a'), 1); // seed, pollen and grit delivered uphill
+		for (let i = 0; i < 13; i++) g.fillEllipse(5 + i * 3, 17 + (i % 3) - 1, 3, 1.6);
+		g.fillStyle(C('#a8945f'), 1);
+		for (let i = 0; i < 8; i++) g.fillCircle(7 + i * 4.4, 16 + (i % 2), 1);
+		g.fillStyle(0xffffff, 0.6).fillEllipse(14, 6, 16, 3);
+	});
+	// Shrub Litter Mound: wind-drifted husks heaped under a shrub — crackling on
+	// top, dark and damp underneath.
+	o('shrublitter', 40, 28, (g) => {
+		g.fillStyle(C('#c2ab82'), 1).fillEllipse(20, 23, 38, 8); // desert floor
+		g.fillStyle(C('#7d8b5a'), 1).fillEllipse(20, 7, 34, 13); // the shrub catching it
+		g.fillStyle(C('#8d9a68'), 1).fillEllipse(13, 5, 18, 8);
+		g.fillStyle(C('#4f4130'), 1).fillEllipse(20, 20, 30, 10); // damp dark underside
+		g.fillStyle(C('#8a7a52'), 1).fillEllipse(20, 17, 30, 11); // the dry heap
+		g.fillStyle(C('#a3936a'), 1).fillEllipse(19, 15, 24, 7); // crackling top
+		g.fillStyle(C('#b8a878'), 1); // individual husks and stems
+		for (const [x, y, w] of [
+			[9, 16, 7],
+			[17, 14, 8],
+			[26, 16, 7],
+			[31, 19, 6],
+			[13, 19, 6],
+			[22, 19, 6],
+		] as [number, number, number][])
+			g.fillEllipse(x, y, w, 2.4);
+		g.fillStyle(C('#d8c8a0'), 1).fillEllipse(17, 13, 5, 1.8).fillEllipse(27, 15, 4, 1.6);
+	});
+	// Crumbled Soil: worked from below — cemented sheeting over the surface with
+	// fine old galleries showing through where it has broken.
+	o('crumbledsoil', 42, 24, (g) => {
+		g.fillStyle(C('#7a6748'), 1).fillEllipse(21, 14, 42, 18); // the worked ground
+		g.fillStyle(C('#8f7c58'), 1).fillEllipse(20, 10, 34, 11); // cemented litter sheeting
+		g.fillStyle(C('#a08d66'), 1); // plates of it
+		for (const [x, y, w, h] of [
+			[9, 9, 12, 6],
+			[22, 8, 13, 6],
+			[33, 11, 11, 5],
+			[15, 15, 12, 5],
+			[28, 16, 11, 5],
+		] as [number, number, number, number][])
+			g.fillEllipse(x, y, w, h);
+		g.lineStyle(1, C('#5c4a35'), 1); // fine galleries showing at the breaks
+		g.lineBetween(6, 12, 14, 13).lineBetween(16, 12, 27, 11).lineBetween(29, 13, 38, 14);
+		g.lineBetween(12, 8, 13, 17).lineBetween(26, 7, 25, 18);
+		g.fillStyle(C('#4a3b28'), 1).fillCircle(15, 12, 1.1).fillCircle(28, 12, 1).fillCircle(21, 16, 0.9);
+	});
+	// Deep Leaf Mould: years deep and undisturbed — shown in section, threaded
+	// through with roots and pale fungal strands.
+	o('deepduff', 42, 26, (g) => {
+		g.fillStyle(C('#4a3b28'), 1).fillEllipse(21, 15, 42, 20); // years of mould
+		g.fillStyle(C('#5f4c33'), 1).fillEllipse(21, 10, 38, 11); // looser upper layer
+		g.fillStyle(C('#7a5f3a'), 1); // last autumn still recognisable on top
+		for (const [x, y, w] of [
+			[8, 6, 10],
+			[19, 5, 11],
+			[31, 7, 10],
+			[37, 10, 8],
+		] as [number, number, number][])
+			g.fillEllipse(x, y, w, 3);
+		g.lineStyle(1.6, C('#6b5540'), 1); // tree roots running through it
+		g.lineBetween(2, 14, 40, 17).lineBetween(8, 21, 34, 12);
+		g.lineStyle(0.9, C('#c9c0a8'), 0.85); // fungal strands
+		g.lineBetween(6, 18, 16, 13).lineBetween(18, 20, 28, 14).lineBetween(24, 19, 36, 20);
+		g.fillStyle(C('#332718'), 1).fillEllipse(21, 21, 34, 5); // and it just keeps going down
+	});
+	// Leaf Drey: a woven ball of leaves and twigs wedged tight into a high fork.
+	o('leafdrey', 34, 34, (g) => {
+		g.fillStyle(C('#6b5b45'), 1).fillRect(15, 18, 4.6, 16); // the fork
+		g.lineStyle(2.6, C('#7a6a52'), 1).lineBetween(17, 22, 7, 14).lineBetween(17, 22, 28, 14);
+		g.fillStyle(C('#5f5138'), 1).fillCircle(17, 15, 13); // the ball
+		g.fillStyle(C('#7f6b45'), 1).fillCircle(16, 13, 11); // leaves woven from the inside out
+		g.fillStyle(C('#94804f'), 1); // individual leaves on the outside
+		for (const [x, y, w, h] of [
+			[10, 10, 9, 4],
+			[20, 8, 9, 4],
+			[24, 15, 8, 4],
+			[12, 19, 8, 4],
+			[19, 20, 8, 4],
+			[8, 15, 7, 4],
+		] as [number, number, number, number][])
+			g.fillEllipse(x, y, w, h);
+		g.lineStyle(1, C('#5f5138'), 1); // twigs bound through it
+		g.lineBetween(7, 12, 26, 10).lineBetween(8, 18, 25, 19).lineBetween(13, 5, 15, 23);
+		g.fillStyle(C('#241c14'), 1).fillEllipse(24, 12, 5, 4); // the way in
+	});
+	// Winter Litter Mound: deep enough that the middle never freezes — drawn tall
+	// and banked, beside the marsh rather than in it.
+	o('winterlitter', 42, 30, (g) => {
+		g.fillStyle(C('#7f9a6a'), 1).fillEllipse(21, 26, 40, 8); // dry ground beside the marsh
+		g.fillStyle(C('#4f4130'), 1).fillEllipse(21, 20, 38, 16); // the deep pile
+		g.fillStyle(C('#6a5a3c'), 1).fillEllipse(20, 14, 32, 14); // heaped high
+		g.fillStyle(C('#7f6c48'), 1).fillEllipse(19, 10, 24, 9); // loose crown
+		g.fillStyle(C('#8f7a52'), 1); // bark and old stems through it
+		for (const [x, y, w] of [
+			[10, 14, 9],
+			[20, 11, 10],
+			[29, 14, 9],
+			[15, 19, 8],
+			[26, 20, 8],
+		] as [number, number, number][])
+			g.fillEllipse(x, y, w, 3);
+		g.lineStyle(1.2, C('#5f5238'), 1).lineBetween(6, 18, 16, 15).lineBetween(24, 16, 36, 19);
+		g.fillStyle(0xffffff, 0.16).fillEllipse(17, 6, 6, 5); // warmth in the middle of it
+	});
+	// Cocoon Leaf Drift: curled leaves banked against a log, with one cocoon
+	// visible inside a rolled leaf — that is the whole reason it matters.
+	o('cocoondrift', 44, 26, (g) => {
+		g.fillStyle(C('#5f7a44'), 1).fillEllipse(22, 22, 42, 8); // forest floor
+		g.fillStyle(C('#6b5b45'), 1).fillRoundedRect(2, 6, 12, 16, 5); // the log it banks against
+		g.fillStyle(C('#83725a'), 1).fillRoundedRect(2, 6, 11, 5, 2.5);
+		g.fillStyle(C('#8a6a3c'), 1).fillEllipse(27, 16, 34, 14); // the drift
+		g.fillStyle(C('#a37f47'), 1); // curled leaves, each rolled
+		for (const [x, y, w, h] of [
+			[17, 13, 10, 5],
+			[26, 11, 11, 5],
+			[35, 14, 10, 5],
+			[21, 18, 10, 5],
+			[31, 19, 10, 5],
+			[40, 18, 8, 4],
+		] as [number, number, number, number][]) {
+			g.fillEllipse(x, y, w, h);
+			g.fillStyle(C('#7f6033'), 1).fillEllipse(x + w * 0.28, y, w * 0.35, h * 0.8); // the curl
+			g.fillStyle(C('#a37f47'), 1);
+		}
+		g.fillStyle(C('#c2a05f'), 1).fillEllipse(26, 11, 11, 5); // the one with something in it
+		g.fillStyle(C('#8a6a3a'), 1).fillEllipse(27, 11, 6, 3.4); // the cocoon inside
+		g.lineStyle(0.8, C('#d8c8a0'), 1).lineBetween(24, 10, 30, 12); // silk holding it to the leaf
+	});
+	// Frozen Leaf Bed: deliberately shallow — only a few centimetres of loose
+	// leaves over soil, with frost showing at the surface.
+	o('frozenleafbed', 44, 22, (g) => {
+		g.fillStyle(C('#5f5138'), 1).fillEllipse(22, 15, 44, 14); // soft soil below
+		g.fillStyle(C('#6f5b3e'), 1).fillEllipse(22, 11, 40, 11); // the shallow bed
+		g.fillStyle(C('#87703f'), 1); // loose leaves, barely a layer
+		for (const [x, y, w] of [
+			[8, 9, 11],
+			[19, 7, 12],
+			[30, 9, 11],
+			[38, 11, 9],
+			[13, 13, 10],
+			[26, 13, 10],
+		] as [number, number, number][])
+			g.fillEllipse(x, y, w, 3.4);
+		g.fillStyle(0xffffff, 0.4); // frost right at the surface
+		for (const [x, y, w] of [
+			[12, 6, 8],
+			[24, 5, 9],
+			[34, 8, 7],
+		] as [number, number, number][])
+			g.fillEllipse(x, y, w, 1.6);
+		g.fillStyle(C('#c8d8e4'), 0.5).fillEllipse(22, 6, 34, 2.4);
+		g.fillStyle(C('#463a26'), 1).fillEllipse(22, 17, 34, 4); // and soil directly beneath
+	});
+
+	// Escape Cliff: near-vertical, but cut with ledges and footholds the whole way
+	// up — the route is what makes it safe ground.
+	o('escapecliff', 36, 42, (g) => {
+		g.fillStyle(C('#7d7469'), 1).fillRoundedRect(2, 1, 32, 40, 3); // the band of cliff
+		g.fillStyle(C('#8e857a'), 1).fillRoundedRect(2, 1, 32, 8, 3); // lit top
+		g.fillStyle(C('#655d54'), 1); // ledges stepping the whole way up
+		for (const [x, y, w] of [
+			[4, 10, 18],
+			[14, 17, 20],
+			[3, 24, 17],
+			[13, 31, 20],
+			[6, 37, 16],
+		] as [number, number, number][])
+			g.fillRect(x, y, w, 3);
+		g.fillStyle(C('#9a9186'), 1);
+		for (const [x, y, w] of [
+			[4, 10, 18],
+			[14, 17, 20],
+			[3, 24, 17],
+			[13, 31, 20],
+			[6, 37, 16],
+		] as [number, number, number][])
+			g.fillRect(x, y, w, 1);
+		g.lineStyle(1.2, C('#5a5249'), 1).lineBetween(11, 2, 13, 40).lineBetween(24, 2, 22, 40); // vertical seams
+	});
+	// Cliff Eyrie: the same sheer rock, but the object is the enormous stick nest
+	// on the ledge, added to for decades.
+	o('eyrie', 40, 36, (g) => {
+		g.fillStyle(C('#6f6a61'), 1).fillRoundedRect(2, 1, 36, 34, 3); // sheer face
+		g.fillStyle(C('#7f7a70'), 1).fillRoundedRect(2, 1, 36, 7, 3);
+		g.fillStyle(C('#54504a'), 1).fillRect(2, 20, 36, 3); // the ledge
+		g.fillStyle(C('#8a857c'), 1).fillRect(2, 20, 36, 1);
+		g.fillStyle(C('#6b5b45'), 1).fillEllipse(21, 15, 30, 12); // the eyrie, decades deep
+		g.fillStyle(C('#7f6f56'), 1).fillEllipse(21, 12, 26, 9);
+		g.lineStyle(1.3, C('#5f5238'), 1);
+		g.lineBetween(7, 15, 35, 14).lineBetween(8, 18, 34, 17).lineBetween(12, 8, 15, 20).lineBetween(29, 8, 27, 20);
+		g.fillStyle(C('#4f4433'), 1).fillEllipse(21, 11, 15, 5); // the bowl
+		g.fillStyle(0xffffff, 0.55).fillEllipse(9, 24, 8, 3).fillEllipse(31, 25, 7, 3); // whitewash down the ledge
+	});
+	// Goat Cliff Ledge: no wider than a doormat, scraped bare and dusty, on ground
+	// far steeper than anything else would attempt.
+	o('goatledge', 38, 40, (g) => {
+		g.fillStyle(C('#8d8579'), 1).fillTriangle(2, 0, 30, 0, 36, 40).fillTriangle(2, 0, 36, 40, 6, 40); // the steep face
+		g.fillStyle(C('#9c9488'), 1).fillTriangle(3, 0, 20, 0, 26, 38).fillTriangle(3, 0, 26, 38, 5, 38);
+		g.fillStyle(C('#6f685e'), 1).fillTriangle(24, 0, 30, 0, 36, 40).fillTriangle(24, 0, 36, 40, 30, 40); // shadowed side
+		g.fillStyle(C('#5f584f'), 1).fillRect(9, 20, 17, 3.4); // the shelf — barely there
+		g.fillStyle(C('#b0a89a'), 1).fillRect(9, 20, 17, 1.4); // scraped bare and dusty
+		g.fillStyle(C('#c9c0b0'), 0.7).fillEllipse(17, 19, 14, 2); // dust on it
+		g.lineStyle(1, C('#6f685e'), 1).lineBetween(8, 8, 30, 12).lineBetween(6, 30, 32, 33); // strata across the face
+	});
+	// Cliff Seam: a crack too tight to stand in — narrow, vertical, and the only
+	// way in is head-first.
+	o('cliffseam', 34, 42, (g) => {
+		g.fillStyle(C('#6e7480'), 1).fillRoundedRect(2, 1, 30, 40, 3); // sheer rock
+		g.fillStyle(C('#7f8590'), 1).fillRoundedRect(2, 1, 30, 8, 3);
+		g.fillStyle(C('#5a606b'), 1).fillRoundedRect(2, 24, 30, 17, 3); // shadowed lower half
+		g.fillStyle(C('#0f1116'), 1).fillTriangle(15, 4, 19, 4, 17.5, 34); // the seam — very tight
+		g.fillStyle(C('#0f1116'), 1).fillRect(15.4, 4, 3, 24);
+		g.fillStyle(C('#39404a'), 1).fillRect(15.4, 4, 1.2, 24); // its one lit edge
+		g.lineStyle(1, C('#5a606b'), 1).lineBetween(4, 14, 14, 15).lineBetween(20, 13, 30, 14); // strata running into it
+		g.lineBetween(4, 28, 14, 27).lineBetween(21, 29, 30, 28);
+		g.fillStyle(C('#8b919c'), 1).fillEllipse(17, 2, 14, 4); // the rim above
+	});
+	// Scrape Ledge: a gravel-floored shelf with a dip kicked into the grit. No
+	// nest built — the ledge and the drop are the nest.
+	o('scrapeledge', 40, 34, (g) => {
+		g.fillStyle(C('#7b8290'), 1).fillRoundedRect(2, 1, 36, 32, 3); // the cliff
+		g.fillStyle(C('#8c93a0'), 1).fillRoundedRect(2, 1, 36, 7, 3);
+		g.fillStyle(C('#5f6672'), 1).fillRect(2, 26, 36, 7); // shadow under the shelf
+		g.fillStyle(C('#6b7280'), 1).fillRect(2, 16, 36, 10); // the shelf itself
+		g.fillStyle(C('#a3aab6'), 1).fillRect(2, 16, 36, 2.4); // its gravel floor
+		g.fillStyle(C('#b8bfc9'), 1); // loose grit
+		for (let i = 0; i < 14; i++) g.fillCircle(5 + i * 2.4, 19 + (i % 3), 1);
+		g.fillStyle(C('#57606d'), 1).fillEllipse(20, 21, 16, 5); // the dip kicked into it
+		g.fillStyle(C('#454d59'), 1).fillEllipse(20, 21.6, 11, 3);
+		g.fillStyle(C('#e0d6c0'), 1).fillEllipse(18, 21, 4, 3.2).fillEllipse(22, 21.6, 4, 3.2); // eggs straight on the grit
+	});
+	// Dig Slope: a high bank torn open, with the turned soil left in heaps below —
+	// the damage is the habitat.
+	o('digslope', 44, 30, (g) => {
+		g.fillStyle(C('#7f8f5a'), 1).fillEllipse(22, 6, 42, 11); // alpine turf on the crest
+		g.fillStyle(C('#8a7a5c'), 1).fillEllipse(22, 17, 44, 22); // the bank
+		g.fillStyle(C('#9c8c6a'), 1).fillEllipse(21, 13, 36, 12);
+		g.fillStyle(C('#5f5138'), 1); // torn-open patches
+		g.fillEllipse(12, 15, 15, 9).fillEllipse(28, 17, 14, 9);
+		g.fillStyle(C('#4a3f2b'), 1).fillEllipse(12, 16, 10, 6).fillEllipse(28, 18, 9, 6);
+		g.lineStyle(1.4, C('#7a6a4a'), 1); // roots left hanging in the tear
+		g.lineBetween(7, 13, 16, 18).lineBetween(24, 14, 33, 19).lineBetween(10, 19, 15, 13);
+		g.fillStyle(C('#a3937a'), 1); // heaps of turned soil below
+		g.fillEllipse(9, 26, 14, 6).fillEllipse(24, 27, 15, 6).fillEllipse(37, 25, 11, 5);
+		g.fillStyle(C('#b5a68c'), 1).fillEllipse(9, 25, 9, 3).fillEllipse(24, 26, 10, 3);
+	});
+
+	// --- Plants, ground cover, kits and storage ------------------------------
+	// The last of the shared shapes: `flowers`, `cactus`, `brush`, `bush`,
+	// `cushion`, `mushrooms`, `talus`, `rocks`, `kit` and `chest`.
+
+	// Alpine Wildflower Patch: low and tight to the ground, all flowering at once —
+	// the opposite of the meadow drift's tall loose stems.
+	o('alpineflowers', 38, 22, (g) => {
+		g.fillStyle(C('#5f6b4a'), 1).fillEllipse(19, 14, 38, 15); // thin high-country soil
+		g.fillStyle(C('#6f8050'), 1).fillEllipse(18, 11, 32, 10); // tight cushion foliage
+		g.fillStyle(C('#7d8f5c'), 1);
+		for (const [x, y, r] of [
+			[8, 11, 5],
+			[17, 9, 5.5],
+			[26, 11, 5],
+			[33, 12, 4],
+		] as [number, number, number][])
+			g.fillCircle(x, y, r);
+		const blooms: [number, number, string][] = [
+			[6, 9, '#9d86d9'],
+			[11, 7, '#d9869d'],
+			[16, 6, '#9d86d9'],
+			[21, 8, '#e0d05a'],
+			[26, 7, '#86a8d9'],
+			[31, 9, '#9d86d9'],
+			[13, 12, '#e0d05a'],
+			[23, 13, '#d9869d'],
+			[30, 13, '#86a8d9'],
+		];
+		blooms.forEach(([x, y, c]) => {
+			g.fillStyle(C(c), 1).fillCircle(x, y, 2.4); // no stems — they hug the ground
+			g.fillStyle(0xfff3c4, 1).fillCircle(x, y, 0.9);
+		});
+	});
+	// Open Bare Ground: deliberately left open and loose — the object is soil you
+	// could dig straight into, so nothing grows on it.
+	o('bareground', 42, 22, (g) => {
+		g.fillStyle(C('#b59c72'), 1).fillEllipse(21, 12, 42, 16); // the open patch
+		g.fillStyle(C('#cbb287'), 1).fillEllipse(20, 9, 34, 11); // soft uncompacted soil
+		g.fillStyle(C('#d8c49a'), 1).fillEllipse(17, 7, 22, 6);
+		g.fillStyle(C('#a08a64'), 1); // crumb structure, nothing packed
+		for (let i = 0; i < 18; i++) g.fillCircle(4 + ((i * 7) % 34), 7 + ((i * 5) % 10), 1.2 + (i % 3) * 0.3);
+		g.fillStyle(C('#7d8b5a'), 1).fillEllipse(2, 6, 9, 6).fillEllipse(40, 8, 8, 6); // shrubs, kept back from it
+		g.fillStyle(C('#8f6f4a'), 1).fillEllipse(21, 18, 26, 3); // and the ground stays bare
+	});
+	// Carrion Ground: bones and a stain in the soil — what is left within days,
+	// with the beetles and flies that did it.
+	o('carrionground', 42, 24, (g) => {
+		g.fillStyle(C('#9a8464'), 1).fillEllipse(21, 14, 42, 18); // desert ground
+		g.fillStyle(C('#7d6b63'), 1).fillEllipse(20, 14, 30, 12); // the dark stain left behind
+		g.fillStyle(C('#665650'), 1).fillEllipse(20, 15, 22, 8);
+		g.fillStyle(C('#e0d8c4'), 1); // what is left of it
+		g.fillRoundedRect(10, 12, 15, 3, 1.5).fillRoundedRect(14, 17, 13, 2.6, 1.3); // long bones
+		g.fillCircle(9, 13.5, 2.6).fillCircle(26, 13.5, 2.6).fillCircle(13, 18.3, 2.2);
+		g.fillStyle(C('#cdc4ac'), 1).fillEllipse(30, 12, 8, 6); // skull
+		g.fillStyle(C('#8a8070'), 1).fillCircle(31, 11, 1.4);
+		g.fillStyle(C('#2f3830'), 1); // beetles and flies still working
+		g.fillEllipse(7, 19, 2.6, 1.8).fillEllipse(33, 18, 2.4, 1.6).fillEllipse(24, 20, 2.2, 1.5);
+		g.fillStyle(C('#4a5a44'), 1).fillCircle(16, 8, 1.1).fillCircle(28, 7, 1);
+	});
+	// Truffle Patch: nothing shows above ground, so the sprite is a cutaway — the
+	// tubers are on the roots, under the surface.
+	o('trufflepatch', 42, 26, (g) => {
+		g.fillStyle(C('#6b5a3e'), 1).fillEllipse(21, 8, 42, 12); // leaf litter on top
+		g.fillStyle(C('#8a6a3a'), 1).fillEllipse(12, 5, 14, 4).fillEllipse(29, 5, 13, 4);
+		g.fillStyle(C('#5c4a33'), 1).fillEllipse(21, 17, 42, 18); // the soil below, opened up
+		g.fillStyle(C('#463825'), 1).fillEllipse(21, 20, 34, 12);
+		g.lineStyle(1.8, C('#7a6a4a'), 1); // oak and hemlock roots
+		g.lineBetween(2, 12, 40, 15).lineBetween(10, 24, 30, 11).lineBetween(24, 24, 36, 13);
+		g.fillStyle(C('#3f3120'), 1); // the tubers clustered on them
+		for (const [x, y, r] of [
+			[11, 15, 3.4],
+			[18, 18, 4],
+			[26, 15, 3.6],
+			[32, 19, 3],
+			[22, 22, 3],
+		] as [number, number, number][])
+			g.fillCircle(x, y, r);
+		g.fillStyle(C('#584833'), 1).fillCircle(11, 14.4, 1.8).fillCircle(18, 17.2, 2).fillCircle(26, 14.4, 1.8);
+		g.lineStyle(0.8, C('#c9c0a8'), 0.8).lineBetween(8, 20, 16, 16).lineBetween(20, 21, 30, 18); // mycelium
+	});
+
+	// Berry Bush: prickly, and heavy with fruit — the canes and the thorns are
+	// what set it apart from the plain shrub.
+	o('berrybush', 38, 32, (g) => {
+		g.fillStyle(C('#3f6b34'), 1).fillCircle(12, 20, 12).fillCircle(25, 18, 12).fillCircle(19, 12, 10); // the thicket
+		g.fillStyle(C('#4f8440'), 1).fillCircle(11, 15, 8).fillCircle(26, 14, 7);
+		g.lineStyle(1.4, C('#7a5a3a'), 1); // arching canes
+		g.lineBetween(4, 30, 14, 8).lineBetween(34, 30, 24, 7).lineBetween(10, 30, 28, 12);
+		g.lineStyle(0.9, C('#9a7448'), 1); // and they are thorny
+		for (const [x, y] of [
+			[8, 22],
+			[12, 15],
+			[27, 12],
+			[30, 20],
+			[19, 18],
+		] as [number, number][])
+			g.lineBetween(x, y, x + 1.8, y - 1.8).lineBetween(x, y, x - 1.8, y - 1.6);
+		g.fillStyle(C('#5d3a5f'), 1); // heavy fruit
+		for (const [x, y] of [
+			[8, 19],
+			[16, 22],
+			[23, 20],
+			[30, 17],
+			[13, 11],
+			[26, 9],
+			[20, 15],
+		] as [number, number][])
+			g.fillCircle(x, y, 2.4);
+		g.fillStyle(C('#7d5680'), 1).fillCircle(7.2, 18.2, 1).fillCircle(22.2, 19.2, 1).fillCircle(25.2, 8.2, 0.9);
+		g.fillStyle(0xfff3c4, 0.9).fillCircle(31, 11, 1.4).fillCircle(15, 7, 1.3); // a few late flowers
+	});
+	// Stonecrop Patch: fat water-storing leaves wedged into rock cracks — the rock
+	// is half the object.
+	o('stonecrop', 36, 24, (g) => {
+		g.fillStyle(C('#8e8e8a'), 1).fillEllipse(18, 16, 36, 16); // gravel and rock
+		g.fillStyle(C('#a3a39e'), 1).fillCircle(7, 14, 7).fillCircle(28, 13, 7).fillCircle(18, 18, 6);
+		g.fillStyle(C('#6f6f6b'), 1); // the cracks it wedges into
+		g.fillTriangle(12, 8, 15, 8, 13, 20).fillTriangle(22, 8, 25, 8, 24, 19);
+		g.fillStyle(C('#a8b56a'), 1); // fat succulent leaves
+		for (const [x, y] of [
+			[13, 11],
+			[24, 10],
+			[9, 17],
+			[19, 15],
+			[29, 17],
+		] as [number, number][]) {
+			for (let i = 0; i < 5; i++) {
+				const a = -2.6 + (i / 4) * 2.1;
+				g.fillEllipse(x + Math.cos(a) * 3, y + Math.sin(a) * 2.4, 4, 2.4);
+			}
+		}
+		g.fillStyle(C('#c2cf85'), 1).fillCircle(13, 10, 1.8).fillCircle(24, 9, 1.7).fillCircle(19, 14, 1.5);
+		g.fillStyle(C('#e0d05a'), 1).fillCircle(9, 16, 1.3).fillCircle(29, 16, 1.2); // yellow flowers
+	});
+
+	// Saguaro: a single columnar giant, pleated so it can swell and shrink, with
+	// its crown of white flowers.
+	o('saguarocolumn', 32, 48, (g) => {
+		g.fillStyle(C('#c2ab82'), 1).fillEllipse(16, 45, 26, 6); // desert floor
+		g.fillStyle(C('#4a7c3f'), 1).fillRoundedRect(11, 6, 12, 39, 6); // the column
+		g.fillRoundedRect(2, 20, 9, 6, 3).fillRoundedRect(2, 15, 6, 12, 3); // one arm
+		g.fillRoundedRect(23, 25, 7, 5, 2.5).fillRoundedRect(25, 19, 5, 11, 2.5); // and another
+		g.fillStyle(C('#5c9150'), 1).fillRoundedRect(11, 6, 5, 39, 2.5); // lit side
+		g.lineStyle(1, C('#3a6632'), 1); // the pleats
+		for (const x of [14, 17, 20]) g.lineBetween(x, 8, x, 43);
+		g.lineBetween(4, 17, 4, 25).lineBetween(27, 21, 27, 28);
+		g.fillStyle(C('#f2ede0'), 1); // crown flowers
+		g.fillCircle(14, 6, 3).fillCircle(20, 7, 2.6).fillCircle(4, 14, 2.4);
+		g.fillStyle(C('#e8d05a'), 1).fillCircle(14, 6, 1.3).fillCircle(20, 7, 1.1).fillCircle(4, 14, 1);
+	});
+	// Chain-fruit Cholla: a tangle of jointed arms, fuzzy with barbed spines, with
+	// the sheltered space inside the tangle showing dark.
+	o('cholla', 34, 40, (g) => {
+		g.fillStyle(C('#c2ab82'), 1).fillEllipse(17, 37, 26, 6); // ground
+		g.fillStyle(C('#6b5b3f'), 1).fillRect(15, 26, 4, 11); // woody trunk
+		const joints: [number, number, number, number][] = [
+			[17, 24, 10, 13],
+			[9, 19, 9, 12],
+			[25, 18, 9, 12],
+			[12, 10, 8, 11],
+			[23, 9, 8, 11],
+			[17, 15, 8, 10],
+		];
+		g.fillStyle(C('#0f1a10'), 0.45).fillEllipse(17, 19, 13, 12); // the sheltered space inside
+		joints.forEach(([x, y, w, h], i) => {
+			g.lineStyle(0.8, C('#e8e4cc'), 0.95); // barbed spines, close around each joint
+			for (let k = 0; k < 9; k++) {
+				const a = (k / 9) * Math.PI * 2;
+				g.lineBetween(
+					x + Math.cos(a) * (w / 2 - 0.5),
+					y + Math.sin(a) * (h / 2 - 0.5),
+					x + Math.cos(a) * (w / 2 + 2.6),
+					y + Math.sin(a) * (h / 2 + 2.6),
+				);
+			}
+			g.fillStyle(C(['#8ba06a', '#7d9260'][i % 2]), 1).fillEllipse(x, y, w, h); // the jointed segment
+			g.fillStyle(C('#9db07c'), 1).fillEllipse(x - 1, y - 2, w * 0.55, h * 0.45);
+			g.fillStyle(C('#6f8452'), 1).fillEllipse(x, y + h * 0.36, w * 0.6, 1.6); // the joint line
+		});
+		g.fillStyle(C('#c9a05f'), 1); // the hanging fruit chain it is named for
+		g.fillCircle(9, 27, 2.2).fillCircle(11, 31, 2).fillCircle(10, 35, 1.8);
+		g.lineStyle(0.9, C('#a8874a'), 1).lineBetween(9, 27, 11, 31).lineBetween(11, 31, 10, 35);
+	});
+	// Saguaro Fruit Fall: split crimson fruit at the top and fallen on the ground —
+	// the richest food out here for a few weeks.
+	o('saguarofruit', 34, 44, (g) => {
+		g.fillStyle(C('#c2ab82'), 1).fillEllipse(17, 41, 28, 7); // ground
+		g.fillStyle(C('#4a7c3f'), 1).fillRoundedRect(12, 8, 11, 34, 5); // the cactus
+		g.fillStyle(C('#5c9150'), 1).fillRoundedRect(12, 8, 4.4, 34, 2);
+		g.lineStyle(1, C('#3a6632'), 1);
+		for (const x of [15, 18, 21]) g.lineBetween(x, 10, x, 40);
+		g.fillStyle(C('#b8443c'), 1); // split fruit still on the crown
+		for (const [x, y] of [
+			[13, 8],
+			[18, 6],
+			[23, 9],
+		] as [number, number][]) {
+			g.fillCircle(x, y, 3.4);
+			g.fillStyle(C('#e05a4a'), 1).fillEllipse(x, y - 0.6, 4.4, 2.6); // burst open
+			g.fillStyle(C('#3a1a14'), 1)
+				.fillCircle(x - 1, y - 0.6, 0.7)
+				.fillCircle(x + 1.2, y - 1, 0.6); // black seed
+			g.fillStyle(C('#b8443c'), 1);
+		}
+		g.fillStyle(C('#a83a34'), 1); // and fallen at the foot
+		g.fillCircle(7, 39, 3).fillCircle(27, 40, 2.6).fillCircle(13, 41, 2.4);
+		g.fillStyle(C('#e05a4a'), 1).fillEllipse(7, 38.4, 4, 2.2).fillEllipse(27, 39.4, 3.4, 2);
+		g.fillStyle(C('#3a1a14'), 1).fillCircle(6, 38.4, 0.7).fillCircle(26.4, 39.4, 0.6);
+	});
+	// Cactus Fruit Set: prickly pear pads hanging heavy — a full crop, which only
+	// happens where every flower got pollinated.
+	o('cactusfruitset', 40, 34, (g) => {
+		g.fillStyle(C('#c2ab82'), 1).fillEllipse(20, 31, 32, 7); // ground
+		g.fillStyle(C('#5e8a4a'), 1); // prickly pear pads
+		g.fillEllipse(13, 20, 15, 19).fillEllipse(26, 17, 14, 18).fillEllipse(19, 9, 12, 14);
+		g.fillStyle(C('#6f9c58'), 1).fillEllipse(11, 17, 9, 12).fillEllipse(25, 14, 8, 11);
+		g.fillStyle(C('#4a7038'), 1); // areoles
+		for (const [x, y] of [
+			[10, 16],
+			[15, 22],
+			[24, 13],
+			[29, 20],
+			[18, 7],
+			[21, 12],
+		] as [number, number][])
+			g.fillCircle(x, y, 0.9);
+		g.fillStyle(C('#9c3f5a'), 1); // ripe fruit, ringing every pad edge
+		for (const [x, y] of [
+			[7, 12],
+			[13, 10],
+			[19, 2],
+			[24, 6],
+			[32, 11],
+			[33, 19],
+			[6, 24],
+			[20, 26],
+			[28, 26],
+		] as [number, number][]) {
+			g.fillEllipse(x, y, 4.4, 5.4);
+			g.fillStyle(C('#b8536f'), 1).fillEllipse(x - 0.6, y - 1, 2.4, 2.6);
+			g.fillStyle(C('#9c3f5a'), 1);
+		}
+	});
+	// Cactus Crown Nest: a stick platform wedged where a tall cactus splits into
+	// arms — wide enough for a whole family.
+	o('cactuscrownnest', 36, 46, (g) => {
+		g.fillStyle(C('#c2ab82'), 1).fillEllipse(18, 43, 26, 6); // ground
+		g.fillStyle(C('#4a7c3f'), 1).fillRoundedRect(14, 16, 10, 28, 5); // trunk
+		g.fillRoundedRect(4, 20, 10, 5, 2.5).fillRoundedRect(4, 10, 6, 14, 3); // arms splitting off
+		g.fillRoundedRect(24, 22, 8, 5, 2.5).fillRoundedRect(26, 12, 6, 14, 3);
+		g.fillStyle(C('#5c9150'), 1).fillRoundedRect(14, 16, 4, 28, 2).fillRoundedRect(4, 10, 2.6, 14, 1.3);
+		g.fillStyle(C('#8a7145'), 1).fillEllipse(18, 12, 26, 11); // the platform in the crook
+		g.fillStyle(C('#9c8352'), 1).fillEllipse(18, 10, 22, 8);
+		g.lineStyle(1.3, C('#6b5535'), 1);
+		g.lineBetween(6, 13, 30, 12).lineBetween(7, 15, 29, 14).lineBetween(12, 6, 14, 17).lineBetween(24, 6, 22, 17);
+		g.fillStyle(C('#5f4c30'), 1).fillEllipse(18, 9, 13, 4.4); // the cup
+		g.fillStyle(C('#e8e2d4'), 1).fillEllipse(16, 9, 4, 3).fillEllipse(20, 9.4, 4, 3);
+	});
+
+	// Browse Thicket: dense young regrowth in a light gap — every twig within
+	// reach from the ground, and the gap in the canopy above it.
+	o('browsethicket', 44, 30, (g) => {
+		g.fillStyle(C('#3d5232'), 1).fillEllipse(6, 4, 18, 10).fillEllipse(38, 4, 18, 10); // canopy either side of the gap
+		g.fillStyle(C('#5f7a44'), 1).fillEllipse(22, 26, 42, 8); // forest floor
+		g.fillStyle(C('#6d8348'), 1); // crowded young regrowth
+		for (const [x, y, r] of [
+			[8, 18, 8],
+			[17, 15, 9],
+			[27, 16, 9],
+			[36, 19, 8],
+			[12, 22, 7],
+			[31, 23, 7],
+		] as [number, number, number][])
+			g.fillCircle(x, y, r);
+		g.fillStyle(C('#82985a'), 1).fillCircle(16, 12, 6).fillCircle(28, 13, 5.5).fillCircle(8, 15, 4.5);
+		g.lineStyle(1.3, C('#6b5b3f'), 1); // stems, all reachable from below
+		for (let i = 0; i < 8; i++) g.lineBetween(5 + i * 5, 26, 6 + i * 5, 12 + (i % 3) * 3);
+		g.fillStyle(C('#a8bf78'), 1); // fresh browse tips
+		for (let i = 0; i < 7; i++) g.fillEllipse(6 + i * 5.4, 12 + (i % 3) * 3, 4, 2.2);
+	});
+	// Wild Grape Tangle: a woody vine roped up a leaning trunk — a ladder and a
+	// larder at once.
+	o('grapetangle', 38, 40, (g) => {
+		g.fillStyle(C('#5f7a44'), 1).fillEllipse(19, 37, 32, 7); // ground
+		g.fillStyle(C('#6b5b45'), 1).fillTriangle(10, 38, 17, 38, 27, 2).fillTriangle(10, 38, 27, 2, 21, 2); // leaning trunk
+		g.fillStyle(C('#7f6d54'), 1).fillTriangle(12, 37, 15, 37, 24, 3).fillTriangle(12, 37, 24, 3, 22, 3);
+		g.lineStyle(2.4, C('#7a5a3a'), 1); // the vine roped round it
+		g.lineBetween(8, 34, 20, 27).lineBetween(20, 27, 12, 20).lineBetween(12, 20, 24, 14).lineBetween(24, 14, 17, 7);
+		g.fillStyle(C('#5b7c3a'), 1); // grape leaves
+		for (const [x, y, r] of [
+			[7, 30, 6],
+			[24, 24, 6],
+			[9, 16, 5.5],
+			[28, 12, 5.5],
+			[15, 9, 5],
+		] as [number, number, number][])
+			g.fillCircle(x, y, r);
+		g.fillStyle(C('#6d9147'), 1).fillCircle(6, 28, 3.4).fillCircle(25, 22, 3.2).fillCircle(29, 10, 3);
+		g.fillStyle(C('#4a3a5f'), 1); // hanging bunches
+		for (const [x, y] of [
+			[13, 32],
+			[30, 19],
+			[6, 22],
+		] as [number, number][]) {
+			g.fillTriangle(x - 3, y, x + 3, y, x, y + 8);
+			g.fillStyle(C('#5f4c78'), 1)
+				.fillCircle(x - 1, y + 2, 1.4)
+				.fillCircle(x + 1, y + 4, 1.2);
+			g.fillStyle(C('#4a3a5f'), 1);
+		}
+	});
+	// Thicket Bed Hollow: a scooped dusty hollow under dense thornscrub, worn flat
+	// by a whole herd lying up in the heat.
+	o('thicketbed', 44, 30, (g) => {
+		g.fillStyle(C('#c2ab82'), 1).fillEllipse(22, 22, 44, 16); // desert ground
+		g.fillStyle(C('#5f7042'), 1).fillEllipse(22, 9, 42, 18); // dense thornscrub over it
+		g.fillStyle(C('#6f8250'), 1).fillEllipse(13, 6, 22, 10).fillEllipse(32, 5, 18, 9);
+		g.lineStyle(1, C('#4f5f38'), 1);
+		for (let i = 0; i < 8; i++) g.lineBetween(5 + i * 5, 16, 4 + i * 5.2, 10 + (i % 3) * 2); // thorny stems
+		g.fillStyle(C('#4a4130'), 0.5).fillEllipse(22, 21, 36, 12); // deep shade under it
+		g.fillStyle(C('#8b7a52'), 1).fillEllipse(22, 21, 30, 11); // the worn hollow
+		g.fillStyle(C('#6f6148'), 1).fillEllipse(15, 22, 14, 6).fillEllipse(29, 21, 13, 6); // separate body-scoops
+		g.fillStyle(C('#a3936a'), 0.8).fillEllipse(22, 17, 26, 3); // dust kicked to the rim
+	});
+
+	// Meadow Mushroom Ring: an arc, not a closed ring — the growing edge of the
+	// fungus, pushing up through damp grass thatch.
+	o('meadowring', 42, 26, (g) => {
+		g.fillStyle(C('#7f9a52'), 1).fillEllipse(21, 15, 42, 18); // damp grass
+		g.lineStyle(1.2, C('#8fa85e'), 1);
+		for (let i = 0; i < 12; i++) g.lineBetween(3 + i * 3.2, 20, 2 + i * 3.4, 11 + (i % 3) * 2); // thatch
+		g.fillStyle(C('#6b8a44'), 1); // greener band where the fungus is feeding
+		for (let i = 0; i < 9; i++) {
+			const a = 0.35 + (i / 8) * 2.45;
+			g.fillEllipse(21 + Math.cos(a) * 16, 12 + Math.sin(a) * 9, 7, 3.4);
+		}
+		for (let i = 0; i < 8; i++) {
+			const a = 0.45 + (i / 7) * 2.25,
+				x = 21 + Math.cos(a) * 16,
+				y = 12 + Math.sin(a) * 9;
+			g.fillStyle(C('#e8e2d0'), 1).fillRect(x - 0.8, y - 3, 1.6, 4); // stalk
+			g.fillStyle(C('#d8cdb4'), 1).fillEllipse(x, y - 3, 6, 4); // pale button cap
+			g.fillStyle(C('#eae2cc'), 1).fillEllipse(x - 0.6, y - 4, 3.4, 2);
+		}
+	});
+	// Bracket Fungus Shelf: overlapping banded fans stepping up the side of a dead
+	// log — the fans, not the log, are the object.
+	o('bracketfungus', 40, 30, (g) => {
+		g.fillStyle(C('#5f7a44'), 1).fillEllipse(20, 27, 36, 7); // forest floor
+		g.fillStyle(C('#6b5b45'), 1).fillRoundedRect(4, 4, 15, 24, 4); // the dead hardwood
+		g.fillStyle(C('#7f6d54'), 1).fillRoundedRect(4, 4, 6, 24, 3);
+		const fans: [number, number, number][] = [
+			[19, 8, 11],
+			[19, 14, 13],
+			[19, 20, 12],
+			[19, 25, 9],
+		];
+		fans.forEach(([x, y, w]) => {
+			g.fillStyle(C('#8a5f2f'), 1).fillEllipse(x + w * 0.42, y + 1.6, w, 5.4); // the fan's underside
+			g.fillStyle(C('#a8763f'), 1).fillEllipse(x + w * 0.42, y, w, 5.4); // and its top
+			g.fillStyle(C('#c9954f'), 1).fillEllipse(x + w * 0.42, y - 0.8, w * 0.78, 3.4); // banding
+			g.fillStyle(C('#e0c08a'), 1).fillEllipse(x + w * 0.46, y - 1.4, w * 0.5, 1.8);
+		});
+		g.fillStyle(C('#f2e8d0'), 1); // the pale growing margin
+		fans.forEach(([x, y, w]) => g.fillEllipse(x + w * 0.72, y + 0.6, w * 0.36, 1.6));
+	});
+
+	// Snowmelt Litter Mat: a sodden, flattened mat of last year's stems, just
+	// released by the snowpack — dark, wet, and going straight back to soil.
+	o('snowmeltmat', 40, 22, (g) => {
+		g.fillStyle(C('#c9d3dc'), 1).fillEllipse(34, 8, 16, 12); // the last of the snowpack
+		g.fillStyle(C('#4a4437'), 1).fillEllipse(19, 13, 38, 14); // sodden ground
+		g.fillStyle(C('#6b6151'), 1).fillEllipse(19, 11, 34, 11); // the flattened mat
+		g.fillStyle(C('#7d7361'), 1); // last year's stems, all pressed one way
+		for (const [x, y, w] of [
+			[9, 8, 13],
+			[19, 7, 14],
+			[28, 9, 12],
+			[13, 13, 13],
+			[24, 14, 12],
+			[32, 12, 9],
+		] as [number, number, number][])
+			g.fillEllipse(x, y, w, 2.4);
+		g.fillStyle(C('#8f8471'), 1).fillEllipse(15, 7, 9, 1.4).fillEllipse(26, 10, 8, 1.3);
+		g.fillStyle(0xffffff, 0.22).fillEllipse(17, 9, 18, 2.4); // wet shine on it
+		g.fillStyle(C('#5f6b4a'), 1).fillCircle(7, 15, 1.6).fillCircle(22, 17, 1.4); // first green pushing through
+	});
+	// Living Soil Crust: a knitted dark skin over bare desert soil — lumpy,
+	// continuous, and obviously alive.
+	o('soilcrust', 42, 22, (g) => {
+		g.fillStyle(C('#b09874'), 1).fillEllipse(21, 12, 42, 16); // the soil it is knitting
+		g.fillStyle(C('#5c5a4a'), 1).fillEllipse(21, 11, 36, 13); // the crust
+		g.fillStyle(C('#6b6a55'), 1); // its pinnacled, lumpy surface
+		for (const [x, y, r] of [
+			[7, 10, 4],
+			[14, 8, 4.5],
+			[21, 10, 4],
+			[28, 8, 4.5],
+			[34, 11, 4],
+			[11, 14, 3.4],
+			[24, 14, 3.6],
+			[31, 14, 3.2],
+		] as [number, number, number][])
+			g.fillCircle(x, y, r);
+		g.fillStyle(C('#4a4a3a'), 1);
+		for (const [x, y] of [
+			[7, 10],
+			[14, 8],
+			[21, 10],
+			[28, 8],
+			[34, 11],
+		] as [number, number][])
+			g.fillCircle(x, y, 1.8);
+		g.fillStyle(C('#8a9a6a'), 1).fillCircle(17, 12, 1.4).fillCircle(30, 12, 1.2).fillCircle(9, 13, 1.1); // moss and lichen in it
+		g.fillStyle(C('#c9c0a0'), 1).fillCircle(24, 7, 1).fillCircle(12, 6, 0.9);
+	});
+	// Puffball Ring: pale domes pushing up through old turf, in a ring.
+	o('puffballring', 40, 26, (g) => {
+		g.fillStyle(C('#7a8a5a'), 1).fillEllipse(20, 15, 40, 18); // old turf
+		g.fillStyle(C('#89996a'), 1).fillEllipse(19, 12, 32, 11);
+		const ring: [number, number, number][] = [
+			[7, 13, 4],
+			[13, 8, 3.4],
+			[21, 6, 4.2],
+			[29, 8, 3.6],
+			[34, 13, 4],
+			[29, 18, 3.4],
+			[20, 20, 4],
+			[11, 18, 3.6],
+		];
+		ring.forEach(([x, y, r]) => {
+			g.fillStyle(C('#6b7a4a'), 1).fillEllipse(x, y + r * 0.55, r * 2.2, r * 0.8); // turf pushed up around it
+			g.fillStyle(C('#cfc6a8'), 1).fillCircle(x, y, r); // the dome
+			g.fillStyle(C('#e2dbc2'), 1).fillCircle(x - r * 0.3, y - r * 0.3, r * 0.55); // its pale crown
+		});
+		g.fillStyle(C('#b0a888'), 0.7).fillEllipse(21, 6, 5, 3); // one ripe and smoking
+		g.fillStyle(C('#c9c0a8'), 0.4).fillCircle(21, 2, 3);
+	});
+
+	// Fellfield Gravel: wind-scoured, frost-sorted grit held together by thin
+	// lichen crusts — flat, and it looks like nothing until you know.
+	o('fellfield', 42, 22, (g) => {
+		g.fillStyle(C('#9a9385'), 1).fillEllipse(21, 12, 42, 16); // the gravel sheet
+		g.fillStyle(C('#a8a294'), 1).fillEllipse(20, 9, 34, 10);
+		g.fillStyle(C('#8a8478'), 1); // frost-sorted stones, all a size
+		for (let i = 0; i < 26; i++) g.fillCircle(4 + ((i * 7) % 35), 7 + ((i * 11) % 11), 1.4 + (i % 3) * 0.3);
+		g.fillStyle(C('#b8b2a4'), 1);
+		for (let i = 0; i < 16; i++) g.fillCircle(6 + ((i * 13) % 31), 8 + ((i * 5) % 9), 1.1);
+		g.fillStyle(C('#a3b06a'), 0.75); // thin lichen crusts holding it together
+		g.fillEllipse(11, 10, 9, 3.4).fillEllipse(26, 8, 8, 3).fillEllipse(19, 15, 9, 3.2).fillEllipse(33, 13, 7, 2.8);
+		g.fillStyle(C('#c9a05f'), 0.6).fillEllipse(15, 7, 5, 2).fillEllipse(30, 15, 4.5, 2);
+	});
+	// Rock Crack: a dark slot under a loose scree slab, running back further than
+	// the daylight reaches.
+	o('screecrack', 40, 26, (g) => {
+		g.fillStyle(C('#9a948a'), 1).fillEllipse(20, 20, 40, 12); // scree below
+		g.fillStyle(C('#7b7166'), 1).fillTriangle(2, 16, 34, 3, 38, 11).fillTriangle(2, 16, 38, 11, 7, 19); // the loose slab
+		g.fillStyle(C('#8f8579'), 1).fillTriangle(3, 15, 33, 4, 35, 8).fillTriangle(3, 15, 35, 8, 6, 17); // its lit top
+		g.fillStyle(C('#0d0b09'), 1).fillTriangle(5, 19, 36, 11, 38, 17).fillTriangle(5, 19, 38, 17, 9, 21); // the slot
+		g.fillStyle(0x000000, 0.5).fillTriangle(9, 20, 34, 13, 35, 16); // and it keeps going back
+		g.fillStyle(C('#a8a29a'), 1).fillCircle(36, 20, 5).fillCircle(4, 21, 4.5); // scree at each end
+		g.fillStyle(C('#8a847a'), 1).fillCircle(14, 23, 3.4).fillCircle(24, 24, 3);
+	});
+
+	// Medium Chest: plainly the bigger of the two — wider, banded, and stouter.
+	o('mediumchest', 34, 28, (g) => {
+		g.fillStyle(C('#4f4030'), 1).fillEllipse(17, 25, 30, 5); // shadow
+		g.fillStyle(C('#6e553c'), 1).fillRoundedRect(2, 10, 30, 15, 2); // the body
+		g.fillStyle(C('#83684a'), 1).fillRoundedRect(2, 4, 30, 8, 3); // domed lid
+		g.fillStyle(C('#95795a'), 1).fillRoundedRect(3, 4, 28, 3.4, 2);
+		g.fillStyle(C('#5c4630'), 1).fillRect(2, 11.5, 30, 1.6); // the lid seam
+		g.fillStyle(C('#8a8478'), 1); // iron banding — this is the sturdier one
+		g.fillRect(7, 4, 2.6, 21).fillRect(24, 4, 2.6, 21);
+		g.fillStyle(C('#a39d90'), 1).fillRect(7, 4, 1, 21).fillRect(24, 4, 1, 21);
+		g.fillStyle(C('#c9a95f'), 1).fillRoundedRect(14, 12, 6, 5, 1); // hasp
+		g.fillStyle(C('#7f6a34'), 1).fillCircle(17, 15, 1.4);
+	});
+
+	// The four remaining restoration kits share a crate base but carry different
+	// contents on top — which is the only thing that distinguishes them in the
+	// fiction too, since they differ solely by the biome they open.
+	// Migration Path Marker: cairn stones and a route marker rather than supplies.
+	o('kitmarker', 34, 28, (g) => {
+		g.fillStyle(C('#4f4030'), 0.4).fillEllipse(17, 25, 28, 4); // shadow
+		g.fillStyle(C('#8a8478'), 1).fillRoundedRect(3, 10, 28, 15, 2); // crate
+		g.fillStyle(C('#9d86d9'), 1).fillRect(3, 14, 28, 4); // route-marker livery
+		g.lineStyle(1, C('#6f6a62'), 1).lineBetween(10, 10, 10, 25).lineBetween(24, 10, 24, 25);
+		g.fillStyle(C('#a8a29a'), 1).fillEllipse(11, 8, 12, 5).fillEllipse(11, 4, 9, 4).fillEllipse(11, 1, 6, 3); // cairn
+		g.fillStyle(C('#c2bcb2'), 1).fillEllipse(10, 7, 7, 2).fillEllipse(10, 3.4, 5, 1.6);
+		g.fillStyle(C('#7f6ab0'), 1).fillRect(24, 0, 2, 10); // the marker post
+		g.fillStyle(C('#b7a5e6'), 1).fillTriangle(26, 1, 32, 3.4, 26, 6);
+		g.fillStyle(0xffffff, 0.14).fillRect(3, 10, 28, 1.6);
+	});
+	// Forest Restoration Kit: seed mixes and a coil of fibre twine.
+	o('kitforest', 34, 28, (g) => {
+		g.fillStyle(C('#4f4030'), 0.4).fillEllipse(17, 25, 28, 4);
+		g.fillStyle(C('#7a5a3a'), 1).fillRoundedRect(3, 10, 28, 15, 2);
+		g.fillStyle(C('#8fbf6f'), 1).fillRect(3, 14, 28, 4);
+		g.lineStyle(1, C('#5c4630'), 1).lineBetween(10, 10, 10, 25).lineBetween(24, 10, 24, 25);
+		g.fillStyle(C('#6b8a44'), 1).fillRect(10.4, 5, 1.2, 5); // a seedling
+		g.fillStyle(C('#8fbf6f'), 1).fillEllipse(11, 6, 13, 7);
+		g.fillStyle(C('#a3d086'), 1).fillEllipse(10, 4, 8, 4.4);
+		g.fillStyle(C('#c9b48c'), 1).fillEllipse(24, 7, 11, 6); // twine
+		g.lineStyle(1, C('#a3906a'), 1).strokeEllipse(24, 7, 8, 4).strokeEllipse(24, 7, 4.4, 2.2);
+		g.fillStyle(0xffffff, 0.14).fillRect(3, 10, 28, 1.6);
+	});
+	// Scrubland Restoration Kit: bundled hardy cuttings and a sediment sled.
+	o('kitscrub', 34, 28, (g) => {
+		g.fillStyle(C('#4f4030'), 0.4).fillEllipse(17, 25, 28, 4);
+		g.fillStyle(C('#8a7050'), 1).fillRoundedRect(3, 10, 28, 15, 2);
+		g.fillStyle(C('#6aa884'), 1).fillRect(3, 14, 28, 4);
+		g.lineStyle(1, C('#6b5540'), 1).lineBetween(10, 10, 10, 25).lineBetween(24, 10, 24, 25);
+		g.fillStyle(C('#6aa884'), 1);
+		for (const x of [8, 11, 14]) g.fillRect(x, 1, 1.8, 9); // cuttings
+		g.fillStyle(C('#8fc7a8'), 1).fillEllipse(8.9, 1.6, 4, 2.4).fillEllipse(14.9, 1.6, 4, 2.4);
+		g.fillStyle(C('#9a7448'), 1).fillRect(6, 5, 11, 1.6); // the tie
+		g.fillStyle(C('#a8a29a'), 1).fillTriangle(21, 9, 31, 9, 26, 2); // sediment sled
+		g.fillStyle(C('#c2bcb2'), 1).fillTriangle(22.4, 8, 29.6, 8, 26, 3.6);
+		g.fillStyle(0xffffff, 0.14).fillRect(3, 10, 28, 1.6);
+	});
+	// Alpine Restoration Kit: shade cloth, climbing gear and a water cache.
+	o('kitalpine', 34, 28, (g) => {
+		g.fillStyle(C('#4f4030'), 0.4).fillEllipse(17, 25, 28, 4);
+		g.fillStyle(C('#7d6a4e'), 1).fillRoundedRect(3, 10, 28, 15, 2);
+		g.fillStyle(C('#d6a96a'), 1).fillRect(3, 14, 28, 4);
+		g.lineStyle(1, C('#5f5140'), 1).lineBetween(10, 10, 10, 25).lineBetween(24, 10, 24, 25);
+		g.fillStyle(C('#d6a96a'), 1).fillEllipse(10, 6, 14, 7); // folded shade cloth
+		g.fillStyle(C('#e8c894'), 1).fillEllipse(10, 4, 12, 3.4);
+		g.lineStyle(1, C('#b58a4e'), 1).lineBetween(4, 6, 16, 6).lineBetween(5, 8, 15, 8);
+		g.lineStyle(1.6, C('#8a8478'), 1).strokeCircle(24, 5, 4.2); // a carabiner
+		g.fillStyle(C('#6fa8d6'), 1).fillRoundedRect(29, 4, 5, 6, 1.5); // water cache
+		g.fillStyle(C('#9fd0e8'), 1).fillRect(30, 5, 3, 1.6);
+		g.fillStyle(0xffffff, 0.14).fillRect(3, 10, 28, 1.6);
 	});
 }
 

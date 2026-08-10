@@ -692,7 +692,7 @@
       "kind": "bird",
       "trophic": "apex-predator",
       "rarity": "rare",
-      "diet": "mammals and birds — squirrels, rabbits, skunks, other owls — plus reptiles, amphibians and carrion",
+      "diet": "mammals and birds — rabbits, skunks, even other owls — plus frogs",
       "shelter": "Never builds a nest: takes over an old hawk, crow or squirrel nest, or a broken snag top or ledge",
       "preferredHabitat": "Mature forest broken by open ground, with big trees holding other animals' abandoned nests",
       "fact": "Great horned owls are one of the only animals that regularly kill and eat skunks. The spray does not appear to bother them in the slightest.",
@@ -946,7 +946,7 @@
       "shelter": "Rests in shallow grass 'forms'; bolts into brush piles and old burrows",
       "preferredHabitat": "Meadows and field edges with brushy cover close enough to run to",
       "fact": "A cottontail doesn't dig a burrow. It presses a shallow bowl into the grass called a form and sits so still in it that you can walk straight past.",
-      "role": "Cottontails eat grass and clover all summer and switch to twigs and bark in winter, and they breed fast enough to keep up with everything that hunts them — fox, mountain-lion, badger, hawk and owl all count on them. Their droppings feed the soil life underfoot, which is a polite way of saying rabbits fertilise the meadow they eat.",
+      "role": "Cottontails eat grass and clover all summer and switch to twigs and bark in winter, and they breed fast enough to keep up with everything that hunts them — fox, coyote, badger, hawk and owl all count on them. Their droppings feed the soil life underfoot, which is a polite way of saying rabbits fertilise the meadow they eat.",
       "eats": [],
       "eatsOther": [
         "bark",

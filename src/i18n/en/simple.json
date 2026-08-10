@@ -1895,9 +1895,6 @@
 			"whitebark-pine": {
 				"description": "A whitebark pine grown from a seed that was buried and never dug up. Its cones do not open on their own, so it cannot spread without help."
 			},
-			"beetle-killed-snag": {
-				"description": "A big dead fir still standing, its bark lifting away. The outer wood has loosened and is riddled with tunnels, so it is soft enough to work."
-			},
 			"old-woodpecker-cavity": {
 				"description": "A round hole cut into a dead trunk seasons ago and left empty since. The rim is still clean and the room below is dry."
 			},
@@ -1990,9 +1987,6 @@
 			},
 			"mussel-bed": {
 				"description": "A thick band of blue-black shells stacked two and three deep on mid-zone rock. They are packed so tight they hold each other up, and the gaps run right down to the stone."
-			},
-			"mussel-bed-lower-margin": {
-				"description": "The sharp lower edge of the shell bed, with clean open rock below. The tide does not explain that line, so something else holds it."
 			},
 			"sunlit-surge-pool": {
 				"description": "A deep pool washed by every wave and open to the sky. Food pours in from the rocks above, and full sun reaches the bottom."
@@ -2104,9 +2098,6 @@
 			},
 			"soft-rot-snag": {
 				"description": "A small dead stub whose wood has gone soft and pale. You can press a thumbnail into it, and that is what makes it easy to work."
-			},
-			"ant-riddled-log": {
-				"description": "A fallen trunk gone soft with rot and tunnelled through and through. The holes are as wide as a pencil lead and run all through the log."
 			},
 			"rotting-heartwood-log": {
 				"description": "A log rotted hollow down the middle while its outer shell still holds. Inside it is dark, damp, and shut off from the weather."
