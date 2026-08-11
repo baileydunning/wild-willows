@@ -25,6 +25,29 @@ import achievementsData from '../../data/achievements.json';
 // server writes changes back via put/patch rather than mutating reads in place.
 const copy = <T>(v: T): T => (v && typeof v === 'object' ? { ...(v as any) } : v);
 
+/**
+ * The primary-key prefix a query is bounded to, or null for an unbounded scan.
+ * Mirrors Harper's handling: a `starts_with` (or its `sw` alias) condition on the
+ * primary key — named explicitly or left null, which Harper reads as the primary
+ * key — becomes a range bound. Anything else is ignored, which degrades to a full
+ * scan: slower, never wrong.
+ */
+function idPrefixOf(query: any): string | null {
+	const conditions = query?.conditions;
+	if (!Array.isArray(conditions)) return null;
+	for (const c of conditions) {
+		if (!c) continue;
+		const attribute = c.attribute ?? c[0] ?? null;
+		if (attribute !== null && attribute !== 'id') continue;
+		const comparator = c.comparator;
+		if (comparator !== 'starts_with' && comparator !== 'sw') continue;
+		const value = c.value ?? c[1];
+		if (value == null) continue;
+		return String(value);
+	}
+	return null;
+}
+
 class LocalTable {
 	private rows = new Map<string, any>();
 
@@ -51,12 +74,21 @@ class LocalTable {
 		this.rows.delete(String(id));
 	}
 
-	// The server only ever calls search({}) / search({ select: ['id'] }) — full
-	// scans that it then filters in JS. Returns shallow copies; both `for await`
-	// and `for…of` iterate the array.
-	search(_query?: any): any[] {
+	// The server calls search({}) / search({ select: ['id'] }) for a full scan, and
+	// search({ conditions: [{ attribute: 'id', comparator: 'starts_with', value }] })
+	// for a bounded scan of one world's contiguous key run (see the key contract in
+	// server/resources.ts). A solo save IS a single world, so the bound rarely
+	// excludes anything here — but it must still be honoured, or the migration
+	// path and the per-world reads would behave differently offline than they do
+	// on Harper, and solo is where those code paths get exercised first.
+	// Returns shallow copies; both `for await` and `for…of` iterate the array.
+	search(query?: any): any[] {
+		const prefix = idPrefixOf(query);
 		const out: any[] = [];
-		for (const r of this.rows.values()) out.push(copy(r));
+		for (const [key, r] of this.rows) {
+			if (prefix !== null && !key.startsWith(prefix)) continue;
+			out.push(copy(r));
+		}
 		return out;
 	}
 
@@ -85,10 +117,6 @@ export const DYNAMIC_TABLES = [
 	'NodeState',
 	'TerrainTile',
 	'FeedEntry',
-	'World',
-	'WorldMember',
-	'WorldPresence',
-	'JoinRequest',
 ] as const;
 
 const SEED: Record<string, { records: any[] }> = {

@@ -23,7 +23,6 @@
 		"worldFullJoined": "Esta reserva está llena — ya se unieron {max} cuidadores y está cerrada a nuevos jugadores.",
 		"missingToken": "Falta el token de la solicitud",
 		"worldFullClosed": "Esta reserva está llena — ya tiene sus {max} cuidadores y está cerrada a nuevos jugadores.",
-		"noCoopWorld": "No existe ese mundo cooperativo",
 		"onlyHostApproves": "Solo el anfitrión puede aprobar jugadores",
 		"requestNotPending": "Esa solicitud ya no está pendiente",
 		"notWorldMember": "No eres miembro de ese mundo",
@@ -112,6 +111,7 @@
 		"prepareBedFirst": "Prepara un bancal con tu pala primero",
 		"alreadyOpenWater": "Esto ya es agua abierta",
 		"tooDryToFlood": "El terreno de {biome} es demasiado seco para inundarlo — aquí los bancales solo pueden prepararse para plantar.",
+		"gateMustStayClear": "El sendero de la puerta debe seguir siendo transitable — inunda un canal en otro sitio.",
 		"needWater": "Necesitas {count} de agua para eso — recolecta más primero",
 		"nothingToClear": "No hay nada que despejar aquí",
 		"badTerraformAction": "action debe ser 'dig', 'water' o 'clear'",
@@ -223,8 +223,7 @@
 	},
 	"world": {
 		"soloName": "Reserva {name}",
-		"mySoloName": "Mi reserva",
-		"coopName": "La reserva de {name}"
+		"mySoloName": "Mi reserva"
 	},
 	"fallback": {
 		"host": "el anfitrión",

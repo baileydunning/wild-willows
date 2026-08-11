@@ -1,0 +1,194 @@
+{
+  "database": "wildwillows",
+  "table": "AnimalAlias",
+  "records": [
+    {
+      "from": "alpine-chipmunk",
+      "to": "rock-squirrel"
+    },
+    {
+      "from": "alpine-springtail",
+      "to": "snow-flea"
+    },
+    {
+      "from": "american-pipit",
+      "to": "pipit"
+    },
+    {
+      "from": "amphipod",
+      "to": "freshwater-shrimp"
+    },
+    {
+      "from": "annas-hummingbird",
+      "to": "crow"
+    },
+    {
+      "from": "barred-owl",
+      "to": "goshawk"
+    },
+    {
+      "from": "belted-kingfisher",
+      "to": "kingfisher"
+    },
+    {
+      "from": "big-brown-bat",
+      "to": "brown-bat"
+    },
+    {
+      "from": "black-oystercatcher",
+      "to": "puffin"
+    },
+    {
+      "from": "bumblebee-alpine",
+      "to": "alpine-moth"
+    },
+    {
+      "from": "clarks-nutcracker",
+      "to": "nutcracker"
+    },
+    {
+      "from": "common-raven",
+      "to": "raven"
+    },
+    {
+      "from": "costas-hummingbird",
+      "to": "desert-hummingbird"
+    },
+    {
+      "from": "coyote-meadow",
+      "to": "coyote"
+    },
+    {
+      "from": "desert-bee",
+      "to": "cactus-bee"
+    },
+    {
+      "from": "eastern-bluebird",
+      "to": "bluebird"
+    },
+    {
+      "from": "elk-forest",
+      "to": "elk"
+    },
+    {
+      "from": "fox-alpine",
+      "to": "lynx"
+    },
+    {
+      "from": "freshwater-fish",
+      "to": "minnow"
+    },
+    {
+      "from": "gambels-quail",
+      "to": "quail"
+    },
+    {
+      "from": "garden-snail",
+      "to": "snail"
+    },
+    {
+      "from": "garter-snake-forest",
+      "to": "ratsnake"
+    },
+    {
+      "from": "garter-snake-meadow",
+      "to": "garter-snake"
+    },
+    {
+      "from": "gila-woodpecker",
+      "to": "cactus-woodpecker"
+    },
+    {
+      "from": "harris-hawk",
+      "to": "desert-hawk"
+    },
+    {
+      "from": "hooded-merganser",
+      "to": "merganser"
+    },
+    {
+      "from": "lady-beetle",
+      "to": "ladybug"
+    },
+    {
+      "from": "little-brown-bat",
+      "to": "skunk"
+    },
+    {
+      "from": "mallard-duck",
+      "to": "mallard"
+    },
+    {
+      "from": "marmot",
+      "to": "yellow-bellied-marmot"
+    },
+    {
+      "from": "meadow-vole",
+      "to": "prairie-vole"
+    },
+    {
+      "from": "migrating-whale",
+      "to": "gray-whale"
+    },
+    {
+      "from": "mountain-bluebird",
+      "to": "white-throated-swift"
+    },
+    {
+      "from": "mule-deer-alpine",
+      "to": "grizzly-bear"
+    },
+    {
+      "from": "northern-anchovy",
+      "to": "anchovy"
+    },
+    {
+      "from": "northern-flying-squirrel",
+      "to": "flying-squirrel"
+    },
+    {
+      "from": "northern-leopard-frog",
+      "to": "leopard-frog"
+    },
+    {
+      "from": "owl-limpet",
+      "to": "sand-dollar"
+    },
+    {
+      "from": "pelican",
+      "to": "brown-pelican"
+    },
+    {
+      "from": "ptarmigan",
+      "to": "white-tailed-ptarmigan"
+    },
+    {
+      "from": "red-fox-forest",
+      "to": "gray-fox"
+    },
+    {
+      "from": "red-fox-meadow",
+      "to": "red-fox"
+    },
+    {
+      "from": "rosy-finch",
+      "to": "gray-crowned-rosy-finch"
+    },
+    {
+      "from": "spotted-towhee",
+      "to": "towhee"
+    },
+    {
+      "from": "tarantula",
+      "to": "desert-tarantula"
+    },
+    {
+      "from": "tidepool-crab",
+      "to": "shore-crab"
+    },
+    {
+      "from": "wetland-salamander",
+      "to": "tiger-salamander"
+    }
+  ]
+}

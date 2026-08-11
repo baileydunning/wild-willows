@@ -4,6 +4,8 @@ import {
 	canPaintClick,
 	isSleepable,
 	blocksDoorway,
+	blocksGateTrail,
+	gateEdges,
 	isOrphanedTween,
 	screenSpaceOverlayTransform,
 } from './interactions';
@@ -135,6 +137,12 @@ interface Interactable {
 	/** Optional live-computed prompt (recomputed each frame while you're near),
 	 *  used for locked gates so the bottom bar always shows what's still needed. */
 	liveLabel?: () => string;
+	/** Optional live check for "is there anything to do here right now". Something
+	 *  that returns false is skipped when picking what to focus, so a spent
+	 *  resource node stops claiming the ring and the prompt while it regrows —
+	 *  the sprout already says it is coming back. Clicking one directly still
+	 *  runs `action`, which is what explains the wait. */
+	available?: () => boolean;
 }
 
 export class WorldScene extends Phaser.Scene {
@@ -204,21 +212,6 @@ export class WorldScene extends Phaser.Scene {
 	private waterTiles = new Set<string>();
 	private waterTileCenters: { x: number; y: number }[] = []; // pixel centers of open-water tiles
 	private bridgeTiles = new Set<string>();
-	// Live co-op: other players in this same area, drawn as their own avatars and
-	// smoothly eased toward the positions reported by the presence loop.
-	private remotes = new Map<
-		string,
-		{
-			sprite: Phaser.GameObjects.Image;
-			shadow: Phaser.GameObjects.Image;
-			label: Phaser.GameObjects.Text;
-			sig: string;
-			walkT: number;
-			lastX: number;
-			lastY: number;
-			moveUntil: number;
-		}
-	>();
 	// Weather visuals: a camera-locked full-screen weather-colour tint and a
 	// world-locked rain/snow particle emitter, swapped when the weather changes.
 	private weatherOverlay?: Phaser.GameObjects.Rectangle;
@@ -354,7 +347,9 @@ export class WorldScene extends Phaser.Scene {
 			baseRows,
 			rows: baseRows + mtn,
 			playTop: mtn,
-			landRight: area === 'coastal' ? cols - ((this.biomeDef(area) as any)?.oceanCols ?? COAST_COLS) : cols,
+			// Same test as gateGeomOf() on the server: an area has an ocean band if the
+			// data gives it one. COAST_COLS only covers a definition that names no width.
+			landRight: this.oceanColsOf(area) ? cols - this.oceanColsOf(area) : cols,
 			// gates sit at the vertical middle of the playable band
 			gateY: mtn + baseRows / 2 - 0.2,
 		};
@@ -384,7 +379,7 @@ export class WorldScene extends Phaser.Scene {
 	// (impassable). landRight is the first ocean column — playable land is
 	// columns 1..landRight-1.
 	private get oceanCols() {
-		return this.area === 'coastal' ? ((this.biomeDef() as any)?.oceanCols ?? COAST_COLS) : 0;
+		return this.oceanColsOf(this.area);
 	}
 	private get landRight() {
 		return this.cols - this.oceanCols;
@@ -738,7 +733,6 @@ export class WorldScene extends Phaser.Scene {
 		this.events.once('shutdown', () => {
 			this.alive = false;
 			this.setWalkAudio(false);
-			this.clearRemotes();
 			this.unsubs.forEach((u) => u());
 			this.unsubs = [];
 		});
@@ -894,6 +888,23 @@ export class WorldScene extends Phaser.Scene {
 		return 'water';
 	}
 
+	/** This area's gate geometry, for blocksGateTrail(). */
+	private gateGeom() {
+		return {
+			gateY: this.dimsOf(this.area).gateY,
+			landRight: this.landRight,
+			...gateEdges(bridge.shared.data?.biomes, this.area),
+		};
+	}
+
+	/** Width of an area's impassable ocean band, 0 for an inland area. */
+	private oceanColsOf(area: string): number {
+		if (area === 'home') return 0;
+		const def = this.biomeDef(area) as any;
+		if (def?.oceanCols) return def.oceanCols;
+		return area === 'coastal' ? COAST_COLS : 0;
+	}
+
 	/** Terraform event payload — destructive actions on a watered bed ask first. */
 	private terraformPayload(tx: number, ty: number) {
 		const action = this.terraformActionFor(tx, ty);
@@ -908,6 +919,9 @@ export class WorldScene extends Phaser.Scene {
 				// movement collision uses.
 				const onTile = Math.floor(this.player.x / TILE) === tx && Math.floor((this.player.y + 8) / TILE) === ty;
 				if (onTile) block = t('game.block.standingHere');
+				// same for the mouth of a trail gate: water there walls off the way
+				// into the next biome (mirrors the check in the Terraform endpoint)
+				else if (blocksGateTrail(tx, ty, this.gateGeom())) block = t('game.block.gateTrail');
 				// otherwise flooding happens immediately — no confirmation prompt
 			}
 		}
@@ -1035,10 +1049,8 @@ export class WorldScene extends Phaser.Scene {
 			}
 		};
 		const gy = this.dimsOf(this.area).gateY;
-		const ai = AREA_ORDER.indexOf(this.area);
-		// which edges actually lead somewhere (coastal's east is open ocean)
-		const westGate = ai > 0;
-		const eastGate = ai >= 0 && ai < AREA_ORDER.length - 1 && this.area !== 'coastal';
+		// which edges actually lead somewhere (the last area's east is open ocean)
+		const { westGate, eastGate } = gateEdges(bridge.shared.data?.biomes, this.area);
 		const GAP = 2.2; // half-width (tiles) of the opening left around a gate
 
 		// A clearly worn dirt trail heading OUT through the opening, from the
@@ -1097,9 +1109,7 @@ export class WorldScene extends Phaser.Scene {
 	private drawSurround(rng: () => number) {
 		// keep the outward gate trails (drawEdgeGrass) clear of growth
 		const gy = this.dimsOf(this.area).gateY;
-		const ai = AREA_ORDER.indexOf(this.area);
-		const westGate = ai > 0;
-		const eastGate = ai >= 0 && ai < AREA_ORDER.length - 1 && this.area !== 'coastal';
+		const { westGate, eastGate } = gateEdges(bridge.shared.data?.biomes, this.area);
 		const onTrail = (tx: number, ty: number) =>
 			Math.abs(ty + 0.5 - gy) < 1.6 &&
 			((westGate && tx < 0 && tx >= -4.5) || (eastGate && tx >= this.landRight && tx < this.landRight + 4.5));
@@ -3069,6 +3079,7 @@ export class WorldScene extends Phaser.Scene {
 				label: t('game.label.gather', {
 					name: content('resource', node.resourceId, 'name', res?.name || node.resourceId),
 				}),
+				available: () => this.nodeAvailable(node),
 				action: () => {
 					if (this.nodeAvailable(node))
 						bridge.emit('collect-node', {
@@ -3811,7 +3822,12 @@ export class WorldScene extends Phaser.Scene {
 		const gait = this.animalGait(animal);
 		(img as any).baseOriginY = img.displayOriginY; // resting pose, restored after every flourish
 		if (!getPrefs().reduceMotion) this.startAmbientGait(img, gait, rng);
-		this.wander(img, img.x, img.y, animal.kind, rng, ocean, gait);
+		// Species flagged `aquatic` in the data stay over open water the way fish do,
+		// so otters, beavers and crayfish stop strolling across dry land.
+		const moveKind = (animal as any).aquatic === true ? 'aquatic' : animal.kind;
+		// Seals, otters, turtles and seabirds work both sides of the tideline.
+		const amphibious = (animal as any).amphibious === true;
+		this.wander(img, img.x, img.y, moveKind, rng, ocean || amphibious, gait, amphibious);
 	}
 
 	/** How a species carries itself — picks the movement flourish in wander().
@@ -3824,7 +3840,7 @@ export class WorldScene extends Phaser.Scene {
 		if (id.includes('bat') && !id.includes('bat-star')) return 'flutter';
 		if (animal.kind === 'insect') return 'flutter';
 		if (animal.kind === 'bird') return 'flit';
-		if (animal.kind === 'fish' || (animal as any).ocean === true) return 'swim';
+		if (animal.kind === 'fish' || (animal as any).ocean === true || (animal as any).aquatic === true) return 'swim';
 		if (/rabbit|hare|squirrel|chipmunk|mouse|vole|frog|toad/.test(id)) return 'hop';
 		if (/snake|salamander|ensatina/.test(id)) return 'slither';
 		return 'amble';
@@ -3994,16 +4010,20 @@ export class WorldScene extends Phaser.Scene {
 		rng: () => number,
 		ocean = false,
 		gait: string = 'amble',
+		amphibious = false,
 	) {
 		const roam = ocean ? 140 : kind === 'bird' || kind === 'insect' ? 130 : 80;
 		const speed = ocean ? 22 : kind === 'insect' ? 26 : kind === 'bird' ? 42 : 18;
-		const aquatic = kind === 'fish';
+		const aquatic = kind === 'fish' || kind === 'aquatic';
 		const flying = kind === 'bird' || kind === 'insect';
 		const hop = () => {
 			if (!img.active) return;
 			const eastEdge = this.area === 'coastal' ? (this.landRight + 1.2) * TILE : this.worldW - TILE;
 			let tx: number, ty: number;
-			if (ocean) {
+			// An amphibious animal picks a side each time it moves, so it hauls out
+			// onto the shore and slips back into the water over and over.
+			const goSea = amphibious ? rng() < 0.55 : ocean;
+			if (goSea) {
 				// marine swimmers drift around the open ocean band, near their spot
 				const w = this.oceanTarget(rng, homeX, homeY, roam);
 				tx = w.x;
@@ -4193,109 +4213,6 @@ export class WorldScene extends Phaser.Scene {
 		this.syncPosition(dt);
 		this.positionSkyOverlay(); // keep the sunset glow hugging the top of the view
 		this.updateNightLights(); // lamplight follows the player, fires burn bright after dark
-		// stream our exact live position (tile coords) for co-op presence
-		bridge.shared.self = {
-			x: this.player.x / TILE,
-			y: this.player.y / TILE,
-			area: this.area,
-		};
-		this.updateRemotes(dt);
-	}
-
-	/**
-	 * Draw the other co-op players who are in this same area. Avatars are created
-	 * on demand from each peer's appearance, eased toward their reported tile, and
-	 * removed when a player leaves the area or goes quiet. Pure presentation — it
-	 * reads bridge.shared.presence, which the React presence loop keeps fresh.
-	 */
-	private updateRemotes(dt: number) {
-		if (!this.alive) return;
-		const peers = (bridge.shared.presence || []).filter((p) => p && p.area === this.area && p.playerId);
-		const seen = new Set<string>();
-
-		for (const peer of peers) {
-			seen.add(peer.playerId);
-			const sig = JSON.stringify(peer.appearance || {});
-			let r = this.remotes.get(peer.playerId);
-			if (!r) {
-				const key = makePlayerTexture(this, peer.appearance);
-				const shadow = this.img(peer.x * TILE, peer.y * TILE + 15, 'shadow')
-					.setDepth(2)
-					.setAlpha(0.5);
-				const sprite = this.img(peer.x * TILE, peer.y * TILE, key)
-					.setDepth(999)
-					.setAlpha(0.96);
-				const label = this.add
-					.text(peer.x * TILE, peer.y * TILE - 26, peer.name || t('game.label.caretaker'), {
-						fontFamily: 'system-ui, sans-serif',
-						fontSize: '11px',
-						color: '#3a2f25',
-						backgroundColor: 'rgba(255,255,255,0.7)',
-						padding: { x: 4, y: 1 },
-						resolution: 4, // stays crisp under camera zoom
-					})
-					.setOrigin(0.5)
-					.setDepth(10000);
-				r = {
-					sprite,
-					shadow,
-					label,
-					sig,
-					walkT: 0,
-					lastX: peer.x,
-					lastY: peer.y,
-					moveUntil: 0,
-				};
-				this.remotes.set(peer.playerId, r);
-			}
-			if (r.sig !== sig) {
-				r.sprite.setTexture(makePlayerTexture(this, peer.appearance));
-				r.sig = sig;
-			}
-			// "Walking" is driven by the reported position actually changing — not by
-			// the easing — so a standing player never waddles. A short window keeps the
-			// animation alive smoothly between position updates.
-			if (peer.x !== r.lastX || peer.y !== r.lastY) {
-				r.moveUntil = this.time.now + 220;
-				r.lastX = peer.x;
-				r.lastY = peer.y;
-			}
-			const moving = this.time.now < r.moveUntil;
-			const targetX = peer.x * TILE,
-				targetY = peer.y * TILE;
-			const k = Math.min(1, dt * 12);
-			const nx = r.sprite.x + (targetX - r.sprite.x) * k;
-			const ny = r.sprite.y + (targetY - r.sprite.y) * k;
-			if (Math.abs(targetX - r.sprite.x) > 0.5) r.sprite.setFlipX(targetX < r.sprite.x);
-			// identical waddle to the local player in solo (amplitude 0.075, speed ×11)
-			if (moving) {
-				r.walkT += dt * 11;
-				r.sprite.setRotation(Math.sin(r.walkT) * 0.075);
-			} else {
-				r.sprite.setRotation(r.sprite.rotation * 0.8);
-			}
-			r.sprite.setPosition(nx, ny).setDepth(ny + 30);
-			r.shadow.setPosition(nx, ny + 15);
-			r.label.setPosition(nx, ny - 26);
-		}
-
-		// drop avatars for anyone who left this area / went quiet
-		for (const [id, r] of this.remotes) {
-			if (seen.has(id)) continue;
-			r.sprite.destroy();
-			r.shadow.destroy();
-			r.label.destroy();
-			this.remotes.delete(id);
-		}
-	}
-
-	private clearRemotes() {
-		for (const r of this.remotes.values()) {
-			r.sprite.destroy();
-			r.shadow.destroy();
-			r.label.destroy();
-		}
-		this.remotes.clear();
 	}
 
 	private setWalkAudio(active: boolean) {
@@ -4435,6 +4352,7 @@ export class WorldScene extends Phaser.Scene {
 		let best: Interactable | null = null;
 		let bestDist = 90; // generous reach so E grabs what you're clearly standing near (was 68)
 		for (const it of this.interactables) {
+			if (it.available && !it.available()) continue;
 			const d = Phaser.Math.Distance.Between(this.player.x, this.player.y, it.x, it.y);
 			if (d < bestDist) {
 				best = it;
@@ -4452,7 +4370,8 @@ export class WorldScene extends Phaser.Scene {
 		const near = busy ? null : this.nearestInteractable();
 		// Prefer the thing you're standing beside; otherwise light up whatever the
 		// pointer is hovering, so it's clear what a click would act on.
-		const focus = near || (busy || terraforming ? null : this.hoveredIt);
+		const hovered = this.hoveredIt && this.hoveredIt.available && !this.hoveredIt.available() ? null : this.hoveredIt;
+		const focus = near || (busy || terraforming ? null : hovered);
 		const focusSource: 'near' | 'hover' | null = near ? 'near' : focus ? 'hover' : null;
 
 		// Fire exactly once when the ring lands on a new target (or clears), so

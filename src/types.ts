@@ -1,47 +1,5 @@
 // Shared frontend types for Wild Willows.
 
-/**
- * A world the player can enter. Single-player is a private "world of one"
- * (`solo: true`); co-op worlds are shared by several members via `joinCode`.
- * Personal progress (inventory, tools, achievements) always stays per-player —
- * only the world's restorable state (biomes, terrain, placements, animals) is shared.
- */
-export interface WorldSummary {
-	worldId: string;
-	name: string;
-	solo: boolean;
-	role: 'owner' | 'member';
-	joinCode: string | null;
-	memberCount: number;
-	maxMembers: number;
-	isOwner: boolean;
-}
-
-/** A pending request to join the host's co-op world, shown in the People menu. */
-export interface PendingRequest {
-	token: string;
-	name: string;
-	createdAt: number;
-}
-
-/** A caretaker on a co-op world's roster (everyone who has ever joined). */
-export interface RosterEntry {
-	playerId: string;
-	name: string;
-	isOwner: boolean;
-	joinedAt: number;
-}
-
-/** Another player currently in the same co-op world (for live presence avatars). */
-export interface Peer {
-	playerId: string;
-	name: string;
-	appearance: Appearance;
-	area: string;
-	x: number;
-	y: number;
-}
-
 export interface BiomeDef {
 	id: string;
 	name: string;
@@ -75,6 +33,9 @@ export interface AnimalSource {
 	url: string;
 }
 
+/** A food-web edge: an animal id, optionally narrowed to a life stage. */
+export type FoodEdge = string | { id: string; stage?: 'eggs' | 'young' | 'adult' };
+
 export interface AnimalDef {
 	id: string;
 	name: string;
@@ -100,11 +61,14 @@ export interface AnimalDef {
 		| 'apex-predator'
 		| 'scavenger'
 		| 'filter-feeder'
-		| 'decomposer';
-	/** Animal ids (in this game) this species eats. Cross-biome links allowed. */
-	eats?: string[];
+		| 'decomposer'
+		| 'detritivore';
+	/** Animal ids (in this game) this species eats. Cross-biome links allowed.
+	 * An edge may be stage-qualified when the predation is only true of a life
+	 * stage — a bear takes deer fawns, not adult deer. */
+	eats?: FoodEdge[];
 	/** Animal ids (in this game) that eat this species. */
-	eatenBy?: string[];
+	eatenBy?: FoodEdge[];
 	/** Non-animal food/forage eaten (e.g. "grasses", "nectar", "carrion"). */
 	eatsOther?: string[];
 	/** Credible references backing this entry's ecology. */
@@ -115,9 +79,27 @@ export interface AnimalDef {
 		objects?: Record<string, number>;
 		animals?: string[];
 		hint?: string;
+		/** Open water this animal needs in its area.
+		 *
+		 * `tiles` / `lake` / `river` are the shapes you dig: any water at all, a
+		 * connected pond, a long channel. Those three are what canReturn() weighs
+		 * (see server/resources.ts) — the rest of the animal's needs can be met and
+		 * it still stays away until the water is there.
+		 *
+		 * `ocean` / `deep` describe water the coastal map already has, so they gate
+		 * nothing and the journal deliberately doesn't list them as chores. They are
+		 * kept because they say what the species actually needs. */
+		water?: { tiles?: number; lake?: number; river?: number; ocean?: number; deep?: boolean };
 		/** Rare-sighting gate: this animal only returns while the live weather /
 		 * season / day-phase matches (any listed value). Derived server-side. */
 		conditions?: { weather?: string[]; season?: string[]; dayPhase?: string[] };
+		/** The one habitat object most associated with this species — authoring
+		 * metadata from the ecology pass, carried in the data but not read at
+		 * runtime today. */
+		signature?: string;
+		/** Objects whose presence keeps this animal away. Authored, currently
+		 * empty everywhere, and not yet weighed by canReturn(). */
+		excludes?: string[];
 	};
 }
 
@@ -128,11 +110,51 @@ export interface ResourceDef {
 	color: string;
 }
 
+/**
+ * What a recipe is waiting on. Every listed condition must be met (AND), and no
+ * two recipes in an area share the same set — each thing you can make has its
+ * own reason to open up, drawn from a different part of the game.
+ *
+ * Unless noted, a condition reads the recipe's OWN area (`RecipeDef.unlockBiome`).
+ */
 export interface RecipeUnlock {
+	/** Restoration health of this area, 0-100. */
 	minHealth?: number;
+	/** Ecological balance of this area (food-web completeness), 0-100. */
+	minBalance?: number;
+	/** How many of this area's animals have come home. */
 	animalsReturned?: number;
+	/** A specific animal of this area must be back. */
 	requiresAnimal?: string;
+	/** N animals of one kind ('bird', 'mammal', 'insect'…) back in this area. */
+	requiresKind?: { kind: string; count: number };
+	/** Animals welcomed back across the whole preserve. */
+	totalAnimals?: number;
+	/** Something you must have crafted at least once (anywhere, ever). */
 	requiresCrafted?: string;
+	/** How many DIFFERENT things you've crafted, ever. */
+	craftedDistinct?: number;
+	/** Copies of an object standing (or planted) in this area right now. */
+	requiresPlaced?: { objectId: string; count: number };
+	/** A tool upgraded to at least this tier. */
+	requiresTool?: { id: string; tier: number };
+	/** A home upgrade track raised to at least this level. */
+	requiresHome?: { track: 'space' | 'comfort' | 'decor' | 'light'; level: number };
+	/** You've traded the starting tent for an actual house (any style). */
+	homeBuilt?: boolean;
+	/** Once your clock has been through this time of day — 'dawn' | 'day' | 'dusk'
+	 *  | 'night' (any listed). A one-way milestone: your first nightfall unlocks
+	 *  the headlamp, and it stays unlocked at sunrise. */
+	phaseSeen?: string[];
+	/** Open water shaped in this area: total tiles / largest pond / longest channel. */
+	requiresWater?: { tiles?: number; lake?: number; river?: number };
+	/** Progress in a DIFFERENT area (mastery items that look outward). */
+	requiresBiome?: { biome: string; minHealth: number };
+	/** An achievement you must have earned. */
+	requiresAchievement?: string;
+	/** How many areas of the preserve are open. */
+	biomesOpen?: number;
+	/** Plain-language rendering of the whole condition, shown in the UI. */
 	label: string;
 }
 
@@ -372,6 +394,11 @@ export interface TerrainTile {
 	x: number;
 	y: number;
 	type: 'tilled' | 'watered' | 'water';
+	/** Pre-shaped starting terrain (Rushwater's channels and pond), laid down when
+	 *  the area first unlocks. It is scenery the player was given, not work they
+	 *  did, so it counts toward neither biome health nor the "shape N water tiles"
+	 *  recipe gates — see seedStartingTerrain() and analyzeWater() on the server. */
+	seeded?: boolean;
 }
 
 export interface BiomeState {
@@ -396,6 +423,9 @@ export interface WeatherSnapshot {
 	dayIndex: number;
 	/** Real-time length of one in-game day, so the client can advance lighting locally. */
 	dayMs: number;
+	/** Times of day this player's clock has already been through at least once
+	 *  (mirrors phasesSeen() in server/weather.ts). Grows, never shrinks. */
+	seenPhases?: string[];
 	/** Active weather per biome (climate differs by biome). */
 	byBiome: Record<string, { type: string; since: number }>;
 	/** Present only when a dev override forces weather/season — honored verbatim. */
@@ -543,7 +573,6 @@ export type PanelId =
 	| 'home'
 	| 'animal'
 	| 'settings'
-	| 'people'
 	| 'weather'
 	| 'materials'
 	| 'goals'

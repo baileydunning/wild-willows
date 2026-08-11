@@ -23,7 +23,6 @@
 		"worldFullJoined": "This preserve is full — {max} caretakers have joined and it's closed to new players.",
 		"missingToken": "Missing request token",
 		"worldFullClosed": "This preserve is full — it already has its {max} caretakers and is closed to new players.",
-		"noCoopWorld": "No such co-op world",
 		"onlyHostApproves": "Only the host can approve players",
 		"requestNotPending": "That request is no longer pending",
 		"notWorldMember": "You are not a member of that world",
@@ -112,6 +111,7 @@
 		"prepareBedFirst": "Prepare a soil bed with your shovel first",
 		"alreadyOpenWater": "This is already open water",
 		"tooDryToFlood": "{biome} is too dry to flood — soil beds here can only be readied for planting.",
+		"gateMustStayClear": "The trail gate has to stay walkable — flood a channel somewhere clear of it.",
 		"needWater": "You need {count} water for that — gather more first",
 		"nothingToClear": "Nothing to clear here",
 		"badTerraformAction": "action must be 'dig', 'water', or 'clear'",
@@ -223,8 +223,7 @@
 	},
 	"world": {
 		"soloName": "{name} preserve",
-		"mySoloName": "My preserve",
-		"coopName": "{name}'s preserve"
+		"mySoloName": "My preserve"
 	},
 	"fallback": {
 		"host": "the host",

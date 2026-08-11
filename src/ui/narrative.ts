@@ -63,12 +63,12 @@ const COMBO_BEATS: Beat[] = [
 	{
 		id: 'meadow-fox-prey',
 		icon: 'paw',
-		test: (c) => c.has('red-fox-meadow') && (c.has('cottontail-rabbit') || c.has('meadow-vole')),
+		test: (c) => c.has('red-fox') && (c.has('cottontail-rabbit') || c.has('prairie-vole')),
 	},
 	{
 		id: 'meadow-hawk-rodent',
 		icon: 'paw',
-		test: (c) => c.has('red-tailed-hawk') && (c.has('meadow-vole') || c.has('ground-squirrel')),
+		test: (c) => c.has('red-tailed-hawk') && (c.has('prairie-vole') || c.has('ground-squirrel')),
 	},
 	{
 		id: 'forest-owl-prey',
@@ -83,8 +83,7 @@ const COMBO_BEATS: Beat[] = [
 	{
 		id: 'forest-cavity-reuse',
 		icon: 'paw',
-		test: (c) =>
-			c.has('pileated-woodpecker') && (c.has('wood-duck') || c.has('northern-flying-squirrel') || c.has('barred-owl')),
+		test: (c) => c.has('pileated-woodpecker') && (c.has('wood-duck') || c.has('flying-squirrel')),
 	},
 	{
 		id: 'wetland-beaver',
@@ -99,8 +98,7 @@ const COMBO_BEATS: Beat[] = [
 	{
 		id: 'wetland-heron-hunt',
 		icon: 'drop',
-		test: (c) =>
-			c.has('great-blue-heron') && (c.has('freshwater-fish') || c.has('painted-turtle') || c.has('mallard-duck')),
+		test: (c) => c.has('great-blue-heron') && (c.has('minnow') || c.has('painted-turtle') || c.has('mallard')),
 	},
 	{
 		id: 'desert-snake-rodent',
@@ -110,7 +108,7 @@ const COMBO_BEATS: Beat[] = [
 	{
 		id: 'desert-coyote-prey',
 		icon: 'paw',
-		test: (c) => c.has('coyote') && (c.has('desert-cottontail') || c.has('kangaroo-rat')),
+		test: (c) => c.has('mountain-lion') && (c.has('desert-cottontail') || c.has('kangaroo-rat')),
 	},
 	{
 		id: 'desert-shared-burrow',
@@ -120,7 +118,7 @@ const COMBO_BEATS: Beat[] = [
 	{
 		id: 'alpine-eagle-prey',
 		icon: 'paw',
-		test: (c) => c.has('golden-eagle') && (c.has('marmot') || c.has('pika') || c.has('snowshoe-hare')),
+		test: (c) => c.has('golden-eagle') && (c.has('yellow-bellied-marmot') || c.has('pika') || c.has('snowshoe-hare')),
 	},
 	{
 		id: 'coastal-keystone',
@@ -197,7 +195,7 @@ export const BIOME_LINES: Record<string, FeedLine[]> = {
 		{ i: 'sparkle' },
 		// coexistence (gated)
 		{ i: 'paw' },
-		{ i: 'paw', g: { a: ['red-fox-meadow'] } },
+		{ i: 'paw', g: { a: ['red-fox'] } },
 		{ i: 'paw', g: { a: ['red-tailed-hawk'] } },
 		{ i: 'paw', g: { a: ['monarch-butterfly'] } },
 		{ i: 'paw', g: { a: ['cottontail-rabbit'] } },
@@ -218,8 +216,8 @@ export const BIOME_LINES: Record<string, FeedLine[]> = {
 		{ i: 'sparkle' },
 		{},
 		// animal combinations
-		{ i: 'paw', g: { all: ['red-fox-meadow', 'red-tailed-hawk'] } },
-		{ i: 'paw', g: { all: ['monarch-butterfly', 'bumblebee', 'lady-beetle'] } },
+		{ i: 'paw', g: { all: ['red-fox', 'red-tailed-hawk'] } },
+		{ i: 'paw', g: { all: ['monarch-butterfly', 'bumblebee', 'ladybug'] } },
 		{ i: 'paw', g: { a: ['barn-owl', 'western-screech-owl'] } },
 		{ i: 'paw', g: { all: ['mule-deer', 'cottontail-rabbit'] } },
 		// crafting combinations
@@ -265,10 +263,10 @@ export const BIOME_LINES: Record<string, FeedLine[]> = {
 		{ i: 'sparkle' },
 		// coexistence (gated)
 		{ i: 'paw', g: { a: ['pileated-woodpecker', 'woodpecker'] } },
-		{ i: 'paw', g: { a: ['great-horned-owl', 'barred-owl'] } },
+		{ i: 'paw', g: { a: ['great-horned-owl', 'goshawk'] } },
 		{ i: 'paw', g: { a: ['tree-squirrel', 'chipmunk'] } },
 		{ i: 'paw', g: { a: ['bobcat'] } },
-		{ i: 'paw', g: { a: ['little-brown-bat'] } },
+		{ i: 'paw', g: { a: ['skunk'] } },
 		// progress-gated
 		{ g: { h: 25 } },
 		{ g: { h: 50 } },
@@ -289,10 +287,10 @@ export const BIOME_LINES: Record<string, FeedLine[]> = {
 		{ i: 'sparkle' },
 		{},
 		// animal combinations
-		{ i: 'paw', g: { all: ['great-horned-owl', 'barred-owl'] } },
+		{ i: 'paw', g: { all: ['great-horned-owl', 'goshawk'] } },
 		{ i: 'paw', g: { all: ['pileated-woodpecker', 'wood-duck'] } },
 		{ i: 'paw', g: { a: ['black-bear', 'bobcat'] } },
-		{ i: 'paw', g: { all: ['tree-squirrel', 'northern-flying-squirrel'] } },
+		{ i: 'paw', g: { all: ['tree-squirrel', 'flying-squirrel'] } },
 		// crafting combinations
 		{ g: { c: ['standing-deadwood', 'nesting-tree'] } },
 		{ g: { c: ['mushroom-log', 'hollow-log'] } },
@@ -338,7 +336,7 @@ export const BIOME_LINES: Record<string, FeedLine[]> = {
 		{ i: 'paw', g: { a: ['river-otter', 'great-blue-heron'] } },
 		{ i: 'paw', g: { a: ['great-blue-heron'] } },
 		{ i: 'paw', g: { a: ['painted-turtle', 'snapping-turtle'] } },
-		{ i: 'paw', g: { a: ['freshwater-fish'] } },
+		{ i: 'paw', g: { a: ['minnow'] } },
 		// progress-gated
 		{ i: 'drop', g: { h: 25 } },
 		{ g: { h: 50 } },
@@ -359,7 +357,7 @@ export const BIOME_LINES: Record<string, FeedLine[]> = {
 		{},
 		// animal combinations
 		{ i: 'paw', g: { all: ['beaver', 'river-otter'] } },
-		{ i: 'paw', g: { all: ['great-blue-heron', 'freshwater-fish'] } },
+		{ i: 'paw', g: { all: ['great-blue-heron', 'minnow'] } },
 		{ i: 'paw', g: { a: ['sandhill-crane', 'american-bittern'] } },
 		{ i: 'paw', g: { all: ['painted-turtle', 'snapping-turtle'] } },
 		// crafting combinations
@@ -405,9 +403,9 @@ export const BIOME_LINES: Record<string, FeedLine[]> = {
 		// coexistence (gated)
 		{ i: 'paw', g: { a: ['desert-tortoise', 'burrowing-owl'] } },
 		{ i: 'paw', g: { a: ['rattlesnake'] } },
-		{ i: 'paw', g: { a: ['coyote'] } },
-		{ i: 'paw', g: { a: ['gila-woodpecker'] } },
-		{ i: 'paw', g: { a: ['gambels-quail'] } },
+		{ i: 'paw', g: { a: ['mountain-lion'] } },
+		{ i: 'paw', g: { a: ['cactus-woodpecker'] } },
+		{ i: 'paw', g: { a: ['quail'] } },
 		// progress-gated
 		{ g: { h: 25 } },
 		{ g: { h: 50 } },
@@ -429,8 +427,8 @@ export const BIOME_LINES: Record<string, FeedLine[]> = {
 		// animal combinations
 		{ i: 'paw', g: { all: ['desert-tortoise', 'burrowing-owl'] } },
 		{ i: 'paw', g: { all: ['rattlesnake', 'kangaroo-rat'] } },
-		{ i: 'paw', g: { a: ['coyote', 'kit-fox'] } },
-		{ i: 'paw', g: { all: ['gila-woodpecker', 'elf-owl'] } },
+		{ i: 'paw', g: { a: ['mountain-lion', 'kit-fox'] } },
+		{ i: 'paw', g: { all: ['cactus-woodpecker', 'elf-owl'] } },
 		// crafting combinations
 		{ g: { c: ['burrow-mound', 'shaded-rock-shelter'] } },
 		{ g: { c: ['cactus-patch', 'desert-brush'] } },
@@ -473,8 +471,8 @@ export const BIOME_LINES: Record<string, FeedLine[]> = {
 		{ i: 'sparkle' },
 		// coexistence (gated)
 		{ i: 'paw', g: { a: ['golden-eagle'] } },
-		{ i: 'paw', g: { a: ['clarks-nutcracker'] } },
-		{ i: 'paw', g: { a: ['pika', 'marmot'] } },
+		{ i: 'paw', g: { a: ['nutcracker'] } },
+		{ i: 'paw', g: { a: ['pika', 'yellow-bellied-marmot'] } },
 		{ i: 'paw', g: { a: ['ermine'] } },
 		{ i: 'paw', g: { a: ['snowmelt-trout'] } },
 		// progress-gated
@@ -496,8 +494,8 @@ export const BIOME_LINES: Record<string, FeedLine[]> = {
 		{},
 		{},
 		// animal combinations
-		{ i: 'paw', g: { all: ['pika', 'marmot'] } },
-		{ i: 'paw', g: { all: ['golden-eagle', 'marmot'] } },
+		{ i: 'paw', g: { all: ['pika', 'yellow-bellied-marmot'] } },
+		{ i: 'paw', g: { all: ['golden-eagle', 'yellow-bellied-marmot'] } },
 		{ i: 'paw', g: { a: ['mountain-goat', 'bighorn-sheep'] } },
 		{ i: 'paw', g: { a: ['ermine', 'pine-marten'] } },
 		// crafting combinations
@@ -544,7 +542,7 @@ export const BIOME_LINES: Record<string, FeedLine[]> = {
 		{ i: 'paw', g: { a: ['sea-star'] } },
 		{ i: 'paw', g: { a: ['sea-otter'] } },
 		{ i: 'paw', g: { a: ['brown-pelican', 'pelagic-cormorant'] } },
-		{ i: 'paw', g: { a: ['black-oystercatcher'] } },
+		{ i: 'paw', g: { a: ['puffin'] } },
 		{ i: 'paw', g: { a: ['sea-star', 'giant-green-anemone'] } },
 		// progress-gated
 		{ i: 'drop', g: { h: 25 } },
@@ -567,7 +565,7 @@ export const BIOME_LINES: Record<string, FeedLine[]> = {
 		// animal combinations
 		{ i: 'paw', g: { all: ['sea-star', 'anemone'] } },
 		{ i: 'paw', g: { all: ['sea-otter', 'harbor-seal'] } },
-		{ i: 'paw', g: { all: ['pelican', 'cormorant'] } },
+		{ i: 'paw', g: { all: ['brown-pelican', 'cormorant'] } },
 		{ i: 'paw', g: { a: ['snowy-plover', 'sanderling'] } },
 		// crafting combinations
 		{ i: 'drop', g: { c: ['tidepool', 'kelp-wrack'] } },

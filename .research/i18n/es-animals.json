@@ -1,0 +1,326 @@
+{
+ "alpine-springtail": {
+  "name": "Snow Flea",
+  "diet": "Dead leaves and stems, fungal threads, pollen, and the pink algae that grow on old snow",
+  "shelter": "Wet leaf litter, moss cushions, and the hollow gap between the snowpack and the ground in winter",
+  "preferredHabitat": "Damp alpine turf, moss cushions and snowmelt litter, plus the surface of late-lying snow on warm days",
+  "fact": "On a mild winter day snow fleas pour out onto the snow in their thousands, like somebody spilled pepper across the drift. Their blood is full of natural antifreeze, so they keep moving when everything else is frozen stiff.",
+  "role": "The clean-up crew, and the reason last year's leaves do not simply pile up forever. Snow fleas shred dead stems and graze fungal threads into soil, and they keep at it all winter in the dark gap between the snowpack and the ground. Pipits, finches, chickadees, bluebirds, nutcrackers and toads all snap them up.",
+  "hint": "A mat of litter under melting snow is enough to start."
+ },
+ "purple-sea-urchin": {
+  "name": "Purple Sea Urchin",
+  "diet": "Living kelp and surfgrass, drift kelp, and encrusting coralline algae",
+  "shelter": "Pits it grinds into the rock itself with its teeth and spines",
+  "preferredHabitat": "Wave-exposed low intertidal and shallow subtidal rock near kelp",
+  "fact": "A purple urchin chews a pit into solid rock with five teeth and then sits in it for years. On some reefs the urchins wear away more stone than the waves do.",
+  "role": "The grazer at the middle of this coast's most famous story. Fed on scraps of drift kelp and kept in check by otters, urchins are just one more part of a healthy forest. Take the predators away and they march up the rock, mow the kelp to bare stone, and leave an urchin barren behind them.",
+  "hint": "Kelp first — an urchin has to have something to eat. Then think hard about what is going to eat the urchins."
+ },
+ "northern-anchovy": {
+  "name": "Anchovy",
+  "diet": "Plankton — copepods, diatoms and larvae — strained from the water or picked one at a time",
+  "shelter": "The school itself; open nearshore water, with kelp and surfgrass edges as nursery cover",
+  "preferredHabitat": "Cool, plankton-rich nearshore water over the shelf",
+  "fact": "An anchovy eats two ways: it snaps at big prey one bite at a time, or just opens its mouth and swims, straining the sea like a living net.",
+  "role": "Anchovies travel in silver schools so thick they turn the water dark from below. Almost everything that hunts here takes them at some point — pelicans, seals, dolphins, gulls — so when the anchovies fail, the whole coast goes hungry at once.",
+  "hint": "Cold water rising from the deep grows the plankton they eat, and quiet shallows give the schools somewhere to spawn."
+ },
+ "beach-hopper": {
+  "name": "Beach Hopper",
+  "diet": "Decaying kelp and other stranded seaweed in the wrack line",
+  "shelter": "Burrows dug in damp sand high on the beach, and the damp underside of drift kelp and driftwood",
+  "preferredHabitat": "Gently sloping sandy beach with an undisturbed wrack line",
+  "fact": "Beach hoppers spend all day sealed inside a burrow in dry sand, then pour out after dark to shred the seaweed the tide left behind. Step near one and it fires itself into the air like a flicked pebble.",
+  "role": "The engine room of the beach. Hoppers chew stranded kelp down into crumbs and nutrients, and in doing so they turn dead seaweed into bird food — which is the entire reason plovers, sanderlings and gulls patrol the tide line. Rake the wrack away and this link vanishes overnight.",
+  "hint": "Leave the seaweed where the tide drops it. That is the whole meal."
+ },
+ "desert-termite": {
+  "name": "Desert Termite",
+  "diet": "Dead grass, fallen leaves, dry dung and the weathered outsides of dead wood",
+  "shelter": "Tunnels and chambers underground, plus mud sheeting built over whatever it is eating",
+  "preferredHabitat": "Soil beneath shrubs and grasses where dead plant litter collects",
+  "fact": "These termites plaster a thin mud roof over a dead stem and eat underneath it, so they can feed in full sun without ever touching the dry air.",
+  "role": "The animal that actually recycles this desert. There is too little water here for litter to rot the way it does in a forest, so termites eat almost all of it instead, carrying the nitrogen and carbon back underground and leaving tunnels that let rain soak in rather than run off. On swarm nights, everything with a beak or a sting comes to the feast.",
+  "hint": "Bury a little dead wood and they will find it — dead wood is the desert’s pantry."
+ },
+ "common-raven": {
+  "name": "Raven",
+  "diet": "Carrion above all, plus eggs, nestlings, young reptiles, insects and cactus fruit",
+  "shelter": "Bulky stick nests on cliffs and in tall cactus and ironwoods — and, more and more, on power poles",
+  "preferredHabitat": "Open desert with tall nest structures and a reliable food supply",
+  "fact": "Ravens remember individual human faces and hold the grudge for years, and a pair will run a con together — one bird makes a nuisance of itself while the other robs the food.",
+  "role": "The cleanup crew, and the biggest human story in the biome. Roads, rubbish tips, farms and power poles hand ravens free food, water and nest platforms, so there are now far more of them than this desert could ever feed by itself — and all those extra ravens eat baby tortoises, whose shells stay soft for years. Cutting off the free lunch is now a real part of saving the tortoise.",
+  "hint": "Ravens follow whatever gets left lying around: a carcass, a tall perch, something to drink. That is all they ask for — which is exactly the trouble."
+ },
+ "coyote-meadow": {
+  "name": "Coyote",
+  "diet": "Voles, rabbits and ground squirrels; deer fawns; also fruit, insects and carrion",
+  "shelter": "Raises pups in a den dug into a brushy bank, often an enlarged badger or fox burrow",
+  "preferredHabitat": "Open grassland and edges with brushy cover for a den and water within reach",
+  "fact": "Three coyotes can sound like a dozen. Each one slides its pitch around while it howls, so a small family throws up a wall of voices — biologists call it the 'beau geste' effect.",
+  "role": "The animal at the top of this meadow, and the most adaptable carnivore in here. It hunts voles and rabbits alone, fawns in pairs, and eats fruit, insects and carrion in between. Its return is what finally puts pressure on the foxes, badgers and deer that nothing else here could touch — and it will happily trail a digging badger to snap up whatever bolts out the far side.",
+  "hint": "A den bank tucked into brushy cover, wide grass full of rabbits and voles, and water within reach. Coyotes are the last piece — they only settle where there is already plenty to eat."
+ },
+ "polyphemus-moth": {
+  "name": "Polyphemus Moth",
+  "diet": "As a caterpillar, tree leaves — oak, birch, hickory, maple, willow. The adult moth has no working mouth and never eats anything at all.",
+  "shelter": "Spins a tough silk cocoon wrapped in a leaf; the cocoon falls with the leaves in autumn and overwinters on the forest floor.",
+  "preferredHabitat": "Broadleaf woodland and woodland edge with oak, birch and hickory, and an undisturbed litter layer beneath them.",
+  "fact": "The adult moth has no mouth. It cannot eat a single thing — everything it will ever spend finding a mate and laying eggs was eaten months earlier, by the caterpillar.",
+  "role": "This moth stands for the caterpillar layer, the step nearly every forest bird depends on. Caterpillars turn tough, chewy tree leaves into soft protein, and it is caterpillars, not seeds, that woodland songbirds cram into their chicks. The adults that make it through feed bats at dusk. The cocoons spend all winter down in the fallen leaves, so a woodland raked bare in autumn throws next summer's moths out with the leaf bags.",
+  "hint": "Broadleaf trees for the caterpillars to eat, and leaves left lying all winter for the cocoons hidden among them."
+ },
+ "amphipod": {
+  "name": "Freshwater Shrimp",
+  "diet": "Dead leaves and stems, the fungi and bacteria growing on them, and algal film scraped off plants.",
+  "shelter": "Among submerged litter, plant stems and the loose top layer of sediment.",
+  "preferredHabitat": "Shallow, well-oxygenated water with a deep drift of decaying plant litter.",
+  "fact": "Freshwater shrimp swim on their sides, and males carry females around piggyback for days before they mate. Lift a handful of soggy leaves out of a pond and dozens of them will be flicking about in it.",
+  "role": "The marsh's shredder. One shrimp chews a single dead cattail leaf into thousands of crumbs — and it is really after the fungus furring the leaf, not the leaf itself. That is how a heap of dead plants becomes food for minnows, salamander larvae and dragonfly nymphs.",
+  "hint": "A drift of rotting leaves in still water is all they need."
+ },
+ "crayfish": {
+  "name": "Crayfish",
+  "diet": "Decaying plants and carcasses, live aquatic plants, snails, insect larvae and freshwater shrimp.",
+  "shelter": "Burrows dug into saturated banks, and gaps beneath sunken logs and stones.",
+  "preferredHabitat": "Slow, weedy water with woody cover and a bank soft enough to dig into.",
+  "fact": "Lose a claw in a fight and a crayfish just grows a new one, a little bigger at every moult, until it matches the old one. Startle it and it flips its tail and rockets backwards faster than you can grab.",
+  "role": "The marsh's recycler, and very nearly everybody's dinner. Crayfish shred dead plants and tidy up carcasses, turning buried gunk back into living meat — which the otter, the mink, the kingfisher, the merganser, the crane, the snapping turtle and the heron then come and take.",
+  "hint": "A soft bank to tunnel into, sunken wood to hide under, and plenty of rotting plants to eat."
+ },
+ "freshwater-mussel": {
+  "name": "Freshwater Mussel",
+  "diet": "Algae, bacteria and fine dead particles strained out of the water.",
+  "shelter": "Burrowed upright in stable fine sediment with only its two siphons showing.",
+  "preferredHabitat": "Slow, settled water over firm silt and fine sand.",
+  "fact": "A baby mussel has to hitchhike. It clamps onto the gills of a passing fish and rides there for weeks before dropping off to start life on the bottom — and some mother mussels wave a flap of flesh shaped like a little fish to lure a host in close.",
+  "role": "The marsh's water filter, and one of the longest-lived animals in it. One mussel can strain the same patch of water for thirty years, dropping what it catches to the bottom for shrimp and crayfish. No fish means no baby mussels, so the mussels only come back after the minnows do.",
+  "hint": "A settled bed that stays put for years — and fish, because young mussels ride to their new home clamped to fish gills."
+ },
+ "pillbug": {
+  "name": "Pillbug",
+  "diet": "Dead leaves, rotting wood, grass thatch and fungal threads; also droppings and old bones for minerals",
+  "shelter": "Hides by day under crumbling logs, flat stones and deep litter, where the air stays damp",
+  "preferredHabitat": "Shaded, damp corners of meadow with rotting wood and a thick layer of dead plant litter",
+  "fact": "A pillbug is not an insect at all — it's a crustacean, closer kin to a crab than to a beetle, and it still breathes through gill-like flaps that have to stay wet.",
+  "role": "Pillbugs work the night shift under logs and thatch, shredding dead leaves and soft rotten wood into crumbs small enough for fungi and bacteria to finish off. That shredding is the first step in turning last year's meadow into next year's soil. Garter snakes and killdeer hunt them, so the recycling crew feeds upward as well as downward.",
+  "hint": "Damp, dark and rotting is the whole recipe — a crumbling log, deep thatch, and ground that never dries right out. Roll one over and it curls into a ball."
+ },
+ "garden-spider": {
+  "name": "Garden Spider",
+  "diet": "Flying and jumping insects caught in the web — grasshoppers, bees, flies, moths",
+  "shelter": "Hangs head-down at the hub of its own orb web, slung between tall standing stems",
+  "preferredHabitat": "Sunny meadow with tall stiff vegetation left standing and plenty of flying insects",
+  "fact": "This spider takes down most of its web every night and eats the old silk to build the next one — and it stitches a bold white zigzag through the middle that nobody has fully explained yet.",
+  "role": "The meadow's trapper. It slings a wheel of silk wider than your hand between tall stems and waits head-down at the hub for grasshoppers, bees and flies to blunder in. Spiders are the largest predator group in any grassland and the biggest single thing missing from this meadow until now — they eat enormous numbers of insects, and they are in turn the main food of half the songbirds here.",
+  "hint": "Tall stiff stems left standing, spaced far enough apart to sling a big web between them, with flowers close by to bring the insects in."
+ },
+ "big-brown-bat": {
+  "name": "Brown Bat",
+  "diet": "Night-flying insects, especially beetles, plus moths, flying ants and midges",
+  "shelter": "Roosts by day in warm dark spaces — barn lofts, attics, and under loose bark; hibernates in cold cracks",
+  "preferredHabitat": "Open meadow and hedgerow airspace to hunt over, with still water to drink from and a warm roost nearby",
+  "fact": "A big brown bat finds a moth in total darkness by shouting and listening to the echo — and it can pick out something no thicker than a pencil lead this way.",
+  "role": "The night shift over the meadow. Big brown bats work the air above the grass and along the hedgerows after sunset, catching beetles, moths and flying ants; one bat can put away thousands of insects in a single night. They drink on the wing, dipping their jaws into still water without stopping, and mothers gather in warm roosts to raise pups together. Great horned owls catch them at dusk.",
+  "hint": "A warm crevice to raise pups in, insects in the air above the grass, and calm open water it can skim a drink from without landing."
+ },
+ "garden-snail": {
+  "name": "Snail",
+  "diet": "Dead leaves, soft rotting stems, and the algae film on damp stones",
+  "shelter": "Seals itself to the underside of a damp log or stone and waits out dry weather",
+  "preferredHabitat": "Shady, damp corners with leaf litter and something chalky to rasp at",
+  "fact": "A snail carries its own house and can shut the door behind it — when things get dry it glues itself to a stone and sleeps until it rains, sometimes for months.",
+  "role": "Snails are the meadow's slow recyclers. They shred fallen leaves into crumbs that fungi and soil life can finish off, and their shells give calcium back to the ground when they die.",
+  "hint": "A shady damp corner where leaves are allowed to pile up and rot. Snails want the mess, not the tidy bit."
+ },
+ "wolverine": {
+  "name": "Wolverine",
+  "diet": "Marmots, hares and ptarmigan when it can catch them, frozen carcasses when it cannot, and berries in late summer",
+  "shelter": "Tunnels dug metres down into deep spring drifts, usually around a fallen boulder or log, with food stored in side chambers",
+  "preferredHabitat": "Big, empty, high country with talus and broken rock, and snow that lasts into late spring",
+  "fact": "A wolverine can smell a dead animal buried under three metres of snow, dig it out, and then drive a bear off it, all in a body about the size of a small dog.",
+  "role": "The largest weasel in the world and the mountain's great scavenger, now the top hunter on these peaks. It roams enormous distances, kills marmots, hares and ptarmigan when it gets the chance and lives off frozen carcasses when it does not, cracking frozen bone with jaws built for exactly that. Snow is its refrigerator: it stores food in drifts and dens deep inside them, so a female can only raise kits where the snowpack holds into late spring. That makes it the first animal to go when winters get short — and nothing up here is willing to argue with it over a carcass.",
+  "hint": "Wolverines need space and snow, not scenery. Give it drifts deep enough to last into late spring for the den and the larder, broken rock to travel through, and marmots and hares already on the mountain. It is the last of the hunters to arrive."
+ },
+ "bottlenose-dolphin": {
+  "name": "Bottlenose Dolphin",
+  "diet": "Schooling fish, especially anchovy, plus squid and bottom fish",
+  "shelter": "None built — travels and sleeps at sea in a small group, half its brain awake at a time",
+  "preferredHabitat": "Nearshore water along an open beach with a strong surf line and fish schools offshore",
+  "fact": "Every dolphin invents its own signature whistle, and the others copy that whistle back when they want to call it over. Along an open beach these dolphins hunt right inside the breakers, surfing the waves they are herding fish against.",
+  "role": "Fast, social hunters that work the surf line in small groups, pushing anchovy schools up against the breaking waves until the fish have nowhere left to go. They are quick and clever enough to catch almost anything that schools here — and still not the biggest thing in the water.",
+  "hint": "Deep water to travel through, cold currents and kelp edges to hold the fish, and a real breaking surf line, because that is where these dolphins do their hunting."
+ },
+ "orca": {
+  "name": "Orca",
+  "diet": "Marine mammals — harbor seals above all, plus dolphins, sea lions and gray whale calves",
+  "shelter": "None ashore; rests at the surface in deep water with its family pod",
+  "preferredHabitat": "Cold deep water close inshore, along the drop-off and the kelp edge within reach of seal haul-outs",
+  "fact": "Orcas live in families that never split up, and different families eat completely different food. The ones that hunt this coast are mammal specialists, and they go silent to do it — no clicks, no calls — because a seal can hear a talking orca coming from a long way off.",
+  "role": "The top of this coast, with nothing above it. A pod of mammal-hunting orcas patrols the drop-off where the seafloor falls away, listening at seal haul-outs and shadowing gray whales that pass through with calves in spring. When they come into a bay, every seal on the rocks goes still and silent.",
+  "hint": "The last and hardest animal to bring back. Orcas need deep water pressed right up against the shore and something big to hunt — so bring the seals back first, because the seals are what they come for."
+ },
+ "desert-millipede": {
+  "name": "Desert Millipede",
+  "diet": "Dead leaves, stems, seed husks and other dry plant litter on the ground",
+  "shelter": "Buried in soil and tucked under litter and rock slabs by day; out walking on damp nights",
+  "preferredHabitat": "Litter drifts under shrubs with rock slabs and diggable soil nearby",
+  "fact": "A desert millipede spends most of the year underground, then comes pouring out by the hundreds after the first summer storm — and if you touch one it coils into a tight spiral like a cinnamon bun and oozes a bitter brown liquid that stains your fingers for days.",
+  "role": "The litter shredder. It chews dead leaves, stems and husks into crumbs small enough for termites and soil microbes to finish, which is how dead plants become soil again out here. It has hundreds of legs and absolutely no hurry — armour and a foul chemical mean it can afford to stroll — but scorpions and roadrunners eat it anyway.",
+  "hint": "Let the leaves drift up under the shrubs and leave a slab it can crawl beneath. Damp litter is both its dinner and its hiding place — bare hot sand is neither."
+ },
+ "harris-hawk": {
+  "name": "Desert Hawk",
+  "diet": "Jackrabbits, ground squirrels, quail, woodrats and lizards",
+  "shelter": "A bulky stick nest wedged in the arms of a tall cactus or a thorny tree, built and guarded by the whole family",
+  "preferredHabitat": "Open scrub with tall cactus and trees to nest and keep lookout from",
+  "fact": "These are the only birds of prey in the world that hunt in packs: a family of five or six spreads out, some crashing into a thorn bush to panic a rabbit while the others wait on the far side. And when there is nowhere decent to perch, they simply stand on each other's backs, three hawks high.",
+  "role": "The daytime top predator, working the same desert the coyote works at night. Two or three generations live together all year, share every kill, help feed each other's chicks and take turns on lookout — teamwork that lets them bring down jackrabbits far heavier than any single hawk. They need tall lookouts above open ground and a big cactus solid enough to hold a family nest.",
+  "hint": "One hawk is never the whole story. A family needs a tall cactus strong enough to hold the nest, high lookouts all around it, and open ground with rabbits crossing it."
+ },
+ "bald-eagle": {
+  "name": "Bald Eagle",
+  "diet": "Mostly fish, plus ducks, muskrats and carrion — and anything it can bully out of another hunter's grip",
+  "shelter": "A huge stick nest in the crown of the tallest living tree beside open water, added to every year",
+  "preferredHabitat": "Wide open water full of fish, with one very tall tree to watch it all from",
+  "fact": "A bald eagle would honestly rather rob than fish. It shadows otters and herons and harasses them until they drop their catch, then takes it — and the nest it rebuilds every year can end up heavier than a small car.",
+  "role": "The top predator of the marsh and its biggest bully. It takes fish, ducks and muskrats for itself, kills herons at their nesting colonies, and spends much of the day stealing meals from otters and herons — which means it can only settle somewhere those hunters are already doing well.",
+  "hint": "One huge old tree with a clear view over deep water, enough fish to live on — and successful otters and herons below to steal from."
+ },
+ "luna-moth": {
+  "name": "Luna Moth",
+  "diet": "Hickory, walnut, sweetgum and birch leaves as a caterpillar; the adult eats nothing at all",
+  "shelter": "A papery cocoon spun inside a curled leaf that falls to the ground, where it lies buried in the litter all winter",
+  "preferredHabitat": "Mature deciduous woodland with deep undisturbed leaf litter under the host trees",
+  "fact": "An adult luna moth has no mouth. It hatches out with about a week to live, never eats once, and spends the whole of it looking for a mate.",
+  "role": "Luna moth caterpillars are leaf-eaters that turn tree leaves into fat, high-energy insect bodies, and everything from bats to jays cashes that in. The long twisted tails on the hindwings are an anti-bat device: they spin as the moth flies and throw a bat's echolocation off target, so the bat grabs a tail streamer instead of the body. Because the cocoon overwinters in fallen leaves, a forest that gets raked loses its luna moths even if every host tree is still standing.",
+  "hint": "Plant the leafy trees, then let the leaves lie where they fall. The cocoons spend the whole winter down in that litter."
+ },
+ "blue-jay": {
+  "name": "Blue Jay",
+  "diet": "Acorns and beechnuts, caterpillars, beetles and other insects, and eggs or nestlings when it finds them",
+  "shelter": "A cup of twigs and rootlets wedged in a fork high in a leafy tree, screened by foliage",
+  "preferredHabitat": "Oak-rich woodland and its edges, with open ground nearby for caching",
+  "fact": "Blue jay feathers are not actually blue — the pigment in them is brown, and the blue is a trick of light bouncing off tiny air pockets. Crush one and the colour disappears.",
+  "role": "A single blue jay can carry five acorns at a time and bury a few thousand in an autumn, and it chooses sound ones and pushes them into open ground — which makes jays the fastest tree planters in the forest and the reason oaks spread uphill after a fire. Jays also mimic hawk calls, sometimes to clear a feeding spot and sometimes to warn everything nearby that a real hawk has arrived, so the whole wood listens to them.",
+  "hint": "Oaks and a patch of soft open ground to bury the acorns in. Some of the ones the jay forgets will be your next oak trees."
+ },
+ "wood-frog": {
+  "name": "Wood Frog",
+  "diet": "Beetles, spiders, slugs, flies and other small forest-floor invertebrates",
+  "shelter": "Shallow leaf litter and loose duff on the forest floor — it does not burrow below the frost line",
+  "preferredHabitat": "Damp deciduous forest with fishless woodland pools that fill in spring and dry out by late summer",
+  "fact": "A wood frog freezes solid every winter. Its heart stops, two thirds of the water in its body turns to ice, and in spring it thaws out and hops away.",
+  "role": "Wood frogs are the first amphibian to call in spring, breeding in temporary pools that dry up before fish can ever live in them — which is exactly why the tadpoles survive. Sugar flooding the blood keeps their cells from bursting while they are frozen, so they can hibernate under a few centimetres of leaves. As adults they eat their way through the invertebrates of the leaf litter and are eaten in turn by snakes and raccoons, moving forest-floor energy up the food chain.",
+  "hint": "A pool that dries up in summer is the good kind — no fish means the tadpoles live. Keep deep leaves nearby for the frogs to freeze in."
+ },
+ "goshawk": {
+  "name": "Goshawk",
+  "diet": "Squirrels, jays, grouse, rabbits and woodpeckers, chased down inside the trees",
+  "shelter": "A broad stick nest built against the trunk on a heavy limb, halfway up a big old tree in closed canopy",
+  "preferredHabitat": "Mature forest with a high closed canopy and open flying room underneath it",
+  "fact": "A goshawk hunts by crashing straight through the branches at full speed with its wings half folded, and it will dive at anything — including people — that walks too near its nest.",
+  "role": "The goshawk is the forest's top daytime hunter and the reason squirrels freeze against tree trunks. Short broad wings and a long steering tail let it turn inside a wood at speed, so unlike a soaring hawk it hunts under the canopy rather than above it. It needs old forest with big limbs to nest on and clear space beneath to fly, which makes its arrival a sign that the trees have finally grown up.",
+  "hint": "Grow the forest tall and leave the understory open. A goshawk needs a big limb to nest on and room to fly hard underneath the canopy."
+ },
+ "moose": {
+  "name": "Moose",
+  "diet": "Submerged pondweed and water lilies in summer, willow and aspen twigs in winter",
+  "shelter": "Beds pressed into willow thickets and shaded marsh edge; in summer it stands chest-deep in water to escape flies",
+  "preferredHabitat": "Marsh and pond edge with deep willow thickets and clear shallow water full of submerged plants",
+  "fact": "A moose can hold its breath for a minute and walk along the bottom of a pond with its whole head underwater, pulling up plants by the roots.",
+  "role": "Moose come to the wetland for sodium, which the submerged plants have and the forest browse does not, and a big one can pull 20 kilograms of pondweed a day out of the shallows. That heavy grazing keeps open lanes through the plant beds where ducks feed and fish shelter, and the willow they browse in winter grows back thicker and lower — which is better cover for everything small. Their trails through the marsh become channels that hold water in dry summers.",
+  "hint": "Grow the underwater plant beds first and keep the water clear enough for them. A moose comes for what is growing under the surface, not on the bank."
+ },
+ "river-cooter": {
+  "name": "River Cooter",
+  "diet": "Pondweed, algae, water lily leaves and fallen fruit; hatchlings take insects before switching to plants",
+  "shelter": "Sleeps wedged under submerged logs and root tangles; spends the winter buried in the mud of the pond bottom",
+  "preferredHabitat": "Slow, plant-filled water with logs to bask on and an open sunlit bank to lay eggs in",
+  "fact": "Whether a cooter's eggs hatch into males or females depends on how warm the nest is, not on the eggs themselves — a cool nest makes brothers, a warm one makes sisters.",
+  "role": "The cooter is the wetland's big plant-eating turtle, cropping the underwater meadows and keeping them from choking the shallows, and passing seeds out intact somewhere else. It has to bask for hours to get warm enough to digest all that plant food, which is why a good log stacked with turtles is a sign of a working marsh. Its eggs and hatchlings feed almost everything else, so it lays a lot of them.",
+  "hint": "Logs in the sun to bask on and a bare warm bank to bury eggs in. A cooter that cannot get warm cannot digest its dinner."
+ },
+ "javelina": {
+  "name": "Javelina",
+  "diet": "Prickly pear pads, mesquite pods, agave hearts, roots and tubers",
+  "shelter": "Beds down as a herd in the shade of dense thornscrub or a rock overhang through the heat of the day",
+  "preferredHabitat": "Desert scrub and washes with thick thorny cover and stands of prickly pear",
+  "fact": "A javelina eats prickly pear whole — spines and all — and has a scent gland on its back so strong that a herd can find each other in the dark by smell alone.",
+  "role": "Javelinas are the desert's cactus processors: they crunch through pads that nothing else will touch, which keeps prickly pear from taking over a wash and spreads its seeds in their droppings. Rooting for tubers turns over hard-crusted soil and buries litter, giving seeds somewhere to germinate after rain. They travel in herds of six to a dozen, and the herd smell is also the alarm system, because their eyesight is terrible.",
+  "hint": "Grow the prickly pear and leave a shaded thorny tangle to bed down in. A herd sleeps out the middle of the day and feeds at dusk."
+ },
+ "black-swift": {
+  "name": "Black Swift",
+  "diet": "Flying ants, aphids, beetles and mayflies caught on the wing, often hundreds of metres up",
+  "shelter": "A cup of moss glued to a wet rock seam behind or beside falling water, reached only from the air",
+  "preferredHabitat": "Cliffs with cold running water and wide open sky above the treeline",
+  "fact": "A black swift can stay in the air for six months without landing once — it eats, drinks and sleeps flying, and the chick is left alone all day while its parents hunt insects 50 km away.",
+  "role": "Swifts hoover up the swarming insects that get lifted onto the mountain by rising air, and they carry that food back as a compressed pellet — one delivery a day is enough for a chick because the load is so concentrated. The nest has to be permanently wet and unreachable, so the birds only appear where there is a cliff seam with water running over it. They are among the very last summer visitors to arrive and the first to leave for the Amazon.",
+  "hint": "Find the wettest, darkest crack in the cliff and keep the water running down it. A swift will not nest anywhere it can walk to."
+ },
+ "peregrine-falcon": {
+  "name": "Peregrine Falcon",
+  "diet": "Other birds taken in mid-air — ptarmigan, rosy-finches, swifts, pipits and small ducks",
+  "shelter": "A bare scrape kicked into gravel on a high cliff ledge; it builds no nest at all",
+  "preferredHabitat": "Sheer cliffs and rock faces overlooking open ground with plenty of birds flying below",
+  "fact": "A stooping peregrine hits about 380 km/h, which makes it the fastest animal alive — and it has bony cones in its nostrils that slow the air down so the dive does not burst its lungs.",
+  "role": "The peregrine is the mountain's aerial hunter, and it takes almost all of its food in the air, striking from above with a closed fist rather than grabbing. Because it hunts birds and nothing else, it is a direct check on the flocks of finches, pipits and ptarmigan feeding across the slopes. It needs an undisturbed cliff ledge and clear air below it, and nothing at all to build with — just loose gravel to scrape a hollow in.",
+  "hint": "A high ledge with loose gravel on it and open sky underneath. Do not build a nest — a peregrine just kicks a dip in the grit."
+ },
+ "owl-limpet": {
+  "name": "Sand Dollar",
+  "diet": "Algae, plankton and scraps of food picked out of the sand grain by grain",
+  "shelter": "Half buried on edge in rippled sand, in beds of hundreds at a time",
+  "preferredHabitat": "Sheltered sandy bottoms just below the low tide line, where the current is gentle",
+  "fact": "A living sand dollar is not white and smooth — it is purple and covered in tiny moving spines it uses to walk and to pass food along to its mouth. The white disc with the flower pattern is its skeleton, after everything else has washed away.",
+  "role": "A whole bed of them stands half-buried on edge like coins in a slot, all leaning into the current to catch what drifts past. Where the water is rougher they lie flat instead so they do not get rolled away.",
+  "hint": "Clean rippled sand just below the tide line, somewhere sheltered enough that the current is gentle."
+ },
+ "octopus": {
+  "name": "Octopus",
+  "diet": "Shore crabs, clams, mussels, snails and shrimp, cracked open or drilled through",
+  "shelter": "A crevice or empty shell it pulls a rock across behind itself, with a heap of emptied shells outside the door",
+  "preferredHabitat": "Rocky subtidal seafloor and deep tidepools with plenty of crevices and cold, clean water",
+  "fact": "An octopus has three hearts, blue blood, and tastes everything it touches with its arms — and because the only hard part of it is its beak, one the size of a dinner plate can squeeze through a hole the size of a grape.",
+  "role": "The octopus is the top invertebrate hunter of the rocky shore, and the pile of emptied crab and clam shells outside its den is the easiest way to find one. It can change colour and skin texture in under a second to vanish against rock or kelp, despite being colourblind, and it will drill a neat hole through a stubborn clam and inject it to make the shell relax. Each octopus works through a huge number of crabs, which keeps the grazers and scavengers of the tidepools in check.",
+  "hint": "Broken rock with gaps to hide in, and plenty of crabs. Leave the shell pile outside the den alone — that is how you know somebody is home."
+ },
+ "grasshopper-mouse": {
+  "name": "Grasshopper Mouse",
+  "diet": "Scorpions, centipedes, beetles and other mice",
+  "shelter": "Takes over a burrow another animal dug, then defends it",
+  "preferredHabitat": "Open sandy flats with scattered brush and plenty of prey underfoot",
+  "fact": "This mouse hunts scorpions, gets stung in the face, and carries on eating — its body turns the venom's pain signal off. Then it stands up on its hind legs and howls at the moon like a tiny wolf.",
+  "role": "A mouse that decided to be a predator. It keeps scorpions and big insects in check, and it is one of the only animals that can eat the desert's most venomous residents without flinching.",
+  "hint": "An old burrow it can take over and open ground to hunt across. It gets all its water from what it catches."
+ },
+ "snow-bunting": {
+  "name": "Snow Bunting",
+  "diet": "Seeds blown onto the snow, plus insects in the short summer",
+  "shelter": "Deep in a rock crevice, lined with feathers and fur against the cold",
+  "preferredHabitat": "Windswept ridges and fellfield where the snow blows clear",
+  "fact": "Snow buntings nest further north than any other songbird on Earth, tucked so deep in rock cracks that the male has to feed the female in the dark while she sits.",
+  "role": "A small bird that treats a blizzard as ordinary weather. Flocks drift across bare ridges picking up seed the wind has stranded on the snow, and they turn from white to warm brown as the season turns.",
+  "hint": "A deep, dry crack in the rock out of the wind, and open stony ground nearby where the snow blows clear."
+ },
+ "groundhog": {
+  "name": "Groundhog",
+  "diet": "Grass, clover, dandelions and just about any tender green thing it can reach",
+  "shelter": "A burrow with several entrances, a grass-lined sleeping chamber and a separate toilet room",
+  "preferredHabitat": "Meadow edges with deep, well-drained soil it can tunnel through",
+  "fact": "A groundhog digs a burrow with a front door, a back door, a bedroom and a separate room for going to the toilet — and moves about a tonne of soil doing it. In winter its heart slows to about five beats a minute.",
+  "role": "The meadow's earthmover. Its abandoned burrows become homes for foxes, snakes, rabbits and half the small animals here, so one groundhog's digging outlives the groundhog by years.",
+  "hint": "Deep, well-drained soil at the edge of the grass, with a bolt-hole close by. It wants somewhere to dig more than somewhere to hide."
+ },
+ "opossum": {
+  "name": "Opossum",
+  "diet": "Almost anything — insects, fruit, eggs, carrion, and an enormous number of ticks",
+  "shelter": "Sleeps the day out in a hollow log or a borrowed burrow, and rarely uses the same one twice",
+  "preferredHabitat": "Brushy edges with hollow wood, water nearby and plenty to scavenge",
+  "fact": "When an opossum plays dead it is not acting — it faints. The body goes stiff, the tongue lolls out and it gives off a smell like something long dead, and it cannot snap out of it for several minutes even if you walk away.",
+  "role": "The meadow's clean-up crew. It eats what everything else has left, including carrion and vast quantities of ticks, and it is the only animal here that carries its young around on its back.",
+  "hint": "Hollow wood to sleep the day away in and berries within a night's walk. It moves house constantly, so give it more than one option."
+ }
+}

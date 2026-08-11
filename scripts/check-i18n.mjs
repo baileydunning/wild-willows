@@ -17,11 +17,20 @@
 //    - UNUSED: en keys never referenced (excluding _readme docs and
 //      content.*). Warning only — keys may be built dynamically.
 //    - Per-locale coverage: keys every other src/i18n/<locale>/ is missing
-//      relative to en. Warning only.
+//      relative to en. Warning only — unless --strict.
+//
+// --strict additionally fails the run when any non-en locale is missing a key
+// English has. A gap there is not a crash: core.ts falls back locale → en → key,
+// so the player just gets an English sentence in the middle of a Spanish one.
+// Nothing in a normal run notices, which is exactly why the i18n workflow asks
+// for it. `npm run check` deliberately stays warn-only so a half-finished
+// translation doesn't block unrelated local work.
 
 import { readdirSync, readFileSync } from 'node:fs';
 import { basename, dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+
+const STRICT = process.argv.includes('--strict');
 
 const ROOT = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const I18N_DIR = join(ROOT, 'src', 'i18n');
@@ -167,12 +176,14 @@ const localeDirs = readdirSync(I18N_DIR, { withFileTypes: true })
 	.map((e) => e.name)
 	.sort();
 
+let localeGaps = 0;
 for (const locale of localeDirs) {
 	const { flat } = loadLocale(join(I18N_DIR, locale));
 	const localeKeys = new Set(Object.keys(flat));
 	const gaps = [...enKeys].filter((k) => !isReadme(k) && !localeKeys.has(k)).sort();
 	if (gaps.length) {
-		console.log(`\nLOCALE ${locale} (warning) — ${gaps.length} en keys untranslated:`);
+		localeGaps += gaps.length;
+		console.log(`\nLOCALE ${locale} (${STRICT ? 'error' : 'warning'}) — ${gaps.length} en keys untranslated:`);
 		for (const k of gaps.slice(0, 20)) console.log(`  ${k}`);
 		if (gaps.length > 20) console.log(`  … +${gaps.length - 20} more`);
 	} else {
@@ -186,8 +197,10 @@ if (parseErrors.length) {
 	for (const e of parseErrors) console.log(`  ${e}`);
 }
 
-if (missing.length || parseErrors.length) {
-	console.log(`\nFAIL: ${missing.length} missing key(s), ${parseErrors.length} unparsable catalog file(s).`);
+if (missing.length || parseErrors.length || (STRICT && localeGaps)) {
+	const reasons = [`${missing.length} missing key(s)`, `${parseErrors.length} unparsable catalog file(s)`];
+	if (STRICT) reasons.push(`${localeGaps} untranslated key(s) (--strict)`);
+	console.log(`\nFAIL: ${reasons.join(', ')}.`);
 	process.exit(1);
 }
-console.log('\nOK.');
+console.log(STRICT ? '\nOK (strict).' : '\nOK.');

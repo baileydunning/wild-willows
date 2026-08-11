@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
 import { useGame } from '../state';
-import type { AnimalDef, Discovery, GameData } from '../types';
+import type { AnimalDef, Discovery, GameData, FoodEdge } from '../types';
 import { animalSpriteDataUri } from '../game/textures';
 import { t, content } from '../i18n';
 import { useI18n } from '../i18n/react';
 import { Icon } from './icons';
 import { journalNav, type JournalLoc } from './journalNav';
+import { effort } from './journalSort';
 
 /** Shared back/forward pair for the journal panel and animal cards. */
 function HistoryNav({ go }: { go: (loc: JournalLoc | undefined) => void }) {
@@ -48,6 +49,7 @@ const comfortText = (c: number) => t(`panels.journal.comfort.${comfortLabel(c)}`
 const TROPHIC: Record<string, { tier: number; color: string }> = {
 	producer: { tier: 0, color: '#6aa253' },
 	decomposer: { tier: 0, color: '#8a7b5c' },
+	detritivore: { tier: 0, color: '#7d6f52' },
 	'filter-feeder': { tier: 1, color: '#5b9cab' },
 	herbivore: { tier: 1, color: '#7bae55' },
 	insectivore: { tier: 2, color: '#c99a3f' },
@@ -167,6 +169,9 @@ function RequirementHints({ animal, full }: { animal: AnimalDef; full: boolean }
 	const seen = new Set((state?.discoveries || []).map((d) => d.animalId));
 	const req = animal.requirements || {};
 	const condLine = conditionsLine(animal);
+	// "Only ventures out at dusk or night" is a clock, not a forecast — pointing at
+	// the weather panel for it just sends the player somewhere that cannot help.
+	const weatherGated = !!req.conditions?.weather?.length;
 	const hint = req.hint ? content('animal', animal.id, 'hint', req.hint) : t('panels.journal.hintDefault');
 	if (!full) {
 		return (
@@ -175,7 +180,7 @@ function RequirementHints({ animal, full }: { animal: AnimalDef; full: boolean }
 				{condLine && (
 					<>
 						{' '}
-						<Icon name="cloud" size={11} /> {condLine}.
+						<Icon name={weatherGated ? 'cloud' : 'sun'} size={11} /> {condLine}.
 					</>
 				)}
 			</div>
@@ -187,6 +192,14 @@ function RequirementHints({ animal, full }: { animal: AnimalDef; full: boolean }
 			<ul>
 				{req.minHealth ? <li>{t('panels.journal.minHealth', { value: req.minHealth })}</li> : null}
 				{req.minBalance ? <li>{t('panels.journal.minBalance', { value: req.minBalance })}</li> : null}
+				{/* Open water you have to dig. Only the shapes the player can actually
+				    terraform are listed: coastal `ocean`/`deep` are part of the map from
+				    the start, so printing them would read as a chore that isn't one. */}
+				{req.water?.lake ? <li>{t('panels.journal.waterLake', { tiles: req.water.lake })}</li> : null}
+				{req.water?.river ? <li>{t('panels.journal.waterRiver', { tiles: req.water.river })}</li> : null}
+				{req.water?.tiles && !req.water?.lake && !req.water?.river ? (
+					<li>{t('panels.journal.waterTiles', { tiles: req.water.tiles })}</li>
+				) : null}
 				{Object.entries(req.objects || {}).map(([id, q]) => {
 					const o = data?.habitatObjects.find((oo) => oo.id === id);
 					return (
@@ -214,7 +227,8 @@ function RequirementHints({ animal, full }: { animal: AnimalDef; full: boolean }
 				})}
 				{condLine ? (
 					<li>
-						<Icon name="cloud" size={11} /> {t('panels.journal.condCheck', { cond: condLine })}
+						<Icon name={weatherGated ? 'cloud' : 'sun'} size={11} />{' '}
+						{weatherGated ? t('panels.journal.condCheck', { cond: condLine }) : condLine}
 					</li>
 				) : null}
 			</ul>
@@ -238,7 +252,9 @@ function FoodWebLinks({ animal }: { animal: AnimalDef }) {
 	const openCard = (id: string) => {
 		void observe(id);
 	}; // reading the entry = observing
-	const chip = (id: string) => {
+	const chip = (edge: FoodEdge) => {
+		const id = typeof edge === 'string' ? edge : edge.id;
+		const stage = typeof edge === 'string' ? undefined : edge.stage;
 		const seen = known.has(id);
 		const a = data.animals.find((aa) => aa.id === id);
 		return (
@@ -252,6 +268,7 @@ function FoodWebLinks({ animal }: { animal: AnimalDef }) {
 				{seen
 					? nameOf(id)
 					: t('panels.journal.unknownChip', { kind: a ? content('animal', a.id, 'kind', a.kind) : '' }).trim()}
+				{stage ? <span className="web-chip-stage"> {t(`panels.journal.stage.${stage}`)}</span> : null}
 			</button>
 		);
 	};
@@ -374,6 +391,71 @@ function JournalEntry({ animal, disc, full }: { animal: AnimalDef; disc?: Discov
 }
 
 /**
+ * What every role in the web actually does, and how much of this area's set is
+ * home. The food-web view answers "who eats whom"; this one answers the question
+ * underneath it — why an area with plenty of animals can still be unbalanced,
+ * because balance is about which JOBS are filled, not how many species returned.
+ * Roles with nobody in them here are left out rather than shown empty.
+ */
+
+function RolesView({ animals, discs }: { animals: AnimalDef[]; discs: Map<string, Discovery> }) {
+	const { observe } = useGame();
+	const roleOf = (a: AnimalDef) => (a.trophic && TROPHIC[a.trophic] ? a.trophic : 'wildlife');
+	const groups = new Map<string, AnimalDef[]>();
+	for (const a of animals) {
+		const k = roleOf(a);
+		if (!groups.has(k)) groups.set(k, []);
+		groups.get(k)!.push(a);
+	}
+	// Top of the web first: an apex predator is the role players are usually
+	// chasing, and reading down from it mirrors the food-web view above.
+	const order = [...groups.keys()].sort((x, y) => {
+		const tx = TROPHIC[x]?.tier ?? 2;
+		const ty = TROPHIC[y]?.tier ?? 2;
+		return ty - tx || trophicInfo(x).label.localeCompare(trophicInfo(y).label);
+	});
+	if (!animals.length) return <p className="muted small">{t('panels.journal.rolesEmpty')}</p>;
+
+	return (
+		<div className="roles-view">
+			<p className="muted small">{t('panels.journal.rolesIntro')}</p>
+			{order.map((key) => {
+				const list = groups.get(key)!;
+				const info = trophicInfo(key);
+				const back = list.filter((a) => discs.has(a.id)).length;
+				return (
+					<div key={key} className="role-row" style={{ borderLeftColor: info.color }}>
+						<div className="role-head">
+							<span className="trophic-badge" style={{ background: info.color }}>
+								<Icon name="scales" size={11} /> {info.label}
+							</span>
+							<span className="muted small">{t('panels.journal.rolesCount', { back, total: list.length })}</span>
+						</div>
+						<div className="small">{t(`panels.journal.trophicAbout.${key}`)}</div>
+						<div className="role-members">
+							{list.map((a) => {
+								const seen = discs.has(a.id);
+								return (
+									<button
+										key={a.id}
+										className={`foodweb-node ${seen ? '' : 'foodweb-node-unknown'}`}
+										style={seen ? { borderColor: info.color } : undefined}
+										onClick={() => seen && void observe(a.id)}
+										disabled={!seen}
+									>
+										{seen ? content('animal', a.id, 'name', a.name) : '???'}
+									</button>
+								);
+							})}
+						</div>
+					</div>
+				);
+			})}
+		</div>
+	);
+}
+
+/**
  * A layered food-web diagram for one biome: producers at the bottom, apex
  * predators at the top. Discovered animals light up; the rest are silhouettes.
  */
@@ -393,7 +475,10 @@ function FoodWebView({ animals, discs }: { animals: AnimalDef[]; discs: Map<stri
 			label: t('panels.journal.tiers.herbivores'),
 			test: (a) => a.trophic === 'herbivore' || a.trophic === 'filter-feeder',
 		},
-		{ label: t('panels.journal.tiers.producers'), test: (a) => a.trophic === 'producer' || a.trophic === 'decomposer' },
+		{
+			label: t('panels.journal.tiers.producers'),
+			test: (a) => a.trophic === 'producer' || a.trophic === 'decomposer' || a.trophic === 'detritivore',
+		},
 	];
 	const placed = new Set<string>();
 	const rows = tiers.map((tr) => {
@@ -469,7 +554,7 @@ function OverviewGrid({ query }: { query: string }) {
 				!q ||
 				[content('animal', a.id, 'name', a.name), a.kind, a.biome, a.trophic || ''].join(' ').toLowerCase().includes(q),
 		)
-		.sort((a, b) => order.get(a.biome)! - order.get(b.biome)! || a.name.localeCompare(b.name));
+		.sort((a, b) => content('animal', a.id, 'name', a.name).localeCompare(content('animal', b.id, 'name', b.name)));
 
 	if (!state.discoveries.length) {
 		return (
@@ -505,10 +590,13 @@ export function JournalPanel() {
 	const { data, state, setPanel, setAnimalCardId } = useGame();
 	const { t, content } = useI18n();
 	// 'overview' shows every returned animal; otherwise a biome id is selected.
-	// Reopening picks up wherever the history trail currently points.
+	// Opening the journal lands on the area you are standing in — that is nearly
+	// always what you want to read about. The one thing worth remembering is a
+	// preference for "All animals": if that is where you were last, stay there.
 	const cur = journalNav.current();
-	const [tab, setTab] = useState<string>(cur?.kind === 'view' ? cur.tab : state?.player.area || 'meadow');
-	const [view, setView] = useState<'list' | 'web'>(cur?.kind === 'view' ? cur.view : 'list');
+	const openTab = () => (cur?.kind === 'view' && cur.tab === 'overview' ? 'overview' : state?.player.area || 'meadow');
+	const [tab, setTab] = useState<string>(openTab);
+	const [view, setView] = useState<'list' | 'web' | 'roles'>(cur?.kind === 'view' ? cur.view : 'list');
 	const [unknownFirst, setUnknownFirst] = useState(() => {
 		try {
 			return localStorage.getItem('wild-willows:journal-unknown-first') === '1';
@@ -522,6 +610,13 @@ export function JournalPanel() {
 	useEffect(() => {
 		journalNav.visit({ kind: 'view', tab, view });
 	}, [tab, view]);
+	// Walking into another area re-points the journal at it, unless you have
+	// deliberately parked on "All animals".
+	const area = state?.player.area;
+	useEffect(() => {
+		if (area && tab !== 'overview' && tab !== area) setTab(area);
+		// eslint-disable-next-line react-hooks/exhaustive-deps
+	}, [area]);
 	// When back/forward (here or on an animal card) retargets a list/web stop,
 	// steer the open panel there.
 	useEffect(
@@ -560,9 +655,16 @@ export function JournalPanel() {
 		.sort((a, b) => {
 			const da = discs.get(a.id),
 				db = discs.get(b.id);
+			// Found and not-yet-found stay grouped.
 			if (!!da !== !!db) return (da ? -1 : 1) * (unknownFirst ? -1 : 1);
-			if (da && db) return (db.firstObservedAt || 0) - (da.firstObservedAt || 0);
-			return (a.requirements?.minHealth || 0) - (b.requirements?.minHealth || 0);
+			// Found entries go A-Z by the name the player actually sees, so a species
+			// they remember is easy to look up. Not-yet-found entries have no name to
+			// look up — they all read "???" — so alphabetical there would be sorting
+			// by a secret. They go easiest-first instead, which turns the unknown half
+			// of the guide into a to-do list: on a fresh save the top of Willow Meadow
+			// is the grasshopper, and working down the list is the intended run of play.
+			if (!da && !db) return effort(a) - effort(b) || a.name.localeCompare(b.name);
+			return content('animal', a.id, 'name', a.name).localeCompare(content('animal', b.id, 'name', b.name));
 		});
 	const returned = allInTab.filter((a) => discs.has(a.id)).length;
 
@@ -586,7 +688,10 @@ export function JournalPanel() {
 			<div className="panel panel-wide journal-panel" onClick={(e) => e.stopPropagation()}>
 				<div className="panel-head">
 					<h2>
-						<Icon name="journal" size={20} /> {tabGuideName}
+						<Icon name="journal" size={20} /> {tabGuideName}{' '}
+						<span className="guide-count">
+							({isOverview ? totalReturned : returned}/{isOverview ? data.animals.length : allInTab.length})
+						</span>
 					</h2>
 					<div className="panel-head-actions">
 						{/* view stops are applied by the subscription above; an animal stop opens its card over the journal */}
@@ -625,37 +730,12 @@ export function JournalPanel() {
 				</div>
 
 				<div className="panel-body">
-					{/* Controls: a summary + view toggles on the first line, then the
-					    search box on its own full-width line so it never gets clipped. */}
+					{/* Controls: view toggles on the first line, then the search box on its
+					    own full-width line so it never gets clipped. The returned/total
+					    tally lives in the heading now — as a sentence here it wrapped onto
+					    a second row and shoved the view switch down. */}
 					<div className="journal-controls">
 						<div className="journal-controls-top">
-							<span className="muted small grow">
-								{isOverview
-									? t('panels.journal.summaryAll', { returned: totalReturned, total: data.animals.length })
-									: t('panels.journal.summaryBiome', {
-											returned,
-											total: allInTab.length,
-											biome: tabBiomeName || t('panels.weather.thisBiome'),
-										})}
-							</span>
-							{!isOverview && (
-								<div className="view-switch" role="tablist">
-									<button
-										className={view === 'list' ? 'on' : ''}
-										onClick={() => setView('list')}
-										title={t('panels.journal.entriesTitle')}
-									>
-										<Icon name="journal" size={12} /> {t('panels.journal.entries')}
-									</button>
-									<button
-										className={view === 'web' ? 'on' : ''}
-										onClick={() => setView('web')}
-										title={t('panels.journal.foodWebTitle')}
-									>
-										<Icon name="scales" size={12} /> {t('panels.journal.foodWeb')}
-									</button>
-								</div>
-							)}
 							{!isOverview && view === 'list' && (
 								<button
 									className={`chip-toggle ${unknownFirst ? 'on' : ''}`}
@@ -674,6 +754,32 @@ export function JournalPanel() {
 								>
 									<Icon name="paw" size={12} /> {t('panels.journal.unknownFirst')}
 								</button>
+							)}
+							<span className="grow" />
+							{!isOverview && (
+								<div className="view-switch" role="tablist">
+									<button
+										className={view === 'list' ? 'on' : ''}
+										onClick={() => setView('list')}
+										title={t('panels.journal.entriesTitle')}
+									>
+										<Icon name="journal" size={12} /> {t('panels.journal.entries')}
+									</button>
+									<button
+										className={view === 'web' ? 'on' : ''}
+										onClick={() => setView('web')}
+										title={t('panels.journal.foodWebTitle')}
+									>
+										<Icon name="scales" size={12} /> {t('panels.journal.foodWeb')}
+									</button>
+									<button
+										className={view === 'roles' ? 'on' : ''}
+										onClick={() => setView('roles')}
+										title={t('panels.journal.rolesTitle')}
+									>
+										<Icon name="leaf" size={12} /> {t('panels.journal.roles')}
+									</button>
+								</div>
 							)}
 						</div>
 						{(isOverview || view === 'list') && (
@@ -700,6 +806,8 @@ export function JournalPanel() {
 						<OverviewGrid query={query} />
 					) : view === 'web' ? (
 						<FoodWebView animals={allInTab} discs={discs} />
+					) : view === 'roles' ? (
+						<RolesView animals={allInTab} discs={discs} />
 					) : (
 						<>
 							{animals.length === 0 && <p className="muted small">{t('panels.journal.noMatch')}</p>}

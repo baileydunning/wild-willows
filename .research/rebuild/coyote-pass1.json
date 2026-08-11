@@ -1,0 +1,65 @@
+{
+ "id": "coyote",
+ "name": "Coyote",
+ "scientificName": "Canis latrans",
+ "kind": "mammal",
+ "trophic": "apex-predator",
+ "rarity": "rare",
+ "diet": "Rabbits, rodents, birds, reptiles, carrion, cactus fruit and mesquite pods",
+ "shelter": "Earthen dens dug into the cut banks of dry washes",
+ "preferredHabitat": "Open desert with washes, cover and plenty of prey",
+ "fact": "A howling pair sounds like a whole pack — each coyote shifts pitch as it calls, an illusion biologists call the beau geste effect.",
+ "role": "The top predator of this desert and the most adaptable mammal in it, hunting rabbits and rodents but also eating fruit, pods and carrion when they are easier. It is the only animal here that regularly kills kit foxes, roadrunners and burrowing owls, and it digs its den into the bank of a wash rather than out on the open flat.",
+ "eats": [
+  "jackrabbit",
+  "kangaroo-rat",
+  "antelope-squirrel",
+  "gambels-quail",
+  "kit-fox",
+  "roadrunner",
+  "rattlesnake",
+  "burrowing-owl",
+  "horned-lizard",
+  "chuckwalla",
+  {
+   "id": "desert-tortoise",
+   "stage": "young"
+  }
+ ],
+ "eatsOther": [
+  "carrion",
+  "cactus fruit",
+  "mesquite pods",
+  "insects"
+ ],
+ "eatenBy": [],
+ "requirements": {
+  "minHealth": 75,
+  "water": {
+   "tiles": 1
+  },
+  "objects": {
+   "wash-bank-den": 1,
+   "mesquite-tree": 1,
+   "creosote-bush": 1,
+   "dew-basin": 1
+  },
+  "signature": "wash-bank-den",
+  "hint": "A den dug into a wash bank above the flood line, cover to hunt from, prey on the move — and unlike most animals here, it drinks.",
+  "animals": [
+   "jackrabbit",
+   "kangaroo-rat"
+  ]
+ },
+ "sources": [
+  {
+   "name": "Animal Diversity Web — Canis latrans",
+   "url": "https://animaldiversity.org/accounts/Canis_latrans/"
+  },
+  {
+   "name": "Arizona-Sonora Desert Museum — Coyote",
+   "url": "https://www.desertmuseum.org/kids/oz/long-fact-sheets/Coyote.php"
+  }
+ ],
+ "biome": "desert"
+}

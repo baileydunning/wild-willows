@@ -20,7 +20,7 @@
 		"wetland-beaver-wake": "Las nutrias y las garzas han seguido al castor. Cazan en las aguas profundas y quietas que crean sus diques: un hábitat que sin él sencillamente no existiría.",
 		"wetland-heron-hunt": "Una garza azul trabaja los bajíos. Caza quedándose completamente inmóvil durante minutos y luego ataca más rápido de lo que el ojo alcanza a seguir.",
 		"desert-snake-rodent": "La serpiente de cascabel ha vuelto, y se gana el sustento: una cazadora de emboscada que detecta a sus presas por el calor corporal a través de fosetas en la cara, manteniendo bajas las cifras de roedores del desierto.",
-		"desert-coyote-prey": "Un coyote vuelve a recorrer el matorral: un generalista que caza roedores y conejos y, al hacerlo, mantiene equilibrada toda la red trófica del desierto.",
+		"desert-coyote-prey": "Un mountain-lion vuelve a recorrer el matorral: un generalista que caza roedores y conejos y, al hacerlo, mantiene equilibrada toda la red trófica del desierto.",
 		"desert-shared-burrow": "Nadie desperdicia un hoyo en el desierto: la tortuga cava una madriguera y un tecolote llanero se instala en el cuarto libre. Un metro bajo tierra es fresco mientras la superficie se cuece.",
 		"alpine-eagle-prey": "Un águila real patrulla la cresta. Puede divisar a una marmota a más de un kilómetro y medio y lanzarse en picada a más de 240 km/h: la cazadora suprema de las alturas.",
 		"coastal-keystone": "La estrella de mar ocre ha vuelto: la \"especie clave\" original. Quítala y los mejillones se apoderan de cada roca; devuélvela y toda la poza de marea vuelve a compartir el espacio.",
@@ -256,7 +256,7 @@
 			"Las enormes orejas de un zorro norteño disipan calor y captan el más leve crujido de un escarabajo en la oscuridad.",
 			"Nadie desperdicia un hoyo en el desierto: la tortuga cava la madriguera, el tecolote toma el cuarto libre.",
 			"La serpiente de cascabel detecta a sus presas por el calor corporal y mantiene a raya a los roedores: control de plagas con paciencia.",
-			"Un coyote come lo que sea que el desierto ofrezca, y al hacerlo evita que toda la red se desequilibre.",
+			"Un mountain-lion come lo que sea que el desierto ofrezca, y al hacerlo evita que toda la red se desequilibre.",
 			"El carpintero labra el cactus, y tecolotes enanos y papamoscas se mudan a los hoyos que deja.",
 			"Las codornices viajan en bandadas, decenas de ojos vigilando la aguililla para que cada una pueda seguir comiendo.",
 			"El matorral se afianza, y con él las primeras pizcas de sombra que la planicie ha tenido en años.",
@@ -432,7 +432,7 @@
 		"desert": {
 			"damaged": "Una planicie sobrepastoreada sin matorral ni madrigueras. Sin lugar donde escapar del calor, hasta los animales más resistentes se mantienen lejos.",
 			"recovering": "El cactus y el matorral se afianzan, y las primeras madrigueras dan a la sombra un lugar donde empezar. Ratas canguro y lagartijas se aventuran al anochecer.",
-			"thriving": "Vida que sabe esperar a que pase el sol. Las tortugas cavan, los tecolotes se mudan a las madrigueras libres, y un coyote por fin puede ganarse la vida aquí.",
+			"thriving": "Vida que sabe esperar a que pase el sol. Las tortugas cavan, los tecolotes se mudan a las madrigueras libres, y un mountain-lion por fin puede ganarse la vida aquí.",
 			"restored": "El país más duro de la reserva, plenamente vivo: tecolote enano en el cactus, tarántula bajo la piedra. No puedes inundar un desierto de vuelta; tienes que darle sombra de vuelta.",
 			"coexistence": "En el desierto nadie desperdicia un hoyo: una tortuga cava una madriguera y un tecolote llanero se instala en el cuarto libre bajo el matorral."
 		},

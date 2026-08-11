@@ -3,7 +3,7 @@ import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import type { ChestState, RecipeDef } from '../types';
 import { homePerkStrength } from '../types';
-import { recipeUnlocked, recipeSearchScore } from '../recipes';
+import { recipeUnlocked, recipeSearchScore, upcomingRecipes } from '../recipes';
 import { useGear, setGear, GEAR_IDS, type GearId } from '../gear';
 import { nextHealthMilestone } from '../health';
 import {
@@ -400,6 +400,17 @@ export function CraftingPanel() {
 		return i === -1 ? 50 : i;
 	};
 	const objOf = (r: RecipeDef) => data.habitatObjects.find((o) => o.id === r.output.itemId);
+	// The Place filter asks where a thing GOES, not where its recipe unlocks:
+	// "home" shows only indoor-placeable decor; a biome shows what fits there plus
+	// the area-less kits; "all" shows everything. One predicate, shared by the
+	// craftable list, the locked-recipe search and Coming up next, so all three
+	// answer the same question about the same filter.
+	const matchesPlace = (r: RecipeDef) => {
+		const o = objOf(r);
+		if (placeFilter === 'all') return true;
+		if (placeFilter === 'home') return o?.placement === 'indoor' || o?.placement === 'both';
+		return o?.placement === 'none' || (o?.biomes || []).includes(placeFilter);
+	};
 	// Only show recipes the player has actually unlocked: their biome is open AND
 	// the biome is restored far enough (health / animals returned). Locked recipes
 	// stay hidden until earned, then announce themselves with a toast.
@@ -407,14 +418,7 @@ export function CraftingPanel() {
 	const searching = query.trim().length > 0;
 	const searchScores = new Map<string, number>();
 	const visible = unlocked
-		// "home" shows only indoor-placeable decor; a biome shows what fits there plus
-		// the area-less kits; "all" shows everything.
-		.filter((r) => {
-			const o = objOf(r);
-			if (placeFilter === 'all') return true;
-			if (placeFilter === 'home') return o?.placement === 'indoor' || o?.placement === 'both';
-			return o?.placement === 'none' || (o?.biomes || []).includes(placeFilter);
-		})
+		.filter(matchesPlace)
 		.filter((r) => typeFilter === 'all' || r.category === typeFilter)
 		// free-text search across the recipe name, what it makes, and its type —
 		// ranked, so a name hit ("gr" → Grass Patch) sorts above recipes that only
@@ -454,6 +458,45 @@ export function CraftingPanel() {
 	// Biome-unlock kits are tracked by the "unlock next biome" goal, so they don't
 	// get their own craft-goal button.
 	const unlockKitIds = new Set(data.biomes.map((b) => b.unlock?.requiresItem).filter(Boolean) as string[]);
+	// The next few recipes this area is holding back, nearest first. Scoped by the
+	// same Place predicate as the list above — passing `area: 'all'` for Home used
+	// to hand back outdoor recipes from every open biome, because unlockBiome has
+	// no way to say "indoor" — and never the biome-unlock kits (the pinned "open
+	// the next area" goal already tracks those).
+	const upcoming = upcomingRecipes(data, state, {
+		match: matchesPlace,
+		limit: 4,
+		skipItemIds: unlockKitIds,
+	});
+
+	// Searching for something you cannot make yet used to come up empty, which
+	// reads as "this doesn't exist". Instead the locked recipes that match are
+	// listed greyed out with the requirement that would open them — the same shape
+	// as Coming up next, so the search bar answers "how do I get this?".
+	// Scoped like `upcoming`: only areas already open, never the plantables (they
+	// have their own section below).
+	const lockedMatches = !searching
+		? []
+		: data.recipes
+				.filter((r) => r.unlock && !recipeUnlocked(r, data, state))
+				.filter((r) => (player.unlockedBiomes || []).includes(r.unlockBiome))
+				.filter((r) => !objOf(r)?.plantable)
+				.filter(matchesPlace)
+				.filter((r) => typeFilter === 'all' || r.category === typeFilter)
+				.map((r) => ({
+					r,
+					s: recipeSearchScore(
+						r,
+						objOf(r),
+						catLabel[r.category] || r.category,
+						query,
+						Object.keys(r.materials).map((m) => resName(data, m)),
+					),
+				}))
+				.filter(({ s }) => s >= 0)
+				.sort((a, b) => a.s - b.s || a.r.name.localeCompare(b.r.name))
+				.slice(0, 8)
+				.map(({ r }) => r);
 
 	const placeable = Object.entries(player.craftedItems || {}).filter(([id]) => {
 		const def = data.habitatObjects.find((o) => o.id === id);
@@ -658,6 +701,53 @@ export function CraftingPanel() {
 						})}
 				</div>
 			))}
+			{/* What's coming next. Locked recipes stay hidden, but showing the nearest
+			    few with their requirement turns "there's nothing else here" into
+			    something to work toward — and each requirement is its own, so this
+			    doubles as a list of different things worth doing today. Hidden while
+			    searching (the search is about what you can make now). */}
+			{!searching && upcoming.length > 0 && (
+				<div>
+					<h3>
+						<Icon name="lock" size={14} /> {t('panels.crafting.comingUp')}
+					</h3>
+					{upcoming.map(({ recipe: r }) => {
+						const def = objOf(r);
+						return (
+							<div className="recipe recipe-off" key={`soon-${r.id}`}>
+								<ObjectIcon shape={def?.shape || 'patch'} color={def?.color || '#8a8a8a'} size={34} />
+								<div className="grow">
+									<b>{content('recipe', r.id, 'name', r.name)}</b>
+									<div className="small unlock-req">
+										<b>{t('panels.crafting.needs')}</b> {content('recipe', r.id, 'unlock.label', r.unlock!.label)}
+									</div>
+								</div>
+							</div>
+						);
+					})}
+				</div>
+			)}
+			{searching && lockedMatches.length > 0 && (
+				<div>
+					<h3>
+						<Icon name="lock" size={14} /> {t('panels.crafting.lockedSection')}
+					</h3>
+					{lockedMatches.map((r) => {
+						const def = objOf(r);
+						return (
+							<div className="recipe recipe-off" key={`locked-${r.id}`}>
+								<ObjectIcon shape={def?.shape || 'patch'} color={def?.color || '#8a8a8a'} size={34} />
+								<div className="grow">
+									<b>{content('recipe', r.id, 'name', r.name)}</b>
+									<div className="small unlock-req">
+										<b>{t('panels.crafting.needs')}</b> {content('recipe', r.id, 'unlock.label', r.unlock!.label)}
+									</div>
+								</div>
+							</div>
+						);
+					})}
+				</div>
+			)}
 			{/* plantable cross-references get their own labelled section below the
 			    craftable results — recipes you can actually craft always come first */}
 			{plantableMatches.length > 0 && (

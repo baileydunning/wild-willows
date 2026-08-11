@@ -55,7 +55,8 @@
 		"clearWateredBed": "¿Despejar este bancal regado? El agua que usaste en él se perderá."
 	},
 	"block": {
-		"standingHere": "Estás justo encima — apártate antes de inundar este bancal y convertirlo en agua abierta."
+		"standingHere": "Estás justo encima — apártate antes de inundar este bancal y convertirlo en agua abierta.",
+		"gateTrail": "El sendero de la puerta debe seguir siendo transitable — inundar aquí sellaría la salida."
 	},
 	"float": {
 		"pickup": "+{qty} {name}",

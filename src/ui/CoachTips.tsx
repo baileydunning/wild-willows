@@ -25,7 +25,6 @@ const PANEL_HINTS: Record<string, { icon: string; key: string }> = {
 	goals: { icon: 'target', key: 'goals' },
 	biomes: { icon: 'map', key: 'biomes' },
 	weather: { icon: 'cloud', key: 'weather' },
-	people: { icon: 'user', key: 'people' },
 	settings: { icon: 'gear', key: 'settings' },
 };
 

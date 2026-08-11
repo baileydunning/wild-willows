@@ -1,5 +1,13 @@
 import { describe, it, expect } from 'vitest';
-import { recipeUnlocked, unlockedRecipeIds, recipeMatchesSearch, recipeSearchScore } from '../../src/recipes';
+import {
+	recipeUnlocked,
+	unlockedRecipeIds,
+	recipeMatchesSearch,
+	recipeSearchScore,
+	waterShape,
+	upcomingRecipes,
+	unlockDistance,
+} from '../../src/recipes';
 import type { GameData, GameState, RecipeDef, HabitatObjectDef, AnimalDef } from '../../src/types';
 
 // --- tiny fixture builders -------------------------------------------------
@@ -206,6 +214,251 @@ describe('recipeUnlocked', () => {
 		const data = makeData({ habitatObjects: [obj({ id: 'deluxe' })] });
 		expect(recipeUnlocked(r, data, makeState())).toBe(false);
 		expect(recipeUnlocked(r, data, makeState({}, { craftedEver: { basic: 1 } }))).toBe(true);
+	});
+});
+
+// Every recipe now waits on its own condition, drawn from a different corner of
+// the game. Each branch below is one of those corners.
+describe('recipeUnlocked — the wider unlock vocabulary', () => {
+	const data = makeData({
+		habitatObjects: [obj({ id: 'thing' }), obj({ id: 'grass-patch' })],
+		animals: [
+			animal('grasshopper', 'meadow'),
+			{ ...animal('sparrow', 'meadow'), kind: 'bird' } as AnimalDef,
+			{ ...animal('wren', 'meadow'), kind: 'bird' } as AnimalDef,
+			{ ...animal('otter', 'wetland'), kind: 'mammal' } as AnimalDef,
+		],
+	});
+	const gated = (unlock: any) => recipe({ id: 'thing', output: { itemId: 'thing', qty: 1 }, unlock });
+	const disc = (animalId: string, biomeId = 'meadow') => ({
+		id: `d-${animalId}`,
+		animalId,
+		biomeId,
+		comfort: 1,
+		timesObserved: 1,
+		firstObservedAt: 0,
+		whyReturned: '',
+	});
+	const bstate = (biomeId: string, health: number, balance = 0) => ({
+		id: `bs-${biomeId}`,
+		biomeId,
+		health,
+		balance,
+		returnedCount: 0,
+		unlocked: true,
+	});
+
+	it('gates on ecological balance, not just health', () => {
+		const r = gated({ minBalance: 40, label: 'x' });
+		expect(recipeUnlocked(r, data, makeState({ biomeStates: [bstate('meadow', 90, 20)] }))).toBe(false);
+		expect(recipeUnlocked(r, data, makeState({ biomeStates: [bstate('meadow', 10, 45)] }))).toBe(true);
+	});
+
+	it('gates on how many animals of one kind are back', () => {
+		const r = gated({ requiresKind: { kind: 'bird', count: 2 }, label: 'x' });
+		expect(recipeUnlocked(r, data, makeState({ discoveries: [disc('sparrow'), disc('grasshopper')] }))).toBe(false);
+		expect(recipeUnlocked(r, data, makeState({ discoveries: [disc('sparrow'), disc('wren')] }))).toBe(true);
+	});
+
+	it('gates on animals returned across the whole preserve', () => {
+		const r = gated({ totalAnimals: 2, label: 'x' });
+		expect(recipeUnlocked(r, data, makeState({ discoveries: [disc('sparrow')] }))).toBe(false);
+		expect(recipeUnlocked(r, data, makeState({ discoveries: [disc('sparrow'), disc('otter', 'wetland')] }))).toBe(true);
+	});
+
+	it('gates on how widely you have crafted', () => {
+		const r = gated({ craftedDistinct: 3, label: 'x' });
+		expect(recipeUnlocked(r, data, makeState({}, { craftedEver: { a: 1, b: 1 } }))).toBe(false);
+		expect(recipeUnlocked(r, data, makeState({}, { craftedEver: { a: 1, b: 1, c: 2 } }))).toBe(true);
+	});
+
+	it('gates on copies of something standing in THIS area', () => {
+		const r = gated({ requiresPlaced: { objectId: 'grass-patch', count: 2 }, label: 'x' });
+		const pl = (area: string, i: number) => ({ id: `p${i}`, objectId: 'grass-patch', area, x: i, y: 0 });
+		expect(recipeUnlocked(r, data, makeState({ placements: [pl('meadow', 1)] }))).toBe(false);
+		// two, but one of them is in another area — the gate is area-scoped
+		expect(recipeUnlocked(r, data, makeState({ placements: [pl('meadow', 1), pl('forest', 2)] }))).toBe(false);
+		expect(recipeUnlocked(r, data, makeState({ placements: [pl('meadow', 1), pl('meadow', 2)] }))).toBe(true);
+	});
+
+	it('gates on water you have shaped, by pond size as well as tile count', () => {
+		const tile = (x: number, y: number, type: any = 'water', area = 'meadow') => ({
+			id: `t${x}-${y}-${area}`,
+			area,
+			x,
+			y,
+			type,
+		});
+		// an L of 3 connected tiles plus one stray, and a watered bed that isn't water
+		const terrain = [tile(1, 1), tile(2, 1), tile(2, 2), tile(9, 9), tile(4, 4, 'watered')];
+		const st = makeState({ terrain });
+		expect(waterShape(st, 'meadow')).toEqual({ tiles: 4, lake: 3, river: 2 });
+		expect(recipeUnlocked(gated({ requiresWater: { tiles: 4 }, label: 'x' }), data, st)).toBe(true);
+		expect(recipeUnlocked(gated({ requiresWater: { lake: 4 }, label: 'x' }), data, st)).toBe(false);
+		expect(recipeUnlocked(gated({ requiresWater: { lake: 3 }, label: 'x' }), data, st)).toBe(true);
+	});
+
+	// Rushwater Wetland opens with 18 tiles of channel and pond already shaped
+	// (STARTING_TERRAIN in server/resources.ts). That is scenery the player was
+	// handed, not work they did, so a "Shape 6 water tiles" gate has to stay shut
+	// until they dig their own. The server counts the same way — recipeUnlockContext
+	// passes analyzeWater(terrain, true) — and this mirror used to disagree with it,
+	// showing the recipe as unlocked while the craft itself was refused.
+	it("does not count the area's pre-seeded starting water", () => {
+		const wet = (x: number, y: number, seeded = false) => ({
+			id: `t${x}-${y}`,
+			area: 'meadow',
+			x,
+			y,
+			type: 'water' as const,
+			...(seeded ? { seeded: true } : {}),
+		});
+		const r = gated({ requiresWater: { tiles: 6 }, label: 'x' });
+
+		// six seeded tiles in a row: enough to satisfy the gate on a raw count
+		const seeded = makeState({ terrain: [0, 1, 2, 3, 4, 5].map((x) => wet(x, 4, true)) });
+		expect(waterShape(seeded, 'meadow')).toEqual({ tiles: 0, lake: 0, river: 0 });
+		expect(recipeUnlocked(r, data, seeded)).toBe(false);
+		expect(unlockDistance(r, data, seeded)).toBe(6); // still six tiles of digging away
+
+		// dig six of your own alongside them and it opens
+		const dug = makeState({
+			terrain: [...seeded.terrain, ...[0, 1, 2, 3, 4, 5].map((x) => wet(x, 9))],
+		});
+		expect(waterShape(dug, 'meadow')).toEqual({ tiles: 6, lake: 6, river: 6 });
+		expect(recipeUnlocked(r, data, dug)).toBe(true);
+	});
+
+	it('gates on an upgraded tool', () => {
+		const r = gated({ requiresTool: { id: 'shovel', tier: 3 }, label: 'x' });
+		expect(recipeUnlocked(r, data, makeState({}, { tools: { shovel: 2 } }))).toBe(false);
+		expect(recipeUnlocked(r, data, makeState({}, { tools: { shovel: 3 } }))).toBe(true);
+	});
+
+	it('gates on a home upgrade track', () => {
+		const r = gated({ requiresHome: { track: 'comfort', level: 3 }, label: 'x' });
+		const home = (comfort: number) => ({ style: 'cabin', space: 1, comfort, decor: 1, light: 1 });
+		expect(recipeUnlocked(r, data, makeState({}, { home: home(2) }))).toBe(false);
+		expect(recipeUnlocked(r, data, makeState({}, { home: home(3) }))).toBe(true);
+	});
+
+	it('gates on having built a home — the tent does not count', () => {
+		const r = gated({ homeBuilt: true, label: 'x' });
+		const tent = { style: 'cabin', space: 1, comfort: 1, decor: 1, light: 1 };
+		expect(recipeUnlocked(r, data, makeState({}, { home: tent }))).toBe(false);
+		expect(recipeUnlocked(r, data, makeState({}, { home: { ...tent, space: 2, styleLocked: true } }))).toBe(true);
+	});
+
+	it('gates on your first nightfall — and stays unlocked once night has passed', () => {
+		const r = gated({ phaseSeen: ['night'], label: 'x' });
+		const sky = (dayPhase: string, seenPhases: string[]) =>
+			makeState({
+				weather: { season: 'summer', dayPhase, dayProgress: 0.5, dayIndex: 0, dayMs: 1440000, seenPhases, byBiome: {} },
+			});
+		// first day, sun still up: night hasn't happened yet
+		expect(recipeUnlocked(r, data, sky('day', ['dawn', 'day']))).toBe(false);
+		expect(recipeUnlocked(r, data, sky('dusk', ['dawn', 'day', 'dusk']))).toBe(false);
+		// night falls
+		expect(recipeUnlocked(r, data, sky('night', ['dawn', 'day', 'dusk', 'night']))).toBe(true);
+		// …and the next morning it is STILL there. This is the whole point.
+		expect(recipeUnlocked(r, data, sky('day', ['dawn', 'day', 'dusk', 'night']))).toBe(true);
+		expect(recipeUnlocked(r, data, makeState())).toBe(false); // no clock yet
+		// it's never far off, so it sorts to the front of "coming up next"
+		const soon = unlockDistance(r, data, sky('day', ['dawn', 'day']));
+		expect(soon).toBeLessThan(unlockDistance(gated({ minHealth: 40, label: 'x' }), data, sky('day', ['day'])));
+	});
+
+	it('gates on progress in a different area', () => {
+		const r = gated({ requiresBiome: { biome: 'forest', minHealth: 80 }, label: 'x' });
+		const st = (h: number) =>
+			makeState(
+				{ biomeStates: [bstate('meadow', 100), bstate('forest', h)] },
+				{ unlockedBiomes: ['meadow', 'forest'] },
+			);
+		expect(recipeUnlocked(r, data, st(70))).toBe(false);
+		expect(recipeUnlocked(r, data, st(85))).toBe(true);
+	});
+
+	it('gates on an achievement, and on how much of the preserve is open', () => {
+		expect(recipeUnlocked(gated({ requiresAchievement: 'meadow-mender', label: 'x' }), data, makeState())).toBe(false);
+		expect(
+			recipeUnlocked(
+				gated({ requiresAchievement: 'meadow-mender', label: 'x' }),
+				data,
+				makeState({ achievements: ['meadow-mender'] }),
+			),
+		).toBe(true);
+		const open = gated({ biomesOpen: 3, label: 'x' });
+		expect(recipeUnlocked(open, data, makeState({}, { unlockedBiomes: ['meadow', 'forest'] }))).toBe(false);
+		expect(recipeUnlocked(open, data, makeState({}, { unlockedBiomes: ['meadow', 'forest', 'wetland'] }))).toBe(true);
+	});
+
+	it('requires EVERY listed condition, not just one', () => {
+		const r = gated({ minHealth: 20, requiresAnimal: 'grasshopper', label: 'x' });
+		const withAnimal = { discoveries: [disc('grasshopper')] };
+		expect(recipeUnlocked(r, data, makeState({ ...withAnimal, biomeStates: [bstate('meadow', 10)] }))).toBe(false);
+		expect(recipeUnlocked(r, data, makeState({ biomeStates: [bstate('meadow', 30)] }))).toBe(false);
+		expect(recipeUnlocked(r, data, makeState({ ...withAnimal, biomeStates: [bstate('meadow', 30)] }))).toBe(true);
+	});
+});
+
+describe('upcomingRecipes', () => {
+	const data = makeData({
+		habitatObjects: [
+			obj({ id: 'near' }),
+			obj({ id: 'far' }),
+			obj({ id: 'open' }),
+			obj({ id: 'seed', plantable: true }),
+		],
+		recipes: [
+			recipe({ id: 'open', output: { itemId: 'open', qty: 1 } }),
+			recipe({ id: 'near', output: { itemId: 'near', qty: 1 }, unlock: { minHealth: 20, label: 'soon' } }),
+			recipe({ id: 'far', output: { itemId: 'far', qty: 1 }, unlock: { minHealth: 90, label: 'later' } }),
+			recipe({ id: 'seed', output: { itemId: 'seed', qty: 1 }, unlock: { minHealth: 30, label: 'plant' } }),
+		],
+	});
+	const state = makeState({
+		biomeStates: [{ id: 'b', biomeId: 'meadow', health: 10, balance: 0, returnedCount: 0, unlocked: true }],
+	});
+
+	it('lists what is still locked, closest first, and never plantables', () => {
+		const up = upcomingRecipes(data, state, { limit: 5 });
+		expect(up.map((u) => u.recipe.id)).toEqual(['near', 'far']);
+		expect(up[0].distance).toBe(10);
+	});
+
+	it('honours the limit, the area filter, and skipped items', () => {
+		expect(upcomingRecipes(data, state, { limit: 1 }).map((u) => u.recipe.id)).toEqual(['near']);
+		expect(upcomingRecipes(data, state, { area: 'forest' })).toEqual([]);
+		expect(upcomingRecipes(data, state, { skipItemIds: new Set(['near']) }).map((u) => u.recipe.id)).toEqual(['far']);
+	});
+
+	it('reports zero distance for a recipe that is already unlocked', () => {
+		expect(unlockDistance(data.recipes[0], data, state)).toBe(0);
+	});
+
+	// `area` can only narrow by the biome a recipe UNLOCKS in, which cannot express
+	// the crafting panel's "Home" filter — Home means indoor-placeable, and indoor
+	// recipes unlock in ordinary outdoor biomes. Home therefore used to fall back to
+	// area: 'all' and recommend outdoor recipes from every open biome. `match` lets
+	// the panel hand over the very same Place predicate it filters the list with.
+	it('accepts an arbitrary predicate, so Home can scope to indoor things', () => {
+		const indoorData = makeData({
+			habitatObjects: [obj({ id: 'shelf', placement: 'indoor' }), obj({ id: 'bench', placement: 'outdoor' })],
+			recipes: [
+				recipe({ id: 'shelf', output: { itemId: 'shelf', qty: 1 }, unlock: { minHealth: 20, label: 'soon' } }),
+				recipe({ id: 'bench', output: { itemId: 'bench', qty: 1 }, unlock: { minHealth: 30, label: 'later' } }),
+			],
+		});
+		const objOf = (r: RecipeDef) => indoorData.habitatObjects.find((o) => o.id === r.output.itemId);
+		const indoorOnly = (r: RecipeDef) => {
+			const o = objOf(r);
+			return o?.placement === 'indoor' || o?.placement === 'both';
+		};
+
+		// without a predicate both are recommended, outdoor bench included
+		expect(upcomingRecipes(indoorData, state, {}).map((u) => u.recipe.id)).toEqual(['shelf', 'bench']);
+		expect(upcomingRecipes(indoorData, state, { match: indoorOnly }).map((u) => u.recipe.id)).toEqual(['shelf']);
 	});
 });
 

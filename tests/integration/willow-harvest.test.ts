@@ -42,7 +42,9 @@ const GROW_MS = 90_000;
 
 /** Drop a grown willow into the world and hand back its placement id. */
 async function plantedWillow(plantedAt: number): Promise<string> {
-	const id = 'willow-1';
+	// Ids are the world-scoped key contract (KEY_REV 2) — a bare id would sort
+	// outside this world's key run and a bounded read would never see it.
+	const id = `${pid}:willow-1`;
 	await holder.db.Placement.put({
 		id,
 		worldId: pid,

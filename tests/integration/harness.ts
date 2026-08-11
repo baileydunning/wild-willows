@@ -22,8 +22,17 @@ interface Table {
 	put(row: any): Promise<void>;
 	patch(id: string, partial: any): Promise<void>;
 	delete(id: string): Promise<void>;
-	search(): AsyncIterable<any>;
+	search(query?: any): AsyncIterable<any>;
 	_rows: Map<string, any>;
+	/** Rows yielded by search() since the last _resetScanStats(), and how many of
+	 *  those scans were unbounded. The key-scoping tests assert on both. */
+	_scanStats(): { rowsScanned: number; scans: number; unboundedScans: number };
+	_resetScanStats(): void;
+	/** put + patch + delete since the last _resetWriteStats(). On Harper each of
+	 *  these is a billable write, and the free tier allows 1,000/minute TOTAL
+	 *  across every player — so this is the number that sets concurrency. */
+	_writeStats(): { puts: number; patches: number; deletes: number; total: number };
+	_resetWriteStats(): void;
 	/** Table class name — the server reads it to pick per-table salvage rules. */
 	name: string;
 	/** Harper's `static primaryStore`: the raw byte store under the table. */
@@ -49,9 +58,34 @@ function deepFreeze<T>(value: T): T {
 	return value;
 }
 
+/**
+ * The primary-key prefix a query is bounded to, or null for an unbounded scan.
+ * Mirrors Harper: a `starts_with` condition naming the primary key (or naming
+ * nothing, which Harper reads as the primary key) becomes a range bound.
+ */
+function idPrefixOf(query: any): string | null {
+	const conditions = query?.conditions;
+	if (!Array.isArray(conditions)) return null;
+	for (const c of conditions) {
+		if (!c) continue;
+		const attribute = c.attribute ?? c[0] ?? null;
+		if (attribute !== null && attribute !== 'id') continue;
+		if (c.comparator !== 'starts_with' && c.comparator !== 'sw') continue;
+		const value = c.value ?? c[1];
+		if (value != null) return String(value);
+	}
+	return null;
+}
+
 function makeTable(name = 'Table'): Table {
 	const rows = new Map<string, any>();
 	const corrupt = new Set<string>();
+	let rowsScanned = 0;
+	let scans = 0;
+	let unboundedScans = 0;
+	let puts = 0;
+	let patches = 0;
+	let deletes = 0;
 	// The real encoder, so tests exercise genuine msgpackr behaviour rather than a
 	// hand-rolled imitation of it.
 	const encoder = new Packr({ structures: [], structuredClone: false });
@@ -89,23 +123,48 @@ function makeTable(name = 'Table'): Table {
 			return rows.has(id) ? frozenCopy(rows.get(id)) : undefined;
 		},
 		async put(row) {
+			puts++;
 			corrupt.delete(row.id); // a full put rewrites the bytes → row is healed
 			rows.set(row.id, structuredClone(row));
 		},
 		async patch(id, partial) {
+			patches++;
 			const cur = rows.get(id) || { id };
 			rows.set(id, { ...cur, ...structuredClone(partial) });
 		},
 		async delete(id) {
+			deletes++;
 			corrupt.delete(id);
 			rows.delete(id);
 		},
-		search() {
+		search(query?: any) {
+			// Honour a primary-key `starts_with` bound the way Harper does: it compiles
+			// to primaryStore.getRange({start, end}), so only keys inside the range are
+			// ever visited. Modelling that here is what makes these tests able to FAIL
+			// when a row is written outside its world's key run — with an unfiltered
+			// mock, a broken key contract still reads correctly and the bug ships.
+			const prefix = idPrefixOf(query);
+			const keys = prefix === null ? [...rows.keys()] : [...rows.keys()].filter((k) => String(k).startsWith(prefix));
+			scans++;
+			if (prefix === null) unboundedScans++;
+			rowsScanned += keys.length;
 			// Undecodable rows surface as nulls in a scan, exactly as Harper yields them.
-			const snap = [...rows.values()].map((r) => (corrupt.has(r.id) ? null : frozenCopy(r)));
+			const snap = keys.map((k) => rows.get(k)).map((r) => (corrupt.has(r.id) ? null : frozenCopy(r)));
 			return (async function* () {
 				for (const r of snap) yield r;
 			})();
+		},
+		_scanStats: () => ({ rowsScanned, scans, unboundedScans }),
+		_writeStats: () => ({ puts, patches, deletes, total: puts + patches + deletes }),
+		_resetWriteStats() {
+			puts = 0;
+			patches = 0;
+			deletes = 0;
+		},
+		_resetScanStats() {
+			rowsScanned = 0;
+			scans = 0;
+			unboundedScans = 0;
 		},
 		_rows: rows,
 		name,

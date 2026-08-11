@@ -52,6 +52,69 @@ export function blocksDoorway(
 	return Math.abs(tx - door.doorX) <= 1 && Math.abs(ty - door.doorY) <= 1;
 }
 
+// --------------------------------------------------------------- trail gates
+
+/** Geometry of one area's trail gates, as WorldScene.dimsOf() computes it. */
+export interface GateGeom {
+	/** Row the gates sit on (playTop + baseRows / 2 - 0.2). */
+	gateY: number;
+	/** First column of ocean/void — the gate back out sits just inside it. */
+	landRight: number;
+	/** Is there a gate on the west edge (every area but the first)? */
+	westGate: boolean;
+	/** Is there a gate on the east edge (every area but the last)? */
+	eastGate: boolean;
+}
+
+/** The one field of a biome definition the gate rules read. */
+export interface GateBiome {
+	id: string;
+	order?: number;
+}
+
+/**
+ * Which edges of an area lead somewhere.
+ *
+ * Derived from `order` in data/biomes.json — the first area has nothing to its
+ * west, the last has open ocean to its east — because that is exactly how
+ * gateGeomOf() decides it in server/resources.ts. The two used to be worked out
+ * differently (the client walked a hardcoded area list and special-cased the
+ * coast by name), which meant reordering the trail, or adding an area to it,
+ * would have moved the gates on one side and not the other: the client would
+ * grey out the wrong tiles, or let a click through to be refused by the server.
+ * There is one rule now and it lives in the data.
+ */
+export function gateEdges(
+	biomes: readonly GateBiome[] | undefined,
+	area: string,
+): { westGate: boolean; eastGate: boolean } {
+	const list = biomes || [];
+	const order = list.find((b) => b.id === area)?.order || 1;
+	const last = list.length ? Math.max(...list.map((b) => b.order || 1)) : order;
+	return { westGate: order > 1, eastGate: order < last };
+}
+
+/**
+ * Whether flooding (tx, ty) would wall off a trail gate.
+ *
+ * Open water blocks walking, so a channel dug across the mouth of a gate locks
+ * the player out of the next biome entirely — the gate is an interactable you
+ * have to stand next to, and you cannot stand in water. Refuse the gate tile
+ * and the pocket around it (one row either side, the two columns in from each
+ * edge) so there is always a dry step through.
+ *
+ * Only flooding is refused. A tilled or watered soil bed is walkable and
+ * perfectly fine on the trail. The server enforces the same rule in Terraform;
+ * this copy exists so the click is blocked with a message instead of making a
+ * round trip to be rejected.
+ */
+export function blocksGateTrail(tx: number, ty: number, g: GateGeom): boolean {
+	if (Math.abs(ty - Math.round(g.gateY)) > 1) return false;
+	if (g.westGate && tx <= 2) return true;
+	if (g.eastGate && tx >= g.landRight - 3) return true;
+	return false;
+}
+
 // ------------------------------------------------------------ tween hygiene
 
 /**

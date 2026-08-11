@@ -589,8 +589,6 @@ export function SoundControls() {
 export function KeybindingControls() {
 	const { t } = useI18n();
 	usePrefs(); // re-render when a binding changes
-	const { worlds, activeWorldId } = useGame();
-	const isCoop = !!worlds.find((w) => w.worldId === activeWorldId && !w.solo);
 	const [listening, setListening] = useState<string | null>(null);
 	const [warn, setWarn] = useState(false);
 
@@ -627,7 +625,7 @@ export function KeybindingControls() {
 			{cats.map((cat) => (
 				<div className="keybind-group" key={cat}>
 					<div className="keybind-cat">{t(`app.settings.keybinds.cat.${cat}`)}</div>
-					{BIND_ACTIONS.filter((a) => a.category === cat && !(a.coopOnly && !isCoop)).map((a) => (
+					{BIND_ACTIONS.filter((a) => a.category === cat).map((a) => (
 						<div className="keybind-row" key={a.id}>
 							<span className="keybind-label">{t(a.label)}</span>
 							<span className="keybind-keys">

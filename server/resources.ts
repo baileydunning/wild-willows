@@ -36,6 +36,10 @@ import resourcesData from '../data/resources.json';
 import animals1Data from '../data/animals-1.json';
 import animals2Data from '../data/animals-2.json';
 import achievementsData from '../data/achievements.json';
+// Retired animal ids -> what replaced them. Deliberately NOT in config.yaml's
+// dataLoader glob: it is a build-time lookup table for migrating SAVES, not a
+// seed table, and has no business being a database table of its own.
+import animalAliasData from '../data/animal-aliases.json';
 import {
 	weatherSnapshot,
 	weatherTypeAt,
@@ -43,6 +47,7 @@ import {
 	isWeatherGatheredResource,
 	seasonAt,
 	dayPhaseAt,
+	phasesSeen,
 	nextDawnAt,
 	nextPhaseAt,
 	WEATHER_TYPES,
@@ -598,34 +603,228 @@ class RollupCache<T> {
 	}
 }
 
+// --------------------------------------------------------------- key contract
+//
+// Every mutable row is keyed so that the rows of ONE world (or one player) form
+// a CONTIGUOUS RUN in the primary key index. That is what turns a per-world read
+// into a bounded range scan instead of a scan of every save in the database.
+//
+// Why the primary key and not a secondary index. Two independent reasons:
+//
+//  1. The mutable tables declare only `id` (see schema.graphql — everything else
+//     is dynamic on purpose, because declared columns use the positional
+//     structon encoding and adding one leaves existing rows undecodable). Harper
+//     REJECTS a condition on an undeclared attribute, so `worldId` is not
+//     something we can filter on server-side even if we wanted to.
+//  2. A primary-key `starts_with` is not an index lookup at all. Harper compiles
+//     it to `primaryStore.getRange({ start, end })` — the same call, on the same
+//     store, that a bare `search({})` already makes with no bounds
+//     (harper/resources/search.ts: `starts_with` sets `start`, then
+//     `index.getRange(rangeOptions)` where `index === table.primaryStore`).
+//     Narrowing the bounds cannot be less reliable than not narrowing them, so
+//     this preserves the exact property the full scans were there to protect:
+//     it never depends on a secondary index being warm.
+//
+// The key shapes (KEY_REV 3):
+//
+//   BiomeState        `${wid}:${biomeId}`
+//   NodeState         `${wid}:${biomeId}:${nodeId}`
+//   TerrainTile       `${wid}:${area}:${x}:${y}`
+//   Discovery         `${wid}:${animalId}`
+//   Placement         `${wid}:pl_${ts}_${rand}`   (was `pl_${ts}_${rand}`)
+//   Chest             the same id as its Placement — an invariant, not a coincidence
+//   FeedEntry         `${wid}:feed`               one row holding the whole feed
+//                                                 (was one row per line, `f_${wid}_${at}_${rand}`)
+//   PlayerAchievement `${playerId}:${achievementId}`
+//
+// `:` is a safe delimiter: a player id is `slugId(name)` (lowercase a-z0-9 and
+// `-`) optionally plus `-${rand}`, and a world id is `w_${ts36}_${rand}`.
+// Neither can contain a colon, so no world's key prefix can be a prefix of
+// another world's key. (This is why the prefix is `${wid}:` and never `${wid}`.)
+const KEY_REV = 3;
+
+/** Tables whose ids carry a `${worldId}:` prefix under KEY_REV 3. */
+const WORLD_KEYED = new Set(['BiomeState', 'NodeState', 'TerrainTile', 'Discovery', 'Placement', 'Chest', 'FeedEntry']);
+
+/** Tables re-keyed by the KEY_REV 3 migration (see migrateWorldKeys). */
+const REKEYED_TABLES = ['Placement', 'Chest', 'FeedEntry', 'BiomeState', 'NodeState', 'TerrainTile', 'Discovery'];
+
 /**
- * Every per-player query goes through here. The search condition narrows by
- * playerId, and the explicit filter guarantees strict save isolation even if
- * the underlying index ever returns extra rows — nothing from another save
- * can leak into (or be deleted from) this player's world.
+ * Bounded scan of one contiguous primary-key run.
+ *
+ * Same decode tolerance as a full scan (toArray) — an undecodable row inside the
+ * range is counted and skipped, never allowed to abort the read.
+ */
+async function scanPrefix(table: any, prefix: string): Promise<any[]> {
+	if (!table || typeof table.search !== 'function' || !prefix) return [];
+	return toArray(
+		table.search({ conditions: [{ attribute: 'id', comparator: 'starts_with', value: prefix }] }),
+		`${tableName(table)}[${prefix}*]`,
+	);
+}
+
+/**
+ * Worlds this worker has confirmed are on KEY_REV 3. Migration is one-way and
+ * permanent, so a positive answer can be memoized forever; a negative one is
+ * never cached, because the very next write may migrate it.
+ */
+const keyedWorlds = new Set<string>();
+
+/**
+ * The KEY_REV a world has reached, read off the acting player's row.
+ *
+ * A solo world's id IS the player's id, so the marker is simply `keyRev`. A save
+ * that last played in a pre-0.3 co-op world still carries a `w_…` worldId, and
+ * there is no Player row under that id — patching one would create a junk row and
+ * the lookup would answer 0 forever, so byWorld would pay for the legacy full
+ * scan on every read for the rest of that save's life. Those worlds record their
+ * marker per-world in `keyRevs` on the player instead.
+ */
+async function keyRevOf(worldId: string, playerId?: string): Promise<number> {
+	const owner = await getPlayer(playerId || worldId);
+	if (!owner) return 0;
+	return owner.id === worldId ? owner.keyRev || 0 : (owner.keyRevs || {})[worldId] || 0;
+}
+
+/** Record that `worldId` is fully migrated, on whichever field fits it. */
+async function markWorldKeyed(worldId: string, playerId: string): Promise<void> {
+	if (worldId === playerId) {
+		await patchPlayer(playerId, { keyRev: KEY_REV });
+		return;
+	}
+	const owner = await getPlayer(playerId);
+	await patchPlayer(playerId, { keyRevs: { ...(owner?.keyRevs || {}), [worldId]: KEY_REV } });
+}
+
+/**
+ * Seed the in-memory set from a player row. byWorld() only knows a world id, so
+ * a legacy `w_…` world would look unmigrated to it until the next heartbeat ran
+ * the migration again. Called wherever we hold a player, which is every endpoint.
+ */
+function noteKeyedWorlds(player: any): void {
+	if ((player?.keyRev || 0) >= KEY_REV && player?.id) keyedWorlds.add(player.id);
+	for (const [wid, rev] of Object.entries(player?.keyRevs || {})) if ((rev as number) >= KEY_REV) keyedWorlds.add(wid);
+}
+
+async function worldIsKeyed(worldId: string, playerId?: string): Promise<boolean> {
+	if (!worldId) return false;
+	if (keyedWorlds.has(worldId)) return true;
+	if ((await keyRevOf(worldId, playerId)) >= KEY_REV) {
+		keyedWorlds.add(worldId);
+		return true;
+	}
+	return false;
+}
+
+/**
+ * Re-key one world's rows into the KEY_REV 3 contract, once, then mark the save
+ * so it never happens again.
+ *
+ * The new id is simply `${wid}:${oldId}`. Old ids were already globally unique,
+ * so the mapping is deterministic and collision-free, it needs no per-table
+ * logic, and it preserves the Chest-id-equals-Placement-id invariant for free
+ * (both rows carry the same old id, so both get the same new one).
+ *
+ * This is the ONLY full scan left on the per-world path, it runs at most once
+ * per world, and it runs from write paths only (login and heartbeat) — never
+ * from a GET handler, which must not write.
+ */
+async function migrateWorldKeys(worldId: string, playerId?: string): Promise<void> {
+	if (!worldId || keyedWorlds.has(worldId)) return;
+	const t = db();
+	const owner = playerId || worldId;
+	if ((await keyRevOf(worldId, owner)) >= KEY_REV) {
+		keyedWorlds.add(worldId);
+		return;
+	}
+	const prefix = `${worldId}:`;
+	try {
+		for (const name of REKEYED_TABLES) {
+			const table = t[name];
+			if (!table || typeof table.search !== 'function') continue;
+			const stale = (await toArray(table.search({}), name)).filter(
+				(r: any) => (r?.worldId ?? r?.playerId) === worldId && !String(r?.id ?? '').startsWith(prefix),
+			);
+			for (const row of stale) {
+				const oldId = String(row.id);
+				// Write the new row before removing the old one: a crash between the
+				// two leaves a duplicate (which byWorld dedupes by id) rather than a
+				// hole. Losing a placement is unrecoverable; seeing one twice is not.
+				await table.put({ ...row, id: `${prefix}${oldId}`, worldId });
+				await table.delete(oldId);
+			}
+			if (stale.length) console.error(`key migration: re-keyed ${stale.length} ${name} row(s) for world ${worldId}`);
+		}
+		// KEY_REV 3: collapse a per-line feed into the single feed row. Done after
+		// the re-key loop so any legacy line already carries this world's prefix.
+		const feedTable = t.FeedEntry;
+		if (feedTable && typeof feedTable.search === 'function') {
+			const lines = (await toArray(feedTable.search({}), 'FeedEntry')).filter(
+				(r: any) =>
+					(r?.worldId ?? r?.playerId) === worldId && r?.id !== feedRowId(worldId) && !Array.isArray(r?.entries),
+			);
+			if (lines.length) {
+				const merged = [
+					...(Array.isArray((await safeGet(feedTable, feedRowId(worldId)))?.entries)
+						? (await safeGet(feedTable, feedRowId(worldId))).entries
+						: []),
+					...lines.map((r: any) => ({ id: r.id, at: r.at, icon: r.icon, text: r.text })),
+				].sort((a: any, b: any) => (a.at || 0) - (b.at || 0));
+				await writeFeed(worldId, merged);
+				for (const r of lines) await feedTable.delete(r.id);
+				console.error(`key migration: collapsed ${lines.length} feed line(s) for world ${worldId}`);
+			}
+		}
+
+		await markWorldKeyed(worldId, owner);
+		keyedWorlds.add(worldId);
+	} catch (e: any) {
+		// A failed migration must never break the action that triggered it — the
+		// world stays unmigrated and byWorld keeps using the legacy merge path,
+		// which is slower but correct. We simply try again on the next write.
+		console.error(`key migration for world ${worldId} skipped —`, e?.message || e);
+	}
+}
+
+/**
+ * Every per-player query goes through here. PlayerAchievement is keyed
+ * `${playerId}:${achievementId}`, so it reads as a bounded range scan; the
+ * explicit filter still runs, and guarantees strict save isolation even if the
+ * range ever yields an extra row — nothing from another save can leak into (or
+ * be deleted from) this player's world.
+ *
+ * The remaining callers ask world-owned tables for "rows this player owns"
+ * (export, delete-my-save, dev reset). Those rows live under the WORLD's prefix,
+ * not the player's, so they still need the unbounded scan — but every one of
+ * them is a cold path, and none is reached from snapshot() or a gameplay action.
  */
 async function byPlayer(table: any, playerId: string): Promise<any[]> {
 	// Defensive: if a table isn't available yet (e.g. a newly added schema table on
 	// an instance that hasn't been restarted), treat it as empty rather than throwing
 	// — a missing optional table must never break a full state read / refresh.
-	if (!table || typeof table.search !== 'function') return [];
-	// Full scan + filter instead of a secondary-index conditional search. The
-	// indexed `playerId` search proved unreliable across Harper versions/cold
-	// starts — it could return zero rows for a perfectly good save, which made
-	// the world (placements, chests, terrain) load empty until the first action
-	// "warmed" things up. A plain scan never depends on the index being ready,
-	// and these per-player tables are tiny, so this is both correct and cheap.
-	const rows = await toArray(table.search({}), tableName(table));
-	return rows.filter((r: any) => r?.playerId === playerId);
+	if (!table || typeof table.search !== 'function' || !playerId) return [];
+	const own = (r: any) => r?.playerId === playerId;
+	if (tableName(table) === 'PlayerAchievement') {
+		const rows = (await scanPrefix(table, `${playerId}:`)).filter(own);
+		// Achievement ids have always been player-prefixed, but a save that predates
+		// that is cheap to rescue and impossible to detect any other way: only fall
+		// back when the bounded read came up empty, so the cost is paid by saves
+		// with no achievements yet (a scan of a table that is, for them, tiny).
+		if (rows.length) return rows;
+		return (await toArray(table.search({}), tableName(table))).filter(own);
+	}
+	return (await toArray(table.search({}), tableName(table))).filter(own);
 }
 
 /**
- * Reliable per-player lookup of a single record by id. Uses the same full scan
- * as byPlayer rather than a primary-key `.get()`, which proved unreliable on
- * cold Harper instances — a `.get()` could return null for a record that
- * genuinely exists, surfacing as "Placement not found" / unseen soil beds.
+ * Reliable per-player lookup of a single record by id. safeGet first (it also
+ * salvages an undecodable row, which a scan cannot — a dropped row carries no
+ * id), and only fall back to the scan when that comes up null, which is the one
+ * answer a cold Harper instance is allowed to get wrong.
  */
 async function findOwned(table: any, playerId: string, id: string): Promise<any | null> {
+	const direct = await safeGet(table, id);
+	if (direct && direct.playerId === playerId) return direct;
 	const rows = await byPlayer(table, playerId);
 	return rows.find((r: any) => r.id === id) || null;
 }
@@ -643,15 +842,45 @@ function worldOf(player: any): string {
 	return player?.worldId || player?.id;
 }
 
-/** All rows belonging to one world (worldId, falling back to legacy playerId). */
+/**
+ * All rows belonging to one world (worldId, falling back to legacy playerId).
+ *
+ * The hot read. Under KEY_REV 3 this is a bounded range scan over one world's
+ * contiguous key run, so its cost tracks the size of THAT world rather than the
+ * size of the database — which is the whole point: before this, every state
+ * refresh read every row of every save that had ever been created.
+ *
+ * The explicit `worldId` filter is kept even though the range is already
+ * narrow. It costs nothing on a small result set and it is the backstop that
+ * makes cross-save leakage impossible if a key ever escapes the contract.
+ */
 async function byWorld(table: any, worldId: string): Promise<any[]> {
-	if (!table || typeof table.search !== 'function') return [];
-	const rows = await toArray(table.search({}), tableName(table));
-	return rows.filter((r: any) => (r?.worldId ?? r?.playerId) === worldId);
+	if (!table || typeof table.search !== 'function' || !worldId) return [];
+	const name = tableName(table);
+	const own = (r: any) => (r?.worldId ?? r?.playerId) === worldId;
+	if (!WORLD_KEYED.has(name)) return (await toArray(table.search({}), name)).filter(own);
+
+	const rows = (await scanPrefix(table, `${worldId}:`)).filter(own);
+	// Until this world has been migrated its rows may still be under the old id
+	// scheme, and a bounded scan would silently return fewer than exist — which
+	// the game reads as "this world has no placements/terrain", the exact failure
+	// mode the original full scans were written to avoid. So an unmigrated world
+	// pays for both reads. Migration runs on login and on every heartbeat, so a
+	// save spends at most one session here, and a brand-new world never does.
+	if (!(await worldIsKeyed(worldId))) {
+		const seen = new Set(rows.map((r: any) => r.id));
+		for (const r of (await toArray(table.search({}), name)).filter(own)) if (!seen.has(r.id)) rows.push(r);
+	}
+	return rows;
 }
 
 /** Single record by id, scoped to one world. */
 async function findInWorld(table: any, worldId: string, id: string): Promise<any | null> {
+	// Point read first — under KEY_REV 3 the id already carries the world prefix,
+	// so ownership is verifiable without reading the world. safeGet salvages an
+	// undecodable row on the way through; only a null needs the scan.
+	const direct = await safeGet(table, id);
+	if (direct && (direct.worldId ?? direct.playerId) === worldId) return direct;
 	const rows = await byWorld(table, worldId);
 	return rows.find((r: any) => r.id === id) || null;
 }
@@ -666,6 +895,11 @@ async function findInWorld(table: any, worldId: string, id: string): Promise<any
  * `.id`, so legacy rows are patched/deleted correctly and heal over time.
  */
 async function findTerrainAt(table: any, worldId: string, area: string, x: number, y: number): Promise<any | null> {
+	// The current id IS the position, so try it directly before scanning. A hit
+	// here turns the most frequent lookup in the game (every dig, plant, place and
+	// terraform does at least one) into a single point read.
+	const direct = await safeGet(table, `${worldId}:${area}:${x}:${y}`);
+	if (direct && (direct.worldId ?? direct.playerId) === worldId) return direct;
 	const rows = await byWorld(table, worldId);
 	return rows.find((r: any) => r.area === area && r.x === x && r.y === y) || null;
 }
@@ -676,105 +910,43 @@ async function findTerrainAt(table: any, worldId: string, area: string, x: numbe
  * safeguard as findTerrainAt. Callers patch the row's real `.id`.
  */
 async function findBiomeState(table: any, worldId: string, biomeId: string): Promise<any | null> {
+	const direct = await safeGet(table, `${worldId}:${biomeId}`);
+	if (direct && (direct.worldId ?? direct.playerId) === worldId) return direct;
 	const rows = await byWorld(table, worldId);
 	return rows.find((r: any) => r.biomeId === biomeId) || null;
 }
 async function findDiscovery(table: any, worldId: string, animalId: string): Promise<any | null> {
+	const direct = await safeGet(table, `${worldId}:${animalId}`);
+	if (direct && (direct.worldId ?? direct.playerId) === worldId) return direct;
 	const rows = await byWorld(table, worldId);
 	return rows.find((r: any) => r.animalId === animalId) || null;
 }
 
-/** Short, unambiguous invite code (no 0/O/1/I to avoid confusion). */
-function genJoinCode(): string {
-	const alphabet = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-	let out = '';
-	for (let i = 0; i < 6; i++) out += alphabet[Math.floor(Math.random() * alphabet.length)];
-	return out;
-}
-
-const DEFAULT_MAX_MEMBERS = 6;
-
 /**
- * Ensure a player has a solo "world of one" and is a member of it. Idempotent:
- * safe to call on every login, which back-fills the World/WorldMember rows for
- * saves created before multiplayer existed. The solo world's id equals the
- * playerId, so all of that player's existing world-state rows already belong to
- * it without any re-keying.
+ * Per-save setup on login and character creation. Idempotent.
+ *
+ * Named for the co-op era, when it built a "world of one" and a membership row.
+ * Both are gone; what remains is the `worldId` compat field and the key-contract
+ * migration. Kept under the old name because every login path calls it — renaming
+ * it belongs with the Phase 4 cleanup, not here.
  */
 async function ensureSoloWorld(player: any, opts: { freshGrid?: boolean } = {}): Promise<void> {
-	const t = db();
 	const soloId = player.id;
-	// safeGet (not get) so an undecodable World is salvaged rather than read as
-	// absent. existsRaw is the backstop: if the row is on disk but salvage
-	// declined it, creating a replacement would overwrite a real world with a
-	// blank one, so we leave it alone and let the rest of the call proceed.
-	if (!(await safeGet(t.World, soloId)) && !existsRaw(t.World, soloId)) {
-		await t.World.put({
-			id: soloId,
-			name: player.name ? tr('server.world.soloName', { name: player.name }) : tr('server.world.mySoloName'),
-			solo: true,
-			ownerId: player.id,
-			joinCode: null,
-			createdAt: player.createdAt || Date.now(),
-			maxMembers: 1,
-		});
-	}
-	const memberId = `${soloId}:${player.id}`;
-	if (!(await safeGet(t.WorldMember, memberId)) && !existsRaw(t.WorldMember, memberId)) {
-		await t.WorldMember.put({
-			id: memberId,
-			worldId: soloId,
-			playerId: player.id,
-			role: 'owner',
-			joinedAt: player.createdAt || Date.now(),
-			lastSeenAt: Date.now(),
-		});
-	}
-	if (!player.worldId) await t.Player.patch(player.id, { worldId: soloId });
-}
+	// COMPAT: `worldId` is still written, and snapshot() still emits it, because a
+	// released 0.2.x browser client reads it. A solo world's id IS the player's id,
+	// so this is now pure ceremony. Remove in Phase 4, once /Metrics/ shows no
+	// clients below 0.3.0 for 30 days.
+	if (!player.worldId) await patchPlayer(player.id, { worldId: soloId });
 
-/** Every world a player belongs to, shaped for the client's world picker. */
-async function listMemberships(playerId: string): Promise<any[]> {
-	const t = db();
-	const members = await byPlayer(t.WorldMember, playerId);
-	const out: any[] = [];
-	for (const m of members) {
-		const world = await safeGet(t.World, m.worldId);
-		if (!world) continue;
-		const memberCount = (await byWorld(t.WorldMember, world.id)).length;
-		out.push({
-			worldId: world.id,
-			name: world.name,
-			solo: !!world.solo,
-			role: m.role,
-			joinCode: world.solo ? null : world.joinCode,
-			memberCount,
-			maxMembers: world.maxMembers || DEFAULT_MAX_MEMBERS,
-			isOwner: world.ownerId === playerId,
-		});
+	// A brand-new save is born on the current key contract, so there is nothing to
+	// migrate — mark it and skip the scan. Every other save goes through the
+	// migration, which is a no-op after the first time.
+	if (opts.freshGrid && !player.keyRev) {
+		await patchPlayer(player.id, { keyRev: KEY_REV });
+		keyedWorlds.add(soloId);
+		return;
 	}
-	// solo first, then most-recently-joined co-op worlds
-	return out.sort((a, b) => (a.solo === b.solo ? 0 : a.solo ? -1 : 1));
-}
-
-/**
- * A co-op member's set of unlocked biomes is the union of their own and every
- * biome the shared world has opened. Persisted on the player so the per-action
- * unlock gates (which read player.unlockedBiomes) admit areas a world-mate
- * restored. No-op for solo worlds. Call on login / world switch / join.
- */
-async function syncMemberUnlocks(playerId: string, worldId: string): Promise<string[]> {
-	const t = db();
-	const player = await safeGet(t.Player, playerId);
-	if (!player) return [];
-	const current: string[] = player.unlockedBiomes || ['meadow'];
-	if (worldId === player.id) return current; // solo world — already authoritative
-	const worldStates = await byWorld(t.BiomeState, worldId);
-	const unlocked = new Set(current);
-	for (const bs of worldStates) if (bs.unlocked) unlocked.add(bs.biomeId);
-	const merged = [...unlocked];
-	if (merged.length !== current.length) await t.Player.patch(playerId, { unlockedBiomes: merged });
-	return merged;
+	await migrateWorldKeys(soloId, player.id);
 }
 
 /**
@@ -819,6 +991,290 @@ async function reconcileDefinitions() {
 }
 
 /**
+ * Old animal id -> the id that replaced it (data/animal-aliases.json). The 0.3
+ * ecology pass renamed and re-cast a lot of the roster: `coyote-meadow` became
+ * plain `coyote`, `mule-deer-alpine` became `grizzly-bear`, and so on.
+ *
+ * reconcileDefinitions() above already drops the retired rows from the Animal
+ * table — but that only fixes the DEFINITIONS. The SAVES still point at the old
+ * ids, which is what migrateAnimalAliases() is for.
+ */
+const ANIMAL_ALIASES = new Map<string, string>(
+	animalAliasData.records.map((r: { from: string; to: string }) => [r.from, r.to] as [string, string]),
+);
+
+/**
+ * Rewrite one save's references to retired animal ids.
+ *
+ * A pre-0.3 save keeps a Discovery row for, say, `coyote-meadow`. Everything
+ * that resolves the row through the animal definitions now skips it —
+ * `returnedHere`, `computeBalance`, `returnedKinds` all look up
+ * `d.animal.get('coyote-meadow')` and get undefined — but the row is still
+ * there, so `totalAnimals` (a raw row count) keeps counting it. Worse, the
+ * replacement `coyote` can then satisfy its own requirements and add a SECOND
+ * row for the same ecological slot, so the preserve-wide total drifts upward by
+ * one per renamed animal. Custom `welcome`/`attract` goals hold the same dead
+ * ids: they read their animal straight off `goal.animalId`, so they render as a
+ * raw slug and can never complete.
+ *
+ * So every stale row is either moved onto the new id or folded into the row
+ * that is already there — never left in place. Idempotent, because a migrated
+ * save has no aliased ids left to match, and cheap enough (one per-world scan)
+ * to run on every world entry rather than as a one-shot boot sweep: saves that
+ * do not log in during any given deploy still get migrated the next time they
+ * do, and no worker has to scan every Discovery row in the database to find
+ * them.
+ */
+async function migrateAnimalAliases(worldId: string, playerId: string): Promise<number> {
+	const t = db();
+	const d = await defs();
+	let touched = 0;
+
+	// ---- Discovery rows. World-owned, so this covers every member of a co-op world.
+	const rows = await byWorld(t.Discovery, worldId);
+	const stale = rows.filter((r: any) => ANIMAL_ALIASES.has(r?.animalId));
+	if (stale.length) {
+		// Keyed by animalId rather than row id: a legacy save keys Discovery off the
+		// playerId (see findDiscovery), so the id tells us nothing about the animal.
+		const live = new Map<string, any>(
+			rows.filter((r: any) => !ANIMAL_ALIASES.has(r?.animalId)).map((r: any) => [r.animalId, r]),
+		);
+		for (const old of stale) {
+			const newId = ANIMAL_ALIASES.get(old.animalId)!;
+			const animal = d.animal.get(newId);
+			// The replacement is gone too (retired in a later pass). Nothing to move the
+			// row onto, so drop it rather than leave an id no lookup can resolve.
+			if (!animal) {
+				await t.Discovery.delete(old.id);
+				touched++;
+				continue;
+			}
+			const existing = live.get(newId);
+			if (existing) {
+				// Both the old and the new animal have a row: this is the double-count.
+				// Keep ONE row and fold the retired one's history into it, so the player
+				// does not lose observations they actually made.
+				const firsts = [existing.firstObservedAt, old.firstObservedAt].filter((n: any) => typeof n === 'number');
+				await t.Discovery.patch(existing.id, {
+					timesObserved: (existing.timesObserved || 0) + (old.timesObserved || 0),
+					...(firsts.length ? { firstObservedAt: Math.min(...firsts) } : {}),
+				});
+				await t.Discovery.delete(old.id);
+				touched++;
+				continue;
+			}
+			// The slot is free: re-key the row onto the new animal. `biomeId` comes from
+			// the definitions and not from the old row, because several aliases move the
+			// animal to a different biome (mule-deer-alpine -> grizzly-bear) and a stale
+			// biomeId would mis-file it in every per-biome count.
+			const moved = {
+				...old,
+				id: `${worldId}:${newId}`,
+				worldId,
+				animalId: newId,
+				biomeId: animal.biome,
+				whyReturned: whyReturnedText(animal, d),
+			};
+			await t.Discovery.put(moved);
+			if (moved.id !== old.id) await t.Discovery.delete(old.id); // legacy playerId-keyed row
+			live.set(newId, moved);
+			touched++;
+		}
+	}
+
+	// ---- Custom goals. Per-player, so each member migrates their own on their own entry.
+	const player = await safeGet(t.Player, playerId);
+	const goals = (player?.customGoals || []) as CustomGoal[];
+	// A goal is stale if its animal was renamed OR retired outright. Both cases
+	// have to be handled here: sanitizeGoals() would catch them, but it only runs
+	// on SetGoals, so a goal nobody edits is never looked at again. Left alone it
+	// renders as a raw slug ("Welcome the acorn-woodpecker"), reports 0% forever,
+	// and holds one of only three goal slots for the life of the save.
+	const isStale = (g: CustomGoal) => !!g?.animalId && (ANIMAL_ALIASES.has(g.animalId) || !d.animal.get(g.animalId));
+	if (!goals.some(isStale)) return touched;
+	// Goals that already name a live animal stay exactly as they are.
+	const seen = new Set<string>(goals.filter((g) => g?.animalId && !isStale(g)).map((g) => `${g.kind}:${g.animalId}`));
+	const migrated: CustomGoal[] = [];
+	for (const g of goals) {
+		if (!isStale(g)) {
+			migrated.push(g);
+			continue;
+		}
+		const alias = ANIMAL_ALIASES.get(g.animalId || '');
+		// Retired with no successor, or the successor is gone too: translating would
+		// just move the goal onto a second dead id. Drop it — an empty slot the
+		// player can refill beats one they cannot.
+		if (!alias || !d.animal.get(alias)) continue;
+		// Two goals can alias onto the same animal — or onto one the player already
+		// has a goal for. Keep the first and drop the twin.
+		const key = `${g.kind}:${alias}`;
+		if (seen.has(key)) continue;
+		seen.add(key);
+		migrated.push({ ...g, animalId: alias });
+	}
+	await patchPlayer(playerId, { customGoals: migrated });
+	return touched;
+}
+
+/**
+ * Drop Discovery rows for animals that no longer exist and have no replacement.
+ *
+ * The alias table only covers retirements that had a successor. 0.3 also removed
+ * species outright, and those rows are worse than useless: every lookup that
+ * resolves them through the definitions skips them, but `totalAnimals` is a raw
+ * row count, so the preserve-wide total reads high forever and "150 of 150" can
+ * never be reached. Runs after migrateAnimalAliases, so anything still unknown
+ * here genuinely has nowhere to go.
+ */
+async function pruneUnknownDiscoveries(worldId: string, d: any): Promise<number> {
+	const t = db();
+	const rows = await byWorld(t.Discovery, worldId);
+	let dropped = 0;
+	for (const r of rows) {
+		if (!r?.animalId || d.animal.get(r.animalId)) continue;
+		await t.Discovery.delete(r.id);
+		dropped++;
+	}
+	if (dropped) console.error(`save repair: dropped ${dropped} retired discovery row(s) for world ${worldId}`);
+	return dropped;
+}
+
+/**
+ * Re-file Discovery rows whose stored biome disagrees with the definitions.
+ *
+ * `Discovery.biomeId` is a copy of where the animal lived when it came back, and
+ * an ecology pass can move a species without renaming it — 0.3 moves `coyote`
+ * from Sunstone Flats to Willow Meadow and gives the desert a mountain lion
+ * instead. An alias would have re-filed the row (migrateAnimalAliases reads the
+ * biome off the definitions for exactly this reason), but a KEPT id gets no
+ * alias, so the stale copy survives and the two halves of the game disagree
+ * about where the animal is:
+ *
+ *   • returnedHere() and computeBalance() resolve through the definitions, so
+ *     they count it in its new area;
+ *   • recalcBiome's comfort pass (`if (disc.biomeId !== biomeId) continue`) and
+ *     the client's animal spawn (WorldScene, `disc.biomeId === this.area`) read
+ *     the stored copy, so it appears in the old one — and is scored against its
+ *     new habitat requirements using the old area's placements, which pins its
+ *     comfort at the floor and makes it "rarely seen" forever.
+ *
+ * Reconciling every row against the definitions fixes that case and any future
+ * one, without needing a hand-written entry per moved species.
+ */
+async function reconcileDiscoveryBiomes(worldId: string, d: any): Promise<number> {
+	const t = db();
+	let refiled = 0;
+	for (const r of await byWorld(t.Discovery, worldId)) {
+		const biome = d.animal.get(r?.animalId)?.biome;
+		if (!biome || biome === r.biomeId) continue;
+		await t.Discovery.patch(r.id, { biomeId: biome });
+		refiled++;
+	}
+	if (refiled) console.error(`save repair: re-filed ${refiled} discovery row(s) for world ${worldId}`);
+	return refiled;
+}
+
+/**
+ * Un-flood any water that walls off a trail gate.
+ *
+ * Terraform refuses these tiles now (blocksGateTrail), but a save made before
+ * that check could already have a channel across a gate mouth — and open water
+ * blocks walking, so the way into the next biome is shut with no in-game way to
+ * reopen it. Prevention doesn't help someone already stuck, so the repair pass
+ * clears those tiles once. Only `water` is touched; tilled and watered beds are
+ * walkable and stay exactly as they are.
+ */
+async function repairGateTrails(worldId: string, d: any): Promise<number> {
+	const t = db();
+	const rows = await byWorld(t.TerrainTile, worldId);
+	const geoms = new Map<string, ReturnType<typeof gateGeomOf>>();
+	let cleared = 0;
+	for (const tile of rows) {
+		if (tile?.type !== 'water' || !tile.area || !d.biome.get(tile.area)) continue;
+		if (!geoms.has(tile.area)) geoms.set(tile.area, gateGeomOf(d, tile.area));
+		if (!blocksGateTrail(tile.x, tile.y, geoms.get(tile.area)!)) continue;
+		await t.TerrainTile.delete(tile.id);
+		cleared++;
+	}
+	if (cleared) console.error(`save repair: cleared ${cleared} gate-blocking water tile(s) for world ${worldId}`);
+	return cleared;
+}
+
+/**
+ * One-shot repairs a save needs after upgrading, run from a write path.
+ *
+ * Bump REPAIR_REV when a new repair is added here; every save then runs the pass
+ * once more. The marker lives on the player row, and the caller passes the row it
+ * already holds, so a repaired save costs a field read per beat and nothing more.
+ *
+ * This runs from Heartbeat as well as LoginPlayer on purpose. "Continue" resumes
+ * through GameState, which is a GET and must not write — so a player who never
+ * uses the login screen would otherwise never be repaired at all, and would keep
+ * an inflated animal total and a soft-locked gate indefinitely.
+ *
+ * Login passes `force`, because login is once per session and already pays for
+ * these reads: the marker is an optimisation for the heartbeat path, not a
+ * promise that a save is only ever looked at once.
+ */
+const REPAIR_REV = 1;
+
+async function repairSave(
+	worldId: string,
+	playerId: string,
+	d: any,
+	opts: { force?: boolean; player?: any } = {},
+): Promise<void> {
+	if (!worldId || !playerId) return;
+	if (!opts.force) {
+		const row = opts.player ?? (await getPlayer(playerId));
+		if ((row?.repairRev || 0) >= REPAIR_REV) return;
+	}
+	try {
+		const renamed = await migrateAnimalAliases(worldId, playerId);
+		const dropped = await pruneUnknownDiscoveries(worldId, d);
+		const refiled = await reconcileDiscoveryBiomes(worldId, d);
+		await repairGateTrails(worldId, d);
+		// Any of those three changes which animals count as home, and
+		// BiomeState.returnedCount is a stored number that only recalcBiome
+		// recomputes. Left alone the HUD reads "24 of 25 animals returned" for a
+		// preserve with nine, and that same count feeds the biome unlock gates and
+		// the `*-reborn` achievement triggers. Only pay for it when something
+		// actually moved: an already-clean save (which is every save after the
+		// first pass, and every save created from 0.3 on) does no extra work.
+		if (renamed || dropped || refiled) await recalcRepairedBiomes(worldId, playerId, d);
+		await patchPlayer(playerId, { repairRev: REPAIR_REV });
+	} catch (e: any) {
+		// Same contract as the key migration: a failed repair must never break the
+		// action that triggered it. The save stays unrepaired and we try again on
+		// the next write.
+		console.error(`save repair for ${playerId} skipped —`, e?.message || e);
+	}
+}
+
+/**
+ * Recompute every open area after a repair changed the discovery set.
+ *
+ * recalcBiome is the only thing that writes BiomeState.returnedCount / health /
+ * balance, and it can surface an animal whose requirements were already met, so
+ * the achievements it earns are awarded here too rather than waiting for the
+ * player's next placement.
+ */
+async function recalcRepairedBiomes(worldId: string, playerId: string, d: any): Promise<void> {
+	const t = db();
+	const states = await byWorld(t.BiomeState, worldId);
+	const open = states.filter((b: any) => b.unlocked && d.biome.get(b.biomeId)).map((b: any) => b.biomeId);
+	const newAnimals: any[] = [];
+	const freshBiomeStates: any[] = [];
+	for (const biomeId of open) {
+		const r = await recalcBiome(worldId, playerId, biomeId);
+		newAnimals.push(...(r.newAnimals || []));
+		if (r.biomeState) freshBiomeStates.push(r.biomeState);
+	}
+	if (newAnimals.length || freshBiomeStates.length)
+		await awardWorldAchievements(worldId, playerId, { addDiscoveries: newAnimals, freshBiomeStates });
+}
+
+/**
  * Proactively delete records left undecodable by an earlier schema layout (rapid
  * dev schema drift), so Harper stops logging "Error decoding record" on boot and
  * during scans. Runs once per worker. Enumerates primary keys only (which don't
@@ -839,10 +1295,6 @@ async function purgeCorruptRecords() {
 		'TerrainTile',
 		'FeedEntry',
 		'PlayerAchievement',
-		'WorldMember',
-		'World',
-		'WorldPresence',
-		'JoinRequest',
 	];
 	for (const name of names) {
 		const table = t[name];
@@ -916,6 +1368,66 @@ const FIRST_ANIMAL_ID = 'grasshopper';
 // How many activity-feed messages we keep per player (the feed is pruned to this
 // on every append so the table never grows unbounded as people play).
 const FEED_CAP = 100;
+
+// ------------------------------------------------------------- activity feed
+//
+// The feed is ONE row per world (`${wid}:feed`) holding an array, not one row
+// per line.
+//
+// It used to be a row per line, and that made it the most expensive thing in the
+// game per unit of value. Every flush wrote a row per entry, and then pruned to
+// the cap — so once a world had been played for a while, each line cost a put
+// AND a delete. A capped, append-only log that is only ever read whole has no
+// use for per-row addressability; it was paying for random access nobody used.
+// As a single row it is one write per flush no matter how many lines it carries,
+// and pruning is a slice() rather than a stream of deletes.
+const feedRowId = (worldId: string) => `${worldId}:feed`;
+
+/**
+ * The world's feed, oldest→newest. Falls back to the pre-KEY_REV-3 per-line rows
+ * for a world that has not been collapsed yet, so an un-migrated save shows its
+ * history rather than an empty panel.
+ */
+async function readFeed(worldId: string): Promise<any[]> {
+	const t = db();
+	const row = await safeGet(t.FeedEntry, feedRowId(worldId));
+	const entries = Array.isArray(row?.entries) ? row.entries : [];
+	if (await worldIsKeyed(worldId)) return entries;
+	const legacy = (await byWorld(t.FeedEntry, worldId)).filter((r: any) => r?.id !== feedRowId(worldId));
+	if (!legacy.length) return entries;
+	return [...entries, ...legacy].sort((a: any, b: any) => (a.at || 0) - (b.at || 0)).slice(-FEED_CAP);
+}
+
+/** Replace the world's feed with `entries`, newest kept, capped. One write. */
+async function writeFeed(worldId: string, entries: any[]): Promise<void> {
+	await db().FeedEntry.put({
+		id: feedRowId(worldId),
+		worldId,
+		// solo worlds are keyed by the player's id, and several reset/delete paths
+		// still find rows via byPlayer — keep them working by carrying it through.
+		playerId: worldId,
+		entries: entries.slice(-FEED_CAP),
+		updatedAt: Date.now(),
+	});
+}
+
+/** Append lines to a world's feed. One write regardless of how many. */
+async function appendFeed(worldId: string, lines: any[]): Promise<number> {
+	const clean = lines
+		.map((e: any) => ({
+			id: `f_${Number(e?.at) || Date.now()}_${Math.random().toString(36).slice(2, 9)}`,
+			at: Number(e?.at) || Date.now(),
+			icon: String(e?.icon || 'leaf').slice(0, 40),
+			text: String(e?.text || '')
+				.slice(0, 500)
+				.trim(),
+		}))
+		.filter((e) => e.text);
+	if (!clean.length) return 0;
+	const next = [...(await readFeed(worldId)), ...clean].sort((a, b) => (a.at || 0) - (b.at || 0));
+	await writeFeed(worldId, next);
+	return clean.length;
+}
 
 // ----------------------------------------------------------- the home
 // A personal interior (area id 'home') you step into from your camp tent, decorate
@@ -1342,7 +1854,7 @@ async function verifyPasscode(player: any, passcode: string): Promise<boolean> {
 	// legacy plaintext save — verify then migrate to a hash
 	if (typeof player.passcode === 'string' && code.length > 0 && code === player.passcode) {
 		const { salt, hash } = hashPasscode(code);
-		await db().Player.patch(player.id, { passcodeHash: hash, passcodeSalt: salt, passcode: null });
+		await patchPlayer(player.id, { passcodeHash: hash, passcodeSalt: salt, passcode: null });
 		return true;
 	}
 	return false;
@@ -1382,15 +1894,75 @@ const STARTER_CHEST = { x: 23, y: 5, size: 'small-chest', capacity: 120 };
  */
 const playerLocks = new Map<string, Promise<void>>();
 
+// ------------------------------------------------- coalesced player writes
+//
+// One gameplay action used to write the Player row two or three times: once for
+// the state change (inventory, tools, craftedItems), once for bumpMetrics'
+// counters, and sometimes again for achievements. Same row, same request, and on
+// Harper every one of those is a separate billable write. On the free tier the
+// 1,000 writes/minute allowance is what caps how many people can play at once,
+// so the duplicates were coming straight out of the concurrency budget.
+//
+// While a player is inside withPlayerLock, patches to their row accumulate here
+// and are written ONCE when the lock releases. Outside a lock (Heartbeat and the
+// login/admin paths do not take one) patchPlayer writes through immediately, so
+// a buffered patch can never be left unflushed by a path that does not know
+// about the buffer.
+//
+// Reads have to see the buffer or the coalescing would be observable: bumpMetrics
+// deliberately re-reads the freshest row before merging counters, and snapshot()
+// builds its response from the row mid-action. getPlayer() overlays the pending
+// patch, so every reader sees the row as this request has left it.
+const pendingPlayerPatch = new Map<string, any>();
+const bufferingPlayers = new Set<string>();
+
+/** Patch the player row — buffered inside a lock, written through outside one. */
+async function patchPlayer(playerId: string, partial: any): Promise<void> {
+	if (!playerId || !partial) return;
+	if (!bufferingPlayers.has(playerId)) {
+		await db().Player.patch(playerId, partial); // the real write — never patchPlayer, that is this function
+		return;
+	}
+	const cur = pendingPlayerPatch.get(playerId);
+	// Shallow merge, exactly like a sequence of Harper patches: last write wins
+	// per key, so collapsing them changes the number of writes and nothing else.
+	pendingPlayerPatch.set(playerId, cur ? { ...cur, ...partial } : { ...partial });
+}
+
+/** The player row as this request has left it: stored row plus anything pending. */
+async function getPlayer(playerId: string): Promise<any | null> {
+	const stored = await safeGet(db().Player, playerId);
+	const pending = pendingPlayerPatch.get(playerId);
+	if (!pending) return stored;
+	return { ...(stored || { id: playerId }), ...pending };
+}
+
+async function flushPlayerPatch(playerId: string): Promise<void> {
+	const pending = pendingPlayerPatch.get(playerId);
+	pendingPlayerPatch.delete(playerId);
+	if (pending) await db().Player.patch(playerId, pending); // the real write
+}
+
 async function withPlayerLock<T>(playerId: string, fn: () => Promise<T>): Promise<T> {
 	const ahead = playerLocks.get(playerId);
 	let release!: () => void;
 	const mine = new Promise<void>((r) => (release = r));
 	playerLocks.set(playerId, mine);
 	if (ahead) await ahead;
+	bufferingPlayers.add(playerId);
 	try {
 		return await fn();
 	} finally {
+		// Flush BEFORE releasing, so the next request in the chain reads a row that
+		// already includes this one's writes. On the error path we still flush: the
+		// un-coalesced code had already written each patch by the time it threw, and
+		// collapsing writes must not also change what survives a failure.
+		bufferingPlayers.delete(playerId);
+		try {
+			await flushPlayerPatch(playerId);
+		} catch (e: any) {
+			console.error(`flushing player writes for ${playerId} failed —`, e?.message || e);
+		}
 		release();
 		// Only the last one out clears the slot, or a queued request would be
 		// dropped from the chain and start racing again.
@@ -1401,8 +1973,9 @@ async function withPlayerLock<T>(playerId: string, fn: () => Promise<T>): Promis
 async function requirePlayer(playerId: string): Promise<any> {
 	if (!playerId || typeof playerId !== 'string')
 		throw new GameError(tr('server.err.playerIdRequired'), 400, 'server.err.playerIdRequired');
-	const player = await safeGet(db().Player, playerId);
+	const player = await getPlayer(playerId);
 	if (!player) throw new GameError(tr('server.err.noSaveLogin'), 404, 'server.err.noSaveLogin');
+	noteKeyedWorlds(player);
 	return { player };
 }
 
@@ -1514,7 +2087,7 @@ async function bumpMetrics(
 	// placement bump plus recalcBiome's health/animal bump) from stale copies.
 	// safeGet so an undecodable row heals here instead of silently falling back
 	// to the stale in-memory copy and writing its older counters back over the top.
-	const live = (await safeGet(db().Player, player.id)) || player;
+	const live = (await getPlayer(player.id)) || player;
 	const prev = readMetrics(live) || freshMetrics(live.createdAt || now);
 	const counts = { ...(prev.counts || {}) };
 	for (const [k, v] of entries) counts[k] = (counts[k] || 0) + v;
@@ -1533,7 +2106,7 @@ async function bumpMetrics(
 		for (const [k, v] of dailyEntries) dcounts[k] = (dcounts[k] || 0) + v;
 		patch.daily = encodeDaily({ dayKey, counts: dcounts });
 	}
-	await db().Player.patch(player.id, patch);
+	await patchPlayer(player.id, patch);
 	return metrics;
 }
 
@@ -1669,6 +2242,43 @@ function areaGrid(d: any, area: string): { cols: number; rows: number } {
 	const cols = g?.cols || GRID_W;
 	const rows = (g?.rows || GRID_H) + (area === 'alpine' ? ALPINE_MTN_ROWS : 0);
 	return { cols, rows };
+}
+
+/**
+ * Where an area's trail gates sit, mirroring `dimsOf()` in the client's
+ * WorldScene: the gates are one tile in from each side, on the middle row of
+ * the playable band. The first biome has no gate west, the last none east.
+ */
+function gateGeomOf(d: any, area: string): { gateY: number; landRight: number; westGate: boolean; eastGate: boolean } {
+	const biome = d.biome.get(area);
+	const g = biome?.grid;
+	const cols = g?.cols || GRID_W;
+	const baseRows = g?.rows || GRID_H;
+	const playTop = area === 'alpine' ? ALPINE_MTN_ROWS : 0;
+	const order = biome?.order || 1;
+	const last = Math.max(...d.biomes.map((b: any) => b.order || 1));
+	return {
+		gateY: playTop + baseRows / 2 - 0.2,
+		landRight: biome?.oceanCols ? cols - biome.oceanCols : cols,
+		westGate: order > 1,
+		eastGate: order < last,
+	};
+}
+
+/**
+ * True if flooding (tx, ty) would wall off a trail gate. Open water blocks
+ * walking, so a channel across the mouth of a gate locks the player out of the
+ * next biome — you cannot stand next to the gate to use it. The gate tile, one
+ * row either side of it and the two columns in from that edge are all refused.
+ * Tilled and watered beds are walkable, so only the flood step is blocked.
+ * Mirrored by blocksGateTrail() in src/game/interactions.ts, which greys the
+ * click out before it ever reaches here.
+ */
+function blocksGateTrail(tx: number, ty: number, g: ReturnType<typeof gateGeomOf>): boolean {
+	if (Math.abs(ty - Math.round(g.gateY)) > 1) return false;
+	if (g.westGate && tx <= 2) return true;
+	if (g.eastGate && tx >= g.landRight - 3) return true;
+	return false;
 }
 
 const TERRAIN_COLORS: Record<string, string> = {
@@ -1839,6 +2449,13 @@ async function createPlayerRecords(
 		// The board always shows a live "Unlock the next biome" guidance goal, so a
 		// new player starts with no custom goals of their own yet.
 		customGoals: [],
+		// Born current: a save created on this build has no retired animal ids, no
+		// mis-filed discoveries and no gate it walled off before the rule existed,
+		// so the repair pass has nothing to find. Stamped here rather than left for
+		// the first heartbeat to discover, because that would spend a Player write
+		// per new save to learn there was no work — and the write budget is what
+		// caps how many people can play at once. Only pre-0.3 saves lack it.
+		repairRev: REPAIR_REV,
 	};
 	await t.Player.put(player);
 
@@ -1857,7 +2474,7 @@ async function createPlayerRecords(
 	}));
 	for (const bs of biomeStates) await t.BiomeState.put(bs);
 
-	const chestPlacementId = `pl_${playerId}_starter-chest`;
+	const chestPlacementId = `${wid}:pl_${playerId}_starter-chest`;
 	const placements = [
 		{
 			id: chestPlacementId,
@@ -2398,9 +3015,21 @@ async function recalcBiome(
 		dailyDeltas[`animal:${biomeId}`] = newAnimals.length;
 		dailyDeltas.animal = newAnimals.length;
 	}
-	if (Object.keys(dailyDeltas).length) {
+	// The lifetime `animalsReturned` counter is bumped HERE rather than at the call
+	// sites, because this is the only place an animal can actually come home. It
+	// used to be bumped by the four player actions that trigger a recalc (place,
+	// plant, terraform, remove), which silently missed every other route: the
+	// heartbeat growth pass (a tree finishing maturity mid-session, and the
+	// welcome-back catch-up after time away), POST /RecalcBiome/, and the recalc
+	// that follows seeding an area's starting terrain. That left the dashboard
+	// showing two different "Animals returned" numbers for the same player —
+	// biomeSummary.totalAnimalsReturned (derived from BiomeState, always right)
+	// against a counts.animalsReturned that under-reported. Bumping at the source
+	// means a new path can't reintroduce the drift.
+	const deltas: Record<string, number> = newAnimals.length ? { animalsReturned: newAnimals.length } : {};
+	if (Object.keys(dailyDeltas).length || Object.keys(deltas).length) {
 		const actor = opts.player || (await safeGet(t.Player, playerId));
-		if (actor) await bumpMetrics(actor, {}, dailyDeltas);
+		if (actor) await bumpMetrics(actor, deltas, dailyDeltas);
 	}
 
 	const unlockedBiomes = await checkUnlocks(wid, playerId, { player: opts.player, freshState: biomeState });
@@ -2459,8 +3088,7 @@ async function seedStartingTerrain(wid: string, playerId: string, biomeId: strin
  * Evaluate biome unlock requirements; unlock anything newly earned. Biome
  * unlock is a world property (BiomeState.unlocked under the world id), but the
  * acting player's personal `unlockedBiomes` is also updated so their action
- * gates open immediately. World-mates pick up the new unlock on their next
- * login / world switch via syncMemberUnlocks.
+ * gates open immediately.
  */
 async function checkUnlocks(
 	wid: string,
@@ -2502,7 +3130,7 @@ async function checkUnlocks(
 		worldUnlocked.add(biome.id);
 		unlockedSet.add(biome.id);
 		pendingRewards.add(biome.id);
-		await t.Player.patch(playerId, { unlockedBiomes: [...unlockedSet], pendingUnlockRewards: [...pendingRewards] });
+		await patchPlayer(playerId, { unlockedBiomes: [...unlockedSet], pendingUnlockRewards: [...pendingRewards] });
 		const bsRow = await findBiomeState(t.BiomeState, wid, biome.id);
 		await t.BiomeState.patch(bsRow?.id ?? `${wid}:${biome.id}`, { unlocked: true });
 		await seedStartingTerrain(wid, playerId, biome.id);
@@ -2513,22 +3141,69 @@ async function checkUnlocks(
 
 /**
  * Recipe unlocks. A recipe with no `unlock` block is craftable from the moment
- * its biome is open (the handful of starter recipes). Everything else is gated
- * behind progress *in that recipe's own biome* — health, the number of animals
- * welcomed back, a specific keystone animal, or having already crafted a
- * prerequisite item. This is what turns crafting into a steady retention loop:
- * restore a little, unlock a little more to craft.
+ * its biome is open (three starters per area). Everything else waits on its own
+ * condition, and no two recipes in an area share one — so the crafting menu
+ * grows a little at a time, and each new line in it is the reward for a
+ * particular piece of caretaking rather than for a health bar ticking over.
+ *
+ * The conditions reach across the whole game: this area's health and ecological
+ * balance, how many animals are back (in total, of one kind, or one specific
+ * keystone species), what you have crafted before and how widely, what is
+ * standing or planted on the ground here, the open water you've shaped, your
+ * tool tiers, your home upgrades, achievements, and progress in other areas.
+ * See RecipeUnlock in src/types.ts; the client mirrors this in src/recipes.ts.
  */
-function recipeUnlockMet(
-	recipe: any,
-	ctx: { health: number; animalsReturned: number; returnedAnimalIds: Set<string>; craftedEver: Record<string, number> },
-): boolean {
+interface RecipeUnlockCtx {
+	health: number;
+	balance: number;
+	animalsReturned: number;
+	returnedAnimalIds: Set<string>;
+	returnedKinds: Record<string, number>;
+	totalAnimals: number;
+	craftedEver: Record<string, number>;
+	craftedDistinct: number;
+	placedHere: Record<string, number>;
+	water: { tiles: number; lake: number; river: number };
+	tools: Record<string, number>;
+	home: Record<string, any>;
+	homeBuilt: boolean;
+	biomeHealth: Record<string, number>;
+	achievements: Set<string>;
+	biomesOpen: number;
+	seenPhases: string[];
+}
+
+function recipeUnlockMet(recipe: any, ctx: RecipeUnlockCtx): boolean {
 	const u = recipe.unlock;
 	if (!u) return true; // starter recipe
+	// how far this area has come back
 	if (typeof u.minHealth === 'number' && ctx.health < u.minHealth) return false;
+	if (typeof u.minBalance === 'number' && ctx.balance < u.minBalance) return false;
+	// the life that's returned
 	if (typeof u.animalsReturned === 'number' && ctx.animalsReturned < u.animalsReturned) return false;
 	if (u.requiresAnimal && !ctx.returnedAnimalIds.has(u.requiresAnimal)) return false;
+	if (u.requiresKind && (ctx.returnedKinds[u.requiresKind.kind] || 0) < u.requiresKind.count) return false;
+	if (typeof u.totalAnimals === 'number' && ctx.totalAnimals < u.totalAnimals) return false;
+	// what you've made, and what you've put in the ground here
 	if (u.requiresCrafted && (ctx.craftedEver?.[u.requiresCrafted] || 0) <= 0) return false;
+	if (typeof u.craftedDistinct === 'number' && ctx.craftedDistinct < u.craftedDistinct) return false;
+	if (u.requiresPlaced && (ctx.placedHere[u.requiresPlaced.objectId] || 0) < u.requiresPlaced.count) return false;
+	if (u.requiresWater) {
+		if (ctx.water.tiles < (u.requiresWater.tiles || 0)) return false;
+		if (ctx.water.lake < (u.requiresWater.lake || 0)) return false;
+		if (ctx.water.river < (u.requiresWater.river || 0)) return false;
+	}
+	// your own kit
+	if (u.requiresTool && (ctx.tools[u.requiresTool.id] || 1) < u.requiresTool.tier) return false;
+	if (u.requiresHome && (ctx.home[u.requiresHome.track] || 1) < u.requiresHome.level) return false;
+	if (u.homeBuilt && !ctx.homeBuilt) return false; // a real house, not the starting tent
+	// a time of day you've been through once (the headlamp arrives at nightfall
+	// and stays — see phasesSeen() in server/weather.ts)
+	if (u.phaseSeen?.length && !u.phaseSeen.some((p: string) => ctx.seenPhases.includes(p))) return false;
+	// the wider preserve
+	if (u.requiresBiome && (ctx.biomeHealth[u.requiresBiome.biome] || 0) < u.requiresBiome.minHealth) return false;
+	if (u.requiresAchievement && !ctx.achievements.has(u.requiresAchievement)) return false;
+	if (typeof u.biomesOpen === 'number' && ctx.biomesOpen < u.biomesOpen) return false;
 	return true;
 }
 
@@ -2537,22 +3212,76 @@ function recipeUnlockMet(
  * Used by CraftItem to enforce the gate server-side (Harper is the source of
  * truth — the client only hides locked recipes for nicer UX).
  */
-async function recipeUnlockContext(wid: string, biomeId: string, player: any, d: any) {
+async function recipeUnlockContext(
+	wid: string,
+	biomeId: string,
+	player: any,
+	d: any,
+	unlock?: any,
+): Promise<RecipeUnlockCtx> {
 	const t = db();
+	// Read only what THIS gate actually asks about. Every field below that comes
+	// off the player row is free, but each of the four world reads is a scan, and
+	// CraftItem builds this context on every single craft. Nearly every recipe
+	// names one condition, so gathering all four was three scans of pure waste per
+	// craft — working directly against the read budget the rest of 0.3 buys back.
+	// With no `unlock` argument the context is built in full, which is what a
+	// caller judging several recipes at once wants.
+	const u = unlock || {};
+	const all = !unlock;
+	const needStates = all || u.minHealth != null || u.minBalance != null || u.requiresBiome != null;
+	const needAnimals =
+		all || u.animalsReturned != null || u.requiresAnimal != null || u.requiresKind != null || u.totalAnimals != null;
+	const needPlaced = all || u.requiresPlaced != null;
+	const needWater = all || u.requiresWater != null;
+	const needAchievements = all || u.requiresAchievement != null;
+
 	// Use the reliable per-world scan, not BiomeState.get(): a primary-key .get()
 	// can return null for a record that exists on a cold Harper instance, which made
 	// health read as 0 and wrongly rejected a craft the client correctly showed as
 	// unlocked (e.g. a Bird Perch at 24% health).
-	const bs = await findBiomeState(t.BiomeState, wid, biomeId);
-	const discoveries = await byWorld(t.Discovery, wid);
-	const returnedAnimalIds = new Set<string>(
-		discoveries.filter((x: any) => d.animal.get(x.animalId)?.biome === biomeId).map((x: any) => x.animalId),
-	);
+	const states = needStates ? await byWorld(t.BiomeState, wid) : [];
+	const bs = needStates
+		? states.find((s: any) => s.biomeId === biomeId) || (await findBiomeState(t.BiomeState, wid, biomeId))
+		: null;
+	const discoveries = needAnimals ? await byWorld(t.Discovery, wid) : [];
+	const here = discoveries.filter((x: any) => d.animal.get(x.animalId)?.biome === biomeId);
+	const returnedAnimalIds = new Set<string>(here.map((x: any) => x.animalId));
+	const returnedKinds: Record<string, number> = {};
+	for (const x of here) {
+		const kind = d.animal.get(x.animalId)?.kind;
+		if (kind) returnedKinds[kind] = (returnedKinds[kind] || 0) + 1;
+	}
+	const placements = needPlaced ? (await byWorld(t.Placement, wid)).filter((p: any) => p.area === biomeId) : [];
+	const terrain = needWater ? (await byWorld(t.TerrainTile, wid)).filter((tt: any) => tt.area === biomeId) : [];
+	const achievements = needAchievements ? await earnedAchievementIds(player.id) : new Set<string>();
+	const biomeHealth: Record<string, number> = {};
+	for (const s of states) biomeHealth[s.biomeId] = s.health || 0;
+	const wxTime = weatherTimeFromPlay(player); // play-time clock, never null
 	return {
 		health: bs?.health || 0,
+		balance: bs?.balance || 0,
 		animalsReturned: returnedAnimalIds.size,
 		returnedAnimalIds,
+		returnedKinds,
+		totalAnimals: discoveries.length,
 		craftedEver: (player.craftedEver || {}) as Record<string, number>,
+		craftedDistinct: Object.keys(player.craftedEver || {}).length,
+		placedHere: placementCounts(placements),
+		// playerOnly. The "shape N water tiles" gates are defined as open water YOU
+		// shaped, and Rushwater opens with 18 pre-seeded tiles (a nine-tile channel
+		// plus a six-tile pond) — counting those satisfied a 6-tile gate the moment
+		// the wetland unlocked. Animal water needs are a separate question and still
+		// read the natural channels: see the bare analyzeWater(terrain) in recalcBiome.
+		water: analyzeWater(terrain, true),
+		tools: (player.tools || {}) as Record<string, number>,
+		home: homeOf(player),
+		homeBuilt: !!homeOf(player).styleLocked,
+		biomeHealth,
+		achievements,
+		biomesOpen: (player.unlockedBiomes || []).length,
+		// same play-time clock the weather snapshot and rare animals read
+		seenPhases: phasesSeen(wxTime),
 	};
 }
 
@@ -2641,7 +3370,7 @@ async function consumeMaterials(player: any, materials: Record<string, number>, 
 			throw new GameError(tr('server.err.notEnoughShort', { resource: resId }), 400, 'server.err.notEnoughShort'); // defensive; checked above
 	}
 
-	await t.Player.patch(player.id, { inventory });
+	await patchPlayer(player.id, { inventory });
 	for (const chest of chests) {
 		if (usedFrom.chests[chest.id]) {
 			await t.Chest.patch(chest.id, { contents: chestContents.get(chest.id) });
@@ -3572,7 +4301,7 @@ function dailyTasksBlock(ctx: TaskCtx) {
 async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 	const t = db();
 	const d = await defs();
-	let player = await safeGet(t.Player, playerId);
+	let player = await getPlayer(playerId);
 	// normalize saves whose last area no longer exists / isn't explorable — but the
 	// home interior ('home') and trail-tent interiors ('tent-<biome>') are valid
 	// non-biome areas, so leave those be (as long as the tent's biome still is).
@@ -3595,7 +4324,7 @@ async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 			byWorld(t.NodeState, wid),
 			byWorld(t.TerrainTile, wid),
 			byPlayer(t.PlayerAchievement, playerId),
-			byWorld(t.FeedEntry, wid),
+			readFeed(wid),
 		]);
 	// The player's OWN unlocked biomes, before any co-op roam expansion below —
 	// daily tasks & their rewards are scoped to these so you never get items from
@@ -3609,7 +4338,7 @@ async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 		player = { ...player, unlockedBiomes: [...unlocked] };
 	}
 	const now = Date.now();
-	const wxTime = weatherTimeFromPlay(player);
+	const wxTime = weatherTimeFromPlay(player); // play-time clock, never null
 	return {
 		player: sanitizePlayer(player),
 		worldId: wid,
@@ -3623,11 +4352,8 @@ async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 		achievements: [...achievementRows]
 			.sort((a: any, b: any) => (b.earnedAt || 0) - (a.earnedAt || 0))
 			.map((r: any) => r.achievementId),
-		// persisted activity feed, oldest→newest (last 100 kept per player)
-		feed: [...feedRows]
-			.sort((a: any, b: any) => (a.at || 0) - (b.at || 0))
-			.slice(-FEED_CAP)
-			.map((r: any) => ({ id: r.id, at: r.at, icon: r.icon, text: r.text })),
+		// persisted activity feed, oldest→newest (last 100 kept per world)
+		feed: feedRows.slice(-FEED_CAP).map((r: any) => ({ id: r.id, at: r.at, icon: r.icon, text: r.text })),
 		serverTime: now,
 		weather: weatherSnapshot(wid, wxTime, WEATHER_BIOME_IDS, player?.devWeather || null),
 		dailyTasks: dailyTasksBlock({
@@ -3693,18 +4419,15 @@ const ACHIEVEMENT_TRIGGERS: Record<string, (c: AchCtx) => boolean> = {
 
 	'meadow-first-bloom': (c) => c.returned('meadow') >= 8,
 	'meadow-pollinators': (c) => c.kindReturned('meadow', 'insect') >= 5,
-	'meadow-apex': (c) => !!c.disc('red-fox-meadow'),
+	'meadow-apex': (c) => !!c.disc('red-fox'),
 	'meadow-mender': (c) => c.health('meadow') >= 80,
 	'meadow-reborn': (c) => c.returned('meadow') >= 25,
 
 	'forest-understory': (c) => c.returned('forest') >= 10,
 	'forest-cavities': (c) =>
 		!!c.disc('pileated-woodpecker') &&
-		(!!c.disc('wood-duck') ||
-			!!c.disc('northern-flying-squirrel') ||
-			!!c.disc('great-horned-owl') ||
-			!!c.disc('barred-owl')),
-	'forest-night-shift': (c) => !!c.disc('great-horned-owl') && !!c.disc('barred-owl') && !!c.disc('little-brown-bat'),
+		(!!c.disc('wood-duck') || !!c.disc('flying-squirrel') || !!c.disc('great-horned-owl') || !!c.disc('goshawk')),
+	'forest-night-shift': (c) => !!c.disc('great-horned-owl') && !!c.disc('goshawk') && !!c.disc('skunk'),
 	'forest-canopy': (c) => c.health('forest') >= 80,
 	'forest-reborn': (c) => c.returned('forest') >= 25,
 
@@ -3716,7 +4439,7 @@ const ACHIEVEMENT_TRIGGERS: Record<string, (c: AchCtx) => boolean> = {
 
 	'desert-first-life': (c) => c.returned('desert') >= 8,
 	'desert-burrows': (c) => !!c.disc('burrowing-owl') && !!c.disc('kangaroo-rat') && !!c.disc('desert-tortoise'),
-	'desert-hunter': (c) => !!c.disc('rattlesnake') || !!c.disc('coyote'),
+	'desert-hunter': (c) => !!c.disc('rattlesnake') || !!c.disc('mountain-lion'),
 	'desert-restored': (c) => c.health('desert') >= 80,
 	'desert-reborn': (c) => c.returned('desert') >= 25,
 
@@ -3887,32 +4610,18 @@ async function awardAchievements(
 }
 
 /**
- * Award achievements for a WORLD-changing action. The actor is evaluated as usual,
- * but in a co-op world every other member is evaluated too — so world-derived
- * achievements (welcoming the grasshopper / First Friend, keystones, biome
- * milestones…) land for everyone at the same moment, since they all share the same
- * world state. Personal achievements (your own crafting/gathering counts) still
- * only fire for whoever actually qualifies. Returns the actor's newly-earned set.
+ * Award achievements for a world-changing action. One player owns one world, so
+ * this is just the actor — the wrapper stays because every world-mutating call
+ * site already goes through it, and it is the right seam if that ever changes.
  */
 async function awardWorldAchievements(
 	wid: string,
 	actorId: string,
 	opts: { addDiscoveries?: any[]; freshBiomeStates?: any[] } = {},
 ): Promise<any[]> {
-	const newlyForActor = await awardAchievements(actorId, opts);
-	try {
-		const t = db();
-		const world = await safeGet(t.World, wid);
-		if (world && !world.solo) {
-			for (const m of await byWorld(t.WorldMember, wid)) {
-				if (m.playerId === actorId) continue;
-				await awardAchievements(m.playerId, opts); // same world context → shared world achievements
-			}
-		}
-	} catch {
-		/* co-op fan-out is best-effort */
-	}
-	return newlyForActor;
+	// One player owns one world, so there is nobody else to evaluate. The wrapper
+	// stays because every world-mutating call site already routes through it.
+	return awardAchievements(actorId, opts);
 }
 
 // ================================================================ ENDPOINTS
@@ -4120,17 +4829,15 @@ export class CreatePlayer extends PublicEndpoint {
 			ed,
 		);
 		await indexPlayerName(cleanName, playerId);
-		// World plumbing must never block starting a save: if the World/WorldMember
-		// tables aren't ready yet (instance not restarted after the schema change),
-		// fall back to a plain solo session so core play still works.
-		let worlds: any[] = [];
+		// Per-save setup must never block starting a save — if it throws, the save
+		// still works and the next login retries it.
 		try {
 			await ensureSoloWorld(created.player, { freshGrid: true });
-			worlds = await listMemberships(playerId);
 		} catch (e) {
-			console.error('world setup skipped (CreatePlayer):', e);
+			console.error('save setup skipped (CreatePlayer):', e);
 		}
-		return { ok: true, playerId, worldId: playerId, worlds, state: await freshSnapshot(created) };
+		// COMPAT: `worldId` and `worlds` are dead fields a 0.2.x client still reads.
+		return { ok: true, playerId, worldId: playerId, worlds: [], state: await freshSnapshot(created) };
 	}
 }
 
@@ -4269,17 +4976,10 @@ export class DeletePlayer extends PublicEndpoint {
 			await t.PlayerAchievement.delete(rec.id);
 			removed++;
 		}
-		// drop every world membership, and the solo World row itself
-		for (const m of await byPlayer(t.WorldMember, playerId)) {
-			await t.WorldMember.delete(m.id);
-			removed++;
-		}
 		// Deleting the save is the one place a still-undecodable row must not be
 		// left behind, so fall back to forceRemove (stub-then-delete) when the row
 		// exists on disk but neither salvage nor a plain delete can touch it.
-		if ((await safeGet(t.World, playerId)) || existsRaw(t.World, playerId)) {
-			if (await forceRemove(t.World, playerId)) removed++;
-		}
+		if (existsRaw(t.Player, playerId)) await forceRemove(t.Player, playerId);
 		await t.Player.delete(playerId);
 		await unindexPlayerName(player.name, playerId);
 		return { ok: true, deleted: playerId, recordsRemoved: removed + 1 };
@@ -4312,14 +5012,6 @@ export class DeleteDemoSave extends PublicEndpoint {
 		}
 		for (const rec of await byPlayer(t.PlayerAchievement, id)) {
 			await t.PlayerAchievement.delete(rec.id);
-			removed++;
-		}
-		for (const m of await byPlayer(t.WorldMember, id)) {
-			await t.WorldMember.delete(m.id);
-			removed++;
-		}
-		if (await safeGet(t.World, id)) {
-			await t.World.delete(id);
 			removed++;
 		}
 		await t.Player.delete(id);
@@ -4360,7 +5052,7 @@ export class ExportDemoSave extends PublicEndpoint {
 				updatedAt: Date.now(),
 			},
 			// Keys mirror src/solo/localDb.ts DYNAMIC_TABLES so loadSoloGame hydrates
-			// cleanly. WorldPresence / JoinRequest are transient — exported empty.
+			// cleanly.
 			data: {
 				Player: [exportedPlayer],
 				PlayerAchievement: await byPlayer(t.PlayerAchievement, id),
@@ -4371,10 +5063,6 @@ export class ExportDemoSave extends PublicEndpoint {
 				NodeState: await byWorld(t.NodeState, wid),
 				TerrainTile: await byWorld(t.TerrainTile, wid),
 				FeedEntry: await byWorld(t.FeedEntry, wid),
-				World: (await safeGet(t.World, wid)) ? [await safeGet(t.World, wid)] : [],
-				WorldMember: await byPlayer(t.WorldMember, id),
-				WorldPresence: [],
-				JoinRequest: [],
 			},
 		};
 		return { ok: true, ...save };
@@ -4396,7 +5084,7 @@ export class ChangePasscode extends PublicEndpoint {
 		if (next.length < 4 || next.length > 32)
 			throw new GameError(tr('server.err.newPasscodeLength'), 400, 'server.err.newPasscodeLength');
 		const { salt, hash } = hashPasscode(next);
-		await db().Player.patch(playerId, { passcodeHash: hash, passcodeSalt: salt, passcode: null });
+		await patchPlayer(playerId, { passcodeHash: hash, passcodeSalt: salt, passcode: null });
 		return { ok: true };
 	}
 }
@@ -4422,7 +5110,7 @@ export class LoginPlayer extends PublicEndpoint {
 		const now = Date.now();
 		const playerId = player.id;
 		const prev = readMetrics(player) || freshMetrics(player.createdAt || now);
-		await db().Player.patch(playerId, {
+		await patchPlayer(playerId, {
 			metrics: encodeMetrics({ ...prev, lastHeartbeatAt: 0 }),
 			...(tzOffsetMinutes != null ? { tzOffsetMinutes: sanitizeTzOffset(tzOffsetMinutes) } : {}),
 		});
@@ -4432,12 +5120,10 @@ export class LoginPlayer extends PublicEndpoint {
 		// co-op world they had joined — this is how you log back in to co-op).
 		// Guarded so a not-yet-migrated instance still logs you in (solo) rather than erroring.
 		let active = player.worldId || playerId;
-		let worlds: any[] = [];
 		try {
 			await ensureSoloWorld(player);
 			active = (await safeGet(db().Player, playerId))?.worldId || playerId;
-			await syncMemberUnlocks(playerId, active);
-			worlds = await listMemberships(playerId);
+			await repairSave(active, playerId, d, { force: true });
 		} catch (e) {
 			console.error('world setup skipped (LoginPlayer):', e);
 		}
@@ -4446,9 +5132,10 @@ export class LoginPlayer extends PublicEndpoint {
 		// above so a returning player lands on the current spawn, never a shifted one.
 		const areaBiome = d.biome.get(player.area);
 		if (player.area === 'home' || !areaBiome || !areaBiome.explorable) {
-			await db().Player.patch(playerId, { area: 'meadow', x: 24.5, y: 6.5 });
+			await patchPlayer(playerId, { area: 'meadow', x: 24.5, y: 6.5 });
 		}
-		return { ok: true, playerId, worldId: active, worlds, state: await snapshot(playerId) };
+		// COMPAT: `worldId` and `worlds` are dead fields a 0.2.x client still reads.
+		return { ok: true, playerId, worldId: active, worlds: [], state: await snapshot(playerId) };
 	}
 }
 
@@ -4462,413 +5149,26 @@ export class GameState extends PublicEndpoint {
 	}
 }
 
-// ------------------------------------------------------------- worlds API
-// Co-op lets several players restore one shared preserve. Personal progress
-// (inventory, tools, appearance, achievements, position) always stays with the
-// player; only the world (biomes, terrain, placements, animals, chests, feed)
-// is shared. A player can belong to many worlds and switch between them, and
-// because membership is persisted they can log back in straight into a co-op
-// world they had joined.
-
-/** GET/POST /MyWorlds/ {playerId} — every world this player can enter. */
+/**
+ * COMPAT: `MyWorlds` outlives co-op.
+ *
+ * Deleting it looked safe — co-op is behind a false flag — but `api.myWorlds()`
+ * is called UNGATED in three core solo paths (startNewSolo, resumeSolo,
+ * continueLast). In continueLast the catch rethrows, and `isMissingSaveError` is
+ * `status === 404`, so a missing endpoint would break the Continue button AND
+ * call `forgetSave()`, dropping the player's save pointer. The solo backend
+ * returns 404 for an unknown endpoint too, so desktop would break the same way.
+ *
+ * So it stays, answering the only shape the client reads: one solo world, which
+ * is the player themselves. Remove in Phase 4, together with the client calls —
+ * gated on /Metrics/ showing no clients below 0.3.0 for 30 days.
+ */
 export class MyWorlds extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId } = await bodyOf(data);
 		const { player } = await requirePlayer(playerId);
 		await ensureSoloWorld(player);
-		return { ok: true, activeWorldId: worldOf(player), worlds: await listMemberships(playerId) };
-	}
-}
-
-/** POST /CreateWorld/ {playerId, name} — start a new shared co-op preserve. */
-export class CreateWorld extends PublicEndpoint {
-	async post(data: any) {
-		const { playerId, name } = await bodyOf(data);
-		const t = db();
-		const { player } = await requirePlayer(playerId);
-		await ensureSoloWorld(player);
-
-		const cleanName = String(name || '').trim() || tr('server.world.coopName', { name: player.name });
-		if (cleanName.length > 40) throw new GameError(tr('server.err.worldNameLength'), 400, 'server.err.worldNameLength');
-
-		// generate a unique world id + a collision-free join code
-		const worldId = `w_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 7)}`;
-		let joinCode = genJoinCode();
-		const allWorlds = await allOf(t.World);
-		const taken = new Set(allWorlds.map((w: any) => w.joinCode).filter(Boolean));
-		let guard = 0;
-		while (taken.has(joinCode) && guard++ < 20) joinCode = genJoinCode();
-
-		const now = Date.now();
-		await t.World.put({
-			id: worldId,
-			name: cleanName,
-			solo: false,
-			ownerId: playerId,
-			joinCode,
-			createdAt: now,
-			maxMembers: DEFAULT_MAX_MEMBERS,
-		});
-		await t.WorldMember.put({
-			id: `${worldId}:${playerId}`,
-			worldId,
-			playerId,
-			role: 'owner',
-			joinedAt: now,
-			lastSeenAt: now,
-		});
-		// seed the shared world's biome rows (meadow unlocked, like a fresh save) so
-		// restoration starts from scratch in the co-op world
-		const d = await defs();
-		for (const b of d.biomes) {
-			await t.BiomeState.put({
-				id: `${worldId}:${b.id}`,
-				worldId,
-				playerId,
-				biomeId: b.id,
-				health: BASE_HEALTH,
-				balance: 0,
-				returnedCount: 0,
-				unlocked: b.id === 'meadow',
-			});
-		}
-		return {
-			ok: true,
-			world: {
-				worldId,
-				name: cleanName,
-				joinCode,
-				solo: false,
-				role: 'owner',
-				isOwner: true,
-				memberCount: 1,
-				maxMembers: DEFAULT_MAX_MEMBERS,
-			},
-			worlds: await listMemberships(playerId),
-		};
-	}
-}
-
-/** POST /JoinWorld/ {playerId, joinCode} — join a co-op preserve and enter it. */
-/** Find a joinable (non-solo) world by its code. */
-async function worldByCode(t: any, joinCode: any): Promise<any | null> {
-	const code = String(joinCode || '')
-		.trim()
-		.toUpperCase();
-	if (!code) return null;
-	return (await allOf(t.World)).find((w: any) => !w.solo && w.joinCode === code) || null;
-}
-
-export class JoinWorld extends PublicEndpoint {
-	async post(data: any) {
-		const { playerId, joinCode, token } = await bodyOf(data);
-		const t = db();
-		const { player } = await requirePlayer(playerId);
-		await ensureSoloWorld(player);
-
-		const world = await worldByCode(t, joinCode);
-		if (!world) throw new GameError(tr('server.err.noWorldWithCode'), 404, 'server.err.noWorldWithCode');
-
-		const memberId = `${world.id}:${playerId}`;
-		const already = await t.WorldMember.get(memberId);
-		if (!already) {
-			// You can only become a member once the host has APPROVED your request —
-			// redeem the token you got when you entered the code.
-			const tok = String(token || '').trim();
-			const req = tok ? await t.JoinRequest.get(`${world.id}:${tok}`) : null;
-			if (!req || req.status !== 'approved') {
-				throw new GameError(tr('server.err.hostNotApproved'), 403, 'server.err.hostNotApproved');
-			}
-			const max = world.maxMembers || DEFAULT_MAX_MEMBERS;
-			const members = await byWorld(t.WorldMember, world.id);
-			if (members.length >= max) {
-				throw new GameError(tr('server.err.worldFullJoined', { max }), 409, 'server.err.worldFullJoined');
-			}
-			await t.WorldMember.put({
-				id: memberId,
-				worldId: world.id,
-				playerId,
-				role: 'member',
-				joinedAt: Date.now(),
-				lastSeenAt: Date.now(),
-			});
-			await t.JoinRequest.delete(`${world.id}:${tok}`); // consume the approval
-			// announce the arrival in the shared world feed (everyone sees it)
-			const at = Date.now();
-			await t.FeedEntry.put({
-				id: `f_${world.id}_${at}_${Math.random().toString(36).slice(2, 7)}`,
-				worldId: world.id,
-				playerId,
-				at,
-				icon: 'user',
-				text: tr('server.feed.joinedWorld', { name: player.name }),
-			});
-		}
-		// entering the world: make it active and open up whatever biomes it has unlocked
-		await t.Player.patch(playerId, { worldId: world.id });
-		await syncMemberUnlocks(playerId, world.id);
-		// The membership/worldId we just wrote may not be visible to reads in this same
-		// transaction yet, so force the active world id and make sure the joined world
-		// is present in the returned list (otherwise the client needs a second load to
-		// recognize co-op).
-		let worldsList = await listMemberships(playerId);
-		if (!worldsList.some((w: any) => w.worldId === world.id)) {
-			const members = await byWorld(t.WorldMember, world.id);
-			const here = members.some((m: any) => m.playerId === playerId) ? members.length : members.length + 1;
-			worldsList = [
-				...worldsList,
-				{
-					worldId: world.id,
-					name: world.name,
-					solo: false,
-					role: world.ownerId === playerId ? 'owner' : 'member',
-					joinCode: world.joinCode,
-					memberCount: here,
-					maxMembers: world.maxMembers || DEFAULT_MAX_MEMBERS,
-					isOwner: world.ownerId === playerId,
-				},
-			];
-		}
-		return { ok: true, worldId: world.id, worlds: worldsList, state: await snapshot(playerId, { worldId: world.id }) };
-	}
-}
-
-/** POST /CheckWorldCode/ {joinCode} — does this code point to a real co-op world? (no account needed) */
-export class CheckWorldCode extends PublicEndpoint {
-	async post(data: any) {
-		const { joinCode } = await bodyOf(data);
-		const t = db();
-		const world = await worldByCode(t, joinCode);
-		if (!world) return { ok: true, exists: false };
-		const memberCount = (await byWorld(t.WorldMember, world.id)).length;
-		const owner = await safeGet(t.Player, world.ownerId);
-		const max = world.maxMembers || DEFAULT_MAX_MEMBERS;
-		return {
-			ok: true,
-			exists: true,
-			world: {
-				worldId: world.id,
-				name: world.name,
-				hostName: owner?.name || tr('server.fallback.host'),
-				memberCount,
-				maxMembers: max,
-				full: memberCount >= max,
-			},
-		};
-	}
-}
-
-/** POST /RequestJoin/ {joinCode, token, name} — ask the host to let you in (before making a character). */
-export class RequestJoin extends PublicEndpoint {
-	async post(data: any) {
-		const { joinCode, token, name } = await bodyOf(data);
-		const t = db();
-		const world = await worldByCode(t, joinCode);
-		if (!world) throw new GameError(tr('server.err.noWorldWithCode'), 404, 'server.err.noWorldWithCode');
-		const tok = String(token || '').trim();
-		if (!tok) throw new GameError(tr('server.err.missingToken'), 400, 'server.err.missingToken');
-		const max = world.maxMembers || DEFAULT_MAX_MEMBERS;
-		const memberCount = (await byWorld(t.WorldMember, world.id)).length;
-		if (memberCount >= max)
-			throw new GameError(tr('server.err.worldFullClosed', { max }), 409, 'server.err.worldFullClosed');
-		const cleanName =
-			String(name || '')
-				.trim()
-				.slice(0, 24) || tr('server.fallback.newCaretaker');
-		await t.JoinRequest.put({
-			id: `${world.id}:${tok}`,
-			worldId: world.id,
-			token: tok,
-			name: cleanName,
-			status: 'pending',
-			createdAt: Date.now(),
-		});
-		const owner = await safeGet(t.Player, world.ownerId);
-		return {
-			ok: true,
-			worldId: world.id,
-			world: { name: world.name, hostName: owner?.name || tr('server.fallback.host') },
-		};
-	}
-}
-
-/** POST /JoinRequestStatus/ {worldId, token} — the waiting joiner polls this. */
-export class JoinRequestStatus extends PublicEndpoint {
-	async post(data: any) {
-		const { worldId, token } = await bodyOf(data);
-		const t = db();
-		const req = await t.JoinRequest.get(`${worldId}:${String(token || '').trim()}`);
-		return { ok: true, status: req?.status || 'none' };
-	}
-}
-
-/** POST /PendingJoinRequests/ {playerId} — the host's pending requests for their active world. */
-export class PendingJoinRequests extends PublicEndpoint {
-	async post(data: any) {
-		const { playerId } = await bodyOf(data);
-		const { player } = await requirePlayer(playerId);
-		const t = db();
-		const wid = worldOf(player);
-		const world = await safeGet(t.World, wid);
-		if (!world || world.solo || world.ownerId !== playerId) return { ok: true, requests: [] };
-		const reqs = (await byWorld(t.JoinRequest, wid)).filter((r: any) => r.status === 'pending');
-		reqs.sort((a: any, b: any) => (a.createdAt || 0) - (b.createdAt || 0));
-		return { ok: true, requests: reqs.map((r: any) => ({ token: r.token, name: r.name, createdAt: r.createdAt })) };
-	}
-}
-
-/** POST /ResolveJoin/ {playerId, worldId, token, approve} — host approves or denies a request. */
-export class ResolveJoin extends PublicEndpoint {
-	async post(data: any) {
-		const { playerId, worldId, token, approve } = await bodyOf(data);
-		await requirePlayer(playerId);
-		const t = db();
-		const world = await safeGet(t.World, worldId);
-		if (!world || world.solo) throw new GameError(tr('server.err.noCoopWorld'), 404, 'server.err.noCoopWorld');
-		if (world.ownerId !== playerId)
-			throw new GameError(tr('server.err.onlyHostApproves'), 403, 'server.err.onlyHostApproves');
-		const id = `${worldId}:${String(token || '').trim()}`;
-		const req = await t.JoinRequest.get(id);
-		if (!req) throw new GameError(tr('server.err.requestNotPending'), 404, 'server.err.requestNotPending');
-		await t.JoinRequest.patch(id, { status: approve ? 'approved' : 'denied', resolvedAt: Date.now() });
-		return { ok: true };
-	}
-}
-
-/**
- * POST /WorldRoster/ {playerId} — the full join history of the active co-op world:
- * everyone who has ever joined (caretakers stay on the roster so they can always
- * return), in join order, plus whether the world has hit its cap and is closed.
- */
-export class WorldRoster extends PublicEndpoint {
-	async post(data: any) {
-		const { playerId } = await bodyOf(data);
-		const { player } = await requirePlayer(playerId);
-		const t = db();
-		const wid = worldOf(player);
-		const world = await safeGet(t.World, wid);
-		const max = world?.maxMembers || DEFAULT_MAX_MEMBERS;
-		if (!world || world.solo) return { ok: true, roster: [], closed: false, maxMembers: max, joinCode: null };
-		const members = await byWorld(t.WorldMember, wid);
-		const roster: any[] = [];
-		for (const m of members) {
-			const p = await safeGet(t.Player, m.playerId);
-			roster.push({
-				playerId: m.playerId,
-				name: p?.name || tr('server.fallback.caretaker'),
-				isOwner: m.role === 'owner' || world.ownerId === m.playerId,
-				joinedAt: m.joinedAt || 0,
-			});
-		}
-		roster.sort((a, b) => (a.joinedAt || 0) - (b.joinedAt || 0));
-		return { ok: true, roster, closed: roster.length >= max, maxMembers: max, joinCode: world.joinCode };
-	}
-}
-
-/** POST /SwitchWorld/ {playerId, worldId} — make one of your worlds active and load it. */
-export class SwitchWorld extends PublicEndpoint {
-	async post(data: any) {
-		const { playerId, worldId } = await bodyOf(data);
-		const t = db();
-		const { player } = await requirePlayer(playerId);
-		await ensureSoloWorld(player);
-
-		const target = String(worldId || '');
-		if (!(await t.WorldMember.get(`${target}:${playerId}`))) {
-			throw new GameError(tr('server.err.notWorldMember'), 403, 'server.err.notWorldMember');
-		}
-		await t.Player.patch(playerId, { worldId: target });
-		await t.WorldMember.patch(`${target}:${playerId}`, { lastSeenAt: Date.now() });
-		await syncMemberUnlocks(playerId, target);
-		return {
-			ok: true,
-			worldId: target,
-			worlds: await listMemberships(playerId),
-			state: await snapshot(playerId, { worldId: target }),
-		};
-	}
-}
-
-/** POST /LeaveWorld/ {playerId, worldId} — leave a co-op world (your solo world stays). */
-export class LeaveWorld extends PublicEndpoint {
-	async post(data: any) {
-		const { playerId, worldId } = await bodyOf(data);
-		const t = db();
-		const { player } = await requirePlayer(playerId);
-		const target = String(worldId || '');
-		if (target === playerId) throw new GameError(tr('server.err.cannotLeaveSolo'), 400, 'server.err.cannotLeaveSolo');
-		const memberId = `${target}:${playerId}`;
-		if (!(await t.WorldMember.get(memberId)))
-			throw new GameError(tr('server.err.notInWorld'), 404, 'server.err.notInWorld');
-		await t.WorldMember.delete(memberId);
-		// if you were standing in that world, fall back to your solo world
-		if (player.worldId === target) {
-			await t.Player.patch(playerId, { worldId: playerId, area: 'meadow', x: 24.5, y: 6.5 });
-			await syncMemberUnlocks(playerId, playerId);
-		}
-		const active = player.worldId === target ? playerId : player.worldId || playerId;
-		return {
-			ok: true,
-			worldId: active,
-			worlds: await listMemberships(playerId),
-			state: await snapshot(playerId, { worldId: active }),
-		};
-	}
-}
-
-// How recently a member must have pinged to count as "here right now".
-const PRESENCE_WINDOW_MS = 15_000;
-
-/**
- * POST /Presence/ {playerId, x, y, area} — live co-op presence. The caller's
- * position is recorded on their WorldMember row, and the positions of every
- * other member seen within the presence window are returned (with name +
- * appearance) so the client can render their avatars. A no-op for solo worlds.
- *
- * This is the pragmatic v1 transport (a short client poll). The design doc's
- * end state moves this onto Harper's native pub/sub so positions are pushed,
- * never persisted; the client contract here stays the same when that lands.
- */
-export class Presence extends PublicEndpoint {
-	async post(data: any) {
-		const { playerId, x, y, area } = await bodyOf(data);
-		const t = db();
-		const { player } = await requirePlayer(playerId);
-		const wid = worldOf(player);
-		const now = Date.now();
-
-		const px = Number.isFinite(Number(x)) ? Number(x) : player.x;
-		const py = Number.isFinite(Number(y)) ? Number(y) : player.y;
-		const parea = typeof area === 'string' ? area : player.area;
-
-		// solo worlds have no one else — nothing to broadcast
-		const world = await safeGet(t.World, wid);
-		if (world?.solo) return { ok: true, worldId: wid, peers: [] };
-
-		// Merge my live position into the shared WorldPresence record. Writing it
-		// pushes the new map to everyone SUBSCRIBED to this world over WebSocket —
-		// that's the realtime channel (no one polls to see others move). We prune
-		// players who've gone quiet so avatars disappear when someone leaves.
-		const rec = (await t.WorldPresence.get(wid)) || { id: wid, players: {} };
-		const players = { ...(rec.players || {}) };
-		players[playerId] = {
-			playerId,
-			name: player.name,
-			appearance: player.appearance,
-			area: parea,
-			x: px,
-			y: py,
-			t: now,
-		};
-		for (const pid of Object.keys(players)) {
-			if (now - (players[pid]?.t || 0) > PRESENCE_WINDOW_MS) delete players[pid];
-		}
-		await t.WorldPresence.put({ id: wid, players, updatedAt: now });
-
-		// Also return the current peers, so a client whose WebSocket isn't connected
-		// (or hasn't connected yet) still has a polling fallback.
-		const peers = Object.values(players).filter((p: any) => p.playerId !== playerId);
-		return { ok: true, worldId: wid, peers };
+		return { ok: true, activeWorldId: player.id, worlds: [] };
 	}
 }
 
@@ -4969,7 +5269,7 @@ export class CollectResource extends PublicEndpoint {
 
 			const inventory = { ...(player.inventory || {}) };
 			inventory[resourceId] = (inventory[resourceId] || 0) + total;
-			await t.Player.patch(playerId, { inventory });
+			await patchPlayer(playerId, { inventory });
 			await t.NodeState.put({ id: nodeKey, worldId: wid, playerId, harvestedAt: now });
 
 			await bumpMetrics(player, { resourcesCollected: total }, { [`res:${resourceId}`]: total });
@@ -5030,7 +5330,7 @@ export class ChestTransfer extends PublicEndpoint {
 				throw new GameError(tr('server.err.badDirection'), 400, 'server.err.badDirection');
 			}
 
-			await t.Player.patch(playerId, { inventory });
+			await patchPlayer(playerId, { inventory });
 			await t.Chest.patch(chestId, { contents });
 			await bumpMetrics(player, direction === 'deposit' ? { chestDeposits: 1 } : { chestWithdrawals: 1 });
 			return { ok: true, inventory, chest: { ...chest, contents } };
@@ -5058,7 +5358,7 @@ export class DiscardItem extends PublicEndpoint {
 					throw new GameError(tr('server.err.discardTooMany'), 400, 'server.err.discardTooMany');
 				craftedItems[id] -= amount;
 				if (craftedItems[id] <= 0) delete craftedItems[id];
-				await t.Player.patch(playerId, { craftedItems });
+				await patchPlayer(playerId, { craftedItems });
 				await bumpMetrics(player, { itemsDiscarded: amount });
 				return { ok: true, craftedItems };
 			}
@@ -5068,7 +5368,7 @@ export class DiscardItem extends PublicEndpoint {
 				throw new GameError(tr('server.err.discardTooMany'), 400, 'server.err.discardTooMany');
 			inventory[id] -= amount;
 			if (inventory[id] <= 0) delete inventory[id];
-			await t.Player.patch(playerId, { inventory });
+			await patchPlayer(playerId, { inventory });
 			await bumpMetrics(player, { itemsDiscarded: amount });
 			return { ok: true, inventory };
 		});
@@ -5114,7 +5414,7 @@ export class CraftItem extends PublicEndpoint {
 		// Progress gate: most recipes only unlock once you've restored their biome
 		// far enough (health / animals returned / a keystone animal back).
 		if (!devUnlock && recipe.unlock && recipe.unlockBiome) {
-			const ctx = await recipeUnlockContext(wid, recipe.unlockBiome, player, d);
+			const ctx = await recipeUnlockContext(wid, recipe.unlockBiome, player, d, recipe.unlock);
 			if (!recipeUnlockMet(recipe, ctx)) {
 				throw new GameError(
 					tr('server.err.recipeLocked', { label: recipe.unlock.label }),
@@ -5160,7 +5460,7 @@ export class CraftItem extends PublicEndpoint {
 		const craftedEver = { ...(player.craftedEver || {}) };
 		craftedItems[recipe.output.itemId] = (craftedItems[recipe.output.itemId] || 0) + (recipe.output.qty || 1);
 		craftedEver[recipe.output.itemId] = (craftedEver[recipe.output.itemId] || 0) + (recipe.output.qty || 1);
-		await t.Player.patch(playerId, refund ? { craftedItems, craftedEver, inventory } : { craftedItems, craftedEver });
+		await patchPlayer(playerId, refund ? { craftedItems, craftedEver, inventory } : { craftedItems, craftedEver });
 
 		// crafting key items (e.g. the water restoration kit) can unlock biomes
 		const unlockedBiomes = await checkUnlocks(wid, playerId, { player: { ...player, craftedItems, craftedEver } });
@@ -5332,9 +5632,9 @@ export class PlaceObject extends PublicEndpoint {
 			const craftedItems = { ...(player.craftedItems || {}) };
 			craftedItems[objectId] -= 1;
 			if (craftedItems[objectId] <= 0) delete craftedItems[objectId];
-			await t.Player.patch(playerId, { craftedItems });
+			await patchPlayer(playerId, { craftedItems });
 
-			const placementId = `pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+			const placementId = `${wid}:pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
 			const placement = {
 				id: placementId,
 				worldId: wid,
@@ -5373,7 +5673,7 @@ export class PlaceObject extends PublicEndpoint {
 				addPlacements: [placement],
 				player: { ...player, craftedItems },
 			});
-			await bumpMetrics(player, { objectsPlaced: 1, animalsReturned: recalc.newAnimals?.length || 0 }, { place: 1 });
+			await bumpMetrics(player, { objectsPlaced: 1 }, { place: 1 }); // recalcBiome counts any animal that returned
 			await awardWorldAchievements(wid, playerId, {
 				addDiscoveries: recalc.newAnimals,
 				freshBiomeStates: [recalc.biomeState],
@@ -5428,7 +5728,7 @@ export class Plant extends PublicEndpoint {
 		const perk = homePerk(player);
 		const headStart = perk?.id === 'growth' ? perk.strength : 0;
 		const now = Date.now();
-		const placementId = `pl_${now}_${Math.random().toString(36).slice(2, 8)}`;
+		const placementId = `${wid}:pl_${now}_${Math.random().toString(36).slice(2, 8)}`;
 		const placement = {
 			id: placementId,
 			worldId: wid,
@@ -5447,7 +5747,7 @@ export class Plant extends PublicEndpoint {
 			removeTerrainIds: [bed.id],
 			player: { ...player, inventory },
 		});
-		await bumpMetrics(player, { plantsPlanted: 1, animalsReturned: recalc.newAnimals?.length || 0 }, { plant: 1 });
+		await bumpMetrics(player, { plantsPlanted: 1 }, { plant: 1 }); // recalcBiome counts any animal that returned
 		await awardWorldAchievements(wid, playerId, {
 			addDiscoveries: recalc.newAnimals,
 			freshBiomeStates: [recalc.biomeState],
@@ -5502,7 +5802,7 @@ export class HarvestPlacement extends PublicEndpoint {
 			if (take <= 0) throw new GameError(tr('server.err.basketFullHarvest'), 409, 'server.err.basketFullHarvest');
 			inventory[y.resourceId] = (inventory[y.resourceId] || 0) + take;
 
-			await t.Player.patch(playerId, { inventory });
+			await patchPlayer(playerId, { inventory });
 			await t.Placement.patch(placementId, { lastHarvestAt: now });
 			await bumpMetrics(player, { resourcesCollected: take });
 			return {
@@ -5522,7 +5822,7 @@ export class UpdateAppearance extends PublicEndpoint {
 		const { playerId, appearance } = await bodyOf(data);
 		const { player } = await requirePlayer(playerId);
 		const clean = sanitizeAppearance(appearance);
-		await db().Player.patch(playerId, { appearance: clean });
+		await patchPlayer(playerId, { appearance: clean });
 		await bumpMetrics(player, { appearanceChanges: 1 });
 		return { ok: true, appearance: clean };
 	}
@@ -5663,10 +5963,10 @@ export class RemoveObject extends PublicEndpoint {
 			if (chest) await t.Chest.delete(placementId);
 			await t.Placement.delete(placementId);
 			if (refunded) {
-				await t.Player.patch(playerId, { inventory });
+				await patchPlayer(playerId, { inventory });
 				for (const [cid, contents] of chestUpdates) await t.Chest.patch(cid, { contents });
 			} else {
-				await t.Player.patch(playerId, { craftedItems });
+				await patchPlayer(playerId, { craftedItems });
 			}
 
 			// interiors (home / tent) aren't biomes — skip recalc for their decor
@@ -5677,7 +5977,7 @@ export class RemoveObject extends PublicEndpoint {
 							player: { ...player, craftedItems, inventory },
 						})
 					: null;
-			await bumpMetrics(player, { objectsRemoved: 1, animalsReturned: recalc?.newAnimals?.length || 0 });
+			await bumpMetrics(player, { objectsRemoved: 1 }); // recalcBiome counts any animal that returned
 			await awardWorldAchievements(
 				wid,
 				playerId,
@@ -5722,7 +6022,7 @@ export class UpgradeTool extends PublicEndpoint {
 
 			const { usedFrom, inventory } = await consumeMaterials(player, nextTier.materials || {}, wid);
 			const tools = { ...(player.tools || {}), [toolId]: nextTier.tier };
-			await t.Player.patch(playerId, { tools });
+			await patchPlayer(playerId, { tools });
 
 			// tool upgrades can satisfy biome unlock requirements
 			const unlockedBiomes = await checkUnlocks(wid, playerId, { player: { ...player, tools } });
@@ -5782,7 +6082,7 @@ export class UpgradeHome extends PublicEndpoint {
 
 			const { usedFrom, inventory } = await consumeMaterials(player, next.materials || {}, wid);
 			const updated = { ...home, [track]: level + 1 };
-			await t.Player.patch(playerId, { home: updated });
+			await patchPlayer(playerId, { home: updated });
 			const chests = await byWorld(t.Chest, wid);
 			await awardAchievements(playerId);
 			await bumpMetrics(player, { homeUpgrades: 1 });
@@ -5820,7 +6120,7 @@ export class Rest extends PublicEndpoint {
 		// would wake you at 00:00 in the dark.
 		const nowT = weatherTimeFromPlay(player);
 		const skip = nextDawnAt(nowT) - nowT;
-		await t.Player.patch(playerId, { clockOffsetMs: (player.clockOffsetMs || 0) + skip });
+		await patchPlayer(playerId, { clockOffsetMs: (player.clockOffsetMs || 0) + skip });
 		await bumpMetrics(player, { restsTaken: 1 });
 		return { ok: true, rested: true, refreshed: nodes.length };
 	}
@@ -5841,7 +6141,7 @@ export class SetHomeColors extends PublicEndpoint {
 		for (const k of ['floor', 'wall', 'accent', 'rug']) {
 			if (colors?.[k] && isHexColor(colors[k])) next[k] = String(colors[k]).trim().toLowerCase();
 		}
-		await t.Player.patch(playerId, { home: { ...home, colors: next } });
+		await patchPlayer(playerId, { home: { ...home, colors: next } });
 		await bumpMetrics(player, { recolors: 1 });
 		return { ok: true };
 	}
@@ -5899,7 +6199,7 @@ export class SetHomeStyle extends PublicEndpoint {
 		}
 		const { usedFrom, inventory } = await consumeMaterials(player, styleDef.materials || {}, wid);
 		const updated = { ...home, style, styleLocked: true, space: 2 };
-		await t.Player.patch(playerId, { home: updated });
+		await patchPlayer(playerId, { home: updated });
 		const chests = await byWorld(t.Chest, wid);
 		await awardAchievements(playerId);
 		await bumpMetrics(player, { homesBuilt: 1 });
@@ -6001,7 +6301,7 @@ export class ClaimTask extends PublicEndpoint {
 			} else {
 				patch.customGoals = (player.customGoals || []).filter((g: CustomGoal) => g.id !== task.id);
 			}
-			await t.Player.patch(playerId, patch);
+			await patchPlayer(playerId, patch);
 			await bumpMetrics(player, { tasksCompleted: 1 });
 			await awardAchievements(playerId);
 
@@ -6068,7 +6368,7 @@ export class SetGoals extends PublicEndpoint {
 			}
 			keep.push(out);
 		}
-		await t.Player.patch(playerId, { customGoals: keep });
+		await patchPlayer(playerId, { customGoals: keep });
 		return { ok: true, customGoals: keep, goalLimit: limit };
 	}
 }
@@ -6138,7 +6438,7 @@ export class Terraform extends PublicEndpoint {
 					const amount = Math.min(player.tools?.shovel || 1, room);
 					if (amount > 0) {
 						inventory = { ...inventory, [resId]: (inventory[resId] || 0) + amount };
-						await t.Player.patch(playerId, { inventory });
+						await patchPlayer(playerId, { inventory });
 						dug = { resourceId: resId, amount };
 					}
 				}
@@ -6156,6 +6456,11 @@ export class Terraform extends PublicEndpoint {
 				if (newType === 'water' && biome.canFlood === false) {
 					throw new GameError(tr('server.err.tooDryToFlood', { biome: biome.name }), 400, 'server.err.tooDryToFlood');
 				}
+				// ...and the trail gates stay walkable: water there would seal the
+				// way into the next biome (see blocksGateTrail)
+				if (newType === 'water' && blocksGateTrail(tx, ty, gateGeomOf(d, area))) {
+					throw new GameError(tr('server.err.gateMustStayClear'), 400, 'server.err.gateMustStayClear');
+				}
 				const have = (inventory.water || 0) + (inventory['clean-water'] || 0);
 				if (have < cost) throw new GameError(tr('server.err.needWater', { count: cost }), 400, 'server.err.needWater');
 				inventory = { ...inventory };
@@ -6168,7 +6473,7 @@ export class Terraform extends PublicEndpoint {
 						remaining -= take;
 					}
 				}
-				await t.Player.patch(playerId, { inventory });
+				await patchPlayer(playerId, { inventory });
 				tile = { ...existing, type: newType, updatedAt: Date.now() };
 				await t.TerrainTile.patch(existing.id, { type: newType, updatedAt: Date.now() });
 			} else if (action === 'clear') {
@@ -6184,11 +6489,8 @@ export class Terraform extends PublicEndpoint {
 				removeTerrainIds: removedId ? [removedId] : [],
 				player: { ...player, inventory },
 			});
-			await bumpMetrics(
-				player,
-				{ terraformActions: 1, animalsReturned: recalc.newAnimals?.length || 0 },
-				action === 'water' ? { water: 1 } : {},
-			);
+			// recalcBiome counts any animal that returned
+			await bumpMetrics(player, { terraformActions: 1 }, action === 'water' ? { water: 1 } : {});
 			await awardWorldAchievements(wid, playerId, {
 				addDiscoveries: recalc.newAnimals,
 				freshBiomeStates: [recalc.biomeState],
@@ -6276,7 +6578,7 @@ export class SyncPlayer extends PublicEndpoint {
 				}
 			}
 		}
-		await t.Player.patch(playerId, patch);
+		await patchPlayer(playerId, patch);
 		// the tutorial finishing (and reaching the grasshopper step) can earn First Friend
 		if (patch.tutorialStep !== undefined) await awardAchievements(playerId);
 		return { ok: true, player: sanitizePlayer(await safeGet(t.Player, playerId)) };
@@ -6295,29 +6597,52 @@ export class AppendFeed extends PublicEndpoint {
 		const wid = worldOf(player);
 		const t = db();
 		const list = Array.isArray(entries) ? entries.slice(0, FEED_CAP) : [];
-		let added = 0;
-		for (const e of list) {
-			const text = String(e?.text || '')
-				.slice(0, 500)
-				.trim();
-			if (!text) continue;
-			const at = Number(e?.at) || Date.now();
-			const icon = String(e?.icon || 'leaf').slice(0, 40);
-			const id = `f_${wid}_${at}_${Math.random().toString(36).slice(2, 9)}`;
-			await t.FeedEntry.put({ id, worldId: wid, playerId, at, icon, text });
-			added++;
-		}
-		// prune to the most recent FEED_CAP messages for this world
-		const all = (await byWorld(t.FeedEntry, wid)).sort((a, b) => (a.at || 0) - (b.at || 0));
-		if (all.length > FEED_CAP) {
-			for (const old of all.slice(0, all.length - FEED_CAP)) await t.FeedEntry.delete(old.id);
-		}
+		// One write for the whole batch, and the cap is applied by slicing the array
+		// rather than by deleting rows — so a long-running save costs no more per
+		// line than a fresh one.
+		const added = await appendFeed(wid, list);
 		return { ok: true, added };
 	}
 }
 
 const SESSION_GAP_MS = 30 * 60 * 1000; // a fresh heartbeat after this gap = a new session
 const MAX_BEAT_MS = 90 * 1000; // credit at most this much play time per beat (guards idle/closed tabs)
+
+// --------------------------------------------------------- idle-window anomaly
+// A window left open on screen still beats. Heartbeat is paused while the tab is
+// hidden (see the beat() guard in src/state.tsx), but a VISIBLE tab nobody is
+// sitting at looked exactly like play, and the 90s cap above only bounds each
+// beat — not how many of them an abandoned window sends. One such save logged
+// 798 minutes against 152 actions, which was 17% of every hour this dashboard
+// had ever recorded: enough on its own to move every average on the page.
+//
+// The tell is the rate, not the length. A long session is normal; a long session
+// with almost nothing happening in it is someone who walked away. Real players
+// bottom out around 1.2 actions/min even when playing slowly, and abandoned
+// windows sit at 0.0-0.3, so the floor goes between them. It only applies once a
+// session is long enough for the distinction to mean anything — a two-minute
+// look-and-leave is a bounce, which the acquisition funnel already counts, and
+// not the same thing at all.
+//
+// This classifies; it never deletes. The rows keep their real numbers and the
+// dashboard decides whether to count them (`?idle=exclude`).
+const IDLE_MIN_MINUTES = 10;
+const IDLE_MAX_ACTIONS_PER_MIN = 0.5;
+
+// How this save's play time was recorded. 1 = every visible window beat, for as
+// long as it stayed open. 2 = the client also requires input within its idle
+// window (reported as `idleGateMs`) before it beats, so an abandoned window stops
+// the clock on its own. Stamped on the metrics blob, surfaced per row and counted
+// in the dashboard's anomalies block, so a window spanning the change reads as
+// two populations rather than as a fall in engagement.
+const METRICS_REV = 2;
+
+/** Did this save spend its time as an unattended window rather than as play? */
+function isIdleAnomaly(row: { playSeconds?: number; totalActions?: number }): boolean {
+	const minutes = (row.playSeconds || 0) / 60;
+	if (minutes < IDLE_MIN_MINUTES) return false;
+	return (row.totalActions || 0) / minutes < IDLE_MAX_ACTIONS_PER_MIN;
+}
 
 /**
  * POST /Heartbeat/ {playerId} — the client pings this on a timer while the game
@@ -6327,7 +6652,7 @@ const MAX_BEAT_MS = 90 * 1000; // credit at most this much play time per beat (g
  */
 export class Heartbeat extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, language, edition } = await bodyOf(data);
+		const { playerId, language, edition, idleGateMs } = await bodyOf(data);
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
@@ -6339,6 +6664,12 @@ export class Heartbeat extends PublicEndpoint {
 		// Which product this session belongs to (demo | full), so dashboards can
 		// split demo players from paid. Sticky once set to 'demo'.
 		const ed: 'demo' | 'full' | null = edition === 'demo' ? 'demo' : edition === 'full' ? 'full' : null;
+		// How long the client lets an untouched window keep beating (see
+		// HEARTBEAT_IDLE_MS in src/state.tsx). A 0.2.x client doesn't send it and
+		// stays on rev 1, which is exactly the point: playSeconds means something
+		// slightly different either side of that line, and a dashboard averaging the
+		// two together would report a drop in play time that never happened.
+		const gateMs = typeof idleGateMs === 'number' && idleGateMs > 0 ? Math.round(idleGateMs) : null;
 		const last = prev.lastHeartbeatAt || 0;
 		const gap = now - last;
 
@@ -6377,10 +6708,11 @@ export class Heartbeat extends PublicEndpoint {
 			areaSeconds,
 			sessionLengths,
 			...(lang ? { language: lang } : {}),
+			...(gateMs ? { metricsRev: METRICS_REV, idleGateMs: gateMs } : {}),
 			// Keep 'demo' sticky: a demo player is never re-tagged 'full'.
 			...(ed ? { edition: prev.edition === 'demo' ? 'demo' : ed } : {}),
 		};
-		await t.Player.patch(playerId, { metrics: encodeMetrics(metrics) });
+		await patchPlayer(playerId, { metrics: encodeMetrics(metrics) });
 
 		// ---- habitat growth: the preserve keeps living while the game is closed ----
 		// Placements mature on wall-clock time (see matureMs), but biome health is
@@ -6390,6 +6722,13 @@ export class Heartbeat extends PublicEndpoint {
 		//  • first beat of a session after a real absence: recalc every unlocked
 		//    biome and shape a small welcome-back summary for the client.
 		const wid = worldOf(player);
+		// Backstop for the one-shot save work: ensureSoloWorld covers the login
+		// screen, but "Continue" resumes through GameState — a GET, which must not
+		// write — so a player who never logs in again would otherwise never migrate
+		// or be repaired at all. Both are marked and memoized, so every later beat
+		// is a no-op.
+		await migrateWorldKeys(wid, playerId);
+		await repairSave(wid, playerId, d, { player });
 		let welcomeBack: any = null;
 		const newAnimals: any[] = [];
 		const freshBiomeStates: any[] = [];
@@ -6546,6 +6885,13 @@ async function buildDashboardRows(): Promise<any[]> {
 				status,
 				daysSinceJoined: Math.floor((now - createdAt) / DAY_MS),
 				isNewToday: now - createdAt <= DAY_MS,
+				// Reported on every row so the dashboard can badge one player, not just
+				// drop them from a total.
+				idle: isIdleAnomaly({ playSeconds: sessionSeconds, totalActions: s.totalActions || 0 }),
+				// Which definition of play time this row was recorded under, so time
+				// series can be split at the change instead of straddling it.
+				metricsRev: s.metricsRev || 1,
+				idleGateMs: s.idleGateMs ?? null,
 			};
 		})
 		.sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
@@ -6713,6 +7059,48 @@ export class Metrics extends PublicEndpoint {
 		if (platformFilter && platformFilter.toLowerCase() !== 'all')
 			all = all.filter((v) => (v.platform || 'unknown') === platformFilter);
 
+		// `?idle=exclude` drops windows that were left open rather than played
+		// (see isIdleAnomaly). Counted BEFORE the filter runs, so the dashboard can
+		// say what it is leaving out instead of silently shrinking. Default is to
+		// include them: the raw endpoint keeps reporting everything it recorded,
+		// and the dashboard opts out on the reader's behalf.
+		const idleRows = all.filter((v) => v.idle);
+		const idleExcluded = oneParam('idle').toLowerCase() === 'exclude';
+		// Note what is NOT filtered here. An idle window is still a real person who
+		// really opened the game, so they stay in the head count, the audience
+		// buckets, the funnel, retention and their own (real) action totals. What
+		// cannot be trusted is their CLOCK — the play time, the sessions the gaps
+		// invented, and the hours parked in one area. Those aggregates read from
+		// `timed` instead, and everything else keeps reading `all`.
+		const timed = idleExcluded ? all.filter((v) => !v.idle) : all;
+		const anomalies = {
+			idlePlayers: idleRows.length,
+			idleHours: round1(idleRows.reduce((acc, v) => acc + (v.playSeconds || 0), 0) / 3600),
+			idleActions: idleRows.reduce((acc, v) => acc + (v.totalActions || 0), 0),
+			excluded: idleExcluded,
+			rule: `over ${IDLE_MIN_MINUTES} min of play at under ${IDLE_MAX_ACTIONS_PER_MIN} actions/min`,
+			// Spelled out because "excluded" is easy to over-read: these saves keep
+			// their place in the player count, the funnel and retention. It is only
+			// their play time, sessions and area dwell that stop counting.
+			affects: 'play time, sessions and area dwell only',
+			// Play time is not one measurement across this population. Rows on rev 1
+			// were recorded before the client stopped beating for an untouched window,
+			// so they include time nobody was there for; rev 2 rows do not. Reported
+			// rather than reconciled — there is no honest way to back out idle time a
+			// rev 1 row never recorded separately, so the split is shown and any trend
+			// that crosses it is read as two series.
+			clock: {
+				rev: METRICS_REV,
+				byRev: all.reduce((acc: Record<string, number>, v) => {
+					const k = `rev${v.metricsRev || 1}`;
+					acc[k] = (acc[k] || 0) + 1;
+					return acc;
+				}, {}),
+				idleGateMinutes: round1((all.find((v) => v.idleGateMs)?.idleGateMs || 0) / 60_000) || null,
+				note: 'rev 1 play time includes untouched windows; rev 2 does not',
+			},
+		};
+
 		const N = all.length || 1;
 		const pct = (n: number) => Math.round((n / N) * 100);
 
@@ -6722,9 +7110,16 @@ export class Metrics extends PublicEndpoint {
 			for (const [k, n] of Object.entries(v.counts)) actionTotals[k] = (actionTotals[k] || 0) + (n as number);
 		}
 
-		const totalPlaySeconds = all.reduce((acc, v) => acc + v.playSeconds, 0);
-		const totalSessions = all.reduce((acc, v) => acc + v.sessions, 0);
+		// Sessions count as clock, not population: an abandoned tab crossing the
+		// 30-minute gap threshold mints a fresh "session" every time it does it
+		// (one such save logged 16 of them without a single action).
+		const totalPlaySeconds = timed.reduce((acc, v) => acc + v.playSeconds, 0);
+		const totalSessions = timed.reduce((acc, v) => acc + v.sessions, 0);
+		// Actions are real even when the clock around them is not, so this one keeps
+		// reading everybody.
 		const totalActions = all.reduce((acc, v) => acc + v.totalActions, 0);
+		/** Denominator for the per-player time averages — the saves whose clock counts. */
+		const NT = timed.length || 1;
 
 		// Audience buckets by recency. `activeNow` counts saves seen in the last 5
 		// minutes — note solo saves uplink every ~3 min, so that's the practical
@@ -6733,6 +7128,9 @@ export class Metrics extends PublicEndpoint {
 			activeNow: all.filter((v) => v.minutesSinceActive != null && v.minutesSinceActive <= 5).length,
 			activeLast24h: all.filter((v) => v.status === 'active').length,
 			activeLast7d: all.filter((v) => v.status === 'active' || v.status === 'recent').length,
+			// `status` only knows the 24h and 7d cutoffs, so this one is measured
+			// straight off the clock. It is a superset of activeLast7d.
+			activeLast14d: all.filter((v) => v.hoursSinceActive != null && v.hoursSinceActive <= 24 * 14).length,
 			dormant: all.filter((v) => v.status === 'dormant').length,
 			newLast24h: all.filter((v) => now - v.createdAt <= DAY_MS).length,
 			newLast7d: all.filter((v) => now - v.createdAt <= 7 * DAY_MS).length,
@@ -6845,7 +7243,7 @@ export class Metrics extends PublicEndpoint {
 		// Time-per-area: sum every save's dwell time, so you can see where players
 		// actually spend their sessions (and the single most-lived-in area).
 		const areaSecondsTotals: Record<string, number> = {};
-		for (const v of all) {
+		for (const v of timed) {
 			for (const [a, sec] of Object.entries(v.areaSeconds || {}))
 				areaSecondsTotals[a] = (areaSecondsTotals[a] || 0) + (sec as number);
 		}
@@ -6861,7 +7259,7 @@ export class Metrics extends PublicEndpoint {
 
 		// Session-length distribution: sum each save's finished-session histogram.
 		const sessionLengthDistribution: Record<string, number> = { '<2m': 0, '2-10m': 0, '10-30m': 0, '30m+': 0 };
-		for (const v of all) {
+		for (const v of timed) {
 			for (const [b, n] of Object.entries(v.sessionLengths || {}))
 				sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + (n as number);
 		}
@@ -7043,11 +7441,13 @@ export class Metrics extends PublicEndpoint {
 				versionMode: versionActive ? versionMode : null,
 				edition: editionFilter && editionFilter.toLowerCase() !== 'all' ? editionFilter : null,
 				platform: platformFilter && platformFilter.toLowerCase() !== 'all' ? platformFilter : null,
+				idle: idleExcluded ? 'exclude' : null,
 			},
 			summary: {
 				players: all.length,
 				soloPlayers: all.length,
 				excludedNames: [...excludedNames],
+				anomalies,
 				audience,
 				languages,
 				platforms,
@@ -7057,9 +7457,10 @@ export class Metrics extends PublicEndpoint {
 				engagement: {
 					totalPlayHours: round1(totalPlaySeconds / 3600),
 					totalPlaySeconds,
-					avgPlayMinutesPerPlayer: Math.round(totalPlaySeconds / 60 / N),
+					avgPlayMinutesPerPlayer: Math.round(totalPlaySeconds / 60 / NT),
 					totalSessions,
-					avgSessionsPerPlayer: round1(totalSessions / N),
+					// totalSessions comes from `timed`, so this divides by the same population.
+					avgSessionsPerPlayer: round1(totalSessions / NT),
 					avgSessionMinutes: totalSessions ? Math.round(totalPlaySeconds / 60 / totalSessions) : 0,
 					totalActions,
 					avgActionsPerPlayer: round1(totalActions / N),
@@ -7143,7 +7544,7 @@ const DEV_PLAYER = 'bailey'; // dev tools are restricted to this save
 
 export class DevTools extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, action, area, amount, value, resources, animalId } = await bodyOf(data);
+		const { playerId, action, area, amount, value, resources, animalId, seed } = await bodyOf(data);
 		// No username gate — the hidden panel is reached via a secret key sequence.
 		const t = db();
 		const d = await defs();
@@ -7158,7 +7559,7 @@ export class DevTools extends PublicEndpoint {
 				const phase = String(value || 'dawn');
 				const nowT = weatherTimeFromPlay(player);
 				const skip = nextPhaseAt(nowT, phase) - nowT;
-				await t.Player.patch(playerId, { clockOffsetMs: (player.clockOffsetMs || 0) + skip });
+				await patchPlayer(playerId, { clockOffsetMs: (player.clockOffsetMs || 0) + skip });
 				log.push(`Set time to ${phase}`);
 				break;
 			}
@@ -7167,7 +7568,7 @@ export class DevTools extends PublicEndpoint {
 				// fresh save gets. Solve for the offset that lands the current play time
 				// back on the day-phase start (season resets to the first day too).
 				const playMs = Math.round((readMetrics(player)?.playSeconds || 0) * 1000);
-				await t.Player.patch(playerId, { clockOffsetMs: nextPhaseAt(0, 'day') - playMs });
+				await patchPlayer(playerId, { clockOffsetMs: nextPhaseAt(0, 'day') - playMs });
 				log.push('Reset the game clock to the first morning');
 				break;
 			}
@@ -7213,7 +7614,7 @@ export class DevTools extends PublicEndpoint {
 					for (const r of d.resources) inventory[r.id] = (inventory[r.id] || 0) + give;
 					log.push(`Granted ${give} of every resource`);
 				}
-				await t.Player.patch(playerId, { inventory });
+				await patchPlayer(playerId, { inventory });
 				break;
 			}
 			case 'max-tools': {
@@ -7222,13 +7623,13 @@ export class DevTools extends PublicEndpoint {
 					const top = Math.max(...tool.tiers.map((ti: any) => ti.tier));
 					tools[tool.id] = top;
 				}
-				await t.Player.patch(playerId, { tools });
+				await patchPlayer(playerId, { tools });
 				log.push('All tools set to max tier');
 				break;
 			}
 			case 'unlock-all': {
 				const ids = d.biomes.map((b: any) => b.id);
-				await t.Player.patch(playerId, { unlockedBiomes: ids });
+				await patchPlayer(playerId, { unlockedBiomes: ids });
 				for (const id of ids) await t.BiomeState.patch(`${playerId}:${id}`, { unlocked: true });
 				log.push(`Unlocked all biomes (${ids.length})`);
 				break;
@@ -7243,7 +7644,7 @@ export class DevTools extends PublicEndpoint {
 					break;
 				}
 				unlocked.add(nextB.id);
-				await t.Player.patch(playerId, { unlockedBiomes: [...unlocked] });
+				await patchPlayer(playerId, { unlockedBiomes: [...unlocked] });
 				await t.BiomeState.patch(`${playerId}:${nextB.id}`, { unlocked: true });
 				await seedStartingTerrain(playerId, playerId, nextB.id);
 				log.push(`Unlocked the next area: ${nextB.name}`);
@@ -7251,13 +7652,13 @@ export class DevTools extends PublicEndpoint {
 			}
 			case 'relock-all': {
 				// re-lock everything except the meadow, to retest the whole unlock flow
-				await t.Player.patch(playerId, { unlockedBiomes: ['meadow'] });
+				await patchPlayer(playerId, { unlockedBiomes: ['meadow'] });
 				for (const b of d.biomes) await t.BiomeState.patch(`${playerId}:${b.id}`, { unlocked: b.id === 'meadow' });
 				log.push('Re-locked every biome except the meadow');
 				break;
 			}
 			case 'reset-tools': {
-				await t.Player.patch(playerId, { tools: { ...START_TOOLS } });
+				await patchPlayer(playerId, { tools: { ...START_TOOLS } });
 				log.push('Tools reset to tier 1');
 				break;
 			}
@@ -7286,7 +7687,7 @@ export class DevTools extends PublicEndpoint {
 					});
 				}
 				// Recreate the empty starter chest by the camp.
-				const chestId = `pl_${playerId}_starter-chest`;
+				const chestId = `${wid}:pl_${playerId}_starter-chest`;
 				await t.Placement.put({
 					id: chestId,
 					worldId: wid,
@@ -7309,7 +7710,7 @@ export class DevTools extends PublicEndpoint {
 					contents: {},
 				});
 				// Reset the player fields to fresh-start values, keeping identity.
-				await t.Player.patch(playerId, {
+				await patchPlayer(playerId, {
 					area: 'meadow',
 					x: 24.5,
 					y: 6.5,
@@ -7335,7 +7736,7 @@ export class DevTools extends PublicEndpoint {
 				// build/found the home in a style (Space → 2, style locked)
 				const style = value && HOME_STYLES[value] ? value : 'cabin';
 				const home = { ...homeOf(player), style, space: Math.max(2, homeOf(player).space || 1), styleLocked: true };
-				await t.Player.patch(playerId, { home });
+				await patchPlayer(playerId, { home });
 				log.push(`Built home: ${HOME_STYLES[style].name}`);
 				break;
 			}
@@ -7348,12 +7749,12 @@ export class DevTools extends PublicEndpoint {
 					light: HOME_TRACKS.light.levels.length,
 					styleLocked: true,
 				};
-				await t.Player.patch(playerId, { home });
+				await patchPlayer(playerId, { home });
 				log.push('Home maxed on every track');
 				break;
 			}
 			case 'reset-home': {
-				await t.Player.patch(playerId, { home: { ...DEFAULT_HOME } });
+				await patchPlayer(playerId, { home: { ...DEFAULT_HOME } });
 				log.push('Home reset to the starter tent');
 				break;
 			}
@@ -7402,7 +7803,7 @@ export class DevTools extends PublicEndpoint {
 				const ar = area || player.area;
 				if (ar === 'meadow') throw new GameError(tr('server.err.meadowCannotLock'), 400, 'server.err.meadowCannotLock');
 				const unlocked = (player.unlockedBiomes || []).filter((b: string) => b !== ar);
-				await t.Player.patch(playerId, { unlockedBiomes: unlocked });
+				await patchPlayer(playerId, { unlockedBiomes: unlocked });
 				await t.BiomeState.patch(`${playerId}:${ar}`, { unlocked: false });
 				log.push(`Locked ${ar} again (unlock requirements must be met to re-enter)`);
 				break;
@@ -7410,7 +7811,7 @@ export class DevTools extends PublicEndpoint {
 			case 'unlock-recipes': {
 				// Toggle the dev "all recipes craftable" override (ignores progress gates).
 				const next = value === undefined ? !player.devUnlockAll : !!value;
-				await t.Player.patch(playerId, { devUnlockAll: next });
+				await patchPlayer(playerId, { devUnlockAll: next });
 				log.push(next ? 'All recipes unlocked (gates ignored)' : 'Recipe progress gates restored');
 				break;
 			}
@@ -7464,7 +7865,7 @@ export class DevTools extends PublicEndpoint {
 				// Make sure the animal's biome is reachable so you can actually go see it.
 				const unlocked: string[] = player.unlockedBiomes || ['meadow'];
 				if (!unlocked.includes(animal.biome)) {
-					await t.Player.patch(playerId, { unlockedBiomes: [...unlocked, animal.biome] });
+					await patchPlayer(playerId, { unlockedBiomes: [...unlocked, animal.biome] });
 				}
 				// recalcBiome recomputes comfort from the (probably bare) habitat, which
 				// would drop this animal to "rarely seen" and skip drawing it. Run it for
@@ -7479,20 +7880,140 @@ export class DevTools extends PublicEndpoint {
 				// biome for screenshots/video — naturally SCATTERED clusters of trees,
 				// flowers and shrubs, crafted accents dotted about, path runs, a carved
 				// lake + winding river (where the biome holds water), every animal home
-				// and comfortable, and health/balance pinned at 100. Deterministic per
-				// biome so the scene is repeatable. Chests are kept; all other placements
-				// + terrain here are replaced for a clean look.
+				// and comfortable, and health/balance pinned at 100 — with at least one of
+				// EVERY object the biome can build standing somewhere, so the shot doubles
+				// as a look at the whole catalogue. Every run lays out a DIFFERENT scene,
+				// so you can keep hitting the button until one frames well; pass back the
+				// `seed` from the log to rebuild an exact one. Chests are kept (and not
+				// added); all other placements + terrain here are replaced for a clean look.
 				const ar = area || player.area;
-				const biome = d.biome.get(ar);
-				if (!biome || ar === 'home')
-					throw new GameError(tr('server.err.cannotPopulate', { area: ar }), 400, 'server.err.cannotPopulate');
 				const wid = worldOf(player);
+				// One seed drives the whole layout — the lake, the river's course, every
+				// cluster and accent (or, indoors, where each piece of furniture lands).
+				// It changes per run so Populate reshuffles the scene instead of rebuilding
+				// the same one; passing a seed back (it's printed in the log) reproduces
+				// that exact scene, which is what the old fixed `populate:world:biome` seed
+				// gave you every time.
+				const runSeed =
+					seed === undefined || seed === null || seed === ''
+						? `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
+						: String(seed);
+
+				// ---- the home interior gets its own showcase -----------------------
+				// Same idea indoors, different furniture: max every upgrade track (the
+				// biggest floor, and the pieces that need a real house become legal),
+				// clear the floor, then set out one of everything that fits. Wall-hung
+				// things go against the walls and rugs land in the open middle, so it
+				// reads as a furnished room rather than a jumble.
+				if (ar === 'home') {
+					const rng = seededRng(hash32(`populate:${wid}:home:${runSeed}`));
+					const ri = (lo: number, hi: number) => lo + Math.floor(rng() * (hi - lo + 1));
+					const home = {
+						style: homeOf(player).style || 'cabin',
+						space: HOME_TRACKS.space.levels.length,
+						comfort: HOME_TRACKS.comfort.levels.length,
+						decor: HOME_TRACKS.decor.levels.length,
+						light: HOME_TRACKS.light.levels.length,
+						styleLocked: true,
+					};
+					await patchPlayer(playerId, { home });
+					const r = homeRoom({ ...player, home });
+					const door = doorTileOf(r);
+					const AGED = Date.now() - 45 * 86400000;
+
+					// clean floor — the player's chests and what's in them stay put
+					const taken = new Set<string>();
+					for (const pl of (await byWorld(t.Placement, wid)).filter((p) => p.area === 'home')) {
+						if (d.object.get(pl.objectId)?.isChest) {
+							taken.add(`${pl.x},${pl.y}`);
+							continue;
+						}
+						await t.Placement.delete(pl.id);
+					}
+					(await byWorld(t.Chest, wid)).filter((c) => c.area === 'home').forEach((c) => taken.add(`${c.x},${c.y}`));
+
+					// everything indoor-or-both that this (now maxed) house can hold
+					const fits = d.objects.filter(
+						(o: any) =>
+							o.placement !== 'outdoor' &&
+							o.placement !== 'none' &&
+							!o.isChest &&
+							!o.bridge &&
+							(o.homeMin || 0) <= home.space,
+					);
+					// The doorway and the ring around it stay clear for everything, not
+					// just beds: a screenshot wants to see the way out, and it keeps the
+					// authoritative blocksDoorway rule satisfied for free.
+					const openFloor = (x: number, y: number) =>
+						x >= r.x0 &&
+						x <= r.x1 &&
+						y >= r.y0 &&
+						y <= r.y1 &&
+						!(Math.abs(x - door.x) <= 1 && Math.abs(y - door.y) <= 1) &&
+						!taken.has(`${x},${y}`);
+					const rows: any[] = [];
+					const put = (def: any, x: number, y: number): boolean => {
+						if (!openFloor(x, y)) return false;
+						taken.add(`${x},${y}`);
+						const row: any = {
+							id: `${wid}:pl_dev_home_${x}_${y}`,
+							worldId: wid,
+							playerId,
+							objectId: def.id,
+							area: 'home',
+							x,
+							y,
+							placedAt: AGED,
+						};
+						if (def.plantable) row.plantedAt = AGED;
+						rows.push(row);
+						return true;
+					};
+					/** Tiles touching a wall — where anything hung or shelved belongs. */
+					const againstWall = (x: number, y: number) => x === r.x0 || x === r.x1 || y === r.y0 || y === r.y1;
+					const WALL_HUNG = /painting|wallclock|shelf|chandelier|string-lights|telescope|dresser|bookshelf/;
+					const FLOOR_SPREAD = /rug|reedmat|blanket|cushions|hammock/;
+					const putSomewhere = (def: any): boolean => {
+						const wants: ((x: number, y: number) => boolean) | null = WALL_HUNG.test(def.id)
+							? againstWall
+							: FLOOR_SPREAD.test(def.id)
+								? (x, y) => !againstWall(x, y)
+								: null;
+						// the tiles this piece prefers first, then anywhere in the room, then
+						// a sweep so a full floor can't silently drop a piece
+						for (const test of wants ? [wants, null] : [null]) {
+							for (let tries = 0; tries < 80; tries++) {
+								const x = ri(r.x0, r.x1),
+									y = ri(r.y0, r.y1);
+								if (test && !test(x, y)) continue;
+								if (put(def, x, y)) return true;
+							}
+						}
+						for (let y = r.y0; y <= r.y1; y++) for (let x = r.x0; x <= r.x1; x++) if (put(def, x, y)) return true;
+						return false;
+					};
+					const missing: string[] = [];
+					for (const def of fits) if (!putSomewhere(def)) missing.push(def.id);
+					for (const row of rows) await t.Placement.put(row);
+
+					log.push(
+						`Furnished the home (${home.space === HOME_TRACKS.space.levels.length ? 'maxed' : 'space ' + home.space}): ` +
+							`${rows.length} pieces, ${fits.length - missing.length} of ${fits.length} object types` +
+							(missing.length ? ` — no floor left for ${missing.join(', ')}` : ''),
+					);
+					log.push(`Layout seed ${runSeed} — run Populate again for a different one, or pass this seed to rebuild it`);
+					break;
+				}
+
+				const biome = d.biome.get(ar);
+				if (!biome)
+					throw new GameError(tr('server.err.cannotPopulate', { area: ar }), 400, 'server.err.cannotPopulate');
 
 				// make sure the area is reachable so you can walk in and film it
 				const unlockedSet = new Set<string>(player.unlockedBiomes || ['meadow']);
 				if (!unlockedSet.has(ar)) {
 					unlockedSet.add(ar);
-					await t.Player.patch(playerId, { unlockedBiomes: [...unlockedSet] });
+					await patchPlayer(playerId, { unlockedBiomes: [...unlockedSet] });
 				}
 
 				// clean canvas: drop existing non-chest placements + all terrain here
@@ -7516,8 +8037,7 @@ export class DevTools extends PublicEndpoint {
 				const inCamp = (x: number, y: number) => ar === 'meadow' && x >= 19 && x <= 24 && y >= 3 && y <= 6;
 				const OLD = Date.now() - 45 * 86400000; // 45 days ago → plants read fully grown, objects fully "matured"
 
-				// Deterministic per (world, biome) so re-running rebuilds the same scene.
-				const rng = seededRng(hash32(`populate:${wid}:${ar}`));
+				const rng = seededRng(hash32(`populate:${wid}:${ar}:${runSeed}`));
 				const ri = (lo: number, hi: number) => lo + Math.floor(rng() * (hi - lo + 1));
 				const pick = <T>(arr: T[]): T => arr[Math.floor(rng() * arr.length)];
 
@@ -7528,12 +8048,19 @@ export class DevTools extends PublicEndpoint {
 
 				// ---- water: shovel out a lake (big blob) and a river (long channel) ----
 				const waterCells: { x: number; y: number }[] = [];
-				const carve = (x: number, y: number) => {
-					if (free(x, y)) {
-						occupied.add(`${x},${y}`);
-						waterCells.push({ x, y });
-					}
+				const waterAt = new Set<string>();
+				/** Carve one cell. False when it was refused: camp, board edge, already taken. */
+				const carve = (x: number, y: number): boolean => {
+					if (!free(x, y)) return false;
+					occupied.add(`${x},${y}`);
+					waterAt.add(`${x},${y}`);
+					waterCells.push({ x, y });
+					return true;
 				};
+				/** Move the river onto a cell, carving it unless it is already water. Water
+				 *  the channel laid down earlier is somewhere it can keep flowing THROUGH —
+				 *  only genuinely forbidden ground (camp, lake, edge) turns it back. */
+				const flow = (x: number, y: number): boolean => carve(x, y) || waterAt.has(`${x},${y}`);
 				if (biome.canFlood !== false) {
 					// lake: a rounded blob toward the left-center of the map
 					const lx = ri(xMin + 1, Math.max(xMin + 1, Math.min(xMax - 4, xMin + 8)));
@@ -7547,15 +8074,49 @@ export class DevTools extends PublicEndpoint {
 					carve(lx + 2, ly + 3); // organic edges
 					// river: a channel winding downhill — one 4-connected step at a time
 					// (mostly down, occasional bend) so it stays a single connected river.
+					//
+					// carve() REFUSES a cell that isn't free — the camp box, the lake, the
+					// board edge — and a refused step used to be skipped in place. That
+					// punched a hole straight THROUGH the channel rather than shortening it:
+					// the meadow's camp sits at x19-24 / y3-6 and the river starts somewhere
+					// in x22-40, so about one scene in six arrived as two short stubs with the
+					// middle missing — the longer piece as little as five tiles. A blocked step
+					// now flows AROUND the obstruction, and the walk counts the rows it
+					// actually carved rather than the turns it took, so the river comes out one
+					// long connected run whatever it has to get past.
 					let rx = ri(Math.floor((xMin + xMax) / 2), xMax - 2),
 						ry = yMin;
-					carve(rx, ry);
-					for (let i = 0, steps = ri(13, 18); i < steps && ry < yMax; i++) {
-						if (rng() < 0.25 && rx > xMin + 1 && rx < xMax - 1)
-							rx += rng() < 0.5 ? -1 : 1; // bend
-						else ry += 1; // flow down
-						carve(rx, ry);
-						if (rng() < 0.25) carve(Math.min(xMax, rx + 1), ry); // gentle widening (adjacent)
+					while (!carve(rx, ry) && rx < xMax) rx++; // an open cell to spring from
+					const riverRows = ri(13, 18);
+					// Every pass either moves the head or gives up, so this terminates on its
+					// own — the guard is belt and braces, sized to leave room for the bends and
+					// detours that cost a pass without gaining a row.
+					for (let rows = 1, guard = 0; rows < riverRows && ry < yMax && guard < 6 * riverRows; guard++) {
+						// an occasional bend, for a channel that winds rather than ruling a line
+						if (rng() < 0.25 && rx > xMin + 1 && rx < xMax - 1) {
+							const bx = rx + (rng() < 0.5 ? -1 : 1);
+							if (flow(bx, ry)) rx = bx;
+							continue;
+						}
+						if (flow(rx, ry + 1)) {
+							ry += 1;
+							rows += 1; // only downstream progress counts toward the river's length
+							if (rng() < 0.25) carve(Math.min(xMax, rx + 1), ry); // gentle widening (adjacent)
+							continue;
+						}
+						// Blocked below. Sidestep — still 4-connected to the cell the head is on
+						// — and try to resume downhill from there, so the water flows AROUND the
+						// camp instead of leaving a hole in the middle of the channel.
+						const dir = rx < xMax - 1 ? 1 : -1;
+						if (flow(rx + dir, ry)) {
+							rx += dir;
+							continue;
+						}
+						if (flow(rx - dir, ry)) {
+							rx -= dir;
+							continue;
+						}
+						break; // boxed in both ways; the river ends here
 					}
 				}
 
@@ -7574,9 +8135,13 @@ export class DevTools extends PublicEndpoint {
 						400,
 						'server.err.noPlaceableObjects',
 					);
+				// The trail tent is one-per-area, so it stays out of the random scatter and
+				// is placed exactly once by the coverage pass — two tents in a screenshot
+				// is a bug the eye catches immediately.
+				const scatter = usable.filter((o: any) => !o.onePerArea);
 				const isPath = (o: any) => /-path$/.test(o.id) || o.id === 'wooden-fence' || o.id === 'dry-stone-wall';
-				const trees = usable.filter((o: any) => o.plantable && (o.growSeconds || 0) >= 80);
-				const flowers = usable.filter((o: any) => o.plantable && (o.growSeconds || 0) < 80);
+				const trees = scatter.filter((o: any) => o.plantable && (o.growSeconds || 0) >= 80);
+				const flowers = scatter.filter((o: any) => o.plantable && (o.growSeconds || 0) < 80);
 				const NATURE = new Set([
 					'shrub',
 					'rock-pile',
@@ -7593,9 +8158,9 @@ export class DevTools extends PublicEndpoint {
 					'birdhouse',
 					'bird-perch',
 				]);
-				const nature = usable.filter((o: any) => !o.plantable && !isPath(o) && NATURE.has(o.id));
-				const paths = usable.filter(isPath);
-				const decor = usable.filter((o: any) => !o.plantable && !isPath(o) && !NATURE.has(o.id));
+				const nature = scatter.filter((o: any) => !o.plantable && !isPath(o) && NATURE.has(o.id));
+				const paths = scatter.filter(isPath);
+				const decor = scatter.filter((o: any) => !o.plantable && !isPath(o) && !NATURE.has(o.id));
 				const undergrowth = nature.length ? nature : flowers; // fallback for biomes with no "nature" props
 
 				const places: any[] = [];
@@ -7603,7 +8168,7 @@ export class DevTools extends PublicEndpoint {
 					if (!def || !free(x, y)) return false;
 					occupied.add(`${x},${y}`);
 					const row: any = {
-						id: `pl_dev_${ar}_${x}_${y}`,
+						id: `${wid}:pl_dev_${ar}_${x}_${y}`,
 						worldId: wid,
 						playerId,
 						objectId: def.id,
@@ -7658,7 +8223,57 @@ export class DevTools extends PublicEndpoint {
 				}
 				// top-up so every biome reads lush even if it has few plant/nature types
 				for (let tries = 0; places.length < 34 && tries < 500; tries++) {
-					place(pick(usable), ri(xMin, xMax), ri(yMin, yMax));
+					place(pick(scatter), ri(xMin, xMax), ri(yMin, yMax));
+				}
+
+				// ---- coverage: one of EVERY buildable thing this biome has ----
+				// The passes above pick at random, so a showcase shot would routinely
+				// miss half the catalogue — no good when the point is to see all of it
+				// at once. Anything not already standing gets planted here: random tries
+				// first (so it lands scattered, like the accent pass), then a systematic
+				// sweep so a crowded map can't silently drop an object.
+				const placeAnywhere = (def: any): boolean => {
+					for (let tries = 0; tries < 60; tries++) if (place(def, ri(xMin, xMax), ri(yMin, yMax))) return true;
+					for (let y = yMin; y <= yMax; y++) for (let x = xMin; x <= xMax; x++) if (place(def, x, y)) return true;
+					return false;
+				};
+				const standing = new Set<string>(places.map((r) => r.objectId));
+				const missing: string[] = [];
+				for (const def of usable) {
+					if (standing.has(def.id)) continue;
+					if (placeAnywhere(def)) standing.add(def.id);
+					else missing.push(def.id);
+				}
+
+				// Bridges belong ON the water, so they get their own pass: cross the
+				// channel where it's one tile wide, falling back to any open cell. A
+				// biome that can't be flooded (the desert) simply has nowhere to put one.
+				const bridgeDefs = d.objects.filter(
+					(o: any) => (o.biomes || []).includes(ar) && o.bridge && o.placement !== 'indoor',
+				);
+				const spannedWater = new Set<string>();
+				const crossing = (c: { x: number; y: number }) =>
+					!waterAt.has(`${c.x - 1},${c.y}`) && !waterAt.has(`${c.x + 1},${c.y}`);
+				for (const def of bridgeDefs) {
+					const cell =
+						waterCells.find((c) => !spannedWater.has(`${c.x},${c.y}`) && crossing(c)) ||
+						waterCells.find((c) => !spannedWater.has(`${c.x},${c.y}`));
+					if (!cell) {
+						missing.push(def.id);
+						continue;
+					}
+					spannedWater.add(`${cell.x},${cell.y}`);
+					standing.add(def.id);
+					places.push({
+						id: `${wid}:pl_dev_${ar}_${cell.x}_${cell.y}`,
+						worldId: wid,
+						playerId,
+						objectId: def.id,
+						area: ar,
+						x: cell.x,
+						y: cell.y,
+						placedAt: OLD,
+					});
 				}
 
 				// commit water + placements
@@ -7708,6 +8323,11 @@ export class DevTools extends PublicEndpoint {
 				log.push(
 					`Populated ${biome.name}: ${placed} objects, ${waterTiles} water tiles, ${here.length} animals home, health 100`,
 				);
+				log.push(
+					`Every buildable thing is standing: ${standing.size} of ${usable.length + bridgeDefs.length} object types` +
+						(missing.length ? ` — nowhere to put ${missing.join(', ')}` : ''),
+				);
+				log.push(`Layout seed ${runSeed} — run Populate again for a different one, or pass this seed to rebuild it`);
 				break;
 			}
 			case 'set-weather': {
@@ -7717,7 +8337,7 @@ export class DevTools extends PublicEndpoint {
 				// empty value (or value.clear) lifts the override back to the live sky.
 				const v = value && typeof value === 'object' ? value : null;
 				if (!v || v.clear) {
-					await t.Player.patch(playerId, { devWeather: null });
+					await patchPlayer(playerId, { devWeather: null });
 					log.push('Weather override cleared — back to the live sky');
 					break;
 				}
@@ -7737,7 +8357,7 @@ export class DevTools extends PublicEndpoint {
 						throw new GameError(tr('server.err.unknownSeason', { season: v.season }), 400, 'server.err.unknownSeason');
 					next.season = v.season || null;
 				}
-				await t.Player.patch(playerId, { devWeather: next });
+				await patchPlayer(playerId, { devWeather: next });
 				log.push(`Weather override: ${next.type || 'live'} · ${next.season || 'live'}`);
 				break;
 			}

@@ -78,6 +78,44 @@ type Achievement @table(database: "wildwillows") {
 }
 
 # ---------- mutable tables (dynamic — id only; all other fields are flexible) ----------
+#
+# KEY CONTRACT (KEY_REV 3 — enforced in resources.ts; read the block above
+# `byPlayer` there before changing any id format).
+#
+# These tables have NO secondary indexes, and must not gain any. That is not an
+# oversight and it is not a performance compromise — it is the only shape that
+# works here:
+#
+#   • An index needs a DECLARED column. Declaring one on a dynamic table moves it
+#     back to the positional structon encoding, which is what left old AND new
+#     rows undecodable ("end of buffer not reached") the last time it was tried.
+#   • Harper rejects a condition on an undeclared attribute outright, so a
+#     `worldId` filter is not something the server can push down regardless.
+#   • Secondary-index conditions here proved unreliable across Harper versions
+#     and cold starts — returning zero rows for a perfectly good save, which the
+#     game renders as an empty world.
+#
+# So scoping is done on the PRIMARY key instead. Every row of one world sorts
+# into a contiguous run, and a per-world read is a bounded `starts_with` range
+# over `primaryStore` — the same store, the same getRange call a full scan
+# already makes, just with bounds. It cannot be colder or less ready than the
+# unbounded scan it replaces, and its cost tracks the size of ONE world rather
+# than the size of the whole database.
+#
+#   `${playerId}:…`  BiomeState · NodeState · TerrainTile · Discovery ·
+#                     Placement · Chest · FeedEntry · PlayerAchievement
+#
+# A player id (`slugId(name)`, optionally `-${rand}`) and a world id
+# (`w_${ts36}_${rand}`) can never contain `:`, so `${id}:` is an unambiguous
+# prefix — no world's key run can start inside another's. Keep it that way: if an
+# id scheme ever admits a colon, every per-world read silently starts returning
+# another save's rows, and the explicit `worldId` filter in byWorld is the only
+# thing standing between that and cross-save corruption.
+#
+# Rows written before KEY_REV 3 are re-keyed to `${worldId}:${oldId}` by
+# migrateWorldKeys, once per world, from a write path (login / first heartbeat).
+# Until a world is marked, reads merge a legacy full scan so nothing reads empty.
+#
 # Documented field shapes (stored dynamically, not declared):
 
 # Player        : name, passcodeSalt, passcodeHash, appearance, createdAt, area, x, y,
@@ -153,8 +191,3 @@ type MailingListSignup @table(database: "wildwillows") { id: ID @primaryKey }
 #               the /dashboard landing section.
 type LandingStat @table(database: "wildwillows") { id: ID @primaryKey }
 
-# ---------- co-op tables (dynamic) ----------
-type World @table(database: "wildwillows") { id: ID @primaryKey }         # name, solo, ownerId, joinCode, createdAt, maxMembers
-type WorldMember @table(database: "wildwillows") { id: ID @primaryKey }   # `${worldId}:${playerId}` · worldId, playerId, role, joinedAt, lastSeenAt
-type WorldPresence @table(database: "wildwillows") { id: ID @primaryKey } # worldId · players { [playerId]: {name, appearance, area, x, y, t} }, updatedAt
-type JoinRequest @table(database: "wildwillows") { id: ID @primaryKey }   # `${worldId}:${token}` · worldId, token, name, status, createdAt, resolvedAt

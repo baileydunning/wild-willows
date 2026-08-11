@@ -204,6 +204,15 @@
 			.kpis {
 				grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
 			}
+			/* The Overview row is a fixed set of six. auto-fit would drop the last one
+			   to a line of its own at common laptop widths, so pin the count once
+			   there is room for it; below that it falls back to the rule above.
+			   minmax(0, 1fr) rather than 1fr so a long number can't widen its track. */
+			@media (min-width: 900px) {
+				.kpis-6 {
+					grid-template-columns: repeat(6, minmax(0, 1fr));
+				}
+			}
 			.card {
 				background: var(--card);
 				border: 1px solid var(--rule);
@@ -509,6 +518,18 @@
 			.hledi.full {
 				color: var(--accent-dark);
 				background: var(--accent-soft);
+			}
+			/* A save the report treats as an open window rather than play. */
+			.hlidle {
+				font-size: 0.6rem;
+				font-weight: 700;
+				text-transform: uppercase;
+				letter-spacing: 0.04em;
+				border-radius: 999px;
+				padding: 0.1rem 0.45rem;
+				color: #8a6a1f;
+				background: #f3ead2;
+				cursor: help;
 			}
 			.hlstats {
 				display: grid;
@@ -883,6 +904,13 @@
 						><span>Platform</span>
 						<select id="platform-filter">
 							<option value="all">All platforms</option>
+						</select>
+					</label>
+					<label class="vfilter" title="Saves that logged long stretches with almost no actions — a window left open rather than someone playing. Discounting them drops their play time, sessions and area dwell from the totals; they stay in the caretaker count, the funnel and retention."
+						><span>Idle windows</span>
+						<select id="idle-filter">
+							<option value="exclude">Discounted</option>
+							<option value="include">Counted</option>
 						</select>
 					</label>
 					<button class="refresh" id="refresh" type="button">↻ Refresh</button>
@@ -1326,6 +1354,20 @@
 				ko: 'Korean',
 				zh: 'Chinese',
 			};
+			/* Preference labels. Shared by the per-player modal and the site-wide
+			   "Settings & accessibility" section, so one player's card and the rollup
+			   above it can never disagree about what a stored value is called. */
+			const CB_LABELS = { off: 'Off', redgreen: 'Red–green', blueyellow: 'Blue–yellow', mono: 'Monochrome' };
+			const TS_LABELS = { sm: 'Small', md: 'Medium', lg: 'Large', xl: 'Extra large' };
+			const THEME_LABELS = { light: 'Light', dark: 'Dark', system: 'Match system' };
+			const FONT_LABELS = {
+				storybook: 'Storybook',
+				rounded: 'Rounded',
+				classic: 'Classic',
+				plain: 'Plain',
+				typewriter: 'Typewriter',
+			};
+
 			const ACTION_LABELS = {
 				resourcesCollected: 'Resources collected',
 				terraformActions: 'Terraform actions',
@@ -1363,6 +1405,71 @@
 			let LANDING = null; // latest GET /LandingStats/ payload (null until loaded / if unavailable)
 			let SAVEHEALTH = null; // latest GET /SaveHealth/ payload — records that would not decode
 			let GAMEPLAYHEALTH = null; // latest GET /GameplayHealth/ payload — refusals + interface crashes
+
+			/** How this caretaker has their settings — every option in Settings →
+			 *  Accessibility, plus audio. Sourced from the `prefs` block each solo
+			 *  session uplinks (snapshotPrefs in src/solo/metricsUplink.ts); these live
+			 *  in localStorage, so a save that has not reported since the block was
+			 *  added simply has no `prefs` and the card is skipped rather than drawn
+			 *  full of made-up defaults.
+			 *
+			 *  Booleans render as the same on/off checklist the Milestones card uses,
+			 *  so "off" reads as a deliberate state rather than missing data — the
+			 *  point of a per-player view is being able to confirm an option is OFF,
+			 *  not just spot the ones that are on. `interactHint` is inverted here
+			 *  because it ships ON: what is worth seeing is that this player turned it
+			 *  off. Everything with more than two values (colorblind mode, text size,
+			 *  font, theme) gets a labelled row instead, using the same label maps as
+			 *  the site-wide rollup. */
+			function prefsCardHTML(p) {
+				const pr = p.prefs;
+				if (!pr || typeof pr !== 'object') return '';
+				const toggles = [
+					['Reduce motion', !!pr.reduceMotion],
+					['High contrast', !!pr.highContrast],
+					['Simpler wording', !!pr.simpleText],
+					['Interact hint off', pr.interactHint === false],
+				];
+				const a11yOn = toggles.some(([, on]) => on) || (pr.colorblindMode && pr.colorblindMode !== 'off');
+				const checks = `<div class="checklist">${toggles
+					.map(
+						([l, on]) =>
+							`<span class="checkitem"><span class="ck ${on ? 'on' : 'off'}">${on ? '✓' : '·'}</span>${l}</span>`,
+					)
+					.join('')}</div>`;
+
+				const lookup = (map, v) => (v == null || v === '' ? '—' : map[v] || esc(String(v)));
+				// The theme is two facts, not one: 'system' is a choice that only tells
+				// you what they are looking at once it is resolved, so show the resolved
+				// value beside it — but only when it adds something.
+				const themeText =
+					pr.theme === 'system' && pr.themeResolved
+						? `${THEME_LABELS.system} → ${lookup(THEME_LABELS, pr.themeResolved)}`
+						: lookup(THEME_LABELS, pr.theme);
+				const rows = [
+					['Colorblind aid', lookup(CB_LABELS, pr.colorblindMode)],
+					['Text size', lookup(TS_LABELS, pr.textScale)],
+					['Font', lookup(FONT_LABELS, pr.fontChoice)],
+					['Appearance', themeText],
+				];
+
+				// Audio is a pair of independent switches plus a level each. A level is
+				// only meaningful while its switch is on, so a muted channel reads
+				// "Off" outright instead of "Off · 60%", which invites the wrong reading.
+				const vol = (v) => (v == null ? '' : ` · ${Math.round(n(v) * 100)}%`);
+				const chan = (on, v) => (on === false ? 'Off' : `On${vol(v)}`);
+				rows.push(['Music', chan(pr.musicEnabled, pr.musicVolume)]);
+				rows.push(['Sound effects', chan(pr.sfxEnabled, pr.sfxVolume)]);
+
+				const list = `<div class="reclist" style="margin-top:.8rem">${rows
+					.map(([l, v]) => `<div class="recrow"><b>${l}</b><span>${v}</span></div>`)
+					.join('')}</div>`;
+				return cardTitled(
+					'Settings & accessibility',
+					a11yOn ? 'using accessibility options' : 'all accessibility options off',
+					checks + list,
+				);
+			}
 
 			/** Build the modal body for one player: header, headline stats, progress,
 			 *  milestones, a full action breakdown, time-by-area, and recent achievements. */
@@ -1411,6 +1518,17 @@
 					['Upgraded a home', act.upgradedHome || cdid('homeUpgrades')],
 					['Unlocked 2nd biome', act.unlockedSecondBiome || n(p.unlockedBiomes || bs.biomesUnlocked) >= 2],
 				];
+				// Demo players get one more: did they reach the end of the demo? The demo
+				// stops itself after DEMO_FOREST_MINUTES spent standing in the forest
+				// (src/demo.ts), so forest dwell time IS the finish line — several saves
+				// sit at exactly 600s because that is where the thank-you popup froze
+				// them. Read from the player's own row, which means a finished demo whose
+				// save was wiped on dismiss reads as unfinished here; the device-scoped
+				// `demoCompletion` block in the summary is the one that survives that.
+				const DEMO_FOREST_SECONDS = 10 * 60;
+				if (edi === 'demo') {
+					flags.push(['Finished the demo', n((p.areaSeconds || {}).forest) >= DEMO_FOREST_SECONDS]);
+				}
 				const checklist = cardTitled(
 					'Milestones',
 					null,
@@ -1463,6 +1581,8 @@
 					].join('')}</div>`,
 				);
 
+				const prefsCard = prefsCardHTML(p);
+
 				const meta = esc(
 					[p.platform, p.os, p.version, LANG_LABELS[p.language] || p.language].filter(Boolean).join(' · '),
 				);
@@ -1470,7 +1590,7 @@
 				return (
 					`<button class="modal-close" data-close aria-label="Close">×</button>` +
 					`<div class="modal-head"><div class="mav">${avatarSVG(p.appearance)}</div><div><h2>${esc(p.name || 'Unnamed')}</h2>` +
-					`<div class="msub"><span class="hledi ${edi}">${edi}</span>${meta ? `<span>${meta}</span>` : ''}${when ? `<span>${when}</span>` : ''}</div></div></div>` +
+					`<div class="msub"><span class="hledi ${edi}">${edi}</span>${p.idle ? `<span class="hlidle" title="Over ${n(p.playMinutes)} minutes at ${n(p.actionsPerMinute)} actions/min — counted as a window left open, not play">idle window</span>` : ''}${meta ? `<span>${meta}</span>` : ''}${when ? `<span>${when}</span>` : ''}</div></div></div>` +
 					kpis +
 					`<div class="grid two" style="margin-top:.8rem">${progress}${checklist}</div>` +
 					`<div style="margin-top:.8rem">${actionsCard}</div>` +
@@ -1479,7 +1599,9 @@
 						: recCard
 							? `<div style="margin-top:.8rem">${recCard}</div>`
 							: '') +
-					`<div style="margin-top:.8rem">${onboard}</div>`
+					(prefsCard
+						? `<div class="grid two" style="margin-top:.8rem">${onboard}${prefsCard}</div>`
+						: `<div style="margin-top:.8rem">${onboard}</div>`)
 				);
 			}
 
@@ -1528,11 +1650,12 @@
 					sec(
 						'Overview',
 						overviewSub,
-						`<div class="grid kpis">${[
+						`<div class="grid kpis kpis-6">${[
 							kpi(fmt(s.players), 'Total caretakers', 'unique anonymous saves'),
 							kpi(`<span class="accent">${fmt(A.activeNow)}</span>`, 'Active now', 'seen in the last 5 minutes'),
 							kpi(fmt(A.activeLast24h), 'Active · 24h'),
 							kpi(fmt(A.activeLast7d), 'Active · 7d'),
+							kpi(fmt(A.activeLast14d), 'Active · 14d'),
 							kpi(fmt(A.newLast24h), 'New · 24h', `${fmt(A.newLast7d)} in the last 7 days`),
 						].join('')}</div>`,
 					),
@@ -2047,16 +2170,10 @@
 				if (set.savesReporting) {
 					const au = set.audio || {},
 						a11y = set.accessibility || {};
-					const cbLabels = { off: 'Off', redgreen: 'Red–green', blueyellow: 'Blue–yellow', mono: 'Monochrome' };
-					const tsLabels = { sm: 'Small', md: 'Medium', lg: 'Large', xl: 'Extra large' };
-					const themeLabels = { light: 'Light', dark: 'Dark', system: 'Match system' };
-					const fontLabels = {
-						storybook: 'Storybook',
-						rounded: 'Rounded',
-						classic: 'Classic',
-						plain: 'Plain',
-						typewriter: 'Typewriter',
-					};
+					const cbLabels = CB_LABELS,
+						tsLabels = TS_LABELS,
+						themeLabels = THEME_LABELS,
+						fontLabels = FONT_LABELS;
 					out.push(
 						sec(
 							'Settings & accessibility',
@@ -2194,7 +2311,9 @@
 			 * Fetch + wire-up
 			 * ------------------------------------------------------------------ */
 			// Active dashboard filters (all server-side, applied to the whole report).
-			const FILTERS = { version: 'all', edition: 'all', platform: 'all', versionMode: 'exact' };
+			// `idle` defaults to 'exclude': an abandoned window is not play, so the numbers
+			// on this page should not count it unless you deliberately ask them to.
+			const FILTERS = { version: 'all', edition: 'all', platform: 'all', versionMode: 'exact', idle: 'exclude' };
 
 			/** Grey out the "Range" selector unless a specific version is chosen. */
 			function syncVersionMode() {
@@ -2258,6 +2377,9 @@
 					// A specific version can be widened to "this version & newer" (min mode);
 					// otherwise the report isolates the single selected version.
 					if (FILTERS.version !== 'all' && FILTERS.versionMode === 'min') url += '&versionMode=min';
+					// Windows left open are classified server-side and dropped from every
+					// aggregate when hidden, so the totals and the per-player list agree.
+					if (FILTERS.idle === 'exclude') url += '&idle=exclude';
 					// Landing-page stats load in parallel, best-effort: a missing/failed
 					// /LandingStats/ just hides that section instead of breaking the page.
 					const landingReq = fetch('../LandingStats/', { headers: { accept: 'application/json' } })
@@ -2300,6 +2422,14 @@
 						if (cfg.key === 'version') syncVersionMode(); // enable/disable the range control
 						load();
 					});
+			}
+			const idleSel = document.getElementById('idle-filter');
+			if (idleSel) {
+				idleSel.value = FILTERS.idle;
+				idleSel.addEventListener('change', (e) => {
+					FILTERS.idle = e.target.value === 'include' ? 'include' : 'exclude';
+					load();
+				});
 			}
 			const versionModeSel = document.getElementById('version-mode');
 			if (versionModeSel)

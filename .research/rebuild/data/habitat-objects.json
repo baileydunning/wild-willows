@@ -1,0 +1,5714 @@
+{
+  "database": "wildwillows",
+  "table": "HabitatObject",
+  "records": [
+    {
+      "id": "grass-patch",
+      "name": "Grass Patch",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "alpine"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "plant",
+        "open"
+      ],
+      "shape": "patch",
+      "color": "#7ab35c",
+      "description": "A soft patch of regrowing grass. A first step for any bare ground.",
+      "matureHours": 2,
+      "matureBonus": 1
+    },
+    {
+      "id": "native-grass-patch",
+      "name": "Native Grass Patch",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "patch",
+      "color": "#5f9e44",
+      "description": "Deep-rooted native bunchgrass. Food and cover for meadow life.",
+      "matureHours": 2,
+      "matureBonus": 1
+    },
+    {
+      "id": "wildflower-patch",
+      "name": "Wildflower Patch",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "flowers",
+      "color": "#d77bb1",
+      "plantable": true,
+      "plantCost": {
+        "seeds": 2
+      },
+      "growSeconds": 45,
+      "description": "Mixed native wildflowers. Pollinators can spot it from far away.",
+      "matureHours": 2,
+      "matureBonus": 1,
+      "yield": {
+        "resourceId": "wildflowers",
+        "qty": 2,
+        "regrowSeconds": 45
+      }
+    },
+    {
+      "id": "poppy-patch",
+      "name": "Poppy Patch",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "poppies",
+      "color": "#d9534f",
+      "plantable": true,
+      "plantCost": {
+        "seeds": 2,
+        "wildflowers": 1
+      },
+      "growSeconds": 45,
+      "description": "California poppies (Eschscholzia californica), a native western wildflower, grown from seed in a watered bed — they close their petals on cloudy days.",
+      "matureHours": 2,
+      "matureBonus": 1,
+      "yield": {
+        "resourceId": "wildflowers",
+        "qty": 1,
+        "regrowSeconds": 45
+      }
+    },
+    {
+      "id": "sunflower-patch",
+      "name": "Sunflower Patch",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "sunflowers",
+      "color": "#e3c75f",
+      "plantable": true,
+      "plantCost": {
+        "seeds": 3
+      },
+      "growSeconds": 60,
+      "description": "Tall common sunflowers (Helianthus annuus), a true North American native, left standing so their seed heads feed finches right through the autumn.",
+      "matureHours": 2,
+      "matureBonus": 1,
+      "yield": {
+        "resourceId": "seeds",
+        "qty": 2,
+        "regrowSeconds": 60
+      }
+    },
+    {
+      "id": "lupine-patch",
+      "name": "Lupine Patch",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "alpine"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "lupines",
+      "color": "#7d6b9e",
+      "plantable": true,
+      "plantCost": {
+        "seeds": 2,
+        "fiber": 1
+      },
+      "growSeconds": 50,
+      "description": "Spires of blue lupine that fix the soil as they bloom.",
+      "matureHours": 2,
+      "matureBonus": 1,
+      "yield": {
+        "resourceId": "wildflowers",
+        "qty": 1,
+        "regrowSeconds": 50
+      }
+    },
+    {
+      "id": "willow-tree",
+      "name": "Willow Tree",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland"
+      ],
+      "healthValue": 9,
+      "needs": [
+        "shelter",
+        "plant"
+      ],
+      "shape": "willow",
+      "color": "#6b9152",
+      "plantable": true,
+      "plantCost": {
+        "branches": 2,
+        "seeds": 2
+      },
+      "growSeconds": 90,
+      "yield": {
+        "resourceId": "branches",
+        "qty": 2,
+        "regrowSeconds": 90
+      },
+      "description": "The preserve's namesake — a graceful willow grown from a watered bed.",
+      "matureHours": 8,
+      "matureBonus": 2
+    },
+    {
+      "id": "oak-tree",
+      "name": "Oak Tree",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest"
+      ],
+      "healthValue": 8,
+      "needs": [
+        "shelter",
+        "plant",
+        "food"
+      ],
+      "shape": "oak",
+      "color": "#4a6b3a",
+      "plantable": true,
+      "plantCost": {
+        "acorns": 2
+      },
+      "growSeconds": 90,
+      "description": "An acorn-grown oak. Oaks feed more kinds of caterpillar than any other tree in North America — roughly 500 species — so planting one feeds every insect-eating bird for decades.",
+      "matureHours": 8,
+      "matureBonus": 2,
+      "yield": {
+        "resourceId": "acorns",
+        "qty": 2,
+        "regrowSeconds": 90
+      }
+    },
+    {
+      "id": "pine-tree",
+      "name": "Pine Tree",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "alpine"
+      ],
+      "healthValue": 8,
+      "needs": [
+        "shelter",
+        "plant"
+      ],
+      "shape": "pine",
+      "color": "#3a5a44",
+      "plantable": true,
+      "plantCost": {
+        "pinecones": 2
+      },
+      "growSeconds": 90,
+      "description": "A young pine grown from a cone — evergreen shelter in any season.",
+      "matureHours": 8,
+      "matureBonus": 2,
+      "yield": {
+        "resourceId": "pinecones",
+        "qty": 2,
+        "regrowSeconds": 90
+      }
+    },
+    {
+      "id": "butterfly-flowers",
+      "name": "Butterfly Flowers",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "food",
+        "plant"
+      ],
+      "shape": "butterflyflowers",
+      "color": "#e8813a",
+      "description": "A mixed bed of native nectar flowers — blazing star, aster and bee balm — planted for adult butterflies. Milkweed is now its own plant; caterpillars need that separately.",
+      "matureHours": 2,
+      "matureBonus": 1
+    },
+    {
+      "id": "pollinator-garden",
+      "name": "Pollinator Garden",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "food",
+        "plant"
+      ],
+      "shape": "pollinatorgarden",
+      "color": "#5a7bd8",
+      "description": "A dense, season-long banquet for bees and butterflies.",
+      "matureHours": 2,
+      "matureBonus": 1
+    },
+    {
+      "id": "shrub",
+      "name": "Shrub",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter",
+        "plant"
+      ],
+      "shape": "bush",
+      "color": "#4f7d3a",
+      "description": "A young native shrub. Quick cover for anyone passing through — but a meadow is a grassland, and letting shrubs spread across it pushes meadowlarks and other grassland birds out.",
+      "matureHours": 4,
+      "matureBonus": 1
+    },
+    {
+      "id": "berry-bush",
+      "name": "Berry Bush",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "food",
+        "plant"
+      ],
+      "shape": "bush",
+      "color": "#5d3a5f",
+      "plantable": true,
+      "plantCost": {
+        "seeds": 2,
+        "berries": 2
+      },
+      "growSeconds": 70,
+      "description": "A native thimbleberry and wild rose thicket — prickly, as most native brambles are. Songbirds, rabbits and deer all visit. Sow it in a watered bed from seeds and a few berries.",
+      "matureHours": 4,
+      "matureBonus": 1,
+      "yield": {
+        "resourceId": "berries",
+        "qty": 2,
+        "regrowSeconds": 60
+      }
+    },
+    {
+      "id": "small-pond",
+      "name": "Small Pond",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest"
+      ],
+      "healthValue": 7,
+      "needs": [
+        "water"
+      ],
+      "shape": "pond",
+      "color": "#5d96c8",
+      "description": "A clay-lined pond. Clean drinking water changes everything."
+    },
+    {
+      "id": "woodland-pool",
+      "name": "Woodland Pool",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 9,
+      "needs": [
+        "water",
+        "open"
+      ],
+      "shape": "pond",
+      "color": "#4f86a8",
+      "description": "A shaded forest pool fed by a cold spring. Deer, raccoons, and salamanders all come to drink."
+    },
+    {
+      "id": "fern-spring",
+      "name": "Fern Spring",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 8,
+      "needs": [
+        "water",
+        "plant"
+      ],
+      "shape": "pool",
+      "color": "#6aa884",
+      "description": "A mossy seep ringed with ferns — damp ground that wakes the whole understory."
+    },
+    {
+      "id": "shallow-water-pool",
+      "name": "Shallow Water Pool",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "water"
+      ],
+      "shape": "pool",
+      "color": "#7fb4d8",
+      "description": "A gently sloped pool, safe for small animals to wade and drink. Useful for drinking and bathing — but note that neither salamander in this forest breeds in water, so do not build it for them."
+    },
+    {
+      "id": "log-shelter",
+      "name": "Log Shelter",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "log",
+      "color": "#7a5a3a",
+      "description": "Stacked fallen logs. Small mammals, salamanders, and insects move in fast."
+    },
+    {
+      "id": "hollow-log",
+      "name": "Hollow Log",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "log",
+      "color": "#6a4a30",
+      "description": "A fallen log carefully opened into a den. Small mammals and foxes love it."
+    },
+    {
+      "id": "rock-pile",
+      "name": "Rock Pile",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "desert",
+        "alpine"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "rocks",
+      "color": "#8e8e8a",
+      "description": "Sun-warmed stones with cool gaps beneath — insects, lizards, and ground beetles approve."
+    },
+    {
+      "id": "fallen-branch-shelter",
+      "name": "Fallen Branch Shelter",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "log",
+      "color": "#94703f",
+      "description": "A loose brush pile. Humble, but everyone hides in it."
+    },
+    {
+      "id": "bird-perch",
+      "name": "Bird Perch",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "shelter",
+        "open"
+      ],
+      "shape": "perch",
+      "color": "#9a7448",
+      "description": "A tall snag for singing and scouting."
+    },
+    {
+      "id": "simple-path",
+      "name": "Stepping-Stone Path",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 1,
+      "needs": [
+        "open"
+      ],
+      "shape": "path",
+      "color": "#c9b98a",
+      "description": "Flat stepping stones that keep your boots off the new growth."
+    },
+    {
+      "id": "gravel-path",
+      "name": "Gravel Path",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 1,
+      "needs": [
+        "open"
+      ],
+      "shape": "gravel",
+      "color": "#a8a8a0",
+      "description": "Crunchy gravel underfoot — keeps boots off the new growth."
+    },
+    {
+      "id": "plank-path",
+      "name": "Plank Path",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 1,
+      "needs": [
+        "open"
+      ],
+      "shape": "planks",
+      "color": "#a3814f",
+      "description": "Weathered boardwalk planks, kind to soft ground."
+    },
+    {
+      "id": "flagstone-path",
+      "name": "Flagstone Path",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 1,
+      "needs": [
+        "open"
+      ],
+      "shape": "flagstone",
+      "color": "#9a948a",
+      "description": "Broad flat stones set into the earth."
+    },
+    {
+      "id": "mossy-path",
+      "name": "Mossy Path",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 1,
+      "needs": [
+        "open"
+      ],
+      "shape": "mossy",
+      "color": "#7fa05a",
+      "description": "Old stones wearing soft green moss — they keep boots off the wet ground without compacting it."
+    },
+    {
+      "id": "wooden-bridge",
+      "name": "Wooden Bridge",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 1,
+      "needs": [
+        "open"
+      ],
+      "shape": "bridge",
+      "color": "#a3814f",
+      "bridge": true,
+      "description": "A sturdy plank bridge — place it over a pond or wet swale so boots stay off the soft ground."
+    },
+    {
+      "id": "wooden-fence",
+      "name": "Wooden Fence",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 1,
+      "needs": [
+        "open"
+      ],
+      "shape": "fence",
+      "color": "#a3814f",
+      "description": "A low rail fence that marks quiet zones for recovering ground."
+    },
+    {
+      "id": "nesting-tree",
+      "name": "Nesting Tree",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 8,
+      "needs": [
+        "shelter",
+        "plant"
+      ],
+      "shape": "tree",
+      "color": "#3f6e38",
+      "description": "A fast-growing native tree planted for squirrels, owls, and nuthatches.",
+      "matureHours": 8,
+      "matureBonus": 2
+    },
+    {
+      "id": "standing-deadwood",
+      "name": "Standing Deadwood",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "deadwood",
+      "color": "#8d7a5e",
+      "description": "A safely anchored dead snag. The bigger around it is, the more it is worth — a small woodpecker needs a stub, a pileated needs a trunk, and everything that nests in their old holes needs the pileated to have found one."
+    },
+    {
+      "id": "mushroom-log",
+      "name": "Mushroom Log",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "food",
+        "shelter"
+      ],
+      "shape": "log",
+      "color": "#7c6248",
+      "description": "A damp, mossy log seeded with fungi. The fungus is doing the real work — it digests the wood, which is what turns a dead log into food, soil and shelter for everything else."
+    },
+    {
+      "id": "reed-bed",
+      "name": "Reed Bed",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "plant",
+        "shelter",
+        "food"
+      ],
+      "shape": "reed",
+      "color": "#7fa05a",
+      "description": "Dense replanted reeds — nursery for frogs, dragonflies, and blackbirds.",
+      "plantable": true,
+      "plantCost": {
+        "reeds": 3
+      },
+      "growSeconds": 45,
+      "matureHours": 4,
+      "matureBonus": 1,
+      "yield": {
+        "resourceId": "reeds",
+        "qty": 2,
+        "regrowSeconds": 45
+      }
+    },
+    {
+      "id": "mud-bank",
+      "name": "Mud Bank",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "mound",
+      "color": "#7a6a52",
+      "requiresTool": {
+        "id": "shovel",
+        "tier": 2
+      },
+      "description": "A shaped soft bank for burrowing and basking. Requires the restoration shovel."
+    },
+    {
+      "id": "nesting-platform",
+      "name": "Nesting Platform",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland",
+        "coastal"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "platform",
+      "color": "#9a8a64",
+      "description": "A raised, quiet platform for open-nesting waterbirds such as ospreys and geese. It is not a substitute for a tree cavity, a bank tunnel or a colony rookery."
+    },
+    {
+      "id": "cattail-stand",
+      "name": "Cattail Stand",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "plant",
+        "shelter"
+      ],
+      "shape": "cattail",
+      "color": "#7a4a22",
+      "description": "Tall cattails along the water's edge — cover for nesting marsh birds and shade for the shallows.",
+      "plantable": true,
+      "plantCost": {
+        "reeds": 2
+      },
+      "growSeconds": 45,
+      "matureHours": 4,
+      "matureBonus": 1,
+      "yield": {
+        "resourceId": "reeds",
+        "qty": 1,
+        "regrowSeconds": 45
+      }
+    },
+    {
+      "id": "marsh-log",
+      "name": "Marsh Log",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "log",
+      "color": "#6e553c",
+      "description": "A half-sunken log. Turtles haul out on top to bask, crayfish and young fish shelter in the dark gaps beneath, and an otter can slip under it out of sight."
+    },
+    {
+      "id": "lily-pool",
+      "name": "Lily Pool",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant"
+      ],
+      "shape": "pool",
+      "color": "#6fae86",
+      "description": "Still, clean water blanketed with lily pads — a hatchery for dragonflies and frogs."
+    },
+    {
+      "id": "burrow-mound",
+      "name": "Burrow Mound",
+      "placement": "outdoor",
+      "biomes": [
+        "desert",
+        "alpine"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "mound",
+      "color": "#c2a070",
+      "requiresTool": {
+        "id": "shovel",
+        "tier": 2
+      },
+      "description": "A starter burrow bank for diggers. Requires the restoration shovel."
+    },
+    {
+      "id": "cactus-patch",
+      "name": "Cactus Patch",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "food",
+        "plant"
+      ],
+      "shape": "cactus",
+      "color": "#5e8a4a",
+      "description": "Transplanted native pad and barrel cactus. Fruit, moisture and a spiny fortress in one — but no cactus this short can hold a nest cavity.",
+      "plantable": true,
+      "plantCost": {
+        "cactus-fruit": 2
+      },
+      "growSeconds": 70,
+      "matureHours": 4,
+      "matureBonus": 1,
+      "yield": {
+        "resourceId": "cactus-fruit",
+        "qty": 2,
+        "regrowSeconds": 70
+      }
+    },
+    {
+      "id": "desert-brush",
+      "name": "Desert Brush",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant",
+        "shelter"
+      ],
+      "shape": "brush",
+      "color": "#8a8a4e",
+      "description": "A mixed stand of bursage and brittlebush — the low scrub that fills the gaps between the bigger shrubs.",
+      "plantable": true,
+      "plantCost": {
+        "sand": 2
+      },
+      "growSeconds": 50,
+      "matureHours": 4,
+      "matureBonus": 1
+    },
+    {
+      "id": "shaded-rock-shelter",
+      "name": "Shaded Rock Shelter",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "shade",
+      "color": "#a08a72",
+      "description": "Stacked slabs with a cool dark gap — shelter from the midday sun."
+    },
+    {
+      "id": "alpine-wildflower-patch",
+      "name": "Alpine Wildflower Patch",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "food",
+        "plant"
+      ],
+      "shape": "flowers",
+      "color": "#9d86d9",
+      "description": "Tough little high-country forbs — the nectar, seed and grazing layer that pikas, marmots, bees and butterflies all live off. Forage, not shelter.",
+      "plantable": true,
+      "plantCost": {
+        "alpine-flowers": 2
+      },
+      "growSeconds": 45,
+      "matureHours": 2,
+      "matureBonus": 1,
+      "yield": {
+        "resourceId": "alpine-flowers",
+        "qty": 2,
+        "regrowSeconds": 45
+      }
+    },
+    {
+      "id": "snowmelt-pool",
+      "name": "Snowmelt Pool",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "water"
+      ],
+      "shape": "pool",
+      "color": "#8fd0e8",
+      "description": "A stone-lined pool that catches cold, clean snowmelt. Keep it fishless — high alpine waters were naturally without fish, and stocked trout are the biggest single cause of alpine amphibian decline."
+    },
+    {
+      "id": "tidepool",
+      "name": "Tidepool",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 7,
+      "needs": [
+        "water",
+        "shelter"
+      ],
+      "shape": "tidepool",
+      "color": "#5d96c8",
+      "description": "A restored rocky pool that holds a pocket of the sea between tides — home to crabs, anemones and hermit crabs, but only ever a pocket.",
+      "zone": "mid",
+      "waveExposure": "moderate"
+    },
+    {
+      "id": "dune-grass",
+      "name": "American Dunegrass",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant",
+        "open"
+      ],
+      "shape": "dunegrass",
+      "color": "#bdb670",
+      "description": "Native American dunegrass (Leymus mollis), which holds blowing sand in open, patchy clumps rather than a dense wall.",
+      "plantable": true,
+      "plantCost": {
+        "sand": 2
+      },
+      "growSeconds": 45,
+      "matureHours": 4,
+      "matureBonus": 1,
+      "zone": "backdune",
+      "waveExposure": "sheltered"
+    },
+    {
+      "id": "driftwood-shelter",
+      "name": "Driftwood Shelter",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "driftwood",
+      "color": "#b0a088",
+      "description": "Weathered driftwood stacked into beach shelter."
+    },
+    {
+      "id": "kelp-wrack",
+      "name": "Kelp Wrack",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "food"
+      ],
+      "shape": "kelp",
+      "color": "#6a7a3a",
+      "description": "A protected line of washed-up kelp left where the tide dropped it. Beach hoppers shred it after dark, and the birds of the tide line come for the hoppers — groom the wrack away and the beach food web goes with it.",
+      "matureHours": 4,
+      "matureBonus": 1,
+      "zone": "high",
+      "waveExposure": "moderate"
+    },
+    {
+      "id": "coastal-nesting-area",
+      "name": "Coastal Nesting Area",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 7,
+      "needs": [
+        "shelter",
+        "open"
+      ],
+      "shape": "nest",
+      "color": "#d8c8a0",
+      "description": "A general roped-off quiet stretch of upper beach. For specific species build the right closure instead: a Plover Scrape Closure, Seal Haul-Out Rocks or an Offshore Nesting Island."
+    },
+    {
+      "id": "coral-garden",
+      "name": "Coral Garden",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 8,
+      "needs": [
+        "food",
+        "shelter"
+      ],
+      "shape": "coralgarden",
+      "color": "#e58b6f",
+      "description": "DEPRECATED — do not offer in this biome. There are no shallow reef-building corals in the temperate northeast Pacific; reef corals need water around 23-25 C and this coast runs 11-21 C. Replaced by the Kelp Forest object."
+    },
+    {
+      "id": "sea-glass-lantern",
+      "name": "Sea Glass Lantern",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 1,
+      "needs": [],
+      "shape": "seaglasslantern",
+      "color": "#8fc6c2",
+      "description": "Beach-found glass set into a driftwood frame — it throws soft sea-green light at dusk."
+    },
+    {
+      "id": "tide-chime",
+      "name": "Tide Chime",
+      "placement": "both",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "tidechime",
+      "color": "#9bbcc8",
+      "description": "Shells and sea glass strung on driftwood that ring softly in the onshore breeze."
+    },
+    {
+      "id": "pearl-display",
+      "name": "Pearl Display",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 1,
+      "needs": [],
+      "shape": "pearldisplay",
+      "color": "#f2ece0",
+      "description": "A polished shell cradle for beachcombed treasures. Note: there is no natural pearl fishery on this coast, and taking live shellfish for pearls is not restoration — display only what the tide gave up."
+    },
+    {
+      "id": "sea-glass-path",
+      "name": "Sea Glass Path",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 1,
+      "needs": [
+        "open"
+      ],
+      "shape": "seaglasspath",
+      "color": "#8fc6c2",
+      "description": "Tumbled sea glass pressed into the sand — a glittering walkway that keeps boots off the dunes."
+    },
+    {
+      "id": "small-chest",
+      "name": "Small Chest",
+      "placement": "both",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "chest",
+      "color": "#8a6a44",
+      "isChest": true,
+      "chestCapacity": 120,
+      "description": "A woven-and-wood chest. Holds 120 materials. Anything stored here feeds crafting from anywhere."
+    },
+    {
+      "id": "medium-chest",
+      "name": "Medium Chest",
+      "placement": "both",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "chest",
+      "color": "#6e553c",
+      "isChest": true,
+      "chestCapacity": 250,
+      "description": "A sturdier chest. Holds 250 materials."
+    },
+    {
+      "id": "field-journal-stand",
+      "name": "Field Journal Stand",
+      "placement": "both",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 1,
+      "needs": [],
+      "shape": "stand",
+      "color": "#9a7448",
+      "description": "A little lectern for your field journal — read it anywhere you place one."
+    },
+    {
+      "id": "flower-vase",
+      "name": "Potted Flowers",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "vase",
+      "color": "#7a9ac0",
+      "description": "A clay pot of meadow flowers to brighten your camp."
+    },
+    {
+      "id": "wetland-restoration-kit",
+      "name": "Wetland Restoration Kit",
+      "placement": "none",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "kit",
+      "color": "#6fa8d6",
+      "description": "Liners, filters, and channel tools — everything needed to re-water the wetland. Crafting it helps unlock Rushwater Wetland."
+    },
+    {
+      "id": "migration-path-marker",
+      "name": "Migration Path Marker",
+      "placement": "none",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "kit",
+      "color": "#9d86d9",
+      "description": "Cairns and markers that restore a safe migration path through the heights. Crafting it helps unlock Pelican Shore."
+    },
+    {
+      "id": "forest-restoration-kit",
+      "name": "Forest Restoration Kit",
+      "placement": "none",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "kit",
+      "color": "#8fbf6f",
+      "description": "Seed mixes, fiber twine, and trail tools to open the overgrown forest path. Crafting it helps unlock Old Hollow Forest."
+    },
+    {
+      "id": "scrubland-restoration-kit",
+      "name": "Scrubland Restoration Kit",
+      "placement": "none",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "kit",
+      "color": "#6aa884",
+      "description": "Sediment sleds and hardy cuttings to carry restoration into the dry scrubland. Crafting it helps unlock Redstone Scrubland."
+    },
+    {
+      "id": "alpine-restoration-kit",
+      "name": "Alpine Restoration Kit",
+      "placement": "none",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "kit",
+      "color": "#d6a96a",
+      "description": "Shade cloth, water caches, and climbing gear for the high country. Crafting it helps unlock Graywind Heights."
+    },
+    {
+      "id": "stone-lantern",
+      "name": "Stone Lantern",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "lantern",
+      "color": "#caa15a",
+      "description": "A little stone lantern with a warm glow to light the path."
+    },
+    {
+      "id": "wooden-bench",
+      "name": "Wooden Bench",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "bench",
+      "color": "#a3814f",
+      "description": "A weathered bench — a quiet place to sit and watch the wildlife."
+    },
+    {
+      "id": "garden-arch",
+      "name": "Garden Arch",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland"
+      ],
+      "healthValue": 1,
+      "needs": [
+        "plant"
+      ],
+      "shape": "arch",
+      "color": "#5e9455",
+      "description": "A flowering arch that frames a path. Pretty, and pollinators will visit the flowers — but it is a garden feature, not forest habitat, and no species here depends on one."
+    },
+    {
+      "id": "bird-bath",
+      "name": "Bird Bath",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "alpine",
+        "desert"
+      ],
+      "healthValue": 2,
+      "needs": [
+        "water"
+      ],
+      "shape": "birdbath",
+      "color": "#7fb4d8",
+      "description": "Fresh water for songbirds to drink and bathe."
+    },
+    {
+      "id": "trail-signpost",
+      "name": "Trail Signpost",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "signpost",
+      "color": "#a3814f",
+      "description": "A hand-painted signpost to guide visitors through the preserve."
+    },
+    {
+      "id": "planter-box",
+      "name": "Planter Box",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 1,
+      "needs": [
+        "plant"
+      ],
+      "shape": "planter",
+      "color": "#8c6a42",
+      "description": "A timber box planted with desert natives — brittlebush, penstemon and globemallow rather than garden flowers."
+    },
+    {
+      "id": "gazebo",
+      "name": "Gazebo",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "gazebo",
+      "color": "#7a9aa8",
+      "description": "A roofed open-air pavilion — a charming centerpiece and a shady spot to watch the preserve."
+    },
+    {
+      "id": "clover-patch",
+      "name": "Native Clover Patch",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "alpine"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "clover",
+      "color": "#6fae5a",
+      "description": "Springbank clover (Trifolium wormskioldii), a native western clover — nectar for bees and forage for rabbits, and it feeds nitrogen back into the soil.",
+      "matureHours": 2,
+      "matureBonus": 1
+    },
+    {
+      "id": "brush-pile",
+      "name": "Brush Pile",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "brushpile",
+      "color": "#8a7048",
+      "description": "A loose pile of branches — cover for small mammals and ground birds."
+    },
+    {
+      "id": "fern-grove",
+      "name": "Fern Grove",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant",
+        "shelter"
+      ],
+      "shape": "fernclump",
+      "color": "#5e8a4a",
+      "description": "Shady arching ferns that carpet the forest floor.",
+      "plantable": true,
+      "plantCost": {
+        "moss": 2
+      },
+      "growSeconds": 50,
+      "matureHours": 4,
+      "matureBonus": 1
+    },
+    {
+      "id": "tree-stump",
+      "name": "Tree Stump",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "stump",
+      "color": "#8a6a44",
+      "description": "A mossy old stump riddled with cavities for dens and grubs."
+    },
+    {
+      "id": "sedge-tussock",
+      "name": "Sedge Tussock",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant",
+        "shelter"
+      ],
+      "shape": "sedge",
+      "color": "#8aa85a",
+      "description": "Clumped sedges along the shallows — nesting cover for marsh birds.",
+      "plantable": true,
+      "plantCost": {
+        "reeds": 2
+      },
+      "growSeconds": 45,
+      "matureHours": 4,
+      "matureBonus": 1
+    },
+    {
+      "id": "alder-snag",
+      "name": "Alder Snag",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland",
+        "forest"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "snag",
+      "color": "#8a7860",
+      "description": "A standing dead alder drowned by rising water, its trunk riddled with old cavities — a nest hole above the surface for cavity-nesting ducks and a fishing perch for everyone else."
+    },
+    {
+      "id": "agave-rosette",
+      "name": "Agave Rosette",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "agave",
+      "color": "#6f8a5a",
+      "description": "A spiny rosette whose tall bloom feeds desert pollinators.",
+      "plantable": true,
+      "plantCost": {
+        "cactus-fruit": 1,
+        "sand": 1
+      },
+      "growSeconds": 60,
+      "matureHours": 4,
+      "matureBonus": 1,
+      "yield": {
+        "resourceId": "agave-nectar",
+        "qty": 1,
+        "regrowSeconds": 60
+      }
+    },
+    {
+      "id": "ocotillo",
+      "name": "Ocotillo",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "plant",
+        "shelter"
+      ],
+      "shape": "ocotillo",
+      "color": "#9a6a4a",
+      "description": "Whip-like stalks with crimson tips — cover and nectar in the open flats.",
+      "plantable": true,
+      "plantCost": {
+        "sand": 1,
+        "branches": 1
+      },
+      "growSeconds": 60,
+      "matureHours": 4,
+      "matureBonus": 1
+    },
+    {
+      "id": "heather-mat",
+      "name": "Heather Mat",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "heather",
+      "color": "#a06aa8",
+      "description": "A low alpine mat of heather blossoms above the talus.",
+      "plantable": true,
+      "plantCost": {
+        "alpine-flowers": 2
+      },
+      "growSeconds": 50,
+      "matureHours": 4,
+      "matureBonus": 1,
+      "yield": {
+        "resourceId": "alpine-flowers",
+        "qty": 1,
+        "regrowSeconds": 50
+      }
+    },
+    {
+      "id": "krummholz-pine",
+      "name": "Krummholz Pine",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "krummholz",
+      "color": "#3f5e3a",
+      "description": "A wind-sculpted dwarf pine — rare shelter at the tree line.",
+      "matureHours": 8,
+      "matureBonus": 2
+    },
+    {
+      "id": "eelgrass-bed",
+      "name": "Eelgrass Bed",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "seagrass",
+      "color": "#6a9a7a",
+      "description": "Swaying eelgrass (Zostera marina) in a sheltered bay — nursery for young fish and the winter pasture that brant geese migrate for.",
+      "plantable": true,
+      "plantCost": {
+        "sand": 1,
+        "driftwood": 1
+      },
+      "growSeconds": 45,
+      "matureHours": 4,
+      "matureBonus": 1,
+      "zone": "subtidal",
+      "waveExposure": "sheltered"
+    },
+    {
+      "id": "oyster-bed",
+      "name": "Oyster Bed",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "food",
+        "shelter"
+      ],
+      "shape": "oyster",
+      "color": "#8e8e8a",
+      "description": "A restored reef of native Olympia oysters (Ostrea lurida) — the Pacific coast's own oyster and a real restoration target, not the introduced Pacific oyster.",
+      "zone": "low",
+      "waveExposure": "sheltered"
+    },
+    {
+      "id": "daisy-patch",
+      "name": "Blanketflower Patch",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "daisies",
+      "color": "#e8e8e8",
+      "plantable": true,
+      "plantCost": {
+        "seeds": 2
+      },
+      "growSeconds": 45,
+      "description": "Blanketflower (Gaillardia aristata), a native western daisy with red-and-gold rays that blooms all summer for bees and butterflies.",
+      "matureHours": 2,
+      "matureBonus": 1,
+      "yield": {
+        "resourceId": "wildflowers",
+        "qty": 1,
+        "regrowSeconds": 45
+      }
+    },
+    {
+      "id": "foxglove",
+      "name": "Penstemon Spires",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "foxglove",
+      "color": "#c45ad0",
+      "plantable": true,
+      "plantCost": {
+        "seeds": 2,
+        "wildflowers": 1
+      },
+      "growSeconds": 50,
+      "description": "Tall blue-purple spires of Rocky Mountain penstemon (Penstemon strictus) — a native bumblebee favourite with the same shape as foxglove.",
+      "matureHours": 2,
+      "matureBonus": 1,
+      "yield": {
+        "resourceId": "wildflowers",
+        "qty": 1,
+        "regrowSeconds": 50
+      }
+    },
+    {
+      "id": "mushroom-ring",
+      "name": "Mushroom Ring",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "mushrooms",
+      "color": "#c0392b",
+      "plantable": true,
+      "plantCost": {
+        "mushrooms": 2
+      },
+      "growSeconds": 45,
+      "description": "A fairy ring of woodland mushrooms in the leaf litter.",
+      "matureHours": 2,
+      "matureBonus": 1,
+      "yield": {
+        "resourceId": "mushrooms",
+        "qty": 2,
+        "regrowSeconds": 45
+      }
+    },
+    {
+      "id": "birch-tree",
+      "name": "Birch Tree",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 8,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "birch",
+      "color": "#e8e6df",
+      "plantable": true,
+      "plantCost": {
+        "seeds": 2,
+        "bark": 1
+      },
+      "growSeconds": 90,
+      "description": "A slender white-barked birch grown from a watered bed.",
+      "matureHours": 8,
+      "matureBonus": 2,
+      "yield": {
+        "resourceId": "bark",
+        "qty": 1,
+        "regrowSeconds": 90
+      }
+    },
+    {
+      "id": "marsh-marigold",
+      "name": "Marsh Marigold",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "marshflower",
+      "color": "#e3b93f",
+      "plantable": true,
+      "plantCost": {
+        "reeds": 1,
+        "seeds": 1
+      },
+      "growSeconds": 45,
+      "description": "Golden marsh marigolds ringing the seepy shallows in spring — the first nectar in the marsh, and a reliable sign of the wet-meadow edge that frogs depend on.",
+      "matureHours": 2,
+      "matureBonus": 1,
+      "yield": {
+        "resourceId": "wildflowers",
+        "qty": 1,
+        "regrowSeconds": 45
+      }
+    },
+    {
+      "id": "bulrush",
+      "name": "Bulrush",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "bulrush",
+      "color": "#7a5a3a",
+      "plantable": true,
+      "plantCost": {
+        "reeds": 2
+      },
+      "growSeconds": 45,
+      "description": "Stately bulrushes with brown velvet heads along the bank.",
+      "matureHours": 4,
+      "matureBonus": 1,
+      "yield": {
+        "resourceId": "reeds",
+        "qty": 1,
+        "regrowSeconds": 45
+      }
+    },
+    {
+      "id": "prickly-pear",
+      "name": "Prickly Pear",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "pricklypear",
+      "color": "#5e8a4a",
+      "plantable": true,
+      "plantCost": {
+        "cactus-fruit": 2
+      },
+      "growSeconds": 70,
+      "description": "Pad cactus with sweet fruit and bright blooms.",
+      "matureHours": 4,
+      "matureBonus": 1,
+      "yield": {
+        "resourceId": "cactus-fruit",
+        "qty": 2,
+        "regrowSeconds": 70
+      }
+    },
+    {
+      "id": "desert-marigold",
+      "name": "Desert Marigold",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "desertbloom",
+      "color": "#e88a2f",
+      "plantable": true,
+      "plantCost": {
+        "sand": 1,
+        "seeds": 1
+      },
+      "growSeconds": 50,
+      "description": "Drought-tough marigolds that glow against the sand.",
+      "matureHours": 2,
+      "matureBonus": 1,
+      "yield": {
+        "resourceId": "wildflowers",
+        "qty": 1,
+        "regrowSeconds": 50
+      }
+    },
+    {
+      "id": "gentian-patch",
+      "name": "Alpine Gentian",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "gentian",
+      "color": "#3a6ad0",
+      "plantable": true,
+      "plantCost": {
+        "alpine-flowers": 2
+      },
+      "growSeconds": 45,
+      "description": "Vivid blue alpine gentians, low against the wind.",
+      "matureHours": 2,
+      "matureBonus": 1,
+      "yield": {
+        "resourceId": "alpine-flowers",
+        "qty": 1,
+        "regrowSeconds": 45
+      }
+    },
+    {
+      "id": "moss-cushion",
+      "name": "Moss Cushion",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "cushion",
+      "color": "#6fae5a",
+      "plantable": true,
+      "plantCost": {
+        "moss": 2
+      },
+      "growSeconds": 45,
+      "description": "A springy cushion of moss campion and alpine avens, warm and damp inside. Seedlings and small invertebrates shelter within the cushion itself.",
+      "matureHours": 2,
+      "matureBonus": 1
+    },
+    {
+      "id": "sea-thrift",
+      "name": "Sea Thrift",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "thrift",
+      "color": "#e57aa8",
+      "plantable": true,
+      "plantCost": {
+        "sand": 1,
+        "seeds": 1
+      },
+      "growSeconds": 45,
+      "description": "Pink sea-thrift pompoms that thrive in salt spray.",
+      "matureHours": 2,
+      "matureBonus": 1,
+      "yield": {
+        "resourceId": "wildflowers",
+        "qty": 1,
+        "regrowSeconds": 45
+      }
+    },
+    {
+      "id": "beach-shrub",
+      "name": "Beach Shrub",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "coastalshrub",
+      "color": "#7d8f6a",
+      "plantable": true,
+      "plantCost": {
+        "sand": 1,
+        "driftwood": 1
+      },
+      "growSeconds": 55,
+      "description": "A salt-hardy grey-green coastal scrub of the back dune and bluff — nest cover for gulls on offshore rock and for hummingbirds behind the beach.",
+      "matureHours": 4,
+      "matureBonus": 1,
+      "zone": "backdune",
+      "waveExposure": "sheltered"
+    },
+    {
+      "id": "nectar-feeder",
+      "name": "Nectar Feeder",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "food"
+      ],
+      "shape": "feeder",
+      "color": "#c0392b",
+      "description": "A sugar-water feeder. Pretty, and fun to watch — but hummingbirds need real flowers to survive, so treat this as decoration, not habitat."
+    },
+    {
+      "id": "crystal-cairn",
+      "name": "Crystal Cairn",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 1,
+      "needs": [],
+      "shape": "geoderock",
+      "color": "#a98fd0",
+      "description": "A cracked geode set on stacked stones — a glittering desert landmark."
+    },
+    {
+      "id": "sun-totem",
+      "name": "Sun Totem",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "totem",
+      "color": "#c98a5a",
+      "description": "A carved sandstone totem crowned with a desert crystal."
+    },
+    {
+      "id": "palo-verde-tree",
+      "name": "Palo Verde Tree",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 8,
+      "needs": [
+        "shelter",
+        "plant"
+      ],
+      "shape": "paloverde",
+      "color": "#9ab86a",
+      "plantable": true,
+      "plantCost": {
+        "seeds": 2,
+        "sand": 1
+      },
+      "growSeconds": 90,
+      "description": "The green-barked desert tree — rare shade and yellow blooms for the scrubland.",
+      "matureHours": 8,
+      "matureBonus": 2
+    },
+    {
+      "id": "shore-pine",
+      "name": "Shore Pine",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 8,
+      "needs": [
+        "shelter",
+        "plant"
+      ],
+      "shape": "shorepine",
+      "color": "#3f6e4a",
+      "plantable": true,
+      "plantCost": {
+        "seeds": 2,
+        "sand": 1
+      },
+      "growSeconds": 90,
+      "description": "A salt-bent pine that anchors the back dunes and shelters shorebirds.",
+      "matureHours": 8,
+      "matureBonus": 2
+    },
+    {
+      "id": "bald-cypress",
+      "name": "Bald Cypress",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 8,
+      "needs": [
+        "shelter",
+        "plant"
+      ],
+      "shape": "cypress",
+      "color": "#6a8a5a",
+      "plantable": true,
+      "plantCost": {
+        "seeds": 2,
+        "reeds": 1
+      },
+      "growSeconds": 90,
+      "description": "A towering swamp cypress with a flared, knee-rooted base — a southeastern bottomland tree, planted here as an ornamental. It is outside its natural range in a northern emergent marsh.",
+      "matureHours": 8,
+      "matureBonus": 2
+    },
+    {
+      "id": "water-tupelo",
+      "name": "Water Tupelo",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 8,
+      "needs": [
+        "shelter",
+        "plant"
+      ],
+      "shape": "tupelo",
+      "color": "#5e8a6a",
+      "plantable": true,
+      "plantCost": {
+        "seeds": 2,
+        "mud": 1
+      },
+      "growSeconds": 90,
+      "description": "A round-crowned wetland tree whose swollen base stands in the water — a southeastern bottomland species, planted here as an ornamental and outside its natural range.",
+      "matureHours": 8,
+      "matureBonus": 2
+    },
+    {
+      "id": "mesquite-tree",
+      "name": "Mesquite",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 8,
+      "needs": [
+        "shelter",
+        "plant"
+      ],
+      "shape": "mesquite",
+      "color": "#8a9a5a",
+      "plantable": true,
+      "plantCost": {
+        "seeds": 2,
+        "sand": 1
+      },
+      "growSeconds": 90,
+      "description": "A low, spreading desert tree — airy shade and seed pods for the scrubland.",
+      "matureHours": 8,
+      "matureBonus": 2
+    },
+    {
+      "id": "desert-ironwood",
+      "name": "Desert Ironwood",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 8,
+      "needs": [
+        "shelter",
+        "plant"
+      ],
+      "shape": "ironwood",
+      "color": "#7a8a6a",
+      "plantable": true,
+      "plantCost": {
+        "seeds": 2,
+        "sand": 1
+      },
+      "growSeconds": 90,
+      "description": "A dense, slow-growing ironwood — a vital nurse tree in the open desert.",
+      "matureHours": 8,
+      "matureBonus": 2
+    },
+    {
+      "id": "subalpine-fir",
+      "name": "Subalpine Fir",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 8,
+      "needs": [
+        "shelter",
+        "plant"
+      ],
+      "shape": "fir",
+      "color": "#3f5e48",
+      "plantable": true,
+      "plantCost": {
+        "seeds": 2
+      },
+      "growSeconds": 90,
+      "description": "A slender spire fir that shrugs off the high-country snow.",
+      "matureHours": 8,
+      "matureBonus": 2
+    },
+    {
+      "id": "quaking-aspen",
+      "name": "Quaking Aspen",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 8,
+      "needs": [
+        "shelter",
+        "plant"
+      ],
+      "shape": "aspen",
+      "color": "#c9b34a",
+      "plantable": true,
+      "plantCost": {
+        "seeds": 2
+      },
+      "growSeconds": 90,
+      "description": "White-barked aspen whose golden leaves shiver in the wind. It grows in sheltered subalpine basins well below the tundra, never above treeline.",
+      "matureHours": 8,
+      "matureBonus": 2
+    },
+    {
+      "id": "monterey-cypress",
+      "name": "Monterey Cypress",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 8,
+      "needs": [
+        "shelter",
+        "plant"
+      ],
+      "shape": "mcypress",
+      "color": "#4f7050",
+      "plantable": true,
+      "plantCost": {
+        "seeds": 2,
+        "sand": 1
+      },
+      "growSeconds": 90,
+      "description": "A wind-flattened coastal cypress sculpted by the sea breeze — planted here, not native: wild Monterey cypress survives in only two relict groves on the Monterey Peninsula.",
+      "matureHours": 8,
+      "matureBonus": 2
+    },
+    {
+      "id": "coast-live-oak",
+      "name": "Coast Live Oak",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 8,
+      "needs": [
+        "shelter",
+        "plant"
+      ],
+      "shape": "liveoak",
+      "color": "#4a6b40",
+      "plantable": true,
+      "plantCost": {
+        "seeds": 2
+      },
+      "growSeconds": 90,
+      "description": "A broad evergreen oak that anchors the back shore with deep shade.",
+      "matureHours": 8,
+      "matureBonus": 2
+    },
+    {
+      "id": "campfire",
+      "name": "Campfire",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "campfire",
+      "color": "#d8763a",
+      "description": "A crackling campfire ringed with stones — the heart of camp."
+    },
+    {
+      "id": "string-lights",
+      "name": "String Lights",
+      "placement": "both",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "lanternstring",
+      "color": "#f0d27a",
+      "description": "A string of warm little lanterns to hang over your camp."
+    },
+    {
+      "id": "pinwheel",
+      "name": "Pinwheel",
+      "placement": "both",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "pinwheel",
+      "color": "#e86a8a",
+      "description": "A bright pinwheel that spins in the breeze."
+    },
+    {
+      "id": "birdhouse",
+      "name": "Birdhouse",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "birdhouse",
+      "color": "#9a7448",
+      "description": "A hand-built birdhouse on a post — charming, even when empty."
+    },
+    {
+      "id": "flower-cart",
+      "name": "Flower Cart",
+      "placement": "both",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "flowercart",
+      "color": "#b5707a",
+      "description": "A little wooden cart overflowing with cut flowers."
+    },
+    {
+      "id": "hammock",
+      "name": "Hammock",
+      "placement": "both",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "hammock",
+      "color": "#c8a86a",
+      "description": "A woven hammock strung between two posts for lazy afternoons."
+    },
+    {
+      "id": "garden-gnome",
+      "name": "Garden Gnome",
+      "placement": "both",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "gnome",
+      "color": "#c0392b",
+      "description": "A cheerful little gnome to watch over the garden."
+    },
+    {
+      "id": "wind-chimes",
+      "name": "Wind Chimes",
+      "placement": "both",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "windchime",
+      "color": "#9bbcc8",
+      "description": "Driftwood chimes that sing softly when the wind moves through."
+    },
+    {
+      "id": "sundial",
+      "name": "Sundial",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "sundial",
+      "color": "#a8a8a0",
+      "description": "A carved stone sundial for telling time the slow way."
+    },
+    {
+      "id": "stone-cairn",
+      "name": "Stone Cairn",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "cairnstack",
+      "color": "#8e8e8a",
+      "description": "A balanced stack of smooth stones marking a quiet spot."
+    },
+    {
+      "id": "picnic-blanket",
+      "name": "Picnic Blanket",
+      "placement": "both",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "picnic",
+      "color": "#7a9a5a",
+      "description": "A checked blanket spread out for a sunny picnic."
+    },
+    {
+      "id": "flower-pots",
+      "name": "Flower Pot Row",
+      "placement": "both",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "potrow",
+      "color": "#cf7a52",
+      "description": "A tidy row of terracotta pots brimming with blooms."
+    },
+    {
+      "id": "insect-hotel",
+      "name": "Insect Hotel",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 2,
+      "needs": [],
+      "shape": "insecthotel",
+      "color": "#b07a3a",
+      "description": "A stack of hollow and pithy stems and beetle-bored bark. Solitary bees nest one egg to a cell inside the tubes — a leafcutter bee seals each cell with a disc she has cut from a leaf."
+    },
+    {
+      "id": "dry-stone-wall",
+      "name": "Dry Stone Wall",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 2,
+      "needs": [],
+      "shape": "stonewall",
+      "color": "#9a948a",
+      "description": "A low wall of stacked stones with cool, shady gaps for small creatures."
+    },
+    {
+      "id": "bat-box",
+      "name": "Bat Box",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 2,
+      "needs": [],
+      "shape": "batbox",
+      "color": "#6b5238",
+      "description": "A tall, narrow roost box where bats shelter through the day."
+    },
+    {
+      "id": "leaf-litter-pile",
+      "name": "Leaf Litter Pile",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 1,
+      "needs": [],
+      "shape": "leaflitter",
+      "color": "#8a6a3a",
+      "description": "A mound of damp leaves and moss alive with forest-floor life."
+    },
+    {
+      "id": "duck-nest-box",
+      "name": "Duck Nest Box",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 2,
+      "needs": [],
+      "shape": "ducknest",
+      "color": "#7c5a3c",
+      "description": "A raised wooden box where cavity-nesting waterfowl raise their young."
+    },
+    {
+      "id": "basking-log",
+      "name": "Basking Log",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 2,
+      "needs": [],
+      "shape": "baskinglog",
+      "color": "#7a5a3a",
+      "description": "A half-submerged log angled up into the sun. A turtle cannot digest its food until it has warmed up, so a log out of the water is not decoration — it is a feeding requirement."
+    },
+    {
+      "id": "rock-crevice",
+      "name": "Rock Crevice",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 2,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "crevice",
+      "color": "#b07a4a",
+      "description": "Stacked slabs leaving shady cracks where reptiles shelter from the heat."
+    },
+    {
+      "id": "dew-basin",
+      "name": "Dew Basin",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "water"
+      ],
+      "shape": "guzzler",
+      "color": "#9a8a6a",
+      "description": "A shallow clay basin that catches dew and rain — precious desert water."
+    },
+    {
+      "id": "talus-pile",
+      "name": "Talus Pile",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 2,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "talus",
+      "color": "#9a948a",
+      "description": "A jumble of broken rock — the burrows and runways pikas love."
+    },
+    {
+      "id": "alpine-nest-shelf",
+      "name": "Nest Shelf",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 2,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "nestshelf",
+      "color": "#8a847a",
+      "description": "A sheltered rock ledge lined with moss for high-country nesters."
+    },
+    {
+      "id": "driftwood-pile",
+      "name": "Driftwood Pile",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 4,
+      "needs": [],
+      "shape": "driftpile",
+      "color": "#b8a888",
+      "description": "A tangle of sun-bleached driftwood that shelters shore life.",
+      "zone": "backdune",
+      "waveExposure": "sheltered"
+    },
+    {
+      "id": "nesting-bluff",
+      "name": "Nesting Bluff",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 6,
+      "needs": [],
+      "shape": "bluff",
+      "color": "#c2b9a0",
+      "description": "A built-up sandy bank with ledges for cliff-nesting seabirds.",
+      "zone": "splash",
+      "waveExposure": "exposed"
+    },
+    {
+      "id": "pika-haypile",
+      "name": "Pika Haypile",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "food",
+        "shelter"
+      ],
+      "shape": "haypile",
+      "color": "#c2b070",
+      "description": "A stockpile of dried grasses and flowers, cured the way pikas hoard hay for the long winter."
+    },
+    {
+      "id": "lichen-boulder",
+      "name": "Lichen Boulder",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "food"
+      ],
+      "shape": "lichenrock",
+      "color": "#9fb38a",
+      "description": "A weathered boulder crusted with map lichen. It grows roughly a millimetre every ten years, quietly crumbling the rock into the first grains of alpine soil."
+    },
+    {
+      "id": "scree-slope",
+      "name": "Scree Slope",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "shelter",
+        "open"
+      ],
+      "shape": "scree",
+      "color": "#9a948a",
+      "description": "A shifting apron of shattered rock, laced with the runways and hideaways of the high country."
+    },
+    {
+      "id": "snowbank-roost",
+      "name": "Snowbank Roost",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "water",
+        "shelter"
+      ],
+      "shape": "snowbank",
+      "color": "#eef4fb",
+      "description": "A packed drift of late-lying snow. A white-tailed ptarmigan burrows into snow like this to roost out of the wind and cold."
+    },
+    {
+      "id": "whitebark-cache",
+      "name": "Whitebark Seed Cache",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "food"
+      ],
+      "shape": "seedcache",
+      "color": "#c8a86a",
+      "description": "A hidden larder of whitebark pine nuts — the seed bank nutcrackers and grosbeaks live by."
+    },
+    {
+      "id": "juniper-thicket",
+      "name": "Juniper Thicket",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "food",
+        "shelter"
+      ],
+      "shape": "juniper",
+      "color": "#5d7a66",
+      "description": "A low, hardy juniper heavy with frosted berries — cover and winter food where little else grows.",
+      "matureHours": 8,
+      "matureBonus": 2
+    },
+    {
+      "id": "cliff-nest-niche",
+      "name": "Cliff Nest Niche",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "cliffniche",
+      "color": "#8a847a",
+      "description": "A sheltered cleft in the cliff face, mossed and tucked away for high-country nesters."
+    },
+    {
+      "id": "crystal-spring",
+      "name": "Crystal Snowmelt Spring",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 7,
+      "needs": [
+        "water"
+      ],
+      "shape": "crystalspring",
+      "color": "#9fdff0",
+      "description": "An ice-cold spring welling up through quartz — the purest, coldest water in the heights."
+    },
+    {
+      "id": "summit-prayer-flags",
+      "name": "Summit Prayer Flags",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "prayerflags",
+      "color": "#d77bb1",
+      "description": "A bright line of weatherworn flags strung between cairns, snapping in the alpine wind."
+    },
+    {
+      "id": "quartz-lantern",
+      "name": "Quartz Lantern",
+      "placement": "both",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "crystallantern",
+      "color": "#d8f0fa",
+      "description": "A stone lantern set with a glowing shard of quartz that holds the last of the daylight.",
+      "decorative": true
+    },
+    {
+      "id": "obsidian-totem",
+      "name": "Obsidian Totem",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "obsidiantotem",
+      "color": "#2e2b38",
+      "description": "A polished column of volcanic glass that catches the high light like dark, still water.",
+      "decorative": true
+    },
+    {
+      "id": "large-chest",
+      "name": "Large Chest",
+      "placement": "both",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "largechest",
+      "color": "#5a4632",
+      "isChest": true,
+      "chestCapacity": 500,
+      "description": "A big iron-banded storage chest. Holds 500 materials — your main stockpile."
+    },
+    {
+      "id": "home-rug",
+      "name": "Woven Rug",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "rug",
+      "color": "#b5707a",
+      "description": "A soft woven rug to warm the floor of your home."
+    },
+    {
+      "id": "home-table",
+      "name": "Little Table",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "table",
+      "color": "#8a6a48",
+      "description": "A small wooden table with a sprig of flowers."
+    },
+    {
+      "id": "home-bed",
+      "name": "Cozy Bed",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "bed",
+      "color": "#7a9ac0",
+      "description": "A comfortable bed for resting between restoration days.",
+      "homeMin": 2
+    },
+    {
+      "id": "home-bookshelf",
+      "name": "Bookshelf",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "bookshelf",
+      "color": "#6e4a33",
+      "description": "A shelf of field guides and well-thumbed nature books.",
+      "homeMin": 2
+    },
+    {
+      "id": "home-armchair",
+      "name": "Cozy Armchair",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "armchair",
+      "color": "#a86f80",
+      "description": "A plush armchair to sink into after a long day's restoring.",
+      "homeMin": 2
+    },
+    {
+      "id": "home-fireplace",
+      "name": "Stone Fireplace",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "fireplace",
+      "color": "#8e8e8a",
+      "description": "A crackling stone hearth that warms the whole room.",
+      "homeMin": 2
+    },
+    {
+      "id": "home-lamp",
+      "name": "Floor Lamp",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "lamp",
+      "color": "#f3d98a",
+      "description": "A soft floor lamp for cozy evenings indoors."
+    },
+    {
+      "id": "home-potplant",
+      "name": "House Plant",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "potplant",
+      "color": "#4f7d3a",
+      "description": "A leafy potted plant to bring a little of the meadow inside."
+    },
+    {
+      "id": "home-painting",
+      "name": "Framed Landscape",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "painting",
+      "color": "#caa15e",
+      "description": "A framed painting of the preserve at its finest."
+    },
+    {
+      "id": "home-sleeping-bag",
+      "name": "Sleeping Bag",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "sleepingbag",
+      "color": "#5b7d9a",
+      "description": "A simple sleeping bag — just the thing for a cozy night in the tent."
+    },
+    {
+      "id": "home-cushions",
+      "name": "Floor Cushions",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "cushions",
+      "color": "#c98a6a",
+      "description": "A pile of soft floor cushions for lounging."
+    },
+    {
+      "id": "home-stool",
+      "name": "Wooden Stool",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "stool",
+      "color": "#a86f80",
+      "description": "A simple cushioned stool."
+    },
+    {
+      "id": "home-mushroomshelf",
+      "name": "Mushroom Shelf",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "mushroomshelf",
+      "color": "#7a5a3a",
+      "description": "A little shelf dotted with woodland mushrooms."
+    },
+    {
+      "id": "home-reedmat",
+      "name": "Reed Floor Mat",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "reedmat",
+      "color": "#b9a06a",
+      "description": "A woven reed mat from the marsh."
+    },
+    {
+      "id": "home-cactuspot",
+      "name": "Potted Cactus",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "cactuspot",
+      "color": "#4f8a4a",
+      "description": "A hardy little cactus in a clay pot."
+    },
+    {
+      "id": "home-driftwoodshelf",
+      "name": "Driftwood Shelf",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "driftwoodshelf",
+      "color": "#b6a68c",
+      "description": "A shelf of weathered driftwood with beach finds."
+    },
+    {
+      "id": "home-wallclock",
+      "name": "Wall Clock",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "wallclock",
+      "color": "#6e4a33",
+      "description": "A handsome wall clock — a house needs one.",
+      "homeMin": 2
+    },
+    {
+      "id": "home-dresser",
+      "name": "Wooden Dresser",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "dresser",
+      "color": "#8a6a48",
+      "description": "A sturdy chest of drawers.",
+      "homeMin": 2
+    },
+    {
+      "id": "home-peltrug",
+      "name": "Woolly Rug",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "peltrug",
+      "color": "#caa15e",
+      "description": "A thick, warm rug for cold mountain nights.",
+      "homeMin": 2
+    },
+    {
+      "id": "home-chandelier",
+      "name": "Antler Chandelier",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "chandelier",
+      "color": "#caa15e",
+      "description": "A grand candle chandelier — fit for a lodge.",
+      "homeMin": 3
+    },
+    {
+      "id": "home-aquarium",
+      "name": "Aquarium",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "aquarium",
+      "color": "#7fb4d8",
+      "description": "A glass tank of darting little fish.",
+      "homeMin": 3
+    },
+    {
+      "id": "home-telescope",
+      "name": "Stargazing Telescope",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "telescope",
+      "color": "#5a6b7a",
+      "description": "A brass telescope for the clear mountain sky.",
+      "homeMin": 3
+    },
+    {
+      "id": "rain-basin",
+      "name": "Rain Basin",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "water"
+      ],
+      "shape": "rainbasin",
+      "color": "#6fa8d6",
+      "description": "A carved stone bowl that catches rainwater — a drinking spot for visiting wildlife."
+    },
+    {
+      "id": "dew-lantern",
+      "name": "Dewlit Lantern",
+      "placement": "both",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 1,
+      "needs": [],
+      "shape": "dewlantern",
+      "color": "#a8d2c0",
+      "description": "Decoration. A glass globe of glowing morning dew that throws a soft green light — invented, not habitat.",
+      "decorative": true
+    },
+    {
+      "id": "sunstone-cairn",
+      "name": "Sunstone Cairn",
+      "placement": "outdoor",
+      "biomes": [
+        "desert",
+        "meadow",
+        "forest"
+      ],
+      "healthValue": 4,
+      "needs": [],
+      "shape": "sunstonecairn",
+      "color": "#e6a94e",
+      "description": "Decoration. A stack of sun-baked stones that hold the day's warmth into the cool evening — pretty, but no meadow animal needs one."
+    },
+    {
+      "id": "frostflower-planter",
+      "name": "Frostflower Planter",
+      "placement": "both",
+      "biomes": [
+        "alpine",
+        "forest",
+        "meadow"
+      ],
+      "healthValue": 3,
+      "needs": [],
+      "shape": "frostflowerplanter",
+      "color": "#bcd9e8",
+      "description": "Decoration. A planter of imaginary pale ice-blooms — a made-up flower, not a plant you could grow.",
+      "decorative": true
+    },
+    {
+      "id": "stormglass-lantern",
+      "name": "Stormglass Lantern",
+      "placement": "both",
+      "biomes": [
+        "desert",
+        "coastal",
+        "wetland"
+      ],
+      "healthValue": 1,
+      "needs": [],
+      "shape": "stormglasslantern",
+      "color": "#5566a3",
+      "description": "A shard of lightning-fused glass that flickers with a cold inner light."
+    },
+    {
+      "id": "frostflower-vase",
+      "name": "Frostflower Vase",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "frostflowervase",
+      "color": "#bcd9e8",
+      "description": "A glass vase of ice-blooms for the windowsill — they never wilt.",
+      "homeMin": 1
+    },
+    {
+      "id": "stormglass-chandelier",
+      "name": "Stormglass Chandelier",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "stormglasschandelier",
+      "color": "#5566a3",
+      "description": "A hanging cluster of lightning-glass shards that scatters cool light across the room.",
+      "homeMin": 2
+    },
+    {
+      "id": "boardwalk",
+      "name": "Marsh Boardwalk",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 2,
+      "needs": [],
+      "shape": "boardwalk",
+      "color": "#9a7448",
+      "description": "A raised plank walkway. No animal needs one — it exists so that you don't: every footstep off it compacts mud, crushes stems and opens a path a predator can follow to a nest."
+    },
+    {
+      "id": "heron-rookery",
+      "name": "Heron Rookery",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "heronrookery",
+      "color": "#8a8270",
+      "description": "A stand of tall snags and crowns carrying a dozen bulky stick nests. A rookery is a colony, not a single nest — great blue herons hunt alone but will only breed alongside each other."
+    },
+    {
+      "id": "dragonfly-pond",
+      "name": "Dragonfly Pond",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 7,
+      "needs": [
+        "water"
+      ],
+      "shape": "dragonflypond",
+      "color": "#5aa6cf",
+      "description": "A clear pool ringed with reeds — open water where dragonfly nymphs hunt below the surface and climb the stems to emerge as adults, and where frogs lay their eggs."
+    },
+    {
+      "id": "trail-tent",
+      "name": "Trail Tent",
+      "placement": "outdoor",
+      "biomes": [
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "trailtent",
+      "color": "#5a86b8",
+      "onePerArea": true,
+      "description": "A snug canvas tent you can step inside and decorate — a little home base away from home. Pitch one in each wild biome beyond the meadow."
+    },
+    {
+      "id": "headlamp",
+      "name": "Headlamp",
+      "placement": "none",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "headlamp",
+      "color": "#e3c75f",
+      "description": "A hand-wound lamp on a woven strap. Once crafted it's yours for good — after dusk, a warm beam lights the ground around you wherever you roam."
+    },
+    {
+      "id": "binoculars",
+      "name": "Field Binoculars",
+      "placement": "none",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "binoculars",
+      "color": "#7a6a4f",
+      "description": "Hand-ground lenses in a woven grip. Once crafted they're yours for good — animals you haven't recorded in your journal yet catch the light with a soft glint."
+    },
+    {
+      "id": "hiking-boots",
+      "name": "Hiking Boots",
+      "placement": "none",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "hikingboots",
+      "color": "#8a5a34",
+      "description": "Sturdy boots cobbled from tough forest bark, springy moss, and woven wetland reeds. Once crafted they're yours for good — wear them to roam the preserve a little faster."
+    },
+    {
+      "id": "fellfield-gravel",
+      "name": "Fellfield Gravel",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "plant",
+        "open"
+      ],
+      "shape": "patch",
+      "color": "#9a9385",
+      "description": "Wind-scoured gravel that freezes, heaves and re-sorts itself every spring, held together by thin crusts of lichen. It looks like nothing, and it is the only ground a cushion plant will take.",
+      "matureHours": 6,
+      "matureBonus": 1
+    },
+    {
+      "id": "alpine-turf-mat",
+      "name": "Alpine Turf Mat",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "patch",
+      "color": "#7c8f5a",
+      "description": "A knitted mat of sedge, alpine avens and cushion plants over dark alpine soil. Turf like this takes decades to close over bare ground, and one summer of boot traffic to open it up again.",
+      "matureHours": 30,
+      "matureBonus": 3
+    },
+    {
+      "id": "snowmelt-litter-mat",
+      "name": "Snowmelt Litter Mat",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "food",
+        "shelter"
+      ],
+      "shape": "patch",
+      "color": "#6b6151",
+      "description": "A sodden mat of last year's stems and leaves, released as the snowpack pulls back. Almost all of the alpine's decomposition happens in these few damp weeks.",
+      "matureHours": 4,
+      "matureBonus": 1
+    },
+    {
+      "id": "rotting-conifer-log",
+      "name": "Rotting Conifer Log",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "shelter",
+        "food"
+      ],
+      "shape": "log",
+      "color": "#5c4a35",
+      "description": "A well-rotted subalpine fir log lying where the drifts pile deepest, soft enough to push a finger into. Dead wood is habitat, not mess.",
+      "matureHours": 10,
+      "matureBonus": 1
+    },
+    {
+      "id": "escape-cliff",
+      "name": "Escape Cliff",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 7,
+      "needs": [
+        "shelter",
+        "open"
+      ],
+      "shape": "cliff",
+      "color": "#7d7469",
+      "description": "A near-vertical band of broken cliff where a bighorn can climb out of a predator's reach in seconds. Sheep will not graze a slope they cannot escape from."
+    },
+    {
+      "id": "willow-basin-thicket",
+      "name": "Willow Basin Thicket",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "food",
+        "shelter",
+        "plant"
+      ],
+      "shape": "thicket",
+      "color": "#6f7f52",
+      "description": "Planeleaf and snow willow filling a sheltered basin. Willow buds and twigs are almost the entire winter diet of a white-tailed ptarmigan, and the best browse a snowshoe hare or a mule deer will find this high.",
+      "matureHours": 20,
+      "matureBonus": 2
+    },
+    {
+      "id": "boulder-burrow-den",
+      "name": "Boulder Burrow Den",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "mound",
+      "color": "#8b7f68",
+      "description": "A deep, many-chambered burrow tunnelled under a boulder, well below the frost line. A marmot spends about eight months of the year asleep down here."
+    },
+    {
+      "id": "inherited-earth-den",
+      "name": "Inherited Earth Den",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "mound",
+      "color": "#8a6f50",
+      "description": "An old marmot burrow, widened and taken over. Red foxes rarely dig their own den if somebody else has already done the digging."
+    },
+    {
+      "id": "stonecrop-patch",
+      "name": "Stonecrop Patch",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "patch",
+      "color": "#a8b56a",
+      "description": "Lance-leaved stonecrop wedged into gravel and rock cracks. It is the only plant a Rocky Mountain Parnassian caterpillar will eat.",
+      "matureHours": 6,
+      "matureBonus": 1
+    },
+    {
+      "id": "bumblebee-nest-burrow",
+      "name": "Bumble Bee Nest Burrow",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "mound",
+      "color": "#8f7c55",
+      "description": "An abandoned rodent tunnel packed with dry grass. An alpine bumble bee queen cannot dig — she has to find a hole somebody else left behind."
+    },
+    {
+      "id": "chipmunk-burrow-larder",
+      "name": "Chipmunk Burrow Larder",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "shelter",
+        "food"
+      ],
+      "shape": "mound",
+      "color": "#a08a63",
+      "description": "A shallow tunnel under a slab, packed with seed heads. A least chipmunk does not fatten up for winter — it sleeps in short stretches and wakes to eat from its own larder."
+    },
+    {
+      "id": "whitebark-pine",
+      "name": "Whitebark Pine",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 8,
+      "needs": [
+        "shelter",
+        "plant",
+        "food"
+      ],
+      "shape": "tree",
+      "color": "#55684a",
+      "description": "A whitebark pine grown from a seed a nutcracker buried and never came back for. Its cones do not open on their own, so without the bird the tree cannot spread at all.",
+      "matureHours": 48,
+      "matureBonus": 3
+    },
+    {
+      "id": "beetle-killed-snag",
+      "name": "Beetle-Killed Snag",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter",
+        "food"
+      ],
+      "shape": "snag",
+      "color": "#6e6558",
+      "description": "A big standing dead fir, its wood loosened by bark beetles. The larvae feed the birds, and the softened trunk is where woodpeckers cut the holes everything else moves into."
+    },
+    {
+      "id": "old-woodpecker-cavity",
+      "name": "Old Woodpecker Cavity",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "cavity",
+      "color": "#4f4335",
+      "description": "A nest hole chiselled out of a dead trunk seasons ago and left behind. Bluebirds cannot cut one and chickadees can only manage it where the wood is already rotten — every cavity they use was made by a woodpecker first."
+    },
+    {
+      "id": "snowfield-debris-line",
+      "name": "Snowfield Debris Line",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "food"
+      ],
+      "shape": "patch",
+      "color": "#c9d3dc",
+      "description": "The dark seam of wind-carried seeds, pollen and chilled insects stranded on a shrinking snowfield — a free meal delivered uphill by the wind, and one of the odd ways an alpine slope is fed from below."
+    },
+    {
+      "id": "toad-upland-burrow",
+      "name": "Toad Upland Burrow",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "mound",
+      "color": "#7a6f57",
+      "description": "A borrowed rodent tunnel in damp ground above a breeding pool. A boreal toad spends September to May down one of these, below the frost and above the water table."
+    },
+    {
+      "id": "treeline-log-den",
+      "name": "Treeline Log Den",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "log",
+      "color": "#59493a",
+      "description": "A hollow log at the edge of the last trees, buried by drifts all winter. A marten dens here and hunts the tunnels under the snowpack."
+    },
+    {
+      "id": "fur-lined-prey-den",
+      "name": "Fur-Lined Prey Den",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "mound",
+      "color": "#9c8d78",
+      "description": "A stolen rodent burrow, relined with the fur of the animal that dug it. Ermines take over their prey's homes rather than build their own."
+    },
+    {
+      "id": "cliff-eyrie",
+      "name": "Cliff Eyrie",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 7,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "ledge",
+      "color": "#6f6a61",
+      "description": "A bulky stick eyrie on a sheer ledge, added to year after year until the same pair has used it for decades."
+    },
+    {
+      "id": "ledge-natal-den",
+      "name": "Ledge Natal Den",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "ledge",
+      "color": "#6b5f52",
+      "description": "A dry overhang deep in broken cliff, screened by fallen rock, where a female mountain lion hides her kittens through their first two months."
+    },
+    {
+      "id": "krummholz-bed-hollow",
+      "name": "Krummholz Bed Hollow",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "patch",
+      "color": "#6a7355",
+      "description": "A shaded, wind-broken hollow scraped out under the krummholz, where a mule deer beds down through the middle of the day."
+    },
+    {
+      "id": "kelp-holdfast-reef",
+      "name": "Kelp Holdfast Reef",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "plant",
+        "shelter"
+      ],
+      "shape": "reef",
+      "color": "#4a5f3a",
+      "description": "Clean rock on the shallow seafloor for kelp holdfasts to grip. Kelp is not rooted in sand — without hard bottom the whole forest washes away.",
+      "zone": "subtidal",
+      "waveExposure": "moderate",
+      "matureHours": 6,
+      "matureBonus": 2
+    },
+    {
+      "id": "nutrient-upwelling-current",
+      "name": "Upwelling Current",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "water",
+        "food"
+      ],
+      "shape": "flow",
+      "color": "#2f6b86",
+      "description": "Cold, nutrient-rich water rising from the deep along the shore. It is the fertiliser of this whole coast: kelp, plankton, anchovies and filter feeders all run on it.",
+      "zone": "subtidal",
+      "waveExposure": "exposed"
+    },
+    {
+      "id": "coralline-algae-crust",
+      "name": "Coralline Turf",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "plant"
+      ],
+      "shape": "patch",
+      "color": "#c07a97",
+      "description": "Pink, branching coralline and red algae turf on low-zone rock. Surfgrass seeds carry bristly arms that hook onto these branches — no turf, no surfgrass.",
+      "zone": "low",
+      "waveExposure": "exposed",
+      "matureHours": 4,
+      "matureBonus": 1
+    },
+    {
+      "id": "low-tide-rock-bench",
+      "name": "Low-Tide Rock Bench",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter",
+        "water"
+      ],
+      "shape": "bench",
+      "color": "#6d7a80",
+      "description": "A broad shelf of bedrock uncovered only at the lowest tides — the richest strip of the shore, and the one that is underwater most of the time.",
+      "zone": "low",
+      "waveExposure": "moderate"
+    },
+    {
+      "id": "urchin-crevice-pit",
+      "name": "Urchin Pit",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "cluster",
+      "color": "#6b4a8a",
+      "description": "Rounded hollows ground into solid rock by urchins' teeth and spines. An urchin may sit in the same pit for years, catching drift kelp as it sweeps past.",
+      "zone": "subtidal",
+      "waveExposure": "moderate"
+    },
+    {
+      "id": "kelp-forest",
+      "name": "Kelp Forest",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 9,
+      "needs": [
+        "plant",
+        "food",
+        "shelter"
+      ],
+      "shape": "canopy",
+      "color": "#3f6b45",
+      "description": "Living giant kelp rising from the seafloor to a golden canopy at the surface — food, nursery and shelter for the whole coast, and the thing otters wrap up in to sleep.",
+      "zone": "subtidal",
+      "waveExposure": "moderate",
+      "matureHours": 8,
+      "matureBonus": 3
+    },
+    {
+      "id": "surfgrass-bed",
+      "name": "Surfgrass Bed",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "plant",
+        "food",
+        "shelter"
+      ],
+      "shape": "patch",
+      "color": "#3d7a52",
+      "description": "A green meadow of Torrey's surfgrass streaming in the surge on low-zone rock, packed with small invertebrates and young fish.",
+      "zone": "low",
+      "waveExposure": "exposed",
+      "matureHours": 6,
+      "matureBonus": 2
+    },
+    {
+      "id": "nearshore-spawning-shallows",
+      "name": "Nearshore Spawning Shallows",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "water",
+        "food"
+      ],
+      "shape": "flat",
+      "color": "#3b7ea1",
+      "description": "Quiet plankton-rich water just off the surf line where anchovy schools spawn and their eggs drift near the surface.",
+      "zone": "subtidal",
+      "waveExposure": "moderate"
+    },
+    {
+      "id": "bare-sand-beach",
+      "name": "Open Sand Beach",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "open"
+      ],
+      "shape": "flat",
+      "color": "#e2d3ac",
+      "description": "Wide, flat, unplanted sand above the tide. Bare open sand is habitat in its own right here — for hoppers below the surface and for the birds that need a clear line of sight.",
+      "zone": "high",
+      "waveExposure": "moderate"
+    },
+    {
+      "id": "empty-shell-drift",
+      "name": "Empty Shell Drift",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "cluster",
+      "color": "#b8a68b",
+      "description": "A pocket of empty snail shells caught in a rock hollow. Hermit crabs carry a borrowed shell their whole lives, and a shore with no spare shells holds no hermit crabs.",
+      "zone": "mid",
+      "waveExposure": "sheltered"
+    },
+    {
+      "id": "subtidal-rubble-flat",
+      "name": "Subtidal Rubble Flat",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "shelter",
+        "food"
+      ],
+      "shape": "flat",
+      "color": "#7a7f75",
+      "description": "Loose cobble and broken rock just below the tide, where dead material collects and the shallow-water cleanup crew works.",
+      "zone": "subtidal",
+      "waveExposure": "sheltered"
+    },
+    {
+      "id": "surge-swept-rock-face",
+      "name": "Surge-Swept Rock Face",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter",
+        "water"
+      ],
+      "shape": "rock",
+      "color": "#5b6169",
+      "description": "Open rock taking the full weight of the swell. Punishing to stand on, perfect to filter from — the water never stops moving past.",
+      "zone": "mid",
+      "waveExposure": "exposed"
+    },
+    {
+      "id": "barnacle-crust-rock",
+      "name": "Barnacle Crust",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "food",
+        "shelter"
+      ],
+      "shape": "patch",
+      "color": "#d8d2c4",
+      "description": "A white crust of acorn barnacles across the upper rock. It feeds turnstones and sea stars, and its rough shells are where mussel larvae prefer to settle.",
+      "zone": "high",
+      "waveExposure": "exposed",
+      "matureHours": 4,
+      "matureBonus": 1
+    },
+    {
+      "id": "protected-sand-gravel-flat",
+      "name": "Sheltered Sand-Gravel Flat",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter",
+        "water"
+      ],
+      "shape": "flat",
+      "color": "#b5ac8e",
+      "description": "Stable mixed sand and gravel in the lee of a headland — firm enough to burrow into and calm enough to stay put, which is what a buried clam needs.",
+      "zone": "low",
+      "waveExposure": "sheltered"
+    },
+    {
+      "id": "benthic-amphipod-bed",
+      "name": "Amphipod and Mysid Bed",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 7,
+      "needs": [
+        "food"
+      ],
+      "shape": "flat",
+      "color": "#8a7f6a",
+      "description": "Soft sediment and kelp-edge water thick with tube-building amphipods and swarming mysid shrimp — the small crustaceans a gray whale actually eats.",
+      "zone": "subtidal",
+      "waveExposure": "moderate",
+      "matureHours": 8,
+      "matureBonus": 2
+    },
+    {
+      "id": "sheltered-cobble-field",
+      "name": "Sheltered Cobble Field",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "cluster",
+      "color": "#8b8578",
+      "description": "Loose stones on a shore the surf does not reach hard. The habitat is the damp underside — lift one and the shore crabs run.",
+      "zone": "mid",
+      "waveExposure": "sheltered"
+    },
+    {
+      "id": "splash-zone-crevice",
+      "name": "Splash-Zone Crevice",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "crevice",
+      "color": "#7d7367",
+      "description": "Dry-looking cracks in rock the waves only reach as spray. The highest tier of shore life lives here — animals that breathe air and only visit the sea.",
+      "zone": "splash",
+      "waveExposure": "exposed"
+    },
+    {
+      "id": "shell-dropping-rock",
+      "name": "Shell-Dropping Rock",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "food"
+      ],
+      "shape": "rock",
+      "color": "#9a958c",
+      "description": "A flat hard-topped boulder, scattered with cracked shells. Gulls carry clams and crabs up over it and let go — and come back to the same rock all season.",
+      "zone": "high",
+      "waveExposure": "moderate"
+    },
+    {
+      "id": "swash-zone-runnel",
+      "name": "Swash-Zone Runnel",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "water",
+        "food"
+      ],
+      "shape": "line",
+      "color": "#a9c4cf",
+      "description": "The wet, sliding strip where each wave runs out and drains back, turning over mole crabs and amphipods with every surge.",
+      "zone": "low",
+      "waveExposure": "exposed"
+    },
+    {
+      "id": "plover-scrape-closure",
+      "name": "Plover Scrape Closure",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "shelter",
+        "open"
+      ],
+      "shape": "patch",
+      "color": "#ddd0b0",
+      "description": "A roped-off stretch of bare, open, unvegetated sand with symbolic fencing and signs. The nest is only a scrape — what protects it is that nobody walks through.",
+      "zone": "backdune",
+      "waveExposure": "moderate"
+    },
+    {
+      "id": "high-tide-roost-rock",
+      "name": "High-Tide Roost",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "shelter",
+        "open"
+      ],
+      "shape": "rock",
+      "color": "#8d8a84",
+      "description": "A raised rock or islet that stays dry at high water. Shorebirds cannot feed while the tide is in, so somewhere safe to stand and wait is as necessary as food.",
+      "zone": "high",
+      "waveExposure": "moderate"
+    },
+    {
+      "id": "dune-manzanita",
+      "name": "Dune Manzanita",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant",
+        "food",
+        "shelter"
+      ],
+      "shape": "patch",
+      "color": "#8f6f5c",
+      "description": "Low sandmat manzanita (Arctostaphylos pumila), a coastal dune shrub that flowers in midwinter — nectar exactly when Anna's Hummingbird is already nesting.",
+      "zone": "backdune",
+      "waveExposure": "sheltered",
+      "matureHours": 10,
+      "matureBonus": 2
+    },
+    {
+      "id": "mussel-bed",
+      "name": "Mussel Bed",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 7,
+      "needs": [
+        "food",
+        "shelter"
+      ],
+      "shape": "patch",
+      "color": "#3c3a4a",
+      "description": "A dense band of California mussels layered across mid-zone rock. It is food for half the shore and, in the gaps between shells, home to hundreds of smaller animals.",
+      "zone": "mid",
+      "waveExposure": "exposed",
+      "matureHours": 6,
+      "matureBonus": 2
+    },
+    {
+      "id": "mussel-bed-lower-margin",
+      "name": "Mussel Bed Lower Margin",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "food"
+      ],
+      "shape": "line",
+      "color": "#5a4f5e",
+      "description": "The sharp lower edge of the mussel bed, with open rock below it. That edge is not drawn by the tide — it is drawn by sea stars eating upward, and it moves down the rock when they disappear.",
+      "zone": "low",
+      "waveExposure": "exposed"
+    },
+    {
+      "id": "sunlit-surge-pool",
+      "name": "Sunlit Surge Pool",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "water",
+        "shelter"
+      ],
+      "shape": "pool",
+      "color": "#2e8f7d",
+      "description": "A deep pool flushed by every wave and open to the sky — surge to deliver food from the rocks above, sunlight for the algae living inside its anemones.",
+      "zone": "low",
+      "waveExposure": "exposed"
+    },
+    {
+      "id": "shell-lined-rock-scrape",
+      "name": "Shell-Lined Rock Scrape",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter",
+        "open"
+      ],
+      "shape": "patch",
+      "color": "#a08e78",
+      "description": "A hand-sized hollow on bare rock just above the highest waves, lined with shell chips and pebbles the birds carry up themselves.",
+      "zone": "high",
+      "waveExposure": "exposed"
+    },
+    {
+      "id": "offshore-nesting-island",
+      "name": "Offshore Nesting Island",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 8,
+      "needs": [
+        "shelter",
+        "open"
+      ],
+      "shape": "island",
+      "color": "#9b9384",
+      "description": "A rock stack or islet offshore, out of reach of foxes, dogs and footpaths. California brown pelicans nest on offshore islands and nowhere else — no island, no colony.",
+      "zone": "splash",
+      "waveExposure": "exposed"
+    },
+    {
+      "id": "sandbar-loafing-roost",
+      "name": "Sandbar Roost",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "open",
+        "shelter"
+      ],
+      "shape": "flat",
+      "color": "#ccbf9d",
+      "description": "A low sandbar that dries out between tides — somewhere for pelicans, gulls and geese to stand, preen and digest without being disturbed.",
+      "zone": "low",
+      "waveExposure": "sheltered"
+    },
+    {
+      "id": "haul-out-rocks",
+      "name": "Seal Haul-Out Rocks",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 7,
+      "needs": [
+        "shelter",
+        "open"
+      ],
+      "shape": "cluster",
+      "color": "#767f86",
+      "description": "Low rocks and a sand spit with a wide buffer of quiet around them, where seals rest, moult and give birth. Approach one and the seals leave; leave it alone and they stay.",
+      "zone": "high",
+      "waveExposure": "sheltered"
+    },
+    {
+      "id": "sheltered-rafting-cove",
+      "name": "Sheltered Rafting Cove",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 7,
+      "needs": [
+        "water",
+        "shelter"
+      ],
+      "shape": "pool",
+      "color": "#356b7d",
+      "description": "Calm water in the lee of a point, inside the kelp. Sea otters have no blubber — they need still water to groom their fur in and kelp fronds to wrap around themselves while they sleep.",
+      "zone": "subtidal",
+      "waveExposure": "sheltered"
+    },
+    {
+      "id": "creosote-bush",
+      "name": "Creosote Bush",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "plant",
+        "shelter"
+      ],
+      "shape": "shrub",
+      "color": "#6b7f4a",
+      "description": "The dominant shrub of the Sonoran flats, spaced wide apart because its roots take all the water for metres around. Its resinous leaves smell like rain and lose almost none of it.",
+      "matureHours": 6,
+      "matureBonus": 2
+    },
+    {
+      "id": "saguaro",
+      "name": "Saguaro",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 8,
+      "needs": [
+        "plant",
+        "shelter",
+        "food"
+      ],
+      "shape": "tree",
+      "color": "#4a7c3f",
+      "description": "A columnar giant that stores months of rain in its pleated stem. Doves, bats and bees take its flowers, woodpeckers carve its trunk, and everything else eats the fruit.",
+      "matureHours": 24,
+      "matureBonus": 3
+    },
+    {
+      "id": "cholla",
+      "name": "Chain-fruit Cholla",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant",
+        "shelter"
+      ],
+      "shape": "shrub",
+      "color": "#8ba06a",
+      "description": "A jointed cactus armoured in barbed spines. Cactus wrens build their football-shaped nests deep inside it, where almost nothing can follow.",
+      "matureHours": 8,
+      "matureBonus": 2
+    },
+    {
+      "id": "desert-mistletoe",
+      "name": "Desert Mistletoe",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "patch",
+      "color": "#9a8f5c",
+      "description": "A leafless parasitic plant rooted inside mesquite and ironwood branches. Its winter berries are the phainopepla's staple — and the bird plants the next generation.",
+      "matureHours": 6,
+      "matureBonus": 1
+    },
+    {
+      "id": "chuparosa",
+      "name": "Chuparosa",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "shrub",
+      "color": "#c4523a",
+      "description": "A soft grey shrub carrying tubular scarlet flowers right through the desert winter — the Costa's Hummingbird's most important natural nectar source.",
+      "matureHours": 4,
+      "matureBonus": 1
+    },
+    {
+      "id": "catclaw-acacia",
+      "name": "Catclaw Acacia",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant",
+        "shelter",
+        "food"
+      ],
+      "shape": "tree",
+      "color": "#7d8b5a",
+      "description": "A low thorny tree of desert washes, hooked all over with curved spines. Quail coveys roost up in it at night and eat the seed pods by day.",
+      "matureHours": 10,
+      "matureBonus": 2
+    },
+    {
+      "id": "bush-muhly",
+      "name": "Bush Muhly",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "patch",
+      "color": "#b8a35e",
+      "description": "A fine-stemmed native perennial grass that grows up through shrubs for protection. It is the first thing livestock graze away, so its return is a sign the flat is healing.",
+      "matureHours": 5,
+      "matureBonus": 2
+    },
+    {
+      "id": "cryptobiotic-crust",
+      "name": "Cryptobiotic Soil Crust",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant"
+      ],
+      "shape": "patch",
+      "color": "#5c5a4a",
+      "description": "A living skin of cyanobacteria, lichens and mosses knitting the bare soil together. It fixes nitrogen, holds water and blocks weed seedlings — and a single boot or hoof print undoes decades of it.",
+      "matureHours": 48,
+      "matureBonus": 3
+    },
+    {
+      "id": "bare-ground-patch",
+      "name": "Open Bare Ground",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "open"
+      ],
+      "shape": "patch",
+      "color": "#cbb287",
+      "description": "A patch of soft, uncompacted soil deliberately left open between the shrubs. Ground-nesting bees and harvester ants dig here — but only where nothing has packed it hard.",
+      "matureHours": 2,
+      "matureBonus": 1
+    },
+    {
+      "id": "harvester-ant-mound",
+      "name": "Harvester Ant Mound",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "food"
+      ],
+      "shape": "mound",
+      "color": "#a8763f",
+      "description": "A gravel-capped Pogonomyrmex colony with a cleared disc around it and seed husks heaped at the edge. The ants harvest seeds, turn tonnes of soil, and are nearly the whole diet of the regal horned lizard.",
+      "matureHours": 12,
+      "matureBonus": 1
+    },
+    {
+      "id": "buried-deadwood",
+      "name": "Buried Deadwood",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "shelter",
+        "food"
+      ],
+      "shape": "mound",
+      "color": "#6e5a41",
+      "description": "Dead mesquite and creosote stems worked half into the soil. Subterranean termites tunnel up into them from below and never cross the dry open surface.",
+      "matureHours": 4,
+      "matureBonus": 1
+    },
+    {
+      "id": "shrub-litter-mound",
+      "name": "Shrub Litter Mound",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "shelter",
+        "food"
+      ],
+      "shape": "patch",
+      "color": "#8a7a52",
+      "description": "Wind-drifted leaves, stems and seed husks caught under a shrub — the surface larder darkling beetles work through at night, and their hiding place by day.",
+      "matureHours": 3,
+      "matureBonus": 1
+    },
+    {
+      "id": "termite-worked-litter",
+      "name": "Termite-Worked Soil",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant"
+      ],
+      "shape": "patch",
+      "color": "#7a6748",
+      "description": "Soil laced with old termite galleries and sheeted-over litter. This is where most of the desert's dead plants actually go back into the ground, and the tunnels let rain soak in instead of running off.",
+      "matureHours": 12,
+      "matureBonus": 2
+    },
+    {
+      "id": "tortoise-burrow",
+      "name": "Tortoise Burrow",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 7,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "mound",
+      "color": "#7b6a4f",
+      "description": "A long cool den a desert tortoise has dug out and kept open. Burrowing owls, snakes, lizards, rodents and beetles all move in — most of them cannot dig anything like it themselves.",
+      "matureHours": 8,
+      "matureBonus": 2
+    },
+    {
+      "id": "caliche-shelter-cave",
+      "name": "Caliche Den",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "rock",
+      "color": "#b9ac8e",
+      "description": "A hollow eroded into a hard caliche bank on a rocky slope. Sonoran desert tortoises den in these and in boulder crevices more often than they dig long burrows of their own.",
+      "matureHours": 6,
+      "matureBonus": 1
+    },
+    {
+      "id": "creosote-mound",
+      "name": "Creosote Coppice Mound",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter",
+        "plant"
+      ],
+      "shape": "mound",
+      "color": "#7e7d55",
+      "description": "Wind-caught soil heaped around a creosote's base and riddled with kangaroo rat tunnels. Desert iguanas take over these burrows to sit out the hottest hours.",
+      "matureHours": 8,
+      "matureBonus": 2
+    },
+    {
+      "id": "seed-larder-burrow",
+      "name": "Seed Larder Burrow",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter",
+        "food"
+      ],
+      "shape": "mound",
+      "color": "#a4885c",
+      "description": "A shallow burrow under a shrub with side chambers packed full of seeds, its entrances plugged with sand every dawn. The plug traps humid air the kangaroo rat needs as much as the food.",
+      "matureHours": 4,
+      "matureBonus": 1
+    },
+    {
+      "id": "deep-sand-burrow",
+      "name": "Deep Sand Burrow",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "mound",
+      "color": "#9c7f5a",
+      "description": "A spiral shaft driven as much as two and a half metres into loose soil — the giant hairy scorpion's refuge from heat and dryness for most of the year.",
+      "matureHours": 4,
+      "matureBonus": 1
+    },
+    {
+      "id": "kit-fox-den",
+      "name": "Kit Fox Den",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "mound",
+      "color": "#8d7f66",
+      "description": "A cool den with several entrances — nearly always a rodent burrow a kit fox has widened rather than one it dug from scratch. The extra doors are escape routes from coyotes.",
+      "matureHours": 6,
+      "matureBonus": 2
+    },
+    {
+      "id": "wash-bank-den",
+      "name": "Wash Bank Den",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "mound",
+      "color": "#85704f",
+      "description": "An earthen den dug into the cut bank of a dry wash, set above the flood line, where a coyote pair raises its pups.",
+      "matureHours": 6,
+      "matureBonus": 2
+    },
+    {
+      "id": "snake-hibernaculum-desert",
+      "name": "Snake Den",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "rock",
+      "color": "#6f6660",
+      "description": "A deep rock fissure that stays above freezing all winter. Diamondbacks return to the same den year after year, sometimes for decades, and several may share it.",
+      "matureHours": 6,
+      "matureBonus": 1
+    },
+    {
+      "id": "saguaro-boot",
+      "name": "Saguaro Boot",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "tree",
+      "color": "#8f7f5e",
+      "description": "The hard waterproof scar a saguaro grows around a Gila Woodpecker's hole. Months later the woodpecker moves out and an elf owl moves in — the boot outlasts them both.",
+      "matureHours": 12,
+      "matureBonus": 2
+    },
+    {
+      "id": "thornscrub-stick-nest",
+      "name": "Thorn Thicket Nest",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "shrub",
+      "color": "#7a6a4c",
+      "description": "A bulky stick platform wedged a metre or two up inside a thorny shrub — high enough and prickly enough for a roadrunner pair to raise chicks out of a coyote's reach.",
+      "matureHours": 4,
+      "matureBonus": 1
+    },
+    {
+      "id": "carrion-patch",
+      "name": "Carrion Ground",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "food"
+      ],
+      "shape": "patch",
+      "color": "#7d6b63",
+      "description": "An animal that has died, left where it fell instead of hauled away. Ravens find it within hours, beetles and ants follow, and in a few days its nutrients are back in the soil.",
+      "matureHours": 2,
+      "matureBonus": 1
+    },
+    {
+      "id": "saguaro-fruit-fall",
+      "name": "Saguaro Fruit Fall",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "food"
+      ],
+      "shape": "patch",
+      "color": "#b8443c",
+      "description": "Split crimson saguaro fruit at the height of the June heat, just before the rains. For a few weeks it is the richest food and the wettest drink in the whole desert.",
+      "matureHours": 6,
+      "matureBonus": 1
+    },
+    {
+      "id": "pollinated-cactus-fruit",
+      "name": "Cactus Fruit Set",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "food"
+      ],
+      "shape": "patch",
+      "color": "#9c3f5a",
+      "description": "Prickly pear and cholla hanging heavy with ripe fruit. The crop only sets where cactus bees worked the flowers first — no bees, no fruit, no midsummer water for the animals that live on it.",
+      "matureHours": 6,
+      "matureBonus": 1
+    },
+    {
+      "id": "shade-form-scrape",
+      "name": "Shade Form",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "patch",
+      "color": "#a3906a",
+      "description": "A shallow scrape hollowed out in the shade under a shrub. A jackrabbit lies here through the midday heat with its huge ears up, pouring heat into the air.",
+      "matureHours": 2,
+      "matureBonus": 1
+    },
+    {
+      "id": "browse-exclosure",
+      "name": "Browse Exclosure",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "plant"
+      ],
+      "shape": "patch",
+      "color": "#7d8b5a",
+      "description": "A low fence around a patch of oak seedlings. In a forest with plenty of deer, browsing kills more young oaks than anything else — inside the fence, acorns get to become trees.",
+      "matureHours": 4,
+      "matureBonus": 2
+    },
+    {
+      "id": "nurse-log-seedbed",
+      "name": "Nurse Log Seedbed",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant"
+      ],
+      "shape": "log",
+      "color": "#6b7a55",
+      "description": "A rotting, moss-covered log lying on the forest floor. Hemlock seeds that land on bare leaf litter almost always fail; the ones that land on rotten wood become the next generation of trees.",
+      "matureHours": 6,
+      "matureBonus": 2
+    },
+    {
+      "id": "deep-duff-soil",
+      "name": "Deep Duff Layer",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "plant"
+      ],
+      "shape": "patch",
+      "color": "#4a3b28",
+      "description": "Years of undisturbed leaf mould, never raked and never driven over, threaded through with tree roots and fungal strands. This is where the forest's fungi actually live.",
+      "matureHours": 12,
+      "matureBonus": 3
+    },
+    {
+      "id": "truffle-patch",
+      "name": "Truffle Patch",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "food"
+      ],
+      "shape": "patch",
+      "color": "#5c4a33",
+      "description": "Underground fungal tubers clustered on oak and hemlock roots. Nothing shows above ground — a flying squirrel has to smell them out and dig.",
+      "matureHours": 8,
+      "matureBonus": 2
+    },
+    {
+      "id": "soft-rot-snag",
+      "name": "Soft-Rot Snag",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "tree",
+      "color": "#8c7f6a",
+      "description": "A small dead stub whose wood has gone soft with white rot. A downy woodpecker weighs 27 grams and cannot chisel sound timber — it needs wood the fungi reached first.",
+      "matureHours": 6,
+      "matureBonus": 1
+    },
+    {
+      "id": "ant-riddled-log",
+      "name": "Ant-Riddled Log",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "food",
+        "shelter"
+      ],
+      "shape": "log",
+      "color": "#6e5b40",
+      "description": "A fallen trunk gone punky with rot and tunnelled through by carpenter ant galleries — a pileated woodpecker's entire winter larder.",
+      "matureHours": 8,
+      "matureBonus": 2
+    },
+    {
+      "id": "rotting-heartwood-log",
+      "name": "Rotted-Out Log",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "log",
+      "color": "#7a6a4e",
+      "description": "A log rotted hollow through the middle. A red-backed salamander lays her eggs in the cavity inside and coils around them until they hatch — as tiny salamanders, never as tadpoles.",
+      "matureHours": 6,
+      "matureBonus": 2
+    },
+    {
+      "id": "downy-cavity",
+      "name": "Downy Woodpecker Hole",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "tree",
+      "color": "#9a8b70",
+      "description": "A round hole about the width of a thumb, cut by a downy woodpecker and abandoned after one season. Nuthatches and chickadees cannot cut their own and move straight in.",
+      "matureHours": 2,
+      "matureBonus": 1
+    },
+    {
+      "id": "pileated-cavity-snag",
+      "name": "Pileated Cavity Snag",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 7,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "tree",
+      "color": "#8a7a5e",
+      "description": "A large snag carrying last spring's pileated woodpecker nest hole. The pileated cuts a fresh one every year, and flying squirrels, martens, fishers and bats move into the ones it leaves.",
+      "matureHours": 6,
+      "matureBonus": 2
+    },
+    {
+      "id": "flooded-cavity-snag",
+      "name": "Flooded Cavity Snag",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 7,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "tree",
+      "color": "#7e7458",
+      "description": "A dead trunk standing in shallow water with an old woodpecker hole high in it. Wood duck ducklings jump from the entrance the day after they hatch and bounce off the water below.",
+      "matureHours": 6,
+      "matureBonus": 2
+    },
+    {
+      "id": "bark-slab-snag",
+      "name": "Loose-Bark Snag",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "tree",
+      "color": "#87765d",
+      "description": "A dying tree whose bark has pulled away from the trunk in loose slabs — porcupine gnawing starts many of them — leaving warm, dry gaps where bats spend the day.",
+      "matureHours": 4,
+      "matureBonus": 1
+    },
+    {
+      "id": "leaf-drey",
+      "name": "Leaf Drey",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "tree",
+      "color": "#7f6b45",
+      "description": "A ball of leaves and twigs wedged into a high fork — a gray squirrel's summer nest, rebuilt every year and inherited by owls when it is done with it.",
+      "matureHours": 2,
+      "matureBonus": 1
+    },
+    {
+      "id": "larder-burrow",
+      "name": "Larder Burrow",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "shelter",
+        "food"
+      ],
+      "shape": "mound",
+      "color": "#6b5b45",
+      "description": "A burrow entrance no wider than a coin, with tunnels running metres underground to a nest chamber and a storage room holding more than a litre of seeds.",
+      "matureHours": 3,
+      "matureBonus": 1
+    },
+    {
+      "id": "hemlock-stand",
+      "name": "Hemlock Stand",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 8,
+      "needs": [
+        "shelter",
+        "plant",
+        "food"
+      ],
+      "shape": "tree",
+      "color": "#2f4a37",
+      "description": "A close-grown group of hemlocks. The canopy holds the snow off the ground beneath it, the shade keeps the stream cold, and the inner bark carries porcupines and deer through the winter.",
+      "matureHours": 14,
+      "matureBonus": 3
+    },
+    {
+      "id": "browse-thicket",
+      "name": "Browse Thicket",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "food",
+        "plant"
+      ],
+      "shape": "patch",
+      "color": "#6d8348",
+      "description": "Dense young regrowth in a gap where a big tree came down — every twig within reach of a deer's muzzle, which is exactly why too many deer leave nothing here at all.",
+      "matureHours": 6,
+      "matureBonus": 2
+    },
+    {
+      "id": "crayfish-shallows",
+      "name": "Crayfish Shallows",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "water",
+        "food"
+      ],
+      "shape": "patch",
+      "color": "#5f7d84",
+      "description": "A stony, ankle-deep margin where crayfish back under the rocks. A raccoon hunts it entirely by touch, its eyes looking somewhere else the whole time.",
+      "matureHours": 4,
+      "matureBonus": 1
+    },
+    {
+      "id": "root-mass-den",
+      "name": "Root-Mass Den",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "mound",
+      "color": "#5a4a36",
+      "description": "The dry hollow under the tipped-up root plate of a fallen tree — where a black bear sleeps out the winter and gives birth without properly waking up.",
+      "matureHours": 8,
+      "matureBonus": 2
+    },
+    {
+      "id": "earth-den-bank",
+      "name": "Earth Den Bank",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "mound",
+      "color": "#6f5c42",
+      "description": "A well-drained slope with a den dug into it and several entrances. Foxes enlarge and reuse the same bank for generations rather than digging fresh.",
+      "matureHours": 4,
+      "matureBonus": 1
+    },
+    {
+      "id": "snake-hibernaculum-forest",
+      "name": "Snake Hibernaculum",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "mound",
+      "color": "#78736a",
+      "description": "A deep, rubble-filled crack that stays below the frost line all winter. Gartersnakes travel a long way each autumn to reach one and spend the cold months coiled together by the dozen.",
+      "matureHours": 4,
+      "matureBonus": 1
+    },
+    {
+      "id": "broken-top-chimney",
+      "name": "Broken-Top Chimney Tree",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 8,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "tree",
+      "color": "#7b6e52",
+      "description": "A big living tree snapped off high and hollowed downward by heart rot, leaving a chimney a foot across. No woodpecker cuts a hole this size — a barred owl has to wait for a tree this old.",
+      "matureHours": 12,
+      "matureBonus": 3
+    },
+    {
+      "id": "hollow-denning-tree",
+      "name": "Hollow Denning Tree",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 8,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "tree",
+      "color": "#6c5f47",
+      "description": "A living tree with a rot-hollowed chamber high in the trunk. A female fisher carries her kits up into one within days of birth, out of reach of everything that hunts on the ground.",
+      "matureHours": 12,
+      "matureBonus": 3
+    },
+    {
+      "id": "rocky-den-ledge",
+      "name": "Rocky Den Ledge",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "mound",
+      "color": "#7f8288",
+      "description": "A dry gap under a leaning slab of rock, screened by brush. A bobcat raises kittens somewhere like this and will move them the moment anything comes close.",
+      "matureHours": 6,
+      "matureBonus": 1
+    },
+    {
+      "id": "adopted-stick-nest",
+      "name": "Adopted Stick Nest",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "tree",
+      "color": "#8b7c63",
+      "description": "A bulky old nest of sticks and leaves left behind by a hawk, a crow or a squirrel. A great horned owl never builds its own — it simply takes one over in the middle of winter.",
+      "matureHours": 4,
+      "matureBonus": 1
+    },
+    {
+      "id": "bare-soil-scrape",
+      "name": "Bare Soil Scrape",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 2,
+      "needs": [
+        "open"
+      ],
+      "shape": "patch",
+      "color": "#b3a077",
+      "description": "A hand-cleared patch of open mineral soil. Bare ground is habitat too: seedlings, ground-nesting insects and plovers all need somewhere that isn't covered."
+    },
+    {
+      "id": "native-thistle-stand",
+      "name": "Native Thistle Stand",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "clump",
+      "color": "#9b6fa8",
+      "description": "Wavyleaf thistle (Cirsium undulatum), a native prairie thistle — not one of the invasive European kinds. Deep nectar for bumble bees, seed and nest down for goldfinches.",
+      "matureHours": 6,
+      "matureBonus": 1
+    },
+    {
+      "id": "prairie-swale-seedbed",
+      "name": "Prairie Swale Seedbed",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "plant"
+      ],
+      "shape": "patch",
+      "color": "#6f7a4a",
+      "description": "A shallow damp swale of loosened soil, sown in autumn. Showy milkweed and native forbs germinate here where the ground stays moist into early summer.",
+      "matureHours": 4,
+      "matureBonus": 1
+    },
+    {
+      "id": "bunchgrass-sod-plug",
+      "name": "Bunchgrass Sod Plug",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "clump",
+      "color": "#8fa05a",
+      "description": "Live plugs of blue grama sod pressed into bare ground — the fastest way to restart shortgrass prairie, because each plug already carries its own roots and soil life.",
+      "matureHours": 6,
+      "matureBonus": 2
+    },
+    {
+      "id": "grass-thatch-litter",
+      "name": "Grass Thatch Litter",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "patch",
+      "color": "#b6a06a",
+      "description": "A deep mat of dead grass stems, leaves and roots left where they fell. This is the raw material meadow fungi take apart and hand back to the soil as minerals."
+    },
+    {
+      "id": "burial-soil-plot",
+      "name": "Burial Soil Plot",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "patch",
+      "color": "#7a6a52",
+      "description": "Loose, uncompacted, moisture-holding soil, deep enough for a burying beetle pair to drag a mouse-sized carcass under and raise their brood in the chamber below."
+    },
+    {
+      "id": "grasshopper-egg-pod-bank",
+      "name": "Egg Pod Bank",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "open"
+      ],
+      "shape": "patch",
+      "color": "#c2ac74",
+      "description": "A strip of firm, sun-warmed bare soil at the edge of the grass. Female grasshoppers drill into it and leave a frothy pod of eggs to overwinter."
+    },
+    {
+      "id": "vole-runway-network",
+      "name": "Vole Runway Network",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "shelter",
+        "food"
+      ],
+      "shape": "path",
+      "color": "#93a45e",
+      "description": "Narrow runways clipped through dense grass, linking burrow openings and grass nests. Voles patrol them like little highways, and everything that eats voles learns to watch them.",
+      "matureHours": 3,
+      "matureBonus": 1
+    },
+    {
+      "id": "milkweed-rhizome-bed",
+      "name": "Milkweed Rhizome Bed",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "plant",
+        "food"
+      ],
+      "shape": "patch",
+      "color": "#c98fa8",
+      "description": "A spreading bed of showy milkweed grown from rhizome cuttings. It is the only thing a monarch caterpillar can eat, and one bed slowly becomes a patch.",
+      "matureHours": 8,
+      "matureBonus": 2
+    },
+    {
+      "id": "bumblebee-nest-tussock",
+      "name": "Nesting Tussock",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "shelter",
+        "plant"
+      ],
+      "shape": "clump",
+      "color": "#9aa85f",
+      "description": "A dense unmown grass tussock over an abandoned rodent hole — warm, fur-lined and hidden, which is exactly what a bumble bee queen looks for in spring.",
+      "matureHours": 4,
+      "matureBonus": 1
+    },
+    {
+      "id": "brush-form-hollow",
+      "name": "Brush Form Hollow",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "patch",
+      "color": "#8a7a52",
+      "description": "A shallow scrape under low brush — the resting 'form' a cottontail uses instead of digging."
+    },
+    {
+      "id": "serviceberry-browse-thicket",
+      "name": "Serviceberry Browse Thicket",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 7,
+      "needs": [
+        "food",
+        "plant",
+        "shelter"
+      ],
+      "shape": "thicket",
+      "color": "#5d7a4a",
+      "description": "Saskatoon serviceberry (Amelanchier alnifolia), a native western shrub whose twigs and buds are prime winter browse for mule deer — and whose berries feed birds in late summer.",
+      "matureHours": 12,
+      "matureBonus": 2
+    },
+    {
+      "id": "milkweed-aphid-colony",
+      "name": "Milkweed Aphid Colony",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 2,
+      "needs": [
+        "food"
+      ],
+      "shape": "cluster",
+      "color": "#c9c05a",
+      "description": "Bright oleander aphids clustered on milkweed stems. Not a problem to be sprayed — this is the food supply a lady beetle's whole life cycle is built on."
+    },
+    {
+      "id": "wet-meadow-sedge-clump",
+      "name": "Wet Meadow Sedge Clump",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant",
+        "shelter"
+      ],
+      "shape": "clump",
+      "color": "#5f7f52",
+      "description": "A clump of native sedges in a damp low corner of the meadow. Song sparrows hide their ground nests deep inside it, where nothing can see in.",
+      "matureHours": 6,
+      "matureBonus": 1
+    },
+    {
+      "id": "squirrel-burrow-town",
+      "name": "Burrow Town",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "mound",
+      "color": "#8b7a5a",
+      "description": "A multi-entrance ground squirrel burrow system dug into deep open soil. Long after the squirrels move on, bumble bee queens, gartersnakes and foxes move in."
+    },
+    {
+      "id": "mantis-ootheca-stem",
+      "name": "Standing Stem Ootheca",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 2,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "stem",
+      "color": "#a89a6c",
+      "description": "Stiff dead forb stems left standing through the winter, with a mantis's hardened foam egg case glued to one of them. Cut the stems in autumn and you cut next year's mantises."
+    },
+    {
+      "id": "pebble-nest-scrape",
+      "name": "Pebble Nest Scrape",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "shelter",
+        "open"
+      ],
+      "shape": "patch",
+      "color": "#b9b0a0",
+      "description": "A bare hollow scratched into open gravelly ground and lined with pebbles. A killdeer nest hidden in plain sight — the eggs look exactly like the stones around them."
+    },
+    {
+      "id": "domed-grass-nest-tunnel",
+      "name": "Domed Grass Nest",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "clump",
+      "color": "#9c8f57",
+      "description": "A grass-roofed nest cup woven into deep bunchgrass, with a covered runway leading in. Only a real expanse of native grass is tall and thick enough to hide one."
+    },
+    {
+      "id": "bluebird-nest-box",
+      "name": "Bluebird Nest Box",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "box",
+      "color": "#6b8cc4",
+      "description": "A nest box with a 1½-inch hole and a predator guard, on a smooth pole facing the open grass. Bluebirds cannot cut their own hole, and boxes like this are why they recovered."
+    },
+    {
+      "id": "snake-hibernaculum-meadow",
+      "name": "Snake Hibernaculum",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "mound",
+      "color": "#6e6a5c",
+      "description": "A rock-and-soil chamber dug below the frost line, often started from an old rodent burrow. Dozens of gartersnakes coil together in one of these to survive the winter."
+    },
+    {
+      "id": "hedgerow-ambush-lane",
+      "name": "Hedgerow Ambush Lane",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 7,
+      "needs": [
+        "shelter",
+        "plant"
+      ],
+      "shape": "line",
+      "color": "#4f6b43",
+      "description": "A dense line of native shrubs and small trees along the meadow edge. A Cooper's Hawk flies flat out through cover like this to ambush songbirds on the far side.",
+      "matureHours": 12,
+      "matureBonus": 2
+    },
+    {
+      "id": "deep-loam-soil-bank",
+      "name": "Deep Loam Soil Bank",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "mound",
+      "color": "#6f5c42",
+      "description": "A bank of deep, stone-free, uncompacted loam. A badger has to be able to dig faster than a ground squirrel can run, and it can only do that in soil like this."
+    },
+    {
+      "id": "earthen-fox-den",
+      "name": "Earthen Fox Den",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "mound",
+      "color": "#7d6448",
+      "description": "A south-facing bank widened out into a natal den with several exits — usually an old ground squirrel or badger burrow a vixen has enlarged rather than dug from scratch."
+    },
+    {
+      "id": "crown-stick-eyrie",
+      "name": "Crown Stick Eyrie",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 8,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "nest",
+      "color": "#7c6a4e",
+      "description": "A bulky platform of sticks wedged into the crown of the tallest tree, with a clear view over open grass. A Red-tailed Hawk builds it — and something bigger inherits it."
+    },
+    {
+      "id": "abandoned-stick-nest",
+      "name": "Abandoned Stick Nest",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 8,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "nest",
+      "color": "#6d6046",
+      "description": "Last season's hawk nest, weathered and empty. Great Horned Owls never build their own, so one of these standing empty in midwinter is the difference between owls and no owls."
+    },
+    {
+      "id": "sunlit-mudflat",
+      "name": "Sunlit Mudflat",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 3,
+      "needs": [
+        "open"
+      ],
+      "shape": "patch",
+      "color": "#8a6f4e",
+      "description": "A bare shelf of wet, sun-warmed mud at the water's edge. Cattail seed is tiny and needs light and open ground to germinate — it will not sprout in shade or under standing water."
+    },
+    {
+      "id": "clearwater-shallows",
+      "name": "Clearwater Shallows",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "water"
+      ],
+      "shape": "pool",
+      "color": "#8fc7d6",
+      "description": "Slow water with the silt settled out of it, so sunlight reaches the bottom. Submerged plants live on that light — which is why clear water and underwater meadows always arrive together."
+    },
+    {
+      "id": "detritus-drift",
+      "name": "Litter Drift",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "food"
+      ],
+      "shape": "patch",
+      "color": "#6b5a3e",
+      "description": "A submerged raft of dead cattail and sedge leaves, softening under a fur of fungi and bacteria. More energy moves through a marsh this way — as dead plants — than through anything eaten alive.",
+      "matureHours": 4,
+      "matureBonus": 2
+    },
+    {
+      "id": "crayfish-burrow-bank",
+      "name": "Crayfish Burrow Bank",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "bank",
+      "color": "#9c7b52",
+      "description": "A saturated clay bank riddled with finger-wide tunnels. Crayfish back into them to moult in safety and to wait out low water when the marsh draws down in late summer."
+    },
+    {
+      "id": "submerged-spawning-slab",
+      "name": "Submerged Spawning Slab",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "slab",
+      "color": "#6e7d78",
+      "description": "A flat stone or plank lying just below the surface. Male fathead minnows scrub the underside clean, and the females stick their eggs to that ceiling for him to guard."
+    },
+    {
+      "id": "stable-silt-shoal",
+      "name": "Stable Silt Shoal",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "water"
+      ],
+      "shape": "shoal",
+      "color": "#b9ae90",
+      "description": "A broad shelf of settled silt and fine sand in water slow enough that it stays put. A mussel buries itself here and may filter the same patch of water for thirty years."
+    },
+    {
+      "id": "cattail-root-shallows",
+      "name": "Cattail Root Shallows",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "food",
+        "water"
+      ],
+      "shape": "patch",
+      "color": "#6d8a4a",
+      "description": "Shallow water over a dense mat of cattail rootstocks. This is a muskrat's winter larder — it dives under the ice and digs up the starchy roots when everything above is frozen.",
+      "matureHours": 6,
+      "matureBonus": 2
+    },
+    {
+      "id": "flooded-reed-clump",
+      "name": "Flooded Reed Clump",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter",
+        "plant"
+      ],
+      "shape": "clump",
+      "color": "#7f8f4e",
+      "description": "A tight stand of cattail and reed stems standing in ankle-deep water. A blackbird winds its nest around several upright stems, and the water underneath is what keeps the mink out.",
+      "matureHours": 5,
+      "matureBonus": 2
+    },
+    {
+      "id": "winter-litter-mound",
+      "name": "Winter Litter Mound",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 4,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "mound",
+      "color": "#6a5a3c",
+      "description": "A deep pile of damp leaves, loose bark and old stems on dry ground beside the marsh. A chorus frog crawls in, freezes almost solid for the winter, and thaws out alive in spring."
+    },
+    {
+      "id": "vernal-pool",
+      "name": "Fishless Vernal Pool",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "water"
+      ],
+      "shape": "pool",
+      "color": "#7fb2a8",
+      "description": "A shallow, separate pool that fills with snowmelt and dries out by late summer. Drying is the point: it keeps fish out, and salamander larvae can only survive where no fish can."
+    },
+    {
+      "id": "wet-meadow-margin",
+      "name": "Wet Meadow Margin",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "plant",
+        "shelter"
+      ],
+      "shape": "patch",
+      "color": "#86a35a",
+      "description": "A band of damp, grassy meadow between the marsh and dry land. Leopard frogs spend the whole summer hunting out here, well away from open water — lose this band and you lose the frogs.",
+      "matureHours": 6,
+      "matureBonus": 2
+    },
+    {
+      "id": "sandy-nest-bank",
+      "name": "Sandy Nest Bank",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "mound",
+      "color": "#c2ad7e",
+      "description": "A warm, well-drained rise of sand and fine gravel above the waterline. Female snapping turtles walk overland to dig their nests here — and turtle populations are limited by nest banks, not by adults."
+    },
+    {
+      "id": "crane-nest-mound",
+      "name": "Crane Nest Mound",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "mound",
+      "color": "#8a8557",
+      "description": "A broad heap of piled marsh plants standing in open shallow water. A crane pair builds it up above the waterline so the two eggs stay dry and anything approaching has to wade."
+    },
+    {
+      "id": "hidden-reed-platform",
+      "name": "Hidden Reed Platform",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "platform",
+      "color": "#7a7a44",
+      "description": "A low platform of living reeds bent down and woven together deep inside a dense stand, barely a hand's width above the water. A bittern will not nest anywhere it can be seen."
+    },
+    {
+      "id": "cut-bank-burrow",
+      "name": "Cut Bank Burrow",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "bank",
+      "color": "#a08258",
+      "description": "A bare, vertical earth bank rising straight out of the water, soft enough to tunnel a metre back into. Kingfishers dig their own nest tunnels here and use no other kind of nest."
+    },
+    {
+      "id": "overwater-thicket",
+      "name": "Overwater Thicket",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 7,
+      "needs": [
+        "shelter",
+        "plant"
+      ],
+      "shape": "thicket",
+      "color": "#4f7a45",
+      "description": "Low willow and alder leaning right out over the water at the edge of a beaver pond. A green heron builds a loose stick nest on a branch above the surface and fishes from the shade below.",
+      "matureHours": 8,
+      "matureBonus": 2
+    },
+    {
+      "id": "muskrat-bank-den",
+      "name": "Old Muskrat Bank Den",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 5,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "burrow",
+      "color": "#7d6647",
+      "description": "A muskrat's abandoned bank burrow, its entrance under water. Mink hardly ever dig their own — they move into one a muskrat made, so the muskrat has to come back first."
+    },
+    {
+      "id": "otter-bank-den",
+      "name": "Otter Bank Den",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 7,
+      "needs": [
+        "shelter"
+      ],
+      "shape": "burrow",
+      "color": "#6b5540",
+      "description": "A roomy den in the bank with an underwater entrance, almost always a beaver's old lodge or burrow taken over. Otters are excellent swimmers and poor diggers — they let the beaver do the excavating."
+    },
+    {
+      "id": "beaver-pond",
+      "name": "Beaver Pond",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 9,
+      "needs": [
+        "water",
+        "shelter"
+      ],
+      "shape": "pond",
+      "color": "#4f7d93",
+      "description": "Deep, permanent water held back behind a stick-and-mud dam, with drowned trees standing in it. It is a different habitat from the open cattail marsh — deeper, more open, and only a beaver can make it.",
+      "matureHours": 12,
+      "matureBonus": 3
+    },
+    {
+      "id": "beaver-canal",
+      "name": "Beaver Canal",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 6,
+      "needs": [
+        "water"
+      ],
+      "shape": "channel",
+      "color": "#5f8fa0",
+      "description": "A shallow channel a beaver digs to float branches back to its pond. It carries water far out into the marsh and keeps turtles and frogs connected to open water even in a dry summer."
+    }
+  ]
+}

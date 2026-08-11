@@ -92,7 +92,10 @@
 		"craft": "Craft",
 		"addGoal": "Add crafting this to your goals",
 		"plantedNotCrafted": "Planted, not crafted — dig a soil bed with the shovel (2), water it with the can (3), then click the watered bed and pick it from the planting menu.",
-		"plantedSection": "Planted, not crafted"
+		"plantedSection": "Planted, not crafted",
+		"comingUp": "Coming up next",
+		"lockedSection": "Not unlocked yet",
+		"needs": "Needs:"
 	},
 	"tools": {
 		"title": "Tools & Upgrades",
@@ -192,11 +195,14 @@
 		"fieldFallback": "Field",
 		"allAnimals": "All animals",
 		"lockedTab": "{biome} is still locked — unlock it in the world first",
-		"summaryAll": "{returned} of {total} animals have returned across the preserve.",
-		"summaryBiome": "{returned}/{total} animals have returned to {biome}.",
 		"entriesTitle": "Entry list",
 		"entries": "Entries",
 		"foodWebTitle": "Food web for this biome",
+		"roles": "Roles",
+		"rolesTitle": "What each animal does here",
+		"rolesIntro": "Every animal has a job in the web. An area is only balanced when all of these are filled — that is what ecological balance measures, and why the last few arrivals matter more than the first.",
+		"rolesCount": "{back} of {total} back",
+		"rolesEmpty": "No animals recorded for this area yet.",
 		"foodWeb": "Food web",
 		"unknownFirstTitle": "Sort animals you haven't found yet to the top",
 		"unknownFirst": "Unknown first",
@@ -221,7 +227,8 @@
 			"omnivore": "Omnivore",
 			"mesopredator": "Mid predator",
 			"apex-predator": "Apex predator",
-			"wildlife": "Wildlife"
+			"wildlife": "Wildlife",
+			"detritivore": "Detritivore"
 		},
 		"seasons": {
 			"spring": "spring",
@@ -257,6 +264,9 @@
 		"hintDefault": "Restore more habitat and see who arrives.",
 		"minHealth": "Biome health ≥ {value}%",
 		"minBalance": "Ecological balance ≥ {value}%",
+		"waterTiles": "Shape {tiles}+ tiles of open water",
+		"waterLake": "Shape a pond of {tiles}+ connected tiles",
+		"waterRiver": "Shape a channel {tiles}+ tiles long",
 		"objectReq": "{qty}× {name}",
 		"animalReq": "{name} already returned",
 		"condCheck": "{cond} — check the weather panel (N)",
@@ -302,7 +312,25 @@
 		"historyForward": "Forward along your journal trail",
 		"addGoal": "Add 'attract this animal' to your goals",
 		"animalReqUnknown": "Another {kind} needs to return first",
-		"lockedCard": "Upgrade your field guide to Tier {tier} to read this animal's full entry — its ecological role, diet, and food-web links."
+		"lockedCard": "Upgrade your field guide to Tier {tier} to read this animal's full entry — its ecological role, diet, and food-web links.",
+		"stage": {
+			"eggs": "(eggs)",
+			"young": "(young)",
+			"adult": "(adults)"
+		},
+		"trophicAbout": {
+			"producer": "The floor of the whole web. Plants, algae and kelp take sunlight, water and air and make food out of them — the only thing here that can. Every other animal on this list is, at some remove, eating a plant, so producers are the first thing to bring back and the last thing an area can afford to lose.",
+			"decomposer": "It takes the dead apart and hands it back as soil. Without it an area slowly buries itself: nitrogen and minerals stay locked up in fallen wood and carcasses instead of returning to the roots. It is invisible work, and it is the reason a restored area keeps feeding itself instead of running down.",
+			"detritivore": "The clean-up crew of the forest floor, the streambed and the tideline. It eats fallen leaves, rotting wood and whatever the current drops, shredding it small enough for decomposers to finish the job. Nothing about it looks dramatic, but it is what turns last year's litter into this year's growth.",
+			"filter-feeder": "It strains its food straight out of the water — plankton, algae, drifting scraps — and leaves the water clearer than it found it. A bed of them is a working filter, and everything that hunts by sight depends on that clarity. When the filter feeders go, the water clouds over first.",
+			"herbivore": "It eats plants and turns them into meat, which is the only route the energy a plant captured has to anything higher up. Its grazing also shapes the place: it opens grass, prunes shrubs and carries seeds around in the process. Too few and the growth chokes itself; too many and the plants never get ahead.",
+			"insectivore": "It lives on insects, which makes it the bridge between the smallest lives in an area and the largest. It also keeps insect numbers off the plants underneath it. An insectivore only stays where the bug life has genuinely come back, so its arrival is one of the more honest tests of whether an area is really working.",
+			"scavenger": "It eats what has already died, and it gets there first. That keeps carcasses from sitting, puts their nutrients back into circulation and quietly holds disease down. A scavenger needs a place with enough life in it to keep producing something worth finding.",
+			"omnivore": "It takes plants and animals both, and switches between them as the year turns — grubs in spring, berries in autumn, whatever is going. That flexibility makes it hard to starve out, and it makes it a connector: it ties the plant half of the web to the hunting half, and carries seeds a long way while it does.",
+			"mesopredator": "The middle of the web. It hunts the small animals and holds their numbers down, and it is hunted in turn by whatever sits above it. Take the top away and a mid predator multiplies until the small animals are gone — which is the roundabout reason apex predators matter to plants.",
+			"apex-predator": "It hunts at the top, and nothing here hunts it back. Its return is usually the last piece of a restored area, because it needs everything underneath it to be abundant first. Once it settles it leans on the mid predators, which takes the pressure off the small animals and, further down, off the plants.",
+			"wildlife": "A role the guide has not classified yet. It still counts as an animal living here, but it has not been slotted into the web."
+		}
 	},
 	"achievements": {
 		"title": "Achievements",
@@ -361,21 +389,6 @@
 		"next": "Next",
 		"nextStep": "Next step",
 		"finish": "Finish",
-		"coopHostInvite": {
-			"title": "Welcome to co-op!",
-			"text": "You’re restoring this preserve together with friends. First things first — invite them. Press U (or the green “Co-op” badge, top-left, or the people button, top-right) to open the People menu, where you can copy your join code. Friends choose New Game → Co-op → “Join a friend’s world” and enter that code to play here with you. Open the People menu now to see it.",
-			"touch": "You’re restoring this preserve together with friends. First things first — invite them. Tap the green “Co-op” badge (top) or the people button to open the People menu, where you can copy your join code. Friends choose New Game → Co-op → “Join a friend’s world” and enter that code to play with you. Open the People menu now to see it."
-		},
-		"coopHostTogether": {
-			"title": "Restoring together",
-			"text": "As friends join, you’ll see them roaming the very same preserve — the land, buildings, plants, and the animals that return are all shared, so your work adds up together. Your own basket, tools, field journal, and achievements always stay yours. Now let’s learn the basics →",
-			"touch": "As friends join, you’ll see them roaming the very same preserve — the land, buildings, plants, and animals are all shared, so your work adds up together. Your own basket, tools, journal, and achievements always stay yours. Now let’s learn the basics →"
-		},
-		"coopJoinWelcome": {
-			"title": "Welcome to the preserve!",
-			"text": "You’ve joined a shared preserve — you’ll see the host and other caretakers roaming the very same world. The land, buildings, plants, and the animals that return are all shared, so your work adds up together. Your own basket, tools, field journal, and achievements always stay yours. Now let’s learn the basics →",
-			"touch": "You’ve joined a shared preserve — you’ll see the host and other caretakers roaming the very same world. The land, buildings, plants, and animals are all shared, so your work adds up together. Your own basket, tools, journal, and achievements always stay yours. Now let’s learn the basics →"
-		},
 		"welcome": {
 			"title": "Welcome, caretaker",
 			"text": "Welcome, caretaker — it's good to have you. This meadow was stripped bare and its wildlife drifted away, but with a gentle hand it can come back to life. Let's begin with a walk — move with WASD or the arrow keys.",
@@ -561,7 +574,6 @@
 			"tools": "Open tools & upgrades",
 			"preserve": "Open the preserve overview",
 			"weather": "Open the weather & seasons guide",
-			"people": "People — invite friends & see who’s here (co-op worlds only)",
 			"settings": "Open settings",
 			"help": "Open this How to Play guide",
 			"zoom": "Zoom the camera in / out",
@@ -691,32 +703,6 @@
 		"pinnedTag": "Next up",
 		"affordableNote": "You already have the materials for that — just craft it."
 	},
-	"people": {
-		"title": "People",
-		"titleCoop": "Caretakers",
-		"soloInfo": "This is a solo preserve — just you. To restore a preserve together with friends, start a New Game and choose Co-op: you'll get a join code to share.",
-		"invite": "Invite friends to {world}",
-		"closedInfo": "This preserve is full ({count}/{max}) and closed to new players. Everyone who has joined can always come back.",
-		"shareInfo": "Share this code ({count}/{max} caretakers so far). Friends open New Game → Co-op → Join a friend's world and enter it.",
-		"codeIs": "Your code is {code}",
-		"copied": "Copied ✓",
-		"copyCode": "Copy code",
-		"wantsToJoin": "Wants to join ({count})",
-		"asking": "· is asking to join",
-		"approve": "Approve",
-		"deny": "Deny",
-		"canNowJoin": "{name} can now join",
-		"couldNotApprove": "Could not approve",
-		"couldNotDeny": "Could not deny",
-		"caretakers": "Caretakers ({count}/{max})",
-		"closedTag": "· closed",
-		"host": "· host",
-		"you": "· you",
-		"hereNow": "here now",
-		"away": "away",
-		"justYou": "Just you so far. Share the code above to invite friends.",
-		"membersNote": "Up to {max} caretakers per preserve. Everyone listed has joined and can return any time from Continue or Load Game."
-	},
 	"joinApproval": {
 		"wantsToJoin": {
 			"one": "Someone wants to join",
@@ -747,7 +733,6 @@
 		"goals": "Goals — set your own tasks (craft, plant, attract an animal, restore a biome) and track them on the board.",
 		"biomes": "The Preserve — each area's progress, what's needed to open the next, and fast-travel to places you've visited.",
 		"weather": "Weather & seasons — how conditions shift across the preserve and shape the land; some materials and animals only appear in the right weather.",
-		"people": "People — invite friends with your join code and see who's exploring the preserve alongside you.",
 		"settings": "Settings — sound, accessibility, your character, and save options.",
 		"demoNear": "One more animal and you'll complete the demo — you're nearly there!"
 	}

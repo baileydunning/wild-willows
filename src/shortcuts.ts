@@ -26,17 +26,15 @@ export const SHORTCUTS: Shortcut[] = [
 	{ keys: ['T'], does: 'panels.help.keys.tools' },
 	{ keys: ['M', 'P'], does: 'panels.help.keys.preserve' },
 	{ keys: ['N'], does: 'panels.help.keys.weather' },
-	{ keys: ['U'], does: 'panels.help.keys.people' },
 	{ keys: ['O'], does: 'panels.help.keys.settings' },
 	{ keys: ['H'], does: 'panels.help.keys.help' },
 	{ keys: ['+', '−'], does: 'panels.help.keys.zoom' },
 	{ keys: ['Esc'], does: 'panels.help.keys.esc' },
 ];
 
-/** The controls to show for the current world — the People/invite key (U) only
- *  applies to co-op worlds, so it's dropped in solo play. */
-export function visibleShortcuts(isCoop: boolean): Shortcut[] {
-	return SHORTCUTS.filter((s) => isCoop || !s.keys.includes('U'));
+/** The controls to show. Every shortcut applies now that there is one world. */
+export function visibleShortcuts(): Shortcut[] {
+	return SHORTCUTS;
 }
 
 // Which bindable action(s) each controls-row maps to, so the How to Play table
@@ -55,7 +53,6 @@ const DOES_ACTIONS: Record<string, string[]> = {
 	'panels.help.keys.tools': ['tools'],
 	'panels.help.keys.preserve': ['preserve'],
 	'panels.help.keys.weather': ['weather'],
-	'panels.help.keys.people': ['people'],
 	'panels.help.keys.settings': ['settings'],
 	'panels.help.keys.help': ['help'],
 };

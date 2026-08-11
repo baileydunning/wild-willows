@@ -1,0 +1,1899 @@
+{
+ "es_habitatObject": {
+  "hiking-boots": {
+   "name": "Botas de Montaña",
+   "description": "Botas resistentes hechas con corteza dura del bosque, musgo esponjoso y juncos tejidos del humedal. Una vez fabricadas son tuyas para siempre: úsalas para recorrer la reserva un poco más rápido."
+  },
+  "fellfield-gravel": {
+   "name": "Grava de Pedregal",
+   "description": "Grava pulida por el viento que se congela, se levanta y se reacomoda cada primavera, sujeta apenas por delgadas costras de líquen. Parece que no es nada, y es el único suelo que acepta una planta en cojín."
+  },
+  "alpine-turf-mat": {
+   "name": "Tapiz de Pasto Alpino",
+   "description": "Un tapiz tejido de juncias, flores alpinas y plantas en cojín sobre suelo alpino oscuro. Un pasto así tarda décadas en cerrar el suelo desnudo, y un solo verano de pisadas en volver a abrirlo."
+  },
+  "snowmelt-litter-mat": {
+   "name": "Hojarasca de Deshielo",
+   "description": "Una capa empapada de tallos y hojas del año pasado, liberada cuando la nieve se retira. Casi toda la descomposición del mundo alpino ocurre en estas pocas semanas húmedas."
+  },
+  "rotting-conifer-log": {
+   "name": "Tronco Podrido de Conífera",
+   "description": "Un tronco de abeto subalpino bien podrido, tendido donde la nieve se amontona más honda, tan blando que puedes hundirle un dedo. La madera muerta es hábitat, no basura."
+  },
+  "escape-cliff": {
+   "name": "Acantilado de Escape",
+   "description": "Una franja casi vertical de acantilado partido, cortada por salientes y apoyos hasta arriba. En un terreno así nadie puede quedar acorralado."
+  },
+  "willow-basin-thicket": {
+   "name": "Sauzal de Hondonada",
+   "description": "Sauces enanos que llenan una hondonada resguardada, bajos y densos, sepultados por la nieve cada invierno. Sus yemas y ramitas siguen al alcance cuando todo lo demás a esta altura está bajo la nieve."
+  },
+  "boulder-burrow-den": {
+   "name": "Madriguera bajo Peñasco",
+   "description": "Una madriguera profunda y de muchas cámaras excavada bajo un peñasco, muy por debajo de la línea de helada. Allá abajo la temperatura casi no se mueve en todo el invierno."
+  },
+  "inherited-earth-den": {
+   "name": "Madriguera Heredada",
+   "description": "Un hueco abierto entre peñascos y raíces por quien lo cavó primero, después ensanchado y ocupado. De segunda mano, y no por eso peor."
+  },
+  "stonecrop-patch": {
+   "name": "Parche de Siemprevivas",
+   "description": "Siemprevivas encajadas en la grava y en las grietas de la roca, con hojas gordas que guardan agua donde casi no hay suelo. Nada más en la alta montaña la reemplaza."
+  },
+  "bumblebee-nest-burrow": {
+   "name": "Madriguera para Anidar",
+   "description": "Un túnel abandonado en el pasto, relleno de hierba seca y cama vieja: una cavidad lista, cálida y oscura, que nadie tuvo que cavar."
+  },
+  "chipmunk-burrow-larder": {
+   "name": "Despensa de Ardilla Listada",
+   "description": "Un túnel poco profundo bajo una losa, con una cámara lateral repleta de espigas de semillas, seca y al alcance todo el invierno. Ninguna especie del juego la necesita ya."
+  },
+  "whitebark-pine": {
+   "name": "Pino Albar",
+   "description": "Un pino albar crecido de una semilla que alguien enterró y nunca volvió a desenterrar. Sus conos no se abren solos, así que no puede extenderse a ningún lado sin ayuda."
+  },
+  "beetle-killed-snag": {
+   "name": "Tronco Seco por Escarabajos",
+   "description": "Un gran abeto muerto en pie, con la corteza despegándose y la madera de afuera aflojada y llena de galerías. Sigue firme, pero ya está lo bastante blando para trabajarlo."
+  },
+  "old-woodpecker-cavity": {
+   "name": "Cavidad Vieja de Carpintero",
+   "description": "Un agujero redondo cincelado en un tronco muerto, hecho hace temporadas y vacío desde entonces. El borde sigue limpio y la cámara de abajo está seca."
+  },
+  "snowfield-debris-line": {
+   "name": "Restos del Nevero",
+   "description": "La franja oscura de semillas, polen y arenilla que el viento arrastra y deja varada al borde de un nevero que se encoge: un reparto gratis, subido cuesta arriba y soltado ahí."
+  },
+  "toad-upland-burrow": {
+   "name": "Madriguera de Sapo",
+   "description": "Un túnel prestado en tierra húmeda por encima de una poza de cría, bajo la línea de helada y sobre el nivel del agua subterránea. Un sitio donde pasar ocho meses del año."
+  },
+  "treeline-log-den": {
+   "name": "Tronco Guarida Alpino",
+   "description": "Un tronco hueco al borde de los últimos árboles, sepultado por la nieve todo el invierno, con túneles que salen de él por debajo del manto."
+  },
+  "fur-lined-prey-den": {
+   "name": "Madriguera Forrada de Pelo",
+   "description": "Una madriguera robada, vuelta a forrar con el pelaje de quien la cavó. Pequeña, apretada y cálida, y mudarse a ella no cuesta ningún trabajo."
+  },
+  "cliff-eyrie": {
+   "name": "Nido de Acantilado",
+   "description": "Un nido voluminoso de ramas en un saliente vertical, al que se le añade algo cada año hasta que la misma pareja lleva décadas usándolo."
+  },
+  "ledge-natal-den": {
+   "name": "Guarida en Saliente",
+   "description": "Un alero seco en lo hondo de un acantilado partido, tapado por roca caída. Invisible desde abajo y alcanzable solo por un saliente angosto."
+  },
+  "krummholz-bed-hollow": {
+   "name": "Cama bajo el Krummholz",
+   "description": "Una depresión sombreada y a resguardo del viento, aplastada contra el suelo bajo el krummholz. Fuera del sol, fuera del viento y fuera de vista desde arriba."
+  },
+  "kelp-holdfast-reef": {
+   "name": "Arrecife de Anclaje",
+   "description": "Roca limpia en el fondo poco profundo para que el kelp se agarre. El kelp no echa raíces en la arena: sin fondo duro, todo el bosque se lo lleva el mar."
+  },
+  "nutrient-upwelling-current": {
+   "name": "Corriente de Surgencia",
+   "description": "Agua fría y rica en nutrientes que sube desde lo hondo junto a la costa. Es el fertilizante de todo este litoral: al final, aquí todo funciona con ella."
+  },
+  "coralline-algae-crust": {
+   "name": "Alfombra Coralina",
+   "description": "Alfombra rosada de algas coralinas ramificadas y algas rojas sobre la roca baja. Las semillas del pasto marino llevan brazos erizados que se enganchan en esas ramitas: sin alfombra, no hay pasto marino."
+  },
+  "low-tide-rock-bench": {
+   "name": "Plataforma de Marea Baja",
+   "description": "Un ancho escalón de roca madre que solo queda al descubierto en las mareas más bajas: la franja más rica de la costa, y la que pasa más tiempo bajo el agua."
+  },
+  "urchin-crevice-pit": {
+   "name": "Hoyo de Erizos",
+   "description": "Huecos redondeados desgastados en la roca sólida, cada uno un cuenco liso del ancho de una mano. Una vez que un hoyo así empieza, solo se hace más profundo."
+  },
+  "kelp-forest": {
+   "name": "Bosque de Kelp",
+   "description": "Kelp gigante vivo que sube desde el fondo hasta un dosel dorado en la superficie. Agua verde y en penumbra todo el camino, y frondas tan tupidas que puedes recostarte en ellas."
+  },
+  "surfgrass-bed": {
+   "name": "Pradera de Pasto Marino",
+   "description": "Una pradera verde de pasto marino que ondea con el oleaje sobre la roca baja, tan densa que no se ve la piedra de abajo."
+  },
+  "nearshore-spawning-shallows": {
+   "name": "Aguas de Desove Costeras",
+   "description": "Agua tranquila y rica en plancton justo detrás de la rompiente, casi quieta y espesa de alimento a la deriva. Tibia arriba, y tan calmada que nada se hunde deprisa."
+  },
+  "bare-sand-beach": {
+   "name": "Playa de Arena Abierta",
+   "description": "Arena ancha, plana y sin plantar por encima de la línea de marea. Aquí la arena desnuda es hábitat por sí sola: deja la vista despejada y la superficie sin pisar."
+  },
+  "empty-shell-drift": {
+   "name": "Montón de Conchas Vacías",
+   "description": "Un rincón de conchas vacías atrapadas en un hueco de roca, ordenadas por las olas y amontonadas por tamaño. A una playa sin conchas de repuesto le falta algo."
+  },
+  "subtidal-rubble-flat": {
+   "name": "Llano de Cascajo Submarino",
+   "description": "Canto rodado suelto y roca partida justo bajo la marea, donde el material muerto llega a la deriva y se asienta entre las piedras."
+  },
+  "surge-swept-rock-face": {
+   "name": "Roca Batida por Olas",
+   "description": "Roca abierta que recibe todo el peso del oleaje. Agarrarse ahí es un castigo, y el agua nunca deja de pasar."
+  },
+  "barnacle-crust-rock": {
+   "name": "Costra de Bálanos",
+   "description": "Una costra blanca de bálanos soldada sobre la roca alta: filosa bajo el pie, áspera como lija gruesa y tan cementada que ya es parte de la piedra."
+  },
+  "protected-sand-gravel-flat": {
+   "name": "Llano Resguardado de Grava",
+   "description": "Arena y grava mezcladas y estables al abrigo de una punta: firmes para escarbar y tan calmadas que se quedan justo donde están."
+  },
+  "benthic-amphipod-bed": {
+   "name": "Fondo Fangoso",
+   "description": "Sedimento blando y profundo junto al borde del kelp, tan lleno de diminutos constructores de tubos que el fondo es más animal que lodo."
+  },
+  "sheltered-cobble-field": {
+   "name": "Campo de Cantos Resguardado",
+   "description": "Piedras sueltas sobre una orilla que la rompiente nunca golpea fuerte, cada una húmeda y oscura por debajo. El hábitat es el lado de abajo, no el de arriba."
+  },
+  "splash-zone-crevice": {
+   "name": "Grieta de Salpicadura",
+   "description": "Grietas de aspecto seco en la roca, a las que las olas solo llegan como rocío. El piso más alto y más seco de la costa: sal, sol y casi nada de agua."
+  },
+  "shell-dropping-rock": {
+   "name": "Roca Rompeconchas",
+   "description": "Un peñasco plano y de tapa dura que sobresale de la arena, salpicado de conchas rotas. Tan dura que cualquier cosa que caiga sobre ella desde lo alto se abre."
+  },
+  "swash-zone-runnel": {
+   "name": "Canal de Resaca",
+   "description": "La franja mojada y resbalosa donde cada ola se termina y se escurre de vuelta, volteando los primeros centímetros de arena en cada empujón."
+  },
+  "plover-scrape-closure": {
+   "name": "Zona Cerrada de Chorlitos",
+   "description": "Un tramo acordonado de arena desnuda y abierta, con cerca simbólica y letreros. Aquí no hay nada que construir: lo que protege el suelo es que nadie lo cruce."
+  },
+  "high-tide-roost-rock": {
+   "name": "Posadero de Marea Alta",
+   "description": "Una roca o islote elevado que sigue seco incluso en lo más alto de la marea, con agua abierta alrededor. Un lugar donde pararse y esperar las horas en que los llanos desaparecen."
+  },
+  "dune-manzanita": {
+   "name": "Manzanita de Duna",
+   "description": "Manzanita rastrera de las dunas costeras, que florece a mitad del invierno y aguanta sus frutos bien entrado el frío: comida detrás de la playa justo cuando no hay ninguna otra."
+  },
+  "mussel-bed": {
+   "name": "Banco de Mejillones",
+   "description": "Una banda densa de mejillones azul negruzco, apilados de dos y tres capas sobre la roca media, tan apretados que las conchas se sostienen entre sí. Los huecos que quedan entre ellos bajan hasta la piedra."
+  },
+  "mussel-bed-lower-margin": {
+   "name": "Borde Inferior del Banco",
+   "description": "El filo inferior y nítido del banco de mejillones, con roca limpia y abierta justo debajo. Nada en la marea explica dónde cae esa línea: algo más la mantiene ahí."
+  },
+  "sunlit-surge-pool": {
+   "name": "Poza Soleada de Oleaje",
+   "description": "Una poza honda que cada ola vuelve a llenar, abierta directo al cielo: el oleaje le vuelca comida desde las rocas de arriba y el sol llega hasta el fondo."
+  },
+  "offshore-nesting-island": {
+   "name": "Islote para Anidar",
+   "description": "Un farallón o islote frente a la costa, con agua profunda alrededor y ninguna forma de llegar a pie. Nada que camine puede alcanzarlo."
+  },
+  "sandbar-loafing-roost": {
+   "name": "Posadero de Arena",
+   "description": "Un bajo de arena que queda seco entre mareas: plano, abierto, rodeado de agua y lo bastante lejos de la playa para que nadie lo moleste."
+  },
+  "haul-out-rocks": {
+   "name": "Rocas para Focas",
+   "description": "Rocas bajas y una punta de arena con un ancho margen de calma alrededor, en pendiente suave para salir del agua de un tirón. El margen es lo importante: si se cruza, el lugar se vacía."
+  },
+  "sheltered-rafting-cove": {
+   "name": "Caleta Resguardada",
+   "description": "Agua calma al abrigo de una punta, dentro del kelp: lisa como un estanque aunque haya marejada, con frondas sueltas tendidas en la superficie."
+  },
+  "creosote-bush": {
+   "name": "Arbusto de Creosota",
+   "description": "El arbusto dominante de los llanos sonorenses, muy separado uno de otro porque sus raíces se llevan toda el agua a metros a la redonda. Sus hojas resinosas huelen a lluvia y casi no pierden nada de ella."
+  },
+  "saguaro": {
+   "name": "Saguaro",
+   "description": "Un gigante columnar que guarda meses de lluvia en su tallo plegado, hinchándose y encogiéndose con la temporada. Flores en la corona, frutos en junio y un tronco lo bastante blando para excavarlo."
+  },
+  "cholla": {
+   "name": "Cholla Encadenada",
+   "description": "Un cactus articulado, blindado por todos lados con espinas de púa que se desprenden al mínimo roce. Dentro de la maraña de brazos hay un espacio al que casi nada logra entrar."
+  },
+  "desert-mistletoe": {
+   "name": "Muérdago del Desierto",
+   "description": "Una planta parásita sin hojas, enraizada dentro de las ramas de mezquite y palo fierro, colgando en matas verde-marrón. Da fruto a mitad del invierno, cuando nada más lo hace."
+  },
+  "chuparosa": {
+   "name": "Chuparrosa",
+   "description": "Un arbusto gris y suave que carga flores tubulares de color escarlata durante todo el invierno del desierto, cuando casi nada más está en flor."
+  },
+  "catclaw-acacia": {
+   "name": "Uña de Gato",
+   "description": "Un árbol espinoso y bajo de los arroyos secos, erizado de espinas curvas que se enganchan al pasar. Cobertura espesa arriba y vainas pesadas de semillas a fines del verano."
+  },
+  "bush-muhly": {
+   "name": "Pasto Muhly",
+   "description": "Un pasto nativo perenne de tallos finos que crece a través de los arbustos para protegerse. Es lo primero que el ganado se come, así que su regreso es señal de que el llano está sanando."
+  },
+  "cryptobiotic-crust": {
+   "name": "Costra de Suelo Vivo",
+   "description": "Una piel viva de cianobacterias, líquenes y musgos que amarra el suelo desnudo. Fija nitrógeno, retiene agua y frena las malezas, y una sola pisada deshace décadas de ella."
+  },
+  "bare-ground-patch": {
+   "name": "Suelo Desnudo Abierto",
+   "description": "Un parche de suelo blando y sin compactar, dejado a propósito entre los arbustos. Tan suelto que se puede cavar derecho hacia abajo, pero solo donde nada lo ha apretado."
+  },
+  "harvester-ant-mound": {
+   "name": "Montículo de Hormigas",
+   "description": "Un montículo bajo cubierto de grava, con un disco pelado alrededor y un borde de cáscaras de semilla descartadas. Lo que sea que viva ahí abajo mueve una cantidad asombrosa de tierra."
+  },
+  "buried-deadwood": {
+   "name": "Madera Muerta Enterrada",
+   "description": "Tallos muertos de mezquite y creosota metidos a medias en el suelo, en contacto con tierra húmeda en vez de secarse en la superficie. La madera enterrada se descompone; la de arriba solo se blanquea."
+  },
+  "shrub-litter-mound": {
+   "name": "Hojarasca bajo Arbusto",
+   "description": "Hojas, tallos y cáscaras de semilla que el viento arrastra y amontona bajo un arbusto. Seco y crujiente arriba, húmedo y oscuro debajo después de cualquier lluvia."
+  },
+  "termite-worked-litter": {
+   "name": "Suelo Desmoronado",
+   "description": "Suelo surcado de galerías finas y viejas, cubierto por una costra de hojarasca cementada, trabajado desde abajo y no desde la superficie. Los túneles dejan que la lluvia se filtre en vez de escurrirse."
+  },
+  "tortoise-burrow": {
+   "name": "Madriguera de Tortuga",
+   "description": "Una madriguera larga, fresca y de paredes rectas, cavada hacia dentro de un talud y mantenida abierta por el uso. Mucho más honda que cualquier otra de por aquí, y pareja de temperatura todo el año."
+  },
+  "caliche-shelter-cave": {
+   "name": "Guarida de Caliche",
+   "description": "Un hueco erosionado en un banco duro de caliche, en una ladera rocosa: una cámara lista, con techo sólido y sin necesidad de cavar."
+  },
+  "creosote-mound": {
+   "name": "Montículo de Creosota",
+   "description": "Tierra arrastrada por el viento y amontonada alrededor de la base de una creosota, agujereada por túneles finos. La tierra está suelta y fácil de trabajar, y el arbusto de arriba esconde las puertas."
+  },
+  "seed-larder-burrow": {
+   "name": "Madriguera de Semillas",
+   "description": "Una madriguera poco profunda bajo un arbusto, con cámaras laterales repletas de semillas y las entradas tapadas con arena cada amanecer. El tapón atrapa aire húmedo adentro, y eso importa tanto como la comida."
+  },
+  "deep-sand-burrow": {
+   "name": "Madriguera de Arena Profunda",
+   "description": "Un pozo en espiral que baja hasta dos metros y medio en el suelo suelto. A esa profundidad el calor y la sequedad de la superficie simplemente no llegan."
+  },
+  "kit-fox-den": {
+   "name": "Madriguera Arenosa",
+   "description": "Una madriguera fresca con varias entradas, ensanchada a partir de un túnel más viejo en vez de cavada desde cero. Las puertas de más son rutas de escape."
+  },
+  "wash-bank-den": {
+   "name": "Madriguera del Arroyo Seco",
+   "description": "Una madriguera de tierra cavada en el talud cortado de un arroyo seco, por encima de la línea de crecida: sombreada, bien drenada y seca incluso cuando el arroyo corre."
+  },
+  "snake-hibernaculum-desert": {
+   "name": "Madriguera Invernal Rocosa",
+   "description": "Una fisura profunda en la roca que baja por debajo de la línea de helada y se mantiene sobre cero todo el invierno. La misma fisura se usa año tras año, a veces por décadas."
+  },
+  "saguaro-boot": {
+   "name": "Hueco del Cactus",
+   "description": "La cicatriz dura e impermeable que el cactus forma alrededor de un agujero abierto en su tronco: un frasco de paredes lisas hecho de callo seco. Dura mucho más que la carne blanda que lo rodea."
+  },
+  "thornscrub-stick-nest": {
+   "name": "Nido en Espinar",
+   "description": "Una plataforma voluminosa de ramas encajada uno o dos metros arriba dentro de un arbusto espinoso. Lo bastante alta para estar fuera del suelo y lo bastante punzante para que nada la siga."
+  },
+  "carrion-patch": {
+   "name": "Suelo con Carroña",
+   "description": "Un animal que murió y quedó donde cayó en vez de que se lo llevaran. En pocos días casi no queda nada de él, y todo vuelve a la tierra."
+  },
+  "saguaro-fruit-fall": {
+   "name": "Frutos Caídos de Saguaro",
+   "description": "Frutos carmesí de saguaro abiertos en pleno calor de junio, justo antes de las lluvias. Por unas semanas son el alimento más rico y la bebida más jugosa de todo el desierto."
+  },
+  "pollinated-cactus-fruit": {
+   "name": "Cosecha de Tunas",
+   "description": "Nopales y chollas cargados de fruta madura. Una cosecha así solo cuaja donde cada flor fue bien polinizada antes, y aquí eso nunca está garantizado."
+  },
+  "shade-form-scrape": {
+   "name": "Cama de Sombra",
+   "description": "Una depresión poco profunda escarbada en la sombra densa bajo un arbusto, hasta llegar a la tierra fresca. Diez grados más fresca que el suelo abierto a un metro de distancia."
+  },
+  "browse-exclosure": {
+   "name": "Cerco contra Ramoneo",
+   "description": "Una cerca baja alrededor de un parche de robles jóvenes. Donde el ramoneo es fuerte, los robles nunca pasan de la altura de la rodilla; dentro de la cerca, las bellotas llegan a ser árboles."
+  },
+  "nurse-log-seedbed": {
+   "name": "Tronco Nodriza",
+   "description": "Un tronco podrido y cubierto de musgo tendido en el suelo del bosque. Las semillas de tsuga que caen sobre la hojarasca casi siempre fracasan; las que caen sobre madera podrida se vuelven la próxima generación de árboles."
+  },
+  "deep-duff-soil": {
+   "name": "Mantillo Profundo",
+   "description": "Años de mantillo de hojas sin rastrillar y sin pisar, atravesado por raíces y por filamentos de hongos. Aquí es donde viven de verdad los hongos del bosque."
+  },
+  "truffle-patch": {
+   "name": "Parche de Trufas",
+   "description": "Tubérculos de hongo agrupados en las raíces de robles y tsugas. Arriba no se ve nada: toda la cosecha está a dos o tres centímetros y hay que olfatearla."
+  },
+  "soft-rot-snag": {
+   "name": "Árbol Muerto Podrido",
+   "description": "Un tocón muerto y pequeño cuya madera se volvió blanda y pálida, tan fácil de marcar que se hunde con la uña. Los hongos llegaron primero, y por eso ahora se puede trabajar."
+  },
+  "ant-riddled-log": {
+   "name": "Tronco Ahuecado",
+   "description": "Un tronco caído vuelto quebradizo por la pudrición y agujereado de galerías del grosor de una mina de lápiz: los corredores de toda una colonia dentro de un solo tronco."
+  },
+  "rotting-heartwood-log": {
+   "name": "Tronco Hueco por Dentro",
+   "description": "Un tronco podrido y hueco por el centro mientras su cáscara exterior todavía aguanta. Adentro está oscuro, húmedo y aislado del clima."
+  },
+  "downy-cavity": {
+   "name": "Agujero de Carpintero Velloso",
+   "description": "Un agujero redondo del ancho de un pulgar, cincelado en un tronco muerto y abandonado después de una sola temporada. Pequeño, seco y ya hecho."
+  },
+  "pileated-cavity-snag": {
+   "name": "Árbol Hueco Alto",
+   "description": "Un gran tronco seco con una cavidad rectangular y profunda abierta la primavera pasada, tan grande que cabe un brazo. Cada año se abre una nueva y las viejas se quedan."
+  },
+  "flooded-cavity-snag": {
+   "name": "Tronco Muerto Inundado",
+   "description": "Un tronco muerto de pie en agua poco profunda, con una cavidad vieja en lo alto. Debajo del agujero no hay más que aire, y varios metros más abajo, agua."
+  },
+  "bark-slab-snag": {
+   "name": "Árbol de Corteza Suelta",
+   "description": "Un árbol moribundo cuya corteza se despegó del tronco en placas curvas y flojas. Detrás de cada placa hay una rendija cálida, seca y plana, apenas más ancha que un dedo."
+  },
+  "leaf-drey": {
+   "name": "Nido de Hojas",
+   "description": "Una bola de hojas y ramitas del tamaño de un balón, encajada en una horqueta alta y tejida de adentro hacia afuera. Se reconstruye cada año y rara vez queda vacía por mucho tiempo."
+  },
+  "larder-burrow": {
+   "name": "Madriguera Despensa",
+   "description": "Una entrada de madriguera no más ancha que una moneda, con túneles que corren metros bajo tierra hasta una cámara nido y un almacén con más de un litro de semillas."
+  },
+  "hemlock-stand": {
+   "name": "Bosquete de Tsugas",
+   "description": "Un grupo apretado de tsugas. El dosel detiene la nieve antes de que llegue al suelo, la sombra mantiene el arroyo frío y la corteza interior queda al alcance todo el invierno."
+  },
+  "browse-thicket": {
+   "name": "Matorral de Ramoneo",
+   "description": "Rebrote joven y denso que llena el claro donde cayó un árbol grande, con cada ramita al alcance desde el suelo. Solo sigue así de tupido mientras el ramoneo sea leve."
+  },
+  "crayfish-shallows": {
+   "name": "Orilla de Cangrejos",
+   "description": "Una orilla pedregosa que llega al tobillo, de lajas sueltas sobre grava, con huecos oscuros y encharcados bajo cada una de ellas."
+  },
+  "root-mass-den": {
+   "name": "Guarida entre Raíces",
+   "description": "El hueco seco que queda bajo el plato de raíces levantado de un árbol caído: techado con tierra y raíces, y resguardado por todos lados menos uno."
+  },
+  "earth-den-bank": {
+   "name": "Ladera con Madrigueras",
+   "description": "Una ladera bien drenada con una madriguera cavada hacia dentro y varias entradas a lo largo de la cara. Se agranda y se reutiliza por generaciones en vez de cavarse de nuevo."
+  },
+  "snake-hibernaculum-forest": {
+   "name": "Madriguera Invernal del Bosque",
+   "description": "Una grieta profunda llena de cascajo que baja por debajo de la línea de helada y se queda ahí todo el invierno. Fría, pero nunca congelada, hasta la primavera."
+  },
+  "broken-top-chimney": {
+   "name": "Árbol Chimenea",
+   "description": "Un árbol vivo y grande, quebrado en lo alto y ahuecado hacia abajo por la pudrición, con una chimenea abierta de un palmo de ancho. Nadie excava una cavidad de este tamaño: solo aparece en un árbol lo bastante viejo para pudrirse por dentro."
+  },
+  "hollow-denning-tree": {
+   "name": "Árbol Hueco Guarida",
+   "description": "Un árbol vivo con una cámara ahuecada por la pudrición en lo alto del tronco, seca por dentro y a metros del suelo del bosque. Nada que cace en el suelo llega hasta ahí."
+  },
+  "rocky-den-ledge": {
+   "name": "Guarida entre Rocas",
+   "description": "Una rendija seca bajo una losa de roca inclinada, tapada por la maleza y abierta por los dos lados. Resguardada, pero fácil de abandonar al primer ruido."
+  },
+  "adopted-stick-nest": {
+   "name": "Nido de Ramas Adoptado",
+   "description": "Una plataforma vieja y voluminosa de ramas y hojas abandonada en una horqueta alta, curtida y un poco hundida, pero todavía firme. De segunda mano y lista para usarse en pleno invierno."
+  },
+  "bare-soil-scrape": {
+   "name": "Tierra Raspada",
+   "description": "Un parche despejado a mano de suelo mineral abierto, rastrillado hasta la tierra desnuda. El suelo desnudo también es hábitat: las plántulas y la tierra abierta necesitan un lugar sin cubrir."
+  },
+  "native-thistle-stand": {
+   "name": "Cardos Nativos",
+   "description": "Cardo de hoja ondulada, un cardo nativo de pradera y no una de las clases europeas invasoras. Flores tubulares profundas y cabezuelas que se abren en un plumón suave."
+  },
+  "grass-thatch-litter": {
+   "name": "Paja de Pradera",
+   "description": "Una capa profunda de tallos, hojas y raíces de pasto muertos, dejados donde cayeron. Esta es la materia prima que los hongos de la pradera desarman y devuelven al suelo como minerales."
+  },
+  "grasshopper-egg-pod-bank": {
+   "name": "Banco de Huevos",
+   "description": "Una franja de tierra desnuda, firme y calentada por el sol al borde del pasto, tan compacta que sostiene abierto un agujero taladrado. Lo que quede enterrado ahí pasa el invierno entero."
+  },
+  "vole-runway-network": {
+   "name": "Senderos de Pasto",
+   "description": "Senderos angostos recortados a ras del suelo por el pasto denso, que unen bocas de madriguera con cámaras forradas de hierba. Todo un mapa de caminitos escondido bajo la paja."
+  },
+  "milkweed-rhizome-bed": {
+   "name": "Parche de Algodoncillo",
+   "description": "Un parche extendido de algodoncillo vistoso crecido de esquejes de rizoma, con tallos que sangran savia blanca donde se rompen. Nada más en la pradera lo reemplaza, y un parche chico se vuelve grande poco a poco."
+  },
+  "bumblebee-nest-tussock": {
+   "name": "Macolla para Anidar",
+   "description": "Una macolla densa de pasto sin cortar sobre un agujero abandonado en el suelo: cálida, forrada de pelo, seca y completamente oculta desde arriba."
+  },
+  "brush-form-hollow": {
+   "name": "Cama bajo la Maleza",
+   "description": "Una depresión poco profunda aplastada en el pasto bajo la maleza baja, apenas lo hondo para quedar a ras del suelo. Un lugar de descanso más que una madriguera: no hay que cavar nada."
+  },
+  "serviceberry-browse-thicket": {
+   "name": "Matorral de Bayas",
+   "description": "Guillomo, un arbusto nativo de ramitas blandas y yemas gordas que quedan al alcance por encima de la nieve, y fruta morada y pesada a fines del verano."
+  },
+  "milkweed-aphid-colony": {
+   "name": "Tallos Llenos de Savia",
+   "description": "Un manto anaranjado brillante apretado a lo largo de los tallos de algodoncillo, tan tupido que tapa el verde de abajo. No es una plaga que haya que fumigar: un parche de algodoncillo lo trae cada año y no le pasa nada."
+  },
+  "squirrel-burrow-town": {
+   "name": "Pueblo de Madrigueras",
+   "description": "Un sistema de madrigueras de muchas entradas cavado en suelo hondo y abierto, con sus puertas amontonadas repartidas por todo un parche ancho. Mucho después de abandonarse, los túneles siguen abiertos."
+  },
+  "mantis-ootheca-stem": {
+   "name": "Tallo con Huevos",
+   "description": "Tallos secos y rígidos dejados en pie durante el invierno, con una cápsula de espuma endurecida color canela pegada a uno de ellos. Si cortas los tallos en otoño, cortas también lo que llevan dentro."
+  },
+  "domed-grass-nest-tunnel": {
+   "name": "Nido de Pasto Techado",
+   "description": "Un nido en forma de copa tejido hacia abajo dentro de una macolla densa, con techo de pasto y un pasadizo cubierto que lleva adentro. Solo una verdadera extensión de pasto nativo es lo bastante tupida para esconderlo."
+  },
+  "bluebird-nest-box": {
+   "name": "Caja Nido para Azulejos",
+   "description": "Una caja de madera con un agujero redondo pequeño y un deflector de metal en el poste de abajo, mirando al pasto abierto. El agujero está cortado a un ancho exacto, y ese ancho es todo el diseño."
+  },
+  "snake-hibernaculum-meadow": {
+   "name": "Madriguera Invernal de Pradera",
+   "description": "Una cámara de roca y tierra cavada bajo la línea de helada, muchas veces a partir de un túnel viejo en el talud. Allá abajo cabe una gran cantidad de cuerpos a la vez."
+  },
+  "deep-loam-soil-bank": {
+   "name": "Banco de Tierra Honda",
+   "description": "Un talud de tierra franca, profunda y sin compactar: nada de roca, nada de capa dura, nada con qué toparse. Un suelo así se cava más rápido de lo que se camina sobre él."
+  },
+  "earthen-fox-den": {
+   "name": "Madriguera de Tierra",
+   "description": "Un talud que mira al sur, ensanchado hasta ser una madriguera con varias salidas, agrandada a partir de una más vieja en vez de cavada desde cero. Seca, cálida a principios de año y rápida de abandonar."
+  },
+  "crown-stick-eyrie": {
+   "name": "Nido en la Copa",
+   "description": "Una plataforma voluminosa de ramas encajada en la copa del árbol más alto, con vista despejada sobre el pasto abierto. Se construye una vez, y después se le añade y se hereda."
+  },
+  "sunlit-mudflat": {
+   "name": "Lodazal Soleado",
+   "description": "Un escalón desnudo de lodo mojado y calentado por el sol al borde del agua. La semilla de espadaña es diminuta y necesita luz y suelo abierto para germinar: no brota a la sombra ni bajo el agua."
+  },
+  "clearwater-shallows": {
+   "name": "Bajos de Agua Clara",
+   "description": "Agua lenta con el limo ya asentado, de modo que la luz del sol llega hasta el fondo. Las plantas sumergidas viven de esa luz, y por eso el agua clara y las praderas submarinas siempre llegan juntas."
+  },
+  "detritus-drift": {
+   "name": "Balsa de Hojarasca",
+   "description": "Una balsa sumergida de hojas muertas de espadaña y juncia, ablandándose bajo una pelusa de hongos y bacterias. Por este camino, el de las plantas muertas, pasa más energía que por todo lo que se come vivo."
+  },
+  "crayfish-burrow-bank": {
+   "name": "Barranco de Cangrejos",
+   "description": "Un barranco de arcilla empapada acribillado de túneles del ancho de un dedo que se meten hacia dentro. Cada uno guarda agua incluso cuando el pantano baja del todo a fines del verano."
+  },
+  "submerged-spawning-slab": {
+   "name": "Losa de Desove Sumergida",
+   "description": "Una piedra plana o un tablón justo debajo de la superficie, con un hueco libre por debajo. La cara de abajo es lisa, sombreada y fregada limpia: un techo más que un piso."
+  },
+  "stable-silt-shoal": {
+   "name": "Bajío de Limo Estable",
+   "description": "Un ancho escalón de limo asentado y arena fina, en agua tan lenta que se queda en su sitio durante años. Blando para hundirse, estable para no moverse."
+  },
+  "cattail-root-shallows": {
+   "name": "Raíces de Espadaña",
+   "description": "Agua poco profunda sobre una masa densa de rizomas de espadaña: almidonados, hinchados y apretados en el lodo. Se alcanzan desde abajo incluso cuando la superficie está congelada."
+  },
+  "flooded-reed-clump": {
+   "name": "Mata de Juncos Inundada",
+   "description": "Un grupo apretado de tallos de espadaña y junco parados en agua hasta el tobillo, tan rígidos que sostienen un peso colgado entre ellos. El agua de abajo es lo que lo vuelve seguro."
+  },
+  "winter-litter-mound": {
+   "name": "Montón de Hojarasca Invernal",
+   "description": "Un montón profundo de hojas húmedas, corteza suelta y tallos viejos amontonados en tierra seca junto al pantano. Tan hondo que su centro nunca llega del todo a la temperatura del aire."
+  },
+  "vernal-pool": {
+   "name": "Poza Estacional sin Peces",
+   "description": "Una poza aparte y poco profunda que se llena con el deshielo y se seca por completo a fines del verano. Secarse es justamente el punto: nada que necesite agua todo el año puede establecerse en ella."
+  },
+  "wet-meadow-margin": {
+   "name": "Borde de Pradera Húmeda",
+   "description": "Una franja de pradera húmeda y herbosa entre el pantano y la tierra seca: nunca inundada, nunca del todo seca. Si se pierde esa franja, el pantano termina en un borde duro."
+  },
+  "sandy-nest-bank": {
+   "name": "Barranco Arenoso para Anidar",
+   "description": "Un lomo cálido y bien drenado de arena y grava fina por encima de la línea del agua, suelto para cavar y rápido para escurrir. Barrancos así son mucho más escasos de lo que parecen."
+  },
+  "crane-nest-mound": {
+   "name": "Montículo Nido de Grulla",
+   "description": "Un montón ancho de plantas de pantano apiladas en agua abierta y poco profunda, con la cima bien por encima de la línea del agua. Cualquier cosa que se acerque tiene que meterse al agua."
+  },
+  "hidden-reed-platform": {
+   "name": "Plataforma de Juncos Oculta",
+   "description": "Una plataforma baja de juncos vivos doblados y entretejidos en lo hondo de un cañaveral denso, apenas a un palmo del agua. Invisible desde todas las direcciones, incluso desde arriba."
+  },
+  "cut-bank-burrow": {
+   "name": "Madriguera en Barranco",
+   "description": "Un barranco de tierra desnudo y vertical que sale directo del agua, blando para excavar un metro hacia dentro y firme para que el túnel aguante."
+  },
+  "overwater-thicket": {
+   "name": "Matorral sobre el Agua",
+   "description": "Sauces y alisos bajos inclinados sobre el agua honda y quieta, con las ramas colgando a un metro de la superficie y sombra fresca debajo."
+  },
+  "muskrat-bank-den": {
+   "name": "Madriguera Vieja de Ribera",
+   "description": "Una madriguera abandonada en la ribera, con la entrada bajo el agua y la cámara seca por encima. Alguien más la cavó, y desde entonces está vacía."
+  },
+  "otter-bank-den": {
+   "name": "Madriguera de Ribera",
+   "description": "Una madriguera amplia en la ribera, con entrada bajo el agua y una cámara seca arriba: casi siempre una guarida vieja ocupada en vez de cavada de nuevo."
+  },
+  "beaver-pond": {
+   "name": "Estanque de Represa",
+   "description": "Agua honda y permanente retenida detrás de una represa de ramas y lodo, con árboles ahogados todavía en pie. Muy distinto de un pantano abierto de espadañas: más hondo, más despejado, y no aparece solo."
+  },
+  "beaver-canal": {
+   "name": "Canal Excavado",
+   "description": "Un canal poco profundo excavado desde el estanque hacia el pantano, apenas lo hondo para hacer flotar una rama. Mantiene conectada el agua abierta durante todo un verano seco."
+  },
+  "rotting-log-crumble": {
+   "name": "Tronco Desmoronado",
+   "description": "Un tronco blando, húmedo y medio podrido que ya vuelve a ser tierra y se deshace cuando lo levantas. Debajo el aire se mantiene mojado todo el día, haga el tiempo que haga arriba."
+  },
+  "orb-web-anchor-stems": {
+   "name": "Tallos para Telaraña",
+   "description": "Tallos altos y secos dejados en pie en un claro soleado, lo bastante rígidos para sostener tensa una línea de seda entre ellos."
+  },
+  "bat-maternity-roost": {
+   "name": "Refugio de Maternidad",
+   "description": "Una grieta angosta y oscura, alta sobre el suelo, con pleno sol en la roca de afuera. Cálida durante todo el día y tan estrecha que lo que entra queda apretado contra las paredes."
+  },
+  "barn-loft-nest-box": {
+   "name": "Desván del Granero",
+   "description": "Una caja de madera honda montada bien alto bajo el alero, abierta de un lado, con un borde de paja en el umbral. Oscura y seca por dentro, muy por encima del suelo."
+  },
+  "coyote-natal-den-bank": {
+   "name": "Barranco con Madriguera",
+   "description": "Una madriguera cavada en un barranco cubierto de maleza, casi siempre un agujero viejo ensanchado en vez de empezado de cero. Se usa a fondo unas pocas semanas y después se abandona."
+  },
+  "damp-leaf-corner": {
+   "name": "Rincón de Hojas Húmedas",
+   "description": "Un rincón sombreado donde las hojas caídas se dejan amontonar y ablandar en vez de barrerlas. Debajo se mantiene húmedo incluso en una semana seca."
+  },
+  "goat-cliff-ledge": {
+   "name": "Saliente para Cabras",
+   "description": "Una repisa angosta cortada en una pared casi vertical, pelada, polvorienta y no más ancha que un tapete. Terreno mucho más empinado de lo que cualquier otro intentaría."
+  },
+  "alpine-mineral-lick": {
+   "name": "Lamedero Mineral",
+   "description": "Un talud húmedo de tierra salada, roído y lamido hasta formar un hueco. Los minerales que tiene no están en el pasto de primavera, y a esta altura no hay otro lugar donde conseguirlos."
+  },
+  "deep-snow-den": {
+   "name": "Guarida en la Nieve",
+   "description": "Un túnel que baja metros dentro de un ventisquero que dura hasta la primavera tardía, rodeando peñascos caídos, con comida congelada guardada en cámaras laterales. Guardería y congelador a la vez, y solo funciona donde la nieve aguanta."
+  },
+  "deep-canyon-edge": {
+   "name": "Borde del Cañón Profundo",
+   "description": "El punto donde el fondo marino se acaba y cae hacia una profundidad azul negruzca y fría. Agua honda, pegada justo contra la costa."
+  },
+  "breaking-surf-line": {
+   "name": "Línea de Rompientes",
+   "description": "Una línea limpia de olas que se levantan y se derrumban a lo largo de una playa abierta: una pared móvil de espuma que recorre toda la costa."
+  },
+  "eelgrass-grazing-lawn": {
+   "name": "Pastura de Tortugas",
+   "description": "Un parche de zostera cortado corto y mantenido así, con las hojas siempre jóvenes y tiernas en vez de largas y duras. El corte constante es lo que lo conserva."
+  },
+  "saguaro-crown-nest": {
+   "name": "Nido en Cactus Gigante",
+   "description": "Una plataforma voluminosa de ramas encajada en la horqueta donde un cactus alto se abre en brazos: lo bastante ancha para toda una familia, con una muralla de espinas debajo que nadie puede escalar."
+  },
+  "tarantula-silk-burrow": {
+   "name": "Madriguera de Seda",
+   "description": "Un agujero del ancho de un pulgar en tierra firme, con el borde alisado y forrado de seda, y unos hilos tendidos en abanico sobre la arena de alrededor. Quien lo hizo puede quedarse en el mismo veinte años."
+  },
+  "elk-wallow": {
+   "name": "Revolcadero de Wapití",
+   "description": "Un hueco de lodo removido en un claro del bosque, mantenido húmedo y pelado por algo pesado que se revuelca en él. El charco que queda en la hondonada retiene agua por semanas."
+  },
+  "bramble-ground-nest": {
+   "name": "Nido entre Zarzas",
+   "description": "Una copa forrada de pasto hundida a ras de la hojarasca bajo una zarza arqueada. Encima no hay más que espinas, y esa es toda la defensa."
+  },
+  "eagle-nest-crown": {
+   "name": "Nido de Águila",
+   "description": "La copa del árbol vivo más alto del pantano, con un nido de ramas del tamaño de una bañera. La misma pareja vuelve año tras año y le añade material hasta que la rama de abajo por fin cede."
+  },
+  "still-water-cove": {
+   "name": "Caleta de Agua Quieta",
+   "description": "Un rincón de agua abierta escondido detrás de los juncos, donde el viento nunca llega, con la superficie lisa como vidrio y algunos tallos flotando encima. Nada le mueve la piel."
+  },
+  "winter-sleep-burrow": {
+   "name": "Madriguera de Hibernación",
+   "description": "Un túnel que entra bajo una losa inclinada hasta una cámara forrada de pasto, por debajo de la línea de helada. Sin despensa ni cuartos laterales: solo un sitio donde quedarse quieto, apenas sobre cero, hasta la primavera."
+  },
+  "moth-scree-crack": {
+   "name": "Grieta de Roca",
+   "description": "Una ranura oscura bajo una laja suelta del talud, fresca, sin viento y seca, que se mete más adentro de lo que llega la luz. El calor del día nunca alcanza el fondo."
+  },
+  "swift-cliff-seam": {
+   "name": "Fisura del Acantilado",
+   "description": "Una grieta vertical y angosta que sube por una pared de roca, demasiado estrecha para que algo con patas se pare en ella. La única entrada es de cabeza, y la única salida es dejarse caer."
+  },
+  "wild-grape-tangle": {
+   "name": "Maraña de Vid Silvestre",
+   "description": "Una vid leñosa enrollada en un tronco inclinado, cargada de fruta a fines del verano. Escalera y despensa a la vez: se trepa hasta arriba, y arriba espera la comida."
+  },
+  "snake-egg-mound": {
+   "name": "Montículo de Huevos",
+   "description": "Un montón de astillas de madera podrida y corteza apilado contra un tocón cortado. Por dentro se calienta al pudrirse, y ese es todo el punto: entierra algo ahí y el montón hace el trabajo."
+  },
+  "willow-thicket-swale": {
+   "name": "Matorral de Sauces",
+   "description": "Una hondonada húmeda detrás de las dunas llena de sauces bajos y zarzas, enmarañada hasta el suelo. Nada de cierto tamaño logra meterse ahí."
+  },
+  "canyon-ledge-den": {
+   "name": "Guarida del Cañón",
+   "description": "Un alero seco cortado en la pared de un cañón y tapado por lajas caídas: sombreado todo el día, invisible desde abajo y alcanzable por una sola ruta."
+  },
+  "puffball-turf-ring": {
+   "name": "Corro de Bejines",
+   "description": "Un anillo de domos pálidos que empujan a través del pasto viejo. Pisa uno maduro y suelta humo."
+  },
+  "sedge-tussock-nest": {
+   "name": "Macolla de Pradera",
+   "description": "Un montón denso de juncia a la altura de la rodilla en un bajo húmedo, tan apretado que podrías meter el puño hasta el fondo y no volver a encontrar el hueco."
+  },
+  "hidden-grass-nest": {
+   "name": "Nido de Pasto Oculto",
+   "description": "Una macolla espesa dejada en pie en una hondonada húmeda, con el centro aplastado en una copa honda que pasarías de largo sin ver."
+  },
+  "cocoon-leaf-drift": {
+   "name": "Hojas con Capullos",
+   "description": "Un montón de hojas caídas y enrolladas, arrimadas contra un tronco. Los capullos se hilan dentro de una hoja que después cae con ellos, así que toda la próxima generación pasa el invierno en esta pila."
+  },
+  "acorn-cache-scatter": {
+   "name": "Reserva de Bellotas",
+   "description": "Un parche de suelo blando y abierto, picado de hoyitos donde alguien fue metiendo bellotas de una en una. La mayoría se comen en invierno; las olvidadas brotan como robles en primavera."
+  },
+  "winter-freeze-litter-bed": {
+   "name": "Lecho de Hojas Congelado",
+   "description": "Un lecho poco profundo de hojas sueltas y mantillo sobre suelo blando, de apenas unos centímetros de hondo, que es todo lo que hace falta aquí, porque lo que pasa el invierno adentro no cava por debajo de la helada. Simplemente se congela con el suelo y se descongela en primavera."
+  },
+  "canopy-nest-limb": {
+   "name": "Rama Alta para Nido",
+   "description": "Una rama horizontal y gruesa pegada al tronco de un árbol viejo, allá arriba donde el dosel se cierra. Hace falta una rama capaz de sostener un nido que se usará durante años, con espacio libre para volar debajo."
+  },
+  "thicket-bed-hollow": {
+   "name": "Cama en el Matorral",
+   "description": "Un hueco escarbado y polvoriento bajo el matorral espinoso denso, donde una manada entera se echa durante el calor del día, apretada. La sombra vale más que el escondite: ahí adentro hace diez grados menos."
+  },
+  "falcon-scrape-ledge": {
+   "name": "Saliente de Grava",
+   "description": "Una repisa alta en el acantilado con piso de grava y una depresión poco profunda pateada en el cascajo. Aquí no se construye ningún nido ni hace falta: el saliente y el vacío de abajo son todo."
+  },
+  "octopus-den-midden": {
+   "name": "Montón de Restos",
+   "description": "Una grieta oscura bajo un peñasco con una piedra arrastrada a medias sobre la entrada, y afuera un montoncito ordenado de caparazones vacíos y almejas perforadas. El montón de restos es lo que delata la guarida."
+  },
+  "meadow-mushroom-ring": {
+   "name": "Corro de Champiñones",
+   "description": "Un arco curvo de sombreretes pálidos que asoman por la paja húmeda del pasto después de la lluvia. El anillo es el borde de un hongo que crece hacia afuera bajo tierra, y puede ser más viejo que todas las plantas de alrededor."
+  },
+  "bracket-fungus-shelf": {
+   "name": "Hongos de Repisa",
+   "description": "Abanicos superpuestos de hongo de repisa rayado que suben escalonados por el costado de un tronco muerto de madera dura. Esto es lo que de verdad digiere la madera: el tronco solo se vuelve suelo porque el hongo llega primero."
+  },
+  "wild-celery-bed": {
+   "name": "Pradera de Vallisneria",
+   "description": "Largas hojas en forma de cinta que ondean bajo el agua en los bajos, enraizadas en el limo. Vive solo de la luz que llega al fondo, así que únicamente crece donde el agua ha podido asentarse limpia."
+  },
+  "snowbank-mushroom-cluster": {
+   "name": "Hongos del Ventisquero",
+   "description": "Un grupo de hongos pequeños y pálidos de tallo peludo, brotando justo al borde de un ventisquero que se derrite, sobre madera de conífera podrida y enterrada. Salen cuando todavía hay nieve en el suelo."
+  },
+  "grizzly-dig-slope": {
+   "name": "Ladera Excavada",
+   "description": "Un talud alto de tierra suelta y llena de raíces, tan blanda que se abre de un tirón, con el suelo removido dejado en montones."
+  },
+  "feather-lined-crack": {
+   "name": "Grieta de Roca Forrada",
+   "description": "Una fisura angosta y seca en una pared de roca pulida por el viento, rellena al fondo con plumón y pelo."
+  },
+  "borrowed-burrow-mouth": {
+   "name": "Madriguera Prestada",
+   "description": "La boca de una madriguera que cavó alguien más, ensanchada y barrida, con un abanico de arena suelta en la entrada."
+  },
+  "browsed-pond-shallows": {
+   "name": "Bajos Ramoneados",
+   "description": "Una orilla de fondo blando donde el agua llega al pecho y está espesa de tallos, cortados al ras en parches disparejos."
+  },
+  "waterfall-splash-ledge": {
+   "name": "Saliente de Salpicadura",
+   "description": "Una repisa mojada metida detrás de un hilo de agua de deshielo que cae, cubierta de musgo y siempre en sombra."
+  },
+  "grub-digging-ground": {
+   "name": "Terreno para Escarbar",
+   "description": "Un parche de suelo blando de mantillo dejado sin compactar, ya picado de hoyitos en forma de cono donde algo ha estado revolviéndolo."
+  },
+  "clifftop-burrow": {
+   "name": "Madriguera del Acantilado",
+   "description": "Un agujero redondo que entra en el pasto profundo justo en lo alto de un acantilado marino, con un claro de tierra pelada en la entrada."
+  },
+  "groundhog-burrow-mound": {
+   "name": "Montículo de Madriguera",
+   "description": "Un abanico de tierra recién removida amontonado alrededor de un agujero redondo, con un segundo agujero escondido en el pasto a unos pasos."
+  },
+  "opossum-den-hollow": {
+   "name": "Hueco Guarida",
+   "description": "Una cavidad seca bajo un tronco inclinado, con piso de hojas arrastradas y abierta por los dos extremos."
+  },
+  "shore-stick-nest": {
+   "name": "Nido de Ramas",
+   "description": "Una plataforma voluminosa de ramas blanqueadas por la sal encajada en una horqueta alta, a la que se le añade y se le remienda cada temporada."
+  },
+  "happy-buddha": {
+   "name": "Buda Feliz",
+   "description": "Una figurita redonda sentada con las piernas cruzadas, los brazos en alto y una sonrisa de oreja a oreja. Dicen que frotarle la panza da suerte, y el barro quedó liso y brillante justo en ese punto."
+  },
+  "lucky-toad": {
+   "name": "Sapo de la Suerte",
+   "description": "Un sapo gordo de tres patas sentado sobre un montoncito de monedas, con una más en la boca. La tradición dice que mira hacia el campamento y nunca hacia afuera, para que la suerte entre contigo."
+  },
+  "rippled-sand-bed": {
+   "name": "Arena Ondulada",
+   "description": "Arena limpia por debajo de la línea de marea baja, peinada en crestas parejas por una corriente lo bastante suave para dejarlas en pie."
+  }
+ },
+ "es_recipe": {
+  "hiking-boots": {
+   "name": "Botas de Montaña"
+  },
+  "fellfield-gravel": {
+   "name": "Grava de Pedregal"
+  },
+  "alpine-turf-mat": {
+   "name": "Tapiz de Pasto Alpino"
+  },
+  "snowmelt-litter-mat": {
+   "name": "Hojarasca de Deshielo"
+  },
+  "rotting-conifer-log": {
+   "name": "Tronco Podrido de Conífera"
+  },
+  "escape-cliff": {
+   "name": "Acantilado de Escape"
+  },
+  "willow-basin-thicket": {
+   "name": "Sauzal de Hondonada"
+  },
+  "boulder-burrow-den": {
+   "name": "Madriguera bajo Peñasco"
+  },
+  "inherited-earth-den": {
+   "name": "Madriguera Heredada"
+  },
+  "stonecrop-patch": {
+   "name": "Parche de Siemprevivas"
+  },
+  "bumblebee-nest-burrow": {
+   "name": "Madriguera para Anidar"
+  },
+  "chipmunk-burrow-larder": {
+   "name": "Despensa de Ardilla Listada"
+  },
+  "whitebark-pine": {
+   "name": "Pino Albar"
+  },
+  "beetle-killed-snag": {
+   "name": "Tronco Seco por Escarabajos"
+  },
+  "old-woodpecker-cavity": {
+   "name": "Cavidad Vieja de Carpintero"
+  },
+  "snowfield-debris-line": {
+   "name": "Restos del Nevero"
+  },
+  "toad-upland-burrow": {
+   "name": "Madriguera de Sapo"
+  },
+  "treeline-log-den": {
+   "name": "Tronco Guarida Alpino"
+  },
+  "fur-lined-prey-den": {
+   "name": "Madriguera Forrada de Pelo"
+  },
+  "cliff-eyrie": {
+   "name": "Nido de Acantilado"
+  },
+  "ledge-natal-den": {
+   "name": "Guarida en Saliente"
+  },
+  "krummholz-bed-hollow": {
+   "name": "Cama bajo el Krummholz"
+  },
+  "kelp-holdfast-reef": {
+   "name": "Arrecife de Anclaje"
+  },
+  "nutrient-upwelling-current": {
+   "name": "Corriente de Surgencia"
+  },
+  "coralline-algae-crust": {
+   "name": "Alfombra Coralina"
+  },
+  "low-tide-rock-bench": {
+   "name": "Plataforma de Marea Baja"
+  },
+  "urchin-crevice-pit": {
+   "name": "Hoyo de Erizos"
+  },
+  "kelp-forest": {
+   "name": "Bosque de Kelp"
+  },
+  "surfgrass-bed": {
+   "name": "Pradera de Pasto Marino"
+  },
+  "nearshore-spawning-shallows": {
+   "name": "Aguas de Desove Costeras"
+  },
+  "bare-sand-beach": {
+   "name": "Playa de Arena Abierta"
+  },
+  "empty-shell-drift": {
+   "name": "Montón de Conchas Vacías"
+  },
+  "subtidal-rubble-flat": {
+   "name": "Llano de Cascajo Submarino"
+  },
+  "surge-swept-rock-face": {
+   "name": "Roca Batida por Olas"
+  },
+  "barnacle-crust-rock": {
+   "name": "Costra de Bálanos"
+  },
+  "protected-sand-gravel-flat": {
+   "name": "Llano Resguardado de Grava"
+  },
+  "benthic-amphipod-bed": {
+   "name": "Fondo Fangoso"
+  },
+  "sheltered-cobble-field": {
+   "name": "Campo de Cantos Resguardado"
+  },
+  "splash-zone-crevice": {
+   "name": "Grieta de Salpicadura"
+  },
+  "shell-dropping-rock": {
+   "name": "Roca Rompeconchas"
+  },
+  "swash-zone-runnel": {
+   "name": "Canal de Resaca"
+  },
+  "plover-scrape-closure": {
+   "name": "Zona Cerrada de Chorlitos"
+  },
+  "high-tide-roost-rock": {
+   "name": "Posadero de Marea Alta"
+  },
+  "dune-manzanita": {
+   "name": "Manzanita de Duna"
+  },
+  "mussel-bed": {
+   "name": "Banco de Mejillones"
+  },
+  "mussel-bed-lower-margin": {
+   "name": "Borde Inferior del Banco"
+  },
+  "sunlit-surge-pool": {
+   "name": "Poza Soleada de Oleaje"
+  },
+  "offshore-nesting-island": {
+   "name": "Islote para Anidar"
+  },
+  "sandbar-loafing-roost": {
+   "name": "Posadero de Arena"
+  },
+  "haul-out-rocks": {
+   "name": "Rocas para Focas"
+  },
+  "sheltered-rafting-cove": {
+   "name": "Caleta Resguardada"
+  },
+  "creosote-bush": {
+   "name": "Arbusto de Creosota"
+  },
+  "cryptobiotic-crust": {
+   "name": "Costra de Suelo Vivo"
+  },
+  "buried-deadwood": {
+   "name": "Madera Muerta Enterrada"
+  },
+  "shrub-litter-mound": {
+   "name": "Hojarasca bajo Arbusto"
+  },
+  "bare-ground-patch": {
+   "name": "Suelo Desnudo Abierto"
+  },
+  "harvester-ant-mound": {
+   "name": "Montículo de Hormigas"
+  },
+  "deep-sand-burrow": {
+   "name": "Madriguera de Arena Profunda"
+  },
+  "bush-muhly": {
+   "name": "Pasto Muhly"
+  },
+  "seed-larder-burrow": {
+   "name": "Madriguera de Semillas"
+  },
+  "shade-form-scrape": {
+   "name": "Cama de Sombra"
+  },
+  "saguaro": {
+   "name": "Saguaro"
+  },
+  "chuparosa": {
+   "name": "Chuparrosa"
+  },
+  "catclaw-acacia": {
+   "name": "Uña de Gato"
+  },
+  "cholla": {
+   "name": "Cholla Encadenada"
+  },
+  "caliche-shelter-cave": {
+   "name": "Guarida de Caliche"
+  },
+  "desert-mistletoe": {
+   "name": "Muérdago del Desierto"
+  },
+  "thornscrub-stick-nest": {
+   "name": "Nido en Espinar"
+  },
+  "snake-hibernaculum-desert": {
+   "name": "Madriguera Invernal Rocosa"
+  },
+  "wash-bank-den": {
+   "name": "Madriguera del Arroyo Seco"
+  },
+  "termite-worked-litter": {
+   "name": "Suelo Desmoronado"
+  },
+  "pollinated-cactus-fruit": {
+   "name": "Cosecha de Tunas"
+  },
+  "creosote-mound": {
+   "name": "Montículo de Creosota"
+  },
+  "kit-fox-den": {
+   "name": "Madriguera Arenosa"
+  },
+  "carrion-patch": {
+   "name": "Suelo con Carroña"
+  },
+  "saguaro-fruit-fall": {
+   "name": "Frutos Caídos de Saguaro"
+  },
+  "tortoise-burrow": {
+   "name": "Madriguera de Tortuga"
+  },
+  "saguaro-boot": {
+   "name": "Hueco del Cactus"
+  },
+  "browse-exclosure": {
+   "name": "Cerco contra Ramoneo"
+  },
+  "nurse-log-seedbed": {
+   "name": "Tronco Nodriza"
+  },
+  "deep-duff-soil": {
+   "name": "Mantillo Profundo"
+  },
+  "truffle-patch": {
+   "name": "Parche de Trufas"
+  },
+  "soft-rot-snag": {
+   "name": "Árbol Muerto Podrido"
+  },
+  "ant-riddled-log": {
+   "name": "Tronco Ahuecado"
+  },
+  "rotting-heartwood-log": {
+   "name": "Tronco Hueco por Dentro"
+  },
+  "downy-cavity": {
+   "name": "Agujero de Carpintero Velloso"
+  },
+  "pileated-cavity-snag": {
+   "name": "Árbol Hueco Alto"
+  },
+  "flooded-cavity-snag": {
+   "name": "Tronco Muerto Inundado"
+  },
+  "bark-slab-snag": {
+   "name": "Árbol de Corteza Suelta"
+  },
+  "leaf-drey": {
+   "name": "Nido de Hojas"
+  },
+  "larder-burrow": {
+   "name": "Madriguera Despensa"
+  },
+  "hemlock-stand": {
+   "name": "Bosquete de Tsugas"
+  },
+  "browse-thicket": {
+   "name": "Matorral de Ramoneo"
+  },
+  "crayfish-shallows": {
+   "name": "Orilla de Cangrejos"
+  },
+  "root-mass-den": {
+   "name": "Guarida entre Raíces"
+  },
+  "earth-den-bank": {
+   "name": "Ladera con Madrigueras"
+  },
+  "snake-hibernaculum-forest": {
+   "name": "Madriguera Invernal del Bosque"
+  },
+  "broken-top-chimney": {
+   "name": "Árbol Chimenea"
+  },
+  "hollow-denning-tree": {
+   "name": "Árbol Hueco Guarida"
+  },
+  "rocky-den-ledge": {
+   "name": "Guarida entre Rocas"
+  },
+  "adopted-stick-nest": {
+   "name": "Nido de Ramas Adoptado"
+  },
+  "bare-soil-scrape": {
+   "name": "Tierra Raspada"
+  },
+  "native-thistle-stand": {
+   "name": "Cardos Nativos"
+  },
+  "bunchgrass-sod-plug": {
+   "name": "Plantón de Pasto Nativo"
+  },
+  "grass-thatch-litter": {
+   "name": "Paja de Pradera"
+  },
+  "grasshopper-egg-pod-bank": {
+   "name": "Banco de Huevos"
+  },
+  "vole-runway-network": {
+   "name": "Senderos de Pasto"
+  },
+  "milkweed-rhizome-bed": {
+   "name": "Parche de Algodoncillo"
+  },
+  "bumblebee-nest-tussock": {
+   "name": "Macolla para Anidar"
+  },
+  "brush-form-hollow": {
+   "name": "Cama bajo la Maleza"
+  },
+  "serviceberry-browse-thicket": {
+   "name": "Matorral de Bayas"
+  },
+  "milkweed-aphid-colony": {
+   "name": "Tallos Llenos de Savia"
+  },
+  "squirrel-burrow-town": {
+   "name": "Pueblo de Madrigueras"
+  },
+  "mantis-ootheca-stem": {
+   "name": "Tallo con Huevos"
+  },
+  "domed-grass-nest-tunnel": {
+   "name": "Nido de Pasto Techado"
+  },
+  "bluebird-nest-box": {
+   "name": "Caja Nido para Azulejos"
+  },
+  "snake-hibernaculum-meadow": {
+   "name": "Madriguera Invernal de Pradera"
+  },
+  "deep-loam-soil-bank": {
+   "name": "Banco de Tierra Honda"
+  },
+  "earthen-fox-den": {
+   "name": "Madriguera de Tierra"
+  },
+  "crown-stick-eyrie": {
+   "name": "Nido en la Copa"
+  },
+  "sunlit-mudflat": {
+   "name": "Lodazal Soleado"
+  },
+  "clearwater-shallows": {
+   "name": "Bajos de Agua Clara"
+  },
+  "detritus-drift": {
+   "name": "Balsa de Hojarasca"
+  },
+  "crayfish-burrow-bank": {
+   "name": "Barranco de Cangrejos"
+  },
+  "submerged-spawning-slab": {
+   "name": "Losa de Desove Sumergida"
+  },
+  "stable-silt-shoal": {
+   "name": "Bajío de Limo Estable"
+  },
+  "cattail-root-shallows": {
+   "name": "Raíces de Espadaña"
+  },
+  "flooded-reed-clump": {
+   "name": "Mata de Juncos Inundada"
+  },
+  "winter-litter-mound": {
+   "name": "Montón de Hojarasca Invernal"
+  },
+  "vernal-pool": {
+   "name": "Poza Estacional sin Peces"
+  },
+  "wet-meadow-margin": {
+   "name": "Borde de Pradera Húmeda"
+  },
+  "sandy-nest-bank": {
+   "name": "Barranco Arenoso para Anidar"
+  },
+  "crane-nest-mound": {
+   "name": "Montículo Nido de Grulla"
+  },
+  "hidden-reed-platform": {
+   "name": "Plataforma de Juncos Oculta"
+  },
+  "cut-bank-burrow": {
+   "name": "Madriguera en Barranco"
+  },
+  "overwater-thicket": {
+   "name": "Matorral sobre el Agua"
+  },
+  "muskrat-bank-den": {
+   "name": "Madriguera Vieja de Ribera"
+  },
+  "otter-bank-den": {
+   "name": "Madriguera de Ribera"
+  },
+  "beaver-pond": {
+   "name": "Estanque de Represa"
+  },
+  "beaver-canal": {
+   "name": "Canal Excavado"
+  },
+  "rotting-log-crumble": {
+   "name": "Tronco Desmoronado"
+  },
+  "orb-web-anchor-stems": {
+   "name": "Tallos para Telaraña"
+  },
+  "bat-maternity-roost": {
+   "name": "Refugio de Maternidad"
+  },
+  "barn-loft-nest-box": {
+   "name": "Desván del Granero"
+  },
+  "coyote-natal-den-bank": {
+   "name": "Barranco con Madriguera"
+  },
+  "damp-leaf-corner": {
+   "name": "Rincón de Hojas Húmedas"
+  },
+  "hidden-grass-nest": {
+   "name": "Nido de Pasto Oculto"
+  },
+  "meadow-mushroom-ring": {
+   "name": "Corro de Champiñones"
+  },
+  "cocoon-leaf-drift": {
+   "name": "Hojas con Capullos"
+  },
+  "acorn-cache-scatter": {
+   "name": "Reserva de Bellotas"
+  },
+  "winter-freeze-litter-bed": {
+   "name": "Lecho de Hojas Congelado"
+  },
+  "canopy-nest-limb": {
+   "name": "Rama Alta para Nido"
+  },
+  "bracket-fungus-shelf": {
+   "name": "Hongos de Repisa"
+  },
+  "wild-celery-bed": {
+   "name": "Pradera de Vallisneria"
+  },
+  "thicket-bed-hollow": {
+   "name": "Cama en el Matorral"
+  },
+  "falcon-scrape-ledge": {
+   "name": "Saliente de Grava"
+  },
+  "snowbank-mushroom-cluster": {
+   "name": "Hongos del Ventisquero"
+  },
+  "octopus-den-midden": {
+   "name": "Montón de Restos"
+  },
+  "grizzly-dig-slope": {
+   "name": "Ladera Excavada"
+  },
+  "feather-lined-crack": {
+   "name": "Grieta de Roca Forrada"
+  },
+  "borrowed-burrow-mouth": {
+   "name": "Madriguera Prestada"
+  },
+  "browsed-pond-shallows": {
+   "name": "Bajos Ramoneados"
+  },
+  "waterfall-splash-ledge": {
+   "name": "Saliente de Salpicadura"
+  },
+  "grub-digging-ground": {
+   "name": "Terreno para Escarbar"
+  },
+  "clifftop-burrow": {
+   "name": "Madriguera del Acantilado"
+  },
+  "groundhog-burrow-mound": {
+   "name": "Montículo de Madriguera"
+  },
+  "opossum-den-hollow": {
+   "name": "Hueco Guarida"
+  },
+  "shore-stick-nest": {
+   "name": "Nido de Ramas"
+  },
+  "happy-buddha": {
+   "name": "Buda Feliz"
+  },
+  "lucky-toad": {
+   "name": "Sapo de la Suerte"
+  },
+  "rippled-sand-bed": {
+   "name": "Arena Ondulada"
+  }
+ },
+ "es_animal": {
+  "alpine-springtail": {
+   "name": "Pulga de las nieves",
+   "diet": "Hojas y tallos muertos, filamentos de hongos, polen y las algas rosadas que crecen sobre la nieve vieja",
+   "shelter": "Hojarasca húmeda, cojines de musgo y el hueco entre la capa de nieve y el suelo en invierno",
+   "preferredHabitat": "Pasto alpino húmedo, cojines de musgo y hojarasca de deshielo, además de la superficie de la nieve tardía en los días templados",
+   "fact": "En un día templado de invierno, las pulgas de las nieves salen a la nieve por millares, como si alguien hubiera derramado pimienta sobre el ventisquero. Su sangre está llena de anticongelante natural, así que siguen moviéndose cuando todo lo demás está congelado.",
+   "role": "El equipo de limpieza de la montaña y la razón por la que las hojas del año pasado no se acumulan para siempre. Trituran tallos muertos y pastan filamentos de hongos hasta convertirlos en suelo, y siguen en ello todo el invierno, en el hueco oscuro entre la nieve y la tierra. Bisbitas, pinzones, carboneros, azulejos, cascanueces y sapos se las comen.",
+   "hint": "Un manto de hojarasca bajo la nieve que se derrite basta para empezar."
+  },
+  "purple-sea-urchin": {
+   "name": "Erizo de mar morado",
+   "diet": "Kelp y pasto marino vivos, kelp a la deriva y algas coralinas incrustantes",
+   "shelter": "Hoyos que él mismo desgasta en la roca con sus dientes y sus espinas",
+   "preferredHabitat": "Roca intermareal baja y submareal poco profunda, expuesta al oleaje y cerca del kelp",
+   "fact": "Un erizo morado mastica un hoyo en la roca sólida con cinco dientes y luego se queda dentro de él durante años. En algunos arrecifes los erizos desgastan más piedra que las olas.",
+   "role": "El herbívoro que está en el centro de la historia más famosa de esta costa. Alimentados con trozos de kelp a la deriva y controlados por las nutrias, los erizos son una parte más de un bosque sano. Quita a los depredadores y avanzan por la roca, siegan el kelp hasta dejar la piedra desnuda y dejan atrás un desierto de erizos.",
+   "hint": "Primero el kelp, porque algo tiene que haber para comer. Después piensa muy bien en quién los va a mantener a raya."
+  },
+  "northern-anchovy": {
+   "name": "Anchoa norteña",
+   "diet": "Plancton —copépodos, diatomeas y larvas— colado del agua o atrapado de uno en uno",
+   "shelter": "El propio cardumen; agua abierta cerca de la costa, con bordes de kelp y pasto marino como refugio de cría",
+   "preferredHabitat": "Agua fría y rica en plancton cerca de la costa, sobre la plataforma",
+   "fact": "Una anchoa come de dos maneras: da mordiscos a las presas grandes de una en una, o simplemente abre la boca y nada, colando el mar como una red viva.",
+   "role": "Las anchoas viajan en cardúmenes plateados tan densos que oscurecen el agua vista desde abajo. Casi todo lo que caza aquí las captura en algún momento —pelícanos, focas, delfines, gaviotas—, así que cuando fallan las anchoas, toda la costa pasa hambre de golpe.",
+   "hint": "El agua fría que sube desde lo profundo hace crecer el plancton del que se alimentan, y los bajos tranquilos les dan dónde desovar."
+  },
+  "beach-hopper": {
+   "name": "Pulga de playa",
+   "diet": "Kelp en descomposición y otras algas varadas en la arribazón",
+   "shelter": "Madrigueras excavadas en la arena húmeda de la parte alta de la playa, y el envés húmedo del kelp y la madera flotante",
+   "preferredHabitat": "Playa de arena de pendiente suave con una arribazón sin perturbar",
+   "fact": "Las pulgas de playa pasan todo el día encerradas en una madriguera de arena seca y salen en tropel al anochecer a triturar las algas que dejó la marea. Acércate a una y saldrá disparada por el aire como una piedrita lanzada de un capirotazo.",
+   "role": "La sala de máquinas de la playa. Mastican el kelp varado hasta dejarlo en migas y nutrientes, y al hacerlo convierten las algas muertas en comida para las aves: por eso patrullan la línea de marea los chorlitos, los playeros blancos y las gaviotas. Rastrilla la arribazón y este enlace desaparece de la noche a la mañana.",
+   "hint": "Deja las algas donde las suelta la marea. En eso consiste toda la comida."
+  },
+  "desert-termite": {
+   "name": "Termita del desierto",
+   "diet": "Pasto seco, hojas caídas, estiércol seco y la capa exterior curtida de la madera muerta",
+   "shelter": "Túneles y cámaras bajo tierra, además de láminas de barro construidas sobre lo que está comiendo",
+   "preferredHabitat": "Suelo bajo arbustos y pastos donde se acumula la hojarasca",
+   "fact": "Estas termitas untan un techito de barro sobre un tallo muerto y comen debajo, así que pueden alimentarse a pleno sol sin tocar nunca el aire seco.",
+   "role": "El animal que de verdad recicla este desierto. Aquí hay muy poca agua para que la hojarasca se pudra como en un bosque, así que las termitas se la comen casi toda, devuelven el nitrógeno y el carbono bajo tierra y dejan túneles por los que la lluvia se filtra en vez de escurrirse. En las noches de enjambre, todo lo que tenga pico o aguijón acude al banquete.",
+   "hint": "Entierra un poco de madera muerta y la encontrarán: la madera muerta es la despensa del desierto."
+  },
+  "common-raven": {
+   "name": "Cuervo común",
+   "diet": "Carroña sobre todo, además de huevos, polluelos, reptiles jóvenes, insectos y fruta de cactus",
+   "shelter": "Voluminosos nidos de ramas en acantilados, cactus altos y palos fierro; y, cada vez más, en postes de luz",
+   "preferredHabitat": "Desierto abierto con estructuras altas donde anidar y comida segura",
+   "fact": "Los cuervos recuerdan rostros humanos concretos y guardan el rencor durante años, y una pareja monta un engaño en equipo: uno arma alboroto mientras el otro roba la comida.",
+   "role": "El equipo de limpieza y la mayor historia humana del bioma. Las carreteras, los basureros, las granjas y los postes de luz les regalan comida, agua y plataformas para anidar, así que ahora hay muchos más de los que este desierto podría alimentar por sí solo. Y todos esos cuervos de más se comen a las tortugas bebé, cuyo caparazón sigue blando durante años. Cortarles el almuerzo gratis es hoy parte real de salvar a la tortuga.",
+   "hint": "Siguen todo lo que se queda tirado por ahí: un cadáver, una percha alta, algo de beber. No piden más, y ahí está justamente el problema."
+  },
+  "coyote-meadow": {
+   "name": "Coyote",
+   "diet": "Ratones de campo, conejos y ardillas terrestres; cervatillos; también fruta, insectos y carroña",
+   "shelter": "Cría a sus cachorros en una guarida excavada en un talud con matorral, a menudo una madriguera de tejón o de zorro agrandada",
+   "preferredHabitat": "Pastizal abierto y bordes con matorral para la guarida, y agua al alcance",
+   "fact": "Tres coyotes pueden sonar como una docena. Cada uno desliza el tono mientras aúlla, así que una familia pequeña levanta un muro de voces: los biólogos lo llaman el efecto 'beau geste'.",
+   "role": "El animal en la cima de esta pradera y el carnívoro más adaptable de aquí. Caza solo ratones de campo y conejos, en pareja los cervatillos, y entremedio come fruta, insectos y carroña. Su regreso es lo que por fin presiona a los zorros, los tejones y los venados que nada más aquí podía tocar; y con gusto seguirá a un tejón que excava para atrapar lo que salga huyendo por el otro lado.",
+   "hint": "Un talud con matorral para la guarida, pasto amplio lleno de conejos y ratones de campo, y agua cerca. Es la última pieza: solo se instala donde ya hay mucho que comer."
+  },
+  "polyphemus-moth": {
+   "name": "Polilla polifemo",
+   "diet": "Hojas de árbol cuando es oruga —roble, abedul, nogal, arce y sauce—. La adulta no tiene boca funcional y no come absolutamente nada",
+   "shelter": "Teje un capullo de seda resistente envuelto en una hoja; el capullo cae con las hojas en otoño y pasa el invierno en el suelo del bosque",
+   "preferredHabitat": "Bosque caducifolio y sus bordes con robles, abedules y nogales, y una capa de hojarasca sin perturbar debajo",
+   "fact": "La polilla adulta no tiene boca. No puede comer absolutamente nada: todo lo que gastará buscando pareja y poniendo huevos se lo comió meses antes la oruga.",
+   "role": "Esta polilla representa la capa de las orugas, el escalón del que depende casi toda ave del bosque. Las orugas convierten hojas duras y correosas en proteína blanda, y son las orugas, no las semillas, lo que las aves canoras meten en el pico de sus pollitos. Las adultas que sobreviven alimentan a los murciélagos al anochecer. Los capullos pasan todo el invierno entre las hojas caídas, así que un bosque rastrillado en otoño tira a la basura las polillas del verano siguiente.",
+   "hint": "Árboles de hoja ancha para que coman las orugas, y hojas dejadas en el suelo todo el invierno para los capullos escondidos entre ellas."
+  },
+  "amphipod": {
+   "name": "Camarón de agua dulce",
+   "diet": "Hojas y tallos muertos, los hongos y bacterias que crecen en ellos, y la película de algas raspada de las plantas",
+   "shelter": "Entre la hojarasca sumergida, los tallos de las plantas y la capa suelta del sedimento",
+   "preferredHabitat": "Agua poco profunda y bien oxigenada con una gruesa capa de restos vegetales en descomposición",
+   "fact": "Los camarones de agua dulce nadan de costado, y los machos cargan a las hembras a cuestas durante días antes de aparearse. Saca un puñado de hojas empapadas de una charca y habrá docenas dando coletazos entre ellas.",
+   "role": "El triturador del pantano. Un solo camarón mastica una hoja muerta de totora hasta hacerla miles de migas, y en realidad va tras el hongo que recubre la hoja, no tras la hoja misma. Así es como un montón de plantas muertas se convierte en comida para pececillos, larvas de salamandra y ninfas de libélula.",
+   "hint": "Un montón de hojas en descomposición en agua quieta es todo lo que hace falta."
+  },
+  "crayfish": {
+   "name": "Cangrejo de río",
+   "diet": "Plantas y cadáveres en descomposición, plantas acuáticas vivas, caracoles, larvas de insecto y camarones de agua dulce",
+   "shelter": "Madrigueras excavadas en orillas empapadas, y huecos bajo troncos y piedras sumergidos",
+   "preferredHabitat": "Agua lenta y con vegetación, con troncos donde refugiarse y una orilla blanda para excavar",
+   "fact": "Si pierde una tenaza en una pelea, el cangrejo de río simplemente le hace crecer otra, un poco más grande en cada muda, hasta igualar a la vieja. Y si lo asustas, da un coletazo y sale disparado hacia atrás más rápido de lo que puedes agarrarlo.",
+   "role": "El reciclador del pantano y, prácticamente, la cena de todos. Los cangrejos de río trituran plantas muertas y limpian los cadáveres, convirtiendo la porquería enterrada otra vez en carne viva; y luego vienen a llevársela la nutria, el visón, el martín pescador, la serreta, la grulla, la tortuga mordedora y la garza.",
+   "hint": "Una orilla blanda donde excavar, madera sumergida bajo la cual esconderse y muchas plantas en descomposición que comer."
+  },
+  "freshwater-mussel": {
+   "name": "Mejillón de agua dulce",
+   "diet": "Algas, bacterias y partículas muertas finas coladas del agua",
+   "shelter": "Enterrado de pie en sedimento fino y estable, con solo los dos sifones a la vista",
+   "preferredHabitat": "Agua lenta y asentada sobre limo firme y arena fina",
+   "fact": "Un mejillón bebé tiene que viajar de aventón: se prende de las branquias de un pez que pasa y viaja ahí semanas antes de soltarse para empezar su vida en el fondo. Y algunas madres agitan un colgajo de carne con forma de pececito para atraer de cerca a un pez.",
+   "role": "El filtro de agua del pantano y uno de los animales más longevos que hay en él. Un solo mejillón puede colar el mismo trozo de agua durante treinta años y dejar caer al fondo lo que atrapa, para los camarones y los cangrejos de río. Sin peces no hay mejillones bebé, así que solo regresan después de los pececillos.",
+   "hint": "Un lecho asentado que se quede quieto durante años, y peces, porque las crías viajan a su nuevo hogar prendidas de las branquias."
+  },
+  "pillbug": {
+   "name": "Cochinilla de humedad",
+   "diet": "Hojas muertas, madera podrida, paja de pasto y filamentos de hongos; también excrementos y huesos viejos para sacar minerales",
+   "shelter": "De día se esconde bajo troncos desmoronados, piedras planas y hojarasca profunda, donde el aire se mantiene húmedo",
+   "preferredHabitat": "Rincones sombreados y húmedos de la pradera con madera podrida y una gruesa capa de hojarasca",
+   "fact": "Una cochinilla de humedad no es un insecto: es un crustáceo, pariente más cercano de un cangrejo que de un escarabajo, y todavía respira por unas láminas parecidas a branquias que tienen que seguir mojadas.",
+   "role": "Las cochinillas hacen el turno de noche bajo los troncos y la paja, triturando hojas muertas y madera podrida blanda hasta dejar migas lo bastante pequeñas para que las terminen los hongos y las bacterias. Esa trituración es el primer paso para convertir la pradera del año pasado en el suelo del año que viene. Las culebras de jarretera y los chorlitos tildíos las cazan, así que el equipo de reciclaje también alimenta hacia arriba.",
+   "hint": "Húmedo, oscuro y en descomposición: esa es toda la receta. Un tronco desmoronado, paja profunda y suelo que nunca se seque del todo. Dale la vuelta a una y se enrollará como una bolita."
+  },
+  "garden-spider": {
+   "name": "Araña de jardín",
+   "diet": "Insectos voladores y saltadores atrapados en la telaraña: saltamontes, abejas, moscas y polillas",
+   "shelter": "Cuelga cabeza abajo en el centro de su propia telaraña orbicular, tendida entre tallos altos dejados en pie",
+   "preferredHabitat": "Pradera soleada con vegetación alta y rígida dejada en pie y muchos insectos voladores",
+   "fact": "Esta araña desmonta casi toda su telaraña cada noche y se come la seda vieja para construir la siguiente, y cose por el medio un zigzag blanco y llamativo que nadie ha logrado explicar del todo.",
+   "role": "La trampera de la pradera. Tiende una rueda de seda más ancha que tu mano entre tallos altos y espera cabeza abajo en el centro a que se estrellen saltamontes, abejas y moscas. Las arañas son el grupo de depredadores más numeroso de cualquier pastizal y lo más importante que le faltaba a esta pradera hasta ahora: comen cantidades enormes de insectos y, a su vez, son el alimento principal de la mitad de las aves canoras de aquí.",
+   "hint": "Tallos altos y rígidos dejados en pie, lo bastante separados como para tender una telaraña grande entre ellos, con flores cerca que atraigan a los insectos."
+  },
+  "big-brown-bat": {
+   "name": "Murciélago marrón grande",
+   "diet": "Insectos que vuelan de noche, sobre todo escarabajos, además de polillas, hormigas voladoras y jejenes",
+   "shelter": "De día se posa en espacios cálidos y oscuros —desvanes de granero, áticos y bajo la corteza suelta—; hiberna en grietas frías",
+   "preferredHabitat": "Aire abierto sobre la pradera y los setos donde cazar, con agua quieta para beber y un posadero cálido cerca",
+   "fact": "Un murciélago marrón grande encuentra una polilla en plena oscuridad gritando y escuchando el eco, y así puede distinguir algo no más grueso que la mina de un lápiz.",
+   "role": "El turno de noche sobre la pradera. Trabajan el aire sobre el pasto y a lo largo de los setos después del atardecer, cazando escarabajos, polillas y hormigas voladoras; uno solo puede despachar miles de insectos en una sola noche. Beben en pleno vuelo, mojando la mandíbula en el agua quieta sin detenerse, y las madres se juntan en posaderos cálidos para criar juntas. Los búhos cornudos los capturan al anochecer.",
+   "hint": "Una grieta cálida donde criar, insectos en el aire sobre el pasto y agua abierta y calma que se pueda rozar para beber sin aterrizar."
+  },
+  "garden-snail": {
+   "name": "Caracol de jardín",
+   "diet": "Hojas muertas, tallos blandos en descomposición y la película de algas de las piedras húmedas",
+   "shelter": "Se sella al envés de un tronco o una piedra húmeda y espera a que pase el tiempo seco",
+   "preferredHabitat": "Rincones sombreados y húmedos con hojarasca y algo calcáreo que raspar",
+   "fact": "Un caracol lleva su casa a cuestas y puede cerrar la puerta tras de sí: cuando llega la sequía se pega a una piedra y duerme hasta que llueve, a veces durante meses.",
+   "role": "Los caracoles son los recicladores lentos de la pradera. Trituran las hojas caídas hasta dejar migas que los hongos y la vida del suelo pueden terminar, y sus conchas devuelven calcio a la tierra cuando mueren.",
+   "hint": "Un rincón húmedo y sombreado donde se permita que las hojas se amontonen y se pudran. Aquí hace falta el desorden, no la parte ordenada."
+  },
+  "wolverine": {
+   "name": "Glotón",
+   "diet": "Marmotas, liebres y lagópodos cuando puede atraparlos, cadáveres congelados cuando no, y bayas a fines del verano",
+   "shelter": "Túneles excavados metros adentro de los ventisqueros de primavera, casi siempre junto a un peñasco o un tronco caído, con comida guardada en cámaras laterales",
+   "preferredHabitat": "Alta montaña grande y vacía, con talud y roca fragmentada, y nieve que dura hasta bien entrada la primavera",
+   "fact": "Un glotón puede oler un animal muerto bajo tres metros de nieve, desenterrarlo y luego echar de ahí a un oso, todo con un cuerpo del tamaño de un perro pequeño.",
+   "role": "La comadreja más grande del mundo y el gran carroñero de la montaña, hoy el cazador supremo de estas cumbres. Recorre distancias enormes, mata marmotas, liebres y lagópodos cuando tiene ocasión y vive de cadáveres congelados cuando no, partiendo el hueso helado con mandíbulas hechas justo para eso. La nieve es su refrigerador: guarda comida en los ventisqueros y hace la guarida dentro de ellos, así que una hembra solo puede criar donde la nieve aguanta hasta fines de la primavera. Eso lo convierte en el primer animal en desaparecer cuando los inviernos se acortan, y aquí arriba nadie está dispuesto a discutirle un cadáver.",
+   "hint": "Aquí hacen falta espacio y nieve, no paisaje. Da ventisqueros lo bastante profundos para que duren hasta fines de la primavera —la guarida y la despensa—, roca fragmentada por donde viajar, y marmotas y liebres ya instaladas en la montaña. Es el último de los cazadores en llegar."
+  },
+  "bottlenose-dolphin": {
+   "name": "Delfín nariz de botella",
+   "diet": "Peces de cardumen, sobre todo anchoas, además de calamares y peces de fondo",
+   "shelter": "No construye ninguno; viaja y duerme en el mar en grupos pequeños, con medio cerebro despierto por turnos",
+   "preferredHabitat": "Agua cercana a la costa frente a una playa abierta, con una línea de oleaje fuerte y cardúmenes mar adentro",
+   "fact": "Cada delfín se inventa su propio silbido personal, y los demás repiten ese silbido cuando quieren llamarlo. Frente a una playa abierta, estos delfines cazan dentro de las mismas olas rompientes, surfeando las olas contra las que están acorralando a los peces.",
+   "role": "Cazadores rápidos y sociables que trabajan la línea de oleaje en grupos pequeños, empujando los cardúmenes de anchoas contra las olas que rompen hasta que los peces no tienen a dónde ir. Son lo bastante veloces y listos para capturar casi cualquier cosa que forme cardumen aquí, y aun así no son lo más grande del agua.",
+   "hint": "Agua profunda por donde viajar, corrientes frías y bordes de kelp que retengan a los peces, y una línea de oleaje que rompa de verdad, porque ahí es donde ocurre la cacería."
+  },
+  "orca": {
+   "name": "Orca",
+   "diet": "Mamíferos marinos: focas comunes sobre todo, además de delfines, lobos marinos y ballenatos grises",
+   "shelter": "Ninguno en tierra; descansa en la superficie, en agua profunda y junto a su familia",
+   "preferredHabitat": "Agua fría y profunda pegada a la costa, donde el fondo se desploma junto al borde de kelp, al alcance de los descansaderos de focas",
+   "fact": "Las orcas viven en familias que nunca se separan, y distintas familias comen alimentos completamente distintos. Las que cazan en esta costa son especialistas en mamíferos, y lo hacen en silencio —sin chasquidos, sin llamadas—, porque una foca oye llegar de muy lejos a una orca que habla.",
+   "role": "La cima de esta costa, sin nada por encima. Un grupo de orcas cazadoras de mamíferos patrulla el borde donde el fondo del mar se desploma, escucha en los descansaderos de focas y sigue de cerca a las ballenas grises que pasan con crías en primavera. Cuando entran en una bahía, todas las focas de las rocas se quedan quietas y calladas.",
+   "hint": "El último animal y el más difícil de traer de vuelta. Hace falta agua profunda pegada a la orilla y algo grande que cazar, así que trae primero a las focas: son ellas las que la atraen."
+  },
+  "desert-millipede": {
+   "name": "Milpiés del desierto",
+   "diet": "Hojas muertas, tallos, cáscaras de semilla y otra hojarasca seca del suelo",
+   "shelter": "De día, enterrado en el suelo y metido bajo la hojarasca y las lajas de roca; en las noches húmedas sale a caminar",
+   "preferredHabitat": "Montones de hojarasca bajo los arbustos, con lajas de roca y suelo excavable cerca",
+   "fact": "Un milpiés del desierto pasa casi todo el año bajo tierra y luego sale a cientos tras la primera tormenta de verano; y si lo tocas, se enrolla en una espiral apretada como un caracol de canela y suelta un líquido pardo y amargo que te mancha los dedos durante días.",
+   "role": "El triturador de hojarasca. Mastica hojas, tallos y cáscaras muertas hasta dejar migas lo bastante pequeñas para que las terminen las termitas y los microbios del suelo, y así es como las plantas muertas vuelven a ser tierra por aquí. Tiene cientos de patas y absolutamente ninguna prisa —la armadura y un químico repugnante le permiten pasear tranquilo—, pero los escorpiones y los correcaminos se lo comen igual.",
+   "hint": "Deja que las hojas se amontonen bajo los arbustos y deja una laja bajo la cual pueda arrastrarse. La hojarasca húmeda es a la vez la cena y el escondite; la arena caliente y desnuda no es ninguna de las dos."
+  },
+  "harris-hawk": {
+   "name": "Aguililla de Harris",
+   "diet": "Liebres, ardillas terrestres, codornices, ratas cambalacheras y lagartijas",
+   "shelter": "Un voluminoso nido de ramas encajado entre los brazos de un cactus alto o de un árbol espinoso, construido y vigilado por toda la familia",
+   "preferredHabitat": "Matorral abierto con cactus y árboles altos donde anidar y vigilar",
+   "fact": "Son las únicas rapaces del mundo que cazan en grupo: una familia de cinco o seis se despliega, y algunas se lanzan contra un arbusto espinoso para asustar a un conejo mientras las otras esperan del otro lado. Y cuando no hay dónde posarse, se paran unas sobre las espaldas de otras, hasta tres de altura.",
+   "role": "El depredador supremo del día, que trabaja el mismo desierto que el coyote trabaja de noche. Dos o tres generaciones viven juntas todo el año, comparten cada presa, ayudan a alimentar a los pollitos de las demás y se turnan la vigilancia: un trabajo en equipo que les permite derribar liebres mucho más pesadas de lo que podría cualquiera por su cuenta. Necesitan miradores altos sobre terreno abierto y un cactus grande, lo bastante firme para sostener el nido familiar.",
+   "hint": "Una sola nunca es toda la historia. La familia necesita un cactus alto y firme que aguante el nido, miradores altos alrededor y terreno abierto con conejos cruzándolo."
+  },
+  "bald-eagle": {
+   "name": "Águila calva",
+   "diet": "Sobre todo peces, además de patos, ratas almizcleras y carroña; y cualquier cosa que pueda arrebatarle a otro cazador",
+   "shelter": "Un enorme nido de ramas en la copa del árbol vivo más alto junto al agua abierta, al que le agrega material cada año",
+   "preferredHabitat": "Agua abierta y amplia llena de peces, con un árbol muy alto desde el cual vigilarla",
+   "fact": "A un águila calva, con toda sinceridad, le gusta más robar que pescar. Persigue a nutrias y garzas y las hostiga hasta que sueltan su presa, y entonces se la lleva; y el nido que rehace cada año puede terminar pesando más que un auto pequeño.",
+   "role": "El depredador supremo del pantano y también su mayor abusiva. Captura peces, patos y ratas almizcleras por su cuenta, mata garzas en sus colonias de cría y pasa buena parte del día robándoles la comida a nutrias y garzas, lo que significa que solo puede instalarse donde a esos cazadores ya les va bien.",
+   "hint": "Un árbol viejo y enorme con vista despejada sobre agua profunda, peces suficientes para vivir, y nutrias y garzas prósperas abajo a las cuales robarles."
+  },
+  "luna-moth": {
+   "name": "Polilla luna",
+   "diet": "Hojas de nogal, nuez, liquidámbar y abedul cuando es oruga; de adulta no come nada en absoluto",
+   "shelter": "Un capullo de aspecto de papel tejido dentro de una hoja enrollada que cae al suelo, donde queda enterrado en la hojarasca todo el invierno",
+   "preferredHabitat": "Bosque caducifolio maduro con hojarasca profunda y sin perturbar bajo los árboles que le sirven de alimento",
+   "fact": "Una polilla luna adulta no tiene boca. Sale del capullo con alrededor de una semana de vida, no come ni una sola vez y se pasa esa semana entera buscando pareja.",
+   "role": "Las orugas de la polilla luna comen hojas de árbol y las convierten en cuerpos de insecto grasos y llenos de energía, y todos cobran esa energía, desde los murciélagos hasta los arrendajos. Las largas colas retorcidas de las alas traseras son un aparato antimurciélago: giran mientras la polilla vuela y desvían el eco del murciélago, así que este agarra una cola en lugar del cuerpo. Como el capullo pasa el invierno entre las hojas caídas, un bosque rastrillado pierde sus polillas luna aunque queden en pie todos los árboles.",
+   "hint": "Planta los árboles de hoja ancha y luego deja las hojas donde caen. Los capullos pasan todo el invierno ahí abajo, en la hojarasca."
+  },
+  "blue-jay": {
+   "name": "Arrendajo azul",
+   "diet": "Bellotas y hayucos, orugas, escarabajos y otros insectos, y huevos o polluelos cuando los encuentra",
+   "shelter": "Una copa de ramitas y raicillas encajada en una horqueta alta de un árbol frondoso, tapada por el follaje",
+   "preferredHabitat": "Bosque rico en robles y sus bordes, con terreno abierto cerca donde enterrar semillas",
+   "fact": "Las plumas del arrendajo azul no son azules en realidad: el pigmento que tienen es marrón, y el azul es un truco de la luz al rebotar en diminutas bolsas de aire. Aplasta una y el color desaparece.",
+   "role": "Un solo arrendajo azul puede cargar cinco bellotas a la vez y enterrar unos cuantos miles en un otoño; además elige las sanas y las empuja en terreno abierto, lo que convierte a los arrendajos en los plantadores de árboles más rápidos del bosque y en la razón de que los robles suban por la ladera después de un incendio. También imitan el grito de los halcones, a veces para despejar un lugar de comida y a veces para avisar de que llegó un halcón de verdad, así que todo el bosque los escucha.",
+   "hint": "Robles y un parche de tierra suelta y abierta donde enterrar las bellotas. Algunas de las que se queden olvidadas serán tus próximos robles."
+  },
+  "wood-frog": {
+   "name": "Rana de bosque",
+   "diet": "Escarabajos, arañas, babosas, moscas y otros invertebrados pequeños del suelo del bosque",
+   "shelter": "Hojarasca poco profunda y mantillo suelto del suelo del bosque; no se entierra por debajo de la línea de congelación",
+   "preferredHabitat": "Bosque caducifolio húmedo con charcas sin peces que se llenan en primavera y se secan a fines del verano",
+   "fact": "Una rana de bosque se congela por completo cada invierno. Su corazón se detiene, dos tercios del agua de su cuerpo se vuelven hielo y en primavera se descongela y se va dando saltos.",
+   "role": "Las ranas de bosque son el primer anfibio que canta en primavera y se reproducen en charcas temporales que se secan antes de que un pez pueda vivir en ellas, que es justamente por lo que sobreviven los renacuajos. Un azúcar que inunda su sangre impide que sus células revienten mientras están congeladas, así que pueden hibernar bajo unos pocos centímetros de hojas. De adultas se comen los invertebrados de la hojarasca y son comidas a su vez por serpientes y mapaches, subiendo por la red trófica la energía del suelo del bosque.",
+   "hint": "Una charca que se seque en verano es de las buenas: sin peces, los renacuajos viven. Y deja hojas profundas cerca; ahí es donde se pasa el invierno congelado."
+  },
+  "goshawk": {
+   "name": "Azor común",
+   "diet": "Ardillas, arrendajos, gallos de monte, conejos y pájaros carpinteros, perseguidos entre los árboles",
+   "shelter": "Un nido ancho de ramas apoyado contra el tronco sobre una rama gruesa, a media altura de un árbol viejo y grande bajo dosel cerrado",
+   "preferredHabitat": "Bosque maduro con dosel alto y cerrado y espacio libre para volar debajo",
+   "fact": "Un azor caza lanzándose de lleno entre las ramas a toda velocidad con las alas medio plegadas, y se abalanza sobre cualquier cosa —incluidas las personas— que se acerque demasiado a su nido.",
+   "role": "El azor es el cazador supremo diurno del bosque y la razón por la que las ardillas se quedan inmóviles pegadas a los troncos. Las alas cortas y anchas y la larga cola de timón le permiten girar dentro del bosque a gran velocidad, así que, a diferencia de una rapaz planeadora, caza bajo el dosel y no por encima. Necesita bosque viejo con ramas gruesas donde anidar y espacio despejado abajo para volar, de modo que su llegada es señal de que los árboles por fin crecieron.",
+   "hint": "Haz crecer el bosque bien alto y deja despejado el sotobosque. Hace falta una rama gruesa donde poner el nido y sitio para volar fuerte bajo el dosel."
+  },
+  "moose": {
+   "name": "Alce",
+   "diet": "Plantas acuáticas sumergidas y nenúfares en verano, y ramitas de sauce y álamo temblón en invierno",
+   "shelter": "Camas aplastadas entre los matorrales de sauce y el borde sombreado del pantano; en verano se mete al agua hasta el pecho para escapar de las moscas",
+   "preferredHabitat": "Borde de pantano y charca con matorrales densos de sauce y agua clara y poco profunda llena de plantas sumergidas",
+   "fact": "Un alce puede aguantar la respiración un minuto y caminar por el fondo de una charca con la cabeza entera bajo el agua, arrancando plantas de raíz.",
+   "role": "Los alces vienen al humedal por el sodio, que tienen las plantas sumergidas y no el ramoneo del bosque, y uno grande puede sacar 20 kilogramos de plantas acuáticas al día de los bajos. Ese pastoreo pesado mantiene abiertos pasillos entre los macizos de plantas donde comen los patos y se refugian los peces, y el sauce que ramonean en invierno rebrota más denso y más bajo, que es mejor cobertura para todo lo pequeño. Sus senderos por el pantano se convierten en canales que retienen agua en los veranos secos.",
+   "hint": "Primero haz crecer los macizos de plantas bajo el agua y mantén el agua bastante clara. Lo que atrae aquí es lo que crece bajo la superficie, no lo de la orilla."
+  },
+  "river-cooter": {
+   "name": "Tortuga de río",
+   "diet": "Plantas acuáticas, algas, hojas de nenúfar y fruta caída; las crías comen insectos antes de pasarse a las plantas",
+   "shelter": "Duerme encajada bajo troncos sumergidos y marañas de raíces; pasa el invierno enterrada en el lodo del fondo",
+   "preferredHabitat": "Agua lenta y llena de plantas, con troncos donde asolearse y una orilla abierta y soleada donde poner huevos",
+   "fact": "Que de los huevos salgan machos o hembras depende del calor del nido, no de los huevos mismos: un nido fresco da hermanos y uno cálido da hermanas.",
+   "role": "Es la gran tortuga herbívora del humedal: recorta las praderas subacuáticas para que no ahoguen los bajos, y suelta las semillas intactas en otro lado. Tiene que asolearse durante horas para calentarse lo suficiente y digerir toda esa comida vegetal, y por eso un buen tronco cargado de tortugas es señal de un pantano que funciona. Sus huevos y sus crías alimentan a casi todo lo demás, así que pone muchísimos.",
+   "hint": "Troncos al sol donde asolearse y una orilla cálida y desnuda donde enterrar los huevos. Sin un sitio caliente no hay manera de digerir la cena."
+  },
+  "javelina": {
+   "name": "Pecarí de collar",
+   "diet": "Pencas de nopal, vainas de mezquite, corazones de agave, raíces y tubérculos",
+   "shelter": "La manada se echa a la sombra de un matorral espinoso denso o bajo un saliente rocoso durante las horas de calor",
+   "preferredHabitat": "Matorral desértico y arroyos secos con cobertura espinosa densa y macizos de nopal",
+   "fact": "Un pecarí se come el nopal entero —espinas incluidas— y tiene en el lomo una glándula de olor tan fuerte que la manada puede encontrarse en la oscuridad solo por el olfato.",
+   "role": "Los pecaríes son los procesadores de cactus del desierto: trituran pencas que ninguna otra cosa toca, lo que impide que el nopal se apodere de un arroyo seco, y esparcen sus semillas en el excremento. Al hozar en busca de tubérculos voltean el suelo endurecido y entierran hojarasca, dándoles a las semillas dónde germinar después de la lluvia. Andan en manadas de seis a doce, y el olor de la manada es también su sistema de alarma, porque ven pésimo.",
+   "hint": "Haz crecer el nopal y deja una maraña espinosa con sombra donde echarse. La manada duerme el mediodía y sale a comer al atardecer."
+  },
+  "black-swift": {
+   "name": "Vencejo negro",
+   "diet": "Hormigas voladoras, pulgones, escarabajos y efímeras capturados en pleno vuelo, a menudo a cientos de metros de altura",
+   "shelter": "Una copa de musgo pegada a una grieta mojada de la roca detrás o junto a una caída de agua, a la que solo se llega por el aire",
+   "preferredHabitat": "Acantilados con agua fría corriendo por ellos y cielo abierto por encima del límite arbóreo",
+   "fact": "Un vencejo negro puede pasar seis meses en el aire sin posarse ni una vez: come, bebe y duerme volando, y el pollito se queda solo todo el día mientras sus padres cazan insectos a 50 km de distancia.",
+   "role": "Los vencejos aspiran los enjambres de insectos que el aire ascendente sube a la montaña, y llevan esa comida de vuelta convertida en una bolita comprimida: una entrega al día le basta al pollito porque la carga viene concentradísima. El nido tiene que estar permanentemente mojado y ser inalcanzable, así que solo aparecen donde hay una grieta de acantilado con agua corriéndole encima. Están entre los últimos visitantes del verano en llegar y los primeros en irse hacia el Amazonas.",
+   "hint": "Busca la grieta más mojada y oscura del acantilado y mantén el agua corriendo por ella. Aquí no anida nada que pueda llegar caminando."
+  },
+  "peregrine-falcon": {
+   "name": "Halcón peregrino",
+   "diet": "Otras aves capturadas en pleno vuelo: lagópodos, pinzones montañeses, vencejos, bisbitas y patos pequeños",
+   "shelter": "Un simple hoyo raspado con las patas en la grava de una cornisa alta; no construye nido alguno",
+   "preferredHabitat": "Acantilados y paredes de roca a plomo sobre terreno abierto con muchas aves volando abajo",
+   "fact": "Un halcón peregrino en picada alcanza unos 380 km/h, lo que lo convierte en el animal más veloz del planeta, y tiene unos conos de hueso en las fosas nasales que frenan el aire para que la picada no le reviente los pulmones.",
+   "role": "El halcón peregrino es el cazador aéreo de la montaña y captura casi toda su comida en el aire, golpeando desde arriba con el puño cerrado en vez de agarrar. Como caza aves y nada más, es un freno directo a las bandadas de pinzones, bisbitas y lagópodos que se alimentan por las laderas. Necesita una cornisa de acantilado sin perturbar y aire despejado por debajo, y nada con qué construir: solo grava suelta donde raspar un hoyo.",
+   "hint": "Una cornisa alta con grava suelta encima y cielo abierto por debajo. No construyas un nido: aquí basta con patear un hoyito en la gravilla."
+  },
+  "owl-limpet": {
+   "name": "Galleta de mar",
+   "diet": "Algas, plancton y restos de comida recogidos de la arena, grano a grano",
+   "shelter": "Medio enterrada de canto en la arena ondulada, en lechos de cientos a la vez",
+   "preferredHabitat": "Fondos de arena resguardados justo por debajo de la línea de bajamar, donde la corriente es suave",
+   "fact": "Una galleta de mar viva no es blanca ni lisa: es morada y está cubierta de diminutas espinas que se mueven, con las que camina y se pasa la comida hasta la boca. El disco blanco con dibujo de flor es su esqueleto, después de que todo lo demás se lavó.",
+   "role": "Un lecho entero se para medio enterrado de canto, como monedas en una ranura, todas inclinadas hacia la corriente para atrapar lo que pasa a la deriva. Donde el agua es más brava se acuestan de plano, para que no las hagan rodar.",
+   "hint": "Arena limpia y ondulada justo por debajo de la línea de marea, en un sitio lo bastante resguardado como para que la corriente sea suave."
+  },
+  "octopus": {
+   "name": "Pulpo",
+   "diet": "Cangrejos de orilla, almejas, mejillones, caracoles y camarones, abiertos a la fuerza o perforados",
+   "shelter": "Una grieta o una concha vacía a la que le arrastra una roca por detrás, con un montón de conchas vacías afuera de la puerta",
+   "preferredHabitat": "Fondo rocoso submareal y pozas de marea profundas con muchas grietas y agua fría y limpia",
+   "fact": "Un pulpo tiene tres corazones, sangre azul y saborea con los brazos todo lo que toca; y como lo único duro que tiene es el pico, uno del tamaño de un plato puede colarse por un agujero del tamaño de una uva.",
+   "role": "El pulpo es el máximo cazador invertebrado de la costa rocosa, y el montón de conchas vacías de cangrejo y almeja frente a su guarida es la forma más fácil de encontrar uno. Puede cambiar de color y de textura de piel en menos de un segundo para desaparecer contra la roca o el kelp, aunque no distingue los colores; y a una almeja terca le perfora un agujero limpio y le inyecta algo para que la concha se relaje. Cada pulpo despacha una cantidad enorme de cangrejos, lo que mantiene a raya a los herbívoros y carroñeros de las pozas de marea.",
+   "hint": "Roca partida con huecos donde esconderse, y muchos cangrejos. Deja en paz el montón de conchas de la entrada: así es como sabes que hay alguien en casa."
+  },
+  "grasshopper-mouse": {
+   "name": "Ratón saltamontes",
+   "diet": "Escorpiones, ciempiés, escarabajos y otros ratones",
+   "shelter": "Se apodera de una madriguera que excavó otro animal y luego la defiende",
+   "preferredHabitat": "Planicies arenosas abiertas con matorral disperso y presas de sobra bajo las patas",
+   "fact": "Este ratón caza escorpiones, recibe picaduras en la cara y sigue comiendo: su cuerpo apaga la señal de dolor del veneno. Después se para en las patas traseras y le aúlla a la luna como un lobito.",
+   "role": "Un ratón que decidió ser depredador. Mantiene a raya a los escorpiones y a los insectos grandes, y es uno de los pocos animales capaces de comerse a los habitantes más venenosos del desierto sin inmutarse.",
+   "hint": "Una madriguera vieja de la cual apoderarse y terreno abierto donde cazar. Toda el agua que necesita la saca de lo que atrapa."
+  },
+  "snow-bunting": {
+   "name": "Escribano nival",
+   "diet": "Semillas arrastradas por el viento sobre la nieve, además de insectos durante el corto verano",
+   "shelter": "En lo hondo de una grieta de roca, forrada con plumas y pelo contra el frío",
+   "preferredHabitat": "Crestas barridas por el viento y pedregal donde la nieve no se acumula",
+   "fact": "Los escribanos nivales anidan más al norte que cualquier otra ave canora de la Tierra, tan metidos en las grietas de la roca que el macho tiene que alimentar a la hembra a oscuras mientras ella empolla.",
+   "role": "Un ave pequeña que trata una ventisca como si fuera clima normal. Las bandadas recorren las crestas peladas recogiendo la semilla que el viento dejó varada sobre la nieve, y pasan del blanco al marrón cálido conforme cambia la estación.",
+   "hint": "Una grieta honda y seca en la roca, a resguardo del viento, y terreno pedregoso abierto cerca donde la nieve no cuaje."
+  },
+  "groundhog": {
+   "name": "Marmota",
+   "diet": "Pasto, trébol, dientes de león y casi cualquier cosa verde y tierna a su alcance",
+   "shelter": "Una madriguera con varias entradas, una cámara para dormir forrada de pasto y un cuarto aparte que usa de baño",
+   "preferredHabitat": "Bordes de pradera con suelo profundo y bien drenado por donde pueda excavar",
+   "fact": "Una marmota excava una madriguera con puerta de entrada, puerta de atrás, dormitorio y un cuarto aparte para ir al baño, y mueve cerca de una tonelada de tierra al hacerlo. En invierno su corazón baja a unos cinco latidos por minuto.",
+   "role": "La excavadora de la pradera. Sus madrigueras abandonadas se vuelven casas para zorros, serpientes, conejos y la mitad de los animales pequeños de aquí, así que lo que excava una sola sigue sirviendo años después de que se fue.",
+   "hint": "Suelo profundo y bien drenado al borde del pasto, con un refugio de escape cerca. Aquí importa más dónde excavar que dónde esconderse."
+  },
+  "opossum": {
+   "name": "Zarigüeya",
+   "diet": "Casi cualquier cosa: insectos, fruta, huevos, carroña y una cantidad enorme de garrapatas",
+   "shelter": "Pasa el día durmiendo en un tronco hueco o una madriguera prestada, y casi nunca usa la misma dos veces",
+   "preferredHabitat": "Bordes con matorral, madera hueca, agua cerca y mucho que carroñear",
+   "fact": "Cuando una zarigüeya se hace la muerta no está actuando: se desmaya. El cuerpo se le pone rígido, le cuelga la lengua y despide un olor a cosa muerta hace rato, y no puede salir de ese estado durante varios minutos, aunque te alejes.",
+   "role": "El equipo de limpieza de la pradera. Come lo que todos los demás dejaron, incluida la carroña y cantidades enormes de garrapatas, y es el único animal de aquí que carga a sus crías en el lomo.",
+   "hint": "Madera hueca donde dormir el día y bayas a una noche de camino. Cambia de casa todo el tiempo, así que dale más de una opción."
+  }
+ },
+ "simple_animal": {
+  "alpine-springtail": {
+   "diet": "Dead leaves and stems, fungus threads, pollen, and the pink algae that grows on old snow",
+   "shelter": "Wet dead leaves, moss, and the gap between the snow and the ground in winter",
+   "preferredHabitat": "Damp mountain grass, moss, and wet leaves. Also the top of old snow on warm days",
+   "fact": "On a mild winter day, snow fleas pour onto the snow in their thousands. It looks like spilled pepper. Their blood is full of antifreeze, so they keep moving when everything else is frozen stiff.",
+   "role": "The clean-up crew. Without them, last year's leaves would pile up forever. They chew dead stems and graze fungus threads into soil. They keep at it all winter, in the dark gap under the snow. Pipits, finches, chickadees, bluebirds, nutcrackers, and toads all eat them.",
+   "hint": "A mat of dead leaves under melting snow. That is enough to start."
+  },
+  "purple-sea-urchin": {
+   "diet": "Living kelp and surfgrass, loose kelp that drifts by, and hard pink algae on the rock",
+   "shelter": "A pit it grinds into the rock with its own teeth and spines",
+   "preferredHabitat": "Rock near kelp, low down the shore, with waves washing over it",
+   "fact": "A purple urchin chews a pit into solid rock with five teeth. Then it sits in that pit for years. On some reefs, urchins wear away more stone than the waves do.",
+   "role": "This grazer sits at the heart of the coast's most famous story. Otters keep their numbers down, and scraps of loose kelp keep them fed. Then they are just one more part of a healthy forest. Take the hunters away and they march up the rock. They mow the kelp down to bare stone and leave an empty desert behind.",
+   "hint": "Kelp first. There has to be something to eat. Then think hard about what will keep the grazers in check."
+  },
+  "northern-anchovy": {
+   "diet": "Plankton: tiny animals, plant cells, and larvae, strained from the water or picked off one at a time",
+   "shelter": "The school itself. Open water near shore, with kelp and surfgrass edges as cover for the young",
+   "preferredHabitat": "Cool water near shore with plenty of plankton in it",
+   "fact": "An anchovy eats in two ways. It can snap at big prey one bite at a time. Or it can open its mouth and swim, straining the sea like a living net.",
+   "role": "Anchovies swim in silver schools so thick they turn the water dark from below. Almost every hunter here takes them at some point: pelicans, seals, dolphins, gulls. So when the anchovies fail, the whole coast goes hungry at once.",
+   "hint": "Cold water rising from the deep grows the plankton they eat. Quiet shallows give the schools a place to lay eggs."
+  },
+  "beach-hopper": {
+   "diet": "Rotting kelp and other seaweed washed up at the tide line",
+   "shelter": "Burrows dug in damp sand high up the beach, and the wet underside of kelp and driftwood",
+   "preferredHabitat": "A gently sloping sandy beach with the seaweed left where it lands",
+   "fact": "Beach hoppers spend all day shut inside a burrow in dry sand. After dark they pour out to shred the seaweed the tide left behind. Step near one and it fires into the air like a flicked pebble.",
+   "role": "The engine room of the beach. Hoppers chew washed-up kelp down into crumbs. That turns dead seaweed into bird food, which is the whole reason plovers, sanderlings, and gulls walk the tide line. Rake the seaweed away and this link is gone overnight.",
+   "hint": "Leave the seaweed where the tide drops it. That is the whole meal."
+  },
+  "desert-termite": {
+   "diet": "Dead grass, fallen leaves, dry dung, and the weathered outside of dead wood",
+   "shelter": "Tunnels and rooms underground, plus a mud roof built over whatever it is eating",
+   "preferredHabitat": "Soil under shrubs and grass where dead leaves and stems pile up",
+   "fact": "These termites spread a thin mud roof over a dead stem and eat under it. That way they can feed in full sun and never touch the dry air.",
+   "role": "This is the animal that recycles the desert. There is too little water here for dead plants to rot the way they do in a forest. So termites eat almost all of it instead. They carry the goodness back underground. They also leave tunnels that let rain soak in instead of running off. On the nights they swarm, everything with a beak or a sting comes to feed.",
+   "hint": "Bury a little dead wood and they will find it. Dead wood is the desert's pantry."
+  },
+  "common-raven": {
+   "diet": "Dead animals most of all, plus eggs, chicks, young reptiles, bugs, and cactus fruit",
+   "shelter": "A big stick nest on a cliff, in a tall cactus, or in a thorny tree. More and more often, on power poles",
+   "preferredHabitat": "Open desert with tall places to nest and food it can count on",
+   "fact": "Ravens remember single human faces and hold the grudge for years. A pair will even run a trick together. One bird makes a fuss while the other steals the food.",
+   "role": "The clean-up crew, and the biggest human story in the desert. Roads, dumps, farms, and power poles hand ravens free food, water, and places to nest. So there are far more of them than this desert could ever feed on its own. All those extra ravens eat baby tortoises, whose shells stay soft for years. Cutting off the free meals is now a real part of saving the tortoise.",
+   "hint": "They follow whatever gets left lying around: a dead animal, a tall perch, something to drink. That is all they ask for, and that is the trouble."
+  },
+  "coyote-meadow": {
+   "diet": "Voles, rabbits, and ground squirrels; young deer; also fruit, bugs, and dead animals",
+   "shelter": "Raises pups in a den dug into a brushy bank, often an old badger or fox hole made bigger",
+   "preferredHabitat": "Open grassland and edges with brushy cover for a den, and water close by",
+   "fact": "Three coyotes can sound like a dozen. Each one slides its voice up and down as it howls. So a small family throws up a wall of sound. Scientists call it the 'beau geste' trick.",
+   "role": "The top hunter of this meadow, and the one that copes with anything. It hunts voles and rabbits alone. It hunts young deer in pairs. In between it eats fruit, bugs, and dead animals. Its return finally puts pressure on the foxes, badgers, and deer that nothing else here could touch. It will even trail a digging badger and grab whatever bolts out the far side.",
+   "hint": "A brushy bank for a den, wide grass full of rabbits and voles, and water close by. This is the last piece. It only moves in where there is already plenty to eat."
+  },
+  "polyphemus-moth": {
+   "diet": "Tree leaves when it is a caterpillar: oak, birch, hickory, maple, and willow. The grown moth has no working mouth and never eats at all",
+   "shelter": "Spins a tough silk cocoon wrapped in a leaf. The cocoon falls with the leaves in autumn and lies on the forest floor all winter",
+   "preferredHabitat": "Broadleaf woods and woodland edges with oak, birch, and hickory, and deep leaves left lying below",
+   "fact": "The grown moth has no mouth. It cannot eat one single thing. Everything it will ever spend on finding a mate and laying eggs was eaten months before, by the caterpillar.",
+   "role": "This moth stands for the caterpillar layer. Nearly every forest bird depends on that step. Caterpillars turn tough, chewy tree leaves into soft protein. And it is caterpillars, not seeds, that woodland songbirds stuff into their chicks. The adults that make it feed bats at dusk. The cocoons spend all winter down in the fallen leaves. So a wood raked bare in autumn throws next summer's moths out with the leaf bags.",
+   "hint": "Broadleaf trees for the caterpillars to eat, and leaves left lying all winter for the cocoons hidden among them."
+  },
+  "amphipod": {
+   "diet": "Dead leaves and stems, the fungus and germs growing on them, and algae scraped off water plants",
+   "shelter": "Among sunken dead leaves, plant stems, and the loose mud on top",
+   "preferredHabitat": "Shallow water with plenty of air in it and a deep drift of rotting leaves",
+   "fact": "Freshwater shrimp swim on their sides. Males carry females around piggyback for days before they mate. Lift a handful of soggy leaves out of a pond and dozens will be flicking about in it.",
+   "role": "The marsh's shredder. One shrimp chews a single dead cattail leaf into thousands of crumbs. It is really after the fungus furring the leaf, not the leaf itself. That is how a heap of dead plants becomes food for minnows, young salamanders, and young dragonflies.",
+   "hint": "A drift of rotting leaves in still water is all they need."
+  },
+  "crayfish": {
+   "diet": "Rotting plants and dead animals, live water plants, snails, insect young, and freshwater shrimp",
+   "shelter": "Burrows dug into soggy banks, and gaps under sunken logs and stones",
+   "preferredHabitat": "Slow, weedy water with sunken wood, and a bank soft enough to dig into",
+   "fact": "Lose a claw in a fight and a crayfish just grows a new one. It comes back bigger at every moult, until it matches the old one. Startle it and it flips its tail and shoots backwards, faster than you can grab.",
+   "role": "The marsh's recycler, and nearly everybody's dinner. Crayfish shred dead plants and clean up dead animals. That turns buried gunk back into living meat. Then the otter, the mink, the kingfisher, the merganser, the crane, the snapping turtle, and the heron come and take it.",
+   "hint": "A soft bank to tunnel into, sunken wood to hide under, and plenty of rotting plants to eat."
+  },
+  "freshwater-mussel": {
+   "diet": "Algae, germs, and fine dead bits strained out of the water",
+   "shelter": "Buried upright in firm, fine mud with only its two tubes showing",
+   "preferredHabitat": "Slow, settled water over firm silt and fine sand",
+   "fact": "A baby mussel has to hitch a ride. It clamps onto the gills of a passing fish and rides there for weeks. Then it drops off and starts life on the bottom. Some mother mussels even wave a flap of flesh shaped like a little fish to pull a host in close.",
+   "role": "The marsh's water filter, and one of the longest-lived animals in it. One mussel can strain the same patch of water for thirty years. What it catches drops to the bottom for shrimp and crayfish. No fish means no baby mussels. So they only come back after the minnows do.",
+   "hint": "A settled bed that stays put for years. And fish, because the young ride to their new home clamped to fish gills."
+  },
+  "pillbug": {
+   "diet": "Dead leaves, rotting wood, dead grass, and fungus threads. Also droppings and old bones, for the minerals",
+   "shelter": "Hides by day under crumbling logs, flat stones, and deep leaves, where the air stays damp",
+   "preferredHabitat": "Shady, damp corners of the meadow with rotting wood and a thick layer of dead leaves",
+   "fact": "A pillbug is not an insect at all. It is a crustacean, closer kin to a crab than to a beetle. It still breathes through flaps like gills, and they have to stay wet.",
+   "role": "Pillbugs work the night shift under logs and dead grass. They shred dead leaves and soft rotten wood into crumbs. Fungus and germs can then finish the job. That is the first step in turning last year's meadow into next year's soil. Garter snakes and killdeer hunt them, so the clean-up crew feeds upward as well as downward.",
+   "hint": "Damp, dark, and rotting is the whole recipe. A crumbling log, deep dead grass, and ground that never dries right out. Roll one over and it curls into a ball."
+  },
+  "garden-spider": {
+   "diet": "Flying and jumping bugs caught in the web: grasshoppers, bees, flies, and moths",
+   "shelter": "Hangs head-down in the middle of its own round web, strung between tall stems",
+   "preferredHabitat": "Sunny meadow with tall stiff plants left standing and plenty of flying bugs",
+   "fact": "This spider takes most of its web down every night and eats the old silk to build the next one. It also stitches a bold white zigzag through the middle, and nobody has fully worked out why.",
+   "role": "The meadow's trapper. It slings a wheel of silk wider than your hand between tall stems. Then it waits head-down in the middle for grasshoppers, bees, and flies to blunder in. Spiders are the biggest group of hunters in any grassland. They were also the biggest thing missing from this meadow until now. They eat huge numbers of bugs, and they are the main food of half the songbirds here.",
+   "hint": "Tall stiff stems left standing, far enough apart to sling a big web between them, with flowers close by to bring the bugs in."
+  },
+  "big-brown-bat": {
+   "diet": "Bugs that fly at night, mostly beetles, plus moths, flying ants, and midges",
+   "shelter": "Sleeps by day in warm dark spaces: barn lofts, attics, and under loose bark. Winters in cold cracks",
+   "preferredHabitat": "Open air over meadow and hedges to hunt in, still water to drink from, and a warm sleeping spot nearby",
+   "fact": "A big brown bat finds a moth in total darkness by shouting and listening to the echo. It can pick out something no thicker than a pencil lead this way.",
+   "role": "The night shift over the meadow. These bats work the air above the grass and along the hedges after sunset. They catch beetles, moths, and flying ants. One bat can eat thousands of bugs in a single night. They drink on the wing, dipping their jaws into still water without stopping. Mothers gather in warm roosts to raise pups together. Great horned owls catch them at dusk.",
+   "hint": "A warm crack to raise pups in, bugs in the air above the grass, and calm open water to skim a drink from without landing."
+  },
+  "garden-snail": {
+   "diet": "Dead leaves, soft rotting stems, and the algae film on damp stones",
+   "shelter": "Seals itself to the underside of a damp log or stone and waits out dry weather",
+   "preferredHabitat": "Shady, damp corners with dead leaves and something chalky to scrape at",
+   "fact": "A snail carries its own house and can shut the door behind it. When things get dry it glues itself to a stone and sleeps until it rains. Sometimes that takes months.",
+   "role": "Snails are the meadow's slow recyclers. They shred fallen leaves into crumbs that fungus and soil life can finish off. When they die, their shells give calcium back to the ground.",
+   "hint": "A shady damp corner where leaves are left to pile up and rot. The messy bit is the point here, not the tidy bit."
+  },
+  "wolverine": {
+   "diet": "Marmots, hares, and ptarmigan when it can catch them; frozen dead animals when it cannot; berries in late summer",
+   "shelter": "Tunnels dug metres down into deep spring snow, usually beside a fallen boulder or log, with food stored in side rooms",
+   "preferredHabitat": "Big, empty, high country with broken rock, and snow that lasts into late spring",
+   "fact": "A wolverine can smell a dead animal buried under three metres of snow, dig it out, and then drive a bear off it. It does all that in a body about the size of a small dog.",
+   "role": "The biggest weasel in the world, and the mountain's great scavenger. It is now the top hunter on these peaks. It roams huge distances. It kills marmots, hares, and ptarmigan when it gets the chance, and lives off frozen dead animals when it does not. Its jaws are built to crack frozen bone. Snow is its fridge. It stores food in drifts and dens deep inside them. So a female can only raise young where the snow holds into late spring. That makes it the first animal to go when winters get short. And nothing up here will argue with it over a dead animal.",
+   "hint": "What is needed here is space and snow, not views. Drifts deep enough to last into late spring, for the den and the food store. Broken rock to travel through. And marmots and hares already on the mountain. This is the last hunter to arrive."
+  },
+  "bottlenose-dolphin": {
+   "diet": "Fish that swim in schools, above all anchovy, plus squid and fish from the bottom",
+   "shelter": "Builds none. It travels and sleeps at sea in a small group, with half its brain awake at a time",
+   "preferredHabitat": "Water close in along an open beach, with strong surf and fish schools offshore",
+   "fact": "Every dolphin makes up its own whistle. The others copy that whistle back when they want to call it over. Along an open beach, these dolphins hunt right inside the breaking waves they are herding fish against.",
+   "role": "Fast, sociable hunters that work the surf in small groups. They push anchovy schools up against the breaking waves until the fish have nowhere left to go. They are quick and clever enough to catch almost anything that schools here. And they are still not the biggest thing in the water.",
+   "hint": "Deep water to travel through, cold currents and kelp edges to hold the fish, and real breaking surf, because that is where the hunting happens."
+  },
+  "orca": {
+   "diet": "Sea mammals: harbor seals most of all, plus dolphins, sea lions, and gray whale calves",
+   "shelter": "None on land. It rests at the surface in deep water with its family",
+   "preferredHabitat": "Cold deep water close to shore, where the sea floor drops away by the kelp edge, within reach of seal resting rocks",
+   "fact": "Orcas live in families that never split up, and different families eat completely different food. The ones that hunt this coast eat only mammals. They go silent to do it, with no clicks and no calls, because a seal can hear a talking orca coming from a long way off.",
+   "role": "The top of this coast, with nothing above it. A family of mammal-hunting orcas patrols the edge where the sea floor drops away. They listen at seal rocks. In spring they shadow gray whales passing through with calves. When they come into a bay, every seal on the rocks goes still and silent.",
+   "hint": "The last and hardest animal to bring back. Deep water pressed right up against the shore, and something big to hunt. Bring the seals back first, because the seals are the whole draw."
+  },
+  "desert-millipede": {
+   "diet": "Dead leaves, stems, seed husks, and other dry plant litter on the ground",
+   "shelter": "Buried in soil and tucked under leaves and flat rocks by day; out walking on damp nights",
+   "preferredHabitat": "Drifts of dead leaves under shrubs, with flat rocks and soft soil nearby",
+   "fact": "A desert millipede spends most of the year underground. Then it pours out by the hundreds after the first summer storm. Touch one and it coils into a tight spiral like a cinnamon bun. It also oozes a bitter brown liquid that stains your fingers for days.",
+   "role": "The litter shredder. It chews dead leaves, stems, and husks into crumbs. Termites and tiny soil life can then finish the job. That is how dead plants become soil again out here. It has hundreds of legs and no hurry at all. Armor and a foul chemical mean it can afford to stroll. Scorpions and roadrunners eat it anyway.",
+   "hint": "Let the leaves drift up under the shrubs, and leave a flat rock to crawl beneath. Damp leaves are both dinner and hiding place. Bare hot sand is neither."
+  },
+  "harris-hawk": {
+   "diet": "Jackrabbits, ground squirrels, quail, woodrats, and lizards",
+   "shelter": "A big stick nest wedged in the arms of a tall cactus or a thorny tree, built and guarded by the whole family",
+   "preferredHabitat": "Open scrub with tall cactus and trees to nest in and watch from",
+   "fact": "These are the only birds of prey in the world that hunt in packs. A family of five or six spreads out. Some crash into a thorn bush to panic a rabbit while the others wait on the far side. And when there is nowhere good to perch, they stand on each other's backs, three birds high.",
+   "role": "The top hunter by day. It works the same desert the coyote works at night. Two or three generations live together all year. They share every kill, help feed each other's chicks, and take turns on lookout. That teamwork lets them bring down jackrabbits far heavier than one bird could handle alone. They need tall lookouts above open ground, and a big cactus strong enough to hold a family nest.",
+   "hint": "One bird is never the whole story. A family needs a tall cactus strong enough to hold the nest, high lookouts all around it, and open ground with rabbits crossing it."
+  },
+  "bald-eagle": {
+   "diet": "Mostly fish, plus ducks, muskrats, and dead animals. Also anything it can bully out of another hunter's grip",
+   "shelter": "A huge stick nest in the top of the tallest living tree beside open water, added to every year",
+   "preferredHabitat": "Wide open water full of fish, with one very tall tree to watch it all from",
+   "fact": "A bald eagle would rather rob than fish. It follows otters and herons and pesters them until they drop their catch, then takes it. The nest it rebuilds every year can end up heavier than a small car.",
+   "role": "The top hunter of the marsh, and its biggest bully. It takes fish, ducks, and muskrats for itself. It kills herons at their nesting colonies. It spends much of the day stealing meals from otters and herons. So it can only settle somewhere those hunters are already doing well.",
+   "hint": "One huge old tree with a clear view over deep water. Enough fish to live on. And otters and herons below doing well enough to steal from."
+  },
+  "luna-moth": {
+   "diet": "Hickory, walnut, sweetgum, and birch leaves as a caterpillar. The grown moth eats nothing at all",
+   "shelter": "A papery cocoon spun inside a curled leaf. The leaf falls, and the cocoon lies buried in the dead leaves all winter",
+   "preferredHabitat": "Old broadleaf woods with deep dead leaves left alone under the trees",
+   "fact": "A grown luna moth has no mouth. It comes out with about a week to live. It never eats once, and it spends that whole week looking for a mate.",
+   "role": "Luna moth caterpillars eat leaves and turn them into fat, high-energy insect bodies. Everything from bats to jays cashes that in. The long twisted tails on the back wings are an anti-bat trick. They spin as the moth flies and throw a bat's echo off target. So the bat grabs a tail streamer instead of the body. The cocoon spends winter in the fallen leaves. So a forest that gets raked loses its luna moths, even if every tree is still standing.",
+   "hint": "Plant the leafy trees, then let the leaves lie where they fall. The cocoons spend the whole winter down in them."
+  },
+  "blue-jay": {
+   "diet": "Acorns and beechnuts, caterpillars, beetles and other bugs, and eggs or chicks when it finds them",
+   "shelter": "A cup of twigs and roots wedged in a fork high in a leafy tree, hidden by the leaves",
+   "preferredHabitat": "Woods full of oaks, and their edges, with open ground nearby for burying acorns",
+   "fact": "Blue jay feathers are not really blue. The color in them is brown. The blue is a trick of light bouncing off tiny air pockets. Crush one and the blue is gone.",
+   "role": "One blue jay can carry five acorns at a time and bury a few thousand in one autumn. It picks the sound ones and pushes them into open ground. That makes jays the fastest tree planters in the forest, and the reason oaks spread uphill after a fire. Jays also copy hawk calls. Sometimes that clears a feeding spot. Sometimes it warns everything nearby that a real hawk has arrived. So the whole wood listens to them.",
+   "hint": "Oaks, and a patch of soft open ground to bury the acorns in. Some get forgotten. Those are your next oak trees."
+  },
+  "wood-frog": {
+   "diet": "Beetles, spiders, slugs, flies, and other small creatures from the forest floor",
+   "shelter": "Shallow dead leaves and loose litter on the forest floor. It does not dig down below the frost",
+   "preferredHabitat": "Damp broadleaf forest with fishless woodland pools that fill in spring and dry up by late summer",
+   "fact": "A wood frog freezes solid every winter. Its heart stops. Two thirds of the water in its body turns to ice. In spring it thaws out and hops away.",
+   "role": "Wood frogs are the first frog to call in spring. They breed in pools that dry up before fish can ever live in them. That is exactly why the tadpoles survive. Sugar floods their blood and stops their cells bursting while they are frozen. So they can sleep the winter under a few centimetres of leaves. Grown frogs eat their way through the small creatures in the dead leaves. Snakes and raccoons then eat them, which carries food up the chain.",
+   "hint": "A pool that dries up in summer is the good kind. No fish means the tadpoles live. Keep deep leaves nearby to freeze in."
+  },
+  "goshawk": {
+   "diet": "Squirrels, jays, grouse, rabbits, and woodpeckers, chased down inside the trees",
+   "shelter": "A wide stick nest against the trunk on a heavy branch, halfway up a big old tree",
+   "preferredHabitat": "Old forest with a high closed roof of leaves and open flying room under it",
+   "fact": "A goshawk hunts by crashing straight through the branches at full speed with its wings half folded. It will dive at anything that walks too near its nest, people included.",
+   "role": "The forest's top hunter by day, and the reason squirrels freeze against tree trunks. Short wide wings and a long steering tail let it turn inside a wood at speed. So it hunts under the leaves, not above them like a soaring hawk. It needs old forest with big branches to nest on, and clear space below to fly. That is why its arrival means the trees have finally grown up.",
+   "hint": "Grow the forest tall and leave the space below it open. A big branch to nest on, and room to fly hard under the leaves."
+  },
+  "moose": {
+   "diet": "Pondweed and water lilies in summer, willow and aspen twigs in winter",
+   "shelter": "Beds pressed into willow thickets and shady marsh edge. In summer it stands chest-deep in water to get away from flies",
+   "preferredHabitat": "Marsh and pond edge with thick willow and clear shallow water full of underwater plants",
+   "fact": "A moose can hold its breath for a minute and walk along the bottom of a pond with its whole head under water, pulling plants up by the roots.",
+   "role": "Moose come to the wetland for salt. The underwater plants have it and forest leaves do not. A big one can pull 20 kilograms of pondweed a day out of the shallows. All that heavy feeding keeps open lanes through the plant beds, where ducks feed and fish shelter. The willow it eats in winter grows back thicker and lower, which is better cover for everything small. Its trails through the marsh turn into channels that hold water in dry summers.",
+   "hint": "Grow the underwater plant beds first, and keep the water clear enough for them. The draw here is what grows under the surface, not on the bank."
+  },
+  "river-cooter": {
+   "diet": "Pondweed, algae, water lily leaves, and fallen fruit. Babies eat bugs first, then switch to plants",
+   "shelter": "Sleeps wedged under sunken logs and root tangles. Spends the winter buried in the mud at the bottom",
+   "preferredHabitat": "Slow, plant-filled water with logs to bask on and an open sunny bank to lay eggs in",
+   "fact": "Whether the eggs hatch into males or females depends on how warm the nest is, not on the eggs. A cool nest makes brothers. A warm one makes sisters.",
+   "role": "This is the wetland's big plant-eating turtle. It crops the underwater meadows so they do not choke the shallows. It also drops the seeds somewhere else, still whole. It has to bask for hours to get warm enough to digest all that plant food. That is why a log stacked with turtles is a sign of a working marsh. Its eggs and babies feed almost everything else, so it lays a lot of them.",
+   "hint": "Logs in the sun to bask on, and a bare warm bank to bury eggs in. No warm spot means no way to digest dinner."
+  },
+  "javelina": {
+   "diet": "Prickly pear pads, mesquite pods, agave hearts, roots, and tubers",
+   "shelter": "The herd beds down in the shade of thick thorny scrub or under a rock ledge through the heat of the day",
+   "preferredHabitat": "Desert scrub and dry washes with thick thorny cover and prickly pear",
+   "fact": "A javelina eats prickly pear whole, spines and all. It also has a scent gland on its back so strong that a herd can find each other in the dark by smell alone.",
+   "role": "Javelinas are the desert's cactus crushers. They crunch through pads that nothing else will touch, which stops prickly pear taking over a wash. They spread its seeds in their droppings too. Rooting for tubers turns over hard crusted soil and buries dead leaves, so seeds have somewhere to sprout after rain. They travel in herds of six to a dozen. The herd smell is also the alarm system, because their eyesight is terrible.",
+   "hint": "Grow the prickly pear and leave a shady thorny tangle to bed down in. The herd sleeps out the middle of the day and feeds at dusk."
+  },
+  "black-swift": {
+   "diet": "Flying ants, aphids, beetles, and mayflies caught in the air, often hundreds of metres up",
+   "shelter": "A cup of moss glued to a wet crack in the rock, behind or beside falling water. It can only be reached from the air",
+   "preferredHabitat": "Cliffs with cold running water and wide open sky above the treeline",
+   "fact": "A black swift can stay in the air for six months without landing once. It eats, drinks, and sleeps flying. The chick is left alone all day while its parents hunt bugs 50 km away.",
+   "role": "Swifts hoover up the swarms of bugs that rising air lifts onto the mountain. They carry that food back as one squashed pellet. One delivery a day is enough for a chick, because the load is packed so tight. The nest has to stay wet and out of reach. So these birds only turn up where a cliff crack has water running over it. They are among the very last summer visitors to arrive, and the first to leave for the Amazon.",
+   "hint": "Find the wettest, darkest crack in the cliff and keep the water running down it. Nothing will nest here if it can be walked to."
+  },
+  "peregrine-falcon": {
+   "diet": "Other birds, caught in mid-air: ptarmigan, rosy-finches, swifts, pipits, and small ducks",
+   "shelter": "A bare dip kicked into gravel on a high cliff ledge. It builds no nest at all",
+   "preferredHabitat": "Steep cliffs and rock faces above open ground, with plenty of birds flying below",
+   "fact": "A diving peregrine hits about 380 km/h. That makes it the fastest animal alive. It has bony cones in its nostrils that slow the air down, so the dive does not burst its lungs.",
+   "role": "The mountain's hunter of the air. It takes almost all of its food in flight, striking from above with a closed fist instead of grabbing. It hunts birds and nothing else. So it is a direct check on the flocks of finches, pipits, and ptarmigan feeding across the slopes. It needs a quiet cliff ledge and clear air below. It needs nothing at all to build with, just loose gravel to scrape a hollow in.",
+   "hint": "A high ledge with loose gravel on it, and open sky underneath. Do not build a nest. All it takes is a dip kicked in the grit."
+  },
+  "owl-limpet": {
+   "diet": "Algae, plankton, and scraps of food picked out of the sand, grain by grain",
+   "shelter": "Half buried on edge in rippled sand, in beds of hundreds at a time",
+   "preferredHabitat": "Sheltered sandy bottoms just below the low tide line, where the current is gentle",
+   "fact": "A living sand dollar is not white and smooth. It is purple, and covered in tiny moving spines. It uses them to walk and to pass food along to its mouth. The white disc with the flower pattern is the skeleton, after everything else has washed away.",
+   "role": "A whole bed of them stands half buried on edge, like coins in a slot. They all lean into the current to catch what drifts past. Where the water is rougher, they lie flat instead, so they do not get rolled away.",
+   "hint": "Clean rippled sand just below the tide line, somewhere sheltered enough that the current stays gentle."
+  },
+  "octopus": {
+   "diet": "Shore crabs, clams, mussels, snails, and shrimp, cracked open or drilled through",
+   "shelter": "A crack or an empty shell, with a rock pulled across behind it and a heap of empty shells outside the door",
+   "preferredHabitat": "Rocky sea floor and deep tidepools with lots of cracks and cold, clean water",
+   "fact": "An octopus has three hearts and blue blood, and it tastes everything it touches with its arms. The only hard part of it is its beak. So one the size of a dinner plate can squeeze through a hole the size of a grape.",
+   "role": "The top hunter without a backbone on the rocky shore. The pile of empty crab and clam shells outside its den is the easiest way to find one. It can change color and skin texture in under a second to vanish against rock or kelp, even though it is colorblind. If a clam will not open, it drills a neat hole and puts in a drug that makes the shell relax. Each octopus works through a huge number of crabs, which keeps the grazers and cleaners of the tidepools in check.",
+   "hint": "Broken rock with gaps to hide in, and plenty of crabs. Leave the shell pile outside the den alone. That pile is how you know somebody is home."
+  },
+  "grasshopper-mouse": {
+   "diet": "Scorpions, centipedes, beetles, and other mice",
+   "shelter": "Takes over a burrow another animal dug, then defends it",
+   "preferredHabitat": "Open sandy flats with scattered brush and plenty of prey underfoot",
+   "fact": "This mouse hunts scorpions, gets stung in the face, and carries on eating. Its body switches the venom's pain signal off. Then it stands up on its back legs and howls at the moon like a tiny wolf.",
+   "role": "A mouse that decided to be a hunter. It keeps scorpions and big bugs in check. It is one of the only animals that can eat the most venomous creatures in the desert without flinching.",
+   "hint": "An old burrow it can take over, and open ground to hunt across. It gets all its water from what it catches."
+  },
+  "snow-bunting": {
+   "diet": "Seeds blown onto the snow, plus bugs in the short summer",
+   "shelter": "Deep in a crack in the rock, lined with feathers and fur against the cold",
+   "preferredHabitat": "Windswept ridges and stony ground where the snow blows clear",
+   "fact": "Snow buntings nest further north than any other songbird on Earth. They tuck so deep into rock cracks that the male has to feed the female in the dark while she sits on the eggs.",
+   "role": "A small bird that treats a blizzard as ordinary weather. Flocks drift across bare ridges, picking up seed the wind has stranded on the snow. They turn from white to warm brown as the season turns.",
+   "hint": "A deep, dry crack in the rock out of the wind, and open stony ground nearby where the snow blows clear."
+  },
+  "groundhog": {
+   "diet": "Grass, clover, dandelions, and just about any soft green thing it can reach",
+   "shelter": "A burrow with several doors, a sleeping room lined with grass, and a separate toilet room",
+   "preferredHabitat": "Meadow edges with deep, well-drained soil it can dig through",
+   "fact": "A groundhog digs a burrow with a front door, a back door, a bedroom, and a separate room for the toilet. It moves about a tonne of soil doing it. In winter its heart slows to about five beats a minute.",
+   "role": "The meadow's earthmover. Its old burrows become homes for foxes, snakes, rabbits, and half the small animals here. So one groundhog's digging lasts for years after the digger has gone.",
+   "hint": "Deep, well-drained soil at the edge of the grass, with a bolt-hole close by. It wants a place to dig more than a place to hide."
+  },
+  "opossum": {
+   "diet": "Almost anything: bugs, fruit, eggs, dead animals, and a huge number of ticks",
+   "shelter": "Sleeps the day in a hollow log or a borrowed burrow. It rarely uses the same one twice",
+   "preferredHabitat": "Brushy edges with hollow wood, water nearby, and plenty to scavenge",
+   "fact": "When an opossum plays dead, it is not acting. It faints. The body goes stiff, the tongue lolls out, and it gives off a smell like something long dead. It cannot snap out of it for several minutes, even if you walk away.",
+   "role": "The meadow's clean-up crew. It eats what everything else has left, including dead animals and huge numbers of ticks. It is the only animal here that carries its young around on its back.",
+   "hint": "Hollow wood to sleep the day away in, and berries within a night's walk. It moves house all the time, so give it more than one option."
+  }
+ }
+}

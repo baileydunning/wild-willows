@@ -1,5 +1,4 @@
 import { useGame } from '../state';
-import { COOP_ENABLED } from '../features';
 import { DEMO } from '../demo';
 import { useI18n } from '../i18n/react';
 import { visibleShortcuts, shortcutKeys } from '../shortcuts';
@@ -29,14 +28,12 @@ const MORE: Array<{ icon: string; key: string }> = [
 ];
 
 export function HelpModal() {
-	const { helpOpen, setHelpOpen, setTutorialStep, state, worlds, activeWorldId } = useGame();
+	const { helpOpen, setHelpOpen, setTutorialStep, state } = useGame();
 	const { t } = useI18n();
 	usePrefs(); // reflect live key bindings
 	if (!helpOpen) return null;
 	// In solo play there's no People/invite system, so drop those keys entirely.
-	const activeWorld = worlds?.find((w) => w.worldId === activeWorldId);
-	const isCoop = COOP_ENABLED && !!activeWorld && !activeWorld.solo;
-	const keys = visibleShortcuts(isCoop);
+	const keys = visibleShortcuts();
 	const replay = () => {
 		// Resume where the player last left the tutorial (0 if they finished it or
 		// never opened it) so reopening it from Help picks up where they closed it.

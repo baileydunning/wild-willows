@@ -2,6 +2,8 @@ import { describe, it, expect } from 'vitest';
 import {
 	canPaintClick,
 	blocksDoorway,
+	blocksGateTrail,
+	gateEdges,
 	isSleepable,
 	isOrphanedTween,
 	screenSpaceOverlayTransform,
@@ -28,6 +30,86 @@ describe('canPaintClick', () => {
 	it('only paints with the paint tool selected', () => {
 		expect(canPaintClick({ tool: 'basket', isHome: true, placing: false, moving: false })).toBe(false);
 		expect(canPaintClick({ tool: null, isHome: true, placing: false, moving: false })).toBe(false);
+	});
+});
+
+describe('gateEdges — one rule, read from the biome order', () => {
+	// The same six areas data/biomes.json ships, deliberately out of order: the
+	// answer must come from `order`, not from where a biome sits in the array.
+	const BIOMES = [
+		{ id: 'coastal', order: 6 },
+		{ id: 'meadow', order: 1 },
+		{ id: 'alpine', order: 5 },
+		{ id: 'forest', order: 2 },
+		{ id: 'desert', order: 4 },
+		{ id: 'wetland', order: 3 },
+	];
+
+	it('gives the first area no way west and the last no way east', () => {
+		expect(gateEdges(BIOMES, 'meadow')).toEqual({ westGate: false, eastGate: true });
+		expect(gateEdges(BIOMES, 'coastal')).toEqual({ westGate: true, eastGate: false });
+	});
+
+	it('gives every area in between a gate on both edges', () => {
+		for (const id of ['forest', 'wetland', 'desert', 'alpine']) {
+			expect(gateEdges(BIOMES, id), id).toEqual({ westGate: true, eastGate: true });
+		}
+	});
+
+	it('follows the data when the trail is reordered, rather than a hardcoded list', () => {
+		// Drop a seventh area on the end: the coast stops being last, so its east
+		// gate opens. A client walking a fixed area list would still be closing it.
+		const extended = [...BIOMES, { id: 'tundra', order: 7 }];
+		expect(gateEdges(extended, 'coastal')).toEqual({ westGate: true, eastGate: true });
+		expect(gateEdges(extended, 'tundra')).toEqual({ westGate: true, eastGate: false });
+	});
+
+	it('never claims a gate it cannot place when the definitions have not loaded', () => {
+		// A scene can draw a frame before bridge.shared.data arrives. Answering
+		// "no gates" is the safe default: it greys nothing out that should be legal.
+		expect(gateEdges(undefined, 'forest')).toEqual({ westGate: false, eastGate: false });
+		expect(gateEdges([], 'forest')).toEqual({ westGate: false, eastGate: false });
+	});
+});
+
+describe('blocksGateTrail — water never seals a trail gate', () => {
+	// A middle biome: 30 cols, 26 playable rows, so the gates sit on row 12.8 and
+	// there is a gate on both edges. Open water blocks walking, so flooding the
+	// mouth of a gate would lock the player out of the neighbouring biome.
+	const middle = { gateY: 12.8, landRight: 30, westGate: true, eastGate: true };
+
+	it('blocks the two columns in from the west gate, on the gate row and either side', () => {
+		for (const ty of [12, 13, 14]) {
+			expect(blocksGateTrail(1, ty, middle)).toBe(true);
+			expect(blocksGateTrail(2, ty, middle)).toBe(true);
+		}
+	});
+
+	it('blocks the matching pocket at the east gate', () => {
+		for (const ty of [12, 13, 14]) {
+			expect(blocksGateTrail(27, ty, middle)).toBe(true);
+			expect(blocksGateTrail(28, ty, middle)).toBe(true);
+		}
+	});
+
+	it('leaves the rest of the shoreline floodable', () => {
+		expect(blocksGateTrail(4, 13, middle)).toBe(false); // clear of the gate column
+		expect(blocksGateTrail(1, 10, middle)).toBe(false); // same column, well above the gate
+		expect(blocksGateTrail(15, 13, middle)).toBe(false); // mid-map, gate row
+	});
+
+	it('only guards edges that actually have a gate', () => {
+		const first = { ...middle, westGate: false }; // Willow Meadow: no gate west
+		expect(blocksGateTrail(1, 13, first)).toBe(false);
+		const last = { ...middle, eastGate: false, landRight: 26 }; // Pelican Shore: ocean east
+		expect(blocksGateTrail(24, 13, last)).toBe(false);
+		expect(blocksGateTrail(1, 13, last)).toBe(true); // still has its way back west
+	});
+
+	it('follows the alpine gates down past the mountain band', () => {
+		const alpine = { gateY: 20.8, landRight: 30, westGate: true, eastGate: true };
+		expect(blocksGateTrail(1, 21, alpine)).toBe(true);
+		expect(blocksGateTrail(1, 13, alpine)).toBe(false); // where a lowland gate would be
 	});
 });
 

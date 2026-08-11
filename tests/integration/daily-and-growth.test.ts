@@ -114,7 +114,7 @@ describe('habitat growth over real time', () => {
 		w = await freshWorld();
 		pid = (await w.post('CreatePlayer', { name: 'Grow', passcode: '1234', appearance })).playerId;
 		await w.db.Placement.put({
-			id: 'pl_tree',
+			id: `${pid}:pl_tree`,
 			worldId: pid,
 			playerId: pid,
 			objectId: 'willow-tree',
@@ -138,7 +138,7 @@ describe('habitat growth over real time', () => {
 		pid = (await w.post('CreatePlayer', { name: 'Cap', passcode: '1234', appearance })).playerId;
 		for (let i = 0; i < 20; i++) {
 			await w.db.Placement.put({
-				id: `pl_${i}`,
+				id: `${pid}:pl_${i}`,
 				worldId: pid,
 				playerId: pid,
 				objectId: 'willow-tree',
@@ -185,7 +185,7 @@ describe('welcome back (heartbeat time-passed pass)', () => {
 		const now = Date.now();
 		// a willow placed 9h ago crossed its 8h maturity during a 12h absence
 		await w.db.Placement.put({
-			id: 'pl_tree',
+			id: `${pid}:pl_tree`,
 			worldId: pid,
 			playerId: pid,
 			objectId: 'willow-tree',
@@ -227,7 +227,7 @@ describe('condition-gated rare sightings', () => {
 		let i = 0;
 		const put = (objectId: string) =>
 			w.db.Placement.put({
-				id: `pl_${i}`,
+				id: `${pid}:pl_${i}`,
 				worldId: pid,
 				playerId: pid,
 				objectId,
@@ -236,11 +236,13 @@ describe('condition-gated rare sightings', () => {
 				y: 3 + Math.floor(i++ / 26),
 				placedAt: now - 10 * H,
 			});
-		for (let k = 0; k < 20; k++) await put('willow-tree'); // health well past 75
-		await put('log-shelter');
-		await put('shrub');
-		await put('grass-patch');
+		for (let k = 0; k < 20; k++) await put('willow-tree'); // health well past 60
+		// Exactly what the barn owl asks for now: a dark cavity up off the ground,
+		// two stands of native grass to quarter over, and somewhere to hunt from.
+		await put('barn-loft-nest-box');
 		await put('native-grass-patch');
+		await put('native-grass-patch');
+		await put('bird-perch');
 		// every other meadow animal is already home (balance + the vole prerequisite)
 		const animals: any[] = [];
 		for await (const a of w.db.Animal.search()) animals.push(a);

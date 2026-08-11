@@ -27,7 +27,7 @@ import { unlockedRecipeIds } from './recipes';
 import { applyTerraformResult } from './terraformPatch';
 import { narrativeBeats, nextFeedFact, healthMilestoneLine, HEALTH_THRESHOLDS } from './ui/narrative';
 import { weatherForArea, weatherFeedLine, seasonFeedLine, liveCalendar } from './weather';
-import type { Appearance, GameData, GameState, PanelId, WorldSummary, PendingRequest } from './types';
+import type { Appearance, GameData, GameState, PanelId } from './types';
 
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
@@ -112,40 +112,6 @@ interface Ctx {
 	addGoal: (goal: any) => Promise<void>;
 	changeArea: (area: string) => Promise<void>;
 	recalcArea: (area: string) => Promise<void>;
-	// multiplayer: the world this save belongs to (solo, or one co-op world)
-	worlds: WorldSummary[];
-	activeWorldId: string | null;
-	// New-game co-op: host a fresh shared world (get a code) or join one with a code.
-	// Join carries the request token (sent at the code step) + the world it's for.
-	startNewCoop: (
-		name: string,
-		passcode: string,
-		appearance: Appearance,
-		opts: {
-			mode: 'host' | 'join';
-			worldName?: string;
-			code?: string;
-			token?: string;
-			joinWorldId?: string;
-			hostName?: string;
-			creationMs?: number;
-		},
-	) => Promise<void>;
-	refreshWorlds: () => Promise<void>;
-	// join waiting room (joiner side)
-	pendingJoin: {
-		worldId: string;
-		worldName: string;
-		hostName: string;
-		code: string;
-		token: string;
-	} | null;
-	checkJoinApproval: () => Promise<'pending' | 'approved' | 'denied' | 'none'>;
-	playSoloInstead: () => void;
-	// host approval side
-	pendingRequests: PendingRequest[];
-	approveJoin: (token: string) => Promise<void>;
-	denyJoin: (token: string) => Promise<void>;
 }
 
 const GameCtx = createContext<Ctx>(null as any);
@@ -155,6 +121,19 @@ let toastSeq = 1;
 
 /** Quiet period after the last optimistic action before the trailing full sync. */
 const RECONCILE_MS = 1500;
+
+/**
+ * How long without a click, keypress, touch or scroll before the heartbeat stops
+ * crediting play time.
+ *
+ * Generous on purpose: this game is meant to be sat with, and reading a journal
+ * entry or watching the meadow for a few minutes is playing it. What it catches
+ * is the other thing — a window left open on screen for hours.
+ */
+const HEARTBEAT_IDLE_MS = 30 * 60 * 1000;
+// The activity feed rides the heartbeat (see the flush effect below). This is a
+// safety net for lines buffered between beats — not a second, faster cadence.
+const FEED_FLUSH_MS = 30_000;
 
 export function GameProvider({ children }: { children: React.ReactNode }) {
 	const [data, setData] = useState<GameData | null>(null);
@@ -176,20 +155,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	const [feedLog, setFeedLog] = useState<LogEntry[]>([]);
 	const [selectedTool, setSelectedToolState] = useState('basket');
 	const [paintColor, setPaintColor] = useState('#c8a064');
-	// multiplayer: the worlds this player belongs to, and which one is active
-	const [worlds, setWorlds] = useState<WorldSummary[]>([]);
-	const [activeWorldId, setActiveWorldId] = useState<string | null>(null);
-	// joiner is waiting for the host to approve their request
-	const [pendingJoin, setPendingJoin] = useState<{
-		worldId: string;
-		worldName: string;
-		hostName: string;
-		code: string;
-		token: string;
-	} | null>(null);
-	// host's inbox of people asking to join the active world
-	const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([]);
-	const seenRequestTokens = useRef<Set<string>>(new Set());
 	const saveTimer = useRef<number | null>(null);
 	const logSeq = useRef(1);
 	// Tracks which recipes were unlocked last time we looked, so we can announce
@@ -607,34 +572,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	}, [refresh]);
 	useEffect(() => () => void (reconcileTimer.current && window.clearTimeout(reconcileTimer.current)), []);
 
-	const applyWorlds = useCallback((list: WorldSummary[], active: string | null) => {
-		setWorlds(list || []);
-		if (active) setActiveWorldId(active);
-	}, []);
-
-	// One-time welcome to the activity feed when you start (or join) a co-op preserve,
-	// spelling out the join code and exactly how to invite friends.
-	const coopWelcome = useCallback(
-		(joinCode: string | null, hosting: boolean) => {
-			if (hosting && joinCode) {
-				// auto-copy the code so the host can paste it to friends right away
-				try {
-					navigator.clipboard?.writeText(joinCode).catch(() => undefined);
-				} catch {
-					/* clipboard unavailable */
-				}
-				pushLog('leaf', t('app.coop.hostWelcomeFeed', { code: joinCode }), true);
-				toast(t('app.coop.hostWelcomeToast', { code: joinCode }), 'unlock');
-			} else {
-				pushLog('leaf', t('app.coop.joinWelcomeFeed'), true);
-				toast(t('app.coop.joinWelcomeToast'), 'unlock');
-			}
-		},
-		[pushLog, toast],
-	);
-
-	// ---- session starters (welcome screens) ----
-	// Solo: your own private preserve.
 	const startNew = useCallback(
 		async (name: string, passcode: string, appearance: Appearance, creationMs = 0) => {
 			const r = await api.createPlayer(name, passcode, appearance, creationMs);
@@ -644,11 +581,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			// session whose probe times out doesn't quietly show the (empty) offline
 			// store instead and make the save look deleted.
 			if (DEMO) setDemoSaveHome('harper');
-			applyWorlds(r.worlds || [], r.worldId || r.playerId);
 			adoptState(r.state);
 			reportCharacterCreated(creationMs); // acquisition funnel: opens → character created
 		},
-		[adoptState, applyWorlds],
+		[adoptState],
 	);
 
 	// Desktop solo: no passcode, no server. Start a fresh save in the in-app
@@ -657,16 +593,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		async (name: string, appearance: Appearance, creationMs = 0) => {
 			const { playerId, state } = await startSoloGame(name, appearance, creationMs);
 			reportCharacterCreated(creationMs); // acquisition funnel: opens → character created
-			try {
-				const w = await api.myWorlds();
-				applyWorlds(w.worlds || [], w.activeWorldId || playerId);
-			} catch {
-				applyWorlds([], playerId);
-			}
 			feedSeeded.current = false;
 			adoptState(state);
 		},
-		[adoptState, applyWorlds],
+		[adoptState],
 	);
 
 	const loadSoloSlot = useCallback(
@@ -689,126 +619,21 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				console.error('solo save would not open —', e?.message || e);
 				throw new Error(t('server.err.saveUnreadable'));
 			}
-			const { playerId, state } = resumed;
-			try {
-				const w = await api.myWorlds();
-				applyWorlds(w.worlds || [], w.activeWorldId || playerId);
-			} catch {
-				applyWorlds([], playerId);
-			}
+			const { state } = resumed;
 			feedSeeded.current = false;
 			adoptState(state);
 		},
-		[adoptState, applyWorlds],
-	);
-
-	// Co-op: a new game that lives in a shared world — either you HOST a fresh one
-	// (and get a code to share) or JOIN a friend's with their code. A save belongs to
-	// exactly one world, chosen here at New Game; there's no spinning up more later.
-	const startNewCoop = useCallback(
-		async (
-			name: string,
-			passcode: string,
-			appearance: Appearance,
-			opts: {
-				mode: 'host' | 'join';
-				worldName?: string;
-				code?: string;
-				token?: string;
-				joinWorldId?: string;
-				hostName?: string;
-				creationMs?: number;
-			},
-		) => {
-			const r = await api.createPlayer(name, passcode, appearance, opts.creationMs || 0);
-			setPlayerId(r.playerId);
-			rememberSave(r.playerId, r.state.player.name, 'coop');
-			reportCharacterCreated(opts.creationMs || 0); // acquisition funnel: opens → character created
-			if (opts.mode === 'join') {
-				// The request was already sent at the code step. Try to enter now; if the
-				// host hasn't approved yet, drop into the waiting room until they do.
-				try {
-					const j = await api.joinWorld((opts.code || '').trim(), opts.token);
-					applyWorlds(j.worlds || [], j.worldId);
-					feedSeeded.current = false;
-					bridge.shared.presence = [];
-					adoptState(j.state);
-					coopWelcome(null, false);
-				} catch (e: any) {
-					if (e?.status === 403 && opts.joinWorldId && opts.token) {
-						adoptState(r.state); // hold in the (solo) session behind the waiting room
-						setPendingJoin({
-							worldId: opts.joinWorldId,
-							worldName: opts.worldName || t('app.coop.fallbackWorldName'),
-							hostName: opts.hostName || t('app.coop.fallbackHostName'),
-							code: (opts.code || '').trim(),
-							token: opts.token,
-						});
-					} else {
-						throw e;
-					}
-				}
-			} else {
-				const c = await api.createWorld(opts.worldName || t('app.coop.defaultWorldName', { name }));
-				const s = await api.switchWorld(c.world.worldId);
-				applyWorlds(s.worlds || [], s.worldId);
-				feedSeeded.current = false;
-				adoptState(s.state);
-				coopWelcome(c.world.joinCode, true);
-			}
-		},
-		[adoptState, applyWorlds, coopWelcome],
-	);
-
-	// Joiner waiting room: poll for approval; on approval, redeem and enter the world.
-	const checkJoinApproval = useCallback(async (): Promise<'pending' | 'approved' | 'denied' | 'none'> => {
-		if (!pendingJoin) return 'none';
-		const s = await api.joinStatus(pendingJoin.worldId, pendingJoin.token);
-		if (s.status === 'approved') {
-			const j = await api.joinWorld(pendingJoin.code, pendingJoin.token);
-			applyWorlds(j.worlds || [], j.worldId);
-			feedSeeded.current = false;
-			bridge.shared.presence = [];
-			adoptState(j.state);
-			coopWelcome(null, false);
-			setPendingJoin(null);
-			return 'approved';
-		}
-		return s.status;
-	}, [pendingJoin, adoptState, applyWorlds, coopWelcome]);
-
-	const playSoloInstead = useCallback(() => {
-		setPendingJoin(null);
-	}, []);
-
-	// Host approval actions.
-	const approveJoin = useCallback(
-		async (token: string) => {
-			if (!activeWorldId) return;
-			await api.resolveJoin(activeWorldId, token, true);
-			setPendingRequests((rs) => rs.filter((r) => r.token !== token));
-		},
-		[activeWorldId],
-	);
-	const denyJoin = useCallback(
-		async (token: string) => {
-			if (!activeWorldId) return;
-			await api.resolveJoin(activeWorldId, token, false);
-			setPendingRequests((rs) => rs.filter((r) => r.token !== token));
-		},
-		[activeWorldId],
+		[adoptState],
 	);
 
 	const startLogin = useCallback(
 		async (name: string, passcode: string) => {
 			const r = await api.login(name, passcode);
 			setPlayerId(r.playerId);
-			const active = r.worldId || r.playerId;
-			rememberSave(r.playerId, r.state.player.name, active === r.playerId ? 'solo' : 'coop');
-			applyWorlds(r.worlds || [], active);
+			rememberSave(r.playerId, r.state.player.name, 'solo');
 			adoptState(r.state);
 		},
-		[adoptState, applyWorlds],
+		[adoptState],
 	);
 
 	const continueLast = useCallback(
@@ -818,11 +643,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			setPlayerId(last.playerId);
 			try {
 				adoptState(await api.gameState());
-				// resume whichever world this save belongs to (solo or its co-op world)
-				const w = await api.myWorlds();
-				const active = w.activeWorldId || last.playerId;
-				applyWorlds(w.worlds || [], active);
-				rememberSave(last.playerId, last.name, active === last.playerId ? 'solo' : 'coop');
+				rememberSave(last.playerId, last.name, 'solo');
 			} catch (e) {
 				setPlayerId(null);
 				// Only drop the remembered save when the server actually said it's gone
@@ -841,14 +662,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				throw e;
 			}
 		},
-		[adoptState, applyWorlds],
+		[adoptState],
 	);
-
-	// ---- multiplayer helpers (read-only from the in-game People menu) ----
-	const refreshWorlds = useCallback(async () => {
-		const w = await api.myWorlds();
-		applyWorlds(w.worlds || [], w.activeWorldId);
-	}, [applyWorlds]);
 
 	const logout = useCallback(() => {
 		flushFeed(); // persist any unsaved feed lines before we drop the session
@@ -856,12 +671,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		setPlayerId(null);
 		setState(null);
 		bridge.shared.state = null;
-		bridge.shared.presence = [];
-		setWorlds([]);
-		setActiveWorldId(null);
-		setPendingJoin(null);
-		setPendingRequests([]);
-		seenRequestTokens.current = new Set();
 		setPanel(null);
 		setPlacementObjectId(null);
 		setLog([]); // clear the on-screen feed; it re-seeds from Harper on next login
@@ -910,15 +719,51 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	}, []);
 
 	// Heartbeat: while a save is open, ping the server on a timer so it can
-	// accrue play time and session counts. Best-effort and paused when the tab
-	// is hidden, so backgrounded tabs never inflate the numbers.
+	// accrue play time and session counts. Best-effort, and skipped in two cases
+	// so the number means what it says: while the tab is hidden, and once nobody
+	// has touched anything for HEARTBEAT_IDLE_MS.
+	//
+	// Hiding alone was not enough. A window left open ON SCREEN kept beating every
+	// 30 seconds indefinitely, and one abandoned tab logged 798 minutes of "play"
+	// against 152 actions — 17% of all the play time the dashboard had ever
+	// recorded, from one person who wasn't there. Requiring recent input means
+	// walking away stops the clock and coming back restarts it on the first touch.
+	//
+	// The window is deliberately long — 30 minutes, the same gap that ends a
+	// session server-side. This gate is a backstop against a window left open for
+	// hours, NOT the thing that decides whether a session was real: that judgement
+	// is isIdleAnomaly() in server/resources.ts, which reads actions-per-minute and
+	// works the same on rows recorded before this gate existed. A short window here
+	// would quietly stop crediting genuine quiet play — reading a journal entry,
+	// watching the meadow — and, because it only ever applies going forward, would
+	// make new play time mean something different from old play time. Every beat
+	// reports the window it was recorded under (see metricsRev on the metrics blob)
+	// so the two are never averaged together by accident.
 	const sessionPlayerId = state?.player?.id ?? null;
+	const lastInputAt = useRef(Date.now());
+	useEffect(() => {
+		// Deliberately not pointermove: a cursor crossing the window on its way
+		// somewhere else is not someone playing. These are the events the game runs
+		// on anyway — clicks, keys (WASD repeats while held), touch, wheel.
+		const seen = () => {
+			lastInputAt.current = Date.now();
+		};
+		const events = ['pointerdown', 'keydown', 'wheel', 'touchstart'] as const;
+		for (const e of events) window.addEventListener(e, seen, { passive: true });
+		return () => {
+			for (const e of events) window.removeEventListener(e, seen);
+		};
+	}, []);
 	useEffect(() => {
 		if (!sessionPlayerId) return;
 		const beat = () => {
 			if (document.visibilityState === 'hidden') return;
+			if (Date.now() - lastInputAt.current > HEARTBEAT_IDLE_MS) return;
+			// Send buffered feed lines on the same beat, so an active player costs
+			// one feed write per heartbeat instead of one every six seconds.
+			flushFeed();
 			api
-				.heartbeat()
+				.heartbeat(HEARTBEAT_IDLE_MS)
 				.then((r: any) => {
 					if (!r) return;
 					// The preserve kept living while the game was closed: the heartbeat is
@@ -1026,99 +871,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		pokeMetricsUplink();
 	}, [sessionPlayerId]);
 
-	// Co-op presence. We publish our exact position ~12×/sec; each publish returns
-	// the world's current positions map, which we apply straight to the avatars
-	// (Phaser interpolates between them for smooth movement). This uses only short,
-	// quickly-closed reads — deliberately NOT a long-lived WebSocket subscription,
-	// which Harper holds a read transaction open for and force-closes after a few
-	// minutes. A separate slower poll pulls DB-backed world changes + join requests.
-	const inCoop = !!sessionPlayerId && !!activeWorldId && activeWorldId !== sessionPlayerId;
-	useEffect(() => {
-		if (!inCoop) {
-			bridge.shared.presence = [];
-			bridge.emit('presence-updated');
-			return;
-		}
-		const myId = sessionPlayerId!;
-
-		const applyPeers = (peers: any[]) => {
-			const now = Date.now();
-			bridge.shared.presence = (peers || [])
-				.filter((p: any) => p && p.playerId !== myId && (!p.t || now - p.t < 8000))
-				.map((p: any) => ({
-					playerId: p.playerId,
-					name: p.name,
-					appearance: p.appearance,
-					area: p.area,
-					x: p.x,
-					y: p.y,
-				}));
-			bridge.emit('presence-updated');
-		};
-
-		// publish my position fast, chained so requests never overlap/pile up. On
-		// errors (server down / restarting) back off hard so we never flood the log.
-		let stopped = false;
-		let pubTimer: number | undefined;
-		let failStreak = 0;
-		const publish = async () => {
-			if (stopped) return;
-			let delay = 80; // ~12×/sec when healthy
-			if (document.visibilityState !== 'hidden') {
-				const self = bridge.shared.self || {
-					x: bridge.shared.state?.player?.x ?? 0,
-					y: bridge.shared.state?.player?.y ?? 0,
-					area: bridge.shared.state?.player?.area || 'meadow',
-				};
-				try {
-					const r = await api.presence(self.x, self.y, self.area);
-					applyPeers(r.peers || []);
-					failStreak = 0;
-				} catch {
-					failStreak = Math.min(failStreak + 1, 6);
-					delay = Math.min(500 * 2 ** failStreak, 10000); // 1s → 10s backoff
-				}
-			}
-			if (!stopped) pubTimer = window.setTimeout(publish, delay);
-		};
-		publish();
-
-		// DB-backed world changes (placements, terraform, animals, collecting),
-		// plus the host's inbox of pending join requests.
-		const stateId = window.setInterval(async () => {
-			if (document.visibilityState === 'hidden') return;
-			if (!actionInFlight.current) {
-				try {
-					adoptState(await api.gameState());
-				} catch {
-					/* ignore */
-				}
-			}
-			try {
-				const pr = await api.pendingRequests();
-				const reqs = pr.requests || [];
-				setPendingRequests(reqs);
-				for (const rq of reqs) {
-					if (!seenRequestTokens.current.has(rq.token)) {
-						seenRequestTokens.current.add(rq.token);
-						toast(t('app.toast.joinRequest', { name: rq.name }), 'unlock');
-					}
-				}
-			} catch {
-				/* not a host, or offline */
-			}
-		}, 1500);
-
-		return () => {
-			stopped = true;
-			if (pubTimer) window.clearTimeout(pubTimer);
-			window.clearInterval(stateId);
-			bridge.shared.presence = [];
-			bridge.emit('presence-updated');
-			setPendingRequests([]);
-		};
-	}, [inCoop, adoptState, sessionPlayerId, activeWorldId, toast]);
-
 	// As the player keeps playing, gently weave educational biome facts and fun
 	// nature facts into the feed — one every few minutes of active play, drawn
 	// from the area they're currently in plus a general pool, never repeating.
@@ -1153,11 +905,19 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		return () => window.clearInterval(id);
 	}, [sessionPlayerId, pushLog]);
 
-	// Flush buffered feed lines to Harper on a timer (and when the tab is hidden or
-	// closed), so the activity feed survives reloads. The server keeps the last 100.
+	// Flush buffered feed lines to Harper (and when the tab is hidden or closed),
+	// so the activity feed survives reloads. The server keeps the last 100.
+	//
+	// The cadence is the HEARTBEAT's, not a timer of its own. This used to flush
+	// every 6 seconds, which meant ten writes a minute per player for a panel
+	// nobody reads in real time — and Harper's free tier allows 1,000 writes a
+	// minute across everyone, so that alone was capping simultaneous players.
+	// Riding the 30s beat costs two. Nothing is lost by waiting: the buffer still
+	// flushes on hide, on unload, and on unmount, so the only lines at risk are
+	// ones from the last few seconds of a session that ended in a hard crash.
 	useEffect(() => {
 		if (!sessionPlayerId) return;
-		const id = window.setInterval(flushFeed, 6000);
+		const id = window.setInterval(flushFeed, FEED_FLUSH_MS);
 		const onHide = () => {
 			if (document.visibilityState === 'hidden') flushFeed();
 		};
@@ -1793,16 +1553,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			addGoal,
 			changeArea,
 			recalcArea,
-			worlds,
-			activeWorldId,
-			startNewCoop,
-			refreshWorlds,
-			pendingJoin,
-			checkJoinApproval,
-			playSoloInstead,
-			pendingRequests,
-			approveJoin,
-			denyJoin,
 		}),
 		[
 			data,
@@ -1862,16 +1612,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			setPaintColor,
 			paintHome,
 			paintPlacement,
-			worlds,
-			activeWorldId,
-			startNewCoop,
-			refreshWorlds,
-			pendingJoin,
-			checkJoinApproval,
-			playSoloInstead,
-			pendingRequests,
-			approveJoin,
-			denyJoin,
 		],
 	);
 
