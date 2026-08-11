@@ -50,6 +50,16 @@ const discoveries = () => [...w.db.Discovery._rows.values()];
 const login = () => w.post('LoginPlayer', { name: 'Sam', passcode: '1234' });
 const newSave = async () => (await w.post('CreatePlayer', { name: 'Sam', passcode: '1234', appearance })).playerId;
 
+/** A save as 0.2 left it: created on this build, then stripped of the marker that
+ *  says the repair pass has already run. Every real pre-0.3 save looks like this. */
+const agedSave = async () => {
+	const pid = await newSave();
+	const row = { ...w.db.Player._rows.get(pid) };
+	delete row.repairRev;
+	w.db.Player._rows.set(pid, row);
+	return pid;
+};
+
 beforeEach(async () => {
 	w = await freshWorld();
 });
@@ -268,7 +278,7 @@ describe('a save that never uses the login screen again', () => {
 	// walled off by their own water for as long as they kept playing. The
 	// heartbeat is the write path every session has, so it carries the backstop.
 	it('is repaired on its next heartbeat', async () => {
-		const pid = await newSave();
+		const pid = await agedSave();
 		seedDiscovery(pid, 'coyote-meadow', 'meadow', { timesObserved: 2 });
 
 		await w.post('Heartbeat', { playerId: pid });
@@ -279,7 +289,8 @@ describe('a save that never uses the login screen again', () => {
 	});
 
 	it('does not re-run the pass on every later beat', async () => {
-		const pid = await newSave();
+		const pid = await agedSave();
+		expect(w.db.Player._rows.get(pid).repairRev).toBeUndefined();
 		await w.post('Heartbeat', { playerId: pid });
 		expect(w.db.Player._rows.get(pid).repairRev).toBeGreaterThan(0);
 

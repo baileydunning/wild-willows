@@ -2449,6 +2449,13 @@ async function createPlayerRecords(
 		// The board always shows a live "Unlock the next biome" guidance goal, so a
 		// new player starts with no custom goals of their own yet.
 		customGoals: [],
+		// Born current: a save created on this build has no retired animal ids, no
+		// mis-filed discoveries and no gate it walled off before the rule existed,
+		// so the repair pass has nothing to find. Stamped here rather than left for
+		// the first heartbeat to discover, because that would spend a Player write
+		// per new save to learn there was no work — and the write budget is what
+		// caps how many people can play at once. Only pre-0.3 saves lack it.
+		repairRev: REPAIR_REV,
 	};
 	await t.Player.put(player);
 
