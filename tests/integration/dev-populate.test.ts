@@ -35,6 +35,24 @@ describe('DevTools populate-biome (showcase)', () => {
 		const pls = s.placements.filter((p: any) => p.area === 'meadow');
 		expect(pls.length).toBeGreaterThanOrEqual(20);
 
+		// the whole catalogue is standing: the showcase doubles as a look at every
+		// buildable thing in the biome, so nothing may be missing from the shot
+		const buildable = objects.filter(
+			(o: any) =>
+				(o.biomes || []).includes('meadow') &&
+				o.placement !== 'indoor' &&
+				o.placement !== 'none' &&
+				!o.isChest &&
+				!o.bridge,
+		);
+		const standing = new Set(pls.map((p: any) => p.objectId));
+		const absent = buildable.filter((o: any) => !standing.has(o.id)).map((o: any) => o.id);
+		expect(absent, `missing from the showcase: ${absent.join(', ')}`).toHaveLength(0);
+		// one-per-area things appear exactly once, however lush the scatter got
+		for (const o of buildable.filter((x: any) => x.onePerArea)) {
+			expect(pls.filter((p: any) => p.objectId === o.id)).toHaveLength(1);
+		}
+
 		// scattered, not lined up at the top: objects spread across a wide band both ways
 		const xs = pls.map((p: any) => p.x),
 			ys = pls.map((p: any) => p.y);
@@ -94,6 +112,12 @@ describe('DevTools populate-biome (showcase)', () => {
 			const key = `${p.x},${p.y}`;
 			expect(seen.has(key), `duplicate cell ${key}`).toBe(false);
 			seen.add(key);
+			// bridges are the one thing that belongs ON the water — everything else
+			// must be on dry land
+			if (objById[p.objectId]?.bridge) {
+				expect(water.has(key), `bridge off the water ${key}`).toBe(true);
+				continue;
+			}
 			expect(water.has(key), `object on water ${key}`).toBe(false);
 			const inCamp = p.x >= 19 && p.x <= 24 && p.y >= 3 && p.y <= 6;
 			expect(inCamp, `object in camp ${key}`).toBe(false);
@@ -103,13 +127,35 @@ describe('DevTools populate-biome (showcase)', () => {
 		}
 	});
 
-	it('is idempotent — re-running keeps the biome clean (no duplicate stacks)', async () => {
+	it('re-running rebuilds the scene rather than stacking on it — and lays out a different one', async () => {
 		const pid = (await w.post('CreatePlayer', { name: 'Ivy', passcode: '1234', appearance })).playerId;
+		const layout = async () => {
+			const pls = (await w.get('GameState', pid)).placements.filter((p: any) => p.area === 'meadow');
+			return pls.map((p: any) => `${p.objectId}@${p.x},${p.y}`).sort();
+		};
 		await w.post('DevTools', { playerId: pid, action: 'populate-biome', area: 'meadow' });
-		const first = (await w.get('GameState', pid)).placements.filter((p: any) => p.area === 'meadow').length;
+		const first = await layout();
 		await w.post('DevTools', { playerId: pid, action: 'populate-biome', area: 'meadow' });
-		const second = (await w.get('GameState', pid)).placements.filter((p: any) => p.area === 'meadow').length;
-		expect(second).toBe(first);
+		const second = await layout();
+
+		// the old scene was cleared, not built on top of: no cell is used twice
+		expect(new Set(second.map((k: string) => k.split('@')[1])).size).toBe(second.length);
+		// a fresh arrangement every run, so you can keep pressing until one frames well
+		expect(second).not.toEqual(first);
+		// ...and it's still a full showcase, not a thinner one
+		expect(second.length).toBeGreaterThanOrEqual(20);
+	});
+
+	it('rebuilds an exact scene when handed a seed back', async () => {
+		const pid = (await w.post('CreatePlayer', { name: 'Seed', passcode: '1234', appearance })).playerId;
+		const layout = async () => {
+			const pls = (await w.get('GameState', pid)).placements.filter((p: any) => p.area === 'meadow');
+			return pls.map((p: any) => `${p.objectId}@${p.x},${p.y}`).sort();
+		};
+		await w.post('DevTools', { playerId: pid, action: 'populate-biome', area: 'meadow', seed: 'shot-42' });
+		const first = await layout();
+		await w.post('DevTools', { playerId: pid, action: 'populate-biome', area: 'meadow', seed: 'shot-42' });
+		expect(await layout()).toEqual(first);
 	});
 
 	it('reset-clock returns the game clock to the first morning', async () => {
@@ -128,6 +174,53 @@ describe('DevTools populate-biome (showcase)', () => {
 		expect((await w.get('GameState', pid)).weather.dayPhase).toBe('night');
 		await w.post('DevTools', { playerId: pid, action: 'restart-game' });
 		expect((await w.get('GameState', pid)).weather.dayPhase).toBe('day');
+	});
+
+	it('furnishes the home too — maxed house, one of every piece that fits, clear doorway', async () => {
+		const pid = (await w.post('CreatePlayer', { name: 'Hom', passcode: '1234', appearance })).playerId;
+		const r = await w.post('DevTools', { playerId: pid, action: 'populate-biome', area: 'home' });
+		expect(r.ok).toBe(true);
+
+		const d = await w.get('GameData');
+		const s = await w.get('GameState', pid);
+		const home = s.player.home;
+		// maxed on every track, so the biggest floor and the fussiest furniture are legal
+		for (const track of ['space', 'comfort', 'decor', 'light']) {
+			expect(home[track], track).toBe(d.homeTracks[track].levels.length);
+		}
+
+		// one of everything the house can hold is standing
+		const pls = s.placements.filter((p: any) => p.area === 'home');
+		const objById = Object.fromEntries(objects.map((o: any) => [o.id, o]));
+		const fits = objects.filter(
+			(o: any) =>
+				o.placement !== 'outdoor' &&
+				o.placement !== 'none' &&
+				!o.isChest &&
+				!o.bridge &&
+				(o.homeMin || 0) <= home.space,
+		);
+		const standing = new Set(pls.map((p: any) => p.objectId));
+		const absent = fits.filter((o: any) => !standing.has(o.id)).map((o: any) => o.id);
+		expect(absent, `missing from the room: ${absent.join(', ')}`).toHaveLength(0);
+
+		// well-formed: inside the floor rect, one piece per tile, nothing outdoor-only,
+		// and the doorway plus the ring around it left clear so the exit is walkable
+		const inner = d.homeTracks.space.levels[home.space - 1].inner;
+		const x0 = Math.floor((30 - inner.w) / 2),
+			y0 = Math.floor((20 - inner.h) / 2);
+		const x1 = x0 + inner.w - 1,
+			y1 = y0 + inner.h - 1;
+		const door = { x: Math.round((x0 + x1) / 2), y: y1 };
+		const seen = new Set<string>();
+		for (const p of pls.filter((p: any) => !objById[p.objectId]?.isChest)) {
+			const key = `${p.x},${p.y}`;
+			expect(seen.has(key), `two pieces on ${key}`).toBe(false);
+			seen.add(key);
+			expect(p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1, `${p.objectId} off the floor`).toBe(true);
+			expect(objById[p.objectId]?.placement, `${p.objectId} is outdoor-only`).not.toBe('outdoor');
+			expect(Math.abs(p.x - door.x) <= 1 && Math.abs(p.y - door.y) <= 1, `${p.objectId} in the doorway`).toBe(false);
+		}
 	});
 
 	it('dry biomes get no pond (desert cannot flood)', async () => {

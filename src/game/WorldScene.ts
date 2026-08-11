@@ -4,6 +4,7 @@ import {
 	canPaintClick,
 	isSleepable,
 	blocksDoorway,
+	blocksGateTrail,
 	isOrphanedTween,
 	screenSpaceOverlayTransform,
 } from './interactions';
@@ -884,6 +885,17 @@ export class WorldScene extends Phaser.Scene {
 		return 'water';
 	}
 
+	/** This area's gate geometry, for blocksGateTrail(). */
+	private gateGeom() {
+		const ai = AREA_ORDER.indexOf(this.area);
+		return {
+			gateY: this.dimsOf(this.area).gateY,
+			landRight: this.landRight,
+			westGate: ai > 0,
+			eastGate: ai >= 0 && ai < AREA_ORDER.length - 1 && this.area !== 'coastal',
+		};
+	}
+
 	/** Terraform event payload — destructive actions on a watered bed ask first. */
 	private terraformPayload(tx: number, ty: number) {
 		const action = this.terraformActionFor(tx, ty);
@@ -898,6 +910,9 @@ export class WorldScene extends Phaser.Scene {
 				// movement collision uses.
 				const onTile = Math.floor(this.player.x / TILE) === tx && Math.floor((this.player.y + 8) / TILE) === ty;
 				if (onTile) block = t('game.block.standingHere');
+				// same for the mouth of a trail gate: water there walls off the way
+				// into the next biome (mirrors the check in the Terraform endpoint)
+				else if (blocksGateTrail(tx, ty, this.gateGeom())) block = t('game.block.gateTrail');
 				// otherwise flooding happens immediately — no confirmation prompt
 			}
 		}

@@ -76,11 +76,21 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 					<div className="dev-grid">
 						<button
 							disabled={!!busy}
-							title={`Scatter habitat, mature plant clusters, path runs, a lake + river, every animal home, and 100% health — a showcase for screenshots/video. Replaces existing placements & terrain here (chests kept).`}
+							title={
+								area === 'home'
+									? `Max every home track, clear the floor and set out one of every piece of furniture that fits — a showcase for screenshots/video. Lays out a fresh arrangement every run, so press it again for a different room (the layout seed is printed in the log). Chests and their contents are kept.`
+									: `Scatter habitat, mature plant clusters, path runs, a lake + river, every animal home, and 100% health, with at least one of everything the biome can build — a showcase for screenshots/video. Lays out a fresh arrangement every run, so press it again for a different scene (the layout seed is printed in the log). Replaces existing placements & terrain here (chests kept).`
+							}
 							onClick={() => run(`Populate ${area}`, 'populate-biome', { area })}
 						>
 							<Icon name="sparkle" size={13} />{' '}
-							{busy === 'populate-biome' ? 'Populating…' : `Populate ${area} (showcase)`}
+							{busy === 'populate-biome'
+								? area === 'home'
+									? 'Furnishing…'
+									: 'Populating…'
+								: area === 'home'
+									? 'Furnish home (showcase)'
+									: `Populate ${area} (showcase)`}
 						</button>
 						<Btn label={`Reseed ${area}`} action="seed-water" args={{ area }} />
 						<Btn label={`Clear ${area} terrain`} action="clear-terrain" args={{ area }} />

@@ -55,7 +55,8 @@
 		"clearWateredBed": "Clear this watered soil bed? The water used on it is lost."
 	},
 	"block": {
-		"standingHere": "You're standing here — step off before flooding this bed into open water."
+		"standingHere": "You're standing here — step off before flooding this bed into open water.",
+		"gateTrail": "The trail gate has to stay walkable — flooding here would seal the way out."
 	},
 	"float": {
 		"pickup": "+{qty} {name}",

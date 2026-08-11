@@ -1,0 +1,402 @@
+/* ---- title-screen critters -------------------------------------------------
+   Every animal on the title screen is the real in-game sprite (a flat SVG
+   image), so all motion here is body-level: bobs, hops, sways and crossings.
+   Positioning lives on a static outer <g transform>, never in a keyframe, so
+   [data-reduce-motion="1"] leaves every creature exactly where it belongs. */
+
+/* Shared crossing animation. Each critter sets --x0/--x1 (relative to the spot
+   it rests at), plus --dur and --delay, inline. */
+.cross {
+	animation: cross var(--dur, 30s) linear infinite;
+	animation-delay: var(--delay, 0s);
+}
+@keyframes cross {
+	from {
+		transform: translateX(var(--x0, 0px));
+	}
+	to {
+		transform: translateX(var(--x1, 0px));
+	}
+}
+
+/* owl keeping watch — the barest breathing shift */
+.owl-perch {
+	animation: owl-settle 7.5s ease-in-out infinite;
+	transform-origin: 50% 100%;
+}
+@keyframes owl-settle {
+	0%,
+	78%,
+	100% {
+		transform: translateY(0) rotate(0deg);
+	}
+	84% {
+		transform: translateY(-1px) rotate(-4deg);
+	}
+	90% {
+		transform: translateY(0) rotate(3deg);
+	}
+}
+
+/* bluebird shuffling along its branch */
+.bluebird-hop {
+	animation: bluebird-hop 6.2s ease-in-out infinite;
+	transform-origin: 50% 100%;
+}
+@keyframes bluebird-hop {
+	0%,
+	54%,
+	100% {
+		transform: translate(0, 0);
+	}
+	60% {
+		transform: translate(-3px, -5px);
+	}
+	66%,
+	86% {
+		transform: translate(-6px, 0);
+	}
+	92% {
+		transform: translate(-3px, -4px);
+	}
+}
+
+/* deer dipping to graze, then lifting its head to check the meadow */
+.deer-graze {
+	animation: deer-graze 11s ease-in-out infinite;
+	transform-origin: 78% 100%;
+}
+@keyframes deer-graze {
+	0%,
+	38%,
+	100% {
+		transform: rotate(0deg) translateY(0);
+	}
+	48%,
+	80% {
+		transform: rotate(9deg) translateY(1px);
+	}
+}
+
+/* meadowlark tipping its head back to sing */
+.lark-sing {
+	animation: lark-sing 5.4s ease-in-out infinite;
+	transform-origin: 40% 100%;
+}
+@keyframes lark-sing {
+	0%,
+	48%,
+	100% {
+		transform: rotate(0deg) translateY(0);
+	}
+	56%,
+	70% {
+		transform: rotate(-11deg) translateY(-1.5px);
+	}
+	62% {
+		transform: rotate(-8deg) translateY(-0.5px);
+	}
+}
+
+/* squirrel bolting a few steps, then freezing */
+.squirrel-perk {
+	animation: squirrel-perk 7.8s ease-in-out infinite;
+	transform-origin: 50% 100%;
+}
+@keyframes squirrel-perk {
+	0%,
+	62%,
+	100% {
+		transform: translate(0, 0) rotate(0deg);
+	}
+	68% {
+		transform: translate(7px, -4px) rotate(-6deg);
+	}
+	74%,
+	90% {
+		transform: translate(13px, 0) rotate(0deg);
+	}
+	96% {
+		transform: translate(6px, 0) rotate(4deg);
+	}
+}
+
+/* ground squirrel standing sentry over the burrow */
+.sentry-alert {
+	animation: sentry-alert 8.6s ease-in-out infinite;
+	transform-origin: 50% 100%;
+}
+@keyframes sentry-alert {
+	0%,
+	44%,
+	100% {
+		transform: scaleY(1) rotate(0deg);
+	}
+	54%,
+	80% {
+		transform: scaleY(1.14) rotate(-3deg);
+	}
+}
+
+/* groundhog easing up out of the mound and sinking back */
+.groundhog-peek {
+	animation: groundhog-peek 13s ease-in-out infinite;
+}
+@keyframes groundhog-peek {
+	0%,
+	100% {
+		transform: translateY(15px);
+	}
+	22%,
+	68% {
+		transform: translateY(-2px);
+	}
+	40% {
+		transform: translateY(-5px);
+	}
+}
+
+/* vole darting between tunnel mouths, with long nervous pauses */
+.vole-dart {
+	animation-timing-function: cubic-bezier(0.85, 0, 0.15, 1);
+}
+
+/* goldfinch bouncing along the hill in that finch roller-coaster flight */
+.finch-flit {
+	animation: finch-flit 12s ease-in-out infinite;
+}
+@keyframes finch-flit {
+	0%,
+	100% {
+		transform: translate(0, 0);
+	}
+	18% {
+		transform: translate(24px, -16px);
+	}
+	34% {
+		transform: translate(48px, -2px);
+	}
+	52% {
+		transform: translate(70px, -18px);
+	}
+	70% {
+		transform: translate(38px, -6px);
+	}
+	86% {
+		transform: translate(14px, -14px);
+	}
+}
+.finch-wings {
+	animation: quick-flap 0.26s ease-in-out infinite alternate;
+	transform-origin: 50% 60%;
+}
+@keyframes quick-flap {
+	from {
+		transform: scaleY(1);
+	}
+	to {
+		transform: scaleY(0.72);
+	}
+}
+
+/* bat working the dusk sky — the crossing is linear, this is the wobble */
+.bat-fly {
+	animation-name: cross, bat-weave;
+	animation-duration: var(--dur, 27s), 2.6s;
+	animation-timing-function: linear, ease-in-out;
+	animation-iteration-count: infinite, infinite;
+}
+@keyframes bat-weave {
+	0%,
+	100% {
+		translate: 0 0;
+	}
+	25% {
+		translate: 0 -26px;
+	}
+	50% {
+		translate: 0 8px;
+	}
+	75% {
+		translate: 0 -14px;
+	}
+}
+.bat-flap {
+	animation: bat-flap 0.2s ease-in-out infinite alternate;
+	transform-origin: 50% 40%;
+}
+@keyframes bat-flap {
+	from {
+		transform: scaleY(1) scaleX(1);
+	}
+	to {
+		transform: scaleY(0.45) scaleX(0.92);
+	}
+}
+
+/* bumblebee hovering the flower patch */
+.bee-hover {
+	animation: bee-hover 13s ease-in-out infinite;
+}
+@keyframes bee-hover {
+	0%,
+	100% {
+		transform: translate(0, 0);
+	}
+	14% {
+		transform: translate(12px, 10px);
+	}
+	30% {
+		transform: translate(-16px, 16px);
+	}
+	46% {
+		transform: translate(34px, 6px);
+	}
+	62% {
+		transform: translate(52px, 12px);
+	}
+	80% {
+		transform: translate(20px, -6px);
+	}
+}
+
+/* monarchs meandering between the flowers */
+.monarch-drift {
+	animation: monarch-drift0 16s ease-in-out infinite;
+}
+.monarch-drift.md1 {
+	animation-name: monarch-drift1;
+	animation-duration: 19s;
+	animation-delay: -7s;
+}
+@keyframes monarch-drift0 {
+	0%,
+	100% {
+		transform: translate(0, 0) rotate(-6deg);
+	}
+	30% {
+		transform: translate(38px, -22px) rotate(8deg);
+	}
+	55% {
+		transform: translate(66px, 6px) rotate(-4deg);
+	}
+	80% {
+		transform: translate(18px, 12px) rotate(6deg);
+	}
+}
+@keyframes monarch-drift1 {
+	0%,
+	100% {
+		transform: translate(0, 0) rotate(5deg);
+	}
+	28% {
+		transform: translate(-44px, -26px) rotate(-8deg);
+	}
+	55% {
+		transform: translate(16px, -36px) rotate(4deg);
+	}
+	78% {
+		transform: translate(48px, -10px) rotate(-5deg);
+	}
+}
+
+/* mantis swaying like a leaf in the breeze — exactly what a real one does */
+.mantis-sway {
+	animation: mantis-sway 4.4s ease-in-out infinite;
+	transform-origin: 50% 100%;
+}
+@keyframes mantis-sway {
+	0%,
+	100% {
+		transform: rotate(-7deg);
+	}
+	50% {
+		transform: rotate(7deg);
+	}
+}
+
+/* grasshopper: long stillness, then a sudden spring */
+.hopper-hop {
+	animation: hopper-hop 6.8s ease-out infinite;
+	transform-origin: 50% 100%;
+}
+@keyframes hopper-hop {
+	0%,
+	72%,
+	100% {
+		transform: translate(0, 0);
+	}
+	78% {
+		transform: translate(9px, -17px);
+	}
+	84%,
+	94% {
+		transform: translate(18px, 0);
+	}
+	97% {
+		transform: translate(9px, 0);
+	}
+}
+
+/* ladybug's slow trundle, and the snake's slow wave */
+.ladybug-crawl {
+	animation-timing-function: ease-in-out;
+	animation-direction: alternate;
+}
+.snake-slither {
+	animation-name: cross, snake-wave;
+	animation-duration: var(--dur, 48s), 3.4s;
+	animation-timing-function: ease-in-out, ease-in-out;
+	animation-iteration-count: infinite, infinite;
+	animation-direction: alternate, normal;
+}
+@keyframes snake-wave {
+	0%,
+	100% {
+		rotate: -3deg;
+	}
+	50% {
+		rotate: 3deg;
+	}
+}
+
+/* spider riding its web in the evening air */
+.web-sway {
+	animation: web-sway 6.5s ease-in-out infinite;
+	transform-origin: 50% 0%;
+}
+@keyframes web-sway {
+	0%,
+	100% {
+		transform: rotate(-1.6deg);
+	}
+	50% {
+		transform: rotate(1.6deg);
+	}
+}
+.spider-bob {
+	animation: spider-bob 6.5s ease-in-out infinite;
+}
+@keyframes spider-bob {
+	0%,
+	100% {
+		transform: translate(-3px, 0);
+	}
+	50% {
+		transform: translate(3px, -2px);
+	}
+}
+
+/* opossum's unhurried waddle across the foreground */
+.opossum-waddle {
+	animation: opossum-waddle 1.6s ease-in-out infinite alternate;
+	transform-origin: 50% 100%;
+}
+@keyframes opossum-waddle {
+	from {
+		transform: translateY(0) rotate(-1.5deg);
+	}
+	to {
+		transform: translateY(-1.5px) rotate(1.5deg);
+	}
+}

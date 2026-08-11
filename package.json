@@ -39,6 +39,7 @@
 		"desktop:pack": "npm run build && electron-builder --dir",
 		"desktop:dist": "npm run build && electron-builder",
 		"desktop:mas": "npm run build && electron-builder --mac mas --universal",
+		"capacity": "npm run build:server && node scripts/capacity-report.mjs",
 		"readability": "node scripts/readability.mjs"
 	},
 	"masComment": "Mac App Store variant (`npm run desktop:mas`). Inherits `mac` config, so everything notarized-DMG-specific is overridden here: MAS uses the App Sandbox instead of the hardened runtime + notarization, its own entitlements pair, and a provisioning profile from developer.apple.com (put it at build/embedded.provisionprofile — gitignored; CI decodes it from a secret). steamworks.js is excluded: Steam can't run inside the MAS sandbox and electron/steam.js already no-ops when the module is missing. ITSAppUsesNonExemptEncryption=false answers App Store Connect's export-compliance question (HTTPS only). NOTE (electron-builder 26+): mac.notarize is now a boolean — the notary team ID JB4CT3MZ6L moved to the APPLE_TEAM_ID env var, which CI must set alongside APPLE_ID and APPLE_APP_SPECIFIC_PASSWORD.",

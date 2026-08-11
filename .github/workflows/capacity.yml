@@ -1,0 +1,75 @@
+name: Capacity
+
+# How many concurrent saves this build can support, posted as a PR comment.
+#
+# The numbers come from scripts/capacity-report.mjs, which drives the REAL built
+# server bundle against an in-memory Harper and counts writes, rows read and
+# bytes for two very different players: a desktop save (game runs in-process, so
+# almost nothing reaches the server) and a browser-demo save (server-
+# authoritative, so every action is a request).
+#
+# The point is the DELTA, not the absolute number: if a PR adds a write to the
+# hot path, the browser figure drops and the comment says so before it ships.
+
+on:
+  pull_request:
+    branches: [main]
+
+concurrency:
+  group: capacity-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: write
+
+jobs:
+  report:
+    name: Concurrent-save capacity
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+
+      # The script reads the built bundle, so it measures what actually ships.
+      - name: Build the server bundle
+        run: npm run build:server
+
+      - name: Measure capacity
+        run: node scripts/capacity-report.mjs --out capacity.md
+
+      # Upsert rather than append: the comment carries a marker so repeated
+      # pushes to a PR edit one comment instead of burying the thread.
+      #
+      # A PR from a fork gets a read-only token, so commenting is expected to
+      # fail there — the measurement still ran and is in the job log, and the
+      # step is non-fatal so a fork PR is never blocked by it.
+      - name: Comment on the PR
+        continue-on-error: true
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = fs.readFileSync('capacity.md', 'utf8');
+            const marker = '<!-- capacity-report -->';
+            const { owner, repo } = context.repo;
+            const issue_number = context.payload.pull_request.number;
+
+            const existing = await github.paginate(github.rest.issues.listComments, {
+              owner, repo, issue_number, per_page: 100,
+            });
+            const mine = existing.find(
+              (c) => c.user?.type === 'Bot' && c.body?.includes(marker),
+            );
+
+            if (mine) {
+              await github.rest.issues.updateComment({ owner, repo, comment_id: mine.id, body });
+              core.info(`updated comment ${mine.id}`);
+            } else {
+              await github.rest.issues.createComment({ owner, repo, issue_number, body });
+              core.info('created capacity comment');
+            }

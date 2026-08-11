@@ -111,6 +111,7 @@
 		"prepareBedFirst": "Prepara un bancal con tu pala primero",
 		"alreadyOpenWater": "Esto ya es agua abierta",
 		"tooDryToFlood": "El terreno de {biome} es demasiado seco para inundarlo — aquí los bancales solo pueden prepararse para plantar.",
+		"gateMustStayClear": "El sendero de la puerta debe seguir siendo transitable — inunda un canal en otro sitio.",
 		"needWater": "Necesitas {count} de agua para eso — recolecta más primero",
 		"nothingToClear": "No hay nada que despejar aquí",
 		"badTerraformAction": "action debe ser 'dig', 'water' o 'clear'",

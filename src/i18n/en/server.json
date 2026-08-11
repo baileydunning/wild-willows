@@ -111,6 +111,7 @@
 		"prepareBedFirst": "Prepare a soil bed with your shovel first",
 		"alreadyOpenWater": "This is already open water",
 		"tooDryToFlood": "{biome} is too dry to flood — soil beds here can only be readied for planting.",
+		"gateMustStayClear": "The trail gate has to stay walkable — flood a channel somewhere clear of it.",
 		"needWater": "You need {count} water for that — gather more first",
 		"nothingToClear": "Nothing to clear here",
 		"badTerraformAction": "action must be 'dig', 'water', or 'clear'",

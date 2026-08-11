@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import {
 	canPaintClick,
 	blocksDoorway,
+	blocksGateTrail,
 	isSleepable,
 	isOrphanedTween,
 	screenSpaceOverlayTransform,
@@ -28,6 +29,47 @@ describe('canPaintClick', () => {
 	it('only paints with the paint tool selected', () => {
 		expect(canPaintClick({ tool: 'basket', isHome: true, placing: false, moving: false })).toBe(false);
 		expect(canPaintClick({ tool: null, isHome: true, placing: false, moving: false })).toBe(false);
+	});
+});
+
+describe('blocksGateTrail — water never seals a trail gate', () => {
+	// A middle biome: 30 cols, 26 playable rows, so the gates sit on row 12.8 and
+	// there is a gate on both edges. Open water blocks walking, so flooding the
+	// mouth of a gate would lock the player out of the neighbouring biome.
+	const middle = { gateY: 12.8, landRight: 30, westGate: true, eastGate: true };
+
+	it('blocks the two columns in from the west gate, on the gate row and either side', () => {
+		for (const ty of [12, 13, 14]) {
+			expect(blocksGateTrail(1, ty, middle)).toBe(true);
+			expect(blocksGateTrail(2, ty, middle)).toBe(true);
+		}
+	});
+
+	it('blocks the matching pocket at the east gate', () => {
+		for (const ty of [12, 13, 14]) {
+			expect(blocksGateTrail(27, ty, middle)).toBe(true);
+			expect(blocksGateTrail(28, ty, middle)).toBe(true);
+		}
+	});
+
+	it('leaves the rest of the shoreline floodable', () => {
+		expect(blocksGateTrail(4, 13, middle)).toBe(false); // clear of the gate column
+		expect(blocksGateTrail(1, 10, middle)).toBe(false); // same column, well above the gate
+		expect(blocksGateTrail(15, 13, middle)).toBe(false); // mid-map, gate row
+	});
+
+	it('only guards edges that actually have a gate', () => {
+		const first = { ...middle, westGate: false }; // Willow Meadow: no gate west
+		expect(blocksGateTrail(1, 13, first)).toBe(false);
+		const last = { ...middle, eastGate: false, landRight: 26 }; // Pelican Shore: ocean east
+		expect(blocksGateTrail(24, 13, last)).toBe(false);
+		expect(blocksGateTrail(1, 13, last)).toBe(true); // still has its way back west
+	});
+
+	it('follows the alpine gates down past the mountain band', () => {
+		const alpine = { gateY: 20.8, landRight: 30, westGate: true, eastGate: true };
+		expect(blocksGateTrail(1, 21, alpine)).toBe(true);
+		expect(blocksGateTrail(1, 13, alpine)).toBe(false); // where a lowland gate would be
 	});
 });
 

@@ -52,6 +52,41 @@ export function blocksDoorway(
 	return Math.abs(tx - door.doorX) <= 1 && Math.abs(ty - door.doorY) <= 1;
 }
 
+// --------------------------------------------------------------- trail gates
+
+/** Geometry of one area's trail gates, as WorldScene.dimsOf() computes it. */
+export interface GateGeom {
+	/** Row the gates sit on (playTop + baseRows / 2 - 0.2). */
+	gateY: number;
+	/** First column of ocean/void — the gate back out sits just inside it. */
+	landRight: number;
+	/** Is there a gate on the west edge (every area but the first)? */
+	westGate: boolean;
+	/** Is there a gate on the east edge (every area but the last)? */
+	eastGate: boolean;
+}
+
+/**
+ * Whether flooding (tx, ty) would wall off a trail gate.
+ *
+ * Open water blocks walking, so a channel dug across the mouth of a gate locks
+ * the player out of the next biome entirely — the gate is an interactable you
+ * have to stand next to, and you cannot stand in water. Refuse the gate tile
+ * and the pocket around it (one row either side, the two columns in from each
+ * edge) so there is always a dry step through.
+ *
+ * Only flooding is refused. A tilled or watered soil bed is walkable and
+ * perfectly fine on the trail. The server enforces the same rule in Terraform;
+ * this copy exists so the click is blocked with a message instead of making a
+ * round trip to be rejected.
+ */
+export function blocksGateTrail(tx: number, ty: number, g: GateGeom): boolean {
+	if (Math.abs(ty - Math.round(g.gateY)) > 1) return false;
+	if (g.westGate && tx <= 2) return true;
+	if (g.eastGate && tx >= g.landRight - 3) return true;
+	return false;
+}
+
 // ------------------------------------------------------------ tween hygiene
 
 /**

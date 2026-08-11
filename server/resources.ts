@@ -2038,6 +2038,43 @@ function areaGrid(d: any, area: string): { cols: number; rows: number } {
 	return { cols, rows };
 }
 
+/**
+ * Where an area's trail gates sit, mirroring `dimsOf()` in the client's
+ * WorldScene: the gates are one tile in from each side, on the middle row of
+ * the playable band. The first biome has no gate west, the last none east.
+ */
+function gateGeomOf(d: any, area: string): { gateY: number; landRight: number; westGate: boolean; eastGate: boolean } {
+	const biome = d.biome.get(area);
+	const g = biome?.grid;
+	const cols = g?.cols || GRID_W;
+	const baseRows = g?.rows || GRID_H;
+	const playTop = area === 'alpine' ? ALPINE_MTN_ROWS : 0;
+	const order = biome?.order || 1;
+	const last = Math.max(...d.biomes.map((b: any) => b.order || 1));
+	return {
+		gateY: playTop + baseRows / 2 - 0.2,
+		landRight: biome?.oceanCols ? cols - biome.oceanCols : cols,
+		westGate: order > 1,
+		eastGate: order < last,
+	};
+}
+
+/**
+ * True if flooding (tx, ty) would wall off a trail gate. Open water blocks
+ * walking, so a channel across the mouth of a gate locks the player out of the
+ * next biome — you cannot stand next to the gate to use it. The gate tile, one
+ * row either side of it and the two columns in from that edge are all refused.
+ * Tilled and watered beds are walkable, so only the flood step is blocked.
+ * Mirrored by blocksGateTrail() in src/game/interactions.ts, which greys the
+ * click out before it ever reaches here.
+ */
+function blocksGateTrail(tx: number, ty: number, g: ReturnType<typeof gateGeomOf>): boolean {
+	if (Math.abs(ty - Math.round(g.gateY)) > 1) return false;
+	if (g.westGate && tx <= 2) return true;
+	if (g.eastGate && tx >= g.landRight - 3) return true;
+	return false;
+}
+
 const TERRAIN_COLORS: Record<string, string> = {
 	tilled: '#8a6a48',
 	watered: '#6b4f33',
@@ -6170,6 +6207,11 @@ export class Terraform extends PublicEndpoint {
 				if (newType === 'water' && biome.canFlood === false) {
 					throw new GameError(tr('server.err.tooDryToFlood', { biome: biome.name }), 400, 'server.err.tooDryToFlood');
 				}
+				// ...and the trail gates stay walkable: water there would seal the
+				// way into the next biome (see blocksGateTrail)
+				if (newType === 'water' && blocksGateTrail(tx, ty, gateGeomOf(d, area))) {
+					throw new GameError(tr('server.err.gateMustStayClear'), 400, 'server.err.gateMustStayClear');
+				}
 				const have = (inventory.water || 0) + (inventory['clean-water'] || 0);
 				if (have < cost) throw new GameError(tr('server.err.needWater', { count: cost }), 400, 'server.err.needWater');
 				inventory = { ...inventory };
@@ -7218,7 +7260,7 @@ const DEV_PLAYER = 'bailey'; // dev tools are restricted to this save
 
 export class DevTools extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, action, area, amount, value, resources, animalId } = await bodyOf(data);
+		const { playerId, action, area, amount, value, resources, animalId, seed } = await bodyOf(data);
 		// No username gate — the hidden panel is reached via a secret key sequence.
 		const t = db();
 		const d = await defs();
@@ -7554,14 +7596,134 @@ export class DevTools extends PublicEndpoint {
 				// biome for screenshots/video — naturally SCATTERED clusters of trees,
 				// flowers and shrubs, crafted accents dotted about, path runs, a carved
 				// lake + winding river (where the biome holds water), every animal home
-				// and comfortable, and health/balance pinned at 100. Deterministic per
-				// biome so the scene is repeatable. Chests are kept; all other placements
-				// + terrain here are replaced for a clean look.
+				// and comfortable, and health/balance pinned at 100 — with at least one of
+				// EVERY object the biome can build standing somewhere, so the shot doubles
+				// as a look at the whole catalogue. Every run lays out a DIFFERENT scene,
+				// so you can keep hitting the button until one frames well; pass back the
+				// `seed` from the log to rebuild an exact one. Chests are kept (and not
+				// added); all other placements + terrain here are replaced for a clean look.
 				const ar = area || player.area;
-				const biome = d.biome.get(ar);
-				if (!biome || ar === 'home')
-					throw new GameError(tr('server.err.cannotPopulate', { area: ar }), 400, 'server.err.cannotPopulate');
 				const wid = worldOf(player);
+				// One seed drives the whole layout — the lake, the river's course, every
+				// cluster and accent (or, indoors, where each piece of furniture lands).
+				// It changes per run so Populate reshuffles the scene instead of rebuilding
+				// the same one; passing a seed back (it's printed in the log) reproduces
+				// that exact scene, which is what the old fixed `populate:world:biome` seed
+				// gave you every time.
+				const runSeed =
+					seed === undefined || seed === null || seed === ''
+						? `${Date.now()}-${Math.random().toString(36).slice(2, 6)}`
+						: String(seed);
+
+				// ---- the home interior gets its own showcase -----------------------
+				// Same idea indoors, different furniture: max every upgrade track (the
+				// biggest floor, and the pieces that need a real house become legal),
+				// clear the floor, then set out one of everything that fits. Wall-hung
+				// things go against the walls and rugs land in the open middle, so it
+				// reads as a furnished room rather than a jumble.
+				if (ar === 'home') {
+					const rng = seededRng(hash32(`populate:${wid}:home:${runSeed}`));
+					const ri = (lo: number, hi: number) => lo + Math.floor(rng() * (hi - lo + 1));
+					const home = {
+						style: homeOf(player).style || 'cabin',
+						space: HOME_TRACKS.space.levels.length,
+						comfort: HOME_TRACKS.comfort.levels.length,
+						decor: HOME_TRACKS.decor.levels.length,
+						light: HOME_TRACKS.light.levels.length,
+						styleLocked: true,
+					};
+					await patchPlayer(playerId, { home });
+					const r = homeRoom({ ...player, home });
+					const door = doorTileOf(r);
+					const AGED = Date.now() - 45 * 86400000;
+
+					// clean floor — the player's chests and what's in them stay put
+					const taken = new Set<string>();
+					for (const pl of (await byWorld(t.Placement, wid)).filter((p) => p.area === 'home')) {
+						if (d.object.get(pl.objectId)?.isChest) {
+							taken.add(`${pl.x},${pl.y}`);
+							continue;
+						}
+						await t.Placement.delete(pl.id);
+					}
+					(await byWorld(t.Chest, wid)).filter((c) => c.area === 'home').forEach((c) => taken.add(`${c.x},${c.y}`));
+
+					// everything indoor-or-both that this (now maxed) house can hold
+					const fits = d.objects.filter(
+						(o: any) =>
+							o.placement !== 'outdoor' &&
+							o.placement !== 'none' &&
+							!o.isChest &&
+							!o.bridge &&
+							(o.homeMin || 0) <= home.space,
+					);
+					// The doorway and the ring around it stay clear for everything, not
+					// just beds: a screenshot wants to see the way out, and it keeps the
+					// authoritative blocksDoorway rule satisfied for free.
+					const openFloor = (x: number, y: number) =>
+						x >= r.x0 &&
+						x <= r.x1 &&
+						y >= r.y0 &&
+						y <= r.y1 &&
+						!(Math.abs(x - door.x) <= 1 && Math.abs(y - door.y) <= 1) &&
+						!taken.has(`${x},${y}`);
+					const rows: any[] = [];
+					const put = (def: any, x: number, y: number): boolean => {
+						if (!openFloor(x, y)) return false;
+						taken.add(`${x},${y}`);
+						const row: any = {
+							id: `${wid}:pl_dev_home_${x}_${y}`,
+							worldId: wid,
+							playerId,
+							objectId: def.id,
+							area: 'home',
+							x,
+							y,
+							placedAt: AGED,
+						};
+						if (def.plantable) row.plantedAt = AGED;
+						rows.push(row);
+						return true;
+					};
+					/** Tiles touching a wall — where anything hung or shelved belongs. */
+					const againstWall = (x: number, y: number) => x === r.x0 || x === r.x1 || y === r.y0 || y === r.y1;
+					const WALL_HUNG = /painting|wallclock|shelf|chandelier|string-lights|telescope|dresser|bookshelf/;
+					const FLOOR_SPREAD = /rug|reedmat|blanket|cushions|hammock/;
+					const putSomewhere = (def: any): boolean => {
+						const wants: ((x: number, y: number) => boolean) | null = WALL_HUNG.test(def.id)
+							? againstWall
+							: FLOOR_SPREAD.test(def.id)
+								? (x, y) => !againstWall(x, y)
+								: null;
+						// the tiles this piece prefers first, then anywhere in the room, then
+						// a sweep so a full floor can't silently drop a piece
+						for (const test of wants ? [wants, null] : [null]) {
+							for (let tries = 0; tries < 80; tries++) {
+								const x = ri(r.x0, r.x1),
+									y = ri(r.y0, r.y1);
+								if (test && !test(x, y)) continue;
+								if (put(def, x, y)) return true;
+							}
+						}
+						for (let y = r.y0; y <= r.y1; y++) for (let x = r.x0; x <= r.x1; x++) if (put(def, x, y)) return true;
+						return false;
+					};
+					const missing: string[] = [];
+					for (const def of fits) if (!putSomewhere(def)) missing.push(def.id);
+					for (const row of rows) await t.Placement.put(row);
+
+					log.push(
+						`Furnished the home (${home.space === HOME_TRACKS.space.levels.length ? 'maxed' : 'space ' + home.space}): ` +
+							`${rows.length} pieces, ${fits.length - missing.length} of ${fits.length} object types` +
+							(missing.length ? ` — no floor left for ${missing.join(', ')}` : ''),
+					);
+					log.push(`Layout seed ${runSeed} — run Populate again for a different one, or pass this seed to rebuild it`);
+					break;
+				}
+
+				const biome = d.biome.get(ar);
+				if (!biome)
+					throw new GameError(tr('server.err.cannotPopulate', { area: ar }), 400, 'server.err.cannotPopulate');
 
 				// make sure the area is reachable so you can walk in and film it
 				const unlockedSet = new Set<string>(player.unlockedBiomes || ['meadow']);
@@ -7591,8 +7753,7 @@ export class DevTools extends PublicEndpoint {
 				const inCamp = (x: number, y: number) => ar === 'meadow' && x >= 19 && x <= 24 && y >= 3 && y <= 6;
 				const OLD = Date.now() - 45 * 86400000; // 45 days ago → plants read fully grown, objects fully "matured"
 
-				// Deterministic per (world, biome) so re-running rebuilds the same scene.
-				const rng = seededRng(hash32(`populate:${wid}:${ar}`));
+				const rng = seededRng(hash32(`populate:${wid}:${ar}:${runSeed}`));
 				const ri = (lo: number, hi: number) => lo + Math.floor(rng() * (hi - lo + 1));
 				const pick = <T>(arr: T[]): T => arr[Math.floor(rng() * arr.length)];
 
@@ -7690,9 +7851,13 @@ export class DevTools extends PublicEndpoint {
 						400,
 						'server.err.noPlaceableObjects',
 					);
+				// The trail tent is one-per-area, so it stays out of the random scatter and
+				// is placed exactly once by the coverage pass — two tents in a screenshot
+				// is a bug the eye catches immediately.
+				const scatter = usable.filter((o: any) => !o.onePerArea);
 				const isPath = (o: any) => /-path$/.test(o.id) || o.id === 'wooden-fence' || o.id === 'dry-stone-wall';
-				const trees = usable.filter((o: any) => o.plantable && (o.growSeconds || 0) >= 80);
-				const flowers = usable.filter((o: any) => o.plantable && (o.growSeconds || 0) < 80);
+				const trees = scatter.filter((o: any) => o.plantable && (o.growSeconds || 0) >= 80);
+				const flowers = scatter.filter((o: any) => o.plantable && (o.growSeconds || 0) < 80);
 				const NATURE = new Set([
 					'shrub',
 					'rock-pile',
@@ -7709,9 +7874,9 @@ export class DevTools extends PublicEndpoint {
 					'birdhouse',
 					'bird-perch',
 				]);
-				const nature = usable.filter((o: any) => !o.plantable && !isPath(o) && NATURE.has(o.id));
-				const paths = usable.filter(isPath);
-				const decor = usable.filter((o: any) => !o.plantable && !isPath(o) && !NATURE.has(o.id));
+				const nature = scatter.filter((o: any) => !o.plantable && !isPath(o) && NATURE.has(o.id));
+				const paths = scatter.filter(isPath);
+				const decor = scatter.filter((o: any) => !o.plantable && !isPath(o) && !NATURE.has(o.id));
 				const undergrowth = nature.length ? nature : flowers; // fallback for biomes with no "nature" props
 
 				const places: any[] = [];
@@ -7774,7 +7939,57 @@ export class DevTools extends PublicEndpoint {
 				}
 				// top-up so every biome reads lush even if it has few plant/nature types
 				for (let tries = 0; places.length < 34 && tries < 500; tries++) {
-					place(pick(usable), ri(xMin, xMax), ri(yMin, yMax));
+					place(pick(scatter), ri(xMin, xMax), ri(yMin, yMax));
+				}
+
+				// ---- coverage: one of EVERY buildable thing this biome has ----
+				// The passes above pick at random, so a showcase shot would routinely
+				// miss half the catalogue — no good when the point is to see all of it
+				// at once. Anything not already standing gets planted here: random tries
+				// first (so it lands scattered, like the accent pass), then a systematic
+				// sweep so a crowded map can't silently drop an object.
+				const placeAnywhere = (def: any): boolean => {
+					for (let tries = 0; tries < 60; tries++) if (place(def, ri(xMin, xMax), ri(yMin, yMax))) return true;
+					for (let y = yMin; y <= yMax; y++) for (let x = xMin; x <= xMax; x++) if (place(def, x, y)) return true;
+					return false;
+				};
+				const standing = new Set<string>(places.map((r) => r.objectId));
+				const missing: string[] = [];
+				for (const def of usable) {
+					if (standing.has(def.id)) continue;
+					if (placeAnywhere(def)) standing.add(def.id);
+					else missing.push(def.id);
+				}
+
+				// Bridges belong ON the water, so they get their own pass: cross the
+				// channel where it's one tile wide, falling back to any open cell. A
+				// biome that can't be flooded (the desert) simply has nowhere to put one.
+				const bridgeDefs = d.objects.filter(
+					(o: any) => (o.biomes || []).includes(ar) && o.bridge && o.placement !== 'indoor',
+				);
+				const spannedWater = new Set<string>();
+				const crossing = (c: { x: number; y: number }) =>
+					!waterAt.has(`${c.x - 1},${c.y}`) && !waterAt.has(`${c.x + 1},${c.y}`);
+				for (const def of bridgeDefs) {
+					const cell =
+						waterCells.find((c) => !spannedWater.has(`${c.x},${c.y}`) && crossing(c)) ||
+						waterCells.find((c) => !spannedWater.has(`${c.x},${c.y}`));
+					if (!cell) {
+						missing.push(def.id);
+						continue;
+					}
+					spannedWater.add(`${cell.x},${cell.y}`);
+					standing.add(def.id);
+					places.push({
+						id: `${wid}:pl_dev_${ar}_${cell.x}_${cell.y}`,
+						worldId: wid,
+						playerId,
+						objectId: def.id,
+						area: ar,
+						x: cell.x,
+						y: cell.y,
+						placedAt: OLD,
+					});
 				}
 
 				// commit water + placements
@@ -7824,6 +8039,11 @@ export class DevTools extends PublicEndpoint {
 				log.push(
 					`Populated ${biome.name}: ${placed} objects, ${waterTiles} water tiles, ${here.length} animals home, health 100`,
 				);
+				log.push(
+					`Every buildable thing is standing: ${standing.size} of ${usable.length + bridgeDefs.length} object types` +
+						(missing.length ? ` — nowhere to put ${missing.join(', ')}` : ''),
+				);
+				log.push(`Layout seed ${runSeed} — run Populate again for a different one, or pass this seed to rebuild it`);
 				break;
 			}
 			case 'set-weather': {
