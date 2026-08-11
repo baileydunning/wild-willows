@@ -1025,9 +1025,10 @@ const ANIMAL_ALIASES = new Map<string, string>(
  * do, and no worker has to scan every Discovery row in the database to find
  * them.
  */
-async function migrateAnimalAliases(worldId: string, playerId: string): Promise<void> {
+async function migrateAnimalAliases(worldId: string, playerId: string): Promise<number> {
 	const t = db();
 	const d = await defs();
+	let touched = 0;
 
 	// ---- Discovery rows. World-owned, so this covers every member of a co-op world.
 	const rows = await byWorld(t.Discovery, worldId);
@@ -1045,6 +1046,7 @@ async function migrateAnimalAliases(worldId: string, playerId: string): Promise<
 			// row onto, so drop it rather than leave an id no lookup can resolve.
 			if (!animal) {
 				await t.Discovery.delete(old.id);
+				touched++;
 				continue;
 			}
 			const existing = live.get(newId);
@@ -1058,6 +1060,7 @@ async function migrateAnimalAliases(worldId: string, playerId: string): Promise<
 					...(firsts.length ? { firstObservedAt: Math.min(...firsts) } : {}),
 				});
 				await t.Discovery.delete(old.id);
+				touched++;
 				continue;
 			}
 			// The slot is free: re-key the row onto the new animal. `biomeId` comes from
@@ -1075,28 +1078,33 @@ async function migrateAnimalAliases(worldId: string, playerId: string): Promise<
 			await t.Discovery.put(moved);
 			if (moved.id !== old.id) await t.Discovery.delete(old.id); // legacy playerId-keyed row
 			live.set(newId, moved);
+			touched++;
 		}
 	}
 
 	// ---- Custom goals. Per-player, so each member migrates their own on their own entry.
 	const player = await safeGet(t.Player, playerId);
 	const goals = (player?.customGoals || []) as CustomGoal[];
-	if (!goals.some((g) => ANIMAL_ALIASES.has(g?.animalId || ''))) return;
-	// Goals that already name a live animal stay exactly as they are — an id this
-	// table says nothing about is sanitizeGoals()' business, not the migration's.
-	const seen = new Set<string>(
-		goals.filter((g) => g?.animalId && !ANIMAL_ALIASES.has(g.animalId)).map((g) => `${g.kind}:${g.animalId}`),
-	);
+	// A goal is stale if its animal was renamed OR retired outright. Both cases
+	// have to be handled here: sanitizeGoals() would catch them, but it only runs
+	// on SetGoals, so a goal nobody edits is never looked at again. Left alone it
+	// renders as a raw slug ("Welcome the acorn-woodpecker"), reports 0% forever,
+	// and holds one of only three goal slots for the life of the save.
+	const isStale = (g: CustomGoal) => !!g?.animalId && (ANIMAL_ALIASES.has(g.animalId) || !d.animal.get(g.animalId));
+	if (!goals.some(isStale)) return touched;
+	// Goals that already name a live animal stay exactly as they are.
+	const seen = new Set<string>(goals.filter((g) => g?.animalId && !isStale(g)).map((g) => `${g.kind}:${g.animalId}`));
 	const migrated: CustomGoal[] = [];
 	for (const g of goals) {
-		const alias = ANIMAL_ALIASES.get(g?.animalId || '');
-		if (!alias) {
+		if (!isStale(g)) {
 			migrated.push(g);
 			continue;
 		}
-		// The replacement is gone too: translating would just move the goal onto a
-		// second dead id, where it renders as a raw slug and can never complete.
-		if (!d.animal.get(alias)) continue;
+		const alias = ANIMAL_ALIASES.get(g.animalId || '');
+		// Retired with no successor, or the successor is gone too: translating would
+		// just move the goal onto a second dead id. Drop it — an empty slot the
+		// player can refill beats one they cannot.
+		if (!alias || !d.animal.get(alias)) continue;
 		// Two goals can alias onto the same animal — or onto one the player already
 		// has a goal for. Keep the first and drop the twin.
 		const key = `${g.kind}:${alias}`;
@@ -1105,6 +1113,7 @@ async function migrateAnimalAliases(worldId: string, playerId: string): Promise<
 		migrated.push({ ...g, animalId: alias });
 	}
 	await patchPlayer(playerId, { customGoals: migrated });
+	return touched;
 }
 
 /**
@@ -1128,6 +1137,41 @@ async function pruneUnknownDiscoveries(worldId: string, d: any): Promise<number>
 	}
 	if (dropped) console.error(`save repair: dropped ${dropped} retired discovery row(s) for world ${worldId}`);
 	return dropped;
+}
+
+/**
+ * Re-file Discovery rows whose stored biome disagrees with the definitions.
+ *
+ * `Discovery.biomeId` is a copy of where the animal lived when it came back, and
+ * an ecology pass can move a species without renaming it — 0.3 moves `coyote`
+ * from Sunstone Flats to Willow Meadow and gives the desert a mountain lion
+ * instead. An alias would have re-filed the row (migrateAnimalAliases reads the
+ * biome off the definitions for exactly this reason), but a KEPT id gets no
+ * alias, so the stale copy survives and the two halves of the game disagree
+ * about where the animal is:
+ *
+ *   • returnedHere() and computeBalance() resolve through the definitions, so
+ *     they count it in its new area;
+ *   • recalcBiome's comfort pass (`if (disc.biomeId !== biomeId) continue`) and
+ *     the client's animal spawn (WorldScene, `disc.biomeId === this.area`) read
+ *     the stored copy, so it appears in the old one — and is scored against its
+ *     new habitat requirements using the old area's placements, which pins its
+ *     comfort at the floor and makes it "rarely seen" forever.
+ *
+ * Reconciling every row against the definitions fixes that case and any future
+ * one, without needing a hand-written entry per moved species.
+ */
+async function reconcileDiscoveryBiomes(worldId: string, d: any): Promise<number> {
+	const t = db();
+	let refiled = 0;
+	for (const r of await byWorld(t.Discovery, worldId)) {
+		const biome = d.animal.get(r?.animalId)?.biome;
+		if (!biome || biome === r.biomeId) continue;
+		await t.Discovery.patch(r.id, { biomeId: biome });
+		refiled++;
+	}
+	if (refiled) console.error(`save repair: re-filed ${refiled} discovery row(s) for world ${worldId}`);
+	return refiled;
 }
 
 /**
@@ -1186,9 +1230,18 @@ async function repairSave(
 		if ((row?.repairRev || 0) >= REPAIR_REV) return;
 	}
 	try {
-		await migrateAnimalAliases(worldId, playerId);
-		await pruneUnknownDiscoveries(worldId, d);
+		const renamed = await migrateAnimalAliases(worldId, playerId);
+		const dropped = await pruneUnknownDiscoveries(worldId, d);
+		const refiled = await reconcileDiscoveryBiomes(worldId, d);
 		await repairGateTrails(worldId, d);
+		// Any of those three changes which animals count as home, and
+		// BiomeState.returnedCount is a stored number that only recalcBiome
+		// recomputes. Left alone the HUD reads "24 of 25 animals returned" for a
+		// preserve with nine, and that same count feeds the biome unlock gates and
+		// the `*-reborn` achievement triggers. Only pay for it when something
+		// actually moved: an already-clean save (which is every save after the
+		// first pass, and every save created from 0.3 on) does no extra work.
+		if (renamed || dropped || refiled) await recalcRepairedBiomes(worldId, playerId, d);
 		await patchPlayer(playerId, { repairRev: REPAIR_REV });
 	} catch (e: any) {
 		// Same contract as the key migration: a failed repair must never break the
@@ -1196,6 +1249,29 @@ async function repairSave(
 		// the next write.
 		console.error(`save repair for ${playerId} skipped —`, e?.message || e);
 	}
+}
+
+/**
+ * Recompute every open area after a repair changed the discovery set.
+ *
+ * recalcBiome is the only thing that writes BiomeState.returnedCount / health /
+ * balance, and it can surface an animal whose requirements were already met, so
+ * the achievements it earns are awarded here too rather than waiting for the
+ * player's next placement.
+ */
+async function recalcRepairedBiomes(worldId: string, playerId: string, d: any): Promise<void> {
+	const t = db();
+	const states = await byWorld(t.BiomeState, worldId);
+	const open = states.filter((b: any) => b.unlocked && d.biome.get(b.biomeId)).map((b: any) => b.biomeId);
+	const newAnimals: any[] = [];
+	const freshBiomeStates: any[] = [];
+	for (const biomeId of open) {
+		const r = await recalcBiome(worldId, playerId, biomeId);
+		newAnimals.push(...(r.newAnimals || []));
+		if (r.biomeState) freshBiomeStates.push(r.biomeState);
+	}
+	if (newAnimals.length || freshBiomeStates.length)
+		await awardWorldAchievements(worldId, playerId, { addDiscoveries: newAnimals, freshBiomeStates });
 }
 
 /**

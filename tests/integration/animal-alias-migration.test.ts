@@ -175,7 +175,7 @@ describe('custom goals naming a retired animal', () => {
 		expect(task.text).not.toContain('coyote-meadow');
 	});
 
-	it('leaves an id the alias table says nothing about alone', async () => {
+	it('drops a goal naming an animal that no longer exists at all', async () => {
 		const pid = await newSave();
 		seedGoals(pid, [
 			{ id: 'ghost', kind: 'welcome', target: 1, animalId: 'never-existed' },
@@ -184,11 +184,26 @@ describe('custom goals naming a retired animal', () => {
 
 		await login();
 
-		// No alias claims 'never-existed', so it is sanitizeGoals()' business (it
-		// refuses one on the way in, and the next goal edit clears it) — the migration
-		// must not quietly delete goals it was not asked about.
+		// sanitizeGoals() would refuse this id on the way in, but it only runs on
+		// SetGoals — a goal nobody edits again is never looked at. Parked, it renders
+		// as a raw slug, reports 0% forever, and holds one of only three slots. 35 of
+		// the animals 0.3 retired have no successor, so this is reachable from real
+		// 0.2 saves and not just from a synthetic id.
 		const goals = w.db.Player._rows.get(pid).customGoals;
-		expect(goals.map((g: any) => g.animalId)).toEqual(['never-existed', 'coyote']);
+		expect(goals.map((g: any) => g.animalId)).toEqual(['coyote']);
+	});
+
+	it('leaves goals that name no animal at all untouched', async () => {
+		const pid = await newSave();
+		seedGoals(pid, [
+			{ id: 'r1', kind: 'gather', target: 5, resourceId: 'wood' },
+			{ id: 'g1', kind: 'welcome', target: 1, animalId: 'coyote-meadow' },
+		]);
+
+		await login();
+
+		const goals = w.db.Player._rows.get(pid).customGoals;
+		expect(goals.map((g: any) => g.id)).toEqual(['r1', 'g1']);
 	});
 
 	it('does not leave two goals pointing at the same animal', async () => {
@@ -278,5 +293,77 @@ describe('a save that never uses the login screen again', () => {
 		// ...and login, which always runs the pass, still cleans it up.
 		await login();
 		expect(discoveries().map((r: any) => r.animalId)).not.toContain('coyote-meadow');
+	});
+});
+
+describe('a species that moved biome without being renamed', () => {
+	// Discovery.biomeId is a stored copy of where the animal was when it came
+	// back. An alias re-files it (migrateAnimalAliases reads the biome off the
+	// definitions), but a KEPT id gets no alias — and 0.3 moves `coyote` from
+	// Sunstone Flats to Willow Meadow, handing the desert a mountain lion instead.
+	it('is a real case and not a straw man', () => {
+		expect(ANIMALS.has('coyote')).toBe(true);
+		expect(ANIMALS.get('coyote').biome).toBe('meadow');
+		expect(ALIASES.some((a) => a.to === 'coyote' && a.from === 'coyote')).toBe(false);
+	});
+
+	it('re-files the row onto the biome the definitions now give it', async () => {
+		const pid = await newSave();
+		seedDiscovery(pid, 'coyote', 'desert', { timesObserved: 2 });
+
+		await login();
+
+		const row = discoveries().find((r: any) => r.animalId === 'coyote');
+		// Left stale, returnedHere() counts it in the meadow while the comfort pass
+		// and the client's animal spawn both read this field and put it in the
+		// desert — where it is scored against meadow requirements and pinned at the
+		// comfort floor for good.
+		expect(row.biomeId).toBe('meadow');
+		expect(row.timesObserved).toBe(2);
+	});
+
+	it('leaves a row alone when the stored biome already agrees', async () => {
+		const pid = await newSave();
+		seedDiscovery(pid, 'grasshopper', ANIMALS.get('grasshopper').biome);
+		const before = discoveries().find((r: any) => r.animalId === 'grasshopper');
+
+		await login();
+
+		expect(discoveries().find((r: any) => r.animalId === 'grasshopper').biomeId).toBe(before.biomeId);
+	});
+});
+
+describe('the counts the repair pass leaves behind', () => {
+	// BiomeState.returnedCount is a stored number that only recalcBiome writes.
+	// The prune deletes Discovery rows straight out from under it, so without a
+	// recalc the HUD keeps reading the pre-repair total — and that same number
+	// feeds the biome unlock gates and the `*-reborn` achievement triggers.
+	it('recomputes returnedCount after rows are dropped', async () => {
+		const pid = await newSave();
+		seedDiscovery(pid, 'american-bittern', 'wetland'); // retired, no successor
+		const meadow = `${pid}:meadow`;
+		w.db.BiomeState._rows.set(meadow, {
+			...w.db.BiomeState._rows.get(meadow),
+			unlocked: true,
+			returnedCount: 99,
+		});
+
+		await login();
+
+		const live = discoveries().filter((r: any) => ANIMALS.get(r.animalId)?.biome === 'meadow').length;
+		expect(w.db.BiomeState._rows.get(meadow).returnedCount).toBe(live);
+	});
+
+	it('does not pay for a recalc when the save was already clean', async () => {
+		const pid = await newSave();
+		const meadow = `${pid}:meadow`;
+		// A deliberately wrong count on a save with nothing to repair: the pass has
+		// no reason to look, so it stays wrong until the next real recalc. This is
+		// the cheap path every save takes from the second login on.
+		w.db.BiomeState._rows.set(meadow, { ...w.db.BiomeState._rows.get(meadow), returnedCount: 42 });
+
+		await login();
+
+		expect(w.db.BiomeState._rows.get(meadow).returnedCount).toBe(42);
 	});
 });
