@@ -134,6 +134,22 @@
 				box-shadow: var(--shadow);
 				transition: transform 0.1s;
 			}
+			/* Hide/show control in the Devices table. Deliberately quiet: it is a
+			   maintenance switch, not something to draw the eye on every load. */
+			button.devtoggle {
+				font: inherit;
+				font-size: 0.75rem;
+				cursor: pointer;
+				border: 1px solid var(--rule);
+				background: var(--card);
+				color: var(--muted);
+				padding: 0.15rem 0.6rem;
+				border-radius: 999px;
+			}
+			button.devtoggle:hover {
+				color: var(--accent-dark);
+				border-color: var(--accent);
+			}
 			.vfilter {
 				display: inline-flex;
 				align-items: center;
@@ -1915,7 +1931,21 @@
 				// clickable and opens a full breakdown modal (looked up by playerId).
 				PLAYERS_BY_ID = {};
 				for (const p of players) if (p && p.playerId) PLAYERS_BY_ID[p.playerId] = p;
-				const engaged = players.filter((p) => p && n(p.playSeconds) > 300);
+				/* Idle windows are excluded from this section outright.
+				 *
+				 * The 5-minute gate is a PLAY-TIME gate, and a window left open all
+				 * afternoon clears it without anybody touching the game — so the idle
+				 * saves were not just present here, they sorted to the TOP, and
+				 * "Most playtime" was being awarded to an abandoned tab. A section
+				 * called Player highlights should show players.
+				 *
+				 * They are only hidden from this wall, not dropped: they still count in
+				 * the head count, the funnel and every aggregate above, they are still in
+				 * PLAYERS_BY_ID so a modal opened for one still works, and the count of
+				 * what was left out is printed in the subtitle rather than left implied. */
+				const qualified = players.filter((p) => p && n(p.playSeconds) > 300);
+				const idleHidden = qualified.filter((p) => p.idle).length;
+				const engaged = qualified.filter((p) => !p.idle);
 				if (engaged.length) {
 					const top = [...engaged].sort(
 						(a, b) =>
@@ -1972,7 +2002,9 @@
 						.join('');
 					charSection = sec(
 						'Player highlights',
-						`everyone who played more than 5 min · ${top.length} caretakers · click a card for the full breakdown`,
+						`everyone who played more than 5 min · ${top.length} caretakers` +
+							(idleHidden ? ` · ${fmt(idleHidden)} idle ${idleHidden === 1 ? 'window' : 'windows'} hidden` : '') +
+							` · click a card for the full breakdown`,
 						`<div class="card"><div class="hlgrid">${cards}</div></div>`,
 					);
 				}
@@ -1989,7 +2021,17 @@
 						{ label: 'Created a character', value: acq.converted },
 					]) +
 						`<div class="grid three" style="margin-top:1rem">${[
-							kpi(fmt(acq.totalOpens), 'App opens'),
+							// Raw opens is the one number here a single machine can dominate:
+							// devices and conversion move by one device, this moves by every
+							// launch. The hint says what has been taken out of it, so the
+							// figure is never quietly smaller than the last time you looked.
+							kpi(
+								fmt(acq.totalOpens),
+								'App opens',
+								(acq.excludedDevices || {}).matched
+									? `excludes ${fmt(acq.excludedDevices.opens)} from ${fmt(acq.excludedDevices.matched)} hidden ${acq.excludedDevices.matched === 1 ? 'device' : 'devices'}`
+									: '',
+							),
 							kpi(`<span class="accent">${pct(acq.conversionPct)}</span>`, 'Conversion'),
 							kpi(pct(acq.bounceRatePct), 'Bounced'),
 						].join('')}</div>`,
@@ -2032,12 +2074,46 @@
 					.filter((st) => st.value != null)
 					.sort((a, b) => n(b.value) - n(a.value));
 				const funSteps = funnel([{ label: 'Created character', value: fun.created }, ...funRest]);
+				/* ---- Devices (the control behind the acquisition numbers) ----
+				 * Rendered inside Funnels, right under the acquisition card it governs,
+				 * because a number and the switch that changes it belong together. It
+				 * lists the roster BEFORE the exclusion is applied and marks what is
+				 * hidden, so a device excluded by mistake can be put back. */
+				const roster = acq.deviceRoster || [];
+				const exd = acq.excludedDevices || {};
+				let deviceCard = '';
+				if (roster.length) {
+					const when = (ms) =>
+						ms ? new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
+					const rows = roster
+						.map((d) => {
+							const hidden = !!d.excluded;
+							const who = [d.platform, d.os, d.version].filter(Boolean).join(' · ') || 'unknown';
+							return (
+								`<tr${hidden ? ' style="opacity:.5"' : ''}><td><code>${esc(String(d.deviceId).slice(0, 12))}…</code></td>` +
+								`<td>${esc(who)}</td><td class="num">${fmt(d.opens)}</td><td class="num">${fmt(d.savesCreated)}</td>` +
+								`<td class="num">${when(d.firstOpenAt)}</td><td class="num">${when(d.lastOpenAt)}</td>` +
+								`<td class="num"><button type="button" class="devtoggle" data-did="${esc(d.deviceId)}">${hidden ? 'Show' : 'Hide'}</button></td></tr>`
+							);
+						})
+						.join('');
+					const note = exd.matched
+						? `hiding ${fmt(exd.matched)} ${exd.matched === 1 ? 'device' : 'devices'} · ${fmt(exd.opens)} opens and ${fmt(exd.charactersCreated)} characters excluded from the numbers above`
+						: 'busiest first — hide your own machines so development launches stop counting as app opens';
+					deviceCard = cardTitled(
+						'Devices',
+						note,
+						`<table class="vs"><thead><tr><th>Device</th><th>Build</th><th class="num">Opens</th><th class="num">Characters</th><th class="num">First</th><th class="num">Last</th><th class="num"></th></tr></thead><tbody>${rows}</tbody></table>`,
+					);
+				}
+
 				out.push(
 					sec(
 						'Funnels',
 						'from install to a thriving meadow',
 						`<div class="grid two">${acqCards}${cardTitled('Activation funnel', 'all caretakers', funSteps)}</div>` +
-							(demoCard ? `<div style="margin-top:.8rem">${demoCard}</div>` : ''),
+							(demoCard ? `<div style="margin-top:.8rem">${demoCard}</div>` : '') +
+							(deviceCard ? `<div style="margin-top:.8rem">${deviceCard}</div>` : ''),
 					),
 				);
 
@@ -2151,10 +2227,21 @@
 								`${fmt(cr.savesWithTiming)} timed`,
 							),
 							kpi(`${n(cr.medianCreationSeconds)}<small>s</small>`, 'Median creation time'),
+							/* The MEDIAN, not the mean. A save created and then left open
+							 * overnight before anyone touched it contributes a five-figure
+							 * number, and a handful of those had this tile reading 4924s —
+							 * 82 minutes — while real first actions land around 6-20s. The
+							 * mean is still in the payload as ttfa.avgSeconds; it just has
+							 * no business being the headline. */
 							kpi(
-								`${n(ttfa.avgSeconds)}<small>s</small>`,
+								`${n(ttfa.medianSeconds != null ? ttfa.medianSeconds : ttfa.avgSeconds)}<small>s</small>`,
 								'Time to first action',
-								`${fmt(ttfa.playersMeasured)} measured`,
+								ttfa.medianSeconds != null
+									? `median of ${fmt(ttfa.playersMeasured)}` +
+										(ttfa.outliersExcluded
+											? ` · mean ${n(ttfa.avgSeconds)}s incl. ${fmt(ttfa.outliersExcluded)} walked away`
+											: '')
+									: `${fmt(ttfa.playersMeasured)} measured`,
 							),
 							kpi(
 								`${n(acq.avgCharactersPerPerson)}`,
@@ -2295,14 +2382,19 @@
 				}
 
 				/* ---- Save health, directly above the player highlights ---- */
-				if (healthSection) out.push(healthSection);
 				if (saveSection) out.push(saveSection);
 
-				/* ---- Player highlights — kept at the bottom ---- */
+				/* ---- Player highlights ---- */
 				if (charSection) out.push(charSection);
 
-				/* ---- Landing page — the very bottom (site traffic, not game numbers) ---- */
+				/* ---- Landing page (site traffic, not game numbers) ---- */
 				if (landingSection) out.push(landingSection);
+
+				/* ---- What is going wrong — the very bottom of the page.
+				 * Refusals and interface crashes are the thing you go looking for, not
+				 * the thing you want to read past on the way to the numbers. It used to
+				 * sit near the top and pushed everything else down on a normal day. */
+				if (healthSection) out.push(healthSection);
 
 				document.getElementById('root').innerHTML = out.join('');
 			}
@@ -2314,6 +2406,42 @@
 			// `idle` defaults to 'exclude': an abandoned window is not play, so the numbers
 			// on this page should not count it unless you deliberately ask them to.
 			const FILTERS = { version: 'all', edition: 'all', platform: 'all', versionMode: 'exact', idle: 'exclude' };
+
+			/* Devices hidden from the acquisition funnel — your own machines.
+			 *
+			 * ?exclude=<name> drops your test SAVES, which is enough for the player
+			 * numbers. It never touched acquisition, because that funnel reads AppOpen
+			 * (one row per install, no save name on it) — so every launch during
+			 * development kept counting as an app open, and after a while the "App
+			 * opens" tile was mostly one person. Devices and the conversion rate barely
+			 * move (a dev machine is one device); the raw open and character-creation
+			 * totals move a lot, which is the harder distortion to notice.
+			 *
+			 * Kept in localStorage rather than hardcoded so the list is yours to edit
+			 * from the Devices panel without a redeploy, and it survives a reload. */
+			const EXCLUDED_DEVICES_KEY = 'ww-dashboard-excluded-devices';
+			let EXCLUDED_DEVICES = [];
+			try {
+				const raw = JSON.parse(localStorage.getItem(EXCLUDED_DEVICES_KEY) || '[]');
+				if (Array.isArray(raw)) EXCLUDED_DEVICES = raw.filter((d) => typeof d === 'string' && d);
+			} catch {
+				/* unreadable or absent — start with nothing hidden */
+			}
+			function setExcludedDevices(ids) {
+				EXCLUDED_DEVICES = [...new Set(ids)];
+				try {
+					localStorage.setItem(EXCLUDED_DEVICES_KEY, JSON.stringify(EXCLUDED_DEVICES));
+				} catch {
+					/* private mode / storage full — the filter still applies for this session */
+				}
+			}
+			function toggleDevice(id) {
+				setExcludedDevices(
+					EXCLUDED_DEVICES.includes(id) ? EXCLUDED_DEVICES.filter((d) => d !== id) : [...EXCLUDED_DEVICES, id],
+				);
+				load();
+			}
+			window.__toggleDevice = toggleDevice;
 
 			/** Grey out the "Range" selector unless a specific version is chosen. */
 			function syncVersionMode() {
@@ -2361,6 +2489,45 @@
 				syncVersionMode();
 			}
 
+			/* Every request this page makes is same-origin and needs the admin
+			 * credentials the browser collected when it challenged for /dashboard.
+			 * Stated explicitly rather than left to the default so it survives a
+			 * future move to a token or a cross-origin host. */
+			const REQ = { headers: { accept: 'application/json' }, credentials: 'same-origin' };
+
+			/* The roll-up used to arrive as ONE response: aggregates with a record for
+			 * every player stapled to the end. At 310 saves that was ~1 MB, 98.6% of it
+			 * the player array, and there was no way to ask for the 6 KB of aggregates
+			 * on their own. It is two endpoints now — /MetricsSummary/ for the numbers,
+			 * /MetricsPlayers/ for the rows, paginated.
+			 *
+			 * This page still wants every row (the caretaker wall, the demo/full splits
+			 * and the per-player modal are all computed client-side over the full set),
+			 * so it pages through and reassembles the exact `{...summary, players:[…]}`
+			 * shape render() has always been handed. Nothing downstream of here changed,
+			 * and every save already in the database renders exactly as it did before. */
+			const PLAYER_PAGE = 500;
+			const PLAYER_CAP = 20000; // a stop, not a policy — see the warning below
+
+			async function fetchAllPlayers(qs) {
+				const out = [];
+				let cursor = '';
+				let total = null;
+				for (;;) {
+					const url = `../MetricsPlayers/?${qs}&limit=${PLAYER_PAGE}` + (cursor ? `&cursor=${encodeURIComponent(cursor)}` : '');
+					const res = await fetch(url, REQ);
+					if (!res.ok) throw new Error(`MetricsPlayers returned ${res.status}`);
+					const page = await res.json();
+					total = page.total;
+					out.push(...(page.players || []));
+					if (!page.nextCursor || !(page.players || []).length || out.length >= PLAYER_CAP) break;
+					cursor = page.nextCursor;
+				}
+				/* If the cap ever bites, say so on the page. A silently truncated list
+				 * would quietly understate every client-side total on this dashboard. */
+				return { players: out, total, truncated: total != null && out.length < total };
+			}
+
 			async function load() {
 				const root = document.getElementById('root');
 				const gen = document.getElementById('generated');
@@ -2368,47 +2535,68 @@
 				try {
 					// Exclude dev/test saves so they don't skew the numbers (matches the
 					// server's ?exclude filter). Optional version/edition/platform each scope
-					// the whole report server-side.
-					let url = '../Metrics/?exclude=bailey_test';
+					// the whole report server-side. The SAME query string goes to both
+					// endpoints, so the aggregates and the rows always describe one population.
+					let qs = 'exclude=bailey_test';
 					for (const cfg of FILTER_CFG) {
 						if (FILTERS[cfg.key] && FILTERS[cfg.key] !== 'all')
-							url += `&${cfg.key}=` + encodeURIComponent(FILTERS[cfg.key]);
+							qs += `&${cfg.key}=` + encodeURIComponent(FILTERS[cfg.key]);
 					}
 					// A specific version can be widened to "this version & newer" (min mode);
 					// otherwise the report isolates the single selected version.
-					if (FILTERS.version !== 'all' && FILTERS.versionMode === 'min') url += '&versionMode=min';
+					if (FILTERS.version !== 'all' && FILTERS.versionMode === 'min') qs += '&versionMode=min';
 					// Windows left open are classified server-side and dropped from every
 					// aggregate when hidden, so the totals and the per-player list agree.
-					if (FILTERS.idle === 'exclude') url += '&idle=exclude';
+					if (FILTERS.idle === 'exclude') qs += '&idle=exclude';
+					// Your own machines, out of the acquisition funnel. Sent as one
+					// comma-separated value; the server also accepts the param repeated.
+					if (EXCLUDED_DEVICES.length) qs += '&excludeDevice=' + encodeURIComponent(EXCLUDED_DEVICES.join(','));
 					// Landing-page stats load in parallel, best-effort: a missing/failed
 					// /LandingStats/ just hides that section instead of breaking the page.
-					const landingReq = fetch('../LandingStats/', { headers: { accept: 'application/json' } })
+					const landingReq = fetch('../LandingStats/', REQ)
 						.then((r) => (r.ok ? r.json() : null))
 						.catch(() => null);
 					// Same best-effort contract: a missing /SaveHealth/ hides the panel rather
 					// than breaking the page.
-					const saveReq = fetch('../SaveHealth/', { headers: { accept: 'application/json' } })
+					const saveReq = fetch('../SaveHealth/', REQ)
 						.then((r) => (r.ok ? r.json() : null))
 						.catch(() => null);
 					// Refusals + interface crashes. Same contract again: an instance that
 					// predates the endpoint hides the panel rather than breaking the page.
-					const healthReq = fetch('../GameplayHealth/', { headers: { accept: 'application/json' } })
+					const healthReq = fetch('../GameplayHealth/', REQ)
 						.then((r) => (r.ok ? r.json() : null))
 						.catch(() => null);
-					const res = await fetch(url, { headers: { accept: 'application/json' } });
-					if (!res.ok) throw new Error(`Metrics endpoint returned ${res.status}`);
-					const data = await res.json();
+					// Aggregates first — they render the whole page except the caretaker
+					// wall, so they are the ones worth having in flight on their own.
+					const sumRes = await fetch(`../MetricsSummary/?${qs}`, REQ);
+					if (!sumRes.ok) throw new Error(`MetricsSummary returned ${sumRes.status}`);
+					const head = await sumRes.json();
+					const rows = await fetchAllPlayers(qs);
+					// Rebuild the shape render() has always received.
+					const data = { ...head, players: rows.players };
 					LANDING = await landingReq;
 					SAVEHEALTH = await saveReq;
 					GAMEPLAYHEALTH = await healthReq;
 					populateFilterOptions(data.filters);
 					render(data);
+					if (rows.truncated) {
+						const warn = document.createElement('div');
+						warn.className = 'err';
+						warn.innerHTML = `<b>Showing ${fmt(rows.players.length)} of ${fmt(rows.total)} caretakers.</b> Per-player totals below are computed from the ones loaded.`;
+						root.prepend(warn);
+					}
 					if (data.generatedAt) {
 						const d = new Date(data.generatedAt);
 						gen.textContent = `Updated ${d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`;
 					}
 				} catch (err) {
-					root.innerHTML = `<div class="err"><b>Couldn’t load metrics.</b><br>${esc(err.message || err)}<br><span style="font-size:.8rem;opacity:.8">The dashboard reads from the <code>/Metrics/</code> endpoint on this host.</span></div>`;
+					const unauth = /returned 40[13]/.test(String(err && err.message));
+					root.innerHTML =
+						`<div class="err"><b>Couldn’t load metrics.</b><br>${esc(err.message || err)}<br><span style="font-size:.8rem;opacity:.8">` +
+						(unauth
+							? 'This dashboard and the endpoints it reads (<code>/MetricsSummary/</code>, <code>/MetricsPlayers/</code>) require Harper admin credentials. Reload and sign in when prompted.'
+							: 'The dashboard reads from <code>/MetricsSummary/</code> and <code>/MetricsPlayers/</code> on this host.') +
+						`</span></div>`;
 					gen.textContent = '';
 				}
 			}
@@ -2442,6 +2630,13 @@
 			// activated by keyboard. Delegated on #root, which persists across re-renders.
 			const rootEl = document.getElementById('root');
 			rootEl.addEventListener('click', (e) => {
+				// Hide/show a device from the acquisition funnel. Checked before the
+				// player card, since a button is never inside one.
+				const dev = e.target.closest && e.target.closest('.devtoggle[data-did]');
+				if (dev) {
+					toggleDevice(dev.getAttribute('data-did'));
+					return;
+				}
 				const card = e.target.closest && e.target.closest('.hlcard[data-pid]');
 				if (card) openPlayerModal(card.getAttribute('data-pid'));
 			});

@@ -5202,7 +5202,7 @@ export class GameState extends PublicEndpoint {
  *
  * So it stays, answering the only shape the client reads: one solo world, which
  * is the player themselves. Remove in Phase 4, together with the client calls —
- * gated on /Metrics/ showing no clients below 0.3.0 for 30 days.
+ * gated on /MetricsSummary/ showing no clients below 0.3.0 for 30 days.
  */
 export class MyWorlds extends PublicEndpoint {
 	async post(data: any) {
@@ -6969,9 +6969,23 @@ function compareVersions(a: string, b: string): number {
 }
 
 /**
- * GET /Metrics/        — global summary plus a per-player leaderboard.
- * GET /Metrics/<id>    — one player's metrics.
- * Read-only analytics view, safe to point a dashboard or cron at.
+ * GET /Metrics/<id> — ONE player's own metrics, computed live from that player's
+ * game state. Stays public because the game client reads its own view through it
+ * (src/api.ts `metrics()` → metricsUplink.ts / steamSync.ts): knowing the save's
+ * UUID is the capability, exactly as it is for /GameState/<id> and every other
+ * game endpoint under the MVP auth model.
+ *
+ * GET /Metrics/ (no id) used to return the whole analytics roll-up — the global
+ * aggregates AND a row per player carrying names, first/last activity timestamps,
+ * OS, accessibility preferences and behaviour — to anyone who asked for it. That
+ * was the leak. The roll-up now lives behind Harper admin auth, split in two:
+ *
+ *   GET /MetricsSummary/            — the aggregates (~6 KB): what a dashboard or cron wants
+ *   GET /MetricsPlayers/            — per-player rows, paginated
+ *   GET /MetricsPlayers/<playerId>  — one player's full row
+ *
+ * The no-id branch is kept as an explicit 404 rather than deleted, so an old
+ * bookmark, script or cron is told where the data went.
  */
 export class Metrics extends PublicEndpoint {
 	async get(target?: any) {
@@ -6980,32 +6994,72 @@ export class Metrics extends PublicEndpoint {
 		// the path id and any ?query parameters.
 		const id = String((this as any).getId?.() || target?.id || '').trim();
 
-		if (id) {
-			const player = await safeGet(t.Player, id);
-			if (!player) throw new GameError(tr('server.err.noSaveWithId'), 404, 'server.err.noSaveWithId');
-			// Per-player lookup includes full biome health numbers (no rendered
-			// area snapshots — those were removed).
-			const bm = await biomeMetrics(id);
-			const view = metricsView(player);
-			return {
-				player: {
-					...view,
-					biomeSummary: bm.summary,
-					activation: activationFlags(view, bm.summary, player),
-					achievements: await achievementMetrics(id),
-					biomes: bm.biomes,
-				},
-			};
-		}
+		if (!id) return metricsRollupMoved();
 
-		// Dashboard view — sourced ENTIRELY from the SoloMetrics table, which is now
-		// the single client-metrics stream: desktop solo play, the browser demo (both
-		// Harper mode and its offline fallback), and any offline solo all uplink a
-		// full snapshot here (see SyncMetrics + src/solo/metricsUplink.ts). So this
-		// endpoint rolls up every reporting player — split by `edition` (demo/full)
-		// and `platform` (web/desktop) below — without touching the live
-		// Player/BiomeState tables. (Full hosted web/co-op, if ever added, report
-		// server-side and would stay out of this rollup.)
+		const player = await safeGet(t.Player, id);
+		if (!player) throw new GameError(tr('server.err.noSaveWithId'), 404, 'server.err.noSaveWithId');
+		// Per-player lookup includes full biome health numbers (no rendered
+		// area snapshots — those were removed).
+		const bm = await biomeMetrics(id);
+		const view = metricsView(player);
+		return {
+			player: {
+				...view,
+				biomeSummary: bm.summary,
+				activation: activationFlags(view, bm.summary, player),
+				achievements: await achievementMetrics(id),
+				biomes: bm.biomes,
+			},
+		};
+	}
+}
+
+/**
+ * The signpost left at the old public roll-up URL. Deliberately NOT a GameError:
+ * a crawler following a stale link is not a gameplay refusal and has no business
+ * showing up in the dashboard's refusal counters.
+ */
+function metricsRollupMoved() {
+	return {
+		status: 404,
+		headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+		body: JSON.stringify({
+			title: 'The /Metrics/ roll-up moved',
+			detail:
+				'Aggregates: GET /MetricsSummary/ · per-player rows: GET /MetricsPlayers/ · one row: GET /MetricsPlayers/<playerId>. All three require Harper admin auth. GET /Metrics/<playerId> is unchanged.',
+		}),
+	};
+}
+
+/**
+ * Build the analytics roll-up: apply the ?query filters, aggregate, and hand back
+ * BOTH halves — `summary` (the aggregates) and `rows` (one record per reporting
+ * save). The two admin endpoints below each return one half, which is the whole
+ * point of the split: reading the dashboard summary no longer serializes every
+ * player record on the way out.
+ *
+ * Sourced ENTIRELY from the SoloMetrics table, which is now
+ * the single client-metrics stream: desktop solo play, the browser demo (both
+ * Harper mode and its offline fallback), and any offline solo all uplink a
+ * full snapshot here (see SyncMetrics + src/solo/metricsUplink.ts). So this
+ * rolls up every reporting player — split by `edition` (demo/full)
+ * and `platform` (web/desktop) below — without touching the live
+ * Player/BiomeState tables. (Full hosted web/co-op, if ever added, report
+ * server-side and would stay out of this rollup.)
+ */
+async function metricsRollup(target?: any): Promise<{
+	generatedAt: number;
+	filters: any;
+	summary: any;
+	rows: any[];
+}> {
+	// The body below is verbatim from the old Metrics.get() roll-up branch, kept in
+	// its original block so the move reads as a move in review rather than a rewrite.
+	// Nothing about how a row is derived changed, so every snapshot already in
+	// SoloMetrics — including the legacy ones buildDashboardRows back-fills — rolls
+	// up exactly as it did before.
+	{
+		const t = db();
 		const now = Date.now();
 		// `all` is the SHARED cached rollup — the ?filter branches below rebind it to
 		// new arrays via .filter() and never mutate the rows, so the cache stays intact.
@@ -7049,6 +7103,36 @@ export class Metrics extends PublicEndpoint {
 							.toLowerCase(),
 					),
 			);
+
+		// Optional `?excludeDevice=<deviceId>` filter (repeatable and/or comma-
+		// separated), the acquisition-side twin of `?exclude=<name>`.
+		//
+		// `?exclude=` drops SAVES by display name, which is enough for the player
+		// numbers — but the acquisition funnel doesn't read saves, it reads AppOpen,
+		// one row per install. So a developer's own machine kept counting: every
+		// launch during development is a real `open`, and after a few weeks of that
+		// the "App opens" figure is mostly one person. (Devices and the conversion
+		// rate barely move — a dev machine is one device — so the distortion is
+		// concentrated in the raw open and character-creation totals, which is
+		// exactly where it is least obvious.)
+		//
+		// Excluding by device id rather than guessing: an unusually busy device could
+		// equally be somebody who loves the game, and there is no honest way to tell
+		// those apart from the row. The dashboard's Devices panel lists the roster so
+		// you can identify your own machine and name it explicitly.
+		const excludedDevices = new Set<string>();
+		try {
+			const raw: string[] =
+				typeof target?.getAll === 'function'
+					? [...target.getAll('excludeDevice'), ...target.getAll('excludeDeviceId')]
+					: [];
+			for (const part of raw.flatMap((s: string) => String(s).split(','))) {
+				const d = part.trim();
+				if (d) excludedDevices.add(d);
+			}
+		} catch {
+			/* no query params on this target */
+		}
 
 		// Optional `?version=<build>` filter — scopes the whole report (including the
 		// acquisition funnel below) to a game version. `?versionMode=min` widens it to
@@ -7299,11 +7383,38 @@ export class Metrics extends PublicEndpoint {
 		};
 
 		// Session-length distribution: sum each save's finished-session histogram.
+		//
+		// This is a SUBSET and the name hides it. A save only contributes buckets for
+		// sessions that ended cleanly enough to be measured, and only clients new
+		// enough to record `sessionLengths` contribute at all — so the histogram has
+		// been totalling a couple of dozen sessions while `engagement.totalSessions`
+		// reported hundreds, with nothing in the response admitting the gap. Reading
+		// it as "the shape of all sessions" is then just wrong, and there is no way to
+		// tell from the payload.
+		//
+		// Fixed by reporting the coverage next to the buckets instead of renaming the
+		// field (which would break every existing consumer, this dashboard included):
+		// `sessionsCovered` is what the buckets actually add up to, `totalSessions` is
+		// the population it is drawn from, and `coveragePct` is the ratio to caveat
+		// the chart with.
 		const sessionLengthDistribution: Record<string, number> = { '<2m': 0, '2-10m': 0, '10-30m': 0, '30m+': 0 };
+		let sessionLengthSaves = 0;
 		for (const v of timed) {
-			for (const [b, n] of Object.entries(v.sessionLengths || {}))
+			const buckets = Object.entries(v.sessionLengths || {});
+			if (buckets.length) sessionLengthSaves++;
+			for (const [b, n] of buckets)
 				sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + (n as number);
 		}
+		const sessionsCovered = Object.values(sessionLengthDistribution).reduce((a, b) => a + b, 0);
+		const sessionLengths = {
+			buckets: sessionLengthDistribution,
+			sessionsCovered,
+			totalSessions,
+			savesReporting: sessionLengthSaves,
+			savesMeasured: timed.length,
+			coveragePct: totalSessions ? Math.round((sessionsCovered / totalSessions) * 100) : 0,
+			note: 'buckets cover only sessions a client recorded a length for — not every session in engagement.totalSessions',
+		};
 
 		// Character creation: how long people spend in the creator (across saves).
 		const withCreation = all.filter((v) => (v.creationMs || 0) > 0);
@@ -7342,12 +7453,43 @@ export class Metrics extends PublicEndpoint {
 		const appearancePopularity = { savesWithAppearance: all.filter((v) => v.appearance).length, choices: appTally };
 
 		// Onboarding friction: how long from creating a save to the first action.
-		const withTTFA = all.filter((v) => v.timeToFirstActionSeconds != null);
+		//
+		// The plain mean is unusable here and was being read as if it weren't. Real
+		// first actions land in the seconds — 5.9s, 14.1s, 19.7s — but a save that was
+		// created and then left open overnight before anyone touched it contributes a
+		// five-figure number, and a handful of those dragged the reported average past
+		// 80 minutes. Nobody's onboarding takes 80 minutes; the statistic was measuring
+		// abandonment, not friction.
+		//
+		// So: report the MEDIAN (which the outliers cannot move), keep the raw mean for
+		// continuity, and add a trimmed mean over the plausible window. `avgSeconds`
+		// deliberately keeps its old meaning rather than being quietly redefined — an
+		// existing consumer reading it gets the same number it got yesterday, and the
+		// honest numbers sit next to it under new names.
+		const TTFA_OUTLIER_SECONDS = 30 * 60; // half an hour to press one button = walked away
+		const ttfaAll = all.filter((v) => v.timeToFirstActionSeconds != null).map((v) => v.timeToFirstActionSeconds);
+		const ttfaSorted = [...ttfaAll].sort((a, b) => a - b);
+		const ttfaKept = ttfaSorted.filter((s) => s <= TTFA_OUTLIER_SECONDS);
+		const median = (xs: number[]): number => {
+			if (!xs.length) return 0;
+			const mid = xs.length >> 1;
+			return round1(xs.length % 2 ? xs[mid] : (xs[mid - 1] + xs[mid]) / 2);
+		};
+		const mean = (xs: number[]): number => (xs.length ? round1(xs.reduce((a, b) => a + b, 0) / xs.length) : 0);
 		const timeToFirstAction = {
-			playersMeasured: withTTFA.length,
-			avgSeconds: withTTFA.length
-				? round1(withTTFA.reduce((a, v) => a + v.timeToFirstActionSeconds, 0) / withTTFA.length)
-				: 0,
+			playersMeasured: ttfaAll.length,
+			// Unchanged meaning, kept for continuity. Skewed by design — see below.
+			avgSeconds: mean(ttfaAll),
+			// The number to actually quote. Immune to the walked-away tail.
+			medianSeconds: median(ttfaSorted),
+			// Mean over everyone who acted within the plausible window.
+			trimmedAvgSeconds: mean(ttfaKept),
+			trimmedMedianSeconds: median(ttfaKept),
+			p90Seconds: ttfaKept.length ? round1(ttfaKept[Math.min(ttfaKept.length - 1, Math.floor(ttfaKept.length * 0.9))]) : 0,
+			// Said out loud rather than silently dropped, so the exclusion is auditable.
+			outliersExcluded: ttfaAll.length - ttfaKept.length,
+			outlierThresholdSeconds: TTFA_OUTLIER_SECONDS,
+			note: 'avgSeconds includes saves left open before the first action; medianSeconds and trimmedAvgSeconds do not',
 		};
 
 		// Settings & accessibility usage — audio mute rate plus which accessibility
@@ -7414,7 +7556,8 @@ export class Metrics extends PublicEndpoint {
 
 		// Acquisition funnel — from the per-device AppOpen table, so it counts
 		// people who opened the app but never made a character (bounced), and how
-		// many characters each person creates. Independent of ?exclude (device-scoped).
+		// many characters each person creates. `?exclude=<name>` does not reach here
+		// (that filters saves, and these rows are devices); `?excludeDevice=` does.
 		let openRows: any[] = [];
 		try {
 			openRows = await allOf(t.AppOpen);
@@ -7427,6 +7570,40 @@ export class Metrics extends PublicEndpoint {
 			openRows = openRows.filter((o) => (o.edition === 'demo' ? 'demo' : 'full') === editionFilter);
 		if (platformFilter && platformFilter.toLowerCase() !== 'all')
 			openRows = openRows.filter((o) => (o.platform || 'unknown') === platformFilter);
+
+		const deviceIdOf = (o: any) => String(o?.deviceId || String(o?.id || '').replace(/^dev:/, ''));
+		// The roster is built BEFORE the exclusion is applied, and each entry says
+		// whether it is currently excluded. The dashboard's Devices panel is a
+		// control, not a report: it has to be able to show you what it is hiding, or
+		// there is no way to un-hide a device you excluded by mistake.
+		const deviceRoster = [...openRows]
+			.sort((a, b) => (b.opens || 0) - (a.opens || 0) || (b.savesCreated || 0) - (a.savesCreated || 0))
+			.slice(0, 30)
+			.map((o) => ({
+				deviceId: deviceIdOf(o),
+				opens: o.opens || 0,
+				savesCreated: o.savesCreated || 0,
+				converted: !!o.converted,
+				platform: o.platform || null,
+				os: o.os || null,
+				version: o.version || null,
+				edition: o.edition === 'demo' ? 'demo' : 'full',
+				firstOpenAt: o.firstOpenAt || 0,
+				lastOpenAt: o.lastOpenAt || 0,
+				excluded: excludedDevices.has(deviceIdOf(o)),
+			}));
+
+		const excludedRows = excludedDevices.size ? openRows.filter((o) => excludedDevices.has(deviceIdOf(o))) : [];
+		if (excludedDevices.size) openRows = openRows.filter((o) => !excludedDevices.has(deviceIdOf(o)));
+		// What the exclusion actually removed, stated rather than left to be inferred
+		// from a number that quietly got smaller.
+		const excludedDeviceStats = {
+			ids: [...excludedDevices],
+			matched: excludedRows.length,
+			opens: excludedRows.reduce((a, o) => a + (o.opens || 0), 0),
+			charactersCreated: excludedRows.reduce((a, o) => a + (o.savesCreated || 0), 0),
+		};
+
 		const devices = openRows.length;
 		const convertedDevices = openRows.filter((o) => o.converted).length;
 		// Demo completion: of the demo installs that made a character, how many
@@ -7469,11 +7646,14 @@ export class Metrics extends PublicEndpoint {
 			avgCharactersPerConverted: convertedDevices ? round1(totalCharacters / convertedDevices) : 0,
 			charactersPerPersonHistogram: savesPerPersonHistogram,
 			editions: editionSplit,
+			// The roster + what the ?excludeDevice= filter took out. Both are here so
+			// the dashboard can offer the control and account for its effect.
+			deviceRoster,
+			excludedDevices: excludedDeviceStats,
 		};
 
 		return {
 			generatedAt: now,
-			source: 'solo-metrics',
 			filters: {
 				availableVersions,
 				availableEditions,
@@ -7483,11 +7663,13 @@ export class Metrics extends PublicEndpoint {
 				edition: editionFilter && editionFilter.toLowerCase() !== 'all' ? editionFilter : null,
 				platform: platformFilter && platformFilter.toLowerCase() !== 'all' ? platformFilter : null,
 				idle: idleExcluded ? 'exclude' : null,
+				excludedDevices: [...excludedDevices],
 			},
 			summary: {
 				players: all.length,
 				soloPlayers: all.length,
 				excludedNames: [...excludedNames],
+				excludedDevices: [...excludedDevices],
 				anomalies,
 				audience,
 				languages,
@@ -7518,7 +7700,11 @@ export class Metrics extends PublicEndpoint {
 					tutorialStepHistogram: tutorialTally,
 				},
 				areaDwell,
+				// Kept verbatim so existing readers (this repo's dashboard included)
+				// don't break; `sessionLengths` is the same buckets plus the coverage
+				// they were always missing.
 				sessionLengthDistribution,
+				sessionLengths,
 				creation,
 				appearancePopularity,
 				timeToFirstAction,
@@ -7530,9 +7716,156 @@ export class Metrics extends PublicEndpoint {
 				actionTotals,
 				achievements: achievementsSummary,
 			},
-			players: all,
+			rows: all,
 		};
 	}
+}
+
+/** Largest page /MetricsPlayers/ will hand out in one response. */
+const METRICS_PAGE_MAX = 500;
+/** Page size when the caller doesn't ask for one. */
+const METRICS_PAGE_DEFAULT = 100;
+
+/** Read a single ?key=value off Harper's RequestTarget, '' when absent. */
+function queryOne(target: any, key: string): string {
+	try {
+		const raw = typeof target?.getAll === 'function' ? target.getAll(key) : [];
+		return String((raw && raw[0]) || '').trim();
+	} catch {
+		return '';
+	}
+}
+
+/**
+ * GET /MetricsSummary/ — the analytics aggregates, and ONLY the aggregates.
+ *
+ * Extends the raw Resource (NOT PublicEndpoint), so Harper's default permissions
+ * apply and only an authenticated super user can read it — the same treatment
+ * ListFeedback gets, and for the same reason:
+ *   curl -u HDB_ADMIN 'https://wild.willows.harperfabric.com/MetricsSummary/'
+ *
+ * This is the response a dashboard, a cron job or a capacity report actually
+ * wants. It used to arrive with ~500 KB of per-player records stapled to it;
+ * those now live on /MetricsPlayers/ and are fetched only when something needs
+ * them. Every ?filter the old endpoint took still works here unchanged.
+ */
+export class MetricsSummary extends Resource {
+	async get(target?: any) {
+		const { generatedAt, filters, summary, rows } = await metricsRollup(target);
+		return {
+			generatedAt,
+			source: 'solo-metrics',
+			filters,
+			summary,
+			// So a caller can size its paging without a second request.
+			players: { total: rows.length, endpoint: '/MetricsPlayers/', maxLimit: METRICS_PAGE_MAX },
+		};
+	}
+}
+
+/**
+ * GET /MetricsPlayers/                — per-player rows, newest-active first, paginated.
+ * GET /MetricsPlayers/<playerId>      — one player's full row.
+ *
+ * Admin-only for the same reason as MetricsSummary — these rows are the sensitive
+ * half: display names, exact first/last activity, OS, accessibility preferences,
+ * appearance and behaviour.
+ *
+ * Paging: `?limit=` (default 100, max 500) and `?cursor=`, where the cursor is the
+ * opaque token handed back as `nextCursor`. Rows are sorted deterministically
+ * (last seen desc, then play time desc) by buildDashboardRows, so the cursor names
+ * the last row of the previous page and paging resumes just after it. If that row
+ * has vanished between pages — a re-uplink can reorder it — paging restarts from
+ * the top rather than silently skipping records, and `cursorStale: true` says so.
+ *
+ * BACKWARDS COMPATIBILITY: a row here is byte-for-byte the row that used to appear
+ * in the old `players` array, derived fields and all. Nothing was renamed, nothing
+ * dropped. `?fields=list` is opt-in, for callers that only want to draw a table.
+ */
+export class MetricsPlayers extends Resource {
+	async get(target?: any) {
+		const id = String((this as any).getId?.() || target?.id || '').trim();
+		const { generatedAt, filters, rows } = await metricsRollup(target);
+
+		if (id) {
+			const row = rows.find((r: any) => r.playerId === id);
+			if (!row) throw new GameError(tr('server.err.noSaveWithId'), 404, 'server.err.noSaveWithId');
+			return { generatedAt, player: row };
+		}
+
+		const asked = parseInt(queryOne(target, 'limit'), 10) || METRICS_PAGE_DEFAULT;
+		const limit = Math.min(Math.max(asked, 1), METRICS_PAGE_MAX);
+		const cursor = queryOne(target, 'cursor');
+		let start = 0;
+		let cursorStale = false;
+		if (cursor) {
+			const after = decodeMetricsCursor(cursor);
+			const at = after ? rows.findIndex((r: any) => r.playerId === after) : -1;
+			if (at >= 0) start = at + 1;
+			else cursorStale = true;
+		}
+
+		const page = rows.slice(start, start + limit);
+		const last = page[page.length - 1];
+		const more = start + page.length < rows.length;
+		const lean = queryOne(target, 'fields').toLowerCase() === 'list';
+
+		return {
+			generatedAt,
+			filters,
+			total: rows.length,
+			offset: start,
+			limit,
+			returned: page.length,
+			nextCursor: more && last ? encodeMetricsCursor(last.playerId) : null,
+			...(cursorStale ? { cursorStale: true } : {}),
+			players: lean ? page.map(metricsListRow) : page,
+		};
+	}
+}
+
+/** Cursor codec. Base64url of the row's playerId — opaque to callers, and it
+ *  carries no data a caller could not already read off the row it came from. */
+function encodeMetricsCursor(playerId: string): string {
+	return nodeBuffer.from(String(playerId), 'utf8').toString('base64url');
+}
+function decodeMetricsCursor(cursor: string): string | null {
+	try {
+		const out = nodeBuffer.from(String(cursor), 'base64url').toString('utf8');
+		return out || null;
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * The `?fields=list` shape — enough to draw a table row or a caretaker card and
+ * nothing else, for callers that don't need the full record. The dashboard does
+ * not use this (it wants everything, so its existing rendering keeps working
+ * untouched); it exists so a future list view doesn't have to pull 1.6 KB a head.
+ */
+function metricsListRow(r: any) {
+	return {
+		playerId: r.playerId,
+		name: r.name,
+		edition: r.edition || 'full',
+		platform: r.platform,
+		os: r.os,
+		version: r.version,
+		language: r.language,
+		status: r.status,
+		idle: r.idle,
+		createdAt: r.createdAt,
+		lastSeenAt: r.lastSeenAt,
+		playSeconds: r.playSeconds,
+		sessions: r.sessions,
+		totalActions: r.totalActions,
+		unlockedBiomes: r.unlockedBiomes,
+		tutorialStep: r.tutorialStep,
+		achievementsEarned: r.achievements?.earned ?? null,
+		avgHealth: r.biomeSummary?.avgHealth ?? null,
+		appearance: r.appearance,
+	};
 }
 
 /**
@@ -8472,8 +8805,8 @@ export class ListFeedback extends Resource {
 // appear in the hosted Player table. The client periodically POSTs the local
 // save's derived metrics view here (see src/solo/metricsUplink.ts) — best
 // effort, whenever a connection exists — and the row is upserted per save
-// slot. The global /Metrics/ view then reports solo players alongside the
-// hosted (web/co-op) ones.
+// slot. The global roll-up (/MetricsSummary/ + /MetricsPlayers/) then reports
+// solo players alongside the hosted (web/co-op) ones.
 
 const METRICS_SNAPSHOT_MAX_BYTES = 24_000;
 
@@ -8495,7 +8828,7 @@ export class SyncMetrics extends PublicEndpoint {
 		// Store the metrics view as a JSON STRING, not a nested map: this table is
 		// typed (positional structon encoding), which cannot safely hold a nested
 		// object — a scalar string round-trips cleanly. Read back with JSON.parse
-		// in the /Metrics/ dashboard.
+		// in the /MetricsSummary/ roll-up.
 		const snapshotJson = JSON.stringify(snapshot);
 		if (snapshotJson.length > METRICS_SNAPSHOT_MAX_BYTES)
 			throw new GameError(tr('server.err.snapshotTooLarge'), 400, 'server.err.snapshotTooLarge');
@@ -8528,7 +8861,7 @@ export class SyncMetrics extends PublicEndpoint {
 // ---------------------------------------------------------------- app-open funnel
 // Acquisition tracking that does NOT need a save to exist: the client pings this
 // the moment the app opens (phase "open") and again once a character is created
-// (phase "created"). Rows are keyed per install/device, so /Metrics/ can report
+// (phase "created"). Rows are keyed per install/device, so /MetricsSummary/ can report
 // how many people opened the app, how many created a character (vs bounced), the
 // average time spent in the creator, and how many characters each person makes.
 
@@ -8965,8 +9298,13 @@ export class ReportClientError extends PublicEndpoint {
  * Two tables, side by side, both counts-only:
  *   refusals — every "no" the server gave, by message key
  *   clientErrors — crashes the interface reported
+ *
+ * ADMIN ONLY, like the rest of the dashboard's feeds. Its only reader is
+ * /dashboard, and crash reports carry whatever text the client threw — which is
+ * not something to publish just because nothing sensitive happens to be in it
+ * today.
  */
-export class GameplayHealth extends PublicEndpoint {
+export class GameplayHealth extends Resource {
 	async get() {
 		// Fold anything still buffered in memory in first, so a quiet server does
 		// not look healthier than it is just because the flush timer hasn't fired.
@@ -9027,8 +9365,16 @@ export class GameplayHealth extends PublicEndpoint {
  * SaveIncident table. Salvage failures used to live only in server logs, so a
  * save that would not open was invisible until the player wrote in; this is the
  * same information on /dashboard. Ids and counts only — never save contents.
+ *
+ * ADMIN ONLY, and this one is not merely tidiness. `recent[].recordId` is a real
+ * primary key, and for the Player table that is a save's UUID — the exact secret
+ * that GET /Metrics/<playerId>, /GameState/<playerId> and every other capability
+ * endpoint treats as proof you own the save. Published anonymously, this endpoint
+ * handed out working ids for those, which is the one thing the MVP auth model
+ * depends on not happening. Its only reader is /dashboard, which is now
+ * authenticated too.
  */
-export class SaveHealth extends PublicEndpoint {
+export class SaveHealth extends Resource {
 	async get() {
 		const t = db() as any;
 		let rows: any[] = [];
@@ -9072,14 +9418,20 @@ export class SaveHealth extends PublicEndpoint {
 }
 
 /**
- * GET /LandingStats/ — public, aggregate-only rollup of the landing page's
- * daily counters, consumed by the /dashboard "Landing page" section. Returns
- * per-day rows (last 60 days) plus lifetime totals. The signup total is the
- * REAL deduped row count from MailingListSignup (the per-day counter is also
- * summed, but the table is the source of truth if they ever drift). No emails
- * or any other PII ever leave through this endpoint.
+ * GET /LandingStats/ — aggregate-only rollup of the landing page's daily
+ * counters, consumed by the /dashboard "Landing page" section. Returns per-day
+ * rows (last 60 days) plus lifetime totals. The signup total is the REAL deduped
+ * row count from MailingListSignup (the per-day counter is also summed, but the
+ * table is the source of truth if they ever drift). No emails or any other PII
+ * ever leave through this endpoint.
+ *
+ * ADMIN ONLY. Nothing here is sensitive — it is counts, and it stayed harmless
+ * when it was public. It moves behind auth because its only reader is /dashboard
+ * and a business metric (visits, signups, conversion) is not something to hand
+ * to anyone who asks. POST /LandingEvent/ stays public: the landing page has to
+ * be able to write to it.
  */
-export class LandingStats extends PublicEndpoint {
+export class LandingStats extends Resource {
 	async get() {
 		return landingStatsCache.get(Date.now());
 	}
@@ -9144,11 +9496,14 @@ function compressedPage(key: string, html: string, enc: 'br' | 'gzip'): Uint8Arr
  * the compression does, since the landing page's weight is images that don't
  * shrink but do cache.
  */
-function htmlPage(res: any, key: string, html: string) {
+function htmlPage(res: any, key: string, html: string, opts: { private?: boolean } = {}) {
 	const etag = `W/"${key}-${buildStamp}"`;
 	const headers: Record<string, string> = {
 		'content-type': 'text/html; charset=utf-8',
-		'cache-control': 'public, max-age=3600',
+		// `private` for anything behind admin auth: a shared cache or proxy that
+		// stored a `public` copy would serve the authed page to whoever asked next,
+		// which would hand back the very thing the auth is there to stop.
+		'cache-control': opts.private ? 'private, no-store' : 'public, max-age=3600',
 		etag,
 		vary: 'Accept-Encoding',
 	};
@@ -9195,16 +9550,25 @@ class SupportPage extends PublicEndpoint {
 }
 
 /**
- * GET /dashboard — the anonymous gameplay-metrics dashboard. A static,
- * self-contained page (inline CSS/JS, no external deps) that fetches the
- * public GET /Metrics/ rollup at runtime and renders it: audience, engagement,
- * funnels, progression, action totals, achievements, and the caretakers'
- * customized characters (drawn from appearance data — no player names shown).
- * Cached briefly like the other pages; the live numbers come from /Metrics/.
+ * GET /dashboard — the internal gameplay-metrics dashboard. A static,
+ * self-contained page (inline CSS/JS, no external deps) that fetches the roll-up
+ * at runtime and renders it: audience, engagement, funnels, progression, action
+ * totals, achievements, and the caretakers' customized characters.
+ *
+ * ADMIN ONLY. Extends the raw Resource (NOT PublicEndpoint), so Harper's default
+ * permissions apply and the browser is challenged for super-user credentials —
+ * the same treatment ListFeedback gets. It was public and unlisted, which is not
+ * a control: it renders player display names, exact activity timestamps, OS and
+ * accessibility preferences, and it calls the roll-up from the reader's browser,
+ * so anyone with the URL had all of it. (The README used to claim "no player
+ * names"; the player modal has always shown them.)
+ *
+ * The page's own fetches inherit the browser's credentials for this origin, so
+ * one challenge at page load covers /MetricsSummary/ and /MetricsPlayers/ too.
  */
-class DashboardPage extends PublicEndpoint {
+class DashboardPage extends Resource {
 	async get() {
-		return htmlPage(this, 'dashboard', dashboardHtml);
+		return htmlPage(this, 'dashboard', dashboardHtml, { private: true });
 	}
 }
 
