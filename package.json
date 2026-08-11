@@ -32,7 +32,6 @@
 		"test:e2e": "playwright test",
 		"test:e2e:solo": "playwright test --project=solo",
 		"test:e2e:i18n": "playwright test --project=i18n",
-		"test:e2e:coop": "playwright test --project=coop",
 		"test:all": "npm run check && npm run test && npm run test:e2e:solo",
 		"desktop": "npm run build && electron .",
 		"desktop:run": "electron .",

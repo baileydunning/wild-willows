@@ -79,7 +79,7 @@ type Achievement @table(database: "wildwillows") {
 
 # ---------- mutable tables (dynamic — id only; all other fields are flexible) ----------
 #
-# KEY CONTRACT (KEY_REV 2 — enforced in resources.ts; read the block above
+# KEY CONTRACT (KEY_REV 3 — enforced in resources.ts; read the block above
 # `byPlayer` there before changing any id format).
 #
 # These tables have NO secondary indexes, and must not gain any. That is not an
@@ -112,7 +112,7 @@ type Achievement @table(database: "wildwillows") {
 # another save's rows, and the explicit `worldId` filter in byWorld is the only
 # thing standing between that and cross-save corruption.
 #
-# Rows written before KEY_REV 2 are re-keyed to `${worldId}:${oldId}` by
+# Rows written before KEY_REV 3 are re-keyed to `${worldId}:${oldId}` by
 # migrateWorldKeys, once per world, from a write path (login / first heartbeat).
 # Until a world is marked, reads merge a legacy full scan so nothing reads empty.
 #

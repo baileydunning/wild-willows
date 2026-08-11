@@ -130,7 +130,7 @@ const RECONCILE_MS = 1500;
  * entry or watching the meadow for a few minutes is playing it. What it catches
  * is the other thing — a window left open on screen for hours.
  */
-const HEARTBEAT_IDLE_MS = 5 * 60 * 1000;
+const HEARTBEAT_IDLE_MS = 30 * 60 * 1000;
 // The activity feed rides the heartbeat (see the flush effect below). This is a
 // safety net for lines buffered between beats — not a second, faster cadence.
 const FEED_FLUSH_MS = 30_000;
@@ -728,6 +728,17 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	// against 152 actions — 17% of all the play time the dashboard had ever
 	// recorded, from one person who wasn't there. Requiring recent input means
 	// walking away stops the clock and coming back restarts it on the first touch.
+	//
+	// The window is deliberately long — 30 minutes, the same gap that ends a
+	// session server-side. This gate is a backstop against a window left open for
+	// hours, NOT the thing that decides whether a session was real: that judgement
+	// is isIdleAnomaly() in server/resources.ts, which reads actions-per-minute and
+	// works the same on rows recorded before this gate existed. A short window here
+	// would quietly stop crediting genuine quiet play — reading a journal entry,
+	// watching the meadow — and, because it only ever applies going forward, would
+	// make new play time mean something different from old play time. Every beat
+	// reports the window it was recorded under (see metricsRev on the metrics blob)
+	// so the two are never averaged together by accident.
 	const sessionPlayerId = state?.player?.id ?? null;
 	const lastInputAt = useRef(Date.now());
 	useEffect(() => {
@@ -752,7 +763,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			// one feed write per heartbeat instead of one every six seconds.
 			flushFeed();
 			api
-				.heartbeat()
+				.heartbeat(HEARTBEAT_IDLE_MS)
 				.then((r: any) => {
 					if (!r) return;
 					// The preserve kept living while the game was closed: the heartbeat is

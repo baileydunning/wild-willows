@@ -514,7 +514,12 @@ export const api = {
 		post<any>('/SyncPlayer/', { playerId: pid(), x, y, area, tutorialStep }),
 	// language + edition ride on the heartbeat so metrics can report interface
 	// language and split demo vs paid players
-	heartbeat: () => post<any>('/Heartbeat/', { playerId: pid(), language: getLocale(), edition: EDITION }),
+	// `idleGateMs` reports the client's input-idle window (see HEARTBEAT_IDLE_MS in
+	// src/state.tsx). The server stamps it on the metrics blob so a dashboard can
+	// tell which definition of "play time" a row was recorded under, instead of
+	// silently averaging two of them together.
+	heartbeat: (idleGateMs?: number) =>
+		post<any>('/Heartbeat/', { playerId: pid(), language: getLocale(), edition: EDITION, idleGateMs }),
 	appendFeed: (entries: { icon: string; text: string; at: number }[]) =>
 		post<any>('/AppendFeed/', { playerId: pid(), entries }),
 	recalc: (biomeId: string) => post<any>('/RecalcBiome/', { playerId: pid(), biomeId }),

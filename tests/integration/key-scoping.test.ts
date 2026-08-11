@@ -1,4 +1,4 @@
-// The key contract (KEY_REV 2) — see the block above `byPlayer` in
+// The key contract (KEY_REV 3) — see the block above `byPlayer` in
 // server/resources.ts and the note in schema.graphql.
 //
 // Every mutable row is keyed so one world's rows form a contiguous run in the

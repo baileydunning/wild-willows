@@ -5,6 +5,7 @@ import {
 	isSleepable,
 	blocksDoorway,
 	blocksGateTrail,
+	gateEdges,
 	isOrphanedTween,
 	screenSpaceOverlayTransform,
 } from './interactions';
@@ -346,7 +347,9 @@ export class WorldScene extends Phaser.Scene {
 			baseRows,
 			rows: baseRows + mtn,
 			playTop: mtn,
-			landRight: area === 'coastal' ? cols - ((this.biomeDef(area) as any)?.oceanCols ?? COAST_COLS) : cols,
+			// Same test as gateGeomOf() on the server: an area has an ocean band if the
+			// data gives it one. COAST_COLS only covers a definition that names no width.
+			landRight: this.oceanColsOf(area) ? cols - this.oceanColsOf(area) : cols,
 			// gates sit at the vertical middle of the playable band
 			gateY: mtn + baseRows / 2 - 0.2,
 		};
@@ -376,7 +379,7 @@ export class WorldScene extends Phaser.Scene {
 	// (impassable). landRight is the first ocean column — playable land is
 	// columns 1..landRight-1.
 	private get oceanCols() {
-		return this.area === 'coastal' ? ((this.biomeDef() as any)?.oceanCols ?? COAST_COLS) : 0;
+		return this.oceanColsOf(this.area);
 	}
 	private get landRight() {
 		return this.cols - this.oceanCols;
@@ -887,13 +890,19 @@ export class WorldScene extends Phaser.Scene {
 
 	/** This area's gate geometry, for blocksGateTrail(). */
 	private gateGeom() {
-		const ai = AREA_ORDER.indexOf(this.area);
 		return {
 			gateY: this.dimsOf(this.area).gateY,
 			landRight: this.landRight,
-			westGate: ai > 0,
-			eastGate: ai >= 0 && ai < AREA_ORDER.length - 1 && this.area !== 'coastal',
+			...gateEdges(bridge.shared.data?.biomes, this.area),
 		};
+	}
+
+	/** Width of an area's impassable ocean band, 0 for an inland area. */
+	private oceanColsOf(area: string): number {
+		if (area === 'home') return 0;
+		const def = this.biomeDef(area) as any;
+		if (def?.oceanCols) return def.oceanCols;
+		return area === 'coastal' ? COAST_COLS : 0;
 	}
 
 	/** Terraform event payload — destructive actions on a watered bed ask first. */
@@ -1040,10 +1049,8 @@ export class WorldScene extends Phaser.Scene {
 			}
 		};
 		const gy = this.dimsOf(this.area).gateY;
-		const ai = AREA_ORDER.indexOf(this.area);
-		// which edges actually lead somewhere (coastal's east is open ocean)
-		const westGate = ai > 0;
-		const eastGate = ai >= 0 && ai < AREA_ORDER.length - 1 && this.area !== 'coastal';
+		// which edges actually lead somewhere (the last area's east is open ocean)
+		const { westGate, eastGate } = gateEdges(bridge.shared.data?.biomes, this.area);
 		const GAP = 2.2; // half-width (tiles) of the opening left around a gate
 
 		// A clearly worn dirt trail heading OUT through the opening, from the
@@ -1102,9 +1109,7 @@ export class WorldScene extends Phaser.Scene {
 	private drawSurround(rng: () => number) {
 		// keep the outward gate trails (drawEdgeGrass) clear of growth
 		const gy = this.dimsOf(this.area).gateY;
-		const ai = AREA_ORDER.indexOf(this.area);
-		const westGate = ai > 0;
-		const eastGate = ai >= 0 && ai < AREA_ORDER.length - 1 && this.area !== 'coastal';
+		const { westGate, eastGate } = gateEdges(bridge.shared.data?.biomes, this.area);
 		const onTrail = (tx: number, ty: number) =>
 			Math.abs(ty + 0.5 - gy) < 1.6 &&
 			((westGate && tx < 0 && tx >= -4.5) || (eastGate && tx >= this.landRight && tx < this.landRight + 4.5));

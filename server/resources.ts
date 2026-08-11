@@ -625,7 +625,7 @@ class RollupCache<T> {
 //     this preserves the exact property the full scans were there to protect:
 //     it never depends on a secondary index being warm.
 //
-// The key shapes (KEY_REV 2):
+// The key shapes (KEY_REV 3):
 //
 //   BiomeState        `${wid}:${biomeId}`
 //   NodeState         `${wid}:${biomeId}:${nodeId}`
@@ -633,7 +633,8 @@ class RollupCache<T> {
 //   Discovery         `${wid}:${animalId}`
 //   Placement         `${wid}:pl_${ts}_${rand}`   (was `pl_${ts}_${rand}`)
 //   Chest             the same id as its Placement — an invariant, not a coincidence
-//   FeedEntry         `${wid}:f_${at}_${rand}`    (was `f_${wid}_${at}_${rand}`)
+//   FeedEntry         `${wid}:feed`               one row holding the whole feed
+//                                                 (was one row per line, `f_${wid}_${at}_${rand}`)
 //   PlayerAchievement `${playerId}:${achievementId}`
 //
 // `:` is a safe delimiter: a player id is `slugId(name)` (lowercase a-z0-9 and
@@ -642,10 +643,10 @@ class RollupCache<T> {
 // another world's key. (This is why the prefix is `${wid}:` and never `${wid}`.)
 const KEY_REV = 3;
 
-/** Tables whose ids carry a `${worldId}:` prefix under KEY_REV 2. */
+/** Tables whose ids carry a `${worldId}:` prefix under KEY_REV 3. */
 const WORLD_KEYED = new Set(['BiomeState', 'NodeState', 'TerrainTile', 'Discovery', 'Placement', 'Chest', 'FeedEntry']);
 
-/** Tables re-keyed by the KEY_REV 2 migration (see migrateWorldKeys). */
+/** Tables re-keyed by the KEY_REV 3 migration (see migrateWorldKeys). */
 const REKEYED_TABLES = ['Placement', 'Chest', 'FeedEntry', 'BiomeState', 'NodeState', 'TerrainTile', 'Discovery'];
 
 /**
@@ -663,16 +664,52 @@ async function scanPrefix(table: any, prefix: string): Promise<any[]> {
 }
 
 /**
- * Worlds this worker has confirmed are on KEY_REV 2. Migration is one-way and
+ * Worlds this worker has confirmed are on KEY_REV 3. Migration is one-way and
  * permanent, so a positive answer can be memoized forever; a negative one is
  * never cached, because the very next write may migrate it.
  */
 const keyedWorlds = new Set<string>();
 
-async function worldIsKeyed(worldId: string): Promise<boolean> {
+/**
+ * The KEY_REV a world has reached, read off the acting player's row.
+ *
+ * A solo world's id IS the player's id, so the marker is simply `keyRev`. A save
+ * that last played in a pre-0.3 co-op world still carries a `w_…` worldId, and
+ * there is no Player row under that id — patching one would create a junk row and
+ * the lookup would answer 0 forever, so byWorld would pay for the legacy full
+ * scan on every read for the rest of that save's life. Those worlds record their
+ * marker per-world in `keyRevs` on the player instead.
+ */
+async function keyRevOf(worldId: string, playerId?: string): Promise<number> {
+	const owner = await getPlayer(playerId || worldId);
+	if (!owner) return 0;
+	return owner.id === worldId ? owner.keyRev || 0 : (owner.keyRevs || {})[worldId] || 0;
+}
+
+/** Record that `worldId` is fully migrated, on whichever field fits it. */
+async function markWorldKeyed(worldId: string, playerId: string): Promise<void> {
+	if (worldId === playerId) {
+		await patchPlayer(playerId, { keyRev: KEY_REV });
+		return;
+	}
+	const owner = await getPlayer(playerId);
+	await patchPlayer(playerId, { keyRevs: { ...(owner?.keyRevs || {}), [worldId]: KEY_REV } });
+}
+
+/**
+ * Seed the in-memory set from a player row. byWorld() only knows a world id, so
+ * a legacy `w_…` world would look unmigrated to it until the next heartbeat ran
+ * the migration again. Called wherever we hold a player, which is every endpoint.
+ */
+function noteKeyedWorlds(player: any): void {
+	if ((player?.keyRev || 0) >= KEY_REV && player?.id) keyedWorlds.add(player.id);
+	for (const [wid, rev] of Object.entries(player?.keyRevs || {})) if ((rev as number) >= KEY_REV) keyedWorlds.add(wid);
+}
+
+async function worldIsKeyed(worldId: string, playerId?: string): Promise<boolean> {
 	if (!worldId) return false;
 	if (keyedWorlds.has(worldId)) return true;
-	if (((await getPlayer(worldId))?.keyRev || 0) >= KEY_REV) {
+	if ((await keyRevOf(worldId, playerId)) >= KEY_REV) {
 		keyedWorlds.add(worldId);
 		return true;
 	}
@@ -680,8 +717,8 @@ async function worldIsKeyed(worldId: string): Promise<boolean> {
 }
 
 /**
- * Re-key one world's rows into the KEY_REV 2 contract, once, then mark the World
- * row so it never happens again.
+ * Re-key one world's rows into the KEY_REV 3 contract, once, then mark the save
+ * so it never happens again.
  *
  * The new id is simply `${wid}:${oldId}`. Old ids were already globally unique,
  * so the mapping is deterministic and collision-free, it needs no per-table
@@ -692,10 +729,11 @@ async function worldIsKeyed(worldId: string): Promise<boolean> {
  * per world, and it runs from write paths only (login and heartbeat) — never
  * from a GET handler, which must not write.
  */
-async function migrateWorldKeys(worldId: string): Promise<void> {
+async function migrateWorldKeys(worldId: string, playerId?: string): Promise<void> {
 	if (!worldId || keyedWorlds.has(worldId)) return;
 	const t = db();
-	if (((await getPlayer(worldId))?.keyRev || 0) >= KEY_REV) {
+	const owner = playerId || worldId;
+	if ((await keyRevOf(worldId, owner)) >= KEY_REV) {
 		keyedWorlds.add(worldId);
 		return;
 	}
@@ -738,7 +776,7 @@ async function migrateWorldKeys(worldId: string): Promise<void> {
 			}
 		}
 
-		await patchPlayer(worldId, { keyRev: KEY_REV });
+		await markWorldKeyed(worldId, owner);
 		keyedWorlds.add(worldId);
 	} catch (e: any) {
 		// A failed migration must never break the action that triggered it — the
@@ -807,7 +845,7 @@ function worldOf(player: any): string {
 /**
  * All rows belonging to one world (worldId, falling back to legacy playerId).
  *
- * The hot read. Under KEY_REV 2 this is a bounded range scan over one world's
+ * The hot read. Under KEY_REV 3 this is a bounded range scan over one world's
  * contiguous key run, so its cost tracks the size of THAT world rather than the
  * size of the database — which is the whole point: before this, every state
  * refresh read every row of every save that had ever been created.
@@ -838,7 +876,7 @@ async function byWorld(table: any, worldId: string): Promise<any[]> {
 
 /** Single record by id, scoped to one world. */
 async function findInWorld(table: any, worldId: string, id: string): Promise<any | null> {
-	// Point read first — under KEY_REV 2 the id already carries the world prefix,
+	// Point read first — under KEY_REV 3 the id already carries the world prefix,
 	// so ownership is verifiable without reading the world. safeGet salvages an
 	// undecodable row on the way through; only a null needs the scan.
 	const direct = await safeGet(table, id);
@@ -908,7 +946,7 @@ async function ensureSoloWorld(player: any, opts: { freshGrid?: boolean } = {}):
 		keyedWorlds.add(soloId);
 		return;
 	}
-	await migrateWorldKeys(soloId);
+	await migrateWorldKeys(soloId, player.id);
 }
 
 /**
@@ -1067,6 +1105,97 @@ async function migrateAnimalAliases(worldId: string, playerId: string): Promise<
 		migrated.push({ ...g, animalId: alias });
 	}
 	await patchPlayer(playerId, { customGoals: migrated });
+}
+
+/**
+ * Drop Discovery rows for animals that no longer exist and have no replacement.
+ *
+ * The alias table only covers retirements that had a successor. 0.3 also removed
+ * species outright, and those rows are worse than useless: every lookup that
+ * resolves them through the definitions skips them, but `totalAnimals` is a raw
+ * row count, so the preserve-wide total reads high forever and "150 of 150" can
+ * never be reached. Runs after migrateAnimalAliases, so anything still unknown
+ * here genuinely has nowhere to go.
+ */
+async function pruneUnknownDiscoveries(worldId: string, d: any): Promise<number> {
+	const t = db();
+	const rows = await byWorld(t.Discovery, worldId);
+	let dropped = 0;
+	for (const r of rows) {
+		if (!r?.animalId || d.animal.get(r.animalId)) continue;
+		await t.Discovery.delete(r.id);
+		dropped++;
+	}
+	if (dropped) console.error(`save repair: dropped ${dropped} retired discovery row(s) for world ${worldId}`);
+	return dropped;
+}
+
+/**
+ * Un-flood any water that walls off a trail gate.
+ *
+ * Terraform refuses these tiles now (blocksGateTrail), but a save made before
+ * that check could already have a channel across a gate mouth — and open water
+ * blocks walking, so the way into the next biome is shut with no in-game way to
+ * reopen it. Prevention doesn't help someone already stuck, so the repair pass
+ * clears those tiles once. Only `water` is touched; tilled and watered beds are
+ * walkable and stay exactly as they are.
+ */
+async function repairGateTrails(worldId: string, d: any): Promise<number> {
+	const t = db();
+	const rows = await byWorld(t.TerrainTile, worldId);
+	const geoms = new Map<string, ReturnType<typeof gateGeomOf>>();
+	let cleared = 0;
+	for (const tile of rows) {
+		if (tile?.type !== 'water' || !tile.area || !d.biome.get(tile.area)) continue;
+		if (!geoms.has(tile.area)) geoms.set(tile.area, gateGeomOf(d, tile.area));
+		if (!blocksGateTrail(tile.x, tile.y, geoms.get(tile.area)!)) continue;
+		await t.TerrainTile.delete(tile.id);
+		cleared++;
+	}
+	if (cleared) console.error(`save repair: cleared ${cleared} gate-blocking water tile(s) for world ${worldId}`);
+	return cleared;
+}
+
+/**
+ * One-shot repairs a save needs after upgrading, run from a write path.
+ *
+ * Bump REPAIR_REV when a new repair is added here; every save then runs the pass
+ * once more. The marker lives on the player row, and the caller passes the row it
+ * already holds, so a repaired save costs a field read per beat and nothing more.
+ *
+ * This runs from Heartbeat as well as LoginPlayer on purpose. "Continue" resumes
+ * through GameState, which is a GET and must not write — so a player who never
+ * uses the login screen would otherwise never be repaired at all, and would keep
+ * an inflated animal total and a soft-locked gate indefinitely.
+ *
+ * Login passes `force`, because login is once per session and already pays for
+ * these reads: the marker is an optimisation for the heartbeat path, not a
+ * promise that a save is only ever looked at once.
+ */
+const REPAIR_REV = 1;
+
+async function repairSave(
+	worldId: string,
+	playerId: string,
+	d: any,
+	opts: { force?: boolean; player?: any } = {},
+): Promise<void> {
+	if (!worldId || !playerId) return;
+	if (!opts.force) {
+		const row = opts.player ?? (await getPlayer(playerId));
+		if ((row?.repairRev || 0) >= REPAIR_REV) return;
+	}
+	try {
+		await migrateAnimalAliases(worldId, playerId);
+		await pruneUnknownDiscoveries(worldId, d);
+		await repairGateTrails(worldId, d);
+		await patchPlayer(playerId, { repairRev: REPAIR_REV });
+	} catch (e: any) {
+		// Same contract as the key migration: a failed repair must never break the
+		// action that triggered it. The save stays unrepaired and we try again on
+		// the next write.
+		console.error(`save repair for ${playerId} skipped —`, e?.message || e);
+	}
 }
 
 /**
@@ -1770,6 +1899,7 @@ async function requirePlayer(playerId: string): Promise<any> {
 		throw new GameError(tr('server.err.playerIdRequired'), 400, 'server.err.playerIdRequired');
 	const player = await getPlayer(playerId);
 	if (!player) throw new GameError(tr('server.err.noSaveLogin'), 404, 'server.err.noSaveLogin');
+	noteKeyedWorlds(player);
 	return { player };
 }
 
@@ -2802,9 +2932,21 @@ async function recalcBiome(
 		dailyDeltas[`animal:${biomeId}`] = newAnimals.length;
 		dailyDeltas.animal = newAnimals.length;
 	}
-	if (Object.keys(dailyDeltas).length) {
+	// The lifetime `animalsReturned` counter is bumped HERE rather than at the call
+	// sites, because this is the only place an animal can actually come home. It
+	// used to be bumped by the four player actions that trigger a recalc (place,
+	// plant, terraform, remove), which silently missed every other route: the
+	// heartbeat growth pass (a tree finishing maturity mid-session, and the
+	// welcome-back catch-up after time away), POST /RecalcBiome/, and the recalc
+	// that follows seeding an area's starting terrain. That left the dashboard
+	// showing two different "Animals returned" numbers for the same player —
+	// biomeSummary.totalAnimalsReturned (derived from BiomeState, always right)
+	// against a counts.animalsReturned that under-reported. Bumping at the source
+	// means a new path can't reintroduce the drift.
+	const deltas: Record<string, number> = newAnimals.length ? { animalsReturned: newAnimals.length } : {};
+	if (Object.keys(dailyDeltas).length || Object.keys(deltas).length) {
 		const actor = opts.player || (await safeGet(t.Player, playerId));
-		if (actor) await bumpMetrics(actor, {}, dailyDeltas);
+		if (actor) await bumpMetrics(actor, deltas, dailyDeltas);
 	}
 
 	const unlockedBiomes = await checkUnlocks(wid, playerId, { player: opts.player, freshState: biomeState });
@@ -2987,15 +3129,39 @@ function recipeUnlockMet(recipe: any, ctx: RecipeUnlockCtx): boolean {
  * Used by CraftItem to enforce the gate server-side (Harper is the source of
  * truth — the client only hides locked recipes for nicer UX).
  */
-async function recipeUnlockContext(wid: string, biomeId: string, player: any, d: any): Promise<RecipeUnlockCtx> {
+async function recipeUnlockContext(
+	wid: string,
+	biomeId: string,
+	player: any,
+	d: any,
+	unlock?: any,
+): Promise<RecipeUnlockCtx> {
 	const t = db();
+	// Read only what THIS gate actually asks about. Every field below that comes
+	// off the player row is free, but each of the four world reads is a scan, and
+	// CraftItem builds this context on every single craft. Nearly every recipe
+	// names one condition, so gathering all four was three scans of pure waste per
+	// craft — working directly against the read budget the rest of 0.3 buys back.
+	// With no `unlock` argument the context is built in full, which is what a
+	// caller judging several recipes at once wants.
+	const u = unlock || {};
+	const all = !unlock;
+	const needStates = all || u.minHealth != null || u.minBalance != null || u.requiresBiome != null;
+	const needAnimals =
+		all || u.animalsReturned != null || u.requiresAnimal != null || u.requiresKind != null || u.totalAnimals != null;
+	const needPlaced = all || u.requiresPlaced != null;
+	const needWater = all || u.requiresWater != null;
+	const needAchievements = all || u.requiresAchievement != null;
+
 	// Use the reliable per-world scan, not BiomeState.get(): a primary-key .get()
 	// can return null for a record that exists on a cold Harper instance, which made
 	// health read as 0 and wrongly rejected a craft the client correctly showed as
 	// unlocked (e.g. a Bird Perch at 24% health).
-	const states = await byWorld(t.BiomeState, wid);
-	const bs = states.find((s: any) => s.biomeId === biomeId) || (await findBiomeState(t.BiomeState, wid, biomeId));
-	const discoveries = await byWorld(t.Discovery, wid);
+	const states = needStates ? await byWorld(t.BiomeState, wid) : [];
+	const bs = needStates
+		? states.find((s: any) => s.biomeId === biomeId) || (await findBiomeState(t.BiomeState, wid, biomeId))
+		: null;
+	const discoveries = needAnimals ? await byWorld(t.Discovery, wid) : [];
 	const here = discoveries.filter((x: any) => d.animal.get(x.animalId)?.biome === biomeId);
 	const returnedAnimalIds = new Set<string>(here.map((x: any) => x.animalId));
 	const returnedKinds: Record<string, number> = {};
@@ -3003,9 +3169,9 @@ async function recipeUnlockContext(wid: string, biomeId: string, player: any, d:
 		const kind = d.animal.get(x.animalId)?.kind;
 		if (kind) returnedKinds[kind] = (returnedKinds[kind] || 0) + 1;
 	}
-	const placements = (await byWorld(t.Placement, wid)).filter((p: any) => p.area === biomeId);
-	const terrain = (await byWorld(t.TerrainTile, wid)).filter((tt: any) => tt.area === biomeId);
-	const achievements = await earnedAchievementIds(player.id);
+	const placements = needPlaced ? (await byWorld(t.Placement, wid)).filter((p: any) => p.area === biomeId) : [];
+	const terrain = needWater ? (await byWorld(t.TerrainTile, wid)).filter((tt: any) => tt.area === biomeId) : [];
+	const achievements = needAchievements ? await earnedAchievementIds(player.id) : new Set<string>();
 	const biomeHealth: Record<string, number> = {};
 	for (const s of states) biomeHealth[s.biomeId] = s.health || 0;
 	const wxTime = weatherTimeFromPlay(player); // play-time clock, never null
@@ -4874,7 +5040,7 @@ export class LoginPlayer extends PublicEndpoint {
 		try {
 			await ensureSoloWorld(player);
 			active = (await safeGet(db().Player, playerId))?.worldId || playerId;
-			await migrateAnimalAliases(active, playerId);
+			await repairSave(active, playerId, d, { force: true });
 		} catch (e) {
 			console.error('world setup skipped (LoginPlayer):', e);
 		}
@@ -5165,7 +5331,7 @@ export class CraftItem extends PublicEndpoint {
 		// Progress gate: most recipes only unlock once you've restored their biome
 		// far enough (health / animals returned / a keystone animal back).
 		if (!devUnlock && recipe.unlock && recipe.unlockBiome) {
-			const ctx = await recipeUnlockContext(wid, recipe.unlockBiome, player, d);
+			const ctx = await recipeUnlockContext(wid, recipe.unlockBiome, player, d, recipe.unlock);
 			if (!recipeUnlockMet(recipe, ctx)) {
 				throw new GameError(
 					tr('server.err.recipeLocked', { label: recipe.unlock.label }),
@@ -5424,7 +5590,7 @@ export class PlaceObject extends PublicEndpoint {
 				addPlacements: [placement],
 				player: { ...player, craftedItems },
 			});
-			await bumpMetrics(player, { objectsPlaced: 1, animalsReturned: recalc.newAnimals?.length || 0 }, { place: 1 });
+			await bumpMetrics(player, { objectsPlaced: 1 }, { place: 1 }); // recalcBiome counts any animal that returned
 			await awardWorldAchievements(wid, playerId, {
 				addDiscoveries: recalc.newAnimals,
 				freshBiomeStates: [recalc.biomeState],
@@ -5498,7 +5664,7 @@ export class Plant extends PublicEndpoint {
 			removeTerrainIds: [bed.id],
 			player: { ...player, inventory },
 		});
-		await bumpMetrics(player, { plantsPlanted: 1, animalsReturned: recalc.newAnimals?.length || 0 }, { plant: 1 });
+		await bumpMetrics(player, { plantsPlanted: 1 }, { plant: 1 }); // recalcBiome counts any animal that returned
 		await awardWorldAchievements(wid, playerId, {
 			addDiscoveries: recalc.newAnimals,
 			freshBiomeStates: [recalc.biomeState],
@@ -5728,7 +5894,7 @@ export class RemoveObject extends PublicEndpoint {
 							player: { ...player, craftedItems, inventory },
 						})
 					: null;
-			await bumpMetrics(player, { objectsRemoved: 1, animalsReturned: recalc?.newAnimals?.length || 0 });
+			await bumpMetrics(player, { objectsRemoved: 1 }); // recalcBiome counts any animal that returned
 			await awardWorldAchievements(
 				wid,
 				playerId,
@@ -6240,11 +6406,8 @@ export class Terraform extends PublicEndpoint {
 				removeTerrainIds: removedId ? [removedId] : [],
 				player: { ...player, inventory },
 			});
-			await bumpMetrics(
-				player,
-				{ terraformActions: 1, animalsReturned: recalc.newAnimals?.length || 0 },
-				action === 'water' ? { water: 1 } : {},
-			);
+			// recalcBiome counts any animal that returned
+			await bumpMetrics(player, { terraformActions: 1 }, action === 'water' ? { water: 1 } : {});
 			await awardWorldAchievements(wid, playerId, {
 				addDiscoveries: recalc.newAnimals,
 				freshBiomeStates: [recalc.biomeState],
@@ -6383,6 +6546,14 @@ const MAX_BEAT_MS = 90 * 1000; // credit at most this much play time per beat (g
 const IDLE_MIN_MINUTES = 10;
 const IDLE_MAX_ACTIONS_PER_MIN = 0.5;
 
+// How this save's play time was recorded. 1 = every visible window beat, for as
+// long as it stayed open. 2 = the client also requires input within its idle
+// window (reported as `idleGateMs`) before it beats, so an abandoned window stops
+// the clock on its own. Stamped on the metrics blob, surfaced per row and counted
+// in the dashboard's anomalies block, so a window spanning the change reads as
+// two populations rather than as a fall in engagement.
+const METRICS_REV = 2;
+
 /** Did this save spend its time as an unattended window rather than as play? */
 function isIdleAnomaly(row: { playSeconds?: number; totalActions?: number }): boolean {
 	const minutes = (row.playSeconds || 0) / 60;
@@ -6398,7 +6569,7 @@ function isIdleAnomaly(row: { playSeconds?: number; totalActions?: number }): bo
  */
 export class Heartbeat extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, language, edition } = await bodyOf(data);
+		const { playerId, language, edition, idleGateMs } = await bodyOf(data);
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
@@ -6410,6 +6581,12 @@ export class Heartbeat extends PublicEndpoint {
 		// Which product this session belongs to (demo | full), so dashboards can
 		// split demo players from paid. Sticky once set to 'demo'.
 		const ed: 'demo' | 'full' | null = edition === 'demo' ? 'demo' : edition === 'full' ? 'full' : null;
+		// How long the client lets an untouched window keep beating (see
+		// HEARTBEAT_IDLE_MS in src/state.tsx). A 0.2.x client doesn't send it and
+		// stays on rev 1, which is exactly the point: playSeconds means something
+		// slightly different either side of that line, and a dashboard averaging the
+		// two together would report a drop in play time that never happened.
+		const gateMs = typeof idleGateMs === 'number' && idleGateMs > 0 ? Math.round(idleGateMs) : null;
 		const last = prev.lastHeartbeatAt || 0;
 		const gap = now - last;
 
@@ -6448,6 +6625,7 @@ export class Heartbeat extends PublicEndpoint {
 			areaSeconds,
 			sessionLengths,
 			...(lang ? { language: lang } : {}),
+			...(gateMs ? { metricsRev: METRICS_REV, idleGateMs: gateMs } : {}),
 			// Keep 'demo' sticky: a demo player is never re-tagged 'full'.
 			...(ed ? { edition: prev.edition === 'demo' ? 'demo' : ed } : {}),
 		};
@@ -6461,10 +6639,13 @@ export class Heartbeat extends PublicEndpoint {
 		//  • first beat of a session after a real absence: recalc every unlocked
 		//    biome and shape a small welcome-back summary for the client.
 		const wid = worldOf(player);
-		// Backstop for the key migration: ensureSoloWorld covers login, but a co-op
-		// world (or a session that never re-logged in) reaches KEY_REV 2 here, on
-		// the first beat. Marked and memoized, so every later beat is a no-op.
-		await migrateWorldKeys(wid);
+		// Backstop for the one-shot save work: ensureSoloWorld covers the login
+		// screen, but "Continue" resumes through GameState — a GET, which must not
+		// write — so a player who never logs in again would otherwise never migrate
+		// or be repaired at all. Both are marked and memoized, so every later beat
+		// is a no-op.
+		await migrateWorldKeys(wid, playerId);
+		await repairSave(wid, playerId, d, { player });
 		let welcomeBack: any = null;
 		const newAnimals: any[] = [];
 		const freshBiomeStates: any[] = [];
@@ -6624,6 +6805,10 @@ async function buildDashboardRows(): Promise<any[]> {
 				// Reported on every row so the dashboard can badge one player, not just
 				// drop them from a total.
 				idle: isIdleAnomaly({ playSeconds: sessionSeconds, totalActions: s.totalActions || 0 }),
+				// Which definition of play time this row was recorded under, so time
+				// series can be split at the change instead of straddling it.
+				metricsRev: s.metricsRev || 1,
+				idleGateMs: s.idleGateMs ?? null,
 			};
 		})
 		.sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
@@ -6815,6 +7000,22 @@ export class Metrics extends PublicEndpoint {
 			// their place in the player count, the funnel and retention. It is only
 			// their play time, sessions and area dwell that stop counting.
 			affects: 'play time, sessions and area dwell only',
+			// Play time is not one measurement across this population. Rows on rev 1
+			// were recorded before the client stopped beating for an untouched window,
+			// so they include time nobody was there for; rev 2 rows do not. Reported
+			// rather than reconciled — there is no honest way to back out idle time a
+			// rev 1 row never recorded separately, so the split is shown and any trend
+			// that crosses it is read as two series.
+			clock: {
+				rev: METRICS_REV,
+				byRev: all.reduce((acc: Record<string, number>, v) => {
+					const k = `rev${v.metricsRev || 1}`;
+					acc[k] = (acc[k] || 0) + 1;
+					return acc;
+				}, {}),
+				idleGateMinutes: round1((all.find((v) => v.idleGateMs)?.idleGateMs || 0) / 60_000) || null,
+				note: 'rev 1 play time includes untouched windows; rev 2 does not',
+			},
 		};
 
 		const N = all.length || 1;

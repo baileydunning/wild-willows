@@ -3,6 +3,7 @@ import {
 	canPaintClick,
 	blocksDoorway,
 	blocksGateTrail,
+	gateEdges,
 	isSleepable,
 	isOrphanedTween,
 	screenSpaceOverlayTransform,
@@ -29,6 +30,45 @@ describe('canPaintClick', () => {
 	it('only paints with the paint tool selected', () => {
 		expect(canPaintClick({ tool: 'basket', isHome: true, placing: false, moving: false })).toBe(false);
 		expect(canPaintClick({ tool: null, isHome: true, placing: false, moving: false })).toBe(false);
+	});
+});
+
+describe('gateEdges — one rule, read from the biome order', () => {
+	// The same six areas data/biomes.json ships, deliberately out of order: the
+	// answer must come from `order`, not from where a biome sits in the array.
+	const BIOMES = [
+		{ id: 'coastal', order: 6 },
+		{ id: 'meadow', order: 1 },
+		{ id: 'alpine', order: 5 },
+		{ id: 'forest', order: 2 },
+		{ id: 'desert', order: 4 },
+		{ id: 'wetland', order: 3 },
+	];
+
+	it('gives the first area no way west and the last no way east', () => {
+		expect(gateEdges(BIOMES, 'meadow')).toEqual({ westGate: false, eastGate: true });
+		expect(gateEdges(BIOMES, 'coastal')).toEqual({ westGate: true, eastGate: false });
+	});
+
+	it('gives every area in between a gate on both edges', () => {
+		for (const id of ['forest', 'wetland', 'desert', 'alpine']) {
+			expect(gateEdges(BIOMES, id), id).toEqual({ westGate: true, eastGate: true });
+		}
+	});
+
+	it('follows the data when the trail is reordered, rather than a hardcoded list', () => {
+		// Drop a seventh area on the end: the coast stops being last, so its east
+		// gate opens. A client walking a fixed area list would still be closing it.
+		const extended = [...BIOMES, { id: 'tundra', order: 7 }];
+		expect(gateEdges(extended, 'coastal')).toEqual({ westGate: true, eastGate: true });
+		expect(gateEdges(extended, 'tundra')).toEqual({ westGate: true, eastGate: false });
+	});
+
+	it('never claims a gate it cannot place when the definitions have not loaded', () => {
+		// A scene can draw a frame before bridge.shared.data arrives. Answering
+		// "no gates" is the safe default: it greys nothing out that should be legal.
+		expect(gateEdges(undefined, 'forest')).toEqual({ westGate: false, eastGate: false });
+		expect(gateEdges([], 'forest')).toEqual({ westGate: false, eastGate: false });
 	});
 });
 

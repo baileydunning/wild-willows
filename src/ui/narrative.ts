@@ -83,8 +83,7 @@ const COMBO_BEATS: Beat[] = [
 	{
 		id: 'forest-cavity-reuse',
 		icon: 'paw',
-		test: (c) =>
-			c.has('pileated-woodpecker') && (c.has('wood-duck') || c.has('flying-squirrel') || c.has('barred-owl')),
+		test: (c) => c.has('pileated-woodpecker') && (c.has('wood-duck') || c.has('flying-squirrel')),
 	},
 	{
 		id: 'wetland-beaver',
@@ -264,7 +263,7 @@ export const BIOME_LINES: Record<string, FeedLine[]> = {
 		{ i: 'sparkle' },
 		// coexistence (gated)
 		{ i: 'paw', g: { a: ['pileated-woodpecker', 'woodpecker'] } },
-		{ i: 'paw', g: { a: ['great-horned-owl', 'barred-owl'] } },
+		{ i: 'paw', g: { a: ['great-horned-owl', 'goshawk'] } },
 		{ i: 'paw', g: { a: ['tree-squirrel', 'chipmunk'] } },
 		{ i: 'paw', g: { a: ['bobcat'] } },
 		{ i: 'paw', g: { a: ['skunk'] } },
@@ -288,7 +287,7 @@ export const BIOME_LINES: Record<string, FeedLine[]> = {
 		{ i: 'sparkle' },
 		{},
 		// animal combinations
-		{ i: 'paw', g: { all: ['great-horned-owl', 'barred-owl'] } },
+		{ i: 'paw', g: { all: ['great-horned-owl', 'goshawk'] } },
 		{ i: 'paw', g: { all: ['pileated-woodpecker', 'wood-duck'] } },
 		{ i: 'paw', g: { a: ['black-bear', 'bobcat'] } },
 		{ i: 'paw', g: { all: ['tree-squirrel', 'flying-squirrel'] } },

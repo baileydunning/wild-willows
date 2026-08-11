@@ -204,3 +204,79 @@ describe('custom goals naming a retired animal', () => {
 		expect(w.db.Player._rows.get(pid).customGoals.map((g: any) => g.id)).toEqual(['g1']);
 	});
 });
+
+describe('a species that was retired with nothing to take its place', () => {
+	// 0.3 renamed 37 animals and simply removed the rest. The alias table only
+	// answers for the renames, so the removals used to sit in a save forever:
+	// invisible to returnedHere / computeBalance / returnedKinds, which all resolve
+	// through the definitions, but perfectly visible to `totalAnimals`, which is a
+	// row count. The preserve total read one high per retired species and "150 of
+	// 150" could never be reached again.
+	const RETIRED_NO_ALIAS = 'american-bittern';
+
+	it('is a real case and not a straw man', () => {
+		expect(ANIMALS.has(RETIRED_NO_ALIAS)).toBe(false);
+		expect(ALIASES.some((a) => a.from === RETIRED_NO_ALIAS)).toBe(false);
+	});
+
+	it('drops the row rather than leaving it to be counted', async () => {
+		const pid = await newSave();
+		seedDiscovery(pid, RETIRED_NO_ALIAS, 'wetland');
+		seedDiscovery(pid, 'grasshopper', 'meadow');
+
+		await login();
+
+		const ids = discoveries().map((r: any) => r.animalId);
+		expect(ids).not.toContain(RETIRED_NO_ALIAS);
+		// and nothing the definitions still know about was taken with it
+		expect(ids).toContain('grasshopper');
+		for (const id of ids) expect(ANIMALS.has(id), `${id} is not an animal any more`).toBe(true);
+	});
+
+	it('keeps the history when there IS a replacement, instead of dropping it', async () => {
+		// The prune runs after the aliases, so an alias always wins over a delete.
+		const pid = await newSave();
+		seedDiscovery(pid, 'barred-owl', 'forest', { timesObserved: 3 });
+
+		await login();
+
+		const owl = discoveries().find((r: any) => r.animalId === 'goshawk');
+		expect(owl, 'barred-owl should have become the goshawk, not vanished').toBeTruthy();
+		expect(owl.timesObserved).toBe(3);
+	});
+});
+
+describe('a save that never uses the login screen again', () => {
+	// "Continue" resumes through GameState, which is a GET and must not write, so
+	// the repair pass cannot run there. If login were its only trigger, a player
+	// who always hits Continue would keep an inflated animal total and a gate
+	// walled off by their own water for as long as they kept playing. The
+	// heartbeat is the write path every session has, so it carries the backstop.
+	it('is repaired on its next heartbeat', async () => {
+		const pid = await newSave();
+		seedDiscovery(pid, 'coyote-meadow', 'meadow', { timesObserved: 2 });
+
+		await w.post('Heartbeat', { playerId: pid });
+
+		const ids = discoveries().map((r: any) => r.animalId);
+		expect(ids).toContain('coyote');
+		expect(ids).not.toContain('coyote-meadow');
+	});
+
+	it('does not re-run the pass on every later beat', async () => {
+		const pid = await newSave();
+		await w.post('Heartbeat', { playerId: pid });
+		expect(w.db.Player._rows.get(pid).repairRev).toBeGreaterThan(0);
+
+		// A row seeded AFTER the save was marked is deliberately left alone: the
+		// marker is what keeps a Discovery scan off the 30-second beat. Only a
+		// REPAIR_REV bump (or the next login) looks again.
+		seedDiscovery(pid, 'coyote-meadow', 'meadow');
+		await w.post('Heartbeat', { playerId: pid });
+		expect(discoveries().map((r: any) => r.animalId)).toContain('coyote-meadow');
+
+		// ...and login, which always runs the pass, still cleans it up.
+		await login();
+		expect(discoveries().map((r: any) => r.animalId)).not.toContain('coyote-meadow');
+	});
+});

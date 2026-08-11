@@ -66,6 +66,34 @@ export interface GateGeom {
 	eastGate: boolean;
 }
 
+/** The one field of a biome definition the gate rules read. */
+export interface GateBiome {
+	id: string;
+	order?: number;
+}
+
+/**
+ * Which edges of an area lead somewhere.
+ *
+ * Derived from `order` in data/biomes.json — the first area has nothing to its
+ * west, the last has open ocean to its east — because that is exactly how
+ * gateGeomOf() decides it in server/resources.ts. The two used to be worked out
+ * differently (the client walked a hardcoded area list and special-cased the
+ * coast by name), which meant reordering the trail, or adding an area to it,
+ * would have moved the gates on one side and not the other: the client would
+ * grey out the wrong tiles, or let a click through to be refused by the server.
+ * There is one rule now and it lives in the data.
+ */
+export function gateEdges(
+	biomes: readonly GateBiome[] | undefined,
+	area: string,
+): { westGate: boolean; eastGate: boolean } {
+	const list = biomes || [];
+	const order = list.find((b) => b.id === area)?.order || 1;
+	const last = list.length ? Math.max(...list.map((b) => b.order || 1)) : order;
+	return { westGate: order > 1, eastGate: order < last };
+}
+
 /**
  * Whether flooding (tx, ty) would wall off a trail gate.
  *
