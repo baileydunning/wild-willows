@@ -234,6 +234,117 @@ itch.io is the v1 home. Steam is the natural next step — most of the plumbing 
 
 ---
 
+## Android / Chromebook build
+
+Capacitor wraps the **same `web/` bundle Electron loads** — solo already runs the
+real game logic in-app against local save files, so the Android app needs no
+server and no network, exactly like the desktop build. There is no second copy of
+the game to maintain.
+
+### How it hangs together
+
+`src/native/capacitorBridge.ts` installs the **same `wildWillowsDesktop` global
+that `electron/preload.js` exposes**. That one move buys the whole platform:
+`api.ts` sees `isDesktop` and defaults the transport to `solo` (no gameplay call
+ever leaves the device), `solo/saves.ts` sees `.saves` and writes real files
+instead of `localStorage`, and `solo/steamSync.ts` sees no `.steam` key and
+no-ops exactly like the Linux build. Android is treated as another desktop, not
+as a third platform.
+
+Two things are genuinely different from Electron and are handled explicitly:
+
+- **Save storage** — slots are JSON files in `Directory.Data/saves/` via
+  `@capacitor/filesystem`, the analogue of the desktop build's `userData/saves`.
+  This is not a nicety: a WebView can evict `localStorage` under storage
+  pressure, which on a school Chromebook means a child loses a twenty-hour save.
+- **Audio autoplay** — Electron enables autoplay, Android does not. `audio.ts`
+  therefore requires a real gesture when `isNativeAndroid`, or the first
+  `play()` rejects and the theme never recovers.
+
+`src/main.tsx` imports the bridge **first, before anything else**. `api.ts` reads
+`wildWillowsDesktop.isDesktop` at module-evaluation time, and ES imports evaluate
+before the importing module's body — so installing the bridge from a function
+call would be too late. Don't reorder that import.
+
+### Run & package
+
+```bash
+npm run android:init     # ONCE: install Capacitor, scaffold android/, patch it
+npm run android:apk      # APK — itch.io / sideload
+npm run android:aab      # AAB — Google Play
+```
+
+`android/` is **generated and gitignored**. Everything we care about in it is
+re-applied by `scripts/patch-android.mjs`, which is idempotent, so regenerating
+the tree is never lossy. That script is the place to change ChromeOS behavior —
+not a hand-edit of the manifest, which the next `cap add` would silently drop.
+
+What it patches, and why each line matters:
+
+- `uses-feature touchscreen/multitouch/faketouch required="false"` — **without
+  these Play assumes the app requires a touchscreen and hides the listing from
+  Chromebooks entirely.** Highest-consequence lines in the Android setup.
+- `resizeableActivity="true"` and no `screenOrientation` lock — ChromeOS users
+  snap, half-tile and maximize constantly; a locked activity refuses to resize.
+- `SuppressWindowControlNavigationButton` — the game is one activity hosting a
+  canvas with no back-stack, so the ChromeOS frame's back button would only ever
+  kill the app mid-play.
+- `minSdk 30`, `compileSdk`/`targetSdk 36` — Google Play requires API 36 for new
+  apps submitted from **31 August 2026**.
+
+### Signing
+
+Env-driven, so the same `build.gradle` works locally and in CI with no secret on
+disk:
+
+```bash
+export ANDROID_KEYSTORE_PATH=/path/to/wild-willows-release.jks
+export ANDROID_KEYSTORE_PASSWORD=… ANDROID_KEY_ALIAS=wild-willows ANDROID_KEY_PASSWORD=…
+npm run android:apk
+```
+
+With none of them set, Gradle falls back to debug signing so a local smoke build
+still works — but a debug-signed APK can't go to Play and shouldn't go on itch.
+
+> **Back the keystore up somewhere that is not this repo.** Losing it means you
+> can never ship an update under the same Play listing again. `*.jks` is
+> gitignored for that reason.
+
+### CI
+
+`.github/workflows/android-build.yml`, modeled on `desktop-build.yml`:
+
+```
+git tag android-v0.3.0 && git push origin android-v0.3.0   → build AND publish to itch
+git tag v0.3.0                                             → this + desktop + MAS
+Actions tab → Run workflow                                 → build artifacts only
+```
+
+Secrets: `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`,
+`ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD` (all four, or none → debug build),
+plus the existing `BUTLER_API_KEY`. The publish job refuses to push a
+debug-signed APK to itch. `versionName` comes from the tag; `versionCode` comes
+from the run number, because Play rejects a reused `versionCode` forever.
+
+### Known gaps before this is a Play release
+
+- **Keyboard gate** — `src/ui/KeyboardGate.tsx` blocks touch-only devices, so a
+  phone install hits a "connect a keyboard" wall. Intentional for now: restrict
+  the Play listing to the ChromeOS form factor, and label the itch APK
+  keyboard-required.
+- **Asset weight** — the bundle is ~91 MB, 77 MB of it audio, and the theme ships
+  three times. Re-encoding music to Opus and deduplicating the theme should land
+  it under 35 MB.
+- **Telemetry vs. the Families Policy** — `platform.ts` `getDeviceId()` persists a
+  UUID and `solo/metricsUplink.ts` posts session snapshots to the hosted Harper.
+  For a child-directed Play listing that combination needs review, and probably
+  needs gating off on Android, **before** submission rather than after a
+  rejection.
+- **App icons** — still Capacitor's placeholder. Generate real ones before any
+  public listing.
+
+---
+
 ## Content at a glance
 
 - **6 biomes** — Willow Meadow, Old Hollow Forest, Rushwater Wetland, Redstone Scrubland (desert), Graywind Heights (alpine), Pelican Shore (coastal). All six are explorable on foot and fully restorable.

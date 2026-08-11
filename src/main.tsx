@@ -1,3 +1,11 @@
+// MUST BE FIRST. On the Capacitor/Android build this installs the
+// `wildWillowsDesktop` global (solo transport + file-backed saves) as a
+// top-level side effect. src/api.ts reads that global at module-evaluation
+// time, and ES imports evaluate in source order — so anything that pulls in
+// api.ts, directly or transitively, has to come after this line. No-ops on web
+// and in Electron.
+import './native/capacitorBridge';
+
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';

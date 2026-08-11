@@ -1,4 +1,5 @@
 import { bridge } from './game/bridge';
+import { isNativeAndroid } from './native/capacitorBridge';
 import audioConfig from '../data/audio.json';
 
 const AUDIO_ASSETS = {
@@ -40,7 +41,13 @@ const state: AudioState = {
 
 const warnedMissing = new Set<string>();
 // Electron desktop enables autoplay, so we can start unlocked there.
-let unlockedByGesture = !!(globalThis as any).wildWillowsDesktop?.isDesktop;
+//
+// The Android build installs the same `wildWillowsDesktop` global (see
+// src/native/capacitorBridge.ts) to inherit Electron's solo/offline behavior —
+// but autoplay is the one place that equivalence breaks. An Android WebView
+// still applies the media-gesture policy, so starting "unlocked" there means the
+// first play() rejects and the theme never recovers. Require a real gesture.
+let unlockedByGesture = !!(globalThis as any).wildWillowsDesktop?.isDesktop && !isNativeAndroid;
 let wantsMusic = false;
 let currentMusicId: MusicId = 'wildwillowstheme';
 let musicEl: HTMLAudioElement | null = null;
