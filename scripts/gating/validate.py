@@ -104,6 +104,65 @@ def gate_stage(rid, gates, recipe_by_id, obj_recipe, stages, distinct_curve, see
         s = up(distinct_curve[min(len(distinct_curve) - 1, n - 1)] if distinct_curve else base)
     return s
 
+def animal_prereq_stages():
+    """Earliest stage each animal can actually be home, following the food web.
+
+    An animal's own bar is its minHealth (plus whatever health its minBalance
+    implies), but a prey requirement pushes it later: nothing returns before the
+    animals it eats. Resolved to a fixed point so chains three or four deep
+    (shrimp -> minnow -> mussel) settle, with cycles reported instead of hanging.
+    """
+    own = {}
+    for a in ANIMALS:
+        b = a['biome']
+        h = max(AH(a), health_for_balance(b, a['requirements'].get('minBalance', 0) or 0))
+        own[a['id']] = STAGE(b, h)
+    stage = dict(own)
+    cycles = []
+    color = {}
+
+    def walk(aid, path):
+        if color.get(aid) == 2: return stage[aid]
+        if color.get(aid) == 1:
+            cycles.append(path[path.index(aid):] + [aid]); return INF
+        color[aid] = 1
+        s = own[aid]
+        for prey in ANIMAL[aid]['requirements'].get('animals') or []:
+            if prey not in ANIMAL: continue
+            s = max(s, walk(prey, path + [aid]) + 1)  # +1: one animal returns per action
+        color[aid] = 2
+        stage[aid] = min(s, INF)
+        return stage[aid]
+
+    for a in ANIMALS: walk(a['id'], [])
+    return stage, cycles
+
+
+def check_food_web(problems, notes):
+    """Every `requirements.animals` edge must be same-biome, acyclic and earlier."""
+    stage, cycles = animal_prereq_stages()
+    for c in cycles:
+        problems.append('FOOD-WEB CYCLE: ' + ' -> '.join(c))
+    for a in ANIMALS:
+        for prey in a['requirements'].get('animals') or []:
+            if prey not in ANIMAL:
+                problems.append(f'{a["id"]}: requires unknown animal {prey}'); continue
+            if prey == a['id']:
+                problems.append(f'{a["id"]}: requires itself'); continue
+            p = ANIMAL[prey]
+            if p['biome'] != a['biome']:
+                notes.append(f'CROSS-BIOME GATE: {a["id"]} ({a["biome"]}) requires {prey} ({p["biome"]})')
+            if stage[prey] >= stage[a['id']]:
+                problems.append(f'PREY DEADLOCK {a["id"]} ({a["biome"]} {AH(a)}%) requires {prey}, '
+                                f'which is only reachable at stage {stage[prey]} (>= {stage[a["id"]]})')
+            # a gate on something it doesn't eat is legal (cavity nesters need the
+            # woodpecker; mussel larvae need a host fish) — just worth seeing listed
+            eaten = {e['id'] if isinstance(e, dict) else e for e in a.get('eats') or []}
+            if prey not in eaten:
+                notes.append(f'NON-PREY GATE: {a["id"]} needs {prey} without eating it (host/cavity relationship?)')
+    return stage
+
+
 def main(verbose=True):
     gates, rep = run()
     recipe_by_id = {r['id']: r for r in RECIPES}
@@ -142,7 +201,17 @@ def main(verbose=True):
                 problems.append(f'DEADLOCK {a["id"]} ({a["biome"]} {AH(a)}%) needs {oid}, '
                                 f'which unlocks at stage {st} (>= {astage})')
 
+    astage = check_food_web(problems, notes)
+
     if verbose:
+        print('\nFood web (animals whose return is gated on other animals):')
+        for b in ORDER:
+            ans = [a for a in ANIMALS if a['biome'] == b]
+            gated = [a for a in ans if a['requirements'].get('animals')]
+            depth = max((astage[a['id']] - STAGE(b, AH(a)) for a in ans), default=0)
+            tail = f'deepest chain delays a return by {depth} stages' if depth else 'no chain outruns its own health bar'
+            print(f'  {b:<9} {len(gated):>3}/{len(ans):<3} gated on prey   {tail}')
+
         print('\nRecipes craftable as each area recovers (cumulative, own-area health):')
         print(f"{'health':>7} " + ' '.join(f'{b[:6]:>7}' for b in ORDER))
         for h in [0, 5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100]:

@@ -472,6 +472,9 @@
           "subalpine-fir": 1
         },
         "signature": "whitebark-cache",
+        "animals": [
+          "snow-flea"
+        ],
         "hint": "It needs a seed bank it can find again under the snow. Build the caches, and the pines it forgets to dig up become next year's forest."
       },
       "sources": [
@@ -518,6 +521,9 @@
           "crystal-spring": 1
         },
         "signature": "cliff-nest-niche",
+        "animals": [
+          "snow-flea"
+        ],
         "hint": "Rock with cracks in it, not a heap of stones. This one nests inside the cliff, feeds out across the scree, and drinks meltwater."
       },
       "sources": [
@@ -567,6 +573,10 @@
           "moss-cushion": 1
         },
         "signature": "snowfield-debris-line",
+        "animals": [
+          "snow-flea",
+          "alpine-butterfly"
+        ],
         "water": {
           "tiles": 1
         },
@@ -613,6 +623,9 @@
           "crystal-spring": 1
         },
         "signature": "toad-upland-burrow",
+        "animals": [
+          "snow-flea"
+        ],
         "water": {
           "tiles": 5
         },
@@ -671,6 +684,10 @@
           "scree-slope": 1
         },
         "signature": "swift-cliff-seam",
+        "animals": [
+          "alpine-butterfly",
+          "alpine-moth"
+        ],
         "water": {
           "tiles": 1
         },
@@ -719,6 +736,9 @@
           "old-woodpecker-cavity": 2
         },
         "signature": "old-woodpecker-cavity",
+        "animals": [
+          "snow-flea"
+        ],
         "hint": "Dead trees are the point. An old woodpecker hole is both shelter and a starting place — this one takes a ready-made cavity and works it wider. The whitebark pines come from its forgotten seeds."
       },
       "sources": [
@@ -1658,6 +1678,9 @@
           "shore-pine": 1
         },
         "signature": "shore-stick-nest",
+        "animals": [
+          "beach-hopper"
+        ],
         "hint": "A tall tree back from the beach to nest in, and a wrack line worth patrolling. It will find everything else on its own."
       },
       "sources": [
@@ -2370,6 +2393,9 @@
           "dew-basin": 1
         },
         "signature": "desert-mistletoe",
+        "animals": [
+          "cactus-bee"
+        ],
         "hint": "Mistletoe in a mesquite is the whole story — the berries are dinner and the clump is the nest. It still comes down to drink."
       },
       "sources": [
@@ -2462,6 +2488,9 @@
           "cactus-patch": 1
         },
         "signature": "cholla",
+        "animals": [
+          "cactus-bee"
+        ],
         "hint": "Cholla is the nest. Nothing else out here is spiny enough, and it never once needs a drink."
       },
       "sources": [
@@ -2511,6 +2540,10 @@
           "bush-muhly": 1
         },
         "signature": "tortoise-burrow",
+        "animals": [
+          "desert-termite",
+          "scorpion"
+        ],
         "hint": "It cannot dig. Bring the tortoise back first and its old den becomes the front door — with low, open ground out front to hunt over."
       },
       "sources": [
@@ -2556,6 +2589,9 @@
           "bare-ground-patch": 1
         },
         "signature": "harvester-ant-mound",
+        "animals": [
+          "desert-termite"
+        ],
         "hint": "No ants, nothing doing. Leave the gaps between the shrubs bare and open — that is exactly where harvester ants clear their mounds."
       },
       "sources": [
@@ -2614,6 +2650,10 @@
           "dew-basin": 1
         },
         "signature": "carrion-patch",
+        "animals": [
+          "horned-lizard",
+          "jackrabbit"
+        ],
         "hint": "They follow whatever gets left lying around: a carcass, a tall perch, something to drink. That is all they ask for — which is exactly the trouble."
       },
       "sources": [
@@ -3020,7 +3060,7 @@
         "skunk"
       ],
       "requirements": {
-        "minHealth": 22,
+        "minHealth": 15,
         "objects": {
           "birch-tree": 1,
           "oak-tree": 1,
@@ -3240,6 +3280,10 @@
           "brush-pile": 1
         },
         "signature": "grub-digging-ground",
+        "animals": [
+          "polyphemus-moth",
+          "luna-moth"
+        ],
         "hint": "Soft, diggable earth full of grubs, and a hollow log to sleep the day away in. It wants somewhere to dig more than somewhere to hide."
       },
       "sources": [
@@ -3393,6 +3437,10 @@
           "native-grass-patch": 1
         },
         "signature": "mantis-ootheca-stem",
+        "animals": [
+          "grasshopper",
+          "monarch-butterfly"
+        ],
         "hint": "Leave stiff dead stems standing through the winter. That's where the foam egg case is glued, and cutting them back in autumn cuts next summer's brood."
       },
       "sources": [
@@ -3443,6 +3491,10 @@
           "bird-perch": 1
         },
         "signature": "bluebird-nest-box",
+        "animals": [
+          "grasshopper",
+          "bumblebee"
+        ],
         "hint": "It can't make its own hole. Put a box up facing open grass, keep the grass short enough to hunt over, and add berries for the winter."
       },
       "sources": [
@@ -3601,6 +3653,9 @@
           "mud-bank": 1
         },
         "signature": "crayfish-burrow-bank",
+        "animals": [
+          "freshwater-shrimp"
+        ],
         "water": {
           "tiles": 3
         },
@@ -3709,6 +3764,10 @@
           "marsh-marigold": 1
         },
         "signature": "wet-meadow-margin",
+        "animals": [
+          "water-strider",
+          "dragonfly"
+        ],
         "water": {
           "tiles": 3
         },
@@ -3756,6 +3815,9 @@
           "cattail-stand": 2
         },
         "signature": "bulrush",
+        "animals": [
+          "red-winged-blackbird"
+        ],
         "water": {
           "tiles": 2
         },
@@ -4004,6 +4066,10 @@
           "wildflower-patch": 1
         },
         "signature": "orb-web-anchor-stems",
+        "animals": [
+          "grasshopper",
+          "ladybug"
+        ],
         "hint": "Tall stiff stems left standing, spaced far enough apart to sling a big web between them, with flowers close by to bring the insects in."
       },
       "sources": [
@@ -4048,6 +4114,9 @@
           "oak-tree": 1
         },
         "signature": "bat-maternity-roost",
+        "animals": [
+          "praying-mantis"
+        ],
         "water": {
           "tiles": 2
         },
@@ -4735,6 +4804,9 @@
           "browse-thicket": 1
         },
         "signature": "bramble-ground-nest",
+        "animals": [
+          "polyphemus-moth"
+        ],
         "hint": "Thick young brush standing over a deep, unraked leaf layer. The nest goes on the ground, so the tangle above it has to be dense enough to hide it."
       },
       "sources": [
@@ -4882,7 +4954,7 @@
         "skunk"
       ],
       "requirements": {
-        "minHealth": 30,
+        "minHealth": 24,
         "objects": {
           "cocoon-leaf-drift": 1,
           "leaf-litter-pile": 2,
@@ -4935,6 +5007,9 @@
           "nesting-tree": 1
         },
         "signature": "acorn-cache-scatter",
+        "animals": [
+          "luna-moth"
+        ],
         "hint": "Oaks and a patch of soft open ground to bury the acorns in. Some of the ones it forgets will be your next oak trees."
       },
       "scientificName": "Cyanocitta cristata",
@@ -4981,6 +5056,9 @@
           "log-shelter": 1
         },
         "signature": "winter-freeze-litter-bed",
+        "animals": [
+          "banana-slug"
+        ],
         "water": {
           "tiles": 3
         },
@@ -5226,6 +5304,9 @@
           "waterfall-splash-ledge": 1
         },
         "signature": "waterfall-splash-ledge",
+        "animals": [
+          "alpine-moth"
+        ],
         "water": {
           "tiles": 2
         },
@@ -5528,6 +5609,9 @@
           "scree-slope": 1
         },
         "signature": "feather-lined-crack",
+        "animals": [
+          "snow-flea"
+        ],
         "hint": "A deep, dry crack in the rock out of the wind, and open stony ground nearby where the snow blows clear."
       },
       "scientificName": "Plectrophenax nivalis",
@@ -5613,6 +5697,10 @@
           "hollow-log": 1
         },
         "signature": "opossum-den-hollow",
+        "animals": [
+          "grasshopper",
+          "snail"
+        ],
         "hint": "Hollow wood to sleep the day away in and berries within a night's walk. It moves house constantly, so give it more than one option."
       },
       "scientificName": "Didelphis virginiana",
@@ -5658,6 +5746,9 @@
           "berry-bush": 1
         },
         "signature": "hidden-grass-nest",
+        "animals": [
+          "grasshopper"
+        ],
         "hint": "A damp, messy corner with a thick tussock to hide a nest in and berries close by. It likes the untidy bits best."
       },
       "scientificName": "Melospiza melodia",

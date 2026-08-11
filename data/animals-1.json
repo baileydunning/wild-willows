@@ -233,6 +233,9 @@
           "standing-deadwood": 2
         },
         "signature": "soft-rot-snag",
+        "animals": [
+          "polyphemus-moth"
+        ],
         "hint": "Small dead stubs with the wood already gone soft. It cannot chisel healthy timber, so leave the rotting stuff standing."
       },
       "sources": [
@@ -405,6 +408,10 @@
           "berry-bush": 1
         },
         "signature": "crayfish-shallows",
+        "animals": [
+          "banana-slug",
+          "forest-salamander"
+        ],
         "water": {
           "tiles": 3
         },
@@ -460,6 +467,10 @@
           "small-pond": 1
         },
         "signature": "root-mass-den",
+        "animals": [
+          "chipmunk",
+          "elk"
+        ],
         "water": {
           "tiles": 2
         },
@@ -1113,6 +1124,9 @@
           "dry-stone-wall": 1
         },
         "signature": "squirrel-burrow-town",
+        "animals": [
+          "grasshopper"
+        ],
         "hint": "Deep diggable soil for a burrow town, and a stone wall to stand sentry on."
       },
       "sources": [
@@ -1167,6 +1181,10 @@
           "bird-perch": 1
         },
         "signature": "domed-grass-nest-tunnel",
+        "animals": [
+          "grasshopper",
+          "praying-mantis"
+        ],
         "water": {
           "tiles": 1
         },
@@ -1409,6 +1427,9 @@
           "marsh-log": 1
         },
         "signature": "submerged-spawning-slab",
+        "animals": [
+          "freshwater-shrimp"
+        ],
         "water": {
           "tiles": 5
         },
@@ -1672,6 +1693,9 @@
           "cattail-stand": 1
         },
         "signature": "flooded-reed-clump",
+        "animals": [
+          "water-strider"
+        ],
         "water": {
           "tiles": 2
         },
@@ -1720,6 +1744,9 @@
           "mud-bank": 1
         },
         "signature": "crane-nest-mound",
+        "animals": [
+          "crayfish"
+        ],
         "water": {
           "tiles": 6
         },
@@ -1836,6 +1863,10 @@
           "marsh-log": 1
         },
         "signature": "vernal-pool",
+        "animals": [
+          "freshwater-shrimp",
+          "chorus-frog"
+        ],
         "water": {
           "tiles": 2
         },
@@ -1910,6 +1941,10 @@
           "cattail-stand": 1
         },
         "signature": "dragonfly-pond",
+        "animals": [
+          "freshwater-shrimp",
+          "water-strider"
+        ],
         "water": {
           "tiles": 3
         },

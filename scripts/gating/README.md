@@ -13,9 +13,13 @@ python3 scripts/gating/validate.py       # check only: curve, deadlocks, duplica
   kinds of object may use which gate, the labels, and the hand-authored
   `OVERRIDES` for chests and caretaker gear.
 * `validate.py` — puts every gate on one scale (`stage = areaOrder*100 + health`)
-  and proves three things: no two recipes in an area share a requirement, every
-  habitat an animal needs unlocks *before* that animal is reachable, and nothing
-  is gated behind something that can never happen.
+  and proves four things: no two recipes in an area share a requirement, every
+  habitat an animal needs unlocks *before* that animal is reachable, nothing
+  is gated behind something that can never happen, and the food web itself holds
+  up — `check_food_web()` walks every `requirements.animals` edge and reports
+  cycles, self-references and any animal gated on prey that only arrives later.
+  Prey it doesn't eat is allowed (cavity nesters need a woodpecker, mussel larvae
+  need a host fish) but is listed as a note so it stays deliberate.
 * `gen_recipes.py` — applies the result to `data/recipes.json`. Refuses to write
   if `validate.py` reports a single problem.
 

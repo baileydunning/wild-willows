@@ -22,8 +22,8 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 14,
         "requiresAnimal": "grasshopper",
+        "minHealth": 14,
         "label": "Restore Willow Meadow to 14% health and welcome the Grasshopper back to Willow Meadow"
       },
       "output": {
@@ -61,8 +61,8 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "requiresAnimal": "groundhog",
-        "label": "Welcome the Groundhog back to Willow Meadow"
+        "minHealth": 32,
+        "label": "Restore Willow Meadow to 32% health"
       },
       "output": {
         "itemId": "butterfly-flowers",
@@ -80,7 +80,8 @@
       "unlockBiome": "meadow",
       "unlock": {
         "minHealth": 9,
-        "label": "Restore Willow Meadow to 9% health"
+        "requiresCrafted": "clover-patch",
+        "label": "Restore Willow Meadow to 9% health and craft a Clover Patch"
       },
       "output": {
         "itemId": "pollinator-garden",
@@ -175,8 +176,9 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "minBalance": 45,
-        "label": "Bring Willow Meadow to 45% ecological balance"
+        "minHealth": 25,
+        "requiresCrafted": "orb-web-anchor-stems",
+        "label": "Restore Willow Meadow to 25% health and craft Web Anchor Stems"
       },
       "output": {
         "itemId": "log-shelter",
@@ -211,9 +213,8 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 32,
-        "requiresCrafted": "groundhog-burrow-mound",
-        "label": "Restore Willow Meadow to 32% health and craft a Meadow Burrow Mound"
+        "requiresAnimal": "garden-spider",
+        "label": "Welcome the Garden Spider back to Willow Meadow"
       },
       "output": {
         "itemId": "rock-pile",
@@ -229,8 +230,9 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "requiresAnimal": "american-goldfinch",
-        "label": "Welcome the American Goldfinch back to Willow Meadow"
+        "minHealth": 25,
+        "requiresAchievement": "meadow-first-bloom",
+        "label": "Restore Willow Meadow to 25% health and earn the “First Bloom” achievement"
       },
       "output": {
         "itemId": "fallen-branch-shelter",
@@ -266,7 +268,8 @@
       "unlockBiome": "meadow",
       "unlock": {
         "minHealth": 12,
-        "label": "Restore Willow Meadow to 12% health"
+        "requiresCrafted": "dry-stone-wall",
+        "label": "Restore Willow Meadow to 12% health and craft a Dry Stone Wall"
       },
       "output": {
         "itemId": "simple-path",
@@ -282,12 +285,8 @@
       "category": "decoration",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 7,
-        "requiresPlaced": {
-          "objectId": "rotting-log-crumble",
-          "count": 2
-        },
-        "label": "Restore Willow Meadow to 7% health and have 2 Crumbling Logs standing in Willow Meadow"
+        "minHealth": 12,
+        "label": "Restore Willow Meadow to 12% health"
       },
       "output": {
         "itemId": "gravel-path",
@@ -303,9 +302,12 @@
       "category": "decoration",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 12,
-        "requiresCrafted": "brush-pile",
-        "label": "Restore Willow Meadow to 12% health and craft a Brush Pile"
+        "minHealth": 7,
+        "requiresPlaced": {
+          "objectId": "clover-patch",
+          "count": 2
+        },
+        "label": "Restore Willow Meadow to 7% health and have 2 Clover Patches standing in Willow Meadow"
       },
       "output": {
         "itemId": "plank-path",
@@ -321,8 +323,12 @@
       "category": "decoration",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 38,
-        "label": "Restore Willow Meadow to 38% health"
+        "minHealth": 23,
+        "requiresTool": {
+          "id": "watering-can",
+          "tier": 2
+        },
+        "label": "Restore Willow Meadow to 23% health and upgrade your Tin Watering Can to the Rainwater Canteen"
       },
       "output": {
         "itemId": "flagstone-path",
@@ -341,10 +347,10 @@
       "unlock": {
         "minHealth": 9,
         "requiresPlaced": {
-          "objectId": "soft-rot-snag",
+          "objectId": "standing-deadwood",
           "count": 2
         },
-        "label": "Restore Old Hollow Forest to 9% health and have 2 Rotting Dead Trees standing in Old Hollow Forest"
+        "label": "Restore Old Hollow Forest to 9% health and have 2 Standing Deadwoods standing in Old Hollow Forest"
       },
       "output": {
         "itemId": "mossy-path",
@@ -362,8 +368,7 @@
       "unlockBiome": "meadow",
       "unlock": {
         "minHealth": 46,
-        "requiresCrafted": "bare-soil-scrape",
-        "label": "Restore Willow Meadow to 46% health and craft a Bare Soil Scrape"
+        "label": "Restore Willow Meadow to 46% health"
       },
       "output": {
         "itemId": "wooden-bridge",
@@ -421,9 +426,9 @@
       "category": "home",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 23,
-        "requiresAchievement": "meadow-first-bloom",
-        "label": "Restore Willow Meadow to 23% health and earn the “First Bloom” achievement"
+        "minHealth": 38,
+        "requiresCrafted": "campfire",
+        "label": "Restore Willow Meadow to 38% health and craft a Campfire"
       },
       "output": {
         "itemId": "field-journal-stand",
@@ -475,7 +480,8 @@
       "unlockBiome": "forest",
       "unlock": {
         "minHealth": 29,
-        "label": "Restore Old Hollow Forest to 29% health"
+        "requiresCrafted": "nesting-tree",
+        "label": "Restore Old Hollow Forest to 29% health and craft a Nesting Tree"
       },
       "output": {
         "itemId": "woodland-pool",
@@ -493,8 +499,8 @@
       "category": "habitat",
       "unlockBiome": "forest",
       "unlock": {
-        "minBalance": 15,
-        "label": "Bring Old Hollow Forest to 15% ecological balance"
+        "minBalance": 20,
+        "label": "Bring Old Hollow Forest to 20% ecological balance"
       },
       "output": {
         "itemId": "fern-spring",
@@ -511,6 +517,10 @@
       "name": "Standing Deadwood",
       "category": "habitat",
       "unlockBiome": "forest",
+      "unlock": {
+        "minHealth": 10,
+        "label": "Restore Old Hollow Forest to 10% health"
+      },
       "output": {
         "itemId": "standing-deadwood",
         "qty": 1
@@ -526,9 +536,8 @@
       "category": "habitat",
       "unlockBiome": "forest",
       "unlock": {
-        "minHealth": 56,
-        "requiresCrafted": "nurse-log-seedbed",
-        "label": "Restore Old Hollow Forest to 56% health and craft a Nurse Log Seedbed"
+        "minHealth": 55,
+        "label": "Restore Old Hollow Forest to 55% health"
       },
       "output": {
         "itemId": "mushroom-log",
@@ -769,12 +778,9 @@
       "category": "habitat",
       "unlockBiome": "alpine",
       "unlock": {
-        "requiresKind": {
-          "kind": "mammal",
-          "count": 2
-        },
+        "minHealth": 29,
         "requiresCrafted": "krummholz-bed-hollow",
-        "label": "Welcome 2 mammals back to Graywind Heights and craft a Krummholz Bed Hollow"
+        "label": "Restore Graywind Heights to 29% health and craft a Krummholz Bed Hollow"
       },
       "output": {
         "itemId": "snowmelt-pool",
@@ -883,9 +889,8 @@
       "category": "habitat",
       "unlockBiome": "coastal",
       "unlock": {
-        "minHealth": 44,
-        "biomesOpen": 6,
-        "label": "Restore Pelican Shore to 44% health and open 6 areas of the preserve"
+        "minHealth": 73,
+        "label": "Restore Pelican Shore to 73% health"
       },
       "output": {
         "itemId": "coastal-nesting-area",
@@ -903,8 +908,9 @@
       "category": "habitat",
       "unlockBiome": "coastal",
       "unlock": {
-        "minHealth": 80,
-        "label": "Restore Pelican Shore to 80% health"
+        "minHealth": 48,
+        "biomesOpen": 6,
+        "label": "Restore Pelican Shore to 48% health and open 6 areas of the preserve"
       },
       "output": {
         "itemId": "coral-garden",
@@ -924,8 +930,11 @@
       "unlockBiome": "coastal",
       "unlock": {
         "minHealth": 31,
-        "totalAnimals": 125,
-        "label": "Restore Pelican Shore to 31% health and welcome 125 animals back across the preserve"
+        "requiresHome": {
+          "track": "comfort",
+          "level": 4
+        },
+        "label": "Restore Pelican Shore to 31% health and raise your home's Comfort to level 4"
       },
       "output": {
         "itemId": "sea-glass-lantern",
@@ -942,9 +951,9 @@
       "category": "home",
       "unlockBiome": "coastal",
       "unlock": {
-        "minHealth": 33,
-        "craftedDistinct": 74,
-        "label": "Restore Pelican Shore to 33% health and craft 74 different things"
+        "minHealth": 32,
+        "totalAnimals": 125,
+        "label": "Restore Pelican Shore to 32% health and welcome 125 animals back across the preserve"
       },
       "output": {
         "itemId": "tide-chime",
@@ -962,9 +971,9 @@
       "category": "structure",
       "unlockBiome": "coastal",
       "unlock": {
-        "minHealth": 76,
-        "requiresCrafted": "sea-glass-lantern",
-        "label": "Restore Pelican Shore to 76% health and craft a Sea Glass Lantern"
+        "minHealth": 46,
+        "craftedDistinct": 74,
+        "label": "Restore Pelican Shore to 46% health and craft 74 different things"
       },
       "output": {
         "itemId": "pearl-display",
@@ -1064,8 +1073,12 @@
       "category": "structure",
       "unlockBiome": "meadow",
       "unlock": {
-        "minBalance": 60,
-        "label": "Bring Willow Meadow to 60% ecological balance"
+        "minHealth": 33,
+        "requiresPlaced": {
+          "objectId": "coyote-natal-den-bank",
+          "count": 4
+        },
+        "label": "Restore Willow Meadow to 33% health and have 4 Den Banks standing in Willow Meadow"
       },
       "output": {
         "itemId": "stone-lantern",
@@ -1083,8 +1096,11 @@
       "unlockBiome": "meadow",
       "unlock": {
         "minHealth": 25,
-        "requiresAchievement": "meadow-pollinators",
-        "label": "Restore Willow Meadow to 25% health and earn the “Pollinator Highway” achievement"
+        "requiresPlaced": {
+          "objectId": "bluebird-nest-box",
+          "count": 3
+        },
+        "label": "Restore Willow Meadow to 25% health and have 3 Bluebird Nest Boxes standing in Willow Meadow"
       },
       "output": {
         "itemId": "wooden-bench",
@@ -1101,8 +1117,9 @@
       "category": "structure",
       "unlockBiome": "meadow",
       "unlock": {
-        "requiresAnimal": "barn-owl",
-        "label": "Welcome the Barn Owl back to Willow Meadow"
+        "minHealth": 62,
+        "requiresCrafted": "wooden-bench",
+        "label": "Restore Willow Meadow to 62% health and craft a Wooden Bench"
       },
       "output": {
         "itemId": "garden-arch",
@@ -1122,9 +1139,9 @@
       "unlock": {
         "minHealth": 44,
         "requiresWater": {
-          "river": 12
+          "tiles": 12
         },
-        "label": "Restore Willow Meadow to 44% health and shape a channel 12 tiles long in Willow Meadow"
+        "label": "Restore Willow Meadow to 44% health and shape 12 tiles of open water in Willow Meadow"
       },
       "output": {
         "itemId": "bird-bath",
@@ -1142,8 +1159,11 @@
       "category": "structure",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 27,
-        "label": "Restore Willow Meadow to 27% health"
+        "requiresKind": {
+          "kind": "invertebrate",
+          "count": 3
+        },
+        "label": "Welcome 3 small invertebrates back to Willow Meadow"
       },
       "output": {
         "itemId": "trail-signpost",
@@ -1160,9 +1180,12 @@
       "category": "structure",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 67,
-        "requiresCrafted": "garden-arch",
-        "label": "Restore Willow Meadow to 67% health and craft a Garden Arch"
+        "minHealth": 40,
+        "requiresPlaced": {
+          "objectId": "bunchgrass-sod-plug",
+          "count": 4
+        },
+        "label": "Restore Willow Meadow to 40% health and have 4 Bunchgrass Sod Plugs standing in Willow Meadow"
       },
       "output": {
         "itemId": "planter-box",
@@ -1181,7 +1204,8 @@
       "unlockBiome": "meadow",
       "unlock": {
         "minHealth": 79,
-        "label": "Restore Willow Meadow to 79% health"
+        "requiresCrafted": "garden-arch",
+        "label": "Restore Willow Meadow to 79% health and craft a Garden Arch"
       },
       "output": {
         "itemId": "gazebo",
@@ -1199,8 +1223,8 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 10,
         "requiresAnimal": "grasshopper",
+        "minHealth": 10,
         "label": "Restore Willow Meadow to 10% health and welcome the Grasshopper back to Willow Meadow"
       },
       "output": {
@@ -1218,9 +1242,12 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 6,
-        "requiresCrafted": "damp-leaf-corner",
-        "label": "Restore Willow Meadow to 6% health and craft a Damp Leaf Corner"
+        "minHealth": 4,
+        "requiresPlaced": {
+          "objectId": "grass-patch",
+          "count": 2
+        },
+        "label": "Restore Willow Meadow to 4% health and have 2 Grass Patches standing in Willow Meadow"
       },
       "output": {
         "itemId": "brush-pile",
@@ -1477,8 +1504,8 @@
       "category": "home",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 32,
-        "label": "Restore Willow Meadow to 32% health"
+        "minBalance": 55,
+        "label": "Bring Willow Meadow to 55% ecological balance"
       },
       "output": {
         "itemId": "campfire",
@@ -1495,9 +1522,9 @@
       "category": "home",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 27,
-        "requiresCrafted": "grass-thatch-litter",
-        "label": "Restore Willow Meadow to 27% health and craft a Grass Thatch Litter"
+        "minHealth": 16,
+        "craftedDistinct": 14,
+        "label": "Restore Willow Meadow to 16% health and craft 14 different things"
       },
       "output": {
         "itemId": "string-lights",
@@ -1532,8 +1559,12 @@
       "category": "structure",
       "unlockBiome": "meadow",
       "unlock": {
-        "requiresAnimal": "garden-spider",
-        "label": "Welcome the Garden Spider back to Willow Meadow"
+        "minHealth": 16,
+        "requiresHome": {
+          "track": "space",
+          "level": 2
+        },
+        "label": "Restore Willow Meadow to 16% health and raise your home's Space to level 2"
       },
       "output": {
         "itemId": "birdhouse",
@@ -1550,11 +1581,9 @@
       "category": "home",
       "unlockBiome": "meadow",
       "unlock": {
-        "requiresKind": {
-          "kind": "invertebrate",
-          "count": 3
-        },
-        "label": "Welcome 3 small invertebrates back to Willow Meadow"
+        "minHealth": 32,
+        "requiresCrafted": "campfire",
+        "label": "Restore Willow Meadow to 32% health and craft a Campfire"
       },
       "output": {
         "itemId": "flower-cart",
@@ -1572,8 +1601,8 @@
       "unlockBiome": "meadow",
       "unlock": {
         "minHealth": 32,
-        "requiresCrafted": "string-lights",
-        "label": "Restore Willow Meadow to 32% health and craft String Lights"
+        "requiresCrafted": "pinwheel",
+        "label": "Restore Willow Meadow to 32% health and craft a Pinwheel"
       },
       "output": {
         "itemId": "hammock",
@@ -1590,8 +1619,8 @@
       "category": "home",
       "unlockBiome": "meadow",
       "unlock": {
-        "minBalance": 35,
-        "label": "Bring Willow Meadow to 35% ecological balance"
+        "minBalance": 40,
+        "label": "Bring Willow Meadow to 40% ecological balance"
       },
       "output": {
         "itemId": "garden-gnome",
@@ -1607,12 +1636,8 @@
       "category": "home",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 25,
-        "requiresHome": {
-          "track": "decor",
-          "level": 3
-        },
-        "label": "Restore Willow Meadow to 25% health and raise your home's Furnishings to level 3"
+        "requiresAnimal": "american-goldfinch",
+        "label": "Welcome the American Goldfinch back to Willow Meadow"
       },
       "output": {
         "itemId": "wind-chimes",
@@ -1631,8 +1656,7 @@
       "unlockBiome": "meadow",
       "unlock": {
         "minHealth": 55,
-        "requiresCrafted": "coyote-natal-den-bank",
-        "label": "Restore Willow Meadow to 55% health and craft a Den Bank"
+        "label": "Restore Willow Meadow to 55% health"
       },
       "output": {
         "itemId": "sundial",
@@ -1705,8 +1729,8 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 65,
-        "label": "Restore Willow Meadow to 65% health"
+        "requiresAnimal": "american-badger",
+        "label": "Welcome the American Badger back to Willow Meadow"
       },
       "output": {
         "itemId": "insect-hotel",
@@ -1742,11 +1766,8 @@
       "category": "habitat",
       "unlockBiome": "forest",
       "unlock": {
-        "requiresKind": {
-          "kind": "mammal",
-          "count": 2
-        },
-        "label": "Welcome 2 mammals back to Old Hollow Forest"
+        "minHealth": 18,
+        "label": "Restore Old Hollow Forest to 18% health"
       },
       "output": {
         "itemId": "bat-box",
@@ -1762,11 +1783,6 @@
       "name": "Leaf Litter Pile",
       "category": "habitat",
       "unlockBiome": "forest",
-      "unlock": {
-        "minHealth": 14,
-        "requiresCrafted": "leaf-drey",
-        "label": "Restore Old Hollow Forest to 14% health and craft a Leaf Drey"
-      },
       "output": {
         "itemId": "leaf-litter-pile",
         "qty": 1
@@ -1886,12 +1902,9 @@
       "category": "habitat",
       "unlockBiome": "coastal",
       "unlock": {
-        "minHealth": 23,
-        "requiresPlaced": {
-          "objectId": "mussel-bed",
-          "count": 3
-        },
-        "label": "Restore Pelican Shore to 23% health and have 3 Mussel Beds standing in Pelican Shore"
+        "minHealth": 39,
+        "requiresCrafted": "offshore-nesting-island",
+        "label": "Restore Pelican Shore to 39% health and craft an Offshore Nesting Island"
       },
       "output": {
         "itemId": "driftwood-pile",
@@ -1908,8 +1921,8 @@
       "category": "habitat",
       "unlockBiome": "coastal",
       "unlock": {
-        "minBalance": 35,
-        "label": "Bring Pelican Shore to 35% ecological balance"
+        "minHealth": 36,
+        "label": "Restore Pelican Shore to 36% health"
       },
       "output": {
         "itemId": "nesting-bluff",
@@ -1946,8 +1959,9 @@
       "category": "habitat",
       "unlockBiome": "alpine",
       "unlock": {
-        "requiresAnimal": "mountain-chickadee",
-        "label": "Welcome the Mountain Chickadee back to Graywind Heights"
+        "minHealth": 31,
+        "craftedDistinct": 62,
+        "label": "Restore Graywind Heights to 31% health and craft 62 different things"
       },
       "output": {
         "itemId": "lichen-boulder",
@@ -2003,8 +2017,8 @@
       "category": "habitat",
       "unlockBiome": "alpine",
       "unlock": {
-        "minBalance": 15,
-        "label": "Bring Graywind Heights to 15% ecological balance"
+        "minHealth": 32,
+        "label": "Restore Graywind Heights to 32% health"
       },
       "output": {
         "itemId": "whitebark-cache",
@@ -2040,8 +2054,8 @@
       "category": "habitat",
       "unlockBiome": "alpine",
       "unlock": {
-        "requiresAnimal": "snow-bunting",
-        "label": "Welcome the Snow Bunting back to Graywind Heights"
+        "minBalance": 15,
+        "label": "Bring Graywind Heights to 15% ecological balance"
       },
       "output": {
         "itemId": "cliff-nest-niche",
@@ -2059,8 +2073,12 @@
       "category": "habitat",
       "unlockBiome": "alpine",
       "unlock": {
-        "minHealth": 29,
-        "label": "Restore Graywind Heights to 29% health"
+        "requiresKind": {
+          "kind": "mammal",
+          "count": 2
+        },
+        "requiresCrafted": "krummholz-bed-hollow",
+        "label": "Welcome 2 mammals back to Graywind Heights and craft a Krummholz Bed Hollow"
       },
       "output": {
         "itemId": "crystal-spring",
@@ -2078,9 +2096,12 @@
       "category": "structure",
       "unlockBiome": "alpine",
       "unlock": {
-        "minHealth": 23,
-        "requiresAchievement": "alpine-treeline",
-        "label": "Restore Graywind Heights to 23% health and earn the “Above the Treeline” achievement"
+        "minHealth": 22,
+        "requiresHome": {
+          "track": "space",
+          "level": 4
+        },
+        "label": "Restore Graywind Heights to 22% health and raise your home's Space to level 4"
       },
       "output": {
         "itemId": "summit-prayer-flags",
@@ -2097,8 +2118,9 @@
       "category": "home",
       "unlockBiome": "alpine",
       "unlock": {
-        "minHealth": 62,
-        "label": "Restore Graywind Heights to 62% health"
+        "minHealth": 37,
+        "biomesOpen": 6,
+        "label": "Restore Graywind Heights to 37% health and open 6 areas of the preserve"
       },
       "output": {
         "itemId": "quartz-lantern",
@@ -2116,8 +2138,8 @@
       "category": "structure",
       "unlockBiome": "alpine",
       "unlock": {
-        "requiresAnimal": "bighorn-sheep",
-        "label": "Welcome the Bighorn Sheep back to Graywind Heights"
+        "minHealth": 72,
+        "label": "Restore Graywind Heights to 72% health"
       },
       "output": {
         "itemId": "obsidian-totem",
@@ -2178,8 +2200,8 @@
       "unlockBiome": "meadow",
       "unlock": {
         "minHealth": 41,
-        "requiresCrafted": "hammock",
-        "label": "Restore Willow Meadow to 41% health and craft a Hammock"
+        "requiresCrafted": "home-lamp",
+        "label": "Restore Willow Meadow to 41% health and craft a Floor Lamp"
       },
       "output": {
         "itemId": "home-table",
@@ -2196,8 +2218,8 @@
       "category": "home",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 59,
-        "label": "Restore Willow Meadow to 59% health"
+        "requiresAnimal": "barn-owl",
+        "label": "Welcome the Barn Owl back to Willow Meadow"
       },
       "output": {
         "itemId": "home-bed",
@@ -2215,7 +2237,8 @@
       "unlockBiome": "meadow",
       "unlock": {
         "minHealth": 55,
-        "label": "Restore Willow Meadow to 55% health"
+        "requiresCrafted": "wind-chimes",
+        "label": "Restore Willow Meadow to 55% health and craft Wind Chimes"
       },
       "output": {
         "itemId": "home-bookshelf",
@@ -2232,11 +2255,8 @@
       "category": "home",
       "unlockBiome": "meadow",
       "unlock": {
-        "requiresKind": {
-          "kind": "bird",
-          "count": 4
-        },
-        "label": "Welcome 4 birds back to Willow Meadow"
+        "minHealth": 53,
+        "label": "Restore Willow Meadow to 53% health"
       },
       "output": {
         "itemId": "home-armchair",
@@ -2253,8 +2273,8 @@
       "category": "home",
       "unlockBiome": "meadow",
       "unlock": {
-        "animalsReturned": 22,
-        "label": "Welcome 22 animals back to Willow Meadow"
+        "minHealth": 66,
+        "label": "Restore Willow Meadow to 66% health"
       },
       "output": {
         "itemId": "home-fireplace",
@@ -2271,9 +2291,8 @@
       "category": "home",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 32,
-        "requiresCrafted": "domed-grass-nest-tunnel",
-        "label": "Restore Willow Meadow to 32% health and craft a Domed Grass Nest"
+        "requiresAnimal": "groundhog",
+        "label": "Welcome the Groundhog back to Willow Meadow"
       },
       "output": {
         "itemId": "home-lamp",
@@ -2290,12 +2309,8 @@
       "category": "home",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 28,
-        "requiresBiome": {
-          "biome": "wetland",
-          "minHealth": 95
-        },
-        "label": "Restore Willow Meadow to 28% health and restore Rushwater Wetland to 95% health"
+        "minHealth": 47,
+        "label": "Restore Willow Meadow to 47% health"
       },
       "output": {
         "itemId": "home-potplant",
@@ -2313,11 +2328,11 @@
       "unlockBiome": "meadow",
       "unlock": {
         "minHealth": 25,
-        "requiresTool": {
-          "id": "basket",
-          "tier": 2
+        "requiresHome": {
+          "track": "comfort",
+          "level": 2
         },
-        "label": "Restore Willow Meadow to 25% health and upgrade your Gathering Basket to the Reinforced Gathering Basket"
+        "label": "Restore Willow Meadow to 25% health and raise your home's Comfort to level 2"
       },
       "output": {
         "itemId": "home-painting",
@@ -2334,8 +2349,8 @@
       "category": "home",
       "unlockBiome": "meadow",
       "unlock": {
-        "animalsReturned": 6,
-        "label": "Welcome 6 animals back to Willow Meadow"
+        "requiresAnimal": "ground-squirrel",
+        "label": "Welcome the Ground Squirrel back to Willow Meadow"
       },
       "output": {
         "itemId": "home-sleeping-bag",
@@ -2352,7 +2367,8 @@
       "unlockBiome": "meadow",
       "unlock": {
         "minHealth": 16,
-        "label": "Restore Willow Meadow to 16% health"
+        "requiresCrafted": "hidden-grass-nest",
+        "label": "Restore Willow Meadow to 16% health and craft a Hidden Grass Nest"
       },
       "output": {
         "itemId": "home-cushions",
@@ -2386,11 +2402,11 @@
       "unlockBiome": "forest",
       "unlock": {
         "minHealth": 16,
-        "requiresTool": {
-          "id": "watering-can",
-          "tier": 3
+        "requiresHome": {
+          "track": "light",
+          "level": 3
         },
-        "label": "Restore Old Hollow Forest to 16% health and upgrade your Tin Watering Can to the Spring-fed Ewer"
+        "label": "Restore Old Hollow Forest to 16% health and raise your home's Warmth to level 3"
       },
       "output": {
         "itemId": "home-mushroomshelf",
@@ -2425,8 +2441,11 @@
       "unlockBiome": "desert",
       "unlock": {
         "minHealth": 19,
-        "craftedDistinct": 50,
-        "label": "Restore Redstone Scrubland to 19% health and craft 50 different things"
+        "requiresHome": {
+          "track": "comfort",
+          "level": 4
+        },
+        "label": "Restore Redstone Scrubland to 19% health and raise your home's Comfort to level 4"
       },
       "output": {
         "itemId": "home-cactuspot",
@@ -2479,9 +2498,8 @@
       "category": "home",
       "unlockBiome": "forest",
       "unlock": {
-        "minHealth": 27,
-        "totalAnimals": 55,
-        "label": "Restore Old Hollow Forest to 27% health and welcome 55 animals back across the preserve"
+        "minBalance": 55,
+        "label": "Bring Old Hollow Forest to 55% ecological balance"
       },
       "output": {
         "itemId": "home-dresser",
@@ -2520,12 +2538,12 @@
       "category": "home",
       "unlockBiome": "forest",
       "unlock": {
-        "minHealth": 27,
+        "minHealth": 26,
         "requiresBiome": {
           "biome": "meadow",
           "minHealth": 90
         },
-        "label": "Restore Old Hollow Forest to 27% health and restore Willow Meadow to 90% health"
+        "label": "Restore Old Hollow Forest to 26% health and restore Willow Meadow to 90% health"
       },
       "output": {
         "itemId": "home-chandelier",
@@ -2565,8 +2583,8 @@
       "unlockBiome": "alpine",
       "unlock": {
         "minHealth": 31,
-        "craftedDistinct": 62,
-        "label": "Restore Graywind Heights to 31% health and craft 62 different things"
+        "requiresAchievement": "alpine-treeline",
+        "label": "Restore Graywind Heights to 31% health and earn the “Above the Treeline” achievement"
       },
       "output": {
         "itemId": "home-telescope",
@@ -2583,8 +2601,11 @@
       "category": "structure",
       "unlockBiome": "meadow",
       "unlock": {
-        "requiresAnimal": "coyote",
-        "label": "Welcome the Coyote back to Willow Meadow"
+        "minHealth": 48,
+        "requiresWater": {
+          "lake": 10
+        },
+        "label": "Restore Willow Meadow to 48% health and shape a pond of 10 connected water tiles in Willow Meadow"
       },
       "output": {
         "itemId": "rain-basin",
@@ -2602,7 +2623,8 @@
       "unlockBiome": "forest",
       "unlock": {
         "minHealth": 73,
-        "label": "Restore Old Hollow Forest to 73% health"
+        "requiresCrafted": "trail-tent",
+        "label": "Restore Old Hollow Forest to 73% health and craft a Trail Tent"
       },
       "output": {
         "itemId": "dew-lantern",
@@ -2638,7 +2660,8 @@
       "unlockBiome": "alpine",
       "unlock": {
         "minHealth": 76,
-        "label": "Restore Graywind Heights to 76% health"
+        "requiresCrafted": "obsidian-totem",
+        "label": "Restore Graywind Heights to 76% health and craft an Obsidian Totem"
       },
       "output": {
         "itemId": "frostflower-planter",
@@ -2656,11 +2679,8 @@
       "unlockBiome": "desert",
       "unlock": {
         "minHealth": 43,
-        "requiresTool": {
-          "id": "field-journal",
-          "tier": 5
-        },
-        "label": "Restore Redstone Scrubland to 43% health and upgrade your Field Journal to the Redstone Scrubland Field Guide"
+        "biomesOpen": 5,
+        "label": "Restore Redstone Scrubland to 43% health and open 5 areas of the preserve"
       },
       "output": {
         "itemId": "stormglass-lantern",
@@ -2677,9 +2697,12 @@
       "category": "home",
       "unlockBiome": "alpine",
       "unlock": {
-        "minHealth": 62,
-        "requiresCrafted": "chipmunk-burrow-larder",
-        "label": "Restore Graywind Heights to 62% health and craft a Chipmunk Burrow Larder"
+        "minHealth": 37,
+        "requiresHome": {
+          "track": "light",
+          "level": 4
+        },
+        "label": "Restore Graywind Heights to 37% health and raise your home's Warmth to level 4"
       },
       "output": {
         "itemId": "frostflower-vase",
@@ -2715,8 +2738,11 @@
       "unlockBiome": "wetland",
       "unlock": {
         "minHealth": 43,
-        "requiresAchievement": "wetland-first-water",
-        "label": "Restore Rushwater Wetland to 43% health and earn the “Water Returns” achievement"
+        "requiresHome": {
+          "track": "light",
+          "level": 4
+        },
+        "label": "Restore Rushwater Wetland to 43% health and raise your home's Warmth to level 4"
       },
       "output": {
         "itemId": "boardwalk",
@@ -2736,10 +2762,10 @@
       "unlock": {
         "minHealth": 28,
         "requiresPlaced": {
-          "objectId": "hidden-reed-platform",
+          "objectId": "clearwater-shallows",
           "count": 3
         },
-        "label": "Restore Rushwater Wetland to 28% health and have 3 Hidden Reed Platforms standing in Rushwater Wetland"
+        "label": "Restore Rushwater Wetland to 28% health and have 3 Clearwater Shallows standing in Rushwater Wetland"
       },
       "output": {
         "itemId": "heron-rookery",
@@ -2776,8 +2802,8 @@
       "category": "structure",
       "unlockBiome": "forest",
       "unlock": {
-        "requiresAnimal": "raccoon",
-        "label": "Welcome the Raccoon back to Old Hollow Forest"
+        "animalsReturned": 13,
+        "label": "Welcome 13 animals back to Old Hollow Forest"
       },
       "output": {
         "itemId": "trail-tent",
@@ -2937,12 +2963,8 @@
       "category": "habitat",
       "unlockBiome": "alpine",
       "unlock": {
-        "minHealth": 28,
-        "requiresTool": {
-          "id": "field-journal",
-          "tier": 6
-        },
-        "label": "Restore Graywind Heights to 28% health and upgrade your Field Journal to the Graywind Heights Field Guide"
+        "minHealth": 47,
+        "label": "Restore Graywind Heights to 47% health"
       },
       "output": {
         "itemId": "escape-cliff",
@@ -2996,8 +3018,8 @@
       "category": "habitat",
       "unlockBiome": "alpine",
       "unlock": {
-        "requiresAnimal": "pipit",
-        "label": "Welcome the Pipit back to Graywind Heights"
+        "minHealth": 42,
+        "label": "Restore Graywind Heights to 42% health"
       },
       "output": {
         "itemId": "inherited-earth-den",
@@ -3047,9 +3069,9 @@
       "category": "habitat",
       "unlockBiome": "alpine",
       "unlock": {
-        "minHealth": 31,
+        "minHealth": 30,
         "totalAnimals": 110,
-        "label": "Restore Graywind Heights to 31% health and welcome 110 animals back across the preserve"
+        "label": "Restore Graywind Heights to 30% health and welcome 110 animals back across the preserve"
       },
       "output": {
         "itemId": "chipmunk-burrow-larder",
@@ -3068,8 +3090,7 @@
       "unlockBiome": "alpine",
       "unlock": {
         "minHealth": 34,
-        "requiresCrafted": "willow-basin-thicket",
-        "label": "Restore Graywind Heights to 34% health and craft a Willow Basin Thicket"
+        "label": "Restore Graywind Heights to 34% health"
       },
       "output": {
         "itemId": "whitebark-pine",
@@ -3087,12 +3108,8 @@
       "category": "habitat",
       "unlockBiome": "alpine",
       "unlock": {
-        "minHealth": 16,
-        "requiresTool": {
-          "id": "field-journal",
-          "tier": 6
-        },
-        "label": "Restore Graywind Heights to 16% health and upgrade your Field Journal to the Graywind Heights Field Guide"
+        "requiresAnimal": "rock-squirrel",
+        "label": "Welcome the Rock Squirrel back to Graywind Heights"
       },
       "output": {
         "itemId": "old-woodpecker-cavity",
@@ -3110,8 +3127,12 @@
       "category": "habitat",
       "unlockBiome": "alpine",
       "unlock": {
-        "minHealth": 27,
-        "label": "Restore Graywind Heights to 27% health"
+        "minHealth": 16,
+        "requiresTool": {
+          "id": "field-journal",
+          "tier": 6
+        },
+        "label": "Restore Graywind Heights to 16% health and upgrade your Field Journal to the Graywind Heights Field Guide"
       },
       "output": {
         "itemId": "snowfield-debris-line",
@@ -3130,8 +3151,7 @@
       "unlockBiome": "alpine",
       "unlock": {
         "minHealth": 29,
-        "requiresCrafted": "krummholz-bed-hollow",
-        "label": "Restore Graywind Heights to 29% health and craft a Krummholz Bed Hollow"
+        "label": "Restore Graywind Heights to 29% health"
       },
       "output": {
         "itemId": "toad-upland-burrow",
@@ -3148,9 +3168,8 @@
       "category": "habitat",
       "unlockBiome": "alpine",
       "unlock": {
-        "minHealth": 42,
-        "requiresCrafted": "swift-cliff-seam",
-        "label": "Restore Graywind Heights to 42% health and craft a Cliff Seam"
+        "requiresAnimal": "pipit",
+        "label": "Welcome the Pipit back to Graywind Heights"
       },
       "output": {
         "itemId": "treeline-log-den",
@@ -3168,12 +3187,9 @@
       "category": "habitat",
       "unlockBiome": "alpine",
       "unlock": {
-        "minHealth": 22,
-        "requiresPlaced": {
-          "objectId": "juniper-thicket",
-          "count": 3
-        },
-        "label": "Restore Graywind Heights to 22% health and have 3 Juniper Thickets standing in Graywind Heights"
+        "minHealth": 36,
+        "requiresCrafted": "toad-upland-burrow",
+        "label": "Restore Graywind Heights to 36% health and craft a Toad Upland Burrow"
       },
       "output": {
         "itemId": "fur-lined-prey-den",
@@ -3249,11 +3265,11 @@
       "unlockBiome": "coastal",
       "unlock": {
         "minHealth": 28,
-        "requiresPlaced": {
-          "objectId": "plover-scrape-closure",
-          "count": 3
+        "requiresTool": {
+          "id": "field-journal",
+          "tier": 7
         },
-        "label": "Restore Pelican Shore to 28% health and have 3 Plover Scrape Closures standing in Pelican Shore"
+        "label": "Restore Pelican Shore to 28% health and upgrade your Field Journal to the Master Naturalist's Guide"
       },
       "output": {
         "itemId": "kelp-holdfast-reef",
@@ -3271,8 +3287,8 @@
       "category": "habitat",
       "unlockBiome": "coastal",
       "unlock": {
-        "minHealth": 40,
-        "label": "Restore Pelican Shore to 40% health"
+        "animalsReturned": 11,
+        "label": "Welcome 11 animals back to Pelican Shore"
       },
       "output": {
         "itemId": "nutrient-upwelling-current",
@@ -3289,8 +3305,9 @@
       "category": "habitat",
       "unlockBiome": "coastal",
       "unlock": {
-        "minBalance": 10,
-        "label": "Bring Pelican Shore to 10% ecological balance"
+        "minHealth": 22,
+        "requiresCrafted": "surge-swept-rock-face",
+        "label": "Restore Pelican Shore to 22% health and craft a Surge-Swept Rock Face"
       },
       "output": {
         "itemId": "coralline-algae-crust",
@@ -3308,11 +3325,10 @@
       "unlockBiome": "coastal",
       "unlock": {
         "minHealth": 14,
-        "requiresPlaced": {
-          "objectId": "rippled-sand-bed",
-          "count": 2
+        "requiresWater": {
+          "tiles": 6
         },
-        "label": "Restore Pelican Shore to 14% health and have 2 Rippled Sands standing in Pelican Shore"
+        "label": "Restore Pelican Shore to 14% health and shape 6 tiles of open water in Pelican Shore"
       },
       "output": {
         "itemId": "low-tide-rock-bench",
@@ -3347,9 +3363,8 @@
       "category": "habitat",
       "unlockBiome": "coastal",
       "unlock": {
-        "minHealth": 40,
-        "requiresCrafted": "surfgrass-bed",
-        "label": "Restore Pelican Shore to 40% health and craft a Surfgrass Bed"
+        "requiresAnimal": "black-turnstone",
+        "label": "Welcome the Black Turnstone back to Pelican Shore"
       },
       "output": {
         "itemId": "kelp-forest",
@@ -3367,8 +3382,8 @@
       "category": "habitat",
       "unlockBiome": "coastal",
       "unlock": {
-        "minHealth": 20,
-        "label": "Restore Pelican Shore to 20% health"
+        "requiresAnimal": "gull",
+        "label": "Welcome the Gull back to Pelican Shore"
       },
       "output": {
         "itemId": "surfgrass-bed",
@@ -3386,11 +3401,11 @@
       "category": "habitat",
       "unlockBiome": "coastal",
       "unlock": {
-        "minHealth": 12,
-        "requiresWater": {
-          "tiles": 6
+        "requiresKind": {
+          "kind": "invertebrate",
+          "count": 2
         },
-        "label": "Restore Pelican Shore to 12% health and shape 6 tiles of open water in Pelican Shore"
+        "label": "Welcome 2 small invertebrates back to Pelican Shore"
       },
       "output": {
         "itemId": "nearshore-spawning-shallows",
@@ -3424,8 +3439,8 @@
       "category": "habitat",
       "unlockBiome": "coastal",
       "unlock": {
-        "requiresAnimal": "gull",
-        "label": "Welcome the Gull back to Pelican Shore"
+        "minBalance": 10,
+        "label": "Bring Pelican Shore to 10% ecological balance"
       },
       "output": {
         "itemId": "empty-shell-drift",
@@ -3441,12 +3456,9 @@
       "category": "habitat",
       "unlockBiome": "coastal",
       "unlock": {
-        "minHealth": 17,
-        "requiresTool": {
-          "id": "field-journal",
-          "tier": 7
-        },
-        "label": "Restore Pelican Shore to 17% health and upgrade your Field Journal to the Master Naturalist's Guide"
+        "minHealth": 29,
+        "requiresCrafted": "high-tide-roost-rock",
+        "label": "Restore Pelican Shore to 29% health and craft a High-Tide Roost"
       },
       "output": {
         "itemId": "subtidal-rubble-flat",
@@ -3497,7 +3509,8 @@
       "unlockBiome": "coastal",
       "unlock": {
         "minHealth": 44,
-        "label": "Restore Pelican Shore to 44% health"
+        "requiresCrafted": "breaking-surf-line",
+        "label": "Restore Pelican Shore to 44% health and craft a Breaking Surf Line"
       },
       "output": {
         "itemId": "protected-sand-gravel-flat",
@@ -3515,8 +3528,7 @@
       "unlockBiome": "coastal",
       "unlock": {
         "minHealth": 49,
-        "requiresCrafted": "kelp-forest",
-        "label": "Restore Pelican Shore to 49% health and craft a Kelp Forest"
+        "label": "Restore Pelican Shore to 49% health"
       },
       "output": {
         "itemId": "benthic-amphipod-bed",
@@ -3606,8 +3618,12 @@
       "category": "habitat",
       "unlockBiome": "coastal",
       "unlock": {
-        "animalsReturned": 11,
-        "label": "Welcome 11 animals back to Pelican Shore"
+        "minHealth": 23,
+        "requiresPlaced": {
+          "objectId": "dune-manzanita",
+          "count": 3
+        },
+        "label": "Restore Pelican Shore to 23% health and have 3 Dune Manzanitas standing in Pelican Shore"
       },
       "output": {
         "itemId": "plover-scrape-closure",
@@ -3626,8 +3642,7 @@
       "unlockBiome": "coastal",
       "unlock": {
         "minHealth": 26,
-        "requiresCrafted": "low-tide-rock-bench",
-        "label": "Restore Pelican Shore to 26% health and craft a Low-Tide Rock Bench"
+        "label": "Restore Pelican Shore to 26% health"
       },
       "output": {
         "itemId": "high-tide-roost-rock",
@@ -3644,11 +3659,12 @@
       "category": "habitat",
       "unlockBiome": "coastal",
       "unlock": {
-        "requiresKind": {
-          "kind": "invertebrate",
-          "count": 3
+        "minHealth": 13,
+        "requiresTool": {
+          "id": "field-journal",
+          "tier": 7
         },
-        "label": "Welcome 3 small invertebrates back to Pelican Shore"
+        "label": "Restore Pelican Shore to 13% health and upgrade your Field Journal to the Master Naturalist's Guide"
       },
       "output": {
         "itemId": "dune-manzanita",
@@ -3665,8 +3681,12 @@
       "category": "habitat",
       "unlockBiome": "coastal",
       "unlock": {
-        "requiresAnimal": "sand-dollar",
-        "label": "Welcome the Sand Dollar back to Pelican Shore"
+        "minHealth": 14,
+        "requiresPlaced": {
+          "objectId": "rippled-sand-bed",
+          "count": 2
+        },
+        "label": "Restore Pelican Shore to 14% health and have 2 Rippled Sands standing in Pelican Shore"
       },
       "output": {
         "itemId": "mussel-bed",
@@ -3684,9 +3704,8 @@
       "category": "habitat",
       "unlockBiome": "coastal",
       "unlock": {
-        "minHealth": 23,
-        "requiresCrafted": "nearshore-spawning-shallows",
-        "label": "Restore Pelican Shore to 23% health and craft Nearshore Spawning Shallows"
+        "requiresAnimal": "sand-dollar",
+        "label": "Welcome the Sand Dollar back to Pelican Shore"
       },
       "output": {
         "itemId": "sunlit-surge-pool",
@@ -3705,8 +3724,8 @@
       "unlockBiome": "coastal",
       "unlock": {
         "minHealth": 36,
-        "requiresCrafted": "high-tide-roost-rock",
-        "label": "Restore Pelican Shore to 36% health and craft a High-Tide Roost"
+        "requiresCrafted": "subtidal-rubble-flat",
+        "label": "Restore Pelican Shore to 36% health and craft a Subtidal Rubble Flat"
       },
       "output": {
         "itemId": "offshore-nesting-island",
@@ -3724,8 +3743,8 @@
       "category": "habitat",
       "unlockBiome": "coastal",
       "unlock": {
-        "minHealth": 36,
-        "label": "Restore Pelican Shore to 36% health"
+        "requiresAnimal": "anemone",
+        "label": "Welcome the Anemone back to Pelican Shore"
       },
       "output": {
         "itemId": "sandbar-loafing-roost",
@@ -3761,8 +3780,9 @@
       "category": "habitat",
       "unlockBiome": "coastal",
       "unlock": {
-        "requiresAnimal": "sanderling",
-        "label": "Welcome the Sanderling back to Pelican Shore"
+        "minHealth": 49,
+        "requiresCrafted": "eelgrass-grazing-lawn",
+        "label": "Restore Pelican Shore to 49% health and craft a Turtle Grazing Lawn"
       },
       "output": {
         "itemId": "sheltered-rafting-cove",
@@ -4142,8 +4162,8 @@
       "unlockBiome": "desert",
       "unlock": {
         "minHealth": 23,
-        "biomesOpen": 4,
-        "label": "Restore Redstone Scrubland to 23% health and open 4 areas of the preserve"
+        "craftedDistinct": 50,
+        "label": "Restore Redstone Scrubland to 23% health and craft 50 different things"
       },
       "output": {
         "itemId": "termite-worked-litter",
@@ -4295,8 +4315,8 @@
       "category": "habitat",
       "unlockBiome": "forest",
       "unlock": {
-        "minHealth": 18,
-        "label": "Restore Old Hollow Forest to 18% health"
+        "animalsReturned": 4,
+        "label": "Welcome 4 animals back to Old Hollow Forest"
       },
       "output": {
         "itemId": "browse-exclosure",
@@ -4333,8 +4353,9 @@
       "category": "habitat",
       "unlockBiome": "forest",
       "unlock": {
-        "requiresAnimal": "fisher",
-        "label": "Welcome the Fisher back to Old Hollow Forest"
+        "minHealth": 36,
+        "totalAnimals": 55,
+        "label": "Restore Old Hollow Forest to 36% health and welcome 55 animals back across the preserve"
       },
       "output": {
         "itemId": "deep-duff-soil",
@@ -4352,8 +4373,8 @@
       "category": "habitat",
       "unlockBiome": "forest",
       "unlock": {
-        "animalsReturned": 12,
-        "label": "Welcome 12 animals back to Old Hollow Forest"
+        "minHealth": 42,
+        "label": "Restore Old Hollow Forest to 42% health"
       },
       "output": {
         "itemId": "truffle-patch",
@@ -4372,7 +4393,8 @@
       "unlockBiome": "forest",
       "unlock": {
         "minHealth": 10,
-        "label": "Restore Old Hollow Forest to 10% health"
+        "requiresCrafted": "leaf-drey",
+        "label": "Restore Old Hollow Forest to 10% health and craft a Leaf Drey"
       },
       "output": {
         "itemId": "soft-rot-snag",
@@ -4390,8 +4412,12 @@
       "category": "habitat",
       "unlockBiome": "forest",
       "unlock": {
-        "requiresAnimal": "banana-slug",
-        "label": "Welcome the Banana Slug back to Old Hollow Forest"
+        "minHealth": 16,
+        "requiresPlaced": {
+          "objectId": "bat-box",
+          "count": 3
+        },
+        "label": "Restore Old Hollow Forest to 16% health and have 3 Bat Boxes standing in Old Hollow Forest"
       },
       "output": {
         "itemId": "rotting-heartwood-log",
@@ -4410,8 +4436,8 @@
       "unlockBiome": "forest",
       "unlock": {
         "minHealth": 26,
-        "requiresCrafted": "bark-slab-snag",
-        "label": "Restore Old Hollow Forest to 26% health and craft a Peeling Bark Tree"
+        "requiresCrafted": "bat-box",
+        "label": "Restore Old Hollow Forest to 26% health and craft a Bat Box"
       },
       "output": {
         "itemId": "downy-cavity",
@@ -4428,12 +4454,9 @@
       "category": "habitat",
       "unlockBiome": "forest",
       "unlock": {
-        "minHealth": 23,
-        "requiresPlaced": {
-          "objectId": "rotting-heartwood-log",
-          "count": 3
-        },
-        "label": "Restore Old Hollow Forest to 23% health and have 3 Rotted-Out Logs standing in Old Hollow Forest"
+        "minHealth": 39,
+        "requiresCrafted": "soft-rot-snag",
+        "label": "Restore Old Hollow Forest to 39% health and craft a Rotting Dead Tree"
       },
       "output": {
         "itemId": "pileated-cavity-snag",
@@ -4452,8 +4475,7 @@
       "unlockBiome": "forest",
       "unlock": {
         "minHealth": 39,
-        "requiresCrafted": "rotting-heartwood-log",
-        "label": "Restore Old Hollow Forest to 39% health and craft a Rotted-Out Log"
+        "label": "Restore Old Hollow Forest to 39% health"
       },
       "output": {
         "itemId": "flooded-cavity-snag",
@@ -4471,8 +4493,11 @@
       "category": "habitat",
       "unlockBiome": "forest",
       "unlock": {
-        "requiresAnimal": "woodpecker",
-        "label": "Welcome the Woodpecker back to Old Hollow Forest"
+        "requiresKind": {
+          "kind": "mammal",
+          "count": 2
+        },
+        "label": "Welcome 2 mammals back to Old Hollow Forest"
       },
       "output": {
         "itemId": "bark-slab-snag",
@@ -4503,8 +4528,12 @@
       "category": "habitat",
       "unlockBiome": "forest",
       "unlock": {
-        "animalsReturned": 3,
-        "label": "Welcome 3 animals back to Old Hollow Forest"
+        "minHealth": 11,
+        "requiresTool": {
+          "id": "watering-can",
+          "tier": 3
+        },
+        "label": "Restore Old Hollow Forest to 11% health and upgrade your Tin Watering Can to the Spring-fed Ewer"
       },
       "output": {
         "itemId": "larder-burrow",
@@ -4521,11 +4550,8 @@
       "category": "habitat",
       "unlockBiome": "forest",
       "unlock": {
-        "requiresKind": {
-          "kind": "insect",
-          "count": 2
-        },
-        "label": "Welcome 2 insects back to Old Hollow Forest"
+        "minHealth": 32,
+        "label": "Restore Old Hollow Forest to 32% health"
       },
       "output": {
         "itemId": "hemlock-stand",
@@ -4544,8 +4570,8 @@
       "unlockBiome": "forest",
       "unlock": {
         "minHealth": 25,
-        "requiresCrafted": "fern-spring",
-        "label": "Restore Old Hollow Forest to 25% health and craft a Fern Spring"
+        "requiresCrafted": "bat-box",
+        "label": "Restore Old Hollow Forest to 25% health and craft a Bat Box"
       },
       "output": {
         "itemId": "browse-thicket",
@@ -4608,8 +4634,8 @@
       "category": "habitat",
       "unlockBiome": "forest",
       "unlock": {
-        "minHealth": 39,
-        "label": "Restore Old Hollow Forest to 39% health"
+        "requiresAnimal": "towhee",
+        "label": "Welcome the Towhee back to Old Hollow Forest"
       },
       "output": {
         "itemId": "earth-den-bank",
@@ -4627,8 +4653,8 @@
       "category": "habitat",
       "unlockBiome": "forest",
       "unlock": {
-        "minHealth": 50,
-        "label": "Restore Old Hollow Forest to 50% health"
+        "minHealth": 49,
+        "label": "Restore Old Hollow Forest to 49% health"
       },
       "output": {
         "itemId": "snake-hibernaculum-forest",
@@ -4646,9 +4672,8 @@
       "category": "habitat",
       "unlockBiome": "forest",
       "unlock": {
-        "minHealth": 48,
-        "biomesOpen": 3,
-        "label": "Restore Old Hollow Forest to 48% health and open 3 areas of the preserve"
+        "minHealth": 80,
+        "label": "Restore Old Hollow Forest to 80% health"
       },
       "output": {
         "itemId": "broken-top-chimney",
@@ -4666,8 +4691,12 @@
       "category": "habitat",
       "unlockBiome": "forest",
       "unlock": {
-        "minBalance": 30,
-        "label": "Bring Old Hollow Forest to 30% ecological balance"
+        "minHealth": 23,
+        "requiresPlaced": {
+          "objectId": "hemlock-stand",
+          "count": 3
+        },
+        "label": "Restore Old Hollow Forest to 23% health and have 3 Hemlock Stands standing in Old Hollow Forest"
       },
       "output": {
         "itemId": "hollow-denning-tree",
@@ -4705,8 +4734,11 @@
       "category": "habitat",
       "unlockBiome": "forest",
       "unlock": {
-        "requiresAnimal": "blue-jay",
-        "label": "Welcome the Blue Jay back to Old Hollow Forest"
+        "requiresKind": {
+          "kind": "mammal",
+          "count": 3
+        },
+        "label": "Welcome 3 mammals back to Old Hollow Forest"
       },
       "output": {
         "itemId": "adopted-stick-nest",
@@ -4724,12 +4756,8 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 25,
-        "requiresPlaced": {
-          "objectId": "serviceberry-browse-thicket",
-          "count": 3
-        },
-        "label": "Restore Willow Meadow to 25% health and have 3 Berry Thickets standing in Willow Meadow"
+        "minHealth": 42,
+        "label": "Restore Willow Meadow to 42% health"
       },
       "output": {
         "itemId": "bare-soil-scrape",
@@ -4746,9 +4774,8 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 16,
-        "requiresCrafted": "pollinator-garden",
-        "label": "Restore Willow Meadow to 16% health and craft a Pollinator Garden"
+        "requiresAnimal": "song-sparrow",
+        "label": "Welcome the Song Sparrow back to Willow Meadow"
       },
       "output": {
         "itemId": "native-thistle-stand",
@@ -4766,9 +4793,8 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 37,
-        "biomesOpen": 2,
-        "label": "Restore Willow Meadow to 37% health and open 2 areas of the preserve"
+        "minHealth": 62,
+        "label": "Restore Willow Meadow to 62% health"
       },
       "output": {
         "itemId": "bunchgrass-sod-plug",
@@ -4786,11 +4812,12 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "requiresKind": {
-          "kind": "insect",
-          "count": 4
+        "minHealth": 13,
+        "requiresTool": {
+          "id": "shovel",
+          "tier": 2
         },
-        "label": "Welcome 4 insects back to Willow Meadow"
+        "label": "Restore Willow Meadow to 13% health and upgrade your Basic Shovel to the Restoration Shovel"
       },
       "output": {
         "itemId": "grass-thatch-litter",
@@ -4808,8 +4835,7 @@
       "unlockBiome": "meadow",
       "unlock": {
         "minHealth": 38,
-        "requiresCrafted": "small-pond",
-        "label": "Restore Willow Meadow to 38% health and craft a Small Pond"
+        "label": "Restore Willow Meadow to 38% health"
       },
       "output": {
         "itemId": "grasshopper-egg-pod-bank",
@@ -4841,8 +4867,7 @@
       "unlockBiome": "meadow",
       "unlock": {
         "minHealth": 9,
-        "requiresCrafted": "clover-patch",
-        "label": "Restore Willow Meadow to 9% health and craft a Clover Patch"
+        "label": "Restore Willow Meadow to 9% health"
       },
       "output": {
         "itemId": "milkweed-rhizome-bed",
@@ -4860,8 +4885,12 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "requiresAnimal": "song-sparrow",
-        "label": "Welcome the Song Sparrow back to Willow Meadow"
+        "minHealth": 10,
+        "requiresPlaced": {
+          "objectId": "milkweed-aphid-colony",
+          "count": 2
+        },
+        "label": "Restore Willow Meadow to 10% health and have 2 Sap-Rich Stems standing in Willow Meadow"
       },
       "output": {
         "itemId": "bumblebee-nest-tussock",
@@ -4878,12 +4907,8 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 10,
-        "requiresPlaced": {
-          "objectId": "milkweed-aphid-colony",
-          "count": 2
-        },
-        "label": "Restore Willow Meadow to 10% health and have 2 Sap-Rich Stems standing in Willow Meadow"
+        "minHealth": 16,
+        "label": "Restore Willow Meadow to 16% health"
       },
       "output": {
         "itemId": "brush-form-hollow",
@@ -4919,8 +4944,8 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "animalsReturned": 2,
-        "label": "Welcome 2 animals back to Willow Meadow"
+        "animalsReturned": 3,
+        "label": "Welcome 3 animals back to Willow Meadow"
       },
       "output": {
         "itemId": "milkweed-aphid-colony",
@@ -4954,9 +4979,9 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 16,
+        "animalsReturned": 8,
         "requiresCrafted": "hidden-grass-nest",
-        "label": "Restore Willow Meadow to 16% health and craft a Hidden Grass Nest"
+        "label": "Welcome 8 animals back to Willow Meadow and craft a Hidden Grass Nest"
       },
       "output": {
         "itemId": "mantis-ootheca-stem",
@@ -4972,12 +4997,9 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 17,
-        "requiresPlaced": {
-          "objectId": "grass-thatch-litter",
-          "count": 3
-        },
-        "label": "Restore Willow Meadow to 17% health and have 3 Grass Thatch Litters standing in Willow Meadow"
+        "minHealth": 29,
+        "requiresCrafted": "log-shelter",
+        "label": "Restore Willow Meadow to 29% health and craft a Log Shelter"
       },
       "output": {
         "itemId": "domed-grass-nest-tunnel",
@@ -4994,8 +5016,8 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "requiresAnimal": "opossum",
-        "label": "Welcome the Opossum back to Willow Meadow"
+        "minHealth": 36,
+        "label": "Restore Willow Meadow to 36% health"
       },
       "output": {
         "itemId": "bluebird-nest-box",
@@ -5012,8 +5034,9 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "requiresAnimal": "ladybug",
-        "label": "Welcome the Ladybug back to Willow Meadow"
+        "minHealth": 13,
+        "requiresCrafted": "squirrel-burrow-town",
+        "label": "Restore Willow Meadow to 13% health and craft a Burrow Town"
       },
       "output": {
         "itemId": "snake-hibernaculum-meadow",
@@ -5032,7 +5055,8 @@
       "unlockBiome": "meadow",
       "unlock": {
         "minHealth": 42,
-        "label": "Restore Willow Meadow to 42% health"
+        "requiresCrafted": "grasshopper-egg-pod-bank",
+        "label": "Restore Willow Meadow to 42% health and craft an Egg Pod Bank"
       },
       "output": {
         "itemId": "deep-loam-soil-bank",
@@ -5049,8 +5073,11 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "requiresAnimal": "western-meadowlark",
-        "label": "Welcome the Western Meadowlark back to Willow Meadow"
+        "requiresKind": {
+          "kind": "mammal",
+          "count": 5
+        },
+        "label": "Welcome 5 mammals back to Willow Meadow"
       },
       "output": {
         "itemId": "earthen-fox-den",
@@ -5067,8 +5094,8 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 46,
-        "label": "Restore Willow Meadow to 46% health"
+        "minBalance": 65,
+        "label": "Bring Willow Meadow to 65% ecological balance"
       },
       "output": {
         "itemId": "crown-stick-eyrie",
@@ -5174,8 +5201,8 @@
       "category": "habitat",
       "unlockBiome": "wetland",
       "unlock": {
-        "minBalance": 20,
-        "label": "Bring Rushwater Wetland to 20% ecological balance"
+        "minBalance": 25,
+        "label": "Bring Rushwater Wetland to 25% ecological balance"
       },
       "output": {
         "itemId": "stable-silt-shoal",
@@ -5352,8 +5379,8 @@
       "category": "habitat",
       "unlockBiome": "wetland",
       "unlock": {
-        "minBalance": 35,
-        "label": "Bring Rushwater Wetland to 35% ecological balance"
+        "minBalance": 45,
+        "label": "Bring Rushwater Wetland to 45% ecological balance"
       },
       "output": {
         "itemId": "cut-bank-burrow",
@@ -5466,10 +5493,6 @@
       "name": "Crumbling Log",
       "category": "habitat",
       "unlockBiome": "meadow",
-      "unlock": {
-        "minHealth": 6,
-        "label": "Restore Willow Meadow to 6% health"
-      },
       "output": {
         "itemId": "rotting-log-crumble",
         "qty": 1
@@ -5485,9 +5508,9 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "animalsReturned": 8,
+        "minHealth": 17,
         "requiresCrafted": "brush-pile",
-        "label": "Welcome 8 animals back to Willow Meadow and craft a Brush Pile"
+        "label": "Restore Willow Meadow to 17% health and craft a Brush Pile"
       },
       "output": {
         "itemId": "orb-web-anchor-stems",
@@ -5504,8 +5527,12 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "minBalance": 50,
-        "label": "Bring Willow Meadow to 50% ecological balance"
+        "minHealth": 19,
+        "requiresPlaced": {
+          "objectId": "rock-pile",
+          "count": 3
+        },
+        "label": "Restore Willow Meadow to 19% health and have 3 Rock Piles standing in Willow Meadow"
       },
       "output": {
         "itemId": "bat-maternity-roost",
@@ -5523,8 +5550,8 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 39,
-        "label": "Restore Willow Meadow to 39% health"
+        "requiresAnimal": "opossum",
+        "label": "Welcome the Opossum back to Willow Meadow"
       },
       "output": {
         "itemId": "barn-loft-nest-box",
@@ -5542,8 +5569,8 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "requiresAnimal": "brown-bat",
-        "label": "Welcome the Brown Bat back to Willow Meadow"
+        "animalsReturned": 18,
+        "label": "Welcome 18 animals back to Willow Meadow"
       },
       "output": {
         "itemId": "coyote-natal-den-bank",
@@ -5560,6 +5587,10 @@
       "name": "Damp Leaf Corner",
       "category": "habitat",
       "unlockBiome": "meadow",
+      "unlock": {
+        "minHealth": 4,
+        "label": "Restore Willow Meadow to 4% health"
+      },
       "output": {
         "itemId": "damp-leaf-corner",
         "qty": 1
@@ -5594,9 +5625,8 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 47,
-        "requiresCrafted": "bluebird-nest-box",
-        "label": "Restore Willow Meadow to 47% health and craft a Bluebird Nest Box"
+        "requiresAnimal": "western-meadowlark",
+        "label": "Welcome the Western Meadowlark back to Willow Meadow"
       },
       "output": {
         "itemId": "meadow-mushroom-ring",
@@ -5613,8 +5643,8 @@
       "category": "habitat",
       "unlockBiome": "forest",
       "unlock": {
-        "requiresAnimal": "polyphemus-moth",
-        "label": "Welcome the Polyphemus Moth back to Old Hollow Forest"
+        "requiresAnimal": "woodpecker",
+        "label": "Welcome the Woodpecker back to Old Hollow Forest"
       },
       "output": {
         "itemId": "cocoon-leaf-drift",
@@ -5650,12 +5680,8 @@
       "category": "habitat",
       "unlockBiome": "forest",
       "unlock": {
-        "minHealth": 15,
-        "requiresPlaced": {
-          "objectId": "browse-exclosure",
-          "count": 3
-        },
-        "label": "Restore Old Hollow Forest to 15% health and have 3 Browse Exclosures standing in Old Hollow Forest"
+        "requiresAnimal": "luna-moth",
+        "label": "Welcome the Luna Moth back to Old Hollow Forest"
       },
       "output": {
         "itemId": "winter-freeze-litter-bed",
@@ -5751,7 +5777,8 @@
       "unlockBiome": "alpine",
       "unlock": {
         "minHealth": 46,
-        "label": "Restore Graywind Heights to 46% health"
+        "requiresCrafted": "inherited-earth-den",
+        "label": "Restore Graywind Heights to 46% health and craft an Inherited Earth Den"
       },
       "output": {
         "itemId": "falcon-scrape-ledge",
@@ -5768,9 +5795,8 @@
       "category": "habitat",
       "unlockBiome": "alpine",
       "unlock": {
-        "minHealth": 35,
-        "biomesOpen": 5,
-        "label": "Restore Graywind Heights to 35% health and open 5 areas of the preserve"
+        "minHealth": 59,
+        "label": "Restore Graywind Heights to 59% health"
       },
       "output": {
         "itemId": "snowbank-mushroom-cluster",
@@ -5788,8 +5814,12 @@
       "category": "habitat",
       "unlockBiome": "coastal",
       "unlock": {
-        "minHealth": 47,
-        "label": "Restore Pelican Shore to 47% health"
+        "minHealth": 28,
+        "requiresPlaced": {
+          "objectId": "nutrient-upwelling-current",
+          "count": 3
+        },
+        "label": "Restore Pelican Shore to 28% health and have 3 Upwelling Currents standing in Pelican Shore"
       },
       "output": {
         "itemId": "octopus-den-midden",
@@ -5807,8 +5837,8 @@
       "category": "habitat",
       "unlockBiome": "alpine",
       "unlock": {
-        "minHealth": 55,
-        "label": "Restore Graywind Heights to 55% health"
+        "requiresAnimal": "ermine",
+        "label": "Welcome the Ermine back to Graywind Heights"
       },
       "output": {
         "itemId": "grizzly-dig-slope",
@@ -5886,8 +5916,8 @@
       "category": "habitat",
       "unlockBiome": "alpine",
       "unlock": {
-        "minHealth": 40,
-        "label": "Restore Graywind Heights to 40% health"
+        "animalsReturned": 8,
+        "label": "Welcome 8 animals back to Graywind Heights"
       },
       "output": {
         "itemId": "waterfall-splash-ledge",
@@ -5905,8 +5935,8 @@
       "category": "habitat",
       "unlockBiome": "forest",
       "unlock": {
-        "minHealth": 27,
-        "label": "Restore Old Hollow Forest to 27% health"
+        "requiresAnimal": "blue-jay",
+        "label": "Welcome the Blue Jay back to Old Hollow Forest"
       },
       "output": {
         "itemId": "grub-digging-ground",
@@ -5923,8 +5953,8 @@
       "category": "habitat",
       "unlockBiome": "coastal",
       "unlock": {
-        "requiresAnimal": "anemone",
-        "label": "Welcome the Anemone back to Pelican Shore"
+        "minBalance": 35,
+        "label": "Bring Pelican Shore to 35% ecological balance"
       },
       "output": {
         "itemId": "clifftop-burrow",
@@ -6016,7 +6046,8 @@
       "unlockBiome": "meadow",
       "unlock": {
         "minHealth": 47,
-        "label": "Restore Willow Meadow to 47% health"
+        "requiresCrafted": "deep-loam-soil-bank",
+        "label": "Restore Willow Meadow to 47% health and craft a Deep Soil Bank"
       },
       "output": {
         "itemId": "lucky-toad",
@@ -6073,8 +6104,8 @@
       "category": "habitat",
       "unlockBiome": "forest",
       "unlock": {
-        "minHealth": 46,
-        "label": "Restore Old Hollow Forest to 46% health"
+        "requiresAnimal": "raccoon",
+        "label": "Welcome the Raccoon back to Old Hollow Forest"
       },
       "output": {
         "itemId": "elk-wallow",
@@ -6093,8 +6124,7 @@
       "unlockBiome": "forest",
       "unlock": {
         "minHealth": 29,
-        "requiresCrafted": "downy-cavity",
-        "label": "Restore Old Hollow Forest to 29% health and craft a Downy Woodpecker Hole"
+        "label": "Restore Old Hollow Forest to 29% health"
       },
       "output": {
         "itemId": "snake-egg-mound",
@@ -6227,12 +6257,8 @@
       "category": "habitat",
       "unlockBiome": "alpine",
       "unlock": {
-        "minHealth": 29,
-        "requiresPlaced": {
-          "objectId": "inherited-earth-den",
-          "count": 3
-        },
-        "label": "Restore Graywind Heights to 29% health and have 3 Inherited Earth Dens standing in Graywind Heights"
+        "minHealth": 49,
+        "label": "Restore Graywind Heights to 49% health"
       },
       "output": {
         "itemId": "deep-snow-den",
@@ -6250,8 +6276,12 @@
       "category": "habitat",
       "unlockBiome": "alpine",
       "unlock": {
-        "minHealth": 48,
-        "label": "Restore Graywind Heights to 48% health"
+        "minHealth": 29,
+        "requiresTool": {
+          "id": "field-journal",
+          "tier": 6
+        },
+        "label": "Restore Graywind Heights to 29% health and upgrade your Field Journal to the Graywind Heights Field Guide"
       },
       "output": {
         "itemId": "goat-cliff-ledge",
@@ -6291,8 +6321,12 @@
       "category": "habitat",
       "unlockBiome": "alpine",
       "unlock": {
-        "animalsReturned": 7,
-        "label": "Welcome 7 animals back to Graywind Heights"
+        "minHealth": 23,
+        "requiresPlaced": {
+          "objectId": "whitebark-cache",
+          "count": 3
+        },
+        "label": "Restore Graywind Heights to 23% health and have 3 Whitebark Seed Caches standing in Graywind Heights"
       },
       "output": {
         "itemId": "swift-cliff-seam",
@@ -6329,8 +6363,8 @@
       "category": "habitat",
       "unlockBiome": "coastal",
       "unlock": {
-        "requiresAnimal": "black-turnstone",
-        "label": "Welcome the Black Turnstone back to Pelican Shore"
+        "minHealth": 40,
+        "label": "Restore Pelican Shore to 40% health"
       },
       "output": {
         "itemId": "breaking-surf-line",
@@ -6348,8 +6382,8 @@
       "category": "habitat",
       "unlockBiome": "coastal",
       "unlock": {
-        "minHealth": 57,
-        "label": "Restore Pelican Shore to 57% health"
+        "requiresAnimal": "brown-pelican",
+        "label": "Welcome the Brown Pelican back to Pelican Shore"
       },
       "output": {
         "itemId": "deep-canyon-edge",
@@ -6368,12 +6402,8 @@
       "category": "habitat",
       "unlockBiome": "coastal",
       "unlock": {
-        "minHealth": 26,
-        "requiresTool": {
-          "id": "field-journal",
-          "tier": 7
-        },
-        "label": "Restore Pelican Shore to 26% health and upgrade your Field Journal to the Master Naturalist's Guide"
+        "minHealth": 44,
+        "label": "Restore Pelican Shore to 44% health"
       },
       "output": {
         "itemId": "eelgrass-grazing-lawn",
