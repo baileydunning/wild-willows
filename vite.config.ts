@@ -5,9 +5,8 @@ import { readFileSync } from 'node:fs';
 
 // The game's version, straight from package.json — baked into the bundle so
 // telemetry/feedback can report exactly which release a player is running.
-const APP_VERSION: string = JSON.parse(
-	readFileSync(fileURLToPath(new URL('./package.json', import.meta.url)), 'utf8')
-).version || '0.0.0';
+const APP_VERSION: string =
+	JSON.parse(readFileSync(fileURLToPath(new URL('./package.json', import.meta.url)), 'utf8')).version || '0.0.0';
 
 // API endpoints exposed by Harper custom resources — proxied to the Harper
 // instance during `npm run dev:web` development AND by `vite preview` (the
@@ -73,10 +72,7 @@ const harperEndpoints = [
 
 // Harper serves REST over HTTPS (self-signed in local dev), hence secure: false.
 const harperProxy = Object.fromEntries(
-	harperEndpoints.map((name) => [
-		`/${name}`,
-		{ target: HARPER_TARGET, changeOrigin: true, secure: false },
-	])
+	harperEndpoints.map((name) => [`/${name}`, { target: HARPER_TARGET, changeOrigin: true, secure: false }]),
 );
 
 export default defineConfig({
@@ -99,9 +95,6 @@ export default defineConfig({
 		__BUILD_TIME__: JSON.stringify(new Date().toISOString()),
 		__APP_VERSION__: JSON.stringify(APP_VERSION),
 		// Co-op (hosted-Harper multiplayer) is OFF by default for the solo-only
-		// v1. Build with COOP_ENABLED=true to bake it back in (e.g. the co-op
-		// E2E job does this). See src/features.ts.
-		__COOP_ENABLED__: JSON.stringify(process.env.COOP_ENABLED === 'true'),
 		// Browser-playable itch DEMO build. Build with DEMO=true npm run build:web:
 		// the client talks to the hosted Harper (falling back to the in-app solo
 		// backend if it's unreachable) and hard-stops after 5 animals return to the

@@ -389,21 +389,6 @@
 		"next": "Siguiente",
 		"nextStep": "Paso siguiente",
 		"finish": "Terminar",
-		"coopHostInvite": {
-			"title": "¡Bienvenido al modo cooperativo!",
-			"text": "Están restaurando esta reserva entre amigos. Lo primero es lo primero: invítalos. Presiona U (o el distintivo verde “Co-op”, arriba a la izquierda, o el botón de personas, arriba a la derecha) para abrir el menú de Personas, donde puedes copiar tu código de invitación. Tus amigos eligen Nueva partida → Co-op → “Unirse al mundo de un amigo” e ingresan ese código para jugar aquí contigo. Abre el menú de Personas ahora para verlo.",
-			"touch": "Están restaurando esta reserva entre amigos. Lo primero es lo primero: invítalos. Toca el distintivo verde “Co-op” (arriba) o el botón de personas para abrir el menú de Personas, donde puedes copiar tu código de invitación. Tus amigos eligen Nueva partida → Co-op → “Unirse al mundo de un amigo” e ingresan ese código para jugar contigo. Abre el menú de Personas ahora para verlo."
-		},
-		"coopHostTogether": {
-			"title": "Restaurando juntos",
-			"text": "A medida que tus amigos se unan, los verás recorriendo exactamente la misma reserva — el terreno, las construcciones, las plantas y los animales que regresan se comparten entre todos, así que su trabajo se suma. Tu cesta, tus herramientas, tu diario de campo y tus logros siempre serán tuyos. Ahora aprendamos lo básico →",
-			"touch": "A medida que tus amigos se unan, los verás recorriendo exactamente la misma reserva — el terreno, las construcciones, las plantas y los animales se comparten entre todos, así que su trabajo se suma. Tu cesta, tus herramientas, tu diario y tus logros siempre serán tuyos. Ahora aprendamos lo básico →"
-		},
-		"coopJoinWelcome": {
-			"title": "¡Bienvenido a la reserva!",
-			"text": "Te has unido a una reserva compartida — verás al anfitrión y a otros cuidadores recorriendo el mismísimo mundo. El terreno, las construcciones, las plantas y los animales que regresan se comparten entre todos, así que su trabajo se suma. Tu cesta, tus herramientas, tu diario de campo y tus logros siempre serán tuyos. Ahora aprendamos lo básico →",
-			"touch": "Te has unido a una reserva compartida — verás al anfitrión y a otros cuidadores recorriendo el mismísimo mundo. El terreno, las construcciones, las plantas y los animales se comparten entre todos, así que su trabajo se suma. Tu cesta, tus herramientas, tu diario y tus logros siempre serán tuyos. Ahora aprendamos lo básico →"
-		},
 		"welcome": {
 			"title": "Bienvenida, cuidadora",
 			"text": "Bienvenida, cuidadora, me alegra tenerte aquí. Esta pradera quedó desnuda y su fauna se marchó, pero con una mano amable puede volver a la vida. Empecemos con un paseo: muévete con WASD o las flechas.",
@@ -589,7 +574,6 @@
 			"tools": "Abrir herramientas y mejoras",
 			"preserve": "Abrir el resumen de la reserva",
 			"weather": "Abrir la guía de clima y estaciones",
-			"people": "Personas — invita amigos y mira quién está aquí (solo mundos cooperativos)",
 			"settings": "Abrir los ajustes",
 			"help": "Abrir esta guía de Cómo jugar",
 			"zoom": "Acercar / alejar la cámara",
@@ -719,32 +703,6 @@
 		"pinnedTag": "Siguiente",
 		"affordableNote": "Ya tienes los materiales para eso — solo fabrícalo."
 	},
-	"people": {
-		"title": "Personas",
-		"titleCoop": "Cuidadores",
-		"soloInfo": "Esta es una reserva en solitario — solo tú. Para restaurar una reserva junto a tus amigos, inicia una Nueva partida y elige Co-op: recibirás un código de invitación para compartir.",
-		"invite": "Invita amigos a {world}",
-		"closedInfo": "Esta reserva está llena ({count}/{max}) y cerrada a nuevos jugadores. Quienes ya se unieron siempre pueden volver.",
-		"shareInfo": "Comparte este código ({count}/{max} cuidadores hasta ahora). Tus amigos abren Nueva partida → Co-op → Unirse al mundo de un amigo e ingresan el código.",
-		"codeIs": "Tu código es {code}",
-		"copied": "Copiado ✓",
-		"copyCode": "Copiar código",
-		"wantsToJoin": "Quieren unirse ({count})",
-		"asking": "· pide unirse",
-		"approve": "Aprobar",
-		"deny": "Rechazar",
-		"canNowJoin": "{name} ya puede unirse",
-		"couldNotApprove": "No se pudo aprobar",
-		"couldNotDeny": "No se pudo rechazar",
-		"caretakers": "Cuidadores ({count}/{max})",
-		"closedTag": "· cerrada",
-		"host": "· anfitrión",
-		"you": "· tú",
-		"hereNow": "aquí ahora",
-		"away": "ausente",
-		"justYou": "Solo tú por ahora. Comparte el código de arriba para invitar amigos.",
-		"membersNote": "Hasta {max} cuidadores por reserva. Todos los que aparecen ya se unieron y pueden volver cuando quieran desde Continuar o Cargar partida."
-	},
 	"joinApproval": {
 		"wantsToJoin": {
 			"one": "Alguien quiere unirse",
@@ -775,7 +733,6 @@
 		"goals": "Objetivos: fija tus propias tareas (fabricar, plantar, atraer un animal, restaurar un bioma) y síguelas en el tablero.",
 		"biomes": "La Reserva: el progreso de cada zona, lo que hace falta para abrir la siguiente y viaje rápido a lugares visitados.",
 		"weather": "Clima y estaciones: cómo cambian las condiciones por la reserva y moldean la tierra; algunos materiales y animales solo aparecen con el clima adecuado.",
-		"people": "Personas: invita a amigos con tu código y ve quién explora la reserva contigo.",
 		"settings": "Ajustes: sonido, accesibilidad, tu personaje y opciones de partida.",
 		"demoNear": "Un animal más y completarás la demo: ¡ya casi estás!"
 	}

@@ -15,7 +15,6 @@ import {
 import { useGame } from '../state';
 import { LOCALE_NAMES, chooseLocale } from '../i18n';
 import { useI18n } from '../i18n/react';
-import { COOP_ENABLED } from '../features';
 import { DEMO } from '../demo';
 import type { Appearance } from '../types';
 import { CharacterPreview, Icon } from './icons';
@@ -29,7 +28,7 @@ import {
 } from './Settings';
 import { randomName } from './names';
 
-type Mode = 'menu' | 'new' | 'load' | 'join-code';
+type Mode = 'menu' | 'new' | 'load';
 
 const genToken = () => {
 	try {
@@ -43,14 +42,6 @@ const genToken = () => {
 // we mint a throwaway one they never see. The server pairs it with a unique id
 // (edition:'demo'), and the save is wiped at the 5-animal hard-stop anyway.
 const genDemoPasscode = () => genToken().replace(/-/g, '').slice(0, 16);
-
-interface JoinCtx {
-	code: string;
-	token: string;
-	worldId: string;
-	worldName: string;
-	hostName: string;
-}
 
 function Scenery() {
 	// Decorative dusk-meadow backdrop, now covering the whole screen so the
@@ -276,8 +267,7 @@ function Scenery() {
 }
 
 export function WelcomeScreen() {
-	const { data, dataError, demoBackend, startNew, startNewCoop, startLogin, continueLast, startNewSolo, loadSoloSlot } =
-		useGame();
+	const { data, dataError, demoBackend, startNew, startLogin, continueLast, startNewSolo, loadSoloSlot } = useGame();
 	const { t, locale } = useI18n();
 	const [mode, setMode] = useState<Mode>('menu');
 	const [settingsOpen, setSettingsOpen] = useState(false);
@@ -289,25 +279,17 @@ export function WelcomeScreen() {
 	const [error, setError] = useState<string | null>(null);
 	const [name, setName] = useState('');
 	const [passcode, setPasscode] = useState('');
-	// Main-menu world toggle: Solo or Co-op. Co-op New Game then hosts or joins.
-	const [coop, setCoop] = useState(false);
-	const [coopKind, setCoopKind] = useState<'host' | 'join'>('host');
-	const [joinCode, setJoinCode] = useState('');
-	// set once a join code is verified + the request is sent; carried into character creation
-	const [joinCtx, setJoinCtx] = useState<JoinCtx | null>(null);
-	// The most recent save for the currently-selected mode (re-read when toggled),
-	// so "Continue" only appears for a matching solo/co-op save. `bumpLast` lets a
-	// failed continue clear it.
+	// The most recent solo save. `bumpLast` lets a failed continue clear it.
 	const [lastBump, setLastBump] = useState(0);
-	const last = useMemo(() => lastSave(coop ? 'coop' : 'solo'), [coop, lastBump]);
+	const last = useMemo(() => lastSave('solo'), [lastBump]);
 
 	// Local (no-passcode, save-slot) title flow: the desktop build always, and the
 	// itch demo when its Harper probe failed and it fell back to the offline solo
 	// backend.
-	const soloLocal = (IS_DESKTOP || (DEMO && demoBackend === 'solo')) && !coop;
+	const soloLocal = IS_DESKTOP || (DEMO && demoBackend === 'solo');
 	// Demo playing against Harper: passwordless too (the passcode is auto-minted),
 	// but saves live on the server. New Game only asks for a name + look.
-	const demoHarper = DEMO && demoBackend === 'harper' && !coop;
+	const demoHarper = DEMO && demoBackend === 'harper';
 	// Whether the passcode field/gate applies at all for this title flow.
 	const needsPasscode = !soloLocal && !demoHarper;
 	const [slots, setSlots] = useState<SaveMeta[] | null>(null);
@@ -347,8 +329,8 @@ export function WelcomeScreen() {
 	// any call fires: solo → in-app/offline, co-op → hosted Harper. (Web ignores
 	// this and always uses its own origin.)
 	useEffect(() => {
-		if (IS_DESKTOP) setTransport(coop ? 'coop' : 'solo');
-	}, [coop]);
+		if (IS_DESKTOP) setTransport('solo');
+	}, []);
 
 	const [appearance, setAppearance] = useState<Appearance>({
 		skin: '#eec39a',
@@ -405,7 +387,7 @@ export function WelcomeScreen() {
 	const onContinue = () =>
 		run(async () => {
 			try {
-				await continueLast(coop ? 'coop' : 'solo');
+				await continueLast('solo');
 			} catch (e: any) {
 				if (last) setName(last.name);
 				// Same rule as continueLast: only forget the save when the server said
@@ -413,7 +395,7 @@ export function WelcomeScreen() {
 				// which read to players as "my save was deleted" — they had no way back
 				// to a save that was still sitting there perfectly intact.
 				if (isMissingSaveError(e)) {
-					forgetSave(coop ? 'coop' : 'solo');
+					forgetSave('solo');
 					setLastBump((n) => n + 1);
 					setMode('load');
 				}
@@ -464,29 +446,6 @@ export function WelcomeScreen() {
 
 					{mode === 'menu' && (
 						<div className="menu-buttons">
-							{COOP_ENABLED && (
-								<>
-									<div className="mode-toggle" role="group" aria-label={t('app.welcome.playMode')}>
-										<button
-											type="button"
-											className={`mode-toggle-btn ${!coop ? 'on' : ''}`}
-											onClick={() => setCoop(false)}
-										>
-											<Icon name="leaf" size={15} /> {t('app.welcome.solo')}
-										</button>
-										<button
-											type="button"
-											className={`mode-toggle-btn ${coop ? 'on' : ''}`}
-											onClick={() => setCoop(true)}
-										>
-											<Icon name="user" size={15} /> {t('app.welcome.coop')}
-										</button>
-									</div>
-									<p className="muted small mode-hint">
-										{coop ? t('app.welcome.coopHint') : t('app.welcome.soloHint')}
-									</p>
-								</>
-							)}
 							{soloLocal && recentSlot && (
 								<button
 									className="big-btn primary"
@@ -505,70 +464,30 @@ export function WelcomeScreen() {
 									<span>{busy ? t('app.welcome.loadingSave') : t('app.welcome.continueAs', { name: last.name })}</span>
 								</button>
 							)}
-							{coop ? (
-								<>
-									<button
-										className={`big-btn ${last ? '' : 'primary'}`}
-										disabled={busy || !data}
-										onClick={() => {
-											setCoopKind('host');
-											setError(null);
-											setMode('new');
-										}}
-									>
-										<Icon name="plus" /> <span>{t('app.welcome.hostNew')}</span>
-									</button>
-									<button
-										className="big-btn"
-										disabled={busy || !data}
-										onClick={() => {
-											setCoopKind('join');
-											setError(null);
-											setJoinCtx(null);
-											setMode('join-code');
-										}}
-									>
-										<Icon name="user" /> <span>{t('app.welcome.joinWithCode')}</span>
-									</button>
-									<button
-										className="big-btn"
-										disabled={busy || !data}
-										onClick={() => {
-											setError(null);
-											setMode('load');
-										}}
-									>
-										<Icon name="folder" /> <span>{t('app.welcome.loadCoopSave')}</span>
-									</button>
-								</>
-							) : (
-								<>
-									<button
-										className={`big-btn ${(soloLocal ? recentSlot : last) ? '' : 'primary'}`}
-										disabled={busy || !data}
-										onClick={() => {
-											setError(null);
-											setMode('new');
-										}}
-									>
-										<Icon name="plus" /> <span>{t('app.welcome.newGame')}</span>
-									</button>
-									{/* No manual Load in the demo: saves are passwordless + throwaway,
+							<button
+								className={`big-btn ${(soloLocal ? recentSlot : last) ? '' : 'primary'}`}
+								disabled={busy || !data}
+								onClick={() => {
+									setError(null);
+									setMode('new');
+								}}
+							>
+								<Icon name="plus" /> <span>{t('app.welcome.newGame')}</span>
+							</button>
+							{/* No manual Load in the demo: saves are passwordless + throwaway,
 									    so "Continue" (remembered on this device) is all that's needed. */}
-									{!DEMO && (
-										<button
-											className="big-btn"
-											disabled={busy || !data}
-											onClick={() => {
-												setError(null);
-												refreshSlots();
-												setMode('load');
-											}}
-										>
-											<Icon name="folder" /> <span>{t('app.welcome.loadGame')}</span>
-										</button>
-									)}
-								</>
+							{!DEMO && (
+								<button
+									className="big-btn"
+									disabled={busy || !data}
+									onClick={() => {
+										setError(null);
+										refreshSlots();
+										setMode('load');
+									}}
+								>
+									<Icon name="folder" /> <span>{t('app.welcome.loadGame')}</span>
+								</button>
 							)}
 							<div className="menu-links">
 								<button className="big-btn subtle" onClick={() => setIntroOpen(true)}>
@@ -582,68 +501,6 @@ export function WelcomeScreen() {
 						</div>
 					)}
 
-					{mode === 'join-code' && (
-						<form
-							className="creator"
-							onSubmit={(e) => {
-								e.preventDefault();
-								run(async () => {
-									const code = joinCode.trim();
-									if (name.trim().length < 2) throw new Error(t('app.welcome.errName'));
-									if (code.length < 4) throw new Error(t('app.welcome.errCode'));
-									const chk = await api.checkWorldCode(code);
-									if (!chk.exists || !chk.world) throw new Error(t('app.welcome.errNoWorld'));
-									if (chk.world.full) throw new Error(t('app.welcome.errWorldFull'));
-									const token = genToken();
-									await api.requestJoin(code, token, name.trim());
-									setJoinCtx({
-										code,
-										token,
-										worldId: chk.world.worldId,
-										worldName: chk.world.name,
-										hostName: chk.world.hostName,
-									});
-									setMode('new');
-								});
-							}}
-						>
-							<p className="muted small mode-hint">{t('app.welcome.joinHint')}</p>
-							<label className="field">
-								<Icon name="user" size={17} />
-								<input
-									placeholder={t('app.welcome.yourNamePlaceholder')}
-									value={name}
-									maxLength={24}
-									onChange={(e) => setName(e.target.value)}
-									autoFocus
-								/>
-							</label>
-							<label className="field">
-								<Icon name="leaf" size={17} />
-								<input
-									placeholder={t('app.welcome.joinCodePlaceholder')}
-									value={joinCode}
-									maxLength={6}
-									style={{ textTransform: 'uppercase' }}
-									onChange={(e) => setJoinCode(e.target.value.toUpperCase())}
-								/>
-							</label>
-							{error && <p className="form-error">{error}</p>}
-							<div className="form-actions">
-								<button type="button" className="big-btn subtle" onClick={() => setMode('menu')}>
-									<Icon name="back" /> <span>{t('app.common.back')}</span>
-								</button>
-								<button
-									type="submit"
-									className="big-btn primary"
-									disabled={busy || name.trim().length < 2 || joinCode.trim().length < 4}
-								>
-									<Icon name="user" /> <span>{busy ? t('app.welcome.askingHost') : t('app.welcome.askToJoin')}</span>
-								</button>
-							</div>
-						</form>
-					)}
-
 					{mode === 'new' && (
 						<form
 							className="creator"
@@ -652,47 +509,9 @@ export function WelcomeScreen() {
 								const creationMs = creatorMs();
 								if (soloLocal) run(() => startNewSolo(name, appearance, creationMs));
 								else if (demoHarper) run(() => startNew(name, genDemoPasscode(), appearance, creationMs));
-								else if (!coop) run(() => startNew(name, passcode, appearance, creationMs));
-								else if (coopKind === 'host')
-									run(() => startNewCoop(name, passcode, appearance, { mode: 'host', creationMs }));
-								else if (joinCtx)
-									run(() =>
-										startNewCoop(name, passcode, appearance, {
-											mode: 'join',
-											code: joinCtx.code,
-											token: joinCtx.token,
-											joinWorldId: joinCtx.worldId,
-											worldName: joinCtx.worldName,
-											hostName: joinCtx.hostName,
-											creationMs,
-										}),
-									);
+								else run(() => startNew(name, passcode, appearance, creationMs));
 							}}
 						>
-							{COOP_ENABLED && (
-								<div className="mode-banner">
-									<Icon name={coop ? 'user' : 'leaf'} size={15} />{' '}
-									{coop
-										? coopKind === 'host'
-											? t('app.welcome.hostBanner')
-											: t('app.welcome.joiningBanner', { name: joinCtx?.worldName || t('app.welcome.aPreserve') })
-										: t('app.welcome.newSoloBanner')}
-									{!(coop && coopKind === 'join') && (
-										<button type="button" className="link-btn small" onClick={() => setCoop((v) => !v)}>
-											{coop ? t('app.welcome.switchToSolo') : t('app.welcome.switchToCoop')}
-										</button>
-									)}
-								</div>
-							)}
-							{coop && (
-								<p className="muted small mode-hint">
-									{coopKind === 'host'
-										? t('app.welcome.hostFormHint')
-										: joinCtx
-											? t('app.welcome.joinFormHint', { world: joinCtx.worldName, host: joinCtx.hostName })
-											: t('app.welcome.codeFormHint')}
-								</p>
-							)}
 							<div className="creator-cols">
 								<div className="creator-preview">
 									<CharacterPreview appearance={appearance} />
@@ -747,15 +566,7 @@ export function WelcomeScreen() {
 									disabled={busy || name.trim().length < 2 || (needsPasscode && passcode.length < 4)}
 								>
 									<Icon name="leaf" />{' '}
-									<span>
-										{busy
-											? t('app.welcome.settlingIn')
-											: !coop
-												? t('app.welcome.beginRestoring')
-												: coopKind === 'join'
-													? t('app.welcome.createAndJoin')
-													: t('app.welcome.startCoop')}
-									</span>
+									<span>{busy ? t('app.welcome.settlingIn') : t('app.welcome.beginRestoring')}</span>
 								</button>
 							</div>
 						</form>

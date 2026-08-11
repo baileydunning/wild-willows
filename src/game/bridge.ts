@@ -2,7 +2,7 @@
 // React owns the authoritative copy of server state; Phaser reads it from
 // `shared` and re-renders dynamic sprites when told the world is dirty.
 
-import type { GameData, GameState, Peer } from '../types';
+import type { GameData, GameState } from '../types';
 
 type Handler = (payload?: any) => void;
 
@@ -11,15 +11,10 @@ class Bridge {
 
 	// Latest data/state, readable synchronously from Phaser.
 	// `joy` is the virtual joystick vector written by the mobile controls.
-	// `presence` is the live set of other players in the same co-op world.
-	// `self` is our own live position (tile coords), written by Phaser every frame
-	// so the co-op presence loop can stream smooth micro-movements.
 	shared: {
 		data: GameData | null;
 		state: GameState | null;
 		joy: { x: number; y: number };
-		presence: Peer[];
-		self: { x: number; y: number; area: string } | null;
 		// True while a React panel/card/help overlay is open. The world ignores
 		// pointer clicks in this state so you can't move or place "through" a modal.
 		uiBlocking: boolean;
@@ -35,8 +30,6 @@ class Bridge {
 		data: null,
 		state: null,
 		joy: { x: 0, y: 0 },
-		presence: [],
-		self: null,
 		uiBlocking: false,
 		resourceIcons: {},
 		objectIcons: {},

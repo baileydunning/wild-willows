@@ -1,47 +1,5 @@
 // Shared frontend types for Wild Willows.
 
-/**
- * A world the player can enter. Single-player is a private "world of one"
- * (`solo: true`); co-op worlds are shared by several members via `joinCode`.
- * Personal progress (inventory, tools, achievements) always stays per-player —
- * only the world's restorable state (biomes, terrain, placements, animals) is shared.
- */
-export interface WorldSummary {
-	worldId: string;
-	name: string;
-	solo: boolean;
-	role: 'owner' | 'member';
-	joinCode: string | null;
-	memberCount: number;
-	maxMembers: number;
-	isOwner: boolean;
-}
-
-/** A pending request to join the host's co-op world, shown in the People menu. */
-export interface PendingRequest {
-	token: string;
-	name: string;
-	createdAt: number;
-}
-
-/** A caretaker on a co-op world's roster (everyone who has ever joined). */
-export interface RosterEntry {
-	playerId: string;
-	name: string;
-	isOwner: boolean;
-	joinedAt: number;
-}
-
-/** Another player currently in the same co-op world (for live presence avatars). */
-export interface Peer {
-	playerId: string;
-	name: string;
-	appearance: Appearance;
-	area: string;
-	x: number;
-	y: number;
-}
-
 export interface BiomeDef {
 	id: string;
 	name: string;
@@ -615,7 +573,6 @@ export type PanelId =
 	| 'home'
 	| 'animal'
 	| 'settings'
-	| 'people'
 	| 'weather'
 	| 'materials'
 	| 'goals'

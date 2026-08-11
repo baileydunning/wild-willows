@@ -53,15 +53,7 @@
 				"text": "Pulsa N para abrir la guía del Clima. Cada zona tiene su clima. Cambia solo y se mueve con las estaciones. La guía muestra qué pasa en todas partes. También explica cómo el clima y la estación cambian tu zona. Mira el cielo. El clima raro puede dejar cosas raras para recoger.",
 				"touch": "Toca el botón de la nube para abrir la guía del Clima. Cada zona tiene su clima. Cambia solo y se mueve con las estaciones. Mira el cielo. El clima raro puede dejar cosas raras para recoger."
 			},
-			"demoNote": "Esta es la demo gratis. Sana el prado para abrir el bosque y luego explóralo. La demo termina tras tus primeros 10 minutos en el bosque.",
-			"coopHostTogether": {
-				"text": "Cuando entren tus amigos, los verás en la misma reserva. La tierra, los edificios, las plantas y los animales se comparten. Así el trabajo se suma. Tu cesta, tus herramientas, tu diario y tus estrellas siguen siendo tuyos. Ahora, lo básico.",
-				"touch": "Cuando entren tus amigos, los verás en la misma reserva. La tierra, los edificios, las plantas y los animales se comparten. Así el trabajo se suma. Tu cesta, tus herramientas, tu diario y tus estrellas siguen siendo tuyos."
-			},
-			"coopJoinWelcome": {
-				"text": "Entraste en una reserva compartida. Verás al anfitrión y a otros jugadores en el mismo mundo. La tierra, los edificios, las plantas y los animales se comparten. Así el trabajo se suma. Tu cesta, tus herramientas, tu diario y tus estrellas siguen siendo tuyos.",
-				"touch": "Entraste en una reserva compartida. Verás al anfitrión y a otros jugadores en el mismo mundo. La tierra, las plantas y los animales se comparten. Tu cesta, tus herramientas, tu diario y tus estrellas siguen siendo tuyos."
-			}
+			"demoNote": "Esta es la demo gratis. Sana el prado para abrir el bosque y luego explóralo. La demo termina tras tus primeros 10 minutos en el bosque."
 		},
 		"help": {
 			"intro": "Un ciclo tranquilo. Recoge cosas. Hazlas hogares para animales. Ponlas en el suelo. Los animales vuelven a casa.",
@@ -105,7 +97,6 @@
 			"feed": "Lista de actividad. Un registro de lo que pasa, con estos consejos. Puedes subir cuando quieras.",
 			"goals": "Metas. Ponte tus propias tareas y míralas en el tablero. Crea, planta, trae un animal o sana una zona.",
 			"home": "Tu casa. Un espacio para hacerlo tuyo. Llénalo con cosas que creas. Usa el cartel junto a tu tienda para construir y mejorar. Una casa más grande te deja cargar más.",
-			"people": "Gente. Invita a amigos con tu código y mira quién está aquí contigo.",
 			"settings": "Ajustes. Sonido, opciones de ayuda, tu aspecto y guardado.",
 			"tools": "Herramientas. Gasta materiales en una cesta más grande, mejor pala y regadera, y guías nuevas.",
 			"weather": "Clima y estaciones. Mira cómo cambia el clima en la reserva. Algunas cosas y animales solo salen con el clima justo."
@@ -168,9 +159,6 @@
 				"tools": "Sube tu cesta, tu pala y tu regadera al nivel {n}."
 			}
 		},
-		"people": {
-			"membersNote": "Hasta {max} jugadores por reserva. Todos los de la lista ya entraron. Pueden volver cuando quieran."
-		},
 		"weather": {
 			"seasonsNote": "Las estaciones van de primavera a verano, luego otoño y luego invierno. Cada una cambia el clima que suele tocar a cada zona.",
 			"tease": "Un clima raro así puede dejar algo bueno. Explora {biome} mientras dure."
@@ -217,8 +205,7 @@
 				"unlockText": "Sana una zona del todo y se abre el camino a la siguiente. Un sitio nuevo para recuperar."
 			},
 			"codeFormHint": "Escribe el código de un amigo para sanar su reserva con él.",
-			"errImport": "Ese archivo falta, está cambiado o está roto. No se pudo cargar.",
-			"joinFormHint": "Entrando en {world}. {host} está viendo tu petición mientras eliges tu aspecto. Entrarás en cuanto diga que sí."
+			"errImport": "Ese archivo falta, está cambiado o está roto. No se pudo cargar."
 		},
 		"toast": {
 			"rested": "Duermes bien y despiertas al amanecer. Todos los sitios de recogida crecieron de nuevo.",
@@ -233,9 +220,6 @@
 		},
 		"feedPanel": {
 			"empty": "Todavía no pasó nada grande. Recoge, construye y recibe animales. Los mejores momentos saldrán aquí."
-		},
-		"coop": {
-			"joinWelcomeFeed": "Entraste en una reserva compartida. ¡Sánenla juntos! Abre el menú Gente arriba a la derecha para ver quién está y copiar el código."
 		},
 		"error": {
 			"feedbackRejected": "El servidor no pudo recibir esa nota. Inténtalo más tarde."

@@ -5,7 +5,7 @@
 // server logic in-app against local save files (fully offline, see src/solo),
 // and CO-OP talks to the hosted Harper. `transport` selects which is live.
 
-import type { Appearance, GameData, GameState, WorldSummary, Peer, RosterEntry } from './types';
+import type { Appearance, GameData, GameState } from './types';
 import { t, getLocale } from './i18n';
 import { soloRequest } from './solo/backend';
 import { persist as persistSolo, type SaveMeta } from './solo/saves';
@@ -461,76 +461,21 @@ export const api = {
 	gameData: () => request<GameData>('/GameData/'),
 	gameState: (playerId?: string) => request<GameState>(`/GameState/${playerId ?? pid()}`),
 	createPlayer: (name: string, passcode: string, appearance: Appearance, creationMs = 0) =>
-		post<{ ok: boolean; playerId: string; worldId: string; worlds: WorldSummary[]; state: GameState }>(
-			'/CreatePlayer/',
-			{ name, passcode, appearance, tzOffsetMinutes: -new Date().getTimezoneOffset(), creationMs, edition: EDITION },
-		),
-	login: (name: string, passcode: string) =>
-		post<{ ok: boolean; playerId: string; worldId: string; worlds: WorldSummary[]; state: GameState }>(
-			'/LoginPlayer/',
-			{ name, passcode, tzOffsetMinutes: -new Date().getTimezoneOffset() },
-		),
-
-	// --- multiplayer: shared co-op worlds (personal progress stays per-player) ---
-	myWorlds: () =>
-		post<{ ok: boolean; activeWorldId: string; worlds: WorldSummary[] }>('/MyWorlds/', { playerId: pid() }),
-	createWorld: (name: string) =>
-		post<{ ok: boolean; world: WorldSummary; worlds: WorldSummary[] }>('/CreateWorld/', { playerId: pid(), name }),
-	joinWorld: (joinCode: string, token?: string) =>
-		post<{ ok: boolean; worldId: string; worlds: WorldSummary[]; state: GameState }>('/JoinWorld/', {
-			playerId: pid(),
-			joinCode,
-			token,
-		}),
-
-	// --- co-op join: verify code, request approval, host resolves ---
-	checkWorldCode: (joinCode: string) =>
-		post<{
-			ok: boolean;
-			exists: boolean;
-			world?: {
-				worldId: string;
-				name: string;
-				hostName: string;
-				memberCount: number;
-				maxMembers: number;
-				full: boolean;
-			};
-		}>('/CheckWorldCode/', { joinCode }),
-	requestJoin: (joinCode: string, token: string, name: string) =>
-		post<{ ok: boolean; worldId: string; world: { name: string; hostName: string } }>('/RequestJoin/', {
-			joinCode,
-			token,
+		post<{ ok: boolean; playerId: string; state: GameState }>('/CreatePlayer/', {
 			name,
+			passcode,
+			appearance,
+			tzOffsetMinutes: -new Date().getTimezoneOffset(),
+			creationMs,
+			edition: EDITION,
 		}),
-	joinStatus: (worldId: string, token: string) =>
-		post<{ ok: boolean; status: 'pending' | 'approved' | 'denied' | 'none' }>('/JoinRequestStatus/', {
-			worldId,
-			token,
+	login: (name: string, passcode: string) =>
+		post<{ ok: boolean; playerId: string; state: GameState }>('/LoginPlayer/', {
+			name,
+			passcode,
+			tzOffsetMinutes: -new Date().getTimezoneOffset(),
 		}),
-	pendingRequests: () =>
-		post<{ ok: boolean; requests: { token: string; name: string; createdAt: number }[] }>('/PendingJoinRequests/', {
-			playerId: pid(),
-		}),
-	resolveJoin: (worldId: string, token: string, approve: boolean) =>
-		post<{ ok: boolean }>('/ResolveJoin/', { playerId: pid(), worldId, token, approve }),
-	worldRoster: () =>
-		post<{ ok: boolean; roster: RosterEntry[]; closed: boolean; maxMembers: number; joinCode: string | null }>(
-			'/WorldRoster/',
-			{ playerId: pid() },
-		),
-	switchWorld: (worldId: string) =>
-		post<{ ok: boolean; worldId: string; worlds: WorldSummary[]; state: GameState }>('/SwitchWorld/', {
-			playerId: pid(),
-			worldId,
-		}),
-	leaveWorld: (worldId: string) =>
-		post<{ ok: boolean; worldId: string; worlds: WorldSummary[]; state: GameState }>('/LeaveWorld/', {
-			playerId: pid(),
-			worldId,
-		}),
-	presence: (x: number, y: number, area: string) =>
-		post<{ ok: boolean; worldId: string; peers: Peer[] }>('/Presence/', { playerId: pid(), x, y, area }),
+
 	deletePlayer: (name: string, passcode: string) =>
 		post<{ ok: boolean; deleted: string }>('/DeletePlayer/', { name, passcode }),
 	changePasscode: (currentPasscode: string, newPasscode: string) =>

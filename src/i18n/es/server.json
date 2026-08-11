@@ -23,7 +23,6 @@
 		"worldFullJoined": "Esta reserva está llena — ya se unieron {max} cuidadores y está cerrada a nuevos jugadores.",
 		"missingToken": "Falta el token de la solicitud",
 		"worldFullClosed": "Esta reserva está llena — ya tiene sus {max} cuidadores y está cerrada a nuevos jugadores.",
-		"noCoopWorld": "No existe ese mundo cooperativo",
 		"onlyHostApproves": "Solo el anfitrión puede aprobar jugadores",
 		"requestNotPending": "Esa solicitud ya no está pendiente",
 		"notWorldMember": "No eres miembro de ese mundo",
@@ -223,8 +222,7 @@
 	},
 	"world": {
 		"soloName": "Reserva {name}",
-		"mySoloName": "Mi reserva",
-		"coopName": "La reserva de {name}"
+		"mySoloName": "Mi reserva"
 	},
 	"fallback": {
 		"host": "el anfitrión",

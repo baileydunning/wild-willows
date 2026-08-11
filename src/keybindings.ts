@@ -19,7 +19,6 @@ export interface BindAction {
 	label: string; // i18n key (app.settings.keybinds.action.<id>)
 	panel?: string; // panel this action opens (panel actions)
 	tool?: string; // toolbelt tool this action selects (tool actions)
-	coopOnly?: boolean; // hidden in solo worlds
 }
 
 export const BIND_ACTIONS: BindAction[] = [
@@ -48,14 +47,6 @@ export const BIND_ACTIONS: BindAction[] = [
 	{ id: 'preserve', def: ['m'], category: 'panels', label: 'app.settings.keybinds.action.preserve', panel: 'biomes' },
 	{ id: 'weather', def: ['n'], category: 'panels', label: 'app.settings.keybinds.action.weather', panel: 'weather' },
 	{ id: 'goals', def: ['g'], category: 'panels', label: 'app.settings.keybinds.action.goals', panel: 'goals' },
-	{
-		id: 'people',
-		def: ['u'],
-		category: 'panels',
-		label: 'app.settings.keybinds.action.people',
-		panel: 'people',
-		coopOnly: true,
-	},
 	{ id: 'settings', def: ['o'], category: 'panels', label: 'app.settings.keybinds.action.settings', panel: 'settings' },
 ];
 

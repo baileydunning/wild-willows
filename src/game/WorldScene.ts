@@ -210,21 +210,6 @@ export class WorldScene extends Phaser.Scene {
 	private waterTiles = new Set<string>();
 	private waterTileCenters: { x: number; y: number }[] = []; // pixel centers of open-water tiles
 	private bridgeTiles = new Set<string>();
-	// Live co-op: other players in this same area, drawn as their own avatars and
-	// smoothly eased toward the positions reported by the presence loop.
-	private remotes = new Map<
-		string,
-		{
-			sprite: Phaser.GameObjects.Image;
-			shadow: Phaser.GameObjects.Image;
-			label: Phaser.GameObjects.Text;
-			sig: string;
-			walkT: number;
-			lastX: number;
-			lastY: number;
-			moveUntil: number;
-		}
-	>();
 	// Weather visuals: a camera-locked full-screen weather-colour tint and a
 	// world-locked rain/snow particle emitter, swapped when the weather changes.
 	private weatherOverlay?: Phaser.GameObjects.Rectangle;
@@ -744,7 +729,6 @@ export class WorldScene extends Phaser.Scene {
 		this.events.once('shutdown', () => {
 			this.alive = false;
 			this.setWalkAudio(false);
-			this.clearRemotes();
 			this.unsubs.forEach((u) => u());
 			this.unsubs = [];
 		});
@@ -4209,109 +4193,6 @@ export class WorldScene extends Phaser.Scene {
 		this.syncPosition(dt);
 		this.positionSkyOverlay(); // keep the sunset glow hugging the top of the view
 		this.updateNightLights(); // lamplight follows the player, fires burn bright after dark
-		// stream our exact live position (tile coords) for co-op presence
-		bridge.shared.self = {
-			x: this.player.x / TILE,
-			y: this.player.y / TILE,
-			area: this.area,
-		};
-		this.updateRemotes(dt);
-	}
-
-	/**
-	 * Draw the other co-op players who are in this same area. Avatars are created
-	 * on demand from each peer's appearance, eased toward their reported tile, and
-	 * removed when a player leaves the area or goes quiet. Pure presentation — it
-	 * reads bridge.shared.presence, which the React presence loop keeps fresh.
-	 */
-	private updateRemotes(dt: number) {
-		if (!this.alive) return;
-		const peers = (bridge.shared.presence || []).filter((p) => p && p.area === this.area && p.playerId);
-		const seen = new Set<string>();
-
-		for (const peer of peers) {
-			seen.add(peer.playerId);
-			const sig = JSON.stringify(peer.appearance || {});
-			let r = this.remotes.get(peer.playerId);
-			if (!r) {
-				const key = makePlayerTexture(this, peer.appearance);
-				const shadow = this.img(peer.x * TILE, peer.y * TILE + 15, 'shadow')
-					.setDepth(2)
-					.setAlpha(0.5);
-				const sprite = this.img(peer.x * TILE, peer.y * TILE, key)
-					.setDepth(999)
-					.setAlpha(0.96);
-				const label = this.add
-					.text(peer.x * TILE, peer.y * TILE - 26, peer.name || t('game.label.caretaker'), {
-						fontFamily: 'system-ui, sans-serif',
-						fontSize: '11px',
-						color: '#3a2f25',
-						backgroundColor: 'rgba(255,255,255,0.7)',
-						padding: { x: 4, y: 1 },
-						resolution: 4, // stays crisp under camera zoom
-					})
-					.setOrigin(0.5)
-					.setDepth(10000);
-				r = {
-					sprite,
-					shadow,
-					label,
-					sig,
-					walkT: 0,
-					lastX: peer.x,
-					lastY: peer.y,
-					moveUntil: 0,
-				};
-				this.remotes.set(peer.playerId, r);
-			}
-			if (r.sig !== sig) {
-				r.sprite.setTexture(makePlayerTexture(this, peer.appearance));
-				r.sig = sig;
-			}
-			// "Walking" is driven by the reported position actually changing — not by
-			// the easing — so a standing player never waddles. A short window keeps the
-			// animation alive smoothly between position updates.
-			if (peer.x !== r.lastX || peer.y !== r.lastY) {
-				r.moveUntil = this.time.now + 220;
-				r.lastX = peer.x;
-				r.lastY = peer.y;
-			}
-			const moving = this.time.now < r.moveUntil;
-			const targetX = peer.x * TILE,
-				targetY = peer.y * TILE;
-			const k = Math.min(1, dt * 12);
-			const nx = r.sprite.x + (targetX - r.sprite.x) * k;
-			const ny = r.sprite.y + (targetY - r.sprite.y) * k;
-			if (Math.abs(targetX - r.sprite.x) > 0.5) r.sprite.setFlipX(targetX < r.sprite.x);
-			// identical waddle to the local player in solo (amplitude 0.075, speed ×11)
-			if (moving) {
-				r.walkT += dt * 11;
-				r.sprite.setRotation(Math.sin(r.walkT) * 0.075);
-			} else {
-				r.sprite.setRotation(r.sprite.rotation * 0.8);
-			}
-			r.sprite.setPosition(nx, ny).setDepth(ny + 30);
-			r.shadow.setPosition(nx, ny + 15);
-			r.label.setPosition(nx, ny - 26);
-		}
-
-		// drop avatars for anyone who left this area / went quiet
-		for (const [id, r] of this.remotes) {
-			if (seen.has(id)) continue;
-			r.sprite.destroy();
-			r.shadow.destroy();
-			r.label.destroy();
-			this.remotes.delete(id);
-		}
-	}
-
-	private clearRemotes() {
-		for (const r of this.remotes.values()) {
-			r.sprite.destroy();
-			r.shadow.destroy();
-			r.label.destroy();
-		}
-		this.remotes.clear();
 	}
 
 	private setWalkAudio(active: boolean) {

@@ -40,7 +40,6 @@ interface Flags {
 	openedChest: boolean;
 	openedPreserve: boolean;
 	openedTools: boolean;
-	openedPeople: boolean;
 	openedWeather: boolean;
 }
 
@@ -59,39 +58,6 @@ const upgradedAnyTool = (state: any) =>
 // panels, then put it all together — building toward the emotional payoff of
 // welcoming your very first animal, the grasshopper, as the finale.
 // Step copy lives in the panels.tutorial.* catalog keys.
-// Co-op intro steps, prepended ahead of the normal new-caretaker arc. The HOST
-// starts by learning how to invite friends; a JOINER (who can't invite) just gets
-// a welcome that sets expectations about what's shared vs. personal.
-const COOP_HOST_INTRO: StepDef[] = [
-	{
-		icon: 'user',
-		key: 'panels.tutorial.coopHostInvite',
-		hasTouch: true,
-		chapter: 1,
-		done: ({ flags }) => flags.openedPeople,
-	},
-	{
-		icon: 'sparkle',
-		key: 'panels.tutorial.coopHostTogether',
-		hasTouch: true,
-		chapter: 1,
-		done: () => false, // info step — advance with Next
-	},
-];
-
-const COOP_JOIN_INTRO: StepDef[] = [
-	{
-		icon: 'sparkle',
-		key: 'panels.tutorial.coopJoinWelcome',
-		hasTouch: true,
-		chapter: 1,
-		done: () => false, // info step — advance with Next
-	},
-];
-
-// The linear tutorial is now ONE short guided loop — move, gather, craft, place,
-// welcome your first animal — and nothing more. Everything else (home, journal,
-// tools, bringing back more animals, terraforming) is taught just-in-time by the
 // contextual tips in CoachTips.tsx, which pop up the first time you actually do
 // each thing. Keeps the opening from being a wall of text. Copy is reused from
 // the panels.tutorial.* catalog; the unused keys there now feed CoachTips + Help.
@@ -248,7 +214,7 @@ const readMs = (text: string, step: number) => {
 };
 
 export function Tutorial() {
-	const { state, setTutorialStep, panel, worlds, activeWorldId } = useGame();
+	const { state, setTutorialStep, panel } = useGame();
 	const { t } = useI18n();
 	const [flags, setFlags] = useState<Flags>({
 		moved: false,
@@ -260,7 +226,6 @@ export function Tutorial() {
 		openedChest: false,
 		openedPreserve: false,
 		openedTools: false,
-		openedPeople: false,
 		openedWeather: false,
 	});
 	const advanceTimer = useRef<number | null>(null);
@@ -288,15 +253,7 @@ export function Tutorial() {
 			return next;
 		});
 
-	// Co-op saves get an intro ahead of the normal arc: the host learns to invite
-	// people; a joiner just gets a welcome (no invite step — it isn't their world).
-	const activeWorld = useMemo(() => worlds.find((x) => x.worldId === activeWorldId), [worlds, activeWorldId]);
-	const isCoop = !!activeWorld && !activeWorld.solo;
-	const isHost = !!activeWorld?.isOwner;
-	const STEPS = useMemo(
-		() => (isCoop ? [...(isHost ? COOP_HOST_INTRO : COOP_JOIN_INTRO), ...BASE_STEPS] : BASE_STEPS),
-		[isCoop, isHost],
-	);
+	const STEPS = BASE_STEPS;
 
 	const step = state?.player.tutorialStep ?? DONE_STEP;
 
@@ -377,7 +334,6 @@ export function Tutorial() {
 		if (panel === 'chest') setFlags((f) => (f.openedChest ? f : { ...f, openedChest: true }));
 		if (panel === 'biomes') setFlags((f) => (f.openedPreserve ? f : { ...f, openedPreserve: true }));
 		if (panel === 'tools') setFlags((f) => (f.openedTools ? f : { ...f, openedTools: true }));
-		if (panel === 'people') setFlags((f) => (f.openedPeople ? f : { ...f, openedPeople: true }));
 		if (panel === 'weather') setFlags((f) => (f.openedWeather ? f : { ...f, openedWeather: true }));
 	}, [panel]);
 

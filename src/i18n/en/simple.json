@@ -53,15 +53,7 @@
 				"text": "Press N to open the Weather guide. Each area has its own weather. It changes on its own and drifts with the seasons. The guide shows what is happening everywhere. It also explains how weather and season shape the area you are in. Watch the sky. Odd weather can leave rare stuff to gather while it lasts.",
 				"touch": "Tap the cloud button to open the Weather guide. Each area has its own weather. It changes on its own and drifts with the seasons. Watch the sky. Odd weather can leave rare stuff to gather while it lasts."
 			},
-			"demoNote": "This is the free demo. Heal the meadow to open the forest, then look around. The demo ends after your first 10 minutes in the forest.",
-			"coopHostTogether": {
-				"text": "When friends join, you will see them in the same preserve. The land, buildings, plants, and animals are shared. So your work adds up together. Your own basket, tools, journal, and stars stay yours. Now let us learn the basics.",
-				"touch": "When friends join, you will see them in the same preserve. The land, buildings, plants, and animals are shared. So your work adds up together. Your own basket, tools, journal, and stars stay yours. Now let us learn the basics."
-			},
-			"coopJoinWelcome": {
-				"text": "You joined a shared preserve. You will see the host and other players in the same world. The land, buildings, plants, and animals are shared. So your work adds up together. Your own basket, tools, journal, and stars stay yours. Now let us learn the basics.",
-				"touch": "You joined a shared preserve. You will see the host and other players in the same world. The land, buildings, plants, and animals are shared. So your work adds up together. Your own basket, tools, journal, and stars stay yours. Now let us learn the basics."
-			}
+			"demoNote": "This is the free demo. Heal the meadow to open the forest, then look around. The demo ends after your first 10 minutes in the forest."
 		},
 		"help": {
 			"intro": "A calm loop. Gather stuff. Craft it into homes for animals. Place it on the land. Then animals come home.",
@@ -105,7 +97,6 @@
 			"feed": "Activity list. A running log of what happens, including these tips. You can scroll back any time.",
 			"goals": "Goals. Set your own tasks and track them on the board. Craft, plant, bring back an animal, or heal an area.",
 			"home": "Your home. A cozy space to make your own. Fill it with things you craft. Use the sign by your tent to build and upgrade it. A bigger home lets you carry more. New upgrades open as your land gets healthier.",
-			"people": "People. Invite friends with your code and see who is here with you.",
 			"settings": "Settings. Sound, help options, your look, and saving.",
 			"tools": "Tools. Spend stuff on a bigger basket, a better shovel and watering can, and a better field journal.",
 			"weather": "Weather and seasons. See how the weather changes across the preserve. Some stuff and some animals only show up in the right weather."
@@ -168,9 +159,6 @@
 				"tools": "Make your basket, shovel, and can level {n}."
 			}
 		},
-		"people": {
-			"membersNote": "Up to {max} players per preserve. Everyone listed has joined. They can come back any time from Continue or Load Game."
-		},
 		"weather": {
 			"seasonsNote": "Seasons move from spring to summer, then autumn, then winter. Each one changes the weather each area is likely to get.",
 			"tease": "Odd weather like this can leave something worth finding. Explore {biome} while it lasts."
@@ -217,8 +205,7 @@
 				"unlockText": "Heal an area fully and the path to the next one opens. A whole new place to bring back."
 			},
 			"codeFormHint": "Type a friend’s code to heal their preserve with them.",
-			"errImport": "That save file is missing, changed, or broken. It could not be loaded.",
-			"joinFormHint": "Joining {world}. {host} is looking at your request while you pick your look. You will go in as soon as they say yes."
+			"errImport": "That save file is missing, changed, or broken. It could not be loaded."
 		},
 		"toast": {
 			"rested": "You sleep well and wake at dawn. Every gathering spot has grown back.",
@@ -233,9 +220,6 @@
 		},
 		"feedPanel": {
 			"empty": "Nothing big has happened yet. Gather, build, and welcome animals home. The best moments will show up here."
-		},
-		"coop": {
-			"joinWelcomeFeed": "You joined a shared preserve. Heal it together! Open the People menu at the top right to see who is here and copy the code."
 		},
 		"error": {
 			"feedbackRejected": "The server could not take that note. Please try again later."

@@ -35,9 +35,6 @@ import { GoalsPanel } from './ui/GoalsPanel';
 import { DevPanel } from './ui/DevPanel';
 import { KeyboardGate } from './ui/KeyboardGate';
 import { WelcomeScreen } from './ui/Welcome';
-import { JoinWaitingScreen } from './ui/JoinWaiting';
-import { JoinApprovalPopup } from './ui/JoinApproval';
-import { PeoplePanel } from './ui/People';
 import { Icon, ObjectIcon, ResourceIcon } from './ui/icons';
 import { journalNav } from './ui/journalNav';
 
@@ -380,7 +377,6 @@ function GameScreen() {
 				<Tutorial />
 				<CoachTips />
 				<MobileControls />
-				<JoinApprovalPopup />
 				<Toasts />
 				<Confetti />
 				{clickedPlacement && <PlacementMenu item={clickedPlacement} onClose={() => setClickedPlacement(null)} />}
@@ -396,7 +392,6 @@ function GameScreen() {
 				{panel === 'home' && <HomePanel />}
 				{panel === 'animal' && <AnimalCard />}
 				{panel === 'settings' && <SettingsPanel />}
-				{panel === 'people' && <PeoplePanel />}
 				{panel === 'weather' && <WeatherPanel />}
 				{panel === 'materials' && <MaterialsPanel />}
 				{panel === 'goals' && <GoalsPanel />}
@@ -455,7 +450,7 @@ function DemoCompleteModal() {
 }
 
 function Root() {
-	const { state, data, pendingJoin } = useGame();
+	const { state, data } = useGame();
 	const prefs = usePrefs();
 	const [audioClock, setAudioClock] = useState(0);
 	const wasOpeningFlowRef = useRef(true);
@@ -598,10 +593,9 @@ function Root() {
 	}, [state, data, audioClock]);
 
 	// the game needs both definitions and a logged-in save before it can render.
-	// A joiner awaiting host approval sits in the waiting room until let in.
 	return (
 		<>
-			{pendingJoin ? <JoinWaitingScreen /> : state && data ? <GameScreen /> : <WelcomeScreen />}
+			{state && data ? <GameScreen /> : <WelcomeScreen />}
 			<HelpModal />
 			<DemoCompleteModal />
 		</>

@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from 'react';
 import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import { useI18n } from '../i18n/react';
-import { COOP_ENABLED } from '../features';
 import { homePerkStrength } from '../types';
 import {
 	weatherType,
@@ -130,19 +129,7 @@ function DayTimer() {
 }
 
 export function HUD() {
-	const {
-		data,
-		state,
-		panel,
-		setPanel,
-		helpOpen,
-		setHelpOpen,
-		logout,
-		placementObjectId,
-		cancelPlacement,
-		worlds,
-		activeWorldId,
-	} = useGame();
+	const { data, state, panel, setPanel, helpOpen, setHelpOpen, logout, placementObjectId, cancelPlacement } = useGame();
 	const { t, content } = useI18n();
 	usePrefs(); // re-render nav key caps when bindings change
 	const [prompt, setPrompt] = useState('');
@@ -183,10 +170,6 @@ export function HUD() {
 	const homePerkStr = homePerk && home ? homePerkStrength(homePerk, home) : 0;
 	const homeTrackDefs: Record<string, any> = data.homeTracks || {};
 	const HOME_TRACK_ORDER = ['space', 'comfort', 'decor', 'light'];
-
-	const activeWorld = worlds.find((w) => w.worldId === activeWorldId);
-	const isCoop = COOP_ENABLED && !!activeWorld && !activeWorld.solo;
-	const peersHere = bridge.shared.presence?.length || 0;
 
 	// Every top-menu button is visible from the very start — the contextual hints
 	// explain each one the first time it's opened, so nothing needs to be hidden.
@@ -282,12 +265,6 @@ export function HUD() {
 									: biome
 										? content('biome', biome.id, 'name', biome.name)
 										: t('app.hud.thePreserve')}
-								{isCoop && (
-									<button className="coop-badge" onClick={() => setPanel('people')} title={t('app.hud.coopBadgeTitle')}>
-										<Icon name="user" size={12} /> {t('app.hud.coop')}
-										{peersHere > 0 ? t('app.hud.hereCount', { count: peersHere + 1 }) : ''}
-									</button>
-								)}
 							</div>
 							{state.weather &&
 								!tentBiome &&
@@ -402,7 +379,6 @@ export function HUD() {
 							<div className="nav-group-btns">
 								{show.biomes && navBtn('biomes', 'map', t('app.hud.navBiomes'), 'M')}
 								{show.weather && navBtn('weather', 'cloud', t('app.hud.navWeather'), 'N')}
-								{isCoop && navBtn('people', 'user', t('app.hud.navPeople'), 'U')}
 							</div>
 						</div>
 						<div className="nav-group nav-group-system" role="group" aria-label={t('app.hud.groupSystem')}>
