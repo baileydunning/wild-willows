@@ -956,10 +956,28 @@ async function ensureSoloWorld(player: any, opts: { freshGrid?: boolean } = {}):
  * (e.g. an old "Water Restoration Kit" alongside the new "Wetland Restoration
  * Kit"), because Harper's data loader only upserts and never deletes.
  */
-let defsReconciled = false;
-async function reconcileDefinitions() {
-	if (defsReconciled) return;
-	defsReconciled = true;
+let reconcilePass: Promise<void> | null = null;
+function reconcileDefinitions(): Promise<void> {
+	// Memoise the PROMISE, not a boolean. The old version flipped a flag
+	// synchronously and then ran hundreds of awaits — so a second request landing
+	// mid-pass got an instant "already done" and read the half-pruned table. That
+	// is a guarantee at boot, not a rare race: a rolling restart is followed
+	// immediately by every open client asking for /GameData/ at once.
+	//
+	// On failure the memo is cleared so the next caller retries. The old code set
+	// its flag before the first await, so a single throw (a delete Harper won't
+	// take, an undecodable row aborting the scan) disabled the prune for the whole
+	// life of that worker, permanently.
+	if (!reconcilePass) {
+		reconcilePass = runReconcile().catch((e: any) => {
+			console.error('reconcileDefinitions failed —', e?.message || e);
+			reconcilePass = null;
+		});
+	}
+	return reconcilePass;
+}
+
+async function runReconcile(): Promise<void> {
 	const t = db();
 	const sources: [any, any[]][] = [
 		[t.Biome, biomesData.records],
@@ -1216,7 +1234,12 @@ async function repairGateTrails(worldId: string, d: any): Promise<number> {
  * these reads: the marker is an optimisation for the heartbeat path, not a
  * promise that a save is only ever looked at once.
  */
-const REPAIR_REV = 1;
+// REV 2: every save that logged in against the broken definition set (223
+// animals) was repaired with retired species still counting as real, and then
+// stamped repairRev 1 — so pruneUnknownDiscoveries and reconcileDiscoveryBiomes
+// would never look at it again. Bumping forces one more pass now that defs()
+// reports the true roster.
+const REPAIR_REV = 2;
 
 async function repairSave(
 	worldId: string,
@@ -1322,20 +1345,38 @@ async function purgeCorruptRecords() {
 }
 
 // Definition cache — definitions only change on deploy, so cache per worker.
+//
+// SOURCE OF TRUTH IS THE BUNDLE, NOT THE DATABASE. This used to read the seven
+// seed tables back out of Harper, which made every definition read depend on the
+// data loader and reconcileDefinitions() having left the tables in exactly the
+// state the JSON describes. They didn't: 0.3 retired 73 animal ids, the loader
+// only upserts, and the prune lost a race with the very first requests after the
+// rolling restart (see reconcileDefinitions) — so a worker cached the UNION of
+// the old and new rosters, 223 animals, and served it to every client for the
+// life of the process. That is what shipped: "0/37 animals returned" in Willow
+// Meadow, "0/223 across the preserve", and retired species walking around in the
+// browser demo.
+//
+// The records are compiled into this bundle already (esbuild inlines the JSON
+// imports above), so reading them from the DB was a round-trip to get back a
+// copy of something we are holding. Building straight from the imports makes the
+// definitions exactly the deployed build's, always, and makes a stale row in the
+// table a cosmetic problem instead of a gameplay one. It also drops seven full
+// table scans off worker warm-up.
 let defsCache: any = null;
 async function defs() {
-	await reconcileDefinitions();
+	// Cleaning the tables is still worth doing (Harper's own REST surface reads
+	// them, and orphans are confusing to look at), but nothing below depends on
+	// it any more — so it must not delay or fail this call.
+	void reconcileDefinitions();
 	if (!defsCache) {
-		const t = db();
-		const [biomes, animals, resources, recipes, objects, tools, achievements] = await Promise.all([
-			allOf(t.Biome),
-			allOf(t.Animal),
-			allOf(t.ResourceType),
-			allOf(t.Recipe),
-			allOf(t.HabitatObject),
-			allOf(t.ToolDef),
-			allOf(t.Achievement),
-		]);
+		const biomes = biomesData.records.slice();
+		const animals = [...animals1Data.records, ...animals2Data.records];
+		const resources = resourcesData.records.slice();
+		const recipes = recipesData.records.slice();
+		const objects = objectsData.records.slice();
+		const tools = toolsData.records.slice();
+		const achievements = achievementsData.records.slice();
 		const index = (arr: any[]) => new Map(arr.map((r) => [r.id, r]));
 		achievements.sort((a: any, b: any) => (a.order || 0) - (b.order || 0));
 		defsCache = {
